@@ -34,6 +34,8 @@ public:
       connectNodePorts(a,b,hscd_fifo<T_value_type>(n));
   }
   
+  const sc_module *my_module(void) const { return this; }
+
 #ifndef __SCFE__
   void assemble( hscd_modes::PGWriter &pgw ) const {
     return hscd_graph_sdf<hscd_fixed_transact_node, hscd_fifo_kind, hscd_fifo>::assemble(pgw);
@@ -67,6 +69,8 @@ public:
       connectNodePorts(a,b,hscd_fifo<T_value_type>(n));
   }
 
+  const sc_module *my_module(void) const { return this; }
+
 #ifndef __SCFE__
   void assemble( hscd_modes::PGWriter &pgw ) const {
     return hscd_graph_sdf<hscd_choice_node, hscd_fifo_kind, hscd_fifo>::assemble(pgw);
@@ -95,6 +99,8 @@ public:
       connectNodePorts(a,b,hscd_rendezvous<T_value_type>());
   }
   
+  const sc_module *my_module(void) const { return this; }
+
 #ifndef __SCFE__
   void assemble( hscd_modes::PGWriter &pgw ) const {
     return hscd_graph_sdf<hscd_choice_node, hscd_rendezvous_kind, hscd_rendezvous>::assemble(pgw);
