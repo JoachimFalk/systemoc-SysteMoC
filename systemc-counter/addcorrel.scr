@@ -1,0 +1,47 @@
+part       = "xcv2000e-fg1156-7"
+
+TOP = addcorrel
+SUB1 = mac
+SUB2 = mplex21
+SUB3 = absminmax
+SUB4 = weightadder
+SUB5 = controller
+
+analyze -format vhdl SUB5 +".vhdl"
+analyze -format vhdl SUB4 +".vhdl"
+analyze -format vhdl SUB3 +".vhdl"
+analyze -format vhdl SUB2 +".vhdl"
+analyze -format vhdl SUB1 +".vhdl"
+analyze -format vhdl TOP +".vhdl"
+
+bus_extraction_style = "%s<%d:%d>"
+bus_naming_style = "%s<%d>"
+bus_dimension_separator_style = "><"
+edifin_lib_logic_1_symbol = "VCC"
+edifin_lib_logic_0_symbol = "GND"
+edifout_ground_name = "GND"
+edifout_ground_pin_name = "G"
+edifout_power_name = "VCC"
+edifout_power_pin_name = "P"
+edifout_netlist_only = "true"
+edifout_no_array = "true"
+edifout_power_and_ground_representation = "cell"
+edifout_write_properties_list = {"CLK1X_DUTY" "INIT_00" "INIT_01" "INIT_02" "INIT_03" \
+ "INIT_04"  "INIT_05" "INIT_06" "INIT_07" "INIT_08" "INIT_09" "INIT_0A" "INIT_0B" "INIT_0C" \
+ "INIT_0D" "INIT_0E" "INIT_0F" "INIT" "CLKDV_DIVIDE" "IOB" "EQN" "lut_function"}
+elaborate TOP
+current_design TOP
+uniquify
+remove_constraint -all
+set_port_is_pad "*"
+set_pad_type -exact BUFGP clk
+insert_pads -respect_hierarchy
+compile -boundary_optimization -map_effort med
+report_fpga > TOP + ".fpga"
+report_timing > TOP + ".timing"
+set_attribute TOP "part" -type string part
+write_script > TOP + ".dc"
+write -hierarchy -format db -o TOP + ".db"
+write -hierarchy -format edif -o TOP + ".edif"
+sh dc2ncf TOP + ".dc"
+exit

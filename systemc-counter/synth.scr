@@ -1,0 +1,17 @@
+compile_systemc -v design.cpp
+change_names -rules  vhdl -hierarchy
+
+/*link*/
+
+create_clock -period 40 clk
+set_drive 0 clk
+
+set_fpga -target SPARTANXL -device S10XLPC84 -speed "-4" -module
+/*set_fpga -target "VIRTEX2" -device "2V4000FF1152" -speed "-4" -module*/
+/*set_fpga -target SPARTAN2  -device 2s15 -speed "-5" -module*/
+/*set_fpga -target "VIRTEXE" -device "V2000EFG1156" -speed "-7" -module*/
+
+schedule
+
+/*write     -format vhdl -hierarchy*/
+write_rtl -format vhdl -output design.vhd
