@@ -141,17 +141,17 @@ An \emph{event} $e$ is a  tag-value pair, i.e., $e \in T \times V$.
 \end{sdefinition}
 Tags are used to model time,
 precedence relationships, synchronization points, or other key properties
-of MoCs. The values are used as data to be manipulated by computations.
-For some MoCs the set of values contains the special symbol bottom ($\bot$),
+of MoCs. The values represent data which can be manipulated by computations.
+For some MoCs the set of values contains the special symbol \emph{bottom} ($\bot$)
 which denotes the absence of a value. The odering of the tags induces
-a ordering of events, i.e., $e_1 = (t_1,v_1)$ and $e_2 = (t_2,v_2)$, then $e_1 < e_2 \iff t_1 < t_2$.
-Two Events $e_1$, $e_2$ are \emph{synchronous} if they contain
-the same tag, i.e., $e_1 = (t,v_1)$ and $e_2 = (t,v_2)$.
+a ordering of events, i.e., given $e_1 = (t_1,v_1)$ and $e_2 = (t_2,v_2)$ then $e_1 < e_2 \iff t_1 < t_2$.
+Two Events $e_1$, $e_2$ are called \emph{synchronous} if they contain
+the same tag, i.e., $e_1 = (t,v_1)$ and $e_2 = (t,v_2)$. Otherwise they
+are called \emph{asynchronous}.
 Events are often called \emph{tokens} which represent the basic communication units.
 
-A \emph{signal} can be thought of as a subset of the set of all events or as
-an element of the \emph{set of all signals} $S$, which is the powerset $S = 2^{T \times V}$
-of the set of all events.
+A \emph{signal} can be thought of as a subset of the \emph{set of all events} $T \times V$ or as
+an element of the \emph{set of all signals} $S$ which is the powerset $S = 2^{T \times V}$.
 \begin{sdefinition}
 A \emph{signal} $s$ is defined as a set of events, i.e., $s \subseteq T \times V$.
 \end{sdefinition}
@@ -159,15 +159,27 @@ A \emph{functional signal} or \emph{proper signal} is a signal $s$ where each ta
 i.e., $e_1 = (t,v_1) \in s$ and $e_2 = (t,v_2) \in s \implies v_1 = v_2$.
 Intuitively, if tags represent time a proper signal is a signal which has
 at most one value per point in time. Furthermore, $T(s) \subseteq T$ denotes
-the set of tags in the signal $s$, i.e., $T(s) = \{t|(t,v) \in s\}$.
-Two signals $s_1$ and $s_2$ are \emph{synchronous} if they contain
-the same set of tags, i.e., $T(s_1) = T(s_2)$.
+the set of tags in the signal $s$, i.e., $T(s) = \{t \mid (t,v) \in s\}$.
+Two signals $s_1$ and $s_2$ are called \emph{synchronous} if they contain
+the same set of tags, i.e., $T(s_1) = T(s_2)$. Otherwise they are
+called \emph{asynchronous}.
 Hence, if two signals are synchronous each event in one
 signal has a corresponding synchronous event in the other signal and vice versa.
+See also Figure~\ref{fig:example-synchronous-signals} for an
+example of synchronous and asynchronous signal pairs.
+
+\begin{figure}
+\centering
+\input{example-synchronous-signals-fig.tex}
+\caption{\label{fig:example-synchronous-signals}Out of the possible signal
+  pairs which can be formed from the signals in the figure above only the
+  two signals $\{s_1,s_2\}$ are synchronous.
+  All other pairs ($\{s_1,s_3\}$ and $\{s_2,s_3\}$) are asynchronous.}
+\end{figure}
 
 A tuple of $N$ signals is denoted $\mathbf{s} = (s_1, s_2, \dots, s_N)$ and the
-set of all $N$-tuples of signals will be denoted $S^N$, where $N$ is a
-natural number.
+set of all $N$-tuples of signals will be denoted $S^N$, where $N \in \mathbb{N}$ and
+$\mathbb{N}$ is the set of natural numbers.
 % The position of a signal in its tuple is equivalent to its name. To
 % achieve the equivalent of renaming or hiding signals, the position of
 % signals in a tuple must be changed or the signal must be drop from the tuple.
@@ -175,15 +187,19 @@ natural number.
 \begin{sdefinition}
 A \emph{projection} $\pi{}_I: S^N \to S^M$ is a function which discards and reorders signals according
 to the ordered set of indexes $I$ in a $N$-tuple of signals
-to form a new $M$-tuple of signals, where $M \le N$, $\mathbf{s} = (s_1,\cdots,s_N) \in S^N$,
-and $I = (i_1,\cdots,i_m) \in \{1,2, \ldots N\}^M$
-, i.e., $\pi{}_I(\mathbf{s}) = (s_{i_1}, \cdots, s_{i_m})$.
+to form a new $M$-tuple of signals, where $M \le N$. In other words, given $\mathbf{s} = (s_1,\cdots,s_N) \in S^N$,
+and $I = (i_1,\cdots,i_M) \in \{1,2, \ldots N\}^M$
+then $\pi{}_I(\mathbf{s}) = (s_{i_1}, \cdots, s_{i_M})$.
 A projection $\pi{}_I$ can be generalized to subsets $\mathbf{P}$ of $S^N$,
-i.e., $\pi{}_I(\mathbf{P}) = \{\mathbf{s'}|\pi{}_I(s) = \mathbf{s'} \wedge \mathbf{s} \in \mathbf{P}\}$.
+i.e., $\pi{}_I(\mathbf{P}) = \{\pi{}_I(\mathbf{s}) \mid \mathbf{s} \in \mathbf{P}\}$.
 \end{sdefinition}
+
+For example given $\mathbf{s} = (s_1,s_2,s_3,s_4,s_5)$, and $I=(5,4,2,1)$ then
+$\pi{}_I(\mathbf{s}) = (s_5,s_4,s_2,s_1)$.
+
 The \emph{empty signal} is denoted by $\lambda$. This
-signal does not have any events, i.e., $\lambda = \emptyset$. And a \emph{tuple
-of empty signals} will be denoted by $\Lambda$.
+signal does not have any events, i.e., $\lambda = \emptyset$. A \emph{tuple
+of empty signals} is denoted by $\Lambda$.
 
 After defining signals, we are able to review the definitions of processes.
 Later, we will use processes to transform signals.
@@ -196,26 +212,53 @@ Each element $\mathbf{s} \in \mathbf{P}$ of the process $\mathbf{P}$ is
 called a \emph{behavior} of the process $\mathbf{P}$. A particular tuple
 of signals $\mathbf{s} \in S^N$ is said to \emph{satisfy} the process,
 if it is one of its behaviors, i.e., $\mathbf{s} \in \mathbf{P}$.
-A process $\mathbf{P}$ is \emph{synchronous} if
+A process $\mathbf{P}$ is called \emph{synchronous} if
 every pair of signals in the behaviour of the process is synchronous, i.e.,
-$\forall{\mathbf{s} \in \mathbf{P} \subseteq S^N, (i_1,i_2) \in \{1,2,\ldots N\}^2}:
-T(\pi{}_{i_1}(\mathbf{s})) = T(\pi{}_{i_2}(\mathbf{s}))$.
+$\forall{\mathbf{s} \in \mathbf{P} \subseteq S^N, i_1, i_2 \in \{1,2,\ldots N\}}:
+T(\pi{}_{(i_1)}(\mathbf{s})) = T(\pi{}_{(i_2)}(\mathbf{s}))$.
+
+\begin{sdefinition}
+A \emph{connection process} $\mathbf{C}_I \subseteq S^N$ is a particularly simple
+process where two (or more) of the signals in the $N$-tuple are
+constrained to be identical. In other words, given $I \subseteq \{1,2,\ldots N\}$
+then $\mathbf{C}_I = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge \forall{i_1, i_2 \in I}: \pi{}_{(i_1)}(\mathbf{s}) = \pi{}_{(i_2)}(\mathbf{s})\}$.
+\end{sdefinition}
 
 Two processes $\mathbf{P_1}$ and $\mathbf{P_2}$ can be composed into
-a new composite process $\mathbf{Q}$, where
+a new \emph{composite process} $\mathbf{Q}$, where
 each behavior of the composite process is a behavior of its
 component processes. Thus, composition can be defined as set intersection of
 its component processes, i.e., $\mathbf{Q} = \mathbf{P_1} \cap \mathbf{P_2}$.
 However, care has to be taken before forming such an intersection.
 Each process to be composed must be defined as a subset of the same
-set of signals. Cross product and projection are syntactic operations
+set of signals.
+Cross product and projection are syntactic operations
 used to transform the processes to achieve this goal. They play no
 semantic role in composition.
+For example two processes $\mathbf{P}_1$ and $\mathbf{P}_2$ will be
+composed into a new process $\mathbf{Q}$ according to
+Figure~\ref{fig:example-tsm-composition}. However, the processes are
+not defined as subsets of the same set of signals
+($(s_1,s_2,s_3) \in \mathbf{P}_1$ and $(s_4,s_5,s_6) \in \mathbf{P}_2$).
+Therefore both processes will be augmented with the missing signals
+($(s_1,s_2,s_3,s_4,s_5,s_6) \in \mathbf{P}'_1 = \mathbf{P}_1 \times S^3$ and
+ $(s_1,s_2,s_3,s_4,s_5,s_6) \in \mathbf{P}'_2 = S^3 \times \mathbf{P}_2$).
+Afterwards both processes and the connection process can be intersected to form
+the new process ($\mathbf{Q}' = \mathbf{P}'_1 \cap \mathbf{P}'_2 \cap \mathbf{C}_{\{2,5\}}$).
+Finally a projection is used to eliminate signals which are no longer
+visible outside of the composite process ($\mathbf{Q} = \pi{}_{(1,4,3,6)}(\mathbf{Q}')$).
+Further examples about composition are presented in \cite{Lee98}.
 
-Insert Example
+\begin{figure}
+\centering
+\input{example-tsm-composition-fig.tex}
+\caption{\label{fig:example-tsm-composition}
+  Display of the two processes $\mathbf{P}_1$ and $\mathbf{P}_2$
+  used for composition and the desired connection between them.}
+\end{figure}
 
 Many processes have a concept of \emph{inputs}. The set of behaviors
-a processes can show is constraint by its inputs.
+a processes can show, is constrained by its inputs.
 % An input are events or signals which are specified by an external
 % constraint and which must therefore be contained in every behaviour
 % of a process coupled with this input.
@@ -225,31 +268,39 @@ imposed contraint $\mathbf{I} \subset S^N$ such that
 $\mathbf{I} \cap \mathbf{P}$ is the set of acceptable behaviours.
 \end{sdefinition}
 An input can assert the presence of a certain event $e = (t,v)$ in a signal,
-e.g. $\mathbf{I} = \{\mathbf{s} | e \in \pi{}_{1}(\mathbf{s}) \}$.
-But generally an input defines whole signals or set of signals.
+e.g. $\mathbf{I} = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge e \in \pi{}_{(1)}(\mathbf{s}) \}$.
+But generally an input defines a whole signal or set of signals.
 Signals which are entirely defined externally are called \emph{input signals},
-e.g. $\mathbf{I} = \{\mathbf{s} | s_i = \pi{}_{1}(\mathbf{s}) \}$, where
-$\mathbf{s} = (s_1, s_2)$, $s_1$ is the input signal, and
-$s_i$ is the value of the input signal $s_1$.
+e.g. given $\mathbf{I} = \{\mathbf{s} \mid  \mathbf{s} \in S^N \wedge s_i = \pi{}_{(1)}(\mathbf{s})\}$, and
+$\mathbf{s} = (s_1, s_2)$ then $s_1$ is the input signal which
+is constrained to be $s_i$ by the input $\mathbf{I}$.
 
-Insert Example
+\begin{displaymath}
+\begin{array}{rcl}
+  \mathbf{P} & = & \{(\{(t_1,0),(t_2,0)\},\emptyset), (\{(t_1,1),(t_2,0)\},\{(t_1,0)\}),\\
+             &   &   (\{(t_1,0),(t_2,1)\},\{(t_2,1)\}), (\{(t_1,1),(t_2,1)\},\{(t_1,0),(t_2,0)\})\} \subset S^2\\
+  \mathbf{I} & = & \{\mathbf{s} \mid  \mathbf{s} \in S^2 \wedge \{(t_1,0),(t_2,1)\} = \pi{}_{(1)}(\mathbf{s})\}\\
+  \mathbf{I} \cap \mathbf{P} & = & \{\mathbf{s} \mid  \mathbf{s} \in \mathbf{P} \wedge \{(t_1,0),(t_2,1)\} = \pi{}_{(1)}(\mathbf{s})\} =
+                                   \{(\{(t_1,0),(t_2,1)\},\{(t_2,1)\})\}\\
+\end{array}
+\end{displaymath}
 
 Some characteristics of processes can only be determined in combination with
 its set of possible inputs $\mathbf{B} \subseteq 2^{S^N}$.
 One such characteristic is the \emph{determinancy} of a process.
 A process $\mathbf{P}$ is called \emph{determinate} with respect
 to its set of possible inputs $\mathbf{B}$, if after being
-constraint by its inputs, it consists of exactly one or exactly
+constrained by its inputs, it consists of exactly one or exactly
 no behaviors for each input $\mathbf{I} \in \mathbf{B}$,
 i.e., $\forall{\mathbf{I} \in \mathbf{B}}: |\mathbf{P} \cap \mathbf{I}| \le 1$.
-Otherwise the process is \emph{nondeterminate} with respect
+Otherwise the process is called \emph{nondeterminate} with respect
 to its set of possible inputs.
 
 So far, a process contains no information which of the signals in its behaviors are
 input signals and which are output signals. A \emph{input/output partition}
 divides the signals in a behavior of a process into input signals and output signals.
 \begin{sdefinition}
-A \emph{input/output partition} $(I,O) \in (2^{\{1,2, \ldots N\}})^2$
+A \emph{input/output partition} $(I,O) \in \left( 2^{\{1,2, \ldots N\}} \right)^2$
 of a process $\mathbf{P} \subseteq S^N$ is a pair of index sets,
 where $I \cap O = \emptyset$ and $|I \cup O| = N$. The signals in
 a behaviour on indexes in $I$ are input signals and the
@@ -275,7 +326,7 @@ This concepts are related to tagged signal model in the following way:
 (i) actors are processes with a predetermined input/output partition
 (ii) actor ports are used to name signals and are equivalent to the position of signals in
 a behavior of a process
-(iii) channels are ??? .
+(iii) channels are connection processes.
 
 % The data values, which are communicated over the channels
 % are abstracted. Thus, these data are called \emph{tokens} regardless
@@ -350,7 +401,7 @@ There are two \emph{network graph types} which are distinguished in our methodol
 
 \begin{figure}
 \centering
-%\includegraphics[scale=1]{ng-petri.\graphicPostfix}\\
+%\includegraphics[scale=1]{fig:ng-petri.\graphicPostfix}\\
 \input{ng-petri-fig.tex}
 \begin{displaymath}
 \begin{array}{rcl}
@@ -363,13 +414,13 @@ There are two \emph{network graph types} which are distinguished in our methodol
       &   &   (c_3,A_3.i_1),(A_3.o_1,c_4),(c_4,A_3.i_2),(A_4.o_1,c_4),(c_4,A_4.i_1)\}\\
 \end{array}
 \end{displaymath}
-\caption{\label{ng-petri}In a \emph{petri network graph} exactly
+\caption{\label{fig:ng-petri}In a \emph{petri network graph} exactly
   one edge is incident to an actor port. Multiple edges can
   enter and leave a channel, e.g. channel $c_4$
   which has both an indegree and outdegree of two.}
 \end{figure}
 
-  An example of a petri network graph is shown in Figure~\ref{ng-petri}.
+  An example of a petri network graph is shown in Figure~\ref{fig:ng-petri}.
   It demonstrates the use of a petri network graph for modeling
   a Multiply-Accumulate-Unit which accumulates in channel $c_4$ the product of
   the values generated by the source actor $A_1$.
@@ -386,7 +437,7 @@ There are two \emph{network graph types} which are distinguished in our methodol
                     |(\mathcal{P}_O \times \{c\}) \cap E| = 1$.
 \end{definition}
 
-  An example of a dataflow network graph is shown in Figure~\ref{ng-dataflow}.
+  An example of a dataflow network graph is shown in Figure~\ref{fig:ng-dataflow}.
   It demonstrates the use of a dataflow network graph for modeling
   a Multiply-Accumulate-Unit which accumulates in channel $c_4$ or $c_5$ the product of
   the values generated by the source actor $A_1$.
@@ -397,7 +448,7 @@ There are two \emph{network graph types} which are distinguished in our methodol
 
 \begin{figure}
 \centering
-%\includegraphics[scale=1]{ng-dataflow.\graphicPostfix}\\
+%\includegraphics[scale=1]{fig:ng-dataflow.\graphicPostfix}\\
 \input{ng-dataflow-fig.tex}
 \begin{displaymath}
 \begin{array}{rcl}
@@ -411,7 +462,7 @@ There are two \emph{network graph types} which are distinguished in our methodol
       &   &   (A_4.o_2,c_6),(c_6,A_5.i_1)\} \\
 \end{array}
 \end{displaymath}
-\caption{\label{ng-dataflow} In a \emph{dataflow network graph} exactly
+\caption{\label{fig:ng-dataflow} In a \emph{dataflow network graph} exactly
   one edge is incident to an actor port and the channels are
   constraint to have an indegree and outdegree of exactly one.
   Hence, the channels can only be used for dedicated
@@ -446,10 +497,17 @@ the type of the communicated data. Examples for channel kinds are:
 In our methodology proposed in this report, the actor concept is still used,
 but we distinguish two different aspects.
 The first part called \emph{node functionality} is responsible
-for transforming data values. The node functionality can be
-thought of as a function $F: V^{m} \to V^{n}, F \in \mathcal{F}$  which maps a fixed
-number of inputs to a fixed number of outputs. The node functionality
-can be implemented by any programming language but
+for transforming the data values which reside inside tokens.
+
+$A=(\mathcal{F},\mathcal{Q_F},\mathcal{Q_I},I,O,)$
+
+The node functionality can be
+thought of as a function
+$F: V^N \times \mathcal{Q_F} \to V^M \times \mathcal{Q_F}, F \in \mathcal{F}$
+which maps a fixed number of input values $\mathbf{v}_i \in V^N$ and
+a functionality state $q_c \in \mathcal{Q_F}$ to a fixed number of output values
+$\mathbf{v}_o \in V^M$ and a new functionality state $q_n \in \mathcal{Q_F}$.
+The node functionality can be implemented by any programming language but
 the user must guarantee, that the node functionality (i) terminates,
 and (ii) does not communicate with other actors.
 The node functionality is the only aspect which is not
