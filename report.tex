@@ -1566,6 +1566,42 @@ The node interface types are mapped to C++ class types as follows:
 Operations which are no longer available for node interface types
 at lower levels inthe hierarchy are disabled by declaring them to be private.
 
+\begin{figure}[h]
+\centering
+\begin{verbatim}
+class dp_fork
+  : public hscd_choice_node {
+public:
+  // actor input ports
+  hscd_port_in<dp_forkreq_ty> l_forkreq;
+  hscd_port_in<dp_forkreq_ty> r_forkreq;
+private:
+  // Functions of the node functionality
+  void l_forkreq_take() { ... }
+  void l_forkreq_drop() { ... }
+  void r_forkreq_take() { ... }
+  void r_forkreq_drop() { ... }
+  
+  // function for construction of the firing rules
+  hscd_firing_state fireRules() {
+    hscd_firing_state start =
+      choice( l_forkreq >> call(l_forkreq_take,
+                choice( l_forkreq >> call(l_forkreq_drop, &start) ) ) |
+              r_forkreq >> call(r_forkreq_take,
+                choice( r_forkreq >> call(r_forkreq_drop, &start) ) )
+            );
+    return start;
+  }
+public:
+  dp_fork( sc_module_name name )
+    : hscd_choice_node(name, fireRules() ) {}
+};
+\end{verbatim}
+\caption{\label{systemoc-firing-rules-example}
+  Example of the firing rules for a fork of the
+  dining philosophers problem in \SysteMoC{}}
+\end{figure}
+
 %\begin{enumerate}
 %\item Choice Node
 %  \begin{itemize}
@@ -1660,10 +1696,10 @@ network graph type.
 Therefore, the network graph type of a network graph can be determined by looking
 at the base class of the network graph class.
 The network graph types are mapped to C++ class types as follows:
-(i) The petri network graph is represented by the \code{hscd\_graph\_petri} class.
+(i) The conflicting network graph is represented by the \code{hscd\_graph\_petri} class.
 (ii) And the nonconflicting network graph is represented by the \code{hscd\_graph\_dataflow} class.
 Of the two network graph types the nonconflicting network graph is the more constraint
-one. Therefore, it is implemented by deriving from the petri network graph
+one. Therefore, it is implemented by deriving from the conflicting network graph
 and disabling by declaring private the \code{registerChan} and \code{connectChanPort}
 methods which allow the creation of channels with multiple indegree and outdegree.
 This hierarchy is shown in Figure~\ref{network-graph-hierarchy}.
@@ -1678,7 +1714,7 @@ To construct the network graph the following methods are available for
 composition of a network graph of the desired type:
 
 \begin{enumerate}
-\item Petri network graph
+\item Conflicting network graph
 
   \begin{itemize}
   \item registerNode:
@@ -1695,18 +1731,18 @@ composition of a network graph of the desired type:
     This method adds one edge $e \in C \times \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}} \times C$
     between channels and actor ports to the network graph.
 
-  \item connectInterfacePorts
-    This method adds one edge $e \in P_{i} \times \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}} \times P_{o}$
-    between actor ports and uplevel ports to the network graph.
+%  \item connectInterfacePorts
+%    This method adds one edge $e \in P_{i} \times \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}} \times P_{o}$
+%    between actor ports and uplevel ports to the network graph.
 
   \end{itemize}
 
-\item Dataflow network graph
+\item Nonconflicting network graph
 
   \begin{itemize}
-  \item registerNode: Same method as defined for petri network graphs.
+  \item registerNode: Same method as defined for conflicting network graphs.
   
-  \item connectInterfacePorts: Same method as defined for petri network graphs.
+%  \item connectInterfacePorts: Same method as defined for conflicting network graphs.
   
   \item connectNodePorts:
     This method is a shortcut for adding one channel and
@@ -1719,6 +1755,39 @@ composition of a network graph of the desired type:
   \end{itemize}
 
 \end{enumerate}
+
+\begin{figure}[h]
+\centering
+\begin{verbatim}
+class m_top: public ... {
+  ...
+  m_top( sc_module_name name )
+    : ... {
+    dp_fork        &m_fork0        = registerNode(new dp_fork("m_fork0"));
+    dp_fork        &m_fork1        = registerNode(new dp_fork("m_fork1"));
+    dp_philosopher &m_philosopher0 = registerNode(new dp_philosopher("m_philosopher0"));
+    dp_philosopher &m_philosopher1 = registerNode(new dp_philosopher("m_philosopher1"));
+    dp_footman     &m_footman      = registerNode(new dp_footman("m_footman"));
+    
+    connectNodePorts( m_philosopher0.l_forkreq, m_fork0.r_forkreq );
+    connectNodePorts( m_philosopher1.r_forkreq, m_fork0.l_forkreq );
+    
+    connectNodePorts( m_philosopher1.l_forkreq, m_fork1.r_forkreq );
+    connectNodePorts( m_philosopher0.r_forkreq, m_fork1.l_forkreq );
+    
+    connectNodePorts( m_philosopher0.sitreq,   m_footman.sitreq_0   );
+    connectNodePorts( m_philosopher0.standreq, m_footman.standreq_0 );
+
+    connectNodePorts( m_philosopher1.sitreq,   m_footman.sitreq_1   );
+    connectNodePorts( m_philosopher1.standreq, m_footman.standreq_1 );
+  }
+  ...
+};
+\end{verbatim}
+\caption{\label{dining-philosophers-csp-systemoc}
+  Example of a network graph in \SysteMoC}
+\end{figure}
+
 
 %\begin{table}[h]
 %\centering
@@ -1786,10 +1855,10 @@ shown in Table~\ref{constraintset-composition}.
 \hline
  Channel kind & Node interface & Network graph type & Constraint set \\
 \hline \hline
- Fifo         & Fixed Transact node & Dataflow network graph & SDF constraint set \\
- Fifo         & Transact node       & Dataflow network graph & Dataflow constraint set \\
-%% Fifo         & Choice node         & Dataflow network graph & FIFO CSP constraint set \\
- Rendezvous   & Choice node         & Dataflow network graph & CSP constraint set \\
+ Fifo         & Fixed Transact node & Nonconflicting network graph & SDF constraint set \\
+ Fifo         & Transact node       & Nonconflicting network graph & Dataflow constraint set \\
+%% Fifo         & Choice node         & Nonconflicting network graph & FIFO CSP constraint set \\
+ Rendezvous   & Choice node         & Nonconflicting network graph & CSP constraint set \\
 \hline
 \end{tabular}
 \caption{\label{constraintset-composition}
