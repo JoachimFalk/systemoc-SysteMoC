@@ -66,12 +66,14 @@ pkginclude_HEADERS =			\
 	hscd_moc.hpp			\
 	hscd_structure.hpp		\
 	hscd_graph_type.hpp		\
-	commondefs.h
+	commondefs.h			\
+	oneof.hpp
 
 noinst_HEADERS=	oneof.hpp
 
-libsystemoc_CH_LTOBJS=			\
-	$(hscd_op_hpp_CH_LTOBJS)	\
+libsystemoc_CH_LTOBJS=				\
+	$(hscd_op_hpp_CH_LTOBJS)		\
+	$(hscd_root_port_list_hpp_CH_LTOBJS)	\
 	$(hscd_pggen_hpp_CH_LTOBJS)
 
 libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lsystemc -lstdc++
@@ -84,7 +86,9 @@ libsystemoc_la_SOURCES =		\
 	hscd_pggen.cpp			\
 	hscd_root_if.cpp		\
 	hscd_rendezvous.cpp		\
-	hscd_fifo.cpp
+	hscd_fifo.cpp			\
+	hscd_root_port_list.cpp
+
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include

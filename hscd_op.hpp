@@ -11,43 +11,46 @@
 
 //template <typename T> class hscd_op;
 
-class hscd_root_node_op_if;
-class hscd_running_op_base;
+//class hscd_root_node_op_if;
+//class hscd_running_op_base;
 
-class hscd_do_op_if {
-  private:
-    friend class hscd_root_node_op_if;
-  public:
-    virtual ~hscd_do_op_if() {}
-  private:
-    virtual hscd_running_op_base *_startOp(hscd_root_node_op_if *node) = 0;
-    void startOp(hscd_root_node_op_if *node);
-};
+//class hscd_do_op_if {
+//  private:
+//    friend class hscd_root_node_op_if;
+//  public:
+//    virtual ~hscd_do_op_if() {}
+//  private:
+//    virtual hscd_running_op_base *_startOp(hscd_root_node_op_if *node) = 0;
+//    void startOp(hscd_root_node_op_if *node);
+//};
 
 class hscd_root_node_op_if {
   private:
     friend class hscd_running_op_base;
     friend class hscd_do_op_if;
     
-    hscd_running_op_base *_opRunning_;
+    //hscd_running_op_base *_opRunning_;
     //oneof<hscd_running_op_transact,hscd_running_op_choice> runningOp;
+    hscd_firing_state _initialState;
     
-    void _opFinished();
-    void _opRunning( hscd_running_op_base *op ) {
-      assert( _opRunning_ == NULL );
-      _opRunning_ = op;
-    }
+    //void _opFinished();
+    //void _opRunning( hscd_running_op_base *op ) {
+    //  assert( _opRunning_ == NULL );
+    //  _opRunning_ = op;
+    //}
   protected:
-    hscd_root_node_op_if(): _opRunning_(NULL) {}
+    hscd_root_node_op_if(const hscd_firing_state &s)
+      : _initialState(s) {}
     
-    virtual void opFinished() = 0;
-    bool finished() const { return _opRunning_ == NULL; }
+    //virtual void opFinished() = 0;
+    //bool finished() const { return _opRunning_ == NULL; }
     
-    void startOp( hscd_do_op_if &op ) { op.startOp(this); }
+    //void startOp( hscd_do_op_if &op ) { op.startOp(this); }
   public:
     virtual ~hscd_root_node_op_if() {}
 };
 
+/*
 #ifndef _COMPILEHEADER_HSCD_DO_OP_IF__START_OP
 GNU89_EXTERN_INLINE
 #endif
@@ -220,5 +223,6 @@ class hscd_running_op_choice
 
 typedef hscd_op<hscd_running_op_transact>	hscd_op_transact;
 typedef hscd_op<hscd_running_op_choice>		hscd_op_choice;
+*/
 
 #endif // _INCLUDED_HSCD_OP_HPP

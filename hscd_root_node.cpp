@@ -23,8 +23,8 @@ void hscd_root_node::leafAssemble( const sc_module *m, hscd_modes::PGWriter &pgw
     for ( sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
           iter != m->get_child_objects().end();
           ++iter ) {
-      if ( *iter == &fire_port )
-        continue;
+//      if ( *iter == &fire_port )
+//        continue;
       
       const hscd_root_port *port = dynamic_cast<const hscd_root_port *>(*iter);
       

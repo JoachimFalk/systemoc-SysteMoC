@@ -14,7 +14,7 @@ class hscd_moc
     public T_scheduler {
 private:
 #ifndef __SCFE__
-  void process() { return schedule(); }
+  void process() { /*return schedule();*/ }
 #else
   void process() {}
 #endif
@@ -46,93 +46,56 @@ public:
 #endif
 };
 
-#ifndef __SCFE__
-class hscd_moc_scheduler_asap
-  : public hscd_fixed_transact_node {
-private:
-  //    nodes_ty nodes;
-  hscd_op_port_or_list    fire_list;
-  
-  void process() {
-    while ( 1 )
-      hscd_choice_node::choice( fire_list );
-  }
-  
-  template <typename T>
-  void analyse( const std::list<T> &nl ) {
-    for ( typename std::list<T>::const_iterator iter = nl.begin();
-          iter != nl.end(); ++iter ) {
-      typename hscd_rendezvous<void>::chan_type *fire_channel =
-        new typename hscd_rendezvous<void>::chan_type(  hscd_rendezvous<void>() );
-      hscd_port_out<void>              *fire_port    =
-        new hscd_port_out<void>();
-      
-      (*iter)->fire_port(*fire_channel);
-      (*fire_port)(*fire_channel);
-      fire_list | (*fire_port)(1);
-      // nodes.push_back(*iter);
-      // fire.push_back(
-    }
-  }
-protected:
-  typedef hscd_fifocsp_constraintset  cset_ty;
-public:
-  hscd_moc_scheduler_asap(
-      hscd_fifocsp_constraintset *c )
-    : hscd_fixed_transact_node( hscd_op_transact() ) {
-    analyse(c->getNodes()); }
-};
-#endif
-
 class hscd_moc_scheduler_sdf
   : public hscd_fixed_transact_node {
-protected:
-  typedef hscd_sdf_constraintset  cset_ty;
-  
-#ifndef __SCFE__
-private:
-  //    nodes_ty nodes;
-  hscd_op_port_or_list    fire_list;
-  
-  template <typename T>
-  void analyse( const std::list<T> &nl ) {
-    for ( typename std::list<T>::const_iterator iter = nl.begin();
-          iter != nl.end(); ++iter ) {
-      typename hscd_rendezvous<void>::chan_type *fire_channel =
-        new typename hscd_rendezvous<void>::chan_type(  hscd_rendezvous<void>() );
-      hscd_port_out<void>              *fire_port    =
-        new hscd_port_out<void>();
-      
-      (*iter)->fire_port(*fire_channel);
-      (*fire_port)(*fire_channel);
-      fire_list | (*fire_port)(1);
-      // nodes.push_back(*iter);
-      // fire.push_back(
-    }
-  }
-protected:
-  void schedule() {
-    while ( 1 )
-      hscd_choice_node::choice( fire_list );
-  }
-#endif
 public:
-  hscd_moc_scheduler_sdf(
-      cset_ty *c )
-    : hscd_fixed_transact_node( hscd_op_transact() ) {
-#ifndef __SCFE__
-    analyse(c->getNodes());
-#endif
+  typedef hscd_moc_scheduler_sdf  this_type;
+  typedef hscd_sdf_constraintset  cset_ty;
+private:
+  hscd_activation_pattern analyse( cset_ty *c ) const {
+    return hscd_activation_pattern();
   }
+public:
+  hscd_moc_scheduler_sdf( cset_ty *c )
+    : hscd_fixed_transact_node(analyse(c)) {}
+};
+
+class hscd_moc_scheduler_kpn
+  : public hscd_transact_node {
+public:
+  typedef hscd_moc_scheduler_kpn  this_type;
+  typedef hscd_kpn_constraintset  cset_ty;
+private:
+  hscd_firing_state analyse( cset_ty *c ) const {
+    return hscd_firing_state();
+  }
+public:
+  hscd_moc_scheduler_kpn( cset_ty *c )
+    : hscd_transact_node(analyse(c)) {}
+};
+
+class hscd_moc_scheduler_ddf
+  : public hscd_choice_node {
+public:
+  typedef hscd_moc_scheduler_ddf  this_type;
+  typedef hscd_ddf_constraintset  cset_ty;
+private:
+  hscd_firing_state analyse( cset_ty *c ) const {
+    return hscd_firing_state();
+  }
+public:
+  hscd_moc_scheduler_ddf( cset_ty *c )
+    : hscd_choice_node(analyse(c)) {}
 };
 
 class hscd_moc_scheduler_csp
   : public hscd_choice_node {
-protected:
+public:
+  typedef hscd_moc_scheduler_csp  this_type;
   typedef hscd_csp_constraintset  cset_ty;
-  
-#ifndef __SCFE__
 private:
+/* 
+#ifndef __SCFE__
   //    nodes_ty nodes;
   hscd_op_port_or_list    fire_list;
   
@@ -158,14 +121,13 @@ protected:
       hscd_choice_node::choice( fire_list );
   }
 #endif
-public:
-  hscd_moc_scheduler_csp(
-      cset_ty *c )
-    : hscd_choice_node() {
-#ifndef __SCFE__
-    analyse(c->getNodes());
-#endif
+*/
+  hscd_firing_state analyse( cset_ty *c ) const {
+    return hscd_firing_state();
   }
+public:
+  hscd_moc_scheduler_csp( cset_ty *c )
+    : hscd_choice_node(analyse(c)) {}
 };
 
 template <typename T_constraintset>

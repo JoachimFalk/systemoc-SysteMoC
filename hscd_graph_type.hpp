@@ -126,17 +126,17 @@ public:
 template <typename T_node_type,
           typename T_chan_kind,
           template <typename T_value_type> class T_chan_init_default>
-class hscd_graph_sdf
+class hscd_graph_dataflow
   : public hscd_graph_petri<T_node_type,T_chan_kind,T_chan_init_default> {
 public:
-  typedef hscd_graph_sdf
+  typedef hscd_graph_dataflow
     <T_node_type, T_chan_kind, T_chan_init_default> this_type;
   
-  explicit hscd_graph_sdf( sc_module_name name )
+  explicit hscd_graph_dataflow( sc_module_name name )
     : hscd_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>(name) {}
-  hscd_graph_sdf()
+  hscd_graph_dataflow()
     : hscd_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>(
-        sc_gen_unique_name("hscd_graph_sdf") ) {}
+        sc_gen_unique_name("hscd_graph_dataflow") ) {}
 private:
   // disable
   template <typename T_chan_type>
@@ -147,13 +147,13 @@ private:
                         hscd_port_in<typename T_chan_type::data_type> &p );
 };
 
-typedef hscd_graph_sdf<hscd_fixed_transact_node, hscd_fifo_kind, hscd_fifo>
+typedef hscd_graph_dataflow<hscd_fixed_transact_node, hscd_fifo_kind, hscd_fifo>
           hscd_sdf_constraintset;
-typedef hscd_graph_sdf<hscd_transact_node, hscd_fifo_kind, hscd_fifo>
-          hscd_df_constraintset;
-typedef hscd_graph_sdf<hscd_choice_node, hscd_fifo_kind, hscd_fifo>
-          hscd_fifocsp_constraintset;
-typedef hscd_graph_sdf<hscd_choice_node, hscd_rendezvous_kind, hscd_rendezvous>
+typedef hscd_graph_dataflow<hscd_transact_node, hscd_fifo_kind, hscd_fifo>
+          hscd_kpn_constraintset;
+typedef hscd_graph_dataflow<hscd_choice_node, hscd_fifo_kind, hscd_fifo>
+          hscd_ddf_constraintset;
+typedef hscd_graph_dataflow<hscd_choice_node, hscd_rendezvous_kind, hscd_rendezvous>
           hscd_csp_constraintset;
 
 #endif // _INCLUDED_HSCD_GRAPH_TYPE_HPP
