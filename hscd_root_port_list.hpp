@@ -91,15 +91,54 @@ class hscd_firing_state;
 class hscd_firing_rules;
 class hscd_transition_list;
 
+class hscd_func_call {
+private:
+  struct dummy;
+  typedef void (dummy::*fun)();
+
+  dummy *obj;
+  fun    f;
+public:
+  template <class X, class T>
+  hscd_func_call( X *_obj, void (T::*_f)() )
+    : obj(reinterpret_cast<dummy *>(
+            /*dynamic_cast<T *>*/(_obj))),
+      f(*reinterpret_cast<fun *>(&_f))
+    { assert(f != NULL && obj != NULL); }
+
+  void operator()() const { (obj->*f)(); }
+};
+
+class hscd_func_branch {
+private:
+  struct dummy;
+  typedef const hscd_firing_state &(dummy::*fun)();
+
+  dummy *obj;
+  fun    f;
+public:
+  template <class X, class T>
+  hscd_func_branch( X *_obj, const hscd_firing_state &(T::*_f)() )
+    : obj(reinterpret_cast<dummy *>(
+            /*dynamic_cast<T *>*/(_obj))),
+      f(*reinterpret_cast<fun *>(&_f))
+    { assert(f != NULL && obj != NULL); }
+
+  void operator()() const { (obj->*f)(); }
+};
+
 struct hscd_firing_types {
   struct                              transition_ty;
   typedef std::list<transition_ty>    resolved_state_ty;
   typedef oneof<hscd_firing_state *, resolved_state_ty *>
                                       state_ty;
   typedef std::list<state_ty>         statelist_ty;
+  typedef oneof<hscd_func_call, hscd_func_branch>
+                                      func_ty;
   
   struct transition_ty {
     hscd_activation_pattern ap;
+    func_ty                 f;
     statelist_ty            sl;
   };
 };
@@ -230,27 +269,18 @@ class hscd_interface_action {
 public:
   friend class hscd_opbase_node;
   friend class hscd_firing_state;
-  
+   
   typedef hscd_interface_action this_type;
 private:
-  hscd_firing_state_list  sl;
+  hscd_firing_state_list     sl;
+  hscd_firing_types::func_ty f;
 protected:
-  hscd_interface_action(const hscd_firing_state_list &sl)
-    : sl(sl) {}
-};
-
-struct hscd_node_funcref {
-  virtual void operator () = 0;
-};
-
-template <typename T>
-class hscd_node_funcobj: public hscd_node_funcref {
-private:
-  void (T::*f)();
-public:
-  hscd_node_funcobj(void (T::*f)()): f(f) {}
-  
-  void operator () { return f(); }
+  hscd_interface_action(const hscd_firing_state_list &_sl,
+                        const hscd_func_call &_f)
+    : sl(_sl), f(_f) { assert(sl.size() == 1); }
+  hscd_interface_action(const hscd_firing_state_list &_sl,
+                        const hscd_func_branch &_f)
+    : sl(_sl), f(_f) {}
 };
 
 class hscd_interface_transition {

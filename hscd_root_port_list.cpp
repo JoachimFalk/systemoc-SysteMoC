@@ -13,6 +13,7 @@ hscd_firing_state::hscd_firing_state( const hscd_transition_list &tl )
     transition_ty &t = rs->back();
     
     t.ap = titer->ap;
+    t.f  = titer->ia.f;
     for ( hscd_firing_state_list::const_iterator siter = titer->ia.sl.begin();
           siter != titer->ia.sl.end();
           ++siter ) {

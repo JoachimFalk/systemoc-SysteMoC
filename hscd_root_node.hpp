@@ -51,14 +51,14 @@ protected:
       void (T::*f)(),
       const hscd_firing_state_list::value_type &v ) {
     std::cerr << "call" << std::endl;
-    return hscd_interface_action(v);
+    return hscd_interface_action(v,hscd_func_call(this,f));
   }
   template <typename T>
   hscd_interface_action branch(
       hscd_firing_state (T::*f)(),
       const hscd_firing_state_list &sl ) {
     std::cerr << "branch" << std::endl;
-    return hscd_interface_action(sl);
+    return hscd_interface_action(sl,hscd_func_branch(this,f));
   }
   hscd_firing_state Transact( const hscd_interface_transition &t ) {
     std::cerr << "Transact" << std::endl;

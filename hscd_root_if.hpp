@@ -9,6 +9,21 @@
 
 const sc_event& hscd_default_event_abort();
 
+class hscd_transfer_base {
+public:
+  typedef hscd_transfer_base  this_type;
+protected:
+  void   *addr;
+  size_t  need, have;
+public:
+  hscd_transfer_base()
+    :need(0), have(0) {}
+private:
+  // disabled
+  hscd_transfer_base( const this_type & );
+  this_type& operator = ( const this_type & );
+};
+
 template <typename T>
 class hscd_root_in_if
   : virtual public sc_interface
