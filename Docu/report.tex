@@ -37,7 +37,7 @@
 
 \begin{document}
 \hscdtitle{Representing Models of Computation in SystemC}
-{Joachim Falk, Christian Haubelt, J\"urgen Teich}{\today}
+{Joachim Falk, Christian Haubelt, J\"urgen Teich}{5-2004}
 \clearpage
 \tableofcontents
 \clearpage
@@ -61,14 +61,14 @@ expressiveness is traded for analyzability.
 predefined types of communication and strategies for scheduling
 communicating tasks. Thus, MoCs are comparable to design
 patterns known from the area of software design \cite{gamma:1995}.
-Limiting the expressiveness of an MoC enables:
+Limiting the expressiveness of a MoC enables:
 
 \begin{enumerate}
 \item Mathematically reasoning about communication patterns
 
-\item Code generators to produce optimized code
+\item Code generation to produce optimized code
 
-\item Verification tools to check system properties automatically
+\item Automatic verification to check system properties
 \end{enumerate}
 
 On the other hand, modern embedded system design is still based on
@@ -77,8 +77,8 @@ Even worse, nearly all specification languages allow for Turing
 complete MoCs making analysis in general impossible.
 To make industry benefit from the best of both worlds,
 engineers must restrict themselves to use certain subsets of
-specification languages allowing for analyzability, identification,
-and extraction of these MoCs from the source code automatically.
+specification languages allowing analyzability, identification,
+and extraction of these MoCs at the source code level automatically.
 
 This report deals with the representation of some transformative
 MoCs in SystemC. The rest of the report is structured as follows:
@@ -86,8 +86,8 @@ In Section~\ref{related-work}, we discuss related work. In
 Section~\ref{aspect-overview}, we propose our framework for
 representing MoCs in SystemC. In Section~\ref{revision-of-mocs},
 we show how some MoCs fit into
-the framework presented before. In Section~\ref{software-architecture}
-an implementation of our framework in SystemC called \SysteMoC{} is
+the framework presented before. In Section~\ref{software-architecture},
+a SystemC implementation of our framework called \SysteMoC{} is
 presented. Finally, we will give some examples using the \SysteMoC{}
 framework in Section~\ref{systemoc-examples}, and we conclude
 the present report in Section~\ref{conclusion}.
@@ -96,14 +96,15 @@ the present report in Section~\ref{conclusion}.
 
 \section{Aspect Overview}\label{aspect-overview}
 
+The different ordering relationships of time values can be
+used for formally comparing models of computation with each other \cite{Lee98}.
 A model of computation \cite{embsft:2002} is defined as the 
 interaction policy between \emph{actors} in an \emph{actor-oriented} design
-\cite{agha97abstracting:1997}.
-Actors are objects which execute concurrently. They can only
+\cite{agha97abstracting:1997}. Actors are objects which execute concurrently. They can only
 communicate with the environment (other actors) through their \emph{actor ports}.
-The actor ports are connected with each other via a \emph{channel network}.
+The actor ports are connected with each other via \emph{channels}.
 The data values, which are communicated over the channels
-are abstracted. The values are called \emph{tokens} regardless
+are abstracted. Thus, these data are called \emph{tokens} regardless
 of their type or value.
 
 Instead of a monolithic approach for representing an executable specification,
@@ -115,11 +116,122 @@ communicate with each other via channels instead of method calls as known
 in object-oriented design. In our proposed methodology, the specification is more
 detailed than in actor-oriented design.
 Four different aspects for distinguishing MoCs can be identified,
-namely node functionality, node interface, network graph, and
-channel kind. An aspect can be further divided into
-\emph{aspect types} by different constraints placed on the aspect.
+namely \emph{node functionality}, \emph{node interface}, \emph{network graph}, and
+\emph{channel kind}. An aspect can be further divided into
+\emph{aspect types} by different constraints imposed on an aspect.
 In the following, the aspects and their further
 differentiation into aspect types is discussed in depth:
+
+\subsection{Network Graph}\label{network-graph} 
+
+To represent an executable specification, not only information about
+individual actors but also information about the communication network,
+which is the only means of communication between actors,
+must be provided. Moreover, information about hierarchical
+composition of actors is required. This information is stored in
+the \emph{network graph}.
+
+\begin{definition}
+A network graph is a 5-tuple $N=(\mathcal{A},C,P_{i},P_{o},E)$ containing
+a set of actors $\mathcal{A}$, a set of channels $C$, a set of uplevel
+input ports $P_{i}$, a set of uplevel output ports $P_{o}$ and a set of
+directed edges $E \subseteq ((P_{i} \cup C) \times \mathcal{A}_{P_{i}})
+\cup (\mathcal{A}_{P_{o}} \times (P_{o} \cup C))$, where
+$\mathcal{A}_{P_{i}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{i}}$
+is the set of all actor input ports of the network graph and
+$\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$
+is the set of all actor output ports of the network graph.
+Each actor $A \in \mathcal{A}$ can only communicate with other actors
+through its dedicated actor input ports $A_{P_{i}}$ and
+actor output ports $A_{P_{o}}$.
+Furthermore, the set of all input and output ports of an actor
+is given by $A_{P} = A_{P_{i}} \cup A_{P_{o}}$ and
+the set of all actor input and actor output ports of the network graph
+is given by $\mathcal{A}_{P} = \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}}$.
+
+\end{definition}
+
+There are two \emph{network graph types} which are distinguished in our methodology:
+
+\begin{definition}\label{petri-network-graph}
+  A \emph{Petri network graph} is constrained such that exactly
+  one edge is incident to each actor port, i.e.
+  $\forall{p \in \mathcal{A}_{P}}: |(C \times \{p\}) \cap E| = 1$.
+\end{definition}
+
+\begin{figure}
+\centering
+%\includegraphics[scale=1]{ng-petri.\graphicPostfix}\\
+\input{ng-petri-fig.tex}
+\caption{\label{ng-petri}In a \emph{petri network graph} exactly
+  one edge enters an actor input port. The
+  indegree and outdegree of channels are
+  unconstraint. See for example channel $c_2$
+  which has both an indegree and outdegree of
+  two.}
+\end{figure}
+
+  An example of a petri network graph is shown in Figure~\ref{ng-petri}.
+  It demonstrates the use of a petri network graph for modeling
+  a Multiply-Accumulate-Unit which accumulates in channel $c_2$ the product of
+  the values read from the uplevel input ports $p_{i_1}$ and $p_{i_2}$.
+  The uplevel input port $p_{i_3}$ is used to exchange the
+  accumulated value in $c_2$ with the input from $p_{i_3}$. The
+  old value of $c_2$ is send to the uplevel output port $p_{o_1}$
+  via the exchange actor $a_3$. The model uses the nondeterminism
+  of the petri network graph which allows to read the value of channel
+  $c_2$ from different actors to either accumulate additional
+  data via actor $a_2$ or exchange the value via actor $a_3$.
+
+\begin{definition}\label{dataflow-network-graph}
+  A \emph{Dataflow network graph} is a petri network graph with the additional constraint
+  that the indegree and outdegree of each channel in the graph is exactly one, i.e.
+  $\forall{c \in C}: |(\{c\} \times \mathcal{A}_{P_{i}}) \cap E| = 1 \wedge
+                    |(\mathcal{A}_{P_{o}} \times \{c\}) \cap E| = 1$.
+\end{definition}
+
+  An example of a dataflow network graph is shown in Figure~\ref{ng-dataflow}.
+  It demonstrates the use of a dataflow network graph for modeling
+  a Multiply-Accumulate-Unit. The accumulation is done in channel $c_2$ and $c_3$
+  by adding to the allready accumulated value the product of
+  the values read from the uplevel input ports $p_{i_1}$ and $p_{i_2}$.
+  Additionally for each value pair from $p_{i_1}$ and $p_{i_2}$ the
+  new accumulated value is send to the output port $p_{o_1}$ via
+  the duplicate actor $a_3$. This actor duplicates its received
+  value on $a_{3_{pi1}}$ to its outputs $a_{3_{po1}}$ and $a_{3_{po2}}$.
+
+\begin{figure}
+\centering
+%\includegraphics[scale=1]{ng-dataflow.\graphicPostfix}\\
+\input{ng-dataflow-fig.tex}
+\caption{\label{ng-dataflow} In a \emph{dataflow network graph} exactly
+  one edge enters an actor input port and
+  the channels can only be used for dedicated
+  Point-to-Point connections.}
+\end{figure}
+
+\subsection{Channel Kind}\label{channel-kind}
+
+The \emph{channel kind} defines the communication semantics of a channel.
+Since the communication semantics are not influenced by the
+data type communicated, the actual \emph{type} of a communication
+channel is derived from the channel kind by parameterizing it with
+the type of the communicated data. Examples for channel kinds are:
+
+\begin{itemize}
+\item \label{channel-kind-fifo} FIFO:
+  An unbound FIFO channel for communication
+  (nonblocking write and blocking read) implementing
+  an first in first out discipline.
+
+\item \label{channel-kind-rendezvous} Rendezvous:
+  A rendezvous channel for communication % and barrier synchronisation
+  (blocking write and read).
+
+\item \label{channel-kind-register} Register:
+  For expressing communication via shared variables
+  (nonblocking write and nonblocking read).
+\end{itemize}
 
 \subsection{Node Functionality}\label{node-functionality}
 
@@ -127,11 +239,11 @@ In our methodology proposed in this report, the actor concept is still used,
 but we distinguish two different aspects.
 The first part called \emph{node functionality} is responsible
 for transforming data values. The node functionality can be
-thought of as a function $F: V^{m} \to V^{n}$  which maps a fixed set
-of parameters to a fixed set of results. The node functionality
-can be implemented by a Turing-complete programming language but
-the user must guarantee, that the node functionality terminates,
-does not communicate with other actors and is deterministic.
+thought of as a function $F: V^{m} \to V^{n}, F \in \mathcal{F}$  which maps a fixed
+number of inputs to a fixed number of outputs. The node functionality
+can be implemented by any programming language but
+the user must guarantee, that the node functionality (i) terminates,
+and (ii) does not communicate with other actors.
 The node functionality is the only aspect which is not
 further distinguished into aspect types.
 
@@ -141,15 +253,69 @@ The second part of an actor which determines its communication
 behavior is called \emph{firing rules}. The firing rules
 determine for each actor port the number of tokens to receive or send
 until the associated node functionality can be invoked.
-%\begin{definition}\label{firing-rules}
-%Firing rule is a set of functions $F: $
-%\end{definition}
-These firing rules are
-constructed by the use of communication operations which are
-provided by the \emph{node interface}. Furthermore, we
-distinguish three separate \emph{node interface types} by the set
-operations available to them:
 
+%\begin{definition}\label{firing-rules}
+%A firing rules $s \in S$ is a tuple $(Q_{s}, F_{s})$ containing
+%a subset of activation patterns $Q_{s} \subseteq Q$, and
+%an action selection function $F_{s}: Q_{s} \to \mathcal{T}$ which
+%maps each activation pattern $q \in Q_{s}$ to a corresponding
+%interface action $T_{sq} \in \mathcal{T}$.
+%\end{definition}
+
+\begin{definition}\label{activation-pattern}
+An \emph{activation pattern} is a function $q: A_{P} \to N_0, q \in Q$
+which maps each actor port to a natural number.
+The activation pattern is enabled if for each actor input port
+$a_{p} \in A_{P_{i}}$ at least $q(a_{p})$ tokens are available
+and for each actor output port
+$a_{p} \in A_{P_{o}}$ at least $q(a_{p})$ tokens have been
+transmitted.
+\end{definition}
+
+\begin{definition}\label{interface-action}
+A \emph{interface action} is a tuple $T = (F,S_{succ}), T \in \mathcal{T}$ containing
+a node functionality, and a set of successor states $S_{succ} \subseteq S$.
+\end{definition}
+
+\begin{definition}\label{firing-rules}
+\emph{Firing rules} is a 5-tuple $M_{F} = (S, Q, \mathcal{T}, k, s_0)$ containing
+a set of \emph{firing states} $S$, a set of activation patterns $Q$,
+a set of interface actions $\mathcal{T}$, an action selection function
+$k: S \times Q \to \mathcal{T} \cup \bot$,
+and a initial state $s_0 \in S$. An actor is inactive until at least
+one activation pattern $q$ is enabled which has a corresponding
+interface action in the current firing state $s \in S$ of the actor,
+i.e. $\exists{q \in Q}: k(s,q) \ne \bot \wedge q\ \mathrm{is\ enabled}$.
+The set of ready activation patterns is given by $Q_{ready}$.
+Exactly one activation pattern $q \in Q_{ready}$ will be
+chosen nondeterministically and its corresponding interface action
+$k(s,q)$ will be executed.
+\end{definition}
+
+These firing rules are constructed by use of the following operations:
+
+\begin{itemize}
+\item call
+
+\emph{Call} is a operation which maps a node functionality and
+a firing state to an interface action $\mathrm{Call}: , i.e. $. a which return method defined on a which needs as parameters
+a node functionality and 
+
+\item branch
+
+\item choice
+
+\item transact
+\end{itemize}
+
+
+These firing rules are constructed by use of methods
+which are provided by the \emph{node interface}.
+
+These firing rules are constructed by use of methods
+which are provided by the \emph{node interface}.
+Furthermore, we distinguish three separate \emph{node interface types}
+by the set of mathods available to them:
 
 \begin{definition}\label{choice-node-interface-type}
   Choice node interface type
@@ -176,126 +342,13 @@ operations available to them:
   Fixed transact node interface type
 \end{definition}
 
-\subsection{Network Graph}\label{network-graph} 
-
-To represent an executable specification, not only information about
-individual actors but also information about the communication network,
-which is the only means of communication between actors,
-must be provided. Moreover, information about hierarchical
-composition of actors is required. This information is stored in
-the \emph{network graph}.
-
-\begin{definition}
-A network graph is a 5-tuple $N=(\mathcal{A},C,P_{i},P_{o},E)$ containing
-a set of actors $\mathcal{A}$, a set of channels $C$, a set of uplevel
-input ports $P_{i}$, a set of uplevel output ports $P_{o}$ and a set of
-directed edges $E \subseteq ((P_{i} \cup C) \times \mathcal{A}_{P_{i}})
-\cup (\mathcal{A}_{P_{o}} \times (P_{o} \cup C))$.
-Each actor $A \in \mathcal{A}$ can only communicate with other actors
-through its dedicated actor input ports $A_{P_{i}}$ and
-actor output ports $A_{P_{o}}$.
-% $\forall{(X,Y)\in \mathcal{A^2}}: X \ne Y \Rightarrow X_{P} \cap Y_{P} = \emptyset$
-Furthermore, we define the set of all input and output ports of an actor
-as $A_{P} = A_{P_{i}} \cup A_{P_{o}}$,
-the set of all actor input ports of the network graph as
-$\mathcal{A}_{P_{i}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{i}}$,
-the set of all actor output ports of the network graph as 
-$\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$,
-and the set of all actor input and actor output ports of the network graph as
-$\mathcal{A}_{P} = \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}}$.
-
-\end{definition}
-
-There are two network graph types which are distinguished by our methodology:
-
-\begin{definition}\label{petri-network-graph}
-  A Petri network graph is constrained such that exactly
-  one edge is incident to each actor port
-  $\forall{p \in \mathcal{A}_{P}}: |(C \times \{p\}) \cap E| = 1$.
-\end{definition}
-
-\begin{figure}
-\centering
-%\includegraphics[scale=1]{ng-petri.\graphicPostfix}\\
-\input{ng-petri-fig.tex}
-\caption{\label{ng-petri}
-  In a \emph{petri network graph} exactly
-  one edge enters an actor input port. The
-  indegree and outdegree of channels are
-  unconstraint. See for example channel $c_2$
-  which has both an indegree and outdegree of
-  two.}
-\end{figure}
-
-  An example of a petri network graph is shown in Figure~\ref{ng-petri}.
-  It demonstrates the use of a petri network graph in modelling
-  a MAC unit which accumulates in channel $c_2$ the product of
-  the values read in from the uplevel input ports $p_{i_1}$ and $p_{i_2}$.
-  The uplevel input port $p_{i_3}$ is used to exchange the
-  accumulated value in $c_2$ with the input from $p_{i_3}$. The
-  old value of $c_2$ is send to the uplevel output port $p_{o_1}$
-  via the exchange actor $a_3$. The model uses the nondeterminism
-  of the petri network graph which allows to read the value of channel
-  $c_2$ from different actors to either accumulate additional
-  data via actor $a_2$ or exchange the value via actor $a_3$.
-
-\begin{definition}\label{dataflow-network-graph}
-  A Dataflow network graph is a petri network graph with the additional constraint
-  that the indegree and outdegree of each channel in the graph is exactly one
-  $\forall{c \in C}: |(\{c\} \times \mathcal{A}_{P_{i}}) \cap E| = 1 \wedge
-                    |(\mathcal{A}_{P_{o}} \times \{c\}) \cap E| = 1$.
-\end{definition}
-
-  An example of a dataflow network graph is shown in Figure~\ref{ng-dataflow}.
-  It demonstrates the use of a dataflow network graph in modelling
-  a MAC unit which accumulates in channel $c_2$ and $c_3$ the product of
-  the values read in from the uplevel input ports $p_{i_1}$ and $p_{i_2}$.
-  Additionally for each value pair from $p_{i_1}$ and $p_{i_2}$ the
-  new accumulated value is send to the output port $p_{o_1}$ via
-  the fork actor $a_3$. The fork actor duplicates its received
-  value on $a_{3_{pi1}}$ to its outputs $a_{3_{po1}}$ and $a_{3_{po2}}$.
-
-\begin{figure}
-\centering
-%\includegraphics[scale=1]{ng-dataflow.\graphicPostfix}\\
-\input{ng-dataflow-fig.tex}
-\caption{\label{ng-dataflow}
-  In a \emph{dataflow network graph} exactly
-  one edge enters an actor input port and
-  the channels can only be used for dedicated
-  Point-to-Point connections.}
-\end{figure}
-
-\subsection{Channel Kind}\label{channel-kind}
-
-The \emph{channel kind} defines the communication semantic of the channel.
-Since the communication semantic is not influenced by the
-data type communicated, the actual \emph{type} of a communication
-channel is derived from the channel kind by parameterizing it with
-the type of the communicated data. Examples for channel kinds are:
-
-\begin{itemize}
-\item \label{channel-kind-fifo} FIFO:
-  An unbound FIFO channel for communication
-  (nonblocking write and blocking read) implementing
-  an first in first out discipline.
-
-\item \label{channel-kind-rendezvous} Rendezvous:
-  A rendezvous channel for communication % and barrier synchronisation
-  (blocking write and read).
-
-\item \label{channel-kind-register} Register:
-  For expressing communication via shared variables
-  (nonblocking write and nonblocking read).
-\end{itemize}
-
 \section{Revision of Different MoCs}\label{revision-of-mocs}
 
-The characteristics of different MoCs can be separated into two distinct groups.
-There are the execution characteristics which must be provided by
+The \emph{characteristics} of different MoCs can be separated into two distinct groups.
+There are the \emph{execution characteristics} which must be provided by
 the programming system otherwise the MoC cannot be implemented.
-On the other hand, there are the analysis characteristics which
-permit the extraction of information needed for MoC specific analysis.
+On the other hand, there are the \emph{analysis characteristics} which
+permit the extraction of information needed for MoC-Specific analysis.
 
 In the following subsections, different MoCs are considered and their
 characteristics are determined. For each MoC these characteristics are
@@ -303,7 +356,7 @@ mapped onto the aspects presented in the previous Section.
 
 \subsection{Communicating Sequential Processes (CSP)}
 \emph{Communicating Sequential Processes} \cite{csphoare:1985}
-is a MoC which consist of concurrently executing processes
+is a MoC which consists of concurrently executing processes
 which communicate via unidirectional \emph{rendezvous channels}.
 As a difference to the CSP model of Hoare \cite{csphoare:1985}
 which allows runtime creation of processes via parallel
@@ -325,10 +378,10 @@ implement CSP behavior:
   General choice written $ce_{1} \to F_1 \Box ce_{2} \to F_2$
   is a operation defined on a set of \emph{channel expressions} $CE$ and
   a function $D: CE \to \mathcal{F}$, which maps each channel expression
-  $ce \in CE$ to a function $F_{x} \in \mathcal{F}$. A channel
-  expression can either send the content of a variable $v$ into
-  the channel $c$ which is written $c!v$ or receive a value from
-  the channel $c$ and store it in variable $v$ which is written
+  $ce \in CE$ to a function $F \in \mathcal{F}$. A channel
+  expression can either send the content of a variable $v$ to
+  a channel $c$ which is written $c!v$ or receive a value from
+  a channel $c$ and store it in variable $v$ which is written
   $c?v$. A channel expression is ready to communicate when its
   associated channel is ready to communicate.
   The general choice operation postpones the process execution 
@@ -364,10 +417,10 @@ implement CSP behavior:
 %  is 
 % $\to$ is sequential composition
 
-In the following, a CSP program for the classical dining
+In the following, a CSP program for the well known dining
 philosophers problem is demonstrated. To reduce the complexity
-of the example the number of philosophers has been reduced from five
-to two. Each philosopher has only two goals in life to think and
+of the example the number of philosophers has been reduced
+to two. Each philosopher has only two goals in life, namely to think and
 to eat. Food is provided by a bowl of spaghetti on the table and
 two forks for eating. To eat, each philosopher has to take a seat
 at the table and take two forks which he will not release until he
@@ -390,16 +443,16 @@ philosopher requesting something from footman or fork.
 \begin{displaymath}
 \begin{array}{rcl}
 Philosopher_{i}    & := & FootSit_{i}!sit \to ForkReqL_{i}!take \to ForkReqR_{i\oplus1}!take \to \\
-		   &    & Eat \to \\
-		   &    & ForkReqL_{i}!drop \to ForkReqR_{i\oplus1}!drop \to FootStand_{i}!stand \to \\
-		   &	& Philosopher_{i} \\
-Fork_{i}	   & := & ForkReqR_{i}?req_{r} \to ForkReqR_{i}?req_{r} \to Fork_{i} \Box \\
-		   &    & ForkReqL_{i}?req_{l} \to ForkReqL_{i}?req_{l} \to Fork_{i} \\
-Footman		   & := & FootSit_{0}?req_{0} \to FootStand_{0}?req_{0} \to Footman \Box \\
-		   &    & FootSit_{1}?req_{1} \to FootStand_{1}?req_{1} \to Footman \\
+                   &    & Eat \to \\
+                   &    & ForkReqL_{i}!drop \to ForkReqR_{i\oplus1}!drop \to FootStand_{i}!stand \to \\
+                   &        & Philosopher_{i} \\
+Fork_{i}           & := & ForkReqR_{i}?req_{r} \to ForkReqR_{i}?req_{r} \to Fork_{i} \Box \\
+                   &    & ForkReqL_{i}?req_{l} \to ForkReqL_{i}?req_{l} \to Fork_{i} \\
+Footman                   & := & FootSit_{0}?req_{0} \to FootStand_{0}?req_{0} \to Footman \Box \\
+                   &    & FootSit_{1}?req_{1} \to FootStand_{1}?req_{1} \to Footman \\
 InitFunction       & := & Philosopher_{0} \| Fork_{0} \| \\
-		   &    & Philosopher_{1} \| Fork_{1} \| \\
-		   &    & Footman \\
+                   &    & Philosopher_{1} \| Fork_{1} \| \\
+                   &    & Footman \\
 \end{array}
 \end{displaymath}
 
@@ -413,13 +466,13 @@ analysis characteristics must be given:
 
 The characteristics \ref{characteristic-csp-rendezvous} -
 \ref{characteristic-csp-communication} of the CSP MoC are mapped in the following way
-onto the aspects presented in Section~\ref{aspect-overview}.
+onto the aspects presented in Section~\ref{aspect-overview}:
 (i) The rendezvous communication %(Requirement~\ref{characteristic-csp-rendezvous})
-used by CSP is provided by the channel kind rendezvous %(See~\ref{channel-kind-rendezvous})
+used by CSP is provided by the channel kind rendezvous. %(See~\ref{channel-kind-rendezvous})
 (ii) Hoare's general choice communication operator %(Requirement~\ref{characteristic-csp-general-choice})
-is provided as a operation in the choice node interface %(See~\ref{choice-node-interface-type})
+is provided as a operation in the choice node interface. %(See~\ref{choice-node-interface-type})
 (iii) The parallel executing processes %(Requirement~\ref{characteristic-csp-concurrent-processes})
-created by the init functions are mapped to the concurrently executing actors
+created by the init functions are mapped to the concurrently executing actors.
 %% (Subsection~\ref{node-functionality} and Subsection~\ref{node-interface})
 (iv) The Point-to-Point communication of CSP over rendezvous channels %(Requirement~\ref{characteristic-csp-communication})
 is provided by the dataflow network graph %(See~\ref{dataflow-network-graph})
@@ -428,14 +481,14 @@ actor-oriented design.
 
 \subsection{Kahn Process Network (KPN)}
 \emph{Kahn Process Network} \cite{kahn:1974} is a MoC
-which consist of a fixed predetermined set of
+which consists of a fixed predetermined set of
 concurrently executing processes which communicate via unidirectional
 unbounded \emph{FIFO channels}. The input and output of a channel
 are connected to dedicated processes. The process must implement
 a continuous function $F: S^m \to S^n$ regarding a prefix order on
-$S^m$ and $S^n$ \cite{kahn:1974} \cite{stark87concurrent:1987}.
-Where $S^m$ is a m-tuple of token sequences on the process input channels
-and $S^n$ is a n-tuple on token sequences on the process output channels.
+$S^m$ and $S^n$ \cite{kahn:1974,stark87concurrent:1987}.
+Where $S^m$ is a $m$-tuple of token sequences on the process input channels
+and $S^n$ is a $n$-tuple on token sequences on the process output channels.
 If the communication over FIFO channels is realized with blocking
 reads and nonblocking writes the previous requirement is automatically
 satisfied \cite{stark87concurrent:1987}. However, the next channel
@@ -455,7 +508,7 @@ the data values already read and the state of the actor.
 % tokens 
 
 The following execution characteristics are required to
-implement KPN behavior:
+implement the KPN MoC:
 
 \begin{characteristic}\label{characteristic-kpn-fifo}
   An unbound FIFO channel for communication
@@ -469,24 +522,24 @@ implement KPN behavior:
   Fixed set of concurrently executing processes
 \end{characteristic}
 
-In the following, a example dataflow program for audio coding
+In the following, an example KPN program for audio coding
 is demonstrated. For the audio encoding an algorithm
 adapted for multimedia audio or an algorithm adapted for speech
 is dynamically selected depending on the input audio stream.
 The CodecSelect actor forwards the raw audio stream to the
-selected audio codec and gets feedback of the codec quality back
+selected audio codec and gets feedback of the codec quality
 via the corresponding CodecQuality channel. If a certain
 limit for the codec quality is not satisfied the CodecSelect will
 switch to the other audio codec. Additionally the CodecSelect actor
 signals the StreamPacketizer via the PacketizerCodecSelect channel
-which EncodedAudio channel to choose for input data to packetize.
+which EncodedAudio channel must be chosen for input data to packetize.
 (See Figure~\ref{fig:media-speech-audio-coding}
 for the processes and connection topology used in the example):
 
 \begin{figure}[h]
 \centering
 \input{media-speech-audio-coding-fig.tex}
-\caption{Processes and connection topology used for the audio encoding dataflow example}
+\caption{Processes and connection topology used for the audio encoding KPN example}
 \label{fig:media-speech-audio-coding}
 \end{figure}
 
@@ -502,17 +555,17 @@ characteristics must be satisfied:
 
 The characteristics \ref{characteristic-kpn-fifo} -
 \ref{characteristic-kpn-determinism} of the KPN MoC are mapped in the following way
-onto the aspects presented in Section~\ref{aspect-overview}.
+onto the aspects presented in Section~\ref{aspect-overview}:
 (i) The FIFO communication
-used by dataflow is provided by the FIFO channel kind
+used by dataflow is provided by the FIFO channel kind.
 (ii) The fixed set of concurrently executing processes
-are mapped to the concurrently executing actors
+are mapped to the concurrently executing actors.
 (iii) The Point-to-Point communication of dataflow over FIFO channels
 is provided by the dataflow network graph
 and its contained FIFO channels, which are the only means of communication in a
-actor-oriented design
-(iv) read and write operations on this FIFOs are provided by
-the transact operation of the transact node interface
+actor-oriented design.
+(iv) Read and write operations on this FIFOs are provided by
+the transact operation of the transact node interface.
 (v) The requirement for a continuous function is satisfied by using the
 transact operation of the transact node interface.
 The transact operation consumes and produces
@@ -523,8 +576,8 @@ Therefore the actor implements a function regarding the
 prefix order on $S^m$ and $S^n$. Because the
 transact functions does not allow canceling of already
 written output of actor output ports, the functions is
-monotonic. Fortunately, this means in practice
-that the function is also continuous since practical monotonic
+\emph{monotonic}. Fortunately, this means in practice
+that the function is also \emph{continuous} since practical monotonic
 processes are invariably continuous, at least in the context
 of Kahn process networks \cite{LeeDenotialDF:1997}.
 
@@ -538,16 +591,16 @@ The consumption and production rates of the actor must be constant.
 In particular they are independent from the state of the actor.
 \end{characteristic}
 
-In the following, a example of a MAC unit for stereo signals is given
+In the following, an example of a Multiply-Accumulate-Unit for stereo signals is given
 as a SDF system. The unit reads two tokens from input $in_1$,
-multiplies this tokens both with a value read from $in_2$,
-and accumulates these scaled values in the channels $c_2$ and
+performs a multiplication for both tokens with a value read from $in_2$,
+and accumulates the results in the channels $c_2$ and
 $c_3$. The accumulated values are written to $o_1$ for each
 token pair received on $in_1$.
-In Figure~\ref{fig:sdf-mac-unit} the annotation
-at channel start and channel end points
-of the constant consumption and production rates of the SDF
-MoC can be seen.
+In Figure~\ref{fig:sdf-mac-unit},
+the constant consumption and production rates of the SDF
+MoC are annotated at the actor input and output ports
+respectively.
 
 \begin{figure}[h]
 \centering
@@ -559,10 +612,10 @@ MoC can be seen.
 
 The characteristics \ref{characteristic-kpn-fifo} -
 \ref{characteristic-sdf-fixed-rates} of the SDF MoC are mapped in the following way
-onto the aspects presented in Section~\ref{aspect-overview}. (i) - (iii) is identical
-to the KPN MoC
-(iv) read and write operations on the FIFOs are provided by the transact
-operation of the fixed transact node interface
+onto the aspects presented in Section~\ref{aspect-overview}: (i) - (iii) is identical
+to the KPN MoC.
+(iv) Read and write operations on the FIFOs are provided by the transact
+operation of the fixed transact node interface.
 (v) The constant consumption and production rates of the actor are
 guaranteed by the fixed transact node interface which does
 not allow the alteration of these rates once set.
@@ -607,18 +660,10 @@ private:
     std::cout << "Adding " << in[0] << " + " << in[1]
               << " = " << out[0] << std::endl;
   }
-  
-  // Firing rules
-  void process() {
-    while (true) {
-      transform();
-      transact();
-    }
-  }
 public:
   m_adder( sc_module_name name )
     :hscd_fixed_transact_node( name,
-        in(2) & out(1) /* Firing rules */ ) {}
+        (in(2) & out(1)) >> call(transform) /* Firing rules */ ) {}
 };
 \end{verbatim}
 \caption{\label{example-adder-actor}Example of an adder in the \SysteMoC{} framework}
@@ -642,22 +687,83 @@ private:
     std::cout << "Multiplying" << in1[0] << " * " << in2[0]
               << " = " << out[0] << std::endl;
   }
-  
-  // Firing rules
-  void process() {
-    while (true) {
-      transform();
-      transact();
-    }
-  }
 public:
   m_multiply( sc_module_name name )
     :hscd_fixed_transact_node( name,
-        in1(1) & in2(1) & out(1) /* Firing rules */ ) {}
+        (in1(1) & in2(1) & out(1)) >> call(transform) /* Firing rules */ ) {}
 };
 \end{verbatim}
 \caption{\label{example-multiply-actor}Example of a multiplier in the \SysteMoC{} framework}
 \end{figure}
+
+%\begin{figure}
+%\centering
+%\begin{verbatim}
+%template <typename T>
+%class m_adder // Actor m_adder
+%  : public hscd_fixed_transact_node // Node interface
+%{
+%public:
+%  hscd_port_in<T>  in;
+%  hscd_port_out<T> out;
+%private:
+%  // Node functionality
+%  void transform() {
+%    out[0] = in[0] + in[1];
+%    std::cout << "Adding " << in[0] << " + " << in[1]
+%              << " = " << out[0] << std::endl;
+%  }
+%  
+%  // Firing rules
+%  void process() {
+%    while (true) {
+%      transform();
+%      transact();
+%    }
+%  }
+%public:
+%  m_adder( sc_module_name name )
+%    :hscd_fixed_transact_node( name,
+%        in(2) & out(1) /* Firing rules */ ) {}
+%};
+%\end{verbatim}
+%\caption{\label{example-adder-actor}Example of an adder in the \SysteMoC{} framework}
+%\end{figure}
+
+%\begin{figure}
+%\centering
+%\begin{verbatim}
+%template <typename T>
+%class m_multiply // Actor m_multiply
+%  : public hscd_fixed_transact_node // Node interface
+%{
+%public:
+%  hscd_port_in<T>  in1;
+%  hscd_port_in<T>  in2;
+%  hscd_port_out<T> out;
+%private:
+%  // Node functionality
+%  void transform() {
+%    out[0] = in1[0] + in2[0];
+%    std::cout << "Multiplying" << in1[0] << " * " << in2[0]
+%              << " = " << out[0] << std::endl;
+%  }
+%  
+%  // Firing rules
+%  void process() {
+%    while (true) {
+%      transform();
+%      transact();
+%    }
+%  }
+%public:
+%  m_multiply( sc_module_name name )
+%    :hscd_fixed_transact_node( name,
+%        in1(1) & in2(1) & out(1) /* Firing rules */ ) {}
+%};
+%\end{verbatim}
+%\caption{\label{example-multiply-actor}Example of a multiplier in the \SysteMoC{} framework}
+%\end{figure}
 
 \subsection{Node Functionality}
 The node functionality is only used for algorithmic transformations of data values.
@@ -1044,27 +1150,28 @@ public:
   hscd_port_in<dp_forkreq_ty> l_forkreq;
   hscd_port_in<dp_forkreq_ty> r_forkreq;
 private:
-  void process() {
-    while ( 1 ) {
-      choice( l_forkreq(1) | r_forkreq(1) );
-      assert( (l_forkreq && !r_forkreq && l_forkreq[0] == FORK_TAKE) ||
-              (r_forkreq && !l_forkreq && r_forkreq[0] == FORK_TAKE) );
-      if ( l_forkreq ) {
-        std::cout << "Fork " << name() << " taken by left philosopher !" << std::endl;
-        transact( l_forkreq(1) );
-        assert( l_forkreq && l_forkreq[0] == FORK_DROP );
-        std::cout << "Fork " << name() << " droped by left philosopher !" << std::endl;
-      } else {
-        std::cout << "Fork " << name() << " taken by right philosopher !" << std::endl;
-        transact( r_forkreq(1) );
-        assert( r_forkreq && r_forkreq[0] == FORK_DROP );
-        std::cout << "Fork " << name() << " droped by right philosopher !" << std::endl;
-      }
-    }
+  void l_forkreq_take() { assert(l_forkreq[0] == FORK_TAKE);
+    std::cout << "Fork " << name() << " taken by left philosopher !" << std::endl; }
+  void l_forkreq_drop() { assert(l_forkreq[0] == FORK_DROP);
+    std::cout << "Fork " << name() << " droped by left philosopher !" << std::endl; }
+  void r_forkreq_take() { assert(r_forkreq[0] == FORK_TAKE);
+    std::cout << "Fork " << name() << " taken by right philosopher !" << std::endl; }
+  void r_forkreq_drop() { assert(r_forkreq[0] == FORK_DROP);
+    std::cout << "Fork " << name() << " droped by right philosopher !" << std::endl; }
+  
+  static
+  hscd_firing_state fireRules() const {
+    hscd_firing_state start =
+      choice( l_forkreq >> call(l_forkreq_take,
+                choice( l_forkreq >> call(l_forkreq_drop, &start) ) ) |
+              r_forkreq >> call(r_forkreq_take,
+                choice( r_forkreq >> call(r_forkreq_drop, &start) ) )
+            );
+    return start;
   }
 public:
   dp_fork( sc_module_name name )
-    : hscd_choice_node(name) {}
+    : hscd_choice_node(name, fireRules() ) {}
 };
 \end{verbatim}
 \caption{\label{dining-philosophers-fork-systemoc}
@@ -1079,38 +1186,33 @@ public:
 class dp_footman
   : public hscd_choice_node {
 public:
+  hscd_port_in<void> sitreq_0;
   hscd_port_in<void> sitreq_1;
-  hscd_port_in<void> sitreq_2;
-  hscd_port_in<void> sitreq_3;
-  hscd_port_in<void> sitreq_4;
+  hscd_port_in<void> standreq_0;
   hscd_port_in<void> standreq_1;
-  hscd_port_in<void> standreq_2;
-  hscd_port_in<void> standreq_3;
-  hscd_port_in<void> standreq_4;
 private:
-  void process() {
-    int count = 4;
-    
-    while ( 1 ) {
-      if ( count != 0 )
-        choice( sitreq_1(1) | standreq_1(1) |
-                sitreq_2(1) | standreq_2(1) |
-                sitreq_3(1) | standreq_3(1) |
-                sitreq_4(1) | standreq_4(1) );
-      else
-        choice(               standreq_1(1) |
-                              standreq_2(1) |
-                              standreq_3(1) |
-                              standreq_4(1) );
-      if ( sitreq_1 || sitreq_2 || sitreq_3 || sitreq_4 )
-        --count;
-      else
-        ++count;
-    }
+  void philosopher0_sitdown() {
+    std::cout << "Seat " << name() << " taken by philosopher 0 !" << std::endl; }
+  void philosopher0_standup() {
+    std::cout << "Seat " << name() << " vacated by philosopher 0 !" << std::endl; }
+  void philosopher1_sitdown() {
+    std::cout << "Seat " << name() << " taken by philosopher 1 !" << std::endl; }
+  void philosopher1_standup() {
+    std::cout << "Seat " << name() << " vacated by philosopher 1 !" << std::endl; }
+  
+  static
+  hscd_firing_state fireRules() const {
+    hscd_firing_state start =
+      choice( sitreq_0 >> call(philosopher0_sitdown,
+                choice( standreq_0 >> call(philosopher0_standup, &start ) ) ) |
+              sitreq_1 >> call(philosopher1_sitdown,
+                choice( standreq_1 >> call(philosopher1_standup, &start ) ) )
+            );
+    return start;
   }
 public:
   dp_footman( sc_module_name name )
-    : hscd_choice_node(name) {}
+    : hscd_choice_node(name, fireRules() ) {}
 };
 \end{verbatim}
 \caption{\label{dining-philosophers-csp-systemoc}
@@ -1130,28 +1232,41 @@ public:
   hscd_port_out<void>          sitreq;
   hscd_port_out<void>          standreq;
 private:
-  void process() {
-    while ( 1 ) {
-      std::cout << "Philosopher " << name() << " want's to eat !" << std::endl;
-      transact( sitreq(1) );
-      l_forkreq[0] = FORK_TAKE;
-      transact( l_forkreq(1) );
-      r_forkreq[0] = FORK_TAKE;
-      transact( r_forkreq(1) );
-      std::cout << "Philosopher " << name() << " eating !" << std::endl;
-      wait( sc_time(3,SC_NS) );
-      l_forkreq[0] = FORK_DROP;
-      transact( l_forkreq(1) );
-      r_forkreq[0] = FORK_DROP;
-      transact( r_forkreq(1) );
-      std::cout << "Philosopher " << name() << " finish eating !" << std::endl;
-      transact( standreq(1) );
-      wait( sc_time(1,SC_NS) );
-    }
+  void nothing() {}
+  
+  void eat() {
+    std::cout << "Philosopher " << name() << " eating !" << std::endl;
+    wait( sc_time(3,SC_NS) );
+    l_forkreq[0] = r_forkreq[0] = FORK_DROP;
+  }
+  
+  void think() {
+    std::cout << "Philosopher " << name() << " thinking !" << std::endl;
+    wait( sc_time(100,SC_NS) );
+    l_forkreq[0] = r_forkreq[0] = FORK_TAKE; 
+  }
+  
+  static
+  hscd_firing_state fireRules() const {
+    hscd_firing_state start =
+      choice( sitreq >> call(nothing,
+        choice( l_forkreq >> call(nothing,
+          choice( r_forkreq >> call(eat,
+            choice( r_forkreq >> call(nothing,
+              choice( l_forkreq >> call(nothing,
+                choice( standreq >> call(think, &start ) )
+              ) )
+            ) )
+          ) )
+        ) )
+      ) );
+    return start;
   }
 public:
   dp_philosopher( sc_module_name name )
-    : hscd_choice_node(name) {}
+    : hscd_choice_node(name, fireRules() ) {
+    l_forkreq[0] = r_forkreq[0] = FORK_TAKE; 
+  }
 };
 \end{verbatim}
 \caption{\label{dining-philosophers-csp-systemoc}
@@ -1167,39 +1282,23 @@ class m_top
   public:
     m_top( sc_module_name name )
       : hscd_csp_constraintset(name) {
+      dp_fork        &m_fork0        = registerNode(new dp_fork("m_fork0"));
       dp_fork        &m_fork1        = registerNode(new dp_fork("m_fork1"));
-      dp_fork        &m_fork2        = registerNode(new dp_fork("m_fork2"));
-      dp_fork        &m_fork3        = registerNode(new dp_fork("m_fork3"));
-      dp_fork        &m_fork4        = registerNode(new dp_fork("m_fork4"));
+      dp_philosopher &m_philosopher0 = registerNode(new dp_philosopher("m_philosopher0"));
       dp_philosopher &m_philosopher1 = registerNode(new dp_philosopher("m_philosopher1"));
-      dp_philosopher &m_philosopher2 = registerNode(new dp_philosopher("m_philosopher2"));
-      dp_philosopher &m_philosopher3 = registerNode(new dp_philosopher("m_philosopher3"));
-      dp_philosopher &m_philosopher4 = registerNode(new dp_philosopher("m_philosopher4"));
       dp_footman     &m_footman      = registerNode(new dp_footman("m_footman"));
       
+      connectNodePorts( m_philosopher0.l_forkreq, m_fork0.r_forkreq );
+      connectNodePorts( m_philosopher1.r_forkreq, m_fork0.l_forkreq );
+      
       connectNodePorts( m_philosopher1.l_forkreq, m_fork1.r_forkreq );
-      connectNodePorts( m_philosopher4.r_forkreq, m_fork1.l_forkreq );
+      connectNodePorts( m_philosopher0.r_forkreq, m_fork1.l_forkreq );
       
-      connectNodePorts( m_philosopher2.l_forkreq, m_fork2.r_forkreq );
-      connectNodePorts( m_philosopher1.r_forkreq, m_fork2.l_forkreq );
-      
-      connectNodePorts( m_philosopher3.l_forkreq, m_fork3.r_forkreq );
-      connectNodePorts( m_philosopher2.r_forkreq, m_fork3.l_forkreq );
-      
-      connectNodePorts( m_philosopher4.l_forkreq, m_fork4.r_forkreq );
-      connectNodePorts( m_philosopher3.r_forkreq, m_fork4.l_forkreq );
-      
+      connectNodePorts( m_philosopher0.sitreq,   m_footman.sitreq_0   );
+      connectNodePorts( m_philosopher0.standreq, m_footman.standreq_0 );
+
       connectNodePorts( m_philosopher1.sitreq,   m_footman.sitreq_1   );
       connectNodePorts( m_philosopher1.standreq, m_footman.standreq_1 );
-
-      connectNodePorts( m_philosopher2.sitreq,   m_footman.sitreq_2   );
-      connectNodePorts( m_philosopher2.standreq, m_footman.standreq_2 );
-
-      connectNodePorts( m_philosopher3.sitreq,   m_footman.sitreq_3   );
-      connectNodePorts( m_philosopher3.standreq, m_footman.standreq_3 );
-
-      connectNodePorts( m_philosopher4.sitreq,   m_footman.sitreq_4   );
-      connectNodePorts( m_philosopher4.standreq, m_footman.standreq_4 );
     }
 };
 \end{verbatim}
