@@ -18,6 +18,19 @@
 
 % \begin{Verbatim}[fontsize=\tiny]
 
+\hypersetup{
+  pdftitle   = {Representing Models of Computation in SystemC},
+  pdfsubject = {Co-Design-Report},
+  pdfauthor  = {\textcopyright\ Joachim Falk, Christian Haubelt, Jürgen Teich},
+  colorlinks = true,
+  linkcolor  = black,
+  anchorcolor= black,
+  citecolor  = black,
+  filecolor  = black,
+  menucolor  = black,
+  pagecolor  = black,
+  urlcolor   = black
+}
 
 \begin{document}
 \hscdtitle{Representing Models of Computation in SystemC}
@@ -212,10 +225,10 @@ mapped onto the concepts presented in the previous Section.
 \subsection{Communicating Sequential Processes (CSP)}
 \emph{Communicating Sequential Processes} \cite{csphoare:1985}
 is a MoC which consist of concurrently executing processes
-which communicate via unidirectional rendezvous channels.
+which communicate via unidirectional \emph{rendezvous channels}.
 As a difference to the CSP model of Hoare \cite{csphoare:1985}
 which allows runtime creation of processes via parallel
-composition and  recursion, the CSP model presented in this report
+composition and recursion, the CSP model presented in this report
 is constraint to a fixed predetermined number of processes.
 This constraint was set to allow hardware synthesis from this
 model.
@@ -225,9 +238,62 @@ implement CSP behavior:
 
 \begin{enumerate}
 \item A rendezvous channel for communication
+
 \item A communication method for Hoare's so-called \emph{general choice}
+  
+  General choice written $a_{p1} \to F_1 \Box a_{p2} \to F_2$
+  is a operation defined on a set of actor ports $A_{P}$
+  and a function $D: A_{P} \to \mathcal{F}$, which maps an actor port
+  $a_{p} \in A_{P}$ to a function $F_{x} \in \mathcal{F}$.
+  Let $A_{P_{rt}} \subseteq A_{P}$ be the subset of actor ports which
+  are ready to communicate at time $t$. The general choice operation
+  blocks the process until time $t$ where at least one actor port
+  is ready to communicate $|A_{P_{rt}}| \ge 1$. One actor port $a_{p} \in A_{P_{rt}}$
+  will be chosen nondeterministically and the execution will contiune
+  with function $F_{continue} = D(a_{p})$. 
+
 \item Parallel executing processes
+
+%\item Sequential composition of functions
+%  
+%  Sequential composition written $F_1 \to F_2 \to F_3 \to \cdots$
+%  is 
+% $\to$ is sequential composition
 \end{enumerate}
+
+In the following, a CSP implementation of the classical dining
+philosophers problem is demonstrated (See Figure~\ref{fig:dining-philosophers}
+for the processes and connection topology used in the example):
+
+\begin{figure}[h]
+\centering
+\input{dining-philosophers-fig.tex}
+\caption{Processes and connection topology used for the ``Dining philosophers'' CSP example}
+\label{fig:dining-philosophers}
+\end{figure}
+
+\begin{displaymath}
+\begin{array}{rcl}
+Philosopher_{i}    & := & FootSit_{i}!sit \to ForkReqL_{i}!take \to ForkReqR_{i\oplus1}!take \to \\
+		   &    & Eat \to \\
+		   &    & ForkReqL_{i}!drop \to ForkReqR_{i\oplus1}!drop \to FootStand_{i}!stand \to \\
+		   &	& Philosopher_{i} \\
+Fork_{i}	   & := & ForkReqR_{i}?req_{r} \to ForkReqR_{i}?req_{r} \to Fork_{i} \Box \\
+		   &    & ForkReqL_{i\oplus1}?req_{l} \to ForkReqL_{i\oplus1}?req_{l} \to Fork_{i} \\
+Footman		   & := & FootMan_{0} \\
+Footman_{0}	   & := & FootSit_{x}?req_{x} \to Footman_{1} \\
+Footman_{3}	   & := & FootStand_{x}?req_{x} \to Footman_{2} \\
+Footman_{j}	   & := & FootSit_{x}?req_{x} \to Footman_{j+1} \Box \\
+		   &    & FootStand_{x}?req_{x} \to Footman_{j-1} \\
+DiningPhilosophers & := & Philosopher_{0} \| Fork_{0} \| \\
+		   &    & Philosopher_{1} \| Fork_{1} \| \\
+		   &    & Philosopher_{2} \| Fork_{2} \| \\
+		   &    & Philosopher_{3} \| Fork_{3} \| \\
+		   &    & Footman \\
+\end{array}
+\end{displaymath}
+
+Where $\oplus$ is addition modulo 4 and $\|$ is parallel composition.
 
 To facilitate analysis of the CSP MoC additionally the following
 constraints must be satisfied:
@@ -253,9 +319,9 @@ Section~\ref{concept-overview}:
 \subsection{Dataflow (DF)}
 Kahn Process Networks \cite{kahn:1974}
 is a MoC which consist of concurrently executing processes
-which communicate via unidirectional unbounded FIFO channels.
-The input/output ends of a channel are connected to dedicated
-processes.
+which communicate via unidirectional unbounded \emph{FIFO channels}.
+The input and output of a channel is connected to a dedicated
+actor port.
 
 The following requirements are the execution requirements to
 implement KPN behavior:

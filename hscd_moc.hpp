@@ -71,6 +71,7 @@ private:
   hscd_op_port_or_list    fire_list;
   
   void process() {
+    std::cout << "hscd_moc_scheduler_sdf" << std::endl;
     while ( 1 )
       hscd_choice_node::choice( fire_list );
   }
