@@ -1,3 +1,0 @@
-In order to compile your report, use the following sequence of commands:
-./configure
-make
