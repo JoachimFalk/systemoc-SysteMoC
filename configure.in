@@ -56,7 +56,7 @@ AC_CHECK_LIB([systemc], [main])
 # SUBDIRS=$subdirs
 # AC_SUBST(SUBDIRS)
 
-AC_CONFIG_FILES([Makefile systemc-df2/Makefile systemc-csp/Makefile])
+AC_CONFIG_FILES([Makefile systemc-df2/Makefile systemc-csp/Makefile systemc-sdf/Makefile])
 
 ACJF_DONE
 

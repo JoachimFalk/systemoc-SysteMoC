@@ -29,10 +29,10 @@ INCLUDES	= -I$(root_srcdir)/systemc-2.0.1/include		\
 AM_LDFLAGS	= -L$(root_srcdir)/systemc-2.0.1/lib-linux		\
 		  -L$(root_builddir)/SysteMoC
 
-noinst_PROGRAMS= simulation-df
+noinst_PROGRAMS= simulation-sdf
 
 LIBS=-lsystemc -lsystemoc
 
 # LDADD= $(root_builddir)/SysteMoC/libsystemoc.la
 
-simulation_df_SOURCES= design-df.cpp
+simulation_sdf_SOURCES= design-sdf.cpp

@@ -43,19 +43,20 @@ class m_top_asap_scheduler
 template <typename T>
 class m_adder: public hscd_fixed_transact_active_node {
   public:
-    hscd_port_in<T>  in;
+    hscd_port_in<T>  in1;
+    hscd_port_in<T>  in2;
     hscd_port_out<T> out;
   private:
     void process() {
       while (true) {
-	out[0] = in[0] + in[1];
-	std::cout << "Adding " << in[0] << " + " << in[1] << " = " << out[0] << std::endl;
+	out[0] = in1[0] + in1[1] + in2[0]; 
+	std::cout << name() << " adding " << in1[0] << " + " << in1[1] << " + " << in2[0] << " = " << out[0] << std::endl;
 	transact();
       }
     }
   public:
     m_adder( sc_module_name name )
-      :hscd_fixed_transact_active_node( name, in(2) & out(1) ) {}
+      :hscd_fixed_transact_active_node( name, in1(2) & in2(1) & out(1) ) {}
 };
 
 template <typename T>
@@ -63,18 +64,20 @@ class m_multiply: public hscd_fixed_transact_active_node {
   public:
     hscd_port_in<T>  in1;
     hscd_port_in<T>  in2;
-    hscd_port_out<T> out;
+    hscd_port_out<T> out1;
+    hscd_port_out<T> out2;
   private:
     void process() {
       while (true) {
-	out[0] = in1[0] * in2[0];
-	std::cout << "Multiplying " << in1[0] << " * " << in2[0] << " = " << out[0] << std::endl;
+	out1[0] = in1[0] * in2[0];
+        out2[0] = out1[0];
+	std::cout << name() << " multiplying " << in1[0] << " * " << in2[0] << " = " << out1[0] << std::endl;
 	transact();
       }
     }
   public:
     m_multiply( sc_module_name name )
-      :hscd_fixed_transact_active_node( name, in1(1) & in2(1) & out(1) ) {}
+      :hscd_fixed_transact_active_node( name, in1(1) & in2(1) & out1(1) & out2(1) ) {}
 };
 
 class m_top2
@@ -92,10 +95,11 @@ public:
     m_adder<int>    &adder = registerNode(new m_adder<int>("adder"));
     m_multiply<int> &mult  = registerNode(new m_multiply<int>("multiply"));
     
-    connectInterfacePorts( in1, adder.in ); // adder.in(in1);
-    connectInterfacePorts( in2, mult.in1 ); // mult.in1(in2);
+    connectInterfacePorts( in1, adder.in1 ); // adder.in(in1);
+    connectInterfacePorts( in2, mult.in1 );  // mult.in1(in2);
     connectNodePorts( adder.out, mult.in2 );
-    connectInterfacePorts( out, mult.out ); // mult.out(out);
+    connectNodePorts( mult.out2, adder.in2, hscd_fifo<int>() << 13 );
+    connectInterfacePorts( out, mult.out1 ); // mult.out(out);
     // asap = new m_top_asap_scheduler( src.fire_port, adder.fire_port, sink.fire_port );
     asap = new hscd_scheduler_asap( "asap", getNodes() );
   }
@@ -109,7 +113,7 @@ class m_source: public hscd_fixed_transact_active_node {
       int i = 0;
       
       while (true) {
-	std::cout << "Generating " << i << std::endl;
+	std::cout << name() << " generating " << i << std::endl;
 	out[0] = i++;
 	transact();
       }
@@ -125,7 +129,7 @@ class m_sink: public hscd_fixed_transact_active_node {
   private:
     void process() {
       while (true) {
-	std::cout << "Received " << in[0] << std::endl;
+	std::cout << name() << " receiving " << in[0] << std::endl;
 	transact();
       }
     }
