@@ -194,7 +194,7 @@ e.g. $\Sigma([1,2,3]) = (1,2,3)$.
 
 Before defining a signal, the notion of an event must be introduced first.
 Given a partially or totally ordered set of tags $T$ and a set of values $V$:
-\begin{definition}
+\begin{definition}\label{tsm-event}
 An \emph{event} $e$ is a  tag-value pair, i.e., $e = (t,v) \in T \times V$.
 \end{definition}
 Events are often called \emph{tokens} which represent the basic communication units.
@@ -211,7 +211,7 @@ which denotes the absence of a value.
 
 A \emph{signal} can be thought of as a subset of the \emph{set of all events} $T \times V$ or as
 an element of the \emph{set of all signals} $S$ which is the powerset $S = 2^{T \times V}$.
-\begin{definition}
+\begin{definition}\label{tsm-signal}
 A \emph{signal} $s$ is defined as a set of events, i.e., $s \subseteq T \times V$.
 \end{definition}
 
@@ -268,7 +268,7 @@ where $\mathbf{v}_i = \Sigma(s_i), i \in \mathbb{N}_N$.
 % achieve the equivalent of renaming or hiding signals, the position of
 % signals in a tuple must be changed or the signal must be drop from the tuple.
 % This is done by applying the \emph{projection} function to a tuple.
-\begin{definition}
+\begin{definition}\label{tsm-projection}
 A \emph{projection} $\pi{}_I: S^N \to S^M$ is a function which discards and reorders signals according
 to the discrete set of indices $I$ in a $N$-tuple of signals
 to form a new $M$-tuple of signals, where $M \le N$. In other words, given $\mathbf{s} = (s_1,\ldots,s_N) \in S^N$
@@ -287,7 +287,7 @@ After defining signals, we are able to review the definition of processes \cite{
 Later, we will use processes to transform signals.
 Processes are described as sets of possible behaviors, where
 a \emph{behavior} is a tuple of signals:
-\begin{definition}
+\begin{definition}\label{tsm-process}
 A process $\mathbf{P}$ is a subset of $S^N$, i.e., $\mathbf{P} \subseteq S^N$.
 \end{definition}
 Each element $\mathbf{s} \in \mathbf{P}$ of the process $\mathbf{P}$ is
@@ -299,7 +299,7 @@ every pair of signals in the behaviour of the process is synchronous, i.e.,
 $\forall{\mathbf{s} \in \mathbf{P} \subseteq S^N, i_1, i_2 \in \mathbb{N}_N}:
 T(\pi{}_{[i_1]}(\mathbf{s})) = T(\pi{}_{[i_2]}(\mathbf{s}))$.
 
-\begin{definition}
+\begin{definition}\label{tsm-connection}
 A \emph{connection process} $\mathbf{C}_I \subseteq S^N$ is a
 process where two (or more) of the signals in the $N$-tuple are
 constrained to be identical. In other words, given $I \subseteq \mathbb{N}_N$
@@ -359,7 +359,7 @@ a process can show, is constrained by its inputs.
 % An input are events or signals which are specified by an external
 % constraint and which must therefore be contained in every behaviour
 % of a process coupled with this input.
-\begin{definition}
+\begin{definition}\label{tsm-input}
 An \emph{input} to a process $\mathbf{P}$ is an externally
 imposed contraint $\mathbf{I} \subset S^N$ such that
 $\mathbf{I} \cap \mathbf{P}$ is the set of acceptable behaviors.
@@ -445,7 +445,7 @@ are not sequence determinate.
 So far, a process contains no information which of the signals in its behaviors are
 input signals and which are output signals. A \emph{input/output partition}
 divides the signals in a behavior of a process into input signals and output signals.
-\begin{definition}
+\begin{definition}\label{tsm-input-output-partition}
 A \emph{input/output partition} $(I,O) \in \left( 2^{\mathbb{N}_N} \right)^2$
 of a process $\mathbf{P} \subseteq S^N$ is a pair of discrete sets,
 where $I \cap O = \emptyset$ and $|I \cup O| = N$. The signals in
@@ -647,7 +647,7 @@ detailed than in actor-oriented design. The actor is divided into
 its \emph{node functionality} and its \emph{firing rules}. The
 type of firing rules an actor can show is dependent on its \emph{node interface}.
 
-\begin{sdefinition}
+\begin{sdefinition}\label{actor}
 An actor is a tupple $A=(\mathcal{F},\mathcal{R},I,O)$ containing
 a \emph{node functionality} $\mathcal{F}$, \emph{firing rules} $\mathcal{R}$,
 a set of \emph{actor input ports} $I$, and a set of \emph{actor output ports} $O$.
@@ -672,7 +672,7 @@ must be provided.
 % Moreover, information about hierarchical composition of actors is required.
 This information is stored in the \emph{network graph}.
 
-\begin{definition}
+\begin{definition}\label{network-graph}
 A network graph is a directed bipartite graph $G_N=(\mathcal{A},C,E)$ containing
 a set of actors $\mathcal{A}$, a set of channels $C$, and a set of
 directed edges $E \subseteq (C \times \mathcal{P}_I)
@@ -812,25 +812,57 @@ the type of the communicated data. Examples for channel kinds are:
 
 \subsection{Node Functionality}\label{node-functionality}
 
+In actor-oriented design the node functionality and the firing rules
+are combined into one opaque block, which can in general not be analyzed.
+However the information in this block would help to reason about communication
+patterns, to produce optimized code, and to check system properties.
 In our methodology proposed in this report, the actor concept is still used,
-but we distinguish two different aspects.
-The first part called \emph{node functionality} is responsible
-for transforming the data values which reside inside tokens.
+but we distinguish two different aspects of an actor $A$. The first part called
+\emph{node functionality} ($A.\mathcal{F}$) is responsible for transforming the data values
+which reside inside tokens. The node functionality will still be regarded as
+an opaque block we do not try to analyze in this report.
 
-\begin{definition}
-  A \emph{node functionality} is a tupple $\mathcal{F} = (F,Q,q_1)$
-  containing a set of functions $F$, a set of functionality states $Q$
-  (possibly infinite), and an initial state $q_1$.
+\begin{definition}\label{node-functionality}
+  The \emph{node functionality} of an actor $A$ is a tupple $A.\mathcal{F} = (F,Q,q_1)$
+  containing a set of \emph{functions} $F$, a set of \emph{functionality states} $Q$
+  (possibly infinite), and an \emph{initial functionality state} $q_1$.
 \end{definition}
 
-The functions $f \in F$ of the node functionality map a
-fixed number of input values $(v_{i1},v_{i2},\ldots,v_{iN}) = \mathbf{v}_i \in V^N$
+The functions $f \in F$ of the node functionality map a fixed number of
+input values $(v_{i1},v_{i2},\ldots,v_{iN}) = \mathbf{v}_i \in V^N$
 and a functionality state $q_i \in Q$ to a fixed number of output values
 $(v_{o1},v_{o2},\ldots,v_{oM}) = \mathbf{v}_o \in V^M$ and a new
 functionality state $q_{i+1} \in Q$, i.e.,  $f: V^N \times Q \to V^M \times Q$.
 
+\begin{figure}[h]
+\centering
+\begin{verbatim}
+class my_actor ... {
+  hscd_port_in<int>  i1, i2; // actor input port i1, i2
+  hscd_port_out<int> o1;     // actot output port o1
+  ...
+  // qi the functionality state
+  uint32_t sum;
+  ...
+  void accumulate()       { // A function of the node functionality
+    sum +=                  // update functionality state
+           i1[0] * i1[1];   // access position 0 and 1 of the temporary buffer in i1
+    o1[0] = sum;          } // update position 0 of the temporary buffer in o1
+  void reset()   { // A function of the node functionality
+    sum = i2[0]; } // update functionality state with the value
+                   // in position 0 of the temporary buffer in i2
+  ...
+  my_actor( ... ) : sum = 0, ... { ... }
+};
+\end{verbatim}
+\caption{Example of an node functionality
+($F = \{\textrm{accumulate}, \textrm{reset}\}$, $Q= [0,1,\ldots,2^{32}-1]$, $q_1 = 0$)
+in the \SysteMoC{} framework}\label{example-node-functionality}
+\end{figure}
+
 The functions in the node functionality can be implemented by any
-programming language but the user must guarantee, that the functions
+programming language (E.g. C++ in case of the \SysteMoC{} framework, See Figure~\ref{example-node-functionality})
+but the user must guarantee, that the functions
 (i) terminate, and (ii) do not communicate with other actors.
 % The node functionality is the only aspect which is not
 % further distinguished into aspect types.
@@ -845,94 +877,125 @@ firing rules.
 
 \subsection{Node Interface}\label{node-interface}
 
-The second part of an actor which determines its communication
-behavior is called \emph{firing rules}. The firing rules
+The second part of an actor $A$ which determines its communication
+behavior is called \emph{firing rules} ($A.\mathcal{R}$). The firing rules
 determine for each actor port the number of tokens to receive or send
 until the associated node functionality can be invoked.
-
-%\begin{definition}\label{firing-rules}
-%A firing rules $s \in S$ is a tuple $(Q_{s}, F_{s})$ containing
-%a subset of activation patterns $Q_{s} \subseteq Q$, and
-%an action selection function $F_{s}: Q_{s} \to \mathcal{T}$ which
-%maps each activation pattern $q \in Q_{s}$ to a corresponding
-%interface action $T_{sq} \in \mathcal{T}$.
-%\end{definition}
-
-\begin{definition}\label{activation-pattern}
-An \emph{activation pattern} is a function $q: A_{P} \to N_0,\ q \in Q$
-which maps each actor port to a non-negative integer.
-The activation pattern is enabled if for each actor input port
-$a_{p} \in A_{P_{i}}$ at least $q(a_{p})$ tokens are available
-and for each actor output port
-$a_{p} \in A_{P_{o}}$ at least $q(a_{p})$ tokens have been
-transmitted.
-\end{definition}
-
-\begin{definition}\label{interface-action}
-An \emph{interface action} is a tuple $J = (F,S_{succ}),\ J \in \mathcal{J}$ containing
-a node functionality $F \in \mathcal{F}$, and a set of successor states $S_{succ}$ containing at least
-one state $|S_{succ}| \ge 1$.
-\end{definition}
-
-\begin{definition}\label{interface-transition}
-An \emph{interface transition} is a tuple $T = (q,J), T \in \mathcal{T}$ containing
-an activation pattern $q \in Q$ and an interface action $J in \mathcal{J}$.
-A transition is enabled if its corresponding activation pattern $q$ is enabled.
-If the associated interface action has only one successor state $|J.S_{succ}| = 1$, the
-transition is called a \emph{deterministic transition}.
-If more than one successor state is associated in $J.S_{succ}$, the
-transition is called a \emph{conflict transition}. What state $s \in J.S_{succ}$
-is actually used is a runtime decission of the node functionality $J.F$.
-\end{definition}
+The firing rules are encoded in form of a finite state machine (FSM).
 
 \begin{definition}\label{firing-rules}
-\emph{Firing rules} is a 5-tuple $R = (S, Q, \mathcal{J}, k, s_0)$ containing
-a set of \emph{firing states} $S$, a set of activation patterns $Q$,
-a set of interface actions $\mathcal{J}$, an action selection function
-$k: S \times Q \to \mathcal{J} \cup \bot$,
-and a initial state $s_0 \in S$. An actor is inactive until at least
-one activation pattern $q$ is enabled which has a corresponding
-interface action in the current firing state $s \in S$ of the actor,
-i.e., $\exists{q \in Q}: k(s,q) \ne \bot \wedge q\ \mathrm{is\ enabled}$.
-The set of ready activation patterns is given by $Q_{ready}$.
-Exactly one activation pattern $q \in Q_{ready}$ will be
-chosen nondeterministically and its corresponding interface action
-$k(s,q)$ will be executed.
+  The \emph{firing rules} of an actor $A$ is a 4-tuple $A.\mathcal{R} = (\mathcal{T}, Q, q_1, \delta)$
+  containing a set of \emph{firing transitions} $\mathcal{T}$,  a set of \emph{firing states} $Q$,
+  an \emph{initial firing state} $q_1$, and a \emph{firing transition function} $\delta: Q \to 2^\mathcal{T}$
+  which maps each state $q \in Q$ to its set of transitions
+  $\mathcal{T}_q \subseteq \mathcal{T}$ which leave this state.
 \end{definition}
+% \emph{Firing rules} is a 5-tuple $R = (S, Q, \mathcal{J}, k, s_0)$ containing
+% a set of \emph{firing states} $S$, a set of activation patterns $Q$,
+% a set of interface actions $\mathcal{J}$, an action selection function
+% $k: S \times Q \to \mathcal{J} \cup \bot$,
+% and a initial state $s_0 \in S$. An actor is inactive until at least
+% one activation pattern $q$ is enabled which has a corresponding
+% interface action in the current firing state $s \in S$ of the actor,
+% i.e., $\exists{q \in Q}: k(s,q) \ne \bot \wedge q\ \textrm{is enabled}$.
+% The set of ready activation patterns is given by $Q_{ready}$.
+% Exactly one activation pattern $q \in Q_{ready}$ will be
+% chosen nondeterministically and its corresponding interface action
+% $k(s,q)$ will be executed.
+
+An actor is \emph{blocked} until at least one firing transition
+$\mathbf{t} \in \mathcal{T}_q$ for the current state $q$ is enabled.
+The set of enabled transitions is given by
+$\mathcal{T}_{\mathrm{ready\ in\ }q} = \{ \mathbf{t} \mid \mathbf{t} \in \mathcal{T}_q \wedge \mathbf{t} \textrm{ is enabled}\}$.
+Exactly one transition $t \in \mathcal{T}_{\mathrm{ready\ in\ }q}$ will be
+chosen nondeterministically for execution.
+A firing transition is annotated with a condition called
+\emph{activation pattern} and an action called \emph{interface action}.
+
+\begin{definition}\label{firing-transition}
+  An \emph{firing transition} is a tuple $\mathbf{t} = (k,J)$ containing
+  an \emph{activation pattern} $k$ and an \emph{interface action} $J$.
+\end{definition}
+
+An activation pattern is a predicate on actor ports. It encodes how many
+tokens to send (via actor output ports) or to receive (via actor input ports)
+when the activation pattern is executed.
+
+\begin{definition}\label{activation-pattern}
+  An \emph{activation pattern} is a function
+  $k: A.I \cup A.O \to \mathbb{Z}^+_0,\ k \in \mathcal{K}$
+  which maps each actor port of the actor $A$ to a nonnegative integer.
+\end{definition}
+
+An activation pattern $k$ is enabled if for each actor input port
+$p_I \in A.I$ at least $k(p_I)$ tokens can be received and for each
+actor output port $p_O \in A.O$ at least $k(p_O)$ tokens can be sent.
+If an activation pattern $k$ is executed it receives $k(p_I)$ tokens
+via the actor input port $p_I$ and stores them into the
+temporary buffers in these actor input ports. For actor output ports
+$p_O$ the $k(p_O)$ tokens in the temporary buffers of the actor
+output ports are send via these ports.
+
+A transition $\mathbf{t} = (k,J)$ is enabled if its activation
+pattern $k$ is enabled. If a transition $\mathbf{t}$ is enabled and 
+part of the transitions $\mathcal{T}_q$ which leave the current state $q$
+the transition $\mathbf{t}$ can be taken, i.e.,
+$(k,J) = \mathbf{t} \in \mathcal{T}_q \wedge k\textrm{ is enabled} \implies \mathbf{t}\textrm{ can be taken}$.
+
+\begin{definition}\label{interface-action}
+  An \emph{interface action} is a tuple $J = (f,Q_\mathrm{succ}),\ J \in \mathcal{J}$ containing
+  a function $f \in A.\mathcal{F}.F$ of the node functionality $A.\mathcal{F}$
+  and a set of possible successor states $Q_\mathrm{succ}$. Where the set of
+  possible successor states must contain at least one element, i.e.,
+  $|Q_\mathrm{succ}| \ge 1$.
+\end{definition}
+
+A transition $\mathbf{t} = (k,J)$ is called a \emph{deterministic transition}
+if the associated interface action $J$ has only one successor state, i.e.,
+$|J.Q_\mathrm{succ}| = 1$.
+A transition $\mathbf{t} = (k,J)$ is called a \emph{conflict transition}
+if the associated interface action $J$ has more then one possible
+successor state, i.e., $|J.Q_\mathrm{succ}| \ge 1$.
+
+If a transition $\mathbf{t} = (k,J)$ is taken first the assosciated
+activation pattern $k$ then the function $J.f$ of the node functionality
+is executed. In case of a deterministic transition the current firing
+state is updated to the single successor state in $J.Q_\mathrm{succ}$.
+In case of a conflict transition the successor state actually used is
+a runtime decission of the function $J.f$.
 
 These firing rules are constructed by use of the following operations:
 
 \begin{itemize}
 \item branch
 
-\emph{Branch} is a operation which maps a node functionality $F$ and
-a none empty set of firing state $S_{B} \ne \emptyset$ to an interface action $J$,
-i.e., $\mathrm{Call}: \mathcal{F} \times 2^S \to \mathcal{J}$.
-If the resulting interface action $J$ is included into a
-firing state $s_{c}$ it permits to create a conflict transition
-in the firing rules.
+\emph{Branch} is a operation which maps a function $f$ of the node functionality and
+a none empty set of firing state $Q_B \ne \emptyset$ to an interface action $J$,
+i.e., $\textrm{Branch}: A.\mathcal{F}.F \times 2^{A.\mathcal{R}.Q} \to \mathcal{J}$.
+If the resulting interface action $J$ is included into a transition
+$\mathbf{t}$ it permits to create a conflict transition.
+
 \item call
 
-\emph{Call} is a operation which maps a node functionality $F$ and
-a firing state $s$ to an interface action $J$,
-i.e., $\mathrm{Call}: \mathcal{F} \times S \to \mathcal{J}$.
+\emph{Call} is a operation which maps a node functionality $f$ of the node functionality and
+a firing state $q$ to an interface action $J$,
+i.e., $\textrm{Call}: A.\mathcal{F}.F \times A.\mathcal{R}.Q \to \mathcal{J}$.
 If the resulting interface action $J$ is included into a
-firing state $s_{c}$, it corresponds to a deterministic transition
-in the firing rules from the state $s_{c}$ to state $s$.
+transition $\mathbf{t}$, it creates a deterministic transition.
 Furthermore, the call operation is clearly a subset of the
 branch operation.
 
 \item transition
 
-\emph{Transition} is a operation which maps an activation pattern $q$ and
-an interface action $J$ to an interface transition $T$,
-i.e., $\mathrm{Transition}: Q \times \mathcal{J} \to \mathcal{T}$.
+\emph{Transition} is a operation which maps an activation pattern $k$ and
+an interface action $J$ to an interface transition $\mathbf{t}$,
+i.e., $\textrm{Transition}: \mathcal{K} \times \mathcal{J} \to \mathcal{T}$.
 
 \item choice
 
 \emph{Choice} is a operation which maps a set of interface transitions $\mathcal{T}$
-to a firing state $s$,
-i.e., $\mathrm{Choice}: 2^{\mathcal{T}} \to S$.
+to a firing state $q$,
+i.e., $\textrm{Choice}: 2^{\mathcal{T}} \to Q$.
 The firing state created by this operation can have multiple outgoing
 transitions.
 
@@ -940,10 +1003,12 @@ transitions.
 
 \emph{Transact} is a operation which maps an interface transition $T$
 to a firing state $s$,
-i.e., $\mathrm{Transact}: \mathcal{T} \to S$.
+i.e., $\textrm{Transact}: \mathcal{T} \to Q$.
 The firing state created by this operation has only one outgoing
-transition $T$. Furthermore, the transact operation is clearly a subset of the
+transition $\mathbf{t}$.
+Furthermore, the transact operation is clearly a subset of the
 choice operation.
+
 \end{itemize}
 
 The set of operations available to construct the firing rules constraints
