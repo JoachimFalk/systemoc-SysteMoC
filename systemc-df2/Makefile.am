@@ -24,10 +24,14 @@ root_builddir=$(top_builddir)/..
 
 SUBDIRS=
 
-INCLUDES	= -I$(root_srcdir)/systemc-2.0.1/include		\
-		  -I$(root_builddir)/SysteMoC/include/systemoc
-AM_LDFLAGS	= -L$(root_srcdir)/systemc-2.0.1/lib-linux		\
-		  -L$(root_builddir)/SysteMoC
+INCLUDES =						\
+	@SYSTEMC_INCLUDE@				\
+	-I$(root_builddir)/SysteMoC/include/systemoc	\
+	-I$(srcdir)
+
+AM_LDFLAGS=						\
+	@SYSTEMC_LDFLAGS@				\
+	-L$(root_builddir)/SysteMoC
 
 noinst_PROGRAMS= simulation-df
 
