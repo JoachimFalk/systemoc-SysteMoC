@@ -375,7 +375,7 @@ is constrained to be $s_i$ by the input $\mathbf{I}$.
 
 
 \begin{example}
-For example given the following process $\mathbf{P}$
+For example, given the following process
 \label{ex:example-with-process-1}
 \begin{displaymath}
 \begin{array}{rll}
@@ -393,7 +393,7 @@ constrained by $\mathbf{I}$ are as follows:
                                \{(\{(1,0),(2,1)\},\{(2,1)\})\}\\
 \end{displaymath}
 In other words, if the input is $0$ and $1$ at times $1$ and $2$ respectively,
-the the output will be $1$ at time $2$.
+then the output will be $1$ at time $2$.
 \end{example}
 
 %Some characteristics of processes can only be determined in combination with
@@ -430,19 +430,18 @@ A process without inputs is called
 \emph{sequence determinate} if its behaviors are all sequence equivalent
 i.e., $\forall{\mathbf{s}_1, \mathbf{s}_2 \in \mathbf{P}}: \Sigma(\mathbf{s}_1) = \Sigma(\mathbf{s}_2)$.
 
-\begin{equation}\label{equ:process-for-sequence-determinate-example}
+
+\begin{example}
+For example, given the following processes
+\begin{displaymath}
 \begin{array}{rll}
   \mathbf{P}_1 = \{ & ([(1.5,'A'),(1.6,'B')]),([(-3.14,'A'),(16,'B')]) & \} \subseteq S^1\\
   \mathbf{P}_2 = \{ & ([(1.5,'A'),(1.6,'C')]),([(-3.14,'A'),(16,'B')]) & \} \subseteq S^1\\
   \mathbf{P}_3 = \{ & ([(1.5,'B'),(1.6,'A')]),([(-3.14,'A'),(16,'B')]) & \} \subseteq S^1\\
 \end{array}
-\end{equation}
-
-\begin{example}
-The process $\mathbf{P}_1$  given in Equation~(\ref{equ:process-for-sequence-determinate-example})
-is sequence determinate, whereas the processes $\mathbf{P}_2$ and
-$\mathbf{P}_3$ given in Equation~(\ref{equ:process-for-sequence-determinate-example})
-are not sequence determinate.
+\end{displaymath}
+then the process $\mathbf{P}_1$ is sequence determinate, whereas the
+processes $\mathbf{P}_2$ and $\mathbf{P}_3$ are not sequence determinate.
 \end{example}
 
 So far, a process contains no information which of the signals in its behaviors are
@@ -847,20 +846,16 @@ The functions in the node functionality can be implemented by any
 programming language % (E.g. C++ in case of the \SysteMoC{} framework, See Figure~\ref{example-node-functionality})
 but the user must guarantee, that the functions
 (i) terminate, and (ii) do not communicate directly with other actors
-avoiding the \SysteMoC communication mechanism.
+avoiding the \SysteMoC{} communication mechanism.
 % The node functionality is the only aspect which is not
 % further distinguished into aspect types.
 The input values $v_{i1}, v_{i2}, \ldots$ are provided by the firing rules
 which receive them from the channels connected to the actor input ports.
 The output values $v_{o1}, v_{o2}, \ldots$ produced by the execution of
 the node functionality are later written to the actor output ports by
-the firing rules.
-
-%The firing rules store the input values in temporary buffers in the actor input ports
-%for later usage by the functions of the node functionality.
-%The node functionality stores the output values in temporary buffers in the actor output ports
-%These temporary buffers are sent to the channels connected to these actor output ports by the
-%firing rules.
+the firing rules. The communication of input and output values between the
+node functionality and the firing rules happens via temporary buffers in
+the actor ports.
 
 \subsection{Node Interface}\label{node-interface}
 
@@ -900,7 +895,7 @@ A firing transition is annotated with a condition called
 \emph{activation pattern} and an action called \emph{interface action}.
 
 \begin{definition}\label{firing-transition}
-  An \emph{firing transition} is a tuple $\mathbf{t} = (k,J)$ containing
+  A \emph{firing transition} is a tuple $\mathbf{t} = (k,J)$ containing
   an \emph{activation pattern} $k$ and an \emph{interface action} $J$.
 \end{definition}
 
@@ -918,16 +913,30 @@ An activation pattern $k$ is enabled if for each actor input port
 $p_I \in A.I$ at least $k(p_I)$ tokens can be received and for each
 actor output port $p_O \in A.O$ at least $k(p_O)$ tokens can be sent.
 If an activation pattern $k$ is executed it receives $k(p_I)$ tokens
-via the actor input port $p_I$ and stores them into the
+via the actor input port $p_I$ and stores them in
 temporary buffers in these actor input ports. For actor output ports
-$p_O$ the $k(p_O)$ tokens in the temporary buffers of the actor
-output ports are send via these ports.
+$p_O$ the $k(p_O)$ tokens in temporary buffers of the actor
+output ports are sent via these ports.
 
-A transition $\mathbf{t} = (k,J)$ is enabled if its activation
-pattern $k$ is enabled. If a transition $\mathbf{t}$ is enabled and 
-part of the transitions $\mathcal{T}_q$ which leave the current state $q$
-the transition $\mathbf{t}$ can be taken, i.e.,
-$(k,J) = \mathbf{t} \in \mathcal{T}_q \wedge k\textrm{ is enabled} \implies \mathbf{t}\textrm{ can be taken}$.
+\begin{example}\label{ex:example-activation-pattern}
+Assuming the actor input ports $I = \{i_1,i_2,i_3\}$ and output ports
+$O = \{o_1,o_2\}$ are connected to bounded FIFO channels then the
+activation pattern 
+\[k(p) = \left\{ \begin{array}{ll}
+2 & \textrm{if $p = i_1$} \\
+1 & \textrm{if $p = i_2$} \\
+1 & \textrm{if $p = o_1$} \\
+0 & \textrm{otherwise}
+\end{array} \right.\]
+is enabled, if there are at least two token in the FIFO channel connected
+via $i_1$, at least one token in the FIFO channel connected via $i_2$, and
+there is space available for at least one additional token in the FIFO channel
+connected via $o_1$.
+\end{example}
+
+The specification of an activation pattern by its function as seen in Example~\ref{ex:example-activation-pattern}
+poses a great overhead. Therefore, we will use the shortcut notation
+$i_1(2) \& i_2(1) \& o_1(1)$ to express the same information.
 
 \begin{definition}\label{interface-action}
   An \emph{interface action} is a tuple $J = (f,Q_\mathrm{succ}),\ J \in \mathcal{J}$ containing
@@ -937,12 +946,37 @@ $(k,J) = \mathbf{t} \in \mathcal{T}_q \wedge k\textrm{ is enabled} \implies \mat
   $|Q_\mathrm{succ}| \ge 1$.
 \end{definition}
 
+A transition $\mathbf{t} = (k,J)$ is enabled if its activation
+pattern $k$ is enabled. If a transition $\mathbf{t}$ is enabled and 
+part of the transitions $\mathcal{T}_q$ which leave the current state $q$
+the transition $\mathbf{t}$ can be taken, i.e.,
+$(k,J) = \mathbf{t} \in \mathcal{T}_q \wedge k\textrm{ is enabled} \implies \mathbf{t}\textrm{ can be taken}$.
+
 A transition $\mathbf{t} = (k,J)$ is called a \emph{deterministic transition}
 if the associated interface action $J$ has only one successor state, i.e.,
-$|J.Q_\mathrm{succ}| = 1$.
+$|J.Q_\mathrm{succ}| = 1$. An example of a deterministic transition can
+be seen in Figure~\ref{fig:deterministic-transition}.
 A transition $\mathbf{t} = (k,J)$ is called a \emph{conflict transition}
 if the associated interface action $J$ has more then one possible
-successor state, i.e., $|J.Q_\mathrm{succ}| > 1$.
+successor state, i.e., $|J.Q_\mathrm{succ}| > 1$. An example of a
+conflict transition can be seen in Figure~\ref{fig:conflict-transition}.
+
+\begin{figure}[h]
+\centering
+\input{deterministic-transition-fig.tex}
+\caption{Example of a deterministic transition $\mathbf{t} = (k,J)$
+with $k = i_1(2) \& i_2(1) \& o_1(1)$, $J.f = f_1$, and
+$J.Q_\mathrm{succ} = \{S_x\}$.}
+\label{fig:deterministic-transition}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\input{conflict-transition-fig.tex}
+\caption{Example of a conflict transition $\mathbf{t} = (k,J)$
+with $k = i_1(1) \& o_2(1)$, $J.f = f_2$, and $J.Q_\mathrm{succ} = \{S_x,S_y,S_z\}$.}
+\label{fig:conflict-transition}
+\end{figure}
 
 The notion of firing is similar to the concepts introduced in
 SPI~\cite{ZERTT99a} and FunState~\cite{STZETG00}.
@@ -1010,15 +1044,45 @@ Choice node interface provides the operations
 \emph{transition}, \emph{choice}, \emph{transact}, \emph{call} and \emph{branch}.
 \end{definition}
 
+An example of firing rules constructible with this node interface
+type can be seen in Figure~\ref{fig:firing-rules-choice}.
+
+\begin{figure}
+\centering
+\input{firing-rules-choice-fig.tex}
+\caption{Example of firing rules which can be created by the choice node interface}
+\label{fig:firing-rules-choice}
+\end{figure}
+
 \begin{definition}\label{transact-node-interface-type}
 Transact node interface provides the operations
 \emph{transition}, \emph{transact}, \emph{call} and \emph{branch}.
 \end{definition}
 
+An example of firing rules constructible with this node interface
+type can be seen in Figure~\ref{fig:firing-rules-transact}.
+
+\begin{figure}
+\centering
+\input{firing-rules-transact-fig.tex}
+\caption{Example of firing rules which can be created by the transact node interface}
+\label{fig:firing-rules-transact}
+\end{figure}
+
 \begin{definition}\label{fixed-transact-node-interface-type}
 Fixed transact node interface provides only the operations
 \emph{transition} and \emph{call}.
 \end{definition}
+
+An example of firing rules constructible with this node interface
+type can be seen in Figure~\ref{fig:firing-rules-fixed-transact}.
+
+\begin{figure}
+\centering
+\input{firing-rules-fixed-transact-fig.tex}
+\caption{Example of firing rules which can be created by the fixed transact node interface}
+\label{fig:firing-rules-fixed-transact}
+\end{figure}
 
 % \emph{Choice} is an operation defined on a set of actor ports $A_{P}$
 % and a function $D: A_{P} \to \mathcal{F}$, which maps each actor port
@@ -1334,17 +1398,30 @@ are provided by the network graph.
 %active actors and actors without a dedicated thread of control
 %passive actors.
 
+\begin{figure}[h]
+\centering
+\input{SysteMoC-Goals-fig.tex}
+\caption{Integration of \SysteMoC{} into SystemC}
+\label{fig:SysteMoC-Goals}
+\end{figure}
+
 \subsection{Node Functionality}
 The node functionality is only used for algorithmic transformations of data values.
 The node functionality of an actor is defined in certain member functions,
-which are called by the firing rules when their requirements for input data is fulfilled.
-This member functions are not allowed to call communication operations. All required
-input and output data values are read from
-and written to the actor ports. All actor ports are globally accessible
-by the actor member functions and can be used to get input data
-and put output data for the node functionality
-(See Figure~\ref{example-adder-actor} and Figure~\ref{example-multiply-actor}
- for an example of a node functionality encapsulated in the method \code{transform}).
+which are called by the firing rules when their requirements for input data
+is fulfilled. This member functions are not allowed to call communication
+operations. All required input and output data values are kept in temporary buffers
+in the actor ports. These buffers are managed by the firing rules which store
+new data received via actor input ports in temporary buffers in these
+actor input ports and send data in temporary buffers in actor output ports
+to the channels connected via these ports. An example of an actor which all parts
+except the node functionality stripped can be seen in Figure~\ref{example-node-functionality}.
+
+%The firing rules store the input values in temporary buffers in the actor input ports
+%for later usage by the functions of the node functionality.
+%The node functionality stores the output values in temporary buffers in the actor output ports
+%These temporary buffers are sent to the channels connected to these actor output ports by the
+%firing rules.
 
 \begin{figure}[h]
 \centering
@@ -1367,65 +1444,19 @@ class my_actor ... {
   my_actor( ... ) : sum = 0, ... { ... }
 };
 \end{verbatim}
-\caption{Example of an node functionality
+\caption{Example of a node functionality
 ($F = \{\textrm{accumulate}, \textrm{reset}\}$, $Q= [0,1,\ldots,2^{32}-1]$, $q_1 = 0$)
 in the \SysteMoC{} framework}\label{example-node-functionality}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\begin{verbatim}
-template <typename T>
-class m_adder // Actor m_adder
-  : public hscd_fixed_transact_node // Node interface
-{
-public:
-  hscd_port_in<T>  in;
-  hscd_port_out<T> out;
-private:
-  // Node functionality
-  void transform() {
-    out[0] = in[0] + in[1];
-    std::cout << "Adding " << in[0] << " + " << in[1]
-              << " = " << out[0] << std::endl;
-  }
-public:
-  m_adder( sc_module_name name )
-    :hscd_fixed_transact_node( name,
-        (in(2) & out(1)) >> call(transform) /* Firing rules */ ) {}
-};
-\end{verbatim}
-\caption{\label{example-adder-actor}Example of an adder in the \SysteMoC{} framework}
+\scalebox{0.5}[0.5]{\input{ng-moc-identification-fig.tex}}
+\caption{Identification of MoC in SystemC with \SysteMoC}
+\label{fig:ng-moc-identification}
 \end{figure}
 
-\begin{figure}[h]
-\centering
-\begin{verbatim}
-template <typename T>
-class m_multiply // Actor m_multiply
-  : public hscd_fixed_transact_node // Node interface
-{
-public:
-  hscd_port_in<T>  in1;
-  hscd_port_in<T>  in2;
-  hscd_port_out<T> out;
-private:
-  // Node functionality
-  void transform() {
-    out[0] = in1[0] + in2[0];
-    std::cout << "Multiplying" << in1[0] << " * " << in2[0]
-              << " = " << out[0] << std::endl;
-  }
-public:
-  m_multiply( sc_module_name name )
-    :hscd_fixed_transact_node( name,
-        (in1(1) & in2(1) & out(1)) >> call(transform) /* Firing rules */ ) {}
-};
-\end{verbatim}
-\caption{\label{example-multiply-actor}Example of a multiplier in the \SysteMoC{} framework}
-\end{figure}
-
-%\begin{figure}
+%\begin{figure}[h]
 %\centering
 %\begin{verbatim}
 %template <typename T>
@@ -1442,24 +1473,16 @@ public:
 %    std::cout << "Adding " << in[0] << " + " << in[1]
 %              << " = " << out[0] << std::endl;
 %  }
-%  
-%  // Firing rules
-%  void process() {
-%    while (true) {
-%      transform();
-%      transact();
-%    }
-%  }
 %public:
 %  m_adder( sc_module_name name )
 %    :hscd_fixed_transact_node( name,
-%        in(2) & out(1) /* Firing rules */ ) {}
+%        (in(2) & out(1)) >> call(transform) /* Firing rules */ ) {}
 %};
 %\end{verbatim}
 %\caption{\label{example-adder-actor}Example of an adder in the \SysteMoC{} framework}
 %\end{figure}
-
-%\begin{figure}
+%
+%\begin{figure}[h]
 %\centering
 %\begin{verbatim}
 %template <typename T>
@@ -1477,18 +1500,10 @@ public:
 %    std::cout << "Multiplying" << in1[0] << " * " << in2[0]
 %              << " = " << out[0] << std::endl;
 %  }
-%  
-%  // Firing rules
-%  void process() {
-%    while (true) {
-%      transform();
-%      transact();
-%    }
-%  }
 %public:
 %  m_multiply( sc_module_name name )
 %    :hscd_fixed_transact_node( name,
-%        in1(1) & in2(1) & out(1) /* Firing rules */ ) {}
+%        (in1(1) & in2(1) & out(1)) >> call(transform) /* Firing rules */ ) {}
 %};
 %\end{verbatim}
 %\caption{\label{example-multiply-actor}Example of a multiplier in the \SysteMoC{} framework}
@@ -1507,7 +1522,7 @@ to assure that the node functionality does terminate and does not
 directly communicate with other actors omitting the \SysteMoC{} channels.
 
 After prohibiting any form of communication by the node functionality we,
-instead introduce firing rules which is a state machine which determines
+instead introduce firing rules which is a finite state machine which determines
 the communication behavior of an actor. However some MoCs, e.g. KPN, need
 a Turing complete control of their communication behavior. To
 accomodate this, we again allow the node functionality to indirectly
@@ -1516,7 +1531,7 @@ created by the branch operation. Clearly this is undesirable for more
 constrainted MoCs. Therefore, we have to distinguish firing rules into
 different categories which allow or disallow such possibilities. We
 distinguish firing rules into these categories by the operations we
-support for constucting them. These operations are provided by the
+support for constructing them. These operations are provided by the
 node interface which is a base class of the actor. Therefore the
 type of firing rules possible for an actor is determined by the
 node interface type from which the actor is derived.
@@ -1694,7 +1709,7 @@ composition of a network graph of the desired type:
   \item connectInterfacePorts: Same method as defined for petri network graphs.
   
   \item connectNodePorts:
-    This method is a shorthand for adding one channel and
+    This method is a shortcut for adding one channel and
     connecting two actor ports via this channel. Only channels
     which are connected to a dedicated output actor port and
     a dedicated input actor port can be realized with it.
