@@ -134,72 +134,117 @@ extraction, and analysis of different MoCs is permitted.
 We use Lee's \emph{tagged signal model} introduced in \cite{Lee98} to
 distinguish MoCs. This model consist of concurrent \emph{processes} which
 can only communicate with each other via \emph{signals}.
-
 Before defining a signal, the notion of an event must be introduced first.
 Given a set of tags $T$ and a set of values $V$:
 \begin{sdefinition}
-A \emph{event} $e$ is a  tag-value pair, i.e., $e \in T \times V$.
+An \emph{event} $e$ is a  tag-value pair, i.e., $e \in T \times V$.
 \end{sdefinition}
-Events are often called \emph{tokens}. Tags are used to model time,
-precedence relationships, synchronization points, and other key properties
+Tags are used to model time,
+precedence relationships, synchronization points, or other key properties
 of MoCs. The values are used as data to be manipulated by computations.
 For some MoCs the set of values contains the special symbol bottom ($\bot$),
 which denotes the absence of a value. The odering of the tags induces
 a ordering of events, i.e., $e_1 = (t_1,v_1)$ and $e_2 = (t_2,v_2)$, then $e_1 < e_2 \iff t_1 < t_2$.
 Two Events $e_1$, $e_2$ are \emph{synchronous events} if they contain
 the same tag, i.e., $e_1 = (t,v_1)$ and $e_2 = (t,v_2)$.
+Events are often called \emph{tokens} which represent the basic communication units.
 
 A \emph{signal} can be thought of as a subset of the set of all events or as
-a member of the \emph{set of all signals} $S$, which is the powerset $S = 2^{T \times V}$
+an element of the \emph{set of all signals} $S$, which is the powerset $S = 2^{T \times V}$
 of the set of all events.
 \begin{sdefinition}
 A \emph{signal} $s$ is defined as a set of events, i.e., $s \subseteq T \times V$.
 \end{sdefinition}
-A functional signal or proper signal is a signal $s$ where each tag is unique in $s$,
+A \emph{functional signal} or \emph{proper signal} is a signal $s$ where each tag is unique in $s$,
 i.e., $e_1 = (t,v_1) \in s$ and $e_2 = (t,v_2) \in s \then v_1 = v_2$.
-Intuitively if tags represent time a proper signal is a signal which has
+Intuitively, if tags represent time a proper signal is a signal which has
 at most one value per point in time. Furthermore, $T(s) \subseteq T$ denotes
 the set of tags in the signal $s$, i.e., $T(s) = \{t|(t,v) \in s\}$.
 Two signals $s_1$ and $s_2$ are \emph{synchronous signals} if they contain
 the same set of tags, i.e., $T(s_1) = T(s_2)$.
-Intuitively if two signals are synchronous each event in one
+Hence, if two signals are synchronous each event in one
 signal has a corresponding synchronous event in the other signal and vice versa.
 
 A tuple of $N$ signals is denoted $\mathbf{s} = (s_1, s_2, \dots, s_N)$ and the
 set of all $N$-tuples of signals will be denoted $S^N$, where $N$ is a
-natural number. The position of a signal in its tuple is equivalent
-to its name. The \emph{empty signal} is denoted by $\lambda$. This
-signal does not have any events $\lambda = \emptyset$. And a \emph{tuple
+natural number.
+% The position of a signal in its tuple is equivalent to its name. To
+% achieve the equivalent of renaming or hiding signals, the position of
+% signals in a tuple must be changed or the signal must be drop from the tuple.
+% This is done by applying the \emph{projection} function to a tuple.
+\begin{sdefinition}
+A \emph{projection} $\pi{}_I: S^N \to S^M$ is a function which discards and reorders signals according
+to the ordered set of indexes $I$ in a $N$-tuple of signals
+to form a new $M$-tuple of signals, where $M \le N$, $\mathbf{s} = (s_1,\cdots,s_N) \in S^N$,
+and $I = (i_1,\cdots,i_m) \in \{1,2, \ldots N\}^M$
+, i.e., $\pi{}_I(\mathbf{s}) = (s_{i_1}, \cdots, s_{i_m})$.
+A projection $\pi{}_I$ can be generalized to subsets $\mathbf{P}$ of $S^N$,
+i.e., $\pi{}_I(\mathbf{P}) = \{\mathbf{s'}|\pi{}_I(s) = \mathbf{s'} \wedge \mathbf{s} \in \mathbf{P}\}$.
+\end{sdefinition}
+The \emph{empty signal} is denoted by $\lambda$. This
+signal does not have any events, i.e., $\lambda = \emptyset$. And a \emph{tuple
 of empty signals} will be denoted by $\Lambda$.
 
-Processes are described as sets of possible \emph{behaviors}, and
-a behavior is a tuple of signals.
+After defining signals, we are able to review the definitions of processes.
+Later, we will use processes to transform signals.
+Processes are described as sets of possible behaviors, where
+a behavior is a tuple of signals:
 \begin{sdefinition}
 A process $\mathbf{P}$ is a subset of $S^N$, i.e., $\mathbf{P} \subseteq S^N$.
 \end{sdefinition}
-Each elemt $\mathbf{s} \in \mathbf{P}$ of the process $\mathbf{P}$ is
-called a behavior of the process $\mathbf{P}$. A particular tuple
-of signals $\mathbf{s} \in S^N$ is said to satisfy the process,
+Each element $\mathbf{s} \in \mathbf{P}$ of the process $\mathbf{P}$ is
+called a \emph{behavior} of the process $\mathbf{P}$. A particular tuple
+of signals $\mathbf{s} \in S^N$ is said to \emph{satisfy} the process,
 if it is one of its behaviors, i.e., $\mathbf{s} \in \mathbf{P}$.
+A process $\mathbf{P}$ is a \emph{synchronous process} if
+every pair of signals in the behaviour of the process is synchronous, i.e.,
+$\forall{\mathbf{s} \in \mathbf{P} \subseteq S^N, (i_1,i_2) \in \{1,2,\ldots N\}^2}:
+T(\pi{}_{i_1}(\mathbf{s})) = T(\pi{}_{i_2}(\mathbf{s}))$.
+
 Two processes $\mathbf{P_1}$ and $\mathbf{P_2}$ can be composed into
 a new composite process $\mathbf{Q}$, where
 each behavior of the composite process is a behavior of its
-component processes. Therefore, composition is set intersection of
-its component processes $\mathbf{Q} = \mathbf{P_1} \cap \mathbf{P_2}$.
-However, care hase to be taken before forming such an intersection.
+component processes. Thus, composition can be defined as set intersection of
+its component processes, i.e., $\mathbf{Q} = \mathbf{P_1} \cap \mathbf{P_2}$.
+However, care has to be taken before forming such an intersection.
 Each process to be composed must be defined as a subset of the same
-set of signals.
+set of signals. Cross product and projection are syntactic operations
+used to transform the processes to achieve this goal. They play no
+semantic role in composition.
 
-The set of behaviors a processes can show is constraint
-by its inputs. A process is called \emph{determinate}, if after being
+% Insert Example
+
+Many processes have a concept of \emph{inputs}. The set of behaviors
+a processes can show is constraint by its inputs.
+% An input are events or signals which are specified by an external
+% constraint and which must therefore be contained in every behaviour
+% of a process coupled with this input.
+\begin{sdefinition}
+An \emph{input} to a process $\mathbf{P}$ is an externally
+imposed contraint $\mathbf{I} \subset S^N$ such that
+$\mathbf{I} \cap \mathbf{P}$ is the set of acceptable behaviours.
+\end{sdefinition}
+An input can assert the presence of a certain event $e = (t,v)$ in a signal,
+e.g. $\mathbf{I} = \{\mathbf{s} | e \in \pi{}_{1}(\mathbf{s}) \}$.
+But generally an input defines whole signals or set of signals.
+Signals which are entirely defined externally are called \emph{input signals},
+e.g. $\mathbf{I} = \{\mathbf{s} | s_i = \pi{}_{1}(\mathbf{s}) \}$, where
+$\mathbf{s} = (s_1, s_2)$, $s_1$ is the input signal, and
+$s_i$ is the value of the input signal $s_1$.
+
+% Insert Example
+
+Some characteristics of processes can only be determined in combination with
+its set of possible inputs $\mathbf{B} \subseteq 2^{S^N}$.
+One such characteristic is the \emph{determinancy} of a process.
+A process $\mathbf{P}$ is called a \emph{determinate process} with respect
+to its set of possible inputs $\mathbf{B}$, if after being
 constraint by its inputs, it consists of exactly one or exactly
-zero behaviors.
-
-%and processes are synchronous if
-%all signals in each behaviour are synchronous to each other.
+no behaviors for each input $\mathbf{I} \in \mathbf{B}$,
+i.e., $\forall{\mathbf{I} \in \mathbf{B}}: |\mathbf{P} \cap \mathbf{I}| \le 1$.
+Otherwise it is a \emph{nondeterminate process}.
 
 % Timed MoCs are characterized by tags which are totally ordered.
-
 
 \section{Aspect Overview}\label{aspect-overview}
 
