@@ -12,22 +12,41 @@ template <typename T_scheduler, typename T_constraintset>
 class hscd_moc
   : public T_constraintset,
     public T_scheduler {
-  public:
-    explicit hscd_moc( sc_module_name name )
-      : T_constraintset(name), T_scheduler(
-          static_cast<typename T_scheduler::cset_ty *>(this)) {}
-    hscd_moc()
-      : T_constraintset(), T_scheduler(
-          static_cast<typename T_scheduler::cset_ty *>(this)) {}
+private:
+#ifndef __SCFE__
+  void process() { return schedule(); }
+#else
+  void process() {}
+#endif
+public:
+  typedef hscd_moc<T_scheduler, T_constraintset> this_type;
+  
+  SC_HAS_PROCESS(this_type);
+  
+  explicit hscd_moc( sc_module_name name )
+    : T_constraintset(name), T_scheduler(
+        static_cast<typename T_scheduler::cset_ty *>(this)) {
+#ifndef __SCFE__
+    SC_THREAD(process);
+#endif
+  }
+  hscd_moc()
+    : T_constraintset(), T_scheduler(
+        static_cast<typename T_scheduler::cset_ty *>(this)) {
+#ifndef __SCFE__
+    SC_THREAD(process);
+#endif
+  }
 
 #ifndef __SCFE__
-    void assemble( hscd_modes::PGWriter &pgw ) const {
-      return T_constraintset::assemble(pgw); }
-    void pgAssemble( sc_module *m, hscd_modes::PGWriter &pgw ) const {
-      return T_constraintset::pgAssemble(pgw); }
+  void assemble( hscd_modes::PGWriter &pgw ) const {
+    return T_constraintset::assemble(pgw); }
+  void pgAssemble( sc_module *m, hscd_modes::PGWriter &pgw ) const {
+    return T_constraintset::pgAssemble(pgw); }
 #endif
 };
 
+#ifndef __SCFE__
 class hscd_moc_scheduler_asap
   : public hscd_fixed_transact_node {
 private:
@@ -63,18 +82,17 @@ public:
     : hscd_fixed_transact_node( hscd_op_transact() ) {
     analyse(c->getNodes()); }
 };
+#endif
 
 class hscd_moc_scheduler_sdf
   : public hscd_fixed_transact_node {
+protected:
+  typedef hscd_sdf_constraintset  cset_ty;
+  
+#ifndef __SCFE__
 private:
   //    nodes_ty nodes;
   hscd_op_port_or_list    fire_list;
-  
-  void process() {
-    std::cout << "hscd_moc_scheduler_sdf" << std::endl;
-    while ( 1 )
-      hscd_choice_node::choice( fire_list );
-  }
   
   template <typename T>
   void analyse( const std::list<T> &nl ) {
@@ -93,12 +111,19 @@ private:
     }
   }
 protected:
-  typedef hscd_sdf_constraintset  cset_ty;
+  void schedule() {
+    while ( 1 )
+      hscd_choice_node::choice( fire_list );
+  }
+#endif
 public:
   hscd_moc_scheduler_sdf(
       cset_ty *c )
     : hscd_fixed_transact_node( hscd_op_transact() ) {
-    analyse(c->getNodes()); }
+#ifndef __SCFE__
+    analyse(c->getNodes());
+#endif
+  }
 };
 
 template <typename T_constraintset>
