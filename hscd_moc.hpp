@@ -125,6 +125,14 @@ protected:
 #endif
 */
   hscd_firing_state analyse( cset_ty *c ) const {
+    cset_ty::nodes_ty nodes = c->getNodes();
+    
+    for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+          iter != nodes.end();
+          ++iter ) {
+      std::cout << "foo: " << (*iter)->name() << std::endl;
+
+    }
     return hscd_firing_state();
   }
 public:
