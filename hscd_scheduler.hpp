@@ -39,8 +39,10 @@ class hscd_scheduler_asap
       : hscd_scheduler_base(name) {
       for ( typename std::list<T>::const_iterator iter = nl.begin();
             iter != nl.end(); ++iter ) {
-        hscd_rendezvous::chan_type<void> *fire_channel = new hscd_rendezvous::chan_type<void>();
-        hscd_port_out<void>              *fire_port    = new hscd_port_out<void>();
+        typename hscd_rendezvous<void>::chan_type *fire_channel =
+          new typename hscd_rendezvous<void>::chan_type(  hscd_rendezvous<void>() );
+        hscd_port_out<void>              *fire_port    =
+          new hscd_port_out<void>();
         
         (*iter)->fire_port(*fire_channel);
         (*fire_port)(*fire_channel);

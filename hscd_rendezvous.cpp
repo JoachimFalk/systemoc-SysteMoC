@@ -2,4 +2,4 @@
 
 #include <hscd_rendezvous.hpp>
 
-const char* const hscd_rendezvous::chan_kind::kind_string = "hscd_rendezvous";
+const char* const hscd_rendezvous_kind::kind_string = "hscd_rendezvous";

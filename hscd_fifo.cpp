@@ -2,4 +2,4 @@
 
 #include <hscd_fifo.hpp>
 
-const char* const hscd_fifo::chan_kind::kind_string = "hscd_fifo";
+const char* const hscd_fifo_kind::kind_string = "hscd_fifo";

@@ -1,8 +1,8 @@
 #include <hscd_structure.hpp>
 #include <systemc/kernel/sc_object_manager.h>
 
-template <typename T_node_type, typename T_chan_init>
-void hscd_structure<T_node_type, T_chan_init>::pgAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const {
+template <typename T_node_type, typename T_chan_kind>
+void hscd_structure_petri<T_node_type, T_chan_kind>::pgAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const {
   pgw << "<problemgraph name=\"" << m->name() << "_pg\" id=\"" << pgw.getId() << "\">" << std::endl;
   {
     pgw.indentUp();
@@ -42,8 +42,8 @@ void hscd_structure<T_node_type, T_chan_init>::pgAssemble( const sc_module *m, h
   pgw << "</problemgraph>" << std::endl;
 }
 
-template <typename T_node_type, typename T_chan_init>
-void hscd_structure<T_node_type, T_chan_init>::assemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const {
+template <typename T_node_type, typename T_chan_kind>
+void hscd_structure_petri<T_node_type, T_chan_kind>::assemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const {
   if ( iobind.empty() )
     return pgAssemble(m,pgw);
   else {
@@ -71,11 +71,11 @@ void hscd_structure<T_node_type, T_chan_init>::assemble( const sc_module *m, hsc
   }
 }
 
-template void hscd_structure<hscd_choice_node, hscd_rendezvous>::assemble
+template void hscd_structure_petri<hscd_choice_node, hscd_fifo_kind>::assemble
   (const sc_module *, hscd_modes::PGWriter&) const;
-template void hscd_structure<hscd_choice_node, hscd_fifo>::assemble
+template void hscd_structure_petri<hscd_transact_node, hscd_fifo_kind>::assemble
   (const sc_module *, hscd_modes::PGWriter&) const;
-template void hscd_structure<hscd_transact_node, hscd_fifo>::assemble
+template void hscd_structure_petri<hscd_fixed_transact_node, hscd_fifo_kind>::assemble
   (const sc_module *, hscd_modes::PGWriter&) const;
-template void hscd_structure<hscd_fixed_transact_node, hscd_fifo>::assemble
+template void hscd_structure_petri<hscd_choice_node, hscd_rendezvous_kind>::assemble
   (const sc_module *, hscd_modes::PGWriter&) const;
