@@ -157,14 +157,11 @@ int sc_main (int argc, char **argv) {
 #ifndef __SCFE__
   try {
 #endif
-    hscd_sdf_moc<m_top>  top("top");
+    hscd_sdf_moc<m_top> *top = new hscd_sdf_moc<m_top>("top");
 #ifndef __SCFE__
-    std::list<hscd_choice_node *>   nl;
-    
-    nl.push_front(&top);
-    hscd_scheduler_asap               sched("asap",nl);
+    hscd_top x(top);
 
-    hscd_modes::dump( std::cout, top );
+    hscd_modes::dump( std::cout, *top );
   
     sc_start(-1);
   } catch (...) {
