@@ -71,6 +71,8 @@ void hscd_structure<T_node_type, T_chan_init>::assemble( const sc_module *m, hsc
   }
 }
 
+template void hscd_structure<hscd_choice_node, hscd_rendezvous>::assemble
+  (const sc_module *, hscd_modes::PGWriter&) const;
 template void hscd_structure<hscd_choice_node, hscd_fifo>::assemble
   (const sc_module *, hscd_modes::PGWriter&) const;
 template void hscd_structure<hscd_transact_node, hscd_fifo>::assemble

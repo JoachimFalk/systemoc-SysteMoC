@@ -5,6 +5,7 @@
 
 #include <hscd_port.hpp>
 #include <hscd_fifo.hpp>
+#include <hscd_rendezvous.hpp>
 #include <hscd_node_types.hpp>
 #include <hscd_pggen.hpp>
 
@@ -127,6 +128,37 @@ class hscd_sdf_structure
     void process() {}
 };
 
+class hscd_csp_structure
+  : public hscd_structure<hscd_choice_node, hscd_rendezvous>,
+    public hscd_choice_node {
+  public:
+    typedef hscd_csp_structure	this_type;
+  public:
+    hscd_csp_structure()
+      : hscd_choice_node(
+          sc_gen_unique_name("hscd_csp_structure") ) {}
+    explicit hscd_csp_structure( sc_module_name _name )
+      : hscd_choice_node( _name ) {}
+    
+    template <typename T_value_type>
+    void connectNodePorts( hscd_port_out<T_value_type> &a, hscd_port_in<T_value_type> &b ) {
+      hscd_structure<hscd_choice_node, hscd_rendezvous>::connectNodePorts(a,b);
+    }
+    template <int n, typename T_value_type>
+    void connectNodePorts( hscd_port_out<T_value_type> &a, hscd_port_in<T_value_type> &b ) {
+      hscd_structure<hscd_choice_node, hscd_rendezvous>::connectNodePorts(a,b,hscd_rendezvous(n));
+    }
+
+    void assemble( hscd_modes::PGWriter &pgw ) const {
+      return hscd_structure<hscd_choice_node, hscd_rendezvous>::assemble(this,pgw);
+    }
+    void pgAssemble( sc_module *m, hscd_modes::PGWriter &pgw ) const {
+      return hscd_structure<hscd_choice_node, hscd_rendezvous>::pgAssemble(this,pgw);
+    }
+  protected:
+    void process() {}
+};
+
 class hscd_fifocsp_structure
   : public hscd_structure<hscd_choice_node, hscd_fifo>,
     public hscd_choice_node {
@@ -146,6 +178,13 @@ class hscd_fifocsp_structure
     template <int n, typename T_value_type>
     void connectNodePorts( hscd_port_out<T_value_type> &a, hscd_port_in<T_value_type> &b ) {
       hscd_structure<hscd_choice_node, hscd_fifo>::connectNodePorts(a,b,hscd_fifo(n));
+    }
+
+    void assemble( hscd_modes::PGWriter &pgw ) const {
+      return hscd_structure<hscd_choice_node, hscd_fifo>::assemble(this,pgw);
+    }
+    void pgAssemble( sc_module *m, hscd_modes::PGWriter &pgw ) const {
+      return hscd_structure<hscd_choice_node, hscd_fifo>::pgAssemble(this,pgw);
     }
   protected:
     void process() {}
