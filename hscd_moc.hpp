@@ -13,11 +13,8 @@ class hscd_moc
   : public T_constraintset,
     public T_scheduler {
 private:
-#ifndef __SCFE__
-  void process() { /*return schedule();*/ }
-#else
-  void process() {}
-#endif
+  void process() { return schedule(
+    static_cast<typename T_scheduler::cset_ty *>(this)); }
 public:
   typedef hscd_moc<T_scheduler, T_constraintset> this_type;
   
@@ -53,6 +50,8 @@ class hscd_moc_scheduler_sdf
 public:
   typedef hscd_moc_scheduler_sdf  this_type;
   typedef hscd_sdf_constraintset  cset_ty;
+protected:
+  void schedule( cset_ty *c ) {}
 private:
   hscd_activation_pattern analyse( cset_ty *c ) const {
     return hscd_activation_pattern();
@@ -67,6 +66,8 @@ class hscd_moc_scheduler_kpn
 public:
   typedef hscd_moc_scheduler_kpn  this_type;
   typedef hscd_kpn_constraintset  cset_ty;
+protected:
+  void schedule( cset_ty *c ) {}
 private:
   hscd_firing_state analyse( cset_ty *c ) const {
     return hscd_firing_state();
@@ -81,6 +82,8 @@ class hscd_moc_scheduler_ddf
 public:
   typedef hscd_moc_scheduler_ddf  this_type;
   typedef hscd_ddf_constraintset  cset_ty;
+protected:
+  void schedule( cset_ty *c ) {}
 private:
   hscd_firing_state analyse( cset_ty *c ) const {
     return hscd_firing_state();
@@ -95,6 +98,24 @@ class hscd_moc_scheduler_csp
 public:
   typedef hscd_moc_scheduler_csp  this_type;
   typedef hscd_csp_constraintset  cset_ty;
+protected:
+  void schedule( cset_ty *c ) {
+    cset_ty::nodes_ty nodes = c->getNodes();
+
+    for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+          iter != nodes.end();
+          ++iter )
+      std::cout << "foo: " << (*iter)->myModule()->name() << std::endl;
+    while (1) {
+      for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+            iter != nodes.end();
+            ++iter ) {
+        const hscd_firing_state &s = (*iter)->currentState();
+        
+        std::cout << "foo: " << &(*iter)->initialState() << std::endl;
+      }
+    }
+  }
 private:
 /* 
 #ifndef __SCFE__
@@ -125,14 +146,6 @@ protected:
 #endif
 */
   hscd_firing_state analyse( cset_ty *c ) const {
-    cset_ty::nodes_ty nodes = c->getNodes();
-    
-    for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
-          iter != nodes.end();
-          ++iter ) {
-      std::cout << "foo: " << (*iter)->name() << std::endl;
-
-    }
     return hscd_firing_state();
   }
 public:

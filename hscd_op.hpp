@@ -32,6 +32,7 @@ class hscd_root_node_op_if {
     //hscd_running_op_base *_opRunning_;
     //oneof<hscd_running_op_transact,hscd_running_op_choice> runningOp;
     hscd_firing_state _initialState;
+    hscd_firing_state _currentState;
     
     //void _opFinished();
     //void _opRunning( hscd_running_op_base *op ) {
@@ -40,7 +41,7 @@ class hscd_root_node_op_if {
     //}
   protected:
     hscd_root_node_op_if(const hscd_firing_state &s)
-      : _initialState(s) {}
+      : _initialState(s), _currentState(s) {}
     
     //virtual void opFinished() = 0;
     //bool finished() const { return _opRunning_ == NULL; }
@@ -48,6 +49,8 @@ class hscd_root_node_op_if {
     //void startOp( hscd_do_op_if &op ) { op.startOp(this); }
   public:
     virtual ~hscd_root_node_op_if() {}
+
+    const hscd_firing_state &currentState() const { return _currentState; }
 };
 
 /*
