@@ -32,14 +32,15 @@ public:
     <T_node_type, T_chan_kind, T_chan_init_default>     this_type;
   
   typedef std::list<node_type *>			nodes_ty;
+  typedef std::list<chan_kind *>                        chans_ty;
   typedef std::list<hscd_root_port *>			ports_ty;
   typedef std::map<chan_kind *, ports_ty>               chan2ports_ty;
 private:
   typedef std::map<hscd_root_port *, hscd_root_port *>  iobind_ty;
   typedef std::map<hscd_root_port *, chan_kind *>       port2chan_ty;
   
-  chan2ports_ty       chan2ports;
-  port2chan_ty        port2chan;
+//  chan2ports_ty       chan2ports;
+//  port2chan_ty        port2chan;
   iobind_ty           iobind;
 protected:
   template <typename T_chan_init>
@@ -92,27 +93,27 @@ public:
   typename T_chan_init::chan_type &registerChan( const T_chan_init i ) {
     typename T_chan_init::chan_type *chan =
       new typename T_chan_init::chan_type(i);
-    chan2ports[chan];
+//    chan2ports[chan];
     return *chan;
   }
   template <typename T_chan_type>
   void connectChanPort( T_chan_type &chan,
                         hscd_port_out<typename T_chan_type::data_type> &p ) {
-    assert( port2chan.find(&p) ==  port2chan.end() );
-    port2chan[&p] = &chan;
-    chan2ports[&chan].push_back(&p);
+//    assert( port2chan.find(&p) ==  port2chan.end() );
+//    port2chan[&p] = &chan;
+//    chan2ports[&chan].push_back(&p);
     p(chan);
   }
   template <typename T_chan_type>
   void connectChanPort( T_chan_type &chan,
                         hscd_port_in<typename T_chan_type::data_type> &p ) {
-    assert( port2chan.find(&p) ==  port2chan.end() );
-    port2chan[&p] = &chan;
-    chan2ports[&chan].push_back(&p);
+//    assert( port2chan.find(&p) ==  port2chan.end() );
+//    port2chan[&p] = &chan;
+//    chan2ports[&chan].push_back(&p);
     p(chan);
   }
   
-  const nodes_ty       getNodes() const {
+  const nodes_ty getNodes() const {
     nodes_ty subnodes;
     for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
           iter != get_child_objects().end();
@@ -124,7 +125,18 @@ public:
     }
     return subnodes;
   }
-  const chan2ports_ty &getChans() const { return chan2ports; }
+  const chans_ty getChans() const {
+    chans_ty channels;
+    for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+          iter != get_child_objects().end();
+          ++iter ) {
+      chan_kind *chan = dynamic_cast<chan_kind *>(*iter);
+      
+      if (chan)
+        channels.push_back(chan);
+    }
+    return channels;
+  }
  
 #ifndef __SCFE__
   void assemble( hscd_modes::PGWriter &pgw ) const;

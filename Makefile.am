@@ -63,7 +63,7 @@ pkginclude_HEADERS =			\
 	hscd_root_port.hpp		\
 	hscd_graph_type.hpp		\
 	hscd_pggen.hpp			\
-	hscd_root_if.hpp		\
+	hscd_chan_if.hpp		\
 	oneof.hpp			\
 	commondefs.h
 
@@ -85,7 +85,7 @@ libsystemoc_la_SOURCES =		\
 	hscd_root_node.cpp		\
 	hscd_firing_rules.cpp		\
 	hscd_pggen.cpp			\
-	hscd_root_if.cpp
+	hscd_chan_if.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include

@@ -3,17 +3,15 @@
 #ifndef _INCLUDED_HSCD_FIFO_HPP
 #define _INCLUDED_HSCD_FIFO_HPP
 
-#include <hscd_port.hpp>
+#include <hscd_chan_if.hpp>
 
 #include <systemc.h>
 #include <vector>
 
 // #include <iostream>
 
-const sc_event& hscd_default_event_abort();
-
 class hscd_fifo_kind
-  : public sc_prim_channel {
+  : public hscd_root_chan {
 public:
   typedef hscd_fifo_kind  this_type;
   
@@ -52,7 +50,7 @@ protected:
   
   // constructors
   hscd_fifo_kind( const chan_init &i )
-    : sc_prim_channel(
+    : hscd_root_chan(
         i.name != NULL ? i.name : sc_gen_unique_name( "hscd_fifo" ) ),
       fsize(i.n+1), rindex(0), windex(0) {}
 private:
@@ -69,9 +67,7 @@ private:
 
 template <typename T>
 class hscd_fifo_storage
-  : public hscd_fifo_kind,
-    public hscd_root_in_if<T>,
-    public hscd_root_out_if<T> {
+  : public hscd_chan_nonconflicting_if<hscd_fifo_kind, T> {
 public:
   typedef T                                  data_type;
   typedef hscd_fifo_storage<data_type>       this_type;
@@ -106,22 +102,17 @@ protected:
   }
   
   hscd_fifo_storage( const chan_init &i )
-    : hscd_fifo_kind(i), storage(new data_type[fsize]) {
+    : hscd_chan_nonconflicting_if<hscd_fifo_kind, T>(i), storage(new data_type[fsize]) {
     assert( fsize > i.marking.size() );
     memcpy( storage, &i.marking[0], i.marking.size()*sizeof(T) );
     windex = i.marking.size();
   }
   
   ~hscd_fifo_storage() { delete storage; }
-private:
-  // disabled
-  const sc_event& default_event() const { return hscd_default_event_abort(); }
 };
 
 class hscd_fifo_storage<void>
-  : public hscd_fifo_kind,
-    public hscd_root_in_if<void>,
-    public hscd_root_out_if<void> {
+  : public hscd_chan_nonconflicting_if<hscd_fifo_kind, void> {
 public:
   typedef void                               data_type;
   typedef hscd_fifo_storage<data_type>       this_type;
@@ -153,13 +144,10 @@ protected:
   }
   
   hscd_fifo_storage( const chan_init &i )
-    : hscd_fifo_kind(i) {
+    : hscd_chan_nonconflicting_if<hscd_fifo_kind, void>(i) {
     assert( fsize > i.marking );
     windex = i.marking;
   }
-private:
-  // disabled
-  const sc_event& default_event() const { return hscd_default_event_abort(); }
 };
 
 template <typename T>

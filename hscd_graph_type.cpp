@@ -7,7 +7,8 @@ template <typename T_node_type,
 void hscd_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::
 pgAssemble( hscd_modes::PGWriter &pgw ) const {
   const sc_module *m = this;
-  const nodes_ty ns  =  getNodes();
+  const nodes_ty ns  = getNodes();
+  const chans_ty cs  = getChans();
   
   pgw << "<problemgraph name=\"" << m->name() << "_pg\" id=\"" << pgw.getId() << "\">" << std::endl;
   {
@@ -16,23 +17,22 @@ pgAssemble( hscd_modes::PGWriter &pgw ) const {
           iter != ns.end();
           ++iter )
       (*iter)->assemble(pgw);
-    for ( typename chan2ports_ty::const_iterator c_iter = getChans().begin();
-          c_iter != getChans().end();
+    for ( typename chans_ty::const_iterator c_iter = cs.begin();
+          c_iter != cs.end();
           ++c_iter ) {
-      for ( typename ports_ty::const_iterator ps_iter = c_iter->second.begin();
-            ps_iter != c_iter->second.end();
+      ports_ty out = (*c_iter)->getOutputPorts();
+      ports_ty in  = (*c_iter)->getInputPorts();
+      
+      for ( typename ports_ty::const_iterator ps_iter = out.begin();
+            ps_iter != out.end();
             ++ps_iter ) {
-        if ( !(*ps_iter)->isInput() ) {
-          for ( typename ports_ty::const_iterator pd_iter = c_iter->second.begin();
-                pd_iter != c_iter->second.end();
-                ++pd_iter ) {
-            if ( (*pd_iter)->isInput() ) {
-              pgw << "<edge name=\"" << c_iter->first->name() << "\" "
-                  << "source=\"" << pgw.getId(*ps_iter) << "\" " 
-                  << "target=\"" << pgw.getId(*pd_iter) << "\" "
-                  << "id=\"" << pgw.getId(c_iter->first) << "\"/>" << std::endl;
-            }
-          }
+        for ( typename ports_ty::const_iterator pd_iter = in.begin();
+              pd_iter != in.end();
+              ++pd_iter ) {
+          pgw << "<edge name=\"" << (*c_iter)->name() << "\" "
+              << "source=\"" << pgw.getId(*ps_iter) << "\" " 
+              << "target=\"" << pgw.getId(*pd_iter) << "\" "
+              << "id=\"" << pgw.getId(*c_iter) << "\"/>" << std::endl;
         }
       }
     }

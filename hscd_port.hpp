@@ -4,7 +4,7 @@
 #define _INCLUDED_HSCD_POPT_HPP
 
 #include <hscd_root_port.hpp>
-#include <hscd_root_if.hpp>
+#include <hscd_chan_if.hpp>
 #include <systemc.h>
 #include <vector>
 
@@ -69,7 +69,7 @@ public:
 
 template <typename T>
 class hscd_port_storage_in
-  : protected hscd_port_base<hscd_root_in_if<T> > {
+  : protected hscd_port_base<hscd_chan_in_if<T> > {
 public:
   typedef T    data_type;
 private:
@@ -79,14 +79,14 @@ protected:
   void storagePushBack( const data_type *in ) { s.push_back(*in); }
 
   hscd_port_storage_in( const char *n )
-    : hscd_port_base<hscd_root_in_if<data_type> >(n) {}
+    : hscd_port_base<hscd_chan_in_if<data_type> >(n) {}
 public:
   data_type &operator []( size_t n )
     { assert( n < s.size() ); return s[n]; }
 };
 
 class hscd_port_storage_in<void>
-  : protected hscd_port_base<hscd_root_in_if<void> > {
+  : protected hscd_port_base<hscd_chan_in_if<void> > {
 public:
   typedef void data_type;
 private:
@@ -95,7 +95,7 @@ protected:
   void storagePushBack( const data_type *in ) { assert(in == NULL); }
   
   hscd_port_storage_in( const char *n )
-    : hscd_port_base<hscd_root_in_if<data_type> >(n) {}
+    : hscd_port_base<hscd_chan_in_if<data_type> >(n) {}
 public:
 };
 
@@ -104,9 +104,9 @@ class hscd_port_in
   : public hscd_root_port,
     public hscd_port_storage_in<T> {
 public:
-  typedef T                     data_type;
-  typedef hscd_port_in<T>       this_type;
-  typedef typename this_type::iface_type iface_type;
+  typedef T                               data_type;
+  typedef hscd_port_in<T>                 this_type;
+  typedef typename this_type::iface_type  iface_type;
 private:
 //  void setCommittedCount( size_t _committed ) {
 //    return hscd_root_port::setCommittedCount(_committed);
@@ -117,7 +117,7 @@ private:
   }
   
   void add_interface( sc_interface *i ) {
-    push_interface(i); (*this)->initPortIf( this );
+    push_interface(i); (*this)->addPortIf( this );
   }
 public:
   void transferIn( const T *in ) { storagePushBack(in); incrDoneCount(); }
@@ -139,7 +139,7 @@ public:
 
 template <typename T>
 class hscd_port_storage_out
-  : protected hscd_port_base<hscd_root_out_if<T> > {
+  : protected hscd_port_base<hscd_chan_out_if<T> > {
 public:
   typedef T    data_type;
 private:
@@ -150,7 +150,7 @@ protected:
   const data_type  *storageElement( size_t n ) { assert(n < storageSize() ); return &s[n]; }
   
   hscd_port_storage_out( const char *n )
-    : hscd_port_base<hscd_root_out_if<data_type> >(n) {}
+    : hscd_port_base<hscd_chan_out_if<data_type> >(n) {}
 public:
   data_type &operator []( size_t n ) {
     if ( n >= storageSize() )
@@ -160,7 +160,7 @@ public:
 };
 
 class hscd_port_storage_out<void>
-  : protected hscd_port_base<hscd_root_out_if<void> > {
+  : protected hscd_port_base<hscd_chan_out_if<void> > {
 public:
   typedef void data_type;
 private:
@@ -170,7 +170,7 @@ protected:
   const data_type  *storageElement( size_t n ) { return NULL; }
 
   hscd_port_storage_out( const char *n )
-    : hscd_port_base<hscd_root_out_if<data_type> >(n) {}
+    : hscd_port_base<hscd_chan_out_if<data_type> >(n) {}
 public:
 };
 
@@ -179,16 +179,16 @@ class hscd_port_out
   : public hscd_root_port,
     public hscd_port_storage_out<T> {
 public:
-  typedef T                   data_type;
-  typedef hscd_port_out<T>    this_type;
-  typedef hscd_root_out_if<T> iface_type;
+  typedef T                               data_type;
+  typedef hscd_port_out<T>                this_type;
+  typedef typename this_type::iface_type  iface_type;
 private:
 //  void setCommittedCount( size_t _committed ) {
 //    assert( storageSize() >= _committed );
 //    return hscd_root_port::setCommittedCount(_committed);
 //  }
   void add_interface( sc_interface *i ) {
-    push_interface(i); (*this)->initPortIf( this );
+    push_interface(i); (*this)->addPortIf( this );
   }
 public:
   const T *transferOut( void ) { return storageElement(incrDoneCount()); }
