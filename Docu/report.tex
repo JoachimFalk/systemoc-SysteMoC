@@ -24,7 +24,7 @@
 \hypersetup{
   pdftitle   = {Representing Models of Computation in SystemC},
   pdfsubject = {Co-Design-Report},
-  pdfauthor  = {\textcopyright\ Joachim Falk, Christian Haubelt, Jürgen Teich},
+  pdfauthor  = {\textcopyright\ Joachim Falk, Christian Haubelt, J\"urgen Teich},
   colorlinks = true,
   linkcolor  = black,
   anchorcolor= black,
@@ -37,7 +37,7 @@
 
 \begin{document}
 \hscdtitle{Representing Models of Computation in SystemC}
-{Joachim Falk, Christian Haubelt, Jürgen Teich}{\today}
+{Joachim Falk, Christian Haubelt, J\"urgen Teich}{\today}
 \clearpage
 \tableofcontents
 \clearpage
@@ -49,9 +49,9 @@ today's embedded systems the specification is mostly mapped
 into a set of interacting tasks and hardware modules, which 
 interact by the use of shared variables and various ways of
 message passing. To guarantee exclusive access to the shared
-variables and resources mutually exclusive devices like semaphores,
-mutexes and monitors are used. But this unstructured use
-of communication types lead to hardly analysable systems.
+variables and resources, mutually exclusive devices like semaphores,
+mutexes, and monitors are used. But this unstructured use
+of communication types lead to hardly analyzable systems.
 However, by constraining the type of communication
 used between tasks and the communication behavior of the tasks,
 expressiveness is traded for analyzability.
@@ -59,7 +59,7 @@ expressiveness is traded for analyzability.
 \emph{Models of computation}
 \cite{embsft:2002}, in the following called \emph{MoCs}, are
 predefined types of communication and strategies for scheduling
-the communicating tasks. Thus MoCs are comparable to design
+communicating tasks. Thus, MoCs are comparable to design
 patterns known from the area of software design \cite{gamma:1995}.
 Limiting the expressiveness of an MoC enables:
 
@@ -71,110 +71,112 @@ Limiting the expressiveness of an MoC enables:
 \item Verification tools to check system properties automatically
 \end{enumerate}
 
-On the other hand, modern embedded systems design is still based on
+On the other hand, modern embedded system design is still based on
 specification languages which allow unstructured communication.
 Even worse, nearly all specification languages allow for Turing
 complete MoCs making analysis in general impossible.
 To make industry benefit from the best of both worlds,
 engineers must restrict themselves to use certain subsets of
-specification languages allowing for analyzability, identification
+specification languages allowing for analyzability, identification,
 and extraction of these MoCs from the source code automatically.
 
-These report deal with the representation of some transformative
+This report deals with the representation of some transformative
 MoCs in SystemC. The rest of the report is structured as follows:
 In Section~\ref{related-work}, we discuss related work. In
-Section~\ref{concept-overview}, we present our concepts for
+Section~\ref{aspect-overview}, we propose our framework for
 representing MoCs in SystemC. In Section~\ref{revision-of-mocs},
-we exemplify for some MoCs how they fit into
-the concepts presented before. In Section~\ref{software-architecture}
-an implementation of these concepts in SystemC called \SysteMoC{} is
-presented. We follow this with an example model using the \SysteMoC{}
-framework and conclude the report in Section~\ref{conclusion}.
+we show how some MoCs fit into
+the framework presented before. In Section~\ref{software-architecture}
+an implementation of our framework in SystemC called \SysteMoC{} is
+presented. Finally, we will give some examples using the \SysteMoC{}
+framework in Section~\ref{systemoc-examples}, and we conclude
+the present report in Section~\ref{conclusion}.
 
 \section{Related Work}\label{related-work}
 
-\section{Concept Overview}\label{concept-overview}
+\section{Aspect Overview}\label{aspect-overview}
 
-A model of computation is defined \cite{embsft:2002} as the 
+A model of computation \cite{embsft:2002} is defined as the 
 interaction policy between \emph{actors} in an \emph{actor-oriented} design
 \cite{agha97abstracting:1997}.
 Actors are objects which execute concurrently. They can only
-communicate with the environment (other actors) through their ports.
+communicate with the environment (other actors) through their \emph{actor ports}.
 The actor ports are connected with each other via a \emph{channel network}.
 The data values, which are communicated over the channels
 are abstracted. The values are called \emph{tokens} regardless
 of their type or value.
 
 Instead of a monolithic approach for representing an executable specification,
-we choose in this report to separate the specification into several
-independent concepts.
+in this report, we will separate a specification into several
+independent \emph{aspects}.
 This is a refinement of actor-oriented design.
-Actor-oriented design has actors which execute concurrently and only
+In actor-oriented design, actors only
 communicate with each other via channels instead of method calls as known
-in object-oriented design. In our methodology, the specification is more
+in object-oriented design. In our proposed methodology, the specification is more
 detailed than in actor-oriented design.
-One aspect of the separation is a devision of an actor
-into control flow and data flow concepts. Another aspect is the
-separation of the channel network into the structure of the network
-and the type of channel used for communication. Furthermore, a
-concept is distinguished into \emph{concept types} by different
-constraints placed on the concept. In the following, the concepts into
-which the executable specification is separated and their further
-differentiation into concept types is discussed in depth:
+Four different aspects for distinguishing MoCs can be identified,
+namely node functionality, node interface, network graph, and
+channel kind. An aspect can be further divided into
+\emph{aspect types} by different constraints placed on the aspect.
+In the following, the aspects and their further
+differentiation into aspect types is discussed in depth:
 
 \subsection{Node Functionality}\label{node-functionality}
 
-In our methodology proposed in this report the actor concept is still used,
-but split into two parts.
-There is the part called \emph{node functionality} which is responsible
+In our methodology proposed in this report, the actor concept is still used,
+but we distinguish twi different aspects.
+The first part called \emph{node functionality} is responsible
 for transforming data values. The node functionality can be
 thought of as a function $F: V^{m} \to V^{n}$  which maps a fixed set
 of parameters to a fixed set of results. The node functionality
 can be implemented by a Turing-complete programming language but
 the user must guarantee, that the node functionality terminates
 and does not communicate with other actors.
-The node functionality is the only concept which is not further distinguished
-into concept types.
+The node functionality is the only aspect which is not further distinguished
+into aspect types.
 
-\subsection{Node Interface Types}\label{node-interface-types}
+\subsection{Node Interface}\label{node-interface}
 
-The second part of an actor which determines the communication
-behavior of the actor is called \emph{firing rules}. The firing rules
+The second part of an actor which determines its communication
+behavior is called \emph{firing rules}. The firing rules
 determine for each actor port the number of tokens to receive or send
-until a node functionality can be invoked. These firing rules are
+until the associated node functionality can be invoked. These firing rules are
 constructed by the use of communication operations which are
 provided by the \emph{node interface}. Furthermore, we
-distinguish three separate node interface types by the set
-operations availlable to them:
+distinguish three separate \emph{node interface types} by the set
+operations available to them:
 
-\begin{concepttype}\label{choice-node-interface}
-  Choice node interface
+\begin{definition}\label{choice-node-interface-type}
+  Choice node interface type
 
-  \emph{Choice} is a operation defined on a set of actor ports $A_{P}$
-  and a function $D: A_{P} \to \mathcal{F}$, which maps an actor port
+  \emph{Choice} is an operation defined on a set of actor ports $A_{P}$
+  and a function $D: A_{P} \to \mathcal{F}$, which maps each actor port
   $a_{p} \in A_{P}$ to a function $F_{x} \in \mathcal{F}$.
-  Let $A_{P_{rt}} \subseteq A_{P}$ be the subset of actor ports which
-  are ready to communicate at time $t$. The choice operation
-  blocks the process until time $t$ where at least one actor port
-  is ready to communicate $|A_{P_{rt}}| \ge 1$. One actor port $a_{p} \in A_{P_{rt}}$
-  will be chosen nondeterministically and the execution will contiune
+  The choice operation postpones the process execution 
+  until at least one actor port $a_{p} \in A_{P}$
+  becomes ready to communicate. The set of actor ports available
+  is given by $A_{P_{ready}}$.
+  Exactly one actor port $a_{p} \in A_{P_{ready}}$
+  will be chosen nondeterministically. After
+  finishing the communication on the chosen actor port $a_{p}$
+  the process execution will contiune
   with function $F_{continue} = D(a_{p})$.
-\end{concepttype}
+\end{definition}
 
-\begin{concepttype}\label{transact-node-interface}
-  Transact node interface
-\end{concepttype}
+\begin{definition}\label{transact-node-interface-type}
+  Transact node interface type
+\end{definition}
 
-\begin{concepttype}\label{fixed-transact-node-interface}
-  Fixed transact node interface
-\end{concepttype}
+\begin{definition}\label{fixed-transact-node-interface-type}
+  Fixed transact node interface type
+\end{definition}
 
-\subsection{Network Graph Types}\label{network-graph-types} 
+\subsection{Network Graph}\label{network-graph} 
 
-To represent the executable specification, not only information about
-individual actors but also information about the communication network
-, which is the only means of communication between actors,
-must be provided. Moreover information about hierarchical
+To represent an executable specification, not only information about
+individual actors but also information about the communication network,
+which is the only means of communication between actors,
+must be provided. Moreover, information about hierarchical
 composition of actors is required. This information is stored in
 the \emph{network graph}.
 
@@ -182,13 +184,13 @@ the \emph{network graph}.
 A network graph is a 5-tuple $N=(\mathcal{A},C,P_{i},P_{o},E)$ containing
 a set of actors $\mathcal{A}$, a set of channels $C$, a set of uplevel
 input ports $P_{i}$, a set of uplevel output ports $P_{o}$ and a set of
-directed edges $E \subseteq ((P_{i} \bigcup C) \times \mathcal{A}_{P_{i}})
-\bigcup (\mathcal{A}_{P_{o}} \times (P_{o} \bigcup C))$.
+directed edges $E \subseteq ((P_{i} \cup C) \times \mathcal{A}_{P_{i}})
+\cup (\mathcal{A}_{P_{o}} \times (P_{o} \cup C))$.
 Each actor $A \in \mathcal{A}$ can only communicate with other actors
-through its set of dedicated actor input ports $A_{P_{i}}$ and
+through its dedicated actor input ports $A_{P_{i}}$ and
 actor output ports $A_{P_{o}}$.
 % $\forall{(X,Y)\in \mathcal{A^2}}: X \ne Y \Rightarrow X_{P} \cap Y_{P} = \emptyset$
-Furthermore we define the set of all
+Furthermore, we define the set of all
 actor input ports as $\mathcal{A}_{P_{i}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{i}}$ and
 the set of all actor output ports as
 $\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$.
@@ -196,20 +198,11 @@ $\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$.
 
 There are two network graph types which are distinguished by our methodology:
 
-\begin{concepttype}\label{petri-network-graph}
-  Petri network graph is constrained such that exactly
-  one edge enters an actor input port
-  $\forall{p \in \mathcal{A}_{P_{i}}}: |(C \times \{p\}) \bigcap E| \le 1$.
-  In other words, an example of a petri network graph is shown in Figure~\ref{ng-petri}.
-\end{concepttype}
-
-\begin{concepttype}\label{dataflow-network-graph}
-  Dataflow network graph is petri network graph with the additional constraint,
-  that the indegree and outdegree of each channel in the graph is exactly one.
-  $\forall{c \in C}: |(\{c\} \times \mathcal{A}_{P_{i}}) \bigcap E| \le 1 \wedge
-                    |(\mathcal{A}_{P_{o}} \times \{c\}) \bigcap E| \le 1$.
-  In other words, an example of a dataflow network graph is shown in Figure~\ref{ng-dataflow}.
-\end{concepttype}
+\begin{definition}\label{petri-network-graph}
+  A Petri network graph is constrained such that exactly
+  one edge is incident to each actor port
+  $\forall{p \in \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}}}: |(C \times \{p\}) \cap E| = 1$.
+\end{definition}
 
 \begin{figure}
 \centering
@@ -219,6 +212,17 @@ There are two network graph types which are distinguished by our methodology:
   In a \emph{petri network graph} exactly
   one edge enters an actor input port.}
 \end{figure}
+
+  In other words, an example of a petri network graph is shown in Figure~\ref{ng-petri}.
+
+\begin{definition}\label{dataflow-network-graph}
+  A Dataflow network graph is a petri network graph with the additional constraint
+  that the indegree and outdegree of each channel in the graph is exactly one
+  $\forall{c \in C}: |(\{c\} \times \mathcal{A}_{P_{i}}) \cap E| = 1 \wedge
+                    |(\mathcal{A}_{P_{o}} \times \{c\}) \cap E| = 1$.
+\end{definition}
+
+  In other words, an example of a dataflow network graph is shown in Figure~\ref{ng-dataflow}.
 
 \begin{figure}
 \centering
@@ -231,7 +235,7 @@ There are two network graph types which are distinguished by our methodology:
   Point-to-Point connections.}
 \end{figure}
 
-\subsection{Channel Kind Types}\label{channel-kind-types}
+\subsection{Channel Kind}\label{channel-kind}
 
 The \emph{channel kind} defines the communication semantic of the channel.
 Because the communication semantic is not influenced by the
@@ -370,14 +374,14 @@ analysis requirements must be satisfied:
 
 The requirements \ref{requirement-csp-rendezvous} -
 \ref{requirement-csp-communication} of the CSP MoC are mapped in the following way
-onto the concepts presented in Section~\ref{concept-overview}.
+onto the concepts presented in Section~\ref{aspect-overview}.
 (i) The rendezvous communication (Requirement~\ref{requirement-csp-rendezvous})
 used by CSP is provided by the channel kind rendezvous (See~\ref{channel-kind-rendezvous})
 (ii) Hoare's so-called general choice communication operator (Requirement~\ref{requirement-csp-general-choice})
-is provided as a operation in the choice node interface (See~\ref{choice-node-interface}).
+is provided as a operation in the choice node interface (See~\ref{choice-node-interface-type}).
 (iii) The parallel executing processes (Requirement~\ref{requirement-csp-concurrent-processes})
 created by the init functions are mapped to the concurrently executing actors
-(Subsection~\ref{node-functionality} and Subsection~\ref{node-interface-types}).
+(Subsection~\ref{node-functionality} and Subsection~\ref{node-interface}).
 (iv) The Point-to-Point communication of CSP over rendezvous channels (Requirement~\ref{requirement-csp-communication})
 is provided by the dataflow network graph (See~\ref{dataflow-network-graph}) and
 its contained rendezvous channels, which is the only means of communication in a
@@ -425,7 +429,7 @@ constraints must be fulfilled:
 \end{enumerate}
 
 Mapping of the KPN MoC requirements onto the concepts presented in
-Section~\ref{concept-overview}:
+Section~\ref{aspect-overview}:
 
 \begin{itemize}
 
@@ -446,7 +450,7 @@ the additional analysis requirement that actor consumption and
 production rates are constant.
 
 Mapping of the SDF MoC requirements onto the concepts presented in
-Section~\ref{concept-overview}:
+Section~\ref{aspect-overview}:
 
 \begin{itemize}
 
@@ -685,7 +689,7 @@ to the information about the actors, information about the connections
 of the actors with each other is needed. This information is stored
 in the network graph part of the executable specification, which can
 be categorized into two different network graph types as defined in
-Subsection~\ref{network-graph-types}.
+Subsection~\ref{network-graph}.
 
 The network graph is represented by a user provided C++ class, in the following called
 network graph class. This class is derived from a \SysteMoC{} graph type class which
@@ -697,7 +701,7 @@ in these methods constrain the constructet network graph to conform to the corre
 network graph type.
 Therefore the network graph type of a network graph can be determined by looking
 at the base class of the network graph class.
-(See Table~\ref{network-graph-types-c++} for mapping of the network graph types to their
+(See Table~\ref{network-graph-c++} for mapping of the network graph types to their
 corresponding \SysteMoC{} graph type classes).
 
 \begin{table}[h]
@@ -710,7 +714,7 @@ corresponding \SysteMoC{} graph type classes).
  Transact Node        & \code{hscd\_graph\_sdf} \\
 \hline
 \end{tabular}
-\caption{\label{network-graph-types-c++}Network graph types represented as \SysteMoC{} classes}
+\caption{\label{network-graph-c++}Network graph types represented as \SysteMoC{} classes}
 \end{table}
 
 To construct the network graph the following methods are available for
@@ -793,7 +797,7 @@ class types is displayed in Table~\ref{channel-kind-c++}.
 
 In Section~\ref{revision-of-mocs} we have demonstrated how
 to map the requirements of some MoCs to the concepts presented
-in Section~\ref{concept-overview}. Furthermore, the analysis
+in Section~\ref{aspect-overview}. Furthermore, the analysis
 requirement of these MoCs translate into certain constraints
 on the concepts presented before. These constraints are
 used to distinguish a concept into concept types. Therefore
@@ -899,7 +903,7 @@ class m_top2: public hscd_sdf_constraintset {
 
 %determine the MoC of a SystemC model additionally to the information
 %required about the actors of the model information is required about the
-%type of the network graph (See Subsection~\ref{network-graph-types} for defined graph types).
+%type of the network graph (See Subsection~\ref{network-graph} for defined graph types).
 
 %The MoC is represented as an actor which is derived from the \code{hscd\_structure}
 %template parameterized with the node interface and the channel kind. This actor can only
