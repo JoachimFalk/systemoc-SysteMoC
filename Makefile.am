@@ -20,21 +20,27 @@
 #
 # $Log$
 
+root_srcdir=$(top_srcdir)/..
+
 SUBDIRS=
+ACLOCAL_AMFLAGS=-I $(ac_abs_aux_dir)/m4
 
-pkgincludeprefix=hscdmoc/
+ac_aux_dir = @ac_aux_dir@
 
-include $(top_srcdir)/jfrules.mk
+include $(ac_aux_dir)/jfrules.mk
 
-compileheader-libhscdmoc.stamp: $(libhscdmoc_CH_LTOBJS)
+pkgincludeprefix=systemoc/
+
+
+compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 	@date > $@
 
-INCLUDES	= -I$(top_srcdir)/systemc-2.0.1/include		\
-		  -I$(top_srcdir)/systemc-2.0.1/src		\
+INCLUDES	= -I$(root_srcdir)/systemc-2.0.1/include	\
+		  -I$(root_srcdir)/systemc-2.0.1/src		\
 		  -I./include					\
 		  -I$(srcdir)
-AM_LDFLAGS	= -L$(top_srcdir)/systemc-2.0.1/lib-linux	\
-		  -L$(builddir)/systemc-hscdmoc/lib
+AM_LDFLAGS	= -L$(root_srcdir)/systemc-2.0.1/lib-linux	\
+		  -L$(builddir)/systemc-systemoc/lib
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -44,7 +50,7 @@ EXTRA_DIST	=
 
 PROGLDFLAGS=
 
-lib_LTLIBRARIES = libhscdmoc.la
+lib_LTLIBRARIES = libsystemoc.la
 pkginclude_HEADERS =			\
 	hscd_fifo.hpp			\
 	hscd_node_types.hpp		\
@@ -62,22 +68,22 @@ pkginclude_HEADERS =			\
 
 noinst_HEADERS=	oneof.hpp
 
-libhscdmoc_CH_LTOBJS=			\
+libsystemoc_CH_LTOBJS=			\
 	$(hscd_op_hpp_CH_LTOBJS)	\
 	$(hscd_pggen_hpp_CH_LTOBJS)
 
-libhscdmoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lsystemc -lstdc++
-libhscdmoc_la_LIBADD = $(libhscdmoc_CH_LTOBJS)
-libhscdmoc_la_DEPENDENCIES = compileheader-libhscdmoc.stamp include
+libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lsystemc -lstdc++
+libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
+libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include
 
-libhscdmoc_la_SOURCES =			\
+libsystemoc_la_SOURCES =			\
 	hscd_structure.cpp		\
 	hscd_root_node.cpp		\
 	hscd_pggen.cpp			\
 	hscd_root_if.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
-$(libhscdmoc_la_OBJECTS) $(libhscdmoc_CH_LTOBJS): include
+$(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include
 
-#test_pathstuff_LDADD = libhscdmoc.la
+#test_pathstuff_LDADD = libsystemoc.la
 #test_pathstuff_SOURCES = test_pathstuff.C

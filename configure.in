@@ -1,0 +1,59 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_INIT(SysteMoC, 0.1, falk@cs.fau.de)
+AC_PREREQ(2.57)
+ACJF_INIT
+
+AC_CONFIG_SRCDIR([hscd_root_node.cpp])
+
+AC_CONFIG_AUX_DIR([../BuildSystem])
+ac_abs_aux_dir=`cd $ac_aux_dir; pwd`
+AC_SUBST(ac_abs_aux_dir)
+AC_SUBST(ac_aux_dir)
+
+AC_CANONICAL_BUILD
+AC_CANONICAL_HOST
+
+dnl Checks for programs.
+ACJF_CHECK_CROSSTOOL( CC, gcc)
+ACJF_CHECK_CROSSTOOL( AR, ar)
+ACJF_CHECK_CROSSTOOL( RANLIB, ranlib)
+ACJF_CHECK_CROSSTOOL( NM, nm)
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_CPP
+# Checks for programs.
+#AC_PROG_LIBTOOL
+#AC_PROG_INSTALL
+#AC_PROG_LN_S
+#AC_PROG_MAKE_SET
+
+AM_INIT_AUTOMAKE
+AC_CONFIG_HEADER([config.h])
+
+AC_DISABLE_SHARED
+AM_PROG_LIBTOOL
+
+ACJF_ARG_DEBUG(yes, , [-DNDEBUG])
+
+dnl check for exe extension
+AC_EXEEXT
+
+# FIXME: Replace `main' with a function in `-lsystemc':
+AC_CHECK_LIB([systemc], [main])
+
+# Checks for header files.
+# AC_FUNC_ALLOCA
+# AC_HEADER_STDC
+# AC_CHECK_HEADERS([OS.h fcntl.h limits.h mach/mach.h malloc.h stddef.h stdint.h stdlib.h string.h sys/time.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+
+AC_CONFIG_FILES([Makefile])
+
+ACJF_DONE
+
+AC_OUTPUT
