@@ -28,11 +28,7 @@
 } while ( 0 )
 
 class hscd_opbase_node
-  : public sc_module,
-#ifndef __SCFE__
-    public hscd_modes::hscd_modes_base_structure,
-#endif
-    public hscd_root_node_op_if {
+  : public hscd_root_node_op_if {
   private:
 //    typedef std::list<hscd_root_port *> ports_ty;
 //    ports_ty                            ports;
@@ -48,8 +44,8 @@ class hscd_opbase_node
       startChoice(op); waitFinished();
     }
     
-    hscd_opbase_node( sc_module_name name )
-      :sc_module(name) {}
+    hscd_opbase_node()
+      : hscd_root_node_op_if() {}
     
     sc_event		  _opFinished;
     
@@ -82,14 +78,17 @@ class hscd_root_node
       startTransact(fire_port(1)); waitFinished();
     }
     
-    hscd_root_node( sc_module_name name )
-      :hscd_opbase_node(name) {}
+    hscd_root_node()
+      : hscd_opbase_node() {}
   public:
     //sc_event		_fire;
     hscd_port_in<void>  fire_port;
 
 #ifndef __SCFE__
-    void assemble( hscd_modes::PGWriter &pgw ) const;
+    virtual
+    void assemble( hscd_modes::PGWriter &pgw ) const = 0;
+    
+    void leafAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const;
 #endif
 };
 

@@ -3,11 +3,11 @@
 #include <hscd_root_node.hpp>
 #include <systemc/kernel/sc_object_manager.h>
 
-void hscd_root_node::assemble( hscd_modes::PGWriter &pgw ) const {
-  pgw << "<process name=\"" << name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
+void hscd_root_node::leafAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const {
+  pgw << "<process name=\"" << m->name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
   {
-    sc_object_manager *om = simcontext()->get_object_manager();
-    
+//    sc_object_manager *om = simcontext()->get_object_manager();
+//    
     pgw.indentUp();
 #if 0
     pgw << om->hierarchy_curr() << std::endl;
@@ -20,8 +20,8 @@ void hscd_root_node::assemble( hscd_modes::PGWriter &pgw ) const {
     pgw << "-------------------------------" << std::endl;
 #endif
 
-    for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
-          iter != get_child_objects().end();
+    for ( sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+          iter != m->get_child_objects().end();
           ++iter ) {
       if ( *iter == &fire_port )
         continue;

@@ -74,9 +74,11 @@ public:
     : public hscd_fifo_kind::chan_init {
     friend class hscd_fifo_storage<T>;
   private:
-    std::vector<T> marking;
+    std::vector<T>  marking;
+  protected:
+    typedef const T add_param_ty;
   public:
-    void add( const T x ) {
+    void add( add_param_ty x ) {
       marking.push_back(x);
     }
   protected:
@@ -120,6 +122,23 @@ class hscd_fifo_storage<void>
 public:
   typedef void                      data_type;
   typedef hscd_fifo_storage<void>   this_type;
+  
+  class chan_init
+    : public hscd_fifo_kind::chan_init {
+    friend class hscd_fifo_storage<void>;
+  private:
+    size_t          marking;
+  protected:
+    typedef size_t  add_param_ty;
+  public:
+    void add( add_param_ty x ) {
+      marking += x;
+    }
+  protected:
+    chan_init( const char *name, size_t n )
+      : hscd_fifo_kind::chan_init(name, n),
+        marking(0) {}
+  };
 protected:
   typedef hscd_transfer_port<void>::hscd_chan_port_if iface_type;
   
@@ -139,9 +158,12 @@ protected:
       out.nextAddr(); in.nextAddr();
     }
   }
- 
+  
   hscd_fifo_storage( const chan_init &i )
-    : hscd_fifo_kind(i) {}
+    : hscd_fifo_kind(i) {
+    assert( fsize > i.marking );
+    windex = i.marking;
+  }
 };
 
 template <typename T>
@@ -205,7 +227,7 @@ public:
   typedef hscd_fifo<T>        this_type;
   typedef hscd_fifo_type<T>   chan_type;
   
-  this_type &operator <<( const T x ) {
+  this_type &operator <<( typename hscd_fifo_storage<T>::chan_init::add_param_ty x ) {
     add(x); return *this;
   }
   

@@ -11,11 +11,12 @@
 #include <list>
 
 class hscd_scheduler_base
-  : public hscd_opbase_node {
+  : public sc_module,
+    public hscd_opbase_node {
   public:
     hscd_scheduler_base( sc_module_name name )
-      : hscd_opbase_node(name) {}
-
+      : sc_module(name), hscd_opbase_node() {}
+    
 #ifndef __SCFE__
     void assemble( hscd_modes::PGWriter &pgw ) const {
       assert( 0 );
@@ -56,5 +57,20 @@ class hscd_scheduler_asap
     }
 
 };
+
+class hscd_top {
+  private:
+    std::list<hscd_choice_node *>   nl;
+    hscd_scheduler_asap             sched;
+    
+    std::list<hscd_choice_node *> &setTop( hscd_choice_node *top ) {
+      nl.push_front(top); return nl;
+    }
+  public:
+    hscd_top(hscd_choice_node *top)
+      : sched("xxxx", setTop(top)) {}
+};
+
+
 
 #endif // _INCLUDED_HSCD_SCHEDULER_HPP

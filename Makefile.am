@@ -63,7 +63,9 @@ pkginclude_HEADERS =			\
 	hscd_root_port.hpp		\
 	hscd_root_port_list.hpp		\
 	hscd_scheduler.hpp		\
+	hscd_moc.hpp			\
 	hscd_structure.hpp		\
+	hscd_graph_type.hpp		\
 	commondefs.h
 
 noinst_HEADERS=	oneof.hpp
@@ -77,7 +79,7 @@ libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include
 
 libsystemoc_la_SOURCES =		\
-	hscd_structure.cpp		\
+	hscd_graph_type.cpp		\
 	hscd_root_node.cpp		\
 	hscd_pggen.cpp			\
 	hscd_root_if.cpp		\

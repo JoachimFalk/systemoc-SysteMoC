@@ -1,15 +1,27 @@
 \newcommand{\graphicPostfix}{pdf}
 \newcommand{\resdir}{../../../HscdTeXRes/}
-\newcommand{\code}[1]{{\bf #1}}
+\newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\SysteMoC}{{\bf SysteMoC}}
 \newcommand{\SysteMoCV}{\SysteMoC{} {\bf 1.0}}
 
 \input{\resdir format.tex}
 
 \usepackage{multirow}
+\usepackage{fancyvrb}
+
+% Use a small font for the verbatim environment
+\makeatletter  % makes '@' an ordinary character
+\renewcommand{\verbatim@font}{%
+  \ttfamily\small\catcode`\<=\active\catcode`\>=\active%
+}
+\makeatother   % makes '@' a special symbol again
+
+% \begin{Verbatim}[fontsize=\tiny]
+
 
 \begin{document}
-\hscdtitle{Representing models of computation in SystemC}{Joachim Falk}{\today}
+\hscdtitle{Representing Models of Computation in SystemC}
+{Joachim Falk, Christian Haubelt, Jürgen Teich}{\today}
 \clearpage
 \tableofcontents
 \clearpage
@@ -17,47 +29,82 @@
 \section{Introduction\label{intro}}
 Due to rising design complexity it is necessary to increase
 the level of abstraction at which systems are designed. In
-today's embedded software the specification ist mostly mapped
+today's embedded systems the specification is mostly mapped
 into a set of interacting tasks and hardware modules, which 
 interact by the use of shared variables and various ways of
 message passing. To guarantee exclusive access to the shared
-variables and resources mutual exclusion devices like semaphores,
+variables and resources mutually exclusive devices like semaphores,
 mutexes and monitors are used. But this unstructured use
-of communication methods lead to hard to analyse systems.
-However, by placing constraints on the type of communication method
-used between tasks and the communication behaviour of the tasks
-expressiveness is traded for analysability. A model of computation,
-in the following called MoC, is a methodology for scheduling
-the communicating tasks which requires a certain set of constraints.
-Stricter constraints enable a MoC which can derive more facts
-about the system which can be used to:
+of communication types lead to hardly analysable systems.
+However, by constraining the type of communication
+used between tasks and the communication behavior of the tasks,
+expressiveness is traded for analyzability.
+
+\emph{Models of computation}
+\cite{embsft:2002}, in the following called \emph{MoCs}, are
+predefined types of communication and strategies for scheduling
+the communicating tasks. Thus MoCs are comparable to design
+patterns known from the area of software design \cite{gamma:1995}.
+Limiting the expressiveness of an MoC enables:
 
 \begin{enumerate}
-\item Mathematically reason about communication patterns
+\item Mathematically reasoning about communication patterns
 
-\item Enable code generators to produce better optimized code
+\item Code generators to produce optimized code
 
-\item Enable verification tools to check system properties like
-      deadlock or memory consumption
+\item Verification tools to check system properties automatically
 \end{enumerate}
-However, for these benefits to be practically realized, the
-MoC must be extractable from the source code. Because the general case
-is impossible to solve for a turing complete programming language
-\footnote{Halting problem} a machine analyzable coding subset for
-MoCs has to be defined.
 
-\section{Concept overview}
-\label{concept-overview}
+On the other hand, modern embedded systems design is still based on
+specification languages which allow unstructured communication.
+Even worse, nearly all specification languages allow for Turing
+complete MoCs making analysis in general impossible.
+To make industry benefit from the best of both worlds,
+engineers must restrict themselves to use certain subsets of
+specification languages allowing for analyzability, identification
+and extraction of these MoCs from the source code automatically.
 
-Instead of a Monolitic approach for representing an executable specification
-we choose to combine the specification out of  severel independent concepts.
-This is a refinement of actor-oriented design. Actor-oriented design has actors which execute
-concurrently and only communicate with each other via channels instead
-of method calls as known in object-oriented design. In our
-methodology the specification is even more finely divided than in
-actor-oriented design.
+These report deal with the representation of some transformative
+MoCs in SystemC. The rest of the report is structured as follows:
+In Section~\ref{related-work}, we discuss related work. In
+Section~\ref{concept-overview}, we present our concepts for
+representing MoCs in SystemC. In Section~\ref{requirements-of-mocs},
+we exemplify for some MoCs how they fit into
+the concepts presented before. In Section~\ref{software-architecture}
+an implementation of these concepts in SystemC called \SysteMoC{} is
+presented. We follow this with an example model using the \SysteMoC{}
+framework and conclude the report in Section~\ref{conclusion}.
 
-\subsection{Node functionality}
+\section{Related Work}\label{related-work}
+
+\section{Concept Overview}\label{concept-overview}
+
+A model of computation is defined \cite{embsft:2002} as the 
+interaction policy between \emph{actors} in an \emph{actor-oriented} design
+\cite{agha97abstracting:1997}.
+Actors are objects which execute concurrently. They can only
+communicate with the environment (other actors) through their ports.
+The actor ports are connected with each other via a \emph{channel network}.
+The data values, which are communicated over the channels
+are abstracted. The values are called \emph{tokens} regardless
+of their type or value.
+
+Instead of a monolithic approach for representing an executable specification,
+we choose in this report to separate the specification into several
+independent concepts.
+This is a refinement of actor-oriented design.
+Actor-oriented design has actors which execute concurrently and only
+communicate with each other via channels instead of method calls as known
+in object-oriented design. In our methodology, the specification is more
+detailed than in actor-oriented design.
+One aspect of the separation is a devision of an actor
+into control flow and data flow concepts. Another aspect is the
+separation of the channel network into the structure of the network
+and the type of channel used for communication.
+In the following, the concepts into which the executable specification
+is separated is discussed in depth:
+
+\subsection{Node Functionality}
 
 In our methodology the actor concept is still used, but is split into two parts.
 There is the part called node functionality which is responsible
@@ -67,10 +114,10 @@ of parameters to a fixed set of results. The node functionality must
 therefore terminate and it must not communicate with
 other actors.
 
-\subsection{Node interface}
+\subsection{Node Interface}
 
 The other part of the actor which determines the communication
-behaviour of the actor is called firing rules. The firing rules
+behavior of the actor is called firing rules. The firing rules
 determine for each actor port the number of tokens needed
 that a node functionality can be invoked.
 %%Firing rules can be invoked
@@ -78,13 +125,13 @@ that a node functionality can be invoked.
 The node interface is the set of communication operations an
 actor has available to construct its firing rules.
 
-\subsection{Network graph}
+\subsection{Network Graph Type}
 
 To represent the executable specification not only information about
 individual actors must be contained but also information about
-the connection topology of the actor ports to each other and to uplevel ports.
+the connections of the actor ports to each other and to uplevel ports.
 This information is stored in the network graph \label{network-graph}
-$N=(\mathcal{A},C,P_{i},P_{o},E)$ a 5-tupple containing
+$N=(\mathcal{A},C,P_{i},P_{o},E)$ a 5-tuple containing
 a set of actors $\mathcal{A}$, a set of channels $C$, a set of uplevel
 input ports $P_{i}$, a set of uplevel output ports $P_{o}$ and a set of
 directed edges $E \subseteq ((P_{i} \bigcup C) \times \mathcal{A}_{P_{i}})
@@ -92,29 +139,29 @@ directed edges $E \subseteq ((P_{i} \bigcup C) \times \mathcal{A}_{P_{i}})
 Each actor $A \in \mathcal{A}$ can only communicate with other actors
 through its set of dedicated actor input ports $A_{P_{i}}$ and
 actor output ports $A_{P_{o}}$.
-% $\forall{}_{(X,Y)\in \mathcal{A^2}} X \ne Y \Rightarrow X_{P} \cap Y_{P} = \emptyset$
+% $\forall{(X,Y)\in \mathcal{A^2}}: X \ne Y \Rightarrow X_{P} \cap Y_{P} = \emptyset$
 Furthermore we define the set of all
 actor input ports as $\mathcal{A}_{P_{i}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{i}}$ and
 the set of all actor output ports as
 $\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$.
 
-There are two connection topologies which are distinguished by our methodology:
+There are two network graph types \label{network-graph-types} which are distinguished by our methodology:
 
 \begin{enumerate}
 \item Petri network graph \label{petri-network-graph}
 
   Petri network graphs are network graphs which are constrained that only
   one edge enters an actor input port
-  $\forall{p \in \mathcal{A}_{P_{i}}.} |(C \times \{p\}) \bigcap E| \le 1$.
-  An example of a petri network graph is displayed in figure~\ref{ng-petri}.
+  $\forall{p \in \mathcal{A}_{P_{i}}}: |(C \times \{p\}) \bigcap E| \le 1$.
+  An example of a petri network graph is displayed in Figure~\ref{ng-petri}.
 
-\item SDF network graph \label{sdf-network-graph}
+\item Dataflow network graph \label{sdf-network-graph}
 
-  A SDF network graph is a petri network graph with the additional constraint,
+  Dataflow network graphs are petri network graphs with the additional constraint,
   that the indegree and outdegree of every channel in the graph must be one
-  $\forall{c \in C.} |(\{c\} \times \mathcal{A}_{P_{i}}) \bigcap E| \le 1 \wedge
+  $\forall{c \in C}: |(\{c\} \times \mathcal{A}_{P_{i}}) \bigcap E| \le 1 \wedge
                     |(\mathcal{A}_{P_{o}} \times \{c\}) \bigcap E| \le 1$.
-  An example of a SDF network graph is displayed in figure~\ref{ng-sdf}.
+  An example of a Dataflow network graph is displayed in Figure~\ref{ng-sdf}.
 \end{enumerate}
 
 \begin{figure}
@@ -126,10 +173,10 @@ There are two connection topologies which are distinguished by our methodology:
 \begin{figure}
 \centering
 \includegraphics[scale=1]{ng-sdf.\graphicPostfix}\\
-\caption{\label{ng-sdf}SDF network graph}
+\caption{\label{ng-sdf}Dataflow network graph}
 \end{figure}
 
-\subsection{Channel kind}
+\subsection{Channel Kind}
 
 The channel kind defines the communication semantic of the channel.
 Because the communication semantic is not influenced by the
@@ -149,109 +196,100 @@ the type of the communicated values. Examples for channel kinds are:
   (Nonblocking write and read).
 \end{enumerate}
 
-\section{Requirements of MoCs}\label{Requirements of MoCs}
+\section{Revision of Different MoCs}\label{requirements-of-mocs}
 
-A Model of Computation is defined \cite{embsft:2002} as the 
-interaction policy between actors in an Actor-Oriented Design.
-Actors are objects which execute concurrently. They can only
-communicate with the environment (other actors) through their ports.
-The actor ports are connected which each other via channels.
-The data values, which are communicated over the channels,
-are abstracted. The values are called tokens regardless
-of their type or value.
-%Actors can have their own thread of control or be without. Actors
-%with their own thread of control will be called in the following
-%active actors and actors without a dedicated thread of control
-%passive actors.
-
-The requirements of MoCs can be seperated into two different groups.
+The requirements of different MoCs can be separated into two distinct groups.
 There are the execution requirements which must be fulfilled by
-the programming system otherwise the MoC can not be implemented in
-this system.
-On the other hand there are the analysis requirements which
-must be fulfilled otherwise we can not extract the information
-needed for MoC specific analysis.
+the programming system otherwise the MoC cannot be implemented in
+this particular system.
+On the other hand, there are the analysis requirements which
+permit the extraction of information needed for the MoC specific analysis.
 
-\subsection{Requirements of CSP}
-Communicating Sequential Processes \cite{csphoare:1985}
+In the following Subsections, different MoCs are considered and their
+requirements determined. For each MoC these requirements are than
+mapped onto the concepts presented in the previous Section.
+
+\subsection{Communicating Sequential Processes (CSP)}
+\emph{Communicating Sequential Processes} \cite{csphoare:1985}
 is a MoC which consist of concurrently executing processes
 which communicate via unidirectional rendezvous channels.
-As a difference to the CSP model of Hoare which allows
-runtime creation of processes via parallel composition and 
-recursion this CSP like model is constraint to a fixed
-predetermined number of processes. This constraint was
-set to render hardware synthesis of the model possible.
+As a difference to the CSP model of Hoare \cite{csphoare:1985}
+which allows runtime creation of processes via parallel
+composition and  recursion, the CSP model presented in this report
+is constraint to a fixed predetermined number of processes.
+This constraint was set to allow hardware synthesis from this
+model.
 
 The following requirements are the execution requirements to
-implement CSP like behaviour:
+implement CSP behavior:
 
 \begin{enumerate}
 \item A rendezvous channel for communication
-\item A communication method for Hoare's 'general choice'
+\item A communication method for Hoare's so-called \emph{general choice}
 \item Parallel executing processes
 \end{enumerate}
 
-To faciliate analysis of the CSP MoC additionally the following
-constraints must be fulfilled:
+To facilitate analysis of the CSP MoC additionally the following
+constraints must be satisfied:
 \begin{enumerate}
 \item The indegree and outdegree of all channels in the network graph must be one.
 \item The actors must only communicate over their ports which each other.
 \end{enumerate}
 
 Mapping of the CSP MoC requirements onto the concepts presented in
-section~\ref{concept-overview}:
+Section~\ref{concept-overview}:
 
 \begin{itemize}
 
 \item The node interface must provide a communication operator which
       generates a 'general choice' communication.
 
-\item The connection topology needed for CSP is provided by the SDF network graph.
+\item The connections needed for CSP are provided by the Dataflow network graph.
 
 \item As channel kind rendezvous is selected.
 
 \end{itemize}
 
-\subsection{Requirements of KPN}
+\subsection{Dataflow (DF)}
 Kahn Process Networks \cite{kahn:1974}
 is a MoC which consist of concurrently executing processes
 which communicate via unidirectional unbounded FIFO channels.
-The input/ouput ends of a channel are connected to dedicated
+The input/output ends of a channel are connected to dedicated
 processes.
 
 The following requirements are the execution requirements to
-implement KPN behaviour:
+implement KPN behavior:
 
 \begin{enumerate}
 \item An unbound FIFO channel for communication
-\item A communication method to read from and write to fifos
+\item A communication method to read from and write to FIFOs
 \item Parallel executing processes
 \end{enumerate}
 
-To faciliate analysis of the KPN MoC additionally the following
+To facilitate analysis of the KPN MoC additionally the following
 constraints must be fulfilled:
 \begin{enumerate}
 \item The indegree and outdegree of all channels in the network graph must be one.
 \item Assurance that the arrival sequence of tokens at
-      their ports can not be determined.
+      their ports cannot be determined.
 \item The actors must only communicate over their ports which each other.
 \end{enumerate}
 
 Mapping of the KPN MoC requirements onto the concepts presented in
-section~\ref{concept-overview}:
+Section~\ref{concept-overview}:
 
 \begin{itemize}
 
 \item The node interface must only provide a communication operator which
       generates parameterized read and write requests on the actor ports.
 
-\item The connection topology needed for CSP is provided by the SDF network graph.
+\item The connections needed for CSP are provided by the Dataflow network graph.
 
 \item As channel kind FIFO is selected.
 
 \end{itemize}
 
-\subsection{Requirements of SDF}
+\subsection{Synchronous Dataflow (SDF)}
 Synchronous Data Flow \cite{Lee87b:1987}
 is a more constricted form of the KPN MoC.
 It has all the execution requirements of the KPN MoC and
@@ -259,40 +297,40 @@ the additional analysis requirement that actor consumption and
 production rates are constant.
 
 The following requirements are the execution requirements to
-implement SDF behaviour:
+implement SDF behavior:
 
 \begin{enumerate}
 \item An unbound FIFO channel for communication
-\item A communication method to read from and write to fifos
+\item A communication method to read from and write to FIFOs
 \item Parallel executing processes
 \end{enumerate}
 
-To faciliate analysis of the SDF MoC additionally the following
+To facilitate analysis of the SDF MoC additionally the following
 constraints must be fulfilled:
 \begin{enumerate}
 \item The indegree and outdegree of all channels in the network graph must be one.
 \item Assurance that the arrival sequence of tokens at
-      their ports can not be determined.
-\item Assurance that consumption and production rates can not
+      their ports cannot be determined.
+\item Assurance that consumption and production rates cannot
       be altered once set.
 \item The actors must only communicate over their ports which each other.
 \end{enumerate}
 
 Mapping of the SDF MoC requirements onto the concepts presented in
-section~\ref{concept-overview}:
+Section~\ref{concept-overview}:
 
 \begin{itemize}
 
 \item The node interface must only provide a communication operator which
       generates read and write requests with a fixed set of actor ports.
 
-\item The connection topology needed for CSP is provided by the SDF network graph.
+\item The connections needed for CSP are provided by the Dataflow network graph.
 
 \item As channel kind FIFO is selected.
 
 \end{itemize}
 
-\section{Software architecture}
+\section{Software Architecture}\label{software-architecture}
 
 Due to its high abstraction level and possibilities for both
 hardware and software refinements we have chosen SystemC
@@ -300,16 +338,20 @@ hardware and software refinements we have chosen SystemC
 SystemC is a C++ based design framework.
 
 In the following we propose a SystemC framework, called \SysteMoC, which
-faciliates automatic extraction of the MoC of a SystemC design.
+facilitates automatic extraction of the MoC of a SystemC design.
+%Actors can have their own thread of control or be without. Actors
+%with their own thread of control will be called in the following
+%active actors and actors without a dedicated thread of control
+%passive actors.
 Actors in SystemC are C++ classes which are derived from the base class \code{sc\_module}.
 However it is impossible, in the general case, to extract the kind of communication
-behaviour these actors will exhibit. The \SysteMoC{} framework must now provide the
+behavior these actors will exhibit. The \SysteMoC{} framework must now provide the
 execution requirements for each MoC while still allowing to extract the information
 needed for analysis. This analysis is made possible by dividing the actor into its
-node functionallity and its node interface.
+node functionality and its node interface.
 Furthermore the \SysteMoC{} framework must provide a way for these
-actors to be connected to each othe via their ports. The topology of these connections
-is decided by the network graph.
+actors to be connected to each other via their ports. This connections
+are provided by the network graph.
 
 \begin{figure}
 \centering
@@ -342,10 +384,45 @@ public:
         in(2) & out(1) /* Firing rules */ ) {}
 };
 \end{verbatim}
-\caption{\label{example-sdf-actor}Example of a SDF-Actor in the \SysteMoC{} framework}
+\caption{\label{example-adder-actor}Example of an adder in the \SysteMoC{} framework}
 \end{figure}
 
-\subsection{Node functionality}
+\begin{figure}
+\centering
+\begin{verbatim}
+template <typename T>
+class m_multiply // Actor m_multiply
+  : public hscd_fixed_transact_node // Node interface
+{
+public:
+  hscd_port_in<T>  in1;
+  hscd_port_in<T>  in2;
+  hscd_port_out<T> out;
+private:
+  // Node functionality
+  void transform() {
+    out[0] = in1[0] + in2[0];
+    std::cout << "Multiplying" << in1[0] << " * " << in2[0]
+              << " = " << out[0] << std::endl;
+  }
+  
+  // Firing rules
+  void process() {
+    while (true) {
+      transform();
+      transact();
+    }
+  }
+public:
+  m_multiply( sc_module_name name )
+    :hscd_fixed_transact_node( name,
+        in1(1) & in2(1) & out(1) /* Firing rules */ ) {}
+};
+\end{verbatim}
+\caption{\label{example-multiply-actor}Example of a multiplier in the \SysteMoC{} framework}
+\end{figure}
+
+\subsection{Node Functionality}
 The node functionality is only used for algorithmic transformations of data values.
 The node functionality of an actor is defined in certain member functions,
 which are called by the firing rules if their requirements for input data is met.
@@ -354,39 +431,39 @@ the input and output data values used are read from
 and written to the actor ports. All actor ports are globally accessible
 by the actor member functions and can therefore be used to get input data
 and place output data for the node functionality
-(See figure \ref{example-sdf-actor} method \code{transform} for an example of a node functionality).
+(See Figure~\ref{example-adder-actor} method \code{transform} for an example of a node functionality).
 
-\subsection{Node interface hierarchy}
-The problem of extracting the communication behaviour of an actor is caused by the fact,
+\subsection{Node Interface Hierarchy}
+The problem of extracting the communication behavior of an actor is caused by the fact,
 that the communication methods in SystemC are all accessible to all SystemC modules.
-And execution of these methods is controlled by the turing equivalent coding possibilities
+And execution of these methods is controlled by the Turing equivalent coding possibilities
 in the actor. To partially redress these problems we introduce the concept of node interface
 which determines what communication methods are available to an actor. This is implemented
 by disallowing all communication methods on \SysteMoC{} channels and providing them instead
 in a base class from which the actor is derived. Therefore the node interface of an actor
 corresponds to the base class from which the actor is derived
-(See table~\ref{node-interface-c++} for mapping of the node interface names to their
+(See Table~\ref{node-interface-c++} for mapping of the node interface names to their
 corresponding C++ class types).
-Communication over other media than \SysteMoC{} channels is forbidden but this can not be enforced
-because the full power of SystemC should be availlable for the node functionallity part
+Communication over other media than \SysteMoC{} channels is forbidden but this cannot be enforced
+because the full power of SystemC should be available for the node functionality part
 of the actor. So we require form the \SysteMoC{} user the assurance that the
-node functionallity does terminate and does not communicate with other actors.
+node functionality does terminate and does not communicate with other actors.
 
 \begin{table}
 \centering
-\begin{tabular}{|c|c|}
+\begin{tabular}{|l|l|}
 \hline
- Node interface & C++ class type \\
+ Node interface & \SysteMoC{} type \\
 \hline \hline
- Choice Node          & hscd\_choice\_node \\
- Transact Node        & hscd\_transact\_node \\
- Fixed Transact Node  & hscd\_fixed\_transact\_node \\
+ Choice Node          & \code{hscd\_choice\_node} \\
+ Transact Node        & \code{hscd\_transact\_node} \\
+ Fixed Transact Node  & \code{hscd\_fixed\_transact\_node} \\
 \hline
 \end{tabular}
-\caption{\label{node-interface-c++}Node interfaces represented as C++ classes}
+\caption{\label{node-interface-c++}Node interfaces represented as \SysteMoC{} classes}
 \end{table}
 
-The following subset of the requirements enumerated in Section~\ref{Requirements of MoCs}
+The following subset of the requirements enumerated in Section~\ref{requirements-of-mocs}
 determines the node interface of the corresponding MoCs:
 
 \begin{enumerate}
@@ -398,14 +475,14 @@ determines the node interface of the corresponding MoCs:
   \begin{itemize}
   \item A communication method to read from and write to ports.
   \item Assurance that the arrival sequence of tokens at
-        their ports can not be determined.
+        their ports cannot be determined.
   \end  {itemize}
 \item Fixed Transact Node
   \begin{itemize}
   \item A communication method to read from and write to ports.
   \item Assurance that the arrival sequence of tokens at
-        their ports can not be determined.
-  \item Assurance that consumption and production rates can not
+        their ports cannot be determined.
+  \item Assurance that consumption and production rates cannot
         be altered once set
   \end  {itemize}
 \end{enumerate}
@@ -428,11 +505,11 @@ be reduced accordingly to meet them.
 \begin{figure}
 \centering
 \includegraphics[scale=0.5]{NodeInterfaceHierarchy.\graphicPostfix}\\
-\caption{\label{node-interface-hierarchy}Node interfaces represented as C++ classes}
+\caption{\label{node-interface-hierarchy}Node interface hierarchy as UML}
 \end{figure}
 
 The hierarchy of the requirements is transformed into a C++ inheritance
-hierarchy with the CSP node interface at the root (See figure \ref{node-interface-c++}).
+hierarchy with the CSP node interface at the root (See Figure~\ref{node-interface-c++}).
 Less capable node interfaces inherit from more capable ones. The
 less capable node interfaces use the communication operations from the base class node
 interface to implement their own operations. The communication operations of the
@@ -441,17 +518,19 @@ base class are disabled by declaring them private.
 \begin{enumerate}
 \item CSP
   \begin{itemize}
-  \item  $\mathrm{choice}( a(1) \arrowvert b(2) )$
+  \item  \code{choice( a(1) $\arrowvert$ b(2) )}
+
     This communication operation gets a list of actor ports (e.g. $a$, $b$) which
     are parameterized with the number of tokens that must be communicated
     over the port. The operations communicates over that actor port which is first ready
     for communication. If no port is ready for communication the operation blocks until
     at least one port is ready. Should more than one actor port be ready for
-    communication at the same instance one of them is chosen nondeterministicly.
+    communication at the same instance one of them is chosen nondeterministically.
   \end  {itemize}
 \item KPN
   \begin{itemize}
-  \item $\mathrm{transact}( a(1) \& b(2) )$
+  \item \code{transact( a(1) \& b(2) )}
+
     This communication operation gets a list of actor ports (e.g. $a$, $b$) which
     are parameterized with the number of tokens that must be communicated
     over the port. The operations blocks until all requested tokens on the ports
@@ -459,116 +538,160 @@ base class are disabled by declaring them private.
   \end  {itemize}
 \item SDF
   \begin{itemize}
-  \item $\mathrm{transact}()$, $\mathrm{hscd\_fixed\_transact\_node}( ..., a(1) \& b(2) )$
+  \item \code{transact(), hscd\_fixed\_transact\_node( ..., a(1) \& b(2) )}
+
     Actors are C++ classes which are derived of their node interface class.
     The consumption and production rates for SDF Actors must be fixed, therefore
     the node interface of a SDF-Actor is parameterized with the consumption and production
-    rates of the SDF-Actor (See actor constructor in figure \ref{example-sdf-actor} for an
+    rates of the SDF-Actor (See actor constructor in Figure~\ref{example-multiply-actor} for an
     example of fixed consumption and production rates). The communication operation \code{transact} is
-    therefore missing the port list which is availlable to KPN nodes.
+    therefore missing the port list which is available to KPN nodes.
   \end  {itemize}
 \end{enumerate}
 
-\subsection{Network graph}
+\begin{figure}
+\centering
+\begin{verbatim}
+class m_top2: public hscd_sdf_constraintset {
+  public:
+    hscd_port_in<int>  in1;
+    hscd_port_in<int>  in2;
+    hscd_port_out<int> out;
+    
+    m_top2()
+      : hscd_sdf_constraintset()
+    {
+      m_adder<int>    &adder =
+        registerNode(new m_adder<int>("adder"));
+      m_multiply<int> &mult  =
+        registerNode(new m_multiply<int>("multiply"));
+      
+      connectInterfacePorts( in1, adder.in1 );
+      connectInterfacePorts( in2, mult.in1 );
+      connectNodePorts( adder.out, mult.in2 );
+      connectNodePorts( mult.out2, adder.in2,
+        hscd_fifo<int>() << 13 /* Start marking */ );
+      connectInterfacePorts( out, mult.out1 );
+    }
+};
+\end{verbatim}
+\caption{\label{example-sdf-constraintset}Example of a network graph for the SDF-Actor in the \SysteMoC{} framework}
+\end{figure}
 
-To determine the MoC of a SystemC modell additionally to the information
-required about the actors of the modell information is required about the
-topology of the connections of actors to each other.
+\subsection{Network Graph Type}
 
-There are two connection topologies which are distinguished by the \SysteMoC{}
-framework.
+To determine the MoC of a SystemC model additionally to the information
+required about the actors of the model information is required about the
+type of the network graph (See Subsection~\ref{network-graph-types} for defined graph types).
+The network graph is represented by a C++ class, in the following called
+network graph class. This class is derived from a graph type class witch
+provides the methods needed to assemble the network graph in the constructor
+of the network graph class. Once the constructor has finished the network graph must
+be fully assembled. No alteration at a later date is allowed.
 
+The operator set provided by the graph type class together with runtime checks
+in these methods enforces that in the network graph class
+only a graph of the type determined by the graph type class can be assembled.
+Therefore the network graph type of a network graph can be determined by looking
+at the base class of the network graph class.
+(See Table~\ref{network-graph-types-c++} for mapping of the network graph types to their
+corresponding C++ class types).
+
+\begin{table}
+\centering
+\begin{tabular}{|l|l|}
+\hline
+ Network graph type   & \SysteMoC{} type \\
+\hline \hline
+ Petri Choice Node    & \code{hscd\_graph\_petri} \\
+ Transact Node        & \code{hscd\_graph\_sdf} \\
+\hline
+\end{tabular}
+\caption{\label{network-graph-types-c++}Network graph types represented as \SysteMoC{} classes}
+\end{table}
+
+To construct the network graph the following methods are available for
+composition of a network graph of the desired type:
 \begin{enumerate}
 \item Petri network graph
-  
-  A petri network graph is a graph as described in subsection~\ref{petri-network-graph}
-  (See figure~\ref{ng-petri} for an example of a petri network graph).
 
-\item SDF network graph
+  \begin{itemize}
+  \item registerNode:
+    This method is used to add actor vertices to the network graph.
+    Each registered actor must implement
+    the parameterized node interface of the \code{hscd\_structure}
+    template or an even less capable node interface.
+    This constraint is enforced by the type signature
+    of the registerNode method and the node interface hierarchy.
+
+  \item registerChan:
+    This method is used to add channel vertices to the network graph.
+    Each registered channel must be of the parameterized channel kind.
+    The constraint is enforced by the type signature
+    of the registerChan method.
+
+  \item connectChanPort:
+    This method adds the edges between the actor ports and the
+    channels.
+
+  \item connectInterfacePorts
+
+  \end{itemize}
+
+\item Dataflow network graph
+
+  \begin{itemize}
+  \item registerNode: Same method as defined for petri network graphs.
   
-  A SDF network graph has the additional constraint that the indegree and outdegree
-  of every channel $C$ in the graph must be one.
-  (See figure~\ref{ng-sdf} for an example of a petri network graph).
+  \item connectInterfacePorts: Same method as defined for petri network graphs.
+  
+  \item connectNodePorts:
+    This method is a shorthand for adding a channel and
+    connecting two actor ports via this channel. Only channels
+    which are connected to a dedicated output actor port and
+    a dedicated input actor port can be realized with it.
+  
+  \end{itemize}
 
 \end{enumerate}
 
-The network graph is represented by the C++ template \code{hscd\_structure} 
-which has only methods to instantiate sub actors and connect their ports to each other.
+\subsection{Channel Kind}
+
+As SystemC is an actor-oriented design framework, it also has the concepts
+of actors and channels. So the channel kind concept of the \SysteMoC{}
+framework can cleanly be implemented as a base class of a channel in SystemC.
+The channel kind determines the communication semantic of a channel but not
+the data type of the tokens. The channel type is a template parameterized
+with the data type for the tokens and derived from the channel kind.
+Identifying the channel kind with a base class instead of a template enables
+easier type signature checks of C++ for the enforcement of a particular
+channel kind of a channel instance.
+
+Further differences between \SysteMoC{} channels and a SystemC channels consist of the
+absence of user callable methods for communicating on the \SysteMoC{} channels.
+Having those communication methods on the channels would contradict the separation
+of node interface and channel kind. The mapping of channel kind to corresponding C++
+class types is displayed in Table~\ref{channel-kind-c++}.
+
+\begin{table}
+\centering
+\begin{tabular}{|l|l|}
+\hline
+ Channel kind & \SysteMoC{} type \\
+\hline \hline
+ FIFO         & \code{hscd\_fifo\_kind} \\
+ Rendezvous   & \code{hscd\_rendezvous\_kind} \\
+\hline
+\end{tabular}
+\caption{\label{channel-kind-c++}Channel kinds represented as \SysteMoC{} classes}
+\end{table}
+
+\subsection{Constraint Set Composition for MoCs}
 
 The network graph is represented by the C++ template
 \code{hscd\_structure} which has the parameters node interface
 and channel kind. The network graph is assembled by the
 constructor of the  \code{hscd\_structure} template.
-Once the constructure has finished the network graph must
-be fully assembled. No alteration at a later date is allowed.
-To construct the network graph the following methods of the
-\code{hscd\_structure} template are available:
-
-\begin{enumerate}
-\item registerNode
-
-This method is used to add actor vertices to the network graph.
-Each registered actor must implement
-the parameterized node interface of the \code{hscd\_structure}
-template or an even less capable node interface.
-This constraint is enforeced by the type signature
-of the registerNode method and the node interface hierarchy.
-
-\item registerChan
-
-This method is used to add channel vertices to the network graph.
-Each registered channel must be of the parameterized channel kind.
-The constraint is enforeced by the type signature
-of the registerChan method.
-
-\item connectChanPort
-
-This method adds the edges between the actor ports and the
-channels.
-
-\item connectNodePorts
-
-This method is a shorthand for adding a channel and
-connecting two actor ports via this channel. It main usage
-is for MoCs where a channel is only connected to a dedicated
-output actor port and a dedicated input actor port. In
-this MoCs the connectChanPort method is disabled.
-
-\item connectInterfacePorts
-
-\item assemble
-
-\end{enumerate}
-
-\subsection{Channel kind}
-
-As SystemC is an actor-oriented design framework, it also has the concepts of actors
-and channels. So the channel kind concept of the \SysteMoC{} framework can cleanly be implemented
-as a base class of a channel in SystemC. The channel kind determines the
-communication semantic of a channel but not the data type of the tokens.
-The channel type is a template parameterized with the data type for the tokens and
-derived from the channel kind. Identifying the channel kind with a base class instead
-of a template enables easier type signature checks of C++ for the enforcement of a
-particular channel kind of a channel instance.
-
-Further differences between \SysteMoC{} channels and a SystemC channels consist of the
-absence of user callable methods for communicating on the \SysteMoC{} channels.
-Having those communication methods on the channels would contradict the separation
-of node interface and channel kind.
-
-For \SysteMoCV{} there exists two distinct channel kinds.
-
-\begin{enumerate}
-\item FIFO
-
-This channel kind represents unbound FIFO semantic.
-
-
-\item rendezvous
-
-This channel kind represents rendezvous semantic.
-
-\end{enumerate}
 
 The channel kind is the parameter for the
 \code{hscd\_structure} template which determines
@@ -576,7 +699,8 @@ the semantic of all channels in the parameterized
 \code{hscd\_structure} template.
 
 
-\subsection{MoC composition}
+
+
 
 The MoC is represented as an actor which is derived from the \code{hscd\_structure}
 template parameterized with the node interface and the channel kind. This actor can only
@@ -586,17 +710,63 @@ kind of channel.
 The MoC is now determined by the composition of the two concepts node interface
 and channel kind as following:
 
-\begin{tabular}{|c||c|c|c|}
+%%\begin{tabular}{|c||c|c|c|}
+%%\hline
+%% Channel kind & \multicolumn{3}{c|}{ Node interface } \\
+%%\hline
+%%              & Choice Node         & Transact Node      & Fixed Transact Node \\
+%%\hline \hline
+%% Fifo         & No well known name  & KPN                & SDF \\
+%%\hline
+%% Rendezvous   & CSP                 & No well known name & No well known name \\
+%%\hline
+%%\end{tabular}
+
+\begin{table}
+\centering
+\begin{tabular}{|l|l|l|l|}
 \hline
- Channel kind & \multicolumn{3}{c|}{ Node interface } \\
-\hline
-              & Choice Node         & Transact Node      & Fixed Transact Node \\
+ Channel kind & Node interface & Network graph type & Constraint set \\
 \hline \hline
- Fifo         & No well known name  & KPN                & SDF \\
-\hline
- Rendezvous   & CSP                 & No well known name & No well known name \\
+ Fifo         & Fixed Transact node & Dataflow network graph & SDF constraint set \\
+ Fifo         & Transact node       & Dataflow network graph & Dataflow constraint set \\
+%% Fifo         & Choice node         & Dataflow network graph & FIFO CSP constraint set \\
+ Rendezvous   & Choice node         & Dataflow network graph & CSP constraint set \\
 \hline
 \end{tabular}
+\caption{\label{constraintset-composition}
+  Composition of constraint set out of channel kind, node interface
+  and network graph type}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{|l|p{6cm}|l|}
+\hline
+ Constraint set & Composition in C++ & \SysteMoC{} typedef alias \\
+\hline \hline
+ SDF constraint set &
+  \code{hscd\_graph\_sdf< hscd\_fixed\_transact\_node, hscd\_fifo\_kind>} &
+  \code{hscd\_sdf\_constraintset} \\
+\hline
+ Dataflow constraint set &
+  \code{hscd\_graph\_sdf< hscd\_transact\_node, hscd\_fifo\_kind>} &
+  \code{hscd\_df\_constraintset} \\
+\hline
+ CSP constraint set &
+  \code{hscd\_graph\_sdf< hscd\_choice\_node, hscd\_rendezvous\_kind>} &
+  \code{hscd\_csp\_constraintset} \\
+\hline
+\end{tabular}
+\caption{\label{constraintset-c++}Constraint sets represented as \SysteMoC{}
+  classes and their composition in C++}
+\end{table}
+
+\section{Examples of MoC in SystemC with SysteMoC}\label{systemoc-examples}
+
+\section{Conclusion}\label{conclusion}
+
+
 
 \clearpage
 \appendix

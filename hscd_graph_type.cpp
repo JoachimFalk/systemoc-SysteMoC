@@ -1,8 +1,13 @@
-#include <hscd_structure.hpp>
+#include <hscd_graph_type.hpp>
 #include <systemc/kernel/sc_object_manager.h>
 
-template <typename T_node_type, typename T_chan_kind>
-void hscd_structure_petri<T_node_type, T_chan_kind>::pgAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const {
+template <typename T_node_type,
+          typename T_chan_kind,
+          template <typename T_value_type> class T_chan_init_default>
+void hscd_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::
+pgAssemble( hscd_modes::PGWriter &pgw ) const {
+  const sc_module *m = this;
+  
   pgw << "<problemgraph name=\"" << m->name() << "_pg\" id=\"" << pgw.getId() << "\">" << std::endl;
   {
     pgw.indentUp();
@@ -42,10 +47,15 @@ void hscd_structure_petri<T_node_type, T_chan_kind>::pgAssemble( const sc_module
   pgw << "</problemgraph>" << std::endl;
 }
 
-template <typename T_node_type, typename T_chan_kind>
-void hscd_structure_petri<T_node_type, T_chan_kind>::assemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const {
+template <typename T_node_type,
+          typename T_chan_kind,
+          template <typename T_value_type> class T_chan_init_default>
+void hscd_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::
+assemble( hscd_modes::PGWriter &pgw ) const {
+  const sc_module *m = this;
+  
   if ( iobind.empty() )
-    return pgAssemble(m,pgw);
+    return pgAssemble(pgw);
   else {
     pgw << "<process name=\"" << m->name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
     {
@@ -64,18 +74,18 @@ void hscd_structure_petri<T_node_type, T_chan_kind>::assemble( const sc_module *
             << "type=\"" << (port->isInput ? "in" : "out") << "\" "
             << "id=\"" << pgw.getId(port) << "\"/>" << std::endl;
       }
-      pgAssemble(m,pgw);
+      pgAssemble(pgw);
       pgw.indentDown();
     }
     pgw << "</process>" << std::endl;
   }
 }
 
-template void hscd_structure_petri<hscd_choice_node, hscd_fifo_kind>::assemble
-  (const sc_module *, hscd_modes::PGWriter&) const;
-template void hscd_structure_petri<hscd_transact_node, hscd_fifo_kind>::assemble
-  (const sc_module *, hscd_modes::PGWriter&) const;
-template void hscd_structure_petri<hscd_fixed_transact_node, hscd_fifo_kind>::assemble
-  (const sc_module *, hscd_modes::PGWriter&) const;
-template void hscd_structure_petri<hscd_choice_node, hscd_rendezvous_kind>::assemble
-  (const sc_module *, hscd_modes::PGWriter&) const;
+template void hscd_graph_petri<hscd_choice_node, hscd_fifo_kind, hscd_fifo>::assemble
+  (hscd_modes::PGWriter&) const;
+template void hscd_graph_petri<hscd_transact_node, hscd_fifo_kind, hscd_fifo>::assemble
+  (hscd_modes::PGWriter&) const;
+template void hscd_graph_petri<hscd_fixed_transact_node, hscd_fifo_kind, hscd_fifo>::assemble
+  (hscd_modes::PGWriter&) const;
+template void hscd_graph_petri<hscd_choice_node, hscd_rendezvous_kind, hscd_rendezvous>::assemble
+  (hscd_modes::PGWriter&) const;
