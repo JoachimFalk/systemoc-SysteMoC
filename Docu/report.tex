@@ -5,7 +5,7 @@
 \newcommand{\code}[1]{\emph{#1}}
 \newcommand{\SysteMoC}{\emph{SysteMoC}}
 \newcommand{\SysteMoCV}{\emph{SysteMoC 1.0}}
-\newcommand{\then}{\Longrightarrow}
+\newcommand{\implies}{\Longrightarrow}
 
 \input{format.tex}
 
@@ -111,8 +111,8 @@ SystemC have been extended by Herrera et al.~\cite{herrerasystemc:2004}
 which have implemented a custom library of channel types like rendezvous
 on top of the SystemC discrete-event simulation kernel. But no
 constraints have been imposed how these new channels types are used by
-an actor. Consequently, no information about the communication
-behavior of an actor can be derived.
+an actor. Consequently, no information about the communication behavior
+of an actor can be derived.
 Implementing these channels on top of the SystemC discrete-event
 simulation kernel curtails the performance of such an implementation.
 Another approach has been taken by Patel et al.~\cite{fermatmoc:2004}
@@ -145,7 +145,7 @@ of MoCs. The values are used as data to be manipulated by computations.
 For some MoCs the set of values contains the special symbol bottom ($\bot$),
 which denotes the absence of a value. The odering of the tags induces
 a ordering of events, i.e., $e_1 = (t_1,v_1)$ and $e_2 = (t_2,v_2)$, then $e_1 < e_2 \iff t_1 < t_2$.
-Two Events $e_1$, $e_2$ are \emph{synchronous events} if they contain
+Two Events $e_1$, $e_2$ are \emph{synchronous} if they contain
 the same tag, i.e., $e_1 = (t,v_1)$ and $e_2 = (t,v_2)$.
 Events are often called \emph{tokens} which represent the basic communication units.
 
@@ -156,11 +156,11 @@ of the set of all events.
 A \emph{signal} $s$ is defined as a set of events, i.e., $s \subseteq T \times V$.
 \end{sdefinition}
 A \emph{functional signal} or \emph{proper signal} is a signal $s$ where each tag is unique in $s$,
-i.e., $e_1 = (t,v_1) \in s$ and $e_2 = (t,v_2) \in s \then v_1 = v_2$.
+i.e., $e_1 = (t,v_1) \in s$ and $e_2 = (t,v_2) \in s \implies v_1 = v_2$.
 Intuitively, if tags represent time a proper signal is a signal which has
 at most one value per point in time. Furthermore, $T(s) \subseteq T$ denotes
 the set of tags in the signal $s$, i.e., $T(s) = \{t|(t,v) \in s\}$.
-Two signals $s_1$ and $s_2$ are \emph{synchronous signals} if they contain
+Two signals $s_1$ and $s_2$ are \emph{synchronous} if they contain
 the same set of tags, i.e., $T(s_1) = T(s_2)$.
 Hence, if two signals are synchronous each event in one
 signal has a corresponding synchronous event in the other signal and vice versa.
@@ -188,7 +188,7 @@ of empty signals} will be denoted by $\Lambda$.
 After defining signals, we are able to review the definitions of processes.
 Later, we will use processes to transform signals.
 Processes are described as sets of possible behaviors, where
-a behavior is a tuple of signals:
+a \emph{behavior} is a tuple of signals:
 \begin{sdefinition}
 A process $\mathbf{P}$ is a subset of $S^N$, i.e., $\mathbf{P} \subseteq S^N$.
 \end{sdefinition}
@@ -196,7 +196,7 @@ Each element $\mathbf{s} \in \mathbf{P}$ of the process $\mathbf{P}$ is
 called a \emph{behavior} of the process $\mathbf{P}$. A particular tuple
 of signals $\mathbf{s} \in S^N$ is said to \emph{satisfy} the process,
 if it is one of its behaviors, i.e., $\mathbf{s} \in \mathbf{P}$.
-A process $\mathbf{P}$ is a \emph{synchronous process} if
+A process $\mathbf{P}$ is \emph{synchronous} if
 every pair of signals in the behaviour of the process is synchronous, i.e.,
 $\forall{\mathbf{s} \in \mathbf{P} \subseteq S^N, (i_1,i_2) \in \{1,2,\ldots N\}^2}:
 T(\pi{}_{i_1}(\mathbf{s})) = T(\pi{}_{i_2}(\mathbf{s}))$.
@@ -212,7 +212,7 @@ set of signals. Cross product and projection are syntactic operations
 used to transform the processes to achieve this goal. They play no
 semantic role in composition.
 
-% Insert Example
+Insert Example
 
 Many processes have a concept of \emph{inputs}. The set of behaviors
 a processes can show is constraint by its inputs.
@@ -232,30 +232,54 @@ e.g. $\mathbf{I} = \{\mathbf{s} | s_i = \pi{}_{1}(\mathbf{s}) \}$, where
 $\mathbf{s} = (s_1, s_2)$, $s_1$ is the input signal, and
 $s_i$ is the value of the input signal $s_1$.
 
-% Insert Example
+Insert Example
 
 Some characteristics of processes can only be determined in combination with
 its set of possible inputs $\mathbf{B} \subseteq 2^{S^N}$.
 One such characteristic is the \emph{determinancy} of a process.
-A process $\mathbf{P}$ is called a \emph{determinate process} with respect
+A process $\mathbf{P}$ is called \emph{determinate} with respect
 to its set of possible inputs $\mathbf{B}$, if after being
 constraint by its inputs, it consists of exactly one or exactly
 no behaviors for each input $\mathbf{I} \in \mathbf{B}$,
 i.e., $\forall{\mathbf{I} \in \mathbf{B}}: |\mathbf{P} \cap \mathbf{I}| \le 1$.
-Otherwise it is a \emph{nondeterminate process}.
+Otherwise the process is \emph{nondeterminate} with respect
+to its set of possible inputs.
+
+So far, a process contains no information which of the signals in its behaviors are
+input signals and which are output signals. A \emph{input/output partition}
+divides the signals in a behavior of a process into input signals and output signals.
+\begin{sdefinition}
+A \emph{input/output partition} $(I,O) \in (2^{\{1,2, \ldots N\}})^2$
+of a process $\mathbf{P} \subseteq S^N$ is a pair of index sets,
+where $I \cap O = \emptyset$ and $|I \cup O| = N$. The signals in
+a behaviour on indexes in $I$ are input signals and the
+signals on indexes in $O$ are output signals.
+\end{sdefinition}
+A Process $\mathbf{P} \subseteq S^N$ is called \emph{functional} with
+respect to a input/output partition $(I,O)$ if for every pair of
+behaviors of the process where the input signals are equal it follows,
+that the output signals are equal,
+i.e., $\forall{\mathbf{s_1} \in \mathbf{P}, \mathbf{s_2} \in \mathbf{P}}:
+\pi{}_{I}(\mathbf{s_1}) = \pi{}_{I}(\mathbf{s_2}) \implies \pi{}_{O}(\mathbf{s_1}) = \pi{}_{O}(\mathbf{s_2})$.
 
 % Timed MoCs are characterized by tags which are totally ordered.
 
 \section{Aspect Overview}\label{aspect-overview}
 
-A model of computation \cite{Lee98,embsft:2002} is defined as the
+A model of computation is defined in \cite{embsft:2002} as the
 interaction policy between \emph{actors} in an \emph{actor-oriented} design
 \cite{agha97abstracting:1997}. Actors are objects which execute concurrently. They can only
 communicate with the environment (other actors) through their \emph{actor ports}.
 The actor ports are connected with each other via \emph{channels}.
-The data values, which are communicated over the channels
-are abstracted. Thus, these data are called \emph{tokens} regardless
-of their type or value.
+This concepts are related to tagged signal model in the following way:
+(i) actors are processes with a predetermined input/output partition
+(ii) actor ports are used to name signals and are equivalent to the position of signals in
+a behavior of a process
+(iii) channels are ??? .
+
+% The data values, which are communicated over the channels
+% are abstracted. Thus, these data are called \emph{tokens} regardless
+% of their type or value.
 
 Instead of a monolithic approach for representing an executable specification,
 in this report, we will separate a specification into several
@@ -265,7 +289,7 @@ In actor-oriented design, actors only
 communicate with each other via channels instead of method calls as known
 in object-oriented design. In our proposed methodology, the specification is more
 detailed than in actor-oriented design.
-Four different aspects for distinguishing MoCs can be identified,
+In particular, four different aspects for distinguishing MoCs can be identified,
 namely \emph{node functionality}, \emph{node interface}, \emph{network graph}, and
 \emph{channel kind}. An aspect can be further divided into
 \emph{aspect types} by different constraints imposed on an aspect.
