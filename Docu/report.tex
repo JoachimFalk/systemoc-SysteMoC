@@ -9,13 +9,17 @@
 
 \input{format.tex}
 
-{\theoremheaderfont{\normalfont\sffamily\bfseries}
-\newtheorem{sdefinition}{Definition}[section]
-\newtheorem{definition}{Definition}[subsection]
-\newtheorem{proof}{Proof}[subsection]
-\newtheorem{characteristic}{Characteristic}[subsection]
+\theoremheaderfont{\normalfont\sffamily\bfseries}
+{\theorembodyfont{\normalfont\itshape}
+  \newtheorem{sdefinition}{Definition}[section]
+  \newtheorem{definition}{Definition}[subsection]
+  \newtheorem{proof}{Proof}[subsection]
+  \newtheorem{characteristic}{Characteristic}[subsection]
+}
 {\theorembodyfont{\normalfont}
-\newtheorem{example}{Example}[section]}}
+  \newtheorem{sexample}{Example}[section]
+  \newtheorem{example}{Example}[subsection]
+}
 
 \usepackage{multirow}
 \usepackage{fancyvrb}
@@ -132,127 +136,175 @@ extraction, and analysis of different MoCs is permitted.
 \section{The Tagged Signal Model}\label{lee-tsm}
 
 We use Lee's \emph{tagged signal model} introduced in \cite{Lee98} to
-distinguish MoCs. This model consist of concurrent \emph{processes} which
-can only communicate with each other via \emph{signals}.
+distinguish MoCs and use it as starting point for our further
+discussions. This model consist of concurrent \emph{processes} which
+can only communicate with each other via \emph{signals}. Before we can review
+the tagged signal model some mathematic notations are needed.
+
+Let $\{x_1,x_2\}$ denote a set without any order and
+$[y_1,y_2,y_3,\ldots]$ denote a totally ordered set with total order
+$y_1 \le y_2 \le y_3 \le \ldots$, e.g. $\{x_1,x_2\} = \{x_2,x_1\}$ but
+$[y_1,y_2] \ne [y_2,y_1]$ and $\{x_1,x_1\} = \{x_1\}$ but $[ y_1, y_2, y_1, y_3]$
+is a illformed totally ordered set because it does not define a total order,
+e.g. $y_1 \le y_2 \wedge y_2 \le y_1$ but $y_1 \ne y_2$.
+
+Let $\mathbb{Z}$ denote the set of integers,
+$[1,2,3,\ldots] = \mathbb{N}$ the set of natural numbers,
+$[1,2,3,\ldots\infty] = \mathbb{N}^\infty$ the set of natural numbers including infinity,
+%$[\ldots,-3,-2,-1] = \mathbb{Z}^-$ the set of negative integers,
+$[0,1,2,3,\ldots] = \mathbb{Z}^+_0$ the set of nonnegative integers,
+$[0,1,2,3,\ldots\infty] = \mathbb{Z}^{+\infty}_0$ the set of nonnegative integers including infinity,
+%$[\ldots,-3,-2,-1,0] = \mathbb{Z}^-_0$ the set of nonpositive integers,
+and $[1,2,3,\ldots,n] = \mathbb{N}_n \subseteq \mathbb{N}^\infty$ the counting set from one to $n$
+(Note that $\mathbb{N}_0 = \emptyset$).
+
+A totally ordered set $X$ is called \emph{two-sided discrete}
+if it is \emph{order isomorphic} to a subset of the integers $Z_X \subseteq \mathbb{Z}$,
+%and let $\Sigma(X): Z_X \to X$ denote this order isomorphism,
+i.e., $\exists{\Sigma(X): Z_X \to X, \Sigma(X)\textrm{ is a \emph{bijection}}}:
+ \forall{i,j \in Z_X}: i < j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
+Intuitively this means, any two elements
+$x_1, x_2 \in X$ have only a finite number of other elements between them.
+
+A totally ordered set $X$ is called \emph{one-sided discrete} or \emph{discrete}
+if it is \emph{order isomorphic} to a subset of the natural numbers $\mathbb{N}_{|X|}$
+and let $\Sigma(X): \mathbb{N}_{|X|} \to X$ denote this order isomorphism,
+i.e., $\exists{\Sigma(X): \mathbb{N}_{|X|} \to X, \Sigma(X)\textrm{ is a \emph{bijection}}}:
+ \forall{i,j \in \mathbb{N}_{|X|}}: i < j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
+Intuitively this means,
+any two elements $x_1, x_2 \in X$ have only a finite number of other elements
+between them and there exists a least element $x_{least}, \forall{x \in X}: x_{least} \le x$.
+For example, given the discrete set $X = [`A', `B', `C']$ then
+$\Sigma(X)(1) = `A'$,  $\Sigma(X)(2) = `B'$, and $\Sigma(X)(3) = `C'$.
+
+Let $X^* = \bigcup_{N \in \mathbb{Z}^+_0} X^N$ denote the set of all
+\emph{tuples} of $X$ also called \emph{finite sequences} of $X$ and
+$X^{**} = \bigcup_{N \in \mathbb{Z}^{+\infty}_0} X^N$ denote the set of all
+finite and infinite \emph{sequences} of $X$. A sequence
+$\mathbf{x} = (x_1,x_2,\ldots,x_n) \in X^n, n \in \mathbb{Z}^{+\infty}_0$
+can also be thought of as a function $\mathbf{x} : \mathbb{N}_n \to X$.
+For example, given the sequence $X = (`A', `B', `A', `C')$ then
+$X(1) = `A'$,  $X(2) = `B'$, $X(3) = `A'$, and $X(4) = `C'$.
+Note that a function is also a relation and a relation is also a set, e.g
+$\mathbf{x} : \mathbb{N}_n \to X \equiv \{ (i,x_i) \mid x_i = \mathbf{x}(i), i \in \mathbb{N}_n \}$.
+Note also that the $\Sigma$ function converts a discrete set to a sequence,
+e.g. $\Sigma([1,2,3]) = (1,2,3)$.
+
+\subsection{Events and Signals}
+
 Before defining a signal, the notion of an event must be introduced first.
 Given a partially or totally ordered set of tags $T$ and a set of values $V$:
-\begin{sdefinition}
+\begin{definition}
 An \emph{event} $e$ is a  tag-value pair, i.e., $e = (t,v) \in T \times V$.
-\end{sdefinition}
-Tags are used to model time,
-precedence relationships, synchronization points, or other key properties
-of MoCs.
-A totally ordered set of tags $T$ is called \emph{two-sided discrete} if it is
-\emph{order isomorphic} to a subset of the integers,
-%and let $f_T: T \to \mathbb{Z}$ denote this order isomorphism,
-i.e.,$\exists{f_T : T \to \mathbb{Z}, f_T\textrm{ is a \emph{bijection}}}:
- \forall{t_1,t_2 \in T}: t_1 \le t_2 \iff f_T(t_1) \le f_T(t_2)$,
-where $\mathbb{Z}$ is the set of integers. Intuitively this means, any two
-tags $t_1$ and $t_2$ have only a finite number of other tags between them.
-A totally ordered set of tags $T$ is called \emph{one-sided discrete} or \emph{discrete}
-if it is \emph{order isomorphic} to a subset of the natural numbers and
-let $f_T: T \to \{1,2,...|T|\} \subseteq \mathbb{N}$ denote this order isomorphism, i.e.,
-$\exists{f_T : T \to \{1,2,...|T|\} \subseteq \mathbb{N}, f_T\textrm{ is a \emph{bijection}}}:
- \forall{t_1,t_2 \in T}: t_1 \le t_2 \iff f_T(t_1) \le f_T(t_2)$,
-where $\mathbb{N}$ is the set of natural numbers excluding zero.
-Intuitively this means, any two tags $t_1$ and $t_2$ have only a
-finite number of other tags between them and there exists a first tag.
-For example, given the discrete set $T = \{'A','B','C'\}, 'A' < 'B' < 'C'$
-then $f_{\{'A','B','C'\}}('A') = 1, f_{\{'A','B','C'\}}('B') = 2, f_{\{'A','B','C'\}}('C') = 3$.
-The odering of the tags induces
-a ordering of events, i.e., given $e_1 = (t_1,v_1)$ and $e_2 = (t_2,v_2)$ then $e_1 < e_2 \iff t_1 < t_2$.
+\end{definition}
+Events are often called \emph{tokens} which represent the basic communication units.
+Tags are used to model time, precedence relationships, synchronization points, or
+other key properties of MoCs. The odering of the tags induces ordering of events, i.e.,
+given $e_1 = (t_1,v_1)$ and $e_2 = (t_2,v_2)$ then $e_1 < e_2 \iff t_1 < t_2$.
 Two Events $e_1$, $e_2$ are called \emph{synchronous} if they contain
 the same tag, i.e., $e_1 = (t,v_1)$ and $e_2 = (t,v_2)$. Otherwise they
 are called \emph{asynchronous}.
+
 Values represent data which can be manipulated by computations.
 For some MoCs the set of values contains the special symbol \emph{bottom} ($\bot$)
 which denotes the absence of a value.
-Events are often called \emph{tokens} which represent the basic communication units.
 
 A \emph{signal} can be thought of as a subset of the \emph{set of all events} $T \times V$ or as
 an element of the \emph{set of all signals} $S$ which is the powerset $S = 2^{T \times V}$.
-\begin{sdefinition}
+\begin{definition}
 A \emph{signal} $s$ is defined as a set of events, i.e., $s \subseteq T \times V$.
-\end{sdefinition}
+\end{definition}
+
 A \emph{functional signal} or \emph{proper signal} is a signal $s$ where each tag is unique in $s$,
 i.e., $e_1 = (t,v_1) \in s$ and $e_2 = (t,v_2) \in s \implies v_1 = v_2$.
-A functional signal can also be thought of as a possible partial function 
+A functional signal can also be thought of as a (possibly partial) function 
 from its set of tags to its set of values, i.e, $s: T \to V$.
 Intuitively, if tags represent time a functional signal is a signal which has
-at most one value per point in time.
-%For a functional signal $s$ let $s(t)$ denote the one unique value $v$ if $(t,v) \in s$
-%otherwise $s(t)$ is undefined.
-% The signals mentioned in the following are all assumed to be functional.
-Furthermore, $T(s) \subseteq T$ denotes
-the set of tags in the signal $s$, i.e., $T(s) = \{t \mid (t,v) \in s\}$.
-A \emph{discrete signal} is a functional signal $s$ which has a discrete set of tags $T(s)$.
-Each discrete signal $s$ has a corresponding \emph{sequence} $\Sigma(s) : \{1,2,...|s|\} \to V$
+at most one value at each instance of time. For example, 
+given the functional signal $s = \{(t_1,`A'),(t_2,`B'),(t_3,`C')\}$ then
+$s(t_1) = `A'$, $s(t_2) = `B'$, and $s(t_3) = `C'$.
+Furthermore, $T(s) \subseteq T$ denotes the set of tags in the signal $s$,
+i.e., $T(s) = \{t \mid (t,v) \in s\}$. A \emph{discrete signal} is a functional
+signal $s$ which has a discrete set of tags $T(s)$.
+
+The $\Sigma$ function can be generalized to discrete signals.
+Each discrete signal $s \subseteq T \times V$ has a corresponding \emph{sequence} $\Sigma(s) \in V^{**}$.
 where the value $v = \Sigma(s)(i)$ on position $i$ is defined to be the value
-of the i-th event in the signal $s$, i.e., $\Sigma(s) = \{ (i,v)  \mid i = f_T(t) \wedge (t,v) \in s\}$ where
-$f_T : T \to \{1,2,...|T|\}$ is the order isomorphism of $T$ to the natural numbers $\mathbb{N}$.
+of the $i$-th event in the signal $s$, i.e.,  $\Sigma : S \to V^{**}, \Sigma(s) = \{(i,v) \mid (\Sigma(T(s))(i),v) \in s\}$.
+For example, given the discrete signal $s = [(t_1,`A'),(t_2,`B'),(t_3,`C')]$ then
+$\Sigma(s) = (`A',`B',`C')$. Note that a sequence $\mathbf{v} \in V^{**}$ is also a discrete signal with tags
+$T(\mathbf{v}) = \mathbb{N}_{|\mathbf{v}|}$.
+
+Two signals $s_1$ and $s_2$ are called \emph{sequence equivalent} if they
+have the same corresponding sequence, i.e., $\Sigma(s_1) = \Sigma(s_2)$.
 Two signals $s_1$ and $s_2$ are called \emph{synchronous} if they contain
 the same set of tags, i.e., $T(s_1) = T(s_2)$. Otherwise they are
 called \emph{asynchronous}.
 Hence, if two signals are synchronous each event in one
 signal has a corresponding synchronous event in the other signal and vice versa.
 See also Figure~\ref{fig:example-synchronous-signals} for an
-example of synchronous and asynchronous signal pairs.
+example of synchronous and asynchronous signals.
 
 \begin{figure}
 \centering
 \input{example-synchronous-signals-fig.tex}
-\caption{\label{fig:example-synchronous-signals}Out of the possible signal
-  pairs which can be formed from the signals in the figure above only the
-  two signals $\{s_1,s_2\}$ are synchronous.
-  All other pairs ($\{s_1,s_3\}$ and $\{s_2,s_3\}$) are asynchronous.}
+\caption{\label{fig:example-synchronous-signals}Example of thress signals
+  $s_1$, $s_2$, and $s_3$ where only the two signals $\{s_1,s_2\}$ are synchronous.
+  All other subsets of two signals ($\{s_1,s_3\}$ and $\{s_2,s_3\}$) are asynchronous.}
 \end{figure}
 
-A tuple of $N$ signals is denoted $\mathbf{s} = (s_1, s_2, \dots, s_N)$ and the
-set of all $N$-tuples of signals will be denoted $S^N$, where $N \in \mathbb{N}$ and
-$\mathbb{N}$ is the set of natural numbers excluding zero.
-% The position of a signal in its tuple is equivalent to its name. To
-% achieve the equivalent of renaming or hiding signals, the position of
-% signals in a tuple must be changed or the signal must be drop from the tuple.
-% This is done by applying the \emph{projection} function to a tuple.
-\begin{sdefinition}
-A \emph{projection} $\pi{}_I: S^N \to S^M$ is a function which discards and reorders signals according
-to the ordered set of indexes $I$ in a $N$-tuple of signals
-to form a new $M$-tuple of signals, where $M \le N$. In other words, given $\mathbf{s} = (s_1,\cdots,s_N) \in S^N$,
-and $I = (i_1,\cdots,i_M) \in \{1,2, \ldots N\}^M$
-then $\pi{}_I(\mathbf{s}) = (s_{i_1}, \cdots, s_{i_M})$.
-A projection $\pi{}_I$ can be generalized to subsets $\mathbf{P}$ of $S^N$,
-i.e., $\pi{}_I(\mathbf{P}) = \{\pi{}_I(\mathbf{s}) \mid \mathbf{s} \in \mathbf{P}\}$.
-\end{sdefinition}
-
-For example given $\mathbf{s} = (s_1,s_2,s_3,s_4,s_5)$, and $I=(5,4,2,1)$ then
-$\pi{}_I(\mathbf{s}) = (s_5,s_4,s_2,s_1)$.
-
+A tuple of $N \in \mathbb{N}$ signals is denoted $\mathbf{s} = (s_1, s_2, \dots, s_N)$ and the
+set of all $N$-tuples of signals will be denoted $S^N$.
 The \emph{empty signal} is denoted by $\lambda$. This
 signal does not have any events, i.e., $\lambda = \emptyset$. A \emph{tuple
 of empty signals} is denoted by $\Lambda$.
 
-After defining signals, we are able to review the definitions of processes.
+The $\Sigma$ function can trivially be extended to tupples of signals
+$(s_1,s_2,\ldots,s_N) = \mathbf{s} \in S^N$ by pointwise extension,
+i.e., $\Sigma : S^N \to (V^{**})^N, \Sigma(\mathbf{s}) = (\mathbf{v}_1, \mathbf{v}_2,\ldots,\mathbf{v}_N)$,
+where $\mathbf{v}_i = \Sigma(s_i), i \in \mathbb{N}_N$.
+
+% The position of a signal in its tuple is equivalent to its name. To
+% achieve the equivalent of renaming or hiding signals, the position of
+% signals in a tuple must be changed or the signal must be drop from the tuple.
+% This is done by applying the \emph{projection} function to a tuple.
+\begin{definition}
+A \emph{projection} $\pi{}_I: S^N \to S^M$ is a function which discards and reorders signals according
+to the discrete set of indices $I$ in a $N$-tuple of signals
+to form a new $M$-tuple of signals, where $M \le N$. In other words, given $\mathbf{s} = (s_1,\ldots,s_N) \in S^N$
+and $I = [i_1,\ldots,i_M] \subseteq \mathbb{N}_N$
+then $\pi{}_I(\mathbf{s}) = (s_{i_1}, \ldots, s_{i_M})$.
+A projection $\pi{}_I$ can be generalized to subsets $\mathbf{P}$ of $S^N$,
+i.e., $\pi{}_I(\mathbf{P}) = \{\pi{}_I(\mathbf{s}) \mid \mathbf{s} \in \mathbf{P}\}$.
+\end{definition}
+
+As example consider the tuple of signals $\mathbf{s} = (s_1,s_2,s_3,s_4,s_5)$, and the discrete set
+$I=[5,4,2,1]$ then the projection is given as $\pi{}_I(\mathbf{s}) = (s_5,s_4,s_2,s_1)$.
+
+\subsection{Processes}
+
+After defining signals, we are able to review the definition of processes \cite{Lee98}.
 Later, we will use processes to transform signals.
 Processes are described as sets of possible behaviors, where
 a \emph{behavior} is a tuple of signals:
-\begin{sdefinition}
+\begin{definition}
 A process $\mathbf{P}$ is a subset of $S^N$, i.e., $\mathbf{P} \subseteq S^N$.
-\end{sdefinition}
+\end{definition}
 Each element $\mathbf{s} \in \mathbf{P}$ of the process $\mathbf{P}$ is
 called a \emph{behavior} of the process $\mathbf{P}$. A particular tuple
 of signals $\mathbf{s} \in S^N$ is said to \emph{satisfy} the process,
 if it is one of its behaviors, i.e., $\mathbf{s} \in \mathbf{P}$.
 A process $\mathbf{P}$ is called \emph{synchronous} if
 every pair of signals in the behaviour of the process is synchronous, i.e.,
-$\forall{\mathbf{s} \in \mathbf{P} \subseteq S^N, i_1, i_2 \in \{1,2,\ldots N\}}:
-T(\pi{}_{(i_1)}(\mathbf{s})) = T(\pi{}_{(i_2)}(\mathbf{s}))$.
+$\forall{\mathbf{s} \in \mathbf{P} \subseteq S^N, i_1, i_2 \in \mathbb{N}_N}:
+T(\pi{}_{[i_1]}(\mathbf{s})) = T(\pi{}_{[i_2]}(\mathbf{s}))$.
 
-\begin{sdefinition}
-A \emph{connection process} $\mathbf{C}_I \subseteq S^N$ is a particularly simple
+\begin{definition}
+A \emph{connection process} $\mathbf{C}_I \subseteq S^N$ is a
 process where two (or more) of the signals in the $N$-tuple are
-constrained to be identical. In other words, given $I \subseteq \{1,2,\ldots N\}$
-then $\mathbf{C}_I = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge \forall{i_1, i_2 \in I}: \pi{}_{(i_1)}(\mathbf{s}) = \pi{}_{(i_2)}(\mathbf{s})\}$.
-\end{sdefinition}
+constrained to be identical. In other words, given $I \subseteq \mathbb{N}_N$
+then $\mathbf{C}_I = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge \forall{i_1, i_2 \in I}: \pi{}_{[i_1]}(\mathbf{s}) = \pi{}_{[i_2]}(\mathbf{s})\}$.
+\end{definition}
 
 If the two signals $s_i$ and $s_{i'}$ in a connection process $\mathbf{C}_{\{i,i'\}}$ are
 associated with the same process, e.g. as seen in Figure~\ref{fig:example-self-loop},
@@ -276,8 +328,19 @@ set of signals.
 Cross product and projection are syntactic operations
 used to transform the processes to achieve this goal. They play no
 semantic role in composition.
-For example two processes $\mathbf{P}_1$ and $\mathbf{P}_2$ will be
-composed into a new process $\mathbf{Q}$ according to
+
+\begin{figure}[htb]
+\centering
+\input{example-tsm-composition-fig.tex}
+\caption{\label{fig:example-tsm-composition}
+  Composition of two processes $\mathbf{P}_1$, $\mathbf{P}_2$,
+  and the connection process $\mathbf{C}_{\{2,5\}}$ between them
+  into a new process $\mathbf{Q}' \ni (s'_1,s'_2,s'_3,s'_4)$.}
+\end{figure}
+
+\begin{example}
+Two processes $\mathbf{P}_1$, $\mathbf{P}_2$, and a connection process
+$\mathbf{C}_{\{2,5\}}$ will be composed into a new process $\mathbf{Q}'$ according to
 Figure~\ref{fig:example-tsm-composition}. However, the processes are
 not defined as subsets of the same set of signals
 ($(s_1,s_2,s_3) \in \mathbf{P}_1$ and $(s_4,s_5,s_6) \in \mathbf{P}_2$).
@@ -285,36 +348,30 @@ Therefore both processes will be augmented with the missing signals
 ($(s_1,s_2,s_3,s_4,s_5,s_6) \in \mathbf{P}'_1 = \mathbf{P}_1 \times S^3$ and
  $(s_1,s_2,s_3,s_4,s_5,s_6) \in \mathbf{P}'_2 = S^3 \times \mathbf{P}_2$).
 Afterwards both processes and the connection process can be intersected to form
-the new process ($\mathbf{Q}' = \mathbf{P}'_1 \cap \mathbf{P}'_2 \cap \mathbf{C}_{\{2,5\}}$).
+the new process ($\mathbf{Q} = \mathbf{P}'_1 \cap \mathbf{P}'_2 \cap \mathbf{C}_{\{2,5\}}$).
 Finally a projection is used to eliminate signals which are no longer
-visible outside of the composite process ($\mathbf{Q} = \pi{}_{(1,4,3,6)}(\mathbf{Q}')$).
+visible outside of the composite process ($\mathbf{Q}' = \pi{}_{[1,4,3,6]}(\mathbf{Q})$).
 Further examples about composition are presented in \cite{Lee98}.
-
-\begin{figure}[htb]
-\centering
-\input{example-tsm-composition-fig.tex}
-\caption{\label{fig:example-tsm-composition}
-  Display of two processes $\mathbf{P}_1$ and $\mathbf{P}_2$
-  used for composition and the desired connection between them.}
-\end{figure}
+\end{example}
 
 Many processes have a concept of \emph{inputs}. The set of behaviors
-a processes can show, is constrained by its inputs.
+a process can show, is constrained by its inputs.
 % An input are events or signals which are specified by an external
 % constraint and which must therefore be contained in every behaviour
 % of a process coupled with this input.
-\begin{sdefinition}
+\begin{definition}
 An \emph{input} to a process $\mathbf{P}$ is an externally
 imposed contraint $\mathbf{I} \subset S^N$ such that
 $\mathbf{I} \cap \mathbf{P}$ is the set of acceptable behaviors.
-\end{sdefinition}
+\end{definition}
 An input can assert the presence of a certain event $e = (t,v)$ in a signal,
-e.g. $\mathbf{I} = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge e \in \pi{}_{(1)}(\mathbf{s}) \}$.
+e.g. $\mathbf{I} = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge e \in \pi{}_{[1]}(\mathbf{s}) \}$.
 But generally an input defines a whole signal or set of signals.
 Signals which are entirely defined externally are called \emph{input signals},
-e.g. given $\mathbf{I} = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge s_i = \pi{}_{(1)}(\mathbf{s})\}$, and
+e.g. given $\mathbf{I} = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge s_i = \pi{}_{[1]}(\mathbf{s})\}$ and
 $\mathbf{s} = (s_1, s_2)$ then $s_1$ is the input signal which
 is constrained to be $s_i$ by the input $\mathbf{I}$.
+
 \begin{equation}\label{equ:process-for-input-example}
 \begin{array}{rll}
   \mathbf{P} = \{ & (\emptyset,\emptyset), (\{(1,0),(2,1)\},\{(2,1)\}), (\{(1,1),(2,0)\},\{(1,0)\})&\\
@@ -322,71 +379,120 @@ is constrained to be $s_i$ by the input $\mathbf{I}$.
                   & (\{(2,1)\},\{(2,0)\}), (\{(1,0),(2,0)\},\emptyset), (\{(1,1)\},\{(1,0)\}) &\} \subset S^2\\
 \end{array}
 \end{equation}
+
+\begin{example}
 For example given the process $\mathbf{P}$ in Equation~(\ref{equ:process-for-input-example}),
-and the input $\mathbf{I} = \{\mathbf{s} \mid  \mathbf{s} \in S^2 \wedge \{(1,0),(2,1)\} = \pi{}_{(1)}(\mathbf{s})\}$
+and the input $\mathbf{I} = \{\mathbf{s} \mid  \mathbf{s} \in S^2 \wedge \{(1,0),(2,1)\} = \pi{}_{[1]}(\mathbf{s})\}$
 which constrains the first signal of a process to be $\{(1,0),(2,1)\}$ then
 the resulting acceptable behaviors of the process $\mathbf{P}$ after being
 constrained by $\mathbf{I}$ are as follows:
 \begin{displaymath}
-  \mathbf{I} \cap \mathbf{P} = \{\mathbf{s} \mid \mathbf{s} \in \mathbf{P} \wedge \{(1,0),(2,1)\} = \pi{}_{(1)}(\mathbf{s})\} =
+  \mathbf{I} \cap \mathbf{P} = \{\mathbf{s} \mid \mathbf{s} \in \mathbf{P} \wedge \{(1,0),(2,1)\} = \pi{}_{[1]}(\mathbf{s})\} =
                                \{(\{(1,0),(2,1)\},\{(2,1)\})\}\\
 \end{displaymath}
+\end{example}
 
-Some characteristics of processes can only be determined in combination with
-its set of possible inputs $\mathbf{B} \subseteq 2^{S^N}$.
-One such characteristic is the \emph{determinancy} of a process.
+%Some characteristics of processes can only be determined in combination with
+%its set of possible inputs $\mathbf{B} \subseteq 2^{S^N}$.
+%One such characteristic is the \emph{determinancy} of a process.
 A process $\mathbf{P}$ is called \emph{determinate} with respect
-to its set of possible inputs $\mathbf{B}$, if after being
+to its set of possible inputs $\mathbf{B} \subseteq 2^{S^N}$, if after being
 constrained by its inputs, it consists of exactly one or exactly
 no behaviors for each input $\mathbf{I} \in \mathbf{B}$,
 i.e., $\forall{\mathbf{I} \in \mathbf{B}}: |\mathbf{P} \cap \mathbf{I}| \le 1$.
 Otherwise the process is called \emph{nondeterminate} with respect
-to its set of possible inputs. For example the process $\mathbf{P}$ given in
+to its set of possible inputs. A process without inputs is called
+\emph{determinate} if it consists of exactly one or exactly
+no behaviors, i.e., $|\mathbf{P}| \le 1$.
+
+\begin{example}
+The process $\mathbf{P}$ given in
 Equation~(\ref{equ:process-for-input-example}) is determinate with respect
 to its set of possible inputs 
-$\mathbf{B}_1 = \{ \{\mathbf{s} \mid \mathbf{s} \in S^2 \wedge s_i = \pi{}_{(2)}(\mathbf{s})\} \mid
+$\mathbf{B}_1 = \{ \{\mathbf{s} \mid \mathbf{s} \in S^2 \wedge s_i = \pi{}_{[2]}(\mathbf{s})\} \mid
                   s_i \in \{\{(2,0)\},\{(2,1)\},\{(1,0),(2,0)\}\} \}$
 but nondeterminate with respect to its set of possible inputs 
-$\mathbf{B}_2 = \{ \{\mathbf{s} \mid \mathbf{s} \in S^2 \wedge s_i = \pi{}_{(2)}(\mathbf{s})\} \mid
+$\mathbf{B}_2 = \{ \{\mathbf{s} \mid \mathbf{s} \in S^2 \wedge s_i = \pi{}_{[2]}(\mathbf{s})\} \mid
                   s_i \in \{\{(1,0)\},\{(2,1)\},\{(1,0),(2,0)\}\} \}$,
-because $\mathbf{P} \cap \{\mathbf{s} \mid \mathbf{s} \in S^2 \wedge \{(1,0)\} = \pi{}_{(2)}(\mathbf{s})\} =
+because $\mathbf{P} \cap \{\mathbf{s} \mid \mathbf{s} \in S^2 \wedge \{(1,0)\} = \pi{}_{[2]}(\mathbf{s})\} =
 \{(\{(1,1),(2,0)\},\{(1,0)\}),(\{(1,1)\},\{(1,0)\})\}$.
+\end{example}
+
+A process $\mathbf{P}$ is called \emph{sequence determinate} with respect
+to its set of possible inputs $\mathbf{B} \subseteq 2^{S^N}$, if after being
+constrained by its inputs, its behaviors are all sequence equivalent
+for each input $\mathbf{I} \in \mathbf{B}$,
+i.e., $\forall{\mathbf{I} \in \mathbf{B}, \mathbf{s}_1, \mathbf{s}_2 \in \mathbf{P} \cap \mathbf{I}}: \Sigma(\mathbf{s}_1) = \Sigma(\mathbf{s}_2)$.
+A process without inputs is called
+\emph{sequence determinate} if its behaviors are all sequence equivalent
+i.e., $\forall{\mathbf{s}_1, \mathbf{s}_2 \in \mathbf{P}}: \Sigma(\mathbf{s}_1) = \Sigma(\mathbf{s}_2)$.
+
+\begin{equation}\label{equ:process-for-sequence-determinate-example}
+\begin{array}{rll}
+  \mathbf{P}_1 = \{ & ([(1.5,`A'),(1.6,`B')]),([(-3.14,`A'),(16,`B')]) & \} \subseteq S^1\\
+  \mathbf{P}_2 = \{ & ([(1.5,`A'),(1.6,`C')]),([(-3.14,`A'),(16,`B')]) & \} \subseteq S^1\\
+  \mathbf{P}_3 = \{ & ([(1.5,`B'),(1.6,`A')]),([(-3.14,`A'),(16,`B')]) & \} \subseteq S^1\\
+\end{array}
+\end{equation}
+
+\begin{example}
+The process $\mathbf{P}_1$  given in Equation~(\ref{equ:process-for-sequence-determinate-example})
+is sequence determinate, whereas the processes $\mathbf{P}_2$ and
+$\mathbf{P}_3$ given in Equation~(\ref{equ:process-for-sequence-determinate-example})
+are not sequence determinate.
+\end{example}
 
 So far, a process contains no information which of the signals in its behaviors are
 input signals and which are output signals. A \emph{input/output partition}
 divides the signals in a behavior of a process into input signals and output signals.
-\begin{sdefinition}
-A \emph{input/output partition} $(I,O) \in \left( 2^{\{1,2, \ldots N\}} \right)^2$
-of a process $\mathbf{P} \subseteq S^N$ is a pair of index sets,
+\begin{definition}
+A \emph{input/output partition} $(I,O) \in \left( 2^{\mathbb{N}_N} \right)^2$
+of a process $\mathbf{P} \subseteq S^N$ is a pair of discrete sets,
 where $I \cap O = \emptyset$ and $|I \cup O| = N$. The signals in
 a behaviour on indexes in $I$ are input signals and the
 signals on indexes in $O$ are output signals.
-\end{sdefinition}
+\end{definition}
 A Process $\mathbf{P} \subseteq S^N$ is called \emph{functional} with
 respect to a input/output partition $(I,O)$ if for each pair of
-behaviors of the process where the input signals are equal
-the output signals are equal as well,
+behaviors of the process where the input signals are equal,
+the output signals must be equal as well,
 i.e., $\forall{\mathbf{s_1} \in \mathbf{P}, \mathbf{s_2} \in \mathbf{P}}:
-(\forall{n \in I}: \pi{}_{(n)}(\mathbf{s_1}) = \pi{}_{(n)}(\mathbf{s_2})) \implies
- \forall{n \in O}: \pi{}_{(n)}(\mathbf{s_1}) = \pi{}_{(n)}(\mathbf{s_2})$.
+\pi{}_I(\mathbf{s_1}) = \pi{}_I(\mathbf{s_2}) \implies
+\pi{}_O(\mathbf{s_1}) = \pi{}_O(\mathbf{s_2})$.
 Otherwise a process is called \emph{nonfunctional} with respect to a
 input/output partition.
-For example the process given in Equation~(\ref{equ:process-for-input-example})
-is functional with respect to the input/output partition $(I,O) = (\{1\},\{2\})$
-but nonfunctional for partition $(I,O) = (\{2\},\{1\})$. Whereas the connection process
+
+\begin{example}
+The process given in Equation~(\ref{equ:process-for-input-example})
+is functional with respect to the input/output partition $(I,O) = ([1],[2])$
+but nonfunctional for partition $(I,O) = ([2],[1])$. Whereas the connection process
 $\mathbf{C}_{\{1,2\}} \subseteq S^2$ is functional for both
-input/output partitions $(I,O) = (\{1\},\{2\})$ and $(I,O) = (\{2\},\{1\})$.
+input/output partitions $(I,O) = ([1],[2])$ and $(I,O) = ([2],[1])$.
+\end{example}
+
+A Process $\mathbf{P} \subseteq S^N$ is called \emph{sequence functional} with
+respect to a input/output partition $(I,O)$ if for each pair of
+behaviors of the process where the input signals are sequence equivalent,
+the output signals must be sequence equivalent as well,
+i.e., $\forall{\mathbf{s_1} \in \mathbf{P}, \mathbf{s_2} \in \mathbf{P}}:
+\Sigma(\pi{}_I(\mathbf{s_1})) = \Sigma(\pi{}_I(\mathbf{s_2})) \implies
+\Sigma(\pi{}_O(\mathbf{s_1})) = \Sigma(\pi{}_O(\mathbf{s_2}))$.
+
+\subsection{Models of Computation}
 
 After defining processes, we are able to review the definitions of some MoCs.
 
+\subsubsection*{Sequential Process}
 A \emph{sequential process} is a process $\mathbf{P}$ with a self loop $\mathbf{C}_{\{i,i'\}}$
-(As for example displayed in Figure~\ref{fig:example-self-loop}) in which
+(As for example shown in Figure~\ref{fig:example-self-loop} on page~\pageref{fig:example-self-loop}) in which
 the tags $T(s_i) = T(s_{i'})$ of the connected signals $s_i = s_{i'}$ are totally ordered.
-This can be interpreted as the Von Neumann model of computation, where the
+This can be interpreted as the well known \emph{Von Neumann model of computation}, where the
 events $e = (t,v) \in s_i$ correspond to the state $v$ of the process $\mathbf{P}$ at a certain
-point $t$ and the signal $s_i$ corresponds to the history of states which
+instance of time $t$ and the signal $s_i$ corresponds to the history of states which
 have occured during the execution of the process $\mathbf{P}$.
 %Below, we will show several ways to construct untimed concurrent systems by composing sequential systems.
+
+\subsubsection*{Communicating Sequential Processes}
 
 \begin{figure}[htb]
 \centering
@@ -394,17 +500,19 @@ have occured during the execution of the process $\mathbf{P}$.
 \caption{\label{fig:example-csp-tsm}
   Display of two sequential processes $\mathbf{P}_1$ and $\mathbf{P}_2$
   and a connection $\mathbf{C}_{\{3,4\}}$ used for rendezvous
-  between these two sequential processes.}
+  communication between these two sequential processes.}
 \end{figure}
 
 \emph{Communicating Sequential Processes} is a MoC introduced by Hoare
 \cite{csphoare:1985} which consists of sequential processes which communicate
-via rendezvous. Rendezvous means that a sequential process $\mathbf{P}_1$
+via so-called \emph{rendezvous channels}. Rendezvous means that a sequential
+process $\mathbf{P}_1$
 reaches a particular state $v_i, (t_i,v_i) \in s_1$ in its program execution
 at which point it waits till another sequential processes $\mathbf{P}_2$
 reaches a corresponding state $v_j, (t_j,v_j) \in s_6$. If both processes
-have reached their rendezvous states they proceed in their execution. This
-behavior can be represented in the tagged signal model as displayed in
+have reached their rendezvous states they proceed in their execution.
+
+This behavior can be represented in the tagged signal model as shown in
 Figure~\ref{fig:example-csp-tsm} where both processes $\mathbf{P}_1$ and
 $\mathbf{P}_2$ are modelled as sequential processes by their self loops
 $\mathbf{C}_{\{1,2\}}$ and $\mathbf{C}_{\{5,6\}}$. The additional connection
@@ -423,25 +531,93 @@ where the two processes must have a rendezvous.
 % (this sort of behavior is supported, for example, by the  select  statement in
 % Ada). In this case, a composition of such processes is often nondeterminate.
 
+\subsubsection*{Kahn Process Network}
+
 \emph{Kahn Process Network} is a MoC introduced by Kahn \cite{kahn:1974}
 which consists of processes which communicate with each other via
 unidirectional unbound FIFO \emph{channels} with a  single reader and
 a single writer. The FIFO property implies that each signal $s$ in any
 behavior $\mathbf{s}$ of any Kahn process in the Kahn Process Network
-is discrete.
-But the set of all tags $T$ is in general only partially ordered.
-The read and write actions by a kahn process are translated into
-ordering constraints on events between different signals of the process.
-For example, let $\mathbf{P} \ni (s_1,s_2)$ be a kahn process
+is discrete. But the set of all tags $T$ is in general only partially ordered.
+
+Before formally defining a Kahn Process we first need a partial order on
+the set $V^{**}$. A set with an associated partial order is called a
+\emph{poset}. Let $\sqsubseteq$ called \emph{prefix order} denote the
+associated partial order on the set $V^{**}$ of all finite and infinite sequences of $V$.
+And let $\mathbf{v}_1 \sqsubseteq \mathbf{v}_2$ denote that
+$\mathbf{v}_1$ is a prefix of the sequence $\mathbf{v}_2$, i.e.,
+$\mathbf{v}_1 \sqsubseteq \mathbf{v}_2 \iff \forall{n \in T(\mathbf{v}_1)}: \mathbf{v}_1(n) = \mathbf{v}_2(n)$.
+
+An \emph{upper bound} of a subset $X \subseteq V^{**}$ is an element
+$\mathbf{v} \in V^{**}$ where every sequence in $X$ is a prefix of $\mathbf{x}$,
+i.e., $\forall{\mathbf{x} \in X}: \mathbf{v} \sqsubseteq \mathbf{x}$.
+A \emph{least upper bound} of a subset $X \subseteq V^{**}$, written $\sqcup X$,
+is an upper bound which is a prefix of every other upper bound of $X$.
+A \emph{lower bound} and \emph{greatest lower bound} of $X \subseteq V^{**}$,
+written $\sqcap X$, are defined respectively.
+
+A \emph{chain} in a poset $X$ is a totally ordered subset of $X$. A
+\emph{bottom element} of a poset $X$, if it exists, is element of the
+poset which is also a greatest lower bound of the whole poset $\sqcap X \in X$.
+A \emph{complete partial order} is a poset $X$ with a bottom element
+in which every chain $Y \subseteq X$ has a least upper bound
+$\sqcup Y$. The set $V^{**}$ of all finite and infinite sequences of $V$
+is a complete partial order with bottom element $\lambda$, the
+empty sequence.
+
+This definitions can be trivially generalized to tupples of sequences
+$\upsilon \in (V^{**})^N$, i.e., $\upsilon_1 \sqsubseteq \upsilon_2 \iff
+\forall{n \in \mathbb{N}_N}: \upsilon_1(n) \sqsubseteq \upsilon_2(n)$.
+With this generalization the set $(V^{**})^N$ of all $N$-tupples of finite and
+infinite sequences of $V$ is also a complete partial order with
+bottom element $\Lambda = (\lambda, \lambda, \ldots, \lambda)$, the $N$-tupple
+of empty sequences $\lambda$.
+
+A function $F: (V^{**})^N \to (V^{**})^M$ is \emph{monotonic} if
+adding additional elements to the input sequence tupple $\upsilon_{in} \in (V^{**})^N$
+results in additional elements on the output sequence tupple
+$\upsilon_{out} = F(\upsilon_{in}) \in (V^{**})^M$,i.e.,
+$\forall{\upsilon_{in_1}, \upsilon_{in_2} \in (V^{**})^N}:
+\upsilon_{in_1} \sqsubseteq \upsilon_{in_2} \implies F(\upsilon_{in_1}) \sqsubseteq F(\upsilon_{in_2})$.
+This can be considered as a untimed notion of causality
+where the additional elements to the input sequence correspond
+to input tokens and the additional elements on the output sequence
+are the tokens produced from the consumption of these input tokens.
+
+A function $F: (V^{**})^N \to (V^{**})^M$ is \emph{continuous} if
+for every chain $Y$ in $(V^{**})^N$, $F(Y)$ has a least upper bound
+$\sqcup F(Y)$ which is equal to the function $F$ applied to the
+upper bound $\sqcup Y$ of the chain $Y$,
+i.e., $\forall{Y \subseteq (V^{**})^N, Y\textrm{ is a chain}}: F(\sqcup Y) = \sqcup F(Y)$.
+Where $F : 2^{\left( (V^{**})^N \right)} \to 2^{\left( (V^{**})^M \right)}$
+is the pointwise extension of $F : (V^{**})^N \to (V^{**})^M$, i.e.,
+$F(Y) = \{ F(\upsilon) \mid \upsilon \in Y\}$. Note that
+every continuous function is also monotonic but the reverse
+is not necessarily true.
+
+Formally a Kahn Process is a  continuous function $F: (V^{**})^N \to (V^{**})^M$
+\cite{kahn:1974,stark87concurrent:1987}.
+The corresponing process in the tagged signal model is defined by
+$\mathbf{P} = \{ \mathbf{s} \mid \mathbf{s} \in S^{N+M},
+  \Sigma(\pi{}_{[N+1,N+2,\ldots,N+M]}(\mathbf{s})) =
+  F(\Sigma(\pi{}_{[1,2,\ldots,N]}(\mathbf{s}))) \}$.
+However the causality represented by the monotonicity of the
+Kahn Process must be converted to ordering constraints
+between events of different signals of the process $\mathbf{P}$.
+
+For example, let $\mathbf{P} \ni (s_1,s_2)$ be a Kahn Process
+represented in the tagged signal model
 which reads two input tokens before generating an output token and
 let $s_1$ be the input signal and $s_2$ be the output signal then
-$\forall{(t_1,v_1) \in s_1, (t_2,v_2) \in s_2}: f_{T(s_1)}(t_1) \le 2 \cdot f_{T(s_2)}(t_2) \implies t_1 \le t_2$.
+$\forall{i_1 \in \mathbb{N}_{|s_1|}, i_2 \in \mathbb{N}_{|s_2|}}: i_1 \le 2 \cdot i_2 \implies \Sigma(T(s_1))(i_1) \le \Sigma(T(s_2))(i_2)$.
 
 
-% For example, consider a simple process that produces one output event
-% for each input event. Suppose the input signal is , let the output be .
-% Then the process imposes the ordering constraint that for all .
-
+%Fortunately, this means in practice
+%that the function is also \emph{continuous} since practical monotonic
+%processes are invariably continuous, at least in the context
+%of Kahn process networks \cite{LeeDenotialDF:1997}.
+%The read and write actions by a Kahn process are translated into
+%ordering constraints on events between different signals of the process.
 
 \section{Aspect Overview}\label{aspect-overview}
 
@@ -467,22 +643,34 @@ This is a refinement of actor-oriented design.
 In actor-oriented design, actors only
 communicate with each other via channels instead of method calls as known
 in object-oriented design. In our proposed methodology, the specification is more
-detailed than in actor-oriented design.
-In particular, four different aspects for distinguishing MoCs can be identified,
-namely \emph{node functionality}, \emph{node interface}, \emph{network graph}, and
+detailed than in actor-oriented design. The actor is divided into
+its \emph{node functionality} and its \emph{firing rules}. The
+type of firing rules an actor can show is dependent on its \emph{node interface}.
+
+\begin{sdefinition}
+An actor is a tupple $A=(\mathcal{F},\mathcal{R},I,O)$ containing
+a \emph{node functionality} $\mathcal{F}$, \emph{firing rules} $\mathcal{R}$,
+a set of \emph{actor input ports} $I$, and a set of \emph{actor output ports} $O$.
+\end{sdefinition}
+
+However these aspects are not sufficient for distinguishing MoCs.
+The communication network used by actors must be considered as well.
+These infrastructure is seperated into \emph{network graph} and
 \emph{channel kind}. An aspect can be further divided into
 \emph{aspect types} by different constraints imposed on an aspect.
 In the following, the aspects and their further
 differentiation into aspect types is discussed in depth:
+
+%In particular, four different aspects for distinguishing MoCs can be identified.
 
 \subsection{Network Graph}\label{network-graph} 
 
 To represent an executable specification, not only information about
 individual actors but also information about the communication network,
 which is the only means of communication between actors,
-must be provided. Moreover, information about hierarchical
-composition of actors is required. This information is stored in
-the \emph{network graph}.
+must be provided.
+% Moreover, information about hierarchical composition of actors is required.
+This information is stored in the \emph{network graph}.
 
 \begin{definition}
 A network graph is a directed bipartite graph $G_N=(\mathcal{A},C,E)$ containing
@@ -614,6 +802,8 @@ the type of the communicated data. Examples for channel kinds are:
 \item \label{channel-kind-rendezvous} Rendezvous:
   A rendezvous channel for communication % and barrier synchronisation
   (blocking write and read).
+%  A rendezvous channel corresponds to a connection process
+%  $\mathbf{C}_{\{x,y\}}$ in the tagged signal model.
 
 \item \label{channel-kind-register} Register:
   For expressing communication via shared variables
@@ -627,19 +817,31 @@ but we distinguish two different aspects.
 The first part called \emph{node functionality} is responsible
 for transforming the data values which reside inside tokens.
 
-$A=(\mathcal{F},\mathcal{Q_F},\mathcal{Q_I},I,O,)$
+\begin{definition}
+  A \emph{node functionality} is a tupple $\mathcal{F} = (F,Q,q_1)$
+  containing a set of functions $F$, a set of functionality states $Q$
+  (possibly infinite), and an initial state $q_1$.
+\end{definition}
 
-The node functionality can be
-thought of as a function
-$F: V^N \times \mathcal{Q_F} \to V^M \times \mathcal{Q_F}, F \in \mathcal{F}$
-which maps a fixed number of input values $\mathbf{v}_i \in V^N$ and
-a functionality state $q_c \in \mathcal{Q_F}$ to a fixed number of output values
-$\mathbf{v}_o \in V^M$ and a new functionality state $q_n \in \mathcal{Q_F}$.
-The node functionality can be implemented by any programming language but
-the user must guarantee, that the node functionality (i) terminates,
-and (ii) does not communicate with other actors.
-The node functionality is the only aspect which is not
-further distinguished into aspect types.
+The functions $f \in F$ of the node functionality map a
+fixed number of input values $(v_{i1},v_{i2},\ldots,v_{iN}) = \mathbf{v}_i \in V^N$
+and a functionality state $q_i \in Q$ to a fixed number of output values
+$(v_{o1},v_{o2},\ldots,v_{oM}) = \mathbf{v}_o \in V^M$ and a new
+functionality state $q_{i+1} \in Q$, i.e.,  $f: V^N \times Q \to V^M \times Q$.
+
+The functions in the node functionality can be implemented by any
+programming language but the user must guarantee, that the functions
+(i) terminate, and (ii) do not communicate with other actors.
+% The node functionality is the only aspect which is not
+% further distinguished into aspect types.
+The input values $v_{i1}, v_{i2}, \ldots$ are provided by the firing rules
+which receive them from the channels connected to the actor input ports. The
+firing rules store the input values in temporary buffers in these actor input ports
+for later usage by the functions of the node functionality. The output values
+$v_{o1}, v_{o2}, \ldots$ are stored by the functions of the node functionality
+in temporary buffers in the actor output ports. These temporary buffers
+are sent to the channels connected to these actor output ports by the
+firing rules.
 
 \subsection{Node Interface}\label{node-interface}
 
@@ -684,7 +886,7 @@ is actually used is a runtime decission of the node functionality $J.F$.
 \end{definition}
 
 \begin{definition}\label{firing-rules}
-\emph{Firing rules} is a 5-tuple $M_{F} = (S, Q, \mathcal{J}, k, s_0)$ containing
+\emph{Firing rules} is a 5-tuple $R = (S, Q, \mathcal{J}, k, s_0)$ containing
 a set of \emph{firing states} $S$, a set of activation patterns $Q$,
 a set of interface actions $\mathcal{J}$, an action selection function
 $k: S \times Q \to \mathcal{J} \cup \bot$,
@@ -848,7 +1050,7 @@ implement CSP behavior:
 
 %\item Sequential composition of functions
 %  
-%  Sequential composition written $F_1 \to F_2 \to F_3 \to \cdots$
+%  Sequential composition written $F_1 \to F_2 \to F_3 \to \ldots$
 %  is 
 % $\to$ is sequential composition
 
