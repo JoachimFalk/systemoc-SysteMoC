@@ -82,25 +82,19 @@ class m_top2
   private:
     hscd_scheduler_asap *asap;
   public:
-    //hscd_port_in<int>  in1;
-    //hscd_port_in<int>  in2;
-    //hscd_port_out<int> out;
-
-    m_multiply<int> &mult;
-    m_adder<int>    &adder;
+    hscd_port_in<int>  in1;
+    hscd_port_in<int>  in2;
+    hscd_port_out<int> out;
     
     m_top2( sc_module_name _name )
-      : hscd_sdf_structure(_name),
-        mult(*new m_multiply<int>("multiply")),
-        adder(*new m_adder<int>("adder")) {
-      registerNode(&adder);
-      registerNode(&mult);
+      : hscd_sdf_structure(_name) {
+      m_adder<int>    &adder = registerNode(new m_adder<int>("adder"));
+      m_multiply<int> &mult  = registerNode(new m_multiply<int>("multiply"));
       
-      // adder.in(in1); // connectNodePorts( in1, adder.in );
-      // mult.in1(in2); // connectNodePorts( in2, mult.in1 );
+      connectInterfacePorts( in1, adder.in ); // adder.in(in1);
+      connectInterfacePorts( in2, mult.in1 ); // mult.in1(in2);
       connectNodePorts( adder.out, mult.in2 );
-      // mult.out(out); // connectNodePorts( mult.out, );
-      // mult.out(out);
+      connectInterfacePorts( out, mult.out ); // mult.out(out);
       // asap = new m_top_asap_scheduler( src.fire_port, adder.fire_port, sink.fire_port );
       asap = new hscd_scheduler_asap( "asap", getNodes() );
     }
@@ -153,9 +147,9 @@ class m_top
       m_source      &src2 = registerNode(new m_source("src2"));
       m_sink        &sink = registerNode(new m_sink("sink"));
       
-      connectNodePorts( src1.out, top2.adder.in );
-      connectNodePorts( src2.out, top2.mult.in1 );
-      connectNodePorts( top2.mult.out, sink.in );
+      connectNodePorts( src1.out, top2.in1 );
+      connectNodePorts( src2.out, top2.in2 );
+      connectNodePorts( top2.out, sink.in );
       
       // asap = new m_top_asap_scheduler( src.fire_port, adder.fire_port, sink.fire_port );
       asap = new hscd_scheduler_asap( "asap", getNodes() );
