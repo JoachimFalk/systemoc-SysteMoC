@@ -32,9 +32,11 @@ protected:
 public:
   operator hscd_root_port &() { return *port; }
   
-  bool            isInput() const;
-  bool            isOutput() const { return !isInput(); }
-  hscd_root_port *getPort() { return port; }
+  hscd_root_port       *getPort() { return port; }
+  const hscd_root_port *getPort() const { return port; }
+  
+  bool isInput() const;
+  bool isOutput() const { return !isInput(); }
 };
 
 class hscd_activation_pattern
@@ -120,6 +122,9 @@ public:
     : rs(NULL), fr(NULL) { *this = x; }
   
   this_type &operator = (const this_type &x);
+  
+  const resolved_state_ty &getResolvedState() const
+    { assert( rs != NULL ); return *rs; }
   
   ~hscd_firing_state();
 private:
@@ -232,6 +237,20 @@ private:
 protected:
   hscd_interface_action(const hscd_firing_state_list &sl)
     : sl(sl) {}
+};
+
+struct hscd_node_funcref {
+  virtual void operator () = 0;
+};
+
+template <typename T>
+class hscd_node_funcobj: public hscd_node_funcref {
+private:
+  void (T::*f)();
+public:
+  hscd_node_funcobj(void (T::*f)()): f(f) {}
+  
+  void operator () { return f(); }
 };
 
 class hscd_interface_transition {

@@ -94,18 +94,41 @@ public:
 };
 
 class hscd_moc_scheduler_csp
-  : public hscd_choice_node {
+  : public hscd_choice_node,
+    public hscd_firing_types {
 public:
   typedef hscd_moc_scheduler_csp  this_type;
   typedef hscd_csp_constraintset  cset_ty;
 protected:
   void schedule( cset_ty *c ) {
     cset_ty::nodes_ty nodes = c->getNodes();
-
+    
     for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
           iter != nodes.end();
-          ++iter )
-      std::cout << "foo: " << (*iter)->myModule()->name() << std::endl;
+          ++iter ) {
+      const hscd_firing_state &s = (*iter)->currentState();
+      const resolved_state_ty &rs = s.getResolvedState();
+      
+      std::cout << "actor: " << (*iter)->myModule()->name() << " state: " << &s << std::endl;
+      for ( resolved_state_ty::const_iterator titer = rs.begin();
+            titer != rs.end();
+            ++titer ) {
+        const transition_ty &t = *titer;
+        const hscd_activation_pattern &ap = t.ap;
+        
+        std::cout << "  transition: " << &t << std::endl;
+        for ( hscd_activation_pattern::const_iterator apiter = ap.begin();
+              apiter != ap.end();
+              ++apiter ) {
+          const hscd_op_port   &op = *apiter;
+          const hscd_root_port *p  = op.getPort();
+
+        }
+      }
+      
+
+
+    }
     /*
     while (1) {
       for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
