@@ -2,6 +2,8 @@
 
 \input{\resdir format.tex}
 
+\usepackage{multirow}
+
 \begin{document}
 \hscdtitle{Representing MoCs in SystemC}{Joachim Falk}{\today}
 \clearpage
@@ -29,6 +31,64 @@ is impossible to solve for a turing complete programming language
 \footnote{Halting problem} a machine analyzable coding subset for
 MoCs has to be defined.
 
+\section{Requirements of MoCs}
+
+\subsection{Requirements of CSP}
+Communicating Sequential Processes \cite{csphoare:1985}
+is a MoC which consist of parallel executing processes
+which communicate via unidirectional rendezvous channels.
+The input/ouput ends of a channel are connected to dedicated
+processes.
+
+The following requirements are the minimum necessary to
+implement CSP like behaviour:
+
+\begin{enumerate}
+\item A rendezvous channel type for communication
+\item A communication operator which implements Hoare's 'general choice' operator
+\item Parallel executing processes
+\item The usual control flow constructs (if then else, while, ...)
+\end{enumerate}
+
+\subsection{Requirements of KPN}
+Kahn Process Networks \cite{kahn:xxx}
+is a MoC which consist of parallel executing processes
+which communicate via unidirectional unbounded fifo channels.
+The input/ouput ends of a channel are connected to dedicated
+processes.
+
+The following requirements are the minimum necessary to
+implement KPN behaviour:
+
+\begin{enumerate}
+\item A unbound fifo channel type for communication
+\item A communication operator to read from and write to the fifos
+\item Parallel executing processes
+\item The usual control flow constructs (if then else, while, ...)
+\end{enumerate}
+
+\subsection{Requirements of SDF}
+Kahn Process Networks \cite{kahn:xxx}
+is a MoC which consist of parallel executing processes
+which communicate via unidirectional unbounded fifo channels.
+The input/ouput ends of a channel are connected to dedicated
+processes.
+
+The following requirements are the minimum necessary to
+implement KPN behaviour:
+
+\begin{enumerate}
+\item A unbound fifo channel type for communication
+\item A communication operator to read from and write to the fifos
+\item Parallel executing processes
+\item The usual control flow constructs (if then else, while, ...)
+\end{enumerate}
+
+
+% \subsection{Requirements MoCs for their communication interface}
+
+\section{Concept overview}
+
 Due to it's high abstraction level and possibilities for both
 hardware and software refinements we have chosen SystemC as
 our language for system design. In the following we propose a
@@ -37,7 +97,9 @@ of the MoC of a SystemC design.
 
 Instead of a Monolitic approach to represent an executable specification
 in SystemC we choose too represent the specification
-by combining severel independent concepts.
+by combining severel independent components.
+
+\subsection{Components}
 
 \begin{enumerate}
 \item Node functionality
@@ -65,32 +127,33 @@ only the information that the connections exist.
 Channel type
 
 The channel type defines the semantic for the connections
-the network graph specifies. Not per connection but for all
-connections in the network graph uniformly.
+the network graph specifies for all connections in the
+network graph uniformly.
 \end{enumerate}
 
-The MoC is now determined by the composition of the node intertface with
-the channel type as following:
+\subsection{MoC composition}
 
+The MoC is now determined by the composition of the two components 'Node interface'
+and 'Channel type' as following:
 
-\begin{tabular}{|c|c||c|c|c|}
+\begin{tabular}{|c||c|c|c|}
 \hline
-                                &            & \multicolumn{3}{c|}{ Node interface } \\
+ Channel type & \multicolumn{3}{c|}{ Node interface } \\
 \hline
-                                &            & Choice Node & Transact Node & Fixed Transact Node \\
+              & Choice Node         & Transact Node      & Fixed Transact Node \\
 \hline \hline
-\multirow{2}*{\rotatebox{90}{Channel type}}
-                                & Fifo       & foo         & bar           & batz \\
-                                & Rendezvous & foo         & bar           & batz \\
+ Fifo         & No well known name  & KPN                & SDF \\
+\hline
+ Rendezvous   & CSP                 & No well known name & No well known name \\
 \hline
 \end{tabular}
 
+The node functionality is n
 
 The node functionality is not
 
-
 \clearpage
-\section*{Dust bin}
+\section{Dust bin}
 
 
 to a new higher level hardware description

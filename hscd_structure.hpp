@@ -55,6 +55,14 @@ class hscd_structure
 	b(*c); port2chan[&b] = c; ports.push_back(&b);
       }
     }
+    template <typename T_value_type>
+    void connectInterfacePorts(
+        hscd_port_out<T_value_type> &a,
+        hscd_port_out<T_value_type> &b ) { b.bind(a); }
+    template <typename T_value_type>
+    void connectInterfacePorts(
+        hscd_port_in<T_value_type> &a,
+        hscd_port_in<T_value_type> &b ) { b.bind(a); }
   public:
     hscd_structure()
       : sc_module( sc_gen_unique_name( "hscd_structure" ) ) {}

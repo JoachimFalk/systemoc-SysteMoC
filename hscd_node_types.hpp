@@ -104,8 +104,8 @@ class hscd_fixed_transact_passive_node
 	hscd_transact_node::startTransact(op.onlyInputs());
     }
   public:
-    void fire() {
-      waitFinished();
+    void opFinished() {
+      assert( finished() );
       process();
       startTransact();
     }

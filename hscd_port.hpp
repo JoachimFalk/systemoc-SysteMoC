@@ -41,6 +41,9 @@ public:
   void operator () ( iface_type& interface_ ) {
     return sc_port<iface_type>::operator()(interface_);
   }
+  void operator () ( this_type& parent_ ) {
+    return sc_port<iface_type>::operator()(parent_);
+  }
   
   data_type &operator []( size_t n ) {
     assert( n < input.size() );
@@ -76,6 +79,9 @@ public:
   }
   void operator () ( iface_type& interface_ ) {
     return sc_port<iface_type>::operator()(interface_);
+  }
+  void operator () ( this_type& parent_ ) {
+    return sc_port<iface_type>::operator()(parent_);
   }
 };
 
@@ -114,6 +120,9 @@ public:
   void operator () ( iface_type& interface_ ) {
     return sc_port<iface_type>::operator()(interface_);
   }
+  void operator () ( this_type& parent_ ) {
+    return sc_port<iface_type>::operator()(parent_);
+  }
   
   data_type &operator []( size_t n ) {
     if ( n >= output.size() )
@@ -151,6 +160,9 @@ public:
   }
   void operator () ( iface_type& interface_ ) {
     return sc_port<iface_type>::operator()(interface_);
+  }
+  void operator () ( this_type& parent_ ) {
+    return sc_port<iface_type>::operator()(parent_);
   }
 };
 
