@@ -9,55 +9,61 @@
 \usepackage{multirow}
 
 \begin{document}
-\hscdtitle{The Representing MoCs in SystemC}{Joachim Falk}{\today}
+\hscdtitle{Representing models of computation in SystemC}{Joachim Falk}{\today}
 \clearpage
 \tableofcontents
 \clearpage
 
 \section{Introduction\label{intro}}
 Due to rising design complexity it is necessary to increase
-the level of abstraction at which systems are designed. Using
-Models of Computation in system design can achieve this goal.
-Some of the benefits of MoCs are:
+the level of abstraction at which systems are designed. In
+today's embedded software the specification ist mostly mapped
+into a set of interacting tasks and hardware modules, which 
+interact by the use of shared variables and various ways of
+message passing. To guarantee exclusive access to the shared
+variables and resources mutual exclusion devices like semaphores,
+mutexes and monitors are used. But this unstructured use
+of communication methods lead to hard to analyse systems.
+However, by placing constraints on the type of communication method
+used between tasks and the communication behaviour of the tasks
+expressiveness is traded for analysability. A model of computation,
+in the following called MoC, is a methodology for scheduling
+the communicating tasks which requires a certain set of constraints.
+Stricter constraints enable a MoC which can derive more facts
+about the system which can be used to:
+
 \begin{enumerate}
-\item MoCs can be used to mathematically reason about communication
-patterns.
+\item Mathematically reason about communication patterns
 
-\item Knowledge about MoCs can be used by code generators to produce
-optimized code.
+\item Enable code generators to produce better optimized code
 
-\item Knowledge about MoCs can be used by verification tools to
-check system properties.
+\item Enable verification tools to check system properties like
+      deadlock or memory consumption
 \end{enumerate}
-However for these benefits to be practically realized the
+However, for these benefits to be practically realized, the
 MoC must be extractable from the source code. Because the general case
 is impossible to solve for a turing complete programming language
 \footnote{Halting problem} a machine analyzable coding subset for
 MoCs has to be defined.
 
 \section{Concept overview}
+\label{concept-overview}
 
-Due to it's high abstraction level and possibilities for both
-hardware and software refinements we have chosen SystemC
-\cite{systemc-lrm:2003} \cite{glms:2002} as our language for system design.
-SystemC is a C++ based design framework.
-
-In the following we propose a SystemC framework, called \SysteMoC, which
-faciliates automatic extraction of the MoC of a SystemC design.
-Instead of a Monolitic approach to represent an executable specification
-in SystemC we choose too represent the specification
-by combining severel independent concepts. This is a refinement of
-actor-oriented design. Actor-oriented design has actors which execute
+Instead of a Monolitic approach for representing an executable specification
+we choose to combine the specification out of  severel independent concepts.
+This is a refinement of actor-oriented design. Actor-oriented design has actors which execute
 concurrently and only communicate with each other via channels instead
-of method calls as known in object-oriented design.
+of method calls as known in object-oriented design. In our
+methodology the specification is even more finely divided than in
+actor-oriented design.
 
 \subsection{Node functionality}
 
-In \SysteMoC{} the actor concept is still used, but is split into two parts.
+In our methodology the actor concept is still used, but is split into two parts.
 There is the part called node functionality which is responsible
 for transforming data values. The node functionality can be
-thought of as a function which maps a fixed set of parameters
-to a fixed set of results. The node functionality must
+thought of as a function $F: V^{m} \to V^{n}$  which maps a fixed set
+of parameters to a fixed set of results. The node functionality must
 therefore terminate and it must not communicate with
 other actors.
 
@@ -67,15 +73,22 @@ The other part of the actor which determines the communication
 behaviour of the actor is called firing rules. The firing rules
 determine for each actor port the number of tokens needed
 that a node functionality can be invoked.
-The node interface is the set set of operators an actor has
-available to construct its firing rules.
+%%Firing rules can be invoked
+%%Examples of firing 
+The node interface is the set of communication operations an
+actor has available to construct its firing rules.
 
 \subsection{Network graph}
 
-The network $N=(\mathcal{A},C,P_{i},P_{o},E)$ is a 5-tupple containing
+To represent the executable specification not only information about
+individual actors must be contained but also information about
+the connection topology of the actor ports to each other and to uplevel ports.
+This information is stored in the network graph \label{network-graph}
+$N=(\mathcal{A},C,P_{i},P_{o},E)$ a 5-tupple containing
 a set of actors $\mathcal{A}$, a set of channels $C$, a set of uplevel
 input ports $P_{i}$, a set of uplevel output ports $P_{o}$ and a set of
-directed edges $E \subseteq ((P_{i} \bigcup C) \times \mathcal{A}_{P_{i}}) \bigcup (\mathcal{A}_{P_{o}} \times (P_{o} \bigcup C))$.
+directed edges $E \subseteq ((P_{i} \bigcup C) \times \mathcal{A}_{P_{i}})
+\bigcup (\mathcal{A}_{P_{o}} \times (P_{o} \bigcup C))$.
 Each actor $A \in \mathcal{A}$ can only communicate with other actors
 through its set of dedicated actor input ports $A_{P_{i}}$ and
 actor output ports $A_{P_{o}}$.
@@ -84,28 +97,57 @@ Furthermore we define the set of all
 actor input ports as $\mathcal{A}_{P_{i}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{i}}$ and
 the set of all actor output ports as
 $\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$.
-There exists the further requirements that at most one edge enters
-an actor input port.
 
-\begin{figure}
-\centering
-\includegraphics[scale=1]{ng-sdf.\graphicPostfix}\\
-\caption{\label{ng-sdf}ng-sdf}
-\end{figure}
+There are two connection topologies which are distinguished by our methodology:
+
+\begin{enumerate}
+\item Petri network graph \label{petri-network-graph}
+
+  Petri network graphs are network graphs which are constrained that only
+  one edge enters an actor input port
+  $\forall{p \in \mathcal{A}_{P_{i}}.} |(C \times \{p\}) \bigcap E| \le 1$.
+  An example of a petri network graph is displayed in figure~\ref{ng-petri}.
+
+\item SDF network graph \label{sdf-network-graph}
+
+  A SDF network graph is a petri network graph with the additional constraint,
+  that the indegree and outdegree of every channel in the graph must be one
+  $\forall{c \in C.} |(\{c\} \times \mathcal{A}_{P_{i}}) \bigcap E| \le 1 \wedge
+                    |(\mathcal{A}_{P_{o}} \times \{c\}) \bigcap E| \le 1$.
+  An example of a SDF network graph is displayed in figure~\ref{ng-sdf}.
+\end{enumerate}
 
 \begin{figure}
 \centering
 \includegraphics[scale=1]{ng-petri.\graphicPostfix}\\
-\caption{\label{ng-petri}ng-petri}
+\caption{\label{ng-petri}Petri network graph}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=1]{ng-sdf.\graphicPostfix}\\
+\caption{\label{ng-sdf}SDF network graph}
 \end{figure}
 
 \subsection{Channel kind}
 
 The channel kind defines the communication semantic of the channel.
-Because the the communication semantic is not influence by the
-type of the values communicated the actual type of a communication
+Because the communication semantic is not influenced by the
+type of the values communicated, the actual type of a communication
 channel is derived from the channel kind by parameterizing it with
-the type of the communicated values.
+the type of the communicated values. Examples for channel kinds are:
+
+\begin{enumerate}
+\item FIFO
+  An unbound FIFO channel for communication
+  (Nonblocking write and blocking read).
+\item Rendezvous
+  A rendezvous channel for communication % and barrier synchronisation
+  (Blocking write and read).
+\item Register
+  For expressing communication via shared variables
+  (Nonblocking write and read).
+\end{enumerate}
 
 \section{Requirements of MoCs}\label{Requirements of MoCs}
 
@@ -115,12 +157,12 @@ Actors are objects which execute concurrently. They can only
 communicate with the environment (other actors) through their ports.
 The actor ports are connected which each other via channels.
 The data values, which are communicated over the channels,
-are abstracted away. The values are called tokens regardless
+are abstracted. The values are called tokens regardless
 of their type or value.
-Actors can have their own thread of control or be without. Actors
-with their own thread of control will be called in the following
-active actors and actors without a dedicated thread of control
-passive actors.
+%Actors can have their own thread of control or be without. Actors
+%with their own thread of control will be called in the following
+%active actors and actors without a dedicated thread of control
+%passive actors.
 
 The requirements of MoCs can be seperated into two different groups.
 There are the execution requirements which must be fulfilled by
@@ -128,135 +170,210 @@ the programming system otherwise the MoC can not be implemented in
 this system.
 On the other hand there are the analysis requirements which
 must be fulfilled otherwise we can not extract the information
-needed for MoC specific analysation.
+needed for MoC specific analysis.
 
 \subsection{Requirements of CSP}
 Communicating Sequential Processes \cite{csphoare:1985}
 is a MoC which consist of concurrently executing processes
 which communicate via unidirectional rendezvous channels.
-%The input/ouput ends of a channel are connected to dedicated
-%processes.
 As a difference to the CSP model of Hoare which allows
 runtime creation of processes via parallel composition and 
 recursion this CSP like model is constraint to a fixed
 predetermined number of processes. This constraint was
 set to render hardware synthesis of the model possible.
 
-The following requirements are the minimum necessary to
+The following requirements are the execution requirements to
 implement CSP like behaviour:
 
 \begin{enumerate}
 \item A rendezvous channel for communication
-\item The indegree and outdegree of all channels in the network graph must be one
-\item A communication method which implements Hoare's 'general choice' operator
+\item A communication method for Hoare's 'general choice'
 \item Parallel executing processes
 \end{enumerate}
+
+To faciliate analysis of the CSP MoC additionally the following
+constraints must be fulfilled:
+\begin{enumerate}
+\item The indegree and outdegree of all channels in the network graph must be one.
+\item The actors must only communicate over their ports which each other.
+\end{enumerate}
+
+Mapping of the CSP MoC requirements onto the concepts presented in
+section~\ref{concept-overview}:
+
+\begin{itemize}
+
+\item The node interface must provide a communication operator which
+      generates a 'general choice' communication.
+
+\item The connection topology needed for CSP is provided by the SDF network graph.
+
+\item As channel kind rendezvous is selected.
+
+\end{itemize}
 
 \subsection{Requirements of KPN}
 Kahn Process Networks \cite{kahn:1974}
 is a MoC which consist of concurrently executing processes
-which communicate via unidirectional unbounded fifo channels.
+which communicate via unidirectional unbounded FIFO channels.
 The input/ouput ends of a channel are connected to dedicated
 processes.
 
-The following requirements are the minimum necessary to
+The following requirements are the execution requirements to
 implement KPN behaviour:
 
 \begin{enumerate}
-\item An unbound fifo channel for communication
-\item The indegree and outdegree of all channels in the network graph must be one
+\item An unbound FIFO channel for communication
 \item A communication method to read from and write to fifos
-\item Assurance that the arrival sequence of tokens at
-      their ports can not be determined
 \item Parallel executing processes
 \end{enumerate}
 
+To faciliate analysis of the KPN MoC additionally the following
+constraints must be fulfilled:
+\begin{enumerate}
+\item The indegree and outdegree of all channels in the network graph must be one.
+\item Assurance that the arrival sequence of tokens at
+      their ports can not be determined.
+\item The actors must only communicate over their ports which each other.
+\end{enumerate}
+
+Mapping of the KPN MoC requirements onto the concepts presented in
+section~\ref{concept-overview}:
+
+\begin{itemize}
+
+\item The node interface must only provide a communication operator which
+      generates parameterized read and write requests on the actor ports.
+
+\item The connection topology needed for CSP is provided by the SDF network graph.
+
+\item As channel kind FIFO is selected.
+
+\end{itemize}
+
 \subsection{Requirements of SDF}
-Synchronous Data Flow \cite{sdf:xxx}
+Synchronous Data Flow \cite{Lee87b:1987}
 is a more constricted form of the KPN MoC.
-It has all the requirement of the KPN MoC and
-additionally the requirement that actor consumption and
+It has all the execution requirements of the KPN MoC and
+the additional analysis requirement that actor consumption and
 production rates are constant.
 
-The following requirements are the minimum necessary to
+The following requirements are the execution requirements to
 implement SDF behaviour:
 
 \begin{enumerate}
-\item An unbound fifo channel kind for communication
-\item The indegree and outdegree of all channels in the network graph must be one
+\item An unbound FIFO channel for communication
 \item A communication method to read from and write to fifos
-\item Assurance that the arrival sequence of tokens at
-      their ports can not be determined
-\item Assurance that consumption and production rates can not
-      be altered once set
 \item Parallel executing processes
 \end{enumerate}
 
-% \subsection{Requirements MoCs for their communication interface}
-
-\section{Software architecture}
-The introduced concepts are converted into a software architecture in the following way.
-
-Actors in SystemC are C++ classes which are derived from the base class \code{sc\_module}.
-However it is impossible, in the general case, to extract the kind of communication
-behaviour these actors will exhibit. These problems are caused by the fact, that the
-communication methods are all accessible to all SystemC modules. And execution
-of these methods is controlled by the turing equivalent coding possibilities in the actor.
-To partially redress these problems we introduce the concept of node interface which
-determines what communication methods are available to an actor. These is implemented
-by disallowing all communication methods on \SysteMoC{} channels and providing them instead
-in a base class from which the actor is derived. Therefore the node interface of an actor
-corresponds to the base class from which the actor is derived.
-
-The network graph is represented by the C++ template \code{hscd\_structure} 
-which has only methods to instantiate sub actors and connect their ports to each other.
-
-The MoC is represented as an actor which is derived from the \code{hscd\_structure}
-template parameterized with the node interface and the channel kind. This actor can only
-instantiate sub actors of a predetermined kind and connect their ports with a  predetermined
-kind of channel.
-
-\subsection{Node interface hierarchy}
-After gathering the requirements of the three different MoCs CSP, KPN
-and SDF a Node interface hierarchy is derived which fulfills these requirements.
-
-In the following the requirements of the MoCs which concern the node interface are
-extracted from Section~\ref{Requirements of MoCs} and repeated:
-
+To faciliate analysis of the SDF MoC additionally the following
+constraints must be fulfilled:
 \begin{enumerate}
-\item CSP
-
-A communication method which implements Hoare's 'general choice' operator \cite{csphoare:1985}.
-
-\item KPN
-
-A communication method to read from and write to ports.
-Assurance that the arrival sequence of tokens at
-their ports can not be determined.
-
-\item SDF
-
-A communication method to read from and write to ports.
-Assurance that the arrival sequence of tokens at
-their ports can not be determined.
-Assurance that consumption and production rates can not
-be altered once set
-
+\item The indegree and outdegree of all channels in the network graph must be one.
+\item Assurance that the arrival sequence of tokens at
+      their ports can not be determined.
+\item Assurance that consumption and production rates can not
+      be altered once set.
+\item The actors must only communicate over their ports which each other.
 \end{enumerate}
 
-It is evident that this requirements build a hierarchy of decreasing
-capability. The node interface needed for CSP is the most capable
-in the hierarchy and it can emulate all lesser more constraint interfaces.
-This hierarchy is transformed into a C++ inheritance hierarchy with the
-CSP node interface at the root (See figure \ref{node-interface-c++}).
-Less capable node interfaces inherit from more capable ones. The
-less capable node interfaces use the operators from the base class node
-interface to implement their own operators. The operators of the
-base class are disabled by declaring them private.
+Mapping of the SDF MoC requirements onto the concepts presented in
+section~\ref{concept-overview}:
+
+\begin{itemize}
+
+\item The node interface must only provide a communication operator which
+      generates read and write requests with a fixed set of actor ports.
+
+\item The connection topology needed for CSP is provided by the SDF network graph.
+
+\item As channel kind FIFO is selected.
+
+\end{itemize}
+
+\section{Software architecture}
+
+Due to its high abstraction level and possibilities for both
+hardware and software refinements we have chosen SystemC
+\cite{systemc-lrm:2003} \cite{glms:2002} as our language for system design.
+SystemC is a C++ based design framework.
+
+In the following we propose a SystemC framework, called \SysteMoC, which
+faciliates automatic extraction of the MoC of a SystemC design.
+Actors in SystemC are C++ classes which are derived from the base class \code{sc\_module}.
+However it is impossible, in the general case, to extract the kind of communication
+behaviour these actors will exhibit. The \SysteMoC{} framework must now provide the
+execution requirements for each MoC while still allowing to extract the information
+needed for analysis. This analysis is made possible by dividing the actor into its
+node functionallity and its node interface.
+Furthermore the \SysteMoC{} framework must provide a way for these
+actors to be connected to each othe via their ports. The topology of these connections
+is decided by the network graph.
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.5]{NodeInterfaceHierarchy.\graphicPostfix}\\
+\begin{verbatim}
+template <typename T>
+class m_adder // Actor m_adder
+  : public hscd_fixed_transact_node // Node interface
+{
+public:
+  hscd_port_in<T>  in;
+  hscd_port_out<T> out;
+private:
+  // Node functionality
+  void transform() {
+    out[0] = in[0] + in[1];
+    std::cout << "Adding " << in[0] << " + " << in[1]
+              << " = " << out[0] << std::endl;
+  }
+  
+  // Firing rules
+  void process() {
+    while (true) {
+      transform();
+      transact();
+    }
+  }
+public:
+  m_adder( sc_module_name name )
+    :hscd_fixed_transact_node( name,
+        in(2) & out(1) /* Firing rules */ ) {}
+};
+\end{verbatim}
+\caption{\label{example-sdf-actor}Example of a SDF-Actor in the \SysteMoC{} framework}
+\end{figure}
+
+\subsection{Node functionality}
+The node functionality is only used for algorithmic transformations of data values.
+The node functionality of an actor is defined in certain member functions,
+which are called by the firing rules if their requirements for input data is met.
+This member functions are not allowed to call communication operations and
+the input and output data values used are read from
+and written to the actor ports. All actor ports are globally accessible
+by the actor member functions and can therefore be used to get input data
+and place output data for the node functionality
+(See figure \ref{example-sdf-actor} method \code{transform} for an example of a node functionality).
+
+\subsection{Node interface hierarchy}
+The problem of extracting the communication behaviour of an actor is caused by the fact,
+that the communication methods in SystemC are all accessible to all SystemC modules.
+And execution of these methods is controlled by the turing equivalent coding possibilities
+in the actor. To partially redress these problems we introduce the concept of node interface
+which determines what communication methods are available to an actor. This is implemented
+by disallowing all communication methods on \SysteMoC{} channels and providing them instead
+in a base class from which the actor is derived. Therefore the node interface of an actor
+corresponds to the base class from which the actor is derived
+(See table~\ref{node-interface-c++} for mapping of the node interface names to their
+corresponding C++ class types).
+Communication over other media than \SysteMoC{} channels is forbidden but this can not be enforced
+because the full power of SystemC should be availlable for the node functionallity part
+of the actor. So we require form the \SysteMoC{} user the assurance that the
+node functionallity does terminate and does not communicate with other actors.
+
+\begin{table}
+\centering
 \begin{tabular}{|c|c|}
 \hline
  Node interface & C++ class type \\
@@ -267,11 +384,116 @@ base class are disabled by declaring them private.
 \hline
 \end{tabular}
 \caption{\label{node-interface-c++}Node interfaces represented as C++ classes}
+\end{table}
+
+The following subset of the requirements enumerated in Section~\ref{Requirements of MoCs}
+determines the node interface of the corresponding MoCs:
+
+\begin{enumerate}
+\item Choice Node
+  \begin{itemize}
+  \item  A communication method which implements Hoare's 'general choice' operator \cite{csphoare:1985}.
+  \end  {itemize}
+\item Transact Node
+  \begin{itemize}
+  \item A communication method to read from and write to ports.
+  \item Assurance that the arrival sequence of tokens at
+        their ports can not be determined.
+  \end  {itemize}
+\item Fixed Transact Node
+  \begin{itemize}
+  \item A communication method to read from and write to ports.
+  \item Assurance that the arrival sequence of tokens at
+        their ports can not be determined.
+  \item Assurance that consumption and production rates can not
+        be altered once set
+  \end  {itemize}
+\end{enumerate}
+
+These requirements build a hierarchy of decreasing capability. The node
+interface of CSP is the most capable in the hierarchy and it
+fulfills the execution requirements of all more constraint interfaces.
+To fulfill the execution requirement of KPN the general choice operator
+can be used to implement the communication method for KPN by constraining
+the list of actor ports for the choice operation to one and therefore
+eliminating the choice between different actor ports.
+The execution requirement of SDF are the same than that of KPN and can
+therefore be fulfilled by the node interface of KPN.
+
+However the analysis requirements of the MoC in the hierarchy
+get progressively more constraining and therefore the power
+of the communication operations in the node interface must
+be reduced accordingly to meet them.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{NodeInterfaceHierarchy.\graphicPostfix}\\
+\caption{\label{node-interface-hierarchy}Node interfaces represented as C++ classes}
 \end{figure}
+
+The hierarchy of the requirements is transformed into a C++ inheritance
+hierarchy with the CSP node interface at the root (See figure \ref{node-interface-c++}).
+Less capable node interfaces inherit from more capable ones. The
+less capable node interfaces use the communication operations from the base class node
+interface to implement their own operations. The communication operations of the
+base class are disabled by declaring them private.
+
+\begin{enumerate}
+\item CSP
+  \begin{itemize}
+  \item  $\mathrm{choice}( a(1) \arrowvert b(2) )$
+    This communication operation gets a list of actor ports (e.g. $a$, $b$) which
+    are parameterized with the number of tokens that must be communicated
+    over the port. The operations communicates over that actor port which is first ready
+    for communication. If no port is ready for communication the operation blocks until
+    at least one port is ready. Should more than one actor port be ready for
+    communication at the same instance one of them is chosen nondeterministicly.
+  \end  {itemize}
+\item KPN
+  \begin{itemize}
+  \item $\mathrm{transact}( a(1) \& b(2) )$
+    This communication operation gets a list of actor ports (e.g. $a$, $b$) which
+    are parameterized with the number of tokens that must be communicated
+    over the port. The operations blocks until all requested tokens on the ports
+    have been communicated.
+  \end  {itemize}
+\item SDF
+  \begin{itemize}
+  \item $\mathrm{transact}()$, $\mathrm{hscd\_fixed\_transact\_node}( ..., a(1) \& b(2) )$
+    Actors are C++ classes which are derived of their node interface class.
+    The consumption and production rates for SDF Actors must be fixed, therefore
+    the node interface of a SDF-Actor is parameterized with the consumption and production
+    rates of the SDF-Actor (See actor constructor in figure \ref{example-sdf-actor} for an
+    example of fixed consumption and production rates). The communication operation \code{transact} is
+    therefore missing the port list which is availlable to KPN nodes.
+  \end  {itemize}
+\end{enumerate}
 
 \subsection{Network graph}
 
+To determine the MoC of a SystemC modell additionally to the information
+required about the actors of the modell information is required about the
+topology of the connections of actors to each other.
 
+There are two connection topologies which are distinguished by the \SysteMoC{}
+framework.
+
+\begin{enumerate}
+\item Petri network graph
+  
+  A petri network graph is a graph as described in subsection~\ref{petri-network-graph}
+  (See figure~\ref{ng-petri} for an example of a petri network graph).
+
+\item SDF network graph
+  
+  A SDF network graph has the additional constraint that the indegree and outdegree
+  of every channel $C$ in the graph must be one.
+  (See figure~\ref{ng-sdf} for an example of a petri network graph).
+
+\end{enumerate}
+
+The network graph is represented by the C++ template \code{hscd\_structure} 
+which has only methods to instantiate sub actors and connect their ports to each other.
 
 The network graph is represented by the C++ template
 \code{hscd\_structure} which has the parameters node interface
@@ -318,9 +540,6 @@ this MoCs the connectChanPort method is disabled.
 
 \end{enumerate}
 
-
-
-
 \subsection{Channel kind}
 
 As SystemC is an actor-oriented design framework, it also has the concepts of actors
@@ -340,9 +559,9 @@ of node interface and channel kind.
 For \SysteMoCV{} there exists two distinct channel kinds.
 
 \begin{enumerate}
-\item fifo
+\item FIFO
 
-This channel kind represents unbound fifo semantic.
+This channel kind represents unbound FIFO semantic.
 
 
 \item rendezvous
@@ -357,45 +576,12 @@ the semantic of all channels in the parameterized
 \code{hscd\_structure} template.
 
 
-\subsection{Node functionality}
-The node functionality is only used for algorithmic transformations of data values.
-The node functionality of an actor is defined in its member functions.
-This member functions are not allowed to call communication operations and
-the input and output data values used are read from
-and written to the actor ports. These actor ports are globally accessible
-from the node functionality.
-
-\begin{verbatim}
-template <typename T>
-class m_adder
-  : public hscd_fixed_transact_active_node // Node interface
-{
-public:
-  hscd_port_in<T>  in;
-  hscd_port_out<T> out;
-private:
-  // Node functionality
-  void transform() {
-    out[0] = in[0] + in[1];
-    std::cout << "Adding " << in[0] << " + " << in[1]
-              << " = " << out[0] << std::endl;
-  }
-  
-  // Firing rules
-  void process() {
-    while (true) {
-      transform();
-      transact();
-    }
-  }
-public:
-  m_adder( sc_module_name name )
-    :hscd_fixed_transact_active_node( name,
-        in(2) & out(1) /* Node interface */ ) {}
-};
-\end{verbatim}
-
 \subsection{MoC composition}
+
+The MoC is represented as an actor which is derived from the \code{hscd\_structure}
+template parameterized with the node interface and the channel kind. This actor can only
+instantiate sub actors of a predetermined kind and connect their ports with a  predetermined
+kind of channel.
 
 The MoC is now determined by the composition of the two concepts node interface
 and channel kind as following:
@@ -411,7 +597,6 @@ and channel kind as following:
  Rendezvous   & CSP                 & No well known name & No well known name \\
 \hline
 \end{tabular}
-
 
 \clearpage
 \appendix
