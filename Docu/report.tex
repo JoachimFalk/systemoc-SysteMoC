@@ -1,6 +1,6 @@
-\newcommand{\resdir}{../hscd-tex-res/}
+\newcommand{\resdir}{../../../HscdTeXRes/}
 
-\input{\resdir format}
+\input{\resdir format.tex}
 
 \begin{document}
 \hscdtitle{Representing MoCs in SystemC}{Joachim Falk}{\today}
@@ -68,6 +68,23 @@ The channel type defines the semantic for the connections
 the network graph specifies. Not per connection but for all
 connections in the network graph uniformly.
 \end{enumerate}
+
+The MoC is now determined by the composition of the node intertface with
+the channel type as following:
+
+
+\begin{tabular}{|c|c||c|c|c|}
+\hline
+                                &            & \multicolumn{3}{c|}{ Node interface } \\
+\hline
+                                &            & Choice Node & Transact Node & Fixed Transact Node \\
+\hline \hline
+\multirow{2}*{\rotatebox{90}{Channel type}}
+                                & Fifo       & foo         & bar           & batz \\
+                                & Rendezvous & foo         & bar           & batz \\
+\hline
+\end{tabular}
+
 
 The node functionality is not
 
