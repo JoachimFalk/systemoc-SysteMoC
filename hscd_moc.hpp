@@ -106,6 +106,7 @@ protected:
           iter != nodes.end();
           ++iter )
       std::cout << "foo: " << (*iter)->myModule()->name() << std::endl;
+    /*
     while (1) {
       for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
             iter != nodes.end();
@@ -114,7 +115,7 @@ protected:
         
         std::cout << "foo: " << &(*iter)->initialState() << std::endl;
       }
-    }
+    }*/
   }
 private:
 /* 

@@ -36,10 +36,6 @@ void hscd_root_node::assemble( hscd_modes::PGWriter &pgw ) const {
           << "type=\"" << (port->isInput ? "in" : "out") << "\" "
           << "id=\"" << pgw.getId(port) << "\"/>" << std::endl;
     }
-//      for ( ports_ty::const_iterator iter = ports.begin();
-//            iter != ports.end();
-//            ++iter )
-//        pgw << (*iter) /*->name()*/ << std::endl;
     pgw.indentDown();
   }
   pgw << "</process>" << std::endl;

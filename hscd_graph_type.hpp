@@ -38,7 +38,6 @@ private:
   typedef std::map<hscd_root_port *, hscd_root_port *>  iobind_ty;
   typedef std::map<hscd_root_port *, chan_kind *>       port2chan_ty;
   
-  nodes_ty            nodes;
   chan2ports_ty       chan2ports;
   port2chan_ty        port2chan;
   iobind_ty           iobind;
@@ -86,7 +85,6 @@ public:
         sc_gen_unique_name("hscd_graph_petri") ) {}
   template <typename T>
   T &registerNode( T *node ) {
-    nodes.push_back(node);
     return *node;
   }
   
@@ -114,7 +112,18 @@ public:
     p(chan);
   }
   
-  const nodes_ty      &getNodes() const { return nodes; }
+  const nodes_ty       getNodes() const {
+    nodes_ty subnodes;
+    for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+          iter != get_child_objects().end();
+          ++iter ) {
+      node_type *node = dynamic_cast<node_type *>(*iter);
+      
+      if (node)
+        subnodes.push_back(node);
+    }
+    return subnodes;
+  }
   const chan2ports_ty &getChans() const { return chan2ports; }
  
 #ifndef __SCFE__

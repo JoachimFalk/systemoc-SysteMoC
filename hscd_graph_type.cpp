@@ -7,12 +7,13 @@ template <typename T_node_type,
 void hscd_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::
 pgAssemble( hscd_modes::PGWriter &pgw ) const {
   const sc_module *m = this;
+  const nodes_ty ns  =  getNodes();
   
   pgw << "<problemgraph name=\"" << m->name() << "_pg\" id=\"" << pgw.getId() << "\">" << std::endl;
   {
     pgw.indentUp();
-    for ( typename nodes_ty::const_iterator iter = getNodes().begin();
-          iter != getNodes().end();
+    for ( typename nodes_ty::const_iterator iter = ns.begin();
+          iter != ns.end();
           ++iter )
       (*iter)->assemble(pgw);
     for ( typename chan2ports_ty::const_iterator c_iter = getChans().begin();

@@ -32,8 +32,9 @@ protected:
 public:
   operator hscd_root_port &() { return *port; }
   
-  bool isInput() const;
-  bool isOutput() const { return !isInput(); }
+  bool            isInput() const;
+  bool            isOutput() const { return !isInput(); }
+  hscd_root_port *getPort() { return port; }
 };
 
 class hscd_activation_pattern
