@@ -19,19 +19,21 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
+root_srcdir=$(top_srcdir)/..
+root_builddir=$(top_builddir)/..
 
 SUBDIRS=
 
-INCLUDES	= -I$(top_srcdir)/systemc-2.0.1/include			\
-		  -I$(top_builddir)/systemc-hscdmoc/include/hscdmoc
-AM_LDFLAGS	= -L$(top_srcdir)/systemc-2.0.1/lib-linux		\
-		  -L$(top_builddir)/systemc-hscdmoc
+INCLUDES	= -I$(root_srcdir)/systemc-2.0.1/include		\
+		  -I$(root_builddir)/SysteMoC/include/systemoc
+AM_LDFLAGS	= -L$(root_srcdir)/systemc-2.0.1/lib-linux		\
+		  -L$(root_builddir)/SysteMoC
 
 noinst_PROGRAMS= simulation-sdf simulation-df
 
-LIBS=-lsystemc
+LIBS=-lsystemc -lsystemoc
 
-LDADD= $(top_builddir)/systemc-hscdmoc/libhscdmoc.la
+# LDADD= $(root_builddir)/SysteMoC/libsystemoc.la
 
 simulation_sdf_SOURCES= design-sdf.cpp
 simulation_df_SOURCES= design-df.cpp
