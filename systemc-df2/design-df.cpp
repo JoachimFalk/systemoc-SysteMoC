@@ -16,7 +16,7 @@ typedef int t_TT;
 
 
 class m_h_sched :
-	public hscd_transact_node {
+	public hscd_transact_active_node {
 public:
 	hscd_port_out<t_qpn> out_getTT;
 	hscd_port_in<t_TT> in_getTT;
@@ -46,22 +46,20 @@ private:
 	}
 
 public:
-	SC_HAS_PROCESS(m_h_sched);
-
 	m_h_sched(sc_module_name name)
-	  : hscd_transact_node(name) {
+	  : hscd_transact_active_node(name) {
 //		setTokens(out_getTT, 1);
 //		setTokens(in_getTT, 1);
-		SC_THREAD(process);
+//		SC_THREAD(process);
 	}
 };
 
 
 class m_h_transmit_queue :
-	public hscd_choice_node {
+	public hscd_choice_active_node {
 public:
 	hscd_port_in<t_qpn> in_getTT;
-	hscd_port_in<t_qpn> in_foo;
+	hscd_port_in<void> in_void;
 	hscd_port_out<t_TT> out_getTT;
 
 private:
@@ -69,7 +67,7 @@ private:
 		t_qpn qpn;
 
 		while(1) {
-		  choice( in_getTT(1) | in_foo(1) );
+		  choice( in_getTT(1) | in_void(1) );
 		  
 		  if ( in_getTT ) {
 		    cout << " TQ> t in\n";
@@ -90,13 +88,11 @@ private:
 	}
 
 public:
-	SC_HAS_PROCESS(m_h_transmit_queue);
-	
 	m_h_transmit_queue(sc_module_name name)
-	  : hscd_choice_node(name) {
+	  : hscd_choice_active_node(name) {
 //		setTokens(out_getTT, 1);
 //		setTokens(in_getTT, 1);
-		SC_THREAD(process);
+//		SC_THREAD(process);
 	}
 };
 
@@ -132,13 +128,14 @@ class m_top
       
       connectNodePorts( h_sched.out_getTT, h_transmit_queue.in_getTT );
       connectNodePorts( h_transmit_queue.out_getTT, h_sched.in_getTT );
+      connectNodePorts( h_sched.out_void, h_transmit_queue.in_void );
       
       asap = new hscd_scheduler_asap( "asap", getNodes() );
     }
 };
 
 int sc_main (int argc, char **argv) {
-  m_top top("top");
+  hscd_top top( new m_top("top") );
   
   sc_start(-1);
   return 0;

@@ -169,13 +169,10 @@ class m_top
 
 int sc_main (int argc, char **argv) {
   try {
-    m_top                             top("top");
-    std::list<hscd_csp_structure *>   nl;
+    m_top *top;
+    hscd_top x( (top = new m_top("top")) );
     
-    nl.push_front(&top);
-    hscd_scheduler_asap               sched("asap",nl);
-    
-    hscd_modes::dump( std::cout, top );
+    hscd_modes::dump( std::cout, *top );
     
     sc_start(-1);
   } catch (...) {
