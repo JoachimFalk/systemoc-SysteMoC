@@ -73,6 +73,23 @@ public:
   this_type onlyInputs() const { return onlyXXX(filterInput_ty()); }
   this_type onlyOutputs() const { return onlyXXX(filterOutput_ty()); }
   
+  bool canSatisfy() const {
+    for ( const_iterator iter = begin();
+	  iter != end();
+	  ++iter )
+      if ( !iter->canSatisfy() )
+        return false;
+    return true;
+  }
+  bool satisfied() const {
+    for ( const_iterator iter = begin();
+	  iter != end();
+	  ++iter )
+      if ( !iter->satisfied() )
+        return false;
+    return true;
+  }
+  
   hscd_activation_pattern() {}
   
   hscd_activation_pattern( hscd_op_port p ) {
