@@ -4,25 +4,14 @@
 #define _INCLUDED_HSCD_ROOT_IF
 
 #include <systemc.h>
-#include <hscd_root_port_list.hpp>
 #include <hscd_root_port.hpp>
 
 const sc_event& hscd_default_event_abort();
 
-class hscd_transfer_base {
-public:
-  typedef hscd_transfer_base  this_type;
-protected:
-  void   *addr;
-  size_t  need, have;
-public:
-  hscd_transfer_base()
-    :need(0), have(0) {}
-private:
-  // disabled
-  hscd_transfer_base( const this_type & );
-  this_type& operator = ( const this_type & );
-};
+template <typename T>
+class hscd_port_in;
+template <typename T>
+class hscd_port_out;
 
 template <typename T>
 class hscd_root_in_if
@@ -30,21 +19,20 @@ class hscd_root_in_if
 {
 public:
   // typedefs
-  typedef T                     data_type;
-  typedef hscd_root_in_if<T>    this_type;
-  typedef typename hscd_transfer_port<data_type>::hscd_chan_port_if
-    				iface_type;
-  
+  typedef T                    data_type;
+  typedef hscd_root_in_if<T>   this_type;
+  typedef hscd_port_in<T>      iface_in_type;
+protected:
+  iface_in_type *portInIf;
 public:
   // virtual const sc_event& wantEvent() const = 0;
-  virtual void wantData( iface_type tq ) = 0;
+  //  virtual void wantData( iface_type tq ) = 0;
+  
+  void initPortIf(iface_in_type *_i) { portInIf = _i; }
+  virtual size_t committedOutCount() const = 0;
 protected:  
   // constructor
-  hscd_root_in_if()
-  {}
-  
-  // bool askSomething( size_t n ) { return wantData(n); }
-  
+  hscd_root_in_if() : portInIf(NULL) {}
 private:
   // disabled
   const sc_event& default_event() const { return hscd_default_event_abort(); }
@@ -61,19 +49,18 @@ public:
   // typedefs
   typedef T                     data_type;
   typedef hscd_root_out_if<T>   this_type;
-  typedef typename hscd_transfer_port<data_type>::hscd_chan_port_if
-    				iface_type;
-  
+  typedef hscd_port_out<T>      iface_out_type;
+protected:
+  iface_out_type *portOutIf;
 public:
   // virtual const sc_event& provideEvent() const = 0;
-  virtual void provideData( iface_type tq ) = 0;
+  // virtual void provideData( iface_type tq ) = 0;
+  
+  void initPortIf(iface_out_type *_i) { portOutIf = _i; }
+  virtual size_t committedInCount() const = 0;
 protected:
   // constructor
-  hscd_root_out_if()
-  {}
-  
-  // bool askSomething( size_t n ) { return provideData(n); }
-  
+  hscd_root_out_if() : portOutIf(NULL) {}
 private:
   // disabled
   const sc_event& default_event() const { return hscd_default_event_abort(); }

@@ -22,11 +22,11 @@ pgAssemble( hscd_modes::PGWriter &pgw ) const {
       for ( typename ports_ty::const_iterator ps_iter = c_iter->second.begin();
             ps_iter != c_iter->second.end();
             ++ps_iter ) {
-        if ( !(*ps_iter)->isInput ) {
+        if ( !(*ps_iter)->isInput() ) {
           for ( typename ports_ty::const_iterator pd_iter = c_iter->second.begin();
                 pd_iter != c_iter->second.end();
                 ++pd_iter ) {
-            if ( (*pd_iter)->isInput ) {
+            if ( (*pd_iter)->isInput() ) {
               pgw << "<edge name=\"" << c_iter->first->name() << "\" "
                   << "source=\"" << pgw.getId(*ps_iter) << "\" " 
                   << "target=\"" << pgw.getId(*pd_iter) << "\" "
@@ -72,7 +72,7 @@ assemble( hscd_modes::PGWriter &pgw ) const {
         if ( !port )
           continue;
         pgw << "<port name=\"" << (*iter)->name() << "\" "
-            << "type=\"" << (port->isInput ? "in" : "out") << "\" "
+            << "type=\"" << (port->isInput() ? "in" : "out") << "\" "
             << "id=\"" << pgw.getId(port) << "\"/>" << std::endl;
       }
       pgAssemble(pgw);

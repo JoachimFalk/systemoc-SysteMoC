@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 
-#include <hscd_root_port_list.hpp>
+#include <hscd_firing_rules.hpp>
 
 hscd_firing_state::hscd_firing_state( const hscd_transition_list &tl )
   :rs(new resolved_state_ty()), fr(NULL) {

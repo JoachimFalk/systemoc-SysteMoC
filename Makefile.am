@@ -41,6 +41,7 @@ INCLUDES =				\
 	-I$(srcdir)
 #	-I$(root_srcdir)/systemc-2.0.1/src
 
+AM_LDFLAGS = @SYSTEMC_LDFLAGS@ -lsystemc
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -53,45 +54,46 @@ PROGLDFLAGS=
 lib_LTLIBRARIES = libsystemoc.la
 pkginclude_HEADERS =			\
 	hscd_fifo.hpp			\
-	hscd_node_types.hpp		\
-	hscd_op.hpp			\
-	hscd_pggen.hpp			\
-	hscd_port.hpp			\
-	hscd_rendezvous.hpp		\
-	hscd_root_if.hpp		\
-	hscd_root_node.hpp		\
-	hscd_root_port.hpp		\
-	hscd_root_port_list.hpp		\
-	hscd_scheduler.hpp		\
 	hscd_moc.hpp			\
-	hscd_structure.hpp		\
+	hscd_port.hpp			\
+	hscd_root_node.hpp		\
+	hscd_firing_rules.hpp		\
+	hscd_node_types.hpp		\
+	hscd_rendezvous.hpp		\
+	hscd_root_port.hpp		\
 	hscd_graph_type.hpp		\
-	commondefs.h			\
-	oneof.hpp
+	hscd_pggen.hpp			\
+	hscd_root_if.hpp		\
+	oneof.hpp			\
+	commondefs.h
 
-noinst_HEADERS=	oneof.hpp
+# noinst_HEADERS=	oneof.hpp
 
 libsystemoc_CH_LTOBJS=				\
-	$(hscd_op_hpp_CH_LTOBJS)		\
-	$(hscd_root_port_list_hpp_CH_LTOBJS)	\
+	$(hscd_firing_rules_hpp_CH_LTOBJS)	\
 	$(hscd_pggen_hpp_CH_LTOBJS)
+#	$(hscd_op_hpp_CH_LTOBJS)
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lstdc++
+libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include
 
 libsystemoc_la_SOURCES =		\
-	hscd_graph_type.cpp		\
-	hscd_root_node.cpp		\
-	hscd_pggen.cpp			\
-	hscd_root_if.cpp		\
-	hscd_rendezvous.cpp		\
 	hscd_fifo.cpp			\
-	hscd_root_port_list.cpp
-
+	hscd_graph_type.cpp		\
+	hscd_rendezvous.cpp		\
+	hscd_root_node.cpp		\
+	hscd_firing_rules.cpp		\
+	hscd_pggen.cpp			\
+	hscd_root_if.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include
+
+#noinst_PROGRAMS = bar
+#
+#bar_SOURCES= bar.cpp
+#bar_LDFLAGS= @SYSTEMC_LDFLAGS@
 
 #test_pathstuff_LDADD = libsystemoc.la
 #test_pathstuff_SOURCES = test_pathstuff.C

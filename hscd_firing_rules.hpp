@@ -8,6 +8,7 @@
 #include <set>
 #include <iostream>
 
+#include <hscd_root_port.hpp>
 #include <oneof.hpp>
 #include <commondefs.h>
 
@@ -15,28 +16,31 @@ class hscd_activation_pattern;
 class hscd_port2op_if;
 class hscd_root_port;
 
+template <typename T> class hscd_port_in;
+template <typename T> class hscd_port_out;
+
 class hscd_op_port {
 public:
-  friend class hscd_op2port_if;
-  friend class hscd_root_port;
-  
-  typedef hscd_op_port	this_type;
+  typedef hscd_op_port  this_type;
 private:
-  hscd_root_port               *port;
-  size_t                        tokens;
-  
-  void requestTransfer( hscd_port2op_if &op );
+  hscd_root_port *port;
+  size_t          tokens;
 protected:
-  hscd_op_port( hscd_root_port &port, size_t tokens )
-    : port(&port), tokens(tokens) {}
+  template <typename T> friend class hscd_port_in;
+  template <typename T> friend class hscd_port_out;
+  
+  hscd_op_port( hscd_root_port *port, size_t tokens )
+    : port(port), tokens(tokens) {}
 public:
   operator hscd_root_port &() { return *port; }
   
   hscd_root_port       *getPort() { return port; }
   const hscd_root_port *getPort() const { return port; }
   
-  bool isInput() const;
-  bool isOutput() const { return !isInput(); }
+  bool canSatisfy() const { return tokens == port->availableCount(); }
+  bool satisfied()  const { return tokens == port->doneCount(); }
+  bool isInput()    const { return port->isInput();  }
+  bool isOutput()   const { return port->isOutput(); }
 };
 
 class hscd_activation_pattern

@@ -3,17 +3,20 @@
 #ifndef _INCLUDED_HSCD_FIFO_HPP
 #define _INCLUDED_HSCD_FIFO_HPP
 
-#include <hscd_root_if.hpp>
+#include <hscd_port.hpp>
+
 #include <systemc.h>
 #include <vector>
 
 // #include <iostream>
 
+const sc_event& hscd_default_event_abort();
+
 class hscd_fifo_kind
   : public sc_prim_channel {
 public:
   typedef hscd_fifo_kind  this_type;
- 
+  
   class chan_init {
     friend class hscd_fifo_kind;
   private:
@@ -31,7 +34,7 @@ protected:
   size_t rpp() { return rindex == fsize-1 ? (rindex=0,fsize-1) : rindex++; }
   size_t wpp() { return windex == fsize-1 ? (windex=0,fsize-1) : windex++; }
   
-  size_t usedStorage() {
+  size_t usedStorage() const {
     size_t used = windex - rindex;
     
     if ( used > fsize )
@@ -39,7 +42,7 @@ protected:
     return used;
   }
   
-  size_t unusedStorage() {
+  size_t unusedStorage() const {
     size_t unused = rindex - windex - 1;
     
     if ( unused > fsize )
@@ -61,14 +64,19 @@ private:
   
   // disabled
   hscd_fifo_kind( const this_type & );
+  this_type& operator = ( const this_type & );
 };
 
 template <typename T>
 class hscd_fifo_storage
-  : public hscd_fifo_kind {
+  : public hscd_fifo_kind,
+    public hscd_root_in_if<T>,
+    public hscd_root_out_if<T> {
 public:
-  typedef T                      data_type;
-  typedef hscd_fifo_storage<T>   this_type;
+  typedef T                                  data_type;
+  typedef hscd_fifo_storage<data_type>       this_type;
+  typedef typename this_type::iface_out_type iface_out_type;
+  typedef typename this_type::iface_in_type  iface_in_type;
   
   class chan_init
     : public hscd_fifo_kind::chan_init {
@@ -88,25 +96,15 @@ public:
 private:
   data_type *storage;
 protected:
-  typedef typename hscd_transfer_port<data_type>::hscd_chan_port_if
-                                 iface_type;
+  void transferInData( iface_out_type *out ) {
+    for ( ; unusedStorage() && out->canTransfer(); )
+      storage[wpp()] = *out->transferOut();
+  }
+  void transferOutData( iface_in_type *in ) {
+    for ( ; usedStorage() && in->canTransfer(); )
+      in->transferIn( &storage[rpp()] );
+  }
   
-  void transferInData( iface_type in ) {
-    assert( in.haveRequest() );
-    for ( ; unusedStorage() && !in.ready(); )
-      storage[wpp()] = *in.nextAddr();
-  }
-  void transferOutData( iface_type out ) {
-    assert( out.haveRequest() );
-    for ( ; usedStorage() && !out.ready(); )
-      *out.nextAddr() = storage[rpp()];
-  }
-  void copyData( iface_type in, iface_type out ) {
-    assert( in.haveRequest() && out.haveRequest() );
-    while ( !in.ready() && !out.ready() )
-      *out.nextAddr() = *in.nextAddr();
-  }
- 
   hscd_fifo_storage( const chan_init &i )
     : hscd_fifo_kind(i), storage(new data_type[fsize]) {
     assert( fsize > i.marking.size() );
@@ -115,13 +113,18 @@ protected:
   }
   
   ~hscd_fifo_storage() { delete storage; }
+private:
+  // disabled
+  const sc_event& default_event() const { return hscd_default_event_abort(); }
 };
 
 class hscd_fifo_storage<void>
-  : public hscd_fifo_kind {
+  : public hscd_fifo_kind,
+    public hscd_root_in_if<void>,
+    public hscd_root_out_if<void> {
 public:
-  typedef void                      data_type;
-  typedef hscd_fifo_storage<void>   this_type;
+  typedef void                               data_type;
+  typedef hscd_fifo_storage<data_type>       this_type;
   
   class chan_init
     : public hscd_fifo_kind::chan_init {
@@ -140,23 +143,13 @@ public:
         marking(0) {}
   };
 protected:
-  typedef hscd_transfer_port<void>::hscd_chan_port_if iface_type;
-  
-  void transferInData( iface_type in ) {
-    assert( in.haveRequest() );
-    for ( ; unusedStorage() && !in.ready(); )
-      in.nextAddr();
+  void transferInData( iface_out_type *out ) {
+    for ( ; unusedStorage() && out->canTransfer(); )
+      out->transferOut();
   }
-  void transferOutData( iface_type out ) {
-    assert( out.haveRequest() );
-    for ( ; usedStorage() && !out.ready(); )
-      out.nextAddr();
-  }
-  void copyData( iface_type in, iface_type out ) {
-    assert( in.haveRequest() && out.haveRequest() );
-    while ( !in.ready() && !out.ready() ) {
-      out.nextAddr(); in.nextAddr();
-    }
+  void transferOutData( iface_in_type *in ) {
+    for ( ; usedStorage() && in->canTransfer(); )
+      in->transferIn(NULL);
   }
   
   hscd_fifo_storage( const chan_init &i )
@@ -164,26 +157,38 @@ protected:
     assert( fsize > i.marking );
     windex = i.marking;
   }
+private:
+  // disabled
+  const sc_event& default_event() const { return hscd_default_event_abort(); }
 };
 
 template <typename T>
 class hscd_fifo_type
-  : public hscd_fifo_storage<T>,
-    public hscd_root_in_if<T>,
-    public hscd_root_out_if<T> {
+  : public hscd_fifo_storage<T> {
 public:
-  typedef T                   data_type;
-  typedef hscd_fifo_type<T>   this_type;
+  typedef T                                  data_type;
+  typedef hscd_fifo_type<data_type>          this_type;
+  typedef typename this_type::iface_in_type  iface_in_type;
+  typedef typename this_type::iface_out_type iface_out_type;
 protected:
-  typedef typename  hscd_fifo_storage<T>::iface_type iface_type;
+  iface_in_type  *in;
+  iface_out_type *out;
   
-  iface_type in;
-  iface_type out;
+  void copyData( iface_out_type *out, iface_in_type *in ) {
+    while ( in->canTransfer() && out->canTransfer() )
+      in->transferIn( out->transferOut() );
+  }
 public:
   // constructors
   hscd_fifo_type( const typename hscd_fifo_storage<T>::chan_init &i )
     : hscd_fifo_storage<T>(i) {}
   
+  size_t committedOutCount() const
+    { return usedStorage() + portOutIf->committedCount(); }
+  size_t committedInCount() const
+    { return unusedStorage() + portInIf->committedCount(); }
+
+/*  
   // interface methods
   virtual void wantData( iface_type tr ) {
     //std::cerr << "call wantData( " << tr << ", " << tr->request_count << ", " << tr->done_count << " );" << std::endl;
@@ -213,10 +218,7 @@ public:
       in.setCancler();
     }
     //std::cerr << "return provideData( " << tr << ", " << tr->request_count << ", " << tr->done_count << " );" << std::endl;
-  }
-private:
-  // disabled
-  const sc_event& default_event() const { return hscd_default_event_abort(); }
+  } */
 };
 
 template <typename T>

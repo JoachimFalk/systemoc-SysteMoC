@@ -33,7 +33,7 @@ void hscd_root_node::assemble( hscd_modes::PGWriter &pgw ) const {
       if ( !port )
         continue;
       pgw << "<port name=\"" << (*iter)->name() << "\" "
-          << "type=\"" << (port->isInput ? "in" : "out") << "\" "
+          << "type=\"" << (port->isInput() ? "in" : "out") << "\" "
           << "id=\"" << pgw.getId(port) << "\"/>" << std::endl;
     }
     pgw.indentDown();

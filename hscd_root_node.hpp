@@ -3,9 +3,9 @@
 #ifndef _INCLUDED_HSCD_ROOT_NODE_HPP
 #define _INCLUDED_HSCD_ROOT_NODE_HPP
 
-#include <hscd_root_port_list.hpp>
+#include <hscd_firing_rules.hpp>
 #include <hscd_port.hpp>
-#include <hscd_op.hpp>
+//#include <hscd_op.hpp>
 #ifndef __SCFE__
 # include <hscd_pggen.hpp>
 #endif
@@ -16,36 +16,13 @@
 
 #include <list>
 
-/*
-#define linkme(instance,port,chan) do {     \
-  (instance).registerPort((instance).port); \
-  (instance).port(chan);                    \
-} while ( 0 )
-*/
-
-#define linkme(instance,port,chan) do {     \
-  (instance).port(chan);                    \
-} while ( 0 )
-
-class hscd_opbase_node
-  : public hscd_root_node_op_if {
+class hscd_opbase_node {
 public:
   typedef hscd_opbase_node this_type;
+private:
+  hscd_firing_state _initialState;
+  hscd_firing_state _currentState;
 protected:
-//    typedef std::list<hscd_root_port *> ports_ty;
-//    ports_ty                            ports;
-
-//    void startTransact( hscd_op_transact op ) { startOp(op); }
-//    void startChoice( hscd_op_choice op ) { startOp(op); }
-    
-//    void transact( hscd_op_transact op ) {
-//      startTransact(op); waitFinished();
-//    }
-    
-//    void choice( hscd_op_choice op ) {
-//      startChoice(op); waitFinished();
-//    }
-
   template <typename T>
   hscd_interface_action call(
       void (T::*f)(),
@@ -70,36 +47,16 @@ protected:
   }
   
   hscd_opbase_node(const hscd_firing_state &s)
-    : hscd_root_node_op_if(s) {}
-  
-//    sc_event		  _opFinished;
-  
-//    void waitFinished() {
-//      if ( !finished() )
-//	  wait( _opFinished );
-//      assert( finished() );
-//    }
-  
-//    void opFinished() { _opFinished.notify_delayed(); }
+    : _initialState(s), _currentState(s) {}
+
+  virtual ~hscd_opbase_node() {}
 public:
-//    void registerPort( hscd_root_port &port ) {
-//      ports.push_back(&port);
-//    }
+    const hscd_firing_state &currentState() const { return _currentState; }
 };
 
 class hscd_root_node
   : public hscd_opbase_node {
 protected:
-//    void transact( hscd_op_transact op ) {
-//      startTransact(op); waitFinished();
-//      startTransact(fire_port(1)); waitFinished();
-//    }
-  
-//    void choice( hscd_op_choice op ) {
-//      startChoice(op); waitFinished();
-//      startTransact(fire_port(1)); waitFinished();
-//    }
-  
   hscd_root_node(const hscd_firing_state &s)
     : hscd_opbase_node(s) {}
 public:
