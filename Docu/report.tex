@@ -130,25 +130,30 @@ for transforming data values. The node functionality can be
 thought of as a function $F: V^{m} \to V^{n}$  which maps a fixed set
 of parameters to a fixed set of results. The node functionality
 can be implemented by a Turing-complete programming language but
-the user must guarantee, that the node functionality terminates
-and does not communicate with other actors.
-The node functionality is the only aspect which is not further distinguished
-into aspect types.
+the user must guarantee, that the node functionality terminates,
+does not communicate with other actors and is deterministic.
+The node functionality is the only aspect which is not
+further distinguished into aspect types.
 
 \subsection{Node Interface}\label{node-interface}
 
 The second part of an actor which determines its communication
 behavior is called \emph{firing rules}. The firing rules
 determine for each actor port the number of tokens to receive or send
-until the associated node functionality can be invoked. These firing rules are
+until the associated node functionality can be invoked.
+%\begin{definition}\label{firing-rules}
+%Firing rule is a set of functions $F: $
+%\end{definition}
+These firing rules are
 constructed by the use of communication operations which are
 provided by the \emph{node interface}. Furthermore, we
 distinguish three separate \emph{node interface types} by the set
 operations available to them:
 
+
 \begin{definition}\label{choice-node-interface-type}
   Choice node interface type
-
+  
   \emph{Choice} is an operation defined on a set of actor ports $A_{P}$
   and a function $D: A_{P} \to \mathcal{F}$, which maps each actor port
   $a_{p} \in A_{P}$ to a function $F_{x} \in \mathcal{F}$.
@@ -159,7 +164,7 @@ operations available to them:
   Exactly one actor port $a_{p} \in A_{P_{ready}}$
   will be chosen nondeterministically. After
   finishing the communication on the chosen actor port $a_{p}$
-  the process execution will contiune
+  the process execution will continue
   with function $F_{continue} = D(a_{p})$.
 \end{definition}
 
@@ -190,10 +195,15 @@ Each actor $A \in \mathcal{A}$ can only communicate with other actors
 through its dedicated actor input ports $A_{P_{i}}$ and
 actor output ports $A_{P_{o}}$.
 % $\forall{(X,Y)\in \mathcal{A^2}}: X \ne Y \Rightarrow X_{P} \cap Y_{P} = \emptyset$
-Furthermore, we define the set of all
-actor input ports as $\mathcal{A}_{P_{i}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{i}}$ and
-the set of all actor output ports as
-$\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$.
+Furthermore, we define the set of all input and output ports of an actor
+as $A_{P} = A_{P_{i}} \cup A_{P_{o}}$,
+the set of all actor input ports of the network graph as
+$\mathcal{A}_{P_{i}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{i}}$,
+the set of all actor output ports of the network graph as 
+$\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$,
+and the set of all actor input and actor output ports of the network graph as
+$\mathcal{A}_{P} = \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}}$.
+
 \end{definition}
 
 There are two network graph types which are distinguished by our methodology:
@@ -201,7 +211,7 @@ There are two network graph types which are distinguished by our methodology:
 \begin{definition}\label{petri-network-graph}
   A Petri network graph is constrained such that exactly
   one edge is incident to each actor port
-  $\forall{p \in \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}}}: |(C \times \{p\}) \cap E| = 1$.
+  $\forall{p \in \mathcal{A}_{P}}: |(C \times \{p\}) \cap E| = 1$.
 \end{definition}
 
 \begin{figure}
@@ -226,7 +236,7 @@ There are two network graph types which are distinguished by our methodology:
   old value of $c_2$ is send to the uplevel output port $p_{o_1}$
   via the exchange actor $a_3$. The model uses the nondeterminism
   of the petri network graph which allows to read the value of channel
-  $c_2$ from different actors to either accumulate additionall
+  $c_2$ from different actors to either accumulate additional
   data via actor $a_2$ or exchange the value via actor $a_3$.
 
 \begin{definition}\label{dataflow-network-graph}
@@ -242,7 +252,7 @@ There are two network graph types which are distinguished by our methodology:
   the values read in from the uplevel input ports $p_{i_1}$ and $p_{i_2}$.
   Additionally for each value pair from $p_{i_1}$ and $p_{i_2}$ the
   new accumulated value is send to the output port $p_{o_1}$ via
-  the fork actor $a_3$. The fork actor dupplicates its recieved
+  the fork actor $a_3$. The fork actor duplicates its received
   value on $a_{3_{pi1}}$ to its outputs $a_{3_{po1}}$ and $a_{3_{po2}}$.
 
 \begin{figure}
@@ -259,10 +269,10 @@ There are two network graph types which are distinguished by our methodology:
 \subsection{Channel Kind}\label{channel-kind}
 
 The \emph{channel kind} defines the communication semantic of the channel.
-Because the communication semantic is not influenced by the
-type of the values communicated, the actual \emph{type} of a communication
+Since the communication semantic is not influenced by the
+data type communicated, the actual \emph{type} of a communication
 channel is derived from the channel kind by parameterizing it with
-the type of the communicated values. Examples for channel kinds are:
+the type of the communicated data. Examples for channel kinds are:
 
 \begin{itemize}
 \item \label{channel-kind-fifo} FIFO:
@@ -281,15 +291,14 @@ the type of the communicated values. Examples for channel kinds are:
 
 \section{Revision of Different MoCs}\label{revision-of-mocs}
 
-The requirements of MoCs can be separated into two distinct groups.
-There are the execution requirements which must be fulfilled by
-the programming system otherwise the MoC cannot be implemented in
-this particular system.
-On the other hand, there are the analysis requirements which
-permit the extraction of information needed for the MoC specific analysis.
+The characteristics of different MoCs can be separated into two distinct groups.
+There are the execution characteristics which must be provided by
+the programming system otherwise the MoC cannot be implemented.
+On the other hand, there are the analysis characteristics which
+permit the extraction of information needed for MoC specific analysis.
 
-In the following Subsections, different MoCs are considered and their
-requirements determined. For each MoC these requirements are than
+In the following subsections, different MoCs are considered and their
+characteristics are determined. For each MoC these characteristics are
 mapped onto the aspects presented in the previous Section.
 
 \subsection{Communicating Sequential Processes (CSP)}
@@ -298,52 +307,56 @@ is a MoC which consist of concurrently executing processes
 which communicate via unidirectional \emph{rendezvous channels}.
 As a difference to the CSP model of Hoare \cite{csphoare:1985}
 which allows runtime creation of processes via parallel
-composition and recursion, the CSP model presented in this report
-is constraint to a fixed predetermined number of processes.
-This constraint was set to allow hardware synthesis from this
+composition and recursion, the CSP model considered in this report
+is constraint to a fixed predetermined set of processes.
+This constraint is required to allow hardware synthesis from this
 model.
 
-The following requirements are the execution requirements to
+The following characteristics are the execution characteristics to
 implement CSP behavior:
 
-\begin{requirement}\label{requirement-csp-rendezvous}
+\begin{characteristic}\label{characteristic-csp-rendezvous}
   Rendezvous channel for communication
-\end{requirement}
+\end{characteristic}
 
-\begin{requirement}\label{requirement-csp-general-choice}
+\begin{characteristic}\label{characteristic-csp-general-choice}
   A communication method for Hoare's so-called \emph{general choice}
   
   General choice written $ce_{1} \to F_1 \Box ce_{2} \to F_2$
-  is a operation defined on a set of channel expressions $CE$ and
-  a function $D: CE \to \mathcal{F}$, which maps a channel expression
+  is a operation defined on a set of \emph{channel expressions} $CE$ and
+  a function $D: CE \to \mathcal{F}$, which maps each channel expression
   $ce \in CE$ to a function $F_{x} \in \mathcal{F}$. A channel
-  expression can either send the contents of a variable $v$ into
+  expression can either send the content of a variable $v$ into
   the channel $c$ which is written $c!v$ or receive a value from
-  the channel $c$ and write it into variable $v$ which is written
+  the channel $c$ and store it in variable $v$ which is written
   $c?v$. A channel expression is ready to communicate when its
   associated channel is ready to communicate.
-  Let $CE_{rt} \subseteq CE$ be the subset of channel expressions
-  ready to communicate at time $t$. The general choice operation
-  blocks the process until time $t$ where at least one channel expression
-  is ready to communicate $|CE_{rt}| \ge 1$. One channel expression
-  $ce \in CE_{rt}$ will be chosen nondeterministically and the
-  execution will contiune with function $F_{continue} = D(ce)$.
-\end{requirement}
+  The general choice operation postpones the process execution 
+  until at least one channel expression $ce \in CE$
+  becomes ready to communicate. The set of channel expressions
+  ready to communicate is given by $CE_{ready}$.
+  Exactly one channel expression $ce \in CE_{ready}$
+  will be chosen nondeterministically. After
+  finishing the communication for the chosen channel expression $ce$
+  the process execution will continue
+  with function $F_{continue} = D(ce)$.
 
-\begin{requirement}\label{requirement-csp-concurrent-processes}
-  Parallel executing processes
+\end{characteristic}
+
+\begin{characteristic}\label{characteristic-csp-concurrent-processes}
+  Fixed set of concurrently executing processes
   
   The CSP \emph{parallel composition} operation written $F_1 \| F_2$ executes the
   function $F_1$ and $F_2$ in parallel and terminates when both functions
-  have terminated. Through the use of recursion and parallel composition
-  like $X = F_1 \| X$ CSP enables unlimited runtime creation of processes.
+  have terminated. By using recursion and parallel composition
+  like $X = F_1 \| X$, CSP enables unlimited runtime creation of processes.
   Our CSP MoC only allows a fixed static number of processes. This
   leads to the constraint that only CSP programs can be represented which
-  have a single init function which can not be called recursivly. This init
+  have a single init function which must not be called recursively. This init
   function creates all processes needed in the CSP program via parallel composition.
   Other functions in the CSP program must not use the parallel composition
   operation.
-\end{requirement}
+\end{characteristic}
 
 %\item Sequential composition of functions
 %  
@@ -352,8 +365,20 @@ implement CSP behavior:
 % $\to$ is sequential composition
 
 In the following, a CSP program for the classical dining
-philosophers problem is demonstrated (See Figure~\ref{fig:dining-philosophers}
-for the processes and connection topology used in the example):
+philosophers problem is demonstrated. To reduce the complexity
+of the example the number of philosophers has been reduced from five
+to two. Each philosopher has only two goals in life to think and
+to eat. Food is provided by a bowl of spaghetti on the table and
+two forks for eating. To eat, each philosopher has to take a seat
+at the table and take two forks which he will not release until he
+is no longer hungry. As anybody knows this can lead to a deadlock.
+This deadlock can can be eliminated by a footman which will only
+allow philosopher to take a seat at the table if there are more
+forks than philosophers at the table (See Figure~\ref{fig:dining-philosophers}
+for the processes and connection topology used in the example).
+The implementation demonstrates the use of the general choice operator
+in the $Footman$ and the $Fork_{x}$ which are used to react to the first
+philosopher requesting something from footman or fork.
 
 \begin{figure}[h]
 \centering
@@ -369,64 +394,92 @@ Philosopher_{i}    & := & FootSit_{i}!sit \to ForkReqL_{i}!take \to ForkReqR_{i\
 		   &    & ForkReqL_{i}!drop \to ForkReqR_{i\oplus1}!drop \to FootStand_{i}!stand \to \\
 		   &	& Philosopher_{i} \\
 Fork_{i}	   & := & ForkReqR_{i}?req_{r} \to ForkReqR_{i}?req_{r} \to Fork_{i} \Box \\
-		   &    & ForkReqL_{i\oplus1}?req_{l} \to ForkReqL_{i\oplus1}?req_{l} \to Fork_{i} \\
-Footman		   & := & FootMan_{0} \\
-Footman_{0}	   & := & FootSit_{x}?req_{x} \to Footman_{1} \\
-Footman_{3}	   & := & FootStand_{x}?req_{x} \to Footman_{2} \\
-Footman_{j}	   & := & FootSit_{x}?req_{x} \to Footman_{j+1} \Box \\
-		   &    & FootStand_{x}?req_{x} \to Footman_{j-1} \\
+		   &    & ForkReqL_{i}?req_{l} \to ForkReqL_{i}?req_{l} \to Fork_{i} \\
+Footman		   & := & FootSit_{0}?req_{0} \to FootStand_{0}?req_{0} \to Footman \Box \\
+		   &    & FootSit_{1}?req_{1} \to FootStand_{1}?req_{1} \to Footman \\
 InitFunction       & := & Philosopher_{0} \| Fork_{0} \| \\
 		   &    & Philosopher_{1} \| Fork_{1} \| \\
-		   &    & Philosopher_{2} \| Fork_{2} \| \\
-		   &    & Philosopher_{3} \| Fork_{3} \| \\
 		   &    & Footman \\
 \end{array}
 \end{displaymath}
 
-Where $\oplus$ is addition modulo 4.
+Where $\oplus$ is addition modulo 2 and $\to$ has higher precedence than $\Box$.
 
-To facilitate analysis of the CSP MoC additionally the following
-analysis requirements must be satisfied:
-\begin{requirement}\label{requirement-csp-communication}
-  Parallel executing processes must only communicate over rendezvous channels,
-  which must be Point-to-Point connections.
-\end{requirement}
+To facilitate analysis of the CSP MoC, additionally the following
+analysis characteristics must be given:
+\begin{characteristic}\label{characteristic-csp-communication}
+  Parallel executing processes must only communicate over Point-to-Point rendezvous channels.
+\end{characteristic}
 
-The requirements \ref{requirement-csp-rendezvous} -
-\ref{requirement-csp-communication} of the CSP MoC are mapped in the following way
+The characteristics \ref{characteristic-csp-rendezvous} -
+\ref{characteristic-csp-communication} of the CSP MoC are mapped in the following way
 onto the aspects presented in Section~\ref{aspect-overview}.
-(i) The rendezvous communication (Requirement~\ref{requirement-csp-rendezvous})
-used by CSP is provided by the channel kind rendezvous (See~\ref{channel-kind-rendezvous})
-(ii) Hoare's so-called general choice communication operator (Requirement~\ref{requirement-csp-general-choice})
-is provided as a operation in the choice node interface (See~\ref{choice-node-interface-type}).
-(iii) The parallel executing processes (Requirement~\ref{requirement-csp-concurrent-processes})
+(i) The rendezvous communication %(Requirement~\ref{characteristic-csp-rendezvous})
+used by CSP is provided by the channel kind rendezvous %(See~\ref{channel-kind-rendezvous})
+(ii) Hoare's general choice communication operator %(Requirement~\ref{characteristic-csp-general-choice})
+is provided as a operation in the choice node interface %(See~\ref{choice-node-interface-type})
+(iii) The parallel executing processes %(Requirement~\ref{characteristic-csp-concurrent-processes})
 created by the init functions are mapped to the concurrently executing actors
-(Subsection~\ref{node-functionality} and Subsection~\ref{node-interface}).
-(iv) The Point-to-Point communication of CSP over rendezvous channels (Requirement~\ref{requirement-csp-communication})
-is provided by the dataflow network graph (See~\ref{dataflow-network-graph}) and
-its contained rendezvous channels, which is the only means of communication in a
+%% (Subsection~\ref{node-functionality} and Subsection~\ref{node-interface})
+(iv) The Point-to-Point communication of CSP over rendezvous channels %(Requirement~\ref{characteristic-csp-communication})
+is provided by the dataflow network graph %(See~\ref{dataflow-network-graph})
+and its contained rendezvous channels, which are the only means of communication in a
 actor-oriented design.
 
-\subsection{Dataflow (DF)}
-Kahn Process Networks \cite{kahn:1974}
-is a MoC which consist of concurrently executing processes
-which communicate via unidirectional unbounded \emph{FIFO channels}.
-The input and output of a channel is connected to a dedicated
-actor port.
+\subsection{Kahn Process Network (KPN)}
+\emph{Kahn Process Network} \cite{kahn:1974} is a MoC
+which consist of a fixed predetermined set of
+concurrently executing processes which communicate via unidirectional
+unbounded \emph{FIFO channels}. The input and output of a channel
+are connected to dedicated processes. The process must implement
+a continuous function $F: S^m \to S^n$ regarding a prefix order on
+$S^m$ and $S^n$ \cite{kahn:1974} \cite{stark87concurrent:1987}.
+Where $S^m$ is a m-tuple of token sequences on the process input channels
+and $S^n$ is a n-tuple on token sequences on the process output channels.
+If the communication over FIFO channels is realized with blocking
+reads and nonblocking writes the previous requirement is automatically
+satisfied \cite{stark87concurrent:1987}. However the next channel
+selected for a FIFO read or write operation can dependent on
+the data values already read and the state of the actor.
 
-The following requirements are the execution requirements to
+% connected to the process of the process actor input
+% port a number of tokens dependent on the port and the state
+% of the actor must be available.
+% Two closely related
+% forms of dataflow are distinguished in the literature \cite{LeeDenotialDF:1997},
+% Kahn Process Networks \cite{kahn:1974}, in the following 
+% called KPN, and Dennis Dataflow \cite{}, in the following
+% called DDF. DDF is an extension of KPN by the notion of
+% firing. To enable firing of a DDF process each channel $c \in C$
+% used as input by the process must have a certain number of
+% tokens 
+
+The following execution characteristics are required to
 implement KPN behavior:
 
-\begin{enumerate}
-\item An unbound FIFO channel for communication
-\item A communication method to read from and write to FIFOs
-\item Parallel executing processes
-\end{enumerate}
+\begin{characteristic}\label{characteristic-kpn-fifo}
+  An unbound FIFO channel for communication
+\end{characteristic}
+
+\begin{characteristic}\label{characteristic-kpn-fifo-read-write}
+  A communication method to read from and write to FIFOs
+\end{characteristic}
+
+\begin{characteristic}\label{characteristic-kpn-concurrent-processes}
+  Fixed set of concurrently executing processes
+\end{characteristic}
 
 In the following, a example dataflow program for audio coding
 is demonstrated. For the audio encoding an algorithm
 adapted for multimedia audio or an algorithm adapted for speech
-is dynamically selected depending on the input audio stream
+is dynamically selected depending on the input audio stream.
+The CodecSelect actor forwards the raw audio stream to the
+selected audio codec and gets feedback of the codec quality back
+via the corresponding CodecQuality channel. If a certain
+limit for the codec quality is not satisfied the CodecSelect will
+switch to the other audio codec. Additionally the CodecSelect actor
+signals the StreamPacketizer via the PacketizerCodecSelect channel
+which EncodedAudio channel to choose for input data to packetize.
 (See Figure~\ref{fig:media-speech-audio-coding}
 for the processes and connection topology used in the example):
 
@@ -437,51 +490,63 @@ for the processes and connection topology used in the example):
 \label{fig:media-speech-audio-coding}
 \end{figure}
 
-
-
 To facilitate analysis of the KPN MoC additionally the following
-constraints must be fulfilled:
-\begin{enumerate}
-\item Parallel executing processes must only communicate over FIFO channels.
-\item The channels must be Point-to-Point connections.
-\item Arrival sequence of tokens on different channels must be indeterminable
-      for the process.
-\end{enumerate}
+characteristics must be satisfied:
+\begin{characteristic}\label{characteristic-kpn-communication}
+  Parallel executing processes must only communicate over Point-to-Point FIFO channels.
+\end{characteristic}
 
-Mapping of the KPN MoC requirements onto the aspects presented in
-Section~\ref{aspect-overview}:
+\begin{characteristic}\label{characteristic-kpn-determinism}
+  The process must implement a continuous function $F: S^m \to S^n$
+\end{characteristic}
 
-\begin{itemize}
-
-\item The node interface must only provide a communication operator which
-      generates parameterized read and write requests on the actor ports.
-
-\item The connections needed for CSP are provided by the Dataflow network graph.
-
-\item As channel kind FIFO is selected.
-
-\end{itemize}
+The characteristics \ref{characteristic-kpn-fifo} -
+\ref{characteristic-kpn-determinism} of the KPN MoC are mapped in the following way
+onto the aspects presented in Section~\ref{aspect-overview}.
+(i) The FIFO communication
+used by dataflow is provided by the FIFO channel kind
+(ii) The fixed set of concurrently executing processes
+are mapped to the concurrently executing actors
+(iii) The Point-to-Point communication of dataflow over FIFO channels
+is provided by the dataflow network graph
+and its contained FIFO channels, which are the only means of communication in a
+actor-oriented design
+(iv) read and write operations on this FIFOs are provided by
+the transact operation of the transact node interface
+(v) The requirement for a continuous function is satisfied by using the
+transact operation of the transact node interface.
+The transact operation consumes and produces
+a determined number of tokens on the actor ports
+depending on the current state of the actor.
+The node functionality must be deterministic, too.
+Therefore the actor implements a function regarding the
+prefix order on $S^m$ and $S^n$. Because the
+transact functions does not allow canceling of already
+written output of actor output ports, the functions is
+monotonic. Fortunately, this means in practice
+that the function is also continuous since practical monotonic
+processes are invariably continuous, at least in the context
+of Kahn process networks \cite{LeeDenotialDF:1997}.
 
 \subsection{Synchronous Dataflow (SDF)}
-Synchronous Data Flow \cite{Lee87b:1987}
-is a more constricted form of the KPN MoC.
-It has all the execution requirements of the KPN MoC and
-the additional analysis requirement that actor consumption and
-production rates are constant.
+Synchronous Data Flow \cite{Lee87b:1987} is a more constricted form of the
+KPN MoC. It has all the characteristic of the KPN MoC and additionally the
+following characteristic necessary for MoC analysis.
 
-Mapping of the SDF MoC requirements onto the aspects presented in
-Section~\ref{aspect-overview}:
+\begin{characteristic}\label{characteristic-sdf-fixed-rates}
+The consumption and production rates of the actor must be constant.
+In particular they are independent from the state of the actor.
+\end{characteristic}
 
-\begin{itemize}
-
-\item The node interface must only provide a communication operator which
-      generates read and write requests with a fixed set of actor ports.
-
-\item The connections needed for CSP are provided by the Dataflow network graph.
-
-\item As channel kind FIFO is selected.
-
-\end{itemize}
+The characteristics \ref{characteristic-kpn-fifo} -
+\ref{characteristic-sdf-fixed-rates} of the SDF MoC are mapped in the following way
+onto the aspects presented in Section~\ref{aspect-overview}. (i) - (iii) is identical
+to the KPN MoC
+(iv) read and write operations on the FIFOs are provided by the transact
+operation of the fixed transact node interface
+(v) The constant consumption and production rates of the actor are
+guaranteed by the fixed transact node interface which does
+not allow the alteration of these rates once set.
 
 \section{Software Architecture}\label{software-architecture}
 
@@ -489,7 +554,7 @@ Due to its high abstraction level and possibilities for both
 hardware and software refinements, we have chosen SystemC
 \cite{systemc-lrm:2003} \cite{glms:2002} as our language for system design.
 SystemC is an actor-oriented C++ based design framework and
-allready allow to express dataflow MoCs. 
+already allow to express dataflow MoCs. 
 
 In the following, we propose a SystemC framework, called \SysteMoC, which
 facilitates automatic extraction of the MoC of a SystemC design.
@@ -717,7 +782,7 @@ provides the methods needed to assemble the network graph in the constructor
 of the network graph class. Once the constructor has finished the network graph must
 be fully assembled. No alteration at a later date is allowed.
 The methods provided by the \SysteMoC{} graph type class together with runtime checks
-in these methods constrain the constructet network graph to conform to the corresponding
+in these methods constrain the constructed network graph to conform to the corresponding
 network graph type.
 Therefore the network graph type of a network graph can be determined by looking
 at the base class of the network graph class.
@@ -751,7 +816,7 @@ composition of a network graph of the desired type:
     This method is used to add one channel $c$ to the set of channels $C$
     of the network graph. This functions takes an optional parameter which can
     be used to specify the initial state of the new channel, which is
-    for example used for the count of inital tokens of a FIFO channel.
+    for example used for the count of initial tokens of a FIFO channel.
 
   \item connectChanPort:
     This method adds one edge $e \in C \times \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}} \times C$
@@ -889,7 +954,7 @@ the parameterized node interface type of the constraint set or an even
 less capable node interface type, which is enforced by the type signature
 of the registerNode method and the node interface hierarchy.
 Each registered channel must be of the parameterized channel kind,
-enforcement is optained by the type signature of the
+enforcement is obtained by the type signature of the
 the registerChan and connectNodePorts methods.
 
 \begin{figure}[h]
