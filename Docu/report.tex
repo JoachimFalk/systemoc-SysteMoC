@@ -273,15 +273,26 @@ transmitted.
 \end{definition}
 
 \begin{definition}\label{interface-action}
-A \emph{interface action} is a tuple $T = (F,S_{succ}), T \in \mathcal{T}$ containing
-a node functionality, and a set of successor states $S_{succ} \subseteq S$.
+An \emph{interface action} is a tuple $J = (F,S_{succ}), J \in \mathcal{J}$ containing
+a node functionality, and a set of successor states $S_{succ}$ containing at least
+one state $|S_{succ}| \ge 1$.
+\end{definition}
+
+\begin{definition}\label{interface-transition}
+An \emph{interface transition} is a tuple $T = (Q,\mathcal{J}), T \in \mathcal{T}$ containing
+an activation pattern $q$ and an interface action $J$.
+A transition is enabled if its corresponding activation pattern $q$ is enabled.
+If the included interface action has only one successor state $|J.S_{succ}| = 1$, the
+transition is called \emph{deterministic transition}.
+If more than one successor states are included in $J.S_{succ}$, the
+transition is called \emph{conflict transition}.
 \end{definition}
 
 \begin{definition}\label{firing-rules}
-\emph{Firing rules} is a 5-tuple $M_{F} = (S, Q, \mathcal{T}, k, s_0)$ containing
+\emph{Firing rules} is a 5-tuple $M_{F} = (S, Q, \mathcal{J}, k, s_0)$ containing
 a set of \emph{firing states} $S$, a set of activation patterns $Q$,
-a set of interface actions $\mathcal{T}$, an action selection function
-$k: S \times Q \to \mathcal{T} \cup \bot$,
+a set of interface actions $\mathcal{J}$, an action selection function
+$k: S \times Q \to \mathcal{J} \cup \bot$,
 and a initial state $s_0 \in S$. An actor is inactive until at least
 one activation pattern $q$ is enabled which has a corresponding
 interface action in the current firing state $s \in S$ of the actor,
@@ -297,50 +308,80 @@ These firing rules are constructed by use of the following operations:
 \begin{itemize}
 \item call
 
-\emph{Call} is a operation which maps a node functionality and
-a firing state to an interface action $\mathrm{Call}: , i.e. $. a which return method defined on a which needs as parameters
-a node functionality and 
+\emph{Call} is a operation which maps a node functionality $F$ and
+a firing state $s$ to an interface action $J$,
+i.e. $\mathrm{Call}: \mathcal{F} \times S \to \mathcal{J}$.
+If the resulting interface action $J$ is included into a
+firing state $s_{c}$ it corresponds to a deterministic transition
+in the firing rules from the state $s_{c}$ to state $s$.
 
 \item branch
 
-\item choice
+\emph{Branch} is a operation which maps a node functionality $F$ and
+a set of firing state $S_{B}$ to an interface action $J$,
+i.e. $\mathrm{Call}: \mathcal{F} \times 2^S \to \mathcal{J}$.
+If the resulting interface action $J$ is included into a
+firing state $s_{c}$ it corresponds to a conflict transition
+in the firing rules from the state $s_{c}$ to a state $s \in S_{B}$.
+Which state $s$ is actually used is a runtime decission
+of the node functionality $F$.
+
+\item transition
+
+\emph{Transition} is a operation which maps an activation pattern $q$ and
+an interface action $J$ to an interface transition $T$,
+i.e. $\mathrm{Transition}: Q \times \mathcal{J} \to \mathcal{T}$.
 
 \item transact
+
+\emph{Transact} is a operation which maps an interface transition $T$
+to a firing state $s$,
+i.e. $\mathrm{Transact}: \mathcal{T} \to S$.
+The firing state created by this operation has only one outgoing
+transition $T$.
+
+\item choice
+
+\emph{Choice} is a operation which maps a set of interface transitions $\mathcal{T}$
+to a firing state $s$,
+i.e. $\mathrm{Choice}: 2^{\mathcal{T}} \to S$.
+The firing state created by this operation can have multiple outgoing
+transitions.
+
 \end{itemize}
 
-
-These firing rules are constructed by use of methods
-which are provided by the \emph{node interface}.
-
-These firing rules are constructed by use of methods
-which are provided by the \emph{node interface}.
-Furthermore, we distinguish three separate \emph{node interface types}
-by the set of mathods available to them:
+The set of operations available to construct the firing rules constraints
+the type of firing rules that can be constructed.
+Our methodology distinguishes three separate \emph{node interface types}
+by the set of operations available to them:
 
 \begin{definition}\label{choice-node-interface-type}
-  Choice node interface type
-  
-  \emph{Choice} is an operation defined on a set of actor ports $A_{P}$
-  and a function $D: A_{P} \to \mathcal{F}$, which maps each actor port
-  $a_{p} \in A_{P}$ to a function $F_{x} \in \mathcal{F}$.
-  The choice operation postpones the process execution 
-  until at least one actor port $a_{p} \in A_{P}$
-  becomes ready to communicate. The set of actor ports available
-  is given by $A_{P_{ready}}$.
-  Exactly one actor port $a_{p} \in A_{P_{ready}}$
-  will be chosen nondeterministically. After
-  finishing the communication on the chosen actor port $a_{p}$
-  the process execution will continue
-  with function $F_{continue} = D(a_{p})$.
+Choice node interface type has the operations
+\emph{transition}, \emph{choice}, \emph{transact}, \emph{call} and \emph{branch} available.
 \end{definition}
 
 \begin{definition}\label{transact-node-interface-type}
-  Transact node interface type
+Transact node interface type has the operations
+\emph{transition}, \emph{transact}, \emph{call} and \emph{branch} available.
 \end{definition}
 
 \begin{definition}\label{fixed-transact-node-interface-type}
-  Fixed transact node interface type
+Fixed transact node interface type has only the operations
+\emph{transition} and \emph{call} available.
 \end{definition}
+
+% \emph{Choice} is an operation defined on a set of actor ports $A_{P}$
+% and a function $D: A_{P} \to \mathcal{F}$, which maps each actor port
+% $a_{p} \in A_{P}$ to a function $F_{x} \in \mathcal{F}$.
+% The choice operation postpones the process execution 
+% until at least one actor port $a_{p} \in A_{P}$
+% becomes ready to communicate. The set of actor ports available
+% is given by $A_{P_{ready}}$.
+% Exactly one actor port $a_{p} \in A_{P_{ready}}$
+% will be chosen nondeterministically. After
+% finishing the communication on the chosen actor port $a_{p}$
+% the process execution will continue
+% with function $F_{continue} = D(a_{p})$.
 
 \section{Revision of Different MoCs}\label{revision-of-mocs}
 
