@@ -95,7 +95,7 @@ and extraction of these MoCs at the source code level automatically.
 This report deals with the representation of some %transformative
 MoCs in SystemC. The rest of the report is structured as follows:
 In Section~\ref{related-work}, we discuss related work. In
-Section~\ref{aspect-overview}, we propose our framework for
+Section~\ref{actor-oriented-design}, we propose our framework for
 representing MoCs in SystemC. In Section~\ref{revision-of-mocs},
 we show how some MoCs fit into
 the framework presented before. In Section~\ref{software-architecture},
@@ -137,32 +137,30 @@ extraction, and analysis of different MoCs is permitted.
 
 We use Lee's \emph{tagged signal model} introduced in \cite{Lee98} to
 distinguish MoCs and use it as starting point for our further
-discussions. This model consist of concurrent \emph{processes} which
-can only communicate with each other via \emph{signals}. Before we can review
-the tagged signal model some mathematic notations are needed.
+discussions. Before we can review the tagged signal model some mathematical
+notations are needed.
 
-Let $\{x_1,x_2\}$ denote a set without any order and
-$[y_1,y_2,y_3,\ldots]$ denote a totally ordered set with total order
-$y_1 \le y_2 \le y_3 \le \ldots$, e.g. $\{x_1,x_2\} = \{x_2,x_1\}$ but
+Let $\{x_1,x_2\}$ denote a set and $[y_1,y_2,y_3,\ldots]$ denote a set
+with total order $y_1 \le y_2 \le y_3 \le \ldots$, e.g., $\{x_1,x_2\} = \{x_2,x_1\}$ but
 $[y_1,y_2] \ne [y_2,y_1]$ and $\{x_1,x_1\} = \{x_1\}$ but $[ y_1, y_2, y_1, y_3]$
-is a illformed totally ordered set because it does not define a total order,
-e.g. $y_1 \le y_2 \wedge y_2 \le y_1$ but $y_1 \ne y_2$.
+is a \emph{illformed totally ordered set because} it does not define a total order,
+as $y_1 \le y_2 \wedge y_2 \le y_1$ but $y_1 \ne y_2$.
 
-Let $\mathbb{Z}$ denote the set of integers,
-$[1,2,3,\ldots] = \mathbb{N}$ the set of natural numbers,
-$[1,2,3,\ldots\infty] = \mathbb{N}^\infty$ the set of natural numbers including infinity,
-%$[\ldots,-3,-2,-1] = \mathbb{Z}^-$ the set of negative integers,
-$[0,1,2,3,\ldots] = \mathbb{Z}^+_0$ the set of nonnegative integers,
-$[0,1,2,3,\ldots\infty] = \mathbb{Z}^{+\infty}_0$ the set of nonnegative integers including infinity,
-%$[\ldots,-3,-2,-1,0] = \mathbb{Z}^-_0$ the set of nonpositive integers,
-and $[1,2,3,\ldots,n] = \mathbb{N}_n \subseteq \mathbb{N}^\infty$ the counting set from one to $n$
+Let $\mathbb{Z} = [\ldots,-2,-1,0,1,2,\ldots]$ denote the set of integers,
+$\mathbb{N} = [1,2,3,\ldots]$ the set of natural numbers,
+$\mathbb{N}^\infty = [1,2,3,\ldots\infty]$ the set of natural numbers including infinity,
+%$\mathbb{Z}^- = [\ldots,-3,-2,-1]$ the set of negative integers,
+$\mathbb{Z}^+_0 = [0,1,2,3,\ldots]$ the set of nonnegative integers,
+$\mathbb{Z}^{+\infty}_0 = [0,1,2,3,\ldots\infty]$ the set of nonnegative integers including infinity,
+%$\mathbb{Z}^-_0 = [\ldots,-3,-2,-1,0]$ the set of nonpositive integers,
+and $\mathbb{N}_n = [1,2,3,\ldots,n] \subseteq \mathbb{N}^\infty$ the counting set from one to $n$
 (Note that $\mathbb{N}_0 = \emptyset$).
 
 A totally ordered set $X$ is called \emph{two-sided discrete}
 if it is \emph{order isomorphic} to a subset of the integers $Z_X \subseteq \mathbb{Z}$,
 %and let $\Sigma(X): Z_X \to X$ denote this order isomorphism,
 i.e., $\exists{\Sigma(X): Z_X \to X, \Sigma(X)\textrm{ is a \emph{bijection}}}:
- \forall{i,j \in Z_X}: i < j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
+ \forall{i,j \in Z_X}: i \le j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
 Intuitively this means, any two elements
 $x_1, x_2 \in X$ have only a finite number of other elements between them.
 
@@ -170,12 +168,12 @@ A totally ordered set $X$ is called \emph{one-sided discrete} or \emph{discrete}
 if it is \emph{order isomorphic} to a subset of the natural numbers $\mathbb{N}_{|X|}$
 and let $\Sigma(X): \mathbb{N}_{|X|} \to X$ denote this order isomorphism,
 i.e., $\exists{\Sigma(X): \mathbb{N}_{|X|} \to X, \Sigma(X)\textrm{ is a \emph{bijection}}}:
- \forall{i,j \in \mathbb{N}_{|X|}}: i < j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
+ \forall{i,j \in \mathbb{N}_{|X|}}: i \le j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
 Intuitively this means,
 any two elements $x_1, x_2 \in X$ have only a finite number of other elements
 between them and there exists a least element $x_{least}, \forall{x \in X}: x_{least} \le x$.
-For example, given the discrete set $X = [`A', `B', `C']$ then
-$\Sigma(X)(1) = `A'$,  $\Sigma(X)(2) = `B'$, and $\Sigma(X)(3) = `C'$.
+For example, given the discrete set $X = ['A', 'B', 'C']$ then
+$\Sigma(X)(1) = 'A'$,  $\Sigma(X)(2) = 'B'$, and $\Sigma(X)(3) = 'C'$.
 
 Let $X^* = \bigcup_{N \in \mathbb{Z}^+_0} X^N$ denote the set of all
 \emph{tuples} of $X$ also called \emph{finite sequences} of $X$ and
@@ -183,15 +181,17 @@ $X^{**} = \bigcup_{N \in \mathbb{Z}^{+\infty}_0} X^N$ denote the set of all
 finite and infinite \emph{sequences} of $X$. A sequence
 $\mathbf{x} = (x_1,x_2,\ldots,x_n) \in X^n, n \in \mathbb{Z}^{+\infty}_0$
 can also be thought of as a function $\mathbf{x} : \mathbb{N}_n \to X$.
-For example, given the sequence $X = (`A', `B', `A', `C')$ then
-$X(1) = `A'$,  $X(2) = `B'$, $X(3) = `A'$, and $X(4) = `C'$.
+For example, given the sequence $X = ('A', 'B', 'A', 'C')$ then
+$X(1) = 'A'$,  $X(2) = 'B'$, $X(3) = 'A'$, and $X(4) = 'C'$.
 Note that a function is also a relation and a relation is also a set, e.g
 $\mathbf{x} : \mathbb{N}_n \to X \equiv \{ (i,x_i) \mid x_i = \mathbf{x}(i), i \in \mathbb{N}_n \}$.
 Note also that the $\Sigma$ function converts a discrete set to a sequence,
-e.g. $\Sigma([1,2,3]) = (1,2,3)$.
+e.g., $\Sigma([1,2,3]) = (1,2,3)$.
 
 \subsection{Events and Signals}
 
+Lee's \emph{tagged signal model} consist of concurrent \emph{processes} which
+can only communicate with each other via \emph{signals}.
 Before defining a signal, the notion of an event must be introduced first.
 Given a partially or totally ordered set of tags $T$ and a set of values $V$:
 \begin{definition}\label{tsm-event}
@@ -221,18 +221,18 @@ A functional signal can also be thought of as a (possibly partial) function
 from its set of tags to its set of values, i.e, $s: T \to V$.
 Intuitively, if tags represent time a functional signal is a signal which has
 at most one value at each instance of time. For example, 
-given the functional signal $s = \{(t_1,`A'),(t_2,`B'),(t_3,`C')\}$ then
-$s(t_1) = `A'$, $s(t_2) = `B'$, and $s(t_3) = `C'$.
+given the functional signal $s = \{(t_1,'A'),(t_2,'B'),(t_3,'C')\}$ then
+$s(t_1) = 'A'$, $s(t_2) = 'B'$, and $s(t_3) = 'C'$.
 Furthermore, $T(s) \subseteq T$ denotes the set of tags in the signal $s$,
 i.e., $T(s) = \{t \mid (t,v) \in s\}$. A \emph{discrete signal} is a functional
 signal $s$ which has a discrete set of tags $T(s)$.
 
 The $\Sigma$ function can be generalized to discrete signals.
-Each discrete signal $s \subseteq T \times V$ has a corresponding \emph{sequence} $\Sigma(s) \in V^{**}$.
+Each discrete signal $s \subseteq T \times V$ has a corresponding \emph{sequence} $\Sigma(s) \in V^{**}$,
 where the value $v = \Sigma(s)(i)$ on position $i$ is defined to be the value
 of the $i$-th event in the signal $s$, i.e.,  $\Sigma : S \to V^{**}, \Sigma(s) = \{(i,v) \mid (\Sigma(T(s))(i),v) \in s\}$.
-For example, given the discrete signal $s = [(t_1,`A'),(t_2,`B'),(t_3,`C')]$ then
-$\Sigma(s) = (`A',`B',`C')$. Note that a sequence $\mathbf{v} \in V^{**}$ is also a discrete signal with tags
+For example, given the discrete signal $s = [(t_1,'A'),(t_2,'B'),(t_3,'C')]$ then
+$\Sigma(s) = ('A','B','C')$. Note that a sequence $\mathbf{v} \in V^{**}$ is also a discrete signal with tags
 $T(\mathbf{v}) = \mathbb{N}_{|\mathbf{v}|}$.
 
 Two signals $s_1$ and $s_2$ are called \emph{sequence equivalent} if they
@@ -307,14 +307,15 @@ then $\mathbf{C}_I = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge \forall{i_1, i_
 \end{definition}
 
 If the two signals $s_i$ and $s_{i'}$ in a connection process $\mathbf{C}_{\{i,i'\}}$ are
-associated with the same process, e.g. as seen in Figure~\ref{fig:example-self-loop},
+associated with the same process, e.g., as seen in Figure~\ref{fig:example-self-loop},
 then the connection is called a self-loop.
 
 \begin{figure}[htb]
 \centering
 \input{example-self-loop-fig.tex}
-\caption{\label{fig:example-self-loop}
-  Display of a process $\mathbf{P}$ with self-loop $\mathbf{C}_{\{2,3\}}$}
+\caption{A process $\mathbf{P}$ with self-loop $\mathbf{C}_{\{2,3\}}$.
+         The signals $s_2$ and $s_3$ are constrained to be identical in
+         $\mathbf{C}_{\{2,3\}}$.\label{fig:example-self-loop}}
 \end{figure}
 
 Two processes $\mathbf{P_1}$ and $\mathbf{P_2}$ can be composed into
@@ -332,10 +333,10 @@ semantic role in composition.
 \begin{figure}[htb]
 \centering
 \input{example-tsm-composition-fig.tex}
-\caption{\label{fig:example-tsm-composition}
-  Composition of two processes $\mathbf{P}_1$, $\mathbf{P}_2$,
-  and the connection process $\mathbf{C}_{\{2,5\}}$ between them
-  into a new process $\mathbf{Q}' \ni (s'_1,s'_2,s'_3,s'_4)$.}
+\caption{Composition of two processes $\mathbf{P}_1$, $\mathbf{P}_2$,
+         and the connection process $\mathbf{C}_{\{2,5\}}$ between them
+         into a new process $\mathbf{Q}' \ni (s'_1,s'_2,s'_3,s'_4)$.
+         \label{fig:example-tsm-composition}}
 \end{figure}
 
 \begin{example}
@@ -344,7 +345,7 @@ $\mathbf{C}_{\{2,5\}}$ will be composed into a new process $\mathbf{Q}'$ accordi
 Figure~\ref{fig:example-tsm-composition}. However, the processes are
 not defined as subsets of the same set of signals
 ($(s_1,s_2,s_3) \in \mathbf{P}_1$ and $(s_4,s_5,s_6) \in \mathbf{P}_2$).
-Therefore both processes will be augmented with the missing signals
+Thus, both processes will be augmented with the missing signals
 ($(s_1,s_2,s_3,s_4,s_5,s_6) \in \mathbf{P}'_1 = \mathbf{P}_1 \times S^3$ and
  $(s_1,s_2,s_3,s_4,s_5,s_6) \in \mathbf{P}'_2 = S^3 \times \mathbf{P}_2$).
 Afterwards both processes and the connection process can be intersected to form
@@ -365,23 +366,24 @@ imposed contraint $\mathbf{I} \subset S^N$ such that
 $\mathbf{I} \cap \mathbf{P}$ is the set of acceptable behaviors.
 \end{definition}
 An input can assert the presence of a certain event $e = (t,v)$ in a signal,
-e.g. $\mathbf{I} = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge e \in \pi{}_{[1]}(\mathbf{s}) \}$.
-But generally an input defines a whole signal or set of signals.
+e.g., $\mathbf{I} = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge e \in \pi{}_{[1]}(\mathbf{s}) \}$.
+But generally, an input defines a whole signal or set of signals.
 Signals which are entirely defined externally are called \emph{input signals},
-e.g. given $\mathbf{I} = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge s_i = \pi{}_{[1]}(\mathbf{s})\}$ and
+e.g., given $\mathbf{I} = \{\mathbf{s} \mid \mathbf{s} \in S^N \wedge s_i = \pi{}_{[1]}(\mathbf{s})\}$ and
 $\mathbf{s} = (s_1, s_2)$ then $s_1$ is the input signal which
 is constrained to be $s_i$ by the input $\mathbf{I}$.
 
-\begin{equation}\label{equ:process-for-input-example}
+
+\begin{example}
+For example given the following process $\mathbf{P}$
+\label{ex:example-with-process-1}
+\begin{displaymath}
 \begin{array}{rll}
   \mathbf{P} = \{ & (\emptyset,\emptyset), (\{(1,0),(2,1)\},\{(2,1)\}), (\{(1,1),(2,0)\},\{(1,0)\})&\\
                   & (\{(2,0)\},\emptyset), (\{(1,0)\},\emptyset), (\{(1,1),(2,1)\},\{(1,0),(2,0)\})&\\
                   & (\{(2,1)\},\{(2,0)\}), (\{(1,0),(2,0)\},\emptyset), (\{(1,1)\},\{(1,0)\}) &\} \subset S^2\\
 \end{array}
-\end{equation}
-
-\begin{example}
-For example given the process $\mathbf{P}$ in Equation~(\ref{equ:process-for-input-example}),
+\end{displaymath}
 and the input $\mathbf{I} = \{\mathbf{s} \mid  \mathbf{s} \in S^2 \wedge \{(1,0),(2,1)\} = \pi{}_{[1]}(\mathbf{s})\}$
 which constrains the first signal of a process to be $\{(1,0),(2,1)\}$ then
 the resulting acceptable behaviors of the process $\mathbf{P}$ after being
@@ -390,6 +392,8 @@ constrained by $\mathbf{I}$ are as follows:
   \mathbf{I} \cap \mathbf{P} = \{\mathbf{s} \mid \mathbf{s} \in \mathbf{P} \wedge \{(1,0),(2,1)\} = \pi{}_{[1]}(\mathbf{s})\} =
                                \{(\{(1,0),(2,1)\},\{(2,1)\})\}\\
 \end{displaymath}
+In other words, if the input is $0$ and $1$ at times $1$ and $2$ respectively,
+the the output will be $1$ at time $2$.
 \end{example}
 
 %Some characteristics of processes can only be determined in combination with
@@ -406,9 +410,8 @@ to its set of possible inputs. A process without inputs is called
 no behaviors, i.e., $|\mathbf{P}| \le 1$.
 
 \begin{example}
-The process $\mathbf{P}$ given in
-Equation~(\ref{equ:process-for-input-example}) is determinate with respect
-to its set of possible inputs 
+The process $\mathbf{P}$ given in Example~\ref{ex:example-with-process-1}
+is determinate with respect to its set of possible inputs 
 $\mathbf{B}_1 = \{ \{\mathbf{s} \mid \mathbf{s} \in S^2 \wedge s_i = \pi{}_{[2]}(\mathbf{s})\} \mid
                   s_i \in \{\{(2,0)\},\{(2,1)\},\{(1,0),(2,0)\}\} \}$
 but nondeterminate with respect to its set of possible inputs 
@@ -419,7 +422,7 @@ because $\mathbf{P} \cap \{\mathbf{s} \mid \mathbf{s} \in S^2 \wedge \{(1,0)\} =
 \end{example}
 
 A process $\mathbf{P}$ is called \emph{sequence determinate} with respect
-to its set of possible inputs $\mathbf{B} \subseteq 2^{S^N}$, if after being
+to its set of possible inputs $\mathbf{B} \subseteq 2^{S^N}\!\!$, if after being
 constrained by its inputs, its behaviors are all sequence equivalent
 for each input $\mathbf{I} \in \mathbf{B}$,
 i.e., $\forall{\mathbf{I} \in \mathbf{B}, \mathbf{s}_1, \mathbf{s}_2 \in \mathbf{P} \cap \mathbf{I}}: \Sigma(\mathbf{s}_1) = \Sigma(\mathbf{s}_2)$.
@@ -429,9 +432,9 @@ i.e., $\forall{\mathbf{s}_1, \mathbf{s}_2 \in \mathbf{P}}: \Sigma(\mathbf{s}_1) 
 
 \begin{equation}\label{equ:process-for-sequence-determinate-example}
 \begin{array}{rll}
-  \mathbf{P}_1 = \{ & ([(1.5,`A'),(1.6,`B')]),([(-3.14,`A'),(16,`B')]) & \} \subseteq S^1\\
-  \mathbf{P}_2 = \{ & ([(1.5,`A'),(1.6,`C')]),([(-3.14,`A'),(16,`B')]) & \} \subseteq S^1\\
-  \mathbf{P}_3 = \{ & ([(1.5,`B'),(1.6,`A')]),([(-3.14,`A'),(16,`B')]) & \} \subseteq S^1\\
+  \mathbf{P}_1 = \{ & ([(1.5,'A'),(1.6,'B')]),([(-3.14,'A'),(16,'B')]) & \} \subseteq S^1\\
+  \mathbf{P}_2 = \{ & ([(1.5,'A'),(1.6,'C')]),([(-3.14,'A'),(16,'B')]) & \} \subseteq S^1\\
+  \mathbf{P}_3 = \{ & ([(1.5,'B'),(1.6,'A')]),([(-3.14,'A'),(16,'B')]) & \} \subseteq S^1\\
 \end{array}
 \end{equation}
 
@@ -449,8 +452,8 @@ divides the signals in a behavior of a process into input signals and output sig
 A \emph{input/output partition} $(I,O) \in \left( 2^{\mathbb{N}_N} \right)^2$
 of a process $\mathbf{P} \subseteq S^N$ is a pair of discrete sets,
 where $I \cap O = \emptyset$ and $|I \cup O| = N$. The signals in
-a behaviour on indexes in $I$ are input signals and the
-signals on indexes in $O$ are output signals.
+a behaviour on indeces in $I$ are input signals and the
+signals on indeces in $O$ are output signals.
 \end{definition}
 A Process $\mathbf{P} \subseteq S^N$ is called \emph{functional} with
 respect to a input/output partition $(I,O)$ if for each pair of
@@ -463,11 +466,12 @@ Otherwise a process is called \emph{nonfunctional} with respect to a
 input/output partition.
 
 \begin{example}
-The process given in Equation~(\ref{equ:process-for-input-example})
+The process given in Example~\ref{ex:example-with-process-1}
 is functional with respect to the input/output partition $(I,O) = ([1],[2])$
-but nonfunctional for partition $(I,O) = ([2],[1])$. Whereas the connection process
+but nonfunctional for partition $(I,O) = ([2],[1])$. Whereas a connection process
 $\mathbf{C}_{\{1,2\}} \subseteq S^2$ is functional for both
 input/output partitions $(I,O) = ([1],[2])$ and $(I,O) = ([2],[1])$.
+This is due to the constraints imposed on the two signals.
 \end{example}
 
 A Process $\mathbf{P} \subseteq S^N$ is called \emph{sequence functional} with
@@ -497,10 +501,9 @@ have occured during the execution of the process $\mathbf{P}$.
 \begin{figure}[htb]
 \centering
 \input{example-csp-tsm-fig.tex}
-\caption{\label{fig:example-csp-tsm}
-  Display of two sequential processes $\mathbf{P}_1$ and $\mathbf{P}_2$
-  and a connection $\mathbf{C}_{\{3,4\}}$ used for rendezvous
-  communication between these two sequential processes.}
+\caption{Two sequential processes $\mathbf{P}_1$ and $\mathbf{P}_2$
+         and a connection $\mathbf{C}_{\{3,4\}}$ used for rendezvous
+         communication between these two processes. \label{fig:example-csp-tsm}}
 \end{figure}
 
 \emph{Communicating Sequential Processes} is a MoC introduced by Hoare
@@ -535,12 +538,12 @@ where the two processes must have a rendezvous.
 
 \emph{Kahn Process Network} is a MoC introduced by Kahn \cite{kahn:1974}
 which consists of processes which communicate with each other via
-unidirectional unbound FIFO \emph{channels} with a  single reader and
+unidirectional unbounded FIFO \emph{channels} with a  single reader and
 a single writer. The FIFO property implies that each signal $s$ in any
 behavior $\mathbf{s}$ of any Kahn process in the Kahn Process Network
 is discrete. But the set of all tags $T$ is in general only partially ordered.
 
-Before formally defining a Kahn Process we first need a partial order on
+Before formally defining a Kahn Process, we first need a partial order on
 the set $V^{**}$. A set with an associated partial order is called a
 \emph{poset}. Let $\sqsubseteq$ called \emph{prefix order} denote the
 associated partial order on the set $V^{**}$ of all finite and infinite sequences of $V$.
@@ -549,15 +552,15 @@ $\mathbf{v}_1$ is a prefix of the sequence $\mathbf{v}_2$, i.e.,
 $\mathbf{v}_1 \sqsubseteq \mathbf{v}_2 \iff \forall{n \in T(\mathbf{v}_1)}: \mathbf{v}_1(n) = \mathbf{v}_2(n)$.
 
 An \emph{upper bound} of a subset $X \subseteq V^{**}$ is an element
-$\mathbf{v} \in V^{**}$ where every sequence in $X$ is a prefix of $\mathbf{x}$,
-i.e., $\forall{\mathbf{x} \in X}: \mathbf{v} \sqsubseteq \mathbf{x}$.
+$\mathbf{v} \in V^{**}$ where every sequence $\mathbf{x}$ in $X$ is a
+prefix of $\mathbf{v}$, i.e., $\forall{\mathbf{x} \in X}: \mathbf{x} \sqsubseteq \mathbf{v}$.
 A \emph{least upper bound} of a subset $X \subseteq V^{**}$, written $\sqcup X$,
 is an upper bound which is a prefix of every other upper bound of $X$.
 A \emph{lower bound} and \emph{greatest lower bound} of $X \subseteq V^{**}$,
 written $\sqcap X$, are defined respectively.
 
 A \emph{chain} in a poset $X$ is a totally ordered subset of $X$. A
-\emph{bottom element} of a poset $X$, if it exists, is element of the
+\emph{bottom element} of a poset $X$, if it exists, is an element of the
 poset which is also a greatest lower bound of the whole poset $\sqcap X \in X$.
 A \emph{complete partial order} is a poset $X$ with a bottom element
 in which every chain $Y \subseteq X$ has a least upper bound
@@ -619,33 +622,34 @@ $\forall{i_1 \in \mathbb{N}_{|s_1|}, i_2 \in \mathbb{N}_{|s_2|}}: i_1 \le 2 \cdo
 %The read and write actions by a Kahn process are translated into
 %ordering constraints on events between different signals of the process.
 
-\section{Aspect Overview}\label{aspect-overview}
+\section{Actor-Oriented Design}\label{actor-oriented-design}
+
+Instead of a monolithic approach for representing an executable specification
+of an embedded system,
+in this report, we will use a refinement of \emph{actor-oriented} design.
+In actor-oriented design, \emph{actors} only
+communicate with each other via \emph{channels} instead of method calls as known
+in object-oriented design.
 
 A model of computation is defined in \cite{embsft:2002} as the
-interaction policy between \emph{actors} in an \emph{actor-oriented} design
+interaction policy between actors in an actor-oriented design
 \cite{agha97abstracting:1997}. Actors are objects which execute concurrently. They can only
 communicate with the environment (other actors) through their \emph{actor ports}.
-The actor ports are connected with each other via \emph{channels}.
-This concepts are related to tagged signal model in the following way:
+The actor ports are connected with each other via channels.
+These concepts are related to the tagged signal model in the following way:
 (i) actors are processes with a predetermined input/output partition
 (ii) actor ports are used to name signals and are equivalent to the position of signals in
 a behavior of a process
 (iii) channels are processes too.
 
-% The data values, which are communicated over the channels
-% are abstracted. Thus, these data are called \emph{tokens} regardless
-% of their type or value.
-
-Instead of a monolithic approach for representing an executable specification,
-in this report, we will separate a specification into several
-independent \emph{aspects}.
-This is a refinement of actor-oriented design.
-In actor-oriented design, actors only
-communicate with each other via channels instead of method calls as known
-in object-oriented design. In our proposed methodology, the specification is more
+In our proposed methodology, the specification is more
 detailed than in actor-oriented design. The actor is divided into
 its \emph{node functionality} and its \emph{firing rules}. The
 type of firing rules an actor can show is dependent on its \emph{node interface}.
+
+% The data values, which are communicated over the channels
+% are abstracted. Thus, these data are called \emph{tokens} regardless
+% of their type or value.
 
 \begin{sdefinition}\label{actor}
 An actor is a tupple $A=(\mathcal{F},\mathcal{R},I,O)$ containing
@@ -656,12 +660,16 @@ a set of \emph{actor input ports} $I$, and a set of \emph{actor output ports} $O
 However these aspects are not sufficient for distinguishing MoCs.
 The communication network used by actors must be considered as well.
 These infrastructure is seperated into \emph{network graph} and
-\emph{channel kind}. An aspect can be further divided into
-\emph{aspect types} by different constraints imposed on an aspect.
-In the following, the aspects and their further
-differentiation into aspect types is discussed in depth:
+\emph{channel kind}. In the following , the four parts of our actor
+oriented-design will be discussed in detail. Moreover, we will define
+different types of these parts in order to allow the identification
+of different MoCs.
 
-%In particular, four different aspects for distinguishing MoCs can be identified.
+% An aspect can be further divided into
+% \emph{aspect types} by different constraints imposed on an aspect.
+% In the following, the aspects and their further
+% differentiation into aspect types is discussed in depth:
+% In particular, four different aspects for distinguishing MoCs can be identified.
 
 \subsection{Network Graph}\label{network-graph} 
 
@@ -709,16 +717,16 @@ the set of all input and output ports of an actor is given by $\mathcal{P}_{A} =
 
 There are two \emph{network graph types} which are distinguished in our methodology:
 
-\begin{definition}\label{petri-network-graph}
-  A \emph{Petri network graph} is constrained such that exactly
+\begin{definition}\label{conflicting-network-graph}
+  A \emph{conflicting network graph} is constrained such that exactly
   one edge is incident to each actor port,
   i.e., $\forall{p \in \mathcal{P}}: |((\{p\} \times C) \cup (C \times \{p\})) \cap E| = 1$.
 \end{definition}
 
 \begin{figure}
 \centering
-%\includegraphics[scale=1]{fig:ng-petri.\graphicPostfix}\\
-\input{ng-petri-fig.tex}
+%\includegraphics[scale=1]{fig:ng-conflicting.\graphicPostfix}\\
+\input{ng-conflicting-fig.tex}
 \begin{displaymath}
 \begin{array}{rcl}
   G_N & = & (\mathcal{A},C,E) \\
@@ -730,31 +738,32 @@ There are two \emph{network graph types} which are distinguished in our methodol
       &   &   (c_3,A_3.i_1),(A_3.o_1,c_4),(c_4,A_3.i_2),(A_4.o_1,c_4),(c_4,A_4.i_1)\}\\
 \end{array}
 \end{displaymath}
-\caption{\label{fig:ng-petri}In a \emph{petri network graph} exactly
+\caption{\label{fig:ng-conflicting}In a \emph{conflicting network graph} exactly
   one edge is incident to an actor port. Multiple edges can
-  enter and leave a channel, e.g. channel $c_4$
+  enter and leave a channel, e.g., channel $c_4$
   which has both an indegree and outdegree of two.}
 \end{figure}
 
-  An example of a petri network graph is shown in Figure~\ref{fig:ng-petri}.
-  It demonstrates the use of a petri network graph for modeling
-  a Multiply-Accumulate-Unit which accumulates in channel $c_4$ the product of
-  the values generated by the source actor $A_1$.
+  An example of a conflicting network graph is shown in Figure~\ref{fig:ng-conflicting}.
+  It demonstrates the use of a conflicting network graph for modeling
+  a Multiply-Accumulate-Unit which accumulates in channel $c_4$ the
+  product of the values generated by the source actor $A_1$.
   The controller actor $A_4$ can replace the
-  accumulated value in $c_4$ by using the nondeterminism
-  of the petri network graph which allows to read/write the value of channel
-  $c_4$ from different actors to either accumulate additional
-  data via actor $A_3$ or exchange the value via actor $A_4$.
+  accumulated value in $c_4$ by using the conflict at channel $c_4$ which
+  allows to read/write the values in the channel from different actors.
+  This can be used to either accumulate additional data via actor $A_3$
+  or exchange the value via actor $A_4$.
 
-\begin{definition}\label{dataflow-network-graph}
-  A \emph{Dataflow network graph} is a petri network graph with the additional constraint
-  that the indegree and outdegree of each channel in the graph is exactly one, i.e.,
+\begin{definition}\label{noconflicting-network-graph}
+  A \emph{nonconflicting network graph} is a conflicting network graph with the
+  additional constraint that the indegree and outdegree of each channel in
+  the graph is exactly one, i.e.,
   $\forall{c \in C}: |(\{c\} \times \mathcal{P}_I) \cap E| = 1 \wedge
-                    |(\mathcal{P}_O \times \{c\}) \cap E| = 1$.
+                     |(\mathcal{P}_O \times \{c\}) \cap E| = 1$.
 \end{definition}
 
-  An example of a dataflow network graph is shown in Figure~\ref{fig:ng-dataflow}.
-  It demonstrates the use of a dataflow network graph for modeling
+  An example of a nonconflicting network graph is shown in Figure~\ref{fig:ng-nonconflicting}.
+  It demonstrates the use of a nonconflicting network graph for modeling
   a Multiply-Accumulate-Unit which accumulates in channel $c_4$ or $c_5$ the product of
   the values generated by the source actor $A_1$.
   Additionally each token received by the duplicator actor $A_4$ via actor port $A_4.i_1$
@@ -764,8 +773,8 @@ There are two \emph{network graph types} which are distinguished in our methodol
 
 \begin{figure}
 \centering
-%\includegraphics[scale=1]{fig:ng-dataflow.\graphicPostfix}\\
-\input{ng-dataflow-fig.tex}
+%\includegraphics[scale=1]{fig:ng-nonconflicting.\graphicPostfix}\\
+\input{ng-nonconflicting-fig.tex}
 \begin{displaymath}
 \begin{array}{rcl}
   G_N & = & (\mathcal{A},C,E) \\
@@ -778,7 +787,7 @@ There are two \emph{network graph types} which are distinguished in our methodol
       &   &   (A_4.o_2,c_6),(c_6,A_5.i_1)\} \\
 \end{array}
 \end{displaymath}
-\caption{\label{fig:ng-dataflow} In a \emph{dataflow network graph} exactly
+\caption{\label{fig:ng-nonconflicting} In a \emph{nonconflicting network graph} exactly
   one edge is incident to an actor port and the channels are
   constraint to have an indegree and outdegree of exactly one.
   Hence, the channels can only be used for dedicated
@@ -795,9 +804,9 @@ the type of the communicated data. Examples for channel kinds are:
 
 \begin{itemize}
 \item \label{channel-kind-fifo} FIFO:
-  An unbound FIFO channel for communication
+  An unbounded FIFO channel for communication
   (nonblocking write and blocking read) implementing
-  an first in first out discipline.
+  a first in first out discipline.
 
 \item \label{channel-kind-rendezvous} Rendezvous:
   A rendezvous channel for communication % and barrier synchronisation
@@ -834,46 +843,24 @@ and a functionality state $q_i \in Q$ to a fixed number of output values
 $(v_{o1},v_{o2},\ldots,v_{oM}) = \mathbf{v}_o \in V^M$ and a new
 functionality state $q_{i+1} \in Q$, i.e.,  $f: V^N \times Q \to V^M \times Q$.
 
-\begin{figure}[h]
-\centering
-\begin{verbatim}
-class my_actor ... {
-  hscd_port_in<int>  i1, i2; // actor input port i1, i2
-  hscd_port_out<int> o1;     // actot output port o1
-  ...
-  // qi the functionality state
-  uint32_t sum;
-  ...
-  void accumulate()       { // A function of the node functionality
-    sum +=                  // update functionality state
-           i1[0] * i1[1];   // access position 0 and 1 of the temporary buffer in i1
-    o1[0] = sum;          } // update position 0 of the temporary buffer in o1
-  void reset()   { // A function of the node functionality
-    sum = i2[0]; } // update functionality state with the value
-                   // in position 0 of the temporary buffer in i2
-  ...
-  my_actor( ... ) : sum = 0, ... { ... }
-};
-\end{verbatim}
-\caption{Example of an node functionality
-($F = \{\textrm{accumulate}, \textrm{reset}\}$, $Q= [0,1,\ldots,2^{32}-1]$, $q_1 = 0$)
-in the \SysteMoC{} framework}\label{example-node-functionality}
-\end{figure}
-
 The functions in the node functionality can be implemented by any
-programming language (E.g. C++ in case of the \SysteMoC{} framework, See Figure~\ref{example-node-functionality})
+programming language % (E.g. C++ in case of the \SysteMoC{} framework, See Figure~\ref{example-node-functionality})
 but the user must guarantee, that the functions
-(i) terminate, and (ii) do not communicate with other actors.
+(i) terminate, and (ii) do not communicate directly with other actors
+avoiding the \SysteMoC communication mechanism.
 % The node functionality is the only aspect which is not
 % further distinguished into aspect types.
 The input values $v_{i1}, v_{i2}, \ldots$ are provided by the firing rules
-which receive them from the channels connected to the actor input ports. The
-firing rules store the input values in temporary buffers in these actor input ports
-for later usage by the functions of the node functionality. The output values
-$v_{o1}, v_{o2}, \ldots$ are stored by the functions of the node functionality
-in temporary buffers in the actor output ports. These temporary buffers
-are sent to the channels connected to these actor output ports by the
-firing rules.
+which receive them from the channels connected to the actor input ports.
+The output values $v_{o1}, v_{o2}, \ldots$ produced by the execution of
+the node functionality are later written to the actor output ports by
+the firing rules.
+
+%The firing rules store the input values in temporary buffers in the actor input ports
+%for later usage by the functions of the node functionality.
+%The node functionality stores the output values in temporary buffers in the actor output ports
+%These temporary buffers are sent to the channels connected to these actor output ports by the
+%firing rules.
 
 \subsection{Node Interface}\label{node-interface}
 
@@ -955,14 +942,16 @@ if the associated interface action $J$ has only one successor state, i.e.,
 $|J.Q_\mathrm{succ}| = 1$.
 A transition $\mathbf{t} = (k,J)$ is called a \emph{conflict transition}
 if the associated interface action $J$ has more then one possible
-successor state, i.e., $|J.Q_\mathrm{succ}| \ge 1$.
+successor state, i.e., $|J.Q_\mathrm{succ}| > 1$.
 
+The notion of firing is similar to the concepts introduced in
+SPI~\cite{ZERTT99a} and FunState~\cite{STZETG00}.
 If a transition $\mathbf{t} = (k,J)$ is taken first the assosciated
 activation pattern $k$ then the function $J.f$ of the node functionality
 is executed. In case of a deterministic transition the current firing
 state is updated to the single successor state in $J.Q_\mathrm{succ}$.
 In case of a conflict transition the successor state actually used is
-a runtime decission of the function $J.f$.
+a runtime decision of the function $J.f$.
 
 These firing rules are constructed by use of the following operations:
 
@@ -1168,7 +1157,7 @@ analysis characteristics must be given:
 
 The characteristics \ref{characteristic-csp-rendezvous} -
 \ref{characteristic-csp-communication} of the CSP MoC are mapped in the following way
-onto the aspects presented in Section~\ref{aspect-overview}:
+onto the aspects presented in Section~\ref{actor-oriented-design}:
 (i) The rendezvous communication %(Requirement~\ref{characteristic-csp-rendezvous})
 used by CSP is provided by the channel kind rendezvous. %(See~\ref{channel-kind-rendezvous})
 (ii) Hoare's general choice communication operator %(Requirement~\ref{characteristic-csp-general-choice})
@@ -1177,7 +1166,7 @@ is provided as a operation in the choice node interface. %(See~\ref{choice-node-
 created by the init functions are mapped to the concurrently executing actors.
 %% (Subsection~\ref{node-functionality} and Subsection~\ref{node-interface})
 (iv) The Point-to-Point communication of CSP over rendezvous channels %(Requirement~\ref{characteristic-csp-communication})
-is provided by the dataflow network graph %(See~\ref{dataflow-network-graph})
+is provided by the nonconflicting network graph %(See~\ref{noconflicting-network-graph})
 and its contained rendezvous channels, which are the only means of communication in a
 actor-oriented design.
 
@@ -1213,7 +1202,7 @@ The following execution characteristics are required to
 implement the KPN MoC:
 
 \begin{characteristic}\label{characteristic-kpn-fifo}
-  An unbound FIFO channel for communication
+  An unbounded FIFO channel for communication
 \end{characteristic}
 
 \begin{characteristic}\label{characteristic-kpn-fifo-read-write}
@@ -1257,13 +1246,13 @@ characteristics must be satisfied:
 
 The characteristics \ref{characteristic-kpn-fifo} -
 \ref{characteristic-kpn-determinism} of the KPN MoC are mapped in the following way
-onto the aspects presented in Section~\ref{aspect-overview}:
+onto the aspects presented in Section~\ref{actor-oriented-design}:
 (i) The FIFO communication
 used by dataflow is provided by the FIFO channel kind.
 (ii) The fixed set of concurrently executing processes
 are mapped to the concurrently executing actors.
 (iii) The Point-to-Point communication of dataflow over FIFO channels
-is provided by the dataflow network graph
+is provided by the nonconflicting network graph
 and its contained FIFO channels, which are the only means of communication in a
 actor-oriented design.
 (iv) Read and write operations on this FIFOs are provided by
@@ -1314,7 +1303,7 @@ respectively.
 
 The characteristics \ref{characteristic-kpn-fifo} -
 \ref{characteristic-sdf-fixed-rates} of the SDF MoC are mapped in the following way
-onto the aspects presented in Section~\ref{aspect-overview}: (i) - (iii) is identical
+onto the aspects presented in Section~\ref{actor-oriented-design}: (i) - (iii) is identical
 to the KPN MoC.
 (iv) Read and write operations on the FIFOs are provided by the transact
 operation of the fixed transact node interface.
@@ -1356,6 +1345,32 @@ by the actor member functions and can be used to get input data
 and put output data for the node functionality
 (See Figure~\ref{example-adder-actor} and Figure~\ref{example-multiply-actor}
  for an example of a node functionality encapsulated in the method \code{transform}).
+
+\begin{figure}[h]
+\centering
+\begin{verbatim}
+class my_actor ... {
+  hscd_port_in<int>  i1, i2; // actor input port i1, i2
+  hscd_port_out<int> o1;     // actot output port o1
+  ...
+  // qi the functionality state
+  uint32_t sum;
+  ...
+  void accumulate()       { // A function of the node functionality
+    sum +=                  // update functionality state
+           i1[0] * i1[1];   // access position 0 and 1 of the temporary buffer in i1
+    o1[0] = sum;          } // update position 0 of the temporary buffer in o1
+  void reset()   { // A function of the node functionality
+    sum = i2[0]; } // update functionality state with the value
+                   // in position 0 of the temporary buffer in i2
+  ...
+  my_actor( ... ) : sum = 0, ... { ... }
+};
+\end{verbatim}
+\caption{Example of an node functionality
+($F = \{\textrm{accumulate}, \textrm{reset}\}$, $Q= [0,1,\ldots,2^{32}-1]$, $q_1 = 0$)
+in the \SysteMoC{} framework}\label{example-node-functionality}
+\end{figure}
 
 \begin{figure}[h]
 \centering
@@ -1631,8 +1646,8 @@ Therefore, the network graph type of a network graph can be determined by lookin
 at the base class of the network graph class.
 The network graph types are mapped to C++ class types as follows:
 (i) The petri network graph is represented by the \code{hscd\_graph\_petri} class.
-(ii) And the dataflow network graph is represented by the \code{hscd\_graph\_dataflow} class.
-Of the two network graph types the dataflow network graph is the more constraint
+(ii) And the nonconflicting network graph is represented by the \code{hscd\_graph\_dataflow} class.
+Of the two network graph types the nonconflicting network graph is the more constraint
 one. Therefore, it is implemented by deriving from the petri network graph
 and disabling by declaring private the \code{registerChan} and \code{connectChanPort}
 methods which allow the creation of channels with multiple indegree and outdegree.
@@ -1741,7 +1756,7 @@ class types is as follows:
 
 In Section~\ref{revision-of-mocs} we have demonstrated how
 to map the requirements of some MoCs to the aspects presented
-in Section~\ref{aspect-overview}. Furthermore, the analysis
+in Section~\ref{actor-oriented-design}. Furthermore, the analysis
 requirement of these MoCs translate into certain constraints
 on the aspects presented before. These constraints are
 used to distinguish an aspect into aspect types. Therefore
