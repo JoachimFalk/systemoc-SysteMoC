@@ -306,22 +306,37 @@ composition of actors is required. This information is stored in
 the \emph{network graph}.
 
 \begin{definition}
-A network graph is a 5-tuple $N=(\mathcal{A},C,P_{i},P_{o},E)$ containing
-a set of actors $\mathcal{A}$, a set of channels $C$, a set of uplevel
-input ports $P_{i}$, a set of uplevel output ports $P_{o}$ and a set of
-directed edges $E \subseteq ((P_{i} \cup C) \times \mathcal{A}_{P_{i}})
-\cup (\mathcal{A}_{P_{o}} \times (P_{o} \cup C))$, where
-$\mathcal{A}_{P_{i}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{i}}$
-is the set of all actor input ports of the network graph and
-$\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$
-is the set of all actor output ports of the network graph.
+A network graph is a directed bipartite graph $G_N=(\mathcal{A},C,E)$ containing
+a set of actors $\mathcal{A}$, a set of channels $C$, and a set of
+directed edges $E \subseteq (C \times \mathcal{P}_I)
+\cup (\mathcal{P}_O \times C)$, where
+$\mathcal{P}_I = \bigcup{}_{A \in \mathcal{A}} A.I$
+is the set of actor input ports of all actors in the network graph and
+$\mathcal{P}_O = \bigcup{}_{A \in \mathcal{A}} A.O$
+is the set of actor output ports of all actors in the network graph.
 Each actor $A \in \mathcal{A}$ can only communicate with other actors
-through its dedicated actor input ports $A_{P_{i}}$ and
-actor output ports $A_{P_{o}}$.
-Furthermore, the set of all input and output ports of an actor
-is given by $A_{P} = A_{P_{i}} \cup A_{P_{o}}$ and
-the set of all actor input and actor output ports of the network graph
-is given by $\mathcal{A}_{P} = \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}}$.
+through its dedicated actor input ports $A.I$ and
+actor output ports $A.O$.
+Furthermore, the set of all actor input and actor output ports of all actors in
+the network graph is given by $\mathcal{P} = \mathcal{P}_I \cup \mathcal{P}_O$ and
+the set of all input and output ports of an actor is given by $\mathcal{P}_{A} = A.I \cup A.O$.
+
+% A network graph is a 5-tuple $N=(\mathcal{A},C,P_{i},P_{o},E)$ containing
+% a set of actors $\mathcal{A}$, a set of channels $C$, a set of uplevel
+% input ports $P_{i}$, a set of uplevel output ports $P_{o}$ and a set of
+% directed edges $E \subseteq ((P_{i} \cup C) \times \mathcal{A}_{P_{i}})
+% \cup (\mathcal{A}_{P_{o}} \times (P_{o} \cup C))$, where
+% $\mathcal{A}_{P_{i}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{i}}$
+% is the set of all actor input ports of the network graph and
+% $\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$
+% is the set of all actor output ports of the network graph.
+% Each actor $A \in \mathcal{A}$ can only communicate with other actors
+% through its dedicated actor input ports $A_{P_{i}}$ and
+% actor output ports $A_{P_{o}}$.
+% Furthermore, the set of all input and output ports of an actor
+% is given by $A_{P} = A_{P_{i}} \cup A_{P_{o}}$ and
+% the set of all actor input and actor output ports of the network graph
+% is given by $\mathcal{A}_{P} = \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}}$.
 
 \end{definition}
 
@@ -330,57 +345,76 @@ There are two \emph{network graph types} which are distinguished in our methodol
 \begin{definition}\label{petri-network-graph}
   A \emph{Petri network graph} is constrained such that exactly
   one edge is incident to each actor port,
-  i.e., $\forall{p \in \mathcal{A}_{P}}: |(C \times \{p\}) \cap E| = 1$.
+  i.e., $\forall{p \in \mathcal{P}}: |((\{p\} \times C) \cup (C \times \{p\})) \cap E| = 1$.
 \end{definition}
 
 \begin{figure}
 \centering
 %\includegraphics[scale=1]{ng-petri.\graphicPostfix}\\
 \input{ng-petri-fig.tex}
+\begin{displaymath}
+\begin{array}{rcl}
+  G_N & = & (\mathcal{A},C,E) \\
+  \mathcal{A} & = & \{A_1,A_2,A_3,A_4\} \\
+      &   & A_1.I = \emptyset, A_1.O=\{o_1,o_2\}, A_2.I = \{i_1,i_2\}, A_2.O=\{o_1\},\\
+      &   & A_3.I = \{i_1,i_2\}, A_3.O=\{o_1\},A_4.I = \{i_1\}, A_4.O=\{o_1\}\\
+  C   & = & \{c_1,c_2,c_3,c_4\} \\
+  E   & = & \{(A_1.o_1,c_1),(c_1,A_2.i_1),(A_1.o_2,c_2),(c_2,A_2.i_2),(A_2.o_1,c_3),\\
+      &   &   (c_3,A_3.i_1),(A_3.o_1,c_4),(c_4,A_3.i_2),(A_4.o_1,c_4),(c_4,A_4.i_1)\}\\
+\end{array}
+\end{displaymath}
 \caption{\label{ng-petri}In a \emph{petri network graph} exactly
-  one edge enters an actor input port. The
-  indegree and outdegree of channels are
-  unconstraint. See for example channel $c_2$
-  which has both an indegree and outdegree of
-  two.}
+  one edge is incident to an actor port. Multiple edges can
+  enter and leave a channel, e.g. channel $c_4$
+  which has both an indegree and outdegree of two.}
 \end{figure}
 
   An example of a petri network graph is shown in Figure~\ref{ng-petri}.
   It demonstrates the use of a petri network graph for modeling
-  a Multiply-Accumulate-Unit which accumulates in channel $c_2$ the product of
-  the values read from the uplevel input ports $p_{i_1}$ and $p_{i_2}$.
-  The uplevel input port $p_{i_3}$ is used to exchange the
-  accumulated value in $c_2$ with the input from $p_{i_3}$. The
-  old value of $c_2$ is send to the uplevel output port $p_{o_1}$
-  via the exchange actor $a_3$. The model uses the nondeterminism
-  of the petri network graph which allows to read the value of channel
-  $c_2$ from different actors to either accumulate additional
-  data via actor $a_2$ or exchange the value via actor $a_3$.
+  a Multiply-Accumulate-Unit which accumulates in channel $c_4$ the product of
+  the values generated by the source actor $A_1$.
+  The controller actor $A_4$ can replace the
+  accumulated value in $c_4$ by using the nondeterminism
+  of the petri network graph which allows to read/write the value of channel
+  $c_4$ from different actors to either accumulate additional
+  data via actor $A_3$ or exchange the value via actor $A_4$.
 
 \begin{definition}\label{dataflow-network-graph}
   A \emph{Dataflow network graph} is a petri network graph with the additional constraint
   that the indegree and outdegree of each channel in the graph is exactly one, i.e.,
-  $\forall{c \in C}: |(\{c\} \times \mathcal{A}_{P_{i}}) \cap E| = 1 \wedge
-                    |(\mathcal{A}_{P_{o}} \times \{c\}) \cap E| = 1$.
+  $\forall{c \in C}: |(\{c\} \times \mathcal{P}_I) \cap E| = 1 \wedge
+                    |(\mathcal{P}_O \times \{c\}) \cap E| = 1$.
 \end{definition}
 
   An example of a dataflow network graph is shown in Figure~\ref{ng-dataflow}.
   It demonstrates the use of a dataflow network graph for modeling
-  a Multiply-Accumulate-Unit. The accumulation is done in channel $c_2$ and $c_3$
-  by adding to the already accumulated value the product of
-  the values read from the uplevel input ports $p_{i_1}$ and $p_{i_2}$.
-  Additionally for each value pair from $p_{i_1}$ and $p_{i_2}$ the
-  new accumulated value is send to the output port $p_{o_1}$ via
-  the duplicate actor $a_3$. This actor duplicates its received
-  value on $a_{3_{pi1}}$ to its outputs $a_{3_{po1}}$ and $a_{3_{po2}}$.
+  a Multiply-Accumulate-Unit which accumulates in channel $c_4$ or $c_5$ the product of
+  the values generated by the source actor $A_1$.
+  Additionally each token received by the duplicator actor $A_4$ via actor port $A_4.i_1$
+  is forwarded to both actor output ports $A_4.o_1$ and $A_4.o_2$.
+  Thus, the sink actor $A_5$ receives a copy of the accumulated value at
+  each update of the accumulated value.
 
 \begin{figure}
 \centering
 %\includegraphics[scale=1]{ng-dataflow.\graphicPostfix}\\
 \input{ng-dataflow-fig.tex}
+\begin{displaymath}
+\begin{array}{rcl}
+  G_N & = & (\mathcal{A},C,E) \\
+  \mathcal{A} & = & \{A_1,A_2,A_3,A_4,A_5\} \\
+      &   & A_1.I = \emptyset, A_1.O=\{o_1,o_2\}, A_2.I = \{i_1,i_2\}, A_2.O=\{o_1\},A_3.I = \{i_1,i_2\},\\
+      &   & A_3.O=\{o_1\},A_4.I = \{i_1\}, A_4.O=\{o_1,o_2\}, A_5.I = \{i_1\}, A_5.O=\emptyset \\
+  C   & = & \{c_1,c_2,c_3,c_4,c_5,c_6\} \\
+  E   & = & \{(A_1.o_1,c_1),(c_1,A_2.i_1),(A_1.o_2,c_2),(c_2,A_2.i_2),(A_2.o_1,c_3),\\
+      &   &   (c_3,A_3.i_1),(A_3.o_1,c_4),(c_4,A_4.i_1),(A_4.o_1,c_5),(c_5,A_3.i_2),\\
+      &   &   (A_4.o_2,c_6),(c_6,A_5.i_1)\} \\
+\end{array}
+\end{displaymath}
 \caption{\label{ng-dataflow} In a \emph{dataflow network graph} exactly
-  one edge enters an actor input port and
-  the channels can only be used for dedicated
+  one edge is incident to an actor port and the channels are
+  constraint to have an indegree and outdegree of exactly one.
+  Hence, the channels can only be used for dedicated
   Point-to-Point connections.}
 \end{figure}
 
