@@ -17,11 +17,11 @@ class hscd_scheduler_base
     hscd_scheduler_base( sc_module_name name )
       : sc_module(name), hscd_opbase_node() {}
     
-#ifndef __SCFE__
-    void assemble( hscd_modes::PGWriter &pgw ) const {
-      assert( 0 );
-    }
-#endif
+//#ifndef __SCFE__
+//    void assemble( hscd_modes::PGWriter &pgw ) const {
+//      assert( 0 );
+//    }
+//#endif
 };
 
 class hscd_scheduler_asap

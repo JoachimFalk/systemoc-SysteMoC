@@ -14,9 +14,6 @@ class hscd_choice_node
 
 class hscd_choice_active_node
   : public sc_module,
-#ifndef __SCFE__
-    public hscd_modes::hscd_modes_base_structure,
-#endif
     public hscd_choice_node {
   protected:
     virtual void process() = 0;
@@ -35,8 +32,7 @@ class hscd_choice_active_node
     }
   public:
 #ifndef __SCFE__
-    void assemble( hscd_modes::PGWriter &pgw ) const {
-      return leafAssemble(this,pgw); }
+    const sc_module *my_module() const { return this; }
 #endif
 };
 
@@ -53,9 +49,6 @@ class hscd_transact_node
 
 class hscd_transact_active_node
   : public sc_module,
-#ifndef __SCFE__
-    public hscd_modes::hscd_modes_base_structure,
-#endif
     public hscd_transact_node {
   private:
   protected:
@@ -75,8 +68,7 @@ class hscd_transact_active_node
     }
   public:
 #ifndef __SCFE__
-    void assemble( hscd_modes::PGWriter &pgw ) const {
-      return leafAssemble(this,pgw); }
+    const sc_module *my_module() const { return this; }
 #endif
 };
 
@@ -104,9 +96,6 @@ protected:
 
 class hscd_fixed_transact_active_node
   : public sc_module,
-#ifndef __SCFE__
-    public hscd_modes::hscd_modes_base_structure,
-#endif
     public hscd_fixed_transact_node {
   private:
     void init() {
@@ -132,16 +121,12 @@ class hscd_fixed_transact_active_node
 
   public:
 #ifndef __SCFE__
-    void assemble( hscd_modes::PGWriter &pgw ) const {
-      return leafAssemble(this,pgw); }
+    const sc_module *my_module() const { return this; }
 #endif
 };
 
 class hscd_fixed_transact_passive_node
   : public sc_module,
-#ifndef __SCFE__
-    public hscd_modes::hscd_modes_base_structure,
-#endif
     public hscd_fixed_transact_node {
   private:
     // disable
@@ -165,8 +150,7 @@ class hscd_fixed_transact_passive_node
     }
     
 #ifndef __SCFE__
-    void assemble( hscd_modes::PGWriter &pgw ) const {
-      return leafAssemble(this,pgw); }
+    const sc_module *my_module() const { return this; }
 #endif
 };
 

@@ -6,6 +6,7 @@
 #include <hscd_root_port_list.hpp>
 #include <hscd_port.hpp>
 #include <hscd_op.hpp>
+#include <hscd_director.hpp>
 #ifndef __SCFE__
 # include <hscd_pggen.hpp>
 #endif
@@ -63,7 +64,11 @@ class hscd_opbase_node
 };
 
 class hscd_root_node
-  : public hscd_opbase_node {
+  :
+#ifndef __SCFE__
+    public hscd_modes::hscd_modes_base_structure,
+#endif
+    public hscd_opbase_node {
   protected:
     void startTransact( hscd_op_transact op ) { startOp(op); }
     void startChoice( hscd_op_choice op ) { startOp(op); }
@@ -71,11 +76,13 @@ class hscd_root_node
     void transact( hscd_op_transact op ) {
       startTransact(op); waitFinished();
       startTransact(fire_port(1)); waitFinished();
+      Director::getInstance().getResource( my_module()->name() ).compute( my_module()->name() );
     }
     
     void choice( hscd_op_choice op ) {
       startChoice(op); waitFinished();
       startTransact(fire_port(1)); waitFinished();
+      Director::getInstance().getResource( my_module()->name() ).compute( my_module()->name() );
     }
     
     hscd_root_node()
@@ -83,10 +90,13 @@ class hscd_root_node
   public:
     //sc_event		_fire;
     hscd_port_in<void>  fire_port;
-
+    
+    virtual
+    const sc_module *my_module() const = 0;
 #ifndef __SCFE__
     virtual
-    void assemble( hscd_modes::PGWriter &pgw ) const = 0;
+    void assemble( hscd_modes::PGWriter &pgw ) const {
+      return leafAssemble(my_module(),pgw); }
     
     void leafAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const;
 #endif

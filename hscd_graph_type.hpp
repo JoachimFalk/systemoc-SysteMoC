@@ -21,9 +21,6 @@ template <typename T_node_type,
           template <typename T_value_type> class T_chan_init_default>
 class hscd_graph_petri
   :
-#ifndef __SCFE__
-    public hscd_modes::hscd_modes_base_structure,
-#endif
     public sc_module {
 public:
   typedef T_node_type					node_type;

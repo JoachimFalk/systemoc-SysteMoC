@@ -38,6 +38,8 @@ public:
 #endif
   }
 
+  const sc_module *my_module(void) const { return this; }
+
 #ifndef __SCFE__
   void assemble( hscd_modes::PGWriter &pgw ) const {
     return T_constraintset::assemble(pgw); }

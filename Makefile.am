@@ -63,6 +63,7 @@ pkginclude_HEADERS =			\
 	hscd_root_port.hpp		\
 	hscd_root_port_list.hpp		\
 	hscd_scheduler.hpp		\
+	hscd_director.hpp		\
 	hscd_moc.hpp			\
 	hscd_structure.hpp		\
 	hscd_graph_type.hpp		\
@@ -84,6 +85,7 @@ libsystemoc_la_SOURCES =		\
 	hscd_pggen.cpp			\
 	hscd_root_if.cpp		\
 	hscd_rendezvous.cpp		\
+	hscd_director.cpp		\
 	hscd_fifo.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
