@@ -76,11 +76,13 @@ libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lsystemc -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include
 
-libsystemoc_la_SOURCES =			\
+libsystemoc_la_SOURCES =		\
 	hscd_structure.cpp		\
 	hscd_root_node.cpp		\
 	hscd_pggen.cpp			\
-	hscd_root_if.cpp
+	hscd_root_if.cpp		\
+	hscd_rendezvous.cpp		\
+	hscd_fifo.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include

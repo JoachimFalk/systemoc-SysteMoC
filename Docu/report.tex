@@ -1,5 +1,6 @@
+\newcommand{\graphicPostfix}{pdf}
 \newcommand{\resdir}{../../../HscdTeXRes/}
-\newcommand{\code}[1]{#1}
+\newcommand{\code}[1]{{\bf #1}}
 
 \input{\resdir format.tex}
 
@@ -76,8 +77,8 @@ implement KPN behaviour:
 \begin{enumerate}
 \item A unbound fifo channel for communication
 \item A communication method to read from and write to the fifos
-\item Assurance that the arrival sequence of tokens on
-      the ports can not be determined
+\item Assurance that the arrival sequence of tokens at
+      their ports can not be determined
 \item Parallel executing processes
 \end{enumerate}
 
@@ -92,10 +93,10 @@ The following requirements are the minimum necessary to
 implement SDF behaviour:
 
 \begin{enumerate}
-\item A unbound fifo channel type for communication
+\item A unbound fifo channel kind for communication
 \item A communication method to read from and write to the fifos
-\item Assurance that the arrival sequence of tokens on
-      the ports can not be determined
+\item Assurance that the arrival sequence of tokens at
+      their ports can not be determined
 \item Assurance that consumption and production rates can not
       be altered once set
 \item Parallel executing processes
@@ -134,29 +135,28 @@ define the communication behaviour of the actor.
 
 \item Network graph
 
+The Network graph is a directed bipartit graph whose vertices
+can be partitioned into actors and channels.
 The actors have ports which are their only means of communication.
 These ports are either input ports or output ports.
-The network graph is a directed graph which specifies the connections from
-output ports to input ports off the actors.
-But no semantic is attached to these connections
-only the information that the connections exist.
+The network graph specifies the connections from
+the output/input ports of the actors to the channels.
 
 \item
-Channel type
+Channel kind
 
-The channel type defines the semantic for the connections
-the network graph specifies for all connections in the
-network graph uniformly.
+The channel kind defines the semantic for all channels
+the network graph containes.
 \end{enumerate}
 
 \subsection{MoC composition}
 
 The MoC is now determined by the composition of the two concepts 'Node interface'
-and 'Channel type' as following:
+and 'Channel kind' as following:
 
 \begin{tabular}{|c||c|c|c|}
 \hline
- Channel type & \multicolumn{3}{c|}{ Node interface } \\
+ Channel kind & \multicolumn{3}{c|}{ Node interface } \\
 \hline
               & Choice Node         & Transact Node      & Fixed Transact Node \\
 \hline \hline
@@ -170,11 +170,16 @@ and 'Channel type' as following:
 The introduced concepts are converted into a software architecture in the following way.
 
 As SystemC is an actor-oriented design framework, it also has the concepts of actors
-and channels. So the 'Channel type' concept of the SysteMoC framework can cleanly be implemented
-as a channel in SystemC. There is still a difference between normal SystemC channels and SysteMoC channels,
-as SysteMoC channels do not have user callable methods for communicating over them.
+and channels. So the 'Channel kind' concept of the SysteMoC framework can cleanly be implemented
+as a base class of a channel in SystemC. The 'Channel kind' determines the
+communication semantic of a channel but not the data type of the tokens.
+The channel type is a template parameterized with the data type for the tokens and
+derived from the 'Channel kind'.
+
+Further differences between SysteMoC channels and a SystemC channels consist of the
+absence of user callable methods for communicating on the SysteMoC channels.
 Having those communication methods on the channels would contradict the separation
-of 'Node interface' and 'Channel type'.
+of 'Node interface' and 'Channel kind'.
 
 Actors in SystemC are C++ classes which are derived from the base class \code{sc\_module}.
 However it is impossible, in the general case, to extract the kind of communication
@@ -187,11 +192,11 @@ by disallowing all communication methods on SysteMoC channels and providing them
 in a base class from which the actor is derived. Therefore the 'Node interface' of an actor
 corresponds to the base class from which the actor is derived.
 
-The 'Network graph' can be represented by the C++ template \code{hscd\_structure} 
+The 'Network graph' is represented by the C++ template \code{hscd\_structure} 
 which has only methods to instantiate sub actors and connect their ports to eachother.
 
-The MoC is  now represented as an actor which is derived from the \code{hscd\_structure}
-template parameterized with the 'Node interface' and the 'Channel type'. This actor can only
+The MoC is represented as an actor which is derived from the \code{hscd\_structure}
+template parameterized with the 'Node interface' and the 'Channel kind'. This actor can only
 instantiate sub actors of a predetermined kind and connect their ports with a  predetermined
 kind of channel.
 
@@ -210,13 +215,15 @@ A communication method which implements Hoare's 'general choice' operator \cite{
 \item KPN
 
 A communication method to read from and write to ports.
-The assurance that the arrival sequence of tokens on
-the ports can not be determined.
+Assurance that the arrival sequence of tokens at
+their ports can not be determined.
 
 \item SDF
 
 A communication method to read from and write to ports.
-The assurance that consumption and production rates can not
+Assurance that the arrival sequence of tokens at
+their ports can not be determined.
+Assurance that consumption and production rates can not
 be altered once set
 
 \end{enumerate}
@@ -225,31 +232,77 @@ It is evident that this requirements build a hierarchy of decreasing
 capability. The 'Node interface' needed for CSP is the most capable
 in the hierarchy and it can emulate all lesser more constraint interfaces.
 This hierarchy is transformed into a C++ inheritance hierarchy with the
-CSP 'Node interface' at the root \ref{node-interface-c++}.
+CSP 'Node interface' at the root (See figure \ref{node-interface-c++}).
+Less capable node interfaces inherit from more capable ones. The
+less capable node interfaces use the operators from the base class node
+interface to implement their own operators. The operators of the
+base class are disabled by declaring them private.
 
 \begin{figure}
 \centering
+\includegraphics[scale=0.5]{NodeInterfaceHierarchy.\graphicPostfix}\\
 \begin{tabular}{|c|c|}
 \hline
  Node interface & C++ class type \\
 \hline \hline
- for CSP & hscd\_choice\_node \\
- for KPN & hscd\_transact\_node \\
- for SDF & hscd\_fixed\_transact\_node \\
+ Choice Node          & hscd\_choice\_node \\
+ Transact Node        & hscd\_transact\_node \\
+ Fixed Transact Node  & hscd\_fixed\_transact\_node \\
 \hline
 \end{tabular}
 \caption{\label{node-interface-c++}Node interfaces represented as C++ classes}
 \end{figure}
 
-The KPN 'Node interface' inherits from
-CSP '
+\subsection{Network graph}
+The 'Network graph' is represented by the C++ template
+\code{hscd\_structure} which has the parameters 'Node interface'
+and 'Channel kind'. The 'Network graph' is assembled by the
+constructor of the  \code{hscd\_structure} template.
+Once the constructure has finished the 'Network graph' must
+be fully assembled. No alteration at a later date is allowed.
+To construct the 'Network graph' the following methods of the
+\code{hscd\_structure} template are available:
 
-Less capable node interfaces are
-derived from 
+\begin{enumerate}
+\item registerNode
+
+This method is used to add actor vertices to the 'Network graph'.
+Each registered actor must implement
+the parameterized 'Node interface' of the \code{hscd\_structure}
+template or an even less capable 'Node interface'.
+This constraint is enforeced by the type signature
+of the registerNode method and the node interface hierarchy.
+
+\item registerChan
+
+This method is used to add channel vertices to the 'Network graph'.
+Each registered channel must be of the parameterized 'Channel kind'.
+The constraint is enforeced by the type signature
+of the registerChan method.
+
+\item connectChanPort
+
+This method adds the edges between the actor ports and the
+channels.
+
+\item connectNodePorts
+
+This method is a shorthand for adding a channel and
+connecting two actor ports via this channel. It main usage
+is for MoCs where a channel is only connected to a dedicated
+output actor port and a dedicated input actor port. In
+this MoCs the connectChanPort method is disabled.
+
+\item connectInterfacePorts
+
+\item assemble
+
+\end{enumerate}
 
 
 
 
+\subsection{Channel kind}
 
 \clearpage
 \section{Dust bin}

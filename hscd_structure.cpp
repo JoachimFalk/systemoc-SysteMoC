@@ -1,7 +1,7 @@
 #include <hscd_structure.hpp>
 
-template <typename T_node_type>
-void hscd_structure<T_node_type>::assemble( hscd_modes::PGWriter &pgw ) const {
+template <typename T_node_type, typename T_chan_init>
+void hscd_structure<T_node_type, T_chan_init>::assemble( hscd_modes::PGWriter &pgw ) const {
   pgw << "<problemgraph name=\"" << this->name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
   pgw.indentUp();
   for ( typename nodes_ty::const_iterator iter = this->getNodes().begin();
@@ -32,6 +32,6 @@ void hscd_structure<T_node_type>::assemble( hscd_modes::PGWriter &pgw ) const {
   pgw << "</problemgraph>" << std::endl;
 }
 
-template void hscd_structure<hscd_choice_node>::assemble(hscd_modes::PGWriter&) const;
-template void hscd_structure<hscd_transact_node>::assemble(hscd_modes::PGWriter&) const;
-template void hscd_structure<hscd_fixed_transact_node>::assemble(hscd_modes::PGWriter&) const;
+template void hscd_structure<hscd_choice_node, hscd_fifo>::assemble(hscd_modes::PGWriter&) const;
+template void hscd_structure<hscd_transact_node, hscd_fifo>::assemble(hscd_modes::PGWriter&) const;
+template void hscd_structure<hscd_fixed_transact_node, hscd_fifo>::assemble(hscd_modes::PGWriter&) const;
