@@ -1,0 +1,161 @@
+\newcommand{\resdir}{../hscd-tex-res/}
+
+\input{\resdir format}
+
+\begin{document}
+\hscdtitle{Representing MoCs in SystemC}{Joachim Falk}{\today}
+\clearpage
+\tableofcontents
+\clearpage
+
+\section{Introduction\label{intro}}
+Due to rising design complexity it is necessary to increase
+the level of abstraction at which systems are designed. Using
+Models of Computation in system design can achieve this goal.
+Some of the benefits of MoCs are:
+\begin{enumerate}
+\item MoCs can be used to mathematically reason about communication
+patterns.
+
+\item Knowledge about MoCs can be used by code generators to produce
+optimized code.
+
+\item Knowledge about MoCs can be used by verification tools to
+check system properties.
+\end{enumerate}
+However for these benefits to be practically realized the
+MoC must be extractable from the source code. Because the general case
+is impossible to solve for a turing complete programming language
+\footnote{Halting problem} a machine analyzable coding subset for
+MoCs has to be defined.
+
+Due to it's high abstraction level and possibilities for both
+hardware and software refinements we have chosen SystemC as
+our language for system design. In the following we propose a
+coding subset of SystemC which faciliates automatic extraction
+of the MoC of a SystemC design.
+
+Instead of a Monolitic approach to represent an executable specification
+in SystemC we choose too represent the specification
+by combining severel independent concepts.
+
+\begin{enumerate}
+\item Node functionality
+
+The specification is devided into several communicating actors.
+The actor functionality is the algorithmic description
+which is responsible for transforming data values. The firering behaviour
+of the actor must not be altered in the node functionality.
+
+\item Node interface
+
+The node interface are the set of operators which are used to
+define the firering behaviour of the actor.
+
+\item Network graph
+
+The actors have ports which are their only means of communication.
+These ports are either input ports or output ports.
+The network graph is a directed graph which specifies the connections from
+output ports to input ports off the actors.
+But no semantic is attached to these connections
+only the information that the connections exist.
+
+\item
+Channel type
+
+The channel type defines the semantic for the connections
+the network graph specifies. Not per connection but for all
+connections in the network graph uniformly.
+\end{enumerate}
+
+The node functionality is not
+
+
+\clearpage
+\section*{Dust bin}
+
+
+to a new higher level hardware description
+language for both system specification and system implementation is
+desireable. One representative of this kind of hardware description
+language is SystemC. Another challenge imposed by rising design complexity
+is the exploding design space, which can no longer be reasonably explored
+by humans.
+
+
+If the Model of Computation is restricted to Dataflow the
+MODES tool for automated Design Space exploration can be used. The MODES
+tool uses a Graph model as an abstraction. The Graph model is called the
+Specification Graph (following known as $G_{S}(V_{S},E_{S})$) which has as
+induced Subgraphs a Problem Grap (following known as $G_{P}(V_{P},E_{P}) \subset G_{S}$) and
+an Architecture Graph (following known as $G_{A}(V_{A},E_{A}) \subset G_{S}$).
+... Say more Stuff here !!!
+\par
+To include the MODES tool into the Design Flow an automatic mapping between
+the Graph model of MODES and the real world Design in a Hardware Description
+Language must be implemented. The presented tool is concerned with the automated
+mapping of a Design in SystemC, which uses the Dataflow Model of Computation,
+to the MODES PG. Clearly not the full semantic of SystemC can be mapped to the
+PG, only Dataflow is supported. And multiple ways exists to implement
+Dataflow in SystemC. Therefore a subset of SystemC was choosen which not only
+is restricted to Dataflow but to a certain way to implement Dataflow in SystemC.
+\par
+Following things have to be mapped from SystemC to the MODES PG:
+\begin{enumerate}
+\item Dataflow Nodes
+
+These are mapped to SC\_MODULES in SystemC. They can have any semantic internally
+but must export Dataflow semantic externally. These modules have only sc\_fifo\_in/sc\_fifo\_out
+ports for communication. The only exception is an optional sc\_in\_clk for clock distribution.
+
+Example:
+\begin{verbatim}
+SC_MODULE(design_mul2) {
+ public:
+  sc_in_clk                   clk;
+  sc_fifo_in< tokentype_ty >  in;
+  sc_fifo_out< tokentype_ty > out;
+
+ private:
+  void worker_thread( void ) {
+    while ( 1 ) {
+      out.write( in.read() * 2 );
+    }
+  }
+
+ public:
+  SC_CTOR(design_mul2) {
+    SC_THREAD(worker_thread);
+  }
+};
+\end{verbatim}
+\item Datadependencies
+\end{enumerate}
+
+\par
+
+
+\par
+You can use labels as in Section~\ref{intro}.
+
+\section{About Your Work}
+You can place figures in your text as shown in Figure~\ref{yourfigure}.
+\begin{figure}
+\centering
+\includegraphics[width=4in]{\resdir codesign.pdf}
+\caption{\label{yourfigure}Your Figure}
+\end{figure}
+\par
+You can cite any literatur by using the $\backslash$cite command. 
+Here, an example: \cite{btt:1998}.
+\subsection{First ideas}
+\subsection{Obstacles}
+\subsection{Results}
+
+\clearpage
+\appendix
+\bibliographystyle{alpha}
+\bibliography{literature}
+
+\end{document}
