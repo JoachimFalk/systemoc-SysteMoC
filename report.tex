@@ -1047,13 +1047,6 @@ Choice node interface provides the operations
 An example of firing rules constructible with this node interface
 type can be seen in Figure~\ref{fig:firing-rules-choice}.
 
-\begin{figure}
-\centering
-\input{firing-rules-choice-fig.tex}
-\caption{Example of firing rules which can be created by the choice node interface}
-\label{fig:firing-rules-choice}
-\end{figure}
-
 \begin{definition}\label{transact-node-interface-type}
 Transact node interface provides the operations
 \emph{transition}, \emph{transact}, \emph{call} and \emph{branch}.
@@ -1062,13 +1055,6 @@ Transact node interface provides the operations
 An example of firing rules constructible with this node interface
 type can be seen in Figure~\ref{fig:firing-rules-transact}.
 
-\begin{figure}
-\centering
-\input{firing-rules-transact-fig.tex}
-\caption{Example of firing rules which can be created by the transact node interface}
-\label{fig:firing-rules-transact}
-\end{figure}
-
 \begin{definition}\label{fixed-transact-node-interface-type}
 Fixed transact node interface provides only the operations
 \emph{transition} and \emph{call}.
@@ -1076,6 +1062,20 @@ Fixed transact node interface provides only the operations
 
 An example of firing rules constructible with this node interface
 type can be seen in Figure~\ref{fig:firing-rules-fixed-transact}.
+
+\begin{figure}
+\centering
+\input{firing-rules-choice-fig.tex}
+\caption{Example of firing rules which can be created by the choice node interface}
+\label{fig:firing-rules-choice}
+\end{figure}
+
+\begin{figure}
+\centering
+\input{firing-rules-transact-fig.tex}
+\caption{Example of firing rules which can be created by the transact node interface}
+\label{fig:firing-rules-transact}
+\end{figure}
 
 \begin{figure}
 \centering
@@ -1347,11 +1347,11 @@ In particular they are independent from the state of the actor.
 \end{characteristic}
 
 In the following, an example of a Multiply-Accumulate-Unit for stereo signals is given
-as a SDF system. The unit reads two tokens from input $in_1$,
-performs a multiplication for both tokens with a value read from $in_2$,
-and accumulates the results in the channels $c_2$ and
-$c_3$. The accumulated values are written to $o_1$ for each
-token pair received on $in_1$.
+as a SDF system. The unit reads two tokens from channel $c_1$,
+performs a multiplication for both tokens with a value read from channel $c_2$,
+and accumulates the results in the channels $c_4$ and
+$c_5$. The accumulated values are written to $c_6$ for each
+token pair received on $c_1$.
 In Figure~\ref{fig:sdf-mac-unit},
 the constant consumption and production rates of the SDF
 MoC are annotated at the actor input and output ports
