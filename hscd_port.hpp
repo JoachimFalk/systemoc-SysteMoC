@@ -10,17 +10,16 @@
 
 template <typename T>
 class hscd_port_base
-  : protected sc_port_base {
+  : public hscd_root_port {
 public:
   typedef T                   iface_type;
   typedef hscd_port_base<T>   this_type;
 private:
-  typedef sc_port_base        base_type;
+  typedef hscd_root_port      base_type;
   
   iface_type  *interface;
   
   const char *if_typename() const { return typeid(iface_type).name(); }
-protected:
 
   // called by pbind (for internal use only)
   int vbind( sc_interface& interface_ ) {
@@ -41,15 +40,16 @@ protected:
       base_type::bind( *parent );
       return 0;
   }
+protected:
+  hscd_port_base( const char* name_ )
+    : base_type( name_ ), interface( NULL ) {}
+  
   void push_interface( sc_interface *_i ) {
     assert( interface == NULL );
     interface = dynamic_cast<iface_type *>(_i);
     assert( interface != NULL );
   }
-public:
-  hscd_port_base( const char* name_ )
-    : base_type( name_, 1 ), interface( NULL ) {}
-  
+
   // get the first interface without checking for nil
   sc_interface       *get_interface()       { return interface; }
   sc_interface const *get_interface() const { return interface; }
@@ -69,7 +69,7 @@ public:
 
 template <typename T>
 class hscd_port_storage_in
-  : protected hscd_port_base<hscd_chan_in_if<T> > {
+  : public hscd_port_base<hscd_chan_in_if<T> > {
 public:
   typedef T    data_type;
 private:
@@ -86,7 +86,7 @@ public:
 };
 
 class hscd_port_storage_in<void>
-  : protected hscd_port_base<hscd_chan_in_if<void> > {
+  : public hscd_port_base<hscd_chan_in_if<void> > {
 public:
   typedef void data_type;
 private:
@@ -101,19 +101,19 @@ public:
 
 template <typename T>
 class hscd_port_in
-  : public hscd_root_port,
-    public hscd_port_storage_in<T> {
+  : public hscd_port_storage_in<T> {
 public:
   typedef T                               data_type;
   typedef hscd_port_in<T>                 this_type;
   typedef typename this_type::iface_type  iface_type;
+  typedef hscd_port_storage_in<T>         base_type;
 private:
 //  void setCommittedCount( size_t _committed ) {
 //    return hscd_root_port::setCommittedCount(_committed);
 //  }
   
   void reset() {
-    storageClear(); return hscd_root_port::reset();
+    storageClear(); return base_type::reset();
   }
   
   void add_interface( sc_interface *i ) {
@@ -128,7 +128,8 @@ public:
   
   bool isInput() const { return true; }
 
-  size_t availableCount() const { return doneCount() + (*this)->committedOutCount(); }
+  size_t availableCount()    const { return doneCount() + (*this)->committedOutCount(); }
+  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableOutCount(); }
   
   class hscd_op_port operator ()( size_t n ) {
     return hscd_op_port(this,n);
@@ -139,7 +140,7 @@ public:
 
 template <typename T>
 class hscd_port_storage_out
-  : protected hscd_port_base<hscd_chan_out_if<T> > {
+  : public hscd_port_base<hscd_chan_out_if<T> > {
 public:
   typedef T    data_type;
 private:
@@ -160,7 +161,7 @@ public:
 };
 
 class hscd_port_storage_out<void>
-  : protected hscd_port_base<hscd_chan_out_if<void> > {
+  : public hscd_port_base<hscd_chan_out_if<void> > {
 public:
   typedef void data_type;
 private:
@@ -176,12 +177,12 @@ public:
 
 template<typename T>
 class hscd_port_out
-  : public hscd_root_port,
-    public hscd_port_storage_out<T> {
+  : public hscd_port_storage_out<T> {
 public:
   typedef T                               data_type;
   typedef hscd_port_out<T>                this_type;
   typedef typename this_type::iface_type  iface_type;
+  typedef hscd_port_storage_out<T>        base_type;
 private:
 //  void setCommittedCount( size_t _committed ) {
 //    assert( storageSize() >= _committed );
@@ -199,7 +200,8 @@ public:
   
   bool isInput() const { return false; }
   
-  size_t availableCount() const { return doneCount() + (*this)->committedInCount(); }
+  size_t availableCount()    const { return doneCount() + (*this)->committedInCount(); }
+  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableInCount(); }
   
   class hscd_op_port operator ()( size_t n ) {
     return hscd_op_port(this,n);

@@ -83,6 +83,7 @@ libsystemoc_la_SOURCES =		\
 	hscd_graph_type.cpp		\
 	hscd_rendezvous.cpp		\
 	hscd_root_node.cpp		\
+	hscd_root_port.cpp		\
 	hscd_firing_rules.cpp		\
 	hscd_pggen.cpp			\
 	hscd_chan_if.cpp

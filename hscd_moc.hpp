@@ -100,9 +100,9 @@ public:
   typedef hscd_moc_scheduler_csp  this_type;
   typedef hscd_csp_constraintset  cset_ty;
 protected:
-  void schedule( cset_ty *c ) {
-    cset_ty::nodes_ty nodes = c->getNodes();
-    
+
+  void dump(cset_ty::nodes_ty &nodes) {
+    std::cout << "=== dump ===" << std::endl;
     for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
           iter != nodes.end();
           ++iter ) {
@@ -110,35 +110,44 @@ protected:
       const resolved_state_ty &rs = s.getResolvedState();
       
       std::cout << "actor: " << (*iter)->myModule()->name() << " state: " << &s << std::endl;
-      for ( resolved_state_ty::const_iterator titer = rs.begin();
-            titer != rs.end();
+      for ( transitionlist_ty::const_iterator titer = rs.tl.begin();
+            titer != rs.tl.end();
             ++titer ) {
         const transition_ty &t = *titer;
         const hscd_activation_pattern &ap = t.ap;
         
-        std::cout << "  transition: " << &t << std::endl;
+        std::cout << "  transition(" << &t << ","
+                                  "canSatisfy=" << ap.canSatisfy() << ","
+                                  "satisfiable=" << ap.satisfiable() << ")" << std::endl;
         for ( hscd_activation_pattern::const_iterator apiter = ap.begin();
               apiter != ap.end();
               ++apiter ) {
-          const hscd_op_port   &op = *apiter;
+          const hscd_op_port   &op = apiter->second;
           const hscd_root_port *p  = op.getPort();
-
+          std::cout << "    " << *p << std::endl;
         }
       }
-      
-
-
     }
-    /*
-    while (1) {
-      for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+  }
+
+  void schedule( cset_ty *c ) {
+    cset_ty::nodes_ty nodes = c->getNodes();
+    
+    bool again;
+    do {
+      do {
+        again = false;
+        dump(nodes);
+        for ( cset_ty::nodes_ty::iterator iter = nodes.begin();
+              iter != nodes.end();
+              ++iter )
+          again |= (*iter)->currentState().inductionStep();
+      } while ( again );
+      for ( cset_ty::nodes_ty::iterator iter = nodes.begin();
             iter != nodes.end();
-            ++iter ) {
-        const hscd_firing_state &s = (*iter)->currentState();
-        
-        std::cout << "foo: " << &(*iter)->initialState() << std::endl;
-      }
-    }*/
+            ++iter )
+        again |= (*iter)->currentState().choiceStep();
+    } while ( again );
   }
 private:
 /* 

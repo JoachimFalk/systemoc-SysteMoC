@@ -33,14 +33,9 @@ public:
   
   typedef std::list<node_type *>			nodes_ty;
   typedef std::list<chan_kind *>                        chans_ty;
-  typedef std::list<hscd_root_port *>			ports_ty;
-  typedef std::map<chan_kind *, ports_ty>               chan2ports_ty;
 private:
   typedef std::map<hscd_root_port *, hscd_root_port *>  iobind_ty;
-  typedef std::map<hscd_root_port *, chan_kind *>       port2chan_ty;
   
-//  chan2ports_ty       chan2ports;
-//  port2chan_ty        port2chan;
   iobind_ty           iobind;
 protected:
   template <typename T_chan_init>

@@ -6,6 +6,8 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <map>
+
 #include <iostream>
 
 #include <hscd_root_port.hpp>
@@ -15,6 +17,7 @@
 class hscd_activation_pattern;
 class hscd_port2op_if;
 class hscd_root_port;
+class hscd_root_node;
 
 template <typename T> class hscd_port_in;
 template <typename T> class hscd_port_out;
@@ -24,27 +27,38 @@ public:
   typedef hscd_op_port  this_type;
 private:
   hscd_root_port *port;
-  size_t          tokens;
+  size_t          commit;
 protected:
   template <typename T> friend class hscd_port_in;
   template <typename T> friend class hscd_port_out;
   
-  hscd_op_port( hscd_root_port *port, size_t tokens )
-    : port(port), tokens(tokens) {}
+  bool stillPossible() const {
+    return (commit >= port->committedCount()) &&
+           (commit <= port->maxCommittableCount());
+  }
+  
+  hscd_op_port( hscd_root_port *port, size_t commit )
+    : port(port), commit(commit) {}
 public:
   operator hscd_root_port &() { return *port; }
   
-  hscd_root_port       *getPort() { return port; }
-  const hscd_root_port *getPort() const { return port; }
-  
-  bool canSatisfy() const { return tokens == port->availableCount(); }
-  bool satisfied()  const { return tokens == port->doneCount(); }
-  bool isInput()    const { return port->isInput();  }
-  bool isOutput()   const { return port->isOutput(); }
+  hscd_root_port       *getPort()           { return port; }
+  const hscd_root_port *getPort()     const { return port; }
+  size_t                commitCount() const { return commit; }
+  void                  addCommitCount( size_t n ) { commit += n; }
+
+  bool satisfiable() const
+    { return commit <= port->maxAvailableCount() && stillPossible(); }
+  bool canSatisfy()  const
+    { return commit == port->availableCount() && stillPossible(); }
+  bool satisfied()   const
+    { return commit == port->doneCount() && stillPossible(); }
+  bool isInput()     const { return port->isInput();  }
+  bool isOutput()    const { return port->isOutput(); }
 };
 
 class hscd_activation_pattern
-  :public std::vector<hscd_op_port> {
+  :public std::map<const hscd_root_port *, hscd_op_port> {
 public:
   typedef hscd_activation_pattern this_type;
   
@@ -55,10 +69,9 @@ protected:
     
     for ( const_iterator iter = begin();
 	  iter != end();
-	  ++iter ) {
-      if ( filter(*iter) )
-	retval.push_back( *iter );
-    }
+	  ++iter )
+      if ( filter(iter->second) )
+	retval.insert( *iter );
     return retval;
   }
   struct filterInput_ty {
@@ -69,35 +82,49 @@ protected:
     bool operator ()( const hscd_op_port &port ) const
       { return port.isOutput(); }
   };
+
+  template <typename T>
+  bool isXXX(const T filter) const {
+    for ( const_iterator iter = begin();
+	  iter != end();
+	  ++iter )
+      if ( !filter(iter->second) )
+        return false;
+    return true;
+  }
+  struct filterCanSatisfy_ty {
+    bool operator ()( const hscd_op_port &port ) const
+      { return port.canSatisfy(); }
+  };
+  struct filterSatisfied_ty {
+    bool operator ()( const hscd_op_port &port ) const
+      { return port.satisfied(); }
+  };
+  struct filterSatisfiable_ty {
+    bool operator ()( const hscd_op_port &port ) const
+      { return port.satisfiable(); }
+  };
+
 public:
   this_type onlyInputs() const { return onlyXXX(filterInput_ty()); }
   this_type onlyOutputs() const { return onlyXXX(filterOutput_ty()); }
-  
-  bool canSatisfy() const {
-    for ( const_iterator iter = begin();
-	  iter != end();
-	  ++iter )
-      if ( !iter->canSatisfy() )
-        return false;
-    return true;
-  }
-  bool satisfied() const {
-    for ( const_iterator iter = begin();
-	  iter != end();
-	  ++iter )
-      if ( !iter->satisfied() )
-        return false;
-    return true;
-  }
+  bool      canSatisfy() const { return isXXX(filterCanSatisfy_ty()); }
+  bool      satisfied() const { return isXXX(filterSatisfied_ty()); }
+  bool      satisfiable() const { return isXXX(filterSatisfiable_ty()); }
   
   hscd_activation_pattern() {}
   
   hscd_activation_pattern( hscd_op_port p ) {
-    push_back(p);
+    (*this) &= p;
   }
   
   this_type &operator &= ( hscd_op_port p ) {
-    push_back(p); return *this;
+    std::pair<iterator, bool> x = insert( value_type(p.getPort(), p) );
+    if ( !x.second ) {
+      assert( p.getPort() == x.first->second.getPort() );
+      x.first->second.addCommitCount(p.commitCount());
+    }
+    return *this;
   }
 };
 
@@ -150,12 +177,21 @@ public:
 
 struct hscd_firing_types {
   struct                              transition_ty;
-  typedef std::list<transition_ty>    resolved_state_ty;
+  struct                              resolved_state_ty;
   typedef oneof<hscd_firing_state *, resolved_state_ty *>
                                       state_ty;
   typedef std::list<state_ty>         statelist_ty;
+  typedef std::list<transition_ty>    transitionlist_ty;
+//  typedef std::set<hscd_root_port *>  ports_ty;
   typedef oneof<hscd_func_call, hscd_func_branch>
                                       func_ty;
+
+  struct resolved_state_ty {
+    // outgoing transitions from this state
+    transitionlist_ty       tl;
+    // all ports in the outgoing transitions
+//    ports_ty                ps;
+  };
   
   struct transition_ty {
     hscd_activation_pattern ap;
@@ -182,12 +218,18 @@ public:
     : rs(NULL), fr(NULL) { *this = x; }
   
   this_type &operator = (const this_type &x);
+
+  bool inductionStep();
+  bool choiceStep();
   
   const resolved_state_ty &getResolvedState() const
     { assert( rs != NULL ); return *rs; }
+
+  void finalise( hscd_root_node *actor ) const;
   
   ~hscd_firing_state();
 private:
+  hscd_port_list &getPorts() const;
   // disable
 };
 
@@ -208,10 +250,12 @@ private:
   unresolved_states_ty  unresolved_states;
   resolved_states_ty    resolved_states;
   references_ty         references;
+  hscd_root_node       *actor;
   
   void _addRef( hscd_firing_state *s, hscd_firing_rules *p );
 protected:
-  hscd_firing_rules( hscd_firing_state *s ) {
+  hscd_firing_rules( hscd_firing_state *s )
+    : actor(NULL) {
     addRef(s); resolved_states.push_front(s->rs);
   }
   

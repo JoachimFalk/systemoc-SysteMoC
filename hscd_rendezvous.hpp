@@ -58,9 +58,13 @@ public:
     : hscd_chan_nonconflicting_if<hscd_rendezvous_kind, T>(i) {}
   
   size_t committedOutCount() const
-    { return portOutIf->committedCount(); }
+    { return (portOutIf->committedCount() - portOutIf->doneCount()); }
+  size_t maxCommittableOutCount() const
+    { return (portOutIf->maxCommittableCount() - portOutIf->doneCount()); }
   size_t committedInCount() const
-    { return portInIf->committedCount(); }
+    { return (portInIf->committedCount() - portInIf->doneCount()); }
+  size_t maxCommittableInCount() const
+    { return (portInIf->maxCommittableCount() - portInIf->doneCount()); }
 };
 
 template <typename T>

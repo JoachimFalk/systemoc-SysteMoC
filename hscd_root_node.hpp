@@ -20,7 +20,6 @@ class hscd_opbase_node {
 public:
   typedef hscd_opbase_node this_type;
 private:
-  hscd_firing_state _initialState;
   hscd_firing_state _currentState;
 protected:
   template <typename T>
@@ -47,18 +46,24 @@ protected:
   }
   
   hscd_opbase_node(const hscd_firing_state &s)
-    : _initialState(s), _currentState(s) {}
+    : _currentState(s) {}
 
   virtual ~hscd_opbase_node() {}
 public:
-    const hscd_firing_state &currentState() const { return _currentState; }
+  const hscd_firing_state &currentState() const { return _currentState; }
+  hscd_firing_state       &currentState()       { return _currentState; }
+  
 };
 
 class hscd_root_node
   : public hscd_opbase_node {
 protected:
   hscd_root_node(const hscd_firing_state &s)
-    : hscd_opbase_node(s) {}
+    : hscd_opbase_node(s), ports_valid(false)
+    { currentState().finalise(this); }
+private:
+  bool           ports_valid;
+  hscd_port_list ports;
 public:
   //sc_event		_fire;
   //hscd_port_in<void>  fire_port;
@@ -71,6 +76,8 @@ public:
   
   void assemble( hscd_modes::PGWriter &pgw ) const;
 #endif
+
+  hscd_port_list &getPorts();
 };
 
 #endif // _INCLUDED_HSCD_ROOT_NODE_HPP

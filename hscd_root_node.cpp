@@ -41,3 +41,19 @@ void hscd_root_node::assemble( hscd_modes::PGWriter &pgw ) const {
   pgw << "</process>" << std::endl;
 }
 
+hscd_port_list &hscd_root_node::getPorts() {
+  if ( !ports_valid ) {
+    sc_module      *m = myModule();
+    
+//    std::cout << "=== getPorts ===" << this << std::endl;
+    for ( sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+          iter != m->get_child_objects().end();
+          ++iter ) {
+      sc_port_base *port = dynamic_cast<sc_port_base *>(*iter);
+      if ( port != NULL && port->kind() == hscd_root_port::kind_string )
+        ports.push_back(reinterpret_cast<hscd_root_port *>(port));
+    }
+    ports_valid = true;
+  }
+  return ports;
+}

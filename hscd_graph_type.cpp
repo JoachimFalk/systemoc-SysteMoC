@@ -20,13 +20,13 @@ pgAssemble( hscd_modes::PGWriter &pgw ) const {
     for ( typename chans_ty::const_iterator c_iter = cs.begin();
           c_iter != cs.end();
           ++c_iter ) {
-      ports_ty out = (*c_iter)->getOutputPorts();
-      ports_ty in  = (*c_iter)->getInputPorts();
+      hscd_port_list out = (*c_iter)->getOutputPorts();
+      hscd_port_list in  = (*c_iter)->getInputPorts();
       
-      for ( typename ports_ty::const_iterator ps_iter = out.begin();
+      for ( hscd_port_list::const_iterator ps_iter = out.begin();
             ps_iter != out.end();
             ++ps_iter ) {
-        for ( typename ports_ty::const_iterator pd_iter = in.begin();
+        for ( hscd_port_list::const_iterator pd_iter = in.begin();
               pd_iter != in.end();
               ++pd_iter ) {
           pgw << "<edge name=\"" << (*c_iter)->name() << "\" "

@@ -1,5 +1,6 @@
 // vim: set sw=2 ts=8:
 
+#include <hscd_root_port.hpp>
 #include <hscd_port.hpp>
 
 #ifndef _INCLUDED_HSCD_CHAN_IF
@@ -16,10 +17,9 @@ class hscd_root_chan
 public:
   // typedefs
   typedef hscd_root_chan              this_type;
-  typedef std::list<hscd_root_port *> ports_ty;
   
-  virtual ports_ty  getInputPorts()  const = 0;
-  virtual ports_ty  getOutputPorts() const = 0;
+  virtual hscd_port_list getInputPorts()  const = 0;
+  virtual hscd_port_list getOutputPorts() const = 0;
 protected:
   // constructor
   hscd_root_chan( const char *name)
@@ -42,8 +42,9 @@ public:
   // virtual const sc_event& wantEvent() const = 0;
   //  virtual void wantData( iface_type tq ) = 0;
   
-  virtual void      addPortIf(iface_in_type *_i) = 0;
-  virtual size_t    committedOutCount() const = 0;
+  virtual void   addPortIf(iface_in_type *_i) = 0;
+  virtual size_t committedOutCount() const = 0;
+  virtual size_t maxCommittableOutCount() const = 0;
 protected:  
   // constructor
   hscd_chan_in_if() {}
@@ -66,8 +67,9 @@ public:
   // virtual const sc_event& wantEvent() const = 0;
   //  virtual void wantData( iface_type tq ) = 0;
   
-  virtual void      addPortIf(iface_out_type *_i) = 0;
-  virtual size_t    committedInCount() const = 0;
+  virtual void   addPortIf(iface_out_type *_i) = 0;
+  virtual size_t committedInCount() const = 0;
+  virtual size_t maxCommittableInCount() const = 0;
 protected:
   // constructor
   hscd_chan_out_if() {}
@@ -105,7 +107,6 @@ public:
   typedef hscd_chan_nonconflicting_if<T_chan_kind, T_data_type> this_type;
   typedef typename this_type::iface_in_type                     iface_in_type;
   typedef typename this_type::iface_out_type                    iface_out_type;
-  typedef std::list<hscd_root_port *>                           ports_ty;
 protected:
   iface_in_type  *portInIf;
   iface_out_type *portOutIf;
@@ -114,10 +115,10 @@ public:
     { assert( portInIf == NULL );  portInIf = _i;  }
   void addPortIf(iface_out_type *_i)
     { assert( portOutIf == NULL ); portOutIf = _i; }
-  ports_ty  getInputPorts()  const
-    { ports_ty retval; retval.push_front(portInIf); return retval; }
-  ports_ty  getOutputPorts() const
-    { ports_ty retval; retval.push_front(portOutIf); return retval; }
+  hscd_port_list getInputPorts()  const
+    { hscd_port_list retval; retval.push_front(portInIf); return retval; }
+  hscd_port_list getOutputPorts() const
+    { hscd_port_list retval; retval.push_front(portOutIf); return retval; }
 protected:
   // constructor
   hscd_chan_nonconflicting_if(const typename T_chan_kind::chan_init &i)

@@ -171,10 +171,22 @@ public:
   hscd_fifo_type( const typename hscd_fifo_storage<T>::chan_init &i )
     : hscd_fifo_storage<T>(i) {}
   
-  size_t committedOutCount() const
-    { return usedStorage() + portOutIf->committedCount(); }
-  size_t committedInCount() const
-    { return unusedStorage() + portInIf->committedCount(); }
+  size_t committedOutCount() const {
+    return usedStorage() +
+      (portOutIf->committedCount() - portOutIf->doneCount());
+  }
+  size_t maxCommittedOutCount() const {
+    return usedStorage() +
+      (portOutIf->maxCommittedCount() - portOutIf->doneCount());
+  }
+  size_t committedInCount() const {
+    return unusedStorage() +
+      (portInIf->committedCount() - portInIf->doneCount());
+  }
+  size_t maxCommittedInCount() const {
+    return unusedStorage() +
+      (portInIf->maxCommittedCount() - portInIf->doneCount());
+  }
 
 /*  
   // interface methods
