@@ -78,26 +78,27 @@ class m_multiply: public hscd_fixed_transact_active_node {
 };
 
 class m_top2
-: public hscd_sdf_structure {
-  private:
-    hscd_scheduler_asap *asap;
-  public:
-    hscd_port_in<int>  in1;
-    hscd_port_in<int>  in2;
-    hscd_port_out<int> out;
+  : public hscd_sdf_structure {
+private:
+  hscd_scheduler_asap *asap;
+public:
+  hscd_port_in<int>  in1;
+  hscd_port_in<int>  in2;
+  hscd_port_out<int> out;
+  
+  m_top2( sc_module_name _name )
+    : hscd_sdf_structure(_name)
+  {
+    m_adder<int>    &adder = registerNode(new m_adder<int>("adder"));
+    m_multiply<int> &mult  = registerNode(new m_multiply<int>("multiply"));
     
-    m_top2( sc_module_name _name )
-      : hscd_sdf_structure(_name) {
-      m_adder<int>    &adder = registerNode(new m_adder<int>("adder"));
-      m_multiply<int> &mult  = registerNode(new m_multiply<int>("multiply"));
-      
-      connectInterfacePorts( in1, adder.in ); // adder.in(in1);
-      connectInterfacePorts( in2, mult.in1 ); // mult.in1(in2);
-      connectNodePorts( adder.out, mult.in2 );
-      connectInterfacePorts( out, mult.out ); // mult.out(out);
-      // asap = new m_top_asap_scheduler( src.fire_port, adder.fire_port, sink.fire_port );
-      asap = new hscd_scheduler_asap( "asap", getNodes() );
-    }
+    connectInterfacePorts( in1, adder.in ); // adder.in(in1);
+    connectInterfacePorts( in2, mult.in1 ); // mult.in1(in2);
+    connectNodePorts( adder.out, mult.in2 );
+    connectInterfacePorts( out, mult.out ); // mult.out(out);
+    // asap = new m_top_asap_scheduler( src.fire_port, adder.fire_port, sink.fire_port );
+    asap = new hscd_scheduler_asap( "asap", getNodes() );
+  }
 };
 
 class m_source: public hscd_fixed_transact_active_node {
@@ -138,11 +139,9 @@ class m_top
   private:
     hscd_scheduler_asap *asap;
   public:
-    m_top2        &top2;
-    
     m_top( sc_module_name _name )
-      : hscd_sdf_structure(_name),
-        top2(*new m_top2("top2")) {
+      : hscd_sdf_structure(_name) {
+      m_top2        &top2 = registerNode(new m_top2("top2"));
       m_source      &src1 = registerNode(new m_source("src1"));
       m_source      &src2 = registerNode(new m_source("src2"));
       m_sink        &sink = registerNode(new m_sink("sink"));
@@ -157,11 +156,19 @@ class m_top
 };
 
 int sc_main (int argc, char **argv) {
-  m_top        top("top");
-
-  hscd_modes::dump( std::cout, top );
-  hscd_modes::dump( std::cout, top.top2 );
+  try {
+    m_top                             top("top");
+    std::list<hscd_sdf_structure *>   nl;
+    
+    nl.push_front(&top);
+    hscd_scheduler_asap               sched("asap",nl);
+    
+    hscd_modes::dump( std::cout, top );
   
-  sc_start(-1);
+    sc_start(-1);
+  } catch (...) {
+    std::cout << "exception !" << std::endl;
+    throw;
+  }
   return 0;
 }
