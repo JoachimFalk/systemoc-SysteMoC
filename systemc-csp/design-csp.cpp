@@ -1,301 +1,186 @@
 // vim: set sw=2 ts=8:
 
-#include <hscd_csp.hpp>
-
-#include <systemc.h>
 #include <cstdlib>
 #include <iostream>
 
-typedef sc_uint<16> tokentype_ty;
+#include <hscd_structure.hpp>
+#include <hscd_scheduler.hpp>
+#include <hscd_port.hpp>
+#include <hscd_rendezvous.hpp>
+#include <hscd_node_types.hpp>
+#include <hscd_pggen.hpp>
 
-SC_MODULE(design_mul2) {
- public:
-  sc_in_clk		      clk;
-  hscd_csp_in< tokentype_ty >  in;
-  hscd_csp_out< tokentype_ty > out;
-  
- private:
-  void worker_thread( void ) {
+enum dp_forkreq_ty { FORK_TAKE, FORK_DROP };
+
+class dp_fork
+  : public hscd_choice_active_node {
+public:
+  hscd_port_in<dp_forkreq_ty> l_forkreq;
+  hscd_port_in<dp_forkreq_ty> r_forkreq;
+private:
+  void process() {
     while ( 1 ) {
-      out.write( in.read() * 2 );
+      choice( l_forkreq(1) | r_forkreq(1) );
+      assert( (l_forkreq && !r_forkreq && l_forkreq[0] == FORK_TAKE) ||
+              (r_forkreq && !l_forkreq && r_forkreq[0] == FORK_TAKE) );
+      if ( l_forkreq ) {
+        std::cout << "Fork " << name() << " taken by left philosopher !" << std::endl;
+        transact( l_forkreq(1) );
+        assert( l_forkreq && l_forkreq[0] == FORK_DROP );
+        std::cout << "Fork " << name() << " droped by left philosopher !" << std::endl;
+      } else {
+        std::cout << "Fork " << name() << " taken by right philosopher !" << std::endl;
+        transact( r_forkreq(1) );
+        assert( r_forkreq && r_forkreq[0] == FORK_DROP );
+        std::cout << "Fork " << name() << " droped by right philosopher !" << std::endl;
+      }
     }
   }
-  
- public:
-  SC_CTOR(design_mul2) {
-    SC_THREAD(worker_thread);
-  }
-};
-  
-SC_MODULE(design_expand) {
- public:
-  sc_in_clk		      clk;
-  hscd_csp_in< tokentype_ty >  in;
-  hscd_csp_out< tokentype_ty > out1;
-  hscd_csp_out< tokentype_ty > out2;
-  
- private:
-  void worker_thread( void ) {
-    while ( 1 ) {
-      tokentype_ty t = in.read();
-      out1.write(t);
-      out2.write(t);
-    }
-  }
-  
- public:
-  SC_CTOR(design_expand) {
-    SC_THREAD(worker_thread);
-  }
+public:
+  dp_fork( sc_module_name name )
+    : hscd_choice_active_node(name) {}
 };
 
-SC_MODULE(design_sub1) {
- public:
-  sc_in_clk		      clk;
-  hscd_csp_in< tokentype_ty >  in;
-  hscd_csp_out< tokentype_ty > out;
-  
- private:
-  void worker_thread( void ) {
+class dp_footman
+  : public hscd_choice_active_node {
+public:
+  hscd_port_in<void> sitreq_1;
+  hscd_port_in<void> sitreq_2;
+  hscd_port_in<void> sitreq_3;
+  hscd_port_in<void> sitreq_4;
+  hscd_port_in<void> sitreq_5;
+  hscd_port_in<void> standreq_1;
+  hscd_port_in<void> standreq_2;
+  hscd_port_in<void> standreq_3;
+  hscd_port_in<void> standreq_4;
+  hscd_port_in<void> standreq_5;
+private:
+  void process() {
+    int count = 4;
+    
     while ( 1 ) {
-      out.write( in.read() - 1 );
+      if ( count != 0 )
+        choice( sitreq_1(1) | standreq_1(1) |
+                sitreq_2(1) | standreq_2(1) |
+                sitreq_3(1) | standreq_3(1) |
+                sitreq_4(1) | standreq_4(1) |
+                sitreq_5(1) | standreq_5(1) );
+      else
+        choice(               standreq_1(1) |
+                              standreq_2(1) |
+                              standreq_3(1) |
+                              standreq_4(1) |
+                              standreq_5(1) );
+      if ( sitreq_1 || sitreq_2 || sitreq_3 || sitreq_4 || sitreq_5 )
+        --count;
+      else
+        ++count;
     }
   }
-  
- public:
-  SC_CTOR(design_sub1) {
-    SC_THREAD(worker_thread);
-  }
+public:
+  dp_footman( sc_module_name name )
+    : hscd_choice_active_node(name) {}
 };
 
-SC_MODULE(design_pot2) {
- public:
-  sc_in_clk		      clk;
-  hscd_csp_in< tokentype_ty >  in;
-  hscd_csp_out< tokentype_ty > out;
-  
- private:
-  void worker_thread( void ) {
+class dp_philosopher
+  : public hscd_choice_active_node {
+public:
+  hscd_port_out<dp_forkreq_ty> l_forkreq;
+  hscd_port_out<dp_forkreq_ty> r_forkreq;
+  hscd_port_out<void>          sitreq;
+  hscd_port_out<void>          standreq;
+private:
+  void process() {
     while ( 1 ) {
-      tokentype_ty t = in.read();
-      out.write( t*t );
+      std::cout << "Philosopher " << name() << " want's to eat !" << std::endl;
+      transact( sitreq(1) );
+      l_forkreq[0] = FORK_TAKE;
+      transact( l_forkreq(1) );
+      r_forkreq[0] = FORK_TAKE;
+      transact( r_forkreq(1) );
+      std::cout << "Philosopher " << name() << " eating !" << std::endl;
+      wait( sc_time(3,SC_NS) );
+      l_forkreq[0] = FORK_DROP;
+      transact( l_forkreq(1) );
+      r_forkreq[0] = FORK_DROP;
+      transact( r_forkreq(1) );
+      std::cout << "Philosopher " << name() << " finish eating !" << std::endl;
+      transact( standreq(1) );
+      wait( sc_time(1,SC_NS) );
     }
   }
-  
- public:
-  SC_CTOR(design_pot2) {
-    SC_THREAD(worker_thread);
-  }
+public:
+  dp_philosopher( sc_module_name name )
+    : hscd_choice_active_node(name) {}
 };
 
-SC_MODULE(design_add3) {
- public:
-  sc_in_clk		      clk;
-  hscd_csp_in< tokentype_ty >  in;
-  hscd_csp_out< tokentype_ty > out;
-  
- private:
-  void worker_thread( void ) {
-    while ( 1 ) {
-      out.write( in.read() + 3 );
-    }
-  }
-  
- public:
-  SC_CTOR(design_add3) {
-    SC_THREAD(worker_thread);
-  }
-};
-
-SC_MODULE(design_mul3) {
- public:
-  sc_in_clk		      clk;
-  hscd_csp_in< tokentype_ty >  in;
-  hscd_csp_out< tokentype_ty > out;
-  
- private:
-  void worker_thread( void ) {
-    while ( 1 ) {
-      out.write( in.read() * 3 );
-    }
-  }
-  
- public:
-  SC_CTOR(design_mul3) {
-    SC_THREAD(worker_thread);
-  }
-};
-
-SC_MODULE(design_xaddy) {
- public:
-  sc_in_clk		      clk;
-  hscd_csp_in< tokentype_ty >  inx;
-  hscd_csp_in< tokentype_ty >  iny;
-  hscd_csp_out< tokentype_ty > out;
-  
- private:
-  void worker_thread( void ) {
-    while ( 1 ) {
-      // consume tokens
-      tokentype_ty t1 = inx.read();
-      tokentype_ty t2 = iny.read();
+class m_top
+: public hscd_csp_structure {
+  private:
+    hscd_scheduler_asap *asap;
+  public:
+    m_top( sc_module_name _name )
+      : hscd_csp_structure(_name) {
+      dp_fork        &m_fork1        = registerNode(new dp_fork("m_fork1"));
+      dp_fork        &m_fork2        = registerNode(new dp_fork("m_fork2"));
+      dp_fork        &m_fork3        = registerNode(new dp_fork("m_fork3"));
+      dp_fork        &m_fork4        = registerNode(new dp_fork("m_fork4"));
+      dp_fork        &m_fork5        = registerNode(new dp_fork("m_fork5"));
+      dp_philosopher &m_philosopher1 = registerNode(new dp_philosopher("m_philosopher1"));
+      dp_philosopher &m_philosopher2 = registerNode(new dp_philosopher("m_philosopher2"));
+      dp_philosopher &m_philosopher3 = registerNode(new dp_philosopher("m_philosopher3"));
+      dp_philosopher &m_philosopher4 = registerNode(new dp_philosopher("m_philosopher4"));
+      dp_philosopher &m_philosopher5 = registerNode(new dp_philosopher("m_philosopher5"));
+      dp_footman     &m_footman      = registerNode(new dp_footman("m_footman"));
       
-      // do some work
-      tokentype_ty t  = t1+t2;
-      // simulate time needed for adding values
-      wait(clk.posedge_event());
+      connectNodePorts( m_philosopher1.l_forkreq, m_fork1.r_forkreq );
+      connectNodePorts( m_philosopher5.r_forkreq, m_fork1.l_forkreq );
       
-      // produce tokens
-      out.write( t1 + t2 );
+      connectNodePorts( m_philosopher2.l_forkreq, m_fork2.r_forkreq );
+      connectNodePorts( m_philosopher1.r_forkreq, m_fork2.l_forkreq );
+      
+      connectNodePorts( m_philosopher3.l_forkreq, m_fork3.r_forkreq );
+      connectNodePorts( m_philosopher2.r_forkreq, m_fork3.l_forkreq );
+      
+      connectNodePorts( m_philosopher4.l_forkreq, m_fork4.r_forkreq );
+      connectNodePorts( m_philosopher3.r_forkreq, m_fork4.l_forkreq );
+      
+      connectNodePorts( m_philosopher5.l_forkreq, m_fork5.r_forkreq );
+      connectNodePorts( m_philosopher4.r_forkreq, m_fork5.l_forkreq );
+
+      connectNodePorts( m_philosopher1.sitreq,   m_footman.sitreq_1   );
+      connectNodePorts( m_philosopher1.standreq, m_footman.standreq_1 );
+
+      connectNodePorts( m_philosopher2.sitreq,   m_footman.sitreq_2   );
+      connectNodePorts( m_philosopher2.standreq, m_footman.standreq_2 );
+
+      connectNodePorts( m_philosopher3.sitreq,   m_footman.sitreq_3   );
+      connectNodePorts( m_philosopher3.standreq, m_footman.standreq_3 );
+
+      connectNodePorts( m_philosopher4.sitreq,   m_footman.sitreq_4   );
+      connectNodePorts( m_philosopher4.standreq, m_footman.standreq_4 );
+
+      connectNodePorts( m_philosopher5.sitreq,   m_footman.sitreq_5   );
+      connectNodePorts( m_philosopher5.standreq, m_footman.standreq_5 );
+      
+      asap = new hscd_scheduler_asap( "asap", getNodes() );
     }
-  }
-  
- public:
-  SC_CTOR(design_xaddy) {
-    SC_THREAD(worker_thread);
-  }
 };
 
-SC_MODULE(design_top) {
- public:
-  sc_in_clk		 clk;
-  hscd_csp_in< tokentype_ty >  in;
-  hscd_csp_out< tokentype_ty > out;
- private:
-  hscd_csp< tokentype_ty > f1, f2, f3, f4, f5, f6, f7, f8;
-  
-  design_mul2    *i_mul2;
-  design_expand  *i_expand;
-  design_sub1    *i_sub1;
-  design_pot2    *i1_pot2;
-  design_add3    *i_add3;
-  design_mul3 *i_mul3;
-  design_pot2    *i2_pot2;
-  design_xaddy     *i_xaddy;
-
-/*
-  void schedule( void ) {
-    sc_event x;
+int sc_main (int argc, char **argv) {
+  try {
+    m_top                             top("top");
+    std::list<hscd_csp_structure *>   nl;
     
-    while ( 1 ) {
-      i_mul2->activate(x);
-      wait(x);
-      i_expand->activate(x);
-      wait(x);
-      i_sub1->activate(x);
-      wait(x);
-      i1_pot2->activate(x);
-      wait(x);
-      i_add3->activate(x);
-      wait(x);
-      i_mul3->activate(x);
-      wait(x);
-      i2_pot2->activate(x);
-      wait(x);
-      i_xaddy->activate(x);
-      wait(x);
-    }
-  }*/
-  
- public:
-  SC_CTOR(design_top) {
-    i_mul2    = new  design_mul2( "i_mul2" );
-    i_expand  = new design_expand( "i_expand" );
-    i_sub1    = new design_sub1( "i_sub1" );
-    i1_pot2   = new design_pot2( "i1_pot2" );
-    i_add3    = new design_add3( "i_add3" );
-    i_mul3 = new design_mul3( "i_mul3" );
-    i2_pot2   = new design_pot2( "i2_pot2" );
-    i_xaddy     = new design_xaddy( "i_xaddy" );
-    i_mul2->clk(clk);
-    i_expand->clk(clk);
-    i_sub1->clk(clk);
-    i1_pot2->clk(clk);
-    i_add3->clk(clk);
-    i_mul3->clk(clk);
-    i2_pot2->clk(clk);
-    i_xaddy->clk(clk);
+    nl.push_front(&top);
+    hscd_scheduler_asap               sched("asap",nl);
     
-    i_mul2->in(in);
-    i_mul2->out(f1); i_expand->in(f1);
+    hscd_modes::dump( std::cout, top );
     
-    i_expand->out1(f2); i_sub1->in(f2);
-    i_sub1->out(f3); i1_pot2->in(f3);
-    i1_pot2->out(f4); i_xaddy->inx(f4);
-    
-    i_expand->out2(f5); i_add3->in(f5);
-    i_add3->out(f6); i_mul3->in(f6);
-    i_mul3->out(f7); i2_pot2->in(f7);
-    i2_pot2->out(f8); i_xaddy->iny(f8);
-    
-    i_xaddy->out(out);
-    
-    //SC_CTHREAD(worker_thread,clk.pos());
-    //SC_THREAD(schedule);
-    //sensitive << clkgen.posedge_event();
-    //SC_METHOD(clk_thread);
-    //sensitive << clk;
+    sc_start(-1);
+  } catch (...) {
+    std::cout << "exception !" << std::endl;
+    throw;
   }
-};
-
-SC_MODULE(token_source) {
- public:
-  sc_in_clk		 clk;
-  hscd_csp_out< tokentype_ty > out;
-  
- private:
-  void worker_thread( void ) {
-    tokentype_ty x = 0;
-    
-    while ( 1 ) {
-      out.write( x++ );
-    }
-  }
-  
- public:
-  SC_CTOR(token_source) {
-    SC_THREAD(worker_thread);
-  }
-};
-
-SC_MODULE(token_sink) {
- public:
-  sc_in_clk		 clk;
-  hscd_csp_in< tokentype_ty > in;
-  
- private:
-  void worker_thread( void ) {
-    while ( 1 ) {
-      std::cout << in.read() << std::endl;
-    }
-  }
-  
- public:
-  SC_CTOR(token_sink) {
-    SC_THREAD(worker_thread);
-    // SC_CTHREAD(worker_thread,clk.pos());
-  }
-};
-
-int sc_main( int argc, char *argv[] ) {
-  sc_clock clkgen("clkgen", 10, SC_NS);
-  hscd_csp< tokentype_ty >  fsrc( 16 ), fsink( 16 );
-  
-  design_top   top  ( "design_top" );
-  token_source tsrc ( "token_source" );
-  token_sink   tsink( "token_sink" );
-  
-  tsrc.clk( clkgen );
-  top.clk( clkgen );
-  tsink.clk( clkgen );
-
-  tsrc.out(fsrc);
-  top.in(fsrc);
-  top.out(fsink);
-  tsink.in(fsink);
-  
-  sc_start( -1 );
-  //sc_start( 1000, SC_NS );
-  
   return 0;
 }
