@@ -12,6 +12,19 @@ class hscd_choice_node
       : hscd_root_node(name) {}
 };
 
+class hscd_choice_active_node
+  : public hscd_choice_node {
+  protected:
+    virtual void process() = 0;
+    
+    SC_HAS_PROCESS(hscd_choice_active_node);
+    
+    hscd_choice_active_node(sc_module_name name)
+      : hscd_choice_node(name) {
+      SC_THREAD(process);
+    }
+};
+
 class hscd_transact_node
   : public hscd_choice_node {
   private:
@@ -21,6 +34,20 @@ class hscd_transact_node
   protected:
     hscd_transact_node(sc_module_name name)
       : hscd_choice_node(name) {}
+};
+
+class hscd_transact_active_node
+  : public hscd_transact_node {
+  private:
+  protected:
+    virtual void process() = 0;
+    
+    SC_HAS_PROCESS(hscd_transact_active_node);
+    
+    hscd_transact_active_node(sc_module_name name)
+      : hscd_transact_node(name) {
+      SC_THREAD(process);
+    }
 };
 
 class hscd_fixed_transact_node
