@@ -90,15 +90,40 @@ the framework presented before. In Section~\ref{software-architecture},
 a SystemC implementation of our framework called \SysteMoC{} is
 presented. Finally, we will give some examples using the \SysteMoC{}
 framework in Section~\ref{systemoc-examples}, and we conclude
-the present report in Section~\ref{conclusion}.
+the present report in Section~\ref{conclusions}.
 
 \section{Related Work}\label{related-work}
 
+SystemC \cite{glms:2002} already allows to implement
+dataflow MoCs via communicating actors and \code{sc\_fifo} channels.
+However, a dataflow MoC implemented in this way is unstructured
+and no possibilities exist for deriving information about its
+communication behavior. The facilities for implementing MoCs in
+SystemC have been extended by Herrera et al.~\cite{herrerasystemc:2004}
+which have implemented a custom library of channel types like rendezvous
+on top of the SystemC discrete-event simulation kernel. But no
+constraints have been imposed how these new channels types are used by
+an actor. Consequently, no information about the communication
+behavior of an actor can be derived.
+Implementing these channels on top of the SystemC discrete-event
+simulation kernel curtails the performance of such an implementation.
+Another approach has been taken by Patel et al.~\cite{fermatmoc:2004}
+which have extended SystemC itself with different simulation kernels
+for Communicating Sequential Processes and Finite State Machine MoCs
+to improve simulation efficiency. Moreover,
+they have implemented hierarchical compositon of MoCs following
+the approach of \hbox{Ptolemy II}. \hbox{Ptolemy II} \cite{ptolemyII} is a simulation
+framework for MoCs implemented in Java. Its aim is the exploration of
+different MoCs and the semantic of hierarchical composition of these MoC
+with each other.
+
+In contrast to the approaches discussed above, our methodology restricts
+the communication behavior in such a way that the identification,
+extraction, and analysis of different MoCs is permitted.
+
 \section{Aspect Overview}\label{aspect-overview}
 
-The different ordering relationships of time values can be
-used for formally comparing models of computation with each other \cite{Lee98}.
-A model of computation \cite{embsft:2002} is defined as the 
+A model of computation \cite{Lee98,embsft:2002} is defined as the
 interaction policy between \emph{actors} in an \emph{actor-oriented} design
 \cite{agha97abstracting:1997}. Actors are objects which execute concurrently. They can only
 communicate with the environment (other actors) through their \emph{actor ports}.
@@ -155,8 +180,8 @@ There are two \emph{network graph types} which are distinguished in our methodol
 
 \begin{definition}\label{petri-network-graph}
   A \emph{Petri network graph} is constrained such that exactly
-  one edge is incident to each actor port, i.e.
-  $\forall{p \in \mathcal{A}_{P}}: |(C \times \{p\}) \cap E| = 1$.
+  one edge is incident to each actor port,
+  i.e., $\forall{p \in \mathcal{A}_{P}}: |(C \times \{p\}) \cap E| = 1$.
 \end{definition}
 
 \begin{figure}
@@ -185,7 +210,7 @@ There are two \emph{network graph types} which are distinguished in our methodol
 
 \begin{definition}\label{dataflow-network-graph}
   A \emph{Dataflow network graph} is a petri network graph with the additional constraint
-  that the indegree and outdegree of each channel in the graph is exactly one, i.e.
+  that the indegree and outdegree of each channel in the graph is exactly one, i.e.,
   $\forall{c \in C}: |(\{c\} \times \mathcal{A}_{P_{i}}) \cap E| = 1 \wedge
                     |(\mathcal{A}_{P_{o}} \times \{c\}) \cap E| = 1$.
 \end{definition}
@@ -263,8 +288,8 @@ until the associated node functionality can be invoked.
 %\end{definition}
 
 \begin{definition}\label{activation-pattern}
-An \emph{activation pattern} is a function $q: A_{P} \to N_0, q \in Q$
-which maps each actor port to a natural number.
+An \emph{activation pattern} is a function $q: A_{P} \to N_0,\ q \in Q$
+which maps each actor port to a non-negative integer.
 The activation pattern is enabled if for each actor input port
 $a_{p} \in A_{P_{i}}$ at least $q(a_{p})$ tokens are available
 and for each actor output port
@@ -273,19 +298,19 @@ transmitted.
 \end{definition}
 
 \begin{definition}\label{interface-action}
-An \emph{interface action} is a tuple $J = (F,S_{succ}), J \in \mathcal{J}$ containing
-a node functionality, and a set of successor states $S_{succ}$ containing at least
+An \emph{interface action} is a tuple $J = (F,S_{succ}),\ J \in \mathcal{J}$ containing
+a node functionality $F \in \mathcal{F}$, and a set of successor states $S_{succ}$ containing at least
 one state $|S_{succ}| \ge 1$.
 \end{definition}
 
 \begin{definition}\label{interface-transition}
-An \emph{interface transition} is a tuple $T = (Q,\mathcal{J}), T \in \mathcal{T}$ containing
-an activation pattern $q$ and an interface action $J$.
+An \emph{interface transition} is a tuple $T = (q,J), T \in \mathcal{T}$ containing
+an activation pattern $q \in Q$ and an interface action $J in \mathcal{J}$.
 A transition is enabled if its corresponding activation pattern $q$ is enabled.
-If the included interface action has only one successor state $|J.S_{succ}| = 1$, the
-transition is called \emph{deterministic transition}.
-If more than one successor states are included in $J.S_{succ}$, the
-transition is called \emph{conflict transition}. Which state $s \in J.S_{succ}$
+If the associated interface action has only one successor state $|J.S_{succ}| = 1$, the
+transition is called a \emph{deterministic transition}.
+If more than one successor state is associated in $J.S_{succ}$, the
+transition is called a \emph{conflict transition}. What state $s \in J.S_{succ}$
 is actually used is a runtime decission of the node functionality $J.F$.
 \end{definition}
 
@@ -297,7 +322,7 @@ $k: S \times Q \to \mathcal{J} \cup \bot$,
 and a initial state $s_0 \in S$. An actor is inactive until at least
 one activation pattern $q$ is enabled which has a corresponding
 interface action in the current firing state $s \in S$ of the actor,
-i.e. $\exists{q \in Q}: k(s,q) \ne \bot \wedge q\ \mathrm{is\ enabled}$.
+i.e., $\exists{q \in Q}: k(s,q) \ne \bot \wedge q\ \mathrm{is\ enabled}$.
 The set of ready activation patterns is given by $Q_{ready}$.
 Exactly one activation pattern $q \in Q_{ready}$ will be
 chosen nondeterministically and its corresponding interface action
@@ -311,7 +336,7 @@ These firing rules are constructed by use of the following operations:
 
 \emph{Branch} is a operation which maps a node functionality $F$ and
 a none empty set of firing state $S_{B} \ne \emptyset$ to an interface action $J$,
-i.e. $\mathrm{Call}: \mathcal{F} \times 2^S \to \mathcal{J}$.
+i.e., $\mathrm{Call}: \mathcal{F} \times 2^S \to \mathcal{J}$.
 If the resulting interface action $J$ is included into a
 firing state $s_{c}$ it permits to create a conflict transition
 in the firing rules.
@@ -319,9 +344,9 @@ in the firing rules.
 
 \emph{Call} is a operation which maps a node functionality $F$ and
 a firing state $s$ to an interface action $J$,
-i.e. $\mathrm{Call}: \mathcal{F} \times S \to \mathcal{J}$.
+i.e., $\mathrm{Call}: \mathcal{F} \times S \to \mathcal{J}$.
 If the resulting interface action $J$ is included into a
-firing state $s_{c}$ it corresponds to a deterministic transition
+firing state $s_{c}$, it corresponds to a deterministic transition
 in the firing rules from the state $s_{c}$ to state $s$.
 Furthermore, the call operation is clearly a subset of the
 branch operation.
@@ -330,13 +355,13 @@ branch operation.
 
 \emph{Transition} is a operation which maps an activation pattern $q$ and
 an interface action $J$ to an interface transition $T$,
-i.e. $\mathrm{Transition}: Q \times \mathcal{J} \to \mathcal{T}$.
+i.e., $\mathrm{Transition}: Q \times \mathcal{J} \to \mathcal{T}$.
 
 \item choice
 
 \emph{Choice} is a operation which maps a set of interface transitions $\mathcal{T}$
 to a firing state $s$,
-i.e. $\mathrm{Choice}: 2^{\mathcal{T}} \to S$.
+i.e., $\mathrm{Choice}: 2^{\mathcal{T}} \to S$.
 The firing state created by this operation can have multiple outgoing
 transitions.
 
@@ -344,7 +369,7 @@ transitions.
 
 \emph{Transact} is a operation which maps an interface transition $T$
 to a firing state $s$,
-i.e. $\mathrm{Transact}: \mathcal{T} \to S$.
+i.e., $\mathrm{Transact}: \mathcal{T} \to S$.
 The firing state created by this operation has only one outgoing
 transition $T$. Furthermore, the transact operation is clearly a subset of the
 choice operation.
@@ -356,18 +381,18 @@ Our methodology distinguishes three separate \emph{node interface types}
 by the set of operations available to them:
 
 \begin{definition}\label{choice-node-interface-type}
-Choice node interface type has the operations
-\emph{transition}, \emph{choice}, \emph{transact}, \emph{call} and \emph{branch} available.
+Choice node interface provides the operations
+\emph{transition}, \emph{choice}, \emph{transact}, \emph{call} and \emph{branch}.
 \end{definition}
 
 \begin{definition}\label{transact-node-interface-type}
-Transact node interface type has the operations
-\emph{transition}, \emph{transact}, \emph{call} and \emph{branch} available.
+Transact node interface provides the operations
+\emph{transition}, \emph{transact}, \emph{call} and \emph{branch}.
 \end{definition}
 
 \begin{definition}\label{fixed-transact-node-interface-type}
-Fixed transact node interface type has only the operations
-\emph{transition} and \emph{call} available.
+Fixed transact node interface provides only the operations
+\emph{transition} and \emph{call}.
 \end{definition}
 
 % \emph{Choice} is an operation defined on a set of actor ports $A_{P}$
@@ -667,17 +692,17 @@ Due to its high abstraction level and its capabilities in both,
 hardware and software refinement, we have chosen SystemC
 \cite{systemc-lrm:2003,glms:2002} as our platform for system design.
 SystemC is an actor-oriented C++-Based design language and
-already allow to express dataflow MoCs.
+already allows to express dataflow MoCs.
 
 In the following, we propose a SystemC framework, called \SysteMoC, which
-facilitates automatic extraction of the MoC of a SystemC design.
+facilitates automatic extraction of a MoC from a SystemC design.
 Actors in SystemC are C++ classes which are derived from the base class \code{sc\_module}.
 The \SysteMoC{} framework provides the execution requirements for each MoC while
 still supporting the extraction of the information needed for analysis.
 This analysis is made possible by dividing the actor into its
 node functionality and its node interface.
 Furthermore, the \SysteMoC{} framework provides a way for these
-actors to be connected to each other, via their ports. This connections
+actors to be connected to each other. This connections
 are provided by the network graph.
 %Actors can have their own thread of control or be without. Actors
 %with their own thread of control will be called in the following
@@ -694,7 +719,7 @@ and written to the actor ports. All actor ports are globally accessible
 by the actor member functions and can be used to get input data
 and put output data for the node functionality
 (See Figure~\ref{example-adder-actor} and Figure~\ref{example-multiply-actor}
- method \code{transform} for an example of a node functionality).
+ for an example of a node functionality encapsulated in the method \code{transform}).
 
 \begin{figure}[h]
 \centering
@@ -822,25 +847,26 @@ public:
 The problem of extracting the communication behavior of an actor is caused
 by the fact, that the communication methods in SystemC are all accessible
 to all SystemC modules. Moreover, execution of these methods is controlled
-by the Turing equivalent coding possibilities in the actor. To remedy these
-problems we prohibit any method calls on \SysteMoC{} channels. Moreover,
-communication over other media than \SysteMoC{} channels is forbidden but
-this cannot be strictly enforced. So we require the \SysteMoC{} user
+by the Turing complete coding possibilities in the actor. To remedy these
+problems, we prohibit any method calls on \SysteMoC{} channels
+by the node functionality. Moreover,
+communication over other media than \SysteMoC{} channels is forbidden.
+Unfortunately this cannot be strictly enforced. Hence, we require the \SysteMoC{} user
 to assure that the node functionality does terminate and does not
-communicate with other actors.
+directly communicate with other actors omitting the \SysteMoC{} channels.
 
-After prohibiting any form of communication by the node functionality we
-instead introduced firing rules which is a state machine which determines
-the communication behaviour of the actor. However some MoCs, e.g. KPN, need
-a turing equivalent control of their communication behaviour. To
-accomodate this we again allow the node functionality to indirectly
+After prohibiting any form of communication by the node functionality we,
+instead introduce firing rules which is a state machine which determines
+the communication behavior of an actor. However some MoCs, e.g. KPN, need
+a Turing complete control of their communication behavior. To
+accomodate this, we again allow the node functionality to indirectly
 influence the communication behavior via a conflict transition
 created by the branch operation. Clearly this is undesirable for more
-constraint MoCs. Therefore, we have to distinguish firing rules into
+constrainted MoCs. Therefore, we have to distinguish firing rules into
 different categories which allow or disallow such possibilities. We
 distinguish firing rules into these categories by the operations we
-have available for constucting them. These operations are provided by the
-node interface, which is a base class of the actor. Therefore the
+support for constucting them. These operations are provided by the
+node interface which is a base class of the actor. Therefore the
 type of firing rules possible for an actor is determined by the
 node interface type from which the actor is derived.
 
@@ -850,13 +876,13 @@ node interface type from which the actor is derived.
 The set of operations available for each node interface type
 build a hierarchy of decreasing execution capabilities and
 correspondingly increasing analysis capabilities.
-The choice node interface is the most capable in the hierarchy,
-further down is the transact node interface, and at the bottom the
+The choice node interface is the most powerful in this hierarchy.
+Next is the transact node interface, and finally the last powerful is the
 fixed transact node interface. This can also be clearly seen
-by noticing that the operations available to node interface types
-further down are a strict subset of the operation set available
-to node interface types above them in the hierarchy. How these
-execution and analysis capabilities map to some transformative
+by observing the operations available to node interface types.
+Less powerful node interface types provide a strict subset of
+the operations available on higher levels in the hierarchy.
+How these execution and analysis capabilities map to some transformative
 MoCs has been presented in Section~\ref{revision-of-mocs}.
 
 \begin{figure}[h]
@@ -871,9 +897,8 @@ The node interface types are mapped to C++ class types as follows:
 (i) The choice node interface is represented by the \code{hscd\_choice\_node} class.
 (ii) The transact node interface is represented by the \code{hscd\_transact\_node} class.
 (iii) The fixed transact node interface is represented by the \code{hscd\_fixed\_transact\_node} class.
-Node interface types further down in the hierarchy inherit
-from ones above them. Operations which are no longer available for
-node interface types further down are disabled by declaring them private.
+Operations which are no longer available for node interface types
+at lower levels inthe hierarchy are disabled by declaring them to be private.
 
 %\begin{enumerate}
 %\item Choice Node
@@ -951,10 +976,10 @@ node interface types further down are disabled by declaring them private.
 
 \subsection{Network Graph Type}
 
-To complete a executable specification in \SysteMoC{} additionally
-to the information about the actors, information about the connections
+To complete an executable specification in \SysteMoC{}, beside
+the information about the actors, additionally information about the connections
 of the actors with each other is needed. This information is stored
-in the network graph part of the executable specification, which can
+in the network graph of the executable specification, which can
 be categorized into two different network graph types as defined in
 Subsection~\ref{network-graph}.
 
@@ -966,13 +991,26 @@ be fully assembled. No alteration at a later date is allowed.
 The methods provided by the \SysteMoC{} graph type class together with runtime checks
 in these methods constrain the constructed network graph to conform to the corresponding
 network graph type.
-Therefore the network graph type of a network graph can be determined by looking
+Therefore, the network graph type of a network graph can be determined by looking
 at the base class of the network graph class.
 The network graph types are mapped to C++ class types as follows:
 (i) The petri network graph is represented by the \code{hscd\_graph\_petri} class.
 (ii) And the dataflow network graph is represented by the \code{hscd\_graph\_dataflow} class.
+Of the two network graph types the dataflow network graph is the more constraint
+one. Therefore, it is implemented by deriving from the petri network graph
+and disabling by declaring private the \code{registerChan} and \code{connectChanPort}
+methods which allow the creation of channels with multiple indegree and outdegree.
+This hierarchy is shown in Figure~\ref{network-graph-hierarchy}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{NetworkGraphHierarchy.\graphicPostfix}\\
+\caption{\label{network-graph-hierarchy}UML inheritance hierarchy of the network graph types}
+\end{figure}
+
 To construct the network graph the following methods are available for
 composition of a network graph of the desired type:
+
 \begin{enumerate}
 \item Petri network graph
 
@@ -1016,12 +1054,6 @@ composition of a network graph of the desired type:
 
 \end{enumerate}
 
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.5]{NetworkGraphHierarchy.\graphicPostfix}\\
-\caption{\label{node-interface-hierarchy}UML inheritance hierarchy of the network graph types}
-\end{figure}
-
 %\begin{table}[h]
 %\centering
 %\begin{tabular}{|l|l|}
@@ -1037,19 +1069,20 @@ composition of a network graph of the desired type:
 
 \subsection{Channel Kind}
 
-SystemC is an actor-oriented design framework, it has the concepts
-of actors and channels. So the channel kind aspect of the \SysteMoC{}
+SystemC is an actor-oriented design language, i.e., it supports the concept
+of actors and channels. The channel kind aspect of the \SysteMoC{}
 framework can cleanly be implemented as a base class of a channel in SystemC.
-The channel kind determines the communication semantic of a channel but not
-the data type of the tokens. The channel type is a template parameterized
+The channel kind determines the communication semantics of a channel but
+makes no assumptions about the data type of the tokens.
+The channel type is a template parameterized
 with the data type for the tokens and derived from the channel kind.
 Identifying the channel kind with a base class instead of a template enables
 easier type signature checks of C++ for the enforcement of a particular
 channel kind of a channel instance.
 
-Further differences between \SysteMoC{} channels and a SystemC channels consist of the
+Further differences between \SysteMoC{} channels and SystemC channels are the
 absence of user callable methods for communicating on the \SysteMoC{} channels.
-Having those communication methods on the channels would contradict the separation
+Providing those communication methods on the channels would contradict the separation
 of node interface and channel kind. The mapping of channel kind to corresponding C++
 class types is as follows:
 (i) The fifo channel kind is represented by the \code{hscd\_fifo\_kind} class.
@@ -1075,11 +1108,11 @@ to map the requirements of some MoCs to the aspects presented
 in Section~\ref{aspect-overview}. Furthermore, the analysis
 requirement of these MoCs translate into certain constraints
 on the aspects presented before. These constraints are
-used to distinguish a aspect into aspect types. Therefore
+used to distinguish an aspect into aspect types. Therefore
 for each MoC presented in Section~\ref{revision-of-mocs}
-we have a set of aspect types, called \emph{constraint set} and
-shown in table~\ref{constraintset-composition},
-which represent the analysis requirements of this MoC.
+we have a set of aspect types, called \emph{constraint set}.
+Predefined constraint sets supported by \SysteMoC{} are
+shown in Table~\ref{constraintset-composition}.
 
 \begin{table}[h]
 \centering
@@ -1098,10 +1131,10 @@ which represent the analysis requirements of this MoC.
   and network graph type}
 \end{table}
 
-The aspect types in the constraint set are node interface 
-, channel kind and network graph. The node interface and
+The aspect types in the constraint set are node interface,
+channel kind and network graph. The node interface and
 and channel kind are represented as \SysteMoC{} classes in
-SystemC, the third network graph is represented as
+SystemC, the network graph is represented as
 a C++ template in \SysteMoC{}. Parameterizing this template
 with the channel kind and node interface (As shown in
 table~\ref{constraintset-c++}) leads to a C++
@@ -1131,11 +1164,11 @@ type which represents the constraint set in \SysteMoC{}.
 \end{table}
 
 The executable specification with a certain constraint set is
-represented by a user provided C++ class, called top class an example of
-which is seen in Figure~\ref{example-sdf-constraintset}, which is
+represented by a user provided C++ class. An example
+is shown in Figure~\ref{example-sdf-constraintset}, which is
 derived from the selected \SysteMoC{} constraint set type and by
 user provided C++ classes representing the actors of the specification.
-This actors are derived from a \SysteMoC{} node interface type which
+These actors are derived from a \SysteMoC{} node interface type which
 meet the requirements of the selected constraint set. The network graph
 is assembled in the constructor of the top class by using the
 operators provided by the \SysteMoC{} network graph type.
@@ -1372,9 +1405,17 @@ class m_top
   dining philosophers problem in \SysteMoC{}}
 \end{figure}
 
-\section{Conclusion}\label{conclusion}
+\section{Conclusions}\label{conclusions}
 
-
+We have implemented a framework which restricts
+the communication behavior of actor-oriented MoCs in such a way that the identification,
+extraction, and analysis of these MoCs is permitted.
+In actor-oriented design, actors only
+communicate with each other via channels instead of method calls as known
+in object-oriented design. In our proposed methodology, the specification is
+distinguished in four different aspects,
+namely \emph{node functionality}, \emph{node interface}, \emph{network graph}, and
+\emph{channel kind}. Our result is a SystemC library named \SysteMoC{}.
 
 \clearpage
 \appendix
