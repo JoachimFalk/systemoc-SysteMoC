@@ -8,14 +8,12 @@
 #include <vector>
 
 // #include <iostream>
-//
-//
+
 class hscd_fifo_kind
   : public sc_prim_channel {
 public:
   typedef hscd_fifo_kind  this_type;
  
-  template <typename Z>
   class chan_init {
     friend class hscd_fifo_kind;
   private:
@@ -50,8 +48,7 @@ protected:
   }
   
   // constructors
-  template <typename Z>
-  hscd_fifo_kind( const chan_init<Z> &i )
+  hscd_fifo_kind( const chan_init &i )
     : sc_prim_channel(
         i.name != NULL ? i.name : sc_gen_unique_name( "hscd_fifo" ) ),
       fsize(i.n+1), rindex(0), windex(0) {}
@@ -73,20 +70,18 @@ public:
   typedef T                      data_type;
   typedef hscd_fifo_storage<T>   this_type;
   
-  template <typename Z>
   class chan_init
-    : public hscd_fifo_kind::chan_init<Z> {
+    : public hscd_fifo_kind::chan_init {
     friend class hscd_fifo_storage<T>;
   private:
     std::vector<T> marking;
   public:
-    Z &operator <<( const T x ) {
+    void add( const T x ) {
       marking.push_back(x);
-      return *reinterpret_cast<Z *>(this);
     }
   protected:
     chan_init( const char *name, size_t n )
-      : hscd_fifo_kind::chan_init<Z>(name, n) {}
+      : hscd_fifo_kind::chan_init(name, n) {}
   };
 private:
   data_type *storage;
@@ -110,8 +105,7 @@ protected:
       *out.nextAddr() = *in.nextAddr();
   }
  
-  template <typename Z>
-  hscd_fifo_storage( const chan_init<Z> &i )
+  hscd_fifo_storage( const chan_init &i )
     : hscd_fifo_kind(i), storage(new data_type[fsize]) {
     assert( fsize > i.marking.size() );
     memcpy( storage, &i.marking[0], i.marking.size()*sizeof(T) );
@@ -146,8 +140,7 @@ protected:
     }
   }
  
-  template <typename Z>
-  hscd_fifo_storage( const chan_init<Z> &i )
+  hscd_fifo_storage( const chan_init &i )
     : hscd_fifo_kind(i) {}
 };
 
@@ -166,8 +159,7 @@ protected:
   iface_type out;
 public:
   // constructors
-  template <typename Z>
-  hscd_fifo_type( const typename hscd_fifo_storage<T>::chan_init<Z> &i )
+  hscd_fifo_type( const typename hscd_fifo_storage<T>::chan_init &i )
     : hscd_fifo_storage<T>(i) {}
   
   // interface methods
@@ -207,16 +199,20 @@ private:
 
 template <typename T>
 class hscd_fifo
-  : public hscd_fifo_storage<T>::chan_init< hscd_fifo<T> > {
+  : public hscd_fifo_storage<T>::chan_init {
 public:
   typedef T                   data_type;
   typedef hscd_fifo<T>        this_type;
   typedef hscd_fifo_type<T>   chan_type;
   
+  this_type &operator <<( const T x ) {
+    add(x); return *this;
+  }
+  
   hscd_fifo( size_t n = 1 )
-    : hscd_fifo_storage<T>::chan_init< hscd_fifo<T> >(NULL,n) {}
+    : hscd_fifo_storage<T>::chan_init(NULL,n) {}
   explicit hscd_fifo( const char *name, size_t n = 1)
-    : hscd_fifo_storage<T>::chan_init< hscd_fifo<T> >(name,n) {}
+    : hscd_fifo_storage<T>::chan_init(name,n) {}
 };
 
 #endif // _INCLUDED_HSCD_FIFO_HPP

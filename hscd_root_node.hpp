@@ -6,7 +6,9 @@
 #include <hscd_root_port_list.hpp>
 #include <hscd_port.hpp>
 #include <hscd_op.hpp>
-#include <hscd_pggen.hpp>
+#ifndef __SCFE__
+# include <hscd_pggen.hpp>
+#endif
 
 //#include <oneof.hpp>
 
@@ -27,8 +29,10 @@
 
 class hscd_opbase_node
   : public sc_module,
-    public hscd_root_node_op_if,
-    public hscd_modes::hscd_modes_base_structure {
+#ifndef __SCFE__
+    public hscd_modes::hscd_modes_base_structure,
+#endif
+    public hscd_root_node_op_if {
   private:
 //    typedef std::list<hscd_root_port *> ports_ty;
 //    ports_ty                            ports;
@@ -84,7 +88,9 @@ class hscd_root_node
     //sc_event		_fire;
     hscd_port_in<void>  fire_port;
 
+#ifndef __SCFE__
     void assemble( hscd_modes::PGWriter &pgw ) const;
+#endif
 };
 
 #endif // _INCLUDED_HSCD_ROOT_NODE_HPP

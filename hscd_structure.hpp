@@ -7,7 +7,9 @@
 #include <hscd_fifo.hpp>
 #include <hscd_rendezvous.hpp>
 #include <hscd_node_types.hpp>
-#include <hscd_pggen.hpp>
+#ifndef __SCFE__
+# include <hscd_pggen.hpp>
+#endif
 
 #include <list>
 #include <map>
@@ -91,9 +93,11 @@ public:
   
   const nodes_ty      &getNodes() const { return nodes; }
   const chan2ports_ty &getChans() const { return chan2ports; }
-  
+ 
+#ifndef __SCFE__
   void assemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const;
   void pgAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const;
+#endif
 };
 
 template <typename T_node_type, typename T_chan_kind>
@@ -136,12 +140,14 @@ public:
       connectNodePorts(a,b,hscd_fifo<T_value_type>(n));
   }
   
+#ifndef __SCFE__
   void assemble( hscd_modes::PGWriter &pgw ) const {
     return hscd_structure_sdf<hscd_fixed_transact_node, hscd_fifo_kind>::assemble(this,pgw);
   }
   void pgAssemble( sc_module *m, hscd_modes::PGWriter &pgw ) const {
     return hscd_structure_sdf<hscd_fixed_transact_node, hscd_fifo_kind>::pgAssemble(this,pgw);
   }
+#endif
 protected:
   void process() {}
 };
@@ -169,12 +175,14 @@ public:
       connectNodePorts(a,b,hscd_fifo<T_value_type>(n));
   }
 
+#ifndef __SCFE__
   void assemble( hscd_modes::PGWriter &pgw ) const {
     return hscd_structure_sdf<hscd_choice_node, hscd_fifo_kind>::assemble(this,pgw);
   }
   void pgAssemble( sc_module *m, hscd_modes::PGWriter &pgw ) const {
     return hscd_structure_sdf<hscd_choice_node, hscd_fifo_kind>::pgAssemble(this,pgw);
   }
+#endif
 protected:
   void process() {}
 };
@@ -197,12 +205,14 @@ public:
       connectNodePorts(a,b,hscd_rendezvous<T_value_type>());
   }
 
+#ifndef __SCFE__
   void assemble( hscd_modes::PGWriter &pgw ) const {
     return hscd_structure_sdf<hscd_choice_node, hscd_rendezvous_kind>::assemble(this,pgw);
   }
   void pgAssemble( sc_module *m, hscd_modes::PGWriter &pgw ) const {
     return hscd_structure_sdf<hscd_choice_node, hscd_rendezvous_kind>::pgAssemble(this,pgw);
   }
+#endif
 protected:
   void process() {}
 };
