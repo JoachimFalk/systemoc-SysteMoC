@@ -10,6 +10,9 @@ struct void2_st {
 struct void3_st {
 };
 
+#define _ONEOFDEBUG(x) do {} while (0)
+//#define _ONEOFDEBUG(x) std::cerr << x << std::endl
+
 template <typename T1, typename T2 = void2_st, typename T3 = void3_st>
 class oneof {
   public:
@@ -34,16 +37,16 @@ class oneof {
     template <class T> void _call_destructor( T  *x ) { x->~T(); }
     template <typename T> void _call_destructor( T ) {}
   public:
-    oneof(): valid(0) { std::cerr << "oneof()" << std::endl; }
+    oneof(): valid(0) { _ONEOFDEBUG("oneof()"); }
     oneof(const this_type &x): valid(x.valid) { switch (x.valid) {
-      case 1: std::cerr << "oneof(const oneof &) (T1)" << std::endl; _construct<T1>(x); break;
-      case 2: std::cerr << "oneof(const oneof &) (T2)" << std::endl; _construct<T2>(x); break;
-      case 3: std::cerr << "oneof(const oneof &) (T3)" << std::endl; _construct<T3>(x); break;
-      default: std::cerr << "oneof(const oneof &) ()" << std::endl; assert(x.valid == 0); break;
+      case 1: _ONEOFDEBUG("oneof(const oneof &) (T1)"); _construct<T1>(x); break;
+      case 2: _ONEOFDEBUG("oneof(const oneof &) (T2)"); _construct<T2>(x); break;
+      case 3: _ONEOFDEBUG("oneof(const oneof &) (T3)"); _construct<T3>(x); break;
+      default: _ONEOFDEBUG("oneof(const oneof &) ()"); assert(x.valid == 0); break;
     } }
-    oneof(const T1 &e): valid(1) { std::cerr << "oneof( const T1 & )" << std::endl; _construct<T1>(e); }
-    oneof(const T2 &e): valid(2) { std::cerr << "oneof( const T2 & )" << std::endl; _construct<T2>(e); }
-    oneof(const T3 &e): valid(3) { std::cerr << "oneof( const T3 & )" << std::endl; _construct<T3>(e); }
+    oneof(const T1 &e): valid(1) { _ONEOFDEBUG("oneof( const T1 & )"); _construct<T1>(e); }
+    oneof(const T2 &e): valid(2) { _ONEOFDEBUG("oneof( const T2 & )"); _construct<T2>(e); }
+    oneof(const T3 &e): valid(3) { _ONEOFDEBUG("oneof( const T3 & )"); _construct<T3>(e); }
     
     this_type &operator = (const T1 &x) {
       reset(); _construct<T1>(x); valid = 1; return *this; }
@@ -60,10 +63,10 @@ class oneof {
     operator const T3 &() const { assert(valid == 3); return _element<T3>(); }
     
     void reset() { switch (valid) {
-      case 1: std::cerr << "oneof.reset() (T1)" << std::endl; _destroy<T1>(); break;
-      case 2: std::cerr << "oneof.reset() (T2)" << std::endl; _destroy<T2>(); break;
-      case 3: std::cerr << "oneof.reset() (T3)" << std::endl; _destroy<T3>(); break;
-      default: std::cerr << "oneof.reset() ()" << std::endl; assert(valid == 0); break;
+      case 1: _ONEOFDEBUG("oneof.reset() (T1)"); _destroy<T1>(); break;
+      case 2: _ONEOFDEBUG("oneof.reset() (T2)"); _destroy<T2>(); break;
+      case 3: _ONEOFDEBUG("oneof.reset() (T3)"); _destroy<T3>(); break;
+      default: _ONEOFDEBUG("oneof.reset() ()"); assert(valid == 0); break;
     } }
     
     int type() const { return valid; }
