@@ -40,9 +40,6 @@ ACJF_ARG_DEBUG(yes, , [-DNDEBUG])
 dnl check for exe extension
 AC_EXEEXT
 
-# FIXME: Replace `main' with a function in `-lsystemc':
-AC_CHECK_LIB([systemc], [main])
-
 # Checks for header files.
 # AC_FUNC_ALLOCA
 # AC_HEADER_STDC
@@ -51,6 +48,8 @@ AC_CHECK_LIB([systemc], [main])
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
+
+ACJF_SYSTEMC
 
 AC_CONFIG_FILES([Makefile Docu/Makefile])
 

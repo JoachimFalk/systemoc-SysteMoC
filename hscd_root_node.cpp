@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
 #include <hscd_root_node.hpp>
-#include <systemc/kernel/sc_object_manager.h>
+// #include <systemc/kernel/sc_object_manager.h>
 
 void hscd_root_node::leafAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const {
   pgw << "<process name=\"" << m->name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
