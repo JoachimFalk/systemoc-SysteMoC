@@ -35,12 +35,12 @@ pkgincludeprefix=systemoc/
 compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 	@date > $@
 
-INCLUDES	= -I$(root_srcdir)/systemc-2.0.1/include	\
-		  -I$(root_srcdir)/systemc-2.0.1/src		\
-		  -I./include					\
-		  -I$(srcdir)
-AM_LDFLAGS	= -L$(root_srcdir)/systemc-2.0.1/lib-linux	\
-		  -L$(builddir)/systemc-systemoc/lib
+INCLUDES =				\
+	@SYSTEMC_INCLUDE@		\
+	-I./include			\
+	-I$(srcdir)
+#	-I$(root_srcdir)/systemc-2.0.1/src
+
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -76,7 +76,7 @@ libsystemoc_CH_LTOBJS=				\
 	$(hscd_root_port_list_hpp_CH_LTOBJS)	\
 	$(hscd_pggen_hpp_CH_LTOBJS)
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lsystemc -lstdc++
+libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include
 

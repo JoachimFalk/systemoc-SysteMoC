@@ -1,5 +1,5 @@
 #include <hscd_graph_type.hpp>
-#include <systemc/kernel/sc_object_manager.h>
+// #include <systemc/kernel/sc_object_manager.h>
 
 template <typename T_node_type,
           typename T_chan_kind,
