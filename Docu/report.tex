@@ -210,10 +210,24 @@ There are two network graph types which are distinguished by our methodology:
 \input{ng-petri-fig.tex}
 \caption{\label{ng-petri}
   In a \emph{petri network graph} exactly
-  one edge enters an actor input port.}
+  one edge enters an actor input port. The
+  indegree and outdegree of channels are
+  unconstraint. See for example channel $c_2$
+  which has both an indegree and outdegree of
+  two.}
 \end{figure}
 
-  In other words, an example of a petri network graph is shown in Figure~\ref{ng-petri}.
+  An example of a petri network graph is shown in Figure~\ref{ng-petri}.
+  It demonstrates the use of a petri network graph in modelling
+  a MAC unit which accumulates in channel $c_2$ the product of
+  the values read in from the uplevel input ports $p_{i_1}$ and $p_{i_2}$.
+  The uplevel input port $p_{i_3}$ is used to exchange the
+  accumulated value in $c_2$ with the input from $p_{i_3}$. The
+  old value of $c_2$ is send to the uplevel output port $p_{o_1}$
+  via the exchange actor $a_3$. The model uses the nondeterminism
+  of the petri network graph which allows to read the value of channel
+  $c_2$ from different actors to either accumulate additionall
+  data via actor $a_2$ or exchange the value via actor $a_3$.
 
 \begin{definition}\label{dataflow-network-graph}
   A Dataflow network graph is a petri network graph with the additional constraint
@@ -222,7 +236,14 @@ There are two network graph types which are distinguished by our methodology:
                     |(\mathcal{A}_{P_{o}} \times \{c\}) \cap E| = 1$.
 \end{definition}
 
-  In other words, an example of a dataflow network graph is shown in Figure~\ref{ng-dataflow}.
+  An example of a dataflow network graph is shown in Figure~\ref{ng-dataflow}.
+  It demonstrates the use of a dataflow network graph in modelling
+  a MAC unit which accumulates in channel $c_2$ and $c_3$ the product of
+  the values read in from the uplevel input ports $p_{i_1}$ and $p_{i_2}$.
+  Additionally for each value pair from $p_{i_1}$ and $p_{i_2}$ the
+  new accumulated value is send to the output port $p_{o_1}$ via
+  the fork actor $a_3$. The fork actor dupplicates its recieved
+  value on $a_{3_{pi1}}$ to its outputs $a_{3_{po1}}$ and $a_{3_{po2}}$.
 
 \begin{figure}
 \centering
