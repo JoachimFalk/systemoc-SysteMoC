@@ -3,7 +3,7 @@
 TEX_SOURCES=report.tex
 
 RESDIR=$(top_srcdir)/../HscdTeXRes
-TEXINPUTS:=$(RESDIR):$(TEXINPUTS)
-TEXCLEANDIRS:=$(RESDIR) .
+TEXINPUTS:=figs:$(RESDIR):$(TEXINPUTS)
+TEXCLEANDIRS:=figs $(RESDIR) .
 
 include $(RESDIR)/Rules-TeX.mk
