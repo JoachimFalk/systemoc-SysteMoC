@@ -14,8 +14,12 @@
 
 #include <list>
 
+//#define linkme(instance,port,chan) do {     \
+//  (instance).registerPort((instance).port); \
+//  (instance).port(chan);                    \
+//} while ( 0 )
+
 #define linkme(instance,port,chan) do {     \
-  (instance).registerPort((instance).port); \
   (instance).port(chan);                    \
 } while ( 0 )
 
