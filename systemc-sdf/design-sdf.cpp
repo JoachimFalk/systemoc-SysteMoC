@@ -4,44 +4,14 @@
 #include <iostream>
 
 #include <hscd_structure.hpp>
-#include <hscd_scheduler.hpp>
 #include <hscd_moc.hpp>
 #include <hscd_port.hpp>
 #include <hscd_fifo.hpp>
 #include <hscd_node_types.hpp>
 #ifndef __SCFE__
+# include <hscd_scheduler.hpp>
 # include <hscd_pggen.hpp>
 #endif
-
-/*
-class m_top_asap_scheduler
-  : public hscd_scheduler_base {
-  private:
-    hscd_rendezvous<void> chan_source, chan_adder, chan_sink;
-    hscd_port_out<void>   source, adder, sink;
-    
-    void schedule() {
-      // while ( 1 ) choice( source(1) | adder(1) | sink(1) );
-      while ( 1 ) {
-        transact ( source(2) );
-        transact ( adder(1) );
-        transact ( sink(1) );
-      }
-    }
-  public:
-    SC_HAS_PROCESS(m_top_asap_scheduler);
-    
-    m_top_asap_scheduler( hscd_port_in<void> &fire_source,
-                          hscd_port_in<void> &fire_adder, 
-                          hscd_port_in<void> &fire_sink )
-      : hscd_scheduler_base("m_top_asap_scheduler") {
-      
-      fire_source(chan_source); source(chan_source);
-      fire_adder (chan_adder);  adder (chan_adder);
-      fire_sink  (chan_sink);   sink  (chan_sink);
-      SC_THREAD(schedule);
-    }
-};*/
 
 template <typename T>
 class m_adder: public hscd_fixed_transact_active_node {
