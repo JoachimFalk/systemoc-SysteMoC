@@ -3,12 +3,14 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <hscd_structure.hpp>
-#include <hscd_scheduler.hpp>
+#include <hscd_moc.hpp>
 #include <hscd_port.hpp>
 #include <hscd_rendezvous.hpp>
 #include <hscd_node_types.hpp>
-#include <hscd_pggen.hpp>
+#ifndef __SCFE__
+# include <hscd_scheduler.hpp>
+# include <hscd_pggen.hpp>
+#endif
 
 enum dp_forkreq_ty { FORK_TAKE, FORK_DROP };
 
@@ -115,12 +117,10 @@ public:
 };
 
 class m_top
-: public hscd_csp_structure {
-  private:
-    hscd_scheduler_asap *asap;
+: public hscd_csp_constraintset {
   public:
-    m_top( sc_module_name _name )
-      : hscd_csp_structure(_name) {
+    m_top( sc_module_name name )
+      : hscd_csp_constraintset(name) {
       dp_fork        &m_fork1        = registerNode(new dp_fork("m_fork1"));
       dp_fork        &m_fork2        = registerNode(new dp_fork("m_fork2"));
       dp_fork        &m_fork3        = registerNode(new dp_fork("m_fork3"));
@@ -162,15 +162,16 @@ class m_top
 
       connectNodePorts( m_philosopher5.sitreq,   m_footman.sitreq_5   );
       connectNodePorts( m_philosopher5.standreq, m_footman.standreq_5 );
-      
-      asap = new hscd_scheduler_asap( "asap", getNodes() );
     }
 };
 
 int sc_main (int argc, char **argv) {
+#ifndef __SCFE__
   try {
-    m_top *top;
-    hscd_top x( (top = new m_top("top")) );
+#endif
+    hscd_csp_moc<m_top> *top = new hscd_csp_moc<m_top>("top");
+#ifndef __SCFE__
+    hscd_top x(top);
     
     hscd_modes::dump( std::cout, *top );
     
@@ -179,5 +180,6 @@ int sc_main (int argc, char **argv) {
     std::cout << "exception !" << std::endl;
     throw;
   }
+#endif
   return 0;
 }

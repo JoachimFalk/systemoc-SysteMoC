@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <hscd_structure.hpp>
 #include <hscd_moc.hpp>
 #include <hscd_port.hpp>
 #include <hscd_fifo.hpp>
