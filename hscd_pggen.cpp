@@ -20,16 +20,26 @@ namespace hscd_modes {
       ? indent_buf : indent_buf + indent_buf_len - indent;
   }
     
-  int PGWriter::getId( const void *p ) {
+  std::string PGWriter::toId(int id) {
+    std::ostringstream o;
+    o << "id" << id;
+    return o.rdbuf()->str();
+  }
+
+  std::string PGWriter::getId() {
+    return toId(idmap_last++);
+  }
+
+  std::string PGWriter::getId( const void *p ) {
     idmap_ty::iterator find_iter = idmap.find(p);
     
     if ( find_iter == idmap.end() ) {
       idmap[p] = idmap_last;
-      return idmap_last++;
+      return getId();
     } else
-      return find_iter->second;
+      return toId(find_iter->second);
   }
-  
+
   void dump( std::ostream &out, const hscd_modes_base_structure &top ) {
     PGWriter pgw( out );
     pgw << "<?xml version=\"1.0\"?>" << std::endl;

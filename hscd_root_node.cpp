@@ -1,11 +1,10 @@
 // vim: set sw=2 ts=8:
 
 #include <hscd_root_node.hpp>
-
 #include <systemc/kernel/sc_object_manager.h>
 
 void hscd_root_node::assemble( hscd_modes::PGWriter &pgw ) const {
-  pgw << "<process name=\"" << name() << "\" id=\"" << pgw.getId(this) << ">" << std::endl;
+  pgw << "<process name=\"" << name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
   {
     sc_object_manager *om = simcontext()->get_object_manager();
     

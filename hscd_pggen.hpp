@@ -33,6 +33,8 @@ namespace hscd_modes {
     
     const char *
     indentation () const;
+    
+    std::string toId(int id);
   public:
     PGWriter( std::ostream &_out )
       : out(_out), idmap_last(0), indent_lev(0) {}
@@ -43,7 +45,8 @@ namespace hscd_modes {
     template <typename T>
     std::ostream &operator << (T t) { return out << indentation() << t; }
     
-    int getId( const void *p );
+    std::string getId( const void *p );
+    std::string getId();
     
     ~PGWriter( void ) {
       out.flush();

@@ -100,6 +100,8 @@ class hscd_op:
     hscd_op( hscd_op_port_base_list &pl )
       :pl(&pl) {}
   public:
+    hscd_op()
+      :pl() {}
     hscd_op( op_list_type &pl )
       :pl(&pl) {}
     hscd_op( hscd_op_port p )

@@ -12,24 +12,24 @@
 #include <map>
 
 template <typename T_node_type, typename T_chan_init>
-class hscd_structure
-  : public sc_module,
-    public hscd_modes::hscd_modes_base_structure {
+class hscd_structure {
   public:
-    typedef T_node_type					node_type;
-    typedef T_chan_init					chan_init;
-    typedef typename T_chan_init::chan_kind             chan_kind;
-    typedef hscd_structure<node_type, chan_init>	this_type;
+    typedef T_node_type					  node_type;
+    typedef T_chan_init					  chan_init;
+    typedef typename T_chan_init::chan_kind               chan_kind;
+    typedef hscd_structure<node_type, chan_init>	  this_type;
     
-    typedef std::list<node_type *>			nodes_ty;
-    typedef std::list<hscd_root_port *>			ports_ty;
-    typedef std::map<chan_kind *, ports_ty>             chan2ports_ty;
+    typedef std::list<node_type *>			  nodes_ty;
+    typedef std::list<hscd_root_port *>			  ports_ty;
+    typedef std::map<chan_kind *, ports_ty>               chan2ports_ty;
   private:
-    typedef std::map<hscd_root_port *, chan_kind *>     port2chan_ty;
+    typedef std::map<hscd_root_port *, hscd_root_port *>  iobind_ty;
+    typedef std::map<hscd_root_port *, chan_kind *>       port2chan_ty;
     
     nodes_ty		nodes;
     chan2ports_ty	chan2ports;
     port2chan_ty	port2chan;
+    iobind_ty           iobind;
   protected:
     template <typename T_value_type>
     void connectNodePorts(
@@ -43,17 +43,21 @@ class hscd_structure
     template <typename T_value_type>
     void connectInterfacePorts(
         hscd_port_out<T_value_type> &a,
-        hscd_port_out<T_value_type> &b ) { b.bind(a); }
+        hscd_port_out<T_value_type> &b ) {
+      assert( iobind.find(&b) == iobind.end() );
+      iobind.insert( iobind_ty::value_type(&b,&a) );
+      b.bind(a);
+    }
     template <typename T_value_type>
     void connectInterfacePorts(
         hscd_port_in<T_value_type> &a,
-        hscd_port_in<T_value_type> &b ) { b.bind(a); }
+        hscd_port_in<T_value_type> &b ) {
+      assert( iobind.find(&b) == iobind.end() );
+      iobind.insert( iobind_ty::value_type(&b,&a) );
+      b.bind(a);
+    }
   public:
-    hscd_structure()
-      : sc_module( sc_gen_unique_name( "hscd_structure" ) ) {}
-    
-    explicit hscd_structure( sc_module_name name_ )
-      : sc_module( name_ ) {}
+    hscd_structure() {}
     
     template <typename T>
     T &registerNode( T *node ) {
@@ -72,32 +76,37 @@ class hscd_structure
     void connectChanPort( T_chan_type &chan,
                           hscd_port_out<typename T_chan_type::data_type> &p ) {
       assert( port2chan.find(&p) ==  port2chan.end() );
+      port2chan[&p] = &chan;
+      chan2ports[&chan].push_back(&p);
       p(chan);
     }
     template <typename T_chan_type>
     void connectChanPort( T_chan_type &chan,
                           hscd_port_in<typename T_chan_type::data_type> &p ) {
       assert( port2chan.find(&p) ==  port2chan.end() );
+      port2chan[&p] = &chan;
+      chan2ports[&chan].push_back(&p);
       p(chan);
     }
     
     const nodes_ty      &getNodes() const { return nodes; }
     const chan2ports_ty &getChans() const { return chan2ports; }
     
-    void assemble( hscd_modes::PGWriter &pgw ) const;
+    void assemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const;
+    void pgAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const;
 };
 
 class hscd_sdf_structure
-  : public hscd_structure<hscd_fixed_transact_node, hscd_fifo> {
+  : public hscd_structure<hscd_fixed_transact_node, hscd_fifo>,
+    public hscd_fixed_transact_node {
   public:
     typedef hscd_sdf_structure	this_type;
   public:
     hscd_sdf_structure()
-      : hscd_structure<hscd_fixed_transact_node, hscd_fifo>
-          ( sc_gen_unique_name( "hscd_sdf_structure" ) ) {}
-    explicit hscd_sdf_structure( sc_module_name name_ )
-      : hscd_structure<hscd_fixed_transact_node, hscd_fifo>
-          ( name_ ) {}
+      : hscd_fixed_transact_node( 
+          sc_gen_unique_name("hscd_sdf_structure"), hscd_op_transact() ) {}
+    explicit hscd_sdf_structure( sc_module_name _name )
+      : hscd_fixed_transact_node( _name, hscd_op_transact() ) {}
     
     template <typename T_value_type>
     void connectNodePorts( hscd_port_out<T_value_type> &a, hscd_port_in<T_value_type> &b ) {
@@ -107,19 +116,28 @@ class hscd_sdf_structure
     void connectNodePorts( hscd_port_out<T_value_type> &a, hscd_port_in<T_value_type> &b ) {
       hscd_structure<hscd_fixed_transact_node, hscd_fifo>::connectNodePorts(a,b,hscd_fifo(n));
     }
+    
+    void assemble( hscd_modes::PGWriter &pgw ) const {
+      return hscd_structure<hscd_fixed_transact_node, hscd_fifo>::assemble(this,pgw);
+    }
+    void pgAssemble( sc_module *m, hscd_modes::PGWriter &pgw ) const {
+      return hscd_structure<hscd_fixed_transact_node, hscd_fifo>::pgAssemble(this,pgw);
+    }
+  protected:
+    void process() {}
 };
 
 class hscd_fifocsp_structure
-  : public hscd_structure<hscd_choice_node, hscd_fifo> {
+  : public hscd_structure<hscd_choice_node, hscd_fifo>,
+    public hscd_choice_node {
   public:
     typedef hscd_fifocsp_structure	this_type;
   public:
     hscd_fifocsp_structure()
-      : hscd_structure<hscd_choice_node, hscd_fifo>
-          ( sc_gen_unique_name( "hscd_fifocsp_structure" ) ) {}
-    explicit hscd_fifocsp_structure( sc_module_name name_ )
-      : hscd_structure<hscd_choice_node, hscd_fifo>
-          ( name_ ) {}
+      : hscd_choice_node(
+          sc_gen_unique_name("hscd_fifocsp_structure") ) {}
+    explicit hscd_fifocsp_structure( sc_module_name _name )
+      : hscd_choice_node( _name ) {}
     
     template <typename T_value_type>
     void connectNodePorts( hscd_port_out<T_value_type> &a, hscd_port_in<T_value_type> &b ) {
@@ -129,6 +147,8 @@ class hscd_fifocsp_structure
     void connectNodePorts( hscd_port_out<T_value_type> &a, hscd_port_in<T_value_type> &b ) {
       hscd_structure<hscd_choice_node, hscd_fifo>::connectNodePorts(a,b,hscd_fifo(n));
     }
+  protected:
+    void process() {}
 };
 
 #endif // _INCLUDED_HSCD_STRUCTURE_HPP

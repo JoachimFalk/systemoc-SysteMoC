@@ -135,8 +135,10 @@ define the communication behaviour of the actor.
 
 \item Network graph
 
-The Network graph is a directed bipartit graph whose vertices
-can be partitioned into actors and channels.
+The Network graph is a directed multipartit graph $G=(V,E)$ whose vertices $V$
+can be partitioned into actors $V_{A}$, channels $V_{C}$, input ports $V_{I}$ and output
+ports $V_{O}$
+whereas $V=V_{A} \bigcup V_{C} \wedge \emptyset=V_{A}\bigcap{}V_{C}$.
 The actors have ports which are their only means of communication.
 These ports are either input ports or output ports.
 The network graph specifies the connections from
