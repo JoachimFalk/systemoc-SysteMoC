@@ -1,11 +1,12 @@
 \newcommand{\resdir}{../../../HscdTeXRes/}
+\newcommand{\code}[1]{#1}
 
 \input{\resdir format.tex}
 
 \usepackage{multirow}
 
 \begin{document}
-\hscdtitle{Representing MoCs in SystemC}{Joachim Falk}{\today}
+\hscdtitle{The Representing MoCs in SystemC}{Joachim Falk}{\today}
 \clearpage
 \tableofcontents
 \clearpage
@@ -31,7 +32,20 @@ is impossible to solve for a turing complete programming language
 \footnote{Halting problem} a machine analyzable coding subset for
 MoCs has to be defined.
 
-\section{Requirements of MoCs}
+\section{Requirements of MoCs}\label{Requirements of MoCs}
+
+A Model of Computation is defined \cite{embsft:2002} as the 
+interaction policy between actors in an Actor-Oriented Design.
+Actors are objects which execute concurrently. They can only
+communicate with the environment (other actors) through their ports.
+The ports of the actors are connected which eachother via channels.
+The data values, which are communicated over the channels,
+are abstracted away. The values are called tokens regardless
+of their type or value.
+Actors can have their own thread of control or be without. Actors
+with their own thread of control will be called in the following
+active actors and actors without a dedicated thread of control
+passive actors.
 
 \subsection{Requirements of CSP}
 Communicating Sequential Processes \cite{csphoare:1985}
@@ -44,14 +58,13 @@ The following requirements are the minimum necessary to
 implement CSP like behaviour:
 
 \begin{enumerate}
-\item A rendezvous channel type for communication
-\item A communication operator which implements Hoare's 'general choice' operator
+\item A rendezvous channel for communication
+\item A communication method which implements Hoare's 'general choice' operator \cite{csphoare:1985}
 \item Parallel executing processes
-\item The usual control flow constructs (if then else, while, ...)
 \end{enumerate}
 
 \subsection{Requirements of KPN}
-Kahn Process Networks \cite{kahn:xxx}
+Kahn Process Networks \cite{kahn:1974}
 is a MoC which consist of parallel executing processes
 which communicate via unidirectional unbounded fifo channels.
 The input/ouput ends of a channel are connected to dedicated
@@ -61,58 +74,63 @@ The following requirements are the minimum necessary to
 implement KPN behaviour:
 
 \begin{enumerate}
-\item A unbound fifo channel type for communication
-\item A communication operator to read from and write to the fifos
+\item A unbound fifo channel for communication
+\item A communication method to read from and write to the fifos
+\item Assurance that the arrival sequence of tokens on
+      the ports can not be determined
 \item Parallel executing processes
-\item The usual control flow constructs (if then else, while, ...)
 \end{enumerate}
 
 \subsection{Requirements of SDF}
-Kahn Process Networks \cite{kahn:xxx}
-is a MoC which consist of parallel executing processes
-which communicate via unidirectional unbounded fifo channels.
-The input/ouput ends of a channel are connected to dedicated
-processes.
+Synchronous Data Flow \cite{sdf:xxx}
+is a more constricted form of the KPN MoC.
+It has all the requirement of the KPN MoC and
+additionally the requirement, that consumption and
+production rate of the actor are constant.
 
 The following requirements are the minimum necessary to
-implement KPN behaviour:
+implement SDF behaviour:
 
 \begin{enumerate}
 \item A unbound fifo channel type for communication
-\item A communication operator to read from and write to the fifos
+\item A communication method to read from and write to the fifos
+\item Assurance that the arrival sequence of tokens on
+      the ports can not be determined
+\item Assurance that consumption and production rates can not
+      be altered once set
 \item Parallel executing processes
-\item The usual control flow constructs (if then else, while, ...)
 \end{enumerate}
-
 
 % \subsection{Requirements MoCs for their communication interface}
 
 \section{Concept overview}
 
 Due to it's high abstraction level and possibilities for both
-hardware and software refinements we have chosen SystemC as
-our language for system design. In the following we propose a
-coding subset of SystemC which faciliates automatic extraction
-of the MoC of a SystemC design.
+hardware and software refinements we have chosen SystemC
+\cite{systemc-lrm:2003} \cite{glms:2002} as our language for system design.
+SystemC is a C++ based design framework.
 
+In the following we propose a SystemC framework, called SysteMoC, which
+faciliates automatic extraction of the MoC of a SystemC design.
 Instead of a Monolitic approach to represent an executable specification
 in SystemC we choose too represent the specification
-by combining severel independent components.
+by combining severel independent concepts. This is a refinement of
+actor-oriented design.
 
-\subsection{Components}
+\subsection{Concepts}
 
 \begin{enumerate}
 \item Node functionality
 
 The specification is devided into several communicating actors.
 The actor functionality is the algorithmic description
-which is responsible for transforming data values. The firering behaviour
-of the actor must not be altered in the node functionality.
+which is responsible for transforming data values. The communication
+behaviour of the actor must not be altered in the node functionality.
 
 \item Node interface
 
 The node interface are the set of operators which are used to
-define the firering behaviour of the actor.
+define the communication behaviour of the actor.
 
 \item Network graph
 
@@ -133,7 +151,7 @@ network graph uniformly.
 
 \subsection{MoC composition}
 
-The MoC is now determined by the composition of the two components 'Node interface'
+The MoC is now determined by the composition of the two concepts 'Node interface'
 and 'Channel type' as following:
 
 \begin{tabular}{|c||c|c|c|}
@@ -148,9 +166,90 @@ and 'Channel type' as following:
 \hline
 \end{tabular}
 
-The node functionality is n
+\section{Software architecture}
+The introduced concepts are converted into a software architecture in the following way.
 
-The node functionality is not
+As SystemC is an actor-oriented design framework, it also has the concepts of actors
+and channels. So the 'Channel type' concept of the SysteMoC framework can cleanly be implemented
+as a channel in SystemC. There is still a difference between normal SystemC channels and SysteMoC channels,
+as SysteMoC channels do not have user callable methods for communicating over them.
+Having those communication methods on the channels would contradict the separation
+of 'Node interface' and 'Channel type'.
+
+Actors in SystemC are C++ classes which are derived from the base class \code{sc\_module}.
+However it is impossible, in the general case, to extract the kind of communication
+behaviour these actors will exhibit. These problems are caused by the fact, that the
+communication methods are all accessible to all SystemC modules. And execution
+of these methods is controlled by the turing equivalent coding possibilities in the actor.
+To partially redress these problems we introduce the concept of 'Node interface' which
+determines what communication methods are available to an actor. These is implemented
+by disallowing all communication methods on SysteMoC channels and providing them instead
+in a base class from which the actor is derived. Therefore the 'Node interface' of an actor
+corresponds to the base class from which the actor is derived.
+
+The 'Network graph' can be represented by the C++ template \code{hscd\_structure} 
+which has only methods to instantiate sub actors and connect their ports to eachother.
+
+The MoC is  now represented as an actor which is derived from the \code{hscd\_structure}
+template parameterized with the 'Node interface' and the 'Channel type'. This actor can only
+instantiate sub actors of a predetermined kind and connect their ports with a  predetermined
+kind of channel.
+
+\subsection{Node interface hierarchy}
+After gathering the requirements of the three different MoCs CSP, KPN
+and SDF a Node interface hierarchy is derived which fulfills these requirements.
+
+In the following the requirements of the MoCs which concern the 'Node interface' are
+extracted from Section~\ref{Requirements of MoCs} and repeated:
+
+\begin{enumerate}
+\item CSP
+
+A communication method which implements Hoare's 'general choice' operator \cite{csphoare:1985}.
+
+\item KPN
+
+A communication method to read from and write to ports.
+The assurance that the arrival sequence of tokens on
+the ports can not be determined.
+
+\item SDF
+
+A communication method to read from and write to ports.
+The assurance that consumption and production rates can not
+be altered once set
+
+\end{enumerate}
+
+It is evident that this requirements build a hierarchy of decreasing
+capability. The 'Node interface' needed for CSP is the most capable
+in the hierarchy and it can emulate all lesser more constraint interfaces.
+This hierarchy is transformed into a C++ inheritance hierarchy with the
+CSP 'Node interface' at the root \ref{node-interface-c++}.
+
+\begin{figure}
+\centering
+\begin{tabular}{|c|c|}
+\hline
+ Node interface & C++ class type \\
+\hline \hline
+ for CSP & hscd\_choice\_node \\
+ for KPN & hscd\_transact\_node \\
+ for SDF & hscd\_fixed\_transact\_node \\
+\hline
+\end{tabular}
+\caption{\label{node-interface-c++}Node interfaces represented as C++ classes}
+\end{figure}
+
+The KPN 'Node interface' inherits from
+CSP '
+
+Less capable node interfaces are
+derived from 
+
+
+
+
 
 \clearpage
 \section{Dust bin}

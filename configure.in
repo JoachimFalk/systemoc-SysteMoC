@@ -52,7 +52,7 @@ AC_CHECK_LIB([systemc], [main])
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile Docu/Makefile])
 
 ACJF_DONE
 
