@@ -124,7 +124,7 @@ differentiation into aspect types is discussed in depth:
 \subsection{Node Functionality}\label{node-functionality}
 
 In our methodology proposed in this report, the actor concept is still used,
-but we distinguish twi different aspects.
+but we distinguish two different aspects.
 The first part called \emph{node functionality} is responsible
 for transforming data values. The node functionality can be
 thought of as a function $F: V^{m} \to V^{n}$  which maps a fixed set
@@ -243,21 +243,20 @@ type of the values communicated, the actual \emph{type} of a communication
 channel is derived from the channel kind by parameterizing it with
 the type of the communicated values. Examples for channel kinds are:
 
-\begin{concepttype}\label{channel-kind-fifo} FIFO:
+\begin{itemize}
+\item \label{channel-kind-fifo} FIFO:
   An unbound FIFO channel for communication
   (nonblocking write and blocking read) implementing
   an first in first out discipline.
-\end{concepttype}
 
-\begin{concepttype}\label{channel-kind-rendezvous} Rendezvous:
+\item \label{channel-kind-rendezvous} Rendezvous:
   A rendezvous channel for communication % and barrier synchronisation
   (blocking write and read).
-\end{concepttype}
 
-\begin{concepttype}\label{channel-kind-register} Register:
+\item \label{channel-kind-register} Register:
   For expressing communication via shared variables
   (nonblocking write and nonblocking read).
-\end{concepttype}
+\end{itemize}
 
 \section{Revision of Different MoCs}\label{revision-of-mocs}
 
@@ -270,7 +269,7 @@ permit the extraction of information needed for the MoC specific analysis.
 
 In the following Subsections, different MoCs are considered and their
 requirements determined. For each MoC these requirements are than
-mapped onto the concepts presented in the previous Section.
+mapped onto the aspects presented in the previous Section.
 
 \subsection{Communicating Sequential Processes (CSP)}
 \emph{Communicating Sequential Processes} \cite{csphoare:1985}
@@ -374,7 +373,7 @@ analysis requirements must be satisfied:
 
 The requirements \ref{requirement-csp-rendezvous} -
 \ref{requirement-csp-communication} of the CSP MoC are mapped in the following way
-onto the concepts presented in Section~\ref{aspect-overview}.
+onto the aspects presented in Section~\ref{aspect-overview}.
 (i) The rendezvous communication (Requirement~\ref{requirement-csp-rendezvous})
 used by CSP is provided by the channel kind rendezvous (See~\ref{channel-kind-rendezvous})
 (ii) Hoare's so-called general choice communication operator (Requirement~\ref{requirement-csp-general-choice})
@@ -428,7 +427,7 @@ constraints must be fulfilled:
       for the process.
 \end{enumerate}
 
-Mapping of the KPN MoC requirements onto the concepts presented in
+Mapping of the KPN MoC requirements onto the aspects presented in
 Section~\ref{aspect-overview}:
 
 \begin{itemize}
@@ -449,7 +448,7 @@ It has all the execution requirements of the KPN MoC and
 the additional analysis requirement that actor consumption and
 production rates are constant.
 
-Mapping of the SDF MoC requirements onto the concepts presented in
+Mapping of the SDF MoC requirements onto the aspects presented in
 Section~\ref{aspect-overview}:
 
 \begin{itemize}
@@ -570,7 +569,7 @@ and place output data for the node functionality
 The problem of extracting the communication behavior of an actor is caused by the fact,
 that the communication methods in SystemC are all accessible to all SystemC modules.
 And execution of these methods is controlled by the Turing equivalent coding possibilities
-in the actor. To partially redress these problems we introduce the concept of node interface
+in the actor. To partially redress these problems we introduced the node interface aspect
 which determines what communication methods are available to an actor. This is implemented
 by disallowing all communication methods on \SysteMoC{} channels and providing them instead
 in a base class from which the actor is derived. Therefore the node interface of an actor
@@ -765,7 +764,7 @@ composition of a network graph of the desired type:
 \subsection{Channel Kind}
 
 SystemC is an actor-oriented design framework, it has the concepts
-of actors and channels. So the channel kind concept of the \SysteMoC{}
+of actors and channels. So the channel kind aspect of the \SysteMoC{}
 framework can cleanly be implemented as a base class of a channel in SystemC.
 The channel kind determines the communication semantic of a channel but not
 the data type of the tokens. The channel type is a template parameterized
@@ -796,13 +795,13 @@ class types is displayed in Table~\ref{channel-kind-c++}.
 \subsection{Constraint Set Composition for MoCs}
 
 In Section~\ref{revision-of-mocs} we have demonstrated how
-to map the requirements of some MoCs to the concepts presented
+to map the requirements of some MoCs to the aspects presented
 in Section~\ref{aspect-overview}. Furthermore, the analysis
 requirement of these MoCs translate into certain constraints
-on the concepts presented before. These constraints are
-used to distinguish a concept into concept types. Therefore
+on the aspects presented before. These constraints are
+used to distinguish a aspect into aspect types. Therefore
 for each MoC presented in Section~\ref{revision-of-mocs}
-we have a set of concept types, called \emph{constraint set} and
+we have a set of aspect types, called \emph{constraint set} and
 shown in table~\ref{constraintset-composition},
 which represent the analysis requirements of this MoC.
 
@@ -823,7 +822,7 @@ which represent the analysis requirements of this MoC.
   and network graph type}
 \end{table}
 
-The concept types in the constraint set are node interface 
+The aspect types in the constraint set are node interface 
 , channel kind and network graph. The node interface and
 and channel kind are represented as \SysteMoC{} classes in
 SystemC, the third network graph is represented as
@@ -910,7 +909,7 @@ class m_top2: public hscd_sdf_constraintset {
 %instantiate sub actors of a predetermined kind and connect their ports with a  predetermined
 %kind of channel.
 
-%%The MoC is now determined by the composition of the two concepts node interface
+%%The MoC is now determined by the composition of the two aspects node interface
 %%and channel kind as following:
 %%
 %%\begin{tabular}{|c||c|c|c|}
