@@ -107,10 +107,12 @@ public:
   //hscd_port_in<void>  fire_port;
 
 #ifndef __SCFE__
-  virtual
-  void assemble( hscd_modes::PGWriter &pgw ) const = 0;
+  virtual sc_module *myModule() = 0;
+  virtual const sc_module *myModule() const {
+    return const_cast<hscd_root_node *>(this)->myModule();
+  }
   
-  void leafAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const;
+  void assemble( hscd_modes::PGWriter &pgw ) const;
 #endif
 };
 

@@ -3,7 +3,9 @@
 #include <hscd_root_node.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
 
-void hscd_root_node::leafAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const {
+void hscd_root_node::assemble( hscd_modes::PGWriter &pgw ) const {
+  const sc_module *m = myModule();
+  
   pgw << "<process name=\"" << m->name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
   {
 //    sc_object_manager *om = simcontext()->get_object_manager();

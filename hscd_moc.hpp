@@ -39,10 +39,12 @@ public:
   }
 
 #ifndef __SCFE__
+  sc_module *myModule() { return this; }
+
   void assemble( hscd_modes::PGWriter &pgw ) const {
     return T_constraintset::assemble(pgw); }
-  void pgAssemble( sc_module *m, hscd_modes::PGWriter &pgw ) const {
-    return T_constraintset::pgAssemble(pgw); }
+//  void pgAssemble( sc_module *m, hscd_modes::PGWriter &pgw ) const {
+//    return T_constraintset::pgAssemble(pgw); }
 #endif
 };
 

@@ -27,8 +27,10 @@ class hscd_choice_passive_node
         hscd_choice_node(s) {}
   public:
 #ifndef __SCFE__
+    sc_module *myModule() { return this; }
+    
     void assemble( hscd_modes::PGWriter &pgw ) const {
-      return leafAssemble(this,pgw); }
+      return hscd_choice_node::assemble(pgw); }
 #endif
 };
 
@@ -55,8 +57,10 @@ class hscd_choice_active_node
     }
   public:
 #ifndef __SCFE__
+    sc_module *myModule() { return this; }
+    
     void assemble( hscd_modes::PGWriter &pgw ) const {
-      return leafAssemble(this,pgw); }
+      return hscd_choice_node::assemble(pgw); }
 #endif
 };
 
@@ -88,8 +92,10 @@ class hscd_transact_passive_node
         hscd_transact_node(s) {}
   public:
 #ifndef __SCFE__
+    sc_module *myModule() { return this; }
+    
     void assemble( hscd_modes::PGWriter &pgw ) const {
-      return leafAssemble(this,pgw); }
+      return hscd_transact_node::assemble(pgw); }
 #endif
 };
 
@@ -117,8 +123,10 @@ class hscd_transact_active_node
     }
   public:
 #ifndef __SCFE__
+    sc_module *myModule() { return this; }
+    
     void assemble( hscd_modes::PGWriter &pgw ) const {
-      return leafAssemble(this,pgw); }
+      return hscd_transact_node::assemble(pgw); }
 #endif
 };
 
@@ -189,8 +197,10 @@ class hscd_fixed_transact_passive_node
     //}
     
 #ifndef __SCFE__
+    sc_module *myModule() { return this; }
+    
     void assemble( hscd_modes::PGWriter &pgw ) const {
-      return leafAssemble(this,pgw); }
+      return hscd_fixed_transact_node::assemble(pgw); }
 #endif
 };
 
@@ -223,8 +233,10 @@ class hscd_fixed_transact_active_node
     }
   public:
 #ifndef __SCFE__
-    void assemble( hscd_modes::PGWriter &pgw ) const {
-      return leafAssemble(this,pgw); }
+   sc_module *myModule() { return this; }
+    
+   void assemble( hscd_modes::PGWriter &pgw ) const {
+      return hscd_fixed_transact_node::assemble(pgw); }
 #endif
 };
 
