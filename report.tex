@@ -104,6 +104,14 @@ presented. Finally, we will give some examples using the \SysteMoC{}
 framework in Section~\ref{systemoc-examples}, and we conclude
 the present report in Section~\ref{conclusions}.
 
+\begin{figure}
+\centering
+\input{SysteMoC-Goals-fig.tex}
+\caption{\label{fig:SysteMoC-Goals}Goals of \SysteMoC{} framework
+  include the recognition and extraction of Models of Computation
+  from suitable restricted coding subsets of SystemC.}
+\end{figure}
+
 \section{Related Work}\label{related-work}
 
 SystemC \cite{glms:2002} already allows to implement
@@ -1384,7 +1392,9 @@ SystemC is an actor-oriented C++-Based design language and
 already allows to express dataflow MoCs.
 
 In the following, we propose a SystemC framework, called \SysteMoC, which
-facilitates automatic extraction of a MoC from a SystemC design.
+facilitates automatic extraction of a MoC from a SystemC design. \SysteMoC{}
+is a library which augments SystemC with additional services as
+can be seen in Figure~\ref{fig:SysteMoC-SystemC-Integration}.
 Actors in SystemC are C++ classes which are derived from the base class \code{sc\_module}.
 The \SysteMoC{} framework provides the execution requirements for each MoC while
 still supporting the extraction of the information needed for analysis.
@@ -1400,9 +1410,9 @@ are provided by the network graph.
 
 \begin{figure}[h]
 \centering
-\input{SysteMoC-Goals-fig.tex}
+\input{SysteMoC-SystemC-Integration-fig.tex}
 \caption{Integration of \SysteMoC{} into SystemC}
-\label{fig:SysteMoC-Goals}
+\label{fig:SysteMoC-SystemC-Integration}
 \end{figure}
 
 \subsection{Node Functionality}
@@ -1564,7 +1574,7 @@ The node interface types are mapped to C++ class types as follows:
 (ii) The transact node interface is represented by the \code{hscd\_transact\_node} class.
 (iii) The fixed transact node interface is represented by the \code{hscd\_fixed\_transact\_node} class.
 Operations which are no longer available for node interface types
-at lower levels inthe hierarchy are disabled by declaring them to be private.
+at lower levels in the hierarchy are disabled by declaring them to be private.
 
 \begin{figure}[h]
 \centering
@@ -1573,23 +1583,22 @@ class dp_fork
   : public hscd_choice_node {
 public:
   // actor input ports
-  hscd_port_in<dp_forkreq_ty> l_forkreq;
-  hscd_port_in<dp_forkreq_ty> r_forkreq;
+  // request from left philosopher
+  hscd_port_in<bool> l; 
+  // request from right philosopher
+  hscd_port_in<bool> r; 
 private:
   // Functions of the node functionality
-  void l_forkreq_take() { ... }
-  void l_forkreq_drop() { ... }
-  void r_forkreq_take() { ... }
-  void r_forkreq_drop() { ... }
+  void take() { ... } // fork taken
+  void drop() { ... } // fork dropped
   
   // function for construction of the firing rules
   hscd_firing_state fireRules() {
     hscd_firing_state start =
-      choice( l_forkreq >> call(l_forkreq_take,
-                choice( l_forkreq >> call(l_forkreq_drop, &start) ) ) |
-              r_forkreq >> call(r_forkreq_take,
-                choice( r_forkreq >> call(r_forkreq_drop, &start) ) )
-            );
+      choice( l >> call(take, transact(
+                l >> call(drop, &start) ) ) |
+              r >> call(take, transact(
+                r >> call(drop, &start) ) ) );
     return start;
   }
 public:
@@ -1597,6 +1606,8 @@ public:
     : hscd_choice_node(name, fireRules() ) {}
 };
 \end{verbatim}
+\input{firing-rules-fork-fig.tex}
+
 \caption{\label{systemoc-firing-rules-example}
   Example of the firing rules for a fork of the
   dining philosophers problem in \SysteMoC{}}
