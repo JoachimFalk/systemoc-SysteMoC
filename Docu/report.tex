@@ -141,11 +141,24 @@ An \emph{event} $e$ is a  tag-value pair, i.e., $e = (t,v) \in T \times V$.
 \end{sdefinition}
 Tags are used to model time,
 precedence relationships, synchronization points, or other key properties
-of MoCs. A totally ordered set of tags $T$ is called \emph{discrete} if it is
-\emph{order isomorphic} to a subset of the integers, i.e.,
-$\exists{f : T \to \{1,2,...|T|\}, f\textrm{ is a \emph{bijection}}}: \forall{t_1,t_2 \in T}: t_1 \le t_2 \iff f(t_1) \le f(t_2)$.
-Intuitively this means, any two
+of MoCs.
+A totally ordered set of tags $T$ is called \emph{two-sided discrete} if it is
+\emph{order isomorphic} to a subset of the integers,
+%and let $f_T: T \to \mathbb{Z}$ denote this order isomorphism,
+i.e.,$\exists{f_T : T \to \mathbb{Z}, f_T\textrm{ is a \emph{bijection}}}:
+ \forall{t_1,t_2 \in T}: t_1 \le t_2 \iff f_T(t_1) \le f_T(t_2)$,
+where $\mathbb{Z}$ is the set of integers. Intuitively this means, any two
 tags $t_1$ and $t_2$ have only a finite number of other tags between them.
+A totally ordered set of tags $T$ is called \emph{one-sided discrete} or \emph{discrete}
+if it is \emph{order isomorphic} to a subset of the natural numbers and
+let $f_T: T \to \{1,2,...|T|\} \subseteq \mathbb{N}$ denote this order isomorphism, i.e.,
+$\exists{f_T : T \to \{1,2,...|T|\} \subseteq \mathbb{N}, f_T\textrm{ is a \emph{bijection}}}:
+ \forall{t_1,t_2 \in T}: t_1 \le t_2 \iff f_T(t_1) \le f_T(t_2)$,
+where $\mathbb{N}$ is the set of natural numbers excluding zero.
+Intuitively this means, any two tags $t_1$ and $t_2$ have only a
+finite number of other tags between them and there exists a first tag.
+For example, given the discrete set $T = \{'A','B','C'\}, 'A' < 'B' < 'C'$
+then $f_{\{'A','B','C'\}}('A') = 1, f_{\{'A','B','C'\}}('B') = 2, f_{\{'A','B','C'\}}('C') = 3$.
 The odering of the tags induces
 a ordering of events, i.e., given $e_1 = (t_1,v_1)$ and $e_2 = (t_2,v_2)$ then $e_1 < e_2 \iff t_1 < t_2$.
 Two Events $e_1$, $e_2$ are called \emph{synchronous} if they contain
@@ -175,8 +188,8 @@ the set of tags in the signal $s$, i.e., $T(s) = \{t \mid (t,v) \in s\}$.
 A \emph{discrete signal} is a functional signal $s$ which has a discrete set of tags $T(s)$.
 Each discrete signal $s$ has a corresponding \emph{sequence} $\Sigma(s) : \{1,2,...|s|\} \to V$
 where the value $v = \Sigma(s)(i)$ on position $i$ is defined to be the value
-of the i-th event in the signal $s$, i.e., $\Sigma(s)(i) = s(f^{-1}(i))$ where
-$f^{-1}$ is the inverse function of the order isomorphism $f : T \to \{1,2,...|T|\}$.
+of the i-th event in the signal $s$, i.e., $\Sigma(s) = \{ (i,v)  \mid i = f_T(t) \wedge (t,v) \in s\}$ where
+$f_T : T \to \{1,2,...|T|\}$ is the order isomorphism of $T$ to the natural numbers $\mathbb{N}$.
 Two signals $s_1$ and $s_2$ are called \emph{synchronous} if they contain
 the same set of tags, i.e., $T(s_1) = T(s_2)$. Otherwise they are
 called \emph{asynchronous}.
@@ -421,7 +434,9 @@ The read and write actions by a kahn process are translated into
 ordering constraints on events between different signals of the process.
 For example, let $\mathbf{P} \ni (s_1,s_2)$ be a kahn process
 which reads two input tokens before generating an output token and
-let $s_1$ be the input signal and $s_2$ be the output signal then.
+let $s_1$ be the input signal and $s_2$ be the output signal then
+$\forall{(t_1,v_1) \in s_1, (t_2,v_2) \in s_2}: f_{T(s_1)}(t_1) \le 2 \cdot f_{T(s_2)}(t_2) \implies t_1 \le t_2$.
+
 
 % For example, consider a simple process that produces one output event
 % for each input event. Suppose the input signal is , let the output be .

@@ -1,5 +1,3 @@
 In order to compile your report, use the following sequence of commands:
-pdflatex report.tex
-pdflatex report.tex
-bibtex report
-pdflatex report.tex
+./configure
+make
