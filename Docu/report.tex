@@ -193,7 +193,7 @@ There are two \emph{network graph types} which are distinguished in our methodol
   An example of a dataflow network graph is shown in Figure~\ref{ng-dataflow}.
   It demonstrates the use of a dataflow network graph for modeling
   a Multiply-Accumulate-Unit. The accumulation is done in channel $c_2$ and $c_3$
-  by adding to the allready accumulated value the product of
+  by adding to the already accumulated value the product of
   the values read from the uplevel input ports $p_{i_1}$ and $p_{i_2}$.
   Additionally for each value pair from $p_{i_1}$ and $p_{i_2}$ the
   new accumulated value is send to the output port $p_{o_1}$ via
@@ -285,7 +285,8 @@ A transition is enabled if its corresponding activation pattern $q$ is enabled.
 If the included interface action has only one successor state $|J.S_{succ}| = 1$, the
 transition is called \emph{deterministic transition}.
 If more than one successor states are included in $J.S_{succ}$, the
-transition is called \emph{conflict transition}.
+transition is called \emph{conflict transition}. Which state $s \in J.S_{succ}$
+is actually used is a runtime decission of the node functionality $J.F$.
 \end{definition}
 
 \begin{definition}\label{firing-rules}
@@ -306,6 +307,14 @@ $k(s,q)$ will be executed.
 These firing rules are constructed by use of the following operations:
 
 \begin{itemize}
+\item branch
+
+\emph{Branch} is a operation which maps a node functionality $F$ and
+a none empty set of firing state $S_{B} \ne \emptyset$ to an interface action $J$,
+i.e. $\mathrm{Call}: \mathcal{F} \times 2^S \to \mathcal{J}$.
+If the resulting interface action $J$ is included into a
+firing state $s_{c}$ it permits to create a conflict transition
+in the firing rules.
 \item call
 
 \emph{Call} is a operation which maps a node functionality $F$ and
@@ -314,31 +323,14 @@ i.e. $\mathrm{Call}: \mathcal{F} \times S \to \mathcal{J}$.
 If the resulting interface action $J$ is included into a
 firing state $s_{c}$ it corresponds to a deterministic transition
 in the firing rules from the state $s_{c}$ to state $s$.
-
-\item branch
-
-\emph{Branch} is a operation which maps a node functionality $F$ and
-a set of firing state $S_{B}$ to an interface action $J$,
-i.e. $\mathrm{Call}: \mathcal{F} \times 2^S \to \mathcal{J}$.
-If the resulting interface action $J$ is included into a
-firing state $s_{c}$ it corresponds to a conflict transition
-in the firing rules from the state $s_{c}$ to a state $s \in S_{B}$.
-Which state $s$ is actually used is a runtime decission
-of the node functionality $F$.
+Furthermore, the call operation is clearly a subset of the
+branch operation.
 
 \item transition
 
 \emph{Transition} is a operation which maps an activation pattern $q$ and
 an interface action $J$ to an interface transition $T$,
 i.e. $\mathrm{Transition}: Q \times \mathcal{J} \to \mathcal{T}$.
-
-\item transact
-
-\emph{Transact} is a operation which maps an interface transition $T$
-to a firing state $s$,
-i.e. $\mathrm{Transact}: \mathcal{T} \to S$.
-The firing state created by this operation has only one outgoing
-transition $T$.
 
 \item choice
 
@@ -348,6 +340,14 @@ i.e. $\mathrm{Choice}: 2^{\mathcal{T}} \to S$.
 The firing state created by this operation can have multiple outgoing
 transitions.
 
+\item transact
+
+\emph{Transact} is a operation which maps an interface transition $T$
+to a firing state $s$,
+i.e. $\mathrm{Transact}: \mathcal{T} \to S$.
+The firing state created by this operation has only one outgoing
+transition $T$. Furthermore, the transact operation is clearly a subset of the
+choice operation.
 \end{itemize}
 
 The set of operations available to construct the firing rules constraints
@@ -663,11 +663,11 @@ not allow the alteration of these rates once set.
 
 \section{Software Architecture}\label{software-architecture}
 
-Due to its high abstraction level and possibilities for both
-hardware and software refinements, we have chosen SystemC
-\cite{systemc-lrm:2003} \cite{glms:2002} as our language for system design.
-SystemC is an actor-oriented C++ based design framework and
-already allow to express dataflow MoCs. 
+Due to its high abstraction level and its capabilities in both,
+hardware and software refinement, we have chosen SystemC
+\cite{systemc-lrm:2003,glms:2002} as our platform for system design.
+SystemC is an actor-oriented C++-Based design language and
+already allow to express dataflow MoCs.
 
 In the following, we propose a SystemC framework, called \SysteMoC, which
 facilitates automatic extraction of the MoC of a SystemC design.
@@ -684,7 +684,19 @@ are provided by the network graph.
 %active actors and actors without a dedicated thread of control
 %passive actors.
 
-\begin{figure}
+\subsection{Node Functionality}
+The node functionality is only used for algorithmic transformations of data values.
+The node functionality of an actor is defined in certain member functions,
+which are called by the firing rules when their requirements for input data is fulfilled.
+This member functions are not allowed to call communication operations. All required
+input and output data values are read from
+and written to the actor ports. All actor ports are globally accessible
+by the actor member functions and can be used to get input data
+and put output data for the node functionality
+(See Figure~\ref{example-adder-actor} and Figure~\ref{example-multiply-actor}
+ method \code{transform} for an example of a node functionality).
+
+\begin{figure}[h]
 \centering
 \begin{verbatim}
 template <typename T>
@@ -710,7 +722,7 @@ public:
 \caption{\label{example-adder-actor}Example of an adder in the \SysteMoC{} framework}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \begin{verbatim}
 template <typename T>
@@ -806,132 +818,136 @@ public:
 %\caption{\label{example-multiply-actor}Example of a multiplier in the \SysteMoC{} framework}
 %\end{figure}
 
-\subsection{Node Functionality}
-The node functionality is only used for algorithmic transformations of data values.
-The node functionality of an actor is defined in certain member functions,
-which are called by the firing rules if their requirements for input data is met.
-This member functions are not allowed to call communication operations and
-the input and output data values used are read from
-and written to the actor ports. All actor ports are globally accessible
-by the actor member functions and can therefore be used to get input data
-and place output data for the node functionality
-(See Figure~\ref{example-adder-actor} method \code{transform} for an example of a node functionality).
+\subsection{Node Interface}
+The problem of extracting the communication behavior of an actor is caused
+by the fact, that the communication methods in SystemC are all accessible
+to all SystemC modules. Moreover, execution of these methods is controlled
+by the Turing equivalent coding possibilities in the actor. To remedy these
+problems we prohibit any method calls on \SysteMoC{} channels. Moreover,
+communication over other media than \SysteMoC{} channels is forbidden but
+this cannot be strictly enforced. So we require the \SysteMoC{} user
+to assure that the node functionality does terminate and does not
+communicate with other actors.
 
-\subsection{Node Interface Hierarchy}
-The problem of extracting the communication behavior of an actor is caused by the fact,
-that the communication methods in SystemC are all accessible to all SystemC modules.
-And execution of these methods is controlled by the Turing equivalent coding possibilities
-in the actor. To partially redress these problems we introduced the node interface aspect
-which determines what communication methods are available to an actor. This is implemented
-by disallowing all communication methods on \SysteMoC{} channels and providing them instead
-in a base class from which the actor is derived. Therefore the node interface of an actor
-corresponds to the base class from which the actor is derived
-(See Table~\ref{node-interface-c++} for mapping of the node interface names to their
-corresponding C++ class types).
-Communication over other media than \SysteMoC{} channels is forbidden but this cannot be enforced
-because the full power of SystemC should be available for the node functionality part
-of the actor. So we require form the \SysteMoC{} user the assurance that the
-node functionality does terminate and does not communicate with other actors.
+After prohibiting any form of communication by the node functionality we
+instead introduced firing rules which is a state machine which determines
+the communication behaviour of the actor. However some MoCs, e.g. KPN, need
+a turing equivalent control of their communication behaviour. To
+accomodate this we again allow the node functionality to indirectly
+influence the communication behavior via a conflict transition
+created by the branch operation. Clearly this is undesirable for more
+constraint MoCs. Therefore, we have to distinguish firing rules into
+different categories which allow or disallow such possibilities. We
+distinguish firing rules into these categories by the operations we
+have available for constucting them. These operations are provided by the
+node interface, which is a base class of the actor. Therefore the
+type of firing rules possible for an actor is determined by the
+node interface type from which the actor is derived.
 
-\begin{table}
-\centering
-\begin{tabular}{|l|l|}
-\hline
- Node interface & \SysteMoC{} node interface type \\
-\hline \hline
- Choice Node          & \code{hscd\_choice\_node} \\
- Transact Node        & \code{hscd\_transact\_node} \\
- Fixed Transact Node  & \code{hscd\_fixed\_transact\_node} \\
-\hline
-\end{tabular}
-\caption{\label{node-interface-c++}Node interfaces represented as \SysteMoC{} classes}
-\end{table}
+%The following subset of the requirements enumerated in Section~\ref{revision-of-mocs}
+%determines the node interface of the corresponding MoCs:
 
-The following subset of the requirements enumerated in Section~\ref{revision-of-mocs}
-determines the node interface of the corresponding MoCs:
+The set of operations available for each node interface type
+build a hierarchy of decreasing execution capabilities and
+correspondingly increasing analysis capabilities.
+The choice node interface is the most capable in the hierarchy,
+further down is the transact node interface, and at the bottom the
+fixed transact node interface. This can also be clearly seen
+by noticing that the operations available to node interface types
+further down are a strict subset of the operation set available
+to node interface types above them in the hierarchy. How these
+execution and analysis capabilities map to some transformative
+MoCs has been presented in Section~\ref{revision-of-mocs}.
 
-\begin{enumerate}
-\item Choice Node
-  \begin{itemize}
-  \item  A communication method which implements Hoare's 'general choice' operator \cite{csphoare:1985}.
-  \end  {itemize}
-\item Transact Node
-  \begin{itemize}
-  \item A communication method to read from and write to ports.
-  \item Assurance that the arrival sequence of tokens at
-        their ports cannot be determined.
-  \end  {itemize}
-\item Fixed Transact Node
-  \begin{itemize}
-  \item A communication method to read from and write to ports.
-  \item Assurance that the arrival sequence of tokens at
-        their ports cannot be determined.
-  \item Assurance that consumption and production rates cannot
-        be altered once set
-  \end  {itemize}
-\end{enumerate}
-
-These requirements build a hierarchy of decreasing capability. The node
-interface of CSP is the most capable in the hierarchy and it
-fulfills the execution requirements of all more constraint interfaces.
-To fulfill the execution requirement of KPN the general choice operator
-can be used to implement the communication method for KPN by constraining
-the list of actor ports for the choice operation to one and therefore
-eliminating the choice between different actor ports.
-The execution requirement of SDF are the same than that of KPN and can
-therefore be fulfilled by the node interface of KPN.
-
-However, the analysis requirements of the MoC in the hierarchy
-get progressively more constraining and therefore the power
-of the communication operations in the node interface must
-be reduced accordingly to meet them.
-
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{NodeInterfaceHierarchy.\graphicPostfix}\\
 \caption{\label{node-interface-hierarchy}Node interface hierarchy as UML}
 \end{figure}
 
-The hierarchy of the requirements is transformed into a C++ inheritance
-hierarchy with the CSP node interface at the root (See Figure~\ref{node-interface-c++}).
-Less capable node interfaces inherit from more capable ones. The
-less capable node interfaces use the communication operations from the base class node
-interface to implement their own operations. The communication operations of the
-base class are disabled by declaring them private.
+The hierarchy of the node interface types is transformed into
+a C++ inheritance hierarchy which can be seen in Figure~\ref{node-interface-hierarchy}.
+The node interface types are mapped to C++ class types as follows:
+(i) The choice node interface is represented by the \code{hscd\_choice\_node} class.
+(ii) The transact node interface is represented by the \code{hscd\_transact\_node} class.
+(iii) The fixed transact node interface is represented by the \code{hscd\_fixed\_transact\_node} class.
+Node interface types further down in the hierarchy inherit
+from ones above them. Operations which are no longer available for
+node interface types further down are disabled by declaring them private.
 
-\begin{enumerate}
-\item CSP
-  \begin{itemize}
-  \item  \code{choice( a(1) $\arrowvert$ b(2) )}
+%\begin{enumerate}
+%\item Choice Node
+%  \begin{itemize}
+%  \item  A communication method which implements Hoare's 'general choice' operator \cite{csphoare:1985}.
+%  \end  {itemize}
+%\item Transact Node
+%  \begin{itemize}
+%  \item A communication method to read from and write to ports.
+%  \item Assurance that the arrival sequence of tokens at
+%        their ports cannot be determined.
+%  \end  {itemize}
+%\item Fixed Transact Node
+%  \begin{itemize}
+%  \item A communication method to read from and write to ports.
+%  \item Assurance that the arrival sequence of tokens at
+%        their ports cannot be determined.
+%  \item Assurance that consumption and production rates cannot
+%        be altered once set
+%  \end  {itemize}
+%\end{enumerate}
+%
+%\begin{enumerate}
+%\item CSP
+%  \begin{itemize}
+%  \item  \code{choice( a(1) $\arrowvert$ b(2) )}
+%
+%    This communication operation gets a list of actor ports (e.g. $a$, $b$) which
+%    are parameterized with the number of tokens that must be communicated
+%    over the port. The operations communicates over that actor port which is first ready
+%    for communication. If no port is ready for communication the operation blocks until
+%    at least one port is ready. Should more than one actor port be ready for
+%    communication at the same instance one of them is chosen nondeterministically.
+%  \end  {itemize}
+%\item KPN
+%  \begin{itemize}
+%  \item \code{transact( a(1) \& b(2) )}
+%
+%    This communication operation gets a list of actor ports (e.g. $a$, $b$) which
+%    are parameterized with the number of tokens that must be communicated
+%    over the port. The operations blocks until all requested tokens on the ports
+%    have been communicated.
+%  \end  {itemize}
+%\item SDF
+%  \begin{itemize}
+%  \item \code{transact(), hscd\_fixed\_transact\_node( ..., a(1) \& b(2) )}
+%
+%    Actors are C++ classes which are derived of their node interface class.
+%    The consumption and production rates for SDF Actors must be fixed, therefore
+%    the node interface of a SDF-Actor is parameterized with the consumption and production
+%    rates of the SDF-Actor (See actor constructor in Figure~\ref{example-multiply-actor} for an
+%    example of fixed consumption and production rates). The communication operation \code{transact} is
+%    therefore missing the port list which is available to KPN nodes.
+%  \end  {itemize}
+%\end{enumerate}
 
-    This communication operation gets a list of actor ports (e.g. $a$, $b$) which
-    are parameterized with the number of tokens that must be communicated
-    over the port. The operations communicates over that actor port which is first ready
-    for communication. If no port is ready for communication the operation blocks until
-    at least one port is ready. Should more than one actor port be ready for
-    communication at the same instance one of them is chosen nondeterministically.
-  \end  {itemize}
-\item KPN
-  \begin{itemize}
-  \item \code{transact( a(1) \& b(2) )}
+%(See Table~\ref{node-interface-c++} for mapping of the node interface types to their
+%corresponding C++ class types).
+%To partially remedy these problems we introduced the node interface aspect
+%which determines what communication methods are available to an actor.
 
-    This communication operation gets a list of actor ports (e.g. $a$, $b$) which
-    are parameterized with the number of tokens that must be communicated
-    over the port. The operations blocks until all requested tokens on the ports
-    have been communicated.
-  \end  {itemize}
-\item SDF
-  \begin{itemize}
-  \item \code{transact(), hscd\_fixed\_transact\_node( ..., a(1) \& b(2) )}
-
-    Actors are C++ classes which are derived of their node interface class.
-    The consumption and production rates for SDF Actors must be fixed, therefore
-    the node interface of a SDF-Actor is parameterized with the consumption and production
-    rates of the SDF-Actor (See actor constructor in Figure~\ref{example-multiply-actor} for an
-    example of fixed consumption and production rates). The communication operation \code{transact} is
-    therefore missing the port list which is available to KPN nodes.
-  \end  {itemize}
-\end{enumerate}
+%\begin{table}
+%\centering
+%\begin{tabular}{|l|l|}
+%\hline
+% Node interface & \SysteMoC{} node interface type \\
+%\hline \hline
+% Choice Node          & \code{hscd\_choice\_node} \\
+% Transact Node        & \code{hscd\_transact\_node} \\
+% Fixed Transact Node  & \code{hscd\_fixed\_transact\_node} \\
+%\hline
+%\end{tabular}
+%\caption{\label{node-interface-c++}Node interfaces represented as \SysteMoC{} classes}
+%\end{table}
 
 \subsection{Network Graph Type}
 
@@ -952,22 +968,9 @@ in these methods constrain the constructed network graph to conform to the corre
 network graph type.
 Therefore the network graph type of a network graph can be determined by looking
 at the base class of the network graph class.
-(See Table~\ref{network-graph-c++} for mapping of the network graph types to their
-corresponding \SysteMoC{} graph type classes).
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|}
-\hline
- Network graph type   & \SysteMoC{} graph type class \\
-\hline \hline
- Petri Choice Node    & \code{hscd\_graph\_petri} \\
- Transact Node        & \code{hscd\_graph\_sdf} \\
-\hline
-\end{tabular}
-\caption{\label{network-graph-c++}Network graph types represented as \SysteMoC{} classes}
-\end{table}
-
+The network graph types are mapped to C++ class types as follows:
+(i) The petri network graph is represented by the \code{hscd\_graph\_petri} class.
+(ii) And the dataflow network graph is represented by the \code{hscd\_graph\_dataflow} class.
 To construct the network graph the following methods are available for
 composition of a network graph of the desired type:
 \begin{enumerate}
@@ -1013,6 +1016,25 @@ composition of a network graph of the desired type:
 
 \end{enumerate}
 
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{NetworkGraphHierarchy.\graphicPostfix}\\
+\caption{\label{node-interface-hierarchy}UML inheritance hierarchy of the network graph types}
+\end{figure}
+
+%\begin{table}[h]
+%\centering
+%\begin{tabular}{|l|l|}
+%\hline
+% Network graph type   & \SysteMoC{} graph type class \\
+%\hline \hline
+% Petri Choice Node    & \code{hscd\_graph\_petri} \\
+% Transact Node        & \code{hscd\_graph\_sdf} \\
+%\hline
+%\end{tabular}
+%\caption{\label{network-graph-c++}Network graph types represented as \SysteMoC{} classes}
+%\end{table}
+
 \subsection{Channel Kind}
 
 SystemC is an actor-oriented design framework, it has the concepts
@@ -1029,20 +1051,22 @@ Further differences between \SysteMoC{} channels and a SystemC channels consist 
 absence of user callable methods for communicating on the \SysteMoC{} channels.
 Having those communication methods on the channels would contradict the separation
 of node interface and channel kind. The mapping of channel kind to corresponding C++
-class types is displayed in Table~\ref{channel-kind-c++}.
+class types is as follows:
+(i) The fifo channel kind is represented by the \code{hscd\_fifo\_kind} class.
+(ii) And rendezvous channel kind is represented by the \code{hscd\_rendezvous\_kind} class.
 
-\begin{table}
-\centering
-\begin{tabular}{|l|l|}
-\hline
- Channel kind & \SysteMoC{} type \\
-\hline \hline
- FIFO         & \code{hscd\_fifo\_kind} \\
- Rendezvous   & \code{hscd\_rendezvous\_kind} \\
-\hline
-\end{tabular}
-\caption{\label{channel-kind-c++}Channel kinds represented as \SysteMoC{} classes}
-\end{table}
+%\begin{table}
+%\centering
+%\begin{tabular}{|l|l|}
+%\hline
+% Channel kind & \SysteMoC{} type \\
+%\hline \hline
+% FIFO         & \code{hscd\_fifo\_kind} \\
+% Rendezvous   & \code{hscd\_rendezvous\_kind} \\
+%\hline
+%\end{tabular}
+%\caption{\label{channel-kind-c++}Channel kinds represented as \SysteMoC{} classes}
+%\end{table}
 
 \subsection{Constraint Set Composition for MoCs}
 
