@@ -4,5 +4,6 @@ TEX_SOURCES=report.tex
 
 RESDIR=$(top_srcdir)/../HscdTeXRes
 TEXINPUTS:=$(RESDIR):$(TEXINPUTS)
+TEXCLEANDIRS:=$(RESDIR) .
 
 include $(RESDIR)/Rules-TeX.mk
