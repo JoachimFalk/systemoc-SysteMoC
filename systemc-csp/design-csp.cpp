@@ -50,12 +50,10 @@ public:
   hscd_port_in<void> sitreq_2;
   hscd_port_in<void> sitreq_3;
   hscd_port_in<void> sitreq_4;
-  hscd_port_in<void> sitreq_5;
   hscd_port_in<void> standreq_1;
   hscd_port_in<void> standreq_2;
   hscd_port_in<void> standreq_3;
   hscd_port_in<void> standreq_4;
-  hscd_port_in<void> standreq_5;
 private:
   void process() {
     int count = 4;
@@ -65,15 +63,13 @@ private:
         choice( sitreq_1(1) | standreq_1(1) |
                 sitreq_2(1) | standreq_2(1) |
                 sitreq_3(1) | standreq_3(1) |
-                sitreq_4(1) | standreq_4(1) |
-                sitreq_5(1) | standreq_5(1) );
+                sitreq_4(1) | standreq_4(1) );
       else
         choice(               standreq_1(1) |
                               standreq_2(1) |
                               standreq_3(1) |
-                              standreq_4(1) |
-                              standreq_5(1) );
-      if ( sitreq_1 || sitreq_2 || sitreq_3 || sitreq_4 || sitreq_5 )
+                              standreq_4(1) );
+      if ( sitreq_1 || sitreq_2 || sitreq_3 || sitreq_4 )
         --count;
       else
         ++count;
@@ -125,16 +121,14 @@ class m_top
       dp_fork        &m_fork2        = registerNode(new dp_fork("m_fork2"));
       dp_fork        &m_fork3        = registerNode(new dp_fork("m_fork3"));
       dp_fork        &m_fork4        = registerNode(new dp_fork("m_fork4"));
-      dp_fork        &m_fork5        = registerNode(new dp_fork("m_fork5"));
       dp_philosopher &m_philosopher1 = registerNode(new dp_philosopher("m_philosopher1"));
       dp_philosopher &m_philosopher2 = registerNode(new dp_philosopher("m_philosopher2"));
       dp_philosopher &m_philosopher3 = registerNode(new dp_philosopher("m_philosopher3"));
       dp_philosopher &m_philosopher4 = registerNode(new dp_philosopher("m_philosopher4"));
-      dp_philosopher &m_philosopher5 = registerNode(new dp_philosopher("m_philosopher5"));
       dp_footman     &m_footman      = registerNode(new dp_footman("m_footman"));
       
       connectNodePorts( m_philosopher1.l_forkreq, m_fork1.r_forkreq );
-      connectNodePorts( m_philosopher5.r_forkreq, m_fork1.l_forkreq );
+      connectNodePorts( m_philosopher4.r_forkreq, m_fork1.l_forkreq );
       
       connectNodePorts( m_philosopher2.l_forkreq, m_fork2.r_forkreq );
       connectNodePorts( m_philosopher1.r_forkreq, m_fork2.l_forkreq );
@@ -145,9 +139,6 @@ class m_top
       connectNodePorts( m_philosopher4.l_forkreq, m_fork4.r_forkreq );
       connectNodePorts( m_philosopher3.r_forkreq, m_fork4.l_forkreq );
       
-      connectNodePorts( m_philosopher5.l_forkreq, m_fork5.r_forkreq );
-      connectNodePorts( m_philosopher4.r_forkreq, m_fork5.l_forkreq );
-
       connectNodePorts( m_philosopher1.sitreq,   m_footman.sitreq_1   );
       connectNodePorts( m_philosopher1.standreq, m_footman.standreq_1 );
 
@@ -159,9 +150,6 @@ class m_top
 
       connectNodePorts( m_philosopher4.sitreq,   m_footman.sitreq_4   );
       connectNodePorts( m_philosopher4.standreq, m_footman.standreq_4 );
-
-      connectNodePorts( m_philosopher5.sitreq,   m_footman.sitreq_5   );
-      connectNodePorts( m_philosopher5.standreq, m_footman.standreq_5 );
     }
 };
 
