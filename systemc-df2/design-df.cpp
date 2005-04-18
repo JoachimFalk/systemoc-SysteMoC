@@ -12,124 +12,133 @@
 # include <hscd_pggen.hpp>
 #endif
 
-#define DEBUG 1
+class m_h_src: public hscd_fixed_transact_passive_node {
+public:
+  hscd_port_out<double> out;
+private:
+  int i;
+  
+  void src() {
+    std::cout << "src: " << i << std::endl;
+    out[0] = i++;
+  }
+public:
+  m_h_src(sc_module_name name)
+    : hscd_fixed_transact_passive_node(name,
+        out(1) >> call(&m_h_src::src) ),
+      i(1) {}
+};
 
-// queue pair number
-typedef int t_qpn;
-// transmit token
-typedef int t_TT;
+class m_h_approx: public hscd_fixed_transact_passive_node {
+public:
+  hscd_port_in<double>  i1, i2;
+  hscd_port_out<double> o1;
+private:
+  void approx(void) { o1[0] = (i1[0] / i2[0] + i2[0]) / 2; }
+public:
+  m_h_approx(sc_module_name name)
+    : hscd_fixed_transact_passive_node(name,
+        (i1(1) & i2(1) & o1(1)) >> call(&m_h_approx::approx) ) {}
+};
 
-struct markers {
+class m_h_dup: public hscd_fixed_transact_passive_node {
+public:
+  hscd_port_in<double>  i1;
+  hscd_port_out<double> o1, o2;
+private:
+  void dup(void) { o1[0] = o2[0] = i1[0]; }
+public:
+  m_h_dup(sc_module_name name)
+    : hscd_fixed_transact_passive_node(name,
+        (i1(1) & o1(1) & o2(1)) >> call(&m_h_dup::dup) ) {}
+};
+
+class m_h_sqrloop: public hscd_transact_passive_node {
+public:
+  hscd_port_in<double>  i1, i2;
+  hscd_port_out<double> o1, o2;
+private:
   hscd_firing_state start;
-  hscd_firing_state other;
+  hscd_firing_state ok, again, write;
+  
+  // action function from FSM defined in constructor
+  const hscd_firing_state &check() {
+    std::cout << "check: " << i1[0] << ", " << i2[0] << std::endl;
+    o1[0] = i1[0]; o2[0] = i2[0];
+    // runtime decission of successor state for FSM defined in constructor
+    return (fabs(i1[0] - i2[0]*i2[0]) < 0.0001)
+      ? ok 
+      : write;
+  }
+public:
+  m_h_sqrloop(sc_module_name name)
+    : hscd_transact_passive_node( name, start ) {
+// state               guards             action       function      successor states
+    start = Transact( (i1(1) & i2(1)) >> branch(&m_h_sqrloop::check, ok | write ) );
+    ok    = Transact( (o1(1) & o2(1)) >>                             start);
+    write = Transact(  o1(1)          >>                             again);
+    again = Transact(  i2(1)          >> branch(&m_h_sqrloop::check, ok | write ) );
+  }
 };
 
-
-class m_h_sched :
-        public markers,
-	public hscd_choice_passive_node {
+class m_h_sink: public hscd_fixed_transact_passive_node {
 public:
-	hscd_port_out<t_qpn> out_getTT;
-	hscd_port_in<t_TT> in_getTT;
-
-        hscd_port_out<void> out_void;
-
+  hscd_port_in<double> in;
 private:
-        
-	hscd_firing_state foo() {
-          if ( in_getTT[0] == 1 )
-            return start;
-          else {
-            out_getTT[0] = in_getTT[0];
-            return other;
-          }
-	}
-
-        void process(void) {}
-
+  int i;
+  
+  void sink(void) { std::cout << "sink: " << in[0] << std::endl; }
 public:
-	m_h_sched(sc_module_name name)
-	  : hscd_choice_passive_node(name,
-              start = Choice(
-                (in_getTT(1) & out_getTT(1)) >> call(&m_h_sched::process, &start) |
-                in_getTT(1) >> branch(&m_h_sched::foo,
-                  &start |
-                  (other = Transact( out_getTT(1) >> call(&m_h_sched::process, &start) ))
-                )
-              ) ) {}
+  m_h_sink(sc_module_name name)
+    : hscd_fixed_transact_passive_node(name,
+        in(1) >> call(&m_h_sink::sink) ) {}
 };
 
-
-class m_h_transmit_queue :
-        public markers,
-	public hscd_transact_passive_node {
-public:
-	hscd_port_in<t_qpn> in_getTT;
-	hscd_port_in<void> in_void;
-	hscd_port_out<t_TT> out_getTT;
-private:
-	hscd_firing_state process () {
-          if ( in_getTT[0] == 1 )
-            return start;
-          else {
-            out_getTT[0] = in_getTT[0];
-            return other;
-          }
-	}
-        
-	void nothing() {}
-public:
-	m_h_transmit_queue(sc_module_name name)
-	  : hscd_transact_passive_node( name,
-              start = Transact(
-                in_getTT(1) >> branch(&m_h_transmit_queue::process,
-                  &start |
-                  (other = Transact( out_getTT(1) >> call(&m_h_transmit_queue::nothing, &start) ))
-                )
-              )
-            ) {}
-};
-
-class m_h_foo:
-	public hscd_fixed_transact_passive_node {
-public:
-	hscd_port_in<t_qpn> in_getTT;
-	hscd_port_out<t_TT> out_getTT;
-private:
-	void process () {
-          out_getTT[0] = in_getTT[0];
-	}
-public:
-	m_h_foo(sc_module_name name)
-	  :hscd_fixed_transact_passive_node( name,
-              in_getTT(1) & out_getTT(1) ) {
-        }
-};
-
-/*
-class m_top
-: public hscd_fifocsp_structure {
-  private:
-    hscd_scheduler_asap *asap;
+class m_h_approx_loop
+: public hscd_kpn_constraintset {
   public:
-    m_top( sc_module_name _name ): hscd_fifocsp_structure(_name) {
-      m_h_sched           &h_sched =
-        registerNode(new m_h_sched("h_sched"));
-      m_h_transmit_queue  &h_transmit_queue =
-        registerNode(new m_h_transmit_queue("h_tranmit_queue"));
-      
-      connectNodePorts( h_sched.out_getTT, h_transmit_queue.in_getTT );
-      connectNodePorts( h_transmit_queue.out_getTT, h_sched.in_getTT );
-      connectNodePorts( h_sched.out_void, h_transmit_queue.in_void );
-      
-      asap = new hscd_scheduler_asap( "asap", getNodes() );
+    hscd_port_in<double>  i1;
+    hscd_port_out<double> o1;
+  protected:
+    m_h_sqrloop sqrloop;
+    m_h_approx  approx;
+    m_h_dup     dup;
+  public:
+    m_h_approx_loop( sc_module_name name )
+      : hscd_kpn_constraintset(name),
+        sqrloop("sqrloop"),
+        approx("approx"),
+        dup("dup") {
+      sqrloop.i1(i1);
+      connectNodePorts(sqrloop.o1, approx.i1);
+      connectNodePorts(approx.o1, dup.i1, hscd_fifo<double>() << 2 );
+      connectNodePorts(dup.o1, approx.i2);
+      connectNodePorts(dup.o2, sqrloop.i2);
+      sqrloop.o2(o1);
     }
 };
-*/
+
+class m_h_top
+: public hscd_kpn_constraintset {
+  public:
+  protected:
+    m_h_src                         src;
+    hscd_kpn_moc<m_h_approx_loop>   al;
+    m_h_sink                        sink;
+  public:
+    m_h_top( sc_module_name name )
+      : hscd_kpn_constraintset(name),
+        src("src"),
+        al("al"),
+        sink("sink") {
+      connectNodePorts(src.out, al.i1);
+      connectNodePorts(al.o1, sink.in);
+    }
+};
 
 int sc_main (int argc, char **argv) {
-//  hscd_top top( new m_top("top") );
-  m_h_sched sched("sched");
-//  sc_start(-1);
+  hscd_top_moc<hscd_kpn_moc<m_h_top> > top("top");
+  
+  sc_start(-1);
   return 0;
 }
