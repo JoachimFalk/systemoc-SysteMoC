@@ -43,6 +43,7 @@ public:
   //  virtual void wantData( iface_type tq ) = 0;
   
   virtual void   addPortIf(iface_in_type *_i) = 0;
+  virtual void   transfer(iface_in_type *_i) = 0;
   virtual size_t committedOutCount() const = 0;
   virtual size_t maxCommittableOutCount() const = 0;
 protected:  
@@ -68,6 +69,7 @@ public:
   //  virtual void wantData( iface_type tq ) = 0;
   
   virtual void   addPortIf(iface_out_type *_i) = 0;
+  virtual void   transfer(iface_out_type *_o) = 0;
   virtual size_t committedInCount() const = 0;
   virtual size_t maxCommittableInCount() const = 0;
 protected:
@@ -112,9 +114,9 @@ protected:
   iface_out_type *portOutIf;
 public:
   void addPortIf(iface_in_type *_i)
-    { assert( portInIf == NULL );  portInIf = _i;  }
+    { /*assert( portInIf == NULL );*/  portInIf = _i;  }
   void addPortIf(iface_out_type *_i)
-    { assert( portOutIf == NULL ); portOutIf = _i; }
+    { /*assert( portOutIf == NULL );*/ portOutIf = _i; }
   hscd_port_list getInputPorts()  const
     { hscd_port_list retval; retval.push_front(portInIf); return retval; }
   hscd_port_list getOutputPorts() const

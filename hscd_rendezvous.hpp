@@ -65,6 +65,8 @@ public:
     { return (portInIf->committedCount() - portInIf->doneCount()); }
   size_t maxCommittableInCount() const
     { return (portInIf->maxCommittableCount() - portInIf->doneCount()); }
+  void transfer(iface_in_type *_i) { copyData(portOutIf,_i); }
+  void transfer(iface_out_type *_o) { copyData(_o,portInIf); }
 };
 
 template <typename T>

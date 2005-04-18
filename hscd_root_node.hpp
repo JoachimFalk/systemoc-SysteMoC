@@ -19,52 +19,72 @@
 class hscd_opbase_node {
 public:
   typedef hscd_opbase_node this_type;
-private:
-  hscd_firing_state _currentState;
 protected:
   template <typename T>
   hscd_interface_action call(
       void (T::*f)(),
-      const hscd_firing_state_list::value_type &v ) {
-    std::cerr << "call" << std::endl;
-    return hscd_interface_action(v,hscd_func_call(this,f));
+      const hscd_firing_state &s ) {
+//    std::cerr << "call" << std::endl;
+    return hscd_interface_action(s,hscd_func_call(this,f));
   }
   template <typename T>
+  hscd_interface_action call(
+      void (T::*f)(),
+      hscd_firing_state &s ) {
+//    std::cerr << "call" << std::endl;
+    return hscd_interface_action(s,hscd_func_call(this,f));
+  }
+  template <typename T>
+  hscd_interface_action call(
+      void (T::*f)(),
+      hscd_firing_state *s ) {
+//    std::cerr << "call" << std::endl;
+    return hscd_interface_action(s,hscd_func_call(this,f));
+  }
+  
+  template <typename T>
   hscd_interface_action branch(
-      hscd_firing_state (T::*f)(),
+      const hscd_firing_state &(T::*f)(),
       const hscd_firing_state_list &sl ) {
-    std::cerr << "branch" << std::endl;
+//    std::cerr << "branch" << std::endl;
     return hscd_interface_action(sl,hscd_func_branch(this,f));
   }
   hscd_firing_state Transact( const hscd_interface_transition &t ) {
-    std::cerr << "Transact" << std::endl;
+//    std::cerr << "Transact" << std::endl;
     return hscd_firing_state(t);
   }
   hscd_firing_state Choice( const hscd_transition_list &tl ) {
-    std::cerr << "Choice" << std::endl;
+//    std::cerr << "Choice" << std::endl;
     return hscd_firing_state(tl);
   }
-  
-  hscd_opbase_node(const hscd_firing_state &s)
-    : _currentState(s) {}
-
-  virtual ~hscd_opbase_node() {}
-public:
-  const hscd_firing_state &currentState() const { return _currentState; }
-  hscd_firing_state       &currentState()       { return _currentState; }
-  
 };
 
 class hscd_root_node
   : public hscd_opbase_node {
-protected:
-  hscd_root_node(const hscd_firing_state &s)
-    : hscd_opbase_node(s), ports_valid(false)
-    { currentState().finalise(this); }
 private:
+  hscd_firing_state        _currentState;
+  const hscd_firing_state *_initialState;
+  
   bool           ports_valid;
   hscd_port_list ports;
+protected:
+  hscd_root_node(const hscd_firing_state &s)
+    : _currentState(s), _initialState(NULL), ports_valid(false)
+    {}
+  hscd_root_node(hscd_firing_state &s)
+    : _initialState(&s), ports_valid(false)
+    {}
+  
+  virtual ~hscd_root_node() {}
 public:
+  virtual void finalise() {
+//    std::cout << myModule()->name() << ": finalise" << std::endl;
+    if ( _initialState != NULL ) {
+      _currentState = *_initialState;
+      _initialState = NULL;
+    }
+    _currentState.finalise(this);
+  }
   //sc_event		_fire;
   //hscd_port_in<void>  fire_port;
 
@@ -78,6 +98,9 @@ public:
 #endif
 
   hscd_port_list &getPorts();
+
+  const hscd_firing_state &currentState() const { return _currentState; }
+  hscd_firing_state       &currentState()       { return _currentState; }
 };
 
 #endif // _INCLUDED_HSCD_ROOT_NODE_HPP

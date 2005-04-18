@@ -73,6 +73,16 @@ protected:
     iobind.insert( iobind_ty::value_type(&b,&a) );
     b.bind(a);
   }
+
+  void finalise() {
+    nodes_ty nodes = getNodes();
+    
+    for ( typename nodes_ty::iterator iter = nodes.begin();
+          iter != nodes.end();
+          ++iter )
+      (*iter)->finalise();
+  }
+
 public:
   explicit hscd_graph_petri( sc_module_name name )
     : sc_module( name ) {}

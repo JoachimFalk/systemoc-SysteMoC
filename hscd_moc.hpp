@@ -8,31 +8,48 @@
 
 #include <list>
 
+template<typename T>
+void dump(std::list<T> &nodes) {
+  std::cout << "=== dump ===" << std::endl;
+  for ( typename std::list<T>::const_iterator iter = nodes.begin();
+        iter != nodes.end();
+        ++iter ) {
+    const hscd_firing_state &s = (*iter)->currentState();
+    std::cout << "actor: " << (*iter)->myModule()->name() << " state: " << &s << std::endl;
+    std::cout << s;
+  }
+}
+
 template <typename T_scheduler, typename T_constraintset>
 class hscd_moc
   : public T_constraintset,
     public T_scheduler {
 private:
-  void process() { return schedule(
-    static_cast<typename T_scheduler::cset_ty *>(this)); }
+//  void process() { return schedule(
+//    static_cast<typename T_scheduler::cset_ty *>(this)); }
+protected:
+  void finalise() {
+    T_constraintset::finalise();
+    T_scheduler::finalise();
+  }
 public:
   typedef hscd_moc<T_scheduler, T_constraintset> this_type;
   
-  SC_HAS_PROCESS(this_type);
-  
+//  SC_HAS_PROCESS(this_type);
+//  
   explicit hscd_moc( sc_module_name name )
     : T_constraintset(name), T_scheduler(
         static_cast<typename T_scheduler::cset_ty *>(this)) {
-#ifndef __SCFE__
-    SC_THREAD(process);
-#endif
+//#ifndef __SCFE__
+//    SC_THREAD(process);
+//#endif
   }
   hscd_moc()
     : T_constraintset(), T_scheduler(
         static_cast<typename T_scheduler::cset_ty *>(this)) {
-#ifndef __SCFE__
-    SC_THREAD(process);
-#endif
+//#ifndef __SCFE__
+//    SC_THREAD(process);
+//#endif
   }
 
 #ifndef __SCFE__
@@ -51,46 +68,63 @@ public:
   typedef hscd_moc_scheduler_sdf  this_type;
   typedef hscd_sdf_constraintset  cset_ty;
 protected:
-  void schedule( cset_ty *c ) {}
+  cset_ty *c;
+  
+  void schedule() {}
 private:
-  hscd_activation_pattern analyse( cset_ty *c ) const {
-    return hscd_activation_pattern();
+  hscd_interface_transition analyse( cset_ty *c ){
+    return hscd_activation_pattern() >> call(&hscd_moc_scheduler_sdf::schedule);
   }
 public:
   hscd_moc_scheduler_sdf( cset_ty *c )
-    : hscd_fixed_transact_node(analyse(c)) {}
+    : hscd_fixed_transact_node(analyse(c)), c(c) {}
 };
 
 class hscd_moc_scheduler_kpn
-  : public hscd_transact_node {
+  : public hscd_transact_node,
+    public hscd_firing_types {
 public:
   typedef hscd_moc_scheduler_kpn  this_type;
   typedef hscd_kpn_constraintset  cset_ty;
 protected:
-  void schedule( cset_ty *c ) {}
+  cset_ty *c;
+  
+  typedef std::pair<transition_ty *, hscd_root_node *>  transition_node_ty;
+  typedef std::list<transition_node_ty>                 transition_node_list_ty;
+
+  void schedule() {
+    cset_ty::nodes_ty nodes = c->getNodes();
+    transition_node_list_ty tln;
+    
+    do {
+      tln.clear();
+      for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+            iter != nodes.end();
+            ++iter ) {
+        hscd_firing_state   &s  = (*iter)->currentState();
+        resolved_state_ty   &rs = s.getResolvedState();
+        maybe_transition_ty  mt = rs.findEnabledTransition();
+        
+        if ( mt.first )
+          tln.push_front(transition_node_ty(mt.second,*iter));
+      }
+      // dump(nodes);
+      for ( transition_node_list_ty::const_iterator iter = tln.begin();
+            iter != tln.end();
+            ++iter ) {
+        iter->second->currentState().execute(iter->first);
+      }
+    } while (!tln.empty());
+  }
 private:
-  hscd_firing_state analyse( cset_ty *c ) const {
-    return hscd_firing_state();
+  hscd_firing_state s;
+  
+  void analyse() {
+    s = Transact( hscd_activation_pattern() >> call(&hscd_moc_scheduler_kpn::schedule, s) );
   }
 public:
   hscd_moc_scheduler_kpn( cset_ty *c )
-    : hscd_transact_node(analyse(c)) {}
-};
-
-class hscd_moc_scheduler_ddf
-  : public hscd_choice_node {
-public:
-  typedef hscd_moc_scheduler_ddf  this_type;
-  typedef hscd_ddf_constraintset  cset_ty;
-protected:
-  void schedule( cset_ty *c ) {}
-private:
-  hscd_firing_state analyse( cset_ty *c ) const {
-    return hscd_firing_state();
-  }
-public:
-  hscd_moc_scheduler_ddf( cset_ty *c )
-    : hscd_choice_node(analyse(c)) {}
+    : hscd_transact_node(s), c(c) { analyse(); }
 };
 
 class hscd_moc_scheduler_csp
@@ -100,37 +134,9 @@ public:
   typedef hscd_moc_scheduler_csp  this_type;
   typedef hscd_csp_constraintset  cset_ty;
 protected:
-
-  void dump(cset_ty::nodes_ty &nodes) {
-    std::cout << "=== dump ===" << std::endl;
-    for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
-          iter != nodes.end();
-          ++iter ) {
-      const hscd_firing_state &s = (*iter)->currentState();
-      const resolved_state_ty &rs = s.getResolvedState();
-      
-      std::cout << "actor: " << (*iter)->myModule()->name() << " state: " << &s << std::endl;
-      for ( transitionlist_ty::const_iterator titer = rs.tl.begin();
-            titer != rs.tl.end();
-            ++titer ) {
-        const transition_ty &t = *titer;
-        const hscd_activation_pattern &ap = t.ap;
-        
-        std::cout << "  transition(" << &t << ","
-                                  "canSatisfy=" << ap.canSatisfy() << ","
-                                  "satisfiable=" << ap.satisfiable() << ")" << std::endl;
-        for ( hscd_activation_pattern::const_iterator apiter = ap.begin();
-              apiter != ap.end();
-              ++apiter ) {
-          const hscd_op_port   &op = apiter->second;
-          const hscd_root_port *p  = op.getPort();
-          std::cout << "    " << *p << std::endl;
-        }
-      }
-    }
-  }
-
-  void schedule( cset_ty *c ) {
+  cset_ty *c;
+  
+  void schedule() {
     cset_ty::nodes_ty nodes = c->getNodes();
     
     bool again;
@@ -150,40 +156,12 @@ protected:
     } while ( again );
   }
 private:
-/* 
-#ifndef __SCFE__
-  //    nodes_ty nodes;
-  hscd_op_port_or_list    fire_list;
-  
-  template <typename T>
-  void analyse( const std::list<T> &nl ) {
-    for ( typename std::list<T>::const_iterator iter = nl.begin();
-          iter != nl.end(); ++iter ) {
-      typename hscd_rendezvous<void>::chan_type *fire_channel =
-        new typename hscd_rendezvous<void>::chan_type(  hscd_rendezvous<void>() );
-      hscd_port_out<void>              *fire_port    =
-        new hscd_port_out<void>();
-      
-      (*iter)->fire_port(*fire_channel);
-      (*fire_port)(*fire_channel);
-      fire_list | (*fire_port)(1);
-      // nodes.push_back(*iter);
-      // fire.push_back(
-    }
-  }
-protected:
-  void schedule() {
-    while ( 1 )
-      hscd_choice_node::choice( fire_list );
-  }
-#endif
-*/
   hscd_firing_state analyse( cset_ty *c ) const {
     return hscd_firing_state();
   }
 public:
   hscd_moc_scheduler_csp( cset_ty *c )
-    : hscd_choice_node(analyse(c)) {}
+    : hscd_choice_node(analyse(c)), c(c) {}
 };
 
 template <typename T_constraintset>
@@ -204,6 +182,56 @@ class hscd_csp_moc
       : hscd_moc<hscd_moc_scheduler_csp, T_constraintset>(name) {}
     hscd_csp_moc()
       : hscd_moc<hscd_moc_scheduler_csp, T_constraintset>() {}
+};
+
+template <typename T_constraintset>
+class hscd_kpn_moc
+  : public hscd_moc<hscd_moc_scheduler_kpn, T_constraintset> {
+  public:
+    explicit hscd_kpn_moc( sc_module_name name )
+      : hscd_moc<hscd_moc_scheduler_kpn, T_constraintset>(name) {}
+    hscd_kpn_moc()
+      : hscd_moc<hscd_moc_scheduler_kpn, T_constraintset>() {}
+};
+
+template <typename T_top>
+class hscd_top_moc
+  : public T_top {
+private:
+  // called by elaboration_done (does nothing by default)
+  void end_of_elaboration() {
+    finalise();
+    
+    hscd_port_list ps = getPorts();
+    
+    std::cout << "ports:" << std::endl;
+    for ( hscd_port_list::const_iterator iter = ps.begin();
+          iter != ps.end();
+          ++iter ) {
+      std::cout << *iter << std::endl;
+    }
+  }
+  
+  void process() {
+    schedule();
+  }
+public:
+  typedef hscd_top_moc<T_top> this_type;
+  
+  SC_HAS_PROCESS(this_type);
+  
+  explicit hscd_top_moc( sc_module_name name )
+    : T_top(name) {
+#ifndef __SCFE__
+    SC_THREAD(process);
+#endif
+  }
+  hscd_top_moc()
+    : T_top() {
+#ifndef __SCFE__
+    SC_THREAD(process);
+#endif
+  }
 };
 
 #endif // _INCLUDED_HSCD_MOC_HPP

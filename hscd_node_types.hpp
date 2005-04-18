@@ -10,21 +10,29 @@ class hscd_choice_node
   protected:
     hscd_choice_node(const hscd_firing_state &s)
       : hscd_root_node(s) {}
+    hscd_choice_node(hscd_firing_state &s)
+      : hscd_root_node(s) {}
 };
 
 class hscd_choice_passive_node
-  : public sc_module,
+  : public hscd_choice_node,
 #ifndef __SCFE__
     public hscd_modes::hscd_modes_base_structure,
 #endif
-    public hscd_choice_node {
+    public sc_module {
   protected:
     explicit hscd_choice_passive_node( sc_module_name name, const hscd_firing_state &s )
-      : sc_module(name),
-        hscd_choice_node(s) {}
+      : hscd_choice_node(s),
+        sc_module(name) {}
     hscd_choice_passive_node(const hscd_firing_state &s)
-      : sc_module( sc_gen_unique_name("hscd_choice_active_node") ),
-        hscd_choice_node(s) {}
+      : hscd_choice_node(s),
+        sc_module( sc_gen_unique_name("hscd_choice_active_node") ) {}
+    explicit hscd_choice_passive_node( sc_module_name name, hscd_firing_state &s )
+      : hscd_choice_node(s),
+        sc_module(name) {}
+    hscd_choice_passive_node(hscd_firing_state &s)
+      : hscd_choice_node(s),
+        sc_module( sc_gen_unique_name("hscd_choice_active_node") ) {}
   public:
 #ifndef __SCFE__
     sc_module *myModule() { return this; }
@@ -34,6 +42,7 @@ class hscd_choice_passive_node
 #endif
 };
 
+/*
 class hscd_choice_active_node
   : public sc_module,
 #ifndef __SCFE__
@@ -62,7 +71,7 @@ class hscd_choice_active_node
     void assemble( hscd_modes::PGWriter &pgw ) const {
       return hscd_choice_node::assemble(pgw); }
 #endif
-};
+};*/
 
 class hscd_transact_node
   : public hscd_choice_node {
@@ -74,22 +83,29 @@ class hscd_transact_node
   protected:
     hscd_transact_node(const hscd_firing_state &s)
       : hscd_choice_node(s) {}
+    hscd_transact_node(hscd_firing_state &s)
+      : hscd_choice_node(s) {}
 };
 
 class hscd_transact_passive_node
-  : public sc_module,
+  : public hscd_transact_node,
 #ifndef __SCFE__
     public hscd_modes::hscd_modes_base_structure,
 #endif
-    public hscd_transact_node {
-  private:
+    public sc_module {
   protected:
     explicit hscd_transact_passive_node( sc_module_name name, const hscd_firing_state &s )
-      : sc_module(name),
-        hscd_transact_node(s) {}
+      : hscd_transact_node(s),
+        sc_module(name) {}
     hscd_transact_passive_node(const hscd_firing_state &s)
-      : sc_module( sc_gen_unique_name("hscd_transact_active_node") ),
-        hscd_transact_node(s) {}
+      : hscd_transact_node(s),
+        sc_module( sc_gen_unique_name("hscd_transact_active_node") ) {}
+    explicit hscd_transact_passive_node( sc_module_name name, hscd_firing_state &s )
+      : hscd_transact_node(s),
+        sc_module(name) {}
+    hscd_transact_passive_node(hscd_firing_state &s)
+      : hscd_transact_node(s),
+        sc_module( sc_gen_unique_name("hscd_transact_active_node") ) {}
   public:
 #ifndef __SCFE__
     sc_module *myModule() { return this; }
@@ -99,6 +115,7 @@ class hscd_transact_passive_node
 #endif
 };
 
+/*
 class hscd_transact_active_node
   : public sc_module,
 #ifndef __SCFE__
@@ -129,13 +146,15 @@ class hscd_transact_active_node
       return hscd_transact_node::assemble(pgw); }
 #endif
 };
+*/
 
 class hscd_fixed_transact_node
   : public hscd_transact_node {
 private:
-  /* disable */
-  //void transact( hscd_op_transact op );
-  //void startTransact( hscd_op_transact op );
+  hscd_interface_transition _it;
+  hscd_firing_state         _startState;
+  hscd_firing_state         _writeState;
+  
   hscd_firing_state Transact( const hscd_interface_transition &t );
   template <typename T>
   hscd_interface_action branch(
@@ -144,58 +163,50 @@ private:
   template <typename T>
   hscd_interface_action call(
       void (T::*f)(),
-      const hscd_firing_state_list::value_type &v );
-
-  hscd_firing_state _firingRules(const hscd_activation_pattern &ap) {
-    hscd_firing_state loop;
-    
-    return hscd_transact_node::Transact( ap.onlyInputs() >>
-      hscd_transact_node::call( &hscd_fixed_transact_node::process,
-        (loop = hscd_transact_node::Transact( ap >>
-          hscd_transact_node::call( &hscd_fixed_transact_node::process, &loop )
-        ) )
-      )
-    );
-  }
+      const hscd_firing_state &s );
+  template <typename T>
+  hscd_interface_action call(
+      void (T::*f)(),
+      hscd_firing_state &s );
+  template <typename T>
+  hscd_interface_action call(
+      void (T::*f)(),
+      hscd_firing_state *s );
 protected:
   //hscd_op_transact op;
   
-  hscd_fixed_transact_node(const hscd_activation_pattern &ap)
-    : hscd_transact_node(_firingRules(ap)) {} //, op(op) {}
+  hscd_fixed_transact_node(const hscd_interface_transition &it)
+    : hscd_transact_node(_startState), _it(it) {}
   
-  //void startTransact() {
-  //  return hscd_transact_node::startTransact(op);
-  //}
-  //void transact() {
-  //  hscd_transact_node::transact(op);
-  //}
+  void finalise() {
+    hscd_firing_state loop;
+    
+    _startState = hscd_transact_node::Transact( _it.onlyInputs() );
+    _writeState = hscd_transact_node::Transact( _it.getActivationPattern().onlyOutputs() >> _startState );
+    return hscd_transact_node::finalise();
+  }
   
-  virtual void process() = 0;
+  template <typename T>
+  hscd_interface_action call( void (T::*f)() )
+    { return hscd_transact_node::call(f, &_writeState); }
 };
 
 class hscd_fixed_transact_passive_node
-  : public sc_module,
+  : public hscd_fixed_transact_node,
 #ifndef __SCFE__
     public hscd_modes::hscd_modes_base_structure,
 #endif
-    public hscd_fixed_transact_node {
-  private:
-    // disable
-    //void transact();
+    public sc_module {
   protected:
-    explicit hscd_fixed_transact_passive_node( sc_module_name name, const hscd_activation_pattern &ap )
-      : sc_module( name ),
-        hscd_fixed_transact_node(ap) {}
-    hscd_fixed_transact_passive_node(const hscd_activation_pattern &ap)
-      : sc_module( sc_gen_unique_name("hscd_fixed_transact_passive_node") ),
-        hscd_fixed_transact_node(ap) {}
+    explicit hscd_fixed_transact_passive_node(
+        sc_module_name name, const hscd_interface_transition &it )
+      : hscd_fixed_transact_node(it),
+        sc_module( name ) {}
+    hscd_fixed_transact_passive_node(
+        const hscd_interface_transition &it )
+      : hscd_fixed_transact_node(it),
+        sc_module( sc_gen_unique_name("hscd_fixed_transact_passive_node") ) {}
   public:
-    //void opFinished() {
-    //  assert( finished() );
-    //  process();
-    //  startTransact();
-    //}
-    
 #ifndef __SCFE__
     sc_module *myModule() { return this; }
     
@@ -204,6 +215,7 @@ class hscd_fixed_transact_passive_node
 #endif
 };
 
+/*
 class hscd_fixed_transact_active_node
   : public sc_module,
 #ifndef __SCFE__
@@ -239,5 +251,6 @@ class hscd_fixed_transact_active_node
       return hscd_fixed_transact_node::assemble(pgw); }
 #endif
 };
+*/
 
 #endif // _INCLUDED_HSCD_NODE_TYPES_HPP

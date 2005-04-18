@@ -15,6 +15,7 @@
 #include <commondefs.h>
 
 class hscd_activation_pattern;
+class hscd_interface_transition;
 class hscd_port2op_if;
 class hscd_root_port;
 class hscd_root_node;
@@ -25,6 +26,9 @@ template <typename T> class hscd_port_out;
 class hscd_op_port {
 public:
   typedef hscd_op_port  this_type;
+
+  friend class hscd_activation_pattern;
+  friend class hscd_firing_state;
 private:
   hscd_root_port *port;
   size_t          commit;
@@ -39,22 +43,26 @@ protected:
   
   hscd_op_port( hscd_root_port *port, size_t commit )
     : port(port), commit(commit) {}
+  
+  void                  addCommitCount( size_t n ) { commit += n; }
 public:
-  operator hscd_root_port &() { return *port; }
+  size_t                commitCount() const { return commit; }
   
   hscd_root_port       *getPort()           { return port; }
   const hscd_root_port *getPort()     const { return port; }
-  size_t                commitCount() const { return commit; }
-  void                  addCommitCount( size_t n ) { commit += n; }
 
-  bool satisfiable() const
-    { return commit <= port->maxAvailableCount() && stillPossible(); }
-  bool canSatisfy()  const
-    { return commit == port->availableCount() && stillPossible(); }
+  bool knownUnsatisfiable() const
+    { return commit  > port->maxAvailableCount() || !stillPossible(); }
+  bool knownSatisfiable()  const
+    { return commit <= port->availableCount() && stillPossible(); }
   bool satisfied()   const
     { return commit == port->doneCount() && stillPossible(); }
   bool isInput()     const { return port->isInput();  }
   bool isOutput()    const { return port->isOutput(); }
+  bool isUplevel()   const { return port->isUplevel(); }
+  
+  void reset()    { port->reset(); }
+  void transfer() { port->setCommittedCount(commit); port->transfer(); }
 };
 
 class hscd_activation_pattern
@@ -62,10 +70,18 @@ class hscd_activation_pattern
 public:
   typedef hscd_activation_pattern this_type;
   
+  friend class hscd_firing_state;
 protected:
   template <typename T>
-  this_type onlyXXX(const T filter) const {
+  struct filterNot_ty: public T {
+    bool operator ()( const hscd_op_port &port ) const
+      { return !T::operator ()(port); }
+  };
+  
+  template <typename T>
+  this_type grep() const {
     hscd_activation_pattern retval;
+    const T filter = T();
     
     for ( const_iterator iter = begin();
 	  iter != end();
@@ -74,17 +90,10 @@ protected:
 	retval.insert( *iter );
     return retval;
   }
-  struct filterInput_ty {
-    bool operator ()( const hscd_op_port &port ) const
-      { return port.isInput(); }
-  };
-  struct filterOutput_ty {
-    bool operator ()( const hscd_op_port &port ) const
-      { return port.isOutput(); }
-  };
-
   template <typename T>
-  bool isXXX(const T filter) const {
+  bool isAnd() const {
+    const T filter = T();
+    
     for ( const_iterator iter = begin();
 	  iter != end();
 	  ++iter )
@@ -92,25 +101,45 @@ protected:
         return false;
     return true;
   }
-  struct filterCanSatisfy_ty {
+  template <typename T>
+  bool isOr() const { return !isAnd<filterNot_ty<T> >(); }
+  
+  struct filterInput_ty {
     bool operator ()( const hscd_op_port &port ) const
-      { return port.canSatisfy(); }
+      { return port.isInput(); }
   };
+  typedef filterNot_ty<filterInput_ty> filterOutput_ty;
+  
+  struct filterUplevel_ty {
+    bool operator ()( const hscd_op_port &port ) const
+      { return port.isUplevel(); }
+  };
+  typedef filterNot_ty<filterUplevel_ty> filterNotUplevel_ty;
+  
+  struct filterKnownSatisfiable_ty {
+    bool operator ()( const hscd_op_port &port ) const
+      { return port.knownSatisfiable(); }
+  };
+  typedef filterNot_ty<filterKnownSatisfiable_ty> filterNotKnownSatisfiable_ty;
+  
+  struct filterKnownUnsatisfiable_ty {
+    bool operator ()( const hscd_op_port &port ) const
+      { return port.knownUnsatisfiable(); }
+  };
+  typedef filterNot_ty<filterKnownUnsatisfiable_ty> filterNotKnownUnsatisfiable_ty;
+  
   struct filterSatisfied_ty {
     bool operator ()( const hscd_op_port &port ) const
       { return port.satisfied(); }
   };
-  struct filterSatisfiable_ty {
-    bool operator ()( const hscd_op_port &port ) const
-      { return port.satisfiable(); }
-  };
-
 public:
-  this_type onlyInputs() const { return onlyXXX(filterInput_ty()); }
-  this_type onlyOutputs() const { return onlyXXX(filterOutput_ty()); }
-  bool      canSatisfy() const { return isXXX(filterCanSatisfy_ty()); }
-  bool      satisfied() const { return isXXX(filterSatisfied_ty()); }
-  bool      satisfiable() const { return isXXX(filterSatisfiable_ty()); }
+  this_type onlyInputs() const { return grep<filterInput_ty>(); }
+  this_type onlyOutputs() const { return grep<filterOutput_ty>(); }
+  this_type onlyUplevel() const { return grep<filterUplevel_ty>(); }
+  this_type onlyNotUplevel() const { return grep<filterNotUplevel_ty>(); }
+  bool      knownSatisfiable() const { return isAnd<filterKnownSatisfiable_ty>(); }
+  bool      knownUnsatisfiable() const { return isOr<filterKnownUnsatisfiable_ty>(); }
+  bool      satisfied() const { return isAnd<filterSatisfied_ty>(); }
   
   hscd_activation_pattern() {}
   
@@ -125,6 +154,20 @@ public:
       x.first->second.addCommitCount(p.commitCount());
     }
     return *this;
+  }
+
+  void execute() {
+    for ( iterator iter = begin();
+	  iter != end();
+	  ++iter )
+      iter->second.transfer();
+  }
+
+  void reset() {
+    for ( iterator iter = begin();
+	  iter != end();
+	  ++iter )
+      iter->second.reset();
   }
 };
 
@@ -172,31 +215,55 @@ public:
       f(*reinterpret_cast<fun *>(&_f))
     { assert(f != NULL && obj != NULL); }
 
-  void operator()() const { (obj->*f)(); }
+  const hscd_firing_state &operator()() const { return (obj->*f)(); }
 };
 
 struct hscd_firing_types {
-  struct                              transition_ty;
-  struct                              resolved_state_ty;
+  struct                                  transition_ty;
+  struct                                  resolved_state_ty;
   typedef oneof<hscd_firing_state *, resolved_state_ty *>
-                                      state_ty;
-  typedef std::list<state_ty>         statelist_ty;
-  typedef std::list<transition_ty>    transitionlist_ty;
+                                          state_ty;
+  typedef std::list<state_ty>             statelist_ty;
+  typedef std::list<transition_ty>        transitionlist_ty;
+  typedef std::pair<bool,transition_ty *> maybe_transition_ty;
 //  typedef std::set<hscd_root_port *>  ports_ty;
   typedef oneof<hscd_func_call, hscd_func_branch>
-                                      func_ty;
-
-  struct resolved_state_ty {
-    // outgoing transitions from this state
-    transitionlist_ty       tl;
-    // all ports in the outgoing transitions
-//    ports_ty                ps;
-  };
+                                          func_ty;
   
-  struct transition_ty {
+  class transition_ty {
+  public:
     hscd_activation_pattern ap;
     func_ty                 f;
     statelist_ty            sl;
+    
+    void initTransition(
+        hscd_firing_rules *fr,
+        const hscd_interface_transition &t );
+    
+    resolved_state_ty *execute();
+  };
+  
+  class resolved_state_ty {
+  public:
+    // outgoing transitions from this state
+    transitionlist_ty       tl;
+  protected:
+    // all ports in the outgoing transitions
+    // ports_ty             ps;
+    
+    sc_event               *_blocked;
+  public:
+    resolved_state_ty(): _blocked(NULL) {}
+    
+    void block( sc_event *e ) { _blocked = e; }
+    void unblock() { _blocked->notify(); _blocked = NULL; }
+    
+    transition_ty &addTransition() {
+      tl.push_back(transition_ty());
+      return tl.back();
+    }
+    
+    maybe_transition_ty findEnabledTransition();
   };
 };
 
@@ -205,6 +272,7 @@ class hscd_firing_state
 public:
   friend class hscd_opbase_node;
   friend class hscd_firing_rules;
+  friend class transition_ty;
   
   typedef hscd_firing_state this_type;
 private:
@@ -221,11 +289,16 @@ public:
 
   bool inductionStep();
   bool choiceStep();
-  
-  const resolved_state_ty &getResolvedState() const
-    { assert( rs != NULL ); return *rs; }
 
+  void dump( std::ostream &o ) const;
+  
+  bool isResolvedState() const { return rs != NULL; }
+  resolved_state_ty &getResolvedState() const
+    { assert( rs != NULL ); return *rs; }
+  
   void finalise( hscd_root_node *actor ) const;
+  
+  void execute( transition_ty *t ) { rs = t->execute(); }
   
   ~hscd_firing_state();
 private:
@@ -233,12 +306,17 @@ private:
   // disable
 };
 
+static inline
+std::ostream &operator <<( std::ostream &out, const hscd_firing_state &s )
+  { s.dump(out); return out; }
+
 class hscd_firing_rules
   :public hscd_firing_types {
 public:
   typedef hscd_firing_rules this_type;
   
   friend class hscd_firing_state;
+  friend class hscd_firing_types::transition_ty;
 private:
   typedef  std::set<hscd_firing_state *>
     references_ty;
@@ -270,6 +348,8 @@ protected:
   void resolve();
   void unify( hscd_firing_rules *fr );
   
+  void finalise( hscd_root_node *actor );
+  
   ~hscd_firing_rules() {
     for ( resolved_states_ty::iterator iter = resolved_states.begin();
           iter != resolved_states.end();
@@ -294,15 +374,32 @@ public:
   hscd_firing_state_list( const value_type        &v ) {
     push_back(v); }
   hscd_firing_state_list( const hscd_firing_state &n ) {
+    assert( n.isResolvedState() );
     push_back(n); }
   hscd_firing_state_list( hscd_firing_state       *n ) {
+    assert( n != NULL /*&& !n->isResolvedState()*/ );
     push_back(n); }
+  hscd_firing_state_list( hscd_firing_state       &n ) {
+    if ( n.isResolvedState() )
+      push_back(n);
+    else
+      push_back(&n);
+  }
   this_type &operator |=( const value_type        &v ) {
     push_back(v); return *this; }
   this_type &operator |=( const hscd_firing_state &n ) {
+    assert( n.isResolvedState() );
     push_back(n); return *this; }
   this_type &operator |=( hscd_firing_state       *n ) {
+    assert( n != NULL && !n->isResolvedState() );
     push_back(n); return *this; }
+  this_type &operator |=( hscd_firing_state       &n ) {
+    if ( n.isResolvedState() )
+      push_back(n);
+    else
+      push_back(&n);
+    return *this;
+  }
 };
 
 #ifndef _COMPILEHEADER_HSCD_FIRING_STATE_LIST_OPERATOR_OR_1
@@ -321,6 +418,14 @@ hscd_firing_state_list operator |
    const hscd_firing_state &n ) {
   return sl |= n;
 }
+#ifndef _COMPILEHEADER_HSCD_FIRING_STATE_LIST_OPERATOR_OR_4
+GNU89_EXTERN_INLINE
+#endif
+hscd_firing_state_list operator |
+  (hscd_firing_state_list sl,
+   hscd_firing_state &n ) {
+  return sl |= n;
+}
 #ifndef _COMPILEHEADER_HSCD_FIRING_STATE_LIST_OPERATOR_OR_2
 GNU89_EXTERN_INLINE
 #endif
@@ -333,8 +438,15 @@ hscd_firing_state_list operator |
 class hscd_interface_action {
 public:
   friend class hscd_opbase_node;
-  friend class hscd_firing_state;
-   
+  friend class hscd_firing_types::transition_ty;
+  friend class hscd_interface_transition operator >>
+    (hscd_activation_pattern p, const hscd_firing_state &s);
+  friend class hscd_interface_transition operator >>
+    (hscd_activation_pattern p, hscd_firing_state *s);
+  friend class hscd_interface_transition operator >>
+    (hscd_activation_pattern p, hscd_firing_state &s);
+//  friend class hscd_firing_state;
+  
   typedef hscd_interface_action this_type;
 private:
   hscd_firing_state_list     sl;
@@ -346,11 +458,13 @@ protected:
   hscd_interface_action(const hscd_firing_state_list &_sl,
                         const hscd_func_branch &_f)
     : sl(_sl), f(_f) {}
+  hscd_interface_action(const hscd_firing_state_list &_sl)
+    : sl(_sl), f() {}
 };
 
 class hscd_interface_transition {
 public:
-  friend class hscd_firing_state;
+  friend class hscd_firing_types::transition_ty;
   
   typedef hscd_interface_transition this_type;
 private:
@@ -362,6 +476,8 @@ public:
       const hscd_interface_action   &ia )
     : ap(ap), ia(ia) {}
   
+  const hscd_activation_pattern &getActivationPattern() { return ap; }
+  const hscd_interface_action   &getInterfaceAction() { return ia; }
   this_type onlyInputs() const { return this_type(ap.onlyInputs(), ia); }
   this_type onlyOutputs() const { return this_type(ap.onlyOutputs(), ia); }
 };
@@ -390,12 +506,33 @@ hscd_transition_list operator | (hscd_transition_list tl, hscd_interface_transit
   return tl |= t;
 }
 
-#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR
+#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_1
 GNU89_EXTERN_INLINE
 #endif
 hscd_interface_transition operator >> (hscd_activation_pattern p, hscd_interface_action a) {
-  std::cerr << ">>" << std::endl;
+//  std::cerr << ">>" << std::endl;
   return hscd_interface_transition(p,a);
+}
+#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_2
+GNU89_EXTERN_INLINE
+#endif
+hscd_interface_transition operator >> (hscd_activation_pattern p, const hscd_firing_state &s) {
+//  std::cerr << ">>" << std::endl;
+  return hscd_interface_transition(p,hscd_interface_action(s));
+}
+#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_3
+GNU89_EXTERN_INLINE
+#endif
+hscd_interface_transition operator >> (hscd_activation_pattern p, hscd_firing_state &s) {
+//  std::cerr << ">>" << std::endl;
+  return hscd_interface_transition(p,hscd_interface_action(s));
+}
+#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_4
+GNU89_EXTERN_INLINE
+#endif
+hscd_interface_transition operator >> (hscd_activation_pattern p, hscd_firing_state *s) {
+//  std::cerr << ">>" << std::endl;
+  return hscd_interface_transition(p,hscd_interface_action(s));
 }
 
 #endif // _INCLUDED_HSCD_OP_PORT_LIST_HPP

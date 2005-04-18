@@ -13,21 +13,35 @@
 class hscd_root_port
   : protected sc_port_base {
 public:
+  friend class hscd_op_port;
+  
   typedef hscd_root_port  this_type;
 private:
   size_t  committed;
   size_t  done;
   size_t  maxcommittable;
-public:
+  bool    uplevel;
+protected:
   hscd_root_port( const char* name_ )
-    : sc_port_base( name_, 1 ) { reset(); }
+    : sc_port_base( name_, 1 ), uplevel(false) { reset(); }
   
+  virtual void transfer() = 0;
+  
+  // bind interface to this port
+  void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
+  // bind parent port to this port
+  void bind( this_type &parent_ ) { uplevel = true; sc_port_base::bind(parent_); }
+public:
   static const char* const kind_string;
   virtual const char* kind() const
     { return kind_string; }
   
+  virtual bool isInput() const = 0;
+  bool isOutput() const { return !isInput(); }
+  bool isUplevel() const { return uplevel; }
+  
   virtual void reset() { committed = done = 0; maxcommittable = ~0; }
-
+  
   bool setCommittedCount( size_t _committed ) {
     assert( _committed >= committed &&
             _committed <= maxcommittable );
@@ -52,9 +66,6 @@ public:
   size_t maxCommittableCount() const { return maxcommittable; }
   virtual size_t maxAvailableCount() const = 0;
   
-  virtual bool isInput() const = 0;
-  bool isOutput() const { return !isInput(); }
-protected:
   size_t incrDoneCount() { return done++; }
 private:
   // disabled
@@ -65,8 +76,10 @@ private:
 static inline
 std::ostream &operator <<( std::ostream &out, const hscd_root_port &p ) {
   out << "port(" << &p << ","
+           "uplevel=" << p.isUplevel() << ","
            "committed=" << p.committedCount() << ","
-           "maxcommittable=" << p.maxCommittableCount() << ")";
+           "maxcommittable=" << p.maxCommittableCount() << ","
+           "available=" << p.availableCount() << ")";
   return out;
 }
 

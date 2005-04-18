@@ -172,53 +172,25 @@ public:
     : hscd_fifo_storage<T>(i) {}
   
   size_t committedOutCount() const {
-    return usedStorage() +
-      (portOutIf->committedCount() - portOutIf->doneCount());
+    return usedStorage();// + (portOutIf->committedCount() - portOutIf->doneCount());
   }
   size_t maxCommittedOutCount() const {
-    return usedStorage() +
-      (portOutIf->maxCommittedCount() - portOutIf->doneCount());
+    return usedStorage();// + (portOutIf->maxCommittedCount() - portOutIf->doneCount());
   }
   size_t committedInCount() const {
-    return unusedStorage() +
-      (portInIf->committedCount() - portInIf->doneCount());
+    return unusedStorage();// + (portInIf->committedCount() - portInIf->doneCount());
   }
   size_t maxCommittedInCount() const {
-    return unusedStorage() +
-      (portInIf->maxCommittedCount() - portInIf->doneCount());
-  }
-
-/*  
-  // interface methods
-  virtual void wantData( iface_type tr ) {
-    //std::cerr << "call wantData( " << tr << ", " << tr->request_count << ", " << tr->done_count << " );" << std::endl;
-    transferOutData(tr);
-    if ( in.haveRequest() ) {
-      copyData(in,tr);
-      transferInData(in);
-      in.notify();
-    }
-    if ( !tr.ready() ) {
-      out = tr;
-      out.setCancler();
-    }
-    //std::cerr << "return wantData( " << tr << ", " << tr->request_count << ", " << tr->done_count << " );" << std::endl;
+    return unusedStorage();// + (portInIf->maxCommittedCount() - portInIf->doneCount());
   }
   
-  virtual void provideData( iface_type tr ) {
-    //std::cerr << "call provideData( " << tr << ", " << tr->request_count << ", " << tr->done_count << " );" << std::endl;
-    if ( out.haveRequest() ) {
-      assert( usedStorage() == 0 ); // transferOut(out); should not be neccessary
-      copyData(tr,out);
-      out.notify();
-    }
-    transferInData(tr);
-    if ( !tr.ready() ) {
-      in = tr;
-      in.setCancler();
-    }
-    //std::cerr << "return provideData( " << tr << ", " << tr->request_count << ", " << tr->done_count << " );" << std::endl;
-  } */
+  size_t maxCommittableOutCount() const
+    { return usedStorage(); }
+  size_t maxCommittableInCount() const
+    { return unusedStorage(); }
+  
+  void transfer(iface_in_type *_i) { transferOutData(_i); }
+  void transfer(iface_out_type *_o) { transferInData(_o); }
 };
 
 template <typename T>

@@ -53,7 +53,7 @@ protected:
   // get the first interface without checking for nil
   sc_interface       *get_interface()       { return interface; }
   sc_interface const *get_interface() const { return interface; }
-  
+
   iface_type       *operator -> () {
     if ( interface == NULL )
       report_error( SC_ID_GET_IF_, "port is not bound" );
@@ -119,6 +119,8 @@ private:
   void add_interface( sc_interface *i ) {
     push_interface(i); (*this)->addPortIf( this );
   }
+
+  void transfer() { (*this)->transfer(this); }
 public:
   void transferIn( const T *in ) { storagePushBack(in); incrDoneCount(); }
 //public:
@@ -131,11 +133,9 @@ public:
   size_t availableCount()    const { return doneCount() + (*this)->committedOutCount(); }
   size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableOutCount(); }
   
-  class hscd_op_port operator ()( size_t n ) {
-    return hscd_op_port(this,n);
-  }
   void operator () ( iface_type& interface_ ) { bind(interface_); }
   void operator () ( this_type& parent_ ) { bind(parent_); }
+  class hscd_op_port operator ()( size_t n ) { return hscd_op_port(this,n); }
 };
 
 template <typename T>
@@ -191,6 +191,8 @@ private:
   void add_interface( sc_interface *i ) {
     push_interface(i); (*this)->addPortIf( this );
   }
+
+  void transfer() { (*this)->transfer(this); }
 public:
   const T *transferOut( void ) { return storageElement(incrDoneCount()); }
 //public:
@@ -203,11 +205,9 @@ public:
   size_t availableCount()    const { return doneCount() + (*this)->committedInCount(); }
   size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableInCount(); }
   
-  class hscd_op_port operator ()( size_t n ) {
-    return hscd_op_port(this,n);
-  }
   void operator () ( iface_type& interface_ ) { bind(interface_); }
   void operator () ( this_type& parent_ ) { bind(parent_); }
+  class hscd_op_port operator ()( size_t n ) { return hscd_op_port(this,n); }
 };
 
 #endif // _INCLUDED_HSCD_POPT_HPP
