@@ -80,7 +80,7 @@ protected:
     for ( typename nodes_ty::iterator iter = nodes.begin();
           iter != nodes.end();
           ++iter )
-      (*iter)->finalise();
+      static_cast<hscd_root_node *>(*iter)->finalise();
   }
 
 public:

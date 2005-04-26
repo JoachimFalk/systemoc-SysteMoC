@@ -91,7 +91,7 @@ protected:
   
   typedef std::pair<transition_ty *, hscd_root_node *>  transition_node_ty;
   typedef std::list<transition_node_ty>                 transition_node_list_ty;
-
+  
   void schedule() {
     cset_ty::nodes_ty nodes = c->getNodes();
     transition_node_list_ty tln;

@@ -26,11 +26,6 @@ protected:
     : sc_port_base( name_, 1 ), uplevel(false) { reset(); }
   
   virtual void transfer() = 0;
-  
-  // bind interface to this port
-  void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
-  // bind parent port to this port
-  void bind( this_type &parent_ ) { uplevel = true; sc_port_base::bind(parent_); }
 public:
   static const char* const kind_string;
   virtual const char* kind() const
@@ -67,6 +62,11 @@ public:
   virtual size_t maxAvailableCount() const = 0;
   
   size_t incrDoneCount() { return done++; }
+
+  // bind interface to this port
+  void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
+  // bind parent port to this port
+  void bind( this_type &parent_ ) { uplevel = true; sc_port_base::bind(parent_); }
 private:
   // disabled
   hscd_root_port( const this_type & );
