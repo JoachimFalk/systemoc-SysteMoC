@@ -8,31 +8,29 @@
 #include <hscd_fifo.hpp>
 #include <hscd_node_types.hpp>
 #ifndef __SCFE__
-# include <hscd_scheduler.hpp>
+//# include <hscd_scheduler.hpp>
 # include <hscd_pggen.hpp>
 #endif
 
 template <typename T>
-class m_adder: public hscd_fixed_transact_active_node {
+class m_adder: public hscd_fixed_transact_passive_node {
   public:
     hscd_port_in<T>  in1;
     hscd_port_in<T>  in2;
     hscd_port_out<T> out;
   private:
     void process() {
-      while (true) {
-	out[0] = in1[0] + in1[1] + in2[0]; 
-	std::cout << name() << " adding " << in1[0] << " + " << in1[1] << " + " << in2[0] << " = " << out[0] << std::endl;
-	transact();
-      }
+      out[0] = in1[0] + in1[1] + in2[0]; 
+      std::cout << name() << " adding " << in1[0] << " + " << in1[1] << " + " << in2[0] << " = " << out[0] << std::endl;
     }
   public:
     m_adder( sc_module_name name )
-      :hscd_fixed_transact_active_node( name, in1(2) & in2(1) & out(1) ) {}
+      :hscd_fixed_transact_passive_node( name,
+          (in1(2) & in2(1) & out(1)) >> call(&m_adder::process) ) {}
 };
 
 template <typename T>
-class m_multiply: public hscd_fixed_transact_active_node {
+class m_multiply: public hscd_fixed_transact_passive_node {
   public:
     hscd_port_in<T>  in1;
     hscd_port_in<T>  in2;
@@ -40,16 +38,14 @@ class m_multiply: public hscd_fixed_transact_active_node {
     hscd_port_out<T> out2;
   private:
     void process() {
-      while (true) {
-	out1[0] = in1[0] * in2[0];
-        out2[0] = out1[0];
-	std::cout << name() << " multiplying " << in1[0] << " * " << in2[0] << " = " << out1[0] << std::endl;
-	transact();
-      }
+      out1[0] = in1[0] * in2[0];
+      out2[0] = out1[0];
+      std::cout << name() << " multiplying " << in1[0] << " * " << in2[0] << " = " << out1[0] << std::endl;
     }
   public:
     m_multiply( sc_module_name name )
-      :hscd_fixed_transact_active_node( name, in1(1) & in2(1) & out1(1) & out2(1) ) {}
+      :hscd_fixed_transact_passive_node( name,
+          (in1(1) & in2(1) & out1(1) & out2(1)) >> call(&m_multiply::process) ) {}
 };
 
 class m_top2
@@ -73,37 +69,34 @@ class m_top2
     }
 };
 
-class m_source: public hscd_fixed_transact_active_node {
+class m_source: public hscd_fixed_transact_passive_node {
   public:
     hscd_port_out<int> out;
   private:
+    int i;
+    
     void process() {
-      int i = 0;
-      
-      while (true) {
-	std::cout << name() << " generating " << i << std::endl;
-	out[0] = i++;
-	transact();
-      }
+      std::cout << name() << " generating " << i << std::endl;
+      out[0] = i++;
     }
   public:
     m_source( sc_module_name name )
-      :hscd_fixed_transact_active_node( name, out(1) ) {}
+      :hscd_fixed_transact_passive_node( name,
+          out(1) >> call(&m_source::process) )
+      { i = 0; }
 };
 
-class m_sink: public hscd_fixed_transact_active_node {
+class m_sink: public hscd_fixed_transact_passive_node {
   public:
     hscd_port_in<int> in;
   private:
     void process() {
-      while (true) {
-	std::cout << name() << " receiving " << in[0] << std::endl;
-	transact();
-      }
+      std::cout << name() << " receiving " << in[0] << std::endl;
     }
   public:
     m_sink( sc_module_name name )
-      :hscd_fixed_transact_active_node( name, in(1) ) {}
+      :hscd_fixed_transact_passive_node( name,
+          in(1) >> call(&m_sink::process) ) {}
 };
 
 class m_top
@@ -123,20 +116,8 @@ class m_top
 };
 
 int sc_main (int argc, char **argv) {
-#ifndef __SCFE__
-  try {
-#endif
-    hscd_sdf_moc<m_top> *top = new hscd_sdf_moc<m_top>("top");
-#ifndef __SCFE__
-    hscd_top x(top);
-
-    hscd_modes::dump( std::cout, *top );
+  hscd_top_moc<hscd_sdf_moc<m_top> > top("top");
   
-    sc_start(-1);
-  } catch (...) {
-    std::cout << "exception !" << std::endl;
-    throw;
-  }
-#endif
+  sc_start(-1);
   return 0;
 }
