@@ -21,6 +21,7 @@
 # $Log$
 
 root_srcdir=$(top_srcdir)/..
+root_builddir = $(top_builddir)/..
 
 SUBDIRS=
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
@@ -31,16 +32,18 @@ include $(ac_aux_dir)/jfrules.mk
 
 pkgincludeprefix=systemoc/
 
-
 compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 	@date > $@
 
-INCLUDES =				\
-	@SYSTEMC_INCLUDE@		\
-	-I./include			\
-	-I$(srcdir)
-#	-I$(root_srcdir)/systemc-2.0.1/src
+INCLUDES =					\
+	@SYSTEMC_INCLUDE@			\
+	-I./include				\
+	-I$(srcdir)				\
+	-I$(root_builddir)/SystemC-VPC/include
 
+AM_LDFLAGS=					\
+	@SYSTEMC_LDFLAGS@			\
+	-L$(root_builddir)/SystemC-VPC
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -75,7 +78,7 @@ libsystemoc_CH_LTOBJS=			\
 	$(hscd_op_hpp_CH_LTOBJS)	\
 	$(hscd_pggen_hpp_CH_LTOBJS)
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lstdc++
+libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lstdc++ -lsystemcvpc
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include
 
