@@ -24,6 +24,8 @@ root_srcdir=$(top_srcdir)/..
 root_builddir = $(top_builddir)/..
 
 SUBDIRS=
+SYSTEMCVPC_BUILDDIR=$(root_builddir)/SystemC-VPC
+
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 ac_aux_dir = @ac_aux_dir@
@@ -39,11 +41,11 @@ INCLUDES =					\
 	@SYSTEMC_INCLUDE@			\
 	-I./include				\
 	-I$(srcdir)				\
-	-I$(root_builddir)/SystemC-VPC/include
+	-I$(SYSTEMCVPC_BUILDDIR)/include/systemcvpc
 
 AM_LDFLAGS=					\
 	@SYSTEMC_LDFLAGS@			\
-	-L$(root_builddir)/SystemC-VPC
+	-L$(SYSTEMCVPC_BUILDDIR)
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -77,9 +79,9 @@ libsystemoc_CH_LTOBJS=			\
 	$(hscd_op_hpp_CH_LTOBJS)	\
 	$(hscd_pggen_hpp_CH_LTOBJS)
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lstdc++ -lsystemcvpc
+libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lsystemcvpc -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
-libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include
+libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include $(SYSTEMCVPC_BUILDDIR)/libsystemcvpc.la
 
 libsystemoc_la_SOURCES =		\
 	hscd_graph_type.cpp		\
