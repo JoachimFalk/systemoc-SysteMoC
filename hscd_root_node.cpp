@@ -1,5 +1,6 @@
 // vim: set sw=2 ts=8:
 
+#include <hscd_vpc_Director.h>
 #include <hscd_root_node.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
 
@@ -43,3 +44,14 @@ void hscd_root_node::leafAssemble( const sc_module *m, hscd_modes::PGWriter &pgw
   pgw << "</process>" << std::endl;
 }
 
+void hscd_root_node::transact( hscd_op_transact op ) {
+  startTransact(op); waitFinished();
+  startTransact(fire_port(1)); waitFinished();
+  Director::getInstance().getResource( my_module()->name() ).compute( my_module()->name() );
+}
+
+void  hscd_root_node::choice( hscd_op_choice op ){
+  startChoice(op); waitFinished();
+  startTransact(fire_port(1)); waitFinished();
+  Director::getInstance().getResource( my_module()->name() ).compute( my_module()->name() );
+}

@@ -6,7 +6,8 @@
 #include <hscd_root_port_list.hpp>
 #include <hscd_port.hpp>
 #include <hscd_op.hpp>
-#include <hscd_director.hpp>
+
+
 #ifndef __SCFE__
 # include <hscd_pggen.hpp>
 #endif
@@ -73,18 +74,10 @@ class hscd_root_node
     void startTransact( hscd_op_transact op ) { startOp(op); }
     void startChoice( hscd_op_choice op ) { startOp(op); }
     
-    void transact( hscd_op_transact op ) {
-      startTransact(op); waitFinished();
-      startTransact(fire_port(1)); waitFinished();
-      Director::getInstance().getResource( my_module()->name() ).compute( my_module()->name() );
-    }
-    
-    void choice( hscd_op_choice op ) {
-      startChoice(op); waitFinished();
-      startTransact(fire_port(1)); waitFinished();
-      Director::getInstance().getResource( my_module()->name() ).compute( my_module()->name() );
-    }
-    
+    void transact( hscd_op_transact op );
+  
+    void choice( hscd_op_choice op );
+
     hscd_root_node()
       : hscd_opbase_node() {}
   public:
