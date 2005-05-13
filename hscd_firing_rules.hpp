@@ -152,9 +152,9 @@ public:
   
   bool isBlocked() const { return _blocked != NULL; }
   
-  hscd_activation_pattern() {}
+  hscd_activation_pattern(): _blocked(NULL) {}
   
-  hscd_activation_pattern( hscd_op_port p ) {
+  hscd_activation_pattern( hscd_op_port p ): _blocked(NULL) {
     (*this) &= p;
   }
   
