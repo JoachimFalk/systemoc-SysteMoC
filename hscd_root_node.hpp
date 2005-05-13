@@ -23,25 +23,10 @@ protected:
   template <typename T>
   hscd_interface_action call(
       void (T::*f)(),
-      const hscd_firing_state &s ) {
+      const hscd_firing_state_ref &s ) {
 //    std::cerr << "call" << std::endl;
     return hscd_interface_action(s,hscd_func_call(this,f));
   }
-  template <typename T>
-  hscd_interface_action call(
-      void (T::*f)(),
-      hscd_firing_state &s ) {
-//    std::cerr << "call" << std::endl;
-    return hscd_interface_action(s,hscd_func_call(this,f));
-  }
-  template <typename T>
-  hscd_interface_action call(
-      void (T::*f)(),
-      hscd_firing_state *s ) {
-//    std::cerr << "call" << std::endl;
-    return hscd_interface_action(s,hscd_func_call(this,f));
-  }
-  
   template <typename T>
   hscd_interface_action branch(
       const hscd_firing_state &(T::*f)(),
@@ -49,6 +34,7 @@ protected:
 //    std::cerr << "branch" << std::endl;
     return hscd_interface_action(sl,hscd_func_branch(this,f));
   }
+  
   hscd_firing_state Transact( const hscd_interface_transition &t ) {
 //    std::cerr << "Transact" << std::endl;
     return hscd_firing_state(t);
