@@ -116,9 +116,7 @@ hscd_firing_types::transition_ty::initTransition(
   for ( hscd_firing_state_list::const_iterator siter = t.ia.sl.begin();
         siter != t.ia.sl.end();
         ++siter ) {
-    // typeof(*siter) == oneof<hscd_firing_state *, hscd_firing_state>
-    assert( siter->type() == 1 || siter->type() == 2 );
-    if ( siter->type() == 1 ) {
+    if ( !siter->isResolved() ) {
       // unresolved state
       sl.push_back(static_cast<hscd_firing_state *>(*siter));
       fr->addUnresolved(&sl.back());
@@ -133,17 +131,15 @@ hscd_firing_types::transition_ty::initTransition(
 
 hscd_firing_types::maybe_transition_ty
 hscd_firing_types::resolved_state_ty::findEnabledTransition() {
-  if (_blocked == NULL) {
-    for ( transitionlist_ty::iterator titer = tl.begin();
-          titer != tl.end();
-          ++titer ) {
-      transition_ty &t = *titer;
-      hscd_activation_pattern &ap = t.ap;
-      
-      ap.reset();
-      if ( ap.knownSatisfiable() )
-        return maybe_transition_ty(true,&t);
-    }
+  for ( transitionlist_ty::iterator titer = tl.begin();
+        titer != tl.end();
+        ++titer ) {
+    transition_ty &t = *titer;
+    hscd_activation_pattern &ap = t.ap;
+    
+    ap.reset();
+    if ( !ap.isBlocked() && ap.knownSatisfiable() )
+      return maybe_transition_ty(true,&t);
   }
   return maybe_transition_ty(false,NULL);
 }

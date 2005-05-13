@@ -50,7 +50,7 @@ public:
   
   hscd_root_port       *getPort()           { return port; }
   const hscd_root_port *getPort()     const { return port; }
-
+  
   bool knownUnsatisfiable() const
     { return commit  > port->maxAvailableCount() || !stillPossible(); }
   bool knownSatisfiable()  const
@@ -72,6 +72,15 @@ public:
   
   friend class hscd_firing_state;
 protected:
+  sc_event *_blocked;
+  
+  void block( sc_event *e ) { _blocked = e; }
+  void unblock() {
+    assert( _blocked != NULL );
+    _blocked->notify();
+    _blocked = NULL;
+  }
+  
   template <typename T>
   struct filterNot_ty: public T {
     bool operator ()( const hscd_op_port &port ) const
@@ -140,6 +149,8 @@ public:
   bool      knownSatisfiable() const { return isAnd<filterKnownSatisfiable_ty>(); }
   bool      knownUnsatisfiable() const { return isOr<filterKnownUnsatisfiable_ty>(); }
   bool      satisfied() const { return isAnd<filterSatisfied_ty>(); }
+  
+  bool isBlocked() const { return _blocked != NULL; }
   
   hscd_activation_pattern() {}
   
@@ -250,13 +261,8 @@ struct hscd_firing_types {
   protected:
     // all ports in the outgoing transitions
     // ports_ty             ps;
-    
-    sc_event               *_blocked;
   public:
-    resolved_state_ty(): _blocked(NULL) {}
-    
-    void block( sc_event *e ) { _blocked = e; }
-    void unblock() { _blocked->notify(); _blocked = NULL; }
+    resolved_state_ty() {}
     
     transition_ty &addTransition() {
       tl.push_back(transition_ty());
@@ -304,6 +310,33 @@ public:
 private:
   hscd_port_list &getPorts() const;
   // disable
+};
+
+class hscd_firing_state_ref
+  :public hscd_firing_types {
+public:
+  typedef hscd_firing_state_ref this_type;
+private:
+  oneof<hscd_firing_state *, hscd_firing_state> s;
+public:
+  hscd_firing_state_ref( const hscd_firing_state &n )
+    : s(n) { assert( n.isResolvedState() ); }
+  hscd_firing_state_ref( hscd_firing_state       *n )
+    : s(n) { assert( n != NULL /*&& !n->isResolvedState()*/ ); }
+  hscd_firing_state_ref( hscd_firing_state       &n ) {
+    if ( n.isResolvedState() )
+      s = n;
+    else
+      s = &n;
+  }
+  
+  operator hscd_firing_state *() const
+    { return s; }
+  operator hscd_firing_state() const
+    { return s; }
+  
+  bool isResolved() const
+    { assert( s.type() == 1 || s.type() == 2 ); return s.type() == 2; }
 };
 
 static inline
@@ -367,39 +400,14 @@ hscd_firing_state::~hscd_firing_state() {
 }
 
 class hscd_firing_state_list
-  :public std::vector<oneof<hscd_firing_state *, hscd_firing_state> > {
+  :public std::vector<hscd_firing_state_ref> {
 public:
   typedef hscd_firing_state_list  this_type;
 public:
   hscd_firing_state_list( const value_type        &v ) {
     push_back(v); }
-  hscd_firing_state_list( const hscd_firing_state &n ) {
-    assert( n.isResolvedState() );
-    push_back(n); }
-  hscd_firing_state_list( hscd_firing_state       *n ) {
-    assert( n != NULL /*&& !n->isResolvedState()*/ );
-    push_back(n); }
-  hscd_firing_state_list( hscd_firing_state       &n ) {
-    if ( n.isResolvedState() )
-      push_back(n);
-    else
-      push_back(&n);
-  }
   this_type &operator |=( const value_type        &v ) {
     push_back(v); return *this; }
-  this_type &operator |=( const hscd_firing_state &n ) {
-    assert( n.isResolvedState() );
-    push_back(n); return *this; }
-  this_type &operator |=( hscd_firing_state       *n ) {
-    assert( n != NULL && !n->isResolvedState() );
-    push_back(n); return *this; }
-  this_type &operator |=( hscd_firing_state       &n ) {
-    if ( n.isResolvedState() )
-      push_back(n);
-    else
-      push_back(&n);
-    return *this;
-  }
 };
 
 #ifndef _COMPILEHEADER_HSCD_FIRING_STATE_LIST_OPERATOR_OR_1
@@ -410,29 +418,13 @@ hscd_firing_state_list operator |
    const hscd_firing_state_list::value_type &v ) {
   return sl |= v;
 }
-#ifndef _COMPILEHEADER_HSCD_FIRING_STATE_LIST_OPERATOR_OR_3
-GNU89_EXTERN_INLINE
-#endif
-hscd_firing_state_list operator |
-  (hscd_firing_state_list sl,
-   const hscd_firing_state &n ) {
-  return sl |= n;
-}
-#ifndef _COMPILEHEADER_HSCD_FIRING_STATE_LIST_OPERATOR_OR_4
-GNU89_EXTERN_INLINE
-#endif
-hscd_firing_state_list operator |
-  (hscd_firing_state_list sl,
-   hscd_firing_state &n ) {
-  return sl |= n;
-}
 #ifndef _COMPILEHEADER_HSCD_FIRING_STATE_LIST_OPERATOR_OR_2
 GNU89_EXTERN_INLINE
 #endif
 hscd_firing_state_list operator |
-  (hscd_firing_state_list sl,
-   hscd_firing_state *n ) {
-  return sl |= n;
+  (const hscd_firing_state_list::value_type &v1,
+   const hscd_firing_state_list::value_type &v2 ) {
+  return hscd_firing_state_list(v1) |= v2;
 }
 
 class hscd_interface_action {
@@ -440,11 +432,7 @@ public:
   friend class hscd_opbase_node;
   friend class hscd_firing_types::transition_ty;
   friend class hscd_interface_transition operator >>
-    (hscd_activation_pattern p, const hscd_firing_state &s);
-  friend class hscd_interface_transition operator >>
-    (hscd_activation_pattern p, hscd_firing_state *s);
-  friend class hscd_interface_transition operator >>
-    (hscd_activation_pattern p, hscd_firing_state &s);
+    (hscd_activation_pattern p, const hscd_firing_state_ref &s);
 //  friend class hscd_firing_state;
   
   typedef hscd_interface_action this_type;
@@ -452,14 +440,17 @@ private:
   hscd_firing_state_list     sl;
   hscd_firing_types::func_ty f;
 protected:
-  hscd_interface_action(const hscd_firing_state_list &_sl,
-                        const hscd_func_call &_f)
-    : sl(_sl), f(_f) { assert(sl.size() == 1); }
-  hscd_interface_action(const hscd_firing_state_list &_sl,
-                        const hscd_func_branch &_f)
-    : sl(_sl), f(_f) {}
-  hscd_interface_action(const hscd_firing_state_list &_sl)
-    : sl(_sl), f() {}
+  hscd_interface_action(const hscd_firing_state_ref &s)
+    : sl(s), f() {}
+  hscd_interface_action(const hscd_firing_state_ref &s,
+                        const hscd_func_call &f)
+    : sl(s), f(f) {}
+  hscd_interface_action(const hscd_firing_state_ref &s,
+                        const hscd_func_branch &f)
+    : sl(s), f(f) {}
+  hscd_interface_action(const hscd_firing_state_list &sl,
+                        const hscd_func_branch &f)
+    : sl(sl), f(f) {}
 };
 
 class hscd_interface_transition {
@@ -516,21 +507,7 @@ hscd_interface_transition operator >> (hscd_activation_pattern p, hscd_interface
 #ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_2
 GNU89_EXTERN_INLINE
 #endif
-hscd_interface_transition operator >> (hscd_activation_pattern p, const hscd_firing_state &s) {
-//  std::cerr << ">>" << std::endl;
-  return hscd_interface_transition(p,hscd_interface_action(s));
-}
-#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_3
-GNU89_EXTERN_INLINE
-#endif
-hscd_interface_transition operator >> (hscd_activation_pattern p, hscd_firing_state &s) {
-//  std::cerr << ">>" << std::endl;
-  return hscd_interface_transition(p,hscd_interface_action(s));
-}
-#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_4
-GNU89_EXTERN_INLINE
-#endif
-hscd_interface_transition operator >> (hscd_activation_pattern p, hscd_firing_state *s) {
+hscd_interface_transition operator >> (hscd_activation_pattern p, const hscd_firing_state_ref &s) {
 //  std::cerr << ">>" << std::endl;
   return hscd_interface_transition(p,hscd_interface_action(s));
 }
