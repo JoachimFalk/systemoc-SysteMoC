@@ -62,8 +62,19 @@ public:
 #endif
 };
 
+class hscd_scheduler_base {
+protected:
+  template <typename T>
+  hscd_interface_action diverge(
+      const hscd_firing_state &(T::*f)() ) {
+//    std::cerr << "diverge" << std::endl;
+    return hscd_interface_action(hscd_func_diverge(this,f));
+  }
+};
+
 class hscd_moc_scheduler_sdf
-  : public hscd_fixed_transact_node {
+  : public hscd_fixed_transact_node,
+    public hscd_scheduler_base {
 public:
   typedef hscd_moc_scheduler_sdf  this_type;
   typedef hscd_sdf_constraintset  cset_ty;
@@ -82,7 +93,9 @@ public:
 
 class hscd_moc_scheduler_kpn
   : public hscd_transact_node,
-    public hscd_firing_types {
+    public hscd_firing_types,
+    public hscd_scheduler_base {
+
 public:
   typedef hscd_moc_scheduler_kpn  this_type;
   typedef hscd_kpn_constraintset  cset_ty;
@@ -92,7 +105,7 @@ protected:
   typedef std::pair<transition_ty *, hscd_root_node *>  transition_node_ty;
   typedef std::list<transition_node_ty>                 transition_node_list_ty;
   
-  void schedule() {
+  const hscd_firing_state &schedule() {
     cset_ty::nodes_ty nodes = c->getNodes();
     transition_node_list_ty tln;
     
@@ -115,12 +128,14 @@ protected:
         iter->second->currentState().execute(iter->first);
       }
     } while (!tln.empty());
+    s = Transact( hscd_activation_pattern() >> diverge(&hscd_moc_scheduler_kpn::schedule) );
+    return s;
   }
 private:
   hscd_firing_state s;
   
   void analyse() {
-    s = Transact( hscd_activation_pattern() >> call(&hscd_moc_scheduler_kpn::schedule, s) );
+    s = Transact( hscd_activation_pattern() >> diverge(&hscd_moc_scheduler_kpn::schedule) );
   }
 public:
   hscd_moc_scheduler_kpn( cset_ty *c )
@@ -129,7 +144,9 @@ public:
 
 class hscd_moc_scheduler_csp
   : public hscd_choice_node,
-    public hscd_firing_types {
+    public hscd_firing_types,
+    public hscd_scheduler_base {
+
 public:
   typedef hscd_moc_scheduler_csp  this_type;
   typedef hscd_csp_constraintset  cset_ty;

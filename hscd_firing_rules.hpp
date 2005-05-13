@@ -211,7 +211,7 @@ public:
   void operator()() const { (obj->*f)(); }
 };
 
-class hscd_func_branch {
+class hscd_func_diverge {
 private:
   struct dummy;
   typedef const hscd_firing_state &(dummy::*fun)();
@@ -220,13 +220,20 @@ private:
   fun    f;
 public:
   template <class X, class T>
-  hscd_func_branch( X *_obj, const hscd_firing_state &(T::*_f)() )
+  hscd_func_diverge( X *_obj, const hscd_firing_state &(T::*_f)() )
     : obj(reinterpret_cast<dummy *>(
             /*dynamic_cast<T *>*/(_obj))),
       f(*reinterpret_cast<fun *>(&_f))
     { assert(f != NULL && obj != NULL); }
 
   const hscd_firing_state &operator()() const { return (obj->*f)(); }
+};
+
+class hscd_func_branch: public hscd_func_diverge {
+public:
+  template <class X, class T>
+  hscd_func_branch( X *_obj, const hscd_firing_state &(T::*_f)() )
+    : hscd_func_diverge(_obj,_f) {}
 };
 
 struct hscd_firing_types {
@@ -238,7 +245,7 @@ struct hscd_firing_types {
   typedef std::list<transition_ty>        transitionlist_ty;
   typedef std::pair<bool,transition_ty *> maybe_transition_ty;
 //  typedef std::set<hscd_root_port *>  ports_ty;
-  typedef oneof<hscd_func_call, hscd_func_branch>
+  typedef oneof<hscd_func_call, hscd_func_branch, hscd_func_diverge>
                                           func_ty;
   
   class transition_ty {
@@ -404,10 +411,11 @@ class hscd_firing_state_list
 public:
   typedef hscd_firing_state_list  this_type;
 public:
-  hscd_firing_state_list( const value_type        &v ) {
-    push_back(v); }
-  this_type &operator |=( const value_type        &v ) {
-    push_back(v); return *this; }
+  hscd_firing_state_list() {}
+  hscd_firing_state_list( const value_type &v ) { push_back(v); }
+  
+  this_type &operator |=( const value_type &v )
+    { push_back(v); return *this; }
 };
 
 #ifndef _COMPILEHEADER_HSCD_FIRING_STATE_LIST_OPERATOR_OR_1
@@ -430,6 +438,7 @@ hscd_firing_state_list operator |
 class hscd_interface_action {
 public:
   friend class hscd_opbase_node;
+  friend class hscd_scheduler_base;
   friend class hscd_firing_types::transition_ty;
   friend class hscd_interface_transition operator >>
     (hscd_activation_pattern p, const hscd_firing_state_ref &s);
@@ -451,6 +460,8 @@ protected:
   hscd_interface_action(const hscd_firing_state_list &sl,
                         const hscd_func_branch &f)
     : sl(sl), f(f) {}
+  hscd_interface_action(const hscd_func_diverge &f)
+    : sl(), f(f) {}
 };
 
 class hscd_interface_transition {

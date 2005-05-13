@@ -148,12 +148,21 @@ hscd_firing_types::resolved_state_ty *
 hscd_firing_types::transition_ty::execute() {
   ap.execute();
   assert( ap.satisfied() );
-  assert( f.type() == 0 || f.type() == 1 || f.type() == 2 );
+  assert( f.type() == 0 ||
+          f.type() == 1 ||
+	  f.type() == 2 ||
+	  f.type() == 3 );
   switch (f.type()) {
+    case 3: { // hscd_func_diverge
+      const hscd_firing_state &ns = static_cast<hscd_func_diverge &>(f)();
+      return &ns.getResolvedState();
+      break;
+    }
     case 2: { // hscd_func_branch
-      const hscd_firing_state &ns = static_cast<hscd_func_branch>(f)();
+      const hscd_firing_state &ns = static_cast<hscd_func_branch &>(f)();
       statelist_ty::const_iterator iter = sl.begin();
       
+      // check that ns is in sl
       while ( iter != sl.end() && (*iter) != ns.rs )
         ++iter;
       assert( iter != sl.end() );
@@ -161,7 +170,7 @@ hscd_firing_types::transition_ty::execute() {
       break;
     }
     case 1: // hscd_func_call
-      static_cast<hscd_func_call>(f)();
+      static_cast<hscd_func_call &>(f)();
     default: { // NULL
       assert( sl.size() == 1 );
       return static_cast<resolved_state_ty *>(sl.front());
