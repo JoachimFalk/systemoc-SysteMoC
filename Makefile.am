@@ -1,4 +1,4 @@
-SUBDIRS= systemc-df2 systemc-csp systemc-sdf
+SUBDIRS= systemc-df2 systemc-csp systemc-sdf systemc-fir
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 ac_aux_dir = @ac_aux_dir@

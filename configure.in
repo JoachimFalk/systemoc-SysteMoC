@@ -51,7 +51,7 @@ AC_EXEEXT
 
 ACJF_SYSTEMC
 
-AC_CONFIG_FILES([Makefile systemc-df2/Makefile systemc-csp/Makefile systemc-sdf/Makefile])
+AC_CONFIG_FILES([Makefile systemc-df2/Makefile systemc-csp/Makefile systemc-sdf/Makefile systemc-fir/Makefile])
 
 ACJF_DONE
 
