@@ -3,9 +3,7 @@
 root_srcdir=$(top_srcdir)/..
 root_builddir=$(top_builddir)/..
 
-ac_aux_dir = @ac_aux_dir@
-
-include $(ac_aux_dir)/jfrules.mk
+include ../../BuildSystem/jfrules.mk
 
 compileheader-simulation.stamp: $(simulation_CH_LTOBJS)
 	@date > $@
