@@ -184,10 +184,10 @@ public:
     return unusedStorage();// + (portInIf->maxCommittedCount() - portInIf->doneCount());
   }
   
-  size_t maxCommittableOutCount() const
-    { return usedStorage(); }
-  size_t maxCommittableInCount() const
-    { return unusedStorage(); }
+//  size_t maxCommittableOutCount() const
+//    { return usedStorage(); }
+//  size_t maxCommittableInCount() const
+//    { return unusedStorage(); }
   
   void transfer(iface_in_type *_i) { transferOutData(_i); }
   void transfer(iface_out_type *_o) { transferInData(_o); }

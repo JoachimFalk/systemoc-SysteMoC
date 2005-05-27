@@ -77,7 +77,7 @@ private:
 protected:
   void storageClear() { s.clear(); }
   void storagePushBack( const data_type *in ) { s.push_back(*in); }
-
+  
   hscd_port_storage_in( const char *n )
     : hscd_port_base<hscd_chan_in_if<data_type> >(n) {}
 public:
@@ -131,7 +131,7 @@ public:
   bool isInput() const { return true; }
 
   size_t availableCount()    const { return doneCount() + (*this)->committedOutCount(); }
-  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableOutCount(); }
+//  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableOutCount(); }
   
   void operator () ( iface_type& interface_ ) { bind(interface_); }
   void operator () ( this_type& parent_ ) { bind(parent_); }
@@ -203,7 +203,7 @@ public:
   bool isInput() const { return false; }
   
   size_t availableCount()    const { return doneCount() + (*this)->committedInCount(); }
-  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableInCount(); }
+//  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableInCount(); }
   
   void operator () ( iface_type& interface_ ) { bind(interface_); }
   void operator () ( this_type& parent_ ) { bind(parent_); }

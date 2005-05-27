@@ -224,7 +224,7 @@ bool hscd_firing_state::inductionStep() {
         piter != getPorts().end();
         ++piter ) {
     hscd_root_port &p   = **piter;
-    size_t          min = p.maxCommittableCount();
+    size_t          min = ~0; // p.maxCommittableCount();
     size_t          max = p.committedCount();
     
     for ( transitionlist_ty::iterator titer = rs->tl.begin();
@@ -245,7 +245,7 @@ bool hscd_firing_state::inductionStep() {
       }
     }
     again |= p.setCommittedCount( min > max ? max : min );
-    again |= p.setMaxCommittable( max );
+//    again |= p.setMaxCommittable( max );
   }
   return again;
 }
@@ -268,7 +268,7 @@ bool hscd_firing_state::choiceStep() {
         size_t commitCount = opiter != ap.end()
           ? opiter->second.commitCount() : 0;
         again |= p.setCommittedCount(commitCount);
-        again |= p.setMaxCommittable(commitCount);
+//        again |= p.setMaxCommittable(commitCount);
       }
       return again;
     }

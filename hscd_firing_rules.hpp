@@ -37,8 +37,8 @@ protected:
   template <typename T> friend class hscd_port_out;
   
   bool stillPossible() const {
-    return (commit >= port->committedCount()) &&
-           (commit <= port->maxCommittableCount());
+    return (commit >= port->committedCount()) /*&&
+           (commit <= port->maxCommittableCount())*/;
   }
   
   hscd_op_port( hscd_root_port *port, size_t commit )
@@ -52,7 +52,7 @@ public:
   const hscd_root_port *getPort()     const { return port; }
   
   bool knownUnsatisfiable() const
-    { return commit  > port->maxAvailableCount() || !stillPossible(); }
+    { return /*commit  > port->maxAvailableCount() ||*/ !stillPossible(); }
   bool knownSatisfiable()  const
     { return commit <= port->availableCount() && stillPossible(); }
   bool satisfied()   const

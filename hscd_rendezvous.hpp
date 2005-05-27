@@ -59,12 +59,12 @@ public:
   
   size_t committedOutCount() const
     { return (portOutIf->committedCount() - portOutIf->doneCount()); }
-  size_t maxCommittableOutCount() const
-    { return (portOutIf->maxCommittableCount() - portOutIf->doneCount()); }
+//  size_t maxCommittableOutCount() const
+//    { return (portOutIf->maxCommittableCount() - portOutIf->doneCount()); }
   size_t committedInCount() const
     { return (portInIf->committedCount() - portInIf->doneCount()); }
-  size_t maxCommittableInCount() const
-    { return (portInIf->maxCommittableCount() - portInIf->doneCount()); }
+//  size_t maxCommittableInCount() const
+//    { return (portInIf->maxCommittableCount() - portInIf->doneCount()); }
   void transfer(iface_in_type *_i) { copyData(portOutIf,_i); }
   void transfer(iface_out_type *_o) { copyData(_o,portInIf); }
 };

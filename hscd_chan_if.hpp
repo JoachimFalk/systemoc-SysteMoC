@@ -45,7 +45,7 @@ public:
   virtual void   addPortIf(iface_in_type *_i) = 0;
   virtual void   transfer(iface_in_type *_i) = 0;
   virtual size_t committedOutCount() const = 0;
-  virtual size_t maxCommittableOutCount() const = 0;
+//  virtual size_t maxCommittableOutCount() const = 0;
 protected:  
   // constructor
   hscd_chan_in_if() {}
@@ -71,7 +71,7 @@ public:
   virtual void   addPortIf(iface_out_type *_i) = 0;
   virtual void   transfer(iface_out_type *_o) = 0;
   virtual size_t committedInCount() const = 0;
-  virtual size_t maxCommittableInCount() const = 0;
+//  virtual size_t maxCommittableInCount() const = 0;
 protected:
   // constructor
   hscd_chan_out_if() {}
