@@ -85,4 +85,65 @@ std::ostream &operator <<( std::ostream &out, const hscd_root_port &p ) {
 
 typedef std::list<hscd_root_port *> hscd_port_list;
 
+class hscd_op_port {
+public:
+  typedef hscd_op_port  this_type;
+  
+  friend class hscd_activation_pattern;
+  friend class hscd_firing_state;
+  friend class hscd_port_tokens;
+private:
+  hscd_root_port *port;
+  size_t          commit;
+protected:
+  bool stillPossible() const {
+    return (commit >= port->committedCount()) /*&&
+           (commit <= port->maxCommittableCount())*/;
+  }
+  
+  hscd_op_port( hscd_root_port *port, size_t commit )
+    : port(port), commit(commit) {}
+  
+  void                  addCommitCount( size_t n ) { commit += n; }
+public:
+  size_t                commitCount() const { return commit; }
+  
+  hscd_root_port       *getPort()           { return port; }
+  const hscd_root_port *getPort()     const { return port; }
+  
+  bool knownUnsatisfiable() const
+    { return /*commit  > port->maxAvailableCount() ||*/ !stillPossible(); }
+  bool knownSatisfiable()  const
+    { return commit <= port->availableCount() && stillPossible(); }
+  bool satisfied()   const
+    { return commit == port->doneCount() && stillPossible(); }
+  bool isInput()     const { return port->isInput();  }
+  bool isOutput()    const { return port->isOutput(); }
+  bool isUplevel()   const { return port->isUplevel(); }
+  
+  void reset()    { port->reset(); }
+  void transfer() { port->setCommittedCount(commit); port->transfer(); }
+};
+
+template <typename T> class hscd_port_in;
+template <typename T> class hscd_port_out;
+
+class hscd_port_tokens {
+public:
+  typedef hscd_port_tokens  this_type;
+  
+  template <typename T> friend class hscd_port_in;
+  template <typename T> friend class hscd_port_out;
+private:
+  hscd_root_port *port;
+protected:
+  hscd_port_tokens(hscd_root_port *port)
+    : port(port) {}
+public:
+  class hscd_op_port operator >=(size_t n)
+    { return hscd_op_port(port,n); }
+  class hscd_op_port operator > (size_t n)
+    { return *this >= n+1; }
+};
+
 #endif // _INCLUDED_HSCD_ROOT_PORT_HPP

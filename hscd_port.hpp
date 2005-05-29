@@ -133,9 +133,15 @@ public:
   size_t availableCount()    const { return doneCount() + (*this)->committedOutCount(); }
 //  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableOutCount(); }
   
-  void operator () ( iface_type& interface_ ) { bind(interface_); }
-  void operator () ( this_type& parent_ ) { bind(parent_); }
-  class hscd_op_port operator ()( size_t n ) { return hscd_op_port(this,n); }
+  class hscd_port_tokens getAvailableTokens()
+    { return hscd_port_tokens(this); }
+  
+  void operator () ( iface_type& interface_ )
+    { bind(interface_); }
+  void operator () ( this_type& parent_ )
+    { bind(parent_); }
+  class hscd_op_port operator ()( size_t n )
+    { return getAvailableTokens() >= n; }
 };
 
 template <typename T>
@@ -205,9 +211,15 @@ public:
   size_t availableCount()    const { return doneCount() + (*this)->committedInCount(); }
 //  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableInCount(); }
   
-  void operator () ( iface_type& interface_ ) { bind(interface_); }
-  void operator () ( this_type& parent_ ) { bind(parent_); }
-  class hscd_op_port operator ()( size_t n ) { return hscd_op_port(this,n); }
+  class hscd_port_tokens getAvailableSpace()
+    { return hscd_port_tokens(this); }
+  
+  void operator () ( iface_type& interface_ )
+    { bind(interface_); }
+  void operator () ( this_type& parent_ )
+    { bind(parent_); }
+  class hscd_op_port operator ()( size_t n )
+    { return getAvailableSpace() >= n; }
 };
 
 #endif // _INCLUDED_HSCD_POPT_HPP

@@ -17,53 +17,7 @@
 class hscd_activation_pattern;
 class hscd_interface_transition;
 class hscd_port2op_if;
-class hscd_root_port;
 class hscd_root_node;
-
-template <typename T> class hscd_port_in;
-template <typename T> class hscd_port_out;
-
-class hscd_op_port {
-public:
-  typedef hscd_op_port  this_type;
-
-  friend class hscd_activation_pattern;
-  friend class hscd_firing_state;
-private:
-  hscd_root_port *port;
-  size_t          commit;
-protected:
-  template <typename T> friend class hscd_port_in;
-  template <typename T> friend class hscd_port_out;
-  
-  bool stillPossible() const {
-    return (commit >= port->committedCount()) /*&&
-           (commit <= port->maxCommittableCount())*/;
-  }
-  
-  hscd_op_port( hscd_root_port *port, size_t commit )
-    : port(port), commit(commit) {}
-  
-  void                  addCommitCount( size_t n ) { commit += n; }
-public:
-  size_t                commitCount() const { return commit; }
-  
-  hscd_root_port       *getPort()           { return port; }
-  const hscd_root_port *getPort()     const { return port; }
-  
-  bool knownUnsatisfiable() const
-    { return /*commit  > port->maxAvailableCount() ||*/ !stillPossible(); }
-  bool knownSatisfiable()  const
-    { return commit <= port->availableCount() && stillPossible(); }
-  bool satisfied()   const
-    { return commit == port->doneCount() && stillPossible(); }
-  bool isInput()     const { return port->isInput();  }
-  bool isOutput()    const { return port->isOutput(); }
-  bool isUplevel()   const { return port->isUplevel(); }
-  
-  void reset()    { port->reset(); }
-  void transfer() { port->setCommittedCount(commit); port->transfer(); }
-};
 
 class hscd_activation_pattern
   :public std::map<const hscd_root_port *, hscd_op_port> {
