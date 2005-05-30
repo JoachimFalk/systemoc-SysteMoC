@@ -42,6 +42,8 @@ class hscd_choice_passive_node
 #endif
 };
 
+typedef hscd_choice_passive_node hscd_actor;
+
 /*
 class hscd_choice_active_node
   : public sc_module,
