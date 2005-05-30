@@ -13,7 +13,7 @@
 #endif
 
 template <typename T>
-class m_h_src: public hscd_fixed_transact_passive_node {
+class m_h_src: public hscd_actor {
 public:
   hscd_port_out<T> out;
 private:
@@ -23,15 +23,17 @@ private:
     std::cout << "src: " << i << std::endl;
     out[0] = i++;
   }
+  hscd_firing_state start;
 public:
   m_h_src(sc_module_name name)
-    : hscd_fixed_transact_passive_node(name,
-        out(1) >> call(&m_h_src::src) ),
-      i(1) {}
+    : hscd_actor(name, start),
+      i(1) {
+    start = Transact( (out.getAvailableSpace() >= 1) >> call(&m_h_src::src, start) );
+  }
 };
 
 template <typename T> // actor type parameter T
-class m_h_fir: public hscd_transact_passive_node {
+class m_h_fir: public hscd_actor {
 public:
   hscd_port_in<T>  input;
   hscd_port_out<T> output;
@@ -63,30 +65,33 @@ public:
       sc_module_name name,        // name of actor
       const std::vector<T> &taps  // the taps are the coefficients, starting
                                   // with the one for the most recent data item 
-  ) : hscd_transact_passive_node( name, start ),
+  ) : hscd_actor( name, start ),
       taps(taps),                 // make local copy of taps parameter
       data(taps.size(), 0)        // initialize data with zero
   {
-//  action [x] ==> [y] 
+//  action [x] ==> [y]
 
-//  state               guards               action      successor state
-    start = Transact( input(1)  >> call(&m_h_fir::dofir,     write        ) );
-    write = Transact( output(1) >>                           start          );
+//  state               guards                                  action      successor state
+    start = Transact( (input.getAvailableTokens() >= 1) >> call(&m_h_fir::dofir,     write        ) );
+    write = Transact( (output.getAvailableSpace() >= 1) >>                           start          );
   }
 };
 
 template <typename T>
-class m_h_sink: public hscd_fixed_transact_passive_node {
+class m_h_sink: public hscd_actor {
 public:
   hscd_port_in<T> in;
 private:
   int i;
   
   void sink(void) { std::cout << "sink: " << in[0] << std::endl; }
+  
+  hscd_firing_state start;
 public:
   m_h_sink(sc_module_name name)
-    : hscd_fixed_transact_passive_node(name,
-        in(1) >> call(&m_h_sink::sink) ) {}
+    : hscd_actor(name, start) {
+    start = Transact( (in.getAvailableTokens() >= 1) >> call(&m_h_sink::sink, start) );
+  }
 };
 
 class m_h_top: public hscd_kpn_constraintset {
