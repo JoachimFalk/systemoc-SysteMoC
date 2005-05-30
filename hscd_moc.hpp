@@ -91,14 +91,14 @@ public:
     : hscd_fixed_transact_node(analyse(c)), c(c) {}
 };
 
-class hscd_moc_scheduler_kpn
+class hscd_moc_scheduler_ndf
   : public hscd_transact_node,
     public hscd_firing_types,
     public hscd_scheduler_base {
 
 public:
-  typedef hscd_moc_scheduler_kpn  this_type;
-  typedef hscd_kpn_constraintset  cset_ty;
+  typedef hscd_moc_scheduler_ndf  this_type;
+  typedef hscd_ndf_constraintset  cset_ty;
 protected:
   cset_ty *c;
   
@@ -128,17 +128,68 @@ protected:
         iter->second->currentState().execute(iter->first);
       }
     } while (!tln.empty());
-    s = Transact( hscd_activation_pattern() >> diverge(&hscd_moc_scheduler_kpn::schedule) );
+    s = Transact( hscd_activation_pattern() >> diverge(&hscd_moc_scheduler_ndf::schedule) );
     return s;
   }
 private:
   hscd_firing_state s;
   
   void analyse() {
-    s = Transact( hscd_activation_pattern() >> diverge(&hscd_moc_scheduler_kpn::schedule) );
+    s = Transact( hscd_activation_pattern() >> diverge(&hscd_moc_scheduler_ndf::schedule) );
   }
 public:
-  hscd_moc_scheduler_kpn( cset_ty *c )
+  hscd_moc_scheduler_ndf( cset_ty *c )
+    : hscd_transact_node(s), c(c) { analyse(); }
+};
+
+class hscd_moc_scheduler_ddf
+  : public hscd_transact_node,
+    public hscd_firing_types,
+    public hscd_scheduler_base {
+
+public:
+  typedef hscd_moc_scheduler_ddf  this_type;
+  typedef hscd_ddf_constraintset  cset_ty;
+protected:
+  cset_ty *c;
+  
+  typedef std::pair<transition_ty *, hscd_root_node *>  transition_node_ty;
+  typedef std::list<transition_node_ty>                 transition_node_list_ty;
+  
+  const hscd_firing_state &schedule() {
+    cset_ty::nodes_ty nodes = c->getNodes();
+    transition_node_list_ty tln;
+    
+    do {
+      tln.clear();
+      for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+            iter != nodes.end();
+            ++iter ) {
+        hscd_firing_state   &s  = (*iter)->currentState();
+        resolved_state_ty   &rs = s.getResolvedState();
+        maybe_transition_ty  mt = rs.findEnabledTransition();
+        
+        if ( mt.first )
+          tln.push_front(transition_node_ty(mt.second,*iter));
+      }
+      // dump(nodes);
+      for ( transition_node_list_ty::const_iterator iter = tln.begin();
+            iter != tln.end();
+            ++iter ) {
+        iter->second->currentState().execute(iter->first);
+      }
+    } while (!tln.empty());
+    s = Transact( hscd_activation_pattern() >> diverge(&hscd_moc_scheduler_ddf::schedule) );
+    return s;
+  }
+private:
+  hscd_firing_state s;
+  
+  void analyse() {
+    s = Transact( hscd_activation_pattern() >> diverge(&hscd_moc_scheduler_ddf::schedule) );
+  }
+public:
+  hscd_moc_scheduler_ddf( cset_ty *c )
     : hscd_transact_node(s), c(c) { analyse(); }
 };
 
@@ -202,13 +253,23 @@ class hscd_csp_moc
 };
 
 template <typename T_constraintset>
-class hscd_kpn_moc
-  : public hscd_moc<hscd_moc_scheduler_kpn, T_constraintset> {
+class hscd_ddf_moc
+  : public hscd_moc<hscd_moc_scheduler_ddf, T_constraintset> {
   public:
-    explicit hscd_kpn_moc( sc_module_name name )
-      : hscd_moc<hscd_moc_scheduler_kpn, T_constraintset>(name) {}
-    hscd_kpn_moc()
-      : hscd_moc<hscd_moc_scheduler_kpn, T_constraintset>() {}
+    explicit hscd_ddf_moc( sc_module_name name )
+      : hscd_moc<hscd_moc_scheduler_ddf, T_constraintset>(name) {}
+    hscd_ddf_moc()
+      : hscd_moc<hscd_moc_scheduler_ddf, T_constraintset>() {}
+};
+
+template <typename T_constraintset>
+class hscd_ndf_moc
+  : public hscd_moc<hscd_moc_scheduler_ndf, T_constraintset> {
+  public:
+    explicit hscd_ndf_moc( sc_module_name name )
+      : hscd_moc<hscd_moc_scheduler_ndf, T_constraintset>(name) {}
+    hscd_ndf_moc()
+      : hscd_moc<hscd_moc_scheduler_ndf, T_constraintset>() {}
 };
 
 template <typename T_top>

@@ -176,9 +176,9 @@ private:
 typedef hscd_graph_dataflow<hscd_fixed_transact_node, hscd_fifo_kind, hscd_fifo>
           hscd_sdf_constraintset;
 typedef hscd_graph_dataflow<hscd_transact_node, hscd_fifo_kind, hscd_fifo>
-          hscd_kpn_constraintset;
-typedef hscd_graph_dataflow<hscd_choice_node, hscd_fifo_kind, hscd_fifo>
           hscd_ddf_constraintset;
+typedef hscd_graph_dataflow<hscd_choice_node, hscd_fifo_kind, hscd_fifo>
+          hscd_ndf_constraintset;
 typedef hscd_graph_dataflow<hscd_choice_node, hscd_rendezvous_kind, hscd_rendezvous>
           hscd_csp_constraintset;
 
