@@ -7,9 +7,15 @@
 #include <set>
 
 hscd_firing_state::hscd_firing_state( const hscd_transition_list &tl )
-  :rs(new resolved_state_ty()), fr(NULL) {
+  :rs(NULL), fr(NULL) { this->operator = (tl); }
+
+hscd_firing_state &hscd_firing_state::operator = (const hscd_transition_list &tl) {
+  if ( fr != NULL )
+    fr->delRef(this);
+  assert( fr == NULL );
   hscd_firing_rules *x = new hscd_firing_rules(this);
   assert( x == fr );
+  rs = new resolved_state_ty();
   for ( hscd_transition_list::const_iterator titer = tl.begin();
         titer != tl.end();
         ++titer ) {
@@ -17,11 +23,16 @@ hscd_firing_state::hscd_firing_state( const hscd_transition_list &tl )
     t.initTransition(fr,*titer);
   }
   fr->resolve();
+  return *this;
+}
+
+hscd_firing_state &hscd_firing_state::operator = (const hscd_interface_transition &t) {
+  return *this = static_cast<hscd_transition_list>(t);
 }
 
 hscd_firing_state &hscd_firing_state::operator = (const this_type &x) {
   if ( &x != this ) {
-    if ( fr )
+    if ( fr != NULL )
       fr->delRef(this);
     assert( fr == NULL );
     rs = x.rs;

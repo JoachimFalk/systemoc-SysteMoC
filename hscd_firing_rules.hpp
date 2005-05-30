@@ -252,7 +252,6 @@ public:
   hscd_firing_state( const this_type &x )
     : rs(NULL), fr(NULL) { *this = x; }
   
-  this_type &operator = (const this_type &x);
 
   bool inductionStep();
   bool choiceStep();
@@ -266,6 +265,10 @@ public:
   void finalise( hscd_root_node *actor ) const;
   
   void execute( transition_ty *t ) { rs = t->execute(); }
+  
+  this_type &operator = (const this_type &x);
+  this_type &operator = (const hscd_transition_list &tl);
+  this_type &operator = (const hscd_interface_transition &t);
   
   ~hscd_firing_state();
 private:
