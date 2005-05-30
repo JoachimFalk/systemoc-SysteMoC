@@ -28,7 +28,7 @@ public:
   m_h_src(sc_module_name name)
     : hscd_actor(name, start),
       i(1) {
-    start = Transact( (out.getAvailableSpace() >= 1) >> call(&m_h_src::src, start) );
+    start = (out.getAvailableSpace() >= 1) >> call(&m_h_src::src, start);
   }
 };
 
@@ -72,8 +72,8 @@ public:
 //  action [x] ==> [y]
 
 //  state               guards                                  action      successor state
-    start = Transact( (input.getAvailableTokens() >= 1) >> call(&m_h_fir::dofir,     write        ) );
-    write = Transact( (output.getAvailableSpace() >= 1) >>                           start          );
+    start = (input.getAvailableTokens() >= 1) >> call(&m_h_fir::dofir,     write        );
+    write = (output.getAvailableSpace() >= 1) >>                           start;
   }
 };
 
@@ -90,11 +90,11 @@ private:
 public:
   m_h_sink(sc_module_name name)
     : hscd_actor(name, start) {
-    start = Transact( (in.getAvailableTokens() >= 1) >> call(&m_h_sink::sink, start) );
+    start = (in.getAvailableTokens() >= 1) >> call(&m_h_sink::sink, start);
   }
 };
 
-class m_h_top: public hscd_kpn_constraintset {
+class m_h_top: public hscd_ndf_constraintset {
 protected:
   m_h_src<double>  src;
   m_h_fir<double>  fir;
@@ -111,7 +111,7 @@ public:
   }
   
   m_h_top( sc_module_name name )
-    : hscd_kpn_constraintset(name),
+    : hscd_ndf_constraintset(name),
       src("src"),
       fir("fir", gentaps()),
       sink("sink") {
@@ -121,7 +121,7 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  hscd_top_moc<hscd_kpn_moc<m_h_top> > top("top");
+  hscd_top_moc<hscd_ndf_moc<m_h_top> > top("top");
   
   sc_start(-1);
   return 0;

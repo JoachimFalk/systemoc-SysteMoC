@@ -95,7 +95,7 @@ public:
 };
 
 class m_h_approx_loop
-: public hscd_kpn_constraintset {
+: public hscd_ddf_constraintset {
   public:
     hscd_port_in<double>  i1;
     hscd_port_out<double> o1;
@@ -105,7 +105,7 @@ class m_h_approx_loop
     m_h_dup     dup;
   public:
     m_h_approx_loop( sc_module_name name )
-      : hscd_kpn_constraintset(name),
+      : hscd_ddf_constraintset(name),
         sqrloop("sqrloop"),
         approx("approx"),
         dup("dup") {
@@ -119,15 +119,15 @@ class m_h_approx_loop
 };
 
 class m_h_top
-: public hscd_kpn_constraintset {
+: public hscd_ddf_constraintset {
   public:
   protected:
     m_h_src                         src;
-    hscd_kpn_moc<m_h_approx_loop>   al;
+    hscd_ddf_moc<m_h_approx_loop>   al;
     m_h_sink                        sink;
   public:
     m_h_top( sc_module_name name )
-      : hscd_kpn_constraintset(name),
+      : hscd_ddf_constraintset(name),
         src("src"),
         al("al"),
         sink("sink") {
@@ -137,7 +137,7 @@ class m_h_top
 };
 
 int sc_main (int argc, char **argv) {
-  hscd_top_moc<hscd_kpn_moc<m_h_top> > top("top");
+  hscd_top_moc<hscd_ddf_moc<m_h_top> > top("top");
   
   sc_start(-1);
   return 0;

@@ -38,3 +38,5 @@ noinst_PROGRAMS= simulation-fir
 LIBS=-lsystemc -lsystemoc
 
 simulation_fir_SOURCES= design-fir.cpp
+simulation_fir_DEPENDENCIES=				\
+	$(root_builddir)/SysteMoC/libsystemoc.la
