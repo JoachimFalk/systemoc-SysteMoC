@@ -2,6 +2,7 @@
 
 #include <hscd_vpc_Director.h>
 #include <hscd_root_node.hpp>
+using namespace SystemC_VPC;
 // #include <systemc/kernel/sc_object_manager.h>
 
 void hscd_root_node::leafAssemble( const sc_module *m, hscd_modes::PGWriter &pgw ) const {
