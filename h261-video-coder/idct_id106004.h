@@ -1,5 +1,6 @@
 #ifndef IDCT_ID106004_H
 #define IDCT_ID106004_H
+using namespace SystemC_VPC;
 
 SC_MODULE(idct_id106004){
 sc_port<sc_fifo_in_if<bool> > port_c_iq_idct2idct_id106509;

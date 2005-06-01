@@ -1,5 +1,6 @@
 #ifndef DIFF_ID106003_H
 #define DIFF_ID106003_H
+using namespace SystemC_VPC;
 
 SC_MODULE(diff_id106003){
 sc_port<sc_fifo_in_if<bool> > port_c_in_diff2diff_id106507;

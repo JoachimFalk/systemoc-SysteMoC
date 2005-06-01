@@ -1,5 +1,6 @@
 #ifndef LF_ID106007_H
 #define LF_ID106007_H
+using namespace SystemC_VPC;
 
 SC_MODULE(lf_id106007){
 sc_port<sc_fifo_in_if<bool> > port_c_bm_lf2lf_id106515;

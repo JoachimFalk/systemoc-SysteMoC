@@ -1,5 +1,6 @@
 #ifndef REC_ID106009_H
 #define REC_ID106009_H
+using namespace SystemC_VPC;
 
 SC_MODULE(rec_id106009){
 sc_port<sc_fifo_in_if<bool> > port_c_idct_rec2rec_id106521;

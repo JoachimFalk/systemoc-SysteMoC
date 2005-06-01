@@ -1,5 +1,6 @@
 #ifndef C_SF_RLC_ID106027_H
 #define C_SF_RLC_ID106027_H
+using namespace SystemC_VPC;
 
 SC_MODULE(c_sf_rlc_id106027){
 sc_port<sc_fifo_in_if<bool> > port_sf2c_sf_rlc_id106558;

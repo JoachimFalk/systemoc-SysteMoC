@@ -1,5 +1,6 @@
 #ifndef Q_ID106008_H
 #define Q_ID106008_H
+using namespace SystemC_VPC;
 
 SC_MODULE(q_id106008){
 sc_port<sc_fifo_in_if<bool> > port_c_dct_q2q_id106518;

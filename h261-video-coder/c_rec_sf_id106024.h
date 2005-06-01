@@ -1,5 +1,6 @@
 #ifndef C_REC_SF_ID106024_H
 #define C_REC_SF_ID106024_H
+using namespace SystemC_VPC;
 
 SC_MODULE(c_rec_sf_id106024){
 sc_port<sc_fifo_in_if<bool> > port_rec2c_rec_sf_id106549;

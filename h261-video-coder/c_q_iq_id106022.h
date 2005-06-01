@@ -1,5 +1,6 @@
 #ifndef C_Q_IQ_ID106022_H
 #define C_Q_IQ_ID106022_H
+using namespace SystemC_VPC;
 
 SC_MODULE(c_q_iq_id106022){
 sc_port<sc_fifo_in_if<bool> > port_q2c_q_iq_id106545;

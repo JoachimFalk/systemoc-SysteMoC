@@ -1,6 +1,7 @@
 #include <hscd_vpc_Director.h>
 #include <systemc.h>
 #include "rlc_id106011.h"
+using namespace SystemC_VPC;
 
 void rlc_id106011::rlc_id106011_process()
 {

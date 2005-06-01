@@ -1,5 +1,6 @@
 #ifndef C_IN_BM_ID106017_H
 #define C_IN_BM_ID106017_H
+using namespace SystemC_VPC;
 
 SC_MODULE(c_in_bm_id106017){
 sc_port<sc_fifo_in_if<bool> > port_in2c_in_bm_id106535;
