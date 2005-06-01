@@ -1,16 +1,16 @@
 #include <cstdlib>
 #include <iostream>
-#include <hscd_structure.hpp>
-#include <hscd_scheduler.hpp>
-#include <hscd_port.hpp>
-#include <hscd_fifo.hpp>
-#include <hscd_node_types.hpp>
-#include <hscd_pggen.hpp>
+#include <smoc_structure.hpp>
+#include <smoc_scheduler.hpp>
+#include <smoc_port.hpp>
+#include <smoc_fifo.hpp>
+#include <smoc_node_types.hpp>
+#include <smoc_pggen.hpp>
 
 // SOURCE
-class m_source : public hscd_fixed_transact_active_node {
+class m_source : public smoc_fixed_transact_active_node {
     public:
-      hscd_port_out<int> out;
+      smoc_port_out<int> out;
     private:
       int increment;
 
@@ -28,7 +28,7 @@ class m_source : public hscd_fixed_transact_active_node {
 
     public:
       m_source( sc_module_name name, int step)
-          : hscd_fixed_transact_active_node(name, out(1)) {
+          : smoc_fixed_transact_active_node(name, out(1)) {
               increment = step;
           }
 
@@ -36,9 +36,9 @@ class m_source : public hscd_fixed_transact_active_node {
 
 
 // SINK
-class m_sink : public hscd_fixed_transact_active_node {
+class m_sink : public smoc_fixed_transact_active_node {
     public:
-        hscd_port_in<int> in;
+        smoc_port_in<int> in;
     private:
         void process() {
             while(true) {
@@ -49,15 +49,15 @@ class m_sink : public hscd_fixed_transact_active_node {
                  
     public:
         m_sink(sc_module_name name)
-            : hscd_fixed_transact_active_node(name, in(1)) {}
+            : smoc_fixed_transact_active_node(name, in(1)) {}
         
 }; // end class m_sink
 
 // ADDER
-class m_adder : public hscd_fixed_transact_active_node {
+class m_adder : public smoc_fixed_transact_active_node {
     public:
-        hscd_port_in<int> in1, in2;
-        hscd_port_out<int> out;
+        smoc_port_in<int> in1, in2;
+        smoc_port_out<int> out;
     
     private:
         void process() {
@@ -69,14 +69,14 @@ class m_adder : public hscd_fixed_transact_active_node {
 
     public:
         m_adder(sc_module_name name) 
-            : hscd_fixed_transact_active_node(name, in1(1) & in2(1) & out(1)) {}
+            : smoc_fixed_transact_active_node(name, in1(1) & in2(1) & out(1)) {}
 }; // end class m_adder
 
-class adder_nw : public hscd_sdf_structure {
+class adder_nw : public smoc_sdf_structure {
     private:
-        hscd_scheduler_asap *asap;
+        smoc_scheduler_asap *asap;
     public:
-        adder_nw(sc_module_name mname) : hscd_sdf_structure( mname ) {
+        adder_nw(sc_module_name mname) : smoc_sdf_structure( mname ) {
         
             // instantiate nodes
             m_source &source1 = registerNode(new m_source("SOURCE1",2));
@@ -88,7 +88,7 @@ class adder_nw : public hscd_sdf_structure {
             connectNodePorts(source1.out, adder.in1);
             connectNodePorts(source2.out, adder.in2);
             connectNodePorts(adder.out, sink.in);
-            asap = new hscd_scheduler_asap("asap", getNodes());
+            asap = new smoc_scheduler_asap("asap", getNodes());
         }
 }; // end class adder_nw
 

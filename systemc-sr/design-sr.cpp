@@ -1,5 +1,5 @@
 #include <systemc.h>
-#include <hscd_sr.hpp>
+#include <smoc_sr.hpp>
 #include <cstdlib>
 #include <iostream>
 
@@ -11,8 +11,8 @@ enum srevent_ty { EV_A, EV_B, EV_C, EV_D };
 
 SC_MODULE(fsmAB) {
  public:
-  hscd_sr_in<srevent_ty>  x;
-  hscd_sr_out<srevent_ty> y;
+  smoc_sr_in<srevent_ty>  x;
+  smoc_sr_out<srevent_ty> y;
  private:
   enum { ST_A, ST_B } state;
   
@@ -52,8 +52,8 @@ SC_MODULE(fsmAB) {
 
 SC_MODULE(fsmCD) {
  public:
-  hscd_sr_in<srevent_ty>  x;
-  hscd_sr_out<srevent_ty> y;
+  smoc_sr_in<srevent_ty>  x;
+  smoc_sr_out<srevent_ty> y;
  private:
   enum { ST_C, ST_D } state;
   
@@ -94,7 +94,7 @@ SC_MODULE(fsmCD) {
 
 SC_MODULE(ResetGen) {
  public:
-  hscd_sr_out<void> res;
+  smoc_sr_out<void> res;
  private:
   void worker_thread( void ) {
     while ( 1 ) {
@@ -109,8 +109,8 @@ SC_MODULE(ResetGen) {
 };
 
 int sc_main( int argc, char *argv[] ) {
-  hscd_sr<srevent_ty> sAB2CD;
-  hscd_sr<srevent_ty> sCD2AB;
+  smoc_sr<srevent_ty> sAB2CD;
+  smoc_sr<srevent_ty> sCD2AB;
   
   //sc_clock       clkgen( "clkgen", sc_time( 1000, SC_NS ) );
   fsmAB     fsm1( "fsm1" );

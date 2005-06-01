@@ -3,19 +3,19 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <hscd_moc.hpp>
-#include <hscd_port.hpp>
-#include <hscd_fifo.hpp>
-#include <hscd_node_types.hpp>
+#include <smoc_moc.hpp>
+#include <smoc_port.hpp>
+#include <smoc_fifo.hpp>
+#include <smoc_node_types.hpp>
 #ifndef __SCFE__
-//# include <hscd_scheduler.hpp>
-# include <hscd_pggen.hpp>
+//# include <smoc_scheduler.hpp>
+# include <smoc_pggen.hpp>
 #endif
 
 template <typename T>
-class m_h_src: public hscd_actor {
+class m_h_src: public smoc_actor {
 public:
-  hscd_port_out<T> out;
+  smoc_port_out<T> out;
 private:
   T i;
   
@@ -23,20 +23,20 @@ private:
     std::cout << "src: " << i << std::endl;
     out[0] = i++;
   }
-  hscd_firing_state start;
+  smoc_firing_state start;
 public:
   m_h_src(sc_module_name name)
-    : hscd_actor(name, start),
+    : smoc_actor(name, start),
       i(1) {
-    start = (out.getAvailableSpace() >= 1) >> call(&m_h_src::src, start);
+    start = call(&m_h_src::src, start) >> (out.getAvailableSpace() >= 1);
   }
 };
 
 template <typename T> // actor type parameter T
-class m_h_fir: public hscd_actor {
+class m_h_fir: public smoc_actor {
 public:
-  hscd_port_in<T>  input;
-  hscd_port_out<T> output;
+  smoc_port_in<T>  input;
+  smoc_port_out<T> output;
 private:
   // taps parameter unmodifiable after actor instantiation
   const std::vector<T> taps;
@@ -44,8 +44,8 @@ private:
   std::vector<T>       data;
   
   // states of the firing rules state machine
-  hscd_firing_state start;
-  hscd_firing_state write;
+  smoc_firing_state start;
+  smoc_firing_state write;
   
   // action function for the firing rules state machine
   void dofir() {
@@ -65,7 +65,7 @@ public:
       sc_module_name name,        // name of actor
       const std::vector<T> &taps  // the taps are the coefficients, starting
                                   // with the one for the most recent data item 
-  ) : hscd_actor( name, start ),
+  ) : smoc_actor( name, start ),
       taps(taps),                 // make local copy of taps parameter
       data(taps.size(), 0)        // initialize data with zero
   {
@@ -78,23 +78,23 @@ public:
 };
 
 template <typename T>
-class m_h_sink: public hscd_actor {
+class m_h_sink: public smoc_actor {
 public:
-  hscd_port_in<T> in;
+  smoc_port_in<T> in;
 private:
   int i;
   
   void sink(void) { std::cout << "sink: " << in[0] << std::endl; }
   
-  hscd_firing_state start;
+  smoc_firing_state start;
 public:
   m_h_sink(sc_module_name name)
-    : hscd_actor(name, start) {
+    : smoc_actor(name, start) {
     start = (in.getAvailableTokens() >= 1) >> call(&m_h_sink::sink, start);
   }
 };
 
-class m_h_top: public hscd_ndf_constraintset {
+class m_h_top: public smoc_ndf_constraintset {
 protected:
   m_h_src<double>  src;
   m_h_fir<double>  fir;
@@ -111,7 +111,7 @@ public:
   }
   
   m_h_top( sc_module_name name )
-    : hscd_ndf_constraintset(name),
+    : smoc_ndf_constraintset(name),
       src("src"),
       fir("fir", gentaps()),
       sink("sink") {
@@ -121,7 +121,7 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  hscd_top_moc<hscd_ndf_moc<m_h_top> > top("top");
+  smoc_top_moc<smoc_ndf_moc<m_h_top> > top("top");
   
   sc_start(-1);
   return 0;
