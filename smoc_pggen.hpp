@@ -11,7 +11,7 @@
 
 #include <commondefs.h>
 
-namespace hscd_modes {
+namespace smoc_modes {
 
   class eNoChannel : public std::exception {};
   class eNoInterface : public std::exception {};
@@ -53,26 +53,26 @@ namespace hscd_modes {
     }
   };
 
-  class hscd_modes_base_structure {
+  class smoc_modes_base_structure {
     public:
       virtual
       void assemble( PGWriter &pgw ) const = 0;
       
       virtual
-      ~hscd_modes_base_structure() {}
+      ~smoc_modes_base_structure() {}
   };
 
-  void dump( std::ostream &out, const hscd_modes_base_structure &top );
+  void dump( std::ostream &out, const smoc_modes_base_structure &top );
 };
 
 #if 0
 
 
-class hscd_modes {
+class smoc_modes {
 protected:
 //  NProblemGraphEmbed &parent_pge;
 public:
-  hscd_modes_pg( const hscd_structure_base &x ) {}
+  smoc_modes_pg( const smoc_structure_base &x ) {}
   
   void assemble( int indent ) {
     oStream() << indentation(indent) << "<problemgraph name=\"" << getName() << "\" " << addId() << ">" << std::endl;

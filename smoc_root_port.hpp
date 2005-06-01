@@ -10,19 +10,19 @@
 
 #include <systemc.h>
 
-class hscd_root_port
+class smoc_root_port
   : protected sc_port_base {
 public:
-  friend class hscd_op_port;
+  friend class smoc_op_port;
   
-  typedef hscd_root_port  this_type;
+  typedef smoc_root_port  this_type;
 private:
   size_t  committed;
   size_t  done;
 //  size_t  maxcommittable;
   bool    uplevel;
 protected:
-  hscd_root_port( const char* name_ )
+  smoc_root_port( const char* name_ )
     : sc_port_base( name_, 1 ), uplevel(false) { reset(); }
   
   virtual void transfer() = 0;
@@ -69,12 +69,12 @@ public:
   void bind( this_type &parent_ ) { uplevel = true; sc_port_base::bind(parent_); }
 private:
   // disabled
-  hscd_root_port( const this_type & );
+  smoc_root_port( const this_type & );
   this_type& operator = ( const this_type & );
 };
 
 static inline
-std::ostream &operator <<( std::ostream &out, const hscd_root_port &p ) {
+std::ostream &operator <<( std::ostream &out, const smoc_root_port &p ) {
   out << "port(" << &p << ","
            "uplevel=" << p.isUplevel() << ","
            "committed=" << p.committedCount() << ","
@@ -83,17 +83,17 @@ std::ostream &operator <<( std::ostream &out, const hscd_root_port &p ) {
   return out;
 }
 
-typedef std::list<hscd_root_port *> hscd_port_list;
+typedef std::list<smoc_root_port *> smoc_port_list;
 
-class hscd_op_port {
+class smoc_op_port {
 public:
-  typedef hscd_op_port  this_type;
+  typedef smoc_op_port  this_type;
   
-  friend class hscd_activation_pattern;
-  friend class hscd_firing_state;
-  friend class hscd_port_tokens;
+  friend class smoc_activation_pattern;
+  friend class smoc_firing_state;
+  friend class smoc_port_tokens;
 private:
-  hscd_root_port *port;
+  smoc_root_port *port;
   size_t          commit;
 protected:
   bool stillPossible() const {
@@ -101,15 +101,15 @@ protected:
            (commit <= port->maxCommittableCount())*/;
   }
   
-  hscd_op_port( hscd_root_port *port, size_t commit )
+  smoc_op_port( smoc_root_port *port, size_t commit )
     : port(port), commit(commit) {}
   
   void                  addCommitCount( size_t n ) { commit += n; }
 public:
   size_t                commitCount() const { return commit; }
   
-  hscd_root_port       *getPort()           { return port; }
-  const hscd_root_port *getPort()     const { return port; }
+  smoc_root_port       *getPort()           { return port; }
+  const smoc_root_port *getPort()     const { return port; }
   
   bool knownUnsatisfiable() const
     { return /*commit  > port->maxAvailableCount() ||*/ !stillPossible(); }
@@ -125,24 +125,24 @@ public:
   void transfer() { port->setCommittedCount(commit); port->transfer(); }
 };
 
-template <typename T> class hscd_port_in;
-template <typename T> class hscd_port_out;
+template <typename T> class smoc_port_in;
+template <typename T> class smoc_port_out;
 
-class hscd_port_tokens {
+class smoc_port_tokens {
 public:
-  typedef hscd_port_tokens  this_type;
+  typedef smoc_port_tokens  this_type;
   
-  template <typename T> friend class hscd_port_in;
-  template <typename T> friend class hscd_port_out;
+  template <typename T> friend class smoc_port_in;
+  template <typename T> friend class smoc_port_out;
 private:
-  hscd_root_port *port;
+  smoc_root_port *port;
 protected:
-  hscd_port_tokens(hscd_root_port *port)
+  smoc_port_tokens(smoc_root_port *port)
     : port(port) {}
 public:
-  class hscd_op_port operator >=(size_t n)
-    { return hscd_op_port(port,n); }
-  class hscd_op_port operator > (size_t n)
+  class smoc_op_port operator >=(size_t n)
+    { return smoc_op_port(port,n); }
+  class smoc_op_port operator > (size_t n)
     { return *this >= n+1; }
 };
 

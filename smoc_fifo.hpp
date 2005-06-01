@@ -3,20 +3,20 @@
 #ifndef _INCLUDED_HSCD_FIFO_HPP
 #define _INCLUDED_HSCD_FIFO_HPP
 
-#include <hscd_chan_if.hpp>
+#include <smoc_chan_if.hpp>
 
 #include <systemc.h>
 #include <vector>
 
 // #include <iostream>
 
-class hscd_fifo_kind
-  : public hscd_root_chan {
+class smoc_fifo_kind
+  : public smoc_root_chan {
 public:
-  typedef hscd_fifo_kind  this_type;
+  typedef smoc_fifo_kind  this_type;
   
   class chan_init {
-    friend class hscd_fifo_kind;
+    friend class smoc_fifo_kind;
   private:
     const char *name;
     size_t      n;
@@ -49,9 +49,9 @@ protected:
   }
   
   // constructors
-  hscd_fifo_kind( const chan_init &i )
-    : hscd_root_chan(
-        i.name != NULL ? i.name : sc_gen_unique_name( "hscd_fifo" ) ),
+  smoc_fifo_kind( const chan_init &i )
+    : smoc_root_chan(
+        i.name != NULL ? i.name : sc_gen_unique_name( "smoc_fifo" ) ),
       fsize(i.n+1), rindex(0), windex(0) {}
 private:
   static const char* const kind_string;
@@ -61,22 +61,22 @@ private:
   }
   
   // disabled
-  hscd_fifo_kind( const this_type & );
+  smoc_fifo_kind( const this_type & );
   this_type& operator = ( const this_type & );
 };
 
 template <typename T>
-class hscd_fifo_storage
-  : public hscd_chan_nonconflicting_if<hscd_fifo_kind, T> {
+class smoc_fifo_storage
+  : public smoc_chan_nonconflicting_if<smoc_fifo_kind, T> {
 public:
   typedef T                                  data_type;
-  typedef hscd_fifo_storage<data_type>       this_type;
+  typedef smoc_fifo_storage<data_type>       this_type;
   typedef typename this_type::iface_out_type iface_out_type;
   typedef typename this_type::iface_in_type  iface_in_type;
   
   class chan_init
-    : public hscd_fifo_kind::chan_init {
-    friend class hscd_fifo_storage<T>;
+    : public smoc_fifo_kind::chan_init {
+    friend class smoc_fifo_storage<T>;
   private:
     std::vector<T>  marking;
   protected:
@@ -87,7 +87,7 @@ public:
     }
   protected:
     chan_init( const char *name, size_t n )
-      : hscd_fifo_kind::chan_init(name, n) {}
+      : smoc_fifo_kind::chan_init(name, n) {}
   };
 private:
   data_type *storage;
@@ -101,25 +101,25 @@ protected:
       in->transferIn( &storage[rpp()] );
   }
   
-  hscd_fifo_storage( const chan_init &i )
-    : hscd_chan_nonconflicting_if<hscd_fifo_kind, T>(i), storage(new data_type[fsize]) {
+  smoc_fifo_storage( const chan_init &i )
+    : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i), storage(new data_type[fsize]) {
     assert( fsize > i.marking.size() );
     memcpy( storage, &i.marking[0], i.marking.size()*sizeof(T) );
     windex = i.marking.size();
   }
   
-  ~hscd_fifo_storage() { delete storage; }
+  ~smoc_fifo_storage() { delete storage; }
 };
 
-class hscd_fifo_storage<void>
-  : public hscd_chan_nonconflicting_if<hscd_fifo_kind, void> {
+class smoc_fifo_storage<void>
+  : public smoc_chan_nonconflicting_if<smoc_fifo_kind, void> {
 public:
   typedef void                               data_type;
-  typedef hscd_fifo_storage<data_type>       this_type;
+  typedef smoc_fifo_storage<data_type>       this_type;
   
   class chan_init
-    : public hscd_fifo_kind::chan_init {
-    friend class hscd_fifo_storage<void>;
+    : public smoc_fifo_kind::chan_init {
+    friend class smoc_fifo_storage<void>;
   private:
     size_t          marking;
   protected:
@@ -130,7 +130,7 @@ public:
     }
   protected:
     chan_init( const char *name, size_t n )
-      : hscd_fifo_kind::chan_init(name, n),
+      : smoc_fifo_kind::chan_init(name, n),
         marking(0) {}
   };
 protected:
@@ -143,19 +143,19 @@ protected:
       in->transferIn(NULL);
   }
   
-  hscd_fifo_storage( const chan_init &i )
-    : hscd_chan_nonconflicting_if<hscd_fifo_kind, void>(i) {
+  smoc_fifo_storage( const chan_init &i )
+    : smoc_chan_nonconflicting_if<smoc_fifo_kind, void>(i) {
     assert( fsize > i.marking );
     windex = i.marking;
   }
 };
 
 template <typename T>
-class hscd_fifo_type
-  : public hscd_fifo_storage<T> {
+class smoc_fifo_type
+  : public smoc_fifo_storage<T> {
 public:
   typedef T                                  data_type;
-  typedef hscd_fifo_type<data_type>          this_type;
+  typedef smoc_fifo_type<data_type>          this_type;
   typedef typename this_type::iface_in_type  iface_in_type;
   typedef typename this_type::iface_out_type iface_out_type;
 protected:
@@ -168,8 +168,8 @@ protected:
   }
 public:
   // constructors
-  hscd_fifo_type( const typename hscd_fifo_storage<T>::chan_init &i )
-    : hscd_fifo_storage<T>(i) {}
+  smoc_fifo_type( const typename smoc_fifo_storage<T>::chan_init &i )
+    : smoc_fifo_storage<T>(i) {}
   
   size_t committedOutCount() const {
     return usedStorage();// + (portOutIf->committedCount() - portOutIf->doneCount());
@@ -194,21 +194,21 @@ public:
 };
 
 template <typename T>
-class hscd_fifo
-  : public hscd_fifo_storage<T>::chan_init {
+class smoc_fifo
+  : public smoc_fifo_storage<T>::chan_init {
 public:
   typedef T                   data_type;
-  typedef hscd_fifo<T>        this_type;
-  typedef hscd_fifo_type<T>   chan_type;
+  typedef smoc_fifo<T>        this_type;
+  typedef smoc_fifo_type<T>   chan_type;
   
-  this_type &operator <<( typename hscd_fifo_storage<T>::chan_init::add_param_ty x ) {
+  this_type &operator <<( typename smoc_fifo_storage<T>::chan_init::add_param_ty x ) {
     add(x); return *this;
   }
   
-  hscd_fifo( size_t n = 1 )
-    : hscd_fifo_storage<T>::chan_init(NULL,n) {}
-  explicit hscd_fifo( const char *name, size_t n = 1)
-    : hscd_fifo_storage<T>::chan_init(name,n) {}
+  smoc_fifo( size_t n = 1 )
+    : smoc_fifo_storage<T>::chan_init(NULL,n) {}
+  explicit smoc_fifo( const char *name, size_t n = 1)
+    : smoc_fifo_storage<T>::chan_init(name,n) {}
 };
 
 #endif // _INCLUDED_HSCD_FIFO_HPP

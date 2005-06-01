@@ -3,19 +3,19 @@
 #ifndef _INCLUDED_HSCD_POPT_HPP
 #define _INCLUDED_HSCD_POPT_HPP
 
-#include <hscd_root_port.hpp>
-#include <hscd_chan_if.hpp>
+#include <smoc_root_port.hpp>
+#include <smoc_chan_if.hpp>
 #include <systemc.h>
 #include <vector>
 
 template <typename T>
-class hscd_port_base
-  : public hscd_root_port {
+class smoc_port_base
+  : public smoc_root_port {
 public:
   typedef T                   iface_type;
-  typedef hscd_port_base<T>   this_type;
+  typedef smoc_port_base<T>   this_type;
 private:
-  typedef hscd_root_port      base_type;
+  typedef smoc_root_port      base_type;
   
   iface_type  *interface;
   
@@ -41,7 +41,7 @@ private:
       return 0;
   }
 protected:
-  hscd_port_base( const char* name_ )
+  smoc_port_base( const char* name_ )
     : base_type( name_ ), interface( NULL ) {}
   
   void push_interface( sc_interface *_i ) {
@@ -68,8 +68,8 @@ protected:
 };
 
 template <typename T>
-class hscd_port_storage_in
-  : public hscd_port_base<hscd_chan_in_if<T> > {
+class smoc_port_storage_in
+  : public smoc_port_base<smoc_chan_in_if<T> > {
 public:
   typedef T    data_type;
 private:
@@ -78,15 +78,15 @@ protected:
   void storageClear() { s.clear(); }
   void storagePushBack( const data_type *in ) { s.push_back(*in); }
   
-  hscd_port_storage_in( const char *n )
-    : hscd_port_base<hscd_chan_in_if<data_type> >(n) {}
+  smoc_port_storage_in( const char *n )
+    : smoc_port_base<smoc_chan_in_if<data_type> >(n) {}
 public:
   data_type &operator []( size_t n )
     { assert( n < s.size() ); return s[n]; }
 };
 
-class hscd_port_storage_in<void>
-  : public hscd_port_base<hscd_chan_in_if<void> > {
+class smoc_port_storage_in<void>
+  : public smoc_port_base<smoc_chan_in_if<void> > {
 public:
   typedef void data_type;
 private:
@@ -94,22 +94,22 @@ protected:
   void storageClear() {}
   void storagePushBack( const data_type *in ) { assert(in == NULL); }
   
-  hscd_port_storage_in( const char *n )
-    : hscd_port_base<hscd_chan_in_if<data_type> >(n) {}
+  smoc_port_storage_in( const char *n )
+    : smoc_port_base<smoc_chan_in_if<data_type> >(n) {}
 public:
 };
 
 template <typename T>
-class hscd_port_in
-  : public hscd_port_storage_in<T> {
+class smoc_port_in
+  : public smoc_port_storage_in<T> {
 public:
   typedef T                               data_type;
-  typedef hscd_port_in<T>                 this_type;
+  typedef smoc_port_in<T>                 this_type;
   typedef typename this_type::iface_type  iface_type;
-  typedef hscd_port_storage_in<T>         base_type;
+  typedef smoc_port_storage_in<T>         base_type;
 private:
 //  void setCommittedCount( size_t _committed ) {
-//    return hscd_root_port::setCommittedCount(_committed);
+//    return smoc_root_port::setCommittedCount(_committed);
 //  }
   
   void reset() {
@@ -124,8 +124,8 @@ private:
 public:
   void transferIn( const T *in ) { storagePushBack(in); incrDoneCount(); }
 //public:
-  hscd_port_in()
-    : hscd_port_storage_in<T>( sc_gen_unique_name( "hscd_port_in" )  )
+  smoc_port_in()
+    : smoc_port_storage_in<T>( sc_gen_unique_name( "smoc_port_in" )  )
     {}
   
   bool isInput() const { return true; }
@@ -133,20 +133,20 @@ public:
   size_t availableCount()    const { return doneCount() + (*this)->committedOutCount(); }
 //  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableOutCount(); }
   
-  class hscd_port_tokens getAvailableTokens()
-    { return hscd_port_tokens(this); }
+  class smoc_port_tokens getAvailableTokens()
+    { return smoc_port_tokens(this); }
   
   void operator () ( iface_type& interface_ )
     { bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
-  class hscd_op_port operator ()( size_t n )
+  class smoc_op_port operator ()( size_t n )
     { return getAvailableTokens() >= n; }
 };
 
 template <typename T>
-class hscd_port_storage_out
-  : public hscd_port_base<hscd_chan_out_if<T> > {
+class smoc_port_storage_out
+  : public smoc_port_base<smoc_chan_out_if<T> > {
 public:
   typedef T    data_type;
 private:
@@ -156,8 +156,8 @@ protected:
   size_t            storageSize() { return s.size(); }
   const data_type  *storageElement( size_t n ) { assert(n < storageSize() ); return &s[n]; }
   
-  hscd_port_storage_out( const char *n )
-    : hscd_port_base<hscd_chan_out_if<data_type> >(n) {}
+  smoc_port_storage_out( const char *n )
+    : smoc_port_base<smoc_chan_out_if<data_type> >(n) {}
 public:
   data_type &operator []( size_t n ) {
     if ( n >= storageSize() )
@@ -166,8 +166,8 @@ public:
   };
 };
 
-class hscd_port_storage_out<void>
-  : public hscd_port_base<hscd_chan_out_if<void> > {
+class smoc_port_storage_out<void>
+  : public smoc_port_base<smoc_chan_out_if<void> > {
 public:
   typedef void data_type;
 private:
@@ -176,23 +176,23 @@ protected:
   size_t            storageSize() { return UINT_MAX; }
   const data_type  *storageElement( size_t n ) { return NULL; }
 
-  hscd_port_storage_out( const char *n )
-    : hscd_port_base<hscd_chan_out_if<data_type> >(n) {}
+  smoc_port_storage_out( const char *n )
+    : smoc_port_base<smoc_chan_out_if<data_type> >(n) {}
 public:
 };
 
 template<typename T>
-class hscd_port_out
-  : public hscd_port_storage_out<T> {
+class smoc_port_out
+  : public smoc_port_storage_out<T> {
 public:
   typedef T                               data_type;
-  typedef hscd_port_out<T>                this_type;
+  typedef smoc_port_out<T>                this_type;
   typedef typename this_type::iface_type  iface_type;
-  typedef hscd_port_storage_out<T>        base_type;
+  typedef smoc_port_storage_out<T>        base_type;
 private:
 //  void setCommittedCount( size_t _committed ) {
 //    assert( storageSize() >= _committed );
-//    return hscd_root_port::setCommittedCount(_committed);
+//    return smoc_root_port::setCommittedCount(_committed);
 //  }
   void add_interface( sc_interface *i ) {
     push_interface(i); (*this)->addPortIf( this );
@@ -202,8 +202,8 @@ private:
 public:
   const T *transferOut( void ) { return storageElement(incrDoneCount()); }
 //public:
-  hscd_port_out()
-    : hscd_port_storage_out<T>( sc_gen_unique_name( "hscd_port_out" )  )
+  smoc_port_out()
+    : smoc_port_storage_out<T>( sc_gen_unique_name( "smoc_port_out" )  )
     {}
   
   bool isInput() const { return false; }
@@ -211,14 +211,14 @@ public:
   size_t availableCount()    const { return doneCount() + (*this)->committedInCount(); }
 //  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableInCount(); }
   
-  class hscd_port_tokens getAvailableSpace()
-    { return hscd_port_tokens(this); }
+  class smoc_port_tokens getAvailableSpace()
+    { return smoc_port_tokens(this); }
   
   void operator () ( iface_type& interface_ )
     { bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
-  class hscd_op_port operator ()( size_t n )
+  class smoc_op_port operator ()( size_t n )
     { return getAvailableSpace() >= n; }
 };
 

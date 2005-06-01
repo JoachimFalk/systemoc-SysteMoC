@@ -1,9 +1,9 @@
 // vim: set sw=2 ts=8:
 
-#include <hscd_root_node.hpp>
+#include <smoc_root_node.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
 
-void hscd_root_node::assemble( hscd_modes::PGWriter &pgw ) const {
+void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   const sc_module *m = myModule();
   
   pgw << "<process name=\"" << m->name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
@@ -28,7 +28,7 @@ void hscd_root_node::assemble( hscd_modes::PGWriter &pgw ) const {
 //      if ( *iter == &fire_port )
 //        continue;
       
-      const hscd_root_port *port = dynamic_cast<const hscd_root_port *>(*iter);
+      const smoc_root_port *port = dynamic_cast<const smoc_root_port *>(*iter);
       
       if ( !port )
         continue;
@@ -41,7 +41,7 @@ void hscd_root_node::assemble( hscd_modes::PGWriter &pgw ) const {
   pgw << "</process>" << std::endl;
 }
 
-hscd_port_list &hscd_root_node::getPorts() {
+smoc_port_list &smoc_root_node::getPorts() {
   if ( !ports_valid ) {
     sc_module      *m = myModule();
     
@@ -50,8 +50,8 @@ hscd_port_list &hscd_root_node::getPorts() {
           iter != m->get_child_objects().end();
           ++iter ) {
       sc_port_base *port = dynamic_cast<sc_port_base *>(*iter);
-      if ( port != NULL && port->kind() == hscd_root_port::kind_string )
-        ports.push_back(reinterpret_cast<hscd_root_port *>(port));
+      if ( port != NULL && port->kind() == smoc_root_port::kind_string )
+        ports.push_back(reinterpret_cast<smoc_root_port *>(port));
     }
     ports_valid = true;
   }

@@ -3,16 +3,16 @@
 #ifndef _INCLUDED_HSCD_RENDEZVOUS_HPP
 #define _INCLUDED_HSCD_RENDEZVOUS_HPP
 
-#include <hscd_chan_if.hpp>
+#include <smoc_chan_if.hpp>
 #include <systemc.h>
 
-class hscd_rendezvous_kind
-  : public hscd_root_chan {
+class smoc_rendezvous_kind
+  : public smoc_root_chan {
 public:
-  typedef hscd_rendezvous_kind  this_type;
+  typedef smoc_rendezvous_kind  this_type;
   
   class chan_init {
-    friend class hscd_rendezvous_kind;
+    friend class smoc_rendezvous_kind;
     private:
       const char *name;
     protected:
@@ -21,9 +21,9 @@ public:
   };
 protected:
   // constructors
-  hscd_rendezvous_kind( const chan_init &i )
-    : hscd_root_chan(
-        i.name != NULL ? i.name : sc_gen_unique_name( "hscd_rendezvous" ) ) {}
+  smoc_rendezvous_kind( const chan_init &i )
+    : smoc_root_chan(
+        i.name != NULL ? i.name : sc_gen_unique_name( "smoc_rendezvous" ) ) {}
 private:
   static const char* const kind_string;
   
@@ -32,16 +32,16 @@ private:
   }
   
   // disabled
-  hscd_rendezvous_kind( const this_type & );
+  smoc_rendezvous_kind( const this_type & );
   this_type& operator = ( const this_type & );
 };
 
 template <typename T>
-class hscd_rendezvous_type
-  : public hscd_chan_nonconflicting_if<hscd_rendezvous_kind, T> {
+class smoc_rendezvous_type
+  : public smoc_chan_nonconflicting_if<smoc_rendezvous_kind, T> {
 public:
   typedef T                                  data_type;
-  typedef hscd_rendezvous_type<data_type>    this_type;
+  typedef smoc_rendezvous_type<data_type>    this_type;
   typedef typename this_type::iface_in_type  iface_in_type;
   typedef typename this_type::iface_out_type iface_out_type;
 protected:
@@ -54,8 +54,8 @@ protected:
   }
 public:
   // constructors
-  hscd_rendezvous_type( const hscd_rendezvous_kind::chan_init &i )
-    : hscd_chan_nonconflicting_if<hscd_rendezvous_kind, T>(i) {}
+  smoc_rendezvous_type( const smoc_rendezvous_kind::chan_init &i )
+    : smoc_chan_nonconflicting_if<smoc_rendezvous_kind, T>(i) {}
   
   size_t committedOutCount() const
     { return (portOutIf->committedCount() - portOutIf->doneCount()); }
@@ -70,17 +70,17 @@ public:
 };
 
 template <typename T>
-class hscd_rendezvous
-  : public hscd_rendezvous_kind::chan_init {
+class smoc_rendezvous
+  : public smoc_rendezvous_kind::chan_init {
 public:
   typedef T                         data_type;
-  typedef hscd_rendezvous<T>        this_type;
-  typedef hscd_rendezvous_type<T>   chan_type;
+  typedef smoc_rendezvous<T>        this_type;
+  typedef smoc_rendezvous_type<T>   chan_type;
   
-  hscd_rendezvous()
-    : hscd_rendezvous_kind::chan_init(NULL) {}
-  explicit hscd_rendezvous( const char *name )
-    : hscd_rendezvous_kind::chan_init(name) {}
+  smoc_rendezvous()
+    : smoc_rendezvous_kind::chan_init(NULL) {}
+  explicit smoc_rendezvous( const char *name )
+    : smoc_rendezvous_kind::chan_init(name) {}
 };
 
 #endif // _INCLUDED_HSCD_RENDEZVOUS_HPP

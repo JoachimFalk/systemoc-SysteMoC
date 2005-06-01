@@ -1,9 +1,9 @@
 // vim: set sw=2 ts=8:
 
-#include <hscd_pggen.hpp>
+#include <smoc_pggen.hpp>
 #include <sstream>
 
-namespace hscd_modes {
+namespace smoc_modes {
 
   const char   PGWriter::indent_buf[] = 
      "                                                                "
@@ -40,11 +40,11 @@ namespace hscd_modes {
       return toId(find_iter->second);
   }
 
-  void dump( std::ostream &out, const hscd_modes_base_structure &top ) {
+  void dump( std::ostream &out, const smoc_modes_base_structure &top ) {
     PGWriter pgw( out );
     pgw << "<?xml version=\"1.0\"?>" << std::endl;
 	pgw << "<!DOCTYPE specificationgraph SYSTEM \"specgraph.dtd\">" << std::endl;
-	pgw << "<specificationgraph name=\"hscd_modes::dump\">" << std::endl;
+	pgw << "<specificationgraph name=\"smoc_modes::dump\">" << std::endl;
     pgw.indentUp();
     top.assemble( pgw );
     pgw.indentDown();
@@ -55,11 +55,11 @@ namespace hscd_modes {
 #if 0
 
 
-class hscd_modes {
+class smoc_modes {
 protected:
 //  NProblemGraphEmbed &parent_pge;
 public:
-  hscd_modes_pg( const hscd_structure_base &x ) {}
+  smoc_modes_pg( const smoc_structure_base &x ) {}
   
   void assemble( int indent ) {
     oStream() << indentation(indent) << "<problemgraph name=\"" << getName() << "\" " << addId() << ">" << std::endl;

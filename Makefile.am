@@ -53,40 +53,40 @@ PROGLDFLAGS=
 
 lib_LTLIBRARIES = libsystemoc.la
 pkginclude_HEADERS =			\
-	hscd_fifo.hpp			\
-	hscd_moc.hpp			\
-	hscd_port.hpp			\
-	hscd_root_node.hpp		\
-	hscd_firing_rules.hpp		\
-	hscd_node_types.hpp		\
-	hscd_rendezvous.hpp		\
-	hscd_root_port.hpp		\
-	hscd_graph_type.hpp		\
-	hscd_pggen.hpp			\
-	hscd_chan_if.hpp		\
+	smoc_fifo.hpp			\
+	smoc_moc.hpp			\
+	smoc_port.hpp			\
+	smoc_root_node.hpp		\
+	smoc_firing_rules.hpp		\
+	smoc_node_types.hpp		\
+	smoc_rendezvous.hpp		\
+	smoc_root_port.hpp		\
+	smoc_graph_type.hpp		\
+	smoc_pggen.hpp			\
+	smoc_chan_if.hpp		\
 	oneof.hpp			\
 	commondefs.h
 
 # noinst_HEADERS=	oneof.hpp
 
 libsystemoc_CH_LTOBJS=				\
-	$(hscd_firing_rules_hpp_CH_LTOBJS)	\
-	$(hscd_pggen_hpp_CH_LTOBJS)
-#	$(hscd_op_hpp_CH_LTOBJS)
+	$(smoc_firing_rules_hpp_CH_LTOBJS)	\
+	$(smoc_pggen_hpp_CH_LTOBJS)
+#	$(smoc_op_hpp_CH_LTOBJS)
 
 libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include
 
 libsystemoc_la_SOURCES =		\
-	hscd_fifo.cpp			\
-	hscd_graph_type.cpp		\
-	hscd_rendezvous.cpp		\
-	hscd_root_node.cpp		\
-	hscd_root_port.cpp		\
-	hscd_firing_rules.cpp		\
-	hscd_pggen.cpp			\
-	hscd_chan_if.cpp
+	smoc_fifo.cpp			\
+	smoc_graph_type.cpp		\
+	smoc_rendezvous.cpp		\
+	smoc_root_node.cpp		\
+	smoc_root_port.cpp		\
+	smoc_firing_rules.cpp		\
+	smoc_pggen.cpp			\
+	smoc_chan_if.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include
