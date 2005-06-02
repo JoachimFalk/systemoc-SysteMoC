@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_HSCD_NODE_TYPES_HPP
-#define _INCLUDED_HSCD_NODE_TYPES_HPP
+#ifndef _INCLUDED_SMOC_NODE_TYPES_HPP
+#define _INCLUDED_SMOC_NODE_TYPES_HPP
 
 #include <smoc_root_node.hpp>
 
@@ -255,4 +255,4 @@ class smoc_fixed_transact_active_node
 };
 */
 
-#endif // _INCLUDED_HSCD_NODE_TYPES_HPP
+#endif // _INCLUDED_SMOC_NODE_TYPES_HPP

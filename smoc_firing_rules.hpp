@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_HSCD_OP_PORT_LIST_HPP
-#define _INCLUDED_HSCD_OP_PORT_LIST_HPP
+#ifndef _INCLUDED_SMOC_OP_PORT_LIST_HPP
+#define _INCLUDED_SMOC_OP_PORT_LIST_HPP
 
 #include <vector>
 #include <list>
@@ -131,7 +131,7 @@ static inline
 std::ostream &operator <<( std::ostream &out, const smoc_activation_pattern &ap)
   { ap.dump(out); return out; }
 
-#ifndef _COMPILEHEADER_HSCD_ACTIVATION_PATTERN__OPERATOR_AND
+#ifndef _COMPILEHEADER_SMOC_ACTIVATION_PATTERN__OPERATOR_AND
 GNU89_EXTERN_INLINE
 #endif
 smoc_activation_pattern operator & (smoc_activation_pattern ap, smoc_op_port p ) {
@@ -384,7 +384,7 @@ protected:
   }
 };
 
-#ifndef _COMPILEHEADER_HSCD_FIRING_STATE__DESTRUCTOR
+#ifndef _COMPILEHEADER_SMOC_FIRING_STATE__DESTRUCTOR
 GNU89_EXTERN_INLINE
 #endif
 smoc_firing_state::~smoc_firing_state() {
@@ -404,7 +404,7 @@ public:
     { push_back(v); return *this; }
 };
 
-#ifndef _COMPILEHEADER_HSCD_FIRING_STATE_LIST_OPERATOR_OR_1
+#ifndef _COMPILEHEADER_SMOC_FIRING_STATE_LIST_OPERATOR_OR_1
 GNU89_EXTERN_INLINE
 #endif
 smoc_firing_state_list operator |
@@ -412,7 +412,7 @@ smoc_firing_state_list operator |
    const smoc_firing_state_list::value_type &v ) {
   return sl |= v;
 }
-#ifndef _COMPILEHEADER_HSCD_FIRING_STATE_LIST_OPERATOR_OR_2
+#ifndef _COMPILEHEADER_SMOC_FIRING_STATE_LIST_OPERATOR_OR_2
 GNU89_EXTERN_INLINE
 #endif
 smoc_firing_state_list operator |
@@ -514,20 +514,20 @@ public:
   }
 };
 
-#ifndef _COMPILEHEADER_HSCD_TRANSITION_LIST__OPERATOR_OR_1
+#ifndef _COMPILEHEADER_SMOC_TRANSITION_LIST__OPERATOR_OR_1
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition_list operator | (const smoc_transition_list &tl,
 				 const smoc_transition &t )
   { return smoc_transition_list(tl) |= t; }
-#ifndef _COMPILEHEADER_HSCD_TRANSITION_LIST__OPERATOR_OR_2
+#ifndef _COMPILEHEADER_SMOC_TRANSITION_LIST__OPERATOR_OR_2
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition_list operator | (const smoc_transition &tx,
 				 const smoc_transition &t )
   { return smoc_transition_list(tx) |= t; }
 
-#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_1
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_1
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition_part operator >> (const smoc_activation_pattern &ap,
@@ -535,7 +535,7 @@ smoc_transition_part operator >> (const smoc_activation_pattern &ap,
 //  std::cerr << ">>" << std::endl;
   return smoc_transition_part(ap,ia);
 }
-#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_2
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_2
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition operator >> (const smoc_transition_part    &tp,
@@ -543,7 +543,7 @@ smoc_transition operator >> (const smoc_transition_part    &tp,
 //  std::cerr << ">>" << std::endl;
   return smoc_transition(tp,ap);
 }
-#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_3
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_3
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition operator >> (const smoc_interface_action   &ia,
@@ -551,7 +551,7 @@ smoc_transition operator >> (const smoc_interface_action   &ia,
 //  std::cerr << ">>" << std::endl;
   return smoc_transition(ia,ap);
 }
-#ifndef _COMPILEHEADER_HSCD_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_4
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_4
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition operator >> (smoc_activation_pattern p, const smoc_firing_state_ref &s) {
@@ -559,4 +559,4 @@ smoc_transition operator >> (smoc_activation_pattern p, const smoc_firing_state_
   return smoc_transition(p,smoc_interface_action(s));
 }
 
-#endif // _INCLUDED_HSCD_OP_PORT_LIST_HPP
+#endif // _INCLUDED_SMOC_OP_PORT_LIST_HPP

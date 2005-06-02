@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_HSCD_POPT_HPP
-#define _INCLUDED_HSCD_POPT_HPP
+#ifndef _INCLUDED_SMOC_POPT_HPP
+#define _INCLUDED_SMOC_POPT_HPP
 
 #include <smoc_root_port.hpp>
 #include <smoc_chan_if.hpp>
@@ -222,4 +222,4 @@ public:
     { return getAvailableSpace() >= n; }
 };
 
-#endif // _INCLUDED_HSCD_POPT_HPP
+#endif // _INCLUDED_SMOC_POPT_HPP

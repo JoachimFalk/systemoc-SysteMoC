@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_HSCD_GRAPH_TYPE_HPP
-#define _INCLUDED_HSCD_GRAPH_TYPE_HPP
+#ifndef _INCLUDED_SMOC_GRAPH_TYPE_HPP
+#define _INCLUDED_SMOC_GRAPH_TYPE_HPP
 
 #include <smoc_port.hpp>
 #include <smoc_fifo.hpp>
@@ -182,4 +182,4 @@ typedef smoc_graph_dataflow<smoc_choice_node, smoc_fifo_kind, smoc_fifo>
 typedef smoc_graph_dataflow<smoc_choice_node, smoc_rendezvous_kind, smoc_rendezvous>
           smoc_csp_constraintset;
 
-#endif // _INCLUDED_HSCD_GRAPH_TYPE_HPP
+#endif // _INCLUDED_SMOC_GRAPH_TYPE_HPP

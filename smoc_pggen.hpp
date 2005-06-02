@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_HSCD_PGGEN_HPP
-#define _INCLUDED_HSCD_PGGEN_HPP
+#ifndef _INCLUDED_SMOC_PGGEN_HPP
+#define _INCLUDED_SMOC_PGGEN_HPP
 
 #include <iostream>
 #include <exception>
@@ -360,4 +360,4 @@ void NProblemGraphEmbed::assemble( int indent ) {
 
 #endif
 
-#endif // _INCLUDED_HSCD_PGGEN_HPP
+#endif // _INCLUDED_SMOC_PGGEN_HPP

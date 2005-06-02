@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_HSCD_ROOT_NODE_HPP
-#define _INCLUDED_HSCD_ROOT_NODE_HPP
+#ifndef _INCLUDED_SMOC_ROOT_NODE_HPP
+#define _INCLUDED_SMOC_ROOT_NODE_HPP
 
 #include <smoc_firing_rules.hpp>
 #include <smoc_port.hpp>
@@ -93,4 +93,4 @@ public:
   smoc_firing_state       &currentState()       { return _currentState; }
 };
 
-#endif // _INCLUDED_HSCD_ROOT_NODE_HPP
+#endif // _INCLUDED_SMOC_ROOT_NODE_HPP

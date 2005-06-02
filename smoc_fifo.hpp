@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_HSCD_FIFO_HPP
-#define _INCLUDED_HSCD_FIFO_HPP
+#ifndef _INCLUDED_SMOC_FIFO_HPP
+#define _INCLUDED_SMOC_FIFO_HPP
 
 #include <smoc_chan_if.hpp>
 
@@ -211,4 +211,4 @@ public:
     : smoc_fifo_storage<T>::chan_init(name,n) {}
 };
 
-#endif // _INCLUDED_HSCD_FIFO_HPP
+#endif // _INCLUDED_SMOC_FIFO_HPP

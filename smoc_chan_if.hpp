@@ -3,8 +3,8 @@
 #include <smoc_root_port.hpp>
 #include <smoc_port.hpp>
 
-#ifndef _INCLUDED_HSCD_CHAN_IF
-#define _INCLUDED_HSCD_CHAN_IF
+#ifndef _INCLUDED_SMOC_CHAN_IF
+#define _INCLUDED_SMOC_CHAN_IF
 
 #include <systemc.h>
 
@@ -128,4 +128,4 @@ protected:
       portInIf(NULL), portOutIf(NULL) {}
 };
 
-#endif // _INCLUDED_HSCD_CHAN_IF
+#endif // _INCLUDED_SMOC_CHAN_IF

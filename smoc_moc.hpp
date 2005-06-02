@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_HSCD_MOC_HPP
-#define _INCLUDED_HSCD_MOC_HPP
+#ifndef _INCLUDED_SMOC_MOC_HPP
+#define _INCLUDED_SMOC_MOC_HPP
 
 #include <systemc.h>
 #include <smoc_graph_type.hpp>
@@ -312,4 +312,4 @@ public:
   }
 };
 
-#endif // _INCLUDED_HSCD_MOC_HPP
+#endif // _INCLUDED_SMOC_MOC_HPP

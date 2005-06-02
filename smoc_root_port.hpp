@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_HSCD_ROOT_PORT_HPP
-#define _INCLUDED_HSCD_ROOT_PORT_HPP
+#ifndef _INCLUDED_SMOC_ROOT_PORT_HPP
+#define _INCLUDED_SMOC_ROOT_PORT_HPP
 
 #include <iostream>
 #include <cassert>
@@ -146,4 +146,4 @@ public:
     { return *this >= n+1; }
 };
 
-#endif // _INCLUDED_HSCD_ROOT_PORT_HPP
+#endif // _INCLUDED_SMOC_ROOT_PORT_HPP

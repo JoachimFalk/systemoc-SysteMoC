@@ -1,7 +1,7 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_HSCD_RENDEZVOUS_HPP
-#define _INCLUDED_HSCD_RENDEZVOUS_HPP
+#ifndef _INCLUDED_SMOC_RENDEZVOUS_HPP
+#define _INCLUDED_SMOC_RENDEZVOUS_HPP
 
 #include <smoc_chan_if.hpp>
 #include <systemc.h>
@@ -83,4 +83,4 @@ public:
     : smoc_rendezvous_kind::chan_init(name) {}
 };
 
-#endif // _INCLUDED_HSCD_RENDEZVOUS_HPP
+#endif // _INCLUDED_SMOC_RENDEZVOUS_HPP
