@@ -5,7 +5,7 @@ AC_INIT(SysteMoC, 0.1, falk@cs.fau.de)
 AC_PREREQ(2.57)
 ACJF_INIT
 
-AC_CONFIG_SRCDIR([hscd_root_node.cpp])
+AC_CONFIG_SRCDIR([smoc_root_node.cpp])
 
 AC_CONFIG_AUX_DIR([../BuildSystem])
 ac_abs_aux_dir=`cd $ac_aux_dir; pwd`
