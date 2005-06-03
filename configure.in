@@ -50,6 +50,10 @@ AC_EXEEXT
 # Checks for library functions.
 
 ACJF_SYSTEMC
+ACJF_CHECK_LIB_BOOST
+
+SYSTEMC_INCLUDE="$SYSTEMC_INCLUDE $BOOST_INCLUDE"
+SYSTEMC_LDFLAGS="$SYSTEMC_LDFLAGS $BOOST_LDFLAGS"
 
 AC_CONFIG_FILES([Makefile systemc-df2/Makefile systemc-csp/Makefile systemc-sdf/Makefile systemc-fir/Makefile])
 
