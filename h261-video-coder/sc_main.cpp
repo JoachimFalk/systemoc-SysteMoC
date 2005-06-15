@@ -30,7 +30,6 @@
 #include "c_lf_diff_id106020.h"
 int sc_main(int ac,char *av[])
 {
-  //Director::init();
 //signals
 sc_fifo<bool> monitor_end0;
 sc_fifo<bool> monitor_start0;
@@ -161,6 +160,5 @@ REC_ID106009.port_c_lf_rec2rec_id106522(signal_c_lf_rec2rec_id106222);
 C_DCT_Q_ID106014.port_c_dct_q2q_id106530(signal_c_dct_q2q_id106215);
 Q_ID106008.port_c_dct_q2q_id106518(signal_c_dct_q2q_id106215);
 sc_start(-1);
-//Director::stop();
 return 0;
 }

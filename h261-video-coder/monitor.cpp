@@ -1,4 +1,5 @@
 #include "systemc.h"
+#include "names.h"
 #include "monitor.h"
 
 void monitor::monitor_process()
