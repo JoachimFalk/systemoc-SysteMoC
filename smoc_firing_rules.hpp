@@ -10,133 +10,16 @@
 
 #include <iostream>
 
-#include <smoc_root_port.hpp>
 #include <oneof.hpp>
 #include <commondefs.h>
+
+#include <smoc_guard.hpp>
+#include <smoc_root_port.hpp>
 
 class smoc_activation_pattern;
 class smoc_transition;
 class smoc_port2op_if;
 class smoc_root_node;
-
-class smoc_activation_pattern
-  :public std::map<const smoc_root_port *, smoc_op_port> {
-public:
-  typedef smoc_activation_pattern this_type;
-  
-  friend class smoc_firing_state;
-protected:
-  template <typename T>
-  struct filterNot_ty: public T {
-    bool operator ()( const smoc_op_port &port ) const
-      { return !T::operator ()(port); }
-  };
-  
-  template <typename T>
-  this_type grep() const {
-    smoc_activation_pattern retval;
-    const T filter = T();
-    
-    for ( const_iterator iter = begin();
-	  iter != end();
-	  ++iter )
-      if ( filter(iter->second) )
-	retval.insert( *iter );
-    return retval;
-  }
-  template <typename T>
-  bool isAnd() const {
-    const T filter = T();
-    
-    for ( const_iterator iter = begin();
-	  iter != end();
-	  ++iter )
-      if ( !filter(iter->second) )
-        return false;
-    return true;
-  }
-  template <typename T>
-  bool isOr() const { return !isAnd<filterNot_ty<T> >(); }
-  
-  struct filterInput_ty {
-    bool operator ()( const smoc_op_port &port ) const
-      { return port.isInput(); }
-  };
-  typedef filterNot_ty<filterInput_ty> filterOutput_ty;
-  
-  struct filterUplevel_ty {
-    bool operator ()( const smoc_op_port &port ) const
-      { return port.isUplevel(); }
-  };
-  typedef filterNot_ty<filterUplevel_ty> filterNotUplevel_ty;
-  
-  struct filterKnownSatisfiable_ty {
-    bool operator ()( const smoc_op_port &port ) const
-      { return port.knownSatisfiable(); }
-  };
-  typedef filterNot_ty<filterKnownSatisfiable_ty> filterNotKnownSatisfiable_ty;
-  
-  struct filterKnownUnsatisfiable_ty {
-    bool operator ()( const smoc_op_port &port ) const
-      { return port.knownUnsatisfiable(); }
-  };
-  typedef filterNot_ty<filterKnownUnsatisfiable_ty> filterNotKnownUnsatisfiable_ty;
-  
-  struct filterSatisfied_ty {
-    bool operator ()( const smoc_op_port &port ) const
-      { return port.satisfied(); }
-  };
-public:
-  this_type onlyInputs() const { return grep<filterInput_ty>(); }
-  this_type onlyOutputs() const { return grep<filterOutput_ty>(); }
-  this_type onlyUplevel() const { return grep<filterUplevel_ty>(); }
-  this_type onlyNotUplevel() const { return grep<filterNotUplevel_ty>(); }
-  bool      knownSatisfiable() const { return isAnd<filterKnownSatisfiable_ty>(); }
-  bool      knownUnsatisfiable() const { return isOr<filterKnownUnsatisfiable_ty>(); }
-  bool      satisfied() const { return isAnd<filterSatisfied_ty>(); }
-  
-  smoc_activation_pattern() {}
-  
-  smoc_activation_pattern( smoc_op_port p ) {
-    (*this) &= p;
-  }
-  
-  this_type &operator &= ( smoc_op_port p ) {
-    std::pair<iterator, bool> x = insert( value_type(p.getPort(), p) );
-    if ( !x.second ) {
-      assert( p.getPort() == x.first->second.getPort() );
-      x.first->second.addCommitCount(p.commitCount());
-    }
-    return *this;
-  }
-
-  void execute() {
-    for ( iterator iter = begin();
-	  iter != end();
-	  ++iter )
-      iter->second.transfer();
-  }
-
-  void reset() {
-    for ( iterator iter = begin();
-	  iter != end();
-	  ++iter )
-      iter->second.reset();
-  }
-
-  void dump(std::ostream &out) const;
-};
-
-static inline
-std::ostream &operator <<( std::ostream &out, const smoc_activation_pattern &ap)
-  { ap.dump(out); return out; }
-
-#ifndef _COMPILEHEADER_SMOC_ACTIVATION_PATTERN__OPERATOR_AND
-GNU89_EXTERN_INLINE
-#endif
-smoc_activation_pattern operator & (smoc_activation_pattern ap, smoc_op_port p ) {
-  return ap &= p;
-}
 
 class smoc_firing_state;
 class smoc_firing_rules;
@@ -426,8 +309,7 @@ public:
   friend class smoc_opbase_node;
   friend class smoc_scheduler_base;
   friend class smoc_firing_types::transition_ty;
-  friend class smoc_transition operator >>
-    (smoc_activation_pattern p, const smoc_firing_state_ref &s);
+  friend class smoc_transition;
 //  friend class smoc_firing_state;
   
   typedef smoc_interface_action this_type;
@@ -450,19 +332,33 @@ protected:
     : sl(), f(f) {}
 };
 
-class smoc_transition_part {
+class smoc_transition_part1 {
+public:
+  friend class smoc_transition_part2;
+  
+  typedef smoc_transition_part1 this_type;
+private:
+  smoc_activation_pattern    ap1, ap2;
+public:
+  smoc_transition_part1(
+      const smoc_activation_pattern &ap1,
+      const smoc_activation_pattern &ap2 = smoc_activation_pattern())
+    : ap1(ap1), ap2(ap2) {}
+};
+
+class smoc_transition_part2 {
 public:
   friend class smoc_transition;
   
-  typedef smoc_transition_part this_type;
+  typedef smoc_transition_part2 this_type;
 private:
-  smoc_activation_pattern ap_pre;
-  smoc_interface_action   ia;
+  smoc_activation_pattern    ap1, ap2;
+  smoc_func_call             f;
 public:
-  smoc_transition_part(
-      const smoc_activation_pattern &ap,
-      const smoc_interface_action   &ia )
-    : ap_pre(ap), ia(ia) {}
+  smoc_transition_part2(
+      const smoc_transition_part1 &tp1,
+      const smoc_func_call        &f)
+    : ap1(tp1.ap1), ap2(tp1.ap2), f(f) {}
 };
 
 class smoc_transition {
@@ -471,30 +367,29 @@ public:
   
   typedef smoc_transition this_type;
 private:
-  smoc_activation_pattern ap_pre;
+  smoc_activation_pattern ap;
   smoc_interface_action   ia;
-  smoc_activation_pattern ap_post;
 public:
   smoc_transition(
-      const smoc_transition_part    &tp,
-      const smoc_activation_pattern &ap_post = smoc_activation_pattern())
-    : ap_pre(tp.ap_pre), ia(tp.ia), ap_post(ap_post) {}
+      const smoc_activation_pattern &ap,
+      const smoc_interface_action   &ia)
+    : ap(ap), ia(ia) {}
   smoc_transition(
-      const smoc_interface_action   &ia,
-      const smoc_activation_pattern &ap_post)
-    : ia(ia), ap_post(ap_post) {}
+      const smoc_activation_pattern &ap,
+      const smoc_firing_state_ref   &s)
+    : ap(ap), ia(smoc_interface_action(s)) {}
   smoc_transition(
-      const smoc_activation_pattern &ap_pre,
-      const smoc_interface_action   &ia,
-      const smoc_activation_pattern &ap_post = smoc_activation_pattern())
-    : ap_pre(ap_pre), ia(ia), ap_post(ap_post) {}
+      const smoc_transition_part2   &tp2,
+      const smoc_firing_state_ref   &s)
+    : ap(tp2.ap1.concat(tp2.ap2)),
+      ia(smoc_interface_action(s,tp2.f)) {}
   
-  const smoc_activation_pattern &getActivationPattern() { return ap_pre; }
-  const smoc_interface_action   &getInterfaceAction() { return ia; }
+  const smoc_activation_pattern &getActivationPattern() const { return ap; }
+  const smoc_interface_action   &getInterfaceAction() const { return ia; }
   this_type onlyInputs() const
-    { return this_type(ap_pre.onlyInputs(), ia, ap_post.onlyInputs()); }
+    { return this_type(ap.onlyInputs(), ia); }
   this_type onlyOutputs() const
-    { return this_type(ap_pre.onlyOutputs(), ia, ap_post.onlyOutputs()); }
+    { return this_type(ap.onlyOutputs(), ia); }
 };
 
 class smoc_transition_list
@@ -530,33 +425,53 @@ smoc_transition_list operator | (const smoc_transition &tx,
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_1
 GNU89_EXTERN_INLINE
 #endif
-smoc_transition_part operator >> (const smoc_activation_pattern &ap,
-				  const smoc_interface_action &ia) {
+smoc_transition_part1 operator >> (const smoc_activation_pattern &ap1,
+			           const smoc_activation_pattern &ap2) {
 //  std::cerr << ">>" << std::endl;
-  return smoc_transition_part(ap,ia);
+  return smoc_transition_part1(ap1,ap2);
 }
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_2
 GNU89_EXTERN_INLINE
 #endif
-smoc_transition operator >> (const smoc_transition_part    &tp,
-			     const smoc_activation_pattern &ap) {
+smoc_transition_part2 operator >> (const smoc_transition_part1   &tp1,
+                                   const smoc_func_call          &f) {
 //  std::cerr << ">>" << std::endl;
-  return smoc_transition(tp,ap);
+  return smoc_transition_part2(tp1,f);
 }
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_3
 GNU89_EXTERN_INLINE
 #endif
-smoc_transition operator >> (const smoc_interface_action   &ia,
-			     const smoc_activation_pattern &ap) {
+smoc_transition_part2 operator >> (const smoc_activation_pattern &ap,
+                                   const smoc_func_call          &f) {
 //  std::cerr << ">>" << std::endl;
-  return smoc_transition(ia,ap);
+  return smoc_transition_part2(smoc_transition_part1(ap),f);
 }
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_4
 GNU89_EXTERN_INLINE
 #endif
-smoc_transition operator >> (smoc_activation_pattern p, const smoc_firing_state_ref &s) {
+smoc_transition operator >> (const smoc_transition_part2 &tp2,
+			     const smoc_firing_state_ref &s) {
 //  std::cerr << ">>" << std::endl;
-  return smoc_transition(p,smoc_interface_action(s));
+  return smoc_transition(tp2,s);
+}
+
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_5
+GNU89_EXTERN_INLINE
+#endif
+smoc_transition operator >> (const smoc_activation_pattern ap,
+                             const smoc_firing_state_ref &s) {
+//  std::cerr << ">>" << std::endl;
+  return smoc_transition(ap,s);
+}
+
+/// Legacy stuff
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_6
+GNU89_EXTERN_INLINE
+#endif
+smoc_transition operator >> (const smoc_activation_pattern &ap,
+			     const smoc_interface_action &ia) {
+//  std::cerr << ">>" << std::endl;
+  return smoc_transition(ap,ia);
 }
 
 #endif // _INCLUDED_SMOC_OP_PORT_LIST_HPP

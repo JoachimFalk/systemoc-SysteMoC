@@ -4,9 +4,87 @@
 #define _INCLUDED_SMOC_POPT_HPP
 
 #include <smoc_root_port.hpp>
+#include <smoc_guard.hpp>
 #include <smoc_chan_if.hpp>
 #include <systemc.h>
 #include <vector>
+
+template <typename T> class smoc_port_in;
+template <typename T> class smoc_port_out;
+
+/****************************************************************************
+ * DExprToken is a placeholder for a token in the expression.
+ */
+
+template<typename T>
+class DExprToken {
+public:
+  typedef T value_type;
+private:
+  smoc_port_in<T> &p;
+  size_t           pos;
+public:
+  explicit DExprToken(smoc_port_in<T> &p, size_t pos)
+    : p(p), pos(pos) {}
+  
+  PDNodeBase getNodeType() const
+    { return PDNodeBase(new DNodeTerminal()); }
+  
+  value_type value() const
+    { return T(); }
+};
+
+template<class T>
+struct DExpr<DExprToken<T> >: public DExprBase<DExprToken<T> > {
+  DExpr(smoc_port_in<T> &p, size_t pos)
+    : DExprBase<DExprToken<T> >(DExprToken<T>(p,pos)) {}
+};
+
+// Make a convenient typedef for the token type.
+template<typename T>
+struct DToken {
+  typedef DExpr<DExprToken<T> > type;
+};
+
+template <typename T>
+typename DToken<T>::type token(smoc_port_in<T> &p, size_t pos)
+  { return typename DToken<T>::type(p,pos); }
+
+/****************************************************************************
+ * DExprCommReq is a placeholder for a Communication Request, either available
+ * tokens in an input port or free space in an output port.
+ */
+
+class DExprCommReq {
+public:
+  typedef size_t value_type;
+private:
+  smoc_root_port  &p;
+public:
+  explicit DExprCommReq(smoc_root_port &p): p(p) {}
+  
+  PDNodeBase getNodeType() const
+    { return PDNodeBase(new DNodeTerminal()); }
+  
+  value_type value() const
+    { return p.availableCount(); }
+};
+
+struct DExpr<DExprCommReq>: public DExprBase<DExprCommReq> {
+  DExpr(smoc_root_port &p)
+    : DExprBase<DExprCommReq>(DExprCommReq(p)) {}
+};
+
+// Make a convenient typedef for the commreq type.
+struct DCommReq {
+  typedef DExpr<DExprCommReq> type;
+};
+
+static inline
+DCommReq::type commreq(smoc_root_port &p)
+  { return DCommReq::type(p); }
+
+/****************************************************************************/
 
 template <typename T>
 class smoc_port_base
@@ -119,7 +197,7 @@ private:
   void add_interface( sc_interface *i ) {
     push_interface(i); (*this)->addPortIf( this );
   }
-
+  
   void transfer() { (*this)->transfer(this); }
 public:
   void transferIn( const T *in ) { storagePushBack(in); incrDoneCount(); }
@@ -129,19 +207,23 @@ public:
     {}
   
   bool isInput() const { return true; }
-
+  
   size_t availableCount()    const { return doneCount() + (*this)->committedOutCount(); }
 //  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableOutCount(); }
   
-  class smoc_port_tokens getAvailableTokens()
-    { return smoc_port_tokens(this); }
+  typename DToken<T>::type getValueAt(size_t n)
+    { return token(*this,n); }
+  
+  typename DCommReq::type getAvailableTokens()
+    { return commreq(*this); }
+  DExpr<DExprBinOp<DExprCommReq,DExprLiteral<size_t>,DOpGe<size_t,size_t> > >
+  operator ()( size_t n )
+    { return getAvailableTokens() >= n; }
   
   void operator () ( iface_type& interface_ )
     { bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
-  class smoc_op_port operator ()( size_t n )
-    { return getAvailableTokens() >= n; }
 };
 
 template <typename T>
@@ -211,15 +293,16 @@ public:
   size_t availableCount()    const { return doneCount() + (*this)->committedInCount(); }
 //  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableInCount(); }
   
-  class smoc_port_tokens getAvailableSpace()
-    { return smoc_port_tokens(this); }
+  DCommReq::type getAvailableSpace()
+    { return commreq(*this); }
+  DExpr<DExprBinOp<DExprCommReq,DExprLiteral<size_t>,DOpGe<size_t,size_t> > >
+  operator ()( size_t n )
+    { return getAvailableSpace() >= n; }
   
   void operator () ( iface_type& interface_ )
     { bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
-  class smoc_op_port operator ()( size_t n )
-    { return getAvailableSpace() >= n; }
 };
 
 #endif // _INCLUDED_SMOC_POPT_HPP

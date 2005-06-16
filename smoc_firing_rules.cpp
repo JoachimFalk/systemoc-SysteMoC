@@ -122,8 +122,8 @@ void
 smoc_firing_types::transition_ty::initTransition(
     smoc_firing_rules *fr,
     const smoc_transition &t ) {
-  ap_pre_check  = ap_pre_exec  = t.ap_pre;
-  ap_post_check = ap_post_exec = t.ap_post;
+  ap_pre_check  = ap_pre_exec  = t.getActivationPattern().onlyInputs();
+  ap_post_check = ap_post_exec = t.getActivationPattern().onlyOutputs();
   f = t.ia.f;
   for ( smoc_firing_state_list::const_iterator siter = t.ia.sl.begin();
         siter != t.ia.sl.end();
@@ -290,16 +290,6 @@ bool smoc_firing_state::choiceStep() {
     }
   }
   return false;
-}
-
-void smoc_activation_pattern::dump(std::ostream &out) const {
-  for ( const_iterator iter = begin();
-        iter != end();
-        ++iter ) {
-    const smoc_op_port   &op = iter->second;
-    const smoc_root_port *p  = op.getPort();
-    out << " " << *p;
-  }
 }
 
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {

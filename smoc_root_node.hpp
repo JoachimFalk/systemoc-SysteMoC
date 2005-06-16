@@ -24,14 +24,19 @@ protected:
   smoc_interface_action call(
       void (T::*f)(),
       const smoc_firing_state_ref &s ) {
-//    std::cerr << "call" << std::endl;
+//    std::cerr << "call(f,s)" << std::endl;
     return smoc_interface_action(s,smoc_func_call(this,f));
+  }
+  template <typename T>
+  smoc_func_call call ( void (T::*f)() ) {
+//    std::cerr << "call(f)" << std::endl;
+    return smoc_func_call(this,f);
   }
   template <typename T>
   smoc_interface_action branch(
       const smoc_firing_state &(T::*f)(),
       const smoc_firing_state_list &sl ) {
-//    std::cerr << "branch" << std::endl;
+//    std::cerr << "branch(f,sl)" << std::endl;
     return smoc_interface_action(sl,smoc_func_branch(this,f));
   }
   

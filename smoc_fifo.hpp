@@ -104,7 +104,8 @@ protected:
   smoc_fifo_storage( const chan_init &i )
     : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i), storage(new data_type[fsize]) {
     assert( fsize > i.marking.size() );
-    memcpy( storage, &i.marking[0], i.marking.size()*sizeof(T) );
+    for (size_t j = 0; j <  i.marking.size(); ++j )
+      new(&storage[j]) T(i.marking[j]);
     windex = i.marking.size();
   }
   

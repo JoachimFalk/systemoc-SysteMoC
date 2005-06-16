@@ -10,10 +10,12 @@
 
 #include <systemc.h>
 
+#include <smoc_guard.hpp>
+
 class smoc_root_port
   : protected sc_port_base {
 public:
-  friend class smoc_op_port;
+  friend class smoc_guard_comm_request;
   
   typedef smoc_root_port  this_type;
 private:
@@ -85,9 +87,11 @@ std::ostream &operator <<( std::ostream &out, const smoc_root_port &p ) {
 
 typedef std::list<smoc_root_port *> smoc_port_list;
 
-class smoc_op_port {
+/*
+
+class smoc_guard_comm_request: public smoc_guard {
 public:
-  typedef smoc_op_port  this_type;
+  typedef smoc_guard_comm_request  this_type;
   
   friend class smoc_activation_pattern;
   friend class smoc_firing_state;
@@ -97,32 +101,34 @@ private:
   size_t          commit;
 protected:
   bool stillPossible() const {
-    return (commit >= port->committedCount()) /*&&
-           (commit <= port->maxCommittableCount())*/;
+    return (commit >= port->committedCount()) 
+     // && (commit <= port->maxCommittableCount());
   }
   
-  smoc_op_port( smoc_root_port *port, size_t commit )
+  smoc_guard_comm_request( smoc_root_port *port, size_t commit )
     : port(port), commit(commit) {}
-  
-  void                  addCommitCount( size_t n ) { commit += n; }
+  //void                  addCommitCount( size_t n ) { commit += n; }
 public:
-  size_t                commitCount() const { return commit; }
+  //size_t                commitCount() const { return commit; }
   
-  smoc_root_port       *getPort()           { return port; }
-  const smoc_root_port *getPort()     const { return port; }
+  //smoc_root_port       *getPort()           { return port; }
+  //const smoc_root_port *getPort()     const { return port; }
   
-  bool knownUnsatisfiable() const
-    { return /*commit  > port->maxAvailableCount() ||*/ !stillPossible(); }
-  bool knownSatisfiable()  const
-    { return commit <= port->availableCount() && stillPossible(); }
-  bool satisfied()   const
-    { return commit == port->doneCount() && stillPossible(); }
+  tribool isSatisfiable() const {
+    return !stillPossible()
+      ? tribool(false) : (commit <= port->availableCount()
+      ? tribool(true)
+      : indeterminate );
+  }
+  
+  //bool satisfied()   const
+  //  { return commit == port->doneCount() && stillPossible(); }
   bool isInput()     const { return port->isInput();  }
-  bool isOutput()    const { return port->isOutput(); }
+  //bool isOutput()    const { return port->isOutput(); }
   bool isUplevel()   const { return port->isUplevel(); }
   
-  void reset()    { port->reset(); }
-  void transfer() { port->setCommittedCount(commit); port->transfer(); }
+  void reset()    const { port->reset(); }
+  void transfer() const { port->setCommittedCount(commit); port->transfer(); }
 };
 
 template <typename T> class smoc_port_in;
@@ -135,15 +141,17 @@ public:
   template <typename T> friend class smoc_port_in;
   template <typename T> friend class smoc_port_out;
 private:
-  smoc_root_port *port;
+  smoc_root_port *const port;
 protected:
   smoc_port_tokens(smoc_root_port *port)
     : port(port) {}
 public:
-  class smoc_op_port operator >=(size_t n)
-    { return smoc_op_port(port,n); }
-  class smoc_op_port operator > (size_t n)
+  smoc_guard_ptr operator >=(size_t n)
+    { return smoc_guard_ptr(new smoc_guard_comm_request(port,n)); }
+  smoc_guard_ptr operator > (size_t n)
     { return *this >= n+1; }
 };
+
+*/
 
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP

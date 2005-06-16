@@ -41,7 +41,9 @@ INCLUDES =				\
 	-I$(srcdir)
 #	-I$(root_srcdir)/systemc-2.0.1/src
 
-AM_LDFLAGS = @SYSTEMC_LDFLAGS@ -lsystemc
+AM_LDFLAGS =				\
+	@SYSTEMC_LDFLAGS@		\
+	-lsystemc
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -58,6 +60,7 @@ pkginclude_HEADERS =			\
 	smoc_port.hpp			\
 	smoc_root_node.hpp		\
 	smoc_firing_rules.hpp		\
+	smoc_guard.hpp			\
 	smoc_node_types.hpp		\
 	smoc_rendezvous.hpp		\
 	smoc_root_port.hpp		\
@@ -85,6 +88,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_root_node.cpp		\
 	smoc_root_port.cpp		\
 	smoc_firing_rules.cpp		\
+	smoc_guard.cpp			\
 	smoc_pggen.cpp			\
 	smoc_chan_if.cpp
 
