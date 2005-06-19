@@ -67,6 +67,7 @@ pkginclude_HEADERS =			\
 	smoc_graph_type.hpp		\
 	smoc_pggen.hpp			\
 	smoc_chan_if.hpp		\
+	expr.hpp			\
 	oneof.hpp			\
 	commondefs.h
 

@@ -10,7 +10,7 @@
 
 #include <systemc.h>
 
-#include <smoc_guard.hpp>
+#include <expr.hpp>
 
 class smoc_root_port
   : protected sc_port_base {
@@ -87,71 +87,44 @@ std::ostream &operator <<( std::ostream &out, const smoc_root_port &p ) {
 
 typedef std::list<smoc_root_port *> smoc_port_list;
 
-/*
+/****************************************************************************
+ * DExprCommReq is a placeholder for a Communication Request, either available
+ * tokens in an input port or free space in an output port.
+ */
 
-class smoc_guard_comm_request: public smoc_guard {
+class DNodeCommReq: public DNodeTerminal {
 public:
-  typedef smoc_guard_comm_request  this_type;
-  
-  friend class smoc_activation_pattern;
-  friend class smoc_firing_state;
-  friend class smoc_port_tokens;
-private:
-  smoc_root_port *port;
-  size_t          commit;
-protected:
-  bool stillPossible() const {
-    return (commit >= port->committedCount()) 
-     // && (commit <= port->maxCommittableCount());
-  }
-  
-  smoc_guard_comm_request( smoc_root_port *port, size_t commit )
-    : port(port), commit(commit) {}
-  //void                  addCommitCount( size_t n ) { commit += n; }
-public:
-  //size_t                commitCount() const { return commit; }
-  
-  //smoc_root_port       *getPort()           { return port; }
-  //const smoc_root_port *getPort()     const { return port; }
-  
-  tribool isSatisfiable() const {
-    return !stillPossible()
-      ? tribool(false) : (commit <= port->availableCount()
-      ? tribool(true)
-      : indeterminate );
-  }
-  
-  //bool satisfied()   const
-  //  { return commit == port->doneCount() && stillPossible(); }
-  bool isInput()     const { return port->isInput();  }
-  //bool isOutput()    const { return port->isOutput(); }
-  bool isUplevel()   const { return port->isUplevel(); }
-  
-  void reset()    const { port->reset(); }
-  void transfer() const { port->setCommittedCount(commit); port->transfer(); }
+  DNodeCommReq(const exInfo &i)
+    : DNodeTerminal(i) {}
 };
 
-template <typename T> class smoc_port_in;
-template <typename T> class smoc_port_out;
-
-class smoc_port_tokens {
+class DExprCommReq {
 public:
-  typedef smoc_port_tokens  this_type;
-  
-  template <typename T> friend class smoc_port_in;
-  template <typename T> friend class smoc_port_out;
+  typedef size_t value_type;
 private:
-  smoc_root_port *const port;
-protected:
-  smoc_port_tokens(smoc_root_port *port)
-    : port(port) {}
+  smoc_root_port  &p;
 public:
-  smoc_guard_ptr operator >=(size_t n)
-    { return smoc_guard_ptr(new smoc_guard_comm_request(port,n)); }
-  smoc_guard_ptr operator > (size_t n)
-    { return *this >= n+1; }
+  explicit DExprCommReq(smoc_root_port &p): p(p) {}
+  
+  PDNodeBase getNodeType() const
+    { return PDNodeBase(new DNodeCommReq(this)); }
+  
+  value_type value() const
+    { return p.availableCount(); }
 };
 
-*/
+struct DExpr<DExprCommReq>: public DExprBase<DExprCommReq> {
+  DExpr(smoc_root_port &p)
+    : DExprBase<DExprCommReq>(DExprCommReq(p)) {}
+};
+
+// Make a convenient typedef for the commreq type.
+struct DCommReq {
+  typedef DExpr<DExprCommReq> type;
+};
+
+static inline
+DCommReq::type commreq(smoc_root_port &p)
+  { return DCommReq::type(p); }
 
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP

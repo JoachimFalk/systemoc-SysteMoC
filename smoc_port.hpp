@@ -3,9 +3,11 @@
 #ifndef _INCLUDED_SMOC_POPT_HPP
 #define _INCLUDED_SMOC_POPT_HPP
 
+#include <expr.hpp>
+
 #include <smoc_root_port.hpp>
-#include <smoc_guard.hpp>
 #include <smoc_chan_if.hpp>
+
 #include <systemc.h>
 #include <vector>
 
@@ -15,6 +17,12 @@ template <typename T> class smoc_port_out;
 /****************************************************************************
  * DExprToken is a placeholder for a token in the expression.
  */
+
+class DNodeToken: public DNodeTerminal {
+public:
+  DNodeToken(const exInfo &i)
+    : DNodeTerminal(i) {}
+};
 
 template<typename T>
 class DExprToken {
@@ -28,7 +36,7 @@ public:
     : p(p), pos(pos) {}
   
   PDNodeBase getNodeType() const
-    { return PDNodeBase(new DNodeTerminal()); }
+    { return PDNodeBase(new DNodeToken(this)); }
   
   value_type value() const
     { return T(); }
@@ -49,40 +57,6 @@ struct DToken {
 template <typename T>
 typename DToken<T>::type token(smoc_port_in<T> &p, size_t pos)
   { return typename DToken<T>::type(p,pos); }
-
-/****************************************************************************
- * DExprCommReq is a placeholder for a Communication Request, either available
- * tokens in an input port or free space in an output port.
- */
-
-class DExprCommReq {
-public:
-  typedef size_t value_type;
-private:
-  smoc_root_port  &p;
-public:
-  explicit DExprCommReq(smoc_root_port &p): p(p) {}
-  
-  PDNodeBase getNodeType() const
-    { return PDNodeBase(new DNodeTerminal()); }
-  
-  value_type value() const
-    { return p.availableCount(); }
-};
-
-struct DExpr<DExprCommReq>: public DExprBase<DExprCommReq> {
-  DExpr(smoc_root_port &p)
-    : DExprBase<DExprCommReq>(DExprCommReq(p)) {}
-};
-
-// Make a convenient typedef for the commreq type.
-struct DCommReq {
-  typedef DExpr<DExprCommReq> type;
-};
-
-static inline
-DCommReq::type commreq(smoc_root_port &p)
-  { return DCommReq::type(p); }
 
 /****************************************************************************/
 
