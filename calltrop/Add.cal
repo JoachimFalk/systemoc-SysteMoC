@@ -1,0 +1,17 @@
+/**
+ * Add
+ *
+ * @author JWJ
+ */
+
+actor Add [T < Number]
+    ()
+    T A, T B ==> T Result :
+
+
+    action A: [a], B: [b] ==> Result: [a + b] end
+end
+
+
+
+

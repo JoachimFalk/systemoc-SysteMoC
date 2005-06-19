@@ -1,0 +1,14 @@
+/**
+ * Merge
+ *
+ * @author JWJ
+ */
+
+actor Merge [T] ()
+    T A, T B ==> T Out:
+
+    action A: [x] ==> Out: [x] 
+    action B: [x] ==> Out: [x] 
+end
+
+

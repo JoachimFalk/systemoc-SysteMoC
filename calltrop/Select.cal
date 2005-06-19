@@ -1,0 +1,25 @@
+/**
+ * An actor that outputs one of a number of incoming tokens depending on the last
+ * selection token it has seen.
+ *
+ * @author JWJ
+ */
+
+
+
+actor Select [T] (Integer initialChannel = 0) 
+    Integer Control, T Data0, T Data1 ==> T Output :
+
+    Integer lastChannel := initialChannel;
+
+    action Control: [i], Data0: [a] ==> [a] guard i == 0
+    do
+        lastChannel := i;
+    end
+    action Control: [i], Data1: [a] ==> [a] guard i == 1
+    do
+        lastChannel := i;
+    end
+    action Data0: [a] ==> [a] guard lastChannel == 0 end
+    action Data1: [a] ==> [a] guard lastChannel == 1 end
+end

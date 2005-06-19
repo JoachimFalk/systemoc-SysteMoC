@@ -1,0 +1,35 @@
+/**
+ * This actor simulates a simple bank account, which reacts to notifications
+ * that interest is due as well as withdrawals and deposits.
+ *
+ * @author LW
+ */
+
+
+
+actor BankAccount
+    (Double interestRate = 0.1, Double initialBalance = 100)
+    
+    Double InterestDue, Double Transaction ==> Double Balance :
+
+    Double state := initialBalance;
+
+    action [i],[t] ==> [out]
+    var Double out = state
+    do
+        state := state * (1 + interestRate) + t;
+    end
+
+    action [],[t] ==> [out]
+    var Double out = state
+    do
+        state := state + t;
+    end
+
+    action [i],[] ==> [out]
+    var Double out = state
+    do
+        state := state * (1 + interestRate);
+    end      
+endactor
+

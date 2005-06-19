@@ -1,0 +1,18 @@
+/**
+ * Sum
+ *
+ * @author JWJ
+ */
+
+actor Sum [T < Number] ()
+    T A ==> T Result :
+
+    T sum := 0;
+
+    action A: [a] ==> Result: [sum] 
+    do
+        sum := sum + a;
+    end
+end
+
+
