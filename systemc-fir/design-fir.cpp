@@ -28,7 +28,7 @@ public:
   m_h_src(sc_module_name name)
     : smoc_actor(name, start),
       i(1) {
-    start = call(&m_h_src::src, start) >> (out.getAvailableSpace() >= 1);
+    start = (out.getAvailableSpace() >= 1) >> call(&m_h_src::src) >> start;
   }
 };
 
@@ -50,8 +50,8 @@ private:
   // action function for the firing rules state machine
   void dofir() {
     // action [a] ==> [b] 
-    T &a(input[0]);
-    T &b(output[0]);
+    T const &a(input[0]);
+    T       &b(output[0]);
     
     // T b := collect(zero(), plus, combine(multiply, taps, data))
     b = 0;
@@ -71,9 +71,9 @@ public:
   {
 //  action [x] ==> [y]
 
-//  state               guards                                  action      successor state
-    start = (input.getAvailableTokens() >= 1) >> call(&m_h_fir::dofir,     write        );
-    write = (output.getAvailableSpace() >= 1) >>                           start;
+    start = (input.getAvailableTokens() >= 1) >>
+            (output.getAvailableSpace() >= 1) >>
+            call(&m_h_fir::dofir)             >> start;
   }
 };
 
@@ -90,7 +90,7 @@ private:
 public:
   m_h_sink(sc_module_name name)
     : smoc_actor(name, start) {
-    start = (in.getAvailableTokens() >= 1) >> call(&m_h_sink::sink, start);
+    start = (in.getAvailableTokens() >= 1) >> call(&m_h_sink::sink) >> start;
   }
 };
 
