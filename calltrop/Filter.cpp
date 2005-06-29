@@ -15,11 +15,11 @@ public:
   Filter(sc_module_name name, bool (*filter)(const T &))
     : smoc_actor(name, start),
       filter(filter) {
-    start = (Input.getAvailableTokens() >= 1 &
+    start = (Input.getAvailableTokens() >= 1 &&
              guard(&Filter::guard)             ) >>
             (Output.getAvailableSpace() >= 1   ) >>
             call(&Filter::action0)               >> start
-          | (Input.getAvailableTokens() >= 1 &
+          | (Input.getAvailableTokens() >= 1 &&
              ! guard(&Filter::guard)           ) >>
             call(&Filter::action1)               >> start;
 };

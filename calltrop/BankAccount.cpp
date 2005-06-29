@@ -26,7 +26,7 @@ public:
     : smoc_actor(name, start),
       interestRate(interestRate),
       state(initialBalance) {
-    start = (InterestDue.getAvailableTokens() >= 1 &
+    start = (InterestDue.getAvailableTokens() >= 1 &&
              Transaction.getAvailableTokens() >= 1   ) >>
             (Balance.getAvailableSpace()      >= 1   ) >>
             call(&BankAccount::action0)                >> start

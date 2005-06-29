@@ -9,7 +9,7 @@ private:
 public:
   Add(sc_module_name name)
     : smoc_actor(name, start) {
-    start = (A.getAvailableTokens()  >= 1 &
+    start = (A.getAvailableTokens()  >= 1 &&
              B.getAvailableTokens()  >= 1   ) >>
             (out.getAvailableSpace() >= 1   ) >>
               call(&Add::action0)             >> start;
