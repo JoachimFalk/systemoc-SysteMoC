@@ -20,7 +20,7 @@ private:
   T i;
   
   void src() {
-    std::cout << "src: " << i << std::endl;
+    std::cout << name() << ": " << i << std::endl;
     out[0] = i++;
   }
   smoc_firing_state start;
@@ -32,6 +32,25 @@ public:
   }
 };
 
+class m_h_srcbool: public smoc_actor {
+public:
+  smoc_port_out<int> out;
+private:
+  bool i;
+  
+  void src() {
+    std::cout << name() << ": " << i << std::endl;
+    out[0] = i ? 1 : 0; i = !i;
+  }
+  smoc_firing_state start;
+public:
+  m_h_srcbool(sc_module_name name)
+    : smoc_actor(name, start),
+      i(false) {
+    start = (out.getAvailableSpace() >= 1) >> call(&m_h_srcbool::src) >> start;
+  }
+};
+
 template <typename T>
 class Select: public smoc_actor {
 public:
@@ -39,8 +58,14 @@ public:
   smoc_port_in<T>    Data0, Data1;
   smoc_port_out<T>   Output;
 private:
-  void action0() { Output[0] = Data0[0] ; }
-  void action1() { Output[0] = Data1[0] ; }
+  void action0() { 
+    std::cout << "action0" << std::endl;
+    Output[0] = Data0[0];
+  }
+  void action1() {
+    std::cout << "action1" << std::endl;
+    Output[0] = Data1[0];
+  }
   smoc_firing_state start;
 public:
   Select(sc_module_name name, int initialChannel = 0)
@@ -57,7 +82,7 @@ public:
       | (Control.getAvailableTokens() >= 1 &&
          Data1.getAvailableTokens()   >= 1 &&
          Control.getValueAt(0) == 1        )  >>
-        (Output.getAvailableSpace()   >= 1 )  >> 
+        (Output.getAvailableSpace()   >= 1 )  >>
         call(&Select::action1)                >> atChannel1
       | (Data0.getAvailableTokens()   >= 1 )  >>
         (Output.getAvailableSpace()   >= 1 )  >>
@@ -72,7 +97,7 @@ public:
       | (Control.getAvailableTokens() >= 1 &&
          Data0.getAvailableTokens()   >= 1 &&
          Control.getValueAt(0) == 0        )  >>
-        (Output.getAvailableSpace()   >= 1 )  >> 
+        (Output.getAvailableSpace()   >= 1 )  >>
         call(&Select::action0)                >> atChannel0
       | (Data1.getAvailableTokens()   >= 1 )  >>
         (Output.getAvailableSpace()   >= 1 )  >>
@@ -91,7 +116,7 @@ public:
 private:
   int i;
   
-  void sink(void) { std::cout << "sink: " << in[0] << std::endl; }
+  void sink(void) { std::cout << name() << ": " << in[0] << std::endl; }
   
   smoc_firing_state start;
 public:
@@ -103,7 +128,7 @@ public:
 
 class m_h_top: public smoc_ndf_constraintset {
 protected:
-  m_h_src<int>        srcbool;
+  m_h_srcbool         srcbool;
   m_h_src<double>     src1, src2;
   Select<double>      select;
   m_h_sink<double>    sink;
