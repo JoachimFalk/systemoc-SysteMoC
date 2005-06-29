@@ -55,6 +55,8 @@ PROGLDFLAGS=
 
 lib_LTLIBRARIES = libsystemoc.la
 pkginclude_HEADERS =			\
+	expr.hpp			\
+	smoc_expr.hpp			\
 	smoc_fifo.hpp			\
 	smoc_moc.hpp			\
 	smoc_port.hpp			\
@@ -67,7 +69,6 @@ pkginclude_HEADERS =			\
 	smoc_graph_type.hpp		\
 	smoc_pggen.hpp			\
 	smoc_chan_if.hpp		\
-	expr.hpp			\
 	oneof.hpp			\
 	commondefs.h
 
@@ -83,6 +84,7 @@ libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include
 
 libsystemoc_la_SOURCES =		\
+	expr.cpp			\
 	smoc_fifo.cpp			\
 	smoc_graph_type.cpp		\
 	smoc_rendezvous.cpp		\

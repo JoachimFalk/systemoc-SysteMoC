@@ -3,7 +3,7 @@
 #ifndef _INCLUDED_SMOC_POPT_HPP
 #define _INCLUDED_SMOC_POPT_HPP
 
-#include <expr.hpp>
+#include <smoc_expr.hpp>
 
 #include <smoc_root_port.hpp>
 #include <smoc_chan_if.hpp>
@@ -18,45 +18,62 @@ template <typename T> class smoc_port_out;
  * DExprToken is a placeholder for a token in the expression.
  */
 
-class DNodeToken: public DNodeTerminal {
+namespace Expr {
+
+class ASTNodeToken: public ASTNodeTerminal {
 public:
-  DNodeToken(const exInfo &i)
-    : DNodeTerminal(i) {}
+  ASTNodeToken()
+    : ASTNodeTerminal() {}
 };
 
 template<typename T>
-class DExprToken {
+class DToken {
 public:
-  typedef T value_type;
+  typedef T       value_type;
+  typedef DToken  this_type;
 private:
   smoc_port_in<T> &p;
   size_t           pos;
 public:
-  explicit DExprToken(smoc_port_in<T> &p, size_t pos)
+  explicit DToken(smoc_port_in<T> &p, size_t pos)
     : p(p), pos(pos) {}
+};
+
+template<typename T>
+struct Value<DToken<T> > {
+  typedef T result_type;
   
-  PDNodeBase getNodeType() const
-    { return PDNodeBase(new DNodeToken(this)); }
-  
-  value_type value() const
+  static inline
+  result_type apply(const DToken<T> &e)
     { return T(); }
 };
 
-template<class T>
-struct DExpr<DExprToken<T> >: public DExprBase<DExprToken<T> > {
-  DExpr(smoc_port_in<T> &p, size_t pos)
-    : DExprBase<DExprToken<T> >(DExprToken<T>(p,pos)) {}
+template<typename T>
+struct AST<DToken<T> > {
+  typedef PASTNode result_type;
+  
+  static inline
+  result_type apply(const DToken<T> &e)
+    { return PASTNode(new ASTNodeToken()); }
+};
+
+template<typename T>
+struct D<DToken<T> >: public DBase<DToken<T> > {
+  D(smoc_port_in<T> &p, size_t pos)
+    : DBase<DToken<T> >(DToken<T>(p,pos)) {}
 };
 
 // Make a convenient typedef for the token type.
 template<typename T>
-struct DToken {
-  typedef DExpr<DExprToken<T> > type;
+struct Token {
+  typedef D<DToken<T> > type;
 };
 
 template <typename T>
-typename DToken<T>::type token(smoc_port_in<T> &p, size_t pos)
-  { return typename DToken<T>::type(p,pos); }
+typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
+  { return typename Token<T>::type(p,pos); }
+
+}
 
 /****************************************************************************/
 
@@ -185,12 +202,12 @@ public:
   size_t availableCount()    const { return doneCount() + (*this)->committedOutCount(); }
 //  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableOutCount(); }
   
-  typename DToken<T>::type getValueAt(size_t n)
-    { return token(*this,n); }
+  typename Expr::Token<T>::type getValueAt(size_t n)
+    { return Expr::token(*this,n); }
   
-  typename DCommReq::type getAvailableTokens()
-    { return commreq(*this); }
-  DExpr<DExprBinOp<DExprCommReq,DExprLiteral<size_t>,DOpGe<size_t,size_t> > >
+  smoc_commreq_number getAvailableTokens()
+    { return smoc_commreq_number(*this); }
+  Expr::CommReq::type
   operator ()( size_t n )
     { return getAvailableTokens() >= n; }
   
@@ -267,9 +284,9 @@ public:
   size_t availableCount()    const { return doneCount() + (*this)->committedInCount(); }
 //  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableInCount(); }
   
-  DCommReq::type getAvailableSpace()
-    { return commreq(*this); }
-  DExpr<DExprBinOp<DExprCommReq,DExprLiteral<size_t>,DOpGe<size_t,size_t> > >
+  smoc_commreq_number getAvailableSpace()
+    { return smoc_commreq_number(*this); }
+  Expr::CommReq::type
   operator ()( size_t n )
     { return getAvailableSpace() >= n; }
   

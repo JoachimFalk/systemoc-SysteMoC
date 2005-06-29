@@ -10,7 +10,7 @@
 
 #include <systemc.h>
 
-#include <expr.hpp>
+#include <smoc_expr.hpp>
 
 class smoc_root_port
   : protected sc_port_base {
@@ -92,39 +92,72 @@ typedef std::list<smoc_root_port *> smoc_port_list;
  * tokens in an input port or free space in an output port.
  */
 
-class DNodeCommReq: public DNodeTerminal {
+namespace Expr {
+
+class ASTNodeCommReq: public ASTNodeTerminal {
 public:
-  DNodeCommReq(const exInfo &i)
-    : DNodeTerminal(i) {}
+  ASTNodeCommReq() 
+    : ASTNodeTerminal() {}
 };
 
-class DExprCommReq {
+class DCommReq {
 public:
-  typedef size_t value_type;
+  typedef bool      value_type;
+  typedef DCommReq  this_type;
+  
+  friend class Value<this_type>;
+  friend class AST<this_type>;
 private:
   smoc_root_port  &p;
+  size_t           req;
 public:
-  explicit DExprCommReq(smoc_root_port &p): p(p) {}
-  
-  PDNodeBase getNodeType() const
-    { return PDNodeBase(new DNodeCommReq(this)); }
-  
-  value_type value() const
-    { return p.availableCount(); }
+  explicit DCommReq(smoc_root_port &p, size_t req)
+    : p(p), req(req) {}
 };
 
-struct DExpr<DExprCommReq>: public DExprBase<DExprCommReq> {
-  DExpr(smoc_root_port &p)
-    : DExprBase<DExprCommReq>(DExprCommReq(p)) {}
+struct Value<DCommReq> {
+  typedef bool result_type;
+  
+  static inline
+  result_type apply(const DCommReq &e)
+    { return e.p.availableCount() >= e.req; }
+};
+
+struct AST<DCommReq> {
+  typedef PASTNode result_type;
+  
+  static inline
+  result_type apply(const DCommReq &e)
+    { return PASTNode(new ASTNodeCommReq()); }
+};
+
+struct D<DCommReq>: public DBase<DCommReq> {
+  D(smoc_root_port &p, size_t req)
+    : DBase<DCommReq>(DCommReq(p,req)) {}
 };
 
 // Make a convenient typedef for the commreq type.
-struct DCommReq {
-  typedef DExpr<DExprCommReq> type;
+struct CommReq {
+  typedef D<DCommReq> type;
 };
 
 static inline
-DCommReq::type commreq(smoc_root_port &p)
-  { return DCommReq::type(p); }
+CommReq::type commreq(smoc_root_port &p, size_t req)
+  { return CommReq::type(p,req); }
+
+}
+/****************************************************************************/
+
+class smoc_commreq_number {
+private:
+  smoc_root_port  &p;
+public:
+  explicit smoc_commreq_number(smoc_root_port &p): p(p) {}
+  
+  Expr::CommReq::type operator >= (size_t req)
+    { return Expr::commreq(p,req); }
+  Expr::CommReq::type operator >  (size_t req)
+    { return *this >= req+1; }
+};
 
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP

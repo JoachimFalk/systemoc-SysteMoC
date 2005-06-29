@@ -18,10 +18,10 @@
 using boost::logic::tribool;
 using boost::logic::indeterminate;
 
-#include <expr.hpp>
+#include <smoc_expr.hpp>
 #include <commondefs.h>
 
-#include <smoc_root_port.hpp>
+#include <smoc_port.hpp>
 
 class smoc_activation_pattern {
 public:
@@ -29,7 +29,7 @@ public:
   
   friend class smoc_firing_state;
 protected:
-  Expr<bool>::type guard;
+  Expr::Ex<bool>::type guard;
 //  typedef std::list<smoc_guard_ptr> guards_ty;
 //  guards_ty guards;
 //  
@@ -102,17 +102,19 @@ public:
 //  bool      knownUnsatisfiable() const { return isOr<filterKnownUnsatisfiable_ty>(); }
 //  bool      satisfied() const { return isAnd<filterSatisfied_ty>(); }
   
-  bool      knownSatisfiable() const { return guard.value(); }
-  bool      knownUnsatisfiable() const { return !guard.value(); }
+  bool      knownSatisfiable() const
+    { return  Expr::evalTo<Expr::Value>(guard); }
+  bool      knownUnsatisfiable() const
+    { return !Expr::evalTo<Expr::Value>(guard); }
 
   this_type onlyInputs() const { return *this; }
   this_type onlyOutputs() const { return *this; }
 
   smoc_activation_pattern()
-    : guard(literal(true)) {}
+    : guard(Expr::literal(true)) {}
 
   template <class E>
-  smoc_activation_pattern(const DExpr<E> &guard)
+  smoc_activation_pattern(const Expr::D<E> &guard)
     : guard(guard) {}
   
 //  smoc_activation_pattern( const smoc_guard_ptr &p ) {
@@ -128,42 +130,67 @@ public:
 //    return *this;
 //  }
 
-  void execute(const PDNodeBase &node) {
-    std::cout << "Node: " << node->i.value_type.name() << " " << *node;
-    
-    DNodeNonTerminal *n =
-      dynamic_cast<DNodeNonTerminal *>(&*node);
-    DNodeTerminal    *t =
-      dynamic_cast<DNodeTerminal *>(&*node);
-    assert( n != NULL || t != NULL );
-    if (n != NULL) {
-      std::cout << " " << n->getOpType() << std::endl;
-      std::cout << "{ " << std::endl;
-      execute(n->getLeftNode());
-      std::cout << "," << std::endl;
-      execute(n->getRightNode());
-      std::cout << "}" << std::endl;
+  void execute(const Expr::PASTNode &node) {
+    std::cout << "Node: ";
+
+  /*
+    if (node->isa<ASTNodeVType<bool> >() ) {
+      std::cout << "bool(" << node->isa<ASTNodeVType<bool> >()->value() << ") ";
+    } else if (node->isa<ASTNodeVType<int> >() ) {
+      std::cout << "int(" << node->isa<ASTNodeVType<int> >()->value() << ") ";
+    } else if (node->isa<ASTNodeVType<unsigned int> >() ) {
+      std::cout << "unsigned int(" << node->isa<ASTNodeVType<unsigned int> >()->value() << ") ";
+    } else if (node->isa<ASTNodeVType<long> >() ) {
+      std::cout << "int(" << node->isa<ASTNodeVType<long> >()->value() << ") ";
+    } else if (node->isa<ASTNodeVType<unsigned long> >() ) {
+      std::cout << "unsigned int(" << node->isa<ASTNodeVType<unsigned long> >()->value() << ") ";
+    } else if (node->isa<ASTNodeVType<double> >() ) {
+      std::cout << "unsigned int(" << node->isa<ASTNodeVType<double> >()->value() << ") ";
     } else {
-      if (dynamic_cast<DNodeCommReq *>(&*node)) {
-        std::cout << "DExprCommReq";
-      } else if (dynamic_cast<DNodeLiteral *>(&*node)) {
-        std::cout << "DExprLiteral";
-        if ( node->i.value_type == typeid(int) ) {
-          int foo =
-            reinterpret_cast<const DExprLiteral<int> *>(node->i.expr)->value();
-          std::cout << " " << foo;
-        }
-      }
-      std::cout << std::endl;
+      std::cout << "unknown value_type ";
     }
-//    for ( guards_ty::iterator iter = guards.begin();
-//	  iter != guards.end();
-//	  ++iter )
-//      (*iter)->transfer();
+    */
+    
+    if (node->isa<Expr::ASTNodeNonTerminal>()) {
+      if ( node->isa<Expr::ASTNodeBinOp>() ) {
+        boost::intrusive_ptr<Expr::ASTNodeBinOp> p = node->isa<Expr::ASTNodeBinOp>();
+        
+        std::cout << "BinOp " << p->getOpType() << " {" << std::endl;
+        execute(p->getLeftNode());
+        std::cout << "}, {" << std::endl;
+        execute(p->getRightNode());
+        std::cout << "}";
+      } else {
+        // unknown
+        std::cout << "Unkown NonTerminal";
+      }
+    } else {
+      assert( node->isa<Expr::ASTNodeTerminal>() );
+      if ( node->isa<Expr::ASTNodeLiteral>() ) {
+        std::cout << "Literal";
+      } else if ( node->isa<Expr::ASTNodeVar>() ) {
+        std::cout << "Var " << node->isa<Expr::ASTNodeVar>()->ptrVar();
+      } else if ( node->isa<Expr::ASTNodeProc>() ) {
+        std::cout << "Proc 0x" << std::hex << reinterpret_cast<unsigned long>
+          (node->isa<Expr::ASTNodeProc>()->ptrProc());
+      } else if ( node->isa<Expr::ASTNodeMemProc>() ) {
+        std::cout << "MemProc 0x" << std::hex << reinterpret_cast<unsigned long>
+          (node->isa<Expr::ASTNodeMemProc>()->ptrMemProc())
+                  <<   " obj " << node->isa<Expr::ASTNodeMemProc>()->ptrObj();
+      } else if ( node->isa<Expr::ASTNodeCommReq>() ) {
+        std::cout << "CommReq" << std::endl;
+      } else if ( node->isa<Expr::ASTNodeToken>() ) {
+        std::cout << "Token" << std::endl;
+      } else {
+        // unknown
+        std::cout << "Unkown Terminal";
+      }
+    }
+    std::cout << std::endl;
   }
   void execute() {
     std::cout << "=============================================" << std::endl;
-    execute(guard.getNodeType());
+    execute(Expr::evalTo<Expr::AST>(guard));
   }
   
   void reset() {

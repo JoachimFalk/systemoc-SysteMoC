@@ -12,8 +12,6 @@
 
 #include <boost/intrusive_ptr.hpp>
 
-#include <commondefs.h>
-
 /****************************************************************************
  * dexpr.h
  *
@@ -45,334 +43,531 @@ static inline
 void intrusive_ptr_release( _RefCount *r )
   { if ( !--r->refcount ) delete r; }
 
+typedef boost::intrusive_ptr<_RefCount> ref_ty;
+
 /****************************************************************************
  * Node hierarchy
  */
 
-class DNodeBase: public _RefCount {
+namespace Expr {
+
+class ASTNode: public _RefCount {
 public:
-  struct exInfo {
-    const void           *expr;
-    const std::type_info &value_type;
-    
-    template <class E>
-    exInfo(const E *e)
-      : expr(e), value_type(typeid(E::value_type)) {}
-  } i;
-  
-  DNodeBase(const exInfo &i): i(i) {}
-};
-
-typedef boost::intrusive_ptr<DNodeBase> PDNodeBase;
-
-class DNodeTerminal: public DNodeBase {
-public:
-  DNodeTerminal(const exInfo &i)
-    : DNodeBase(i) {}
-};
-
-typedef boost::intrusive_ptr<DNodeTerminal> PDNodeTerminal;
-
-class DNodeNonTerminal: public DNodeBase {
-public:
-  typedef enum {
-    DOpAdd, DOpSub, DOpMultiply, DOpDivide,
-    DOpEq, DOpNe, DOpLt, DOpLe, DOpGt, DOpGe,
-    DOpBAnd, DOpBOr, DOpBXor, DOpLAnd, DOpLOr, DOpLXor
-  } OpType;
-private:
-  PDNodeBase l, r;
-  OpType     op;
-public:
-  DNodeNonTerminal(const exInfo &i, PDNodeBase l, PDNodeBase r, OpType op)
-    : DNodeBase(i),
-      l(l), r(r), op(op) {}
-  
-  const PDNodeBase &getLeftNode()  { return l; }
-  const PDNodeBase &getRightNode() { return r; }
-  const OpType      getOpType()    { return op; }
-};
-
-static inline
-std::ostream &operator << (std::ostream &o, const DNodeNonTerminal::OpType &op ) {
-  switch (op) {
-    case DNodeNonTerminal::DOpAdd:      o << "DOpAdd"; break;
-    case DNodeNonTerminal::DOpSub:      o << "DOpSub"; break;
-    case DNodeNonTerminal::DOpMultiply: o << "DOpMultiply"; break;
-    case DNodeNonTerminal::DOpDivide:   o << "DOpDivide"; break;
-    case DNodeNonTerminal::DOpEq:       o << "DOpEq"; break;
-    case DNodeNonTerminal::DOpNe:       o << "DOpNe"; break;
-    case DNodeNonTerminal::DOpLt:       o << "DOpLt"; break;
-    case DNodeNonTerminal::DOpLe:       o << "DOpLe"; break;
-    case DNodeNonTerminal::DOpGt:       o << "DOpGt"; break;
-    case DNodeNonTerminal::DOpGe:       o << "DOpGe"; break;
-    case DNodeNonTerminal::DOpBAnd:     o << "DOpBAnd"; break;
-    case DNodeNonTerminal::DOpBOr:      o << "DOpBOr"; break;
-    case DNodeNonTerminal::DOpBXor:     o << "DOpBXor"; break;
-    case DNodeNonTerminal::DOpLAnd:     o << "DOpLAnd"; break;
-    case DNodeNonTerminal::DOpLOr:      o << "DOpLOr"; break;
-    case DNodeNonTerminal::DOpLXor:     o << "DOpLXor"; break;
-    default:                            o << "???"; break;
+  template <class X>
+  boost::intrusive_ptr<X> isa() {
+    return boost::intrusive_ptr<X>
+      (dynamic_cast<X *>(this));
   }
-  return o;
-}
+  template <class X>
+  boost::intrusive_ptr<const X> isa() const {
+    return boost::intrusive_ptr<const X>
+      (dynamic_cast<const X *>(this));
+  }
+};
 
-static inline
-std::ostream &operator << (std::ostream &o, const DNodeBase &n)
-  { o << "expr(" << n.i.expr << ")"; return o; }
+typedef boost::intrusive_ptr<ASTNode> PASTNode;
 
-/****************************************************************************
- * DExpr is a wrapper class which contains a more interesting expression type,
- * such as DExprVar, DExprLiteral, or DExprBinOp.
- */
+template <typename T>
+class ASTNodeVType: public virtual ASTNode {
+public:
+  typedef ASTNodeVType<T> this_type;
+  typedef T             value_type;
+public:
+//  virtual PASTNode getNType(const ref_ty &) const = 0;
+//  virtual value_type value() const = 0;
+};
 
-typedef boost::intrusive_ptr<DNodeNonTerminal> PDNodeNonTerminal;
-
-template<class E>
-class DExpr;
-
-template<class E>
-class DExprBase {
+template <class E>
+class ASTNodeExpr: public ASTNodeVType<typename E::value_type> {
 public:
   typedef E                       expr_type;
-  typedef DExpr<expr_type>        this_type;
+  typedef typename E::value_type  value_type;
+  typedef ASTNodeExpr<E>          this_type;
+private:
+  const E e;
+public:
+  ASTNodeExpr( const E &e )
+    : e(e) {}
+  
+  const expr_type &getExpr() const { return e; }
+  
+//  PASTNode getNType(const ref_ty &) const
+//    { return e.getNType(ref_ty(const_cast<this_type *>(this))); }
+  
+//  value_type value() const
+//    { return e.value(); }
+};
+
+/*
+template <class E>
+class ASTNodeExprRef: public ASTNodeVType<typename E::value_type> {
+public:
+  typedef E                       expr_type;
+  typedef typename E::value_type  value_type;
+  typedef ASTNodeExprRef<E>         this_type;
+private:
+  ref_ty   r;
+  const E *e;
+public:
+  ASTNodeExprRef( const E &e_, const ref_ty &pr = ref_ty() ) {
+    if (pr) {
+      // reference counted copy of e available
+      // therefore reference it for our own copy
+      r = pr;
+      e = &e_;
+    } else {
+      // no reference counted copy of e available
+      // therefore create a reference counted copy
+      ASTNodeExpr<E> *i = new ASTNodeExpr<E>(e_);
+      r = i;
+      e = &i->getExpr();
+    }
+  }
+  
+  const expr_type &getExpr() const { return *e; }
+  const ref_ty    &getExprRef() const { return r; }
+  
+  PASTNode getNType(const ref_ty &) const
+    { return e->getNType(r); }
+  
+  value_type value() const
+    { return e->value(); }
+};
+*/
+
+class ASTNodeTerminal: public virtual ASTNode {};
+
+typedef boost::intrusive_ptr<ASTNodeTerminal> PASTNodeTerminal;
+
+class ASTNodeNonTerminal: public virtual ASTNode {};
+
+static inline
+std::ostream &operator << (std::ostream &o, const ASTNode &n)
+  { o << "expr(" << &n << ")"; return o; }
+
+/****************************************************************************
+ * Expr
+ */
+
+template<class E>
+class D;
+
+template <class E>
+struct Value {};
+
+template <class E>
+struct AST {};
+
+template<template <class> class Z, class E>
+typename Z<E>::result_type evalTo(const D<E> &e)
+  { return Z<E>::apply(e.getExpr()); }
+
+/****************************************************************************
+ * D is a wrapper class which contains a more interesting expression type,
+ * such as DVar, DLiteral, or DBinOp.
+ */
+
+//typedef boost::intrusive_ptr<ASTNodeNonTerminal> PASTNodeNonTerminal;
+
+template<class E>
+class DBase {
+public:
+  typedef E                       expr_type;
+  typedef D<expr_type>            this_type;
   typedef typename E::value_type  value_type;
 private:
   expr_type e;
 public:
-  DExprBase(const expr_type& e)
+  DBase(const expr_type &e)
     : e(e) {}
   
-  PDNodeBase getNodeType() const
-    { return e.getNodeType(); }
-  
   const expr_type &getExpr() const { return e; }
-  
-  value_type value() const
-    { return e.value(); }
 };
 
 template<class E>
-struct DExpr: public DExprBase<E> {
-  DExpr(const E& e): DExprBase<E>(e) {}
+struct D: public DBase<E> {
+  D(const E& e): DBase<E>(e) {}
 };
 
 /****************************************************************************
- * DExprVirtual is a placeholder for some other kind of DExprXXX classes
+ * DVirtual is a placeholder for some other kind of DXXX classes
  */
 
 template <typename T>
-class DExprVirtual {
-private:
-  class DVirtual: public _RefCount {
-  public:
-    typedef DVirtual this_type;
-    typedef T        value_type;
-  public:
-    virtual PDNodeBase getNodeType() const = 0;
-    virtual value_type value() const = 0;
-  };
-  
-  template <class E>
-  class DVirtualImpl
-  : public E, public DVirtual {
-  public:
-    typedef T  value_type;
-    
-    DVirtualImpl( const E &e )
-      : E(e) {}
-    
-    PDNodeBase getNodeType() const
-      { return E::getNodeType(); }
-
-    value_type value() const
-      { return E::value(); }
-  };
-  
-  boost::intrusive_ptr<DVirtual> v;
+class DVirtual {
 public:
-  typedef T value_type;
+  typedef T           value_type;
+  typedef DVirtual<T> this_type;
   
+  template <typename TT>
+  class virt_ty: public _RefCount {
+  public:
+    typedef virt_ty  this_type;
+    typedef TT       value_type;
+  public:
+    virtual PASTNode   evalToAST()   const = 0;
+    virtual value_type evalToValue() const = 0;
+  };
+  
+  boost::intrusive_ptr<virt_ty<T> > v;
+protected:
   template <class E>
-  DExprVirtual( const DExpr<E> &e )
-    : v(new DVirtualImpl<E>(e.getExpr())) {}
+  class impl_ty: public virt_ty<typename E::value_type> {
+  public:
+    typedef E                       expr_type;
+    typedef typename E::value_type  value_type;
+    typedef impl_ty<E>              this_type;
+  private:
+    E e;
+  public:
+    impl_ty( const E &e ): e(e) {}
+    
+    PASTNode   evalToAST()   const { return AST<E>::apply(e); }
+    value_type evalToValue() const { return Value<E>::apply(e); }
+  };
+public:
+  template <class E>
+  DVirtual( const D<E> &e )
+    : v(new impl_ty<E>(e.getExpr())) {}
+};
+
+template <typename T>
+struct Value<DVirtual<T> > {
+  typedef T result_type;
   
-  PDNodeBase getNodeType() const
-    { return v->getNodeType(); }
+  static inline
+  T apply(const DVirtual <T> &e)
+    { return e.v->evalToValue(); }
+};
+
+template <typename T>
+struct AST<DVirtual<T> > {
+  typedef PASTNode result_type;
   
-  value_type value() const { return v->value(); }
+  static inline
+  result_type apply(const DVirtual <T> &e)
+    { return e.v->evalToAST(); }
 };
 
 template<class T>
-struct DExpr<DExprVirtual<T> >: public DExprBase<DExprVirtual<T> > {
+struct D<DVirtual<T> >: public DBase<DVirtual<T> > {
   template <class E>
-  DExpr(const E& e): DExprBase<DExprVirtual<T> >(e) {}
+  D(const E& e): DBase<DVirtual<T> >(e) {}
 };
 
 template <typename T>
-struct Expr { typedef DExpr<DExprVirtual<T> > type; };
+struct Ex { typedef D<DVirtual<T> > type; };
 
 /****************************************************************************
- * DExprVar is a placeholder for the variable in the expression.
+ * DVar is a placeholder for the variable in the expression.
  */
 
-class DNodeVar: public DNodeTerminal {
+class ASTNodeVar: public ASTNodeTerminal {
+private:
+  const void *v;
 public:
-  DNodeVar(const exInfo &i)
-    : DNodeTerminal(i) {}
+  template <typename T>
+  ASTNodeVar(const T &x): v(&x) {}
+  
+  const void *ptrVar() const { return v; }
 };
 
 template<typename T>
-class DExprVar {
+class DVar {
 public:
-  typedef T value_type;
-private:
+  typedef T       value_type;
+  typedef DVar<T> this_type;
+  
   const T &x;
 public:
-  explicit DExprVar(T &x): x(x) {}
+  explicit DVar(T &x): x(x) {}
+};
+
+template <typename T>
+struct Value<DVar<T> > {
+  typedef T result_type;
   
-  PDNodeBase getNodeType() const
-    { return PDNodeBase(new DNodeVar(this)); }
+  static inline
+  T apply(const DVar <T> &e)
+    { return e.x; }
+};
+
+template <typename T>
+struct AST<DVar<T> > {
+  typedef PASTNode result_type;
   
-  T value() const
-    { return x; }
+  static inline
+  PASTNode apply(const DVar <T> &e)
+    { return PASTNode(new ASTNodeVar(e.x)); }
 };
 
 template<class T>
-struct DExpr<DExprVar<T> >: public DExprBase<DExprVar<T> > {
-  DExpr(T &x): DExprBase<DExprVar<T> >(DExprVar<T>(x)) {}
+struct D<DVar<T> >: public DBase<DVar<T> > {
+  D(T &x): DBase<DVar<T> >(DVar<T>(x)) {}
 };
 
 // Make a convenient typedef for the placeholder type.
 template <typename T>
-struct DVar { typedef DExpr<DExprVar<T> > type; };
+struct Var { typedef D<DVar<T> > type; };
 
 template <typename T>
-typename DVar<T>::type var(T &x)
-  { return typename DVar<T>::type(x); }
+static inline
+typename Var<T>::type var(T &x)
+  { return typename Var<T>::type(x); }
 
 /****************************************************************************
- * DExprLiteral represents a double literal which appears in the expression.
+ * DLiteral represents a double literal which appears in the expression.
  */
 
-class DNodeLiteral: public DNodeTerminal {
-public:
-  DNodeLiteral(const exInfo &i)
-    : DNodeTerminal(i) {}
+struct ASTNodeLiteral: public ASTNodeTerminal {
+
 };
 
 template<typename T>
-class DExprLiteral {
+class DLiteral {
 public:
-  typedef T value_type;
-private:
+  typedef T           value_type;
+  typedef DLiteral<T> this_type;
+  
   const T v;
 public:
-  explicit DExprLiteral(const T &v): v(v) {}
+  explicit DLiteral(const T &v): v(v) {}
+};
+
+template <typename T>
+struct Value<DLiteral<T> > {
+  typedef T result_type;
   
-  PDNodeBase getNodeType() const
-    { return PDNodeBase(new DNodeLiteral(this)); }
+  static inline
+  T apply(const DLiteral<T> &e)
+    { return e.v; }
+};
+
+template <typename T>
+struct AST<DLiteral<T> > {
+  typedef PASTNode result_type;
   
-  T value() const
-    { return v; }
+  static inline
+  PASTNode apply(const DLiteral <T> &e)
+    { return PASTNode(new ASTNodeLiteral()); }
 };
 
 template<class T>
-struct DExpr<DExprLiteral<T> >: public DExprBase<DExprLiteral<T> > {
-  DExpr(const T &v): DExprBase<DExprLiteral<T> >(DExprLiteral<T>(v)) {}
+struct D<DLiteral<T> >: public DBase<DLiteral<T> > {
+  D(const T &v): DBase<DLiteral<T> >(DLiteral<T>(v)) {}
 };
 
 // Make a convenient typedef for the placeholder type.
 template <typename T>
-struct DLiteral { typedef DExpr<DExprLiteral<T> > type; };
+struct Literal { typedef D<DLiteral<T> > type; };
 
 template <typename T>
-typename DLiteral<T>::type literal(const T &v)
-  { return typename DLiteral<T>::type(v); }
+static inline
+typename Literal<T>::type literal(const T &v)
+  { return typename Literal<T>::type(v); }
 
 /****************************************************************************
- * DExprProc
+ * DProc
  */
 
-class DNodeProc: public DNodeTerminal {
+class ASTNodeProc: public ASTNodeTerminal {
 public:
-  DNodeProc(const exInfo &i)
-    : DNodeTerminal(i) {}
+  typedef void (*proc_ty)();
+private:
+  proc_ty f;
+public:
+  template <typename T>
+  ASTNodeProc(T (*f)())
+    : f(reinterpret_cast<proc_ty>(f)) {}
+  
+  proc_ty ptrProc() const { return f; }
 };
 
 template<typename T>
-class DExprProc {
+class DProc {
 public:
-  typedef T value_type;
-private:
+  typedef T         value_type;
+  typedef DProc<T>  this_type;
+
   T (*f)();
 public:
-  explicit DExprProc(T (*f)()): f(f) {}
-  
-  PDNodeBase getNodeType() const
-    { return PDNodeBase(new DNodeProc(this)); }
-  
-  T value() const
-    { return f(); }
+  explicit DProc(T (*f)()): f(f) {}
 };
 
-class DNodeMemProc: public DNodeTerminal {
+template <typename T>
+struct Value<DProc<T> > {
+  typedef T result_type;
+  
+  static inline
+  T apply(const DProc <T> &e)
+    { return e.f(); }
+};
+
+template <typename T>
+struct AST<DProc<T> > {
+  typedef PASTNode result_type;
+  
+  static inline
+  PASTNode apply(const DProc <T> &e)
+    { return PASTNode(new ASTNodeProc(e.f)); }
+};
+
+template<class T>
+struct D<DProc<T> >: public DBase<DProc<T> > {
+  D(T (*f)()): DBase<DProc<T> >(DProc<T>(f)) {}
+};
+
+// Make a convenient typedef for the placeholder type.
+template <typename T>
+struct Proc { typedef D<DProc<T> > type; };
+
+template <typename T>
+typename Proc<T>::type call(T (*f)())
+  { return Proc<T>::type(f); }
+
+class ASTNodeMemProc: public ASTNodeTerminal {
+private:
+  void       *o;
+  const void *m;
 public:
-  DNodeMemProc(const exInfo &i)
-    : DNodeTerminal(i) {}
+  template<typename T, class X>
+  ASTNodeMemProc(X *o, T (X::*m)()): o(o), m(m) {}
+  
+  const void *ptrMemProc() const { return m; }
+  void       *ptrObj()     const { return o; }
 };
 
 template<typename T, class X>
-class DExprMemProc {
+class DMemProc {
 public:
-  typedef T value_type;
-private:
+  typedef T             value_type;
+  typedef DMemProc<T,X> this_type;
+  
   X     *o;
   T (X::*m)();
 public:
-  explicit DExprMemProc(X *o, T (X::*m)()): o(o), m(m) {}
-  
-  PDNodeBase getNodeType() const
-    { return PDNodeBase(new DNodeMemProc(this)); }
-  
-  T value() const
-    { return (o->*m)(); }
+  explicit DMemProc(X *o, T (X::*m)()): o(o), m(m) {}
 };
 
-template <typename T>
-DExpr<DExprProc<T> > call(T (*f)())
-  { return DExpr<DExprProc<T> >(DExprProc<T>(f)); }
 template <typename T, class X>
-DExpr<DExprMemProc<T,X> > call(X *o, T (X::*m)())
-  { return DExpr<DExprMemProc<T,X> >(DExprMemProc<T,X>(o,m)); }
+struct Value<DMemProc<T,X> > {
+  typedef T result_type;
+  
+  static inline
+  T apply(const DMemProc<T,X> &e)
+    { return (e.o->*e.m)(); }
+};
+
+template <typename T, class X>
+struct AST<DMemProc<T,X> > {
+  typedef PASTNode result_type;
+  
+  static inline
+  PASTNode apply(const DMemProc <T,X> &e)
+    { return PASTNode(new ASTNodeMemProc(o,m)); }
+};
+
+template<typename T, class X>
+struct D<DMemProc<T,X> >: public DBase<DMemProc<T,X> > {
+  D(X *o, T (X::*m)()): DBase<DMemProc<T,X> >(DMemProc<T,X>(o,m)) {}
+};
+
+// Make a convenient typedef for the placeholder type.
+template <typename T, class X>
+struct MemProc { typedef D<DMemProc<T,X> > type; };
+
+template <typename T, class X>
+typename MemProc<T,X>::type call(X *o, T (X::*m)())
+  { return MemProc<T,X>::type(o,m); }
 
 /****************************************************************************
- * DExprBinOp represents a binary operation on two expressions.
+ * DBinOp represents a binary operation on two expressions.
  * A and B are the two expressions being combined, and Op is an applicative
  * template representing the operation.
  */
 
-template<class A, class B, class Op>
-class DExprBinOp {
+typedef enum {
+  DOpAdd, DOpSub, DOpMultiply, DOpDivide,
+  DOpEq, DOpNe, DOpLt, DOpLe, DOpGt, DOpGe,
+  DOpBAnd, DOpBOr, DOpBXor, DOpLAnd, DOpLOr, DOpLXor
+} OpType;
+
+static inline
+std::ostream &operator << (std::ostream &o, const OpType &op ) {
+  switch (op) {
+    case DOpAdd:      o << "DOpAdd"; break;
+    case DOpSub:      o << "DOpSub"; break;
+    case DOpMultiply: o << "DOpMultiply"; break;
+    case DOpDivide:   o << "DOpDivide"; break;
+    case DOpEq:       o << "DOpEq"; break;
+    case DOpNe:       o << "DOpNe"; break;
+    case DOpLt:       o << "DOpLt"; break;
+    case DOpLe:       o << "DOpLe"; break;
+    case DOpGt:       o << "DOpGt"; break;
+    case DOpGe:       o << "DOpGe"; break;
+    case DOpBAnd:     o << "DOpBAnd"; break;
+    case DOpBOr:      o << "DOpBOr"; break;
+    case DOpBXor:     o << "DOpBXor"; break;
+    case DOpLAnd:     o << "DOpLAnd"; break;
+    case DOpLOr:      o << "DOpLOr"; break;
+    case DOpLXor:     o << "DOpLXor"; break;
+    default:          o << "???"; break;
+  }
+  return o;
+}
+
+class ASTNodeBinOp: public ASTNodeNonTerminal {
 public:
-  typedef typename Op::result_type value_type;
-private:
+
+protected:
+  OpType    op;
+  PASTNode  l, r;
+public:
+  ASTNodeBinOp( OpType op, const PASTNode &l, const PASTNode &r)
+    : op(op), l(l), r(r) {}
+  
+  PASTNode getLeftNode()  { return l; }
+  PASTNode getRightNode() { return r; }
+  OpType getOpType() const { return op; }
+};
+
+template<OpType Op,typename T1, typename T2>
+struct DOpXXX;
+
+template<class A, class B, OpType Op>
+class DBinOp {
+public:
+  typedef typename DOpXXX<
+    Op,
+    typename A::value_type,
+    typename B::value_type>::result_type  value_type;
+  typedef DBinOp<A,B,Op>                  this_type;
+  
   A a;
   B b;
 public:
-  DExprBinOp(const A& a, const B& b)
-    : a(a), b(b) {}
+  DBinOp(const A& a, const B& b): a(a), b(b) {}
+};
+
+template <class A, class B, OpType Op>
+struct Value<DBinOp<A,B,Op> > {
+  typedef typename DBinOp<A,B,Op>::value_type result_type;
   
-  PDNodeBase getNodeType() const {
-    return new DNodeNonTerminal(
-      this,
-      a.getNodeType(),
-      b.getNodeType(),
-      Op::getOpType());
+  static inline
+  result_type apply(const DBinOp<A,B,Op> &e) {
+    return DOpXXX<Op, typename A::value_type, typename B::value_type>::
+      apply(Value<A>::apply(e.a),Value<B>::apply(e.b));
   }
+};
+
+template <class A, class B, OpType Op>
+struct AST<DBinOp<A,B,Op> > {
+  typedef PASTNode result_type;
   
-  value_type value() const
-    { return Op::apply(a.value(), b.value()); }
+  static inline
+  PASTNode apply(const DBinOp<A,B,Op> &e) {
+    return PASTNode(new ASTNodeBinOp(Op,AST<A>::apply(e.a),AST<B>::apply(e.b)));
+  }
 };
 
 /****************************************************************************
@@ -381,13 +576,12 @@ public:
 
 #define DOPCLASS(name,op)                                             \
 template<typename T1, typename T2>                                    \
-class DOp##name {                                                     \
-public:                                                               \
+struct DOpXXX<DOp##name,T1,T2> {                                      \
   typedef typeof((*(T1*)(NULL)) op (*(T2*)(NULL))) result_type;       \
                                                                       \
   static inline                                                       \
-  DNodeNonTerminal::OpType getOpType()                                \
-    { return DNodeNonTerminal::DOp##name; }                           \
+  OpType getOpType()                                                  \
+    { return DOp##name; }                                             \
                                                                       \
   static inline                                                       \
   result_type apply(const T1 &a, const T2 &b)                         \
@@ -398,59 +592,60 @@ public:                                                               \
  * OPERATORS for APPLICATIVE TEMPLATE CLASSES
  */
 
-template <class A, class B, template <class,class> class Op>
+template <class A, class B, OpType Op>
 class DOpExecute;
 
-template <class A, class B, template <class,class> class Op>
-class DOpExecute<DExpr<A>,DExpr<B>, Op> {
+template <class A, class B, OpType Op>
+class DOpExecute<D<A>,D<B>, Op> {
 public:
-  typedef Op<typename A::value_type,
-             typename B::value_type>          OpT;
-  typedef DExprBinOp<A,B,OpT>                 ExprT;
-  typedef DExpr<ExprT>                        result_type;
+  typedef DBinOp<A,B,Op>              ExprT;
+  typedef D<ExprT>                    result_type;
   
   static inline
-  result_type apply(const DExpr<A> &a, const DExpr<B> &b)
+  result_type apply(const D<A> &a, const D<B> &b)
     { return result_type(ExprT(a.getExpr(),b.getExpr())); }
 };
 
-template <class A, class TB, template <class,class> class Op>
-class DOpExecute<DExpr<A>, TB, Op> {
+template <class A, class TB, OpType Op>
+class DOpExecute<D<A>, TB, Op> {
 public:
-  typedef Op<typename A::value_type,TB>       OpT;
-  typedef DExprBinOp<A,DExprLiteral<TB>,OpT>  ExprT;
-  typedef DExpr<ExprT>                        result_type;
+  typedef DBinOp<A,DLiteral<TB>,Op>   ExprT;
+  typedef D<ExprT>                    result_type;
   
   static inline
-  result_type apply(const DExpr<A> &a, const TB &b)
-    { return result_type(ExprT(a.getExpr(),DExprLiteral<TB>(b))); }
+  result_type apply(const D<A> &a, const TB &b)
+    { return result_type(ExprT(a.getExpr(),DLiteral<TB>(b))); }
 };
 
-template <class TA, class B, template <class,class> class Op>
-class DOpExecute<TA, DExpr<B>, Op> {
+template <class TA, class B, OpType Op>
+class DOpExecute<TA, D<B>, Op> {
 public:
-  typedef Op<TA,typename B::value_type>       OpT;
-  typedef DExprBinOp<DExprLiteral<TA>,B,OpT>  ExprT;
-  typedef DExpr<ExprT>                        result_type;
+  typedef DBinOp<DLiteral<TA>,B,Op>   ExprT;
+  typedef D<ExprT>                    result_type;
   
   static inline
-  result_type apply(const TA &a, const DExpr<B> &b)
-    { return result_type(ExprT(DExprLiteral<TA>(a),b.getExpr())); }
+  result_type apply(const TA &a, const D<B> &b)
+    { return result_type(ExprT(DLiteral<TA>(a),b.getExpr())); }
 };
 
-#define DOPBIN(name,op)                                       \
-template<class A, class B>                                    \
-typename DOpExecute<DExpr<A>,DExpr<B>,name>::result_type      \
-operator op (const DExpr<A> &a, const DExpr<B> &b)            \
-  { return DOpExecute<DExpr<A>,DExpr<B>,name>::apply(a,b); }  \
-template<class A, typename TB>                                \
-typename DOpExecute<DExpr<A>,TB,name>::result_type            \
-operator op (const DExpr<A> &a, const TB &b)                  \
-  { return DOpExecute<DExpr<A>,TB,name>::apply(a,b); }        \
-template<typename TA, class B>                                \
-typename DOpExecute<TA,DExpr<B>,name>::result_type            \
-operator op (const TA &a, const DExpr<B> &b)                  \
-  { return DOpExecute<TA,DExpr<B>,name>::apply(a,b); }
+#define DOPBIN(name,op)                               \
+template<class A, class B>                            \
+static inline                                         \
+typename DOpExecute<D<A>,D<B>,name>::result_type      \
+operator op (const D<A> &a, const D<B> &b)            \
+  { return DOpExecute<D<A>,D<B>,name>::apply(a,b); }  \
+                                                      \
+template<class A, typename TB>                        \
+static inline                                         \
+typename DOpExecute<D<A>,TB,name>::result_type        \
+operator op (const D<A> &a, const TB &b)              \
+  { return DOpExecute<D<A>,TB,name>::apply(a,b); }    \
+                                                      \
+template<typename TA, class B>                        \
+static inline                                         \
+typename DOpExecute<TA,D<B>,name>::result_type        \
+operator op (const TA &a, const D<B> &b)              \
+  { return DOpExecute<TA,D<B>,name>::apply(a,b); }
 
 #define DOP(name,op) DOPCLASS(name,op) DOPBIN(DOp##name,op)
 
@@ -473,136 +668,8 @@ DOP(LAnd,&&)
 DOP(LOr,||)
 // DOP(DOpLXor,^^)
 
-static
-void dump(const PDNodeBase &node) {
-  std::cout << "Node: " << *node;
-  
-  DNodeNonTerminal *n =
-    dynamic_cast<DNodeNonTerminal *>(&*node);
-  DNodeTerminal    *t =
-    dynamic_cast<DNodeTerminal *>(&*node);
-  assert( n != NULL || t != NULL );
-  if (n != NULL) {
-    std::cout << " " << n->getOpType() << std::endl;
-    std::cout << "{ " << std::endl;
-    dump(n->getLeftNode());
-    std::cout << "," << std::endl;
-    dump(n->getRightNode());
-    std::cout << "}" << std::endl;
-  } else {
-    std::cout << std::endl;
-  }
-}
+void dump(const PASTNode &node);
 
-/*
- 
-bool yes() { return true; }
-
-int main(int argc, char *argv[] ) {
-  double foo = 3.5;
-  int    bar = 3;
-  char  *x   = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  
-//  DVar<int>  y(foo);
-//  DLiteral<int> z(12);
-//  DVar<int> y(foo);
-  
-  Expr<double>::type k0 = var(foo);
-
-  Expr<double>::type k1 = (var(bar) + 1) * 12 + 12 / k0;
-  
-  std::cout << k1.value()  << std::endl;
-
-  foo = -1;
-
-  std::cout << k1.value()  << std::endl;
-
-  //Expr<int> k2 = var(bar) + 13;
-  Expr<double>::type k2 = var(foo) + (var(bar) + 13);
-  //Expr<double> k2 = var(foo) + var(bar);
-  //
-  Expr<int>::type    k3 = var(bar) + 13;
-  
-  std::cout << (k3+x).value()  << std::endl;
-
-  //int xxx ( 12 * 13.5 + 3 );
-  
-  Expr<double>::type k4 = k0 * k1;
-
-  std::cout << k0.value()  << std::endl;
-  foo = -2;
-  std::cout << k0.value()  << std::endl;
-
-  Expr<bool>::type g0 = var(foo) == -2;
-
-  std::cout << g0.value() << std::endl;
-
-  Expr<bool>::type g1 = call(yes);
-  
-  std::cout << g1.value() << std::endl;
-
-  dump(k4.getNodeType());
-
-//  DOpExecute<DExpr<DExprVar<int> >,DExpr<DExprVar<bool> >,DOpAdd> y;
-//  std::cout << y.foo << std::endl;
-
-  
-//  y + z;
-//  DLiteral<int>(1) + y;
-//  (DLiteral<int>(1) + y) / y;
-//  (1 + y) / y;
-  
-  return 0;
-} */
-
-/*
-static inline
-void intrusive_ptr_add_ref(class smoc_guard *g);
-static inline
-void intrusive_ptr_release(class smoc_guard *g);
-
-class smoc_guard {
-public:
-  typedef smoc_guard this_type;
-  
-  friend void intrusive_ptr_add_ref(this_type *);
-  friend void intrusive_ptr_release(this_type *);
-private:
-  size_t refcount;
-public:
-  smoc_guard(): refcount(0) {}
-  
-  virtual tribool isSatisfiable() const = 0;
-  bool knownUnsatisfiable() const
-    { return !isSatisfiable(); }
-  bool knownSatisfiable()   const
-    { return isSatisfiable(); }
-  
-  virtual bool isUplevel() const = 0;
-  virtual bool isInput()   const = 0;
-          bool isOutput()  const
-    { return !isInput(); }
-  
-  virtual void reset()     const = 0;
-  virtual void transfer()  const = 0;
-
-  virtual void dump(std::ostream &out) const {}
-};
-
-static inline
-std::ostream &operator <<( std::ostream &out, const smoc_guard &g)
-  { g.dump(out); return out; }
-
-static inline
-void intrusive_ptr_add_ref(smoc_guard *g)
-  { ++g->refcount; }
-
-static inline
-void intrusive_ptr_release(smoc_guard *g)
-  { if ( !--g->refcount ) delete g; }
-
-typedef boost::intrusive_ptr<smoc_guard> smoc_guard_ptr;
-*/
-
+} // namespace Expr
 
 #endif // _INCLUDED_EXPR_HPP
