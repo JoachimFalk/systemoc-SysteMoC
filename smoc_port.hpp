@@ -31,6 +31,8 @@ class DToken {
 public:
   typedef T       value_type;
   typedef DToken  this_type;
+  
+  friend class Value<this_type>;
 private:
   smoc_port_in<T> &p;
   size_t           pos;

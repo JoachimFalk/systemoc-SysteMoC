@@ -12,10 +12,13 @@
 
 #include <smoc_expr.hpp>
 
+namespace Expr { class DCommReq; }
+
 class smoc_root_port
   : protected sc_port_base {
 public:
-  friend class smoc_guard_comm_request;
+  friend class Expr::CommSetup<Expr::DCommReq>;
+  friend class Expr::CommExec<Expr::DCommReq>;
   
   typedef smoc_root_port  this_type;
 private:
@@ -107,6 +110,8 @@ public:
   
   friend class Value<this_type>;
   friend class AST<this_type>;
+  friend class CommSetup<this_type>;
+  friend class CommExec<this_type>;
 private:
   smoc_root_port  &p;
   size_t           req;
@@ -129,6 +134,30 @@ struct AST<DCommReq> {
   static inline
   result_type apply(const DCommReq &e)
     { return PASTNode(new ASTNodeCommReq()); }
+};
+
+struct CommExec<DCommReq> {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DCommReq &e) {
+    if ( e.p.isOutput() ) {
+      e.p.transfer();
+    }
+    e.p.reset();
+  }
+};
+
+struct CommSetup<DCommReq> {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DCommReq &e) {
+    e.p.setCommittedCount(e.req);
+    if ( e.p.isInput() ) {
+      e.p.transfer();
+    }
+  }
 };
 
 struct D<DCommReq>: public DBase<DCommReq> {

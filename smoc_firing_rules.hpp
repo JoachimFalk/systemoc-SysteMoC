@@ -82,8 +82,7 @@ struct smoc_firing_types {
   
   class transition_ty {
   public:
-    smoc_activation_pattern ap_pre_check,  ap_pre_exec;
-    smoc_activation_pattern ap_post_check, ap_post_exec;
+    smoc_activation_pattern ap;
     func_ty                 f;
     statelist_ty            sl;
     
@@ -103,18 +102,14 @@ struct smoc_firing_types {
         smoc_firing_rules *fr,
         const smoc_transition &t );
 
-    bool knownSatisfiable() const {
-      return ap_pre_check.knownSatisfiable() &&
-             ap_post_check.knownSatisfiable();
-    }
-    bool knownUnsatisfiable() const {
-      return ap_pre_check.knownUnsatisfiable() ||
-             ap_post_check.knownUnsatisfiable();
-    }
-    void reset() {
+    bool knownSatisfiable() const
+      { return ap.knownSatisfiable(); }
+    bool knownUnsatisfiable() const
+      { return ap.knownUnsatisfiable(); }
+/*    void reset() {
       ap_pre_exec.reset(); 
       ap_post_exec.reset(); 
-    }
+    }*/
     
     bool isBlocked() const { return _blocked != NULL; }
     

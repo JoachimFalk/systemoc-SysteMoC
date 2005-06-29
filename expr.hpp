@@ -158,6 +158,22 @@ struct Value {};
 template <class E>
 struct AST {};
 
+template <class E>
+struct CommSetup {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const E &e) {}
+};
+
+template <class E>
+struct CommExec {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const E &e) {}
+};
+
 template<template <class> class Z, class E>
 typename Z<E>::result_type evalTo(const D<E> &e)
   { return Z<E>::apply(e.getExpr()); }
@@ -190,6 +206,11 @@ struct D: public DBase<E> {
 };
 
 /****************************************************************************
+ *
+ */
+
+
+/****************************************************************************
  * DVirtual is a placeholder for some other kind of DXXX classes
  */
 
@@ -205,8 +226,10 @@ public:
     typedef virt_ty  this_type;
     typedef TT       value_type;
   public:
-    virtual PASTNode   evalToAST()   const = 0;
-    virtual value_type evalToValue() const = 0;
+    virtual PASTNode   evalToAST()          const = 0;
+    virtual value_type evalToValue()        const = 0;
+    virtual void       evalToCommSetup()    const = 0;
+    virtual void       evalToCommExec()  const = 0;
   };
   
   boost::intrusive_ptr<virt_ty<T> > v;
@@ -222,8 +245,10 @@ protected:
   public:
     impl_ty( const E &e ): e(e) {}
     
-    PASTNode   evalToAST()   const { return AST<E>::apply(e); }
-    value_type evalToValue() const { return Value<E>::apply(e); }
+    PASTNode   evalToAST()          const { return AST<E>::apply(e); }
+    value_type evalToValue()        const { return Value<E>::apply(e); }
+    void       evalToCommSetup()    const { return CommSetup<E>::apply(e); }
+    void       evalToCommExec()  const { return CommExec<E>::apply(e); }
   };
 public:
   template <class E>
@@ -247,6 +272,24 @@ struct AST<DVirtual<T> > {
   static inline
   result_type apply(const DVirtual <T> &e)
     { return e.v->evalToAST(); }
+};
+
+template <typename T>
+struct CommExec<DVirtual<T> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DVirtual <T> &e)
+    { return e.v->evalToCommExec(); }
+};
+
+template <typename T>
+struct CommSetup<DVirtual<T> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DVirtual <T> &e)
+    { return e.v->evalToCommSetup(); }
 };
 
 template<class T>
@@ -565,8 +608,34 @@ struct AST<DBinOp<A,B,Op> > {
   typedef PASTNode result_type;
   
   static inline
-  PASTNode apply(const DBinOp<A,B,Op> &e) {
+  result_type apply(const DBinOp<A,B,Op> &e) {
     return PASTNode(new ASTNodeBinOp(Op,AST<A>::apply(e.a),AST<B>::apply(e.b)));
+  }
+};
+
+template <class A, class B>
+struct CommExec<DBinOp<A,B,DOpLAnd> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,DOpLAnd> &e) {
+    if ( Value<A>::apply(e.a) )
+      CommExec<A>::apply(e.a);
+    if ( Value<B>::apply(e.b) )
+      CommExec<B>::apply(e.b);
+  }
+};
+
+template <class A, class B>
+struct CommSetup<DBinOp<A,B,DOpLAnd> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,DOpLAnd> &e) {
+    if ( Value<A>::apply(e.a) )
+      CommSetup<A>::apply(e.a);
+    if ( Value<B>::apply(e.b) )
+      CommSetup<B>::apply(e.b);
   }
 };
 

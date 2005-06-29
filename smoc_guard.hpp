@@ -106,34 +106,21 @@ public:
     { return  Expr::evalTo<Expr::Value>(guard); }
   bool      knownUnsatisfiable() const
     { return !Expr::evalTo<Expr::Value>(guard); }
-
-  this_type onlyInputs() const { return *this; }
+  
+  this_type onlyInputs()  const { return *this; }
   this_type onlyOutputs() const { return *this; }
-
+  
   smoc_activation_pattern()
     : guard(Expr::literal(true)) {}
-
+  
   template <class E>
   smoc_activation_pattern(const Expr::D<E> &guard)
     : guard(guard) {}
   
-//  smoc_activation_pattern( const smoc_guard_ptr &p ) {
-//    (*this) &= p;
-//  }
-  
-//  this_type &operator &= ( const smoc_guard_ptr &p ) {
-//    guards.push_back(p);
-//    return *this;
-//  }
-//  this_type &operator &= ( const Expr<bool>::type &g ) {
-//    // FIXME: fill in code
-//    return *this;
-//  }
-
+  /*
   void execute(const Expr::PASTNode &node) {
     std::cout << "Node: ";
 
-  /*
     if (node->isa<ASTNodeVType<bool> >() ) {
       std::cout << "bool(" << node->isa<ASTNodeVType<bool> >()->value() << ") ";
     } else if (node->isa<ASTNodeVType<int> >() ) {
@@ -149,7 +136,6 @@ public:
     } else {
       std::cout << "unknown value_type ";
     }
-    */
     
     if (node->isa<Expr::ASTNodeNonTerminal>()) {
       if ( node->isa<Expr::ASTNodeBinOp>() ) {
@@ -187,28 +173,12 @@ public:
       }
     }
     std::cout << std::endl;
-  }
-  void execute() {
-    std::cout << "=============================================" << std::endl;
-    execute(Expr::evalTo<Expr::AST>(guard));
-  }
+  }*/
+  void commExec()  { return Expr::evalTo<Expr::CommExec >(guard); }
+  void commSetup() { return Expr::evalTo<Expr::CommSetup>(guard); }
   
-  void reset() {
-//    for ( guards_ty::iterator iter = guards.begin();
-//	  iter != guards.end();
-//	  ++iter )
-//      (*iter)->reset();
-  }
-
-  this_type concat( const smoc_activation_pattern &ap2 ) const {
-    this_type retval(*this);
-//    
-//    for ( guards_ty::const_iterator iter = ap2.guards.begin();
-//          iter != ap2.guards.end();
-//          ++iter )
-//      retval.guards.push_back(*iter);
-    return retval;
-  }
+  this_type concat( const smoc_activation_pattern &ap ) const
+    { return this_type(guard && ap.guard); }
   
   void dump(std::ostream &out) const;
 };

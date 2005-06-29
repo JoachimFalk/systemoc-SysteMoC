@@ -122,9 +122,8 @@ void
 smoc_firing_types::transition_ty::initTransition(
     smoc_firing_rules *fr,
     const smoc_transition &t ) {
-  ap_pre_check  = ap_pre_exec  = t.getActivationPattern().onlyInputs();
-  ap_post_check = ap_post_exec = t.getActivationPattern().onlyOutputs();
-  f = t.ia.f;
+  ap = t.getActivationPattern();
+  f  = t.ia.f;
   for ( smoc_firing_state_list::const_iterator siter = t.ia.sl.begin();
         siter != t.ia.sl.end();
         ++siter ) {
@@ -147,7 +146,7 @@ smoc_firing_types::resolved_state_ty::findEnabledTransition() {
         ++titer ) {
     transition_ty &t = *titer;
     
-    t.reset();
+    // t.reset();
     if ( !t.isBlocked() && t.knownSatisfiable() )
       return maybe_transition_ty(true,&t);
   }
@@ -158,7 +157,7 @@ smoc_firing_types::resolved_state_ty *
 smoc_firing_types::transition_ty::execute() {
   resolved_state_ty *retval = NULL;
   
-  ap_pre_exec.execute(); 
+  ap.commSetup();
 //  assert( ap.satisfied() );
   assert( f.type() == 0 ||
           f.type() == 1 ||
@@ -189,7 +188,7 @@ smoc_firing_types::transition_ty::execute() {
       break;
     }
   }
-  ap_post_exec.execute();
+  ap.commExec();
   return retval;
 }
 
@@ -295,12 +294,9 @@ bool smoc_firing_state::choiceStep() {
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {
   out << "transition("
         << this << ","
-        << "knownSatisfiable=" << knownSatisfiable() << ","
+        << "knownSatisfiable="   << knownSatisfiable() << ","
         << "knownUnsatisfiable=" << knownUnsatisfiable() << ", "
-        << "ap_pre_check: " << ap_pre_check << ", "
-        << "ap_pre_exec: " << ap_pre_exec << ", "
-        << "ap_post_check: " << ap_post_check << ", "
-        << "ap_post_exec: " << ap_post_exec << ")";
+        << "ap: "                << ap << ")";
 }
 
 void smoc_firing_state::dump( std::ostream &o ) const {
