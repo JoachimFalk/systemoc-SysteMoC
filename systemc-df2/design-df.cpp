@@ -38,7 +38,7 @@ private:
 public:
   m_h_approx(sc_module_name name)
     : smoc_fixed_transact_passive_node(name,
-        (i1(1) & i2(1) & o1(1)) >> call(&m_h_approx::approx) ) {}
+        (i1(1) && i2(1) && o1(1)) >> call(&m_h_approx::approx) ) {}
 };
 
 class m_h_dup: public smoc_fixed_transact_passive_node {
@@ -50,7 +50,7 @@ private:
 public:
   m_h_dup(sc_module_name name)
     : smoc_fixed_transact_passive_node(name,
-        (i1(1) & o1(1) & o2(1)) >> call(&m_h_dup::dup) ) {}
+        (i1(1) && o1(1) && o2(1)) >> call(&m_h_dup::dup) ) {}
 };
 
 class m_h_sqrloop: public smoc_transact_passive_node {
@@ -74,10 +74,10 @@ public:
   m_h_sqrloop(sc_module_name name)
     : smoc_transact_passive_node( name, start ) {
 // state               guards             action       function      successor states
-    start = Transact( (i1(1) & i2(1)) >> branch(&m_h_sqrloop::check, ok | write ) );
-    ok    = Transact( (o1(1) & o2(1)) >>                             start);
-    write = Transact(  o1(1)          >>                             again);
-    again = Transact(  i2(1)          >> branch(&m_h_sqrloop::check, ok | write ) );
+    start = Transact( (i1(1) && i2(1)) >> branch(&m_h_sqrloop::check, ok | write ) );
+    ok    = Transact( (o1(1) && o2(1)) >>                             start);
+    write = Transact(  o1(1)           >>                             again);
+    again = Transact(  i2(1)           >> branch(&m_h_sqrloop::check, ok | write ) );
   }
 };
 

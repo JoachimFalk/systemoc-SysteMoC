@@ -26,7 +26,7 @@ class m_adder: public smoc_fixed_transact_passive_node {
   public:
     m_adder( sc_module_name name )
       :smoc_fixed_transact_passive_node( name,
-          (in1(2) & in2(1) & out(1)) >> call(&m_adder::process) ) {}
+          (in1(2) && in2(1) && out(1)) >> call(&m_adder::process) ) {}
 };
 
 template <typename T>
@@ -45,7 +45,7 @@ class m_multiply: public smoc_fixed_transact_passive_node {
   public:
     m_multiply( sc_module_name name )
       :smoc_fixed_transact_passive_node( name,
-          (in1(1) & in2(1) & out1(1) & out2(1)) >> call(&m_multiply::process) ) {}
+          (in1(1) && in2(1) && out1(1) && out2(1)) >> call(&m_multiply::process) ) {}
 };
 
 class m_top2

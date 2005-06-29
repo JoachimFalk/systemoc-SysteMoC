@@ -49,34 +49,34 @@ public:
     smoc_firing_state test;
 
     atChannel0
-      = (Control.getAvailableTokens() >= 1 &
-         Data0.getAvailableTokens()   >= 1 &
-         (Control.getValueAt(0) & 1 == false)  ) >>
-        (Output.getAvailableSpace()   >= 1 ) >>
-        call(&Select::action0)               >> atChannel0
-      | (Control.getAvailableTokens() >= 1 &
-         Data1.getAvailableTokens()   >= 1 &
-         (Control.getValueAt(0) & 1 == true )  ) >>
-        (Output.getAvailableSpace()   >= 1 ) >> 
-        call(&Select::action1)               >> atChannel1
-      | (Data0.getAvailableTokens()   >= 1 ) >>
-        (Output.getAvailableSpace()   >= 1 ) >>
-         call(&Select::action0)              >> atChannel0;
+      = (Control.getAvailableTokens() >= 1 &&
+         Data0.getAvailableTokens()   >= 1 &&
+         Control.getValueAt(0) == 0        )  >>
+        (Output.getAvailableSpace()   >= 1 )  >>
+        call(&Select::action0)                >> atChannel0
+      | (Control.getAvailableTokens() >= 1 &&
+         Data1.getAvailableTokens()   >= 1 &&
+         Control.getValueAt(0) == 1        )  >>
+        (Output.getAvailableSpace()   >= 1 )  >> 
+        call(&Select::action1)                >> atChannel1
+      | (Data0.getAvailableTokens()   >= 1 )  >>
+        (Output.getAvailableSpace()   >= 1 )  >>
+         call(&Select::action0)               >> atChannel0;
 
     atChannel1
-      = (Control.getAvailableTokens() >= 1 &
-         Data1.getAvailableTokens()   >= 1 &
-         (Control.getValueAt(0) & 1 == true )  ) >>
-        (Output.getAvailableSpace()   >= 1 ) >>
-        call(&Select::action1)               >> atChannel1
-      | (Control.getAvailableTokens() >= 1 &
-         Data0.getAvailableTokens()   >= 1 &
-         (Control.getValueAt(0) & 1 == false)  ) >>
-        (Output.getAvailableSpace()   >= 1 ) >> 
-        call(&Select::action0)               >> atChannel0
-      | (Data1.getAvailableTokens()   >= 1 ) >>
-        (Output.getAvailableSpace()   >= 1 ) >>
-         call(&Select::action1)              >> atChannel1;
+      = (Control.getAvailableTokens() >= 1 &&
+         Data1.getAvailableTokens()   >= 1 &&
+         Control.getValueAt(0) == 1        )  >>
+        (Output.getAvailableSpace()   >= 1 )  >>
+        call(&Select::action1)                >> atChannel1
+      | (Control.getAvailableTokens() >= 1 &&
+         Data0.getAvailableTokens()   >= 1 &&
+         Control.getValueAt(0) == 0        )  >>
+        (Output.getAvailableSpace()   >= 1 )  >> 
+        call(&Select::action0)                >> atChannel0
+      | (Data1.getAvailableTokens()   >= 1 )  >>
+        (Output.getAvailableSpace()   >= 1 )  >>
+         call(&Select::action1)               >> atChannel1;
     
     start = initialChannel == 0
       ? atChannel0
