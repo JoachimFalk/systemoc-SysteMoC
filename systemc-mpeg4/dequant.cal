@@ -1,0 +1,56 @@
+actor dequant () List[ int ] IN, int FLAGS ==> List[ int ] OUT, int DC, int MIN :
+  function saturate( x ) :
+    if x < -2048 then
+      -2048
+    else
+      if x > 2047 then
+        2047
+      else
+        x
+      end
+    end
+  end
+
+  function limit( x, max ) :
+    if x > max then
+      max
+    else
+      x
+    end
+  end
+
+  function deq( v, QP, scale, r ) :
+    [ if v[i] = 0 then
+        0
+      else
+        if i = 0 and scale != 0 then
+          saturate( v [0] )
+        else
+          if v [i] < 0 then
+            -limit( QP * (((-v[i])*2) + 1) - r, 2048 )
+          else
+            limit( QP * (((v[i])*2) + 1) - r, 2047 )
+          end
+        end
+      end   : for i in Integers( 0, 63 ) ]
+  end
+
+  inter: action IN:[d], FLAGS:[ type, q, scaler ] ==>
+         OUT:[ deq( d, q, scaler, round ) ],
+         MIN:[  if scaler = 0 then -256 else 0 end  ]
+  guard
+    type = 1
+  var
+    int round = bitxor( bitand( q, 1 ), 1 )
+  end
+
+  intra: action IN:[d], FLAGS:[ type, q, scaler ] ==>
+         OUT:[ dd ], DC:[dd[0]],
+         MIN:[  if scaler = 0 then -256 else 0 end  ]
+  guard
+    type = 0
+  var
+    int round = bitxor( bitand( q, 1 ), 1 ),
+    List[int] dd = deq( d, q, scaler, round )
+  end 
+end

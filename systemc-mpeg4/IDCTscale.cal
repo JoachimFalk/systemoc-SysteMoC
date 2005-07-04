@@ -1,0 +1,10 @@
+actor IDCTscale [ int ]
+( int G,
+  int OS
+) int I ==> int O :
+
+  action I:[i] ==> O:[ OS + (G * i) ] end
+
+end
+
+

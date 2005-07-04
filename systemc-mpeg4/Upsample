@@ -1,0 +1,57 @@
+actor Upsample (int factor) int I ==> int O :
+
+  int state := 0;
+  int mem;
+
+  read: action I:[i] ==> O:[i]
+  guard
+   state = 0
+  do
+    mem := i;
+   state := state + 1;
+  end
+
+  copy: action ==> O:[mem]
+  guard
+    state > 0
+  do
+    state := state + 1;
+    if state = factor then
+      state := 0;
+    end
+  end
+
+end
+
+/*************************************************************/
+
+class Upsample: public smoc_actor {
+public:
+  smoc_port_in<int> I;
+  smoc_port_out<int> O;
+private:
+  int  factor;
+  int  state;
+  int  mem;
+
+  bool guard() {return(state == 0);}
+  
+  void action0() {mem = I[0]; state = state + 1; O[0] = I[0]};
+  void action1() {state = state + 1; if (state == factor) state = 0; O[0] = mem};
+  
+  smoc_firing_state start;
+
+public:
+  Upsample(sc_module_name name)
+    : smoc_actor(name, start, int factor),
+      factor(factor), state(state = 0), mem(mem) {
+    start = (I1.getAvailableTokens() >= 1 && 
+             guard(&Upsample::guard) ) >>
+		 call(&Upsample::action0) >> start
+          |  ! guard(&Upsample::guard) ) >>
+             call(&Upsample::action1) >> start;
+  }
+};
+
+
+

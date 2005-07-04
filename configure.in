@@ -61,6 +61,7 @@ AC_CONFIG_FILES(
   systemc-csp/Makefile \
   systemc-sdf/Makefile \
   systemc-select/Makefile \
+  systemc-mpeg4/Makefile \
   systemc-fir/Makefile])
 ACJF_DONE
 

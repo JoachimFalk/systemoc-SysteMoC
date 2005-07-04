@@ -1,0 +1,11 @@
+actor IDCTaddsub [ int ]
+( int G,
+  int OS,
+  int ATTEN
+) int I1, int I2 ==> int O1, int O2 :
+
+  action I1:[i1], I2:[i2] ==> O1:[rshift( G * (i1 + i2) + OS, ATTEN)],
+                              O2:[rshift( G * (i1 - i2) + OS, ATTEN)]
+  end
+end
+
