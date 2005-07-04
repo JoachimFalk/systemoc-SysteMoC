@@ -9,9 +9,6 @@ public:
   smoc_port_out<int>                DC;
   smoc_port_out<int>                MIN;
 private:
-  int type;
-  int round;
-
   int saturate( int x ) {
     int retval0; // static type analysis necessary
     if (x < -2048) {
