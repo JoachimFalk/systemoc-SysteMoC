@@ -12,27 +12,9 @@
 # include <smoc_pggen.hpp>
 #endif
 
-#include "dequant.hpp"
+#include <callib.hpp>
 
-template <typename T>
-class m_adder: public smoc_actor {
-  public:
-    smoc_port_in<T>  in1;
-    smoc_port_in<T>  in2;
-    smoc_port_out<T> out;
-  private:
-    void process() {
-      out[0] = in1[0] + in1[1] + in2[0]; 
-      std::cout << name() << " adding " << in1[0] << " + " << in1[1] << " + " << in2[0] << " = " << out[0] << std::endl;
-    }
-    
-    smoc_firing_state start;
-  public:
-    m_adder( sc_module_name name )
-      :smoc_actor( name, start ) {
-      start = (in1(2) && in2(1) && out(1)) >> call(&m_adder::process) >> start;
-    }
-};
+#include "dequant.hpp"
 
 class m_source: public smoc_actor {
   public:
@@ -53,6 +35,26 @@ class m_source: public smoc_actor {
     }
 };
 
+class m_list_source: public smoc_actor {
+  public:
+    smoc_port_out<cal_list<int>::t> out;
+  private:
+    int i;
+    
+    void process() {
+      out[0] = Integers(i,i+63);
+      std::cout << name() << " generating List " << out[0] << std::endl;
+      i += 35;
+    }
+    
+    smoc_firing_state start;
+  public:
+    m_list_source( sc_module_name name )
+      :smoc_actor( name, start ), i(0) {
+      start =  out(1) >> call(&m_list_source::process) >> start;
+    }
+};
+
 class m_sink: public smoc_actor {
   public:
     smoc_port_in<int> in;
@@ -69,19 +71,39 @@ class m_sink: public smoc_actor {
     }
 };
 
+class m_list_sink: public smoc_actor {
+  public:
+    smoc_port_in<cal_list<int>::t> in;
+  private:
+    void process() {
+      std::cout << name() << " receiving " << in[0] << std::endl;
+    }
+    
+    smoc_firing_state start;
+  public:
+    m_list_sink( sc_module_name name )
+      :smoc_actor( name, start ) {
+      start = in(1) >> call(&m_list_sink::process) >> start;
+    }
+};
+
 class m_top
 : public smoc_ndf_constraintset {
   public:
     m_top( sc_module_name name )
       : smoc_ndf_constraintset(name) {
-      m_top2        &top2 = registerNode(new smoc_ndf_moc<m_top2>("top2"));
-      m_source      &src1 = registerNode(new m_source("src1"));
-      m_source      &src2 = registerNode(new m_source("src2"));
-      m_sink        &sink = registerNode(new m_sink("sink"));
+      m_list_source &lsrc1 = registerNode(new m_list_source("lsrc1"));
+      m_source      &src1  = registerNode(new m_source("src1"));
+      m_list_sink   &lsnk1 = registerNode(new m_list_sink("lsnk1"));
+      m_dequant     &deq1  = registerNode(new m_dequant("deq1"));
+      m_sink        &snk1  = registerNode(new m_sink("snk1"));
+      m_sink        &snk2  = registerNode(new m_sink("snk2"));
       
-      connectNodePorts( src1.out, top2.in1, smoc_fifo<int>(2) );
-      connectNodePorts( src2.out, top2.in2, smoc_fifo<int>(2) );
-      connectNodePorts( top2.out, sink.in,  smoc_fifo<int>(2) );
+      connectNodePorts( lsrc1.out, deq1.IN );
+      connectNodePorts( src1.out, deq1.FLAGS, smoc_fifo<int>(3) );
+      connectNodePorts( deq1.OUT, lsnk1.in );
+      connectNodePorts( deq1.DC, snk1.in );
+      connectNodePorts( deq1.MIN, snk2.in );
     }
 };
 
