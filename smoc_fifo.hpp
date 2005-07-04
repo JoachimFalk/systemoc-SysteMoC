@@ -29,8 +29,18 @@ protected:
   size_t       rindex;
   size_t       windex;
   
-  size_t rpp() { return rindex == fsize-1 ? (rindex=0,fsize-1) : rindex++; }
-  size_t wpp() { return windex == fsize-1 ? (windex=0,fsize-1) : windex++; }
+  void rpp(size_t n) {
+    if ( rindex + n >= fsize )
+      rindex = rindex + n - fsize;
+    else
+      rindex = rindex + n;
+  }
+  void wpp(size_t n) {
+    if ( windex + n >= fsize )
+      windex = windex + n - fsize;
+    else
+      windex = windex + n;
+  }
   
   size_t usedStorage() const {
     size_t used = windex - rindex;
@@ -92,15 +102,6 @@ public:
 private:
   data_type *storage;
 protected:
-  void transferInData( iface_out_type *out ) {
-    for ( ; unusedStorage() && out->canTransfer(); )
-      storage[wpp()] = *out->transferOut();
-  }
-  void transferOutData( iface_in_type *in ) {
-    for ( ; usedStorage() && in->canTransfer(); )
-      in->transferIn( &storage[rpp()] );
-  }
-  
   smoc_fifo_storage( const chan_init &i )
     : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i), storage(new data_type[fsize]) {
     assert( fsize > i.marking.size() );
@@ -108,6 +109,8 @@ protected:
       new(&storage[j]) T(i.marking[j]);
     windex = i.marking.size();
   }
+  
+  data_type *getStorage() const { return storage; }
   
   ~smoc_fifo_storage() { delete storage; }
 };
@@ -135,20 +138,13 @@ public:
         marking(0) {}
   };
 protected:
-  void transferInData( iface_out_type *out ) {
-    for ( ; unusedStorage() && out->canTransfer(); )
-      out->transferOut();
-  }
-  void transferOutData( iface_in_type *in ) {
-    for ( ; usedStorage() && in->canTransfer(); )
-      in->transferIn(NULL);
-  }
-  
   smoc_fifo_storage( const chan_init &i )
     : smoc_chan_nonconflicting_if<smoc_fifo_kind, void>(i) {
     assert( fsize > i.marking );
     windex = i.marking;
   }
+  
+  void *getStorage() const { return NULL; }
 };
 
 template <typename T>
@@ -163,10 +159,18 @@ protected:
   iface_in_type  *in;
   iface_out_type *out;
   
-  void copyData( iface_out_type *out, iface_in_type *in ) {
-    while ( in->canTransfer() && out->canTransfer() )
-      in->transferIn( out->transferOut() );
+  smoc_ring_access<const T> commSetupIn(size_t req) {
+    assert( req <= usedStorage() );
+    return smoc_ring_access<const T>(getStorage(), fsize, rindex, req);
   }
+  void commExecIn(smoc_ring_access<const T> &r)
+    { rpp(r.getLimit()); r.reset(); }
+  smoc_ring_access<T> commSetupOut(size_t req) {
+    assert( req <= unusedStorage() );
+    return smoc_ring_access<T>(getStorage(), fsize, windex, req);
+  }
+  void commExecOut(smoc_ring_access<T> &r)
+    { wpp(r.getLimit()); r.reset(); }
 public:
   // constructors
   smoc_fifo_type( const typename smoc_fifo_storage<T>::chan_init &i )
@@ -175,23 +179,9 @@ public:
   size_t committedOutCount() const {
     return usedStorage();// + (portOutIf->committedCount() - portOutIf->doneCount());
   }
-  size_t maxCommittedOutCount() const {
-    return usedStorage();// + (portOutIf->maxCommittedCount() - portOutIf->doneCount());
-  }
   size_t committedInCount() const {
     return unusedStorage();// + (portInIf->committedCount() - portInIf->doneCount());
   }
-  size_t maxCommittedInCount() const {
-    return unusedStorage();// + (portInIf->maxCommittedCount() - portInIf->doneCount());
-  }
-  
-//  size_t maxCommittableOutCount() const
-//    { return usedStorage(); }
-//  size_t maxCommittableInCount() const
-//    { return unusedStorage(); }
-  
-  void transfer(iface_in_type *_i) { transferOutData(_i); }
-  void transfer(iface_out_type *_o) { transferInData(_o); }
 };
 
 template <typename T>

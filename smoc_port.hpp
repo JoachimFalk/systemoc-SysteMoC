@@ -47,7 +47,7 @@ struct Value<DToken<T> > {
   
   static inline
   result_type apply(const DToken<T> &e)
-    { return T(); }
+    { return e.p[e.pos]; }
 };
 
 template<typename T>
@@ -138,6 +138,7 @@ protected:
   }
 };
 
+/*
 template <typename T>
 class smoc_port_storage_in
   : public smoc_port_base<smoc_chan_in_if<T> > {
@@ -169,40 +170,39 @@ protected:
     : smoc_port_base<smoc_chan_in_if<data_type> >(n) {}
 public:
 };
+*/
 
 template <typename T>
 class smoc_port_in
-  : public smoc_port_storage_in<T> {
+//: public smoc_port_storage_in<T> {
+: public smoc_port_base<smoc_chan_in_if<T> >,
+  public smoc_ring_access<const T> {
 public:
   typedef T                               data_type;
   typedef smoc_port_in<T>                 this_type;
   typedef typename this_type::iface_type  iface_type;
-  typedef smoc_port_storage_in<T>         base_type;
+//  typedef smoc_port_storage_in<T>         base_type;
 private:
-//  void setCommittedCount( size_t _committed ) {
-//    return smoc_root_port::setCommittedCount(_committed);
-//  }
-  
-  void reset() {
-    storageClear(); return base_type::reset();
-  }
-  
   void add_interface( sc_interface *i ) {
     push_interface(i); (*this)->addPortIf( this );
   }
   
-  void transfer() { (*this)->transfer(this); }
+  void commSetup(size_t req) {
+    static_cast<smoc_ring_access<const T> &>(*this) =
+      (*this)->commSetupIn(req);
+  }
+  void commExec() { (*this)->commExecIn(*this); }
 public:
-  void transferIn( const T *in ) { storagePushBack(in); incrDoneCount(); }
+//void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
 //public:
   smoc_port_in()
-    : smoc_port_storage_in<T>( sc_gen_unique_name( "smoc_port_in" )  )
+    : smoc_port_base<smoc_chan_in_if<T> >( sc_gen_unique_name( "smoc_port_in" )  )
     {}
   
   bool isInput() const { return true; }
   
-  size_t availableCount()    const { return doneCount() + (*this)->committedOutCount(); }
-//  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableOutCount(); }
+  size_t availableCount() const
+    { return (*this)->committedOutCount(); }
   
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
@@ -219,6 +219,7 @@ public:
     { bind(parent_); }
 };
 
+/*
 template <typename T>
 class smoc_port_storage_out
   : public smoc_port_base<smoc_chan_out_if<T> > {
@@ -255,36 +256,39 @@ protected:
     : smoc_port_base<smoc_chan_out_if<data_type> >(n) {}
 public:
 };
+*/
 
-template<typename T>
+template <typename T>
 class smoc_port_out
-  : public smoc_port_storage_out<T> {
+//: public smoc_port_storage_out<T> {
+: public smoc_port_base<smoc_chan_out_if<T> >,
+  public smoc_ring_access<T> {
 public:
   typedef T                               data_type;
   typedef smoc_port_out<T>                this_type;
   typedef typename this_type::iface_type  iface_type;
-  typedef smoc_port_storage_out<T>        base_type;
+//  typedef smoc_port_storage_out<T>        base_type;
 private:
-//  void setCommittedCount( size_t _committed ) {
-//    assert( storageSize() >= _committed );
-//    return smoc_root_port::setCommittedCount(_committed);
-//  }
   void add_interface( sc_interface *i ) {
     push_interface(i); (*this)->addPortIf( this );
   }
-
-  void transfer() { (*this)->transfer(this); }
+  
+  void commSetup(size_t req) {
+    static_cast<smoc_ring_access<T> &>(*this) =
+      (*this)->commSetupOut(req);
+  }
+  void commExec() { (*this)->commExecOut(*this); }
 public:
-  const T *transferOut( void ) { return storageElement(incrDoneCount()); }
+//  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
 //public:
   smoc_port_out()
-    : smoc_port_storage_out<T>( sc_gen_unique_name( "smoc_port_out" )  )
+    : smoc_port_base<smoc_chan_out_if<T> >( sc_gen_unique_name( "smoc_port_out" )  )
     {}
   
   bool isInput() const { return false; }
   
-  size_t availableCount()    const { return doneCount() + (*this)->committedInCount(); }
-//  size_t maxAvailableCount() const { return doneCount() + (*this)->maxCommittableInCount(); }
+  size_t availableCount() const
+    { return (*this)->committedInCount(); }
   
   smoc_commreq_number getAvailableSpace()
     { return smoc_commreq_number(*this); }

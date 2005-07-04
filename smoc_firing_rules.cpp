@@ -233,6 +233,7 @@ bool smoc_firing_state::inductionStep() {
   assert( rs != NULL );
   
   bool again = false;
+/*
   for ( smoc_port_list::iterator piter = getPorts().begin();
         piter != getPorts().end();
         ++piter ) {
@@ -243,7 +244,6 @@ bool smoc_firing_state::inductionStep() {
     for ( transitionlist_ty::iterator titer = rs->tl.begin();
           titer != rs->tl.end();
           ++titer ) {
-/*
       smoc_activation_pattern &ap = titer->ap;
       
       if ( !titer->knownUnsatisfiable() ) {
@@ -257,23 +257,23 @@ bool smoc_firing_state::inductionStep() {
           min = 0;
         }
       }
- */
     }
     again |= p.setCommittedCount( min > max ? max : min );
 //    again |= p.setMaxCommittable( max );
   }
+ */
   return again;
 }
 
 bool smoc_firing_state::choiceStep() {
   assert( rs != NULL );
   
+/*
   for ( transitionlist_ty::iterator titer = rs->tl.begin();
         titer != rs->tl.end();
         ++titer ) {
     if ( titer->knownSatisfiable() ) {
       bool again = false;
-      /*
       for ( smoc_port_list::iterator piter = getPorts().begin();
             piter != getPorts().end();
             ++piter ) {
@@ -285,9 +285,9 @@ bool smoc_firing_state::choiceStep() {
 //        again |= p.setMaxCommittable(commitCount);
       }
       return again;
-      */
     }
   }
+*/
   return false;
 }
 

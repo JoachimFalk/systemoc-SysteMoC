@@ -22,15 +22,13 @@ public:
   
   typedef smoc_root_port  this_type;
 private:
-  size_t  committed;
-  size_t  done;
-//  size_t  maxcommittable;
   bool    uplevel;
 protected:
   smoc_root_port( const char* name_ )
-    : sc_port_base( name_, 1 ), uplevel(false) { reset(); }
+    : sc_port_base( name_, 1 ), uplevel(false) {}
   
-  virtual void transfer() = 0;
+  virtual void commSetup(size_t req) = 0;
+  virtual void commExec()            = 0;
 public:
   static const char* const kind_string;
   virtual const char* kind() const
@@ -40,34 +38,8 @@ public:
   bool isOutput() const { return !isInput(); }
   bool isUplevel() const { return uplevel; }
   
-  virtual void reset() { committed = done = 0; /*maxcommittable = ~0;*/ }
+  virtual size_t availableCount()      const = 0;
   
-  bool setCommittedCount( size_t _committed ) {
-    assert( _committed >= committed /*&&
-            _committed <= maxcommittable*/ );
-    bool retval = committed != _committed;
-    committed = _committed;
-    return retval;
-  }
-//  bool setMaxCommittable( size_t _maxcommittable ) {
-//    assert( _maxcommittable <= maxcommittable &&
-//            _maxcommittable >= committed );
-//    bool retval = maxcommittable != _maxcommittable;
-//    maxcommittable = _maxcommittable;
-//    return retval;
-//  }
-  bool canTransfer() const { return committedCount() > doneCount(); }
-  operator bool() const { return !canTransfer(); }
-  
-  size_t doneCount() const { return done; }
-  
-  size_t committedCount() const { return committed; }
-  virtual size_t availableCount() const = 0;
-//  size_t maxCommittableCount() const { return maxcommittable; }
-//  virtual size_t maxAvailableCount() const = 0;
-  
-  size_t incrDoneCount() { return done++; }
-
   // bind interface to this port
   void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
   // bind parent port to this port
@@ -82,8 +54,7 @@ static inline
 std::ostream &operator <<( std::ostream &out, const smoc_root_port &p ) {
   out << "port(" << &p << ","
            "uplevel=" << p.isUplevel() << ","
-           "committed=" << p.committedCount() << ","
-//           "maxcommittable=" << p.maxCommittableCount() << ","
+//           "committed=" << p.committedCount() << ","
            "available=" << p.availableCount() << ")";
   return out;
 }
@@ -120,12 +91,26 @@ public:
     : p(p), req(req) {}
 };
 
+struct CommSetup<DCommReq> {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DCommReq &e)
+    { return e.p.commSetup(e.req); }
+};
+
 struct Value<DCommReq> {
   typedef bool result_type;
   
   static inline
-  result_type apply(const DCommReq &e)
-    { return e.p.availableCount() >= e.req; }
+  result_type apply(const DCommReq &e) {
+    if (e.p.availableCount() >= e.req) {
+      CommSetup<DCommReq>::apply(e);
+      return true;
+    } else {
+      return false;
+    }
+  }
 };
 
 struct AST<DCommReq> {
@@ -140,24 +125,8 @@ struct CommExec<DCommReq> {
   typedef void result_type;
   
   static inline
-  result_type apply(const DCommReq &e) {
-    if ( e.p.isOutput() ) {
-      e.p.transfer();
-    }
-    e.p.reset();
-  }
-};
-
-struct CommSetup<DCommReq> {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DCommReq &e) {
-    e.p.setCommittedCount(e.req);
-    if ( e.p.isInput() ) {
-      e.p.transfer();
-    }
-  }
+  result_type apply(const DCommReq &e)
+    { return e.p.commExec(); }
 };
 
 struct D<DCommReq>: public DBase<DCommReq> {

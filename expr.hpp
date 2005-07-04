@@ -67,6 +67,7 @@ public:
 
 typedef boost::intrusive_ptr<ASTNode> PASTNode;
 
+/*
 template <typename T>
 class ASTNodeVType: public virtual ASTNode {
 public:
@@ -96,42 +97,6 @@ public:
   
 //  value_type value() const
 //    { return e.value(); }
-};
-
-/*
-template <class E>
-class ASTNodeExprRef: public ASTNodeVType<typename E::value_type> {
-public:
-  typedef E                       expr_type;
-  typedef typename E::value_type  value_type;
-  typedef ASTNodeExprRef<E>         this_type;
-private:
-  ref_ty   r;
-  const E *e;
-public:
-  ASTNodeExprRef( const E &e_, const ref_ty &pr = ref_ty() ) {
-    if (pr) {
-      // reference counted copy of e available
-      // therefore reference it for our own copy
-      r = pr;
-      e = &e_;
-    } else {
-      // no reference counted copy of e available
-      // therefore create a reference counted copy
-      ASTNodeExpr<E> *i = new ASTNodeExpr<E>(e_);
-      r = i;
-      e = &i->getExpr();
-    }
-  }
-  
-  const expr_type &getExpr() const { return *e; }
-  const ref_ty    &getExprRef() const { return r; }
-  
-  PASTNode getNType(const ref_ty &) const
-    { return e->getNType(r); }
-  
-  value_type value() const
-    { return e->value(); }
 };
 */
 
@@ -574,17 +539,14 @@ public:
   OpType getOpType() const { return op; }
 };
 
-template<OpType Op,typename T1, typename T2>
+template<OpType Op,class A, class B>
 struct DOpXXX;
 
 template<class A, class B, OpType Op>
 class DBinOp {
 public:
-  typedef typename DOpXXX<
-    Op,
-    typename A::value_type,
-    typename B::value_type>::result_type  value_type;
-  typedef DBinOp<A,B,Op>                  this_type;
+  typedef typename DOpXXX<Op,A,B>::result_type  value_type;
+  typedef DBinOp<A,B,Op>                        this_type;
   
   A a;
   B b;
@@ -597,10 +559,8 @@ struct Value<DBinOp<A,B,Op> > {
   typedef typename DBinOp<A,B,Op>::value_type result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,Op> &e) {
-    return DOpXXX<Op, typename A::value_type, typename B::value_type>::
-      apply(Value<A>::apply(e.a),Value<B>::apply(e.b));
-  }
+  result_type apply(const DBinOp<A,B,Op> &e)
+    { return DOpXXX<Op,A,B>::apply(e.a,e.b); }
 };
 
 template <class A, class B, OpType Op>
@@ -613,12 +573,29 @@ struct AST<DBinOp<A,B,Op> > {
   }
 };
 
+template <class A, class B, OpType Op>
+struct CommExec<DBinOp<A,B,Op> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,Op> &e) {}
+};
+
 template <class A, class B>
 struct CommExec<DBinOp<A,B,DOpLAnd> > {
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,DOpLAnd> &e) {
+  result_type apply(const DBinOp<A,B,DOpLAnd> &e)
+    { CommExec<A>::apply(e.a); CommExec<B>::apply(e.b); }
+};
+
+template <class A, class B>
+struct CommExec<DBinOp<A,B,DOpLOr> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,DOpLOr> &e) {
     if ( Value<A>::apply(e.a) )
       CommExec<A>::apply(e.a);
     if ( Value<B>::apply(e.b) )
@@ -626,12 +603,29 @@ struct CommExec<DBinOp<A,B,DOpLAnd> > {
   }
 };
 
+template <class A, class B, OpType Op>
+struct CommSetup<DBinOp<A,B,Op> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,Op> &e) {}
+};
+
 template <class A, class B>
 struct CommSetup<DBinOp<A,B,DOpLAnd> > {
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,DOpLAnd> &e) {
+  result_type apply(const DBinOp<A,B,DOpLAnd> &e)
+    { CommSetup<A>::apply(e.a); CommSetup<B>::apply(e.b); }
+};
+
+template <class A, class B>
+struct CommSetup<DBinOp<A,B,DOpLOr> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,DOpLOr> &e) {
     if ( Value<A>::apply(e.a) )
       CommSetup<A>::apply(e.a);
     if ( Value<B>::apply(e.b) )
@@ -644,17 +638,18 @@ struct CommSetup<DBinOp<A,B,DOpLAnd> > {
  */
 
 #define DOPCLASS(name,op)                                             \
-template<typename T1, typename T2>                                    \
-struct DOpXXX<DOp##name,T1,T2> {                                      \
-  typedef typeof((*(T1*)(NULL)) op (*(T2*)(NULL))) result_type;       \
+template<class A, class B>                                            \
+struct DOpXXX<DOp##name,A,B> {                                        \
+  typedef typeof((*(typename A::value_type*)(NULL)) op                \
+                 (*(typename B::value_type*)(NULL))) result_type;     \
                                                                       \
   static inline                                                       \
   OpType getOpType()                                                  \
     { return DOp##name; }                                             \
                                                                       \
   static inline                                                       \
-  result_type apply(const T1 &a, const T2 &b)                         \
-    { return a op b; }                                                \
+  result_type apply(const A &a, const B &b)                           \
+    { return Value<A>::apply(a) op Value<B>::apply(b); }              \
 };
 
 /****************************************************************************
