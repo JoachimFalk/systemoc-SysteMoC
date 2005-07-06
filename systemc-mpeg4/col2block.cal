@@ -1,0 +1,15 @@
+actor col2block [int] () int R0, int R1, int R2, int R3,
+                         int R4, int R5, int R6, int R7 ==> List[int] B :
+
+  action R0:[r0] repeat 8,
+         R1:[r1] repeat 8,
+         R2:[r2] repeat 8,
+         R3:[r3] repeat 8,
+         R4:[r4] repeat 8,
+         R5:[r5] repeat 8,
+         R6:[r6] repeat 8,
+         R7:[r7] repeat 8 ==> B:[r0 + r1 + r2 + r3 + r4 + r5 + r6 + r7]
+  end
+end
+
+

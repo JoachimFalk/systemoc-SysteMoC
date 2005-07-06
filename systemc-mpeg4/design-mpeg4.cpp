@@ -14,7 +14,16 @@
 
 #include <callib.hpp>
 
+#include "IDCTaddsub.hpp"
+#include "IDCTclip.hpp"
+#include "IDCTfly.hpp"
+#include "IDCTscale.hpp"
 #include "dequant.hpp"
+#include "Upsample.hpp"
+#include "block2row.hpp"
+#include "byte2bit.hpp"
+#include "col2block.hpp"
+#include "reconstruct.hpp"
 
 class m_source: public smoc_actor {
   public:

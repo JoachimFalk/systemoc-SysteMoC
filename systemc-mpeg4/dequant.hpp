@@ -9,28 +9,18 @@ public:
   smoc_port_out<int>                DC;
   smoc_port_out<int>                MIN;
 private:
-  int saturate( int x ) {
-    int retval0; // static type analysis necessary
-    if (x < -2048) {
-      retval0 = -2048;
-    } else {
-      if (x > 2047) {
-        retval0 = 2047;
-      } else {
-        retval0 = x;
-      }
-    }
-    return retval0;
+  int saturate( int x ) { // static type analysis necessary
+    return x < -2048
+      ? -2048
+      : ( x > 2047
+          ? 2047
+          : x );
   }
   
   int limit(int x, int max) {
-    int retval0;
-    if (x > max) {
-      retval0 = max;
-    } else {
-      retval0 = x;
-    }
-    return retval0;
+    return x > max
+      ? max
+      : x;
   }
   
   cal_list<int>::t deq( const cal_list<int>::t &v, int QP, int scale, int r) {

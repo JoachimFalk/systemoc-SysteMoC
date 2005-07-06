@@ -1,0 +1,26 @@
+actor Upsample (int factor) int I ==> int O :
+
+  int state := 0;
+  int mem;
+
+  read: action I:[i] ==> O:[i]
+  guard
+   state = 0
+  do
+    mem := i;
+   state := state + 1;
+  end
+
+  copy: action ==> O:[mem]
+  guard
+    state > 0
+  do
+    state := state + 1;
+    if state = factor then
+      state := 0;
+    end
+  end
+
+end
+
+
