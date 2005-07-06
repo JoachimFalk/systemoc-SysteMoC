@@ -23,6 +23,8 @@ template <typename T>
 T cal_bitxor( T a, T b ) { return a ^ b; }
 template <typename T1>
 T1 cal_rshift( T1 value, unsigned int factor ) { return value >> factor; }
+template <typename T1>
+T1 cal_lshift( T1 value, unsigned int factor ) { return value << factor; }
 
 template <typename T>
 std::ostream &operator << ( std::ostream &o, const std::vector<T> &l ) {
