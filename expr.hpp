@@ -433,6 +433,10 @@ template <typename T>
 typename Proc<T>::type call(T (*f)())
   { return Proc<T>::type(f); }
 
+/****************************************************************************
+ * DMemProc
+ */
+
 class ASTNodeMemProc: public ASTNodeTerminal {
 private:
   void       *o;
@@ -487,6 +491,65 @@ struct MemProc { typedef D<DMemProc<T,X> > type; };
 template <typename T, class X>
 typename MemProc<T,X>::type call(X *o, T (X::*m)())
   { return MemProc<T,X>::type(o,m); }
+
+/****************************************************************************
+ * DMemGuard
+ */
+
+class ASTNodeMemGuard: public ASTNodeTerminal {
+private:
+  void       *o;
+  const void *m;
+public:
+  template<typename T, class X>
+  ASTNodeMemGuard(X *const o, T (X::*m)() const): o(o), m(m) {}
+  
+  const void *ptrMemGuard() const { return m; }
+  void       *ptrObj()     const { return o; }
+};
+
+template<typename T, class X>
+class DMemGuard {
+public:
+  typedef T              value_type;
+  typedef DMemGuard<T,X> this_type;
+  
+  X     *const o;
+  T (X::*m)() const;
+public:
+  explicit DMemGuard(X *const o, T (X::*m)() const): o(o), m(m) {}
+};
+
+template <typename T, class X>
+struct Value<DMemGuard<T,X> > {
+  typedef T result_type;
+  
+  static inline
+  T apply(const DMemGuard<T,X> &e)
+    { return (e.o->*e.m)(); }
+};
+
+template <typename T, class X>
+struct AST<DMemGuard<T,X> > {
+  typedef PASTNode result_type;
+  
+  static inline
+  PASTNode apply(const DMemGuard <T,X> &e)
+    { return PASTNode(new ASTNodeMemGuard(o,m)); }
+};
+
+template<typename T, class X>
+struct D<DMemGuard<T,X> >: public DBase<DMemGuard<T,X> > {
+  D(X *const o, T (X::*m)() const): DBase<DMemGuard<T,X> >(DMemGuard<T,X>(o,m)) {}
+};
+
+// Make a convenient typedef for the placeholder type.
+template <typename T, class X>
+struct MemGuard { typedef D<DMemGuard<T,X> > type; };
+
+template <typename T, class X>
+typename MemGuard<T,X>::type guard(X *const o, T (X::*m)() const)
+  { return MemGuard<T,X>::type(o,m); }
 
 /****************************************************************************
  * DBinOp represents a binary operation on two expressions.

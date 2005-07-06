@@ -32,6 +32,15 @@ protected:
 //    std::cerr << "call(f)" << std::endl;
     return smoc_func_call(this,f);
   }
+  template <typename T, class X>
+  typename Expr::MemGuard<T,X>::type guard(T (X::*m)() const) const {
+    return Expr::guard( dynamic_cast<X *const>(this), m );
+  }
+  template <typename T>
+  static
+  typename Expr::Var<T>::type var(T &x)
+    { return Expr::var(x); }
+  
   template <typename T>
   smoc_interface_action branch(
       const smoc_firing_state &(T::*f)(),
