@@ -206,10 +206,10 @@ public:
   
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
+  Expr::CommNr::type getAvailableTokens()
+    { return Expr::commnr(*this); }
   
-  smoc_commreq_number getAvailableTokens()
-    { return smoc_commreq_number(*this); }
-  Expr::CommReq::type
+  Expr::D<Expr::DBinOp<Expr::DCommNr, Expr::DLiteral<size_t>, Expr::DOpGe> >
   operator ()( size_t n )
     { return getAvailableTokens() >= n; }
   
@@ -290,9 +290,10 @@ public:
   size_t availableCount() const
     { return (*this)->committedInCount(); }
   
-  smoc_commreq_number getAvailableSpace()
-    { return smoc_commreq_number(*this); }
-  Expr::CommReq::type
+  Expr::CommNr::type getAvailableSpace()
+    { return Expr::commnr(*this); }
+  
+  Expr::D<Expr::DBinOp<Expr::DCommNr, Expr::DLiteral<size_t>, Expr::DOpGe> >
   operator ()( size_t n )
     { return getAvailableSpace() >= n; }
   

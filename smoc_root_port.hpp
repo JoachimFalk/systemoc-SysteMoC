@@ -19,6 +19,7 @@ class smoc_root_port
 public:
   friend class Expr::CommSetup<Expr::DCommReq>;
   friend class Expr::CommExec<Expr::DCommReq>;
+  friend class smoc_commreq_number;
   
   typedef smoc_root_port  this_type;
 private:
@@ -68,16 +69,16 @@ typedef std::list<smoc_root_port *> smoc_port_list;
 
 namespace Expr {
 
-class ASTNodeCommReq: public ASTNodeTerminal {
+class ASTNodeCommNr: public ASTNodeTerminal {
 public:
-  ASTNodeCommReq() 
+  ASTNodeCommNr() 
     : ASTNodeTerminal() {}
 };
 
-class DCommReq {
+class DCommNr {
 public:
-  typedef bool      value_type;
-  typedef DCommReq  this_type;
+  typedef size_t   value_type;
+  typedef DCommNr  this_type;
   
   friend class Value<this_type>;
   friend class AST<this_type>;
@@ -85,63 +86,137 @@ public:
   friend class CommExec<this_type>;
 private:
   smoc_root_port  &p;
-  size_t           req;
 public:
-  explicit DCommReq(smoc_root_port &p, size_t req)
-    : p(p), req(req) {}
+  explicit DCommNr(smoc_root_port &p)
+    : p(p) {}
 };
 
-struct CommSetup<DCommReq> {
+/*
+struct CommSetup<DCommNr> {
   typedef void result_type;
   
   static inline
-  result_type apply(const DCommReq &e)
+  result_type apply(const DCommNr &e)
     { return e.p.commSetup(e.req); }
 };
+*/
 
-struct Value<DCommReq> {
-  typedef bool result_type;
+struct Value<DCommNr> {
+  typedef DCommNr::value_type result_type;
   
   static inline
-  result_type apply(const DCommReq &e) {
-    if (e.p.availableCount() >= e.req) {
-      CommSetup<DCommReq>::apply(e);
-      return true;
-    } else {
-      return false;
-    }
-  }
+  result_type apply(const DCommNr &e)
+    { return e.p.availableCount(); }
 };
 
-struct AST<DCommReq> {
+struct AST<DCommNr> {
   typedef PASTNode result_type;
   
   static inline
-  result_type apply(const DCommReq &e)
-    { return PASTNode(new ASTNodeCommReq()); }
+  result_type apply(const DCommNr &e)
+    { return PASTNode(new ASTNodeCommNr()); }
 };
 
-struct CommExec<DCommReq> {
+/*
+struct CommExec<DCommNr> {
   typedef void result_type;
   
   static inline
-  result_type apply(const DCommReq &e)
+  result_type apply(const DCommNr &e)
     { return e.p.commExec(); }
 };
+*/
 
-struct D<DCommReq>: public DBase<DCommReq> {
-  D(smoc_root_port &p, size_t req)
-    : DBase<DCommReq>(DCommReq(p,req)) {}
+struct D<DCommNr>: public DBase<DCommNr> {
+  D(smoc_root_port &p)
+    : DBase<DCommNr>(DCommNr(p)) {}
 };
 
-// Make a convenient typedef for the commreq type.
-struct CommReq {
-  typedef D<DCommReq> type;
+// Make a convenient typedef for the CommNr type.
+struct CommNr {
+  typedef D<DCommNr> type;
 };
 
 static inline
-CommReq::type commreq(smoc_root_port &p, size_t req)
-  { return CommReq::type(p,req); }
+CommNr::type commnr(smoc_root_port &p)
+  { return CommNr::type(p); }
+
+template <class B, OpType Op>
+class DOpExecute<DCommNr,B,Op> {};
+
+template <class B>
+class DOpExecute<DCommNr,B,DOpGt> {
+public:
+  typedef DBinOp<DCommNr,B,DOpGt>                 ExprT;
+  typedef D<ExprT>                                result_type;
+  
+  static inline
+  result_type apply(const DCommNr &a, const B &b)
+    { return result_type(ExprT(a,b)); }
+};
+template <class TB>
+class DOpExecute<DCommNr,DLiteral<TB>,DOpGt> {
+public:
+  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpGt>  ExprT;
+  typedef D<ExprT>                                result_type;
+  
+  static inline
+  result_type apply(const DCommNr &a, const DLiteral<size_t> &b)
+    { return result_type(ExprT(a,b)); }
+};
+template <class B>
+class DOpExecute<DCommNr,B,DOpGe> {
+public:
+  typedef DBinOp<DCommNr,B,DOpGe>                 ExprT;
+  typedef D<ExprT>                                result_type;
+  
+  static inline
+  result_type apply(const DCommNr &a, const B &b)
+    { return result_type(ExprT(a,b)); }
+};
+template <class TB>
+class DOpExecute<DCommNr,DLiteral<TB>,DOpGe> {
+public:
+  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpGe>  ExprT;
+  typedef D<ExprT>                                result_type;
+  
+  static inline
+  result_type apply(const DCommNr &a, const DLiteral<size_t> &b)
+    { return result_type(ExprT(a,b)); }
+};
+
+/*
+
+template <class B>
+class DOpExecute<D<DCommNr>,D<B>, DOpGe> {
+public:
+  typedef DBinOp<DCommNr,B,DOpGe>                 ExprT;
+  typedef D<ExprT>                                result_type;
+  
+  static inline
+  result_type apply(const D<DCommNr> &a, const D<B> &b)
+    { return result_type(ExprT(a.getExpr(),b.getExpr())); }
+};
+template <class TB>
+class DOpExecute<D<DCommNr>, TB, DOpGt> {
+public:
+  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpGt>  ExprT;
+  typedef D<ExprT>                                result_type;
+  
+  static inline
+  result_type apply(const D<DCommNr> &a, size_t b)
+    { return result_type(ExprT(a.getExpr(),DLiteral<size_t>(b))); }
+};
+template <class TB>
+class DOpExecute<D<DCommNr>, TB, DOpGe> {
+public:
+  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpGe>  ExprT;
+  typedef D<ExprT>                                result_type;
+  
+  static inline
+  result_type apply(const D<DCommNr> &a, size_t b)
+    { return result_type(ExprT(a.getExpr(),DLiteral<size_t>(b))); }
+};*/
 
 }
 /****************************************************************************/
@@ -152,9 +227,9 @@ private:
 public:
   explicit smoc_commreq_number(smoc_root_port &p): p(p) {}
   
-  Expr::CommReq::type operator >= (size_t req)
-    { return Expr::commreq(p,req); }
-  Expr::CommReq::type operator >  (size_t req)
+  bool operator >= (size_t req)
+    { return p.availableCount() >= req; }
+  bool operator >  (size_t req)
     { return *this >= req+1; }
 };
 

@@ -340,6 +340,8 @@ public:
   const T v;
 public:
   explicit DLiteral(const T &v): v(v) {}
+  template <typename X>
+  DLiteral(const DLiteral<X> &l): v(l.v) {}
 };
 
 template <typename T>
@@ -720,59 +722,38 @@ struct DOpXXX<DOp##name,A,B> {                                        \
  */
 
 template <class A, class B, OpType Op>
-class DOpExecute;
-
-template <class A, class B, OpType Op>
-class DOpExecute<D<A>,D<B>, Op> {
+class DOpExecute {
 public:
-  typedef DBinOp<A,B,Op>              ExprT;
-  typedef D<ExprT>                    result_type;
+  typedef DBinOp<A,B,Op> ExprT;
+  typedef D<ExprT>       result_type;
   
   static inline
-  result_type apply(const D<A> &a, const D<B> &b)
-    { return result_type(ExprT(a.getExpr(),b.getExpr())); }
+  result_type apply(const A &a, const B &b)
+    { return result_type(ExprT(a,b)); }
 };
 
-template <class A, class TB, OpType Op>
-class DOpExecute<D<A>, TB, Op> {
-public:
-  typedef DBinOp<A,DLiteral<TB>,Op>   ExprT;
-  typedef D<ExprT>                    result_type;
-  
-  static inline
-  result_type apply(const D<A> &a, const TB &b)
-    { return result_type(ExprT(a.getExpr(),DLiteral<TB>(b))); }
-};
-
-template <class TA, class B, OpType Op>
-class DOpExecute<TA, D<B>, Op> {
-public:
-  typedef DBinOp<DLiteral<TA>,B,Op>   ExprT;
-  typedef D<ExprT>                    result_type;
-  
-  static inline
-  result_type apply(const TA &a, const D<B> &b)
-    { return result_type(ExprT(DLiteral<TA>(a),b.getExpr())); }
-};
-
-#define DOPBIN(name,op)                               \
-template<class A, class B>                            \
-static inline                                         \
-typename DOpExecute<D<A>,D<B>,name>::result_type      \
-operator op (const D<A> &a, const D<B> &b)            \
-  { return DOpExecute<D<A>,D<B>,name>::apply(a,b); }  \
-                                                      \
-template<class A, typename TB>                        \
-static inline                                         \
-typename DOpExecute<D<A>,TB,name>::result_type        \
-operator op (const D<A> &a, const TB &b)              \
-  { return DOpExecute<D<A>,TB,name>::apply(a,b); }    \
-                                                      \
-template<typename TA, class B>                        \
-static inline                                         \
-typename DOpExecute<TA,D<B>,name>::result_type        \
-operator op (const TA &a, const D<B> &b)              \
-  { return DOpExecute<TA,D<B>,name>::apply(a,b); }
+#define DOPBIN(name,op)                                         \
+template<class A, class B>                                      \
+static inline                                                   \
+typename DOpExecute<A,B,name>::result_type                      \
+operator op (const D<A> &a, const D<B> &b) {                    \
+  return DOpExecute<A,B,name>::                                 \
+    apply(a.getExpr(),b.getExpr());                             \
+}                                                               \
+template<class A, typename TB>                                  \
+static inline                                                   \
+typename DOpExecute<A,DLiteral<TB>,name>::result_type           \
+operator op (const D<A> &a, const TB &b) {                      \
+  return DOpExecute<A,DLiteral<TB>,name>::                      \
+    apply(a.getExpr(),DLiteral<TB>(b));                         \
+}                                                               \
+template<typename TA, class B>                                  \
+static inline                                                   \
+typename DOpExecute<DLiteral<TA>,B,name>::result_type           \
+operator op (const TA &a, const D<B> &b) {                      \
+  return DOpExecute<DLiteral<TA>,B,name>::                      \
+    apply(DLiteral<TA>(a),b.getExpr());                         \
+}
 
 #define DOP(name,op) DOPCLASS(name,op) DOPBIN(DOp##name,op)
 
