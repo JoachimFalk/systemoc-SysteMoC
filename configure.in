@@ -57,12 +57,12 @@ SYSTEMC_LDFLAGS="$SYSTEMC_LDFLAGS $BOOST_LDFLAGS"
 
 AC_CONFIG_FILES(
 [ Makefile \
-  systemc-df2/Makefile \
   systemc-csp/Makefile \
   systemc-sdf/Makefile \
+  systemc-sqr/Makefile \
+  systemc-fir/Makefile \
   systemc-select/Makefile \
-  systemc-mpeg4/Makefile \
-  systemc-fir/Makefile])
+  systemc-mpeg4/Makefile])
 ACJF_DONE
 
 AC_OUTPUT

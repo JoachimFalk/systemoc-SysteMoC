@@ -33,10 +33,10 @@ AM_LDFLAGS=						\
 	@SYSTEMC_LDFLAGS@				\
 	-L$(root_builddir)/SysteMoC
 
-noinst_PROGRAMS= simulation-df
+noinst_PROGRAMS= simulation-sqr
 
 LIBS=-lsystemc -lsystemoc
 
 # LDADD= $(root_builddir)/SysteMoC/libsystemoc.la
 
-simulation_df_SOURCES= design-df.cpp
+simulation_sqr_SOURCES= design-sqr.cpp

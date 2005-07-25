@@ -29,6 +29,7 @@ class m_source: public smoc_actor {
   public:
     smoc_port_out<int> out;
   private:
+    size_t foo;
     int i;
     
     void process() {
@@ -40,7 +41,9 @@ class m_source: public smoc_actor {
   public:
     m_source( sc_module_name name )
       :smoc_actor( name, start ), i(0) {
-      start =  out(1) >> call(&m_source::process) >> start;
+      foo = 1;
+      start = (out.getAvailableSpace() >= var(foo)) >>
+              call(&m_source::process)              >> start;
     }
 };
 
