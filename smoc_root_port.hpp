@@ -90,11 +90,11 @@ public:
 };
 
 template <class B>
-struct CommSetup<DBinOp<DCommNr, B, DOpGe> > {
+struct CommSetup<DBinOp<DCommNr, B, DOpBinGe> > {
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<DCommNr, B, DOpGe> &e)
+  result_type apply(const DBinOp<DCommNr, B, DOpBinGe> &e)
     { return e.a.p.commSetup(Value<B>::apply(e.b)); }
 };
 
@@ -115,11 +115,11 @@ struct AST<DCommNr> {
 };
 
 template <class B>
-struct CommExec<DBinOp<DCommNr, B, DOpGe> > {
+struct CommExec<DBinOp<DCommNr, B, DOpBinGe> > {
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<DCommNr, B, DOpGe> &e)
+  result_type apply(const DBinOp<DCommNr, B, DOpBinGe> &e)
     { return e.a.p.commExec(); }
 };
 
@@ -137,13 +137,13 @@ static inline
 CommNr::type commnr(smoc_root_port &p)
   { return CommNr::type(p); }
 
-template <class B, OpType Op>
-class DOpExecute<DCommNr,B,Op> {};
+template <class B, OpBinT Op>
+class DOpBinExecute<DCommNr,B,Op> {};
 
 template <class B>
-class DOpExecute<DCommNr,B,DOpGt> {
+class DOpBinExecute<DCommNr,B,DOpBinGt> {
 public:
-  typedef DBinOp<DCommNr,B,DOpGt>                 ExprT;
+  typedef DBinOp<DCommNr,B,DOpBinGt>                 ExprT;
   typedef D<ExprT>                                result_type;
   
   static inline
@@ -151,9 +151,9 @@ public:
     { return result_type(ExprT(a,b)); }
 };
 template <class TB>
-class DOpExecute<DCommNr,DLiteral<TB>,DOpGt> {
+class DOpBinExecute<DCommNr,DLiteral<TB>,DOpBinGt> {
 public:
-  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpGt>  ExprT;
+  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpBinGt>  ExprT;
   typedef D<ExprT>                                result_type;
   
   static inline
@@ -161,9 +161,9 @@ public:
     { return result_type(ExprT(a,b)); }
 };
 template <class B>
-class DOpExecute<DCommNr,B,DOpGe> {
+class DOpBinExecute<DCommNr,B,DOpBinGe> {
 public:
-  typedef DBinOp<DCommNr,B,DOpGe>                 ExprT;
+  typedef DBinOp<DCommNr,B,DOpBinGe>                 ExprT;
   typedef D<ExprT>                                result_type;
   
   static inline
@@ -171,9 +171,9 @@ public:
     { return result_type(ExprT(a,b)); }
 };
 template <class TB>
-class DOpExecute<DCommNr,DLiteral<TB>,DOpGe> {
+class DOpBinExecute<DCommNr,DLiteral<TB>,DOpBinGe> {
 public:
-  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpGe>  ExprT;
+  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpBinGe>  ExprT;
   typedef D<ExprT>                                result_type;
   
   static inline

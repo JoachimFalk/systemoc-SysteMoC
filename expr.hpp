@@ -565,36 +565,39 @@ typename MemGuard<T,X>::type guard(const X *o, T (X::*m)() const)
 
 /****************************************************************************
  * DBinOp represents a binary operation on two expressions.
- * A and B are the two expressions being combined, and Op is an applicative
- * template representing the operation.
+ * A and B are the two expressions being combined, and Op is
+ * an enum which represents the operation.
  */
 
 typedef enum {
-  DOpAdd, DOpSub, DOpMultiply, DOpDivide,
-  DOpEq, DOpNe, DOpLt, DOpLe, DOpGt, DOpGe,
-  DOpBAnd, DOpBOr, DOpBXor, DOpLAnd, DOpLOr, DOpLXor
-} OpType;
+  DOpBinAdd, DOpBinSub, DOpBinMultiply, DOpBinDivide,
+  DOpBinEq, DOpBinNe, DOpBinLt, DOpBinLe, DOpBinGt, DOpBinGe,
+  DOpBinBAnd, DOpBinBOr, DOpBinBXor, DOpBinLAnd, DOpBinLOr, DOpBinLXor
+} OpBinT;
+
+template<class A, class B, OpBinT Op>
+class DBinOp;
 
 static inline
-std::ostream &operator << (std::ostream &o, const OpType &op ) {
+std::ostream &operator << (std::ostream &o, const OpBinT &op ) {
   switch (op) {
-    case DOpAdd:      o << "DOpAdd"; break;
-    case DOpSub:      o << "DOpSub"; break;
-    case DOpMultiply: o << "DOpMultiply"; break;
-    case DOpDivide:   o << "DOpDivide"; break;
-    case DOpEq:       o << "DOpEq"; break;
-    case DOpNe:       o << "DOpNe"; break;
-    case DOpLt:       o << "DOpLt"; break;
-    case DOpLe:       o << "DOpLe"; break;
-    case DOpGt:       o << "DOpGt"; break;
-    case DOpGe:       o << "DOpGe"; break;
-    case DOpBAnd:     o << "DOpBAnd"; break;
-    case DOpBOr:      o << "DOpBOr"; break;
-    case DOpBXor:     o << "DOpBXor"; break;
-    case DOpLAnd:     o << "DOpLAnd"; break;
-    case DOpLOr:      o << "DOpLOr"; break;
-    case DOpLXor:     o << "DOpLXor"; break;
-    default:          o << "???"; break;
+    case DOpBinAdd:      o << "DOpBinAdd"; break;
+    case DOpBinSub:      o << "DOpBinSub"; break;
+    case DOpBinMultiply: o << "DOpBinMultiply"; break;
+    case DOpBinDivide:   o << "DOpBinDivide"; break;
+    case DOpBinEq:       o << "DOpBinEq"; break;
+    case DOpBinNe:       o << "DOpBinNe"; break;
+    case DOpBinLt:       o << "DOpBinLt"; break;
+    case DOpBinLe:       o << "DOpBinLe"; break;
+    case DOpBinGt:       o << "DOpBinGt"; break;
+    case DOpBinGe:       o << "DOpBinGe"; break;
+    case DOpBinBAnd:     o << "DOpBinBAnd"; break;
+    case DOpBinBOr:      o << "DOpBinBOr"; break;
+    case DOpBinBXor:     o << "DOpBinBXor"; break;
+    case DOpBinLAnd:     o << "DOpBinLAnd"; break;
+    case DOpBinLOr:      o << "DOpBinLOr"; break;
+    case DOpBinLXor:     o << "DOpBinLXor"; break;
+    default:             o << "???"; break;
   }
   return o;
 }
@@ -603,19 +606,16 @@ class ASTNodeBinOp: public ASTNodeNonTerminal {
 public:
 
 protected:
-  OpType    op;
+  OpBinT    op;
   PASTNode  l, r;
 public:
-  ASTNodeBinOp( OpType op, const PASTNode &l, const PASTNode &r)
+  ASTNodeBinOp( OpBinT op, const PASTNode &l, const PASTNode &r)
     : op(op), l(l), r(r) {}
   
-  PASTNode getLeftNode()  { return l; }
-  PASTNode getRightNode() { return r; }
-  OpType getOpType() const { return op; }
+  PASTNode getLeftNode()     { return l; }
+  PASTNode getRightNode()    { return r; }
+  OpBinT   getOpType() const { return op; }
 };
-
-template<class A, class B, OpType Op>
-class DBinOp;
 
 /****************************************************************************
  * APPLICATIVE TEMPLATE CLASSES
@@ -638,7 +638,7 @@ public:                                                               \
   DBinOp(const A& a, const B& b): a(a), b(b) {}                       \
 };
 
-template <class A, class B, OpType Op>
+template <class A, class B, OpBinT Op>
 struct Value<DBinOp<A,B,Op> > {
   typedef typename DBinOp<A,B,Op>::value_type result_type;
   
@@ -647,7 +647,7 @@ struct Value<DBinOp<A,B,Op> > {
     { return e.value(); }
 };
 
-template <class A, class B, OpType Op>
+template <class A, class B, OpBinT Op>
 struct AST<DBinOp<A,B,Op> > {
   typedef PASTNode result_type;
   
@@ -657,7 +657,7 @@ struct AST<DBinOp<A,B,Op> > {
   }
 };
 
-template <class A, class B, OpType Op>
+template <class A, class B, OpBinT Op>
 struct CommExec<DBinOp<A,B,Op> > {
   typedef void result_type;
   
@@ -666,20 +666,20 @@ struct CommExec<DBinOp<A,B,Op> > {
 };
 
 template <class A, class B>
-struct CommExec<DBinOp<A,B,DOpLAnd> > {
+struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,DOpLAnd> &e)
+  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e)
     { CommExec<A>::apply(e.a); CommExec<B>::apply(e.b); }
 };
 
 template <class A, class B>
-struct CommExec<DBinOp<A,B,DOpLOr> > {
+struct CommExec<DBinOp<A,B,DOpBinLOr> > {
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,DOpLOr> &e) {
+  result_type apply(const DBinOp<A,B,DOpBinLOr> &e) {
     if ( Value<A>::apply(e.a) )
       CommExec<A>::apply(e.a);
     if ( Value<B>::apply(e.b) )
@@ -687,7 +687,7 @@ struct CommExec<DBinOp<A,B,DOpLOr> > {
   }
 };
 
-template <class A, class B, OpType Op>
+template <class A, class B, OpBinT Op>
 struct CommSetup<DBinOp<A,B,Op> > {
   typedef void result_type;
   
@@ -696,20 +696,20 @@ struct CommSetup<DBinOp<A,B,Op> > {
 };
 
 template <class A, class B>
-struct CommSetup<DBinOp<A,B,DOpLAnd> > {
+struct CommSetup<DBinOp<A,B,DOpBinLAnd> > {
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,DOpLAnd> &e)
+  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e)
     { CommSetup<A>::apply(e.a); CommSetup<B>::apply(e.b); }
 };
 
 template <class A, class B>
-struct CommSetup<DBinOp<A,B,DOpLOr> > {
+struct CommSetup<DBinOp<A,B,DOpBinLOr> > {
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,DOpLOr> &e) {
+  result_type apply(const DBinOp<A,B,DOpBinLOr> &e) {
     if ( Value<A>::apply(e.a) )
       CommSetup<A>::apply(e.a);
     if ( Value<B>::apply(e.b) )
@@ -721,8 +721,8 @@ struct CommSetup<DBinOp<A,B,DOpLOr> > {
  * OPERATORS for APPLICATIVE TEMPLATE CLASSES
  */
 
-template <class A, class B, OpType Op>
-class DOpExecute {
+template <class A, class B, OpBinT Op>
+class DOpBinExecute {
 public:
   typedef DBinOp<A,B,Op> ExprT;
   typedef D<ExprT>       result_type;
@@ -735,27 +735,27 @@ public:
 #define DOPBIN(name,op)                                         \
 template<class A, class B>                                      \
 static inline                                                   \
-typename DOpExecute<A,B,name>::result_type                      \
+typename DOpBinExecute<A,B,name>::result_type                   \
 operator op (const D<A> &a, const D<B> &b) {                    \
-  return DOpExecute<A,B,name>::                                 \
+  return DOpBinExecute<A,B,name>::                              \
     apply(a.getExpr(),b.getExpr());                             \
 }                                                               \
 template<class A, typename TB>                                  \
 static inline                                                   \
-typename DOpExecute<A,DLiteral<TB>,name>::result_type           \
+typename DOpBinExecute<A,DLiteral<TB>,name>::result_type        \
 operator op (const D<A> &a, const TB &b) {                      \
-  return DOpExecute<A,DLiteral<TB>,name>::                      \
+  return DOpBinExecute<A,DLiteral<TB>,name>::                   \
     apply(a.getExpr(),DLiteral<TB>(b));                         \
 }                                                               \
 template<typename TA, class B>                                  \
 static inline                                                   \
-typename DOpExecute<DLiteral<TA>,B,name>::result_type           \
+typename DOpBinExecute<DLiteral<TA>,B,name>::result_type        \
 operator op (const TA &a, const D<B> &b) {                      \
-  return DOpExecute<DLiteral<TA>,B,name>::                      \
+  return DOpBinExecute<DLiteral<TA>,B,name>::                   \
     apply(DLiteral<TA>(a),b.getExpr());                         \
 }
 
-#define DOP(name,op) DBINOP(DOp##name,op) DOPBIN(DOp##name,op)
+#define DOP(name,op) DBINOP(DOpBin##name,op) DOPBIN(DOpBin##name,op)
 
 DOP(Add,+)
 DOP(Sub,-)
@@ -774,7 +774,141 @@ DOP(BOr,|)
 DOP(BXor,^)
 DOP(LAnd,&&)
 DOP(LOr,||)
-// DOP(DOpLXor,^^)
+// DOP(LXor,^^)
+
+#undef DOP
+#undef DOPBIN
+#undef DBINOP
+
+/****************************************************************************
+ * DUnOp represents a unary operation in an expressions.
+ * A is the input expression of the operation, and Op is
+ * an enum which represents the operation.
+ */
+
+typedef enum {
+  DOpUnNot
+} OpUnT;
+
+template<class A, OpUnT Op>
+class DUnOp;
+
+static inline
+std::ostream &operator << (std::ostream &o, const OpUnT &op ) {
+  switch (op) {
+    case DOpUnNot:       o << "DOpUnNot"; break;
+    default:             o << "???"; break;
+  }
+  return o;
+}
+
+class ASTNodeUnOp: public ASTNodeNonTerminal {
+public:
+
+protected:
+  OpUnT     op;
+  PASTNode  c;
+public:
+  ASTNodeUnOp( OpUnT op, const PASTNode &c)
+    : op(op), c(c) {}
+  
+  PASTNode getChildNode()    { return c; }
+  OpUnT    getOpType() const { return op; }
+};
+
+/****************************************************************************
+ * APPLICATIVE TEMPLATE CLASSES
+ */
+
+#define DUNOP(Op,op)                                                  \
+template<class A>                                                     \
+class DUnOp<A,Op> {                                                   \
+public:                                                               \
+  typedef DUnOp<A,Op>                                   this_type;    \
+  typedef typeof(op (*(typename A::value_type*)(NULL))) value_type;   \
+                                                                      \
+  A a;                                                                \
+                                                                      \
+  value_type value() const                                            \
+    { return op Value<A>::apply(a); }                                 \
+public:                                                               \
+  DUnOp(const A& a): a(a) {}                                          \
+};
+
+template <class A, OpUnT Op>
+struct Value<DUnOp<A,Op> > {
+  typedef typename DUnOp<A,Op>::value_type result_type;
+  
+  static inline
+  result_type apply(const DUnOp<A,Op> &e)
+    { return e.value(); }
+};
+
+template <class A, OpUnT Op>
+struct AST<DUnOp<A,Op> > {
+  typedef PASTNode result_type;
+  
+  static inline
+  result_type apply(const DUnOp<A,Op> &e) {
+    return PASTNode(new ASTNodeUnOp(Op,AST<A>::apply(e.a)));
+  }
+};
+
+template <class A, OpUnT Op>
+struct CommExec<DUnOp<A,Op> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DUnOp<A,Op> &e)
+    { CommExec<A>::apply(e.a); }
+};
+
+template <class A, OpUnT Op>
+struct CommSetup<DUnOp<A,Op> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DUnOp<A,Op> &e)
+    { CommSetup<A>::apply(e.a); }
+};
+
+/****************************************************************************
+ * OPERATORS for APPLICATIVE TEMPLATE CLASSES
+ */
+
+template <class A, OpUnT Op>
+class DOpUnExecute {
+public:
+  typedef DUnOp<A,Op> ExprT;
+  typedef D<ExprT>    result_type;
+  
+  static inline
+  result_type apply(const A &a)
+    { return result_type(ExprT(a)); }
+};
+
+#define DOPUN(name,op)                                          \
+template<class A>                                               \
+static inline                                                   \
+typename DOpUnExecute<A,name>::result_type                      \
+operator op (const D<A> &a) {                                   \
+  return DOpUnExecute<A,name>::apply(a.getExpr());              \
+}                                                               \
+template<typename TA>                                           \
+static inline                                                   \
+typename DOpUnExecute<DLiteral<TA>,name>::result_type           \
+operator op (const TA &a) {                                     \
+  return DOpUnExecute<DLiteral<TA>,name>::                      \
+    apply(DLiteral<TA>(a));                                     \
+}
+
+#define DOP(name,op) DUNOP(DOpUn##name,op) DOPUN(DOpUn##name,op)
+
+DOP(Not,!)
+
+#undef DOP
+#undef DOPUN
+#undef DUNOP
 
 void dump(const PASTNode &node);
 

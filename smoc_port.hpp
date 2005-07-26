@@ -209,7 +209,7 @@ public:
   Expr::CommNr::type getAvailableTokens()
     { return Expr::commnr(*this); }
   
-  Expr::D<Expr::DBinOp<Expr::DCommNr, Expr::DLiteral<size_t>, Expr::DOpGe> >
+  Expr::D<Expr::DBinOp<Expr::DCommNr, Expr::DLiteral<size_t>, Expr::DOpBinGe> >
   operator ()( size_t n )
     { return getAvailableTokens() >= n; }
   
@@ -293,7 +293,7 @@ public:
   Expr::CommNr::type getAvailableSpace()
     { return Expr::commnr(*this); }
   
-  Expr::D<Expr::DBinOp<Expr::DCommNr, Expr::DLiteral<size_t>, Expr::DOpGe> >
+  Expr::D<Expr::DBinOp<Expr::DCommNr, Expr::DLiteral<size_t>, Expr::DOpBinGe> >
   operator ()( size_t n )
     { return getAvailableSpace() >= n; }
   
