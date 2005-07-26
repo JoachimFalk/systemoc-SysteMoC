@@ -30,10 +30,10 @@ public:
     : smoc_actor(name, start),
       factor(factor), state(0) {
     start = (I.getAvailableTokens() >= 1 &&
-             Expr::var<int>(state) == 0)      >>
+             var(state) == 0)                 >>
             (O.getAvailableSpace() >= 1)      >>
             call(&m_Upsample::action0)        >> start
-          | (Expr::var<int>(state)  > 0)      >>
+          | (var(state)  > 0)                 >>
             (O.getAvailableSpace() >= 1)      >>
             call(&m_Upsample::action1)        >> start;
   }
