@@ -143,24 +143,18 @@ private:
   void action_vol_startcode_good(void);
   void action_vol_startcode_bad(void);
   void acion_vol_id(void);
-  bool guard_vol_layer_detailed(void) const;
   void action_vol_layer_detailed(void);
   void action_vol_layer_nodetails(void);
-  bool guard_vol_aspect_detailed(void) const;
   void action_vol_aspect_detailed(void);
   void action_vol_aspect_nodetails(void);
-  bool guard_vol_control_detailed(void) const;
   void action_vol_control_detailed(void);
   void action_vol_control_nodetails(void);
-  bool guard_vol_vbv_detailed(void) const;
   void action_vol_vbv_detailed(void);
   void action_vol_vbv_nodetails(void);
   void action_vol_time_inc(void);
-  bool guard_vop_rate_variable(void) const;
   void action_vop_rate_variable(void);
   void action_vop_rate_fixed(void);
   void action_vol_size(void);
-  bool guard_vol_misc_unsupported(void) const;
   void action_vol_misc_unsupported(void);
   void action_vol_misc_supported(void);
   void action_byte_align(void);
@@ -172,7 +166,6 @@ private:
   bool guard_vop_predict_bvop(void) const;
   void action_vop_predict_bvop(void);
   void action_vop_predict_other(void);
-  bool guard_vop_timebase_one(void) const;
   void action_vop_timebase_one(void);
   void action_vop_timebase_zero(void);
   void action_vop_time_inc(void);
@@ -190,93 +183,55 @@ private:
   int middle( int a, int b, int c );
   void next_mbxy(void);
   void action_mb_done(void);
-  bool guard_mb_done(void) const;
-  bool guard_mcbpc_pvop_uncoded(void) const;
   void action_mcbpc_pvop_uncoded(void);
-  bool guard_mcbpc_ivop_b1(void) const;
   void action_mcbpc_ivop_b1(void);
-  bool guard_mcbpc_ivop_b3(void);
   void action_mcbpc_ivop_b3(void);
-  bool guard_ivop_b4(void) const;
   void action_ivop_b4(void);
-  bool guard_ivop_b6(void) const;
   void action_ivop_b6(void);
-  bool guard_mcbpc_pvop_b1(void) const;
   void action_mcbpc_pvop_b1(void);
-  bool guard_mcbpc_pvop_b3(void) const;
   void action_mcbpc_pvop_b3(void);
-  bool guard_mcbpc_pvop_b4(void) const;
   void action_mcbpc_pvop_b4(void);
-  bool guard_mcbpc_pvop_b5(void) const;
   void action_mcbpc_pvop_b5(void);
-  bool guard_mcbpc_pvop_b6(void) const;
   void action_mcbpc_pvop_b6(void);
-  bool guard_mcbpc_pvop_b7(void) const;
   void action_mcbpc_pvop_b7(void);
   void action_mcbpc_pvop_b8(void);
-  bool guard_mcbpc_pvop_b8(void) const ;
   void action_mcbpc_pvop_b9(void);
-  bool guard_mcbpc_pvop_b9(void) const ;
   void action_mcbpc_bad(void);
   void action_get_mbtype_noac(void);
   bool guard_get_mbtype_noac(void) const ;
   void action_get_mbtype_ac(void);
-  bool guard_get_cbpy_b2(void) const ;
   void action_get_cbpy_b2(void);
   void action_get_cbpy_b4(void);
-  bool guard_get_cbpy_b4(void) const ;
   void action_get_cbpy_b5(void);
-  bool guard_get_cbpy_b5(void) const ;
   void action_get_cbpy_b6(void);
-  bool guard_get_cbpy_b6(void) const ;
   void action_bad_cbpy(void);
   void action_final_cbpy_inter(void);
-  bool guard_final_cbpy_inter(void) const ;
   void action_final_cbpy_intra(void);
   void action_mb_dispatch_done(void);
-  bool guard_mb_dispatch_done(void) const ;
-  bool guard_mb_dispatch_intra(void) const ;
   void action_mb_dispatch_intra(void);
   bool guard_mb_dispatch_inter_no_ac(void) const ;
   void action_mb_dispatch_inter_no_ac(void);
   void action_mb_dispatch_inter_ac_coded(void);
-  bool guard_vld_start_intra(void) const ;
   void action_vld_start_intra(void);
   void action_vld_start_inter(void);
   void action_dcbits_b2(void);
-  bool guard_dcbits_b2(void) const ;
   void action_dcbits_b3(void);
-  bool guard_dcbits_b3(void) const ;
   void action_dcbits_b4(void);
-  bool guard_dcbits_b4(void) const ;
   void action_dcbits_b5(void);
-  bool guard_dcbits_b5(void) const ;
   void action_dcbits_b6(void);
-  bool guard_dcbits_b6(void) const ;
   void action_dcbits_b7(void);
-  bool guard_dcbits_b7(void) const ;
   void action_dcbits_b8(void);
-  bool guard_dcbits_b8(void) const ;
   void action_dcbits_b9(void);
-  bool guard_dcbits_b9(void) const ;
   void action_dcbits_b10(void);
-  bool guard_dcbits_b10(void) const ;
   void action_dcbits_b11(void);
-  bool guard_dcbits_b11(void) const ;
   void action_dcbits_b12(void);
-  bool guard_dcbits_b12(void) const ;
   void action_dcbits_bad(void);
   void action_get_dc_none(void);
-  bool guard_get_dc_none(void) const ;
   void action_get_dc_small(void);
-  bool guard_get_dc_small(void) const ;
   void action_get_dc_large(void);
-  bool guard_block_done(void) const ;
   void action_block_done(void);
   void action_vld_code_b2(void);
-  bool guard_vld_code_b2(void) const ;
   void action_vld_code_b3(void);
-  bool guard_vld_code_b3(void) const ;
   void action_vld_code_b4(void);
   bool guard_vld_code_b4(void) const ;
   void action_vld_code_b5(void);
@@ -297,13 +252,10 @@ private:
   bool guard_vld_code_b12(void) const ;
   void action_vld_code_bad(void);
   void action_vld_code_lookup(void);
-  bool guard_vld_code_lookup(void) const ;
   void action_vld_level(void);
-  bool guard_vld_level(void) const ;
   int intra_max_level(int last,int run);
   int inter_max_level(int last, int run);
   void action_vld_level_lookup(void);
-  bool guard_vld_run(void) const ;
   void action_vld_run(void);
   int intra_max_run(int last,int level);
   int inter_max_run(int last,int level);
@@ -311,18 +263,12 @@ private:
   void action_vld_direct_lookup(void);
   int uvclip_1( int v );
   int uvclip_4( int y0, int y1, int y2, int y3 ) ;
-  bool guard_mvcode_done(void) const ;
   void action_mvcode_done(void);
-  bool guard_mvcode_b1(void) const ;
   void action_mvcode_b1(void);
   void action_mvcode_b2(void);
-  bool guard_mvcode_b2(void) const ;
   void action_mvcode_b3(void);
-  bool guard_mvcode_b3(void) const ;
   void action_mvcode_b4(void);
-  bool guard_mvcode_b4(void) const ;
   void action_mvcode_b6(void);
-  bool guard_mvcode_b6(void) const ;
   void action_mvcode_b7(void);
   bool guard_mvcode_b7(void) const ;
   void action_mvcode_b9(void);
@@ -334,27 +280,19 @@ private:
   void action_mvcode_b12(void);
   bool guard_mvcode_b12(void) const ;
   void action_mvcode_bad(void);
-  bool guard_get_residual_x_none(void) const ;
   void action_get_residual_x_none(void);
   void action_get_residual_x_some(void);
   void action_get_residual_y_none(void);
-  bool guard_get_residual_y_none(void) const ;
   void action_get_residual_y_some(void);
-  bool guard_mvpred_y0_cornercase(void) const ;
   void action_mvpred_y0_cornercase(void);
-  bool guard_mvpred_y0_other(void) const ;
   void action_mvpred_y0_other(void);
   void action_mvpred_y1_cornercase(void);
-  bool guard_mvpred_y1_cornercase(void) const ;
-  bool guard_mvpred_y1_other(void) const ;
   void action_mvpred_y1_other(void);
-  bool guard_mvpred_y2(void) const ;
   void action_mvpred_y2(void);
   void action_mvpred_y3(void);
   int mvclip( int v );
   int mvcalc( int pred, int mag, int res );
   void action_mvcompute(void);
-
 
 
 private:
@@ -556,10 +494,6 @@ void m_parser::acion_vol_id(void){
   bit_count = bit_count + 14;
 }
 
-bool m_parser::guard_vol_layer_detailed(void) const{
-  //can directly be put into graph (expression)
-  return (vol_layer_is_detailed == 1);
-}
 
 void m_parser::action_vol_layer_detailed(void){
 
@@ -576,10 +510,7 @@ void m_parser::action_vol_layer_nodetails(void){
   bit_count = bit_count + 4;
 }
 
-bool m_parser::guard_vol_aspect_detailed(void) const{
-  //can directly be put into graph (expression)
-  return(vol_aspect_val == 15);
-}
+
 
 void m_parser::action_vol_aspect_detailed(void){
   BOUND_BITS_TO_B(17);
@@ -596,10 +527,6 @@ void m_parser::action_vol_aspect_nodetails(void){
   bit_count = bit_count + 1;
 }
 
-bool m_parser::guard_vol_control_detailed(void) const{
-  //can directly be put into graph (expression)
-  return ( vol_control_is_detailed == 1);
-}
 
 void m_parser::action_vol_control_detailed(void){
   BOUND_BITS_TO_B(4);
@@ -617,10 +544,7 @@ void m_parser::action_vol_control_nodetails(void){
   bit_count = bit_count + 3;
 }
 
-bool m_parser::guard_vol_vbv_detailed(void) const{
-  //can directly be put into graph (expression)
-  return(vol_vbv_is_detailed == 1);
-}
+
 
 void m_parser::action_vol_vbv_detailed(void){
   BOUND_BITS_TO_B(82);
@@ -663,10 +587,6 @@ void m_parser::action_vol_time_inc(void){
   bit_count = bit_count + 18;
 }
 
-bool m_parser::guard_vop_rate_variable(void) const{
-  //can directly be put into graph (expression)
-  return(vol_fixed_rate == 0);
-}
 
 void m_parser::action_vop_rate_variable(void){
   //input bindung
@@ -690,19 +610,6 @@ void m_parser::action_vol_size(void){
   vol_height = value( b, 9, 14 );
   bit_count = bit_count + 28;
   // cout << "VOL width = " << vol_width << ", height = " << vol_height << endl;
-}
-
-bool m_parser::guard_vol_misc_unsupported(void) const{
-  BOUND_BITS_TO_B(9);
-
-  return( 
-	 (b[0] == 1) ||     // interlaced
-	 (b[2] == 1) ||     // sprites
-	 (b[3] == 1) ||     // not 8-bit pixels
-	 (b[4] == 1) ||     // not using method 2 quantization
-	 (b[7] == 1) ||     // data partitioning
-	 (b[8] == 1)        // scalability
-	 );
 }
 
 void m_parser::action_vol_misc_unsupported(void){
@@ -779,12 +686,6 @@ void m_parser::action_vop_predict_other(void){
   prediction_type = value( b, 2, 0 );
 }
 
-bool m_parser::guard_vop_timebase_one(void) const{
-  //can directly be put into graph  
-  int b = bits[0];
- 
-  return(b == 1);
-}
 
 void m_parser::action_vop_timebase_one(void){
   bit_count = bit_count + 1;
@@ -1040,23 +941,8 @@ void m_parser::next_mbxy(void){
 void m_parser::action_mb_done(void){
 }
 
-bool m_parser::guard_mb_done(void) const{
-  //can directly be put into graph
-  return(mby == vol_height);
-}
-
 
 // Nothing to do - uncoded
-
-bool m_parser::guard_mcbpc_pvop_uncoded(void) const{
-  // bound input ports
-  int b = bits[0];
-  //can directly be put into graph
-  return(
-	 (prediction_type == P_VOP) &&
-	 (b == 1)
-	 );
-}
 
 void m_parser::action_mcbpc_pvop_uncoded(void){
 
@@ -1116,16 +1002,6 @@ void m_parser::action_mcbpc_pvop_uncoded(void){
 }
 
 // 1xxxxx   3
-bool m_parser::guard_mcbpc_ivop_b1(void) const{
-  //can directly be put into graph
-  
-  //bound input ports
-  int b = bits[0];
-  return(
-	 (prediction_type == I_VOP) &&
-	 (b == 1)
-	 );
-}
 
 void m_parser::action_mcbpc_ivop_b1(void){
   //BOUND_BITS_TO_B(1);
@@ -1137,14 +1013,6 @@ void m_parser::action_mcbpc_ivop_b1(void){
 //  001xxx  19
 //  010xxx  35
 //  011xxx  51
-bool  m_parser::guard_mcbpc_ivop_b3(void){
-  //can directly be put into graph
-  BOUND_BITS_TO_B(3);
-  return(
-	 (prediction_type == I_VOP) &&
-	 ((b [1] == 1) || (b [2] == 1))
-	 );
-}
   
 void  m_parser::action_mcbpc_ivop_b3(void){
   BOUND_BITS_TO_B(3);
@@ -1155,13 +1023,6 @@ void  m_parser::action_mcbpc_ivop_b3(void){
 }
 
 //  0001xx   4
-bool m_parser::guard_ivop_b4(void) const{
-  BOUND_BITS_TO_B(4);
-  return(
-	 (prediction_type == I_VOP) &&
-	 (b[3] == 1)
-	 );
-}
 
 void m_parser::action_ivop_b4(void){
   BOUND_BITS_TO_B(4);
@@ -1175,14 +1036,6 @@ void m_parser::action_ivop_b4(void){
 //  000001  20
 //  000010  36
 //  000011  52
-bool m_parser::guard_ivop_b6(void) const{
-  //can directly be put into graph
-  BOUND_BITS_TO_B(6);
-  return(
-	 (prediction_type == I_VOP) &&
-	 ((b[4] == 1) || (b[5] == 1))
-	 );
-}
 
 void m_parser::action_ivop_b6(void){
   BOUND_BITS_TO_B(6);
@@ -1196,13 +1049,6 @@ void m_parser::action_ivop_b6(void){
 // "uncoded flag".
 
 //  1xxxxxxxx     0
-bool m_parser::guard_mcbpc_pvop_b1(void) const{
-  BOUND_BITS_TO_B(2);
-  return(
-	 (prediction_type == P_VOP) &&
-	 (b[1] == 1)
-	 );
-}
 
 void m_parser::action_mcbpc_pvop_b1(void){
   BOUND_BITS_TO_B(2);
@@ -1213,14 +1059,7 @@ void m_parser::action_mcbpc_pvop_b1(void){
 
 //  010xxxxxx     2
 //  011xxxxxx     1
-bool m_parser::guard_mcbpc_pvop_b3(void) const{
-  BOUND_BITS_TO_B(4);
-  
-  return(
-	 (prediction_type == P_VOP) &&
-	 (b[2] == 1)
-	 );
-}
+
 void m_parser::action_mcbpc_pvop_b3(void){
   BOUND_BITS_TO_B(4);
 
@@ -1231,13 +1070,7 @@ void m_parser::action_mcbpc_pvop_b3(void){
 
 //  0010xxxxx    32
 //  0011xxxxx    16
-bool m_parser::guard_mcbpc_pvop_b4(void) const{
-  BOUND_BITS_TO_B(5);
-  return(
-	 (prediction_type == P_VOP) &&
-	 (b[3] == 1)
-	 );
-}
+
 
 void m_parser::action_mcbpc_pvop_b4(void){
   BOUND_BITS_TO_B(5);
@@ -1247,14 +1080,6 @@ void m_parser::action_mcbpc_pvop_b4(void){
 }
 
 // 00011xxxx     3
-bool m_parser::guard_mcbpc_pvop_b5(void) const{
-  BOUND_BITS_TO_B(6);
-  return(
-	 (prediction_type == P_VOP) &&
-	 (b[4] == 1) &&
-	 (b[5] == 1)
-	 );
-}
 
 void m_parser::action_mcbpc_pvop_b5(void){
   mcbpc = 3; 
@@ -1264,15 +1089,6 @@ void m_parser::action_mcbpc_pvop_b5(void){
 
 //  000100xxx     4
 //  000101xxx    48
-bool m_parser::guard_mcbpc_pvop_b6(void) const{
-  BOUND_BITS_TO_B(7);
-  
-  return(
-	 (prediction_type == P_VOP) &&
-	 (b[4] == 1) &&
-	 (b[5] == 0)
-	 );
-}
 
 void m_parser::action_mcbpc_pvop_b6(void){
   BOUND_BITS_TO_B(7);
@@ -1286,14 +1102,7 @@ void m_parser::action_mcbpc_pvop_b6(void){
 //  0000101xx    18
 //  0000110xx    33
 //  0000111xx    17
-bool m_parser::guard_mcbpc_pvop_b7(void) const{
-  BOUND_BITS_TO_B(8);
 
-  return(
-	 (prediction_type == P_VOP) &&
-	 ((b[5] == 1) || (( b[6] == 1)  && (b[7] == 1)))
-	 );
-}
 void m_parser::action_mcbpc_pvop_b7(void){
   BOUND_BITS_TO_B(8);
 
@@ -1319,15 +1128,7 @@ void m_parser::action_mcbpc_pvop_b8(void){
   cout << "PVOP with 8 bit mcbpc = "  << mcbpc << endl;
 }
 
-bool m_parser::guard_mcbpc_pvop_b8(void) const {
 
-  BOUND_BITS_TO_B(9);
-  
-  return(
-	 (prediction_type == P_VOP) &&
-	 ((b[6] == 1) || ((b[7] == 1) && (b[8] == 1)))
-	 );
-}
 //  000000001   255
 //  000000010    52
 //  000000011    36
@@ -1354,14 +1155,6 @@ void m_parser::action_mcbpc_pvop_b9(void){
   };
   bit_count = bit_count + 10;
   cout << "PVOP with 9 bit mcbpc = " << mcbpc << endl;
-}
-
-bool m_parser::guard_mcbpc_pvop_b9(void) const {
-  BOUND_BITS_TO_B(10);
-  return(
-	 (prediction_type == P_VOP) &&
-	 ((b[7] == 1) || (b[8] == 1) || (b[9] == 1))
-	 );
 }
 
 void m_parser::action_mcbpc_bad(void){
@@ -1402,12 +1195,6 @@ void m_parser::action_get_mbtype_ac(void){
 
 
 //  11xxxx    15
-bool m_parser::guard_get_cbpy_b2(void) const {
-  BOUND_BITS_TO_B(2);
-  return (
-	  (b[0] == 1) && (b[1] == 1)
-	  );
-}
 
 void m_parser::action_get_cbpy_b2(void){
   BOUND_BITS_TO_B(2);
@@ -1461,12 +1248,6 @@ void m_parser::action_get_cbpy_b4(void){
   };
   bit_count = bit_count + 4;
 }
-bool m_parser::guard_get_cbpy_b4(void) const {
-  BOUND_BITS_TO_B(4);
-  return (
-	  (b[0] == 1) || (b[1] == 1) || ((b[2] == 1) && (b[3] == 1))
-	  );
-}
 
 
 // 00010x     8
@@ -1491,26 +1272,12 @@ void m_parser::action_get_cbpy_b5(void){
   bit_count = bit_count + 5;
 }
 
-bool m_parser::guard_get_cbpy_b5(void) const {
-  BOUND_BITS_TO_B(5);
-  
-  return(
-	 (b[2] == 1) || (b[3] == 1)
-	 );
-}
-
 // 000010     6
 // 000011     9
 void m_parser::action_get_cbpy_b6(void){
   BOUND_BITS_TO_B(6);
   cbpy = ( b[5] == 0) ? 6 : 9;
   bit_count = bit_count + 6;
-}
-
-bool m_parser::guard_get_cbpy_b6(void) const {
-  BOUND_BITS_TO_B(6);
-
-  return (b[4] == 1);
 }
 
 
@@ -1529,11 +1296,6 @@ void m_parser::action_final_cbpy_inter(void){
   cout << "inter CBPY is " << cbpy << ", CBP is " << cbp << endl;
 }
 
-bool m_parser::guard_final_cbpy_inter(void) const {
-  return(
-	 btype == INTER
-	 );
-}
 
 
 void m_parser::action_final_cbpy_intra(void){
@@ -1547,14 +1309,6 @@ void m_parser::action_final_cbpy_intra(void){
 void m_parser::action_mb_dispatch_done(void){
   next_mbxy();
   next_mvindex();
-}
-
-bool m_parser::guard_mb_dispatch_done(void) const {
-  return(comp == 6);
-}
-
-bool m_parser::guard_mb_dispatch_intra(void) const {
-  return(btype == INTRA);
 }
 
 void m_parser::action_mb_dispatch_intra(void){
@@ -1631,14 +1385,6 @@ void m_parser::action_mb_dispatch_inter_ac_coded(void){
  *************************************************************/
 
   
-
-
-bool m_parser::guard_vld_start_intra(void) const {
-  return(
-	 (prediction_type == I_VOP)
-	 );
-}
-
 void m_parser::action_vld_start_intra(void){
 
   block = initList( 0, 64 );
@@ -1696,14 +1442,6 @@ void m_parser::action_dcbits_b2(void){
   // cout << "comp " << comp << " dc bits = " << dcbits << endl;
 }
 
-bool m_parser::guard_dcbits_b2(void) const {
-  BOUND_BITS_TO_B(2);
-  return(
-	 (b[0] == 1) || ((b[1] == 1) && (comp > 3 ))
-	 );
-}
-
-
 void m_parser::action_dcbits_b3(void){
   BOUND_BITS_TO_B(3);
 
@@ -1724,29 +1462,12 @@ void m_parser::action_dcbits_b3(void){
   // println("comp "+comp+" dc bits = "+dcbits);
 }
 
-bool m_parser::guard_dcbits_b3(void) const {
-  BOUND_BITS_TO_B(3);
-  
-  return(
-	 (b[1] == 1) || (b[2] == 1)
-	 );
-}
-
-
 void m_parser::action_dcbits_b4(void){
   BOUND_BITS_TO_B(4);
   dcbits = ( comp > 3 ) ?  4 : 5;
   bit_count = bit_count + 4;
   // println("comp "+comp+" dc bits = "+dcbits);
 }
-bool m_parser::guard_dcbits_b4(void) const {
-
-  BOUND_BITS_TO_B(4);
-  return(
-	 b[3] == 1
-	 );
-}
-
 
 void m_parser::action_dcbits_b5(void){
   BOUND_BITS_TO_B(5);
@@ -1754,26 +1475,12 @@ void m_parser::action_dcbits_b5(void){
   bit_count = bit_count + 5;
   // println("comp "+comp+" dc bits = "+dcbits);
 }
-bool m_parser::guard_dcbits_b5(void) const {
-
-  BOUND_BITS_TO_B(5);
-
-  return(b[4] == 1);
-}
-
 
 void m_parser::action_dcbits_b6(void){
   BOUND_BITS_TO_B(6);
   dcbits = ( comp > 3) ? 6 : 7;
   bit_count = bit_count + 6;
   // println("comp "+comp+" dc bits = "+dcbits);
-}
-
-bool m_parser::guard_dcbits_b6(void) const {
-
-  BOUND_BITS_TO_B(6);
-
-  return (b[5] == 1);
 }
 
 
@@ -1784,23 +1491,12 @@ void m_parser::action_dcbits_b7(void){
   // println("comp "+comp+" dc bits = "+dcbits);
 }
 
-bool m_parser::guard_dcbits_b7(void) const {
-  
-  BOUND_BITS_TO_B(7);
-
-  return(b[6] == 1);
-}
 
 void m_parser::action_dcbits_b8(void){
   BOUND_BITS_TO_B(8);
   dcbits = ( comp > 3) ? 8 : 9;
   bit_count = bit_count + 8;
   // println("comp "+comp+" dc bits = "+dcbits);
-}
-
-bool m_parser::guard_dcbits_b8(void) const {
-  BOUND_BITS_TO_B(8);
-  return(b[7] == 1);
 }
 
 
@@ -1810,14 +1506,6 @@ void m_parser::action_dcbits_b9(void){
   bit_count = bit_count + 9;
   // println("comp "+comp+" dc bits = "+dcbits);
 }
-bool m_parser::guard_dcbits_b9(void) const {
-
-  BOUND_BITS_TO_B(9);
-
-  return(
-	 b[8] == 1
-	 );
-}
 
 
 void m_parser::action_dcbits_b10(void){
@@ -1826,12 +1514,6 @@ void m_parser::action_dcbits_b10(void){
   bit_count = bit_count + 10;
   // println("comp "+comp+" dc bits = "+dcbits);
 }
-bool m_parser::guard_dcbits_b10(void) const {
-  
-  BOUND_BITS_TO_B(10);
- 
-  return(b[9] == 1);
-}
 
 
 void m_parser::action_dcbits_b11(void){
@@ -1839,12 +1521,6 @@ void m_parser::action_dcbits_b11(void){
   dcbits = ( comp > 3 ) ? 11 : 12;
   bit_count = bit_count + 11;
   // println("comp "+comp+" dc bits = "+dcbits);
-}
-bool m_parser::guard_dcbits_b11(void) const {
-
-  BOUND_BITS_TO_B(11);
-
-  return(b[10] == 1);
 }
 
 
@@ -1855,11 +1531,6 @@ void m_parser::action_dcbits_b12(void){
   // println("comp "+comp+" dc bits = "+dcbits);
 }
 
-bool m_parser::guard_dcbits_b12(void) const {
-
-  BOUND_BITS_TO_B(12);
-  return((b[11] == 1) && (comp > 3));
-}
 
 void m_parser::action_dcbits_bad(void){
   BOUND_BITS_TO_B(12);
@@ -1871,9 +1542,6 @@ void m_parser::action_dcbits_bad(void){
 void m_parser::action_get_dc_none(void){
   //  println( "DC = 0");
   b_index = 1;
-}
-bool m_parser::guard_get_dc_none(void) const {
-  return(dcbits == 0);
 }
 
 
@@ -1887,9 +1555,6 @@ void m_parser::action_get_dc_small(void){
   b_index = 1;
   // println( "DC = "+v);
   bit_count = bit_count + dcbits;
-}
-bool m_parser::guard_get_dc_small(void) const {
-  return(dcbits <=8);
 }
 
 void m_parser::action_get_dc_large(void){
@@ -1908,10 +1573,6 @@ void m_parser::action_get_dc_large(void){
 }
 
 
-
-bool m_parser::guard_block_done(void) const {
-  return((b_index == 64) || (b_last == 1) || (ac_coded == 0));
-}
 void m_parser::action_block_done(void){
   int scaler = dc_scaler( vop_quant, btype, comp);
   
@@ -1942,15 +1603,6 @@ void m_parser::action_vld_code_b2(void){
   bit_count = bit_count + 2;
 }
 
-bool m_parser::guard_vld_code_b2(void) const {
-
-  BOUND_BITS_TO_B(2);
-
-  return(
-	 (b[0] == 1) && (b[1] == 0)
-	 );
-}
-
 
 /* 3-bit codes 
   110xxxxxxxxx       2      17       1 */
@@ -1960,15 +1612,7 @@ void m_parser::action_vld_code_b3(void){
   bit_count = bit_count + 3;
 }
 
-bool m_parser::guard_vld_code_b3(void) const {
-  
-  BOUND_BITS_TO_B(3);
 
-  return(
-	 (b[0] == 1) && (b[1] == 1) && (b[2] == 0)
-	 );
-}
- 
 
 /* 4-bit codes 
   0111xxxxxxxx   65537    4097       2
@@ -2280,10 +1924,6 @@ void m_parser::action_vld_code_lookup(void){
   bit_count = bit_count + 1;  
 }
 
-bool m_parser::guard_vld_code_lookup(void) const {
-  return (vld_index != 18);
-}
-
 
 void m_parser::action_vld_level(void){
   //bind input ports
@@ -2292,13 +1932,6 @@ void m_parser::action_vld_level(void){
   bit_count = bit_count + 1;
 }
   
-bool m_parser::guard_vld_level(void) const {
-  //bind input ports
-  int level_offset = bits[0];
-
-  return(level_offset == 0);
-}
-
 
 int m_parser::intra_max_level(int last,int run){
   int return_value;
@@ -2427,14 +2060,6 @@ void m_parser::action_vld_level_lookup(void){
   bit_count = bit_count + 1;
 }
 
-
-bool m_parser::guard_vld_run(void) const {
-  //bound inputs
-  //int level_offset = bits[0];
-  int run_offset = bits[1];
-  
-  return(run_offset == 0);
-}
 
 void m_parser::action_vld_run(void){
   bit_count = bit_count + 2;
@@ -2607,11 +2232,6 @@ int m_parser::uvclip_4( int y0, int y1, int y2, int y3 ) {
 }
 
 
-bool m_parser::guard_mvcode_done(void) const {
-  return(
-	 (mvcomp == 4) || ((mvcomp == 1) && (fourmvflag == 0))
-	 );
-}
 
 void m_parser::action_mvcode_done(void){
   int v;
@@ -2638,11 +2258,6 @@ void m_parser::action_mvcode_done(void){
 }
 
 
-bool m_parser::guard_mvcode_b1(void) const {
-  //bound inputs
-  int b = bits[0];
-  return(b == 1);
-}
 void m_parser::action_mvcode_b1(void){
   mvval = 0;
   // println("Got 1-bit mv["+mvcomp+"] "+mvval);
@@ -2662,13 +2277,6 @@ void m_parser::action_mvcode_b2(void){
   }
 }
 
-bool m_parser::guard_mvcode_b2(void) const {
-  
-  BOUND_BITS_TO_B(3);
-
-  return(b[1] == 1);
-}
-
 
 // 010xxxxxxxxx       2       2
 // 011xxxxxxxxx      -2       3
@@ -2677,13 +2285,6 @@ void m_parser::action_mvcode_b3(void){
   mvval = ( b[3] == 0) ? 2 : -2;
   // println("Got 3-bit mv["+mvcomp+"] "+mvval);
   bit_count = bit_count + 4;
-}
-
-bool m_parser::guard_mvcode_b3(void) const {
-
-  BOUND_BITS_TO_B(4);
-
-  return(b[2] == 1);
 }
 
 
@@ -2696,13 +2297,6 @@ void m_parser::action_mvcode_b4(void){
   bit_count = bit_count + 5;
 }
 
-bool m_parser::guard_mvcode_b4(void) const {
-
-  BOUND_BITS_TO_B(5);
-
-  return(b[3] == 1);
-}
-
 
 // 000110xxxxxx       4       6
 // 000111xxxxxx      -4       7
@@ -2711,15 +2305,6 @@ void m_parser::action_mvcode_b6(void){
   mvval = ( b[6] == 0) ? 4 : -4;
   // if mbx = 10 && mby = 1 { println("Got 6-bit mv["+mvcomp+"] "+mvval); }
   bit_count = bit_count + 7;
-}
-
-bool m_parser::guard_mvcode_b6(void) const {
-
-  BOUND_BITS_TO_B(7);
-
-  return(
-	 (b[4] == 1) && (b[5] == 1)
-	 );
 }
 
 
@@ -2895,13 +2480,6 @@ void m_parser::action_mvcode_bad(void){
 }
 
 
-
-bool m_parser::guard_get_residual_x_none(void) const {
-  return(
-	 (fcode <= 19) || (mvval == 0)
-	 );
-}
-
 void m_parser::action_get_residual_x_none(void){
   mag_x = mvval;
   res_x = 0;
@@ -2925,12 +2503,6 @@ void m_parser::action_get_residual_y_none(void){
      } */
 }
 
-bool m_parser::guard_get_residual_y_none(void) const {
-  return(
-	 (fcode <= 1) || (mvval == 0)
-	 );
-}
-
 void m_parser::action_get_residual_y_some(void){
   BOUND_BITS_TO_B(fcode-1);
 
@@ -2946,20 +2518,13 @@ void m_parser::action_get_residual_y_some(void){
 
 // When at least 2 of the prediction blocks are out of frame,
 // take the value of the one that's available (or zero if none)
-bool m_parser::guard_mvpred_y0_cornercase(void) const {
-  return(
-	 (mvcomp == 0) && (mby == 0)
-	 );
-}
+
 
 void m_parser::action_mvpred_y0_cornercase(void){
   mvpred_x = get_mvx( -1,  0, 1 );
   mvpred_y = get_mvy( -1,  0, 1 );
 }
 
-bool m_parser::guard_mvpred_y0_other(void) const {
-  return(mvcomp == 0);
-}
 
 void m_parser::action_mvpred_y0_other(void){
   mvpred_x = middle( get_mvx( -1,  0, 1 ),
@@ -2977,16 +2542,6 @@ void m_parser::action_mvpred_y1_cornercase(void){
   mvpred_y = get_mvy( 0, 0, 0 );
 }
 
-bool m_parser::guard_mvpred_y1_cornercase(void) const {
-  return(
-	 (mvcomp == 1) && (mby == 0)
-	 );
-}
-
-bool m_parser::guard_mvpred_y1_other(void) const {
-  return(mvcomp == 1);
-}
-
 void m_parser::action_mvpred_y1_other(void){
 
   mvpred_x = middle( get_mvx( 0,  0, 0 ),
@@ -2995,10 +2550,6 @@ void m_parser::action_mvpred_y1_other(void){
   mvpred_y = middle( get_mvy( 0,  0, 0 ),
 		     get_mvy( 0, -1, 3 ),
 		     get_mvy( 1, -1, 2 ) );
-}
-
-bool m_parser::guard_mvpred_y2(void) const {
-  return(mvcomp == 2);
 }
 
 void m_parser::action_mvpred_y2(void){
