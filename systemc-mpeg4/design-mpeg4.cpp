@@ -24,6 +24,8 @@
 #include "byte2bit.hpp"
 #include "col2block.hpp"
 #include "reconstruct.hpp"
+#include "MCadd.hpp"
+//#include "parser.hpp"
 
 class m_source: public smoc_actor {
   public:
