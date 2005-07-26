@@ -20,6 +20,8 @@ cal_list<int>::t Integers(int s, int e) {
 template <typename T>
 T cal_bitand( T a, T b ) { return a & b; }
 template <typename T>
+T cal_bitor( T a, T b ) { return a | b; }
+template <typename T>
 T cal_bitxor( T a, T b ) { return a ^ b; }
 template <typename T1>
 T1 cal_rshift( T1 value, unsigned int factor ) { return value >> factor; }
