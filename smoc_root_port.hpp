@@ -12,13 +12,11 @@
 
 #include <smoc_expr.hpp>
 
-namespace Expr { class DCommReq; }
-
 class smoc_root_port
   : protected sc_port_base {
 public:
-  friend class Expr::CommSetup<Expr::DCommReq>;
-  friend class Expr::CommExec<Expr::DCommReq>;
+  template <class E> friend class Expr::CommSetup;
+  template <class E> friend class Expr::CommExec;
   friend class smoc_commreq_number;
   
   typedef smoc_root_port  this_type;
@@ -82,8 +80,8 @@ public:
   
   friend class Value<this_type>;
   friend class AST<this_type>;
-  friend class CommSetup<this_type>;
-  friend class CommExec<this_type>;
+  template <class E> friend class CommSetup;
+  template <class E> friend class CommExec;
 private:
   smoc_root_port  &p;
 public:
@@ -91,15 +89,14 @@ public:
     : p(p) {}
 };
 
-/*
-struct CommSetup<DCommNr> {
+template <class B>
+struct CommSetup<DBinOp<DCommNr, B, DOpGe> > {
   typedef void result_type;
   
   static inline
-  result_type apply(const DCommNr &e)
-    { return e.p.commSetup(e.req); }
+  result_type apply(const DBinOp<DCommNr, B, DOpGe> &e)
+    { return e.a.p.commSetup(Value<B>::apply(e.b)); }
 };
-*/
 
 struct Value<DCommNr> {
   typedef DCommNr::value_type result_type;
@@ -117,15 +114,14 @@ struct AST<DCommNr> {
     { return PASTNode(new ASTNodeCommNr()); }
 };
 
-/*
-struct CommExec<DCommNr> {
+template <class B>
+struct CommExec<DBinOp<DCommNr, B, DOpGe> > {
   typedef void result_type;
   
   static inline
-  result_type apply(const DCommNr &e)
-    { return e.p.commExec(); }
+  result_type apply(const DBinOp<DCommNr, B, DOpGe> &e)
+    { return e.a.p.commExec(); }
 };
-*/
 
 struct D<DCommNr>: public DBase<DCommNr> {
   D(smoc_root_port &p)
@@ -184,39 +180,6 @@ public:
   result_type apply(const DCommNr &a, const DLiteral<size_t> &b)
     { return result_type(ExprT(a,b)); }
 };
-
-/*
-
-template <class B>
-class DOpExecute<D<DCommNr>,D<B>, DOpGe> {
-public:
-  typedef DBinOp<DCommNr,B,DOpGe>                 ExprT;
-  typedef D<ExprT>                                result_type;
-  
-  static inline
-  result_type apply(const D<DCommNr> &a, const D<B> &b)
-    { return result_type(ExprT(a.getExpr(),b.getExpr())); }
-};
-template <class TB>
-class DOpExecute<D<DCommNr>, TB, DOpGt> {
-public:
-  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpGt>  ExprT;
-  typedef D<ExprT>                                result_type;
-  
-  static inline
-  result_type apply(const D<DCommNr> &a, size_t b)
-    { return result_type(ExprT(a.getExpr(),DLiteral<size_t>(b))); }
-};
-template <class TB>
-class DOpExecute<D<DCommNr>, TB, DOpGe> {
-public:
-  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpGe>  ExprT;
-  typedef D<ExprT>                                result_type;
-  
-  static inline
-  result_type apply(const D<DCommNr> &a, size_t b)
-    { return result_type(ExprT(a.getExpr(),DLiteral<size_t>(b))); }
-};*/
 
 }
 /****************************************************************************/

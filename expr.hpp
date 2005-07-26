@@ -440,15 +440,20 @@ typename Proc<T>::type call(T (*f)())
  */
 
 class ASTNodeMemProc: public ASTNodeTerminal {
+public:
+  struct dummy;
+  typedef void (dummy::*fun)();
 private:
-  void       *o;
-  const void *m;
+  dummy *o;
+  fun    m;
 public:
   template<typename T, class X>
-  ASTNodeMemProc(X *o, T (X::*m)()): o(o), m(m) {}
+  ASTNodeMemProc(X *o, T (X::*m)())
+    : o(reinterpret_cast<dummy *>(o)),
+      m(*reinterpret_cast<fun *>(&m)) {}
   
-  const void *ptrMemProc() const { return m; }
-  void       *ptrObj()     const { return o; }
+  dummy       *ptrObj()     const { return o; }
+  fun          ptrMemProc() const { return m; }
 };
 
 template<typename T, class X>
@@ -478,7 +483,7 @@ struct AST<DMemProc<T,X> > {
   
   static inline
   PASTNode apply(const DMemProc <T,X> &e)
-    { return PASTNode(new ASTNodeMemProc(o,m)); }
+    { return PASTNode(new ASTNodeMemProc(e.o,e.m)); }
 };
 
 template<typename T, class X>
@@ -499,15 +504,20 @@ typename MemProc<T,X>::type call(X *o, T (X::*m)())
  */
 
 class ASTNodeMemGuard: public ASTNodeTerminal {
+public:
+  struct dummy;
+  typedef void (dummy::*fun)() const;
 private:
-  void       *o;
-  const void *m;
+  const dummy *o;
+  fun          m;
 public:
   template<typename T, class X>
-  ASTNodeMemGuard(X *const o, T (X::*m)() const): o(o), m(m) {}
+  ASTNodeMemGuard(const X *o, T (X::*m)() const)
+    : o(reinterpret_cast<const dummy *>(o)),
+      m(*reinterpret_cast<fun *>(&m)) {}
   
-  const void *ptrMemGuard() const { return m; }
-  void       *ptrObj()     const { return o; }
+  const dummy *ptrObj()     const { return o; }
+  fun          ptrMemProc() const { return m; }
 };
 
 template<typename T, class X>
@@ -516,10 +526,10 @@ public:
   typedef T              value_type;
   typedef DMemGuard<T,X> this_type;
   
-  X     *const o;
+  const X *const o;
   T (X::*m)() const;
 public:
-  explicit DMemGuard(X *const o, T (X::*m)() const): o(o), m(m) {}
+  explicit DMemGuard(const X *o, T (X::*m)() const): o(o), m(m) {}
 };
 
 template <typename T, class X>
@@ -537,12 +547,12 @@ struct AST<DMemGuard<T,X> > {
   
   static inline
   PASTNode apply(const DMemGuard <T,X> &e)
-    { return PASTNode(new ASTNodeMemGuard(o,m)); }
+    { return PASTNode(new ASTNodeMemGuard(e.o,e.m)); }
 };
 
 template<typename T, class X>
 struct D<DMemGuard<T,X> >: public DBase<DMemGuard<T,X> > {
-  D(X *const o, T (X::*m)() const): DBase<DMemGuard<T,X> >(DMemGuard<T,X>(o,m)) {}
+  D(const X *o, T (X::*m)() const): DBase<DMemGuard<T,X> >(DMemGuard<T,X>(o,m)) {}
 };
 
 // Make a convenient typedef for the placeholder type.
@@ -550,7 +560,7 @@ template <typename T, class X>
 struct MemGuard { typedef D<DMemGuard<T,X> > type; };
 
 template <typename T, class X>
-typename MemGuard<T,X>::type guard(X *const o, T (X::*m)() const)
+typename MemGuard<T,X>::type guard(const X *o, T (X::*m)() const)
   { return MemGuard<T,X>::type(o,m); }
 
 /****************************************************************************
@@ -604,19 +614,28 @@ public:
   OpType getOpType() const { return op; }
 };
 
-template<OpType Op,class A, class B>
-struct DOpXXX;
-
 template<class A, class B, OpType Op>
-class DBinOp {
-public:
-  typedef typename DOpXXX<Op,A,B>::result_type  value_type;
-  typedef DBinOp<A,B,Op>                        this_type;
-  
-  A a;
-  B b;
-public:
-  DBinOp(const A& a, const B& b): a(a), b(b) {}
+class DBinOp;
+
+/****************************************************************************
+ * APPLICATIVE TEMPLATE CLASSES
+ */
+
+#define DBINOP(Op,op)                                                 \
+template<class A, class B>                                            \
+class DBinOp<A,B,Op> {                                                \
+public:                                                               \
+  typedef DBinOp<A,B,Op>                                this_type;    \
+  typedef typeof((*(typename A::value_type*)(NULL))  op               \
+                 (*(typename B::value_type*)(NULL)))    value_type;   \
+                                                                      \
+  A a;                                                                \
+  B b;                                                                \
+                                                                      \
+  value_type value() const                                            \
+    { return Value<A>::apply(a) op Value<B>::apply(b); }              \
+public:                                                               \
+  DBinOp(const A& a, const B& b): a(a), b(b) {}                       \
 };
 
 template <class A, class B, OpType Op>
@@ -625,7 +644,7 @@ struct Value<DBinOp<A,B,Op> > {
   
   static inline
   result_type apply(const DBinOp<A,B,Op> &e)
-    { return DOpXXX<Op,A,B>::apply(e.a,e.b); }
+    { return e.value(); }
 };
 
 template <class A, class B, OpType Op>
@@ -699,25 +718,6 @@ struct CommSetup<DBinOp<A,B,DOpLOr> > {
 };
 
 /****************************************************************************
- * APPLICATIVE TEMPLATE CLASSES
- */
-
-#define DOPCLASS(name,op)                                             \
-template<class A, class B>                                            \
-struct DOpXXX<DOp##name,A,B> {                                        \
-  typedef typeof((*(typename A::value_type*)(NULL)) op                \
-                 (*(typename B::value_type*)(NULL))) result_type;     \
-                                                                      \
-  static inline                                                       \
-  OpType getOpType()                                                  \
-    { return DOp##name; }                                             \
-                                                                      \
-  static inline                                                       \
-  result_type apply(const A &a, const B &b)                           \
-    { return Value<A>::apply(a) op Value<B>::apply(b); }              \
-};
-
-/****************************************************************************
  * OPERATORS for APPLICATIVE TEMPLATE CLASSES
  */
 
@@ -755,7 +755,7 @@ operator op (const TA &a, const D<B> &b) {                      \
     apply(DLiteral<TA>(a),b.getExpr());                         \
 }
 
-#define DOP(name,op) DOPCLASS(name,op) DOPBIN(DOp##name,op)
+#define DOP(name,op) DBINOP(DOp##name,op) DOPBIN(DOp##name,op)
 
 DOP(Add,+)
 DOP(Sub,-)

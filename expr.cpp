@@ -46,8 +46,13 @@ void dump(const PASTNode &node) {
       std::cout << "Proc 0x" << std::hex << reinterpret_cast<unsigned long>
         (node->isa<ASTNodeProc>()->ptrProc());
     } else if ( node->isa<ASTNodeMemProc>() ) {
-      std::cout << "MemProc 0x" << std::hex << reinterpret_cast<unsigned long>
-        (node->isa<ASTNodeMemProc>()->ptrMemProc())
+      union {
+        struct { void *p; unsigned long o; } e1;
+        ASTNodeMemProc::fun                  e2;
+      } h;
+      
+      h.e2 = node->isa<ASTNodeMemProc>()->ptrMemProc();
+      std::cout << "MemProc 0x" << std::hex << reinterpret_cast<unsigned long>(h.e1.p)
                 <<   " obj " << node->isa<ASTNodeMemProc>()->ptrObj();
     } else {
       // unknown

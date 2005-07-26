@@ -34,7 +34,7 @@ protected:
   }
   template <typename T, class X>
   typename Expr::MemGuard<T,X>::type guard(T (X::*m)() const) const {
-    return Expr::guard( dynamic_cast<X *const>(this), m );
+    return Expr::guard( dynamic_cast<const X *>(this), m );
   }
   template <typename T>
   static
@@ -61,6 +61,8 @@ protected:
 //    std::cerr << "Choice" << std::endl;
     return smoc_firing_state(tl);
   }
+
+  virtual ~smoc_opbase_node() {}
 };
 
 class smoc_root_node
@@ -78,8 +80,6 @@ protected:
   smoc_root_node(smoc_firing_state &s)
     : _initialState(&s), ports_valid(false)
     {}
-  
-  virtual ~smoc_root_node() {}
 public:
   virtual void finalise() {
 //    std::cout << myModule()->name() << ": finalise" << std::endl;
