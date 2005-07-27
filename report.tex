@@ -1,13 +1,12 @@
 \newcommand{\graphicPostfix}{pdf}
-%%\newcommand{\code}[1]{\texttt{#1}}
-%%\newcommand{\SysteMoC}{{\bf SysteMoC}}
-%%\newcommand{\SysteMoCV}{\SysteMoC{} {\bf 1.0}}
-\newcommand{\code}[1]{\emph{#1}}
-\newcommand{\SysteMoC}{\emph{SysteMoC}}
-\newcommand{\SysteMoCV}{\emph{SysteMoC 1.0}}
-\newcommand{\implies}{\Longrightarrow}
 
 \input{format.tex}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\SysteMoC}{\mbox{\emph{SysteMoC}}}
+\newcommand{\SysteMoCV}{\emph{SysteMoC 1.0}}
+\newcommand{\implies}{\Longrightarrow}
+\newcommand{\comment}[1]{}
 
 \theoremheaderfont{\normalfont\sffamily\bfseries}
 {\theorembodyfont{\normalfont\itshape}
@@ -23,6 +22,7 @@
 
 \usepackage{multirow}
 \usepackage{fancyvrb}
+\usepackage{subfigure}
 
 % Use a small font for the verbatim environment
 \makeatletter  % makes '@' an ordinary character
@@ -55,91 +55,134 @@
 \clearpage
 
 \section{Introduction\label{intro}}
-Due to rising design complexity it is necessary to increase
-the level of abstraction at which systems are designed. In
-today's embedded systems the specification is mostly mapped
-into a set of interacting tasks and hardware modules, which 
-interact by the use of shared variables and various ways of
-message passing. To guarantee exclusive access to the shared
-variables and resources, mutually exclusive devices like semaphores,
-mutexes, and monitors are used. But this unstructured use
-of communication types leads to hardly analyzable systems.
-However, by constraining the type of communication
-used between tasks and the communication behavior of the tasks,
-expressiveness is traded for analyzability.
 
-\emph{Models of computation}
-\cite{embsft:2002}, in the following called \emph{MoCs}, are
-predefined types of communication and strategies for scheduling
-communicating tasks. Thus, MoCs are comparable to design
-patterns known from the area of software design \cite{gamma:1995}.
-Limiting the expressiveness of a MoC enables:
-
-\begin{enumerate}
-\item Mathematically reasoning about communication patterns
-
-\item Code generation to produce optimized code
-
-\item Automatic and efficient verification to check system properties
-\end{enumerate}
-
-On the other hand, modern embedded system design is still based on
-specification languages which allow unstructured communication.
-Even worse, nearly all specification languages allow for Turing
-complete MoCs making analysis in general impossible.
+Due to rising design complexity, it is necessary to increase
+the level of abstraction at which systems are designed.
+This can be achieved by model-based design which makes extensive use
+of so-called
+\emph{models of computation} \cite{embsft:2002} (MoCs).
+MoCs are comparable to design patterns known from the area of
+software design \cite{gamma:1995}.
+On the other hand, industrial embedded system design is still based on
+design languages like C, C++, Java, VHDL, SystemC, and SystemVerilog which
+allow unstructured communication.
+Even worse, nearly all design languages are Turing
+complete making analysis in general impossible.
+This precludes the automatic identification of communication patterns
+out of the many forms of interactions, e.g, shared variables and
+various ways of message passing, between processes.
 To make industry benefit from the best of both worlds,
 engineers must restrict themselves to use certain subsets of
-specification languages allowing analyzability, identification,
-and extraction of these MoCs at the source code level automatically.
+a design language. This results in a model-based design methodology
+that permits automatic analysis, identification, and
+and extraction of MoCs at the source code level.
 
-This report deals with the representation of some %transformative
-MoCs in SystemC. The rest of the report is structured as follows:
-In Section~\ref{related-work}, we discuss related work. In
-Section~\ref{actor-oriented-design}, we propose our framework for
-representing MoCs in SystemC. In Section~\ref{revision-of-mocs},
-we show how some MoCs fit into
-the framework presented before. In Section~\ref{software-architecture},
-a SystemC implementation of our framework called \SysteMoC{} is
-presented. Finally, we will give some examples using the \SysteMoC{}
-framework in Section~\ref{systemoc-examples}, and we conclude
-the present report in Section~\ref{conclusions}.
-
-\begin{figure}
+\begin{figure}[t]
 \centering
-\input{SysteMoC-Goals-fig.tex}
-\caption{\label{fig:SysteMoC-Goals}Goals of \SysteMoC{} framework
-  include the recognition and extraction of Models of Computation
-  from suitable restricted coding subsets of SystemC.}
+\resizebox{0.95\textwidth}{!}{\input{SysteMoC-Goals-fig.tex}}
+\caption{\label{fig:SysteMoC-Goals}The Goal of the \SysteMoC{}-framework
+  is the identification and extraction of models of computation
+  from a subset of SystemC. Later the extracted MoC can be used
+  in a model-based design methodology, e.g, in design space exploration
+  and for code generation.
+}
 \end{figure}
+The advantages of using a model-based approach has been shown
+by many examples, e.g, in protocol design \cite{SDL-92} and
+in the signal processing domain \cite{bhattacharyya,bb:2000a}.
+SystemC permits the modelling of many different MoCs.
+Unfortunately, there is no unique representation of a given
+MoC in SystemC. Moreover, the use of unstructured communication makes
+the automatic analysis of a SystemC design nearly impossible.
+In this paper, we will propose a library, called \SysteMoC{},
+that provides classes allowing the easy expression of MoCs
+in SystemC. The overall methodology is depicted in Figure~\ref{fig:SysteMoC-Goals}.
+In this paper, we focus on the \SysteMoC{}-framework.
+The rest of this paper is structured as follows:
+In Section~\ref{related-work}, we discuss related work. In
+Section~\ref{actor-oriented-design}, we present the mathematical background for
+representing MoCs in SystemC. In Section~\ref{software-architecture},
+a SystemC implementation of our framework called \SysteMoC{} is
+presented,
+and we conclude the present paper in Section~\ref{conclusions}.
+
+%\emph{Models of computation}
+%\cite{embsft:2002}, in the following called \emph{MoCs}, are
+%predefined types of communication and strategies for scheduling
+%communicating tasks. Thus, MoCs are comparable to design
+%patterns known from the area of software design \cite{gamma:1995}.
+%Limiting the expressiveness of a MoC permits code generators to produce
+%optimized code and automatic and efficient verification to check
+%system properties. Examples of MoCs are \emph{Finite State Machines},
+%\emph{Dataflow models}, \emph{Communicating Sequential Processes}, etc.
+%
+%On the other hand, industrial embedded system design is still based on
+%design languages which allow unstructured communication.
+%Even worse, nearly all design languages are Turing
+%complete making analysis in general impossible.
+%To make industry benefit from the best of both worlds,
+%engineers must restrict themselves to use certain subsets of
+%a design language. This results in a model-based design methodology
+%that permits automatic analysis, identification, and
+%and extraction of MoCs at the source code level.
+%
+%\begin{figure}[t]
+%\centering
+%\scalebox{0.5}[0.5]{\input{SysteMoC-Goals-fig.tex}}
+%\caption{\label{fig:SysteMoC-Goals}The Goal of the \SysteMoC{}-framework
+%  is the identification and extraction of models of computation
+%  from a subset of SystemC. Later the extracted MoC can be used
+%  in a model-based design methodology, e.g, in design space exploration
+%  and for code generation.
+%}
+%\end{figure}
+%
+%In this paper, we will propose a library, called \SysteMoC{},
+%that provides classes allowing the easy expression of MoCs
+%in SystemC. The overall methodology is depicted in Figure~\ref{fig:SysteMoC-Goals}.
+%In this paper, we focus on the \SysteMoC{}-framework and MoC-extraction.
+%The rest of this paper is structured as follows:
+%In Section~\ref{related-work}, we discuss related work. In
+%Section~\ref{actor-oriented-design}, we present the mathematical background for
+%representing MoCs in SystemC. In Section~\ref{software-architecture},
+%a SystemC implementation of our framework called \SysteMoC{} is
+%presented,
+%%Finally, we will give some examples using the \SysteMoC{}
+%%framework in Section~\ref{systemoc-examples}
+%and we conclude the present paper in Section~\ref{conclusions}.
 
 \section{Related Work}\label{related-work}
 
-SystemC \cite{glms:2002} already allows to implement
+SystemC \cite{glms:2002} already allows to easily implement
 dataflow MoCs via communicating actors and \code{sc\_fifo} channels.
 However, a dataflow MoC implemented in this way is unstructured
 and no possibilities exist for deriving information about its
 communication behavior. The facilities for implementing MoCs in
 SystemC have been extended by Herrera et al.~\cite{herrerasystemc:2004}
-which have implemented a custom library of channel types like rendezvous
-on top of the SystemC discrete-event simulation kernel. But no
+who have implemented a custom library of channel types like rendezvous
+on top of the SystemC discrete event simulation kernel. But no
 constraints have been imposed how these new channels types are used by
 an actor. Consequently, no information about the communication behavior
 of an actor can be derived.
-Implementing these channels on top of the SystemC discrete-event
+Implementing these channels on top of the SystemC discrete event
 simulation kernel curtails the performance of such an implementation.
 Another approach has been taken by Patel et al.~\cite{fermatmoc:2004}
 which have extended SystemC itself with different simulation kernels
-for Communicating Sequential Processes and Finite State Machine MoCs
+for \emph{Communicating Sequential Processes} and \emph{Finite State Machine MoCs}
 to improve simulation efficiency. Moreover,
-they have implemented hierarchical compositon of MoCs following
+they have implemented hierarchical composition of MoCs following
 the approach of \hbox{Ptolemy II}. \hbox{Ptolemy II} \cite{ptolemyII} is a simulation
 framework for MoCs implemented in Java. Its aim is the exploration of
 different MoCs and the semantic of hierarchical composition of these MoC
-with each other.
+with each other. Other work on MoCs can be found in \cite{ZERTT99a} and
+\cite{STZETG00}.
 
 In contrast to the approaches discussed above, our methodology restricts
 the communication behavior in such a way that the identification,
-extraction, and analysis of different MoCs is permitted.
+extraction, and analysis of different MoCs is permitted. That way
+our work is partially related to the new SystemC TLM standartd \cite{SystemC-TLM05}.
+But in our approach we go one step further by restricting the behavior
+of an actor, too.
 
 \section{The Tagged Signal Model}\label{lee-tsm}
 
@@ -632,290 +675,200 @@ $\forall{i_1 \in \mathbb{N}_{|s_1|}, i_2 \in \mathbb{N}_{|s_2|}}: i_1 \le 2 \cdo
 \section{Actor-Oriented Design}\label{actor-oriented-design}
 
 Instead of a monolithic approach for representing an executable specification
-of an embedded system,
-in this report, we will use a refinement of \emph{actor-oriented} design.
+of an embedded system as done using many design languages,
+we will use a refinement of \emph{actor-oriented} design.
 In actor-oriented design, \emph{actors} only
 communicate with each other via \emph{channels} instead of method calls as known
 in object-oriented design.
 
-A model of computation is defined in \cite{embsft:2002} as the
-interaction policy between actors in an actor-oriented design
-\cite{agha97abstracting:1997}. Actors are objects which execute concurrently. They can only
-communicate with the environment (other actors) through their \emph{actor ports}.
-The actor ports are connected with each other via channels.
-These concepts are related to the tagged signal model in the following way:
-(i) actors are processes with a predetermined input/output partition
-(ii) actor ports are used to name signals and are equivalent to the position of signals in
-a behavior of a process
-(iii) channels are processes too.
+In an actor-oriented design \cite{agha97abstracting:1997}, a model of computation defines
+\cite{embsft:2002} the interaction policy between actors.
+Actors are objects which execute concurrently. An actor $A$ can only
+communicate with the environment (other actors) through its
+\emph{actor input and output ports} $A.I$ and $A.O$ respectively.
+The actor ports are connected with each other via a communication
+infrastructure. This infrastructure is separated into \emph{network graph} and
+\emph{channel kind}.
 
-In our proposed methodology, the specification is more
-detailed than in actor-oriented design. The actor is divided into
-its \emph{node functionality} and its \emph{firing rules}. The
-type of firing rules an actor can show is dependent on its \emph{node interface}.
+%In our proposed methodology, the specification is more
+%detailed than in actor-oriented design in a way that an actor is divided into
+%its \emph{node functionality} and its \emph{firing rules}. The
+%type of firing rules an actor can show is dependent on its \emph{node interface}.
 
 % The data values, which are communicated over the channels
 % are abstracted. Thus, these data are called \emph{tokens} regardless
 % of their type or value.
 
-\begin{sdefinition}\label{actor}
-An actor is a tupple $A=(\mathcal{F},\mathcal{R},I,O)$ containing
-a \emph{node functionality} $\mathcal{F}$, \emph{firing rules} $\mathcal{R}$,
-a set of \emph{actor input ports} $I$, and a set of \emph{actor output ports} $O$.
-\end{sdefinition}
+%However, these definition is not sufficient for distinguishing MoCs.
+%The communication infrastructure used by actors must be considered as well.
 
-However these aspects are not sufficient for distinguishing MoCs.
-The communication network used by actors must be considered as well.
-These infrastructure is seperated into \emph{network graph} and
-\emph{channel kind}. In the following , the four parts of our actor
-oriented-design will be discussed in detail. Moreover, we will define
-different types of these parts in order to allow the identification
-of different MoCs.
-
-% An aspect can be further divided into
-% \emph{aspect types} by different constraints imposed on an aspect.
-% In the following, the aspects and their further
-% differentiation into aspect types is discussed in depth:
-% In particular, four different aspects for distinguishing MoCs can be identified.
-
-\subsection{Network Graph}\label{network-graph} 
-
-To represent an executable specification, not only information about
-individual actors but also information about the communication network,
-which is the only means of communication between actors,
-must be provided.
-% Moreover, information about hierarchical composition of actors is required.
-This information is stored in the \emph{network graph}.
-
-\begin{definition}\label{network-graph}
+\begin{sdefinition}\label{network-graph}
 A network graph is a directed bipartite graph $G_N=(\mathcal{A},C,E)$ containing
 a set of actors $\mathcal{A}$, a set of channels $C$, and a set of
 directed edges $E \subseteq (C \times \mathcal{P}_I)
 \cup (\mathcal{P}_O \times C)$, where
-$\mathcal{P}_I = \bigcup{}_{A \in \mathcal{A}} A.I$
-is the set of actor input ports of all actors in the network graph and
+$\mathcal{P}_I = \bigcup{}_{A \in \mathcal{A}} A.I$ and
 $\mathcal{P}_O = \bigcup{}_{A \in \mathcal{A}} A.O$
-is the set of actor output ports of all actors in the network graph.
-Each actor $A \in \mathcal{A}$ can only communicate with other actors
-through its dedicated actor input ports $A.I$ and
-actor output ports $A.O$.
+are the sets of actor input and output ports of all actors in the network graph
+respectively. Each actor $A \in \mathcal{A}$ can only communicate with other
+actors through its dedicated actor input ports $A.I$ and actor output ports $A.O$.
 Furthermore, the set of all actor input and actor output ports of all actors in
-the network graph is given by $\mathcal{P} = \mathcal{P}_I \cup \mathcal{P}_O$ and
-the set of all input and output ports of an actor is given by $\mathcal{P}_{A} = A.I \cup A.O$.
+the network graph is given by $\mathcal{P} = \mathcal{P}_I \cup \mathcal{P}_O$.
+\end{sdefinition}
 
-% A network graph is a 5-tuple $N=(\mathcal{A},C,P_{i},P_{o},E)$ containing
-% a set of actors $\mathcal{A}$, a set of channels $C$, a set of uplevel
-% input ports $P_{i}$, a set of uplevel output ports $P_{o}$ and a set of
-% directed edges $E \subseteq ((P_{i} \cup C) \times \mathcal{A}_{P_{i}})
-% \cup (\mathcal{A}_{P_{o}} \times (P_{o} \cup C))$, where
-% $\mathcal{A}_{P_{i}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{i}}$
-% is the set of all actor input ports of the network graph and
-% $\mathcal{A}_{P_{o}} = \bigcup{}_{A \in \mathcal{A}} A_{P_{o}}$
-% is the set of all actor output ports of the network graph.
-% Each actor $A \in \mathcal{A}$ can only communicate with other actors
-% through its dedicated actor input ports $A_{P_{i}}$ and
-% actor output ports $A_{P_{o}}$.
-% Furthermore, the set of all input and output ports of an actor
-% is given by $A_{P} = A_{P_{i}} \cup A_{P_{o}}$ and
-% the set of all actor input and actor output ports of the network graph
-% is given by $\mathcal{A}_{P} = \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}}$.
-
-\end{definition}
-
-There are two \emph{network graph types} which are distinguished in our methodology:
-
-\begin{definition}\label{conflicting-network-graph}
-  A \emph{conflicting network graph} is constrained such that exactly
-  one edge is incident to each actor port,
-  i.e., $\forall{p \in \mathcal{P}}: |((\{p\} \times C) \cup (C \times \{p\})) \cap E| = 1$.
-\end{definition}
-
-\begin{figure}
-\centering
-%\includegraphics[scale=1]{fig:ng-conflicting.\graphicPostfix}\\
-\input{ng-conflicting-fig.tex}
-\begin{displaymath}
-\begin{array}{rcl}
-  G_N & = & (\mathcal{A},C,E) \\
-  \mathcal{A} & = & \{A_1,A_2,A_3,A_4\} \\
-      &   & A_1.I = \emptyset, A_1.O=\{o_1,o_2\}, A_2.I = \{i_1,i_2\}, A_2.O=\{o_1\},\\
-      &   & A_3.I = \{i_1,i_2\}, A_3.O=\{o_1\},A_4.I = \{i_1\}, A_4.O=\{o_1\}\\
-  C   & = & \{c_1,c_2,c_3,c_4\} \\
-  E   & = & \{(A_1.o_1,c_1),(c_1,A_2.i_1),(A_1.o_2,c_2),(c_2,A_2.i_2),(A_2.o_1,c_3),\\
-      &   &   (c_3,A_3.i_1),(A_3.o_1,c_4),(c_4,A_3.i_2),(A_4.o_1,c_4),(c_4,A_4.i_1)\}\\
-\end{array}
-\end{displaymath}
-\caption{\label{fig:ng-conflicting}In a \emph{conflicting network graph} exactly
-  one edge is incident to an actor port. Multiple edges can
-  enter and leave a channel, e.g., channel $c_4$
-  which has both an indegree and outdegree of two.}
-\end{figure}
-
-  An example of a conflicting network graph is shown in Figure~\ref{fig:ng-conflicting}.
-  It demonstrates the use of a conflicting network graph for modeling
-  a Multiply-Accumulate-Unit which accumulates in channel $c_4$ the
-  product of the values generated by the source actor $A_1$.
-  The controller actor $A_4$ can replace the
-  accumulated value in $c_4$ by using the conflict at channel $c_4$ which
-  allows to read/write the values in the channel from different actors.
-  This can be used to either accumulate additional data via actor $A_3$
-  or exchange the value via actor $A_4$.
-
-\begin{definition}\label{noconflicting-network-graph}
-  A \emph{nonconflicting network graph} is a conflicting network graph with the
-  additional constraint that the indegree and outdegree of each channel in
-  the graph is exactly one, i.e.,
-  $\forall{c \in C}: |(\{c\} \times \mathcal{P}_I) \cap E| = 1 \wedge
-                     |(\mathcal{P}_O \times \{c\}) \cap E| = 1$.
-\end{definition}
-
-  An example of a nonconflicting network graph is shown in Figure~\ref{fig:ng-nonconflicting}.
-  It demonstrates the use of a nonconflicting network graph for modeling
-  a Multiply-Accumulate-Unit which accumulates in channel $c_4$ or $c_5$ the product of
-  the values generated by the source actor $A_1$.
-  Additionally each token received by the duplicator actor $A_4$ via actor port $A_4.i_1$
-  is forwarded to both actor output ports $A_4.o_1$ and $A_4.o_2$.
-  Thus, the sink actor $A_5$ receives a copy of the accumulated value at
-  each update of the accumulated value.
-
-\begin{figure}
-\centering
-%\includegraphics[scale=1]{fig:ng-nonconflicting.\graphicPostfix}\\
-\input{ng-nonconflicting-fig.tex}
-\begin{displaymath}
-\begin{array}{rcl}
-  G_N & = & (\mathcal{A},C,E) \\
-  \mathcal{A} & = & \{A_1,A_2,A_3,A_4,A_5\} \\
-      &   & A_1.I = \emptyset, A_1.O=\{o_1,o_2\}, A_2.I = \{i_1,i_2\}, A_2.O=\{o_1\},A_3.I = \{i_1,i_2\},\\
-      &   & A_3.O=\{o_1\},A_4.I = \{i_1\}, A_4.O=\{o_1,o_2\}, A_5.I = \{i_1\}, A_5.O=\emptyset \\
-  C   & = & \{c_1,c_2,c_3,c_4,c_5,c_6\} \\
-  E   & = & \{(A_1.o_1,c_1),(c_1,A_2.i_1),(A_1.o_2,c_2),(c_2,A_2.i_2),(A_2.o_1,c_3),\\
-      &   &   (c_3,A_3.i_1),(A_3.o_1,c_4),(c_4,A_4.i_1),(A_4.o_1,c_5),(c_5,A_3.i_2),\\
-      &   &   (A_4.o_2,c_6),(c_6,A_5.i_1)\} \\
-\end{array}
-\end{displaymath}
-\caption{\label{fig:ng-nonconflicting} In a \emph{nonconflicting network graph} exactly
-  one edge is incident to an actor port and the channels are
-  constraint to have an indegree and outdegree of exactly one.
-  Hence, the channels can only be used for dedicated
-  Point-to-Point connections.}
-\end{figure}
-
-\subsection{Channel Kind}\label{channel-kind}
+%  However the network graph defined above is still too general. A more
+%  constrained form called \emph{nonconflicting network graph} can be
+%  defined which still satisfies the requirements for the MoCs presented
+%  in this paper. An example of a nonconflicting network graph is shown
+%  in Figure~\ref{fig:ng-moc}.
+%
+%\begin{definition}\label{noconflicting-network-graph}
+%  A \emph{nonconflicting network graph} is constrained such that exactly
+%  one edge is incident to each actor port and the indegree and outdegree
+%  of each channel in the graph is exactly one,
+%  i.e., $\forall{p \in \mathcal{P}}: |((\{p\} \times C) \cup (C \times \{p\})) \cap E| = 1$ and
+%  $\forall{c \in C}: |(\{c\} \times \mathcal{P}_I) \cap E| = 1 \wedge
+%                     |(\mathcal{P}_O \times \{c\}) \cap E| = 1$.
+%\end{definition}
 
 The \emph{channel kind} defines the communication semantics of a channel.
 Since the communication semantics are not influenced by the
 data type communicated, the actual \emph{type} of a communication
 channel is derived from the channel kind by parameterizing it with
-the type of the communicated data. Examples for channel kinds are:
+the actual data type. Examples for channel kinds are
+FIFO channels and a rendezvous channels. Channels are used to
+transport data values in form of so-called \emph{tokens}.
 
-\begin{itemize}
-\item \label{channel-kind-fifo} FIFO:
-  An unbounded FIFO channel for communication
-  (nonblocking write and blocking read) implementing
-  a first in first out discipline.
+\begin{figure}[t]
+\centering
+%\includegraphics[scale=1]{fig:ng-moc.\graphicPostfix}\\
+\resizebox{1.0\textwidth}{!}{\input{ng-moc-fig.tex}}
+\caption{\label{fig:ng-moc}Example of a \emph{network graph} which belongs
+to a model of two instances of an approximation square root algorithm.}
+\end{figure}
 
-\item \label{channel-kind-rendezvous} Rendezvous:
-  A rendezvous channel for communication % and barrier synchronisation
-  (blocking write and read).
-%  A rendezvous channel corresponds to a connection process
-%  $\mathbf{C}_{\{x,y\}}$ in the tagged signal model.
-
-\item \label{channel-kind-register} Register:
-  For expressing communication via shared variables
-  (nonblocking write and nonblocking read).
-\end{itemize}
-
-\subsection{Node Functionality}\label{node-functionality}
+The network graph shown in Figure~\ref{fig:ng-moc} consists
+of two instances of an approximation square root algorithm. Note that the
+network graph is symmetric as the actors $A_1$ - $A_6$ and $A'_1$ - $A'_6$
+appear in an identical configuration. Each of these subgraphs implements
+one instance of the approximation algorithm. The input values for this algorithm
+are created in the source actor $A_1$. The input values are transported via
+channel $c_1$ to the SqrLoop actor $A_2$ which implements the error bound checking
+of the approximation algorithm. If the error bound is not satisfied the input
+value will be send to actor $A_3$ via channel $c_2$. This will eventually result in
+a new better approximated square root value in channel $c_5$. This iteration repeats
+until the error bound is satisfied. When this happens, the approximated
+square root value will be sent via channel $c_6$ to actor $A_5$. This actor
+will forward the result to one of the two Print actors $A_6$ or $A'_6$
+whichever is ready first.
 
 In actor-oriented design the node functionality and the firing rules
 are combined into one opaque block, which can in general not be analyzed.
-However the information in this block would help to reason about communication
-patterns, to produce optimized code, and to check system properties.
-In our methodology proposed in this report, the actor concept is still used,
-but we distinguish two different aspects of an actor $A$. The first part called
-\emph{node functionality} ($A.\mathcal{F}$) is responsible for transforming the data values
-which reside inside tokens. The node functionality will still be regarded as
-an opaque block we do not try to analyze in this report.
+The information in this block would help to reason about communication
+patterns, to produce optimized code and to check system properties.
+In our methodology, the actor concept is still used,
+but we distinguish two different aspects of an actor called
+\emph{node functionality} and \emph{firing rules}.
 
-\begin{definition}\label{node-functionality}
-  The \emph{node functionality} of an actor $A$ is a tupple $A.\mathcal{F} = (F,Q,q_1)$
+\begin{sdefinition}\label{actor}
+An actor is a tuple $A=(\mathcal{F},\mathcal{R},I,O)$ containing
+a \emph{node functionality} $\mathcal{F}$, \emph{firing rules} $\mathcal{R}$,
+a set of \emph{actor input ports} $I$, and a set of \emph{actor output ports} $O$.
+\end{sdefinition}
+
+The  \emph{node functionality} ($A.\mathcal{F}$) is responsible for
+transforming the data values which reside inside tokens. The node functionality
+will still be regarded as an opaque block. Thus, we do not try to analyze it.
+
+\begin{sdefinition}\label{node-functionality}
+  The \emph{node functionality} of an actor $A$ is a tuple $A.\mathcal{F} = (F,Q,q_1)$
   containing a set of \emph{functions} $F$, a set of \emph{functionality states} $Q$
   (possibly infinite), and an \emph{initial functionality state} $q_1$.
-\end{definition}
+\end{sdefinition}
 
 The functions $f \in F$ of the node functionality map a fixed number of
 input values $(v_{i1},v_{i2},\ldots,v_{iN}) = \mathbf{v}_i \in V^N$
 and a functionality state $q_i \in Q$ to a fixed number of output values
 $(v_{o1},v_{o2},\ldots,v_{oM}) = \mathbf{v}_o \in V^M$ and a new
 functionality state $q_{i+1} \in Q$, i.e.,  $f: V^N \times Q \to V^M \times Q$.
+The input and output values are provided by the firing rules,
+as discussed next. For example, the node functionality of the Divide actor
+$A_3$ ($A'_3$) in Figure~\ref{fig:ng-moc} is described by $\mathcal{F} = (F,Q,q_1)$,
+$F = \{\textrm{divide}\}$, $Q= \{\bot\}$, $q_1 = \bot$, and $\textrm{divide}(\mathbf{v}_i,q) = ((v_{i1}/v_{i2}),q)$.
 
-The functions in the node functionality can be implemented by any
-programming language % (E.g. C++ in case of the \SysteMoC{} framework, See Figure~\ref{example-node-functionality})
-but the user must guarantee, that the functions
-(i) terminate, and (ii) do not communicate directly with other actors
-avoiding the \SysteMoC{} communication mechanism.
-% The node functionality is the only aspect which is not
-% further distinguished into aspect types.
-The input values $v_{i1}, v_{i2}, \ldots$ are provided by the firing rules
-which receive them from the channels connected to the actor input ports.
+%\comment{
+The input values $v_{i1}, v_{i2}, \ldots$ are provided by the firing rules,
+as discussed next, which receive these values from the channels connected to the actor input ports.
 The output values $v_{o1}, v_{o2}, \ldots$ produced by the execution of
 the node functionality are later written to the actor output ports by
 the firing rules. The communication of input and output values between the
 node functionality and the firing rules happens via temporary buffers in
 the actor ports.
-
-\subsection{Node Interface}\label{node-interface}
+The functions in the node functionality can be implemented by any
+programming language. % (E.g. C++ in case of the \SysteMoC{} framework, See Figure~\ref{systemoc-divide-actor})
+But the user must guarantee that the functions
+(i) terminate and (ii) do not communicate directly with other actors
+by avoiding their actor ports.
+%}
 
 The second part of an actor $A$ which determines its communication
 behavior is called \emph{firing rules} ($A.\mathcal{R}$). The firing rules
-determine for each actor port the number of tokens to receive or send
+determine for each actor port the number of tokens to be receive or to be sent
 until the associated node functionality can be invoked.
-The firing rules are encoded in form of a finite state machine (FSM).
+The firing rules are encoded in form of a finite state machine (FSM)
+which together with the network graph and channel kind are
+the input information for later analysis and code generation steps.
+Some examples of firing rules are shown in Figure~\ref{fig:firing-rules}.
 
-\begin{definition}\label{firing-rules}
-  The \emph{firing rules} of an actor $A$ is a 4-tuple $A.\mathcal{R} = (\mathcal{T}, Q, q_1, \delta)$
+\begin{sdefinition}\label{firing-rules}
+  The \emph{firing rules} of an actor $A$ are a 4-tuple $A.\mathcal{R} = (\mathcal{T}, Q, q_1, \delta)$
   containing a set of \emph{firing transitions} $\mathcal{T}$,  a set of \emph{firing states} $Q$,
   an \emph{initial firing state} $q_1$, and a \emph{firing transition function} $\delta: Q \to 2^\mathcal{T}$
-  which maps each state $q \in Q$ to its set of transitions
-  $\mathcal{T}_q \subseteq \mathcal{T}$ which leave this state.
-\end{definition}
-% \emph{Firing rules} is a 5-tuple $R = (S, Q, \mathcal{J}, k, s_0)$ containing
-% a set of \emph{firing states} $S$, a set of activation patterns $Q$,
-% a set of interface actions $\mathcal{J}$, an action selection function
-% $k: S \times Q \to \mathcal{J} \cup \bot$,
-% and a initial state $s_0 \in S$. An actor is inactive until at least
-% one activation pattern $q$ is enabled which has a corresponding
-% interface action in the current firing state $s \in S$ of the actor,
-% i.e., $\exists{q \in Q}: k(s,q) \ne \bot \wedge q\ \textrm{is enabled}$.
-% The set of ready activation patterns is given by $Q_{ready}$.
-% Exactly one activation pattern $q \in Q_{ready}$ will be
-% chosen nondeterministically and its corresponding interface action
-% $k(s,q)$ will be executed.
+  which maps each state $q \in Q$ to the set of transitions
+  $\mathcal{T}_q = \delta(q)$.
+\end{sdefinition}
 
-An actor is \emph{blocked} until at least one firing transition
-$\mathbf{t} \in \mathcal{T}_q$ for the current state $q$ is enabled.
-The set of enabled transitions is given by
-$\mathcal{T}_{\mathrm{ready\ in\ }q} = \{ \mathbf{t} \mid \mathbf{t} \in \mathcal{T}_q \wedge \mathbf{t} \textrm{ is enabled}\}$.
-Exactly one transition $t \in \mathcal{T}_{\mathrm{ready\ in\ }q}$ will be
-chosen nondeterministically for execution.
-A firing transition is annotated with a condition called
-\emph{activation pattern} and an action called \emph{interface action}.
+An actor is \emph{blocked} in state $q$ until at least one firing transition
+$\mathbf{t} \in \mathcal{T}_q$ is enabled, as discussed below. The set of enabled transitions is
+given by $\mathcal{T}'_q = \{ \mathbf{t} \mid \mathbf{t} \in \mathcal{T}_q \wedge \mathbf{t} \textrm{ is enabled}\}$.
+Exactly one transition $t \in \mathcal{T}'_q$ will be chosen nondeterministically
+for execution. For example, if both transitions $\{\mathbf{t}_1, \mathbf{t}_2\} = \delta(S_{start})$
+in the firing rules shown in Figure~\ref{fig:firing-rules-print} of the Print Actor $A_6$ from Figure~\ref{fig:ng-moc}
+are enabled, one of them is executed nondeterministically.
 
-\begin{definition}\label{firing-transition}
+\begin{sdefinition}\label{firing-transition}
   A \emph{firing transition} is a tuple $\mathbf{t} = (k,J)$ containing
   an \emph{activation pattern} $k$ and an \emph{interface action} $J$.
-\end{definition}
+\end{sdefinition}
 
-An activation pattern is a predicate on actor ports. It encodes how many
-tokens to send (via actor output ports) or to receive (via actor input ports)
-when the activation pattern is executed.
+A transition $\mathbf{t} = (k,J)$ is enabled if its \emph{activation pattern} $k$
+is enabled. The activation pattern of a transition can be seen as
+a guard which checks if the transition can be executed.
+If a transition $\mathbf{t}$ is enabled and 
+part of the transitions $\mathcal{T}_q$ which leave the current state $q$
+the transition $\mathbf{t}$ can be executed, i.e.,
+$(k,J) = \mathbf{t} \in \mathcal{T}_q \wedge k\textrm{ is enabled} \implies \mathbf{t}\textrm{ can be executed}$.
+If a transition $\mathbf{t} = (k,J)$ is executed, the associated
+activation pattern $k$ and the \emph{interface action} $J$ are executed consecutively.
+The execution of the activation pattern is responsible for the
+actor communication via the actor ports. The execution of the
+interface action leads to function calls in the node functionality.
 
-\begin{definition}\label{activation-pattern}
+\begin{sdefinition}\label{activation-pattern}
   An \emph{activation pattern} is a function
   $k: A.I \cup A.O \to \mathbb{Z}^+_0,\ k \in \mathcal{K}$
   which maps each actor port of the actor $A$ to a nonnegative integer.
-\end{definition}
+\end{sdefinition}
+
+An activation pattern is a predicate on actor ports. It encodes the number of
+tokens to be sent (via actor output ports) or to be received (via actor input ports)
+when the activation pattern is executed.
+For example, the activation pattern $k$ of the transition $\mathbf{t}_4$
+in Figure~\ref{fig:firing-rules-divide} is
+expressed as $k(i_1) = k(i_2) = 1$ and $k(o_1) = 0$.
+However, the specification of an activation pattern by its function
+poses a great overhead. Therefore, we will use the shorthand
+$k = i_1(1) \& i_2(1)$ to express the same information.
 
 An activation pattern $k$ is enabled if for each actor input port
 $p_I \in A.I$ at least $k(p_I)$ tokens can be received and for each
@@ -923,187 +876,107 @@ actor output port $p_O \in A.O$ at least $k(p_O)$ tokens can be sent.
 If an activation pattern $k$ is executed it receives $k(p_I)$ tokens
 via the actor input port $p_I$ and stores them in
 temporary buffers in these actor input ports. For actor output ports
-$p_O$ the $k(p_O)$ tokens in temporary buffers of the actor
-output ports are sent via these ports.
+$p_O$, $k(p_O)$ tokens in temporary buffers of the actor
+output ports are sent via these ports. These temporary buffers are
+used to provide the input and output values for the node functionality.
 
-\begin{example}\label{ex:example-activation-pattern}
-Assuming the actor input ports $I = \{i_1,i_2,i_3\}$ and output ports
-$O = \{o_1,o_2\}$ are connected to bounded FIFO channels then the
-activation pattern 
-\[k(p) = \left\{ \begin{array}{ll}
-2 & \textrm{if $p = i_1$} \\
-1 & \textrm{if $p = i_2$} \\
-1 & \textrm{if $p = o_1$} \\
-0 & \textrm{otherwise}
-\end{array} \right.\]
-is enabled, if there are at least two token in the FIFO channel connected
-via $i_1$, at least one token in the FIFO channel connected via $i_2$, and
-there is space available for at least one additional token in the FIFO channel
-connected via $o_1$.
-\end{example}
-
-The specification of an activation pattern by its function as seen in Example~\ref{ex:example-activation-pattern}
-poses a great overhead. Therefore, we will use the shortcut notation
-$i_1(2) \& i_2(1) \& o_1(1)$ to express the same information.
-
-\begin{definition}\label{interface-action}
+\begin{sdefinition}\label{interface-action}
   An \emph{interface action} is a tuple $J = (f,Q_\mathrm{succ}),\ J \in \mathcal{J}$ containing
   a function $f \in A.\mathcal{F}.F$ of the node functionality $A.\mathcal{F}$
   and a set of possible successor states $Q_\mathrm{succ}$. Where the set of
   possible successor states must contain at least one element, i.e.,
   $|Q_\mathrm{succ}| \ge 1$.
-\end{definition}
-
-A transition $\mathbf{t} = (k,J)$ is enabled if its activation
-pattern $k$ is enabled. If a transition $\mathbf{t}$ is enabled and 
-part of the transitions $\mathcal{T}_q$ which leave the current state $q$
-the transition $\mathbf{t}$ can be taken, i.e.,
-$(k,J) = \mathbf{t} \in \mathcal{T}_q \wedge k\textrm{ is enabled} \implies \mathbf{t}\textrm{ can be taken}$.
+\end{sdefinition}
 
 A transition $\mathbf{t} = (k,J)$ is called a \emph{deterministic transition}
 if the associated interface action $J$ has only one successor state, i.e.,
-$|J.Q_\mathrm{succ}| = 1$. An example of a deterministic transition can
-be seen in Figure~\ref{fig:deterministic-transition}.
-A transition $\mathbf{t} = (k,J)$ is called a \emph{conflict transition}
-if the associated interface action $J$ has more then one possible
-successor state, i.e., $|J.Q_\mathrm{succ}| > 1$. An example of a
-conflict transition can be seen in Figure~\ref{fig:conflict-transition}.
+$|J.Q_\mathrm{succ}| = 1$. A transition $\mathbf{t} = (k,J)$ is called a
+\emph{conflict transition} if the associated interface action $J$ has more
+then one possible successor state, i.e., $|J.Q_\mathrm{succ}| > 1$.
+For example the transition $\mathbf{t}_4 = (k,J)$
+in Figure~\ref{fig:firing-rules-divide} with $k = i_1(1) \& i_2(1)$,
+$J.f = \mathrm{divide}$, and $J.Q_\mathrm{succ} = \{S_2\}$ is deterministic.
+But the transition $\mathbf{t}_3 = (k,J)$ from firing state $S_{\mathrm{start}}$
+to $S_\mathrm{ok}$ or $S_\mathrm{again}$
+in Figure~\ref{fig:firing-rules-sqrloop} with $k = i_1(1) \& i_2(1)$,
+$J.f = \mathrm{check}$, and $J.Q_\mathrm{succ} = \{S_\mathrm{ok}, S_\mathrm{again}\}$
+is conflicting.
 
-\begin{figure}[h]
+% An example of a
+% conflict transition can be seen in Figure~\ref{fig:conflict-transition}.
+
+\begin{figure}[t]
 \centering
-\input{deterministic-transition-fig.tex}
-\caption{Example of a deterministic transition $\mathbf{t} = (k,J)$
-with $k = i_1(2) \& i_2(1) \& o_1(1)$, $J.f = f_1$, and
-$J.Q_\mathrm{succ} = \{S_x\}$.}
-\label{fig:deterministic-transition}
+\subfigure[Firing rules of the Print actor $A_6$ ($A'_6$) in Figure~\ref{fig:ng-moc}
+constructed with the \emph{choice node interface}.] {% Prozentzeichen verhindert Leerzeichen!
+\begin{minipage}[b]{0.32\textwidth}
+\centering \scalebox{0.6}[0.6]{\input{firing-rules-print-fig.tex}}\label{fig:firing-rules-print}
+\end{minipage}}
+\subfigure[Firing rules of the SqrLoop actor $A_2$ ($A'_2$) in Figure~\ref{fig:ng-moc}
+constructed with the \emph{transact node interface}.] {% Prozentzeichen verhindert Leerzeichen!
+\begin{minipage}[b]{0.32\textwidth}
+\centering \scalebox{0.6}[0.6]{\input{firing-rules-sqrloop-fig.tex}}\label{fig:firing-rules-sqrloop}
+\end{minipage}}
+\subfigure[Firing rules of the Divide actor $A_3$ ($A'_3$) in Figure~\ref{fig:ng-moc}
+constructed with the \emph{fixed transact node interface}.] {% Prozentzeichen verhindert Leerzeichen!
+\begin{minipage}[b]{0.32\textwidth}
+\centering \scalebox{0.6}[0.6]{\input{firing-rules-divide-fig.tex}}\label{fig:firing-rules-divide}
+\end{minipage}}
+\caption{\label{fig:firing-rules}Example of firing rules of some actors in Figure~\ref{fig:ng-moc}.}
 \end{figure}
 
-\begin{figure}[h]
-\centering
-\input{conflict-transition-fig.tex}
-\caption{Example of a conflict transition $\mathbf{t} = (k,J)$
-with $k = i_1(1) \& o_2(1)$, $J.f = f_2$, and $J.Q_\mathrm{succ} = \{S_x,S_y,S_z\}$.}
-\label{fig:conflict-transition}
-\end{figure}
-
-The notion of firing is similar to the concepts introduced in
-SPI~\cite{ZERTT99a} and FunState~\cite{STZETG00}.
-If a transition $\mathbf{t} = (k,J)$ is taken first the assosciated
-activation pattern $k$ then the function $J.f$ of the node functionality
-is executed. In case of a deterministic transition the current firing
-state is updated to the single successor state in $J.Q_\mathrm{succ}$.
-In case of a conflict transition the successor state actually used is
+The notion of firing rules is similar to the concepts introduced in
+SPI~\cite{ZERTT99a} and an extension of the firing rules in FunState~\cite{STZETG00}
+by guards for testing available space in output channels.
+If a transition $\mathbf{t} = (k,J)$ is executed, the associated
+activation pattern $k$ and the function $J.f$ of the node functionality
+are executed consecutively. In case of a deterministic transition, the current firing
+state is updated to the only successor state $q_\mathrm{succ} \in J.Q_\mathrm{succ}$.
+In case of a conflict transition, the successor state actually used is
 a runtime decision of the function $J.f$.
 
-These firing rules are constructed by use of the following operations:
-
-\begin{itemize}
-\item branch
-
-\emph{Branch} is a operation which maps a function $f$ of the node functionality and
+As the firing rules determine the communication behavior of an actor, we
+can use the firing rules to distinguish five different operations:
+(i) \emph{Branch} is an operation which maps a function $f$ of the node functionality and
 a none empty set of firing state $Q_B \ne \emptyset$ to an interface action $J$,
 i.e., $\textrm{Branch}: A.\mathcal{F}.F \times 2^{A.\mathcal{R}.Q} \to \mathcal{J}$.
 If the resulting interface action $J$ is included into a transition
 $\mathbf{t}$ it permits to create a conflict transition.
-
-\item call
-
-\emph{Call} is a operation which maps a node functionality $f$ of the node functionality and
+(ii) \emph{Call} is an operation which maps a node functionality $f$ of the node functionality and
 a firing state $q$ to an interface action $J$,
 i.e., $\textrm{Call}: A.\mathcal{F}.F \times A.\mathcal{R}.Q \to \mathcal{J}$.
 If the resulting interface action $J$ is included into a
 transition $\mathbf{t}$, it creates a deterministic transition.
-Furthermore, the call operation is clearly a subset of the
-branch operation.
-
-\item transition
-
-\emph{Transition} is a operation which maps an activation pattern $k$ and
+(iii) \emph{Transition} is an operation which maps an activation pattern $k$ and
 an interface action $J$ to an interface transition $\mathbf{t}$,
 i.e., $\textrm{Transition}: \mathcal{K} \times \mathcal{J} \to \mathcal{T}$.
-
-\item choice
-
-\emph{Choice} is a operation which maps a set of interface transitions $\mathcal{T}$
+(iv) \emph{Choice} is an operation which maps a set of interface transitions $\mathcal{T}$
 to a firing state $q$,
 i.e., $\textrm{Choice}: 2^{\mathcal{T}} \to Q$.
 The firing state created by this operation can have multiple outgoing
 transitions.
-
-\item transact
-
-\emph{Transact} is a operation which maps an interface transition $T$
+(v) \emph{Transact} is an operation which maps an interface transition $T$
 to a firing state $s$,
 i.e., $\textrm{Transact}: \mathcal{T} \to Q$.
 The firing state created by this operation has only one outgoing
 transition $\mathbf{t}$.
-Furthermore, the transact operation is clearly a subset of the
-choice operation.
 
-\end{itemize}
-
-The set of operations available to construct the firing rules constraints
-the type of firing rules that can be constructed.
-Our methodology distinguishes three separate \emph{node interface types}
+Together with the network graph and the channel kinds used, these five operations
+permit the identification of the underlying MoC. As a MoC is the basis for
+analysis and efficient code generation, it is preferable that a design
+language provides appropriate language elements to express these aspects.
+Next, we will show how this can be done in the system design language SystemC.
+For this purpose, we distinguish three separate \emph{node interface types}
 by the set of operations available to them:
-
-\begin{definition}\label{choice-node-interface-type}
-Choice node interface provides the operations
-\emph{transition}, \emph{choice}, \emph{transact}, \emph{call} and \emph{branch}.
-\end{definition}
-
-An example of firing rules constructible with this node interface
-type can be seen in Figure~\ref{fig:firing-rules-choice}.
-
-\begin{definition}\label{transact-node-interface-type}
-Transact node interface provides the operations
-\emph{transition}, \emph{transact}, \emph{call} and \emph{branch}.
-\end{definition}
-
-An example of firing rules constructible with this node interface
-type can be seen in Figure~\ref{fig:firing-rules-transact}.
-
-\begin{definition}\label{fixed-transact-node-interface-type}
-Fixed transact node interface provides only the operations
-\emph{transition} and \emph{call}.
-\end{definition}
-
-An example of firing rules constructible with this node interface
-type can be seen in Figure~\ref{fig:firing-rules-fixed-transact}.
-
-\begin{figure}
-\centering
-\input{firing-rules-choice-fig.tex}
-\caption{Example of firing rules which can be created by the choice node interface}
-\label{fig:firing-rules-choice}
-\end{figure}
-
-\begin{figure}
-\centering
-\input{firing-rules-transact-fig.tex}
-\caption{Example of firing rules which can be created by the transact node interface}
-\label{fig:firing-rules-transact}
-\end{figure}
-
-\begin{figure}
-\centering
-\input{firing-rules-fixed-transact-fig.tex}
-\caption{Example of firing rules which can be created by the fixed transact node interface}
-\label{fig:firing-rules-fixed-transact}
-\end{figure}
-
-% \emph{Choice} is an operation defined on a set of actor ports $A_{P}$
-% and a function $D: A_{P} \to \mathcal{F}$, which maps each actor port
-% $a_{p} \in A_{P}$ to a function $F_{x} \in \mathcal{F}$.
-% The choice operation postpones the process execution 
-% until at least one actor port $a_{p} \in A_{P}$
-% becomes ready to communicate. The set of actor ports available
-% is given by $A_{P_{ready}}$.
-% Exactly one actor port $a_{p} \in A_{P_{ready}}$
-% will be chosen nondeterministically. After
-% finishing the communication on the chosen actor port $a_{p}$
-% the process execution will continue
-% with function $F_{continue} = D(a_{p})$.
+(i) Choice node interface provides the operations
+\emph{Transition}, \emph{Choice}, \emph{Transact}, \emph{Call} and \emph{Branch}
+%(See Figure~~\ref{fig:firing-rules-print})
+(ii) Transact node interface provides the operations
+\emph{Transition}, \emph{Transact}, \emph{Call} and \emph{Branch}
+%(See Figure~~\ref{fig:firing-rules-sqrloop})
+(iii) Fixed transact node interface provides only the operations
+\emph{Transition} and \emph{Call}.
+%(See Figure~~\ref{fig:firing-rules-divide}).
 
 \section{Revision of Different MoCs}\label{revision-of-mocs}
 
@@ -1301,7 +1174,7 @@ for the processes and connection topology used in the example):
 
 \begin{figure}[h]
 \centering
-\input{media-speech-audio-coding-fig.tex}
+\resizebox{1.0\textwidth}{!}{\input{media-speech-audio-coding-fig.tex}}
 \caption{Processes and connection topology used for the audio encoding KPN example}
 \label{fig:media-speech-audio-coding}
 \end{figure}
@@ -1383,40 +1256,267 @@ operation of the fixed transact node interface.
 guaranteed by the fixed transact node interface which does
 not allow the alteration of these rates once set.
 
+
 \section{Software Architecture}\label{software-architecture}
 
 Due to its high abstraction level and its capabilities in both,
 hardware and software refinement, we have chosen SystemC
 \cite{systemc-lrm:2003,glms:2002} as our platform for system design.
-SystemC is an actor-oriented C++-Based design language and
-already allows to express dataflow MoCs.
+SystemC is an actor-oriented C++-based design language.
+% and already allows to easily express dataflow MoCs.
+In the following, we propose a library, called \SysteMoC{},
+which augments SystemC with additional services as can be seen in
+Figure~\ref{fig:systemc-integration} to implement
+the concepts presented in the previous section. For this purpose,
+\SysteMoC{} provides base classes which define the operations
+to construct firing rules. This set of operations restricts
+an actors communication behavior. Moreover, channel kinds like
+FIFO and rendezvous, and a base class for the network graph are
+provided.
 
-In the following, we propose a SystemC framework, called \SysteMoC, which
-facilitates automatic extraction of a MoC from a SystemC design. \SysteMoC{}
-is a library which augments SystemC with additional services as
-can be seen in Figure~\ref{fig:SysteMoC-SystemC-Integration}.
-Actors in SystemC are C++ classes which are derived from the base class \code{sc\_module}.
-The \SysteMoC{} framework provides the execution requirements for each MoC while
-still supporting the extraction of the information needed for analysis.
-This analysis is made possible by dividing the actor into its
-node functionality and its node interface.
-Furthermore, the \SysteMoC{} framework provides a way for these
-actors to be connected to each other. This connections
-are provided by the network graph.
-%Actors can have their own thread of control or be without. Actors
-%with their own thread of control will be called in the following
-%active actors and actors without a dedicated thread of control
-%passive actors.
+%Actors in SystemC are C++ classes which are derived from the base class \code{sc\_module}.
+%This analysis is made possible by dividing the actor into its
+%node functionality and its node interface.
+%The \SysteMoC{} framework provides the execution requirements for each MoC while
+%still supporting the extraction of the information needed for analysis.
+%Furthermore, the \SysteMoC{} framework provides a way for these
+%actors to be connected to each other. This connections
+%are provided by the \emph{network graph} and appropriate \emph{channel kinds}.
 
-\begin{figure}[h]
-\centering
-\input{SysteMoC-SystemC-Integration-fig.tex}
-\caption{Integration of \SysteMoC{} into SystemC}
-\label{fig:SysteMoC-SystemC-Integration}
+\begin{figure}[t]
+\begin{center}
+\scalebox{0.7}[0.7]{\input{systemc-integration--node-interface-hierarchy-fig.tex}}
+\caption{\SysteMoC{} is a library built on top of the design language SystemC
+which allows easy and efficient construction of well defined MoCs.
+The construction is mainly based on the node interface hierarchy.}
+\label{fig:systemc-integration}\label{fig:node-interface-hierarchy}
+\end{center}
 \end{figure}
 
-\subsection{Node Functionality}
-The node functionality is only used for algorithmic transformations of data values.
+The problem of extracting the communication behavior of an actor is caused
+by the fact, that the communication methods in SystemC are all accessible
+to all SystemC modules. Moreover, execution of these methods is controlled
+by the Turing complete coding possibilities in the actor. To remedy these
+problems, we split the actor into a \emph{node functionality} and a
+\emph{firing rules} part, as discussed in Section~\ref{actor-oriented-design}.
+
+\begin{figure}[t]
+\begin{center}
+\scalebox{0.7}[0.7]{\input{firing-rules-uml-fig.tex}}
+\caption{Class hierarchy used for representing firing rules in \SysteMoC{}.}
+\label{fig:systemoc-firing-rules-classes}
+\end{center}
+\end{figure}
+
+Instead of covering the whole \SysteMoC{} library, we will concentrate
+on the representation of firing rules in \SysteMoC{}.
+The firing rules are mapped to the class hierarchy shown in
+Figure~\ref{fig:systemoc-firing-rules-classes}. The class \code{smoc\_root\_port}
+is the base class for both templates \code{smoc\_port\_in$<$T$>$} and \code{smoc\_port\_out$<$T$>$}
+which represent the actor input and output ports in \SysteMoC{}, respectively.
+
+The \code{smoc\_op\_port} class is used to represent an element of an
+activation pattern, e.g., $i_2(2)$.
+Instances of this class are generated by the \code{smoc\_op\_port smoc\_root\_port::operator ()( int n )}
+operator of the actor ports. The activation pattern is represented by the
+\code{smoc\_activation\_pattern} class. The instances of \code{smoc\_op\_port}
+are combined into an activation pattern by the $\&$-operators\\
+(i) \code{smoc\_activation\_pattern operator \& (smoc\_op\_port p1, smoc\_op\_port p2)} and\\
+(ii) \code{smoc\_activation\_pattern operator \& (smoc\_activation\_pattern ap, smoc\_op\_port p)}\\
+The C++ syntax, e.g., \code{smoc\_activation\_pattern k = i1(3)\&i2(2)\&o1(7)},
+is similar to our shorthand notation for activation patterns, e.g., $k = i_1(3) \& i_2(2) \& o_1(7)$.
+
+The firing states themselves are mapped to the \code{smoc\_firing\_state} class.
+A list of firing states (\code{smoc\_state\_list}) can be created analogous
+to the creation of activation patterns with the $|$-operators\\
+(i) \code{smoc\_state\_list operator | (smoc\_firing\_state s1, smoc\_firing\_state s2)} and\\
+(ii) \code{smoc\_state\_list operator | (smoc\_state\_list sl, smoc\_firing\_state s)}.\\
+An interface action is represented by the \code{smoc\_interface\_action} class.
+Instances of this class are created by the methods\\
+(i) \code{template <typename T>\\
+smoc\_interface\_action call(void (T::*f)(), smoc\_firing\_state s)} and\\
+(ii) \code{template <typename T>\\
+smoc\_interface\_action branch(smoc\_firing\_state (T::*f)(), smoc\_state\_list sl)}.
+
+An activation pattern and an interface action are combined by the
+\code{smoc\_interface\_transition smoc\_activation\_pattern::operator >> (smoc\_interface\_action)}
+operator to an interface transition,
+e.g., \code{smoc\_interface\_transition t = (i1(3)\&i2(2)\&o1(7)) >> call(method, s1)}.
+
+A list of interface transitions (\code{smoc\_transition\_list}) can be created analogous
+to the creation of activation patterns with the $|$-operators\\
+(i)  \code{smoc\_transition\_list smoc\_interface\_transition::operator |} \\
+     \code{(smoc\_interface\_transition)} and\\
+(ii) \code{smoc\_transition\_list smoc\_transition\_list::operator | (smoc\_interface\_transition)}.
+A firing state can be created by the methods\\
+(i) \code{smoc\_firing\_state transact(smoc\_interface\_transition)} and\\
+(ii) \code{smoc\_firing\_state choice(smoc\_transition\_list)}.\\
+
+Instead of a detailed description for the still uncovered parts of the \SysteMoC{} library we
+will use some example implementation of actors with \SysteMoC{} to give a broad overview
+of the rest of \SysteMoC{}.
+Such an example given in Figure~\ref{systemoc-divide-actor} shows the Divide actor $A_3$ in
+Figure~\ref{fig:ng-moc} on Page~\pageref{fig:ng-moc}.
+The firing rules are a finite state machine which determines
+the communication behavior of an actor.
+The node functionality is only used for algorithmic transformations of
+data values and any communication with other actors not provided
+by the firing rules is prohibited.
+Unfortunately, this cannot be strictly enforced because it is generally
+impossible to detect if the C++ code communicates with other actors
+directly omitting the firing rules which should handle all communication.
+Hence, we require the \SysteMoC{} user
+to assure that the node functionality does terminate and does only
+communicate with other actors via the firing rules.
+
+\begin{figure}[t]
+\centering
+\begin{verbatim}
+// node interface type is 'fixed transact node'
+class Divide: public smoc_fixed_transact_node { 
+  smoc_port_in<int> i1,i2; smoc_port_out<int> o1; // input port i1,i2, output port o1
+  ...
+  void divide()        { // A function of the node functionality
+    o1[0]=               // update position 0 of the temporary buffer in o1
+          i1[0]/i2[0]; } // access position 0 of the temporary buffer in i1 and i2
+  ...
+  Divide( sc_module_name name ): smoc_fixed_transact_node(name,
+     (i1(1)&i2(1)&o1(1)) >> call(divide) /* specification of firing rules */ ) {} };
+\end{verbatim}
+\caption{\label{systemoc-divide-actor}Node functionality and firing rules of
+the Divide actor $A_3$ ($A'_3$) in Figure~\ref{fig:ng-moc} on 
+Page~\pageref{fig:ng-moc} encoded in the \SysteMoC{} framework.
+As a special exception of the fixed transact node interface the FSM of
+the firing rules is not explicitly given but instead only a transition
+$\mathbf{t}$ without successor state,
+e.g, \code{(i1(1) \& i2(1) \& o1(1)) >> call(divide)}, is provided in
+the constructor. This transition $\mathbf{t}$ has the activation pattern
+$i_1(1) \& i_2(1) \& o_1(1)$ and the interface action $\mathcal{J}$ with function
+$\mathcal{J}.f = \mathrm{divide}$. 
+The corresponding FSM which is constructed from this transition by
+the fixed transact node interface can be seen in
+Figure~\ref{fig:firing-rules-divide} on Page~\pageref{fig:firing-rules-divide}.
+The transition $\mathbf{t}_5$ in the FSM corresponds exactly to the
+transition $\mathbf{t}$ given in the constructor and the transition
+$\mathbf{t}_4$ in the FSM is constructed by the fixed transact node interface
+from the transition $\mathbf{t}$ by deleting all actor output ports from
+the activation pattern of the transition. This transition corresponds to an
+initialization phase where the inputs are acquired which are necessary
+before the first outputs can be produced.}
+\end{figure}
+
+However, some MoCs, e.g., Kahn Process Networks, need a Turing complete control of their
+communication behavior. One example would be the SqrLoop actor $A_2$
+in Figure~\ref{fig:ng-moc} which makes an input data dependent decision,
+e.g, if the approximated square root value is good enough.
+To accommodate this, we again allow the node functionality to indirectly
+influence the communication behavior via a conflict transition
+created by the \emph{Branch} operation. An example of this is shown in
+Figure~\ref{systemoc-firing-rules-sqrloop}.
+
+\begin{figure}[t]
+\centering
+\begin{verbatim}
+class SqrLoop: public smoc_transact_node { // node interface type is 'transact node'
+  smoc_port_in<int>  i1,i2; // input  port i1, i2
+  smoc_port_out<int> o1,o2; // output port o1, o2
+  ...
+  smoc_firing_state ok, again;
+  const smoc_firing_state &check();
+  ...
+  smoc_firing_state fireRules() { // function for construction of the firing rules
+    smoc_firing_state start = transact( (i1(1)&i2(1)) >> branch(check, ok|again));
+                      ok    = transact( (o1(1)&o2(1)) >> call(NULL,start));
+                      again = transact( (o1(1)&i2(1)) >> branch(check, ok|again));
+    return start; }
+  ...
+  SqrLoop( sc_module_name name ): smoc_transact_node(name, fireRules() ) {} };
+\end{verbatim}
+\caption{\label{systemoc-firing-rules-sqrloop}Firing rules
+of the SqrLoop actor $A_2$ ($A'_2$) in Figure~\ref{fig:ng-moc} on Page~\pageref{fig:ng-moc} encoded
+in the \SysteMoC{} framework. The FSM of the firing rules which corresponds to the code in
+method \code{fireRules} can be seen in
+Figure~\ref{fig:firing-rules-sqrloop} on Page~\pageref{fig:firing-rules-sqrloop}.
+In the \SysteMoC{} framework a firing state is represented by an
+\code{smoc\_firing\_state} object,
+e.g, \code{smoc\_firing\_state start} for $S_\mathrm{start}$,
+\code{smoc\_firing\_state ok} for $S_\mathrm{ok}$, and
+\code{smoc\_firing\_state again} for $S_\mathrm{again}$.
+In this example because of the transact node interface only one outgoing transition
+per firing state is allowed. These firing states are
+created via transact method calls,
+e.g, \code{start = transact( (i1(1) \& i2(1)) >> branch(check, ok | again) )}.
+The previous code snippet creates the state $S_\mathrm{start}$ and its
+outgoing conflicting transition $\mathbf{t}_3 = (k,J)$ which has an
+activation pattern $k = i_1(1) \& i_2(1)$ (encoded as \code{i1(1) \& i2(1)})
+and an interface action $J$ (encoded as \code{branch(check, ok | again)}).
+This interface action references the $\mathrm{check} = J.f$ function of the node functionality and has
+two possible successor states $J.Q_\mathrm{succ} = \{S_\mathrm{ok}, S_\mathrm{again}\}$
+(encoded as \code{ok | again}).}
+\end{figure}
+
+Another case is the possibility to distinguish arrival times of tokens on
+different ports, e.g., as necessary for a nondeterministic
+merge actor like the Print actor $A_6$ in Figure~\ref{fig:ng-moc}.
+This is implemented via the \emph{Choice} operation as shown
+for example in Figure~\ref{systemoc-firing-rules-print}.
+
+\begin{figure}[t]
+\centering
+\begin{verbatim}
+class Print: public smoc_choice_node { // node interface type is 'choice node'
+  smoc_port_in<int> i1,i2; // input  port i1, i2
+  ...
+  void print();
+  ...
+  smoc_firing_state fireRules() { // function for construction of the firing rules
+    smoc_firing_state start = choice( i1(1) >> call(print,start) |
+                                      i2(1) >> call(print,start) );
+    return start; }
+  ...
+  Print( sc_module_name name )
+   : smoc_choice_node(name, fireRules() ) {} };
+\end{verbatim}
+\caption{\label{systemoc-firing-rules-print}Firing rules
+of the Print actor $A_6$ ($A'_6$) in Figure~\ref{fig:ng-moc} on Page~\pageref{fig:ng-moc}  encoded
+in the \SysteMoC{} framework. The FSM of the firing rules which corresponds to the code in
+method \code{fireRules} can be seen in Figure~\ref{fig:firing-rules-print}.}
+\end{figure}
+
+\comment{
+Clearly this possibilities are undesirable for more
+constrained MoCs. Thus, we have to distinguish firing rules into
+different categories which allow or disallow such possibilities. We
+distinguish firing rules by the operations we
+support for constructing them. These operations are provided by the
+node interface which is a base class of the actor. Therefore the
+type of firing rules possible for an actor is determined by the
+node interface type from which the actor is derived.
+}
+As can be seen from Figure~\ref{systemoc-divide-actor} to Figure~\ref{systemoc-firing-rules-print},
+the restricted communication behavior of an actor is established by choosing
+an appropriate base class.
+In \SysteMoC{}, the set of operations available for each node interface type
+are organized in a hierarchy of decreasing execution capabilities and
+correspondingly increasing analysis capabilities.
+%The choice node interface is the most powerful in this hierarchy.
+%Next is the transact node interface, and finally the last powerful is the
+%fixed transact node interface. This can also be clearly seen
+%by observing the operations available to node interface types.
+%Less powerful node interface types provide a strict subset of
+%the operations available on higher levels in the hierarchy.
+The hierarchy of the node interface types is transformed into
+a C++ inheritance hierarchy which can be seen in Figure~\ref{fig:node-interface-hierarchy}
+on the right hand side.
+%The node interface types are mapped to C++ class types as follows:
+%(i) The choice node interface is represented by the \code{smoc\_choice\_node} class.
+%(ii) The transact node interface is represented by the \code{smoc\_transact\_node} class.
+%(iii) The fixed transact node interface is represented by the \code{smoc\_fixed\_transact\_node} class.
+Operations which are no longer available for node interface types
+at lower levels in the hierarchy are disabled by declaring them to be private.
+
+Besides the node interface, \SysteMoC{} provides operations to construct the
+network graph, and define the \emph{node functionality}.
 The node functionality of an actor is defined in certain member functions,
 which are called by the firing rules when their requirements for input data
 is fulfilled. This member functions are not allowed to call communication
@@ -1424,744 +1524,60 @@ operations. All required input and output data values are kept in temporary buff
 in the actor ports. These buffers are managed by the firing rules which store
 new data received via actor input ports in temporary buffers in these
 actor input ports and send data in temporary buffers in actor output ports
-to the channels connected via these ports. An example of an actor which all parts
-except the node functionality stripped can be seen in Figure~\ref{example-node-functionality}.
+to the channels connected via these ports. For example, the node functionality
+of the the Divide actor $A_3$ from Figure~\ref{fig:ng-moc} on Page~\pageref{fig:ng-moc}
+can be seen in Figure~\ref{systemoc-divide-actor}.
 
-%The firing rules store the input values in temporary buffers in the actor input ports
-%for later usage by the functions of the node functionality.
-%The node functionality stores the output values in temporary buffers in the actor output ports
-%These temporary buffers are sent to the channels connected to these actor output ports by the
-%firing rules.
-
-\begin{figure}[h]
-\centering
-\begin{verbatim}
-class my_actor ... {
-  hscd_port_in<int>  i1, i2; // actor input port i1, i2
-  hscd_port_out<int> o1;     // actot output port o1
-  ...
-  // qi the functionality state
-  uint32_t sum;
-  ...
-  void accumulate()       { // A function of the node functionality
-    sum +=                  // update functionality state
-           i1[0] * i1[1];   // access position 0 and 1 of the temporary buffer in i1
-    o1[0] = sum;          } // update position 0 of the temporary buffer in o1
-  void reset()   { // A function of the node functionality
-    sum = i2[0]; } // update functionality state with the value
-                   // in position 0 of the temporary buffer in i2
-  ...
-  my_actor( ... ) : sum = 0, ... { ... }
-};
-\end{verbatim}
-\caption{Example of a node functionality
-($F = \{\textrm{accumulate}, \textrm{reset}\}$, $Q= [0,1,\ldots,2^{32}-1]$, $q_1 = 0$)
-in the \SysteMoC{} framework}\label{example-node-functionality}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\scalebox{0.5}[0.5]{\input{ng-moc-identification-fig.tex}}
-\caption{Identification of MoC in SystemC with \SysteMoC}
-\label{fig:ng-moc-identification}
-\end{figure}
-
-%\begin{figure}[h]
-%\centering
-%\begin{verbatim}
-%template <typename T>
-%class m_adder // Actor m_adder
-%  : public hscd_fixed_transact_node // Node interface
-%{
-%public:
-%  hscd_port_in<T>  in;
-%  hscd_port_out<T> out;
-%private:
-%  // Node functionality
-%  void transform() {
-%    out[0] = in[0] + in[1];
-%    std::cout << "Adding " << in[0] << " + " << in[1]
-%              << " = " << out[0] << std::endl;
-%  }
-%public:
-%  m_adder( sc_module_name name )
-%    :hscd_fixed_transact_node( name,
-%        (in(2) & out(1)) >> call(transform) /* Firing rules */ ) {}
-%};
-%\end{verbatim}
-%\caption{\label{example-adder-actor}Example of an adder in the \SysteMoC{} framework}
-%\end{figure}
-%
-%\begin{figure}[h]
-%\centering
-%\begin{verbatim}
-%template <typename T>
-%class m_multiply // Actor m_multiply
-%  : public hscd_fixed_transact_node // Node interface
-%{
-%public:
-%  hscd_port_in<T>  in1;
-%  hscd_port_in<T>  in2;
-%  hscd_port_out<T> out;
-%private:
-%  // Node functionality
-%  void transform() {
-%    out[0] = in1[0] + in2[0];
-%    std::cout << "Multiplying" << in1[0] << " * " << in2[0]
-%              << " = " << out[0] << std::endl;
-%  }
-%public:
-%  m_multiply( sc_module_name name )
-%    :hscd_fixed_transact_node( name,
-%        (in1(1) & in2(1) & out(1)) >> call(transform) /* Firing rules */ ) {}
-%};
-%\end{verbatim}
-%\caption{\label{example-multiply-actor}Example of a multiplier in the \SysteMoC{} framework}
-%\end{figure}
-
-\subsection{Node Interface}
-The problem of extracting the communication behavior of an actor is caused
-by the fact, that the communication methods in SystemC are all accessible
-to all SystemC modules. Moreover, execution of these methods is controlled
-by the Turing complete coding possibilities in the actor. To remedy these
-problems, we prohibit any method calls on \SysteMoC{} channels
-by the node functionality. Moreover,
-communication over other media than \SysteMoC{} channels is forbidden.
-Unfortunately this cannot be strictly enforced. Hence, we require the \SysteMoC{} user
-to assure that the node functionality does terminate and does not
-directly communicate with other actors omitting the \SysteMoC{} channels.
-
-After prohibiting any form of communication by the node functionality we,
-instead introduce firing rules which is a finite state machine which determines
-the communication behavior of an actor. However some MoCs, e.g. KPN, need
-a Turing complete control of their communication behavior. To
-accomodate this, we again allow the node functionality to indirectly
-influence the communication behavior via a conflict transition
-created by the branch operation. Clearly this is undesirable for more
-constrainted MoCs. Therefore, we have to distinguish firing rules into
-different categories which allow or disallow such possibilities. We
-distinguish firing rules into these categories by the operations we
-support for constructing them. These operations are provided by the
-node interface which is a base class of the actor. Therefore the
-type of firing rules possible for an actor is determined by the
-node interface type from which the actor is derived.
-
-%The following subset of the requirements enumerated in Section~\ref{revision-of-mocs}
-%determines the node interface of the corresponding MoCs:
-
-The set of operations available for each node interface type
-build a hierarchy of decreasing execution capabilities and
-correspondingly increasing analysis capabilities.
-The choice node interface is the most powerful in this hierarchy.
-Next is the transact node interface, and finally the last powerful is the
-fixed transact node interface. This can also be clearly seen
-by observing the operations available to node interface types.
-Less powerful node interface types provide a strict subset of
-the operations available on higher levels in the hierarchy.
-How these execution and analysis capabilities map to some transformative
-MoCs has been presented in Section~\ref{revision-of-mocs}.
-
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.5]{NodeInterfaceHierarchy.\graphicPostfix}\\
-\caption{\label{node-interface-hierarchy}Node interface hierarchy as UML}
-\end{figure}
-
-The hierarchy of the node interface types is transformed into
-a C++ inheritance hierarchy which can be seen in Figure~\ref{node-interface-hierarchy}.
-The node interface types are mapped to C++ class types as follows:
-(i) The choice node interface is represented by the \code{hscd\_choice\_node} class.
-(ii) The transact node interface is represented by the \code{hscd\_transact\_node} class.
-(iii) The fixed transact node interface is represented by the \code{hscd\_fixed\_transact\_node} class.
-Operations which are no longer available for node interface types
-at lower levels in the hierarchy are disabled by declaring them to be private.
-
-\begin{figure}[h]
-\centering
-\begin{verbatim}
-class dp_fork
-  : public hscd_choice_node {
-public:
-  // actor input ports
-  // request from left philosopher
-  hscd_port_in<bool> l; 
-  // request from right philosopher
-  hscd_port_in<bool> r; 
-private:
-  // Functions of the node functionality
-  void take() { ... } // fork taken
-  void drop() { ... } // fork dropped
-  
-  // function for construction of the firing rules
-  hscd_firing_state fireRules() {
-    hscd_firing_state start =
-      choice( l >> call(take, transact(
-                l >> call(drop, &start) ) ) |
-              r >> call(take, transact(
-                r >> call(drop, &start) ) ) );
-    return start;
-  }
-public:
-  dp_fork( sc_module_name name )
-    : hscd_choice_node(name, fireRules() ) {}
-};
-\end{verbatim}
-\input{firing-rules-fork-fig.tex}
-
-\caption{\label{systemoc-firing-rules-example}
-  Example of the firing rules for a fork of the
-  dining philosophers problem in \SysteMoC{}}
-\end{figure}
-
-%\begin{enumerate}
-%\item Choice Node
-%  \begin{itemize}
-%  \item  A communication method which implements Hoare's 'general choice' operator \cite{csphoare:1985}.
-%  \end  {itemize}
-%\item Transact Node
-%  \begin{itemize}
-%  \item A communication method to read from and write to ports.
-%  \item Assurance that the arrival sequence of tokens at
-%        their ports cannot be determined.
-%  \end  {itemize}
-%\item Fixed Transact Node
-%  \begin{itemize}
-%  \item A communication method to read from and write to ports.
-%  \item Assurance that the arrival sequence of tokens at
-%        their ports cannot be determined.
-%  \item Assurance that consumption and production rates cannot
-%        be altered once set
-%  \end  {itemize}
-%\end{enumerate}
-%
-%\begin{enumerate}
-%\item CSP
-%  \begin{itemize}
-%  \item  \code{choice( a(1) $\arrowvert$ b(2) )}
-%
-%    This communication operation gets a list of actor ports (e.g. $a$, $b$) which
-%    are parameterized with the number of tokens that must be communicated
-%    over the port. The operations communicates over that actor port which is first ready
-%    for communication. If no port is ready for communication the operation blocks until
-%    at least one port is ready. Should more than one actor port be ready for
-%    communication at the same instance one of them is chosen nondeterministically.
-%  \end  {itemize}
-%\item KPN
-%  \begin{itemize}
-%  \item \code{transact( a(1) \& b(2) )}
-%
-%    This communication operation gets a list of actor ports (e.g. $a$, $b$) which
-%    are parameterized with the number of tokens that must be communicated
-%    over the port. The operations blocks until all requested tokens on the ports
-%    have been communicated.
-%  \end  {itemize}
-%\item SDF
-%  \begin{itemize}
-%  \item \code{transact(), hscd\_fixed\_transact\_node( ..., a(1) \& b(2) )}
-%
-%    Actors are C++ classes which are derived of their node interface class.
-%    The consumption and production rates for SDF Actors must be fixed, therefore
-%    the node interface of a SDF-Actor is parameterized with the consumption and production
-%    rates of the SDF-Actor (See actor constructor in Figure~\ref{example-multiply-actor} for an
-%    example of fixed consumption and production rates). The communication operation \code{transact} is
-%    therefore missing the port list which is available to KPN nodes.
-%  \end  {itemize}
-%\end{enumerate}
-
-%(See Table~\ref{node-interface-c++} for mapping of the node interface types to their
-%corresponding C++ class types).
-%To partially remedy these problems we introduced the node interface aspect
-%which determines what communication methods are available to an actor.
-
-%\begin{table}
-%\centering
-%\begin{tabular}{|l|l|}
-%\hline
-% Node interface & \SysteMoC{} node interface type \\
-%\hline \hline
-% Choice Node          & \code{hscd\_choice\_node} \\
-% Transact Node        & \code{hscd\_transact\_node} \\
-% Fixed Transact Node  & \code{hscd\_fixed\_transact\_node} \\
-%\hline
-%\end{tabular}
-%\caption{\label{node-interface-c++}Node interfaces represented as \SysteMoC{} classes}
-%\end{table}
-
-\subsection{Network Graph Type}
-
-To complete an executable specification in \SysteMoC{}, beside
-the information about the actors, additionally information about the connections
-of the actors with each other is needed. This information is stored
-in the network graph of the executable specification, which can
-be categorized into two different network graph types as defined in
-Subsection~\ref{network-graph}.
-
-The network graph is represented by a user provided C++ class, in the following called
-network graph class. This class is derived from a \SysteMoC{} graph type class which
-provides the methods needed to assemble the network graph in the constructor
-of the network graph class. Once the constructor has finished the network graph must
-be fully assembled. No alteration at a later date is allowed.
-The methods provided by the \SysteMoC{} graph type class together with runtime checks
-in these methods constrain the constructed network graph to conform to the corresponding
-network graph type.
-Therefore, the network graph type of a network graph can be determined by looking
-at the base class of the network graph class.
-The network graph types are mapped to C++ class types as follows:
-(i) The conflicting network graph is represented by the \code{hscd\_graph\_petri} class.
-(ii) And the nonconflicting network graph is represented by the \code{hscd\_graph\_dataflow} class.
-Of the two network graph types the nonconflicting network graph is the more constraint
-one. Therefore, it is implemented by deriving from the conflicting network graph
-and disabling by declaring private the \code{registerChan} and \code{connectChanPort}
-methods which allow the creation of channels with multiple indegree and outdegree.
-This hierarchy is shown in Figure~\ref{network-graph-hierarchy}.
-
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.5]{NetworkGraphHierarchy.\graphicPostfix}\\
-\caption{\label{network-graph-hierarchy}UML inheritance hierarchy of the network graph types}
-\end{figure}
-
-To construct the network graph the following methods are available for
-composition of a network graph of the desired type:
-
-\begin{enumerate}
-\item Conflicting network graph
-
-  \begin{itemize}
-  \item registerNode:
-    This method is used to add one actor $A$ to the set of actors $\mathcal{A}$
-    of the network graph.
-
-  \item registerChan:
-    This method is used to add one channel $c$ to the set of channels $C$
-    of the network graph. This functions takes an optional parameter which can
-    be used to specify the initial state of the new channel, which is
-    for example used for the count of initial tokens of a FIFO channel.
-
-  \item connectChanPort:
-    This method adds one edge $e \in C \times \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}} \times C$
-    between channels and actor ports to the network graph.
-
-%  \item connectInterfacePorts
-%    This method adds one edge $e \in P_{i} \times \mathcal{A}_{P_{i}} \cup \mathcal{A}_{P_{o}} \times P_{o}$
-%    between actor ports and uplevel ports to the network graph.
-
-  \end{itemize}
-
-\item Nonconflicting network graph
-
-  \begin{itemize}
-  \item registerNode: Same method as defined for conflicting network graphs.
-  
-%  \item connectInterfacePorts: Same method as defined for conflicting network graphs.
-  
-  \item connectNodePorts:
-    This method is a shortcut for adding one channel and
-    connecting two actor ports via this channel. Only channels
-    which are connected to a dedicated output actor port and
-    a dedicated input actor port can be realized with it.
-    This method takes an optional parameter which fulfils
-    the same function as the parameter for method registerChan.
-  
-  \end{itemize}
-
-\end{enumerate}
-
-\begin{figure}[h]
-\centering
-\begin{verbatim}
-class m_top: public ... {
-  ...
-  m_top( sc_module_name name )
-    : ... {
-    dp_fork        &m_fork0        = registerNode(new dp_fork("m_fork0"));
-    dp_fork        &m_fork1        = registerNode(new dp_fork("m_fork1"));
-    dp_philosopher &m_philosopher0 = registerNode(new dp_philosopher("m_philosopher0"));
-    dp_philosopher &m_philosopher1 = registerNode(new dp_philosopher("m_philosopher1"));
-    dp_footman     &m_footman      = registerNode(new dp_footman("m_footman"));
-    
-    connectNodePorts( m_philosopher0.l_forkreq, m_fork0.r_forkreq );
-    connectNodePorts( m_philosopher1.r_forkreq, m_fork0.l_forkreq );
-    
-    connectNodePorts( m_philosopher1.l_forkreq, m_fork1.r_forkreq );
-    connectNodePorts( m_philosopher0.r_forkreq, m_fork1.l_forkreq );
-    
-    connectNodePorts( m_philosopher0.sitreq,   m_footman.sitreq_0   );
-    connectNodePorts( m_philosopher0.standreq, m_footman.standreq_0 );
-
-    connectNodePorts( m_philosopher1.sitreq,   m_footman.sitreq_1   );
-    connectNodePorts( m_philosopher1.standreq, m_footman.standreq_1 );
-  }
-  ...
-};
-\end{verbatim}
-\caption{\label{dining-philosophers-csp-systemoc}
-  Example of a network graph in \SysteMoC}
-\end{figure}
-
-
-%\begin{table}[h]
-%\centering
-%\begin{tabular}{|l|l|}
-%\hline
-% Network graph type   & \SysteMoC{} graph type class \\
-%\hline \hline
-% Petri Choice Node    & \code{hscd\_graph\_petri} \\
-% Transact Node        & \code{hscd\_graph\_sdf} \\
-%\hline
-%\end{tabular}
-%\caption{\label{network-graph-c++}Network graph types represented as \SysteMoC{} classes}
-%\end{table}
-
-\subsection{Channel Kind}
-
-SystemC is an actor-oriented design language, i.e., it supports the concept
-of actors and channels. The channel kind aspect of the \SysteMoC{}
-framework can cleanly be implemented as a base class of a channel in SystemC.
+The information about the connections of the actors is stored
+in the \emph{network graph} which is represented by a user provided
+C++ class, in the following called network graph class. This class is derived
+from the \SysteMoC{} graph class \code{smoc\_graph}. The network graph is
+assembled in the constructor of the network graph class by usage of the normal
+SystemC methods. Instead of the normal SystemC channels like
+\code{sc\_fifo}, \code{sc\_signal}, etc, the two \SysteMoC{} \emph{channel kinds}
+\code{smoc\_fifo\_kind} and \code{smoc\_rendezvous\_kind} are available
+to connect the actors to each other.
 The channel kind determines the communication semantics of a channel but
 makes no assumptions about the data type of the tokens.
-The channel type is a template parameterized
-with the data type for the tokens and derived from the channel kind.
-Identifying the channel kind with a base class instead of a template enables
-easier type signature checks of C++ for the enforcement of a particular
-channel kind of a channel instance.
-
 Further differences between \SysteMoC{} channels and SystemC channels are the
 absence of user callable methods for communicating on the \SysteMoC{} channels.
 Providing those communication methods on the channels would contradict the separation
-of node interface and channel kind. The mapping of channel kind to corresponding C++
-class types is as follows:
-(i) The fifo channel kind is represented by the \code{hscd\_fifo\_kind} class.
-(ii) And rendezvous channel kind is represented by the \code{hscd\_rendezvous\_kind} class.
+of node interface and channel kind.
 
-%\begin{table}
-%\centering
-%\begin{tabular}{|l|l|}
-%\hline
-% Channel kind & \SysteMoC{} type \\
-%\hline \hline
-% FIFO         & \code{hscd\_fifo\_kind} \\
-% Rendezvous   & \code{hscd\_rendezvous\_kind} \\
-%\hline
-%\end{tabular}
-%\caption{\label{channel-kind-c++}Channel kinds represented as \SysteMoC{} classes}
-%\end{table}
+Due to space limitations, we only sketch the extraction of the underlying
+MoC from a SysteMoC description. Note that it is possible to combine
+different MoCs in \SysteMoC{}. To identify the MoC,
+in a (partial) \SysteMoC{} description, we must investigate the
+node interface of all actors and the channel kind of connected channels.
+The following table shows some actor oriented MoCs that can be constructed using
+\SysteMoC.\\[5mm]
 
-\subsection{Constraint Set Composition for MoCs}
-
-In Section~\ref{revision-of-mocs} we have demonstrated how
-to map the requirements of some MoCs to the aspects presented
-in Section~\ref{actor-oriented-design}. Furthermore, the analysis
-requirement of these MoCs translate into certain constraints
-on the aspects presented before. These constraints are
-used to distinguish an aspect into aspect types. Therefore
-for each MoC presented in Section~\ref{revision-of-mocs}
-we have a set of aspect types, called \emph{constraint set}.
-Predefined constraint sets supported by \SysteMoC{} are
-shown in Table~\ref{constraintset-composition}.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|l|l|}
+\begin{tabular}{|c||c|c|c|}
 \hline
- Channel kind & Node interface & Network graph type & Constraint set \\
+ Channel kind & \multicolumn{3}{c|}{ Node interface } \\
+\hline
+              & Choice Node         & Transact Node      & Fixed Transact Node \\
 \hline \hline
- Fifo         & Fixed Transact node & Nonconflicting network graph & SDF constraint set \\
- Fifo         & Transact node       & Nonconflicting network graph & Dataflow constraint set \\
-%% Fifo         & Choice node         & Nonconflicting network graph & FIFO CSP constraint set \\
- Rendezvous   & Choice node         & Nonconflicting network graph & CSP constraint set \\
+ Fifo         & No well known name  & KPN                & SDF \\
+\hline
+ Rendezvous   & CSP                 & No well known name & No well known name \\
 \hline
 \end{tabular}
-\caption{\label{constraintset-composition}
-  Composition of constraint set out of channel kind type, node interface type
-  and network graph type}
-\end{table}
-
-The aspect types in the constraint set are node interface,
-channel kind and network graph. The node interface and
-and channel kind are represented as \SysteMoC{} classes in
-SystemC, the network graph is represented as
-a C++ template in \SysteMoC{}. Parameterizing this template
-with the channel kind and node interface (As shown in
-table~\ref{constraintset-c++}) leads to a C++
-type which represents the constraint set in \SysteMoC{}.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|p{6cm}|l|}
-\hline
- Constraint set & Composition in C++ & \SysteMoC{} constraint set type \\
-\hline \hline
- SDF constraint set &
-  \code{hscd\_graph\_sdf$<$ hscd\_fixed\_transact\_node, hscd\_fifo\_kind$>$} &
-  \code{hscd\_sdf\_constraintset} \\
-\hline
- Dataflow constraint set &
-  \code{hscd\_graph\_sdf$<$ hscd\_transact\_node, hscd\_fifo\_kind$>$} &
-  \code{hscd\_df\_constraintset} \\
-\hline
- CSP constraint set &
-  \code{hscd\_graph\_sdf$<$ hscd\_choice\_node, hscd\_rendezvous\_kind$>$} &
-  \code{hscd\_csp\_constraintset} \\
-\hline
-\end{tabular}
-\caption{\label{constraintset-c++}Constraint sets represented as \SysteMoC{}
-  classes and their composition in C++}
-\end{table}
-
-The executable specification with a certain constraint set is
-represented by a user provided C++ class. An example
-is shown in Figure~\ref{example-sdf-constraintset}, which is
-derived from the selected \SysteMoC{} constraint set type and by
-user provided C++ classes representing the actors of the specification.
-These actors are derived from a \SysteMoC{} node interface type which
-meet the requirements of the selected constraint set. The network graph
-is assembled in the constructor of the top class by using the
-operators provided by the \SysteMoC{} network graph type.
-Each actor registered with the \code{registerNode} method must implement
-the parameterized node interface type of the constraint set or an even
-less capable node interface type, which is enforced by the type signature
-of the registerNode method and the node interface hierarchy.
-Each registered channel must be of the parameterized channel kind,
-enforcement is obtained by the type signature of the
-the registerChan and connectNodePorts methods.
-
-\begin{figure}[h]
-\centering
-\begin{verbatim}
-class m_top2: public hscd_sdf_constraintset {
-  public:
-    hscd_port_in<int>  in1;
-    hscd_port_in<int>  in2;
-    hscd_port_out<int> out;
-    
-    m_top2()
-      : hscd_sdf_constraintset()
-    {
-      m_adder<int>    &adder =
-        registerNode(new m_adder<int>("adder"));
-      m_multiply<int> &mult  =
-        registerNode(new m_multiply<int>("multiply"));
-      
-      connectInterfacePorts( in1, adder.in1 );
-      connectInterfacePorts( in2, mult.in1 );
-      connectNodePorts( adder.out, mult.in2 );
-      connectNodePorts( mult.out2, adder.in2,
-        hscd_fifo<int>() << 13 /* Start marking */ );
-      connectInterfacePorts( out, mult.out1 );
-    }
-};
-\end{verbatim}
-\caption{\label{example-sdf-constraintset}Example of a network graph for the SDF-Actor in the \SysteMoC{} framework}
-\end{figure}
-
-%determine the MoC of a SystemC model additionally to the information
-%required about the actors of the model information is required about the
-%type of the network graph (See Subsection~\ref{network-graph} for defined graph types).
-
-%The MoC is represented as an actor which is derived from the \code{hscd\_structure}
-%template parameterized with the node interface and the channel kind. This actor can only
-%instantiate sub actors of a predetermined kind and connect their ports with a  predetermined
-%kind of channel.
-
-%%The MoC is now determined by the composition of the two aspects node interface
-%%and channel kind as following:
-%%
-%%\begin{tabular}{|c||c|c|c|}
-%%\hline
-%% Channel kind & \multicolumn{3}{c|}{ Node interface } \\
-%%\hline
-%%              & Choice Node         & Transact Node      & Fixed Transact Node \\
-%%\hline \hline
-%% Fifo         & No well known name  & KPN                & SDF \\
-%%\hline
-%% Rendezvous   & CSP                 & No well known name & No well known name \\
-%%\hline
-%%\end{tabular}
-
-\section{Examples of MoC in SystemC with SysteMoC}\label{systemoc-examples}
-
-\subsection{The dining philosophers problem}
-
-\begin{figure}
-\centering
-\begin{verbatim}
-enum dp_forkreq_ty { FORK_TAKE, FORK_DROP };
-
-class dp_fork
-  : public hscd_choice_node {
-public:
-  hscd_port_in<dp_forkreq_ty> l_forkreq;
-  hscd_port_in<dp_forkreq_ty> r_forkreq;
-private:
-  void l_forkreq_take() { assert(l_forkreq[0] == FORK_TAKE);
-    std::cout << "Fork " << name() << " taken by left philosopher !" << std::endl; }
-  void l_forkreq_drop() { assert(l_forkreq[0] == FORK_DROP);
-    std::cout << "Fork " << name() << " droped by left philosopher !" << std::endl; }
-  void r_forkreq_take() { assert(r_forkreq[0] == FORK_TAKE);
-    std::cout << "Fork " << name() << " taken by right philosopher !" << std::endl; }
-  void r_forkreq_drop() { assert(r_forkreq[0] == FORK_DROP);
-    std::cout << "Fork " << name() << " droped by right philosopher !" << std::endl; }
-  
-  static
-  hscd_firing_state fireRules() const {
-    hscd_firing_state start =
-      choice( l_forkreq >> call(l_forkreq_take,
-                choice( l_forkreq >> call(l_forkreq_drop, &start) ) ) |
-              r_forkreq >> call(r_forkreq_take,
-                choice( r_forkreq >> call(r_forkreq_drop, &start) ) )
-            );
-    return start;
-  }
-public:
-  dp_fork( sc_module_name name )
-    : hscd_choice_node(name, fireRules() ) {}
-};
-\end{verbatim}
-\caption{\label{dining-philosophers-fork-systemoc}
-  Example of the fork implementation for the
-  dining philosophers problem in \SysteMoC{}}
-\end{figure}
-
-
-\begin{figure}
-\centering
-\begin{verbatim}
-class dp_footman
-  : public hscd_choice_node {
-public:
-  hscd_port_in<void> sitreq_0;
-  hscd_port_in<void> sitreq_1;
-  hscd_port_in<void> standreq_0;
-  hscd_port_in<void> standreq_1;
-private:
-  void philosopher0_sitdown() {
-    std::cout << "Seat " << name() << " taken by philosopher 0 !" << std::endl; }
-  void philosopher0_standup() {
-    std::cout << "Seat " << name() << " vacated by philosopher 0 !" << std::endl; }
-  void philosopher1_sitdown() {
-    std::cout << "Seat " << name() << " taken by philosopher 1 !" << std::endl; }
-  void philosopher1_standup() {
-    std::cout << "Seat " << name() << " vacated by philosopher 1 !" << std::endl; }
-  
-  static
-  hscd_firing_state fireRules() const {
-    hscd_firing_state start =
-      choice( sitreq_0 >> call(philosopher0_sitdown,
-                choice( standreq_0 >> call(philosopher0_standup, &start ) ) ) |
-              sitreq_1 >> call(philosopher1_sitdown,
-                choice( standreq_1 >> call(philosopher1_standup, &start ) ) )
-            );
-    return start;
-  }
-public:
-  dp_footman( sc_module_name name )
-    : hscd_choice_node(name, fireRules() ) {}
-};
-\end{verbatim}
-\caption{\label{dining-philosophers-csp-systemoc}
-  Example of the footman implementation for the
-  dining philosophers problem in \SysteMoC{}}
-\end{figure}
-
-
-\begin{figure}
-\centering
-\begin{verbatim}
-class dp_philosopher
-  : public hscd_choice_node {
-public:
-  hscd_port_out<dp_forkreq_ty> l_forkreq;
-  hscd_port_out<dp_forkreq_ty> r_forkreq;
-  hscd_port_out<void>          sitreq;
-  hscd_port_out<void>          standreq;
-private:
-  void nothing() {}
-  
-  void eat() {
-    std::cout << "Philosopher " << name() << " eating !" << std::endl;
-    wait( sc_time(3,SC_NS) );
-    l_forkreq[0] = r_forkreq[0] = FORK_DROP;
-  }
-  
-  void think() {
-    std::cout << "Philosopher " << name() << " thinking !" << std::endl;
-    wait( sc_time(100,SC_NS) );
-    l_forkreq[0] = r_forkreq[0] = FORK_TAKE; 
-  }
-  
-  static
-  hscd_firing_state fireRules() const {
-    hscd_firing_state start =
-      choice( sitreq >> call(nothing,
-        choice( l_forkreq >> call(nothing,
-          choice( r_forkreq >> call(eat,
-            choice( r_forkreq >> call(nothing,
-              choice( l_forkreq >> call(nothing,
-                choice( standreq >> call(think, &start ) )
-              ) )
-            ) )
-          ) )
-        ) )
-      ) );
-    return start;
-  }
-public:
-  dp_philosopher( sc_module_name name )
-    : hscd_choice_node(name, fireRules() ) {
-    l_forkreq[0] = r_forkreq[0] = FORK_TAKE; 
-  }
-};
-\end{verbatim}
-\caption{\label{dining-philosophers-csp-systemoc}
-  Example of the philosopher implementation for the
-  dining philosophers problem in \SysteMoC{}}
-\end{figure}
-
-\begin{figure}
-\centering
-\begin{verbatim}
-class m_top
-: public hscd_csp_constraintset {
-  public:
-    m_top( sc_module_name name )
-      : hscd_csp_constraintset(name) {
-      dp_fork        &m_fork0        = registerNode(new dp_fork("m_fork0"));
-      dp_fork        &m_fork1        = registerNode(new dp_fork("m_fork1"));
-      dp_philosopher &m_philosopher0 = registerNode(new dp_philosopher("m_philosopher0"));
-      dp_philosopher &m_philosopher1 = registerNode(new dp_philosopher("m_philosopher1"));
-      dp_footman     &m_footman      = registerNode(new dp_footman("m_footman"));
-      
-      connectNodePorts( m_philosopher0.l_forkreq, m_fork0.r_forkreq );
-      connectNodePorts( m_philosopher1.r_forkreq, m_fork0.l_forkreq );
-      
-      connectNodePorts( m_philosopher1.l_forkreq, m_fork1.r_forkreq );
-      connectNodePorts( m_philosopher0.r_forkreq, m_fork1.l_forkreq );
-      
-      connectNodePorts( m_philosopher0.sitreq,   m_footman.sitreq_0   );
-      connectNodePorts( m_philosopher0.standreq, m_footman.standreq_0 );
-
-      connectNodePorts( m_philosopher1.sitreq,   m_footman.sitreq_1   );
-      connectNodePorts( m_philosopher1.standreq, m_footman.standreq_1 );
-    }
-};
-\end{verbatim}
-\caption{\label{dining-philosophers-csp-systemoc}
-  Example representation of the init function for the
-  dining philosophers problem in \SysteMoC{}}
-\end{figure}
 
 \section{Conclusions}\label{conclusions}
 
 We have implemented a framework which restricts
-the communication behavior of actor-oriented MoCs in such a way that the identification,
-extraction, and analysis of these MoCs is permitted.
+the communication behavior of actors in SystemC in such a way that the identification,
+extraction, and analysis of the underlying MoC is permitted.
 In actor-oriented design, actors only
 communicate with each other via channels instead of method calls as known
 in object-oriented design. In our proposed methodology, the specification is
 distinguished in four different aspects,
 namely \emph{node functionality}, \emph{node interface}, \emph{network graph}, and
-\emph{channel kind}. Our result is a SystemC library named \SysteMoC{}.
+\emph{channel kind}. As a result, the SystemC library named \SysteMoC{}
+was developed which allows model-based system design on top of the design language SystemC.
+% Currently we use SysteMoC to model an industrial relevant application
+% to show its benefits.
 
 \clearpage
 \appendix

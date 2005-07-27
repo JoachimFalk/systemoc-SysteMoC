@@ -1,4 +1,5 @@
-@preamble{ "\newcommand{\noopsort}[1]{} " }
+%@preamble{ "\newcommand{\noopsort}[1]{} " }
+@preamble{ "\normalfont\footnotesize" }
 
 @incollection{btt:1998,
   AUTHOR = {T. Blickle and J. Teich and L. Thiele},
@@ -78,9 +79,7 @@
   PUBLISHER = {Academic Press London},
   ADDRESS = {London},
   EDITOR = {M. Zelkowitz},
-  SERIES = {56},
-  PAGES = {xx--yy},
-  MONTH = {zzz},
+  MONTH = sep,
   YEAR = {2002}
 }
 
@@ -131,6 +130,13 @@ YEAR = 2002 }
   NOTE =         "ISO 7498"
 }
 
+@MANUAL{SDL-92,
+  AUTHOR  =   "International Telecommunication Union ITU",
+  TITLE   =   "CCITT Specification and Description Language (SDL)",
+  YEAR    =   1993,
+  NOTE    =   "ITU-T Recommendation Z.100"
+}
+
 @BOOK{Tannenbaum,
   author =       "Andrew S. Tannenbaum",
   title =        "Computernetzwerke",
@@ -147,6 +153,14 @@ YEAR = 2002 }
   PUBLISHER = {Kluwer Academic Publishers}
 }
 
+@BOOK{TheOzBook,
+  AUTHOR = "Peter Van Roy and Seif Haridi",
+  TITLE  = {Concepts, Techniques, and Models of Computer Programming},
+  YEAR   = {2004},
+  MONTH  = MAR,
+  ISBN   = {0-262-22069-5},
+  PUBLISHER = {MIT Press}
+}
 
 @BOOK{wolf,
   AUTHOR = {Wayne Wolf},
@@ -717,7 +731,7 @@ A CASE STUDY},
 
 @techreport{fermatmoc:2004,
   AUTHOR      = {Hiren D. Patel, Deepak A. Mathaikutty and Sandeep K. Shukla},
-  TITLE       = {Implementing {Multi-MoC} Extensions for SystemC: Adding CSP \& FSM Kernels for Heterogeneous Modeling},
+  TITLE       = {Implementing {Multi-MoC} Extensions for {SystemC}: Adding {CSP} \& {FSM} Kernels for Heterogeneous Modeling},
   INSTITUTION = {FERMAT Research Lab. Center for Embedded Systems for Critical Applications},
   ADDRESS     = {Virginia Polytechnic Institute and State University Blacksburg, Virginia, 24060, USA},
   YEAR        = {2004}
@@ -735,7 +749,7 @@ A CASE STUDY},
 @ARTICLE{STZETG00,
   AUTHOR      = {K. Strehl and L. Thiele and D. Ziegenbein and R. Ernst and J. Teich and M. Gries},
   JOURNAL     = {IEEE Trans. on VLSI Systems},
-  TITLE       = {Symbolic Scheduling Based on The Internal Design Representation Fun{S}tate},
+  TITLE       = {Symbolic Scheduling Based on The Internal Design Representation {F}un{S}tate},
   VOLUME      = {9}, 
   NUMBER      = {4},
   PAGES       = {522-544},
@@ -751,3 +765,685 @@ A CASE STUDY},
   TITLE       = {{SPI} - An Internal Representation for Heterogeneously Specified Embedded Systems},
   YEAR        = {1999}
 }
+
+@article{ bosp:2001,
+AUTHOR = "{J. Bormann} and {C. Spalinger}",
+TITLE = "Formale Verifikation fuer Nicht-Formalisten (Formal Verification for Non-Formalists)",
+JOURNAL = "Informationstechnik und Technische Informatik, volume 43, issue 1/2001",
+PUBLISHER = "Oldenbourg Verlag",
+YEAR = "2001"}
+
+@article{ SystemC-TLM05,
+AUTHOR = {Adam Rose and Stuart Swan and John Pierce and Jean-Michel Fernandez},
+TITLE = "Transaction Level Modeling in {SystemC}",
+PUBLISHER = {Open SystemC Initiative},
+ADDRESS = {San Jose},
+YEAR = "2004"}
+
+@book{ mcmillan:93,
+AUTHOR = "K. L. McMillan",
+TITLE = "Symbolic Model Checking",
+PUBLISHER = "Kluwer Academic Publishers",
+YEAR = "1993"}
+
+@inproceedings{ hoskote:99,
+author = "{Yatin Vasant Hoskote} and {Timothy Kam} and {Pei-Hsin Ho} and {Xudong Zhao}",
+title = "Coverage Estimation for Symbolic Model Checking",
+booktitle = "Design Automation Conference",
+pages = "300-305",
+year = "1999"}
+
+@inproceedings{ vardi:03,
+author = "{M. Vardi} and {R. Armoni} and {L. Fix} and {A. Flaisher} and {O. Grumberg} and {N. Piterman} and {A. Tiemeyer}",
+title = "Enhanced vacuity detection in linear temporal logic",
+booktitle = "Proceeding of International Conference on Computer-Aided Verification (CAV'03)",
+year = "2003"}
+
+@inproceedings{ burch90symbolic,
+author = "{J.R. Burch} and {E.M. Clarke} and {K.L. McMillan} and {D.L. Dill} and {L.J. Hwang}",
+title = "{S}ymbolic {M}odel {C}hecking: $10^{20}$ {S}tates and {B}eyond",
+booktitle = "Proceedings of the Fifth Annual {IEEE} Symposium on Logic in Computer Science",
+publisher = "IEEE Computer Society Press",
+address = "Washington, D.C.",
+pages = "1--33",
+year = "1990"}
+
+@inproceedings{ moskewicz01chaff,
+author = "Matthew W. Moskewicz and Conor F. Madigan and Ying Zhao and Lintao Zhang and Sharad Malik",
+title = "{Chaff: Engineering an Efficient {SAT} Solver}",
+booktitle = "Proceedings of the 38th Design Automation Conference ({DAC}'01)",
+year = "2001"}
+
+@inproceedings{bart:2002,
+author = {{Bartley}, {M.} and {Galpin}, {D.} and {Blackmore}, {T.}},
+title = {A Comparison of Three Verification Techniques: Directed Testing, Pseudo-Random Testing and Property Checking},
+booktitle = {Proc. Intl. Design Automation Conference (DAC-02)},
+PAGES = {819-823},
+year = 2002}
+
+@inproceedings{ zhang97sato,
+author = "Hantao Zhang",
+title = "{SATO}: an efficient propositional prover",
+booktitle = "Proceedings of the International Conference on Automated Deduction ({CADE}'97), volume 1249 of {LNAI}",
+pages = "272--275",
+year = "1997"}
+    
+@inproceedings{clarke:1986,
+AUTHOR = {{Clarke}, {E.M.} and {Emerson}, {E.A.} and {Sistla}, {A.P.}},
+BOOKTITLE = {{ACM Transactions} on {Programming} {Languages} and {Systems}, 8(2)},
+PAGES = {244-263},
+TITLE = {{Automatic} {Verification} of {FiniteState} {Concurrent Systems} {Using} {Temporal} {Logic} {Specifications}},
+YEAR = 1986 }
+}
+
+@book{vorl:1999,
+AUTHOR = {{Eveking}, {H.}},
+TITLE = {Formale Verifikation},
+PUBLISHER = {{Technische Universität Darmstadt}, {Fachbereich Elektrotechnik und Informationstechnik}},
+YEAR = 1999 }
+}
+
+@book{fv:1999,
+AUTHOR = {{Kropf}, {Thomas}},
+TITLE = {Introduction to Formal Hardware Verification},
+PUBLISHER = {Springer},
+YEAR = 1999 }
+}
+
+@book{fv:1996,
+AUTHOR = {{Hachtel}, {Gary D.} and {Somenzi}, {Fabio}},
+TITLE = {Logic Synthesis and Verification Algorithms},
+PUBLISHER = {Kluwer},
+YEAR = 1996 }
+}
+
+
+@inproceedings{hgh:2003,
+AUTHOR = {{Haas}, {Werner} and {Grossens}, {Stefan} and {Heinkel}, {Ulrich}},
+ADDRESS = {Erlangen},
+BOOKTITLE = {{Proceedings} of the {11th} {E.I.S.} {Workshop}},
+TITLE = {{Semantics} of a {Formal} {Specification} {Language} for {Advanced} {DEsign} and {Verification} of {ASIC}s ({ADeVA})},
+MONTH = mar,
+YEAR = 2003 }
+
+@inproceedings{wha2:2003,
+AUTHOR = {{Haas}, {Werner} and {Gossens}, {Stefan} and {Ulrich}. {Heinkel}},
+ADDRESS = {Tokio},
+BOOKTITLE = {HASE 2002: 7th {IEEE/IEICE} {International} {Symposium} on {High Assurance} {Systems} {Engineering}},
+TITLE = {{Integration} of {Formal} {Specification} into the {Standard} {ASIC} {Design Flow}},
+MONTH = oct,
+YEAR = 2002 }
+
+@inproceedings{hgh:2002,
+AUTHOR = {{Haas}, {Werner} and {Grossens}, {Stefan} and {Heinkel}, {Ulrich}},
+ADDRESS = {Tübingen},
+BOOKTITLE = {{Proceedings} of the {GI/ITG/GMM} {Workshop} {Methoden} und {Beschreibungssprachen}},
+TITLE = {{Behavioural} {Specification} for {Advanced} {Design} and {Verification} of {ASIC}s ({ADeVA})},
+MONTH = feb,
+YEAR = 2002 }
+
+@inproceedings{wha4:2003,
+AUTHOR = {{Haas}, {Werner} and {Buerner}, {Thomas} and {Gossens}, {Stefan}, {Heinkel}, {Ulrich}},
+ADDRESS = {Frankfurt},
+BOOKTITLE = {FDL 2003},
+TITLE = {{Formal} {Specification} of a {40GBit/s} {Sonet/SDH} {ASIC} with {ADeVA}},
+MONTH = sep,
+YEAR = 2003 }
+
+@inproceedings{ghp:1995,
+AUTHOR = {{Godefroid}, {Patrice} and {Holzmann}, {Gerard J} and {Pirottin}, {Didier}},
+BOOKTITLE = {{Formal} {Methods} in {System} {Design}},
+PAGES = {7(3): 1-15},
+TITLE = {{State-Space} {Caching} {Revisited}},
+MONTH = nov,
+YEAR = 1995 }
+
+@inproceedings{ godefroid97verisoft,
+    author = "Patrice Godefroid",
+    title = "VeriSoft: A Tool for the Automatic Analysis of Concurrent Reactive Software",
+    booktitle = "Computer Aided Verification",
+    pages = "476-479",
+    year = "1997" }
+
+@inproceedings{god:1996,
+AUTHOR = {{Godefroid}, {Patrice}},
+BOOKTITLE = {{Lecture} {Notes} in {Computer} {Science}, volume 1032},
+PUBLISHER = {Springer},
+TITLE= {{Partial-Order} {Methods} for the {Verification} of {Concurrent} {Systems} -- An {Approach} to the {State-Explosion} {Problem}},
+MONTH = Jan,
+YEAR = 1996}
+
+@inproceedings{god:1990,
+AUTHOR = {{Godefroid}, {Patrice}},
+BOOKTITLE = {{Proceedings} of  the 2nd {Workshop} on {Computer} {Aided} {Verifikation}, volume 531 of {Lecture} {Notes} in {Computer} {Science}},
+PAGES = {176-185},
+PUBLISHER = {Springer},
+TITLE = {Using partial orders to improve automatic verification methods},
+MONTH = Jun,
+YEAR = 1990}
+
+@inproceedings{gw:1993,
+AUTHOR = {{Godefroid}, {Patrice} and {Wolper},{P.}},
+BOOKTITLE = {{Formal} {Methods} in {System} {Design}},
+PAGES = {2(2): 149-164},
+MONTH = Apr,
+YEAR = 1993}
+
+@inproceedings{god:1997,
+AUTHOR = {{Godefroid}, {Patrice}},
+ADDRESS = {Paris},
+BOOKTITLE = {{Proceedings} of the {24th} {ACM} {Symposium} on {Principles} of {Programming} {Languages}},
+PAGES = {174--186},
+TITLE = {{Model} {Checking} for {Programming} {Languages} using {VeriSoft}},
+MONTH = jan,
+YEAR = 1997 }
+
+@inproceedings{vhdl:2000,
+AUTHOR = {The Institute of Electrical and Electronics Engineers, Inc.},
+ADDRESS = {New York},
+BOOKTITLE = {{IEEE} {Std 1076}, {2000 Edition}},
+TITLE = {{IEEE} {Standard} {VHDL} {Language} {Reference} {Manual}},
+MONTH = dec,
+YEAR = 2000 }
+
+
+@techreport{bltz:2002,
+AUTHOR = {Stefan Bleuler and Marco Laumanns and Lothar Thiele and Eckart Zitzler},
+TITLE = {{PISA} -- {A} {Platform} and {Programming} {Language} {Independent} {Interface} for {Search} {Algorithms}},
+INSTITUTION = {Institute TIK, Computer Engineering Group, ETH Z{\"u}rich},
+NOTE= {TIK Report Nr.~154}, 
+MONTH = oct, 
+YEAR = 2002}
+
+@inproceedings{hmstt:2003,
+AUTHOR = {{Haubelt}, {Christian} and {Mostaghim}, {Sanaz} and {Slomka}, {Frank} and {Teich}, {J\"urgen} and {Tyagi}, {Ambrish}},
+ADDRESS = {Boston, Dordrecht, London},
+BOOKTITLE = {{Evolutionary} {Algorithms} for {Embedded} {System} {Design}},
+EDITOR = {{Drechsler}, {Rolf} and {Drechsler}, {Nicole}},
+PAGES = {63--104},
+PUBLISHER = {Kluwer Academic Publishers},
+SERIES = {{Genetic} {Algorithms} and {Evolutionary} {Computation} ({GENA})},
+TITLE = {{Hierarchical} {Synthesis} of {Embedded} {Systems} {Using} {Evolutionary} {Algorithms}},
+YEAR = 2003,
+ISSN_ISBN = {1-4020-7276-7} }
+
+@book{teich:1997,
+AUTHOR = {Jürgen Teich},
+TITLE = {Digitale Hardware/Software-Systeme},
+PUBLISHER = {Springer},
+ADDRESS = {Berlin Heidelberg},
+NOTE = {ISBN 3-540-62433-3},
+YEAR = 1997 }
+
+@book{rb:1995,
+AUTHOR = {Jerzy Rozenblit and Klaus Buchenrieder},
+TITLE = {{Codesign} -- {Computer}-{Aided} {Software}/{Hardware} {Engineering}},
+PUBLISHER = {IEEE PRESS Marketing},
+ADDRESS = {New York},
+YEAR = 1995 }
+
+@masterthesis{keyvani:2001,
+AUTHOR = {Maryam Keyvani},
+TITLE = {{VHDL} {Implementation} of a {High}-{Speed} {Symmetric} {Crossbar} {Switch}},
+SCHOOL = {University of Tehran},
+MONTH = aug,
+YEAR = 2001}
+
+@book{gvng:1994,
+AUTHOR = {Daniel D. Gajski and Frank Vahid and Sanjiv Narayan and Jie Gong},
+TITLE = {{Specification} and {Design} of {Embedded} {Systems}},
+PUBLISHER = {P T R Prentice Hall, Inc.},
+ADDRESS = {New Jersey},
+YEAR = 1994 }
+
+@BOOK{p:1896,
+AUTHOR = {{Pareto}, {Vilfredo}},
+ADDRESS = {Lausanne, Switzerland},
+PUBLISHER = {F. Rouge \& Cie.},
+TITLE = {{Cours} d'{\'{E}conomie} {Politique}},
+VOLUME = 1,
+YEAR = 1896 }
+
+@inproceedings{htre:2002,
+AUTHOR = {Christian Haubelt and Jürgen Teich and Kai Richter and Rolf Ernst},
+TITLE = {{Flexibility}/{Cost}-{Tradeoffs} in {Platform}-{Based} {Design}},
+BOOKTITLE = {{SAMOS} -- {Systems}, {Architectures}, {Modeling}, and {Simulation}},
+NOTE = {Will be published in Lecture Notes in Computer Science (LNCS), Vol. 2268, Springer},
+YEAR = 2002 }
+
+@book{kopetz:1997,
+AUTHOR = {Hermann Kopetz},
+ADDRESS = {Norwell, Massachusetts 02061 USA},
+PUBLISHER = {Kluwer Academic Publishers},
+TITLE = {{Real}-{Time} {Systems} - {Design} {Principles} for {Distributed} {Embedded} {Applications}},
+YEAR = 1997 }
+
+@techreport{ars:2000,
+AUTHOR = {Santosh G. Abraham and B. Ramakrishna Rau and Robert Schreiber},
+TITLE = {{Fast} {Design} {Space} {Exploration} {Through} {Validity} and {Quality} {Filtering} of {Subsystem} {Designs}},
+INSTITUTION = {Hewlett Packard, Compiler and Architecture Research},
+ADDRESS = {HP Laboratories Palo Alto},
+MONTH = jul,
+YEAR = 2000 }
+
+@book{tannenbaum:1997,
+AUTHOR = {Andrew S. Tannenbaum},
+ADDRESS = {München, Germany},
+PUBLISHER = {Prentice Hall Verlag GmbH},
+TITLE = {Computernetzwerke},
+YEAR = 1997 }
+
+@BOOK{sedgewick:1992,
+AUTHOR = {Robert Sedgewick},
+TITLE = {{Algorithmen} in {C++}},
+PUBLISHER = {Addison-Wesley},
+ADDRESS = {Bonn, München, Paris, u.a.},
+ISBN = {3-89319-462-2},
+YEAR = 1992 }
+
+@incollection{btt:1998,
+AUTHOR = {T. Blickle and J. Teich and L. Thiele},
+TITLE = {{System}-{Level} {Synthesis} {Using} {Evolutionary} {Algorithms}},
+BOOKTITLE = {Design Automation for Embedded Systems},
+PUBLISHER = {Kluwer Academic Publishers},
+ADDRESS = {Boston},
+EDITOR = {Rajesh Gupta},
+SERIES = 3,
+PAGES = {23--62},
+MONTH = jan,
+YEAR = 1998 }
+
+@inproceedings{cv:2001,
+AUTHOR = {Karam S. Chatha and Ranga Vemuri},
+TITLE = {{MAGELLAN}: {Multiway} {Hardware}-{Software} {Partitioning} and {Scheduling} for {Latency} {Minimization} of {Hierarchical} {Control}-{Dataflow} {Task} {Graphs}},
+BOOKTITLE = {Proc. CODES'01, Ninth International Symposium on Hardware/Software Codesign},
+ADDRESS = {Copenhagen, Denmark},
+MONTH = apr,
+YEAR = 2001 }
+
+@inproceedings{pepp:2001,
+AUTHOR = {Paul Pop and Petru Eles and Traian Pop and Zebo Peng},
+TITLE = {An {Approach} to {Incremental} {Design} of {Distributed} {Embedded} {Systems}},
+BOOKTITLE = {Proc. 38th IEEE/ACM Design Automation Conference (DAC)},
+ADDRESS = {Las Vegas, U.S.A.},
+MONTH = jun,
+YEAR = 2001 }
+
+@inproceedings{cep:2001,
+AUTHOR = {Luis Alejandro Cort{\'e}s and Petru Eles and Zebo Peng},
+TITLE = {{Hierarchical} {Modeling} and {Verification} of {Embedded} {Systems}},
+BOOKTITLE = {Proc. Euromicro Symposium on Digital Systems Design},
+ADDRESS = {Warsaw, Poland},
+MONTH = sep,
+YEAR = 2001 }
+
+@article{lm:1987,
+AUTHOR = {E. A. Lee and D. G. Messerschmitt},
+TITLE = {{Synchronous} {Dataflow}},
+JOURNAL = {Proceedings of the IEEE},
+Volume = 75,
+NUMBER = 9,
+PAGES = {1235--1245},
+MONTH = sep,
+YEAR = 1987 }
+
+@article{ch:1971,
+AUTHOR = {F. Commoner and A.W. Holt},
+TITLE = {{Marked} {Directed} {Graphs}},
+JOURNAL = {Journal of Computer and System Sciences},
+Volume = 5,
+PAGES = {511--523},
+YEAR = 1971 }
+
+@article{km:1966,
+AUTHOR = {R. M. Karp and R. E. Miller},
+TITLE = {{Properties} of a {Model} for {Parallel} {Computations}},
+JOURNAL = {SIAM Journal Appl. Math.},
+Volume = 14,
+PAGES = {1390--1411},
+YEAR = 1966 }
+
+@mastersthesis{h:2000,
+AUTHOR = {Christian Haubelt},
+TITLE = {Analyse von SPI-Prozessgraphen mit zyklostatischem Verhalten},
+SCHOOL = {Universität Paderborn},
+TYPE = {Studienarbeit},
+MONTH = nov,
+YEAR = 2000 }
+
+@techreport{haubelt:2001,
+AUTHOR = {Christian Haubelt},
+TITLE = {{Modelle} und {Verfahren} zur {Hardware}/{Software}-{Partitionierung} hierarchischer {Prozessgraphen}},
+INSTITUTION = {Datentechnik, Electrical Engineering Department, University of Paderborn},
+NOTE = {Technical-Report No 01/01},
+MONTH = apr,
+YEAR = 2001 }
+
+@techreport{h:2001,
+AUTHOR = {XXX XXX},
+TITLE = {XXX XXX},
+INSTITUTION = {XXX},
+NOTE = {Technical-Report No 01/01},
+MONTH = apr,
+YEAR = 2001 }
+
+@techreport{ct:2000,
+AUTHOR = {Frank Cieslok and Jürgen Teich},
+TITLE = {Timing Analysis of Process Models with Uncertain Behaviour},
+INSTITUTION = {Computer Engineering Laboratory, University of Paderborn},
+NOTE = {DATE-Report No. 1/00},
+MONTH = jan,
+YEAR = 2000 }
+
+@inproceedings{teich:2001,
+AUTHOR = {Jürgen Teich},
+TITLE = {Pareto-Front Exploration with Uncertain Objectives},
+SERIES = {First International Conference on Evolutionary Multi-Criterion Optimization},
+ADDRESS = {Zurich, Switzerland}, 
+NOTE = {Will be published in Lecture Notes in Computer Science (LNCS), Springer, 2001},
+MONTH = mar, 
+YEAR = 2001 }
+
+@book{hs:1998,
+AUTHOR = {Gary D. Hachtel and Fabio Somenzi},
+TITLE = {Logic Synthesis and Verification Algorithms},
+PUBLISHER = {Kluwer Academic Publishers},
+ADDRESS = {Norwell, Massachusetts 02061 USA},
+EDITOR = {Jonathan Allen},
+EDITION = 2,
+YEAR = 1998 }
+
+@inproceedings{eblp:1994,
+AUTHOR = {Marc Engels and Greet Bilsen and Rudy Lauwereins and Jean Peperstraete},
+TITLE = {Cyclo-Static Dataflow: Model and Implementation},
+BOOKTITLE = {Proc. 28th Asilomar Conf. on Signals, Systems, and Computers},
+ADDRESS = {Pacific Grove (U.S.A.)},
+PAGES = {503--507},
+MONTH = nov,
+YEAR = 1994 }
+
+@manual{cplex:1993,
+ORGANIZATION = {CPLEX Optimiziation},
+TITLE = {Using the CPLEX Callable Library and CPLEX Mixed Interger LIBRARY},
+YEAR = 1993 }
+
+@article{belp:1996,
+AUTHOR = {Greet Bilsen and Marc Engels and Rudy Lauwereins and Jean Peperstraete},
+TITLE = {{Cyclo}-{Static} {Dataflow}},
+JOURNAL = {IEEE Transaction on Signal Processing},
+VOLUME = 44,
+NUMBER = 2,
+PAGES = {397--408},
+MONTH = feb,
+YEAR = 1996 }
+
+@article{stgzet:2001,
+AUTHOR = {Karsten Strehl and Lothar Thiele and Matthias Gries and Dirk Ziegenbein and Rolf Ernst and Jürgen Teich},
+TITLE = {{FunState} - {An} {Internal} {Design} {Representation} for {Codesign}},
+JOURNAL = {IEEE Transactions on VLSI Systems},
+VOLUME = 9,
+NUMBER = 4,
+PAGES = {524--544},
+MONTH = aug,
+YEAR = 2001 }
+
+@inproceedings{rzett:1999,
+AUTHOR = {K. Richter and D. Ziegenbein and R. Ernst and L. Thiele and J. Teich},
+TITLE = {{Representation} of {Function} {Variants} for {Embedded} {System} {Optimization} and {Synthesis}},
+BOOKTITLE = {Proc. 36th Design Automation Conference (DAC'99)},
+ADDRESS = {New Orleans, U.S.A.},
+PAGES = {517--522},
+MONTH = jun,
+YEAR = 1999 }
+
+@inproceedings{ezrtt:1999,
+AUTHOR = {R. Ernst and D. Ziegenbein and K. Richter and L. Thiele and J. Teich},
+TITLE = {Hardware/Software Codesign of Embedded Systems - The SPI Workbench},
+SERIES = {Proc. Int. Workshop on VLSI},
+ADDRESS = {Orlando, U.S.A.},
+YEAR = 1999 }
+
+@inproceedings{tszet:1999,
+AUTHOR = {L. Thiele and K. Strehl and D. Ziegenbein and R. Ernst and J. Teich},
+TITLE = {{FunState} - {An} {Internal} {Design} {Representation} for {Codesign}},
+BOOKTITLE = {Proc. ICCAD'99, the IEEE/ACM Int. Conf. on Computer-Aided Design},
+ADDRESS = {San Jose, U.S.A.},
+PAGES = {558-565},
+MONTH = nov,
+YEAR = 1999 }
+
+@inproceedings{zret:2000,
+AUTHOR = {D. Ziegenbein and K. Richter and R.Ernst and J. Teich},
+TITLE = {SPI Workbench - Entwurf gemischt reaktiv/transformativer eingebetteter Systeme},
+BOOKTITLE = {AES 2000, Workshop Architekturentwurf für eingebettete Systeme},
+ADDRESS = {Karlsruhe, Germany},
+PAGES = {184-191},
+MONTH = jan,
+YEAR = 2000 }
+
+@inproceedings{jzwrectst:2000,
+AUTHOR = {Marek Jersak and Dirk Ziegenbein and Fabian Wolf and Kai Richter and Rolf Ernst and Frank Cieslok and Jürgen Teich and Karsten Strehl and Lothar Thiele},
+TITLE = {Embedded System Design Using the SPI Workbench},
+SERIES = {Proc. FDL'00, Forum on Design Languages 2000},
+ADDRESS = {Tuebingen, Germany},
+MONTH = sep,
+YEAR = 2000 }
+
+@proceedings{zrett:1999,
+AUTHOR = {D. Ziegenbein and K. Richter and R. Ernst and L. Thiele and J. Teich},
+TITLE = {SPI - An Internal Representation for Heterogeneously Specified Embedded Systems},
+SERIES = {Proc. GI/ITG/GMM Workshop Methoden und Beschreibungssprachen  zur Modellierung und Verifikation von Schaltungen und Systemen},
+ADDRESS = {Braunschweig, Germany},
+MONTH = feb,
+YEAR = 1999 }
+
+@inproceedings{stzet:1999,
+AUTHOR = {Karsten Strehl and Lothar Thiele and Dirk Ziegenbein and Rolf Ernst and Jürgen Teich},
+TITLE = {{Scheduling} {Hardware}/{Software} {Systems} {Using} {Symbolic} {Techniques}},
+BOOKTITLE = {Proc. CODES'99, the 7th Int. Workshop on Hardware/Software Codesign},
+ADDRESS = {Rome, Italy},
+PAGES = {168-172},
+MONTH = may,
+YEAR = 1999 }
+
+@inproceedings{et:1998,
+AUTHOR = {Michael Eisenring and Jürgen Teich},
+TITLE = {Domain-Specific Interface Generation from Dataflow Specifications},
+BOOKTITLE = {Proc. of Codes/CASHE'98, the 6th Int. Workshop on Hardware/Software Codesign},
+ADDRESS = {Seattle, Washington(U.S.A.)},
+PAGES = {43-47},
+MONTH = mar,
+YEAR = 1998 }
+
+@masterthesis{hannig:2000,
+AUTHOR = {Frank Hannig},
+TITLE = {Exploration von Raum- und Zeittransformationen für Algorithmen mit uniformen Datenabhängigkeiten},
+SCHOOL = {Universität Paderborn},
+TYPE = {Diplomarbeit},
+MONTH = oct,
+YEAR = 2000 }
+
+@inproceedings{zertt:1998a,
+AUTHOR = {D. Ziegenbein and R. Ernst and K. Richter and J. Teich and L. Thiele},
+TITLE = {{Combining} {Multiple} {Models} of {Computation} for {Scheduling} and {Allocation}},
+BOOKTITLE = {Proceedings Sixth International Workshop on Hardware/Software Co-Design (Codes/CASHE'98)},
+ADDRESS = {Seattle, Washington(U.S.A.)},
+PAGES = {9-13},
+MONTH = mar,
+YEAR = "{\noopsort{1998a}}1998" }
+
+@inproceedings{zertt:1998b,
+AUTHOR = {D. Ziegenbein and R. Ernst and K. Richter and J. Teich and L. Thiele},
+TITLE = {{Representation} of {Process} {Mode} {Correlation} for {Scheduling}},
+BOOKTITLE = {Proceedings International Conference on Computer-Aided Design (ICCAD'98)},
+ADDRESS = {San Jose, U.S.A.},
+PAGES = {54--61},
+MONTH = nov,
+YEAR = "{\noopsort{1998b}}1998" }
+
+@inproceedings{bb:2000a,
+AUTHOR = {B. Bhattacharya and S. Bhattacharyya},
+TITLE = {{Parameterized} {Dataflow} {Modeling} of {DSP} {Systems}},
+BOOKTITLE = {Proc. of the International Conference on Acoustics, Speech, and Signal Processing},
+ADDRESS = {Istanbul, Turkey},
+PAGES = {1948--1951},
+MONTH = jun,
+YEAR = "{\noopsort{2000a}}2000" }
+
+@inproceedings{bb:2000b,
+AUTHOR = {B. Bhattacharya and S. Bhattacharyya},
+TITLE = {{Quasi-static} {Scheduling} of {Reconfigurable} {Dataflow} {Graphs} for {DSP} {Systems}},
+BOOKTITLE = {Proc. of the International Conference on Rapid System Prototyping},
+ADDRESS = {Paris, France},
+PAGES = {84-89},
+MONTH = jun,
+YEAR = "{\noopsort{2000b}}2000" }
+
+@inproceedings{gll:1999,
+AUTHOR = {A. Girault and B. Lee and E. A. Lee},
+TITLE = {{Hierarchical} {Finite} {State} {Machines} with {Multiple} {Concurrency} {Models}},
+BOOKTITLE = {IEEE Trans. CAD},
+MONTH = jun,
+YEAR = 1999 }
+
+@techreport{b:1993,
+AUTHOR = {J. T. Buck},
+TITLE = {{Scheduling} {Dynamic} {Dataflow} {Graphs} with {Bounded} {Memory} {Using} the {Token} {Flow} {Model}},
+INSTITUTION = {Dept. of EECS, UC Berkeley},
+NOTE = {Technical Report UCB/ERL 93/69, Ph.D dissertation},
+ADDRESS = {Berkeley, CA 94720, U.S.A.},
+YEAR = 1993 }
+
+@inproceedings{ehb:1993,
+AUTHOR = {R. Ernst and J. Henkel and Th. Benner},
+TITLE = {{Hardware}-{Software} {Cosynthesis} for {Microcontrollers}},
+BOOKTITLE = {IEEE Design and Test of Computers},
+MONTH = dec,
+YEAR = 1993 }
+
+@book{schrijver:1999,
+AUTHOR = {Alexander Schrijver},
+TITLE = {Theory of Linear and Integer Programming},
+PUBLISHER = {John Wiley \& Sons Ltd.},
+ADDRESS = {Baffins Lane, Chichester, West Sussex PO19 1UD, England},
+ISBN = {0 471 98232 6},
+MONTH = jan,
+YEAR = 1999 }
+
+@book{bfm:2000a,
+AUTHOR = {T. Bäck and D. B. Fogel and T. Michalewicz},
+TITLE = {Evolutionary Computation 1},
+PUBLISHER = {IOP Publishing Ltd},
+ADDRESS = {Bristol and Philadelphia},
+ISBN = {0 7503 0664 5},
+YEAR = "{\noopsort{2000a}}2000" }
+
+@book{bfm:2000b,
+AUTHOR = {T. Bäck and D. B. Fogel and T. Michalewicz},
+TITLE = {Evolutionary Computation 1},
+PUBLISHER = {IOP Publishing Ltd},
+ADDRESS = {Bristol and Philadelphia},
+ISBN = {0 7503 0665 3},
+YEAR = "{\noopsort{2000b}}2000" }
+
+@book{micheli:1994,
+AUTHOR = {Giovanni De Micheli},
+TITLE = {Synthesis and Opimization of Digital Circuits},
+PUBLISHER = {McGraw-Hill, Inc.},
+ADDRESS = {New York},
+ISBN = {0-07-016333-2},
+YEAR = 1994 }
+
+@book{nissen:1997,
+AUTHOR = {Volker Nissen},
+TITLE = {Einführung in Evolutionäre Algorithmen-Op\-ti\-mierung nach dem Vorbild der Evolution},
+PUBLISHER = {Friedr. Vieweg \& Sohn Verlagsgesellschaft mbH},
+ADDRESS = {Braunschweig/Wiesbaden},
+ISBN = {3-528-05499-9},
+YEAR = 1997 }
+
+@book{goldberg:1989,
+AUTHOR = {David E. Goldberg},
+TITLE = {Genetic Algorithms - in Search, Optimization \& Machine Learning},
+PUBLISHER = {Addison-Wesley Publishing Company, Inc.},
+ADDRESS = {Reading, Massachusetts},
+ISBN = {0-201-15767-5},
+MONTH = jan,
+YEAR = 1989 }
+
+@manual{excalibur:2000,
+ORGANIZATION = {Altera},
+TITLE = {Excalibur Development Kit Data Sheet},
+NOTE = {http://www.altera.com},
+MONTH = jun,
+YEAR = 2000 }
+
+@manual{niosboard:2001,
+ORGANIZATION = {Altera},
+TITLE = {Nios Embedded Processor Development Board Manual},
+NOTE = {http://www.altera.com},
+MONTH = mar,
+YEAR = 2001 }
+
+@manual{nios:2000,
+ORGANIZATION = {Altera},
+TITLE = {Nios Soft Core Embedded Processor Data Sheet},
+NOTE = {http://www.altera.com},
+MONTH = jun,
+YEAR = 2000 }
+
+@manual{niostimer:2001,
+ORGANIZATION = {Altera},
+TITLE = {Nios Embedded Processor Timer Peripheral Data Sheet},
+NOTE = {http://www.altera.com},
+MONTH = mar,
+YEAR = 2001 }
+
+@manual{niosspi:2001,
+ORGANIZATION = {Altera},
+TITLE = {Nios Embedded Processor SPI Peripheral Data Sheet},
+NOTE = {http://www.altera.com},
+MONTH = mar,
+YEAR = 2001 }
+
+@manual{niosuart:2001,
+ORGANIZATION = {Altera},
+TITLE = {Nios Embedded Processor UART Peripheral Data Sheet},
+NOTE = {http://www.altera.com},
+MONTH = mar,
+YEAR = 2001 }
+
+@manual{niospio:2001,
+ORGANIZATION = {Altera},
+TITLE = {Nios Embedded Processor Parallel I/O Module Data Sheet},
+NOTE = {http://www.altera.com},
+MONTH = mar,
+YEAR = 2001 }
+
+@manual{niostutorial:2001,
+ORGANIZATION = {Altera},
+TITLE = {Nios Embedded Processor Getting Started User Guide},
+NOTE = {http://www.altera.com},
+MONTH = mar,
+YEAR = 2001 }
+
+@manual{niossoftware:2001,
+ORGANIZATION = {Altera},
+TITLE = {Nios Embedded Processor Software Development Reference Manual},
+NOTE = {http://www.altera.com},
+MONTH = mar,
+YEAR = 2001 }
+
+@manual{niosprogramming:2001,
+ORGANIZATION = {Altera},
+TITLE = {Nios Embedded Processor Programmer's Reference Manual},
+NOTE = {http://www.altera.com},
+MONTH = jul,
+YEAR = 2001 }
+
+@manual{quartus:1999,
+ORGANIZATION = {Altera},
+TITLE = {Quartus Programmable Logic Development System \& Software Data Sheet},
+NOTE = {http://www.altera.com},
+MONTH = may,
+YEAR = 1999 }
