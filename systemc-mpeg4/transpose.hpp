@@ -1,72 +1,28 @@
-
-actor transpose()
-  int I0, int I1, int I2, int I3, int I4, int I5, int I6, int I7 ==>
-  int O0, int O1, int O2, int O3, int O4, int O5, int O6, int O7 :
-
-  Out0 : action
-    I0:[i0], I1:[i1], I2:[i2], I3:[i3], I4:[i4], I5:[i5], I6:[i6], I7:[i7] ==>
-    O0: [i0,i1,i2,i3,i4,i5,i6,i7] end
-  Out1 : action
-    I0:[i0], I1:[i1], I2:[i2], I3:[i3], I4:[i4], I5:[i5], I6:[i6], I7:[i7] ==>
-    O1: [i0,i1,i2,i3,i4,i5,i6,i7] end
-  Out2 : action
-    I0:[i0], I1:[i1], I2:[i2], I3:[i3], I4:[i4], I5:[i5], I6:[i6], I7:[i7] ==>
-    O2: [i0,i1,i2,i3,i4,i5,i6,i7] end
-  Out3 : action
-    I0:[i0], I1:[i1], I2:[i2], I3:[i3], I4:[i4], I5:[i5], I6:[i6], I7:[i7] ==>
-    O3: [i0,i1,i2,i3,i4,i5,i6,i7] end
-  Out4 : action
-    I0:[i0], I1:[i1], I2:[i2], I3:[i3], I4:[i4], I5:[i5], I6:[i6], I7:[i7] ==>
-    O4: [i0,i1,i2,i3,i4,i5,i6,i7] end
-  Out5 : action
-    I0:[i0], I1:[i1], I2:[i2], I3:[i3], I4:[i4], I5:[i5], I6:[i6], I7:[i7] ==>
-    O5: [i0,i1,i2,i3,i4,i5,i6,i7] end
-  Out6 : action
-    I0:[i0], I1:[i1], I2:[i2], I3:[i3], I4:[i4], I5:[i5], I6:[i6], I7:[i7] ==>
-    O6: [i0,i1,i2,i3,i4,i5,i6,i7] end
-  Out7 : action
-    I0:[i0], I1:[i1], I2:[i2], I3:[i3], I4:[i4], I5:[i5], I6:[i6], I7:[i7] ==>
-    O7: [i0,i1,i2,i3,i4,i5,i6,i7] end
-
- schedule fsm s0 :
-  s0  (Out0)    --> s1;
-  s1  (Out1)    --> s2;
-  s2  (Out2)    --> s3;
-  s3  (Out3)    --> s4;
-  s4  (Out4)    --> s5;
-  s5  (Out5)    --> s6;
-  s6  (Out6)    --> s7;
-  s7  (Out7)    --> s0;
- end
-end
-
-/*************************************************************/
-
-class transpose: public smoc_actor {
+class m_transpose: public smoc_actor {
 public:
   smoc_port_in<int>  I0, I1, I2, I3, I4, I5, I6, I7;
   smoc_port_out<int> O0, O1, O2, O3, O4, O5, O6, O7;
 private:
-  void action0() { O0[0] = I0[0]; O0[1] = I1[0]; O0[2] = I2[0]; O0[3] = I3[0]; 
+  void action0() { O0[0] = I0[0]; O0[1] = I1[0]; O0[2] = I2[0]; O0[3] = I3[0];
                    O0[4] = I4[0]; O0[5] = I5[0]; O0[6] = I6[0]; O0[7] = I7[0]; }
-  void action1() { O1[0] = I0[0]; O1[1] = I1[0]; O1[2] = I2[0]; O1[3] = I3[0]; 
+  void action1() { O1[0] = I0[0]; O1[1] = I1[0]; O1[2] = I2[0]; O1[3] = I3[0];
                    O1[4] = I4[0]; O1[5] = I5[0]; O1[6] = I6[0]; O1[7] = I7[0]; }
-  void action2() { O2[0] = I0[0]; O2[1] = I1[0]; O2[2] = I2[0]; O2[3] = I3[0]; 
+  void action2() { O2[0] = I0[0]; O2[1] = I1[0]; O2[2] = I2[0]; O2[3] = I3[0];
                    O2[4] = I4[0]; O2[5] = I5[0]; O2[6] = I6[0]; O2[7] = I7[0]; }
-  void action3() { O3[0] = I0[0]; O3[1] = I1[0]; O3[2] = I2[0]; O3[3] = I3[0]; 
+  void action3() { O3[0] = I0[0]; O3[1] = I1[0]; O3[2] = I2[0]; O3[3] = I3[0];
                    O3[4] = I4[0]; O3[5] = I5[0]; O3[6] = I6[0]; O3[7] = I7[0]; }
-  void action4() { O4[0] = I0[0]; O4[1] = I1[0]; O4[2] = I2[0]; O4[3] = I3[0]; 
+  void action4() { O4[0] = I0[0]; O4[1] = I1[0]; O4[2] = I2[0]; O4[3] = I3[0];
                    O4[4] = I4[0]; O4[5] = I5[0]; O4[6] = I6[0]; O4[7] = I7[0]; }
-  void action5() { O5[0] = I0[0]; O5[1] = I1[0]; O5[2] = I2[0]; O5[3] = I3[0]; 
+  void action5() { O5[0] = I0[0]; O5[1] = I1[0]; O5[2] = I2[0]; O5[3] = I3[0];
                    O5[4] = I4[0]; O5[5] = I5[0]; O5[6] = I6[0]; O5[7] = I7[0]; }
-  void action6() { O6[0] = I0[0]; O6[1] = I1[0]; O6[2] = I2[0]; O6[3] = I3[0]; 
+  void action6() { O6[0] = I0[0]; O6[1] = I1[0]; O6[2] = I2[0]; O6[3] = I3[0];
                    O6[4] = I4[0]; O6[5] = I5[0]; O6[6] = I6[0]; O6[7] = I7[0]; }
-  void action7() { O7[0] = I0[0]; O7[1] = I1[0]; O7[2] = I2[0]; O7[3] = I3[0]; 
+  void action7() { O7[0] = I0[0]; O7[1] = I1[0]; O7[2] = I2[0]; O7[3] = I3[0];
                    O7[4] = I4[0]; O7[5] = I5[0]; O7[6] = I6[0]; O7[7] = I7[0]; }
   smoc_firing_state s0, s1, s2, s3, s4, s5, s6, s7;
 public:
-  transpose(sc_module_name name)
-    : smoc_actor(name, s0), {
+  m_transpose(sc_module_name name)
+    : smoc_actor(name, s0) {
     s0 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
 		I2.getAvailableTokens() >= 1 &&
@@ -75,7 +31,8 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		call(&transpose::action0) 	 >> s1;
+		(O0.getAvailableSpace() >= 1)  >>
+		call(&m_transpose::action0)    >> s1;
     s1 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
 		I2.getAvailableTokens() >= 1 &&
@@ -84,7 +41,8 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		call(&transpose::action1) 	 >> s2;
+		(O1.getAvailableSpace() >= 1)  >>
+		call(&m_transpose::action1)    >> s2;
     s2 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
 		I2.getAvailableTokens() >= 1 &&
@@ -93,7 +51,8 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		call(&transpose::action2) 	 >> s3;
+		(O2.getAvailableSpace() >= 1)  >>
+		call(&m_transpose::action2)    >> s3;
     s3 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
 		I2.getAvailableTokens() >= 1 &&
@@ -102,7 +61,8 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		call(&transpose::action3) 	 >> s4;
+		(O3.getAvailableSpace() >= 1)  >>
+		call(&m_transpose::action3)    >> s4;
     s4 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
 		I2.getAvailableTokens() >= 1 &&
@@ -111,7 +71,8 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		call(&transpose::action4) 	 >> s5;
+		(O4.getAvailableSpace() >= 1)  >>
+		call(&m_transpose::action4)    >> s5;
     s5 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
 		I2.getAvailableTokens() >= 1 &&
@@ -120,7 +81,8 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		call(&transpose::action5) 	 >> s6;
+		(O5.getAvailableSpace() >= 1)  >>
+		call(&m_transpose::action5)    >> s6;
     s6 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
 		I2.getAvailableTokens() >= 1 &&
@@ -129,7 +91,8 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		call(&transpose::action6) 	 >> s7;
+		(O6.getAvailableSpace() >= 1)  >>
+		call(&m_transpose::action6)    >> s7;
     s7 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
 		I2.getAvailableTokens() >= 1 &&
@@ -138,6 +101,7 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		call(&transpose::action7) 	 >> s0;
+		(O7.getAvailableSpace() >= 1)  >>
+		call(&m_transpose::action7)    >> s0;
   }
 };
