@@ -13,7 +13,7 @@
 #include "callib.hpp"
 
 #define BOUND_BITS_TO_B(el_nbr) cal_list<int>::t b; \
-                                for(int i = 0; i < (el_nbr); i++) \
+                                for(unsigned int i = 0; i < (el_nbr); i++) \
                                    b.push_back(bits[i]);
 
 class m_parser: public smoc_actor {
@@ -34,18 +34,18 @@ public:
 
 private:
   //parameters
-  int VOL_START_CODE_LENGTH;
-  int VOL_START_CODE;
-  int VOP_START_CODE_LENGTH;
-  int VOP_START_CODE;
-  int B_VOP;
-  int P_VOP;
-  int I_VOP;
-  int BITS_QUANT;
-  int MCBPC_LENGTH;
-  int INTER;
-  int INTRA;
-  int MAXW_IN_MB;
+  const unsigned int VOL_START_CODE_LENGTH;
+  const int VOL_START_CODE;
+  const unsigned int VOP_START_CODE_LENGTH;
+  const int VOP_START_CODE;
+  const int B_VOP;
+  const int P_VOP;
+  const int I_VOP;
+  const int BITS_QUANT;
+  const unsigned int MCBPC_LENGTH;
+  const int INTER;
+  const int INTRA;
+  const int MAXW_IN_MB;
 public:
   //input and output ports
   smoc_port_in<int > bits;
@@ -59,7 +59,7 @@ private:
   int vol_aspect_val;
   int vol_control_is_detailed;
   int vol_vbv_is_detailed;
-  int mylog;
+  unsigned int mylog;
   int vol_fixed_rate;
 
   int vol_width;
@@ -74,7 +74,7 @@ private:
 
   int round_type;
   int vop_quant;
-  int fcode;
+  unsigned int fcode;
   int decode_type;
   int resync_marker_length;
   int mv_rsize;
@@ -114,7 +114,7 @@ private:
   int b_index;
   int b_last;
 
-  int dcbits;
+  unsigned int dcbits;
 
   // Used to look up value in ivop, pvop ROMs
   int vld_index;
@@ -390,13 +390,13 @@ void m_parser::construct_fsm(void){
 ///////////////////////////////////////////////////////////////////////////////
 // VOL
 vol  = ((bits.getAvailableTokens() >= 32) &&
-       	guard_vol_header_good() ) >>
+       	guard(&m_parser::guard_vol_header_good) ) >>
 	call(&m_parser::action_vol_header_good) >> vol2
      | (bits.getAvailableTokens() >= 32) >>
         call(&m_parser::action_vol_header_bad)  >> stuck;
 
 vol2 = ((bits.getAvailableTokens() >= VOL_START_CODE_LENGTH) &&
-	guard_vol_startcode_good() ) >>
+	guard(&m_parser::guard_vol_startcode_good) ) >>
 	call(&m_parser::action_vol_startcode_good) >> vol3
      | (bits.getAvailableTokens() >= VOL_START_CODE_LENGTH) >>
         call(&m_parser::action_vol_startcode_bad) >> stuck;
@@ -456,16 +456,16 @@ vop  = (bits.getAvailableTokens() >= 8) >>
         call(&m_parser::action_byte_align) >> vop2;
 
 vop2 = ((bits.getAvailableTokens() >= VOP_START_CODE_LENGTH) &&
-        (guard_vop_code_done())) >>
+        (guard(&m_parser::guard_vop_code_done))) >>
 	call(&m_parser::action_vop_code_done) >> vol
      | ((bits.getAvailableTokens() >= VOP_START_CODE_LENGTH) &&
-	(guard_vop_code_start())) >>
+	(guard(&m_parser::guard_vop_code_start))) >>
 	call(&m_parser::action_vop_code_start) >> vop3
      | ((bits.getAvailableTokens() >= VOP_START_CODE_LENGTH)) >>
 	call(&m_parser::action_vop_code_other) >> stuck;
 
 vop3 = ((bits.getAvailableTokens() >= 2) &&
-	(guard_vop_predict_bvop())) >>
+	(guard(&m_parser::guard_vop_predict_bvop))) >>
 	call(&m_parser::action_vop_predict_bvop) >> stuck
      | (bits.getAvailableTokens() >= 2) >>
 	call(&m_parser::action_vop_predict_other) >> vop4;
@@ -535,7 +535,7 @@ mb  = (var(mby) == var(vol_height)) >>
 	call(&m_parser::action_mcbpc_pvop_b6) >> mb2
     | ((bits.getAvailableTokens() >= 8) &&
 	(var(prediction_type) == P_VOP) &&
-	((bits.getValueAt(5) == 1) || ((bits.getValueAt(6) == 1) && (bits.getValueAt(7) == 1)) ) >>
+	((bits.getValueAt(5) == 1) || ((bits.getValueAt(6) == 1) && (bits.getValueAt(7) == 1))) ) >>
 	call(&m_parser::action_mcbpc_pvop_b7) >> mb2
     | ((bits.getAvailableTokens() >= 9) &&
 	(var(prediction_type) == P_VOP) &&
@@ -545,10 +545,10 @@ mb  = (var(mby) == var(vol_height)) >>
 	(var(prediction_type) == P_VOP) &&
 	((bits.getValueAt(7) == 1) || (bits.getValueAt(8) == 1) || (bits.getValueAt(9) == 1)) ) >>
 	call(&m_parser::action_mcbpc_pvop_b9) >> mb2
-    | (bits.getAvailableTokens() >= (MCBPC_LENGTH + 1)) >>
+    | ((bits.getAvailableTokens() >= (MCBPC_LENGTH + 1))) >>
         call(&m_parser::action_mcbpc_bad) >> stuck;
 
-mb2 = (guard_get_mbtype_noac()) >>
+mb2 = (guard(&m_parser::guard_get_mbtype_noac)) >>
 	call(&m_parser::action_get_mbtype_noac) >> mb3
     | (bits.getAvailableTokens() >= 1) >>
 	call(&m_parser::action_get_mbtype_ac) >> mb3;
@@ -571,7 +571,7 @@ mb3 = ((bits.getAvailableTokens() >= 2) &&
 
 mb4 = (var(btype) == INTER) >>
         call(&m_parser::action_final_cbpy_inter) >> mv0
-    | (guard_dummy()) >>
+    | (guard(&m_parser::guard_dummy)) >>
         call(&m_parser::action_final_cbpy_intra) >> blk;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -595,24 +595,24 @@ mv0 = ((var(mvcomp) == 4) ||
 	((bits.getValueAt(4) == 1) && (bits.getValueAt(5) == 1)) ) >>
 	call(&m_parser::action_mvcode_b6) >> mv1
     | ((bits.getAvailableTokens() >= 8) &&
-	(guard_mvcode_b7())) >>
+	(guard(&m_parser::guard_mvcode_b7))) >>
 	call(&m_parser::action_mvcode_b7) >> mv1
     | ((bits.getAvailableTokens() >= 10) &&
-	(guard_mvcode_b9())) >>
+	(guard(&m_parser::guard_mvcode_b9))) >>
 	call(&m_parser::action_mvcode_b9) >> mv1
     | ((bits.getAvailableTokens() >= 11) &&
-	(guard_mvcode_b10())) >>
+	(guard(&m_parser::guard_mvcode_b10))) >>
 	call(&m_parser::action_mvcode_b10) >> mv1
     | ((bits.getAvailableTokens() >= 12) &&
-	(guard_mvcode_b11())) >>
+	(guard(&m_parser::guard_mvcode_b11))) >>
 	call(&m_parser::action_mvcode_b11) >> mv1
     | ((bits.getAvailableTokens() >= 13) &&
-	(guard_mvcode_b12())) >>
+	(guard(&m_parser::guard_mvcode_b12))) >>
 	call(&m_parser::action_mvcode_b12) >> mv1
     | (bits.getAvailableTokens() >= 13) >>
 	call(&m_parser::action_mvcode_bad) >> mv1;
 
-mv1 = ((var(fcode) <= 1) || (var(mvval) == 0)) >>
+mv1 = ((var(fcode) <= 1U) || (var(mvval) == 0)) >>
 	call(&m_parser::action_get_residual_x_none) >> mv2
     | (bits.getAvailableTokens() >= var(fcode)) >>
 	call(&m_parser::action_get_residual_x_some) >> mv2;
@@ -633,24 +633,24 @@ mv2 = ((bits.getAvailableTokens() >= 1) &&
 	((bits.getValueAt(4) == 1) && (bits.getValueAt(5) == 1))) >>
 	call(&m_parser::action_mvcode_b6) >> mv3
     | ((bits.getAvailableTokens() >= 8) &&
-	(guard_mvcode_b7())) >>
+	(guard(&m_parser::guard_mvcode_b7))) >>
 	call(&m_parser::action_mvcode_b7) >> mv3
     | ((bits.getAvailableTokens() >= 10) &&
-	(guard_mvcode_b9())) >>
+	(guard(&m_parser::guard_mvcode_b9))) >>
 	call(&m_parser::action_mvcode_b9) >> mv3
     | ((bits.getAvailableTokens() >= 11) &&
-	(guard_mvcode_b10())) >>
+	(guard(&m_parser::guard_mvcode_b10))) >>
 	call(&m_parser::action_mvcode_b10) >> mv3
     | ((bits.getAvailableTokens() >= 12) &&
-	(guard_mvcode_b11())) >>
+	(guard(&m_parser::guard_mvcode_b11))) >>
 	call(&m_parser::action_mvcode_b11) >> mv3
     | ((bits.getAvailableTokens() >= 13) &&
-	(guard_mvcode_b12())) >>
+	(guard(&m_parser::guard_mvcode_b12))) >>
 	call(&m_parser::action_mvcode_b12) >> mv3
     | (bits.getAvailableTokens() >= 13) >>
 	call(&m_parser::action_mvcode_bad) >> mv3;
 
-mv3 = ((var(fcode) <= 1) || (var(mvval) == 0)) >>
+mv3 = ((var(fcode) <= 1U) || (var(mvval) == 0)) >>
         call(&m_parser::action_get_residual_y_none) >> mv4
     | (bits.getAvailableTokens() >= (var(fcode) - 1)) >>
 	call(&m_parser::action_get_residual_y_some) >> mv4;
@@ -665,10 +665,10 @@ mv4 = ((var(mvcomp) == 0) && (var(mby) == 0) ) >>
 	call(&m_parser::action_mvpred_y1_other) >> mv5
     | (var(mvcomp) == 2) >>
 	call(&m_parser::action_mvpred_y2) >> mv5
-    |  (guard_dummy()) >>
+    |  (guard(&m_parser::guard_dummy)) >>
 	call(&m_parser::action_mvpred_y3) >> mv5;
 
-mv5 = ((guard_dummy())) >>
+mv5 = ((guard(&m_parser::guard_dummy))) >>
 	call(&m_parser::action_mvcompute) >> mv0;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -678,7 +678,7 @@ blk = (var(comp) == 6) >>
     | ((param.getAvailableSpace() >= 4) &&
 	(mv.getAvailableSpace() >= 6) ) >>
 	call(&m_parser::action_mb_dispatch_intra) >> tex
-    | ((guard_mb_dispatch_inter_no_ac() &&
+    | ((guard(&m_parser::guard_mb_dispatch_inter_no_ac) &&
         (mv.getAvailableSpace() >= 6))) >>
 	call(&m_parser::action_mb_dispatch_inter_no_ac) >> blk
     | ((param.getAvailableSpace() >= 4) &&
@@ -689,7 +689,7 @@ blk = (var(comp) == 6) >>
 // texture
 tex = (var(prediction_type) == I_VOP) >>
 	call(&m_parser::action_vld_start_intra) >> texdc
-    |  (guard_dummy()) >>
+    |  (guard(&m_parser::guard_dummy)) >>
 	call(&m_parser::action_vld_start_inter) >> texac;
 
 texdc = ((bits.getAvailableTokens() >= 2) &&
@@ -720,7 +720,7 @@ texdc = ((bits.getAvailableTokens() >= 2) &&
 	 (bits.getValueAt(9) == 1) ) >>
 	call(&m_parser::action_dcbits_b10) >> vld
       | ((bits.getAvailableTokens() >= 11) &&
-	 (bits.getValueAt(10) == 1) >>
+	 (bits.getValueAt(10) == 1)) >>
 	call(&m_parser::action_dcbits_b11) >> vld
       | ((bits.getAvailableTokens() >= 12) &&
 	 ((bits.getValueAt(11) == 1) && (var(comp) > 3)) ) >>
@@ -728,10 +728,10 @@ texdc = ((bits.getAvailableTokens() >= 2) &&
       | (bits.getAvailableTokens() >= 12) >>
 	call(&m_parser::action_dcbits_bad) >> stuck;
 
-tex1  = (var(dcbits) == 0) >>
+tex1  = (var(dcbits) == 0U) >>
 	call(&m_parser::action_get_dc_none) >> texac
       | ((bits.getAvailableTokens() >= dcbits) &&
-	 (var(dcbits) <= 8) ) >>
+	 (var(dcbits) <= 8U) ) >>
 	call(&m_parser::action_get_dc_small) >> texac
       | ((bits.getAvailableTokens() >= (var(dcbits) + 1))) >>
 	call(&m_parser::action_get_dc_large) >> texac;
@@ -747,31 +747,31 @@ texac = ((bits.getAvailableTokens() >= 1) &&
 	 ((bits.getValueAt(0) == 1) || (bits.getValueAt(1) == 1)) ) >>
 	call(&m_parser::action_vld_code_b3) >> vld
       | ((bits.getAvailableTokens() >= 4) &&
-	 (guard_vld_code_b4())) >>
+	 (guard(&m_parser::guard_vld_code_b4))) >>
 	call(&m_parser::action_vld_code_b4) >> vld
       | ((bits.getAvailableTokens() >= 5) &&
-	 (guard_vld_code_b5())) >>
+	 (guard(&m_parser::guard_vld_code_b5))) >>
 	call(&m_parser::action_vld_code_b5) >> vld
       | ((bits.getAvailableTokens() >= 6) &&
-	 (guard_vld_code_b6())) >>
+	 (guard(&m_parser::guard_vld_code_b6))) >>
 	call(&m_parser::action_vld_code_b6) >> vld
       | ((bits.getAvailableTokens() >= 7) &&
-	 (guard_vld_code_b7())) >>
+	 (guard(&m_parser::guard_vld_code_b7))) >>
 	call(&m_parser::action_vld_code_b7) >> vld
       | ((bits.getAvailableTokens() >= 8) &&
-	 (guard_vld_code_b8())) >>
+	 (guard(&m_parser::guard_vld_code_b8))) >>
 	call(&m_parser::action_vld_code_b8) >> vld
       | ((bits.getAvailableTokens() >= 9) &&
-	 (guard_vld_code_b9())) >>
+	 (guard(&m_parser::guard_vld_code_b9))) >>
 	call(&m_parser::action_vld_code_b9) >> vld
       | ((bits.getAvailableTokens() >= 10) &&
-	 (guard_vld_code_b10())) >>
+	 (guard(&m_parser::guard_vld_code_b10))) >>
 	call(&m_parser::action_vld_code_b10) >> vld
       | ((bits.getAvailableTokens() >= 11) &&
-	 (guard_vld_code_b11())) >>
+	 (guard(&m_parser::guard_vld_code_b11))) >>
 	call(&m_parser::action_vld_code_b11) >> vld
       | ((bits.getAvailableTokens() >= 12) &&
-	 (guard_vld_code_b12())) >>
+	 (guard(&m_parser::guard_vld_code_b12))) >>
 	call(&m_parser::action_vld_code_b12) >> vld
       | (bits.getAvailableTokens() >= 12) >>
 	call(&m_parser::action_vld_code_bad) >> stuck;
@@ -795,31 +795,31 @@ vld3  = ((bits.getAvailableTokens() >= 2) &&
 	 ((bits.getValueAt(0) == 1) || (bits.getValueAt(1) == 1)) ) >>
 	call(&m_parser::action_vld_code_b3) >> vld4
       | ((bits.getAvailableTokens() >= 4) &&
-	 (guard_vld_code_b4())) >>
+	 (guard(&m_parser::guard_vld_code_b4))) >>
 	call(&m_parser::action_vld_code_b4) >> vld4
       | ((bits.getAvailableTokens() >= 5) &&
-	 (guard_vld_code_b5())) >>
+	 (guard(&m_parser::guard_vld_code_b5))) >>
 	call(&m_parser::action_vld_code_b5) >> vld4
       | ((bits.getAvailableTokens() >= 6) &&
-	 (guard_vld_code_b6())) >>
+	 (guard(&m_parser::guard_vld_code_b6))) >>
 	call(&m_parser::action_vld_code_b6) >> vld4
       | ((bits.getAvailableTokens() >= 7) &&
-	 (guard_vld_code_b7())) >>
+	 (guard(&m_parser::guard_vld_code_b7))) >>
 	call(&m_parser::action_vld_code_b7) >> vld4
       | ((bits.getAvailableTokens() >= 8) &&
-	 (guard_vld_code_b8())) >>
+	 (guard(&m_parser::guard_vld_code_b8))) >>
 	call(&m_parser::action_vld_code_b8) >> vld4
       | ((bits.getAvailableTokens() >= 9) &&
-	 (guard_vld_code_b9())) >>
+	 (guard(&m_parser::guard_vld_code_b9))) >>
 	call(&m_parser::action_vld_code_b9) >> vld4
       | ((bits.getAvailableTokens() >= 9) &&
-	 (guard_vld_code_b10())) >>
+	 (guard(&m_parser::guard_vld_code_b10))) >>
 	call(&m_parser::action_vld_code_b10) >> vld4
       | ((bits.getAvailableTokens() >= 10) &&
-	 (guard_vld_code_b11())) >>
+	 (guard(&m_parser::guard_vld_code_b11))) >>
 	call(&m_parser::action_vld_code_b11) >> vld4
       | ((bits.getAvailableTokens() >= 12) &&
-	 (guard_vld_code_b12())) >>
+	 (guard(&m_parser::guard_vld_code_b12))) >>
 	call(&m_parser::action_vld_code_b12) >> vld4
       | (bits.getAvailableTokens() >= 12) >>
 	call(&m_parser::action_vld_code_bad) >> stuck;
@@ -831,31 +831,31 @@ vld5  = ((bits.getAvailableTokens() >= 2) &&
 	 ((bits.getValueAt(0) == 1) || (bits.getValueAt(1) == 1)) ) >>
 	call(&m_parser::action_vld_code_b3) >> vld6
       | ((bits.getAvailableTokens() >= 4) &&
-	 (guard_vld_code_b4())) >>
+	 (guard(&m_parser::guard_vld_code_b4))) >>
 	call(&m_parser::action_vld_code_b4) >> vld6
       | ((bits.getAvailableTokens() >= 5) &&
-	 (guard_vld_code_b5()))>>
+	 (guard(&m_parser::guard_vld_code_b5)))>>
 	call(&m_parser::action_vld_code_b5) >> vld6
       | ((bits.getAvailableTokens() >= 6) &&
-	 (guard_vld_code_b6())) >>
+	 (guard(&m_parser::guard_vld_code_b6))) >>
 	call(&m_parser::action_vld_code_b6) >> vld6
       | ((bits.getAvailableTokens() >= 7) &&
-	 (guard_vld_code_b7())) >>
+	 (guard(&m_parser::guard_vld_code_b7))) >>
 	call(&m_parser::action_vld_code_b7) >> vld6
       | ((bits.getAvailableTokens() >= 8) &&
-	 (guard_vld_code_b8())) >>
+	 (guard(&m_parser::guard_vld_code_b8))) >>
 	call(&m_parser::action_vld_code_b8) >> vld6
       | ((bits.getAvailableTokens() >= 9) &&
-	 (guard_vld_code_b9())) >>
+	 (guard(&m_parser::guard_vld_code_b9))) >>
 	call(&m_parser::action_vld_code_b9) >> vld6
       | ((bits.getAvailableTokens() >= 10) &&
-	 (guard_vld_code_b10())) >>
+	 (guard(&m_parser::guard_vld_code_b10))) >>
 	call(&m_parser::action_vld_code_b10) >> vld6
       | ((bits.getAvailableTokens() >= 11) &&
-	 (guard_vld_code_b11()) ) >>
+	 (guard(&m_parser::guard_vld_code_b11)) ) >>
 	call(&m_parser::action_vld_code_b11) >> vld6
       | ((bits.getAvailableTokens() >= 12) &&
-	 (guard_vld_code_b12()) ) >>
+	 (guard(&m_parser::guard_vld_code_b12)) ) >>
 	call(&m_parser::action_vld_code_b12) >> vld6
       | (bits.getAvailableTokens() >= 12) >>
 	call(&m_parser::action_vld_code_bad) >> stuck;
@@ -1128,7 +1128,7 @@ void m_parser::action_vol_misc_supported(void){
 
 
 void m_parser::action_byte_align(void){
-  int n = 8 - cal_bitand( bit_count, 7 );
+  unsigned int n = 8 - cal_bitand( bit_count, 7 );
   BOUND_BITS_TO_B(n);
   
   // println("Byte align at bit_count = "+bit_count+", reading "+n+" bits");
@@ -1222,7 +1222,7 @@ bool m_parser::action_vop_coded_pvop(void) const{
 
 void m_parser::action_vop_coded_pvop(void){
   //bound input ports
-  BOUND_BITS_TO_B(8 + BITS_QUANT);
+  BOUND_BITS_TO_B(8U + BITS_QUANT);
 
   
   decode_type = 1;
@@ -1264,7 +1264,7 @@ void m_parser::action_vop_coded_ivop(void){
   //                    param:[ -1, vol_width, vol_height, -1 ],
   //                   mv:[-1, vol_width, vol_height, round_type, 0, 0 ]
 
-  BOUND_BITS_TO_B(4 + BITS_QUANT);
+  BOUND_BITS_TO_B(4U + BITS_QUANT);
   
   decode_type = 0;
   round_type = 0;
