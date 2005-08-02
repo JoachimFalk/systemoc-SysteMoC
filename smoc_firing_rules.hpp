@@ -238,6 +238,7 @@ private:
 protected:
   smoc_firing_rules( smoc_firing_state *s )
     : actor(NULL) {
+    assert( s != NULL && s->rs != NULL );
     addRef(s); resolved_states.push_front(s->rs);
   }
   
