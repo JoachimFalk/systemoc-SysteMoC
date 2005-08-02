@@ -572,7 +572,8 @@ typename MemGuard<T,X>::type guard(const X *o, T (X::*m)() const)
 typedef enum {
   DOpBinAdd, DOpBinSub, DOpBinMultiply, DOpBinDivide,
   DOpBinEq, DOpBinNe, DOpBinLt, DOpBinLe, DOpBinGt, DOpBinGe,
-  DOpBinBAnd, DOpBinBOr, DOpBinBXor, DOpBinLAnd, DOpBinLOr, DOpBinLXor
+  DOpBinBAnd, DOpBinBOr, DOpBinBXor, DOpBinLAnd, DOpBinLOr, DOpBinLXor,
+  DOpBinField
 } OpBinT;
 
 template<class A, class B, OpBinT Op>
@@ -597,6 +598,7 @@ std::ostream &operator << (std::ostream &o, const OpBinT &op ) {
     case DOpBinLAnd:     o << "DOpBinLAnd"; break;
     case DOpBinLOr:      o << "DOpBinLOr"; break;
     case DOpBinLXor:     o << "DOpBinLXor"; break;
+    case DOpBinField:    o << "DOpBinField"; break;
     default:             o << "???"; break;
   }
   return o;
@@ -779,6 +781,32 @@ DOP(LOr,||)
 #undef DOP
 #undef DOPBIN
 #undef DBINOP
+
+template<class A, typename V>
+class DBinOp<A,DLiteral<V A::value_type::*>,DOpBinField> {
+public:
+  typedef DBinOp<A,DLiteral<V A::value_type::*>,DOpBinField>  this_type;
+  typedef V                                                   value_type;
+  
+  A                            a;
+  DLiteral<V A::value_type::*> b;
+  
+  value_type value() const {
+    return Value<A>::apply(a) .*
+           Value<DLiteral<V A::value_type::*> >::apply(b);
+  }
+//  { return Value<A>::apply(a) op Value<B>::apply(b); }
+public:
+  DBinOp(const A& a, const DLiteral<V A::value_type::*> &b): a(a), b(b) {}
+};
+
+
+template <class A, typename V>
+typename DOpBinExecute<A,DLiteral<V A::value_type::*>,DOpBinField>::result_type
+field(const D<A> &a, V A::value_type::* b) {
+  return DOpBinExecute<A,DLiteral<V A::value_type::*>,DOpBinField>::
+    apply(a.getExpr(),DLiteral<V A::value_type::*>(b));
+}
 
 /****************************************************************************
  * DUnOp represents a unary operation in an expressions.
