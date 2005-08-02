@@ -82,6 +82,9 @@ assemble( smoc_modes::PGWriter &pgw ) const {
   }
 }
 
+template void smoc_graph_petri<smoc_root_node, smoc_fifo_kind, smoc_fifo>::assemble
+  (smoc_modes::PGWriter&) const;
+/*
 template void smoc_graph_petri<smoc_choice_node, smoc_fifo_kind, smoc_fifo>::assemble
   (smoc_modes::PGWriter&) const;
 template void smoc_graph_petri<smoc_transact_node, smoc_fifo_kind, smoc_fifo>::assemble
@@ -90,3 +93,4 @@ template void smoc_graph_petri<smoc_fixed_transact_node, smoc_fifo_kind, smoc_fi
   (smoc_modes::PGWriter&) const;
 template void smoc_graph_petri<smoc_choice_node, smoc_rendezvous_kind, smoc_rendezvous>::assemble
   (smoc_modes::PGWriter&) const;
+*/

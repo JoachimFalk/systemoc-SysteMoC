@@ -5,6 +5,39 @@
 
 #include <smoc_root_node.hpp>
 
+class smoc_actor
+  : public smoc_root_node,
+#ifndef __SCFE__
+    public smoc_modes::smoc_modes_base_structure,
+#endif
+    public sc_module {
+  protected:
+    explicit smoc_actor( sc_module_name name, const smoc_firing_state &s )
+      : smoc_root_node(s),
+        sc_module(name) {}
+    smoc_actor(const smoc_firing_state &s)
+      : smoc_root_node(s),
+        sc_module( sc_gen_unique_name("smoc_choice_active_node") ) {}
+    explicit smoc_actor( sc_module_name name, smoc_firing_state &s )
+      : smoc_root_node(s),
+        sc_module(name) {}
+    smoc_actor(smoc_firing_state &s)
+      : smoc_root_node(s),
+        sc_module( sc_gen_unique_name("smoc_choice_active_node") ) {}
+  public:
+#ifndef __SCFE__
+    sc_module *myModule() { return this; }
+    
+    void assemble( smoc_modes::PGWriter &pgw ) const {
+      return smoc_root_node::assemble(pgw); }
+#endif
+};
+
+typedef smoc_root_node smoc_choice_node;
+typedef smoc_root_node smoc_transact_node;
+typedef smoc_root_node smoc_fixed_transact_node;
+
+/*
 class smoc_choice_node
   : public smoc_root_node {
   protected:
@@ -14,37 +47,6 @@ class smoc_choice_node
       : smoc_root_node(s) {}
 };
 
-class smoc_choice_passive_node
-  : public smoc_choice_node,
-#ifndef __SCFE__
-    public smoc_modes::smoc_modes_base_structure,
-#endif
-    public sc_module {
-  protected:
-    explicit smoc_choice_passive_node( sc_module_name name, const smoc_firing_state &s )
-      : smoc_choice_node(s),
-        sc_module(name) {}
-    smoc_choice_passive_node(const smoc_firing_state &s)
-      : smoc_choice_node(s),
-        sc_module( sc_gen_unique_name("smoc_choice_active_node") ) {}
-    explicit smoc_choice_passive_node( sc_module_name name, smoc_firing_state &s )
-      : smoc_choice_node(s),
-        sc_module(name) {}
-    smoc_choice_passive_node(smoc_firing_state &s)
-      : smoc_choice_node(s),
-        sc_module( sc_gen_unique_name("smoc_choice_active_node") ) {}
-  public:
-#ifndef __SCFE__
-    sc_module *myModule() { return this; }
-    
-    void assemble( smoc_modes::PGWriter &pgw ) const {
-      return smoc_choice_node::assemble(pgw); }
-#endif
-};
-
-typedef smoc_choice_passive_node smoc_actor;
-
-/*
 class smoc_choice_active_node
   : public sc_module,
 #ifndef __SCFE__
@@ -73,12 +75,12 @@ class smoc_choice_active_node
     void assemble( smoc_modes::PGWriter &pgw ) const {
       return smoc_choice_node::assemble(pgw); }
 #endif
-};*/
+};
 
 class smoc_transact_node
   : public smoc_choice_node {
   private:
-    /* disable */
+    // disable
     //void choice( smoc_op_choice op );
     //void startChoice( smoc_op_choice op );
     smoc_firing_state Choice( const smoc_transition_list &tl );
@@ -117,7 +119,6 @@ class smoc_transact_passive_node
 #endif
 };
 
-/*
 class smoc_transact_active_node
   : public sc_module,
 #ifndef __SCFE__
@@ -148,7 +149,6 @@ class smoc_transact_active_node
       return smoc_transact_node::assemble(pgw); }
 #endif
 };
-*/
 
 class smoc_fixed_transact_node
   : public smoc_transact_node {
@@ -217,7 +217,6 @@ class smoc_fixed_transact_passive_node
 #endif
 };
 
-/*
 class smoc_fixed_transact_active_node
   : public sc_module,
 #ifndef __SCFE__

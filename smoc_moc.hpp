@@ -73,7 +73,7 @@ protected:
 };
 
 class smoc_moc_scheduler_sdf
-  : public smoc_fixed_transact_node,
+  : public smoc_root_node,
     public smoc_scheduler_base {
 public:
   typedef smoc_moc_scheduler_sdf  this_type;
@@ -83,12 +83,14 @@ protected:
   
   void schedule() {}
 private:
-  smoc_transition analyse( cset_ty *c ){
-    return smoc_activation_pattern() >> call(&smoc_moc_scheduler_sdf::schedule);
+  smoc_firing_state s;
+  
+  void analyse() {
+    s = smoc_activation_pattern() >> call(&smoc_moc_scheduler_sdf::schedule) >> s;
   }
 public:
   smoc_moc_scheduler_sdf( cset_ty *c )
-    : smoc_fixed_transact_node(analyse(c)), c(c) {}
+    : smoc_root_node(s), c(c) { analyse(); }
 };
 
 class smoc_moc_scheduler_ndf
@@ -128,14 +130,14 @@ protected:
         iter->second->currentState().execute(iter->first);
       }
     } while (!tln.empty());
-    s = Transact( smoc_activation_pattern() >> diverge(&smoc_moc_scheduler_ndf::schedule) );
+    s = smoc_activation_pattern() >> diverge(&smoc_moc_scheduler_ndf::schedule);
     return s;
   }
 private:
   smoc_firing_state s;
   
   void analyse() {
-    s = Transact( smoc_activation_pattern() >> diverge(&smoc_moc_scheduler_ndf::schedule) );
+    s = smoc_activation_pattern() >> diverge(&smoc_moc_scheduler_ndf::schedule);
   }
 public:
   smoc_moc_scheduler_ndf( cset_ty *c )
@@ -179,20 +181,21 @@ protected:
         iter->second->currentState().execute(iter->first);
       }
     } while (!tln.empty());
-    s = Transact( smoc_activation_pattern() >> diverge(&smoc_moc_scheduler_ddf::schedule) );
+    s = smoc_activation_pattern() >> diverge(&smoc_moc_scheduler_ddf::schedule);
     return s;
   }
 private:
   smoc_firing_state s;
   
   void analyse() {
-    s = Transact( smoc_activation_pattern() >> diverge(&smoc_moc_scheduler_ddf::schedule) );
+    s = smoc_activation_pattern() >> diverge(&smoc_moc_scheduler_ddf::schedule);
   }
 public:
   smoc_moc_scheduler_ddf( cset_ty *c )
     : smoc_transact_node(s), c(c) { analyse(); }
 };
 
+/*
 class smoc_moc_scheduler_csp
   : public smoc_choice_node,
     public smoc_firing_types,
@@ -231,6 +234,7 @@ public:
   smoc_moc_scheduler_csp( cset_ty *c )
     : smoc_choice_node(analyse(c)), c(c) {}
 };
+*/
 
 template <typename T_constraintset>
 class smoc_sdf_moc
@@ -242,6 +246,7 @@ class smoc_sdf_moc
       : smoc_moc<smoc_moc_scheduler_sdf, T_constraintset>() {}
 };
 
+/*
 template <typename T_constraintset>
 class smoc_csp_moc
   : public smoc_moc<smoc_moc_scheduler_csp, T_constraintset> {
@@ -251,6 +256,7 @@ class smoc_csp_moc
     smoc_csp_moc()
       : smoc_moc<smoc_moc_scheduler_csp, T_constraintset>() {}
 };
+*/
 
 template <typename T_constraintset>
 class smoc_ddf_moc
