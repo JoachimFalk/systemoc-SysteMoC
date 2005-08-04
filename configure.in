@@ -62,7 +62,8 @@ AC_CONFIG_FILES(
   systemc-sqr/Makefile \
   systemc-fir/Makefile \
   systemc-select/Makefile \
-  systemc-mpeg4/Makefile])
+  systemc-mpeg4/Makefile \
+  systemc-ibtest/Makefile])
 ACJF_DONE
 
 AC_OUTPUT
