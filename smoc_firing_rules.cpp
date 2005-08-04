@@ -160,8 +160,6 @@ smoc_firing_types::transition_ty::execute() {
   resolved_state_ty *retval = NULL;
   
   ap.commSetup();
-//  assert( ap.satisfied() );
-
   if ( f.type() == typeid(smoc_func_diverge) ) {
     const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
     retval = &ns.getResolvedState();
