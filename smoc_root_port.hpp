@@ -15,9 +15,9 @@
 class smoc_root_port
   : protected sc_port_base {
 public:
+  template <class E> friend class Expr::Value;
   template <class E> friend class Expr::CommSetup;
   template <class E> friend class Expr::CommExec;
-  friend class smoc_commreq_number;
   
   typedef smoc_root_port  this_type;
 private:
@@ -78,8 +78,8 @@ public:
   typedef size_t   value_type;
   typedef DCommNr  this_type;
   
-  friend class Value<this_type>;
   friend class AST<this_type>;
+  template <class E> friend class Value;
   template <class E> friend class CommSetup;
   template <class E> friend class CommExec;
 private:
@@ -89,29 +89,36 @@ public:
     : p(p) {}
 };
 
-template <class B>
-struct CommSetup<DBinOp<DCommNr, B, DOpBinGe> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<DCommNr, B, DOpBinGe> &e)
-    { return e.a.p.commSetup(Value<B>::apply(e.b)); }
-};
-
-struct Value<DCommNr> {
-  typedef DCommNr::value_type result_type;
-  
-  static inline
-  result_type apply(const DCommNr &e)
-    { return e.p.availableCount(); }
-};
-
 struct AST<DCommNr> {
   typedef PASTNode result_type;
   
   static inline
   result_type apply(const DCommNr &e)
     { return PASTNode(new ASTNodeCommNr()); }
+};
+
+template <class B>
+struct Value<DBinOp<DCommNr, B, DOpBinGe> > {
+  typedef bool result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DCommNr, B, DOpBinGe> &e) {
+    size_t n      = Value<B>::apply(e.b);
+    bool   retval = e.a.p.availableCount() >= n;
+    
+    if ( retval )
+      e.a.p.commSetup(n);
+    return retval;
+  }
+};
+
+template <class B>
+struct CommSetup<DBinOp<DCommNr, B, DOpBinGe> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DCommNr, B, DOpBinGe> &e) {}
+//    { return e.a.p.commSetup(Value<B>::apply(e.b)); }
 };
 
 template <class B>
@@ -144,7 +151,7 @@ template <class B>
 class DOpBinExecute<DCommNr,B,DOpBinGt> {
 public:
   typedef DBinOp<DCommNr,B,DOpBinGt>                 ExprT;
-  typedef D<ExprT>                                result_type;
+  typedef D<ExprT>                                   result_type;
   
   static inline
   result_type apply(const DCommNr &a, const B &b)
@@ -154,7 +161,7 @@ template <class TB>
 class DOpBinExecute<DCommNr,DLiteral<TB>,DOpBinGt> {
 public:
   typedef DBinOp<DCommNr,DLiteral<size_t>,DOpBinGt>  ExprT;
-  typedef D<ExprT>                                result_type;
+  typedef D<ExprT>                                   result_type;
   
   static inline
   result_type apply(const DCommNr &a, const DLiteral<size_t> &b)
@@ -164,7 +171,7 @@ template <class B>
 class DOpBinExecute<DCommNr,B,DOpBinGe> {
 public:
   typedef DBinOp<DCommNr,B,DOpBinGe>                 ExprT;
-  typedef D<ExprT>                                result_type;
+  typedef D<ExprT>                                   result_type;
   
   static inline
   result_type apply(const DCommNr &a, const B &b)
@@ -174,7 +181,7 @@ template <class TB>
 class DOpBinExecute<DCommNr,DLiteral<TB>,DOpBinGe> {
 public:
   typedef DBinOp<DCommNr,DLiteral<size_t>,DOpBinGe>  ExprT;
-  typedef D<ExprT>                                result_type;
+  typedef D<ExprT>                                   result_type;
   
   static inline
   result_type apply(const DCommNr &a, const DLiteral<size_t> &b)
@@ -183,17 +190,5 @@ public:
 
 }
 /****************************************************************************/
-
-class smoc_commreq_number {
-private:
-  smoc_root_port  &p;
-public:
-  explicit smoc_commreq_number(smoc_root_port &p): p(p) {}
-  
-  bool operator >= (size_t req)
-    { return p.availableCount() >= req; }
-  bool operator >  (size_t req)
-    { return *this >= req+1; }
-};
 
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP
