@@ -956,19 +956,20 @@ template<class A>
 class DUnOp<A,DOpUnType> {
 public:
   typedef DUnOp<A,DOpUnType>    this_type;
-  typedef const std::type_info &value_type;
+  //typedef const std::type_info *value_type;
+  typedef const std::type_info *value_type;
   
   A a;
   
   value_type value() const
-    { return Value<A>::apply(a).type(); }
+    { return &(Value<A>::apply(a).type()); }
 public:
   DUnOp(const A& a): a(a) {}
 };
 
 template <class A>
 typename DOpUnExecute<A,DOpUnType>::result_type
-field(const D<A> &a)
+type(const D<A> &a)
   { return DOpUnExecute<A,DOpUnType>::apply(a.getExpr()); }
 
 void dump(const PASTNode &node);
