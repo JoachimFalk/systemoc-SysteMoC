@@ -930,14 +930,14 @@ static inline                                                   \
 typename DOpUnExecute<A,name>::result_type                      \
 operator op (const D<A> &a) {                                   \
   return DOpUnExecute<A,name>::apply(a.getExpr());              \
-}                                                               \
+} /*
 template<typename TA>                                           \
 static inline                                                   \
 typename DOpUnExecute<DLiteral<TA>,name>::result_type           \
 operator op (const TA &a) {                                     \
   return DOpUnExecute<DLiteral<TA>,name>::                      \
     apply(DLiteral<TA>(a));                                     \
-}
+} */
 
 #define DOP(name,op) DUNOP(DOpUn##name,op) DOPUN(DOpUn##name,op)
 
