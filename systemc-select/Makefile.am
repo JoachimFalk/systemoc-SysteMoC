@@ -24,19 +24,22 @@ root_builddir=$(top_builddir)/..
 
 SUBDIRS=
 
+SYSTEMOC_BUILDDIR=$(root_builddir)/SysteMoC-v0.3
+
 INCLUDES =						\
 	@SYSTEMC_INCLUDE@				\
-	-I$(root_builddir)/SysteMoC/include/systemoc	\
+	-I$(SYSTEMOC_BUILDDIR)/include/systemoc		\
 	-I$(srcdir)
 
 AM_LDFLAGS=						\
 	@SYSTEMC_LDFLAGS@				\
-	-L$(root_builddir)/SysteMoC
+	-L$(SYSTEMOC_BUILDDIR)
 
 noinst_PROGRAMS= simulation-select
 
+AM_CPPFLAGS=-Wno-deprecated
 LIBS=-lsystemc -lsystemoc
 
 simulation_select_SOURCES= design-select.cpp
 simulation_select_DEPENDENCIES=				\
-	$(root_builddir)/SysteMoC/libsystemoc.la
+	$(SYSTEMOC_BUILDDIR)/libsystemoc.la
