@@ -27,7 +27,7 @@ public:
 protected:
   cset_ty *c;
   
-  void schedule() {}
+  void schedule() { assert("FIXME sdf scheduler unfinished !" == NULL); }
 private:
   smoc_firing_state s;
   
@@ -39,56 +39,7 @@ public:
     : smoc_root_node(s), c(c) { analyse(); }
 };
 
-class smoc_scheduler_ddf
-  : public smoc_transact_node,
-    public smoc_firing_types,
-    public smoc_scheduler_base {
-
-public:
-  typedef smoc_scheduler_ddf  this_type;
-  typedef smoc_ddf_constraintset  cset_ty;
-protected:
-  cset_ty *c;
-  
-  typedef std::pair<transition_ty *, smoc_root_node *>  transition_node_ty;
-  typedef std::list<transition_node_ty>                 transition_node_list_ty;
-  
-  const smoc_firing_state &schedule() {
-    cset_ty::nodes_ty nodes = c->getNodes();
-    transition_node_list_ty tln;
-    
-    do {
-      tln.clear();
-      for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
-            iter != nodes.end();
-            ++iter ) {
-        smoc_firing_state   &s  = (*iter)->currentState();
-        resolved_state_ty   &rs = s.getResolvedState();
-        maybe_transition_ty  mt = rs.findEnabledTransition();
-        
-        if ( mt.first )
-          tln.push_front(transition_node_ty(mt.second,*iter));
-      }
-      // dump(nodes);
-      for ( transition_node_list_ty::const_iterator iter = tln.begin();
-            iter != tln.end();
-            ++iter ) {
-        iter->second->currentState().execute(iter->first);
-      }
-    } while (!tln.empty());
-    s = smoc_activation_pattern() >> diverge(&smoc_scheduler_ddf::schedule);
-    return s;
-  }
-private:
-  smoc_firing_state s;
-  
-  void analyse() {
-    s = smoc_activation_pattern() >> diverge(&smoc_scheduler_ddf::schedule);
-  }
-public:
-  smoc_scheduler_ddf( cset_ty *c )
-    : smoc_transact_node(s), c(c) { analyse(); }
-};
+typedef class smoc_scheduler_ndf smoc_scheduler_ddf;
 
 class smoc_scheduler_ndf
   : public smoc_choice_node,
