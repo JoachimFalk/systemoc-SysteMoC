@@ -161,34 +161,26 @@ smoc_firing_types::transition_ty::execute() {
   
   ap.commSetup();
 //  assert( ap.satisfied() );
-  assert( f.type() == 0 ||
-          f.type() == 1 ||
-	  f.type() == 2 ||
-	  f.type() == 3 );
-  switch (f.type()) {
-    case 3: { // smoc_func_diverge
-      const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
-      retval = &ns.getResolvedState();
-      break;
-    }
-    case 2: { // smoc_func_branch
-      const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
-      statelist_ty::const_iterator iter = sl.begin();
-      
-      // check that ns is in sl
-      while ( iter != sl.end() && (*iter) != ns.rs )
-        ++iter;
-      assert( iter != sl.end() );
-      retval = &ns.getResolvedState();
-      break;
-    }
-    case 1: // smoc_func_call
+
+  if ( f.type() == typeid(smoc_func_diverge) ) {
+    const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
+    retval = &ns.getResolvedState();
+  } else if ( f.type() == typeid(smoc_func_branch) ) {
+    const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
+    statelist_ty::const_iterator iter = sl.begin();
+    
+    // check that ns is in sl
+    while ( iter != sl.end() && (*iter) != ns.rs )
+      ++iter;
+    assert( iter != sl.end() );
+    retval = &ns.getResolvedState();
+  } else {
+    if ( f.type() == typeid(smoc_func_call) )
       static_cast<smoc_func_call &>(f)();
-    default: { // NULL
-      assert( sl.size() == 1 );
-      retval = static_cast<resolved_state_ty *>(sl.front());
-      break;
-    }
+    else
+      assert( &f.type() == NILTYPE);
+    assert( sl.size() == 1 );
+    retval = static_cast<resolved_state_ty *>(sl.front());
   }
   ap.commExec();
   return retval;
