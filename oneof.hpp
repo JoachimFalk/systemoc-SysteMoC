@@ -42,9 +42,15 @@ class oneof {
     template <typename T>
     void _construct(const T &e) { new(reinterpret_cast<T*>(&mem)) T(e); }
     template <typename T>
-    T &_element() { return *reinterpret_cast<T*>(&mem); }
+    T &_element() {
+      assert(valid == &typeid(T));
+      return *reinterpret_cast<T*>(&mem);
+    }
     template <typename T>
-    const T &_element() const { return *reinterpret_cast<const T*>(&mem); }
+    const T &_element() const {
+      assert(valid == &typeid(T));
+      return *reinterpret_cast<const T*>(&mem);
+    }
     template <typename T>
     void _destroy() { _call_destructor(reinterpret_cast<T*>(&mem)); valid = NULL; }
     template <class T> void _call_destructor( T  *x ) { x->~T(); }
@@ -82,18 +88,12 @@ class oneof {
       return *this;
     }
     
-    operator       T1 &()       
-      { assert(valid == &typeid(T1)); return _element<T1>(); }
-    operator const T1 &() const
-      { assert(valid == &typeid(T1)); return _element<T1>(); }
-    operator       T2 &()       
-      { assert(valid == &typeid(T2)); return _element<T2>(); }
-    operator const T2 &() const
-      { assert(valid == &typeid(T2)); return _element<T2>(); }
-    operator       T3 &()       
-      { assert(valid == &typeid(T3)); return _element<T3>(); }
-    operator const T3 &() const
-      { assert(valid == &typeid(T3)); return _element<T3>(); }
+    operator       T1 &()       { return _element<T1>(); }
+    operator const T1 &() const { return _element<T1>(); }
+    operator       T2 &()       { return _element<T2>(); }
+    operator const T2 &() const { return _element<T2>(); }
+    operator       T3 &()       { return _element<T3>(); }
+    operator const T3 &() const { return _element<T3>(); }
     
     void reset() {
       if ( valid == &typeid(T1) ) {
