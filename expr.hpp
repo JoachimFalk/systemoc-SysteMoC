@@ -9,7 +9,6 @@
 #include <list>
 #include <typeinfo>
 
-
 #include <boost/intrusive_ptr.hpp>
 
 /****************************************************************************
@@ -782,6 +781,8 @@ DOP(LOr,||)
 #undef DOPBIN
 #undef DBINOP
 
+/* DOpBinField Operator */
+
 template<class A, typename V>
 class DBinOp<A,DLiteral<V A::value_type::*>,DOpBinField> {
 public:
@@ -818,7 +819,8 @@ typedef enum {
   DOpUnLNot,
   DOpUnBNot,
   DOpUnRef,
-  DOpUnDeRef
+  DOpUnDeRef,
+  DOpUnType
 } OpUnT;
 
 template<class A, OpUnT Op>
@@ -831,6 +833,7 @@ std::ostream &operator << (std::ostream &o, const OpUnT &op ) {
     case DOpUnBNot:      o << "DOpUnBNot"; break;
     case DOpUnRef:       o << "DOpUnRef"; break;
     case DOpUnDeRef:     o << "DOpUnDeRef"; break;
+    case DOpUnType:      o << "DOpUnType"; break;
     default:             o << "???"; break;
   }
   return o;
@@ -946,6 +949,27 @@ DOP(DeRef,*)
 #undef DOP
 #undef DOPUN
 #undef DUNOP
+
+/* DOpUnType Operator */
+
+template<class A>
+class DUnOp<A,DOpUnType> {
+public:
+  typedef DUnOp<A,DOpUnType>    this_type;
+  typedef const std::type_info &value_type;
+  
+  A a;
+  
+  value_type value() const
+    { return Value<A>::apply(a).type(); }
+public:
+  DUnOp(const A& a): a(a) {}
+};
+
+template <class A>
+typename DOpUnExecute<A,DOpUnType>::result_type
+field(const D<A> &a)
+  { return DOpUnExecute<A,DOpUnType>::apply(a.getExpr()); }
 
 void dump(const PASTNode &node);
 
