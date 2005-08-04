@@ -5,17 +5,26 @@
 
 #include <assert.h>
 #include <memory>
+#include <iostream>
 #include <typeinfo>
 
-struct void2_st {
-};
-struct void3_st {
-};
+struct void2_st {};
+
+static inline
+std::ostream &operator << (std::ostream &o, const void2_st &) { return o; }
+
+struct void3_st {};
+
+static inline
+std::ostream &operator << (std::ostream &o, const void3_st &) { return o; }
 
 #define _ONEOFDEBUG(x) do {} while (0)
 //#define _ONEOFDEBUG(x) std::cerr << x << std::endl
 
 #define NILTYPE NULL
+
+
+
 
 template <typename T1, typename T2 = void2_st, typename T3 = void3_st>
 class oneof {
@@ -102,5 +111,20 @@ class oneof {
     
     ~oneof() { reset(); }
 };
+
+template <typename T1, typename T2, typename T3>
+static inline
+std::ostream &operator << (std::ostream &output, const oneof<T1,T2,T3> &of) {
+  if ( &of.type() == &typeid(T1) ) {
+    output << "oneof(T1:" << static_cast<const T1 &>(of) << ")";
+  } else if ( &of.type() == &typeid(T2) ) {
+    output << "oneof(T2:" << static_cast<const T2 &>(of) << ")";
+  } else if ( &of.type() == &typeid(T3) ) {
+    output << "oneof(T3:" << static_cast<const T3 &>(of) << ")";
+  } else {
+    output << "oneof()";
+  }
+  return output;
+}
 
 #endif // _INCLUDED_ONEOF_HPP
