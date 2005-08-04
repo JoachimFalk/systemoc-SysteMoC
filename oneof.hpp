@@ -4,6 +4,7 @@
 #define _INCLUDED_ONEOF_HPP
 
 #include <assert.h>
+#include <memory>
 
 struct void2_st {
 };
