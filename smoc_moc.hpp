@@ -77,6 +77,7 @@ protected:
             ++iter ) {
         iter->second->currentState().execute(iter->first);
       }
+      wait(SC_ZERO_TIME);
     } while (!tln.empty());
     s = smoc_activation_pattern() >> diverge(&smoc_scheduler_ndf::schedule);
     return s;
