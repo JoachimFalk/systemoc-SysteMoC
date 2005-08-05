@@ -35,8 +35,17 @@
 // InfiniBand Includes
 #include "datatypes.h"
 #include "tt_ib.h"
-#include "ib_debug.h"
-#include "ib_channels_msgs.h"
+//#include "ib_debug.h"
+//#include "ib_channels_msgs.h"
+
+#include <iostream>
+
+// Oneof
+#include <oneof.hpp>
+
+// channel types
+typedef oneof<tt_notification, tt_bo_notification, tt_data>   ct_queue2atu;
+typedef oneof<tt_raw_header, tt_data>                         ct_bthgen2atu;
 
 /**
  * \brief Address Translation Unit
@@ -54,37 +63,54 @@ class ib_m_atu : smoc_actor {
     //@{
   
     // RQ -> ATU
-    smoc_port_in<tt_ib *>           in_rq2atu;
+    smoc_port_in<ct_queue2atu>    in_rq2atu;
 
     // TQ -> ATU
-    smoc_port_in<tt_ib *>           in_tq2atu;
+    smoc_port_in<ct_queue2atu>    in_tq2atu;
 
     // BTHGRH_GEN -> ATU
-    smoc_port_in<tt_ib *>           in_bth_grh_gen2atu;
+    smoc_port_in<ct_bthgen2atu>   in_bth_grh_gen2atu;
   
     // ATU -> MSTORE
-    smoc_port_out<ct_atu2mstore *>  out_atu2mstore;
+    smoc_port_out<ct_queue2atu>   out_atu2mstore;
   
     // ATU -> MFETCH
-    smoc_port_out<tt_ib *>          out_atu2mfetch;
+    smoc_port_out<ct_bthgen2atu>  out_atu2mfetch;
     //@}
 
   private:
     
     /// all output from this module goes to this stream
-    dbg_ostream &os;
+    //dbg_ostream &os;
+    ostream &os;
 
     // message buffers for output channels
-    tt_ib*            mfetch_msg;
-    ct_atu2mstore*    mstore_msg;
+    ct_bthgen2atu   mfetch_msg;
+    ct_queue2atu    mstore_msg;
 
     // FSM states
     smoc_firing_state start;
-    smoc_firing_state have_mfetch_msg;
-    smoc_firing_state have_mstore_msg;
-    smoc_firing_state have_both_msgs;
+//    smoc_firing_state have_mfetch_msg;
+//    smoc_firing_state have_mstore_msg;
+//    smoc_firing_state have_both_msgs;
 
-    /// write message on output channel to MFETCH
+// ATOMIC TRANSITIONS OPERATIONS
+    
+    /// forward msg from BTH/GRHGen module to MFETCH
+    void forward_mfetch(); 
+    
+    /// forward msg from RQ module to MSTORE
+    void forward_rq_mstore(); 
+    
+    /// forward msg from TQ module to MSTORE
+    void forward_tq_mstore(); 
+
+    // RQ message guard
+    bool rq_guard() const;
+    
+// NON ATOMIC TRANSITIONS OPERATIONS
+    
+    // write message on output channel to MFETCH
     void to_mfetch();
     
     /// write message on output channel to MSTORE
@@ -98,58 +124,72 @@ class ib_m_atu : smoc_actor {
 
     /// stores an TQ message to the temp variable mstore_msg
     void store_tq_msg();
-    
+
+
   public:
   
-    ib_m_atu( sc_module_name name, dbg_ostream &os ) :
+    ib_m_atu( sc_module_name name, ostream &os ) :
       smoc_actor( name, start ),
-      os( os ),
-      mfetch_msg(NULL),
-      mstore_msg(NULL)
+      os( os )
     {
+    
+    
+    // ATOMIC TRANSITIONS
+    
+      start = ( in_rq2atu(1) )
+              >> out_atu2mstore(1)
+              >> call(&ib_m_atu::forward_rq_mstore)
+              >> start
+            | ( in_tq2atu(1) )
+              >> out_atu2mstore(1)
+              >> call(&ib_m_atu::forward_tq_mstore)
+              >> start
+            | ( in_bth_grh_gen2atu(1) )
+              >> out_atu2mfetch(1)
+              >> call(&ib_m_atu::forward_mfetch)
+              >> start;
+
+    // NON ATOMIC TRANSITIONS
+      /*
       
       // transitions from START state
-      start = 
-        in_rq2atu(1)
-        >> call(&ib_m_atu::store_rq_msg)
-        >> have_mstore_msg
-      | in_tq2atu(1)
-        >> call(&ib_m_atu::store_tq_msg)
-        >> have_mstore_msg
-      | in_bth_grh_gen2atu(1)
-        >> call(&ib_m_atu::store_bthgen_msg)
-        >> have_mfetch_msg;
-
+      start = in_rq2atu(1)
+              >> call(&ib_m_atu::store_rq_msg)
+              >> have_mstore_msg
+            | in_tq2atu(1)
+              >> call(&ib_m_atu::store_tq_msg)
+              >> have_mstore_msg
+            | in_bth_grh_gen2atu(1)
+              >> call(&ib_m_atu::store_bthgen_msg)
+              >> have_mfetch_msg;
+      
       // transitions from HAVE_MSTORE_MSG state
-      have_mstore_msg =
-        in_bth_grh_gen2atu(1)
-        >> call(&ib_m_atu::store_bthgen_msg)
-        >> have_both_msgs
-      | out_atu2mstore(1)
-        >> call(&ib_m_atu::to_mstore)
-        >> start;
-      
-      // transitions from HAVE_MFETCH_MSG state
-      have_mfetch_msg =
-        in_rq2atu(1)
-        >> call(&ib_m_atu::store_rq_msg)
-        >> have_both_msgs
-      | in_tq2atu(1)
-        >> call(&ib_m_atu::store_tq_msg)
-        >> have_both_msgs
-      | out_atu2mfetch(1)
-        >> call(&ib_m_mfetch::to_mfetch)
-        >> start;
+      have_mstore_msg = out_atu2mstore(1)
+                        >> call(&ib_m_atu::to_mstore)
+                        >> start
+                      | in_bth_grh_gen2atu(1)
+                        >> call(&ib_m_atu::store_bthgen_msg)
+                        >> have_both_msgs;
 
-      // transitions from HAVE_BOTH_MSGS state
-      have_both_msgs =
-        out_atu2mstore(1)
-        >> call(&ib_m_atu::to_mstore)
-        >> have_mfetch_msg
-      | out_atu2mfetch(1)
-        >> call(&ib_m_mfetch::to_mfetch)
-        >> have_mstore_msg;
+      // transitions from HAVE_MFETCH_MSG state
+      have_mfetch_msg = out_atu2mfetch(1)
+                        >> call(&ib_m_atu::to_mfetch)
+                        >> start
+                      | in_rq2atu(1)
+                        >> call(&ib_m_atu::store_rq_msg)
+                        >> have_both_msgs
+                      | in_tq2atu(1)
+                        >> call(&ib_m_atu::store_tq_msg)
+                        >> have_both_msgs;
       
+      // transitions from HAVE_BOTH_MSGS state
+      have_both_msgs =  out_atu2mfetch(1)
+                        >> call(&ib_m_atu::to_mfetch)
+                        >> have_mstore_msg
+                      | out_atu2mstore(1)
+                        >> call(&ib_m_atu::to_mstore)
+                        >> have_mfetch_msg;
+      */
     }
 };
 

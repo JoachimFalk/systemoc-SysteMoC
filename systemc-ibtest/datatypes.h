@@ -36,7 +36,7 @@
  *
  */
 
-// #include "ib_verbs.h"
+//#include "ib_verbs.h"
 
 /*******************************************************************************
  *
@@ -285,7 +285,6 @@ struct ts_wqepart {
   t_seq_pos     seq_pos;  ///< sequence postition (first, last)
   int           msg_size_remaining;
 };
-
 */
 
 /// infos needed to resend packet
@@ -311,7 +310,6 @@ public:
   packet_start_info()
   {}    
 };
-
 */
 
 

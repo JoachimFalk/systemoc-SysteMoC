@@ -12,25 +12,40 @@
 # include <smoc_pggen.hpp>
 #endif
 
+
 // InifiniBand Includes
 #include "tt_ib.h"
+#include "ib_m_atu.h"
 
 using Expr::field;
 
 
+
+
 class m_source: public smoc_actor {
   public:
-    smoc_port_out<int> out;
+    smoc_port_out<ct_queue2atu>   out1;
+    smoc_port_out<ct_queue2atu>   out2;
+    smoc_port_out<ct_bthgen2atu>  out3;
   private:
     int count;
         
-    void process() {
-      std::cout << name() << " generating token: ";
+    void process1() {
+      std::cout << name() << " generating RQ token: " << std::endl;
+      out1[0] = tt_notification(tt_notification::CLEAR_BUFFER, 0);
+      std::cout << out1[0] << std::endl;
+    }
     
-      out[0] = count % 2;
-      
-      std::cout << out[0] << std::endl;
-      count++;
+    void process2() {
+      std::cout << name() << " generating TQ token: " << std::endl;
+      out2[0] = tt_notification(tt_notification::CLEAR_BUFFER, 0);
+      std::cout << out2[0] << std::endl;
+    }
+    
+    void process3() {
+      std::cout << name() << " generating BTH/GRHGen token: " << std::endl;
+      out3[0] = tt_raw_header("foo-bar", false, 0);
+      std::cout << out3[0] << std::endl;
     }
     
     smoc_firing_state start;
@@ -40,80 +55,26 @@ class m_source: public smoc_actor {
       smoc_actor( name, start ),
       count(0)
     {
-      start = out(1) >> call(&m_source::process) >> start;
+      start = out1(1) >> call(&m_source::process1) >> start;
+      start = out2(1) >> call(&m_source::process2) >> start;
+      start = out3(1) >> call(&m_source::process3) >> start;
     }
 };
-
-class m_dispatcher : public smoc_actor 
-{
-  public:
-    smoc_port_in<int> in;
-    smoc_port_out<int> out1;
-    smoc_port_out<int> out2;
-
-  private:
-
-    int temp;
-    
-    // FSM states
-    smoc_firing_state start;
-    smoc_firing_state work;
-    
-    // methods
-    
-    void copy() {
-      //std::cout << name() << ": COPY called" << std::endl;
-      temp = in[0];
-    }
-    
-    void process1() {
-      out1[0] = temp;
-      //out1[0] = in[0];
-    }
-    
-    void process2() {
-      out2[0] = temp;
-      //out2[0] = in[0];
-    }
-
-    bool check() const {
-      if ( temp > 0 ) return true;
-      else return false;
-    }
-    
-  public:
-    m_dispatcher( sc_module_name name ) :
-      smoc_actor( name, start )
-    {
-      //start = (in(1) && field(*in.getValueAt(0), &tt_ib::type) ==  tt_ib::TT_PACKET_INFO) >> call(&m_dispatcher::copy) >> work;
-      
-      start = in(1) >> call(&m_dispatcher::copy) >> work;  
-      work  = ((var(temp) == 0) >> out1(1) >> call(&m_dispatcher::process1) >> start)
-            | ((var(temp) == 1) >> out2(1) >> call(&m_dispatcher::process2) >> start);
-      
-      /*
-      // Alternative mit gleicher Fuunktion
-      work  = !guard(&m_dispatcher::check) >> out1(1) >> call(&m_dispatcher::process1) >> start
-            | guard(&m_dispatcher::check) >> out2(1) >> call(&m_dispatcher::process2) >> start;
-      */
-
-      /*
-      // Wäre schon -- geht aber nicht!
-      start = (in(1) && (in.getValueAt(0) == 0)) >> out1(1) >> call(&m_dispatcher::process1) >> start
-            | (in(1) && (in.getValueAt(0) == 1)) >> out2(1) >> call(&m_dispatcher::process2) >> start;
-      */
-    }
-};
-
 
 class m_sink: public smoc_actor {
   public:
-    smoc_port_in<int> in;
+    smoc_port_in<ct_bthgen2atu>   in1;
+    smoc_port_in<ct_queue2atu>    in2;
   private:
    
-    void print() {
-      std::cout << name() << ": got token: ";
-      std::cout << in[0] << std::endl;
+    void print1() {
+      std::cout << name() << ": got MFETCH token: ";
+      std::cout << in1[0] << std::endl;
+    }
+    
+    void print2() {
+      std::cout << name() << ": got MSTORE token: ";
+      std::cout << in2[0] << std::endl;
     }
     
     smoc_firing_state start;
@@ -122,7 +83,8 @@ class m_sink: public smoc_actor {
     m_sink( sc_module_name name ) :
       smoc_actor( name, start )
     {
-      start = in(1) >> call(&m_sink::print) >> start;
+      start = in1(1) >> call(&m_sink::print1) >> start;
+      start = in2(1) >> call(&m_sink::print2) >> start;
     }
 };
 
@@ -133,14 +95,18 @@ class m_top
     m_top( sc_module_name name )
       : smoc_ndf_constraintset(name)
     {
-      m_source      &src  = registerNode(new m_source("src"));
+      m_source      &src = registerNode(new m_source("src"));
       
-      m_sink        &snk1 = registerNode(new m_sink("snk1"));
-      m_sink        &snk2 = registerNode(new m_sink("snk2"));
-      m_dispatcher  &disp = registerNode(new m_dispatcher("disp"));
-      connectNodePorts( src.out, disp.in );
-      connectNodePorts( disp.out1, snk1.in );
-      connectNodePorts( disp.out2, snk2.in );
+      m_sink        &snk = registerNode(new m_sink("snk"));
+      
+      ib_m_atu      &atu = registerNode(new ib_m_atu("atu",std::cout));
+      
+      connectNodePorts( src.out1, atu.in_rq2atu );
+      connectNodePorts( src.out2, atu.in_tq2atu );
+      connectNodePorts( src.out3, atu.in_bth_grh_gen2atu );
+      
+      connectNodePorts( atu.out_atu2mfetch, snk.in1 );
+      connectNodePorts( atu.out_atu2mstore, snk.in2 );
     }
 };
 

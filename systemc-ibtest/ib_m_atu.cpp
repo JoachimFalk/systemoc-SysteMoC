@@ -21,6 +21,50 @@
 using std::endl;
 
 
+/**
+ * Forward incoming messages from BTH/GRHGen module to MFETCH
+ */
+void ib_m_atu::forward_mfetch() 
+{
+  std::cout << "ATU> forwarding BTH/GER Gen message to MFETCH" << std::endl;
+  out_atu2mfetch[0] = in_bth_grh_gen2atu[0];
+}
+
+
+/**
+ * Forward incoming messages from RQ module to MSTORE
+ */
+void ib_m_atu::forward_rq_mstore() 
+{
+  std::cout << "ATU> forwarding RQ message to MSTORE" << std::endl;
+  out_atu2mstore[0] = in_rq2atu[0];
+}
+
+
+/**
+ * Forward incoming messages from TQ module to MSTORE
+ */
+void ib_m_atu::forward_tq_mstore() 
+{
+  std::cout << "ATU> forwarding TQ message to MSTORE" << std::endl;
+  out_atu2mstore[0] = in_tq2atu[0];
+}
+
+/**
+ *  Pseudo Guard
+ */
+bool ib_m_atu::rq_guard() const {
+  std::cout << "ATU> RQ-GUARD called!" << std::endl;
+  return true;
+}
+
+
+
+
+
+
+
+
 
 /**
  * \brief writes stored message to MFETCH module
@@ -28,10 +72,11 @@ using std::endl;
  */
 void ib_m_atu::to_mfetch()
 {
-  assert( mfetch_msg != NULL );
+  os << "ATU> forwarding message to MFETCH" << endl;
 
-  os << DBG_LOW << "ATU> forwarding message to MFETCH" << endl;
-  
+  //os << DBG_LOW << "ATU> forwarding message to MFETCH" << endl;
+ 
+  /*
   // DEBUG output
   switch ( mfetch_msg->type ) {
 
@@ -55,8 +100,8 @@ void ib_m_atu::to_mfetch()
       os << DBG_HIGH << "ATU> unknown TT type" << endl;
       assert(0);
   }
+  */
   out_atu2mfetch[0] = mfetch_msg;
-  mfetch_msg = NULL;
 }
 
 
@@ -66,10 +111,10 @@ void ib_m_atu::to_mfetch()
  */
 void ib_m_atu::to_mstore()
 {
-  assert( mstore_msg != NULL );
-
-  os << DBG_LOW << "ATU> forwarding message to MSTORE" << endl;
+  os << "ATU> forwarding message to MSTORE" << endl;
+  //os << DBG_LOW << "ATU> forwarding message to MSTORE" << endl;
   
+  /*
   // DEBUG output
   switch ( mstore_msg->type ) {
 
@@ -85,8 +130,8 @@ void ib_m_atu::to_mstore()
       os << DBG_HIGH << "ATU> unknown TT type" << endl;
       assert(0);
   }
+  */
   out_atu2mstore[0] = mstore_msg;
-  mstore_msg = NULL;
 }
 
 /**
@@ -95,9 +140,9 @@ void ib_m_atu::to_mstore()
  */
 void ib_m_atu::store_bthgen_msg()
 {
-  os << DBG_LOW  << "ATU> got message from BTH/GRH GEN. " << endl;
+  os << "ATU> got message from BTH/GRH GEN. " << endl;
+  //os << DBG_LOW  << "ATU> got message from BTH/GRH GEN. " << endl;
   
-  assert( mfetch_msg == NULL );
   mfetch_msg = in_bth_grh_gen2atu[0];
 }
 
@@ -108,10 +153,10 @@ void ib_m_atu::store_bthgen_msg()
  */
 void ib_m_atu::store_rq_msg()
 {
-  os << DBG_LOW  << "ATU> got message from RQ. " << endl;
+  os << "ATU> got message from RQ. " << endl;
+  //os << DBG_LOW  << "ATU> got message from RQ. " << endl;
   
-  assert( mstore_msg == NULL );
-  mstore_msg = new ct_atu2mstore( in_rq2atu[0], RQ );
+  mstore_msg = in_rq2atu[0];
 }
 
 
@@ -121,9 +166,9 @@ void ib_m_atu::store_rq_msg()
  */
 void ib_m_atu::store_tq_msg()
 {
-  os << DBG_LOW  << "ATU> got message from TQ. " << endl;
+  os << "ATU> got message from TQ. " << endl;
+  //os << DBG_LOW  << "ATU> got message from TQ. " << endl;
   
-  assert( mstore_msg == NULL );
-  mstore_msg = new ct_atu2mstore( in_tq2atu[0], TQ );
+  mstore_msg = in_tq2atu[0];
 }
 

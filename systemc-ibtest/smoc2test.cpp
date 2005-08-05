@@ -14,22 +14,26 @@
 
 // InifiniBand Includes
 #include "tt_ib.h"
+#include <oneof.hpp>
 
 using Expr::field;
+using Expr::type;
 
+
+typedef oneof<int, char *> test_ty;
 
 class m_source: public smoc_actor {
   public:
-    smoc_port_out<int> out;
+    smoc_port_out<test_ty> out;
   private:
     int count;
         
     void process() {
-      std::cout << name() << " generating token: ";
-    
-      out[0] = count % 2;
       
+      std::cout << name() << " generating token: ";
+      out[0] = count % 2;
       std::cout << out[0] << std::endl;
+
       count++;
     }
     
@@ -46,8 +50,10 @@ class m_source: public smoc_actor {
 
 class m_dispatcher : public smoc_actor 
 {
+
+  
   public:
-    smoc_port_in<int> in;
+    smoc_port_in<test_ty> in;
     smoc_port_out<int> out1;
     smoc_port_out<int> out2;
 
@@ -62,18 +68,19 @@ class m_dispatcher : public smoc_actor
     // methods
     
     void copy() {
-      //std::cout << name() << ": COPY called" << std::endl;
+      std::cout << name() << ": COPY called: ";
       temp = in[0];
+      std::cout  << temp << std::endl;
     }
     
     void process1() {
-      out1[0] = temp;
-      //out1[0] = in[0];
+      std::cout << name() << ": writing input to output channel 0" << std::endl;
+      out1[0] = in[0];
     }
     
     void process2() {
-      out2[0] = temp;
-      //out2[0] = in[0];
+      std::cout << name() << ": writing input to output channel 1" << std::endl;
+      out2[0] = in[0];
     }
 
     bool check() const {
@@ -85,23 +92,22 @@ class m_dispatcher : public smoc_actor
     m_dispatcher( sc_module_name name ) :
       smoc_actor( name, start )
     {
-      //start = (in(1) && field(*in.getValueAt(0), &tt_ib::type) ==  tt_ib::TT_PACKET_INFO) >> call(&m_dispatcher::copy) >> work;
-      
+      // use temprorary variable to buffer an input token before it will be transmitted
+      /*
+      start = (in(1) && field(*in.getValueAt(0), &tt_ib::type) ==  tt_ib::TT_PACKET_INFO) >> call(&m_dispatcher::copy) >> work;
       start = in(1) >> call(&m_dispatcher::copy) >> work;  
-      work  = ((var(temp) == 0) >> out1(1) >> call(&m_dispatcher::process1) >> start)
-            | ((var(temp) == 1) >> out2(1) >> call(&m_dispatcher::process2) >> start);
-      
-      /*
-      // Alternative mit gleicher Fuunktion
-      work  = !guard(&m_dispatcher::check) >> out1(1) >> call(&m_dispatcher::process1) >> start
-            | guard(&m_dispatcher::check) >> out2(1) >> call(&m_dispatcher::process2) >> start;
+      work  = (var(temp) == 0) >> out1(1) >> call(&m_dispatcher::process1) >> start
+            | (var(temp) == 1) >> out2(1) >> call(&m_dispatcher::process2) >> start;
       */
-
+      
+      // example with input message type checking
       /*
-      // Wäre schon -- geht aber nicht!
-      start = (in(1) && (in.getValueAt(0) == 0)) >> out1(1) >> call(&m_dispatcher::process1) >> start
+      start = (in(1) && (type(in.getValueAt(0)) == &typeid(int))) >> out1(1) >> call(&m_dispatcher::process1) >> start
             | (in(1) && (in.getValueAt(0) == 1)) >> out2(1) >> call(&m_dispatcher::process2) >> start;
       */
+      // atomic transitions checking for 0 or 1 value on input channel
+      start = (in(1) && (in.getValueAt(0) == 0)) >> out1(1) >> call(&m_dispatcher::process1) >> start
+            | (in(1) && (in.getValueAt(0) == 1)) >> out2(1) >> call(&m_dispatcher::process2) >> start;
     }
 };
 

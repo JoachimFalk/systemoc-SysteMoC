@@ -16,7 +16,7 @@ AM_LDFLAGS=						\
 	@SYSTEMC_LDFLAGS@				\
 	-L$(SYSTEMOC_BUILDDIR)
 
-noinst_PROGRAMS=    smoc2test atutest
+noinst_PROGRAMS=    smoc2test atutest  oneof
 
 AM_CPPFLAGS=-Wno-deprecated
 LIBS=-lsystemc -lsystemoc
@@ -29,6 +29,7 @@ smoc2test_SOURCES= \
 atutest_LDFLAGS = -lsystemoc
 atutest_DEPENDENCIES = $(SYSTEMOC_BUILDDIR)/libsystemoc.la
 atutest_SOURCES= \
-	smoc2test.cpp tt_ib.cpp 
+	atutest.cpp tt_ib.cpp ib_m_atu.cpp
 
-# ib_m_atu.cpp
+oneof_SOURCES= \
+	oneof.cpp
