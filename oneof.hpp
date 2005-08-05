@@ -4,21 +4,34 @@
 #define _INCLUDED_ONEOF_HPP
 
 #include <assert.h>
+#include <memory>
+#include <iostream>
+#include <typeinfo>
 
-struct void2_st {
-};
-struct void3_st {
-};
+struct void2_st {};
+
+static inline
+std::ostream &operator << (std::ostream &o, const void2_st &) { return o; }
+
+struct void3_st {};
+
+static inline
+std::ostream &operator << (std::ostream &o, const void3_st &) { return o; }
 
 #define _ONEOFDEBUG(x) do {} while (0)
 //#define _ONEOFDEBUG(x) std::cerr << x << std::endl
+
+#define NILTYPE NULL
+
+
+
 
 template <typename T1, typename T2 = void2_st, typename T3 = void3_st>
 class oneof {
   public:
     typedef oneof<T1,T2,T3> this_type;
   private:
-    int valid;
+    const std::type_info *valid;
     
     union {
       char e1[sizeof(T1)];
@@ -29,49 +42,100 @@ class oneof {
     template <typename T>
     void _construct(const T &e) { new(reinterpret_cast<T*>(&mem)) T(e); }
     template <typename T>
-    T &_element() { return *reinterpret_cast<T*>(&mem); }
+    T &_element() {
+      assert(valid == &typeid(T));
+      return *reinterpret_cast<T*>(&mem);
+    }
     template <typename T>
-    const T &_element() const { return *reinterpret_cast<const T*>(&mem); }
+    const T &_element() const {
+      assert(valid == &typeid(T));
+      return *reinterpret_cast<const T*>(&mem);
+    }
     template <typename T>
-    void _destroy() { _call_destructor(reinterpret_cast<T*>(&mem)); valid = 0; }
+    void _destroy() { _call_destructor(reinterpret_cast<T*>(&mem)); valid = NULL; }
     template <class T> void _call_destructor( T  *x ) { x->~T(); }
     template <typename T> void _call_destructor( T ) {}
   public:
-    oneof(): valid(0) { _ONEOFDEBUG("oneof()"); }
-    oneof(const this_type &x): valid(x.valid) { switch (x.valid) {
-      case 1: _ONEOFDEBUG("oneof(const oneof &) (T1)"); _construct<T1>(x); break;
-      case 2: _ONEOFDEBUG("oneof(const oneof &) (T2)"); _construct<T2>(x); break;
-      case 3: _ONEOFDEBUG("oneof(const oneof &) (T3)"); _construct<T3>(x); break;
-      default: _ONEOFDEBUG("oneof(const oneof &) ()"); assert(x.valid == 0); break;
-    } }
-    oneof(const T1 &e): valid(1) { _ONEOFDEBUG("oneof( const T1 & )"); _construct<T1>(e); }
-    oneof(const T2 &e): valid(2) { _ONEOFDEBUG("oneof( const T2 & )"); _construct<T2>(e); }
-    oneof(const T3 &e): valid(3) { _ONEOFDEBUG("oneof( const T3 & )"); _construct<T3>(e); }
+    oneof(): valid(NULL) { _ONEOFDEBUG("oneof()"); }
+    oneof(const this_type &x): valid(x.valid) {
+      if ( valid != NULL )
+        _ONEOFDEBUG("oneof(const oneof &) (" << valid->name() << ")");
+      else
+        _ONEOFDEBUG("oneof(const oneof &) ()");
+      if ( valid == &typeid(T1) )
+        _construct<T1>(x);
+      else if ( valid == &typeid(T2) )
+        _construct<T2>(x);
+      else if ( valid == &typeid(T3) )
+        _construct<T3>(x);
+      else
+        assert( valid == NULL );
+    }
+    oneof(const T1 &e): valid(&typeid(T1)) {
+      _ONEOFDEBUG("oneof( const " << valid->name() << " & )");
+      _construct<T1>(e);
+    }
+    oneof(const T2 &e): valid(&typeid(T2)) {
+      _ONEOFDEBUG("oneof( const " << valid->name() << " & )");
+      _construct<T2>(e);
+    }
+    oneof(const T3 &e): valid(&typeid(T3)) {
+      _ONEOFDEBUG("oneof( const " << valid->name() << " & )");
+      _construct<T3>(e);
+    }
     
     this_type &operator = (const T1 &x) {
-      reset(); _construct<T1>(x); valid = 1; return *this; }
+      reset(); _construct<T1>(x); valid = &typeid(T1);
+      return *this;
+    }
     this_type &operator = (const T2 &x) {
-      reset(); _construct<T2>(x); valid = 2; return *this; }
+      reset(); _construct<T2>(x); valid = &typeid(T2);
+      return *this;
+    }
     this_type &operator = (const T3 &x) {
-      reset(); _construct<T3>(x); valid = 3; return *this; }
+      reset(); _construct<T3>(x); valid = &typeid(T3);
+      return *this;
+    }
     
-    operator       T1 &()       { assert(valid == 1); return _element<T1>(); }
-    operator const T1 &() const { assert(valid == 1); return _element<T1>(); }
-    operator       T2 &()       { assert(valid == 2); return _element<T2>(); }
-    operator const T2 &() const { assert(valid == 2); return _element<T2>(); }
-    operator       T3 &()       { assert(valid == 3); return _element<T3>(); }
-    operator const T3 &() const { assert(valid == 3); return _element<T3>(); }
+    operator       T1 &()       { return _element<T1>(); }
+    operator const T1 &() const { return _element<T1>(); }
+    operator       T2 &()       { return _element<T2>(); }
+    operator const T2 &() const { return _element<T2>(); }
+    operator       T3 &()       { return _element<T3>(); }
+    operator const T3 &() const { return _element<T3>(); }
     
-    void reset() { switch (valid) {
-      case 1: _ONEOFDEBUG("oneof.reset() (T1)"); _destroy<T1>(); break;
-      case 2: _ONEOFDEBUG("oneof.reset() (T2)"); _destroy<T2>(); break;
-      case 3: _ONEOFDEBUG("oneof.reset() (T3)"); _destroy<T3>(); break;
-      default: _ONEOFDEBUG("oneof.reset() ()"); assert(valid == 0); break;
-    } }
+    void reset() {
+      if ( valid != NULL )
+        _ONEOFDEBUG("oneof.reset() (" << valid->name() << ")");
+      else
+        _ONEOFDEBUG("oneof.reset() ()");
+      if ( valid == &typeid(T1) )
+        _destroy<T1>();
+      else if ( valid == &typeid(T2) )
+        _destroy<T2>();
+      else if ( valid == &typeid(T3) )
+        _destroy<T3>();
+      else
+        assert(valid == NULL);
+    }
     
-    int type() const { return valid; }
+    const std::type_info &type() const { return *valid; }
     
     ~oneof() { reset(); }
 };
+
+template <typename T1, typename T2, typename T3>
+static inline
+std::ostream &operator << (std::ostream &output, const oneof<T1,T2,T3> &of) {
+  if ( &of.type() == &typeid(T1) )
+    output << "oneof(" << of.type().name() << ":" << static_cast<const T1 &>(of) << ")";
+  else if ( &of.type() == &typeid(T2) )
+    output << "oneof(" << of.type().name() << ":" << static_cast<const T2 &>(of) << ")";
+  else if ( &of.type() == &typeid(T3) )
+    output << "oneof(" << of.type().name() << ":" << static_cast<const T3 &>(of) << ")";
+  else
+    output << "oneof()";
+  return output;
+}
 
 #endif // _INCLUDED_ONEOF_HPP
