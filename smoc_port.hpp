@@ -138,40 +138,6 @@ protected:
   }
 };
 
-/*
-template <typename T>
-class smoc_port_storage_in
-  : public smoc_port_base<smoc_chan_in_if<T> > {
-public:
-  typedef T    data_type;
-private:
-  std::vector<T> s;
-protected:
-  void storageClear() { s.clear(); }
-  void storagePushBack( const data_type *in ) { s.push_back(*in); }
-  
-  smoc_port_storage_in( const char *n )
-    : smoc_port_base<smoc_chan_in_if<data_type> >(n) {}
-public:
-  data_type &operator []( size_t n )
-    { assert( n < s.size() ); return s[n]; }
-};
-
-class smoc_port_storage_in<void>
-  : public smoc_port_base<smoc_chan_in_if<void> > {
-public:
-  typedef void data_type;
-private:
-protected:
-  void storageClear() {}
-  void storagePushBack( const data_type *in ) { assert(in == NULL); }
-  
-  smoc_port_storage_in( const char *n )
-    : smoc_port_base<smoc_chan_in_if<data_type> >(n) {}
-public:
-};
-*/
-
 template <typename T>
 class smoc_port_in
 //: public smoc_port_storage_in<T> {
@@ -218,45 +184,6 @@ public:
   void operator () ( this_type& parent_ )
     { bind(parent_); }
 };
-
-/*
-template <typename T>
-class smoc_port_storage_out
-  : public smoc_port_base<smoc_chan_out_if<T> > {
-public:
-  typedef T    data_type;
-private:
-  std::vector<T> s;
-protected:
-  void              storageClear() { s.clear(); }
-  size_t            storageSize() { return s.size(); }
-  const data_type  *storageElement( size_t n ) { assert(n < storageSize() ); return &s[n]; }
-  
-  smoc_port_storage_out( const char *n )
-    : smoc_port_base<smoc_chan_out_if<data_type> >(n) {}
-public:
-  data_type &operator []( size_t n ) {
-    if ( n >= storageSize() )
-      s.resize(n+1);
-    return s[n];
-  };
-};
-
-class smoc_port_storage_out<void>
-  : public smoc_port_base<smoc_chan_out_if<void> > {
-public:
-  typedef void data_type;
-private:
-protected:
-  void              storageClear() {}
-  size_t            storageSize() { return UINT_MAX; }
-  const data_type  *storageElement( size_t n ) { return NULL; }
-
-  smoc_port_storage_out( const char *n )
-    : smoc_port_base<smoc_chan_out_if<data_type> >(n) {}
-public:
-};
-*/
 
 template <typename T>
 class smoc_port_out

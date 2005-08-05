@@ -179,7 +179,9 @@ typedef smoc_graph_dataflow<smoc_transact_node, smoc_fifo_kind, smoc_fifo>
           smoc_ddf_constraintset;
 typedef smoc_graph_dataflow<smoc_choice_node, smoc_fifo_kind, smoc_fifo>
           smoc_ndf_constraintset;
+/*
 typedef smoc_graph_dataflow<smoc_choice_node, smoc_rendezvous_kind, smoc_rendezvous>
           smoc_csp_constraintset;
+*/
 
 #endif // _INCLUDED_SMOC_GRAPH_TYPE_HPP

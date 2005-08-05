@@ -21,13 +21,6 @@ public:
   typedef smoc_opbase_node this_type;
 protected:
   template <typename T>
-  smoc_interface_action call(
-      void (T::*f)(),
-      const smoc_firing_state_ref &s ) {
-//    std::cerr << "call(f,s)" << std::endl;
-    return smoc_interface_action(s,smoc_func_call(this,f));
-  }
-  template <typename T>
   smoc_func_call call ( void (T::*f)() ) {
 //    std::cerr << "call(f)" << std::endl;
     return smoc_func_call(this,f);
@@ -41,27 +34,6 @@ protected:
   typename Expr::Var<T>::type var(T &x)
     { return Expr::var(x); }
   
-  template <typename T>
-  smoc_interface_action branch(
-      const smoc_firing_state &(T::*f)(),
-      const smoc_firing_state_list &sl ) {
-//    std::cerr << "branch(f,sl)" << std::endl;
-    return smoc_interface_action(sl,smoc_func_branch(this,f));
-  }
-  
-  smoc_firing_state Transact( const smoc_transition &t ) {
-//    std::cerr << "Transact" << std::endl;
-    return smoc_firing_state(t);
-  }
-  smoc_firing_state Choice( const smoc_transition &t ) {
-//    std::cerr << "Choice" << std::endl;
-    return smoc_firing_state(t);
-  }
-  smoc_firing_state Choice( const smoc_transition_list &tl ) {
-//    std::cerr << "Choice" << std::endl;
-    return smoc_firing_state(tl);
-  }
-
   virtual ~smoc_opbase_node() {}
 };
 
