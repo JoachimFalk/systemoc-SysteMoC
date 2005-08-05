@@ -55,9 +55,9 @@ class m_source: public smoc_actor {
       smoc_actor( name, start ),
       count(0)
     {
-      start = out1(1) >> call(&m_source::process1) >> start;
-      start = out2(1) >> call(&m_source::process2) >> start;
-      start = out3(1) >> call(&m_source::process3) >> start;
+      start = out1(1) >> call(&m_source::process1) >> start
+            | out2(1) >> call(&m_source::process2) >> start
+            | out3(1) >> call(&m_source::process3) >> start;
     }
 };
 
@@ -83,8 +83,8 @@ class m_sink: public smoc_actor {
     m_sink( sc_module_name name ) :
       smoc_actor( name, start )
     {
-      start = in1(1) >> call(&m_sink::print1) >> start;
-      start = in2(1) >> call(&m_sink::print2) >> start;
+      start = in1(1) >> call(&m_sink::print1) >> start
+            | in2(1) >> call(&m_sink::print2) >> start;
     }
 };
 
@@ -100,6 +100,8 @@ class m_top
       m_sink        &snk = registerNode(new m_sink("snk"));
       
       ib_m_atu      &atu = registerNode(new ib_m_atu("atu",std::cout));
+
+      assert( dynamic_cast<smoc_root_node *>(&atu) != NULL );
       
       connectNodePorts( src.out1, atu.in_rq2atu );
       connectNodePorts( src.out2, atu.in_tq2atu );

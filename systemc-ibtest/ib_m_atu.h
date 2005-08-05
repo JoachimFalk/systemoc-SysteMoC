@@ -55,7 +55,7 @@ typedef oneof<tt_raw_header, tt_data>                         ct_bthgen2atu;
  * modules.
  */
 
-class ib_m_atu : smoc_actor {
+class ib_m_atu : public smoc_actor {
 
   public:
     
