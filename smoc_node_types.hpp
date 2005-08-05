@@ -17,13 +17,13 @@ class smoc_actor
         sc_module(name) {}
     smoc_actor(const smoc_firing_state &s)
       : smoc_root_node(s),
-        sc_module( sc_gen_unique_name("smoc_choice_active_node") ) {}
+        sc_module( sc_gen_unique_name("smoc_actor") ) {}
     explicit smoc_actor( sc_module_name name, smoc_firing_state &s )
       : smoc_root_node(s),
         sc_module(name) {}
     smoc_actor(smoc_firing_state &s)
       : smoc_root_node(s),
-        sc_module( sc_gen_unique_name("smoc_choice_active_node") ) {}
+        sc_module( sc_gen_unique_name("smoc_actor") ) {}
   public:
 #ifndef __SCFE__
     sc_module *myModule() { return this; }
