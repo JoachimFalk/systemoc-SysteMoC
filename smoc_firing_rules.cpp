@@ -12,10 +12,10 @@ smoc_firing_state::smoc_firing_state( const smoc_transition_list &tl )
 smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl) {
   if ( fr != NULL )
     fr->delRef(this);
-  assert( fr == NULL );
+  assert( fr == NULL && rs == NULL );
+  rs = new resolved_state_ty();
   smoc_firing_rules *x = new smoc_firing_rules(this);
   assert( x == fr );
-  rs = new resolved_state_ty();
   for ( smoc_transition_list::const_iterator titer = tl.begin();
         titer != tl.end();
         ++titer ) {
@@ -58,7 +58,7 @@ void smoc_firing_rules::delRef( smoc_firing_state *s ) {
   references_ty::iterator iter = references.find(s);
   
   assert( iter != references.end() && s->fr == this );
-  references.erase( iter ); s->fr = NULL;
+  references.erase( iter ); s->fr = NULL; s->rs = NULL;
   if ( references.empty() )
     delete this;
 }
@@ -80,24 +80,26 @@ void smoc_firing_rules::resolve() {
 }
 
 void smoc_firing_rules::unify( smoc_firing_rules *fr ) {
-  smoc_firing_rules *src, *dest;
-  
-  if ( fr->references.size() < references.size() ) {
-    dest = fr; src = this;
-  } else {
-    dest = this; src = fr;
+  if ( this != fr ) {
+    smoc_firing_rules *src, *dest;
+    
+    if ( fr->references.size() < references.size() ) {
+      dest = fr; src = this;
+    } else {
+      dest = this; src = fr;
+    }
+    for ( references_ty::iterator iter = src->references.begin();
+          iter != src->references.end();
+          ++iter )
+      dest->_addRef(*iter, src);
+    src->references.clear();
+    dest->resolved_states.splice(
+      dest->resolved_states.begin(), src->resolved_states );
+    dest->unresolved_states.splice(
+      dest->unresolved_states.begin(), src->unresolved_states );
+    delete src;
+    dest->resolve();
   }
-  for ( references_ty::iterator iter = src->references.begin();
-        iter != src->references.end();
-        ++iter )
-    dest->_addRef(*iter, src);
-  src->references.clear();
-  dest->resolved_states.splice(
-    dest->resolved_states.begin(), src->resolved_states );
-  dest->unresolved_states.splice(
-    dest->unresolved_states.begin(), src->unresolved_states );
-  delete src;
-  dest->resolve();
 }
 
 void smoc_firing_state::finalise( smoc_root_node *actor ) const {

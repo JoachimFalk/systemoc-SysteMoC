@@ -29,7 +29,7 @@ public:
 template<typename T>
 class DToken {
 public:
-  typedef T       value_type;
+  typedef const T value_type;
   typedef DToken  this_type;
   
   friend class Value<this_type>;
@@ -43,7 +43,7 @@ public:
 
 template<typename T>
 struct Value<DToken<T> > {
-  typedef T result_type;
+  typedef const T result_type;
   
   static inline
   result_type apply(const DToken<T> &e)

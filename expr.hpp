@@ -787,7 +787,10 @@ DOP(LOr,||)
  */
 
 typedef enum {
-  DOpUnNot
+  DOpUnLNot,
+  DOpUnBNot,
+  DOpUnRef,
+  DOpUnDeRef
 } OpUnT;
 
 template<class A, OpUnT Op>
@@ -796,7 +799,10 @@ class DUnOp;
 static inline
 std::ostream &operator << (std::ostream &o, const OpUnT &op ) {
   switch (op) {
-    case DOpUnNot:       o << "DOpUnNot"; break;
+    case DOpUnLNot:      o << "DOpUnLNot"; break;
+    case DOpUnBNot:      o << "DOpUnBNot"; break;
+    case DOpUnRef:       o << "DOpUnRef"; break;
+    case DOpUnDeRef:     o << "DOpUnDeRef"; break;
     default:             o << "???"; break;
   }
   return o;
@@ -893,18 +899,21 @@ static inline                                                   \
 typename DOpUnExecute<A,name>::result_type                      \
 operator op (const D<A> &a) {                                   \
   return DOpUnExecute<A,name>::apply(a.getExpr());              \
-}                                                               \
+} /*
 template<typename TA>                                           \
 static inline                                                   \
 typename DOpUnExecute<DLiteral<TA>,name>::result_type           \
 operator op (const TA &a) {                                     \
   return DOpUnExecute<DLiteral<TA>,name>::                      \
     apply(DLiteral<TA>(a));                                     \
-}
+} */
 
 #define DOP(name,op) DUNOP(DOpUn##name,op) DOPUN(DOpUn##name,op)
 
-DOP(Not,!)
+DOP(LNot,!)
+DOP(BNot,~)
+DOP(Ref,&)
+DOP(DeRef,*)
 
 #undef DOP
 #undef DOPUN
