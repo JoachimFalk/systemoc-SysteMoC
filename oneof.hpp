@@ -58,22 +58,31 @@ class oneof {
   public:
     oneof(): valid(NULL) { _ONEOFDEBUG("oneof()"); }
     oneof(const this_type &x): valid(x.valid) {
-      if ( valid == &typeid(T1) ) {
-        _ONEOFDEBUG("oneof(const oneof &) (T1)"); _construct<T1>(x);
-      } else if ( valid == &typeid(T2) ) {
-        _ONEOFDEBUG("oneof(const oneof &) (T2)"); _construct<T2>(x);
-      } else if ( valid == &typeid(T3) ) {
-        _ONEOFDEBUG("oneof(const oneof &) (T3)"); _construct<T3>(x);
-      } else {
-        _ONEOFDEBUG("oneof(const oneof &) ()"); assert(x.valid == NULL);
-      }
+      if ( valid != NULL )
+        _ONEOFDEBUG("oneof(const oneof &) (" << valid->name() << ")");
+      else
+        _ONEOFDEBUG("oneof(const oneof &) ()");
+      if ( valid == &typeid(T1) )
+        _construct<T1>(x);
+      else if ( valid == &typeid(T2) )
+        _construct<T2>(x);
+      else if ( valid == &typeid(T3) )
+        _construct<T3>(x);
+      else
+        assert( valid == NULL );
     }
-    oneof(const T1 &e): valid(&typeid(T1))
-      { _ONEOFDEBUG("oneof( const T1 & )"); _construct<T1>(e); }
-    oneof(const T2 &e): valid(&typeid(T2))
-      { _ONEOFDEBUG("oneof( const T2 & )"); _construct<T2>(e); }
-    oneof(const T3 &e): valid(&typeid(T3))
-      { _ONEOFDEBUG("oneof( const T3 & )"); _construct<T3>(e); }
+    oneof(const T1 &e): valid(&typeid(T1)) {
+      _ONEOFDEBUG("oneof( const " << valid->name() << " & )");
+      _construct<T1>(e);
+    }
+    oneof(const T2 &e): valid(&typeid(T2)) {
+      _ONEOFDEBUG("oneof( const " << valid->name() << " & )");
+      _construct<T2>(e);
+    }
+    oneof(const T3 &e): valid(&typeid(T3)) {
+      _ONEOFDEBUG("oneof( const " << valid->name() << " & )");
+      _construct<T3>(e);
+    }
     
     this_type &operator = (const T1 &x) {
       reset(); _construct<T1>(x); valid = &typeid(T1);
@@ -96,15 +105,18 @@ class oneof {
     operator const T3 &() const { return _element<T3>(); }
     
     void reset() {
-      if ( valid == &typeid(T1) ) {
-        _ONEOFDEBUG("oneof.reset() (T1)"); _destroy<T1>();
-      } else if ( valid == &typeid(T2) ) {
-        _ONEOFDEBUG("oneof.reset() (T2)"); _destroy<T2>();
-      } else if ( valid == &typeid(T3) ) {
-        _ONEOFDEBUG("oneof.reset() (T3)"); _destroy<T3>();
-      } else {
-        _ONEOFDEBUG("oneof.reset() ()"); assert(valid == NULL);
-      }
+      if ( valid != NULL )
+        _ONEOFDEBUG("oneof.reset() (" << valid->name() << ")");
+      else
+        _ONEOFDEBUG("oneof.reset() ()");
+      if ( valid == &typeid(T1) )
+        _destroy<T1>();
+      else if ( valid == &typeid(T2) )
+        _destroy<T2>();
+      else if ( valid == &typeid(T3) )
+        _destroy<T3>();
+      else
+        assert(valid == NULL);
     }
     
     const std::type_info &type() const { return *valid; }
@@ -115,15 +127,14 @@ class oneof {
 template <typename T1, typename T2, typename T3>
 static inline
 std::ostream &operator << (std::ostream &output, const oneof<T1,T2,T3> &of) {
-  if ( &of.type() == &typeid(T1) ) {
-    output << "oneof(T1:" << static_cast<const T1 &>(of) << ")";
-  } else if ( &of.type() == &typeid(T2) ) {
-    output << "oneof(T2:" << static_cast<const T2 &>(of) << ")";
-  } else if ( &of.type() == &typeid(T3) ) {
-    output << "oneof(T3:" << static_cast<const T3 &>(of) << ")";
-  } else {
+  if ( &of.type() == &typeid(T1) )
+    output << "oneof(" << of.type().name() << ":" << static_cast<const T1 &>(of) << ")";
+  else if ( &of.type() == &typeid(T2) )
+    output << "oneof(" << of.type().name() << ":" << static_cast<const T2 &>(of) << ")";
+  else if ( &of.type() == &typeid(T3) )
+    output << "oneof(" << of.type().name() << ":" << static_cast<const T3 &>(of) << ")";
+  else
     output << "oneof()";
-  }
   return output;
 }
 
