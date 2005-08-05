@@ -206,8 +206,11 @@ public:
   operator smoc_firing_state() const
     { return s; }
   
-  bool isResolved() const
-    { assert( s.type() == 1 || s.type() == 2 ); return s.type() == 2; }
+  bool isResolved() const {
+    assert( s.type() == typeid(smoc_firing_state *) ||
+            s.type() == typeid(smoc_firing_state)      );
+    return s.type() == typeid(smoc_firing_state);
+  }
 };
 
 static inline
