@@ -107,9 +107,9 @@ class oneof {
   public:
     oneof(): valid(smoc_detail::oneofTypeid<this_type,NILTYPE>::type())
       { _ONEOFDEBUG("oneof()"); }
-    oneof(const this_type &x): valid(x.valid) {
-      if ( valid != smoc_detail::oneofTypeid<this_type,NILTYPE>::type() )
-        _ONEOFDEBUG("oneof(const oneof &) (T" << valid << ")");
+    oneof(const this_type &x): valid(smoc_detail::oneofTypeid<this_type,NILTYPE>::type()) {
+      if ( x.valid != smoc_detail::oneofTypeid<this_type,NILTYPE>::type() )
+        _ONEOFDEBUG("oneof(const oneof &) (T" << x.valid << ")");
       else
         _ONEOFDEBUG("oneof(const oneof &) ()");
       if ( isType<T1>(x) )
