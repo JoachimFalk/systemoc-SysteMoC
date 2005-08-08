@@ -160,10 +160,10 @@ smoc_firing_types::transition_ty::execute() {
   resolved_state_ty *retval = NULL;
   
   ap.commSetup();
-  if ( f.type() == typeid(smoc_func_diverge) ) {
+  if ( isType<smoc_func_diverge>(f) ) {
     const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
     retval = &ns.getResolvedState();
-  } else if ( f.type() == typeid(smoc_func_branch) ) {
+  } else if ( isType<smoc_func_branch>(f) ) {
     const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
     statelist_ty::const_iterator iter = sl.begin();
     
@@ -173,10 +173,10 @@ smoc_firing_types::transition_ty::execute() {
     assert( iter != sl.end() );
     retval = &ns.getResolvedState();
   } else {
-    if ( f.type() == typeid(smoc_func_call) )
+    if ( isType<smoc_func_call>(f) )
       static_cast<smoc_func_call &>(f)();
     else
-      assert( &f.type() == NILTYPE);
+      assert( isType<NILTYPE>(f) );
     assert( sl.size() == 1 );
     retval = static_cast<resolved_state_ty *>(sl.front());
   }
