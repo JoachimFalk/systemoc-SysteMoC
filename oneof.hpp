@@ -21,15 +21,16 @@ std::ostream &operator << (std::ostream &o, const void3_st &) { return o; }
 #define _ONEOFDEBUG(x) do {} while (0)
 //#define _ONEOFDEBUG(x) std::cerr << x << std::endl
 
-#define NILTYPE NULL
-
-
-
+template <typename, typename, typename, typename>
+struct checkType;
 
 template <typename T1, typename T2 = void2_st, typename T3 = void3_st>
 class oneof {
   public:
     typedef oneof<T1,T2,T3> this_type;
+    
+    template <typename, typename, typename, typename>
+    friend struct checkType;
   private:
     const std::type_info *valid;
     
@@ -123,6 +124,40 @@ class oneof {
     
     ~oneof() { reset(); }
 };
+
+struct NILTYPE;
+
+template <typename T, typename T2, typename T3>
+struct checkType<T,T,T2,T3> {
+  static
+  bool check( const oneof<T,T2,T3> &of )
+    { return of.valid == &typeid(T); }
+};
+
+template <typename T, typename T1, typename T3>
+struct checkType<T,T1,T,T3> {
+  static
+  bool check( const oneof<T1,T,T3> &of )
+    { return of.valid == &typeid(T); }
+};
+
+template <typename T, typename T1, typename T2>
+struct checkType<T,T1,T2,T> {
+  static
+  bool check( const oneof<T1,T2,T> &of )
+    { return of.valid == &typeid(T); }
+};
+
+template <typename T1, typename T2, typename T3>
+struct checkType<NILTYPE,T1,T2,T3> {
+  static
+  bool check( const oneof<T1,T2,T3> &of )
+    { return of.valid == NULL; }
+};
+
+template <typename T, typename T1, typename T2, typename T3>
+bool isType( const oneof<T1,T2,T3> &of )
+  { return checkType<T,T1,T2,T3>::check(of); }
 
 template <typename T1, typename T2, typename T3>
 static inline
