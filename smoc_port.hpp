@@ -158,6 +158,7 @@ private:
       (*this)->commSetupIn(req);
   }
   void commExec() { (*this)->commExecIn(*this); }
+  void reset() { smoc_ring_access<const T>::reset(); }
 public:
 //void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
 //public:
@@ -205,6 +206,7 @@ private:
       (*this)->commSetupOut(req);
   }
   void commExec() { (*this)->commExecOut(*this); }
+  void reset() { smoc_ring_access<T>::reset(); }
 public:
 //  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
 //public:

@@ -93,7 +93,7 @@ public:
   virtual void   addPortIf(iface_in_type *_i) = 0;
   virtual size_t committedOutCount() const = 0;
   virtual smoc_ring_access<const T> commSetupIn(size_t req) = 0;
-  virtual void commExecIn(smoc_ring_access<const T> &) = 0;
+  virtual void commExecIn(const smoc_ring_access<const T> &) = 0;
 protected:  
   // constructor
   smoc_chan_in_if() {}
@@ -117,7 +117,7 @@ public:
   virtual void   addPortIf(iface_out_type *_i) = 0;
   virtual size_t committedInCount() const = 0;
   virtual smoc_ring_access<T> commSetupOut(size_t req) = 0;
-  virtual void commExecOut(smoc_ring_access<T> &) = 0;
+  virtual void commExecOut(const smoc_ring_access<T> &) = 0;
 protected:
   // constructor
   smoc_chan_out_if() {}

@@ -18,7 +18,7 @@ public:
   template <class E> friend class Expr::Value;
   template <class E> friend class Expr::CommSetup;
   template <class E> friend class Expr::CommExec;
-  
+
   typedef smoc_root_port  this_type;
 private:
   bool    uplevel;
@@ -28,6 +28,7 @@ protected:
   
   virtual void commSetup(size_t req) = 0;
   virtual void commExec()            = 0;
+  virtual void reset()               = 0;
 public:
   static const char* const kind_string;
   virtual const char* kind() const
