@@ -17,7 +17,7 @@
 #include <oneof.hpp>
 
 using Expr::field;
-using Expr::type;
+using Expr::isType;
 
 
 typedef oneof<int, char *> test_ty;
@@ -102,7 +102,7 @@ class m_dispatcher : public smoc_actor
       
       // example with input message type checking
       /*
-      start = (in(1) && (type(in.getValueAt(0)) == &typeid(int))) >> out1(1) >> call(&m_dispatcher::process1) >> start
+      start = (in(1) && (isType<int>(in.getValueAt(0))))) >> out1(1) >> call(&m_dispatcher::process1) >> start
             | (in(1) && (in.getValueAt(0) == 1)) >> out2(1) >> call(&m_dispatcher::process2) >> start;
       */
       // atomic transitions checking for 0 or 1 value on input channel

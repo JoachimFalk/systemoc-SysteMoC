@@ -43,6 +43,8 @@
 // Oneof
 #include <oneof.hpp>
 
+using Expr::isType;
+
 // channel types
 typedef oneof<tt_notification, tt_bo_notification, tt_data>   ct_queue2atu;
 typedef oneof<tt_raw_header, tt_data>                         ct_bthgen2atu;
@@ -124,32 +126,32 @@ class ib_m_atu : public smoc_actor {
 // ********************************************************************
 
       start = ( in_rq2atu(1)
-                && type( in_rq2atu.getValueAt(0) ) == &typeid(tt_data) )
+                && isType<tt_data>( in_rq2atu.getValueAt(0) ) )
               >> out_atu2mstore(1)
               >> call(&ib_m_atu::process_rq_ttdata)
               >> start
             | ( in_rq2atu(1)
-                && type( in_rq2atu.getValueAt(0) ) != &typeid(tt_data) )
+                && !isType<tt_data>( in_rq2atu.getValueAt(0) ) )
               >> out_atu2mstore(1)
               >> call(&ib_m_atu::forward_rq_mstore)
               >> start
             | ( in_tq2atu(1)
-                && type( in_tq2atu.getValueAt(0) ) == &typeid(tt_data) )
+                && isType<tt_data>( in_tq2atu.getValueAt(0) ) )
               >> out_atu2mstore(1)
               >> call(&ib_m_atu::process_tq_ttdata)
               >> start
             | ( in_rq2atu(1)
-                && type( in_tq2atu.getValueAt(0) ) != &typeid(tt_data) )
+                && !isType<tt_data>( in_tq2atu.getValueAt(0) ) )
               >> out_atu2mstore(1)
               >> call(&ib_m_atu::forward_tq_mstore)
               >> start
             | ( in_bth_grh_gen2atu(1)
-                && type( in_bth_grh_gen2atu.getValueAt(0) ) == &typeid(tt_data) )
+                && isType<tt_data>( in_bth_grh_gen2atu.getValueAt(0) ) )
               >> out_atu2mfetch(1)
               >> call(&ib_m_atu::process_bthgen_ttdata)
               >> start
             | ( in_bth_grh_gen2atu(1)
-                && type( in_bth_grh_gen2atu.getValueAt(0) ) != &typeid(tt_data) )
+                && !isType<tt_data>( in_bth_grh_gen2atu.getValueAt(0) ) )
               >> out_atu2mfetch(1)
               >> call(&ib_m_atu::forward_mfetch)
               >> start;
