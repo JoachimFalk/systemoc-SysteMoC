@@ -71,9 +71,10 @@ pkginclude_HEADERS =			\
 	hscd_moc.hpp			\
 	hscd_structure.hpp		\
 	hscd_graph_type.hpp		\
+	oneof.hpp			\
 	commondefs.h
 
-noinst_HEADERS=	oneof.hpp
+# noinst_HEADERS=	oneof.hpp
 
 libsystemoc_CH_LTOBJS=			\
 	$(hscd_op_hpp_CH_LTOBJS)	\
