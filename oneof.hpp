@@ -46,21 +46,30 @@ namespace smoc_detail {
   template <typename T, typename T2, typename T3>
   struct oneofTypeid<oneof<T,T2,T3>,T>
     { static oneof_typeid type() { return 1; } };
+  template <typename T, typename T2, typename T3>
+  struct oneofTypeid<const oneof<T,T2,T3>,T>
+    { static oneof_typeid type() { return 1; } };
 
   template <typename T, typename T1, typename T3>
   struct oneofTypeid<oneof<T1,T,T3>,T>
+    { static oneof_typeid type() { return 2; } };
+  template <typename T, typename T1, typename T3>
+  struct oneofTypeid<const oneof<T1,T,T3>,T>
     { static oneof_typeid type() { return 2; } };
 
   template <typename T, typename T1, typename T2>
   struct oneofTypeid<oneof<T1,T2,T>,T>
     { static oneof_typeid type() { return 3; } };
+  template <typename T, typename T1, typename T2>
+  struct oneofTypeid<const oneof<T1,T2,T>,T>
+    { static oneof_typeid type() { return 3; } };
 
   template <typename T1, typename T2, typename T3>
   struct oneofTypeid<oneof<T1,T2,T3>,NILTYPE>
     { static oneof_typeid type() { return 0; } };
-
-  template <typename, typename, typename, typename>
-  struct checkType;
+  template <typename T1, typename T2, typename T3>
+  struct oneofTypeid<const oneof<T1,T2,T3>,NILTYPE>
+    { static oneof_typeid type() { return 0; } };
 
 };
 
@@ -68,9 +77,6 @@ template <typename T1, typename T2, typename T3>
 class oneof {
   public:
     typedef oneof<T1,T2,T3> this_type;
-    
-    template <typename, typename, typename, typename>
-    friend struct smoc_detail::checkType;
   private:
     oneof_typeid valid;
     
