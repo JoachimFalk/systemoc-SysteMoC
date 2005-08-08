@@ -57,10 +57,10 @@ protected:
   
   const smoc_firing_state &schedule() {
     cset_ty::nodes_ty nodes = c->getNodes();
-    transition_node_list_ty tln;
+    bool again;
     
     do {
-      tln.clear();
+      again = false;
       for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter ) {
@@ -68,17 +68,14 @@ protected:
         resolved_state_ty   &rs = s.getResolvedState();
         maybe_transition_ty  mt = rs.findEnabledTransition();
         
-        if ( mt.first )
-          tln.push_front(transition_node_ty(mt.second,*iter));
+        if ( mt.first ) {
+          again = true;
+          s.execute(mt.second); // execute transition
+        }
       }
       // dump(nodes);
-      for ( transition_node_list_ty::const_iterator iter = tln.begin();
-            iter != tln.end();
-            ++iter ) {
-        iter->second->currentState().execute(iter->first);
-      }
       wait(SC_ZERO_TIME);
-    } while (!tln.empty());
+    } while (again);
     s = smoc_activation_pattern() >> diverge(&smoc_scheduler_ndf::schedule);
     return s;
   }
