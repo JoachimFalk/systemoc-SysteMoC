@@ -162,14 +162,16 @@ bool isType( const oneof<T1,T2,T3> &of )
 template <typename T1, typename T2, typename T3>
 static inline
 std::ostream &operator << (std::ostream &output, const oneof<T1,T2,T3> &of) {
-  if ( &of.type() == &typeid(T1) )
-    output << "oneof(" << of.type().name() << ":" << static_cast<const T1 &>(of) << ")";
-  else if ( &of.type() == &typeid(T2) )
-    output << "oneof(" << of.type().name() << ":" << static_cast<const T2 &>(of) << ")";
-  else if ( &of.type() == &typeid(T3) )
-    output << "oneof(" << of.type().name() << ":" << static_cast<const T3 &>(of) << ")";
-  else
+  if ( isType<T1>(of) ) {
+    output << "oneof(" << typeid(T1).name() << ":" << static_cast<const T1 &>(of) << ")";
+  } else if ( isType<T2>(of) ) {
+    output << "oneof(" << typeid(T2).name() << ":" << static_cast<const T2 &>(of) << ")";
+  } else if ( isType<T3>(of) ) {
+    output << "oneof(" << typeid(T3).name() << ":" << static_cast<const T3 &>(of) << ")";
+  } else {
+    assert( isType<NILTYPE>(of) );
     output << "oneof()";
+  }
   return output;
 }
 
