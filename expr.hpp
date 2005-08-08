@@ -7,9 +7,10 @@
 #include <cmath>
 
 #include <list>
-#include <typeinfo>
 
 #include <boost/intrusive_ptr.hpp>
+
+#include <oneof.hpp>
 
 /****************************************************************************
  * dexpr.h
@@ -955,22 +956,27 @@ DOP(DeRef,*)
 template<class A>
 class DUnOp<A,DOpUnType> {
 public:
-  typedef DUnOp<A,DOpUnType>    this_type;
-  //typedef const std::type_info *value_type;
-  typedef const std::type_info *value_type;
+  typedef DUnOp<A,DOpUnType>  this_type;
+  typedef oneof_typeid        value_type;
   
   A a;
   
   value_type value() const
-    { return &(Value<A>::apply(a).type()); }
+    { return Value<A>::apply(a).type(); }
 public:
   DUnOp(const A& a): a(a) {}
 };
 
-template <class A>
-typename DOpUnExecute<A,DOpUnType>::result_type
-type(const D<A> &a)
-  { return DOpUnExecute<A,DOpUnType>::apply(a.getExpr()); }
+template <class TO, class A>
+D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<oneof_typeid>,DOpBinEq> >
+isType(const D<A> &a) {
+  return D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<oneof_typeid>,DOpBinEq> >(
+    DBinOp<DUnOp<A,DOpUnType>,DLiteral<oneof_typeid>,DOpBinEq>(
+      DUnOp<A,DOpUnType>(a.getExpr()),
+      DLiteral<oneof_typeid>(smoc_detail::oneofTypeid<typename A::value_type,TO>::type())
+    )
+  );
+}
 
 void dump(const PASTNode &node);
 
