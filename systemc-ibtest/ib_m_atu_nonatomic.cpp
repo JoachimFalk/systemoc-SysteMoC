@@ -17,53 +17,8 @@
  * $log$
  ******************************************************************************/
 
-#include "ib_m_atu.h"
+#include "ib_m_atu_nonatomic.h"
 using std::endl;
-
-
-/**
- * Forward incoming messages from BTH/GRHGen module to MFETCH
- */
-void ib_m_atu::forward_mfetch() 
-{
-  std::cout << "ATU> forwarding BTH/GER Gen message to MFETCH" << std::endl;
-  out_atu2mfetch[0] = in_bth_grh_gen2atu[0];
-}
-
-
-/**
- * Forward incoming messages from RQ module to MSTORE
- */
-void ib_m_atu::forward_rq_mstore() 
-{
-  std::cout << "ATU> forwarding RQ message to MSTORE" << std::endl;
-  out_atu2mstore[0] = in_rq2atu[0];
-}
-
-
-/**
- * Forward incoming messages from TQ module to MSTORE
- */
-void ib_m_atu::forward_tq_mstore() 
-{
-  std::cout << "ATU> forwarding TQ message to MSTORE" << std::endl;
-  out_atu2mstore[0] = in_tq2atu[0];
-}
-
-/**
- *  Pseudo Guard
- */
-bool ib_m_atu::rq_guard() const {
-  std::cout << "ATU> RQ-GUARD called!" << std::endl;
-  return true;
-}
-
-
-
-
-
-
-
 
 
 /**
