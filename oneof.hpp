@@ -24,6 +24,16 @@ namespace smoc_detail {
 
   static inline
   std::ostream &operator << (std::ostream &o, const void3_st &) { return o; }
+  
+  struct void4_st {};
+
+  static inline
+  std::ostream &operator << (std::ostream &o, const void4_st &) { return o; }
+
+  struct void5_st {};
+
+  static inline
+  std::ostream &operator << (std::ostream &o, const void5_st &) { return o; }
 
 };
 
@@ -32,51 +42,66 @@ struct NILTYPE;
 template <
   typename T1,
   typename T2 = smoc_detail::void2_st,
-  typename T3 = smoc_detail::void3_st >
+  typename T3 = smoc_detail::void3_st,
+  typename T4 = smoc_detail::void4_st,
+  typename T5 = smoc_detail::void5_st >
 class oneof;
 
-template <typename T, typename T1, typename T2, typename T3>
-bool isType( const oneof<T1,T2,T3> &of );
+template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5>
+bool isType( const oneof<T1,T2,T3,T4,T5> &of );
 
 namespace smoc_detail {
 
   template <typename, typename>
   struct oneofTypeid;
 
-  template <typename T, typename T2, typename T3>
-  struct oneofTypeid<oneof<T,T2,T3>,T>
+  template <typename T, typename T2, typename T3, typename T4, typename T5>
+  struct oneofTypeid<oneof<T,T2,T3,T4,T5>,T>
     { static oneof_typeid type() { return 1; } };
-  template <typename T, typename T2, typename T3>
-  struct oneofTypeid<const oneof<T,T2,T3>,T>
+  template <typename T, typename T2, typename T3, typename T4, typename T5>
+  struct oneofTypeid<const oneof<T,T2,T3,T4,T5>,T>
     { static oneof_typeid type() { return 1; } };
 
-  template <typename T, typename T1, typename T3>
-  struct oneofTypeid<oneof<T1,T,T3>,T>
+  template <typename T, typename T1, typename T3, typename T4, typename T5>
+  struct oneofTypeid<oneof<T1,T,T3,T4,T5>,T>
     { static oneof_typeid type() { return 2; } };
-  template <typename T, typename T1, typename T3>
-  struct oneofTypeid<const oneof<T1,T,T3>,T>
+  template <typename T, typename T1, typename T3, typename T4, typename T5>
+  struct oneofTypeid<const oneof<T1,T,T3,T4,T5>,T>
     { static oneof_typeid type() { return 2; } };
 
-  template <typename T, typename T1, typename T2>
-  struct oneofTypeid<oneof<T1,T2,T>,T>
+  template <typename T, typename T1, typename T2, typename T4, typename T5>
+  struct oneofTypeid<oneof<T1,T2,T,T4,T5>,T>
     { static oneof_typeid type() { return 3; } };
-  template <typename T, typename T1, typename T2>
-  struct oneofTypeid<const oneof<T1,T2,T>,T>
+  template <typename T, typename T1, typename T2, typename T4, typename T5>
+  struct oneofTypeid<const oneof<T1,T2,T,T4,T5>,T>
     { static oneof_typeid type() { return 3; } };
 
-  template <typename T1, typename T2, typename T3>
-  struct oneofTypeid<oneof<T1,T2,T3>,NILTYPE>
-    { static oneof_typeid type() { return 0; } };
-  template <typename T1, typename T2, typename T3>
-  struct oneofTypeid<const oneof<T1,T2,T3>,NILTYPE>
-    { static oneof_typeid type() { return 0; } };
+  template <typename T, typename T1, typename T2, typename T3, typename T5>
+  struct oneofTypeid<oneof<T1,T2,T3,T,T5>,T>
+    { static oneof_typeid type() { return 4; } };
+  template <typename T, typename T1, typename T2, typename T3, typename T5>
+  struct oneofTypeid<const oneof<T1,T2,T3,T,T5>,T>
+    { static oneof_typeid type() { return 4; } };
 
+  template <typename T, typename T1, typename T2, typename T3, typename T4>
+  struct oneofTypeid<oneof<T1,T2,T3,T4,T>,T>
+    { static oneof_typeid type() { return 5; } };
+  template <typename T, typename T1, typename T2, typename T3, typename T4>
+  struct oneofTypeid<const oneof<T1,T2,T3,T4,T>,T>
+    { static oneof_typeid type() { return 5; } };
+
+  template <typename T1, typename T2, typename T3, typename T4, typename T5>
+  struct oneofTypeid<oneof<T1,T2,T3,T4,T5>,NILTYPE>
+    { static oneof_typeid type() { return 0; } };
+  template <typename T1, typename T2, typename T3, typename T4, typename T5>
+  struct oneofTypeid<const oneof<T1,T2,T3,T4,T5>,NILTYPE>
+    { static oneof_typeid type() { return 0; } };
 };
 
-template <typename T1, typename T2, typename T3>
+template <typename T1, typename T2, typename T3, typename T4, typename T5>
 class oneof {
   public:
-    typedef oneof<T1,T2,T3> this_type;
+    typedef oneof<T1,T2,T3,T4,T5> this_type;
   private:
     oneof_typeid valid;
     
@@ -84,6 +109,8 @@ class oneof {
       char e1[sizeof(T1)];
       char e2[sizeof(T2)];
       char e3[sizeof(T3)];
+      char e4[sizeof(T4)];
+      char e5[sizeof(T5)];
     } mem;
     
     template <typename T>
@@ -124,6 +151,10 @@ class oneof {
         _construct<T2>(x);
       else if ( isType<T3>(x) )
         _construct<T3>(x);
+      else if ( isType<T4>(x) )
+        _construct<T4>(x);
+      else if ( isType<T5>(x) )
+        _construct<T5>(x);
       else
         assert( isType<NILTYPE>(x) );
     }
@@ -139,6 +170,14 @@ class oneof {
       _ONEOFDEBUG("oneof( const " << typeid(T3).name() << " & )");
       _construct<T3>(e);
     }
+    oneof(const T4 &e): valid(smoc_detail::oneofTypeid<this_type,NILTYPE>::type()) {
+      _ONEOFDEBUG("oneof( const " << typeid(T4).name() << " & )");
+      _construct<T4>(e);
+    }
+    oneof(const T5 &e): valid(smoc_detail::oneofTypeid<this_type,NILTYPE>::type()) {
+      _ONEOFDEBUG("oneof( const " << typeid(T5).name() << " & )");
+      _construct<T5>(e);
+    }
     
     this_type &operator = (const T1 &x)
       { reset(); _construct<T1>(x); return *this; }
@@ -146,6 +185,10 @@ class oneof {
       { reset(); _construct<T2>(x); return *this; }
     this_type &operator = (const T3 &x)
       { reset(); _construct<T3>(x); return *this; }
+    this_type &operator = (const T4 &x)
+      { reset(); _construct<T4>(x); return *this; }
+    this_type &operator = (const T5 &x)
+      { reset(); _construct<T5>(x); return *this; }
     
     operator       T1 &()       { return _element<T1>(); }
     operator const T1 &() const { return _element<T1>(); }
@@ -153,6 +196,10 @@ class oneof {
     operator const T2 &() const { return _element<T2>(); }
     operator       T3 &()       { return _element<T3>(); }
     operator const T3 &() const { return _element<T3>(); }
+    operator       T4 &()       { return _element<T4>(); }
+    operator const T4 &() const { return _element<T4>(); }
+    operator       T5 &()       { return _element<T5>(); }
+    operator const T5 &() const { return _element<T5>(); }
     
     void reset() {
       if ( valid != smoc_detail::oneofTypeid<this_type,NILTYPE>::type() )
@@ -165,6 +212,10 @@ class oneof {
         _destroy<T2>();
       else if ( isType<T3>(*this) )
         _destroy<T3>();
+      else if ( isType<T4>(*this) )
+        _destroy<T4>();
+      else if ( isType<T5>(*this) )
+        _destroy<T5>();
       else
         assert( isType<NILTYPE>(*this) );
     }
@@ -174,11 +225,11 @@ class oneof {
     ~oneof() { reset(); }
 };
 
-template <typename T, typename T1, typename T2, typename T3>
-bool isType( const oneof<T1,T2,T3> &of )
-  { return smoc_detail::oneofTypeid<oneof<T1,T2,T3>,T>::type() == of.type(); }
+template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5>
+bool isType( const oneof<T1,T2,T3,T4,T5> &of )
+  { return smoc_detail::oneofTypeid<oneof<T1,T2,T3,T4,T5>,T>::type() == of.type(); }
 
-template <typename T1, typename T2, typename T3>
+template <typename T1, typename T2, typename T3, typename T4, typename T5>
 static inline
 std::ostream &operator << (std::ostream &output, const oneof<T1,T2,T3> &of) {
   if ( isType<T1>(of) ) {
@@ -187,6 +238,10 @@ std::ostream &operator << (std::ostream &output, const oneof<T1,T2,T3> &of) {
     output << "oneof(" << typeid(T2).name() << ":" << static_cast<const T2 &>(of) << ")";
   } else if ( isType<T3>(of) ) {
     output << "oneof(" << typeid(T3).name() << ":" << static_cast<const T3 &>(of) << ")";
+  } else if ( isType<T4>(of) ) {
+    output << "oneof(" << typeid(T4).name() << ":" << static_cast<const T4 &>(of) << ")";
+  } else if ( isType<T5>(of) ) {
+    output << "oneof(" << typeid(T5).name() << ":" << static_cast<const T5 &>(of) << ")";
   } else {
     assert( isType<NILTYPE>(of) );
     output << "oneof()";
