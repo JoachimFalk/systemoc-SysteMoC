@@ -231,7 +231,7 @@ bool isType( const oneof<T1,T2,T3,T4,T5> &of )
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
 static inline
-std::ostream &operator << (std::ostream &output, const oneof<T1,T2,T3> &of) {
+std::ostream &operator << (std::ostream &output, const oneof<T1,T2,T3,T4,T5> &of) {
   if ( isType<T1>(of) ) {
     output << "oneof(" << typeid(T1).name() << ":" << static_cast<const T1 &>(of) << ")";
   } else if ( isType<T2>(of) ) {
