@@ -16,9 +16,9 @@ class smoc_root_port
   : protected sc_port_base {
 public:
   template <class E> friend class Expr::Value;
-  template <class E> friend class Expr::CommSetup;
-  template <class E> friend class Expr::CommExec;
-
+  
+  friend class smoc_root_port_bool;
+  
   typedef smoc_root_port  this_type;
 private:
   bool    uplevel;
@@ -50,6 +50,136 @@ private:
   this_type& operator = ( const this_type & );
 };
 
+typedef std::list<smoc_root_port *> smoc_port_list;
+
+class smoc_commnr {
+public:
+  typedef smoc_commnr this_type;
+  
+  friend class smoc_root_port_bool;
+  template <typename T> friend class smoc_port_in;
+  template <typename T> friend class smoc_port_out;
+private:
+  smoc_root_port &p;
+  
+  smoc_commnr(smoc_root_port &p) : p(p) {}
+};
+
+class smoc_root_port_bool {
+public:
+  typedef smoc_root_port_bool this_type;
+  typedef void (this_type::*unspecified_bool_type)();
+private:
+  typedef std::list<smoc_root_port *> ports_ty;
+  
+//  void dummy() {};
+  
+  bool      v;
+  ports_ty  ps;
+public:
+  smoc_root_port_bool( bool v = false ): v(v) {}
+  smoc_root_port_bool(smoc_commnr p, size_t n)
+    : v(p.p.availableCount() >= n) {
+    std::cout << "was here " << v << " for " << &p.p << " !" << std::endl;
+    if ( v ) {
+      p.p.commSetup(n);
+      ps.push_back(&p.p);
+    }
+  }
+  smoc_root_port_bool( const this_type &a, const this_type &b )
+    : v(true), ps(a.ps) {
+    ps.insert(ps.end(), b.ps.begin(), b.ps.end());
+  }
+  
+  void commExec() {
+    for ( ports_ty::iterator iter = ps.begin();
+          iter != ps.end();
+          ++iter ) {
+      (*iter)->commExec();
+      (*iter)->reset();
+    }
+  }
+  
+  bool enabled() const { return v; }
+  
+//  operator unspecified_bool_type() const
+//    { return v ? &this_type::dummy : NULL; }
+  
+  ~smoc_root_port_bool() {
+    /* FIXME: implement reset semantic
+    for ( ports_ty::iterator iter = ps.begin();
+          iter != ps.end();
+          ++iter ) {
+      (*iter)->reset();
+    }*/
+  }
+};
+
+static inline
+smoc_root_port_bool operator >= (smoc_commnr c, size_t n)
+  { return smoc_root_port_bool(c,n); }
+
+namespace Expr {
+
+// NEEDED:
+//  to implement short circuit boolean evaluation
+//  with smoc_root_port_bool
+template<class A, class B>
+class DBinOp<DBinOp<DLiteral<smoc_commnr>,A,DOpBinGe>, B, DOpBinLAnd> {
+public:
+  typedef DBinOp<DLiteral<smoc_commnr>,A,DOpBinGe>  ExprA;
+  typedef DBinOp<ExprA,B,DOpBinLAnd>                this_type;
+  typedef smoc_root_port_bool                       value_type;
+  
+  ExprA a;
+  B     b;
+  
+  value_type value() const {
+    std::cout << "foo" << std::endl;
+    
+    smoc_root_port_bool retval =  Value<ExprA>::apply(a);
+    
+    return retval.enabled()
+      ? retval && Value<B>::apply(b)
+      : smoc_root_port_bool(false);
+  }
+public:
+  DBinOp(const ExprA &a, const B &b): a(a), b(b) {}
+};
+
+}
+
+static inline
+smoc_root_port_bool operator && (const smoc_root_port_bool &a, bool b)
+  { return b ? a : smoc_root_port_bool(false); }
+static inline
+smoc_root_port_bool operator && (const smoc_root_port_bool &a,
+                                 const smoc_root_port_bool &b) {
+  return a.enabled() && b.enabled()
+    ? smoc_root_port_bool(a,b)
+    : smoc_root_port_bool(false);
+}
+
+//static inline
+//smoc_root_port_bool operator || (const smoc_root_port_bool &a, bool b)
+//  { return !b || a.enabled() ? a : smoc_root_port_bool(true); }
+/*
+static inline
+smoc_root_port_bool operator || (const smoc_root_port_bool &a,
+                                 const smoc_root_port_bool &b) {
+  // FIXME: implement ME !!!
+  assert( "FIXME: implement ME !!!" == NULL);
+}
+*/
+
+//static inline
+//smoc_root_port_bool operator && (bool a, const smoc_root_port_bool &b) 
+//  { return b && a; }
+//static inline
+//smoc_root_port_bool operator || (bool a, const smoc_root_port_bool &b)
+//  { return b || a; }
+
+
 static inline
 std::ostream &operator <<( std::ostream &out, const smoc_root_port &p ) {
   out << "port(" << &p << ","
@@ -58,138 +188,5 @@ std::ostream &operator <<( std::ostream &out, const smoc_root_port &p ) {
            "available=" << p.availableCount() << ")";
   return out;
 }
-
-typedef std::list<smoc_root_port *> smoc_port_list;
-
-/****************************************************************************
- * DExprCommReq is a placeholder for a Communication Request, either available
- * tokens in an input port or free space in an output port.
- */
-
-namespace Expr {
-
-class ASTNodeCommNr: public ASTNodeTerminal {
-public:
-  ASTNodeCommNr() 
-    : ASTNodeTerminal() {}
-};
-
-class DCommNr {
-public:
-  typedef size_t   value_type;
-  typedef DCommNr  this_type;
-  
-  friend class AST<this_type>;
-  template <class E> friend class Value;
-  template <class E> friend class CommSetup;
-  template <class E> friend class CommExec;
-private:
-  smoc_root_port  &p;
-public:
-  explicit DCommNr(smoc_root_port &p)
-    : p(p) {}
-};
-
-struct AST<DCommNr> {
-  typedef PASTNode result_type;
-  
-  static inline
-  result_type apply(const DCommNr &e)
-    { return PASTNode(new ASTNodeCommNr()); }
-};
-
-template <class B>
-struct Value<DBinOp<DCommNr, B, DOpBinGe> > {
-  typedef bool result_type;
-  
-  static inline
-  result_type apply(const DBinOp<DCommNr, B, DOpBinGe> &e) {
-    size_t n      = Value<B>::apply(e.b);
-    bool   retval = e.a.p.availableCount() >= n;
-    
-    if ( retval )
-      e.a.p.commSetup(n);
-    return retval;
-  }
-};
-
-template <class B>
-struct CommSetup<DBinOp<DCommNr, B, DOpBinGe> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<DCommNr, B, DOpBinGe> &e) {}
-//    { return e.a.p.commSetup(Value<B>::apply(e.b)); }
-};
-
-template <class B>
-struct CommExec<DBinOp<DCommNr, B, DOpBinGe> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<DCommNr, B, DOpBinGe> &e)
-    { return e.a.p.commExec(); }
-};
-
-struct D<DCommNr>: public DBase<DCommNr> {
-  D(smoc_root_port &p)
-    : DBase<DCommNr>(DCommNr(p)) {}
-};
-
-// Make a convenient typedef for the CommNr type.
-struct CommNr {
-  typedef D<DCommNr> type;
-};
-
-static inline
-CommNr::type commnr(smoc_root_port &p)
-  { return CommNr::type(p); }
-
-template <class B, OpBinT Op>
-class DOpBinExecute<DCommNr,B,Op> {};
-
-template <class B>
-class DOpBinExecute<DCommNr,B,DOpBinGt> {
-public:
-  typedef DBinOp<DCommNr,B,DOpBinGt>                 ExprT;
-  typedef D<ExprT>                                   result_type;
-  
-  static inline
-  result_type apply(const DCommNr &a, const B &b)
-    { return result_type(ExprT(a,b)); }
-};
-template <class TB>
-class DOpBinExecute<DCommNr,DLiteral<TB>,DOpBinGt> {
-public:
-  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpBinGt>  ExprT;
-  typedef D<ExprT>                                   result_type;
-  
-  static inline
-  result_type apply(const DCommNr &a, const DLiteral<size_t> &b)
-    { return result_type(ExprT(a,b)); }
-};
-template <class B>
-class DOpBinExecute<DCommNr,B,DOpBinGe> {
-public:
-  typedef DBinOp<DCommNr,B,DOpBinGe>                 ExprT;
-  typedef D<ExprT>                                   result_type;
-  
-  static inline
-  result_type apply(const DCommNr &a, const B &b)
-    { return result_type(ExprT(a,b)); }
-};
-template <class TB>
-class DOpBinExecute<DCommNr,DLiteral<TB>,DOpBinGe> {
-public:
-  typedef DBinOp<DCommNr,DLiteral<size_t>,DOpBinGe>  ExprT;
-  typedef D<ExprT>                                   result_type;
-  
-  static inline
-  result_type apply(const DCommNr &a, const DLiteral<size_t> &b)
-    { return result_type(ExprT(a,b)); }
-};
-
-}
-/****************************************************************************/
 
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP

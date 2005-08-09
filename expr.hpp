@@ -123,22 +123,6 @@ struct Value {};
 template <class E>
 struct AST {};
 
-template <class E>
-struct CommSetup {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const E &e) {}
-};
-
-template <class E>
-struct CommExec {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const E &e) {}
-};
-
 template<template <class> class Z, class E>
 typename Z<E>::result_type evalTo(const D<E> &e)
   { return Z<E>::apply(e.getExpr()); }
@@ -193,17 +177,17 @@ public:
   public:
     virtual PASTNode   evalToAST()          const = 0;
     virtual value_type evalToValue()        const = 0;
-    virtual void       evalToCommSetup()    const = 0;
-    virtual void       evalToCommExec()  const = 0;
   };
   
   boost::intrusive_ptr<virt_ty<T> > v;
 protected:
+//  class impl_ty: public virt_ty<typename E::value_type> {
   template <class E>
-  class impl_ty: public virt_ty<typename E::value_type> {
+  class impl_ty: public virt_ty<T> {
   public:
     typedef E                       expr_type;
-    typedef typename E::value_type  value_type;
+//    typedef typename E::value_type  value_type;
+    typedef T                       value_type;
     typedef impl_ty<E>              this_type;
   private:
     E e;
@@ -212,8 +196,6 @@ protected:
     
     PASTNode   evalToAST()          const { return AST<E>::apply(e); }
     value_type evalToValue()        const { return Value<E>::apply(e); }
-    void       evalToCommSetup()    const { return CommSetup<E>::apply(e); }
-    void       evalToCommExec()  const { return CommExec<E>::apply(e); }
   };
 public:
   template <class E>
@@ -237,24 +219,6 @@ struct AST<DVirtual<T> > {
   static inline
   result_type apply(const DVirtual <T> &e)
     { return e.v->evalToAST(); }
-};
-
-template <typename T>
-struct CommExec<DVirtual<T> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DVirtual <T> &e)
-    { return e.v->evalToCommExec(); }
-};
-
-template <typename T>
-struct CommSetup<DVirtual<T> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DVirtual <T> &e)
-    { return e.v->evalToCommSetup(); }
 };
 
 template<class T>
@@ -659,66 +623,6 @@ struct AST<DBinOp<A,B,Op> > {
   }
 };
 
-template <class A, class B, OpBinT Op>
-struct CommExec<DBinOp<A,B,Op> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,Op> &e) {}
-};
-
-template <class A, class B>
-struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e)
-    { CommExec<A>::apply(e.a); CommExec<B>::apply(e.b); }
-};
-
-template <class A, class B>
-struct CommExec<DBinOp<A,B,DOpBinLOr> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,DOpBinLOr> &e) {
-    if ( Value<A>::apply(e.a) )
-      CommExec<A>::apply(e.a);
-    if ( Value<B>::apply(e.b) )
-      CommExec<B>::apply(e.b);
-  }
-};
-
-template <class A, class B, OpBinT Op>
-struct CommSetup<DBinOp<A,B,Op> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,Op> &e) {}
-};
-
-template <class A, class B>
-struct CommSetup<DBinOp<A,B,DOpBinLAnd> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e)
-    { CommSetup<A>::apply(e.a); CommSetup<B>::apply(e.b); }
-};
-
-template <class A, class B>
-struct CommSetup<DBinOp<A,B,DOpBinLOr> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,DOpBinLOr> &e) {
-    if ( Value<A>::apply(e.a) )
-      CommSetup<A>::apply(e.a);
-    if ( Value<B>::apply(e.b) )
-      CommSetup<B>::apply(e.b);
-  }
-};
-
 /****************************************************************************
  * OPERATORS for APPLICATIVE TEMPLATE CLASSES
  */
@@ -890,24 +794,6 @@ struct AST<DUnOp<A,Op> > {
   result_type apply(const DUnOp<A,Op> &e) {
     return PASTNode(new ASTNodeUnOp(Op,AST<A>::apply(e.a)));
   }
-};
-
-template <class A, OpUnT Op>
-struct CommExec<DUnOp<A,Op> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DUnOp<A,Op> &e)
-    { CommExec<A>::apply(e.a); }
-};
-
-template <class A, OpUnT Op>
-struct CommSetup<DUnOp<A,Op> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DUnOp<A,Op> &e)
-    { CommSetup<A>::apply(e.a); }
 };
 
 /****************************************************************************

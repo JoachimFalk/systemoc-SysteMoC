@@ -60,6 +60,7 @@ public:
       _initialState = NULL;
     }
     _currentState.finalise(this);
+//    dumpActor(std::cout);
   }
   //sc_event		_fire;
   //smoc_port_in<void>  fire_port;
@@ -74,6 +75,8 @@ public:
 #endif
 
   smoc_port_list &getPorts();
+
+  std::ostream &dumpActor( std::ostream &o );
 
   const smoc_firing_state &currentState() const { return _currentState; }
   smoc_firing_state       &currentState()       { return _currentState; }

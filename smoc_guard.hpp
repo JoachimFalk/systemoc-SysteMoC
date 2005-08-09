@@ -29,7 +29,7 @@ public:
   
   friend class smoc_firing_state;
 protected:
-  Expr::Ex<bool>::type guard;
+  Expr::Ex<smoc_root_port_bool>::type guard;
 //  typedef std::list<smoc_guard_ptr> guards_ty;
 //  guards_ty guards;
 //  
@@ -102,10 +102,10 @@ public:
 //  bool      knownUnsatisfiable() const { return isOr<filterKnownUnsatisfiable_ty>(); }
 //  bool      satisfied() const { return isAnd<filterSatisfied_ty>(); }
   
-  bool      knownSatisfiable() const
+  smoc_root_port_bool knownSatisfiable() const
     { return  Expr::evalTo<Expr::Value>(guard); }
-  bool      knownUnsatisfiable() const
-    { return !Expr::evalTo<Expr::Value>(guard); }
+//  smoc_root_port_bool knownUnsatisfiable() const
+//    { return !Expr::evalTo<Expr::Value>(guard); }
   
   this_type onlyInputs()  const { return *this; }
   this_type onlyOutputs() const { return *this; }
@@ -174,8 +174,6 @@ public:
     }
     std::cout << std::endl;
   }*/
-  void commExec()  { return Expr::evalTo<Expr::CommExec >(guard); }
-  void commSetup() { return Expr::evalTo<Expr::CommSetup>(guard); }
   
   this_type concat( const smoc_activation_pattern &ap ) const
     { return this_type(guard && ap.guard); }

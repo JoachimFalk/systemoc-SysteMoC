@@ -57,3 +57,15 @@ smoc_port_list &smoc_root_node::getPorts() {
   }
   return ports;
 }
+
+std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
+  o << "actor: " << myModule()->name() << std::endl;
+  smoc_port_list ps = getPorts();
+  o << "  ports:" << std::endl;
+  for ( smoc_port_list::const_iterator iter = ps.begin();
+        iter != ps.end();
+        ++iter ) {
+    o << "  " << *iter << std::endl;
+  }
+  return o;
+}

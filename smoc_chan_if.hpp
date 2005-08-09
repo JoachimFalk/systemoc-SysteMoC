@@ -31,9 +31,9 @@ public:
   void reset() { p1 = NULL; boundary = 0; p2 = NULL; limit = 0; }
   
   T       &operator[](size_t n)
-    { assert(n < limit); return n >= boundary ? p2[n] : p1[n]; }
+    { std::cout << "this: " << this << std::endl; assert(n < limit); return n >= boundary ? p2[n] : p1[n]; }
   const T &operator[](size_t n) const
-    { assert(n < limit); return n >= boundary ? p2[n] : p1[n]; }
+    { std::cout << "this: " << this << std::endl; assert(n < limit); return n >= boundary ? p2[n] : p1[n]; }
 };
 
 class smoc_ring_access<void> {

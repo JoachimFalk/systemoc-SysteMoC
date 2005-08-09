@@ -141,46 +141,48 @@ smoc_firing_types::transition_ty::initTransition(
   }
 }
 
-smoc_firing_types::maybe_transition_ty
-smoc_firing_types::resolved_state_ty::findEnabledTransition() {
+smoc_firing_types::resolved_state_ty *
+smoc_firing_types::resolved_state_ty::tryExecute() {
+  resolved_state_ty *retval = NULL;
+  
   for ( transitionlist_ty::iterator titer = tl.begin();
-        titer != tl.end();
-        ++titer ) {
-    transition_ty &t = *titer;
-    
-    // t.reset();
-    if ( !t.isBlocked() && t.knownSatisfiable() )
-      return maybe_transition_ty(true,&t);
-  }
-  return maybe_transition_ty(false,NULL);
+        titer != tl.end() && !retval;
+        ++titer )
+    retval = titer->tryExecute();
+  return retval;
 }
 
 smoc_firing_types::resolved_state_ty *
-smoc_firing_types::transition_ty::execute() {
+smoc_firing_types::transition_ty::tryExecute() {
   resolved_state_ty *retval = NULL;
   
-  ap.commSetup();
-  if ( isType<smoc_func_diverge>(f) ) {
-    const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
-    retval = &ns.getResolvedState();
-  } else if ( isType<smoc_func_branch>(f) ) {
-    const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
-    statelist_ty::const_iterator iter = sl.begin();
+  if ( !isBlocked() ) {
+    smoc_root_port_bool b = knownSatisfiable();
     
-    // check that ns is in sl
-    while ( iter != sl.end() && (*iter) != ns.rs )
-      ++iter;
-    assert( iter != sl.end() );
-    retval = &ns.getResolvedState();
-  } else {
-    if ( isType<smoc_func_call>(f) )
-      static_cast<smoc_func_call &>(f)();
-    else
-      assert( isType<NILTYPE>(f) );
-    assert( sl.size() == 1 );
-    retval = static_cast<resolved_state_ty *>(sl.front());
+    if ( b.enabled() ) {
+      if ( isType<smoc_func_diverge>(f) ) {
+        const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
+        retval = &ns.getResolvedState();
+      } else if ( isType<smoc_func_branch>(f) ) {
+        const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
+        statelist_ty::const_iterator iter = sl.begin();
+        
+        // check that ns is in sl
+        while ( iter != sl.end() && (*iter) != ns.rs )
+          ++iter;
+        assert( iter != sl.end() );
+        retval = &ns.getResolvedState();
+      } else {
+        if ( isType<smoc_func_call>(f) )
+          static_cast<smoc_func_call &>(f)();
+        else
+          assert( isType<NILTYPE>(f) );
+        assert( sl.size() == 1 );
+        retval = static_cast<resolved_state_ty *>(sl.front());
+      }
+      b.commExec();
+    }
   }
-  ap.commExec();
   return retval;
 }
 
@@ -286,8 +288,8 @@ bool smoc_firing_state::choiceStep() {
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {
   out << "transition("
         << this << ","
-        << "knownSatisfiable="   << knownSatisfiable() << ","
-        << "knownUnsatisfiable=" << knownUnsatisfiable() << ", "
+        << "knownSatisfiable="   << knownSatisfiable().enabled() << ","
+//        << "knownUnsatisfiable=" << knownUnsatisfiable() << ", "
         << "ap: "                << ap << ")";
 }
 

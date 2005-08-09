@@ -64,14 +64,7 @@ protected:
       for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter ) {
-        smoc_firing_state   &s  = (*iter)->currentState();
-        resolved_state_ty   &rs = s.getResolvedState();
-        maybe_transition_ty  mt = rs.findEnabledTransition();
-        
-        if ( mt.first ) {
-          again = true;
-          s.execute(mt.second); // execute transition
-        }
+        again |= (*iter)->currentState().tryExecute();
       }
       // dump(nodes);
       wait(SC_ZERO_TIME);
@@ -263,27 +256,12 @@ class smoc_top_moc
     public smoc_firing_types {
 private:
   // called by elaboration_done (does nothing by default)
-  void end_of_elaboration() {
-    finalise();
-    
-    smoc_port_list ps = getPorts();
-    
-    std::cout << "ports:" << std::endl;
-    for ( smoc_port_list::const_iterator iter = ps.begin();
-          iter != ps.end();
-          ++iter ) {
-      std::cout << *iter << std::endl;
-    }
-  }
+  void end_of_elaboration() { finalise(); }
   
   void schedule() {
     do {
-      smoc_firing_state   &s  = this->currentState();
-      resolved_state_ty   &rs = s.getResolvedState();
-      maybe_transition_ty  mt = rs.findEnabledTransition();
-      
-      assert( mt.first );
-      s.execute(mt.second);
+      bool executed = this->currentState().tryExecute();
+      assert( executed == true );
     } while ( 1 );
   }
 public:

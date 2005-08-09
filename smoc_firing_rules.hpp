@@ -102,10 +102,10 @@ struct smoc_firing_types {
         smoc_firing_rules *fr,
         const smoc_transition &t );
 
-    bool knownSatisfiable() const
+    smoc_root_port_bool knownSatisfiable() const
       { return ap.knownSatisfiable(); }
-    bool knownUnsatisfiable() const
-      { return ap.knownUnsatisfiable(); }
+//    bool knownUnsatisfiable() const
+//      { return ap.knownUnsatisfiable(); }
 /*    void reset() {
       ap_pre_exec.reset(); 
       ap_post_exec.reset(); 
@@ -113,7 +113,7 @@ struct smoc_firing_types {
     
     bool isBlocked() const { return _blocked != NULL; }
     
-    resolved_state_ty *execute();
+    resolved_state_ty *tryExecute();
 
     void dump(std::ostream &out) const;
   };
@@ -133,7 +133,7 @@ struct smoc_firing_types {
       return tl.back();
     }
     
-    maybe_transition_ty findEnabledTransition();
+    resolved_state_ty *tryExecute();
   };
 };
 
@@ -171,7 +171,12 @@ public:
   
   void finalise( smoc_root_node *actor ) const;
   
-  void execute( transition_ty *t ) { rs = t->execute(); }
+  bool tryExecute() {
+    resolved_state_ty *ns = rs->tryExecute();
+    if ( ns != NULL )
+      rs = ns;
+    return ns != NULL;
+  }
   
   this_type &operator = (const this_type &x);
   this_type &operator = (const smoc_transition_list &tl);
