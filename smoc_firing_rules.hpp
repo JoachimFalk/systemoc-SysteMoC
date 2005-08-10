@@ -172,6 +172,7 @@ public:
   void finalise( smoc_root_node *actor ) const;
   
   bool tryExecute() {
+    // FIXME: for martin to implement fr->actor->myModule().name();
     resolved_state_ty *ns = rs->tryExecute();
     if ( ns != NULL )
       rs = ns;
