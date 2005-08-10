@@ -70,7 +70,16 @@ pkginclude_HEADERS =			\
 	smoc_pggen.hpp			\
 	smoc_chan_if.hpp		\
 	oneof.hpp			\
-	commondefs.h
+	commondefs.h			\
+					\
+	hscd_op.hpp			\
+	hscd_port.hpp			\
+	hscd_root_port_list.hpp		\
+	hscd_node_types.hpp		\
+	hscd_fifo.hpp			\
+	hscd_structure.hpp		\
+	hscd_scheduler.hpp		\
+	hscd_pggen.hpp
 
 # noinst_HEADERS=	oneof.hpp
 

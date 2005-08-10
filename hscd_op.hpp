@@ -3,90 +3,17 @@
 #ifndef _INCLUDED_HSCD_OP_HPP
 #define _INCLUDED_HSCD_OP_HPP
 
-#include <systemc.h>
-#include <hscd_root_port.hpp>
-// #include <oneof.hpp>
+#include <smoc_root_port.hpp>
+#include <hscd_root_port_list.hpp>
 
-#include <commondefs.h>
+#include <systemc.h>
 
 //template <typename T> class hscd_op;
 
-//class hscd_root_node_op_if;
-//class hscd_running_op_base;
-
-//class hscd_do_op_if {
-//  private:
-//    friend class hscd_root_node_op_if;
-//  public:
-//    virtual ~hscd_do_op_if() {}
-//  private:
-//    virtual hscd_running_op_base *_startOp(hscd_root_node_op_if *node) = 0;
-//    void startOp(hscd_root_node_op_if *node);
-//};
-
-class hscd_root_node_op_if {
-  private:
-    friend class hscd_running_op_base;
-    friend class hscd_do_op_if;
-    
-    //hscd_running_op_base *_opRunning_;
-    //oneof<hscd_running_op_transact,hscd_running_op_choice> runningOp;
-    hscd_firing_state _initialState;
-    hscd_firing_state _currentState;
-    
-    //void _opFinished();
-    //void _opRunning( hscd_running_op_base *op ) {
-    //  assert( _opRunning_ == NULL );
-    //  _opRunning_ = op;
-    //}
-  protected:
-    hscd_root_node_op_if(const hscd_firing_state &s)
-      : _initialState(s), _currentState(s) {}
-    
-    //virtual void opFinished() = 0;
-    //bool finished() const { return _opRunning_ == NULL; }
-    
-    //void startOp( hscd_do_op_if &op ) { op.startOp(this); }
-  public:
-    virtual ~hscd_root_node_op_if() {}
-
-    const hscd_firing_state &currentState() const { return _currentState; }
-};
-
-/*
-#ifndef _COMPILEHEADER_HSCD_DO_OP_IF__START_OP
-GNU89_EXTERN_INLINE
-#endif
-void hscd_do_op_if::startOp(hscd_root_node_op_if *node) {
-  node->_opRunning( _startOp(node) );
-}
-
-class hscd_running_op_base {
-  private:
-    hscd_root_node_op_if *notify;
-  protected:
-    hscd_running_op_base( hscd_root_node_op_if *notify )
-      :notify(notify) {}
-    
-    void finished() { notify->_opFinished(); }
-  public:
-    virtual ~hscd_running_op_base() {}
-};
-
-#ifndef _COMPILEHEADER_HSCD_DO_OP_IF___OP_FINISHED
-GNU89_EXTERN_INLINE
-#endif
-void hscd_root_node_op_if::_opFinished() {
-  assert( _opRunning_ != NULL );
-  delete _opRunning_; _opRunning_ = NULL;
-  opFinished();
-}
-
 template <typename T>
-class hscd_op:
-  public hscd_do_op_if {
+class hscd_op {
   public:
-    friend class hscd_root_node;
+    friend class hscd_choice_active_node;
     
     typedef T				running_op_type;
     typedef typename T::op_list_type	op_list_type;
@@ -94,13 +21,16 @@ class hscd_op:
   private:
     hscd_op_port_base_list *pl;
     
-    hscd_running_op_base *_startOp(hscd_root_node_op_if *node) {
-      assert( node != NULL );
-      running_op_type *op = new running_op_type(*pl,node);
-      if ( op->isFinished() ) {
-	delete op; op = NULL;
+    void startOp() {
+      sc_event w;
+      
+      running_op_type op(*pl,w);
+      
+      if ( !op.isFinished() ) {
+        // wait till finished
+        wait(w);
+        assert( op.isFinished() );
       }
-      return op;
     }
     
     hscd_op( hscd_op_port_base_list &pl )
@@ -121,9 +51,7 @@ class hscd_op:
     }
 };
 
-class hscd_running_op_transact
-  : private hscd_port_op_if,
-    public hscd_running_op_base {
+class hscd_running_op_transact {
   public:
     typedef hscd_running_op_transact   this_type;
     typedef hscd_op_port_and_list   op_list_type;
@@ -131,10 +59,12 @@ class hscd_running_op_transact
     friend class hscd_op<this_type>;
     
     hscd_op_port_base_list &pl;
+    sc_event               &e;
     size_t                 outstanding;
     
     bool isFinished() const { return outstanding == 0; }
-    
+
+  /*
     void incommingTransfer( hscd_root_port &port ) {
       if ( ready(port) ) {
 	finishTransfer(port);
@@ -142,11 +72,12 @@ class hscd_running_op_transact
 	if ( isFinished() )
 	  finished();
       }
-    }
+    }*/
   protected:
     hscd_running_op_transact
-      ( hscd_op_port_base_list &pl, hscd_root_node_op_if *node )
-      : hscd_running_op_base(node), pl(pl), outstanding(0) {
+      ( hscd_op_port_base_list &pl, sc_event &e )
+      : pl(pl), e(e), outstanding(0) {
+/*
       for ( hscd_op_port_base_list::iterator iter = pl.begin();
 	    iter != pl.end();
 	    ++iter ) {
@@ -154,13 +85,12 @@ class hscd_running_op_transact
 	if ( !ready(*iter) )
 	  ++outstanding;
       }
+*/
     }
   public:
 };
 
-class hscd_running_op_choice
-  : private hscd_port_op_if,
-    public hscd_running_op_base {
+class hscd_running_op_choice {
   public:
     typedef hscd_running_op_choice     this_type;
     typedef hscd_op_port_or_list    op_list_type;
@@ -168,13 +98,14 @@ class hscd_running_op_choice
     friend class hscd_op<this_type>;
     
     hscd_op_port_base_list &pl;
+    sc_event               &e;
     enum {
       OP_WAIT_ALL,
       OP_WAIT_READY,
       OP_READY }            opstate;
     
     bool isFinished() const { return opstate == OP_READY; }
-    
+/* 
     void incommingTransfer( hscd_root_port &port ) {
       //std::cerr << "incommingTransfer " << opstate << std::endl;
       if ( opstate == OP_WAIT_ALL ) {
@@ -193,10 +124,12 @@ class hscd_running_op_choice
 	finished();
       }
     }
+*/
   protected:
     hscd_running_op_choice
-      ( hscd_op_port_base_list &pl, hscd_root_node_op_if *node )
-      : hscd_running_op_base(node), pl(pl), opstate(OP_WAIT_ALL) {
+      ( hscd_op_port_base_list &pl, sc_event &e )
+      : pl(pl), e(e), opstate(OP_WAIT_ALL) {
+  /*
       for ( hscd_op_port_base_list::iterator aiter = pl.begin();
 	    aiter != pl.end();
 	    ++aiter ) {
@@ -218,14 +151,12 @@ class hscd_running_op_choice
 	  break;
 	}
       }
+    */
     }
   public:
 };
 
-
-
 typedef hscd_op<hscd_running_op_transact>	hscd_op_transact;
 typedef hscd_op<hscd_running_op_choice>		hscd_op_choice;
-*/
 
 #endif // _INCLUDED_HSCD_OP_HPP
