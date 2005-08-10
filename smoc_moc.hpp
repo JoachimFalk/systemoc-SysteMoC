@@ -42,7 +42,7 @@ public:
 typedef class smoc_scheduler_ndf smoc_scheduler_ddf;
 
 class smoc_scheduler_ndf
-  : public smoc_choice_node,
+  : public smoc_root_node,
     public smoc_firing_types,
     public smoc_scheduler_base {
 public:
@@ -75,11 +75,11 @@ protected:
   
   void finalise() {
     s = smoc_activation_pattern() >> diverge(&smoc_scheduler_ndf::schedule);
-    smoc_choice_node::finalise();
+    smoc_root_node::finalise();
   }
 public:
   smoc_scheduler_ndf( cset_ty *c )
-    : smoc_transact_node(s), c(c) {}
+    : smoc_root_node(s), c(c) {}
 };
 
 /*

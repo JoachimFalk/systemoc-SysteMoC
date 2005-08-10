@@ -180,13 +180,20 @@ private:
                         smoc_port_in<typename T_chan_type::data_type> &p );
 };
 
+typedef smoc_graph_dataflow<smoc_root_node, smoc_fifo_kind, smoc_fifo>
+          smoc_sdf_constraintset;
+typedef smoc_graph_dataflow<smoc_root_node, smoc_fifo_kind, smoc_fifo>
+          smoc_ddf_constraintset;
+typedef smoc_graph_dataflow<smoc_root_node, smoc_fifo_kind, smoc_fifo>
+          smoc_ndf_constraintset;
+/*
 typedef smoc_graph_dataflow<smoc_fixed_transact_node, smoc_fifo_kind, smoc_fifo>
           smoc_sdf_constraintset;
 typedef smoc_graph_dataflow<smoc_transact_node, smoc_fifo_kind, smoc_fifo>
           smoc_ddf_constraintset;
 typedef smoc_graph_dataflow<smoc_choice_node, smoc_fifo_kind, smoc_fifo>
           smoc_ndf_constraintset;
-/*
+
 typedef smoc_graph_dataflow<smoc_choice_node, smoc_rendezvous_kind, smoc_rendezvous>
           smoc_csp_constraintset;
 */
