@@ -21,7 +21,12 @@ public:
   typedef smoc_opbase_node this_type;
 protected:
   template <typename T>
-  smoc_func_call call ( void (T::*f)() ) {
+  smoc_func_call call ( void (T::*f)(), const char *func_name ) {
+//    std::cerr << "call(f)" << std::endl;
+    return smoc_func_call(this,f,func_name);
+  }
+  template <typename T>
+  smoc_func_call call ( void (T::*f)()) {
 //    std::cerr << "call(f)" << std::endl;
     return smoc_func_call(this,f);
   }

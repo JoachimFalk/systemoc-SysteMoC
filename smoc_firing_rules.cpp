@@ -142,18 +142,18 @@ smoc_firing_types::transition_ty::initTransition(
 }
 
 smoc_firing_types::resolved_state_ty *
-smoc_firing_types::resolved_state_ty::tryExecute() {
+smoc_firing_types::resolved_state_ty::tryExecute(const char *actor_name) {
   resolved_state_ty *retval = NULL;
   
   for ( transitionlist_ty::iterator titer = tl.begin();
         titer != tl.end() && !retval;
         ++titer )
-    retval = titer->tryExecute();
+    retval = titer->tryExecute(actor_name);
   return retval;
 }
 
 smoc_firing_types::resolved_state_ty *
-smoc_firing_types::transition_ty::tryExecute() {
+smoc_firing_types::transition_ty::tryExecute(const char *actor_name) {
   resolved_state_ty *retval = NULL;
   
   if ( !isBlocked() ) {
@@ -173,9 +173,11 @@ smoc_firing_types::transition_ty::tryExecute() {
         assert( iter != sl.end() );
         retval = &ns.getResolvedState();
       } else {
-        if ( isType<smoc_func_call>(f) )
+        if ( isType<smoc_func_call>(f) ){
+	  //cerr << "<call actor="<<actor_name << " func="<< static_cast<smoc_func_call &>(f).getFuncName()<<">"<< endl;
           static_cast<smoc_func_call &>(f)();
-        else
+	  //cerr << "</call>"<< endl;
+	}else
           assert( isType<NILTYPE>(f) );
         assert( sl.size() == 1 );
         retval = static_cast<resolved_state_ty *>(sl.front());
@@ -300,3 +302,14 @@ void smoc_firing_state::dump( std::ostream &o ) const {
         ++titer )
     o << *titer << std::endl;
 }
+
+
+
+
+
+  bool smoc_firing_state::tryExecute() {
+    resolved_state_ty *ns = rs->tryExecute(fr->getActor()->myModule()->name());
+    if ( ns != NULL )
+      rs = ns;
+    return ns != NULL;
+  }

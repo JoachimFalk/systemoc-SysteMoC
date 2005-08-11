@@ -25,6 +25,8 @@ class smoc_firing_state;
 class smoc_firing_rules;
 class smoc_transition_list;
 
+#define CALL(func) call(&func,#func)
+
 class smoc_func_call {
 private:
   struct dummy;
@@ -32,15 +34,30 @@ private:
 
   dummy *obj;
   fun    f;
+  const char *func_name;
 public:
   template <class X, class T>
   smoc_func_call( X *_obj, void (T::*_f)() )
     : obj(reinterpret_cast<dummy *>(
             /*dynamic_cast<T *>*/(_obj))),
-      f(*reinterpret_cast<fun *>(&_f))
+      f(*reinterpret_cast<fun *>(&_f)),
+      func_name("")
     { assert(f != NULL && obj != NULL); }
 
-  void operator()() const { (obj->*f)(); }
+  template <class X, class T>
+  smoc_func_call( X *_obj, void (T::*_f)(), const char *func_name )
+    : obj(reinterpret_cast<dummy *>(
+            /*dynamic_cast<T *>*/(_obj))),
+      f(*reinterpret_cast<fun *>(&_f)),
+      func_name(func_name)
+    { assert(f != NULL && obj != NULL); }
+
+  void operator()() const { 
+    (obj->*f)(); 
+  }
+  const char* getFuncName(){
+    return func_name;
+  }
 };
 
 class smoc_func_diverge {
@@ -113,7 +130,7 @@ struct smoc_firing_types {
     
     bool isBlocked() const { return _blocked != NULL; }
     
-    resolved_state_ty *tryExecute();
+    resolved_state_ty *tryExecute(const char *actor_name);
 
     void dump(std::ostream &out) const;
   };
@@ -133,7 +150,7 @@ struct smoc_firing_types {
       return tl.back();
     }
     
-    resolved_state_ty *tryExecute();
+    resolved_state_ty *tryExecute(const char *actor_name);
   };
 };
 
@@ -171,13 +188,14 @@ public:
   
   void finalise( smoc_root_node *actor ) const;
   
-  bool tryExecute() {
-    // FIXME: for martin to implement fr->actor->myModule().name();
+  bool tryExecute();
+/* {
+    fr->resolve();//actor->myModule().name() << endl;;
     resolved_state_ty *ns = rs->tryExecute();
     if ( ns != NULL )
       rs = ns;
     return ns != NULL;
-  }
+    }*/
   
   this_type &operator = (const this_type &x);
   this_type &operator = (const smoc_transition_list &tl);
@@ -250,7 +268,11 @@ protected:
     assert( s != NULL && s->rs != NULL );
     addRef(s); resolved_states.push_front(s->rs);
   }
-  
+
+  smoc_root_node* getActor(){
+    return actor;
+  }
+    
   void addRef( smoc_firing_state *s ) { _addRef(s,NULL); }
   
   void delRef( smoc_firing_state *s );
