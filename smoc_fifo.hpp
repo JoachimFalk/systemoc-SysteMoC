@@ -156,8 +156,8 @@ public:
   typedef typename this_type::iface_in_type  iface_in_type;
   typedef typename this_type::iface_out_type iface_out_type;
 protected:
-  iface_in_type  *in;
-  iface_out_type *out;
+//  iface_in_type  *in;
+//  iface_out_type *out;
   
   smoc_ring_access<const T> commSetupIn(size_t req) {
     assert( req <= usedStorage() );
