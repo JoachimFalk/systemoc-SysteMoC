@@ -103,6 +103,9 @@ static const char *commondefs_h_rcsid ATTRIBUTE_UNUSED =
 #define MIN_TYPE( type ) ( (type) ( ISSIGNED_TYPE( type ) ? MIN_STYPE( type ) : MIN_UTYPE( type ) ) )
 
 #ifdef __cplusplus
+# include <iostream>
+# include <list>
+                                                                                
 template <typename T, class A>
 std::ostream &operator <<( std::ostream &out, const std::list<T,A> &l) {
   out << "[List:";
