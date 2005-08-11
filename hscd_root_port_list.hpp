@@ -33,8 +33,8 @@ private:
 public:
   operator smoc_root_port &() { return *port; }
   
-  bool isInput() const;
-  bool isOutput() const { return !isInput(); }
+  bool isInput() const  { return port->isInput(); }
+  bool isOutput() const { return port->isOutput(); }
   
   operator hscd_op_port_list &();
   hscd_op_port_or_list  &operator | ( hscd_op_port p );

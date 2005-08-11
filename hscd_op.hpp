@@ -13,7 +13,7 @@
 template <typename T>
 class hscd_op {
   public:
-    friend class hscd_choice_active_node;
+    friend class hscd_choice_node;
     
     typedef T				running_op_type;
     typedef typename T::op_list_type	op_list_type;
@@ -21,7 +21,7 @@ class hscd_op {
   private:
     hscd_op_port_base_list *pl;
     
-    void startOp() {
+    void startOp() const {
       sc_event w;
       
       running_op_type op(*pl,w);

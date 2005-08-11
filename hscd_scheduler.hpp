@@ -10,24 +10,25 @@
 
 #include <list>
 
-class hscd_scheduler_asap {
-  public:
-    template <typename T>
-    hscd_scheduler_asap( sc_module_name name, const std::list<T> &nl )
-      {}
+class hscd_scheduler_asap
+: public sc_module{
+public:
+  template <typename T>
+  hscd_scheduler_asap( sc_module_name name, const std::list<T> &nl )
+    : sc_module(name) {}
 };
 
 class hscd_top {
-  private:
-    std::list<hscd_choice_active_node *>   nl;
-    hscd_scheduler_asap             sched;
-    
-    std::list<hscd_choice_active_node *> &setTop( hscd_choice_active_node *top ) {
-      nl.push_front(top); return nl;
-    }
-  public:
-    hscd_top(hscd_choice_active_node *top)
-      : sched("xxxx", setTop(top)) {}
+private:
+  std::list<hscd_choice_active_node *>   nl;
+  hscd_scheduler_asap             sched;
+  
+  std::list<hscd_choice_active_node *> &setTop( hscd_choice_active_node *top ) {
+    nl.push_front(top); return nl;
+  }
+public:
+  hscd_top(hscd_choice_active_node *top)
+    : sched("xxxx", setTop(top)) {}
 };
 
 

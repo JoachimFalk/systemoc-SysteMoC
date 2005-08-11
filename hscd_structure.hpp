@@ -52,12 +52,9 @@ public:
 };
 
 typedef hscd_graph hscd_sdf_structure;
-typedef hscd_graph hscd_sdf_constraintset;
 
 typedef hscd_graph hscd_fifocsp_structure;
-typedef hscd_graph hscd_ndf_constraintset;
 
 // typedef smoc_csp_constraintset hscd_csp_structure;
-// typedef smoc_csp_constraintset hscd_csp_constraintset;
 
 #endif // _INCLUDED_HSCD_STRUCTURE_HPP
