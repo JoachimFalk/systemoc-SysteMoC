@@ -31,8 +31,8 @@ public:
   typedef smoc_graph_petri
     <T_node_type, T_chan_kind, T_chan_init_default>     this_type;
   
-  typedef std::list<node_type *>			nodes_ty;
-  typedef std::list<chan_kind *>                        chans_ty;
+  typedef std::list<smoc_root_node *>			nodes_ty;
+  typedef std::list<smoc_root_chan *>                   chans_ty;
 private:
   typedef std::map<smoc_root_port *, smoc_root_port *>  iobind_ty;
   
@@ -63,7 +63,8 @@ protected:
       smoc_port_out<T_value_type> &b ) {
     assert( iobind.find(&b) == iobind.end() );
     iobind.insert( iobind_ty::value_type(&b,&a) );
-    b.bind(a);
+    b(a);
+    // b.bind(a);
   }
   template <typename T_value_type>
   void connectInterfacePorts(
@@ -71,16 +72,27 @@ protected:
       smoc_port_in<T_value_type> &b ) {
     assert( iobind.find(&b) == iobind.end() );
     iobind.insert( iobind_ty::value_type(&b,&a) );
-    b.bind(a);
+    b(a);
+    // b.bind(a);
   }
 
   void finalise() {
-    nodes_ty nodes = getNodes();
-    
-    for ( typename nodes_ty::iterator iter = nodes.begin();
-          iter != nodes.end();
-          ++iter )
-      static_cast<smoc_root_node *>(*iter)->finalise();
+    {
+      chans_ty chans = getChans();
+      
+      for ( typename chans_ty::iterator iter = chans.begin();
+            iter != chans.end();
+            ++iter )
+        (*iter)->hierarchy = this;
+    }
+    {
+      nodes_ty nodes = getNodes();
+      
+      for ( typename nodes_ty::iterator iter = nodes.begin();
+            iter != nodes.end();
+            ++iter )
+        (*iter)->finalise();
+    }
   }
 
 public:
@@ -142,7 +154,7 @@ public:
     for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
           iter != get_child_objects().end();
           ++iter ) {
-      chan_kind *chan = dynamic_cast<chan_kind *>(*iter);
+      smoc_root_chan *chan = dynamic_cast<smoc_root_chan *>(*iter);
       
       if (chan)
         channels.push_back(chan);
