@@ -145,18 +145,7 @@ class oneof {
         _ONEOFDEBUG("oneof(const oneof &) (T" << x.valid << ")");
       else
         _ONEOFDEBUG("oneof(const oneof &) ()");
-      if ( isType<T1>(x) )
-        _construct<T1>(x);
-      else if ( isType<T2>(x) )
-        _construct<T2>(x);
-      else if ( isType<T3>(x) )
-        _construct<T3>(x);
-      else if ( isType<T4>(x) )
-        _construct<T4>(x);
-      else if ( isType<T5>(x) )
-        _construct<T5>(x);
-      else
-        assert( isType<NILTYPE>(x) );
+      *this = x;
     }
     oneof(const T1 &e): valid(smoc_detail::oneofTypeid<this_type,NILTYPE>::type()) {
       _ONEOFDEBUG("oneof( const " << typeid(T1).name() << " & )");
@@ -179,16 +168,47 @@ class oneof {
       _construct<T5>(e);
     }
     
-    this_type &operator = (const T1 &x)
-      { reset(); _construct<T1>(x); return *this; }
-    this_type &operator = (const T2 &x)
-      { reset(); _construct<T2>(x); return *this; }
-    this_type &operator = (const T3 &x)
-      { reset(); _construct<T3>(x); return *this; }
-    this_type &operator = (const T4 &x)
-      { reset(); _construct<T4>(x); return *this; }
-    this_type &operator = (const T5 &x)
-      { reset(); _construct<T5>(x); return *this; }
+    this_type &operator = (const this_type &x) {
+      if ( x.valid != smoc_detail::oneofTypeid<this_type,NILTYPE>::type() )
+        _ONEOFDEBUG("oneof = const oneof & (T" << x.valid << ")");
+      else
+        _ONEOFDEBUG("oneof = const oneof & ()");
+      if ( isType<T1>(x) ) {
+        *this = (x._element<T1>());
+      } else if ( isType<T2>(x) ) {
+        *this = (x._element<T2>());
+      } else if ( isType<T3>(x) ) {
+        *this = (x._element<T3>());
+      } else if ( isType<T4>(x) ) {
+        *this = (x._element<T4>());
+      } else if ( isType<T5>(x) ) {
+        *this = (x._element<T5>());
+      } else {
+        assert( isType<NILTYPE>(x) );
+        reset();
+      }
+      return *this;
+    }
+    this_type &operator = (const T1 &x) {
+      _ONEOFDEBUG("oneof = const " << typeid(T1).name() << " &");
+      reset(); _construct<T1>(x); return *this;
+    }
+    this_type &operator = (const T2 &x) {
+      _ONEOFDEBUG("oneof = const " << typeid(T2).name() << " &");
+      reset(); _construct<T2>(x); return *this;
+    }
+    this_type &operator = (const T3 &x) {
+      _ONEOFDEBUG("oneof = const " << typeid(T3).name() << " &");
+      reset(); _construct<T3>(x); return *this;
+    }
+    this_type &operator = (const T4 &x) {
+      _ONEOFDEBUG("oneof = const " << typeid(T4).name() << " &");
+      reset(); _construct<T4>(x); return *this;
+    }
+    this_type &operator = (const T5 &x) {
+      _ONEOFDEBUG("oneof = const " << typeid(T5).name() << " &");
+      reset(); _construct<T5>(x); return *this;
+    }
     
     operator       T1 &()       { return _element<T1>(); }
     operator const T1 &() const { return _element<T1>(); }
