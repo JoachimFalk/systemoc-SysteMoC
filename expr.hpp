@@ -7,10 +7,10 @@
 #include <cmath>
 
 #include <list>
-#include <typeinfo>
-
 
 #include <boost/intrusive_ptr.hpp>
+
+#include <oneof.hpp>
 
 /****************************************************************************
  * dexpr.h
@@ -572,7 +572,8 @@ typename MemGuard<T,X>::type guard(const X *o, T (X::*m)() const)
 typedef enum {
   DOpBinAdd, DOpBinSub, DOpBinMultiply, DOpBinDivide,
   DOpBinEq, DOpBinNe, DOpBinLt, DOpBinLe, DOpBinGt, DOpBinGe,
-  DOpBinBAnd, DOpBinBOr, DOpBinBXor, DOpBinLAnd, DOpBinLOr, DOpBinLXor
+  DOpBinBAnd, DOpBinBOr, DOpBinBXor, DOpBinLAnd, DOpBinLOr, DOpBinLXor,
+  DOpBinField
 } OpBinT;
 
 template<class A, class B, OpBinT Op>
@@ -597,6 +598,7 @@ std::ostream &operator << (std::ostream &o, const OpBinT &op ) {
     case DOpBinLAnd:     o << "DOpBinLAnd"; break;
     case DOpBinLOr:      o << "DOpBinLOr"; break;
     case DOpBinLXor:     o << "DOpBinLXor"; break;
+    case DOpBinField:    o << "DOpBinField"; break;
     default:             o << "???"; break;
   }
   return o;
@@ -780,6 +782,34 @@ DOP(LOr,||)
 #undef DOPBIN
 #undef DBINOP
 
+/* DOpBinField Operator */
+
+template<class A, typename V>
+class DBinOp<A,DLiteral<V A::value_type::*>,DOpBinField> {
+public:
+  typedef DBinOp<A,DLiteral<V A::value_type::*>,DOpBinField>  this_type;
+  typedef V                                                   value_type;
+  
+  A                            a;
+  DLiteral<V A::value_type::*> b;
+  
+  value_type value() const {
+    return Value<A>::apply(a) .*
+           Value<DLiteral<V A::value_type::*> >::apply(b);
+  }
+//  { return Value<A>::apply(a) op Value<B>::apply(b); }
+public:
+  DBinOp(const A& a, const DLiteral<V A::value_type::*> &b): a(a), b(b) {}
+};
+
+
+template <class A, typename V>
+typename DOpBinExecute<A,DLiteral<V A::value_type::*>,DOpBinField>::result_type
+field(const D<A> &a, V A::value_type::* b) {
+  return DOpBinExecute<A,DLiteral<V A::value_type::*>,DOpBinField>::
+    apply(a.getExpr(),DLiteral<V A::value_type::*>(b));
+}
+
 /****************************************************************************
  * DUnOp represents a unary operation in an expressions.
  * A is the input expression of the operation, and Op is
@@ -790,7 +820,8 @@ typedef enum {
   DOpUnLNot,
   DOpUnBNot,
   DOpUnRef,
-  DOpUnDeRef
+  DOpUnDeRef,
+  DOpUnType
 } OpUnT;
 
 template<class A, OpUnT Op>
@@ -803,6 +834,7 @@ std::ostream &operator << (std::ostream &o, const OpUnT &op ) {
     case DOpUnBNot:      o << "DOpUnBNot"; break;
     case DOpUnRef:       o << "DOpUnRef"; break;
     case DOpUnDeRef:     o << "DOpUnDeRef"; break;
+    case DOpUnType:      o << "DOpUnType"; break;
     default:             o << "???"; break;
   }
   return o;
@@ -918,6 +950,33 @@ DOP(DeRef,*)
 #undef DOP
 #undef DOPUN
 #undef DUNOP
+
+/* DOpUnType Operator */
+
+template<class A>
+class DUnOp<A,DOpUnType> {
+public:
+  typedef DUnOp<A,DOpUnType>  this_type;
+  typedef oneof_typeid        value_type;
+  
+  A a;
+  
+  value_type value() const
+    { return Value<A>::apply(a).type(); }
+public:
+  DUnOp(const A& a): a(a) {}
+};
+
+template <class TO, class A>
+D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<oneof_typeid>,DOpBinEq> >
+isType(const D<A> &a) {
+  return D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<oneof_typeid>,DOpBinEq> >(
+    DBinOp<DUnOp<A,DOpUnType>,DLiteral<oneof_typeid>,DOpBinEq>(
+      DUnOp<A,DOpUnType>(a.getExpr()),
+      DLiteral<oneof_typeid>(smoc_detail::oneofTypeid<typename A::value_type,TO>::type())
+    )
+  );
+}
 
 void dump(const PASTNode &node);
 

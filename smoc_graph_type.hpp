@@ -123,9 +123,16 @@ public:
     for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
           iter != get_child_objects().end();
           ++iter ) {
-      node_type *node = dynamic_cast<node_type *>(*iter);
+      smoc_root_node *node = dynamic_cast<smoc_root_node *>(*iter);
       
-      if (node)
+/*
+      if ( node != NULL ) {
+        std::cout << "getNodes(): Got actor " << node->myModule()->name() << std::endl;
+      } else {
+        std::cout << "getNodes(): Got *" << typeid(**iter).name() << std::endl;
+      }
+ */
+      if ( node != NULL )
         subnodes.push_back(node);
     }
     return subnodes;

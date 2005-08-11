@@ -207,9 +207,9 @@ public:
     { return s; }
   
   bool isResolved() const {
-    assert( s.type() == typeid(smoc_firing_state *) ||
-            s.type() == typeid(smoc_firing_state)      );
-    return s.type() == typeid(smoc_firing_state);
+    assert( isType<smoc_firing_state *>(s) ||
+            isType<smoc_firing_state  >(s)    );
+    return isType<smoc_firing_state>(s);
   }
 };
 
