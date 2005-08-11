@@ -111,6 +111,9 @@ private:
       base_type::bind( *parent );
       return 0;
   }
+  
+  sc_module *getHierachy() const
+    { return (*this)->getHierachy(); }
 protected:
   smoc_port_base( const char* name_ )
     : base_type( name_ ), interface( NULL ) {}

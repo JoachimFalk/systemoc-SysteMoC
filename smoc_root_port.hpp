@@ -21,10 +21,10 @@ public:
   
   typedef smoc_root_port  this_type;
 private:
-  bool    uplevel;
+//  bool    uplevel;
 protected:
   smoc_root_port( const char* name_ )
-    : sc_port_base( name_, 1 ), uplevel(false) {}
+    : sc_port_base( name_, 1 )/*, uplevel(false)*/ {}
   
   virtual void commSetup(size_t req) = 0;
   virtual void commExec()            = 0;
@@ -34,21 +34,36 @@ public:
   virtual const char* kind() const
     { return kind_string; }
   
-  virtual bool isInput() const = 0;
-  bool isOutput() const { return !isInput(); }
-  bool isUplevel() const { return uplevel; }
+  virtual sc_module *getHierachy() const = 0;
+  virtual size_t     availableCount() const = 0;
+  virtual bool       isInput() const = 0;
+  bool               isOutput() const
+    { return !isInput(); }
   
-  virtual size_t availableCount()      const = 0;
-  
+//  bool isUplevel() const { return uplevel; }
+ 
+/*
   // bind interface to this port
   void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
   // bind parent port to this port
   void bind( this_type &parent_ ) { uplevel = true; sc_port_base::bind(parent_); }
+*/
+  
+  void dump( std::ostream &out ) const {
+    out << "port(" << this
+        <<      ",name=" << name()
+        <<      ",hierarchy=" << getHierachy()->name()
+        <<      ",available=" << availableCount() << ")";
+  }
 private:
   // disabled
   smoc_root_port( const this_type & );
   this_type& operator = ( const this_type & );
 };
+
+static inline
+std::ostream &operator <<( std::ostream &out, const smoc_root_port &p )
+  { p.dump(out); return out; }
 
 typedef std::list<smoc_root_port *> smoc_port_list;
 
@@ -179,14 +194,5 @@ smoc_root_port_bool operator || (const smoc_root_port_bool &a,
 //smoc_root_port_bool operator || (bool a, const smoc_root_port_bool &b)
 //  { return b || a; }
 
-
-static inline
-std::ostream &operator <<( std::ostream &out, const smoc_root_port &p ) {
-  out << "port(" << &p << ","
-           "uplevel=" << p.isUplevel() << ","
-//           "committed=" << p.committedCount() << ","
-           "available=" << p.availableCount() << ")";
-  return out;
-}
 
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP
