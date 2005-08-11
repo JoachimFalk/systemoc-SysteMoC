@@ -124,8 +124,9 @@ template <class E>
 struct AST {};
 
 template<template <class> class Z, class E>
-typename Z<E>::result_type evalTo(const D<E> &e)
-  { return Z<E>::apply(e.getExpr()); }
+typename Z<E>::result_type evalTo(const D<E> &e) {
+  return Z<E>::apply(e.getExpr());
+}
 
 /****************************************************************************
  * D is a wrapper class which contains a more interesting expression type,
@@ -543,6 +544,11 @@ typedef enum {
 template<class A, class B, OpBinT Op>
 class DBinOp;
 
+template<class A, class B, OpBinT Op>
+struct D<DBinOp<A,B,Op> >: public DBase<DBinOp<A,B,Op> > {
+  D(const A &a, const B &b): DBase<DBinOp<A,B,Op> >(DBinOp<A,B,Op>(a,b)) {}
+};
+
 static inline
 std::ostream &operator << (std::ostream &o, const OpBinT &op ) {
   switch (op) {
@@ -630,12 +636,11 @@ struct AST<DBinOp<A,B,Op> > {
 template <class A, class B, OpBinT Op>
 class DOpBinExecute {
 public:
-  typedef DBinOp<A,B,Op> ExprT;
-  typedef D<ExprT>       result_type;
+  typedef D<DBinOp<A,B,Op> >  result_type;
   
   static inline
   result_type apply(const A &a, const B &b)
-    { return result_type(ExprT(a,b)); }
+    { return result_type(a,b); }
 };
 
 #define DOPBIN(name,op)                                         \
@@ -706,12 +711,14 @@ public:
   DBinOp(const A& a, const DLiteral<V A::value_type::*> &b): a(a), b(b) {}
 };
 
+// Make a convenient typedef for the field op.
+template <class A, typename V>
+struct Field { typedef D<DBinOp<A,DLiteral<V A::value_type::*>,DOpBinField> > type; };
 
 template <class A, typename V>
-typename DOpBinExecute<A,DLiteral<V A::value_type::*>,DOpBinField>::result_type
+typename Field<A,V>::type
 field(const D<A> &a, V A::value_type::* b) {
-  return DOpBinExecute<A,DLiteral<V A::value_type::*>,DOpBinField>::
-    apply(a.getExpr(),DLiteral<V A::value_type::*>(b));
+  return typename Field<A,V>::type(a.getExpr(), DLiteral<V A::value_type::*>(b));
 }
 
 /****************************************************************************
@@ -730,6 +737,11 @@ typedef enum {
 
 template<class A, OpUnT Op>
 class DUnOp;
+
+template<class A, OpUnT Op>
+struct D<DUnOp<A,Op> >: public DBase<DUnOp<A,Op> > {
+  D(const A &a): DBase<DUnOp<A,Op> >(DUnOp<A,Op>(a)) {}
+};
 
 static inline
 std::ostream &operator << (std::ostream &o, const OpUnT &op ) {
@@ -803,12 +815,11 @@ struct AST<DUnOp<A,Op> > {
 template <class A, OpUnT Op>
 class DOpUnExecute {
 public:
-  typedef DUnOp<A,Op> ExprT;
-  typedef D<ExprT>    result_type;
+  typedef D<DUnOp<A,Op> > result_type;
   
   static inline
   result_type apply(const A &a)
-    { return result_type(ExprT(a)); }
+    { return result_type(a); }
 };
 
 #define DOPUN(name,op)                                          \
@@ -857,10 +868,8 @@ template <class TO, class A>
 D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<oneof_typeid>,DOpBinEq> >
 isType(const D<A> &a) {
   return D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<oneof_typeid>,DOpBinEq> >(
-    DBinOp<DUnOp<A,DOpUnType>,DLiteral<oneof_typeid>,DOpBinEq>(
-      DUnOp<A,DOpUnType>(a.getExpr()),
-      DLiteral<oneof_typeid>(smoc_detail::oneofTypeid<typename A::value_type,TO>::type())
-    )
+    DUnOp<A,DOpUnType>(a.getExpr()),
+    DLiteral<oneof_typeid>(smoc_detail::oneofTypeid<typename A::value_type,TO>::type())
   );
 }
 
