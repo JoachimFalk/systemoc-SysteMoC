@@ -34,7 +34,7 @@ public:
   virtual const char* kind() const
     { return kind_string; }
   
-  virtual sc_module *getHierachy() const = 0;
+  virtual sc_module *getHierarchy() const = 0;
   virtual size_t     availableCount() const = 0;
   virtual bool       isInput() const = 0;
   bool               isOutput() const
@@ -52,7 +52,7 @@ public:
   void dump( std::ostream &out ) const {
     out << "port(" << this
         <<      ",name=" << name()
-        <<      ",hierarchy=" << getHierachy()->name()
+        <<      ",hierarchy=" << getHierarchy()->name()
         <<      ",available=" << availableCount() << ")";
   }
 private:

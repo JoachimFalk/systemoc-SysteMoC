@@ -84,7 +84,7 @@ public:
   virtual smoc_port_list getInputPorts()  const = 0;
   virtual smoc_port_list getOutputPorts() const = 0;
   
-  sc_module *getHierachy() const {
+  sc_module *getHierarchy() const {
     assert( hierarchy != NULL );  
     return hierarchy;
   }
@@ -113,9 +113,9 @@ public:
   virtual smoc_ring_access<const T> commSetupIn(size_t req) = 0;
   virtual void commExecIn(const smoc_ring_access<const T> &) = 0;
   
-  sc_module *getHierachy() const {
+  sc_module *getHierarchy() const {
     assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
-    return dynamic_cast<const smoc_root_chan *>(this)->getHierachy();
+    return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
   }
 protected:  
   // constructor
@@ -142,9 +142,9 @@ public:
   virtual smoc_ring_access<T> commSetupOut(size_t req) = 0;
   virtual void commExecOut(const smoc_ring_access<T> &) = 0;
   
-  sc_module *getHierachy() const {
+  sc_module *getHierarchy() const {
     assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
-    return dynamic_cast<const smoc_root_chan *>(this)->getHierachy();
+    return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
   }
 protected:
   // constructor
