@@ -24,6 +24,8 @@ private:
   bool    notified;
   ell_ty  ell;
 public:
+  void reset()
+  {notified=0;}
   smoc_event(): notified(false) {}
   
   void notify() {
@@ -80,7 +82,7 @@ smoc_event_and_list smoc_event::operator & ( smoc_event &p )
   { return smoc_event_and_list(*this) &= p; }
 
 static inline
-void wait( smoc_event &e ) {
+void smoc_wait( smoc_event &e ) {
   if ( !e ) {
     struct _: public smoc_event_listener {
       sc_event se;
@@ -90,6 +92,15 @@ void wait( smoc_event &e ) {
     e.addListener(&w);
     wait(w.se);
   }
+}
+
+static inline
+void smoc_notify(smoc_event& se){
+  se.notify();
+}
+static inline
+void smoc_reset(smoc_event& se){
+  se.reset();
 }
 
 #endif // _INCLUDED_SMOC_EVENT_HPP
