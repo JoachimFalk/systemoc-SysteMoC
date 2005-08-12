@@ -116,6 +116,10 @@ std::ostream &operator <<( std::ostream &out, const std::list<T,A> &l) {
   out << "]";
   return out;
 }
+
+template <typename TA, typename TB>
+std::ostream &operator <<(std::ostream &out, const std::pair<TA,TB> &p)
+  { out << "pair(" << p.first << "," << p.second << ")"; return out; }
 #endif
 
 #endif /* _INCLUDED_COMMONDEFS_H */
