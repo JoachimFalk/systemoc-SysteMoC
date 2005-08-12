@@ -1,8 +1,5 @@
 // vim: set sw=2 ts=8:
 
-#ifndef _INCLUDED_SMOC_ROOT_PORT_HPP
-#define _INCLUDED_SMOC_ROOT_PORT_HPP
-
 #include <iostream>
 #include <cassert>
 
@@ -12,20 +9,29 @@
 
 #include <smoc_expr.hpp>
 
+#include <commondefs.h>
+#include <oneof.hpp>
+
+#include <smoc_event.hpp>
+
+#ifndef _INCLUDED_SMOC_ROOT_PORT_HPP
+#define _INCLUDED_SMOC_ROOT_PORT_HPP
+
 class smoc_root_port
   : protected sc_port_base {
 public:
-  template <class E> friend class Expr::Value;
-  
-  friend class smoc_root_port_bool;
-  
   typedef smoc_root_port  this_type;
+  
+  template <class E> friend class Expr::Value;
+//  friend class smoc_firing_types::resolved_state_ty;
+//  friend class smoc_firing_types::transition_ty;
 private:
 //  bool    uplevel;
 protected:
   smoc_root_port( const char* name_ )
     : sc_port_base( name_, 1 )/*, uplevel(false)*/ {}
   
+public:
   virtual void commSetup(size_t req) = 0;
   virtual void commExec()            = 0;
   virtual void reset()               = 0;
@@ -67,132 +73,273 @@ std::ostream &operator <<( std::ostream &out, const smoc_root_port &p )
 
 typedef std::list<smoc_root_port *> smoc_port_list;
 
+struct smoc_ctx {
+  sc_module       *hierarchy;
+  smoc_port_list   ports_setup;
+  
+  smoc_ctx()
+    : hierarchy(NULL) {}
+};
+
+extern smoc_ctx _ctx;
+
+
+
+static inline
+class smoc_root_port_bool operator >= (class smoc_commnr c, size_t n);
+
 class smoc_commnr {
 public:
   typedef smoc_commnr this_type;
   
-  friend class smoc_root_port_bool;
+  friend smoc_root_port_bool operator >= (smoc_commnr c, size_t n);
   template <typename T> friend class smoc_port_in;
   template <typename T> friend class smoc_port_out;
+  
+  void dump( std::ostream &out ) const 
+    { out << "commnr(" << p << ")"; }
 private:
   smoc_root_port &p;
   
   smoc_commnr(smoc_root_port &p) : p(p) {}
 };
 
+static inline
+std::ostream &operator <<( std::ostream &out, const smoc_commnr &p )
+  { p.dump(out); return out; }
+
+typedef std::pair<smoc_root_port *, size_t>  smoc_commreq;
+
 class smoc_root_port_bool {
 public:
   typedef smoc_root_port_bool this_type;
   typedef void (this_type::*unspecified_bool_type)();
+  
+  enum status_ty {
+    IS_DISABLED,  // this guard is definitely false
+    IS_BLOCKED,   // this guard is blocked
+    IS_ENABLED    // this guard is still true
+  };
+  
+  template <typename T_top>
+  friend class smoc_top_moc;
 private:
-  typedef std::list<smoc_root_port *> ports_ty;
+  typedef std::list<oneof<smoc_commreq,smoc_event *> > reqs_ty;
   
 //  void dummy() {};
-  
-  bool      v;
-  ports_ty  ps;
-public:
-  smoc_root_port_bool( bool v = false ): v(v) {}
-  smoc_root_port_bool(smoc_commnr p, size_t n)
-    : v(p.p.availableCount() >= n) {
-    std::cout << "was here " << v << " for " << &p.p << " !" << std::endl;
-    if ( v ) {
-      p.p.commSetup(n);
-      ps.push_back(&p.p);
-    }
-  }
-  smoc_root_port_bool( const this_type &a, const this_type &b )
-    : v(true), ps(a.ps) {
-    ps.insert(ps.end(), b.ps.begin(), b.ps.end());
-  }
-  
-  void commExec() {
-    for ( ports_ty::iterator iter = ps.begin();
-          iter != ps.end();
-          ++iter ) {
-      (*iter)->commExec();
-      (*iter)->reset();
-    }
-  }
-  
-  bool enabled() const { return v; }
-  
 //  operator unspecified_bool_type() const
 //    { return v ? &this_type::dummy : NULL; }
   
-  ~smoc_root_port_bool() {
-    /* FIXME: implement reset semantic
-    for ( ports_ty::iterator iter = ps.begin();
-          iter != ps.end();
-          ++iter ) {
-      (*iter)->reset();
-    }*/
+  status_ty v;
+  reqs_ty   reqs;
+protected:
+public:
+  smoc_root_port_bool( bool v = false )
+    : v(v ? IS_ENABLED : IS_DISABLED) {}
+  smoc_root_port_bool(smoc_root_port *p, size_t n)
+    : v( p->availableCount() >= n ? IS_ENABLED : (
+         p->getHierarchy() != _ctx.hierarchy 
+                                   ? IS_BLOCKED
+                                   : IS_DISABLED ) ) {
+    if ( v == IS_ENABLED ) {
+      p->commSetup(n);
+      _ctx.ports_setup.push_back(p);
+    }
+    if ( v == IS_BLOCKED )
+      reqs.push_back(smoc_commreq(p,n));
+  }
+  smoc_root_port_bool( smoc_event *e )
+    : v( *e ? IS_ENABLED : IS_BLOCKED ) {
+//    std::cout << "was here !" << std::endl;
+    if ( v == IS_BLOCKED )
+      reqs.push_back(e);
+  }
+  smoc_root_port_bool( const this_type &a, const this_type &b )
+    : v(a.v == IS_DISABLED || b.v == IS_DISABLED ? IS_DISABLED : (
+        a.v == IS_ENABLED  && b.v == IS_ENABLED  ? IS_ENABLED
+                                                 : IS_BLOCKED ) ) {
+//    std::cout << "MERGE A:"; a.dump(std::cout);
+//    std::cout <<      " B:"; b.dump(std::cout);
+//    std::cout << std::endl;
+    if ( v == IS_BLOCKED ) {
+      if ( a.v == IS_BLOCKED )
+        reqs.insert(reqs.end(), a.reqs.begin(), a.reqs.end());
+      if ( b.v == IS_BLOCKED )
+        reqs.insert(reqs.end(), b.reqs.begin(), b.reqs.end());
+    }
+//    std::cout << "MERGE-RESULT: "; dump(std::cout); std::cout << std::endl;
+  }
+  smoc_root_port_bool( const this_type &rhs )
+    : v(rhs.v), reqs(rhs.reqs) {
+//    std::cout << "smoc_root_port_bool( const this_type &rhs ) " << rhs.reqs << std::endl;
+  }
+  
+  smoc_root_port_bool recheck() const {
+    smoc_root_port_bool retval;
+    
+//    std::cout << "smoc_root_port_bool.recheck "; dump(std::cout);
+//    std::cout << std::endl;
+    if (v == IS_BLOCKED) {
+      retval.v = IS_ENABLED;
+      for ( reqs_ty::const_iterator iter = reqs.begin();
+            iter != reqs.end();
+            ++iter ) {
+//        std::cout << "XXX: " << *iter << std::endl;
+        if ( isType<smoc_commreq>(*iter) ) {
+          const smoc_commreq &r = *iter;
+          
+          if ( r.first->availableCount() < r.second ) {
+            if ( r.first->getHierarchy() != _ctx.hierarchy ) {
+              retval.reqs.push_back(r);
+              retval.v = IS_BLOCKED; break;
+            } else {
+              retval.reqs.clear();
+              retval.v = IS_DISABLED; break;
+            }
+          }
+        } else {
+          smoc_event *e = *iter;
+          if ( !*e ) {
+            retval.reqs.push_back(e);
+            retval.v = IS_BLOCKED; break;
+          }
+        }
+      }
+    }
+//    retval.dump(std::cout);
+    return retval;
+  }
+  
+  status_ty getStatus() const { return v; }
+  
+  void dump(std::ostream &out) const {
+    out << "smoc_root_port_bool( status: "
+        << v << ", ports:";
+    for ( reqs_ty::const_iterator iter = reqs.begin();
+          iter != reqs.end();
+          ++iter )
+      out << (iter != reqs.begin() ? ", " : "") << *iter;
+    out << ")";
   }
 };
 
+typedef std::list<smoc_root_port_bool> smoc_root_port_bool_list;
+
+static inline
+std::ostream &operator <<( std::ostream &out, const smoc_root_port_bool &p )
+  { p.dump(out); return out; }
+
 static inline
 smoc_root_port_bool operator >= (smoc_commnr c, size_t n)
-  { return smoc_root_port_bool(c,n); }
+  { return smoc_root_port_bool(&c.p,n); }
 
 namespace Expr {
+
+/****************************************************************************
+ * DGuard represents a virtual guard which hides an smoc_root_port_bool object
+ */
+
+struct ASTNodeVGuard: public ASTNodeTerminal {
+};
+
+class DVGuard {
+public:
+  typedef smoc_root_port_bool value_type;
+  typedef DVGuard              this_type;
+  
+  friend class Value<this_type>;
+  friend class AST<this_type>;
+private:
+  const value_type v;
+public:
+  explicit DVGuard(const value_type &v): v(v) {}
+};
+
+struct Value<DVGuard> {
+  typedef DVGuard::value_type result_type;
+  
+  static inline
+  result_type apply(const DVGuard &e)
+    { return e.v.recheck(); }
+};
+
+struct AST<DVGuard> {
+  typedef PASTNode result_type;
+  
+  static inline
+  PASTNode apply(const DVGuard &e)
+    { return PASTNode(new ASTNodeVGuard()); }
+};
+
+struct D<DVGuard>: public DBase<DVGuard> {
+  D(const smoc_root_port_bool &v): DBase<DVGuard>(DVGuard(v)) {}
+};
+
+// Make a convenient typedef for the placeholder type.
+struct VGuard { typedef D<DVGuard> type; };
+
+static inline
+VGuard::type vguard(const smoc_root_port_bool &v)
+  { return VGuard::type(v); }
+
+static inline
+VGuard::type till(smoc_event &e)
+  { return VGuard::type(&e); }
 
 // NEEDED:
 //  to implement short circuit boolean evaluation
 //  with smoc_root_port_bool
-template<class A, class B>
-class DBinOp<DBinOp<DLiteral<smoc_commnr>,A,DOpBinGe>, B, DOpBinLAnd> {
-public:
-  typedef DBinOp<DLiteral<smoc_commnr>,A,DOpBinGe>  ExprA;
-  typedef DBinOp<ExprA,B,DOpBinLAnd>                this_type;
-  typedef smoc_root_port_bool                       value_type;
+struct DBinOpExecute<smoc_root_port_bool,bool,DOpBinLAnd> {
+  typedef smoc_root_port_bool result_type;
   
-  ExprA a;
-  B     b;
-  
-  value_type value() const {
-    std::cout << "foo" << std::endl;
-    
-    smoc_root_port_bool retval =  Value<ExprA>::apply(a);
-    
-    return retval.enabled()
-      ? retval && Value<B>::apply(b)
-      : smoc_root_port_bool(false);
+  template <class A, class B>
+  static inline
+  result_type apply( const A &a, const B &b ) {
+//    std::cout << "foo" << std::endl;
+    result_type ra =  Value<A>::apply(a);
+    return ra.getStatus() == smoc_root_port_bool::IS_ENABLED
+      ? ( Value<B>::apply(b)
+          ? ra
+          : result_type() )
+      : result_type();
   }
-public:
-  DBinOp(const ExprA &a, const B &b): a(a), b(b) {}
+};
+
+// NEEDED:
+//  to implement short circuit boolean evaluation
+//  with smoc_root_port_bool
+struct DBinOpExecute<bool,smoc_root_port_bool,DOpBinLAnd> {
+  typedef smoc_root_port_bool result_type;
+  
+  template <class A, class B>
+  static inline
+  result_type apply( const A &a, const B &b ) {
+//    std::cout << "hix" << std::endl;
+    return Value<A>::apply(a)
+      ? Value<B>::apply(b)
+      : result_type();
+  }
+};
+
+// NEEDED:
+//  to implement short circuit boolean evaluation
+//  with smoc_root_port_bool
+struct DBinOpExecute<smoc_root_port_bool,smoc_root_port_bool,DOpBinLAnd> {
+  typedef smoc_root_port_bool result_type;
+  
+  template <class A, class B>
+  static inline
+  result_type apply( const A &a, const B &b ) {
+//    std::cout << "bar" << std::endl;
+    
+    result_type ra(Value<A>::apply(a));
+    if ( ra.getStatus() == smoc_root_port_bool::IS_ENABLED )
+      return result_type(ra, Value<B>::apply(b));
+    else
+      return ra;
+  }
 };
 
 }
-
-static inline
-smoc_root_port_bool operator && (const smoc_root_port_bool &a, bool b)
-  { return b ? a : smoc_root_port_bool(false); }
-static inline
-smoc_root_port_bool operator && (const smoc_root_port_bool &a,
-                                 const smoc_root_port_bool &b) {
-  return a.enabled() && b.enabled()
-    ? smoc_root_port_bool(a,b)
-    : smoc_root_port_bool(false);
-}
-
-//static inline
-//smoc_root_port_bool operator || (const smoc_root_port_bool &a, bool b)
-//  { return !b || a.enabled() ? a : smoc_root_port_bool(true); }
-/*
-static inline
-smoc_root_port_bool operator || (const smoc_root_port_bool &a,
-                                 const smoc_root_port_bool &b) {
-  // FIXME: implement ME !!!
-  assert( "FIXME: implement ME !!!" == NULL);
-}
-*/
-
-//static inline
-//smoc_root_port_bool operator && (bool a, const smoc_root_port_bool &b) 
-//  { return b && a; }
-//static inline
-//smoc_root_port_bool operator || (bool a, const smoc_root_port_bool &b)
-//  { return b || a; }
-
 
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP

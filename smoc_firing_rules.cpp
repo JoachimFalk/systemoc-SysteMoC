@@ -6,9 +6,6 @@
 #include <map>
 #include <set>
 
-smoc_firing_state::smoc_firing_state( const smoc_transition_list &tl )
-  :rs(NULL), fr(NULL) { this->operator = (tl); }
-
 smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl) {
   if ( fr != NULL )
     fr->delRef(this);
@@ -141,156 +138,88 @@ smoc_firing_types::transition_ty::initTransition(
   }
 }
 
-smoc_firing_types::resolved_state_ty *
-smoc_firing_types::resolved_state_ty::tryExecute(const char *actor_name) {
-  resolved_state_ty *retval = NULL;
+bool smoc_firing_state::tryExecute() {
+  return rs->tryExecute(&rs,
+      fr->getActor()->myModule()->name());
+}
+
+bool
+smoc_firing_types::resolved_state_ty::tryExecute(
+    resolved_state_ty **rs, const char *actor_name) {
+  bool retval = false;
   
   for ( transitionlist_ty::iterator titer = tl.begin();
         titer != tl.end() && !retval;
-        ++titer )
-    retval = titer->tryExecute(actor_name);
-  return retval;
-}
-
-smoc_firing_types::resolved_state_ty *
-smoc_firing_types::transition_ty::tryExecute(const char *actor_name) {
-  resolved_state_ty *retval = NULL;
-  
-  if ( !isBlocked() ) {
-    smoc_root_port_bool b = knownSatisfiable();
-    
-    if ( b.enabled() ) {
-      if ( isType<smoc_func_diverge>(f) ) {
-        const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
-        retval = &ns.getResolvedState();
-      } else if ( isType<smoc_func_branch>(f) ) {
-        const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
-        statelist_ty::const_iterator iter = sl.begin();
-        
-        // check that ns is in sl
-        while ( iter != sl.end() && (*iter) != ns.rs )
-          ++iter;
-        assert( iter != sl.end() );
-        retval = &ns.getResolvedState();
-      } else {
-        if ( isType<smoc_func_call>(f) ){
-	  //cerr << "<call actor="<<actor_name << " func="<< static_cast<smoc_func_call &>(f).getFuncName()<<">"<< endl;
-          static_cast<smoc_func_call &>(f)();
-	  //cerr << "</call>"<< endl;
-	}else
-          assert( isType<NILTYPE>(f) );
-        assert( sl.size() == 1 );
-        retval = static_cast<resolved_state_ty *>(sl.front());
-      }
-      b.commExec();
-    }
-  }
-  return retval;
-}
-
-typedef std::map<const smoc_root_port *, size_t>  pm_ty;
-typedef std::set<const smoc_root_port *>          ps_ty;
-
-//bool smoc_firing_state::inductionStep() {
-//  assert( rs != NULL );
-//  
-//  bool again = false;
-//  for ( smoc_port_list::iterator piter = getPorts().begin();
-//        piter != getPorts().end();
-//        ++piter ) {
-//    smoc_root_port &p   = **piter;
-//    size_t          min = p.maxCommittableCount();
-//    size_t          max = p.committedCount();
-//    
-//    for ( transitionlist_ty::iterator titer = rs->tl.begin();
-//          titer != rs->tl.end();
-//          ++titer ) {
-//      smoc_activation_pattern &ap = titer->ap;
-//      
-//      if ( !ap.knownUnsatisfiable() ) {
-//        smoc_activation_pattern::iterator opiter = ap.find(&p);
-//        if ( opiter != ap.end() ) {
-//          if ( opiter->second.commitCount() < min )
-//            min = opiter->second.commitCount();
-//          if ( opiter->second.commitCount() > max )
-//            max = opiter->second.commitCount();
-//        } else {
-//          min = 0;
-//        }
-//      }
-//    }
-//    again |= p.setCommittedCount( min > max ? max : min );
-//    again |= p.setMaxCommittable( max );
-//  }
-//  return again;
-//}
-
-bool smoc_firing_state::inductionStep() {
-  assert( rs != NULL );
-  
-  bool again = false;
-/*
-  for ( smoc_port_list::iterator piter = getPorts().begin();
-        piter != getPorts().end();
-        ++piter ) {
-    smoc_root_port &p   = **piter;
-    size_t          min = ~0; // p.maxCommittableCount();
-    size_t          max = p.committedCount();
-    
-    for ( transitionlist_ty::iterator titer = rs->tl.begin();
-          titer != rs->tl.end();
-          ++titer ) {
-      smoc_activation_pattern &ap = titer->ap;
-      
-      if ( !titer->knownUnsatisfiable() ) {
-        smoc_activation_pattern::iterator opiter = ap.find(&p);
-        if ( opiter != ap.end() ) {
-          if ( opiter->second.commitCount() < min )
-            min = opiter->second.commitCount();
-          if ( opiter->second.commitCount() > max )
-            max = opiter->second.commitCount();
-        } else {
-          min = 0;
-        }
-      }
-    }
-    again |= p.setCommittedCount( min > max ? max : min );
-//    again |= p.setMaxCommittable( max );
-  }
- */
-  return again;
-}
-
-bool smoc_firing_state::choiceStep() {
-  assert( rs != NULL );
-  
-/*
-  for ( transitionlist_ty::iterator titer = rs->tl.begin();
-        titer != rs->tl.end();
         ++titer ) {
-    if ( titer->knownSatisfiable() ) {
-      bool again = false;
-      for ( smoc_port_list::iterator piter = getPorts().begin();
-            piter != getPorts().end();
-            ++piter ) {
-        smoc_root_port &p   = **piter;
-        smoc_activation_pattern::iterator opiter = ap.find(&p);
-        size_t commitCount = opiter != ap.end()
-          ? opiter->second.commitCount() : 0;
-        again |= p.setCommittedCount(commitCount);
-//        again |= p.setMaxCommittable(commitCount);
-      }
-      return again;
-    }
+    assert( _ctx.ports_setup.empty() );
+    retval |= titer->tryExecute(rs,actor_name);
+    for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
+          iter != _ctx.ports_setup.end();
+          ++iter )
+      (*iter)->reset();
+     _ctx.ports_setup.clear();
   }
-*/
-  return false;
+  return retval;
+}
+
+bool
+smoc_firing_types::transition_ty::tryExecute(
+    resolved_state_ty **rs, const char *actor_name) {
+  smoc_root_port_bool b      = knownSatisfiable();
+  
+  if ( b.getStatus() == smoc_root_port_bool::IS_ENABLED ) {
+    if ( isType<smoc_func_diverge>(f) ) {
+      const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
+      *rs = &ns.getResolvedState();
+    } else if ( isType<smoc_func_branch>(f) ) {
+      const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
+      statelist_ty::const_iterator iter = sl.begin();
+      
+      // check that ns is in sl
+      while ( iter != sl.end() && (*iter) != ns.rs )
+        ++iter;
+      assert( iter != sl.end() );
+      *rs = &ns.getResolvedState();
+    } else {
+      if ( isType<smoc_func_call>(f) ){
+        //cerr << "<call actor="<<actor_name << " func="<< static_cast<smoc_func_call &>(f).getFuncName()<<">"<< endl;
+        static_cast<smoc_func_call &>(f)();
+        //cerr << "</call>"<< endl;
+      } else
+        assert( isType<NILTYPE>(f) );
+      assert( sl.size() == 1 );
+      *rs = static_cast<resolved_state_ty *>(sl.front());
+    }
+    for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
+          iter != _ctx.ports_setup.end();
+          ++iter )
+      (*iter)->commExec();
+  }
+  return b.getStatus() == smoc_root_port_bool::IS_ENABLED;
+}
+
+void
+smoc_firing_types::resolved_state_ty::findBlocked(
+    smoc_root_port_bool_list &l) {
+  for ( transitionlist_ty::iterator titer = tl.begin();
+        titer != tl.end();
+        ++titer )
+    titer->findBlocked(l);
+}
+
+void
+smoc_firing_types::transition_ty::findBlocked(
+    smoc_root_port_bool_list &l) {
+  smoc_root_port_bool b      = knownSatisfiable();
+  
+  if ( b.getStatus() != smoc_root_port_bool::IS_DISABLED )
+    l.push_back(b);
 }
 
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {
   out << "transition("
         << this << ","
-        << "knownSatisfiable="   << knownSatisfiable().enabled() << ","
+        << "status="   << knownSatisfiable().getStatus() << ","
 //        << "knownUnsatisfiable=" << knownUnsatisfiable() << ", "
         << "ap: "                << ap << ")";
 }
@@ -307,9 +236,4 @@ void smoc_firing_state::dump( std::ostream &o ) const {
 
 
 
-  bool smoc_firing_state::tryExecute() {
-    resolved_state_ty *ns = rs->tryExecute(fr->getActor()->myModule()->name());
-    if ( ns != NULL )
-      rs = ns;
-    return ns != NULL;
-  }
+

@@ -1,6 +1,8 @@
 
 #include <systemc.h>
 
+#include <iostream>
+
 #include <vector>
 #include <set>
 
@@ -52,12 +54,21 @@ public:
   
   class smoc_event_or_list  operator | ( smoc_event &p );
   class smoc_event_and_list operator & ( smoc_event &p );
-
+  
   virtual ~smoc_event() {}
+  
+  void dump(std::ostream &out) const {
+    std::cout << "smoc_event( missing: " << missing << ")";
+  }
 private:
   // disable
   // smoc_event( const this_type & );
 };
+
+static inline
+std::ostream &operator << ( std::ostream &out, const smoc_event &se ) {
+  se.dump(out); return out;
+}
 
 class smoc_event_or_list
 : public std::vector<smoc_event *>,
@@ -77,7 +88,7 @@ public:
   typedef smoc_event_or_list this_type;
   
   smoc_event_or_list()
-    { missing = 0; }
+    {}
   smoc_event_or_list( smoc_event &p )
     { *this |= p; }
   this_type operator | ( smoc_event &p )

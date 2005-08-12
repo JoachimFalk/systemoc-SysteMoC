@@ -128,10 +128,12 @@ struct smoc_firing_types {
       ap_post_exec.reset(); 
     }*/
     
-    bool isBlocked() const { return _blocked != NULL; }
+    bool isBlocked() const
+      { return _blocked != NULL; }
     
-    resolved_state_ty *tryExecute(const char *actor_name);
-
+    bool tryExecute(resolved_state_ty **rs, const char *actor_name);
+    void findBlocked(smoc_root_port_bool_list &l);
+    
     void dump(std::ostream &out) const;
   };
   
@@ -150,7 +152,8 @@ struct smoc_firing_types {
       return tl.back();
     }
     
-    resolved_state_ty *tryExecute(const char *actor_name);
+    bool tryExecute(resolved_state_ty **rs, const char *actor_name);
+    void findBlocked(smoc_root_port_bool_list &l);
   };
 };
 
@@ -169,17 +172,15 @@ public:
 private:
   resolved_state_ty *rs;
   smoc_firing_rules *fr;
-protected:
-  smoc_firing_state( const smoc_transition_list &tl );
 public:
+  smoc_firing_state( const smoc_transition_list &tl )
+    :rs(NULL), fr(NULL) { this->operator = (tl); }
+  smoc_firing_state( const smoc_transition &t )
+    :rs(NULL), fr(NULL) { this->operator = (t); }
   smoc_firing_state(): rs(NULL), fr(NULL) {}
   smoc_firing_state( const this_type &x )
     : rs(NULL), fr(NULL) { *this = x; }
   
-
-  bool inductionStep();
-  bool choiceStep();
-
   void dump( std::ostream &o ) const;
   
   bool isResolvedState() const { return rs != NULL; }
@@ -189,13 +190,8 @@ public:
   void finalise( smoc_root_node *actor ) const;
   
   bool tryExecute();
-/* {
-    fr->resolve();//actor->myModule().name() << endl;;
-    resolved_state_ty *ns = rs->tryExecute();
-    if ( ns != NULL )
-      rs = ns;
-    return ns != NULL;
-    }*/
+  void findBlocked(smoc_root_port_bool_list &l)
+    { return rs->findBlocked(l); }
   
   this_type &operator = (const this_type &x);
   this_type &operator = (const smoc_transition_list &tl);
@@ -268,10 +264,8 @@ protected:
     assert( s != NULL && s->rs != NULL );
     addRef(s); resolved_states.push_front(s->rs);
   }
-
-  smoc_root_node* getActor(){
-    return actor;
-  }
+  
+  smoc_root_node* getActor() { return actor; }
     
   void addRef( smoc_firing_state *s ) { _addRef(s,NULL); }
   

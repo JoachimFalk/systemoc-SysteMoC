@@ -59,27 +59,45 @@ protected:
     cset_ty::nodes_ty nodes = c->getNodes();
     bool again;
     
+    // FIXME: Big hack !!!
+    _ctx.hierarchy = myModule();
     do {
       again = false;
       for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
             iter != nodes.end();
-            ++iter ) {
+            ++iter )
         again |= (*iter)->currentState().tryExecute();
-      }
-      // dump(nodes);
       wait(SC_ZERO_TIME);
     } while (again);
-    s = smoc_activation_pattern() >> diverge(&smoc_scheduler_ndf::schedule);
+    {
+      smoc_transition_list      tl;
+      smoc_root_port_bool_list  l;
+      
+      for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+            iter != nodes.end();
+            ++iter )
+        (*iter)->currentState().findBlocked(l);
+      // std::cout << l << std::endl;
+      for ( smoc_root_port_bool_list::const_iterator iter = l.begin();
+            iter != l.end();
+            ++iter ) {
+        tl |= smoc_activation_pattern(Expr::vguard(*iter)) >>
+                diverge(&smoc_scheduler_ndf::schedule);
+      }
+      s = tl;
+    }
     return s;
   }
-  
+ 
+  /*
   void finalise() {
     s = smoc_activation_pattern() >> diverge(&smoc_scheduler_ndf::schedule);
     smoc_root_node::finalise();
-  }
+  }*/
 public:
   smoc_scheduler_ndf( cset_ty *c )
-    : smoc_root_node(s), c(c) {}
+    : smoc_root_node( smoc_activation_pattern() >> diverge(&smoc_scheduler_ndf::schedule) ),
+      c(c) {}
 };
 
 /*
@@ -262,6 +280,37 @@ private:
     do {
       bool executed = this->currentState().tryExecute();
       assert( executed == true );
+      {
+        std::cout << "in top scheduler !!!" << std::endl;
+        smoc_root_port_bool_list l;
+        
+        smoc_event_or_list ol;
+        this->currentState().findBlocked(l);
+        for ( smoc_root_port_bool_list::iterator iter = l.begin();
+              iter != l.end();
+              ++iter ) {
+          smoc_root_port_bool::reqs_ty &reqs = iter->reqs;
+          
+         /* 
+          smoc_event_and_list al;
+          for ( smoc_root_port_bool::reqs_ty::iterator riter = reqs.begin();
+                riter != reqs.end();
+                ++riter )
+            al &= *static_cast<smoc_event *>(*riter);
+          ol |= al;*/
+          assert( reqs.size() ==  1 );
+//          std::cout << *static_cast<smoc_event *>(*reqs.begin()) << std::endl;
+          ol |= *static_cast<smoc_event *>(*reqs.begin());
+        }
+        smoc_wait(ol);
+//        for ( smoc_event_or_list::iterator iter = ol.begin();
+//              iter != ol.end();
+//              ++iter )
+//          std::cout << **iter << std::endl;
+        
+        // std::cout << l << std::endl;
+        // l.wait();
+      }
     } while ( 1 );
   }
 public:
