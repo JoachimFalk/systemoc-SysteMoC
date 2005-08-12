@@ -71,6 +71,7 @@ pkginclude_HEADERS =			\
 	hscd_moc.hpp			\
 	hscd_structure.hpp		\
 	hscd_graph_type.hpp		\
+	smoc_event.hpp			\
 	oneof.hpp			\
 	commondefs.h
 
