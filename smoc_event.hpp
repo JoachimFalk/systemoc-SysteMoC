@@ -48,29 +48,47 @@ public:
 };
 
 class smoc_event_or_list
-: public std::vector<smoc_event *> {
+: public std::vector<smoc_event *>,
+  public smoc_event {
 public:
   typedef smoc_event_or_list this_type;
   
   smoc_event_or_list( smoc_event &p )
-    { push_back(&p); }
-  this_type &operator |= ( smoc_event &p )
-    { push_back(&p); return *this; }
+    { *this |= p; }
   this_type operator | ( smoc_event &p )
     { return this_type(*this) |= p; }
+  this_type &operator |= ( smoc_event &p )
+    { push_back(&p); return *this; }
 };
 
 class smoc_event_and_list
-: public std::vector<smoc_event *> {
+: public std::vector<smoc_event *>,
+  public smoc_event,
+  protected smoc_event_listener {
+private:
+  size_t missing;
 public:
   typedef smoc_event_and_list this_type;
   
-  smoc_event_and_list( smoc_event &p )
-    { push_back(&p); }
-  this_type &operator &= ( smoc_event &p )
-    { push_back(&p); return *this; }
+  smoc_event_and_list( smoc_event &p ): missing(0)
+    { *this &= p; }
   this_type operator & ( smoc_event &p )
     { return this_type(*this) &= p; }
+  this_type &operator &= ( smoc_event &p ) {
+    if ( !p ) {
+      p.addListener(this); 
+      ++missing;
+    }
+    push_back(&p);
+    return *this;
+  }
+  void signaled( smoc_event *e ) {
+    assert( missing > 0 );
+    if ( !--missing )
+      notify();
+  }
+  
+  virtual ~smoc_event_and_list() {}
 };
 
 inline
@@ -82,25 +100,27 @@ smoc_event_and_list smoc_event::operator & ( smoc_event &p )
   { return smoc_event_and_list(*this) &= p; }
 
 static inline
-void smoc_wait( smoc_event &e ) {
-  if ( !e ) {
+void smoc_notify(smoc_event& se)
+  { return se.notify(); }
+static inline
+void smoc_reset(smoc_event& se)
+  { return se.reset(); }
+
+static inline
+void smoc_wait( smoc_event &se ) {
+  if ( !se ) {
     struct _: public smoc_event_listener {
-      sc_event se;
+      sc_event e;
       void signaled( smoc_event * )
-        { se.notify(); }
+        { e.notify(); }
+      virtual ~_() {}
     } w;
-    e.addListener(&w);
-    wait(w.se);
+    se.addListener(&w);
+    wait(w.e);
   }
 }
+  
 
-static inline
-void smoc_notify(smoc_event& se){
-  se.notify();
-}
-static inline
-void smoc_reset(smoc_event& se){
-  se.reset();
-}
 
 #endif // _INCLUDED_SMOC_EVENT_HPP
+
