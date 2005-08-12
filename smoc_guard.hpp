@@ -104,8 +104,8 @@ public:
     std::cout << std::endl;
   }*/
   
-  this_type concat( const smoc_activation_pattern &ap ) const
-    { return this_type(guard && ap.guard); }
+//  this_type concat( const smoc_activation_pattern &ap ) const
+//    { return this_type(guard && ap.guard); }
   
   void dump(std::ostream &out) const;
 };
@@ -113,5 +113,17 @@ public:
 static inline
 std::ostream &operator <<( std::ostream &out, const smoc_activation_pattern &ap)
   { ap.dump(out); return out; }
+
+namespace Expr {
+
+template <class A, class B>
+static inline
+typename DOpBinConstruct<A,B,DOpBinLAnd>::result_type
+operator >> (const D<A> &a, const D<B> &b) {
+  return DOpBinConstruct<A,B,DOpBinLAnd>::
+    apply(a.getExpr(),b.getExpr());
+}
+
+}
 
 #endif // _INCLUDED_SMOC_GUARD_HPP

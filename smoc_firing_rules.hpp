@@ -353,9 +353,10 @@ protected:
     : sl(), f(f) {}
 };
 
+/*
 class smoc_transition_part1 {
 public:
-  friend class smoc_transition_part2;
+  friend class smoc_transition_part;
   
   typedef smoc_transition_part1 this_type;
 private:
@@ -365,21 +366,22 @@ public:
       const smoc_activation_pattern &ap1,
       const smoc_activation_pattern &ap2 = smoc_activation_pattern())
     : ap1(ap1), ap2(ap2) {}
-};
+};*/
 
-class smoc_transition_part2 {
+class smoc_transition_part {
 public:
   friend class smoc_transition;
   
-  typedef smoc_transition_part2 this_type;
+  typedef smoc_transition_part this_type;
 private:
-  smoc_activation_pattern    ap1, ap2;
+  smoc_activation_pattern    ap;
   smoc_func_call             f;
 public:
-  smoc_transition_part2(
-      const smoc_transition_part1 &tp1,
-      const smoc_func_call        &f)
-    : ap1(tp1.ap1), ap2(tp1.ap2), f(f) {}
+  smoc_transition_part(
+//    const smoc_transition_part1   &tp1,
+      const smoc_activation_pattern &ap,
+      const smoc_func_call          &f)
+    : ap(ap), f(f) {}
 };
 
 class smoc_transition {
@@ -400,10 +402,10 @@ public:
       const smoc_firing_state_ref   &s)
     : ap(ap), ia(smoc_interface_action(s)) {}
   smoc_transition(
-      const smoc_transition_part2   &tp2,
+      const smoc_transition_part   &tp,
       const smoc_firing_state_ref   &s)
-    : ap(tp2.ap1.concat(tp2.ap2)),
-      ia(smoc_interface_action(s,tp2.f)) {}
+    : ap(tp.ap),
+      ia(smoc_interface_action(s,tp.f)) {}
   
   const smoc_activation_pattern &getActivationPattern() const { return ap; }
   const smoc_interface_action   &getInterfaceAction() const { return ia; }
@@ -443,6 +445,7 @@ smoc_transition_list operator | (const smoc_transition &tx,
 				 const smoc_transition &t )
   { return smoc_transition_list(tx) |= t; }
 
+/*
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_1
 GNU89_EXTERN_INLINE
 #endif
@@ -454,26 +457,28 @@ smoc_transition_part1 operator >> (const smoc_activation_pattern &ap1,
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_2
 GNU89_EXTERN_INLINE
 #endif
-smoc_transition_part2 operator >> (const smoc_transition_part1   &tp1,
+smoc_transition_part operator >> (const smoc_transition_part1   &tp1,
                                    const smoc_func_call          &f) {
 //  std::cerr << ">>" << std::endl;
-  return smoc_transition_part2(tp1,f);
+  return smoc_transition_part(tp1,f);
 }
+*/
+
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_3
 GNU89_EXTERN_INLINE
 #endif
-smoc_transition_part2 operator >> (const smoc_activation_pattern &ap,
+smoc_transition_part operator >> (const smoc_activation_pattern &ap,
                                    const smoc_func_call          &f) {
 //  std::cerr << ">>" << std::endl;
-  return smoc_transition_part2(smoc_transition_part1(ap),f);
+  return smoc_transition_part(ap,f);
 }
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_4
 GNU89_EXTERN_INLINE
 #endif
-smoc_transition operator >> (const smoc_transition_part2 &tp2,
+smoc_transition operator >> (const smoc_transition_part &tp,
 			     const smoc_firing_state_ref &s) {
 //  std::cerr << ">>" << std::endl;
-  return smoc_transition(tp2,s);
+  return smoc_transition(tp,s);
 }
 
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_5
