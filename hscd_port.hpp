@@ -14,28 +14,39 @@ public:
   typedef hscd_port_in<T>                 this_type;
   typedef typename this_type::iface_type  iface_type;
 private:
+  bool                    ready;
   std::vector<T>          input;
   
-/*
-  void requestTransfer( hscd_port2op_if &op, size_t n ) {
-    input.resize(n);
-    addr  = static_cast<void *>(&input.front());
-    count_left  = input.size();
-    count_start = count_left;
-    (*this)->wantData( chanCallback() );
-    if ( ready() )
-      finishTransfer();
-    else
-      runningOp = &op;
+  void clearReady() {
+    input.clear();
+    ready = false;
   }
- */
+ void communicate( size_t n ) {
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "<hscd_port_in::communicate>" << std::endl;
+#endif
+    commSetup(n); // access to new tokens
+    input.resize(n);
+    for ( size_t i = 0; i < n; i++ )
+      input[i] = smoc_port_in<T>::operator[](i);
+    commExec(); // consume tokens
+    ready = true;
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "</hscd_port_in::communicate>" << std::endl;
+#endif
+  }
 public:
   hscd_port_in()
     : smoc_port_in<T>()
     {}
-
-  operator bool() const { return false; }
   
+  operator bool() const { return ready; }
+  
+  data_type &operator []( size_t n ) {
+    assert( n < input.size() );
+    return input[n];
+  }
+   
   hscd_op_port operator ()( size_t n )
     { return hscd_op_port(this,n); }
   void operator () ( iface_type& interface_ )
@@ -52,27 +63,33 @@ public:
   typedef hscd_port_out<T>                this_type;
   typedef typename this_type::iface_type  iface_type;
 private:
+  bool                     ready;
   std::vector<T>           output;
- 
-  /*
-  void requestTransfer( hscd_port2op_if &op, size_t n ) {
-    assert( n <= output.size() );
-    addr  = static_cast<void *>(&output.front());
-    count_left  = output.size();
-    count_start = count_left;
-    (*this)->provideData( chanCallback() );
-    if ( ready() )
-      finishTransfer();
-    else
-      runningOp = &op;
-  }*/
   
+  void clearReady() {
+    ready = false;
+  }
+  void communicate( size_t n ) {
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "<hscd_port_out::communicate>" << std::endl;
+#endif
+    commSetup(n); // access to free space on fifo
+    assert( n <= output.size() );
+    for ( size_t i = 0; i < n; i++ )
+      smoc_port_out<T>::operator[](i) = output[i];
+    output.clear();
+    commExec(); // produce tokens
+    ready = true;
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "</hscd_port_out::communicate>" << std::endl;
+#endif
+  }
 public:
   hscd_port_out()
     : smoc_port_out<T>()
     {}
   
-  operator bool() const { return false; }
+  operator bool() const { return ready; }
 
   hscd_op_port operator ()( size_t n )
     { return hscd_op_port(this,n); }

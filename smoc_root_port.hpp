@@ -1,5 +1,8 @@
 // vim: set sw=2 ts=8:
 
+#ifndef _INCLUDED_SMOC_ROOT_PORT_HPP
+#define _INCLUDED_SMOC_ROOT_PORT_HPP
+
 #include <iostream>
 #include <cassert>
 
@@ -8,14 +11,10 @@
 #include <systemc.h>
 
 #include <smoc_expr.hpp>
+#include <smoc_event.hpp>
 
 #include <commondefs.h>
 #include <oneof.hpp>
-
-#include <smoc_event.hpp>
-
-#ifndef _INCLUDED_SMOC_ROOT_PORT_HPP
-#define _INCLUDED_SMOC_ROOT_PORT_HPP
 
 class smoc_root_port
   : protected sc_port_base {
@@ -40,11 +39,17 @@ public:
   virtual const char* kind() const
     { return kind_string; }
   
-  virtual sc_module *getHierarchy() const = 0;
-  virtual size_t     availableCount() const = 0;
-  virtual bool       isInput() const = 0;
-  bool               isOutput() const
+  virtual sc_module  *getHierarchy() const = 0;
+  virtual size_t      availableCount() const = 0;
+  virtual smoc_event &blockEvent() = 0;
+  virtual bool        isInput() const = 0;
+  bool                isOutput() const
     { return !isInput(); }
+  
+  virtual void clearReady()
+    { assert( !"SHOULD NEVER BE CALLED !!!" ); }
+  virtual void communicate( size_t n )
+    { assert( !"SHOULD NEVER BE CALLED !!!" ); }
   
 //  bool isUplevel() const { return uplevel; }
  

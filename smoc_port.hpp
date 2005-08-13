@@ -4,9 +4,9 @@
 #define _INCLUDED_SMOC_POPT_HPP
 
 #include <smoc_expr.hpp>
-
 #include <smoc_root_port.hpp>
 #include <smoc_chan_if.hpp>
+#include <smoc_event.hpp>
 
 #include <systemc.h>
 #include <vector>
@@ -151,7 +151,7 @@ public:
   typedef smoc_port_in<T>                 this_type;
   typedef typename this_type::iface_type  iface_type;
 //  typedef smoc_port_storage_in<T>         base_type;
-private:
+protected:
   void add_interface( sc_interface *i ) {
     push_interface(i); (*this)->addPortIf( this );
   }
@@ -173,6 +173,8 @@ public:
   
   size_t availableCount() const
     { return (*this)->committedOutCount(); }
+  smoc_event &blockEvent()
+    { return (*this)->blockEventOut(); }
   
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
@@ -201,7 +203,7 @@ public:
   typedef smoc_port_out<T>                this_type;
   typedef typename this_type::iface_type  iface_type;
 //  typedef smoc_port_storage_out<T>        base_type;
-private:
+protected:
   void add_interface( sc_interface *i ) {
     push_interface(i); (*this)->addPortIf( this );
   }
@@ -223,6 +225,8 @@ public:
   
   size_t availableCount() const
     { return (*this)->committedInCount(); }
+  smoc_event &blockEvent()
+    { return (*this)->blockEventIn(); }
   
   Expr::Literal<smoc_commnr>::type getAvailableSpace()
     { return Expr::literal<smoc_commnr>(*this); }

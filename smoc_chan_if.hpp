@@ -1,10 +1,10 @@
 // vim: set sw=2 ts=8:
 
-#include <smoc_root_port.hpp>
-#include <smoc_port.hpp>
-
 #ifndef _INCLUDED_SMOC_CHAN_IF
 #define _INCLUDED_SMOC_CHAN_IF
+
+#include <smoc_root_port.hpp>
+#include <smoc_event.hpp>
 
 #include <systemc.h>
 
@@ -110,6 +110,7 @@ public:
   
   virtual void   addPortIf(iface_in_type *_i) = 0;
   virtual size_t committedOutCount() const = 0;
+  smoc_event    &blockEventOut() { return write_event; }
   virtual smoc_ring_access<const T> commSetupIn(size_t req) = 0;
   virtual void commExecIn(const smoc_ring_access<const T> &) = 0;
   
@@ -117,7 +118,9 @@ public:
     assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
     return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
   }
-protected:  
+protected:
+  smoc_event write_event;
+  
   // constructor
   smoc_chan_in_if() {}
 private:
@@ -139,6 +142,7 @@ public:
   
   virtual void   addPortIf(iface_out_type *_i) = 0;
   virtual size_t committedInCount() const = 0;
+  smoc_event    &blockEventIn() { return read_event; }
   virtual smoc_ring_access<T> commSetupOut(size_t req) = 0;
   virtual void commExecOut(const smoc_ring_access<T> &) = 0;
   
@@ -147,6 +151,8 @@ public:
     return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
   }
 protected:
+  smoc_event read_event;
+  
   // constructor
   smoc_chan_out_if() {}
 private:

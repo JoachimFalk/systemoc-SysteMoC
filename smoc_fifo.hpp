@@ -164,13 +164,13 @@ protected:
     return smoc_ring_access<const T>(getStorage(), fsize, rindex, req);
   }
   void commExecIn(const smoc_ring_access<const T> &r)
-    { rpp(r.getLimit()); }
+    { rpp(r.getLimit()); read_event.notify(); }
   smoc_ring_access<T> commSetupOut(size_t req) {
     assert( req <= unusedStorage() );
     return smoc_ring_access<T>(getStorage(), fsize, windex, req);
   }
   void commExecOut(const smoc_ring_access<T> &r)
-    { wpp(r.getLimit()); }
+    { wpp(r.getLimit()); write_event.notify(); }
 public:
   // constructors
   smoc_fifo_type( const typename smoc_fifo_storage<T>::chan_init &i )
