@@ -32,7 +32,8 @@ private:
   smoc_firing_state s;
   
   void analyse() {
-    s = smoc_activation_pattern() >> call(&smoc_scheduler_sdf::schedule) >> s;
+    s = smoc_activation_pattern(Expr::literal(true), true) >>
+        call(&smoc_scheduler_sdf::schedule) >> s;
   }
 public:
   smoc_scheduler_sdf( cset_ty *c )
@@ -77,11 +78,11 @@ protected:
             iter != nodes.end();
             ++iter )
         (*iter)->currentState().findBlocked(l);
-      // std::cout << l << std::endl;
+      std::cout << "CREATE TRANSITIONS: " << l << std::endl;
       for ( smoc_root_port_bool_list::const_iterator iter = l.begin();
             iter != l.end();
             ++iter ) {
-        tl |= smoc_activation_pattern(Expr::vguard(*iter)) >>
+        tl |= smoc_activation_pattern(Expr::vguard(*iter), true) >>
                 diverge(&smoc_scheduler_ndf::schedule);
       }
       s = tl;
@@ -96,7 +97,8 @@ protected:
   }*/
 public:
   smoc_scheduler_ndf( cset_ty *c )
-    : smoc_root_node( smoc_activation_pattern() >> diverge(&smoc_scheduler_ndf::schedule) ),
+    : smoc_root_node( smoc_activation_pattern(Expr::literal(true), true) >>
+                      diverge(&smoc_scheduler_ndf::schedule) ),
       c(c) {}
 };
 
@@ -298,9 +300,12 @@ private:
                 ++riter )
             al &= *static_cast<smoc_event *>(*riter);
           ol |= al;*/
-          assert( reqs.size() ==  1 );
+	  std::cout << reqs << std::endl;
+          assert( reqs.size() <=  1 );
+	  if ( !reqs.empty() ) {
 //          std::cout << *static_cast<smoc_event *>(*reqs.begin()) << std::endl;
-          ol |= *static_cast<smoc_event *>(*reqs.begin());
+	    ol |= *static_cast<smoc_event *>(*reqs.begin());
+	  }
         }
         smoc_wait(ol);
 //        for ( smoc_event_or_list::iterator iter = ol.begin();

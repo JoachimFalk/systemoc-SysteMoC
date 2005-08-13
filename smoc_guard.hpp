@@ -40,10 +40,14 @@ public:
   this_type onlyOutputs() const { return *this; }
   
   smoc_activation_pattern()
-    : guard(Expr::literal(true)) {}
+    : guard(Expr::literal(false)) {}
   
   template <class E>
   smoc_activation_pattern(const Expr::D<E> &guard)
+    : guard(guard) {}
+  
+  template <class E>
+  smoc_activation_pattern(const Expr::D<E> &guard, bool dummy)
     : guard(guard) {}
   
   /*

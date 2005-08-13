@@ -131,8 +131,8 @@ struct smoc_firing_types {
     bool isBlocked() const
       { return _blocked != NULL; }
     
-    bool tryExecute(resolved_state_ty **rs, const char *actor_name);
-    void findBlocked(smoc_root_port_bool_list &l);
+    bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
+    void findBlocked(smoc_root_port_bool_list &l, smoc_root_node *actor);
     
     void dump(std::ostream &out) const;
   };
@@ -152,8 +152,8 @@ struct smoc_firing_types {
       return tl.back();
     }
     
-    bool tryExecute(resolved_state_ty **rs, const char *actor_name);
-    void findBlocked(smoc_root_port_bool_list &l);
+    bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
+    void findBlocked(smoc_root_port_bool_list &l, smoc_root_node *actor);
   };
 };
 
@@ -190,8 +190,7 @@ public:
   void finalise( smoc_root_node *actor ) const;
   
   bool tryExecute();
-  void findBlocked(smoc_root_port_bool_list &l)
-    { return rs->findBlocked(l); }
+  void findBlocked(smoc_root_port_bool_list &l);
   
   this_type &operator = (const this_type &x);
   this_type &operator = (const smoc_transition_list &tl);
