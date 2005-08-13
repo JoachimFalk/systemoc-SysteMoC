@@ -119,8 +119,7 @@ smoc_port_list &smoc_firing_state::getPorts() const {
   return fr->actor->getPorts();
 }
 
-void
-smoc_firing_types::transition_ty::initTransition(
+void smoc_firing_types::transition_ty::initTransition(
     smoc_firing_rules *fr,
     const smoc_transition &t ) {
   ap = t.getActivationPattern();
@@ -141,11 +140,13 @@ smoc_firing_types::transition_ty::initTransition(
 }
 
 bool smoc_firing_state::tryExecute() {
-  return rs->tryExecute(&rs, fr->getActor());
-}
-
-void smoc_firing_state::findBlocked(smoc_root_port_bool_list &l) {
-  return rs->findBlocked(l, fr->getActor());
+  bool retval;
+  
+  std::cout << "<tryExecute for "
+            << fr->getActor()->myModule()->name() << ">" << std::endl;
+  retval = rs->tryExecute(&rs, fr->getActor());
+  std::cout << "</tryExecute>" << std::endl;
+  return retval;
 }
 
 bool
@@ -167,14 +168,14 @@ smoc_firing_types::resolved_state_ty::tryExecute(
   return retval;
 }
 
-bool
-smoc_firing_types::transition_ty::tryExecute(
+bool smoc_firing_types::transition_ty::tryExecute(
     resolved_state_ty **rs, smoc_root_node *actor) {
-  smoc_root_port_bool  b = knownSatisfiable();
-  smoc_actor          *a = dynamic_cast<smoc_actor *>(actor);
+  smoc_actor *a       = dynamic_cast<smoc_actor *>(actor);
+  bool        canexec =
+    (!a || a->vpc_event) &&
+    knownSatisfiable().getStatus() == smoc_root_port_bool::IS_ENABLED;
   
-  if ( (!a || a->vpc_event) &&
-       b.getStatus() == smoc_root_port_bool::IS_ENABLED ) {
+  if ( canexec ) {
     if ( isType<smoc_func_diverge>(f) ) {
       // FIXME: this must only be used internally
       const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
@@ -207,14 +208,18 @@ smoc_firing_types::transition_ty::tryExecute(
           iter != _ctx.ports_setup.end();
           ++iter )
       (*iter)->commExec();
-    return true;
-  } else {
-    return false;
   }
+  return canexec;
 }
 
-void
-smoc_firing_types::resolved_state_ty::findBlocked(
+void smoc_firing_state::findBlocked(smoc_root_port_bool_list &l) {
+  std::cout << "<findBlocked for "
+            << fr->getActor()->myModule()->name() << ">" << std::endl;
+  rs->findBlocked(l, fr->getActor());
+  std::cout << "</findBlocked>" << std::endl;
+}
+
+void smoc_firing_types::resolved_state_ty::findBlocked(
     smoc_root_port_bool_list &l, smoc_root_node *actor) {
   smoc_actor *a = dynamic_cast<smoc_actor *>(actor);
   
@@ -229,8 +234,7 @@ smoc_firing_types::resolved_state_ty::findBlocked(
   }
 }
 
-void
-smoc_firing_types::transition_ty::findBlocked(
+void smoc_firing_types::transition_ty::findBlocked(
     smoc_root_port_bool_list &l, smoc_root_node *actor) {
   smoc_root_port_bool b      = knownSatisfiable();
   

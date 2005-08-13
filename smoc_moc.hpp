@@ -303,18 +303,14 @@ private:
 	  std::cout << reqs << std::endl;
           assert( reqs.size() <=  1 );
 	  if ( !reqs.empty() ) {
-//          std::cout << *static_cast<smoc_event *>(*reqs.begin()) << std::endl;
 	    ol |= *static_cast<smoc_event *>(*reqs.begin());
 	  }
         }
         smoc_wait(ol);
-//        for ( smoc_event_or_list::iterator iter = ol.begin();
-//              iter != ol.end();
-//              ++iter )
-//          std::cout << **iter << std::endl;
-        
-        // std::cout << l << std::endl;
-        // l.wait();
+        for ( smoc_event_or_list::iterator iter = ol.begin();
+              iter != ol.end();
+              ++iter )
+          std::cout << **iter << std::endl;
       }
     } while ( 1 );
   }
