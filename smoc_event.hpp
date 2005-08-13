@@ -26,7 +26,7 @@ protected:
   size_t  missing;
   ell_ty  ell;
 public:
-  smoc_event(): missing(1)
+  smoc_event(bool start_notified=false): missing(start_notified?0:1)
     {}
   
   void notify() {
