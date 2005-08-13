@@ -9,9 +9,10 @@ while(true){
 bool var_q2c_q_rlc_id106547 = port_q2c_q_rlc_id106547->read();
 bool var_c_q_rlc2rlc_id106548 = 0;
 AbstractComponent& r=Director::getInstance().getResource(C_Q_RLC_ID106023);
-sc_event *ev=new sc_event(); 
+smoc_event *ev=new smoc_event(); 
 r.compute(C_Q_RLC_ID106023,ev);
-wait(*(ev));
+smoc_wait(*(ev));
+smoc_reset(*(ev));
 cout << "C_Q_RLC triggered!" << endl << endl;
 port_c_q_rlc2rlc_id106548->write(var_c_q_rlc2rlc_id106548);
 }

@@ -9,9 +9,10 @@ while(true){
 bool var_iq2c_iq_idct_id106539 = port_iq2c_iq_idct_id106539->read();
 bool var_c_iq_idct2idct_id106540 = 0;
 AbstractComponent& r=Director::getInstance().getResource(C_IQ_IDCT_ID106019);
-sc_event *ev=new sc_event(); 
+smoc_event *ev=new smoc_event(); 
 r.compute(C_IQ_IDCT_ID106019,ev);
-wait(*(ev));
+smoc_wait(*(ev));
+smoc_reset(*(ev));
 cout << "C_IQ_IDCT triggered!" << endl << endl;
 port_c_iq_idct2idct_id106540->write(var_c_iq_idct2idct_id106540);
 }

@@ -11,10 +11,12 @@ compileheader-simulation.stamp: $(simulation_CH_LTOBJS)
 SUBDIRS=
 
 SYSTEMCVPC_BUILDDIR=$(root_builddir)/SystemC-VPC
+SYSTEMOC_BUILDDIR=$(root_builddir)/SysteMoC-v0.3
 
 INCLUDES =						\
 	@SYSTEMC_INCLUDE@				\
 	-I$(SYSTEMCVPC_BUILDDIR)/include/systemcvpc	\
+        -I$(SYSTEMOC_BUILDDIR)/include/systemoc         \
 	-I$(srcdir)
 
 AM_LDFLAGS=						\

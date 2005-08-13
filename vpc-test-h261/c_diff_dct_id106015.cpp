@@ -9,9 +9,10 @@ while(true){
 bool var_diff2c_diff_dct_id106531 = port_diff2c_diff_dct_id106531->read();
 bool var_c_diff_dct2dct_id106532 = 0;
 AbstractComponent& r=Director::getInstance().getResource(C_DIFF_DCT_ID106015);
-sc_event *ev=new sc_event(); 
+smoc_event *ev=new smoc_event(); 
 r.compute(C_DIFF_DCT_ID106015,ev);
-wait(*(ev));
+smoc_wait(*(ev));
+smoc_reset(*(ev));
 cout << "C_DIFF_DCT triggered!" << endl << endl;
 port_c_diff_dct2dct_id106532->write(var_c_diff_dct2dct_id106532);
 }

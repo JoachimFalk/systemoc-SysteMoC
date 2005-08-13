@@ -1,3 +1,5 @@
+#include <smoc_event.hpp>
+
 #define IN_ID106005 "IN"
 #define C_IN_RF_ID106026 "C_IN_RF"
 #define C_IN_BM_ID106017 "C_IN_BM"

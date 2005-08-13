@@ -16,12 +16,14 @@ public:
   }
   void proc(){
     while(1){
-      smoc_event_and_list ol = or1 & or2;
+      smoc_event_and_list ul = and1 & and2;
+      smoc_event_and_list ul2 = and1 & and3;
+      smoc_event_or_list ol = ul | ul2;
+      
       //      cerr << "size: "<< ol.size()<< endl;
-      ol &= and1;
       //      cerr << "size: "<< ol.size()<< endl;
-      smoc_wait(ol);
-      smoc_reset(ol);
+      smoc_wait(ul);
+      smoc_reset(ul);
       cerr << "B called at: "<< sc_simulation_time() <<endl;
     }
   }
@@ -78,13 +80,13 @@ public:
     wait(1,SC_NS);
     smoc_notify(B::and3);
     wait(1,SC_NS);
+    smoc_notify(B::and1);
     smoc_notify(B::or2);
     wait(1,SC_NS);
     smoc_notify(B::or1);
     wait(1,SC_NS);
     smoc_notify(B::and2);
     wait(1,SC_NS);
-    smoc_notify(B::and1);
     smoc_notify(C::or2);
   }
 };
