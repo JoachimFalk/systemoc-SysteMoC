@@ -144,7 +144,7 @@ public:
         std::cout << "getNodes(): Got *" << typeid(**iter).name() << std::endl;
       }
  */
-      if ( node != NULL )
+      if ( node != NULL && !node->is_v1_actor )
         subnodes.push_back(node);
     }
     return subnodes;

@@ -60,6 +60,7 @@ protected:
     cset_ty::nodes_ty nodes = c->getNodes();
     bool again;
     
+    std::cout << "<smoc_scheduler_ndf::schedule>" << std::endl;
     // FIXME: Big hack !!!
     _ctx.hierarchy = myModule();
     do {
@@ -68,7 +69,7 @@ protected:
             iter != nodes.end();
             ++iter )
         again |= (*iter)->currentState().tryExecute();
-      wait(SC_ZERO_TIME);
+//      wait(SC_ZERO_TIME);
     } while (again);
     {
       smoc_transition_list      tl;
@@ -87,6 +88,7 @@ protected:
       }
       s = tl;
     }
+    std::cout << "</smoc_scheduler_ndf::schedule>" << std::endl;
     return s;
   }
  
@@ -99,7 +101,9 @@ public:
   smoc_scheduler_ndf( cset_ty *c )
     : smoc_root_node( smoc_activation_pattern(Expr::literal(true), true) >>
                       diverge(&smoc_scheduler_ndf::schedule) ),
-      c(c) {}
+      c(c) {
+    std::cout << "smoc_scheduler_ndf" << std::endl;
+  }
 };
 
 /*
@@ -275,8 +279,15 @@ class smoc_top_moc
   : public T_top,
     public smoc_firing_types {
 private:
+//  bool notagain;
+  
   // called by elaboration_done (does nothing by default)
-  void end_of_elaboration() { finalise(); }
+  void end_of_elaboration() {
+ //   if ( !notagain ) {
+      finalise();
+//      notagain = true;
+//    }
+  }
   
   void schedule() {
     do {
@@ -320,7 +331,7 @@ public:
   SC_HAS_PROCESS(this_type);
   
   explicit smoc_top_moc( sc_module_name name )
-    : T_top(name) {
+    : T_top(name)/*, notagain(false)*/ {
 #ifndef __SCFE__
     SC_THREAD(schedule);
 #endif

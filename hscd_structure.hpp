@@ -11,17 +11,18 @@
 #include <smoc_moc.hpp>
 
 class hscd_graph
-: public smoc_graph {
+: public smoc_top_moc<smoc_graph> {
 public:
   typedef hscd_graph this_type;
   
   
 public:
   explicit hscd_graph( sc_module_name name )
-    : smoc_graph(name) {}
+    : smoc_top_moc<smoc_graph>(name) { is_v1_actor = true; }
   hscd_graph()
-    : smoc_graph( sc_gen_unique_name("hscd_graph") ) {}
+    : smoc_top_moc<smoc_graph>( sc_gen_unique_name("hscd_graph") ) { is_v1_actor = true; }
 
+/*
   template <typename T_chan_init>
   void connectNodePorts(
       hscd_port_out<typename T_chan_init::data_type> &b,
@@ -31,11 +32,11 @@ public:
       static_cast<smoc_port_out<typename T_chan_init::data_type> &>(b),
       static_cast<smoc_port_in <typename T_chan_init::data_type> &>(a),
       i );
-  }
+  }*/
   template <int n, typename T_data_type>
   void connectNodePorts(
-      hscd_port_out<T_data_type> &b,
-      hscd_port_in<T_data_type> &a ) {
+      smoc_port_out<T_data_type> &b,
+      smoc_port_in<T_data_type> &a ) {
     smoc_graph::connectNodePorts(
       static_cast<smoc_port_out<T_data_type> &>(b),
       static_cast<smoc_port_in <T_data_type> &>(a),
@@ -43,8 +44,8 @@ public:
   }
   template <typename T_data_type>
   void connectNodePorts(
-      hscd_port_out<T_data_type> &b,
-      hscd_port_in<T_data_type>  &a ) {
+      smoc_port_out<T_data_type> &b,
+      smoc_port_in<T_data_type>  &a ) {
     smoc_graph::connectNodePorts(
       static_cast<smoc_port_out<T_data_type> &>(b),
       static_cast<smoc_port_in <T_data_type> &>(a) );

@@ -108,11 +108,14 @@ public:
   typedef smoc_chan_in_if<T>          this_type;
   typedef smoc_port_in<T>             iface_in_type;
   
+  bool is_v1_in_port;
+  
   virtual void   addPortIf(iface_in_type *_i) = 0;
   virtual size_t committedOutCount() const = 0;
   smoc_event    &blockEventOut() { return write_event; }
   virtual smoc_ring_access<const T> commSetupIn(size_t req) = 0;
   virtual void commExecIn(const smoc_ring_access<const T> &) = 0;
+  virtual bool portOutIsV1() const = 0;
   
   sc_module *getHierarchy() const {
     assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
@@ -140,11 +143,14 @@ public:
   typedef smoc_chan_out_if<T>         this_type;
   typedef smoc_port_out<T>            iface_out_type;
   
+  bool is_v1_out_port;
+  
   virtual void   addPortIf(iface_out_type *_i) = 0;
   virtual size_t committedInCount() const = 0;
   smoc_event    &blockEventIn() { return read_event; }
   virtual smoc_ring_access<T> commSetupOut(size_t req) = 0;
   virtual void commExecOut(const smoc_ring_access<T> &) = 0;
+  virtual bool portInIsV1() const = 0;
   
   sc_module *getHierarchy() const {
     assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
@@ -172,6 +178,8 @@ public:
   // typedefs
   typedef smoc_chan_if<T_chan_kind, T_data_type>  this_type;
   
+  bool portInIsV1() const { return is_v1_in_port; }
+  bool portOutIsV1() const { return is_v1_out_port; }
 protected:
   // constructor
   smoc_chan_if(const typename T_chan_kind::chan_init &i)

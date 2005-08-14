@@ -15,7 +15,7 @@ class hscd_choice_node
     void choice( const hscd_op_choice &op )     { op.startOp(); }
     
     hscd_choice_node()
-      : smoc_root_node(start) {}
+      : smoc_root_node(start) { is_v1_actor = true; }
 };
 
 class hscd_choice_active_node

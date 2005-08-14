@@ -52,12 +52,14 @@ private:
   smoc_port_list ports;
 protected:
   smoc_root_node(const smoc_firing_state &s)
-    : _currentState(s), _initialState(NULL), ports_valid(false)
+    : _currentState(s), _initialState(NULL), ports_valid(false), is_v1_actor(false)
     {}
   smoc_root_node(smoc_firing_state &s)
-    : _initialState(&s), ports_valid(false)
+    : _initialState(&s), ports_valid(false), is_v1_actor(false)
     {}
 public:
+  bool is_v1_actor;
+  
   virtual void finalise() {
 //    std::cout << myModule()->name() << ": finalise" << std::endl;
     if ( _initialState != NULL ) {

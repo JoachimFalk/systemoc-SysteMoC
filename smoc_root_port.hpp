@@ -24,17 +24,16 @@ public:
   template <class E> friend class Expr::Value;
 //  friend class smoc_firing_types::resolved_state_ty;
 //  friend class smoc_firing_types::transition_ty;
-private:
-//  bool    uplevel;
 protected:
   smoc_root_port( const char* name_ )
-    : sc_port_base( name_, 1 )/*, uplevel(false)*/ {}
-  
+    : sc_port_base( name_, 1 ), is_smoc_v1_port(false) {}
 public:
   virtual void commSetup(size_t req) = 0;
   virtual void commExec()            = 0;
   virtual void reset()               = 0;
 public:
+  bool is_smoc_v1_port;
+  
   static const char* const kind_string;
   virtual const char* kind() const
     { return kind_string; }
@@ -46,13 +45,13 @@ public:
   bool                isOutput() const
     { return !isInput(); }
   
+  virtual bool peerIsV1() const = 0;
+  
   virtual void clearReady()
     { assert( !"SHOULD NEVER BE CALLED !!!" ); }
   virtual void communicate( size_t n )
     { assert( !"SHOULD NEVER BE CALLED !!!" ); }
   
-//  bool isUplevel() const { return uplevel; }
- 
 /*
   // bind interface to this port
   void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
@@ -141,17 +140,29 @@ protected:
 public:
   smoc_root_port_bool( bool v = false )
     : v(v ? IS_ENABLED : IS_DISABLED) {}
-  smoc_root_port_bool(smoc_root_port *p, size_t n)
-    : v( p->availableCount() >= n ? IS_ENABLED : (
-         p->getHierarchy() != _ctx.hierarchy 
-                                   ? IS_BLOCKED
-                                   : IS_DISABLED ) ) {
+  smoc_root_port_bool(smoc_root_port *p, size_t n) {
+//    std::cout << "smoc_root_port_bool(smoc_root_port *p, size_t n) ";
+    if ( p->availableCount() >= n ) {
+      v = IS_ENABLED;// std::cout << "enabled";
+    } else if ( p->getHierarchy() != _ctx.hierarchy ||
+                p->peerIsV1() ) {
+      v = IS_BLOCKED;// std::cout << "blocked";
+    } else {
+      v = IS_DISABLED;// std::cout << "disabled";
+    }
     if ( v == IS_ENABLED ) {
       p->commSetup(n);
       _ctx.ports_setup.push_back(p);
     }
-    if ( v == IS_BLOCKED )
-      reqs.push_back(smoc_commreq(p,n));
+    if ( v == IS_BLOCKED ) {
+      if ( p->peerIsV1() ) {
+        p->blockEvent().reset();
+        reqs.push_back(&p->blockEvent());
+      } else {
+        reqs.push_back(smoc_commreq(p,n));
+      }
+    }
+//    std::cout << " "; dump(std::cout); std::cout << std::endl;
   }
   smoc_root_port_bool( smoc_event *e )
     : v( *e ? IS_ENABLED : IS_BLOCKED ) {
@@ -306,7 +317,7 @@ struct DBinOpExecute<smoc_root_port_bool,bool,DOpBinLAnd> {
       ? ( Value<B>::apply(b)
           ? ra
           : result_type() )
-      : result_type();
+      : ra;
   }
 };
 

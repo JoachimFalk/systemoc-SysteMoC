@@ -18,7 +18,7 @@ private:
   std::vector<T>          input;
   
   void clearReady() {
-    input.clear();
+//    input.clear();
     ready = false;
   }
  void communicate( size_t n ) {
@@ -38,7 +38,7 @@ private:
 public:
   hscd_port_in()
     : smoc_port_in<T>()
-    {}
+    { is_smoc_v1_port = true; }
   
   operator bool() const { return ready; }
   
@@ -87,7 +87,7 @@ private:
 public:
   hscd_port_out()
     : smoc_port_out<T>()
-    {}
+    { is_smoc_v1_port = true; }
   
   operator bool() const { return ready; }
 

@@ -40,7 +40,7 @@ public:
   
   virtual void addListener(smoc_event_listener *el) {
     bool success = ell.insert(el).second;
-    assert( success );
+//    assert( success );
   }
   virtual void delListener(smoc_event_listener *el) {
     ell.erase(el);
