@@ -141,11 +141,14 @@ void smoc_firing_types::transition_ty::initTransition(
 
 bool smoc_firing_state::tryExecute() {
   bool retval;
-  
+#ifdef SYSTEMOC_DEBUG
   std::cout << "<tryExecute for "
             << fr->getActor()->myModule()->name() << ">" << std::endl;
+#endif
   retval = rs->tryExecute(&rs, fr->getActor());
+#ifdef SYSTEMOC_DEBUG
   std::cout << "</tryExecute>" << std::endl;
+#endif
   return retval;
 }
 
@@ -193,12 +196,18 @@ bool smoc_firing_types::transition_ty::tryExecute(
     } else {
       // FIXME: we assume calls will only be used by leaf actors
       if ( isType<smoc_func_call>(f) ) {
-        cerr << "<call actor="<<actor->myModule()->name() << " func="<< static_cast<smoc_func_call &>(f).getFuncName()<<">"<< endl;
+#ifdef SYSTEMOC_DEBUG
+        std::cerr << "<call actor="<<actor->myModule()->name()
+                  << " func="<< static_cast<smoc_func_call &>(f).getFuncName()
+                  << ">"<< std::endl;
+#endif
         a->vpc_event.reset();
         SystemC_VPC::Director::getInstance().getResource( actor->myModule()->name() ).compute( 
             actor->myModule()->name(),&(a->vpc_event) );
         static_cast<smoc_func_call &>(f)();
-        cerr << "</call>"<< endl;
+#ifdef SYSTEMOC_DEBUG
+        std::cerr << "</call>"<< std::endl;
+#endif
       } else
         assert( isType<NILTYPE>(f) );
       assert( sl.size() == 1 );
@@ -213,10 +222,14 @@ bool smoc_firing_types::transition_ty::tryExecute(
 }
 
 void smoc_firing_state::findBlocked(smoc_root_port_bool_list &l) {
+#ifdef SYSTEMOC_DEBUG
   std::cout << "<findBlocked for "
             << fr->getActor()->myModule()->name() << ">" << std::endl;
+#endif
   rs->findBlocked(l, fr->getActor());
+#ifdef SYSTEMOC_DEBUG
   std::cout << "</findBlocked>" << std::endl;
+#endif
 }
 
 void smoc_firing_types::resolved_state_ty::findBlocked(
