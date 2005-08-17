@@ -203,7 +203,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
 #endif
         a->vpc_event.reset();
         SystemC_VPC::Director::getInstance().getResource( actor->myModule()->name() ).compute( 
-            actor->myModule()->name(),&(a->vpc_event) );
+            actor->myModule()->name(), static_cast<smoc_func_call &>(f).getFuncName()  ,&(a->vpc_event) );
         static_cast<smoc_func_call &>(f)();
 #ifdef SYSTEMOC_DEBUG
         std::cerr << "</call>"<< std::endl;
