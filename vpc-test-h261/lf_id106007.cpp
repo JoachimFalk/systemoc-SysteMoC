@@ -11,7 +11,7 @@ bool var_lf2c_lf_rec_id106516 = 0;
 bool var_lf2c_lf_diff_id106517 = 0;
 AbstractComponent& r=Director::getInstance().getResource(LF_ID106007);
 smoc_event *ev=new smoc_event(); 
-r.compute(LF_ID106007,ev);
+r.compute(LF_ID106007,"",ev);
 smoc_wait(*(ev));
 smoc_reset(*(ev));
 cout << "LF triggered!" << endl << endl;

@@ -10,7 +10,7 @@ bool var_c_q_iq2iq_id106513 = port_c_q_iq2iq_id106513->read();
 bool var_iq2c_iq_idct_id106514 = 0;
 AbstractComponent& r=Director::getInstance().getResource(IQ_ID106006);
 smoc_event *ev=new smoc_event(); 
-r.compute(IQ_ID106006,ev);
+r.compute(IQ_ID106006,"",ev);
 smoc_wait(*(ev));
 smoc_reset(*(ev));
 cout << "IQ triggered!" << endl << endl;

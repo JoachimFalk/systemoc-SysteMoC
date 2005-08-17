@@ -10,7 +10,7 @@ bool var_c_iq_idct2idct_id106509 = port_c_iq_idct2idct_id106509->read();
 bool var_idct2c_idct_rec_id106510 = 0;
 AbstractComponent& r=Director::getInstance().getResource(IDCT_ID106004);
 smoc_event *ev=new smoc_event(); 
-r.compute(IDCT_ID106004,ev);
+r.compute(IDCT_ID106004,"",ev);
 smoc_wait(*(ev));
 smoc_reset(*(ev));
 cout << "IDCT triggered!" << endl << endl;

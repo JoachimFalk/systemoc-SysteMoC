@@ -11,7 +11,7 @@ bool var_c_lf_diff2diff_id106506 = port_c_lf_diff2diff_id106506->read();
 bool var_diff2c_diff_dct_id106508 = 0;
 AbstractComponent& r=Director::getInstance().getResource(DIFF_ID106003);
 smoc_event *ev=new smoc_event(); 
-r.compute(DIFF_ID106003,ev);
+r.compute(DIFF_ID106003,"",ev);
 smoc_wait(*(ev));
 smoc_reset(*(ev));
 cout << "DIFF triggered!" << endl << endl;

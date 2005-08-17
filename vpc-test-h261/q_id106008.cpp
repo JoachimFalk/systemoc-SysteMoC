@@ -11,7 +11,7 @@ bool var_q2c_q_iq_id106519 = 0;
 bool var_q2c_q_rlc_id106520 = 0;
 AbstractComponent& r=Director::getInstance().getResource(Q_ID106008);
 smoc_event *ev=new smoc_event(); 
-r.compute(Q_ID106008,ev);
+r.compute(Q_ID106008,"",ev);
 smoc_wait(*(ev));
 smoc_reset(*(ev));
 cout << "Q triggered!" << endl << endl;

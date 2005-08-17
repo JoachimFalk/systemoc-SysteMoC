@@ -10,7 +10,7 @@ bool var_in2c_in_diff_id106537 = port_in2c_in_diff_id106537->read();
 bool var_c_in_diff2diff_id106538 = 0;
 AbstractComponent& r=Director::getInstance().getResource(C_IN_DIFF_ID106018);
 smoc_event *ev=new smoc_event(); 
-r.compute(C_IN_DIFF_ID106018,ev);
+r.compute(C_IN_DIFF_ID106018,"",ev);
 smoc_wait(*(ev));
 smoc_reset(*(ev));
 cout << "C_IN_DIFF triggered!" << endl << endl;

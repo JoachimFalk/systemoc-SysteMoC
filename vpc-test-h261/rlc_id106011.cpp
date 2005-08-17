@@ -11,7 +11,7 @@ bool var_c_q_rlc2rlc_id106525 = port_c_q_rlc2rlc_id106525->read();
 bool var_c_sf_rlc2rlc_id106560 = port_c_sf_rlc2rlc_id106560->read();
 AbstractComponent& r=Director::getInstance().getResource(RLC_ID106011);
 smoc_event *ev=new smoc_event(); 
-r.compute(RLC_ID106011,ev);
+r.compute(RLC_ID106011,"",ev);
 smoc_wait(*(ev));
 smoc_reset(*(ev));
 cout << "RLC triggered!" << endl << endl;

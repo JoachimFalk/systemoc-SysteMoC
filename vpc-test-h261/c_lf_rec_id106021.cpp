@@ -10,7 +10,7 @@ bool var_lf2c_lf_rec_id106543 = port_lf2c_lf_rec_id106543->read();
 bool var_c_lf_rec2rec_id106544 = 0;
 AbstractComponent& r=Director::getInstance().getResource(C_LF_REC_ID106021);
 smoc_event *ev=new smoc_event(); 
-r.compute(C_LF_REC_ID106021,ev);
+r.compute(C_LF_REC_ID106021,"",ev);
 smoc_wait(*(ev));
 smoc_reset(*(ev));
 cout << "C_LF_REC triggered!" << endl << endl;

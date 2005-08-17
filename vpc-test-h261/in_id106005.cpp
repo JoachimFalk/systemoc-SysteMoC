@@ -12,7 +12,7 @@ bool var_in2c_in_bm_id106511 = 0;
 from_monitor->read();
 AbstractComponent& r=Director::getInstance().getResource(IN_ID106005);
 smoc_event *ev=new smoc_event(); 
-r.compute(IN_ID106005,ev);
+r.compute(IN_ID106005,"",ev);
 smoc_wait(*(ev));
 smoc_reset(*(ev));
 cout << "IN triggered!" << endl <<  endl;
