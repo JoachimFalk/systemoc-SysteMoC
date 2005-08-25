@@ -7,6 +7,7 @@
 #include <set>
 
 #include <hscd_vpc_Director.h>
+#include <hscd_tdsim_TraceLog.hpp>
 
 smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl) {
   if ( fr != NULL )
@@ -179,6 +180,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
     knownSatisfiable().getStatus() == smoc_root_port_bool::IS_ENABLED;
   
   if ( canexec ) {
+    TraceLog.traceStartTryExecute(actor->myModule()->name()); //
     if ( isType<smoc_func_diverge>(f) ) {
       // FIXME: this must only be used internally
       const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
@@ -194,6 +196,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
       assert( iter != sl.end() );
       *rs = &ns.getResolvedState();
     } else {
+      TraceLog.traceStartActor(actor->myModule()->name()); //
       // FIXME: we assume calls will only be used by leaf actors
       if ( isType<smoc_func_call>(f) ) {
 #ifdef SYSTEMOC_DEBUG
@@ -201,13 +204,18 @@ bool smoc_firing_types::transition_ty::tryExecute(
                   << " func="<< static_cast<smoc_func_call &>(f).getFuncName()
                   << ">"<< std::endl;
 #endif
+	TraceLog.traceStartFunction(static_cast<smoc_func_call &>(f).getFuncName()); //
         a->vpc_event.reset();
         SystemC_VPC::Director::getInstance().getResource( actor->myModule()->name() ).compute( 
             actor->myModule()->name(), static_cast<smoc_func_call &>(f).getFuncName()  ,&(a->vpc_event) );
         static_cast<smoc_func_call &>(f)();
+	TraceLog.traceEndFunction(static_cast<smoc_func_call &>(f).getFuncName());  //
+
 #ifdef SYSTEMOC_DEBUG
         std::cerr << "</call>"<< std::endl;
 #endif
+
+	TraceLog.traceEndActor(actor->myModule()->name()); //
       } else
         assert( isType<NILTYPE>(f) );
       assert( sl.size() == 1 );
@@ -217,6 +225,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
           iter != _ctx.ports_setup.end();
           ++iter )
       (*iter)->commExec();
+    TraceLog.traceEndTryExecute(actor->myModule()->name()); //
   }
   return canexec;
 }

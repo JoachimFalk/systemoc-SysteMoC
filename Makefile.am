@@ -75,6 +75,7 @@ pkginclude_HEADERS =			\
 	smoc_event.hpp			\
 	oneof.hpp			\
 	commondefs.h			\
+	hscd_tdsim_TraceLog.hpp		\
 					\
 	hscd_op.hpp			\
 	hscd_port.hpp			\
@@ -106,7 +107,8 @@ libsystemoc_la_SOURCES =		\
 	smoc_firing_rules.cpp		\
 	smoc_guard.cpp			\
 	smoc_pggen.cpp			\
-	smoc_chan_if.cpp
+	smoc_chan_if.cpp		\
+	hscd_tdsim_TraceLog.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include
