@@ -39,7 +39,9 @@ public:
   }
   
   virtual void addListener(smoc_event_listener *el) {
-    bool success = ell.insert(el).second;
+    // avoid annoying compiler warnings
+    //bool success = ell.insert(el).second;
+    ell.insert(el).second;
 //    assert( success );
   }
   virtual void delListener(smoc_event_listener *el) {
