@@ -215,9 +215,10 @@ bool smoc_firing_types::transition_ty::tryExecute(
         std::cerr << "</call>"<< std::endl;
 #endif
 
-	TraceLog.traceEndActor(actor->myModule()->name()); //
-      } else
+      } else {
         assert( isType<NILTYPE>(f) );
+      }
+      TraceLog.traceEndActor(actor->myModule()->name()); //
       assert( sl.size() == 1 );
       *rs = static_cast<resolved_state_ty *>(sl.front());
     }
