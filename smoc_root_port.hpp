@@ -305,7 +305,8 @@ VGuard::type till(smoc_event &e)
 // NEEDED:
 //  to implement short circuit boolean evaluation
 //  with smoc_root_port_bool
-struct DBinOpExecute<smoc_root_port_bool,bool,DOpBinLAnd> {
+template <typename T>
+struct DBinOpExecute<smoc_root_port_bool,T,DOpBinLAnd> {
   typedef smoc_root_port_bool result_type;
   
   template <class A, class B>
@@ -324,7 +325,8 @@ struct DBinOpExecute<smoc_root_port_bool,bool,DOpBinLAnd> {
 // NEEDED:
 //  to implement short circuit boolean evaluation
 //  with smoc_root_port_bool
-struct DBinOpExecute<bool,smoc_root_port_bool,DOpBinLAnd> {
+template <typename T>
+struct DBinOpExecute<T,smoc_root_port_bool,DOpBinLAnd> {
   typedef smoc_root_port_bool result_type;
   
   template <class A, class B>
