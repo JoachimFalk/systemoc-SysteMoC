@@ -59,7 +59,6 @@ AC_CONFIG_FILES(
 [ Makefile \
   systemc-csp/Makefile \
   systemc-sdf/Makefile \
-  systemc-yao/Makefile \
   systemc-sqr/Makefile \
   systemc-fir/Makefile \
   systemc-select/Makefile \
