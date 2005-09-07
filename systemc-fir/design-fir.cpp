@@ -94,7 +94,7 @@ public:
   }
 };
 
-class m_h_top: public smoc_ndf_constraintset {
+class m_h_top: public smoc_graph {
 protected:
   m_h_src<double>  src;
   m_h_fir<double>  fir;
@@ -111,7 +111,7 @@ public:
   }
   
   m_h_top( sc_module_name name )
-    : smoc_ndf_constraintset(name),
+    : smoc_graph(name),
       src("src"),
       fir("fir", gentaps()),
       sink("sink") {
@@ -121,7 +121,7 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<smoc_ndf_moc<m_h_top> > top("top");
+  smoc_top_moc<m_h_top> top("top");
   
   sc_start(-1);
   return 0;

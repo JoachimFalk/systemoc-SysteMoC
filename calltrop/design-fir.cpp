@@ -72,7 +72,7 @@ public:
   }
   
   top( sc_module_name name )
-    : smoc_ndf_constraintset(name),
+    : smoc_graph(name),
       s("s"),
       f("f", gentaps()),
       d("d") {

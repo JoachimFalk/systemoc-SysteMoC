@@ -15,7 +15,7 @@
 enum dp_forkreq_ty { FORK_TAKE, FORK_DROP };
 
 class dp_fork
-  : public smoc_choice_passive_node {
+  : public smoc_actor {
 public:
   smoc_port_in<dp_forkreq_ty> l_forkreq;
   smoc_port_in<dp_forkreq_ty> r_forkreq;
@@ -40,11 +40,11 @@ private:
   }
 public:
   dp_fork( sc_module_name name )
-    : smoc_choice_passive_node(name, fireRules() ) {}
+    : smoc_actor(name, fireRules() ) {}
 };
 
 class dp_footman
-  : public smoc_choice_passive_node {
+  : public smoc_actor {
 public:
   smoc_port_in<void> sitreq_0;
   smoc_port_in<void> sitreq_1;
@@ -71,11 +71,11 @@ private:
   }
 public:
   dp_footman( sc_module_name name )
-    : smoc_choice_passive_node(name, fireRules() ) {}
+    : smoc_actor(name, fireRules() ) {}
 };
 
 class dp_philosopher
-  : public smoc_choice_passive_node {
+  : public smoc_actor {
 public:
   smoc_port_out<dp_forkreq_ty> l_forkreq;
   smoc_port_out<dp_forkreq_ty> r_forkreq;
@@ -113,7 +113,7 @@ private:
   }
 public:
   dp_philosopher( sc_module_name name )
-    : smoc_choice_passive_node(name, fireRules() ) {
+    : smoc_actor(name, fireRules() ) {
     l_forkreq[0] = r_forkreq[0] = FORK_TAKE; 
   }
 };

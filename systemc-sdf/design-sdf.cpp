@@ -55,14 +55,14 @@ class m_multiply: public smoc_actor {
 };
 
 class m_top2
-  : public smoc_ndf_constraintset {
+  : public smoc_graph {
   public:
     smoc_port_in<int>  in1;
     smoc_port_in<int>  in2;
     smoc_port_out<int> out;
     
     m_top2( sc_module_name name )
-      : smoc_ndf_constraintset(name)
+      : smoc_graph(name)
     {
       m_adder<int>    &adder = registerNode(new m_adder<int>("adder"));
       m_multiply<int> &mult  = registerNode(new m_multiply<int>("multiply"));
@@ -111,11 +111,11 @@ class m_sink: public smoc_actor {
 };
 
 class m_top
-: public smoc_ndf_constraintset {
+: public smoc_graph {
   public:
     m_top( sc_module_name name )
-      : smoc_ndf_constraintset(name) {
-      m_top2        &top2 = registerNode(new smoc_ndf_moc<m_top2>("top2"));
+      : smoc_graph(name) {
+      m_top2        &top2 = registerNode(new m_top2("top2"));
       m_source      &src1 = registerNode(new m_source("src1"));
       m_source      &src2 = registerNode(new m_source("src2"));
       m_sink        &sink = registerNode(new m_sink("sink"));
@@ -127,7 +127,7 @@ class m_top
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<smoc_ndf_moc<m_top> > top("top");
+  smoc_top_moc<m_top> top("top");
   
   sc_start(-1);
   return 0;
