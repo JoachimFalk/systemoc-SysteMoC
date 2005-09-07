@@ -17,14 +17,23 @@ cal_list<int>::t Integers(int s, int e) {
   return retval;
 }
 
+#define bitand  cal_bitand
 template <typename T>
 T cal_bitand( T a, T b ) { return a & b; }
+
+#define bitor   cal_bitor
 template <typename T>
 T cal_bitor( T a, T b ) { return a | b; }
+
+#define bitxor  cal_bitxor
 template <typename T>
 T cal_bitxor( T a, T b ) { return a ^ b; }
+
+#define rshift  cal_rshift
 template <typename T1>
 T1 cal_rshift( T1 value, unsigned int factor ) { return value >> factor; }
+
+#define lshift  cal_lshift
 template <typename T1>
 T1 cal_lshift( T1 value, unsigned int factor ) { return value << factor; }
 

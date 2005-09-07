@@ -31,7 +31,7 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		(O0.getAvailableSpace() >= 1)  >>
+		(O0.getAvailableSpace() >= 8)  >>
 		call(&m_transpose::action0)    >> s1;
     s1 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
@@ -41,7 +41,7 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		(O1.getAvailableSpace() >= 1)  >>
+		(O1.getAvailableSpace() >= 8)  >>
 		call(&m_transpose::action1)    >> s2;
     s2 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
@@ -51,7 +51,7 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		(O2.getAvailableSpace() >= 1)  >>
+		(O2.getAvailableSpace() >= 8)  >>
 		call(&m_transpose::action2)    >> s3;
     s3 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
@@ -61,7 +61,7 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		(O3.getAvailableSpace() >= 1)  >>
+		(O3.getAvailableSpace() >= 8)  >>
 		call(&m_transpose::action3)    >> s4;
     s4 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
@@ -71,7 +71,7 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		(O4.getAvailableSpace() >= 1)  >>
+		(O4.getAvailableSpace() >= 8)  >>
 		call(&m_transpose::action4)    >> s5;
     s5 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
@@ -81,7 +81,7 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		(O5.getAvailableSpace() >= 1)  >>
+		(O5.getAvailableSpace() >= 8)  >>
 		call(&m_transpose::action5)    >> s6;
     s6 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
@@ -91,7 +91,7 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		(O6.getAvailableSpace() >= 1)  >>
+		(O6.getAvailableSpace() >= 8)  >>
 		call(&m_transpose::action6)    >> s7;
     s7 = (I0.getAvailableTokens() >= 1 &&
 		I1.getAvailableTokens() >= 1 &&
@@ -101,7 +101,8 @@ public:
 		I5.getAvailableTokens() >= 1 &&
 		I6.getAvailableTokens() >= 1 &&
 		I7.getAvailableTokens() >= 1 ) >>
-		(O7.getAvailableSpace() >= 1)  >>
+		(O7.getAvailableSpace() >= 8)  >>
 		call(&m_transpose::action7)    >> s0;
-  }
+    }
 };
+
