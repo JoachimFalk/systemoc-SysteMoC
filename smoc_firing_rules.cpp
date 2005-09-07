@@ -16,6 +16,16 @@ smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl
   rs = new resolved_state_ty();
   smoc_firing_rules *x = new smoc_firing_rules(this);
   assert( x == fr );
+  addTransition(tl);
+  fr->resolve();
+  return *this;
+}
+
+smoc_firing_state &smoc_firing_state::operator = (const smoc_transition &t) {
+  return *this = static_cast<smoc_transition_list>(t);
+}
+
+void smoc_firing_state::addTransition( const smoc_transition_list &tl ) {
   for ( smoc_transition_list::const_iterator titer = tl.begin();
         titer != tl.end();
         ++titer ) {
@@ -23,11 +33,6 @@ smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl
     t.initTransition(fr,*titer);
   }
   fr->resolve();
-  return *this;
-}
-
-smoc_firing_state &smoc_firing_state::operator = (const smoc_transition &t) {
-  return *this = static_cast<smoc_transition_list>(t);
 }
 
 smoc_firing_state &smoc_firing_state::operator = (const this_type &x) {

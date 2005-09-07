@@ -196,6 +196,8 @@ public:
   this_type &operator = (const smoc_transition_list &tl);
   this_type &operator = (const smoc_transition &t);
   
+  void addTransition( const smoc_transition_list &tl );
+  
   ~smoc_firing_state();
 private:
   smoc_port_list &getPorts() const;
