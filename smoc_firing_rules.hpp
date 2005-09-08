@@ -3,18 +3,21 @@
 #ifndef _INCLUDED_SMOC_OP_PORT_LIST_HPP
 #define _INCLUDED_SMOC_OP_PORT_LIST_HPP
 
-#include <vector>
-#include <list>
-#include <set>
-#include <map>
-
 #include <iostream>
 
-#include <oneof.hpp>
-#include <commondefs.h>
+#include <vector>
+
+#include <list>
+#include <hscdsupport/stl_output_for_list.hpp>
+
+#include <set>
+
+#include <hscdsupport/oneof.hpp>
 
 #include <smoc_guard.hpp>
 #include <smoc_root_port.hpp>
+
+#include <hscdsupport/commondefs.h>
 
 class smoc_activation_pattern;
 class smoc_transition;
@@ -213,8 +216,8 @@ private:
 public:
   smoc_firing_state_ref( const smoc_firing_state &n )
     : s(n) { assert( n.isResolvedState() ); }
-  smoc_firing_state_ref( smoc_firing_state       *n )
-    : s(n) { assert( n != NULL /*&& !n->isResolvedState()*/ ); }
+//  smoc_firing_state_ref( smoc_firing_state       *n )
+//    : s(n) { assert( n != NULL /*&& !n->isResolvedState()*/ ); }
   smoc_firing_state_ref( smoc_firing_state       &n ) {
     if ( n.isResolvedState() )
       s = n;

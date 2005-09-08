@@ -27,6 +27,7 @@ SUBDIRS=
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 SYSTEMCVPC_BUILDDIR=$(root_builddir)/SystemC-VPC
+MISCSUPPORT_BUILDDIR=$(root_builddir)/HscdSupport
 
 ac_aux_dir = @ac_aux_dir@
 
@@ -42,7 +43,8 @@ INCLUDES =						\
 	@SYSTEMC_INCLUDE@				\
 	-I./include					\
 	-I$(srcdir)					\
-	-I$(SYSTEMCVPC_BUILDDIR)/include/systemcvpc
+	-I$(SYSTEMCVPC_BUILDDIR)/include		\
+	-I$(MISCSUPPORT_BUILDDIR)/include
 
 AM_LDFLAGS=					\
 	@SYSTEMC_LDFLAGS@			\
@@ -58,7 +60,7 @@ PROGLDFLAGS=
 
 lib_LTLIBRARIES = libsystemoc.la
 pkginclude_HEADERS =			\
-	expr.hpp			\
+	smoc_expr.hpp			\
 	smoc_expr.hpp			\
 	smoc_fifo.hpp			\
 	smoc_moc.hpp			\
@@ -73,8 +75,6 @@ pkginclude_HEADERS =			\
 	smoc_pggen.hpp			\
 	smoc_chan_if.hpp		\
 	smoc_event.hpp			\
-	oneof.hpp			\
-	commondefs.h			\
 	hscd_tdsim_TraceLog.hpp		\
 					\
 	hscd_op.hpp			\
@@ -98,7 +98,7 @@ libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include $(SYSTEMCVPC_BUILDDIR)/libsystemcvpc.la
 
 libsystemoc_la_SOURCES =		\
-	expr.cpp			\
+	smoc_expr.cpp			\
 	smoc_fifo.cpp			\
 	smoc_graph_type.cpp		\
 	smoc_rendezvous.cpp		\

@@ -1,4 +1,4 @@
-#include <expr.hpp>
+#include <smoc_expr.hpp>
 
 namespace Expr {
 

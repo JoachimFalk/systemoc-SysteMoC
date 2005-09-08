@@ -7,14 +7,17 @@
 #include <cassert>
 
 #include <list>
+#include <hscdsupport/stl_output_for_list.hpp>
+
+#include <utility>
+#include <hscdsupport/stl_output_for_pair.hpp>
+
+#include <hscdsupport/oneof.hpp>
 
 #include <systemc.h>
 
 #include <smoc_expr.hpp>
 #include <smoc_event.hpp>
-
-#include <commondefs.h>
-#include <oneof.hpp>
 
 class smoc_root_port
   : protected sc_port_base {

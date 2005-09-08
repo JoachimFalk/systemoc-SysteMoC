@@ -4,24 +4,24 @@
 #define _INCLUDED_SMOC_GUARD_HPP
 
 #include <iostream>
+
 #include <cassert>
 #include <climits>
 #include <cmath>
 
 #include <list>
+#include <hscdsupport/stl_output_for_list.hpp>
 
 #include <systemc.h>
 
-#include <boost/logic/tribool.hpp>
-#include <boost/intrusive_ptr.hpp>
-
-using boost::logic::tribool;
-using boost::logic::indeterminate;
-
 #include <smoc_expr.hpp>
-#include <commondefs.h>
-
 #include <smoc_port.hpp>
+
+//#include <boost/logic/tribool.hpp>
+//#include <boost/intrusive_ptr.hpp>
+//
+//using boost::logic::tribool;
+//using boost::logic::indeterminate;
 
 class smoc_activation_pattern {
 public:

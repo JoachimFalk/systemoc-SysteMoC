@@ -6,8 +6,9 @@
 #include <map>
 #include <set>
 
-#include <hscd_vpc_Director.h>
 #include <hscd_tdsim_TraceLog.hpp>
+
+#include <systemcvpc/hscd_vpc_Director.h>
 
 smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl) {
   if ( fr != NULL )
