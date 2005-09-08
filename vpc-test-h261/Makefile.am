@@ -3,40 +3,20 @@
 root_srcdir=$(top_srcdir)/..
 root_builddir=$(top_builddir)/..
 
-include ../../BuildSystem/jfrules.mk
-
-compileheader-simulation.stamp: $(simulation_CH_LTOBJS)
-	@date > $@
+SYSTEMC_VPC_BUILDDIR=$(root_builddir)/SystemC-VPC
 
 SUBDIRS=
 
-SYSTEMCVPC_BUILDDIR=$(root_builddir)/SystemC-VPC
-SYSTEMOC_BUILDDIR=$(root_builddir)/SysteMoC-v0.3
+INCLUDES = @SYSTEMC_VPC_INCLUDE@ -I$(srcdir)
 
-INCLUDES =						\
-	@SYSTEMC_INCLUDE@				\
-	-I$(SYSTEMCVPC_BUILDDIR)/include/systemcvpc	\
-        -I$(SYSTEMOC_BUILDDIR)/include/systemoc         \
-	-I$(srcdir)
+AM_LDFLAGS = @SYSTEMC_VPC_LDFLAGS@
+AM_CPPFLAGS=-Wno-deprecated
 
-AM_LDFLAGS=						\
-	@SYSTEMC_LDFLAGS@				\
-	-L$(SYSTEMCVPC_BUILDDIR)
-
-#noinst_SCRIPTS  = test_pathstuff.sh
-
-EXTRA_DIST	=
-
-#noinst_PROGRAMS = test_pathstuff
-
-PROGLDFLAGS=
+LIBS=-lsystemcvpc
 
 noinst_PROGRAMS= simulation #bb_test dummy_sim test_tq
 
-LIBS=-lsystemc -lsystemcvpc
-simulation_DEPENDENCIES= $(SYSTEMCVPC_BUILDDIR)/libsystemcvpc.la
-CPPFLAGS=-Wno-deprecated
-
+simulation_DEPENDENCIES= $(SYSTEMC_VPC_BUILDDIR)/libsystemcvpc.la
 simulation_SOURCES= \
     rlc_id106011.cpp c_in_diff_id106018.cpp c_q_iq_id106022.cpp \
     sf_id106012.cpp c_rf_bm_id106025.cpp in_id106005.cpp \

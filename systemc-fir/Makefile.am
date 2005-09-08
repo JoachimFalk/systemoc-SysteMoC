@@ -22,23 +22,18 @@
 root_srcdir=$(top_srcdir)/..
 root_builddir=$(top_builddir)/..
 
-SUBDIRS=
-
 SYSTEMOC_BUILDDIR=$(root_builddir)/SysteMoC-v0.3
 
-INCLUDES =						\
-	@SYSTEMC_INCLUDE@				\
-	-I$(SYSTEMOC_BUILDDIR)/include/systemoc		\
-	-I$(srcdir)
+SUBDIRS=
 
-AM_LDFLAGS=						\
-	@SYSTEMC_LDFLAGS@				\
-	-L$(SYSTEMOC_BUILDDIR)
+INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
+
+AM_LDFLAGS = @SYSTEMOC_LDFLAGS@
+AM_CPPFLAGS=-Wno-deprecated
+
+LIBS=-lsystemoc
 
 noinst_PROGRAMS= simulation-fir
-
-AM_CPPFLAGS=-Wno-deprecated
-LIBS=-lsystemc -lsystemoc
 
 simulation_fir_SOURCES= design-fir.cpp
 simulation_fir_DEPENDENCIES=				\

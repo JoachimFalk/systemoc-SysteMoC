@@ -3,23 +3,16 @@
 root_srcdir=$(top_srcdir)/..
 root_builddir=$(top_builddir)/..
 
-SUBDIRS=
-
 SYSTEMOC_BUILDDIR=$(root_builddir)/SysteMoC-v0.3
 
-INCLUDES =						\
-	@SYSTEMC_INCLUDE@				\
-	-I$(SYSTEMOC_BUILDDIR)/include/systemoc		\
-	-I$(srcdir)
+SUBDIRS=
 
-AM_LDFLAGS=						\
-	@SYSTEMC_LDFLAGS@				\
-	-L$(SYSTEMOC_BUILDDIR)
+INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
+
+AM_LDFLAGS = @SYSTEMOC_LDFLAGS@
+AM_CPPFLAGS=-Wno-deprecated
 
 noinst_PROGRAMS=    smoc2test oneof atutest_atomic atutest_nonatomic
-
-AM_CPPFLAGS=-Wno-deprecated
-LIBS=-lsystemc -lsystemoc
 
 smoc2test_LDFLAGS = -lsystemoc
 smoc2test_DEPENDENCIES = $(SYSTEMOC_BUILDDIR)/libsystemoc.la

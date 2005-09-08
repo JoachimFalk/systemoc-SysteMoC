@@ -22,21 +22,21 @@
 root_srcdir=$(top_srcdir)/..
 root_builddir=$(top_builddir)/..
 
+SYSTEMOC_BUILDDIR=$(root_builddir)/SysteMoC-v0.3
+
 SUBDIRS=
 
-INCLUDES =						\
-	@SYSTEMC_INCLUDE@				\
-	-I$(root_builddir)/SysteMoC/include/systemoc	\
-	-I$(srcdir)
+INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
 
-AM_LDFLAGS=						\
-	@SYSTEMC_LDFLAGS@				\
-	-L$(root_builddir)/SysteMoC
+AM_LDFLAGS = @SYSTEMOC_LDFLAGS@
+AM_CPPFLAGS=-Wno-deprecated
+
+LIBS=-lsystemoc
 
 noinst_PROGRAMS= simulation-csp
-
-LIBS=-lsystemc -lsystemoc
 
 # LDADD= $(root_builddir)/SysteMoC/libsystemoc.la
 
 simulation_csp_SOURCES= design-csp.cpp
+simulation_csp_DEPENDENCIES=				\
+	$(SYSTEMOC_BUILDDIR)/libsystemoc.la
