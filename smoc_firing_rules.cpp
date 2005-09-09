@@ -10,79 +10,96 @@
 
 #include <systemcvpc/hscd_vpc_Director.h>
 
-smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl) {
-  if ( fr != NULL )
-    fr->delRef(this);
-  assert( fr == NULL && rs == NULL );
-  rs = new resolved_state_ty();
+smoc_firing_state_ref::smoc_firing_state_ref()
+  : rs(new resolved_state_ty()), fr(NULL) {
   smoc_firing_rules *x = new smoc_firing_rules(this);
   assert( x == fr );
-  addTransition(tl);
-  fr->resolve();
-  return *this;
 }
 
-smoc_firing_state &smoc_firing_state::operator = (const smoc_transition &t) {
-  return *this = static_cast<smoc_transition_list>(t);
+smoc_firing_state_ref::smoc_firing_state_ref( const this_type &rhs )
+  : rs(rhs.rs), fr(NULL) {
+  assert( rhs.rs != NULL && rhs.fr != NULL );
+  rhs.fr->addRef(this);
 }
 
-void smoc_firing_state::addTransition( const smoc_transition_list &tl ) {
-  for ( smoc_transition_list::const_iterator titer = tl.begin();
-        titer != tl.end();
-        ++titer ) {
-    transition_ty &t = rs->addTransition();
-    t.initTransition(fr,*titer);
-  }
-  fr->resolve();
+void smoc_firing_state_ref::mkCopy( const this_type &rhs ) {
+  // remove old transition of state
+  getResolvedState().clearTransitions();
+  *rs = rhs.getResolvedState();
+  fr->unify( rhs.fr );
+}
+
+void smoc_firing_state_ref::finalise( smoc_root_node *actor ) const {
+  assert( rs != NULL && fr != NULL );
+  fr->finalise(actor);
+}
+
+bool smoc_firing_state_ref::tryExecute() {
+  bool retval;
+#ifdef SYSTEMOC_DEBUG
+  std::cout << "<tryExecute for "
+            << fr->getActor()->myModule()->name() << ">" << std::endl;
+#endif
+  retval = rs->tryExecute(&rs, fr->getActor());
+#ifdef SYSTEMOC_DEBUG
+  std::cout << "</tryExecute>" << std::endl;
+#endif
+  return retval;
+}
+
+void smoc_firing_state_ref::findBlocked(smoc_root_port_bool_list &l) {
+#ifdef SYSTEMOC_DEBUG
+  std::cout << "<findBlocked for "
+            << fr->getActor()->myModule()->name() << ">" << std::endl;
+#endif
+  rs->findBlocked(l, fr->getActor());
+#ifdef SYSTEMOC_DEBUG
+  std::cout << "</findBlocked>" << std::endl;
+#endif
+}
+
+void smoc_firing_state_ref::dump( std::ostream &o ) const {
+  o << "state (" << this << "): ";
+  for ( transitionlist_ty::const_iterator titer = rs->tl.begin();
+        titer != rs->tl.end();
+        ++titer )
+    o << *titer << std::endl;
 }
 
 smoc_firing_state &smoc_firing_state::operator = (const this_type &x) {
-  if ( &x != this ) {
-    if ( fr != NULL )
-      fr->delRef(this);
-    assert( fr == NULL );
-    rs = x.rs;
-    if ( x.fr != NULL ) {
-      x.fr->addRef(this);
-      assert( fr == x.fr );
-      fr->resolve();
-    } else {
-      assert( rs == NULL );
-    }
-  }
+  if ( &x != this )
+    mkCopy(x);
   return *this;
 }
 
-void smoc_firing_rules::_addRef( smoc_firing_state *s, smoc_firing_rules *p ) {
+smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl) {
+  // remove old transition of state
+  getResolvedState().clearTransitions();
+  // add transitions
+  getResolvedState().addTransition(this, tl);
+  return *this;
+}
+
+smoc_firing_state &smoc_firing_state::operator = (const smoc_transition &t)
+  { return *this = static_cast<smoc_transition_list>(t); }
+
+void smoc_firing_state::addTransition( const smoc_transition_list &tl )
+  { getResolvedState().addTransition(this, tl); }
+
+void smoc_firing_rules::_addRef( smoc_firing_state_ref *s, smoc_firing_rules *p ) {
   assert( s != NULL );
   bool success = references.insert(s).second;
   assert( success && s->fr == p );
   s->fr = this;
 }
 
-void smoc_firing_rules::delRef( smoc_firing_state *s ) {
+void smoc_firing_rules::delRef( smoc_firing_state_ref *s ) {
   references_ty::iterator iter = references.find(s);
   
   assert( iter != references.end() && s->fr == this );
   references.erase( iter ); s->fr = NULL; s->rs = NULL;
   if ( references.empty() )
     delete this;
-}
-
-void smoc_firing_rules::resolve() {
-  for ( unresolved_states_ty::iterator iter = unresolved_states.begin();
-        iter != unresolved_states.end();
-        ) {
-    references_ty::iterator riter = references.find(**iter);
-    
-    if ( riter != references.end() ) {
-      /* found it => resolve it */
-      **iter = (*riter)->rs;
-      /* delete from unresolved list */
-      iter = unresolved_states.erase(iter);
-    } else
-      iter++;
-  }
 }
 
 void smoc_firing_rules::unify( smoc_firing_rules *fr ) {
@@ -99,64 +116,44 @@ void smoc_firing_rules::unify( smoc_firing_rules *fr ) {
           ++iter )
       dest->_addRef(*iter, src);
     src->references.clear();
-    dest->resolved_states.splice(
-      dest->resolved_states.begin(), src->resolved_states );
-    dest->unresolved_states.splice(
-      dest->unresolved_states.begin(), src->unresolved_states );
+    dest->states.splice(
+      dest->states.begin(), src->states );
     delete src;
-    dest->resolve();
   }
 }
 
-void smoc_firing_state::finalise( smoc_root_node *actor ) const {
-  if ( fr == NULL )
-    return;
-  assert( fr != NULL );
-  fr->finalise(actor);
-}
-
 void smoc_firing_rules::finalise( smoc_root_node *actor_ ) {
-  assert( unresolved_states.empty() );
+  // assert( unresolved_states.empty() );
   assert( actor == NULL );
   actor = actor_;
 }
 
-smoc_port_list &smoc_firing_state::getPorts() const {
-  assert( fr != NULL && fr->actor != NULL );
-  return fr->actor->getPorts();
-}
-
-void smoc_firing_types::transition_ty::initTransition(
-    smoc_firing_rules *fr,
-    const smoc_transition &t ) {
+smoc_firing_types::transition_ty::transition_ty(
+    smoc_firing_state_ref *s, const smoc_transition &t ) {
   ap = t.getActivationPattern();
   f  = t.ia.f;
+  assert( s->fr != NULL && s->rs != NULL );
   for ( smoc_firing_state_list::const_iterator siter = t.ia.sl.begin();
         siter != t.ia.sl.end();
         ++siter ) {
-    if ( !siter->isResolved() ) {
-      // unresolved state
-      sl.push_back(static_cast<smoc_firing_state *>(*siter));
-      fr->addUnresolved(&sl.back());
-    } else {
-      // resolved state
-      sl.push_back(static_cast<smoc_firing_state>(*siter).rs);
-      fr->unify(static_cast<smoc_firing_state>(*siter).fr);
+    if ( siter->rs != NULL ) {
+      sl.push_front( siter->rs );
+      s->fr->unify( siter->fr );
     }
   }
 }
 
-bool smoc_firing_state::tryExecute() {
-  bool retval;
-#ifdef SYSTEMOC_DEBUG
-  std::cout << "<tryExecute for "
-            << fr->getActor()->myModule()->name() << ">" << std::endl;
-#endif
-  retval = rs->tryExecute(&rs, fr->getActor());
-#ifdef SYSTEMOC_DEBUG
-  std::cout << "</tryExecute>" << std::endl;
-#endif
-  return retval;
+void
+smoc_firing_types::resolved_state_ty::clearTransitions()
+  { tl.clear(); }
+
+void
+smoc_firing_types::resolved_state_ty::addTransition(
+    smoc_firing_state_ref *r, const smoc_transition_list &tl_ ) {
+  for ( smoc_transition_list::const_iterator titer = tl_.begin();
+        titer != tl_.end();
+        ++titer )
+    tl.push_back(transition_ty(r, *titer));
 }
 
 bool
@@ -237,17 +234,6 @@ bool smoc_firing_types::transition_ty::tryExecute(
   return canexec;
 }
 
-void smoc_firing_state::findBlocked(smoc_root_port_bool_list &l) {
-#ifdef SYSTEMOC_DEBUG
-  std::cout << "<findBlocked for "
-            << fr->getActor()->myModule()->name() << ">" << std::endl;
-#endif
-  rs->findBlocked(l, fr->getActor());
-#ifdef SYSTEMOC_DEBUG
-  std::cout << "</findBlocked>" << std::endl;
-#endif
-}
-
 void smoc_firing_types::resolved_state_ty::findBlocked(
     smoc_root_port_bool_list &l, smoc_root_node *actor) {
   smoc_actor *a = dynamic_cast<smoc_actor *>(actor);
@@ -281,17 +267,5 @@ void smoc_firing_types::transition_ty::dump(std::ostream &out) const {
 //        << "knownUnsatisfiable=" << knownUnsatisfiable() << ", "
         << "ap: "                << ap << ")";
 }
-
-void smoc_firing_state::dump( std::ostream &o ) const {
-  o << "state (" << this << "): ";
-  for ( transitionlist_ty::const_iterator titer = rs->tl.begin();
-        titer != rs->tl.end();
-        ++titer )
-    o << *titer << std::endl;
-}
-
-
-
-
 
 
