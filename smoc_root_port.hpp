@@ -20,7 +20,8 @@
 #include <smoc_event.hpp>
 
 class smoc_root_port
-  : protected sc_port_base {
+  // must be public inheritance for dynamic_cast in smoc_root_node to work
+  : public sc_port_base {
 public:
   typedef smoc_root_port  this_type;
   

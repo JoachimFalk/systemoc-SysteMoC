@@ -78,7 +78,7 @@ public:
     return const_cast<smoc_root_node *>(this)->myModule();
   }
   
-  void assemble( smoc_modes::PGWriter &pgw ) const;
+  virtual void assemble( smoc_modes::PGWriter &pgw ) const;
 #endif
 
   smoc_port_list &getPorts();

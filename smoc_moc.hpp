@@ -180,10 +180,8 @@ public:
 #ifndef __SCFE__
   sc_module *myModule() { return this; }
   
-  void assemble( smoc_modes::PGWriter &pgw ) const {
-    return smoc_ndf_constraintset::assemble(pgw); }
-//  void pgAssemble( sc_module *m, smoc_modes::PGWriter &pgw ) const {
-//    return T_constraintset::pgAssemble(pgw); }
+  void assemble( smoc_modes::PGWriter &pgw ) const
+    { return smoc_ndf_constraintset::assemble(pgw); }
 #endif
 
 };
@@ -286,8 +284,7 @@ class smoc_ndf_moc
 
 template <typename T_top>
 class smoc_top_moc
-  : public T_top,
-    public smoc_firing_types {
+  : public T_top {
 private:
 //  bool notagain;
   
