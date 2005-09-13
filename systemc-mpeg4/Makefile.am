@@ -33,10 +33,12 @@ AM_LDFLAGS=						\
 	@SYSTEMC_LDFLAGS@				\
 	-L$(root_builddir)/SysteMoC
 
-noinst_PROGRAMS= simulation-mpeg4
+noinst_PROGRAMS= simulation-mpeg4 simulation-test-idct2d
 
 LIBS=-lsystemc -lsystemoc
 
 # LDADD= $(root_builddir)/SysteMoC/libsystemoc.la
 
 simulation_mpeg4_SOURCES= design-mpeg4.cpp
+
+simulation_test_idct2d_SOURCES= design-test-idct2d.cpp

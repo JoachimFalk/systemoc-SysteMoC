@@ -1,3 +1,6 @@
+#ifndef _INCLUDED_IDCTCLIP_HPP
+#define _INCLUDED_IDCTCLIP_HPP
+
 class m_IDCTclip: public smoc_actor {
 public:
   smoc_port_in<int>  I;
@@ -26,4 +29,7 @@ public:
             (O.getAvailableSpace() >= 1)      >>
             call(&m_IDCTclip::action0) 	      >> start;
   }
+  virtual ~m_IDCTclip(){}
 };
+
+#endif // _INCLUDED_IDCTCLIP_HPP

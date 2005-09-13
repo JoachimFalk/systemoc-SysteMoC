@@ -1,3 +1,5 @@
+#ifndef _INCLUDED_UPSAMPLE_HPP
+#define _INCLUDED_UPSAMPLE_HPP
 
 #include <callib.hpp>
 
@@ -38,3 +40,5 @@ public:
             call(&m_Upsample::action1)        >> start;
   }
 };
+
+#endif // _INCLUDED_UPSAMPLE_HPP

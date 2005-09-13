@@ -1,3 +1,7 @@
+#ifndef _INCLUDED_IDCTSCALE_HPP
+#define _INCLUDED_IDCTSCALE_HPP
+
+
 class m_IDCTscale: public smoc_actor {
 public:
   smoc_port_in<int> I;
@@ -18,3 +22,4 @@ public:
             call(&m_IDCTscale::action0)   >> start;
   }
 };
+#endif // _INCLUDED_IDCTSCALE_HPP
