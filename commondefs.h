@@ -102,9 +102,11 @@ static const char *commondefs_h_rcsid ATTRIBUTE_UNUSED =
 #define MAX_TYPE( type ) ( (type) ( ISSIGNED_TYPE( type ) ? MAX_STYPE( type ) : MAX_UTYPE( type ) ) )
 #define MIN_TYPE( type ) ( (type) ( ISSIGNED_TYPE( type ) ? MIN_STYPE( type ) : MIN_UTYPE( type ) ) )
 
+/*
 #ifdef __cplusplus
 # include <iostream>
 # include <list>
+
                                                                                 
 template <typename T, class A>
 std::ostream &operator <<( std::ostream &out, const std::list<T,A> &l) {
@@ -121,5 +123,6 @@ template <typename TA, typename TB>
 std::ostream &operator <<(std::ostream &out, const std::pair<TA,TB> &p)
   { out << "pair(" << p.first << "," << p.second << ")"; return out; }
 #endif
+*/
 
 #endif /* _INCLUDED_COMMONDEFS_H */
