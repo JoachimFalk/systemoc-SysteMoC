@@ -3,8 +3,6 @@
 root_srcdir=$(top_srcdir)/..
 root_builddir=$(top_builddir)/..
 
-SYSTEMOC_BUILDDIR=$(root_builddir)/SysteMoC-v0.3
-
 SUBDIRS=
 
 INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
@@ -15,17 +13,18 @@ AM_CPPFLAGS=-Wno-deprecated
 noinst_PROGRAMS=    smoc2test oneof atutest_atomic atutest_nonatomic
 
 smoc2test_LDFLAGS = -lsystemoc
-smoc2test_DEPENDENCIES = $(SYSTEMOC_BUILDDIR)/libsystemoc.la
+smoc2test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
 smoc2test_SOURCES= \
 	smoc2test.cpp tt_ib.cpp
 
 atutest_atomic_LDFLAGS = -lsystemoc
-atutest_atomic_DEPENDENCIES = $(SYSTEMOC_BUILDDIR)/libsystemoc.la
+atutest_atomic_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 atutest_atomic_SOURCES= \
 	atutest_atomic.cpp tt_ib.cpp ib_m_atu_atomic.cpp
 
 atutest_nonatomic_LDFLAGS = -lsystemoc
-atutest_nonatomic_DEPENDENCIES = $(SYSTEMOC_BUILDDIR)/libsystemoc.la
+atutest_nonatomic_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 atutest_nonatomic_SOURCES= \
 	atutest_nonatomic.cpp tt_ib.cpp ib_m_atu_nonatomic.cpp
 
