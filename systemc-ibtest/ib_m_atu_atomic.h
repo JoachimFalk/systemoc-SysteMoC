@@ -41,7 +41,7 @@
 #include <iostream>
 
 // Oneof
-#include <hscdsupport/oneof.hpp>
+#include <oneof.hpp>
 
 using Expr::isType;
 

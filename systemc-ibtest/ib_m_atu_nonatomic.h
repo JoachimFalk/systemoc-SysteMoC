@@ -41,7 +41,7 @@
 #include <iostream>
 
 // Oneof
-#include <hscdsupport/oneof.hpp>
+#include <oneof.hpp>
 
 // channel types
 typedef oneof<tt_notification, tt_bo_notification, tt_data>   ct_queue2atu;

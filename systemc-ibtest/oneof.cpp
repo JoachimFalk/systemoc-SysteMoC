@@ -2,7 +2,7 @@
 #include <iostream>
 #include <memory>
 
-#include <hscdsupport/oneof.hpp>
+#include <oneof.hpp>
 
 class a_ty {
   int x;
