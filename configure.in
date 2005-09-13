@@ -55,7 +55,7 @@ ACJF_CHECK_LIB_BOOST
 ### SystemC-VPC ###
 SYSTEMC_VPC_INCLUDE=" \
   -I`pwd`/../HscdSupport/include \
-  -I`pwd`/../SysteMoC-v0.3/include/systemoc \
+  -I`pwd`/../SysteMoC/include/systemoc \
   -I`pwd`/../SystemC-VPC/include/systemcvpc \
   $SYSTEMC_INCLUDE"
 AC_SUBST([SYSTEMC_VPC_INCLUDE])
@@ -68,12 +68,12 @@ AC_SUBST([SYSTEMC_VPC_LDFLAGS])
 ### SysteMoC ###
 SYSTEMOC_INCLUDE=" \
   -I`pwd`/../HscdSupport/include \
-  -I`pwd`/../SysteMoC-v0.3/include/systemoc \
+  -I`pwd`/../SysteMoC/include/systemoc \
   $SYSTEMC_INCLUDE $BOOST_INCLUDE"
 AC_SUBST([SYSTEMOC_INCLUDE])
 
 SYSTEMOC_LDFLAGS=" \
-  -L`pwd`/../SysteMoC-v0.3 \
+  -L`pwd`/../SysteMoC \
   $SYSTEMC_LDFLAGS $BOOST_LDFLAGS"
 AC_SUBST([SYSTEMOC_LDFLAGS])
 
