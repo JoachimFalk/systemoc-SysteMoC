@@ -1,0 +1,51 @@
+
+import all caltrop.lib.Bitops; 
+
+class m_col2block: public smoc_actor {
+// The actor has 9 Ports.
+public: 
+   smoc_port_in<int> R0;
+   smoc_port_in<int> R1;
+   smoc_port_in<int> R2;
+   smoc_port_in<int> R3;
+   smoc_port_in<int> R4;
+   smoc_port_in<int> R5;
+   smoc_port_in<int> R6;
+   smoc_port_in<int> R7;
+   smoc_port_out<cal_list<int>::t> B;
+
+// The actor has 0 Parameters and 0 Variable declarations.
+
+// The actor has 1 Actions and 0 Guards.
+private:
+void m_col2block::action(void) {
+// The action has 0 local variable declarations.
+   int r0 = R0[0];
+   int r1 = R1[0];
+   int r2 = R2[0];
+   int r3 = R3[0];
+   int r4 = R4[0];
+   int r5 = R5[0];
+   int r6 = R6[0];
+   int r7 = R7[0];
+   B[0] = (r0 + r1 + r2 + r3 + r4 + r5 + r6 + r7);
+}
+
+   smoc_firing_state start;
+      
+public:
+ m_col2block(sc_module_name name)
+ : smoc_actor(name, start) {
+ start = 
+   (R0.getAvailableTokens() >= 8 && 
+   R1.getAvailableTokens() >= 8 && 
+   R2.getAvailableTokens() >= 8 && 
+   R3.getAvailableTokens() >= 8 && 
+   R4.getAvailableTokens() >= 8 && 
+   R5.getAvailableTokens() >= 8 && 
+   R6.getAvailableTokens() >= 8 && 
+   R7.getAvailableTokens() >= 8) >> 
+   (B.getAvailableSpace() >= 1)  >>
+   call(m_col2block::action) >> start;  
+ }
+};

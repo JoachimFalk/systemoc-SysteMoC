@@ -1,0 +1,340 @@
+
+import all caltrop.lib.Bitops; 
+
+class m_sequence: public smoc_actor {
+// The actor has 5 Ports.
+public: 
+   smoc_port_in<int> DATA;
+   smoc_port_in<int> BUF;
+   smoc_port_out<int> A;
+   smoc_port_out<int> B;
+   smoc_port_out<int> C;
+
+// The actor has 0 Parameters and 19 Variable declarations.
+private: 
+   int mb_x; 
+    int mb_y; 
+    cal_list<int>::t> mb_seq; 
+    int mb_x_last; 
+    int mb_y_last; 
+    cal_list<int>::t> mb_seq_last; 
+    int block_count; 
+    int buf_x; 
+    int buf_y; 
+    cal_list<int>::t> buf_seq; 
+    int buf_x_last; 
+    int buf_y_last; 
+    cal_list<int>::t> buf_seq_last; 
+    int buf_x_next; 
+    int buf_y_next; 
+    cal_list<int>::t> buf_seq_next; 
+    int buf_count; 
+    int buf_eof; 
+    int this_n; 
+    
+   int keep_reading_buf(int bxnext, int bynext, int bx, int by, int mbx, int mby) {
+   return( (bynext < (mby - 1) || (bynext == (mby - 1) && bxnext <= mbx) || by < (mby - 1) || (by == (mby - 1) && bx < mbx)) );
+   }
+   
+   
+// The actor has 11 Actions and 11 Guards.
+private:
+bool m_sequence::guard_flush_buf(void)  const {
+   const int type = BUF[0];
+   const int x = BUF[1];
+   const int y = BUF[2];
+   const int n = BUF[3];
+   return( (buf_count < block_count) );
+}
+bool m_sequence::guard_reset_actor(void)  const {
+   return( (buf_count == block_count) );
+}
+bool m_sequence::guard_eof_detect(void)  const {
+   const int type = DATA[0];
+   const int x = DATA[1];
+   const int y = DATA[2];
+   const int n = DATA[3];
+   return( (type < 0) );
+}
+bool m_sequence::guard_discard_block(void)  const {
+   const int type = DATA[0];
+   const int x = DATA[1];
+   const int y = DATA[2];
+   const int n = DATA[3];
+   return( (type == 1) );
+}
+bool m_sequence::guard_read_block(void)  const {
+   const int type = DATA[0];
+   const int x = DATA[1];
+   const int y = DATA[2];
+   const int n = DATA[3];
+   return( (type == 0) );
+}
+bool m_sequence::guard_read_buf.block(void)  const {
+   const int type = BUF[0];
+   const int x = BUF[1];
+   const int y = BUF[2];
+   const int n = BUF[3];
+   return( (buf_eof == 0) && keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y) );
+}
+bool m_sequence::guard_predict.b0(void)  const {
+   return( (this_n == 0 && (buf_eof == 1 || (! keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y)))) );
+}
+bool m_sequence::guard_predict.b1(void)  const {
+   return( (this_n == 1 && (buf_eof == 1 || (! keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y)))) );
+}
+bool m_sequence::guard_predict.b2(void)  const {
+   return( (this_n == 2 && (buf_eof == 1 || (! keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y)))) );
+}
+bool m_sequence::guard_predict.b3(void)  const {
+   return( (this_n == 3 && (buf_eof == 1 || (! keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y)))) );
+}
+bool m_sequence::guard_predict.b45(void)  const {
+   return( (this_n > 3 && (buf_eof == 1 || (! keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y)))) );
+}
+void m_sequence::flush_buf(void) {
+// The action has 0 local variable declarations.
+   int type = BUF[0];
+   int x = BUF[1];
+   int y = BUF[2];
+   int n = BUF[3];
+   if (type != 1) { 
+      buf_count = (buf_count + 1); 
+   }
+}
+void m_sequence::reset_actor(void) {
+// The action has 0 local variable declarations.
+   block_count = 0; 
+   mb_x = (-1); 
+   mb_y = (-1); 
+   mb_x_last = (-1); 
+   mb_y_last = (-1); 
+   mb_seq[0] = 0;
+   mb_seq[1] = 0;
+   mb_seq[2] = 0;
+   mb_seq[3] = 0;
+   mb_seq[4] = 0;
+   mb_seq[5] = 0;
+   buf_count = 0; 
+   buf_x = (-1); 
+   buf_y = (-1); 
+   buf_x_last = (-1); 
+   buf_y_last = (-1); 
+   buf_x_next = (-1); 
+   buf_y_next = (-1); 
+   buf_seq[0] = 0;
+   buf_seq[1] = 0;
+   buf_seq[2] = 0;
+   buf_seq[3] = 0;
+   buf_seq[4] = 0;
+   buf_seq[5] = 0;
+   buf_seq_next[0] = 0;
+   buf_seq_next[1] = 0;
+   buf_seq_next[2] = 0;
+   buf_seq_next[3] = 0;
+   buf_seq_next[4] = 0;
+   buf_seq_next[5] = 0;
+   buf_eof = 0; 
+}
+void m_sequence::eof_detect(void) {
+// The action has 0 local variable declarations.
+   int type = DATA[0];
+   int x = DATA[1];
+   int y = DATA[2];
+   int n = DATA[3];
+   block_count = (block_count + 1); 
+}
+void m_sequence::discard_block(void) {
+// The action has 0 local variable declarations.
+   int type = DATA[0];
+   int x = DATA[1];
+   int y = DATA[2];
+   int n = DATA[3];
+}
+void m_sequence::read_block(void) {
+// The action has 0 local variable declarations.
+   int type = DATA[0];
+   int x = DATA[1];
+   int y = DATA[2];
+   int n = DATA[3];
+   block_count = (block_count + 1); 
+   if (x != mb_x || y != mb_y) { 
+      mb_x_last = mb_x; 
+      mb_y_last = mb_y; 
+      mb_seq_last = mb_seq; 
+      mb_x = x; 
+      mb_y = y; 
+      mb_seq[0] = 0;
+   mb_seq[1] = 0;
+   mb_seq[2] = 0;
+   mb_seq[3] = 0;
+   mb_seq[4] = 0;
+   mb_seq[5] = 0;
+   }
+   mb_seq[n] = block_count;
+   this_n = n; 
+}
+void m_sequence::read_buf.block(void) {
+// The action has 0 local variable declarations.
+   int type = BUF[0];
+   int x = BUF[1];
+   int y = BUF[2];
+   int n = BUF[3];
+   if (type != 1) { 
+      buf_count = (buf_count + 1); 
+      if (x != buf_x_next || y != buf_y_next) { 
+      buf_x_last = buf_x; 
+      buf_y_last = buf_y; 
+      buf_seq_last = buf_seq; 
+      buf_x = buf_x_next; 
+      buf_y = buf_y_next; 
+      buf_seq = buf_seq_next; 
+      buf_seq_next[0] = 0;
+   buf_seq_next[1] = 0;
+   buf_seq_next[2] = 0;
+   buf_seq_next[3] = 0;
+   buf_seq_next[4] = 0;
+   buf_seq_next[5] = 0;
+      buf_x_next = x; 
+      buf_y_next = y; 
+   }
+      if (type < 0) { 
+      buf_eof = 1; 
+   }
+   else { 
+      buf_seq_next[n] = buf_count;
+   }
+   }
+}
+void m_sequence::predict.b0(void) {
+// The action has 3 local variable declarations.
+   int a = 0;
+   int b = 0;
+   int c = 0;
+   if (mb_x_last == (mb_x - 1) && mb_y_last == mb_y) { 
+      a = mb_seq_last[1]; 
+   }
+   if (buf_x_last == (mb_x - 1) && buf_y_last == (mb_y - 1)) { 
+      b = buf_seq_last[3]; 
+   }
+   if (buf_x == mb_x && buf_y == (mb_y - 1)) { 
+      c = buf_seq[2]; 
+   }
+   A[0] = a;
+   B[0] = b;
+   C[0] = c;
+}
+void m_sequence::predict.b1(void) {
+// The action has 3 local variable declarations.
+   int a = mb_seq[0];
+   int b = 0;
+   int c = 0;
+   if (buf_x == mb_x && buf_y == (mb_y - 1)) { 
+      b = buf_seq[2]; 
+      c = buf_seq[3]; 
+   }
+   A[0] = a;
+   B[0] = b;
+   C[0] = c;
+}
+void m_sequence::predict.b2(void) {
+// The action has 3 local variable declarations.
+   int a = 0;
+   int b = 0;
+   int c = mb_seq[0];
+   if (mb_x_last == (mb_x - 1) && mb_y_last == mb_y) { 
+      a = mb_seq_last[3]; 
+      b = mb_seq_last[1]; 
+   }
+   A[0] = a;
+   B[0] = b;
+   C[0] = c;
+}
+void m_sequence::predict.b3(void) {
+// The action has 3 local variable declarations.
+   int a = mb_seq[2];
+   int b = mb_seq[0];
+   int c = mb_seq[1];
+   A[0] = a;
+   B[0] = b;
+   C[0] = c;
+}
+void m_sequence::predict.b45(void) {
+// The action has 3 local variable declarations.
+   int a = 0;
+   int b = 0;
+   int c = 0;
+   if (mb_x_last == (mb_x - 1) && mb_y_last == mb_y) { 
+      a = mb_seq_last[this_n]; 
+   }
+   if (buf_x_last == (mb_x - 1) && buf_y_last == (mb_y - 1)) { 
+      b = buf_seq_last[this_n]; 
+   }
+   if (buf_x == mb_x && buf_y == (mb_y - 1)) { 
+      c = buf_seq[this_n]; 
+   }
+   A[0] = a;
+   B[0] = b;
+   C[0] = c;
+}
+
+   smoc_firing_state reset, read, process; 
+          
+public:
+ m_sequence(sc_module_name name)
+ : smoc_actor(name, read), mb_x(mb_x), mb_y(mb_y), mb_seq(mb_seq), mb_x_last(mb_x_last), mb_y_last(mb_y_last), mb_seq_last(mb_seq_last), block_count(0), buf_x(buf_x), buf_y(buf_y), buf_seq(buf_seq), buf_x_last(buf_x_last), buf_y_last(buf_y_last), buf_seq_last(buf_seq_last), buf_x_next(buf_x_next), buf_y_next(buf_y_next), buf_seq_next(buf_seq_next), buf_count(0), buf_eof(buf_eof), this_n(this_n) {
+reset = (BUF.getAvailableTokens() >= 4 && 
+   guard(&m_sequence::guard_flush_buf)) >> 
+   call(m_sequence::flush_buf) >> reset; 
+   
+reset = (guard(&m_sequence::guard_reset_actor)) >> 
+   call(m_sequence::reset_actor) >> read; 
+   
+read = (DATA.getAvailableTokens() >= 4 && 
+   guard(&m_sequence::guard_eof_detect)) >> 
+   call(m_sequence::eof_detect) >> reset; 
+   
+read = (DATA.getAvailableTokens() >= 4 && 
+   guard(&m_sequence::guard_discard_block)) >> 
+   call(m_sequence::discard_block) >> read; 
+   
+read = (DATA.getAvailableTokens() >= 4 && 
+   guard(&m_sequence::guard_read_block)) >> 
+   call(m_sequence::read_block) >> process; 
+   
+process = (guard(&m_sequence::guard_predict.b0)) >> 
+   (A.getAvailableSpace() >= 1 &&  
+   B.getAvailableSpace() >= 1 &&  
+   C.getAvailableSpace() >= 1) >>
+   call(m_sequence::predict.b0) >> read; 
+   
+process = (guard(&m_sequence::guard_predict.b1)) >> 
+   (A.getAvailableSpace() >= 1 &&  
+   B.getAvailableSpace() >= 1 &&  
+   C.getAvailableSpace() >= 1) >>
+   call(m_sequence::predict.b1) >> read; 
+   
+process = (guard(&m_sequence::guard_predict.b2)) >> 
+   (A.getAvailableSpace() >= 1 &&  
+   B.getAvailableSpace() >= 1 &&  
+   C.getAvailableSpace() >= 1) >>
+   call(m_sequence::predict.b2) >> read; 
+   
+process = (guard(&m_sequence::guard_predict.b3)) >> 
+   (A.getAvailableSpace() >= 1 &&  
+   B.getAvailableSpace() >= 1 &&  
+   C.getAvailableSpace() >= 1) >>
+   call(m_sequence::predict.b3) >> read; 
+   
+process = (guard(&m_sequence::guard_predict.b45)) >> 
+   (A.getAvailableSpace() >= 1 &&  
+   B.getAvailableSpace() >= 1 &&  
+   C.getAvailableSpace() >= 1) >>
+   call(m_sequence::predict.b45) >> read; 
+   
+process = (BUF.getAvailableTokens() >= 4 && 
+   guard(&m_sequence::guard_read_buf.block)) >> 
+   call(m_sequence::read_buf.block) >> process; 
+    
+ }
+};

@@ -1,0 +1,244 @@
+
+import all caltrop.lib.Bitops; 
+
+class m_reconstruct: public smoc_actor {
+// The actor has 9 Ports.
+public: 
+   smoc_port_in<cal_list<int>::t> DATA;
+   smoc_port_in<int> FLAGS;
+   smoc_port_in<int> PARAM;
+   smoc_port_in<int> A;
+   smoc_port_in<int> B;
+   smoc_port_in<int> C;
+   smoc_port_in<int> DC;
+   smoc_port_out<cal_list<int>::t> OUT;
+   smoc_port_out<int> OFLAGS;
+
+// The actor has 2 Parameters and 8 Variable declarations.
+private: 
+   const int DCVAL;
+   const int LBSIZE;
+   const int m_reconstruct::zigzag[3][64] = {
+    {  0,  1,  5,  6,  14,  15,  27,  28,  2,  4,  7,  13,  16,  26,  29,  42,  3,  8,  12,  17,  25,  30,  41,  43,  9,  11,  18,  24,  31,  40,  44,  53,  10,  19,  23,  32,  39,  45,  52,  54,  20,  22,  33,  38,  46,  51,  55,  60,  21,  34,  37,  47,  50,  56,  59,  61,  35,  36,  48,  49,  57,  58,  62,  63 }, 
+    {  0,  4,  6,  20,  22,  36,  38,  52,  1,  5,  7,  21,  23,  37,  39,  53,  2,  8,  19,  24,  34,  40,  50,  54,  3,  9,  18,  25,  35,  41,  51,  55,  10,  17,  26,  30,  42,  46,  56,  60,  11,  16,  27,  31,  43,  47,  57,  61,  12,  15,  28,  32,  44,  48,  58,  62,  13,  14,  29,  33,  45,  49,  59,  63 }, 
+    {  0,  1,  2,  3,  10,  11,  12,  13,  4,  5,  8,  9,  17,  16,  15,  14,  6,  7,  19,  18,  26,  27,  28,  29,  20,  21,  24,  25,  30,  31,  32,  33,  22,  23,  34,  35,  42,  43,  44,  45,  36,  37,  40,  41,  46,  47,  48,  49,  38,  39,  50,  51,  56,  57,  58,  59,  52,  53,  54,  55,  60,  61,  62,  63 }
+   };
+    
+   cal_list<int>::t initList(int v, int size) {
+      cal_list<int>::t ret_list;
+   
+     for (unsigned int i = 1; i <= size; ++i) 
+                     {      
+        ret_list.push_back(v);   
+     }
+
+   return( ret_list );
+   }
+   
+    cal_list<cal_list<int>::t>::t lb; 
+    int lb_in; 
+    int block_count; 
+    
+   cal_list<int>::t scan(cal_list<int>::t d, cal_list<int>::t pat) {
+      cal_list<int>::t ret_list;
+   
+     for (unsigned int i = 0; i <= 63; ++i) 
+                     {      
+        ret_list.push_back(d[pat[i]]);   
+     }
+
+   return( ret_list );
+   }
+   
+   
+   int lb_get_val(int buf, int pos, int size, int seq, int head, int index) {
+   return( (seq == 0) ? DCVAL : (((pos + (seq - head)) < 0) ? buf[(pos + (seq - head) + size)][index] : (buf[(pos + (seq - head))][index])) );
+   }
+   
+   
+   int abs(int x) {
+   return( (x < 0) ? (-x) : (x) );
+   }
+   
+   
+// The actor has 4 Actions and 3 Guards.
+private:
+bool m_reconstruct::guard_eof(void)  const {
+   const int type = PARAM[0];
+   const int x = PARAM[1];
+   const int y = PARAM[2];
+   const int n = PARAM[3];
+   return( (type < 0) );
+}
+bool m_reconstruct::guard_inter(void)  const {
+   const int type = PARAM[0];
+   const int x = PARAM[1];
+   const int y = PARAM[2];
+   const int n = PARAM[3];
+   const int ac = FLAGS[0];
+   const int q = FLAGS[1];
+   const int scaler = FLAGS[2];
+   const cal_list<int>::t &d = DATA[0];
+   return( (type == 1) );
+}
+bool m_reconstruct::guard_intra(void)  const {
+   const int type = PARAM[0];
+   const int x = PARAM[1];
+   const int y = PARAM[2];
+   const int n = PARAM[3];
+   const int ac = FLAGS[0];
+   const int q = FLAGS[1];
+   const int scaler = FLAGS[2];
+   const cal_list<int>::t &dd = DATA[0];
+   const int a = A[0];
+   const int b = B[0];
+   const int c = C[0];
+   return( (type == 0) );
+}
+void m_reconstruct::eof(void) {
+// The action has 0 local variable declarations.
+   int type = PARAM[0];
+   int x = PARAM[1];
+   int y = PARAM[2];
+   int n = PARAM[3];
+   block_count = 0; 
+}
+void m_reconstruct::inter(void) {
+// The action has 0 local variable declarations.
+   int type = PARAM[0];
+   int x = PARAM[1];
+   int y = PARAM[2];
+   int n = PARAM[3];
+   int ac = FLAGS[0];
+   int q = FLAGS[1];
+   int scaler = FLAGS[2];
+   const cal_list<int>::t &d = DATA[0];
+   OUT[0] = scan(d, zigzag[0]);
+   OFLAGS[0] = 1;
+   OFLAGS[1] = q;
+   OFLAGS[2] = scaler;
+}
+void m_reconstruct::getdc(void) {
+// The action has 0 local variable declarations.
+   int dc = DC[0];
+   lb[lb_in][0] = dc;
+}
+void m_reconstruct::intra(void) {
+// The action has 9 local variable declarations.
+   int type = PARAM[0];
+   int x = PARAM[1];
+   int y = PARAM[2];
+   int n = PARAM[3];
+   int ac = FLAGS[0];
+   int q = FLAGS[1];
+   int scaler = FLAGS[2];
+   const cal_list<int>::t &dd = DATA[0];
+   int a = A[0];
+   int b = B[0];
+   int c = C[0];
+   int dca = lb_get_val(lb, lb_in, LBSIZE, a, block_count, 0);
+   int dcb = lb_get_val(lb, lb_in, LBSIZE, b, block_count, 0);
+   int dcc = lb_get_val(lb, lb_in, LBSIZE, c, block_count, 0);
+   int horiz = abs((dcb - dcc));
+   int vert = abs((dca - dcb));
+   int zsel = 0;
+   int pred;
+   int t;
+   cal_list<int>::t &d;
+     for (unsigned int i = 0; i <= 63; ++i) 
+                     {      
+        d.push_back(dd[i]);   
+     }
+   if (vert < horiz) { 
+      pred = dcc; 
+      if (ac != 0) { 
+      zsel = 2; 
+      if (c > 0) { 
+      t = zigzag[2][1]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, c, block_count, 1));
+      t = zigzag[2][2]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, c, block_count, 2));
+      t = zigzag[2][3]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, c, block_count, 3));
+      t = zigzag[2][4]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, c, block_count, 4));
+      t = zigzag[2][5]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, c, block_count, 5));
+      t = zigzag[2][6]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, c, block_count, 6));
+      t = zigzag[2][7]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, c, block_count, 7));
+   }
+   }
+   }
+   else { 
+      pred = dca; 
+      if (ac != 0) { 
+      zsel = 1; 
+      if (a > 0) { 
+      t = zigzag[1][8]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, a, block_count, 8));
+      t = zigzag[1][16]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, a, block_count, 9));
+      t = zigzag[1][24]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, a, block_count, 10));
+      t = zigzag[1][32]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, a, block_count, 11));
+      t = zigzag[1][40]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, a, block_count, 12));
+      t = zigzag[1][48]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, a, block_count, 13));
+      t = zigzag[1][56]; 
+      d[t] = (d[t] + lb_get_val(lb, lb_in, LBSIZE, a, block_count, 14));
+   }
+   }
+   }
+   d[0] = ((d[0] * scaler) + ((pred + rshift(scaler, 2)) / scaler) * scaler);
+   block_count = (block_count + 1); 
+   lb_in = (lb_in + 1); 
+   if (lb_in >= LBSIZE) { 
+      lb_in = 0; 
+   }
+   const int indices[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 16, 24, 32, 40, 48, 56};
+   for (unsigned int iter = 0; iter < sizeof(indices)/sizeof(indices[0]); ++iter)     {         
+        lb[lb_in][iter] = d[zigzag[zsel][i]];   
+     }
+   OUT[0] = scan(d, zigzag[zsel]);
+   OFLAGS[0] = 0;
+   OFLAGS[1] = q;
+   OFLAGS[2] = scaler;
+}
+
+   smoc_firing_state read, wait; 
+          
+public:
+ m_reconstruct(sc_module_name name, DCVAL, LBSIZE)
+ : smoc_actor(name, read), DCVAL(DCVAL), LBSIZE(LBSIZE), zigzag(), initList(), lb(initList(initList(0, 15), LBSIZE)), lb_in(0), block_count(0), scan() {
+read = (PARAM.getAvailableTokens() >= 4 && 
+   guard(&m_reconstruct::guard_eof)) >> 
+   call(m_reconstruct::eof) >> read; 
+   
+read = (PARAM.getAvailableTokens() >= 4 && 
+   FLAGS.getAvailableTokens() >= 3 && 
+   DATA.getAvailableTokens() >= 1 && 
+   guard(&m_reconstruct::guard_inter)) >> 
+   (OUT.getAvailableSpace() >= 1 &&  
+   OFLAGS.getAvailableSpace() >= 3) >>
+   call(m_reconstruct::inter) >> read; 
+   
+read = (PARAM.getAvailableTokens() >= 4 && 
+   FLAGS.getAvailableTokens() >= 3 && 
+   DATA.getAvailableTokens() >= 1 && 
+   A.getAvailableTokens() >= 1 && 
+   B.getAvailableTokens() >= 1 && 
+   C.getAvailableTokens() >= 1 && 
+   guard(&m_reconstruct::guard_intra)) >> 
+   (OUT.getAvailableSpace() >= 1 &&  
+   OFLAGS.getAvailableSpace() >= 3) >>
+   call(m_reconstruct::intra) >> wait; 
+   
+wait = (DC.getAvailableTokens() >= 1) >> 
+   call(m_reconstruct::getdc) >> read; 
+    
+ }
+};

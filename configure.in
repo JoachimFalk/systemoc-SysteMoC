@@ -102,6 +102,7 @@ AC_CONFIG_FILES(
   systemc-fir/Makefile \
   systemc-select/Makefile \
   systemc-mpeg4/Makefile \
+  systemc-mpeg4-teich-v2/Makefile \
   systemc-ibtest/Makefile])
 dnl  vpc-test-h261/Makefile \
 dnl  systemc-td-sim-test/Makefile])

@@ -1,0 +1,34 @@
+Aufruf des Übersetzers:
+=======================
+
+> ReadXMLWriteText.sh parser.xml parser-out.hpp Teich12.xslt
+
+
+Achtung: Notwendige Voraussetzung der korrekten Übersetzung im CALML-Sourcecode:
+================================================================================
+Damit Typen von Funktionen und deren Argumente richtig erkannt werden können, ist es die Pflicht 
+des Cal-Programmiers, hier im Type-Tag ein Attribut Name auch wirklich zu verwenden:
+
+Bsp.:
+<Decl kind="Variable" name="deq">
+   <Type kind="Function" infer="true" name="List"/>
+</Decl>
+Wenn das Attribut name nicht existiert, wird als Return-Wert der Datentyp "int" angenommen. 
+
+Genauso müssen Übergabeparameter in "Function" und "Procedure" das Attribut Name besitzen: 
+Bsp.:
+<Decl kind="Parameter" name="v">
+   <Type name="List"/>
+</Decl>
+Wenn Type nicht existiert, wird "int" angenommen.
+
+Verbliebene ToDos (bzw. notwendige Nachbesserungen):
+====================================================
+1) col2block: pushback fehlt bei REPEAT-Konstrukten, die laut JWJ als Listen zu behandeln sind.
+2) reconstruct: mit Integer-Operatoren in Generatoren von Listen, die nicht zusammenhängend sind: 
+   Hier ist evtl. die Indexvariable zu korrigieren.
+3) parser: Ausdrücke in Repeat-Konstrukten bei den Feuerungszahlen der FSM: Hier ist bei 
+   Variablen evtl. der Syntax zu erweitern oder laut JWJ sind diese sowieso zu verbieten.
+4) dequant: Sind die Ausdrücke korrekt, wenn Listen als Parameter übergeben werden oder muss hier ein *
+   eingefügt werden. Bsp.:Funktion deq
+
