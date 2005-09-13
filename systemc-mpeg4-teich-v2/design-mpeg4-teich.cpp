@@ -32,14 +32,14 @@
 
 /*
  * graph example
- *
+ */
 
 class m_source: public smoc_actor {
 public:
   smoc_port_out<int> out;
 private:
-  size_t foo;
-  int i;
+  size_t    foo;
+  int       i;
   const int step;
   
   void process() {
@@ -51,9 +51,11 @@ private:
   smoc_firing_state start;
 public:
   m_source( sc_module_name name,int init_value=0, int step=1)
-    :smoc_actor( name, start ), foo(1), i(init_value) , step(step) {
-    start = (out.getAvailableSpace() >= var(foo)) >>
-            call(&m_source::process)              >> start;
+    : smoc_actor( name, start ), foo(1), i(init_value) , step(step) {
+    start.addTransition( 
+      (out.getAvailableSpace() >= var(foo)) >>
+      call(&m_source::process)              >> start );
+    // start.addTransition( /* more transitions here */ );
   }
 };
 
@@ -69,9 +71,14 @@ private:
 public:
   m_sink( sc_module_name name )
     : smoc_actor( name, start ) {
-    start = in(1) >> call(&m_sink::process) >> start;
+    start.addTransition(
+      in(1)                  >>
+      call(&m_sink::process) >> start );
+    // start.addTransition( /* more transitions here */ );
   }
 };
+
+/*
 
 class IDCT2d_TEST
 : public smoc_graph {
