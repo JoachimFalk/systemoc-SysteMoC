@@ -52,22 +52,34 @@ AC_EXEEXT
 ACJF_SYSTEMC
 ACJF_CHECK_LIB_BOOST
 
-### SystemC-VPC ###
-SYSTEMC_VPC_INCLUDE=" \
-  -I`pwd`/../HscdSupport/include \
-  -I`pwd`/../SysteMoC/include/systemoc \
-  -I`pwd`/../SystemC-VPC/include/systemcvpc \
-  $SYSTEMC_INCLUDE"
-AC_SUBST([SYSTEMC_VPC_INCLUDE])
-
-SYSTEMC_VPC_LDFLAGS=" \
-  -L`pwd`/../SystemC-VPC \
-  $SYSTEMC_LDFLAGS"
-AC_SUBST([SYSTEMC_VPC_LDFLAGS])
+dnl ### SystemC-VPC ###
+dnl SYSTEMC_VPC_INCLUDE=" \
+dnl   -I`pwd`/../HscdSupport/include \
+dnl   -I`pwd`/../SysteMoC/include/systemoc \
+dnl   -I`pwd`/../SystemC-VPC/include/systemcvpc \
+dnl   $SYSTEMC_INCLUDE"
+dnl AC_SUBST([SYSTEMC_VPC_INCLUDE])
+dnl 
+dnl SYSTEMC_VPC_LDFLAGS=" \
+dnl   -L`pwd`/../SystemC-VPC \
+dnl   $SYSTEMC_LDFLAGS"
+dnl AC_SUBST([SYSTEMC_VPC_LDFLAGS])
+dnl 
+dnl ### SysteMoC ###
+dnl SYSTEMOC_INCLUDE=" \
+dnl   -I`pwd`/../HscdSupport/include \
+dnl   -I`pwd`/../SysteMoC/include/systemoc \
+dnl   $SYSTEMC_INCLUDE $BOOST_INCLUDE"
+dnl AC_SUBST([SYSTEMOC_INCLUDE])
+dnl 
+dnl SYSTEMOC_LDFLAGS=" \
+dnl   -L`pwd`/../SysteMoC \
+dnl   $SYSTEMC_LDFLAGS $BOOST_LDFLAGS"
+dnl AC_SUBST([SYSTEMOC_LDFLAGS])
+dnl 
 
 ### SysteMoC ###
 SYSTEMOC_INCLUDE=" \
-  -I`pwd`/../HscdSupport/include \
   -I`pwd`/../SysteMoC/include/systemoc \
   $SYSTEMC_INCLUDE $BOOST_INCLUDE"
 AC_SUBST([SYSTEMOC_INCLUDE])
@@ -90,9 +102,9 @@ AC_CONFIG_FILES(
   systemc-fir/Makefile \
   systemc-select/Makefile \
   systemc-mpeg4/Makefile \
-  systemc-ibtest/Makefile \
-  vpc-test-h261/Makefile \
-  systemc-td-sim-test/Makefile])
+  systemc-ibtest/Makefile])
+dnl  vpc-test-h261/Makefile \
+dnl  systemc-td-sim-test/Makefile])
 ACJF_DONE
 
 AC_OUTPUT
