@@ -22,8 +22,6 @@
 root_srcdir=$(top_srcdir)/..
 root_builddir=$(top_builddir)/..
 
-SYSTEMOC_BUILDDIR=$(root_builddir)/SysteMoC-v0.3
-
 SUBDIRS=
 
 INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
@@ -38,5 +36,4 @@ noinst_PROGRAMS= simulation-csp
 # LDADD= $(root_builddir)/SysteMoC/libsystemoc.la
 
 simulation_csp_SOURCES= design-csp.cpp
-simulation_csp_DEPENDENCIES=				\
-	$(SYSTEMOC_BUILDDIR)/libsystemoc.la
+simulation_csp_DEPENDENCIES= @SYSTEMOC_DEPENDENCIES@

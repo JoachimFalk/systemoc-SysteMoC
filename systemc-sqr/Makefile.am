@@ -22,8 +22,6 @@
 root_srcdir=$(top_srcdir)/..
 root_builddir=$(top_builddir)/..
 
-SYSTEMOC_BUILDDIR=$(root_builddir)/SysteMoC-v0.3
-
 SUBDIRS=
 
 INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
@@ -36,4 +34,4 @@ LIBS=-lsystemoc
 noinst_PROGRAMS= simulation-sqr
 
 simulation_sqr_SOURCES= design-sqr.cpp
-simulation_sqr_DEPENDENCIES = $(SYSTEMOC_BUILDDIR)/libsystemoc.la
+simulation_sqr_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
