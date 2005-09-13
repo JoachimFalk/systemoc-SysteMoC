@@ -32,7 +32,9 @@ public:
              C6.getAvailableSpace() >= 8 &&
              C7.getAvailableSpace() >= 8)   >>
             call(&m_block2row::action0)     >> start;
-  }
+      std::cout<<"debug"<<std::endl;
+    
+    }
   virtual ~m_block2row(){}
 };
 #endif // _INCLUDED_BLOCK2ROW_HPP

@@ -13,13 +13,13 @@
 #include "min_duplex.hpp"
 
 class m_clip
-  : public smoc_ndf_constraintset {
+  : public smoc_graph {
   public:
     smoc_port_in<int>  i0, i1, i2, i3, i4, i5, i6, i7, min; 
     smoc_port_out<int> o0, o1, o2, o3, o4, o5, o6, o7;
     
     m_clip( sc_module_name name )
-      : smoc_ndf_constraintset(name)
+      : smoc_graph(name)
     {
      
       m_IDCTclip &clip0 = registerNode(new m_IDCTclip("clip0", 1));

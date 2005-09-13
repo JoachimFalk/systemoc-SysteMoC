@@ -25,18 +25,18 @@
 #include "transpose.hpp"
 
 class m_idct2d
-  : public smoc_ndf_constraintset {
+  : public smoc_graph {
   
     public:
     smoc_port_in<int>  i0, i1, i2, i3, i4, i5, i6, i7, min; 
     smoc_port_out<int> o0, o1, o2, o3, o4, o5, o6, o7;
 
     m_idct2d( sc_module_name name )
-      : smoc_ndf_constraintset(name) {
+      : smoc_graph(name) {
         
-        m_idct        &idctrow = registerNode(new smoc_ndf_moc<m_idct>("idctrow"));
-        m_idct        &idctcol = registerNode(new smoc_ndf_moc<m_idct>("idctcol"));
-        m_clip        &rowclip = registerNode(new smoc_ndf_moc<m_clip>("rowclip"));
+        m_idct        &idctrow = registerNode(new m_idct("idctrow"));
+        m_idct        &idctcol = registerNode(new m_idct("idctcol"));
+        m_clip        &rowclip = registerNode(new m_clip("rowclip"));
         m_transpose   &transpose1 = registerNode(new m_transpose("transpose1"));
         m_Upsample    &upsample1 = registerNode(new m_Upsample("upsample1",1));
 

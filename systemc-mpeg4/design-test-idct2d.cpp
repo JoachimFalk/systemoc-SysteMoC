@@ -71,10 +71,10 @@ class m_sink: public smoc_actor {
 };
 
 class IDCT2d_TEST
-: public smoc_ndf_constraintset {
+: public smoc_graph {
   public:
     IDCT2d_TEST( sc_module_name name )
-      : smoc_ndf_constraintset(name) {
+      : smoc_graph(name) {
       
       
       m_source      &src    = registerNode(new m_source("src"));
@@ -82,14 +82,14 @@ class IDCT2d_TEST
       m_block_idct  &blidct = registerNode(new m_block_idct("blidct"));
       m_sink        &snk    = registerNode(new m_sink("snk"));
 
-      connectNodePorts( src.out, blidct.I, smoc_fifo<int>(128));
+      connectNodePorts( src.out, blidct.I, smoc_fifo<int>(64));
       connectNodePorts( src1.out, blidct.MIN, smoc_fifo<int>(2));
       connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(2));
     }
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc <smoc_ndf_moc<IDCT2d_TEST> > top("top");
+  smoc_top_moc<IDCT2d_TEST> top("top");
   
   sc_start(-1);
   return 0;

@@ -113,7 +113,7 @@ class m_top
       : smoc_graph(name) {
       
       
-      m_idct        &idct1 = registerNode(new smoc_ndf_moc<m_idct>("idct1"));
+      m_idct        &idct1 = registerNode(new m_idct("idct1"));
 
       m_source      &src1  = registerNode(new m_source("src1"));
       m_source      &src2  = registerNode(new m_source("src2"));
