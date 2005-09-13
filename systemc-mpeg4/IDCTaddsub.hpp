@@ -1,3 +1,6 @@
+
+#ifndef _INCLUDED_IDCTADDSUB_HPP
+#define _INCLUDED_IDCTADDSUB_HPP
 class m_IDCTaddsub: public smoc_actor {
 public:
   smoc_port_in<int> I1;
@@ -25,6 +28,8 @@ public:
              O2.getAvailableSpace()  >= 1)    >>
             call(&m_IDCTaddsub::action0)      >> start;
   }
+
+  virtual ~m_IDCTaddsub(){}
 };
 
-
+#endif // _INCLUDED_IDCTADDSUB_HPP

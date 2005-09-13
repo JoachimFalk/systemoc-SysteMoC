@@ -1,3 +1,6 @@
+#ifndef _INCLUDED_TRANSPOSE_HPP
+#define _INCLUDED_TRANSPOSE_HPP
+
 class m_transpose: public smoc_actor {
 public:
   smoc_port_in<int>  I0, I1, I2, I3, I4, I5, I6, I7;
@@ -105,4 +108,4 @@ public:
 		call(&m_transpose::action7)    >> s0;
     }
 };
-
+#endif // _INCLUDED_TRANSPOSE_HPP

@@ -1,3 +1,7 @@
+#ifndef _INCLUDED_IDCTFLY_HPP
+#define _INCLUDED_IDCTFLY_HPP
+
+
 class m_IDCTfly: public smoc_actor {
 public:
   smoc_port_in<int> I1;
@@ -28,4 +32,9 @@ public:
              O2.getAvailableSpace() >= 1)   >>
             call(&m_IDCTfly::action0) 	    >> start;
   }
+
+  virtual ~m_IDCTfly() {}
 };
+
+
+#endif // _INCLUDED_IDCTFLY_HPP

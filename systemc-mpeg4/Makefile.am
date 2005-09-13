@@ -33,8 +33,12 @@ AM_CPPFLAGS=-Wno-deprecated
 
 LIBS=-lsystemoc
 
-noinst_PROGRAMS= simulation-mpeg4
+noinst_PROGRAMS= simulation-mpeg4 simulation-test-idct2d
 
 simulation_mpeg4_SOURCES = design-mpeg4.cpp
 simulation_mpeg4_DEPENDENCIES =				\
+	$(SYSTEMOC_BUILDDIR)/libsystemoc.la
+
+simulation_test_idct2d_SOURCES= design-test-idct2d.cpp
+simulation_test_idct2d_DEPENDENCIES =			\
 	$(SYSTEMOC_BUILDDIR)/libsystemoc.la

@@ -1,3 +1,8 @@
+#ifndef _INCLUDED_IDCT2D_HPP
+#define _INCLUDED_IDCT2D_HPP
+
+
+
 #include <cstdlib>
 #include <iostream>
 
@@ -32,8 +37,8 @@ class m_idct2d
         m_idct        &idctrow = registerNode(new smoc_ndf_moc<m_idct>("idctrow"));
         m_idct        &idctcol = registerNode(new smoc_ndf_moc<m_idct>("idctcol"));
         m_clip        &rowclip = registerNode(new smoc_ndf_moc<m_clip>("rowclip"));
-        m_transpose   &transpose1 = registerNode(new smoc_ndf_moc<m_transpose>("transpose1"));
-        m_Upsample    &upsample1 = registerNode(new smoc_ndf_moc<m_Upsample>("upsample1"));
+        m_transpose   &transpose1 = registerNode(new m_transpose("transpose1"));
+        m_Upsample    &upsample1 = registerNode(new m_Upsample("upsample1",1));
 
       connectInterfacePorts( i0, idctrow.i0 ); 
       connectInterfacePorts( i1, idctrow.i1 );  
@@ -88,4 +93,6 @@ class m_idct2d
 
 
       }
-} 
+};
+
+#endif // _INCLUDED_IDCT2D_HPP
