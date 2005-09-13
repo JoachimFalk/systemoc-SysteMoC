@@ -106,18 +106,14 @@ class m_list_sink: public smoc_actor {
     }
 };
 
-
-
-
-
 class m_top
-: public smoc_ndf_constraintset {
+: public smoc_graph {
   public:
     m_top( sc_module_name name )
-      : smoc_ndf_constraintset(name) {
+      : smoc_graph(name) {
       
       
-      m_idct        &idct1 = registerNode(new smoc_ndf_moc<m_idct>("idct1"));
+      m_idct        &idct1 = registerNode(new m_idct("idct1"));
 
       m_source      &src1  = registerNode(new m_source("src1"));
       m_source      &src2  = registerNode(new m_source("src2"));
@@ -160,7 +156,7 @@ class m_top
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<smoc_ndf_moc<m_top> > top("top");
+  smoc_top_moc<m_top> top("top");
   
   sc_start(-1);
   return 0;

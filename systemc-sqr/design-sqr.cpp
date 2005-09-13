@@ -109,7 +109,7 @@ public:
 };
 
 class m_approx_loop
-: public smoc_ndf_constraintset {
+: public smoc_graph {
   public:
     smoc_port_in<double>  i1;
     smoc_port_out<double> o1;
@@ -119,7 +119,7 @@ class m_approx_loop
     m_dup     dup;
   public:
     m_approx_loop( sc_module_name name )
-      : smoc_ndf_constraintset(name),
+      : smoc_graph(name),
         sqrloop("sqrloop"),
         approx("approx"),
         dup("dup") {
@@ -133,15 +133,15 @@ class m_approx_loop
 };
 
 class m_top
-: public smoc_ndf_constraintset {
+: public smoc_graph {
   public:
   protected:
-    m_src                         src;
-    smoc_ndf_moc<m_approx_loop>   al;
-    m_sink                        sink;
+    m_src           src;
+    m_approx_loop   al;
+    m_sink          sink;
   public:
     m_top( sc_module_name name )
-      : smoc_ndf_constraintset(name),
+      : smoc_graph(name),
         src("src"),
         al("al"),
         sink("sink") {
@@ -151,7 +151,7 @@ class m_top
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<smoc_ndf_moc<m_top> > top("top");
+  smoc_top_moc<m_top> top("top");
   
   sc_start(-1);
   return 0;

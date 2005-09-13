@@ -441,11 +441,11 @@ vol12 = (bits.getAvailableTokens() >= 28) >>
 	call(&m_parser::action_vol_size) >> vol14;
 
 vol14 = ((bits.getAvailableTokens() >= 9) &&
-	(bits.getValueAt(0) == 1) || (bits.getValueAt(1) == 1) ||
-	(bits.getValueAt(2) == 1) || (bits.getValueAt(3) == 1) ) >>
+	 ((bits.getValueAt(0) == 1) || (bits.getValueAt(1) == 1) ||
+	  (bits.getValueAt(2) == 1) || (bits.getValueAt(3) == 1)) ) >>
 	call(&m_parser::action_vol_misc_unsupported) >> stuck
       | ((bits.getAvailableTokens() >= 9) &&
-	(bits.getValueAt(7) == 1) || (bits.getValueAt(8) == 1) ) >>
+	 ((bits.getValueAt(7) == 1) || (bits.getValueAt(8) == 1)) ) >>
 	call(&m_parser::action_vol_misc_supported) >> vop;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -511,7 +511,7 @@ mb  = (var(mby) == var(vol_height)) >>
 	call(&m_parser::action_mcbpc_ivop_b4) >> mb2
     | ((bits.getAvailableTokens() >= 6) &&
 	(var(prediction_type) == I_VOP) &&
-	(bits.getValueAt(4) == 1) || (bits.getValueAt(5) == 1) ) >>
+	((bits.getValueAt(4) == 1) || (bits.getValueAt(5) == 1)) ) >>
 	call(&m_parser::action_mcbpc_ivop_b6) >> mb2
     | ((bits.getAvailableTokens() >= 2) &&
 	(var(prediction_type) == P_VOP) &&
