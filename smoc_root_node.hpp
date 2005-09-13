@@ -21,7 +21,12 @@ public:
   typedef smoc_opbase_node this_type;
 protected:
   template <typename T>
-  smoc_func_call call ( void (T::*f)() ) {
+  smoc_func_call call ( void (T::*f)(), const char *func_name ) {
+//    std::cerr << "call(f)" << std::endl;
+    return smoc_func_call(this,f,func_name);
+  }
+  template <typename T>
+  smoc_func_call call ( void (T::*f)()) {
 //    std::cerr << "call(f)" << std::endl;
     return smoc_func_call(this,f);
   }
@@ -47,12 +52,14 @@ private:
   smoc_port_list ports;
 protected:
   smoc_root_node(const smoc_firing_state &s)
-    : _currentState(s), _initialState(NULL), ports_valid(false)
+    : _currentState(s), _initialState(NULL), ports_valid(false), is_v1_actor(false)
     {}
   smoc_root_node(smoc_firing_state &s)
-    : _initialState(&s), ports_valid(false)
+    : _initialState(&s), ports_valid(false), is_v1_actor(false)
     {}
 public:
+  bool is_v1_actor;
+  
   virtual void finalise() {
 //    std::cout << myModule()->name() << ": finalise" << std::endl;
     if ( _initialState != NULL ) {
@@ -60,6 +67,7 @@ public:
       _initialState = NULL;
     }
     _currentState.finalise(this);
+//    dumpActor(std::cout);
   }
   //sc_event		_fire;
   //smoc_port_in<void>  fire_port;
@@ -70,10 +78,12 @@ public:
     return const_cast<smoc_root_node *>(this)->myModule();
   }
   
-  void assemble( smoc_modes::PGWriter &pgw ) const;
+  virtual void assemble( smoc_modes::PGWriter &pgw ) const;
 #endif
 
   smoc_port_list &getPorts();
+
+  std::ostream &dumpActor( std::ostream &o );
 
   const smoc_firing_state &currentState() const { return _currentState; }
   smoc_firing_state       &currentState()       { return _currentState; }

@@ -21,9 +21,12 @@
 # $Log$
 
 root_srcdir=$(top_srcdir)/..
+root_builddir = $(top_builddir)/..
 
 SUBDIRS=
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
+
+SYSTEMCVPC_BUILDDIR=$(root_builddir)/SystemC-VPC
 
 ac_aux_dir = @ac_aux_dir@
 
@@ -35,15 +38,15 @@ pkgincludeprefix=systemoc/
 compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 	@date > $@
 
-INCLUDES =				\
-	@SYSTEMC_INCLUDE@		\
-	-I./include			\
-	-I$(srcdir)
-#	-I$(root_srcdir)/systemc-2.0.1/src
+INCLUDES =						\
+	@SYSTEMC_INCLUDE@				\
+	-I./include					\
+	-I$(srcdir)					\
+	-I$(SYSTEMCVPC_BUILDDIR)/include/systemcvpc
 
-AM_LDFLAGS =				\
-	@SYSTEMC_LDFLAGS@		\
-	-lsystemc
+AM_LDFLAGS=					\
+	@SYSTEMC_LDFLAGS@			\
+	-L$(SYSTEMCVPC_BUILDDIR)
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -55,7 +58,7 @@ PROGLDFLAGS=
 
 lib_LTLIBRARIES = libsystemoc.la
 pkginclude_HEADERS =			\
-	expr.hpp			\
+	smoc_expr.hpp			\
 	smoc_expr.hpp			\
 	smoc_fifo.hpp			\
 	smoc_moc.hpp			\
@@ -69,8 +72,19 @@ pkginclude_HEADERS =			\
 	smoc_graph_type.hpp		\
 	smoc_pggen.hpp			\
 	smoc_chan_if.hpp		\
+	smoc_event.hpp			\
 	oneof.hpp			\
-	commondefs.h
+	commondefs.h			\
+	hscd_tdsim_TraceLog.hpp		\
+					\
+	hscd_op.hpp			\
+	hscd_port.hpp			\
+	hscd_root_port_list.hpp		\
+	hscd_node_types.hpp		\
+	hscd_fifo.hpp			\
+	hscd_structure.hpp		\
+	hscd_scheduler.hpp		\
+	hscd_pggen.hpp
 
 # noinst_HEADERS=	oneof.hpp
 
@@ -79,12 +93,12 @@ libsystemoc_CH_LTOBJS=				\
 	$(smoc_pggen_hpp_CH_LTOBJS)
 #	$(smoc_op_hpp_CH_LTOBJS)
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lstdc++
+libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lsystemcvpc -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
-libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include
+libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include $(SYSTEMCVPC_BUILDDIR)/libsystemcvpc.la
 
 libsystemoc_la_SOURCES =		\
-	expr.cpp			\
+	smoc_expr.cpp			\
 	smoc_fifo.cpp			\
 	smoc_graph_type.cpp		\
 	smoc_rendezvous.cpp		\
@@ -93,7 +107,8 @@ libsystemoc_la_SOURCES =		\
 	smoc_firing_rules.cpp		\
 	smoc_guard.cpp			\
 	smoc_pggen.cpp			\
-	smoc_chan_if.cpp
+	smoc_chan_if.cpp		\
+	hscd_tdsim_TraceLog.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include

@@ -1,10 +1,10 @@
 // vim: set sw=2 ts=8:
 
-#include <smoc_root_port.hpp>
-#include <smoc_port.hpp>
-
 #ifndef _INCLUDED_SMOC_CHAN_IF
 #define _INCLUDED_SMOC_CHAN_IF
+
+#include <smoc_root_port.hpp>
+#include <smoc_event.hpp>
 
 #include <systemc.h>
 
@@ -30,10 +30,16 @@ public:
   
   void reset() { p1 = NULL; boundary = 0; p2 = NULL; limit = 0; }
   
-  T       &operator[](size_t n)
-    { assert(n < limit); return n >= boundary ? p2[n] : p1[n]; }
-  const T &operator[](size_t n) const
-    { assert(n < limit); return n >= boundary ? p2[n] : p1[n]; }
+  T       &operator[](size_t n) {
+    // std::cout << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
+    assert(n < limit);
+    return n >= boundary ? p2[n] : p1[n];
+  }
+  const T &operator[](size_t n) const {
+    // std::cout << "((smoc_ring_access)" << this << ")->operator[](" << n << ") const" << std::endl;
+    assert(n < limit);
+    return n >= boundary ? p2[n] : p1[n];
+  }
 };
 
 class smoc_ring_access<void> {
@@ -68,12 +74,24 @@ public:
   // typedefs
   typedef smoc_root_chan              this_type;
   
+  template <typename T_node_type,
+            typename T_chan_kind,
+            template <typename T_value_type> class T_chan_init_default>
+  friend class smoc_graph_petri;
+private:
+  sc_module *hierarchy; // patched in finalize of smoc_graph_petri
+public:
   virtual smoc_port_list getInputPorts()  const = 0;
   virtual smoc_port_list getOutputPorts() const = 0;
+  
+  sc_module *getHierarchy() const {
+    assert( hierarchy != NULL );  
+    return hierarchy;
+  }
 protected:
   // constructor
   smoc_root_chan( const char *name)
-    : sc_prim_channel(name) {}
+    : sc_prim_channel(name), hierarchy(NULL) {}
 };
 
 template <typename T>
@@ -90,11 +108,22 @@ public:
   typedef smoc_chan_in_if<T>          this_type;
   typedef smoc_port_in<T>             iface_in_type;
   
+  bool is_v1_in_port;
+  
   virtual void   addPortIf(iface_in_type *_i) = 0;
   virtual size_t committedOutCount() const = 0;
+  smoc_event    &blockEventOut() { return write_event; }
   virtual smoc_ring_access<const T> commSetupIn(size_t req) = 0;
-  virtual void commExecIn(smoc_ring_access<const T> &) = 0;
-protected:  
+  virtual void commExecIn(const smoc_ring_access<const T> &) = 0;
+  virtual bool portOutIsV1() const = 0;
+  
+  sc_module *getHierarchy() const {
+    assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
+    return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
+  }
+protected:
+  smoc_event write_event;
+  
   // constructor
   smoc_chan_in_if() {}
 private:
@@ -114,11 +143,22 @@ public:
   typedef smoc_chan_out_if<T>         this_type;
   typedef smoc_port_out<T>            iface_out_type;
   
+  bool is_v1_out_port;
+  
   virtual void   addPortIf(iface_out_type *_i) = 0;
   virtual size_t committedInCount() const = 0;
+  smoc_event    &blockEventIn() { return read_event; }
   virtual smoc_ring_access<T> commSetupOut(size_t req) = 0;
-  virtual void commExecOut(smoc_ring_access<T> &) = 0;
+  virtual void commExecOut(const smoc_ring_access<T> &) = 0;
+  virtual bool portInIsV1() const = 0;
+  
+  sc_module *getHierarchy() const {
+    assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
+    return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
+  }
 protected:
+  smoc_event read_event;
+  
   // constructor
   smoc_chan_out_if() {}
 private:
@@ -138,6 +178,8 @@ public:
   // typedefs
   typedef smoc_chan_if<T_chan_kind, T_data_type>  this_type;
   
+  bool portInIsV1() const { return is_v1_in_port; }
+  bool portOutIsV1() const { return is_v1_out_port; }
 protected:
   // constructor
   smoc_chan_if(const typename T_chan_kind::chan_init &i)

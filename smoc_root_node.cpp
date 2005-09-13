@@ -1,5 +1,6 @@
 // vim: set sw=2 ts=8:
 
+#include <smoc_root_port.hpp>
 #include <smoc_root_node.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
 
@@ -25,9 +26,6 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
     for ( sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
           iter != m->get_child_objects().end();
           ++iter ) {
-//      if ( *iter == &fire_port )
-//        continue;
-      
       const smoc_root_port *port = dynamic_cast<const smoc_root_port *>(*iter);
       
       if ( !port )
@@ -56,4 +54,16 @@ smoc_port_list &smoc_root_node::getPorts() {
     ports_valid = true;
   }
   return ports;
+}
+
+std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
+  o << "actor: " << myModule()->name() << std::endl;
+  smoc_port_list ps = getPorts();
+  o << "  ports:" << std::endl;
+  for ( smoc_port_list::const_iterator iter = ps.begin();
+        iter != ps.end();
+        ++iter ) {
+    o << "  " << *iter << std::endl;
+  }
+  return o;
 }

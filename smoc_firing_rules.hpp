@@ -3,18 +3,23 @@
 #ifndef _INCLUDED_SMOC_OP_PORT_LIST_HPP
 #define _INCLUDED_SMOC_OP_PORT_LIST_HPP
 
-#include <vector>
-#include <list>
-#include <set>
-#include <map>
-
 #include <iostream>
 
+#include <vector>
+
+#include <list>
+#include <stl_output_for_list.hpp>
+
+#include <set>
+
 #include <oneof.hpp>
-#include <commondefs.h>
 
 #include <smoc_guard.hpp>
 #include <smoc_root_port.hpp>
+
+#include <boost/shared_ptr.hpp>
+
+#include <commondefs.h>
 
 class smoc_activation_pattern;
 class smoc_transition;
@@ -25,6 +30,8 @@ class smoc_firing_state;
 class smoc_firing_rules;
 class smoc_transition_list;
 
+#define CALL(func) call(&func,#func)
+
 class smoc_func_call {
 private:
   struct dummy;
@@ -32,15 +39,30 @@ private:
 
   dummy *obj;
   fun    f;
+  const char *func_name;
 public:
   template <class X, class T>
   smoc_func_call( X *_obj, void (T::*_f)() )
     : obj(reinterpret_cast<dummy *>(
             /*dynamic_cast<T *>*/(_obj))),
-      f(*reinterpret_cast<fun *>(&_f))
+      f(*reinterpret_cast<fun *>(&_f)),
+      func_name("")
     { assert(f != NULL && obj != NULL); }
 
-  void operator()() const { (obj->*f)(); }
+  template <class X, class T>
+  smoc_func_call( X *_obj, void (T::*_f)(), const char *func_name )
+    : obj(reinterpret_cast<dummy *>(
+            /*dynamic_cast<T *>*/(_obj))),
+      f(*reinterpret_cast<fun *>(&_f)),
+      func_name(func_name)
+    { assert(f != NULL && obj != NULL); }
+
+  void operator()() const { 
+    (obj->*f)(); 
+  }
+  const char* getFuncName(){
+    return func_name;
+  }
 };
 
 class smoc_func_diverge {
@@ -68,12 +90,12 @@ public:
     : smoc_func_diverge(_obj,_f) {}
 };
 
+class smoc_firing_state_ref;
+
 struct smoc_firing_types {
   struct                                  transition_ty;
   struct                                  resolved_state_ty;
-  typedef oneof<smoc_firing_state *, resolved_state_ty *>
-                                          state_ty;
-  typedef std::list<state_ty>             statelist_ty;
+  typedef std::list<resolved_state_ty *>  statelist_ty;
   typedef std::list<transition_ty>        transitionlist_ty;
   typedef std::pair<bool,transition_ty *> maybe_transition_ty;
 //  typedef std::set<smoc_root_port *>  ports_ty;
@@ -85,36 +107,15 @@ struct smoc_firing_types {
     smoc_activation_pattern ap;
     func_ty                 f;
     statelist_ty            sl;
+  public:
+    transition_ty( smoc_firing_state_ref *r, const smoc_transition &t );
     
-    sc_event *_blocked;
-    
-    transition_ty()
-      : _blocked(NULL) {}
-    
-    void block( sc_event *e ) { _blocked = e; }
-    void unblock() {
-      assert( _blocked != NULL );
-      _blocked->notify();
-      _blocked = NULL;
-    }
-    
-    void initTransition(
-        smoc_firing_rules *fr,
-        const smoc_transition &t );
-
-    bool knownSatisfiable() const
+    smoc_root_port_bool knownSatisfiable() const
       { return ap.knownSatisfiable(); }
-    bool knownUnsatisfiable() const
-      { return ap.knownUnsatisfiable(); }
-/*    void reset() {
-      ap_pre_exec.reset(); 
-      ap_post_exec.reset(); 
-    }*/
     
-    bool isBlocked() const { return _blocked != NULL; }
+    bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
+    void findBlocked(smoc_root_port_bool_list &l, smoc_root_node *actor);
     
-    resolved_state_ty *execute();
-
     void dump(std::ostream &out) const;
   };
   
@@ -128,12 +129,11 @@ struct smoc_firing_types {
   public:
     resolved_state_ty() {}
     
-    transition_ty &addTransition() {
-      tl.push_back(transition_ty());
-      return tl.back();
-    }
+    void clearTransitions();
+    void addTransition(smoc_firing_state_ref *r, const smoc_transition_list &tl );
     
-    maybe_transition_ty findEnabledTransition();
+    bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
+    void findBlocked(smoc_root_port_bool_list &l, smoc_root_node *actor);
   };
 };
 
@@ -141,138 +141,68 @@ static inline
 std::ostream &operator <<( std::ostream &out, const smoc_firing_types::transition_ty &t )
   { t.dump(out); return out; }
 
-class smoc_firing_state
+class smoc_firing_state_ref
   :public smoc_firing_types {
 public:
-  friend class smoc_opbase_node;
-  friend class smoc_firing_rules;
-  friend class transition_ty;
+  typedef smoc_firing_state_ref this_type;
   
-  typedef smoc_firing_state this_type;
+  friend class smoc_firing_rules;
+  friend class smoc_firing_types::transition_ty;
 private:
   resolved_state_ty *rs;
   smoc_firing_rules *fr;
 protected:
-  smoc_firing_state( const smoc_transition_list &tl );
+  // create new empty state with new firing_rules
+  smoc_firing_state_ref();
+  
+  // make a copy of the state
+  void mkCopy( const this_type &rhs );
 public:
-  smoc_firing_state(): rs(NULL), fr(NULL) {}
-  smoc_firing_state( const this_type &x )
-    : rs(NULL), fr(NULL) { *this = x; }
+  smoc_firing_state_ref( const smoc_firing_state_ref &n );
   
-
-  bool inductionStep();
-  bool choiceStep();
-
-  void dump( std::ostream &o ) const;
-  
-  bool isResolvedState() const { return rs != NULL; }
   resolved_state_ty &getResolvedState() const
     { assert( rs != NULL ); return *rs; }
   
   void finalise( smoc_root_node *actor ) const;
+  bool tryExecute();
+  void findBlocked(smoc_root_port_bool_list &l);
+  void dump( std::ostream &o ) const;
   
-  void execute( transition_ty *t ) { rs = t->execute(); }
+  ~smoc_firing_state_ref();
+};
+
+static inline
+std::ostream &operator <<( std::ostream &out, const smoc_firing_state_ref &s )
+  { s.dump(out); return out; }
+
+class smoc_firing_state
+  :public smoc_firing_state_ref {
+public:
+  friend class smoc_opbase_node;
+  friend class transition_ty;
+  
+  typedef smoc_firing_state this_type;
+public:
+  smoc_firing_state( const smoc_transition_list &tl )
+    { this->operator = (tl); }
+  smoc_firing_state( const smoc_transition &t )
+    { this->operator = (t); }
+  smoc_firing_state()
+    {}
+  smoc_firing_state( const this_type &x )
+    { *this = x; }
+  
+//  bool isResolvedState() const { return rs != NULL; }
   
   this_type &operator = (const this_type &x);
   this_type &operator = (const smoc_transition_list &tl);
   this_type &operator = (const smoc_transition &t);
   
-  ~smoc_firing_state();
+  void addTransition( const smoc_transition_list &tl );
 private:
-  smoc_port_list &getPorts() const;
+  // smoc_port_list &getPorts() const;
   // disable
 };
-
-class smoc_firing_state_ref
-  :public smoc_firing_types {
-public:
-  typedef smoc_firing_state_ref this_type;
-private:
-  oneof<smoc_firing_state *, smoc_firing_state> s;
-public:
-  smoc_firing_state_ref( const smoc_firing_state &n )
-    : s(n) { assert( n.isResolvedState() ); }
-  smoc_firing_state_ref( smoc_firing_state       *n )
-    : s(n) { assert( n != NULL /*&& !n->isResolvedState()*/ ); }
-  smoc_firing_state_ref( smoc_firing_state       &n ) {
-    if ( n.isResolvedState() )
-      s = n;
-    else
-      s = &n;
-  }
-  
-  operator smoc_firing_state *() const
-    { return s; }
-  operator smoc_firing_state() const
-    { return s; }
-  
-  bool isResolved() const {
-    assert( isType<smoc_firing_state *>(s) ||
-            isType<smoc_firing_state  >(s)    );
-    return isType<smoc_firing_state>(s);
-  }
-};
-
-static inline
-std::ostream &operator <<( std::ostream &out, const smoc_firing_state &s )
-  { s.dump(out); return out; }
-
-class smoc_firing_rules
-  :public smoc_firing_types {
-public:
-  typedef smoc_firing_rules this_type;
-  
-  friend class smoc_firing_state;
-  friend class smoc_firing_types::transition_ty;
-private:
-  typedef  std::set<smoc_firing_state *>
-    references_ty;
-  typedef std::list<resolved_state_ty *>
-    resolved_states_ty;
-  typedef std::list<state_ty *>
-    unresolved_states_ty;
-  
-  unresolved_states_ty  unresolved_states;
-  resolved_states_ty    resolved_states;
-  references_ty         references;
-  smoc_root_node       *actor;
-  
-  void _addRef( smoc_firing_state *s, smoc_firing_rules *p );
-protected:
-  smoc_firing_rules( smoc_firing_state *s )
-    : actor(NULL) {
-    assert( s != NULL && s->rs != NULL );
-    addRef(s); resolved_states.push_front(s->rs);
-  }
-  
-  void addRef( smoc_firing_state *s ) { _addRef(s,NULL); }
-  
-  void delRef( smoc_firing_state *s );
-  
-  void addUnresolved( state_ty *us ) {
-    unresolved_states.push_front(us);
-  }
-  
-  void resolve();
-  void unify( smoc_firing_rules *fr );
-  
-  void finalise( smoc_root_node *actor );
-  
-  ~smoc_firing_rules() {
-    for ( resolved_states_ty::iterator iter = resolved_states.begin();
-          iter != resolved_states.end();
-          ++iter )
-      delete *iter;
-  }
-};
-
-#ifndef _COMPILEHEADER_SMOC_FIRING_STATE__DESTRUCTOR
-GNU89_EXTERN_INLINE
-#endif
-smoc_firing_state::~smoc_firing_state() {
-  if ( fr )
-    fr->delRef(this);
-}
 
 class smoc_firing_state_list
   :public std::vector<smoc_firing_state_ref> {
@@ -303,6 +233,58 @@ smoc_firing_state_list operator |
   return smoc_firing_state_list(v1) |= v2;
 }
 
+
+
+class smoc_firing_rules
+  :public smoc_firing_types {
+public:
+  typedef smoc_firing_rules this_type;
+  
+//  friend class smoc_firing_state;
+  friend class smoc_firing_state_ref;
+  friend class smoc_firing_types::transition_ty;
+private:
+  typedef std::set<smoc_firing_state_ref *> references_ty;
+  
+  statelist_ty            states;
+  references_ty           references;
+  smoc_root_node         *actor;
+  
+  void _addRef( smoc_firing_state_ref *s, smoc_firing_rules *p );
+protected:
+  smoc_firing_rules( smoc_firing_state_ref *s )
+    : actor(NULL) {
+    assert( s != NULL && s->rs != NULL );
+    addRef(s);
+    states.push_back(s->rs);
+  }
+  
+  smoc_root_node* getActor() { return actor; }
+   
+  void addRef( smoc_firing_state_ref *s ) { _addRef(s,NULL); }
+  
+  void delRef( smoc_firing_state_ref *s );
+  
+  void unify( smoc_firing_rules *fr );
+  
+  void finalise( smoc_root_node *actor );
+  
+  ~smoc_firing_rules() {
+    for ( statelist_ty::iterator iter = states.begin();
+          iter != states.end();
+          ++iter )
+      delete *iter;
+  }
+};
+
+#ifndef _COMPILEHEADER_SMOC_FIRING_STATE_REF__DESTRUCTOR
+GNU89_EXTERN_INLINE
+#endif
+smoc_firing_state_ref::~smoc_firing_state_ref() {
+  if ( fr )
+    fr->delRef(this);
+}
+
 class smoc_interface_action {
 public:
   friend class smoc_opbase_node;
@@ -331,33 +313,20 @@ protected:
     : sl(), f(f) {}
 };
 
-class smoc_transition_part1 {
-public:
-  friend class smoc_transition_part2;
-  
-  typedef smoc_transition_part1 this_type;
-private:
-  smoc_activation_pattern    ap1, ap2;
-public:
-  smoc_transition_part1(
-      const smoc_activation_pattern &ap1,
-      const smoc_activation_pattern &ap2 = smoc_activation_pattern())
-    : ap1(ap1), ap2(ap2) {}
-};
-
-class smoc_transition_part2 {
+class smoc_transition_part {
 public:
   friend class smoc_transition;
   
-  typedef smoc_transition_part2 this_type;
+  typedef smoc_transition_part this_type;
 private:
-  smoc_activation_pattern    ap1, ap2;
+  smoc_activation_pattern    ap;
   smoc_func_call             f;
 public:
-  smoc_transition_part2(
-      const smoc_transition_part1 &tp1,
-      const smoc_func_call        &f)
-    : ap1(tp1.ap1), ap2(tp1.ap2), f(f) {}
+  smoc_transition_part(
+//    const smoc_transition_part1   &tp1,
+      const smoc_activation_pattern &ap,
+      const smoc_func_call          &f)
+    : ap(ap), f(f) {}
 };
 
 class smoc_transition {
@@ -378,10 +347,10 @@ public:
       const smoc_firing_state_ref   &s)
     : ap(ap), ia(smoc_interface_action(s)) {}
   smoc_transition(
-      const smoc_transition_part2   &tp2,
+      const smoc_transition_part   &tp,
       const smoc_firing_state_ref   &s)
-    : ap(tp2.ap1.concat(tp2.ap2)),
-      ia(smoc_interface_action(s,tp2.f)) {}
+    : ap(tp.ap),
+      ia(smoc_interface_action(s,tp.f)) {}
   
   const smoc_activation_pattern &getActivationPattern() const { return ap; }
   const smoc_interface_action   &getInterfaceAction() const { return ia; }
@@ -424,37 +393,22 @@ smoc_transition_list operator | (const smoc_transition &tx,
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_1
 GNU89_EXTERN_INLINE
 #endif
-smoc_transition_part1 operator >> (const smoc_activation_pattern &ap1,
-			           const smoc_activation_pattern &ap2) {
+smoc_transition_part operator >> (const smoc_activation_pattern &ap,
+                                   const smoc_func_call          &f) {
 //  std::cerr << ">>" << std::endl;
-  return smoc_transition_part1(ap1,ap2);
+  return smoc_transition_part(ap,f);
 }
+
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_2
 GNU89_EXTERN_INLINE
 #endif
-smoc_transition_part2 operator >> (const smoc_transition_part1   &tp1,
-                                   const smoc_func_call          &f) {
-//  std::cerr << ">>" << std::endl;
-  return smoc_transition_part2(tp1,f);
-}
-#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_3
-GNU89_EXTERN_INLINE
-#endif
-smoc_transition_part2 operator >> (const smoc_activation_pattern &ap,
-                                   const smoc_func_call          &f) {
-//  std::cerr << ">>" << std::endl;
-  return smoc_transition_part2(smoc_transition_part1(ap),f);
-}
-#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_4
-GNU89_EXTERN_INLINE
-#endif
-smoc_transition operator >> (const smoc_transition_part2 &tp2,
+smoc_transition operator >> (const smoc_transition_part &tp,
 			     const smoc_firing_state_ref &s) {
 //  std::cerr << ">>" << std::endl;
-  return smoc_transition(tp2,s);
+  return smoc_transition(tp,s);
 }
 
-#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_5
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_3
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition operator >> (const smoc_activation_pattern ap,
@@ -464,7 +418,7 @@ smoc_transition operator >> (const smoc_activation_pattern ap,
 }
 
 /// Legacy stuff
-#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_6
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_4
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition operator >> (const smoc_activation_pattern &ap,

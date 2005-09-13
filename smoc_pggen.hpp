@@ -7,9 +7,8 @@
 #include <exception>
 
 #include <cassert>
-#include <map>
 
-#include <commondefs.h>
+#include <map>
 
 namespace smoc_modes {
 

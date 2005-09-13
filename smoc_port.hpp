@@ -4,9 +4,9 @@
 #define _INCLUDED_SMOC_POPT_HPP
 
 #include <smoc_expr.hpp>
-
 #include <smoc_root_port.hpp>
 #include <smoc_chan_if.hpp>
+#include <smoc_event.hpp>
 
 #include <systemc.h>
 #include <vector>
@@ -111,6 +111,9 @@ private:
       base_type::bind( *parent );
       return 0;
   }
+  
+  sc_module *getHierarchy() const
+    { return (*this)->getHierarchy(); }
 protected:
   smoc_port_base( const char* name_ )
     : base_type( name_ ), interface( NULL ) {}
@@ -148,16 +151,20 @@ public:
   typedef smoc_port_in<T>                 this_type;
   typedef typename this_type::iface_type  iface_type;
 //  typedef smoc_port_storage_in<T>         base_type;
-private:
+protected:
   void add_interface( sc_interface *i ) {
     push_interface(i); (*this)->addPortIf( this );
   }
+
+  bool peerIsV1() const
+    { return (*this)->portOutIsV1(); }
   
   void commSetup(size_t req) {
     static_cast<smoc_ring_access<const T> &>(*this) =
       (*this)->commSetupIn(req);
   }
   void commExec() { (*this)->commExecIn(*this); }
+  void reset() { smoc_ring_access<const T>::reset(); }
 public:
 //void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
 //public:
@@ -169,18 +176,22 @@ public:
   
   size_t availableCount() const
     { return (*this)->committedOutCount(); }
+  smoc_event &blockEvent()
+    { return (*this)->blockEventOut(); }
   
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
-  Expr::CommNr::type getAvailableTokens()
-    { return Expr::commnr(*this); }
+  Expr::Literal<smoc_commnr>::type getAvailableTokens()
+    { return Expr::literal<smoc_commnr>(*this); }
   
-  Expr::D<Expr::DBinOp<Expr::DCommNr, Expr::DLiteral<size_t>, Expr::DOpBinGe> >
+  Expr::D<Expr::DBinOp<Expr::DLiteral<smoc_commnr>,
+                       Expr::DLiteral<size_t>,
+                       Expr::DOpBinGe> >
   operator ()( size_t n )
     { return getAvailableTokens() >= n; }
   
   void operator () ( iface_type& interface_ )
-    { bind(interface_); }
+    { interface_.is_v1_in_port = is_smoc_v1_port; bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
 };
@@ -195,16 +206,20 @@ public:
   typedef smoc_port_out<T>                this_type;
   typedef typename this_type::iface_type  iface_type;
 //  typedef smoc_port_storage_out<T>        base_type;
-private:
+protected:
   void add_interface( sc_interface *i ) {
     push_interface(i); (*this)->addPortIf( this );
   }
+  
+  bool peerIsV1() const
+    { return (*this)->portInIsV1(); }
   
   void commSetup(size_t req) {
     static_cast<smoc_ring_access<T> &>(*this) =
       (*this)->commSetupOut(req);
   }
   void commExec() { (*this)->commExecOut(*this); }
+  void reset() { smoc_ring_access<T>::reset(); }
 public:
 //  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
 //public:
@@ -216,16 +231,20 @@ public:
   
   size_t availableCount() const
     { return (*this)->committedInCount(); }
+  smoc_event &blockEvent()
+    { return (*this)->blockEventIn(); }
   
-  Expr::CommNr::type getAvailableSpace()
-    { return Expr::commnr(*this); }
+  Expr::Literal<smoc_commnr>::type getAvailableSpace()
+    { return Expr::literal<smoc_commnr>(*this); }
   
-  Expr::D<Expr::DBinOp<Expr::DCommNr, Expr::DLiteral<size_t>, Expr::DOpBinGe> >
+  Expr::D<Expr::DBinOp<Expr::DLiteral<smoc_commnr>,
+                       Expr::DLiteral<size_t>,
+                       Expr::DOpBinGe> >
   operator ()( size_t n )
     { return getAvailableSpace() >= n; }
   
   void operator () ( iface_type& interface_ )
-    { bind(interface_); }
+    { interface_.is_v1_out_port = is_smoc_v1_port; bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
 };
