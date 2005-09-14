@@ -4,6 +4,63 @@
 template <typename T_node_type,
           typename T_chan_kind,
           template <typename T_value_type> class T_chan_init_default>
+const smoc_node_list smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::getNodes() const {
+  smoc_node_list subnodes;
+  
+  for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+        iter != get_child_objects().end();
+        ++iter ) {
+    smoc_root_node *node = dynamic_cast<smoc_root_node *>(*iter);
+    
+    if ( node != NULL && !node->is_v1_actor )
+      subnodes.push_back(node);
+  }
+  return subnodes;
+}
+
+template <typename T_node_type,
+          typename T_chan_kind,
+          template <typename T_value_type> class T_chan_init_default>
+const smoc_chan_list smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::getChans() const {
+  smoc_chan_list channels;
+  
+  for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+        iter != get_child_objects().end();
+        ++iter ) {
+    smoc_root_chan *chan = dynamic_cast<smoc_root_chan *>(*iter);
+    
+    if (chan != NULL )
+      channels.push_back(chan);
+  }
+  return channels;
+}
+
+template <typename T_node_type,
+          typename T_chan_kind,
+          template <typename T_value_type> class T_chan_init_default>
+void smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::
+finalise() {
+  {
+    smoc_chan_list chans = getChans();
+    
+    for ( typename smoc_chan_list::iterator iter = chans.begin();
+          iter != chans.end();
+          ++iter )
+      (*iter)->hierarchy = this;
+  }
+  {
+    smoc_node_list nodes = getNodes();
+    
+    for ( typename smoc_node_list::iterator iter = nodes.begin();
+          iter != nodes.end();
+          ++iter )
+      (*iter)->finalise();
+  }
+}
+
+template <typename T_node_type,
+          typename T_chan_kind,
+          template <typename T_value_type> class T_chan_init_default>
 void smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::
 pgAssemble( smoc_modes::PGWriter &pgw ) const {
   const sc_module *m = this;
@@ -94,3 +151,6 @@ template void smoc_graph_petri<smoc_fixed_transact_node, smoc_fifo_kind, smoc_fi
 template void smoc_graph_petri<smoc_choice_node, smoc_rendezvous_kind, smoc_rendezvous>::assemble
   (smoc_modes::PGWriter&) const;
 */
+
+template void smoc_graph_petri<smoc_root_node, smoc_fifo_kind, smoc_fifo>::
+  finalise();

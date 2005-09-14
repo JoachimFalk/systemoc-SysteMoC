@@ -72,26 +72,8 @@ protected:
     b(a);
     // b.bind(a);
   }
-
-  void finalise() {
-    {
-      smoc_chan_list chans = getChans();
-      
-      for ( typename smoc_chan_list::iterator iter = chans.begin();
-            iter != chans.end();
-            ++iter )
-        (*iter)->hierarchy = this;
-    }
-    {
-      smoc_node_list nodes = getNodes();
-      
-      for ( typename smoc_node_list::iterator iter = nodes.begin();
-            iter != nodes.end();
-            ++iter )
-        (*iter)->finalise();
-    }
-  }
-
+  
+  void finalise();
 public:
   explicit smoc_graph_petri( sc_module_name name )
     : sc_module( name ) {}
@@ -127,38 +109,9 @@ public:
     p(chan);
   }
   
-  const smoc_node_list getNodes() const {
-    smoc_node_list subnodes;
-    for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
-          iter != get_child_objects().end();
-          ++iter ) {
-      smoc_root_node *node = dynamic_cast<smoc_root_node *>(*iter);
-      
-/*
-      if ( node != NULL ) {
-        std::cout << "getNodes(): Got actor " << node->myModule()->name() << std::endl;
-      } else {
-        std::cout << "getNodes(): Got *" << typeid(**iter).name() << std::endl;
-      }
- */
-      if ( node != NULL && !node->is_v1_actor )
-        subnodes.push_back(node);
-    }
-    return subnodes;
-  }
-  const smoc_chan_list getChans() const {
-    smoc_chan_list channels;
-    for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
-          iter != get_child_objects().end();
-          ++iter ) {
-      smoc_root_chan *chan = dynamic_cast<smoc_root_chan *>(*iter);
-      
-      if (chan)
-        channels.push_back(chan);
-    }
-    return channels;
-  }
- 
+  const smoc_node_list getNodes() const;
+  const smoc_chan_list getChans() const;
+  
 #ifndef __SCFE__
   void assemble( smoc_modes::PGWriter &pgw ) const;
   void pgAssemble( smoc_modes::PGWriter &pgw ) const;
