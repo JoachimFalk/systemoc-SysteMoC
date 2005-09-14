@@ -29,8 +29,10 @@ public:
 //  friend class smoc_firing_types::resolved_state_ty;
 //  friend class smoc_firing_types::transition_ty;
 protected:
+  smoc_root_port *parent;
+  
   smoc_root_port( const char* name_ )
-    : sc_port_base( name_, 1 ), is_smoc_v1_port(false) {}
+    : sc_port_base( name_, 1 ), parent(NULL), is_smoc_v1_port(false) {}
 public:
   virtual void commSetup(size_t req) = 0;
   virtual void commExec()            = 0;
@@ -56,12 +58,16 @@ public:
   virtual void communicate( size_t n )
     { assert( !"SHOULD NEVER BE CALLED !!!" ); }
   
-/*
+  smoc_root_port *getParentPort() const
+    { return parent; }
+  
   // bind interface to this port
   void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
   // bind parent port to this port
-  void bind( this_type &parent_ ) { uplevel = true; sc_port_base::bind(parent_); }
-*/
+  void bind( this_type &parent_ ) {
+    assert( parent == NULL ); parent = &parent_;
+    sc_port_base::bind(parent_);
+  }
   
   void dump( std::ostream &out ) const {
     out << "port(" << this

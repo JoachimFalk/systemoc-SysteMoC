@@ -94,13 +94,22 @@ pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const {
         }
       }
     }
-    for ( typename iobind_ty::const_iterator iter = iobind.begin();
-          iter != iobind.end();
-          ++iter )
-      pgw << "<portmapping "
-          << "from=\"" << pgw.getId(iter->first) << "\" "
-          << "to=\"" << pgw.getId(iter->second) << "\" "
-          << "id=\"" << pgw.getId() << "\"/>" << std::endl;
+    for ( typename smoc_node_list::const_iterator iter = ns.begin();
+          iter != ns.end();
+          ++iter ) {
+      smoc_port_list nsps = (*iter)->getPorts();
+      
+      for ( smoc_port_list::const_iterator ps_iter = nsps.begin();
+            ps_iter != nsps.end();
+            ++ps_iter ) {
+        if ( (*ps_iter)->getParentPort() != NULL ) {
+          pgw << "<portmapping "
+              << "from=\"" << pgw.getId(*ps_iter) << "\" "
+              << "to=\"" << pgw.getId((*ps_iter)->getParentPort()) << "\" "
+              << "id=\"" << pgw.getId() << "\"/>" << std::endl;
+        }
+      }
+    }
     pgw.indentDown();
   }
   pgw << "</problemgraph>" << std::endl;

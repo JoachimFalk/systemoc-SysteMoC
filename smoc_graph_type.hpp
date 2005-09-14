@@ -26,10 +26,6 @@ public:
   typedef T_chan_kind					chan_kind;
   typedef smoc_graph_petri
     <T_node_type, T_chan_kind, T_chan_init_default>     this_type;
-private:
-  typedef std::map<smoc_root_port *, smoc_root_port *>  iobind_ty;
-  
-  iobind_ty           iobind;
 protected:
   template <typename T_chan_init>
   void connectNodePorts(
@@ -53,21 +49,13 @@ protected:
   template <typename T_value_type>
   void connectInterfacePorts(
       smoc_port_out<T_value_type> &a,
-      smoc_port_out<T_value_type> &b ) {
-    assert( iobind.find(&b) == iobind.end() );
-    iobind.insert( iobind_ty::value_type(&b,&a) );
-    b(a);
-    // b.bind(a);
-  }
+      smoc_port_out<T_value_type> &b )
+    { b(a); }
   template <typename T_value_type>
   void connectInterfacePorts(
       smoc_port_in<T_value_type> &a,
-      smoc_port_in<T_value_type> &b ) {
-    assert( iobind.find(&b) == iobind.end() );
-    iobind.insert( iobind_ty::value_type(&b,&a) );
-    b(a);
-    // b.bind(a);
-  }
+      smoc_port_in<T_value_type> &b )
+    { b(a); }
   
   void finalise();
 public:
