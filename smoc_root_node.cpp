@@ -4,6 +4,22 @@
 #include <smoc_root_node.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
 
+const smoc_port_list smoc_root_node::getPorts() const {
+  smoc_port_list   ports;
+  const sc_module *m = myModule();
+  
+  // std::cout << "=== getPorts ===" << this << std::endl;
+  for ( sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+        iter != m->get_child_objects().end();
+        ++iter ) {
+    smoc_root_port *port = dynamic_cast<smoc_root_port *>(*iter);
+    
+    if ( port != NULL )
+      ports.push_back(port);
+  }
+  return ports;
+}
+
 void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   const sc_module *m = myModule();
   
@@ -37,23 +53,6 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
     pgw.indentDown();
   }
   pgw << "</process>" << std::endl;
-}
-
-smoc_port_list &smoc_root_node::getPorts() {
-  if ( !ports_valid ) {
-    sc_module      *m = myModule();
-    
-//    std::cout << "=== getPorts ===" << this << std::endl;
-    for ( sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
-          iter != m->get_child_objects().end();
-          ++iter ) {
-      sc_port_base *port = dynamic_cast<sc_port_base *>(*iter);
-      if ( port != NULL && port->kind() == smoc_root_port::kind_string )
-        ports.push_back(reinterpret_cast<smoc_root_port *>(port));
-    }
-    ports_valid = true;
-  }
-  return ports;
 }
 
 std::ostream &smoc_root_node::dumpActor(std::ostream &o) {

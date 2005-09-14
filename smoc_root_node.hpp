@@ -47,15 +47,12 @@ class smoc_root_node
 private:
   smoc_firing_state        _currentState;
   const smoc_firing_state *_initialState;
-  
-  bool           ports_valid;
-  smoc_port_list ports;
 protected:
   smoc_root_node(const smoc_firing_state &s)
-    : _currentState(s), _initialState(NULL), ports_valid(false), is_v1_actor(false)
+    : _currentState(s), _initialState(NULL), is_v1_actor(false)
     {}
   smoc_root_node(smoc_firing_state &s)
-    : _initialState(&s), ports_valid(false), is_v1_actor(false)
+    : _initialState(&s), is_v1_actor(false)
     {}
 public:
   bool is_v1_actor;
@@ -80,11 +77,11 @@ public:
   
   virtual void assemble( smoc_modes::PGWriter &pgw ) const;
 #endif
-
-  smoc_port_list &getPorts();
-
+  
+  const smoc_port_list getPorts() const;
+  
   std::ostream &dumpActor( std::ostream &o );
-
+  
   const smoc_firing_state &currentState() const { return _currentState; }
   smoc_firing_state       &currentState()       { return _currentState; }
 };
