@@ -30,9 +30,6 @@ public:
   typedef T_chan_kind					chan_kind;
   typedef smoc_graph_petri
     <T_node_type, T_chan_kind, T_chan_init_default>     this_type;
-  
-  typedef std::list<smoc_root_node *>			nodes_ty;
-  typedef std::list<smoc_root_chan *>                   chans_ty;
 private:
   typedef std::map<smoc_root_port *, smoc_root_port *>  iobind_ty;
   
@@ -78,17 +75,17 @@ protected:
 
   void finalise() {
     {
-      chans_ty chans = getChans();
+      smoc_chan_list chans = getChans();
       
-      for ( typename chans_ty::iterator iter = chans.begin();
+      for ( typename smoc_chan_list::iterator iter = chans.begin();
             iter != chans.end();
             ++iter )
         (*iter)->hierarchy = this;
     }
     {
-      nodes_ty nodes = getNodes();
+      smoc_node_list nodes = getNodes();
       
-      for ( typename nodes_ty::iterator iter = nodes.begin();
+      for ( typename smoc_node_list::iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter )
         (*iter)->finalise();
@@ -130,8 +127,8 @@ public:
     p(chan);
   }
   
-  const nodes_ty getNodes() const {
-    nodes_ty subnodes;
+  const smoc_node_list getNodes() const {
+    smoc_node_list subnodes;
     for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
           iter != get_child_objects().end();
           ++iter ) {
@@ -149,8 +146,8 @@ public:
     }
     return subnodes;
   }
-  const chans_ty getChans() const {
-    chans_ty channels;
+  const smoc_chan_list getChans() const {
+    smoc_chan_list channels;
     for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
           iter != get_child_objects().end();
           ++iter ) {

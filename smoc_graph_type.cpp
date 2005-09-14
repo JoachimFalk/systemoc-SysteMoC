@@ -7,17 +7,17 @@ template <typename T_node_type,
 void smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::
 pgAssemble( smoc_modes::PGWriter &pgw ) const {
   const sc_module *m = this;
-  const nodes_ty ns  = getNodes();
-  const chans_ty cs  = getChans();
+  const smoc_node_list ns  = getNodes();
+  const smoc_chan_list cs  = getChans();
   
   pgw << "<problemgraph name=\"" << m->name() << "_pg\" id=\"" << pgw.getId() << "\">" << std::endl;
   {
     pgw.indentUp();
-    for ( typename nodes_ty::const_iterator iter = ns.begin();
+    for ( typename smoc_node_list::const_iterator iter = ns.begin();
           iter != ns.end();
           ++iter )
       (*iter)->assemble(pgw);
-    for ( typename chans_ty::const_iterator c_iter = cs.begin();
+    for ( typename smoc_chan_list::const_iterator c_iter = cs.begin();
           c_iter != cs.end();
           ++c_iter ) {
       smoc_port_list out = (*c_iter)->getOutputPorts();

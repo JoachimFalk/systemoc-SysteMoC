@@ -89,4 +89,6 @@ public:
   smoc_firing_state       &currentState()       { return _currentState; }
 };
 
+typedef std::list<smoc_root_node *> smoc_node_list;
+
 #endif // _INCLUDED_SMOC_ROOT_NODE_HPP

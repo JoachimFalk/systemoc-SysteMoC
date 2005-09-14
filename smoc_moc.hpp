@@ -59,7 +59,7 @@ protected:
   typedef std::list<transition_node_ty>                 transition_node_list_ty;
   
   const smoc_firing_state &schedule() {
-    cset_ty::nodes_ty nodes = c->getNodes();
+    smoc_node_list nodes = c->getNodes();
     bool again;
     
 #ifdef SYSTEMOC_DEBUG
@@ -69,7 +69,7 @@ protected:
     _ctx.hierarchy = myModule();
     do {
       again = false;
-      for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+      for ( smoc_node_list::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter )
         again |= (*iter)->currentState().tryExecute();
@@ -79,7 +79,7 @@ protected:
       smoc_transition_list      tl;
       smoc_root_port_bool_list  l;
       
-      for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+      for ( smoc_node_list::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter )
         (*iter)->currentState().findBlocked(l);
@@ -129,19 +129,19 @@ protected:
   cset_ty *c;
   
   void schedule() {
-    cset_ty::nodes_ty nodes = c->getNodes();
+    smoc_node_list nodes = c->getNodes();
     
     bool again;
     do {
       do {
         again = false;
         dump(nodes);
-        for ( cset_ty::nodes_ty::iterator iter = nodes.begin();
+        for ( smoc_node_list::iterator iter = nodes.begin();
               iter != nodes.end();
               ++iter )
           again |= (*iter)->currentState().inductionStep();
       } while ( again );
-      for ( cset_ty::nodes_ty::iterator iter = nodes.begin();
+      for ( smoc_node_list::iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter )
         again |= (*iter)->currentState().choiceStep();
