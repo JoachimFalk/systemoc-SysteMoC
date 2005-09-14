@@ -59,8 +59,9 @@ protected:
   typedef std::list<transition_node_ty>                 transition_node_list_ty;
   
   const smoc_firing_state &schedule() {
-    smoc_node_list nodes = c->getNodes();
-    bool again;
+    bool           again;
+    smoc_node_list nodes   = c->getNodes();
+    smoc_ctx       _oldctx = _ctx;
     
 #ifdef SYSTEMOC_DEBUG
     std::cout << "<smoc_scheduler_ndf::schedule>" << std::endl;
@@ -97,6 +98,8 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cout << "</smoc_scheduler_ndf::schedule>" << std::endl;
 #endif
+    // FIXME: Big hack !!!
+    _ctx = _oldctx;
     return s;
   }
  
