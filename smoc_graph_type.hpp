@@ -109,8 +109,7 @@ public:
   const smoc_chan_list getChans() const;
   
 #ifndef __SCFE__
-  void assemble( smoc_modes::PGWriter &pgw ) const;
-  void pgAssemble( smoc_modes::PGWriter &pgw ) const;
+  void pgAssemble(smoc_modes::PGWriter &, const smoc_root_node *) const;
 #endif
 };
 

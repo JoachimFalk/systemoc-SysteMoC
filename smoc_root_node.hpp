@@ -79,11 +79,12 @@ public:
 
 #ifndef __SCFE__
   virtual sc_module *myModule() = 0;
-  virtual const sc_module *myModule() const {
+  const sc_module *myModule() const {
     return const_cast<smoc_root_node *>(this)->myModule();
   }
   
-  virtual void assemble( smoc_modes::PGWriter &pgw ) const;
+  virtual void pgAssemble( smoc_modes::PGWriter &, const smoc_root_node * ) const;
+  void assemble( smoc_modes::PGWriter &pgw ) const;
 #endif
   
   const smoc_port_list getPorts() const;

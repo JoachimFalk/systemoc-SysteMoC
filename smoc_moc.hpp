@@ -180,8 +180,8 @@ public:
 #ifndef __SCFE__
   sc_module *myModule() { return this; }
   
-  void assemble( smoc_modes::PGWriter &pgw ) const
-    { return smoc_ndf_constraintset::assemble(pgw); }
+  void pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
+    { return smoc_ndf_constraintset::pgAssemble(pgw,n); }
 #endif
 
 };
