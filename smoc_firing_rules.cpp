@@ -256,8 +256,10 @@ void smoc_firing_types::transition_ty::findBlocked(
   smoc_root_port_bool b      = knownSatisfiable();
   
   // std::cout << b << std::endl;
-  if ( b.getStatus() != smoc_root_port_bool::IS_DISABLED )
+  if ( b.getStatus() != smoc_root_port_bool::IS_DISABLED ) {
+    assert( b.getStatus() == smoc_root_port_bool::IS_BLOCKED );
     l.push_back(b);
+  }
 }
 
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {

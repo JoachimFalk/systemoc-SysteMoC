@@ -157,8 +157,10 @@ public:
     } else if ( p->getHierarchy() != _ctx.hierarchy ||
                 p->peerIsV1() ) {
       v = IS_BLOCKED;// std::cout << "blocked";
+      assert( p->getParentPort() != NULL );
     } else {
       v = IS_DISABLED;// std::cout << "disabled";
+      assert( p->getParentPort() == NULL );
     }
     if ( v == IS_ENABLED ) {
       p->commSetup(n);
