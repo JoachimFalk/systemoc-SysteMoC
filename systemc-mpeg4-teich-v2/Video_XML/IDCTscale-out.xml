@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_IDCTscale: public smoc_actor {
 // The actor has 2 Ports.
@@ -7,7 +7,7 @@ public:
    smoc_port_in<int> I;
    smoc_port_out<int> O;
 
-// The actor has 2 Parameters and 0 Variable declarations.
+// The actor has 2 Parameters and 2 Variable declarations.
 private: 
    const int G;
    const int OS;
@@ -23,11 +23,11 @@ void m_IDCTscale::action(void) {
    smoc_firing_state start;
       
 public:
- m_IDCTscale(sc_module_name name, G, OS)
+ m_IDCTscale(sc_module_name name, int G, int OS)
  : smoc_actor(name, start), G(G), OS(OS) {
  start = 
    (I.getAvailableTokens() >= 1) >> 
    (O.getAvailableSpace() >= 1)  >>
-   call(m_IDCTscale::action) >> start;  
+   call(&m_IDCTscale::action) >> start;  
  }
 };

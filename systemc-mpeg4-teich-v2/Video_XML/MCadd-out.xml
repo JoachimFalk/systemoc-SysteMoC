@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_MCadd: public smoc_actor {
 // The actor has 4 Ports.
@@ -42,7 +42,8 @@ private:
     int MBbuf_ptr; 
      cal_list<cal_list<int>::t>::t MBbuf; 
     
-   void MBbuf_add() {
+   //void MBbuf_add(int b) {
+   void MBbuf_add(cal_list<int>::t b) {
    MBbuf_ptr = (MBbuf_ptr + 1); 
    if (MBbuf_ptr >= MBbuf_size) { 
       MBbuf_ptr = 0; 
@@ -117,7 +118,7 @@ private:
       int maxy = lshift(MBheight, (n < 4) ? 4 : (3));
       int ulx = xpixel(x, n);
       int uly = ypixel(y, n);
-      cal_list<int>::t &b;
+      cal_list<int>::t b;
    
      for (unsigned int yy = 0; yy <= 8; ++yy) 
                      for (unsigned int xx = 0; xx <= 8; ++xx) 
@@ -194,7 +195,7 @@ bool m_MCadd::guard_newFrame(void)  const {
    const int unused2 = MV[5];
    return( (cmd == (-1)) );
 }
-bool m_MCadd::guard_docmd.missingBlock(void)  const {
+bool m_MCadd::guard_docmd_missingBlock(void)  const {
    const int cmd = MV[0];
    const int x = MV[1];
    const int y = MV[2];
@@ -203,7 +204,7 @@ bool m_MCadd::guard_docmd.missingBlock(void)  const {
    const int mvy = MV[5];
    return( (cmd >= 0) && (detect_skipped(x, y, n) == 1) );
 }
-bool m_MCadd::guard_docmd.textureOnly(void)  const {
+bool m_MCadd::guard_docmd_textureOnly(void)  const {
    const int cmd = MV[0];
    const int x = MV[1];
    const int y = MV[2];
@@ -213,7 +214,7 @@ bool m_MCadd::guard_docmd.textureOnly(void)  const {
    const cal_list<int>::t &tex = TEX[0];
    return( (cmd == 6) && (detect_skipped(x, y, n) == 0) );
 }
-bool m_MCadd::guard_docmd.nothing(void)  const {
+bool m_MCadd::guard_docmd_nothing(void)  const {
    const int cmd = MV[0];
    const int x = MV[1];
    const int y = MV[2];
@@ -222,7 +223,7 @@ bool m_MCadd::guard_docmd.nothing(void)  const {
    const int mvy = MV[5];
    return( (cmd == 0) && (detect_skipped(x, y, n) == 0) );
 }
-bool m_MCadd::guard_docmd.motionOnly(void)  const {
+bool m_MCadd::guard_docmd_motionOnly(void)  const {
    const int cmd = MV[0];
    const int x = MV[1];
    const int y = MV[2];
@@ -231,7 +232,7 @@ bool m_MCadd::guard_docmd.motionOnly(void)  const {
    const int mvy = MV[5];
    return( (cmd == 0 || cmd == 1) && (detect_skipped(x, y, n) == 0) );
 }
-bool m_MCadd::guard_docmd.both(void)  const {
+bool m_MCadd::guard_docmd_both(void)  const {
    const int cmd = MV[0];
    const int x = MV[1];
    const int y = MV[2];
@@ -241,17 +242,17 @@ bool m_MCadd::guard_docmd.both(void)  const {
    const cal_list<int>::t &tex = TEX[0];
    return( (cmd == 4) && (detect_skipped(x, y, n) == 0) );
 }
-bool m_MCadd::guard_mbbuf.tooEmptyInt(void)  const {
+bool m_MCadd::guard_mbbuf_tooEmptyInt(void)  const {
    const cal_list<int>::t &b = LAST[0];
    return( (int_buf_count < int_buf_count_ss) );
 }
-bool m_MCadd::guard_mbbuf.tooEmptyExt(void)  const {
+bool m_MCadd::guard_mbbuf_tooEmptyExt(void)  const {
    return( (int_buf_count == int_buf_count_ss) && (ext_buf_count < ext_buf_count_ss) );
 }
-bool m_MCadd::guard_mbbuf.tooFull(void)  const {
+bool m_MCadd::guard_mbbuf_tooFull(void)  const {
    return( (int_buf_count > int_buf_count_ss || ext_buf_count > ext_buf_count_ss) );
 }
-bool m_MCadd::guard_mbbuf.justRight(void)  const {
+bool m_MCadd::guard_mbbuf_justRight(void)  const {
    const cal_list<int>::t &b = LAST[0];
    return( (int_buf_count == int_buf_count_ss) && (ext_buf_count == ext_buf_count_ss) );
 }
@@ -278,10 +279,10 @@ void m_MCadd::newFrame(void) {
    next_n = 0; 
    frame_number = (frame_number + 1); 
    if (frame_number == 190) { 
-      println((Frame  + frame_number + , rounding =  + rounding_type));
+      //println((Frame  + frame_number + , rounding =  + rounding_type));
    }
 }
-void m_MCadd::docmd.missingBlock(void) {
+void m_MCadd::docmd_missingBlock(void) {
 // The action has 0 local variable declarations.
    int cmd = MV[0];
    int x = MV[1];
@@ -289,11 +290,11 @@ void m_MCadd::docmd.missingBlock(void) {
    int n = MV[3];
    int mvx = MV[4];
    int mvy = MV[5];
-   println((Missing block at ( + next_x + , + next_y + , + next_n + )));
+   //println((Missing block at ( + next_x + , + next_y + , + next_n + )));
    next_block();
    VID[0] = initList((next_n < 4) ? 0 : (128), 64);
 }
-void m_MCadd::docmd.textureOnly(void) {
+void m_MCadd::docmd_textureOnly(void) {
 // The action has 0 local variable declarations.
    int cmd = MV[0];
    int x = MV[1];
@@ -303,12 +304,12 @@ void m_MCadd::docmd.textureOnly(void) {
    int mvy = MV[5];
    const cal_list<int>::t &tex = TEX[0];
    if (frame_number == 190 && y == 0 && x < 2 && n < 4) { 
-      println((TEX only at ( + next_x + , + next_y + , + next_n + )));
+      //println((TEX only at ( + next_x + , + next_y + , + next_n + )));
    }
    next_block();
    VID[0] = tex;
 }
-void m_MCadd::docmd.nothing(void) {
+void m_MCadd::docmd_nothing(void) {
 // The action has 0 local variable declarations.
    int cmd = MV[0];
    int x = MV[1];
@@ -319,7 +320,7 @@ void m_MCadd::docmd.nothing(void) {
    next_block();
    VID[0] = MBbuf_get(head_index);
 }
-void m_MCadd::docmd.motionOnly(void) {
+void m_MCadd::docmd_motionOnly(void) {
 // The action has 1 local variable declarations.
    int cmd = MV[0];
    int x = MV[1];
@@ -327,11 +328,11 @@ void m_MCadd::docmd.motionOnly(void) {
    int n = MV[3];
    int mvx = MV[4];
    int mvy = MV[5];
-   cal_list<int>::t &b = comp_block(x, y, n, mvx, mvy);
+   cal_list<int>::t b = comp_block(x, y, n, mvx, mvy);
    next_block();
    VID[0] = b;
 }
-void m_MCadd::docmd.both(void) {
+void m_MCadd::docmd_both(void) {
 // The action has 1 local variable declarations.
    int cmd = MV[0];
    int x = MV[1];
@@ -340,25 +341,25 @@ void m_MCadd::docmd.both(void) {
    int mvx = MV[4];
    int mvy = MV[5];
    const cal_list<int>::t &tex = TEX[0];
-   cal_list<int>::t &b = comp_block(x, y, n, mvx, mvy);
+   cal_list<int>::t b = comp_block(x, y, n, mvx, mvy);
    next_block();
    VID[0] = combine(tex, b);
 }
-void m_MCadd::mbbuf.tooEmptyInt(void) {
+void m_MCadd::mbbuf_tooEmptyInt(void) {
 // The action has 0 local variable declarations.
    const cal_list<int>::t &b = LAST[0];
    MBbuf_add(b);
    int_buf_count = (int_buf_count + 1); 
 }
-void m_MCadd::mbbuf.tooEmptyExt(void) {
+void m_MCadd::mbbuf_tooEmptyExt(void) {
 // The action has 0 local variable declarations.
    ext_buf_count = (ext_buf_count + 1); 
 }
-void m_MCadd::mbbuf.tooFull(void) {
+void m_MCadd::mbbuf_tooFull(void) {
 // The action has 0 local variable declarations.
-   println(Unsupported action: mbbuf.tooFull in actor MCadd);
+   //println(Unsupported action: mbbuf.tooFull in actor MCadd);
 }
-void m_MCadd::mbbuf.justRight(void) {
+void m_MCadd::mbbuf_justRight(void) {
 // The action has 0 local variable declarations.
    const cal_list<int>::t &b = LAST[0];
    MBbuf_add(b);
@@ -367,52 +368,52 @@ void m_MCadd::mbbuf.justRight(void) {
    smoc_firing_state process, update; 
           
 public:
- m_MCadd(sc_module_name name, WINSIZE, MAXMBWIDTH)
- : smoc_actor(name, process), WINSIZE(WINSIZE), MAXMBWIDTH(MAXMBWIDTH), MBwidth(0), MBheight(0), rounding_type(0), next_x(next_x), next_y(next_y), next_n(next_n), int_buf_count(0), int_buf_count_ss(int_buf_count_ss), ext_buf_count(0), ext_buf_count_ss(ext_buf_count_ss), frame_count(frame_count), frame_number(0), head_index(head_index), initList(), MBbuf_size((6 * (((WINSIZE - 1) * MAXMBWIDTH) + WINSIZE))), MBbuf_ptr(0), MBbuf(initList(initList(0, 64), MBbuf_size)), MBbuf_get(), comp_block(), combine() {
+ m_MCadd(sc_module_name name, int WINSIZE, int MAXMBWIDTH)
+ : smoc_actor(name, process), WINSIZE(WINSIZE), MAXMBWIDTH(MAXMBWIDTH), MBwidth(0), MBheight(0), rounding_type(0), next_x(next_x), next_y(next_y), next_n(next_n), int_buf_count(0), int_buf_count_ss(int_buf_count_ss), ext_buf_count(0), ext_buf_count_ss(ext_buf_count_ss), frame_count(frame_count), frame_number(0), head_index(head_index), MBbuf_size((6 * (((WINSIZE - 1) * MAXMBWIDTH) + WINSIZE))), MBbuf_ptr(0), MBbuf(initList(initList(0, 64), MBbuf_size)),  {
 process = (MV.getAvailableTokens() >= 6 && 
    guard(&m_MCadd::guard_newFrame)) >> 
-   call(m_MCadd::newFrame) >> process; 
+   call(&m_MCadd::newFrame) >> process; 
    
 process = (MV.getAvailableTokens() >= 6 && 
-   guard(&m_MCadd::guard_docmd.missingBlock)) >> 
+   guard(&m_MCadd::guard_docmd_missingBlock)) >> 
    (VID.getAvailableSpace() >= 1) >>
-   call(m_MCadd::docmd.missingBlock) >> update; 
-   
-process = (MV.getAvailableTokens() >= 6 && 
-   TEX.getAvailableTokens() >= 1 && 
-   guard(&m_MCadd::guard_docmd.textureOnly)) >> 
-   (VID.getAvailableSpace() >= 1) >>
-   call(m_MCadd::docmd.textureOnly) >> update; 
-   
-process = (MV.getAvailableTokens() >= 6 && 
-   guard(&m_MCadd::guard_docmd.nothing)) >> 
-   (VID.getAvailableSpace() >= 1) >>
-   call(m_MCadd::docmd.nothing) >> update; 
-   
-process = (MV.getAvailableTokens() >= 6 && 
-   guard(&m_MCadd::guard_docmd.motionOnly)) >> 
-   (VID.getAvailableSpace() >= 1) >>
-   call(m_MCadd::docmd.motionOnly) >> update; 
+   call(&m_MCadd::docmd_missingBlock) >> update; 
    
 process = (MV.getAvailableTokens() >= 6 && 
    TEX.getAvailableTokens() >= 1 && 
-   guard(&m_MCadd::guard_docmd.both)) >> 
+   guard(&m_MCadd::guard_docmd_textureOnly)) >> 
    (VID.getAvailableSpace() >= 1) >>
-   call(m_MCadd::docmd.both) >> update; 
+   call(&m_MCadd::docmd_textureOnly) >> update; 
+   
+process = (MV.getAvailableTokens() >= 6 && 
+   guard(&m_MCadd::guard_docmd_nothing)) >> 
+   (VID.getAvailableSpace() >= 1) >>
+   call(&m_MCadd::docmd_nothing) >> update; 
+   
+process = (MV.getAvailableTokens() >= 6 && 
+   guard(&m_MCadd::guard_docmd_motionOnly)) >> 
+   (VID.getAvailableSpace() >= 1) >>
+   call(&m_MCadd::docmd_motionOnly) >> update; 
+   
+process = (MV.getAvailableTokens() >= 6 && 
+   TEX.getAvailableTokens() >= 1 && 
+   guard(&m_MCadd::guard_docmd_both)) >> 
+   (VID.getAvailableSpace() >= 1) >>
+   call(&m_MCadd::docmd_both) >> update; 
    
 update = (LAST.getAvailableTokens() >= 1 && 
-   guard(&m_MCadd::guard_mbbuf.tooEmptyInt)) >> 
-   call(m_MCadd::mbbuf.tooEmptyInt) >> process; 
+   guard(&m_MCadd::guard_mbbuf_tooEmptyInt)) >> 
+   call(&m_MCadd::mbbuf_tooEmptyInt) >> process; 
    
-update = (guard(&m_MCadd::guard_mbbuf.tooEmptyExt)) >> 
-   call(m_MCadd::mbbuf.tooEmptyExt) >> process; 
+update = (guard(&m_MCadd::guard_mbbuf_tooEmptyExt)) >> 
+   call(&m_MCadd::mbbuf_tooEmptyExt) >> process; 
    
-update = (guard(&m_MCadd::guard_mbbuf.tooFull)) >> 
-   call(m_MCadd::mbbuf.tooFull) >> process; 
+update = (guard(&m_MCadd::guard_mbbuf_tooFull)) >> 
+   call(&m_MCadd::mbbuf_tooFull) >> process; 
    
 update = (LAST.getAvailableTokens() >= 1 && 
-   guard(&m_MCadd::guard_mbbuf.justRight)) >> 
-   call(m_MCadd::mbbuf.justRight) >> process; 
+   guard(&m_MCadd::guard_mbbuf_justRight)) >> 
+   call(&m_MCadd::mbbuf_justRight) >> process; 
     
  }
 };

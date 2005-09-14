@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_col2block: public smoc_actor {
 // The actor has 9 Ports.
@@ -28,7 +28,11 @@ void m_col2block::action(void) {
    int r5 = R5[0];
    int r6 = R6[0];
    int r7 = R7[0];
-   B[0] = (r0 + r1 + r2 + r3 + r4 + r5 + r6 + r7);
+   // BUG: The following 2 lines had to be manually inserted:
+   for (int i=0; i<8; i++) {
+    r0 = R0[i]; r1 = R1[i]; r2= R2[i]; r3=R3[i]; r4=R4[i]; r5=R5[i]; r6=R6[i]; r7=R7[i]; 
+   B[i] = (r0 + r1 + r2 + r3 + r4 + r5 + r6 + r7);
+   }
 }
 
    smoc_firing_state start;
@@ -46,6 +50,6 @@ public:
    R6.getAvailableTokens() >= 8 && 
    R7.getAvailableTokens() >= 8) >> 
    (B.getAvailableSpace() >= 1)  >>
-   call(m_col2block::action) >> start;  
+   call(&m_col2block::action) >> start;  
  }
 };

@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_Upsample: public smoc_actor {
 // The actor has 2 Ports.
@@ -41,15 +41,15 @@ void m_Upsample::copy(void) {
    smoc_firing_state start;
       
 public:
- m_Upsample(sc_module_name name, factor)
+ m_Upsample(sc_module_name name, int factor)
  : smoc_actor(name, start), factor(factor), state(0), mem(mem) {
  start = 
    (I.getAvailableTokens() >= 1 && 
    guard(&m_Upsample::guard_read)) >> 
    (O.getAvailableSpace() >= 1)  >>
-   call(m_Upsample::read) >> start |  
+   call(&m_Upsample::read) >> start |  
    (guard(&m_Upsample::guard_copy)) >> 
    (O.getAvailableSpace() >= 1)  >>
-   call(m_Upsample::copy) >> start;  
+   call(&m_Upsample::copy) >> start;  
  }
 };

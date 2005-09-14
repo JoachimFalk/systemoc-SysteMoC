@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_parser: public smoc_actor {
 // The actor has 5 Ports.
@@ -72,14 +72,14 @@ private:
     int mcbpc; 
     int cbp; 
     int mvindex; 
-    cal_list<int>::t> lb_x_y0; 
-    cal_list<int>::t> lb_x_y1; 
-    cal_list<int>::t> lb_x_y2; 
-    cal_list<int>::t> lb_x_y3; 
-    cal_list<int>::t> lb_y_y0; 
-    cal_list<int>::t> lb_y_y1; 
-    cal_list<int>::t> lb_y_y2; 
-    cal_list<int>::t> lb_y_y3; 
+    cal_list<int>::t lb_x_y0; 
+    cal_list<int>::t lb_x_y1; 
+    cal_list<int>::t lb_x_y2; 
+    cal_list<int>::t lb_x_y3; 
+    cal_list<int>::t lb_y_y0; 
+    cal_list<int>::t lb_y_y1; 
+    cal_list<int>::t lb_y_y2; 
+    cal_list<int>::t lb_y_y3; 
     int mvx_uv; 
     int mvy_uv; 
     
@@ -100,7 +100,7 @@ private:
    }
    
    
-   void set_mvx(, ) {
+   void set_mvx(int num, int val) {
    if (num == 0) { 
       lb_x_y0[bitand(mvindex, 1)] = val;
    }
@@ -129,7 +129,7 @@ private:
    }
    
    
-   void set_mvy(, ) {
+   void set_mvy(int num, int val) {
    if (num == 0) { 
       lb_y_y0[bitand(mvindex, 1)] = val;
    }
@@ -169,13 +169,13 @@ private:
     int cbpy; 
     int mvcomp; 
     int ac_coded; 
-    cal_list<int>::t> block; 
+    cal_list<int>::t block; 
     int b_index; 
     int b_last; 
     int dcbits; 
     int vld_index; 
-    cal_list<int>::t> intra_lookup; 
-    cal_list<int>::t> inter_lookup; 
+    cal_list<int>::t intra_lookup; 
+    cal_list<int>::t inter_lookup; 
     
    int intra_max_level(int last, int run) {
    return( (last == 0) ? (run == 0) ? 27 : ((run == 1) ? 10 : ((run == 2) ? 5 : ((run == 3) ? 4 : ((run < 8) ? 3 : ((run < 10) ? 2 : ((run < 15) ? 1 : (0))))))) : ((run == 0) ? 8 : ((run == 1) ? 3 : ((run < 7) ? 2 : ((run < 21) ? 1 : (0))))) );
@@ -240,11 +240,11 @@ bool m_parser::guard_vol_startcode_good(void)  const {
    const int b = bits[0];
    return( (value(b, VOL_START_CODE_LENGTH, 0) == VOL_START_CODE) );
 }
-bool m_parser::guard_vol_layer.detailed(void)  const {
+bool m_parser::guard_vol_layer_detailed(void)  const {
    const int b = bits[0];
    return( (vol_layer_is_detailed == 1) );
 }
-bool m_parser::guard_vol_aspect.detailed(void)  const {
+bool m_parser::guard_vol_aspect_detailed(void)  const {
    const int b = bits[0];
    return( (vol_aspect_val == 15) );
 }
@@ -252,11 +252,11 @@ bool m_parser::guard_vol_control_detailed(void)  const {
    const int b = bits[0];
    return( (vol_control_is_detailed == 1) );
 }
-bool m_parser::guard_vol_vbv.detailed(void)  const {
+bool m_parser::guard_vol_vbv_detailed(void)  const {
    const int b = bits[0];
    return( (vol_vbv_is_detailed == 1) );
 }
-bool m_parser::guard_vop_rate.variable(void)  const {
+bool m_parser::guard_vop_rate_variable(void)  const {
    const int b = bits[0];
    return( (vol_fixed_rate == 0) );
 }
@@ -284,11 +284,11 @@ bool m_parser::guard_vop_uncoded(void)  const {
    const int b = bits[0];
    return( (b == 0) );
 }
-bool m_parser::guard_vop_coded.pvop(void)  const {
+bool m_parser::guard_vop_coded_pvop(void)  const {
    const int b = bits[0];
    return( (prediction_type == P_VOP) );
 }
-bool m_parser::guard_vop_coded.ivop(void)  const {
+bool m_parser::guard_vop_coded_ivop(void)  const {
    const int b = bits[0];
    return( (prediction_type == I_VOP) );
 }
@@ -299,70 +299,70 @@ bool m_parser::guard_mcbpc_pvop_uncoded(void)  const {
    const int b = bits[0];
    return( (prediction_type == P_VOP) && (b == 1) );
 }
-bool m_parser::guard_mcbpc.ivop.b1(void)  const {
+bool m_parser::guard_mcbpc_ivop_b1(void)  const {
    const int b = bits[0];
    return( (prediction_type == I_VOP) && (b == 1) );
 }
-bool m_parser::guard_mcbpc.ivop.b3(void)  const {
+bool m_parser::guard_mcbpc_ivop_b3(void)  const {
    const int b = bits[0];
    return( (prediction_type == I_VOP) && (b[1] == 1 || b[2] == 1) );
 }
-bool m_parser::guard_ivop.b4(void)  const {
+bool m_parser::guard_ivop_b4(void)  const {
    const int b = bits[0];
    return( (prediction_type == I_VOP) && (b[3] == 1) );
 }
-bool m_parser::guard_ivop.b6(void)  const {
+bool m_parser::guard_ivop_b6(void)  const {
    const int b = bits[0];
    return( (prediction_type == I_VOP) && (b[4] == 1 || b[5] == 1) );
 }
-bool m_parser::guard_mcbpc.pvop.b1(void)  const {
+bool m_parser::guard_mcbpc_pvop_b1(void)  const {
    const int b = bits[0];
    return( (prediction_type == P_VOP) && (b[1] == 1) );
 }
-bool m_parser::guard_mcbpc.pvop.b3(void)  const {
+bool m_parser::guard_mcbpc_pvop_b3(void)  const {
    const int b = bits[0];
    return( (prediction_type == P_VOP) && (b[2] == 1) );
 }
-bool m_parser::guard_mcbpc.pvop.b4(void)  const {
+bool m_parser::guard_mcbpc_pvop_b4(void)  const {
    const int b = bits[0];
    return( (prediction_type == P_VOP) && (b[3] == 1) );
 }
-bool m_parser::guard_mcbpc.pvop.b5(void)  const {
+bool m_parser::guard_mcbpc_pvop_b5(void)  const {
    const int b = bits[0];
    return( (prediction_type == P_VOP) && (b[4] == 1) && (b[5] == 1) );
 }
-bool m_parser::guard_mcbpc.pvop.b6(void)  const {
+bool m_parser::guard_mcbpc_pvop_b6(void)  const {
    const int b = bits[0];
    return( (prediction_type == P_VOP) && (b[4] == 1) && (b[5] == 0) );
 }
-bool m_parser::guard_mcbpc.pvop.b7(void)  const {
+bool m_parser::guard_mcbpc_pvop_b7(void)  const {
    const int b = bits[0];
    return( (prediction_type == P_VOP) && (b[5] == 1 || (b[6] == 1 && b[7] == 1)) );
 }
-bool m_parser::guard_mcbpc.pvop.b8(void)  const {
+bool m_parser::guard_mcbpc_pvop_b8(void)  const {
    const int b = bits[0];
    return( (prediction_type == P_VOP) && (b[6] == 1 || (b[7] == 1 && b[8] == 1)) );
 }
-bool m_parser::guard_mcbpc.pvop.b9(void)  const {
+bool m_parser::guard_mcbpc_pvop_b9(void)  const {
    const int b = bits[0];
    return( (prediction_type == P_VOP) && (b[7] == 1 || b[8] == 1 || b[9] == 1) );
 }
-bool m_parser::guard_get_mbtype.noac(void)  const {
+bool m_parser::guard_get_mbtype_noac(void)  const {
    return( (type != 3) && (type != 4) );
 }
-bool m_parser::guard_get_cbpy.b2(void)  const {
+bool m_parser::guard_get_cbpy_b2(void)  const {
    const int b = bits[0];
    return( (b[0] == 1) && (b[1] == 1) );
 }
-bool m_parser::guard_get_cbpy.b4(void)  const {
+bool m_parser::guard_get_cbpy_b4(void)  const {
    const int b = bits[0];
    return( (b[0] == 1 || b[1] == 1 || (b[2] == 1 && b[3] == 1)) );
 }
-bool m_parser::guard_get_cbpy.b5(void)  const {
+bool m_parser::guard_get_cbpy_b5(void)  const {
    const int b = bits[0];
    return( (b[2] == 1 || b[3] == 1) );
 }
-bool m_parser::guard_get_cbpy.b6(void)  const {
+bool m_parser::guard_get_cbpy_b6(void)  const {
    const int b = bits[0];
    return( (b[4] == 1) );
 }
@@ -381,101 +381,101 @@ bool m_parser::guard_mb_dispatch_inter_no_ac(void)  const {
 bool m_parser::guard_vld_start_intra(void)  const {
    return( (prediction_type == I_VOP) );
 }
-bool m_parser::guard_dcbits.b2(void)  const {
+bool m_parser::guard_dcbits_b2(void)  const {
    const int b = bits[0];
    return( (b[0] == 1 || (b[1] == 1 && comp > 3)) );
 }
-bool m_parser::guard_dcbits.b3(void)  const {
+bool m_parser::guard_dcbits_b3(void)  const {
    const int b = bits[0];
    return( (b[1] == 1 || b[2] == 1) );
 }
-bool m_parser::guard_dcbits.b4(void)  const {
+bool m_parser::guard_dcbits_b4(void)  const {
    const int b = bits[0];
    return( (b[3] == 1) );
 }
-bool m_parser::guard_dcbits.b5(void)  const {
+bool m_parser::guard_dcbits_b5(void)  const {
    const int b = bits[0];
    return( (b[4] == 1) );
 }
-bool m_parser::guard_dcbits.b6(void)  const {
+bool m_parser::guard_dcbits_b6(void)  const {
    const int b = bits[0];
    return( (b[5] == 1) );
 }
-bool m_parser::guard_dcbits.b7(void)  const {
+bool m_parser::guard_dcbits_b7(void)  const {
    const int b = bits[0];
    return( (b[6] == 1) );
 }
-bool m_parser::guard_dcbits.b8(void)  const {
+bool m_parser::guard_dcbits_b8(void)  const {
    const int b = bits[0];
    return( (b[7] == 1) );
 }
-bool m_parser::guard_dcbits.b9(void)  const {
+bool m_parser::guard_dcbits_b9(void)  const {
    const int b = bits[0];
    return( (b[8] == 1) );
 }
-bool m_parser::guard_dcbits.b10(void)  const {
+bool m_parser::guard_dcbits_b10(void)  const {
    const int b = bits[0];
    return( (b[9] == 1) );
 }
-bool m_parser::guard_dcbits.b11(void)  const {
+bool m_parser::guard_dcbits_b11(void)  const {
    const int b = bits[0];
    return( (b[10] == 1) );
 }
-bool m_parser::guard_dcbits.b12(void)  const {
+bool m_parser::guard_dcbits_b12(void)  const {
    const int b = bits[0];
    return( (b[11] == 1) && (comp > 3) );
 }
-bool m_parser::guard_get_dc.none(void)  const {
+bool m_parser::guard_get_dc_none(void)  const {
    return( (dcbits == 0) );
 }
-bool m_parser::guard_get_dc.small(void)  const {
+bool m_parser::guard_get_dc_small(void)  const {
    const int b = bits[0];
    return( (dcbits <= 8) );
 }
 bool m_parser::guard_block_done(void)  const {
    return( (b_index == 64 || b_last == 1 || ac_coded == 0) );
 }
-bool m_parser::guard_vld_code.b2(void)  const {
+bool m_parser::guard_vld_code_b2(void)  const {
    const int b = bits[0];
    return( (b[0] == 1) && (b[1] == 0) );
 }
-bool m_parser::guard_vld_code.b3(void)  const {
+bool m_parser::guard_vld_code_b3(void)  const {
    const int b = bits[0];
    return( (b[0] == 1) && (b[1] == 1) && (b[2] == 0) );
 }
-bool m_parser::guard_vld_code.b4(void)  const {
+bool m_parser::guard_vld_code_b4(void)  const {
    const int b = bits[0];
    return( (v == 7 || v == 14 || v == 15) );
 }
-bool m_parser::guard_vld_code.b5(void)  const {
+bool m_parser::guard_vld_code_b5(void)  const {
    const int b = bits[0];
    return( (v == 11 || v == 12 || v == 13) );
 }
-bool m_parser::guard_vld_code.b6(void)  const {
+bool m_parser::guard_vld_code_b6(void)  const {
    const int b = bits[0];
    return( (v >= 12 && v <= 21) );
 }
-bool m_parser::guard_vld_code.b7(void)  const {
+bool m_parser::guard_vld_code_b7(void)  const {
    const int b = bits[0];
    return( (v == 3 || (v >= 16 && v <= 23)) );
 }
-bool m_parser::guard_vld_code.b8(void)  const {
+bool m_parser::guard_vld_code_b8(void)  const {
    const int b = bits[0];
    return( (v >= 19 && v <= 31) );
 }
-bool m_parser::guard_vld_code.b9(void)  const {
+bool m_parser::guard_vld_code_b9(void)  const {
    const int b = bits[0];
    return( (v >= 17 && v <= 37) );
 }
-bool m_parser::guard_vld_code.b10(void)  const {
+bool m_parser::guard_vld_code_b10(void)  const {
    const int b = bits[0];
    return( ((v >= 4 && v <= 15) || v == 32 || v == 33) );
 }
-bool m_parser::guard_vld_code.b11(void)  const {
+bool m_parser::guard_vld_code_b11(void)  const {
    const int b = bits[0];
    return( ((v >= 4 && v <= 7) || (v >= 32 && v <= 39)) );
 }
-bool m_parser::guard_vld_code.b12(void)  const {
+bool m_parser::guard_vld_code_b12(void)  const {
    const int b = bits[0];
    return( (v >= 80 && v <= 95) );
 }
@@ -495,90 +495,90 @@ bool m_parser::guard_vld_run(void)  const {
 bool m_parser::guard_mvcode_done(void)  const {
    return( (mvcomp == 4 || (mvcomp == 1 && fourmvflag == 0)) );
 }
-bool m_parser::guard_mvcode.b1(void)  const {
+bool m_parser::guard_mvcode_b1(void)  const {
    const int b = bits[0];
    return( (b == 1) );
 }
-bool m_parser::guard_mvcode.b2(void)  const {
+bool m_parser::guard_mvcode_b2(void)  const {
    const int b = bits[0];
    return( (b[1] == 1) );
 }
-bool m_parser::guard_mvcode.b3(void)  const {
+bool m_parser::guard_mvcode_b3(void)  const {
    const int b = bits[0];
    return( (b[2] == 1) );
 }
-bool m_parser::guard_mvcode.b4(void)  const {
+bool m_parser::guard_mvcode_b4(void)  const {
    const int b = bits[0];
    return( (b[3] == 1) );
 }
-bool m_parser::guard_mvcode.b6(void)  const {
+bool m_parser::guard_mvcode_b6(void)  const {
    const int b = bits[0];
    return( (b[4] == 1) && (b[5] == 1) );
 }
-bool m_parser::guard_mvcode.b7(void)  const {
+bool m_parser::guard_mvcode_b7(void)  const {
    const int b = bits[0];
    return( (v == 3 || b[4] == 1) );
 }
-bool m_parser::guard_mvcode.b9(void)  const {
+bool m_parser::guard_mvcode_b9(void)  const {
    const int b = bits[0];
    return( (v == 5 || v == 6 || v == 7) );
 }
-bool m_parser::guard_mvcode.b10(void)  const {
+bool m_parser::guard_mvcode_b10(void)  const {
    const int b = bits[0];
    return( (v >= 4) && (v <= 17) );
 }
-bool m_parser::guard_mvcode.b11(void)  const {
+bool m_parser::guard_mvcode_b11(void)  const {
    const int b = bits[0];
    return( (v >= 2) && (v <= 7) );
 }
-bool m_parser::guard_mvcode.b12(void)  const {
+bool m_parser::guard_mvcode_b12(void)  const {
    const int b = bits[0];
    return( (v == 2 || v == 3) );
 }
-bool m_parser::guard_get_residual_x.none(void)  const {
+bool m_parser::guard_get_residual_x_none(void)  const {
    return( (fcode <= 1 || mvval == 0) );
 }
-bool m_parser::guard_get_residual_y.none(void)  const {
+bool m_parser::guard_get_residual_y_none(void)  const {
    return( (fcode <= 1 || mvval == 0) );
 }
-bool m_parser::guard_mvpred.y0.cornercase(void)  const {
+bool m_parser::guard_mvpred_y0_cornercase(void)  const {
    return( (mvcomp == 0) && (mby == 0) );
 }
-bool m_parser::guard_mvpred.y0.other(void)  const {
+bool m_parser::guard_mvpred_y0_other(void)  const {
    return( (mvcomp == 0) );
 }
-bool m_parser::guard_mvpred.y1.cornercase(void)  const {
+bool m_parser::guard_mvpred_y1_cornercase(void)  const {
    return( (mvcomp == 1) && (mby == 0) );
 }
-bool m_parser::guard_mvpred.y1.other(void)  const {
+bool m_parser::guard_mvpred_y1_other(void)  const {
    return( (mvcomp == 1) );
 }
-bool m_parser::guard_mvpred.y2(void)  const {
+bool m_parser::guard_mvpred_y2(void)  const {
    return( (mvcomp == 2) );
 }
 void m_parser::vol_header_good(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + 32); 
-   println(Good vol header);
+   //println(Good vol header);
 }
 void m_parser::vol_header_bad(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + 32); 
-   println((Unsupported VOL header type  + value(b, 27, 0)));
+   //println((Unsupported VOL header type  + value(b, 27, 0)));
 }
 void m_parser::vol_startcode_good(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + VOL_START_CODE_LENGTH); 
-   println(Got VOL start code);
+   //println(Got VOL start code);
 }
 void m_parser::vol_startcode_bad(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + VOL_START_CODE_LENGTH); 
-   println((Invalid VOL start code  + value(b, VOL_START_CODE_LENGTH, 0)));
+   //println((Invalid VOL start code  + value(b, VOL_START_CODE_LENGTH, 0)));
 }
 void m_parser::vol_id(void) {
 // The action has 0 local variable declarations.
@@ -586,25 +586,25 @@ void m_parser::vol_id(void) {
    vol_layer_is_detailed = b[13]; 
    bit_count = (bit_count + 14); 
 }
-void m_parser::vol_layer.detailed(void) {
+void m_parser::vol_layer_detailed(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    vol_aspect_val = value(b, 4, 7); 
    bit_count = (bit_count + 11); 
 }
-void m_parser::vol_layer.nodetails(void) {
+void m_parser::vol_layer_nodetails(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    vol_aspect_val = value(b, 4, 0); 
    bit_count = (bit_count + 4); 
 }
-void m_parser::vol_aspect.detailed(void) {
+void m_parser::vol_aspect_detailed(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    vol_control_is_detailed = b[16]; 
    bit_count = (bit_count + 17); 
 }
-void m_parser::vol_aspect.nodetails(void) {
+void m_parser::vol_aspect_nodetails(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    vol_control_is_detailed = b[0]; 
@@ -621,12 +621,12 @@ void m_parser::vol_control_nodetails(void) {
    int b = bits[0];
    bit_count = (bit_count + 3); 
 }
-void m_parser::vol_vbv.detailed(void) {
+void m_parser::vol_vbv_detailed(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + 82); 
 }
-void m_parser::vol_vbv.nodetails(void) {
+void m_parser::vol_vbv_nodetails(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + 3); 
@@ -641,12 +641,12 @@ void m_parser::vol_time_inc(void) {
    vol_fixed_rate = b[17]; 
    bit_count = (bit_count + 18); 
 }
-void m_parser::vop_rate.variable(void) {
+void m_parser::vop_rate_variable(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + 1); 
 }
-void m_parser::vop_rate.fixed(void) {
+void m_parser::vop_rate_fixed(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + mylog + 1); 
@@ -662,7 +662,7 @@ void m_parser::vol_misc_unsupported(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + 9); 
-   println(Unsupported VOL feature);
+   //println(Unsupported VOL feature);
 }
 void m_parser::vol_misc_supported(void) {
 // The action has 0 local variable declarations.
@@ -679,7 +679,7 @@ void m_parser::vop_code_done(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = 0; 
-   println(End of VOL);
+   //println(End of VOL);
 }
 void m_parser::vop_code_start(void) {
 // The action has 0 local variable declarations.
@@ -692,7 +692,7 @@ void m_parser::vop_code_other(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + VOP_START_CODE_LENGTH); 
-   println((Invalid VOP start code  + value(b, VOP_START_CODE_LENGTH, 0)));
+   //println((Invalid VOP start code  + value(b, VOP_START_CODE_LENGTH, 0)));
 }
 void m_parser::vop_predict_bvop(void) {
 // The action has 0 local variable declarations.
@@ -726,7 +726,7 @@ void m_parser::vop_uncoded(void) {
    comp = 0; 
    bit_count = (bit_count + 1); 
 }
-void m_parser::vop_coded.pvop(void) {
+void m_parser::vop_coded_pvop(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    decode_type = 1; 
@@ -751,7 +751,7 @@ void m_parser::vop_coded.pvop(void) {
    mv[4] = 0;
    mv[5] = 0;
 }
-void m_parser::vop_coded.ivop(void) {
+void m_parser::vop_coded_ivop(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    decode_type = 0; 
@@ -826,73 +826,73 @@ void m_parser::mcbpc_pvop_uncoded(void) {
    mv[34] = 0;
    mv[35] = 0;
 }
-void m_parser::mcbpc.ivop.b1(void) {
+void m_parser::mcbpc_ivop_b1(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = 3; 
    bit_count = (bit_count + 1); 
 }
-void m_parser::mcbpc.ivop.b3(void) {
+void m_parser::mcbpc_ivop_b3(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = (b[1] == 0) ? 19 : ((b[2] == 0) ? 35 : (51)); 
    bit_count = (bit_count + 3); 
 }
-void m_parser::ivop.b4(void) {
+void m_parser::ivop_b4(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = 4; 
    bit_count = (bit_count + 4); 
 }
-void m_parser::ivop.b6(void) {
+void m_parser::ivop_b6(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = (b[4] == 0) ? 20 : ((b[5] == 0) ? 36 : (52)); 
    bit_count = (bit_count + 6); 
 }
-void m_parser::mcbpc.pvop.b1(void) {
+void m_parser::mcbpc_pvop_b1(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = 0; 
    bit_count = (bit_count + 2); 
 }
-void m_parser::mcbpc.pvop.b3(void) {
+void m_parser::mcbpc_pvop_b3(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = (b[3] == 0) ? 2 : (1); 
    bit_count = (bit_count + 4); 
 }
-void m_parser::mcbpc.pvop.b4(void) {
+void m_parser::mcbpc_pvop_b4(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = (b[4] == 0) ? 32 : (16); 
    bit_count = (bit_count + 5); 
 }
-void m_parser::mcbpc.pvop.b5(void) {
+void m_parser::mcbpc_pvop_b5(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = 3; 
    bit_count = (bit_count + 6); 
 }
-void m_parser::mcbpc.pvop.b6(void) {
+void m_parser::mcbpc_pvop_b6(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = (b[6] == 0) ? 4 : (48); 
    bit_count = (bit_count + 7); 
 }
-void m_parser::mcbpc.pvop.b7(void) {
+void m_parser::mcbpc_pvop_b7(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = (b[5] == 0) ? 51 : ((b[6] == 0) ? (b[7] == 0) ? 34 : (18) : ((b[7] == 0) ? 33 : (17))); 
    bit_count = (bit_count + 8); 
 }
-void m_parser::mcbpc.pvop.b8(void) {
+void m_parser::mcbpc_pvop_b8(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = (b[6] == 0) ? 35 : ((b[8] == 0) ? 19 : (50)); 
    bit_count = (bit_count + 9); 
 }
-void m_parser::mcbpc.pvop.b9(void) {
+void m_parser::mcbpc_pvop_b9(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mcbpc = (b[7] == 0) ? (b[8] == 0) ? 255 : ((b[9] == 0) ? 52 : (36)) : ((b[9] == 0) ? 20 : (49)); 
@@ -902,9 +902,9 @@ void m_parser::mcbpc_bad(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + MCBPC_LENGTH + 1); 
-   println((Bad mcbpc in mb header + value(b, (MCBPC_LENGTH + 1), 1)));
+   //println((Bad mcbpc in mb header + value(b, (MCBPC_LENGTH + 1), 1)));
 }
-void m_parser::get_mbtype.noac(void) {
+void m_parser::get_mbtype_noac(void) {
 // The action has 1 local variable declarations.
    int type = bitand(mcbpc, 7);
    btype = (type < 3) ? INTER : (INTRA); 
@@ -912,7 +912,7 @@ void m_parser::get_mbtype.noac(void) {
    cbpc = bitand(rshift(mcbpc, 4), 3); 
    acpredflag = 0; 
 }
-void m_parser::get_mbtype.ac(void) {
+void m_parser::get_mbtype_ac(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    btype = INTRA; 
@@ -920,25 +920,25 @@ void m_parser::get_mbtype.ac(void) {
    acpredflag = b; 
    bit_count = (bit_count + 1); 
 }
-void m_parser::get_cbpy.b2(void) {
+void m_parser::get_cbpy_b2(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    cbpy = 15; 
    bit_count = (bit_count + 2); 
 }
-void m_parser::get_cbpy.b4(void) {
+void m_parser::get_cbpy_b4(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    cbpy = (b[0] == 0) ? (b[1] == 0) ? 0 : ((b[2] == 0) ? (b[3] == 0) ? 12 : (10) : ((b[3] == 0) ? 14 : (5))) : ((b[2] == 0) ? (b[3] == 0) ? 13 : (3) : ((b[3] == 0) ? 11 : (7))); 
    bit_count = (bit_count + 4); 
 }
-void m_parser::get_cbpy.b5(void) {
+void m_parser::get_cbpy_b5(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    cbpy = (b[2] == 0) ? (b[4] == 0) ? 8 : (4) : ((b[4] == 0) ? 2 : (1)); 
    bit_count = (bit_count + 5); 
 }
-void m_parser::get_cbpy.b6(void) {
+void m_parser::get_cbpy_b6(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    cbpy = (b[5] == 0) ? 6 : (9); 
@@ -947,7 +947,7 @@ void m_parser::get_cbpy.b6(void) {
 void m_parser::bad_cbpy(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
-   println((Bad CBPY code  + value(b, 6, 0)));
+   //println((Bad CBPY code  + value(b, 6, 0)));
    bit_count = (bit_count + 6); 
 }
 void m_parser::final_cbpy_inter(void) {
@@ -1027,67 +1027,67 @@ void m_parser::vld_start_inter(void) {
    b_index = 0; 
    b_last = 0; 
 }
-void m_parser::dcbits.b2(void) {
+void m_parser::dcbits_b2(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = (comp < 4) ? (b[1] == 0) ? 2 : (1) : ((b[0] == 0) ? 2 : ((b[1] == 0) ? 1 : (0))); 
    bit_count = (bit_count + 2); 
 }
-void m_parser::dcbits.b3(void) {
+void m_parser::dcbits_b3(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = (comp > 3) ? 3 : ((b[1] == 0) ? 4 : ((b[2] == 0) ? 3 : (0))); 
    bit_count = (bit_count + 3); 
 }
-void m_parser::dcbits.b4(void) {
+void m_parser::dcbits_b4(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = (comp > 3) ? 4 : (5); 
    bit_count = (bit_count + 4); 
 }
-void m_parser::dcbits.b5(void) {
+void m_parser::dcbits_b5(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = (comp > 3) ? 5 : (6); 
    bit_count = (bit_count + 5); 
 }
-void m_parser::dcbits.b6(void) {
+void m_parser::dcbits_b6(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = (comp > 3) ? 6 : (7); 
    bit_count = (bit_count + 6); 
 }
-void m_parser::dcbits.b7(void) {
+void m_parser::dcbits_b7(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = (comp > 3) ? 7 : (8); 
    bit_count = (bit_count + 7); 
 }
-void m_parser::dcbits.b8(void) {
+void m_parser::dcbits_b8(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = (comp > 3) ? 8 : (9); 
    bit_count = (bit_count + 8); 
 }
-void m_parser::dcbits.b9(void) {
+void m_parser::dcbits_b9(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = (comp > 3) ? 9 : (10); 
    bit_count = (bit_count + 9); 
 }
-void m_parser::dcbits.b10(void) {
+void m_parser::dcbits_b10(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = (comp > 3) ? 10 : (11); 
    bit_count = (bit_count + 10); 
 }
-void m_parser::dcbits.b11(void) {
+void m_parser::dcbits_b11(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = (comp > 3) ? 11 : (12); 
    bit_count = (bit_count + 11); 
 }
-void m_parser::dcbits.b12(void) {
+void m_parser::dcbits_b12(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    dcbits = 12; 
@@ -1097,13 +1097,13 @@ void m_parser::dcbits_bad(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    bit_count = (bit_count + 12); 
-   println(bad DC bit count);
+   //println(bad DC bit count);
 }
-void m_parser::get_dc.none(void) {
+void m_parser::get_dc_none(void) {
 // The action has 0 local variable declarations.
    b_index = 1; 
 }
-void m_parser::get_dc.small(void) {
+void m_parser::get_dc_small(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, dcbits, 0);
@@ -1114,7 +1114,7 @@ void m_parser::get_dc.small(void) {
    b_index = 1; 
    bit_count = (bit_count + dcbits); 
 }
-void m_parser::get_dc.large(void) {
+void m_parser::get_dc_large(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, dcbits, 0);
@@ -1134,75 +1134,75 @@ void m_parser::block_done(void) {
    flags[1] = vop_quant;
    flags[2] = scaler;
 }
-void m_parser::vld_code.b2(void) {
+void m_parser::vld_code_b2(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    vld_index = 0; 
    bit_count = (bit_count + 2); 
 }
-void m_parser::vld_code.b3(void) {
+void m_parser::vld_code_b3(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    vld_index = 1; 
    bit_count = (bit_count + 3); 
 }
-void m_parser::vld_code.b4(void) {
+void m_parser::vld_code_b4(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 4, 0);
    vld_index = (b[0] == 0) ? 2 : ((b[3] == 0) ? 3 : (4)); 
    bit_count = (bit_count + 4); 
 }
-void m_parser::vld_code.b5(void) {
+void m_parser::vld_code_b5(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 5, 0);
    vld_index = (b[2] == 0) ? 5 : ((b[4] == 0) ? 6 : (7)); 
    bit_count = (bit_count + 5); 
 }
-void m_parser::vld_code.b6(void) {
+void m_parser::vld_code_b6(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 6, 0);
    vld_index = (v - 4); 
    bit_count = (bit_count + 6); 
 }
-void m_parser::vld_code.b7(void) {
+void m_parser::vld_code_b7(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 7, 0);
    vld_index = (v == 3) ? 18 : ((v + 3)); 
    bit_count = (bit_count + 7); 
 }
-void m_parser::vld_code.b8(void) {
+void m_parser::vld_code_b8(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 8, 0);
    vld_index = (v + 8); 
    bit_count = (bit_count + 8); 
 }
-void m_parser::vld_code.b9(void) {
+void m_parser::vld_code_b9(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 9, 0);
    vld_index = (v + 23); 
    bit_count = (bit_count + 9); 
 }
-void m_parser::vld_code.b10(void) {
+void m_parser::vld_code_b10(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 10, 0);
    vld_index = (b[4] == 0) ? (v + 57) : ((b[9] == 0) ? 73 : (74)); 
    bit_count = (bit_count + 10); 
 }
-void m_parser::vld_code.b11(void) {
+void m_parser::vld_code_b11(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 11, 0);
    vld_index = (v + (b[5] == 0) ? 71 : (47)); 
    bit_count = (bit_count + 11); 
 }
-void m_parser::vld_code.b12(void) {
+void m_parser::vld_code_b12(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 12, 0);
@@ -1212,7 +1212,7 @@ void m_parser::vld_code.b12(void) {
 void m_parser::vld_code_bad(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
-   println((Invalid vld_code  + value(b, 12, 0)));
+   //println((Invalid vld_code  + value(b, 12, 0)));
    bit_count = (bit_count + 12); 
 }
 void m_parser::vld_code_lookup(void) {
@@ -1336,40 +1336,40 @@ void m_parser::mvcode_done(void) {
       mvy_uv = uvclip_4(get_mvy(0, 0, 0), get_mvy(0, 0, 1), get_mvy(0, 0, 2), get_mvy(0, 0, 3)); 
    }
 }
-void m_parser::mvcode.b1(void) {
+void m_parser::mvcode_b1(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mvval = 0; 
    bit_count = (bit_count + 1); 
 }
-void m_parser::mvcode.b2(void) {
+void m_parser::mvcode_b2(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mvval = (b[2] == 0) ? 1 : ((-1)); 
    if (mbx == 10 && mby == 1) { 
-      println((Got 2-bit mv[ + mvcomp + ]  + mvval));
+      //println((Got 2-bit mv[ + mvcomp + ]  + mvval));
    }
    bit_count = (bit_count + 3); 
 }
-void m_parser::mvcode.b3(void) {
+void m_parser::mvcode_b3(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mvval = (b[3] == 0) ? 2 : ((-2)); 
    bit_count = (bit_count + 4); 
 }
-void m_parser::mvcode.b4(void) {
+void m_parser::mvcode_b4(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mvval = (b[4] == 0) ? 3 : ((-3)); 
    bit_count = (bit_count + 5); 
 }
-void m_parser::mvcode.b6(void) {
+void m_parser::mvcode_b6(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mvval = (b[6] == 0) ? 4 : ((-4)); 
    bit_count = (bit_count + 7); 
 }
-void m_parser::mvcode.b7(void) {
+void m_parser::mvcode_b7(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 3, 4);
@@ -1379,7 +1379,7 @@ void m_parser::mvcode.b7(void) {
    }
    bit_count = (bit_count + 8); 
 }
-void m_parser::mvcode.b9(void) {
+void m_parser::mvcode_b9(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 5, 4);
@@ -1389,7 +1389,7 @@ void m_parser::mvcode.b9(void) {
    }
    bit_count = (bit_count + 10); 
 }
-void m_parser::mvcode.b10(void) {
+void m_parser::mvcode_b10(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 3, 7);
@@ -1399,7 +1399,7 @@ void m_parser::mvcode.b10(void) {
    }
    bit_count = (bit_count + 11); 
 }
-void m_parser::mvcode.b11(void) {
+void m_parser::mvcode_b11(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 7, 4);
@@ -1409,7 +1409,7 @@ void m_parser::mvcode.b11(void) {
    }
    bit_count = (bit_count + 12); 
 }
-void m_parser::mvcode.b12(void) {
+void m_parser::mvcode_b12(void) {
 // The action has 1 local variable declarations.
    int b = bits[0];
    int v = value(b, 3, 9);
@@ -1419,62 +1419,62 @@ void m_parser::mvcode.b12(void) {
    }
    bit_count = (bit_count + 13); 
 }
-void m_parser::mvcode.bad(void) {
+void m_parser::mvcode_bad(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
-   println((Bad MV code  + value(b, 12, 1)));
+   //println((Bad MV code  + value(b, 12, 1)));
    bit_count = (bit_count + 13); 
 }
-void m_parser::get_residual_x.none(void) {
+void m_parser::get_residual_x_none(void) {
 // The action has 0 local variable declarations.
    mag_x = mvval; 
    res_x = 0; 
 }
-void m_parser::get_residual_x.some(void) {
+void m_parser::get_residual_x_some(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mag_x = mvval; 
    res_x = value(b, fcode, 0); 
    bit_count = (bit_count + fcode); 
 }
-void m_parser::get_residual_y.none(void) {
+void m_parser::get_residual_y_none(void) {
 // The action has 0 local variable declarations.
    mag_y = mvval; 
    res_y = 0; 
 }
-void m_parser::get_residual_y.some(void) {
+void m_parser::get_residual_y_some(void) {
 // The action has 0 local variable declarations.
    int b = bits[0];
    mag_y = mvval; 
    res_y = value(b, (fcode - 1), 0); 
    bit_count = (bit_count + fcode - 1); 
 }
-void m_parser::mvpred.y0.cornercase(void) {
+void m_parser::mvpred_y0_cornercase(void) {
 // The action has 0 local variable declarations.
    mvpred_x = get_mvx((-1), 0, 1); 
    mvpred_y = get_mvy((-1), 0, 1); 
 }
-void m_parser::mvpred.y0.other(void) {
+void m_parser::mvpred_y0_other(void) {
 // The action has 0 local variable declarations.
    mvpred_x = middle(get_mvx((-1), 0, 1), get_mvx(0, (-1), 2), get_mvx(1, (-1), 3)); 
    mvpred_y = middle(get_mvy((-1), 0, 1), get_mvy(0, (-1), 2), get_mvy(1, (-1), 3)); 
 }
-void m_parser::mvpred.y1.cornercase(void) {
+void m_parser::mvpred_y1_cornercase(void) {
 // The action has 0 local variable declarations.
    mvpred_x = get_mvx(0, 0, 0); 
    mvpred_y = get_mvy(0, 0, 0); 
 }
-void m_parser::mvpred.y1.other(void) {
+void m_parser::mvpred_y1_other(void) {
 // The action has 0 local variable declarations.
    mvpred_x = middle(get_mvx(0, 0, 0), get_mvx(0, (-1), 3), get_mvx(1, (-1), 2)); 
    mvpred_y = middle(get_mvy(0, 0, 0), get_mvy(0, (-1), 3), get_mvy(1, (-1), 2)); 
 }
-void m_parser::mvpred.y2(void) {
+void m_parser::mvpred_y2(void) {
 // The action has 0 local variable declarations.
    mvpred_x = middle(get_mvx((-1), 0, 3), get_mvx(0, 0, 0), get_mvx(0, 0, 1)); 
    mvpred_y = middle(get_mvy((-1), 0, 3), get_mvy(0, 0, 0), get_mvy(0, 0, 1)); 
 }
-void m_parser::mvpred.y3(void) {
+void m_parser::mvpred_y3(void) {
 // The action has 0 local variable declarations.
    mvpred_x = middle(get_mvx(0, 0, 2), get_mvx(0, 0, 1), get_mvx(0, 0, 3)); 
    mvpred_y = middle(get_mvy(0, 0, 2), get_mvy(0, 0, 1), get_mvy(0, 0, 3)); 
@@ -1492,609 +1492,609 @@ void m_parser::mvcompute(void) {
    smoc_firing_state vol, vol2, stuck, vol3, vol4, vol5, vol6, vol7, vol9, vol10, vol12, vol14, vop, vop2, vop3, vop4, vop5, vop6, mb, mb2, mb3, mb4, blk, mv, tex, texdc, texac, tex1, vld, vld3, vld5, vld4, vld6, mv1, mv2, mv3, mv4, mv5; 
           
 public:
- m_parser(sc_module_name name, VOL_START_CODE_LENGTH, VOL_START_CODE, VOP_START_CODE_LENGTH, VOP_START_CODE, B_VOP, P_VOP, I_VOP, BITS_QUANT, MCBPC_LENGTH, INTER, INTRA, MAXW_IN_MB)
- : smoc_actor(name, vol), VOL_START_CODE_LENGTH(VOL_START_CODE_LENGTH), VOL_START_CODE(VOL_START_CODE), VOP_START_CODE_LENGTH(VOP_START_CODE_LENGTH), VOP_START_CODE(VOP_START_CODE), B_VOP(B_VOP), P_VOP(P_VOP), I_VOP(I_VOP), BITS_QUANT(BITS_QUANT), MCBPC_LENGTH(MCBPC_LENGTH), INTER(INTER), INTRA(INTRA), MAXW_IN_MB(MAXW_IN_MB), initList(), bit_count(0), vol_layer_is_detailed(vol_layer_is_detailed), vol_aspect_val(vol_aspect_val), vol_control_is_detailed(vol_control_is_detailed), vol_vbv_is_detailed(vol_vbv_is_detailed), mylog(mylog), vol_fixed_rate(vol_fixed_rate), vol_width(vol_width), vol_height(vol_height), mbx(mbx), mby(mby), prediction_type(prediction_type), comp(comp), round_type(round_type), vop_quant(vop_quant), fcode(fcode), decode_type(decode_type), resync_marker_length(resync_marker_length), mv_rsize(mv_rsize), mv_range(mv_range), mv_low(mv_low), mv_high(mv_high), mcbpc(mcbpc), cbp(cbp), mvindex(0), lb_x_y0(initList(0, 2)), lb_x_y1(initList(0, 2)), lb_x_y2(initList(0, (MAXW_IN_MB + 1))), lb_x_y3(initList(0, (MAXW_IN_MB + 1))), lb_y_y0(initList(0, 2)), lb_y_y1(initList(0, 2)), lb_y_y2(initList(0, (MAXW_IN_MB + 1))), lb_y_y3(initList(0, (MAXW_IN_MB + 1))), mvx_uv(mvx_uv), mvy_uv(mvy_uv), acpredflag(acpredflag), btype(btype), cbpc(cbpc), fourmvflag(fourmvflag), cbpy(cbpy), mvcomp(mvcomp), ac_coded(ac_coded), block(block), b_index(b_index), b_last(b_last), dcbits(dcbits), vld_index(vld_index), intra_lookup(), inter_lookup(), mvval(mvval), mag_x(mag_x), mag_y(mag_y), res_x(res_x), res_y(res_y), mvpred_x(mvpred_x), mvpred_y(mvpred_y) {
+ m_parser(sc_module_name name, int VOL_START_CODE_LENGTH, int VOL_START_CODE, int VOP_START_CODE_LENGTH, int VOP_START_CODE, int B_VOP, int P_VOP, int I_VOP, int BITS_QUANT, int MCBPC_LENGTH, int INTER, int INTRA, int MAXW_IN_MB)
+ : smoc_actor(name, vol), VOL_START_CODE_LENGTH(VOL_START_CODE_LENGTH), , VOL_START_CODE(VOL_START_CODE), , VOP_START_CODE_LENGTH(VOP_START_CODE_LENGTH), , VOP_START_CODE(VOP_START_CODE), , B_VOP(B_VOP), , P_VOP(P_VOP), , I_VOP(I_VOP), , BITS_QUANT(BITS_QUANT), , MCBPC_LENGTH(MCBPC_LENGTH), , INTER(INTER), , INTRA(INTRA), , MAXW_IN_MB(MAXW_IN_MB), , bit_count(0), , vol_layer_is_detailed(vol_layer_is_detailed), , vol_aspect_val(vol_aspect_val), , vol_control_is_detailed(vol_control_is_detailed), , vol_vbv_is_detailed(vol_vbv_is_detailed), , mylog(mylog), , vol_fixed_rate(vol_fixed_rate), , vol_width(vol_width), , vol_height(vol_height), , mbx(mbx), , mby(mby), , prediction_type(prediction_type), , comp(comp), , round_type(round_type), , vop_quant(vop_quant), , fcode(fcode), , decode_type(decode_type), , resync_marker_length(resync_marker_length), , mv_rsize(mv_rsize), , mv_range(mv_range), , mv_low(mv_low), , mv_high(mv_high), , mcbpc(mcbpc), , cbp(cbp), , mvindex(0), , lb_x_y0(initList(0, 2)), , lb_x_y1(initList(0, 2)), , lb_x_y2(initList(0, (MAXW_IN_MB + 1))), , lb_x_y3(initList(0, (MAXW_IN_MB + 1))), , lb_y_y0(initList(0, 2)), , lb_y_y1(initList(0, 2)), , lb_y_y2(initList(0, (MAXW_IN_MB + 1))), , lb_y_y3(initList(0, (MAXW_IN_MB + 1))), , mvx_uv(mvx_uv), , mvy_uv(mvy_uv), , acpredflag(acpredflag), , btype(btype), , cbpc(cbpc), , fourmvflag(fourmvflag), , cbpy(cbpy), , mvcomp(mvcomp), , ac_coded(ac_coded), , block(block), , b_index(b_index), , b_last(b_last), , dcbits(dcbits), , vld_index(vld_index), , intra_lookup(), , inter_lookup(), , mvval(mvval), , mag_x(mag_x), , mag_y(mag_y), , res_x(res_x), , res_y(res_y), , mvpred_x(mvpred_x), , mvpred_y(mvpred_y),  {
 vol = (bits.getAvailableTokens() >= 32 && 
    guard(&m_parser::guard_vol_header_good)) >> 
-   call(m_parser::vol_header_good) >> vol2; 
+   call(&m_parser::vol_header_good) >> vol2; 
    
 vol = (bits.getAvailableTokens() >= 32) >> 
-   call(m_parser::vol_header_bad) >> stuck; 
+   call(&m_parser::vol_header_bad) >> stuck; 
    
 vol2 = (bits.getAvailableTokens() >= VOL_START_CODE_LENGTH * 1 && 
    guard(&m_parser::guard_vol_startcode_good)) >> 
-   call(m_parser::vol_startcode_good) >> vol3; 
+   call(&m_parser::vol_startcode_good) >> vol3; 
    
 vol2 = (bits.getAvailableTokens() >= VOL_START_CODE_LENGTH * 1) >> 
-   call(m_parser::vol_startcode_bad) >> stuck; 
+   call(&m_parser::vol_startcode_bad) >> stuck; 
    
 vol3 = (bits.getAvailableTokens() >= 14) >> 
-   call(m_parser::vol_id) >> vol4; 
+   call(&m_parser::vol_id) >> vol4; 
    
 vol4 = (bits.getAvailableTokens() >= 11 && 
-   guard(&m_parser::guard_vol_layer.detailed)) >> 
-   call(m_parser::vol_layer.detailed) >> vol5; 
+   guard(&m_parser::guard_vol_layer_detailed)) >> 
+   call(&m_parser::vol_layer_detailed) >> vol5; 
    
 vol4 = (bits.getAvailableTokens() >= 4) >> 
-   call(m_parser::vol_layer.nodetails) >> vol5; 
+   call(&m_parser::vol_layer_nodetails) >> vol5; 
    
 vol5 = (bits.getAvailableTokens() >= 17 && 
-   guard(&m_parser::guard_vol_aspect.detailed)) >> 
-   call(m_parser::vol_aspect.detailed) >> vol6; 
+   guard(&m_parser::guard_vol_aspect_detailed)) >> 
+   call(&m_parser::vol_aspect_detailed) >> vol6; 
    
 vol5 = (bits.getAvailableTokens() >= 1) >> 
-   call(m_parser::vol_aspect.nodetails) >> vol6; 
+   call(&m_parser::vol_aspect_nodetails) >> vol6; 
    
 vol6 = (bits.getAvailableTokens() >= 4 && 
    guard(&m_parser::guard_vol_control_detailed)) >> 
-   call(m_parser::vol_control_detailed) >> vol7; 
+   call(&m_parser::vol_control_detailed) >> vol7; 
    
 vol6 = (bits.getAvailableTokens() >= 3) >> 
-   call(m_parser::vol_control_nodetails) >> vol9; 
+   call(&m_parser::vol_control_nodetails) >> vol9; 
    
 vol7 = (bits.getAvailableTokens() >= 82 && 
-   guard(&m_parser::guard_vol_vbv.detailed)) >> 
-   call(m_parser::vol_vbv.detailed) >> vol9; 
+   guard(&m_parser::guard_vol_vbv_detailed)) >> 
+   call(&m_parser::vol_vbv_detailed) >> vol9; 
    
 vol7 = (bits.getAvailableTokens() >= 3) >> 
-   call(m_parser::vol_vbv.nodetails) >> vol9; 
+   call(&m_parser::vol_vbv_nodetails) >> vol9; 
    
 vol9 = (bits.getAvailableTokens() >= 18) >> 
-   call(m_parser::vol_time_inc) >> vol10; 
+   call(&m_parser::vol_time_inc) >> vol10; 
    
 vol10 = (bits.getAvailableTokens() >= 1 && 
-   guard(&m_parser::guard_vop_rate.variable)) >> 
-   call(m_parser::vop_rate.variable) >> vol12; 
+   guard(&m_parser::guard_vop_rate_variable)) >> 
+   call(&m_parser::vop_rate_variable) >> vol12; 
    
 vol10 = (bits.getAvailableTokens() >= (mylog + 1)) >> 
-   call(m_parser::vop_rate.fixed) >> vol12; 
+   call(&m_parser::vop_rate_fixed) >> vol12; 
    
 vol12 = (bits.getAvailableTokens() >= 28) >> 
-   call(m_parser::vol_size) >> vol14; 
+   call(&m_parser::vol_size) >> vol14; 
    
 vol14 = (bits.getAvailableTokens() >= 9) >> 
-   call(m_parser::vol_misc_supported) >> vop; 
+   call(&m_parser::vol_misc_supported) >> vop; 
    
 vol14 = (bits.getAvailableTokens() >= 9 && 
    guard(&m_parser::guard_vol_misc_unsupported)) >> 
-   call(m_parser::vol_misc_unsupported) >> stuck; 
+   call(&m_parser::vol_misc_unsupported) >> stuck; 
    
 vop = (bits.getAvailableTokens() >= n * 1) >> 
-   call(m_parser::byte_align) >> vop2; 
+   call(&m_parser::byte_align) >> vop2; 
    
 vop2 = (bits.getAvailableTokens() >= VOP_START_CODE_LENGTH * 1 && 
    guard(&m_parser::guard_vop_code_done)) >> 
-   call(m_parser::vop_code_done) >> vol; 
+   call(&m_parser::vop_code_done) >> vol; 
    
 vop2 = (bits.getAvailableTokens() >= VOP_START_CODE_LENGTH * 1 && 
    guard(&m_parser::guard_vop_code_start)) >> 
-   call(m_parser::vop_code_start) >> vop3; 
+   call(&m_parser::vop_code_start) >> vop3; 
    
 vop2 = (bits.getAvailableTokens() >= VOP_START_CODE_LENGTH * 1) >> 
-   call(m_parser::vop_code_other) >> stuck; 
+   call(&m_parser::vop_code_other) >> stuck; 
    
 vop3 = (bits.getAvailableTokens() >= 2 && 
    guard(&m_parser::guard_vop_predict_bvop)) >> 
-   call(m_parser::vop_predict_bvop) >> stuck; 
+   call(&m_parser::vop_predict_bvop) >> stuck; 
    
 vop3 = (bits.getAvailableTokens() >= 2) >> 
-   call(m_parser::vop_predict_other) >> vop4; 
+   call(&m_parser::vop_predict_other) >> vop4; 
    
 vop4 = (bits.getAvailableTokens() >= 1 && 
    guard(&m_parser::guard_vop_timebase_one)) >> 
-   call(m_parser::vop_timebase_one) >> vop4; 
+   call(&m_parser::vop_timebase_one) >> vop4; 
    
 vop4 = (bits.getAvailableTokens() >= 2) >> 
-   call(m_parser::vop_timebase_zero) >> vop5; 
+   call(&m_parser::vop_timebase_zero) >> vop5; 
    
 vop5 = (bits.getAvailableTokens() >= (mylog + 1)) >> 
-   call(m_parser::vop_time_inc) >> vop6; 
+   call(&m_parser::vop_time_inc) >> vop6; 
    
 vop6 = (bits.getAvailableTokens() >= 1 && 
    guard(&m_parser::guard_vop_uncoded)) >> 
-   call(m_parser::vop_uncoded) >> vop; 
+   call(&m_parser::vop_uncoded) >> vop; 
    
 vop6 = (bits.getAvailableTokens() >= (8 + BITS_QUANT) && 
-   guard(&m_parser::guard_vop_coded.pvop)) >> 
+   guard(&m_parser::guard_vop_coded_pvop)) >> 
    (param.getAvailableSpace() >= 4 &&  
    mv.getAvailableSpace() >= 6) >>
-   call(m_parser::vop_coded.pvop) >> mb; 
+   call(&m_parser::vop_coded_pvop) >> mb; 
    
 vop6 = (bits.getAvailableTokens() >= (4 + BITS_QUANT) && 
-   guard(&m_parser::guard_vop_coded.ivop)) >> 
+   guard(&m_parser::guard_vop_coded_ivop)) >> 
    (param.getAvailableSpace() >= 4 &&  
    mv.getAvailableSpace() >= 6) >>
-   call(m_parser::vop_coded.ivop) >> mb; 
+   call(&m_parser::vop_coded_ivop) >> mb; 
    
 mb = (guard(&m_parser::guard_mb_done)) >> 
-   call(m_parser::mb_done) >> vop; 
+   call(&m_parser::mb_done) >> vop; 
    
 mb = (bits.getAvailableTokens() >= 1 && 
    guard(&m_parser::guard_mcbpc_pvop_uncoded)) >> 
    (mv.getAvailableSpace() >= 36) >>
-   call(m_parser::mcbpc_pvop_uncoded) >> mb; 
+   call(&m_parser::mcbpc_pvop_uncoded) >> mb; 
    
 mb = (bits.getAvailableTokens() >= 1 && 
    guard(&m_parser::guard_mcbpc_pvop_uncoded)) >> 
    (mv.getAvailableSpace() >= 36) >>
-   call(m_parser::mcbpc_pvop_uncoded) >> mb2; 
+   call(&m_parser::mcbpc_pvop_uncoded) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= 1 && 
-   guard(&m_parser::guard_mcbpc.ivop.b1)) >> 
-   call(m_parser::mcbpc.ivop.b1) >> mb2; 
+   guard(&m_parser::guard_mcbpc_ivop_b1)) >> 
+   call(&m_parser::mcbpc_ivop_b1) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= 3 && 
-   guard(&m_parser::guard_mcbpc.ivop.b3)) >> 
-   call(m_parser::mcbpc.ivop.b3) >> mb2; 
+   guard(&m_parser::guard_mcbpc_ivop_b3)) >> 
+   call(&m_parser::mcbpc_ivop_b3) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= 2 && 
-   guard(&m_parser::guard_mcbpc.pvop.b1)) >> 
-   call(m_parser::mcbpc.pvop.b1) >> mb2; 
+   guard(&m_parser::guard_mcbpc_pvop_b1)) >> 
+   call(&m_parser::mcbpc_pvop_b1) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= 4 && 
-   guard(&m_parser::guard_mcbpc.pvop.b3)) >> 
-   call(m_parser::mcbpc.pvop.b3) >> mb2; 
+   guard(&m_parser::guard_mcbpc_pvop_b3)) >> 
+   call(&m_parser::mcbpc_pvop_b3) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= 5 && 
-   guard(&m_parser::guard_mcbpc.pvop.b4)) >> 
-   call(m_parser::mcbpc.pvop.b4) >> mb2; 
+   guard(&m_parser::guard_mcbpc_pvop_b4)) >> 
+   call(&m_parser::mcbpc_pvop_b4) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= 6 && 
-   guard(&m_parser::guard_mcbpc.pvop.b5)) >> 
-   call(m_parser::mcbpc.pvop.b5) >> mb2; 
+   guard(&m_parser::guard_mcbpc_pvop_b5)) >> 
+   call(&m_parser::mcbpc_pvop_b5) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= 7 && 
-   guard(&m_parser::guard_mcbpc.pvop.b6)) >> 
-   call(m_parser::mcbpc.pvop.b6) >> mb2; 
+   guard(&m_parser::guard_mcbpc_pvop_b6)) >> 
+   call(&m_parser::mcbpc_pvop_b6) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= 8 && 
-   guard(&m_parser::guard_mcbpc.pvop.b7)) >> 
-   call(m_parser::mcbpc.pvop.b7) >> mb2; 
+   guard(&m_parser::guard_mcbpc_pvop_b7)) >> 
+   call(&m_parser::mcbpc_pvop_b7) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= 9 && 
-   guard(&m_parser::guard_mcbpc.pvop.b8)) >> 
-   call(m_parser::mcbpc.pvop.b8) >> mb2; 
+   guard(&m_parser::guard_mcbpc_pvop_b8)) >> 
+   call(&m_parser::mcbpc_pvop_b8) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= 10 && 
-   guard(&m_parser::guard_mcbpc.pvop.b9)) >> 
-   call(m_parser::mcbpc.pvop.b9) >> mb2; 
+   guard(&m_parser::guard_mcbpc_pvop_b9)) >> 
+   call(&m_parser::mcbpc_pvop_b9) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= (MCBPC_LENGTH + 1)) >> 
-   call(m_parser::mcbpc_bad) >> mb2; 
+   call(&m_parser::mcbpc_bad) >> mb2; 
    
 mb = (bits.getAvailableTokens() >= (MCBPC_LENGTH + 1)) >> 
-   call(m_parser::mcbpc_bad) >> stuck; 
+   call(&m_parser::mcbpc_bad) >> stuck; 
    
-mb2 = (guard(&m_parser::guard_get_mbtype.noac)) >> 
-   call(m_parser::get_mbtype.noac) >> mb3; 
+mb2 = (guard(&m_parser::guard_get_mbtype_noac)) >> 
+   call(&m_parser::get_mbtype_noac) >> mb3; 
    
 mb2 = (bits.getAvailableTokens() >= 1) >> 
-   call(m_parser::get_mbtype.ac) >> mb3; 
+   call(&m_parser::get_mbtype_ac) >> mb3; 
    
 mb3 = (bits.getAvailableTokens() >= 2 && 
-   guard(&m_parser::guard_get_cbpy.b2)) >> 
-   call(m_parser::get_cbpy.b2) >> mb4; 
+   guard(&m_parser::guard_get_cbpy_b2)) >> 
+   call(&m_parser::get_cbpy_b2) >> mb4; 
    
 mb3 = (bits.getAvailableTokens() >= 4 && 
-   guard(&m_parser::guard_get_cbpy.b4)) >> 
-   call(m_parser::get_cbpy.b4) >> mb4; 
+   guard(&m_parser::guard_get_cbpy_b4)) >> 
+   call(&m_parser::get_cbpy_b4) >> mb4; 
    
 mb3 = (bits.getAvailableTokens() >= 5 && 
-   guard(&m_parser::guard_get_cbpy.b5)) >> 
-   call(m_parser::get_cbpy.b5) >> mb4; 
+   guard(&m_parser::guard_get_cbpy_b5)) >> 
+   call(&m_parser::get_cbpy_b5) >> mb4; 
    
 mb3 = (bits.getAvailableTokens() >= 6 && 
-   guard(&m_parser::guard_get_cbpy.b6)) >> 
-   call(m_parser::get_cbpy.b6) >> mb4; 
+   guard(&m_parser::guard_get_cbpy_b6)) >> 
+   call(&m_parser::get_cbpy_b6) >> mb4; 
    
 mb3 = (bits.getAvailableTokens() >= 6) >> 
-   call(m_parser::bad_cbpy) >> stuck; 
+   call(&m_parser::bad_cbpy) >> stuck; 
    
-mb4 = (call(m_parser::final_cbpy_intra) >> blk; 
+mb4 = (call(&m_parser::final_cbpy_intra) >> blk; 
    
 mb4 = (guard(&m_parser::guard_final_cbpy_inter)) >> 
-   call(m_parser::final_cbpy_inter) >> mv; 
+   call(&m_parser::final_cbpy_inter) >> mv; 
    
 blk = (guard(&m_parser::guard_mb_dispatch_done)) >> 
-   call(m_parser::mb_dispatch_done) >> mb; 
+   call(&m_parser::mb_dispatch_done) >> mb; 
    
 blk = (guard(&m_parser::guard_mb_dispatch_intra)) >> 
    (param.getAvailableSpace() >= 4 &&  
    mv.getAvailableSpace() >= 6) >>
-   call(m_parser::mb_dispatch_intra) >> tex; 
+   call(&m_parser::mb_dispatch_intra) >> tex; 
    
 blk = ((param.getAvailableSpace() >= 4 &&  
    mv.getAvailableSpace() >= 6) >>
-   call(m_parser::mb_dispatch_inter_ac_coded) >> tex; 
+   call(&m_parser::mb_dispatch_inter_ac_coded) >> tex; 
    
 blk = (guard(&m_parser::guard_mb_dispatch_inter_no_ac)) >> 
    (mv.getAvailableSpace() >= 6) >>
-   call(m_parser::mb_dispatch_inter_no_ac) >> blk; 
+   call(&m_parser::mb_dispatch_inter_no_ac) >> blk; 
    
 tex = (guard(&m_parser::guard_vld_start_intra)) >> 
-   call(m_parser::vld_start_intra) >> texdc; 
+   call(&m_parser::vld_start_intra) >> texdc; 
    
-tex = (call(m_parser::vld_start_inter) >> texac; 
+tex = (call(&m_parser::vld_start_inter) >> texac; 
    
 texdc = (bits.getAvailableTokens() >= 2 && 
-   guard(&m_parser::guard_dcbits.b2)) >> 
-   call(m_parser::dcbits.b2) >> tex1; 
+   guard(&m_parser::guard_dcbits_b2)) >> 
+   call(&m_parser::dcbits_b2) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 3 && 
-   guard(&m_parser::guard_dcbits.b3)) >> 
-   call(m_parser::dcbits.b3) >> tex1; 
+   guard(&m_parser::guard_dcbits_b3)) >> 
+   call(&m_parser::dcbits_b3) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 4 && 
-   guard(&m_parser::guard_dcbits.b4)) >> 
-   call(m_parser::dcbits.b4) >> tex1; 
+   guard(&m_parser::guard_dcbits_b4)) >> 
+   call(&m_parser::dcbits_b4) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 5 && 
-   guard(&m_parser::guard_dcbits.b5)) >> 
-   call(m_parser::dcbits.b5) >> tex1; 
+   guard(&m_parser::guard_dcbits_b5)) >> 
+   call(&m_parser::dcbits_b5) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 6 && 
-   guard(&m_parser::guard_dcbits.b6)) >> 
-   call(m_parser::dcbits.b6) >> tex1; 
+   guard(&m_parser::guard_dcbits_b6)) >> 
+   call(&m_parser::dcbits_b6) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 7 && 
-   guard(&m_parser::guard_dcbits.b7)) >> 
-   call(m_parser::dcbits.b7) >> tex1; 
+   guard(&m_parser::guard_dcbits_b7)) >> 
+   call(&m_parser::dcbits_b7) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 8 && 
-   guard(&m_parser::guard_dcbits.b8)) >> 
-   call(m_parser::dcbits.b8) >> tex1; 
+   guard(&m_parser::guard_dcbits_b8)) >> 
+   call(&m_parser::dcbits_b8) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 9 && 
-   guard(&m_parser::guard_dcbits.b9)) >> 
-   call(m_parser::dcbits.b9) >> tex1; 
+   guard(&m_parser::guard_dcbits_b9)) >> 
+   call(&m_parser::dcbits_b9) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 10 && 
-   guard(&m_parser::guard_dcbits.b10)) >> 
-   call(m_parser::dcbits.b10) >> tex1; 
+   guard(&m_parser::guard_dcbits_b10)) >> 
+   call(&m_parser::dcbits_b10) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 11 && 
-   guard(&m_parser::guard_dcbits.b11)) >> 
-   call(m_parser::dcbits.b11) >> tex1; 
+   guard(&m_parser::guard_dcbits_b11)) >> 
+   call(&m_parser::dcbits_b11) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 12 && 
-   guard(&m_parser::guard_dcbits.b12)) >> 
-   call(m_parser::dcbits.b12) >> tex1; 
+   guard(&m_parser::guard_dcbits_b12)) >> 
+   call(&m_parser::dcbits_b12) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 12) >> 
-   call(m_parser::dcbits_bad) >> tex1; 
+   call(&m_parser::dcbits_bad) >> tex1; 
    
 texdc = (bits.getAvailableTokens() >= 12) >> 
-   call(m_parser::dcbits_bad) >> stuck; 
+   call(&m_parser::dcbits_bad) >> stuck; 
    
-tex1 = (guard(&m_parser::guard_get_dc.none)) >> 
-   call(m_parser::get_dc.none) >> texac; 
+tex1 = (guard(&m_parser::guard_get_dc_none)) >> 
+   call(&m_parser::get_dc_none) >> texac; 
    
 tex1 = (bits.getAvailableTokens() >= dcbits * 1 && 
-   guard(&m_parser::guard_get_dc.small)) >> 
-   call(m_parser::get_dc.small) >> texac; 
+   guard(&m_parser::guard_get_dc_small)) >> 
+   call(&m_parser::get_dc_small) >> texac; 
    
 tex1 = (bits.getAvailableTokens() >= (dcbits + 1)) >> 
-   call(m_parser::get_dc.large) >> texac; 
+   call(&m_parser::get_dc_large) >> texac; 
    
 texac = (guard(&m_parser::guard_block_done)) >> 
    (b.getAvailableSpace() >= 1 &&  
    flags.getAvailableSpace() >= 3) >>
-   call(m_parser::block_done) >> blk; 
+   call(&m_parser::block_done) >> blk; 
    
 texac = (bits.getAvailableTokens() >= 2 && 
-   guard(&m_parser::guard_vld_code.b2)) >> 
-   call(m_parser::vld_code.b2) >> vld; 
+   guard(&m_parser::guard_vld_code_b2)) >> 
+   call(&m_parser::vld_code_b2) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 3 && 
-   guard(&m_parser::guard_vld_code.b3)) >> 
-   call(m_parser::vld_code.b3) >> vld; 
+   guard(&m_parser::guard_vld_code_b3)) >> 
+   call(&m_parser::vld_code_b3) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 4 && 
-   guard(&m_parser::guard_vld_code.b4)) >> 
-   call(m_parser::vld_code.b4) >> vld; 
+   guard(&m_parser::guard_vld_code_b4)) >> 
+   call(&m_parser::vld_code_b4) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 5 && 
-   guard(&m_parser::guard_vld_code.b5)) >> 
-   call(m_parser::vld_code.b5) >> vld; 
+   guard(&m_parser::guard_vld_code_b5)) >> 
+   call(&m_parser::vld_code_b5) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 6 && 
-   guard(&m_parser::guard_vld_code.b6)) >> 
-   call(m_parser::vld_code.b6) >> vld; 
+   guard(&m_parser::guard_vld_code_b6)) >> 
+   call(&m_parser::vld_code_b6) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 7 && 
-   guard(&m_parser::guard_vld_code.b7)) >> 
-   call(m_parser::vld_code.b7) >> vld; 
+   guard(&m_parser::guard_vld_code_b7)) >> 
+   call(&m_parser::vld_code_b7) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 8 && 
-   guard(&m_parser::guard_vld_code.b8)) >> 
-   call(m_parser::vld_code.b8) >> vld; 
+   guard(&m_parser::guard_vld_code_b8)) >> 
+   call(&m_parser::vld_code_b8) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 9 && 
-   guard(&m_parser::guard_vld_code.b9)) >> 
-   call(m_parser::vld_code.b9) >> vld; 
+   guard(&m_parser::guard_vld_code_b9)) >> 
+   call(&m_parser::vld_code_b9) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 10 && 
-   guard(&m_parser::guard_vld_code.b10)) >> 
-   call(m_parser::vld_code.b10) >> vld; 
+   guard(&m_parser::guard_vld_code_b10)) >> 
+   call(&m_parser::vld_code_b10) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 11 && 
-   guard(&m_parser::guard_vld_code.b11)) >> 
-   call(m_parser::vld_code.b11) >> vld; 
+   guard(&m_parser::guard_vld_code_b11)) >> 
+   call(&m_parser::vld_code_b11) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 12 && 
-   guard(&m_parser::guard_vld_code.b12)) >> 
-   call(m_parser::vld_code.b12) >> vld; 
+   guard(&m_parser::guard_vld_code_b12)) >> 
+   call(&m_parser::vld_code_b12) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 12) >> 
-   call(m_parser::vld_code_bad) >> vld; 
+   call(&m_parser::vld_code_bad) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 1 && 
    guard(&m_parser::guard_vld_code_lookup)) >> 
-   call(m_parser::vld_code_lookup) >> vld; 
+   call(&m_parser::vld_code_lookup) >> vld; 
    
 texac = (bits.getAvailableTokens() >= 12) >> 
-   call(m_parser::vld_code_bad) >> stuck; 
+   call(&m_parser::vld_code_bad) >> stuck; 
    
 vld = (bits.getAvailableTokens() >= 1 && 
    guard(&m_parser::guard_vld_code_lookup)) >> 
-   call(m_parser::vld_code_lookup) >> texac; 
+   call(&m_parser::vld_code_lookup) >> texac; 
    
 vld = (bits.getAvailableTokens() >= 1 && 
    guard(&m_parser::guard_vld_level)) >> 
-   call(m_parser::vld_level) >> vld3; 
+   call(&m_parser::vld_level) >> vld3; 
    
 vld = (bits.getAvailableTokens() >= 1) >> 
-   call(m_parser::vld_level_lookup) >> vld3; 
+   call(&m_parser::vld_level_lookup) >> vld3; 
    
 vld = (bits.getAvailableTokens() >= 2 && 
    guard(&m_parser::guard_vld_run)) >> 
-   call(m_parser::vld_run) >> vld5; 
+   call(&m_parser::vld_run) >> vld5; 
    
 vld = (bits.getAvailableTokens() >= 1) >> 
-   call(m_parser::vld_run_lookup) >> vld5; 
+   call(&m_parser::vld_run_lookup) >> vld5; 
    
 vld = (bits.getAvailableTokens() >= 23) >> 
-   call(m_parser::vld_direct_lookup) >> texac; 
+   call(&m_parser::vld_direct_lookup) >> texac; 
    
 vld3 = (bits.getAvailableTokens() >= 2 && 
-   guard(&m_parser::guard_vld_code.b2)) >> 
-   call(m_parser::vld_code.b2) >> vld4; 
+   guard(&m_parser::guard_vld_code_b2)) >> 
+   call(&m_parser::vld_code_b2) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 3 && 
-   guard(&m_parser::guard_vld_code.b3)) >> 
-   call(m_parser::vld_code.b3) >> vld4; 
+   guard(&m_parser::guard_vld_code_b3)) >> 
+   call(&m_parser::vld_code_b3) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 4 && 
-   guard(&m_parser::guard_vld_code.b4)) >> 
-   call(m_parser::vld_code.b4) >> vld4; 
+   guard(&m_parser::guard_vld_code_b4)) >> 
+   call(&m_parser::vld_code_b4) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 5 && 
-   guard(&m_parser::guard_vld_code.b5)) >> 
-   call(m_parser::vld_code.b5) >> vld4; 
+   guard(&m_parser::guard_vld_code_b5)) >> 
+   call(&m_parser::vld_code_b5) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 6 && 
-   guard(&m_parser::guard_vld_code.b6)) >> 
-   call(m_parser::vld_code.b6) >> vld4; 
+   guard(&m_parser::guard_vld_code_b6)) >> 
+   call(&m_parser::vld_code_b6) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 7 && 
-   guard(&m_parser::guard_vld_code.b7)) >> 
-   call(m_parser::vld_code.b7) >> vld4; 
+   guard(&m_parser::guard_vld_code_b7)) >> 
+   call(&m_parser::vld_code_b7) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 8 && 
-   guard(&m_parser::guard_vld_code.b8)) >> 
-   call(m_parser::vld_code.b8) >> vld4; 
+   guard(&m_parser::guard_vld_code_b8)) >> 
+   call(&m_parser::vld_code_b8) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 9 && 
-   guard(&m_parser::guard_vld_code.b9)) >> 
-   call(m_parser::vld_code.b9) >> vld4; 
+   guard(&m_parser::guard_vld_code_b9)) >> 
+   call(&m_parser::vld_code_b9) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 10 && 
-   guard(&m_parser::guard_vld_code.b10)) >> 
-   call(m_parser::vld_code.b10) >> vld4; 
+   guard(&m_parser::guard_vld_code_b10)) >> 
+   call(&m_parser::vld_code_b10) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 11 && 
-   guard(&m_parser::guard_vld_code.b11)) >> 
-   call(m_parser::vld_code.b11) >> vld4; 
+   guard(&m_parser::guard_vld_code_b11)) >> 
+   call(&m_parser::vld_code_b11) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 12 && 
-   guard(&m_parser::guard_vld_code.b12)) >> 
-   call(m_parser::vld_code.b12) >> vld4; 
+   guard(&m_parser::guard_vld_code_b12)) >> 
+   call(&m_parser::vld_code_b12) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 12) >> 
-   call(m_parser::vld_code_bad) >> vld4; 
+   call(&m_parser::vld_code_bad) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 1 && 
    guard(&m_parser::guard_vld_code_lookup)) >> 
-   call(m_parser::vld_code_lookup) >> vld4; 
+   call(&m_parser::vld_code_lookup) >> vld4; 
    
 vld3 = (bits.getAvailableTokens() >= 12) >> 
-   call(m_parser::vld_code_bad) >> stuck; 
+   call(&m_parser::vld_code_bad) >> stuck; 
    
 vld4 = (bits.getAvailableTokens() >= 1) >> 
-   call(m_parser::vld_level_lookup) >> texac; 
+   call(&m_parser::vld_level_lookup) >> texac; 
    
 vld5 = (bits.getAvailableTokens() >= 2 && 
-   guard(&m_parser::guard_vld_code.b2)) >> 
-   call(m_parser::vld_code.b2) >> vld6; 
+   guard(&m_parser::guard_vld_code_b2)) >> 
+   call(&m_parser::vld_code_b2) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 3 && 
-   guard(&m_parser::guard_vld_code.b3)) >> 
-   call(m_parser::vld_code.b3) >> vld6; 
+   guard(&m_parser::guard_vld_code_b3)) >> 
+   call(&m_parser::vld_code_b3) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 4 && 
-   guard(&m_parser::guard_vld_code.b4)) >> 
-   call(m_parser::vld_code.b4) >> vld6; 
+   guard(&m_parser::guard_vld_code_b4)) >> 
+   call(&m_parser::vld_code_b4) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 5 && 
-   guard(&m_parser::guard_vld_code.b5)) >> 
-   call(m_parser::vld_code.b5) >> vld6; 
+   guard(&m_parser::guard_vld_code_b5)) >> 
+   call(&m_parser::vld_code_b5) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 6 && 
-   guard(&m_parser::guard_vld_code.b6)) >> 
-   call(m_parser::vld_code.b6) >> vld6; 
+   guard(&m_parser::guard_vld_code_b6)) >> 
+   call(&m_parser::vld_code_b6) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 7 && 
-   guard(&m_parser::guard_vld_code.b7)) >> 
-   call(m_parser::vld_code.b7) >> vld6; 
+   guard(&m_parser::guard_vld_code_b7)) >> 
+   call(&m_parser::vld_code_b7) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 8 && 
-   guard(&m_parser::guard_vld_code.b8)) >> 
-   call(m_parser::vld_code.b8) >> vld6; 
+   guard(&m_parser::guard_vld_code_b8)) >> 
+   call(&m_parser::vld_code_b8) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 9 && 
-   guard(&m_parser::guard_vld_code.b9)) >> 
-   call(m_parser::vld_code.b9) >> vld6; 
+   guard(&m_parser::guard_vld_code_b9)) >> 
+   call(&m_parser::vld_code_b9) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 10 && 
-   guard(&m_parser::guard_vld_code.b10)) >> 
-   call(m_parser::vld_code.b10) >> vld6; 
+   guard(&m_parser::guard_vld_code_b10)) >> 
+   call(&m_parser::vld_code_b10) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 11 && 
-   guard(&m_parser::guard_vld_code.b11)) >> 
-   call(m_parser::vld_code.b11) >> vld6; 
+   guard(&m_parser::guard_vld_code_b11)) >> 
+   call(&m_parser::vld_code_b11) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 12 && 
-   guard(&m_parser::guard_vld_code.b12)) >> 
-   call(m_parser::vld_code.b12) >> vld6; 
+   guard(&m_parser::guard_vld_code_b12)) >> 
+   call(&m_parser::vld_code_b12) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 12) >> 
-   call(m_parser::vld_code_bad) >> vld6; 
+   call(&m_parser::vld_code_bad) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 1 && 
    guard(&m_parser::guard_vld_code_lookup)) >> 
-   call(m_parser::vld_code_lookup) >> vld6; 
+   call(&m_parser::vld_code_lookup) >> vld6; 
    
 vld5 = (bits.getAvailableTokens() >= 12) >> 
-   call(m_parser::vld_code_bad) >> stuck; 
+   call(&m_parser::vld_code_bad) >> stuck; 
    
 vld6 = (bits.getAvailableTokens() >= 1) >> 
-   call(m_parser::vld_run_lookup) >> texac; 
+   call(&m_parser::vld_run_lookup) >> texac; 
    
 mv = (guard(&m_parser::guard_mvcode_done)) >> 
-   call(m_parser::mvcode_done) >> blk; 
+   call(&m_parser::mvcode_done) >> blk; 
    
 mv = (guard(&m_parser::guard_mvcode_done)) >> 
-   call(m_parser::mvcode_done) >> mv1; 
+   call(&m_parser::mvcode_done) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 1 && 
-   guard(&m_parser::guard_mvcode.b1)) >> 
-   call(m_parser::mvcode.b1) >> mv1; 
+   guard(&m_parser::guard_mvcode_b1)) >> 
+   call(&m_parser::mvcode_b1) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 3 && 
-   guard(&m_parser::guard_mvcode.b2)) >> 
-   call(m_parser::mvcode.b2) >> mv1; 
+   guard(&m_parser::guard_mvcode_b2)) >> 
+   call(&m_parser::mvcode_b2) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 4 && 
-   guard(&m_parser::guard_mvcode.b3)) >> 
-   call(m_parser::mvcode.b3) >> mv1; 
+   guard(&m_parser::guard_mvcode_b3)) >> 
+   call(&m_parser::mvcode_b3) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 5 && 
-   guard(&m_parser::guard_mvcode.b4)) >> 
-   call(m_parser::mvcode.b4) >> mv1; 
+   guard(&m_parser::guard_mvcode_b4)) >> 
+   call(&m_parser::mvcode_b4) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 7 && 
-   guard(&m_parser::guard_mvcode.b6)) >> 
-   call(m_parser::mvcode.b6) >> mv1; 
+   guard(&m_parser::guard_mvcode_b6)) >> 
+   call(&m_parser::mvcode_b6) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 8 && 
-   guard(&m_parser::guard_mvcode.b7)) >> 
-   call(m_parser::mvcode.b7) >> mv1; 
+   guard(&m_parser::guard_mvcode_b7)) >> 
+   call(&m_parser::mvcode_b7) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 10 && 
-   guard(&m_parser::guard_mvcode.b9)) >> 
-   call(m_parser::mvcode.b9) >> mv1; 
+   guard(&m_parser::guard_mvcode_b9)) >> 
+   call(&m_parser::mvcode_b9) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 11 && 
-   guard(&m_parser::guard_mvcode.b10)) >> 
-   call(m_parser::mvcode.b10) >> mv1; 
+   guard(&m_parser::guard_mvcode_b10)) >> 
+   call(&m_parser::mvcode_b10) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 12 && 
-   guard(&m_parser::guard_mvcode.b11)) >> 
-   call(m_parser::mvcode.b11) >> mv1; 
+   guard(&m_parser::guard_mvcode_b11)) >> 
+   call(&m_parser::mvcode_b11) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 13 && 
-   guard(&m_parser::guard_mvcode.b12)) >> 
-   call(m_parser::mvcode.b12) >> mv1; 
+   guard(&m_parser::guard_mvcode_b12)) >> 
+   call(&m_parser::mvcode_b12) >> mv1; 
    
 mv = (bits.getAvailableTokens() >= 13) >> 
-   call(m_parser::mvcode.bad) >> mv1; 
+   call(&m_parser::mvcode_bad) >> mv1; 
    
-mv1 = (guard(&m_parser::guard_get_residual_x.none)) >> 
-   call(m_parser::get_residual_x.none) >> mv2; 
+mv1 = (guard(&m_parser::guard_get_residual_x_none)) >> 
+   call(&m_parser::get_residual_x_none) >> mv2; 
    
 mv1 = (bits.getAvailableTokens() >= fcode * 1) >> 
-   call(m_parser::get_residual_x.some) >> mv2; 
+   call(&m_parser::get_residual_x_some) >> mv2; 
    
 mv2 = (guard(&m_parser::guard_mvcode_done)) >> 
-   call(m_parser::mvcode_done) >> mv3; 
+   call(&m_parser::mvcode_done) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 1 && 
-   guard(&m_parser::guard_mvcode.b1)) >> 
-   call(m_parser::mvcode.b1) >> mv3; 
+   guard(&m_parser::guard_mvcode_b1)) >> 
+   call(&m_parser::mvcode_b1) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 3 && 
-   guard(&m_parser::guard_mvcode.b2)) >> 
-   call(m_parser::mvcode.b2) >> mv3; 
+   guard(&m_parser::guard_mvcode_b2)) >> 
+   call(&m_parser::mvcode_b2) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 4 && 
-   guard(&m_parser::guard_mvcode.b3)) >> 
-   call(m_parser::mvcode.b3) >> mv3; 
+   guard(&m_parser::guard_mvcode_b3)) >> 
+   call(&m_parser::mvcode_b3) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 5 && 
-   guard(&m_parser::guard_mvcode.b4)) >> 
-   call(m_parser::mvcode.b4) >> mv3; 
+   guard(&m_parser::guard_mvcode_b4)) >> 
+   call(&m_parser::mvcode_b4) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 7 && 
-   guard(&m_parser::guard_mvcode.b6)) >> 
-   call(m_parser::mvcode.b6) >> mv3; 
+   guard(&m_parser::guard_mvcode_b6)) >> 
+   call(&m_parser::mvcode_b6) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 8 && 
-   guard(&m_parser::guard_mvcode.b7)) >> 
-   call(m_parser::mvcode.b7) >> mv3; 
+   guard(&m_parser::guard_mvcode_b7)) >> 
+   call(&m_parser::mvcode_b7) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 10 && 
-   guard(&m_parser::guard_mvcode.b9)) >> 
-   call(m_parser::mvcode.b9) >> mv3; 
+   guard(&m_parser::guard_mvcode_b9)) >> 
+   call(&m_parser::mvcode_b9) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 11 && 
-   guard(&m_parser::guard_mvcode.b10)) >> 
-   call(m_parser::mvcode.b10) >> mv3; 
+   guard(&m_parser::guard_mvcode_b10)) >> 
+   call(&m_parser::mvcode_b10) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 12 && 
-   guard(&m_parser::guard_mvcode.b11)) >> 
-   call(m_parser::mvcode.b11) >> mv3; 
+   guard(&m_parser::guard_mvcode_b11)) >> 
+   call(&m_parser::mvcode_b11) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 13 && 
-   guard(&m_parser::guard_mvcode.b12)) >> 
-   call(m_parser::mvcode.b12) >> mv3; 
+   guard(&m_parser::guard_mvcode_b12)) >> 
+   call(&m_parser::mvcode_b12) >> mv3; 
    
 mv2 = (bits.getAvailableTokens() >= 13) >> 
-   call(m_parser::mvcode.bad) >> mv3; 
+   call(&m_parser::mvcode_bad) >> mv3; 
    
-mv3 = (guard(&m_parser::guard_get_residual_y.none)) >> 
-   call(m_parser::get_residual_y.none) >> mv4; 
+mv3 = (guard(&m_parser::guard_get_residual_y_none)) >> 
+   call(&m_parser::get_residual_y_none) >> mv4; 
    
 mv3 = (bits.getAvailableTokens() >= (fcode - 1)) >> 
-   call(m_parser::get_residual_y.some) >> mv4; 
+   call(&m_parser::get_residual_y_some) >> mv4; 
    
-mv4 = (guard(&m_parser::guard_mvpred.y0.cornercase)) >> 
-   call(m_parser::mvpred.y0.cornercase) >> mv5; 
+mv4 = (guard(&m_parser::guard_mvpred_y0_cornercase)) >> 
+   call(&m_parser::mvpred_y0_cornercase) >> mv5; 
    
-mv4 = (guard(&m_parser::guard_mvpred.y0.other)) >> 
-   call(m_parser::mvpred.y0.other) >> mv5; 
+mv4 = (guard(&m_parser::guard_mvpred_y0_other)) >> 
+   call(&m_parser::mvpred_y0_other) >> mv5; 
    
-mv4 = (guard(&m_parser::guard_mvpred.y1.cornercase)) >> 
-   call(m_parser::mvpred.y1.cornercase) >> mv5; 
+mv4 = (guard(&m_parser::guard_mvpred_y1_cornercase)) >> 
+   call(&m_parser::mvpred_y1_cornercase) >> mv5; 
    
-mv4 = (guard(&m_parser::guard_mvpred.y1.other)) >> 
-   call(m_parser::mvpred.y1.other) >> mv5; 
+mv4 = (guard(&m_parser::guard_mvpred_y1_other)) >> 
+   call(&m_parser::mvpred_y1_other) >> mv5; 
    
-mv4 = (guard(&m_parser::guard_mvpred.y2)) >> 
-   call(m_parser::mvpred.y2) >> mv5; 
+mv4 = (guard(&m_parser::guard_mvpred_y2)) >> 
+   call(&m_parser::mvpred_y2) >> mv5; 
    
-mv4 = (call(m_parser::mvpred.y3) >> mv5; 
+mv4 = (call(&m_parser::mvpred_y3) >> mv5; 
    
-mv5 = (call(m_parser::mvcompute) >> mv; 
+mv5 = (call(&m_parser::mvcompute) >> mv; 
     
  }
 };

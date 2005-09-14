@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_reconstruct: public smoc_actor {
 // The actor has 9 Ports.
@@ -18,7 +18,7 @@ public:
 private: 
    const int DCVAL;
    const int LBSIZE;
-   const int m_reconstruct::zigzag[3][64] = {
+   static const int m_reconstruct::zigzag[3][64] = {
     {  0,  1,  5,  6,  14,  15,  27,  28,  2,  4,  7,  13,  16,  26,  29,  42,  3,  8,  12,  17,  25,  30,  41,  43,  9,  11,  18,  24,  31,  40,  44,  53,  10,  19,  23,  32,  39,  45,  52,  54,  20,  22,  33,  38,  46,  51,  55,  60,  21,  34,  37,  47,  50,  56,  59,  61,  35,  36,  48,  49,  57,  58,  62,  63 }, 
     {  0,  4,  6,  20,  22,  36,  38,  52,  1,  5,  7,  21,  23,  37,  39,  53,  2,  8,  19,  24,  34,  40,  50,  54,  3,  9,  18,  25,  35,  41,  51,  55,  10,  17,  26,  30,  42,  46,  56,  60,  11,  16,  27,  31,  43,  47,  57,  61,  12,  15,  28,  32,  44,  48,  58,  62,  13,  14,  29,  33,  45,  49,  59,  63 }, 
     {  0,  1,  2,  3,  10,  11,  12,  13,  4,  5,  8,  9,  17,  16,  15,  14,  6,  7,  19,  18,  26,  27,  28,  29,  20,  21,  24,  25,  30,  31,  32,  33,  22,  23,  34,  35,  42,  43,  44,  45,  36,  37,  40,  41,  46,  47,  48,  49,  38,  39,  50,  51,  56,  57,  58,  59,  52,  53,  54,  55,  60,  61,  62,  63 }
@@ -51,7 +51,8 @@ private:
    }
    
    
-   int lb_get_val(int buf, int pos, int size, int seq, int head, int index) {
+   // ERR:Type of Parameter: int lb_get_val(int buf, int pos, int size, int seq, int head, int index) {
+   int lb_get_val(cal_list<cal_list<int>::t>::t buf, int pos, int size, int seq, int head, int index) {
    return( (seq == 0) ? DCVAL : (((pos + (seq - head)) < 0) ? buf[(pos + (seq - head) + size)][index] : (buf[(pos + (seq - head))][index])) );
    }
    
@@ -144,7 +145,7 @@ void m_reconstruct::intra(void) {
    int zsel = 0;
    int pred;
    int t;
-   cal_list<int>::t &d;
+   cal_list<int>::t d;
      for (unsigned int i = 0; i <= 63; ++i) 
                      {      
         d.push_back(dd[i]);   
@@ -201,7 +202,7 @@ void m_reconstruct::intra(void) {
    }
    const int indices[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 16, 24, 32, 40, 48, 56};
    for (unsigned int iter = 0; iter < sizeof(indices)/sizeof(indices[0]); ++iter)     {         
-        lb[lb_in][iter] = d[zigzag[zsel][i]];   
+        lb[lb_in][iter] = d[zigzag[zsel][iter]];   
      }
    OUT[0] = scan(d, zigzag[zsel]);
    OFLAGS[0] = 0;
@@ -212,11 +213,11 @@ void m_reconstruct::intra(void) {
    smoc_firing_state read, wait; 
           
 public:
- m_reconstruct(sc_module_name name, DCVAL, LBSIZE)
- : smoc_actor(name, read), DCVAL(DCVAL), LBSIZE(LBSIZE), zigzag(), initList(), lb(initList(initList(0, 15), LBSIZE)), lb_in(0), block_count(0), scan() {
+ m_reconstruct(sc_module_name name, int DCVAL, int LBSIZE)
+ : smoc_actor(name, read), DCVAL(DCVAL), LBSIZE(LBSIZE), zigzag(), lb(initList(initList(0, 15), LBSIZE)), lb_in(0), block_count(0)  {
 read = (PARAM.getAvailableTokens() >= 4 && 
    guard(&m_reconstruct::guard_eof)) >> 
-   call(m_reconstruct::eof) >> read; 
+   call(&m_reconstruct::eof) >> read; 
    
 read = (PARAM.getAvailableTokens() >= 4 && 
    FLAGS.getAvailableTokens() >= 3 && 
@@ -224,7 +225,7 @@ read = (PARAM.getAvailableTokens() >= 4 &&
    guard(&m_reconstruct::guard_inter)) >> 
    (OUT.getAvailableSpace() >= 1 &&  
    OFLAGS.getAvailableSpace() >= 3) >>
-   call(m_reconstruct::inter) >> read; 
+   call(&m_reconstruct::inter) >> read; 
    
 read = (PARAM.getAvailableTokens() >= 4 && 
    FLAGS.getAvailableTokens() >= 3 && 
@@ -235,10 +236,11 @@ read = (PARAM.getAvailableTokens() >= 4 &&
    guard(&m_reconstruct::guard_intra)) >> 
    (OUT.getAvailableSpace() >= 1 &&  
    OFLAGS.getAvailableSpace() >= 3) >>
-   call(m_reconstruct::intra) >> wait; 
+   call(&m_reconstruct::intra) >> wait; 
    
 wait = (DC.getAvailableTokens() >= 1) >> 
-   call(m_reconstruct::getdc) >> read; 
+   call(&m_reconstruct::getdc) >> read; 
     
  }
 };
+

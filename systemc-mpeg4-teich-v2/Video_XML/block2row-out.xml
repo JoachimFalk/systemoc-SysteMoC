@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_block2row: public smoc_actor {
 // The actor has 9 Ports.
@@ -102,6 +102,6 @@ public:
    C5.getAvailableSpace() >= 8 &&  
    C6.getAvailableSpace() >= 8 &&  
    C7.getAvailableSpace() >= 8)  >>
-   call(m_block2row::action) >> start;  
+   call(&m_block2row::action) >> start;  
  }
 };

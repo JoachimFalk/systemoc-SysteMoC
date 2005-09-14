@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_IDCTclip: public smoc_actor {
 // The actor has 3 Ports.
@@ -13,8 +13,9 @@ private:
    const int MAX;
    
    int bound(int a, int x, int b) {
-    return( (x < a) ? a : ((x > b) ? b : (x)) );
+   return( (x < a) ? a : ((x > b) ? b : (x)) );
    }
+   
    
 // The actor has 1 Actions and 0 Guards.
 private:
@@ -22,19 +23,18 @@ void m_IDCTclip::action(void) {
 // The action has 0 local variable declarations.
    int i = I[0];
    int min = MIN[0];
-
    O[0] = bound(min, i, MAX);
 }
 
    smoc_firing_state start;
       
 public:
- m_IDCTclip(sc_module_name name, MAX)
+ m_IDCTclip(sc_module_name name, int MAX)
  : smoc_actor(name, start), MAX(MAX) {
  start = 
    (I.getAvailableTokens() >= 1 && 
    MIN.getAvailableTokens() >= 1) >> 
    (O.getAvailableSpace() >= 1)  >>
-   call(m_IDCTclip::action) >> start;  
+   call(&m_IDCTclip::action) >> start;  
  }
 };

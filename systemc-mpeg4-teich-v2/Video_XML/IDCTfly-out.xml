@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_IDCTfly: public smoc_actor {
 // The actor has 4 Ports.
@@ -9,7 +9,7 @@ public:
    smoc_port_out<int> O1;
    smoc_port_out<int> O2;
 
-// The actor has 5 Parameters and 0 Variable declarations.
+// The actor has 5 Parameters and 5 Variable declarations.
 private: 
    const int W0;
    const int OS;
@@ -31,13 +31,13 @@ void m_IDCTfly::action(void) {
    smoc_firing_state start;
       
 public:
- m_IDCTfly(sc_module_name name, W0, OS, W1, W2, ATTEN)
+ m_IDCTfly(sc_module_name name, int W0, int OS, int W1, int W2, int ATTEN)
  : smoc_actor(name, start), W0(W0), OS(OS), W1(W1), W2(W2), ATTEN(ATTEN) {
  start = 
    (I1.getAvailableTokens() >= 1 && 
    I2.getAvailableTokens() >= 1) >> 
    (O1.getAvailableSpace() >= 1 &&  
    O2.getAvailableSpace() >= 1)  >>
-   call(m_IDCTfly::action) >> start;  
+   call(&m_IDCTfly::action) >> start;  
  }
 };

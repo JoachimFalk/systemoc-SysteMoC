@@ -1,5 +1,4 @@
 
-// BUG: import all caltrop.lib.Bitops; 
 #include <callib.hpp>
 
 class m_IDCTaddsub: public smoc_actor {
@@ -10,7 +9,7 @@ public:
    smoc_port_out<int> O1;
    smoc_port_out<int> O2;
 
-// The actor has 3 Parameters and 0 Variable declarations.
+// The actor has 3 Parameters and 3 Variable declarations.
 private: 
    const int G;
    const int OS;
@@ -29,7 +28,6 @@ void m_IDCTaddsub::action(void) {
    smoc_firing_state start;
       
 public:
- // BUG: m_IDCTaddsub(sc_module_name name, G, OS, ATTEN)
  m_IDCTaddsub(sc_module_name name, int G, int OS, int ATTEN)
  : smoc_actor(name, start), G(G), OS(OS), ATTEN(ATTEN) {
  start = 
@@ -37,7 +35,6 @@ public:
    I2.getAvailableTokens() >= 1) >> 
    (O1.getAvailableSpace() >= 1 &&  
    O2.getAvailableSpace() >= 1)  >>
-   // BUG: call(m_IDCTaddsub::action) >> start;  
    call(&m_IDCTaddsub::action) >> start;  
  }
 };

@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_transpose: public smoc_actor {
 // The actor has 16 Ports.
@@ -192,7 +192,7 @@ s0 = (I0.getAvailableTokens() >= 1 &&
    I6.getAvailableTokens() >= 1 && 
    I7.getAvailableTokens() >= 1) >> 
    (O0.getAvailableSpace() >= 8) >>
-   call(m_transpose::Out0) >> s1; 
+   call(&m_transpose::Out0) >> s1; 
    
 s1 = (I0.getAvailableTokens() >= 1 && 
    I1.getAvailableTokens() >= 1 && 
@@ -203,7 +203,7 @@ s1 = (I0.getAvailableTokens() >= 1 &&
    I6.getAvailableTokens() >= 1 && 
    I7.getAvailableTokens() >= 1) >> 
    (O1.getAvailableSpace() >= 8) >>
-   call(m_transpose::Out1) >> s2; 
+   call(&m_transpose::Out1) >> s2; 
    
 s2 = (I0.getAvailableTokens() >= 1 && 
    I1.getAvailableTokens() >= 1 && 
@@ -214,7 +214,7 @@ s2 = (I0.getAvailableTokens() >= 1 &&
    I6.getAvailableTokens() >= 1 && 
    I7.getAvailableTokens() >= 1) >> 
    (O2.getAvailableSpace() >= 8) >>
-   call(m_transpose::Out2) >> s3; 
+   call(&m_transpose::Out2) >> s3; 
    
 s3 = (I0.getAvailableTokens() >= 1 && 
    I1.getAvailableTokens() >= 1 && 
@@ -225,7 +225,7 @@ s3 = (I0.getAvailableTokens() >= 1 &&
    I6.getAvailableTokens() >= 1 && 
    I7.getAvailableTokens() >= 1) >> 
    (O3.getAvailableSpace() >= 8) >>
-   call(m_transpose::Out3) >> s4; 
+   call(&m_transpose::Out3) >> s4; 
    
 s4 = (I0.getAvailableTokens() >= 1 && 
    I1.getAvailableTokens() >= 1 && 
@@ -236,7 +236,7 @@ s4 = (I0.getAvailableTokens() >= 1 &&
    I6.getAvailableTokens() >= 1 && 
    I7.getAvailableTokens() >= 1) >> 
    (O4.getAvailableSpace() >= 8) >>
-   call(m_transpose::Out4) >> s5; 
+   call(&m_transpose::Out4) >> s5; 
    
 s5 = (I0.getAvailableTokens() >= 1 && 
    I1.getAvailableTokens() >= 1 && 
@@ -247,7 +247,7 @@ s5 = (I0.getAvailableTokens() >= 1 &&
    I6.getAvailableTokens() >= 1 && 
    I7.getAvailableTokens() >= 1) >> 
    (O5.getAvailableSpace() >= 8) >>
-   call(m_transpose::Out5) >> s6; 
+   call(&m_transpose::Out5) >> s6; 
    
 s6 = (I0.getAvailableTokens() >= 1 && 
    I1.getAvailableTokens() >= 1 && 
@@ -258,7 +258,7 @@ s6 = (I0.getAvailableTokens() >= 1 &&
    I6.getAvailableTokens() >= 1 && 
    I7.getAvailableTokens() >= 1) >> 
    (O6.getAvailableSpace() >= 8) >>
-   call(m_transpose::Out6) >> s7; 
+   call(&m_transpose::Out6) >> s7; 
    
 s7 = (I0.getAvailableTokens() >= 1 && 
    I1.getAvailableTokens() >= 1 && 
@@ -269,7 +269,7 @@ s7 = (I0.getAvailableTokens() >= 1 &&
    I6.getAvailableTokens() >= 1 && 
    I7.getAvailableTokens() >= 1) >> 
    (O7.getAvailableSpace() >= 8) >>
-   call(m_transpose::Out7) >> s0; 
+   call(&m_transpose::Out7) >> s0; 
     
  }
 };

@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_dequant: public smoc_actor {
 // The actor has 5 Ports.
@@ -68,7 +68,7 @@ void m_dequant::intra(void) {
    int q = FLAGS[1];
    int scaler = FLAGS[2];
    int round = bitxor(bitand(q, 1), 1);
-   cal_list<int>::t &dd = deq(d, q, scaler, round);
+   cal_list<int>::t dd = deq(d, q, scaler, round);
    OUT[0] = dd;
    DC[0] = dd[0];
    MIN[0] = (scaler == 0) ? (-256) : (0);
@@ -78,20 +78,20 @@ void m_dequant::intra(void) {
       
 public:
  m_dequant(sc_module_name name)
- : smoc_actor(name, start), deq() {
+ : smoc_actor(name, start) {
  start = 
    (IN.getAvailableTokens() >= 1 && 
    FLAGS.getAvailableTokens() >= 3 && 
    guard(&m_dequant::guard_inter)) >> 
    (OUT.getAvailableSpace() >= 1 &&  
    MIN.getAvailableSpace() >= 1)  >>
-   call(m_dequant::inter) >> start |  
+   call(&m_dequant::inter) >> start |  
    (IN.getAvailableTokens() >= 1 && 
    FLAGS.getAvailableTokens() >= 3 && 
    guard(&m_dequant::guard_intra)) >> 
    (OUT.getAvailableSpace() >= 1 &&  
    DC.getAvailableSpace() >= 1 &&  
    MIN.getAvailableSpace() >= 1)  >>
-   call(m_dequant::intra) >> start;  
+   call(&m_dequant::intra) >> start;  
  }
 };

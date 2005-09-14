@@ -1,5 +1,5 @@
 
-import all caltrop.lib.Bitops; 
+#include <callib.hpp>
 
 class m_byte2bit: public smoc_actor {
 // The actor has 2 Ports.
@@ -14,14 +14,14 @@ private:
 void m_byte2bit::action(void) {
 // The action has 8 local variable declarations.
    int i = in8[0];
-   int b7 = bitand(rshift(i, 7), 1);
-   int b6 = bitand(rshift(i, 6), 1);
-   int b5 = bitand(rshift(i, 5), 1);
-   int b4 = bitand(rshift(i, 4), 1);
-   int b3 = bitand(rshift(i, 3), 1);
-   int b2 = bitand(rshift(i, 2), 1);
-   int b1 = bitand(rshift(i, 1), 1);
-   int b0 = bitand(i, 1);
+   int b7 = bitxor(rshift(i, 7), 1);
+   int b6 = bitxor(rshift(i, 6), 1);
+   int b5 = bitxor(rshift(i, 5), 1);
+   int b4 = bitxor(rshift(i, 4), 1);
+   int b3 = bitxor(rshift(i, 3), 1);
+   int b2 = bitxor(rshift(i, 2), 1);
+   int b1 = bitxor(rshift(i, 1), 1);
+   int b0 = bitxor(i, 1);
    out[0] = b7;
    out[1] = b6;
    out[2] = b5;
@@ -40,6 +40,6 @@ public:
  start = 
    (in8.getAvailableTokens() >= 1) >> 
    (out.getAvailableSpace() >= 8)  >>
-   call(m_byte2bit::action) >> start;  
+   call(&m_byte2bit::action) >> start;  
  }
 };
