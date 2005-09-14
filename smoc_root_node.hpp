@@ -42,8 +42,16 @@ protected:
   virtual ~smoc_opbase_node() {}
 };
 
+// smoc_opbase_node must be the first class from which smoc_root_node
+// is derived. This requirement comes from the reinterpret_cast in
+// smoc_func_xxx classes in smoc_firing_rules.hpp
 class smoc_root_node
-  : public smoc_opbase_node {
+#ifndef __SCFE__
+: public smoc_opbase_node,
+  public smoc_modes::smoc_modes_base_structure {
+#else
+: public smoc_opbase_node {
+#endif
 private:
   smoc_firing_state        _currentState;
   const smoc_firing_state *_initialState;

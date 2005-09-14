@@ -20,11 +20,7 @@ template <typename T_node_type,
           typename T_chan_kind,
           template <typename T_value_type> class T_chan_init_default>
 class smoc_graph_petri
-  :
-#ifndef __SCFE__
-    public smoc_modes::smoc_modes_base_structure,
-#endif
-    public sc_module {
+: public sc_module {
 public:
   typedef T_node_type					node_type;
   typedef T_chan_kind					chan_kind;

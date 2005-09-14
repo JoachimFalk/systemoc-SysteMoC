@@ -7,9 +7,6 @@
 
 class smoc_actor
   : public smoc_root_node,
-#ifndef __SCFE__
-    public smoc_modes::smoc_modes_base_structure,
-#endif
     public sc_module {
   protected:
     explicit smoc_actor( sc_module_name name, const smoc_firing_state &s )
