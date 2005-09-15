@@ -60,14 +60,14 @@ class m_idct2d
       connectNodePorts( idctrow.o6, transpose1.I6 );
       connectNodePorts( idctrow.o7, transpose1.I7 );
 
-      connectNodePorts( transpose1.O0, idctcol.i0 );
-      connectNodePorts( transpose1.O1, idctcol.i1 );
-      connectNodePorts( transpose1.O2, idctcol.i2 );
-      connectNodePorts( transpose1.O3, idctcol.i3 );
-      connectNodePorts( transpose1.O4, idctcol.i4 );
-      connectNodePorts( transpose1.O5, idctcol.i5 );
-      connectNodePorts( transpose1.O6, idctcol.i6 );
-      connectNodePorts( transpose1.O7, idctcol.i7 );
+      connectNodePorts( transpose1.O0, idctcol.i0, smoc_fifo<int>(16) );
+      connectNodePorts( transpose1.O1, idctcol.i1, smoc_fifo<int>(16) );
+      connectNodePorts( transpose1.O2, idctcol.i2, smoc_fifo<int>(16) );
+      connectNodePorts( transpose1.O3, idctcol.i3, smoc_fifo<int>(16) );
+      connectNodePorts( transpose1.O4, idctcol.i4, smoc_fifo<int>(16) );
+      connectNodePorts( transpose1.O5, idctcol.i5, smoc_fifo<int>(16) );
+      connectNodePorts( transpose1.O6, idctcol.i6, smoc_fifo<int>(16) );
+      connectNodePorts( transpose1.O7, idctcol.i7, smoc_fifo<int>(16) );
 
       connectNodePorts( idctcol.o0, rowclip.i0 );
       connectNodePorts( idctcol.o1, rowclip.i1 );
