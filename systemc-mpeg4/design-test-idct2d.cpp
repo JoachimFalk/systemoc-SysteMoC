@@ -45,7 +45,7 @@ class m_source: public smoc_actor {
       :smoc_actor( name, start ), i(init_value) , step(step){
       foo = 1;
       //i1.open("test.txt");
-      start = ((out.getAvailableSpace() >= 1) && (var(i) <= 63)) >>
+      start = ((out.getAvailableSpace() >= 1) && (var(i) <= 65536)) >>
               CALL(m_source::process)               >> start;
     }
 };
