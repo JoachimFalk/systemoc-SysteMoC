@@ -203,7 +203,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
       // FIXME: we assume calls will only be used by leaf actors
       if ( isType<smoc_func_call>(f) ) {
 #ifdef SYSTEMOC_DEBUG
-        std::cerr << "<call actor="<<actor->myModule()->name()
+        std::cout << "<call actor="<<actor->myModule()->name()
                   << " func="<< static_cast<smoc_func_call &>(f).getFuncName()
                   << ">"<< std::endl;
 #endif
@@ -215,7 +215,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
 	TraceLog.traceEndFunction(static_cast<smoc_func_call &>(f).getFuncName());  //
 
 #ifdef SYSTEMOC_DEBUG
-        std::cerr << "</call>"<< std::endl;
+        std::cout << "</call>"<< std::endl;
 #endif
 
       } else {
