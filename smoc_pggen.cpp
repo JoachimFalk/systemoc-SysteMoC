@@ -47,6 +47,10 @@ namespace smoc_modes {
 	pgw << "<specificationgraph name=\"smoc_modes::dump\">" << std::endl;
     pgw.indentUp();
     top.assemble( pgw );
+    pgw << "<architecturegraph name=\"architecture graph\" id=\""<< pgw.getId() << "\">" << std::endl;
+    pgw << "</architecturegraph>" << std::endl;
+    pgw <<  "<mappings>" << std::endl;
+    pgw <<  "</mappings>" << std::endl;
     pgw.indentDown();
     pgw << "</specificationgraph>" << std::endl;
   }
