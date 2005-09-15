@@ -128,12 +128,21 @@ class tt_packet_info :
     /// seq pos
     t_seq_pos seq_pos;
 
+    // constructor    
     tt_packet_info(t_qpn qpn, t_psn psn, t_uint packet_size, t_buf_id buffer_id,
         t_seq_pos seq_pos = SEQ_POS_FIRST) :
       tt_base_info(tt_ib::TT_PACKET_INFO, qpn, buffer_id),
       psn(psn),
       packet_size(packet_size),
       seq_pos(seq_pos)
+    {}
+
+    // default constructor
+    tt_packet_info() :
+      tt_base_info(tt_ib::TT_PACKET_INFO, 0, -1),
+      psn(-1),
+      packet_size(0),
+      seq_pos(SEQ_POS_FIRST)
     {}
 
     virtual void dump(ostream&) const;
@@ -189,13 +198,7 @@ class tt_ack :
     /// credits
     t_credits   credits;
 
-    /*
-    tt_ack(t_qpn qpn, t_msn msn, t_credits credits) :
-      tt_ack_info(tt_ack_info::ACK, qpn, msn),
-      credits(credits)
-    {}
-    */
-
+    // constructor
     tt_ack(t_qpn qpn, t_msn msn, t_uint credits_, t_buf_id buffer_id = -1) :
       tt_ack_info(tt_ack_info::ACK, qpn, msn, buffer_id)
     {
@@ -205,6 +208,12 @@ class tt_ack :
         credits = credits_;
     }
 
+    // default constructor
+    tt_ack() :
+      tt_ack_info(tt_ack_info::ACK, 0, 0, -1),
+      credits(0)
+    {}
+    
     virtual void dump(ostream&) const;
 };
 
@@ -232,11 +241,18 @@ class tt_nak :
     /// nak type
     e_nak_type    nak_type;
     
+    // constructor
     tt_nak(t_qpn qpn, t_msn msn, e_nak_type nak_type, t_buf_id buffer_id = -1) :
       tt_ack_info(tt_ack_info::NAK, qpn, msn, buffer_id),
       nak_type(nak_type)
     {}
 
+    // default constructor
+    tt_nak() :
+      tt_ack_info(tt_ack_info::NAK, 0, 0, -1),
+      nak_type(tt_nak::RNR)
+    {}
+    
     virtual void dump(ostream&) const;
 };
 
@@ -262,13 +278,22 @@ class tt_raw_dword :
     /// postion last flag
     t_bool  last;
 
+    // constructor
     tt_raw_dword(std::string data, t_bool last, t_buf_id buffer_id) :
-      tt_ib(TT_RAW_DWORD, buffer_id),
+      tt_ib(tt_ib::TT_RAW_DWORD, buffer_id),
       data(data),
       last(last)
     {
       assert( data.size() == tt_raw_dword::DWORD_SIZE );
     }
+
+    // default constructor
+    tt_raw_dword() :
+      tt_ib(tt_ib::TT_RAW_DWORD, -1),
+      data(""),
+      last(false)
+    {}
+        
 
     virtual void dump(ostream&) const;
 };
@@ -304,6 +329,12 @@ class tt_raw_header :
       last(last)
     {}
 
+    tt_raw_header() :
+      tt_ib(tt_ib::TT_RAW_HEADER, -1),
+      buffer(""),
+      last(false)
+    {}
+    
     virtual void dump(ostream&) const;
 };
 
@@ -333,7 +364,11 @@ class tt_data :
       tt_ib(tt_ib::TT_DATA, buffer_id),
       last(last)
     {}
-      
+
+    tt_data() :
+      tt_ib(tt_ib::TT_DATA, -1),
+      last(false)
+    {}
 
     virtual void dump(ostream&) const;
 };
@@ -498,7 +533,16 @@ class tt_llc_info :
       slid(slid),
       pktlen(pktlen)
     {}
-      
+ 
+    // default constructor
+    tt_llc_info() :
+      tt_ib(tt_ib::TT_LLC_INFO, -1),
+      sl(0),
+      lnh(0),
+      dlid(0),
+      slid(0),
+      pktlen(0)
+    {}
 
     virtual void dump(ostream&) const;
 };
