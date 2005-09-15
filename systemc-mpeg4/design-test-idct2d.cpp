@@ -84,7 +84,7 @@ class IDCT2d_TEST
 
       connectNodePorts( src.out, blidct.I, smoc_fifo<int>(128));
       connectNodePorts( src1.out, blidct.MIN, smoc_fifo<int>(2));
-      connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(2));
+      connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
     }
 };
 
