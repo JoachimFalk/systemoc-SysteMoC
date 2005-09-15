@@ -188,7 +188,7 @@ void m_mc_add::construct_fsm(void){
     //newFrame
     (MV.getAvailableTokens() >= 6 &&
      MV.getValueAt(0) == -1) >> //cmd
-    call(&m_mc_add::action_newFrame) >> state_process
+    CALL(m_mc_add::action_newFrame)  >> state_process
     
     //docmd_missingBlock
     |(MV.getAvailableTokens() >= 6 &&
@@ -201,7 +201,7 @@ void m_mc_add::construct_fsm(void){
        )
       ) >>
     (VID.getAvailableSpace() >= 1) >>
-    call(&m_mc_add::action_docmd_missingBlock) >> state_update
+    CALL(m_mc_add::action_docmd_missingBlock)  >> state_update
     
     //docmd_textureOnly
     |(MV.getAvailableTokens() >= 6 &&
@@ -214,7 +214,7 @@ void m_mc_add::construct_fsm(void){
        ) &&
       TEX.getAvailableTokens() >= 1) >>
     (VID.getAvailableSpace() >= 1) >>
-    call(&m_mc_add::action_docmd_textureOnly) >> state_update
+    CALL(m_mc_add::action_docmd_textureOnly)  >> state_update
     
     //docmd_nothing
     |(MV.getAvailableTokens() >= 6 &&
@@ -227,7 +227,7 @@ void m_mc_add::construct_fsm(void){
        )
       ) >>
     (VID.getAvailableSpace() >= 1) >>
-    call(&m_mc_add::action_docmd_nothing) >> state_update
+    CALL(m_mc_add::action_docmd_nothing)  >> state_update
     
     //docmd_motionOnly (1)
     |(MV.getAvailableTokens() >= 6 &&
@@ -240,7 +240,7 @@ void m_mc_add::construct_fsm(void){
        )
       ) >>
     (VID.getAvailableSpace() >= 1) >>
-    call(&m_mc_add::action_docmd_motionOnly) >> state_update
+    CALL(m_mc_add::action_docmd_motionOnly)  >> state_update
 
     //docmd_motionOnly (2)
     |(MV.getAvailableTokens() >= 6 &&
@@ -253,7 +253,7 @@ void m_mc_add::construct_fsm(void){
        )
       ) >>
     (VID.getAvailableSpace() >= 1) >>
-    call(&m_mc_add::action_docmd_motionOnly) >> state_update
+    CALL(m_mc_add::action_docmd_motionOnly)  >> state_update
     
     //action_docmd_both
     |(MV.getAvailableTokens() >= 6 &&
@@ -266,7 +266,7 @@ void m_mc_add::construct_fsm(void){
        ) &&
       TEX.getAvailableTokens() >= 1) >>
     (VID.getAvailableSpace() >= 1) >>
-    call(&m_mc_add::action_docmd_both) >> state_update;
+    CALL(m_mc_add::action_docmd_both)  >> state_update;
 
 
 
@@ -277,7 +277,7 @@ void m_mc_add::construct_fsm(void){
      //guard(&m_mc_add::guard_mbbuf_tooEmptyInt)
      (var(int_buf_count) < var(int_buf_count_ss))
      ) >>
-    call(&m_mc_add::action_mbbuf_tooEmptyInt) >> state_process
+    CALL(m_mc_add::action_mbbuf_tooEmptyInt)  >> state_process
     
     //action_mbbuf_tooEmptyExt
     |(
@@ -285,7 +285,7 @@ void m_mc_add::construct_fsm(void){
       (var(int_buf_count) == var(int_buf_count_ss)) && 
       (var(ext_buf_count) < var(ext_buf_count_ss))
       ) >>
-    call(&m_mc_add::action_mbbuf_tooEmptyExt) >> state_process
+    CALL(m_mc_add::action_mbbuf_tooEmptyExt)  >> state_process
     
     //action_mbbuf_tooFull
     |(
@@ -294,7 +294,7 @@ void m_mc_add::construct_fsm(void){
        (var(ext_buf_count) > var(ext_buf_count_ss))
        )
       ) >> 
-    call(&m_mc_add::action_mbbuf_tooFull) >> state_process
+    CALL(m_mc_add::action_mbbuf_tooFull)  >> state_process
     
     //action_mbbuf_justRight
     |(LAST.getAvailableTokens() >= 1 &&
@@ -304,7 +304,7 @@ void m_mc_add::construct_fsm(void){
        (var(ext_buf_count) == var(ext_buf_count_ss))
        )
       ) >>
-    call(&m_mc_add::action_mbbuf_justRight) >> state_process;
+    CALL(m_mc_add::action_mbbuf_justRight)  >> state_process;
 }
 
 //type for parameter size: must be derived by type-analysis

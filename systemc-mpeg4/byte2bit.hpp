@@ -23,6 +23,6 @@ public:
     : smoc_actor(name, start) {
     start = (in8.getAvailableTokens() >= 1) >>
             (out.getAvailableSpace() >= 8)  >>
-            call(&m_byte2bit::action0)      >> start;
+            CALL(m_byte2bit::action0)       >> start;
   }
 };

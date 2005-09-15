@@ -50,7 +50,7 @@ class m_source: public smoc_actor {
       :smoc_actor( name, start ), i(init_value) , step(step){
       foo = 1;
       start = (out.getAvailableSpace() >= var(foo)) >>
-              call(&m_source::process)              >> start;
+              CALL(m_source::process)               >> start;
     }
 };
 
@@ -70,7 +70,7 @@ class m_list_source: public smoc_actor {
   public:
     m_list_source( sc_module_name name )
       :smoc_actor( name, start ), i(0) {
-      start =  out(1) >> call(&m_list_source::process) >> start;
+      start =  out(1) >> CALL(m_list_source::process)  >> start;
     }
 };
 
@@ -86,7 +86,7 @@ class m_sink: public smoc_actor {
   public:
     m_sink( sc_module_name name )
       :smoc_actor( name, start ) {
-      start = in(1) >> call(&m_sink::process) >> start;
+      start = in(1) >> CALL(m_sink::process)  >> start;
     }
 };
 
@@ -102,7 +102,7 @@ class m_list_sink: public smoc_actor {
   public:
     m_list_sink( sc_module_name name )
       :smoc_actor( name, start ) {
-      start = in(1) >> call(&m_list_sink::process) >> start;
+      start = in(1) >> CALL(m_list_sink::process)  >> start;
     }
 };
 

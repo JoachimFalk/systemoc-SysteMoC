@@ -208,14 +208,14 @@ public:
     // (getdc) ausgeführt wurde.
     read = (PARAM.getAvailableTokens() >= 4 &&
             PARAM.getValueAt(0) < 0)            >>
-           call(&m_reconstruct::action_eof)     >> read
+           CALL(m_reconstruct::action_eof)      >> read
          | (PARAM.getAvailableTokens() >= 4 &&
             FLAGS.getAvailableTokens() >= 3 &&
             DATA.getAvailableTokens()  >= 1 &&
             PARAM.getValueAt(0) == 1)           >>
            (OUT.getAvailableSpace()    >= 1 &&
             OFLAGS.getAvailableSpace() >= 3)    >>
-           call(&m_reconstruct::action_inter)   >> read
+           CALL(m_reconstruct::action_inter)    >> read
          | (PARAM.getAvailableTokens() >= 4 &&
             FLAGS.getAvailableTokens() >= 3 &&
             DATA.getAvailableTokens()  >= 1 &&
@@ -225,10 +225,10 @@ public:
             PARAM.getValueAt(0) == 0)           >> 
            (OUT.getAvailableSpace()    >= 1 &&
             OFLAGS.getAvailableSpace() >= 3)    >>
-           call(&m_reconstruct::action_intra)   >> wait;
+           CALL(m_reconstruct::action_intra)    >> wait;
     
     wait = (DC.getAvailableTokens()    >= 1)    >>
-           call(&m_reconstruct::action_getdc)   >> read;
+           CALL(m_reconstruct::action_getdc)    >> read;
   }
 };
 

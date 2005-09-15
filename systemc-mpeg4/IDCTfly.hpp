@@ -30,7 +30,7 @@ public:
 	     I2.getAvailableTokens() >= 1 ) >>
             (O1.getAvailableSpace() >= 1 &&
              O2.getAvailableSpace() >= 1)   >>
-            call(&m_IDCTfly::action0) 	    >> start;
+            CALL(m_IDCTfly::action0)  	    >> start;
   }
 
   virtual ~m_IDCTfly() {}

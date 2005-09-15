@@ -58,14 +58,14 @@ public:
              FLAGS.getValueAt(0) == 1) >>
             (OUT.getAvailableSpace() >= 1 &&
              MIN.getAvailableSpace() >= 1) >>
-            call(&m_dequant::action_inter) >> start
+            CALL(m_dequant::action_inter)  >> start
           | (IN.getAvailableTokens() >= 1 &&
              FLAGS.getAvailableTokens() >= 3 &&
              FLAGS.getValueAt(0) == 0) >>
             (OUT.getAvailableSpace() >= 1 &&
              DC.getAvailableSpace() >= 1 &&
              MIN.getAvailableSpace() >= 1) >>
-            call(&m_dequant::action_intra) >> start;
+            CALL(m_dequant::action_intra)  >> start;
   }
 private:
   void action_inter() {

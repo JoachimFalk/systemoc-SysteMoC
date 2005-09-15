@@ -45,8 +45,8 @@ class m_source: public smoc_actor {
       :smoc_actor( name, start ), i(init_value) , step(step){
       foo = 1;
       //i1.open("test.txt");
-      start = (out.getAvailableSpace() >= var(foo)) >>
-              call(&m_source::process)              >> start;
+      start = ((out.getAvailableSpace() >= 1) && (var(i) <= 63)) >>
+              CALL(m_source::process)               >> start;
     }
 };
 
@@ -66,7 +66,7 @@ class m_sink: public smoc_actor {
   public:
     m_sink( sc_module_name name )
       :smoc_actor( name, start ){
-      start = in(1) >> call(&m_sink::process) >> start;
+      start = in(1) >> CALL(m_sink::process)  >> start;
     }
 };
 

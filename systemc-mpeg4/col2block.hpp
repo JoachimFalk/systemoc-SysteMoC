@@ -38,7 +38,7 @@ public:
              R6.getAvailableTokens() >= 8 &&
              R7.getAvailableTokens() >= 8 )   >>
             (b.getAvailableSpace() >= 64)     >>
-            call(&m_col2block::action0)       >> start;
+            CALL(m_col2block::action0)        >> start;
   }
   
   virtual ~m_col2block(){}
