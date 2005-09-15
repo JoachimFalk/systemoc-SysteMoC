@@ -73,7 +73,8 @@ protected:
       for ( smoc_node_list::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter )
-        again |= (*iter)->currentState().tryExecute();
+        if ( !(*iter)->is_v1_actor )
+          again |= (*iter)->currentState().tryExecute();
 //      wait(SC_ZERO_TIME);
     } while (again);
     {
@@ -83,7 +84,8 @@ protected:
       for ( smoc_node_list::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter )
-        (*iter)->currentState().findBlocked(l);
+        if ( !(*iter)->is_v1_actor )
+          (*iter)->currentState().findBlocked(l);
 #ifdef SYSTEMOC_DEBUG
       std::cout << "CREATE TRANSITIONS: " << l << std::endl;
 #endif
