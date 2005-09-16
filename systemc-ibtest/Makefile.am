@@ -10,7 +10,7 @@ INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
 AM_LDFLAGS = @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS=-Wno-deprecated
 
-noinst_PROGRAMS=    smoc2test oneof atutest_atomic atutest_nonatomic
+noinst_PROGRAMS=    smoc2test oneof atutest_atomic atutest_nonatomic smoc1_vs_smoc2_test memory_access_read
 
 smoc2test_LDFLAGS = -lsystemoc
 smoc2test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
@@ -30,3 +30,13 @@ atutest_nonatomic_SOURCES= \
 
 oneof_SOURCES= \
 	oneof.cpp
+
+smoc1_vs_smoc2_test_LDFLAGS = -lsystemoc
+smoc1_vs_smoc2_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+smoc1_vs_smoc2_test_SOURCES= \
+	smoc1_vs_smoc2_test.cpp
+
+memory_access_read_LDFLAGS = -lsystemoc
+memory_access_read_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+memory_access_read_SOURCES= \
+	memory_access_read_test.cpp tt_ib.cpp bit_buffer.cpp

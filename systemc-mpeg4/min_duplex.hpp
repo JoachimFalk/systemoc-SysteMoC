@@ -41,7 +41,7 @@ public:
 		O5.getAvailableSpace() >= 1 &&
 		O6.getAvailableSpace() >= 1 &&
 		O7.getAvailableSpace() >= 1) >>
-	      call(&m_MIN_duplex::action)	>> start;
+	      CALL(m_MIN_duplex::action) 	>> start;
     }
 };
 

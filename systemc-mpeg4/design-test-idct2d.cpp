@@ -45,8 +45,8 @@ class m_source: public smoc_actor {
       :smoc_actor( name, start ), i(init_value) , step(step){
       foo = 1;
       //i1.open("test.txt");
-      start = (out.getAvailableSpace() >= var(foo)) >>
-              call(&m_source::process)              >> start;
+      start = ((out.getAvailableSpace() >= 1) && (var(i) <= 65536)) >>
+              CALL(m_source::process)               >> start;
     }
 };
 
@@ -66,7 +66,7 @@ class m_sink: public smoc_actor {
   public:
     m_sink( sc_module_name name )
       :smoc_actor( name, start ){
-      start = in(1) >> call(&m_sink::process) >> start;
+      start = in(1) >> CALL(m_sink::process)  >> start;
     }
 };
 
@@ -82,15 +82,21 @@ class IDCT2d_TEST
       m_block_idct  &blidct = registerNode(new m_block_idct("blidct"));
       m_sink        &snk    = registerNode(new m_sink("snk"));
 
-      connectNodePorts( src.out, blidct.I, smoc_fifo<int>(64));
+      connectNodePorts( src.out, blidct.I, smoc_fifo<int>(128));
       connectNodePorts( src1.out, blidct.MIN, smoc_fifo<int>(2));
-      connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(2));
+      connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
     }
 };
 
 int sc_main (int argc, char **argv) {
   smoc_top_moc<IDCT2d_TEST> top("top");
   
-  sc_start(-1);
+#define GENERATE "--generate-problemgraph"
+  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
+    smoc_modes::dump(std::cout, top);
+  } else {  
+    sc_start(-1);
+  }
+#undef GENERATE
   return 0;
 }

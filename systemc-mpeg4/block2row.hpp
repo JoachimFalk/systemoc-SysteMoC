@@ -31,7 +31,7 @@ public:
              C5.getAvailableSpace() >= 8 &&
              C6.getAvailableSpace() >= 8 &&
              C7.getAvailableSpace() >= 8)   >>
-            call(&m_block2row::action0)     >> start;
+            CALL(m_block2row::action0)      >> start;
       std::cout<<"debug"<<std::endl;
     
     }

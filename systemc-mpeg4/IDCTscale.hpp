@@ -19,7 +19,7 @@ public:
       G(G), OS(OS) {
     start = (I.getAvailableTokens() >= 1) >>
             (O.getAvailableSpace() >= 1)  >>
-            call(&m_IDCTscale::action0)   >> start;
+            CALL(m_IDCTscale::action0)    >> start;
   }
 };
 #endif // _INCLUDED_IDCTSCALE_HPP

@@ -194,21 +194,21 @@ public:
     : smoc_actor(name, reset), {
     reset   = (BUF.getAvailableTokens() >= 4 &&
               guard(&sequence::guard1) )     >>
-              call(&sequence::flush_buf)  >> reset 
+              CALL(sequence::flush_buf)   >> reset 
             | (guard(&sequence::guard2) ) >>
-		  call(&sequence::reset_actor)   >> read;
+		  CALL(sequence::reset_actor)    >> read;
     read    = (DATA.getAvailableTokens() >= 4 &&
               guard(&sequence:guard3) )      >>
               call(&sequence:eof_detect)     >> reset
             | (DATA.getAvailableTokens() >= 4 && 
               guard(&sequence:guard4) )      >> 
-		  call(&sequence::discard_block) >> read
+		  CALL(sequence::discard_block)  >> read
             | (DATA.getAvailableTokens() >= 4 &&
               guard(&sequence:guard5) )      >>
               call(&sequence:read_block)     >> process;  
     process = (BUF.getAvailableTokens() >= 4) &&
               guard(&sequence::guard6) )     >>
-              call(&sequence::read_buf)      >> sequence
+              CALL(sequence::read_buf)       >> sequence
             | (guard(&sequence::guard7)      >>
               call(&sequence:predict.b0)     >> read
             | (guard(&sequence::guard8)      >>

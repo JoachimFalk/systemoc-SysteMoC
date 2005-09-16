@@ -26,7 +26,7 @@ public:
              I2.getAvailableTokens() >= 1)    >>
             (O1.getAvailableSpace()  >= 1 &&
              O2.getAvailableSpace()  >= 1)    >>
-            call(&m_IDCTaddsub::action0)      >> start;
+            CALL(m_IDCTaddsub::action0)       >> start;
   }
 
   virtual ~m_IDCTaddsub(){}

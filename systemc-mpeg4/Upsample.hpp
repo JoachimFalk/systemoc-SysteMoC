@@ -34,10 +34,10 @@ public:
     start = (I.getAvailableTokens() >= 1 &&
              var(state) == 0)                 >>
             (O.getAvailableSpace() >= 1)      >>
-            call(&m_Upsample::action0)        >> start
+            CALL(m_Upsample::action0)         >> start
           | (var(state)  > 0)                 >>
             (O.getAvailableSpace() >= 1)      >>
-            call(&m_Upsample::action1)        >> start;
+            CALL(m_Upsample::action1)         >> start;
   }
 };
 

@@ -27,7 +27,7 @@ public:
     start = (I.getAvailableTokens() >= 1 &&
              MIN.getAvailableTokens() >= 1 )  >>
             (O.getAvailableSpace() >= 1)      >>
-            call(&m_IDCTclip::action0) 	      >> start;
+            CALL(m_IDCTclip::action0)  	      >> start;
   }
   virtual ~m_IDCTclip(){}
 };
