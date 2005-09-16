@@ -20,23 +20,12 @@ template <typename T_node_type,
           typename T_chan_kind,
           template <typename T_value_type> class T_chan_init_default>
 class smoc_graph_petri
-  :
-#ifndef __SCFE__
-    public smoc_modes::smoc_modes_base_structure,
-#endif
-    public sc_module {
+: public sc_module {
 public:
   typedef T_node_type					node_type;
   typedef T_chan_kind					chan_kind;
   typedef smoc_graph_petri
     <T_node_type, T_chan_kind, T_chan_init_default>     this_type;
-  
-  typedef std::list<smoc_root_node *>			nodes_ty;
-  typedef std::list<smoc_root_chan *>                   chans_ty;
-private:
-  typedef std::map<smoc_root_port *, smoc_root_port *>  iobind_ty;
-  
-  iobind_ty           iobind;
 protected:
   template <typename T_chan_init>
   void connectNodePorts(
@@ -60,41 +49,15 @@ protected:
   template <typename T_value_type>
   void connectInterfacePorts(
       smoc_port_out<T_value_type> &a,
-      smoc_port_out<T_value_type> &b ) {
-    assert( iobind.find(&b) == iobind.end() );
-    iobind.insert( iobind_ty::value_type(&b,&a) );
-    b(a);
-    // b.bind(a);
-  }
+      smoc_port_out<T_value_type> &b )
+    { b(a); }
   template <typename T_value_type>
   void connectInterfacePorts(
       smoc_port_in<T_value_type> &a,
-      smoc_port_in<T_value_type> &b ) {
-    assert( iobind.find(&b) == iobind.end() );
-    iobind.insert( iobind_ty::value_type(&b,&a) );
-    b(a);
-    // b.bind(a);
-  }
-
-  void finalise() {
-    {
-      chans_ty chans = getChans();
-      
-      for ( typename chans_ty::iterator iter = chans.begin();
-            iter != chans.end();
-            ++iter )
-        (*iter)->hierarchy = this;
-    }
-    {
-      nodes_ty nodes = getNodes();
-      
-      for ( typename nodes_ty::iterator iter = nodes.begin();
-            iter != nodes.end();
-            ++iter )
-        (*iter)->finalise();
-    }
-  }
-
+      smoc_port_in<T_value_type> &b )
+    { b(a); }
+  
+  void finalise();
 public:
   explicit smoc_graph_petri( sc_module_name name )
     : sc_module( name ) {}
@@ -130,41 +93,11 @@ public:
     p(chan);
   }
   
-  const nodes_ty getNodes() const {
-    nodes_ty subnodes;
-    for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
-          iter != get_child_objects().end();
-          ++iter ) {
-      smoc_root_node *node = dynamic_cast<smoc_root_node *>(*iter);
-      
-/*
-      if ( node != NULL ) {
-        std::cout << "getNodes(): Got actor " << node->myModule()->name() << std::endl;
-      } else {
-        std::cout << "getNodes(): Got *" << typeid(**iter).name() << std::endl;
-      }
- */
-      if ( node != NULL && !node->is_v1_actor )
-        subnodes.push_back(node);
-    }
-    return subnodes;
-  }
-  const chans_ty getChans() const {
-    chans_ty channels;
-    for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
-          iter != get_child_objects().end();
-          ++iter ) {
-      smoc_root_chan *chan = dynamic_cast<smoc_root_chan *>(*iter);
-      
-      if (chan)
-        channels.push_back(chan);
-    }
-    return channels;
-  }
- 
+  const smoc_node_list getNodes() const;
+  const smoc_chan_list getChans() const;
+  
 #ifndef __SCFE__
-  void assemble( smoc_modes::PGWriter &pgw ) const;
-  void pgAssemble( smoc_modes::PGWriter &pgw ) const;
+  void pgAssemble(smoc_modes::PGWriter &, const smoc_root_node *) const;
 #endif
 };
 

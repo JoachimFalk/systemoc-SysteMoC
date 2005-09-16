@@ -94,6 +94,8 @@ protected:
     : sc_prim_channel(name), hierarchy(NULL) {}
 };
 
+typedef std::list<smoc_root_chan *> smoc_chan_list;
+
 template <typename T>
 class smoc_port_in;
 template <typename T>

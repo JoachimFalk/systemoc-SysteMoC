@@ -59,8 +59,9 @@ protected:
   typedef std::list<transition_node_ty>                 transition_node_list_ty;
   
   const smoc_firing_state &schedule() {
-    cset_ty::nodes_ty nodes = c->getNodes();
-    bool again;
+    bool           again;
+    smoc_node_list nodes   = c->getNodes();
+    smoc_ctx       _oldctx = _ctx;
     
 #ifdef SYSTEMOC_DEBUG
     std::cout << "<smoc_scheduler_ndf::schedule>" << std::endl;
@@ -69,20 +70,22 @@ protected:
     _ctx.hierarchy = myModule();
     do {
       again = false;
-      for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+      for ( smoc_node_list::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter )
-        again |= (*iter)->currentState().tryExecute();
+        if ( !(*iter)->is_v1_actor )
+          again |= (*iter)->currentState().tryExecute();
 //      wait(SC_ZERO_TIME);
     } while (again);
     {
       smoc_transition_list      tl;
       smoc_root_port_bool_list  l;
       
-      for ( cset_ty::nodes_ty::const_iterator iter = nodes.begin();
+      for ( smoc_node_list::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter )
-        (*iter)->currentState().findBlocked(l);
+        if ( !(*iter)->is_v1_actor )
+          (*iter)->currentState().findBlocked(l);
 #ifdef SYSTEMOC_DEBUG
       std::cout << "CREATE TRANSITIONS: " << l << std::endl;
 #endif
@@ -97,6 +100,8 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cout << "</smoc_scheduler_ndf::schedule>" << std::endl;
 #endif
+    // FIXME: Big hack !!!
+    _ctx = _oldctx;
     return s;
   }
  
@@ -129,19 +134,19 @@ protected:
   cset_ty *c;
   
   void schedule() {
-    cset_ty::nodes_ty nodes = c->getNodes();
+    smoc_node_list nodes = c->getNodes();
     
     bool again;
     do {
       do {
         again = false;
         dump(nodes);
-        for ( cset_ty::nodes_ty::iterator iter = nodes.begin();
+        for ( smoc_node_list::iterator iter = nodes.begin();
               iter != nodes.end();
               ++iter )
           again |= (*iter)->currentState().inductionStep();
       } while ( again );
-      for ( cset_ty::nodes_ty::iterator iter = nodes.begin();
+      for ( smoc_node_list::iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter )
         again |= (*iter)->currentState().choiceStep();
@@ -180,8 +185,8 @@ public:
 #ifndef __SCFE__
   sc_module *myModule() { return this; }
   
-  void assemble( smoc_modes::PGWriter &pgw ) const
-    { return smoc_ndf_constraintset::assemble(pgw); }
+  void pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
+    { return smoc_ndf_constraintset::pgAssemble(pgw,n); }
 #endif
 
 };
