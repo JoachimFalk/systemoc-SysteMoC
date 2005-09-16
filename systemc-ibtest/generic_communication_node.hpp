@@ -10,7 +10,7 @@ using std::endl;
 using std::cout;
 
 
-template <typename Data, int ReadTokenAtOnce=1, int WriteTokenAtOnce=1>
+template <typename Data, int ReadTokenAtOnce=1, int WriteTokenAtOnce=ReadTokenAtOnce>
 class generic_communication_node : public smoc_actor {
 
 public:
@@ -22,9 +22,11 @@ private:
 
 protected: 
   virtual void processCommunication(){
+
     for(int i=0; i<WriteTokenAtOnce; i++){
       out[i]=in[i%ReadTokenAtOnce];
     }
+
   }
 
 public:

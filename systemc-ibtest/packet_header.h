@@ -425,47 +425,6 @@ class fcp :
  */
 #define MAX_HEADER_SIZE (lrh::LRH_SIZE + bth::BTH_SIZE + aeth::AETH_SIZE)
 
-template <int chunksize>
-class data_chunk{
- private:
-  char chunk[chunksize];
- public:
-  int sourceId;
-  t_uint32 length;
-  t_uint64 address;
-
-  int getChunkSize(){return chunksize;}
-
-  t_uint32 getLength(){return length;}
-
-  data_chunk() : length(0){}
-
-  data_chunk( const char *buf, int sourceId, t_uint64 start, t_uint32 _length ):address(start), sourceId( sourceId ){
-    for(length=0; length<chunksize && length <_length; length++){
-      chunk[length]=buf[start+length];
-    }
-  }
-
-  const char *getChunk(){return chunk;}
-};
-struct memory_request{
-  static int _id_count;
-  int id;
-  int sourceId;
-  t_uint64 address;
-  t_uint32 length;
-
-  memory_request( int sourceId, t_uint64 address, t_uint32 length ) :
-    address( address ), length( length ), sourceId( sourceId ){
-    
-    id=_id_count++;
-  }
-
-  memory_request() : address( 0 ), length( 0 ){
-    id=_id_count++;
-  }
-};
-int memory_request::_id_count=0;
 
 
 #endif // PACKER_HEADER_H
