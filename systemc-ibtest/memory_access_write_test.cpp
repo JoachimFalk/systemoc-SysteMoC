@@ -5,7 +5,7 @@
 #include <smoc_fifo.hpp>
 #include <smoc_node_types.hpp>
 
-#include <memory_access.h>
+#include <memory_interface.h>
 
 
 using Expr::field;
