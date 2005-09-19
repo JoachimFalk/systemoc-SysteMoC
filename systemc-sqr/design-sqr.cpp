@@ -17,18 +17,22 @@ public:
   smoc_port_out<double> out;
 private:
   int i;
+  int n;
   
+  bool nTimesTrue() const { return n != 0 ;}
+
   void src() {
     std::cout << "src: " << i << std::endl;
     out[0] = i++;
+    if(n>0) n--;
   }
   
   smoc_firing_state start;
 public:
-  m_src(sc_module_name name)
-    : smoc_actor(name, start), i(1)
-    { start = out(1)            >>
-              call(&m_src::src) >> start; }
+  m_src(sc_module_name name, int times)
+    : smoc_actor(name, start), i(1), n(times)
+    { start = ( out(1) && guard(&m_src::nTimesTrue) ) >>
+              CALL(m_src::src)                       >> start; }
 };
 
 class m_approx: public smoc_actor {
@@ -43,7 +47,7 @@ public:
   m_approx(sc_module_name name)
     : smoc_actor(name, start)
     { start = (i1(1) && i2(1)) >> o1(1) >>
-              call(&m_approx::approx)   >> start; }
+              CALL(m_approx::approx)   >> start; }
 };
 
 class m_dup: public smoc_actor {
@@ -58,7 +62,7 @@ public:
   m_dup(sc_module_name name)
     : smoc_actor(name, start)
     { start = i1(1) >> (o1(1) && o2(1)) >>
-              call(&m_dup::dup)         >> start; }
+              CALL(m_dup::dup)         >> start; }
 };
 
 class m_sqrloop: public smoc_actor {
@@ -85,13 +89,13 @@ public:
   m_sqrloop(sc_module_name name)
     : smoc_actor( name, start ) {
     start = i1(1)                                 >>
-            call(&m_sqrloop::store)               >> loop;
+            CALL(m_sqrloop::store)               >> loop;
     loop  = (i2(1) &&  guard(&m_sqrloop::check))  >>
             (o1(1) && o2(1))                      >>
-            call(&m_sqrloop::copy2)               >> start
+            CALL(m_sqrloop::copy2)               >> start
           | (i2(1) && !guard(&m_sqrloop::check))  >>
             o1(1)                                 >>
-            call(&m_sqrloop::copy1)               >> loop;
+            CALL(m_sqrloop::copy1)               >> loop;
   }
 };
 
@@ -105,7 +109,7 @@ private:
 public:
   m_sink(sc_module_name name)
     : smoc_actor(name, start)
-    { start = in(1) >> call(&m_sink::sink) >> start; }
+    { start = in(1) >> CALL(m_sink::sink) >> start; }
 };
 
 class m_approx_loop
@@ -142,7 +146,7 @@ class m_top
   public:
     m_top( sc_module_name name )
       : smoc_graph(name),
-        src("src"),
+        src("src", 50),
         al("al"),
         sink("sink") {
       connectNodePorts(src.out, al.i1);

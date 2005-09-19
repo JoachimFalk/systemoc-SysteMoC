@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE configuration SYSTEM "cmx.dtd">
+<configuration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+  <component name="Component1" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+ </resources>
+
+ <mappings>
+  <mapping source="top.al.approx" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_approx::approx" value="100"/>
+  </mapping>
+
+  <mapping source="top.al.dup" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_dup::dup" value="100"/>
+  </mapping>
+
+  <mapping source="top.al.sqrloop" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_sqrloop::copy1" value="100"/>
+    <attribute type="m_sqrloop::copy2" value="100"/>
+    <attribute type="m_sqrloop::store" value="100"/>
+  </mapping>
+
+  <mapping source="top.sink" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_sink::sink" value="100"/>
+  </mapping>
+
+  <mapping source="top.src" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_src::src" value="100"/>
+  </mapping>
+
+ </mappings>
+</configuration>
