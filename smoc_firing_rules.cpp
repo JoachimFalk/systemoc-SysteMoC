@@ -240,13 +240,14 @@ void smoc_firing_types::resolved_state_ty::findBlocked(
   
   if ((a != NULL) && !a->vpc_event) {
     l.push_back(smoc_root_port_bool(&a->vpc_event));
-//    std::cout << "XXX: " << l << std::endl;
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "  <transitions status=vpcBlocked/>" << std::endl;
+#endif
   } else {
     for ( transitionlist_ty::iterator titer = tl.begin();
 	  titer != tl.end();
 	  ++titer ) {
       titer->findBlocked(l, actor);
-//      std::cout << "XXX: " << l << std::endl;
     }
   }
 }
@@ -256,6 +257,9 @@ void smoc_firing_types::transition_ty::findBlocked(
   smoc_root_port_bool b      = knownSatisfiable();
   
   // std::cout << b << std::endl;
+#ifdef SYSTEMOC_DEBUG
+  std::cout << "  <transition status=" << b.getStatus() << "/>" << std::endl;
+#endif
   if ( b.getStatus() != smoc_root_port_bool::IS_DISABLED ) {
     assert( b.getStatus() == smoc_root_port_bool::IS_BLOCKED );
     l.push_back(b);
