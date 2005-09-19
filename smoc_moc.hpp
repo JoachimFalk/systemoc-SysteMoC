@@ -29,17 +29,13 @@ public:
 protected:
   cset_ty *c;
   
-  void schedule() { assert("FIXME sdf scheduler unfinished !" == NULL); }
+  void schedule();
 private:
   smoc_firing_state s;
   
-  void analyse() {
-    s = smoc_activation_pattern(Expr::literal(true), true) >>
-        call(&smoc_scheduler_sdf::schedule) >> s;
-  }
+  void analyse();
 public:
-  smoc_scheduler_sdf( cset_ty *c )
-    : smoc_root_node(s), c(c) { analyse(); }
+  smoc_scheduler_sdf( cset_ty *c );
 };
 
 typedef class smoc_scheduler_ndf smoc_scheduler_ddf;
@@ -58,52 +54,7 @@ protected:
   typedef std::pair<transition_ty *, smoc_root_node *>  transition_node_ty;
   typedef std::list<transition_node_ty>                 transition_node_list_ty;
   
-  const smoc_firing_state &schedule() {
-    bool           again;
-    smoc_node_list nodes   = c->getNodes();
-    smoc_ctx       _oldctx = _ctx;
-    
-#ifdef SYSTEMOC_DEBUG
-    std::cout << "<smoc_scheduler_ndf::schedule>" << std::endl;
-#endif
-    // FIXME: Big hack !!!
-    _ctx.hierarchy = myModule();
-    do {
-      again = false;
-      for ( smoc_node_list::const_iterator iter = nodes.begin();
-            iter != nodes.end();
-            ++iter )
-        if ( !(*iter)->is_v1_actor )
-          again |= (*iter)->currentState().tryExecute();
-//      wait(SC_ZERO_TIME);
-    } while (again);
-    {
-      smoc_transition_list      tl;
-      smoc_root_port_bool_list  l;
-      
-      for ( smoc_node_list::const_iterator iter = nodes.begin();
-            iter != nodes.end();
-            ++iter )
-        if ( !(*iter)->is_v1_actor )
-          (*iter)->currentState().findBlocked(l);
-#ifdef SYSTEMOC_DEBUG
-      std::cout << "CREATE TRANSITIONS: " << l << std::endl;
-#endif
-      for ( smoc_root_port_bool_list::const_iterator iter = l.begin();
-            iter != l.end();
-            ++iter ) {
-        tl |= smoc_activation_pattern(Expr::vguard(*iter), true) >>
-                diverge(&smoc_scheduler_ndf::schedule);
-      }
-      s = tl;
-    }
-#ifdef SYSTEMOC_DEBUG
-    std::cout << "</smoc_scheduler_ndf::schedule>" << std::endl;
-#endif
-    // FIXME: Big hack !!!
-    _ctx = _oldctx;
-    return s;
-  }
+  const smoc_firing_state &schedule();
  
   /*
   void finalise() {
@@ -111,14 +62,7 @@ protected:
     smoc_root_node::finalise();
   }*/
 public:
-  smoc_scheduler_ndf( cset_ty *c )
-    : smoc_root_node( smoc_activation_pattern(Expr::literal(true), true) >>
-                      diverge(&smoc_scheduler_ndf::schedule) ),
-      c(c) {
-#ifdef SYSTEMOC_DEBUG
-    std::cout << "smoc_scheduler_ndf" << std::endl;
-#endif
-      }
+  smoc_scheduler_ndf( cset_ty *c );
 };
 
 /*
@@ -191,6 +135,7 @@ public:
 
 };
 
+/*
 template<typename T>
 void dump(std::list<T> &nodes) {
   std::cout << "=== dump ===" << std::endl;
@@ -202,6 +147,7 @@ void dump(std::list<T> &nodes) {
     std::cout << s;
   }
 }
+*/
 
 template <typename T_scheduler, typename T_constraintset>
 class smoc_moc
