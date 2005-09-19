@@ -170,7 +170,7 @@ smoc_firing_types::resolved_state_ty::tryExecute(
           iter != _ctx.ports_setup.end();
           ++iter )
       (*iter)->reset();
-     _ctx.ports_setup.clear();
+    _ctx.ports_setup.clear();
   }
   return retval;
 }
