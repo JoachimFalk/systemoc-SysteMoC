@@ -111,6 +111,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_guard.cpp			\
 	smoc_pggen.cpp			\
 	smoc_chan_if.cpp		\
+	smoc_moc.cpp			\
 	hscd_tdsim_TraceLog.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
