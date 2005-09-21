@@ -1,0 +1,30 @@
+<!ELEMENT configuration (resultfile?,measurefile?,resources,mappings)>
+
+<!ELEMENT resultfile EMPTY>
+<!ATTLIST resultfile
+name CDATA #REQUIRED>
+
+<!ELEMENT measurefile EMPTY>
+<!ATTLIST measurefile
+name CDATA #REQUIRED>
+
+<!ELEMENT resources (component)*>
+
+<!ELEMENT component (attribute)*>
+<!ATTLIST component
+name CDATA #REQUIRED
+type CDATA #REQUIRED
+scheduler CDATA #REQUIRED>
+
+<!ELEMENT attribute EMPTY>
+<!ATTLIST attribute 
+type CDATA #REQUIRED
+value CDATA #REQUIRED>
+
+<!ELEMENT mappings (mapping)*>
+
+<!ELEMENT mapping (attribute)*>
+<!ATTLIST mapping
+source CDATA #REQUIRED
+target CDATA #REQUIRED>
+

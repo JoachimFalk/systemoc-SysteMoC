@@ -1,0 +1,291 @@
+<?xml version="1.0"?>
+<!DOCTYPE configuration SYSTEM "cmx.dtd">
+<configuration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+
+  <component name="Component1" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+
+  <component name="Component2" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+
+  <component name="Component3" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+
+  <component name="Component4" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+
+  <component name="Component5" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+
+  <component name="Component6" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+
+  <component name="Component7" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+
+  <component name="Component8" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+
+  <component name="Component9" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+
+  <component name="Component10" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+
+ </resources>
+
+ <mappings>
+  <mapping source="top.blidct.block2row1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_block2row::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.col2block1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_col2block::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.addsub1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.addsub10" target="Component10">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.addsub2" target="Component2">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.addsub3" target="Component3">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.addsub4" target="Component4">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.addsub5" target="Component5">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.addsub6" target="Component6">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.addsub7" target="Component7">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.addsub8" target="Component8">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.addsub9" target="Component9">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.ifly1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTfly::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.ifly2" target="Component2">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTfly::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.ifly3" target="Component3">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTfly::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.iscale1" target="Component5">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTscale::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctcol.iscale2" target="Component4">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTscale::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.addsub1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.addsub10" target="Component10">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.addsub2" target="Component2">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.addsub3" target="Component3">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.addsub4" target="Component4">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.addsub5" target="Component5">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.addsub6" target="Component6">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.addsub7" target="Component7">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.addsub8" target="Component8">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.addsub9" target="Component9">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTaddsub::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.ifly1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTfly::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.ifly2" target="Component8">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTfly::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.ifly3" target="Component7">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTfly::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.iscale1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTscale::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.idctrow.iscale2" target="Component6">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTscale::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.rowclip.clip0" target="Component10">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTclip::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.rowclip.clip1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTclip::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.rowclip.clip2" target="Component2">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTclip::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.rowclip.clip3" target="Component3">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTclip::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.rowclip.clip4" target="Component4">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTclip::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.rowclip.clip5" target="Component5">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTclip::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.rowclip.clip6" target="Component6">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTclip::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.rowclip.clip7" target="Component7">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_IDCTclip::action0" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.rowclip.dup" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_MIN_duplex::action" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.transpose1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_transpose::action0" value="100"/>
+    <attribute type="m_transpose::action1" value="100"/>
+    <attribute type="m_transpose::action2" value="100"/>
+    <attribute type="m_transpose::action3" value="100"/>
+    <attribute type="m_transpose::action4" value="100"/>
+    <attribute type="m_transpose::action5" value="100"/>
+    <attribute type="m_transpose::action6" value="100"/>
+    <attribute type="m_transpose::action7" value="100"/>
+  </mapping>
+
+  <mapping source="top.blidct.idct2d1.upsample1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_Upsample::action0" value="100"/>
+    <attribute type="m_Upsample::action1" value="100"/>
+  </mapping>
+
+  <mapping source="top.snk" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_sink::process" value="100"/>
+  </mapping>
+
+  <mapping source="top.src" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_source::process" value="100"/>
+  </mapping>
+
+  <mapping source="top.src1" target="Component1">
+    <attribute type="delay" value="100"/>
+    <attribute type="m_source::process" value="100"/>
+  </mapping>
+
+ </mappings>
+</configuration>
