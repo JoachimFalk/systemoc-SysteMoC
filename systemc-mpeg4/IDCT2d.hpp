@@ -18,6 +18,7 @@
 #include <callib.hpp>
 
 #include "IDCT1d.hpp"
+#include "IDCT1d_col.hpp"
 #include "row_clip.hpp"
 
 
@@ -35,7 +36,7 @@ class m_idct2d
       : smoc_graph(name) {
         
         m_idct        &idctrow = registerNode(new m_idct("idctrow"));
-        m_idct        &idctcol = registerNode(new m_idct("idctcol"));
+        m_idct_col    &idctcol = registerNode(new m_idct_col("idctcol"));
         m_clip        &rowclip = registerNode(new m_clip("rowclip"));
         m_transpose   &transpose1 = registerNode(new m_transpose("transpose1"));
         m_Upsample    &upsample1 = registerNode(new m_Upsample("upsample1",1));

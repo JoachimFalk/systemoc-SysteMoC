@@ -16,24 +16,25 @@
 
 #include "block_idct.hpp"
 
-class m_source: public smoc_actor {
+class m_source_idct: public smoc_actor {
   public:
     smoc_port_out<int> out;
+    smoc_port_out<int> min;
   private:
-    size_t foo;
     int i;
-    const int step;
-
+    
     //std::ifstream i1;
-
+    
     void process() {
       //int data;
       //std::cout << name() << " generating " << i << std::endl;
-     // if(i1.good()){
+      // if(i1.good()){
        // i1 >> data;
-        out[0] = i;//data;
-        cout << name() << "  write " << out[0]/*data*/ << std::endl;
-        i+=step;
+        min[0] = -256;
+        for ( int j = 0; j <= 63; ++j ) {
+          out[j] = i++;
+          cout << name() << "  write " << out[j] << std::endl;
+        }
       //}else{
        // cout << "  file empty" << std::endl;
       //}
@@ -41,12 +42,14 @@ class m_source: public smoc_actor {
     
     smoc_firing_state start;
   public:
-    m_source( sc_module_name name,int init_value=0, int step=1)
-      :smoc_actor( name, start ), i(init_value) , step(step){
-      foo = 1;
+    m_source_idct( sc_module_name name,int init_value = 0 )
+      :smoc_actor( name, start ), i(init_value) {
       //i1.open("test.txt");
-      start = ((out.getAvailableSpace() >= 1) && (var(i) <= 655)) >>
-              CALL(m_source::process)               >> start;
+      start = ((out.getAvailableSpace() >= 64) &&
+               (min.getAvailableSpace() >= 1) &&
+               (var(i) <= 655))
+              >> CALL(m_source_idct::process)
+              >> start;
     }
 };
 
@@ -70,6 +73,38 @@ class m_sink: public smoc_actor {
     }
 };
 
+class m_source: public smoc_actor {
+  public:
+    smoc_port_out<int> out;
+  private:
+    int i;
+    const int step;
+
+    //std::ifstream i1;
+
+    void process() {
+      //int data;
+      //std::cout << name() << " generating " << i << std::endl;
+     // if(i1.good()){
+       // i1 >> data;
+        out[0] = i;//data;
+        cout << name() << "  write " << out[0]/*data*/ << std::endl;
+        i+=step;
+      //}else{
+       // cout << "  file empty" << std::endl;
+      //}
+    }
+    
+    smoc_firing_state start;
+  public:
+    m_source( sc_module_name name,int init_value=0, int step=1)
+      :smoc_actor( name, start ), i(init_value) , step(step){
+      //i1.open("test.txt");
+      start = ((out.getAvailableSpace() >= 1) && (var(i) <= 655)) >>
+              CALL(m_source::process)               >> start;
+    }
+};
+
 class IDCT2d_TEST
 : public smoc_graph {
   public:
@@ -77,13 +112,12 @@ class IDCT2d_TEST
       : smoc_graph(name) {
       
       
-      m_source      &src    = registerNode(new m_source("src"));
-      m_source      &src1   = registerNode(new m_source("src1"));
-      m_block_idct  &blidct = registerNode(new m_block_idct("blidct"));
-      m_sink        &snk    = registerNode(new m_sink("snk"));
-
-      connectNodePorts( src.out, blidct.I, smoc_fifo<int>(128));
-      connectNodePorts( src1.out, blidct.MIN, smoc_fifo<int>(2));
+      m_source_idct &src_idct = registerNode(new m_source_idct("src_idct"));
+      m_block_idct  &blidct   = registerNode(new m_block_idct("blidct"));
+      m_sink        &snk      = registerNode(new m_sink("snk"));
+      
+      connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
+      connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(2));
       connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
     }
 };
