@@ -4,7 +4,7 @@ import all caltrop.lib.BitOps;
 //     - should be an odd number, probably
 // MAXMB width is the maximum line width, measured in macroblocks
 actor MCadd[ int ] ( int WINSIZE, int MAXMBWIDTH )
-    List[int] LAST, List[int] TEX, int MV ==> List[int] VID :
+    List(type:int, size=64) LAST, List(type:int, size=64) TEX, int MV ==> List(type:int, size=64) VID :
 
   // Dimensions of current frame in MB
   int MBwidth  := 0;

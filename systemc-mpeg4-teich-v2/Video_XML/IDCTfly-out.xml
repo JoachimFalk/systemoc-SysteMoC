@@ -9,7 +9,7 @@ public:
    smoc_port_out<int> O1;
    smoc_port_out<int> O2;
 
-// The actor has 5 Parameters and 5 Variable declarations.
+// The actor has 5 Parameters and 0 Variable declarations.
 private: 
    const int W0;
    const int OS;
@@ -19,6 +19,10 @@ private:
    
 // The actor has 1 Actions and 0 Guards.
 private:
+//Insert a dummy guard called in case a state transition has neither inputs nor a guard
+bool m_IDCTfly::guard_dummy(void) const {
+   return ( true );
+}
 void m_IDCTfly::action(void) {
 // The action has 1 local variable declarations.
    int i1 = I1[0];
@@ -41,3 +45,4 @@ public:
    call(&m_IDCTfly::action) >> start;  
  }
 };
+

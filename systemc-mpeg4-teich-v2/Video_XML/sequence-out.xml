@@ -32,13 +32,18 @@ private:
     int buf_eof; 
     int this_n; 
     
-   int keep_reading_buf(int bxnext, int bynext, int bx, int by, int mbx, int mby) {
+   //BUG:int keep_reading_buf(int bxnext, int bynext, int bx, int by, int mbx, int mby) {
+   int keep_reading_buf(int bxnext, int bynext, int bx, int by, int mbx, int mby) const{
    return( (bynext < (mby - 1) || (bynext == (mby - 1) && bxnext <= mbx) || by < (mby - 1) || (by == (mby - 1) && bx < mbx)) );
    }
    
    
 // The actor has 11 Actions and 11 Guards.
 private:
+//Insert a dummy guard called in case a state transition has neither inputs nor a guard
+bool m_sequence::guard_dummy(void) const {
+   return ( true );
+}
 bool m_sequence::guard_flush_buf(void)  const {
    const int type = BUF[0];
    const int x = BUF[1];
@@ -78,18 +83,33 @@ bool m_sequence::guard_read_buf_block(void)  const {
    return( (buf_eof == 0) && keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y) );
 }
 bool m_sequence::guard_predict_b0(void)  const {
+   int a = 0;
+   int b = 0;
+   int c = 0;
    return( (this_n == 0 && (buf_eof == 1 || (! keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y)))) );
 }
 bool m_sequence::guard_predict_b1(void)  const {
+   int a = mb_seq[0];
+   int b = 0;
+   int c = 0;
    return( (this_n == 1 && (buf_eof == 1 || (! keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y)))) );
 }
 bool m_sequence::guard_predict_b2(void)  const {
+   int a = 0;
+   int b = 0;
+   int c = mb_seq[0];
    return( (this_n == 2 && (buf_eof == 1 || (! keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y)))) );
 }
 bool m_sequence::guard_predict_b3(void)  const {
+   int a = mb_seq[2];
+   int b = mb_seq[0];
+   int c = mb_seq[1];
    return( (this_n == 3 && (buf_eof == 1 || (! keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y)))) );
 }
 bool m_sequence::guard_predict_b45(void)  const {
+   int a = 0;
+   int b = 0;
+   int c = 0;
    return( (this_n > 3 && (buf_eof == 1 || (! keep_reading_buf(buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y)))) );
 }
 void m_sequence::flush_buf(void) {
@@ -283,58 +303,59 @@ void m_sequence::predict_b45(void) {
 public:
  m_sequence(sc_module_name name)
  : smoc_actor(name, read), mb_x(mb_x), mb_y(mb_y), mb_seq(mb_seq), mb_x_last(mb_x_last), mb_y_last(mb_y_last), mb_seq_last(mb_seq_last), block_count(0), buf_x(buf_x), buf_y(buf_y), buf_seq(buf_seq), buf_x_last(buf_x_last), buf_y_last(buf_y_last), buf_seq_last(buf_seq_last), buf_x_next(buf_x_next), buf_y_next(buf_y_next), buf_seq_next(buf_seq_next), buf_count(0), buf_eof(buf_eof), this_n(this_n) {
-reset = (BUF.getAvailableTokens() >= 4 && 
+reset.addTransition((BUF.getAvailableTokens() >= 4 && 
    guard(&m_sequence::guard_flush_buf)) >> 
-   call(&m_sequence::flush_buf) >> reset; 
+   call(&m_sequence::flush_buf) >> reset); 
    
-reset = (guard(&m_sequence::guard_reset_actor)) >> 
-   call(&m_sequence::reset_actor) >> read; 
+reset.addTransition((guard(&m_sequence::guard_reset_actor)) >> 
+   call(&m_sequence::reset_actor) >> read); 
    
-read = (DATA.getAvailableTokens() >= 4 && 
+read.addTransition((DATA.getAvailableTokens() >= 4 && 
    guard(&m_sequence::guard_eof_detect)) >> 
-   call(&m_sequence::eof_detect) >> reset; 
+   call(&m_sequence::eof_detect) >> reset); 
    
-read = (DATA.getAvailableTokens() >= 4 && 
+read.addTransition((DATA.getAvailableTokens() >= 4 && 
    guard(&m_sequence::guard_discard_block)) >> 
-   call(&m_sequence::discard_block) >> read; 
+   call(&m_sequence::discard_block) >> read); 
    
-read = (DATA.getAvailableTokens() >= 4 && 
+read.addTransition((DATA.getAvailableTokens() >= 4 && 
    guard(&m_sequence::guard_read_block)) >> 
-   call(&m_sequence::read_block) >> process; 
+   call(&m_sequence::read_block) >> process); 
    
-process = (guard(&m_sequence::guard_predict_b0)) >> 
+process.addTransition((guard(&m_sequence::guard_predict_b0)) >> 
    (A.getAvailableSpace() >= 1 &&  
    B.getAvailableSpace() >= 1 &&  
    C.getAvailableSpace() >= 1) >>
-   call(&m_sequence::predict_b0) >> read; 
+   call(&m_sequence::predict_b0) >> read); 
    
-process = (guard(&m_sequence::guard_predict_b1)) >> 
+process.addTransition((guard(&m_sequence::guard_predict_b1)) >> 
    (A.getAvailableSpace() >= 1 &&  
    B.getAvailableSpace() >= 1 &&  
    C.getAvailableSpace() >= 1) >>
-   call(&m_sequence::predict_b1) >> read; 
+   call(&m_sequence::predict_b1) >> read); 
    
-process = (guard(&m_sequence::guard_predict_b2)) >> 
+process.addTransition((guard(&m_sequence::guard_predict_b2)) >> 
    (A.getAvailableSpace() >= 1 &&  
    B.getAvailableSpace() >= 1 &&  
    C.getAvailableSpace() >= 1) >>
-   call(&m_sequence::predict_b2) >> read; 
+   call(&m_sequence::predict_b2) >> read); 
    
-process = (guard(&m_sequence::guard_predict_b3)) >> 
+process.addTransition((guard(&m_sequence::guard_predict_b3)) >> 
    (A.getAvailableSpace() >= 1 &&  
    B.getAvailableSpace() >= 1 &&  
    C.getAvailableSpace() >= 1) >>
-   call(&m_sequence::predict_b3) >> read; 
+   call(&m_sequence::predict_b3) >> read); 
    
-process = (guard(&m_sequence::guard_predict_b45)) >> 
+process.addTransition((guard(&m_sequence::guard_predict_b45)) >> 
    (A.getAvailableSpace() >= 1 &&  
    B.getAvailableSpace() >= 1 &&  
    C.getAvailableSpace() >= 1) >>
-   call(&m_sequence::predict_b45) >> read; 
+   call(&m_sequence::predict_b45) >> read); 
    
-process = (BUF.getAvailableTokens() >= 4 && 
+process.addTransition((BUF.getAvailableTokens() >= 4 && 
    guard(&m_sequence::guard_read_buf_block)) >> 
-   call(&m_sequence::read_buf_block) >> process; 
+   call(&m_sequence::read_buf_block) >> process); 
     
  }
 };
+

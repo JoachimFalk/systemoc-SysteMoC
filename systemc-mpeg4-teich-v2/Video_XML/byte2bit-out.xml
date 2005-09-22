@@ -11,17 +11,21 @@ public:
 
 // The actor has 1 Actions and 0 Guards.
 private:
+//Insert a dummy guard called in case a state transition has neither inputs nor a guard
+bool m_byte2bit::guard_dummy(void) const {
+   return ( true );
+}
 void m_byte2bit::action(void) {
 // The action has 8 local variable declarations.
    int i = in8[0];
-   int b7 = bitxor(rshift(i, 7), 1);
-   int b6 = bitxor(rshift(i, 6), 1);
-   int b5 = bitxor(rshift(i, 5), 1);
-   int b4 = bitxor(rshift(i, 4), 1);
-   int b3 = bitxor(rshift(i, 3), 1);
-   int b2 = bitxor(rshift(i, 2), 1);
-   int b1 = bitxor(rshift(i, 1), 1);
-   int b0 = bitxor(i, 1);
+   int b7 = cal_bitand(rshift(i, 7), 1);
+   int b6 = cal_bitand(rshift(i, 6), 1);
+   int b5 = cal_bitand(rshift(i, 5), 1);
+   int b4 = cal_bitand(rshift(i, 4), 1);
+   int b3 = cal_bitand(rshift(i, 3), 1);
+   int b2 = cal_bitand(rshift(i, 2), 1);
+   int b1 = cal_bitand(rshift(i, 1), 1);
+   int b0 = cal_bitand(i, 1);
    out[0] = b7;
    out[1] = b6;
    out[2] = b5;
@@ -43,3 +47,4 @@ public:
    call(&m_byte2bit::action) >> start;  
  }
 };
+

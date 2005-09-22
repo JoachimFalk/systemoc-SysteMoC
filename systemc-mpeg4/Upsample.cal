@@ -22,5 +22,3 @@ actor Upsample (int factor) int I ==> int O :
   end
 
 end
-
-

@@ -28,12 +28,153 @@
     </Port>
     <Port kind="Output" name="B">
         <Type name="List">
-            <Entry kind="Type">
+            <Entry kind="Type" name="type">
                 <Type name="int"/>
+            </Entry>
+            <Entry kind="Expr" name="size">
+                <Expr kind="Literal" literal-kind="Integer" value="64"/>
             </Entry>
         </Type>
     </Port>
-    <Action text-begin-line="4" text-begin-col="3" text-end-line="12" text-end-col="3">
+    <Decl kind="Variable" name="blockgen">
+        <Type kind="Function" infer="true" name="List"/>
+        <Expr kind="Lambda">
+            <Decl kind="Parameter" name="r0">
+		<Type name="List"/>
+            </Decl>
+            <Decl kind="Parameter" name="r1">
+		<Type name="List"/>
+            </Decl>
+            <Decl kind="Parameter" name="r2">
+		<Type name="List"/>
+            </Decl>
+            <Decl kind="Parameter" name="r3">
+		<Type name="List"/>
+            </Decl>
+            <Decl kind="Parameter" name="r4">
+		<Type name="List"/>
+            </Decl>
+            <Decl kind="Parameter" name="r5">
+		<Type name="List"/>
+            </Decl>
+            <Decl kind="Parameter" name="r6">
+		<Type name="List"/>
+            </Decl>
+            <Decl kind="Parameter" name="r7">
+		<Type name="List"/>
+            </Decl>
+            <Expr kind="List">
+                <Expr kind="If">
+                    <Expr kind="BinOpSeq">
+                        <Expr kind="Var" name="i"/>
+                        <Op name="&lt;="/>
+                        <Expr kind="Literal" literal-kind="Integer" value="7"/>
+                    </Expr>
+                    <Expr kind="Indexer">
+                        <Expr kind="Var" name="r0"/>
+                        <Args>
+                            <Expr kind="Var" name="i"/>
+                        </Args>
+                    </Expr>
+                    <Expr kind="If">
+                        <Expr kind="BinOpSeq">
+                            <Expr kind="Var" name="i"/>
+                            <Op name="&lt;="/>
+                            <Expr kind="Literal" literal-kind="Integer" value="15"/>
+                        </Expr>
+                        <Expr kind="Indexer">
+                            <Expr kind="Var" name="r1"/>
+                            <Args>
+                                <Expr kind="Var" name="i"/>
+                            </Args>
+                        </Expr>
+                        <Expr kind="If">
+                            <Expr kind="BinOpSeq">
+                                <Expr kind="Var" name="i"/>
+                                <Op name="&lt;="/>
+                                <Expr kind="Literal" literal-kind="Integer" value="23"/>
+                            </Expr>
+                            <Expr kind="Indexer">
+                                <Expr kind="Var" name="r2"/>
+                                <Args>
+                                    <Expr kind="Var" name="i"/>
+                                </Args>
+                            </Expr>
+                            <Expr kind="If">
+                                <Expr kind="BinOpSeq">
+                                    <Expr kind="Var" name="i"/>
+                                    <Op name="&lt;="/>
+                                    <Expr kind="Literal" literal-kind="Integer" value="31"/>
+                                </Expr>
+                                <Expr kind="Indexer">
+                                    <Expr kind="Var" name="r3"/>
+                                    <Args>
+                                        <Expr kind="Var" name="i"/>
+                                    </Args>
+                                </Expr>
+                                <Expr kind="If">
+                                    <Expr kind="BinOpSeq">
+                                        <Expr kind="Var" name="i"/>
+                                        <Op name="&lt;="/>
+                                        <Expr kind="Literal" literal-kind="Integer" value="39"/>
+                                    </Expr>
+                                    <Expr kind="Indexer">
+                                        <Expr kind="Var" name="r4"/>
+                                        <Args>
+                                            <Expr kind="Var" name="i"/>
+                                        </Args>
+                                    </Expr>
+                                    <Expr kind="If">
+                                        <Expr kind="BinOpSeq">
+                                            <Expr kind="Var" name="i"/>
+                                            <Op name="&lt;="/>
+                                            <Expr kind="Literal" literal-kind="Integer" value="47"/>
+                                        </Expr>
+                                        <Expr kind="Indexer">
+                                            <Expr kind="Var" name="r5"/>
+                                            <Args>
+                                                <Expr kind="Var" name="i"/>
+                                            </Args>
+                                        </Expr>
+                                        <Expr kind="If">
+                                            <Expr kind="BinOpSeq">
+                                                <Expr kind="Var" name="i"/>
+                                                <Op name="&lt;="/>
+                                                <Expr kind="Literal" literal-kind="Integer" value="55"/>
+                                            </Expr>
+                                            <Expr kind="Indexer">
+                                                <Expr kind="Var" name="r6"/>
+                                                <Args>
+                                                    <Expr kind="Var" name="i"/>
+                                                </Args>
+                                            </Expr>
+                                            <Expr kind="Indexer">
+                                                <Expr kind="Var" name="r7"/>
+                                                <Args>
+                                                    <Expr kind="Var" name="i"/>
+                                                </Args>
+                                            </Expr>
+                                        </Expr>
+                                    </Expr>
+                                </Expr>
+                            </Expr>
+                        </Expr>
+                    </Expr>
+                </Expr>
+                <Generator>
+                    <Decl kind="Generator" name="i"/>
+                    <Expr kind="Application">
+                        <Expr kind="Var" name="Integers"/>
+                        <Args>
+                            <Expr kind="Literal" literal-kind="Integer" value="0"/>
+                            <Expr kind="Literal" literal-kind="Integer" value="63"/>
+                        </Args>
+                    </Expr>
+                </Generator>
+            </Expr>
+        </Expr>
+    </Decl>
+    <Action text-begin-line="31" text-begin-col="3" text-end-line="40" text-end-col="3">
         <Input kind="Elements" port="R0">
             <Decl kind="Input" name="r0"/>
             <Repeat>
@@ -83,22 +224,18 @@
             </Repeat>
         </Input>
         <Output port="B">
-            <Expr kind="BinOpSeq">
-                <Expr kind="Var" name="r0"/>
-                <Op name="+"/>
-                <Expr kind="Var" name="r1"/>
-                <Op name="+"/>
-                <Expr kind="Var" name="r2"/>
-                <Op name="+"/>
-                <Expr kind="Var" name="r3"/>
-                <Op name="+"/>
-                <Expr kind="Var" name="r4"/>
-                <Op name="+"/>
-                <Expr kind="Var" name="r5"/>
-                <Op name="+"/>
-                <Expr kind="Var" name="r6"/>
-                <Op name="+"/>
-                <Expr kind="Var" name="r7"/>
+            <Expr kind="Application">
+                <Expr kind="Var" name="blockgen"/>
+                <Args>
+                    <Expr kind="Var" name="r0"/>
+                    <Expr kind="Var" name="r1"/>
+                    <Expr kind="Var" name="r2"/>
+                    <Expr kind="Var" name="r3"/>
+                    <Expr kind="Var" name="r4"/>
+                    <Expr kind="Var" name="r5"/>
+                    <Expr kind="Var" name="r6"/>
+                    <Expr kind="Var" name="r7"/>
+                </Args>
             </Expr>
         </Output>
     </Action>

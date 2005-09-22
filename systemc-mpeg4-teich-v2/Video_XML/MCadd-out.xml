@@ -9,7 +9,7 @@ public:
    smoc_port_in<int> MV;
    smoc_port_out<cal_list<int>::t> VID;
 
-// The actor has 2 Parameters and 22 Variable declarations.
+// The actor has 2 Parameters and 16 Variable declarations.
 private: 
    const int WINSIZE;
    const int MAXMBWIDTH;
@@ -42,7 +42,6 @@ private:
     int MBbuf_ptr; 
      cal_list<cal_list<int>::t>::t MBbuf; 
     
-   //void MBbuf_add(int b) {
    void MBbuf_add(cal_list<int>::t b) {
    MBbuf_ptr = (MBbuf_ptr + 1); 
    if (MBbuf_ptr >= MBbuf_size) { 
@@ -59,7 +58,8 @@ private:
    }
    
    
-   int detect_skipped(int x, int y, int n) {
+   //BUG int detect_skipped(int x, int y, int n) {
+   int detect_skipped(int x, int y, int n) const{
    return( (x == next_x && y == next_y && n == next_n) ? 0 : (1) );
    }
    
@@ -81,17 +81,17 @@ private:
  
    
    int xadjust(int n, int dx) {
-   return( (n < 4) ? ((6 * rshift(dx, 4)) + (bitand(dx, 8) == 0) ? 0 : ((n == 0 || n == 2) ? 1 : (5))) : ((6 * rshift(dx, 3))) );
+   return( (n < 4) ? ((6 * rshift(dx, 4)) + (cal_bitand(dx, 8) == 0) ? 0 : ((n == 0 || n == 2) ? 1 : (5))) : ((6 * rshift(dx, 3))) );
    }
    
    
    int yadjust(int n, int dy) {
-   return( (n < 4) ? ((6 * MBwidth * rshift(dy, 4)) + (bitand(dy, 8) == 0) ? 0 : ((n == 0 || n == 1) ? 2 : (((6 * MBwidth) - 2)))) : ((6 * MBwidth * rshift(dy, 3))) );
+   return( (n < 4) ? ((6 * MBwidth * rshift(dy, 4)) + (cal_bitand(dy, 8) == 0) ? 0 : ((n == 0 || n == 1) ? 2 : (((6 * MBwidth) - 2)))) : ((6 * MBwidth * rshift(dy, 3))) );
    }
    
    
    int get_pixel(int x, int y, int n, int dx, int dy) {
-   return( MBbuf_get(((head_index - xadjust(n, dx)) - yadjust(n, dy)))[(bitand(dx, 7) + lshift(bitand(dy, 7), 3))] );
+   return( MBbuf_get(((head_index - xadjust(n, dx)) - yadjust(n, dy)))[(cal_bitand(dx, 7) + lshift(cal_bitand(dy, 7), 3))] );
    }
    
    
@@ -126,8 +126,8 @@ private:
         b.push_back(get_pixel(x, y, n, xyclip(ulx, maxx, (xx + lmvx)), xyclip(uly, maxy, (yy + lmvy))));   
      }
 ;
-   if (bitand(mvx, 1) == 0) 
-     { if (bitand(mvy, 1) == 0) 
+   if (cal_bitand(mvx, 1) == 0) 
+     { if (cal_bitand(mvy, 1) == 0) 
      { 
      for (unsigned int yy = 0; yy <= 7; ++yy) 
                      for (unsigned int xx = 0; xx <= 7; ++xx) 
@@ -145,7 +145,7 @@ private:
 
      }
      } 
-     else { if (bitand(mvy, 1) == 0) 
+     else { if (cal_bitand(mvy, 1) == 0) 
      { 
      for (unsigned int yy = 0; yy <= 7; ++yy) 
                      for (unsigned int xx = 0; xx <= 7; ++xx) 
@@ -186,6 +186,10 @@ private:
    
 // The actor has 10 Actions and 10 Guards.
 private:
+//Insert a dummy guard called in case a state transition has neither inputs nor a guard
+bool m_MCadd::guard_dummy(void) const {
+   return ( true );
+}
 bool m_MCadd::guard_newFrame(void)  const {
    const int cmd = MV[0];
    const int x = MV[1];
@@ -230,6 +234,7 @@ bool m_MCadd::guard_docmd_motionOnly(void)  const {
    const int n = MV[3];
    const int mvx = MV[4];
    const int mvy = MV[5];
+   //BUG: cal_list<int>::t b = comp_block(x, y, n, mvx, mvy);
    return( (cmd == 0 || cmd == 1) && (detect_skipped(x, y, n) == 0) );
 }
 bool m_MCadd::guard_docmd_both(void)  const {
@@ -240,6 +245,7 @@ bool m_MCadd::guard_docmd_both(void)  const {
    const int mvx = MV[4];
    const int mvy = MV[5];
    const cal_list<int>::t &tex = TEX[0];
+   //BUG: cal_list<int>::t b = comp_block(x, y, n, mvx, mvy);
    return( (cmd == 4) && (detect_skipped(x, y, n) == 0) );
 }
 bool m_MCadd::guard_mbbuf_tooEmptyInt(void)  const {
@@ -369,51 +375,52 @@ void m_MCadd::mbbuf_justRight(void) {
           
 public:
  m_MCadd(sc_module_name name, int WINSIZE, int MAXMBWIDTH)
- : smoc_actor(name, process), WINSIZE(WINSIZE), MAXMBWIDTH(MAXMBWIDTH), MBwidth(0), MBheight(0), rounding_type(0), next_x(next_x), next_y(next_y), next_n(next_n), int_buf_count(0), int_buf_count_ss(int_buf_count_ss), ext_buf_count(0), ext_buf_count_ss(ext_buf_count_ss), frame_count(frame_count), frame_number(0), head_index(head_index), MBbuf_size((6 * (((WINSIZE - 1) * MAXMBWIDTH) + WINSIZE))), MBbuf_ptr(0), MBbuf(initList(initList(0, 64), MBbuf_size)),  {
-process = (MV.getAvailableTokens() >= 6 && 
+ : smoc_actor(name, process), WINSIZE(WINSIZE), MAXMBWIDTH(MAXMBWIDTH), MBwidth(0), MBheight(0), rounding_type(0), next_x(next_x), next_y(next_y), next_n(next_n), int_buf_count(0), int_buf_count_ss(int_buf_count_ss), ext_buf_count(0), ext_buf_count_ss(ext_buf_count_ss), frame_count(frame_count), frame_number(0), head_index(head_index), MBbuf_size((6 * (((WINSIZE - 1) * MAXMBWIDTH) + WINSIZE))), MBbuf_ptr(0), MBbuf(initList(initList(0, 64), MBbuf_size)) {
+process.addTransition((MV.getAvailableTokens() >= 6 && 
    guard(&m_MCadd::guard_newFrame)) >> 
-   call(&m_MCadd::newFrame) >> process; 
+   call(&m_MCadd::newFrame) >> process); 
    
-process = (MV.getAvailableTokens() >= 6 && 
+process.addTransition((MV.getAvailableTokens() >= 6 && 
    guard(&m_MCadd::guard_docmd_missingBlock)) >> 
    (VID.getAvailableSpace() >= 1) >>
-   call(&m_MCadd::docmd_missingBlock) >> update; 
+   call(&m_MCadd::docmd_missingBlock) >> update); 
    
-process = (MV.getAvailableTokens() >= 6 && 
+process.addTransition((MV.getAvailableTokens() >= 6 && 
    TEX.getAvailableTokens() >= 1 && 
    guard(&m_MCadd::guard_docmd_textureOnly)) >> 
    (VID.getAvailableSpace() >= 1) >>
-   call(&m_MCadd::docmd_textureOnly) >> update; 
+   call(&m_MCadd::docmd_textureOnly) >> update); 
    
-process = (MV.getAvailableTokens() >= 6 && 
+process.addTransition((MV.getAvailableTokens() >= 6 && 
    guard(&m_MCadd::guard_docmd_nothing)) >> 
    (VID.getAvailableSpace() >= 1) >>
-   call(&m_MCadd::docmd_nothing) >> update; 
+   call(&m_MCadd::docmd_nothing) >> update); 
    
-process = (MV.getAvailableTokens() >= 6 && 
+process.addTransition((MV.getAvailableTokens() >= 6 && 
    guard(&m_MCadd::guard_docmd_motionOnly)) >> 
    (VID.getAvailableSpace() >= 1) >>
-   call(&m_MCadd::docmd_motionOnly) >> update; 
+   call(&m_MCadd::docmd_motionOnly) >> update); 
    
-process = (MV.getAvailableTokens() >= 6 && 
+process.addTransition((MV.getAvailableTokens() >= 6 && 
    TEX.getAvailableTokens() >= 1 && 
    guard(&m_MCadd::guard_docmd_both)) >> 
    (VID.getAvailableSpace() >= 1) >>
-   call(&m_MCadd::docmd_both) >> update; 
+   call(&m_MCadd::docmd_both) >> update); 
    
-update = (LAST.getAvailableTokens() >= 1 && 
+update.addTransition((LAST.getAvailableTokens() >= 1 && 
    guard(&m_MCadd::guard_mbbuf_tooEmptyInt)) >> 
-   call(&m_MCadd::mbbuf_tooEmptyInt) >> process; 
+   call(&m_MCadd::mbbuf_tooEmptyInt) >> process); 
    
-update = (guard(&m_MCadd::guard_mbbuf_tooEmptyExt)) >> 
-   call(&m_MCadd::mbbuf_tooEmptyExt) >> process; 
+update.addTransition((guard(&m_MCadd::guard_mbbuf_tooEmptyExt)) >> 
+   call(&m_MCadd::mbbuf_tooEmptyExt) >> process); 
    
-update = (guard(&m_MCadd::guard_mbbuf_tooFull)) >> 
-   call(&m_MCadd::mbbuf_tooFull) >> process; 
+update.addTransition((guard(&m_MCadd::guard_mbbuf_tooFull)) >> 
+   call(&m_MCadd::mbbuf_tooFull) >> process); 
    
-update = (LAST.getAvailableTokens() >= 1 && 
+update.addTransition((LAST.getAvailableTokens() >= 1 && 
    guard(&m_MCadd::guard_mbbuf_justRight)) >> 
-   call(&m_MCadd::mbbuf_justRight) >> process; 
+   call(&m_MCadd::mbbuf_justRight) >> process); 
     
  }
 };
+

@@ -10,26 +10,22 @@
 
 #include <callib.hpp>
 
+/*
 #include "Video_XML/IDCTaddsub-out.xml"
 #include "Video_XML/IDCTclip-out.xml"
 #include "Video_XML/IDCTfly-out.xml"
 #include "Video_XML/IDCTscale-out.xml"
-/*
-#include "Video_XML/MCadd-out.xml"
-*/
+#include "Video_XML/transpose-out.xml"
 #include "Video_XML/Upsample-out.xml"
-/*
-#include "Video_XML/block2row-out.xml"
 #include "Video_XML/byte2bit-out.xml"
+#include "Video_XML/block2row-out.xml"
 #include "Video_XML/col2block-out.xml"
 #include "Video_XML/dequant-out.xml"
-#include "Video_XML/parser-out.xml"
 #include "Video_XML/reconstruct-out.xml"
 #include "Video_XML/sequence-out.xml"
-#include "Video_XML/dequant-out.xml"
+#include "Video_XML/MCadd-out.xml"
 */
-#include "Video_XML/transpose-out.xml"
-
+#include "Video_XML/parser-out.xml"
 
 /*
  * graph example

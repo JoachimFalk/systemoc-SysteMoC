@@ -18,6 +18,10 @@ public:
 
 // The actor has 1 Actions and 0 Guards.
 private:
+//Insert a dummy guard called in case a state transition has neither inputs nor a guard
+bool m_block2row::guard_dummy(void) const {
+   return ( true );
+}
 void m_block2row::action(void) {
 // The action has 0 local variable declarations.
    const cal_list<int>::t &b = B[0];
@@ -105,3 +109,4 @@ public:
    call(&m_block2row::action) >> start;  
  }
 };
+

@@ -144,13 +144,13 @@ actor sequence () int DATA, int BUF ==> int A, int B, int C :
     int c = 0
   do
     if mb_x_last = (mb_x-1) and mb_y_last = mb_y then
-      a := mb_seq_last [ 1 ];
+      a := mb_seq_last.get( 1 );
     end
     if buf_x_last = (mb_x-1) and buf_y_last = (mb_y-1) then
-      b := buf_seq_last [ 3 ];
+      b := buf_seq_last.get( 3 );
     end
     if buf_x = mb_x and buf_y = (mb_y-1) then
-      c := buf_seq [ 2 ];
+      c := buf_seq.get( 2 );
     end
 //    println(" intra 0 at ( "+mb_x+", "+mb_y+")  ABC: "+a+" "+b+" "+c );
   end
@@ -160,13 +160,13 @@ actor sequence () int DATA, int BUF ==> int A, int B, int C :
     this_n = 1 and ( buf_eof = 1 or
      (not keep_reading_buf( buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y )) )
   var
-    int a = mb_seq [ 0 ],
+    int a = mb_seq.get( 0 ),
     int b = 0,
     int c = 0
   do
     if buf_x = mb_x and buf_y = (mb_y-1) then
-      b := buf_seq [ 2 ];
-      c := buf_seq [ 3 ];
+      b := buf_seq.get( 2 );
+      c := buf_seq.get( 3 );
     end
    // println(" intra 1 at ( "+mb_x+", "+mb_y+")  ABC: "+a+" "+b+" "+c );
   end
@@ -178,11 +178,11 @@ actor sequence () int DATA, int BUF ==> int A, int B, int C :
   var
     int a = 0,
     int b = 0,
-    int c = mb_seq [ 0 ]
+    int c = mb_seq.get( 0 )
   do
     if mb_x_last = (mb_x-1) and mb_y_last = mb_y then
-      a := mb_seq_last [ 3 ];
-      b := mb_seq_last [ 1 ];
+      a := mb_seq_last.get( 3 );
+      b := mb_seq_last.get( 1 );
     end
 //    println(" intra 2 at ( "+mb_x+", "+mb_y+")  ABC: "+a+" "+b+" "+c );
   end
@@ -192,9 +192,9 @@ actor sequence () int DATA, int BUF ==> int A, int B, int C :
     this_n = 3 and ( buf_eof = 1 or
      (not keep_reading_buf( buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y )) )
   var
-    int a = mb_seq [ 2 ],
-    int b = mb_seq [ 0 ],
-    int c = mb_seq [ 1 ]
+    int a = mb_seq.get( 2 ),
+    int b = mb_seq.get( 0 ),
+    int c = mb_seq.get( 1 )
 //  do
 //    println(" intra 3 at ( "+mb_x+", "+mb_y+")  "+a+" "+b+" "+c );
   end
@@ -209,13 +209,13 @@ actor sequence () int DATA, int BUF ==> int A, int B, int C :
     int c = 0
   do
     if mb_x_last = (mb_x-1) and mb_y_last = mb_y then
-      a := mb_seq_last [ this_n ];
+      a := mb_seq_last.get( this_n );
     end
     if buf_x_last = (mb_x-1) and buf_y_last = (mb_y-1) then
-      b := buf_seq_last [ this_n ];
+      b := buf_seq_last.get( this_n );
     end
     if buf_x = mb_x and buf_y = (mb_y-1) then
-      c := buf_seq [ this_n ];
+      c := buf_seq.get( this_n );
     end
   //  println(" intra "+this_n+" at ( "+mb_x+", "+mb_y+")  ABC: "+a+" "+b+" "+c );
   end
@@ -229,6 +229,5 @@ actor sequence () int DATA, int BUF ==> int A, int B, int C :
     process ( predict       ) --> read;
     process ( read_buf      ) --> process;
  end
+
 end
-
-

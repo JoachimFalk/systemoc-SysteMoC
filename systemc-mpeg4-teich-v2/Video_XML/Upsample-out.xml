@@ -7,7 +7,7 @@ public:
    smoc_port_in<int> I;
    smoc_port_out<int> O;
 
-// The actor has 1 Parameters and 3 Variable declarations.
+// The actor has 1 Parameters and 0 Variable declarations.
 private: 
    const int factor;
    int state; 
@@ -15,6 +15,10 @@ private:
     
 // The actor has 2 Actions and 2 Guards.
 private:
+//Insert a dummy guard called in case a state transition has neither inputs nor a guard
+bool m_Upsample::guard_dummy(void) const {
+   return ( true );
+}
 bool m_Upsample::guard_read(void)  const {
    const int i = I[0];
    return( (state == 0) );
@@ -53,3 +57,4 @@ public:
    call(&m_Upsample::copy) >> start;  
  }
 };
+

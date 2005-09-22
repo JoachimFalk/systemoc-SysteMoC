@@ -7,13 +7,17 @@ public:
    smoc_port_in<int> I;
    smoc_port_out<int> O;
 
-// The actor has 2 Parameters and 2 Variable declarations.
+// The actor has 2 Parameters and 0 Variable declarations.
 private: 
    const int G;
    const int OS;
    
 // The actor has 1 Actions and 0 Guards.
 private:
+//Insert a dummy guard called in case a state transition has neither inputs nor a guard
+bool m_IDCTscale::guard_dummy(void) const {
+   return ( true );
+}
 void m_IDCTscale::action(void) {
 // The action has 0 local variable declarations.
    int i = I[0];
@@ -31,3 +35,4 @@ public:
    call(&m_IDCTscale::action) >> start;  
  }
 };
+

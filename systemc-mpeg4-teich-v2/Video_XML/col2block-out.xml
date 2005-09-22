@@ -14,32 +14,45 @@ public:
    smoc_port_in<int> R7;
    smoc_port_out<cal_list<int>::t> B;
 
-// The actor has 0 Parameters and 0 Variable declarations.
+// The actor has 0 Parameters and 1 Variable declarations.
+private: 
+   
+   cal_list<int>::t blockgen(cal_list<int>::t r0, cal_list<int>::t r1, cal_list<int>::t r2, cal_list<int>::t r3, cal_list<int>::t r4, cal_list<int>::t r5, cal_list<int>::t r6, cal_list<int>::t r7) {
+      cal_list<int>::t ret_list;
+   
+     for (unsigned int i = 0; i <= 63; ++i) 
+                     {      
+        ret_list.push_back((i <= 7) ? r0[i] : ((i <= 15) ? r1[i] : ((i <= 23) ? r2[i] : ((i <= 31) ? r3[i] : ((i <= 39) ? r4[i] : ((i <= 47) ? r5[i] : ((i <= 55) ? r6[i] : (r7[i]))))))));   
+     }
 
+   return( ret_list );
+   }
+   
+   
 // The actor has 1 Actions and 0 Guards.
 private:
+//Insert a dummy guard called in case a state transition has neither inputs nor a guard
+bool m_col2block::guard_dummy(void) const {
+   return ( true );
+}
 void m_col2block::action(void) {
 // The action has 0 local variable declarations.
-   int r0 = R0[0];
-   int r1 = R1[0];
-   int r2 = R2[0];
-   int r3 = R3[0];
-   int r4 = R4[0];
-   int r5 = R5[0];
-   int r6 = R6[0];
-   int r7 = R7[0];
-   // BUG: The following 2 lines had to be manually inserted:
-   for (int i=0; i<8; i++) {
-    r0 = R0[i]; r1 = R1[i]; r2= R2[i]; r3=R3[i]; r4=R4[i]; r5=R5[i]; r6=R6[i]; r7=R7[i]; 
-   B[i] = (r0 + r1 + r2 + r3 + r4 + r5 + r6 + r7);
-   }
+   cal_list<int>::t r0; for (unsigned int i=0; i<8; i++) r0.push_back(R0[i]);
+   cal_list<int>::t r1; for (unsigned int i=0; i<8; i++) r1.push_back(R1[i]);
+   cal_list<int>::t r2; for (unsigned int i=0; i<8; i++) r2.push_back(R2[i]);
+   cal_list<int>::t r3; for (unsigned int i=0; i<8; i++) r3.push_back(R3[i]);
+   cal_list<int>::t r4; for (unsigned int i=0; i<8; i++) r4.push_back(R4[i]);
+   cal_list<int>::t r5; for (unsigned int i=0; i<8; i++) r5.push_back(R5[i]);
+   cal_list<int>::t r6; for (unsigned int i=0; i<8; i++) r6.push_back(R6[i]);
+   cal_list<int>::t r7; for (unsigned int i=0; i<8; i++) r7.push_back(R7[i]);
+   B[0] = blockgen(r0, r1, r2, r3, r4, r5, r6, r7);
 }
 
    smoc_firing_state start;
       
 public:
  m_col2block(sc_module_name name)
- : smoc_actor(name, start) {
+ : smoc_actor(name, start)  {
  start = 
    (R0.getAvailableTokens() >= 8 && 
    R1.getAvailableTokens() >= 8 && 
@@ -53,3 +66,4 @@ public:
    call(&m_col2block::action) >> start;  
  }
 };
+

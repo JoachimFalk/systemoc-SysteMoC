@@ -1,5 +1,5 @@
 actor reconstruct ( int DCVAL, int LBSIZE )
-  List[int] DATA, int FLAGS, int PARAM, int A, int B, int C, int DC ==> List[int] OUT, int OFLAGS :
+  List(type:int, size=64) DATA, int FLAGS, int PARAM, int A, int B, int C, int DC ==> List(type:int, size=64) OUT, int OFLAGS :
 
 // Die ersten 64 Werte stellen dar, wie die Originalscanfolge (Zeile für Zeile) be JPEG 
 // wieder aus den Zigzac-gescannten Werten regeneriert werden kann. Bsp.: die 5 sagt, dass

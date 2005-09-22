@@ -17,11 +17,9 @@ cal_list<int>::t Integers(int s, int e) {
   return retval;
 }
 
-#define my_bitand cal_bitand
 template <typename T>
 T cal_bitand( T a, T b ) { return a & b; }
 
-#define my_bitor cal_bitor
 template <typename T>
 T cal_bitor( T a, T b ) { return a | b; }
 

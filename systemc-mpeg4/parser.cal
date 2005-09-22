@@ -12,7 +12,7 @@ actor parser[int] (
   int INTER,
   int INTRA,
   int MAXW_IN_MB
-) int bits ==> int param, List[int] b, int flags, int mv :
+) int bits ==> int param, List(type:int, size=64) b, int flags, int mv :
 
   function initList( v, sz ) :
     [ v : for i in Integers(1, sz) ]
@@ -1961,7 +1961,7 @@ end */
     mb3  ( get_cbpy                   ) --> mb4;
     mb3  ( bad_cbpy                   ) --> stuck;
     mb4  ( final_cbpy_intra           ) --> blk;
-    mb4  ( final_cbpy_inter           ) --> mv;
+    mb4  ( final_cbpy_inter           ) --> mv0;
 
     // process all blocks in an MB
     blk  ( mb_dispatch_done           ) --> mb;
@@ -1990,13 +1990,13 @@ end */
     vld6 ( vld_run_lookup             ) --> texac;
 
     // mv()
-    mv   ( mvcode_done                ) --> blk;
-    mv   ( mvcode                     ) --> mv1;
+    mv0  ( mvcode_done                ) --> blk;
+    mv0  ( mvcode                     ) --> mv1;
     mv1  ( get_residual_x             ) --> mv2;
     mv2  ( mvcode                     ) --> mv3;
     mv3  ( get_residual_y             ) --> mv4;
     mv4  ( mvpred                     ) --> mv5;
-    mv5  ( mvcompute                  ) --> mv;
+    mv5  ( mvcompute                  ) --> mv0;
 
   end
 

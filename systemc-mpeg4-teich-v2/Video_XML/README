@@ -22,32 +22,19 @@ Bsp.:
 </Decl>
 Wenn Type nicht existiert, wird "int" angenommen.
 
-Verbliebene ToDos (bzw. notwendige Nachbesserungen):
-====================================================
-FALK:
-1) byte2bit: Die Funktionen bitand und bitor sind in C++ vordefinierte Operatoren und können 
-   angeblich nicht als Makronamen in der Datei callib.hpp auftauchen.
-2) MCadd und sequence: In guard-Methoden dürfen keine Funktionsaufrufe auftauchen. 
-   In den Handsourcen wurden die entsprechenden Funktionen bislang einfach ausgeklammert
-   (detect_skipped in MCadd und keep_reading_buf in sequence)!
-3) reconstruct: (Zeile 25, und 117): Die Initialisierung des 2D-Arrays zigzag führt zu einem Fehler:
-   Kann man nicht innerhalb der Klasse auch Initialisierungen vornehmen?
-
-TEICH:
-1) col2block: pushback fehlt bei REPEAT-Konstrukten, die laut JWJ als Listen zu behandeln sind.
-2) parser: Wenn in ACTIONS und GUARDS die Eingangsports Listen sind, müssen andere Konstrukte 
-   generiert werden als bislang nur int. In Abhängigkeit von repeat-Werten sind beispielsweise 
-   Listen zu generieren und per FOR-Scleife die Elemente internen Variablen zuzuweisen, 
-   siehe z.B. die Funktion BINDTOBITS im handgenerierten Code von Keinert und Teich.
-3) MCadd: Besitzen Funktionen Nicht-Integer-Parameter, so kann man diese nicht im Cal-ML erkennen.
-   Beispiel: MCadd-out.xml: Funktion MBBuf_add (cal_list<int>::t b)
-   Sehe keine Chance, dies zu erraten.
-4) MCadd: InitList: Die Funktion kann auch Listen als erstes Argument erhalten; Hier müssen Templates
+Verbliebene Massnahmen, die nicht ohne Weiteres mit XSLT gelöst werden können betreffen Analyse und Optimierung: 
+================================================================================================================
+a) Optimierung: Nur diejenigen Inputs, die in Guardausdrücken auch gebraucht werden, 
+   als Inputs in Guards deklarieren! 
+   (sonst kann es Fehler geben, wenn bei den Inputinitialisierungen Funktionen aufgerufen 
+   werden, die nicht const sind).
+b) Variablen, die in Ausdrücken von Signaturen vorkommen, müssen globale Variablen sein. 
+   Beispiel: EInziger Fehlerfall parser: Variable b in Methode byte_align
+c) Funktionen sind als "const" zu deklarieren, wenn Sie innerhalb von Guards aufgerufen werden.
+d) Erkennung, ob Templates benötigt werden:
+   Einziges Beispiel: MCadd und reconstruct::initList: 
+   Die Funktion kann auch Listen als erstes Argument erhalten; Hier müssen Templates
    generiert werden.
-
-per Hand voraussichtlich immer:
-1) parser: Ausdrücke in Repeat-Konstrukten bei den Feuerungszahlen der FSM: Hier ist bei 
-   Variablen evtl. der Syntax zu erweitern oder laut JWJ sind diese sowieso zu verbieten.
-2) reconstruct: mit Integer-Operatoren in Generatoren von Listen, die nicht zusammenhängend sind: 
+e) reconstruct: mit Integer-Operatoren in Generatoren von Listen, die nicht zusammenhängend sind: 
    Hier ist die Indexvariable per Hand zu korrigieren.
 
