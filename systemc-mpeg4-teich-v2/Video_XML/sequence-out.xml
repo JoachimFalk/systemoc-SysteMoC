@@ -32,18 +32,13 @@ private:
     int buf_eof; 
     int this_n; 
     
-   //BUG:int keep_reading_buf(int bxnext, int bynext, int bx, int by, int mbx, int mby) {
-   int keep_reading_buf(int bxnext, int bynext, int bx, int by, int mbx, int mby) const{
+   int keep_reading_buf(int bxnext, int bynext, int bx, int by, int mbx, int mby) const {
    return( (bynext < (mby - 1) || (bynext == (mby - 1) && bxnext <= mbx) || by < (mby - 1) || (by == (mby - 1) && bx < mbx)) );
    }
    
    
 // The actor has 11 Actions and 11 Guards.
 private:
-//Insert a dummy guard called in case a state transition has neither inputs nor a guard
-bool m_sequence::guard_dummy(void) const {
-   return ( true );
-}
 bool m_sequence::guard_flush_buf(void)  const {
    const int type = BUF[0];
    const int x = BUF[1];

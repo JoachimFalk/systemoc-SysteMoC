@@ -23,10 +23,9 @@
 #include "Video_XML/dequant-out.xml"
 #include "Video_XML/reconstruct-out.xml"
 #include "Video_XML/sequence-out.xml"
-#include "Video_XML/MCadd-out.xml"
 */
+#include "Video_XML/MCadd-out.xml"
 #include "Video_XML/parser-out.xml"
-
 /*
  * graph example
  */

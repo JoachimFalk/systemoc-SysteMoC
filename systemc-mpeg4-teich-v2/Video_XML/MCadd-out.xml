@@ -27,7 +27,7 @@ private:
     int frame_number; 
     int head_index; 
     
-   cal_list<int>::t initList(int v, int size) {
+   cal_list<int>::t initList(int v, int size) const {
       cal_list<int>::t ret_list;
    
      for (unsigned int i = 1; i <= size; ++i) 
@@ -51,15 +51,14 @@ private:
    }
  
    
-   cal_list<int>::t MBbuf_get(int offset) {
+   cal_list<int>::t MBbuf_get(int offset) const {
       int ptr = (MBbuf_ptr - offset);
       int ptr_wrapped = (ptr < 0) ? (ptr + MBbuf_size) : ((ptr >= MBbuf_size) ? (ptr - MBbuf_size) : (ptr));
    return( MBbuf[ptr_wrapped] );
    }
    
    
-   //BUG int detect_skipped(int x, int y, int n) {
-   int detect_skipped(int x, int y, int n) const{
+   int detect_skipped(int x, int y, int n) const {
    return( (x == next_x && y == next_y && n == next_n) ? 0 : (1) );
    }
    
@@ -80,37 +79,37 @@ private:
    }
  
    
-   int xadjust(int n, int dx) {
+   int xadjust(int n, int dx) const {
    return( (n < 4) ? ((6 * rshift(dx, 4)) + (cal_bitand(dx, 8) == 0) ? 0 : ((n == 0 || n == 2) ? 1 : (5))) : ((6 * rshift(dx, 3))) );
    }
    
    
-   int yadjust(int n, int dy) {
+   int yadjust(int n, int dy) const {
    return( (n < 4) ? ((6 * MBwidth * rshift(dy, 4)) + (cal_bitand(dy, 8) == 0) ? 0 : ((n == 0 || n == 1) ? 2 : (((6 * MBwidth) - 2)))) : ((6 * MBwidth * rshift(dy, 3))) );
    }
    
    
-   int get_pixel(int x, int y, int n, int dx, int dy) {
+   int get_pixel(int x, int y, int n, int dx, int dy) const {
    return( MBbuf_get(((head_index - xadjust(n, dx)) - yadjust(n, dy)))[(cal_bitand(dx, 7) + lshift(cal_bitand(dy, 7), 3))] );
    }
    
    
-   int xyclip(int xy, int xymax, int dxy) {
+   int xyclip(int xy, int xymax, int dxy) const {
    return( (xy + dxy < 0) ? (-xy) : ((xy + dxy >= xymax) ? (xymax - xy - 1) : (dxy)) );
    }
    
    
-   int xpixel(int x, int n) {
+   int xpixel(int x, int n) const {
    return( (n == 0 || n == 2) ? lshift(x, 4) : ((n == 1 || n == 3) ? (lshift(x, 4) + 8) : (lshift(x, 3))) );
    }
    
    
-   int ypixel(int y, int n) {
+   int ypixel(int y, int n) const {
    return( (n == 0 || n == 1) ? lshift(y, 4) : ((n == 2 || n == 3) ? (lshift(y, 4) + 8) : (lshift(y, 3))) );
    }
    
    
-   cal_list<int>::t comp_block(int x, int y, int n, int mvx, int mvy) {
+   cal_list<int>::t comp_block(int x, int y, int n, int mvx, int mvy) const {
       cal_list<int>::t ret_list;
       int lmvx = rshift(mvx, 1);
       int lmvy = rshift(mvy, 1);
@@ -167,12 +166,12 @@ private:
    }
    
    
-   int clip(int x) {
+   int clip(int x) const {
    return( (x < 0) ? 0 : ((x > 255) ? 255 : (x)) );
    }
    
    
-   cal_list<int>::t combine(cal_list<int>::t a, cal_list<int>::t b) {
+   cal_list<int>::t combine(cal_list<int>::t a, cal_list<int>::t b) const {
       cal_list<int>::t ret_list;
    
      for (unsigned int i = 0; i <= 63; ++i) 
@@ -186,10 +185,6 @@ private:
    
 // The actor has 10 Actions and 10 Guards.
 private:
-//Insert a dummy guard called in case a state transition has neither inputs nor a guard
-bool m_MCadd::guard_dummy(void) const {
-   return ( true );
-}
 bool m_MCadd::guard_newFrame(void)  const {
    const int cmd = MV[0];
    const int x = MV[1];
@@ -234,7 +229,7 @@ bool m_MCadd::guard_docmd_motionOnly(void)  const {
    const int n = MV[3];
    const int mvx = MV[4];
    const int mvy = MV[5];
-   //BUG: cal_list<int>::t b = comp_block(x, y, n, mvx, mvy);
+   cal_list<int>::t b = comp_block(x, y, n, mvx, mvy);
    return( (cmd == 0 || cmd == 1) && (detect_skipped(x, y, n) == 0) );
 }
 bool m_MCadd::guard_docmd_both(void)  const {
@@ -245,7 +240,7 @@ bool m_MCadd::guard_docmd_both(void)  const {
    const int mvx = MV[4];
    const int mvy = MV[5];
    const cal_list<int>::t &tex = TEX[0];
-   //BUG: cal_list<int>::t b = comp_block(x, y, n, mvx, mvy);
+   cal_list<int>::t b = comp_block(x, y, n, mvx, mvy);
    return( (cmd == 4) && (detect_skipped(x, y, n) == 0) );
 }
 bool m_MCadd::guard_mbbuf_tooEmptyInt(void)  const {

@@ -24,11 +24,8 @@ private:
    const int INTER;
    const int INTRA;
    const int MAXW_IN_MB;
-
-   //BUG
-   int n;
    
-   cal_list<int>::t initList(int v, int sz) {
+   cal_list<int>::t initList(int v, int sz) const {
       cal_list<int>::t ret_list;
    
      for (unsigned int i = 1; i <= sz; ++i) 
@@ -40,16 +37,18 @@ private:
    }
    
    
-   //BUG int value(cal_list<int>::t bits, int n, int os) {
-   int value(cal_list<int>::t bits, int n, int os) const{
+   int value(cal_list<int>::t bits, int n, int os) const {
       int thisb = cal_bitand(bits[os], 1);
    return( (n == 1) ? thisb : (cal_bitor(lshift(thisb, (n - 1)), value(bits, (n - 1), (os + 1)))) );
    }
    
    
-   int dc_scaler(int QP, int bltype, int blnum) {
+   int dc_scaler(int QP, int bltype, int blnum) const {
    return( (bltype == 1) ? 0 : ((blnum < 4) ? (QP > 0 && QP < 5) ? 8 : ((QP > 4 && QP < 9) ? (2 * QP) : ((QP > 8 && QP < 25) ? (QP + 8) : (((2 * QP) - 16)))) : ((QP > 0 && QP < 5) ? 8 : ((QP > 4 && QP < 25) ? rshift((QP + 13), 1) : ((QP - 6))))) );
    }
+
+   //BUG
+   int n;
    
    int bit_count; 
     int vol_layer_is_detailed; 
@@ -95,7 +94,7 @@ private:
    }
  
    
-   int get_mvx(int dx, int dy, int num) {
+   int get_mvx(int dx, int dy, int num) const {
       int index = (mvindex + (dy * vol_width) + dx);
       int i = (index < 0) ? (index + MAXW_IN_MB + 1) : (index);
       int act_x = (mbx + dx);
@@ -124,7 +123,7 @@ private:
    }
  
    
-   int get_mvy(int dx, int dy, int num) {
+   int get_mvy(int dx, int dy, int num) const {
       int index = (mvindex + (dy * vol_width) + dx);
       int i = (index < 0) ? (index + MAXW_IN_MB + 1) : (index);
       int act_x = (mbx + dx);
@@ -153,7 +152,7 @@ private:
    }
  
    
-   int middle(int a, int b, int c) {
+   int middle(int a, int b, int c) const {
    return( (a < b) ? (a > c) ? a : ((b < c) ? b : (c)) : ((b > c) ? b : ((a < c) ? a : (c))) );
    }
    
@@ -181,34 +180,34 @@ private:
     static const int intra_lookup[];
     static const int inter_lookup[];
     
-   int intra_max_level(int last, int run) {
+   int intra_max_level(int last, int run) const {
    return( (last == 0) ? (run == 0) ? 27 : ((run == 1) ? 10 : ((run == 2) ? 5 : ((run == 3) ? 4 : ((run < 8) ? 3 : ((run < 10) ? 2 : ((run < 15) ? 1 : (0))))))) : ((run == 0) ? 8 : ((run == 1) ? 3 : ((run < 7) ? 2 : ((run < 21) ? 1 : (0))))) );
    }
    
    
-   int inter_max_level(int last, int run) {
+   int inter_max_level(int last, int run) const {
    return( (last == 0) ? (run == 0) ? 12 : ((run == 1) ? 6 : ((run == 2) ? 4 : ((run < 7) ? 3 : ((run < 11) ? 2 : ((run < 27) ? 1 : (0)))))) : ((run == 0) ? 3 : ((run == 1) ? 2 : ((run < 41) ? 1 : (0)))) );
    }
    
    
-   int intra_max_run(int last, int level) {
+   int intra_max_run(int last, int level) const {
    return( (last == 0) ? (level == 1) ? 14 : ((level == 2) ? 9 : ((level == 3) ? 7 : ((level == 4) ? 3 : ((level == 5) ? 2 : ((level < 11) ? 1 : (0)))))) : ((level == 1) ? 20 : ((level == 2) ? 6 : ((level == 3) ? 1 : (0)))) );
    }
    
    
-   int inter_max_run(int last, int level) {
+   int inter_max_run(int last, int level) const {
    return( (last == 0) ? (level == 1) ? 26 : ((level == 2) ? 10 : ((level == 3) ? 6 : ((level == 4) ? 2 : ((level == 5 || level == 6) ? 1 : (0))))) : ((level == 1) ? 40 : ((level == 2) ? 1 : (0))) );
    }
    
    int mvval; 
     
-   int uvclip_1(int v) {
+   int uvclip_1(int v) const {
       int vv = rshift(v, 1);
    return( cal_bitor(vv, (cal_bitand(v, 3) == 0) ? 0 : (1)) );
    }
    
    
-   int uvclip_4(int y0, int y1, int y2, int y3) {
+   int uvclip_4(int y0, int y1, int y2, int y3) const {
       int v = (y0 + y1 + y2 + y3);
       int sign = (v < 0) ? 1 : (0);
       int absv = (sign == 0) ? v : ((-v));
@@ -224,22 +223,18 @@ private:
     int mvpred_x; 
     int mvpred_y; 
     
-   int mvclip(int v) {
+   int mvclip(int v) const {
    return( (v < mv_low) ? (v + mv_range) : ((v > mv_high) ? (v - mv_range) : (v)) );
    }
    
    
-   int mvcalc(int pred, int mag, int res) {
+   int mvcalc(int pred, int mag, int res) const {
    return( mvclip((pred + (mv_rsize == 0 || mag == 0) ? mag : ((mag < 0) ? (-(lshift(((-mag) - 1), mv_rsize) + res + 1)) : ((lshift((mag - 1), mv_rsize) + res + 1))))) );
    }
    
    
 // The actor has 118 Actions and 85 Guards.
 private:
-//Insert a dummy guard called in case a state transition has neither inputs nor a guard
-bool m_parser::guard_dummy(void) const {
-   return ( true );
-}
 bool m_parser::guard_vol_header_good(void)  const {
    cal_list<int>::t b; for (unsigned int i=0; i<32; i++) b.push_back(bits[i]);
    return( (value(b, 27, 0) == 8) );
@@ -385,8 +380,8 @@ bool m_parser::guard_mb_dispatch_intra(void)  const {
    return( (btype == INTRA) );
 }
 bool m_parser::guard_mb_dispatch_inter_no_ac(void)  const {
-   //BUG int mvx = (comp < 4) ? get_mvx(0, 0, comp) : (mvx_uv);
-   //BUG int mvy = (comp < 4) ? get_mvy(0, 0, comp) : (mvy_uv);
+   int mvx = (comp < 4) ? get_mvx(0, 0, comp) : (mvx_uv);
+   int mvy = (comp < 4) ? get_mvy(0, 0, comp) : (mvy_uv);
    return( (cal_bitand(cbp, lshift(1, (5 - comp))) == 0) );
 }
 bool m_parser::guard_vld_start_intra(void)  const {
@@ -445,7 +440,7 @@ bool m_parser::guard_get_dc_small(void)  const {
    return( (dcbits <= 8) );
 }
 bool m_parser::guard_block_done(void)  const {
-   //BUG int scaler = dc_scaler(vop_quant, btype, comp);
+   int scaler = dc_scaler(vop_quant, btype, comp);
    return( (b_index == 64 || b_last == 1 || ac_coded == 0) );
 }
 bool m_parser::guard_vld_code_b2(void)  const {
@@ -1721,7 +1716,7 @@ mb3.addTransition((bits.getAvailableTokens() >= 6 &&
 mb3.addTransition((bits.getAvailableTokens() >= 6) >> 
    call(&m_parser::bad_cbpy) >> stuck); 
    
-mb4.addTransition((guard(&m_parser::guard_dummy)) >> 
+mb4.addTransition((Expr::literal(true)) >> 
    call(&m_parser::final_cbpy_intra) >> blk); 
    
 mb4.addTransition((guard(&m_parser::guard_final_cbpy_inter)) >> 
@@ -1735,7 +1730,7 @@ blk.addTransition((guard(&m_parser::guard_mb_dispatch_intra)) >>
    mv.getAvailableSpace() >= 6) >>
    call(&m_parser::mb_dispatch_intra) >> tex); 
    
-blk.addTransition((guard(&m_parser::guard_dummy)) >> 
+blk.addTransition((Expr::literal(true)) >> 
    (param.getAvailableSpace() >= 4 &&  
    mv.getAvailableSpace() >= 6) >>
    call(&m_parser::mb_dispatch_inter_ac_coded) >> tex); 
@@ -1747,7 +1742,7 @@ blk.addTransition((guard(&m_parser::guard_mb_dispatch_inter_no_ac)) >>
 tex.addTransition((guard(&m_parser::guard_vld_start_intra)) >> 
    call(&m_parser::vld_start_intra) >> texdc); 
    
-tex.addTransition((guard(&m_parser::guard_dummy)) >> 
+tex.addTransition((Expr::literal(true)) >> 
    call(&m_parser::vld_start_inter) >> texac); 
    
 texdc.addTransition((bits.getAvailableTokens() >= 2 && 
@@ -2126,10 +2121,10 @@ mv4.addTransition((guard(&m_parser::guard_mvpred_y1_other)) >>
 mv4.addTransition((guard(&m_parser::guard_mvpred_y2)) >> 
    call(&m_parser::mvpred_y2) >> mv5); 
    
-mv4.addTransition((guard(&m_parser::guard_dummy)) >> 
+mv4.addTransition((Expr::literal(true)) >> 
    call(&m_parser::mvpred_y3) >> mv5); 
    
-mv5.addTransition((guard(&m_parser::guard_dummy)) >> 
+mv5.addTransition((Expr::literal(true)) >> 
    call(&m_parser::mvcompute) >> mv0); 
     
  }

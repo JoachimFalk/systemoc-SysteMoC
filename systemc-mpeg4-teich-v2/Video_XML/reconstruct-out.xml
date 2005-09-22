@@ -20,7 +20,7 @@ private:
    const int LBSIZE;
    static const int zigzag[3][64];
     
-   cal_list<int>::t initList(int v, int size) {
+   cal_list<int>::t initList(int v, int size) const {
       cal_list<int>::t ret_list;
    
      for (unsigned int i = 1; i <= size; ++i) 
@@ -35,7 +35,7 @@ private:
     int lb_in; 
     int block_count; 
     
-   cal_list<int>::t scan(cal_list<int>::t d, cal_list<int>::t pat) {
+   cal_list<int>::t scan(cal_list<int>::t d, cal_list<int>::t pat) const {
       cal_list<int>::t ret_list;
    
      for (unsigned int i = 0; i <= 63; ++i) 
@@ -47,22 +47,18 @@ private:
    }
    
    
-   int lb_get_val(cal_list<cal_list<int>::t>::t buf, int pos, int size, int seq, int head, int index) const{
+   int lb_get_val(cal_list<cal_list<int>::t>::t buf, int pos, int size, int seq, int head, int index) const {
    return( (seq == 0) ? DCVAL : (((pos + (seq - head)) < 0) ? buf[(pos + (seq - head) + size)][index] : (buf[(pos + (seq - head))][index])) );
    }
    
    
-   int abs(int x) const{
+   int abs(int x) const {
    return( (x < 0) ? (-x) : (x) );
    }
    
    
 // The actor has 4 Actions and 3 Guards.
 private:
-//Insert a dummy guard called in case a state transition has neither inputs nor a guard
-bool m_reconstruct::guard_dummy(void) const {
-   return ( true );
-}
 bool m_reconstruct::guard_eof(void)  const {
    const int type = PARAM[0];
    const int x = PARAM[1];
@@ -214,6 +210,7 @@ void m_reconstruct::intra(void) {
    }
    const int indices[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 16, 24, 32, 40, 48, 56};
    for (unsigned int iter = 0; iter < sizeof(indices)/sizeof(indices[0]); ++iter)     {         
+        //BUG lb[lb_in][iter] = d[zigzag[zsel][i]];   
         lb[lb_in][iter] = d[zigzag[zsel][iter]];   
      }
    OUT[0] = scan(d, zigzag[zsel]);
