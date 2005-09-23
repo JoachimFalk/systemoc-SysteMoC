@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 
 #include <smoc_moc.hpp>
 #include <smoc_port.hpp>
@@ -16,14 +17,19 @@
 
 #include "block_idct.hpp"
 
+
+#define INAMEblk "test_in.dat"
+
+
 class m_source_idct: public smoc_actor {
   public:
     smoc_port_out<int> out;
     smoc_port_out<int> min;
   private:
     int i;
+    //bool eof;
     
-    //std::ifstream i1;
+    std::ifstream i1; 
     
     void process() {
       //int data;
@@ -31,23 +37,31 @@ class m_source_idct: public smoc_actor {
       // if(i1.good()){
        // i1 >> data;
         min[0] = -256;
-        for ( int j = 0; j <= 63; ++j ) {
-          out[j] = i++;
-          cout << name() << "  write " << out[j] << std::endl;
+        for ( int j = 0; j <= 63; j++ ) {
+          //out[0] = i++;
+          i++;
+          i1 >> out[j];
+          
+          std::cout << name() << "  write " << out[j] << std::endl;
         }
+        std::cout << name() << "  write min " << min[0] << std::endl;
+        
+        //eof = i1.eof();
+        
+        //if ( eof )
+        //  i1.close();
       //}else{
        // cout << "  file empty" << std::endl;
-      //}
     }
     
     smoc_firing_state start;
   public:
-    m_source_idct( sc_module_name name,int init_value = 0 )
-      :smoc_actor( name, start ), i(init_value) {
-      //i1.open("test.txt");
+    m_source_idct( sc_module_name name ) //,int init_value = 1 )
+      :smoc_actor( name, start ), i(0) {
+      i1.open(INAMEblk);
       start = ((out.getAvailableSpace() >= 64) &&
                (min.getAvailableSpace() >= 1) &&
-               (var(i) <= 655))
+               (var(i) <= 63))
               >> CALL(m_source_idct::process)
               >> start;
     }
