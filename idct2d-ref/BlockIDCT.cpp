@@ -78,9 +78,14 @@ static void BlockIDCT(short *in, short negM, short *out)
 {
   unsigned char i;
   
+  
   // 1-D IDCT on rows
   for (i=0; i<8; i++)
     idctrow(in+(i<<3), out+(i<<3));
+  
+  for(int j = 0; j< 64; j++)std::cout<< "IDCTrow" <<"("<< j <<"): " << out[j] << std::endl;
+
+  
   // 1-D IDCT on columns
   for (i=0; i<8; i++)
     idctcol(out+i, negM);
@@ -105,49 +110,50 @@ static void idctrow(short *in, short *out)
   int x[B_WIDTH];
 
   /* first stage */
-  x[0] = (in[0]<<11) + 128; /* for proper rounding in the fourth stage */
-  x[4] = in[4]<<11;
-  tmpval = W7*(in[1]+in[7]);
-  x[1] = tmpval + (W1-W7)*in[1];
-  x[7] = tmpval - (W1+W7)*in[7];
-  tmpval = W3*(in[5]+in[3]);
-  x[5] = tmpval - (W3-W5)*in[5];
-  x[3] = tmpval - (W3+W5)*in[3];
+  /* for proper rounding in the fourth stage */
+  x[0] = (in[0]<<11) + 128;  // iscale1 (2^11,128)
+  x[4] = in[4]<<11;          // iscale2 (2^11,  0)
+  
+  tmpval = W7*(in[1]+in[7]);      //fly2.t  = (565*(I1+I2))+OS:0
+  x[1] = tmpval + (W1-W7)*in[1];  //fly2.O1 = (t+(I1*2276))    /*((coeff1:2841-Coeff7:565)=2276)*/
+  x[7] = tmpval - (W1+W7)*in[7];  //fly2.O2 = (t+(I2*(-3406))) /*(-(Coeff1:2841+Coeff7:565)=-3406)*/ 
+  tmpval = W3*(in[5]+in[3]);      //fly.t   = (2408*(I1+I2))+OS:0 
+  x[5] = tmpval - (W3-W5)*in[5];  //fly.O1  = (t+(I1*(-799)))  /*(-(Coeff3:2408-Coeff5:1609)=-799)*/
+  x[3] = tmpval - (W3+W5)*in[3];  //fly.O2  = (t+(I2*(-4017))) /*(-(Coeff3:2408+Coeff5:1609)=-4017*/
   x[2] = in[2];
   x[6] = in[6];
                   
   /* second stage */
-  tmpval = x[0] + x[4];
-  x[0] -= x[4];
-  x[4] = W6*(x[2]+x[6]);
-  x[6] = x[4] - (W2+W6)*x[6];
-  x[2] = x[4] + (W2-W6)*x[2];
-  x[4] = x[1] + x[5];
-  x[1] -= x[5];
-  x[5] = x[7] + x[3];
-  x[7] -= x[3];
+  tmpval = x[0] + x[4]; // addsub01.o1 (1,0,0)
+  x[0] -= x[4];         // addsub01.o2
+  x[4] = W6*(x[2]+x[6]);          //fly3.t  = (1108*(I1+I2))+OS:0
+  x[6] = x[4] - (W2+W6)*x[6];     //fly3.O1 = (t+(I1*(-3784))) /*(-(Coeff2:2676+Coeff6:1108)=-3784*/
+  x[2] = x[4] + (W2-W6)*x[2];     //fly3.O2 = (t+(I2*1568))    /*((Coeff2:2676-Coeff6:1108)=1568)*/
+  x[4] = x[1] + x[5]; // addsub02.o1 (1,0,0)
+  x[1] -= x[5];       // addsub02.o2
+  x[5] = x[7] + x[3]; // addsub03.o1 (1,0,0)
+  x[7] -= x[3];       // addsub03.o2
                   
   /* third stage */
-  x[3] = tmpval + x[2];
-  tmpval -= x[2];
-  x[2] = x[0] + x[6];
-  x[0] -= x[6];
-  x[6] = (181*(x[1]+x[7])+128)>>8;
-  x[1] = (181*(x[1]-x[7])+128)>>8;
+  x[3] = tmpval + x[2]; // addsub04.o1 (1,0,0)
+  tmpval -= x[2];       // addsub04.o2
+  x[2] = x[0] + x[6];   // addsub05.o1 (1,0,0)
+  x[0] -= x[6];         // addsub05.o2
+  x[6] = (181*(x[1]+x[7])+128)>>8; // addsub06.o1 (181,128,8)
+  x[1] = (181*(x[1]-x[7])+128)>>8; // addsub06.o2
                   
   /* fourth stage */
-  out[0] = (x[3]+x[4])>>8;
-  out[1] = (x[2]+x[6])>>8;
-  out[2] = (x[0]+x[1])>>8;
-  out[3] = (tmpval+x[5])>>8;
-  out[4] = (tmpval-x[5])>>8;
-  out[5] = (x[0]-x[1])>>8;
-  out[6] = (x[2]-x[6])>>8;
-  out[7] = (x[3]-x[4])>>8;
+  out[0] = (x[3]+x[4])>>8;   // addsub09.O1 (1,0,8)
+  out[1] = (x[2]+x[6])>>8;   // addsub10.o1 (1,0,8)
+  out[2] = (x[0]+x[1])>>8;   // addsub08.o1 (1,0,8)
+  out[3] = (tmpval+x[5])>>8; // addsub07.o1 (1,0,8)
+  out[4] = (tmpval-x[5])>>8; // addsub07.o2
+  out[5] = (x[0]-x[1])>>8;   // addsub08.o2
+  out[6] = (x[2]-x[6])>>8;   // addsub10.o2
+  out[7] = (x[3]-x[4])>>8;   // addsub09.o2
   
   return;
 } // idctrow
-
 
 
 
@@ -179,7 +185,7 @@ static void idctcol(short *blk, short negMaxval)
    return;
   }
 	
-  x[0] = (blk[8*0]<<8) + 8192;
+  x[0] = (blk[8*0]<<8) + 8192;// iscale1 (2^8,8129)
 	
   /* first stage */
   x[8] = W7*(x[4]+x[5]) + 4;
