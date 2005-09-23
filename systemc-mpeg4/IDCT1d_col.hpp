@@ -25,9 +25,9 @@ class m_idct_col
       m_IDCTscale &iscale1 = registerNode(new m_IDCTscale("iscale1", 256, 8192));
       m_IDCTscale &iscale2 = registerNode(new m_IDCTscale("iscale2", 256, 0));
            
-      m_IDCTfly &ifly1 = registerNode(new m_IDCTfly("ifly1",2048,0,-439,-3657,8));
-      m_IDCTfly &ifly2 = registerNode(new m_IDCTfly("ifly2",565,0,2276,-3406,8));
-      m_IDCTfly &ifly3 = registerNode(new m_IDCTfly("ifly3",1108,0,-3784,1568,8));
+      m_IDCTfly &ifly1 = registerNode(new m_IDCTfly("ifly1",2408,4,-799,-4017,8));
+      m_IDCTfly &ifly2 = registerNode(new m_IDCTfly("ifly2",565,4,2276,-3406,8));
+      m_IDCTfly &ifly3 = registerNode(new m_IDCTfly("ifly3",1108,4,-3784,1568,8));
       
       m_IDCTaddsub &addsub1 = registerNode(new m_IDCTaddsub("addsub1", 1, 0, 0));
       m_IDCTaddsub &addsub2 = registerNode(new m_IDCTaddsub("addsub2", 1, 0, 0));
@@ -38,7 +38,7 @@ class m_idct_col
       m_IDCTaddsub &addsub7 = registerNode(new m_IDCTaddsub("addsub7", 1, 0, 16384));
       m_IDCTaddsub &addsub8 = registerNode(new m_IDCTaddsub("addsub8", 1, 0, 16384));
       m_IDCTaddsub &addsub9 = registerNode(new m_IDCTaddsub("addsub9", 1, 0, 16384));
-      m_IDCTaddsub &addsub10 = registerNode(new m_IDCTaddsub("addsub10", 1, 0, 16384));
+      m_IDCTaddsub &addsub10 = registerNode(new m_IDCTaddsub("addsub10", 1, 0, 16384));//2^14 = 16384
 
 
       connectInterfacePorts( i0, iscale1.I ); 
