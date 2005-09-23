@@ -17,9 +17,11 @@ private:
           : x );
   }
   
-  void action0() { O[0] = bound(MIN[0], I[0], MAX); }
+  void action0() { 
+    std::cout<<"M_clip debugzeile hier ist I wert: "<< I[0] <<"\n";
+    O[0] = bound(MIN[0], I[0], MAX); }
   
-  smoc_firing_state start;
+    smoc_firing_state start;
 public:
   m_IDCTclip(sc_module_name name, int MAX)
     : smoc_actor(name, start),
@@ -28,7 +30,8 @@ public:
              MIN.getAvailableTokens() >= 1 )  >>
             (O.getAvailableSpace() >= 1)      >>
             CALL(m_IDCTclip::action0)  	      >> start;
-  }
+
+      }
   virtual ~m_IDCTclip(){}
 };
 
