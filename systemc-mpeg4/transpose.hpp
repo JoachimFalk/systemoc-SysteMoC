@@ -106,6 +106,7 @@ public:
 		I7.getAvailableTokens() >= 1 ) >>
 		(O7.getAvailableSpace() >= 8)  >>
 		CALL(m_transpose::action7)     >> s0;
+    
     }
 };
 #endif // _INCLUDED_TRANSPOSE_HPP

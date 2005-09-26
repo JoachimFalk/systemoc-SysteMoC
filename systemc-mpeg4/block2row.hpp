@@ -21,23 +21,7 @@ private:
     C6[0]=b[6];C6[1]=b[14];C6[2]=b[22];C6[3]=b[30];C6[4]=b[38];C6[5]=b[46];C6[6]=b[54];C6[7]=b[62];
     C7[0]=b[7];C7[1]=b[15];C7[2]=b[23];C7[3]=b[31];C7[4]=b[39];C7[5]=b[47];C7[6]=b[55];C7[7]=b[63];
   
-    for ( int i = 0; i <= 7; ++i )
-      std::cout << "C0[" << i << "] == " << C0[i] << std::endl;
-    for ( int i = 0; i <= 7; ++i )
-      std::cout << "C1[" << i << "] == " << C1[i] << std::endl;
-    for ( int i = 0; i <= 7; ++i )
-      std::cout << "C2[" << i << "] == " << C2[i] << std::endl;
-    for ( int i = 0; i <= 7; ++i )
-      std::cout << "C3[" << i << "] == " << C3[i] << std::endl;
-    for ( int i = 0; i <= 7; ++i )
-      std::cout << "C4[" << i << "] == " << C4[i] << std::endl;
-    for ( int i = 0; i <= 7; ++i )
-      std::cout << "C5[" << i << "] == " << C5[i] << std::endl;
-    for ( int i = 0; i <= 7; ++i )
-      std::cout << "C6[" << i << "] == " << C6[i] << std::endl;
-    for ( int i = 0; i <= 7; ++i )
-      std::cout << "C7[" << i << "] == " << C7[i] << std::endl;
-  }
+     }
   smoc_firing_state start;
 public:
   m_block2row(sc_module_name name)

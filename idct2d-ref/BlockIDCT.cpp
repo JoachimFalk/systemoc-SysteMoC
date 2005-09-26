@@ -76,19 +76,22 @@ int main(int argc, char *argv[])
 //
 static void BlockIDCT(short *in, short negM, short *out)
 {
-  unsigned char i;
-  
-  
   // 1-D IDCT on rows
-  for (i=0; i<8; i++)
+  for (int i = 0; i <= 7; ++i)
     idctrow(in+(i<<3), out+(i<<3));
   
-  for(int j = 0; j< 64; j++)std::cout<< "IDCTrow" <<"("<< j <<"): " << out[j] << std::endl;
+  for(int j = 0; j<  64; ++j)
+    std::cout<< "IDCTrow out" <<"("<< j <<"): " << out[j] << std::endl;
 
-  
   // 1-D IDCT on columns
-  for (i=0; i<8; i++)
+  for (int i = 0; i <= 7; ++i) {
+    for (int j = 0; j <= 7; ++j)
+      std::cout<< "IDCTcol in" <<"("<< j <<"): " << out[i+8*j] << std::endl;
+    // 1-D IDCT on column i
     idctcol(out+i, negM);
+    for (int j = 0; j <= 7; ++j)
+      std::cout<< "IDCTcol out" <<"("<< j <<"): " << out[i+8*j] << std::endl;
+  }
   
   return;
 } // BlockIDCT
@@ -184,7 +187,8 @@ static void idctcol(short *blk, short negMaxval)
 
    return;
   }
-	
+
+  
   x[0] = (blk[8*0]<<8) + 8192;// iscale1 (2^8,8129)
 	
   /* first stage */

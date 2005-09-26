@@ -16,8 +16,8 @@ private:
     O1[0] = cal_rshift(G * (I1[0] + I2[0]) + OS, ATTEN);
     O2[0] = cal_rshift(G * (I1[0] - I2[0]) + OS, ATTEN);
 
-    std::cout<<name()<<"  M_IDCTaddsub Debugzeile hier ist I1 O1 wert: "<< I1[0]<<" "<<O1[0] <<"\n";
-    std::cout<<name()<<"  M_IDCTaddsub Debugzeile hier ist I2 O2 wert: "<< I2[0]<<" "<<O2[0] <<"\n";
+    //std::cout<<name()<<"  M_IDCTaddsub Debugzeile hier ist I1 O1 wert: "<< I1[0]<<" "<<O1[0] <<"\n";
+    //std::cout<<name()<<"  M_IDCTaddsub Debugzeile hier ist I2 O2 wert: "<< I2[0]<<" "<<O2[0] <<"\n";
   }
   
   smoc_firing_state start;

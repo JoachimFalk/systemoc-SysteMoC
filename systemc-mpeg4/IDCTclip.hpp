@@ -18,7 +18,7 @@ private:
   }
   
   void action0() { 
-    std::cout<<"M_clip debugzeile hier ist I wert: "<< I[0] <<"\n";
+    //std::cout<<"M_clip debugzeile hier ist I wert: "<< I[0] <<"\n";
     O[0] = bound(MIN[0], I[0], MAX); }
   
     smoc_firing_state start;
