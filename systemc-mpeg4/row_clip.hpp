@@ -12,6 +12,8 @@
 #include "IDCTclip.hpp"
 #include "min_duplex.hpp"
 
+#define MAXVAL_PIXEL		(  255 ) // 2^BITS_PIXEL - 1
+
 class m_clip
   : public smoc_graph {
   public:
@@ -22,14 +24,14 @@ class m_clip
       : smoc_graph(name)
     {
      
-      m_IDCTclip &clip0 = registerNode(new m_IDCTclip("clip0", 1));
-      m_IDCTclip &clip1 = registerNode(new m_IDCTclip("clip1", 1));
-      m_IDCTclip &clip2 = registerNode(new m_IDCTclip("clip2", 1));
-      m_IDCTclip &clip3 = registerNode(new m_IDCTclip("clip3", 1));
-      m_IDCTclip &clip4 = registerNode(new m_IDCTclip("clip4", 1));
-      m_IDCTclip &clip5 = registerNode(new m_IDCTclip("clip5", 1));
-      m_IDCTclip &clip6 = registerNode(new m_IDCTclip("clip6", 1));
-      m_IDCTclip &clip7 = registerNode(new m_IDCTclip("clip7", 1));
+      m_IDCTclip &clip0 = registerNode(new m_IDCTclip("clip0", MAXVAL_PIXEL));
+      m_IDCTclip &clip1 = registerNode(new m_IDCTclip("clip1", MAXVAL_PIXEL));
+      m_IDCTclip &clip2 = registerNode(new m_IDCTclip("clip2", MAXVAL_PIXEL));
+      m_IDCTclip &clip3 = registerNode(new m_IDCTclip("clip3", MAXVAL_PIXEL));
+      m_IDCTclip &clip4 = registerNode(new m_IDCTclip("clip4", MAXVAL_PIXEL));
+      m_IDCTclip &clip5 = registerNode(new m_IDCTclip("clip5", MAXVAL_PIXEL));
+      m_IDCTclip &clip6 = registerNode(new m_IDCTclip("clip6", MAXVAL_PIXEL));
+      m_IDCTclip &clip7 = registerNode(new m_IDCTclip("clip7", MAXVAL_PIXEL));
       
       m_MIN_duplex &dup = registerNode(new m_MIN_duplex("dup"));
 

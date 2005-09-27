@@ -19,6 +19,9 @@ private:
     int t = (W0 * (I1[0] + I2[0])) + OS;
     O1[0] = cal_rshift(t + (I1[0] * W1), ATTEN);
     O2[0] = cal_rshift(t + (I2[0] * W2), ATTEN);
+
+    //std::cout<<name()<<"  M_IDCTfly Debugzeile hier ist I1 O1 wert: "<< I1[0]<<" "<<O1[0] <<"\n";
+    //std::cout<<name()<<"  M_IDCTfly Debugzeile hier ist I2 O2 wert: "<< I2[0]<<" "<<O2[0] <<"\n";
   }
   
   smoc_firing_state start;

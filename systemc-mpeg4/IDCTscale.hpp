@@ -10,7 +10,11 @@ private:
   const int  G;
   const int  OS;
   
-  void action0() { O[0] = OS + (G * I[0]); }
+  void action0() {
+    O[0] = OS + (G * I[0]);
+    
+    //std::cout<<name()<<"  M_IDCTscale Debugzeile hier ist I O wert: "<< I[0]<<" "<<O[0] <<"\n";
+  }
   
   smoc_firing_state start;
 public:

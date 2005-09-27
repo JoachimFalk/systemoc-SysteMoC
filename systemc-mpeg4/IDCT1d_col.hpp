@@ -13,33 +13,32 @@
 #include "IDCTfly.hpp"
 #include "IDCTscale.hpp"
 
-class m_idct
+class m_idct_col
   : public smoc_graph {
   public:
     smoc_port_in<int>  i0, i1, i2, i3, i4, i5, i6, i7; 
     smoc_port_out<int> o0, o1, o2, o3, o4, o5, o6, o7;
-     
- 
-    m_idct( sc_module_name name )
+    
+    m_idct_col( sc_module_name name )
       : smoc_graph(name)
     {
-      m_IDCTscale &iscale1 = registerNode(new m_IDCTscale("iscale1", 2048, 128));
-      m_IDCTscale &iscale2 = registerNode(new m_IDCTscale("iscale2", 2048, 0));
+      m_IDCTscale &iscale1 = registerNode(new m_IDCTscale("iscale1", 256, 8192));
+      m_IDCTscale &iscale2 = registerNode(new m_IDCTscale("iscale2", 256, 0));
            
-      m_IDCTfly &ifly1 = registerNode(new m_IDCTfly("ifly1",2408,0,-799,-4017,0));
-      m_IDCTfly &ifly2 = registerNode(new m_IDCTfly("ifly2",565,0,2276,-3406,0));
-      m_IDCTfly &ifly3 = registerNode(new m_IDCTfly("ifly3",1108,0,-3784,1568,0));
+      m_IDCTfly &ifly1 = registerNode(new m_IDCTfly("ifly1",2408,4,-799,-4017,3));
+      m_IDCTfly &ifly2 = registerNode(new m_IDCTfly("ifly2",565,4,2276,-3406,3));
+      m_IDCTfly &ifly3 = registerNode(new m_IDCTfly("ifly3",1108,4,-3784,1568,3));
       
       m_IDCTaddsub &addsub1 = registerNode(new m_IDCTaddsub("addsub1", 1, 0, 0));
       m_IDCTaddsub &addsub2 = registerNode(new m_IDCTaddsub("addsub2", 1, 0, 0));
       m_IDCTaddsub &addsub3 = registerNode(new m_IDCTaddsub("addsub3", 1, 0, 0));
       m_IDCTaddsub &addsub4 = registerNode(new m_IDCTaddsub("addsub4", 1, 0, 0));
       m_IDCTaddsub &addsub5 = registerNode(new m_IDCTaddsub("addsub5", 1, 0, 0));
-      m_IDCTaddsub &addsub6 = registerNode(new m_IDCTaddsub("addsub6", 181, 128, 8));
-      m_IDCTaddsub &addsub7 = registerNode(new m_IDCTaddsub("addsub7", 1, 0, 8));
-      m_IDCTaddsub &addsub8 = registerNode(new m_IDCTaddsub("addsub8", 1, 0, 8));
-      m_IDCTaddsub &addsub9 = registerNode(new m_IDCTaddsub("addsub9", 1, 0, 8));
-      m_IDCTaddsub &addsub10 = registerNode(new m_IDCTaddsub("addsub10", 1, 0, 8));
+      m_IDCTaddsub &addsub6 = registerNode(new m_IDCTaddsub("addsub6", 181, 128, 9));
+      m_IDCTaddsub &addsub7 = registerNode(new m_IDCTaddsub("addsub7", 1, 0, 14));
+      m_IDCTaddsub &addsub8 = registerNode(new m_IDCTaddsub("addsub8", 1, 0, 14));
+      m_IDCTaddsub &addsub9 = registerNode(new m_IDCTaddsub("addsub9", 1, 0, 14));
+      m_IDCTaddsub &addsub10 = registerNode(new m_IDCTaddsub("addsub10", 1, 0, 14));//2^14 = 16384
 
 
       connectInterfacePorts( i0, iscale1.I ); 
@@ -82,7 +81,5 @@ class m_idct
       connectInterfacePorts( o6, addsub10.O2);
       connectInterfacePorts( o7, addsub9.O2 );
 
-  
-      
     }
 };
