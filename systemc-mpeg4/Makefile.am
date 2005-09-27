@@ -38,3 +38,8 @@ simulation_mpeg4_DEPENDENCIES =	@SYSTEMOC_DEPENDENCIES@
 
 simulation_test_idct2d_SOURCES= design-test-idct2d.cpp
 simulation_test_idct2d_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+all: test_in.dat
+
+%.dat: %-dat
+	cp $^ $@
