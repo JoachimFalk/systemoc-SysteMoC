@@ -84,6 +84,7 @@ AC_SUBST([SYSTEMOC_DEPENDENCIES])
 
 AC_CONFIG_FILES(
 [ Makefile \
+  mpeg4-ref/Makefile \
   idct2d-ref/Makefile \
   systemc-csp/Makefile \
   systemc-sdf/Makefile \
