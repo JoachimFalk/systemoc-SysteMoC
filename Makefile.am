@@ -84,7 +84,9 @@ pkginclude_HEADERS =			\
 	hscd_fifo.hpp			\
 	hscd_structure.hpp		\
 	hscd_scheduler.hpp		\
-	hscd_pggen.hpp
+	hscd_pggen.hpp                  \
+	stl_output_for_list.hpp         \
+	stl_output_for_pair.hpp
 
 # noinst_HEADERS=	oneof.hpp
 
