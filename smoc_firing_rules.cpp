@@ -6,11 +6,10 @@
 #include <map>
 #include <set>
 
-/*
 #include <hscd_tdsim_TraceLog.hpp>
 
 #include <hscd_vpc_Director.h>
-*/
+
 smoc_firing_state_ref::smoc_firing_state_ref()
   : rs(new resolved_state_ty()), fr(NULL) {
   smoc_firing_rules *x = new smoc_firing_rules(this);
@@ -184,9 +183,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
     knownSatisfiable().getStatus() == smoc_root_port_bool::IS_ENABLED;
   
   if ( canexec ) {
-    /*
     TraceLog.traceStartTryExecute(actor->myModule()->name()); //
-    */
     if ( isType<smoc_func_diverge>(f) ) {
       // FIXME: this must only be used internally
       const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
@@ -202,9 +199,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
       assert( iter != sl.end() );
       *rs = &ns.getResolvedState();
     } else {
-      /*
       TraceLog.traceStartActor(actor->myModule()->name()); //
-      */
       // FIXME: we assume calls will only be used by leaf actors
       if ( isType<smoc_func_call>(f) ) {
 #ifdef SYSTEMOC_DEBUG
@@ -212,19 +207,12 @@ bool smoc_firing_types::transition_ty::tryExecute(
                   << " func="<< static_cast<smoc_func_call &>(f).getFuncName()
                   << ">"<< std::endl;
 #endif
-      /*
 	TraceLog.traceStartFunction(static_cast<smoc_func_call &>(f).getFuncName()); //
-      */
         a->vpc_event.reset();
-	/*
         SystemC_VPC::Director::getInstance().getResource( actor->myModule()->name() ).compute( 
             actor->myModule()->name(), static_cast<smoc_func_call &>(f).getFuncName()  ,&(a->vpc_event) );
-	*/
-	smoc_notify(a->vpc_event);
         static_cast<smoc_func_call &>(f)();
-      /*
 	TraceLog.traceEndFunction(static_cast<smoc_func_call &>(f).getFuncName());  //
-      */
 
 #ifdef SYSTEMOC_DEBUG
         std::cout << "</call>"<< std::endl;
@@ -233,9 +221,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
       } else {
         assert( isType<NILTYPE>(f) );
       }
-      /*
       TraceLog.traceEndActor(actor->myModule()->name()); //
-      */
       assert( sl.size() == 1 );
       *rs = static_cast<resolved_state_ty *>(sl.front());
     }
@@ -243,9 +229,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
           iter != _ctx.ports_setup.end();
           ++iter )
       (*iter)->commExec();
-    /*
     TraceLog.traceEndTryExecute(actor->myModule()->name()); //
-    */
   }
   return canexec;
 }

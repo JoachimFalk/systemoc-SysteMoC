@@ -26,7 +26,7 @@ root_builddir = $(top_builddir)/..
 SUBDIRS=
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
-#SYSTEMCVPC_BUILDDIR=$(root_builddir)/SystemC-VPC
+SYSTEMCVPC_BUILDDIR=$(root_builddir)/SystemC-VPC
 
 ac_aux_dir = @ac_aux_dir@
 
@@ -41,14 +41,12 @@ compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 INCLUDES =						\
 	@SYSTEMC_INCLUDE@				\
 	-I./include					\
-	-I$(srcdir)					
-#\
-#	-I$(SYSTEMCVPC_BUILDDIR)/include/systemcvpc
+	-I$(srcdir)					\
+	-I$(SYSTEMCVPC_BUILDDIR)/include/systemcvpc
 
 AM_LDFLAGS=					\
-	@SYSTEMC_LDFLAGS@			
-#\
-#	-L$(SYSTEMCVPC_BUILDDIR)
+	@SYSTEMC_LDFLAGS@			\
+	-L$(SYSTEMCVPC_BUILDDIR)
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -86,9 +84,8 @@ pkginclude_HEADERS =			\
 	hscd_fifo.hpp			\
 	hscd_structure.hpp		\
 	hscd_scheduler.hpp		\
-	hscd_pggen.hpp			\
-	stl_output_for_list.hpp		\
-	stl_output_for_pair.hpp	
+	hscd_pggen.hpp
+
 # noinst_HEADERS=	oneof.hpp
 
 libsystemoc_CH_LTOBJS=				\
@@ -96,9 +93,9 @@ libsystemoc_CH_LTOBJS=				\
 	$(smoc_pggen_hpp_CH_LTOBJS)
 #	$(smoc_op_hpp_CH_LTOBJS)
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lstdc++ #-lsystemcvpc 
+libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lsystemcvpc -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
-libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include #$(SYSTEMCVPC_BUILDDIR)/libsystemcvpc.la
+libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include $(SYSTEMCVPC_BUILDDIR)/libsystemcvpc.la
 
 libsystemoc_la_SOURCES =		\
 	smoc_expr.cpp			\
