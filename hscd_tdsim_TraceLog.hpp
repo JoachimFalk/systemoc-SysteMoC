@@ -24,11 +24,19 @@
 #include <fstream>
 
 #include <string>
+#include <map>
+#include <set>
+
 using std::string;
 class TraceLogStream {
 private:
-    std::ostream &stream;
-    std::ofstream file;
+  std::ostream &stream;
+  std::ofstream file;
+  std::set<string> actors;
+  std::map<string,std::set<string> > functions;
+  std::map<string, int> function_call_count;
+  std::map<string, int> actor_activation_count;
+  std::string lastactor;
 
 public:
   template <typename T>
@@ -59,6 +67,8 @@ public:
     if( 0 != prefix ) fstring.insert(0,prefix);
     file.open(fstring.c_str());
   }
+
+  ~TraceLogStream();
   
   void traceStartActor(const char * actor);
   void traceEndActor(const char * actor);
