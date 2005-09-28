@@ -277,12 +277,7 @@
     <attribute type="m_sink::process" value="100"/>
   </mapping>
 
-  <mapping source="top.src" target="Component1">
-    <attribute type="delay" value="100"/>
-    <attribute type="m_source::process" value="100"/>
-  </mapping>
-
-  <mapping source="top.src1" target="Component1">
+  <mapping source="top.src_idct" target="Component1">
     <attribute type="delay" value="100"/>
     <attribute type="m_source::process" value="100"/>
   </mapping>
