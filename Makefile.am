@@ -1,5 +1,5 @@
 SUBDIRS= \
-  systemc-mpeg4 idct2d-ref \
+  mpeg4-ref idct2d-ref systemc-mpeg4 \
   systemc-sqr systemc-sdf systemc-fir \
   systemc-select systemc-ibtest \
   systemc-mpeg4-teich-v2

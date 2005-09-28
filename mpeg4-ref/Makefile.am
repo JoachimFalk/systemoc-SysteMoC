@@ -24,22 +24,27 @@ root_builddir=$(top_builddir)/..
 
 SUBDIRS=
 
-INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
+INCLUDES = -I$(srcdir) # @SYSTEMOC_INCLUDE@
 
-AM_LDFLAGS = @SYSTEMOC_LDFLAGS@
-AM_CPPFLAGS=-Wno-deprecated
+AM_LDFLAGS = # @SYSTEMOC_LDFLAGS@
+AM_CPPFLAGS=
 
-LIBS=-lsystemoc
+LIBS=# -lsystemoc
 
-noinst_PROGRAMS= simulation-mpeg4 simulation-test-idct2d
+noinst_PROGRAMS= mpeg4-ref
 
-simulation_mpeg4_SOURCES = design-mpeg4.cpp
-simulation_mpeg4_DEPENDENCIES =	@SYSTEMOC_DEPENDENCIES@		
+mpeg4_ref_SOURCES = \
+  bitstream.c \
+  copyControl.c \
+  decoder_chip.c \
+  main.c \
+  motionCompensation.c \
+  motion_decode.c \
+  mp4_dec_output.c \
+  parser.c \
+  stimuliGeneration.c \
+  textureUpdate.c \
+  texture_idct.c \
+  texture_vld.c
 
-simulation_test_idct2d_SOURCES= design-test-idct2d.cpp
-simulation_test_idct2d_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-
-all: test_in.dat
-
-%.dat: %-dat
-	cp $^ $@
+# block_idct2d_DEPENDENCIES =	@SYSTEMOC_DEPENDENCIES@		
