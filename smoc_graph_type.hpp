@@ -16,6 +16,29 @@
 #include <list>
 #include <map>
 
+template <typename T>
+class smoc_channel_hack: public smoc_actor {
+public:
+  typedef smoc_channel_hack<T> this_type;
+  
+  smoc_port_in<T>  i;
+  smoc_port_out<T> o;
+private:
+  void process() { o[0] = i[0]; }
+  
+  smoc_firing_state start;
+public:
+  smoc_channel_hack( sc_module_name name )
+    : smoc_actor( name, start ) {
+    start =
+         i(1)
+      >> o(1)
+      >> CALL(smoc_channel_hack::process)
+      >> start
+    ;
+  }
+};
+
 template <typename T_node_type,
           typename T_chan_kind,
           template <typename T_value_type> class T_chan_init_default>
@@ -32,19 +55,37 @@ protected:
       smoc_port_out<typename T_chan_init::data_type> &b,
       smoc_port_in<typename T_chan_init::data_type>  &a,
       const T_chan_init i ) {
-    typename T_chan_init::chan_type &chan =
+    // BIG HACK !!!
+    smoc_channel_hack<typename T_chan_init::data_type> &hack =
+      *new smoc_channel_hack<typename T_chan_init::data_type>(
+         sc_gen_unique_name("smoc_comm_process") );
+    
+    typename T_chan_init::chan_type &chan1 =
       registerChan<T_chan_init>(i);
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
+    typename T_chan_init::chan_type &chan2 =
+      registerChan<T_chan_init>(i);
+    connectChanPort(chan1,a);
+    connectChanPort(chan1,hack.o);
+    connectChanPort(chan2,hack.i);
+    connectChanPort(chan2,b);
   }
   template <typename T_data_type>
   void connectNodePorts(
       smoc_port_out<T_data_type> &b,
       smoc_port_in<T_data_type>  &a ) {
-    typename T_chan_init_default<T_data_type>::chan_type &chan =
+    // BIG HACK !!!
+    smoc_channel_hack<T_data_type> &hack =
+      *new smoc_channel_hack<T_data_type>(
+         sc_gen_unique_name("smoc_comm_process") );
+    
+    typename T_chan_init_default<T_data_type>::chan_type &chan1 =
       registerChan( T_chan_init_default<T_data_type>() );
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
+    typename T_chan_init_default<T_data_type>::chan_type &chan2 =
+      registerChan( T_chan_init_default<T_data_type>() );
+    connectChanPort(chan1,a);
+    connectChanPort(chan1,hack.o);
+    connectChanPort(chan2,hack.i);
+    connectChanPort(chan2,b);
   }
   template <typename T_value_type>
   void connectInterfacePorts(
