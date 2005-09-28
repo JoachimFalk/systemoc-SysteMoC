@@ -34,6 +34,8 @@ private:
   std::ofstream file;
   std::set<string> actors;
   std::map<string,std::set<string> > functions;
+  std::map<string, int> function_call_count;
+  std::map<string, int> actor_activation_count;
   std::string lastactor;
 
 public:

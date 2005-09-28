@@ -6,6 +6,7 @@ TraceLogStream TraceLog("test.trace");
 void TraceLogStream::traceStartActor(const char * actor){
   stream << "<actor name=\""<< actor << "\">" << std::endl;
   actors.insert(actor);
+  actor_activation_count[actor]++;
   lastactor=actor;
 }
 void TraceLogStream::traceEndActor(const char * actor){
@@ -13,6 +14,7 @@ void TraceLogStream::traceEndActor(const char * actor){
 }
 void TraceLogStream::traceStartFunction(const char * func){
   stream << "<function name=\""<< func << "\">" << std::endl;
+  function_call_count[string(lastactor)+" -> "+string(func)]++;
   functions[lastactor].insert(func);
 }
 void TraceLogStream::traceEndFunction(const char * func){
@@ -33,6 +35,21 @@ void TraceLogStream::traceCommExecOut(size_t size, const char *name){
 
 TraceLogStream::~TraceLogStream(){
   stream << "<!--" << std::endl;
+
+  stream << "function            #" << std::endl;
+  for(std::map<string, int>::const_iterator i = function_call_count.begin();
+      i != function_call_count.end();
+      i++){
+    stream << i->first << "\t\t" << i->second << std::endl;
+  }
+
+  stream << "\nactor              #" << std::endl;
+  for(std::map<string, int>::const_iterator i = actor_activation_count.begin();
+      i != actor_activation_count.end();
+      i++){
+    stream << i->first << "\t\t" << i->second << std::endl;
+  }
+
   stream << "<?xml version=\"1.0\"?>" << std::endl;
   stream << "<!DOCTYPE configuration SYSTEM \"cmx.dtd\">" << std::endl;
   stream << "<configuration>" << std::endl;
