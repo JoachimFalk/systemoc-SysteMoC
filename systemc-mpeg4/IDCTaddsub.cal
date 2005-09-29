@@ -1,3 +1,5 @@
+import all caltrop.lib.BitOps;
+
 actor IDCTaddsub [ int ]
 ( int G,
   int OS,
@@ -7,5 +9,5 @@ actor IDCTaddsub [ int ]
   action I1:[i1], I2:[i2] ==> O1:[rshift( G * (i1 + i2) + OS, ATTEN)],
                               O2:[rshift( G * (i1 - i2) + OS, ATTEN)]
   end
-end
 
+end

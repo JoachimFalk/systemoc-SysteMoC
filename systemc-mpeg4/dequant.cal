@@ -1,4 +1,4 @@
-actor dequant () List[ int ] IN, int FLAGS ==> List[ int ] OUT, int DC, int MIN :
+actor dequant () List(type:int, size=64) IN, int FLAGS ==> List(type:int, size=64) OUT, int DC, int MIN :
   function saturate( x ) :
     if x < -2048 then
       -2048

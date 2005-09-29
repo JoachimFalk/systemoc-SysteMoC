@@ -1,0 +1,40 @@
+Aufruf des Übersetzers:
+=======================
+
+> ReadXMLWriteText.sh parser.xml parser-out.hpp Teich14.xslt
+
+
+Achtung: Notwendige Voraussetzung der korrekten Übersetzung im CALML-Sourcecode:
+================================================================================
+Damit Typen von Funktionen und deren Argumente richtig erkannt werden können, ist es die Pflicht 
+des Cal-Programmiers, hier im Type-Tag ein Attribut Name auch wirklich zu verwenden:
+
+Bsp.:
+<Decl kind="Variable" name="deq">
+   <Type kind="Function" infer="true" name="List"/>
+</Decl>
+Wenn das Attribut name nicht existiert, wird als Return-Wert der Datentyp "int" angenommen. 
+
+Genauso müssen Übergabeparameter in "Function" und "Procedure" das Attribut Name besitzen: 
+Bsp.:
+<Decl kind="Parameter" name="v">
+   <Type name="List"/>
+</Decl>
+Wenn Type nicht existiert, wird "int" angenommen.
+
+Verbliebene Massnahmen, die nicht ohne Weiteres mit XSLT gelöst werden können betreffen Analyse und Optimierung: 
+================================================================================================================
+a) Optimierung: Nur diejenigen Inputs, die in Guardausdrücken auch gebraucht werden, 
+   als Inputs in Guards deklarieren! 
+   (sonst kann es Fehler geben, wenn bei den Inputinitialisierungen Funktionen aufgerufen 
+   werden, die nicht const sind).
+b) Variablen, die in Ausdrücken von Signaturen vorkommen, müssen globale Variablen sein. 
+   Beispiel: EInziger Fehlerfall parser: Variable b in Methode byte_align
+c) Funktionen sind als "const" zu deklarieren, wenn Sie innerhalb von Guards aufgerufen werden.
+d) Erkennung, ob Templates benötigt werden:
+   Einziges Beispiel: MCadd und reconstruct::initList: 
+   Die Funktion kann auch Listen als erstes Argument erhalten; Hier müssen Templates
+   generiert werden.
+e) reconstruct: mit Integer-Operatoren in Generatoren von Listen, die nicht zusammenhängend sind: 
+   Hier ist die Indexvariable per Hand zu korrigieren.
+

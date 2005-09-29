@@ -1,4 +1,4 @@
-actor block2row [int] () List[int] B ==> int C0, int C1, int C2, int C3,
+actor block2row [int] () List(type:int, size=64) B ==> int C0, int C1, int C2, int C3,
                                          int C4, int C5, int C6, int C7 :
 
   action  B:[b] ==>

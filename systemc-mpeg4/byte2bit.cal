@@ -1,3 +1,4 @@
+import all caltrop.lib.BitOps;
 actor byte2bit[int] () int in8 ==> int out :
 
   action in8:[i] ==> out:[ b7, b6, b5, b4, b3, b2, b1, b0 ]
@@ -13,5 +14,3 @@ actor byte2bit[int] () int in8 ==> int out :
   end
 
 end
-
-

@@ -6,5 +6,3 @@ actor IDCTscale [ int ]
   action I:[i] ==> O:[ OS + (G * i) ] end
 
 end
-
-
