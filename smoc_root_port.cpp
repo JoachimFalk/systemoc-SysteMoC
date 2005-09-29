@@ -73,12 +73,11 @@ smoc_root_port_bool::smoc_root_port_bool( const this_type &rhs )
 }
 
 smoc_root_port_bool smoc_root_port_bool::recheck() const {
-  smoc_root_port_bool retval;
-  
   // std::cout << "smoc_root_port_bool.recheck "; dump(std::cout);
   // std::cout << std::endl;
   if (v == IS_BLOCKED) {
-    retval.v = IS_ENABLED;
+    smoc_root_port_bool retval(true);
+    
     for ( reqs_ty::const_iterator iter = reqs.begin();
           iter != reqs.end();
           ++iter ) {
@@ -109,9 +108,9 @@ smoc_root_port_bool smoc_root_port_bool::recheck() const {
         }
       }
     }
-  }
-  // retval.dump(std::cout);
-  return retval;
+    return retval;
+  } else
+    return *this;
 }
 
 void smoc_root_port_bool::dump(std::ostream &out) const {
