@@ -215,9 +215,55 @@ static inline
 VGuard::type vguard(const smoc_root_port_bool &v)
   { return VGuard::type(v); }
 
+/****************************************************************************
+ * DSMOCEvent represents a smoc_event guard which turns true if the event is
+ * signaled
+ */
+
+struct ASTNodeSMOCEvent: public ASTNodeTerminal {
+};
+
+class DSMOCEvent {
+public:
+  typedef smoc_event value_type;
+  typedef DSMOCEvent this_type;
+  
+  friend class Value<this_type>;
+  friend class AST<this_type>;
+private:
+  value_type &v;
+public:
+  explicit DSMOCEvent(value_type &v): v(v) {}
+};
+
+struct Value<DSMOCEvent> {
+  typedef smoc_root_port_bool result_type;
+  
+  static inline
+  result_type apply(const DSMOCEvent &e)
+    { return smoc_root_port_bool(&e.v); }
+};
+
+struct AST<DSMOCEvent> {
+  typedef PASTNode result_type;
+  
+  static inline
+  PASTNode apply(const DSMOCEvent &e)
+    { return PASTNode(new ASTNodeSMOCEvent()); }
+};
+
+struct D<DSMOCEvent>: public DBase<DSMOCEvent> {
+  D(smoc_event &v): DBase<DSMOCEvent>(DSMOCEvent(v)) {}
+};
+
+// Make a convenient typedef for the placeholder type.
+struct SMOCEvent { typedef D<DSMOCEvent> type; };
+
 static inline
-VGuard::type till(smoc_event &e)
-  { return VGuard::type(&e); }
+SMOCEvent::type till(smoc_event &e)
+  { return SMOCEvent::type(e); }
+
+/****************************************************************************/
 
 // NEEDED:
 //  to implement short circuit boolean evaluation

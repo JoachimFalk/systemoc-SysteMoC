@@ -27,13 +27,14 @@ smoc_root_port_bool::smoc_root_port_bool(smoc_root_port *p, size_t n) {
   // std::cout << "smoc_root_port_bool(smoc_root_port *p, size_t n) ";
   if ( p->availableCount() >= n ) {
     v = IS_ENABLED;// std::cout << "enabled";
-  } else if ( p->getHierarchy() != _ctx.hierarchy ||
+  } else if ( p->getParentPort() != NULL ||
               p->peerIsV1() ) {
     v = IS_BLOCKED;// std::cout << "blocked";
-    assert( p->getParentPort() != NULL || p->peerIsV1() );
+    assert( p->getHierarchy() != _ctx.hierarchy ||
+            p->peerIsV1() );
   } else {
     v = IS_DISABLED;// std::cout << "disabled";
-    assert( p->getParentPort() == NULL );
+    assert( p->getHierarchy() == _ctx.hierarchy );
   }
   if ( v == IS_ENABLED ) {
     p->commSetup(n);
@@ -72,24 +73,29 @@ smoc_root_port_bool::smoc_root_port_bool( const this_type &rhs )
 }
 
 smoc_root_port_bool smoc_root_port_bool::recheck() const {
-  smoc_root_port_bool retval;
-  
   // std::cout << "smoc_root_port_bool.recheck "; dump(std::cout);
   // std::cout << std::endl;
   if (v == IS_BLOCKED) {
-    retval.v = IS_ENABLED;
+    smoc_root_port_bool retval(true);
+    
     for ( reqs_ty::const_iterator iter = reqs.begin();
           iter != reqs.end();
           ++iter ) {
       // std::cout << "XXX: " << *iter << std::endl;
       if ( isType<smoc_commreq>(*iter) ) {
         const smoc_commreq &r = *iter;
+        smoc_root_port     *p = r.first->getParentPort();
         
-        if ( r.first->availableCount() < r.second ) {
-          if ( r.first->getHierarchy() != _ctx.hierarchy ) {
-            retval.reqs.push_back(r);
+        assert( p != NULL );
+        assert( p->getHierarchy() == r.first->getHierarchy() );
+        if ( p->availableCount() < r.second ) {
+          // recheck is called one hierarchy up
+          if ( p->getParentPort() != NULL ) {
+            assert( p->getHierarchy() != _ctx.hierarchy );
+            retval.reqs.push_back( smoc_commreq(p, r.second) );
             retval.v = IS_BLOCKED; break;
           } else {
+            assert( p->getHierarchy() == _ctx.hierarchy );
             retval.reqs.clear();
             retval.v = IS_DISABLED; break;
           }
@@ -102,9 +108,9 @@ smoc_root_port_bool smoc_root_port_bool::recheck() const {
         }
       }
     }
-  }
-  // retval.dump(std::cout);
-  return retval;
+    return retval;
+  } else
+    return *this;
 }
 
 void smoc_root_port_bool::dump(std::ostream &out) const {

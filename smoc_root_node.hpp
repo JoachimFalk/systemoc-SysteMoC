@@ -55,15 +55,47 @@ class smoc_root_node
 private:
   smoc_firing_state        _currentState;
   const smoc_firing_state *_initialState;
+  
+  const smoc_firing_state &communicate() {
+    
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "  <call actor=" << myModule()->name()
+              << " func=smoc_root_node::communicate>" << std::endl;
+    std::cout << "    <communication type=\"execute\"/>" << std::endl;
+#endif
+    
+    assert( vpc_event );
+    
+    for ( smoc_port_list::iterator iter = ports_setup.begin();
+          iter != ports_setup.end();
+          ++iter ) {
+      (*iter)->commExec();
+      (*iter)->reset();
+    }
+    ports_setup.clear();
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "  </call>"<< std::endl;
+#endif
+    return nextState;
+  }
 protected:
   smoc_root_node(const smoc_firing_state &s)
-    : _currentState(s), _initialState(NULL), is_v1_actor(false)
-    {}
+    : _currentState(s), _initialState(NULL), is_v1_actor(false),
+      commstate( smoc_activation_pattern(Expr::till(vpc_event), true) >>
+                   smoc_interface_action(smoc_func_diverge(
+                      this,&smoc_root_node::communicate)) ) {}
   smoc_root_node(smoc_firing_state &s)
-    : _initialState(&s), is_v1_actor(false)
-    {}
+    : _initialState(&s), is_v1_actor(false),
+      commstate( smoc_activation_pattern(Expr::till(vpc_event), true) >>
+                   smoc_interface_action(smoc_func_diverge(
+                      this,&smoc_root_node::communicate)) ) {}
 public:
-  bool is_v1_actor;
+  // FIXME: protection
+  bool               is_v1_actor;
+  smoc_firing_state  commstate;
+  smoc_firing_state  nextState;
+  smoc_event         vpc_event;
+  smoc_port_list     ports_setup;
   
   virtual void finalise() {
 //    std::cout << myModule()->name() << ": finalise" << std::endl;

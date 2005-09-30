@@ -177,53 +177,69 @@ smoc_firing_types::resolved_state_ty::tryExecute(
 
 bool smoc_firing_types::transition_ty::tryExecute(
     resolved_state_ty **rs, smoc_root_node *actor) {
-  smoc_actor *a       = dynamic_cast<smoc_actor *>(actor);
-  bool        canexec =
-    (!a || a->vpc_event) &&
+  bool canexec =
     knownSatisfiable().getStatus() == smoc_root_port_bool::IS_ENABLED;
   
+  assert( isType<NILTYPE>(f) ||
+          isType<smoc_func_diverge>(f) ||
+          isType<smoc_func_branch>(f) ||
+          isType<smoc_func_call>(f) );
   if ( canexec ) {
     TraceLog.traceStartTryExecute(actor->myModule()->name()); //
     if ( isType<smoc_func_diverge>(f) ) {
       // FIXME: this must only be used internally
       const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
-      *rs = &ns.getResolvedState();
+      *rs = ns.rs;
     } else if ( isType<smoc_func_branch>(f) ) {
       // FIXME: this must only be used internally
       const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
       statelist_ty::const_iterator iter = sl.begin();
       
+#ifndef NDEBUG
       // check that ns is in sl
       while ( iter != sl.end() && (*iter) != ns.rs )
         ++iter;
       assert( iter != sl.end() );
-      *rs = &ns.getResolvedState();
+#endif
+      *rs = ns.rs;
     } else {
       TraceLog.traceStartActor(actor->myModule()->name()); //
       // FIXME: we assume calls will only be used by leaf actors
       if ( isType<smoc_func_call>(f) ) {
+        smoc_func_call &fc = f;
+        
 #ifdef SYSTEMOC_DEBUG
-        std::cout << "<call actor="<<actor->myModule()->name()
-                  << " func="<< static_cast<smoc_func_call &>(f).getFuncName()
+        std::cout << "  <call actor="<<actor->myModule()->name()
+                  << " func="<< fc.getFuncName()
                   << ">"<< std::endl;
 #endif
-	TraceLog.traceStartFunction(static_cast<smoc_func_call &>(f).getFuncName()); //
-        a->vpc_event.reset();
-        SystemC_VPC::Director::getInstance().getResource( actor->myModule()->name() ).compute( 
-            actor->myModule()->name(), static_cast<smoc_func_call &>(f).getFuncName()  ,&(a->vpc_event) );
-        static_cast<smoc_func_call &>(f)();
-	TraceLog.traceEndFunction(static_cast<smoc_func_call &>(f).getFuncName());  //
-
+        
+	TraceLog.traceStartFunction(fc.getFuncName()); //
+        actor->vpc_event.reset();
+        SystemC_VPC::Director::getInstance().
+          getResource( actor->myModule()->name() ).
+            compute( actor->myModule()->name(),
+                     fc.getFuncName(),
+                     &actor->vpc_event );
+        fc();
+	TraceLog.traceEndFunction(fc.getFuncName());  //
+        
+        assert( sl.size() == 1 );
+        
+        actor->nextState.rs = sl.front();
+        *rs = actor->commstate.rs;
+        // save ports setup to later execute communication
+        actor->ports_setup = _ctx.ports_setup;
+        _ctx.ports_setup.clear();
 #ifdef SYSTEMOC_DEBUG
-        std::cout << "</call>"<< std::endl;
+        std::cout << "    <communication type=\"defered\"/>" << std::endl;
+        std::cout << "  </call>"<< std::endl;
 #endif
-
       } else {
-        assert( isType<NILTYPE>(f) );
+        assert( sl.size() == 1 );
+        *rs = sl.front();
       }
       TraceLog.traceEndActor(actor->myModule()->name()); //
-      assert( sl.size() == 1 );
-      *rs = static_cast<resolved_state_ty *>(sl.front());
     }
     for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
           iter != _ctx.ports_setup.end();
@@ -236,19 +252,10 @@ bool smoc_firing_types::transition_ty::tryExecute(
 
 void smoc_firing_types::resolved_state_ty::findBlocked(
     smoc_root_port_bool_list &l, smoc_root_node *actor) {
-  smoc_actor *a = dynamic_cast<smoc_actor *>(actor);
-  
-  if ((a != NULL) && !a->vpc_event) {
-    l.push_back(smoc_root_port_bool(&a->vpc_event));
-#ifdef SYSTEMOC_DEBUG
-    std::cout << "  <transitions status=vpcBlocked/>" << std::endl;
-#endif
-  } else {
-    for ( transitionlist_ty::iterator titer = tl.begin();
-	  titer != tl.end();
-	  ++titer ) {
-      titer->findBlocked(l, actor);
-    }
+  for ( transitionlist_ty::iterator titer = tl.begin();
+        titer != tl.end();
+        ++titer ) {
+    titer->findBlocked(l, actor);
   }
 }
 
