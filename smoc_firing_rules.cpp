@@ -209,7 +209,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
         smoc_func_call &fc = f;
         
 #ifdef SYSTEMOC_DEBUG
-        std::cout << "<call actor="<<actor->myModule()->name()
+        std::cout << "  <call actor="<<actor->myModule()->name()
                   << " func="<< fc.getFuncName()
                   << ">"<< std::endl;
 #endif
@@ -224,13 +224,17 @@ bool smoc_firing_types::transition_ty::tryExecute(
         fc();
 	TraceLog.traceEndFunction(fc.getFuncName());  //
         
-#ifdef SYSTEMOC_DEBUG
-        std::cout << "</call>"<< std::endl;
-#endif
         assert( sl.size() == 1 );
         
         actor->nextState.rs = sl.front();
         *rs = actor->commstate.rs;
+        // save ports setup to later execute communication
+        actor->ports_setup = _ctx.ports_setup;
+        _ctx.ports_setup.clear();
+#ifdef SYSTEMOC_DEBUG
+        std::cout << "    <communication type=\"defered\"/>" << std::endl;
+        std::cout << "  </call>"<< std::endl;
+#endif
       } else {
         assert( sl.size() == 1 );
         *rs = sl.front();

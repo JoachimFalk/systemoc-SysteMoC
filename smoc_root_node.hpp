@@ -57,8 +57,25 @@ private:
   const smoc_firing_state *_initialState;
   
   const smoc_firing_state &communicate() {
+    
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "  <call actor=" << myModule()->name()
+              << " func=smoc_root_node::communicate>" << std::endl;
+    std::cout << "    <communication type=\"execute\"/>" << std::endl;
+#endif
+    
     assert( vpc_event );
-
+    
+    for ( smoc_port_list::iterator iter = ports_setup.begin();
+          iter != ports_setup.end();
+          ++iter ) {
+      (*iter)->commExec();
+      (*iter)->reset();
+    }
+    ports_setup.clear();
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "  </call>"<< std::endl;
+#endif
     return nextState;
   }
 protected:
@@ -78,6 +95,7 @@ public:
   smoc_firing_state  commstate;
   smoc_firing_state  nextState;
   smoc_event         vpc_event;
+  smoc_port_list     ports_setup;
   
   virtual void finalise() {
 //    std::cout << myModule()->name() << ": finalise" << std::endl;
