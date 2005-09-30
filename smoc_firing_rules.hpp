@@ -148,7 +148,8 @@ public:
   
   friend class smoc_firing_rules;
   friend class smoc_firing_types::transition_ty;
-private:
+//private:
+protected:
   resolved_state_ty *rs;
   smoc_firing_rules *fr;
 protected:
@@ -289,6 +290,7 @@ class smoc_interface_action {
 public:
   friend class smoc_opbase_node;
   friend class smoc_scheduler_base;
+  friend class smoc_root_node;
   friend class smoc_firing_types::transition_ty;
   friend class smoc_transition;
 //  friend class smoc_firing_state;

@@ -10,25 +10,16 @@ class smoc_actor
     public sc_module {
   protected:
     explicit smoc_actor( sc_module_name name, const smoc_firing_state &s )
-      : smoc_root_node(s),
-        sc_module(name),
-        vpc_event(true){}
+      : smoc_root_node(s), sc_module(name) {}
     smoc_actor(const smoc_firing_state &s)
       : smoc_root_node(s),
-        sc_module( sc_gen_unique_name("smoc_actor") ),
-        vpc_event(true) {}
+        sc_module( sc_gen_unique_name("smoc_actor") ) {}
     explicit smoc_actor( sc_module_name name, smoc_firing_state &s )
-      : smoc_root_node(s),
-        sc_module(name),
-        vpc_event(true) {}
+      : smoc_root_node(s), sc_module(name) {}
     smoc_actor(smoc_firing_state &s)
       : smoc_root_node(s),
-        sc_module( sc_gen_unique_name("smoc_actor") ),
-        vpc_event(true) {}
+        sc_module( sc_gen_unique_name("smoc_actor") ) {}
   public:
-  // FIXME: protection
-  smoc_event      vpc_event;
-  
 #ifndef __SCFE__
     sc_module *myModule() { return this; }
     
