@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Actor name="Delay">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="init">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Decl kind="Variable" name="s">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                    <Expr kind="Literal" literal-kind="Null" value="0"/>
+                </Decl>
+                <Action text-begin-line="9" text-begin-col="3" text-end-line="11" text-end-col="3">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="s" old="Yes"/>
+                    </Output>
+                    <Stmt kind="Assign" name="s">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                    </Stmt>
+                </Action>
+            </Actor>

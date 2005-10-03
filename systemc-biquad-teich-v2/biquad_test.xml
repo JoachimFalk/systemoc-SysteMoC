@@ -1,0 +1,301 @@
+<?xml version="1.0" standalone="no"?>
+<entity name="biquad" class="ptolemy.actor.TypedCompositeActor">
+    <property name="_createdBy" class="ptolemy.kernel.attributes.VersionAttribute" value="5.0-beta">
+    </property>
+    <property name="_windowProperties" class="ptolemy.actor.gui.WindowPropertiesAttribute" value="{bounds={-4, -4, 1032, 757}, maximized=false}">
+    </property>
+    <property name="_vergilSize" class="ptolemy.actor.gui.SizeAttribute" value="[817, 639]">
+    </property>
+    <property name="_vergilZoomFactor" class="ptolemy.data.expr.Parameter" value="0.8">
+    </property>
+    <property name="_vergilCenter" class="ptolemy.data.expr.Parameter" value="{439.9318181818181, 301.4185606060606}">
+    </property>
+    <property name="FairDF Director" class="ptolemy.domains.fairdf.kernel.FairDFDirector">
+        <property name="iterations" class="ptolemy.data.expr.Parameter" value="-1">
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[200.0, 100.0]">
+        </property>
+    </property>
+    <port name="INPUT" class="ptolemy.actor.TypedIOPort">
+        <property name="input"/>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="{55.0, 230.0}">
+        </property>
+        <property name="_showName" class="ptolemy.data.expr.SingletonParameter" value="true">
+        </property>
+    </port>
+    <port name="Output" class="ptolemy.actor.TypedIOPort">
+        <property name="output"/>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[835.0, 230.0]">
+        </property>
+    </port>
+    <class name="Add" extends="ptolemy.caltrop.actors.CalInterpreter">
+        <property name="calCode" class="ptolemy.kernel.util.StringAttribute" value="// Add.cal&#10;// Xilinx Confidential&#10;// Copyright (c) 2005 Xilinx Inc&#10;&#10;actor Add [] (int sz) int(size=sz) A, int(size=sz) B ==&gt; int(size=sz) OUT :&#10;&#10;  action A: [a], B: [b] ==&gt; OUT: [ a + b ] end&#10;&#10;end">
+        </property>
+        <property name="sz" class="ptolemy.data.expr.Parameter" value="16">
+        </property>
+        <property name="_editorFactory" class="ptolemy.vergil.toolbox.TextEditorTableauFactory">
+            <property name="attributeName" class="ptolemy.kernel.util.StringAttribute" value="calCode">
+            </property>
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[320.0, 105.0]">
+        </property>
+        <port name="A" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+        </port>
+        <port name="B" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+        </port>
+        <port name="OUT" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+        </port>
+    </class>
+    <class name="Delay" extends="ptolemy.caltrop.actors.CalInterpreter">
+        <property name="calCode" class="ptolemy.kernel.util.StringAttribute" value="// Delay.cal&#10;// Xilinx Confidential&#10;// Copyright (c) 2005 Xilinx Inc&#10;&#10;actor Delay [] (int sz, int init) int(size=sz) IN ==&gt; int(size=sz) OUT :&#10;  &#10;  int(size=sz) s = init;&#10;&#10;  action IN: [ a ] ==&gt; OUT: [ old s ] do&#10;	s := a;&#10;  end	&#10;&#10;end">
+        </property>
+        <property name="sz" class="ptolemy.data.expr.Parameter" value="16">
+        </property>
+        <property name="init" class="ptolemy.data.expr.Parameter">
+        </property>
+        <property name="_editorFactory" class="ptolemy.vergil.toolbox.TextEditorTableauFactory">
+            <property name="attributeName" class="ptolemy.kernel.util.StringAttribute" value="calCode">
+            </property>
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[440.0, 105.0]">
+        </property>
+        <port name="IN" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+        </port>
+        <port name="OUT" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+        </port>
+    </class>
+    <class name="Scale" extends="ptolemy.caltrop.actors.CalInterpreter">
+        <property name="calCode" class="ptolemy.kernel.util.StringAttribute" value="// Scale.cal&#10;// Xilinx Confidential&#10;// Copyright (c) 2005 Xilinx Inc&#10;&#10;actor Scale [] (int sz, int c) int(size=sz) IN ==&gt; int(size=sz) OUT :&#10;&#10;  action IN: [a] ==&gt; OUT: [ c * a ] end&#10;&#10;end">
+        </property>
+        <property name="sz" class="ptolemy.data.expr.Parameter" value="16">
+        </property>
+        <property name="c" class="ptolemy.data.expr.Parameter">
+        </property>
+        <property name="_editorFactory" class="ptolemy.vergil.toolbox.TextEditorTableauFactory">
+            <property name="attributeName" class="ptolemy.kernel.util.StringAttribute" value="calCode">
+            </property>
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[555.0, 105.0]">
+        </property>
+        <port name="IN" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+        </port>
+        <port name="OUT" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+        </port>
+    </class>
+    <entity name="Add1" class="Add">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[150.0, 230.0]">
+        </property>
+        <port name="B" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="SOUTH">
+            </property>
+        </port>
+    </entity>
+    <entity name="Add2" class="Add">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[150.0, 400.0]">
+        </property>
+        <port name="A" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="EAST">
+            </property>
+        </port>
+        <port name="B" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="SOUTH">
+            </property>
+        </port>
+        <port name="OUT" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="NORTH">
+            </property>
+        </port>
+    </entity>
+    <entity name="Add3" class="Add">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[710.0, 230.0]">
+        </property>
+        <port name="B" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="SOUTH">
+            </property>
+        </port>
+    </entity>
+    <entity name="Add4" class="Add">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[710.0, 400.0]">
+        </property>
+        <port name="B" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="SOUTH">
+            </property>
+        </port>
+        <port name="OUT" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="NORTH">
+            </property>
+        </port>
+    </entity>
+    <entity name="Scale1" class="Scale">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[470.0, 400.0]">
+        </property>
+    </entity>
+    <entity name="Scale2" class="Scale">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[280.0, 400.0]">
+        </property>
+        <port name="IN" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="EAST">
+            </property>
+        </port>
+        <port name="OUT" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="WEST">
+            </property>
+        </port>
+    </entity>
+    <entity name="Scale4" class="Scale">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[590.0, 580.0]">
+        </property>
+    </entity>
+    <entity name="Scale3" class="Scale">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[270.0, 580.0]">
+        </property>
+        <port name="IN" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="EAST">
+            </property>
+        </port>
+        <port name="OUT" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="WEST">
+            </property>
+        </port>
+    </entity>
+    <entity name="Delay1" class="Delay">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="{550.0, 230.0}">
+        </property>
+    </entity>
+    <entity name="Delay2" class="Delay">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[375.0, 310.0]">
+        </property>
+        <port name="IN" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="NORTH">
+            </property>
+        </port>
+        <port name="OUT" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="SOUTH">
+            </property>
+        </port>
+    </entity>
+    <entity name="Delay6" class="Delay">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[150.0, 500.0]">
+        </property>
+        <port name="IN" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="SOUTH">
+            </property>
+        </port>
+        <port name="OUT" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="NORTH">
+            </property>
+        </port>
+    </entity>
+    <entity name="Delay4" class="Delay">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[480.0, 580.0]">
+        </property>
+    </entity>
+    <entity name="Delay5" class="Delay">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[710.0, 490.0]">
+        </property>
+        <port name="IN" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="SOUTH">
+            </property>
+        </port>
+        <port name="OUT" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+            <property name="_cardinal" class="ptolemy.kernel.util.StringAttribute" value="NORTH">
+            </property>
+        </port>
+    </entity>
+    <entity name="Delay3" class="Delay">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[585.0, 400.0]">
+        </property>
+    </entity>
+    <relation name="relation2" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation3" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation4" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation5" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation7" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation8" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation9" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation10" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation11" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation12" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation13" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation14" class="ptolemy.actor.TypedIORelation">
+        <vertex name="vertex1" value="[385.0, 230.0]">
+        </vertex>
+    </relation>
+    <relation name="relation" class="ptolemy.actor.TypedIORelation">
+        <vertex name="vertex1" value="{385.0, 400.0}">
+        </vertex>
+    </relation>
+    <relation name="relation6" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation15" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <link port="INPUT" relation="relation6"/>
+    <link port="Output" relation="relation15"/>
+    <link port="Add1.A" relation="relation6"/>
+    <link port="Add1.B" relation="relation3"/>
+    <link port="Add1.OUT" relation="relation14"/>
+    <link port="Add2.A" relation="relation2"/>
+    <link port="Add2.B" relation="relation4"/>
+    <link port="Add2.OUT" relation="relation3"/>
+    <link port="Add3.A" relation="relation10"/>
+    <link port="Add3.B" relation="relation9"/>
+    <link port="Add3.OUT" relation="relation15"/>
+    <link port="Add4.A" relation="relation8"/>
+    <link port="Add4.B" relation="relation11"/>
+    <link port="Add4.OUT" relation="relation9"/>
+    <link port="Scale1.IN" relation="relation"/>
+    <link port="Scale1.OUT" relation="relation7"/>
+    <link port="Scale2.IN" relation="relation"/>
+    <link port="Scale2.OUT" relation="relation2"/>
+    <link port="Scale4.IN" relation="relation13"/>
+    <link port="Scale4.OUT" relation="relation12"/>
+    <link port="Scale3.IN" relation="relation"/>
+    <link port="Scale3.OUT" relation="relation5"/>
+    <link port="Delay1.IN" relation="relation14"/>
+    <link port="Delay1.OUT" relation="relation10"/>
+    <link port="Delay2.IN" relation="relation14"/>
+    <link port="Delay2.OUT" relation="relation"/>
+    <link port="Delay6.IN" relation="relation5"/>
+    <link port="Delay6.OUT" relation="relation4"/>
+    <link port="Delay4.IN" relation="relation"/>
+    <link port="Delay4.OUT" relation="relation13"/>
+    <link port="Delay5.IN" relation="relation12"/>
+    <link port="Delay5.OUT" relation="relation11"/>
+    <link port="Delay3.IN" relation="relation7"/>
+    <link port="Delay3.OUT" relation="relation8"/>
+</entity>

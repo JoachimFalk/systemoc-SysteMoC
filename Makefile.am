@@ -1,8 +1,9 @@
 SUBDIRS= \
-  mpeg4-ref idct2d-ref systemc-mpeg4 \
-  systemc-sqr systemc-sdf systemc-fir \
-  systemc-select systemc-ibtest \
-  systemc-mpeg4-teich-v2
+  systemc-biquad-teich-v2 \
+  systemc-mpeg4-teich-v2 \
+  mpeg4-ref idct2d-ref systemc-mpeg4
+# systemc-sqr systemc-sdf systemc-fir \
+# systemc-select systemc-ibtest \
 # vpc-test-h261
 
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4

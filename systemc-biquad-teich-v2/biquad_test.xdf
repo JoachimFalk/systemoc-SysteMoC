@@ -1,0 +1,1565 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graph type="XDF" version="0">
+    <attribute name="Class" type="string" show="false">biquad</attribute>
+    <attribute name="Name" type="string" show="true">biquad</attribute>
+    <vertex id="InputPort_INPUT" type="InputPort">
+        <attribute name="Name" type="string" show="true">INPUT</attribute>
+        <output-port name="value">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </vertex>
+    <vertex id="OutputPort_Output" type="OutputPort">
+        <attribute name="Name" type="string" show="true">Output</attribute>
+        <input-port name="value"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </vertex>
+    <vertex type="Actor" id="Actor_Add1">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Add</attribute>
+        <attribute name="Name" type="string" show="true">Add1</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Add.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Add [] (int sz) int(size=sz) A, int(size=sz) B ==&gt; int(size=sz) OUT :
+
+  action A: [a], B: [b] ==&gt; OUT: [ a + b ] end
+
+end</CAL>
+            <Actor name="Add">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="A">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Input" name="B">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Action text-begin-line="7" text-begin-col="3" text-end-line="7" text-end-col="44">
+                    <Input kind="Elements" port="A">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Input kind="Elements" port="B">
+                        <Decl kind="Input" name="b"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr kind="BinOpSeq">
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                            <Op name="+"/>
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="b"/>
+                        </Expr>
+                    </Output>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="A">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <input-port name="B">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Add2">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Add</attribute>
+        <attribute name="Name" type="string" show="true">Add2</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Add.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Add [] (int sz) int(size=sz) A, int(size=sz) B ==&gt; int(size=sz) OUT :
+
+  action A: [a], B: [b] ==&gt; OUT: [ a + b ] end
+
+end</CAL>
+            <Actor name="Add">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="A">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Input" name="B">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Action text-begin-line="7" text-begin-col="3" text-end-line="7" text-end-col="44">
+                    <Input kind="Elements" port="A">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Input kind="Elements" port="B">
+                        <Decl kind="Input" name="b"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr kind="BinOpSeq">
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                            <Op name="+"/>
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="b"/>
+                        </Expr>
+                    </Output>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="A">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <input-port name="B">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Add3">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Add</attribute>
+        <attribute name="Name" type="string" show="true">Add3</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Add.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Add [] (int sz) int(size=sz) A, int(size=sz) B ==&gt; int(size=sz) OUT :
+
+  action A: [a], B: [b] ==&gt; OUT: [ a + b ] end
+
+end</CAL>
+            <Actor name="Add">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="A">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Input" name="B">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Action text-begin-line="7" text-begin-col="3" text-end-line="7" text-end-col="44">
+                    <Input kind="Elements" port="A">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Input kind="Elements" port="B">
+                        <Decl kind="Input" name="b"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr kind="BinOpSeq">
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                            <Op name="+"/>
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="b"/>
+                        </Expr>
+                    </Output>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="A">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <input-port name="B">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Add4">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Add</attribute>
+        <attribute name="Name" type="string" show="true">Add4</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Add.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Add [] (int sz) int(size=sz) A, int(size=sz) B ==&gt; int(size=sz) OUT :
+
+  action A: [a], B: [b] ==&gt; OUT: [ a + b ] end
+
+end</CAL>
+            <Actor name="Add">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="A">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Input" name="B">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Action text-begin-line="7" text-begin-col="3" text-end-line="7" text-end-col="44">
+                    <Input kind="Elements" port="A">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Input kind="Elements" port="B">
+                        <Decl kind="Input" name="b"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr kind="BinOpSeq">
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                            <Op name="+"/>
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="b"/>
+                        </Expr>
+                    </Output>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="A">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <input-port name="B">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Scale1">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Scale</attribute>
+        <attribute name="Name" type="string" show="true">Scale1</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Scale.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Scale [] (int sz, int c) int(size=sz) IN ==&gt; int(size=sz) OUT :
+
+  action IN: [a] ==&gt; OUT: [ c * a ] end
+
+end</CAL>
+            <Actor name="Scale">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="c">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Action text-begin-line="7" text-begin-col="3" text-end-line="7" text-end-col="37">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr kind="BinOpSeq">
+                            <Expr kind="Literal" literal-kind="Null"/>
+                            <Op name="*"/>
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                        </Expr>
+                    </Output>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <Note kind="parameter" name="c">
+            <CAL kind="expression"/>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Null"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="IN">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Scale2">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Scale</attribute>
+        <attribute name="Name" type="string" show="true">Scale2</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Scale.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Scale [] (int sz, int c) int(size=sz) IN ==&gt; int(size=sz) OUT :
+
+  action IN: [a] ==&gt; OUT: [ c * a ] end
+
+end</CAL>
+            <Actor name="Scale">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="c">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Action text-begin-line="7" text-begin-col="3" text-end-line="7" text-end-col="37">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr kind="BinOpSeq">
+                            <Expr kind="Literal" literal-kind="Null"/>
+                            <Op name="*"/>
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                        </Expr>
+                    </Output>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <Note kind="parameter" name="c">
+            <CAL kind="expression"/>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Null"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="IN">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Scale4">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Scale</attribute>
+        <attribute name="Name" type="string" show="true">Scale4</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Scale.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Scale [] (int sz, int c) int(size=sz) IN ==&gt; int(size=sz) OUT :
+
+  action IN: [a] ==&gt; OUT: [ c * a ] end
+
+end</CAL>
+            <Actor name="Scale">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="c">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Action text-begin-line="7" text-begin-col="3" text-end-line="7" text-end-col="37">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr kind="BinOpSeq">
+                            <Expr kind="Literal" literal-kind="Null"/>
+                            <Op name="*"/>
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                        </Expr>
+                    </Output>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <Note kind="parameter" name="c">
+            <CAL kind="expression"/>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Null"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="IN">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Scale3">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Scale</attribute>
+        <attribute name="Name" type="string" show="true">Scale3</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Scale.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Scale [] (int sz, int c) int(size=sz) IN ==&gt; int(size=sz) OUT :
+
+  action IN: [a] ==&gt; OUT: [ c * a ] end
+
+end</CAL>
+            <Actor name="Scale">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="c">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Action text-begin-line="7" text-begin-col="3" text-end-line="7" text-end-col="37">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr kind="BinOpSeq">
+                            <Expr kind="Literal" literal-kind="Null"/>
+                            <Op name="*"/>
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                        </Expr>
+                    </Output>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <Note kind="parameter" name="c">
+            <CAL kind="expression"/>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Null"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="IN">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Delay1">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Delay</attribute>
+        <attribute name="Name" type="string" show="true">Delay1</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Delay.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Delay [] (int sz, int init) int(size=sz) IN ==&gt; int(size=sz) OUT :
+  
+  int(size=sz) s = init;
+
+  action IN: [ a ] ==&gt; OUT: [ old s ] do
+ s := a;
+  end 
+
+end</CAL>
+            <Actor name="Delay">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="init">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Decl kind="Variable" name="s">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                    <Expr kind="Literal" literal-kind="Null"/>
+                </Decl>
+                <Action text-begin-line="9" text-begin-col="3" text-end-line="11" text-end-col="3">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="s" old="Yes"/>
+                    </Output>
+                    <Stmt kind="Assign" name="s">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                    </Stmt>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <Note kind="parameter" name="init">
+            <CAL kind="expression"/>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Null"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="IN">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Delay2">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Delay</attribute>
+        <attribute name="Name" type="string" show="true">Delay2</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Delay.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Delay [] (int sz, int init) int(size=sz) IN ==&gt; int(size=sz) OUT :
+  
+  int(size=sz) s = init;
+
+  action IN: [ a ] ==&gt; OUT: [ old s ] do
+ s := a;
+  end 
+
+end</CAL>
+            <Actor name="Delay">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="init">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Decl kind="Variable" name="s">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                    <Expr kind="Literal" literal-kind="Null"/>
+                </Decl>
+                <Action text-begin-line="9" text-begin-col="3" text-end-line="11" text-end-col="3">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="s" old="Yes"/>
+                    </Output>
+                    <Stmt kind="Assign" name="s">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                    </Stmt>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <Note kind="parameter" name="init">
+            <CAL kind="expression"/>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Null"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="IN">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Delay6">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Delay</attribute>
+        <attribute name="Name" type="string" show="true">Delay6</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Delay.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Delay [] (int sz, int init) int(size=sz) IN ==&gt; int(size=sz) OUT :
+  
+  int(size=sz) s = init;
+
+  action IN: [ a ] ==&gt; OUT: [ old s ] do
+ s := a;
+  end 
+
+end</CAL>
+            <Actor name="Delay">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="init">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Decl kind="Variable" name="s">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                    <Expr kind="Literal" literal-kind="Null"/>
+                </Decl>
+                <Action text-begin-line="9" text-begin-col="3" text-end-line="11" text-end-col="3">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="s" old="Yes"/>
+                    </Output>
+                    <Stmt kind="Assign" name="s">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                    </Stmt>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <Note kind="parameter" name="init">
+            <CAL kind="expression"/>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Null"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="IN">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Delay4">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Delay</attribute>
+        <attribute name="Name" type="string" show="true">Delay4</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Delay.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Delay [] (int sz, int init) int(size=sz) IN ==&gt; int(size=sz) OUT :
+  
+  int(size=sz) s = init;
+
+  action IN: [ a ] ==&gt; OUT: [ old s ] do
+ s := a;
+  end 
+
+end</CAL>
+            <Actor name="Delay">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="init">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Decl kind="Variable" name="s">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                    <Expr kind="Literal" literal-kind="Null"/>
+                </Decl>
+                <Action text-begin-line="9" text-begin-col="3" text-end-line="11" text-end-col="3">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="s" old="Yes"/>
+                    </Output>
+                    <Stmt kind="Assign" name="s">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                    </Stmt>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <Note kind="parameter" name="init">
+            <CAL kind="expression"/>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Null"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="IN">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Delay5">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Delay</attribute>
+        <attribute name="Name" type="string" show="true">Delay5</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Delay.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Delay [] (int sz, int init) int(size=sz) IN ==&gt; int(size=sz) OUT :
+  
+  int(size=sz) s = init;
+
+  action IN: [ a ] ==&gt; OUT: [ old s ] do
+ s := a;
+  end 
+
+end</CAL>
+            <Actor name="Delay">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="init">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Decl kind="Variable" name="s">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                    <Expr kind="Literal" literal-kind="Null"/>
+                </Decl>
+                <Action text-begin-line="9" text-begin-col="3" text-end-line="11" text-end-col="3">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="s" old="Yes"/>
+                    </Output>
+                    <Stmt kind="Assign" name="s">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                    </Stmt>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <Note kind="parameter" name="init">
+            <CAL kind="expression"/>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Null"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="IN">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <vertex type="Actor" id="Actor_Delay3">
+        <attribute xmlns:xdf="http://www.xilinx.com/2005/XDF"
+                   xmlns:xd="http://www.pnp-software.com/XSLTdoc"
+                   name="Class"
+                   show="false"
+                   type="string">Delay</attribute>
+        <attribute name="Name" type="string" show="true">Delay3</attribute>
+        <Note kind="architecture">cal</Note>
+        <Note kind="package">work</Note>
+        <Note kind="actor">
+            <CAL kind="actor">// Delay.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Delay [] (int sz, int init) int(size=sz) IN ==&gt; int(size=sz) OUT :
+  
+  int(size=sz) s = init;
+
+  action IN: [ a ] ==&gt; OUT: [ old s ] do
+ s := a;
+  end 
+
+end</CAL>
+            <Actor name="Delay">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Decl kind="Parameter" name="init">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="IN">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Decl kind="Variable" name="s">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                    <Expr kind="Literal" literal-kind="Null"/>
+                </Decl>
+                <Action text-begin-line="9" text-begin-col="3" text-end-line="11" text-end-col="3">
+                    <Input kind="Elements" port="IN">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="s" old="Yes"/>
+                    </Output>
+                    <Stmt kind="Assign" name="s">
+                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                    </Stmt>
+                </Action>
+            </Actor>
+        </Note>
+        <Note kind="parameter" name="sz">
+            <CAL kind="expression">16</CAL>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Integer" value="16"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <Note kind="parameter" name="init">
+            <CAL kind="expression"/>
+            <Expression>
+                <Expr kind="Literal" literal-kind="Null"/>
+            </Expression>
+            <Type name="int"/>
+        </Note>
+        <input-port name="IN">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </input-port>
+        <output-port name="OUT">
+            <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="portType">
+                <Type name="int">
+                    <Entry kind="Expr" name="size">
+                        <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                    </Entry>
+                </Type>
+            </Note>
+        </output-port>
+    </vertex>
+    <edge type="Arc" source="Actor_Scale2" sink="Actor_Add2" source-port="OUT"
+          sink-port="A">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Add2" sink="Actor_Add1" source-port="OUT"
+          sink-port="B">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Delay6" sink="Actor_Add2" source-port="OUT"
+          sink-port="B">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Scale3" sink="Actor_Delay6" source-port="OUT"
+          sink-port="IN">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Scale1" sink="Actor_Delay3" source-port="OUT"
+          sink-port="IN">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Delay3" sink="Actor_Add4" source-port="OUT"
+          sink-port="A">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Add4" sink="Actor_Add3" source-port="OUT"
+          sink-port="B">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Delay1" sink="Actor_Add3" source-port="OUT"
+          sink-port="A">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Delay5" sink="Actor_Add4" source-port="OUT"
+          sink-port="B">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Scale4" sink="Actor_Delay5" source-port="OUT"
+          sink-port="IN">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Delay4" sink="Actor_Scale4" source-port="OUT"
+          sink-port="IN">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Add1" sink="Actor_Delay1" source-port="OUT"
+          sink-port="IN">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Add1" sink="Actor_Delay2" source-port="OUT"
+          sink-port="IN">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Delay2" sink="Actor_Scale1" source-port="OUT"
+          sink-port="IN">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Delay2" sink="Actor_Scale2" source-port="OUT"
+          sink-port="IN">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Delay2" sink="Actor_Scale3" source-port="OUT"
+          sink-port="IN">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Delay2" sink="Actor_Delay4" source-port="OUT"
+          sink-port="IN">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="InputPort_INPUT" sink="Actor_Add1" source-port="value"
+          sink-port="A">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <edge type="Arc" source="Actor_Add3" sink="OutputPort_Output" source-port="OUT"
+          sink-port="value">
+        <Note kind="size"/>
+        <Note xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="type">
+            <Type name="int">
+                <Entry kind="Expr" name="size">
+                    <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                </Entry>
+            </Type>
+        </Note>
+    </edge>
+    <Note kind="generated-by" generator="MOML2XDF"/>
+</graph>

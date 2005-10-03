@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Actor name="Scale">
+    <Note kind="counter" value="1"/>
+    <Decl kind="Parameter" name="sz" id="0$id$w1ab1">
+        <Type name="int" id="0$id$w1ab1b1"/>
+    </Decl>
+    <Decl kind="Parameter" name="c" id="0$id$w1ab3">
+        <Type name="int" id="0$id$w1ab3b1"/>
+    </Decl>
+    <Port kind="Input" name="IN" id="0$id$w1ab5"/>
+    <Port kind="Output" name="OUT" id="0$id$w1ab7"/>
+    <Action text-begin-line="7" text-begin-col="3" text-end-line="7" text-end-col="37"
+            id="0$id$w1ab9">
+        <Input kind="Elements" port="IN" id="0$id$w1ab9b1">
+            <Decl kind="Input" name="a" id="0$id$w1ab9b1b1"/>
+        </Input>
+        <Output port="OUT" id="0$id$w1ab9b3">
+            <Expr kind="Application" id="1$id$w1ab5b3b1">
+                <Expr kind="Var" name="$mul" old="no" id="1$id$w1ab5b3b1a">
+                    <Note kind="freeVar" name="$mul"/>
+                </Expr>
+                <Args id="1$id$w1ab5b3b1b1">
+                    <Expr kind="Var" name="c" id="0$id$w1ab9b3b1b1">
+                        <Note kind="varRef" free="no" assignable="no" mutable="no" scope-id="">
+                            <Type name="int" id="0$id$w1ab3b1"/>
+                        </Note>
+                        <Note kind="freeVar" name="c"/>
+                    </Expr>
+                    <Expr kind="Var" name="a" id="0$id$w1ab9b3b1b5">
+                        <Note kind="varRef" free="no" assignable="no" mutable="no" scope-id="0$id$w1ab9"/>
+                        <Note kind="freeVar" name="a"/>
+                    </Expr>
+                </Args>
+                <Note kind="freeVar" name="$mul"/>
+                <Note kind="freeVar" name="c"/>
+                <Note kind="freeVar" name="a"/>
+            </Expr>
+        </Output>
+        <Note kind="freeVar" name="$mul"/>
+        <Note kind="freeVar" name="c"/>
+    </Action>
+    <Note kind="freeVar" name="$mul"/>
+</Actor>

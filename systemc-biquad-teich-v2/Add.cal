@@ -1,0 +1,9 @@
+// Add.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Add [] (int sz) int(size=sz) A, int(size=sz) B ==> int(size=sz) OUT :
+
+  action A: [a], B: [b] ==> OUT: [ a + b ] end
+
+end

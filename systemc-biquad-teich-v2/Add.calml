@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Actor name="Add">
+                <Decl kind="Parameter" name="sz">
+                    <Type name="int"/>
+                </Decl>
+                <Port kind="Input" name="A">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Input" name="B">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Port kind="Output" name="OUT">
+                    <Type name="int">
+                        <Entry kind="Expr" name="size">
+                            <Expr kind="Literal" literal-kind="Integer" value="16"/>
+                        </Entry>
+                    </Type>
+                </Port>
+                <Action text-begin-line="7" text-begin-col="3" text-end-line="7" text-end-col="44">
+                    <Input kind="Elements" port="A">
+                        <Decl kind="Input" name="a"/>
+                    </Input>
+                    <Input kind="Elements" port="B">
+                        <Decl kind="Input" name="b"/>
+                    </Input>
+                    <Output port="OUT">
+                        <Expr kind="BinOpSeq">
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                            <Op name="+"/>
+                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="b"/>
+                        </Expr>
+                    </Output>
+                </Action>
+            </Actor>

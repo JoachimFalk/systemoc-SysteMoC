@@ -1,0 +1,13 @@
+// Delay.cal
+// Xilinx Confidential
+// Copyright (c) 2005 Xilinx Inc
+
+actor Delay [] (int sz, int init) int(size=sz) IN ==> int(size=sz) OUT :
+  
+  int(size=sz) s = init;
+
+  action IN: [ a ] ==> OUT: [ old s ] do
+ s := a;
+  end 
+
+end
