@@ -1,0 +1,17 @@
+1 #single stream
+1 #number of streams
+foreman_qcif_30.bit #bitfile
+volfile #volfile
+govfile #govfile
+0 #error resilience flag
+yuv_file #y_file (or everything without .y postfix)
+u_file #u_file
+v_file #v_file
+a_file #a_file
+24 #framrate
+176 #display width
+144 #display height
+0 #filter type
+0 #bits per pixel
+0 #random access start time
+0 #VTC
