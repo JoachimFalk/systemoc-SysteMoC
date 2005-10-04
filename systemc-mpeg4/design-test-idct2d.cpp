@@ -33,6 +33,8 @@ class m_source_idct: public smoc_actor {
     
     void process() {
       
+      i1.open(INAMEblk);
+
       if(i1.good()){
         min[0] = -256;
         for ( int j = 0; j <= 63; j++ ) {
@@ -55,10 +57,9 @@ class m_source_idct: public smoc_actor {
   public:
     m_source_idct( sc_module_name name ) //,int init_value = 1 )
       :smoc_actor( name, start ), i(0) {
-      i1.open(INAMEblk);
       start = ((out.getAvailableSpace() >= 64) &&
                (min.getAvailableSpace() >= 1) &&
-               (var(i) <= 63))
+               (var(i) <= (1 * 63) ))
               >> CALL(m_source_idct::process)
               >> start;
     }
