@@ -55,8 +55,8 @@
 // Directives
 // **************
 // #ifdef WIN32
-// #define VERBOSE
-// #define STOP_ON_ERROR
+#define VERBOSE
+#define STOP_ON_ERROR
 // #define USE_DISPLAY
 // #define WRITE_FILE
 // #define COMPARE_FILE
