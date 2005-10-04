@@ -32,7 +32,6 @@ class m_source_idct: public smoc_actor {
     std::ifstream i1; 
     
     void process() {
-      i1.open(INAMEblk);
       
       if(i1.good()){
         min[0] = -256;
@@ -44,7 +43,6 @@ class m_source_idct: public smoc_actor {
         }
         std::cout << name() << "  write min " << min[0] << std::endl;
         
-        i1.close();
         
       }else{
         std::cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
@@ -56,12 +54,16 @@ class m_source_idct: public smoc_actor {
   public:
     m_source_idct( sc_module_name name ) //,int init_value = 1 )
       :smoc_actor( name, start ), i(0) {
+      i1.open(INAMEblk);
       start = ((out.getAvailableSpace() >= 64) &&
                (min.getAvailableSpace() >= 1) &&
                (var(i) <= (1 * 63) ))
               >> CALL(m_source_idct::process)
               >> start;
     }
+  ~m_source_idct( ){
+        i1.close();
+  }
 };
 
 class m_sink: public smoc_actor {
