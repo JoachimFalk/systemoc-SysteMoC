@@ -58,7 +58,7 @@
 #define VERBOSE
 #define STOP_ON_ERROR
 // #define USE_DISPLAY
-// #define WRITE_FILE
+#define WRITE_FILE
 // #define COMPARE_FILE
 // #define WRITE_TB_FILE
 // #endif
