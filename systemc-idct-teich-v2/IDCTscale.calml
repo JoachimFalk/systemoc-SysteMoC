@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Actor name="IDCTscale">
+                                        <TypeParameter name="int"/>
+                                        <Decl kind="Parameter" name="G">
+                                            <Type name="int"/>
+                                        </Decl>
+                                        <Decl kind="Parameter" name="OS">
+                                            <Type name="int"/>
+                                        </Decl>
+                                        <Port kind="Input" name="I">
+                                            <Type name="int"/>
+                                        </Port>
+                                        <Port kind="Output" name="O">
+                                            <Type name="int"/>
+                                        </Port>
+                                        <Action text-begin-line="6" text-begin-col="3" text-end-line="6" text-end-col="39">
+                                            <Input kind="Elements" port="I">
+                                                <Decl kind="Input" name="i"/>
+                                            </Input>
+                                            <Output port="O">
+                                                <Expr kind="BinOpSeq">
+                                                    <Expr kind="Literal" literal-kind="Integer" value="128"/>
+                                                    <Op name="+"/>
+                                                    <Expr kind="BinOpSeq">
+                                                        <Expr kind="Literal" literal-kind="Integer" value="2048"/>
+                                                        <Op name="*"/>
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="i"/>
+                                                    </Expr>
+                                                </Expr>
+                                            </Output>
+                                        </Action>
+                                    </Actor>

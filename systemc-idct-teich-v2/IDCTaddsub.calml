@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Actor name="IDCTaddsub">
+                                        <TypeParameter name="int"/>
+                                        <Decl kind="Parameter" name="G">
+                                            <Type name="int"/>
+                                        </Decl>
+                                        <Decl kind="Parameter" name="OS">
+                                            <Type name="int"/>
+                                        </Decl>
+                                        <Decl kind="Parameter" name="ATTEN">
+                                            <Type name="int"/>
+                                        </Decl>
+                                        <Port kind="Input" name="I1">
+                                            <Type name="int"/>
+                                        </Port>
+                                        <Port kind="Input" name="I2">
+                                            <Type name="int"/>
+                                        </Port>
+                                        <Port kind="Output" name="O1">
+                                            <Type name="int"/>
+                                        </Port>
+                                        <Port kind="Output" name="O2">
+                                            <Type name="int"/>
+                                        </Port>
+                                        <Action text-begin-line="7" text-begin-col="3" text-end-line="22" text-end-col="3">
+                                            <Input kind="Elements" port="I1">
+                                                <Decl kind="Input" name="i1"/>
+                                            </Input>
+                                            <Input kind="Elements" port="I2">
+                                                <Decl kind="Input" name="i2"/>
+                                            </Input>
+                                            <Output port="O1">
+                                                <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="o1"/>
+                                            </Output>
+                                            <Output port="O2">
+                                                <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="o2"/>
+                                            </Output>
+                                            <Decl kind="Variable" name="o1">
+                                                <Type name="int"/>
+                                                <Expr kind="BinOpSeq">
+                                                    <Expr kind="Literal" literal-kind="Integer" value="1"/>
+                                                    <Op name="*"/>
+                                                    <Expr kind="BinOpSeq">
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="i1"/>
+                                                        <Op name="+"/>
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="i2"/>
+                                                    </Expr>
+                                                    <Op name="+"/>
+                                                    <Expr kind="Literal" literal-kind="Integer" value="0"/>
+                                                </Expr>
+                                            </Decl>
+                                            <Decl kind="Variable" name="o2">
+                                                <Type name="int"/>
+                                                <Expr kind="BinOpSeq">
+                                                    <Expr kind="Literal" literal-kind="Integer" value="1"/>
+                                                    <Op name="*"/>
+                                                    <Expr kind="BinOpSeq">
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="i1"/>
+                                                        <Op name="-"/>
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="i2"/>
+                                                    </Expr>
+                                                    <Op name="+"/>
+                                                    <Expr kind="Literal" literal-kind="Integer" value="0"/>
+                                                </Expr>
+                                            </Decl>
+                                            <Stmt kind="If">
+                                                <Expr kind="BinOpSeq">
+                                                    <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="o1"/>
+                                                    <Op name="&lt;"/>
+                                                    <Expr kind="Literal" literal-kind="Integer" value="0"/>
+                                                </Expr>
+                                                <Stmt kind="Block">
+                                                    <Stmt kind="Assign" name="o1">
+                                                        <Expr kind="BinOpSeq">
+                                                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="o1"/>
+                                                            <Op name="-"/>
+                                                            <Expr kind="BinOpSeq">
+                                                                <Expr kind="Literal" literal-kind="Integer" value="16384"/>
+                                                                <Op name="-"/>
+                                                                <Expr kind="Literal" literal-kind="Integer" value="1"/>
+                                                            </Expr>
+                                                        </Expr>
+                                                    </Stmt>
+                                                </Stmt>
+                                            </Stmt>
+                                            <Stmt kind="Assign" name="o1">
+                                                <Expr kind="BinOpSeq">
+                                                    <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="o1"/>
+                                                    <Op name="/"/>
+                                                    <Expr kind="Literal" literal-kind="Integer" value="16384"/>
+                                                </Expr>
+                                            </Stmt>
+                                            <Stmt kind="If">
+                                                <Expr kind="BinOpSeq">
+                                                    <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="o2"/>
+                                                    <Op name="&lt;"/>
+                                                    <Expr kind="Literal" literal-kind="Integer" value="0"/>
+                                                </Expr>
+                                                <Stmt kind="Block">
+                                                    <Stmt kind="Assign" name="o2">
+                                                        <Expr kind="BinOpSeq">
+                                                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="o2"/>
+                                                            <Op name="-"/>
+                                                            <Expr kind="BinOpSeq">
+                                                                <Expr kind="Literal" literal-kind="Integer" value="16384"/>
+                                                                <Op name="-"/>
+                                                                <Expr kind="Literal" literal-kind="Integer" value="1"/>
+                                                            </Expr>
+                                                        </Expr>
+                                                    </Stmt>
+                                                </Stmt>
+                                            </Stmt>
+                                            <Stmt kind="Assign" name="o2">
+                                                <Expr kind="BinOpSeq">
+                                                    <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="o2"/>
+                                                    <Op name="/"/>
+                                                    <Expr kind="Literal" literal-kind="Integer" value="16384"/>
+                                                </Expr>
+                                            </Stmt>
+                                        </Action>
+                                    </Actor>

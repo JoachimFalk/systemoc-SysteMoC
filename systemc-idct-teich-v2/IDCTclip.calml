@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Actor name="IDCTclip">
+                                        <Decl kind="Parameter" name="MAX">
+                                            <Type name="int"/>
+                                        </Decl>
+                                        <Port kind="Input" name="I">
+                                            <Type name="int"/>
+                                        </Port>
+                                        <Port kind="Input" name="MIN">
+                                            <Type name="int"/>
+                                        </Port>
+                                        <Port kind="Output" name="O">
+                                            <Type name="int"/>
+                                        </Port>
+                                        <Decl kind="Variable" name="bound">
+                                            <Type kind="Function" infer="true"/>
+                                            <Expr kind="Lambda">
+                                                <Decl kind="Parameter" name="a"/>
+                                                <Decl kind="Parameter" name="x"/>
+                                                <Decl kind="Parameter" name="b"/>
+                                                <Expr kind="If">
+                                                    <Expr kind="BinOpSeq">
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="x"/>
+                                                        <Op name="&lt;"/>
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                                                    </Expr>
+                                                    <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="a"/>
+                                                    <Expr kind="If">
+                                                        <Expr kind="BinOpSeq">
+                                                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="x"/>
+                                                            <Op name="&gt;"/>
+                                                            <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="b"/>
+                                                        </Expr>
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="b"/>
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="x"/>
+                                                    </Expr>
+                                                </Expr>
+                                            </Expr>
+                                        </Decl>
+                                        <Action text-begin-line="7" text-begin-col="3" text-end-line="8" text-end-col="34">
+                                            <Input kind="Elements" port="I">
+                                                <Decl kind="Input" name="i"/>
+                                            </Input>
+                                            <Input kind="Elements" port="MIN">
+                                                <Decl kind="Input" name="min"/>
+                                            </Input>
+                                            <Output port="O">
+                                                <Expr kind="Application">
+                                                    <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="bound"/>
+                                                    <Args>
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="min"/>
+                                                        <Expr xmlns:xd="http://www.pnp-software.com/XSLTdoc" kind="Var" name="i"/>
+                                                        <Expr kind="Literal" literal-kind="Integer" value="255"/>
+                                                    </Args>
+                                                </Expr>
+                                            </Output>
+                                        </Action>
+                                    </Actor>
