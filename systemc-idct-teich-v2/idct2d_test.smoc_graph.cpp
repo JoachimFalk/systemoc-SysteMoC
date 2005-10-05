@@ -43,7 +43,7 @@ class m_Actor_xpose : public smoc_graph {
   m_Actor_xpose( sc_module_name name )
     : smoc_graph(name)
     {
-      m_IDCTtranspose &CalInterpreter = registerNode(new m_IDCTtranspose("CalInterpreter",));
+      m_IDCTtranspose &CalInterpreter = registerNode(new m_IDCTtranspose("CalInterpreter",0));
       connectInterfacePorts(I0,CalInterpreter.I0);
       connectInterfacePorts(I1,CalInterpreter.I1);
       connectInterfacePorts(I2,CalInterpreter.I2);
