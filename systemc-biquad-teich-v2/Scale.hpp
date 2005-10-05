@@ -4,8 +4,8 @@
 class m_Scale: public smoc_actor {
 // The actor has 2 Ports.
 public: 
-   smoc_port_in<IN;
-   smoc_port_out<OUT;
+   smoc_port_in<int> IN;
+   smoc_port_out<int> OUT;
 
 // The actor has 2 Parameters and 0 Variable declarations.
 private: 
@@ -17,7 +17,7 @@ private:
 void m_Scale::action(void) {
 // The action has 0 local variable declarations.
    int a = IN[0];
-   OUT[0] = (c * a);
+   OUT[0] = (1 * a);
 }
 
    smoc_firing_state start;
