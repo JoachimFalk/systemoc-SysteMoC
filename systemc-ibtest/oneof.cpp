@@ -2,7 +2,7 @@
 #include <iostream>
 #include <memory>
 
-#include <hscdsupport/oneof.hpp>
+#include <jf-libs/oneof.hpp>
 
 class a_ty {
   int x;
@@ -17,7 +17,7 @@ class c_ty {
   long long y;
 };
 
-typedef oneof<a_ty, b_ty, c_ty> abc_ty;
+typedef jflibs::oneof<a_ty, b_ty, c_ty> abc_ty;
 
 int main(int argc, char* argv[]) {
 

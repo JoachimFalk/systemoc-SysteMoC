@@ -41,11 +41,11 @@
 #include <iostream>
 
 // Oneof
-#include <hscdsupport/oneof.hpp>
+#include <jf-libs/oneof.hpp>
 
 // channel types
-typedef oneof<tt_notification, tt_bo_notification, tt_data>   ct_queue2atu;
-typedef oneof<tt_raw_header, tt_data>                         ct_bthgen2atu;
+typedef jflibs::oneof<tt_notification, tt_bo_notification, tt_data>   ct_queue2atu;
+typedef jflibs::oneof<tt_raw_header, tt_data>                         ct_bthgen2atu;
 
 /**
  * \brief Address Translation Unit

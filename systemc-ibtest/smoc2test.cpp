@@ -14,13 +14,13 @@
 
 // InifiniBand Includes
 #include "tt_ib.h"
-#include <hscdsupport/oneof.hpp>
+#include <jf-libs/oneof.hpp>
 
 using Expr::field;
 using Expr::isType;
 
 
-typedef oneof<int, char *> test_ty;
+typedef jflibs::oneof<int, char *> test_ty;
 
 class m_source: public smoc_actor {
   public:
