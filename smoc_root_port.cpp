@@ -2,6 +2,10 @@
 
 #include <smoc_root_port.hpp>
 
+#include <jf-libs/oneof.hpp>
+
+using namespace jflibs;
+
 smoc_ctx _ctx;
 
 void smoc_root_port::dump( std::ostream &out ) const {

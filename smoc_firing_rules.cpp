@@ -10,6 +10,10 @@
 
 #include <systemcvpc/hscd_vpc_Director.h>
 
+#include <jf-libs/oneof.hpp>
+
+using namespace jflibs;
+
 smoc_firing_state_ref::smoc_firing_state_ref()
   : rs(new resolved_state_ty()), fr(NULL) {
   smoc_firing_rules *x = new smoc_firing_rules(this);

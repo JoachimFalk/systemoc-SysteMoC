@@ -27,7 +27,7 @@ SUBDIRS=
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 SYSTEMCVPC_BUILDDIR=$(root_builddir)/SystemC-VPC
-MISCSUPPORT_BUILDDIR=$(root_builddir)/HscdSupport
+MISCSUPPORT_BUILDDIR=$(root_builddir)/Support
 
 ac_aux_dir = @ac_aux_dir@
 

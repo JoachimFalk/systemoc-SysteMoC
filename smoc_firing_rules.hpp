@@ -8,18 +8,18 @@
 #include <vector>
 
 #include <list>
-#include <hscdsupport/stl_output_for_list.hpp>
+#include <jf-libs/stl_output_for_list.hpp>
 
 #include <set>
 
-#include <hscdsupport/oneof.hpp>
+#include <jf-libs/oneof.hpp>
 
 #include <smoc_guard.hpp>
 #include <smoc_root_port.hpp>
 
 #include <boost/shared_ptr.hpp>
 
-#include <hscdsupport/commondefs.h>
+#include <jf-libs/commondefs.h>
 
 class smoc_activation_pattern;
 class smoc_transition;
@@ -99,7 +99,7 @@ struct smoc_firing_types {
   typedef std::list<transition_ty>        transitionlist_ty;
   typedef std::pair<bool,transition_ty *> maybe_transition_ty;
 //  typedef std::set<smoc_root_port *>  ports_ty;
-  typedef oneof<smoc_func_call, smoc_func_branch, smoc_func_diverge>
+  typedef jflibs::oneof<smoc_func_call, smoc_func_branch, smoc_func_diverge>
                                           func_ty;
   
   class transition_ty {

@@ -7,12 +7,11 @@
 #include <cassert>
 
 #include <list>
-#include <hscdsupport/stl_output_for_list.hpp>
-
 #include <utility>
-#include <hscdsupport/stl_output_for_pair.hpp>
 
-#include <hscdsupport/oneof.hpp>
+#include <jf-libs/stl_output_for_list.hpp>
+#include <jf-libs/stl_output_for_pair.hpp>
+#include <jf-libs/oneof.hpp>
 
 #include <systemc.h>
 
@@ -133,7 +132,7 @@ public:
   template <typename T_top>
   friend class smoc_top_moc;
 private:
-  typedef std::list<oneof<smoc_commreq,smoc_event *> > reqs_ty;
+  typedef std::list<jflibs::oneof<smoc_commreq,smoc_event *> > reqs_ty;
   
 //  void dummy() {};
 //  operator unspecified_bool_type() const
