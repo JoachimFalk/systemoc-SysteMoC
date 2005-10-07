@@ -51,8 +51,8 @@ private:
 public:
   actor_v2( sc_module_name name ) :
     smoc_actor( name, start ), 
-    state(false),
-    count(0)
+    count(0),
+    state(false)
   {
     start = !guard(&actor_v2::guard1)>> output(1) >> CALL(actor_v2::process_produce) >> start;
     

@@ -29,9 +29,9 @@ class data_chunk{
  public:
   int chunk_id;
   int chunk_count;
-  int buffer_id;
   t_uint32 length;
   t_uint64 address;
+  int buffer_id;
 
   int getChunkSize(){ return chunksize; }
 
@@ -50,9 +50,9 @@ class data_chunk{
 };
 
 struct data_request{
-  int buffer_id;
   t_uint64 address;
   t_uint32 length;
+  int buffer_id;
 
   data_request( int buffer_id, t_uint64 address, t_uint32 length ) :
     address( address ), length( length ), buffer_id( buffer_id ){
@@ -63,11 +63,11 @@ struct data_request{
 };
 
 struct data_buffer{
-  string data;
-  int buffer_id;
   std::set<int> missing_chunks;
   t_uint64 address;
   t_uint32 length;
+  int buffer_id;
+  string data;
 
   /**
    * Create an empty buffer, to fill in some chunks step by step with "write_chunk"!
@@ -266,7 +266,7 @@ typedef data_chunk<chunksize> d_chunk;
   
   std::set<int> *getChunkSet(int id, int chunk_count){
     if( chunk_set.count(id) == 0 ){
-      int size=chunksize*chunk_count;
+      //int size=chunksize*chunk_count;
       
       std::set<int> *missing_chunks=new std::set<int>();
       for( int i = 0; i < chunk_count; i++ ){
