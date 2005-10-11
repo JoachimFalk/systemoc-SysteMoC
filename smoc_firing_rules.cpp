@@ -8,7 +8,9 @@
 
 #include <hscd_tdsim_TraceLog.hpp>
 
-#include <systemcvpc/hscd_vpc_Director.h>
+#ifdef ENABLE_SYSTEMC_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
+#endif //ENABLE_SYSTEMC_VPC
 
 #include <jf-libs/oneof.hpp>
 
@@ -219,24 +221,34 @@ bool smoc_firing_types::transition_ty::tryExecute(
 #endif
         
 	TraceLog.traceStartFunction(fc.getFuncName()); //
+#ifdef ENABLE_SYSTEMC_VPC
         actor->vpc_event.reset();
+
         SystemC_VPC::Director::getInstance().
           getResource( actor->myModule()->name() ).
             compute( actor->myModule()->name(),
                      fc.getFuncName(),
                      &actor->vpc_event );
+#endif //ENABLE_SYSTEMC_VPC
         fc();
 	TraceLog.traceEndFunction(fc.getFuncName());  //
         
         assert( sl.size() == 1 );
         
-        actor->nextState.rs = sl.front();
+#ifdef ENABLE_SYSTEMC_VPC
         *rs = actor->commstate.rs;
+        actor->nextState.rs = sl.front();
         // save ports setup to later execute communication
         actor->ports_setup = _ctx.ports_setup;
         _ctx.ports_setup.clear();
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
         std::cout << "    <communication type=\"defered\"/>" << std::endl;
+# endif
+#else
+	*rs = sl.front();
+#endif // ENABLE_SYSTEMC_VPC
+
+#ifdef SYSTEMOC_DEBUG
         std::cout << "  </call>"<< std::endl;
 #endif
       } else {

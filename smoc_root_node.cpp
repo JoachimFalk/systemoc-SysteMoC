@@ -4,6 +4,58 @@
 #include <smoc_root_node.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
 
+smoc_root_node::smoc_root_node(const smoc_firing_state &s)
+  : _currentState(s), _initialState(NULL), is_v1_actor(false)
+#ifdef ENABLE_SYSTEMC_VPC
+  , commstate( smoc_activation_pattern(Expr::till(vpc_event), true) >>
+	       smoc_interface_action(smoc_func_diverge(
+						       this,&smoc_root_node::communicate)) ) 
+#endif // ENABLE_SYSTEMC_VPC
+  {}
+smoc_root_node::smoc_root_node(smoc_firing_state &s)
+  : _initialState(&s), is_v1_actor(false)
+#ifdef ENABLE_SYSTEMC_VPC
+  , commstate( smoc_activation_pattern(Expr::till(vpc_event), true) >>
+	       smoc_interface_action(smoc_func_diverge(
+						       this,&smoc_root_node::communicate)) )
+#endif // ENABLE_SYSTEMC_VPC
+  {}
+
+#ifdef ENABLE_SYSTEMC_VPC
+const smoc_firing_state &smoc_root_node::communicate() {
+    
+# ifdef SYSTEMOC_DEBUG
+  std::cout << "  <call actor=" << myModule()->name()
+	    << " func=smoc_root_node::communicate>" << std::endl;
+  std::cout << "    <communication type=\"execute\"/>" << std::endl;
+# endif
+    
+  assert( vpc_event );
+    
+  for ( smoc_port_list::iterator iter = ports_setup.begin();
+	iter != ports_setup.end();
+	++iter ) {
+    (*iter)->commExec();
+    (*iter)->reset();
+  }
+  ports_setup.clear();
+# ifdef SYSTEMOC_DEBUG
+  std::cout << "  </call>"<< std::endl;
+# endif
+  return nextState;
+}
+#endif // ENABLE_SYSTEMC_VPC
+
+void smoc_root_node::finalise() {
+  //    std::cout << myModule()->name() << ": finalise" << std::endl;
+  if ( _initialState != NULL ) {
+    _currentState = *_initialState;
+    _initialState = NULL;
+  }
+  _currentState.finalise(this);
+  //    dumpActor(std::cout);
+}
+
 const smoc_port_list smoc_root_node::getPorts() const {
   smoc_port_list   ports;
   const sc_module *m = myModule();
