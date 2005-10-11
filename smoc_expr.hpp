@@ -33,6 +33,9 @@ public:
 private:
   size_t refcount;
 public:
+  _RefCount()
+    : refcount(0) {}
+  
   virtual ~_RefCount() {}
 };
 
