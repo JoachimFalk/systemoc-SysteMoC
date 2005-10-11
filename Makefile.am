@@ -43,12 +43,12 @@ INCLUDES =						\
 	@SYSTEMC_INCLUDE@				\
 	-I./include					\
 	-I$(srcdir)					\
-	-I$(SYSTEMCVPC_BUILDDIR)/include		\
+	@SYSTEMC_VPC_INCLUDE@				\
 	-I$(MISCSUPPORT_BUILDDIR)/include
 
 AM_LDFLAGS=					\
 	@SYSTEMC_LDFLAGS@			\
-	-L$(SYSTEMCVPC_BUILDDIR)
+	@SYSTEMC_VPC_LDFLAGS@
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -93,9 +93,9 @@ libsystemoc_CH_LTOBJS=				\
 	$(smoc_pggen_hpp_CH_LTOBJS)
 #	$(smoc_op_hpp_CH_LTOBJS)
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lsystemcvpc -lstdc++
+libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
-libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include $(SYSTEMCVPC_BUILDDIR)/libsystemcvpc.la
+libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include @SYSTEMC_VPC_DEPENDENCIES@
 
 libsystemoc_la_SOURCES =		\
 	smoc_expr.cpp			\
