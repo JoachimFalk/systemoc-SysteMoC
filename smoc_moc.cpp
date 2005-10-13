@@ -16,7 +16,10 @@ smoc_scheduler_sdf::smoc_scheduler_sdf( cset_ty *c )
 const smoc_firing_state &smoc_scheduler_ndf::schedule() {
   bool           again;
   smoc_node_list nodes   = c->getNodes();
+
+  // FIXME: Big hack !!!
   smoc_ctx       _oldctx = _ctx;
+  _ctx.ports_setup.clear();
   
 #ifdef SYSTEMOC_DEBUG
   std::cout << "<smoc_scheduler_ndf::schedule>" << std::endl;
