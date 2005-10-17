@@ -34,17 +34,17 @@ LIBS=# -lsystemoc
 noinst_PROGRAMS= mpeg4-ref
 
 mpeg4_ref_SOURCES = \
-  bitstream.c \
-  copyControl.c \
-  decoder_chip.c \
-  main.c \
-  motionCompensation.c \
-  motion_decode.c \
-  mp4_dec_output.c \
-  parser.c \
-  stimuliGeneration.c \
-  textureUpdate.c \
-  texture_idct.c \
-  texture_vld.c
+  bitstream.cpp \
+  copyControl.cpp \
+  decoder_chip.cpp \
+  main.cpp \
+  motionCompensation.cpp \
+  motion_decode.cpp \
+  mp4_dec_output.cpp \
+  parser.cpp \
+  stimuliGeneration.cpp \
+  textureUpdate.cpp \
+  texture_idct.cpp \
+  texture_vld.cpp
 
 # block_idct2d_DEPENDENCIES =	@SYSTEMOC_DEPENDENCIES@		
