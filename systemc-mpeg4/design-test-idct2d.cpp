@@ -69,14 +69,13 @@ class m_source_idct: public smoc_actor {
 class m_sink: public smoc_actor {
   public:
     smoc_port_in<int> in;
-   // char * buffer;
+  
   private:
     std::ofstream fo; 
     
     void process() {
-      std::cout << name() << " XXX receiving " << in[0] << std::endl;
+      std::cout << name() << " receiving " << in[0] << std::endl;
       fo << in[0] << std::endl;
-      //fo.write(buffer,sizeof(short));
     }
     
     smoc_firing_state start;
@@ -137,10 +136,12 @@ public:
       src_idct("src_idct"),
       blidct("blidct"),
       snk("snk") {
+    
     connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
     connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(2));
     connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
-  }
+  
+      }
 };
 
 int sc_main (int argc, char **argv) {
