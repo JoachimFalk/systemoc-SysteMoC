@@ -17,7 +17,7 @@ private:
 void m_Scale::action(void) {
 // The action has 0 local variable declarations.
    int a = IN[0];
-   OUT[0] = (c * a);
+   OUT[0] = (1 * a);
 }
 
    smoc_firing_state start;
