@@ -14,6 +14,10 @@
 #include "picture.h"
 #endif
 
+
+#include <iostream>
+#include <fstream>
+
 #include "stimuliGeneration.h"
 
 /***********************************************************CommentBegin******
@@ -48,7 +52,8 @@
 // Outputs
 //		output stream	 8
 void DecoderChip(Vol *VOlist[], int dwidth, int dheight, unsigned short streams, int *ulx_display, int *uly_display)
-{ 
+{       
+    
 	unsigned char stop=0, stnum=0;
 	int fwidth[MAX_STREAMS], fheight[MAX_STREAMS];
 	unsigned int frameMemoryOffset[MAX_STREAMS];
@@ -180,15 +185,33 @@ if( framenum == 189 )
 																	);
 				StimuliGenerationMC_WriteObjectFifo(StimuliFile_MC_Comp, comp_block, 64, 0);
 			}
-		}
+    }
 
 
 		//
 		// Block #4: Texture/IDCT
 		//
 		
-		if (perform_idct)
+		if (perform_idct) {
+      std::ofstream fo ("q_block.dat");
+      
+      for(int i=0; i<B_SIZE; i++) 
+      {
+        fo << q_block[i] <<"\n";
+      }
+      fo.close();
+      
 			TextureIDCT(q_block, blnum, hToTU[0], vToTU[0], btype, ACpred_flag, DCpos, CBP, bp_prev, texture_block);
+      
+      std::ofstream fo2 ("texture_block.dat");
+      
+      for(int j=0; j<B_SIZE; j++) 
+      {
+        fo2 << texture_block[j] <<"\n";
+      }
+      fo2.close();
+ }
+
 
 		//
 		// Block #5: Texture Update (previously called adder)
@@ -231,3 +254,4 @@ if( (tu_mode[0] != 0 && tu_mode[0] != 6 ) &&
 
 	return;
 } // DecoderChip
+

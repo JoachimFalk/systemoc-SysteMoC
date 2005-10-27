@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 #ifdef COMPARE_FILE
 	strcpy(reffile, outfile);
 	strrepl(reffile, 300, "data_dec_test", "data_dec_refer");
-  strcpy( reffile, "ref_foreman_qcif_30.yuv" ); // DBP
+        strcpy( reffile, "ref_foreman_qcif_30.yuv" ); // DBP
 	if ((ref_file = fopen(reffile, "rb")) == NULL)
 		printf("Warning: cannot open reference file\n");
 	frames_in_error = 0;
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 	tfinish = clock();
 	duration = (double)(tfinish - tstart) / CLOCKS_PER_SEC;
 	printf("\nDecoding Performance:\n  %d frames in %.2f seconds (%.2f fps)\n\n",
-		framenum, duration, (double)framenum/duration);
+	        framenum, duration, (double)framenum/duration);
 #ifdef VERBOSE
 	bitcount = vol_header_bits + vop_header_bits + vp_header_bits + mb_header_bits + motion_bits + texture_bits;
 	printf("Statistics:\n-----------\n");
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
 	printf("  Parser/VLD HW Analysis (estimated):\n");
 	printf("    Assumed clock freq.   = %d MHz\n", PARSER_CLOCK);
 	printf("    Total HW Clock Cycles = %d cycles\n", parser_cycles);
-  printf("    Total processing time = %.1f msec\n", 1.0 * parser_cycles / PARSER_CLOCK);
+        printf("    Total processing time = %.1f msec\n", 1.0 * parser_cycles / PARSER_CLOCK);
 	printf("    Max. throughput       = %.1f Mbits/sec\n\n", 1.0 * bitcount * PARSER_CLOCK / parser_cycles);
 	printf("  Resync errors: %d\n", resync_errors);
 #endif

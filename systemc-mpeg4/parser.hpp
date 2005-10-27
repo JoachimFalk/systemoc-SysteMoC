@@ -424,7 +424,7 @@ vol6 = ((bits.getAvailableTokens() >= 4) &&
 
 vol7 = ((bits.getAvailableTokens() >= 82) &&
 	(var(vol_vbv_is_detailed) == 1)) >>
-	CALL(m_parser::action_vol_vbv_detailed)  >> vol9
+	CALL(m_parser::action_vol_vbv_detailed)  >> vol7
      | (bits.getAvailableTokens() >= 3) >>
 	CALL(m_parser::action_vol_vbv_nodetails)  >> vol9;
 
@@ -1104,10 +1104,13 @@ void m_parser::action_vop_rate_fixed(void){
 void m_parser::action_vol_size(void){
   BOUND_BITS_TO_B(28);
 
-  vol_width  = value( b, 9,  0 ); // divide by 16
-  vol_height = value( b, 9, 14 );
+  vol_width  = value( b, 13,  0 ); // divide by 16
+  // skip marker(1)
+  vol_height = value( b, 13, 14 );
+  // skip marker(1)
   bit_count = bit_count + 28;
-  // cout << "VOL width = " << vol_width << ", height = " << vol_height << endl;
+  
+  cout << "VOL width = " << vol_width << ", height = " << vol_height << endl;
 }
 
 void m_parser::action_vol_misc_unsupported(void){
