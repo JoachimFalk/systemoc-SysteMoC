@@ -57,7 +57,7 @@ class m_source_idct: public smoc_actor {
       i1.open(INAMEblk);
       start = ((out.getAvailableSpace() >= 64) &&
                (min.getAvailableSpace() >= 1) &&
-               (var(i) <= (1 * 63) ))
+               (var(i) < (100 * 64) ))
               >> CALL(m_source_idct::process)
               >> start;
     }
