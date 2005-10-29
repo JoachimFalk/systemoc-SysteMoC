@@ -11,6 +11,8 @@
 
 #include <map>
 
+#include <hscd_tdsim_TraceLog.hpp>
+
 //template <typename T> class hscd_op;
 
 template <typename T>
@@ -89,7 +91,13 @@ protected:
 #ifdef SYSTEMOC_DEBUG
       std::cout << "  <blocked id=\"" << this << "\">" << std::endl;
 #endif
+#ifdef SYSTEMOC_TRACE
+      TraceLog.traceBlockingWaitStart();
+#endif
       wait(e);
+#ifdef SYSTEMOC_TRACE
+      TraceLog.traceBlockingWaitEnd();
+#endif
 #ifdef SYSTEMOC_DEBUG
       std::cout << "  </blocked id=\"" << this << "\">" << std::endl;
 #endif
@@ -153,7 +161,13 @@ protected:
 #ifdef SYSTEMOC_DEBUG
       std::cout << "  <blocked id=\"" << this << "\">" << std::endl;
 #endif
+#ifdef SYSTEMOC_TRACE
+      TraceLog.traceBlockingWaitStart();
+#endif
       wait(e);
+#ifdef SYSTEMOC_TRACE
+      TraceLog.traceBlockingWaitEnd();
+#endif
 #ifdef SYSTEMOC_DEBUG
       std::cout << "  </blocked id=\"" << this << "\">" << std::endl;
 #endif

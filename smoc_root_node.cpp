@@ -4,6 +4,8 @@
 #include <smoc_root_node.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
 
+#include <hscd_tdsim_TraceLog.hpp>
+
 smoc_root_node::smoc_root_node(const smoc_firing_state &s)
   : _currentState(s), _initialState(NULL), is_v1_actor(false)
 #ifdef ENABLE_SYSTEMC_VPC
@@ -29,7 +31,11 @@ const smoc_firing_state &smoc_root_node::communicate() {
 	    << " func=smoc_root_node::communicate>" << std::endl;
   std::cout << "    <communication type=\"execute\"/>" << std::endl;
 # endif
-    
+
+#ifdef SYSTEMOC_TRACE
+   TraceLog.traceStartDeferredCommunication(myModule()->name());
+#endif
+ 
   assert( vpc_event );
     
   for ( smoc_port_list::iterator iter = ports_setup.begin();
@@ -39,6 +45,11 @@ const smoc_firing_state &smoc_root_node::communicate() {
     (*iter)->reset();
   }
   ports_setup.clear();
+
+#ifdef SYSTEMOC_TRACE
+  TraceLog.traceEndDeferredCommunication(myModule()->name());
+#endif
+
 # ifdef SYSTEMOC_DEBUG
   std::cout << "  </call>"<< std::endl;
 # endif

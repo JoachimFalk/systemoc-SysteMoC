@@ -3,6 +3,8 @@
 #ifndef _INCLUDED_HSCD_NODE_TYPES_HPP
 #define _INCLUDED_HSCD_NODE_TYPES_HPP
 
+#include <hscd_tdsim_TraceLog.hpp>
+
 #include <smoc_node_types.hpp>
 #include <hscd_op.hpp>
 
@@ -11,8 +13,28 @@ class hscd_choice_node
   private:
     smoc_firing_state start;
   protected:
-    void transact( const hscd_op_transact &op ) { op.startOp(); }
-    void choice( const hscd_op_choice &op )     { op.startOp(); }
+    void transact( const hscd_op_transact &op ) { 
+#ifdef SYSTEMOC_TRACE
+      if(dynamic_cast<sc_module*>(this))TraceLog.traceStartTransact( (dynamic_cast<sc_module*>(this))->name() );
+      else TraceLog.traceStartTransact( "Noname" );
+#endif
+       op.startOp();
+#ifdef SYSTEMOC_TRACE
+      if(dynamic_cast<sc_module*>(this))TraceLog.traceEndTransact( (dynamic_cast<sc_module*>(this))->name() );
+      else TraceLog.traceStartTransact( "Noname" );
+#endif
+     }
+    void choice( const hscd_op_choice &op )     {
+#ifdef SYSTEMOC_TRACE
+      if(dynamic_cast<sc_module*>(this))TraceLog.traceStartChoice( (dynamic_cast<sc_module*>(this))->name() );
+      else TraceLog.traceStartTransact( "Noname" );
+#endif
+       op.startOp();
+#ifdef SYSTEMOC_TRACE
+      if(dynamic_cast<sc_module*>(this))TraceLog.traceEndChoice( (dynamic_cast<sc_module*>(this))->name() );
+      else TraceLog.traceStartTransact( "Noname" );
+#endif
+ }
     
     hscd_choice_node()
       : smoc_root_node(start) { is_v1_actor = true; }

@@ -74,12 +74,20 @@ public:
   
   void traceStartActor(const char * actor);
   void traceEndActor(const char * actor);
-  void traceStartFunction(const char * actor);
-  void traceEndFunction(const char * actor);
+  void traceStartFunction(const char * func);
+  void traceEndFunction(const char * func);
   void traceStartTryExecute(const char * actor);
   void traceEndTryExecute(const char * actor);
-  void traceCommExecIn(size_t size, const char *name);
-  void traceCommExecOut(size_t size, const char *name);
+  void traceCommExecIn(size_t size, const char * actor);
+  void traceCommExecOut(size_t size, const char * actor);
+  void traceStartDeferredCommunication(const char * actor);
+  void traceEndDeferredCommunication(const char * actor);
+  void traceBlockingWaitStart();
+  void traceBlockingWaitEnd();
+  void traceStartChoice(const char * actor);
+  void traceEndChoice(const char * actor);
+  void traceStartTransact(const char * actor);
+  void traceEndTransact(const char * actor);
   
 
 };

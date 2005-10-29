@@ -4,6 +4,31 @@
 
 TraceLogStream TraceLog("test.trace");
 
+void  TraceLogStream::traceBlockingWaitStart(){
+  stream << "<waiting type=\"sleep\"/>" << std::endl;
+}
+void  TraceLogStream::traceBlockingWaitEnd(){
+  stream << "<waiting type=\"wake up\"/>" << std::endl;
+}
+void  TraceLogStream::traceStartChoice(const char * actor){
+  stream << "<choice type=\"begin\" name=\""<< actor << "\"/>" << std::endl;
+  actors.insert(actor);
+  actor_activation_count[actor]++;
+  lastactor=actor;
+}
+void  TraceLogStream::traceEndChoice(const char * actor){
+  stream << "<choice type=\"end\" name=\""<< actor << "\"/>" << std::endl;
+}
+void  TraceLogStream::traceStartTransact(const char * actor){
+  stream << "<transact type=\"begin\" name=\""<< actor << "\"/>" << std::endl;
+  actors.insert(actor);
+  actor_activation_count[actor]++;
+  lastactor=actor;
+}
+void  TraceLogStream::traceEndTransact(const char * actor){
+  stream << "<transact type=\"end\" name=\""<< actor << "\"/>" << std::endl;
+}
+
 
 void TraceLogStream::traceStartActor(const char * actor){
   stream << "<actor name=\""<< actor << "\">" << std::endl;
@@ -28,11 +53,17 @@ void TraceLogStream::traceStartTryExecute(const char * actor){
 void TraceLogStream::traceEndTryExecute(const char * actor){
   stream << "</tryexecute>" << std::endl;
 }
-void TraceLogStream::traceCommExecIn(size_t size, const char *name){
-  stream << "<commexecin size=\""<<size<<"\" name= \""<<name<<"\"/>" << std::endl;
+void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
+  stream << "<commexecin size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
 }
-void TraceLogStream::traceCommExecOut(size_t size, const char *name){
-  stream << "<commexecout size=\""<<size<<"\" name= \""<<name<<"/>" << std::endl;
+void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
+  stream << "<commexecout size=\""<<size<<"\" channel=\""<<actor<<"/>" << std::endl;
+}
+void TraceLogStream::traceStartDeferredCommunication(const char * actor){
+  stream << "<deferred_communication actor=\""<< actor << "\"\">" << std::endl;
+}
+void TraceLogStream::traceEndDeferredCommunication(const char * actor){
+  stream << "</deferred_communication>" << std::endl;
 }
 
 TraceLogStream::~TraceLogStream(){
