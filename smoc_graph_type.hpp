@@ -37,6 +37,15 @@ protected:
     connectChanPort(chan,a);
     connectChanPort(chan,b);
   }
+  template <int i, typename T_data_type>
+  void connectNodePorts(
+      smoc_port_out<T_data_type> &b,
+      smoc_port_in<T_data_type>  &a ) {
+    typename T_chan_init_default<T_data_type>::chan_type &chan =
+      registerChan( T_chan_init_default<T_data_type>(i) );
+    connectChanPort(chan,a);
+    connectChanPort(chan,b);
+  }
   template <typename T_data_type>
   void connectNodePorts(
       smoc_port_out<T_data_type> &b,
