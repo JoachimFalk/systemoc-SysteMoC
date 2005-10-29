@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <string>
 
 #include <smoc_moc.hpp>
 #include <smoc_port.hpp>
@@ -67,7 +68,7 @@ struct data_buffer{
   t_uint64 address;
   t_uint32 length;
   int buffer_id;
-  string data;
+  std::string data;
 
   /**
    * Create an empty buffer, to fill in some chunks step by step with "write_chunk"!
@@ -119,7 +120,7 @@ typedef data_chunk<chunksize> d_chunk;
   smoc_port_out<d_chunk>  out;
 
  private:
-  string    buffer;
+  std::string    buffer;
   data_request _request;
   int actual_chunk_id;
   int chunk_count;
@@ -251,7 +252,7 @@ typedef data_chunk<chunksize> d_chunk;
   std::map<int, std::set<int>* > chunk_set;
 
 
-  string            buffer;
+  std::string            buffer;
   //  char              tempBuffer[chunksize];
   smoc_firing_state write;
 
