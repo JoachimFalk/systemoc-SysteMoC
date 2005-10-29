@@ -1,5 +1,7 @@
 #include <hscd_tdsim_TraceLog.hpp>
 
+#ifdef SYSTEMOC_TRACE
+
 TraceLogStream TraceLog("test.trace");
 
 
@@ -85,3 +87,5 @@ TraceLogStream::~TraceLogStream(){
   stream << "</configuration>\n" << std::endl;
   stream << "-->" << std::endl;
 }
+
+#endif

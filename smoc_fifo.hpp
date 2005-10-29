@@ -164,7 +164,9 @@ protected:
     return smoc_ring_access<const T>(getStorage(), fsize, rindex, req);
   }
   void commExecIn(const smoc_ring_access<const T> &r){
+#ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecIn(r.getLimit(), this->name());
+#endif
     rpp(r.getLimit()); read_event.notify(); 
   }
   smoc_ring_access<T> commSetupOut(size_t req) {
@@ -172,7 +174,9 @@ protected:
     return smoc_ring_access<T>(getStorage(), fsize, windex, req);
   }
   void commExecOut(const smoc_ring_access<T> &r){
+#ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(r.getLimit(), this->name());
+#endif
     wpp(r.getLimit()); write_event.notify();
   }
 public:

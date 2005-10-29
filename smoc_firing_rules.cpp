@@ -191,7 +191,9 @@ bool smoc_firing_types::transition_ty::tryExecute(
           isType<smoc_func_branch>(f) ||
           isType<smoc_func_call>(f) );
   if ( canexec ) {
+#ifdef SYSTEMOC_TRACE
     TraceLog.traceStartTryExecute(actor->myModule()->name()); //
+#endif
     if ( isType<smoc_func_diverge>(f) ) {
       // FIXME: this must only be used internally
       const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
@@ -209,7 +211,9 @@ bool smoc_firing_types::transition_ty::tryExecute(
 #endif
       *rs = ns.rs;
     } else {
+#ifdef SYSTEMOC_TRACE
       TraceLog.traceStartActor(actor->myModule()->name()); //
+#endif
       // FIXME: we assume calls will only be used by leaf actors
       if ( isType<smoc_func_call>(f) ) {
         smoc_func_call &fc = f;
@@ -220,7 +224,9 @@ bool smoc_firing_types::transition_ty::tryExecute(
                   << ">"<< std::endl;
 #endif
         
+#ifdef SYSTEMOC_TRACE
 	TraceLog.traceStartFunction(fc.getFuncName()); //
+#endif
 #ifdef ENABLE_SYSTEMC_VPC
         actor->vpc_event.reset();
 
@@ -231,7 +237,9 @@ bool smoc_firing_types::transition_ty::tryExecute(
                      &actor->vpc_event );
 #endif //ENABLE_SYSTEMC_VPC
         fc();
+#ifdef SYSTEMOC_TRACE
 	TraceLog.traceEndFunction(fc.getFuncName());  //
+#endif
         
         assert( sl.size() == 1 );
         
@@ -255,13 +263,17 @@ bool smoc_firing_types::transition_ty::tryExecute(
         assert( sl.size() == 1 );
         *rs = sl.front();
       }
+#ifdef SYSTEMOC_TRACE
       TraceLog.traceEndActor(actor->myModule()->name()); //
+#endif
     }
     for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
           iter != _ctx.ports_setup.end();
           ++iter )
       (*iter)->commExec();
+#ifdef SYSTEMOC_TRACE
     TraceLog.traceEndTryExecute(actor->myModule()->name()); //
+#endif
   }
   return canexec;
 }

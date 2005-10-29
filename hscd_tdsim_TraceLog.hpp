@@ -27,6 +27,8 @@
 #include <map>
 #include <set>
 
+#ifdef SYSTEMOC_TRACE
+
 using std::string;
 class TraceLogStream {
 private:
@@ -83,6 +85,8 @@ public:
 };
 
 extern TraceLogStream TraceLog; 
+
+#endif
 
 
 
