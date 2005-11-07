@@ -25,7 +25,7 @@ const smoc_firing_state &smoc_scheduler_ndf::schedule() {
   std::cout << "<smoc_scheduler_ndf::schedule>" << std::endl;
 #endif
   // FIXME: Big hack !!!
-  _ctx.hierarchy = myModule();
+  // _ctx.hierarchy = myModule();
   do {
     again = false;
     for ( smoc_node_list::const_iterator iter = nodes.begin();

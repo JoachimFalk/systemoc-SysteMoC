@@ -103,7 +103,9 @@ protected:
   typedef std::pair<transition_ty *, smoc_root_node *>  transition_node_ty;
   typedef std::list<transition_node_ty>                 transition_node_list_ty;
   
-  void  schedule(smoc_graph *c);
+  void getLeafNodes(smoc_node_list &nodes, smoc_graph *node);
+  
+  void schedule(smoc_graph *c);
 };
 
 template <typename T_top>

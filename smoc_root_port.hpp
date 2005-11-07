@@ -82,11 +82,11 @@ std::ostream &operator <<( std::ostream &out, const smoc_root_port &p )
 typedef std::list<smoc_root_port *> smoc_port_list;
 
 struct smoc_ctx {
-  sc_module       *hierarchy;
+//  sc_module       *hierarchy;
   smoc_port_list   ports_setup;
   
-  smoc_ctx()
-    : hierarchy(NULL) {}
+//  smoc_ctx()
+//    : hierarchy(NULL) {}
 };
 
 extern smoc_ctx _ctx;
