@@ -129,8 +129,7 @@ public:
     IS_ENABLED    // this guard is still true
   };
   
-  template <typename T_top>
-  friend class smoc_top_moc;
+  friend class smoc_scheduler_top;
 private:
   typedef std::list<jflibs::oneof<smoc_commreq,smoc_event *> > reqs_ty;
   

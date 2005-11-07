@@ -71,3 +71,47 @@ smoc_scheduler_ndf::smoc_scheduler_ndf( cset_ty *c )
   std::cout << "smoc_scheduler_ndf" << std::endl;
 #endif
 }
+
+void smoc_scheduler_top::schedule(smoc_graph *c) {
+  do {
+    bool executed = c->currentState().tryExecute();
+    assert( executed == true );
+    {
+#ifdef SYSTEMOC_DEBUG
+      std::cout << "in top scheduler !!!" << std::endl;
+#endif
+      smoc_root_port_bool_list l;
+      
+      smoc_event_or_list ol;
+      c->currentState().findBlocked(l);
+      for ( smoc_root_port_bool_list::iterator iter = l.begin();
+            iter != l.end();
+            ++iter ) {
+        smoc_root_port_bool::reqs_ty &reqs = iter->reqs;
+        
+       /* 
+        smoc_event_and_list al;
+        for ( smoc_root_port_bool::reqs_ty::iterator riter = reqs.begin();
+              riter != reqs.end();
+              ++riter )
+          al &= *static_cast<smoc_event *>(*riter);
+        ol |= al;*/
+#ifdef SYSTEMOC_DEBUG
+        std::cout << reqs << std::endl;
+#endif
+        assert( reqs.size() <=  1 );
+        if ( !reqs.empty() ) {
+          ol |= *static_cast<smoc_event *>(*reqs.begin());
+        }
+      }
+      smoc_wait(ol);
+#ifdef SYSTEMOC_DEBUG
+      for ( smoc_event_or_list::iterator iter = ol.begin();
+            iter != ol.end();
+            ++iter )
+        std::cout << **iter << std::endl;
+#endif
+    }
+  } while ( 1 );
+}
+

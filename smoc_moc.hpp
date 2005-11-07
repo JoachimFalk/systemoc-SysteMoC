@@ -135,6 +135,18 @@ public:
 
 };
 
+class smoc_scheduler_top
+  : public smoc_firing_types,
+    public smoc_scheduler_base {
+public:
+  typedef smoc_scheduler_top      this_type;
+protected:
+  typedef std::pair<transition_ty *, smoc_root_node *>  transition_node_ty;
+  typedef std::list<transition_node_ty>                 transition_node_list_ty;
+  
+  void  schedule(smoc_graph *c);
+};
+
 /*
 template<typename T>
 void dump(std::list<T> &nodes) {
@@ -235,75 +247,30 @@ class smoc_ndf_moc
 
 template <typename T_top>
 class smoc_top_moc
-  : public T_top {
+  : public T_top,
+    public smoc_scheduler_top {
 private:
-//  bool notagain;
-  
   // called by elaboration_done (does nothing by default)
-  void end_of_elaboration() {
- //   if ( !notagain ) {
-      finalise();
-//      notagain = true;
-//    }
-  }
+  void end_of_elaboration()
+    { finalise(); }
   
-  void schedule() {
-    do {
-      bool executed = this->currentState().tryExecute();
-      assert( executed == true );
-      {
-#ifdef SYSTEMOC_DEBUG
-        std::cout << "in top scheduler !!!" << std::endl;
-#endif
-        smoc_root_port_bool_list l;
-        
-        smoc_event_or_list ol;
-        this->currentState().findBlocked(l);
-        for ( smoc_root_port_bool_list::iterator iter = l.begin();
-              iter != l.end();
-              ++iter ) {
-          smoc_root_port_bool::reqs_ty &reqs = iter->reqs;
-          
-         /* 
-          smoc_event_and_list al;
-          for ( smoc_root_port_bool::reqs_ty::iterator riter = reqs.begin();
-                riter != reqs.end();
-                ++riter )
-            al &= *static_cast<smoc_event *>(*riter);
-          ol |= al;*/
-#ifdef SYSTEMOC_DEBUG
-	  std::cout << reqs << std::endl;
-#endif
-          assert( reqs.size() <=  1 );
-	  if ( !reqs.empty() ) {
-	    ol |= *static_cast<smoc_event *>(*reqs.begin());
-	  }
-        }
-        smoc_wait(ol);
-#ifdef SYSTEMOC_DEBUG
-        for ( smoc_event_or_list::iterator iter = ol.begin();
-              iter != ol.end();
-              ++iter )
-          std::cout << **iter << std::endl;
-#endif
-      }
-    } while ( 1 );
-  }
+  void scheduleTop()
+    { return smoc_scheduler_top::schedule(this); }
 public:
   typedef smoc_top_moc<T_top> this_type;
   
   SC_HAS_PROCESS(this_type);
   
   explicit smoc_top_moc( sc_module_name name )
-    : T_top(name)/*, notagain(false)*/ {
+    : T_top(name) {
 #ifndef __SCFE__
-    SC_THREAD(schedule);
+    SC_THREAD(scheduleTop);
 #endif
   }
   smoc_top_moc()
     : T_top() {
 #ifndef __SCFE__
-    SC_THREAD(schedule);
+    SC_THREAD(scheduleTop);
 #endif
   }
 };
