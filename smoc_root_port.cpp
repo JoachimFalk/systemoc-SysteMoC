@@ -31,7 +31,7 @@ smoc_root_port_bool::smoc_root_port_bool(smoc_root_port *p, size_t n) {
   // std::cout << "smoc_root_port_bool(smoc_root_port *p, size_t n) ";
   if ( p->availableCount() >= n ) {
     v = IS_ENABLED;// std::cout << "enabled";
-  } else if ( p->getParentPort() != NULL ||
+  } else if ( /* p->getParentPort() != NULL || */
               p->peerIsV1() ) {
     v = IS_BLOCKED;// std::cout << "blocked";
     // assert( p->getHierarchy() != _ctx.hierarchy ||

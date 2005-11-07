@@ -72,38 +72,82 @@ smoc_scheduler_ndf::smoc_scheduler_ndf( cset_ty *c )
 #endif
 }
 
+void smoc_scheduler_top::getLeafNodes(
+    smoc_node_list &nodes, smoc_graph *node) {
+  smoc_node_list n = node->getNodes();
+  
+  for ( smoc_node_list::iterator iter = n.begin();
+        iter != n.end();
+        ++iter ) {
+    if ( dynamic_cast<smoc_actor *>(*iter) != NULL ) {
+      nodes.push_back(*iter);
+    }
+    if ( dynamic_cast<smoc_graph *>(*iter) != NULL ) {
+      getLeafNodes(nodes, dynamic_cast<smoc_graph *>(*iter));
+    }
+  }
+}
+
 void smoc_scheduler_top::schedule(smoc_graph *c) {
+  bool           again;
+  smoc_node_list nodes;
+  
+  getLeafNodes(nodes, c);
   do {
-    bool executed = c->currentState().tryExecute();
-    assert( executed == true );
+    // FIXME: Big hack !!!
+    smoc_ctx       _oldctx = _ctx;
+    _ctx.ports_setup.clear();
+    
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "<smoc_scheduler_top::schedule>" << std::endl;
+#endif
+    // FIXME: Big hack !!!
+    // _ctx.hierarchy = c->myModule();
+    do {
+      again = false;
+      for ( smoc_node_list::const_iterator iter = nodes.begin();
+            iter != nodes.end();
+            ++iter )
+        if ( !(*iter)->is_v1_actor )
+          again |= (*iter)->currentState().tryExecute();
+    } while (again);
     {
-#ifdef SYSTEMOC_DEBUG
-      std::cout << "in top scheduler !!!" << std::endl;
-#endif
-      smoc_root_port_bool_list l;
+      smoc_event_or_list        ol;
       
-      smoc_event_or_list ol;
-      c->currentState().findBlocked(l);
-      for ( smoc_root_port_bool_list::iterator iter = l.begin();
-            iter != l.end();
+      for ( smoc_node_list::const_iterator iter = nodes.begin();
+            iter != nodes.end();
             ++iter ) {
-        smoc_root_port_bool::reqs_ty &reqs = iter->reqs;
-        
-       /* 
-        smoc_event_and_list al;
-        for ( smoc_root_port_bool::reqs_ty::iterator riter = reqs.begin();
-              riter != reqs.end();
-              ++riter )
-          al &= *static_cast<smoc_event *>(*riter);
-        ol |= al;*/
+        if ( !(*iter)->is_v1_actor ) {
+          smoc_root_port_bool_list  l;
+          
+          (*iter)->currentState().findBlocked(l);
+          for ( smoc_root_port_bool_list::iterator iter = l.begin();
+                iter != l.end();
+                ++iter ) {
+            smoc_root_port_bool::reqs_ty &reqs = iter->reqs;
+            
+           /* 
+            smoc_event_and_list al;
+            for ( smoc_root_port_bool::reqs_ty::iterator riter = reqs.begin();
+                  riter != reqs.end();
+                  ++riter )
+              al &= *static_cast<smoc_event *>(*riter);
+            ol |= al;*/
 #ifdef SYSTEMOC_DEBUG
-        std::cout << reqs << std::endl;
+            std::cout << reqs << std::endl;
 #endif
-        assert( reqs.size() <=  1 );
-        if ( !reqs.empty() ) {
-          ol |= *static_cast<smoc_event *>(*reqs.begin());
+            assert( reqs.size() <=  1 );
+            if ( !reqs.empty() ) {
+              ol |= *static_cast<smoc_event *>(*reqs.begin());
+            }
+          }
         }
       }
+#ifdef SYSTEMOC_DEBUG
+      std::cout << "</smoc_scheduler_top::schedule>" << std::endl;
+#endif
+      // FIXME: Big hack !!!
+      _ctx = _oldctx;
       smoc_wait(ol);
 #ifdef SYSTEMOC_DEBUG
       for ( smoc_event_or_list::iterator iter = ol.begin();
