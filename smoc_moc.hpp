@@ -149,6 +149,7 @@ void dump(std::list<T> &nodes) {
 }
 */
 
+/*
 template <typename T_scheduler, typename T_constraintset>
 class smoc_moc
   : public T_constraintset,
@@ -201,7 +202,6 @@ class smoc_sdf_moc
       : smoc_moc<smoc_scheduler_sdf, T_constraintset>() {}
 };
 
-/*
 template <typename T_constraintset>
 class smoc_csp_moc
   : public smoc_moc<smoc_scheduler_csp, T_constraintset> {
@@ -211,7 +211,6 @@ class smoc_csp_moc
     smoc_csp_moc()
       : smoc_moc<smoc_scheduler_csp, T_constraintset>() {}
 };
-*/
 
 template <typename T_constraintset>
 class smoc_ddf_moc
@@ -232,6 +231,7 @@ class smoc_ndf_moc
     smoc_ndf_moc()
       : smoc_moc<smoc_scheduler_ndf, T_constraintset>() {}
 };
+*/
 
 template <typename T_top>
 class smoc_top_moc
