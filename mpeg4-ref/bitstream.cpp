@@ -237,6 +237,9 @@ UInt BitstreamShowBits(Bitstream *stream, Int nbits)
 		fprintf(stderr, "ERROR: number of bits greater than size of UInt.\n");
 	}
 	
+	//#ifdef VERBOSE
+	//printf("BitstreamShowBits: %u\n",b);
+	//#endif
 	return b;
 }
 

@@ -43,8 +43,8 @@ unsigned char TextureVLD(Bitstream *stream, unsigned char ftype, unsigned char b
 	SInt i;
 	int n, first_bit, last;
 	unsigned char error_flag=0;
-	UChar bits, done=0;
-	UInt DC_size, code;
+	/*UChar*/UInt bits, done=0;
+	UInt DC_size/*SC-parser.hpp: dcbits .*/, code;
 	struct Tcoef run_level = {0,0,0,0};
 	const unsigned char ACcoded = CBP & (1 << (BLOCK_CNT - 1 - comp));
 		
@@ -63,7 +63,25 @@ if( mby == 0 && mbx == 0 && comp == 3 )
 	//////////////////
 	// Get DC value //
 	//////////////////
-	if (btype == INTRA)
+	/* Code for number of DC bits
+                          Y(comp<4)   UV
+     000000000000        err          err
+     000000000001        err          12
+     00000000001x         12          11
+     0000000001xx         11          10
+     000000001xxx         10          9
+     00000001xxxx          9          8
+     0000001xxxxx          8          7
+     000001xxxxxx          7          6
+     00001xxxxxxx          6          5
+     0001xxxxxxxx          5          4
+     001xxxxxxxxx          4          3
+     010xxxxxxxxx          3            \   2
+     011xxxxxxxxx          0            /   2
+     10xxxxxxxxxx          2          1
+     11xxxxxxxxxx          1          0          */
+
+        if (btype == INTRA)
 	{
 		//
 		// Extract the size of the DC coefficient (in bits)
@@ -160,6 +178,7 @@ if( mby == 0 && mbx == 0 && comp == 3 )
         if( q_block[0] != myval )
         {
           dummy = 1;
+          printf("dummy value!\n");
         }
       }
 			else
@@ -267,7 +286,7 @@ static void VlcDecTCOEF(Bitstream *stream, unsigned char *error_flag, unsigned c
 	const int ESCAPE = 7167; 
   int dummy;
 
-  run_level->last = 0;
+        run_level->last = 0;
 	run_level->run = 0;
 	run_level->level = 0;
 	

@@ -14,12 +14,12 @@ private:
     out[4] = (in8[0] >> 3) & 1;
     out[5] = (in8[0] >> 2) & 1;
     out[6] = (in8[0] >> 1) & 1;
-    out[7] = (in8[0] >> 0) & 1;
+    out[7] =        in8[0] & 1;
 
   for(int j=0; j<8; j++)
     std::cout<< "byte2bit wert" << out[j]<< endl;
   
-  } 
+  }
   
   smoc_firing_state start;
 public:

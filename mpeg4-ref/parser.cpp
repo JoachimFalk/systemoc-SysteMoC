@@ -77,12 +77,12 @@ static int mylog(int x);
  ***********************************************************CommentEnd********/
  
 UChar ParserVLD(short streams, int *width, int *height, unsigned int *frameMemoryOffset, 
-							  unsigned char *write_frame, unsigned char *perform_cc, unsigned char *perform_mc, unsigned char *perform_idct,
-							  unsigned char *stnum_out, short *mvx_out, short *mvy_out, unsigned char *blnum_out, 
-							  unsigned char *comp_block, short *q_block, short *texture_block,
-							  unsigned char *MCcoded_out, unsigned char *IDCTcoded_out,
-								unsigned char *hOut1, unsigned char *vOut1,unsigned char *tu_mode, unsigned char *hOut2, unsigned char *vOut2,
-								unsigned char *btype_out, unsigned char *ACpred_flag_out, unsigned short *DCpos_out, int *CBP_out, unsigned char *bp_prev)
+		unsigned char *write_frame, unsigned char *perform_cc, unsigned char *perform_mc, unsigned char *perform_idct,
+		unsigned char *stnum_out, short *mvx_out, short *mvy_out, unsigned char *blnum_out, 
+		unsigned char *comp_block, short *q_block, short *texture_block,
+		unsigned char *MCcoded_out, unsigned char *IDCTcoded_out,
+		unsigned char *hOut1, unsigned char *vOut1,unsigned char *tu_mode, unsigned char *hOut2, unsigned char *vOut2,
+		unsigned char *btype_out, unsigned char *ACpred_flag_out, unsigned short *DCpos_out, int *CBP_out, unsigned char *bp_prev)
 {
   int i, nextState, resync_bits;
   UChar decode_type, stop=0, error_flag=0;
@@ -242,7 +242,37 @@ UChar ParserVLD(short streams, int *width, int *height, unsigned int *frameMemor
 	/////////////////////
 	case stParseMB:
 		stop = ParseMBheader(stream[stnum], mbnum, &ftype, &btype, &skipped_flag, &coded, &CBP, &ACpred_flag, &MBtype);
-		
+#ifdef VERBOSE
+                printf("Decoding macroblock %u of stream %u\n",mbnum,stnum);
+
+                if (ftype == P_VOP){
+                  printf("  Decoding P_VOP\n");
+                }else if(ftype == I_VOP){
+                  printf("  Decoding I_VOP\n");
+                }else{
+                  printf("  Decoding ftype: %u\n",ftype);
+                }
+
+                if (btype == INTER){
+                  printf("  Decoding INTER block\n");
+                }else if(btype == INTRA){
+                  printf("  Decoding INTRA block\n");
+                }else{
+                  printf("  Decoding block type: %u\n",btype);
+                }
+
+               printf("  MB-Type: %u\n",MBtype);
+
+               printf("  CBP: %d\n",CBP);
+               
+               printf("  AC-prediction flag: %u\n",ACpred_flag);
+
+               
+               printf("  coded: %u; skipped: %u\n",coded,skipped_flag);
+#endif
+
+
+               
 		// Per-MB constants
 		x_pos = mbnum % MB_in_width;
 		y_pos = mbnum / MB_in_width;
@@ -595,7 +625,7 @@ static UChar ParseVolHeader(Bitstream *stream, int *width, int *height, unsigned
 		
     tmpvar = (Int) BitstreamReadBits(stream, 1); /*interlaced*/
 		
-	  if (tmpvar)
+	        if (tmpvar)
 		{
 			fprintf(stderr,"interlaced mode not supported\n");
 		}
@@ -646,6 +676,9 @@ static UChar ParseVolHeader(Bitstream *stream, int *width, int *height, unsigned
     if (tmpvar == 434) 
       FatalError("user data not supported");
 			
+  
+  
+  
   }
   else /*short video header or corrupted bitstream*/
   {
@@ -662,6 +695,9 @@ static UChar ParseVolHeader(Bitstream *stream, int *width, int *height, unsigned
 			return 1;
 		}
   }
+
+
+
 	
 #ifdef VERBOSE
 	vol_header_bits += stream->bitcount - stream->bstart;
@@ -723,7 +759,7 @@ static UChar ParseVopHeader(Bitstream *stream, int time_inc_res,
 		if (prediction_type == B_VOP)
 			FatalError("no B_VOPs supported");
   
-		tmpvar = (Int) BitstreamReadBits(stream, 1); /*modulo_time_base*/
+		tmpvar = (Int) BitstreamReadBits(stream, 1); /*modulo_time_base, stream->bitcount = 179*/
 
 		while (tmpvar == 1)
 		{

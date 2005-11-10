@@ -62,7 +62,6 @@ class m_source_parser: public smoc_actor {
 class m_sink: public smoc_actor {
   public:
     smoc_port_in<int> in;
-  
   private:
     //std::ofstream fo; 
     
@@ -111,7 +110,9 @@ private:
   m_sink        snk2;
   m_sink        snk3;
 public:
-  PARSER_TEST( sc_module_name name )
+  
+  
+   PARSER_TEST( sc_module_name name )
     : smoc_graph(name),
       src_parser("src_parser"),
       blparser("blparser"),
@@ -119,6 +120,7 @@ public:
       snk1("snk1"), 
       snk2("snk2"),
       snk3("snk3"){
+
     connectNodePorts( src_parser.out, blparser.I, smoc_fifo<int>(256));
     connectNodePorts( blparser.O0, snk0.in, smoc_fifo<int>(256));
     connectNodePorts( blparser.O1, snk1.in, smoc_fifo<cal_list<int>::t >(256));

@@ -44,7 +44,7 @@ private:
     return( (  bynext < (mby - 1) ) ||
             ( (bynext == (mby - 1)) && (bxnext <= mbx) ) ||
             ( (by < (mby - 1) ) )  ||
-            ( (by == (mby - 1)) && (bx < mbx) ); 
+            ( (by == (mby - 1)) && (bx < mbx) )); 
   }
 
   bool guard1() {return(buf_count < block_count);}
@@ -54,7 +54,7 @@ private:
   bool guard5() {return(BUF[0] == 0);}  /* type==0 */
   bool guard6() {return(buf_eof == 0);}
   bool guard7() {return( (this_n == 0) && 
-                  ((buf_eof == 1) || (! keep_reading(buf_x_next,buf_y_next,buf_x,buf_y,mb_x,mb_y)));}
+                  ((buf_eof == 1) || (! keep_reading(buf_x_next,buf_y_next,buf_x,buf_y,mb_x,mb_y))));}
   bool guard8() {return( (this_n == 1) && 
                   ((buf_eof == 1) || (! keep_reading(buf_x_next,buf_y_next,buf_x,buf_y,mb_x,mb_y)));}
   bool guard9() {return( (this_n == 2) && 

@@ -2027,6 +2027,7 @@ end */
     mb_dispatch_done > mb_dispatch_intra >
     mb_dispatch_inter_no_ac > mb_dispatch_inter_ac_coded;
 
+    //dc_bits must be replaced by dcbits !! (keinert, yao)
     dc_bits.b2 > dc_bits.b3 > dc_bits.b4 > dc_bits.b5 > dc_bits.b6 >
     dc_bits.b7 > dc_bits.b8 > dc_bits.b9 > dc_bits.b10 >
     dc_bits.b11 > dc_bits.b12 > dcbits_bad;

@@ -29,9 +29,11 @@ class m_block_parser
     smoc_port_out<int> O2;
     smoc_port_out<int> O3;
     
-    m_block_parser(sc_module_name name )
+   int bitcountb2b;
+    
+    m_block_parser(sc_module_name name) 
       : smoc_graph(name) {
-        
+
 	m_byte2bit &byte2bit1 = registerNode(new m_byte2bit("byte2bit1"));
 	m_parser &parser1 = registerNode(new m_parser("parser1", 28, 0x012, 32, 0x1B6, 2, 1, 0, 5, 9, 1, 0,(MAX_WIDTH / MB_WIDTH + 2) ));
         
