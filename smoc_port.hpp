@@ -153,7 +153,7 @@ public:
 //  typedef smoc_port_storage_in<T>         base_type;
 protected:
   void add_interface( sc_interface *i ) {
-    push_interface(i); (*this)->addPortIf( this );
+    this->push_interface(i); (*this)->addPortIf( this );
   }
 
   bool peerIsV1() const
@@ -191,7 +191,7 @@ public:
     { return getAvailableTokens() >= n; }
   
   void operator () ( iface_type& interface_ )
-    { interface_.is_v1_in_port = is_smoc_v1_port; bind(interface_); }
+    { interface_.is_v1_in_port = this->is_smoc_v1_port; bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
 };
@@ -208,7 +208,7 @@ public:
 //  typedef smoc_port_storage_out<T>        base_type;
 protected:
   void add_interface( sc_interface *i ) {
-    push_interface(i); (*this)->addPortIf( this );
+    this->push_interface(i); (*this)->addPortIf( this );
   }
   
   bool peerIsV1() const
@@ -244,7 +244,7 @@ public:
     { return getAvailableSpace() >= n; }
   
   void operator () ( iface_type& interface_ )
-    { interface_.is_v1_out_port = is_smoc_v1_port; bind(interface_); }
+    { interface_.is_v1_out_port = this->is_smoc_v1_port; bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
 };

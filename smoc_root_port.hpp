@@ -224,6 +224,7 @@ public:
   explicit DSMOCEvent(value_type &v): v(v) {}
 };
 
+template <>
 struct Value<DSMOCEvent> {
   typedef smoc_root_port_bool result_type;
   
@@ -232,6 +233,7 @@ struct Value<DSMOCEvent> {
     { return smoc_root_port_bool(&e.v); }
 };
 
+template <>
 struct AST<DSMOCEvent> {
   typedef PASTNode result_type;
   
@@ -240,6 +242,7 @@ struct AST<DSMOCEvent> {
     { return PASTNode(new ASTNodeSMOCEvent()); }
 };
 
+template <>
 struct D<DSMOCEvent>: public DBase<DSMOCEvent> {
   D(smoc_event &v): DBase<DSMOCEvent>(DSMOCEvent(v)) {}
 };
@@ -293,6 +296,7 @@ struct DBinOpExecute<T,smoc_root_port_bool,DOpBinLAnd> {
 // NEEDED:
 //  to implement short circuit boolean evaluation
 //  with smoc_root_port_bool
+template <>
 struct DBinOpExecute<smoc_root_port_bool,smoc_root_port_bool,DOpBinLAnd> {
   typedef smoc_root_port_bool result_type;
   

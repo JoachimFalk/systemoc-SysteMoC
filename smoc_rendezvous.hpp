@@ -6,6 +6,8 @@
 #include <smoc_chan_if.hpp>
 #include <systemc.h>
 
+/*
+
 class smoc_rendezvous_kind
   : public smoc_root_chan {
 public:
@@ -82,5 +84,7 @@ public:
   explicit smoc_rendezvous( const char *name )
     : smoc_rendezvous_kind::chan_init(name) {}
 };
+
+*/
 
 #endif // _INCLUDED_SMOC_RENDEZVOUS_HPP

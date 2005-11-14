@@ -103,11 +103,11 @@ private:
   data_type *storage;
 protected:
   smoc_fifo_storage( const chan_init &i )
-    : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i), storage(new data_type[fsize]) {
-    assert( fsize > i.marking.size() );
+    : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i), storage(new data_type[this->fsize]) {
+    assert( this->fsize > i.marking.size() );
     for (size_t j = 0; j <  i.marking.size(); ++j )
       new(&storage[j]) T(i.marking[j]);
-    windex = i.marking.size();
+    this->windex = i.marking.size();
   }
   
   data_type *getStorage() const { return storage; }
@@ -115,6 +115,7 @@ protected:
   ~smoc_fifo_storage() { delete storage; }
 };
 
+template <>
 class smoc_fifo_storage<void>
   : public smoc_chan_nonconflicting_if<smoc_fifo_kind, void> {
 public:
@@ -160,24 +161,26 @@ protected:
 //  iface_out_type *out;
   
   smoc_ring_access<const T> commSetupIn(size_t req) {
-    assert( req <= usedStorage() );
-    return smoc_ring_access<const T>(getStorage(), fsize, rindex, req);
+    assert( req <= this->usedStorage() );
+    return smoc_ring_access<const T>(
+      this->getStorage(), this->fsize, this->rindex, req);
   }
   void commExecIn(const smoc_ring_access<const T> &r){
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecIn(r.getLimit(), this->name());
 #endif
-    rpp(r.getLimit()); read_event.notify(); 
+    rpp(r.getLimit()); this->read_event.notify(); 
   }
   smoc_ring_access<T> commSetupOut(size_t req) {
-    assert( req <= unusedStorage() );
-    return smoc_ring_access<T>(getStorage(), fsize, windex, req);
+    assert( req <= this->unusedStorage() );
+    return smoc_ring_access<T>(
+      this->getStorage(), this->fsize, this->windex, req);
   }
   void commExecOut(const smoc_ring_access<T> &r){
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(r.getLimit(), this->name());
 #endif
-    wpp(r.getLimit()); write_event.notify();
+    wpp(r.getLimit()); this->write_event.notify();
   }
 public:
   // constructors
@@ -185,10 +188,10 @@ public:
     : smoc_fifo_storage<T>(i) {}
   
   size_t committedOutCount() const {
-    return usedStorage();// + (portOutIf->committedCount() - portOutIf->doneCount());
+    return this->usedStorage();// + (portOutIf->committedCount() - portOutIf->doneCount());
   }
   size_t committedInCount() const {
-    return unusedStorage();// + (portInIf->committedCount() - portInIf->doneCount());
+    return this->unusedStorage();// + (portInIf->committedCount() - portInIf->doneCount());
   }
 };
 

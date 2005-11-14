@@ -115,7 +115,7 @@ class smoc_top_moc
 private:
   // called by elaboration_done (does nothing by default)
   void end_of_elaboration()
-    { finalise(); }
+    { this->finalise(); }
   
   void scheduleTop()
     { return smoc_scheduler_top::schedule(this); }

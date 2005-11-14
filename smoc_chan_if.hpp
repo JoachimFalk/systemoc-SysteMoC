@@ -42,6 +42,7 @@ public:
   }
 };
 
+template <>
 class smoc_ring_access<void> {
 public:
   typedef void                    value_type;
@@ -54,6 +55,7 @@ public:
     { assert( pos < size ); assert( limit <= size ); assert( base == NULL ); }
 };
 
+template <>
 class smoc_ring_access<const void> {
 public:
   typedef void                          value_type;
@@ -180,8 +182,10 @@ public:
   // typedefs
   typedef smoc_chan_if<T_chan_kind, T_data_type>  this_type;
   
-  bool portInIsV1() const { return is_v1_in_port; }
-  bool portOutIsV1() const { return is_v1_out_port; }
+  bool portInIsV1()  const
+    { return this->is_v1_in_port; }
+  bool portOutIsV1() const
+    { return this->is_v1_out_port; }
 protected:
   // constructor
   smoc_chan_if(const typename T_chan_kind::chan_init &i)
