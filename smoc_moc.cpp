@@ -112,8 +112,10 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
       for ( smoc_node_list::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter )
-        if ( !(*iter)->is_v1_actor )
-          again |= (*iter)->currentState().tryExecute();
+        if ( !(*iter)->is_v1_actor ) {
+          while ( (*iter)->currentState().tryExecute() )
+            again = true;
+        }
     } while (again);
     {
       smoc_event_or_list        ol;
