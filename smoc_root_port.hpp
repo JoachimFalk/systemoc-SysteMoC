@@ -82,11 +82,8 @@ std::ostream &operator <<( std::ostream &out, const smoc_root_port &p )
 typedef std::list<smoc_root_port *> smoc_port_list;
 
 struct smoc_ctx {
-//  sc_module       *hierarchy;
-  smoc_port_list   ports_setup;
-  
-//  smoc_ctx()
-//    : hierarchy(NULL) {}
+  smoc_port_list      ports_setup;
+  smoc_event_and_list blocked;
 };
 
 extern smoc_ctx _ctx;
@@ -131,14 +128,7 @@ public:
   
   friend class smoc_scheduler_top;
 private:
-  typedef std::list<jflibs::oneof<smoc_commreq,smoc_event *> > reqs_ty;
-  
-//  void dummy() {};
-//  operator unspecified_bool_type() const
-//    { return v ? &this_type::dummy : NULL; }
-  
   status_ty v;
-  reqs_ty   reqs;
 protected:
 public:
   smoc_root_port_bool( bool v = false );
@@ -147,14 +137,12 @@ public:
   smoc_root_port_bool( const this_type &a, const this_type &b );
   smoc_root_port_bool( const this_type &rhs );
   
-  smoc_root_port_bool recheck() const;
+//  smoc_root_port_bool recheck() const;
   
   status_ty getStatus() const { return v; }
   
   void dump(std::ostream &out) const;
 };
-
-typedef std::list<smoc_root_port_bool> smoc_root_port_bool_list;
 
 static inline
 std::ostream &operator <<( std::ostream &out, const smoc_root_port_bool &p )
@@ -168,7 +156,7 @@ namespace Expr {
 
 /****************************************************************************
  * DGuard represents a virtual guard which hides an smoc_root_port_bool object
- */
+ *
 
 struct ASTNodeVGuard: public ASTNodeTerminal {
 };
@@ -212,6 +200,8 @@ struct VGuard { typedef D<DVGuard> type; };
 static inline
 VGuard::type vguard(const smoc_root_port_bool &v)
   { return VGuard::type(v); }
+
+*/
 
 /****************************************************************************
  * DSMOCEvent represents a smoc_event guard which turns true if the event is

@@ -53,7 +53,7 @@ bool smoc_firing_state_ref::tryExecute() {
   return retval;
 }
 
-void smoc_firing_state_ref::findBlocked(smoc_root_port_bool_list &l) {
+void smoc_firing_state_ref::findBlocked(smoc_event_or_list &l) {
 #ifdef SYSTEMOC_DEBUG
   std::cout << "<findBlocked for "
             << fr->getActor()->myModule()->name() << ">" << std::endl;
@@ -279,7 +279,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
 }
 
 void smoc_firing_types::resolved_state_ty::findBlocked(
-    smoc_root_port_bool_list &l, smoc_root_node *actor) {
+    smoc_event_or_list &l, smoc_root_node *actor) {
   for ( transitionlist_ty::iterator titer = tl.begin();
         titer != tl.end();
         ++titer ) {
@@ -288,16 +288,17 @@ void smoc_firing_types::resolved_state_ty::findBlocked(
 }
 
 void smoc_firing_types::transition_ty::findBlocked(
-    smoc_root_port_bool_list &l, smoc_root_node *actor) {
-  smoc_root_port_bool b      = knownSatisfiable();
+    smoc_event_or_list &l, smoc_root_node *actor) {
+  // FIXME: Big hack !!!
+  _ctx.blocked.clear();
   
-  // std::cout << b << std::endl;
+  smoc_root_port_bool b      = knownSatisfiable();
 #ifdef SYSTEMOC_DEBUG
   std::cout << "  <transition status=" << b.getStatus() << "/>" << std::endl;
 #endif
   if ( b.getStatus() != smoc_root_port_bool::IS_DISABLED ) {
     assert( b.getStatus() == smoc_root_port_bool::IS_BLOCKED );
-    l.push_back(b);
+    l |= _ctx.blocked;
   }
 }
 
