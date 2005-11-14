@@ -491,13 +491,16 @@ vop6 = ((bits.getAvailableTokens() >= 1) &&
 	(bits.getValueAt(0) == 0) ) >>
 	CALL(m_parser::action_vop_uncoded)  >> vop
      | ((bits.getAvailableTokens() >= (8 + BITS_QUANT)) &&
-	(var(prediction_type) == P_VOP) ) >>
-	CALL(m_parser::action_vop_coded_pvop)  >> mb
+	(var(prediction_type) == P_VOP) &&
+	(param.getAvailableSpace() >= 4) &&  
+        (mv.getAvailableSpace() >= 6)) >>
+         CALL(m_parser::action_vop_coded_pvop)  >> mb
      | ((bits.getAvailableTokens() >= (4 + BITS_QUANT)) &&
-	(var(prediction_type) == I_VOP) ) >>
-       (param.getAvailableSpace() >= 4 &&  
-        mv.getAvailableSpace() >= 6) >>
+	(var(prediction_type) == I_VOP) &&
+        (param.getAvailableSpace() >= 4) &&  
+        (mv.getAvailableSpace() >= 6)) >>
 	CALL(m_parser::action_vop_coded_ivop)  >> mb;
+
 
 //////////////////////////////////////////////////////////////////////////////
 // MB
@@ -686,7 +689,8 @@ mv5 = ((guard(&m_parser::guard_dummy))) >>
 // blk
 blk = (var(comp) == 6) >>
 	CALL(m_parser::action_mb_dispatch_done)  >> mb
-    | ((param.getAvailableSpace() >= 4) &&
+    | ((var(btype) == INTRA)&&
+	(param.getAvailableSpace() >= 4) &&
 	(mv.getAvailableSpace() >= 6) ) >>
 	CALL(m_parser::action_mb_dispatch_intra)  >> tex
     | ((guard(&m_parser::guard_mb_dispatch_inter_no_ac) &&
@@ -1132,9 +1136,9 @@ void m_parser::action_vop_rate_fixed(void){
 void m_parser::action_vol_size(void){
   BOUND_BITS_TO_B(28);
 
-  vol_width  = value( b, 13,  0 ); // divide by 16
+  vol_width  = value( b, 9,  0 ); // divide by 16
   // skip marker(1)
-  vol_height = value( b, 13, 14 );
+  vol_height = value( b, 9, 14 );
   // skip marker(1)
   bit_count = bit_count + 28;
   
@@ -1223,6 +1227,7 @@ void m_parser::action_vop_predict_other(void){
   
   bit_count = bit_count + 2;
   prediction_type = value( b, 2, 0 );
+  cout << "prediction_type = " << prediction_type << endl;
   cout << "B_VOPS supported" <<" bit_count= :" << bit_count << endl;
 }
 
@@ -1742,7 +1747,8 @@ void m_parser::action_get_mbtype_noac(void){
   fourmvflag = ( type == 2) ?  1 : 0;
   cbpc = cal_bitand( cal_rshift( mcbpc, 4 ), 3 );
   acpredflag = 0;
-  cout << "action: action_get_mbtype_noac" << endl;
+  cout << "action: action_get_mbtype_noac" << "  btype: "<< btype << " acpredflag: "<< acpredflag << " cbpc: "<< cbpc << endl;
+  
 }
 
 bool m_parser::guard_get_mbtype_noac(void) const {
@@ -1760,7 +1766,7 @@ void m_parser::action_get_mbtype_ac(void){
   cbpc = cal_bitand( cal_rshift( mcbpc, 4 ), 3 );
   acpredflag = b;
   bit_count = bit_count + 1;
-  cout << "action: action_get_mbtype_ac" << endl;
+  cout << "action: action_get_mbtype_ac" << "  btype: "<< btype << " acpredflag: "<< acpredflag << " cbpc: "<< cbpc << endl;
 
 }
   
@@ -1873,7 +1879,7 @@ void m_parser::action_final_cbpy_inter(void){
   cbpy = 15 - cbpy;
   cbp = cal_bitor( cal_lshift( cbpy, 2), cbpc );
   cout << "inter CBPY is " << cbpy << ", CBP is " << cbp << endl;
-  cout << " action: m_parser::action_final_cbpy_inter " << endl;
+  cout << "action: action_final_cbpy_inter" << endl;
 }
 
 
@@ -1884,7 +1890,7 @@ void m_parser::action_final_cbpy_intra(void){
   mvcomp = 0;
   cbp = cal_bitor( cal_lshift( cbpy, 2), cbpc );
   cout << "intra CBPY is " << cbpy << ", CBP is " << cbp << endl;
-  cout << "action: action_final_cbpy_intra " << endl;
+  cout << "action: action_final_cbpy_intra" << endl;
 }
 
 void m_parser::action_mb_dispatch_done(void){
@@ -2920,7 +2926,8 @@ void m_parser::action_mvcode_done(void){
     mvy_uv = uvclip_4 ( get_mvy( 0, 0, 0 ), get_mvy( 0, 0, 1 ),
 			get_mvy( 0, 0, 2 ), get_mvy( 0, 0, 3 ) );
   }
-  cout << "uv( " << mbx << ", " << mby << " mv = ( " << mvx_uv << ", " << mvy_uv <<"))" << endl;
+  cout << "uv( " << mbx << ", " << mby << ")  mv = ( " << mvx_uv << ", " << mvy_uv <<")" << endl;
+  cout << "action: action_mvcode_done" << endl;
 }
 
 

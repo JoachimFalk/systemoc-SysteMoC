@@ -35,7 +35,7 @@ class m_block_parser
       : smoc_graph(name) {
 
 	m_byte2bit &byte2bit1 = registerNode(new m_byte2bit("byte2bit1"));
-	m_parser &parser1 = registerNode(new m_parser("parser1", 28, 0x012, 32, 0x1B6, 2, 1, 0, 5, 9, 1, 0,(MAX_WIDTH / MB_WIDTH + 2) ));
+	m_parser &parser1 = registerNode(new m_parser("parser1", 28, 0x012, 32, 0x1B6, 2, 1, 0, 5, 9, 1, 0,/*(MAX_WIDTH / MB_WIDTH + 2)*/45 ));
         
 	connectInterfacePorts(I, byte2bit1.in8);
         
