@@ -32,55 +32,71 @@ class smoc_transition_list;
 
 #define CALL(func) call(&func,#func)
 
+template <typename R, class T>
+struct smoc_member_func {
+  T     *obj;
+  R (T::*f)();
+  
+  template <class X>
+  smoc_member_func( X *_obj, R (T::*_f)() )
+    : obj(reinterpret_cast<T *>(
+            /*dynamic_cast<T *>*/(_obj))),
+      f(_f)
+    { assert(obj != NULL &&  f != NULL); }
+  
+  virtual
+  R operator()() const { return (obj->*f)(); }
+};
+
 class smoc_func_call {
 private:
   struct dummy;
-  typedef void (dummy::*fun)();
-
-  dummy *obj;
-  fun    f;
+  
+  char        m[sizeof(smoc_member_func<void, dummy>)];
   const char *func_name;
 public:
   template <class X, class T>
   smoc_func_call( X *_obj, void (T::*_f)() )
-    : obj(reinterpret_cast<dummy *>(
-            /*dynamic_cast<T *>*/(_obj))),
-      f(*reinterpret_cast<fun *>(&_f)),
-      func_name("")
-    { assert(f != NULL && obj != NULL); }
-
+    : func_name("") {
+    new(reinterpret_cast<smoc_member_func<void, T> *>(m))
+      smoc_member_func<void, T>(_obj,_f);
+  }
+  
   template <class X, class T>
   smoc_func_call( X *_obj, void (T::*_f)(), const char *func_name )
-    : obj(reinterpret_cast<dummy *>(
-            /*dynamic_cast<T *>*/(_obj))),
-      f(*reinterpret_cast<fun *>(&_f)),
-      func_name(func_name)
-    { assert(f != NULL && obj != NULL); }
-
-  void operator()() const { 
-    (obj->*f)(); 
+    : func_name(func_name) {
+    new(reinterpret_cast<smoc_member_func<void, T> *>(m))
+      smoc_member_func<void, T>(_obj,_f);
+  }
+  
+  void operator()() const {
+    return
+      reinterpret_cast<const smoc_member_func<void, dummy> *>(m)
+      ->operator()();
   }
   const char* getFuncName(){
     return func_name;
   }
 };
 
+
 class smoc_func_diverge {
 private:
   struct dummy;
-  typedef const smoc_firing_state &(dummy::*fun)();
-
-  dummy *obj;
-  fun    f;
+  
+  char        m[sizeof(smoc_member_func<const smoc_firing_state &, dummy>)];
 public:
   template <class X, class T>
-  smoc_func_diverge( X *_obj, const smoc_firing_state &(T::*_f)() )
-    : obj(reinterpret_cast<dummy *>(
-            /*dynamic_cast<T *>*/(_obj))),
-      f(*reinterpret_cast<fun *>(&_f))
-    { assert(f != NULL && obj != NULL); }
-
-  const smoc_firing_state &operator()() const { return (obj->*f)(); }
+  smoc_func_diverge( X *_obj, const smoc_firing_state &(T::*_f)() ) {
+    new(reinterpret_cast<smoc_member_func<const smoc_firing_state &, T> *>(m))
+      smoc_member_func<const smoc_firing_state &, T>(_obj,_f);
+  }
+  
+  const smoc_firing_state &operator()() const {
+    return
+      reinterpret_cast<const smoc_member_func<const smoc_firing_state &, dummy> *>(m)
+      ->operator()();
+  }
 };
 
 class smoc_func_branch: public smoc_func_diverge {
