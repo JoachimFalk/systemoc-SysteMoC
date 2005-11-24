@@ -41,13 +41,15 @@ compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 
 INCLUDES =						\
 	@SYSTEMC_INCLUDE@				\
+	@BOOST_INCLUDE@					\
 	-I./include					\
 	-I$(srcdir)					\
 	@SYSTEMC_VPC_INCLUDE@				\
 	-I$(MISCSUPPORT_BUILDDIR)/include
 
-AM_LDFLAGS=					\
-	@SYSTEMC_LDFLAGS@			\
+AM_LDFLAGS=						\
+	@SYSTEMC_LDFLAGS@				\
+	@BOOST_LDFLAGS@					\
 	@SYSTEMC_VPC_LDFLAGS@
 
 #noinst_SCRIPTS  = test_pathstuff.sh
