@@ -224,7 +224,10 @@ if( mby == 0 && mbx == 0 && comp == 3 )
 
 		}
 		while (!last);
-	} // if ACcoded
+    printf("AC coded sampleblock\n");
+	} else { // !ACcoded
+    printf("Not AC coded sampleblock\n");
+  }
 
 	// For SW instrumenting only
 #ifdef VERBOSE
