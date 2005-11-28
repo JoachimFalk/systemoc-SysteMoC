@@ -130,6 +130,8 @@ struct smoc_firing_types {
       { return ap.knownSatisfiable(); }
     
     bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
+    void execute(resolved_state_ty **rs, smoc_root_node *actor);
+    
     void findBlocked(smoc_event_or_list &l, smoc_root_node *actor);
     
     void dump(std::ostream &out) const;

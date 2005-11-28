@@ -95,6 +95,9 @@ void smoc_scheduler_top::getLeafNodes(
 void smoc_scheduler_top::schedule(smoc_graph *c) {
   bool           again;
   smoc_node_list nodes;
+
+  int guard_success = 0;
+  int guard_fail    = 0;
   
   getLeafNodes(nodes, c);
   do {
@@ -113,8 +116,16 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
             iter != nodes.end();
             ++iter )
         if ( !(*iter)->is_v1_actor ) {
-          while ( (*iter)->currentState().tryExecute() )
-            again = true;
+          bool success;
+          
+          do {
+            success = (*iter)->currentState().tryExecute();
+            if ( success )
+              ++guard_success;
+            else
+              ++guard_fail;
+          } while (success);
+          again |= success;
         }
     } while (again);
     {
@@ -132,6 +143,8 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
 #endif
       // FIXME: Big hack !!!
       _ctx = _oldctx;
+      std::cout << "guard_success: " << guard_success << std::endl;
+      std::cout << "guard_fail:    " << guard_fail    << std::endl;
       smoc_wait(ol);
 #ifdef SYSTEMOC_DEBUG
       for ( smoc_event_or_list::iterator iter = ol.begin();

@@ -190,92 +190,96 @@ bool smoc_firing_types::transition_ty::tryExecute(
           isType<smoc_func_diverge>(f) ||
           isType<smoc_func_branch>(f) ||
           isType<smoc_func_call>(f) );
-  if ( canexec ) {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceStartTryExecute(actor->myModule()->name()); //
-#endif
-    if ( isType<smoc_func_diverge>(f) ) {
-      // FIXME: this must only be used internally
-      const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
-      *rs = ns.rs;
-    } else if ( isType<smoc_func_branch>(f) ) {
-      // FIXME: this must only be used internally
-      const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
-      statelist_ty::const_iterator iter = sl.begin();
-      
-#ifndef NDEBUG
-      // check that ns is in sl
-      while ( iter != sl.end() && (*iter) != ns.rs )
-        ++iter;
-      assert( iter != sl.end() );
-#endif
-      *rs = ns.rs;
-    } else {
-#ifdef SYSTEMOC_TRACE
-      TraceLog.traceStartActor(actor->myModule()->name()); //
-#endif
-      // FIXME: we assume calls will only be used by leaf actors
-      if ( isType<smoc_func_call>(f) ) {
-        smoc_func_call &fc = f;
-        
-#ifdef SYSTEMOC_DEBUG
-        std::cout << "  <call actor="<<actor->myModule()->name()
-                  << " func="<< fc.getFuncName()
-                  << ">"<< std::endl;
-#endif
-        
-#ifdef SYSTEMOC_TRACE
-	TraceLog.traceStartFunction(fc.getFuncName()); //
-#endif
-#ifdef ENABLE_SYSTEMC_VPC
-        actor->vpc_event.reset();
+  if ( canexec )
+    execute(rs,actor);
+  return canexec;
+}
 
-        SystemC_VPC::Director::getInstance().
-          getResource( actor->myModule()->name() ).
-            compute( actor->myModule()->name(),
-                     fc.getFuncName(),
-                     &actor->vpc_event );
-#endif //ENABLE_SYSTEMC_VPC
-        fc();
+void smoc_firing_types::transition_ty::execute(
+    resolved_state_ty **rs, smoc_root_node *actor) {
 #ifdef SYSTEMOC_TRACE
-	TraceLog.traceEndFunction(fc.getFuncName());  //
+  TraceLog.traceStartTryExecute(actor->myModule()->name()); //
 #endif
-        
-        assert( sl.size() == 1 );
-        
+  if ( isType<smoc_func_diverge>(f) ) {
+    // FIXME: this must only be used internally
+    const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
+    *rs = ns.rs;
+  } else if ( isType<smoc_func_branch>(f) ) {
+    // FIXME: this must only be used internally
+    const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
+    statelist_ty::const_iterator iter = sl.begin();
+    
+#ifndef NDEBUG
+    // check that ns is in sl
+    while ( iter != sl.end() && (*iter) != ns.rs )
+      ++iter;
+    assert( iter != sl.end() );
+#endif
+    *rs = ns.rs;
+  } else {
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceStartActor(actor->myModule()->name()); //
+#endif
+    // FIXME: we assume calls will only be used by leaf actors
+    if ( isType<smoc_func_call>(f) ) {
+      smoc_func_call &fc = f;
+      
+#ifdef SYSTEMOC_DEBUG
+      std::cout << "  <call actor="<<actor->myModule()->name()
+                << " func="<< fc.getFuncName()
+                << ">"<< std::endl;
+#endif
+      
+#ifdef SYSTEMOC_TRACE
+      TraceLog.traceStartFunction(fc.getFuncName()); //
+#endif
 #ifdef ENABLE_SYSTEMC_VPC
-        *rs = actor->commstate.rs;
-        actor->nextState.rs = sl.front();
-        // save ports setup to later execute communication
-        actor->ports_setup = _ctx.ports_setup;
-        _ctx.ports_setup.clear();
+      actor->vpc_event.reset();
+
+      SystemC_VPC::Director::getInstance().
+        getResource( actor->myModule()->name() ).
+          compute( actor->myModule()->name(),
+                   fc.getFuncName(),
+                   &actor->vpc_event );
+#endif //ENABLE_SYSTEMC_VPC
+      fc();
+#ifdef SYSTEMOC_TRACE
+      TraceLog.traceEndFunction(fc.getFuncName());  //
+#endif
+      
+      assert( sl.size() == 1 );
+      
+#ifdef ENABLE_SYSTEMC_VPC
+      *rs = actor->commstate.rs;
+      actor->nextState.rs = sl.front();
+      // save ports setup to later execute communication
+      actor->ports_setup = _ctx.ports_setup;
+      _ctx.ports_setup.clear();
 # ifdef SYSTEMOC_DEBUG
-        std::cout << "    <communication type=\"defered\"/>" << std::endl;
+      std::cout << "    <communication type=\"defered\"/>" << std::endl;
 # endif
 #else
-	*rs = sl.front();
+      *rs = sl.front();
 #endif // ENABLE_SYSTEMC_VPC
 
 #ifdef SYSTEMOC_DEBUG
-        std::cout << "  </call>"<< std::endl;
+      std::cout << "  </call>"<< std::endl;
 #endif
-      } else {
-        assert( sl.size() == 1 );
-        *rs = sl.front();
-      }
-#ifdef SYSTEMOC_TRACE
-      TraceLog.traceEndActor(actor->myModule()->name()); //
-#endif
+    } else {
+      assert( sl.size() == 1 );
+      *rs = sl.front();
     }
-    for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
-          iter != _ctx.ports_setup.end();
-          ++iter )
-      (*iter)->commExec();
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceEndTryExecute(actor->myModule()->name()); //
+    TraceLog.traceEndActor(actor->myModule()->name()); //
 #endif
   }
-  return canexec;
+  for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
+        iter != _ctx.ports_setup.end();
+        ++iter )
+    (*iter)->commExec();
+#ifdef SYSTEMOC_TRACE
+  TraceLog.traceEndTryExecute(actor->myModule()->name()); //
+#endif
 }
 
 void smoc_firing_types::resolved_state_ty::findBlocked(
