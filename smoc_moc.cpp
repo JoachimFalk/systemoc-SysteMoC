@@ -1,6 +1,10 @@
 
 #include <smoc_moc.hpp>
 
+#include <jf-libs/oneof.hpp>
+
+using namespace jflibs;
+
 void smoc_scheduler_sdf::schedule() {
   assert("FIXME sdf scheduler unfinished !" == NULL);
 }
@@ -114,19 +118,40 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
       again = false;
       for ( smoc_node_list::const_iterator iter = nodes.begin();
             iter != nodes.end();
-            ++iter )
+            ++iter ) {
         if ( !(*iter)->is_v1_actor ) {
-          bool success;
+          bool canexec;
+          smoc_firing_types::resolved_state_ty **rs =
+            &(*iter)->currentState().rs;
           
+          assert( _ctx.ports_setup.empty() );
           do {
-            success = (*iter)->currentState().tryExecute();
-            if ( success )
-              ++guard_success;
-            else
-              ++guard_fail;
-          } while (success);
-          again |= success;
+            canexec = false;
+            
+            for ( transitionlist_ty::iterator titer = (*rs)->tl.begin();
+                  titer != (*rs)->tl.end() && !canexec;
+                  ++titer ) {
+              canexec =
+                titer->knownSatisfiable().getStatus() ==
+                smoc_root_port_bool::IS_ENABLED;
+              
+              assert( isType<NILTYPE>(titer->f) ||
+                      isType<smoc_func_diverge>(titer->f) ||
+                      isType<smoc_func_branch>(titer->f) ||
+                      isType<smoc_func_call>(titer->f) );
+              if ( canexec ) {
+                titer->execute(rs,*iter);
+                again = true;
+              }
+              for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
+                    iter != _ctx.ports_setup.end();
+                    ++iter )
+                (*iter)->reset();
+              _ctx.ports_setup.clear();
+            }
+          } while ( canexec );
         }
+      }
     } while (again);
     {
       smoc_event_or_list        ol;
@@ -143,8 +168,8 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
 #endif
       // FIXME: Big hack !!!
       _ctx = _oldctx;
-      std::cout << "guard_success: " << guard_success << std::endl;
-      std::cout << "guard_fail:    " << guard_fail    << std::endl;
+//    std::cout << "guard_success: " << guard_success << std::endl;
+//    std::cout << "guard_fail:    " << guard_fail    << std::endl;
       smoc_wait(ol);
 #ifdef SYSTEMOC_DEBUG
       for ( smoc_event_or_list::iterator iter = ol.begin();

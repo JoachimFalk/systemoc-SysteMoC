@@ -167,7 +167,7 @@ public:
   friend class smoc_firing_rules;
   friend class smoc_firing_types::transition_ty;
 //private:
-protected:
+//protected:
   resolved_state_ty *rs;
   smoc_firing_rules *fr;
 protected:
