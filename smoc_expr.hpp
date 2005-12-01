@@ -126,6 +126,15 @@ struct Value {};
 template <class E>
 struct AST {};
 
+// Default do nothing
+template <class E>
+struct Communicate {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const E &e) {}
+};
+
 template<template <class> class Z, class E>
 typename Z<E>::result_type evalTo(const D<E> &e) {
   return Z<E>::apply(e.getExpr());
@@ -179,8 +188,9 @@ public:
     typedef virt_ty  this_type;
     typedef TT       value_type;
   public:
-    virtual PASTNode   evalToAST()          const = 0;
-    virtual value_type evalToValue()        const = 0;
+    virtual PASTNode   evalToAST()         const = 0;
+    virtual value_type evalToValue()       const = 0;
+    virtual void       evalToCommunicate() const = 0;
   };
   
   boost::intrusive_ptr<virt_ty<T> > v;
@@ -198,8 +208,12 @@ protected:
   public:
     impl_ty( const E &e ): e(e) {}
     
-    PASTNode   evalToAST()          const { return AST<E>::apply(e); }
-    value_type evalToValue()        const { return Value<E>::apply(e); }
+    PASTNode   evalToAST() const
+      { return AST<E>::apply(e); }
+    value_type evalToValue() const
+      { return Value<E>::apply(e); }
+    void       evalToCommunicate() const
+      { return Communicate<E>::apply(e); }
   };
 public:
   template <class E>
@@ -223,6 +237,17 @@ struct AST<DVirtual<T> > {
   static inline
   result_type apply(const DVirtual <T> &e)
     { return e.v->evalToAST(); }
+};
+
+template <typename T>
+struct Communicate<DVirtual<T> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DVirtual <T> &e) {
+    // std::cout << "Communicate<DVirtual<T> >::apply(e)" << std::endl;
+    return e.v->evalToCommunicate();
+  }
 };
 
 template<class T>
@@ -640,6 +665,18 @@ struct AST<DBinOp<A,B,Op> > {
   static inline
   result_type apply(const DBinOp<A,B,Op> &e) {
     return PASTNode(new ASTNodeBinOp(Op,AST<A>::apply(e.a),AST<B>::apply(e.b)));
+  }
+};
+
+template <class A, class B>
+struct Communicate<DBinOp<A,B,DOpBinLAnd> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
+    // std::cout << "Communicate<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+    Communicate<A>::apply(e.a);
+    Communicate<B>::apply(e.b);
   }
 };
 

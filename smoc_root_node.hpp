@@ -10,6 +10,8 @@
 # include <smoc_pggen.hpp>
 #endif
 
+#include <smoc_expr.hpp>
+
 //#include <oneof.hpp>
 
 #include <systemc.h>
@@ -56,7 +58,7 @@ private:
   smoc_firing_state        _currentState;
   const smoc_firing_state *_initialState;
   
-  const smoc_firing_state &communicate();
+  const smoc_firing_state &_communicate();
 protected:
   smoc_root_node(const smoc_firing_state &s);
   smoc_root_node(smoc_firing_state &s);
@@ -66,7 +68,8 @@ public:
   smoc_firing_state  commstate;
   smoc_firing_state  nextState;
   smoc_event         vpc_event;
-  smoc_port_list     ports_setup;
+  
+  Expr::Ex<smoc_root_port_bool>::type *_guard;
   
   virtual void finalise();
 #ifndef __SCFE__

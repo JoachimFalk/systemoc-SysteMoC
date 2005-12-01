@@ -129,7 +129,7 @@ struct smoc_firing_types {
     smoc_root_port_bool knownSatisfiable() const
       { return ap.knownSatisfiable(); }
     
-    bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
+//  bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
     void execute(resolved_state_ty **rs, smoc_root_node *actor);
     
     void findBlocked(smoc_event_or_list &l, smoc_root_node *actor);
@@ -150,7 +150,7 @@ struct smoc_firing_types {
     void clearTransitions();
     void addTransition(smoc_firing_state_ref *r, const smoc_transition_list &tl );
     
-    bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
+//  bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
     void findBlocked(smoc_event_or_list &l, smoc_root_node *actor);
   };
 };
@@ -183,7 +183,7 @@ public:
     { assert( rs != NULL ); return *rs; }
   
   void finalise( smoc_root_node *actor ) const;
-  bool tryExecute();
+//bool tryExecute();
   void findBlocked(smoc_event_or_list &l);
   void dump( std::ostream &o ) const;
   

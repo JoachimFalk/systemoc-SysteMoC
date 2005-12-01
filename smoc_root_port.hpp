@@ -82,7 +82,7 @@ std::ostream &operator <<( std::ostream &out, const smoc_root_port &p )
 typedef std::list<smoc_root_port *> smoc_port_list;
 
 struct smoc_ctx {
-  smoc_port_list      ports_setup;
+//  smoc_port_list      ports_setup;
   smoc_event_and_list blocked;
 };
 
@@ -103,7 +103,8 @@ public:
   
   void dump( std::ostream &out ) const 
     { out << "commnr(" << p << ")"; }
-private:
+public:
+//private:
   smoc_root_port &p;
   
   smoc_commnr(smoc_root_port &p) : p(p) {}
@@ -153,6 +154,17 @@ smoc_root_port_bool operator >= (smoc_commnr c, size_t n)
   { return smoc_root_port_bool(&c.p,n); }
 
 namespace Expr {
+
+template <class E, OpBinT Op>
+struct Communicate<DBinOp<Expr::DLiteral<smoc_commnr>,E,Op> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<Expr::DLiteral<smoc_commnr>,E,Op> &e) {
+    // std::cout << "Communicate<DBinOp<Expr::DLiteral<smoc_commnr>,E,Op> >::apply(e)" << std::endl;
+    return e.a.v.p.commExec();
+  }
+};
 
 /****************************************************************************
  * DGuard represents a virtual guard which hides an smoc_root_port_bool object

@@ -107,7 +107,7 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
   do {
     // FIXME: Big hack !!!
     smoc_ctx       _oldctx = _ctx;
-    _ctx.ports_setup.clear();
+    // _ctx.ports_setup.clear();
     
 #ifdef SYSTEMOC_DEBUG
     std::cout << "<smoc_scheduler_top::schedule>" << std::endl;
@@ -124,7 +124,7 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
           smoc_firing_types::resolved_state_ty **rs =
             &(*iter)->currentState().rs;
           
-          assert( _ctx.ports_setup.empty() );
+          // assert( _ctx.ports_setup.empty() );
           do {
             canexec = false;
             
@@ -143,11 +143,13 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
                 titer->execute(rs,*iter);
                 again = true;
               }
+              /*
               for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
                     iter != _ctx.ports_setup.end();
                     ++iter )
                 (*iter)->reset();
               _ctx.ports_setup.clear();
+               */
             }
           } while ( canexec );
         }

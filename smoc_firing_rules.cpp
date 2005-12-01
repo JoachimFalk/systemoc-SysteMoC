@@ -40,6 +40,8 @@ void smoc_firing_state_ref::finalise( smoc_root_node *actor ) const {
   fr->finalise(actor);
 }
 
+/*
+
 bool smoc_firing_state_ref::tryExecute() {
   bool retval;
 #ifdef SYSTEMOC_DEBUG
@@ -52,6 +54,8 @@ bool smoc_firing_state_ref::tryExecute() {
 #endif
   return retval;
 }
+
+*/
 
 void smoc_firing_state_ref::findBlocked(smoc_event_or_list &l) {
 #ifdef SYSTEMOC_DEBUG
@@ -162,6 +166,8 @@ smoc_firing_types::resolved_state_ty::addTransition(
     tl.push_back(transition_ty(r, *titer));
 }
 
+/*
+
 bool
 smoc_firing_types::resolved_state_ty::tryExecute(
     resolved_state_ty **rs, smoc_root_node *actor) {
@@ -194,6 +200,8 @@ bool smoc_firing_types::transition_ty::tryExecute(
     execute(rs,actor);
   return canexec;
 }
+
+*/
 
 void smoc_firing_types::transition_ty::execute(
     resolved_state_ty **rs, smoc_root_node *actor) {
@@ -251,10 +259,12 @@ void smoc_firing_types::transition_ty::execute(
       
 #ifdef ENABLE_SYSTEMC_VPC
       *rs = actor->commstate.rs;
+      // save guard and next state to later execute communication
       actor->nextState.rs = sl.front();
-      // save ports setup to later execute communication
-      actor->ports_setup = _ctx.ports_setup;
-      _ctx.ports_setup.clear();
+      actor->_guard       = &ap.guard;
+      
+      // actor->ports_setup = _ctx.ports_setup;
+      // _ctx.ports_setup.clear();
 # ifdef SYSTEMOC_DEBUG
       std::cout << "    <communication type=\"defered\"/>" << std::endl;
 # endif
@@ -273,10 +283,18 @@ void smoc_firing_types::transition_ty::execute(
     TraceLog.traceEndActor(actor->myModule()->name()); //
 #endif
   }
+  
+#ifdef ENABLE_SYSTEMC_VPC
+  if (!isType<smoc_func_call>(f))
+#endif
+    Expr::evalTo<Expr::Communicate>(ap.guard);
+
+/*
   for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
         iter != _ctx.ports_setup.end();
         ++iter )
     (*iter)->commExec();
+ */
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceEndTryExecute(actor->myModule()->name()); //
 #endif

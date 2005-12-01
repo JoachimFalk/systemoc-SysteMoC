@@ -43,7 +43,7 @@ smoc_root_port_bool::smoc_root_port_bool(smoc_root_port *p, size_t n) {
   switch ( v ) {
     case IS_ENABLED:
       p->commSetup(n);
-      _ctx.ports_setup.push_back(p);
+      // _ctx.ports_setup.push_back(p);
       break;
     case IS_BLOCKED:
       p->blockEvent().reset();

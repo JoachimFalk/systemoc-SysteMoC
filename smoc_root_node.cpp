@@ -7,24 +7,26 @@
 #include <hscd_tdsim_TraceLog.hpp>
 
 smoc_root_node::smoc_root_node(const smoc_firing_state &s)
-  : _currentState(s), _initialState(NULL), is_v1_actor(false)
+  : _currentState(s), _initialState(NULL), is_v1_actor(false),
 #ifdef ENABLE_SYSTEMC_VPC
-  , commstate( smoc_activation_pattern(Expr::till(vpc_event), true) >>
-	       smoc_interface_action(smoc_func_diverge(
-						       this,&smoc_root_node::communicate)) ) 
+    commstate(smoc_activation_pattern(Expr::till(vpc_event), true) >>
+	      smoc_interface_action(smoc_func_diverge(
+                this,&smoc_root_node::_communicate))),
 #endif // ENABLE_SYSTEMC_VPC
+    _guard(NULL)
   {}
 smoc_root_node::smoc_root_node(smoc_firing_state &s)
-  : _initialState(&s), is_v1_actor(false)
+  : _initialState(&s), is_v1_actor(false),
 #ifdef ENABLE_SYSTEMC_VPC
-  , commstate( smoc_activation_pattern(Expr::till(vpc_event), true) >>
-	       smoc_interface_action(smoc_func_diverge(
-						       this,&smoc_root_node::communicate)) )
+    commstate(smoc_activation_pattern(Expr::till(vpc_event), true) >>
+	      smoc_interface_action(smoc_func_diverge(
+		this,&smoc_root_node::_communicate))),
 #endif // ENABLE_SYSTEMC_VPC
+    _guard(NULL)
   {}
 
 #ifdef ENABLE_SYSTEMC_VPC
-const smoc_firing_state &smoc_root_node::communicate() {
+const smoc_firing_state &smoc_root_node::_communicate() {
     
 # ifdef SYSTEMOC_DEBUG
   std::cout << "  <call actor=" << myModule()->name()
@@ -37,7 +39,10 @@ const smoc_firing_state &smoc_root_node::communicate() {
 #endif
  
   assert( vpc_event );
-    
+  
+  Expr::evalTo<Expr::Communicate>(*_guard);
+  
+/*  
   for ( smoc_port_list::iterator iter = ports_setup.begin();
 	iter != ports_setup.end();
 	++iter ) {
@@ -45,6 +50,7 @@ const smoc_firing_state &smoc_root_node::communicate() {
     (*iter)->reset();
   }
   ports_setup.clear();
+*/
 
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceEndDeferredCommunication(myModule()->name());

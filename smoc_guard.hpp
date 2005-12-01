@@ -28,7 +28,7 @@ public:
   typedef smoc_activation_pattern this_type;
   
   friend class smoc_firing_state;
-protected:
+//protected:
   Expr::Ex<smoc_root_port_bool>::type guard;
 public:
   smoc_root_port_bool knownSatisfiable() const
