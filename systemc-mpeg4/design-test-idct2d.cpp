@@ -52,12 +52,12 @@ class m_source_idct: public smoc_actor {
     
     smoc_firing_state start;
   public:
-    m_source_idct( sc_module_name name ) //,int init_value = 1 )
+    m_source_idct( sc_module_name name, size_t periods )
       :smoc_actor( name, start ), i(0) {
       i1.open(INAMEblk);
       start = ((out.getAvailableSpace() >= 64) &&
                (min.getAvailableSpace() >= 1) &&
-               (var(i) < (100 * 64) ))
+               (var(i) < periods*64))
               >> CALL(m_source_idct::process)
               >> start;
     }
@@ -131,9 +131,9 @@ private:
   m_block_idct  blidct;
   m_sink        snk;
 public:
-  IDCT2d_TEST( sc_module_name name )
+  IDCT2d_TEST(sc_module_name name, size_t periods)
     : smoc_graph(name),
-      src_idct("src_idct"),
+      src_idct("src_idct", periods),
       blidct("blidct"),
       snk("snk") {
     
@@ -145,14 +145,19 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<IDCT2d_TEST> top("top");
+  bool generateProblemgraph =
+    (argc > 1) && !strcmp(argv[1], "--generate-problemgraph");
+  size_t periods            =
+    (argc > 1 && !generateProblemgraph)
+    ? atoi(argv[1])
+    : 100;
   
-#define GENERATE "--generate-problemgraph"
-  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
+  smoc_top_moc<IDCT2d_TEST> top("top", periods);
+  
+  if (generateProblemgraph) {
     smoc_modes::dump(std::cout, top);
   } else {  
     sc_start(-1);
   }
-#undef GENERATE
   return 0;
 }
