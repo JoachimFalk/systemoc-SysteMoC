@@ -8,18 +8,18 @@
 #include <vector>
 
 #include <list>
-#include <jf-libs/stl_output_for_list.hpp>
+#include <cosupport/stl_output_for_list.hpp>
 
 #include <set>
 
-#include <jf-libs/oneof.hpp>
+#include <cosupport/oneof.hpp>
 
 #include <smoc_guard.hpp>
 #include <smoc_root_port.hpp>
 
 #include <boost/shared_ptr.hpp>
 
-#include <jf-libs/commondefs.h>
+#include <cosupport/commondefs.h>
 
 class smoc_activation_pattern;
 class smoc_transition;

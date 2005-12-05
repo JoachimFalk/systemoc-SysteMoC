@@ -9,9 +9,9 @@
 #include <list>
 #include <utility>
 
-#include <jf-libs/stl_output_for_list.hpp>
-#include <jf-libs/stl_output_for_pair.hpp>
-#include <jf-libs/oneof.hpp>
+#include <cosupport/stl_output_for_list.hpp>
+#include <cosupport/stl_output_for_pair.hpp>
+#include <cosupport/oneof.hpp>
 
 #include <systemc.h>
 
