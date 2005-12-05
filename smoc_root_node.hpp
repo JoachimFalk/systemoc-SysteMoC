@@ -53,8 +53,11 @@ class smoc_root_node
 : public smoc_opbase_node {
 #endif
 private:
+#ifndef NDEBUG
+  bool _finalizeCalled;
+#endif
   smoc_firing_state        _currentState;
-  const smoc_firing_state *_initialState;
+  const smoc_firing_state &_initialState;
   
   const smoc_firing_state &communicate();
 protected:

@@ -74,9 +74,8 @@ public:
       reinterpret_cast<const smoc_member_func<void, dummy> *>(m)
       ->operator()();
   }
-  const char* getFuncName(){
-    return func_name;
-  }
+  const char* getFuncName() const
+    { return func_name; }
 };
 
 
@@ -184,6 +183,8 @@ public:
   bool tryExecute();
   void findBlocked(smoc_root_port_bool_list &l);
   void dump( std::ostream &o ) const;
+  const smoc_firing_rules &getFiringRules() const
+    { return *fr; }
   
   ~smoc_firing_state_ref();
 };
@@ -285,6 +286,11 @@ protected:
   void unify( smoc_firing_rules *fr );
   
   void finalise( smoc_root_node *actor );
+ 
+
+public:
+  const statelist_ty &getFSMStates() const
+    { return states; }
   
   ~smoc_firing_rules() {
     for ( statelist_ty::iterator iter = states.begin();
