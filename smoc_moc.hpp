@@ -124,18 +124,32 @@ public:
   
   SC_HAS_PROCESS(this_type);
   
-  explicit smoc_top_moc( sc_module_name name )
-    : T_top(name) {
-#ifndef __SCFE__
-    SC_THREAD(scheduleTop);
-#endif
-  }
   smoc_top_moc()
-    : T_top() {
-#ifndef __SCFE__
-    SC_THREAD(scheduleTop);
-#endif
-  }
+    : T_top()
+    { SC_THREAD(scheduleTop); }
+  explicit smoc_top_moc( sc_module_name name )
+    : T_top(name)
+    { SC_THREAD(scheduleTop); }
+  template <typename T1>
+  explicit smoc_top_moc( sc_module_name name, T1 p1 )
+    : T_top(name,p1)
+    { SC_THREAD(scheduleTop); }
+  template <typename T1, typename T2>
+  explicit smoc_top_moc( sc_module_name name, T1 p1, T2 p2 )
+    : T_top(name,p1,p2)
+    { SC_THREAD(scheduleTop); }
+  template <typename T1, typename T2, typename T3>
+  explicit smoc_top_moc( sc_module_name name, T1 p1, T2 p2, T3 p3 )
+    : T_top(name,p1,p2,p3)
+    { SC_THREAD(scheduleTop); }
+  template <typename T1, typename T2, typename T3, typename T4>
+  explicit smoc_top_moc( sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4 )
+    : T_top(name,p1,p2,p3,p4)
+    { SC_THREAD(scheduleTop); }
+  template <typename T1, typename T2, typename T3, typename T4, typename T5>
+  explicit smoc_top_moc( sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5 )
+    : T_top(name,p1,p2,p3,p4,p5)
+    { SC_THREAD(scheduleTop); }
 };
 
 #endif // _INCLUDED_SMOC_MOC_HPP
