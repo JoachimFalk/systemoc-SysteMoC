@@ -3,11 +3,14 @@
 #include <smoc_root_port.hpp>
 #include <smoc_root_node.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
-
+#include <smoc_firing_rules.hpp>
 #include <hscd_tdsim_TraceLog.hpp>
 
 smoc_root_node::smoc_root_node(const smoc_firing_state &s)
-  : _currentState(s), _initialState(NULL), is_v1_actor(false),
+  : _finalizeCalled(false),
+    _currentState(s),
+    _initialState(_currentState),
+    is_v1_actor(false)
 #ifdef ENABLE_SYSTEMC_VPC
     commstate(smoc_activation_pattern(Expr::till(vpc_event), true) >>
 	      smoc_interface_action(smoc_func_diverge(
@@ -16,7 +19,9 @@ smoc_root_node::smoc_root_node(const smoc_firing_state &s)
     _guard(NULL)
   {}
 smoc_root_node::smoc_root_node(smoc_firing_state &s)
-  : _initialState(&s), is_v1_actor(false),
+  : _finalizeCalled(false),
+    _initialState(s),
+    is_v1_actor(false)
 #ifdef ENABLE_SYSTEMC_VPC
     commstate(smoc_activation_pattern(Expr::till(vpc_event), true) >>
 	      smoc_interface_action(smoc_func_diverge(
@@ -64,13 +69,16 @@ const smoc_firing_state &smoc_root_node::_communicate() {
 #endif // ENABLE_SYSTEMC_VPC
 
 void smoc_root_node::finalise() {
-  //    std::cout << myModule()->name() << ": finalise" << std::endl;
-  if ( _initialState != NULL ) {
-    _currentState = *_initialState;
-    _initialState = NULL;
+#ifndef NDEBUG
+  // PARANOIA
+  // std::cout << myModule()->name() << ": finalise" << std::endl;
+  assert( !_finalizeCalled );
+  _finalizeCalled = true;
+#endif
+  if ( &_initialState != &_currentState ) {
+    _currentState = _initialState;
   }
   _currentState.finalise(this);
-  //    dumpActor(std::cout);
 }
 
 const smoc_port_list smoc_root_node::getPorts() const {
@@ -105,6 +113,47 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
       pgw << "<port name=\"" << (*iter)->name() << "\" "
           << "type=\"" << ((*iter)->isInput() ? "in" : "out") << "\" "
           << "id=\"" << pgw.getId(*iter) << "\"/>" << std::endl;
+    pgw << "<fsm startstate=\"" << pgw.getId(&_initialState.getResolvedState()) << "\">" << std::endl;
+    pgw.indentUp();
+  
+    
+   //*****************************FSMSTATES************************************ 
+    const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
+    const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
+    for (smoc_firing_rules::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
+        fsmiter != fsmStates.end(); 
+           ++fsmiter) {
+ 
+    pgw << "<state id=\"" << pgw.getId(*fsmiter)<< "\">" << std::endl;
+    pgw.indentUp();
+     
+                //**************TRANTIONS********************
+    const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
+    
+    // assert( cTraSt.size() == 1 );
+    for ( smoc_firing_types::transitionlist_ty::const_iterator iter1 = cTraSt.begin(); 
+          iter1 != cTraSt.end(); 
+          ++iter1 ) {
+      smoc_firing_types::statelist_ty cToNState = iter1->sl; 
+      for (smoc_firing_rules::statelist_ty::const_iterator iter2 =cToNState.begin(); 
+           iter2 != cToNState.end(); 
+           ++iter2) {
+        pgw << "<transition nextstate=\"" << pgw.getId(*iter2) << "\" "
+              << "action=\"" << static_cast<const smoc_func_call &>(iter1->f).getFuncName() << "\">" << std::endl;
+        pgw << "</transition>" << std::endl;
+      }
+    }
+                //***************/TRANTIONS*****************
+   
+    pgw.indentDown();
+    pgw << "</state>" << std::endl;
+   
+    }
+    //*********************************/FSMSTATES*************************************
+    
+
+pgw.indentDown();
+    pgw << "</fsm>" << std::endl;
   }
   pgAssemble( pgw, this );
   if ( !ps.empty() ) {
