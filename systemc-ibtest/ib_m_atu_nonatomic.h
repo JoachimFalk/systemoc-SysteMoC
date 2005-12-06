@@ -41,7 +41,7 @@
 #include <iostream>
 
 // Oneof
-#include <jf-libs/oneof.hpp>
+#include <cosupport/oneof.hpp>
 
 // channel types
 typedef jflibs::oneof<tt_notification, tt_bo_notification, tt_data>   ct_queue2atu;
