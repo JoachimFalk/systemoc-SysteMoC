@@ -7,10 +7,13 @@
 #include <hscd_tdsim_TraceLog.hpp>
 
 smoc_root_node::smoc_root_node(const smoc_firing_state &s)
-  : _finalizeCalled(false),
+  :
+#ifndef NDEBUG
+    _finalizeCalled(false),
+#endif
     _currentState(s),
     _initialState(_currentState),
-    is_v1_actor(false)
+    is_v1_actor(false),
 #ifdef ENABLE_SYSTEMC_VPC
     commstate(smoc_activation_pattern(Expr::till(vpc_event), true) >>
 	      smoc_interface_action(smoc_func_diverge(
@@ -19,9 +22,12 @@ smoc_root_node::smoc_root_node(const smoc_firing_state &s)
     _guard(NULL)
   {}
 smoc_root_node::smoc_root_node(smoc_firing_state &s)
-  : _finalizeCalled(false),
+  :
+#ifndef NDEBUG
+    _finalizeCalled(false),
+#endif
     _initialState(s),
-    is_v1_actor(false)
+    is_v1_actor(false),
 #ifdef ENABLE_SYSTEMC_VPC
     commstate(smoc_activation_pattern(Expr::till(vpc_event), true) >>
 	      smoc_interface_action(smoc_func_diverge(
