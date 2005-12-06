@@ -142,11 +142,11 @@ if test -d $srcdir/systemc-select; then
 fi
 if test -d $srcdir/systemc-mpeg4; then
   AC_CONFIG_FILES([systemc-mpeg4/Makefile])
-  subdirs="$subdirs systemc-mpeg4"
+# subdirs="$subdirs systemc-mpeg4"
 fi
 if test -d $srcdir/systemc-ibtest; then
   AC_CONFIG_FILES([systemc-ibtest/Makefile])
-  subdirs="$subdirs systemc-ibtest"
+# subdirs="$subdirs systemc-ibtest"
 fi
 if test -d $srcdir/systemc-td-sim-test; then
   AC_CONFIG_FILES([systemc-td-sim-test/Makefile])
