@@ -7,7 +7,10 @@
 #include <hscd_tdsim_TraceLog.hpp>
 
 smoc_root_node::smoc_root_node(const smoc_firing_state &s)
-  : _finalizeCalled(false),
+  :
+#ifndef NDEBUG
+    _finalizeCalled(false),
+#endif
     _currentState(s),
     _initialState(_currentState),
     is_v1_actor(false)
@@ -18,7 +21,10 @@ smoc_root_node::smoc_root_node(const smoc_firing_state &s)
 #endif // ENABLE_SYSTEMC_VPC
   {}
 smoc_root_node::smoc_root_node(smoc_firing_state &s)
-  : _finalizeCalled(false),
+  :
+#ifndef NDEBUG
+    _finalizeCalled(false),
+#endif
     _initialState(s),
     is_v1_actor(false)
 #ifdef ENABLE_SYSTEMC_VPC
