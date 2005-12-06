@@ -14,7 +14,7 @@
 
 // InifiniBand Includes
 #include "tt_ib.h"
-#include <jf-libs/oneof.hpp>
+#include <cosupport/oneof.hpp>
 
 using Expr::field;
 using Expr::isType;

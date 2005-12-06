@@ -2,7 +2,7 @@
 #include <iostream>
 #include <memory>
 
-#include <jf-libs/oneof.hpp>
+#include <cosupport/oneof.hpp>
 
 class a_ty {
   int x;
