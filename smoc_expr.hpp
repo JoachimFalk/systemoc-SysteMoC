@@ -10,7 +10,7 @@
 
 #include <boost/intrusive_ptr.hpp>
 
-#include <jf-libs/oneof.hpp>
+#include <cosupport/oneof.hpp>
 
 /****************************************************************************
  * dexpr.h

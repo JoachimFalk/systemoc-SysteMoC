@@ -12,7 +12,7 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //ENABLE_SYSTEMC_VPC
 
-#include <jf-libs/oneof.hpp>
+#include <cosupport/oneof.hpp>
 
 using namespace jflibs;
 

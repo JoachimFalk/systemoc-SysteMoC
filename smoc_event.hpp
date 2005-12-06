@@ -2,7 +2,7 @@
 #ifndef _INCLUDED_SMOC_EVENT_HPP
 #define _INCLUDED_SMOC_EVENT_HPP
 
-#include <jf-libs/systemc_support.hpp>
+#include <cosupport/systemc_support.hpp>
 
 typedef CoSupport::SystemC::Event         smoc_event;
 typedef CoSupport::SystemC::EventOrList   smoc_event_or_list;

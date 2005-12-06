@@ -2,7 +2,7 @@
 
 #include <smoc_root_port.hpp>
 
-#include <jf-libs/oneof.hpp>
+#include <cosupport/oneof.hpp>
 
 using namespace jflibs;
 
