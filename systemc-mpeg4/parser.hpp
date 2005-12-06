@@ -135,7 +135,9 @@ private:
 
   //debugging variables
   ofstream block_file;
-
+  unsigned int mb_count;
+  unsigned int frame_count;
+  
 private:
   cal_list<int>::t initList( int v, int sz );
   int value( cal_list<int>::t bits, int n, int os ) const;
@@ -371,7 +373,9 @@ m_parser::m_parser(sc_module_name name,
   INTER(INTER),
   INTRA(INTRA),
   MAXW_IN_MB(MAXW_IN_MB),
-  block_file("block_output.txt")
+  block_file("block_output.txt"),
+  mb_count(0),
+  frame_count(0)
 {
 
   //open debug file
@@ -529,37 +533,47 @@ mb  = (var(mby) == var(vol_height)) >>
 	CALL(m_parser::action_mcbpc_ivop_b6)  >> mb2
     | ((bits.getAvailableTokens() >= 2) &&
 	(var(prediction_type) == P_VOP) &&
-	(bits.getValueAt(1) == 1) ) >>
+	(bits.getValueAt(0) != 1) &&
+        (bits.getValueAt(1) == 1) ) >>
 	CALL(m_parser::action_mcbpc_pvop_b1)  >> mb2
     | ((bits.getAvailableTokens() >= 4) &&
 	(var(prediction_type) == P_VOP) &&
-	(bits.getValueAt(2) == 1) ) >>
+	(bits.getValueAt(0) != 1) &&
+        (bits.getValueAt(2) == 1) ) >>
 	CALL(m_parser::action_mcbpc_pvop_b3)  >> mb2
     | ((bits.getAvailableTokens() >= 5) &&
 	(var(prediction_type) == P_VOP) &&
-	(bits.getValueAt(3) == 1) ) >>
+	(bits.getValueAt(0) != 1) &&
+        (bits.getValueAt(3) == 1) ) >>
 	CALL(m_parser::action_mcbpc_pvop_b4)  >> mb2
     | ((bits.getAvailableTokens() >= 6) &&
 	(var(prediction_type) == P_VOP) &&
+        (bits.getValueAt(0) != 1) &&
 	((bits.getValueAt(4) == 1) && (bits.getValueAt(5) == 1)) ) >>
 	CALL(m_parser::action_mcbpc_pvop_b5)  >> mb2
     | ((bits.getAvailableTokens() >= 7) &&
 	(var(prediction_type) == P_VOP) &&
+        (bits.getValueAt(0) != 1) &&
 	((bits.getValueAt(4) == 1) && (bits.getValueAt(5) == 0)) ) >>
 	CALL(m_parser::action_mcbpc_pvop_b6)  >> mb2
     | ((bits.getAvailableTokens() >= 8) &&
 	(var(prediction_type) == P_VOP) &&
+        (bits.getValueAt(0) != 1) &&
 	((bits.getValueAt(5) == 1) || ((bits.getValueAt(6) == 1) && (bits.getValueAt(7) == 1))) ) >>
 	CALL(m_parser::action_mcbpc_pvop_b7)  >> mb2
     | ((bits.getAvailableTokens() >= 9) &&
 	(var(prediction_type) == P_VOP) &&
+        (bits.getValueAt(0) != 1) &&
 	((bits.getValueAt(6) == 1) || ((bits.getValueAt(7) == 1) && (bits.getValueAt(8) == 1))) ) >>
 	CALL(m_parser::action_mcbpc_pvop_b8)  >> mb2
     | ((bits.getAvailableTokens() >= 10) &&
 	(var(prediction_type) == P_VOP) &&
+        (bits.getValueAt(0) != 1) &&
 	((bits.getValueAt(7) == 1) || (bits.getValueAt(8) == 1) || (bits.getValueAt(9) == 1)) ) >>
 	CALL(m_parser::action_mcbpc_pvop_b9)  >> mb2
-    | ((bits.getAvailableTokens() >= (MCBPC_LENGTH + 1))) >>
+    | ((bits.getAvailableTokens() >= (MCBPC_LENGTH + 1)) &&
+        (bits.getValueAt(0) != 1) 
+        ) >>
         CALL(m_parser::action_mcbpc_bad)  >> stuck;
 
 mb2 = (guard(&m_parser::guard_get_mbtype_noac)) >>
@@ -584,12 +598,12 @@ mb3 = ((bits.getAvailableTokens() >= 2) &&
         CALL(m_parser::action_bad_cbpy)  >> stuck;
 
 mb4 = (var(btype) == INTER) >>
-        CALL(m_parser::action_final_cbpy_inter)  >> mv0
+        CALL(m_parser::action_final_cbpy_inter)  >> mv0 
     | (guard(&m_parser::guard_dummy)) >>
         CALL(m_parser::action_final_cbpy_intra)  >> blk;
 
 //////////////////////////////////////////////////////////////////////////////
-// MV
+// MV//
 mv0 = ((var(mvcomp) == 4) ||
         ((var(mvcomp) == 1) && (var(fourmvflag) == 0)) ) >>
 	CALL(m_parser::action_mvcode_done)  >> blk
@@ -702,7 +716,7 @@ blk = (var(comp) == 6) >>
 
 //////////////////////////////////////////////////////////////////////////////
 // texture
-tex = (var(prediction_type) == I_VOP) >>
+tex = ((var(prediction_type) == I_VOP)||(var(btype) == INTRA)) >>
 	CALL(m_parser::action_vld_start_intra)  >> texdc
     |  (guard(&m_parser::guard_dummy)) >>
 	CALL(m_parser::action_vld_start_inter)  >> texac;
@@ -1168,12 +1182,18 @@ void m_parser::action_vol_misc_supported(void){
 
 
 void m_parser::action_byte_align(void){
-  unsigned int n = 8 - cal_bitand( bit_count, 7 );
+  unsigned int n_stuffed = 8 - cal_bitand( bit_count, 7 );
   cout << "Bit_count at  VOP bytealign : " << bit_count << endl; 
-  BOUND_BITS_TO_B(n);
   
-  // println("Byte align at bit_count = "+bit_count+", reading "+n+" bits");
-  cout <<"VOP Bytealign n: "<< n <<endl;
+  BOUND_BITS_TO_B(n_stuffed);
+  unsigned int v = value(b, n_stuffed, 0);
+
+  if ( v != (1 << (n_stuffed - 1)) - 1 ) {
+    std::cout << "stuffing bits not correct" << std::endl;
+  }
+  
+  cout << "Byte align at bit_count = " << bit_count <<", reading "<< n_stuffed << " bits" << endl;
+  cout <<"VOP Bytealign n_stuffed: "<< n_stuffed <<endl;
   bit_count = 0;
 }
 
@@ -1207,7 +1227,7 @@ void m_parser::action_vop_code_other(void){
   BOUND_BITS_TO_B(VOP_START_CODE_LENGTH);
   
   bit_count = bit_count + VOP_START_CODE_LENGTH;
-  cout << "Invalid VOP start code " << value(b, VOP_START_CODE_LENGTH, 0) << endl;
+  cout << "Invalid VOP start code " << (unsigned int) value(b, VOP_START_CODE_LENGTH, 0) << endl;
 }
 
 
@@ -1242,7 +1262,7 @@ void m_parser::action_vop_timebase_zero(void){
   //BOUND_BITS_TO_B(2);
   //:action bits:[b] repeat 2 ==>
   bit_count = bit_count + 2;
-  cout << "VOP actin timebase_zero , bit_count =:" << bit_count << endl;
+cout << "VOP actin timebase_zero , bit_count =:" << bit_count << endl;
   //cout << "VOP timebase = " << time_base << endl;
 }
 
@@ -1490,6 +1510,9 @@ void m_parser::next_mbxy(void){
 // Go look for next VOP
 void m_parser::action_mb_done(void){
   cout << "action: action_mb_done" << endl;
+  mb_count = 0;
+  frame_count++;
+  cout << " FRAME " << frame_count << " decodiert!" <<endl;
 }
 
 
@@ -1551,6 +1574,11 @@ void m_parser::action_mcbpc_pvop_uncoded(void){
   mv[33] =5;
   mv[34] =0; 
   mv[35] =0;
+
+  cout << "Macro block nbr: " << mb_count << endl;
+  mb_count++;
+
+  cout << endl << endl;
 }
 
 // 1xxxxx   3
@@ -1727,6 +1755,8 @@ void m_parser::action_mcbpc_pvop_b9(void){
     }
   };
   bit_count = bit_count + 10;
+  cout << "bit_count = " << bit_count << endl;
+  
   cout << "PVOP with 9 bit mcbpc = " << mcbpc << endl;
 }
 
@@ -1778,6 +1808,7 @@ void m_parser::action_get_cbpy_b2(void){
   BOUND_BITS_TO_B(2);
   cbpy = 15;
   bit_count = bit_count + 2;
+  cout << "action_get_cbpy_b2 , bit_count =:" << bit_count << endl;
   cout << "action: action_get_cbpy_b2" << endl;
 
 }
@@ -1827,6 +1858,7 @@ void m_parser::action_get_cbpy_b4(void){
     }
   };
   bit_count = bit_count + 4;
+  cout << "action_get_cbpy_b4 :bit_count = " << bit_count << endl;
 
   cout << "action: action_get_cbpy_b4" << endl;
 }
@@ -1852,6 +1884,8 @@ void m_parser::action_get_cbpy_b5(void){
     }
   };
   bit_count = bit_count + 5;
+  
+  cout << "action_get_cbpy_b5 , bit_count =:" << bit_count << endl;
   cout << "action: action_get_cbpy_b5" << endl;
 }
 
@@ -1860,6 +1894,7 @@ void m_parser::action_get_cbpy_b5(void){
 void m_parser::action_get_cbpy_b6(void){
   BOUND_BITS_TO_B(6);
   cbpy = ( b[5] == 0) ? 6 : 9;
+  cout << "bit_count = " << bit_count << endl;
   bit_count = bit_count + 6;
   cout << "action: action_get_cbpy_b6" << endl;
 }
@@ -1868,6 +1903,7 @@ void m_parser::action_get_cbpy_b6(void){
 void m_parser::action_bad_cbpy(void){
   BOUND_BITS_TO_B(6);
   cout << "Bad CBPY code " << value( b, 6, 0) << endl;
+  cout << "bit_count = " << bit_count << endl;
   bit_count = bit_count + 6;
   cout << "action: action_bad_cbpy" << endl;
 }
@@ -1896,7 +1932,11 @@ void m_parser::action_final_cbpy_intra(void){
 void m_parser::action_mb_dispatch_done(void){
   next_mbxy();
   next_mvindex();
-  cout << "action: action_mb_dispatch_done" << endl;
+  cout << "action: action_mb_dispatch_done"<< endl;
+  cout << "Macro block nbr: " << mb_count << endl;
+  
+  mb_count++;
+  cout << endl << endl;
 }
 
 void m_parser::action_mb_dispatch_intra(void){
@@ -1945,6 +1985,7 @@ void m_parser::action_mb_dispatch_inter_no_ac(void){
   mv[3] = comp_old;
   mv[4] = mvx;
   mv[5] = mvy;
+  cout << "action: action_mb_dispatch_inter_no_ac" << endl;
 }
 
 
@@ -1953,7 +1994,7 @@ void m_parser::action_mb_dispatch_inter_ac_coded(void){
   int mvx = ( comp < 4) ? get_mvx(0, 0, comp) : mvx_uv;
   int mvy = ( comp < 4) ? get_mvy(0, 0, comp) : mvy_uv;
   ac_coded = 1;
-  // cout << "Dispatch INTER ac" << endl;
+  cout << "Dispatch INTER ac" << endl;
 
   param[0] = INTER;
   param[1] = mbx;
@@ -1965,6 +2006,9 @@ void m_parser::action_mb_dispatch_inter_ac_coded(void){
   mv[3] = comp;
   mv[4] = mvx;
   mv[5] = mvy;
+  cout << "action_mb_dispatch_inter_ac_coded :bit_count = " << bit_count << endl;
+
+  cout << "action: action_mb_dispatch_inter_ac_coded" << endl;
 }
  
 /*************************************************************
@@ -2064,6 +2108,7 @@ void m_parser::action_dcbits_b4(void){
   BOUND_BITS_TO_B(4);
   dcbits = ( comp > 3 ) ?  4 : 5;
   bit_count = bit_count + 4;
+  cout << "bit_count = " << bit_count << endl;
   cout << "comp " << comp << " dc bits = " << dcbits << endl;
   cout << "action: action_dcbits_b4" << endl;
 }
@@ -2081,6 +2126,7 @@ void m_parser::action_dcbits_b6(void){
   BOUND_BITS_TO_B(6);
   dcbits = ( comp > 3) ? 6 : 7;
   bit_count = bit_count + 6;
+  cout << "bit_count = " << bit_count << endl;
   cout << "comp " << comp << " dc bits = " << dcbits << endl;
   //println("comp "+comp+" dc bits = "+dcbits);
   cout << "action: action_dcbits_b6" << endl;
@@ -2111,6 +2157,7 @@ void m_parser::action_dcbits_b9(void){
   BOUND_BITS_TO_B(9);
   dcbits = ( comp > 3) ? 9 : 10;
   bit_count = bit_count + 9;
+  cout << "bit_count = " << bit_count << endl;
   cout << "comp " << comp << " dc bits = " << dcbits << endl;
   //println("comp "+comp+" dc bits = "+dcbits);
   cout << "action: action_dcbits_b9" << endl;
@@ -2121,6 +2168,7 @@ void m_parser::action_dcbits_b10(void){
   BOUND_BITS_TO_B(10);
   dcbits = ( comp > 3 ) ?  10 : 11 ;
   bit_count = bit_count + 10;
+  cout << "bit_count = " << bit_count << endl;
   cout << "comp " << comp << " dc bits = " << dcbits << endl;
   //println("comp "+comp+" dc bits = "+dcbits);
   cout << "action: action_dcbits_b10" << endl;
@@ -2174,6 +2222,7 @@ void m_parser::action_get_dc_small(void){
   b_index = 1;
   cout <<  "DC = " << v << endl;
   bit_count = bit_count + dcbits;
+  cout << "bit_count = " << bit_count << endl;
   cout << "action: action_get_dc_small" << endl;
 }
 
@@ -2233,6 +2282,7 @@ void m_parser::action_vld_code_b2(void){
 
   vld_index = 0;
   bit_count = bit_count + 2;
+  cout << "action_vld_code_b2, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b2" << endl;
 }
 
@@ -2243,6 +2293,7 @@ void m_parser::action_vld_code_b3(void){
   BOUND_BITS_TO_B(3);
   vld_index = 1;
   bit_count = bit_count + 3;
+  cout << "action_vld_code_b3, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b3" << endl;
 }
 
@@ -2258,6 +2309,7 @@ void m_parser::action_vld_code_b4(void){
   vld_index = ( b[0] == 0) ? 2 :
     ( b[3] == 0) ? 3 : 4;
   bit_count = bit_count + 4;
+  cout << "action_vld_code_b4, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b4" << endl;
 }
 
@@ -2280,6 +2332,7 @@ void m_parser::action_vld_code_b5(void){
   vld_index = ( b[2] == 0) ?  5 :
     ( b[4] == 0) ?  6 : 7;
   bit_count = bit_count + 5;
+  cout << "action_vld_code_b5, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b5" << endl;
 }
 
@@ -2311,6 +2364,7 @@ void m_parser::action_vld_code_b6(void){
   int v = value( b, 6, 0 );
   vld_index = v - 4;
   bit_count = bit_count + 6;
+  cout << "action_vld_code_b6, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b6" << endl;
 }
 
@@ -2339,6 +2393,7 @@ void m_parser::action_vld_code_b7(void){
   int v = value( b, 7, 0 );
   vld_index = ( v == 3) ? 18 : (v + 3);
   bit_count = bit_count + 7;
+  cout << "action_vld_code_b7, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b7" << endl;
 }
 
@@ -2370,6 +2425,7 @@ void m_parser::action_vld_code_b8(void){
   int   v = value( b, 8, 0 );
   vld_index = v + 8;
   bit_count = bit_count + 8;
+  cout << "action_vld_code_b8, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b8" << endl;
 }
 bool m_parser::guard_vld_code_b8(void) const {
@@ -2411,6 +2467,7 @@ void m_parser::action_vld_code_b9(void){
 
   vld_index = v + 23;
   bit_count = bit_count + 9;
+  cout << "action_vld_code_b9, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b9" << endl;
 }
 
@@ -2448,6 +2505,7 @@ void m_parser::action_vld_code_b10(void){
   vld_index = ( b[4] == 0) ? v + 57 :
     ( b[9] == 0) ? 73 : 74;
   bit_count = bit_count + 10;
+  cout << "action_vld_code_b10, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b10" << endl;
 }
 
@@ -2482,6 +2540,7 @@ void m_parser::action_vld_code_b11(void){
   vld_index = v;
   vld_index+= ( b[5] == 0) ? 71: 47;
   bit_count = bit_count + 11;
+  cout << "action_vld_code_b11, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b11" << endl;
 }
 
@@ -2518,6 +2577,7 @@ void m_parser::action_vld_code_b12(void){
   int v = value( b, 12, 0 );
   vld_index = v + 7;
   bit_count = bit_count + 12;
+  cout << "action_vld_code_b12, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_b12" << endl;
 }
 
@@ -2572,6 +2632,7 @@ void m_parser::action_vld_code_lookup(void){
   }
   b_index = b_index + 1;
   bit_count = bit_count + 1; 
+  cout << "action_vld_code_lookup, bit_count =:" << bit_count << endl;
   cout << "action: action_vld_code_lookup" << endl;
 }
 
@@ -2934,6 +2995,7 @@ void m_parser::action_mvcode_done(void){
 void m_parser::action_mvcode_b1(void){
   mvval = 0;
   // println("Got 1-bit mv["+mvcomp+"] "+mvval);
+  cout << "action: action_mvcode_b1" << endl;
   bit_count = bit_count + 1;
 }
 
@@ -2946,8 +3008,10 @@ void m_parser::action_mvcode_b2(void){
   mvval = ( b[2] == 0) ? 1 : -1;
   if (( mbx == 10) && (mby == 1)) { 
     cout << "Got 2-bit mv[" << mvcomp << "] " << mvval << endl;
-    bit_count = bit_count + 3;
   }
+
+  bit_count = bit_count + 3;
+  cout << "action: action_mvcode_b2" << endl;
 }
 
 
@@ -2958,6 +3022,7 @@ void m_parser::action_mvcode_b3(void){
   mvval = ( b[3] == 0) ? 2 : -2;
   // println("Got 3-bit mv["+mvcomp+"] "+mvval);
   bit_count = bit_count + 4;
+  cout << "action: action_mvcode_b3" << endl;
 }
 
 
@@ -2968,6 +3033,7 @@ void m_parser::action_mvcode_b4(void){
   mvval = ( b[4] == 0) ? 3 : -3;
   // println("Got 4-bit mv["+mvcomp+"] "+mvval);
   bit_count = bit_count + 5;
+  cout << "action: action_mvcode_b4" << endl;
 }
 
 
@@ -2978,6 +3044,7 @@ void m_parser::action_mvcode_b6(void){
   mvval = ( b[6] == 0) ? 4 : -4;
   // if mbx = 10 && mby = 1 { println("Got 6-bit mv["+mvcomp+"] "+mvval); }
   bit_count = bit_count + 7;
+  cout << "action: action_mvcode_b6" << endl;
 }
 
 
@@ -2996,6 +3063,7 @@ void m_parser::action_mvcode_b7(void){
   }
   // println("Got 7-bit mv["+mvcomp+"] "+mvval);
   bit_count = bit_count + 8;
+  cout << "action: action_mvcode_b7" << endl;
 }
 
 bool m_parser::guard_mvcode_b7(void) const {
@@ -3024,6 +3092,7 @@ void m_parser::action_mvcode_b9(void){
   }
   // println("Got 9-bit mv["+mvcomp+"] "+mvval);
   bit_count = bit_count + 10;
+  cout << "action: action_mvcode_b9" << endl;
 }
 
 bool m_parser::guard_mvcode_b9(void) const {
@@ -3074,6 +3143,7 @@ void m_parser::action_mvcode_b10(void){
   }
   // println("Got 10-bit mv["+mvcomp+"] "+mvval);
   bit_count = bit_count + 11;
+  cout << "action: action_mvcode_b10" << endl;
 }
 
 bool m_parser::guard_mvcode_b10(void) const {
@@ -3108,6 +3178,7 @@ void m_parser::action_mvcode_b11(void){
   }
   // println("Got 11-bit mv["+mvcomp+"] "+mvval);
   bit_count = bit_count + 12;
+  cout << "action: action_mvcode_b11" << endl;
 }
 
 bool m_parser::guard_mvcode_b11(void) const {
@@ -3133,6 +3204,7 @@ void m_parser::action_mvcode_b12(void){
   }
   // println("Got 12-bit mv["+mvcomp+"] "+mvval);
   bit_count = bit_count + 13;
+  cout << "action: action_mvcode_b12" << endl;
 }
 
 bool m_parser::guard_mvcode_b12(void) const {
@@ -3157,6 +3229,7 @@ void m_parser::action_get_residual_x_none(void){
   mag_x = mvval;
   res_x = 0;
   // println( "mv x mag = "+mag_x+", res = "+res_x+" in x residual_none");
+  cout << "action: action_get_residual_x_none" << endl;
 }
 
 void m_parser::action_get_residual_x_some(void){
@@ -3166,6 +3239,7 @@ void m_parser::action_get_residual_x_some(void){
   res_x = value( b, fcode, 0);
   // println( "mv x mag = "+mag_x+", res = "+res_x+" in x residual_some");
   bit_count = bit_count + fcode;
+  cout << "action: action_get_residual_x_some" << endl;
 }
 
 void m_parser::action_get_residual_y_none(void){

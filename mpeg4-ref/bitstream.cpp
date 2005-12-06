@@ -329,13 +329,18 @@ UInt BitstreamByteAlign(Bitstream *stream)
 
   if (n_stuffed == 0)
     n_stuffed = 8;
+#ifdef VERBOSE
+  fprintf(stdout,"BitstreamByteAlign at bit %i skipping %i bits\n",
+    stream->incnt, n_stuffed);
+#endif
+  
   v = BitstreamShowBits(stream, n_stuffed);
   should_bits = (1 << (n_stuffed - 1)) - 1;
 
   if (v != should_bits)
   {
 #ifdef VERBOSE
-    fprintf(stderr, "stuffing bits not correct\n");
+    fprintf(stdout, "stuffing bits not correct\n");
 #endif
 	  BitstreamFlushBits(stream, n_stuffed);
   }
