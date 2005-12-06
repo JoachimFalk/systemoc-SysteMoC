@@ -26,9 +26,6 @@ root_builddir = $(top_builddir)/..
 SUBDIRS=
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
-SYSTEMCVPC_BUILDDIR=$(root_builddir)/SystemC-VPC
-MISCSUPPORT_BUILDDIR=$(root_builddir)/Support
-
 ac_aux_dir = @ac_aux_dir@
 
 include $(ac_aux_dir)/jfrules.mk
@@ -39,18 +36,17 @@ pkgincludeprefix=systemoc/
 compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 	@date > $@
 
-INCLUDES =						\
-	@SYSTEMC_INCLUDE@				\
-	@BOOST_INCLUDE@					\
-	-I./include					\
-	-I$(srcdir)					\
-	@SYSTEMC_VPC_INCLUDE@				\
-	-I$(MISCSUPPORT_BUILDDIR)/include
+INCLUDES = @INCLUDES@					\
+	   @SYSTEMC_INCLUDE@				\
+	   @BOOST_INCLUDE@				\
+	   @SYSTEMC_VPC_INCLUDE@			\
+	   -I./include					\
+	   -I$(srcdir)
 
-AM_LDFLAGS=						\
-	@SYSTEMC_LDFLAGS@				\
-	@BOOST_LDFLAGS@					\
-	@SYSTEMC_VPC_LDFLAGS@
+AM_LDFLAGS= @AM_LDFLAGS@				\
+	    @SYSTEMC_LDFLAGS@				\
+	    @BOOST_LDFLAGS@				\
+	    @SYSTEMC_VPC_LDFLAGS@
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 

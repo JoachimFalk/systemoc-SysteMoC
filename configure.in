@@ -51,6 +51,7 @@ AC_EXEEXT
 
 ACJF_SYSTEMC
 ACJF_CHECK_LIB_BOOST
+ACJF_NEED_PKG([Support])
 
 ### SystemC-VPC ###
 # --enable-vpc option
@@ -67,7 +68,6 @@ AC_ARG_ENABLE(
 
 if test x"$enable_vpc" = x"yes"; then
   SYSTEMC_VPC_INCLUDE=" \
-    -I`pwd`/../Support/include \
     -I`pwd`/../SysteMoC/include/systemoc \
     -I`pwd`/../SystemC-VPC/include \
     $SYSTEMC_INCLUDE"
