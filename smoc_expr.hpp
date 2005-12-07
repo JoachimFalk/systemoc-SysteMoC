@@ -2,6 +2,7 @@
 #define _INCLUDED_EXPR_HPP
 
 #include <iostream>
+#include <sstream>
 #include <cassert>
 #include <climits>
 #include <cmath>
@@ -296,7 +297,14 @@ typename Var<T>::type var(T &x)
  */
 
 struct ASTNodeLiteral: public ASTNodeTerminal {
+  std::string value;
 
+  template <typename T>
+  ASTNodeLiteral( const T &v ) {
+    std::ostringstream o;
+
+    o << v; value = o.str();
+  }
 };
 
 template<typename T>
@@ -327,7 +335,7 @@ struct AST<DLiteral<T> > {
   
   static inline
   PASTNode apply(const DLiteral <T> &e)
-    { return PASTNode(new ASTNodeLiteral()); }
+    { return PASTNode(new ASTNodeLiteral(e.v)); }
 };
 
 template<class T>
