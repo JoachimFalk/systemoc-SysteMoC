@@ -6,6 +6,7 @@
 #include <cassert>
 #include <climits>
 #include <cmath>
+#include <typeinfo>
 
 #include <list>
 
@@ -249,6 +250,8 @@ public:
   const void *ptrVar() const { return v; }
 };
 
+typedef boost::intrusive_ptr<ASTNodeVar> PASTNodeVar;
+
 template<typename T>
 class DVar {
 public:
@@ -274,8 +277,10 @@ struct AST<DVar<T> > {
   typedef PASTNode result_type;
   
   static inline
-  PASTNode apply(const DVar <T> &e)
-    { return PASTNode(new ASTNodeVar(e.x)); }
+  PASTNode apply(const DVar <T> &e) {
+    //std::cout << "AST<DVar<T> >: Was here !!!" << std::endl;
+    return PASTNode(new ASTNodeVar(e.x));
+  }
 };
 
 template<class T>
@@ -609,6 +614,8 @@ public:
   OpBinT   getOpType() const { return op; }
 };
 
+typedef boost::intrusive_ptr<ASTNodeBinOp> PASTNodeBinOp;
+
 /****************************************************************************
  * APPLICATIVE TEMPLATE CLASSES
  */
@@ -647,6 +654,10 @@ struct AST<DBinOp<A,B,Op> > {
   
   static inline
   result_type apply(const DBinOp<A,B,Op> &e) {
+   /* std::cout << "AST<DBinOp<"
+                << typeid(A).name() << ","
+                << typeid(B).name() << ","
+                << Op << "> >: Was here !!!" << std::endl;*/
     return PASTNode(new ASTNodeBinOp(Op,AST<A>::apply(e.a),AST<B>::apply(e.b)));
   }
 };
@@ -791,7 +802,7 @@ public:
   PASTNode getChildNode()    { return c; }
   OpUnT    getOpType() const { return op; }
 };
-
+typedef boost::intrusive_ptr<ASTNodeUnOp> PASTNodeUnOp;
 /****************************************************************************
  * APPLICATIVE TEMPLATE CLASSES
  */

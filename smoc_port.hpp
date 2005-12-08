@@ -163,7 +163,12 @@ protected:
     static_cast<smoc_ring_access<const T> &>(*this) =
       (*this)->commSetupIn(req);
   }
-  void commExec() { (*this)->commExecIn(*this); }
+  void commExec() {
+    std::cout << name() << " at token " << count << " consume " <<
+      this->getLimit() << std::endl;
+    count += this->getLimit();
+    (*this)->commExecIn(*this);
+  }
   void reset() { smoc_ring_access<const T>::reset(); }
 public:
 //void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
@@ -218,7 +223,12 @@ protected:
     static_cast<smoc_ring_access<T> &>(*this) =
       (*this)->commSetupOut(req);
   }
-  void commExec() { (*this)->commExecOut(*this); }
+  void commExec() {
+    std::cout << name() << " at token " << count << " produce " <<
+      this->getLimit() << std::endl;
+    count += this->getLimit();
+    (*this)->commExecOut(*this);
+  }
   void reset() { smoc_ring_access<T>::reset(); }
 public:
 //  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
