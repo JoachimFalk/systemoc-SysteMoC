@@ -31,7 +31,7 @@ private:
 public:
   m_src(sc_module_name name, int times)
     : smoc_actor(name, start), i(1), n(times)
-    { start = ( out(1) && guard(&m_src::nTimesTrue) ) >>
+    { start = ( out(1) && GUARD(m_src::nTimesTrue) ) >>
               CALL(m_src::src)                       >> start; }
 };
 
@@ -90,10 +90,10 @@ public:
     : smoc_actor( name, start ) {
     start = i1(1)                                 >>
             CALL(m_sqrloop::store)               >> loop;
-    loop  = (i2(1) &&  guard(&m_sqrloop::check))  >>
+    loop  = (i2(1) &&  GUARD(m_sqrloop::check))  >>
             (o1(1) && o2(1))                      >>
             CALL(m_sqrloop::copy2)               >> start
-          | (i2(1) && !guard(&m_sqrloop::check))  >>
+          | (i2(1) && !GUARD(m_sqrloop::check))  >>
             o1(1)                                 >>
             CALL(m_sqrloop::copy1)               >> loop;
   }
