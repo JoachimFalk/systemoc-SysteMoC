@@ -32,22 +32,26 @@ class m_source_idct: public smoc_actor {
     std::ifstream i1; 
     
     void process() {
-      
-      if(i1.good()){
+#ifndef NDEBUG
+      if (i1.good()) {
+#endif
         min[0] = -256;
         for ( int j = 0; j <= 63; j++ ) {
           i++;
+#ifdef NDEBUG
+          out[j] = i;
+#else
           i1 >> out[j];
-          
           std::cout << name() << "  write " << out[j] << std::endl;
+#endif
         }
+#ifndef NDEBUG
         std::cout << name() << "  write min " << min[0] << std::endl;
-        
-        
-      }else{
+      } else {
         std::cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
         exit (1) ;
       }
+#endif
     }
     
     smoc_firing_state start;
@@ -72,10 +76,15 @@ class m_sink: public smoc_actor {
   
   private:
     std::ofstream fo; 
+    int           foo;
     
     void process() {
+#ifndef NDEBUG
       std::cout << name() << " receiving " << in[0] << std::endl;
       fo << in[0] << std::endl;
+#else
+      foo = in[0];
+#endif
     }
     
     smoc_firing_state start;
@@ -92,6 +101,7 @@ class m_sink: public smoc_actor {
     }
 };
 
+/*
 class m_source: public smoc_actor {
   public:
     smoc_port_out<int> out;
@@ -107,7 +117,7 @@ class m_source: public smoc_actor {
      // if(i1.good()){
        // i1 >> data;
         out[0] = i;//data;
-        cout << name() << "  write " << out[0]/*data*/ << std::endl;
+        cout << name() << "  write " << out[0] << std::endl;
         i+=step;
       //}else{
        // cout << "  file empty" << std::endl;
@@ -123,6 +133,7 @@ class m_source: public smoc_actor {
               CALL(m_source::process)               >> start;
     }
 };
+*/
 
 class IDCT2d_TEST
 : public smoc_graph {
