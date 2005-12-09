@@ -74,10 +74,10 @@ void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
   stream << "<commexecin size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
 }
 void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
-  stream << "<commexecout size=\""<<size<<"\" channel=\""<<actor<<"/>" << std::endl;
+  stream << "<commexecout size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
 }
 void TraceLogStream::traceStartDeferredCommunication(const char * actor){
-  stream << "<deferred_communication actor=\""<< actor << "\"\">" << std::endl;
+  stream << "<deferred_communication actor=\""<< actor << "\">" << std::endl;
 }
 void TraceLogStream::traceEndDeferredCommunication(const char * actor){
   stream << "</deferred_communication>" << std::endl;
@@ -134,6 +134,7 @@ TraceLogStream::~TraceLogStream(){
   stream << " </mappings>" << std::endl;
   stream << "</configuration>\n" << std::endl;
   stream << "-->" << std::endl;
+  stream << "</systemoc_trace>" << std::endl;
 }
 
 #endif
