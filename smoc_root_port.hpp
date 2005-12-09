@@ -44,12 +44,10 @@ public:
 //  friend class smoc_firing_types::resolved_state_ty;
 //  friend class smoc_firing_types::transition_ty;
 protected:
-  size_t count;
-  
   smoc_root_port *parent;
   
   smoc_root_port( const char* name_ )
-    : sc_port_base( name_, 1 ), parent(NULL), is_smoc_v1_port(false), count(0) {}
+    : sc_port_base( name_, 1 ), parent(NULL), is_smoc_v1_port(false) {}
 public:
   virtual void commSetup(size_t req) = 0;
   virtual void commExec()            = 0;
