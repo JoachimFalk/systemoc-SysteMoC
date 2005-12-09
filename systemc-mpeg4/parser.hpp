@@ -1078,6 +1078,7 @@ void m_parser::action_vol_control_detailed(void){
   // skip chroma_format(2), low_delay(1)
   vol_vbv_is_detailed = b [3];
   bit_count = bit_count + 4;
+  cout << "action: action_mvcode_b3" << endl;
 }
 
   
@@ -3222,6 +3223,7 @@ void m_parser::action_mvcode_bad(void){
 
   cout << "Bad MV code " << value(b,12,1) << endl;
   bit_count = bit_count + 13;
+  cout << "action: action_mvcode_b12" << endl;
 }
 
 
