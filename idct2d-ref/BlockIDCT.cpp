@@ -53,7 +53,8 @@ int main(int argc, char *argv[])
           negMaxval = -MAXVAL_PIXEL - 1;
 	
 
-  BlockIDCT(dequant_block, negMaxval, texture_block);
+  for ( int y = 0; y < 1000; ++y )
+    BlockIDCT(dequant_block, negMaxval, texture_block);
   
   std::ofstream fo (ONAMEblk);
   
@@ -79,18 +80,25 @@ static void BlockIDCT(short *in, short negM, short *out)
   // 1-D IDCT on rows
   for (int i = 0; i <= 7; ++i)
     idctrow(in+(i<<3), out+(i<<3));
-  
+
+#ifndef NDEBUG
   for(int j = 0; j<  64; ++j)
     std::cout<< "IDCTrow out" <<"("<< j <<"): " << out[j] << std::endl;
+#endif
 
   // 1-D IDCT on columns
   for (int i = 0; i <= 7; ++i) {
+#ifndef NDEBUG
     for (int j = 0; j <= 7; ++j)
       std::cout<< "IDCTcol in" <<"("<< j <<"): " << out[i+8*j] << std::endl;
+#endif
+
     // 1-D IDCT on column i
     idctcol(out+i, negM);
+#ifndef NDEBUG
     for (int j = 0; j <= 7; ++j)
       std::cout<< "IDCTcol out" <<"("<< j <<"): " << out[i+8*j] << std::endl;
+#endif
   }
   
   return;

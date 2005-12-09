@@ -32,32 +32,36 @@ class m_source_idct: public smoc_actor {
     std::ifstream i1; 
     
     void process() {
-      
-      if(i1.good()){
+#ifndef NDEBUG
+      if (i1.good()) {
+#endif
         min[0] = -256;
         for ( int j = 0; j <= 63; j++ ) {
           i++;
+#ifdef NDEBUG
+          out[j] = i;
+#else
           i1 >> out[j];
-          
           std::cout << name() << "  write " << out[j] << std::endl;
+#endif
         }
+#ifndef NDEBUG
         std::cout << name() << "  write min " << min[0] << std::endl;
-        
-        
-      }else{
+      } else {
         std::cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
         exit (1) ;
       }
+#endif
     }
     
     smoc_firing_state start;
   public:
-    m_source_idct( sc_module_name name ) //,int init_value = 1 )
+    m_source_idct( sc_module_name name, size_t periods )
       :smoc_actor( name, start ), i(0) {
       i1.open(INAMEblk);
       start = ((out.getAvailableSpace() >= 64) &&
                (min.getAvailableSpace() >= 1) &&
-               (var(i) < (100 * 64) ))
+               (var(i) < periods*64))
               >> CALL(m_source_idct::process)
               >> start;
     }
@@ -72,10 +76,15 @@ class m_sink: public smoc_actor {
   
   private:
     std::ofstream fo; 
+    int           foo;
     
     void process() {
+#ifndef NDEBUG
       std::cout << name() << " receiving " << in[0] << std::endl;
       fo << in[0] << std::endl;
+#else
+      foo = in[0];
+#endif
     }
     
     smoc_firing_state start;
@@ -92,6 +101,7 @@ class m_sink: public smoc_actor {
     }
 };
 
+/*
 class m_source: public smoc_actor {
   public:
     smoc_port_out<int> out;
@@ -107,7 +117,7 @@ class m_source: public smoc_actor {
      // if(i1.good()){
        // i1 >> data;
         out[0] = i;//data;
-        cout << name() << "  write " << out[0]/*data*/ << std::endl;
+        cout << name() << "  write " << out[0] << std::endl;
         i+=step;
       //}else{
        // cout << "  file empty" << std::endl;
@@ -123,6 +133,7 @@ class m_source: public smoc_actor {
               CALL(m_source::process)               >> start;
     }
 };
+*/
 
 class IDCT2d_TEST
 : public smoc_graph {
@@ -131,9 +142,9 @@ private:
   m_block_idct  blidct;
   m_sink        snk;
 public:
-  IDCT2d_TEST( sc_module_name name )
+  IDCT2d_TEST(sc_module_name name, size_t periods)
     : smoc_graph(name),
-      src_idct("src_idct"),
+      src_idct("src_idct", periods),
       blidct("blidct"),
       snk("snk") {
     
@@ -145,14 +156,19 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<IDCT2d_TEST> top("top");
+  bool generateProblemgraph =
+    (argc > 1) && !strcmp(argv[1], "--generate-problemgraph");
+  size_t periods            =
+    (argc > 1 && !generateProblemgraph)
+    ? atoi(argv[1])
+    : 100;
   
-#define GENERATE "--generate-problemgraph"
-  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
+  smoc_top_moc<IDCT2d_TEST> top("top", periods);
+  
+  if (generateProblemgraph) {
     smoc_modes::dump(std::cout, top);
   } else {  
     sc_start(-1);
   }
-#undef GENERATE
   return 0;
 }
