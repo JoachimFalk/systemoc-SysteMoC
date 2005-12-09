@@ -115,8 +115,9 @@ public:
             pgw << "<Proc 0x = \"" << std::hex << reinterpret_cast<unsigned long>
               (n->isa<Expr::ASTNodeProc>()->ptrProc()) << "\">" << std::endl;
           } else if ( n->isa<Expr::ASTNodeMemGuard>() ) {
-            pgw << "<MemGuard Ox= \"" << std::hex << reinterpret_cast<unsigned long>
-              (n->isa<Expr::ASTNodeMemGuard>()->ptrObj()) << "\">" << std::endl;
+            pgw << "<MemGuard objPtr=\"Ox" << std::hex << reinterpret_cast<unsigned long>
+              (n->isa<Expr::ASTNodeMemGuard>()->ptrObj()) << "\" name=\"" <<
+              (n->isa<Expr::ASTNodeMemGuard>()->getName()) << "\">" << std::endl;
           }  else if ( n->isa<Expr::ASTNodeMemProc>() ) {
             pgw << "<MemProc 0x = \"" << /*std::hex << reinterpret_cast<void *>
               (n->isa<Expr::ASTNodeMemProc>()->ptrMemProc())

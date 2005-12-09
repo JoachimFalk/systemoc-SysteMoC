@@ -46,7 +46,8 @@ class smoc_firing_state;
 class smoc_firing_rules;
 class smoc_transition_list;
 
-#define CALL(func) call(&func,#func)
+#define CALL(func)  call(&func,#func)
+#define GUARD(func) guard(&func,#func)
 
 template <typename R, class T>
 struct smoc_member_func {
@@ -72,15 +73,8 @@ private:
   const char *func_name;
 public:
   template <class X, class T>
-  smoc_func_call( X *_obj, void (T::*_f)() )
-    : func_name("") {
-    new(reinterpret_cast<smoc_member_func<void, T> *>(m))
-      smoc_member_func<void, T>(_obj,_f);
-  }
-  
-  template <class X, class T>
-  smoc_func_call( X *_obj, void (T::*_f)(), const char *func_name )
-    : func_name(func_name) {
+  smoc_func_call( X *_obj, void (T::*_f)(), const char *name = NULL )
+    : func_name(name != NULL ? name : "") {
     new(reinterpret_cast<smoc_member_func<void, T> *>(m))
       smoc_member_func<void, T>(_obj,_f);
   }

@@ -39,18 +39,16 @@ public:
   typedef smoc_opbase_node this_type;
 protected:
   template <typename T>
-  smoc_func_call call ( void (T::*f)(), const char *func_name ) {
-//    std::cerr << "call(f)" << std::endl;
-    return smoc_func_call(this,f,func_name);
-  }
-  template <typename T>
-  smoc_func_call call ( void (T::*f)()) {
-//    std::cerr << "call(f)" << std::endl;
-    return smoc_func_call(this,f);
+  smoc_func_call call(
+      void (T::*f)(),
+      const char *name = NULL ) {
+    return smoc_func_call(this, f, name);
   }
   template <typename T, class X>
-  typename Expr::MemGuard<T,X>::type guard(T (X::*m)() const) const {
-    return Expr::guard( dynamic_cast<const X *>(this), m );
+  typename Expr::MemGuard<T,X>::type guard(
+      T (X::*m)() const,
+      const char *name = NULL) const {
+    return Expr::guard(dynamic_cast<const X *>(this), m, name);
   }
   template <typename T>
   static
