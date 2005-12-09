@@ -28,10 +28,12 @@ public:
 //  friend class smoc_firing_types::resolved_state_ty;
 //  friend class smoc_firing_types::transition_ty;
 protected:
+  size_t count;
+  
   smoc_root_port *parent;
   
   smoc_root_port( const char* name_ )
-    : sc_port_base( name_, 1 ), parent(NULL), is_smoc_v1_port(false) {}
+    : sc_port_base( name_, 1 ), parent(NULL), is_smoc_v1_port(false), count(0) {}
 public:
   virtual void commSetup(size_t req) = 0;
   virtual void commExec()            = 0;
@@ -102,7 +104,7 @@ public:
   template <typename T> friend class smoc_port_out;
   
   void dump( std::ostream &out ) const 
-    { out << "commnr(" << p << ")"; }
+    { out << "commnr(" << &p << ")"; }
 public:
 //private:
   smoc_root_port &p;

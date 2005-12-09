@@ -16,6 +16,7 @@
 
 #include <smoc_expr.hpp>
 #include <smoc_port.hpp>
+#include <smoc_pggen.hpp>
 
 //#include <boost/logic/tribool.hpp>
 //#include <boost/intrusive_ptr.hpp>
@@ -49,6 +50,76 @@ public:
   template <class E>
   smoc_activation_pattern(const Expr::D<E> &guard, bool dummy)
     : guard(guard) {}
+  
+  static
+  void guardAssemble( smoc_modes::PGWriter &pgw, const Expr::PASTNode &n ) {
+    pgw.indentUp();
+    do {
+      
+        
+        if (n->isa<Expr::ASTNodeBinOp>()) {
+       
+          Expr::PASTNodeBinOp p = n->isa<Expr::ASTNodeBinOp>();
+          pgw << "<ASTNodeBinOp OpType = \" " << p->getOpType() <<" \" >" << std::endl;
+          
+          pgw.indentUp();
+          pgw << "<lhs>" << std::endl;
+          guardAssemble(pgw, p->getLeftNode());
+          pgw << "</lhs>" << std::endl;
+          
+          pgw << "<rhs>" << std::endl;
+          guardAssemble(pgw, p->getRightNode());
+          pgw << "</rhs>" << std::endl;
+          
+          pgw.indentDown();
+          pgw << "</ASTNodeBinOp>" << std::endl;
+        
+        }else if( n->isa<Expr::ASTNodeUnOp>()){
+          
+          Expr::PASTNodeUnOp p = n->isa<Expr::ASTNodeUnOp>();
+          pgw << "<ASTNodeUnOp OpType = \" " << p->getOpType() <<" \" >" << std::endl;
+          
+          pgw.indentUp();
+          
+          pgw << "<ChildNode>" << std::endl;
+          guardAssemble(pgw, p->getChildNode());
+          pgw << "</ChildNode>" << std::endl;
+          
+          pgw.indentDown();
+          pgw << "</ASTNodeUnOp>" << std::endl;
+        
+        }else{ 
+          //***********here is Terminal************
+          //assert( n->isa<Expr::ASTNodeTerminal>() );
+          if ( n->isa<Expr::ASTNodeLiteral>() ) {
+            pgw << "<Literal = \""<< n->isa<Expr::ASTNodeLiteral>()->value << "\">" << std::endl;
+          } else if ( n->isa<Expr::ASTNodeVar>() ) {
+            pgw << "<Var = \"" << n->isa<Expr::ASTNodeVar>()->ptrVar() <<  "\">" << std::endl;
+          } else if ( n->isa<Expr::ASTNodeProc>() ) {
+            pgw << "<Proc 0x = \"" << std::hex << reinterpret_cast<unsigned long>
+              (n->isa<Expr::ASTNodeProc>()->ptrProc()) << "\">" << std::endl;
+          } else if ( n->isa<Expr::ASTNodeMemGuard>() ) {
+            pgw << "<MemGuard Ox= \"" << std::hex << reinterpret_cast<unsigned long>
+              (n->isa<Expr::ASTNodeMemGuard>()->ptrObj()) << "\">" << std::endl;
+          }  else if ( n->isa<Expr::ASTNodeMemProc>() ) {
+            pgw << "<MemProc 0x = \"" << /*std::hex << reinterpret_cast<void *>
+              (n->isa<Expr::ASTNodeMemProc>()->ptrMemProc())
+                      <<*/ "FIXME!!!" <<   " obj " << n->isa<Expr::ASTNodeMemProc>()->ptrObj() << "\">" << std::endl;
+          //} else if ( n->isa<Expr::ASTNodeCommReq>() ) {
+            //pgw << "CommReq" << std::endl;
+          } else if ( n->isa<Expr::ASTNodeToken>() ) {
+            pgw << "<Token>" << std::endl;
+          } else {
+            pgw << "<Unkown Terminal>" << std::endl;
+          } 
+        }
+
+    } while (0);
+    pgw.indentDown();
+  }
+
+  void guardAssemble( smoc_modes::PGWriter &pgw ) const
+    { guardAssemble(pgw, Expr::evalTo<Expr::AST>(guard) ); }
   
   /*
   void execute(const Expr::PASTNode &node) {

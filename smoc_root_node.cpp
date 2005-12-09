@@ -129,36 +129,36 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
     for (smoc_firing_rules::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
         fsmiter != fsmStates.end(); 
            ++fsmiter) {
- 
-    pgw << "<state id=\"" << pgw.getId(*fsmiter)<< "\">" << std::endl;
-    pgw.indentUp();
-     
-                //**************TRANTIONS********************
-    const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
-    
-    // assert( cTraSt.size() == 1 );
-    for ( smoc_firing_types::transitionlist_ty::const_iterator iter1 = cTraSt.begin(); 
-          iter1 != cTraSt.end(); 
-          ++iter1 ) {
-      smoc_firing_types::statelist_ty cToNState = iter1->sl; 
-      for (smoc_firing_rules::statelist_ty::const_iterator iter2 =cToNState.begin(); 
-           iter2 != cToNState.end(); 
-           ++iter2) {
-        pgw << "<transition nextstate=\"" << pgw.getId(*iter2) << "\" "
-              << "action=\"" << static_cast<const smoc_func_call &>(iter1->f).getFuncName() << "\">" << std::endl;
-        pgw << "</transition>" << std::endl;
+      pgw << "<state id=\"" << pgw.getId(*fsmiter)<< "\">" << std::endl;
+      pgw.indentUp();
+       
+      //**************TRANTIONS********************
+      const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
+      
+      for ( smoc_firing_types::transitionlist_ty::const_iterator titer = cTraSt.begin(); 
+            titer != cTraSt.end(); 
+            ++titer ) {
+        const smoc_firing_types::statelist_ty &cToNState = titer->sl;
+
+        assert( cToNState.size() <= 1 );
+
+        if ( cToNState.size() == 1 ) {
+          pgw << "<transition nextstate=\"" << pgw.getId(*cToNState.begin()) << "\" "
+                << "action=\"" << static_cast<const smoc_func_call &>(titer->f).getFuncName() << "\">" << std::endl;
+          titer->ap.guardAssemble(pgw);
+          pgw << "</transition>" << std::endl;
+        } else {
+          pgw << "<transition FIXME !!!/>" << std::endl;
+        }
       }
-    }
-                //***************/TRANTIONS*****************
+      //***************/TRANTIONS*****************
    
-    pgw.indentDown();
-    pgw << "</state>" << std::endl;
-   
+      pgw.indentDown();
+      pgw << "</state>" << std::endl;
     }
     //*********************************/FSMSTATES*************************************
     
-
-pgw.indentDown();
+    pgw.indentDown();
     pgw << "</fsm>" << std::endl;
   }
   pgAssemble( pgw, this );
