@@ -18,7 +18,7 @@
 
 #include <smoc_moc.hpp>
 
-#include <jf-libs/oneof.hpp>
+#include <cosupport/oneof.hpp>
 
 using namespace jflibs;
 
