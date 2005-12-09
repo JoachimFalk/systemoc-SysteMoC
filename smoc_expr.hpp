@@ -508,14 +508,17 @@ public:
 private:
   const dummy *o;
   fun          m;
+  const char  *name;
 public:
   template<typename T, class X>
-  ASTNodeMemGuard(const X *o, T (X::*m)() const)
+  ASTNodeMemGuard(const X *o, T (X::*m)() const, const char *name)
     : o(reinterpret_cast<const dummy *>(o)),
-      m(*reinterpret_cast<fun *>(&m)) {}
+      m(*reinterpret_cast<fun *>(&m)),
+      name(name) {}
   
   const dummy *ptrObj()     const { return o; }
   fun          ptrMemProc() const { return m; }
+  const char  *getName()    const { return name; }
 };
 
 template<typename T, class X>
@@ -526,8 +529,12 @@ public:
   
   const X *const o;
   T (X::*m)() const;
+  const char *name;
 public:
-  explicit DMemGuard(const X *o, T (X::*m)() const): o(o), m(m) {}
+  explicit DMemGuard(
+      const X *o, T (X::*m)() const,
+      const char *name_ = NULL)
+    : o(o), m(m), name(name_ != NULL ? name_ : "") {}
 };
 
 template <typename T, class X>
@@ -545,12 +552,13 @@ struct AST<DMemGuard<T,X> > {
   
   static inline
   PASTNode apply(const DMemGuard <T,X> &e)
-    { return PASTNode(new ASTNodeMemGuard(e.o,e.m)); }
+    { return PASTNode(new ASTNodeMemGuard(e.o,e.m,e.name)); }
 };
 
 template<typename T, class X>
 struct D<DMemGuard<T,X> >: public DBase<DMemGuard<T,X> > {
-  D(const X *o, T (X::*m)() const): DBase<DMemGuard<T,X> >(DMemGuard<T,X>(o,m)) {}
+  D(const X *o, T (X::*m)() const, const char *name = NULL)
+    : DBase<DMemGuard<T,X> >(DMemGuard<T,X>(o, m, name)) {}
 };
 
 // Make a convenient typedef for the placeholder type.
@@ -558,8 +566,10 @@ template <typename T, class X>
 struct MemGuard { typedef D<DMemGuard<T,X> > type; };
 
 template <typename T, class X>
-typename MemGuard<T,X>::type guard(const X *o, T (X::*m)() const)
-  { return MemGuard<T,X>::type(o,m); }
+typename MemGuard<T,X>::type guard(
+    const X *o, T (X::*m)() const,
+    const char *name = NULL)
+  { return MemGuard<T,X>::type(o,m,name); }
 
 /****************************************************************************
  * DBinOp represents a binary operation on two expressions.
