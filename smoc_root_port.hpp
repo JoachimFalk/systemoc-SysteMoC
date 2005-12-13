@@ -117,13 +117,12 @@ public:
   typedef smoc_commnr this_type;
   
   friend smoc_root_port_bool operator >= (smoc_commnr c, size_t n);
-  template <typename T> friend class smoc_port_in;
-  template <typename T> friend class smoc_port_out;
   
   void dump( std::ostream &out ) const 
     { out << "commnr(" << &p << ")"; }
 private:
   smoc_root_port &p;
+public:
   
   smoc_commnr(smoc_root_port &p) : p(p) {}
 };

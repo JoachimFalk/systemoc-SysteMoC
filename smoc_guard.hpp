@@ -107,8 +107,12 @@ public:
         }else{ 
           //***********here is Terminal************
           //assert( n->isa<Expr::ASTNodeTerminal>() );
-          if ( n->isa<Expr::ASTNodeLiteral>() ) {
- /* name=\"" << /*pgw.getId(n->isa<Expr::ASTNodeLiteral>()->getlp()) << "\" " */
+          if ( n->isa<Expr::ASTNodePortTokens>() ) {
+            pgw << "<PortTokens portid=\""
+                  << pgw.getId(n->isa<Expr::ASTNodePortTokens>()->getPort())
+                  << "\"/>" << std::endl;
+            //pgw << "</PortTokens>" << std::endl;
+          } else if ( n->isa<Expr::ASTNodeLiteral>() ) {
             pgw << "<Literal value=\"" <<
               n->isa<Expr::ASTNodeLiteral>()->value << "\"/>" << std::endl;
             //pgw << "</Literal>" << std::endl;
