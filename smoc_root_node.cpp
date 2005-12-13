@@ -158,7 +158,7 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
           titer->ap.guardAssemble(pgw);
           pgw << "</transition>" << std::endl;
         } else {
-          pgw << "<transition FIXME !!!/>" << std::endl;
+          pgw << "<transition nextState=\"FIXME!!!\"/>" << std::endl;
         }
       }
       //***************/TRANTIONS*****************

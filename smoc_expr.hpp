@@ -30,7 +30,6 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include <cosupport/oneof.hpp>
-
 /****************************************************************************
  * dexpr.h
  *
@@ -260,11 +259,14 @@ struct Ex { typedef D<DVirtual<T> > type; };
 class ASTNodeVar: public ASTNodeTerminal {
 private:
   const void *v;
+  const char *name;
 public:
   template <typename T>
-  ASTNodeVar(const T &x): v(&x) {}
+  ASTNodeVar(const T &x, const char *name)
+  : v(&x),name(name) {}
   
-  const void *ptrVar() const { return v; }
+  const void *ptrVar()  const { return v; }
+  const char *getName() const { return name; }
 };
 
 typedef boost::intrusive_ptr<ASTNodeVar> PASTNodeVar;
@@ -276,8 +278,10 @@ public:
   typedef DVar<T> this_type;
   
   const T &x;
+  const char *name;
 public:
-  explicit DVar(T &x): x(x) {}
+  explicit DVar(T &x, const char *name_ = NULL)
+    : x(x),name(name_ != NULL ? name_ : "") {}
 };
 
 template <typename T>
@@ -296,13 +300,13 @@ struct AST<DVar<T> > {
   static inline
   PASTNode apply(const DVar <T> &e) {
     //std::cout << "AST<DVar<T> >: Was here !!!" << std::endl;
-    return PASTNode(new ASTNodeVar(e.x));
+    return PASTNode(new ASTNodeVar(e.x,e.name));
   }
 };
 
 template<class T>
 struct D<DVar<T> >: public DBase<DVar<T> > {
-  D(T &x): DBase<DVar<T> >(DVar<T>(x)) {}
+  D(T &x, const char *name = NULL): DBase<DVar<T> >(DVar<T>(x,name)) {}
 };
 
 // Make a convenient typedef for the placeholder type.
@@ -311,20 +315,21 @@ struct Var { typedef D<DVar<T> > type; };
 
 template <typename T>
 static inline
-typename Var<T>::type var(T &x)
-  { return typename Var<T>::type(x); }
+typename Var<T>::type var(T &x, const char *name = NULL)
+  { return typename Var<T>::type(x,name); }
 
 /****************************************************************************
  * DLiteral represents a double literal which appears in the expression.
  */
 
-struct ASTNodeLiteral: public ASTNodeTerminal {
+class ASTNodeLiteral: public ASTNodeTerminal {
+public:
   std::string value;
-
-  template <typename T>
+  
+public:
+  template <typename T >
   ASTNodeLiteral( const T &v ) {
     std::ostringstream o;
-
     o << v; value = o.str();
   }
 };

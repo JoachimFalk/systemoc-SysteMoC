@@ -50,8 +50,8 @@ protected:
   }
   template <typename T>
   static
-  typename Expr::Var<T>::type var(T &x)
-    { return Expr::var(x); }
+  typename Expr::Var<T>::type var(T &x, const char *name = NULL)
+    { return Expr::var(x,name); }
   
   virtual ~smoc_opbase_node() {}
 };
