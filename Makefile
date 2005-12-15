@@ -2,7 +2,7 @@
 
 RESDIR=$(shell while [ ! -d HscdTeXRes -a x`pwd` != x'/' ]; do cd ..; done; cd HscdTeXRes; pwd)
 
-TEX_SOURCES=report.tex
+TEX_SOURCES=report.tex docu.tex
 
 TEXINPUTS:=figs:$(RESDIR):$(TEXINPUTS)
 TEXCLEANDIRS:=figs $(RESDIR) .

@@ -1,0 +1,83 @@
+\input{format-industry.tex}
+%\documentclass[a4paper, 12pt, BCOR2cm, headsepline, pointlessnumbers, bibtotoc, idxtotoc, german]{scrbook}
+
+\selectlanguage{german}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\msg}[1]{\texttt{#1}}
+\newcommand{\env}[1]{\textbf{#1}}
+\newcommand{\file}[1]{\emph{#1}}
+\newcommand{\module}[1]{\textit{#1}}
+\newcommand{\shellprompt}[1]{\textit{#1}}
+\newcommand{\shellcommand}[1]{\texttt{\textbf{#1}}}
+\newcommand{\shellresult}[1]{\texttt{#1}}
+\newcommand{\shell}[2]{
+  \shellprompt{[falk@codesign14]\$ }\shellcommand{#1}\\
+  \shellresult{#2}
+}
+%\newcommand{\SysteMoC}{\emph{SysteMoC}}
+%\newcommand{\SysteMoC}{{\bf SysteMoC}}
+%\newcommand{\SysteMoCV}{\emph{SysteMoC 1.0}}
+%\newcommand{\SysteMoCV}{\SysteMoC{} {\bf 1.0}}
+
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+
+%\usepackage{verbatim}
+\usepackage{fancyvrb}
+% backward compatibility cruft for verbatim
+\newcommand{\verbatiminput}[1]{\VerbatimInput{#1}}
+
+% Use a small font for the verbatim environment
+\makeatletter  % makes '@' an ordinary character
+\renewcommand{\verbatim@font}{%
+  \ttfamily\small\catcode`\<=\active\catcode`\>=\active%
+}
+\makeatother   % makes '@' a special symbol again
+
+\renewcommand*\chaptermarkformat{\thechapter. \quad}
+\renewcommand*\chapterformat{\thechapter. \ }
+
+%\def\hyph{\penalty0\hskip0pt\relax}
+
+%\hyphenation{fortran er-go-no-mic}
+%\hyphenation{funk-tio-na-li-täts-zu-stand}
+
+\hypersetup{
+  pdftitle   = {\@title},
+  pdfsubject = {Co-Design-Report},
+  pdfauthor  = {\textcopyright\ \@author},
+  colorlinks = true,
+  linkcolor  = black,
+  anchorcolor= black,
+  citecolor  = black,
+  filecolor  = black,
+  menucolor  = black,
+  pagecolor  = black,
+  urlcolor   = black
+}
+
+\begin{document}
+\codesigntitle{SysteMoC 2.0 Documentation}{Joachim Falk}
+\tableofcontents
+	
+%\input{einleitung}
+
+%\input{newmodel}
+
+\input{systemoc}
+
+%\input{exploration}
+
+%\input{ergebnisse}
+
+%\input{zusammenfassung}
+
+% \appendix
+
+% \input{scd}
+
+\bibliographystyle{alpha}
+\bibliography{literature}
+
+\end{document}

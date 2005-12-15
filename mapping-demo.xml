@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE configuration SYSTEM "cmx.dtd">
+<configuration>
+ ...
+ <resources>
+  <component name="TCMP1" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="2ns"/>
+  </component>
+  ...
+ </resources>
+ <mappings>
+  <mapping source="sim_mod.h_hca.h_send_port" target="TCMP1">
+   <attribute type="delay" value="2"/>
+  </mapping>
+  <mapping source="sim_mod.h_hca.h_atu" target="TCMP1">
+   <!-- Definiere Ausführungszeit von 2ns für die Aktion
+        ib_m_atu::forward_mfetch auf der sim_mod.h_hca.h_atu Komponente -->
+   <attribute type="ib_m_atu::forward_mfetch" value="2"/>
+   <attribute type="ib_m_atu::forward_rq_mstoreforward_tq_mstore" value="2"/>
+   <attribute type="ib_m_atu::process_bthgen_ttdata" value="2"/>
+   <attribute type="ib_m_atu::process_rq_ttdata" value="2"/>
+   <attribute type="ib_m_atu::process_tq_ttdata" value="2"/>
+   <attribute type="ib_m_atu::forward_tq_mstore" value="2"/>
+   <attribute type="ib_m_atu::forward_rq_mstore" value="2"/>
+   <!-- Definiere Standardausführungszeit von 2ns für alle Aktionen
+        denen keine explizite Ausführungszeit zugewiesen worden ist -->
+   <attribute type="delay" value="2"/>
+  </mapping>
+  ...
+ </mappings>
+</configuration>

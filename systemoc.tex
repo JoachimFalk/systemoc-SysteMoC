@@ -1,0 +1,527 @@
+\chapter {SysteMoC V2.0 Aktorbibliothek\label{cha:systemoc}}
+
+Nahezu alle Anwendungen lassen sich auf Basis sog. \emph{Berechnungsmodelle} beschrieben \cite{ells:1997,ls:1998}. 
+So werden Signalverarbeitungsalgorithmen oftmals mit Hilfe von \emph{Datenflussmodellen} \cite{lp:1995} beschrieben, während Protokolle oftmals durch \emph{endliche Zustandsautomaten} \cite{harel:1987} modelliert werden.
+Beschränkte Berechnungsmodelle bilden die Grundlage zur effizienten Analyse und Implementierung einer Anwendung. 
+SystemC \cite{sysc1,glms:2002} bietet die Möglichkeit, beliebige Berechnungsmodelle zu beschreiben. 
+Hierin liegt aber auch das Problem, dass das zugrundeliegende (beschränkte) Berechnungsmodell nicht mehr erkannt werden kann.
+\par
+Um dieses Problem zumindest teilweise lösen zu können, wurde am Lehrstuhl für Hardware-Software-Co-Design eine Aktorbibliothek mit dem Namen \emph{SysteMoC} entwickelt. 
+Diese erlaubt es, Informationen über das zugrundeliegende Berechnungsmodell zu erkennen und zu analysieren.
+Im Folgenden wird zunächst die Idee der SysteMoC-Bibliothek vorgestellt, bevor auf die Verwendung dieser Bibliothek eingegangen wird. 
+Schließlich wird noch beschrieben, wie es mit der SysteMoC-Bibliothek möglich ist, das Zeitverhalten zu modellieren.
+Hierzu kommt das am Lehrstuhl entwickelte \emph{Virtual Processing Components} Framework, welches bereits in der vorangegangenen Studie verwendet wurde, zum Einsatz.
+
+\section{SysteMoC-Idee}
+
+Eine Anwendung wird oftmals in verschiedene Module zergliedert, welche meist von den einzelnen Entwicklern noch gut zu überblicken sind.
+Die eigentliche Komplexität einer Anwendung ergibt sich aber durch das Kommunikationsverhalten dieser Module miteinander.
+Um diesem Phänomen zu begegnen ist eine systematische Beschreibung des Kommunikationsverhalten der Module von essentieller Bedeutung.
+Zu diesem Zwecke wird die Anwendung in einzelne sog. \emph{Aktoren} zerlegt, welchen eine Kommunikation untereinander nur über sog. \emph{Kanäle} mittels \emph{Nachrichten} erlaubt ist.
+Die zuvor genannten Module entsprechen dabei den Aktoren, welche noch einmal in \emph{Aktivierungsregeln} und \emph{Funktionalität} unterteilt werden.
+Die Aktivierungsregeln kodieren dabei das Kommunikationsverhalten des Aktors und sind in Form eines endlichen Zustandsautomaten dargestellt.
+Die Zustände dieses Zustandsautomaten werden im folgenden als \emph{Aktivierungszustände} bezeichnet.
+Die Funktionalität setzt sich aus einer Menge von \emph{Aktionen} zusammen, welche die
+eigentliche Datenverarbeitung durchführen und Nachrichten für die Kommunikation der Aktoren untereinander generieren.
+Die Ausführung dieser Aktionen kann den internen Zustand eines Aktors, im Folgenden als \emph{Funktionalitätszustand}
+bezeichnet, verändern.
+Die Aktivierungszustände und die Funktionalitätszustände sind dabei zwei disjunkte Zustandsmengen, welche zusammen
+die möglichen \emph{Aktorzustände} ergeben.
+Durch die vorgegebenen Syntax zur Kodierung der Aktivierungsregeln ist es möglich,
+die Zustandsautomaten aus den SysteMoC Aktoren zu extrahiert.
+Diese extrahierten Aktivierungsregeln erlauben die Zuordnung des Aktors zu einem bestimmten Berechnungsmodell.
+Des weiteren sind die hier verwendeten Prinzipien eng mit der Modellierungssprache \emph{FunState} (Functions driven by State machines) verwandt \cite{stgzet:2001}.
+In \cite{strehl:2000} wurde gezeigt, wie man symbolische Techniken \cite{kropf:1999} verwenden kann, um FunState-Beschreibungen zu verifizieren und zu synthetisieren.
+Die Bestimmung eines gültigen statischen Ablaufplans mit beschränktem Speicher für FunState-Beschreibungen beruht hierbei auf sog.\ \emph{regulären Zustandsmaschinen} \cite{tts:2000}.
+Aufgrund der Ähn\-lich\-keiten in den Konzepten von SysteMoC und FunState können die für FunState entwickelten Methoden auf die SysteMoC übertragen werden.
+
+\section{SysteMoC-Syntax}
+
+Der Aufbau einer Anwendung in SysteMoC lässt sich grob in zwei Teilaufgaben untergliedern: (i) Die Definition der \emph{Aktorbeschreibung} und (ii) die Instantiierung und Verknüpfung dieser Aktorbeschreibungen mittels Kanälen zu einem \emph{Netzwerkgraphen}.
+Ein Beispiel einer Aktorbeschreibung ist in den Abbildungen \ref{systemoc-actor-def} bis \ref{systemoc-bthchk-fsm} dargestellt.
+Diese Beschreibung wird anschließend im Netzwerkgraph des InfiniBand-HCA, dargestellt in Abbildung \ref{fig:ng-infiniband}, für die \emph{Aktorinstanz} $A_{11}$ verwendet.
+
+\begin{figure}[t]
+\centering
+%\includegraphics[scale=1]{fig:ng-infiniband.\graphicPostfix}\\
+\resizebox{\textwidth}{!}{\input{ng-infiniband-fig.tex}}
+\caption{\label{fig:ng-infiniband}%
+\emph{Netzwerkgraph} des InfiniBand-HCA bestehend aus \emph{Aktorinstanzen}
+$A_{1}$ - $A_{17}$ verbunden mittels der Kanäle $c_{1}$ - $c_{29}$.
+}
+\end{figure}
+
+\subsection{Aufbau der Aktorbeschreibung}
+
+Jeder \emph{Aktorbeschreibung} wird als C++-Klasse dargestellt, welch von der Basisklasse \code{smoc\_actor} abgeleitet ist.
+Im Folgenden wird eine solche Klasse auch als \emph{Aktorklasse} bezeichnet.
+Die \emph{Aktorinstanzen} einer \emph{Aktorbeschreibung} werden als C++-Objekte der entsprechenden Aktorklasse instantiiert.
+Die Aktorbeschreibung kann in drei Teilabschnitte gegliedert werden (siehe Abbildung~\ref{systemoc-actor-def}:
+  (i) Deklaration der \emph{Eingangs-} und \emph{Ausgangsports},
+  (ii) Definition der \emph{Klassenvariablen} und \emph{Aktionen} für die
+       Implementierung der Funktionalität und
+  (iii) Aufbau des den \emph{Aktivierungsregeln} entsprechenden Zustandsautomaten.
+Die einzelnen Teile werden im Folgenden genauer betrachtet.
+
+\begin{figure}[p]
+\centering
+\begin{verbatim}
+// Definition der Aktorbeschreibung BthChk
+class BthChk
+  // Alle Aktorbeschreibungen müssen von
+  // der Basisklasse smoc_actor abgeleitet werden
+  : public smoc_actor {
+public:
+  // Deklaration der Eingangs- und Ausgansports, z.B.
+  // smoc_port_out<MsgType1> outputPortName;
+  // smoc_port_in <MsgType2> inputPortName;
+  ...
+
+private:
+  // Definition der Klassenvariablen zum Speichern
+  // des Funktionalitätszustandes, z.B.
+  // int headersize;
+  ...
+  
+  // Definition der Aktionen der Funktionalität, z.B.
+  // void analyseDataPacket();
+  ...
+  
+  // Deklaration der Aktivierungszustände für den Zustandsautomaten, z.B.
+  // smoc_firing_state start;
+  ...
+public:
+  
+  BthChk(sc_module_name name) :
+    // Weiterleitung des Aktorinstanznamens von der instanziierung und
+    // übergabe des Startzustandes der Aktivierungsregeln, z.B. start.
+    smoc_actor(name, start)
+  {
+    // Definition der Aktivierungsregeln durch aufbau des
+    // entsprechenden Zustandsautomaten
+    start =
+      ...
+    ;
+  }
+};
+\end{verbatim}
+\caption{\label{systemoc-actor-def}%
+Überblick über die drei Teilabschnitte einer Aktorbeschreibung:
+(i) Eingangs- bzw. Ausgangsport Deklaration,
+(ii) Definition der Klassenvariablen und Aktionen für die
+     Implementierung der Funktionalität und
+(iii) Aufbau des den Aktivierungsregeln entsprechenden Zustandsautomaten.
+}
+\end{figure}
+
+\subsubsection{Deklaration der Eingangs- und Ausgansports}
+
+Die Anbindung der Aktorinstanzen an den Netzwerkgraph wird über sog.\ \emph{Ports} realisiert.
+Ein Einsatz der SystemC-Klasse \code{sc\_port}
+würde der Funktionalität die direkte Manipulation der Kanäle über die Methoden
+\code{read} und \code{write}
+erlauben. Dieses widerspricht aber der Philosophie der Trennung von
+Kommunikation und Funktionalität. Deshalb wurden in SysteMoC eigene Templateklassen
+\code{smoc\_port\_in} und \code{smoc\_port\_out} für die Deklaration von
+Eingangs und Ausgansports zur Verfügung gestellt.
+Diese Templateklassen werden mit dem Type der zu übertragenden Nachrichten parametrisiert.
+Der Abschnitt der \code{BthChk} Aktorbeschreibung
+verantwortlich für die Deklaration der Eingangs- und Ausgansports
+ist z.B. in Abbildung \ref{systemoc-ports-def} dargestellt.
+In diesem Abschnitt werden ein Eingangsport \code{inMStore2BthChk} 
+(in Abbildung \ref{fig:ng-infiniband} als Port $i_1$) 
+und zwei Ausgangsports (Port $o_1$ und $o_2$) \code{outBthChk2RethChk} und \code{outBthChk2AethChk} definiert. 
+
+\begin{figure}
+\centering
+\begin{verbatim}
+class BthChk : public smoc_actor {
+public:
+  // Definition der Eingangs- und Ausgansports
+  smoc_port_out<ct_BthChk2EthChk> outBthChk2RethChk;
+  smoc_port_out<ct_BthChk2EthChk> outBthChk2AethChk;
+  smoc_port_in <ct_MStore2BthChk>  inMStore2BthChk;
+private:
+  ...
+};
+\end{verbatim}
+\caption{\label{systemoc-ports-def}%
+Die Definitionen der Eingangs- und Ausgansports des Aktors
+müssen sich im \code{public} Abschnitt der Aktorklasse befinden, damit
+Sie sich später zur Verknüpfung der Aktoren verwenden lassen.
+Jeder Eingangsport bzw. Ausgangsport wird mittels der Templateklasse
+\code{smoc\_port\_in} bzw. \code{smoc\_port\_out}
+deklariert. Diese Templateklasse wird mit dem Type der
+zu übertragenden Daten instantiiert.
+In der obigen Aktorbeschreibung werden ein Eingangsport
+\code{inMStore2BthChk} und zwei Ausgangsports 
+\code{outBthChk2RethChk} und \code{outBthChk2AethChk} definiert.
+}
+\end{figure}
+
+\subsubsection{Implementierung der Funktionalität}
+
+Die Funktionalität setzt sich aus \emph{Klassenvariablen}, für
+die Speicherung des \emph{Funktionalitätszustandes}, und aus \emph{Aktionen}
+zur Verarbeitung empfangener Nachrichten zusammen. Dies ist beispielhaft
+in Abbildung \ref{systemoc-functionality-def} dargestellt.
+Die Aktionen werden dabei auf \emph{Methoden} der Aktorklasse abgebildet.
+Diese Aktionen können den Funktionalitätszustand manipulieren
+haben, aber keinen Zugriff auf den \emph{Aktivierungszustand}.
+Der Aktivierungszustand wird von den \emph{Aktivierungsregeln} bestimmt.
+Die Aktionen der Funktionalität dienen als Aktionen der
+Transitionen des Zustandsautomaten.
+
+
+\begin{figure}
+\centering
+\begin{verbatim}
+class BthChk : public smoc_actor {
+  ...
+private:
+  // Definition der Klassenvariablen zum Speichern
+  // des Funktionalitätszustandes
+  ...
+  
+  // Definition der Aktionen der Funktionalität
+  // analyse BTH
+  void analyseDataPacket() {
+    // number of tt_raw_dwords needed to reconstruct BTH
+    assert( 3 == bth::BTH_SIZE / tt_raw_dword::DWORD_SIZE );
+    
+    // Get LLC-Info from first token in fifo connected to
+    // the inMStore2BthChk port
+    const tt_llc_info  &llc_buffer = inMStore2BthChk[0];
+    
+    ... // More code here
+    
+    // generate messages for RethChk module
+    out_BthChk2RethChk[0] = tt_bo_notification(
+      header_size, llc_buffer.buffer_id); 
+    out_BthChk2RethChk[1] = tt_packet_info(
+      qpn, psn, payload_size, llc_buffer.buffer_id );
+  }
+  // analyse BTH and AETH
+  void analyseAckPacket() {
+    ... // More code here
+  }
+  
+  ...
+};
+\end{verbatim}
+\caption{\label{systemoc-functionality-def}%
+Die Funktionalität eines Aktors wird auf mehrere
+Aktionen aufgeteilt, z.B. der Analyse für eintreffende Daten- bzw.
+Bestätigungspakete, und als \emph{Methoden} der
+Aktorklasse implementiert, z.B. für die obig abgebildeten \code{BthChk}-Aktorklasse
+die Methoden  \code{analyseDataPacket} und \code{analyseAckPacket}.
+Diese Methoden können im Gegensatz zu den Guard-Funktionen den
+Funktionalitätszustand des Aktors manipulieren.
+}
+\end{figure}
+
+\subsubsection{Aufbau des Zustandsautomaten}
+
+Aktivierungsregeln, kodiert als endlicher Zustandsautomat,
+beschreiben das Kommunikationsverhalten des Aktors.
+Die Zustände dieses Zustandsautomaten werden als
+\emph{Aktivierungszustände} bezeichnet.
+Die Bedingung der Transitionen des Zustandsautomaten setzen sich
+aus logischen Verknüpfungen über den Füllstand bzw.
+die Anzahl freier Plätze in einem Kanal sowie weiteren
+Ausdrücken (z.B.\ über Datenwerte) zusammen. Die Backus-Naur-Form (\emph{BNF}) für den Aufbau des Zustandsautomaten
+ist in Abbildung \ref{systemoc-fsm-bnf} und \ref{systemoc-fsm-bnf-2} dargestellt. Ein konkretes
+Beispiel, der Aufbau des Zustandsautomaten für den \code{BthChk}-Aktor (Abbildung \ref{systemoc-bthchk-fsm})
+lässt sich in Abbildung \ref{fig:firing-rules-bthchk} betrachten.
+
+\begin{figure}
+\centering
+%    // reconstruct bth from 3 dwords
+%    bth h_bth( static_cast<const tt_raw_dword &>(inMStore2BthChk[1]).data +
+%               static_cast<const tt_raw_dword &>(inMStore2BthChk[2]).data +
+%               static_cast<const tt_raw_dword &>(inMStore2BthChk[3]).data );
+%    return h_bth.opcode() == bth::BTH_send_first  ||
+%           h_bth.opcode() == bth::BTH_send_last   ||
+%           h_bth.opcode() == bth::BTH_send_middle ||
+%           h_bth.opcode() == bth::BTH_send_only   ;
+\begin{verbatim}
+class BthChk : public smoc_actor {
+  ...
+  // Guardfunktionen des Zustandsautomaten
+  bool isDataPacket() const;
+  ...
+  // Deklaration der Aktivierungszustände
+  smoc_firing_state start;
+public:
+  BthChk(sc_module_name name)
+    : smoc_actor(name, start /* Startzustand der Aktivierungsregeln */ ) {
+    // Deklaration des Aktivierungszustandes 'start' mit
+    // zwei Transitionenn t1 und t2.
+    start =
+      // Transition t1 von 'start' nach 'start'
+         // Eingangsbedingung (InputGuard)
+         (inMStore2BthChk.getAvailableTokens() >=
+            (1 + MAX_STORED_HEADER_SIZE/tt_raw_dword::DWORD_SIZE)
+          && isType<tt_llc_info>(inMStore2BthChk.getValueAt(0))
+          && guard(&BthChk::isDataPacket))
+      >> // Ausgangsbedingung (OutputGuard)
+         (outBthChk2RethChk.getAvailableSpace() >= 2)
+      >> CALL(BthChk::analyseDataPacket) // Aktion
+      >> start // Folgezustand der Transition t1
+      // Transition t2 von 'start' nach 'start'
+    |    // Eingangsbedingung (InputGuard)
+         (inMStore2BthChk.getAvailableTokens() >=
+            (1 + MAX_STORED_HEADER_SIZE/tt_raw_dword::DWORD_SIZE)
+          && isType<tt_llc_info>(inMStore2BthChk.getValueAt(0))
+          && !guard(&BthChk::isDataPacket))
+      >> // Ausgangsbedingung (OutputGuard)
+         (outBthChk2AethChk.getAvailableSpace() >= 2)
+      >> CALL(BthChk::analyseAckPacket)  // Aktion
+      >> start // Folgezustand der Transition t2
+    ;
+  }
+};
+\end{verbatim}
+\caption{\label{systemoc-bthchk-fsm}%
+Die Aktivierungsregeln werden als endliche Zustandsautomaten implementiert,
+welche im Konstruktor der Aktorklasse aufgebaut werden.
+Die Aktivierungszustände werden als Instanzen der \code{smoc\_firing\_state} Klasse deklariert,
+z.B. im obigen Quellcode der \code{start}-Aktivierungszustand.
+Von den deklarierten Aktivierungszuständen wird einer als
+Startzustand selektiert, indem er an die Basisklasse \code{smoc\_actor} übergeben wird.
+Der obig definierte Zustandsautomat,
+auch graphisch dargestellt in Abbildung \ref{fig:firing-rules-bthchk},
+besteht aus einem Zustand \code{start} und zwei Selbstschleifen,
+den Transitionen $\mathbf{t_1}$ und $\mathbf{t_2}$.
+}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\scalebox{1}[1]{\input{firing-rules-bthchk-fig.tex}}
+\caption{\label{fig:firing-rules-bthchk}%
+Aktivierungsregeln des \code{BthChk}-Aktors aus
+Abbildung \ref{systemoc-bthchk-fsm} in graphischer Form dargestellt.
+Der Eingangsport \code{inMStore2BthChk} ist hier als $i_1$,
+wie in Abbildung \ref{fig:ng-infiniband} verwendet,
+die beiden Ausgangsports \code{outBthChk2RethChk} und \code{outBthChk2AethChk}
+sind als $o_1$ bzw. $o_2$ wiederzufinden.
+Die Schreibweisen $i_1(n)$ bzw. $o_1(m)$
+werden als Abkürzung für
+\code{i1.getAvailableTokens() >= n} bzw.
+\code{o1.getAvailableSpace() >= m} eingesetzt.
+}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{verbatim}
+StateDefinition ::= ActivationState '=' TransitionList ';'
+
+TransitionList  ::= Transition '|' TransitionList |
+                    Transition                    ;
+
+Transition      ::= Guard '>>' 'CALL' '(' Action ')' '>>' ActivationState |
+                               'CALL' '(' Action ')' '>>' ActivationState |
+                    Guard                            '>>' ActivationState ;
+
+Guard           ::= InputGuard '>>' OutputGuard |
+                    InputGuard                  |
+                                    OutputGuard ;
+
+InputGuard      ::= '(' InputGuard ')'           |
+                    InputGuard '&&' InputGuard   |
+                    InputExpr                    |
+                    Expr                         ;
+
+InputExpr       ::= InputPort '.getAvailableTokens()' '>=' Expr |
+                    InputPort '.getAvailableTokens()' '>'  Expr |
+                    InputPort '(' Integer ')'                   ;
+
+OutputGuard     ::= '(' OutputGuard ')'          |
+                    OutputGuard '&&' OutputGuard |
+                    OutputExpr                   ;
+
+OutputExpr      ::= OutputPort '.getAvailableSpace()'  '>=' Expr |
+                    OutputPort '.getAvailableSpace()'  '>'  Expr |
+                    OutputPort '(' Integer ')'                   ;
+\end{verbatim}
+\caption{\label{systemoc-fsm-bnf}%
+Der Zustandsautomat wird durch die Definition (\code{StateDefinition}) aller
+seiner Aktivierungszustände deklariert.
+Diese Aktivierungszustände sind in der \emph{BNF} durch die
+\code{ActivationState}-Terminale repräsentiert, welche C++-Variablen
+vom Typ \code{smoc\_firing\_state} entsprechen.
+Ein Aktivierungszustand ist durch die ihn verlassenden Transitionen
+\code{TransitionList} definiert.
+Eine Transition setzt sich dabei aus zwei Bedingungen,
+der \emph{Eingangsbedingung} (\code{InputGuard}) und
+der \emph{Ausgangsbedingung} (\code{OutputGuard}),
+gefolgt von einer \emph{Aktion} und dem \emph{Folgezustand} zusammen.
+Diese Aktionen sind in der \emph{BNF} durch \code{Action}-Terminale
+repräsentiert, welche C++-Methoden der Aktorklasse entsprechen.
+Die Eingangs- bzw. Ausgangsbedingung setzen sich dabei aus
+Bedingungen zur Überprüfung der Kanalfüllstände \code{InputExpr} bzw.
+\code{OutputExpr} und allgemeinen Ausdrücken \code{Expr} zusammen, welche
+den Funktionalitätszustand und die Tokenart überprüfen können.
+Diese sind in Abbildung \ref{systemoc-fsm-bnf-2} weiter erläutert.
+}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{verbatim}
+Expr            ::= Expr '+'  Expr | Expr '-'  Expr |
+                    Expr '*'  Expr | Expr '/'  Expr |
+                    Expr '==' Expr | Expr '!=' Expr |
+                    Expr '<'  Expr | Expr '<=' Expr |
+                    Expr '>'  Expr | Expr '>=' Expr |
+                    Expr '^'  Expr | Expr '&'  Expr |
+                    Expr '|'  Expr | Expr '&&' Expr |
+                    Expr '||' Expr | '(' Expr ')'   |
+                    '!' Expr       | '~' Expr       |
+                    ExprTerminal   ;
+
+ExprTerminal    ::= <Integer>                                          |
+                    'var'                       '(' <Variable>    ')'  |
+                    'guard'                     '(' <GuardMethod> ')'  |
+                    'isType'    '<' <Type> '>'  '(' Expr ')'           |
+                    <InputPort> '.getValueAt'   '(' <Integer> ')'      ;
+\end{verbatim}
+\caption{\label{systemoc-fsm-bnf-2}%
+Allgemeine Ausdrücke zur Überprüfung des Funktionalitätszustandes
+und der empfangenen Tokenart können mittels der obig aufgeführten
+Operatoren verknüpft werden. Die Operatoren haben dabei C++-Präzedenz und
+Bedeutung, z.B. ist '\code{\^}' das bitweise exklusive Oder.
+Die Ausdrücke werden dabei aus folgenden Terminalen aufgebaut:
+(i)   Das \code{Integer}-Terminal represäntiert einen C++-Ausdruck der
+      zur Instantiierungszeit in einen Integer umgewandelt werden kann,
+      z.B. 5, abs(-5), sqr(a+b),
+(ii)  das \code{Variable}-Terminal represäntiert eine C++-Klassenvariablen,
+      welche bei jeder Auswertung der Eingangsbedingung neu ausgelesen wird,
+(iii) das \code{GuardMethod}-Terminal represäntiert eine konstante C++-Methode der Aktorklasse,
+      welche bei jeder Auswertung der Eingangsbedingung neu aufgerufen wird,
+(iv)  das \code{isType}-Terminal erlaubt die Überprüfung ob ein Ausdruck
+      vom Typ \code{Type} ist,
+(v)   der \code{InputPort '.getValueAt'}-Terminal erlaubt es ein Token
+      aus dem Eingangsport zu überprüfen.
+Guard Methoden müssen konstante Methoden sein,
+da sie den Funktionalitätszustand nicht verändern dürfen.
+}
+\end{figure}
+
+\subsection{Netzwerkgraph}
+
+Der Netzwerkgraph wird in einer von \code{smoc\_graph} abgeleiteten Klasse,
+im Folgenden als \emph{Graphenklasse} bezeichnet, zusammengesetzt.
+Die Aktoren des Netzwerkgraph, z.B. $A_{1}$ - $A_{17}$ in Abbildung \ref{fig:ng-infiniband}
+auf Seite \pageref{fig:ng-infiniband}, werden in dieser Klasse als Klassenvariablen
+deklariert und im Konstruktor der Graphenklasse parametrisiert und verknüpft, z.B. für die Aktoren
+$A_{10}$, $A_{11}$, $A_{12}$ und $A_{15}$ in Abbildung \ref{systemoc-networkgraph} dargestellt.
+
+\begin{figure}
+\centering
+\begin{verbatim}
+class Hca: public smoc_graph {
+private:
+  ...
+  /// Aktordeklaration
+  MStore      mMStore;
+  BthChk      mBthChk;
+  RethChk     mRethChk;
+  AethChk     mAethChk;
+  ...
+public:
+
+  Hca(sc_module_name name)
+    : smoc_graph(name),
+      ...
+      // Parametrisierung der Aktoren
+      mMStore("mMStore", ... /* Weitere Parameter */ ),
+      mBthChk("mBthChk", ... /* Weitere Parameter */ ),
+      mRethChk("mRethChk", ... /* Weitere Parameter */ ),
+      mAethChk("mAethChk", ... /* Weitere Parameter */ ),
+      ...
+  {
+    // Verknüpfung der Aktoren miteinander
+    ...
+    // MStore -> BthChk, verwendet FIFO Standardgröße
+    connectNodePorts( mMStore.outMStore2BthChk,
+                      mBthChk.inMStore2BthChk   );
+    // BthChk -> RethChk, verwendet FIFO der Größe 3 (Token)
+    connectNodePorts( mBthChk.outBthChk2RethChk,
+                      mRethChk.inBthChk2RethChk,
+                      smoc_fifo<ctBthChk2EthChk>(3) );
+    // BthChk -> AethChk, verwendet FIFO Standardgröße
+    connectNodePorts( mBthChk.outBthChk2AethChk,
+                      mAethChk.inBthChk2AethChk );
+    ...
+  }
+};
+\end{verbatim}
+\caption{\label{systemoc-networkgraph}%
+Ausschnitt aus der Graphenklasse zur Verknüpfung der
+in Abbildung \ref{fig:ng-infiniband} auf Seite \pageref{fig:ng-infiniband}
+dargestellten Aktoren.
+Die Aktoren werden als Klassenvariablen deklariert, z.B. \code{mBthChk},
+und im Konstruktor parametrisiert und mittels Kanälen untereinander verbunden.
+Die Verbindungen werden hierbei mittels der \code{connectNodePorts} Funktion
+erstellt. Welche als Parameter den Ausgangsport und Eingangsport von verschiedenen
+Aktoren erhält um diese mittels eines FIFOs zu verbinden.
+Als optionales dritter Parameter der Funktion kann der FIFO mittels
+des '\code{smoc\_fifo<MsgType>(FifoSize) << InitialTokens << ...}'
+Syntaxes genauer parametrisiert werden.
+}
+\end{figure}
+
+\section{Kopplung zwischen SysteMoC und VPC}
+\label{sec:smoc-vpc}
+Die SysteMoC-Bibliothek ermöglicht es, einzelne Aktoren in Form von Zustandsmaschinen, die Funktionen aufrufen, zu beschreiben.
+Eine Anwendung, z.B. der InfiniBand-HCA besteht in der Regel aus einem Netzwerk solcher Aktoren.
+Ein solches Netzwerk kann durch Simulation bezüglich der Funktionalität untersucht werden.
+Das \emph{Virtual Processing Components} Framework~\cite{streubuehr:2005} ermöglicht die zusätzliche Simulation des Zeitverhaltens unter Ressourcenbeschränkung.
+Hierfür wird für jede Aktivierung eines Aktors eine dynamisch ermittelte Ausführungszeit abgewartet.
+Diese Ausführungszeit wird durch die Bindung an eine Ressource, sowie durch eine Schedulingstrategie bestimmt.
+Einzig notwendig hierfür sind zwei Funktionsaufrufe (\code{getResource}, \code{compute}) aus der Anwendung heraus (vgl.~\cite{streubuehr:2005, fghsst:2005}).
+\par
+Zusammen mit einer Aktorbibliothek, wie der SysteMoC, können diese Aufrufe vollständig transparent für den Nutzer eingefügt werden.
+%Zusammen mit der SysteMoC-Bibliothek gestaltet sich die Kopplung wie folgt:
+Jedes mal wenn in einem Aktor eine Transition ausgeführt wird, entspricht dieses einer Aktivität.
+Bevor diese Funktionalität ausgeführt wird, werden die Funktionsaufrufe \code{getResource} und \code{compute} ausgeführt und somit die simulierte Zeit verbraucht.
+%\textbf{TODO: globales scheduling bzw. dessen Effekte erwähnen??}
+\par
+Weiterhin zeichnen sich die SysteMoC Aktoren durch ihre funktionsakkurate Aus\-führ\-ungs\-sem\-an\-tik aus:
+Ein Aktor besitzt ausdrücklich modellierte Zustände und Transitionen, wobei Transitionen die Aktivitäten darstellen und Zustandswechsel verursachen.
+Das VPC wurde dahingehend erweitert, dass die Ausführungszeit auch in Abhängigkeit zur ausgeführten Transition steht.
+Dementsprechend wurde die \code{compute}-Funktion um einen weiteren Parameter für die auszuführende Transition ergänzt.
+Während die Bindung an Ressourcen weiterhin aktorakkurat stattfindet, wird die Ausführungszeit funktionsakkurat modelliert.
+Wie schon bei der vorangegangenen Studie wird das VPC durch eine Konfiguration parametrisiert, und ermöglicht somit flexible Tests der Architektur.
+Durch die funktionsgetreue Zeitmodellierung, ist die Zahl der Konfigurationsparameter gewachsen.
+Dementsprechend wurde ein neues Konfigurationsformat auf XML Basis eingeführt, dargestellt und beschrieben in
+Abbildung \ref{resource-config}.
+
+\begin{figure}
+\centering
+{\footnotesize
+\verbatiminput{mapping-demo.xml}}
+\caption{\label{resource-config}%
+Beispiel des neuen XML Konfigurationsformates, welches wie
+folgend aufgebaut ist:
+Innerhalb des \code{configuration}-Top-Level-Elements befinden sich die zwei Elemente
+(i) \code{resources}, innerhalb dessen die \code{component}-Elemente die virtuellen Komponenten spezifizieren,
+und (ii) \code{mappings}, welches \code{mapping}-Elemente enthält zur Abbildung aller Prozesse
+auf genau eine Komponente.
+Sowohl die \code{component}- als auch die \code{mapping}-Elemente werden mittels eingeschachtelter
+\code{attribute}-Elemente weiter Parametrisiert. Diese Parametrisierung bestimmt bei den
+\code{component}-Elementen den zu verwendenden Scheduler und bei den \code{mapping}-Elementen
+die Ausführungszeiten der Aktionen auf der ausgewählten Komponente.
+%Beispielhaft definiert \code{<attribute type="ib\_m\_atu::forward\_mfetch" value="2"/>}
+%eine Ausführungszeit von 2 $\mathrm{ns}$ für die \code{ib\_m\_atu::forward\_mfetch}
+%Aktion auf der gewählten Komponente.
+%Eine Standardausführungszeit kann ebenfalls mittels \code{<attribute type="delay" value="2"/>} angegeben werden,
+%diese wird verwendet falls die ausgeführte Aktion nicht im \code{mapping}-Element
+%parametrisiert ist.
+}
+\end{figure}
+
+% LocalWords:  SysteMoC
