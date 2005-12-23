@@ -39,13 +39,14 @@ Aufgrund der Ähn\-lich\-keiten in den Konzepten von SysteMoC und FunState können
 
 Der Aufbau einer Anwendung in SysteMoC lässt sich grob in zwei Teilaufgaben untergliedern: (i) Die Definition der \emph{Aktorbeschreibung} und (ii) die Instantiierung und Verknüpfung dieser Aktorbeschreibungen mittels Kanälen zu einem \emph{Netzwerkgraphen}.
 Ein Beispiel einer Aktorbeschreibung ist in den Abbildungen \ref{systemoc-actor-def} bis \ref{systemoc-bthchk-fsm} dargestellt.
-Diese Beschreibung wird anschließend im Netzwerkgraph des InfiniBand-HCA, dargestellt in Abbildung \ref{fig:ng-infiniband}, für die \emph{Aktorinstanz} $A_{11}$ verwendet.
+Diese Beschreibung wird anschließend im Netzwerkgraph des InfiniBand-HCA, dargestellt in Abbildung \ref{fig:ng-sqrroot}, für die \emph{Aktorinstanz} $A_{11}$ verwendet.
 
 \begin{figure}[t]
 \centering
-%\includegraphics[scale=1]{fig:ng-infiniband.\graphicPostfix}\\
-\resizebox{\textwidth}{!}{\input{ng-infiniband-fig.tex}}
-\caption{\label{fig:ng-infiniband}%
+%\includegraphics[scale=1]{fig:ng-sqrroot.\graphicPostfix}\\
+%\resizebox{\textwidth}{!}{\input{ng-sqrroot-fig.tex}}
+\input{ng-sqrroot-fig.tex}
+\caption{\label{fig:ng-sqrroot}%
 \emph{Netzwerkgraph} des InfiniBand-HCA bestehend aus \emph{Aktorinstanzen}
 $A_{1}$ - $A_{17}$ verbunden mittels der Kanäle $c_{1}$ - $c_{29}$.
 }
@@ -129,7 +130,7 @@ Der Abschnitt der \code{BthChk} Aktorbeschreibung
 verantwortlich für die Deklaration der Eingangs- und Ausgansports
 ist z.B. in Abbildung \ref{systemoc-ports-def} dargestellt.
 In diesem Abschnitt werden ein Eingangsport \code{inMStore2BthChk} 
-(in Abbildung \ref{fig:ng-infiniband} als Port $i_1$) 
+(in Abbildung \ref{fig:ng-sqrroot} als Port $i_1$) 
 und zwei Ausgangsports (Port $o_1$ und $o_2$) \code{outBthChk2RethChk} und \code{outBthChk2AethChk} definiert. 
 
 \begin{figure}
@@ -303,7 +304,7 @@ den Transitionen $\mathbf{t_1}$ und $\mathbf{t_2}$.
 Aktivierungsregeln des \code{BthChk}-Aktors aus
 Abbildung \ref{systemoc-bthchk-fsm} in graphischer Form dargestellt.
 Der Eingangsport \code{inMStore2BthChk} ist hier als $i_1$,
-wie in Abbildung \ref{fig:ng-infiniband} verwendet,
+wie in Abbildung \ref{fig:ng-sqrroot} verwendet,
 die beiden Ausgangsports \code{outBthChk2RethChk} und \code{outBthChk2AethChk}
 sind als $o_1$ bzw. $o_2$ wiederzufinden.
 Die Schreibweisen $i_1(n)$ bzw. $o_1(m)$
@@ -414,8 +415,8 @@ da sie den Funktionalitätszustand nicht verändern dürfen.
 
 Der Netzwerkgraph wird in einer von \code{smoc\_graph} abgeleiteten Klasse,
 im Folgenden als \emph{Graphenklasse} bezeichnet, zusammengesetzt.
-Die Aktoren des Netzwerkgraph, z.B. $A_{1}$ - $A_{17}$ in Abbildung \ref{fig:ng-infiniband}
-auf Seite \pageref{fig:ng-infiniband}, werden in dieser Klasse als Klassenvariablen
+Die Aktoren des Netzwerkgraph, z.B. $A_{1}$ - $A_{17}$ in Abbildung \ref{fig:ng-sqrroot}
+auf Seite \pageref{fig:ng-sqrroot}, werden in dieser Klasse als Klassenvariablen
 deklariert und im Konstruktor der Graphenklasse parametrisiert und verknüpft, z.B. für die Aktoren
 $A_{10}$, $A_{11}$, $A_{12}$ und $A_{15}$ in Abbildung \ref{systemoc-networkgraph} dargestellt.
 
@@ -461,7 +462,7 @@ public:
 \end{verbatim}
 \caption{\label{systemoc-networkgraph}%
 Ausschnitt aus der Graphenklasse zur Verknüpfung der
-in Abbildung \ref{fig:ng-infiniband} auf Seite \pageref{fig:ng-infiniband}
+in Abbildung \ref{fig:ng-sqrroot} auf Seite \pageref{fig:ng-sqrroot}
 dargestellten Aktoren.
 Die Aktoren werden als Klassenvariablen deklariert, z.B. \code{mBthChk},
 und im Konstruktor parametrisiert und mittels Kanälen untereinander verbunden.
