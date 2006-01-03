@@ -62,177 +62,202 @@ This iteration repeats until the error bound is satisfied and the approximation 
 %$A_{1}$ - $A_{17}$ verbunden mittels der Kanäle $c_{1}$ - $c_{29}$.
 \end{figure}
 
-\subsection{Aufbau der Aktorbeschreibung}
+%\subsection{Aufbau der Aktorbeschreibung}
+\subsection{Actor classes}
 
-Jeder \emph{Aktorbeschreibung} wird als C++-Klasse dargestellt, welch von der Basisklasse \code{smoc\_actor} abgeleitet ist.
-Im Folgenden wird eine solche Klasse auch als \emph{Aktorklasse} bezeichnet.
-Die \emph{Aktorinstanzen} einer \emph{Aktorbeschreibung} werden als C++-Objekte der entsprechenden Aktorklasse instantiiert.
-Die Aktorbeschreibung kann in drei Teilabschnitte gegliedert werden (siehe Abbildung~\ref{systemoc-actor-def}:
-  (i) Deklaration der \emph{Eingangs-} und \emph{Ausgangsports},
-  (ii) Definition der \emph{Klassenvariablen} und \emph{Aktionen} für die
-       Implementierung der Funktionalität und
-  (iii) Aufbau des den \emph{Aktivierungsregeln} entsprechenden Zustandsautomaten.
-Die einzelnen Teile werden im Folgenden genauer betrachtet.
+% Jeder \emph{Aktorbeschreibung} wird als C++-Klasse dargestellt, welch von der Basisklasse \code{smoc\_actor} abgeleitet ist.
+% Im Folgenden wird eine solche Klasse auch als \emph{Aktorklasse} bezeichnet.
+Each \emph{actor class} is represented as a C++ class, which is derived from the base class \code{smoc\_actor}, e.g., as seen in Figure~\ref{systemoc-actor-def}.
+% Die \emph{Aktorinstanzen} einer \emph{Aktorbeschreibung} werden als C++-Objekte der entsprechenden Aktorklasse instantiiert.
+Accordingly each \emph{actor instance}, in the following simply called \emph{actor}, is a C++ object of its corresponding actor class.
+
+%Die Aktorbeschreibung kann in drei Teilabschnitte gegliedert werden (siehe Abbildung~\ref{systemoc-actor-def}:
+Each definition of an actor class can be subdivided into three parts
+%  (i) Deklaration der \emph{Eingangs-} und \emph{Ausgangsports},
+  (i) Declaration of the actor \emph{input ports} and \emph{output ports},
+% (ii) Declaratio Definition der \emph{Klassenvariablen} und \emph{Aktionen} für die
+  (ii) Declaration of the actor \emph{functionality} and
+%  (iii) Definition of the \emph{Aufbau des den \emph{Aktivierungsregeln} entsprechenden Zustandsautomaten.
+  (iii) Declaration of the actor \emph{communication behavior}, encoded as \emph{firing FSM}.
+
+In the following these three steps will be explained in detail.
 
 \begin{figure}[p]
 \centering
 \begin{verbatim}
-// Definition der Aktorbeschreibung BthChk
-class BthChk
-  // Alle Aktorbeschreibungen müssen von
-  // der Basisklasse smoc_actor abgeleitet werden
+// Definition of the SqrLoop actor class
+class SqrLoop
+  // All actor classes must be derived
+  // from the smoc_actor base class
   : public smoc_actor {
 public:
-  // Deklaration der Eingangs- und Ausgansports, z.B.
-  // smoc_port_out<MsgType1> outputPortName;
-  // smoc_port_in <MsgType2> inputPortName;
-  ...
-
+  // Declaration of input and output ports
+  smoc_port_in<double>  ...
 private:
-  // Definition der Klassenvariablen zum Speichern
-  // des Funktionalitätszustandes, z.B.
-  // int headersize;
+  // Declaration of the actor functionality
+  // via member variables and member functions
   ...
   
-  // Definition der Aktionen der Funktionalität, z.B.
-  // void analyseDataPacket();
-  ...
-  
-  // Deklaration der Aktivierungszustände für den Zustandsautomaten, z.B.
-  // smoc_firing_state start;
+  // Declaration of states for the firing FSM
+  smoc_firing_state start;
   ...
 public:
-  
-  BthChk(sc_module_name name) :
-    // Weiterleitung des Aktorinstanznamens von der instanziierung und
-    // übergabe des Startzustandes der Aktivierungsregeln, z.B. start.
-    smoc_actor(name, start)
-  {
-    // Definition der Aktivierungsregeln durch aufbau des
-    // entsprechenden Zustandsautomaten
-    start =
-      ...
-    ;
+  // Constructor responsible for building the
+  // firing FSM and initializing the actor
+  SqrLoop(sc_module_name name)
+    : smoc_actor( name, start ) {
+    ...
   }
 };
 \end{verbatim}
 \caption{\label{systemoc-actor-def}%
-Überblick über die drei Teilabschnitte einer Aktorbeschreibung:
-(i) Eingangs- bzw. Ausgangsport Deklaration,
-(ii) Definition der Klassenvariablen und Aktionen für die
-     Implementierung der Funktionalität und
-(iii) Aufbau des den Aktivierungsregeln entsprechenden Zustandsautomaten.
+Overview of the three main parts of an actor definition:
+(i) Declaration of the actor \emph{input ports} and \emph{output ports},
+(ii) Declaration of the actor \emph{functionality} and
+(iii) Declaration of the actor \emph{communication behavior}.
 }
 \end{figure}
 
-\subsubsection{Deklaration der Eingangs- und Ausgansports}
+%\subsubsection{Deklaration der Eingangs- und Ausgansports}
+\subsubsection{Declaration of the actor input and output ports}
 
-Die Anbindung der Aktorinstanzen an den Netzwerkgraph wird über sog.\ \emph{Ports} realisiert.
-Ein Einsatz der SystemC-Klasse \code{sc\_port}
-würde der Funktionalität die direkte Manipulation der Kanäle über die Methoden
-\code{read} und \code{write}
-erlauben. Dieses widerspricht aber der Philosophie der Trennung von
-Kommunikation und Funktionalität. Deshalb wurden in SysteMoC eigene Templateklassen
-\code{smoc\_port\_in} und \code{smoc\_port\_out} für die Deklaration von
-Eingangs und Ausgansports zur Verfügung gestellt.
-Diese Templateklassen werden mit dem Type der zu übertragenden Nachrichten parametrisiert.
-Der Abschnitt der \code{BthChk} Aktorbeschreibung
-verantwortlich für die Deklaration der Eingangs- und Ausgansports
-ist z.B. in Abbildung \ref{systemoc-ports-def} dargestellt.
-In diesem Abschnitt werden ein Eingangsport \code{inMStore2BthChk} 
-(in Abbildung \ref{fig:ng-sqrroot} als Port $i_1$) 
-und zwei Ausgangsports (Port $o_1$ und $o_2$) \code{outBthChk2RethChk} und \code{outBthChk2AethChk} definiert. 
+%Die Anbindung der Aktorinstanzen an den Netzwerkgraph wird über sog.\ \emph{Ports} realisiert.
+An actor must only communication with other actor via its input and output ports.
+These ports are used to connect actors to each other via the network graph, e.g., as shown in
+Figure~\ref{fig:ng-sqrroot} where actor $A_2$ is connected via its ports $i_1$, $i_2$, $o_1$ and $o_2$
+to all other actors in the network graph.
+%Ein Einsatz der SystemC-Klasse \code{sc\_port}
+%würde der Funktionalität die direkte Manipulation der Kanäle über die Methoden
+%\code{read} und \code{write}
+%erlauben. Dieses widerspricht aber der Philosophie der Trennung von
+%Kommunikation und Funktionalität.
+Usage of normal \code{sc\_fifo} channels with \code{sc\_fifo\_in} and \code{sc\_fifo\_out} ports
+would weaken the seperation of actor functionality and communication behavior, because the
+actor functionality could easily communicate via the provided \code{read} and \code{write} functions on
+these fifo ports.
+
+%Deshalb wurden in SysteMoC eigene Templateklassen
+%\code{smoc\_port\_in} und \code{smoc\_port\_out} für die Deklaration von
+%Eingangs und Ausgansports zur Verfügung gestellt.
+%Diese Templateklassen werden mit dem Type der zu übertragenden Nachrichten parametrisiert.
+Therefore the SysteMoC library provides its own input and output ports \code{smoc\_port\_in} and \code{smoc\_port\_out}.
+These use the same concept of template parameters as standard port from SystemC, e.g., \code{sc\_fifo\_in}, to specify the token type
+communicated over these ports, e.g., \code{smoc\_port\_in$<$double$>$} to specify a port which communicates double tokens,
+an example of which can be seen in Figure~\ref{systemoc-ports-def}.
+
+%Der Abschnitt der \code{BthChk} Aktorbeschreibung
+%verantwortlich für die Deklaration der Eingangs- und Ausgansports
+%ist z.B. in Abbildung \ref{systemoc-ports-def} dargestellt.
+%In diesem Abschnitt werden ein Eingangsport \code{inMStore2BthChk} 
+%(in Abbildung \ref{fig:ng-sqrroot} als Port $i_1$) 
+%und zwei Ausgangsports (Port $o_1$ und $o_2$) \code{outBthChk2RethChk} und \code{outBthChk2AethChk} definiert. 
 
 \begin{figure}
 \centering
 \begin{verbatim}
-class BthChk : public smoc_actor {
+class SqrLoop: public smoc_actor {
 public:
-  // Definition der Eingangs- und Ausgansports
-  smoc_port_out<ct_BthChk2EthChk> outBthChk2RethChk;
-  smoc_port_out<ct_BthChk2EthChk> outBthChk2AethChk;
-  smoc_port_in <ct_MStore2BthChk>  inMStore2BthChk;
+  // Declaration of input and output ports
+  smoc_port_in<double>  i1, i2;
+  smoc_port_out<double> o1, o2;
 private:
   ...
 };
+
 \end{verbatim}
 \caption{\label{systemoc-ports-def}%
-Die Definitionen der Eingangs- und Ausgansports des Aktors
-müssen sich im \code{public} Abschnitt der Aktorklasse befinden, damit
-Sie sich später zur Verknüpfung der Aktoren verwenden lassen.
-Jeder Eingangsport bzw. Ausgangsport wird mittels der Templateklasse
-\code{smoc\_port\_in} bzw. \code{smoc\_port\_out}
-deklariert. Diese Templateklasse wird mit dem Type der
-zu übertragenden Daten instantiiert.
-In der obigen Aktorbeschreibung werden ein Eingangsport
-\code{inMStore2BthChk} und zwei Ausgangsports 
-\code{outBthChk2RethChk} und \code{outBthChk2AethChk} definiert.
+%Die Definitionen der Eingangs- und Ausgansports des Aktors
+%müssen sich im \code{public} Abschnitt der Aktorklasse befinden, damit
+%Sie sich später zur Verknüpfung der Aktoren verwenden lassen.
+Declarartion of actor input and output ports in an actor class.
+The ports declaration must be in the \emph{public}
+part of the actor class to allow a top level to connect
+all these actors to each other.
+Each input or output port is declared via the template class
+\code{smoc\_port\_in} respectively \code{smoc\_port\_out}.
+Which are parameterized with the token type which is communicated
+via these ports, e.g., double in case of the ports $i_1$, $i_2$, $o_1$ and $o_2$.
+%Jeder Eingangsport bzw. Ausgangsport wird mittels der Templateklasse
+%\code{smoc\_port\_in} bzw. \code{smoc\_port\_out}
+%deklariert. Diese Templateklasse wird mit dem Type der
+%zu übertragenden Daten instantiiert.
+%In der obigen Aktorbeschreibung werden ein Eingangsport
+%\code{inMStore2BthChk} und zwei Ausgangsports 
+%\code{outBthChk2RethChk} und \code{outBthChk2AethChk} definiert.
 }
 \end{figure}
 
-\subsubsection{Implementierung der Funktionalität}
-
-Die Funktionalität setzt sich aus \emph{Klassenvariablen}, für
-die Speicherung des \emph{Funktionalitätszustandes}, und aus \emph{Aktionen}
-zur Verarbeitung empfangener Nachrichten zusammen. Dies ist beispielhaft
-in Abbildung \ref{systemoc-functionality-def} dargestellt.
-Die Aktionen werden dabei auf \emph{Methoden} der Aktorklasse abgebildet.
-Diese Aktionen können den Funktionalitätszustand manipulieren
-haben, aber keinen Zugriff auf den \emph{Aktivierungszustand}.
-Der Aktivierungszustand wird von den \emph{Aktivierungsregeln} bestimmt.
-Die Aktionen der Funktionalität dienen als Aktionen der
-Transitionen des Zustandsautomaten.
-
+%\subsubsection{Implementierung der Funktionalität}
+\subsubsection{Declaration of the actor functionality}
+%Die Funktionalität setzt sich aus \emph{Klassenvariablen}, für
+%die Speicherung des \emph{Funktionalitätszustandes}, und aus \emph{Aktionen}
+%zur Verarbeitung empfangener Nachrichten zusammen. Dies ist beispielhaft
+%in Abbildung \ref{systemoc-functionality-def} dargestellt.
+%Die Aktionen werden dabei auf \emph{Methoden} der Aktorklasse abgebildet.
+%Diese Aktionen können den Funktionalitätszustand manipulieren
+%haben, aber keinen Zugriff auf den \emph{Aktivierungszustand}.
+%Der Aktivierungszustand wird von den \emph{Aktivierungsregeln} bestimmt.
+%Die Aktionen der Funktionalität dienen als Aktionen der
+%Transitionen des Zustandsautomaten.
+The actor functionality is represented by member variables and member functions of the actor.
+These functions manipulate the \emph{functionality state} stored in the member variables of the actor.
+Some member functions of the actor are reference by the firing FSM
+to calculate token values to be produced on the output ports.
+These member functions are called \emph{actions}, e.g.,
+\code{store} in Figure~\ref{systemoc-functionality-def},
+and can manipulate the functionality state.
+Other member functions are reference by the firing FSM to decide if
+transitions in the FSM are enabled an can be taken.
+These member functions are called \emph{guards}, e.g.,
+\code{check} in Figure~\ref{systemoc-functionality-def},
+and must not manipulate the functionality state.
+Therefore these member functions are required to be declared as \emph{const member functions}.
 
 \begin{figure}
 \centering
 \begin{verbatim}
-class BthChk : public smoc_actor {
+class SqrLoop: public smoc_actor {
+public:
   ...
 private:
-  // Definition der Klassenvariablen zum Speichern
-  // des Funktionalitätszustandes
-  ...
+  // Declaration of the actor functionality
+  // via member variables and member functions
+  double tmp_i1;
   
-  // Definition der Aktionen der Funktionalität
-  // analyse BTH
-  void analyseDataPacket() {
-    // number of tt_raw_dwords needed to reconstruct BTH
-    assert( 3 == bth::BTH_SIZE / tt_raw_dword::DWORD_SIZE );
-    
-    // Get LLC-Info from first token in fifo connected to
-    // the inMStore2BthChk port
-    const tt_llc_info  &llc_buffer = inMStore2BthChk[0];
-    
-    ... // More code here
-    
-    // generate messages for RethChk module
-    out_BthChk2RethChk[0] = tt_bo_notification(
-      header_size, llc_buffer.buffer_id); 
-    out_BthChk2RethChk[1] = tt_packet_info(
-      qpn, psn, payload_size, llc_buffer.buffer_id );
-  }
-  // analyse BTH and AETH
-  void analyseAckPacket() {
-    ... // More code here
-  }
+  // action functions triggered by the
+  // FSM declared in the constructor
+  void store() { tmp_i1 = i1[0]; }
+  void copy1() { o1[0] = tmp_i1; }
+  void copy2() { o1[0] = tmp_i1; o2[0] = i2[0]; }
   
+  // guard  functions used by the
+  // FSM declared in the constructor
+  bool check() const {  ... /* More code here */ }
   ...
 };
 \end{verbatim}
 \caption{\label{systemoc-functionality-def}%
-Die Funktionalität eines Aktors wird auf mehrere
-Aktionen aufgeteilt, z.B. der Analyse für eintreffende Daten- bzw.
-Bestätigungspakete, und als \emph{Methoden} der
-Aktorklasse implementiert, z.B. für die obig abgebildeten \code{BthChk}-Aktorklasse
-die Methoden  \code{analyseDataPacket} und \code{analyseAckPacket}.
-Diese Methoden können im Gegensatz zu den Guard-Funktionen den
-Funktionalitätszustand des Aktors manipulieren.
+%Die Funktionalität eines Aktors wird auf mehrere
+%Aktionen aufgeteilt, z.B. der Analyse für eintreffende Daten- bzw.
+%Bestätigungspakete, und als \emph{Methoden} der
+%Aktorklasse implementiert, z.B. für die obig abgebildeten \code{BthChk}-Aktorklasse
+%die Methoden  \code{analyseDataPacket} und \code{analyseAckPacket}.
+%Diese Methoden können im Gegensatz zu den Guard-Funktionen den
+%Funktionalitätszustand des Aktors manipulieren.
+The \emph{functionality state} of an actor is stored in its member variables and
+the \emph{actor functionality} is distributed over its \emph{member functions}.
+These member function can be divided into \emph{actions}, \emph{guards} and \emph{helper functions}.
+The actions of an actor are used to calculate token values to be procduced on its output ports.
+These functions can manipulate the functionality state.
+Whereas the \emph{guards} are only used to decide if a transition in the firing FSM is enabled. 
+These functions must not manipulate the functionality state.
+Both actions and guards can use helper functions to accomplish their purpose.
 }
 \end{figure}
 
-\subsubsection{Aufbau des Zustandsautomaten}
+\subsubsection{Declaration of the communication behavior}
 
+  (iii) Construction of the \emph{firing state machine} of the actor.
 Aktivierungsregeln, kodiert als endlicher Zustandsautomat,
 beschreiben das Kommunikationsverhalten des Aktors.
 Die Zustände dieses Zustandsautomaten werden als
@@ -247,52 +272,67 @@ lässt sich in Abbildung \ref{fig:firing-rules-bthchk} betrachten.
 
 \begin{figure}
 \centering
-%    // reconstruct bth from 3 dwords
-%    bth h_bth( static_cast<const tt_raw_dword &>(inMStore2BthChk[1]).data +
-%               static_cast<const tt_raw_dword &>(inMStore2BthChk[2]).data +
-%               static_cast<const tt_raw_dword &>(inMStore2BthChk[3]).data );
-%    return h_bth.opcode() == bth::BTH_send_first  ||
-%           h_bth.opcode() == bth::BTH_send_last   ||
-%           h_bth.opcode() == bth::BTH_send_middle ||
-%           h_bth.opcode() == bth::BTH_send_only   ;
 \begin{verbatim}
-class BthChk : public smoc_actor {
+class SqrLoop: public smoc_actor {
   ...
-  // Guardfunktionen des Zustandsautomaten
-  bool isDataPacket() const;
+  // action functions triggered by the
+  // FSM declared in the constructor
+  void store();
+  void copy1();
+  void copy2();
+  // guard  functions used by the
+  // FSM declared in the constructor
+  bool check();
   ...
-  // Deklaration der Aktivierungszustände
+  // Declaration of states for the firing FSM
   smoc_firing_state start;
+  smoc_firing_state loop;
 public:
-  BthChk(sc_module_name name)
-    : smoc_actor(name, start /* Startzustand der Aktivierungsregeln */ ) {
-    // Deklaration des Aktivierungszustandes 'start' mit
-    // zwei Transitionenn t1 und t2.
+  // Constructor responsible for declaring the
+  // firing FSM and initializing the actor
+  SqrLoop(sc_module_name name)
+    : smoc_actor( name, start ) {
     start =
-      // Transition t1 von 'start' nach 'start'
-         // Eingangsbedingung (InputGuard)
-         (inMStore2BthChk.getAvailableTokens() >=
-            (1 + MAX_STORED_HEADER_SIZE/tt_raw_dword::DWORD_SIZE)
-          && isType<tt_llc_info>(inMStore2BthChk.getValueAt(0))
-          && guard(&BthChk::isDataPacket))
-      >> // Ausgangsbedingung (OutputGuard)
-         (outBthChk2RethChk.getAvailableSpace() >= 2)
-      >> CALL(BthChk::analyseDataPacket) // Aktion
-      >> start // Folgezustand der Transition t1
-      // Transition t2 von 'start' nach 'start'
-    |    // Eingangsbedingung (InputGuard)
-         (inMStore2BthChk.getAvailableTokens() >=
-            (1 + MAX_STORED_HEADER_SIZE/tt_raw_dword::DWORD_SIZE)
-          && isType<tt_llc_info>(inMStore2BthChk.getValueAt(0))
-          && !guard(&BthChk::isDataPacket))
-      >> // Ausgangsbedingung (OutputGuard)
-         (outBthChk2AethChk.getAvailableSpace() >= 2)
-      >> CALL(BthChk::analyseAckPacket)  // Aktion
-      >> start // Folgezustand der Transition t2
-    ;
+        i1(1)                               >>
+        CALL(SqrLoop::store)                >> loop
+      ;
+    loop  =
+        (i2(1) &&  GUARD(SqrLoop::check))   >>
+        (o1(1) && o2(1))                    >>
+        CALL(SqrLoop::copy2)                >> start
+      | (i2(1) && !GUARD(SqrLoop::check))   >>
+        o1(1)                               >>
+        CALL(SqrLoop::copy1)                >> loop
+      ;
   }
 };
 \end{verbatim}
+%  BthChk(sc_module_name name)
+%    : smoc_actor(name, start /* Startzustand der Aktivierungsregeln */ ) {
+%    // Deklaration des Aktivierungszustandes 'start' mit
+%    // zwei Transitionenn t1 und t2.
+%    start =
+%      // Transition t1 von 'start' nach 'start'
+%         // Eingangsbedingung (InputGuard)
+%         (inMStore2BthChk.getAvailableTokens() >=
+%            (1 + MAX_STORED_HEADER_SIZE/tt_raw_dword::DWORD_SIZE)
+%          && isType<tt_llc_info>(inMStore2BthChk.getValueAt(0))
+%          && guard(&BthChk::isDataPacket))
+%      >> // Ausgangsbedingung (OutputGuard)
+%         (outBthChk2RethChk.getAvailableSpace() >= 2)
+%      >> CALL(BthChk::analyseDataPacket) // Aktion
+%      >> start // Folgezustand der Transition t1
+%      // Transition t2 von 'start' nach 'start'
+%    |    // Eingangsbedingung (InputGuard)
+%         (inMStore2BthChk.getAvailableTokens() >=
+%            (1 + MAX_STORED_HEADER_SIZE/tt_raw_dword::DWORD_SIZE)
+%          && isType<tt_llc_info>(inMStore2BthChk.getValueAt(0))
+%          && !guard(&BthChk::isDataPacket))
+%      >> // Ausgangsbedingung (OutputGuard)
+%         (outBthChk2AethChk.getAvailableSpace() >= 2)
+%      >> CALL(BthChk::analyseAckPacket)  // Aktion
+%      >> start // Folgezustand der Transition t2
+%    ;
 \caption{\label{systemoc-bthchk-fsm}%
 Die Aktivierungsregeln werden als endliche Zustandsautomaten implementiert,
 welche im Konstruktor der Aktorklasse aufgebaut werden.
