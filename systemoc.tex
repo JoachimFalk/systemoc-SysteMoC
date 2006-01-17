@@ -1,4 +1,111 @@
-\chapter {SysteMoC V2.0 Aktorbibliothek\label{cha:systemoc}}
+%\chapter {SysteMoC V2.0 Aktorbibliothek\label{cha:systemoc}}
+
+\chapter{Mathdefs}
+% Before we can review the tagged signal model some mathematical notations are needed.
+
+Let $\{x_1,x_2\}$ denote a set and $[y_1,y_2,y_3,\ldots]$ denote a set
+with total order $y_1 \le y_2 \le y_3 \le \ldots$, e.g., $\{x_1,x_2\} = \{x_2,x_1\}$ but
+$[y_1,y_2] \ne [y_2,y_1]$ and $\{x_1,x_1\} = \{x_1\}$ but $[ y_1, y_2, y_1, y_3]$
+is a \emph{illformed totally ordered set because} it does not define a total order,
+as $y_1 \le y_2 \wedge y_2 \le y_1$ but $y_1 \ne y_2$.
+
+Let $\mathbb{Z} = [\ldots,-2,-1,0,1,2,\ldots]$ denote the set of integers,
+$\mathbb{N} = [1,2,3,\ldots]$ the set of natural numbers,
+$\mathbb{N}^\infty = [1,2,3,\ldots\infty]$ the set of natural numbers including infinity,
+%$\mathbb{Z}^- = [\ldots,-3,-2,-1]$ the set of negative integers,
+$\mathbb{Z}^+_0 = [0,1,2,3,\ldots]$ the set of nonnegative integers,
+$\mathbb{Z}^{+\infty}_0 = [0,1,2,3,\ldots\infty]$ the set of nonnegative integers including infinity,
+%$\mathbb{Z}^-_0 = [\ldots,-3,-2,-1,0]$ the set of nonpositive integers,
+and $\mathbb{N}_n = [1,2,3,\ldots,n] \subseteq \mathbb{N}^\infty$ the counting set from one to $n$
+(Note that $\mathbb{N}_0 = \emptyset$).
+
+A totally ordered set $X$ is called \emph{two-sided discrete}
+if it is \emph{order isomorphic} to a subset of the integers $Z_X \subseteq \mathbb{Z}$,
+%and let $\Sigma(X): Z_X \to X$ denote this order isomorphism,
+i.e., $\exists{\Sigma(X): Z_X \to X, \Sigma(X)\textrm{ is a \emph{bijection}}}:
+ \forall{i,j \in Z_X}: i \le j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
+Intuitively this means, any two elements
+$x_1, x_2 \in X$ have only a finite number of other elements between them.
+
+A totally ordered set $X$ is called \emph{one-sided discrete} or \emph{discrete}
+if it is \emph{order isomorphic} to a subset of the natural numbers $\mathbb{N}_{|X|}$
+and let $\Sigma(X): \mathbb{N}_{|X|} \to X$ denote this order isomorphism,
+i.e., $\exists{\Sigma(X): \mathbb{N}_{|X|} \to X, \Sigma(X)\textrm{ is a \emph{bijection}}}:
+ \forall{i,j \in \mathbb{N}_{|X|}}: i \le j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
+Intuitively this means,
+any two elements $x_1, x_2 \in X$ have only a finite number of other elements
+between them and there exists a least element $x_{least}, \forall{x \in X}: x_{least} \le x$.
+For example, given the discrete set $X = ['A', 'B', 'C']$ then
+$\Sigma(X)(1) = 'A'$,  $\Sigma(X)(2) = 'B'$, and $\Sigma(X)(3) = 'C'$.
+
+Let $X^* = \bigcup_{N \in \mathbb{Z}^+_0} X^N$ denote the set of all
+\emph{tuples} of $X$ also called \emph{finite sequences} of $X$ and
+$X^{**} = \bigcup_{N \in \mathbb{Z}^{+\infty}_0} X^N$ denote the set of all
+finite and infinite \emph{sequences} of $X$. A sequence
+$\mathbf{x} = (x_1,x_2,\ldots,x_n) \in X^n, n \in \mathbb{Z}^{+\infty}_0$
+can also be thought of as a function $\mathbf{x} : \mathbb{N}_n \to X$.
+For example, given the sequence $X = ('A', 'B', 'A', 'C')$ then
+$X(1) = 'A'$,  $X(2) = 'B'$, $X(3) = 'A'$, and $X(4) = 'C'$.
+Note that a function is also a relation and a relation is also a set, e.g
+$\mathbf{x} : \mathbb{N}_n \to X \equiv \{ (i,x_i) \mid x_i = \mathbf{x}(i), i \in \mathbb{N}_n \}$.
+Note also that the $\Sigma$ function converts a discrete set to a sequence,
+e.g., $\Sigma([1,2,3]) = (1,2,3)$.
+
+A set with an associated partial order is called a
+\emph{poset}. Let $\sqsubseteq$ called \emph{prefix order} denote the
+associated partial order on the set $V^{**}$ of all finite and infinite sequences of $V$.
+And let $\mathbf{v}_1 \sqsubseteq \mathbf{v}_2$ denote that
+$\mathbf{v}_1$ is a prefix of the sequence $\mathbf{v}_2$, i.e.,
+$\mathbf{v}_1 \sqsubseteq \mathbf{v}_2 \iff \forall{n \in T(\mathbf{v}_1)}: \mathbf{v}_1(n) = \mathbf{v}_2(n)$.
+
+An \emph{upper bound} of a subset $X \subseteq V^{**}$ is an element
+$\mathbf{v} \in V^{**}$ where every sequence $\mathbf{x}$ in $X$ is a
+prefix of $\mathbf{v}$, i.e., $\forall{\mathbf{x} \in X}: \mathbf{x} \sqsubseteq \mathbf{v}$.
+A \emph{least upper bound} of a subset $X \subseteq V^{**}$, written $\sqcup X$,
+is an upper bound which is a prefix of every other upper bound of $X$.
+A \emph{lower bound} and \emph{greatest lower bound} of $X \subseteq V^{**}$,
+written $\sqcap X$, are defined respectively.
+
+A \emph{chain} in a poset $X$ is a totally ordered subset of $X$. A
+\emph{bottom element} of a poset $X$, if it exists, is an element of the
+poset which is also a greatest lower bound of the whole poset $\sqcap X \in X$.
+A \emph{complete partial order} is a poset $X$ with a bottom element
+in which every chain $Y \subseteq X$ has a least upper bound
+$\sqcup Y$. The set $V^{**}$ of all finite and infinite sequences of $V$
+is a complete partial order with bottom element $\lambda$, the
+empty sequence.
+
+This definitions can be trivially generalized to tupples of sequences
+$\upsilon \in (V^{**})^N$, i.e., $\upsilon_1 \sqsubseteq \upsilon_2 \iff
+\forall{n \in \mathbb{N}_N}: \upsilon_1(n) \sqsubseteq \upsilon_2(n)$.
+With this generalization the set $(V^{**})^N$ of all $N$-tupples of finite and
+infinite sequences of $V$ is also a complete partial order with
+bottom element $\Lambda = (\lambda, \lambda, \ldots, \lambda)$, the $N$-tupple
+of empty sequences $\lambda$.
+
+A function $F: (V^{**})^N \to (V^{**})^M$ is \emph{monotonic} if
+adding additional elements to the input sequence tupple $\upsilon_{in} \in (V^{**})^N$
+results in additional elements on the output sequence tupple
+$\upsilon_{out} = F(\upsilon_{in}) \in (V^{**})^M$,i.e.,
+$\forall{\upsilon_{in_1}, \upsilon_{in_2} \in (V^{**})^N}:
+\upsilon_{in_1} \sqsubseteq \upsilon_{in_2} \implies F(\upsilon_{in_1}) \sqsubseteq F(\upsilon_{in_2})$.
+This can be considered as a untimed notion of causality
+where the additional elements to the input sequence correspond
+to input tokens and the additional elements on the output sequence
+are the tokens produced from the consumption of these input tokens.
+
+A function $F: (V^{**})^N \to (V^{**})^M$ is \emph{continuous} if
+for every chain $Y$ in $(V^{**})^N$, $F(Y)$ has a least upper bound
+$\sqcup F(Y)$ which is equal to the function $F$ applied to the
+upper bound $\sqcup Y$ of the chain $Y$,
+i.e., $\forall{Y \subseteq (V^{**})^N, Y\textrm{ is a chain}}: F(\sqcup Y) = \sqcup F(Y)$.
+Where $F : 2^{\left( (V^{**})^N \right)} \to 2^{\left( (V^{**})^M \right)}$
+is the pointwise extension of $F : (V^{**})^N \to (V^{**})^M$, i.e.,
+$F(Y) = \{ F(\upsilon) \mid \upsilon \in Y\}$. Note that
+every continuous function is also monotonic but the reverse
+is not necessarily true.
+
+\chapter{SysteMoC-Idee}
 
 Nahezu alle Anwendungen lassen sich auf Basis sog. \emph{Berechnungsmodelle} beschrieben \cite{ells:1997,ls:1998}. 
 So werden Signalverarbeitungsalgorithmen oftmals mit Hilfe von \emph{Datenflussmodellen} \cite{lp:1995} beschrieben, während Protokolle oftmals durch \emph{endliche Zustandsautomaten} \cite{harel:1987} modelliert werden.
@@ -11,8 +118,6 @@ Diese erlaubt es, Informationen über das zugrundeliegende Berechnungsmodell zu e
 Im Folgenden wird zunächst die Idee der SysteMoC-Bibliothek vorgestellt, bevor auf die Verwendung dieser Bibliothek eingegangen wird. 
 Schließlich wird noch beschrieben, wie es mit der SysteMoC-Bibliothek möglich ist, das Zeitverhalten zu modellieren.
 Hierzu kommt das am Lehrstuhl entwickelte \emph{Virtual Processing Components} Framework, welches bereits in der vorangegangenen Studie verwendet wurde, zum Einsatz.
-
-\section{SysteMoC-Idee}
 
 Eine Anwendung wird oftmals in verschiedene Module zergliedert, welche meist von den einzelnen Entwicklern noch gut zu überblicken sind.
 Die eigentliche Komplexität einer Anwendung ergibt sich aber durch das Kommunikationsverhalten dieser Module miteinander.
@@ -35,11 +140,11 @@ In \cite{strehl:2000} wurde gezeigt, wie man symbolische Techniken \cite{kropf:1
 Die Bestimmung eines gültigen statischen Ablaufplans mit beschränktem Speicher für FunState-Beschreibungen beruht hierbei auf sog.\ \emph{regulären Zustandsmaschinen} \cite{tts:2000}.
 Aufgrund der Ähn\-lich\-keiten in den Konzepten von SysteMoC und FunState können die für FunState entwickelten Methoden auf die SysteMoC übertragen werden.
 
-\section{SysteMoC-Syntax}
+\chapter{SysteMoC-Syntax}
 
 The creation of a SysteMoC design can roughly be subdivided into two subtasks:
 (i) The creation of a \emph{network graph} for the design, e.g., as displayed in figure~\ref{fig:ng-sqrroot} for an approximative square root algorithm, and
-(ii) the creation of all \emph{actor classes} needed by the design, e.g., \code{SqrLoop} in figure~\ref{systemoc-actor-def}.
+(ii) the creation of all \emph{actor classes} needed by the design, e.g., \code{SqrLoop} in Example~\ref{ex:systemoc-sqrloop-actor-def}.
 The network graph is composed of \emph{actor instances} of these actor classes, e.g., $A_1$ - $A_5$ in figure~\ref{fig:ng-sqrroot}, which are connected via \emph{channels}.
 
 
@@ -47,7 +152,7 @@ The network graph is composed of \emph{actor instances} of these actor classes, 
 % in Beispiel einer Aktorbeschreibung ist in den Abbildungen \ref{systemoc-actor-def} bis \ref{systemoc-bthchk-fsm} dargestellt.
 % Diese Beschreibung wird anschließend im Netzwerkgraph des InfiniBand-HCA, dargestellt in Abbildung \ref{fig:ng-sqrroot}, für die \emph{Aktorinstanz} $A_{11}$ verwendet.
 
-\begin{figure}[t]
+\begin{figure}[h]
 \centering
 %\includegraphics[scale=1]{fig:ng-sqrroot.\graphicPostfix}\\
 %\resizebox{\textwidth}{!}{\input{ng-sqrroot-fig.tex}}
@@ -58,34 +163,15 @@ These input values are transported via channel $c_1$ to the \code{SqrLoop} actor
 If the error bound is not satisfied the input value will be send to actor $A_3$ via channel $c_2$. This will eventually result in a new better approximated square root value in channel $c_5$.
 This iteration repeats until the error bound is satisfied and the approximation is forwarded via the channel $c_6$ to the \code{Sink} actor $A_5$.
 }
-%Netzwerkgraph} des InfiniBand-HCA bestehend aus \emph{Aktorinstanzen}
-%$A_{1}$ - $A_{17}$ verbunden mittels der Kanäle $c_{1}$ - $c_{29}$.
 \end{figure}
 
-%\subsection{Aufbau der Aktorbeschreibung}
-\subsection{Actor classes}
+\section{Actor classes}
 
-% Jeder \emph{Aktorbeschreibung} wird als C++-Klasse dargestellt, welch von der Basisklasse \code{smoc\_actor} abgeleitet ist.
-% Im Folgenden wird eine solche Klasse auch als \emph{Aktorklasse} bezeichnet.
-Each \emph{actor class} is represented as a C++ class, which is derived from the base class \code{smoc\_actor}, e.g., as seen in Figure~\ref{systemoc-actor-def}.
-% Die \emph{Aktorinstanzen} einer \emph{Aktorbeschreibung} werden als C++-Objekte der entsprechenden Aktorklasse instantiiert.
-Accordingly each \emph{actor instance}, in the following simply called \emph{actor}, is a C++ object of its corresponding actor class.
+Each \emph{actor class} is represented as a C++ class, which is derived from the base class \code{smoc\_actor}, e.g., as seen in the following example.
 
-%Die Aktorbeschreibung kann in drei Teilabschnitte gegliedert werden (siehe Abbildung~\ref{systemoc-actor-def}:
-Each definition of an actor class can be subdivided into three parts
-%  (i) Deklaration der \emph{Eingangs-} und \emph{Ausgangsports},
-  (i) Declaration of the actor \emph{input ports} and \emph{output ports},
-% (ii) Declaratio Definition der \emph{Klassenvariablen} und \emph{Aktionen} für die
-  (ii) Declaration of the actor \emph{functionality} and
-%  (iii) Definition of the \emph{Aufbau des den \emph{Aktivierungsregeln} entsprechenden Zustandsautomaten.
-  (iii) Declaration of the actor \emph{communication behavior}, encoded as \emph{firing FSM}.
-
-In the following these three steps will be explained in detail.
-
-\begin{figure}[p]
-\centering
+\begin{cexample}\label{ex:systemoc-sqrloop-actor-def}
+Definition of the SqrLoop actor class
 \begin{verbatim}
-// Definition of the SqrLoop actor class
 class SqrLoop
   // All actor classes must be derived
   // from the smoc_actor base class
@@ -110,50 +196,31 @@ public:
   }
 };
 \end{verbatim}
-\caption{\label{systemoc-actor-def}%
-Overview of the three main parts of an actor definition:
-(i) Declaration of the actor \emph{input ports} and \emph{output ports},
-(ii) Declaration of the actor \emph{functionality} and
-(iii) Declaration of the actor \emph{communication behavior}.
-}
-\end{figure}
+\end{cexample}
 
-%\subsubsection{Deklaration der Eingangs- und Ausgansports}
-\subsubsection{Declaration of the actor input and output ports}
+Accordingly each \emph{actor instance}, in the following simply called \emph{actor}, is a C++ object of its corresponding actor class.
+Each definition of an actor class can be subdivided into three parts
+  (i) Declaration of the actor \emph{input ports} and \emph{output ports},
+  (ii) Declaration of the actor \emph{functionality} and
+  (iii) Declaration of the actor \emph{communication behavior}, encoded as \emph{firing FSM}.
+In the following these three steps will be explained in detail.
 
-%Die Anbindung der Aktorinstanzen an den Netzwerkgraph wird über sog.\ \emph{Ports} realisiert.
-An actor must only communication with other actor via its input and output ports.
-These ports are used to connect actors to each other via the network graph, e.g., as shown in
-Figure~\ref{fig:ng-sqrroot} where actor $A_2$ is connected via its ports $i_1$, $i_2$, $o_1$ and $o_2$
+\begin{cdefinition}\label{def:actor}
+An actor is a tuple $A=(I,O,\mathcal{F},\mathcal{R})$ containing
+a set of \emph{actor input ports} $I$ and \emph{actor output ports} $O$,
+the \emph{actor functionality} $\mathcal{F}$ and the \emph{firing FSM} $\mathcal{R}$.
+\end{cdefinition}
+
+\subsection{Declaration of the actor input and output ports}
+
+An actor must only communication with other actor via its input and output ports,
+as seen in Figure~\ref{fig:ng-sqrroot} where actor $A_2$ is connected via its input ports $[i_1, i_2] = A_2.I$ and output ports $[o_1, o_2] = A_2.O$
 to all other actors in the network graph.
-%Ein Einsatz der SystemC-Klasse \code{sc\_port}
-%würde der Funktionalität die direkte Manipulation der Kanäle über die Methoden
-%\code{read} und \code{write}
-%erlauben. Dieses widerspricht aber der Philosophie der Trennung von
-%Kommunikation und Funktionalität.
-Usage of normal \code{sc\_fifo} channels with \code{sc\_fifo\_in} and \code{sc\_fifo\_out} ports
-would weaken the seperation of actor functionality and communication behavior, because the
-actor functionality could easily communicate via the provided \code{read} and \code{write} functions on
-these fifo ports.
+The port declaration must be in the \emph{public} part of the actor class to allow a top level to connect all these actors to each other.
+An example of a port declaration can be seen in the example below.
 
-%Deshalb wurden in SysteMoC eigene Templateklassen
-%\code{smoc\_port\_in} und \code{smoc\_port\_out} für die Deklaration von
-%Eingangs und Ausgansports zur Verfügung gestellt.
-%Diese Templateklassen werden mit dem Type der zu übertragenden Nachrichten parametrisiert.
-Therefore the SysteMoC library provides its own input and output ports \code{smoc\_port\_in} and \code{smoc\_port\_out}.
-These use the same concept of template parameters as standard port from SystemC, e.g., \code{sc\_fifo\_in}, to specify the token type
-communicated over these ports, e.g., \code{smoc\_port\_in$<$double$>$} to specify a port which communicates double tokens,
-an example of which can be seen in Figure~\ref{systemoc-ports-def}.
-
-%Der Abschnitt der \code{BthChk} Aktorbeschreibung
-%verantwortlich für die Deklaration der Eingangs- und Ausgansports
-%ist z.B. in Abbildung \ref{systemoc-ports-def} dargestellt.
-%In diesem Abschnitt werden ein Eingangsport \code{inMStore2BthChk} 
-%(in Abbildung \ref{fig:ng-sqrroot} als Port $i_1$) 
-%und zwei Ausgangsports (Port $o_1$ und $o_2$) \code{outBthChk2RethChk} und \code{outBthChk2AethChk} definiert. 
-
-\begin{figure}
-\centering
+\begin{cexample}\label{ex:systemoc-ports-def}%
+Port declaration for SqrLoop actor class
 \begin{verbatim}
 class SqrLoop: public smoc_actor {
 public:
@@ -163,58 +230,34 @@ public:
 private:
   ...
 };
-
 \end{verbatim}
-\caption{\label{systemoc-ports-def}%
-%Die Definitionen der Eingangs- und Ausgansports des Aktors
-%müssen sich im \code{public} Abschnitt der Aktorklasse befinden, damit
-%Sie sich später zur Verknüpfung der Aktoren verwenden lassen.
-Declarartion of actor input and output ports in an actor class.
-The ports declaration must be in the \emph{public}
-part of the actor class to allow a top level to connect
-all these actors to each other.
-Each input or output port is declared via the template class
-\code{smoc\_port\_in} respectively \code{smoc\_port\_out}.
-Which are parameterized with the token type which is communicated
-via these ports, e.g., double in case of the ports $i_1$, $i_2$, $o_1$ and $o_2$.
-%Jeder Eingangsport bzw. Ausgangsport wird mittels der Templateklasse
-%\code{smoc\_port\_in} bzw. \code{smoc\_port\_out}
-%deklariert. Diese Templateklasse wird mit dem Type der
-%zu übertragenden Daten instantiiert.
-%In der obigen Aktorbeschreibung werden ein Eingangsport
-%\code{inMStore2BthChk} und zwei Ausgangsports 
-%\code{outBthChk2RethChk} und \code{outBthChk2AethChk} definiert.
-}
-\end{figure}
+\end{cexample}
 
-%\subsubsection{Implementierung der Funktionalität}
-\subsubsection{Declaration of the actor functionality}
-%Die Funktionalität setzt sich aus \emph{Klassenvariablen}, für
-%die Speicherung des \emph{Funktionalitätszustandes}, und aus \emph{Aktionen}
-%zur Verarbeitung empfangener Nachrichten zusammen. Dies ist beispielhaft
-%in Abbildung \ref{systemoc-functionality-def} dargestellt.
-%Die Aktionen werden dabei auf \emph{Methoden} der Aktorklasse abgebildet.
-%Diese Aktionen können den Funktionalitätszustand manipulieren
-%haben, aber keinen Zugriff auf den \emph{Aktivierungszustand}.
-%Der Aktivierungszustand wird von den \emph{Aktivierungsregeln} bestimmt.
-%Die Aktionen der Funktionalität dienen als Aktionen der
-%Transitionen des Zustandsautomaten.
+Usage of normal \code{sc\_fifo} channels with \code{sc\_fifo\_in} and \code{sc\_fifo\_out} ports
+would weaken the seperation of actor functionality and communication behavior, because the
+actor functionality could easily communicate via the provided \code{read} and \code{write} functions on
+these fifo ports.
+Therefore the SysteMoC library provides its own input and output ports \code{smoc\_port\_in} and \code{smoc\_port\_out}.
+These use the same concept of template parameters as standard port from SystemC, e.g., \code{sc\_fifo\_in}, to specify the token type
+communicated over these ports, e.g., \code{smoc\_port\_in$<$double$>$} to specify a port which communicates double tokens.
+
+\subsection{Declaration of the actor functionality}
 The actor functionality is represented by member variables and member functions of the actor.
 These functions manipulate the \emph{functionality state} stored in the member variables of the actor.
 Some member functions of the actor are reference by the firing FSM
 to calculate token values to be produced on the output ports.
 These member functions are called \emph{actions}, e.g.,
-\code{store} in Figure~\ref{systemoc-functionality-def},
+\code{store} in Example~\ref{ex:systemoc-functionality-def},
 and can manipulate the functionality state.
 Other member functions are reference by the firing FSM to decide if
 transitions in the FSM are enabled an can be taken.
 These member functions are called \emph{guards}, e.g.,
-\code{check} in Figure~\ref{systemoc-functionality-def},
+\code{check} in Example~\ref{ex:systemoc-functionality-def},
 and must not manipulate the functionality state.
 Therefore these member functions are required to be declared as \emph{const member functions}.
 
-\begin{figure}
-\centering
+\begin{cexample}\label{ex:systemoc-functionality-def}%
+Declaration of actor functionality
 \begin{verbatim}
 class SqrLoop: public smoc_actor {
 public:
@@ -236,26 +279,47 @@ private:
   ...
 };
 \end{verbatim}
-\caption{\label{systemoc-functionality-def}%
-%Die Funktionalität eines Aktors wird auf mehrere
-%Aktionen aufgeteilt, z.B. der Analyse für eintreffende Daten- bzw.
-%Bestätigungspakete, und als \emph{Methoden} der
-%Aktorklasse implementiert, z.B. für die obig abgebildeten \code{BthChk}-Aktorklasse
-%die Methoden  \code{analyseDataPacket} und \code{analyseAckPacket}.
-%Diese Methoden können im Gegensatz zu den Guard-Funktionen den
-%Funktionalitätszustand des Aktors manipulieren.
-The \emph{functionality state} of an actor is stored in its member variables and
-the \emph{actor functionality} is distributed over its \emph{member functions}.
-These member function can be divided into \emph{actions}, \emph{guards} and \emph{helper functions}.
-The actions of an actor are used to calculate token values to be procduced on its output ports.
-These functions can manipulate the functionality state.
-Whereas the \emph{guards} are only used to decide if a transition in the firing FSM is enabled. 
-These functions must not manipulate the functionality state.
-Both actions and guards can use helper functions to accomplish their purpose.
-}
-\end{figure}
+\end{cexample}
 
-\subsubsection{Declaration of the communication behavior}
+%The \emph{functionality state} of an actor is stored in its member variables and
+%the \emph{actor functionality} is distributed over its \emph{member functions}.
+%These member function can be divided into \emph{actions}, \emph{guards} and \emph{helper functions}.
+%The actions of an actor are used to calculate token values to be procduced on its output ports.
+%These functions can manipulate the functionality state.
+%Whereas the \emph{guards} are only used to decide if a transition in the firing FSM is enabled. 
+%These functions must not manipulate the functionality state.
+%Both actions and guards can use helper functions to accomplish their purpose.
+
+\begin{cdefinition}\label{def:actor-functionality}
+  The \emph{actor functionality} of an actor $A$ is a tuple $A.\mathcal{F} = (F,Q_\mathrm{func},q_{_0\mathrm{func}})$ containing
+  a set of \emph{functions} $F = F_\mathrm{action} \cup F_\mathrm{guard}$ partitioned into \emph{actions} and \emph{guards},
+  a set of \emph{functionality states} $Q_\mathrm{func}$ (possibly infinite), and
+  an \emph{initial functionality state} $q_{_0\mathrm{func}} \in Q_\mathrm{func}$.
+  The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|A.I|}} \in V^*$ on the $A.I$ actor intput ports into sequences of token values $\mathbf{v}_{o_1},\mathbf{v}_{o_2},\ldots,\mathbf{v}_{o_{|A.O|}} \in V^*$ on the $A.O$ actor output ports additionally modifying the functionality state, i.e.,  $f_\mathrm{action} \subset (V^*)^{|A.I|} \times Q_\mathrm{func} \to (V^*)^{|A.O|} \times Q_\mathrm{func}$.
+  Whereas for each action $f_\mathrm{action}$ and each actor port $p \in A.I \cup A.O$ the number of values $N$ in the sequence $\mathbf{v}_p \in V^N$ is fixed.
+% $\mathbf{v}_1,\mathbf{v}_2,\ldots,\mathbf{v}_{|A.I|} \in V^*$ $\mathbf{w}_1,\mathbf{w}_2,\ldots,\mathbf{w}_{|A.O|} \in V^*$
+  
+% The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map action dependant number $N$ of input values $v_1,v_2,\ldots,v_N \in V^*$ and the current functionality state $q_\mathrm{current} \in Q_\mathrm{func}$ to an action dependant number $M$ of output values $(w_1,w_2,\ldots,w_M) = \mathbf{w} \in V^M$ and the next functionality state $q_\mathrm{next} \in Q_\mathrm{func}$, i.e.,  $f_\mathrm{action}: V^N \times Q_\mathrm{func} \to V^M \times Q_\mathrm{func}$.
+  The guards $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality map a guard dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_{i} \in Q_\mathrm{func}$ to a boolean value, i.e.,  $f_\mathrm{guard}: V^N \times Q_\mathrm{func} \to \{\mathrm{true},\mathrm{false}\}$.
+\end{cdefinition}
+
+The input values for the actor functionality are provided by the firing FSM, which retrieves input values from the tokens in the FIFOs connected to the actor input ports.
+Output values from actions $f_\mathrm{action}$ are used by the firing FSM to generate tokens for the FIFOs connected to the actor output ports.
+
+For example, the mathematical representation of Example~\ref{ex:systemoc-functionality-def} is as follows:
+\begin{eqnarray*}
+F_\mathrm{action}   & = & \{f_\mathtt{store}, f_\mathtt{copy1}, f_\mathtt{copy2}\} \\
+F_\mathrm{guard}    & = & \{f_\mathtt{check}\} \\
+Q_\mathrm{func}     & = & \mathbb{R} \\
+q_{_0\mathrm{func}} & = & 0 \\
+f_\mathtt{store}    & : & 
+\end{eqnarray*}
+
+\subsection{Declaration of the communication behavior}
+
+The communication behavior of an actor is encoded as a \emph{finite state machine}.
+
+
 
   (iii) Construction of the \emph{firing state machine} of the actor.
 Aktivierungsregeln, kodiert als endlicher Zustandsautomat,
@@ -270,70 +334,52 @@ ist in Abbildung \ref{systemoc-fsm-bnf} und \ref{systemoc-fsm-bnf-2} dargestellt
 Beispiel, der Aufbau des Zustandsautomaten für den \code{BthChk}-Aktor (Abbildung \ref{systemoc-bthchk-fsm})
 lässt sich in Abbildung \ref{fig:firing-rules-bthchk} betrachten.
 
-\begin{figure}
-\centering
+\begin{cexample} Declaration of communication behavior
 \begin{verbatim}
 class SqrLoop: public smoc_actor {
   ...
-  // action functions triggered by the
-  // FSM declared in the constructor
-  void store();
-  void copy1();
-  void copy2();
-  // guard  functions used by the
-  // FSM declared in the constructor
-  bool check();
-  ...
   // Declaration of states for the firing FSM
-  smoc_firing_state start;
-  smoc_firing_state loop;
+  smoc_firing_state start, loop;
 public:
   // Constructor responsible for declaring the
   // firing FSM and initializing the actor
   SqrLoop(sc_module_name name)
-    : smoc_actor( name, start ) {
+    : smoc_actor( name, start /* start state of firing FSM */ ) {
+    // Declaration of start state consisting of one transition t1
     start =
+      // transition t1
+        // with input guard requiring at lest one token in the FIFO
+        // connected to input port i1
         i1(1)                               >>
+        // has action SqrLoop::store and next state loop
         CALL(SqrLoop::store)                >> loop
       ;
+    // Declaration of loop state consisting of two transition t2 t3
     loop  =
+      // transition t2
+        // with input guard requiring at lest one token in the FIFO
+        // connected to input port i2 and that guard SqrLoop::check be true
         (i2(1) &&  GUARD(SqrLoop::check))   >>
+        // with output guard requiring at lest one free space in the FIFOs
+        // connected to output ports o1 and o2
         (o1(1) && o2(1))                    >>
+        // has action SqrLoop::copy2 and next state start
         CALL(SqrLoop::copy2)                >> start
+      // transition t3
+        // with input guard requiring at lest one token in the FIFO
+        // connected to input port i2 and that guard SqrLoop::check be false
       | (i2(1) && !GUARD(SqrLoop::check))   >>
+        // with output guard requiring at lest one free space in the FIFO
+        // connected to output port o1
         o1(1)                               >>
+        // has action SqrLoop::copy1 and next state loop
         CALL(SqrLoop::copy1)                >> loop
       ;
   }
 };
 \end{verbatim}
-%  BthChk(sc_module_name name)
-%    : smoc_actor(name, start /* Startzustand der Aktivierungsregeln */ ) {
-%    // Deklaration des Aktivierungszustandes 'start' mit
-%    // zwei Transitionenn t1 und t2.
-%    start =
-%      // Transition t1 von 'start' nach 'start'
-%         // Eingangsbedingung (InputGuard)
-%         (inMStore2BthChk.getAvailableTokens() >=
-%            (1 + MAX_STORED_HEADER_SIZE/tt_raw_dword::DWORD_SIZE)
-%          && isType<tt_llc_info>(inMStore2BthChk.getValueAt(0))
-%          && guard(&BthChk::isDataPacket))
-%      >> // Ausgangsbedingung (OutputGuard)
-%         (outBthChk2RethChk.getAvailableSpace() >= 2)
-%      >> CALL(BthChk::analyseDataPacket) // Aktion
-%      >> start // Folgezustand der Transition t1
-%      // Transition t2 von 'start' nach 'start'
-%    |    // Eingangsbedingung (InputGuard)
-%         (inMStore2BthChk.getAvailableTokens() >=
-%            (1 + MAX_STORED_HEADER_SIZE/tt_raw_dword::DWORD_SIZE)
-%          && isType<tt_llc_info>(inMStore2BthChk.getValueAt(0))
-%          && !guard(&BthChk::isDataPacket))
-%      >> // Ausgangsbedingung (OutputGuard)
-%         (outBthChk2AethChk.getAvailableSpace() >= 2)
-%      >> CALL(BthChk::analyseAckPacket)  // Aktion
-%      >> start // Folgezustand der Transition t2
-%    ;
-\caption{\label{systemoc-bthchk-fsm}%
+\end{cexample}
+
 Die Aktivierungsregeln werden als endliche Zustandsautomaten implementiert,
 welche im Konstruktor der Aktorklasse aufgebaut werden.
 Die Aktivierungszustände werden als Instanzen der \code{smoc\_firing\_state} Klasse deklariert,
@@ -344,8 +390,6 @@ Der obig definierte Zustandsautomat,
 auch graphisch dargestellt in Abbildung \ref{fig:firing-rules-bthchk},
 besteht aus einem Zustand \code{start} und zwei Selbstschleifen,
 den Transitionen $\mathbf{t_1}$ und $\mathbf{t_2}$.
-}
-\end{figure}
 
 \begin{figure}[t]
 \centering
@@ -363,6 +407,109 @@ werden als Abkürzung für
 \code{o1.getAvailableSpace() >= m} eingesetzt.
 }
 \end{figure}
+
+\begin{cdefinition}\label{def:firing-fsm}
+  The \emph{firing FSM} of an actor $A$ is a tuple $A.\mathcal{R} = (\mathcal{T}, Q_\mathrm{firing}, q_{_0\mathrm{firing}})$ containing
+  a set of \emph{firing transitions} $\mathcal{T} \subseteq Q_\mathrm{firing} \times \mathcal{K} \times A.\mathcal{F}.F_\mathrm{action} \times Q_\mathrm{firing}$,
+  a set of \emph{firing states} $Q_\mathrm{firing}$, and
+  an \emph{initial firing state} $q_{_0\mathrm{firing}}$.
+  Where $k \in \mathcal{K}$ is called an \emph{activation pattern}, which is a function from
+  the \emph{input alphabet} $\chi = (V^{**})^{|A.I|} \times \mathbb{Z}^{|A.O|}$ and the \emph{functionality state}
+  $A.\mathcal{F}.Q_\mathrm{func}$ to the trinary boolean set $\{\bot, \mathrm{true}, \mathrm{false}\}$, i.e.,
+  $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
+  The activation pattern decides if a transition $\mathbf{t} \in \mathcal{T}$ can be taken $k(x, q_\mathrm{func}) = \mathrm{true}$,
+  can not be taken $k(x, q_\mathrm{func}) = \mathrm{false}$, or more input values are still neccessary to decide $k(x, q_\mathrm{func}) = \bot$.
+
+%  a \emph{firing transition function} $\delta: Q \to 2^\mathcal{T}$
+%  which maps each state $q \in Q$ to the set of transitions
+%  $\mathcal{T}_q = \delta(q)$.
+\end{cdefinition}
+
+An actor is \emph{blocked} in state $q$ until at least one firing transition
+$\mathbf{t} \in \mathcal{T}_q$ is enabled, as discussed below. The set of enabled transitions is
+given by $\mathcal{T}'_q = \{ \mathbf{t} \mid \mathbf{t} \in \mathcal{T}_q \wedge \mathbf{t} \textrm{ is enabled}\}$.
+Exactly one transition $t \in \mathcal{T}'_q$ will be chosen nondeterministically
+for execution. For example, if both transitions $\{\mathbf{t}_1, \mathbf{t}_2\} = \delta(S_{start})$
+in the firing FSM shown in Figure~\ref{fig:firing-rules-print} of the Print Actor $A_6$ from Figure~\ref{fig:ng-moc}
+are enabled, one of them is executed nondeterministically.
+
+\begin{cdefinition}\label{firing-transition}
+  A \emph{firing transition} is a tuple $\mathbf{t} = (k,J)$ containing
+  an \emph{activation pattern} $k$ and an \emph{interface action} $J$.
+\end{cdefinition}
+
+A transition $\mathbf{t} = (k,J)$ is enabled if its \emph{activation pattern} $k$
+is enabled. If a transition $\mathbf{t}$ is enabled and 
+part of the transitions $\mathcal{T}_q$ which leave the current state $q$
+the transition $\mathbf{t}$ can be executed, i.e.,
+$(k,J) = \mathbf{t} \in \mathcal{T}_q \wedge k\textrm{ is enabled} \implies \mathbf{t}\textrm{ can be executed}$.
+If a transition $\mathbf{t} = (k,J)$ is executed, the associated
+activation pattern $k$ and the \emph{interface action} $J$ are executed consecutively.
+The execution of the activation pattern is responsible for the
+actor communication via the actor ports. The execution of the
+interface action leads to function calls in the node functionality.
+
+\begin{cdefinition}\label{activation-pattern}
+  An \emph{activation pattern} is a function
+  $k: A.I \cup A.O \to \mathbb{Z}^+_0,\ k \in \mathcal{K}$
+  which maps each actor port of the actor $A$ to a nonnegative integer.
+\end{cdefinition}
+
+An activation pattern is a predicate on actor ports. It encodes the number of
+tokens to be sent (via actor output ports) or to be received (via actor input ports)
+when the activation pattern is executed.
+For example, the activation pattern $k$ of the transition $\mathbf{t}_4$
+in Figure~\ref{fig:firing-rules-divide} is
+expressed as $k(i_1) = k(i_2) = 1$ and $k(o_1) = 0$.
+However, the specification of an activation pattern by its function
+poses a great overhead. Therefore, we will use the shorthand
+$k = i_1(1) \& i_2(1)$ to express the same information.
+
+An activation pattern $k$ is enabled if for each actor input port
+$p_I \in A.I$ at least $k(p_I)$ tokens can be received and for each
+actor output port $p_O \in A.O$ at least $k(p_O)$ tokens can be sent.
+If an activation pattern $k$ is executed it receives $k(p_I)$ tokens
+via the actor input port $p_I$ and stores them in
+temporary buffers in these actor input ports. For actor output ports
+$p_O$, $k(p_O)$ tokens in temporary buffers of the actor
+output ports are sent via these ports. These temporary buffers are
+used to provide the input and output values for the node functionality.
+
+\begin{cdefinition}\label{interface-action}
+  An \emph{interface action} is a tuple $J = (f,Q_\mathrm{succ}),\ J \in \mathcal{J}$ containing
+  a function $f \in A.\mathcal{F}.F$ of the node functionality $A.\mathcal{F}$
+  and a set of possible successor states $Q_\mathrm{succ}$. Where the set of
+  possible successor states must contain at least one element, i.e.,
+  $|Q_\mathrm{succ}| \ge 1$.
+\end{cdefinition}
+
+A transition $\mathbf{t} = (k,J)$ is called a \emph{deterministic transition}
+if the associated interface action $J$ has only one successor state, i.e.,
+$|J.Q_\mathrm{succ}| = 1$. A transition $\mathbf{t} = (k,J)$ is called a
+\emph{conflict transition} if the associated interface action $J$ has more
+then one possible successor state, i.e., $|J.Q_\mathrm{succ}| > 1$.
+For example the transition $\mathbf{t}_4 = (k,J)$
+in Figure~\ref{fig:firing-rules-divide} with $k = i_1(1) \& i_2(1)$,
+$J.f = \mathrm{divide}$, and $J.Q_\mathrm{succ} = \{S_2\}$ is deterministic.
+But the transition $\mathbf{t}_3 = (k,J)$ from firing state $S_{\mathrm{start}}$
+to $S_\mathrm{ok}$ or $S_\mathrm{again}$
+in Figure~\ref{fig:firing-rules-sqrloop} with $k = i_1(1) \& i_2(1)$,
+$J.f = \mathrm{check}$, and $J.Q_\mathrm{succ} = \{S_\mathrm{ok}, S_\mathrm{again}\}$
+is conflicting.
+
+% An example of a
+% conflict transition can be seen in Figure~\ref{fig:conflict-transition}.
+
+The notion of a firing FSM is similar to the concepts introduced in
+SPI~\cite{ZERTT99a} and FunState~\cite{STZETG00}.
+If a transition $\mathbf{t} = (k,J)$ is executed, the associated
+activation pattern $k$ and the function $J.f$ of the node functionality
+are executed consecutively. In case of a deterministic transition, the current firing
+state is updated to the only successor state $q_\mathrm{succ} \in J.Q_\mathrm{succ}$.
+In case of a conflict transition, the successor state actually used is
+a runtime decision of the function $J.f$.
+
+
 
 \begin{figure}
 \centering
@@ -461,7 +608,7 @@ da sie den Funktionalitätszustand nicht verändern dürfen.
 }
 \end{figure}
 
-\subsection{Netzwerkgraph}
+\section{Netzwerkgraph}
 
 Der Netzwerkgraph wird in einer von \code{smoc\_graph} abgeleiteten Klasse,
 im Folgenden als \emph{Graphenklasse} bezeichnet, zusammengesetzt.

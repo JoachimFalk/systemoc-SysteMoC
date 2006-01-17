@@ -19,6 +19,7 @@
 %\newcommand{\SysteMoC}{{\bf SysteMoC}}
 %\newcommand{\SysteMoCV}{\emph{SysteMoC 1.0}}
 %\newcommand{\SysteMoCV}{\SysteMoC{} {\bf 1.0}}
+\newcommand{\implies}{\Longrightarrow}
 
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
@@ -37,6 +38,22 @@
 
 \renewcommand*\chaptermarkformat{\thechapter. \quad}
 \renewcommand*\chapterformat{\thechapter. \ }
+
+\theoremheaderfont{\normalfont\sffamily\bfseries}
+{\theorembodyfont{\normalfont\itshape}
+  \newtheorem{cdefinition}{Definition}[chapter]
+  \newtheorem{sdefinition}{Definition}[section]
+  \newtheorem{ssdefinition}{Definition}[subsection]
+  \newtheorem{cproof}{Proof}[chapter]
+  \newtheorem{sproof}{Proof}[section]
+  \newtheorem{ssproof}{Proof}[subsection]
+}
+
+{\theorembodyfont{\normalfont}
+  \newtheorem{cexample}{Example}[chapter]
+  \newtheorem{sexample}{Example}[section]
+  \newtheorem{ssexample}{Example}[subsection]
+}
 
 %\def\hyph{\penalty0\hskip0pt\relax}
 
