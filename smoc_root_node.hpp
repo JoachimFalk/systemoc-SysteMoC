@@ -36,12 +36,21 @@ class smoc_opbase_node {
 public:
   typedef smoc_opbase_node this_type;
 protected:
+  /*
   template <typename T>
   smoc_func_call call(
       void (T::*f)(),
       const char *name = NULL ) {
     return smoc_func_call(this, f, name);
   }
+  */
+  template <typename F>
+  smoc_accumulate_param<smoc_member_func<void, F>, typename smoc_member_func<void, F>::missing_type>
+  call(const F &f, const char *name = NULL) {
+    return smoc_accumulate_param<smoc_member_func<void, F>, typename smoc_member_func<void, F>::missing_type>
+      (smoc_member_func<void, F>(this, f, name ? name : "") );
+  }
+  
   template <typename T, class X>
   typename Expr::MemGuard<T,X>::type guard(
       T (X::*m)() const,

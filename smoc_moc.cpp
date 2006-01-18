@@ -68,7 +68,7 @@ const smoc_firing_state &smoc_scheduler_ndf::schedule() {
           iter != l.end();
           ++iter ) {
       tl |= smoc_activation_pattern(Expr::vguard(*iter), true) >>
-              diverge(&smoc_scheduler_ndf::schedule);
+	      smoc_interface_action(smoc_func_diverge(this,&smoc_scheduler_ndf::schedule));
     }
     s = tl;
   }
@@ -82,7 +82,7 @@ const smoc_firing_state &smoc_scheduler_ndf::schedule() {
 
 smoc_scheduler_ndf::smoc_scheduler_ndf( cset_ty *c )
   : smoc_root_node( smoc_activation_pattern(Expr::literal(true), true) >>
-                    diverge(&smoc_scheduler_ndf::schedule) ),
+		    smoc_interface_action(smoc_func_diverge(this,&smoc_scheduler_ndf::schedule))),
   c(c) {
 #ifdef SYSTEMOC_DEBUG
   std::cout << "smoc_scheduler_ndf" << std::endl;
