@@ -1,110 +1,5 @@
 %\chapter {SysteMoC V2.0 Aktorbibliothek\label{cha:systemoc}}
 
-\chapter{Mathdefs}
-% Before we can review the tagged signal model some mathematical notations are needed.
-
-Let $\{x_1,x_2\}$ denote a set and $[y_1,y_2,y_3,\ldots]$ denote a set
-with total order $y_1 \le y_2 \le y_3 \le \ldots$, e.g., $\{x_1,x_2\} = \{x_2,x_1\}$ but
-$[y_1,y_2] \ne [y_2,y_1]$ and $\{x_1,x_1\} = \{x_1\}$ but $[ y_1, y_2, y_1, y_3]$
-is a \emph{illformed totally ordered set because} it does not define a total order,
-as $y_1 \le y_2 \wedge y_2 \le y_1$ but $y_1 \ne y_2$.
-
-Let $\mathbb{Z} = [\ldots,-2,-1,0,1,2,\ldots]$ denote the set of integers,
-$\mathbb{N} = [1,2,3,\ldots]$ the set of natural numbers,
-$\mathbb{N}^\infty = [1,2,3,\ldots\infty]$ the set of natural numbers including infinity,
-%$\mathbb{Z}^- = [\ldots,-3,-2,-1]$ the set of negative integers,
-$\mathbb{Z}^+_0 = [0,1,2,3,\ldots]$ the set of nonnegative integers,
-$\mathbb{Z}^{+\infty}_0 = [0,1,2,3,\ldots\infty]$ the set of nonnegative integers including infinity,
-%$\mathbb{Z}^-_0 = [\ldots,-3,-2,-1,0]$ the set of nonpositive integers,
-and $\mathbb{N}_n = [1,2,3,\ldots,n] \subseteq \mathbb{N}^\infty$ the counting set from one to $n$
-(Note that $\mathbb{N}_0 = \emptyset$).
-
-A totally ordered set $X$ is called \emph{two-sided discrete}
-if it is \emph{order isomorphic} to a subset of the integers $Z_X \subseteq \mathbb{Z}$,
-%and let $\Sigma(X): Z_X \to X$ denote this order isomorphism,
-i.e., $\exists{\Sigma(X): Z_X \to X, \Sigma(X)\textrm{ is a \emph{bijection}}}:
- \forall{i,j \in Z_X}: i \le j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
-Intuitively this means, any two elements
-$x_1, x_2 \in X$ have only a finite number of other elements between them.
-
-A totally ordered set $X$ is called \emph{one-sided discrete} or \emph{discrete}
-if it is \emph{order isomorphic} to a subset of the natural numbers $\mathbb{N}_{|X|}$
-and let $\Sigma(X): \mathbb{N}_{|X|} \to X$ denote this order isomorphism,
-i.e., $\exists{\Sigma(X): \mathbb{N}_{|X|} \to X, \Sigma(X)\textrm{ is a \emph{bijection}}}:
- \forall{i,j \in \mathbb{N}_{|X|}}: i \le j \iff \Sigma(X)(i) \le \Sigma(X)(j)$.
-Intuitively this means,
-any two elements $x_1, x_2 \in X$ have only a finite number of other elements
-between them and there exists a least element $x_{least}, \forall{x \in X}: x_{least} \le x$.
-For example, given the discrete set $X = ['A', 'B', 'C']$ then
-$\Sigma(X)(1) = 'A'$,  $\Sigma(X)(2) = 'B'$, and $\Sigma(X)(3) = 'C'$.
-
-Let $X^* = \bigcup_{N \in \mathbb{Z}^+_0} X^N$ denote the set of all
-\emph{tuples} of $X$ also called \emph{finite sequences} of $X$ and
-$X^{**} = \bigcup_{N \in \mathbb{Z}^{+\infty}_0} X^N$ denote the set of all
-finite and infinite \emph{sequences} of $X$. A sequence
-$\mathbf{x} = (x_1,x_2,\ldots,x_n) \in X^n, n \in \mathbb{Z}^{+\infty}_0$
-can also be thought of as a function $\mathbf{x} : \mathbb{N}_n \to X$.
-For example, given the sequence $X = ('A', 'B', 'A', 'C')$ then
-$X(1) = 'A'$,  $X(2) = 'B'$, $X(3) = 'A'$, and $X(4) = 'C'$.
-Note that a function is also a relation and a relation is also a set, e.g
-$\mathbf{x} : \mathbb{N}_n \to X \equiv \{ (i,x_i) \mid x_i = \mathbf{x}(i), i \in \mathbb{N}_n \}$.
-Note also that the $\Sigma$ function converts a discrete set to a sequence,
-e.g., $\Sigma([1,2,3]) = (1,2,3)$.
-
-A set with an associated partial order is called a
-\emph{poset}. Let $\sqsubseteq$ called \emph{prefix order} denote the
-associated partial order on the set $V^{**}$ of all finite and infinite sequences of $V$.
-And let $\mathbf{v}_1 \sqsubseteq \mathbf{v}_2$ denote that
-$\mathbf{v}_1$ is a prefix of the sequence $\mathbf{v}_2$, i.e.,
-$\mathbf{v}_1 \sqsubseteq \mathbf{v}_2 \iff \forall{n \in T(\mathbf{v}_1)}: \mathbf{v}_1(n) = \mathbf{v}_2(n)$.
-
-An \emph{upper bound} of a subset $X \subseteq V^{**}$ is an element
-$\mathbf{v} \in V^{**}$ where every sequence $\mathbf{x}$ in $X$ is a
-prefix of $\mathbf{v}$, i.e., $\forall{\mathbf{x} \in X}: \mathbf{x} \sqsubseteq \mathbf{v}$.
-A \emph{least upper bound} of a subset $X \subseteq V^{**}$, written $\sqcup X$,
-is an upper bound which is a prefix of every other upper bound of $X$.
-A \emph{lower bound} and \emph{greatest lower bound} of $X \subseteq V^{**}$,
-written $\sqcap X$, are defined respectively.
-
-A \emph{chain} in a poset $X$ is a totally ordered subset of $X$. A
-\emph{bottom element} of a poset $X$, if it exists, is an element of the
-poset which is also a greatest lower bound of the whole poset $\sqcap X \in X$.
-A \emph{complete partial order} is a poset $X$ with a bottom element
-in which every chain $Y \subseteq X$ has a least upper bound
-$\sqcup Y$. The set $V^{**}$ of all finite and infinite sequences of $V$
-is a complete partial order with bottom element $\lambda$, the
-empty sequence.
-
-This definitions can be trivially generalized to tupples of sequences
-$\upsilon \in (V^{**})^N$, i.e., $\upsilon_1 \sqsubseteq \upsilon_2 \iff
-\forall{n \in \mathbb{N}_N}: \upsilon_1(n) \sqsubseteq \upsilon_2(n)$.
-With this generalization the set $(V^{**})^N$ of all $N$-tupples of finite and
-infinite sequences of $V$ is also a complete partial order with
-bottom element $\Lambda = (\lambda, \lambda, \ldots, \lambda)$, the $N$-tupple
-of empty sequences $\lambda$.
-
-A function $F: (V^{**})^N \to (V^{**})^M$ is \emph{monotonic} if
-adding additional elements to the input sequence tupple $\upsilon_{in} \in (V^{**})^N$
-results in additional elements on the output sequence tupple
-$\upsilon_{out} = F(\upsilon_{in}) \in (V^{**})^M$,i.e.,
-$\forall{\upsilon_{in_1}, \upsilon_{in_2} \in (V^{**})^N}:
-\upsilon_{in_1} \sqsubseteq \upsilon_{in_2} \implies F(\upsilon_{in_1}) \sqsubseteq F(\upsilon_{in_2})$.
-This can be considered as a untimed notion of causality
-where the additional elements to the input sequence correspond
-to input tokens and the additional elements on the output sequence
-are the tokens produced from the consumption of these input tokens.
-
-A function $F: (V^{**})^N \to (V^{**})^M$ is \emph{continuous} if
-for every chain $Y$ in $(V^{**})^N$, $F(Y)$ has a least upper bound
-$\sqcup F(Y)$ which is equal to the function $F$ applied to the
-upper bound $\sqcup Y$ of the chain $Y$,
-i.e., $\forall{Y \subseteq (V^{**})^N, Y\textrm{ is a chain}}: F(\sqcup Y) = \sqcup F(Y)$.
-Where $F : 2^{\left( (V^{**})^N \right)} \to 2^{\left( (V^{**})^M \right)}$
-is the pointwise extension of $F : (V^{**})^N \to (V^{**})^M$, i.e.,
-$F(Y) = \{ F(\upsilon) \mid \upsilon \in Y\}$. Note that
-every continuous function is also monotonic but the reverse
-is not necessarily true.
-
 \chapter{SysteMoC-Idee}
 
 Nahezu alle Anwendungen lassen sich auf Basis sog. \emph{Berechnungsmodelle} beschrieben \cite{ells:1997,ls:1998}. 
@@ -169,7 +64,7 @@ This iteration repeats until the error bound is satisfied and the approximation 
 
 Each \emph{actor class} is represented as a C++ class, which is derived from the base class \code{smoc\_actor}, e.g., as seen in the following example.
 
-\begin{cexample}\label{ex:systemoc-sqrloop-actor-def}
+\begin{cexample}\label{ex:systemoc-sqrloop-actor-def}%
 Definition of the SqrLoop actor class
 \begin{verbatim}
 class SqrLoop
@@ -210,6 +105,8 @@ An actor is a tuple $A=(I,O,\mathcal{F},\mathcal{R})$ containing
 a set of \emph{actor input ports} $I$ and \emph{actor output ports} $O$,
 the \emph{actor functionality} $\mathcal{F}$ and the \emph{firing FSM} $\mathcal{R}$.
 \end{cdefinition}
+
+An actor $A$ can be thought of as a relation $\mathbb{A}$ which maps sequences of token values $V^{**}$ on its input ports $A.I$ into sequences of token values on its output ports $A.O$, i.e., $\mathbb{A} \subseteq (V^{**})^{|A.I|} \times (V^{**})^{|A.O|}$.
 
 \subsection{Declaration of the actor input and output ports}
 
@@ -295,11 +192,9 @@ private:
   a set of \emph{functions} $F = F_\mathrm{action} \cup F_\mathrm{guard}$ partitioned into \emph{actions} and \emph{guards},
   a set of \emph{functionality states} $Q_\mathrm{func}$ (possibly infinite), and
   an \emph{initial functionality state} $q_{_0\mathrm{func}} \in Q_\mathrm{func}$.
-  The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|A.I|}} \in V^*$ on the $A.I$ actor intput ports into sequences of token values $\mathbf{v}_{o_1},\mathbf{v}_{o_2},\ldots,\mathbf{v}_{o_{|A.O|}} \in V^*$ on the $A.O$ actor output ports additionally modifying the functionality state, i.e.,  $f_\mathrm{action} \subset (V^*)^{|A.I|} \times Q_\mathrm{func} \to (V^*)^{|A.O|} \times Q_\mathrm{func}$.
-  Whereas for each action $f_\mathrm{action}$ and each actor port $p \in A.I \cup A.O$ the number of values $N$ in the sequence $\mathbf{v}_p \in V^N$ is fixed.
-% $\mathbf{v}_1,\mathbf{v}_2,\ldots,\mathbf{v}_{|A.I|} \in V^*$ $\mathbf{w}_1,\mathbf{w}_2,\ldots,\mathbf{w}_{|A.O|} \in V^*$
-  
-% The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map action dependant number $N$ of input values $v_1,v_2,\ldots,v_N \in V^*$ and the current functionality state $q_\mathrm{current} \in Q_\mathrm{func}$ to an action dependant number $M$ of output values $(w_1,w_2,\ldots,w_M) = \mathbf{w} \in V^M$ and the next functionality state $q_\mathrm{next} \in Q_\mathrm{func}$, i.e.,  $f_\mathrm{action}: V^N \times Q_\mathrm{func} \to V^M \times Q_\mathrm{func}$.
+  % The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|A.I|}} \in V^*$ on the $A.I$ actor intput ports into sequences of token values $\mathbf{v}_{o_1},\mathbf{v}_{o_2},\ldots,\mathbf{v}_{o_{|A.O|}} \in V^*$ on the $A.O$ actor output ports additionally modifying the functionality state, i.e.,  $f_\mathrm{action} \subset (V^*)^{|A.I|} \times Q_\mathrm{func} \to (V^*)^{|A.O|} \times Q_\mathrm{func}$.
+  % Whereas for each action $f_\mathrm{action}$ and each actor port $p \in A.I \cup A.O$ the number of values $N$ in the sequence $\mathbf{v}_p \in V^N$ is fixed.
+  The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map action dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_\mathrm{current} \in Q_\mathrm{func}$ to an action dependant number $M$ of output values $(w_1,w_2,\ldots,w_M) = \mathbf{w} \in V^M$ and the next functionality state $q_\mathrm{next} \in Q_\mathrm{func}$, i.e.,  $f_\mathrm{action}: V^N \times Q_\mathrm{func} \to V^M \times Q_\mathrm{func}$.
   The guards $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality map a guard dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_{i} \in Q_\mathrm{func}$ to a boolean value, i.e.,  $f_\mathrm{guard}: V^N \times Q_\mathrm{func} \to \{\mathrm{true},\mathrm{false}\}$.
 \end{cdefinition}
 
@@ -311,8 +206,8 @@ For example, the mathematical representation of Example~\ref{ex:systemoc-functio
 F_\mathrm{action}   & = & \{f_\mathtt{store}, f_\mathtt{copy1}, f_\mathtt{copy2}\} \\
 F_\mathrm{guard}    & = & \{f_\mathtt{check}\} \\
 Q_\mathrm{func}     & = & \mathbb{R} \\
-q_{_0\mathrm{func}} & = & 0 \\
-f_\mathtt{store}    & : & 
+q_{_0\mathrm{func}} & = & 0% \\
+%f_\mathtt{store}    & : & 
 \end{eqnarray*}
 
 \subsection{Declaration of the communication behavior}
@@ -332,9 +227,10 @@ die Anzahl freier Plätze in einem Kanal sowie weiteren
 Ausdrücken (z.B.\ über Datenwerte) zusammen. Die Backus-Naur-Form (\emph{BNF}) für den Aufbau des Zustandsautomaten
 ist in Abbildung \ref{systemoc-fsm-bnf} und \ref{systemoc-fsm-bnf-2} dargestellt. Ein konkretes
 Beispiel, der Aufbau des Zustandsautomaten für den \code{BthChk}-Aktor (Abbildung \ref{systemoc-bthchk-fsm})
-lässt sich in Abbildung \ref{fig:firing-rules-bthchk} betrachten.
+lässt sich in Abbildung \ref{fig:firing-rules-sqrloop} betrachten.
 
-\begin{cexample} Declaration of communication behavior
+\begin{cexample}\label{ex:systemoc-sqrloop-fsm-def}%
+Declaration of communication behavior
 \begin{verbatim}
 class SqrLoop: public smoc_actor {
   ...
@@ -387,16 +283,16 @@ z.B. im obigen Quellcode der \code{start}-Aktivierungszustand.
 Von den deklarierten Aktivierungszuständen wird einer als
 Startzustand selektiert, indem er an die Basisklasse \code{smoc\_actor} übergeben wird.
 Der obig definierte Zustandsautomat,
-auch graphisch dargestellt in Abbildung \ref{fig:firing-rules-bthchk},
+auch graphisch dargestellt in Abbildung \ref{fig:firing-rules-sqrloop},
 besteht aus einem Zustand \code{start} und zwei Selbstschleifen,
 den Transitionen $\mathbf{t_1}$ und $\mathbf{t_2}$.
 
-\begin{figure}[t]
+\begin{figure}[h]
 \centering
-\scalebox{1}[1]{\input{firing-rules-bthchk-fig.tex}}
-\caption{\label{fig:firing-rules-bthchk}%
-Aktivierungsregeln des \code{BthChk}-Aktors aus
-Abbildung \ref{systemoc-bthchk-fsm} in graphischer Form dargestellt.
+\scalebox{1}[1]{\input{firing-rules-sqrloop-fig.tex}}
+\caption{\label{fig:firing-rules-sqrloop}%
+Visual representation of the \emph{firing FSM} of the \code{SqrLoop} actor from
+Example~\ref{ex:systemoc-sqrloop-fsm-def}.
 Der Eingangsport \code{inMStore2BthChk} ist hier als $i_1$,
 wie in Abbildung \ref{fig:ng-sqrroot} verwendet,
 die beiden Ausgangsports \code{outBthChk2RethChk} und \code{outBthChk2AethChk}
@@ -411,103 +307,114 @@ werden als Abkürzung für
 \begin{cdefinition}\label{def:firing-fsm}
   The \emph{firing FSM} of an actor $A$ is a tuple $A.\mathcal{R} = (\mathcal{T}, Q_\mathrm{firing}, q_{_0\mathrm{firing}})$ containing
   a set of \emph{firing transitions} $\mathcal{T} \subseteq Q_\mathrm{firing} \times \mathcal{K} \times A.\mathcal{F}.F_\mathrm{action} \times Q_\mathrm{firing}$,
-  a set of \emph{firing states} $Q_\mathrm{firing}$, and
+  a set of \emph{firing states} $Q_\mathrm{firing}$ and
   an \emph{initial firing state} $q_{_0\mathrm{firing}}$.
-  Where $k \in \mathcal{K}$ is called an \emph{activation pattern}, which is a function from
-  the \emph{input alphabet} $\chi = (V^{**})^{|A.I|} \times \mathbb{Z}^{|A.O|}$ and the \emph{functionality state}
-  $A.\mathcal{F}.Q_\mathrm{func}$ to the trinary boolean set $\{\bot, \mathrm{true}, \mathrm{false}\}$, i.e.,
-  $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
-  The activation pattern decides if a transition $\mathbf{t} \in \mathcal{T}$ can be taken $k(x, q_\mathrm{func}) = \mathrm{true}$,
-  can not be taken $k(x, q_\mathrm{func}) = \mathrm{false}$, or more input values are still neccessary to decide $k(x, q_\mathrm{func}) = \bot$.
-
 %  a \emph{firing transition function} $\delta: Q \to 2^\mathcal{T}$
 %  which maps each state $q \in Q$ to the set of transitions
 %  $\mathcal{T}_q = \delta(q)$.
 \end{cdefinition}
 
-An actor is \emph{blocked} in state $q$ until at least one firing transition
-$\mathbf{t} \in \mathcal{T}_q$ is enabled, as discussed below. The set of enabled transitions is
-given by $\mathcal{T}'_q = \{ \mathbf{t} \mid \mathbf{t} \in \mathcal{T}_q \wedge \mathbf{t} \textrm{ is enabled}\}$.
-Exactly one transition $t \in \mathcal{T}'_q$ will be chosen nondeterministically
-for execution. For example, if both transitions $\{\mathbf{t}_1, \mathbf{t}_2\} = \delta(S_{start})$
-in the firing FSM shown in Figure~\ref{fig:firing-rules-print} of the Print Actor $A_6$ from Figure~\ref{fig:ng-moc}
-are enabled, one of them is executed nondeterministically.
+%An actor is \emph{blocked} in state $q$ until at least one firing transition
+%$\mathbf{t} \in \mathcal{T}_q$ is enabled, as discussed below. The set of enabled transitions is
+%given by $\mathcal{T}'_q = \{ \mathbf{t} \mid \mathbf{t} \in \mathcal{T}_q \wedge \mathbf{t} \textrm{ is enabled}\}$.
+%Exactly one transition $t \in \mathcal{T}'_q$ will be chosen nondeterministically
+%for execution. For example, if both transitions $\{\mathbf{t}_1, \mathbf{t}_2\} = \delta(S_{start})$
+%in the firing FSM shown in Figure~\ref{fig:firing-rules-print} of the Print Actor $A_6$ from Figure~\ref{fig:ng-moc}
+%are enabled, one of them is executed nondeterministically.
 
 \begin{cdefinition}\label{firing-transition}
-  A \emph{firing transition} is a tuple $\mathbf{t} = (k,J)$ containing
-  an \emph{activation pattern} $k$ and an \emph{interface action} $J$.
+  A \emph{firing transition} is a tuple $\mathbf{t} = (q_\mathrm{firing}, k, f_\mathrm{action}, q`_\mathrm{firing})$ containing
+  the current firing state $q_\mathrm{firing}$,
+  an \emph{activation pattern} $k$,
+  the associated \emph{action} $f_\mathrm{action}$, and
+  and an the next firing state $q`_\mathrm{firing}$.
+  Where $k \in \mathcal{K}$ is a function from
+  the \emph{input alphabet} $\chi = (V^{**})^{|A.I|} \times \mathbb{Z}^{|A.O|}$ and the \emph{functionality state}
+  $A.\mathcal{F}.Q_\mathrm{func}$ to the trinary boolean set $\{\bot, \mathrm{true}, \mathrm{false}\}$, i.e.,
+  $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
+  The activation pattern decides if the transition $\mathbf{t}$ can be taken $k(x, q_\mathrm{func}) = \mathrm{true}$,
+  can not be taken $k(x, q_\mathrm{func}) = \mathrm{false}$, or more input values are still neccessary to decide $k(x, q_\mathrm{func}) = \bot$.
 \end{cdefinition}
 
-A transition $\mathbf{t} = (k,J)$ is enabled if its \emph{activation pattern} $k$
-is enabled. If a transition $\mathbf{t}$ is enabled and 
-part of the transitions $\mathcal{T}_q$ which leave the current state $q$
-the transition $\mathbf{t}$ can be executed, i.e.,
-$(k,J) = \mathbf{t} \in \mathcal{T}_q \wedge k\textrm{ is enabled} \implies \mathbf{t}\textrm{ can be executed}$.
-If a transition $\mathbf{t} = (k,J)$ is executed, the associated
-activation pattern $k$ and the \emph{interface action} $J$ are executed consecutively.
-The execution of the activation pattern is responsible for the
-actor communication via the actor ports. The execution of the
-interface action leads to function calls in the node functionality.
+\begin{eqnarray}
+\mathrm{Fire}(v, q_\mathrm{firing}, q_\mathrm{func}) = \{ w_\mathrm{prod}.w_\mathrm{tail} & | & (w_\mathrm{prod}, q`_\mathrm{func}) = f_\mathrm{action}(v_\mathrm{cons},q_\mathrm{func}), \\
+ & & w_\mathrm{tail} = \mathrm{Fire}(v_\mathrm{tail}, q`_\mathrm{firing}, q`_\mathrm{func}), \\
+ & & (q_\mathrm{firing}, k, f_\mathrm{action}, q`_\mathrm{firing}) \in \mathcal{T}, \\ 
+ & & v = v_\mathrm{cons}.v_\mathrm{tail} \}
+\end{eqnarray}
 
-\begin{cdefinition}\label{activation-pattern}
-  An \emph{activation pattern} is a function
-  $k: A.I \cup A.O \to \mathbb{Z}^+_0,\ k \in \mathcal{K}$
-  which maps each actor port of the actor $A$ to a nonnegative integer.
-\end{cdefinition}
+$\mathbb{A} = \{ (v,w) | w \in \mathrm{Fire}(v, q_{_0\mathrm{firing}}, q_{_0\mathrm{func}}), v \in (V^{**})^{|A.I|} \}$
 
-An activation pattern is a predicate on actor ports. It encodes the number of
-tokens to be sent (via actor output ports) or to be received (via actor input ports)
-when the activation pattern is executed.
-For example, the activation pattern $k$ of the transition $\mathbf{t}_4$
-in Figure~\ref{fig:firing-rules-divide} is
-expressed as $k(i_1) = k(i_2) = 1$ and $k(o_1) = 0$.
-However, the specification of an activation pattern by its function
-poses a great overhead. Therefore, we will use the shorthand
-$k = i_1(1) \& i_2(1)$ to express the same information.
-
-An activation pattern $k$ is enabled if for each actor input port
-$p_I \in A.I$ at least $k(p_I)$ tokens can be received and for each
-actor output port $p_O \in A.O$ at least $k(p_O)$ tokens can be sent.
-If an activation pattern $k$ is executed it receives $k(p_I)$ tokens
-via the actor input port $p_I$ and stores them in
-temporary buffers in these actor input ports. For actor output ports
-$p_O$, $k(p_O)$ tokens in temporary buffers of the actor
-output ports are sent via these ports. These temporary buffers are
-used to provide the input and output values for the node functionality.
-
-\begin{cdefinition}\label{interface-action}
-  An \emph{interface action} is a tuple $J = (f,Q_\mathrm{succ}),\ J \in \mathcal{J}$ containing
-  a function $f \in A.\mathcal{F}.F$ of the node functionality $A.\mathcal{F}$
-  and a set of possible successor states $Q_\mathrm{succ}$. Where the set of
-  possible successor states must contain at least one element, i.e.,
-  $|Q_\mathrm{succ}| \ge 1$.
-\end{cdefinition}
-
-A transition $\mathbf{t} = (k,J)$ is called a \emph{deterministic transition}
-if the associated interface action $J$ has only one successor state, i.e.,
-$|J.Q_\mathrm{succ}| = 1$. A transition $\mathbf{t} = (k,J)$ is called a
-\emph{conflict transition} if the associated interface action $J$ has more
-then one possible successor state, i.e., $|J.Q_\mathrm{succ}| > 1$.
-For example the transition $\mathbf{t}_4 = (k,J)$
-in Figure~\ref{fig:firing-rules-divide} with $k = i_1(1) \& i_2(1)$,
-$J.f = \mathrm{divide}$, and $J.Q_\mathrm{succ} = \{S_2\}$ is deterministic.
-But the transition $\mathbf{t}_3 = (k,J)$ from firing state $S_{\mathrm{start}}$
-to $S_\mathrm{ok}$ or $S_\mathrm{again}$
-in Figure~\ref{fig:firing-rules-sqrloop} with $k = i_1(1) \& i_2(1)$,
-$J.f = \mathrm{check}$, and $J.Q_\mathrm{succ} = \{S_\mathrm{ok}, S_\mathrm{again}\}$
-is conflicting.
-
-% An example of a
-% conflict transition can be seen in Figure~\ref{fig:conflict-transition}.
-
-The notion of a firing FSM is similar to the concepts introduced in
-SPI~\cite{ZERTT99a} and FunState~\cite{STZETG00}.
-If a transition $\mathbf{t} = (k,J)$ is executed, the associated
-activation pattern $k$ and the function $J.f$ of the node functionality
-are executed consecutively. In case of a deterministic transition, the current firing
-state is updated to the only successor state $q_\mathrm{succ} \in J.Q_\mathrm{succ}$.
-In case of a conflict transition, the successor state actually used is
-a runtime decision of the function $J.f$.
+% A transition $\mathbf{t} = (k,J)$ is enabled if its \emph{activation pattern} $k$
+% is enabled. If a transition $\mathbf{t}$ is enabled and 
+% part of the transitions $\mathcal{T}_q$ which leave the current state $q$
+% the transition $\mathbf{t}$ can be executed, i.e.,
+% $(k,J) = \mathbf{t} \in \mathcal{T}_q \wedge k\textrm{ is enabled} \implies \mathbf{t}\textrm{ can be executed}$.
+% If a transition $\mathbf{t} = (k,J)$ is executed, the associated
+% activation pattern $k$ and the \emph{interface action} $J$ are executed consecutively.
+% The execution of the activation pattern is responsible for the
+% actor communication via the actor ports. The execution of the
+% interface action leads to function calls in the node functionality.
+% 
+% \begin{cdefinition}\label{activation-pattern}
+%   An \emph{activation pattern} is a function
+%   $k: A.I \cup A.O \to \mathbb{Z}^+_0,\ k \in \mathcal{K}$
+%   which maps each actor port of the actor $A$ to a nonnegative integer.
+% \end{cdefinition}
+% 
+% An activation pattern is a predicate on actor ports. It encodes the number of
+% tokens to be sent (via actor output ports) or to be received (via actor input ports)
+% when the activation pattern is executed.
+% For example, the activation pattern $k$ of the transition $\mathbf{t}_4$
+% in Figure~\ref{fig:firing-rules-divide} is
+% expressed as $k(i_1) = k(i_2) = 1$ and $k(o_1) = 0$.
+% However, the specification of an activation pattern by its function
+% poses a great overhead. Therefore, we will use the shorthand
+% $k = i_1(1) \& i_2(1)$ to express the same information.
+% 
+% An activation pattern $k$ is enabled if for each actor input port
+% $p_I \in A.I$ at least $k(p_I)$ tokens can be received and for each
+% actor output port $p_O \in A.O$ at least $k(p_O)$ tokens can be sent.
+% If an activation pattern $k$ is executed it receives $k(p_I)$ tokens
+% via the actor input port $p_I$ and stores them in
+% temporary buffers in these actor input ports. For actor output ports
+% $p_O$, $k(p_O)$ tokens in temporary buffers of the actor
+% output ports are sent via these ports. These temporary buffers are
+% used to provide the input and output values for the node functionality.
+% 
+% \begin{cdefinition}\label{interface-action}
+%   An \emph{interface action} is a tuple $J = (f,Q_\mathrm{succ}),\ J \in \mathcal{J}$ containing
+%   a function $f \in A.\mathcal{F}.F$ of the node functionality $A.\mathcal{F}$
+%   and a set of possible successor states $Q_\mathrm{succ}$. Where the set of
+%   possible successor states must contain at least one element, i.e.,
+%   $|Q_\mathrm{succ}| \ge 1$.
+% \end{cdefinition}
+% 
+% A transition $\mathbf{t} = (k,J)$ is called a \emph{deterministic transition}
+% if the associated interface action $J$ has only one successor state, i.e.,
+% $|J.Q_\mathrm{succ}| = 1$. A transition $\mathbf{t} = (k,J)$ is called a
+% \emph{conflict transition} if the associated interface action $J$ has more
+% then one possible successor state, i.e., $|J.Q_\mathrm{succ}| > 1$.
+% For example the transition $\mathbf{t}_4 = (k,J)$
+% in Figure~\ref{fig:firing-rules-divide} with $k = i_1(1) \& i_2(1)$,
+% $J.f = \mathrm{divide}$, and $J.Q_\mathrm{succ} = \{S_2\}$ is deterministic.
+% But the transition $\mathbf{t}_3 = (k,J)$ from firing state $S_{\mathrm{start}}$
+% to $S_\mathrm{ok}$ or $S_\mathrm{again}$
+% in Figure~\ref{fig:firing-rules-sqrloop} with $k = i_1(1) \& i_2(1)$,
+% $J.f = \mathrm{check}$, and $J.Q_\mathrm{succ} = \{S_\mathrm{ok}, S_\mathrm{again}\}$
+% is conflicting.
+% 
+% % An example of a
+% % conflict transition can be seen in Figure~\ref{fig:conflict-transition}.
+% 
+% The notion of a firing FSM is similar to the concepts introduced in
+% SPI~\cite{ZERTT99a} and FunState~\cite{STZETG00}.
+% If a transition $\mathbf{t} = (k,J)$ is executed, the associated
+% activation pattern $k$ and the function $J.f$ of the node functionality
+% are executed consecutively. In case of a deterministic transition, the current firing
+% state is updated to the only successor state $q_\mathrm{succ} \in J.Q_\mathrm{succ}$.
+% In case of a conflict transition, the successor state actually used is
+% a runtime decision of the function $J.f$.
 
 
 
