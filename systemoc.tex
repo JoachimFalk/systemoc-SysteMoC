@@ -100,7 +100,14 @@ Each definition of an actor class can be subdivided into three parts
   (iii) Declaration of the actor \emph{communication behavior}, encoded as \emph{firing FSM}.
 In the following these three steps will be explained in detail.
 
-\begin{cdefinition}\label{def:actor}
+\begin{figure}[h]
+\centering
+\input{actor-sqrloop-fig.tex}
+\caption{\label{fig:actor-sqrloop}%
+Visual representation of the \code{SqrLoop} actor $A_2$ consisting of \emph{input ports} and \emph{output ports}, \emph{functionality}, and \emph{firing FSM}.}
+\end{figure}
+
+\begin{cdefinition}[Actor]\label{def:actor}
 An actor is a tuple $A=(I,O,\mathcal{F},\mathcal{R})$ containing
 a set of \emph{actor input ports} $I$ and \emph{actor output ports} $O$,
 the \emph{actor functionality} $\mathcal{F}$ and the \emph{firing FSM} $\mathcal{R}$.
@@ -187,16 +194,32 @@ private:
 %These functions must not manipulate the functionality state.
 %Both actions and guards can use helper functions to accomplish their purpose.
 
-\begin{cdefinition}\label{def:actor-functionality}
+\begin{cdefinition}[Actor functionality]\label{def:actor-functionality}
   The \emph{actor functionality} of an actor $A$ is a tuple $A.\mathcal{F} = (F,Q_\mathrm{func},q_{_0\mathrm{func}})$ containing
   a set of \emph{functions} $F = F_\mathrm{action} \cup F_\mathrm{guard}$ partitioned into \emph{actions} and \emph{guards},
   a set of \emph{functionality states} $Q_\mathrm{func}$ (possibly infinite), and
   an \emph{initial functionality state} $q_{_0\mathrm{func}} \in Q_\mathrm{func}$.
-  % The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|A.I|}} \in V^*$ on the $A.I$ actor intput ports into sequences of token values $\mathbf{v}_{o_1},\mathbf{v}_{o_2},\ldots,\mathbf{v}_{o_{|A.O|}} \in V^*$ on the $A.O$ actor output ports additionally modifying the functionality state, i.e.,  $f_\mathrm{action} \subset (V^*)^{|A.I|} \times Q_\mathrm{func} \to (V^*)^{|A.O|} \times Q_\mathrm{func}$.
-  % Whereas for each action $f_\mathrm{action}$ and each actor port $p \in A.I \cup A.O$ the number of values $N$ in the sequence $\mathbf{v}_p \in V^N$ is fixed.
-  The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map action dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_\mathrm{current} \in Q_\mathrm{func}$ to an action dependant number $M$ of output values $(w_1,w_2,\ldots,w_M) = \mathbf{w} \in V^M$ and the next functionality state $q_\mathrm{next} \in Q_\mathrm{func}$, i.e.,  $f_\mathrm{action}: V^N \times Q_\mathrm{func} \to V^M \times Q_\mathrm{func}$.
-  The guards $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality map a guard dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_{i} \in Q_\mathrm{func}$ to a boolean value, i.e.,  $f_\mathrm{guard}: V^N \times Q_\mathrm{func} \to \{\mathrm{true},\mathrm{false}\}$.
 \end{cdefinition}
+  
+% The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map action dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_\mathrm{current} \in Q_\mathrm{func}$ to an action dependant number $M$ of output values $(w_1,w_2,\ldots,w_M) = \mathbf{w} \in V^M$ and the next functionality state $q_\mathrm{next} \in Q_\mathrm{func}$, i.e.,  $f_\mathrm{action}: V^N \times Q_\mathrm{func} \to V^M \times Q_\mathrm{func}$.
+
+The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|A.I|}} \in V^*$ on the $A.I$ actor intput ports into sequences of token values $\mathbf{v}_{o_1},\mathbf{v}_{o_2},\ldots,\mathbf{v}_{o_{|A.O|}} \in V^*$ on the $A.O$ actor output ports additionally modifying the functionality state:
+
+\begin{equation*}
+f_\mathrm{action} : V^{N_{i_1}} \times V^{N_{i_2}} \ldots \times V^{N_{i_{|A.I|}}} \times Q_\mathrm{func} \to V^{M_{o_1}} \times V^{M_{o_2}} \ldots \times V^{M_{o_{|A.O|}}} \times Q_\mathrm{func}
+\end{equation*}
+
+Whereas the number of tokens $N_i$ consumed on the input port $i$ and the number of tokens $M_o$ produced on output port $o$ depends on the action $f_\mathrm{action}$.
+
+% The guards $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality map a guard dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_{i} \in Q_\mathrm{func}$ to a boolean value, i.e.,  $f_\mathrm{guard}: V^N \times Q_\mathrm{func} \to \{\mathrm{true},\mathrm{false}\}$.
+
+The guards $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|A.I|}} \in V^*$ on the $A.I$ actor intput ports and the functionality state to a boolean value:
+
+\begin{equation*}
+f_\mathrm{guard} : V^{N_{i_1}} \times V^{N_{i_2}} \ldots \times V^{N_{i_{|A.I|}}} \times Q_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}
+\end{equation*}
+
+Whereas $N_i$ is a guard dependent number of tokens on the input port $i$ needed for the guard decision.
 
 The input values for the actor functionality are provided by the firing FSM, which retrieves input values from the tokens in the FIFOs connected to the actor input ports.
 Output values from actions $f_\mathrm{action}$ are used by the firing FSM to generate tokens for the FIFOs connected to the actor output ports.
@@ -225,7 +248,7 @@ Die Bedingung der Transitionen des Zustandsautomaten setzen sich
 aus logischen Verknüpfungen über den Füllstand bzw.
 die Anzahl freier Plätze in einem Kanal sowie weiteren
 Ausdrücken (z.B.\ über Datenwerte) zusammen. Die Backus-Naur-Form (\emph{BNF}) für den Aufbau des Zustandsautomaten
-ist in Abbildung \ref{systemoc-fsm-bnf} und \ref{systemoc-fsm-bnf-2} dargestellt. Ein konkretes
+ist in Abbildung \ref{syn:systemoc-fsm-bnf} und \ref{syn:systemoc-fsm-bnf-2} dargestellt. Ein konkretes
 Beispiel, der Aufbau des Zustandsautomaten für den \code{BthChk}-Aktor (Abbildung \ref{systemoc-bthchk-fsm})
 lässt sich in Abbildung \ref{fig:firing-rules-sqrloop} betrachten.
 
@@ -304,14 +327,11 @@ werden als Abkürzung für
 }
 \end{figure}
 
-\begin{cdefinition}\label{def:firing-fsm}
-  The \emph{firing FSM} of an actor $A$ is a tuple $A.\mathcal{R} = (\mathcal{T}, Q_\mathrm{firing}, q_{_0\mathrm{firing}})$ containing
-  a set of \emph{firing transitions} $\mathcal{T} \subseteq Q_\mathrm{firing} \times \mathcal{K} \times A.\mathcal{F}.F_\mathrm{action} \times Q_\mathrm{firing}$,
+\begin{cdefinition}[Firing FSM]\label{def:firing-fsm}
+  The \emph{firing FSM} of an actor $A$ is a tuple $A.\mathcal{R} =$ $(\mathcal{T},$ $Q_\mathrm{firing},$ $q_{_0\mathrm{firing}})$ containing
+  a set of \emph{firing transitions} $\mathcal{T}$, % \subseteq Q_\mathrm{firing} \times \mathcal{K} \times A.\mathcal{F}.F_\mathrm{action} \times Q_\mathrm{firing}$,
   a set of \emph{firing states} $Q_\mathrm{firing}$ and
-  an \emph{initial firing state} $q_{_0\mathrm{firing}}$.
-%  a \emph{firing transition function} $\delta: Q \to 2^\mathcal{T}$
-%  which maps each state $q \in Q$ to the set of transitions
-%  $\mathcal{T}_q = \delta(q)$.
+  an \emph{initial firing state} $q_{_0\mathrm{firing}} \in Q_\mathrm{firing}$.
 \end{cdefinition}
 
 %An actor is \emph{blocked} in state $q$ until at least one firing transition
@@ -322,25 +342,30 @@ werden als Abkürzung für
 %in the firing FSM shown in Figure~\ref{fig:firing-rules-print} of the Print Actor $A_6$ from Figure~\ref{fig:ng-moc}
 %are enabled, one of them is executed nondeterministically.
 
-\begin{cdefinition}\label{firing-transition}
-  A \emph{firing transition} is a tuple $\mathbf{t} = (q_\mathrm{firing}, k, f_\mathrm{action}, q`_\mathrm{firing})$ containing
-  the current firing state $q_\mathrm{firing}$,
-  an \emph{activation pattern} $k$,
-  the associated \emph{action} $f_\mathrm{action}$, and
-  and an the next firing state $q`_\mathrm{firing}$.
-  Where $k \in \mathcal{K}$ is a function from
-  the \emph{input alphabet} $\chi = (V^{**})^{|A.I|} \times \mathbb{Z}^{|A.O|}$ and the \emph{functionality state}
-  $A.\mathcal{F}.Q_\mathrm{func}$ to the trinary boolean set $\{\bot, \mathrm{true}, \mathrm{false}\}$, i.e.,
-  $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
-  The activation pattern decides if the transition $\mathbf{t}$ can be taken $k(x, q_\mathrm{func}) = \mathrm{true}$,
-  can not be taken $k(x, q_\mathrm{func}) = \mathrm{false}$, or more input values are still neccessary to decide $k(x, q_\mathrm{func}) = \bot$.
+\begin{cdefinition}[Transition]\label{firing-transition}
+  A \emph{firing transition} is a tuple $\mathbf{t} = (q_\mathrm{firing}, k, f_\mathrm{action}, q'_\mathrm{firing}) \in \mathcal{T}$ containing
+  the current firing state $q_\mathrm{firing} \in Q_\mathrm{firing}$
+  an \emph{activation pattern} $k \in \mathcal{K}$,
+  the associated \emph{action} $f_\mathrm{action} \in A.\mathcal{F}.F_\mathrm{action}$,
+  and an the next firing state $q'_\mathrm{firing} \in Q_\mathrm{firing}$.
+  The activation pattern $k$ is a function which decides if its transition $\mathbf{t}$
+  can be taken $k(\mathbf{v}, q_\mathrm{func}) = \mathrm{true}$, or
+  can not be taken $k(\mathbf{v}, q_\mathrm{func}) = \mathrm{false}$.
+% or more input values are still neccessary to decide $k(\mathbf{v}, q_\mathrm{func}) = \bot$.
+% Where $k$ is a function from
+% the \emph{input alphabet} $\chi = (V^{**})^{|A.I|} \times \mathbb{Z}^{|A.O|}$ and the \emph{functionality state}
+% $A.\mathcal{F}.Q_\mathrm{func}$ to the trinary boolean set $\{\bot, \mathrm{true}, \mathrm{false}\}$, i.e.,
+% $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
 \end{cdefinition}
 
 \begin{eqnarray}
-\mathrm{Fire}(v, q_\mathrm{firing}, q_\mathrm{func}) = \{ w_\mathrm{prod}.w_\mathrm{tail} & | & (w_\mathrm{prod}, q`_\mathrm{func}) = f_\mathrm{action}(v_\mathrm{cons},q_\mathrm{func}), \\
- & & w_\mathrm{tail} = \mathrm{Fire}(v_\mathrm{tail}, q`_\mathrm{firing}, q`_\mathrm{func}), \\
- & & (q_\mathrm{firing}, k, f_\mathrm{action}, q`_\mathrm{firing}) \in \mathcal{T}, \\ 
- & & v = v_\mathrm{cons}.v_\mathrm{tail} \}
+\mathrm{Fire}(v, q_\mathrm{firing}, q_\mathrm{func}) = \{ w_\mathrm{prod}.w_\mathrm{tail} %
+ & |      & (q_\mathrm{firing}, k, f_\mathrm{action}, q'_\mathrm{firing}) \in \mathcal{T} \\
+ & \wedge & k(v_\mathrm{cons}) \\
+ & \wedge & \forall{v_\mathrm{prefix} \sqsubset v_\mathrm{cons}}: \neg k(v_\mathrm{prefix}) \\
+ & \wedge & (w_\mathrm{prod}, q'_\mathrm{func}) = f_\mathrm{action}(v_\mathrm{cons},q_\mathrm{func}) \\
+ & \wedge & v = v_\mathrm{cons}.v_\mathrm{tail} \\
+ & \wedge & w_\mathrm{tail} = \mathrm{Fire}(v_\mathrm{tail}, q'_\mathrm{firing}, q'_\mathrm{func}) \}
 \end{eqnarray}
 
 $\mathbb{A} = \{ (v,w) | w \in \mathrm{Fire}(v, q_{_0\mathrm{firing}}, q_{_0\mathrm{func}}), v \in (V^{**})^{|A.I|} \}$
@@ -416,10 +441,8 @@ $\mathbb{A} = \{ (v,w) | w \in \mathrm{Fire}(v, q_{_0\mathrm{firing}}, q_{_0\mat
 % In case of a conflict transition, the successor state actually used is
 % a runtime decision of the function $J.f$.
 
-
-
-\begin{figure}
-\centering
+\begin{csyntax}\label{syn:systemoc-fsm-bnf}%
+Extended Backus-Naur form of the firing FSM declaration
 \begin{verbatim}
 StateDefinition ::= ActivationState '=' TransitionList ';'
 
@@ -451,7 +474,8 @@ OutputExpr      ::= OutputPort '.getAvailableSpace()'  '>=' Expr |
                     OutputPort '.getAvailableSpace()'  '>'  Expr |
                     OutputPort '(' Integer ')'                   ;
 \end{verbatim}
-\caption{\label{systemoc-fsm-bnf}%
+\end{csyntax}
+
 Der Zustandsautomat wird durch die Definition (\code{StateDefinition}) aller
 seiner Aktivierungszustände deklariert.
 Diese Aktivierungszustände sind in der \emph{BNF} durch die
@@ -469,12 +493,10 @@ Die Eingangs- bzw. Ausgangsbedingung setzen sich dabei aus
 Bedingungen zur Überprüfung der Kanalfüllstände \code{InputExpr} bzw.
 \code{OutputExpr} und allgemeinen Ausdrücken \code{Expr} zusammen, welche
 den Funktionalitätszustand und die Tokenart überprüfen können.
-Diese sind in Abbildung \ref{systemoc-fsm-bnf-2} weiter erläutert.
-}
-\end{figure}
+Diese sind in Beispiel~\ref{syn:systemoc-fsm-bnf-2} weiter erläutert.
 
-\begin{figure}
-\centering
+\begin{csyntax}\label{syn:systemoc-fsm-bnf-2}%
+Extended Backus-Naur form of transition guard expressions
 \begin{verbatim}
 Expr            ::= Expr '+'  Expr | Expr '-'  Expr |
                     Expr '*'  Expr | Expr '/'  Expr |
@@ -493,7 +515,8 @@ ExprTerminal    ::= <Integer>                                          |
                     'isType'    '<' <Type> '>'  '(' Expr ')'           |
                     <InputPort> '.getValueAt'   '(' <Integer> ')'      ;
 \end{verbatim}
-\caption{\label{systemoc-fsm-bnf-2}%
+\end{csyntax}
+
 Allgemeine Ausdrücke zur Überprüfung des Funktionalitätszustandes
 und der empfangenen Tokenart können mittels der obig aufgeführten
 Operatoren verknüpft werden. Die Operatoren haben dabei C++-Präzedenz und
@@ -512,8 +535,6 @@ Die Ausdrücke werden dabei aus folgenden Terminalen aufgebaut:
       aus dem Eingangsport zu überprüfen.
 Guard Methoden müssen konstante Methoden sein,
 da sie den Funktionalitätszustand nicht verändern dürfen.
-}
-\end{figure}
 
 \section{Netzwerkgraph}
 
@@ -522,10 +543,10 @@ im Folgenden als \emph{Graphenklasse} bezeichnet, zusammengesetzt.
 Die Aktoren des Netzwerkgraph, z.B. $A_{1}$ - $A_{17}$ in Abbildung \ref{fig:ng-sqrroot}
 auf Seite \pageref{fig:ng-sqrroot}, werden in dieser Klasse als Klassenvariablen
 deklariert und im Konstruktor der Graphenklasse parametrisiert und verknüpft, z.B. für die Aktoren
-$A_{10}$, $A_{11}$, $A_{12}$ und $A_{15}$ in Abbildung \ref{systemoc-networkgraph} dargestellt.
+$A_{10}$, $A_{11}$, $A_{12}$ und $A_{15}$ in Beispiel~\ref{ex:systemoc-networkgraph} dargestellt.
 
-\begin{figure}
-\centering
+\begin{cexample}\label{ex:systemoc-networkgraph}%
+Declaration of network graph from Figure~\ref{fig:ng-sqrroot}
 \begin{verbatim}
 class Hca: public smoc_graph {
 private:
@@ -564,7 +585,8 @@ public:
   }
 };
 \end{verbatim}
-\caption{\label{systemoc-networkgraph}%
+\end{cexample}
+
 Ausschnitt aus der Graphenklasse zur Verknüpfung der
 in Abbildung \ref{fig:ng-sqrroot} auf Seite \pageref{fig:ng-sqrroot}
 dargestellten Aktoren.
@@ -576,8 +598,6 @@ Aktoren erhält um diese mittels eines FIFOs zu verbinden.
 Als optionales dritter Parameter der Funktion kann der FIFO mittels
 des '\code{smoc\_fifo<MsgType>(FifoSize) << InitialTokens << ...}'
 Syntaxes genauer parametrisiert werden.
-}
-\end{figure}
 
 \section{Kopplung zwischen SysteMoC und VPC}
 \label{sec:smoc-vpc}

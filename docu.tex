@@ -19,25 +19,10 @@
 %\newcommand{\SysteMoC}{{\bf SysteMoC}}
 %\newcommand{\SysteMoCV}{\emph{SysteMoC 1.0}}
 %\newcommand{\SysteMoCV}{\SysteMoC{} {\bf 1.0}}
-\newcommand{\implies}{\Longrightarrow}
+%\newcommand{\implies}{\Longrightarrow}
 
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
-
-%\usepackage{verbatim}
-\usepackage{fancyvrb}
-% backward compatibility cruft for verbatim
-\newcommand{\verbatiminput}[1]{\VerbatimInput{#1}}
-
-% Use a small font for the verbatim environment
-\makeatletter  % makes '@' an ordinary character
-\renewcommand{\verbatim@font}{%
-  \ttfamily\small\catcode`\<=\active\catcode`\>=\active%
-}
-\makeatother   % makes '@' a special symbol again
-
-\renewcommand*\chaptermarkformat{\thechapter. \quad}
-\renewcommand*\chapterformat{\thechapter. \ }
 
 \theoremheaderfont{\normalfont\sffamily\bfseries}
 {\theorembodyfont{\normalfont\itshape}
@@ -53,6 +38,9 @@
   \newtheorem{cexample}{Example}[chapter]
   \newtheorem{sexample}{Example}[section]
   \newtheorem{ssexample}{Example}[subsection]
+  \newtheorem{csyntax}{Syntax}[chapter]
+  \newtheorem{ssyntax}{Syntax}[section]
+  \newtheorem{sssyntax}{Syntax}[subsection]
 }
 
 %\def\hyph{\penalty0\hskip0pt\relax}
