@@ -161,19 +161,19 @@ The optional parameter \code{param} is used to further parameterize the created 
 This can be condensed into the following definition:
 
 \begin{cdefinition}[General network graph]\label{def:network-graph}
-A \emph{general network graph} is a directed bipartite graph $G_N=(\mathcal{A},C,E)$ containing
-a set of actors $\mathcal{A}$, a set of channels $C$, and a set of
-directed edges $E \subseteq (C \times \mathcal{P}_I)
-\cup (\mathcal{P}_O \times C)$, where
-$\mathcal{P}_I = \bigcup{}_{A \in \mathcal{A}} A.I$ and
-$\mathcal{P}_O = \bigcup{}_{A \in \mathcal{A}} A.O$
-are the sets of actor input and output ports of all actors in the network graph
-respectively. Each actor $A \in \mathcal{A}$ can only communicate with other
+A \emph{general network graph} is a directed bipartite graph $G_N=(\mathcal{A},C,P,E)$ containing
+a set of actors $\mathcal{A}$,
+a set of channels $C$, 
+a channel parameter function $P: C \to \mathbb{N}^{\infty} \times V^*$ which
+associates with each channel $c \in C$ its size $n \in \mathbb{N}^{\infty}$ and its initial token sequence $\mathbf{v} \in V^*$,
+and a set of directed edges $E \subseteq (C \times \mathcal{P}_I) \cup (\mathcal{P}_O \times C)$,
+where $\mathcal{P}_I = \bigcup{}_{A \in \mathcal{A}} A.I$ and $\mathcal{P}_O = \bigcup{}_{A \in \mathcal{A}} A.O$ are the sets of \emph{all actor input ports} and \emph{all actor output ports} in the network graph respectively.
+\end{cdefinition}
+
+Each actor $A \in \mathcal{A}$ can only communicate with other
 actors through its dedicated actor input ports $A.I$ and actor output ports $A.O$.
 Furthermore, the set of all actor input and actor output ports of all actors in
 the network graph is given by $\mathcal{P} = \mathcal{P}_I \cup \mathcal{P}_O$.
-\end{cdefinition}
-
 However the preceding definition still allows multiple readers and writers per FIFO channel.
 Therefore we define a more constraint form of network graph called \emph{nonconflicting network graph} or \emph{network graph} for short, which allows only \emph{point to point} FIFO connections.
 
