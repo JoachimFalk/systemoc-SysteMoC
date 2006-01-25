@@ -12,7 +12,7 @@
 # include <smoc_pggen.hpp>
 #endif
 
-class m_src: public smoc_actor {
+class Src: public smoc_actor {
 public:
   smoc_port_out<double> out;
 private:
@@ -20,7 +20,7 @@ private:
   int n;
   
   bool nTimesTrue() const { return n != 0 ;}
-
+  
   void src() {
     std::cout << "src: " << i << std::endl;
     out[0] = i++;
@@ -29,28 +29,87 @@ private:
   
   smoc_firing_state start;
 public:
-  m_src(sc_module_name name, int times)
-    : smoc_actor(name, start), i(1), n(times)
-    { start = ( out(1) && GUARD(m_src::nTimesTrue) ) >>
-              CALL(m_src::src)                       >> start; }
+  Src(sc_module_name name, int times)
+    : smoc_actor(name, start), i(1), n(times) {
+    start =
+        GUARD(Src::nTimesTrue)    >>
+        out(1)                    >>
+        CALL(Src::src)            >> start
+      ;
+  }
 };
 
-class m_approx: public smoc_actor {
+// Definition of the SqrLoop actor class
+class SqrLoop
+  // All actor classes must be derived
+  // from the smoc_actor base class
+  : public smoc_actor {
+public:
+  // Declaration of input and output ports
+  smoc_port_in<double>  i1, i2;
+  smoc_port_out<double> o1, o2;
+private:
+  // Declaration of the actor functionality
+  // via member variables and methods
+  double tmp_i1;
+  
+  // action functions triggered by the
+  // FSM declared in the constructor
+  void store() { tmp_i1 = i1[0]; }
+  void copy1() { o1[0] = tmp_i1; }
+  void copy2() { o1[0] = tmp_i1; o2[0] = i2[0]; }
+  
+  // guard  functions used by the
+  // FSM declared in the constructor
+  bool check() const {
+    std::cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
+    return fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
+  }
+  
+  // Declaration of firing states for the FSM
+  smoc_firing_state start;
+  smoc_firing_state loop;
+public:
+  // Constructor responsible for declaring the
+  // communication FSM and initializing the actor
+  SqrLoop(sc_module_name name)
+    : smoc_actor( name, start ) {
+    start =
+        i1(1)                               >>
+        CALL(SqrLoop::store)                >> loop
+      ;
+    loop  =
+        (i2(1) &&  GUARD(SqrLoop::check))   >>
+        (o1(1) && o2(1))                    >>
+        CALL(SqrLoop::copy2)                >> start
+      | (i2(1) && !GUARD(SqrLoop::check))   >>
+        o1(1)                               >>
+        CALL(SqrLoop::copy1)                >> loop
+      ;
+  }
+};
+
+class Approx: public smoc_actor {
 public:
   smoc_port_in<double>  i1, i2;
   smoc_port_out<double> o1;
 private:
+  // Square root successive approximation step of Newton
   void approx(void) { o1[0] = (i1[0] / i2[0] + i2[0]) / 2; }
   
   smoc_firing_state start;
 public:
-  m_approx(sc_module_name name)
-    : smoc_actor(name, start)
-    { start = (i1(1) && i2(1)) >> o1(1) >>
-              CALL(m_approx::approx)   >> start; }
+  Approx(sc_module_name name)
+    : smoc_actor(name, start) {
+    start =
+        (i1(1) && i2(1))         >>
+        o1(1)                    >>
+        CALL(Approx::approx)     >> start
+      ;
+  }
 };
 
-class m_dup: public smoc_actor {
+class Dup: public smoc_actor {
 public:
   smoc_port_in<double>  i1;
   smoc_port_out<double> o1, o2;
@@ -59,47 +118,17 @@ private:
   
   smoc_firing_state start;
 public:
-  m_dup(sc_module_name name)
-    : smoc_actor(name, start)
-    { start = i1(1) >> (o1(1) && o2(1)) >>
-              CALL(m_dup::dup)         >> start; }
-};
-
-class m_sqrloop: public smoc_actor {
-public:
-  smoc_port_in<double>  i1, i2;
-  smoc_port_out<double> o1, o2;
-private:
-  double tmp_i1;
-  
-  // action functions for FSM defined in constructor
-  void store() { tmp_i1 = i1[0]; }
-  void copy1() { o1[0] = tmp_i1; }
-  void copy2() { o1[0] = tmp_i1; o2[0] = i2[0]; }
-  
-  // guard  functions for FSM defined in constructor
-  bool check() const {
-    std::cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
-    return fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
-  }
-  
-  smoc_firing_state start;
-  smoc_firing_state loop;
-public:
-  m_sqrloop(sc_module_name name)
-    : smoc_actor( name, start ) {
-    start = i1(1)                                 >>
-            CALL(m_sqrloop::store)               >> loop;
-    loop  = (i2(1) &&  GUARD(m_sqrloop::check))  >>
-            (o1(1) && o2(1))                      >>
-            CALL(m_sqrloop::copy2)               >> start
-          | (i2(1) && !GUARD(m_sqrloop::check))  >>
-            o1(1)                                 >>
-            CALL(m_sqrloop::copy1)               >> loop;
+  Dup(sc_module_name name)
+    : smoc_actor(name, start) {
+    start =
+        i1(1)                    >>
+        (o1(1) && o2(1))         >>
+        CALL(Dup::dup)           >> start
+      ;
   }
 };
 
-class m_sink: public smoc_actor {
+class Sink: public smoc_actor {
 public:
   smoc_port_in<double> in;
 private:
@@ -107,59 +136,47 @@ private:
   
   smoc_firing_state start;
 public:
-  m_sink(sc_module_name name)
-    : smoc_actor(name, start)
-    { start = in(1) >> CALL(m_sink::sink) >> start; }
+  Sink(sc_module_name name)
+    : smoc_actor(name, start) {
+    start =
+        in(1)             >>
+        CALL(Sink::sink)  >> start
+      ;
+  }
 };
 
-class m_approx_loop
+class SqrRoot
 : public smoc_graph {
-  public:
-    smoc_port_in<double>  i1;
-    smoc_port_out<double> o1;
-  protected:
-    m_sqrloop sqrloop;
-    m_approx  approx;
-    m_dup     dup;
-  public:
-    m_approx_loop( sc_module_name name )
-      : smoc_graph(name),
-        sqrloop("sqrloop"),
-        approx("approx"),
-        dup("dup") {
-      sqrloop.i1(i1);
-      connectNodePorts(sqrloop.o1, approx.i1);
-      connectNodePorts(approx.o1, dup.i1, smoc_fifo<double>() << 2 );
-      connectNodePorts(dup.o1, approx.i2);
-      connectNodePorts(dup.o2, sqrloop.i2);
-      sqrloop.o2(o1);
-    }
-};
-
-class m_top
-: public smoc_graph {
-  public:
-  protected:
-    m_src           src;
-    m_approx_loop   al;
-    m_sink          sink;
-  public:
-    m_top( sc_module_name name )
-      : smoc_graph(name),
-        src("src", 50),
-        al("al"),
-        sink("sink") {
-      connectNodePorts(src.out, al.i1);
-      connectNodePorts(al.o1, sink.in);
-    }
+public:
+protected:
+  Src      src;
+  SqrLoop  sqrloop;
+  Approx   approx;
+  Dup      dup;
+  Sink     sink;
+public:
+  SqrRoot( sc_module_name name )
+    : smoc_graph(name),
+      src("A1", 50),
+      sqrloop("A2"),
+      approx("A3"),
+      dup("A4"),
+      sink("A5") {
+    connectNodePorts(src.out,    sqrloop.i1);
+    connectNodePorts(sqrloop.o1, approx.i1);
+    connectNodePorts(approx.o1,  dup.i1, smoc_fifo<double>() << 2 );
+    connectNodePorts(dup.o1,     approx.i2);
+    connectNodePorts(dup.o2,     sqrloop.i2);
+    connectNodePorts(sqrloop.o2, sink.in);
+  }
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<m_top> top("top");
+  smoc_top_moc<SqrRoot> sqrroot("sqrroot");
   
 #define GENERATE "--generate-problemgraph"
   if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
-    smoc_modes::dump(std::cout, top);
+    smoc_modes::dump(std::cout, sqrroot);
   } else {
     sc_start(-1);
   }
