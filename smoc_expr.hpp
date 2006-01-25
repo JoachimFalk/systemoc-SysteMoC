@@ -30,6 +30,7 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include <cosupport/oneof.hpp>
+#include <cosupport/functor.hpp>
 /****************************************************************************
  * dexpr.h
  *
@@ -66,11 +67,11 @@ void intrusive_ptr_release( _RefCount *r )
 
 typedef boost::intrusive_ptr<_RefCount> ref_ty;
 
+namespace Expr {
+
 /****************************************************************************
  * Node hierarchy
  */
-
-namespace Expr {
 
 class ASTNode: public _RefCount {
 public:
@@ -515,10 +516,10 @@ private:
   fun          m;
   const char  *name;
 public:
-  template<typename T, class X>
-  ASTNodeMemGuard(const X *o, T (X::*m)() const, const char *name)
+  template<typename F, class X>
+  ASTNodeMemGuard(const X *o, const F &f, const char *name)
     : o(reinterpret_cast<const dummy *>(o)),
-      m(*reinterpret_cast<fun *>(&m)),
+      m(*reinterpret_cast<const fun *>(&f)),
       name(name) {}
   
   const dummy *ptrObj()     const { return o; }
@@ -526,55 +527,59 @@ public:
   const char  *getName()    const { return name; }
 };
 
-template<typename T, class X>
+template<class F, class PL>
 class DMemGuard {
 public:
-  typedef T              value_type;
-  typedef DMemGuard<T,X> this_type;
+  typedef typename F::return_type value_type;
+  typedef DMemGuard<F,PL>	  this_type;
   
-  const X *const o;
-  T (X::*m)() const;
-  const char *name;
+  F  f;
+  PL pl;
 public:
-  explicit DMemGuard(
-      const X *o, T (X::*m)() const,
-      const char *name_ = NULL)
-    : o(o), m(m), name(name_ != NULL ? name_ : "") {}
+  explicit DMemGuard(const F& _f, const PL &_pl)
+    : f(_f), pl(_pl) {}
 };
 
-template <typename T, class X>
-struct Value<DMemGuard<T,X> > {
-  typedef T result_type;
+template<class F, class PL>
+struct Value<DMemGuard<F,PL> > {
+  typedef typename F::return_type result_type;
   
   static inline
-  T apply(const DMemGuard<T,X> &e)
-    { return (e.o->*e.m)(); }
+  result_type apply(const DMemGuard<F,PL> &e) {
+    return e.f.call(e.pl);
+  }
 };
 
-template <typename T, class X>
-struct AST<DMemGuard<T,X> > {
+template<class F, class PL>
+struct AST<DMemGuard<F,PL> > {
   typedef PASTNode result_type;
   
   static inline
-  PASTNode apply(const DMemGuard <T,X> &e)
-    { return PASTNode(new ASTNodeMemGuard(e.o,e.m,e.name)); }
+  PASTNode apply(const DMemGuard <F,PL> &e)
+    { return PASTNode(new ASTNodeMemGuard(e.f.obj, e.f.func, e.f.name)); }
 };
 
-template<typename T, class X>
-struct D<DMemGuard<T,X> >: public DBase<DMemGuard<T,X> > {
-  D(const X *o, T (X::*m)() const, const char *name = NULL)
-    : DBase<DMemGuard<T,X> >(DMemGuard<T,X>(o, m, name)) {}
+template<class F, class PL>
+struct D<DMemGuard<F,PL> >: public DBase<DMemGuard<F,PL> > {
+  D(const F& f, const PL &pl = PL())
+    : DBase<DMemGuard<F,PL> >(DMemGuard<F,PL>(f,pl)) {}
 };
 
+template<class F, class PL>
+struct MemGuardHelper { typedef D<DMemGuard<F,PL> > type; };
+  
 // Make a convenient typedef for the placeholder type.
-template <typename T, class X>
-struct MemGuard { typedef D<DMemGuard<T,X> > type; };
+template<class F>
+struct MemGuard {
+  typedef typename CoSupport::ParamAccumulator<
+    MemGuardHelper, CoSupport::ConstFunctor<bool, F> >::accumulated_type type;
+};
 
-template <typename T, class X>
-typename MemGuard<T,X>::type guard(
-    const X *o, T (X::*m)() const,
-    const char *name = NULL)
-  { return MemGuard<T,X>::type(o,m,name); }
+template<class X, typename F>
+typename MemGuard<F>::type guard(const X *o, const F &f, const char *name = "") {
+  return typename MemGuard<F>::type(
+    CoSupport::ConstFunctor<bool, F>(o, f, name));
+}
 
 /****************************************************************************
  * DBinOp represents a binary operation on two expressions.

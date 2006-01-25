@@ -36,6 +36,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <cosupport/commondefs.h>
+#include <cosupport/functor.hpp>
 
 class smoc_activation_pattern;
 class smoc_transition;
@@ -74,7 +75,7 @@ public:
     : refcount(0) {}
   
   virtual
-  R operator()() const = 0;
+  R call() const = 0;
   virtual
   const char *getFuncName() const = 0;
   
@@ -91,323 +92,68 @@ static inline
 void intrusive_ptr_release( smoc_member_func_interface<R> *r )
   { if ( !--r->refcount ) delete r; }
 
-template <typename P, class PN = void>
-struct smoc_param {
-  typedef P  type;
-  typedef PN tail;
-  
-  P  p;
-  PN pn;
-  
-  smoc_param( const P &_p, const PN &_pn )
-    : p(_p), pn(_pn) {}
-};
-
-template<>
-struct smoc_param<void,void> {};
-
-template <typename M, class MN = void>
-struct smoc_missing {
-  typedef M  type;
-  typedef MN tail;
-};
-
-template<>
-struct smoc_missing<void,void> {};
-
-template <class K, class ML, class PL = smoc_param<void> >
-struct smoc_accumulate_param {
-  typedef smoc_accumulate_param<K, typename ML::tail, smoc_param<typename ML::type, PL> > fnt_ty;
-  
-  K  k;
+template<class F, class PL>
+class smoc_member_func
+: public smoc_member_func_interface<typename F::return_type> {
+public:
+  typedef smoc_member_func<F, PL> type;
+protected:
+  F  f;
   PL pl;
+public:
+  smoc_member_func(const F &_f, const PL &_pl = PL() )
+    : f(_f), pl(_pl) {}
   
-  smoc_accumulate_param(const K &_k, const PL &_pl = PL())
-    : k(_k), pl(_pl) {}
-  
-  fnt_ty operator()(
-      const typename ML::type &p) {
-    return fnt_ty(k, smoc_param<typename ML::type, PL>(p, pl));
-  }
-/*
-  typename fnt_ty::fnt_ty operator()(
-      const typename ML::type &p1,
-      const typename ML::tail::type &p2) {
-    return (*this)(p1)(p2);
-  }
-*/
-  
+  typename F::return_type call() const
+    { return f.call(pl); }
+  const char *getFuncName() const
+    { return f.name; }
 };
-
-template <class K, class PL>
-struct smoc_accumulate_param<K, smoc_missing<void>, PL>
-: public smoc_member_func_interface<typename K::return_type> {
-  
-  K  k;
-  PL pl;
-  
-  smoc_accumulate_param(const K &k, const PL &_pl = PL())
-    : k(k), pl(_pl) {}
-  
-  typename K::return_type operator()() const
-    { return k.callIt(pl); }
-  const char *getFuncName() const 
-    { return k.name; }
-};
-
-template <typename R, class F>
-struct smoc_member_func;
-
-template <typename R, class T>
-struct smoc_member_func<R,R (T::*)()> {
-  typedef R		return_type;
-  typedef smoc_missing<void> missing_type; 
-  
-  T          *obj;
-  R      (T::*f)();
-  const char *name;
-  
-  template <class X>
-  smoc_member_func( X *_obj, R (T::*_f)(), const char *_name )
-    : obj(dynamic_cast<T *>(_obj)), f(_f), name(_name)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  template <class PL>
-  R callIt( const PL &pl ) const {
-    return (obj->*f)();
-  }
-};
-template <typename R, class T, typename P1>
-struct smoc_member_func<R,R (T::*)(P1)> {
-  typedef R		return_type;
-  typedef smoc_missing<P1, smoc_missing<void> > missing_type; 
-  
-  T	     *obj;
-  R      (T::*f)(P1);
-  const char *name;
-  
-  template <class X>
-  smoc_member_func( X *_obj, R (T::*_f)(P1), const char *_name )
-    : obj(dynamic_cast<T *>(_obj)), f(_f), name(_name)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  template <class PL>
-  R callIt( const PL &pl ) const {
-    return (obj->*f)(pl.p);
-  }
-};
-template <typename R, class T, typename P1, typename P2>
-struct smoc_member_func<R,R (T::*)(P1,P2)> {
-  typedef R		return_type;
-  typedef smoc_missing<P1, smoc_missing<P2, smoc_missing<void> > > missing_type; 
-  
-  T	     *obj;
-  R      (T::*f)(P1, P2);
-  const char *name;
-  
-  template <class X>
-  smoc_member_func( X *_obj, R (T::*_f)(P1, P2), const char *_name )
-    : obj(dynamic_cast<T *>(_obj)), f(_f), name(_name)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  template <class PL>
-  R callIt( const PL &pl ) const  {
-    return (obj->*f)(pl.pn.p, pl.p);
-  }
-};
-template <typename R, class T, typename P1, typename P2, typename P3>
-struct smoc_member_func<R,R (T::*)(P1,P2,P3)> {
-  typedef R		return_type;
-  typedef smoc_missing<P1, smoc_missing<P2, smoc_missing<P3, smoc_missing<void> > > > missing_type; 
-  
-  T	     *obj;
-  R      (T::*f)(P1, P2, P3);
-  const char *name;
-  
-  template <class X>
-  smoc_member_func( X *_obj, R (T::*_f)(P1, P2, P3), const char *_name )
-    : obj(dynamic_cast<T *>(_obj)), f(_f), name(_name)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  template <class PL>
-  R callIt( const PL &pl ) const {
-    return (obj->*f)(pl.pn.pn.p, pl.pn.p, pl.p);
-  }
-};
-
-/*
-template <typename R, class F>
-struct smoc_member_func;
-
-template <typename R, class T>
-struct smoc_member_func<R,R (T::*)()> {
-  typedef R		return_type;
-  typedef smoc_missing<void> missing_type; 
-  
-  T     *obj;
-  R (T::*f)();
-  
-  template <class X>
-  smoc_member_func( X *_obj, R (T::*_f)() )
-    : obj(dynamic_cast<T *>(_obj)), f(_f)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  template <class PL>
-  R callIt( const PL &pl ) const {
-    return (obj->*f)();
-  }
-};
-template <typename R, class T, typename P1>
-struct smoc_member_func<R,R (T::*)(P1)> {
-  typedef R		return_type;
-  typedef smoc_missing<P1, smoc_missing<void> > missing_type; 
-  
-  T     *obj;
-  R (T::*f)(P1);
-  
-  template <class X>
-  smoc_member_func( X *_obj, R (T::*_f)(P1) )
-    : obj(dynamic_cast<T *>(_obj)), f(_f)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  template <class PL>
-  R callIt( const PL &pl ) const {
-    return (obj->*f)(pl.p);
-  }
-};
-template <typename R, class T, typename P1, typename P2>
-struct smoc_member_func<R,R (T::*)(P1,P2)> {
-  typedef R		return_type;
-  typedef smoc_missing<P1, smoc_missing<P2, smoc_missing<void> > > missing_type; 
-  
-  T     *obj;
-  R (T::*f)(P1, P2);
-  
-  template <class X>
-  smoc_member_func( X *_obj, R (T::*_f)(P1, P2) )
-    : obj(dynamic_cast<T *>(_obj)), f(_f)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  template <class PL>
-  R callIt( const PL &pl ) const  {
-    return (obj->*f)(pl.pn.p, pl.p);
-  }
-};
-template <typename R, class T, typename P1, typename P2, typename P3>
-struct smoc_member_func<R,R (T::*)(P1,P2,P3)> {
-  typedef R		return_type;
-  typedef smoc_missing<P1, smoc_missing<P2, smoc_missing<P3, smoc_missing<void> > > > missing_type; 
-  
-  T     *obj;
-  R (T::*f)(P1, P2, P3);
-  
-  template <class X>
-  smoc_member_func( X *_obj, R (T::*_f)(P1, P2, P3) )
-    : obj(dynamic_cast<T *>(_obj)), f(_f)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  template <class PL>
-  R callIt( const PL &pl ) const {
-    return (obj->*f)(pl.pn.pn.p, pl.pn.p, pl.p);
-  }
-};
-
-
-
-template <typename R, class T, typename P1 = void, typename P2 = void, typename P3 = void>
-struct smoc_member_func;
-
-template <typename R, class T>
-struct smoc_member_func<R,T,void,void,void>
-: public smoc_member_func_interface<R> {
-  T     *obj;
-  R (T::*f)();
-  
-  smoc_member_func( T *_obj, R (T::*_f)() )
-    : obj(_obj), f(_f)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  R operator()() const { return (obj->*f)(); }
-};
-template <typename R, class T, typename P1>
-struct smoc_member_func<R,T,P1,void,void>
-: public smoc_member_func_interface<R> {
-  T     *obj;
-  R (T::*f)(P1);
-  P1     p1;
-  
-  smoc_member_func( T *_obj, R (T::*_f)(P1), const P1 &_p1 )
-    : obj(_obj), f(_f), p1(_p1)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  R operator()() const { return (obj->*f)(p1); }
-};
-template <typename R, class T, typename P1, typename P2>
-struct smoc_member_func<R,T,P1,P2,void>
-: public smoc_member_func_interface<R> {
-  T     *obj;
-  R (T::*f)(P1, P2);
-  P1     p1;
-  P2     p2;
-  
-  smoc_member_func( T *_obj, R (T::*_f)(P1, P2), const P1 &_p1, const P2 &_p2 )
-    : obj(_obj), f(_f), p1(_p1), p2(_p2)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  R operator()() const { return (obj->*f)(p1, p2); }
-};
-template <typename R, class T, typename P1, typename P2, typename P3>
-struct smoc_member_func
-: public smoc_member_func_interface<R> {
-  T     *obj;
-  R (T::*f)(P1, P2, P3);
-  P1     p1;
-  P2     p2;
-  P3     p3;
-  
-  smoc_member_func( T *_obj, R (T::*_f)(P1, P2, P3), const P1 &_p1, const P2 &_p2, const P3 &_p3 )
-    : obj(_obj), f(_f), p1(_p1), p2(_p2), p3(_p3)
-    { assert(obj != NULL &&  f != NULL); }
-  
-  R operator()() const { return (obj->*f)(p1, p2, p3); }
-};
-*/
 
 class smoc_func_call {
 private:
+  typedef void					return_type;
+  
   boost::intrusive_ptr<
-    smoc_member_func_interface<void> >   k;
+    smoc_member_func_interface<return_type> >   k;
 public:
+  
   template <class K>
   smoc_func_call( const K &_k )
     : k(new K(_k)) {}
-
-  void operator()() const
-    { return k->operator()(); }
-  const char* getFuncName() const
-    { return k->getFuncName(); }
+  
+  void operator()() const {
+    return k->call();
+  }
+  
+  const char* getFuncName() const {
+    return k->getFuncName();
+  }
 };
 
 class smoc_func_diverge {
 private:
-  typedef const smoc_firing_state & return_type;
+  typedef const smoc_firing_state	       &return_type;
   
   boost::intrusive_ptr<
-    smoc_member_func_interface<
-      const smoc_firing_state &> >  k;
+    smoc_member_func_interface<return_type> >   k;
 public:
+  
   template <class K>
   smoc_func_diverge( const K &_k )
     : k(new K(_k)) {}
+  
   template <class T>
   smoc_func_diverge( T *_obj, return_type (T::*_f)() )
-    : k(new smoc_accumulate_param<smoc_member_func<return_type, return_type (T::*)()>,
-				  smoc_missing<void> >
-	(smoc_member_func<return_type, return_type (T::*)()>(_obj, _f, "")) )
+    : k(new typename CoSupport::ParamAccumulator<
+	      smoc_member_func,
+	      CoSupport::Functor<return_type, return_type (T::*)()> >::accumulated_type
+	    (CoSupport::Functor<return_type, return_type (T::*)()>(_obj, _f, "")))
     {}
   
-  const smoc_firing_state &operator()() const
-    { return k->operator()(); }
+  return_type operator()() const {
+    return k->call();
+  }
 };
 
 class smoc_func_branch: public smoc_func_diverge {
