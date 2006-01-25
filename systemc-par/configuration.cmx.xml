@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE configuration SYSTEM "cmx.dtd">
+<configuration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+  <component name="Component1" type="threaded" scheduler="RoundRobin">
+   <attribute type="timeslice" value="20ns"/>
+  </component>
+ </resources>
+
+ <mappings>
+
+  <mapping source="top.sink" target="Component1">
+    <attribute type="delay" value="2"/>
+  </mapping>
+
+  <mapping source="top.src" target="Component1">
+    <attribute type="delay" value="2"/>
+  </mapping>
+
+  <mapping source="top.mod0" target="Component1">
+    <attribute type="delay" value="550"/>
+  </mapping>
+
+  <mapping source="top.mod1" target="Component1">
+    <attribute type="delay" value="450"/>
+  </mapping>
+    
+  <mapping source="top.mod2" target="Component1">
+    <attribute type="delay" value="350"/>
+  </mapping>
+  
+  <mapping source="top.mod3" target="Component1">
+    <attribute type="delay" value="250"/>
+  </mapping>
+
+   <mapping source="top.mod4" target="Component1">
+     <attribute type="delay" value="150"/>
+   </mapping>
+
+   <mapping source="top.mod5" target="Component1">
+     <attribute type="delay" value="50"/>
+   </mapping>
+		    
+  <mapping source="top.src2mod" target="Component1">
+    <attribute type="delay" value="2"/>
+  </mapping>
+
+  <mapping source="top.mod2sink" target="Component1">
+    <attribute type="delay" value="2"/>
+  </mapping>
+  
+ </mappings>
+</configuration>

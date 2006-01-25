@@ -132,6 +132,10 @@ if test -d $srcdir/systemc-sqr; then
   AC_CONFIG_FILES([systemc-sqr/Makefile])
   subdirs="$subdirs systemc-sqr"
 fi
+if test -d $srcdir/systemc-par; then
+  AC_CONFIG_FILES([systemc-par/Makefile])
+  subdirs="$subdirs systemc-par"
+fi    
 if test -d $srcdir/systemc-sqr-double; then
   AC_CONFIG_FILES([systemc-sqr-double/Makefile])
   subdirs="$subdirs systemc-sqr-double"
