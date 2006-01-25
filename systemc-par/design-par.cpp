@@ -105,12 +105,14 @@ template<class CHAN_TYPE_IN, class CHAN_TYPE_OUT>
 class m_disp_base
 {
 private:
-  smoc_port_in<CHAN_TYPE_IN> *p_in;
+  smoc_port_in<CHAN_TYPE_IN>   *p_in;
   smoc_port_out<CHAN_TYPE_OUT> *p_out;
   
-  int n_in;
-  int n_out;
+  int                           n_in;
+  int                           n_out;
+  
 public:
+  
   m_disp_base(int in, int out) :
     p_in(new smoc_port_in<CHAN_TYPE_IN>[in]),
     p_out(new smoc_port_out<CHAN_TYPE_OUT>[out]),
@@ -137,6 +139,39 @@ public:
   int out_count() const { return n_out; }
 };
 
+template<class M>
+class m_par_mod
+{
+private:
+  M         **p_inst;
+  int         n_inst;
+  
+public:
+  m_par_mod(const char *name_prefix, int inst) :
+    p_inst(new M *[inst]),
+    n_inst(inst)
+  {
+    for(int i=0; i<inst; ++i) {
+      std::ostringstream name;
+      name << name_prefix << i;
+      p_inst[i] = new M(name.str().c_str());
+    }
+  }
+
+  ~m_par_mod() {
+    for(int i=0; i<n_inst; ++i) {
+      delete p_inst[i];
+    }
+    delete[] p_inst;
+  }
+
+  M& instance(int i) {
+    assert(i >= 0 && i < n_inst);
+    return *p_inst[i];
+  }
+
+  int instance_count() const { return n_inst; }
+};
 
 class m_d_src2mod :
   public smoc_actor,
@@ -223,40 +258,27 @@ class m_top :
     m_sink            sink;
     m_d_src2mod       src2mod;
     m_d_mod2sink      mod2sink;
-    
-    m_mod             **mod;
-    int               mod_inst;
+    m_par_mod<m_mod>  mod;
     
   public:
-    m_top( sc_module_name name, int _mod_inst ) :
+    m_top( sc_module_name name, int mod_inst ) :
       smoc_graph(name),
       src("src", 50),
       sink("sink"),
-      src2mod("src2mod", 1, _mod_inst),
-      mod2sink("mod2sink", _mod_inst, 1),
-      mod(new m_mod *[_mod_inst]),
-      mod_inst(_mod_inst)
+      src2mod("src2mod", 1, mod_inst),
+      mod2sink("mod2sink", mod_inst, 1),
+      mod("mod", mod_inst)
     {
       connectNodePorts(src.out, src2mod.in(0));
       
       for(int i=0; i<mod_inst; ++i) {
-	std::ostringstream name;
-	name << "mod" << i;
-	mod[i] = new m_mod(name.str().c_str());
-	connectNodePorts(src2mod.out(i), mod[i]->in);
-	connectNodePorts(mod[i]->out, mod2sink.in(i));
+	connectNodePorts(src2mod.out(i), mod.instance(i).in);
+	connectNodePorts(mod.instance(i).out, mod2sink.in(i));
       }
       
       connectNodePorts(mod2sink.out(0), sink.in);
       
       connectNodePorts(src2mod.sm2ms, mod2sink.sm2ms, smoc_fifo<int>(mod_inst) );
-    }
-
-    ~m_top() {
-      for(int i=0; i<mod_inst; ++i) {
-	delete mod[i];
-      }
-      delete[] mod;
     }
 };
 
