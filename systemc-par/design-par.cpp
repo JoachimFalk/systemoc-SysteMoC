@@ -146,7 +146,12 @@ public:
   smoc_port_out<int> sm2ms;
   
 private:
-  void copy(int i, int o) { std::cout << "SRC2MOD> " << i << " -> " << o << std::endl; out(o)[0] = in(i)[0]; sm2ms[0] = o; }
+  
+  void pcopy(smoc_port_in<double> *in, smoc_port_out<double> *out, int i, int o) {
+    std::cout << "SRC2MOD> " << i << " -> " << o << std::endl;
+    (*out)[0] = (*in)[0];
+    sm2ms[0] = o;
+  }
   
   smoc_firing_state run;
   
@@ -161,7 +166,7 @@ public:
       for(int o=0; o<out_count(); ++o) {
 	stl |= in(i)(1)
             >> (out(o)(1) && sm2ms(1))
-	    >> CALL(m_d_src2mod::copy)(i)(o)
+	    >> CALL(m_d_src2mod::pcopy)(&in(i))(&out(o))(i)(o)
 	    >> run;
       }
     }
@@ -178,8 +183,14 @@ public:
   smoc_port_in<int> sm2ms;
   
 private:
-  void copy(int i, int o) { out(o)[0] = in(i)[0]; }
-  bool my_guard(int i) const { return sm2ms[0] == i; }
+  
+  void pcopy(smoc_port_in<double> *in, smoc_port_out<double> *out) {
+    (*out)[0] = (*in)[0];
+  }
+  
+  bool pguard(int i) const {
+    return sm2ms[0] == i;
+  }
 
   smoc_firing_state run;
   
@@ -193,9 +204,9 @@ public:
     for(int i=0; i<in_count(); ++i) {
       for(int o=0; o<out_count(); ++o) {
 	
-	stl |= (in(i)(1) && sm2ms(1) && GUARD(m_d_mod2sink::my_guard)(i))
+	stl |= (in(i)(1) && sm2ms(1) && GUARD(m_d_mod2sink::pguard)(i))
             >> out(o)(1)
-            >> CALL(m_d_mod2sink::copy)(i)(o)
+            >> CALL(m_d_mod2sink::pcopy)(&in(i))(&out(o))
             >> run;
       }
     }
@@ -203,8 +214,6 @@ public:
     run = stl;
   }  
 };
-
-#define MOD_INST 3
 
 class m_top : 
   public smoc_graph
@@ -215,19 +224,22 @@ class m_top :
     m_d_src2mod       src2mod;
     m_d_mod2sink      mod2sink;
     
-    m_mod             *mod[MOD_INST];
+    m_mod             **mod;
+    int               mod_inst;
     
   public:
-    m_top( sc_module_name name ) :
+    m_top( sc_module_name name, int _mod_inst ) :
       smoc_graph(name),
       src("src", 50),
       sink("sink"),
-      src2mod("src2mod", 1, MOD_INST),
-      mod2sink("mod2sink", MOD_INST, 1)
+      src2mod("src2mod", 1, _mod_inst),
+      mod2sink("mod2sink", _mod_inst, 1),
+      mod(new m_mod *[_mod_inst]),
+      mod_inst(_mod_inst)
     {
       connectNodePorts(src.out, src2mod.in(0));
       
-      for(int i=0; i<MOD_INST; ++i) {
+      for(int i=0; i<mod_inst; ++i) {
 	std::ostringstream name;
 	name << "mod" << i;
 	mod[i] = new m_mod(name.str().c_str());
@@ -237,15 +249,35 @@ class m_top :
       
       connectNodePorts(mod2sink.out(0), sink.in);
       
-      connectNodePorts(src2mod.sm2ms, mod2sink.sm2ms, smoc_fifo<int>(MOD_INST) );
-    }    
+      connectNodePorts(src2mod.sm2ms, mod2sink.sm2ms, smoc_fifo<int>(mod_inst) );
+    }
+
+    ~m_top() {
+      for(int i=0; i<mod_inst; ++i) {
+	delete mod[i];
+      }
+      delete[] mod;
+    }
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<m_top> top("top");
+  
+  int mod_inst;
+  
+#define MOD_INST "--mod_inst"
+  if(argc > 2 && 0 == strncmp(argv[1], MOD_INST, sizeof(MOD_INST))) {
+    mod_inst = atoi(argv[2]);
+    assert(mod_inst > 0);
+  } else {
+    std::cerr << "Usage: ./simulation-sqr --mod_inst <n> [--generate-problemgraph]" << std::endl;
+    return 1;
+  }
+#undef MOD_INST
+  
+  smoc_top_moc<m_top> top("top", mod_inst);
   
 #define GENERATE "--generate-problemgraph"
-  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
+  if (argc > 3 && 0 == strncmp(argv[3], GENERATE, sizeof(GENERATE))) {
     smoc_modes::dump(std::cout, top);
   } else {
     sc_start(-1);
