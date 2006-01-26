@@ -43,7 +43,8 @@ public:
   template <typename T>
   inline
   const TraceLogStream &operator << (const T &t) const {
-    stream << "TraceLog: " << t << std::flush;
+    //stream << "TraceLog: " << t << std::flush;
+    stream << t << std::flush;
     return *this;
   }
   
