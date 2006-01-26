@@ -381,11 +381,35 @@ q_{_0\mathrm{func}} & = & 0% \\
 \subsection{Declaration of the communication behavior}
 
 Consumption and production of tokens is only triggered by transitions in the \emph{firing FSMs}, which are embedded in all actors.
-Therefore the communication behavior of an actor is encoded in its \emph{firing FSM}, e.g., as seen in Figure~\ref{fig:firing-rules-sqrloop}.
-Directed edges between these firing states are called \emph{firing transitions} or \emph{transitions} for short.
+Therefore the communication behavior of an actor is encoded in its firing FSM, e.g., as seen in Figure~\ref{fig:firing-rules-sqrloop}.
+The states of a firing FSM are called \emph{firing states}, directed edges between these firing states are called \emph{firing transitions} or \emph{transitions} for short.
 Each transition is annotated with an \emph{activation patten}, which decides if the transition can be taken, and an \emph{action} from the \emph{actor functionality} which is executed if the transition is taken.
 An \emph{activation pattern} is subdivided into an \emph{input pattern} and an \emph{output pattern}.
 Where input and output patterns are responsible for checking conditions on the actor input and actor output ports respectively.
+This can be condensed into the following two definitions:
+
+\begin{cdefinition}[Firing FSM]\label{def:firing-fsm}
+  The \emph{firing FSM} of an actor $A$ is a tuple $A.\mathcal{R} =$ $(\mathcal{T},$ $Q_\mathrm{firing},$ $q_{_0\mathrm{firing}})$ containing
+  a set of \emph{firing transitions} $\mathcal{T}$, % \subseteq Q_\mathrm{firing} \times \mathcal{K} \times A.\mathcal{F}.F_\mathrm{action} \times Q_\mathrm{firing}$,
+  a set of \emph{firing states} $Q_\mathrm{firing}$ and
+  an \emph{initial firing state} $q_{_0\mathrm{firing}} \in Q_\mathrm{firing}$.
+\end{cdefinition}
+
+\begin{cdefinition}[Transition]\label{firing-transition}
+  A \emph{firing transition} is a tuple $\mathbf{t} = (q_\mathrm{firing}, k, f_\mathrm{action}, q'_\mathrm{firing}) \in \mathcal{T}$ containing
+  the current firing state $q_\mathrm{firing} \in Q_\mathrm{firing}$
+  an \emph{activation pattern} $k \in \mathcal{K}$,
+  the associated \emph{action} $f_\mathrm{action} \in A.\mathcal{F}.F_\mathrm{action}$,
+  and an the next firing state $q'_\mathrm{firing} \in Q_\mathrm{firing}$.
+  The activation pattern $k$ is a function which decides if its transition $\mathbf{t}$
+  can be taken $k(\mathbf{v}, q_\mathrm{func}) = \mathrm{true}$, or
+  can not be taken $k(\mathbf{v}, q_\mathrm{func}) = \mathrm{false}$.
+% or more input values are still neccessary to decide $k(\mathbf{v}, q_\mathrm{func}) = \bot$.
+% Where $k$ is a function from
+% the \emph{input alphabet} $\chi = (V^{**})^{|A.I|} \times \mathbb{Z}^{|A.O|}$ and the \emph{functionality state}
+% $A.\mathcal{F}.Q_\mathrm{func}$ to the trinary boolean set $\{\bot, \mathrm{true}, \mathrm{false}\}$, i.e.,
+% $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
+\end{cdefinition}
 
 \begin{figure}[h]
 \centering
@@ -396,10 +420,7 @@ The \code{SqrLoop} actor controls the number of approximation iterations perform
 }
 \end{figure}
 
-The states of a firing FSM are called \emph{firing states}, which are represented in SysteMoC as instances of the \code{smoc\_firing\_state} class.
-The firing FSM of an actor is assembled in the constructor of the corresponding actor class by assigning each firing state its set of leaving transitions, e.g., as seen in the following example, which shows the SysteMoC representation of the firing FSM of the \code{SqrLoop} actor $A_2$.
-A visual representation of this FSM can also be seen in Figure~\ref{fig:firing-rules-sqrloop}.
-
+In preceding figure the firing FSM of the \code{SqrLoop} is displayed.
 From the $S_\mathrm{start}$ state only the transition $\mathbf{t}_1$ can be taken, which blocks until at least one token is available on input port $i_1$ and one free space is available on output port $o_1$.
 The token on $i_1$ represents the input value for the square root algorithm and is stored and forwarded by action $f_\mathtt{copyStore}$ via port $o_1$ to the approximation loop body $A_3$ - $A_4$ of newtons algorithm.
 
@@ -420,6 +441,10 @@ Whereas the transition $\mathbf{t}_2$ forwards the square root approximation to 
 % besteht aus einem Zustand \code{start} und zwei Selbstschleifen,
 % den Transitionen $\mathbf{t_1}$ und $\mathbf{t_2}$.
 
+In SysteMoC firing states are represented as instances of the \code{smoc\_firing\_state} class.
+The firing FSM of an actor is assembled in the constructor of the corresponding actor class by assigning each firing state its set of leaving transitions.
+In the following Example~\ref{ex:systemoc-sqrloop-fsm-def} the SysteMoC representation of the firing FSM of the \code{SqrLoop} actor $A_2$, also seen as visual representation in Figure~\ref{fig:firing-rules-sqrloop}, is given.
+
 \begin{cexample}\label{ex:systemoc-sqrloop-fsm-def}%
 Declaration of communication behavior
 \begin{verbatim}
@@ -436,33 +461,33 @@ public:
     // of one leaving transition t1
     start =
       // transition t1
-        // with input pattern requiring at lest one token
+        // with input pattern requiring at least one token
         // in the FIFO connected to input port i1
         i1(1)                               >>
-        // with output pattern requiring at lest one free space
+        // with output pattern requiring at least one free space
         // in the FIFO connected to output port o1
         o1(1)                               >>
         // has action SqrLoop::copyStore and next state loop
         CALL(SqrLoop::copyStore)            >> loop
       ;
-    // Declaration of loop state consisting of two transition t2 t3
+    // Declaration of loop state consisting of two transitions t2 and t3
     loop  =
       // transition t2
-        // with input pattern requiring at lest one token
+        // with input pattern requiring at least one token
         // in the FIFO connected to input port i2 and
         // that guard SqrLoop::check be true
         (i2(1) &&  GUARD(SqrLoop::check))   >>
-        // with output pattern requiring at lest one free space
+        // with output pattern requiring at least one free space
         // in the FIFO connected to output port o2
         o2(1)                               >>
         // has action SqrLoop::copyApprox and next state start
         CALL(SqrLoop::copyApprox)           >> start
       // transition t3
-        // with input pattern requiring at lest one token
+        // with input pattern requiring at least one token
         // in the FIFO connected to input port i2 and
         // that guard SqrLoop::check be false
       | (i2(1) && !GUARD(SqrLoop::check))   >>
-        // with output pattern requiring at lest one free space
+        // with output pattern requiring at least one free space
         // in the FIFO connected to output port o1
         o1(1)                               >>
         // has action SqrLoop::copyInput and next state loop
@@ -472,6 +497,9 @@ public:
 };
 \end{verbatim}
 \end{cexample}
+
+
+
 
 % (iii) Construction of the \emph{firing state machine} of the actor.
 % Aktivierungsregeln, kodiert als endlicher Zustandsautomat,
@@ -591,13 +619,6 @@ ExprTerminal    ::= <Integer>                                          |
 % Guard Methoden müssen konstante Methoden sein,
 % da sie den Funktionalitätszustand nicht verändern dürfen.
 
-\begin{cdefinition}[Firing FSM]\label{def:firing-fsm}
-  The \emph{firing FSM} of an actor $A$ is a tuple $A.\mathcal{R} =$ $(\mathcal{T},$ $Q_\mathrm{firing},$ $q_{_0\mathrm{firing}})$ containing
-  a set of \emph{firing transitions} $\mathcal{T}$, % \subseteq Q_\mathrm{firing} \times \mathcal{K} \times A.\mathcal{F}.F_\mathrm{action} \times Q_\mathrm{firing}$,
-  a set of \emph{firing states} $Q_\mathrm{firing}$ and
-  an \emph{initial firing state} $q_{_0\mathrm{firing}} \in Q_\mathrm{firing}$.
-\end{cdefinition}
-
 %An actor is \emph{blocked} in state $q$ until at least one firing transition
 %$\mathbf{t} \in \mathcal{T}_q$ is enabled, as discussed below. The set of enabled transitions is
 %given by $\mathcal{T}'_q = \{ \mathbf{t} \mid \mathbf{t} \in \mathcal{T}_q \wedge \mathbf{t} \textrm{ is enabled}\}$.
@@ -605,22 +626,6 @@ ExprTerminal    ::= <Integer>                                          |
 %for execution. For example, if both transitions $\{\mathbf{t}_1, \mathbf{t}_2\} = \delta(S_{start})$
 %in the firing FSM shown in Figure~\ref{fig:firing-rules-print} of the Print Actor $A_6$ from Figure~\ref{fig:ng-moc}
 %are enabled, one of them is executed nondeterministically.
-
-\begin{cdefinition}[Transition]\label{firing-transition}
-  A \emph{firing transition} is a tuple $\mathbf{t} = (q_\mathrm{firing}, k, f_\mathrm{action}, q'_\mathrm{firing}) \in \mathcal{T}$ containing
-  the current firing state $q_\mathrm{firing} \in Q_\mathrm{firing}$
-  an \emph{activation pattern} $k \in \mathcal{K}$,
-  the associated \emph{action} $f_\mathrm{action} \in A.\mathcal{F}.F_\mathrm{action}$,
-  and an the next firing state $q'_\mathrm{firing} \in Q_\mathrm{firing}$.
-  The activation pattern $k$ is a function which decides if its transition $\mathbf{t}$
-  can be taken $k(\mathbf{v}, q_\mathrm{func}) = \mathrm{true}$, or
-  can not be taken $k(\mathbf{v}, q_\mathrm{func}) = \mathrm{false}$.
-% or more input values are still neccessary to decide $k(\mathbf{v}, q_\mathrm{func}) = \bot$.
-% Where $k$ is a function from
-% the \emph{input alphabet} $\chi = (V^{**})^{|A.I|} \times \mathbb{Z}^{|A.O|}$ and the \emph{functionality state}
-% $A.\mathcal{F}.Q_\mathrm{func}$ to the trinary boolean set $\{\bot, \mathrm{true}, \mathrm{false}\}$, i.e.,
-% $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
-\end{cdefinition}
 
 % A transition $\mathbf{t} = (k,J)$ is enabled if its \emph{activation pattern} $k$
 % is enabled. If a transition $\mathbf{t}$ is enabled and 
