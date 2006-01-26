@@ -105,12 +105,13 @@ public:
     connectNodePorts(src.o1,     sqrloop.i1);
     // a2.o1 -> a3.i1 using FIFO standard size
     connectNodePorts(sqrloop.o1, approx.i1);
-    // a3.o1 -> a4.i1 using FIFO size 1 and
-    // an initial sequence of 2
+    // a3.o1 -> a4.i1 using FIFO size 1
     connectNodePorts(approx.o1,  dup.i1,
-                     smoc_fifo<double>(1) << 2 );
-    // a4.o1 -> a3.i2 using FIFO standard size
-    connectNodePorts(dup.o1,     approx.i2);
+                     smoc_fifo<double>(1) );
+    // a4.o1 -> a3.i2 using FIFO standard size and
+    // an initial sequence of 2
+    connectNodePorts(dup.o1,     approx.i2,
+                     smoc_fifo<double>() << 2 );
     // a4.o2 -> a2.i2 using FIFO standard size
     connectNodePorts(dup.o2,     sqrloop.i2);
     // a2.o2 -> a5.i1 using FIFO standard size
@@ -252,7 +253,7 @@ In the following the steps to construct these three parts will be explained in d
 
 \begin{figure}[h]
 \centering
-\input{actor-sqrloop-fig.tex}
+\resizebox{\textwidth}{!}{\input{actor-sqrloop-fig.tex}}
 \caption{\label{fig:actor-sqrloop}%
 Visual representation of the \code{SqrLoop} actor $A_2$ used in the network graph displayed in Figure~\ref{fig:ng-sqrroot}.
 The \code{SqrLoop} actor is composed from \emph{input ports} and \emph{output ports}, its \emph{functionality}, and the \emph{firing FSM} determining the communication behavior of the actor.}
@@ -294,7 +295,7 @@ These functions manipulate the \emph{functionality state} stored in the member v
 Some member functions of the actor are reference by the firing FSM
 to calculate token values to be produced on the output ports.
 These member functions are called \emph{actions}, e.g.,
-\code{store} in Example~\ref{ex:systemoc-functionality-def},
+\code{copyStore} in Example~\ref{ex:systemoc-functionality-def},
 and can manipulate the functionality state.
 Other member functions are reference by the firing FSM to decide if
 transitions in the FSM are enabled an can be taken.
@@ -316,13 +317,14 @@ private:
   
   // action functions triggered by the
   // FSM declared in the constructor
-  void store() { tmp_i1 = i1[0]; }
-  void copy1() { o1[0] = tmp_i1; }
-  void copy2() { o1[0] = tmp_i1; o2[0] = i2[0]; }
+  void copyStore()  { o1[0] = tmp_i1 = i1[0];  }
+  void copyInput()  { o1[0] = tmp_i1;          }
+  void copyApprox() { o2[0] = i2[0];           }
   
   // guard  functions used by the
   // FSM declared in the constructor
-  bool check() const {  ... /* More code here */ }
+  bool check() const
+    { return fabs(tmp_i1-i2[0]*i2[0]) < BOUND; }
   ...
 };
 \end{verbatim}
@@ -369,31 +371,54 @@ Output values from actions $f_\mathrm{action}$ are used by the firing FSM to gen
 
 For example, the mathematical representation of Example~\ref{ex:systemoc-functionality-def} is as follows:
 \begin{eqnarray*}
-F_\mathrm{action}   & = & \{f_\mathtt{store}, f_\mathtt{copy1}, f_\mathtt{copy2}\} \\
+F_\mathrm{action}   & = & \{f_\mathtt{copyStore}, f_\mathtt{copyInput}, f_\mathtt{copyApprox}\} \\
 F_\mathrm{guard}    & = & \{f_\mathtt{check}\} \\
 Q_\mathrm{func}     & = & \mathbb{R} \\
 q_{_0\mathrm{func}} & = & 0% \\
-%f_\mathtt{store}    & : & 
+%f_\mathtt{copyStore}    & : & 
 \end{eqnarray*}
 
 \subsection{Declaration of the communication behavior}
 
-The communication behavior of an actor is encoded as a \emph{finite state machine}.
+Consumption and production of tokens is only triggered by transitions in the \emph{firing FSMs}, which are embedded in all actors.
+Therefore the communication behavior of an actor is encoded in its \emph{firing FSM}, e.g., as seen in Figure~\ref{fig:firing-rules-sqrloop}.
+Directed edges between these firing states are called \emph{firing transitions} or \emph{transitions} for short.
+Each transition is annotated with an \emph{activation patten}, which decides if the transition can be taken, and an \emph{action} from the \emph{actor functionality} which is executed if the transition is taken.
+An \emph{activation pattern} is subdivided into an \emph{input pattern} and an \emph{output pattern}.
+Where input and output patterns are responsible for checking conditions on the actor input and actor output ports respectively.
 
+\begin{figure}[h]
+\centering
+\scalebox{1}[1]{\input{firing-rules-sqrloop-fig.tex}}
+\caption{\label{fig:firing-rules-sqrloop}%
+Visual representation of the \emph{firing FSM} of the \code{SqrLoop} actor $A_2$ from Figure~\ref{fig:ng-sqrroot}.
+The \code{SqrLoop} actor controls the number of approximation iterations performed by Newton's square root algorithm.
+}
+\end{figure}
 
+The states of a firing FSM are called \emph{firing states}, which are represented in SysteMoC as instances of the \code{smoc\_firing\_state} class.
+The firing FSM of an actor is assembled in the constructor of the corresponding actor class by assigning each firing state its set of leaving transitions, e.g., as seen in the following example, which shows the SysteMoC representation of the firing FSM of the \code{SqrLoop} actor $A_2$.
+A visual representation of this FSM can also be seen in Figure~\ref{fig:firing-rules-sqrloop}.
 
-  (iii) Construction of the \emph{firing state machine} of the actor.
-Aktivierungsregeln, kodiert als endlicher Zustandsautomat,
-beschreiben das Kommunikationsverhalten des Aktors.
-Die Zustände dieses Zustandsautomaten werden als
-\emph{Aktivierungszustände} bezeichnet.
-Die Bedingung der Transitionen des Zustandsautomaten setzen sich
-aus logischen Verknüpfungen über den Füllstand bzw.
-die Anzahl freier Plätze in einem Kanal sowie weiteren
-Ausdrücken (z.B.\ über Datenwerte) zusammen. Die Backus-Naur-Form (\emph{BNF}) für den Aufbau des Zustandsautomaten
-ist in Abbildung \ref{syn:systemoc-fsm-bnf} und \ref{syn:systemoc-fsm-bnf-2} dargestellt. Ein konkretes
-Beispiel, der Aufbau des Zustandsautomaten für den \code{BthChk}-Aktor (Abbildung \ref{systemoc-bthchk-fsm})
-lässt sich in Abbildung \ref{fig:firing-rules-sqrloop} betrachten.
+From the $S_\mathrm{start}$ state only the transition $\mathbf{t}_1$ can be taken, which blocks until at least one token is available on input port $i_1$ and one free space is available on output port $o_1$.
+The token on $i_1$ represents the input value for the square root algorithm and is stored and forwarded by action $f_\mathtt{copyStore}$ via port $o_1$ to the approximation loop body $A_3$ - $A_4$ of newtons algorithm.
+
+From the $S_\mathrm{loop}$ state either the transition $\mathbf{t}_2$ can be taken if the approximation satisfies the error bound \code{BOUND}, or the transition $\mathbf{t}_2$ if another approximation step is neccessary.
+This termination criteria is check by the guard $f_\mathtt{check}$. % from its actor functionality $A_2.\mathcal{F}$
+Furthermore both transitions $\mathbf{t}_2$ and $\mathbf{t}_3$ can only be taken if at least one approximation value is available via port $i_2$.
+Also for transition $\mathbf{t}_2$ and $\mathbf{t}_3$ to be taken at least one free space must be available on output port $o_2$ and output port $o_1$ respectively.
+Whereas the transition $\mathbf{t}_2$ forwards the square root approximation to the \code{Sink} actor $A_5$ and transition $\mathbf{t}_3$ forwards the input value for the square root algorithm again to the approximation loop body to calculate a refined approximation.
+
+% Die Aktivierungsregeln werden als endliche Zustandsautomaten implementiert,
+% welche im Konstruktor der Aktorklasse aufgebaut werden.
+% Die Aktivierungszustände werden als Instanzen der \code{smoc\_firing\_state} Klasse deklariert,
+% z.B. im obigen Quellcode der \code{start}-Aktivierungszustand.
+% Von den deklarierten Aktivierungszuständen wird einer als
+% Startzustand selektiert, indem er an die Basisklasse \code{smoc\_actor} übergeben wird.
+% Der obig definierte Zustandsautomat,
+% auch graphisch dargestellt in Abbildung \ref{fig:firing-rules-sqrloop},
+% besteht aus einem Zustand \code{start} und zwei Selbstschleifen,
+% den Transitionen $\mathbf{t_1}$ und $\mathbf{t_2}$.
 
 \begin{cexample}\label{ex:systemoc-sqrloop-fsm-def}%
 Declaration of communication behavior
@@ -407,68 +432,69 @@ public:
   // firing FSM and initializing the actor
   SqrLoop(sc_module_name name)
     : smoc_actor( name, start /* start state of firing FSM */ ) {
-    // Declaration of start state consisting of one transition t1
+    // Declaration of start state consisting
+    // of one leaving transition t1
     start =
       // transition t1
-        // with input guard requiring at lest one token in the FIFO
-        // connected to input port i1
+        // with input pattern requiring at lest one token
+        // in the FIFO connected to input port i1
         i1(1)                               >>
-        // has action SqrLoop::store and next state loop
-        CALL(SqrLoop::store)                >> loop
+        // with output pattern requiring at lest one free space
+        // in the FIFO connected to output port o1
+        o1(1)                               >>
+        // has action SqrLoop::copyStore and next state loop
+        CALL(SqrLoop::copyStore)            >> loop
       ;
     // Declaration of loop state consisting of two transition t2 t3
     loop  =
       // transition t2
-        // with input guard requiring at lest one token in the FIFO
-        // connected to input port i2 and that guard SqrLoop::check be true
+        // with input pattern requiring at lest one token
+        // in the FIFO connected to input port i2 and
+        // that guard SqrLoop::check be true
         (i2(1) &&  GUARD(SqrLoop::check))   >>
-        // with output guard requiring at lest one free space in the FIFOs
-        // connected to output ports o1 and o2
-        (o1(1) && o2(1))                    >>
-        // has action SqrLoop::copy2 and next state start
-        CALL(SqrLoop::copy2)                >> start
+        // with output pattern requiring at lest one free space
+        // in the FIFO connected to output port o2
+        o2(1)                               >>
+        // has action SqrLoop::copyApprox and next state start
+        CALL(SqrLoop::copyApprox)           >> start
       // transition t3
-        // with input guard requiring at lest one token in the FIFO
-        // connected to input port i2 and that guard SqrLoop::check be false
+        // with input pattern requiring at lest one token
+        // in the FIFO connected to input port i2 and
+        // that guard SqrLoop::check be false
       | (i2(1) && !GUARD(SqrLoop::check))   >>
-        // with output guard requiring at lest one free space in the FIFO
-        // connected to output port o1
+        // with output pattern requiring at lest one free space
+        // in the FIFO connected to output port o1
         o1(1)                               >>
-        // has action SqrLoop::copy1 and next state loop
-        CALL(SqrLoop::copy1)                >> loop
+        // has action SqrLoop::copyInput and next state loop
+        CALL(SqrLoop::copyInput)            >> loop
       ;
   }
 };
 \end{verbatim}
 \end{cexample}
 
-Die Aktivierungsregeln werden als endliche Zustandsautomaten implementiert,
-welche im Konstruktor der Aktorklasse aufgebaut werden.
-Die Aktivierungszustände werden als Instanzen der \code{smoc\_firing\_state} Klasse deklariert,
-z.B. im obigen Quellcode der \code{start}-Aktivierungszustand.
-Von den deklarierten Aktivierungszuständen wird einer als
-Startzustand selektiert, indem er an die Basisklasse \code{smoc\_actor} übergeben wird.
-Der obig definierte Zustandsautomat,
-auch graphisch dargestellt in Abbildung \ref{fig:firing-rules-sqrloop},
-besteht aus einem Zustand \code{start} und zwei Selbstschleifen,
-den Transitionen $\mathbf{t_1}$ und $\mathbf{t_2}$.
+% (iii) Construction of the \emph{firing state machine} of the actor.
+% Aktivierungsregeln, kodiert als endlicher Zustandsautomat,
+% beschreiben das Kommunikationsverhalten des Aktors.
+% Die Zustände dieses Zustandsautomaten werden als
+% \emph{Aktivierungszustände} bezeichnet.
+% Die Bedingung der Transitionen des Zustandsautomaten setzen sich
+% aus logischen Verknüpfungen über den Füllstand bzw.
+% die Anzahl freier Plätze in einem Kanal sowie weiteren
+% Ausdrücken (z.B.\ über Datenwerte) zusammen. Die Backus-Naur-Form (\emph{BNF}) für den Aufbau des Zustandsautomaten
+% ist in Abbildung \ref{syn:systemoc-fsm-bnf} und \ref{syn:systemoc-fsm-bnf-2} dargestellt. Ein konkretes
+% Beispiel, der Aufbau des Zustandsautomaten für den \code{BthChk}-Aktor (Abbildung \ref{systemoc-bthchk-fsm})
+% lässt sich in Abbildung \ref{fig:firing-rules-sqrloop} betrachten.
 
-\begin{figure}[h]
-\centering
-\scalebox{1}[1]{\input{firing-rules-sqrloop-fig.tex}}
-\caption{\label{fig:firing-rules-sqrloop}%
-Visual representation of the \emph{firing FSM} of the \code{SqrLoop} actor from
-Example~\ref{ex:systemoc-sqrloop-fsm-def}.
-Der Eingangsport \code{inMStore2BthChk} ist hier als $i_1$,
-wie in Abbildung \ref{fig:ng-sqrroot} verwendet,
-die beiden Ausgangsports \code{outBthChk2RethChk} und \code{outBthChk2AethChk}
-sind als $o_1$ bzw. $o_2$ wiederzufinden.
-Die Schreibweisen $i_1(n)$ bzw. $o_1(m)$
-werden als Abkürzung für
-\code{i1.getAvailableTokens() >= n} bzw.
-\code{o1.getAvailableSpace() >= m} eingesetzt.
-}
-\end{figure}
+% has two input ports $i_1$ and $i_2$. 
+% Der Eingangsport \code{inMStore2BthChk} ist hier als $i_1$,
+% wie in Abbildung \ref{fig:ng-sqrroot} verwendet,
+% die beiden Ausgangsports \code{outBthChk2RethChk} und \code{outBthChk2AethChk}
+% sind als $o_1$ bzw. $o_2$ wiederzufinden.
+% Die Schreibweisen $i_1(n)$ bzw. $o_1(m)$
+% werden als Abkürzung für
+% \code{i1.getAvailableTokens() >= n} bzw.
+% \code{o1.getAvailableSpace() >= m} eingesetzt.
 
 \begin{csyntax}\label{syn:systemoc-fsm-bnf}%
 Extended Backus-Naur form of the firing FSM declaration
@@ -505,24 +531,24 @@ OutputExpr      ::= OutputPort '.getAvailableSpace()'  '>=' Expr |
 \end{verbatim}
 \end{csyntax}
 
-Der Zustandsautomat wird durch die Definition (\code{StateDefinition}) aller
-seiner Aktivierungszustände deklariert.
-Diese Aktivierungszustände sind in der \emph{BNF} durch die
-\code{ActivationState}-Terminale repräsentiert, welche C++-Variablen
-vom Typ \code{smoc\_firing\_state} entsprechen.
-Ein Aktivierungszustand ist durch die ihn verlassenden Transitionen
-\code{TransitionList} definiert.
-Eine Transition setzt sich dabei aus zwei Bedingungen,
-der \emph{Eingangsbedingung} (\code{InputGuard}) und
-der \emph{Ausgangsbedingung} (\code{OutputGuard}),
-gefolgt von einer \emph{Aktion} und dem \emph{Folgezustand} zusammen.
-Diese Aktionen sind in der \emph{BNF} durch \code{Action}-Terminale
-repräsentiert, welche C++-Methoden der Aktorklasse entsprechen.
-Die Eingangs- bzw. Ausgangsbedingung setzen sich dabei aus
-Bedingungen zur Überprüfung der Kanalfüllstände \code{InputExpr} bzw.
-\code{OutputExpr} und allgemeinen Ausdrücken \code{Expr} zusammen, welche
-den Funktionalitätszustand und die Tokenart überprüfen können.
-Diese sind in Beispiel~\ref{syn:systemoc-fsm-bnf-2} weiter erläutert.
+% Der Zustandsautomat wird durch die Definition (\code{StateDefinition}) aller
+% seiner Aktivierungszustände deklariert.
+% Diese Aktivierungszustände sind in der \emph{BNF} durch die
+% \code{ActivationState}-Terminale repräsentiert, welche C++-Variablen
+% vom Typ \code{smoc\_firing\_state} entsprechen.
+% Ein Aktivierungszustand ist durch die ihn verlassenden Transitionen
+% \code{TransitionList} definiert.
+% Eine Transition setzt sich dabei aus zwei Bedingungen,
+% der \emph{Eingangsbedingung} (\code{InputGuard}) und
+% der \emph{Ausgangsbedingung} (\code{OutputGuard}),
+% gefolgt von einer \emph{Aktion} und dem \emph{Folgezustand} zusammen.
+% Diese Aktionen sind in der \emph{BNF} durch \code{Action}-Terminale
+% repräsentiert, welche C++-Methoden der Aktorklasse entsprechen.
+% Die Eingangs- bzw. Ausgangsbedingung setzen sich dabei aus
+% Bedingungen zur Überprüfung der Kanalfüllstände \code{InputExpr} bzw.
+% \code{OutputExpr} und allgemeinen Ausdrücken \code{Expr} zusammen, welche
+% den Funktionalitätszustand und die Tokenart überprüfen können.
+% Diese sind in Beispiel~\ref{syn:systemoc-fsm-bnf-2} weiter erläutert.
 
 \begin{csyntax}\label{syn:systemoc-fsm-bnf-2}%
 Extended Backus-Naur form of transition guard expressions
@@ -546,24 +572,24 @@ ExprTerminal    ::= <Integer>                                          |
 \end{verbatim}
 \end{csyntax}
 
-Allgemeine Ausdrücke zur Überprüfung des Funktionalitätszustandes
-und der empfangenen Tokenart können mittels der obig aufgeführten
-Operatoren verknüpft werden. Die Operatoren haben dabei C++-Präzedenz und
-Bedeutung, z.B. ist '\code{\^}' das bitweise exklusive Oder.
-Die Ausdrücke werden dabei aus folgenden Terminalen aufgebaut:
-(i)   Das \code{Integer}-Terminal represäntiert einen C++-Ausdruck der
-      zur Instantiierungszeit in einen Integer umgewandelt werden kann,
-      z.B. 5, abs(-5), sqr(a+b),
-(ii)  das \code{Variable}-Terminal represäntiert eine C++-Klassenvariablen,
-      welche bei jeder Auswertung der Eingangsbedingung neu ausgelesen wird,
-(iii) das \code{GuardMethod}-Terminal represäntiert eine konstante C++-Methode der Aktorklasse,
-      welche bei jeder Auswertung der Eingangsbedingung neu aufgerufen wird,
-(iv)  das \code{isType}-Terminal erlaubt die Überprüfung ob ein Ausdruck
-      vom Typ \code{Type} ist,
-(v)   der \code{InputPort '.getValueAt'}-Terminal erlaubt es ein Token
-      aus dem Eingangsport zu überprüfen.
-Guard Methoden müssen konstante Methoden sein,
-da sie den Funktionalitätszustand nicht verändern dürfen.
+% Allgemeine Ausdrücke zur Überprüfung des Funktionalitätszustandes
+% und der empfangenen Tokenart können mittels der obig aufgeführten
+% Operatoren verknüpft werden. Die Operatoren haben dabei C++-Präzedenz und
+% Bedeutung, z.B. ist '\code{\^}' das bitweise exklusive Oder.
+% Die Ausdrücke werden dabei aus folgenden Terminalen aufgebaut:
+% (i)   Das \code{Integer}-Terminal represäntiert einen C++-Ausdruck der
+%       zur Instantiierungszeit in einen Integer umgewandelt werden kann,
+%       z.B. 5, abs(-5), sqr(a+b),
+% (ii)  das \code{Variable}-Terminal represäntiert eine C++-Klassenvariablen,
+%       welche bei jeder Auswertung der Eingangsbedingung neu ausgelesen wird,
+% (iii) das \code{GuardMethod}-Terminal represäntiert eine konstante C++-Methode der Aktorklasse,
+%       welche bei jeder Auswertung der Eingangsbedingung neu aufgerufen wird,
+% (iv)  das \code{isType}-Terminal erlaubt die Überprüfung ob ein Ausdruck
+%       vom Typ \code{Type} ist,
+% (v)   der \code{InputPort '.getValueAt'}-Terminal erlaubt es ein Token
+%       aus dem Eingangsport zu überprüfen.
+% Guard Methoden müssen konstante Methoden sein,
+% da sie den Funktionalitätszustand nicht verändern dürfen.
 
 \begin{cdefinition}[Firing FSM]\label{def:firing-fsm}
   The \emph{firing FSM} of an actor $A$ is a tuple $A.\mathcal{R} =$ $(\mathcal{T},$ $Q_\mathrm{firing},$ $q_{_0\mathrm{firing}})$ containing
