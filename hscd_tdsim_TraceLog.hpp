@@ -67,6 +67,7 @@ public:
     char *prefix=getenv("VPCTRACEFILEPREFIX");
     if( 0 != prefix ) fstring.insert(0,prefix);
     file.open(fstring.c_str());
+    stream << "<?xml version=\"1.0\"?>\n<systemoc_trace>" << std::endl;
   }
 
   ~TraceLogStream();
