@@ -36,6 +36,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <cosupport/commondefs.h>
+#include <cosupport/functor.hpp>
 
 class smoc_activation_pattern;
 class smoc_transition;
@@ -50,70 +51,116 @@ class smoc_transition_list;
 #define GUARD(func)   guard(&func,#func)
 #define VAR(variable) var(variable,#variable)
 
-template <typename R, class T>
-struct smoc_member_func {
-  T     *obj;
-  R (T::*f)();
+template <typename R>
+class smoc_member_func_interface;
+
+template <typename R>
+static inline
+void intrusive_ptr_add_ref( smoc_member_func_interface<R> *r );
+template <typename R>
+static inline
+void intrusive_ptr_release( smoc_member_func_interface<R> *r );
+
+template <typename R>
+class smoc_member_func_interface {
+public:
+  typedef smoc_member_func_interface<R> this_type;
   
-  template <class X>
-  smoc_member_func( X *_obj, R (T::*_f)() )
-    : obj(reinterpret_cast<T *>(
-            /*dynamic_cast<T *>*/(_obj))),
-      f(_f)
-    { assert(obj != NULL &&  f != NULL); }
+  friend void intrusive_ptr_add_ref<R>(this_type *);
+  friend void intrusive_ptr_release<R>(this_type *);
+private:
+  size_t      refcount;
+public:
+  smoc_member_func_interface()
+    : refcount(0) {}
   
   virtual
-  R operator()() const { return (obj->*f)(); }
+  R call() const = 0;
+  virtual
+  const char *getFuncName() const = 0;
+  
+  virtual
+  ~smoc_member_func_interface() {}
+};
+
+template <typename R>
+static inline
+void intrusive_ptr_add_ref( smoc_member_func_interface<R> *r )
+  { ++r->refcount; }
+template <typename R>
+static inline
+void intrusive_ptr_release( smoc_member_func_interface<R> *r )
+  { if ( !--r->refcount ) delete r; }
+
+template<class F, class PL>
+class smoc_member_func
+: public smoc_member_func_interface<typename F::return_type> {
+public:
+  typedef smoc_member_func<F, PL> type;
+protected:
+  F  f;
+  PL pl;
+public:
+  smoc_member_func(const F &_f, const PL &_pl = PL() )
+    : f(_f), pl(_pl) {}
+  
+  typename F::return_type call() const
+    { return f.call(pl); }
+  const char *getFuncName() const
+    { return f.name; }
 };
 
 class smoc_func_call {
 private:
-  struct dummy;
+  typedef void					return_type;
   
-  char        m[sizeof(smoc_member_func<void, dummy>)];
-  const char *func_name;
+  boost::intrusive_ptr<
+    smoc_member_func_interface<return_type> >   k;
 public:
-  template <class X, class T>
-  smoc_func_call( X *_obj, void (T::*_f)(), const char *name = NULL )
-    : func_name(name != NULL ? name : "") {
-    new(reinterpret_cast<smoc_member_func<void, T> *>(m))
-      smoc_member_func<void, T>(_obj,_f);
-  }
+  
+  template <class K>
+  smoc_func_call( const K &_k )
+    : k(new K(_k)) {}
   
   void operator()() const {
-    return
-      reinterpret_cast<const smoc_member_func<void, dummy> *>(m)
-      ->operator()();
+    return k->call();
   }
-  const char* getFuncName() const
-    { return func_name; }
+  
+  const char* getFuncName() const {
+    return k->getFuncName();
+  }
 };
-
 
 class smoc_func_diverge {
 private:
-  struct dummy;
+  typedef const smoc_firing_state	       &return_type;
   
-  char        m[sizeof(smoc_member_func<const smoc_firing_state &, dummy>)];
+  boost::intrusive_ptr<
+    smoc_member_func_interface<return_type> >   k;
 public:
-  template <class X, class T>
-  smoc_func_diverge( X *_obj, const smoc_firing_state &(T::*_f)() ) {
-    new(reinterpret_cast<smoc_member_func<const smoc_firing_state &, T> *>(m))
-      smoc_member_func<const smoc_firing_state &, T>(_obj,_f);
-  }
   
-  const smoc_firing_state &operator()() const {
-    return
-      reinterpret_cast<const smoc_member_func<const smoc_firing_state &, dummy> *>(m)
-      ->operator()();
+  template <class K>
+  smoc_func_diverge( const K &_k )
+    : k(new K(_k)) {}
+  
+  template <class T>
+  smoc_func_diverge( T *_obj, return_type (T::*_f)() )
+    : k(new typename CoSupport::ParamAccumulator<
+	      smoc_member_func,
+	      CoSupport::Functor<return_type, return_type (T::*)()> >::accumulated_type
+	    (CoSupport::Functor<return_type, return_type (T::*)()>(_obj, _f, "")))
+    {}
+  
+  return_type operator()() const {
+    return k->call();
   }
 };
 
 class smoc_func_branch: public smoc_func_diverge {
 public:
-  template <class X, class T>
-  smoc_func_branch( X *_obj, const smoc_firing_state &(T::*_f)() )
-    : smoc_func_diverge(_obj,_f) {}
+  template <class K>
+  smoc_func_branch( const K &_k )
+    : smoc_func_diverge(_k) {}
 };
 
 class smoc_firing_state_ref;
@@ -324,7 +371,7 @@ smoc_firing_state_ref::~smoc_firing_state_ref() {
 class smoc_interface_action {
 public:
   friend class smoc_opbase_node;
-  friend class smoc_scheduler_base;
+  friend class smoc_scheduler_ndf;
   friend class smoc_root_node;
   friend class smoc_firing_types::transition_ty;
   friend class smoc_transition;

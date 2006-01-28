@@ -28,12 +28,6 @@
 
 class smoc_scheduler_base {
 protected:
-  template <typename T>
-  smoc_interface_action diverge(
-      const smoc_firing_state &(T::*f)() ) {
-//    std::cerr << "diverge" << std::endl;
-    return smoc_interface_action(smoc_func_diverge(this,f));
-  }
 };
 
 class smoc_scheduler_sdf

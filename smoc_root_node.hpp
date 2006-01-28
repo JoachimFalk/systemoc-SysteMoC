@@ -33,23 +33,25 @@
 #include <systemc.h>
 
 #include <list>
+#include <cosupport/functor.hpp>
 
 class smoc_opbase_node {
 public:
   typedef smoc_opbase_node this_type;
 protected:
-  template <typename T>
-  smoc_func_call call(
-      void (T::*f)(),
-      const char *name = NULL ) {
-    return smoc_func_call(this, f, name);
+  
+  template<typename F>
+  typename CoSupport::ParamAccumulator<smoc_member_func, CoSupport::Functor<void, F> >::accumulated_type
+  call(const F &f, const char *name = "") {
+    return typename CoSupport::ParamAccumulator<smoc_member_func, CoSupport::Functor<void, F> >::accumulated_type
+	    (CoSupport::Functor<void, F>(this, f, name));
   }
-  template <typename T, class X>
-  typename Expr::MemGuard<T,X>::type guard(
-      T (X::*m)() const,
-      const char *name = NULL) const {
-    return Expr::guard(dynamic_cast<const X *>(this), m, name);
+  
+  template<typename F>
+  typename Expr::MemGuard<F>::type guard(const F &f, const char *name = "") const {
+    return Expr::guard(this, f, name);
   }
+  
   template <typename T>
   static
   typename Expr::Var<T>::type var(T &x, const char *name = NULL)
