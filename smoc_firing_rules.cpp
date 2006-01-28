@@ -30,7 +30,7 @@
 
 #include <cosupport/oneof.hpp>
 
-using namespace jflibs;
+using namespace CoSupport;
 
 smoc_firing_state_ref::smoc_firing_state_ref()
   : rs(new resolved_state_ty()), fr(NULL) {

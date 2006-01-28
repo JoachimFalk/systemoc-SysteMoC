@@ -147,7 +147,7 @@ public:
   template <typename T_top>
   friend class smoc_top_moc;
 private:
-  typedef std::list<jflibs::oneof<smoc_commreq,smoc_event *> > reqs_ty;
+  typedef std::list<CoSupport::oneof<smoc_commreq,smoc_event *> > reqs_ty;
   
 //  void dummy() {};
 //  operator unspecified_bool_type() const

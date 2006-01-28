@@ -172,7 +172,7 @@ struct smoc_firing_types {
   typedef std::list<transition_ty>        transitionlist_ty;
   typedef std::pair<bool,transition_ty *> maybe_transition_ty;
 //  typedef std::set<smoc_root_port *>  ports_ty;
-  typedef jflibs::oneof<smoc_func_call, smoc_func_branch, smoc_func_diverge>
+  typedef CoSupport::oneof<smoc_func_call, smoc_func_branch, smoc_func_diverge>
                                           func_ty;
   
   class transition_ty {
