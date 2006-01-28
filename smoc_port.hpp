@@ -45,8 +45,8 @@ public:
 template<typename T>
 class DToken {
 public:
-  typedef const T value_type;
-  typedef DToken  this_type;
+  typedef const T    value_type;
+  typedef DToken<T>  this_type;
   
   friend class Value<this_type>;
 private:
@@ -91,7 +91,72 @@ template <typename T>
 typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
   { return typename Token<T>::type(p,pos); }
 
-}
+/****************************************************************************
+ * DPortTokens represents a count of available tokens or free space in
+ * the port p
+ */
+
+class ASTNodePortTokens: public ASTNodeTerminal {
+private:
+  smoc_root_port *p;
+public:
+  ASTNodePortTokens(smoc_root_port *p)
+    : ASTNodeTerminal(), p(p) {}
+  
+  const smoc_root_port *getPort() const
+    { return p; }
+};
+
+template<class P>
+class DPortTokens {
+public:
+  typedef smoc_commnr     value_type;
+  typedef DPortTokens<P>  this_type;
+  
+  friend class Value<this_type>;
+  friend class AST<this_type>;
+private:
+  P      &p;
+public:
+  explicit DPortTokens(P &p)
+    : p(p) {}
+};
+
+template<class P>
+struct Value<DPortTokens<P> > {
+  typedef smoc_commnr result_type;
+  
+  static inline
+  result_type apply(const DPortTokens<P> &e)
+    { return smoc_commnr(e.p); }
+};
+
+template<class P>
+struct AST<DPortTokens<P> > {
+  typedef PASTNode result_type;
+  
+  static inline
+  result_type apply(const DPortTokens<P> &e)
+    { return PASTNode(new ASTNodePortTokens(&e.p)); }
+};
+
+template<class P>
+struct D<DPortTokens<P> >: public DBase<DPortTokens<P> > {
+  D(P &p)
+    : DBase<DPortTokens<P> >(DPortTokens<P>(p)) {}
+};
+
+// Make a convenient typedef for the token type.
+template<class P>
+struct PortTokens {
+  typedef D<DPortTokens<P> > type;
+};
+
+template <class P>
+typename PortTokens<P>::type portTokens(P &p)
+  { return typename PortTokens<P>::type(p); }
+
+} // namespace Expr
 
 /****************************************************************************/
 
@@ -197,10 +262,10 @@ public:
   
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
-  Expr::Literal<smoc_commnr>::type getAvailableTokens()
-    { return Expr::literal<smoc_commnr>(*this); }
+  typename Expr::PortTokens<this_type>::type getAvailableTokens()
+    { return Expr::portTokens(*this); }
   
-  Expr::D<Expr::DBinOp<Expr::DLiteral<smoc_commnr>,
+  Expr::D<Expr::DBinOp<Expr::DPortTokens<this_type>,
                        Expr::DLiteral<size_t>,
                        Expr::DOpBinGe> >
   operator ()( size_t n )
@@ -250,10 +315,10 @@ public:
   smoc_event &blockEvent()
     { return (*this)->blockEventIn(); }
   
-  Expr::Literal<smoc_commnr>::type getAvailableSpace()
-    { return Expr::literal<smoc_commnr>(*this); }
+  typename Expr::PortTokens<this_type>::type getAvailableSpace()
+    { return Expr::portTokens<this_type>(*this); }
   
-  Expr::D<Expr::DBinOp<Expr::DLiteral<smoc_commnr>,
+  Expr::D<Expr::DBinOp<Expr::DPortTokens<this_type>,
                        Expr::DLiteral<size_t>,
                        Expr::DOpBinGe> >
   operator ()( size_t n )

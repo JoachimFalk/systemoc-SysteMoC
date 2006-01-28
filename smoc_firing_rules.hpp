@@ -46,8 +46,9 @@ class smoc_firing_state;
 class smoc_firing_rules;
 class smoc_transition_list;
 
-#define CALL(func)  call(&func,#func)
-#define GUARD(func) guard(&func,#func)
+#define CALL(func)    call(&func,#func)
+#define GUARD(func)   guard(&func,#func)
+#define VAR(variable) var(variable,#variable)
 
 template <typename R, class T>
 struct smoc_member_func {

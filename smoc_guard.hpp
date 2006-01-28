@@ -76,7 +76,7 @@ public:
         if (n->isa<Expr::ASTNodeBinOp>()) {
        
           Expr::PASTNodeBinOp p = n->isa<Expr::ASTNodeBinOp>();
-          pgw << "<ASTNodeBinOp OpType = \" " << p->getOpType() <<" \" >" << std::endl;
+          pgw << "<ASTNodeBinOp OpType=\"" << p->getOpType() <<"\" >" << std::endl;
           
           pgw.indentUp();
           pgw << "<lhs>" << std::endl;
@@ -93,7 +93,7 @@ public:
         }else if( n->isa<Expr::ASTNodeUnOp>()){
           
           Expr::PASTNodeUnOp p = n->isa<Expr::ASTNodeUnOp>();
-          pgw << "<ASTNodeUnOp OpType = \" " << p->getOpType() <<" \" >" << std::endl;
+          pgw << "<ASTNodeUnOp OpType=\"" << p->getOpType() <<"\" >" << std::endl;
           
           pgw.indentUp();
           
@@ -107,27 +107,41 @@ public:
         }else{ 
           //***********here is Terminal************
           //assert( n->isa<Expr::ASTNodeTerminal>() );
-          if ( n->isa<Expr::ASTNodeLiteral>() ) {
-            pgw << "<Literal = \""<< n->isa<Expr::ASTNodeLiteral>()->value << "\">" << std::endl;
+          if ( n->isa<Expr::ASTNodePortTokens>() ) {
+            pgw << "<PortTokens portid=\""
+                  << pgw.getId(n->isa<Expr::ASTNodePortTokens>()->getPort())
+                  << "\"/>" << std::endl;
+            //pgw << "</PortTokens>" << std::endl;
+          } else if ( n->isa<Expr::ASTNodeLiteral>() ) {
+            pgw << "<Literal value=\"" <<
+              n->isa<Expr::ASTNodeLiteral>()->value << "\"/>" << std::endl;
+            //pgw << "</Literal>" << std::endl;
           } else if ( n->isa<Expr::ASTNodeVar>() ) {
-            pgw << "<Var = \"" << n->isa<Expr::ASTNodeVar>()->ptrVar() <<  "\">" << std::endl;
+            pgw << "<Var name=\"" << std::hex <<
+              n->isa<Expr::ASTNodeVar>()->getName() <<  "\"/>" << std::endl;
+            //pgw << "</Var>" << std::endl;
           } else if ( n->isa<Expr::ASTNodeProc>() ) {
             pgw << "<Proc 0x = \"" << std::hex << reinterpret_cast<unsigned long>
-              (n->isa<Expr::ASTNodeProc>()->ptrProc()) << "\">" << std::endl;
+              (n->isa<Expr::ASTNodeProc>()->ptrProc()) << "\"/>" << std::endl;
+            //pgw << "</Proc>" << std::endl;
           } else if ( n->isa<Expr::ASTNodeMemGuard>() ) {
             pgw << "<MemGuard objPtr=\"Ox" << std::hex << reinterpret_cast<unsigned long>
               (n->isa<Expr::ASTNodeMemGuard>()->ptrObj()) << "\" name=\"" <<
-              (n->isa<Expr::ASTNodeMemGuard>()->getName()) << "\">" << std::endl;
+              (n->isa<Expr::ASTNodeMemGuard>()->getName()) << "\"/>" << std::endl;
+            //pgw << "</MemGuard>" << std::endl;
           }  else if ( n->isa<Expr::ASTNodeMemProc>() ) {
             pgw << "<MemProc 0x = \"" << /*std::hex << reinterpret_cast<void *>
               (n->isa<Expr::ASTNodeMemProc>()->ptrMemProc())
-                      <<*/ "FIXME!!!" <<   " obj " << n->isa<Expr::ASTNodeMemProc>()->ptrObj() << "\">" << std::endl;
+                      <<*/ "FIXME!!!" <<   " obj " << n->isa<Expr::ASTNodeMemProc>()->ptrObj() << "\">/" << std::endl;
+            //pgw << "</MemProc>" << std::endl;
           //} else if ( n->isa<Expr::ASTNodeCommReq>() ) {
             //pgw << "CommReq" << std::endl;
           } else if ( n->isa<Expr::ASTNodeToken>() ) {
-            pgw << "<Token>" << std::endl;
+            pgw << "<Token/>" << std::endl;
+            //pgw << "</Token>" << std::endl;
           } else {
-            pgw << "<Unkown Terminal>" << std::endl;
+            pgw << "<Unkown Terminal/>" << std::endl;
+            //pgw << "</Unkown Terminal>" << std::endl;
           } 
         }
 
