@@ -20,7 +20,7 @@ using Expr::field;
 using Expr::isType;
 
 
-typedef jflibs::oneof<int, char *> test_ty;
+typedef CoSupport::oneof<int, char *> test_ty;
 
 class m_source: public smoc_actor {
   public:

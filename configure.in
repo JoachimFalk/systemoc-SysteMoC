@@ -83,7 +83,10 @@ if test x"$enable_vpc" = x"yes"; then
   CPPFLAGS="$CPPFLAGS -DENABLE_SYSTEMC_VPC"
   
   AC_CONFIG_FILES([vpc-test-h261/Makefile])
-  subdirs="$subdirs vpc-test-h261"
+
+#FIXME: (Hack) TraceLog only exists in SysteMoc <- this is only needed for InfiniBand HCA "hybrid mode"
+#because of this vpc-test-h261 doesn't compile
+#  subdirs="$subdirs vpc-test-h261"
 else
   SYSTEMC_VPC_INCLUDE=""
   SYSTEMC_VPC_LDFLAGS=""
@@ -131,6 +134,14 @@ fi
 if test -d $srcdir/systemc-sqr; then
   AC_CONFIG_FILES([systemc-sqr/Makefile])
   subdirs="$subdirs systemc-sqr"
+fi
+if test -d $srcdir/systemc-par; then
+  AC_CONFIG_FILES([systemc-par/Makefile])
+  subdirs="$subdirs systemc-par"
+fi    
+if test -d $srcdir/systemc-sqr-double; then
+  AC_CONFIG_FILES([systemc-sqr-double/Makefile])
+  subdirs="$subdirs systemc-sqr-double"
 fi
 if test -d $srcdir/systemc-fir; then
   AC_CONFIG_FILES([systemc-fir/Makefile])

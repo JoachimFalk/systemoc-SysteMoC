@@ -17,7 +17,7 @@ class c_ty {
   long long y;
 };
 
-typedef jflibs::oneof<a_ty, b_ty, c_ty> abc_ty;
+typedef CoSupport::oneof<a_ty, b_ty, c_ty> abc_ty;
 
 int main(int argc, char* argv[]) {
 
