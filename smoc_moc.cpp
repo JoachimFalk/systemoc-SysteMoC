@@ -20,7 +20,7 @@
 
 #include <cosupport/oneof.hpp>
 
-using namespace jflibs;
+using namespace CoSupport;
 
 void smoc_scheduler_sdf::schedule() {
   assert("FIXME sdf scheduler unfinished !" == NULL);

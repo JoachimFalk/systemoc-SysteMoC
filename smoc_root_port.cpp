@@ -20,7 +20,7 @@
 
 #include <cosupport/oneof.hpp>
 
-using namespace jflibs;
+using namespace CoSupport;
 
 smoc_ctx _ctx;
 
