@@ -46,8 +46,8 @@
 using Expr::isType;
 
 // channel types
-typedef jflibs::oneof<tt_notification, tt_bo_notification, tt_data>   ct_queue2atu;
-typedef jflibs::oneof<tt_raw_header, tt_data>                         ct_bthgen2atu;
+typedef CoSupport::oneof<tt_notification, tt_bo_notification, tt_data>   ct_queue2atu;
+typedef CoSupport::oneof<tt_raw_header, tt_data>                         ct_bthgen2atu;
 
 /**
  * \brief Address Translation Unit
