@@ -63,7 +63,7 @@ public:
       approx("approx"),
       dup("dup"),
       sink("sink") {
-    // The network graph is instanciated in the constructor
+    // The network graph is instantiated in the constructor
     // a1.o1 -> a2.i1 using FIFO standard size
     connectNodePorts(src.o1,     sqrloop.i1);
     // a2.o1 -> a3.i1 using FIFO standard size
@@ -139,7 +139,7 @@ actors through its dedicated actor input ports $A.I$ and actor output ports $A.O
 Furthermore, the set of all actor input and actor output ports of all actors in
 the network graph is given by $\mathcal{P} = \mathcal{P}_I \cup \mathcal{P}_O$.
 However the preceding definition still allows multiple readers and writers per FIFO channel.
-Therefore we define a more constraint form of network graph called \emph{nonconflicting network graph} or \emph{network graph} for short, which allows only \emph{point to point} FIFO connections.
+Therefore we define a more constraint form of network graph called \emph{non-conflicting network graph} or \emph{network graph} for short, which allows only \emph{point to point} FIFO connections.
 
 %  However the network graph defined above is still too general. A more
 %  constrained form called \emph{nonconflicting network graph} can be
@@ -148,7 +148,7 @@ Therefore we define a more constraint form of network graph called \emph{nonconf
 %  in Figure~\ref{fig:ng-moc}.
 %
 \begin{cdefinition}[Nonconflicting network graph]\label{def:noconflicting-network-graph}
-  A \emph{nonconflicting network graph} is constrained such that exactly
+  A \emph{non-conflicting network graph} is constrained such that exactly
   one edge is incident to each actor port and the indegree and outdegree
   of each channel in the graph is exactly one,
   i.e., $\forall{p \in \mathcal{P}}: |((\{p\} \times C) \cup (C \times \{p\})) \cap E| = 1$ and
@@ -245,7 +245,7 @@ private:
 \end{cexample}
 
 Usage of normal \code{sc\_fifo} channels with \code{sc\_fifo\_in} and \code{sc\_fifo\_out} ports
-would weaken the seperation of actor functionality and communication behavior, because the
+would weaken the separation of actor functionality and communication behavior, because the
 actor functionality could easily communicate via the provided \code{read} and \code{write} functions on
 these fifo ports.
 Therefore the SysteMoC library provides its own input and output ports \code{smoc\_port\_in} and \code{smoc\_port\_out}.
@@ -311,7 +311,7 @@ private:
   
 % The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map action dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_\mathrm{current} \in Q_\mathrm{func}$ to an action dependant number $M$ of output values $(w_1,w_2,\ldots,w_M) = \mathbf{w} \in V^M$ and the next functionality state $q_\mathrm{next} \in Q_\mathrm{func}$, i.e.,  $f_\mathrm{action}: V^N \times Q_\mathrm{func} \to V^M \times Q_\mathrm{func}$.
 
-The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|A.I|}} \in V^*$ on the $A.I$ actor intput ports into sequences of token values $\mathbf{v}_{o_1},\mathbf{v}_{o_2},\ldots,\mathbf{v}_{o_{|A.O|}} \in V^*$ on the $A.O$ actor output ports additionally modifying the functionality state:
+The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|A.I|}} \in V^*$ on the $A.I$ actor input ports into sequences of token values $\mathbf{v}_{o_1},\mathbf{v}_{o_2},\ldots,\mathbf{v}_{o_{|A.O|}} \in V^*$ on the $A.O$ actor output ports additionally modifying the functionality state:
 
 \begin{equation*}
 f_\mathrm{action} : V^{N_{i_1}} \times V^{N_{i_2}} \ldots \times V^{N_{i_{|A.I|}}} \times Q_\mathrm{func} \to V^{M_{o_1}} \times V^{M_{o_2}} \ldots \times V^{M_{o_{|A.O|}}} \times Q_\mathrm{func}
@@ -321,7 +321,7 @@ Whereas the number of tokens $N_i$ consumed on the input port $i$ and the number
 
 % The guards $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality map a guard dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_{i} \in Q_\mathrm{func}$ to a boolean value, i.e.,  $f_\mathrm{guard}: V^N \times Q_\mathrm{func} \to \{\mathrm{true},\mathrm{false}\}$.
 
-The guards $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|A.I|}} \in V^*$ on the $A.I$ actor intput ports and the functionality state to a boolean value:
+The guards $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|A.I|}} \in V^*$ on the $A.I$ actor input ports and the functionality state to a boolean value:
 
 \begin{equation*}
 f_\mathrm{guard} : V^{N_{i_1}} \times V^{N_{i_2}} \ldots \times V^{N_{i_{|A.I|}}} \times Q_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}
@@ -388,7 +388,7 @@ In preceding figure the firing FSM of the \code{SqrLoop} is displayed.
 From the $S_\mathrm{start}$ state only the transition $\mathbf{t}_1$ can be taken, which blocks until at least one token is available on input port $i_1$ and one free space is available on output port $o_1$.
 The token on $i_1$ represents the input value for the square root algorithm and is stored and forwarded by action $f_\mathtt{copyStore}$ via port $o_1$ to the approximation loop body $A_3$ - $A_4$ of newtons algorithm.
 
-From the $S_\mathrm{loop}$ state either the transition $\mathbf{t}_2$ can be taken if the approximation satisfies the error bound \code{BOUND}, or the transition $\mathbf{t}_2$ if another approximation step is neccessary.
+From the $S_\mathrm{loop}$ state either the transition $\mathbf{t}_2$ can be taken if the approximation satisfies the error bound \code{BOUND}, or the transition $\mathbf{t}_2$ if another approximation step is necessary.
 This termination criteria is check by the guard $f_\mathtt{check}$. % from its actor functionality $A_2.\mathcal{F}$
 Furthermore both transitions $\mathbf{t}_2$ and $\mathbf{t}_3$ can only be taken if at least one approximation value is available via port $i_2$.
 Also for transition $\mathbf{t}_2$ and $\mathbf{t}_3$ to be taken at least one free space must be available on output port $o_2$ and output port $o_1$ respectively.
