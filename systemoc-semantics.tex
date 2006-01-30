@@ -1,0 +1,73 @@
+\chapter{SysteMoC semantic}
+
+\section{Actor behavior}
+
+An actor $A$ can be thought of as a relation $\mathbb{A}$ which maps sequences of token values $V^{**}$ on its input ports $A.I$ into sequences of token values on its output ports $A.O$, i.e., $\mathbb{A} \subseteq (V^{**})^{|A.I|} \times (V^{**})^{|A.O|}$.
+
+\begin{eqnarray}
+\mathrm{Fire}(v, q_\mathrm{firing}, q_\mathrm{func}) = \{ w_\mathrm{prod}.w_\mathrm{tail} %
+ & |      & (q_\mathrm{firing}, k, f_\mathrm{action}, q'_\mathrm{firing}) \in \mathcal{T} \\
+ & \wedge & k(v_\mathrm{cons}) \\
+ & \wedge & \forall{v_\mathrm{prefix} \sqsubset v_\mathrm{cons}}: \neg k(v_\mathrm{prefix}) \\
+ & \wedge & (w_\mathrm{prod}, q'_\mathrm{func}) = f_\mathrm{action}(v_\mathrm{cons},q_\mathrm{func}) \\
+ & \wedge & v = v_\mathrm{cons}.v_\mathrm{tail} \\
+ & \wedge & w_\mathrm{tail} = \mathrm{Fire}(v_\mathrm{tail}, q'_\mathrm{firing}, q'_\mathrm{func}) \}
+\end{eqnarray}
+
+$\mathbb{A} = \{ (v,w) | w \in \mathrm{Fire}(v, q_{_0\mathrm{firing}}, q_{_0\mathrm{func}}), v \in (V^{**})^{|A.I|} \}$
+
+% \section{Kopplung zwischen SysteMoC und VPC}
+% \label{sec:smoc-vpc}
+% Die SysteMoC-Bibliothek ermöglicht es, einzelne Aktoren in Form von Zustandsmaschinen, die Funktionen aufrufen, zu beschreiben.
+% Eine Anwendung, z.B. der InfiniBand-HCA besteht in der Regel aus einem Netzwerk solcher Aktoren.
+% Ein solches Netzwerk kann durch Simulation bezüglich der Funktionalität untersucht werden.
+% Das \emph{Virtual Processing Components} Framework~\cite{streubuehr:2005} ermöglicht die zusätzliche Simulation des Zeitverhaltens unter Ressourcenbeschränkung.
+% Hierfür wird für jede Aktivierung eines Aktors eine dynamisch ermittelte Ausführungszeit abgewartet.
+% Diese Ausführungszeit wird durch die Bindung an eine Ressource, sowie durch eine Schedulingstrategie bestimmt.
+% Einzig notwendig hierfür sind zwei Funktionsaufrufe (\code{getResource}, \code{compute}) aus der Anwendung heraus (vgl.~\cite{streubuehr:2005, fghsst:2005}).
+% \par
+% Zusammen mit einer Aktorbibliothek, wie der SysteMoC, können diese Aufrufe vollständig transparent für den Nutzer eingefügt werden.
+% %Zusammen mit der SysteMoC-Bibliothek gestaltet sich die Kopplung wie folgt:
+% Jedes mal wenn in einem Aktor eine Transition ausgeführt wird, entspricht dieses einer Aktivität.
+% Bevor diese Funktionalität ausgeführt wird, werden die Funktionsaufrufe \code{getResource} und \code{compute} ausgeführt und somit die simulierte Zeit verbraucht.
+% %\textbf{TODO: globales scheduling bzw. dessen Effekte erwähnen??}
+% \par
+% Weiterhin zeichnen sich die SysteMoC Aktoren durch ihre funktionsakkurate Aus\-führ\-ungs\-sem\-an\-tik aus:
+% Ein Aktor besitzt ausdrücklich modellierte Zustände und Transitionen, wobei Transitionen die Aktivitäten darstellen und Zustandswechsel verursachen.
+% Das VPC wurde dahingehend erweitert, dass die Ausführungszeit auch in Abhängigkeit zur ausgeführten Transition steht.
+% Dementsprechend wurde die \code{compute}-Funktion um einen weiteren Parameter für die auszuführende Transition ergänzt.
+% Während die Bindung an Ressourcen weiterhin aktorakkurat stattfindet, wird die Ausführungszeit funktionsakkurat modelliert.
+% Wie schon bei der vorangegangenen Studie wird das VPC durch eine Konfiguration parametrisiert, und ermöglicht somit flexible Tests der Architektur.
+% Durch die funktionsgetreue Zeitmodellierung, ist die Zahl der Konfigurationsparameter gewachsen.
+% Dementsprechend wurde ein neues Konfigurationsformat auf XML Basis eingeführt, dargestellt und beschrieben in
+% Abbildung \ref{resource-config}.
+% 
+% \begin{figure}
+% \centering
+% {\footnotesize
+% \verbatiminput{mapping-demo.xml}}
+% \caption{\label{resource-config}%
+% Beispiel des neuen XML Konfigurationsformates, welches wie
+% folgend aufgebaut ist:
+% Innerhalb des \code{configuration}-Top-Level-Elements befinden sich die zwei Elemente
+% (i) \code{resources}, innerhalb dessen die \code{component}-Elemente die virtuellen Komponenten spezifizieren,
+% und (ii) \code{mappings}, welches \code{mapping}-Elemente enthält zur Abbildung aller Prozesse
+% auf genau eine Komponente.
+% Sowohl die \code{component}- als auch die \code{mapping}-Elemente werden mittels eingeschachtelter
+% \code{attribute}-Elemente weiter Parametrisiert. Diese Parametrisierung bestimmt bei den
+% \code{component}-Elementen den zu verwendenden Scheduler und bei den \code{mapping}-Elementen
+% die Ausführungszeiten der Aktionen auf der ausgewählten Komponente.
+% %Beispielhaft definiert \code{<attribute type="ib\_m\_atu::forward\_mfetch" value="2"/>}
+% %eine Ausführungszeit von 2 $\mathrm{ns}$ für die \code{ib\_m\_atu::forward\_mfetch}
+% %Aktion auf der gewählten Komponente.
+% %Eine Standardausführungszeit kann ebenfalls mittels \code{<attribute type="delay" value="2"/>} angegeben werden,
+% %diese wird verwendet falls die ausgeführte Aktion nicht im \code{mapping}-Element
+% %parametrisiert ist.
+% }
+% \end{figure}
+
+\section{Network graph behavior}
+
+
+
+% LocalWords:  SysteMoC

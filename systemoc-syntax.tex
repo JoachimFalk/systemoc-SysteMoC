@@ -1,43 +1,6 @@
 %\chapter {SysteMoC V2.0 Aktorbibliothek\label{cha:systemoc}}
 
-\chapter{SysteMoC-Idee}
-
-{\bf FIXME: Translate into English}
-
-Nahezu alle Anwendungen lassen sich auf Basis sog. \emph{Berechnungsmodelle} beschrieben \cite{ells:1997,ls:1998}. 
-So werden Signalverarbeitungsalgorithmen oftmals mit Hilfe von \emph{Datenflussmodellen} \cite{lp:1995} beschrieben, während Protokolle oftmals durch \emph{endliche Zustandsautomaten} \cite{harel:1987} modelliert werden.
-Beschränkte Berechnungsmodelle bilden die Grundlage zur effizienten Analyse und Implementierung einer Anwendung. 
-SystemC \cite{sysc1,glms:2002} bietet die Möglichkeit, beliebige Berechnungsmodelle zu beschreiben. 
-Hierin liegt aber auch das Problem, dass das zugrundeliegende (beschränkte) Berechnungsmodell nicht mehr erkannt werden kann.
-\par
-Um dieses Problem zumindest teilweise lösen zu können, wurde am Lehrstuhl für Hardware-Software-Co-Design eine Aktorbibliothek mit dem Namen \emph{SysteMoC} entwickelt. 
-Diese erlaubt es, Informationen über das zugrundeliegende Berechnungsmodell zu erkennen und zu analysieren.
-Im Folgenden wird zunächst die Idee der SysteMoC-Bibliothek vorgestellt, bevor auf die Verwendung dieser Bibliothek eingegangen wird. 
-Schließlich wird noch beschrieben, wie es mit der SysteMoC-Bibliothek möglich ist, das Zeitverhalten zu modellieren.
-Hierzu kommt das am Lehrstuhl entwickelte \emph{Virtual Processing Components} Framework, welches bereits in der vorangegangenen Studie verwendet wurde, zum Einsatz.
-
-Eine Anwendung wird oftmals in verschiedene Module zergliedert, welche meist von den einzelnen Entwicklern noch gut zu überblicken sind.
-Die eigentliche Komplexität einer Anwendung ergibt sich aber durch das Kommunikationsverhalten dieser Module miteinander.
-Um diesem Phänomen zu begegnen ist eine systematische Beschreibung des Kommunikationsverhalten der Module von essentieller Bedeutung.
-Zu diesem Zwecke wird die Anwendung in einzelne sog. \emph{Aktoren} zerlegt, welchen eine Kommunikation untereinander nur über sog. \emph{Kanäle} mittels \emph{Nachrichten} erlaubt ist.
-Die zuvor genannten Module entsprechen dabei den Aktoren, welche noch einmal in \emph{Aktivierungsregeln} und \emph{Funktionalität} unterteilt werden.
-Die Aktivierungsregeln kodieren dabei das Kommunikationsverhalten des Aktors und sind in Form eines endlichen Zustandsautomaten dargestellt.
-Die Zustände dieses Zustandsautomaten werden im folgenden als \emph{Aktivierungszustände} bezeichnet.
-Die Funktionalität setzt sich aus einer Menge von \emph{Aktionen} zusammen, welche die
-eigentliche Datenverarbeitung durchführen und Nachrichten für die Kommunikation der Aktoren untereinander generieren.
-Die Ausführung dieser Aktionen kann den internen Zustand eines Aktors, im Folgenden als \emph{Funktionalitätszustand}
-bezeichnet, verändern.
-Die Aktivierungszustände und die Funktionalitätszustände sind dabei zwei disjunkte Zustandsmengen, welche zusammen
-die möglichen \emph{Aktorzustände} ergeben.
-Durch die vorgegebenen Syntax zur Kodierung der Aktivierungsregeln ist es möglich,
-die Zustandsautomaten aus den SysteMoC Aktoren zu extrahiert.
-Diese extrahierten Aktivierungsregeln erlauben die Zuordnung des Aktors zu einem bestimmten Berechnungsmodell.
-Des weiteren sind die hier verwendeten Prinzipien eng mit der Modellierungssprache \emph{FunState} (Functions driven by State machines) verwandt \cite{stgzet:2001}.
-In \cite{strehl:2000} wurde gezeigt, wie man symbolische Techniken \cite{kropf:1999} verwenden kann, um FunState-Beschreibungen zu verifizieren und zu synthetisieren.
-Die Bestimmung eines gültigen statischen Ablaufplans mit beschränktem Speicher für FunState-Beschreibungen beruht hierbei auf sog.\ \emph{regulären Zustandsmaschinen} \cite{tts:2000}.
-Aufgrund der Ähn\-lich\-keiten in den Konzepten von SysteMoC und FunState können die für FunState entwickelten Methoden auf die SysteMoC übertragen werden.
-
-\chapter{SysteMoC-Syntax}
+\chapter{SysteMoC Syntax}
 
 Instead of a monolithic approach for representing an executable specification of an embedded system as done using many design languages, we will use a refinement of \emph{actor-oriented} design.
 In actor-oriented design, \emph{actors} only communicate with each other via \emph{channels} instead of method calls as known
@@ -697,73 +660,5 @@ ExprTerminal    ::= <Integer>                                          |
 % state is updated to the only successor state $q_\mathrm{succ} \in J.Q_\mathrm{succ}$.
 % In case of a conflict transition, the successor state actually used is
 % a runtime decision of the function $J.f$.
-
-
-
-\chapter{Actor behavior}
-
-An actor $A$ can be thought of as a relation $\mathbb{A}$ which maps sequences of token values $V^{**}$ on its input ports $A.I$ into sequences of token values on its output ports $A.O$, i.e., $\mathbb{A} \subseteq (V^{**})^{|A.I|} \times (V^{**})^{|A.O|}$.
-
-\begin{eqnarray}
-\mathrm{Fire}(v, q_\mathrm{firing}, q_\mathrm{func}) = \{ w_\mathrm{prod}.w_\mathrm{tail} %
- & |      & (q_\mathrm{firing}, k, f_\mathrm{action}, q'_\mathrm{firing}) \in \mathcal{T} \\
- & \wedge & k(v_\mathrm{cons}) \\
- & \wedge & \forall{v_\mathrm{prefix} \sqsubset v_\mathrm{cons}}: \neg k(v_\mathrm{prefix}) \\
- & \wedge & (w_\mathrm{prod}, q'_\mathrm{func}) = f_\mathrm{action}(v_\mathrm{cons},q_\mathrm{func}) \\
- & \wedge & v = v_\mathrm{cons}.v_\mathrm{tail} \\
- & \wedge & w_\mathrm{tail} = \mathrm{Fire}(v_\mathrm{tail}, q'_\mathrm{firing}, q'_\mathrm{func}) \}
-\end{eqnarray}
-
-$\mathbb{A} = \{ (v,w) | w \in \mathrm{Fire}(v, q_{_0\mathrm{firing}}, q_{_0\mathrm{func}}), v \in (V^{**})^{|A.I|} \}$
-
-% \section{Kopplung zwischen SysteMoC und VPC}
-% \label{sec:smoc-vpc}
-% Die SysteMoC-Bibliothek ermöglicht es, einzelne Aktoren in Form von Zustandsmaschinen, die Funktionen aufrufen, zu beschreiben.
-% Eine Anwendung, z.B. der InfiniBand-HCA besteht in der Regel aus einem Netzwerk solcher Aktoren.
-% Ein solches Netzwerk kann durch Simulation bezüglich der Funktionalität untersucht werden.
-% Das \emph{Virtual Processing Components} Framework~\cite{streubuehr:2005} ermöglicht die zusätzliche Simulation des Zeitverhaltens unter Ressourcenbeschränkung.
-% Hierfür wird für jede Aktivierung eines Aktors eine dynamisch ermittelte Ausführungszeit abgewartet.
-% Diese Ausführungszeit wird durch die Bindung an eine Ressource, sowie durch eine Schedulingstrategie bestimmt.
-% Einzig notwendig hierfür sind zwei Funktionsaufrufe (\code{getResource}, \code{compute}) aus der Anwendung heraus (vgl.~\cite{streubuehr:2005, fghsst:2005}).
-% \par
-% Zusammen mit einer Aktorbibliothek, wie der SysteMoC, können diese Aufrufe vollständig transparent für den Nutzer eingefügt werden.
-% %Zusammen mit der SysteMoC-Bibliothek gestaltet sich die Kopplung wie folgt:
-% Jedes mal wenn in einem Aktor eine Transition ausgeführt wird, entspricht dieses einer Aktivität.
-% Bevor diese Funktionalität ausgeführt wird, werden die Funktionsaufrufe \code{getResource} und \code{compute} ausgeführt und somit die simulierte Zeit verbraucht.
-% %\textbf{TODO: globales scheduling bzw. dessen Effekte erwähnen??}
-% \par
-% Weiterhin zeichnen sich die SysteMoC Aktoren durch ihre funktionsakkurate Aus\-führ\-ungs\-sem\-an\-tik aus:
-% Ein Aktor besitzt ausdrücklich modellierte Zustände und Transitionen, wobei Transitionen die Aktivitäten darstellen und Zustandswechsel verursachen.
-% Das VPC wurde dahingehend erweitert, dass die Ausführungszeit auch in Abhängigkeit zur ausgeführten Transition steht.
-% Dementsprechend wurde die \code{compute}-Funktion um einen weiteren Parameter für die auszuführende Transition ergänzt.
-% Während die Bindung an Ressourcen weiterhin aktorakkurat stattfindet, wird die Ausführungszeit funktionsakkurat modelliert.
-% Wie schon bei der vorangegangenen Studie wird das VPC durch eine Konfiguration parametrisiert, und ermöglicht somit flexible Tests der Architektur.
-% Durch die funktionsgetreue Zeitmodellierung, ist die Zahl der Konfigurationsparameter gewachsen.
-% Dementsprechend wurde ein neues Konfigurationsformat auf XML Basis eingeführt, dargestellt und beschrieben in
-% Abbildung \ref{resource-config}.
-% 
-% \begin{figure}
-% \centering
-% {\footnotesize
-% \verbatiminput{mapping-demo.xml}}
-% \caption{\label{resource-config}%
-% Beispiel des neuen XML Konfigurationsformates, welches wie
-% folgend aufgebaut ist:
-% Innerhalb des \code{configuration}-Top-Level-Elements befinden sich die zwei Elemente
-% (i) \code{resources}, innerhalb dessen die \code{component}-Elemente die virtuellen Komponenten spezifizieren,
-% und (ii) \code{mappings}, welches \code{mapping}-Elemente enthält zur Abbildung aller Prozesse
-% auf genau eine Komponente.
-% Sowohl die \code{component}- als auch die \code{mapping}-Elemente werden mittels eingeschachtelter
-% \code{attribute}-Elemente weiter Parametrisiert. Diese Parametrisierung bestimmt bei den
-% \code{component}-Elementen den zu verwendenden Scheduler und bei den \code{mapping}-Elementen
-% die Ausführungszeiten der Aktionen auf der ausgewählten Komponente.
-% %Beispielhaft definiert \code{<attribute type="ib\_m\_atu::forward\_mfetch" value="2"/>}
-% %eine Ausführungszeit von 2 $\mathrm{ns}$ für die \code{ib\_m\_atu::forward\_mfetch}
-% %Aktion auf der gewählten Komponente.
-% %Eine Standardausführungszeit kann ebenfalls mittels \code{<attribute type="delay" value="2"/>} angegeben werden,
-% %diese wird verwendet falls die ausgeführte Aktion nicht im \code{mapping}-Element
-% %parametrisiert ist.
-% }
-% \end{figure}
 
 % LocalWords:  SysteMoC
