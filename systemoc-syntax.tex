@@ -344,6 +344,7 @@ q_{_0\mathrm{func}} & = & 0% \\
 \subsection{Declaration of the communication behavior}
 
 Consumption and production of tokens is only triggered by transitions in the \emph{firing FSMs}, which are embedded in all actors.
+The notion of firing FSM is similar to the concepts introduced in SPI~\cite{ZERTT99a} and an extension of the \emph{finite state machines} in FunState~\cite{STZETG00} by allowing requirements for a minimum of space available in output channels before a transition can be taken.
 Therefore the communication behavior of an actor is encoded in its firing FSM, e.g., as seen in Figure~\ref{fig:firing-rules-sqrloop}.
 The states of a firing FSM are called \emph{firing states}, directed edges between these firing states are called \emph{firing transitions} or \emph{transitions} for short.
 Each transition is annotated with an \emph{activation patten}, which decides if the transition can be taken, and an \emph{action} from the \emph{actor functionality} which is executed if the transition is taken.
@@ -490,35 +491,37 @@ public:
 \begin{csyntax}\label{syn:systemoc-fsm-bnf}%
 Extended Backus-Naur form of the firing FSM declaration
 \begin{verbatim}
-StateDefinition ::= ActivationState '=' TransitionList ';'
+StateDefinition   ::= ActivationState '=' TransitionList ';'
 
-TransitionList  ::= Transition '|' TransitionList |
-                    Transition                    ;
+TransitionList    ::= Transition '|' TransitionList |
+                      Transition                    ;
 
-Transition      ::= Guard '>>' 'CALL' '(' Action ')' '>>' ActivationState |
-                               'CALL' '(' Action ')' '>>' ActivationState |
-                    Guard                            '>>' ActivationState ;
+Transition        ::= 'CALL' '(' Action ')' '>>' ActivationState |
+                      ActivationPattern     '>>' ActivationState |
+                      ActivationPattern     '>>'
+                      'CALL' '(' Action ')' '>>' ActivationState ;
+                    
 
-Guard           ::= InputGuard '>>' OutputGuard |
-                    InputGuard                  |
-                                    OutputGuard ;
+ActivationPattern ::= InputPattern '>>' OutputPattern |
+                      InputPattern                    |
+                                        OutputPattern ;
 
-InputGuard      ::= '(' InputGuard ')'           |
-                    InputGuard '&&' InputGuard   |
-                    InputExpr                    |
-                    Expr                         ;
+InputPattern      ::= '(' InputPattern ')'           |
+                      InputPattern '&&' InputPattern |
+                      InputExpr                      |
+                      Expr                           ;
 
-InputExpr       ::= InputPort '.getAvailableTokens()' '>=' Expr |
-                    InputPort '.getAvailableTokens()' '>'  Expr |
-                    InputPort '(' Integer ')'                   ;
+InputExpr         ::= InputPort '.getAvailableTokens()' '>=' Expr |
+                      InputPort '.getAvailableTokens()' '>'  Expr |
+                      InputPort '(' Integer ')'                   ;
 
-OutputGuard     ::= '(' OutputGuard ')'          |
-                    OutputGuard '&&' OutputGuard |
-                    OutputExpr                   ;
+OutputPattern     ::= '(' OutputPattern ')'            |
+                      OutputPattern '&&' OutputPattern |
+                      OutputExpr                       ;
 
-OutputExpr      ::= OutputPort '.getAvailableSpace()'  '>=' Expr |
-                    OutputPort '.getAvailableSpace()'  '>'  Expr |
-                    OutputPort '(' Integer ')'                   ;
+OutputExpr        ::= OutputPort '.getAvailableSpace()'  '>=' Expr |
+                      OutputPort '.getAvailableSpace()'  '>'  Expr |
+                      OutputPort '(' Integer ')'                   ;
 \end{verbatim}
 \end{csyntax}
 
@@ -530,8 +533,8 @@ OutputExpr      ::= OutputPort '.getAvailableSpace()'  '>=' Expr |
 % Ein Aktivierungszustand ist durch die ihn verlassenden Transitionen
 % \code{TransitionList} definiert.
 % Eine Transition setzt sich dabei aus zwei Bedingungen,
-% der \emph{Eingangsbedingung} (\code{InputGuard}) und
-% der \emph{Ausgangsbedingung} (\code{OutputGuard}),
+% der \emph{Eingangsbedingung} (\code{InputPattern}) und
+% der \emph{Ausgangsbedingung} (\code{OutputPattern}),
 % gefolgt von einer \emph{Aktion} und dem \emph{Folgezustand} zusammen.
 % Diese Aktionen sind in der \emph{BNF} durch \code{Action}-Terminale
 % repräsentiert, welche C++-Methoden der Aktorklasse entsprechen.
@@ -544,22 +547,22 @@ OutputExpr      ::= OutputPort '.getAvailableSpace()'  '>=' Expr |
 \begin{csyntax}\label{syn:systemoc-fsm-bnf-2}%
 Extended Backus-Naur form of transition guard expressions
 \begin{verbatim}
-Expr            ::= Expr '+'  Expr | Expr '-'  Expr |
-                    Expr '*'  Expr | Expr '/'  Expr |
-                    Expr '==' Expr | Expr '!=' Expr |
-                    Expr '<'  Expr | Expr '<=' Expr |
-                    Expr '>'  Expr | Expr '>=' Expr |
-                    Expr '^'  Expr | Expr '&'  Expr |
-                    Expr '|'  Expr | Expr '&&' Expr |
-                    Expr '||' Expr | '(' Expr ')'   |
-                    '!' Expr       | '~' Expr       |
-                    ExprTerminal   ;
+Expr              ::= Expr '+'  Expr | Expr '-'  Expr |
+                      Expr '*'  Expr | Expr '/'  Expr |
+                      Expr '==' Expr | Expr '!=' Expr |
+                      Expr '<'  Expr | Expr '<=' Expr |
+                      Expr '>'  Expr | Expr '>=' Expr |
+                      Expr '^'  Expr | Expr '&'  Expr |
+                      Expr '|'  Expr | Expr '&&' Expr |
+                      Expr '||' Expr | '(' Expr ')'   |
+                      '!' Expr       | '~' Expr       |
+                      ExprTerminal   ;
 
-ExprTerminal    ::= <Integer>                                          |
-                    'var'                       '(' <Variable>    ')'  |
-                    'guard'                     '(' <GuardMethod> ')'  |
-                    'isType'    '<' <Type> '>'  '(' Expr ')'           |
-                    <InputPort> '.getValueAt'   '(' <Integer> ')'      ;
+ExprTerminal      ::= <Integer>                                       |
+                      'var'                       '(' <Variable> ')'  |
+                      'guard'                     '(' <Guard> ')'     |
+                      'isType'    '<' <Type> '>'  '(' Expr ')'        |
+                      <InputPort> '.getValueAt'   '(' <Integer> ')'   ;
 \end{verbatim}
 \end{csyntax}
 
@@ -579,7 +582,7 @@ ExprTerminal    ::= <Integer>                                          |
 %       vom Typ \code{Type} ist,
 % (v)   der \code{InputPort '.getValueAt'}-Terminal erlaubt es ein Token
 %       aus dem Eingangsport zu überprüfen.
-% Guard Methoden müssen konstante Methoden sein,
+% ActivationPattern Methoden müssen konstante Methoden sein,
 % da sie den Funktionalitätszustand nicht verändern dürfen.
 
 %An actor is \emph{blocked} in state $q$ until at least one firing transition
