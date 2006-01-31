@@ -260,11 +260,10 @@ void smoc_firing_types::transition_ty::execute(
 #ifdef ENABLE_SYSTEMC_VPC
       actor->vpc_event.reset();
 
-      SystemC_VPC::Director::getInstance().
-        getResource( actor->myModule()->name()).	
-	  compute( actor->myModule()->name(),
-                   fc.getFuncName(),
-                   &actor->vpc_event );
+      SystemC_VPC::Director::getInstance().  	
+	compute( actor->myModule()->name(),
+                 fc.getFuncName(),
+                 &actor->vpc_event );
 #endif //ENABLE_SYSTEMC_VPC
       fc();
 #ifdef SYSTEMOC_TRACE
