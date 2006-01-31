@@ -261,8 +261,8 @@ void smoc_firing_types::transition_ty::execute(
       actor->vpc_event.reset();
 
       SystemC_VPC::Director::getInstance().
-        getResource( actor->myModule()->name() ).
-          compute( actor->myModule()->name(),
+        getResource( actor->myModule()->name()).	
+	  compute( actor->myModule()->name(),
                    fc.getFuncName(),
                    &actor->vpc_event );
 #endif //ENABLE_SYSTEMC_VPC
@@ -277,7 +277,7 @@ void smoc_firing_types::transition_ty::execute(
       *rs = actor->commstate.rs;
       // save guard and next state to later execute communication
       actor->nextState.rs = sl.front();
-      actor->_guard       = &ap.guard;
+      actor->_guard       =  &ap.guard;
       
       // actor->ports_setup = _ctx.ports_setup;
       // _ctx.ports_setup.clear();

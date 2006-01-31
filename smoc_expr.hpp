@@ -941,7 +941,7 @@ operator op (const D<A> &a) {                                   \
 
 DOP(LNot,!)
 DOP(BNot,~)
-DOP(Ref,&)
+//DOP(Ref,&)
 DOP(DeRef,*)
 
 #undef DOP
