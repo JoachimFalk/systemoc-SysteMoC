@@ -222,7 +222,7 @@ Visual representation of the \code{SqrLoop} actor $A_2$ used in the network grap
 The \code{SqrLoop} actor is composed from \emph{input ports} and \emph{output ports}, its \emph{functionality}, and the \emph{firing FSM} determining the communication behavior of the actor.}
 \end{figure}
 
-\subsection{Declaration of the actor input and output ports}
+\subsection{Declaration of the actor input and output ports}\label{ssec:actor-ports}
 
 An actor must only communication with other actor via its input and output ports,
 as seen in Figure~\ref{fig:ng-sqrroot} where actor $A_2$ is connected via its input ports $[i_1, i_2] = A_2.I$ and output ports $[o_1, o_2] = A_2.O$
@@ -252,17 +252,17 @@ Therefore the SysteMoC library provides its own input and output ports \code{smo
 These use the same concept of template parameters as standard port from SystemC, e.g., \code{sc\_fifo\_in}, to specify the token type
 communicated over these ports, e.g., \code{smoc\_port\_in$<$double$>$} to specify a port which communicates double tokens.
 
-\subsection{Declaration of the actor functionality}
+\subsection{Declaration of the actor functionality}\label{ssec:actor-functionality}
 The actor functionality is represented by member variables and member functions of the actor.
 These functions manipulate the \emph{functionality state} stored in the member variables of the actor.
 Some member functions of the actor are reference by the firing FSM
 to calculate token values to be produced on the output ports.
-These member functions are called \emph{actions}, e.g.,
+These member functions are called \emph{actor actions} or \emph{actions} for short, e.g.,
 \code{copyStore} in Example~\ref{ex:systemoc-functionality-def},
 and can manipulate the functionality state.
 Other member functions are reference by the firing FSM to decide if
 transitions in the FSM are enabled an can be taken.
-These member functions are called \emph{guards}, e.g.,
+These member functions are called \emph{actor guards} or \emph{guards} for short, e.g.,
 \code{check} in Example~\ref{ex:systemoc-functionality-def},
 and must not manipulate the functionality state.
 Therefore these member functions are required to be declared as \emph{const member functions}.
@@ -284,7 +284,7 @@ private:
   void copyInput()  { o1[0] = tmp_i1;          }
   void copyApprox() { o2[0] = i2[0];           }
   
-  // guard  functions used by the
+  // guard functions used by the
   // FSM declared in the constructor
   bool check() const
     { return fabs(tmp_i1-i2[0]*i2[0]) < BOUND; }
@@ -341,7 +341,7 @@ q_{_0\mathrm{func}} & = & 0% \\
 %f_\mathtt{copyStore}    & : & 
 \end{eqnarray*}
 
-\subsection{Declaration of the communication behavior}
+\subsection{Declaration of the communication behavior}\label{ssec:firing-fsm}
 
 Consumption and production of tokens is only triggered by transitions in the \emph{firing FSMs}, which are embedded in all actors.
 The notion of firing FSM is similar to the concepts introduced in SPI~\cite{ZERTT99a} and an extension of the \emph{finite state machines} in FunState~\cite{STZETG00} by allowing requirements for a minimum of space available in output channels before a transition can be taken.
@@ -484,7 +484,7 @@ ActivationPattern   ::= InputPattern '>>' OutputPattern |
                         InputPattern                    |
                                           OutputPattern ;
 
-Action              ::= 'CALL' '(' <actor action member function> ')' ;
+Action              ::= 'CALL' '(' <actor action> ')' ;
 
 InputPattern        ::= '(' InputPattern ')'           |
                         InputPattern '&&' InputPattern |
@@ -513,6 +513,7 @@ OutputPort          ::= <actor output port>
 This transition set is created by combining their member \code{Transitions} via the \code{|}-operator.
 The transitions themselves are created by combining an \code{InputPattern}, an \code{OutputPattern}, an \code{Action}, and the next \code{FiringState} via the \code{>>}-operator.
 Whereas input pattern, output pattern, and action are optional, but at least one of them must be present.
+If an action is used the included \code{<actor action>} is declared in the actor functionality, as defined previously in Subsection~\ref{ssec:actor-functionality}.
 
 As can be seen in the Example~\ref{ex:systemoc-sqrloop-fsm-def} input and output patterns are assembled via the \code{\&\&}-operator\footnote{C++ logical AND} from \code{InputExpressions} and \code{OutputExpressions} respectively.
 Whereas input expressions check available tokens on input ports, e.g., \code{i1(1)} to check that at least one token is available on port \code{i1}, and output expressions check available space on output ports, e.g., \code{o1(1)} to check that at least one token can be written on port \code{o1}.
@@ -570,11 +571,11 @@ Token               ::= InputPort '.getValueAt' '(' Constant ')' ;
 
 The transition expressions can be combined via C++ operators listed in the preceding syntax definition, e.g., \code{+} for arithmetic addition.
 The precedence of these operators is exactly their C++ precedence.
-A transition expression can be combined from the following terminals
+A transition expression can be combined from the following terminals:
 (i)   the \code{Constant}-terminal represents a C++ expression which evaluates at instantiation time of the transition expression to a C++ integer, e.g., \code{sqr(a+5)}. A later value change of a variable included in this C++ expression, e.g., \code{a}, will not change the value of instantiated \code{<Integer>}-terminals containing this variable.
 (ii)  the \code{Variable}-terminal represents a actor member variable. A later value change of this variable will change the value of the \code{<Variable>}-terminal.
-(iii) the \code{Guard}-terminal 
-(iv)  the \code{Token}-terminal 
+(iii) the \code{Guard}-terminal represents an actor guard, as defined previously in Subsection~\ref{ssec:actor-functionality}. The value of the \code{Guard}-terminal is returned by its guard function and may depend on token values and the functionality state of the actor.
+(iv)  the \code{Token}-terminal, e.g., \code{i.getValueAt(n)}, represents the \code{n}th token on an actor input port \code{i}. Where \code{n} is starting from zero, e.g., \code{i.getValueAt(0)} is the first token in the channel connected to input port \code{i}.
 
 %An actor is \emph{blocked} in state $q$ until at least one firing transition
 %$\mathbf{t} \in \mathcal{T}_q$ is enabled, as discussed below. The set of enabled transitions is
