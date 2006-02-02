@@ -12,7 +12,7 @@ communicating actor systems.
 Using SysteMoC, many important models of computation may be described such as 
 SDF \cite{Lee87b:1987}, CSDF \cite{belp:1996, eblp:1994}, Boolean Dataflow, 
 Kahn Process Networks \cite{Kahn:1974}, 
-and many process networks, also communicating sequentiel processes (CSP)
+and many process networks, also communicating sequential processes (CSP)
 \cite{csphoare:1985}, and many others \cite{tszet:1999, LeeDenotialDF:1997,
 embsft:2002, Lee98, Eker, Tei97}.
 
@@ -25,12 +25,12 @@ by a network graph of communicating actors.
 by a class that contains several 
 so-called {\em actions} that are basic functional blocks implemented as 
 C++ methods that do computations on tokens on inputs and output ports 
-and the internal state of an actor. The actor itself thus posesses an 
+and the internal state of an actor. The actor itself thus possesses an 
 implementation in the form of a C++ class, and
 each actor communicates with other actors through a certain number 
 of input ports and a certain number of output ports. 
 The basic entity of data transfer is regulated by the notion of 
-{\em tokens}. Apart from the existence or absense of tokens, an actor 
+{\em tokens}. Apart from the existence or absence of tokens, an actor 
 may check and do computations also on values of these tokens. 
 In this paper, we do not make any assumptions on the types 
 of tokens exchanged between actors. 
@@ -39,7 +39,7 @@ by an explicit finite state machine that checks conditions on the input ports,
 output ports and internal state. If a certain firing rule is satisfied, 
 a state transition will be taken. During the state transition, an {\em action}
 is called. Once this action has finished execution, the new state is 
-taken. The complete state of an actor is decribed by this explicit 
+taken. The complete state of an actor is described by this explicit 
 state of the actor and the state as given by its (local) member variables.
 Depending on the model of computation, 
 the actor ports may be connected to different types of so-called {\em channels} such 
