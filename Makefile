@@ -4,7 +4,7 @@ RESDIR=$(shell while [ ! -d HscdTeXRes -a x`pwd` != x'/' ]; do cd ..; done; cd H
 
 .PHONY: docu
 
-douc: docu.pdf
+docu: docu.pdf
 
 TEX_SOURCES=report.tex docu.tex
 
