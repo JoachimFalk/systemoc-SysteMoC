@@ -182,9 +182,9 @@ public:
   
 private:
   
-  void pcopy(smoc_port_in<double> *in, smoc_port_out<double> *out, int i, int o) {
+  void pcopy(smoc_port_in<double> &in, smoc_port_out<double> &out, int i, int o) {
     std::cout << "SRC2MOD> " << i << " -> " << o << std::endl;
-    (*out)[0] = (*in)[0];
+    out[0] = in[0];
     sm2ms[0] = o;
   }
   
@@ -201,7 +201,7 @@ public:
       for(int o=0; o<out_count(); ++o) {
 	stl |= in(i)(1)
             >> (out(o)(1) && sm2ms(1))
-	    >> CALL(m_d_src2mod::pcopy)(&in(i))(&out(o))(i)(o)
+	    >> CALL(m_d_src2mod::pcopy)(in(i))(out(o))(i)(o)
 	    >> run;
       }
     }
@@ -219,8 +219,8 @@ public:
   
 private:
   
-  void pcopy(smoc_port_in<double> *in, smoc_port_out<double> *out) {
-    (*out)[0] = (*in)[0];
+  void pcopy(smoc_port_in<double> &in, smoc_port_out<double> &out) {
+    out[0] = in[0];
   }
   
   bool pguard(int i) const {
@@ -241,7 +241,7 @@ public:
 	
 	stl |= (in(i)(1) && sm2ms(1) && GUARD(m_d_mod2sink::pguard)(i))
             >> out(o)(1)
-            >> CALL(m_d_mod2sink::pcopy)(&in(i))(&out(o))
+            >> CALL(m_d_mod2sink::pcopy)(in(i))(out(o))
             >> run;
       }
     }
