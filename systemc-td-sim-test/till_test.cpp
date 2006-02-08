@@ -38,7 +38,8 @@ class till_top: public smoc_graph {
 protected:
   till_actor act;
   void time_out_process() {
-    while(1){
+    int i=10;
+    while(i-- != 0){
       wait(120, SC_NS);
       smoc_notify(timeout);
       std::cout << "timeout send" << std::endl;
