@@ -55,9 +55,9 @@ private:
   
   // action functions triggered by the
   // FSM declared in the constructor
-  void store() { tmp_i1 = i1[0]; }
-  void copy1() { o1[0] = tmp_i1; }
-  void copy2() { o1[0] = tmp_i1; o2[0] = i2[0]; }
+  void copyStore()  { o1[0] = tmp_i1 = i1[0];  }
+  void copyInput()  { o1[0] = tmp_i1;          }
+  void copyApprox() { o2[0] = i2[0];           }
   
   // guard  functions used by the
   // FSM declared in the constructor
@@ -76,15 +76,16 @@ public:
     : smoc_actor( name, start ) {
     start =
         i1(1)                               >>
-        CALL(SqrLoop::store)                >> loop
+        o1(1)                               >>
+        CALL(SqrLoop::copyStore)            >> loop
       ;
     loop  =
         (i2(1) &&  GUARD(SqrLoop::check))   >>
-        (o1(1) && o2(1))                    >>
-        CALL(SqrLoop::copy2)                >> start
+        o2(1)                               >>
+        CALL(SqrLoop::copyApprox)           >> start
       | (i2(1) && !GUARD(SqrLoop::check))   >>
         o1(1)                               >>
-        CALL(SqrLoop::copy1)                >> loop
+        CALL(SqrLoop::copyInput)            >> loop
       ;
   }
 };
@@ -164,8 +165,10 @@ public:
       sink("A5") {
     connectNodePorts(src.out,    sqrloop.i1);
     connectNodePorts(sqrloop.o1, approx.i1);
-    connectNodePorts(approx.o1,  dup.i1, smoc_fifo<double>() << 2 );
-    connectNodePorts(dup.o1,     approx.i2);
+    connectNodePorts(approx.o1,  dup.i1,
+                     smoc_fifo<double>(1));
+    connectNodePorts(dup.o1,     approx.i2,
+                     smoc_fifo<double>() << 2 );
     connectNodePorts(dup.o2,     sqrloop.i2);
     connectNodePorts(sqrloop.o2, sink.in);
   }
