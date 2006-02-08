@@ -264,7 +264,9 @@ struct Communicate<DVirtual<T> > {
   
   static inline
   result_type apply(const DVirtual <T> &e) {
-    // std::cout << "Communicate<DVirtual<T> >::apply(e)" << std::endl;
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "Communicate<DVirtual<T> >::apply(e)" << std::endl;
+#endif
     return e.v->evalToCommunicate();
   }
 };
@@ -730,7 +732,9 @@ struct Communicate<DBinOp<A,B,DOpBinLAnd> > {
   
   static inline
   result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
-    // std::cout << "Communicate<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "Communicate<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+#endif
     Communicate<A>::apply(e.a);
     Communicate<B>::apply(e.b);
   }

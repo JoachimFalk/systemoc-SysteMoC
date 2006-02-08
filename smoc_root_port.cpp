@@ -44,31 +44,32 @@ smoc_root_port_bool::smoc_root_port_bool( smoc_event *e )
 }
 
 smoc_root_port_bool::smoc_root_port_bool(smoc_root_port *p, size_t n) {
-  // std::cout << "smoc_root_port_bool(smoc_root_port *p, size_t n) ";
+#ifdef SYSTEMOC_DEBUG
+  std::cout << "smoc_root_port_bool(smoc_root_port *p == " << *p << ", size_t n == " << n << ") ";
+#endif
   if ( p->availableCount() >= n ) {
-    v = IS_ENABLED;// std::cout << "enabled";
+    v = IS_ENABLED;
+    p->commSetup(n);
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "enabled" << std::endl;
+#endif
   } else if ( /* p->getParentPort() != NULL || */
               p->peerIsV1() ) {
-    v = IS_BLOCKED;// std::cout << "blocked";
+    v = IS_BLOCKED;
+    p->blockEvent().reset();
+    _ctx.blocked &= p->blockEvent();
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "blocked" << std::endl;
+#endif
     // assert( p->getHierarchy() != _ctx.hierarchy ||
     //         p->peerIsV1() );
   } else {
-    v = IS_DISABLED;// std::cout << "disabled";
+    v = IS_DISABLED;
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "disabled" << std::endl;
+#endif
     // assert( p->getHierarchy() == _ctx.hierarchy );
   }
-  switch ( v ) {
-    case IS_ENABLED:
-      p->commSetup(n);
-      // _ctx.ports_setup.push_back(p);
-      break;
-    case IS_BLOCKED:
-      p->blockEvent().reset();
-      _ctx.blocked &= p->blockEvent();
-      break;
-    default:
-      break;
-  }
-  // std::cout << " "; dump(std::cout); std::cout << std::endl;
 }
 
 smoc_root_port_bool::smoc_root_port_bool( const this_type &a, const this_type &b )

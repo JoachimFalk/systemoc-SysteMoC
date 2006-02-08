@@ -170,17 +170,6 @@ smoc_root_port_bool operator >= (smoc_commnr c, size_t n)
 
 namespace Expr {
 
-template <class E, OpBinT Op>
-struct Communicate<DBinOp<Expr::DLiteral<smoc_commnr>,E,Op> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<Expr::DLiteral<smoc_commnr>,E,Op> &e) {
-    // std::cout << "Communicate<DBinOp<Expr::DLiteral<smoc_commnr>,E,Op> >::apply(e)" << std::endl;
-    return e.a.v.p.commExec();
-  }
-};
-
 /****************************************************************************
  * DGuard represents a virtual guard which hides an smoc_root_port_bool object
  *

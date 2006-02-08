@@ -115,6 +115,8 @@ public:
   
   friend class Value<this_type>;
   friend class AST<this_type>;
+  template <class E>
+  friend class Communicate;
 private:
   P      &p;
 public:
@@ -138,6 +140,20 @@ struct AST<DPortTokens<P> > {
   static inline
   result_type apply(const DPortTokens<P> &e)
     { return PASTNode(new ASTNodePortTokens(&e.p)); }
+};
+
+template <class P, class E, OpBinT Op>
+struct Communicate<DBinOp<DPortTokens<P>,E,Op> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DPortTokens<P>,E,Op> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "Communicate<DBinOp<DPortTokens<P>,E,Op> >"
+                 "::apply(" << e.a.p << ", ... )" << std::endl;
+#endif
+    return e.a.p.commExec();
+  }
 };
 
 template<class P>
@@ -231,7 +247,9 @@ public:
   typedef T                               data_type;
   typedef smoc_port_in<T>                 this_type;
   typedef typename this_type::iface_type  iface_type;
-//  typedef smoc_port_storage_in<T>         base_type;
+  
+  template <class E>
+  friend class Expr::Communicate;
 protected:
   void add_interface( sc_interface *i ) {
     this->push_interface(i); (*this)->addPortIf( this );
@@ -286,7 +304,9 @@ public:
   typedef T                               data_type;
   typedef smoc_port_out<T>                this_type;
   typedef typename this_type::iface_type  iface_type;
-//  typedef smoc_port_storage_out<T>        base_type;
+  
+  template <class E>
+  friend class Expr::Communicate;
 protected:
   void add_interface( sc_interface *i ) {
     this->push_interface(i); (*this)->addPortIf( this );
