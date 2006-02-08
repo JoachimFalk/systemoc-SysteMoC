@@ -327,7 +327,8 @@ void smoc_firing_types::resolved_state_ty::findBlocked(
 void smoc_firing_types::transition_ty::findBlocked(
     smoc_event_or_list &l, smoc_root_node *actor) {
   // FIXME: Big hack !!!
-  _ctx.blocked.clear();
+  al.clear();
+  _ctx.blocked = &al;
   
   smoc_root_port_bool b      = knownSatisfiable();
 #ifdef SYSTEMOC_DEBUG
@@ -335,8 +336,9 @@ void smoc_firing_types::transition_ty::findBlocked(
 #endif
   if ( b.getStatus() != smoc_root_port_bool::IS_DISABLED ) {
     assert( b.getStatus() == smoc_root_port_bool::IS_BLOCKED );
-    l |= _ctx.blocked;
+    l |= al;
   }
+  _ctx.blocked = NULL;
 }
 
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {

@@ -39,8 +39,8 @@ smoc_root_port_bool::smoc_root_port_bool( bool v )
 smoc_root_port_bool::smoc_root_port_bool( smoc_event *e )
   : v( *e ? IS_ENABLED : IS_BLOCKED ) {
   // std::cout << "was here !" << std::endl;
-  if ( v == IS_BLOCKED )
-    _ctx.blocked &= *e;
+  if ( _ctx.blocked && v == IS_BLOCKED )
+    *_ctx.blocked &= *e;
 }
 
 smoc_root_port_bool::smoc_root_port_bool(smoc_root_port *p, size_t n) {
@@ -57,7 +57,8 @@ smoc_root_port_bool::smoc_root_port_bool(smoc_root_port *p, size_t n) {
               p->peerIsV1() ) {
     v = IS_BLOCKED;
     p->blockEvent().reset();
-    _ctx.blocked &= p->blockEvent();
+    if ( _ctx.blocked )
+      *_ctx.blocked &= p->blockEvent();
 #ifdef SYSTEMOC_DEBUG
     std::cout << "blocked" << std::endl;
 #endif

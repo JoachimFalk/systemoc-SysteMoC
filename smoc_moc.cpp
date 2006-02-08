@@ -191,10 +191,7 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
 //    std::cout << "guard_fail:    " << guard_fail    << std::endl;
       smoc_wait(ol);
 #ifdef SYSTEMOC_DEBUG
-      for ( smoc_event_or_list::iterator iter = ol.begin();
-            iter != ol.end();
-            ++iter )
-        std::cout << **iter << std::endl;
+      std::cout << ol << std::endl;
 #endif
     }
   } while ( 1 );

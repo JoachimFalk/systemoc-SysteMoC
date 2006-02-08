@@ -178,6 +178,7 @@ struct smoc_firing_types {
   class transition_ty {
   public:
     smoc_activation_pattern ap;
+    smoc_event_and_list     al;
     func_ty                 f;
     statelist_ty            sl;
   public:

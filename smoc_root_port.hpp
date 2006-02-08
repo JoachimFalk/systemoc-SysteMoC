@@ -99,7 +99,10 @@ typedef std::list<smoc_root_port *> smoc_port_list;
 
 struct smoc_ctx {
 //  smoc_port_list      ports_setup;
-  smoc_event_and_list blocked;
+  smoc_event_and_list *blocked;
+  
+  smoc_ctx()
+    : blocked(NULL) {}
 };
 
 extern smoc_ctx _ctx;
