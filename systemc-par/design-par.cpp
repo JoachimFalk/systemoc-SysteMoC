@@ -4,6 +4,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <queue>
+#include <cassert>
 
 #include <smoc_moc.hpp>
 #include <smoc_port.hpp>
@@ -14,17 +16,24 @@
 # include <smoc_pggen.hpp>
 #endif
 
+template<class T>
+struct ActorFactory
+{
+  virtual T* construct(const char *name) const = 0;
+  virtual ~ActorFactory() {}
+};
+
 class m_mod :
   public smoc_actor
 {
 public:
-  smoc_port_in<double> in;
-  smoc_port_out<double> out;
-
+  smoc_port_in<double> in_src2mod;
+  smoc_port_out<double> out_mod2sink;
+  
 private:
   void copy() {
-    std::cout << name() << "> proc. " << in[0] << std::endl; 
-    out[0] = in[0];
+    std::cout << name() << "> proc. " << in_src2mod[0] << std::endl; 
+    out_mod2sink[0] = in_src2mod[0];
   }
   
   smoc_firing_state run;
@@ -34,18 +43,29 @@ public:
     smoc_actor(name, run)
   {
     run =
-        in(1)
-     >> out(1)
+        in_src2mod(1)
+     >> out_mod2sink(1)
      >> CALL(m_mod::copy)
      >> run;
   }
+public:
+  
+  struct factory : public ActorFactory<m_mod>
+  {
+    factory() {}
+    
+    m_mod *construct(const char *name) const {
+      return new m_mod(name);
+    }
+  };
+  
 };
 
 class m_src :
   public smoc_actor
 {
 public:
-  smoc_port_out<double> out;
+  smoc_port_out<double> out_src2mod;
 
 private:
   int i;
@@ -55,7 +75,7 @@ private:
 
   void src() {
     //std::cout << "src: " << i << std::endl;
-    out[0] = i++;
+    out_src2mod[0] = i++;
     if(n>0) n--;
   }
   
@@ -68,7 +88,7 @@ public:
     n(times)
   { 
     start = 
-         ( out(1) && GUARD(m_src::nTimesTrue) ) 
+         ( out_src2mod(1) && GUARD(m_src::nTimesTrue) ) 
       >> CALL(m_src::src)
       >> start;
   }
@@ -78,12 +98,12 @@ class m_sink :
   public smoc_actor
 {
 public:
-  smoc_port_in<double> in;
+  smoc_port_in<double> in_mod2sink;
 private:
   int i;
   
   void sink() {
-    std::cout << "sink: " << in[0] << "(exp. " << i++ << ")" << std::endl;
+    std::cout << "sink: " << in_mod2sink[0] << "(exp. " << i++ << ")" << std::endl;
   }
   
   smoc_firing_state start;
@@ -94,191 +114,208 @@ public:
     i(1)
   {
     start = 
-         in(1) 
+         in_mod2sink(1) 
       >> CALL(m_sink::sink) 
       >> start;
   }
 };
 
 
-template<class CHAN_TYPE_IN, class CHAN_TYPE_OUT>
-class m_disp_base
+template<class CHAN_TYPE>
+class m_par_port_in
 {
-private:
-  smoc_port_in<CHAN_TYPE_IN>   *p_in;
-  smoc_port_out<CHAN_TYPE_OUT> *p_out;
+public:
+  typedef smoc_port_in<CHAN_TYPE> port_type;  
   
-  int                           n_in;
-  int                           n_out;
+private:
+  port_type *p_inst;
+  int        n_inst;
   
 public:
   
-  m_disp_base(int in, int out) :
-    p_in(new smoc_port_in<CHAN_TYPE_IN>[in]),
-    p_out(new smoc_port_out<CHAN_TYPE_OUT>[out]),
-    n_in(in),
-    n_out(out)
+  m_par_port_in(int inst) :
+    p_inst(new port_type[inst]),
+    n_inst(inst)
   {}
   
-  ~m_disp_base() {
-    delete[] p_in;
-    delete[] p_out;
-  }
-
-  smoc_port_in<CHAN_TYPE_IN>& in(int i) {
-    assert(i >= 0 && i < n_in);
-    return p_in[i];
-  }
-
-  smoc_port_out<CHAN_TYPE_OUT>& out(int i) {
-    assert(i >= 0 && i < n_out);
-    return p_out[i];
+  ~m_par_port_in() {
+    delete[] p_inst;
   }
   
-  int in_count() const { return n_in; }
-  int out_count() const { return n_out; }
+  port_type& operator()(int i) const {
+    assert(i >= 0 && i < n_inst);
+    return p_inst[i];
+  }
+  
+  int count() const { return n_inst; }
 };
 
+
+template<class CHAN_TYPE>
+class m_par_port_out
+{
+public:
+  typedef smoc_port_out<CHAN_TYPE> port_type;
+
+private:
+  port_type *p_inst;
+  int        n_inst;
+
+public:
+  
+  m_par_port_out(int inst) :
+    p_inst(new port_type[inst]),
+    n_inst(inst)
+  {}
+  
+  ~m_par_port_out() {
+    delete[] p_inst;
+  }
+  
+  port_type& operator()(int i) const {
+    assert(i >= 0 && i < n_inst);
+    return p_inst[i];
+  }
+  
+  int count() const { return n_inst; }
+};
+
+
 template<class M>
-class m_par_mod
+class m_par_actor
 {
 private:
   M         **p_inst;
   int         n_inst;
   
 public:
-  m_par_mod(const char *name_prefix, int inst) :
+  m_par_actor(const char *name_prefix, int inst, const ActorFactory<M> &f) :
     p_inst(new M *[inst]),
     n_inst(inst)
   {
     for(int i=0; i<inst; ++i) {
       std::ostringstream name;
       name << name_prefix << i;
-      p_inst[i] = new M(name.str().c_str());
+      p_inst[i] = f.construct(name.str().c_str());
     }
   }
 
-  ~m_par_mod() {
+  ~m_par_actor() {
     for(int i=0; i<n_inst; ++i) {
       delete p_inst[i];
     }
     delete[] p_inst;
   }
-
-  M& instance(int i) {
+  
+  M& operator()(int i) {
     assert(i >= 0 && i < n_inst);
     return *p_inst[i];
   }
-
-  int instance_count() const { return n_inst; }
+  
+  int count() const { return n_inst; }
 };
 
-class m_d_src2mod :
-  public smoc_actor,
-  public m_disp_base<double,double>
-{ 
+
+
+class m_mod_dispatcher :
+  public smoc_actor
+{
 public:
-  smoc_port_out<int> sm2ms;
+  m_par_port_in<double>  in_src2mod;
+  m_par_port_out<double> out_src2mod;
+
+  m_par_port_in<double>  in_mod2sink;
+  m_par_port_out<double> out_mod2sink;
   
-private:
+private:  
+
+  std::queue<int> control;
   
-  void pcopy(smoc_port_in<double> &in, smoc_port_out<double> &out, int i, int o) {
-    std::cout << "SRC2MOD> " << i << " -> " << o << std::endl;
+  void copy_src2mod(smoc_port_in<double> &in, smoc_port_out<double> &out, int i, int o) {
+    std::cout << "DISPATCHER> src(" << i << ") -> mod(" << o << ")" << std::endl;
+    
+    control.push(o); // Remember which instance received token
+    
     out[0] = in[0];
-    sm2ms[0] = o;
+  }
+  
+  bool guard_mod2sink(int i) const {
+    return i == control.front();
+  }
+  
+  void copy_mod2sink(smoc_port_in<double> &in, smoc_port_out<double> &out, int i, int o) {
+    std::cout << "DISPATCHER> mod("<< i << ") -> sink("<< o << ")" << std::endl;
+    
+    control.pop(); // Remove control info
+    
+    out[0] = in[0];
   }
   
   smoc_firing_state run;
   
 public:
-  m_d_src2mod(sc_module_name name, int _in, int _out) :
+
+  m_mod_dispatcher(sc_module_name name, int mod_count, int src_count, int sink_count) :
     smoc_actor(name, run),
-    m_disp_base<double,double>(_in, _out)
+    in_src2mod(src_count),
+    out_src2mod(mod_count),
+    in_mod2sink(mod_count),
+    out_mod2sink(sink_count)
   {
     smoc_transition_list stl;
     
-    for(int i=0; i<in_count(); ++i) {
-      for(int o=0; o<out_count(); ++o) {
-	stl |= in(i)(1)
-            >> (out(o)(1) && sm2ms(1))
-	    >> CALL(m_d_src2mod::pcopy)(in(i))(out(o))(i)(o)
+    for(int i=0; i<src_count; ++i) {
+      for(int o=0; o<mod_count; ++o) {
+	
+	stl |= in_src2mod(i)(1)
+	    >> out_src2mod(o)(1)
+	    >> CALL(m_mod_dispatcher::copy_src2mod)(in_src2mod(i))(out_src2mod(o))(i)(o)
 	    >> run;
       }
     }
-    
-    run = stl;
-  }
-};
 
-class m_d_mod2sink :
-  public smoc_actor,
-  public m_disp_base<double,double>
-{
-public:
-  smoc_port_in<int> sm2ms;
-  
-private:
-  
-  void pcopy(smoc_port_in<double> &in, smoc_port_out<double> &out) {
-    out[0] = in[0];
-  }
-  
-  bool pguard(int i) const {
-    return sm2ms[0] == i;
-  }
+    for(int i=0; i<mod_count; ++i) {
+      for(int o=0; o<sink_count; ++o) {
 
-  smoc_firing_state run;
-  
-public:
-  m_d_mod2sink(sc_module_name name, int _in, int _out) :
-    smoc_actor(name, run),
-    m_disp_base<double,double>(_in, _out)
-  {
-    smoc_transition_list stl;
-
-    for(int i=0; i<in_count(); ++i) {
-      for(int o=0; o<out_count(); ++o) {
-	
-	stl |= (in(i)(1) && sm2ms(1) && GUARD(m_d_mod2sink::pguard)(i))
-            >> out(o)(1)
-            >> CALL(m_d_mod2sink::pcopy)(in(i))(out(o))
-            >> run;
+	stl |= (in_mod2sink(i)(1) && GUARD(m_mod_dispatcher::guard_mod2sink)(i))
+	    >> out_mod2sink(o)(1)
+	    >> CALL(m_mod_dispatcher::copy_mod2sink)(in_mod2sink(i))(out_mod2sink(o))(i)(o)
+	    >> run;
       }
     }
-    
+
     run = stl;
-  }  
+  }
+  
 };
+
 
 class m_top : 
   public smoc_graph
 {
   private:
-    m_src             src;
-    m_sink            sink;
-    m_d_src2mod       src2mod;
-    m_d_mod2sink      mod2sink;
-    m_par_mod<m_mod>  mod;
+    m_src               src;
+    m_sink              sink;
+    
+    m_mod_dispatcher    disp;
+    m_par_actor<m_mod>  mod;
     
   public:
     m_top( sc_module_name name, int mod_inst ) :
       smoc_graph(name),
       src("src", 50),
       sink("sink"),
-      src2mod("src2mod", 1, mod_inst),
-      mod2sink("mod2sink", mod_inst, 1),
-      mod("mod", mod_inst)
+      disp("disp", mod_inst, 1, 1),
+      mod("mod", mod_inst, m_mod::factory())
     {
-      connectNodePorts(src.out, src2mod.in(0));
+      connectNodePorts(src.out_src2mod, disp.in_src2mod(0));
       
       for(int i=0; i<mod_inst; ++i) {
-	connectNodePorts(src2mod.out(i), mod.instance(i).in);
-	connectNodePorts(mod.instance(i).out, mod2sink.in(i));
+	connectNodePorts(disp.out_src2mod(i), mod(i).in_src2mod);
+	connectNodePorts(mod(i).out_mod2sink, disp.in_mod2sink(i));
       }
       
-      connectNodePorts(mod2sink.out(0), sink.in);
-      
-      connectNodePorts(src2mod.sm2ms, mod2sink.sm2ms, smoc_fifo<int>(mod_inst) );
+      connectNodePorts(disp.out_mod2sink(0), sink.in_mod2sink);  
     }
 };
 
