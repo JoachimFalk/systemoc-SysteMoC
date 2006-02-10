@@ -193,6 +193,12 @@ struct smoc_firing_types {
     void findBlocked(smoc_event_or_list &l, smoc_root_node *actor);
     
     void dump(std::ostream &out) const;
+
+#ifdef SYSTEMOC_DEBUG
+    ~transition_ty() {
+      std::cout << "~transition_ty() this == " << this << std::endl;
+    }
+#endif
   };
   
   class resolved_state_ty {
@@ -210,6 +216,12 @@ struct smoc_firing_types {
     
 //  bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
     void findBlocked(smoc_event_or_list &l, smoc_root_node *actor);
+
+#ifdef SYSTEMOC_DEBUG
+    ~resolved_state_ty() {
+      std::cout << "~resolved_state_ty() this == " << this << std::endl;
+    }
+#endif
   };
 };
 
@@ -353,12 +365,7 @@ public:
   const statelist_ty &getFSMStates() const
     { return states; }
   
-  ~smoc_firing_rules() {
-    for ( statelist_ty::iterator iter = states.begin();
-          iter != states.end();
-          ++iter )
-      delete *iter;
-  }
+  ~smoc_firing_rules();
 };
 
 #ifndef _COMPILEHEADER_SMOC_FIRING_STATE_REF__DESTRUCTOR

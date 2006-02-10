@@ -154,6 +154,17 @@ void smoc_firing_rules::finalise( smoc_root_node *actor_ ) {
   actor = actor_;
 }
 
+smoc_firing_rules::~smoc_firing_rules() {
+#ifdef SYSTEMOC_DEBUG
+  std::cout << "~smoc_firing_rules() this == " << this << std::endl;
+#endif
+  for ( statelist_ty::iterator iter = states.begin();
+        iter != states.end();
+        ++iter )
+    delete *iter;
+}
+
+
 smoc_firing_types::transition_ty::transition_ty(
     smoc_firing_state_ref *s, const smoc_transition &t ) {
   ap = t.getActivationPattern();

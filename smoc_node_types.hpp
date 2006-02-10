@@ -35,6 +35,13 @@ class smoc_actor
     smoc_actor(smoc_firing_state &s)
       : smoc_root_node(s),
         sc_module( sc_gen_unique_name("smoc_actor") ) {}
+
+#ifdef SYSTEMOC_DEBUG
+    ~smoc_actor() {
+      std::cout << "~smoc_actor() name = \""
+                << myModule()->name() << "\"" << std::endl;
+    }
+#endif
   public:
 #ifndef __SCFE__
     sc_module *myModule() { return this; }
