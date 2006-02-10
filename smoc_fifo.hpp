@@ -127,7 +127,15 @@ protected:
   }
   
   data_type *getStorage() const { return storage; }
-  
+
+  void dumpInitialTokens(smoc_modes::PGWriter &pgw) const {
+    for ( size_t n = 0; n < usedStorage(); ++n ) {
+      pgw << "<token type=\"" << typeid(T).name() << "\""
+                  " value=\"" << storage[n]       << "\""
+             "/>" << std::endl;
+    }
+  }
+
   ~smoc_fifo_storage() { delete storage; }
 };
 
@@ -161,6 +169,12 @@ protected:
   }
   
   void *getStorage() const { return NULL; }
+
+  void dumpInitialTokens(smoc_modes::PGWriter &pgw) const {
+    for ( size_t n = 0; n < usedStorage(); ++n ) {
+      pgw << "<token type=\"void\" value=\"\"/>" << std::endl;
+    }
+  }
 };
 
 template <typename T>

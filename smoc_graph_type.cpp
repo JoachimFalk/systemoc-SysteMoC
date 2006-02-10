@@ -108,7 +108,13 @@ pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const {
           pgw << "<edge name=\"" << (*c_iter)->name() << "\" "
               << "source=\"" << pgw.getId(*ps_iter) << "\" " 
               << "target=\"" << pgw.getId(*pd_iter) << "\" "
-              << "id=\"" << pgw.getId(*c_iter) << "\"/>" << std::endl;
+              << "id=\"" << pgw.getId(*c_iter) << "\">" << std::endl;
+          {
+            pgw.indentUp();
+            (*c_iter)->dumpInitialTokens(pgw);
+            pgw.indentDown();
+          }
+          pgw << "</edge>" << std::endl;
         }
       }
     }
