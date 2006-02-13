@@ -2,19 +2,19 @@
 
 \section{Actor behavior}
 
-An actor $A$ can be thought of as a relation $\mathbb{A}$ which maps sequences of token values $V^{**}$ on its input ports $A.I$ into sequences of token values on its output ports $A.O$, i.e., $\mathbb{A} \subseteq (V^{**})^{|A.I|} \times (V^{**})^{|A.O|}$.
+An actor $a$ can be thought of as a relation $\mathbb{A}$ which maps sequences of token values $V^{**}$ on its input ports $a.I$ into sequences of token values on its output ports $a.O$, i.e., $\mathbb{A} \subseteq (V^{**})^{|a.I|} \times (V^{**})^{|a.O|}$.
 
 \begin{eqnarray}
-\mathrm{Fire}(v, q_\mathrm{firing}, q_\mathrm{func}) = \{ w_\mathrm{prod}.w_\mathrm{tail} %
- & |      & (q_\mathrm{firing}, k, f_\mathrm{action}, q'_\mathrm{firing}) \in \mathcal{T} \\
- & \wedge & k(v_\mathrm{cons}) \\
- & \wedge & \forall{v_\mathrm{prefix} \sqsubset v_\mathrm{cons}}: \neg k(v_\mathrm{prefix}) \\
- & \wedge & (w_\mathrm{prod}, q'_\mathrm{func}) = f_\mathrm{action}(v_\mathrm{cons},q_\mathrm{func}) \\
- & \wedge & v = v_\mathrm{cons}.v_\mathrm{tail} \\
- & \wedge & w_\mathrm{tail} = \mathrm{Fire}(v_\mathrm{tail}, q'_\mathrm{firing}, q'_\mathrm{func}) \}
+\mathrm{Fire}(\mathbf{v}, s_\mathrm{firing}, s_\mathrm{func}) = \{ \mathbf{w}_\mathrm{prod}.\mathbf{w}_\mathrm{tail} %
+ & |      & (s_\mathrm{firing}, k, f_\mathrm{action}, s'_\mathrm{firing}) \in T \\
+ & \wedge & k(\mathbf{v}_\mathrm{cons}) \\
+ & \wedge & \forall{\mathbf{v}_\mathrm{prefix} \sqsubset \mathbf{v}_\mathrm{cons}}: \neg k(\mathbf{v}_\mathrm{prefix}) \\
+ & \wedge & (\mathbf{w}_\mathrm{prod}, s'_\mathrm{func}) = f_\mathrm{action}(\mathbf{v}_\mathrm{cons},s_\mathrm{func}) \\
+ & \wedge & \mathbf{v} = \mathbf{v}_\mathrm{cons}.\mathbf{v}_\mathrm{tail} \\
+ & \wedge & \mathbf{w}_\mathrm{tail} = \mathrm{Fire}(\mathbf{v}_\mathrm{tail}, s'_\mathrm{firing}, s'_\mathrm{func}) \}
 \end{eqnarray}
 
-$\mathbb{A} = \{ (v,w) | w \in \mathrm{Fire}(v, q_{_0\mathrm{firing}}, q_{_0\mathrm{func}}), v \in (V^{**})^{|A.I|} \}$
+$\mathbb{A} = \{ (\mathbf{v},\mathbf{w}) | \mathbf{w} \in \mathrm{Fire}(\mathbf{v}, s_{_0\mathrm{firing}}, s_{_0\mathrm{func}}), \mathbf{v} \in (V^{**})^{|A.I|} \}$
 
 % \section{Kopplung zwischen SysteMoC und VPC}
 % \label{sec:smoc-vpc}
