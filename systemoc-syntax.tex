@@ -202,7 +202,7 @@ Therefore, we define a more restricted form of network graphs called \emph{non-c
   A \emph{non-conflicting network} \emph{graph} is a network graph such that exactly
   one edge is incident to each actor port and the in-degree and out-degree
   of each channel in the graph is exactly one,
-  i.e., $\forall{p \in \mathcal{P}}: |(\{p\} \times C) \cup (C \times \{p\}) \cap E| = 1$ and
+  i.e., $\forall{p \in \mathcal{P}}: |((\{p\} \times C) \cup (C \times \{p\})) \cap E| = 1$ and
   $\forall{c \in C}: |(\{c\} \times \mathcal{P}_I) \cap E| = 1 \wedge
                      |(\mathcal{P}_O \times \{c\}) \cap E| = 1$.
 \end{definition}
