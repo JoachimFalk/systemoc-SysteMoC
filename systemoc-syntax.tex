@@ -178,17 +178,20 @@ More formally, we can derive the following definition for a \emph{network graph}
 A \emph{(general) network graph} is a directed bipartite graph $g=(A,C,P,E)$ containing
 a set of actors $A$,
 a set of channels $C$, 
-a channel parameter function $P: C \to \mathbb{N} \times V^*$ which
-associates with each channel $c \in C$ its buffer size $n \in \mathbb{N}$, possibly infinite,
+a channel parameter function $P: C \to \mathbb{N}_\infty \times V^*$ which
+associates with each channel $c \in C$ its buffer size $n \in \mathbb{N}_\infty = \{1,2,3,\ldots\infty\}$,
 and possibly also a non-empty sequence $\mathbf{v} \in V^*$ of initial tokens,
-and finally a set of directed edges $E \subseteq (C \times \mathcal{P}_I) \cup (\mathcal{P}_O \times C)$,
-where $\mathcal{P}_I = \bigcup{}_{a \in A} a.I$ and $\mathcal{P}_O = \bigcup{}_{a \in A} a.O$ denote the sets of \emph{all actor input ports} and \emph{all actor output ports} in the network graph, respectively.
+and finally a set of directed edges $E \subseteq (C \times A.I) \cup (A.O \times C)$,
+where $A.I = \bigcup{}_{a \in A} a.I$ and $A.O = \bigcup{}_{a \in A} a.O$ denote the sets of \emph{all actor input ports} and \emph{all actor output ports} in the network graph, respectively.
 \end{definition}
 
 Each actor $a \in A$ may only communicate with other
 actors through its dedicated actor input ports $a.I$ and actor output ports $a.O$.
 Furthermore, the set of all actor input and actor output ports of all actors in
-the network graph is given by $\mathcal{P} = \mathcal{P}_I \cup \mathcal{P}_O$.
+the network graph is given by $A.\mathcal{P} = A.I \cup A.O$ \footnote{
+  We use the `$.$'-operator, e.g., $a.\mathcal{P}$, for member access, e.g., $\mathcal{P}$, of tuples whose members have been explicitly named in their definition, e.g., $a \in A$ from Definition~\ref{def:actor}.
+  Furthermore this member access operator has a trivial pointwise extenstion to sets of tuples, e.g., $A.\mathcal{P} = \bigcup{}_{a \in A} a.\mathcal{P}$, which is also used throughout this document.
+}.
 However, the preceding definition still allows multiple readers and writers per FIFO channel.
 Therefore, we define a more restricted form of network graphs called \emph{non-conflicting network graph} which allows only \emph{point-to-point} connections per channel.
 
@@ -202,9 +205,9 @@ Therefore, we define a more restricted form of network graphs called \emph{non-c
   A \emph{non-conflicting network} \emph{graph} is a network graph such that exactly
   one edge is incident to each actor port and the in-degree and out-degree
   of each channel in the graph is exactly one,
-  i.e., $\forall{p \in \mathcal{P}}: |((\{p\} \times C) \cup (C \times \{p\})) \cap E| = 1$ and
-  $\forall{c \in C}: |(\{c\} \times \mathcal{P}_I) \cap E| = 1 \wedge
-                     |(\mathcal{P}_O \times \{c\}) \cap E| = 1$.
+  i.e., $\forall{p \in A.\mathcal{P}}: |((\{p\} \times C) \cup (C \times \{p\})) \cap E| = 1$ and
+  $\forall{c \in C}: |(\{c\} \times A.I) \cap E| = 1 \wedge
+                     |(A.O \times \{c\}) \cap E| = 1$.
 \end{definition}
 
 In the following, we assume that we are dealing only with non-conflicting network graphs, 
@@ -261,8 +264,8 @@ each definition of an actor class can be subdivided into three parts:
 More formally, we can derive the following definitions:
 
 \begin{definition}[Actor]\label{def:actor}
-An actor is a tuple $a=(I,O,\mathcal{F},\mathcal{R})$ containing
-a set of \emph{actor input ports} $I$ and \emph{actor output ports} $O$,
+An actor is a tuple $a=(\mathcal{P},\mathcal{F},\mathcal{R})$ containing
+a set of \emph{actor ports} $\mathcal{P} = I \cup O$ partitioned into \emph{actor input ports} $I$ and \emph{actor output ports} $O$,
 the \emph{actor functionality} $\mathcal{F}$ and the \emph{firing FSM} $\mathcal{R}$.
 \end{definition}
 
@@ -483,14 +486,14 @@ More formally, we derive the following two formal definitions:
   an \emph{initial firing state} $s_{_0\mathrm{firing}} \in S_\mathrm{firing}$.
 \end{definition}
 
-\begin{definition}[Transition]\label{firing-transition}
+\begin{definition}[Transition]\label{def:firing-transition}
   A \emph{firing transition} is a tuple $t = (s_\mathrm{firing}, k, f_\mathrm{action}, s'_\mathrm{firing})$  $\in T$ containing
   the current firing state $s_\mathrm{firing} \in S_\mathrm{firing}$,
   an \emph{activation pattern} $k$,
   the associated \emph{action} $f_\mathrm{action} \in a.\mathcal{F}.F_\mathrm{action}$,
   and the next firing state $s'_\mathrm{firing} \in S_\mathrm{firing}$.
   The activation pattern $k$ is a boolean function which decides if 
-  transition $t$ can be taken (true) or not (false). 
+  transition $t$ can be taken $(\mathrm{true})$ or not $(\mathrm{false})$.
   %$k(\mathbf{v}, s_\mathrm{func}) = \mathrm{true}$, or
   %can not be taken $k(\mathbf{v}, s_\mathrm{func}) = \mathrm{false}$.
 % or more input values are still neccessary to decide $k(\mathbf{v}, s_\mathrm{func}) = \bot$.
