@@ -269,6 +269,7 @@ a set of \emph{actor ports} $\mathcal{P} = I \cup O$ partitioned into \emph{acto
 the \emph{actor functionality} $\mathcal{F}$ and the \emph{firing FSM} $\mathcal{R}$.
 \end{definition}
 
+The \emph{actor state} $s = (s_\mathrm{func}, s_\mathrm{firing})$ is combined from the state stored in the actor functionality $s_\mathrm{func} \in \mathcal{F}.S_\mathrm{func}$ and the state of the firing FSM $s_\mathrm{firing} \in \mathcal{R}.S_\mathrm{firing}$, i.e., $s \in S = \mathcal{F}.S_\mathrm{func} \times \mathcal{R}.S_\mathrm{firing}$.
 The three parts of an actor can also be seen in Figure~\ref{fig:actor-sqrloop} which shows a
 graphical representation the actor defined in the Examples~\ref{ex:systemoc-sqrloop-actor-def} - \ref{ex:systemoc-sqrloop-fsm-def}.
 In the following, the steps to construct these three parts will be explained in detail.
