@@ -457,7 +457,7 @@ public:
       m(*reinterpret_cast<fun *>(&m)) {}
   
   dummy       *ptrObj()     const { return o; }
-  fun          ptrMemProc() const { return m; }
+  const fun   &ptrMemProc() const { return m; }
 };
 
 template<typename T, class X>

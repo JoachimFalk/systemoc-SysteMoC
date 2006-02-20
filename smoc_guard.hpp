@@ -125,24 +125,22 @@ public:
               (n->isa<Expr::ASTNodeProc>()->ptrProc()) << "\"/>" << std::endl;
             //pgw << "</Proc>" << std::endl;
           } else if ( n->isa<Expr::ASTNodeMemGuard>() ) {
-            pgw << "<MemGuard objPtr=\"Ox" << std::hex << reinterpret_cast<unsigned long>
+            pgw << "<MemGuard objPtr=\"0x" << std::hex << reinterpret_cast<unsigned long>
               (n->isa<Expr::ASTNodeMemGuard>()->ptrObj()) << "\" name=\"" <<
               (n->isa<Expr::ASTNodeMemGuard>()->getName()) << "\"/>" << std::endl;
             //pgw << "</MemGuard>" << std::endl;
           }  else if ( n->isa<Expr::ASTNodeMemProc>() ) {
-            pgw << "<MemProc 0x = \"" << /*std::hex << reinterpret_cast<void *>
-              (n->isa<Expr::ASTNodeMemProc>()->ptrMemProc())
-                      <<*/ "FIXME!!!" <<   " obj " << n->isa<Expr::ASTNodeMemProc>()->ptrObj() << "\">/" << std::endl;
-            //pgw << "</MemProc>" << std::endl;
-          //} else if ( n->isa<Expr::ASTNodeCommReq>() ) {
-            //pgw << "CommReq" << std::endl;
+            pgw << "<MemProc "
+                     "objPtr=\"0x" << std::hex << reinterpret_cast<unsigned long>
+                       (n->isa<Expr::ASTNodeMemProc>()->ptrObj()) << "\" "
+                     "addrPtr=\"0x" << std::hex << *reinterpret_cast<const unsigned long *>
+                       (&n->isa<Expr::ASTNodeMemProc>()->ptrMemProc()) << "\"/>"
+                << std::endl;
           } else if ( n->isa<Expr::ASTNodeToken>() ) {
-            pgw << "<Token/>" << std::endl;
-            //pgw << "</Token>" << std::endl;
+            pgw << "<Token FIXME !!!/>" << std::endl;
           } else {
-            pgw << "<Unkown Terminal/>" << std::endl;
-            //pgw << "</Unkown Terminal>" << std::endl;
-          } 
+            pgw << "<Unkown Terminal FIXME !!!/>" << std::endl;
+          }
         }
 
     } while (0);
