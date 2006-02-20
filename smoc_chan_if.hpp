@@ -21,6 +21,7 @@
 
 #include <smoc_root_port.hpp>
 #include <smoc_event.hpp>
+#include <smoc_pggen.hpp>
 
 #include <systemc.h>
 
@@ -99,8 +100,10 @@ public:
 private:
   sc_module *hierarchy; // patched in finalize of smoc_graph_petri
 public:
-  virtual smoc_port_list getInputPorts()  const = 0;
-  virtual smoc_port_list getOutputPorts() const = 0;
+  virtual smoc_port_list  getInputPorts()               const = 0;
+  virtual smoc_port_list  getOutputPorts()              const = 0;
+  virtual void            dumpInitialTokens(
+                            smoc_modes::PGWriter &pgw)  const = 0;
   
   sc_module *getHierarchy() const {
     assert( hierarchy != NULL );  
