@@ -1,0 +1,135 @@
+<?xml encoding="UTF-8"?>
+
+<!ENTITY % OPS "(ASTNodeBinOp|ASTNodeUnOp|PortTokens|Literal|Var|Proc|MemProc|MemGuard)" >
+
+<!ELEMENT specificationgraph (problemgraph,architecturegraph,mappings)>
+<!ATTLIST specificationgraph
+  name CDATA #REQUIRED
+>
+
+<!ELEMENT problemgraph (edge|portmapping|process)*>
+<!ATTLIST problemgraph 
+	id ID #REQUIRED
+	name CDATA #REQUIRED
+>
+
+<!ELEMENT architecturegraph (edge|portmapping|resource|attribute)*>
+<!ATTLIST architecturegraph 
+	id ID #REQUIRED
+	name CDATA #REQUIRED
+>
+
+<!ELEMENT mappings (mapping)*>
+<!ATTLIST mappings
+  name CDATA #IMPLIED
+>
+
+<!ELEMENT process (port|problemgraph|fsm)*>
+<!ATTLIST process
+	name CDATA #REQUIRED
+	id ID #REQUIRED
+	x CDATA #IMPLIED
+	y CDATA #IMPLIED
+	type CDATA #IMPLIED
+>
+
+<!ELEMENT resource (port|architecturegraph|attribute)*>
+<!ATTLIST resource
+	name CDATA #REQUIRED
+	id ID #REQUIRED
+	x CDATA #IMPLIED
+	y CDATA #IMPLIED
+>
+
+<!ELEMENT mapping (attribute)*>
+<!ATTLIST mapping
+	name CDATA #REQUIRED
+	id ID #REQUIRED
+	source IDREF #REQUIRED
+	target IDREF #REQUIRED
+>
+
+<!ELEMENT port EMPTY>
+<!ATTLIST port
+	name CDATA #REQUIRED
+	id ID #REQUIRED
+	type (in|out) #REQUIRED
+>
+
+<!ELEMENT portmapping EMPTY>
+<!ATTLIST portmapping
+        from IDREF #REQUIRED
+        id ID #REQUIRED
+        to IDREF #REQUIRED
+	x CDATA #IMPLIED
+	y CDATA #IMPLIED
+>
+
+<!ELEMENT edge (token*)>
+<!ATTLIST edge
+	name CDATA #REQUIRED
+	id ID #REQUIRED
+	source IDREF #REQUIRED
+	target IDREF #REQUIRED
+>
+
+<!ELEMENT token EMPTY>
+<!ATTLIST token
+        type CDATA #REQUIRED
+        value CDATA #REQUIRED
+>
+
+<!ELEMENT attribute EMPTY>
+<!ATTLIST attribute
+	type CDATA #REQUIRED
+	value CDATA #REQUIRED
+>
+
+<!ELEMENT fsm (state)*>
+<!ATTLIST fsm
+	startstate IDREF #REQUIRED
+>
+
+<!ELEMENT state (transition)*>
+<!ATTLIST state
+	id ID #REQUIRED
+>
+
+<!ELEMENT ASTNodeBinOp (lhs,rhs)>
+<!ATTLIST ASTNodeBinOp 
+	OpType CDATA #REQUIRED
+>
+
+<!ELEMENT ASTNodeUnOp (ChildNode)>
+<!ATTLIST ASTNodeUnOp
+	OpType CDATA #REQUIRED
+>
+
+<!ELEMENT lhs %OPS;>
+
+<!ELEMENT rhs %OPS;>
+
+<!ELEMENT PortTokens EMPTY>
+<!ATTLIST PortTokens
+	portid IDREF #REQUIRED
+>
+
+<!ELEMENT MemGuard EMPTY>
+<!ATTLIST MemGuard
+	objPtr CDATA #REQUIRED
+	name CDATA #REQUIRED
+>
+
+<!ELEMENT transition (ASTNodeBinOp)*>
+<!ATTLIST transition
+	nextstate IDREF #REQUIRED
+	action CDATA #REQUIRED
+>
+
+<!ELEMENT Literal EMPTY>
+<!ATTLIST Literal
+	value CDATA #REQUIRED
+>
+
+<!ELEMENT ChildNode (MemGuard)>
+

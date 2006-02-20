@@ -59,7 +59,7 @@ namespace smoc_modes {
   void dump( std::ostream &out, const smoc_modes_base_structure &top ) {
     PGWriter pgw( out );
     pgw << "<?xml version=\"1.0\"?>" << std::endl;
-	pgw << "<!DOCTYPE specificationgraph SYSTEM \"specgraph.dtd\">" << std::endl;
+	pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
 	pgw << "<specificationgraph name=\"smoc_modes::dump\">" << std::endl;
     pgw.indentUp();
     top.assemble( pgw );
