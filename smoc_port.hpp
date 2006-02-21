@@ -37,9 +37,19 @@ template <typename T> class smoc_port_out;
 namespace Expr {
 
 class ASTNodeToken: public ASTNodeTerminal {
+private:
+  std::string           type;
+  const smoc_root_port &port;
+  size_t                pos;
 public:
-  ASTNodeToken()
-    : ASTNodeTerminal() {}
+  template <typename T>
+  ASTNodeToken(const smoc_port_in<T> &port, size_t pos)
+    : type(typeid(T).name()),
+      port(port), pos(pos) {}
+
+  const char           *getType() const { return type.c_str(); }
+  const smoc_root_port *getPort() const { return &port; }
+  size_t                getPos() const { return pos; }
 };
 
 template<typename T>
@@ -49,6 +59,7 @@ public:
   typedef DToken<T>  this_type;
   
   friend class Value<this_type>;
+  friend class AST<this_type>;
 private:
   smoc_port_in<T> &p;
   size_t           pos;
@@ -72,7 +83,7 @@ struct AST<DToken<T> > {
   
   static inline
   result_type apply(const DToken<T> &e)
-    { return PASTNode(new ASTNodeToken()); }
+    { return PASTNode(new ASTNodeToken(e.p, e.pos)); }
 };
 
 template<typename T>

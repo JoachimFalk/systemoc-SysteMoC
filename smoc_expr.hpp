@@ -259,15 +259,17 @@ struct Ex { typedef D<DVirtual<T> > type; };
 
 class ASTNodeVar: public ASTNodeTerminal {
 private:
-  const void *v;
-  const char *name;
+  std::string type;
+  std::string name;
+  const void *addr;
 public:
   template <typename T>
   ASTNodeVar(const T &x, const char *name)
-  : v(&x),name(name) {}
+  : type(typeid(T).name()), name(name), addr(&x) {}
   
-  const void *ptrVar()  const { return v; }
-  const char *getName() const { return name; }
+  const char *getType() const { return type.c_str(); }
+  const char *getName() const { return name.c_str(); }
+  const void *getAddr() const { return addr; }
 };
 
 typedef boost::intrusive_ptr<ASTNodeVar> PASTNodeVar;
@@ -324,15 +326,19 @@ typename Var<T>::type var(T &x, const char *name = NULL)
  */
 
 class ASTNodeLiteral: public ASTNodeTerminal {
-public:
+private:
+  std::string type;
   std::string value;
-  
 public:
   template <typename T >
-  ASTNodeLiteral( const T &v ) {
+  ASTNodeLiteral( const T &v )
+    : type(typeid(T).name()) {
     std::ostringstream o;
     o << v; value = o.str();
   }
+
+  const char *getType()  const { return type.c_str(); }
+  const char *getValue() const { return value.c_str(); }
 };
 
 template<typename T>
@@ -444,20 +450,25 @@ typename Proc<T>::type call(T (*f)())
  */
 
 class ASTNodeMemProc: public ASTNodeTerminal {
-public:
+private:
+  std::string type;
+
   struct dummy;
   typedef void (dummy::*fun)();
-private:
+
   dummy *o;
   fun    m;
 public:
   template<typename T, class X>
   ASTNodeMemProc(X *o, T (X::*m)())
-    : o(reinterpret_cast<dummy *>(o)),
+    : type(typeid(T).name()),
+      o(reinterpret_cast<dummy *>(o)),
       m(*reinterpret_cast<fun *>(&m)) {}
-  
-  dummy       *ptrObj()     const { return o; }
-  const fun   &ptrMemProc() const { return m; }
+
+  const char *getType() const { return type.c_str(); }
+  const void *getAddrObj() const { return o; }
+  const void *getAddrFun() const
+    { return *reinterpret_cast<const void *const *>(&m); }
 };
 
 template<typename T, class X>
@@ -508,23 +519,27 @@ typename MemProc<T,X>::type call(X *o, T (X::*m)())
  */
 
 class ASTNodeMemGuard: public ASTNodeTerminal {
-public:
+private:
+  std::string type;
+  std::string name;
+
   struct dummy;
   typedef void (dummy::*fun)() const;
-private:
+
   const dummy *o;
   fun          m;
-  const char  *name;
 public:
-  template<typename F, class X>
-  ASTNodeMemGuard(const X *o, const F &f, const char *name)
-    : o(reinterpret_cast<const dummy *>(o)),
-      m(*reinterpret_cast<const fun *>(&f)),
-      name(name) {}
-  
-  const dummy *ptrObj()     const { return o; }
-  fun          ptrMemProc() const { return m; }
-  const char  *getName()    const { return name; }
+  template<typename F>
+  ASTNodeMemGuard(const F &f)
+    : type(typeid(typename F::return_type).name()), name(f.name),
+      o(reinterpret_cast<const dummy *>(f.obj)),
+      m(*reinterpret_cast<const fun *>(&f.func)) {}
+
+  const char *getType() const { return type.c_str(); }
+  const char *getName() const { return name.c_str(); }
+  const void *getAddrObj() const { return o; }
+  const void *getAddrFun() const
+    { return *reinterpret_cast<const void *const *>(&m); }
 };
 
 template<class F, class PL>
@@ -556,7 +571,7 @@ struct AST<DMemGuard<F,PL> > {
   
   static inline
   PASTNode apply(const DMemGuard <F,PL> &e)
-    { return PASTNode(new ASTNodeMemGuard(e.f.obj, e.f.func, e.f.name)); }
+    { return PASTNode(new ASTNodeMemGuard(e.f)); }
 };
 
 template<class F, class PL>
@@ -637,18 +652,18 @@ std::ostream &operator << (std::ostream &o, const OpBinT &op ) {
 }
 
 class ASTNodeBinOp: public ASTNodeNonTerminal {
+private:
+  std::string type;
+  OpBinT      op;
+  PASTNode    l, r;
 public:
-
-protected:
-  OpBinT    op;
-  PASTNode  l, r;
-public:
-  ASTNodeBinOp( OpBinT op, const PASTNode &l, const PASTNode &r)
-    : op(op), l(l), r(r) {}
+  ASTNodeBinOp( const std::string &type, OpBinT op, const PASTNode &l, const PASTNode &r)
+    : type(type), op(op), l(l), r(r) {}
   
-  PASTNode getLeftNode()     { return l; }
-  PASTNode getRightNode()    { return r; }
-  OpBinT   getOpType() const { return op; }
+  const char *getType() const   { return type.c_str(); }
+  PASTNode    getLeftNode()     { return l; }
+  PASTNode    getRightNode()    { return r; }
+  OpBinT      getOpType() const { return op; }
 };
 
 typedef boost::intrusive_ptr<ASTNodeBinOp> PASTNodeBinOp;
@@ -695,7 +710,10 @@ struct AST<DBinOp<A,B,Op> > {
                 << typeid(A).name() << ","
                 << typeid(B).name() << ","
                 << Op << "> >: Was here !!!" << std::endl;*/
-    return PASTNode(new ASTNodeBinOp(Op,AST<A>::apply(e.a),AST<B>::apply(e.b)));
+    return PASTNode(
+      new ASTNodeBinOp(
+        typeid(typename DBinOp<A,B,Op>::value_type).name(),
+        Op,AST<A>::apply(e.a),AST<B>::apply(e.b)));
   }
 };
 
@@ -828,16 +846,16 @@ std::ostream &operator << (std::ostream &o, const OpUnT &op ) {
 
 class ASTNodeUnOp: public ASTNodeNonTerminal {
 public:
-
-protected:
-  OpUnT     op;
-  PASTNode  c;
+  std::string type;
+  OpUnT       op;
+  PASTNode    c;
 public:
-  ASTNodeUnOp( OpUnT op, const PASTNode &c)
-    : op(op), c(c) {}
+  ASTNodeUnOp( const std::string &type, OpUnT op, const PASTNode &c)
+    : type(type), op(op), c(c) {}
   
-  PASTNode getChildNode()    { return c; }
-  OpUnT    getOpType() const { return op; }
+  const char *getType() const   { return type.c_str(); }
+  PASTNode    getChildNode()    { return c; }
+  OpUnT       getOpType() const { return op; }
 };
 typedef boost::intrusive_ptr<ASTNodeUnOp> PASTNodeUnOp;
 /****************************************************************************
@@ -874,7 +892,10 @@ struct AST<DUnOp<A,Op> > {
   
   static inline
   result_type apply(const DUnOp<A,Op> &e) {
-    return PASTNode(new ASTNodeUnOp(Op,AST<A>::apply(e.a)));
+    return PASTNode(
+      new ASTNodeUnOp(
+        typeid(typename DUnOp<A,Op>::value_type).name(),
+        Op,AST<A>::apply(e.a)));
   }
 };
 
