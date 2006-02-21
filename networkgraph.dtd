@@ -68,6 +68,8 @@
 <!ELEMENT edge (token*)>
 <!ATTLIST edge
 	name CDATA #REQUIRED
+        type CDATA #REQUIRED
+        size CDATA #REQUIRED
 	id ID #REQUIRED
 	source IDREF #REQUIRED
 	target IDREF #REQUIRED
@@ -75,7 +77,6 @@
 
 <!ELEMENT token EMPTY>
 <!ATTLIST token
-        type CDATA #REQUIRED
         value CDATA #REQUIRED
 >
 

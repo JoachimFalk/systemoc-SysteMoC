@@ -93,31 +93,10 @@ pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const {
           iter != ns.end();
           ++iter )
       (*iter)->assemble(pgw);
-    for ( typename smoc_chan_list::const_iterator c_iter = cs.begin();
-          c_iter != cs.end();
-          ++c_iter ) {
-      smoc_port_list out = (*c_iter)->getOutputPorts();
-      smoc_port_list in  = (*c_iter)->getInputPorts();
-      
-      for ( smoc_port_list::const_iterator ps_iter = out.begin();
-            ps_iter != out.end();
-            ++ps_iter ) {
-        for ( smoc_port_list::const_iterator pd_iter = in.begin();
-              pd_iter != in.end();
-              ++pd_iter ) {
-          pgw << "<edge name=\"" << (*c_iter)->name() << "\" "
-              << "source=\"" << pgw.getId(*ps_iter) << "\" " 
-              << "target=\"" << pgw.getId(*pd_iter) << "\" "
-              << "id=\"" << pgw.getId(*c_iter) << "\">" << std::endl;
-          {
-            pgw.indentUp();
-            (*c_iter)->dumpInitialTokens(pgw);
-            pgw.indentDown();
-          }
-          pgw << "</edge>" << std::endl;
-        }
-      }
-    }
+    for ( typename smoc_chan_list::const_iterator iter = cs.begin();
+          iter != cs.end();
+          ++iter )
+      (*iter)->assemble(pgw);
     for ( typename smoc_node_list::const_iterator iter = ns.begin();
           iter != ns.end();
           ++iter ) {

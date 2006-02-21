@@ -73,7 +73,13 @@ protected:
       unused += fsize;
     return unused;
   }
-  
+
+  std::ostream &edgeParams(std::ostream &out) const
+    { return out << "size=\"" << fsize << "\" "; }
+
+  virtual
+  void edgeContents(smoc_modes::PGWriter &pgw) const = 0;
+
   // constructors
   smoc_fifo_kind( const chan_init &i )
     : smoc_root_chan(
@@ -128,12 +134,9 @@ protected:
   
   data_type *getStorage() const { return storage; }
 
-  void dumpInitialTokens(smoc_modes::PGWriter &pgw) const {
-    for ( size_t n = 0; n < usedStorage(); ++n ) {
-      pgw << "<token type=\"" << typeid(T).name() << "\""
-                  " value=\"" << storage[n]       << "\""
-             "/>" << std::endl;
-    }
+  void edgeContents(smoc_modes::PGWriter &pgw) const {
+    for ( size_t n = 0; n < usedStorage(); ++n )
+      pgw << "<token value=\"" << storage[n] << "\"/>" << std::endl;
   }
 
   ~smoc_fifo_storage() { delete storage; }
@@ -170,10 +173,9 @@ protected:
   
   void *getStorage() const { return NULL; }
 
-  void dumpInitialTokens(smoc_modes::PGWriter &pgw) const {
-    for ( size_t n = 0; n < usedStorage(); ++n ) {
-      pgw << "<token type=\"void\" value=\"\"/>" << std::endl;
-    }
+  void edgeContents(smoc_modes::PGWriter &pgw) const {
+    for ( size_t n = 0; n < usedStorage(); ++n )
+      pgw << "<token value=\"bot\"/>" << std::endl;
   }
 };
 
