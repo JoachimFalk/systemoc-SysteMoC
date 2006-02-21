@@ -60,7 +60,7 @@ namespace smoc_modes {
     PGWriter pgw( out );
     pgw << "<?xml version=\"1.0\"?>" << std::endl;
 	pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
-	pgw << "<specificationgraph name=\"smoc_modes::dump\">" << std::endl;
+	pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;
     pgw.indentUp();
     top.assemble( pgw );
     pgw << "<architecturegraph name=\"architecture graph\" id=\""<< pgw.getId() << "\">" << std::endl;
@@ -68,7 +68,7 @@ namespace smoc_modes {
     pgw <<  "<mappings>" << std::endl;
     pgw <<  "</mappings>" << std::endl;
     pgw.indentDown();
-    pgw << "</specificationgraph>" << std::endl;
+    pgw << "</networkgraph>" << std::endl;
   }
 };
 
