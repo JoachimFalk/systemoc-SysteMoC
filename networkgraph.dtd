@@ -2,8 +2,8 @@
 
 <!ENTITY % OPS "(ASTNodeBinOp|ASTNodeUnOp|PortTokens|Literal|Var|Proc|MemProc|MemGuard)" >
 
-<!ELEMENT specificationgraph (problemgraph,architecturegraph,mappings)>
-<!ATTLIST specificationgraph
+<!ELEMENT networkgraph (problemgraph,architecturegraph,mappings)>
+<!ATTLIST networkgraph
   name CDATA #REQUIRED
 >
 

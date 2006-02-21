@@ -72,7 +72,7 @@ void smoc_activation_pattern::guardAssemble(
         //pgw << "</PortTokens>" << std::endl;
       } else if ( n->isa<Expr::ASTNodeLiteral>() ) {
         pgw << "<Literal "
-                 "value=\"" << n->isa<Expr::ASTNodeLiteral>()->value << "\">"
+                 "value=\"" << n->isa<Expr::ASTNodeLiteral>()->value << "\"/>"
 //               "type=\""  << "typeid(xxx).name()" << "\"/>"
             << std::endl;
         //pgw << "</Literal>" << std::endl;
