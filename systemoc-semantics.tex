@@ -2,21 +2,39 @@
 
 \section{Actor behavior}
 
-As known from Kahn \cite{Kahn:1974} and Lee \cite{Lee98,LeeDenotialDF:1997} FIFOs are represented by the possible infinite sequence of tokens $\mathbf{v} \in V^{**}$ transmitted via them.
-In order to simplify the mathematical description we will replace a bounded FIFO with two unbounded FIFOs.
+As known from Kahn \cite{Kahn:1974} and Lee \cite{Lee98,LeeDenotialDF:1997} we use the sequence of tokens $\mathbf{v} \in V^{**}$ transmitted via a FIFO to mathematical describe it.
+In order to simplify this description we will replace a bounded FIFO with two unbounded FIFOs.
 Therefore each actor port is connected to a pair of FIFOs $z = (\mathbf{v}, \mathbf{f}) \in Z$ containing
 a \emph{value FIFO} $\mathbf{v} \in V^{**}$ and
-a \emph{free space FIFO} $\mathbf{f} \in \{\circ\}^{**}$, where each \emph{free space token} $\circ$ represents an available slot in the value FIFO to store a token. % as known from PETRI-nets \cite{XXXX}.
-Accordingly an actor not only consumes sequences of tokens $V^{**}$ on its input ports $I$ and produce them on its output ports $O$ but also produce sequences of \emph{free space tokens} $\{\circ\}^{**}$ on its input ports and consume them on its output ports, respectively.
+a \emph{free space FIFO} $\mathbf{f} \in \{\circ\}^{**}$, where each \emph{free space symbol} $\circ$ represents an available slot in the value FIFO to store a token. % as known from PETRI-nets \cite{XXXX}.
+Accordingly an actor not only consumes sequences of tokens $V^{**}$ on its input ports $I$ and produce them on its output ports $O$ but also produce sequences of free space symbols $\{\circ\}^{**}$ on its input ports and consume them on its output ports, respectively.
+%For notational simplicity we will assume that the free space symbol is contained in the set of all values, i.e., $\circ \in V$.
 
 The execution of an actor is divided into atomic \emph{firing steps}, where each step corresponds to the execution of a transition $t \in \mathcal{R}.T$ of the firing FSM.
-Each firing step consumes a tuple of available input token sequences $\mathbf{s}_\mathrm{cons} \in \mathbf{S}_\mathrm{in} = (V^{**})^{|I|} \times (\{\circ\}^{**})^{|O|}$ and produces a tuple of sequences $\mathbf{s}_\mathrm{prod} \in \mathbf{S}_\mathrm{prod} = (\{\circ\}^{**})^{|I|} \times (V^{**})^{|O|}$.
-Furthermore each firing step transforms the actor state $s \in S = \mathcal{F}.S_\mathrm{func} \times \mathcal{R}.S_\mathrm{firing}$, i.e., $\mathrm{Fire}: \mathbf{S}_\mathrm{in} \times a.S \to  \mathbf{S}_\mathrm{prod} \times a.S$.
+To decide if a transition can be taken its associated \emph{activation pattern} must be evaluated.
 
 \begin{definition}[Activation pattern]\label{def:activation-pattern}
-  An \emph{activation pattern} $k$ of an actor $a \in A$ is a is a boolean function depending on the available input token sequences $\mathbf{S}_\mathrm{in}$ and the \emph{functionality state} $a.\mathcal{F}.S_\mathrm{func}$ of the actor, i.e., $k: \mathbf{S}_\mathrm{in} \times a.\mathcal{F}.S_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}$.
+  An \emph{activation pattern} $k$ of an actor $a \in A$ is a is a boolean function depending on the available input token sequences $\mathbf{S}_\mathrm{in}$ and the \emph{functionality state} $\mathcal{F}.S_\mathrm{func}$ of the actor, i.e., $k: \mathbf{S}_\mathrm{in} \times \mathcal{F}.S_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}$.
   The activation pattern is used to decide if its associated transition can be taken $(\mathrm{true})$ or not $(\mathrm{false})$.
 \end{definition}
+
+Each firing step of an actor consumes a tuple of finite sequences $\mathbf{s}_\mathrm{cons} \in (V_\circ^*)^{|\mathcal{P}|}$, which is a prefix $\mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in}$ of the tuple of possibly infinite input sequences $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in} \subseteq (V_\circ^{**})^{|\mathcal{P}|}$.
+Consequently a tuple of output sequences $\mathbf{s}_\mathrm{prod} \in \mathbf{S}_\mathrm{prod} \subseteq (V_\circ^*)^{|\mathcal{P}|}$ is produced, where $V_\circ$ denotes the set of all values including the free space symbol, i.e., $V_\circ = V \cup \{\circ\}$, and $\mathcal{P}$ denotes all ports of this actor, i.e., $\mathcal{P} = I \cup O$.
+The tuple of input sequences $\mathbf{s}_\mathrm{in}$ is further constraint to be devided into sequences containing only value tokens $\pi{}_{I}(\mathbf{s}_\mathrm{in}) \in (V^{**})^{|I|}$, each sequence associated with an actor input port, and  sequences containing only free space symbols $\pi{}_{O}(\mathbf{s}_\mathrm{in}) \in (\{\circ\}^{**})^{|O|}$, each sequence associated with an actor output port.
+The tuple of produced output sequences $\mathbf{s}_\mathrm{prod}$ is similarly devided into sequences containing only value tokens $\pi{}_{O}(\mathbf{s}_\mathrm{prod}) \in (V^{**})^{|O|}$, each sequence associated with an actor output port, and sequences containing only free space symbols $\pi{}_{I}(\mathbf{s}_\mathrm{prod}) \in (\{\circ\}^{**})^{|I|}$, each sequence associated with an actor input port.
+Furthermore each firing step transforms the \emph{actor state} $s \in S = \mathcal{F}.S_\mathrm{func} \times \mathcal{R}.S_\mathrm{firing}$, i.e., $\mathrm{Fire}: \mathbf{S}_\mathrm{in} \times S \to  \mathbf{S}_\mathrm{prod} \times S$.
+
+\begin{eqnarray}
+\mathrm{Fire}(\mathbf{s}_\mathrm{in}, (s_\mathrm{func}, s_\mathrm{firing})) = \{ (\mathbf{s}_\mathrm{prod}, (s'_\mathrm{func}, s'_\mathrm{firing}))%
+ & |      & (s_\mathrm{firing}, k, f_\mathrm{action}, s'_\mathrm{firing}) \in T \\
+ & \wedge & \mathbf{s}_\mathrm{in} = \mathbf{s}_\mathrm{cons}\concat\mathbf{s}_\mathrm{tail} \\
+ & \wedge & k(\mathbf{s}_\mathrm{cons}, s_\mathrm{func}) \\
+ & \wedge & \forall{\mathbf{s}_\mathrm{prefix} \sqsubset \mathbf{s}_\mathrm{cons}}: \neg k(\mathbf{s}_\mathrm{prefix}) \\
+ & \wedge & (\pi{}_{O}(\mathbf{s}_\mathrm{prod}), s'_\mathrm{func}) = f_\mathrm{action}(\pi{}_{I}(\mathbf{s}_\mathrm{cons}), s_\mathrm{func}) \\
+ & \wedge & \mathbf{v} = \mathbf{v}_\mathrm{cons}\concat\mathbf{v}_\mathrm{tail} \\
+ & \wedge & \mathbf{w}_\mathrm{tail} = \mathrm{Fire}(\mathbf{v}_\mathrm{tail}, s'_\mathrm{firing}, s'_\mathrm{func}) \}
+\end{eqnarray}
+
 
 % sequence of tokens $\mathbf{v} \in V^{**}$ for each actor input port $i \in I$ and sequences of free space tokens $\mathbf{f} \in \{\circ\}^{**}$ for each actor output port $o \in O$,
 
@@ -32,9 +50,7 @@ $\mathrm{OUT}(\mathbf{z}) = \pi{}_{I}(\mathbf{z}).\mathbf{v} \times \pi{}_{O}(\m
 
 
 
-\begin{eqnarray}
-\mathrm{Fire}: Z^{|a.P|} \times a.\mathcal{F}.S_\mathrm{func} \times a.\mathcal{R}.S_\mathrm{firing} \to Z^{|a.P|} \times  a.\mathcal{F}.S_\mathrm{func} \times a.\mathcal{R}.S_\mathrm{firing}
-\end{eqnarray}
+
 
 %\begin{eqnarray}
 %\mathrm{Fire}(\mathbf{z}, s_\mathrm{firing}, s_\mathrm{func}) = \{ (\mathbf{z}', s'_\mathrm{firing}, s'_\mathrm{func}) %
