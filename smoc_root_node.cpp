@@ -18,7 +18,6 @@
 
 #include <smoc_root_port.hpp>
 #include <smoc_root_node.hpp>
-#include <typeinfo>
 // #include <systemc/kernel/sc_object_manager.h>
 #include <smoc_firing_rules.hpp>
 #include <hscd_tdsim_TraceLog.hpp>
@@ -37,7 +36,12 @@ smoc_root_node::smoc_root_node(const smoc_firing_state &s)
                 this,&smoc_root_node::_communicate))),
 #endif // ENABLE_SYSTEMC_VPC
     _guard(NULL)
-  {}
+  {
+    while(!smoc_root_node::global_arg_stack.empty()){
+      local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
+      smoc_root_node::global_arg_stack.pop();
+    }
+  }
 smoc_root_node::smoc_root_node(smoc_firing_state &s)
   :
 #ifndef NDEBUG
@@ -51,8 +55,17 @@ smoc_root_node::smoc_root_node(smoc_firing_state &s)
 		this,&smoc_root_node::_communicate))),
 #endif // ENABLE_SYSTEMC_VPC
     _guard(NULL)
-  {}
+  {
+    while(!smoc_root_node::global_arg_stack.empty()){
+      local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
+      smoc_root_node::global_arg_stack.pop();
+    }
+  }
+ 
+  
+std::stack<std::pair<std::string, std::string> >smoc_root_node::global_arg_stack; 
 
+ 
 #ifdef ENABLE_SYSTEMC_VPC
 const smoc_firing_state &smoc_root_node::_communicate() {
     
@@ -128,19 +141,26 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   const smoc_port_list ps = getPorts();
   
   if ( !ps.empty() ) {
-    pgw << "<process name=\"" << m->name() << "\" type=\"" << typeid(*m).name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
+    pgw << "<process name=\"" << m->name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
     pgw.indentUp();
+    //************************CONSTRUCTORPARAMETERS*****************************
+    for(unsigned int i = 0; i < local_arg_vector.size(); i++){
+      std::pair<std::string, std::string> parameterpair = local_arg_vector[i];
+      pgw << "<constructor_parameter type=\"" << parameterpair.first << "\" "
+          << "value=\"" << parameterpair.second << "\"/>" << std::endl;
+    }
+    //*****************************PORTS**************************************** 
     for ( smoc_port_list::const_iterator iter = ps.begin();
           iter != ps.end();
           ++iter )
       pgw << "<port name=\"" << (*iter)->name() << "\" "
           << "type=\"" << ((*iter)->isInput() ? "in" : "out") << "\" "
           << "id=\"" << pgw.getId(*iter) << "\"/>" << std::endl;
+          
     pgw << "<fsm startstate=\"" << pgw.getId(&_initialState.getResolvedState()) << "\">" << std::endl;
     pgw.indentUp();
-  
-    
-   //*****************************FSMSTATES************************************ 
+        
+   //******************************FSMSTATES************************************ 
     const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
     const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
     for (smoc_firing_rules::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 

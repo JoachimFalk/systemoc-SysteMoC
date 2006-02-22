@@ -35,6 +35,12 @@
 #include <list>
 #include <cosupport/functor.hpp>
 
+#include <typeinfo>
+#include <stack>
+#include <utility>
+#include <string>
+#include <sstream>
+
 class smoc_opbase_node {
 public:
   typedef smoc_opbase_node this_type;
@@ -70,6 +76,7 @@ class smoc_root_node
 #else
 : public smoc_opbase_node {
 #endif
+
 private:
 #ifndef NDEBUG
   bool _finalizeCalled;
@@ -78,9 +85,39 @@ private:
   const smoc_firing_state &_initialState;
   
   const smoc_firing_state &_communicate();
+
+  static  std::stack<std::pair<std::string, std::string> >global_arg_stack;
+  
+  std::vector<std::pair<std::string, std::string> > local_arg_vector;
+  
 protected:
   smoc_root_node(const smoc_firing_state &s);
   smoc_root_node(smoc_firing_state &s);
+  
+        
+
+  template <typename T>
+  friend class param_wrapper{
+    public:
+      param_wrapper(const T& x){
+        std::stringstream allToString;
+        allToString << x;
+        std::pair<std::string, std::string> arg_info;
+        arg_info.first = typeid(T).name();
+        arg_info.second = allToString.str();
+        smoc_root_node::global_arg_stack.push(arg_info);
+      }
+  
+      operator T(){
+        return x;
+      }
+    private:
+      T x;
+  };
+
+  friend class param_wrapper<class T>;   
+  
+  
 public:
   // FIXME: protection
   bool               is_v1_actor;
@@ -98,7 +135,7 @@ public:
   }
   
   virtual void pgAssemble( smoc_modes::PGWriter &, const smoc_root_node * ) const;
-  void assemble( smoc_modes::PGWriter &pgw ) const;
+  void assemble( smoc_modes::PGWriter &pgw )const;
 #endif
   
   const smoc_port_list getPorts() const;
@@ -108,6 +145,9 @@ public:
   const smoc_firing_state &currentState() const { return _currentState; }
   smoc_firing_state       &currentState()       { return _currentState; }
 };
+
+
+
 
 typedef std::list<smoc_root_node *> smoc_node_list;
 
