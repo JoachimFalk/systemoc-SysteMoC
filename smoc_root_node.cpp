@@ -174,8 +174,12 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
         assert( cToNState.size() <= 1 );
 
         if ( cToNState.size() == 1 ) {
-          pgw << "<transition nextstate=\"" << pgw.getId(*cToNState.begin()) << "\" "
-                << "action=\"" << static_cast<const smoc_func_call &>(titer->f).getFuncName() << "\">" << std::endl;
+          pgw << "<transition nextstate=\"" << pgw.getId(*cToNState.begin()) << "\" " << std::flush;
+	  if(CoSupport::isType<smoc_func_call>(titer->f)){
+	    pgw << "action=\"" << static_cast<const smoc_func_call &>(titer->f).getFuncName() << "\">" << std::endl;
+	  }else{
+	    pgw << "action=\"\">" << std::endl;
+	  }
           titer->ap.guardAssemble(pgw);
           pgw << "</transition>" << std::endl;
         } else {
