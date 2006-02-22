@@ -102,7 +102,7 @@ private:
 public:
   virtual smoc_port_list  getInputPorts()               const = 0;
   virtual smoc_port_list  getOutputPorts()              const = 0;
-  virtual void            dumpInitialTokens(
+  virtual void            assemble(
                             smoc_modes::PGWriter &pgw)  const = 0;
   
   sc_module *getHierarchy() const {
@@ -235,6 +235,23 @@ public:
   smoc_port_list getOutputPorts() const
     { smoc_port_list retval; retval.push_front(portOutIf); return retval; }
 protected:
+  void assemble(smoc_modes::PGWriter &pgw) const {
+    assert(portInIf != NULL && portOutIf != NULL);
+    
+    this->edgeParams(
+    pgw << "<edge name=\"" << this->name() << "\" "
+             "source=\"" << pgw.getId(portOutIf) << "\" " 
+             "target=\"" << pgw.getId(portInIf) << "\" "
+             "type=\"" << typeid(T_data_type).name() << "\" ")
+        <<   "id=\"" << pgw.getId(this) << "\">" << std::endl;
+    {
+      pgw.indentUp();
+      this->edgeContents(pgw);
+      pgw.indentDown();
+    }
+    pgw << "</edge>" << std::endl;
+  }
+  
   // constructor
   smoc_chan_nonconflicting_if(const typename T_chan_kind::chan_init &i)
     : smoc_chan_if<T_chan_kind, T_data_type>(i),
