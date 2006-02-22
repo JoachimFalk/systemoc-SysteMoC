@@ -20,9 +20,9 @@
 namespace Expr {
 
 void dump(const PASTNode &node) {
+/*
   std::cout << "Node: ";
 
-/*
   if (node->isa<ASTNodeVType<bool> >() ) {
     std::cout << "bool(" << node->isa<ASTNodeVType<bool> >()->value() << ") ";
   } else if (node->isa<ASTNodeVType<int> >() ) {
@@ -38,7 +38,6 @@ void dump(const PASTNode &node) {
   } else {
     std::cout << "unknown value_type ";
   }
-  */
   
   if (node->isa<ASTNodeNonTerminal>()) {
     if ( node->isa<ASTNodeBinOp>() ) {
@@ -77,6 +76,7 @@ void dump(const PASTNode &node) {
     }
   }
   std::cout << std::endl;
+  */
 }
 
 } // namespace Expr

@@ -18,9 +18,108 @@
 
 #include <smoc_guard.hpp>
 
+#include <typeinfo>
+
 void smoc_activation_pattern::dump(std::ostream &out) const {
 //  for ( guards_ty::const_iterator iter = guards.begin();
 //        iter != guards.end();
 //        ++iter )
 //    out << " " << **iter;
 }
+
+void smoc_activation_pattern::guardAssemble(
+    smoc_modes::PGWriter &pgw, const Expr::PASTNode &n ) {
+  pgw.indentUp();
+  do {
+    if (n->isa<Expr::ASTNodeBinOp>()) {
+   
+      Expr::PASTNodeBinOp p = n->isa<Expr::ASTNodeBinOp>();
+      pgw << "<ASTNodeBinOp "
+               "valueType=\""   << p->getType()   << "\" "
+               "opType=\"" << p->getOpType() <<"\">"
+          << std::endl;
+      
+      pgw.indentUp();
+      pgw << "<lhs>" << std::endl;
+      guardAssemble(pgw, p->getLeftNode());
+      pgw << "</lhs>" << std::endl;
+      
+      pgw << "<rhs>" << std::endl;
+      guardAssemble(pgw, p->getRightNode());
+      pgw << "</rhs>" << std::endl;
+      
+      pgw.indentDown();
+      pgw << "</ASTNodeBinOp>" << std::endl;
+    
+    } else if ( n->isa<Expr::ASTNodeUnOp>()) {
+      
+      Expr::PASTNodeUnOp p = n->isa<Expr::ASTNodeUnOp>();
+      pgw << "<ASTNodeUnOp "
+               "valueType=\""   << p->getType()   << "\" "
+               "opType=\"" << p->getOpType() << "\">"
+          << std::endl;
+      
+      pgw.indentUp();
+      
+      pgw << "<ChildNode>" << std::endl;
+      guardAssemble(pgw, p->getChildNode());
+      pgw << "</ChildNode>" << std::endl;
+      
+      pgw.indentDown();
+      pgw << "</ASTNodeUnOp>" << std::endl;
+    
+    } else { 
+      //***********here is Terminal************
+      //assert( n->isa<Expr::ASTNodeTerminal>() );
+      if ( n->isa<Expr::ASTNodePortTokens>() ) {
+        pgw << "<PortTokens "
+                 "valueType=\"" << typeid(unsigned int).name() << "\" "
+                 "portid=\"" << pgw.getId(n->isa<Expr::ASTNodePortTokens>()->getPort()) << "\"/>"
+            << std::endl;
+      } else if ( n->isa<Expr::ASTNodeLiteral>() ) {
+        pgw << "<Literal "
+                 "valueType=\""  << n->isa<Expr::ASTNodeLiteral>()->getType()  << "\" "
+                 "value=\"" << n->isa<Expr::ASTNodeLiteral>()->getValue() << "\"/>"
+            << std::endl;
+      } else if ( n->isa<Expr::ASTNodeVar>() ) {
+        pgw << "<Var "
+                 "valueType=\"" << n->isa<Expr::ASTNodeVar>()->getType() << "\" "
+                 "name=\"" << n->isa<Expr::ASTNodeVar>()->getName() << "\" "
+                 "addr=\"0x" << std::hex << reinterpret_cast<unsigned long>
+                  (n->isa<Expr::ASTNodeVar>()->getAddr()) << "\"/>"
+            << std::endl;
+      } else if ( n->isa<Expr::ASTNodeProc>() ) {
+        pgw << "<Proc 0x = \"" << std::hex << reinterpret_cast<unsigned long>
+          (n->isa<Expr::ASTNodeProc>()->ptrProc()) << "\"/>" << std::endl;
+        //pgw << "</Proc>" << std::endl;
+      } else if ( n->isa<Expr::ASTNodeMemGuard>() ) {
+        pgw << "<MemGuard "
+                 "valueType=\"" << n->isa<Expr::ASTNodeMemGuard>()->getType() << "\" "
+                 "name=\"" << n->isa<Expr::ASTNodeMemGuard>()->getName() << "\" "
+                 "addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>
+                  (n->isa<Expr::ASTNodeMemGuard>()->getAddrObj()) << "\" "
+                 "addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>
+                  (n->isa<Expr::ASTNodeMemGuard>()->getAddrFun()) << "\"/>"
+            << std::endl;
+      } else if ( n->isa<Expr::ASTNodeMemProc>() ) {
+        pgw << "<MemProc "
+                 "valueType=\"" << n->isa<Expr::ASTNodeMemProc>()->getType() << "\" "
+                 "addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>
+                  (n->isa<Expr::ASTNodeMemProc>()->getAddrObj()) << "\" "
+                 "addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>
+                  (n->isa<Expr::ASTNodeMemProc>()->getAddrFun()) << "\"/>"
+            << std::endl;
+      } else if ( n->isa<Expr::ASTNodeToken>() ) {
+        pgw << "<Token "
+                 "valueType=\"" << n->isa<Expr::ASTNodeToken>()->getType() << "\" "
+                 "portid=\"" << pgw.getId(n->isa<Expr::ASTNodeToken>()->getPort()) << "\" "
+                 "pos=\"" << n->isa<Expr::ASTNodeToken>()->getPos() << "\"/>"
+            << std::endl;
+      } else {
+        pgw << "<Unkown Terminal FIXME !!!/>" << std::endl;
+      }
+    }
+  } while (0);
+  pgw.indentDown();
+}
+

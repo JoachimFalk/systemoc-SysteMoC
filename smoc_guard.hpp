@@ -47,6 +47,9 @@ public:
   friend class smoc_firing_state;
 //protected:
   Expr::Ex<smoc_root_port_bool>::type guard;
+
+  static
+  void guardAssemble( smoc_modes::PGWriter &pgw, const Expr::PASTNode &n );
 public:
   smoc_root_port_bool knownSatisfiable() const
     { return  Expr::evalTo<Expr::Value>(guard); }
@@ -66,147 +69,9 @@ public:
   template <class E>
   smoc_activation_pattern(const Expr::D<E> &guard, bool dummy)
     : guard(guard) {}
-  
-  static
-  void guardAssemble( smoc_modes::PGWriter &pgw, const Expr::PASTNode &n ) {
-    pgw.indentUp();
-    do {
-      
-        
-        if (n->isa<Expr::ASTNodeBinOp>()) {
-       
-          Expr::PASTNodeBinOp p = n->isa<Expr::ASTNodeBinOp>();
-          pgw << "<ASTNodeBinOp OpType=\"" << p->getOpType() <<"\" >" << std::endl;
-          
-          pgw.indentUp();
-          pgw << "<lhs>" << std::endl;
-          guardAssemble(pgw, p->getLeftNode());
-          pgw << "</lhs>" << std::endl;
-          
-          pgw << "<rhs>" << std::endl;
-          guardAssemble(pgw, p->getRightNode());
-          pgw << "</rhs>" << std::endl;
-          
-          pgw.indentDown();
-          pgw << "</ASTNodeBinOp>" << std::endl;
-        
-        }else if( n->isa<Expr::ASTNodeUnOp>()){
-          
-          Expr::PASTNodeUnOp p = n->isa<Expr::ASTNodeUnOp>();
-          pgw << "<ASTNodeUnOp OpType=\"" << p->getOpType() <<"\" >" << std::endl;
-          
-          pgw.indentUp();
-          
-          pgw << "<ChildNode>" << std::endl;
-          guardAssemble(pgw, p->getChildNode());
-          pgw << "</ChildNode>" << std::endl;
-          
-          pgw.indentDown();
-          pgw << "</ASTNodeUnOp>" << std::endl;
-        
-        }else{ 
-          //***********here is Terminal************
-          //assert( n->isa<Expr::ASTNodeTerminal>() );
-          if ( n->isa<Expr::ASTNodePortTokens>() ) {
-            pgw << "<PortTokens portid=\""
-                  << pgw.getId(n->isa<Expr::ASTNodePortTokens>()->getPort())
-                  << "\"/>" << std::endl;
-            //pgw << "</PortTokens>" << std::endl;
-          } else if ( n->isa<Expr::ASTNodeLiteral>() ) {
-            pgw << "<Literal value=\"" <<
-              n->isa<Expr::ASTNodeLiteral>()->value << "\"/>" << std::endl;
-            //pgw << "</Literal>" << std::endl;
-          } else if ( n->isa<Expr::ASTNodeVar>() ) {
-            pgw << "<Var name=\"" << std::hex <<
-              n->isa<Expr::ASTNodeVar>()->getName() <<  "\"/>" << std::endl;
-            //pgw << "</Var>" << std::endl;
-          } else if ( n->isa<Expr::ASTNodeProc>() ) {
-            pgw << "<Proc 0x = \"" << std::hex << reinterpret_cast<unsigned long>
-              (n->isa<Expr::ASTNodeProc>()->ptrProc()) << "\"/>" << std::endl;
-            //pgw << "</Proc>" << std::endl;
-          } else if ( n->isa<Expr::ASTNodeMemGuard>() ) {
-            pgw << "<MemGuard objPtr=\"0x" << std::hex << reinterpret_cast<unsigned long>
-              (n->isa<Expr::ASTNodeMemGuard>()->ptrObj()) << "\" name=\"" <<
-              (n->isa<Expr::ASTNodeMemGuard>()->getName()) << "\"/>" << std::endl;
-            //pgw << "</MemGuard>" << std::endl;
-          }  else if ( n->isa<Expr::ASTNodeMemProc>() ) {
-            pgw << "<MemProc "
-                     "objPtr=\"0x" << std::hex << reinterpret_cast<unsigned long>
-                       (n->isa<Expr::ASTNodeMemProc>()->ptrObj()) << "\" "
-                     "addrPtr=\"0x" << std::hex << *reinterpret_cast<const unsigned long *>
-                       (&n->isa<Expr::ASTNodeMemProc>()->ptrMemProc()) << "\"/>"
-                << std::endl;
-          } else if ( n->isa<Expr::ASTNodeToken>() ) {
-            pgw << "<Token FIXME !!!/>" << std::endl;
-          } else {
-            pgw << "<Unkown Terminal FIXME !!!/>" << std::endl;
-          }
-        }
-
-    } while (0);
-    pgw.indentDown();
-  }
 
   void guardAssemble( smoc_modes::PGWriter &pgw ) const
     { guardAssemble(pgw, Expr::evalTo<Expr::AST>(guard) ); }
-  
-  /*
-  void execute(const Expr::PASTNode &node) {
-    std::cout << "Node: ";
-
-    if (node->isa<ASTNodeVType<bool> >() ) {
-      std::cout << "bool(" << node->isa<ASTNodeVType<bool> >()->value() << ") ";
-    } else if (node->isa<ASTNodeVType<int> >() ) {
-      std::cout << "int(" << node->isa<ASTNodeVType<int> >()->value() << ") ";
-    } else if (node->isa<ASTNodeVType<unsigned int> >() ) {
-      std::cout << "unsigned int(" << node->isa<ASTNodeVType<unsigned int> >()->value() << ") ";
-    } else if (node->isa<ASTNodeVType<long> >() ) {
-      std::cout << "int(" << node->isa<ASTNodeVType<long> >()->value() << ") ";
-    } else if (node->isa<ASTNodeVType<unsigned long> >() ) {
-      std::cout << "unsigned int(" << node->isa<ASTNodeVType<unsigned long> >()->value() << ") ";
-    } else if (node->isa<ASTNodeVType<double> >() ) {
-      std::cout << "unsigned int(" << node->isa<ASTNodeVType<double> >()->value() << ") ";
-    } else {
-      std::cout << "unknown value_type ";
-    }
-    
-    if (node->isa<Expr::ASTNodeNonTerminal>()) {
-      if ( node->isa<Expr::ASTNodeBinOp>() ) {
-        boost::intrusive_ptr<Expr::ASTNodeBinOp> p = node->isa<Expr::ASTNodeBinOp>();
-        
-        std::cout << "BinOp " << p->getOpType() << " {" << std::endl;
-        execute(p->getLeftNode());
-        std::cout << "}, {" << std::endl;
-        execute(p->getRightNode());
-        std::cout << "}";
-      } else {
-        // unknown
-        std::cout << "Unkown NonTerminal";
-      }
-    } else {
-      assert( node->isa<Expr::ASTNodeTerminal>() );
-      if ( node->isa<Expr::ASTNodeLiteral>() ) {
-        std::cout << "Literal";
-      } else if ( node->isa<Expr::ASTNodeVar>() ) {
-        std::cout << "Var " << node->isa<Expr::ASTNodeVar>()->ptrVar();
-      } else if ( node->isa<Expr::ASTNodeProc>() ) {
-        std::cout << "Proc 0x" << std::hex << reinterpret_cast<unsigned long>
-          (node->isa<Expr::ASTNodeProc>()->ptrProc());
-      } else if ( node->isa<Expr::ASTNodeMemProc>() ) {
-        std::cout << "MemProc 0x" << std::hex << reinterpret_cast<unsigned long>
-          (node->isa<Expr::ASTNodeMemProc>()->ptrMemProc())
-                  <<   " obj " << node->isa<Expr::ASTNodeMemProc>()->ptrObj();
-      } else if ( node->isa<Expr::ASTNodeCommReq>() ) {
-        std::cout << "CommReq" << std::endl;
-      } else if ( node->isa<Expr::ASTNodeToken>() ) {
-        std::cout << "Token" << std::endl;
-      } else {
-        // unknown
-        std::cout << "Unkown Terminal";
-      }
-    }
-    std::cout << std::endl;
-  }*/
   
 //  this_type concat( const smoc_activation_pattern &ap ) const
 //    { return this_type(guard && ap.guard); }
