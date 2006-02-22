@@ -1,7 +1,5 @@
 <?xml encoding="UTF-8"?>
 
-<!ENTITY % OPS "(ASTNodeBinOp|ASTNodeUnOp|PortTokens|Literal|Var|Proc|MemProc|MemGuard)" >
-
 <!ELEMENT networkgraph (problemgraph,architecturegraph,mappings)>
 <!ATTLIST networkgraph
   name CDATA #REQUIRED
@@ -96,41 +94,69 @@
 	id ID #REQUIRED
 >
 
-<!ELEMENT ASTNodeBinOp (lhs,rhs)>
-<!ATTLIST ASTNodeBinOp 
-	OpType CDATA #REQUIRED
+<!ENTITY % OPS "(ASTNodeBinOp|ASTNodeUnOp|PortTokens|Literal|Var|Proc|MemGuard|MemProc|Token)" >
+
+<!ELEMENT transition %OPS;>
+<!ATTLIST transition
+	nextstate IDREF #REQUIRED
+	action CDATA #REQUIRED
 >
 
-<!ELEMENT ASTNodeUnOp (ChildNode)>
-<!ATTLIST ASTNodeUnOp
-	OpType CDATA #REQUIRED
+<!ELEMENT ASTNodeBinOp (lhs,rhs)>
+<!ATTLIST ASTNodeBinOp 
+	valueType CDATA #REQUIRED
+	opType    CDATA #REQUIRED
 >
 
 <!ELEMENT lhs %OPS;>
 
 <!ELEMENT rhs %OPS;>
 
+<!ELEMENT ASTNodeUnOp (ChildNode)>
+<!ATTLIST ASTNodeUnOp
+	valueType CDATA #REQUIRED
+	opType    CDATA #REQUIRED
+>
+
+<!ELEMENT ChildNode %OPS;>
+
 <!ELEMENT PortTokens EMPTY>
 <!ATTLIST PortTokens
-	portid IDREF #REQUIRED
->
-
-<!ELEMENT MemGuard EMPTY>
-<!ATTLIST MemGuard
-	objPtr CDATA #REQUIRED
-	name CDATA #REQUIRED
->
-
-<!ELEMENT transition (ASTNodeBinOp)*>
-<!ATTLIST transition
-	nextstate IDREF #REQUIRED
-	action CDATA #REQUIRED
+        valueType CDATA #REQUIRED
+	portid    IDREF #REQUIRED
 >
 
 <!ELEMENT Literal EMPTY>
 <!ATTLIST Literal
-	value CDATA #REQUIRED
+        valueType CDATA #REQUIRED
+	value     CDATA #REQUIRED
 >
 
-<!ELEMENT ChildNode (MemGuard)>
+<!ELEMENT Var EMPTY>
+<!ATTLIST Var 
+        valueType CDATA #REQUIRED
+        name      CDATA #REQUIRED
+	addr      CDATA #REQUIRED
+>
 
+<!ELEMENT MemGuard EMPTY>
+<!ATTLIST MemGuard
+        valueType CDATA #REQUIRED
+	name      CDATA #REQUIRED
+	addrObj   CDATA #REQUIRED
+        addrFun   CDATA #REQUIRED
+>
+
+<!ELEMENT MemProc EMPTY>
+<!ATTLIST MemProc
+        valueType CDATA #REQUIRED
+	addrObj   CDATA #REQUIRED
+        addrFun   CDATA #REQUIRED
+>
+
+<!ELEMENT Token EMPTY>
+<!ATTLIST Token
+        valueType CDATA #REQUIRED
+	portid    IDREF #REQUIRED
+	pos       CDATA #REQUIRED
+>
