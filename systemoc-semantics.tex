@@ -8,42 +8,53 @@ Therefore each actor port is connected to a pair of FIFOs $z = (\mathbf{v}, \mat
 a \emph{value FIFO} $\mathbf{v} \in V^{**}$ and
 a \emph{free space FIFO} $\mathbf{f} \in \{\circ\}^{**}$, where each \emph{free space symbol} $\circ$ represents an available slot in the value FIFO to store a token. % as known from PETRI-nets \cite{XXXX}.
 Accordingly an actor not only consumes sequences of tokens $V^{**}$ on its input ports $I$ and produce them on its output ports $O$ but also produce sequences of free space symbols $\{\circ\}^{**}$ on its input ports and consume them on its output ports, respectively.
+%For notational simplicity we will assume that the free space symbol is contained in the set of all values, i.e., $\circ \in V$.
+To reduce the mathematical clutter we will not distinguish between \emph{value sequences} and \emph{free space symbol sequences} and simply use $S$ to denote the set of all finite or infinite sequences of values or free space symbols, i.e., $S = V^{**} \cup \{\circ\}^{**}$.
 
-These sequences are combined into a tuple $\mathbf{s} \in (V_\circ^{**})^{|\mathcal{P}|}$ of input and output sequences, where $V_\circ$ denotes the set of all values including the free space symbol, i.e., $V_\circ = V \cup \{\circ\}$, and $\mathcal{P}$ denotes all ports of this actor, i.e., $\mathcal{P} = I \cup O$.
-The position of a signal in its tuple is equivalent to its name.
-To achieve the equivalent of renaming or hiding signals, the position of signals in a tuple must be changed or the signal must be drop from the tuple.
-This is done by applying the \emph{projection} function to a tuple.
-\begin{definition}\label{tsm-projection}
-A \emph{projection} $\pi{}_I: S^N \to S^M$ is a function which discards and reorders signals according
-to the discrete set of indices $I$ in a $N$-tuple of signals
-to form a new $M$-tuple of signals, where $M \le N$. In other words, given $\mathbf{s} = (s_1,\ldots,s_N) \in S^N$
-and $I = [i_1,\ldots,i_M] \subseteq \mathbb{N}_N$
-then $\pi{}_I(\mathbf{s}) = (s_{i_1}, \ldots, s_{i_M})$.
-A projection $\pi{}_I$ can be generalized to subsets $\mathbf{P}$ of $S^N$,
-i.e., $\pi{}_I(\mathbf{P}) = \{\pi{}_I(\mathbf{s}) \mid \mathbf{s} \in \mathbf{P}\}$.
+\begin{definition}[Actor behavior]\label{def:actor-behavior}
+The behavior of an actor $a$ can be thought of as a relation $\mathbb{A}$ which maps a tuple of input sequences $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in} \subset S^{|\mathcal{P}|}$ into a tuple of output sequences $\mathbf{s}_\mathrm{out} \in \mathbf{S}_\mathrm{out} \subset S^{|\mathcal{P}|}$, i.e., $\mathbb{A} \subseteq  \mathbf{S}_\mathrm{in} \times \mathbf{S}_\mathrm{out}$, where $\mathcal{P}$ denotes the set of all ports of the actor $a$, i.e., $\mathcal{P} = I \cup O$.
+% partitioned into actor input ports $I$ and actor output ports $O$
 \end{definition}
 
-As example consider the tuple of signals $\mathbf{s} = (s_1,s_2,s_3,s_4,s_5)$, and the discrete set
-$I=[5,4,2,1]$ then the projection is given as $\pi{}_I(\mathbf{s}) = (s_5,s_4,s_2,s_1)$.
+Before we can continue to define the behavior of an actor some mathematical notations for manipulating tuples are needed:
 
+The position of a sequence in its tuple is equivalent to its name.
+To achieve the equivalent of renaming or hiding sequences, the position of a sequence in a tuple must be changed or the sequence must be dropped from the tuple.
+This is done by applying the \emph{projection} function to a tuple.
 
+%\begin{definition}[Projection]\label{def:tsm-projection}
+A \emph{projection} $\pi{}_P: S^n \to S^m$ is a function which discards and reorders sequences according to the ordered set of actor ports $P \subseteq \mathcal{P}$ in a $n$-tuple of sequences to form a new $m$-tuple of sequences, where $|P| = m \le n$.
+In other words, given $\mathbf{s} = (\mathbf{v}_{p'_1},\ldots,\mathbf{v}_{p'_n}) \in S^n$ and $P = \{p_1,\ldots,p_m\} \subseteq \{p'_1,\ldots,p'_n\}$ then $\pi{}_P(\mathbf{s}) = (\mathbf{v}_{p_1}, \ldots, \mathbf{v}_{p_m})$.
+%A projection $\pi{}_P$ can be generalized to subsets $\mathbf{X}$ of $S^n$, i.e., $\pi{}_P(\mathbf{X}) = \{\pi{}_P(\mathbf{s}) \mid \mathbf{s} \in \mathbf{X}\}$.
+%\end{definition}
 
+As an example consider the tuple of sequences $\mathbf{s} = (\mathbf{v}_{i_1}, \mathbf{v}_{i_2}, \mathbf{v}_{o_1})$, and the ordered set of actor ports $P = \{o_1, i_1\}$ then the projection is given as $\pi{}_P(\mathbf{s}) = (\mathbf{v}_{o_1}, \mathbf{v}_{i_1})$.
+Furthermore a tuple can be viewed as a function, e.g., $\mathbf{s}: \mathbb{N}_3 \to S$, over the counting set $\mathbb{N}_n = \{1,2,\ldots,n\}$ from one to the tuple size $n$.
+Additionally we can associate which each tuple an orderd set, e.g., $\{i_1, i_2, o_1\} \subseteq \mathcal{P}$, and view the tuple as a function over this set, e.g., $\mathbf{s}: \{i_1, i_2, o_1\} \to S$.
+This allows us to access a tuple member either by its position inside the tuple, e.g., $\mathbf{s}(3) = \mathbf{v}_{o_1}$, or by an indexing element, e.g., the actor port $o_1$ and its associated tuple element $\mathbf{s}(o_1) = \mathbf{v}_{o_1}$.
+Moreover we use the pointwise extension of the tuple member access operator to extract from a tuple its associated ordered sets, e.g., $\mathbf{s}.\mathbb{N} = \{1, 2, 3\}$ or $\mathbf{s}.\mathcal{P} = \{i_1, i_2, o_1\}$.
+The size of a tuple will be denoted via the $\#$-operator, e.g., $\#\mathbf{s} = |\mathbf{s}.\mathbb{N}| = 3$.
 
-%For notational simplicity we will assume that the free space symbol is contained in the set of all values, i.e., $\circ \in V$.
+With the mathematical notation defined above it is possible to describe further constraints on the tuple of input and output sequences.
+The tuple of input sequences $\mathbf{s}_\mathrm{in}$ is constraint to be devided into value sequences $\pi{}_{I}(\mathbf{s}_\mathrm{in}) \in (V^{**})^{|I|}$ and free space symbol sequences $\pi{}_{O}(\mathbf{s}_\mathrm{in}) \in (\{\circ\}^{**})^{|O|}$.
+% , each sequence associated with an actor input port, , each sequence associated with an actor output port.
+Furthermore the tuple of output sequences $\mathbf{s}_\mathrm{out}$ is similarly devided into value sequences $\pi{}_{O}(\mathbf{s}_\mathrm{out}) \in (V^{**})^{|O|}$ and free space symbol sequences $\pi{}_{I}(\mathbf{s}_\mathrm{out}) \in (\{\circ\}^{**})^{|I|}$.
+% , each sequence associated with an actor output port, , each sequence associated with an actor input port.
 
 The execution of an actor is divided into atomic \emph{firing steps}, where each step corresponds to the execution of a transition $t \in \mathcal{R}.T$ of the firing FSM.
 To decide if a transition can be taken its associated \emph{activation pattern} must be evaluated.
 
 \begin{definition}[Activation pattern]\label{def:activation-pattern}
-  An \emph{activation pattern} $k$ of an actor $a \in A$ is a is a boolean function depending on the available input token sequences $\mathbf{S}_\mathrm{in}$ and the \emph{functionality state} $\mathcal{F}.S_\mathrm{func}$ of the actor, i.e., $k: \mathbf{S}_\mathrm{in} \times \mathcal{F}.S_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}$.
+  An \emph{activation pattern} $k$ of an actor $a \in A$ is a is a boolean function depending on the available input sequences $\mathbf{S}_\mathrm{in}$ and the \emph{functionality state} $\mathcal{F}.S_\mathrm{func}$ of the actor, i.e., $k: \mathbf{S}_\mathrm{in} \times \mathcal{F}.S_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}$.
   The activation pattern is used to decide if its associated transition can be taken $(\mathrm{true})$ or not $(\mathrm{false})$.
 \end{definition}
 
-Each firing step of an actor consumes a tuple of finite sequences $\mathbf{s}_\mathrm{cons} \in (V_\circ^*)^{|\mathcal{P}|}$, which is a prefix $\mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in}$ of the tuple of possibly infinite input sequences $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in} \subseteq (V_\circ^{**})^{|\mathcal{P}|}$.
-Consequently a tuple of output sequences $\mathbf{s}_\mathrm{prod} \in \mathbf{S}_\mathrm{prod} \subseteq (V_\circ^*)^{|\mathcal{P}|}$ is produced.
-The tuple of input sequences $\mathbf{s}_\mathrm{in}$ is further constraint to be devided into sequences containing only value tokens $\pi{}_{I}(\mathbf{s}_\mathrm{in}) \in (V^{**})^{|I|}$, each sequence associated with an actor input port, and  sequences containing only free space symbols $\pi{}_{O}(\mathbf{s}_\mathrm{in}) \in (\{\circ\}^{**})^{|O|}$, each sequence associated with an actor output port.
-The tuple of produced output sequences $\mathbf{s}_\mathrm{prod}$ is similarly devided into sequences containing only value tokens $\pi{}_{O}(\mathbf{s}_\mathrm{prod}) \in (V^{**})^{|O|}$, each sequence associated with an actor output port, and sequences containing only free space symbols $\pi{}_{I}(\mathbf{s}_\mathrm{prod}) \in (\{\circ\}^{**})^{|I|}$, each sequence associated with an actor input port.
-Furthermore each firing step transforms the \emph{actor state} $s \in S = \mathcal{F}.S_\mathrm{func} \times \mathcal{R}.S_\mathrm{firing}$, i.e., $\mathrm{Fire}: \mathbf{S}_\mathrm{in} \times S \to 2^{\mathbf{S}_\mathrm{prod} \times S}$.
+Additionally we define a prefix order $\sqsubseteq$ on the set of sequences $S$, i.e., given $\mathbf{v}_1, \mathbf{v}_2 \in S$ then $\mathbf{v}_1 \sqsubseteq \mathbf{v}_2 \equiv \mathbf{v}_1.\mathbb{N} \subseteq \mathbf{v}_2.\mathbb{N} \wedge \forall{n \in \mathbf{v}_1.\mathbb{N}}: \mathbf{v}_1(n) =  \mathbf{v}_2(n)$.
+This prefix order has a trivial pointwise extenstion to tuples of sequences, i.e., given $\mathbf{s}_1, \mathbf{s}_2 \in S^n$ then $\mathbf{s}_1 \sqsubseteq \mathbf{s}_2 \equiv \forall{m \in \mathbb{N}_n}: \mathbf{s}_1(m) \sqsubseteq \mathbf{s}_2(m)$.
+
+Each firing step of an actor consumes a tuple of finite sequences $\mathbf{s}_\mathrm{cons} \in \mathbf{S}_\mathrm{in}$, which must be a prefix of the tuple of input sequences, i.e., $\mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in}$.
+Consequently a tuple of output sequences $\mathbf{s}_\mathrm{prod} \in \mathbf{S}_\mathrm{out}$ is produced.
+Furthermore each firing step transforms the \emph{actor state} $s \in S = \mathcal{F}.S_\mathrm{func} \times \mathcal{R}.S_\mathrm{firing}$, i.e., $\mathrm{Fire}: \mathbf{S}_\mathrm{in} \times S \to 2^{\mathbf{S}_\mathrm{out} \times S}$.
 \footnote{We use $2^X$ to denote the powerset of $X$, the set of all subsets of $X$, i.e., $2^X = \bigcup_{X_\mathrm{subset} \subseteq X} \{X_\mathrm{subset}\}$.}
 
 \begin{eqnarray}
@@ -57,7 +68,6 @@ Furthermore each firing step transforms the \emph{actor state} $s \in S = \mathc
  & \wedge & \#\pi{}_{I}(\mathbf{s}_\mathrm{prod}) = \#\pi{}_{I}(\mathbf{s}_\mathrm{cons})
 \end{eqnarray}
 
-
 % sequence of tokens $\mathbf{v} \in V^{**}$ for each actor input port $i \in I$ and sequences of free space tokens $\mathbf{f} \in \{\circ\}^{**}$ for each actor output port $o \in O$,
 
 %$z = (\mathbf{v}, \mathbf{f}) \in Z$, the data FIFO $z.\mathbf{v} \in V^{**}$ and the free space FIFO $z.\mathbf{s} \in \{\circ\}^{**}$.
@@ -66,13 +76,9 @@ Furthermore each firing step transforms the \emph{actor state} $s \in S = \mathc
 %$a.\mathcal{P}' = [i_1, i'_1, i_2, i'_2, \ldots, i_{|a.I|}, i'_{|a.I|}, o_1, o'_1, o_2, o'_2, \ldots, o_{|a.O|}, o'_{|a.O|}]$
 %$a.\mathcal{I}' = \{i_1, i_2, \ldots, i_{|a.I|}, o'_1, o'_2, \ldots, o'_{|a.O|}\}$
 %$a.\mathcal{O}' = \{i'_1, i'_2, \ldots, i'_{|a.I|}, o_1, o_2, \ldots, o_{|a.O|}\}$
-$\mathbf{z} \in Z^{|\mathcal{P}|}$ actor ports $\mathcal{P}$
-$\mathrm{IN}(\mathbf{z}) = \pi{}_{I}(\mathbf{z}).\mathbf{v} \times \pi{}_{O}(\mathbf{z}).\mathbf{f}$
-$\mathrm{OUT}(\mathbf{z}) = \pi{}_{I}(\mathbf{z}).\mathbf{v} \times \pi{}_{O}(\mathbf{z}).\mathbf{f}$
-
-
-
-
+%$\mathbf{z} \in Z^{|\mathcal{P}|}$ actor ports $\mathcal{P}$
+%$\mathrm{IN}(\mathbf{z}) = \pi{}_{I}(\mathbf{z}).\mathbf{v} \times \pi{}_{O}(\mathbf{z}).\mathbf{f}$
+%$\mathrm{OUT}(\mathbf{z}) = \pi{}_{I}(\mathbf{z}).\mathbf{v} \times \pi{}_{O}(\mathbf{z}).\mathbf{f}$
 
 %\begin{eqnarray}
 %\mathrm{Fire}(\mathbf{z}, s_\mathrm{firing}, s_\mathrm{func}) = \{ (\mathbf{z}', s'_\mathrm{firing}, s'_\mathrm{func}) %
@@ -82,19 +88,17 @@ $\mathrm{OUT}(\mathbf{z}) = \pi{}_{I}(\mathbf{z}).\mathbf{v} \times \pi{}_{O}(\m
 % & \wedge & (\mathbf{w}_\mathrm{prod}, s'_\mathrm{func}) = f_\mathrm{action}(\mathbf{v}_\mathrm{cons},s_\mathrm{func}) \\
 %\end{eqnarray}
 
-An actor $a$ can be thought of as a relation $\mathbb{A}$ which maps sequences of token values $V^{**}$ on its input ports $a.I$ into sequences of token values on its output ports $a.O$, i.e., $\mathbb{A} \subseteq (V^{**})^{|a.\mathcal{P}|}$.
+%\begin{eqnarray}
+%\mathrm{Fire}(\mathbf{v}, s_\mathrm{firing}, s_\mathrm{func}) = \{ \mathbf{w}_\mathrm{prod}\concat\mathbf{w}_\mathrm{tail} %
+% & |      & (s_\mathrm{firing}, k, f_\mathrm{action}, s'_\mathrm{firing}) \in T \\
+% & \wedge & k(\mathbf{v}_\mathrm{cons}) \\
+% & \wedge & \forall{\mathbf{v}_\mathrm{prefix} \sqsubset \mathbf{v}_\mathrm{cons}}: \neg k(\mathbf{v}_\mathrm{prefix}) \\
+% & \wedge & (\mathbf{w}_\mathrm{prod}, s'_\mathrm{func}) = f_\mathrm{action}(\mathbf{v}_\mathrm{cons},s_\mathrm{func}) \\
+% & \wedge & \mathbf{v} = \mathbf{v}_\mathrm{cons}\concat\mathbf{v}_\mathrm{tail} \\
+% & \wedge & \mathbf{w}_\mathrm{tail} = \mathrm{Fire}(\mathbf{v}_\mathrm{tail}, s'_\mathrm{firing}, s'_\mathrm{func}) \}
+%\end{eqnarray}
 
-\begin{eqnarray}
-\mathrm{Fire}(\mathbf{v}, s_\mathrm{firing}, s_\mathrm{func}) = \{ \mathbf{w}_\mathrm{prod}\concat\mathbf{w}_\mathrm{tail} %
- & |      & (s_\mathrm{firing}, k, f_\mathrm{action}, s'_\mathrm{firing}) \in T \\
- & \wedge & k(\mathbf{v}_\mathrm{cons}) \\
- & \wedge & \forall{\mathbf{v}_\mathrm{prefix} \sqsubset \mathbf{v}_\mathrm{cons}}: \neg k(\mathbf{v}_\mathrm{prefix}) \\
- & \wedge & (\mathbf{w}_\mathrm{prod}, s'_\mathrm{func}) = f_\mathrm{action}(\mathbf{v}_\mathrm{cons},s_\mathrm{func}) \\
- & \wedge & \mathbf{v} = \mathbf{v}_\mathrm{cons}\concat\mathbf{v}_\mathrm{tail} \\
- & \wedge & \mathbf{w}_\mathrm{tail} = \mathrm{Fire}(\mathbf{v}_\mathrm{tail}, s'_\mathrm{firing}, s'_\mathrm{func}) \}
-\end{eqnarray}
-
-$\mathbb{A} = \{ (\mathbf{v},\mathbf{w}) | \mathbf{w} \in \mathrm{Fire}(\mathbf{v}, s_{_0\mathrm{firing}}, s_{_0\mathrm{func}}), \mathbf{v} \in (V^{**})^{|A.I|} \times (\{\circ\}^{**})^{|a.O|} \}$
+%$\mathbb{A} = \{ (\mathbf{v},\mathbf{w}) | \mathbf{w} \in \mathrm{Fire}(\mathbf{v}, s_{_0\mathrm{firing}}, s_{_0\mathrm{func}}), \mathbf{v} \in (V^{**})^{|A.I|} \times (\{\circ\}^{**})^{|a.O|} \}$
 
 % \section{Kopplung zwischen SysteMoC und VPC}
 % \label{sec:smoc-vpc}
