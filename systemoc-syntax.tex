@@ -272,7 +272,7 @@ a set of \emph{actor ports} $\mathcal{P} = I \cup O$ partitioned into \emph{acto
 the \emph{actor functionality} $\mathcal{F}$ and the \emph{firing FSM} $\mathcal{R}$.
 \end{definition}
 
-The \emph{actor state} $s = (s_\mathrm{func}, s_\mathrm{firing})$ is combined from the state stored in the actor functionality $s_\mathrm{func} \in \mathcal{F}.S_\mathrm{func}$ and the state of the firing FSM $s_\mathrm{firing} \in \mathcal{R}.S_\mathrm{firing}$, i.e., $s \in S = \mathcal{F}.S_\mathrm{func} \times \mathcal{R}.S_\mathrm{firing}$.
+The \emph{actor state} $q = (q_\mathrm{func}, q_\mathrm{firing})$ is combined from the state stored in the actor functionality $q_\mathrm{func} \in \mathcal{F}.Q_\mathrm{func}$ and the state of the firing FSM $q_\mathrm{firing} \in \mathcal{R}.Q_\mathrm{firing}$, i.e., $q \in Q = \mathcal{F}.Q_\mathrm{func} \times \mathcal{R}.Q_\mathrm{firing}$.
 The three parts of an actor can also be seen in Figure~\ref{fig:actor-sqrloop} which shows a
 graphical representation the actor defined in the Examples~\ref{ex:systemoc-sqrloop-actor-def} - \ref{ex:systemoc-sqrloop-fsm-def}.
 In the following, the steps to construct these three parts will be explained in detail.
@@ -371,10 +371,10 @@ as well as one member variable \code{tmp\_i1}.
 %Both actions and guards can use helper functions to accomplish their purpose.
 
 \begin{definition}[Actor functionality]\label{def:actor-functionality}
-  The \emph{actor functionality} of an actor $a \in A$ is a tuple $a.\mathcal{F} = (F,S_\mathrm{func},s_{_0\mathrm{func}})$ containing
+  The \emph{actor functionality} of an actor $a \in A$ is a tuple $a.\mathcal{F} = (F,Q_\mathrm{func},q_{_0\mathrm{func}})$ containing
   a set of \emph{functions} $F = F_\mathrm{action} \cup F_\mathrm{guard}$ partitioned into \emph{actions} and \emph{guards},
-  a set of \emph{functionality states} $S_\mathrm{func}$ (possibly infinite), and
-  an \emph{initial functionality state} $s_{_0\mathrm{func}} \in S_\mathrm{func}$.
+  a set of \emph{functionality states} $Q_\mathrm{func}$ (possibly infinite), and
+  an \emph{initial functionality state} $q_{_0\mathrm{func}} \in Q_\mathrm{func}$.
 \end{definition}
 
 \begin{example}
@@ -384,12 +384,12 @@ the following description:
 F_\mathrm{action}   & = & \{f_\mathtt{copyStore}, f_\mathtt{copyInput}, f_\mathtt{copyApprox}\} \nonumber \\
 F_\mathrm{guard}    & = & \{f_\mathtt{check}\} \nonumber \\
 S_\mathrm{func}     & = & \mathbb{R} \nonumber \\
-s_{_0\mathrm{func}} & = & 0 \nonumber
+q_{_0\mathrm{func}} & = & 0 \nonumber
 %f_\mathtt{copyStore}    & : &  \nonumber
 \end{eqnarray}
 \end{example}
   
-% The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map action dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $s_\mathrm{current} \in S_\mathrm{func}$ to an action dependant number $M$ of output values $(w_1,w_2,\ldots,w_M) = \mathbf{w} \in V^M$ and the next functionality state $s_\mathrm{next} \in S_\mathrm{func}$, i.e.,  $f_\mathrm{action}: V^N \times S_\mathrm{func} \to V^M \times S_\mathrm{func}$.
+% The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map action dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_\mathrm{current} \in Q_\mathrm{func}$ to an action dependant number $M$ of output values $(w_1,w_2,\ldots,w_M) = \mathbf{w} \in V^M$ and the next functionality state $q_\mathrm{next} \in Q_\mathrm{func}$, i.e.,  $f_\mathrm{action}: V^N \times Q_\mathrm{func} \to V^M \times Q_\mathrm{func}$.
 
 The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|a.I|}} \in V^*$ at the actor input ports $a.I$ into sequences of token values $\mathbf{v}_{o_1},\mathbf{v}_{o_2},\ldots,\mathbf{v}_{o_{|a.O|}} \in V^*$ at the actor output ports $a.O$, thereby potentially also modifying the functionality state:
 
@@ -418,7 +418,7 @@ and ruled uniquely by the firing finite state machine that will be described nex
 Before describing the notion of the firing state machine, we will introduce 
 the difference between actions and guards.
 
-% The guards $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality map a guard dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $s_{i} \in S_\mathrm{func}$ to a boolean value, i.e.,  $f_\mathrm{guard}: V^N \times S_\mathrm{func} \to \{\mathrm{true},\mathrm{false}\}$.
+% The guards $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality map a guard dependant number $N$ of input values $(v_1,v_2,\ldots,v_N) = \mathbf{v} \in V^N$ and the current functionality state $q_{i} \in Q_\mathrm{func}$ to a boolean value, i.e.,  $f_\mathrm{guard}: V^N \times Q_\mathrm{func} \to \{\mathrm{true},\mathrm{false}\}$.
 
 A guard $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality maps sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|a.I|}} \in V^*$ at the  actor input ports $a.I$ and the functionality state to a boolean value:
 
@@ -484,27 +484,27 @@ An \emph{activation pattern} may consist of an \emph{input pattern} and an \emph
 More formally, we derive the following two formal definitions:
 
 \begin{definition}[Firing FSM]\label{def:firing-fsm}
-  The \emph{firing FSM} of an actor $a \in A$ is a tuple $a.\mathcal{R} =$ $(T,$ $S_\mathrm{firing},$ $s_{_0\mathrm{firing}})$ containing
+  The \emph{firing FSM} of an actor $a \in A$ is a tuple $a.\mathcal{R} =$ $(T,$ $Q_\mathrm{firing},$ $q_{_0\mathrm{firing}})$ containing
   a finite set of \emph{firing transitions} $T$, % \subseteq S_\mathrm{firing} \times \mathcal{K} \times A.\mathcal{F}.F_\mathrm{action} \times S_\mathrm{firing}$,
-  a finite set of \emph{firing states} $S_\mathrm{firing}$ and
-  an \emph{initial firing state} $s_{_0\mathrm{firing}} \in S_\mathrm{firing}$.
+  a finite set of \emph{firing states} $Q_\mathrm{firing}$ and
+  an \emph{initial firing state} $q_{_0\mathrm{firing}} \in Q_\mathrm{firing}$.
 \end{definition}
 
 \begin{definition}[Transition]\label{def:firing-transition}
-  A \emph{firing transition} is a tuple $t = (s_\mathrm{firing}, k, f_\mathrm{action}, s'_\mathrm{firing})$  $\in T$ containing
-  the current firing state $s_\mathrm{firing} \in S_\mathrm{firing}$,
+  A \emph{firing transition} is a tuple $t = (q_\mathrm{firing}, k, f_\mathrm{action}, q'_\mathrm{firing})$  $\in T$ containing
+  the current firing state $q_\mathrm{firing} \in Q_\mathrm{firing}$,
   an \emph{activation pattern} $k$,
   the associated \emph{action} $f_\mathrm{action} \in a.\mathcal{F}.F_\mathrm{action}$,
-  and the next firing state $s'_\mathrm{firing} \in S_\mathrm{firing}$.
+  and the next firing state $q'_\mathrm{firing} \in Q_\mathrm{firing}$.
   The activation pattern $k$ is a boolean function which decides if 
   transition $t$ can be taken $(\mathrm{true})$ or not $(\mathrm{false})$.
-  %$k(\mathbf{v}, s_\mathrm{func}) = \mathrm{true}$, or
-  %can not be taken $k(\mathbf{v}, s_\mathrm{func}) = \mathrm{false}$.
-% or more input values are still neccessary to decide $k(\mathbf{v}, s_\mathrm{func}) = \bot$.
+  %$k(\mathbf{v}, q_\mathrm{func}) = \mathrm{true}$, or
+  %can not be taken $k(\mathbf{v}, q_\mathrm{func}) = \mathrm{false}$.
+% or more input values are still neccessary to decide $k(\mathbf{v}, q_\mathrm{func}) = \bot$.
 % Where $k$ is a function from
 % the \emph{input alphabet} $\chi = (V^{**})^{|A.I|} \times \mathbb{Z}^{|A.O|}$ and the \emph{functionality state}
-% $A.\mathcal{F}.S_\mathrm{func}$ to the trinary boolean set $\{\bot, \mathrm{true}, \mathrm{false}\}$, i.e.,
-% $k: \chi \times A.\mathcal{F}.S_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
+% $A.\mathcal{F}.Q_\mathrm{func}$ to the trinary boolean set $\{\bot, \mathrm{true}, \mathrm{false}\}$, i.e.,
+% $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
 \end{definition}
 
 \begin{figure}[h]
@@ -519,10 +519,10 @@ The \code{SqrLoop} actor controls the number of iterations performed by Newton's
 
 \begin{example}
 In the above figure, the firing FSM of the \code{SqrLoop} is shown.
-From the $s_\mathrm{start}$ state only the transition $t_1$ can be taken, which blocks until at least one token is available on input port $i_1$ and one token can be written on output port $o_1$.
+From the $q_\mathrm{start}$ state only the transition $t_1$ can be taken, which blocks until at least one token is available on input port $i_1$ and one token can be written on output port $o_1$.
 The first token at input port $i_1$ represents the input value for the square root algorithm. It is stored and forwarded by action $f_\mathtt{copyStore}$ via port $o_1$ to the approximation loop body $a_3$ - $a_4$ of Newton's algorithm.
 
-From state $s_\mathrm{loop}$, either the transition $t_2$ can be taken if the approximation satisfies the error bound \code{BOUND}, or the transition $t_3$ if another approximation step is necessary.
+From state $q_\mathrm{loop}$, either the transition $t_2$ can be taken if the approximation satisfies the error bound \code{BOUND}, or the transition $t_3$ if another approximation step is necessary.
 This termination criteria is determined by the guard $f_\mathtt{check}$. 
 % from its actor functionality $a_2.\mathcal{F}$
 Furthermore, both transitions $t_2$ and $t_3$ can only be taken if at least one approximation value (token) is available via port $i_2$.
