@@ -1,6 +1,9 @@
 \chapter{Mathdefs}
 % Before we can review the tagged signal model some mathematical notations are needed.
 
+We use the `$.$'-operator, e.g., $u.x$, for member access, e.g., $x$, of tuples whose members have been explicitly named in their definition, e.g., $u = (x, y) \in U \subseteq \mathbf{N}^2$.
+Furthermore this member access operator has a trivial pointwise extenstion to sets of tuples, e.g., $U.x = \bigcup{}_{u \in U} u.x$.
+
 Let $\{x_1,x_2\}$ denote a set and $[y_1,y_2,y_3,\ldots]$ denote a set
 with total order $y_1 \le y_2 \le y_3 \le \ldots$, e.g., $\{x_1,x_2\} = \{x_2,x_1\}$ but
 $[y_1,y_2] \ne [y_2,y_1]$ and $\{x_1,x_1\} = \{x_1\}$ but $[ y_1, y_2, y_1, y_3]$
