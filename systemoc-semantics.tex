@@ -8,6 +8,27 @@ Therefore each actor port is connected to a pair of FIFOs $z = (\mathbf{v}, \mat
 a \emph{value FIFO} $\mathbf{v} \in V^{**}$ and
 a \emph{free space FIFO} $\mathbf{f} \in \{\circ\}^{**}$, where each \emph{free space symbol} $\circ$ represents an available slot in the value FIFO to store a token. % as known from PETRI-nets \cite{XXXX}.
 Accordingly an actor not only consumes sequences of tokens $V^{**}$ on its input ports $I$ and produce them on its output ports $O$ but also produce sequences of free space symbols $\{\circ\}^{**}$ on its input ports and consume them on its output ports, respectively.
+
+These sequences are combined into a tuple $\mathbf{s} \in (V_\circ^{**})^{|\mathcal{P}|}$ of input and output sequences, where $V_\circ$ denotes the set of all values including the free space symbol, i.e., $V_\circ = V \cup \{\circ\}$, and $\mathcal{P}$ denotes all ports of this actor, i.e., $\mathcal{P} = I \cup O$.
+The position of a signal in its tuple is equivalent to its name.
+To achieve the equivalent of renaming or hiding signals, the position of signals in a tuple must be changed or the signal must be drop from the tuple.
+This is done by applying the \emph{projection} function to a tuple.
+\begin{definition}\label{tsm-projection}
+A \emph{projection} $\pi{}_I: S^N \to S^M$ is a function which discards and reorders signals according
+to the discrete set of indices $I$ in a $N$-tuple of signals
+to form a new $M$-tuple of signals, where $M \le N$. In other words, given $\mathbf{s} = (s_1,\ldots,s_N) \in S^N$
+and $I = [i_1,\ldots,i_M] \subseteq \mathbb{N}_N$
+then $\pi{}_I(\mathbf{s}) = (s_{i_1}, \ldots, s_{i_M})$.
+A projection $\pi{}_I$ can be generalized to subsets $\mathbf{P}$ of $S^N$,
+i.e., $\pi{}_I(\mathbf{P}) = \{\pi{}_I(\mathbf{s}) \mid \mathbf{s} \in \mathbf{P}\}$.
+\end{definition}
+
+As example consider the tuple of signals $\mathbf{s} = (s_1,s_2,s_3,s_4,s_5)$, and the discrete set
+$I=[5,4,2,1]$ then the projection is given as $\pi{}_I(\mathbf{s}) = (s_5,s_4,s_2,s_1)$.
+
+
+
+
 %For notational simplicity we will assume that the free space symbol is contained in the set of all values, i.e., $\circ \in V$.
 
 The execution of an actor is divided into atomic \emph{firing steps}, where each step corresponds to the execution of a transition $t \in \mathcal{R}.T$ of the firing FSM.
@@ -19,20 +40,21 @@ To decide if a transition can be taken its associated \emph{activation pattern} 
 \end{definition}
 
 Each firing step of an actor consumes a tuple of finite sequences $\mathbf{s}_\mathrm{cons} \in (V_\circ^*)^{|\mathcal{P}|}$, which is a prefix $\mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in}$ of the tuple of possibly infinite input sequences $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in} \subseteq (V_\circ^{**})^{|\mathcal{P}|}$.
-Consequently a tuple of output sequences $\mathbf{s}_\mathrm{prod} \in \mathbf{S}_\mathrm{prod} \subseteq (V_\circ^*)^{|\mathcal{P}|}$ is produced, where $V_\circ$ denotes the set of all values including the free space symbol, i.e., $V_\circ = V \cup \{\circ\}$, and $\mathcal{P}$ denotes all ports of this actor, i.e., $\mathcal{P} = I \cup O$.
+Consequently a tuple of output sequences $\mathbf{s}_\mathrm{prod} \in \mathbf{S}_\mathrm{prod} \subseteq (V_\circ^*)^{|\mathcal{P}|}$ is produced.
 The tuple of input sequences $\mathbf{s}_\mathrm{in}$ is further constraint to be devided into sequences containing only value tokens $\pi{}_{I}(\mathbf{s}_\mathrm{in}) \in (V^{**})^{|I|}$, each sequence associated with an actor input port, and  sequences containing only free space symbols $\pi{}_{O}(\mathbf{s}_\mathrm{in}) \in (\{\circ\}^{**})^{|O|}$, each sequence associated with an actor output port.
 The tuple of produced output sequences $\mathbf{s}_\mathrm{prod}$ is similarly devided into sequences containing only value tokens $\pi{}_{O}(\mathbf{s}_\mathrm{prod}) \in (V^{**})^{|O|}$, each sequence associated with an actor output port, and sequences containing only free space symbols $\pi{}_{I}(\mathbf{s}_\mathrm{prod}) \in (\{\circ\}^{**})^{|I|}$, each sequence associated with an actor input port.
-Furthermore each firing step transforms the \emph{actor state} $s \in S = \mathcal{F}.S_\mathrm{func} \times \mathcal{R}.S_\mathrm{firing}$, i.e., $\mathrm{Fire}: \mathbf{S}_\mathrm{in} \times S \to  \mathbf{S}_\mathrm{prod} \times S$.
+Furthermore each firing step transforms the \emph{actor state} $s \in S = \mathcal{F}.S_\mathrm{func} \times \mathcal{R}.S_\mathrm{firing}$, i.e., $\mathrm{Fire}: \mathbf{S}_\mathrm{in} \times S \to 2^{\mathbf{S}_\mathrm{prod} \times S}$.
+\footnote{We use $2^X$ to denote the powerset of $X$, the set of all subsets of $X$, i.e., $2^X = \bigcup_{X_\mathrm{subset} \subseteq X} \{X_\mathrm{subset}\}$.}
 
 \begin{eqnarray}
-\mathrm{Fire}(\mathbf{s}_\mathrm{in}, (s_\mathrm{func}, s_\mathrm{firing})) = \{ (\mathbf{s}_\mathrm{prod}, (s'_\mathrm{func}, s'_\mathrm{firing}))%
+\mathrm{Fire}(\mathbf{s}_\mathrm{in}, (s_\mathrm{func}, s_\mathrm{firing})) = \{%
+ &        & (\mathbf{s}_\mathrm{prod}, (s'_\mathrm{func}, s'_\mathrm{firing})) \\
  & |      & (s_\mathrm{firing}, k, f_\mathrm{action}, s'_\mathrm{firing}) \in T \\
- & \wedge & \mathbf{s}_\mathrm{in} = \mathbf{s}_\mathrm{cons}\concat\mathbf{s}_\mathrm{tail} \\
+ & \wedge & \mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in} \\
  & \wedge & k(\mathbf{s}_\mathrm{cons}, s_\mathrm{func}) \\
  & \wedge & \forall{\mathbf{s}_\mathrm{prefix} \sqsubset \mathbf{s}_\mathrm{cons}}: \neg k(\mathbf{s}_\mathrm{prefix}) \\
  & \wedge & (\pi{}_{O}(\mathbf{s}_\mathrm{prod}), s'_\mathrm{func}) = f_\mathrm{action}(\pi{}_{I}(\mathbf{s}_\mathrm{cons}), s_\mathrm{func}) \\
- & \wedge & \mathbf{v} = \mathbf{v}_\mathrm{cons}\concat\mathbf{v}_\mathrm{tail} \\
- & \wedge & \mathbf{w}_\mathrm{tail} = \mathrm{Fire}(\mathbf{v}_\mathrm{tail}, s'_\mathrm{firing}, s'_\mathrm{func}) \}
+ & \wedge & \#\pi{}_{I}(\mathbf{s}_\mathrm{prod}) = \#\pi{}_{I}(\mathbf{s}_\mathrm{cons})
 \end{eqnarray}
 
 
