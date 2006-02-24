@@ -41,8 +41,10 @@ class m_multiply: public smoc_actor {
     smoc_port_out<T> out2;
   private:
     void process() {
-      out1[0] = in1[0] * in2[0];
-      out2[0] = out1[0];
+      int T retval = in1[0] * in2[0];
+      
+      out1[0] = retval;
+      out2[0] = retval; 
       std::cout << name() << " multiplying " << in1[0] << " * " << in2[0] << " = " << out1[0] << std::endl;
     }
     
