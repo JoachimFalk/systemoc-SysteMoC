@@ -44,46 +44,50 @@ $\mathrm{S}_\mathrm{out} = \pi{}_{I}(\mathbf{P}).\mathbf{f} \times \pi{}_{O}(\ma
 %Furthermore the tuple of output sequences $\mathbf{s}_\mathrm{out}$ is similarly devided into value sequences $\pi{}_{O}(\mathbf{s}_\mathrm{out}) \in (V^{**})^{|O|}$ and free space symbol sequences $\pi{}_{I}(\mathbf{s}_\mathrm{out}) \in (\{\circ\}^{**})^{|I|}$.
 % , each sequence associated with an actor output port, , each sequence associated with an actor input port.
 
-The execution of an actor is divided into atomic \emph{firing steps}, where each step corresponds to the execution of a transition $t \in \mathcal{R}.T$ of the firing FSM.
-To decide if a transition can be taken its associated \emph{activation pattern} must be evaluated.
+The execution of an actor is divided into atomic \emph{firing steps}.
+The possible firing steps an actor can take are dependent on the tuple $\mathbf{s}_\mathrm{in}$ of still unconsumed input sequences and the actor state $q = (q_\mathrm{func}, q_\mathrm{firing}) \in Q = \mathcal{F}.Q_\mathrm{func} \times \mathcal{R}.Q_\mathrm{firing}$.
+The $\mathrm{Fire}$-function deduces these possible steps and returns the set of possible produced output sequences $\mathbf{s}_\mathrm{prod}$ and the resulting actor state $q'$, i.e., $\mathrm{Fire}: \mathbf{S}_\mathrm{in} \times Q \to 2^{\mathbf{S}_\mathrm{out} \times Q}$.
+\footnote{We use $2^X$ to denote the powerset of $X$, the set of all subsets of $X$, i.e., $2^X = \bigcup_{X_\mathrm{subset} \subseteq X} \{X_\mathrm{subset}\}$.}
+To decide if a transition can be taken its associated \emph{activation pattern} must be evaluated (\ref{eqn:transitionenabled}).
 
 \begin{definition}[Activation pattern]\label{def:activation-pattern}
   An \emph{activation pattern} $k$ of an actor $a \in A$ is a is a boolean function depending on the available input sequences $\mathbf{S}_\mathrm{in}$ and the \emph{functionality state} $\mathcal{F}.S_\mathrm{func}$ of the actor, i.e., $k: \mathbf{S}_\mathrm{in} \times \mathcal{F}.S_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}$.
   The activation pattern is used to decide if its associated transition can be taken $(\mathrm{true})$ or not $(\mathrm{false})$.
 \end{definition}
 
-To express the behavior of a firing step we need to define the prefix order $\sqsubseteq$ on the set of sequences $S$, i.e., given $\mathbf{u}, \mathbf{v} \in S$ then $\mathbf{u} \sqsubseteq \mathbf{v} \equiv \mathbf{u}.\mathbb{N} \subseteq \mathbf{v}.\mathbb{N} \wedge \forall{n \in \mathbf{u}.\mathbb{N}}: \mathbf{u}(n) = \mathbf{v}(n)$.
+To further express the behavior of a firing step we need to define the prefix order $\sqsubseteq$ on the set of sequences $S$, i.e., given $\mathbf{u}, \mathbf{v} \in S$ then $\mathbf{u} \sqsubseteq \mathbf{v} \equiv \mathbf{u}.\mathbb{N} \subseteq \mathbf{v}.\mathbb{N} \wedge \forall{n \in \mathbf{u}.\mathbb{N}}: \mathbf{u}(n) = \mathbf{v}(n)$.
 As an example consider the two sequences $\mathbf{u} = (v_1, v_2, v_3) \in S$ and $\mathbf{v} = (v_1, v_2, v_3, v_4, v_5) \in S$ then $\mathbf{u}$ is a prefix of $\mathbf{v}$, i.e., $\mathbf{u} \sqsubseteq \mathbf{v}$.
 This prefix order has a trivial pointwise extenstion to tuples of sequences, i.e., given $\mathbf{s}_1, \mathbf{s}_2 \in S^n$ then $\mathbf{s}_1 \sqsubseteq \mathbf{s}_2 \equiv \mathbf{s}_1.\mathbb{N} = \mathbf{s}_2.\mathbb{N} \wedge \forall{n \in \mathbf{s}_1.\mathbb{N}}: \mathbf{s}_1(n) \sqsubseteq \mathbf{s}_2(n)$.
 Additionally we will use the $\length: S \to \mathbb{N}_\infty$ operator to denote the length of a sequence, e.g., given $\mathbf{u} = (v_1, v_2, v_3)$ then $\length\mathbf{u} = |\mathbf{u}.\mathbb{N}| = 3$,
 and its pointwise extenstion to tuples of sequences $\length: S^n \to \mathbb{N}^n_\infty$, e.g., given $\mathbf{s} = (\mathbf{u}, \mathbf{v})$ then $\length\mathbf{s} = (3, 5)$.
 
-Each firing step of an actor consumes a tuple of finite sequences $\mathbf{s}_\mathrm{cons} \in \mathbf{S}_\mathrm{in}$, which must be a prefix of the tuple of input sequences, i.e., $\mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in}$.
-Consequently a tuple of output sequences $\mathbf{s}_\mathrm{prod} \in \mathbf{S}_\mathrm{out}$ is produced.
-Furthermore each firing step transforms the \emph{actor state} $q = (q_\mathrm{func}, q_\mathrm{firing}) \in Q = \mathcal{F}.Q_\mathrm{func} \times \mathcal{R}.Q_\mathrm{firing}$.
+With the notation given above we can now derive the following formall definition:
+
+\begin{definition}[Firing step]\label{def:firing-step}
+The execution of an actor is divided into atomic \emph{firing steps}.
 
 \begin{eqnarray}
-\mathrm{Fire}(\mathbf{s}_\mathrm{in}, q) = \{%
- &        & (\mathbf{s}_\mathrm{prod}, q') \\
- & |      & (q.q_\mathrm{firing}, k, f_\mathrm{action}, q'.q_\mathrm{firing}) \in T \\
- & \wedge & \mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in} \\
- & \wedge & k(\mathbf{s}_\mathrm{cons}, q.q_\mathrm{func}) \\
- & \wedge & \forall{\mathbf{s}_\mathrm{prefix} \sqsubset \mathbf{s}_\mathrm{cons}}: \neg k(\mathbf{s}_\mathrm{prefix}, q.q_\mathrm{func}) \\
- & \wedge & (\pi{}_{O}(\mathbf{s}_\mathrm{prod}), q'.q_\mathrm{func}) = f_\mathrm{action}(\pi{}_{I}(\mathbf{s}_\mathrm{cons}), q.q_\mathrm{func}) \\
- & \wedge & \#\pi{}_{I}(\mathbf{s}_\mathrm{prod}) = \#\pi{}_{I}(\mathbf{s}_\mathrm{cons}) \}
+\mathrm{Fire}(\mathbf{s}_\mathrm{in}, q) = \{ & & \label{eqn:dependence} \\
+ &        & (\mathbf{s}_\mathrm{prod}, q') \label{eqn:production} \\
+ & |      & (q.q_\mathrm{firing}, k, f_\mathrm{action}, q'.q_\mathrm{firing}) \in \mathcal{R}.T \label{eqn:needtransition} \\
+ & \wedge & \mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in} \label{eqn:consumeprefix} \\
+ & \wedge & k(\mathbf{s}_\mathrm{cons}, q.q_\mathrm{func}) \label{eqn:transitionenabled} \\
+ & \wedge & \forall{\mathbf{s}_\mathrm{prefix} \sqsubset \mathbf{s}_\mathrm{cons}}: \neg k(\mathbf{s}_\mathrm{prefix}, q.q_\mathrm{func}) \label{eqn:consume-glb}\\
+ & \wedge & (\pi{}_{O}(\mathbf{s}_\mathrm{prod}), q'.q_\mathrm{func}) = f_\mathrm{action}(\pi{}_{I}(\mathbf{s}_\mathrm{cons}), q.q_\mathrm{func}) \label{eqn:action}\\
+ & \wedge & \#\pi{}_{I}(\mathbf{s}_\mathrm{prod}) = \#\pi{}_{I}(\mathbf{s}_\mathrm{cons}) \label{eqn:freespacesymbols} \}
 \end{eqnarray}
 
-The possible firing steps an actor can take are dependent on the its state $q$ and the tuple $\mathbf{s}_\mathrm{in}$ of still unconsumed input sequences.
+The possible firing steps an actor can take are dependent on \emph{the tuple of still unconsumed input sequences} $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in}$ and the \emph{actor state} $q \in Q$ (\ref{eqn:dependence})
+The $\mathrm{Fire}$-function deduces these steps and returns a set containing \emph{tuples of produced output sequences} $\mathbf{s}_\mathrm{prod}$ and the \emph{resulting actor state} $q'$ (\ref{eqn:production}).
+The firing steps corresponds to the \emph{execution of a transition} $t \in \mathcal{R}.T$ of the \emph{firing FSM} $\mathcal{R}$ (\ref{eqn:needtransition}).
+Each firing step of an actor consumes a tuple of finite sequences $\mathbf{s}_\mathrm{cons}$, which must be a prefix of the tuple of input sequences (\ref{eqn:consumeprefix}).
+To decide if a transition can be taken its associated activation pattern must be evaluated (\ref{eqn:transitionenabled}).
+Consume sequence must be smallest sequence which still satisfies activation pattern (\ref{eqn:consume-glb}).
+Consequently a tuple of output sequences and a resulting actor state is produced (\ref{eqn:action}).
+The number of free space symbols generated on the input ports equals the number of tokens consumed on them (\ref{eqn:freespacesymbols}).
+\end{definition}
 
-The $\mathrm{Fire}$-function defined above r
-Each firing step possible from 
-
-transforms \emph{fire function}.
-
-, i.e., $\mathrm{Fire}: \mathbf{S}_\mathrm{in} \times Q \to 2^{\mathbf{S}_\mathrm{out} \times Q}$.
-\footnote{We use $2^X$ to denote the powerset of $X$, the set of all subsets of $X$, i.e., $2^X = \bigcup_{X_\mathrm{subset} \subseteq X} \{X_\mathrm{subset}\}$.}
-
-
+%Furthermore each firing step transforms the \emph{actor state} $q = (q_\mathrm{func}, q_\mathrm{firing}) \in Q = \mathcal{F}.Q_\mathrm{func} \times \mathcal{R}.Q_\mathrm{firing}$.
 % sequence of tokens $\mathbf{v} \in V^{**}$ for each actor input port $i \in I$ and sequences of free space tokens $\mathbf{f} \in \{\circ\}^{**}$ for each actor output port $o \in O$,
 
 %$z = (\mathbf{v}, \mathbf{f}) \in Z$, the data FIFO $z.\mathbf{v} \in V^{**}$ and the free space FIFO $z.\mathbf{s} \in \{\circ\}^{**}$.
