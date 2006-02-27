@@ -70,8 +70,9 @@ pkginclude_HEADERS =			\
 	smoc_pggen.hpp			\
 	smoc_chan_if.hpp		\
 	smoc_event.hpp			\
-	hscd_tdsim_TraceLog.hpp		\
+	smoc_storage.hpp		\
 					\
+	hscd_tdsim_TraceLog.hpp		\
 	hscd_op.hpp			\
 	hscd_port.hpp			\
 	hscd_root_port_list.hpp		\
