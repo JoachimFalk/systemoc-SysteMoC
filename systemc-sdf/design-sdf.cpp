@@ -20,8 +20,9 @@ class m_adder: public smoc_actor {
     smoc_port_out<T> out;
   private:
     void process() {
-      out[0] = in1[0] + in1[1] + in2[0]; 
-      std::cout << name() << " adding " << in1[0] << " + " << in1[1] << " + " << in2[0] << " = " << out[0] << std::endl;
+      T retval = in1[0] + in1[1] + in2[0];
+      out[0] = retval;
+      std::cout << name() << " adding " << in1[0] << " + " << in1[1] << " + " << in2[0] << " = " << retval << std::endl;
     }
     
     smoc_firing_state start;
@@ -41,11 +42,11 @@ class m_multiply: public smoc_actor {
     smoc_port_out<T> out2;
   private:
     void process() {
-      int T retval = in1[0] * in2[0];
+      T retval = in1[0] * in2[0];
       
       out1[0] = retval;
       out2[0] = retval; 
-      std::cout << name() << " multiplying " << in1[0] << " * " << in2[0] << " = " << out1[0] << std::endl;
+      std::cout << name() << " multiplying " << in1[0] << " * " << in2[0] << " = " << retval << std::endl;
     }
     
     smoc_firing_state start;
@@ -87,7 +88,7 @@ class m_source: public smoc_actor {
       std::cout << name() << " generating " << i << std::endl;
       out[0] = i++;
     }
-    
+
     smoc_firing_state start;
   public:
     m_source( sc_module_name name )

@@ -124,8 +124,13 @@ class m_dup: public smoc_actor {
 public:
   smoc_port_in<double>  i1;
   smoc_port_out<double> o1, o2;
+
 private:
-  void dup(void) { o1[0] = o2[0] = i1[0]; }
+  void dup() {
+    double in = i1[0];
+    o1[0] = in;
+    o2[0] = in;
+  }
   
   smoc_firing_state start;
 public:
