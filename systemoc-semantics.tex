@@ -32,16 +32,14 @@ As an example consider the tuple of sequences $\mathbf{s} = (\mathbf{v}_{i_1}, \
 
 With the mathematical notation defined above it is now possible to formally describe the behavior of an actor.
 \begin{definition}[Actor behavior]\label{def:actor-behavior}
-The behavior of an actor $a$ can be thought of as a relation $\mathbf{P} \subseteq Z^{|\mathcal{P}|}$ which maps a tuple of input sequences $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in} \subset S^{|\mathcal{P}|}$ into a tuple of output sequences $\mathbf{s}_\mathrm{out} \in \mathbf{S}_\mathrm{out} \subset S^{|\mathcal{P}|}$.
-Where $\mathbf{S}_\mathrm{in} = \pi{}_{I}(\mathbf{P}).\mathbf{v} \times \pi{}_{O}(\mathbf{P}).\mathbf{f}$ and
-$\mathrm{S}_\mathrm{out} = \pi{}_{I}(\mathbf{P}).\mathbf{f} \times \pi{}_{O}(\mathbf{P}).\mathbf{v}$.
-% i.e., $\mathbb{A} \subseteq  \mathbf{S}_\mathrm{in} \times \mathbf{S}_\mathrm{out}$, 
-% partitioned into actor input ports $I$ and actor output ports $O$
+The behavior of an actor $a$ can be thought of as a relation $\mathbf{P} \subseteq Z^{|\mathcal{P}|}$ which maps a tuple of input sequences $\mathbf{s}_\mathrm{in} \in \pi{}_{I}(\mathbf{P}).\mathbf{v} \times \pi{}_{O}(\mathbf{P}).\mathbf{f}$ into possible multiple tuples of output sequences $\mathbf{s}_\mathrm{out} \in \{ \pi{}_{I}(\mathbf{p}).\mathbf{f} \times \pi{}_{O}(\mathbf{p}).\mathbf{v} \mid \mathbf{p} \in \mathbf{P} \wedge \pi{}_{I}(\mathbf{p}).\mathbf{v} \times \pi{}_{O}(\mathbf{p}).\mathbf{f} = \mathbf{s}_\mathrm{in} \}$.
+%Where $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in} \subset S^{|\mathcal{P}|}$ and
+%$\mathrm{s}_\mathrm{out} \in \mathbf{S}_\mathrm{out} \subset S^{|\mathcal{P}|}$.
 \end{definition}
 
-%Where the tuple of input sequences $\mathbf{s}_\mathrm{in}$ is constraint to be devided into value sequences $\pi{}_{I}(\mathbf{s}_\mathrm{in}) \in (V^{**})^{|I|}$ and free space symbol sequences $\pi{}_{O}(\mathbf{s}_\mathrm{in}) \in (\{\circ\}^{**})^{|O|}$.
+Where the tuple of input sequences $\mathbf{s}_\mathrm{in} \in \mathbf{S}_\mathrm{in} \subset S^{|\mathcal{P}|}$ is constraint to be devided into value sequences $\pi{}_{I}(\mathbf{s}_\mathrm{in}) \in (V^{**})^{|I|}$ and free space symbol sequences $\pi{}_{O}(\mathbf{s}_\mathrm{in}) \in (\{\circ\}^{**})^{|O|}$.
 % , each sequence associated with an actor input port, , each sequence associated with an actor output port.
-%Furthermore the tuple of output sequences $\mathbf{s}_\mathrm{out}$ is similarly devided into value sequences $\pi{}_{O}(\mathbf{s}_\mathrm{out}) \in (V^{**})^{|O|}$ and free space symbol sequences $\pi{}_{I}(\mathbf{s}_\mathrm{out}) \in (\{\circ\}^{**})^{|I|}$.
+Furthermore the tuple of output sequences $\mathbf{s}_\mathrm{out} \in \mathbf{S}_\mathrm{out} \subset S^{|\mathcal{P}|}$ is similarly devided into value sequences $\pi{}_{O}(\mathbf{s}_\mathrm{out}) \in (V^{**})^{|O|}$ and free space symbol sequences $\pi{}_{I}(\mathbf{s}_\mathrm{out}) \in (\{\circ\}^{**})^{|I|}$.
 % , each sequence associated with an actor output port, , each sequence associated with an actor input port.
 
 The execution of an actor is divided into atomic \emph{firing steps}.
@@ -69,7 +67,7 @@ The execution of an actor is divided into atomic \emph{firing steps}.
 \begin{eqnarray}
 \mathrm{Fire}(\mathbf{s}_\mathrm{in}, q) = \{ & & \label{eqn:dependence} \\
  &        & (\mathbf{s}_\mathrm{prod}, q') \label{eqn:production} \\
- & |      & (q.q_\mathrm{firing}, k, f_\mathrm{action}, q'.q_\mathrm{firing}) \in \mathcal{R}.T \label{eqn:needtransition} \\
+ & \mid   & (q.q_\mathrm{firing}, k, f_\mathrm{action}, q'.q_\mathrm{firing}) \in \mathcal{R}.T \label{eqn:needtransition} \\
  & \wedge & \mathbf{s}_\mathrm{cons} \sqsubseteq \mathbf{s}_\mathrm{in} \label{eqn:consumeprefix} \\
  & \wedge & k(\mathbf{s}_\mathrm{cons}, q.q_\mathrm{func}) \label{eqn:transitionenabled} \\
  & \wedge & \forall{\mathbf{s}_\mathrm{prefix} \sqsubset \mathbf{s}_\mathrm{cons}}: \neg k(\mathbf{s}_\mathrm{prefix}, q.q_\mathrm{func}) \label{eqn:consume-glb}\\
@@ -82,10 +80,30 @@ The $\mathrm{Fire}$-function deduces these steps and returns a set containing \e
 The firing steps corresponds to the \emph{execution of a transition} $t \in \mathcal{R}.T$ of the \emph{firing FSM} $\mathcal{R}$ (\ref{eqn:needtransition}).
 Each firing step of an actor consumes a tuple of finite sequences $\mathbf{s}_\mathrm{cons}$, which must be a prefix of the tuple of input sequences (\ref{eqn:consumeprefix}).
 To decide if a transition can be taken its associated activation pattern must be evaluated (\ref{eqn:transitionenabled}).
-Consume sequence must be smallest sequence which still satisfies activation pattern (\ref{eqn:consume-glb}).
-Consequently a tuple of output sequences and a resulting actor state is produced (\ref{eqn:action}).
-The number of free space symbols generated on the input ports equals the number of tokens consumed on them (\ref{eqn:freespacesymbols}).
+The tuple of input sequences consumed by a firing step is the shortest possible prefix tuple still satisfying the activation pattern (\ref{eqn:consume-glb}).
+The associated action of the transition taken by the firing step is executed resulting in a new functionality state and a tuple of output sequences (\ref{eqn:action}).
+Finally the number of free space symbols generated on the input ports equals the number of tokens consumed on them (\ref{eqn:freespacesymbols}).
 \end{definition}
+
+\begin{eqnarray}
+\mathrm{Reachable}(\mathbf{s}_\mathrm{in}, q) = \{
+ &        & \mathbf{s}_\mathrm{out} \\
+ & \mid   & (\mathbf{s}_\mathrm{prod}, q') \in \mathrm{Fire}(\mathbf{s}_\mathrm{in}, q) \\
+ & \wedge & \mathbf{s}_\mathrm{out} = \mathbf{s}_\mathrm{prod}\concat\mathbf{s}'_\mathrm{out} \\
+ & \wedge & \mathbf{s}_\mathrm{in}  = \mathbf{s}_\mathrm{cons}\concat\mathbf{s}'_\mathrm{in} \\
+ & \wedge & \#\pi{}_{I}(\mathbf{s}_\mathrm{cons}) = \#\pi{}_{I}(\mathbf{s}_\mathrm{prod}) \\
+ & \wedge & \mathbf{s}'_\mathrm{out} \in \mathrm{Reachable}(\mathbf{s}'_\mathrm{in}, q')
+\end{eqnarray}
+
+Therefore the of an actor can be derived from its actor functionality and firing FSM to be
+\begin{eqnarray}
+\mathbf{P} = \{
+ &        & \mathbf{p} \\
+ & \mid   & \pi{}_{I}(\mathbf{p}).\mathbf{v} \times \pi{}_{O}(\mathbf{p}).\mathbf{f} = \mathbf{s}_\mathrm{in} \\
+ & \wedge & \pi{}_{I}(\mathbf{p}).\mathbf{f} \times \pi{}_{O}(\mathbf{p}).\mathbf{v} = \mathbf{s}_\mathrm{out} \\
+ & \wedge & \mathbf{s}_\mathrm{in}  \in \mathbf{S}_\mathrm{in} \\
+ & \wedge & \mathbf{s}_\mathrm{out} \in \mathrm{Reachable}(\mathbf{s}_\mathrm{in}, (\mathcal{F}.q_{_0\mathrm{func}}, \mathcal{R}.q_{_0\mathrm{firing}})) \}
+\end{eqnarray}
 
 %Furthermore each firing step transforms the \emph{actor state} $q = (q_\mathrm{func}, q_\mathrm{firing}) \in Q = \mathcal{F}.Q_\mathrm{func} \times \mathcal{R}.Q_\mathrm{firing}$.
 % sequence of tokens $\mathbf{v} \in V^{**}$ for each actor input port $i \in I$ and sequences of free space tokens $\mathbf{f} \in \{\circ\}^{**}$ for each actor output port $o \in O$,
