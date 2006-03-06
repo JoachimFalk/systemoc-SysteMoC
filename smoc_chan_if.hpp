@@ -71,11 +71,20 @@ public:
   typedef void					      return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
 private:
+  size_t limit;
 public:
   smoc_ring_access()
-    {}
+    { reset(); }
+  
   smoc_ring_access(storage_type *base, size_t size, size_t pos, size_t limit)
+    : limit(limit)
     { assert( pos < size ); assert( limit <= size ); assert( base == NULL ); }
+  
+  size_t getLimit() const
+    { return limit; }
+  
+  void reset()
+    { limit = 0; }
 };
 
 class smoc_ring_access<const void, const void> {
@@ -84,11 +93,20 @@ public:
   typedef const void				      return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
 private:
+  size_t limit;
 public:
   smoc_ring_access()
-    {}
+    { reset(); }
+  
   smoc_ring_access(storage_type *base, size_t size, size_t pos, size_t limit)
+    : limit(limit)
     { assert( pos < size ); assert( limit <= size ); assert( base == NULL ); }
+
+  size_t getLimit() const
+    { return limit; }
+  
+  void reset()
+    { limit = 0; }
 };
 
 const sc_event& smoc_default_event_abort();
