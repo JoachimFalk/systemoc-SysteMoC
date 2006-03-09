@@ -32,28 +32,28 @@
 
 using namespace CoSupport;
 
-smoc_firing_state_ref::smoc_firing_state_ref()
-  : rs(new resolved_state_ty()), fr(NULL) {
-  smoc_firing_rules *x = new smoc_firing_rules(this);
-  assert( x == fr );
-}
-
-smoc_firing_state_ref::smoc_firing_state_ref( const this_type &rhs )
-  : rs(rhs.rs), fr(NULL) {
-  assert( rhs.rs != NULL && rhs.fr != NULL );
+smoc_firing_state_ref::smoc_firing_state_ref(
+    const smoc_firing_state_ref &rhs)
+  : rs(&rhs.getResolvedState()), fr(NULL) {
   rhs.fr->addRef(this);
+  assert(rhs.rs == rs && rhs.fr == fr);
 }
 
-void smoc_firing_state_ref::mkCopy( const this_type &rhs ) {
-  // remove old transition of state
-  getResolvedState().clearTransitions();
-  *rs = rhs.getResolvedState();
-  fr->unify( rhs.fr );
+smoc_firing_state_ref::resolved_state_ty &
+smoc_firing_state_ref::getResolvedState() const {
+  if (rs == NULL) {
+    assert(fr == NULL);
+    rs                   = new resolved_state_ty();
+    smoc_firing_rules *x = new smoc_firing_rules(this);
+    assert(fr == x);
+  }
+  return *rs;
 }
 
-void smoc_firing_state_ref::finalise( smoc_root_node *actor ) const {
+smoc_firing_types::resolved_state_ty *smoc_firing_state_ref::finalise( smoc_root_node *actor ) const {
   assert( rs != NULL && fr != NULL );
   fr->finalise(actor);
+  return rs;
 }
 
 /*
@@ -73,17 +73,6 @@ bool smoc_firing_state_ref::tryExecute() {
 
 */
 
-void smoc_firing_state_ref::findBlocked(smoc_event_or_list &l) {
-#ifdef SYSTEMOC_DEBUG
-  std::cout << "<findBlocked for "
-            << fr->getActor()->myModule()->name() << ">" << std::endl;
-#endif
-  rs->findBlocked(l, fr->getActor());
-#ifdef SYSTEMOC_DEBUG
-  std::cout << "</findBlocked>" << std::endl;
-#endif
-}
-
 void smoc_firing_state_ref::dump( std::ostream &o ) const {
   o << "state (" << this << "): ";
   for ( transitionlist_ty::const_iterator titer = rs->tl.begin();
@@ -92,38 +81,69 @@ void smoc_firing_state_ref::dump( std::ostream &o ) const {
     o << *titer << std::endl;
 }
 
-smoc_firing_state &smoc_firing_state::operator = (const this_type &x) {
-  if ( &x != this )
-    mkCopy(x);
+smoc_firing_state &smoc_firing_state::operator = (const this_type &rhs) {
+  assert(rhs.rs != NULL && rhs.fr != NULL ||
+         rhs.rs == NULL && rhs.fr == NULL);
+#ifdef SYSTEMOC_DEBUG
+  std::cout << "smoc_firing_state::mkCopy(" << &rhs << ") this == " << this << std::endl;
+#endif
+  if (&rhs != this) {
+    // remove old transition of state
+    clearTransition();
+    if (rhs.rs != NULL) {
+      if (rs != NULL) {
+        *rs = *rhs.rs;
+        rhs.fr->unify(fr);
+      } else {
+        rs = new resolved_state_ty(*rhs.rs);
+        rhs.fr->addRef(this);
+      }
+    }
+  }
   return *this;
 }
 
 smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl) {
   // remove old transition of state
-  getResolvedState().clearTransitions();
+  clearTransition();
   // add transitions
-  getResolvedState().addTransition(this, tl);
+  addTransition(tl);
   return *this;
 }
 
 smoc_firing_state &smoc_firing_state::operator = (const smoc_transition &t)
   { return *this = static_cast<smoc_transition_list>(t); }
 
-void smoc_firing_state::addTransition( const smoc_transition_list &tl )
-  { getResolvedState().addTransition(this, tl); }
+void smoc_firing_state::clearTransition() {
+  if (rs != NULL)
+    // remove old transition of state
+    rs->clearTransitions();
+}
 
-void smoc_firing_rules::_addRef( smoc_firing_state_ref *s, smoc_firing_rules *p ) {
-  assert( s != NULL );
-  bool success = references.insert(s).second;
-  assert( success && s->fr == p );
+void smoc_firing_state::addTransition(
+    const smoc_transition_list &tl) {
+  getResolvedState().addTransition(this, tl);
+}
+
+smoc_firing_rules::smoc_firing_rules(const smoc_firing_state_ref *s)
+  : actor(NULL) {
+  assert(s != NULL && s->rs != NULL);
+  addRef(s);
+  states.push_back(s->rs);
+}
+
+void smoc_firing_rules::_addRef(
+    const smoc_firing_state_ref *s,
+    const smoc_firing_rules     *p) {
+  assert(s != NULL);
+  sassert(references.insert(s).second && s->fr == p);
   s->fr = this;
 }
 
-void smoc_firing_rules::delRef( smoc_firing_state_ref *s ) {
-  references_ty::iterator iter = references.find(s);
-  
-  assert( iter != references.end() && s->fr == this );
-  references.erase( iter ); s->fr = NULL; s->rs = NULL;
+void smoc_firing_rules::delRef(
+    const smoc_firing_state_ref *s) {
+  sassert(references.erase(s) == 1 && s->fr == this);
+  s->fr = NULL; s->rs = NULL;
   if ( references.empty() )
     delete this;
 }
@@ -166,17 +186,20 @@ smoc_firing_rules::~smoc_firing_rules() {
 
 
 smoc_firing_types::transition_ty::transition_ty(
-    smoc_firing_state_ref *s, const smoc_transition &t ) {
+    smoc_firing_state_ref *s, const smoc_transition &t) {
+#ifdef SYSTEMOC_DEBUG
+  std::cout << "transition_ty::transition_ty( ... ) this == " << this << std::endl;
+#endif
   ap = t.getActivationPattern();
   f  = t.ia.f;
-  assert( s->fr != NULL && s->rs != NULL );
+  assert(s->fr != NULL && s->rs != NULL);
+  assert((isType<smoc_func_call>(t.ia.f)    && t.ia.sl.size() == 1) ||
+         (isType<smoc_func_diverge>(t.ia.f) && t.ia.sl.size() == 0));
   for ( smoc_firing_state_list::const_iterator siter = t.ia.sl.begin();
         siter != t.ia.sl.end();
         ++siter ) {
-    if ( siter->rs != NULL ) {
-      sl.push_front( siter->rs );
-      s->fr->unify( siter->fr );
-    }
+    sl.push_front(&siter->getResolvedState());
+    s->fr->unify(siter->fr);
   }
 }
 
@@ -326,17 +349,15 @@ void smoc_firing_types::transition_ty::execute(
 #endif
 }
 
-void smoc_firing_types::resolved_state_ty::findBlocked(
-    smoc_event_or_list &l, smoc_root_node *actor) {
+void smoc_firing_types::resolved_state_ty::findBlocked(smoc_event_or_list &l) {
   for ( transitionlist_ty::iterator titer = tl.begin();
         titer != tl.end();
         ++titer ) {
-    titer->findBlocked(l, actor);
+    titer->findBlocked(l);
   }
 }
 
-void smoc_firing_types::transition_ty::findBlocked(
-    smoc_event_or_list &l, smoc_root_node *actor) {
+void smoc_firing_types::transition_ty::findBlocked(smoc_event_or_list &l) {
   // FIXME: Big hack !!!
   al.clear();
   _ctx.blocked = &al;

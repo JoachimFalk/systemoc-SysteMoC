@@ -22,6 +22,8 @@
 
 using namespace CoSupport;
 
+/*
+
 void smoc_scheduler_sdf::schedule() {
   assert("FIXME sdf scheduler unfinished !" == NULL);
 }
@@ -36,7 +38,6 @@ smoc_scheduler_sdf::smoc_scheduler_sdf( cset_ty *c )
 
 const smoc_firing_state &smoc_scheduler_ndf::schedule() {
   assert( 0 );
-/*
   
   bool           again;
   smoc_node_list nodes   = c->getNodes();
@@ -85,7 +86,6 @@ const smoc_firing_state &smoc_scheduler_ndf::schedule() {
   // FIXME: Big hack !!!
   _ctx = _oldctx;
   return s;
-*/
 }
 
 smoc_scheduler_ndf::smoc_scheduler_ndf( cset_ty *c )
@@ -96,6 +96,7 @@ smoc_scheduler_ndf::smoc_scheduler_ndf( cset_ty *c )
   std::cout << "smoc_scheduler_ndf" << std::endl;
 #endif
 }
+*/
 
 void smoc_scheduler_top::getLeafNodes(
     smoc_node_list &nodes, smoc_graph *node) {
@@ -139,7 +140,7 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
         if ( !(*iter)->is_v1_actor ) {
           bool canexec;
           smoc_firing_types::resolved_state_ty **rs =
-            &(*iter)->currentState().rs;
+            &(*iter)->_currentState;
           
           // assert( _ctx.ports_setup.empty() );
           do {
@@ -173,13 +174,17 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
       }
     } while (again);
     {
-      smoc_event_or_list        ol;
-      
       for ( smoc_node_list::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter ) {
         if ( !(*iter)->is_v1_actor ) {
-          (*iter)->currentState().findBlocked(ol);
+#ifdef SYSTEMOC_DEBUG
+          std::cout << "<findBlocked for " << (*iter)->myModule()->name() << ">" << std::endl;
+#endif
+          (*iter)->_currentState->findBlocked(ol);
+#ifdef SYSTEMOC_DEBUG
+          std::cout << "</findBlocked>" << std::endl;
+#endif
         }
       }
 #ifdef SYSTEMOC_DEBUG
@@ -190,6 +195,7 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
 //    std::cout << "guard_success: " << guard_success << std::endl;
 //    std::cout << "guard_fail:    " << guard_fail    << std::endl;
       smoc_wait(ol);
+      ol.clear();
 #ifdef SYSTEMOC_DEBUG
       std::cout << ol << std::endl;
 #endif

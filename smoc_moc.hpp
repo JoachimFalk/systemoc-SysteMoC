@@ -26,6 +26,7 @@
 
 #include <hscd_tdsim_TraceLog.hpp>
 
+/*
 class smoc_scheduler_base {
 protected:
 };
@@ -66,34 +67,42 @@ protected:
   
   const smoc_firing_state &schedule();
  
-  /*
   void finalise() {
     s = smoc_activation_pattern() >> diverge(&smoc_scheduler_ndf::schedule);
     smoc_root_node::finalise();
-  }*/
+  }
 public:
   smoc_scheduler_ndf( cset_ty *c );
 };
+*/
 
 class smoc_graph
   : public smoc_ndf_constraintset,
-    public smoc_scheduler_ndf {
+    public smoc_root_node {
+//  public smoc_scheduler_ndf {
 public:
   typedef smoc_graph this_type;
 private:
 protected:
   void finalise() {
     smoc_ndf_constraintset::finalise();
-    smoc_scheduler_ndf::finalise();
+    smoc_root_node::finalise();
+//  smoc_scheduler_ndf::finalise();
   }
+
+  smoc_firing_state dummy;
 public:
   explicit smoc_graph( sc_module_name name )
     : smoc_ndf_constraintset(name),
-      smoc_scheduler_ndf(this) {}
+      smoc_root_node(dummy) {
+    dummy = CALL(smoc_graph::finalise) >> dummy;
+  }
   smoc_graph()
     : smoc_ndf_constraintset(
         sc_gen_unique_name("smoc_graph") ),
-      smoc_scheduler_ndf(this) {}
+      smoc_root_node(dummy) {
+    dummy = CALL(smoc_graph::finalise) >> dummy;
+  }
 
 #ifndef __SCFE__
   sc_module *myModule() { return this; }
@@ -105,13 +114,14 @@ public:
 };
 
 class smoc_scheduler_top
-  : public smoc_firing_types,
-    public smoc_scheduler_base {
+  : public smoc_firing_types {
+//  public smoc_scheduler_base {
 public:
   typedef smoc_scheduler_top      this_type;
 protected:
   typedef std::pair<transition_ty *, smoc_root_node *>  transition_node_ty;
   typedef std::list<transition_node_ty>                 transition_node_list_ty;
+  smoc_event_or_list              ol;
   
   void getLeafNodes(smoc_node_list &nodes, smoc_graph *node);
   
@@ -120,6 +130,11 @@ protected:
 
 template <typename T_top>
 class smoc_top_moc
+  // ATTENTION: smoc_scheduler_top must be last in the
+  // inheritance list because it contains a smoc_event_or_list
+  // wich must be deconstructed before T_top. This requirement
+  // stems from inclusion of smoc_events in T_top into the
+  // smoc_event_or_list in smoc_scheduler_top.
   : public T_top,
     public smoc_scheduler_top {
 private:

@@ -76,12 +76,12 @@ class smoc_root_node
 #else
 : public smoc_opbase_node {
 #endif
-
 private:
 #ifndef NDEBUG
-  bool _finalizeCalled;
+  // bool _finalizeCalled;
 #endif
-  smoc_firing_state        _currentState;
+  smoc_firing_types::resolved_state_ty
+                          *_currentState;
   const smoc_firing_state &_initialState;
   
   const smoc_firing_state &_communicate();
@@ -89,9 +89,10 @@ private:
   static  std::stack<std::pair<std::string, std::string> >global_arg_stack;
   
   std::vector<std::pair<std::string, std::string> > local_arg_vector;
-  
+
+  friend class smoc_scheduler_top;
 protected:
-  smoc_root_node(const smoc_firing_state &s);
+  //smoc_root_node(const smoc_firing_state &s);
   smoc_root_node(smoc_firing_state &s);
   
         
@@ -142,8 +143,8 @@ public:
   
   std::ostream &dumpActor( std::ostream &o );
   
-  const smoc_firing_state &currentState() const { return _currentState; }
-  smoc_firing_state       &currentState()       { return _currentState; }
+//const smoc_firing_state &currentState() const { return _currentState; }
+//smoc_firing_state       &currentState()       { return _currentState; }
 };
 
 

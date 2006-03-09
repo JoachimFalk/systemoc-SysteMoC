@@ -22,6 +22,7 @@
 #include <smoc_firing_rules.hpp>
 #include <hscd_tdsim_TraceLog.hpp>
 
+/*
 smoc_root_node::smoc_root_node(const smoc_firing_state &s)
   :
 #ifndef NDEBUG
@@ -42,17 +43,19 @@ smoc_root_node::smoc_root_node(const smoc_firing_state &s)
       smoc_root_node::global_arg_stack.pop();
     }
   }
+*/
 smoc_root_node::smoc_root_node(smoc_firing_state &s)
   :
 #ifndef NDEBUG
-    _finalizeCalled(false),
+//  _finalizeCalled(false),
 #endif
     _initialState(s),
     is_v1_actor(false),
 #ifdef ENABLE_SYSTEMC_VPC
-    commstate(smoc_activation_pattern(Expr::till(vpc_event), true) >>
-	      smoc_interface_action(smoc_func_diverge(
-		this,&smoc_root_node::_communicate))),
+    commstate(
+      smoc_transition(
+        smoc_activation_pattern(Expr::till(vpc_event), true),
+        smoc_func_diverge(this,&smoc_root_node::_communicate))),
 #endif // ENABLE_SYSTEMC_VPC
     _guard(NULL)
   {
@@ -108,13 +111,10 @@ void smoc_root_node::finalise() {
 #ifndef NDEBUG
   // PARANOIA
   // std::cout << myModule()->name() << ": finalise" << std::endl;
-  assert( !_finalizeCalled );
-  _finalizeCalled = true;
+  // assert(!_finalizeCalled); _finalizeCalled = true;
+  // assert(&_initialState != &_currentState);
 #endif
-  if ( &_initialState != &_currentState ) {
-    _currentState = _initialState;
-  }
-  _currentState.finalise(this);
+  _currentState = _initialState.finalise(this);
 }
 
 const smoc_port_list smoc_root_node::getPorts() const {

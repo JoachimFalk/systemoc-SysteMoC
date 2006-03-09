@@ -25,16 +25,17 @@ class smoc_actor
   : public smoc_root_node,
     public sc_module {
   protected:
-    explicit smoc_actor( sc_module_name name, const smoc_firing_state &s )
-      : smoc_root_node(s), sc_module(name) {}
-    smoc_actor(const smoc_firing_state &s)
+//  explicit smoc_actor(sc_module_name name, const smoc_firing_state &s)
+//    : smoc_root_node(s), sc_module(name) {}
+//  smoc_actor(const smoc_firing_state &s)
+//    : smoc_root_node(s),
+//      sc_module(sc_gen_unique_name("smoc_actor")) {}
+    explicit smoc_actor(sc_module_name name, smoc_firing_state &s)
       : smoc_root_node(s),
-        sc_module( sc_gen_unique_name("smoc_actor") ) {}
-    explicit smoc_actor( sc_module_name name, smoc_firing_state &s )
-      : smoc_root_node(s), sc_module(name) {}
+        sc_module(name) {}
     smoc_actor(smoc_firing_state &s)
       : smoc_root_node(s),
-        sc_module( sc_gen_unique_name("smoc_actor") ) {}
+        sc_module(sc_gen_unique_name("smoc_actor")) {}
 
 #ifdef SYSTEMOC_DEBUG
     ~smoc_actor() {
