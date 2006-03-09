@@ -59,17 +59,10 @@ public:
   this_type onlyInputs()  const { return *this; }
   this_type onlyOutputs() const { return *this; }
   
-  smoc_activation_pattern(bool v = false)
-    : guard(Expr::literal(v)) {}
-  
   template <class E>
   smoc_activation_pattern(const Expr::D<E> &guard)
     : guard(guard) {}
   
-  template <class E>
-  smoc_activation_pattern(const Expr::D<E> &guard, bool dummy)
-    : guard(guard) {}
-
   void guardAssemble( smoc_modes::PGWriter &pgw ) const
     { guardAssemble(pgw, Expr::evalTo<Expr::AST>(guard) ); }
   

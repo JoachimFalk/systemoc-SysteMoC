@@ -54,7 +54,7 @@ smoc_root_node::smoc_root_node(smoc_firing_state &s)
 #ifdef ENABLE_SYSTEMC_VPC
     commstate(
       smoc_transition(
-        smoc_activation_pattern(Expr::till(vpc_event), true),
+        smoc_activation_pattern(Expr::till(vpc_event)),
         smoc_func_diverge(this,&smoc_root_node::_communicate))),
 #endif // ENABLE_SYSTEMC_VPC
     _guard(NULL)

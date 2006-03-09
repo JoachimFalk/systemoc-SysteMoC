@@ -186,12 +186,11 @@ smoc_firing_rules::~smoc_firing_rules() {
 
 
 smoc_firing_types::transition_ty::transition_ty(
-    smoc_firing_state_ref *s, const smoc_transition &t) {
+    smoc_firing_state_ref *s, const smoc_transition &t)
+  : ap(t.getActivationPattern()), f(t.ia.f) {
 #ifdef SYSTEMOC_DEBUG
   std::cout << "transition_ty::transition_ty( ... ) this == " << this << std::endl;
 #endif
-  ap = t.getActivationPattern();
-  f  = t.ia.f;
   assert(s->fr != NULL && s->rs != NULL);
   assert((isType<smoc_func_call>(t.ia.f)    && t.ia.sl.size() == 1) ||
          (isType<smoc_func_diverge>(t.ia.f) && t.ia.sl.size() == 0));

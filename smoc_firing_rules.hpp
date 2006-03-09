@@ -411,10 +411,12 @@ public:
   smoc_transition_part(
       const smoc_activation_pattern &ap,
       const smoc_func_call          &f)
-    : ap(ap),   f(f) {}
+    : ap(ap),
+      f(f) {}
   smoc_transition_part(
       const smoc_func_call          &f)
-    : ap(true), f(f) {}
+    : ap(Expr::literal(true)),
+      f(f) {}
 };
 
 class smoc_transition {
