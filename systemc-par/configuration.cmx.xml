@@ -44,13 +44,10 @@
      <attribute type="delay" value="50"/>
    </mapping>
 		    
-  <mapping source="top.src2mod" target="Component1">
+  <mapping source="top.disp" target="Component1">
     <attribute type="delay" value="2"/>
   </mapping>
 
-  <mapping source="top.mod2sink" target="Component1">
-    <attribute type="delay" value="2"/>
-  </mapping>
   
  </mappings>
 </configuration>
