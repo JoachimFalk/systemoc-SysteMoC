@@ -132,8 +132,6 @@ static inline
 std::ostream &operator <<( std::ostream &out, const smoc_commnr &p )
   { p.dump(out); return out; }
 
-typedef std::pair<smoc_root_port *, size_t>  smoc_commreq;
-
 class smoc_root_port_bool {
 public:
   typedef smoc_root_port_bool this_type;
@@ -172,55 +170,6 @@ smoc_root_port_bool operator >= (smoc_commnr c, size_t n)
   { return smoc_root_port_bool(&c.p,n); }
 
 namespace Expr {
-
-/****************************************************************************
- * DGuard represents a virtual guard which hides an smoc_root_port_bool object
- *
-
-struct ASTNodeVGuard: public ASTNodeTerminal {
-};
-
-class DVGuard {
-public:
-  typedef smoc_root_port_bool value_type;
-  typedef DVGuard              this_type;
-  
-  friend class Value<this_type>;
-  friend class AST<this_type>;
-private:
-  const value_type v;
-public:
-  explicit DVGuard(const value_type &v): v(v) {}
-};
-
-struct Value<DVGuard> {
-  typedef DVGuard::value_type result_type;
-  
-  static inline
-  result_type apply(const DVGuard &e)
-    { return e.v.recheck(); }
-};
-
-struct AST<DVGuard> {
-  typedef PASTNode result_type;
-  
-  static inline
-  PASTNode apply(const DVGuard &e)
-    { return PASTNode(new ASTNodeVGuard()); }
-};
-
-struct D<DVGuard>: public DBase<DVGuard> {
-  D(const smoc_root_port_bool &v): DBase<DVGuard>(DVGuard(v)) {}
-};
-
-// Make a convenient typedef for the placeholder type.
-struct VGuard { typedef D<DVGuard> type; };
-
-static inline
-VGuard::type vguard(const smoc_root_port_bool &v)
-  { return VGuard::type(v); }
-
-*/
 
 /****************************************************************************
  * DSMOCEvent represents a smoc_event guard which turns true if the event is
