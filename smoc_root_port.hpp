@@ -161,11 +161,12 @@ public:
 template<class P>
 class DPortTokens {
 public:
-  typedef P               value_type;
+  typedef size_t          value_type;
   typedef DPortTokens<P>  this_type;
   
-  friend class Value<this_type>;
   friend class AST<this_type>;
+  template <class E>
+  friend class Value;
   template <class E>
   friend class Communicate;
 private:
@@ -176,35 +177,12 @@ public:
 };
 
 template<class P>
-struct Value<DPortTokens<P> > {
-  typedef P result_type;
-  
-  static inline
-  result_type apply(const DPortTokens<P> &e)
-    { return e.p; }
-};
-
-template<class P>
 struct AST<DPortTokens<P> > {
   typedef PASTNode result_type;
   
   static inline
   result_type apply(const DPortTokens<P> &e)
     { return PASTNode(new ASTNodePortTokens(&e.p)); }
-};
-
-template <class P, class E, OpBinT Op>
-struct Communicate<DBinOp<DPortTokens<P>,E,Op> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,Op> &e) {
-#ifdef SYSTEMOC_DEBUG
-    std::cout << "Communicate<DBinOp<DPortTokens<P>,E,Op> >"
-                 "::apply(" << e.a.p << ", ... )" << std::endl;
-#endif
-    return e.a.p.commExec();
-  }
 };
 
 template<class P>
@@ -224,19 +202,30 @@ typename PortTokens<P>::type portTokens(P &p)
   { return typename PortTokens<P>::type(p); }
 
 /****************************************************************************
- * DBinOp<DPortTokens<P>,B,DOpBinGe> represents a request for available/free
+ * DBinOp<DPortTokens<P>,E,DOpBinGe> represents a request for available/free
  * number of tokens on actor ports
  */
 
-template <class P, class B>
-struct Value<DBinOp<DPortTokens<P>,B,DOpBinGe> > {
+template <class P, class E>
+struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   typedef smoc_root_port_bool result_type;
   
   static inline
-  result_type apply(const DBinOp<DPortTokens<P>,B,DOpBinGe> &e) {
-    return smoc_root_port_bool(
-      Value<DPortTokens<P> >::apply(e.a),
-      Value<B>::apply(e.b) );
+  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e)
+    { return smoc_root_port_bool(&e.a.p, Value<E>::apply(e.b) ); }
+};
+
+template <class P, class E>
+struct Communicate<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "Communicate<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
+                 "::apply(" << e.a.p << ", ... )" << std::endl;
+#endif
+    return e.a.p.commExec();
   }
 };
 

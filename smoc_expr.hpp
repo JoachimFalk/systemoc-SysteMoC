@@ -718,9 +718,9 @@ struct DBinOpExecute<TA,TB,Op> {                                      \
 template <class A, class B, OpBinT Op>
 struct Value<DBinOp<A,B,Op> > {
   typedef DBinOpExecute<
-    typename A::value_type,
-    typename B::value_type, Op>     OpT;
-  typedef typename OpT::result_type result_type;
+    typename Value<A>::result_type,
+    typename Value<B>::result_type, Op> OpT;
+  typedef typename OpT::result_type     result_type;
   
   static inline
   result_type apply(const DBinOp<A,B,Op> &e)
