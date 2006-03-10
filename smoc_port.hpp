@@ -23,6 +23,7 @@
 #include <smoc_root_port.hpp>
 #include <smoc_chan_if.hpp>
 #include <smoc_event.hpp>
+#include <smoc_storage.hpp>
 
 #include <systemc.h>
 #include <vector>
@@ -253,11 +254,17 @@ template <typename T>
 class smoc_port_in
 //: public smoc_port_storage_in<T> {
 : public smoc_port_base<smoc_chan_in_if<T> >,
-  public smoc_ring_access<const T> {
+  public smoc_ring_access<
+    typename smoc_storage_in<T>::storage_type,
+    typename smoc_storage_in<T>::return_type>
+{
 public:
-  typedef T                               data_type;
-  typedef smoc_port_in<T>                 this_type;
-  typedef typename this_type::iface_type  iface_type;
+  typedef T						    data_type;
+  typedef smoc_port_in<data_type>			    this_type;
+  typedef typename this_type::iface_type		    iface_type;
+  typedef typename smoc_storage_in<data_type>::storage_type storage_type;
+  typedef typename smoc_storage_in<data_type>::return_type  return_type;
+  typedef smoc_ring_access<storage_type, return_type>	    ring_type;
   
   template <class E>
   friend class Expr::Communicate;
@@ -270,11 +277,11 @@ protected:
     { return (*this)->portOutIsV1(); }
   
   void commSetup(size_t req) {
-    static_cast<smoc_ring_access<const T> &>(*this) =
+    static_cast<ring_type &>(*this) =
       (*this)->commSetupIn(req);
   }
   void commExec() { (*this)->commExecIn(*this); }
-  void reset() { smoc_ring_access<const T>::reset(); }
+  void reset() { ring_type::reset(); }
 public:
 //void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
 //public:
@@ -310,11 +317,17 @@ template <typename T>
 class smoc_port_out
 //: public smoc_port_storage_out<T> {
 : public smoc_port_base<smoc_chan_out_if<T> >,
-  public smoc_ring_access<T> {
+  public smoc_ring_access<
+    typename smoc_storage_out<T>::storage_type,
+    typename smoc_storage_out<T>::return_type>
+{
 public:
-  typedef T                               data_type;
-  typedef smoc_port_out<T>                this_type;
-  typedef typename this_type::iface_type  iface_type;
+  typedef T						     data_type;
+  typedef smoc_port_out<data_type>			     this_type;
+  typedef typename this_type::iface_type		     iface_type;
+  typedef typename smoc_storage_out<data_type>::storage_type storage_type;
+  typedef typename smoc_storage_out<data_type>::return_type  return_type;
+  typedef smoc_ring_access<storage_type, return_type>	     ring_type;
   
   template <class E>
   friend class Expr::Communicate;
@@ -327,11 +340,11 @@ protected:
     { return (*this)->portInIsV1(); }
   
   void commSetup(size_t req) {
-    static_cast<smoc_ring_access<T> &>(*this) =
+    static_cast<ring_type &>(*this) =
       (*this)->commSetupOut(req);
   }
   void commExec() { (*this)->commExecOut(*this); }
-  void reset() { smoc_ring_access<T>::reset(); }
+  void reset() { ring_type::reset(); }
 public:
 //  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
 //public:

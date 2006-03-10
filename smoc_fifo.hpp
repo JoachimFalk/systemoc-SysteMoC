@@ -20,6 +20,7 @@
 #define _INCLUDED_SMOC_FIFO_HPP
 
 #include <smoc_chan_if.hpp>
+#include <smoc_storage.hpp>
 
 #include <systemc.h>
 #include <vector>
@@ -105,6 +106,7 @@ public:
   typedef smoc_fifo_storage<data_type>       this_type;
   typedef typename this_type::iface_out_type iface_out_type;
   typedef typename this_type::iface_in_type  iface_in_type;
+  typedef smoc_storage<data_type>	     storage_type;
   
   class chan_init
     : public smoc_fifo_kind::chan_init {
@@ -122,24 +124,27 @@ public:
       : smoc_fifo_kind::chan_init(name, n) {}
   };
 private:
-  data_type *storage;
+  storage_type *storage;
 protected:
-  smoc_fifo_storage( const chan_init &i )
-    : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i), storage(new data_type[this->fsize]) {
-    assert( this->fsize > i.marking.size() );
-    for (size_t j = 0; j <  i.marking.size(); ++j )
-      new(&storage[j]) T(i.marking[j]);
+  smoc_fifo_storage( const chan_init &i ) :
+    smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i),
+    storage(new storage_type[this->fsize])
+  {
+    assert(this->fsize > i.marking.size());
+    for(size_t j = 0; j < i.marking.size(); ++j) {
+      storage[j].put(i.marking[j]);
+    }
     this->windex = i.marking.size();
   }
   
-  data_type *getStorage() const { return storage; }
-
+  storage_type *getStorage() const { return storage; }
+  
   void edgeContents(smoc_modes::PGWriter &pgw) const {
     for ( size_t n = 0; n < usedStorage(); ++n )
-      pgw << "<token value=\"" << storage[n] << "\"/>" << std::endl;
+      pgw << "<token value=\"" << storage[n].get() << "\"/>" << std::endl;
   }
 
-  ~smoc_fifo_storage() { delete storage; }
+  ~smoc_fifo_storage() { delete[] storage; }
 };
 
 template <>
@@ -184,31 +189,42 @@ template <typename T>
 class smoc_fifo_type
   : public smoc_fifo_storage<T> {
 public:
-  typedef T                                  data_type;
-  typedef smoc_fifo_type<data_type>          this_type;
-  typedef typename this_type::iface_in_type  iface_in_type;
-  typedef typename this_type::iface_out_type iface_out_type;
+  typedef T						      data_type;
+  typedef smoc_fifo_type<data_type>			      this_type;
+  typedef typename this_type::iface_in_type		      iface_in_type;
+  typedef typename this_type::iface_out_type		      iface_out_type;
+  
+  typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
+  typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
+  typedef smoc_ring_access<storage_in_type, return_in_type>   ring_in_type;
+  
+  typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
+  typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
+  typedef smoc_ring_access<storage_out_type, return_out_type> ring_out_type;
 protected:
 //  iface_in_type  *in;
 //  iface_out_type *out;
   
-  smoc_ring_access<const T> commSetupIn(size_t req) {
+  ring_in_type commSetupIn(size_t req) {
     assert( req <= this->usedStorage() );
-    return smoc_ring_access<const T>(
-      this->getStorage(), this->fsize, this->rindex, req);
+    return ring_in_type(getStorage(),
+        this->fsize, this->rindex, req);
   }
-  void commExecIn(const smoc_ring_access<const T> &r){
+  
+  void commExecIn(const ring_in_type &r){
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecIn(r.getLimit(), this->name());
 #endif
     rpp(r.getLimit()); this->read_event.notify(); 
   }
-  smoc_ring_access<T> commSetupOut(size_t req) {
+  
+  ring_out_type commSetupOut(size_t req) {
     assert( req <= this->unusedStorage() );
-    return smoc_ring_access<T>(
-      this->getStorage(), this->fsize, this->windex, req);
+    return ring_out_type(getStorage(),
+        this->fsize, this->windex, req);
   }
-  void commExecOut(const smoc_ring_access<T> &r){
+  
+  void commExecOut(const ring_out_type &r){
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(r.getLimit(), this->name());
 #endif
