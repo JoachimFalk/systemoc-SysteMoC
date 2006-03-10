@@ -32,7 +32,7 @@ template <typename T> class smoc_port_in;
 template <typename T> class smoc_port_out;
 
 /****************************************************************************
- * DExprToken is a placeholder for a token in the expression.
+ * DToken is a placeholder for a token in the expression.
  */
 
 namespace Expr {
@@ -102,87 +102,6 @@ struct Token {
 template <typename T>
 typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
   { return typename Token<T>::type(p,pos); }
-
-/****************************************************************************
- * DPortTokens represents a count of available tokens or free space in
- * the port p
- */
-
-class ASTNodePortTokens: public ASTNodeTerminal {
-private:
-  smoc_root_port *p;
-public:
-  ASTNodePortTokens(smoc_root_port *p)
-    : ASTNodeTerminal(), p(p) {}
-  
-  const smoc_root_port *getPort() const
-    { return p; }
-};
-
-template<class P>
-class DPortTokens {
-public:
-  typedef smoc_commnr     value_type;
-  typedef DPortTokens<P>  this_type;
-  
-  friend class Value<this_type>;
-  friend class AST<this_type>;
-  template <class E>
-  friend class Communicate;
-private:
-  P      &p;
-public:
-  explicit DPortTokens(P &p)
-    : p(p) {}
-};
-
-template<class P>
-struct Value<DPortTokens<P> > {
-  typedef smoc_commnr result_type;
-  
-  static inline
-  result_type apply(const DPortTokens<P> &e)
-    { return smoc_commnr(e.p); }
-};
-
-template<class P>
-struct AST<DPortTokens<P> > {
-  typedef PASTNode result_type;
-  
-  static inline
-  result_type apply(const DPortTokens<P> &e)
-    { return PASTNode(new ASTNodePortTokens(&e.p)); }
-};
-
-template <class P, class E, OpBinT Op>
-struct Communicate<DBinOp<DPortTokens<P>,E,Op> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,Op> &e) {
-#ifdef SYSTEMOC_DEBUG
-    std::cout << "Communicate<DBinOp<DPortTokens<P>,E,Op> >"
-                 "::apply(" << e.a.p << ", ... )" << std::endl;
-#endif
-    return e.a.p.commExec();
-  }
-};
-
-template<class P>
-struct D<DPortTokens<P> >: public DBase<DPortTokens<P> > {
-  D(P &p)
-    : DBase<DPortTokens<P> >(DPortTokens<P>(p)) {}
-};
-
-// Make a convenient typedef for the token type.
-template<class P>
-struct PortTokens {
-  typedef D<DPortTokens<P> > type;
-};
-
-template <class P>
-typename PortTokens<P>::type portTokens(P &p)
-  { return typename PortTokens<P>::type(p); }
 
 } // namespace Expr
 

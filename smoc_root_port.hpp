@@ -107,31 +107,6 @@ struct smoc_ctx {
 
 extern smoc_ctx _ctx;
 
-
-
-static inline
-class smoc_root_port_bool operator >= (class smoc_commnr c, size_t n);
-
-class smoc_commnr {
-public:
-  typedef smoc_commnr this_type;
-  
-  friend smoc_root_port_bool operator >= (smoc_commnr c, size_t n);
-  
-  void dump( std::ostream &out ) const 
-    { out << "commnr(" << &p << ")"; }
-public:
-//private:
-  smoc_root_port &p;
-public:
-  
-  smoc_commnr(smoc_root_port &p) : p(p) {}
-};
-
-static inline
-std::ostream &operator <<( std::ostream &out, const smoc_commnr &p )
-  { p.dump(out); return out; }
-
 class smoc_root_port_bool {
 public:
   typedef smoc_root_port_bool this_type;
@@ -165,11 +140,105 @@ static inline
 std::ostream &operator <<( std::ostream &out, const smoc_root_port_bool &p )
   { p.dump(out); return out; }
 
-static inline
-smoc_root_port_bool operator >= (smoc_commnr c, size_t n)
-  { return smoc_root_port_bool(&c.p,n); }
-
 namespace Expr {
+
+/****************************************************************************
+ * DPortTokens represents a count of available tokens or free space in
+ * the port p
+ */
+
+class ASTNodePortTokens: public ASTNodeTerminal {
+private:
+  smoc_root_port *p;
+public:
+  ASTNodePortTokens(smoc_root_port *p)
+    : ASTNodeTerminal(), p(p) {}
+  
+  const smoc_root_port *getPort() const
+    { return p; }
+};
+
+template<class P>
+class DPortTokens {
+public:
+  typedef P               value_type;
+  typedef DPortTokens<P>  this_type;
+  
+  friend class Value<this_type>;
+  friend class AST<this_type>;
+  template <class E>
+  friend class Communicate;
+private:
+  P      &p;
+public:
+  explicit DPortTokens(P &p)
+    : p(p) {}
+};
+
+template<class P>
+struct Value<DPortTokens<P> > {
+  typedef P result_type;
+  
+  static inline
+  result_type apply(const DPortTokens<P> &e)
+    { return e.p; }
+};
+
+template<class P>
+struct AST<DPortTokens<P> > {
+  typedef PASTNode result_type;
+  
+  static inline
+  result_type apply(const DPortTokens<P> &e)
+    { return PASTNode(new ASTNodePortTokens(&e.p)); }
+};
+
+template <class P, class E, OpBinT Op>
+struct Communicate<DBinOp<DPortTokens<P>,E,Op> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DPortTokens<P>,E,Op> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cout << "Communicate<DBinOp<DPortTokens<P>,E,Op> >"
+                 "::apply(" << e.a.p << ", ... )" << std::endl;
+#endif
+    return e.a.p.commExec();
+  }
+};
+
+template<class P>
+struct D<DPortTokens<P> >: public DBase<DPortTokens<P> > {
+  D(P &p)
+    : DBase<DPortTokens<P> >(DPortTokens<P>(p)) {}
+};
+
+// Make a convenient typedef for the token type.
+template<class P>
+struct PortTokens {
+  typedef D<DPortTokens<P> > type;
+};
+
+template <class P>
+typename PortTokens<P>::type portTokens(P &p)
+  { return typename PortTokens<P>::type(p); }
+
+/****************************************************************************
+ * DBinOp<DPortTokens<P>,B,DOpBinGe> represents a request for available/free
+ * number of tokens on actor ports
+ */
+
+template <class P, class B>
+struct Value<DBinOp<DPortTokens<P>,B,DOpBinGe> > {
+  typedef smoc_root_port_bool result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DPortTokens<P>,B,DOpBinGe> &e) {
+    return smoc_root_port_bool(
+      Value<DPortTokens<P> >::apply(e.a),
+      Value<B>::apply(e.b) );
+  }
+};
 
 /****************************************************************************
  * DSMOCEvent represents a smoc_event guard which turns true if the event is
