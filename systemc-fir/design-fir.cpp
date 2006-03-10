@@ -50,11 +50,10 @@ private:
   // action function for the firing rules state machine
   void dofir() {
     // action [a] ==> [b] 
-    T const &a(input[0]);
-    T       &b(output[0]);
+    const T &a = input[0];
     
     // T b := collect(zero(), plus, combine(multiply, taps, data))
-    b = 0;
+    T b = 0;
     for ( unsigned int i = 0; i < taps.size(); ++i )
       b += taps[i] * data[i];
     // data := [a] + [data[i] : for Integer i in Integers(0, #taps-2)];
