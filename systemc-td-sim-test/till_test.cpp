@@ -18,7 +18,7 @@ private:
    *
    */
   void process(){
-    cerr << "Got timeout at: " << sc_time_stamp() << endl;
+    std::cout << "Got timeout at: " << sc_time_stamp() << std::endl;
     smoc_reset(timeout);
   }
 public:
@@ -38,8 +38,7 @@ class till_top: public smoc_graph {
 protected:
   till_actor act;
   void time_out_process() {
-    int i=10;
-    while(i-- != 0){
+    for ( int i = 10; i > 0; --i ) {
       wait(120, SC_NS);
       smoc_notify(timeout);
       std::cout << "timeout send" << std::endl;
