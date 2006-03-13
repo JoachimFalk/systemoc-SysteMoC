@@ -1,0 +1,49 @@
+\chapter{SysteMoC implementation}
+
+\section{Implementation of the firing FSM syntax}
+
+The activation patterns used to describe the firing FSM of an actor as seen in \ref{ex:systemoc-sqrloop-fsm-def} on page \pageref{ex:systemoc-sqrloop-fsm-def} and defined in \ref{syn:systemoc-fsm-bnf} and \ref{syn:systemoc-fsm-bnf-2} are encoded in C++ as so called \emph{expression templates} \cite{veldhuizen:1995}.
+The constructed expression template for an activation pattern is a tree of nest template types which corresponds to the \emph{abstract syntax tree} of the activation pattern, as shown in Figure~\ref{fig:ast-t2-sqrloop}.
+
+\begin{figure}[h]
+\centering
+\resizebox{\textwidth}{!}{\input{ast-fig.tex}}
+%\input{ast-fig.tex}
+%\includegraphics[width = 5in]{actor-sqrloop}
+\caption{\label{fig:ast-t2-sqrloop}%
+Visual representation of the \emph{abstract syntax tree} and its corresponding \emph{expression template} derived from the activation pattern used in transition $t_2$ of the \code{SqrLoop} actor $a_2$ from Figure~\ref{fig:actor-sqrloop} on page \pageref{fig:actor-sqrloop}.
+}
+\end{figure}
+
+Using expression templates to represent activation patterns enables us to perform compile time transformations and code generation of activation patterns:
+(i) For extraction of the FIFO channels used in an activation pattern to generate a sensitivity list,
+(ii) to extract the part of an activation pattern only dependent on the actor state for compile time code generation, or
+(iii) to generate a XML representation of the firing FSM, e.g., as seen in Figure~\ref{fig:xml-t2-sqrloop}, for later usage in the design flow.
+
+\begin{figure}[h]
+\begin{verbatim}
+<transition nextstate="id9" action="SqrLoop::copyApprox">
+  <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
+    <lhs><ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
+      <lhs><ASTNodeBinOp valueType="b" opType="DOpBinGe">
+        <lhs><PortTokens valueType="j" portid="id6"/></lhs>
+        <rhs><Literal valueType="j" value="1"/></rhs>
+      </ASTNodeBinOp></lhs>
+      <rhs><MemGuard valueType="b" name="SqrLoop::check"></rhs>
+    </ASTNodeBinOp></lhs>
+    <rhs><ASTNodeBinOp valueType="b" opType="DOpBinGe">
+      <lhs><PortTokens valueType="j" portid="id8"/></lhs>
+      <rhs><Literal valueType="j" value="1"/></rhs>
+    </ASTNodeBinOp></rhs>
+  </ASTNodeBinOp>
+</transition>
+\end{verbatim}
+\caption{\label{fig:xml-t2-sqrloop}%
+XML representation of the transition $t_2$ of the \code{SqrLoop} actor $a_2$ including the \emph{abstract syntax tree} derived from the activation pattern used in the transition.
+}
+\end{figure}
+
+
+
+
+% LocalWords:  SysteMoC
