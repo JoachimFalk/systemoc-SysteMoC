@@ -2,21 +2,22 @@
 
 \section{Actor behavior}
 
-As known from Kahn \cite{Kahn:1974} and Lee \cite{Lee98,LeeDenotialDF:1997} we use the sequence of tokens $\mathbf{v} \in V^{**}$ transmitted via a FIFO to mathematical describe it.
-In order to simplify this description we will replace a bounded FIFO with two unbounded FIFOs.
-Therefore each actor port $p \in \mathcal{P} = I \cup O$ is connected to a pair of FIFOs $(\mathbf{v}, \mathbf{f}) \in Z$ containing
+As known from Kahn \cite{Kahn:1974} and Lee \cite{Lee98,LeeDenotialDF:1997} we use the sequence of tokens $\mathbf{v} \in V^{**}$ transmitted during the lifetime of a system via a FIFO to mathematical describe the FIFO.
+In order to simplify the description of a bounded FIFO, we will replace it by two unbounded FIFOs.
+Therefore each actor port $p \in \mathcal{P} = I \cup O$ is connected to a pair of unbounded FIFOs $(\mathbf{v}, \mathbf{f}) \in Z$ instead of simply being connected to a bounded FIFO, where $Z$ is the set of all pairs of unbounded FIFOs used to represent the bounded FIFO channels $C$ of a network graph.
+The pair of unbounded FIFOs $(\mathbf{v}, \mathbf{f})$ consists of
 a \emph{value FIFO} $\mathbf{v} \in V^{**}$ and
 a \emph{free space FIFO} $\mathbf{f} \in \{\circ\}^{**}$, where each \emph{free space symbol} $\circ$ represents an available slot in the value FIFO to store a token. % as known from PETRI-nets \cite{XXXX}.
-Accordingly an actor not only consumes sequences of tokens $V^{**}$ on its input ports $I$ and produce them on its output ports $O$ but also produce sequences of free space symbols $\{\circ\}^{**}$ on its input ports and consume them on its output ports, respectively.
+Accordingly an actor not only consumes tokens $v \in V$ on its input ports $I$ and produces them on its output ports $O$ but also produces free space symbols $\circ$ on its input ports and consume them on its output ports, respectively.
 %For notational simplicity we will assume that the free space symbol is contained in the set of all values, i.e., $\circ \in V$.
-To reduce the mathematical clutter we will not distinguish between \emph{value sequences} and \emph{free space symbol sequences} and simply use $S$ to denote the set of all finite or infinite sequences of values or free space symbols, i.e., $S = V^{**} \cup \{\circ\}^{**}$.
+To reduce the mathematical clutter, we will not distinguish between \emph{value sequences} and \emph{free space symbol sequences} and simply use $S$ to denote the set of all finite or infinite sequences of values or free space symbols, i.e., $S = V^{**} \cup \{\circ\}^{**}$.
 
-Before we can continue to define the behavior of an actor some mathematical notations for manipulating tuples are needed:
+Before we can continue to define the behavior of an actor, some mathematical notations for manipulating tuples are needed:
 
 A tuple, e.g., $\mathbf{s} = (\mathbf{v}_{i_1}, \mathbf{v}_{i_2}, \mathbf{v}_{o_1})$, can be viewed as a function, e.g., $\mathbf{s}: \mathbb{N}_3 \to S$, over the counting set $\mathbb{N}_n = \{1,2,\ldots,n\}$ from one to the tuple size $n$.
 Additionally we can associate which each tuple an ordered set, e.g., $\{i_1, i_2, o_1\} \subseteq \mathcal{P}$, and view the tuple as a function over this set, e.g., $\mathbf{s}: \{i_1, i_2, o_1\} \to S$.
 This allows us to access a tuple member either by its position inside the tuple, e.g., $\mathbf{s}(3) = \mathbf{v}_{o_1}$, or by an indexing element, e.g., the actor port $o_1$ and its associated tuple element $\mathbf{s}(o_1) = \mathbf{v}_{o_1}$.
-Moreover we use the pointwise extension of the tuple member access operator to extract from a tuple its associated ordered sets, e.g., $\mathbf{s}.\mathbb{N} = \{1, 2, 3\}$ or $\mathbf{s}.\mathcal{P} = \{i_1, i_2, o_1\}$.
+Moreover, we use the pointwise extension of the tuple member access operator to extract from a tuple its associated ordered sets, e.g., $\mathbf{s}.\mathbb{N} = \{1, 2, 3\}$ or $\mathbf{s}.\mathcal{P} = \{i_1, i_2, o_1\}$.
 
 The position of a sequence in its tuple is equivalent to its name.
 To achieve the equivalent of renaming or hiding sequences, the position of a sequence in a tuple must be changed or the sequence must be dropped from the tuple.
@@ -46,14 +47,14 @@ The execution of an actor is divided into atomic \emph{firing steps}.
 The possible firing steps an actor can take are dependent on the tuple $\mathbf{s}_\mathrm{in}$ of still unconsumed input sequences and the actor state $q = (q_\mathrm{func}, q_\mathrm{firing}) \in Q = \mathcal{F}.Q_\mathrm{func} \times \mathcal{R}.Q_\mathrm{firing}$.
 The $\mathrm{Fire}$-function deduces these possible steps and returns the set of possible produced output sequences $\mathbf{s}_\mathrm{prod}$ and the resulting actor state $q'$, i.e., $\mathrm{Fire}: \mathbf{S}_\mathrm{in} \times Q \to 2^{\mathbf{S}_\mathrm{out} \times Q}$.
 \footnote{We use $2^X$ to denote the power set of $X$, the set of all subsets of $X$, i.e., $2^X = \bigcup_{X_\mathrm{subset} \subseteq X} \{X_\mathrm{subset}\}$.}
-To decide if a transition can be taken its associated \emph{activation pattern} must be evaluated.
+To decide if a transition can be taken, its associated \emph{activation pattern} must be evaluated.
 
 \begin{definition}[Activation pattern]\label{def:activation-pattern}
-  An \emph{activation pattern} $k$ of an actor $a \in A$ is a is a boolean function depending on the available input sequences $\mathbf{S}_\mathrm{in}$ and the \emph{functionality state} $\mathcal{F}.S_\mathrm{func}$ of the actor, i.e., $k: \mathbf{S}_\mathrm{in} \times \mathcal{F}.S_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}$.
+  An \emph{activation pattern} $k$ of an actor $a \in A$ is a boolean function depending on the available input sequences $\mathbf{S}_\mathrm{in}$ and the \emph{functionality state} $\mathcal{F}.S_\mathrm{func}$ of the actor, i.e., $k: \mathbf{S}_\mathrm{in} \times \mathcal{F}.S_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}$.
   The activation pattern is used to decide if its associated transition can be taken $(\mathrm{true})$ or not $(\mathrm{false})$.
 \end{definition}
 
-To further express the behavior of a firing step we need to define the prefix order $\sqsubseteq$ on the set of sequences $S$, i.e., given $\mathbf{u}, \mathbf{v} \in S$ then $\mathbf{u} \sqsubseteq \mathbf{v} \equiv \mathbf{u}.\mathbb{N} \subseteq \mathbf{v}.\mathbb{N} \wedge \forall{n \in \mathbf{u}.\mathbb{N}}: \mathbf{u}(n) = \mathbf{v}(n)$.
+To further express the behavior of a firing step, we need to define the prefix order $\sqsubseteq$ on the set of sequences $S$, i.e., given $\mathbf{u}, \mathbf{v} \in S$ then $\mathbf{u} \sqsubseteq \mathbf{v} \equiv \mathbf{u}.\mathbb{N} \subseteq \mathbf{v}.\mathbb{N} \wedge \forall{n \in \mathbf{u}.\mathbb{N}}: \mathbf{u}(n) = \mathbf{v}(n)$.
 As an example consider the two sequences $\mathbf{u} = (v_1, v_2, v_3) \in S$ and $\mathbf{v} = (v_1, v_2, v_3, v_4, v_5) \in S$ then $\mathbf{u}$ is a prefix of $\mathbf{v}$, i.e., $\mathbf{u} \sqsubseteq \mathbf{v}$.
 This prefix order has a trivial pointwise extension to tuples of sequences, i.e., given $\mathbf{s}_1, \mathbf{s}_2 \in S^n$ then $\mathbf{s}_1 \sqsubseteq \mathbf{s}_2 \equiv \mathbf{s}_1.\mathbb{N} = \mathbf{s}_2.\mathbb{N} \wedge \forall{n \in \mathbf{s}_1.\mathbb{N}}: \mathbf{s}_1(n) \sqsubseteq \mathbf{s}_2(n)$.
 Additionally we will use the $\length: S \to \mathbb{N}_\infty$ operator to denote the length of a sequence, e.g., given $\mathbf{u} = (v_1, v_2, v_3)$ then $\length\mathbf{u} = |\mathbf{u}.\mathbb{N}| = 3$,
