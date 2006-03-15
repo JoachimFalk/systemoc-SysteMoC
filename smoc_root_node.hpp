@@ -98,7 +98,7 @@ protected:
         
 
   template <typename T>
-  friend class param_wrapper{
+  class param_wrapper{
     public:
       param_wrapper(const T& x){
         std::stringstream allToString;

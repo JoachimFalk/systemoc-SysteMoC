@@ -140,7 +140,7 @@ protected:
   storage_type *getStorage() const { return storage; }
   
   void edgeContents(smoc_modes::PGWriter &pgw) const {
-    for ( size_t n = 0; n < usedStorage(); ++n )
+    for ( size_t n = 0; n < this->usedStorage(); ++n )
       pgw << "<token value=\"" << storage[n].get() << "\"/>" << std::endl;
   }
 
@@ -207,7 +207,7 @@ protected:
   
   ring_in_type commSetupIn(size_t req) {
     assert( req <= this->usedStorage() );
-    return ring_in_type(getStorage(),
+    return ring_in_type(this->getStorage(),
         this->fsize, this->rindex, req);
   }
   
@@ -220,7 +220,7 @@ protected:
   
   ring_out_type commSetupOut(size_t req) {
     assert( req <= this->unusedStorage() );
-    return ring_out_type(getStorage(),
+    return ring_out_type(this->getStorage(),
         this->fsize, this->windex, req);
   }
   
