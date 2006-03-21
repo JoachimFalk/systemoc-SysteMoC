@@ -7,18 +7,11 @@ public:
   smoc_port_out<int> out;
 private:
   void action0() {
-    out[0] = (in8[0] >> 7) & 1; 
-    out[1] = (in8[0] >> 6) & 1;
-    out[2] = (in8[0] >> 5) & 1;
-    out[3] = (in8[0] >> 4) & 1;
-    out[4] = (in8[0] >> 3) & 1;
-    out[5] = (in8[0] >> 2) & 1;
-    out[6] = (in8[0] >> 1) & 1;
-    out[7] =        in8[0] & 1;
-
-  for(int j=0; j<8; j++)
-    std::cout<< "byte2bit wert" << out[j]<< endl;
-  
+    for(int j = 0; j <= 7; j++) {
+      int bit = (in8[0] >> (7-j)) & 1; 
+      std::cout<< "byte2bit wert" << bit << std::endl;
+      out[j] = bit;
+    }
   }
   
   smoc_firing_state start;

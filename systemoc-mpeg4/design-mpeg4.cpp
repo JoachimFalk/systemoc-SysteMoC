@@ -60,8 +60,9 @@ class m_list_source: public smoc_actor {
     int i;
     
     void process() {
-      out[0] = Integers(i,i+63);
-      std::cout << name() << " generating List " << out[0] << std::endl;
+      cal_list<int>::t l(Integers(i,i+63));
+      out[0] = l;
+      std::cout << name() << " generating List " << l << std::endl;
       i += 35;
     }
     

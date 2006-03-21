@@ -92,7 +92,7 @@ private:
     int                    q      = FLAGS[1];
     int                    scaler = FLAGS[2];
     // output binding
-    cal_list<int>::t      &dd     = OUT[0];
+    cal_list<int>::t       dd;
     // action code
     
     int round = cal_bitxor( cal_bitand( q, 1 ), 1 );
@@ -100,6 +100,7 @@ private:
     
     // post action code
     DC[0]  = dd[0];
+    OUT[0] = dd;
     MIN[0] = scaler == 0 ? -256 : 0;
   }
 };

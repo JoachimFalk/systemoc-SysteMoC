@@ -26,17 +26,15 @@ class m_source_parser: public smoc_actor {
   
   private:
     bool isStreamGood;
-    char ch;
+    int  ch;
     
     std::ifstream i1; 
     
     void process() {
       assert( !i1.eof() );
-      out[0] = ch; ch = i1.get();
-      
-      std::cout << name() << "  write " << out[0] << std::endl;
-      
-      isStreamGood = !i1.eof() && i1.good();
+      out[0] = ch;
+      std::cout << name() << "  write " << ch << std::endl;
+      ch = i1.get(); isStreamGood = !i1.eof() && i1.good();
     }
     
     smoc_firing_state start;
