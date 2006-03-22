@@ -685,10 +685,8 @@ void m_mc_add::action_docmd_motionOnly(void){
   int mvx  = MV[4];
   int mvy  = MV[5];
 
-  //output binding
-  cal_list<int>::t &b = VID[0];
   //generate output
-  b = comp_block(x, y, n, mvx, mvy);
+  VID[0] = comp_block(x, y, n, mvx, mvy);
 
 #ifdef DEBUG_OUTPUT
   if (frame_number == 190) && (y == 0) && (x < 2) && (n < 4){

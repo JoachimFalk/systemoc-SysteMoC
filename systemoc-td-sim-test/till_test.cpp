@@ -7,6 +7,8 @@
 #include <smoc_node_types.hpp>
 #include <smoc_event.hpp>
 
+smoc_event timeout;
+
 class till_actor: public smoc_actor{
 
 private:
@@ -16,12 +18,12 @@ private:
    *
    */
   void process(){
-    cerr << "Got timeout at: " << sc_time_stamp() << endl;
+    std::cout << "Got timeout at: " << sc_time_stamp() << std::endl;
     smoc_reset(timeout);
   }
 public:
 
-  smoc_event timeout;
+//  smoc_event timeout;
 
   till_actor( sc_module_name name ) : smoc_actor ( name , main ){
     main = Expr::till( timeout )
@@ -36,13 +38,14 @@ class till_top: public smoc_graph {
 protected:
   till_actor act;
   void time_out_process() {
-    while(1){
+    for ( int i = 10; i > 0; --i ) {
       wait(120, SC_NS);
-      smoc_notify(act.timeout);
+      smoc_notify(timeout);
+      std::cout << "timeout send" << std::endl;
     }
   }
 public:
-  till_top( sc_module_name name ) : smoc_graph( name ), act(till_actor("till_act")){
+  till_top( sc_module_name name ) : smoc_graph( name ), act("till_act") {
     registerNode(&act);
     SC_THREAD(time_out_process);
   }

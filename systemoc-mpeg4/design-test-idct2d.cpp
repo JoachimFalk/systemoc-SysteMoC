@@ -32,21 +32,27 @@ class m_source_idct: public smoc_actor {
     std::ifstream i1; 
     
     void process() {
+      int myMin, myOut;
+      
 #ifndef NDEBUG
       if (i1.good()) {
 #endif
-        min[0] = -256;
         for ( int j = 0; j <= 63; j++ ) {
           i++;
 #ifdef NDEBUG
-          out[j] = i;
+          myOut = i;
 #else
-          i1 >> out[j];
-          std::cout << name() << "  write " << out[j] << std::endl;
+          i1 >> myOut;
+          std::cout << name() << "  write " << myOut << std::endl;
 #endif
+          out[j] = myOut;
         }
+        myMin = -256;
 #ifndef NDEBUG
-        std::cout << name() << "  write min " << min[0] << std::endl;
+        std::cout << name() << "  write min " << myMin << std::endl;
+#endif
+        min[0] = myMin;
+#ifndef NDEBUG
       } else {
         std::cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
         exit (1) ;

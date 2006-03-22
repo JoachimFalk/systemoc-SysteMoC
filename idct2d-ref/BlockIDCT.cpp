@@ -36,7 +36,9 @@ int main(int argc, char *argv[])
   
   std::ifstream fi (INAMEblk);
   
- 
+  size_t periods = argc > 1
+    ? atoi(argv[1])
+    : 100;
 
   std::cout<<"Hier ist Eingaben:\n";
   for(i=0; i<B_SIZE; i++)
@@ -53,7 +55,7 @@ int main(int argc, char *argv[])
           negMaxval = -MAXVAL_PIXEL - 1;
 	
 
-  for ( int y = 0; y < 1000; ++y )
+  for ( int y = 0; y < periods; ++y )
     BlockIDCT(dequant_block, negMaxval, texture_block);
   
   std::ofstream fo (ONAMEblk);

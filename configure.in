@@ -115,57 +115,61 @@ AC_SUBST([SYSTEMOC_DEPENDENCIES])
 
 AC_CONFIG_FILES([Makefile])
 
-if test -d $srcdir/mpeg4-ref; then
-  AC_CONFIG_FILES([mpeg4-ref/Makefile])
-  subdirs="$subdirs mpeg4-ref"
-fi
 if test -d $srcdir/idct2d-ref; then
   AC_CONFIG_FILES([idct2d-ref/Makefile])
   subdirs="$subdirs idct2d-ref"
 fi
-if test -d $srcdir/systemc-csp; then
-  AC_CONFIG_FILES([systemc-csp/Makefile])
-# subdirs="$subdirs systemc-csp"
+if test -d $srcdir/systemc-idct; then
+  AC_CONFIG_FILES([systemc-idct/Makefile])
+# subdirs="$subdirs systemc-idct"
 fi
-if test -d $srcdir/systemc-sdf; then
-  AC_CONFIG_FILES([systemc-sdf/Makefile])
-  subdirs="$subdirs systemc-sdf"
+if test -d $srcdir/mpeg4-ref; then
+  AC_CONFIG_FILES([mpeg4-ref/Makefile])
+  subdirs="$subdirs mpeg4-ref"
 fi
-if test -d $srcdir/systemc-sqr; then
-  AC_CONFIG_FILES([systemc-sqr/Makefile])
-  subdirs="$subdirs systemc-sqr"
+if test -d $srcdir/systemoc-mpeg4; then
+  AC_CONFIG_FILES([systemoc-mpeg4/Makefile])
+# subdirs="$subdirs systemoc-mpeg4"
 fi
-if test -d $srcdir/systemc-par; then
-  AC_CONFIG_FILES([systemc-par/Makefile])
-  subdirs="$subdirs systemc-par"
+if test -d $srcdir/systemoc-csp; then
+  AC_CONFIG_FILES([systemoc-csp/Makefile])
+# subdirs="$subdirs systemoc-csp"
+fi
+if test -d $srcdir/systemoc-sdf; then
+  AC_CONFIG_FILES([systemoc-sdf/Makefile])
+  subdirs="$subdirs systemoc-sdf"
+fi
+if test -d $srcdir/systemoc-sqr; then
+  AC_CONFIG_FILES([systemoc-sqr/Makefile])
+  subdirs="$subdirs systemoc-sqr"
+fi
+if test -d $srcdir/systemoc-par; then
+  AC_CONFIG_FILES([systemoc-par/Makefile])
+  subdirs="$subdirs systemoc-par"
 fi    
-if test -d $srcdir/systemc-sqr-double; then
-  AC_CONFIG_FILES([systemc-sqr-double/Makefile])
-  subdirs="$subdirs systemc-sqr-double"
+if test -d $srcdir/systemoc-sqr-double; then
+  AC_CONFIG_FILES([systemoc-sqr-double/Makefile])
+  subdirs="$subdirs systemoc-sqr-double"
 fi
-if test -d $srcdir/systemc-fir; then
-  AC_CONFIG_FILES([systemc-fir/Makefile])
-  subdirs="$subdirs systemc-fir"
+if test -d $srcdir/systemoc-fir; then
+  AC_CONFIG_FILES([systemoc-fir/Makefile])
+  subdirs="$subdirs systemoc-fir"
 fi
-if test -d $srcdir/systemc-select; then
-  AC_CONFIG_FILES([systemc-select/Makefile])
-  subdirs="$subdirs systemc-select"
+if test -d $srcdir/systemoc-select; then
+  AC_CONFIG_FILES([systemoc-select/Makefile])
+  subdirs="$subdirs systemoc-select"
 fi
-if test -d $srcdir/systemc-mpeg4; then
-  AC_CONFIG_FILES([systemc-mpeg4/Makefile])
-# subdirs="$subdirs systemc-mpeg4"
+if test -d $srcdir/systemoc-ibtest; then
+  AC_CONFIG_FILES([systemoc-ibtest/Makefile])
+# subdirs="$subdirs systemoc-ibtest"
 fi
-if test -d $srcdir/systemc-ibtest; then
-  AC_CONFIG_FILES([systemc-ibtest/Makefile])
-# subdirs="$subdirs systemc-ibtest"
+if test -d $srcdir/systemoc-td-sim-test; then
+  AC_CONFIG_FILES([systemoc-td-sim-test/Makefile])
+# subdirs="$subdirs systemoc-td-sim-test"
 fi
-if test -d $srcdir/systemc-td-sim-test; then
-  AC_CONFIG_FILES([systemc-td-sim-test/Makefile])
-# subdirs="$subdirs systemc-td-sim-test"
-fi
-if test -d $srcdir/systemc-mpeg4-teich-v2; then
-  AC_CONFIG_FILES([systemc-mpeg4-teich-v2/Makefile])
-# subdirs="$subdirs systemc-mpeg4-teich-v2"
+if test -d $srcdir/systemoc-mpeg4-teich-v2; then
+  AC_CONFIG_FILES([systemoc-mpeg4-teich-v2/Makefile])
+# subdirs="$subdirs systemoc-mpeg4-teich-v2"
 fi
 
 SUBDIRS=$subdirs
