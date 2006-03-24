@@ -72,9 +72,11 @@ void TraceLogStream::traceEndTryExecute(const char * actor){
 }
 void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
   stream << "<commexecin size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
+  fifo_fill_state[actor] -= size;
 }
 void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
   stream << "<commexecout size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
+  fifo_fill_state[actor] += size;
 }
 void TraceLogStream::traceStartDeferredCommunication(const char * actor){
   stream << "<deferred_communication actor=\""<< actor << "\">" << std::endl;
@@ -100,7 +102,14 @@ TraceLogStream::~TraceLogStream(){
     stream << i->first << "\t\t" << i->second << std::endl;
   }
 
-  stream << "<?xml version=\"1.0\"?>" << std::endl;
+  stream << "\nfifo              #" << std::endl;
+  for(std::map<string, int>::const_iterator i = fifo_fill_state.begin();
+      i != fifo_fill_state.end();
+      i++){
+    stream << i->first << "\t\t" << i->second << std::endl;
+  }
+  
+  stream << "\n<?xml version=\"1.0\"?>" << std::endl;
   stream << "<!DOCTYPE configuration SYSTEM \"cmx.dtd\">" << std::endl;
   stream << "<configuration>" << std::endl;
   stream << " <resultfile name=\"\"/>" << std::endl;
