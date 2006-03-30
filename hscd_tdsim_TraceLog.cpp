@@ -60,6 +60,7 @@ void TraceLogStream::traceStartFunction(const char * func){
   stream << "<function name=\""<< func << "\">" << std::endl;
   function_call_count[string(lastactor)+" -> "+string(func)]++;
   functions[lastactor].insert(func);
+  last_actor_function[lastactor] = func;
 }
 void TraceLogStream::traceEndFunction(const char * func){
   stream << "</function>" << std::endl;
@@ -105,6 +106,13 @@ TraceLogStream::~TraceLogStream(){
   stream << "\nfifo              #" << std::endl;
   for(std::map<string, int>::const_iterator i = fifo_fill_state.begin();
       i != fifo_fill_state.end();
+      i++){
+    stream << i->first << "\t\t" << i->second << std::endl;
+  }
+
+  stream << "\nlast actor function" << std::endl;
+  for(std::map<string, string>::const_iterator i = last_actor_function.begin();
+      i != last_actor_function.end();
       i++){
     stream << i->first << "\t\t" << i->second << std::endl;
   }
