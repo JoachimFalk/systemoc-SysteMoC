@@ -171,6 +171,11 @@ if test -d $srcdir/systemoc-mpeg4-teich-v2; then
   AC_CONFIG_FILES([systemoc-mpeg4-teich-v2/Makefile])
 # subdirs="$subdirs systemoc-mpeg4-teich-v2"
 fi
+if test -d $srcdir/crypto-example; then
+  AC_CONFIG_FILES([crypto-example/Makefile])
+  subdirs="$subdirs crypto-example"
+fi
+
 
 SUBDIRS=$subdirs
 AC_SUBST(SUBDIRS)

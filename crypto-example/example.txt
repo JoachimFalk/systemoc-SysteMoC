@@ -1,0 +1,7 @@
+#DES#i=1;\
+j=1;\
+print j+i;
+#BF#i=2; j=2; print j*i;
+i=0; j=1; print i+j;
+#BF#i=12; j=2; k=3; print i*k+j*i-k*j;
+
