@@ -41,6 +41,8 @@
 #include <string>
 #include <sstream>
 
+#define ACTOR_CONSTR_PARAM(type, name) smoc_root_node::param_wrapper<type>(name)
+
 class smoc_opbase_node {
 public:
   typedef smoc_opbase_node this_type;
@@ -96,7 +98,7 @@ protected:
   smoc_root_node(smoc_firing_state &s);
   
         
-
+  //wrapper for constructor parameters	
   template <typename T>
   class param_wrapper{
     public:
