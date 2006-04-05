@@ -266,18 +266,35 @@ protected:
   void assemble(smoc_modes::PGWriter &pgw) const {
     assert(portInIf != NULL && portOutIf != NULL);
     
-    this->edgeParams(
-    pgw << "<edge name=\"" << this->name() << "\" "
-             "source=\"" << pgw.getId(portOutIf) << "\" " 
-             "target=\"" << pgw.getId(portInIf) << "\" "
-             "type=\"" << typeid(T_data_type).name() << "\" ")
-        <<   "id=\"" << pgw.getId(this) << "\">" << std::endl;
+    std::string idChannel        = pgw.getId(this);
+    std::string idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
+    std::string idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
+    
+    pgw << "<edge name=\"" << this->name() << ".to-edge\" "
+                 "source=\""  << pgw.getId(portOutIf) << "\" "
+                 "target=\""  << idChannelPortIn << "\" "
+                 "id=\"" << pgw.getId() << "\"/>" << std::endl;
+    pgw << "<process name=\"" << this->name() << "\" "
+             "type=\"comm\" "
+             "id=\"" << idChannel << "\">" << std::endl;
     {
       pgw.indentUp();
-      this->edgeContents(pgw);
+      pgw << "<port name=\"" << this->name() << ".in\" "
+                   "id=\"" << idChannelPortIn << "\" "
+                   "type=\"in\"/>" << std::endl;
+      pgw << "<port name=\"" << this->name() << ".out\" "
+                   "id=\"" << idChannelPortOut << "\" "
+                   "type=\"out\"/>" << std::endl;
+      pgw << "<attribute type=\"type\" value=\"" << typeid(T_data_type).name() << "\"/>" << std::endl;
+      this->channelAttributes(pgw); // fifo size, etc..
+      this->channelContents(pgw); // dump initial tokens
       pgw.indentDown();
     }
-    pgw << "</edge>" << std::endl;
+    pgw << "</process>" << std::endl;
+    pgw << "<edge name=\"" << this->name() << ".from-edge\" "
+                 "source=\""  << idChannelPortOut    << "\" "
+                 "target=\""  << pgw.getId(portInIf) << "\" "
+                 "id=\"" << pgw.getId() << "\"/>" << std::endl;
   }
   
   // constructor
