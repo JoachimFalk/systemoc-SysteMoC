@@ -56,9 +56,6 @@ public:
 //  smoc_root_port_bool knownUnsatisfiable() const
 //    { return !Expr::evalTo<Expr::Value>(guard); }
   
-  this_type onlyInputs()  const { return *this; }
-  this_type onlyOutputs() const { return *this; }
-  
   template <class E>
   smoc_activation_pattern(const Expr::D<E> &guard)
     : guard(guard) {}

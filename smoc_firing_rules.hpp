@@ -384,8 +384,10 @@ private:
   smoc_firing_state_list     sl;
   smoc_firing_types::func_ty f;
 protected:
-  smoc_interface_action(const smoc_firing_state_ref &s)
+  explicit smoc_interface_action(const smoc_firing_state_ref &s)
     : sl(s), f() {}
+  explicit smoc_interface_action(const smoc_func_diverge &f)
+    : sl(), f(f) {}
   smoc_interface_action(const smoc_firing_state_ref &s,
                         const smoc_func_call &f)
     : sl(s), f(f) {}
@@ -395,8 +397,6 @@ protected:
   smoc_interface_action(const smoc_firing_state_list &sl,
                         const smoc_func_branch &f)
     : sl(sl), f(f) {}
-  smoc_interface_action(const smoc_func_diverge &f)
-    : sl(), f(f) {}
 };
 
 class smoc_transition_part {
@@ -413,10 +413,6 @@ public:
       const smoc_func_call          &f)
     : ap(ap),
       f(f) {}
-  smoc_transition_part(
-      const smoc_func_call          &f)
-    : ap(Expr::literal(true)),
-      f(f) {}
 };
 
 class smoc_transition {
@@ -430,24 +426,24 @@ private:
 public:
   smoc_transition(
       const smoc_activation_pattern &ap,
-      const smoc_interface_action   &ia)
-    : ap(ap), ia(ia) {}
+      const smoc_func_diverge       &f)
+    : ap(ap), ia(f) {}
+  smoc_transition(
+      const smoc_func_call          &f,
+      const smoc_firing_state_ref   &s)
+    : ap(Expr::literal(true)), ia(s,f) {}
   smoc_transition(
       const smoc_activation_pattern &ap,
       const smoc_firing_state_ref   &s)
-    : ap(ap), ia(smoc_interface_action(s)) {}
+    : ap(ap), ia(s) {}
   smoc_transition(
-      const smoc_transition_part   &tp,
+      const smoc_transition_part    &tp,
       const smoc_firing_state_ref   &s)
     : ap(tp.ap),
-      ia(smoc_interface_action(s,tp.f)) {}
+      ia(s,tp.f) {}
   
   const smoc_activation_pattern &getActivationPattern() const { return ap; }
   const smoc_interface_action   &getInterfaceAction() const { return ia; }
-  this_type onlyInputs() const
-    { return this_type(ap.onlyInputs(), ia); }
-  this_type onlyOutputs() const
-    { return this_type(ap.onlyOutputs(), ia); }
 };
 
 class smoc_transition_list

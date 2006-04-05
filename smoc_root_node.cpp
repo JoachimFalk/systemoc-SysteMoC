@@ -24,28 +24,6 @@
 
 #include <typeinfo>
 
-/*
-smoc_root_node::smoc_root_node(const smoc_firing_state &s)
-  :
-#ifndef NDEBUG
-    _finalizeCalled(false),
-#endif
-    _currentState(s),
-    _initialState(_currentState),
-    is_v1_actor(false),
-#ifdef ENABLE_SYSTEMC_VPC
-    commstate(smoc_activation_pattern(Expr::till(vpc_event), true) >>
-	      smoc_interface_action(smoc_func_diverge(
-                this,&smoc_root_node::_communicate))),
-#endif // ENABLE_SYSTEMC_VPC
-    _guard(NULL)
-  {
-    while(!smoc_root_node::global_arg_stack.empty()){
-      local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
-      smoc_root_node::global_arg_stack.pop();
-    }
-  }
-*/
 smoc_root_node::smoc_root_node(smoc_firing_state &s)
   :
 #ifndef NDEBUG
