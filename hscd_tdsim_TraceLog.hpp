@@ -40,7 +40,10 @@ private:
   std::map<string, int> fifo_fill_state;
   std::map<string, string> last_actor_function;
   std::string lastactor;
-
+  
+  std::string fifo_actor_last;
+  std::map<string, std::pair<string, string> > fifo_actor;
+  
 public:
   template <typename T>
   inline
