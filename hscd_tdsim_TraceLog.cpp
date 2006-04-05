@@ -31,19 +31,23 @@ void  TraceLogStream::traceStartChoice(const char * actor){
   stream << "<choice type=\"begin\" name=\""<< actor << "\"/>" << std::endl;
   actors.insert(actor);
   actor_activation_count[actor]++;
-  lastactor=actor;
+  lastactor = actor;
+  fifo_actor_last = actor;
 }
 void  TraceLogStream::traceEndChoice(const char * actor){
   stream << "<choice type=\"end\" name=\""<< actor << "\"/>" << std::endl;
+  fifo_actor_last = "";
 }
 void  TraceLogStream::traceStartTransact(const char * actor){
   stream << "<transact type=\"begin\" name=\""<< actor << "\"/>" << std::endl;
   actors.insert(actor);
   actor_activation_count[actor]++;
-  lastactor=actor;
+  lastactor = actor;
+  fifo_actor_last = actor;
 }
 void  TraceLogStream::traceEndTransact(const char * actor){
   stream << "<transact type=\"end\" name=\""<< actor << "\"/>" << std::endl;
+  fifo_actor_last = "";
 }
 
 
@@ -74,16 +78,22 @@ void TraceLogStream::traceEndTryExecute(const char * actor){
 void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
   stream << "<commexecin size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
   fifo_fill_state[actor] -= size;
+  if(fifo_actor_last != "")
+    fifo_actor[actor].second = fifo_actor_last;
 }
 void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
   stream << "<commexecout size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
   fifo_fill_state[actor] += size;
+  if(fifo_actor_last != "")
+    fifo_actor[actor].first = fifo_actor_last;
 }
 void TraceLogStream::traceStartDeferredCommunication(const char * actor){
   stream << "<deferred_communication actor=\""<< actor << "\">" << std::endl;
+  fifo_actor_last = actor;
 }
 void TraceLogStream::traceEndDeferredCommunication(const char * actor){
   stream << "</deferred_communication>" << std::endl;
+  fifo_actor_last = "";
 }
 
 TraceLogStream::~TraceLogStream(){
@@ -115,6 +125,15 @@ TraceLogStream::~TraceLogStream(){
       i != last_actor_function.end();
       i++){
     stream << i->first << "\t\t" << i->second << std::endl;
+  }
+
+  stream << "\nfifo <-> actor" << std::endl;
+  for(std::map<string, std::pair<string, string> >::const_iterator i = fifo_actor.begin();
+      i != fifo_actor.end();
+      i++){
+    stream << i->first << "\t\t"
+           << (i->second.first == "" ? "?" : i->second.first) << " -> "
+	   << (i->second.second == "" ? "?" : i->second.second) << std::endl;
   }
   
   stream << "\n<?xml version=\"1.0\"?>" << std::endl;
