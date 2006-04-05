@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE vpcconfiguration SYSTEM "cmx.dtd">
+<!-- Konfigfile fuer Wurzelberechnung in Kombination mit Tester.h/.cpp -->
+<vpcconfiguration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+ <resources>
+  <component name="HWRC" type="reconfigurable" scheduler="RR">
+   <configuration name="C1" loadtime="1ns" storetime="2ns">
+   	<component name="HWM11" type="threaded" scheduler="RR">
+   		<attribute type="timeslice" value="5ns"/>
+  	</component>
+  	<component name="HWM12" type="threaded" scheduler="RR">
+   		<attribute type="timeslice" value="5ns"/>
+  	</component>
+   </configuration>
+   <configuration name="C2" loadtime="1ns" storetime="3ns">
+   	<component name="HWM21" type="threaded" scheduler="RR">
+   		<attribute type="timeslice" value="5ns"/>
+  	</component>
+  	<component name="HWM22" type="threaded" scheduler="RR">
+   		<attribute type="timeslice" value="5ns"/>
+  	</component>
+   </configuration>
+   <defaultconfiguration name="C1"/>
+   <attribute type="timeslice" value="2ns"/>
+   <attribute type="mode" value="store"/>
+  </component>
+  
+  <component name="HWM2" type="threaded" scheduler="RR">
+   		<attribute type="timeslice" value="10ns"/>
+  </component>
+ </resources>
+ <mappings>
+  <mapping source="sqrroot.A1" target="HWM11">
+    <attribute type="delay" value="10"/>
+    <attribute type="Src::src" value="0"/>
+  </mapping>
+  <mapping source="sqrroot.A4" target="HWM2">
+  	<attribute type="delay" value="10"/>
+    <attribute type="Dup::dup" value="0"/>
+  </mapping>
+  <mapping source="sqrroot.A2" target="HWM21">
+  	<attribute type="delay" value="10"/>
+    <attribute type="sum" value="1"/>
+  </mapping>
+  <mapping source="sqrroot.A3" target="HWM11">
+    <attribute type="delay" value="10"/>
+    <attribute type="div" value="5"/>
+  </mapping>
+  <mapping source="sqrroot.A5" target="HWM2">
+  	<attribute type="delay" value="10"/>
+    <attribute type="mul" value="2"/>
+  </mapping>
+  <mapping source="SUM1" target="HWM21">
+  	<attribute type="delay" value="10"/>
+    <attribute type="sum" value="1"/>
+  </mapping>
+ </mappings>
+</vpcconfiguration>

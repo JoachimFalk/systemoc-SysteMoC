@@ -1,4 +1,4 @@
-<!ELEMENT configuration (resultfile?,measurefile?,resources,mappings)>
+<!ELEMENT vpcconfiguration (resultfile?,measurefile?,resources,mappings)>
 
 <!ELEMENT resultfile EMPTY>
 <!ATTLIST resultfile
@@ -10,9 +10,9 @@ name CDATA #REQUIRED>
 
 <!ELEMENT resources (component)*>
 
-<!ELEMENT component (attribute)*>
+<!ELEMENT component ((configuration*, defaultconfiguration?)?, attribute*)>
 <!ATTLIST component
-name CDATA #REQUIRED
+name ID #REQUIRED
 type CDATA #REQUIRED
 scheduler CDATA #REQUIRED>
 
@@ -21,10 +21,20 @@ scheduler CDATA #REQUIRED>
 type CDATA #REQUIRED
 value CDATA #REQUIRED>
 
+<!ELEMENT configuration (component)*>
+<!ATTLIST configuration
+name ID #REQUIRED
+loadtime CDATA "0 ns"
+storetime CDATA "0 ns">
+
+<!ELEMENT defaultconfiguration EMPTY>
+<!ATTLIST defaultconfiguration
+name CDATA #REQUIRED>
+
 <!ELEMENT mappings (mapping)*>
 
 <!ELEMENT mapping (attribute)*>
 <!ATTLIST mapping
 source CDATA #REQUIRED
-target CDATA #REQUIRED>
+target IDREF #REQUIRED>
 
