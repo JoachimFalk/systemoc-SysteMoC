@@ -27,7 +27,7 @@
   name CDATA #IMPLIED
 >
 
-<!ELEMENT process (port|problemgraph|fsm)*>
+<!ELEMENT process (port|problemgraph|fsm|attribute|token)*>
 <!ATTLIST process
 	name CDATA #REQUIRED
 	id ID #REQUIRED
@@ -68,11 +68,9 @@
 	y CDATA #IMPLIED
 >
 
-<!ELEMENT edge (token*)>
+<!ELEMENT edge EMPTY>
 <!ATTLIST edge
 	name CDATA #REQUIRED
-        type CDATA #REQUIRED
-        size CDATA #REQUIRED
 	id ID #REQUIRED
 	source IDREF #REQUIRED
 	target IDREF #REQUIRED

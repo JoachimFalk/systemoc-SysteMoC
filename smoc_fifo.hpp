@@ -75,11 +75,12 @@ protected:
     return unused;
   }
 
-  std::ostream &edgeParams(std::ostream &out) const
-    { return out << "size=\"" << fsize << "\" "; }
+  void channelAttributes(smoc_modes::PGWriter &pgw) const {
+    pgw << "<attribute type=\"size\" value=\"" << fsize << "\"/>" << std::endl;
+  }
 
   virtual
-  void edgeContents(smoc_modes::PGWriter &pgw) const = 0;
+  void channelContents(smoc_modes::PGWriter &pgw) const = 0;
 
   // constructors
   smoc_fifo_kind( const chan_init &i )
@@ -139,7 +140,7 @@ protected:
   
   storage_type *getStorage() const { return storage; }
   
-  void edgeContents(smoc_modes::PGWriter &pgw) const {
+  void channelContents(smoc_modes::PGWriter &pgw) const {
     for ( size_t n = 0; n < this->usedStorage(); ++n )
       pgw << "<token value=\"" << storage[n].get() << "\"/>" << std::endl;
   }
@@ -179,7 +180,7 @@ protected:
   
   void *getStorage() const { return NULL; }
 
-  void edgeContents(smoc_modes::PGWriter &pgw) const {
+  void channelContents(smoc_modes::PGWriter &pgw) const {
     for ( size_t n = 0; n < usedStorage(); ++n )
       pgw << "<token value=\"bot\"/>" << std::endl;
   }
