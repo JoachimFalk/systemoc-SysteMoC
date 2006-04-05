@@ -252,7 +252,7 @@ private:
   // called by elaboration_done (does nothing by default)
   void end_of_elaboration() {
  //   if ( !notagain ) {
-      finalise();
+      this->finalise();
 //      notagain = true;
 //    }
   }

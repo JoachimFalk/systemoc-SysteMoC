@@ -94,12 +94,14 @@ struct smoc_storage_out
   typedef smoc_write_only_storage<T> return_type;
 };
 
+template<>
 struct smoc_storage_in<void>
 {
   typedef const void storage_type;
   typedef const void return_type;
 };
 
+template<>
 struct smoc_storage_out<void>
 {
   typedef void storage_type;

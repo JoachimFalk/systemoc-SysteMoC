@@ -23,8 +23,13 @@ template <typename T_node_type,
           template <typename T_value_type> class T_chan_init_default>
 const smoc_node_list smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::getNodes() const {
   smoc_node_list subnodes;
-  
-  for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+ 
+  for (
+#if SYSTEMC_VERSION < 20050714
+        sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+#else
+        std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
+#endif
         iter != get_child_objects().end();
         ++iter ) {
     smoc_root_node *node = dynamic_cast<smoc_root_node *>(*iter);
@@ -41,7 +46,12 @@ template <typename T_node_type,
 const smoc_chan_list smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::getChans() const {
   smoc_chan_list channels;
   
-  for ( sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+  for (
+#if SYSTEMC_VERSION < 20050714
+        sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+#else
+        std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
+#endif
         iter != get_child_objects().end();
         ++iter ) {
     smoc_root_chan *chan = dynamic_cast<smoc_root_chan *>(*iter);
