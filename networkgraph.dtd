@@ -5,6 +5,11 @@
   name CDATA #REQUIRED
 >
 
+<!ELEMENT specificationgraph (problemgraph,architecturegraph,mappings)>
+<!ATTLIST specificationgraph
+  name CDATA #REQUIRED
+>
+
 <!ELEMENT problemgraph (edge|portmapping|process)*>
 <!ATTLIST problemgraph 
 	id ID #REQUIRED
