@@ -118,9 +118,9 @@ private:
     smoc_member_func_interface<return_type> >   k;
 public:
   
-  template <class K>
-  smoc_func_call( const K &_k )
-    : k(new K(_k)) {}
+  template <class F, class PL>
+  smoc_func_call( const smoc_member_func<F, PL> &_k )
+    : k(new smoc_member_func<F, PL>(_k)) {}
   
   void operator()() const {
     return k->call();
@@ -139,9 +139,9 @@ private:
     smoc_member_func_interface<return_type> >   k;
 public:
   
-  template <class K>
-  smoc_func_diverge( const K &_k )
-    : k(new K(_k)) {}
+  template <class F, class PL>
+  smoc_func_diverge( const smoc_member_func<F, PL> &_k )
+    : k(new smoc_member_func<F, PL>(_k)) {}
   
   template <class T>
   smoc_func_diverge( T *_obj, return_type (T::*_f)() )
@@ -158,8 +158,8 @@ public:
 
 class smoc_func_branch: public smoc_func_diverge {
 public:
-  template <class K>
-  smoc_func_branch( const K &_k )
+  template <class F, class PL>
+  smoc_func_branch( const smoc_member_func<F, PL> &_k )
     : smoc_func_diverge(_k) {}
 };
 
