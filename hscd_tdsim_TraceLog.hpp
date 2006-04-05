@@ -37,6 +37,8 @@ private:
   std::map<string,std::set<string> > functions;
   std::map<string, int> function_call_count;
   std::map<string, int> actor_activation_count;
+  std::map<string, int> fifo_fill_state;
+  std::map<string, string> last_actor_function;
   std::string lastactor;
 
 public:
