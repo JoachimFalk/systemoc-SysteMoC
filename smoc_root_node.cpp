@@ -19,6 +19,7 @@
 #include <smoc_root_port.hpp>
 #include <smoc_root_node.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
+#include <typeinfo>
 #include <smoc_firing_rules.hpp>
 #include <hscd_tdsim_TraceLog.hpp>
 
@@ -140,7 +141,8 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   const smoc_port_list ps = getPorts();
   
   if ( !ps.empty() ) {
-    pgw << "<process name=\"" << m->name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
+    pgw << "<process name=\"" << m->name() << "\" id=\"" << pgw.getId(this)
+              << "\" type=\"" << typeid(*m).name() << "\">" << std::endl;
     pgw.indentUp();
     //************************CONSTRUCTORPARAMETERS*****************************
     for(unsigned int i = 0; i < local_arg_vector.size(); i++){
