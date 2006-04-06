@@ -27,13 +27,34 @@
   name CDATA #IMPLIED
 >
 
-<!ELEMENT process (port|problemgraph|fsm|attribute|token)*>
+<!ELEMENT process (port|actor|fifo|attribute|problemgraph)*>
 <!ATTLIST process
 	name CDATA #REQUIRED
 	id ID #REQUIRED
 	x CDATA #IMPLIED
 	y CDATA #IMPLIED
-	type CDATA #IMPLIED
+	type (actor|fifo) #REQUIRED
+>
+
+<!ELEMENT actor (constructorParameter*,fsm)>
+<!ATTLIST actor
+	actorClass CDATA #REQUIRED
+>
+
+<!ELEMENT constructorParameter EMPTY>
+<!ATTLIST constructorParameter
+	type  CDATA #REQUIRED
+	value CDATA #REQUIRED
+>
+
+<!ELEMENT fifo (token)*>
+<!ATTLIST fifo
+	tokenType CDATA #REQUIRED
+>
+
+<!ELEMENT token EMPTY>
+<!ATTLIST token
+        value CDATA #REQUIRED
 >
 
 <!ELEMENT resource (port|architecturegraph|attribute)*>
@@ -74,11 +95,6 @@
 	id ID #REQUIRED
 	source IDREF #REQUIRED
 	target IDREF #REQUIRED
->
-
-<!ELEMENT token EMPTY>
-<!ATTLIST token
-        value CDATA #REQUIRED
 >
 
 <!ELEMENT attribute EMPTY>

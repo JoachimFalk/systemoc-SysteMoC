@@ -141,75 +141,91 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   const smoc_port_list ps = getPorts();
   
   if ( !ps.empty() ) {
-    pgw << "<process name=\"" << m->name() << "\" id=\"" << pgw.getId(this)
-              << "\" type=\"" << typeid(*m).name() << "\">" << std::endl;
-    pgw.indentUp();
-    //************************CONSTRUCTORPARAMETERS*****************************
-    for(unsigned int i = 0; i < local_arg_vector.size(); i++){
-      std::pair<std::string, std::string> parameterpair = local_arg_vector[i];
-      pgw << "<constructor_parameter type=\"" << parameterpair.first << "\" "
-          << "value=\"" << parameterpair.second << "\"/>" << std::endl;
-    }
-    //*****************************PORTS**************************************** 
-    for ( smoc_port_list::const_iterator iter = ps.begin();
-          iter != ps.end();
-          ++iter )
-      pgw << "<port name=\"" << (*iter)->name() << "\" "
-          << "type=\"" << ((*iter)->isInput() ? "in" : "out") << "\" "
-          << "id=\"" << pgw.getId(*iter) << "\"/>" << std::endl;
-          
-    pgw << "<fsm startstate=\"" << pgw.getId(&_initialState.getResolvedState()) << "\">" << std::endl;
-    pgw.indentUp();
-        
-   //******************************FSMSTATES************************************ 
-    const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
-    const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
-    for (smoc_firing_rules::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
-        fsmiter != fsmStates.end(); 
-           ++fsmiter) {
-      pgw << "<state id=\"" << pgw.getId(*fsmiter)<< "\">" << std::endl;
+    pgw << "<process name=\"" << m->name() << "\" "
+                    "type=\"actor\" "
+                    "id=\"" << pgw.getId(this) << "\">" << std::endl;
+    {
       pgw.indentUp();
-       
-      //**************TRANTIONS********************
-      const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
-      
-      for ( smoc_firing_types::transitionlist_ty::const_iterator titer = cTraSt.begin(); 
-            titer != cTraSt.end(); 
-            ++titer ) {
-        const smoc_firing_types::statelist_ty &cToNState = titer->sl;
-
-        assert( cToNState.size() <= 1 );
-
-        if ( cToNState.size() == 1 ) {
-          pgw << "<transition nextstate=\"" << pgw.getId(*cToNState.begin()) << "\" " << std::flush;
-	  if(CoSupport::isType<smoc_func_call>(titer->f)){
-	    pgw << "action=\"" << static_cast<const smoc_func_call &>(titer->f).getFuncName() << "\">" << std::endl;
-	  }else{
-	    pgw << "action=\"\">" << std::endl;
-	  }
-          titer->ap.guardAssemble(pgw);
-          pgw << "</transition>" << std::endl;
-        } else {
-          pgw << "<transition nextState=\"FIXME!!!\"/>" << std::endl;
+      //**********************************PORTS************************************
+      for ( smoc_port_list::const_iterator iter = ps.begin();
+            iter != ps.end();
+            ++iter )
+        pgw << "<port name=\"" << (*iter)->name() << "\" "
+                     "type=\"" << ((*iter)->isInput() ? "in" : "out") << "\" "
+                     "id=\"" << pgw.getId(*iter) << "\"/>" << std::endl;
+      //*******************************ACTOR CLASS*********************************
+      pgw << "<actor actorClass=\"" << typeid(*m).name() << "\">" << std::endl;
+      {
+        pgw.indentUp();
+        //***************************CONSTRUCTORPARAMETERS***************************
+        for (unsigned int i = 0; i < local_arg_vector.size(); i++) {
+          std::pair<std::string, std::string> parameterpair = local_arg_vector[i];
+          pgw << "<constructorParameter "
+                   "type=\""  << parameterpair.first  << "\" "
+                   "value=\"" << parameterpair.second << "\"/>" << std::endl;
         }
+        //************************************FSM************************************
+        assembleFSM(pgw);
+        pgw.indentDown();
       }
-      //***************/TRANTIONS*****************
-   
+      pgw << "</actor>" << std::endl;
+      //**************************CONTAINED PROBLEMGRAPH***************************
+      pgAssemble(pgw, this);
       pgw.indentDown();
-      pgw << "</state>" << std::endl;
     }
-    //*********************************/FSMSTATES*************************************
-    
-    pgw.indentDown();
-    pgw << "</fsm>" << std::endl;
-  }
-  pgAssemble( pgw, this );
-  if ( !ps.empty() ) {
-    pgw.indentDown();
     pgw << "</process>" << std::endl;
+  } else {
+    pgAssemble(pgw, this);
   }
 }
 
+void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
+  pgw << "<fsm startstate=\"" << pgw.getId(&_initialState.getResolvedState()) << "\">" << std::endl;
+  {
+    pgw.indentUp();
+    //******************************FSMSTATES************************************ 
+    const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
+    const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
+    
+    for (smoc_firing_rules::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
+         fsmiter != fsmStates.end(); 
+         ++fsmiter) {
+      pgw << "<state id=\"" << pgw.getId(*fsmiter)<< "\">" << std::endl;
+      {
+        pgw.indentUp();
+        //**************TRANTIONS********************
+        const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
+        
+        for ( smoc_firing_types::transitionlist_ty::const_iterator titer = cTraSt.begin(); 
+              titer != cTraSt.end(); 
+              ++titer ) {
+          const smoc_firing_types::statelist_ty &cToNState = titer->sl;
+          
+          assert( cToNState.size() <= 1 );
+          if ( cToNState.size() == 1 ) {
+            pgw << "<transition nextstate=\"" << pgw.getId(*cToNState.begin()) << "\" " << std::flush;
+            if (CoSupport::isType<smoc_func_call>(titer->f)) {
+              pgw << "action=\"" << static_cast<const smoc_func_call &>(titer->f).getFuncName() << "\">" << std::endl;
+            } else {
+              pgw << "action=\"\">" << std::endl;
+            }
+            titer->ap.guardAssemble(pgw);
+            pgw << "</transition>" << std::endl;
+          } else {
+            pgw << "<transition nextState=\"FIXME!!!\"/>" << std::endl;
+          }
+        }
+        //***************/TRANTIONS*****************
+        pgw.indentDown();
+      }
+      pgw << "</state>" << std::endl;
+    }
+    //*********************************/FSMSTATES*************************************
+    pgw.indentDown();
+  }
+  pgw << "</fsm>" << std::endl;
+}
+ 
 std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
   o << "actor: " << myModule()->name() << std::endl;
   smoc_port_list ps = getPorts();
