@@ -33,5 +33,5 @@ LIBS=-lsystemoc
 
 noinst_PROGRAMS= simulation-crypto
 
-simulation_crypto_SOURCES= design_crypto.cpp producermodule.cpp consumermodule.cpp cryptoalgorithm.cpp blowfish.cpp des3.cpp md5.cpp panchamround.cpp
+simulation_crypto_SOURCES= design_crypto.cpp producermodule.cpp consumermodule.cpp cryptoalgorithm.cpp blowfish.cpp des3.cpp md5.cpp panchamround.cpp exectimelogger.cpp
 simulation_crypto_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@

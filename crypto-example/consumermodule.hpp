@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <map>
 #include <queue>
 
 #include "rsmodule.hpp"
@@ -17,11 +18,17 @@ class ConsumerModule: public RSModule{
 
   private:
     
+    std::map<int, std::string> commands;
     // next command to be executed
-    std::string command; 
+    std::string command;
     // list of results still to be returned
-    std::queue<std::string> results;
-    
+    std::queue<std::pair<int, std::string> > results;
+   
+    /**
+     * overloaded for logging purpose
+     */
+    void produceKey();
+
     /**
      * reads incoming data packet and construct command line out of data
      */
@@ -35,14 +42,14 @@ class ConsumerModule: public RSModule{
     
     /**
      * used to build up command line out of several data packets
-     * \return true if command line is finished else false
+     * \return id of command to execute or -1 if still further data needed
      */
-    bool buildCommand(ExampleNetworkPacket packet);
+    int buildCommand(ExampleNetworkPacket packet);
 
     /**
      * executes command using "bc"
      */
-    void executeCommand(ExampleNetworkPacket::EncryptionAlgorithm algo);
+    void executeCommand(int cmdID, ExampleNetworkPacket::EncryptionAlgorithm algo);
    
     /**
      * GUARD used within state machine

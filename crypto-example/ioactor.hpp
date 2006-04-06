@@ -31,7 +31,8 @@ class IOActor : public smoc_actor{
     void printMsg(ExampleNetworkPacket &packet){
       if(packet.processing_request != ExampleNetworkPacket::PR_set_key){
 
-         std::cout << "ioactor " << this->basename() << "> Received new package with data:" << std::endl << "\"";
+         std::cout << "ioactor " << this->basename() << "> Received new package with data:" << std::endl;
+         std::cout << "\"";
          Helper::Datachars data;
          for(int i=0; i < packet.getUsedPayload(); i++){
            Helper::datawordToString(packet.payload[i], data);

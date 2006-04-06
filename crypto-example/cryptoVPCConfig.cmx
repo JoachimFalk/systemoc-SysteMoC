@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE vpcconfiguration SYSTEM "cmx.dtd">
+<vpcconfiguration>
+ <resultfile name="./crypto-run_result"/>
+ <measurefile name="./crypto-run_measure.xml"/>
+ <resources>
+  <component name="P1" type="threaded" scheduler="FCFS">
+  </component>
+  <component name="P2" type="threaded" scheduler="FCFS">
+  </component>
+  <component name="FPGA1" type="reconfigurable" scheduler="FCFS">
+   <configuration name="blow_conf1" loadtime="3" storetime="2">
+    <component name="id232" type="threaded" scheduler="FCFS">
+    </component>
+    <component name="id242" type="threaded" scheduler="FCFS">
+    </component>
+   </configuration>
+   <configuration name="des_conf1" loadtime="2" storetime="2">
+    <component name="id235" type="threaded" scheduler="FCFS">
+    </component>
+    <component name="id247" type="threaded" scheduler="FCFS">
+    </component>
+   </configuration>
+  </component>
+  <component name="FPGA2" type="reconfigurable" scheduler="FCFS">
+   <configuration name="blow_conf2" loadtime="2" storetime="3">
+    <component name="id238" type="threaded" scheduler="FCFS">
+    </component>
+    <component name="id260" type="threaded" scheduler="FCFS">
+    </component>
+   </configuration>
+   <configuration name="des_conf2" loadtime="2" storetime="3">
+    <component name="id241" type="threaded" scheduler="FCFS">
+    </component>
+    <component name="id268" type="threaded" scheduler="FCFS">
+    </component>
+   </configuration>
+  </component>
+  <component name="channel" type="threaded" scheduler="FCFS">
+  </component>
+  <component name="ASIC1" type="threaded" scheduler="FCFS">
+  </component>
+ </resources>
+ <mappings>
+  <mapping source="crypto_example.producer" target="P1">
+    <attribute type="delay" value="2"/>
+  </mapping>
+  <mapping source="crypto_example.pMd5_check" target="ASIC1">
+    <attribute type="delay" value="1"/>
+  </mapping>
+  <mapping source="crypto_example.pEncModule.DES3" target="id235">
+    <attribute type="delay" value="2"/>
+  </mapping>
+  <mapping source="crypto_example.pEncModule.Dispatcher" target="id242">
+    <attribute type="delay" value="1"/>
+  </mapping>
+  <mapping source="crypto_example.pEncModule.Blowfish" target="id232">
+    <attribute type="delay" value="3"/>
+  </mapping>
+  <mapping source="crypto_example.pEncModule.Merger" target="id247">
+    <attribute type="delay" value="1"/>
+  </mapping>
+  <mapping source="crypto_example.cMd5_sign" target="P2">
+    <attribute type="delay" value="3"/>
+  </mapping>
+  <mapping source="crypto_example.channel.io1" target="channel">
+    <attribute type="delay" value="5"/>
+  </mapping>
+  <mapping source="crypto_example.channel.io2" target="channel">
+    <attribute type="delay" value="5"/>
+  </mapping>
+  <mapping source="crypto_example.cEncModule.DES3" target="id241">
+    <attribute type="delay" value="2"/>
+  </mapping>
+  <mapping source="crypto_example.cEncModule.Blowfish" target="id238">
+    <attribute type="delay" value="3"/>
+  </mapping>
+  <mapping source="crypto_example.cEncModule.Merger" target="id260">
+    <attribute type="delay" value="1"/>
+  </mapping>
+  <mapping source="crypto_example.cEncModule.Dispatcher" target="id268">
+    <attribute type="delay" value="1"/>
+  </mapping>
+  <mapping source="crypto_example.pMd5_sign" target="P1">
+    <attribute type="delay" value="3"/>
+  </mapping>
+  <mapping source="crypto_example.cDecModule.DES3" target="id241">
+    <attribute type="delay" value="2"/>
+  </mapping>
+  <mapping source="crypto_example.cDecModule.Blowfish" target="id238">
+    <attribute type="delay" value="3"/>
+  </mapping>
+  <mapping source="crypto_example.cDecModule.Merger" target="id260">
+    <attribute type="delay" value="1"/>
+  </mapping>
+  <mapping source="crypto_example.cDecModule.Dispatcher" target="id268">
+    <attribute type="delay" value="1"/>
+  </mapping>
+  <mapping source="crypto_example.consumer" target="P2">
+    <attribute type="delay" value="3"/>
+  </mapping>
+  <mapping source="crypto_example.cMd5_check" target="P2">
+    <attribute type="delay" value="3"/>
+  </mapping>
+  <mapping source="crypto_example.pDecModule.DES3" target="id235">
+    <attribute type="delay" value="2"/>
+  </mapping>
+  <mapping source="crypto_example.pDecModule.Dispatcher" target="id247">
+    <attribute type="delay" value="1"/>
+  </mapping>
+  <mapping source="crypto_example.pDecModule.Merger" target="id247">
+    <attribute type="delay" value="1"/>
+  </mapping>
+  <mapping source="crypto_example.pDecModule.Blowfish" target="id232">
+    <attribute type="delay" value="3"/>
+  </mapping>
+ </mappings>
+</vpcconfiguration>

@@ -14,7 +14,8 @@ ProducerModule::ProducerModule(sc_module_name name,
   
 }
 
-ProducerModule::ProducerModule(sc_module_name name, const char* input) : RSModule(name, ExampleNetworkPacket::EM_des3), reader(input){
+ProducerModule::ProducerModule(sc_module_name name,
+                               const char* input) : RSModule(name, ExampleNetworkPacket::EM_des3), reader(input){
 
   if(this->reader.hasCommand()){
     this->data = this->reader.readCommand();
@@ -28,14 +29,36 @@ ProducerModule::ProducerModule(sc_module_name name, const char* input) : RSModul
 
 ProducerModule::~ProducerModule(){}
 
+void ProducerModule::setNext(){
+  RSModule::setNext();
+  this->packetID++;
+}
+
 bool ProducerModule::transmitData() const{
   return (this->diter != this->data.end());
 }
 
+void ProducerModule::produceKey(){
+#ifdef LOG_METHOD_ENTER
+    LOG_METHOD_ENTER("producermodule", "produceKey")
+#endif
+    RSModule::produceKey();
+#ifdef LOG_METHOD_EXIT
+      LOG_METHOD_EXIT("producermodule", "produceKey")
+#endif
+}
+
+
 void ProducerModule::produceData(){
- 
+
+#ifdef LOG_METHOD_ENTER
+  LOG_METHOD_ENTER("producermodule", "produceData")
+#endif
+    
   ExampleNetworkPacket packet;
- 
+  
+  packet.setPacketID(this->packetID);
+  
   packet.encryption_algorithm = this->nextAlgo;
   packet.processing_request = ExampleNetworkPacket::PR_encrypt;
   packet.validation_request = ExampleNetworkPacket::VR_sign;
@@ -66,15 +89,23 @@ void ProducerModule::produceData(){
     // update internal variables
     this->setNext();
    }
+ 
+#ifdef LOG_METHOD_EXIT  
+  LOG_METHOD_EXIT("producermodule", "produceData")
+#endif   
 }
 
 void ProducerModule::consumeData(){
-  
+
+#ifdef LOG_METHOD_ENTER
+  LOG_METHOD_ENTER("producermodule", "consumeData")
+#endif
+    
   ExampleNetworkPacket packet;
   packet = in[0];
   
   if(packet.processing_request != ExampleNetworkPacket::PR_set_key){
-    std::cout << this->basename() << "> received data:\n";
+    std::cout << this->basename() << "> received data for command with ID " << packet.getPacketID() << ":\n";
     Helper::Datachars pdata;
     for(int i=0; i < packet.getUsedPayload(); i++){
       Helper::datawordToString(packet.payload[i], pdata);
@@ -86,5 +117,10 @@ void ProducerModule::consumeData(){
     }
     std::cout << std::endl;
   }
+  
+#ifdef LOG_METHOD_EXIT
+  LOG_METHOD_EXIT("producermodule", "consumeData")
+#endif
+    
 }
 

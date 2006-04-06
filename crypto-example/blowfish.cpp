@@ -555,6 +555,9 @@ Blowfish::~Blowfish()
 }
 
 void Blowfish::setKey(ExampleNetworkPacket packet){
+#ifdef LOG_METHOD_ENTER
+  LOG_METHOD_ENTER("blowfish", "setKey")
+#endif
   sc_bv< 56 > key_bits;
   sc_bv< 3 > used_bytes;
   int keys_to_go = 8 - this->key_parts_already_processed; // 8 keys for blowfish
@@ -570,6 +573,9 @@ void Blowfish::setKey(ExampleNetworkPacket packet){
     this->initialize();
     this->key_parts_already_processed = 0;
   }
+#ifdef LOG_METHOD_EXIT
+    LOG_METHOD_EXIT("blowfish", "setKey")
+#endif
 }
 
 sc_uint<32> Blowfish::F(sc_bv<32> x)
@@ -599,6 +605,10 @@ sc_uint<32> Blowfish::F(sc_bv<32> x)
 void
 Blowfish::encrypt64(sc_bv<64> & data)
 {
+#ifdef LOG_METHOD_ENTER
+    LOG_METHOD_ENTER("blowfish", "encrypt")
+#endif
+      
   sc_bv<32>  Xl;
   sc_bv<32>  Xr;
   sc_bv<32>  temp;
@@ -624,11 +634,19 @@ Blowfish::encrypt64(sc_bv<64> & data)
 
   data.range(63, 32) = Xl;
   data.range(31,  0) = Xr;
+
+#ifdef LOG_METHOD_EXIT
+      LOG_METHOD_EXIT("blowfish", "encrypt")
+#endif
 }
 
 void
 Blowfish::decrypt64(sc_bv<64> & data)
 {
+#ifdef LOG_METHOD_ENTER
+  LOG_METHOD_ENTER("blowfish", "decrypt")
+#endif
+        
   sc_bv<32>  Xl;
   sc_bv<32>  Xr;
   sc_bv<32>  temp;
@@ -655,6 +673,11 @@ Blowfish::decrypt64(sc_bv<64> & data)
 
   data.range(63, 32) = Xl;
   data.range(31,  0) = Xr;
+
+#ifdef LOG_METHOD_EXIT
+  LOG_METHOD_EXIT("blowfish", "decrypt")
+#endif
+          
 }
 
 void

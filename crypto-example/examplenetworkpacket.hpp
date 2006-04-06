@@ -10,6 +10,7 @@ class ExampleNetworkPacket
 {
   private:
     int usedPayload;
+    int packetID;
     
   public:
   typedef enum {EM_blowfish, 
@@ -46,6 +47,7 @@ class ExampleNetworkPacket
       equal = equal || payload[count] == obj.payload[count];
     }
     return equal
+        && (packetID == obj.getPacketID())
         && (encryption_algorithm == obj.encryption_algorithm)
         && (processing_request   == obj.processing_request);
   }
@@ -74,6 +76,14 @@ class ExampleNetworkPacket
    return this->usedPayload;
   }
 
+  int getPacketID() const{
+    return this->packetID;
+  }
+  
+  void setPacketID(int id){
+    this->packetID = id;
+  }
+  
 };
 
 inline

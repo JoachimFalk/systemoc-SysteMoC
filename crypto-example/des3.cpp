@@ -47,6 +47,11 @@ DES3::~DES3()
 }
 
 void DES3::setKey(ExampleNetworkPacket packet){
+
+#ifdef LOG_METHOD_ENTER
+      LOG_METHOD_ENTER("des3", "setKey")
+#endif
+        
   sc_bv< 56 > key_bits;
   sc_bv< 3 > used_bytes;
   int keys_to_go = 3 - this->key_parts_already_processed; // 8 keys for blowfish
@@ -61,18 +66,36 @@ void DES3::setKey(ExampleNetworkPacket packet){
     this->key_parts_already_processed = 0;
   }
   
+#ifdef LOG_METHOD_EXIT
+        LOG_METHOD_EXIT("des3", "setKey")
+#endif
+          
 }
 
 void
 DES3::encrypt64(sc_bv<64> & data)
 {
+#ifdef LOG_METHOD_ENTER
+    LOG_METHOD_ENTER("des3", "encrypt")
+#endif
   des3(data, data, false);
+#ifdef LOG_METHOD_EXIT
+      LOG_METHOD_EXIT("des3", "encrypt")
+#endif
 }
 
 void
 DES3::decrypt64(sc_bv<64> & data)
 {
+#ifdef LOG_METHOD_ENTER
+      LOG_METHOD_ENTER("des3", "decrypt")
+#endif
+        
   des3(data, data, true);
+#ifdef LOG_METHOD_EXIT
+        LOG_METHOD_EXIT("des3", "decrypt")
+#endif
+          
 }
 
 void

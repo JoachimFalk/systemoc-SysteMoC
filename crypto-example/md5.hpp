@@ -41,6 +41,7 @@
 #include <smoc_node_types.hpp>
 
 #include "examplenetworkpacket.hpp"
+#include "exectimelogger.hpp"
 
 /**
 */

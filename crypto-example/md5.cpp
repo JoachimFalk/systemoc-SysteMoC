@@ -81,6 +81,11 @@ void MD5::printInfo(){
 }
 
 void MD5::validatePacket(){
+
+#ifdef LOG_METHOD_ENTER
+    LOG_METHOD_ENTER("md5", "validatePacket")
+#endif
+  
 #ifdef EX_DEBUG
   std::cerr << this->basename() << "> validating " << std::endl;
 #endif
@@ -106,9 +111,20 @@ void MD5::validatePacket(){
   }
   
   this->packet_valid = (packet.checksum == hash); 
+
+#ifdef LOG_METHOD_EXIT
+    LOG_METHOD_EXIT("md5", "validatePacket")
+#endif
+
 }
 
 void MD5::signPacket(){
+
+#ifdef LOG_METHOD_ENTER
+      LOG_METHOD_ENTER("md5", "signPacket")
+#endif
+        
+  
 #ifdef EX_DEBUG
   std::cerr << this->basename() << "> signing packet " << std::endl;
 #endif
@@ -140,6 +156,11 @@ void MD5::signPacket(){
   }
   
   packet.checksum = hash;
+
+#ifdef LOG_METHOD_EXIT
+      LOG_METHOD_EXIT("md5", "signPacket")
+#endif
+        
 }
 
 void MD5::writePacket(){
