@@ -274,33 +274,40 @@ protected:
     std::string idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
     std::string idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
     
-    pgw << "<edge name=\"" << this->name() << ".to-edge\" "
-                 "source=\""  << pgw.getId(portOutIf) << "\" "
-                 "target=\""  << idChannelPortIn << "\" "
-                 "id=\"" << pgw.getId() << "\"/>" << std::endl;
+    pgw << "<edge name=\""   << this->name() << ".to-edge\" "
+                 "source=\"" << pgw.getId(portOutIf) << "\" "
+                 "target=\"" << idChannelPortIn      << "\" "
+                 "id=\""     << pgw.getId()          << "\"/>" << std::endl;
     pgw << "<process name=\"" << this->name() << "\" "
-             "type=\"comm\" "
-             "id=\"" << idChannel << "\">" << std::endl;
+                    "type=\"fifo\" "
+                    "id=\"" << idChannel      << "\">" << std::endl;
     {
       pgw.indentUp();
       pgw << "<port name=\"" << this->name() << ".in\" "
-                   "id=\"" << idChannelPortIn << "\" "
-                   "type=\"in\"/>" << std::endl;
+                   "type=\"in\" "
+                   "id=\"" << idChannelPortIn << "\"/>" << std::endl;
       pgw << "<port name=\"" << this->name() << ".out\" "
-                   "id=\"" << idChannelPortOut << "\" "
-                   "type=\"out\"/>" << std::endl;
-      pgw << "<attribute type=\"type\" value=\"" << typeid(T_data_type).name() << "\"/>" << std::endl;
+                   "type=\"out\" "
+                   "id=\"" << idChannelPortOut << "\"/>" << std::endl;
+      //*******************************ACTOR CLASS********************************
+      pgw << "<fifo tokenType=\"" << typeid(T_data_type).name() << "\">" << std::endl;
+      {
+        //*************************INITIAL TOKENS, ETC...***************************
+        pgw.indentUp();
+        this->channelContents(pgw);
+        pgw.indentDown();
+      }
+      pgw << "</fifo>" << std::endl;
       this->channelAttributes(pgw); // fifo size, etc..
-      this->channelContents(pgw); // dump initial tokens
       pgw.indentDown();
     }
     pgw << "</process>" << std::endl;
-    pgw << "<edge name=\"" << this->name() << ".from-edge\" "
-                 "source=\""  << idChannelPortOut    << "\" "
-                 "target=\""  << pgw.getId(portInIf) << "\" "
-                 "id=\"" << pgw.getId() << "\"/>" << std::endl;
+    pgw << "<edge name=\""   << this->name() << ".from-edge\" "
+                 "source=\"" << idChannelPortOut       << "\" "
+                 "target=\"" << pgw.getId(portInIf)    << "\" "
+                 "id=\""     << pgw.getId()            << "\"/>" << std::endl;
   }
-  
+
   // constructor
   smoc_chan_nonconflicting_if(const typename T_chan_kind::chan_init &i)
     : smoc_chan_if<T_chan_kind, T_data_type>(i),
