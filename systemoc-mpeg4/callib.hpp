@@ -4,7 +4,8 @@
 #ifndef _INCLUDED_CALLIB_HPP
 #define _INCLUDED_CALLIB_HPP
 
-template <typename T>
+#ifndef KASCPAR_PARSING
+template <class T>
 struct cal_list {
   typedef std::vector<T> t;
 };
@@ -16,35 +17,37 @@ cal_list<int>::t Integers(int s, int e) {
     retval.push_back(i);
   return retval;
 }
+#endif
 
-template <typename T>
+template <class T>
 T cal_bitand( T a, T b ) { return a & b; }
 
-template <typename T>
+template <class T>
 T cal_bitor( T a, T b ) { return a | b; }
 
-template <typename T>
+template <class T>
 T cal_bitxor( T a, T b ) { return a ^ b; }
 
-template <typename T1>
+template <class T1>
 T1 cal_rshift( T1 value, unsigned int factor ) { return value >> factor; }
 
-template <typename T1>
+template <class T1>
 T1 cal_lshift( T1 value, unsigned int factor ) { return value << factor; }
 
-template <typename T>
+#ifndef KASCPAR_PARSING
+template <class T>
 std::ostream &operator << ( std::ostream &o, const std::vector<T> &l ) {
   o << "[" << std::endl;
   
   int index = 0;
-  for ( typename cal_list<T>::t::const_iterator iter = l.begin();
+  for ( class cal_list<T>::t::const_iterator iter = l.begin();
         iter != l.end();
         ++iter, ++index )
     o << "  " << index << " => " << (*iter) << std::endl;
   o << "]";
   return o;
 }
-
+#endif
 /*
 template <typename T1, typename F, typename T2>
 cal_list<T1>::t map( const cal_list<T2>::t &l ) {

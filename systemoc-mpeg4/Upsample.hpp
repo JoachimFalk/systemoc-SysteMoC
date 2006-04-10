@@ -1,7 +1,7 @@
 #ifndef _INCLUDED_UPSAMPLE_HPP
 #define _INCLUDED_UPSAMPLE_HPP
 
-#include <callib.hpp>
+#include "callib.hpp"
 
 class m_Upsample: public smoc_actor {
 public:
@@ -28,7 +28,9 @@ private:
   smoc_firing_state start;
 
 public:
-  m_Upsample(sc_module_name name, int factor)
+#ifndef KASCPAR_PARSING
+  m_Upsample(sc_module_name name,
+             SMOC_ACTOR_CPARAM(int, factor))
     : smoc_actor(name, start),
       factor(factor), state(0) {
     start = (I.getAvailableTokens() >= 1 &&
@@ -39,6 +41,7 @@ public:
             (O.getAvailableSpace() >= 1)      >>
             CALL(m_Upsample::action1)         >> start;
   }
+#endif
 };
 
 #endif // _INCLUDED_UPSAMPLE_HPP
