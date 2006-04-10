@@ -7,7 +7,7 @@
 # include <smoc_pggen.hpp>
 #endif
 
-#include <callib.hpp>
+#include "callib.hpp"
 
 #include "IDCTaddsub.hpp"
 #include "IDCTfly.hpp"

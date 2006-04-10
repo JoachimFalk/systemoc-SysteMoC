@@ -18,12 +18,16 @@ private:
   
   smoc_firing_state start;
 public:
-  m_IDCTscale(sc_module_name name, int G, int OS)
+#ifndef KASCPAR_PARSING
+  m_IDCTscale(sc_module_name name,
+              SMOC_ACTOR_CPARAM(int, G),
+	      SMOC_ACTOR_CPARAM(int, OS))
     : smoc_actor(name, start),
       G(G), OS(OS) {
     start = (I.getAvailableTokens() >= 1) >>
             (O.getAvailableSpace() >= 1)  >>
             CALL(m_IDCTscale::action0)    >> start;
   }
+#endif
 };
 #endif // _INCLUDED_IDCTSCALE_HPP

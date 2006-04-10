@@ -7,7 +7,7 @@
 # include <smoc_pggen.hpp>
 #endif
 
-#include <callib.hpp>
+#include "callib.hpp"
 
 #include "IDCTclip.hpp"
 #include "min_duplex.hpp"

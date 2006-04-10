@@ -22,7 +22,11 @@ private:
   
   smoc_firing_state start;
 public:
-  m_IDCTaddsub(sc_module_name name, int G, int OS, int ATTEN)
+#ifndef KASCPAR_PARSING
+  m_IDCTaddsub(sc_module_name name,
+               SMOC_ACTOR_CPARAM(int, G),
+	       SMOC_ACTOR_CPARAM(int, OS),
+	       SMOC_ACTOR_CPARAM(int, ATTEN))
     : smoc_actor(name, start),
       G(G), OS(OS), ATTEN(ATTEN) {
     start = (I1.getAvailableTokens() >= 1 &&
@@ -31,7 +35,8 @@ public:
              O2.getAvailableSpace()  >= 1)    >>
             CALL(m_IDCTaddsub::action0)       >> start;
   }
-
+#endif
+  
   virtual ~m_IDCTaddsub(){}
 };
 
