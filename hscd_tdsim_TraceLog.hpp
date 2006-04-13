@@ -30,23 +30,28 @@
 
 using std::string;
 
+// dynamically obtained actor infos
+struct s_actor_info {
+  // actor's name
+  string name;
+  // if name could be dynamically resolved
+  bool unknown;
+  // constructs unknown actor
+  s_actor_info() :
+    unknown(true)
+  {}
+};
+
 // dynamically obtained fifo infos
 struct s_fifo_info {
   // connected actors
-  string from;
-  string to;
+  s_actor_info from;
+  s_actor_info to;
   // currently contained messages
   int size;
-  // infos for graph generation
-  int from_id;
-  int to_id;
   // constructs empty fifo
   s_fifo_info() :
-    from(""),
-    to(""),
-    size(0),
-    from_id(-1),
-    to_id(-1)
+    size(0)
   {}
 };
 

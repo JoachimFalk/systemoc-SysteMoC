@@ -131,12 +131,18 @@ void TraceLogStream::traceEndTryExecute(const char * actor){
 void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
   stream << "<commexecin size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
   fifo_info[actor].size -= size;
-  fifo_info[actor].to = fifo_actor_last;
+  if(fifo_actor_last != "") {
+    fifo_info[actor].to.name = fifo_actor_last;
+    fifo_info[actor].to.unknown = false;
+  }
 }
 void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
   stream << "<commexecout size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
   fifo_info[actor].size += size;
-  fifo_info[actor].from = fifo_actor_last;
+  if(fifo_actor_last != "") {
+    fifo_info[actor].from.name = fifo_actor_last;
+    fifo_info[actor].from.unknown = false;
+  }
 }
 void TraceLogStream::traceStartDeferredCommunication(const char * actor){
   stream << "<deferred_communication actor=\""<< actor << "\">" << std::endl;
@@ -176,8 +182,8 @@ TraceLogStream::~TraceLogStream(){
       i != fifo_info.end();
       i++){
     stream << i->first << "\t\t" << i->second.size << "\t"
-           << (i->second.from == "" ? "?" : i->second.from) << " -> "
-           << (i->second.to == "" ? "?" : i->second.to) << std::endl;
+           << (i->second.from.unknown ? "?" : i->second.from.name) << " -> "
+           << (i->second.to.unknown ? "?" : i->second.to.name) << std::endl;
   }
   
   stream << "\n<?xml version=\"1.0\"?>" << std::endl;
@@ -256,7 +262,7 @@ void TraceLogStream::createFifoGraph()
   bool retry = false;
   
   // Remove empty fifos; prettify unknown actor names; remove fifos
-  // that are not in loops
+  // that are not in loops (but retain unknown actors)
   do {
     retry = false;
     
@@ -264,25 +270,28 @@ void TraceLogStream::createFifoGraph()
         fifo != fifo_info.end();)
     {
       s_fifo_info &info = fifo->second;
-    
+      s_actor_info &from = info.from;
+      s_actor_info &to = info.to;
+      
       if(info.size == 0) {
         // Erase empty fifo
         fifo_info.erase(fifo++);
         continue;
       }
-    
-      if(info.from == "") {
+      
+      if(from.unknown && from.name == "") {
         // Prettify unknown actor name
-        info.from = "? (";
-        info.from += string_cast(unknown++);
-        info.from += ")";
-      } else {
+        from.name = "? (";
+        from.name += string_cast(unknown++);
+        from.name += ")";
+      }
+      else if(!from.unknown) {
         // Is actor some other fifo's target?
         bool found = false;
         for(std::map<string, s_fifo_info>::iterator other = fifo_info.begin();
             other != fifo_info.end();
             ++other) {
-         if(other->second.to == info.from) {
+         if(other->second.to.name == from.name) {
             found = true;
             break;
          }
@@ -295,18 +304,19 @@ void TraceLogStream::createFifoGraph()
         }
       }
     
-      if(info.to == "") {
+      if(to.unknown && to.name == "") {
         // Prettify unknown actor name
-        info.to = "? (";
-        info.to += string_cast(unknown++);
-        info.to += ")";
-      } else {
+        to.name = "? (";
+        to.name += string_cast(unknown++);
+        to.name += ")";
+      }
+      else if(!to.unknown) {
         // Is actor some other fifo's source?
         bool found = false;
         for(std::map<string, s_fifo_info>::iterator other = fifo_info.begin();
             other != fifo_info.end();
             ++other) {
-          if(other->second.from == info.to) {
+          if(other->second.from.name == to.name) {
             found = true;
             break;
           }
@@ -342,24 +352,24 @@ void TraceLogStream::createFifoGraph()
       file.open(fstring.c_str());
       file << "digraph G {" << std::endl;
       file << "graph[page=\"8.5,11\",size=\"7.5,10\",center=\"1\",ratio=\"fill\"];" << std::endl;
-      file << "node[height=\"1\"];" << std::endl;
+      file << "node[height=\"0.75\"];" << std::endl;
     }
     
     typedef std::map<string, int>::iterator Iter;
     typedef std::pair<Iter, bool> Retval;
     
     // Node: From
-    Iter from = actors.find(info.from);
+    Iter from = actors.find(info.from.name);
     if(from == actors.end()) {
-      Retval r = actors.insert(std::make_pair(info.from, id++));
+      Retval r = actors.insert(std::make_pair(info.from.name, id++));
       from = r.first;
       file << from->second << "[label=\"" << from->first << "\"];" << std::endl;
     }
     
     // Node: To
-    Iter to = actors.find(info.to);
+    Iter to = actors.find(info.to.name);
     if(to == actors.end()) {
-      Retval r = actors.insert(std::make_pair(info.to, id++));
+      Retval r = actors.insert(std::make_pair(info.to.name, id++));
       to = r.first;
       file << to->second << "[label=\"" << to->first << "\"];" << std::endl; 
     }
@@ -379,10 +389,13 @@ void TraceLogStream::createFifoGraph()
   }
   
   if(file.is_open()) {
+    file << "}" << std::endl;
+    file << "digraph C {" << std::endl;
+    file << "graph[page=\"8.5,11\",size=\"7.5,10\",center=\"1\",ratio=\"fill\"];" << std::endl;
     file << "caption[label=\"" << caption << "\",shape=\"box\"];" << std::endl;
     file << "}";
     file.close();
-    std::cout << "Found cycle(s). Dumped FIFO info to " << fstring << std::endl;
+    std::cout << "Found cycle(s) and/or unknown actors. Dumped FIFO info to " << fstring << std::endl;
   }
 }
 
