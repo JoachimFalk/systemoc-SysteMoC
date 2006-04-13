@@ -1,0 +1,158 @@
+\documentclass[a4paper, twocolumn, 10pt, headsepline, pointlessnumbers, bibtotoc, idxtotoc, german, english]{article}
+% \documentclass[a4paper, 10pt, BCOR2cm, headsepline, pointlessnumbers, bibtotoc, idxtotoc, german, english]{scrartcl}
+
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+%\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{amsmath}
+%\usepackage{amsthm}
+\usepackage{theorem}
+\usepackage{amssymb}
+%\usepackage{makeidx}
+\usepackage{hyperref}
+\usepackage{babel}
+%\usepackage{longtable}
+%\usepackage{array,tabularx,color,epsfig}
+\usepackage{rotating}
+%\usepackage{marvosym}
+%\usepackage{mathrsfs}
+\usepackage{calc}
+% Times Helvetica Courier
+\usepackage{pslatex}
+\usepackage[scaled=.90]{helvet}
+\usepackage{courier}
+
+%\usepackage{verbatim}
+\usepackage{fancyvrb}
+% backward compatibility cruft for verbatim
+\newcommand{\verbatiminput}[1]{\VerbatimInput{#1}}
+
+% Use a small font for the verbatim environment
+\makeatletter  % makes '@' an ordinary character
+\renewcommand{\verbatim@font}{%
+  \ttfamily\small\catcode`\<=\active\catcode`\>=\active%
+}
+\makeatother   % makes '@' a special symbol again
+
+\newcommand{\remark}{\tiny® \normalsize}
+\newcommand{\trademark}{\tiny\texttrademark \normalsize}
+%\renewcommand*\chaptermarkformat{\thechapter. \quad}
+%\renewcommand*\chapterformat{\thechapter. \ }
+
+\newcommand{\graphicPostfix}{pdf}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\msg}[1]{\texttt{#1}}
+\newcommand{\env}[1]{\textbf{#1}}
+\newcommand{\file}[1]{\emph{#1}}
+\newcommand{\module}[1]{\textit{#1}}
+\newcommand{\shellprompt}[1]{\textit{#1}}
+\newcommand{\shellcommand}[1]{\texttt{\textbf{#1}}}
+\newcommand{\shellresult}[1]{\texttt{#1}}
+\newcommand{\shell}[2]{
+  \shellprompt{[falk@codesign14]\$ }\shellcommand{#1}\\
+  \shellresult{#2}
+}
+\newcommand{\SysteMoC}{\emph{SysteMoC}}
+%\newcommand{\SysteMoC}{{\bf SysteMoC}}
+%\newcommand{\SysteMoCV}{\emph{SysteMoC 1.0}}
+%\newcommand{\SysteMoCV}{\SysteMoC{} {\bf 1.0}}
+\newcommand{\concat}{{}^{\smallfrown}}
+\newcommand{\length}{\#}
+
+\theoremheaderfont{\normalfont\sffamily\bfseries}
+{\theorembodyfont{\normalfont\itshape}
+  \newtheorem{definition}{Definition}[section]
+  \newtheorem{proof}{Proof}[section]
+}
+
+{\theorembodyfont{\normalfont}
+  \newtheorem{example}{Example}[section]
+  \newtheorem{syntax}{Syntax}[section]
+}
+
+\heavyrulewidth=0.1em
+
+\floatstyle{ruled}
+\floatname{algorithm}{\sffamily\bfseries Algorithm}
+\newfloat{algorithm}{tbp}{lol}[section]
+
+%\hyphenation{fortran er-go-no-mic}
+%\hyphenation{funk-tio-na-li-täts-zu-stand}
+
+% set dimensions of columns, gap between columns, and paragraph indent
+%\setlength{\textheight}{8.875in}
+%\setlength{\textwidth}{6.875in}
+%\setlength{\columnsep}{0.3125in}
+%\setlength{\topmargin}{0in}
+%\setlength{\headheight}{0in}
+%\setlength{\headsep}{0in}
+%\setlength{\parindent}{1pc}
+%\setlength{\marginparwidth}{7cm}
+%\setlength{\evensidemargin}{7cm}
+%\setlength{\oddsidemargin}{-.304in}
+\setlength{\hoffset}{2cm-1.0in}
+\setlength{\textwidth}{\paperwidth-4.0cm}
+
+\newcommand{\paperTitle}{Modeling and Simulation of Actor-Based Designs in SystemC}
+\newcommand{\paperAuthor}{Joachim Falk, Christian Haubelt, and Jürgen Teich}
+
+%\codesigntitle{\SysteMoC{} 2.0 Documentation}{Joachim Falk}
+\title{\paperTitle}
+
+\author{
+\begin{tabular}{c}
+\normalsize{\paperAuthor}\\%[-2mm]
+\normalsize{Universität Erlangen-Nürnberg, Hardware-Software-Co-Design}\\%[-2mm]
+\normalsize{Erlangen, Germany}\\%[-2mm]
+\normalsize{\texttt{\{falk, haubelt, teich\}@cs.fau.de}}
+\end{tabular}
+}
+
+\hypersetup{
+  pdftitle   = {\paperTitle},
+  pdfsubject = {Paper submission for FDL 2006},
+  pdfauthor  = {\textcopyright\ \paperAuthor},
+  colorlinks = true,
+  linkcolor  = black,
+  anchorcolor= black,
+  citecolor  = black,
+  filecolor  = black,
+  menucolor  = black,
+  pagecolor  = black,
+  urlcolor   = black
+}
+
+\date{\vspace{-1cm}}
+
+\renewcommand{\baselinestretch}{1.00}
+
+\begin{document}
+
+\selectlanguage{english}
+
+\maketitle
+
+%\tableofcontents
+
+\input{systemoc-intro}
+
+\input{systemoc-syntax}
+
+%\input{systemoc-semantics}
+
+\input{systemoc-implementation}
+
+\input{systemoc-conclusions}
+
+% \appendix
+
+% \input{mathdefs}
+
+\bibliographystyle{alpha}
+\bibliography{literature}
+
+\end{document}

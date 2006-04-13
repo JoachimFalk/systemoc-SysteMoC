@@ -1,22 +1,22 @@
-\chapter{SysteMoC - syntax}
+\section{\SysteMoC{} - syntax}\label{sec:systemoc-syntax}
 
-\section{Basic concepts}
+\subsection{Basic concepts}
  
 Instead of a monolithic approach for representing an executable specification of an embedded system as done using many design languages, we will use a refinement of \emph{actor-oriented} design.
 In actor-oriented design, \emph{actors} only communicate with each other via \emph{channels} instead of method calls as known
 in object-oriented design.
-SysteMoC \cite{FHT05} is a library based on SystemC \cite{systemc-lrm:2003,
+\SysteMoC{} \cite{FHT05} is a library based on SystemC \cite{systemc-lrm:2003,
 glms:2002} that allows to describe and simulate 
 communicating actor systems.
 
-Using SysteMoC, many important models of computation may be described such as 
+Using \SysteMoC, many important models of computation may be described such as 
 SDF \cite{Lee87b:1987}, CSDF \cite{belp:1996, eblp:1994}, Boolean Dataflow, 
 Kahn Process Networks \cite{Kahn:1974}, 
 and many process networks, also communicating sequential processes (CSP)
 \cite{csphoare:1985}, and many others \cite{tszet:1999, LeeDenotialDF:1997,
 embsft:2002, Lee98, Eker, Tei97}.
 
-A SysteMoC actor contains 3 basic elements:
+A \SysteMoC{} actor contains 3 basic elements:
 
 \begin{itemize}
 \item {\em Network graph}: Each application is modeled 
@@ -53,12 +53,12 @@ a network of actors and channels.
 
 
 
-The creation of a SysteMoC design can be roughly divided into two subtasks:
+The creation of a \SysteMoC{} design can be roughly divided into two subtasks:
 (i) The creation of a \emph{network graph} for the design, e.g., as displayed in Figure~\ref{fig:ng-sqrroot} for an approximative square root algorithm, and
 (ii) the creation of all \emph{actor classes} needed by the design, e.g., \code{SqrLoop} in Figure~\ref{fig:actor-sqrloop}.
 The network graph is composed of \emph{actor instances} of these actor classes, e.g., $a_1$ - $a_5$, which are connected via \emph{channels}.
 
-% Der Aufbau einer Anwendung in SysteMoC lässt sich grob in zwei Teilaufgaben untergliedern: (i) Die Definition der \emph{Aktorbeschreibung} und (ii) die Instantiierung und Verknüpfung dieser Aktorbeschreibungen mittels Kanälen zu einem \emph{Netzwerkgraphen}.
+% Der Aufbau einer Anwendung in \SysteMoC{} lässt sich grob in zwei Teilaufgaben untergliedern: (i) Die Definition der \emph{Aktorbeschreibung} und (ii) die Instantiierung und Verknüpfung dieser Aktorbeschreibungen mittels Kanälen zu einem \emph{Netzwerkgraphen}.
 % in Beispiel einer Aktorbeschreibung ist in den Abbildungen \ref{systemoc-actor-def} bis \ref{systemoc-bthchk-fsm} dargestellt.
 % Diese Beschreibung wird anschließend im Netzwerkgraph des InfiniBand-HCA, dargestellt in Abbildung \ref{fig:ng-sqrroot}, für die \emph{Aktorinstanz} $a_{11}$ verwendet.
 
@@ -77,7 +77,7 @@ If the error bound is not satisfied, the input value will be send to actor $a_3$
 This iteration repeats until the error bound is satisfied and the approximation result
 is forwarded via channel $c_6$ to the \code{Sink} actor $a_5$.
 
-\section{Network graph}
+\subsection{Network graph}
 
 In an actor-oriented design \cite{agha97abstracting:1997}, a model of computation \cite{embsft:2002} defines
 the interaction policy between actors.
@@ -89,7 +89,7 @@ medium called \emph{channel}, see e.g., the \emph{FIFO} channels $c_1$ - $c_6$ i
 
 Actors are connected to other actors via channels.
 These connections are encoded in the \emph{network graph}.
-In SysteMoC, a \emph{network graph} is represented as a C++ class derived from the base class \code{smoc\_graph}, e.g., as seen in the following code for the above square root 
+In \SysteMoC{}, a \emph{network graph} is represented as a C++ class derived from the base class \code{smoc\_graph}, e.g., as seen in the following code for the above square root 
 approximation algorithm example:
 
 \begin{example}\label{ex:systemoc-networkgraph}%
@@ -223,10 +223,10 @@ thus allowing us to simply omit the term non-conflicting.
 % FIFO channels and a rendezvous channels. Channels are used to
 % transport data values in form of so-called \emph{tokens}.
 
-\section{Actor classes}
+\subsection{Actor classes}
 
 An \emph{actor} can be thought of as an object which maps sequences of token values on its input ports to sequences of token values on its output ports.
-In SysteMoC, each actor is represented as an instance of an \emph{actor class} which is derived from the C++ base class \code{smoc\_actor}, e.g., as seen in the following example for the SqrLoop actor class.
+In \SysteMoC{}, each actor is represented as an instance of an \emph{actor class} which is derived from the C++ base class \code{smoc\_actor}, e.g., as seen in the following example for the SqrLoop actor class.
 
 %\newpage
 \begin{example}\label{ex:systemoc-sqrloop-actor-def}%
@@ -286,7 +286,7 @@ Visual representation of the \code{SqrLoop} actor $a_2$ used in the network grap
 The \code{SqrLoop} actor is composed of \emph{input ports} and \emph{output ports}, its \emph{functionality}, and the \emph{firing FSM} determining the communication behavior of the actor.}
 \end{figure}
 
-\subsection{Declaration of the actor input and output ports}\label{sec:actor-ports}
+\subsubsection{Declaration of the actor input and output ports}\label{sec:actor-ports}
 
 An actor may only communicate with other actors via tokens passing 
 from output ports to input ports via channels
@@ -312,11 +312,11 @@ private:
 
 Please note that the usage of normal \code{sc\_fifo} channels as provided by the SystemC language with \code{sc\_fifo\_in} and \code{sc\_fifo\_out} ports would not allow to separate actor functionality and communication behavior because these ports allow \emph{destructive reads} and \emph{non-destructive writes}.
 This would enable the actor functionality to actually consume and produce tokens contradicting the separation of these two aspects.
-For this reason, the SysteMoC library provides its own input and output port declarations \code{smoc\_port\_in} and \code{smoc\_port\_out}.
+For this reason, the \SysteMoC{} library provides its own input and output port declarations \code{smoc\_port\_in} and \code{smoc\_port\_out}.
 These use the same concept of template parameters as standard port from SystemC, e.g., \code{sc\_fifo\_in} to specify the token type
 communicated over these ports. For example, to specify a port which communicates tokens with values of type \code{double}, the declaration is \code{smoc\_port\_in$<$double$>$}.
 
-\subsection{Declaration of the actor functionality}\label{sec:actor-functionality}
+\subsubsection{Declaration of the actor functionality}\label{sec:actor-functionality}
 The actor functionality is represented by member variables and member functions of the actor.
 These functions manipulate the so-called \emph{functionality state} 
 reflected by the current values of the set of member variables of the actor.
@@ -445,19 +445,19 @@ Output values from actions $f_\mathrm{action}$ are used by the firing FSM to gen
 
 
 
-\subsection{Declaration of the communication behavior}\label{sec:firing-fsm}
+\subsubsection{Declaration of the communication behavior}\label{sec:firing-fsm}
 
 The consumption and production of tokens is locally triggered by transitions 
 of an explicit \emph{firing FSM} required in each actor.
 The purpose and advantage of this clear separation of that part 
 that does computation on token values (in 
 actions and guards) from the control of the behavior of an actor in particular 
-to our SysteMoC approach and inspired by the following advantages: 
+to our \SysteMoC{} approach and inspired by the following advantages: 
 \begin{itemize}
 \item {\em recognizability}: recognize important data-flow models of computation such 
 as SDF, and CSDF just from the complexity of the firing FSM.
 \item {\em analyzability}: As a consequence of being able to detect important 
-well-known models of computation within SysteMoC actors and actor network 
+well-known models of computation within \SysteMoC{} actors and actor network 
 graphs, many important and well-known analysis algorithms such as 
 boundedness of memory, liveness and periodicity properties may be applied
 immediately.
@@ -465,10 +465,10 @@ immediately.
 and scheduling algorithms may be applied on individual or subgraphs of actors.
 \item {\em simulatability}: Finally, even most complex actor networks may be 
 handled for which no formal analysis techniques are known by simply simulating the 
-network of actors. As SysteMoC is built on top of SystemC, an event-driven 
+network of actors. As \SysteMoC{} is built on top of SystemC, an event-driven 
 simulation of the exact timing and concurrency among actors is immediately possible.
 \item {\em refinement}: We expect to show another important 
-feature of SysteMoC in the future, namely a transformative refinement of actor code:
+feature of \SysteMoC{} in the future, namely a transformative refinement of actor code:
 We intend to apply important refinement transformations towards a final 
 target implementation by providing transformations on the specification, 
 and finally, also automatic platform-based automatic code synthesis is envisioned.
@@ -538,7 +538,7 @@ ready to be taken, we assume that one of these transitions is chosen non-deter\-
 % besteht aus einem Zustand \code{start} und zwei Selbstschleifen,
 % den Transitionen $\mathbf{t_1}$ und $\mathbf{t_2}$.
 
-In the following Example~\ref{ex:systemoc-sqrloop-fsm-def}, the SysteMoC representation of the firing FSM of the \code{SqrLoop} actor $a_2$, also visually represented in Figure~\ref{fig:firing-rules-sqrloop}, is given.
+In the following Example~\ref{ex:systemoc-sqrloop-fsm-def}, the \SysteMoC{} representation of the firing FSM of the \code{SqrLoop} actor $a_2$, also visually represented in Figure~\ref{fig:firing-rules-sqrloop}, is given.
 
 \begin{example}\label{ex:systemoc-sqrloop-fsm-def}%
 Declaration of communication behavior (firing FSM):
@@ -600,7 +600,7 @@ public:
 % Von den deklarierten Aktivierungszuständen wird einer als
 % Startzustand selektiert, indem er an die Basisklasse \code{smoc\_actor} übergeben wird.
   
-In SysteMoC firing states are represented as instances of class \code{smoc\_fi\-ring\_state} and declared as
+In \SysteMoC{} firing states are represented as instances of class \code{smoc\_fi\-ring\_state} and declared as
 member variables of the corresponding actor class.
 One firing state is selected as the start start by passing it to the \code{smoc\_actor} base class of the actor class.
 The firing FSM is specified in the constructor of the actor class by assigning each firing state its set of outgoing transitions.

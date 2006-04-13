@@ -1,6 +1,6 @@
-\chapter{SysteMoC implementation}
+\section{\SysteMoC{} implementation}\label{sec:systemoc-implementation}
 
-\section{Implementation of the firing FSM syntax}
+\subsection{Implementation of the firing FSM syntax}
 
 The activation patterns used to describe the firing FSM of an actor as seen in \ref{ex:systemoc-sqrloop-fsm-def} on page \pageref{ex:systemoc-sqrloop-fsm-def} and defined in \ref{syn:systemoc-fsm-bnf} and \ref{syn:systemoc-fsm-bnf-2} are encoded in C++ as so called \emph{expression templates} \cite{veldhuizen:1995}.
 The constructed expression template for an activation pattern is a tree of nest template types which corresponds to the \emph{abstract syntax tree} of the activation pattern, as shown in Figure~\ref{fig:ast-t2-sqrloop}.
@@ -46,4 +46,4 @@ XML representation of the transition $t_2$ of the \code{SqrLoop} actor $a_2$ inc
 
 
 
-% LocalWords:  SysteMoC
+% LocalWords: SysteMoC
