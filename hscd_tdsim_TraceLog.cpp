@@ -258,11 +258,42 @@ void TraceLogStream::createFifoGraph()
   
   // Counts actors that have no name (used to generate unique name)
   int unknown = 0;
+  
+  // first remove empty fifos and create unique names for
+  // unknown actors
+  for(std::map<string, s_fifo_info>::iterator fifo = fifo_info.begin();
+      fifo != fifo_info.end();)
+  {
+    s_fifo_info &info = fifo->second;
+    s_actor_info &from = info.from;
+    s_actor_info &to = info.to;
+    
+    if(info.size == 0) {
+      fifo_info.erase(fifo++);
+      continue;
+    }
+    
+    if(from.unknown) {
+      assert(from.name == "");
+      from.name = "? (";
+      from.name += string_cast(unknown++);
+      from.name += ")";
+    }
+    
+    if(to.unknown) {
+      assert(to.name == "");
+      to.name = "? (";
+      to.name += string_cast(unknown++);
+      to.name += ")";
+    }
+    
+    ++fifo;   
+  }
+  
   // True, if fifos were removed in loop
   bool retry = false;
   
-  // Remove empty fifos; prettify unknown actor names; remove fifos
-  // that are not in loops (but retain unknown actors)
+  // now remove fifos that are not in loops (but retain unknown actors)
   do {
     retry = false;
     
@@ -273,19 +304,7 @@ void TraceLogStream::createFifoGraph()
       s_actor_info &from = info.from;
       s_actor_info &to = info.to;
       
-      if(info.size == 0) {
-        // Erase empty fifo
-        fifo_info.erase(fifo++);
-        continue;
-      }
-      
-      if(from.unknown && from.name == "") {
-        // Prettify unknown actor name
-        from.name = "? (";
-        from.name += string_cast(unknown++);
-        from.name += ")";
-      }
-      else if(!from.unknown) {
+      if(!from.unknown) {
         // Is actor some other fifo's target?
         bool found = false;
         for(std::map<string, s_fifo_info>::iterator other = fifo_info.begin();
@@ -303,14 +322,8 @@ void TraceLogStream::createFifoGraph()
           continue;
         }
       }
-    
-      if(to.unknown && to.name == "") {
-        // Prettify unknown actor name
-        to.name = "? (";
-        to.name += string_cast(unknown++);
-        to.name += ")";
-      }
-      else if(!to.unknown) {
+      
+      if(!to.unknown) {
         // Is actor some other fifo's source?
         bool found = false;
         for(std::map<string, s_fifo_info>::iterator other = fifo_info.begin();
