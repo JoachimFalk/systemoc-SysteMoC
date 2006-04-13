@@ -29,6 +29,48 @@
 #ifdef SYSTEMOC_TRACE
 
 using std::string;
+
+// dynamically obtained fifo infos
+struct s_fifo_info {
+  // connected actors
+  string from;
+  string to;
+  // currently contained messages
+  int size;
+  // infos for graph generation
+  int from_id;
+  int to_id;
+  // constructs empty fifo
+  s_fifo_info() :
+    from(""),
+    to(""),
+    size(0),
+    from_id(-1),
+    to_id(-1)
+  {}
+};
+
+// class for generating caption indices for fifos
+class Sequence
+{
+public:
+  // constructs object for generating "count" indices,
+  // with each place ranging from "start" to "end"
+  Sequence(unsigned int count, char start, char end);
+  // returns current sequence
+  const string& current() const;
+  // resets to starting sequence
+  void reset();
+  // advances to next sequence, returns true if successful
+  bool next();
+private:
+  unsigned int cnt;
+  unsigned int gen;
+  char start;
+  char end;
+  string seq;         
+};
+
 class TraceLogStream {
 private:
   std::ostream &stream;
@@ -37,12 +79,10 @@ private:
   std::map<string,std::set<string> > functions;
   std::map<string, int> function_call_count;
   std::map<string, int> actor_activation_count;
-  std::map<string, int> fifo_fill_state;
   std::map<string, string> last_actor_function;
-  std::string lastactor;
-  
+  std::string lastactor; 
   std::string fifo_actor_last;
-  std::map<string, std::pair<string, string> > fifo_actor;
+  std::map<string, s_fifo_info> fifo_info;
   
 public:
   template <typename T>
@@ -95,7 +135,7 @@ public:
   void traceStartTransact(const char * actor);
   void traceEndTransact(const char * actor);
   
-
+  void createFifoGraph();
 };
 
 extern TraceLogStream TraceLog; 
