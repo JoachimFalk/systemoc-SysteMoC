@@ -1,4 +1,4 @@
-\input{format-industry.tex}
+\input{format-report.tex}
 %\documentclass[a4paper, 12pt, BCOR2cm, headsepline, pointlessnumbers, bibtotoc, idxtotoc, german]{scrbook}
 
 \newcommand{\code}[1]{\texttt{#1}}
@@ -13,35 +13,29 @@
   \shellprompt{[falk@codesign14]\$ }\shellcommand{#1}\\
   \shellresult{#2}
 }
-%\newcommand{\SysteMoC}{\emph{SysteMoC}}
-%\newcommand{\SysteMoC}{{\bf SysteMoC}}
-%\newcommand{\SysteMoCV}{\emph{SysteMoC 1.0}}
-%\newcommand{\SysteMoCV}{\SysteMoC{} {\bf 1.0}}
-%\newcommand{\implies}{\Longrightarrow}
+
+\newcommand{\SysteMoC}{\emph{SysteMoC}}
 \newcommand{\concat}{{}^{\smallfrown}}
 \newcommand{\length}{\#}
 
-\usepackage[latin1]{inputenc}
-\usepackage[T1]{fontenc}
-
 \theoremheaderfont{\normalfont\sffamily\bfseries}
 {\theorembodyfont{\normalfont\itshape}
-  \newtheorem{definition}{Definition}[chapter]
+  \newtheorem{definition}{Definition}[section]
 % \newtheorem{cdefinition}{Definition}[chapter]
 % \newtheorem{sdefinition}{Definition}[section]
 % \newtheorem{ssdefinition}{Definition}[subsection]
-  \newtheorem{proof}{Proof}[chapter]
+  \newtheorem{proof}{Proof}[section]
 % \newtheorem{cproof}{Proof}[chapter]
 % \newtheorem{sproof}{Proof}[section]
 % \newtheorem{ssproof}{Proof}[subsection]
 }
 
 {\theorembodyfont{\normalfont}
-  \newtheorem{example}{Example}[chapter]
+  \newtheorem{example}{Example}[section]
 % \newtheorem{cexample}{Example}[chapter]
 % \newtheorem{sexample}{Example}[section]
 % \newtheorem{ssexample}{Example}[subsection]
-  \newtheorem{syntax}{Syntax}[chapter]
+  \newtheorem{syntax}{Syntax}[section]
 % \newtheorem{csyntax}{Syntax}[chapter]
 % \newtheorem{ssyntax}{Syntax}[section]
 % \newtheorem{sssyntax}{Syntax}[subsection]
@@ -68,7 +62,7 @@
 
 \begin{document}
 \selectlanguage{english}
-\codesigntitle{SysteMoC 2.0 Documentation}{Joachim Falk}
+\hscdtitle{SysteMoC 2.0 Documentation}{Joachim Falk}{3-2006}
 \newpage
 \tableofcontents
 \clearpage

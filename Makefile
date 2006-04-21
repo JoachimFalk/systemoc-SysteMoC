@@ -4,9 +4,9 @@ RESDIR=$(shell while [ ! -d HscdTeXRes -a x`pwd` != x'/' ]; do cd ..; done; cd H
 
 .PHONY: docu
 
-docu: paper-fdl.pdf
+docu: docu.pdf
 
-TEX_SOURCES=report.tex docu.tex paper-fdl.tex
+TEX_SOURCES=docu.tex
 
 TEXINPUTS:=figs:$(RESDIR):$(TEXINPUTS)
 TEXCLEANDIRS:=figs $(RESDIR) .
