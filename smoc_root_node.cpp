@@ -119,12 +119,35 @@ const smoc_port_list smoc_root_node::getPorts() const {
   return ports;
 }
 
+const smoc_firing_states smoc_root_node::getFiringStates() const { 
+  smoc_firing_states states;
+  const sc_module *m = myModule();
+    for ( 
+#if SYSTEMC_VERSION < 20050714
+      sc_pvector<sc_object*>::const_iterator iter =
+          m->get_child_objects().begin();
+#else
+      std::vector<sc_object*>::const_iterator iter =
+          m->get_child_objects().begin();
+#endif
+      iter != m->get_child_objects().end();
+      ++iter ) {
+    smoc_firing_state *state = dynamic_cast<smoc_firing_state*>(*iter);
+    
+    if ( state != NULL )
+      states.push_back(state);
+  }
+  return states;
+
+}
+
 void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
   {}
 
 void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
-  const sc_module     *m  = myModule();
-  const smoc_port_list ps = getPorts();
+  const sc_module          *m  = myModule();
+  const smoc_firing_states  fs = getFiringStates();
+  const smoc_port_list      ps = getPorts();
   
   if ( !ps.empty() ) {
     pgw << "<process name=\"" << m->name() << "\" "
@@ -139,6 +162,12 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
         pgw << "<port name=\"" << (*iter)->name() << "\" "
                      "type=\"" << ((*iter)->isInput() ? "in" : "out") << "\" "
                      "id=\"" << pgw.getId(*iter) << "\"/>" << std::endl;
+      //*********************************FSM-STATES********************************
+      for ( smoc_firing_states::const_iterator iter = fs.begin();
+          iter != fs.end();
+          ++iter )
+        pgw << "<state id=\"" << pgw.getId(&(*iter)->getResolvedState())
+            << "\"/>" << std::endl;
       //*******************************ACTOR CLASS*********************************
       pgw << "<actor actorClass=\"" << typeid(*m).name() << "\">" << std::endl;
       {

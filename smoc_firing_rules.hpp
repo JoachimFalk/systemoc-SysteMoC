@@ -30,6 +30,7 @@
 
 #include <cosupport/oneof.hpp>
 
+#include <systemc.h>
 #include <smoc_guard.hpp>
 #include <smoc_root_port.hpp>
 
@@ -60,6 +61,8 @@ void intrusive_ptr_add_ref( smoc_member_func_interface<R> *r );
 template <typename R>
 static inline
 void intrusive_ptr_release( smoc_member_func_interface<R> *r );
+
+typedef std::vector<smoc_firing_state *> smoc_firing_states;
 
 template <typename R>
 class smoc_member_func_interface {
@@ -266,7 +269,8 @@ std::ostream &operator <<( std::ostream &out, const smoc_firing_state_ref &s )
   { s.dump(out); return out; }
 
 class smoc_firing_state
-  :public smoc_firing_state_ref {
+  :public smoc_firing_state_ref,
+   public sc_object {
 public:
   friend class smoc_opbase_node;
   friend class transition_ty;
@@ -277,7 +281,7 @@ public:
     { this->operator = (tl); }
   smoc_firing_state( const smoc_transition &t )
     { this->operator = (t); }
-  smoc_firing_state()
+  smoc_firing_state():sc_object(sc_gen_unique_name( "smoc_firing_state" ))
     {}
   smoc_firing_state( const this_type &x )
     { *this = x; }

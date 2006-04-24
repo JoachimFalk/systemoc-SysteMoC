@@ -42,8 +42,8 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
   bool           again;
   smoc_node_list nodes;
 
-  int guard_success = 0;
-  int guard_fail    = 0;
+  //int guard_success = 0;
+  //int guard_fail    = 0;
   
   getLeafNodes(nodes, c);
   do {
