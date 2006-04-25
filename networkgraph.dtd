@@ -27,7 +27,7 @@
   name CDATA #IMPLIED
 >
 
-<!ELEMENT process (port|actor|fifo|attribute|problemgraph)*>
+<!ELEMENT process (port|state|actor|fifo|attribute|problemgraph)*>
 <!ATTLIST process
 	name CDATA #REQUIRED
 	id ID #REQUIRED
@@ -78,6 +78,11 @@
 	name CDATA #REQUIRED
 	id ID #REQUIRED
 	type (in|out) #REQUIRED
+>
+
+<!ELEMENT state EMPTY>
+<!ATTLIST state
+	id ID #REQUIRED
 >
 
 <!ELEMENT portmapping EMPTY>

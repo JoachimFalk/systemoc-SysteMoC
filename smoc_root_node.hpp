@@ -121,8 +121,10 @@ protected:
 public:
   // FIXME: protection
   bool               is_v1_actor;
+#ifdef ENABLE_SYSTEMC_VPC  
   smoc_firing_state  commstate;
   smoc_firing_state  nextState;
+#endif //ENABLE_SYSTEMC_VPC  
   smoc_event         vpc_event;
   smoc_port_list     ports_setup;
   
@@ -139,6 +141,8 @@ public:
 #endif
   
   const smoc_port_list getPorts() const;
+  
+  const smoc_firing_states getFiringStates() const;
   
   std::ostream &dumpActor( std::ostream &o );
   
