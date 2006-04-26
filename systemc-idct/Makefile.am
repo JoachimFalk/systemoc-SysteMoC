@@ -24,9 +24,9 @@ root_builddir=$(top_builddir)/..
 
 SUBDIRS=
 
-INCLUDES = @SYSTEMC_INCLUDE@ -I$(srcdir)
+INCLUDES = @INCLUDES@ @SYSTEMC_INCLUDE@
 
-AM_LDFLAGS = @SYSTEMC_LDFLAGS@
+AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMC_LDFLAGS@
 AM_CPPFLAGS=-Wno-deprecated
 
 LIBS=-lsystemc

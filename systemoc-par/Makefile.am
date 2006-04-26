@@ -24,14 +24,14 @@ root_builddir=$(top_builddir)/..
 
 SUBDIRS=
 
-INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
+INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 
-AM_LDFLAGS = @SYSTEMOC_LDFLAGS@
+AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS=-Wno-deprecated
 
 LIBS=-lsystemoc
 
-noinst_PROGRAMS= simulation-sqr
+noinst_PROGRAMS= simulation-par
 
-simulation_sqr_SOURCES= design-par.cpp
-simulation_sqr_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_par_SOURCES= design-par.cpp
+simulation_par_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
