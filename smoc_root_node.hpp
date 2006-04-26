@@ -102,7 +102,8 @@ protected:
   template <typename T>
   class param_wrapper{
     public:
-      param_wrapper(const T& x){
+      param_wrapper(const T& x) {
+        m_value = x;
         std::stringstream allToString;
         allToString << x;
         std::pair<std::string, std::string> arg_info;
@@ -112,10 +113,10 @@ protected:
       }
   
       operator T(){
-        return x;
+        return m_value;
       }
     private:
-      T x;
+      T m_value;
   };
 
   friend class param_wrapper<class T>;   
