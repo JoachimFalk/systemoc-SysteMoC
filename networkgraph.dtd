@@ -80,11 +80,6 @@
 	type (in|out) #REQUIRED
 >
 
-<!ELEMENT state EMPTY>
-<!ATTLIST state
-	id ID #REQUIRED
->
-
 <!ELEMENT portmapping EMPTY>
 <!ATTLIST portmapping
         from IDREF #REQUIRED
