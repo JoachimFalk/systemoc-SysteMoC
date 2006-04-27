@@ -141,6 +141,7 @@ public:
   
   void pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
     { return smoc_ndf_constraintset::pgAssemble(pgw,n); }
+  void assembleActor( smoc_modes::PGWriter &pgw ) const {}
 #endif
 
 };
