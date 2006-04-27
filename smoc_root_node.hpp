@@ -141,6 +141,7 @@ public:
   }
   
   virtual void pgAssemble( smoc_modes::PGWriter &, const smoc_root_node * ) const;
+  virtual void assembleActor( smoc_modes::PGWriter &pgw ) const;
   void assemble( smoc_modes::PGWriter &pgw ) const;
   void assembleFSM( smoc_modes::PGWriter &pgw ) const;
 #endif

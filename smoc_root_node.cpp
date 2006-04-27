@@ -146,7 +146,7 @@ void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node
 
 void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   const sc_module          *m  = myModule();
-  const smoc_firing_states  fs = getFiringStates();
+  //const smoc_firing_states  fs = getFiringStates();
   const smoc_port_list      ps = getPorts();
   
   if ( !ps.empty() ) {
@@ -162,18 +162,36 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
         pgw << "<port name=\"" << (*iter)->name() << "\" "
                      "type=\"" << ((*iter)->isInput() ? "in" : "out") << "\" "
                      "id=\"" << pgw.getId(*iter) << "\"/>" << std::endl;
-      //*********************************FSM-STATES********************************
-      for ( smoc_firing_states::const_iterator iter = fs.begin();
+      //**************************FSM-STATES  && ACTOR-TAG*************************
+      assembleActor(pgw);
+      //***************************CONTAINED PROBLEMGRAPH**************************
+      pgAssemble(pgw, this);
+      pgw.indentDown();
+    }
+    pgw << "</process>" << std::endl;
+  } else {
+    pgAssemble(pgw, this);
+  }
+}
+
+/*FIXME: function constructs dump of different tag-levels. necessary, because
+  smoc_graph (inherits from smoc_root_node) must not construct this output.
+  So it reimplements this virtual function.*/
+void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
+  const smoc_firing_states  fs = getFiringStates();
+  const sc_module          *m  = myModule();
+  //*********************************FSM-STATES********************************
+  for ( smoc_firing_states::const_iterator iter = fs.begin();
           iter != fs.end();
           ++iter )
         pgw << "<state id=\"" << pgw.getId(&(*iter)->getResolvedState())
             << "\"/>" << std::endl;
-      //*******************************ACTOR CLASS*********************************
-      pgw << "<actor actorClass=\"" << typeid(*m).name() << "\">" << std::endl;
-      {
-        pgw.indentUp();
-        //***************************CONSTRUCTORPARAMETERS***************************
-        for (unsigned int i = 0; i < local_arg_vector.size(); i++) {
+        //*******************************ACTOR CLASS*********************************
+        pgw << "<actor actorClass=\"" << typeid(*m).name() << "\">" << std::endl;
+        {
+          pgw.indentUp();
+          //***************************CONSTRUCTORPARAMETERS***************************
+          for (unsigned int i = 0; i < local_arg_vector.size(); i++) {
           std::pair<std::string, std::string> parameterpair = local_arg_vector[i];
           pgw << "<constructorParameter "
                    "type=\""  << parameterpair.first  << "\" "
@@ -184,14 +202,6 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
         pgw.indentDown();
       }
       pgw << "</actor>" << std::endl;
-      //**************************CONTAINED PROBLEMGRAPH***************************
-      pgAssemble(pgw, this);
-      pgw.indentDown();
-    }
-    pgw << "</process>" << std::endl;
-  } else {
-    pgAssemble(pgw, this);
-  }
 }
 
 void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
