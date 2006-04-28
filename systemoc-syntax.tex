@@ -183,7 +183,7 @@ a channel parameter function $P: C \to \mathbb{N}_\infty \times V^*$ which
 associates with each channel $c \in C$ its buffer size $n \in \mathbb{N}_\infty = \{1,2,3,\ldots\infty\}$,
 and possibly also a non-empty sequence $\mathbf{v} \in V^*$ of initial tokens\footnote{
   We use the $V^* = \bigcup_{n \in \mathbb{N} \cup \{0\}} V^n$ notation to denote the set of all \emph{tuples} of $V$ also called \emph{finite sequences} of $V$.\\
-  Furthermore we will use $V^{**} = \bigcup_{n \in \mathbb{N}_\infty \cup \{0\}} V^n$ to denote the set of all finite and infinite \emph{sequences} of $V$ \cite{Lee98}.
+  Furthermore, we will use $V^{**} = \bigcup_{n \in \mathbb{N}_\infty \cup \{0\}} V^n$ to denote the set of all finite and infinite \emph{sequences} of $V$ \cite{Lee98}.
 },
 and finally a set of directed edges $E \subseteq (C \times A.I) \cup (A.O \times C)$,
 where $A.I = \bigcup{}_{a \in A} a.I$ and $A.O = \bigcup{}_{a \in A} a.O$ denote the sets of \emph{all actor input ports} and \emph{all actor output ports} in the network graph, respectively.
@@ -194,7 +194,7 @@ actors through its dedicated actor input ports $a.I$ and actor output ports $a.O
 Furthermore, the set of all actor input and actor output ports of all actors in
 the network graph is given by $A.\mathcal{P} = A.I \cup A.O$.\footnote{
   We use the `$.$'-operator, e.g., $a.\mathcal{P}$, for member access, e.g., $\mathcal{P}$, of tuples whose members have been explicitly named in their definition, e.g., $a \in A$ from Definition~\ref{def:actor}.
-  Furthermore this member access operator has a trivial pointwise extenstion to sets of tuples, e.g., $A.\mathcal{P} = \bigcup{}_{a \in A} a.\mathcal{P}$, which is also used throughout this document.
+  Moreover, this member access operator has a trivial pointwise extension to sets of tuples, e.g., $A.\mathcal{P} = \bigcup{}_{a \in A} a.\mathcal{P}$, which is also used throughout this document.
 }
 However, the preceding definition still allows multiple readers and writers per FIFO channel.
 Therefore, we define a more restricted form of network graphs called \emph{non-conflicting network graph} which allows only \emph{point-to-point} connections per channel.
