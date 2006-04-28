@@ -9,15 +9,15 @@ As an example we pick the activation pattern on transition $t_2$ of the \code{Sq
 % The activation patterns used to describe the firing FSM of an actor as seen in \ref{ex:systemoc-sqrloop-fsm-def} on page \pageref{ex:systemoc-sqrloop-fsm-def} and defined in \ref{syn:systemoc-fsm-bnf} and \ref{syn:systemoc-fsm-bnf-2} are encoded in C++ as so called \emph{expression templates} \cite{veldhuizen:1995}.
 The constructed expression template for an activation pattern is a tree of nest template types which corresponds to the \emph{abstract syntax tree} of the activation pattern.%, as shown in Figure~\ref{fig:ast-t2-sqrloop}.
 
-\begin{figure}[h]
-\centering
-\resizebox{\textwidth}{!}{\input{ast-fig.tex}}
-%\input{ast-fig.tex}
-%\includegraphics[width = 5in]{actor-sqrloop}
-\caption{\label{fig:ast-t2-sqrloop}%
-Visual representation of the \emph{abstract syntax tree} and its corresponding \emph{expression template} derived from the activation pattern used in transition $t_2$ of the \code{SqrLoop} actor $a_2$ from Figure~\ref{fig:actor-sqrloop} on page \pageref{fig:actor-sqrloop}.
-}
-\end{figure}
+%\begin{figure}[h]
+%\centering
+%\resizebox{\columnwidth}{!}{\input{ast-fig.tex}}
+%%\input{ast-fig.tex}
+%%\includegraphics[width = 5in]{actor-sqrloop}
+%\caption{\label{fig:ast-t2-sqrloop}%
+%Visual representation of the \emph{abstract syntax tree} and its corresponding \emph{expression template} derived from the activation pattern used in transition $t_2$ of the \code{SqrLoop} actor $a_2$ from Figure~\ref{fig:actor-sqrloop} on page \pageref{fig:actor-sqrloop}.
+%}
+%\end{figure}
 
 Using expression templates allows us to use both compile time code transformation and to derive at C++ compile time the \emph{abstract syntax tree} for our activation patterns enabling:
 (i) extraction of the FIFO channels used in an activation pattern to generate sensitivity lists,
@@ -29,7 +29,7 @@ Using expression templates allows us to use both compile time code transformatio
 \resizebox{\columnwidth}{!}{\input{ast-compile-time-transform-fig.tex}}
 %\input{ast-fig.tex}
 %\includegraphics[width = 5in]{actor-sqrloop}
-\caption{\label{fig:ast-compile-time-transform}%
+\caption{\label{fig:ast-t2-sqrloop}\label{fig:ast-compile-time-transform}%
 Compile time code transformation of an activation pattern into a sensitivity list used for scheduling and an functionality state dependent part used to check transition readiness after the scheduling step.
 }
 \end{figure}
