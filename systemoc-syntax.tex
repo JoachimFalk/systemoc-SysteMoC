@@ -94,7 +94,7 @@ In \SysteMoC{}, a \emph{network graph} is represented as a C++ class derived fro
 approximation algorithm example:
 
 \begin{example}\label{ex:systemoc-networkgraph}%
-Declaration of the network graph shown in Figure~\ref{fig:ng-sqrroot}:
+Network graph corresponding to Figure~\ref{fig:ng-sqrroot}:
 \begin{verbatim}
 // Declare network graph class SqrRoot
 class SqrRoot: public smoc_graph {
@@ -277,7 +277,7 @@ The three parts of an actor can also be seen in Figure~\ref{fig:actor-sqrloop} w
 graphical representation the actor defined in the Examples~\ref{ex:systemoc-sqrloop-actor-def} - \ref{ex:systemoc-sqrloop-fsm-def}.
 In the following, the steps to construct these three parts will be explained in detail.
 
-\begin{figure}[h]
+\begin{figure}[t]
 \centering
 \resizebox{\textwidth}{!}{\input{actor-sqrloop-fig.tex}}
 %\includegraphics[width = 5in]{actor-sqrloop}
@@ -313,8 +313,8 @@ private:
 Please note that the usage of normal \code{sc\_fifo} channels as provided by the SystemC language with \code{sc\_fifo\_in} and \code{sc\_fifo\_out} ports would not allow to separate actor functionality and communication behavior because these ports allow \emph{destructive reads} and \emph{non-destructive writes}.
 This would enable the actor functionality to actually consume and produce tokens contradicting the separation of these two aspects.
 For this reason, the \SysteMoC{} library provides its own input and output port declarations \code{smoc\_port\_in} and \code{smoc\_port\_out}.
-These use the same concept of template parameters as standard port from SystemC, e.g., \code{sc\_fifo\_in} to specify the token type
-communicated over these ports. For example, to specify a port which communicates tokens with values of type \code{double}, the declaration is \code{smoc\_port\_in$<$double$>$}.
+These use the same concept of template parameters as standard SystemC ports, e.g., \code{sc\_fifo\_in}, to specify the type of token communicated.
+%For example, to specify a port which communicates tokens with values of type \code{double}, the declaration is \code{smoc\_port\_in$<$double$>$}.
 
 \subsubsection{Declaration of the actor functionality}\label{sec:actor-functionality}
 The actor functionality is represented by member variables and member functions of the actor.
@@ -492,7 +492,7 @@ More formally, we derive the following two formal definitions:
   A \emph{firing transition} is a tuple $t = (q_\mathrm{firing}, k, f_\mathrm{action}, q'_\mathrm{firing})$  $\in T$ containing
   the current firing state $q_\mathrm{firing} \in Q_\mathrm{firing}$,
   an \emph{activation pattern} $k$,
-  the associated \emph{action} $f_\mathrm{action} \in a.\mathcal{F}.F_\mathrm{action}$,
+  the associated \emph{action} $f_\mathrm{action} \in a.\mathcal{F}$,
   and the next firing state $q'_\mathrm{firing} \in Q_\mathrm{firing}$.
   The activation pattern $k$ is a boolean function which decides if 
   transition $t$ can be taken $(\mathrm{true})$ or not $(\mathrm{false})$.
@@ -505,7 +505,7 @@ More formally, we derive the following two formal definitions:
 % $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
 \end{definition}
 
-\begin{figure}[h]
+\begin{figure}[t]
 \centering
 \scalebox{1}[1]{\input{firing-rules-sqrloop-fig.tex}}
 %\includegraphics[width = 5in]{firing-rules-sqrloop}
@@ -532,7 +532,7 @@ As said before, the activation pattern $k$ may consist of patterns specifying th
 In this paper, we will not formally define activation patterns.
 Instead, we introduce them throughout our running example.
 
-Note that in case at a certain instant of time, more than one transitions should be 
+Note that in case at a certain instant of time, more than one transition should be 
 ready to be taken, we assume that one of these transitions is chosen non-deter\-ministi\-cally.
 
 % Der obig definierte Zustandsautomat,
@@ -543,7 +543,7 @@ ready to be taken, we assume that one of these transitions is chosen non-deter\-
 In the following Example~\ref{ex:systemoc-sqrloop-fsm-def}, the \SysteMoC{} representation of the firing FSM of the \code{SqrLoop} actor $a_2$, also visually represented in Figure~\ref{fig:firing-rules-sqrloop}, is given.
 
 \begin{example}\label{ex:systemoc-sqrloop-fsm-def}%
-Declaration of communication behavior (firing FSM):
+Declaration of the firing FSM:
 \begin{verbatim}
 class SqrLoop: public smoc_actor {
   ...
@@ -602,9 +602,9 @@ public:
 % Von den deklarierten Aktivierungszuständen wird einer als
 % Startzustand selektiert, indem er an die Basisklasse \code{smoc\_actor} übergeben wird.
   
-In \SysteMoC{} firing states are represented as instances of class \code{smoc\_fi\-ring\_state} and declared as
+In \SysteMoC{} firing states are represented as instances of the class \code{smoc\_fi\-ring\_state} and declared as
 member variables of the corresponding actor class.
-One firing state is selected as the start start by passing it to the \code{smoc\_actor} base class of the actor class.
+One firing state is selected as the start state by passing it to the \code{smoc\_actor} base class of the actor class.
 The firing FSM is specified in the constructor of the actor class by assigning each firing state its set of outgoing transitions.
 The syntax used in the above example to declare the firing FSM is given in the following as extended \emph{Backus-Naur form} (\emph{BNF}):
 %Syntax~\ref{syn:systemoc-fsm-bnf}

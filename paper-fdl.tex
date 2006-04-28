@@ -20,6 +20,7 @@
 %\usepackage{marvosym}
 %\usepackage{mathrsfs}
 \usepackage{calc}
+\usepackage[left=2cm, right=2cm, bottom=4cm]{geometry}
 % Times Helvetica Courier
 \usepackage{pslatex}
 \usepackage[scaled=.90]{helvet}
@@ -94,10 +95,10 @@
 %\setlength{\marginparwidth}{7cm}
 %\setlength{\evensidemargin}{7cm}
 %\setlength{\oddsidemargin}{-.304in}
-\setlength{\hoffset}{2cm-1.0in}
-\setlength{\textwidth}{\paperwidth-4.0cm}
+%\setlength{\hoffset}{2cm-1.0in}
+%\setlength{\textwidth}{\paperwidth-4.0cm}
 
-\newcommand{\paperTitle}{Representation and Simulation of Model-Based Designs in SystemC}
+\newcommand{\paperTitle}{Efficient Representation and Simulation of Model-Based Designs in SystemC}
 \newcommand{\paperAuthor}{Joachim Falk, Christian Haubelt, and Jürgen Teich}
 
 %\codesigntitle{\SysteMoC{} 2.0 Documentation}{Joachim Falk}
@@ -128,14 +129,18 @@
 
 \date{\vspace{-1cm}}
 
-\renewcommand{\baselinestretch}{1.00}
+%\renewcommand{\baselinestretch}{1.00}
+\linespread{1.00}
 
+\maketitle
+
+%\sloppy
+ 
 \begin{document}
 
 \selectlanguage{english}
 
-\maketitle
-
+ 
 %\tableofcontents
 
 \input{systemoc-intro}
@@ -155,6 +160,7 @@
 % \input{mathdefs}
 
 \bibliographystyle{alpha}
+%\vspace{-1mm}
 \bibliography{literature}
 
 \end{document}

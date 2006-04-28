@@ -3,16 +3,18 @@
 {\itshape
 Actor-based design is based on composing a system of communicating processes called \emph{actors}, which can only communicate with each other via channels.
 However, \emph{actor-based design} does not constrain the communication behavior of its actors therefore making analyses of the system in general impossible.
-In a \emph{model-based design} methodology additionally the underlying \emph{Model of Computation} (MoC) is known which is a predefined type of communication behavior and a scheduling strategy for the actors.
+In a \emph{model-based design} methodology the underlying \emph{Model of Computation} (MoC) is known additionally which is given by a predefined type of communication behavior and a scheduling strategy for the actors.
 % Thus, it constraints the communication infrastructure of concurrent system to message passing over a predefined network graph of channels enabling XXX.
 %They are comparable to design patterns as used in software engineering and the basis for model-based design. %, which is a methodology for creating executable specifications which only use predefined patterns for communication which correspond to different MoCs.
 %Moreover, MoCs represent well known trade-offs between expressiveness and analyzability.
 In this paper, we propose a library based on the design language SystemC called \SysteMoC{} which provides a simulation environment for model-based designs.
-The base MoC of our library is a generalization of \emph{FunState} (Functions driven by State machines).
-We will introduce the syntax and semantics supported by \SysteMoC{} as well as discuss the simulation environment and present first results from using \SysteMoC{} for modeling and simulation of signal processing applications.
+%The base MoC of our library is a generalization of \emph{FunState} (Functions driven by State machines).
+We will introduce the syntax and semantics supported by \SysteMoC{} as well as discuss the simulation environment and present first results of using \SysteMoC{} for modeling and simulation of signal processing applications.
 % \SysteMoC{} defines a coding style for specifying the communication behavior of actors as finite state machines and the communication infrastructure as a network graph of communicating actors, as well as functionality to extract this information from the executable specification.
 % Therefore we provide the basis for model-based design in SystemC enabling automatic extraction and classification of the communication behavior of actors.
 % Thus later enabling us to use analysis for optimized code generation as well as efficient system property checks by automatic verification tools.
+The library-based approach unites the advantage of executability with analyzability of many expressive MoCs.
+Finally, we compare the simulative performance of \SysteMoC{} with other executable languages such as C++, regular SystemC, and modelling environments such as Ptolemy II.
 }
 %\end{center}
 
@@ -33,9 +35,9 @@ This can be achieved by model-based design which makes extensive use of so-calle
 MoCs are comparable to design patterns known from the area of software design \cite{gamma:1995}.
 On the other hand, industrial embedded system design is still based on design languages like C, C++, Java, VHDL, SystemC, and SystemVerilog which allow unstructured communication.
 Even worse, nearly all design languages are Turing complete making analyses in general impossible.
-This precludes the automatic identification of communication patterns out of the many forms of interactions, e.g, shared variables and various ways of message passing, between processes.
+This precludes the automatic identification of communication patterns out of the many forms of interactions, e.g., shared variables and various ways of message passing between processes.
 To make industry benefit from the best of both worlds, engineers must restrict themselves to use certain coding styles and subsets of a design language.
-This results in a model-based design methodology that permits automatic analysis, identification, and and extraction of MoCs at the source code level.
+This results in a model-based design methodology that permits automatic analysis, identification, and extraction of MoCs at the source code level.
 
 %\begin{figure}[t]
 %\centering
@@ -43,14 +45,14 @@ This results in a model-based design methodology that permits automatic analysis
 %\caption{\label{fig:SysteMoC-Goals}The Goal of the \SysteMoC{}-framework
 %  is the identification and extraction of models of computation
 %  from a subset of SystemC. Later the extracted MoC can be used
-%  in a model-based design methodology, e.g, in design space exploration
+%  in a model-based design methodology, e.g., in design space exploration
 %  and for code generation.
 %}
 %\end{figure}
 
 % The overall methodology is depicted in Figure~\ref{fig:SysteMoC-Goals}.
 
-In this paper, we propose the \SysteMoC{}-library.
+In this paper, we propose the \SysteMoC{} approach.
 The basic MoC of the \SysteMoC{}-library is \emph{FunState} (Functions driven by State machines) \cite{stgzet:2001}.
 FunState models express their communication behavior by \emph{Finite State Machines} (FSM).
 Analyzing these FSMs together with the topology of a given SystemC design permits the extraction and analysis of the underlying MoC to the given design.
@@ -59,20 +61,20 @@ In this paper, we will focus on the \SysteMoC{} syntax and semantics as well as 
 
 The rest of this paper is structured as follows:
 In Section~\ref{sec:related-work}, we discuss related work.
-In Section~\ref{sec:systemoc-syntax}, we present \SysteMoC{} syntax and semantics,
-In Section~\ref{sec:systemoc-implementation}, details pertaining to our implementation of the \SysteMoC{} simulation environment are presented,
+In Section~\ref{sec:systemoc-syntax}, we present \SysteMoC{} syntax and semantics.
+In Section~\ref{sec:systemoc-implementation}, details pertaining to our implementation of the \SysteMoC{} simulation environment are presented.
 In Section~\ref{sec:systemoc-casestudy}, we compare the \SysteMoC{} simulation performance with other approaches,
 and we conclude the present paper in Section~\ref{sec:conclusions}.
 We will use the example of an approximating square root algorithm throughout the paper to illustrate our approach.
 
 \section{Related Work}\label{sec:related-work}
 
-The advantages of using a model-based approach has been shown by many examples, e.g, for real time reactive systems \cite{BFMV06} and in the signal processing domain \cite{bhattacharyya,bb:2000a}.
+The advantages of using a model-based approach has been shown by many examples, e.g., for real time reactive systems \cite{BFMV05} and in the signal processing domain \cite{bhattacharyya,bb:2000a}.
 SystemC \cite{glms:2002,systemc-lrm:2003} permits the modeling of many different MoCs.
 Unfortunately, there is no unique representation of a given MoC in SystemC.
 Moreover, the use of unstructured communication makes the automatic analysis of a SystemC design nearly impossible.
 The SystemC Transaction Level Modeling (TLM) standard \cite{SystemC-TLM05} does not alleviate these problems because it is not concerned with defining representations of MoCs in SystemC.
-Instead the TLM standard defines transaction level interfaces via method calls, therefore improving simulation efficiency and providing the foundation for platform-based design in SystemC.
+Instead, the TLM standard defines transaction level interfaces via method calls, therefore improving simulation efficiency and providing the foundation for platform-based design in SystemC.
 Habibi et al.~\cite{HTSLM06, HMT06} have bypassed this problem by specifying their application as \emph{abstract state machines} which they transform into a SystemC-TLM model or requiring the presence of special helper functions which encode knowledge of the communication behavior of the SystemC design.
 
 % In this paper, we will propose a library, called \SysteMoC{}, that provides classes allowing the easy expression of MoCs in SystemC.
@@ -91,7 +93,7 @@ However, its Java implementation limits the ease of integration of this framewor
 In contrast to the approaches discussed above, our methodology divides an actor into its \emph{functionality} responsible for \emph{data processing} and a so called \emph{firing FSM} responsible for the communication behavior of this actor.
 This enables us to automatically extract this communication behavior from the executable specification for later analysis steps.
 The MoC underlying our methodology is a generalization of \emph{FunState} (Functions driven by State machines) \cite{stgzet:2001}.
-A FunState model consists out of a Petri-Net where the activation of a \emph{transition} is controlled by a FSM.
+A FunState model consists of Petri-Nets where the activation of a \emph{transition} is controlled by an FSM.
 In contrast to FunState we allow all functions of an actor to share a state.
 Different less general dataflow MoCs can be expressed in FunState and recognized from their FunState description, e.g., \emph{synchronous dataflow} (SDF), \emph{cyclo-static dataflow} (CSDF), \emph{Kahn process networks} (KPN), non-deterministic dataflow, etc.
 The basis of the analysis steps we will perform with the extracted communication behavior have been detailed by Strehl et al.~\cite{strehl:2000} which uses symbolic techniques based on regular state machines \cite{tts:2000} to schedule FunState models.
