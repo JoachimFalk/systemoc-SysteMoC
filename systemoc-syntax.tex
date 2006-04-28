@@ -1,56 +1,10 @@
 \chapter{\SysteMoC{} - syntax}\label{sec:systemoc-syntax}
 
-\section{Basic concepts}
- 
-Instead of a monolithic approach for representing an executable specification of an embedded system as done using many design languages, we will use a refinement of \emph{actor-oriented} design.
-In actor-oriented design, \emph{actors} only communicate with each other via \emph{channels} instead of method calls as known
-in object-oriented design.
-\SysteMoC{} is a library based on SystemC that allows to describe and simulate communicating actors, which are divided into their \emph{actor functionality} and their \emph{communication behavior} encoded as an explicit finite state machine.
-In the following, the syntax and semantics of \SysteMoC{} designs is discussed.
-
-Using \SysteMoC, many important models of computation may be described such as 
-SDF \cite{Lee87b:1987}, CSDF \cite{belp:1996, eblp:1994}, Boolean Dataflow, 
-Kahn Process Networks \cite{Kahn:1974}, 
-and many process networks, also communicating sequential processes (CSP)
-\cite{csphoare:1985}, and many others \cite{tszet:1999, LeeDenotialDF:1997,
-embsft:2002, Lee98, Eker, Tei97}.
-
-A \SysteMoC{} actor contains 3 basic elements:
-
-\begin{itemize}
-\item {\em Network graph}: Each application is modeled 
-by a network graph of communicating actors.
-\item {\em Actor classes}: Each actor is defined 
-by a class that contains several 
-so-called {\em actions} that are basic functional blocks implemented as 
-C++ methods that do computations on tokens on inputs and output ports 
-and the internal state of an actor. The actor itself thus possesses an 
-implementation in the form of a C++ class, and
-each actor communicates with other actors through a certain number 
-of input ports and a certain number of output ports. 
-The basic entity of data transfer is regulated by the notion of 
-{\em tokens}. Apart from the existence or absence of tokens, an actor 
-may check and do computations also on values of these tokens. 
-In this paper, we do not make any assumptions on the types 
-of tokens exchanged between actors. 
-\item {\em Firing finite state machine (FSM)}: The behavior of each actor is ruled 
-by an explicit finite state machine that checks conditions on the input ports, 
-output ports and internal state. If a certain firing rule is satisfied, 
-a state transition will be taken. During the state transition, an {\em action}
-is called. Once this action has finished execution, the new state is 
-taken. The complete state of an actor is described by this explicit 
-state of the actor and the state as given by its (local) member variables.
-Depending on the model of computation, 
-the actor ports may be connected to different types of so-called {\em channels} such 
-as channels with FIFO semantics, or rendez-vous channels.
-\end{itemize}
-
 A complete application is modeled by a set of actors and their 
 interconnection using channels. The overall model is therefore 
 a network of actors and channels.
 
-
-
+\section{Network graph}
 
 The creation of a \SysteMoC{} design can be roughly divided into two subtasks:
 (i) The creation of a \emph{network graph} for the design, e.g., as displayed in Figure~\ref{fig:ng-sqrroot} for an approximative square root algorithm, and
@@ -76,8 +30,6 @@ These input token values are transported via channel $c_1$ to the \code{SqrLoop}
 If the error bound is not satisfied, the input value will be send to actor $a_3$ via channel $c_2$. This will eventually result in a new better approximated square root value in channel $c_5$.
 This iteration repeats until the error bound is satisfied and the approximation result
 is forwarded via channel $c_6$ to the \code{Sink} actor $a_5$.
-
-\section{Network graph}
 
 In an actor-oriented design \cite{agha97abstracting:1997}, a model of computation \cite{embsft:2002} defines
 the interaction policy between actors.
