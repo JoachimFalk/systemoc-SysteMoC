@@ -1,28 +1,40 @@
-\section{Implementation of the firing FSM}\label{sec:systemoc-implementation}
+\section{\SysteMoC{} simulation environment}\label{sec:systemoc-implementation}
 
-In contrast to other approaches~\cite{herrerasystemc:2004, PS:2005, PS:2004} we model our firing FSM with \emph{expression templates} \cite{veldhuizen:1995}.
-More traditional approaches would either build the abstract syntax tree directly from the activation pattern, via operator overloading, or would use callback functions to implement activation patterns.
-In the first case a costly interpretation phase of the abstract syntax tree is necessary to evaluate activation patterns.
-In the second case a parser would be necessary to extract the abstract syntax tree from the source code.
-Therefore, the information encoded in the firing FSM would not be available for the SystemC elaboration phase.
-As an example we pick the activation pattern on transition $t_2$ of the \code{SqrLoop} actor $a_2$, as shown in Figure~\ref{fig:ast-t2-sqrloop}.
-% The activation patterns used to describe the firing FSM of an actor as seen in \ref{ex:systemoc-sqrloop-fsm-def} on page \pageref{ex:systemoc-sqrloop-fsm-def} and defined in \ref{syn:systemoc-fsm-bnf} and \ref{syn:systemoc-fsm-bnf-2} are encoded in C++ as so called \emph{expression templates} \cite{veldhuizen:1995}.
-The constructed expression template for an activation pattern is a tree of nest template types which corresponds to the \emph{abstract syntax tree} of the activation pattern.%, as shown in Figure~\ref{fig:ast-t2-sqrloop}.
+The execution of \SysteMoC{} models can be divided into three phases:
+(i)   checking for enabled transitions for each actor,
+(ii)  selecting and executing one enabled transition per actor, and
+(iii) consuming and producing tokens needed by the transition.
+%An essential part of FSMs are the conditions annotated on the transitions, called \emph{activation patterns} in our methodology, which 
+Note that, step (iii) might enable new transitions.
+The activation patterns discussed above decide if a transition is enabled.
+Moreover, our activation patterns encode both step (i) and step (iii) of the execution phases, because each transition communicates the shortest possible prefix sequence on each input and output port still satisfying the activation pattern.
 
-%\begin{figure}[h]
-%\centering
-%\resizebox{\columnwidth}{!}{\input{ast-fig.tex}}
-%%\input{ast-fig.tex}
-%%\includegraphics[width = 5in]{actor-sqrloop}
-%\caption{\label{fig:ast-t2-sqrloop}%
-%Visual representation of the \emph{abstract syntax tree} and its corresponding \emph{expression template} derived from the activation pattern used in transition $t_2$ of the \code{SqrLoop} actor $a_2$ from Figure~\ref{fig:actor-sqrloop} on page \pageref{fig:actor-sqrloop}.
-%}
-%\end{figure}
+In order to implement a simulation environment for our \SysteMoC{} library, we have several choices:
+More traditional approaches to encode these conditions would depend on callback functions for parts of the condition for which compile time code generation should be performed and use dynamic assembly of parts of the condition which should be available at runtime, e.g., by operator overloading to build an AST of the expression at runtime to express a sensitivity list.
+In the first case a standard C++ compiler is not sufficient to extract the AST of the callback function from the source code and provide the simulation kernel with the information.
+In the second case the simulation kernel is provided with the AST of the expression, but a costly interpretation phase is necessary to evaluate it.
+%And each syntax depending on callback functions and dynamic assembly via operator overloading hard codes the splitting between compile time and runtime analysis of the condition.
+%This can no longer be changes without modifying the syntax, invalidating every model encoded in this syntax.
+%In contrast to other approaches~\cite{herrerasystemc:2004, PS:2005, PS:2004}
 
-Using expression templates allows us to use both compile time code transformation and to derive at C++ compile time the \emph{abstract syntax tree} for our activation patterns enabling:
+To overcome these drawbacks, we model these conditions with \emph{expression templates} \cite{veldhuizen:1995}.
+Using expression templates allows us to use both compile time code transformation and to derive at C++ compile time the \emph{abstract syntax tree} (AST) for our activation patterns enabling:
 (i) extraction of the FIFO channels used in an activation pattern to generate sensitivity lists,
+%(ii) compile time code generation for the communication 
 (ii) compile time code generation for parts of an activation pattern only dependent on the actor state, e.g., as seen in Figure~\ref{fig:ast-compile-time-transform}, or
 (iii) generation of a XML representation of the firing FSM, e.g., as seen in Figure~\ref{fig:xml-t2-sqrloop}, for later usage in the design flow.
+
+%Both these cases symbolize a tradeoff 
+
+%However this hardcodes into the condition syntax the splitting of compile time and runtime 
+
+%of dynamic sensitivity lists for 
+
+%hardcode the parts of the condition for which compile time coder generation should be used, e.g., via the syntax the p
+
+As an example, we use the activation pattern on transition $t_2$ of the \code{SqrLoop} actor $a_2$, as shown in Figure~\ref{fig:ast-t2-sqrloop}.
+% The activation patterns used to describe the firing FSM of an actor as seen in \ref{ex:systemoc-sqrloop-fsm-def} on page \pageref{ex:systemoc-sqrloop-fsm-def} and defined in \ref{syn:systemoc-fsm-bnf} and \ref{syn:systemoc-fsm-bnf-2} are encoded in C++ as so called \emph{expression templates} \cite{veldhuizen:1995}.
+The constructed expression template for an activation pattern is a tree of nested template types which corresponds to the \emph{abstract syntax tree} of the activation pattern.%, as shown in Figure~\ref{fig:ast-t2-sqrloop}.
 
 \begin{figure}[h]
 \centering
@@ -35,7 +47,7 @@ Compile time code transformation of an activation pattern into a sensitivity lis
 \end{figure}
 
 The sensitivity AST is only evaluated after a change in the number of available or free tokens in the monitored FIFO channels.
-The actor state dependent AST parts only after its corresponding sensitivity AST evaluated to \code{true}.
+The actor state dependent AST part is only evaluated after its corresponding sensitivity AST evaluates to \code{true}.
 Note that in general arbitrarily complex parts dependent on the actor state of an activation pattern can be identified.
 For these actor state dependent AST parts dedicated code is generated at C++ compile time to evaluate them.
 
@@ -61,8 +73,5 @@ For these actor state dependent AST parts dedicated code is generated at C++ com
 XML representation of the transition $t_2$ of the \code{SqrLoop} actor $a_2$ including the \emph{abstract syntax tree} derived from the activation pattern used in the transition.
 }
 \end{figure}
-
-
-
 
 % LocalWords: SysteMoC

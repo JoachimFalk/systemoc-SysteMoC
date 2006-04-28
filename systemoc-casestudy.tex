@@ -1,11 +1,16 @@
 \section{Experimental Results}\label{sec:systemoc-casestudy}
 
 In this section we will compare our simulation framework with other approaches to represent executable specifications.
-As case study we use a two dimensional \emph{inverse discrete cosinus transform} (IDCT) for 8x8 blocks, as displayed in Figure~\ref{fig:ng-idct2d}.
+As a case study, we use a two dimensional \emph{inverse discrete cosinus transform} (IDCT) for 8x8 blocks, as displayed in Figure~\ref{fig:ng-idct2d}.
 The execution times for the IDCT in different simulation environments were measured on an Intel Pentium~IV CPU with 2.80 GHz and 512 MB of main memory via the linux \code{time} command.
 In Table~\ref{tbl:systemoc-comparison} the user CPU time needed by the simulator for executing $10000$ IDCT iterations is shown.
 
 \begin{table}[h]
+\caption{\label{tbl:systemoc-comparison}%
+Table comparing the simulation performance for 10000 8x8 blocks of the two dimensional \emph{inverse discrete cosinus transform} (IDCT) implemented in different execution environments.
+%Visual representation of the \emph{firing FSM} of the \code{SqrLoop} actor $a_2$ shown in Figure~\ref{fig:ng-sqrroot}.
+%The \code{SqrLoop} actor controls the number of iterations performed by Newton's square root algorithm.
+}
 \centering
 %%\hrule
 %%\rule{0mm}{2mm}\\
@@ -13,11 +18,6 @@ In Table~\ref{tbl:systemoc-comparison} the user CPU time needed by the simulator
       & C++               & \SysteMoC          & SystemC            & Ptolemy/CAL      \\\hline\hline
  Time & $9.5 \mathrm{ms}$ & $2.06\mathrm{sec}$ & $2.65\mathrm{sec}$ & $33\mathrm{sec}$ \\\hline
 \end{tabular}
-\caption{\label{tbl:systemoc-comparison}%
-Table comparing the simulation performance for 10000 8x8 blocks of the two dimensional \emph{inverse discrete cosinus transform} (IDCT) implemented in different execution environments.
-%Visual representation of the \emph{firing FSM} of the \code{SqrLoop} actor $a_2$ shown in Figure~\ref{fig:ng-sqrroot}.
-%The \code{SqrLoop} actor controls the number of iterations performed by Newton's square root algorithm.
-}
 %%\rule{0mm}{2mm}\\
 %%\hrule
 \end{table}
@@ -45,4 +45,8 @@ The two dimensional IDCT is composed out of two one dimensional IDCTs, Which are
 }
 \end{figure}
 
-
+It can be seen that our approach clearly outperforms interpretative approach of Ptolemy using the \emph{CAL actor language}.
+However, the SystemC design is of two orders of magnitude slower a pure C++ implementation.
+On the other hand, due to the reduced number of events our \SysteMoC{} than a implementation based on SystemC threads and FIFOs.
+Based on our unique approach to model the communication behavior, we will integrate static scheduling analysis into the \SysteMoC{} elaboration phase.%, instead of only using this analysis techniques on the extracted XML representation of the design.
+That way, we expect to provide a simulation environment with a simulation performance similar to SystemC TLM designs.
