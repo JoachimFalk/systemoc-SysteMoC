@@ -1,0 +1,44 @@
+\section{Experimental Results}\label{sec:systemoc-casestudy}
+
+In this section we will compare our simulation framework with other approaches to represent executable specifications.
+
+\begin{table}[h]
+\centering
+%%\hrule
+%%\rule{0mm}{2mm}\\
+\begin{tabular}{|r|r|r|r|r|}\hline
+             & \SysteMoC & SystemC & C++ & Ptolemy \\\hline\hline
+ Time $/$ ms & 2060      & 2650    & 9.5 & ---     \\\hline
+\end{tabular}
+\caption{\label{tbl:systemoc-comparison}%
+Table comparing the simulation performance for 10000 8x8 blocks of the two dimensional \emph{inverse discrete cosinus transform} (IDCT) implemented in different execution environments.
+The execution times where measured via the linux \code{time} command on an Intel Pentium~IV CPU with 2.80 GHz and 512 MB of main memory.
+%Visual representation of the \emph{firing FSM} of the \code{SqrLoop} actor $a_2$ shown in Figure~\ref{fig:ng-sqrroot}.
+%The \code{SqrLoop} actor controls the number of iterations performed by Newton's square root algorithm.
+}
+%%\rule{0mm}{2mm}\\
+%%\hrule
+\end{table}
+
+\begin{figure}[h]
+\centering
+\resizebox{\columnwidth}{!}{\input{ng-idct-1d-2d-fig.tex}}
+%\includegraphics[width = 4in]{ng-sqrroot}
+%\input{ng-sqrroot-fig.tex}
+\caption{\label{fig:ng-idct2d}%
+Network graph of the two dimensional \emph{inverse discrete cosinus transform} (IDCT) for 8x8 blocks, composed out of two one dimensional IDCTs.
+Which are themselves composed out of primitive arithmetic operations like, e.g., \code{Scale} or \code{AddSub}.
+% Netzwerkgraph einer zweidimensionalen \emph{IDCT} für 8x8 Makroblöcke.
+% Diese IDCT besteht aus den \emph{Aktorinstanzen} $A_1$ - $A_7$
+% verbund mittels der Kanäle $c_{1}$ - $c_{34}$.
+% Funktional besteht die zweidimensionale IDCT aus
+% zwei eindimensionalen IDCT, den Aktoren $A_{3}$ und $A_{5}$,
+% welche sequentiell alle Zeilen $A_3$ bzw. alle Spalten $A_5$ eines Makroblocks abarbeiten.
+% Eingebette sind diese beiden eindimensionalen IDCT in den
+% Aktor $A_{2}$ zur Aufspaltung eines Makroblocks in seine Zeilen, einem
+% Aktor $A_{4}$ zum transponieren der Zeilen und Spalten und einem
+% Aktor $A_{6}$ zur erneuten Zusammenfassung der Spalten in einen Makroblock.
+% Stimuliert wird das System mittels der Quell- bzw. Senkaktoren
+% $A_{1}$ bzw. $A_{7}$.
+}
+\end{figure}

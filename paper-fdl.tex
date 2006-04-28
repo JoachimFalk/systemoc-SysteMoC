@@ -1,12 +1,12 @@
-\documentclass[a4paper, twocolumn, 10pt, headsepline, pointlessnumbers, bibtotoc, idxtotoc, german, english]{article}
+\documentclass[a4paper, twocolumn, 10pt, english]{article}
 % \documentclass[a4paper, 10pt, BCOR2cm, headsepline, pointlessnumbers, bibtotoc, idxtotoc, german, english]{scrartcl}
 
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
 %\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{float}
+%\usepackage{booktabs}
+%\usepackage{float}
 \usepackage{amsmath}
 %\usepackage{amsthm}
 \usepackage{theorem}
@@ -74,11 +74,11 @@
   \newtheorem{syntax}{Syntax}[section]
 }
 
-\heavyrulewidth=0.1em
-
-\floatstyle{ruled}
-\floatname{algorithm}{\sffamily\bfseries Algorithm}
-\newfloat{algorithm}{tbp}{lol}[section]
+%\heavyrulewidth=0.1em
+%
+%\floatstyle{ruled}
+%\floatname{algorithm}{\sffamily\bfseries Algorithm}
+%\newfloat{algorithm}{tbp}{lol}[section]
 
 %\hyphenation{fortran er-go-no-mic}
 %\hyphenation{funk-tio-na-li-täts-zu-stand}
@@ -97,7 +97,7 @@
 \setlength{\hoffset}{2cm-1.0in}
 \setlength{\textwidth}{\paperwidth-4.0cm}
 
-\newcommand{\paperTitle}{Modeling and Simulation of Actor-Based Designs in SystemC}
+\newcommand{\paperTitle}{Representation and Simulation of Model-Based Designs in SystemC}
 \newcommand{\paperAuthor}{Joachim Falk, Christian Haubelt, and Jürgen Teich}
 
 %\codesigntitle{\SysteMoC{} 2.0 Documentation}{Joachim Falk}
@@ -145,6 +145,8 @@
 %\input{systemoc-semantics}
 
 \input{systemoc-implementation}
+
+\input{systemoc-casestudy}
 
 \input{systemoc-conclusions}
 

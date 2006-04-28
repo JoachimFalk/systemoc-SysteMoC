@@ -1,9 +1,13 @@
-\section{\SysteMoC{} implementation}\label{sec:systemoc-implementation}
+\section{Implementation of the firing FSM}\label{sec:systemoc-implementation}
 
-\subsection{Implementation of the firing FSM syntax}
-
-The activation patterns used to describe the firing FSM of an actor as seen in \ref{ex:systemoc-sqrloop-fsm-def} on page \pageref{ex:systemoc-sqrloop-fsm-def} and defined in \ref{syn:systemoc-fsm-bnf} and \ref{syn:systemoc-fsm-bnf-2} are encoded in C++ as so called \emph{expression templates} \cite{veldhuizen:1995}.
-The constructed expression template for an activation pattern is a tree of nest template types which corresponds to the \emph{abstract syntax tree} of the activation pattern, as shown in Figure~\ref{fig:ast-t2-sqrloop}.
+In contrast to other approaches~\cite{herrerasystemc:2004, PS:2005, PS:2004} we model our firing FSM with \emph{expression templates} \cite{veldhuizen:1995}.
+More traditional approaches would either build the abstract syntax tree directly from the activation pattern, via operator overloading, or would use callback functions to implement activation patterns.
+In the first case a costly interpretation phase of the abstract syntax tree is necessary to evaluate activation patterns.
+In the second case a parser would be necessary to extract the abstract syntax tree from the source code.
+Therefore, the information encoded in the firing FSM would not be available for the SystemC elaboration phase.
+As an example we pick the activation pattern on transition $t_2$ of the \code{SqrLoop} actor $a_2$, as shown in Figure~\ref{fig:ast-t2-sqrloop}.
+% The activation patterns used to describe the firing FSM of an actor as seen in \ref{ex:systemoc-sqrloop-fsm-def} on page \pageref{ex:systemoc-sqrloop-fsm-def} and defined in \ref{syn:systemoc-fsm-bnf} and \ref{syn:systemoc-fsm-bnf-2} are encoded in C++ as so called \emph{expression templates} \cite{veldhuizen:1995}.
+The constructed expression template for an activation pattern is a tree of nest template types which corresponds to the \emph{abstract syntax tree} of the activation pattern.%, as shown in Figure~\ref{fig:ast-t2-sqrloop}.
 
 \begin{figure}[h]
 \centering
@@ -15,10 +19,25 @@ Visual representation of the \emph{abstract syntax tree} and its corresponding \
 }
 \end{figure}
 
-Using expression templates to represent activation patterns enables us to perform compile time transformations and code generation of activation patterns:
-(i) For extraction of the FIFO channels used in an activation pattern to generate a sensitivity list,
-(ii) to extract the part of an activation pattern only dependent on the actor state for compile time code generation, or
-(iii) to generate a XML representation of the firing FSM, e.g., as seen in Figure~\ref{fig:xml-t2-sqrloop}, for later usage in the design flow.
+Using expression templates allows us to use both compile time code transformation and to derive at C++ compile time the \emph{abstract syntax tree} for our activation patterns enabling:
+(i) extraction of the FIFO channels used in an activation pattern to generate sensitivity lists,
+(ii) compile time code generation for parts of an activation pattern only dependent on the actor state, e.g., as seen in Figure~\ref{fig:ast-compile-time-transform}, or
+(iii) generation of a XML representation of the firing FSM, e.g., as seen in Figure~\ref{fig:xml-t2-sqrloop}, for later usage in the design flow.
+
+\begin{figure}[h]
+\centering
+\resizebox{\columnwidth}{!}{\input{ast-compile-time-transform-fig.tex}}
+%\input{ast-fig.tex}
+%\includegraphics[width = 5in]{actor-sqrloop}
+\caption{\label{fig:ast-compile-time-transform}%
+Compile time code transformation of an activation pattern into a sensitivity list used for scheduling and an functionality state dependent part used to check transition readiness after the scheduling step.
+}
+\end{figure}
+
+The sensitivity AST is only evaluated after a change in the number of available or free tokens in the monitored FIFO channels.
+The actor state dependent AST parts only after its corresponding sensitivity AST evaluated to \code{true}.
+Note that in general arbitrarily complex parts dependent on the actor state of an activation pattern can be identified.
+For these actor state dependent AST parts dedicated code is generated at C++ compile time to evaluate them.
 
 \begin{figure}[h]
 \begin{verbatim}
