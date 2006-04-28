@@ -29,7 +29,7 @@ INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS=-Wno-deprecated
 
-LIBS=-lsystemoc
+LIBS=-lsystemoc -lcosupport
 
 noinst_PROGRAMS= simulation-par
 

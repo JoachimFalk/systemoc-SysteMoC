@@ -5,49 +5,49 @@
  <measurefile name=""/>
 
  <resources>
-  <component name="Component1" type="threaded" scheduler="RoundRobin">
-   <attribute type="timeslice" value="20ns"/>
-  </component>
+   <component name="sink" type="threaded" scheduler="FCFS"/>
+   <component name="src" type="threaded" scheduler="FCFS"/>
+   <component name="mod_disp" type="threaded" scheduler="FCFS"/>
+   <component name="mod0" type="threaded" scheduler="FCFS"/>
+   <component name="mod1" type="threaded" scheduler="FCFS"/>
+   <component name="mod2" type="threaded" scheduler="FCFS"/>
+   <component name="mod3" type="threaded" scheduler="FCFS"/>
+   <component name="mod4" type="threaded" scheduler="FCFS"/>
  </resources>
 
  <mappings>
 
-  <mapping source="top.sink" target="Component1">
-    <attribute type="delay" value="2"/>
+  <mapping source="top.sink" target="sink">
+    <attribute type="delay" value="1"/>
   </mapping>
 
-  <mapping source="top.src" target="Component1">
-    <attribute type="delay" value="2"/>
+  <mapping source="top.src" target="src">
+    <attribute type="delay" value="1"/>
   </mapping>
 
-  <mapping source="top.mod0" target="Component1">
-    <attribute type="delay" value="550"/>
+  <mapping source="top.mod_graph.mod0" target="mod0">
+    <attribute type="delay" value="100"/>
   </mapping>
 
-  <mapping source="top.mod1" target="Component1">
-    <attribute type="delay" value="450"/>
+  <mapping source="top.mod_graph.mod1" target="mod1">
+    <attribute type="delay" value="100"/>
   </mapping>
     
-  <mapping source="top.mod2" target="Component1">
-    <attribute type="delay" value="350"/>
+  <mapping source="top.mod_graph.mod2" target="mod2">
+    <attribute type="delay" value="100"/>
   </mapping>
   
-  <mapping source="top.mod3" target="Component1">
-    <attribute type="delay" value="250"/>
+  <mapping source="top.mod_graph.mod3" target="mod3">
+    <attribute type="delay" value="100"/>
   </mapping>
 
-   <mapping source="top.mod4" target="Component1">
-     <attribute type="delay" value="150"/>
-   </mapping>
-
-   <mapping source="top.mod5" target="Component1">
-     <attribute type="delay" value="50"/>
-   </mapping>
-		    
-  <mapping source="top.disp" target="Component1">
-    <attribute type="delay" value="2"/>
+  <mapping source="top.mod_graph.mod4" target="mod4">
+    <attribute type="delay" value="100"/>
   </mapping>
 
-  
+  <mapping source="top.mod_graph.disp" target="mod_disp">
+    <attribute type="delay" value="1"/>
+  </mapping>
+
  </mappings>
 </configuration>
