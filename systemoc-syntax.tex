@@ -1,6 +1,6 @@
-\section{\SysteMoC{} - syntax}\label{sec:systemoc-syntax}
+\chapter{\SysteMoC{} - syntax}\label{sec:systemoc-syntax}
 
-\subsection{Basic concepts}
+\section{Basic concepts}
  
 Instead of a monolithic approach for representing an executable specification of an embedded system as done using many design languages, we will use a refinement of \emph{actor-oriented} design.
 In actor-oriented design, \emph{actors} only communicate with each other via \emph{channels} instead of method calls as known
@@ -77,7 +77,7 @@ If the error bound is not satisfied, the input value will be send to actor $a_3$
 This iteration repeats until the error bound is satisfied and the approximation result
 is forwarded via channel $c_6$ to the \code{Sink} actor $a_5$.
 
-\subsection{Network graph}
+\section{Network graph}
 
 In an actor-oriented design \cite{agha97abstracting:1997}, a model of computation \cite{embsft:2002} defines
 the interaction policy between actors.
@@ -223,7 +223,7 @@ thus allowing us to simply omit the term non-conflicting.
 % FIFO channels and a rendezvous channels. Channels are used to
 % transport data values in form of so-called \emph{tokens}.
 
-\subsection{Actor classes}
+\section{Actor classes}
 
 An \emph{actor} can be thought of as an object which maps sequences of token values on its input ports to sequences of token values on its output ports.
 In \SysteMoC{}, each actor is represented as an instance of an \emph{actor class} which is derived from the C++ base class \code{smoc\_actor}, e.g., as seen in the following example for the SqrLoop actor class.
@@ -286,7 +286,7 @@ Visual representation of the \code{SqrLoop} actor $a_2$ used in the network grap
 The \code{SqrLoop} actor is composed of \emph{input ports} and \emph{output ports}, its \emph{functionality}, and the \emph{firing FSM} determining the communication behavior of the actor.}
 \end{figure}
 
-\subsubsection{Declaration of the actor input and output ports}\label{sec:actor-ports}
+\subsection{Declaration of the actor input and output ports}\label{sec:actor-ports}
 
 An actor may only communicate with other actors via tokens passing 
 from output ports to input ports via channels
@@ -316,7 +316,7 @@ For this reason, the \SysteMoC{} library provides its own input and output port 
 These use the same concept of template parameters as standard SystemC ports, e.g., \code{sc\_fifo\_in}, to specify the type of token communicated.
 %For example, to specify a port which communicates tokens with values of type \code{double}, the declaration is \code{smoc\_port\_in$<$double$>$}.
 
-\subsubsection{Declaration of the actor functionality}\label{sec:actor-functionality}
+\subsection{Declaration of the actor functionality}\label{sec:actor-functionality}
 The actor functionality is represented by member variables and member functions of the actor.
 These functions manipulate the so-called \emph{functionality state} 
 reflected by the current values of the set of member variables of the actor.
@@ -444,7 +444,7 @@ Output values from actions $f_\mathrm{action}$ are used by the firing FSM to gen
 
 
 
-\subsubsection{Declaration of the communication behavior}\label{sec:firing-fsm}
+\subsection{Declaration of the communication behavior}\label{sec:firing-fsm}
 
 The consumption and production of tokens is locally triggered by transitions 
 of an explicit \emph{firing FSM} required in each actor.
