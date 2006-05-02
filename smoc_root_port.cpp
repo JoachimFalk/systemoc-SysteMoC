@@ -38,22 +38,22 @@ smoc_root_port_bool::smoc_root_port_bool( bool v )
 
 smoc_root_port_bool::smoc_root_port_bool( smoc_event *e )
   : v( *e ? IS_ENABLED : IS_BLOCKED ) {
-  // std::cout << "was here !" << std::endl;
+  // std::cerr << "was here !" << std::endl;
   if ( v == IS_BLOCKED )
     reqs.push_back(e);
 }
 
 smoc_root_port_bool::smoc_root_port_bool(smoc_root_port *p, size_t n) {
-  // std::cout << "smoc_root_port_bool(smoc_root_port *p, size_t n) ";
+  // std::cerr << "smoc_root_port_bool(smoc_root_port *p, size_t n) ";
   if ( p->availableCount() >= n ) {
-    v = IS_ENABLED;// std::cout << "enabled";
+    v = IS_ENABLED;// std::cerr << "enabled";
   } else if ( p->getParentPort() != NULL ||
               p->peerIsV1() ) {
-    v = IS_BLOCKED;// std::cout << "blocked";
+    v = IS_BLOCKED;// std::cerr << "blocked";
     assert( p->getHierarchy() != _ctx.hierarchy ||
             p->peerIsV1() );
   } else {
-    v = IS_DISABLED;// std::cout << "disabled";
+    v = IS_DISABLED;// std::cerr << "disabled";
     assert( p->getHierarchy() == _ctx.hierarchy );
   }
   if ( v == IS_ENABLED ) {
@@ -68,40 +68,40 @@ smoc_root_port_bool::smoc_root_port_bool(smoc_root_port *p, size_t n) {
       reqs.push_back(smoc_commreq(p,n));
     }
   }
-  // std::cout << " "; dump(std::cout); std::cout << std::endl;
+  // std::cerr << " "; dump(std::cerr); std::cerr << std::endl;
 }
 
 smoc_root_port_bool::smoc_root_port_bool( const this_type &a, const this_type &b )
   : v(a.v == IS_DISABLED || b.v == IS_DISABLED ? IS_DISABLED : (
       a.v == IS_ENABLED  && b.v == IS_ENABLED  ? IS_ENABLED
                                                : IS_BLOCKED ) ) {
-  // std::cout << "MERGE A:"; a.dump(std::cout);
-  // std::cout <<      " B:"; b.dump(std::cout);
-  // std::cout << std::endl;
+  // std::cerr << "MERGE A:"; a.dump(std::cerr);
+  // std::cerr <<      " B:"; b.dump(std::cerr);
+  // std::cerr << std::endl;
   if ( v == IS_BLOCKED ) {
     if ( a.v == IS_BLOCKED )
       reqs.insert(reqs.end(), a.reqs.begin(), a.reqs.end());
     if ( b.v == IS_BLOCKED )
       reqs.insert(reqs.end(), b.reqs.begin(), b.reqs.end());
   }
-  // std::cout << "MERGE-RESULT: "; dump(std::cout); std::cout << std::endl;
+  // std::cerr << "MERGE-RESULT: "; dump(std::cerr); std::cerr << std::endl;
 }
 
 smoc_root_port_bool::smoc_root_port_bool( const this_type &rhs )
   : v(rhs.v), reqs(rhs.reqs) {
-  // std::cout << "smoc_root_port_bool( const this_type &rhs ) " << rhs.reqs << std::endl;
+  // std::cerr << "smoc_root_port_bool( const this_type &rhs ) " << rhs.reqs << std::endl;
 }
 
 smoc_root_port_bool smoc_root_port_bool::recheck() const {
-  // std::cout << "smoc_root_port_bool.recheck "; dump(std::cout);
-  // std::cout << std::endl;
+  // std::cerr << "smoc_root_port_bool.recheck "; dump(std::cerr);
+  // std::cerr << std::endl;
   if (v == IS_BLOCKED) {
     smoc_root_port_bool retval(true);
     
     for ( reqs_ty::const_iterator iter = reqs.begin();
           iter != reqs.end();
           ++iter ) {
-      // std::cout << "XXX: " << *iter << std::endl;
+      // std::cerr << "XXX: " << *iter << std::endl;
       if ( isType<smoc_commreq>(*iter) ) {
         const smoc_commreq &r = *iter;
         smoc_root_port     *p = r.first->getParentPort();

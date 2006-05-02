@@ -149,13 +149,13 @@ public:
 /*
 template<typename T>
 void dump(std::list<T> &nodes) {
-  std::cout << "=== dump ===" << std::endl;
+  std::cerr << "=== dump ===" << std::endl;
   for ( typename std::list<T>::const_iterator iter = nodes.begin();
         iter != nodes.end();
         ++iter ) {
     const smoc_firing_state &s = (*iter)->currentState();
-    std::cout << "actor: " << (*iter)->myModule()->name() << " state: " << &s << std::endl;
-    std::cout << s;
+    std::cerr << "actor: " << (*iter)->myModule()->name() << " state: " << &s << std::endl;
+    std::cerr << s;
   }
 }
 */
@@ -264,7 +264,7 @@ private:
       assert( executed == true );
       {
 #ifdef SYSTEMOC_DEBUG
-        std::cout << "in top scheduler !!!" << std::endl;
+        std::cerr << "in top scheduler !!!" << std::endl;
 #endif
         smoc_root_port_bool_list l;
         
@@ -283,7 +283,7 @@ private:
             al &= *static_cast<smoc_event *>(*riter);
           ol |= al;*/
 #ifdef SYSTEMOC_DEBUG
-	  std::cout << reqs << std::endl;
+	  std::cerr << reqs << std::endl;
 #endif
           assert( reqs.size() <=  1 );
 	  if ( !reqs.empty() ) {
@@ -295,7 +295,7 @@ private:
         for ( smoc_event_or_list::iterator iter = ol.begin();
               iter != ol.end();
               ++iter )
-          std::cout << **iter << std::endl;
+          std::cerr << **iter << std::endl;
 #endif
       }
     } while ( 1 );

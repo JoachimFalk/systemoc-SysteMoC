@@ -54,12 +54,12 @@ public:
     { p1 = NULL; boundary = 0; p2 = NULL; limit = 0; }
   
   return_type operator[](size_t n) {
-    // std::cout << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
+    // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
     assert(n < limit);
     return n >= boundary ? p2[n] : p1[n];
   }
   const return_type operator[](size_t n) const {
-    // std::cout << "((smoc_ring_access)" << this << ")->operator[](" << n << ") const" << std::endl;
+    // std::cerr << "((smoc_ring_access)" << this << ")->operator[](" << n << ") const" << std::endl;
     assert(n < limit);
     return n >= boundary ? p2[n] : p1[n];
   }

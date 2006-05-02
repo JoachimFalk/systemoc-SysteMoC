@@ -302,7 +302,7 @@ struct AST<DVar<T> > {
   
   static inline
   PASTNode apply(const DVar <T> &e) {
-    //std::cout << "AST<DVar<T> >: Was here !!!" << std::endl;
+    //std::cerr << "AST<DVar<T> >: Was here !!!" << std::endl;
     return PASTNode(new ASTNodeVar(e.x,e.name));
   }
 };
@@ -706,7 +706,7 @@ struct AST<DBinOp<A,B,Op> > {
   
   static inline
   result_type apply(const DBinOp<A,B,Op> &e) {
-   /* std::cout << "AST<DBinOp<"
+   /* std::cerr << "AST<DBinOp<"
                 << typeid(A).name() << ","
                 << typeid(B).name() << ","
                 << Op << "> >: Was here !!!" << std::endl;*/

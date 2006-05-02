@@ -92,7 +92,7 @@ protected:
   
   hscd_running_op_transact( const hscd_op_port_base_list &pl ) {
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "<hscd_running_op_transact id=\"" << this << "\">" << std::endl;
+    std::cerr << "<hscd_running_op_transact id=\"" << this << "\">" << std::endl;
 #endif
     for ( hscd_op_port_base_list::const_iterator iter = pl.begin();
           iter != pl.end();
@@ -105,7 +105,7 @@ protected:
     }
     if ( !pm.empty() ) {
 #ifdef SYSTEMOC_DEBUG
-      std::cout << "  <blocked id=\"" << this << "\">" << std::endl;
+      std::cerr << "  <blocked id=\"" << this << "\">" << std::endl;
 #endif
 #ifdef SYSTEMOC_TRACE
       TraceLog.traceBlockingWaitStart();
@@ -115,7 +115,7 @@ protected:
       TraceLog.traceBlockingWaitEnd();
 #endif
 #ifdef SYSTEMOC_DEBUG
-      std::cout << "  </blocked id=\"" << this << "\">" << std::endl;
+      std::cerr << "  </blocked id=\"" << this << "\">" << std::endl;
 #endif
     }
     assert( pm.empty() );
@@ -124,7 +124,7 @@ protected:
           ++iter )
       iter->communicate();
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "</hscd_running_op_transact id=\"" << this << "\">" << std::endl;
+    std::cerr << "</hscd_running_op_transact id=\"" << this << "\">" << std::endl;
 #endif
   }
 
@@ -160,7 +160,7 @@ protected:
   hscd_running_op_choice( const hscd_op_port_base_list &pl )
     : ready(NULL) {
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "<hscd_running_op_choice id=\"" << this << "\">" << std::endl;
+    std::cerr << "<hscd_running_op_choice id=\"" << this << "\">" << std::endl;
 #endif
     for ( hscd_op_port_base_list::const_iterator iter = pl.begin();
           iter != pl.end();
@@ -175,7 +175,7 @@ protected:
     }
     if ( ready == NULL ) {
 #ifdef SYSTEMOC_DEBUG
-      std::cout << "  <blocked id=\"" << this << "\">" << std::endl;
+      std::cerr << "  <blocked id=\"" << this << "\">" << std::endl;
 #endif
 #ifdef SYSTEMOC_TRACE
       TraceLog.traceBlockingWaitStart();
@@ -185,7 +185,7 @@ protected:
       TraceLog.traceBlockingWaitEnd();
 #endif
 #ifdef SYSTEMOC_DEBUG
-      std::cout << "  </blocked id=\"" << this << "\">" << std::endl;
+      std::cerr << "  </blocked id=\"" << this << "\">" << std::endl;
 #endif
     }
     assert( ready != NULL );
@@ -196,7 +196,7 @@ protected:
     assert( ready->isReady() );
     ready->communicate();
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "</hscd_running_op_choice id=\"" << this << "\">" << std::endl;
+    std::cerr << "</hscd_running_op_choice id=\"" << this << "\">" << std::endl;
 #endif
   }
 

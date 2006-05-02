@@ -39,7 +39,7 @@ const smoc_firing_state &smoc_scheduler_ndf::schedule() {
   _ctx.ports_setup.clear();
   
 #ifdef SYSTEMOC_DEBUG
-  std::cout << "<smoc_scheduler_ndf::schedule>" << std::endl;
+  std::cerr << "<smoc_scheduler_ndf::schedule>" << std::endl;
 #endif
   // FIXME: Big hack !!!
   _ctx.hierarchy = myModule();
@@ -62,7 +62,7 @@ const smoc_firing_state &smoc_scheduler_ndf::schedule() {
       if ( !(*iter)->is_v1_actor )
         (*iter)->currentState().findBlocked(l);
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "CREATE TRANSITIONS: " << l << std::endl;
+    std::cerr << "CREATE TRANSITIONS: " << l << std::endl;
 #endif
     for ( smoc_root_port_bool_list::const_iterator iter = l.begin();
           iter != l.end();
@@ -73,7 +73,7 @@ const smoc_firing_state &smoc_scheduler_ndf::schedule() {
     s = tl;
   }
 #ifdef SYSTEMOC_DEBUG
-  std::cout << "</smoc_scheduler_ndf::schedule>" << std::endl;
+  std::cerr << "</smoc_scheduler_ndf::schedule>" << std::endl;
 #endif
   // FIXME: Big hack !!!
   _ctx = _oldctx;
@@ -85,6 +85,6 @@ smoc_scheduler_ndf::smoc_scheduler_ndf( cset_ty *c )
 		    smoc_interface_action(smoc_func_diverge(this,&smoc_scheduler_ndf::schedule))),
   c(c) {
 #ifdef SYSTEMOC_DEBUG
-  std::cout << "smoc_scheduler_ndf" << std::endl;
+  std::cerr << "smoc_scheduler_ndf" << std::endl;
 #endif
 }

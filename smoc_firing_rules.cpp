@@ -59,24 +59,24 @@ void smoc_firing_state_ref::finalise( smoc_root_node *actor ) const {
 bool smoc_firing_state_ref::tryExecute() {
   bool retval;
 #ifdef SYSTEMOC_DEBUG
-  std::cout << "<tryExecute for "
+  std::cerr << "<tryExecute for "
             << fr->getActor()->myModule()->name() << ">" << std::endl;
 #endif
   retval = rs->tryExecute(&rs, fr->getActor());
 #ifdef SYSTEMOC_DEBUG
-  std::cout << "</tryExecute>" << std::endl;
+  std::cerr << "</tryExecute>" << std::endl;
 #endif
   return retval;
 }
 
 void smoc_firing_state_ref::findBlocked(smoc_root_port_bool_list &l) {
 #ifdef SYSTEMOC_DEBUG
-  std::cout << "<findBlocked for "
+  std::cerr << "<findBlocked for "
             << fr->getActor()->myModule()->name() << ">" << std::endl;
 #endif
   rs->findBlocked(l, fr->getActor());
 #ifdef SYSTEMOC_DEBUG
-  std::cout << "</findBlocked>" << std::endl;
+  std::cerr << "</findBlocked>" << std::endl;
 #endif
 }
 
@@ -235,7 +235,7 @@ bool smoc_firing_types::transition_ty::tryExecute(
         smoc_func_call &fc = f;
         
 #ifdef SYSTEMOC_DEBUG
-        std::cout << "  <call actor="<<actor->myModule()->name()
+        std::cerr << "  <call actor="<<actor->myModule()->name()
                   << " func="<< fc.getFuncName()
                   << ">"<< std::endl;
 #endif
@@ -266,14 +266,14 @@ bool smoc_firing_types::transition_ty::tryExecute(
         actor->ports_setup = _ctx.ports_setup;
         _ctx.ports_setup.clear();
 # ifdef SYSTEMOC_DEBUG
-        std::cout << "    <communication type=\"defered\"/>" << std::endl;
+        std::cerr << "    <communication type=\"defered\"/>" << std::endl;
 # endif
 #else
 	*rs = sl.front();
 #endif // ENABLE_SYSTEMC_VPC
 
 #ifdef SYSTEMOC_DEBUG
-        std::cout << "  </call>"<< std::endl;
+        std::cerr << "  </call>"<< std::endl;
 #endif
       } else {
         assert( sl.size() == 1 );
@@ -307,9 +307,9 @@ void smoc_firing_types::transition_ty::findBlocked(
     smoc_root_port_bool_list &l, smoc_root_node *actor) {
   smoc_root_port_bool b      = knownSatisfiable();
   
-  // std::cout << b << std::endl;
+  // std::cerr << b << std::endl;
 #ifdef SYSTEMOC_DEBUG
-  std::cout << "  <transition status=" << b.getStatus() << "/>" << std::endl;
+  std::cerr << "  <transition status=" << b.getStatus() << "/>" << std::endl;
 #endif
   if ( b.getStatus() != smoc_root_port_bool::IS_DISABLED ) {
     assert( b.getStatus() == smoc_root_port_bool::IS_BLOCKED );
