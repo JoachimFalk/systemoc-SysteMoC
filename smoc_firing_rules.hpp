@@ -199,7 +199,7 @@ struct smoc_firing_types {
 
 #ifdef SYSTEMOC_DEBUG
     ~transition_ty() {
-      std::cout << "~transition_ty() this == " << this << std::endl;
+      std::cerr << "~transition_ty() this == " << this << std::endl;
     }
 #endif
   };
@@ -222,7 +222,7 @@ struct smoc_firing_types {
 
 #ifdef SYSTEMOC_DEBUG
     ~resolved_state_ty() {
-      std::cout << "~resolved_state_ty() this == " << this << std::endl;
+      std::cerr << "~resolved_state_ty() this == " << this << std::endl;
     }
 #endif
   };

@@ -39,7 +39,7 @@ private:
   }
  void communicate( size_t n ) {
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "<hscd_port_in::communicate>" << std::endl;
+    std::cerr << "<hscd_port_in::communicate>" << std::endl;
 #endif
     commSetup(n); // access to new tokens
     input.resize(n);
@@ -48,7 +48,7 @@ private:
     commExec(); // consume tokens
     ready = true;
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "</hscd_port_in::communicate>" << std::endl;
+    std::cerr << "</hscd_port_in::communicate>" << std::endl;
 #endif
   }
 public:
@@ -87,7 +87,7 @@ private:
   }
   void communicate( size_t n ) {
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "<hscd_port_out::communicate>" << std::endl;
+    std::cerr << "<hscd_port_out::communicate>" << std::endl;
 #endif
     commSetup(n); // access to free space on fifo
     assert( n <= output.size() );
@@ -97,7 +97,7 @@ private:
     commExec(); // produce tokens
     ready = true;
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "</hscd_port_out::communicate>" << std::endl;
+    std::cerr << "</hscd_port_out::communicate>" << std::endl;
 #endif
   }
 public:

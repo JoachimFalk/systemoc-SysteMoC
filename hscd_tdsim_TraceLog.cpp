@@ -408,7 +408,7 @@ void TraceLogStream::createFifoGraph()
     file << "caption[label=\"" << caption << "\",shape=\"box\"];" << std::endl;
     file << "}";
     file.close();
-    std::cout << "Found cycle(s) and/or unknown actors. Dumped FIFO info to " << fstring << std::endl;
+    std::cerr << "Found cycle(s) and/or unknown actors. Dumped FIFO info to " << fstring << std::endl;
   }
 }
 

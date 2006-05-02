@@ -52,7 +52,7 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
     // _ctx.ports_setup.clear();
     
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "<smoc_scheduler_top::schedule>" << std::endl;
+    std::cerr << "<smoc_scheduler_top::schedule>" << std::endl;
 #endif
     // FIXME: Big hack !!!
     // _ctx.hierarchy = c->myModule();
@@ -103,25 +103,25 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
             ++iter ) {
         if ( !(*iter)->is_v1_actor ) {
 #ifdef SYSTEMOC_DEBUG
-          std::cout << "<findBlocked for " << (*iter)->myModule()->name() << ">" << std::endl;
+          std::cerr << "<findBlocked for " << (*iter)->myModule()->name() << ">" << std::endl;
 #endif
           (*iter)->_currentState->findBlocked(ol);
 #ifdef SYSTEMOC_DEBUG
-          std::cout << "</findBlocked>" << std::endl;
+          std::cerr << "</findBlocked>" << std::endl;
 #endif
         }
       }
 #ifdef SYSTEMOC_DEBUG
-      std::cout << "</smoc_scheduler_top::schedule>" << std::endl;
+      std::cerr << "</smoc_scheduler_top::schedule>" << std::endl;
 #endif
       // FIXME: Big hack !!!
       _ctx = _oldctx;
-//    std::cout << "guard_success: " << guard_success << std::endl;
-//    std::cout << "guard_fail:    " << guard_fail    << std::endl;
+//    std::cerr << "guard_success: " << guard_success << std::endl;
+//    std::cerr << "guard_fail:    " << guard_fail    << std::endl;
       smoc_wait(ol);
       ol.clear();
 #ifdef SYSTEMOC_DEBUG
-      std::cout << ol << std::endl;
+      std::cerr << ol << std::endl;
 #endif
     }
   } while ( 1 );

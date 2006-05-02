@@ -21,45 +21,45 @@ namespace Expr {
 
 void dump(const PASTNode &node) {
 /*
-  std::cout << "Node: ";
+  std::cerr << "Node: ";
 
   if (node->isa<ASTNodeVType<bool> >() ) {
-    std::cout << "bool(" << node->isa<ASTNodeVType<bool> >()->value() << ") ";
+    std::cerr << "bool(" << node->isa<ASTNodeVType<bool> >()->value() << ") ";
   } else if (node->isa<ASTNodeVType<int> >() ) {
-    std::cout << "int(" << node->isa<ASTNodeVType<int> >()->value() << ") ";
+    std::cerr << "int(" << node->isa<ASTNodeVType<int> >()->value() << ") ";
   } else if (node->isa<ASTNodeVType<unsigned int> >() ) {
-    std::cout << "unsigned int(" << node->isa<ASTNodeVType<unsigned int> >()->value() << ") ";
+    std::cerr << "unsigned int(" << node->isa<ASTNodeVType<unsigned int> >()->value() << ") ";
   } else if (node->isa<ASTNodeVType<long> >() ) {
-    std::cout << "int(" << node->isa<ASTNodeVType<long> >()->value() << ") ";
+    std::cerr << "int(" << node->isa<ASTNodeVType<long> >()->value() << ") ";
   } else if (node->isa<ASTNodeVType<unsigned long> >() ) {
-    std::cout << "unsigned int(" << node->isa<ASTNodeVType<unsigned long> >()->value() << ") ";
+    std::cerr << "unsigned int(" << node->isa<ASTNodeVType<unsigned long> >()->value() << ") ";
   } else if (node->isa<ASTNodeVType<double> >() ) {
-    std::cout << "unsigned int(" << node->isa<ASTNodeVType<double> >()->value() << ") ";
+    std::cerr << "unsigned int(" << node->isa<ASTNodeVType<double> >()->value() << ") ";
   } else {
-    std::cout << "unknown value_type ";
+    std::cerr << "unknown value_type ";
   }
   
   if (node->isa<ASTNodeNonTerminal>()) {
     if ( node->isa<ASTNodeBinOp>() ) {
       boost::intrusive_ptr<ASTNodeBinOp> p = node->isa<ASTNodeBinOp>();
       
-      std::cout << "BinOp " << p->getOpType() << " {" << std::endl;
+      std::cerr << "BinOp " << p->getOpType() << " {" << std::endl;
       dump(p->getLeftNode());
-      std::cout << "}, {" << std::endl;
+      std::cerr << "}, {" << std::endl;
       dump(p->getRightNode());
-      std::cout << "}";
+      std::cerr << "}";
     } else {
       // unknown
-      std::cout << "Unkown NonTerminal";
+      std::cerr << "Unkown NonTerminal";
     }
   } else {
     assert( node->isa<ASTNodeTerminal>() );
     if ( node->isa<ASTNodeLiteral>() ) {
-      std::cout << "Literal";
+      std::cerr << "Literal";
     } else if ( node->isa<ASTNodeVar>() ) {
-      std::cout << "Var " << node->isa<ASTNodeVar>()->ptrVar();
+      std::cerr << "Var " << node->isa<ASTNodeVar>()->ptrVar();
     } else if ( node->isa<ASTNodeProc>() ) {
-      std::cout << "Proc 0x" << std::hex << reinterpret_cast<unsigned long>
+      std::cerr << "Proc 0x" << std::hex << reinterpret_cast<unsigned long>
         (node->isa<ASTNodeProc>()->ptrProc());
     } else if ( node->isa<ASTNodeMemProc>() ) {
       union {
@@ -68,14 +68,14 @@ void dump(const PASTNode &node) {
       } h;
       
       h.e2 = node->isa<ASTNodeMemProc>()->ptrMemProc();
-      std::cout << "MemProc 0x" << std::hex << reinterpret_cast<unsigned long>(h.e1.p)
+      std::cerr << "MemProc 0x" << std::hex << reinterpret_cast<unsigned long>(h.e1.p)
                 <<   " obj " << node->isa<ASTNodeMemProc>()->ptrObj();
     } else {
       // unknown
-      std::cout << "Unkown Terminal";
+      std::cerr << "Unkown Terminal";
     }
   }
-  std::cout << std::endl;
+  std::cerr << std::endl;
   */
 }
 

@@ -39,7 +39,7 @@ class smoc_actor
 
 #ifdef SYSTEMOC_DEBUG
     ~smoc_actor() {
-      std::cout << "~smoc_actor() name = \""
+      std::cerr << "~smoc_actor() name = \""
                 << myModule()->name() << "\"" << std::endl;
     }
 #endif

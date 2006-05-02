@@ -54,9 +54,9 @@ std::stack<std::pair<std::string, std::string> >smoc_root_node::global_arg_stack
 const smoc_firing_state &smoc_root_node::_communicate() {
     
 # ifdef SYSTEMOC_DEBUG
-  std::cout << "  <call actor=" << myModule()->name()
+  std::cerr << "  <call actor=" << myModule()->name()
 	    << " func=smoc_root_node::communicate>" << std::endl;
-  std::cout << "    <communication type=\"execute\"/>" << std::endl;
+  std::cerr << "    <communication type=\"execute\"/>" << std::endl;
 # endif
 
 #ifdef SYSTEMOC_TRACE
@@ -82,7 +82,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
 #endif
 
 # ifdef SYSTEMOC_DEBUG
-  std::cout << "  </call>"<< std::endl;
+  std::cerr << "  </call>"<< std::endl;
 # endif
   return nextState;
 }
@@ -91,7 +91,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
 void smoc_root_node::finalise() {
 #ifndef NDEBUG
   // PARANOIA
-  // std::cout << myModule()->name() << ": finalise" << std::endl;
+  // std::cerr << myModule()->name() << ": finalise" << std::endl;
   // assert(!_finalizeCalled); _finalizeCalled = true;
   // assert(&_initialState != &_currentState);
 #endif
@@ -102,7 +102,7 @@ const smoc_port_list smoc_root_node::getPorts() const {
   smoc_port_list   ports;
   const sc_module *m = myModule();
   
-  // std::cout << "=== getPorts ===" << this << std::endl;
+  // std::cerr << "=== getPorts ===" << this << std::endl;
   for ( 
 #if SYSTEMC_VERSION < 20050714
         sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();

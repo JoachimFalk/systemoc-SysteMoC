@@ -222,7 +222,7 @@ struct Communicate<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   static inline
   result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
 #ifdef SYSTEMOC_DEBUG
-    std::cout << "Communicate<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
+    std::cerr << "Communicate<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
 #endif
     return e.a.p.commExec();
@@ -292,7 +292,7 @@ struct DBinOpExecute<smoc_root_port_bool,T,DOpBinLAnd> {
   template <class A, class B>
   static inline
   result_type apply( const A &a, const B &b ) {
-//    std::cout << "foo" << std::endl;
+//    std::cerr << "foo" << std::endl;
     result_type ra =  Value<A>::apply(a);
     return ra.getStatus() == smoc_root_port_bool::IS_ENABLED
       ? ( Value<B>::apply(b)
@@ -312,7 +312,7 @@ struct DBinOpExecute<T,smoc_root_port_bool,DOpBinLAnd> {
   template <class A, class B>
   static inline
   result_type apply( const A &a, const B &b ) {
-//    std::cout << "hix" << std::endl;
+//    std::cerr << "hix" << std::endl;
     return Value<A>::apply(a)
       ? Value<B>::apply(b)
       : result_type();
@@ -329,7 +329,7 @@ struct DBinOpExecute<smoc_root_port_bool,smoc_root_port_bool,DOpBinLAnd> {
   template <class A, class B>
   static inline
   result_type apply( const A &a, const B &b ) {
-//    std::cout << "bar" << std::endl;
+//    std::cerr << "bar" << std::endl;
     
     result_type ra(Value<A>::apply(a));
     if ( ra.getStatus() == smoc_root_port_bool::IS_ENABLED )
