@@ -182,7 +182,7 @@ In \SysteMoC{}, each actor is represented as an instance of an \emph{actor class
 
 %\newpage
 \begin{example}\label{ex:systemoc-sqrloop-actor-def}%
-Definition of the SqrLoop actor class:
+Definition of the \code{SqrLoop} actor class:
 \begin{verbatim}
 class SqrLoop
   // All actor classes must be derived
@@ -249,7 +249,7 @@ to connect all these actors together in a network graph description.
 An example of a port declaration can be seen in the example below.
 
 \begin{example}\label{ex:systemoc-ports-def}%
-Port declaration for the SqrLoop actor class:
+Port declaration for the \code{SqrLoop} actor class:
 \begin{verbatim}
 class SqrLoop: public smoc_actor {
 public:
@@ -653,10 +653,10 @@ A transition expression can be combined from the following terminals:
 
 \subsection{Actor constructor parameters}\label{sec:constr-params}
 
-As mentioned in Section~\ref{sec:network-graph} actors can be parameterized using constructor parameters, e.g., as seen in the sqrRoot-Example~\ref{ex:systemoc-networkgraph} where the \code{Src} actor $a_1$ is parameterized to produce ascending values beginning from fifty.
+As mentioned in Section~\ref{sec:network-graph} actors can be parameterized using constructor parameters, e.g., as seen in Example~\ref{ex:systemoc-networkgraph} where the \code{Src} actor $a_1$, also displayed below, is parameterized to produce ascending values beginning from fifty.
 
 \begin{example}\label{ex:systemoc-src-actor-def}%
-Definition of the Src actor class:
+Definition of the \code{Src} actor class:
 \begin{verbatim}
 class Src: public smoc_actor {
 public:
