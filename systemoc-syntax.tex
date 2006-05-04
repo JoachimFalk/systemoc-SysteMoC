@@ -4,7 +4,7 @@ A complete application is modeled by a set of actors and their
 interconnection using channels. The overall model is therefore 
 a network of actors and channels.
 
-\section{Network graph}
+\section{Network graph}\label{sec:network-graph}
 
 The creation of a \SysteMoC{} design can be roughly divided into two subtasks:
 (i) The creation of a \emph{network graph} for the design, e.g., as displayed in Figure~\ref{fig:ng-sqrroot} for an approximative square root algorithm, and
@@ -649,4 +649,12 @@ A transition expression can be combined from the following terminals:
 (i)   the \code{Constant}-terminal represents a C++ expression which evaluates at instantiation time of the transition expression to a C++ integer, e.g., \code{sqr(a+5)}. A later value change of a variable included in this C++ expression, e.g., \code{a}, will not change the value of instantiated \code{<Integer>}-terminals containing this variable.
 (ii)  the \code{Variable}-terminal represents a actor member variable. A later value change of this variable will change the value of the \code{<Variable>}-terminal.
 (iii) the \code{Guard}-terminal represents an actor guard, as defined previously in Subsection~\ref{sec:actor-functionality}. The value of the \code{Guard}-terminal is returned by its guard function and may depend on token values and the functionality state of the actor.
-(iv)  the \code{Token}-terminal, e.g., \code{i.getValueAt(n)}, represents the \code{n}th token on an actor input port \code{i}. Where \code{n} is starting from zero, e.g., \code{i.getValueAt(0)} is the first token in the channel connected to input port \code{i}.
+(iv)  the \code{Token}-terminal, e.g., \code{i.getValueAt(n)}, represents the \code{n}th token on an actor input port \code{i}. Where \code{n} is starting from zero, e.g., \code{i.getValueAt(0)} is the first token in the channel connected to input port \code{i}
+
+\subsection{Constructor parameters}\label{sec:constr-params}
+
+As mentioned in Section~\ref{sec:network-graph} actors can be parameterized using constructorparameters. So in the sqrRoot-Example~\ref{ex:systemoc-networkgraph} the amount of tokens, the src-actor writes to its outputport is defined via a constructorparameter.
+Make sure not to use standard C++-Syntex to declare the constructorparametes in the actorclass.
+Instead use the makro SMOC\_ACTOR\_CPARAM(type, name), e.g. rather write \code{Src(sc\_module\_name name, SMOC\_ACTOR\_CPARAM(int, times)) } than \code{Src(sc\_module\_name name, int times) }. This makro passes information about the parametervalues to the SysteMoC-dumping function, necessary for the proper work of the SysteMoC parser. Note that the makro must not be applyed to the  sc\_module\_name parameter. The dumper doesn't need this parametervalue, actually it will cause an error when compiling the model.
+
+
