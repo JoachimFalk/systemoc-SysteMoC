@@ -651,10 +651,37 @@ A transition expression can be combined from the following terminals:
 (iii) the \code{Guard}-terminal represents an actor guard, as defined previously in Subsection~\ref{sec:actor-functionality}. The value of the \code{Guard}-terminal is returned by its guard function and may depend on token values and the functionality state of the actor.
 (iv)  the \code{Token}-terminal, e.g., \code{i.getValueAt(n)}, represents the \code{n}th token on an actor input port \code{i}. Where \code{n} is starting from zero, e.g., \code{i.getValueAt(0)} is the first token in the channel connected to input port \code{i}
 
-\subsection{Constructor parameters}\label{sec:constr-params}
+\subsection{Actor constructor parameters}\label{sec:constr-params}
 
-As mentioned in Section~\ref{sec:network-graph} actors can be parameterized using constructorparameters. So in the sqrRoot-Example~\ref{ex:systemoc-networkgraph} the amount of tokens, the src-actor writes to its outputport is defined via a constructorparameter.
-Make sure not to use standard C++-Syntex to declare the constructorparametes in the actorclass.
-Instead use the makro SMOC\_ACTOR\_CPARAM(type, name), e.g. rather write \code{Src(sc\_module\_name name, SMOC\_ACTOR\_CPARAM(int, times)) } than \code{Src(sc\_module\_name name, int times) }. This makro passes information about the parametervalues to the SysteMoC-dumping function, necessary for the proper work of the SysteMoC parser. Note that the makro must not be applyed to the  sc\_module\_name parameter. The dumper doesn't need this parametervalue, actually it will cause an error when compiling the model.
+As mentioned in Section~\ref{sec:network-graph} actors can be parameterized using constructor parameters, e.g., as seen in the sqrRoot-Example~\ref{ex:systemoc-networkgraph} where the \code{Src} actor $a_1$ is parameterized to produce ascending values beginning from fifty.
 
+\begin{example}\label{ex:systemoc-src-actor-def}%
+Definition of the Src actor class:
+\begin{verbatim}
+class Src: public smoc_actor {
+public:
+  smoc_port_out<double> out;
+private:
+  int i;
+  
+  void src() { out[0] = i++; }
+  
+  smoc_firing_state start;
+public:
+  Src(sc_module_name name, SMOC_ACTOR_CPARAM(int,from))
+    : smoc_actor(name, start), i(from) {
+    start =
+        (VAR(i) <= 100)           >>
+        out(1)                    >>
+        CALL(Src::src)            >> start
+      ;
+  }
+};
+\end{verbatim}
+\end{example}
 
+To enable the \SysteMoC{} synthesis framework to extract the value of these constructor parameters they must be wrapped with the \code{SMOC\_ACTOR\_CPARAM(type, name)} macro.
+The extraction of these parameters by parsing the code of the executable \SysteMoC{} specification is in general not possible because these parameters may depend on data not included in the \SysteMoC{} code, e.g., they may be derived from a configuration file.
+Therefore, it is necessary that these values are extracted at run time after the SystemC elaboration phase has finished.
+To facilitate this extraction the constructor parameters are wrapped by the \code{SMOC\_ACTOR\_CPARAM(type, name)} which enables the retention of the values of these parameters, till they can be inserted into an XML representation of the network graph which can be generated after the SystemC elaboration phase has finished.
+Note that the macro must not be applied to the \code{sc\_module\_name} parameter.
