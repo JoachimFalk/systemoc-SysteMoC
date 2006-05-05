@@ -24,6 +24,7 @@ using CoSupport::par_port_out;
 using CoSupport::par_port_in;
 using CoSupport::par_actor;
 using CoSupport::par_actor_factory;
+using Expr::isType;
 
 struct msg_add {};
 struct msg_neg {};
@@ -52,8 +53,8 @@ public:
 private:
   
   void add() {
-    assert(CoSupport::isType<double>(in_src2mod[1]));
-    assert(CoSupport::isType<double>(in_src2mod[2]));
+    assert(isType<double>(in_src2mod[1]));
+    assert(isType<double>(in_src2mod[2]));
     double a = in_src2mod[1];
     double b = in_src2mod[2];
     std::cout << name() << "> proc. ADD(" << a << ", " << b << ")" << std::endl; 
@@ -61,7 +62,7 @@ private:
   }
 
   void neg() {
-    assert(CoSupport::isType<double>(in_src2mod[1]));
+    assert(isType<double>(in_src2mod[1]));
     double a = in_src2mod[1];
     std::cout << name() << "> NEG(" << a << ")" << std::endl;
     out_mod2sink[0] = -a;
@@ -74,11 +75,11 @@ public:
     smoc_actor(name, run)
   {
     run =
-        (in_src2mod(3) && Expr::isType<msg_add>(in_src2mod.getValueAt(0)))
+        (in_src2mod(3) && isType<msg_add>(in_src2mod.getValueAt(0)))
      >> out_mod2sink(1)
      >> CALL(m_mod::add)
      >> run
-   |     (in_src2mod(2) && Expr::isType<msg_neg>(in_src2mod.getValueAt(0)))
+   |     (in_src2mod(2) && isType<msg_neg>(in_src2mod.getValueAt(0)))
      >> out_mod2sink(1)
      >> CALL(m_mod::neg)
      >> run
@@ -230,13 +231,13 @@ public:
       
       // if operator is add, copy 3 tokens at once
       stl |=
-           (in_src2mod(3) && Expr::isType<msg_add>(in_src2mod.getValueAt(0)))
+           (in_src2mod(3) && isType<msg_add>(in_src2mod.getValueAt(0)))
         >> out_src2mod(o)(3)
         >> CALL(m_mod_dispatcher::copy_src2mod)(out_src2mod(o))(o)(3)
 	>> run;
       // if operator is neg, copy 2 tokens at once
       stl |=
-           (in_src2mod(2) && Expr::isType<msg_neg>(in_src2mod.getValueAt(0)))
+           (in_src2mod(2) && isType<msg_neg>(in_src2mod.getValueAt(0)))
         >> out_src2mod(o)(2)
         >> CALL(m_mod_dispatcher::copy_src2mod)(out_src2mod(o))(o)(2)
         >> run;
