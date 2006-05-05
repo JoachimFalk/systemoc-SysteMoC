@@ -50,27 +50,4 @@ The actor state-dependent AST part is only evaluated after its corresponding sen
 Note that in general, arbitrarily complex parts dependent on the actor state of an activation pattern can be identified.
 For these actor state dependent AST parts, dedicated code is generated at C++ compile time for their evaluation.
 
-\begin{figure}[t]
-\begin{verbatim}
-<transition nextstate="id9" action="SqrLoop::copyApprox">
-  <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
-    <lhs><ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
-      <lhs><ASTNodeBinOp valueType="b" opType="DOpBinGe">
-        <lhs><PortTokens valueType="j" portid="id6"/></lhs>
-        <rhs><Literal valueType="j" value="1"/></rhs>
-      </ASTNodeBinOp></lhs>
-      <rhs><MemGuard valueType="b" name="SqrLoop::check"></rhs>
-    </ASTNodeBinOp></lhs>
-    <rhs><ASTNodeBinOp valueType="b" opType="DOpBinGe">
-      <lhs><PortTokens valueType="j" portid="id8"/></lhs>
-      <rhs><Literal valueType="j" value="1"/></rhs>
-    </ASTNodeBinOp></rhs>
-  </ASTNodeBinOp>
-</transition>
-\end{verbatim}
-\caption{\label{fig:xml-t2-sqrloop}%
-XML representation of the transition $t_2$ of the \code{SqrLoop} actor $a_2$ including the \emph{abstract syntax tree} derived from the activation pattern used in the transition.
-}
-\end{figure}
-
 % LocalWords: SysteMoC
