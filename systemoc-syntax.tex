@@ -61,11 +61,11 @@ public:
   // Constructor of network graph class assembles network graph
   SqrRoot( sc_module_name name )
     : smoc_graph(name),
-      src("src", 50),
-      sqrloop("sqrloop"),
-      approx("approx"),
-      dup("dup"),
-      sink("sink") {
+      src("a1", 50),
+      sqrloop("a2"),
+      approx("a3"),
+      dup("a4"),
+      sink("a5") {
     // The network graph is instantiated in the constructor
     // a1.o1 -> a2.i1 using FIFO standard size
     connectNodePorts(src.o1,     sqrloop.i1);
@@ -121,7 +121,7 @@ public:
 %The communication infrastructure used by actors must be considered as well.
 
 The actors of the network graph, e.g., $a_1$ - $a_5$ in Figure~\ref{fig:ng-sqrroot}, are member variables.
-They can be parameterized via common C++ syntax in the constructor of the \emph{network graph class}, e.g., \code{src("src", 50)}.
+They can be parameterized via common C++ syntax in the constructor of the \emph{network graph class}, e.g., \code{src("a1", 50)}.
 The connections of these actors via FIFO channels are assembled in the constructor of the network graph class, e.g., \code{connectNodePorts (src.o1, sqrloop.i1)} to connect $a_1.o_1$ to $a_2.i_1$.
 The FIFO channels are created by the \code{connectNodePorts($o$, $i$[, param])} function which creates a FIFO channel between output port $o$ and input port $i$.
 The optional parameter \code{param} is used to further parameterize the created FIFO channel, e.g., \code{smoc\_fifo<double>(1) $<<$ 2} is used to create a FIFO channel for \code{double} tokens of depth one with an initial token of value two.
@@ -653,7 +653,7 @@ A transition expression can be combined from the following terminals:
 
 \subsection{Actor parameters}\label{sec:constr-params}
 
-As mentioned in Section~\ref{sec:network-graph} actors can be parameterized using constructor parameters, e.g., as seen in Example~\ref{ex:systemoc-networkgraph} where the \code{Src} actor $a_1$, also displayed below, is parameterized \code{src("src", 50)} to produce ascending values beginning from fifty.
+As mentioned in Section~\ref{sec:network-graph} actors can be parameterized using constructor parameters, e.g., as seen in Example~\ref{ex:systemoc-networkgraph} where the \code{Src} actor $a_1$, also displayed below, is parameterized \code{src("a1", 50)} to produce ascending values beginning from fifty.
 
 \begin{example}\label{ex:systemoc-src-actor-def}%
 Definition of the \code{Src} actor class:
