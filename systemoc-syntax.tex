@@ -238,7 +238,7 @@ Visual representation of the \code{SqrLoop} actor $a_2$ used in the network grap
 The \code{SqrLoop} actor is composed of \emph{input ports} and \emph{output ports}, its \emph{functionality}, and the \emph{firing FSM} determining the communication behavior of the actor.}
 \end{figure}
 
-\subsection{Declaration of the actor input and output ports}\label{sec:actor-ports}
+\subsection{Actor input and output ports}\label{sec:actor-ports}
 
 An actor may only communicate with other actors via tokens passing 
 from output ports to input ports via channels
@@ -268,7 +268,7 @@ For this reason, the \SysteMoC{} library provides its own input and output port 
 These use the same concept of template parameters as standard SystemC ports, e.g., \code{sc\_fifo\_in}, to specify the type of token communicated.
 %For example, to specify a port which communicates tokens with values of type \code{double}, the declaration is \code{smoc\_port\_in$<$double$>$}.
 
-\subsection{Declaration of the actor functionality}\label{sec:actor-functionality}
+\subsection{Actor functionality}\label{sec:actor-functionality}
 The actor functionality is represented by member variables and member functions of the actor.
 These functions manipulate the so-called \emph{functionality state} 
 reflected by the current values of the set of member variables of the actor.
@@ -396,7 +396,7 @@ Output values from actions $f_\mathrm{action}$ are used by the firing FSM to gen
 
 
 
-\subsection{Declaration of the communication behavior}\label{sec:firing-fsm}
+\subsection{Actor communication behavior}\label{sec:firing-fsm}
 
 The consumption and production of tokens is locally triggered by transitions 
 of an explicit \emph{firing FSM} required in each actor.
@@ -651,9 +651,9 @@ A transition expression can be combined from the following terminals:
 (iii) the \code{Guard}-terminal represents an actor guard, as defined previously in Subsection~\ref{sec:actor-functionality}. The value of the \code{Guard}-terminal is returned by its guard function and may depend on token values and the functionality state of the actor.
 (iv)  the \code{Token}-terminal, e.g., \code{i.getValueAt(n)}, represents the \code{n}th token on an actor input port \code{i}. Where \code{n} is starting from zero, e.g., \code{i.getValueAt(0)} is the first token in the channel connected to input port \code{i}
 
-\subsection{Actor constructor parameters}\label{sec:constr-params}
+\subsection{Actor parameters}\label{sec:constr-params}
 
-As mentioned in Section~\ref{sec:network-graph} actors can be parameterized using constructor parameters, e.g., as seen in Example~\ref{ex:systemoc-networkgraph} where the \code{Src} actor $a_1$, also displayed below, is parameterized to produce ascending values beginning from fifty.
+As mentioned in Section~\ref{sec:network-graph} actors can be parameterized using constructor parameters, e.g., as seen in Example~\ref{ex:systemoc-networkgraph} where the \code{Src} actor $a_1$, also displayed below, is parameterized \code{src("src", 50)} to produce ascending values beginning from fifty.
 
 \begin{example}\label{ex:systemoc-src-actor-def}%
 Definition of the \code{Src} actor class:
@@ -681,7 +681,7 @@ public:
 \end{example}
 
 To enable the \SysteMoC{} synthesis framework to extract the value of these constructor parameters they must be wrapped with the \code{SMOC\_ACTOR\_CPARAM(type, name)} macro.
-The extraction of these parameters by parsing the code of the executable \SysteMoC{} specification is in general not possible because these parameters may depend on data not included in the \SysteMoC{} code, e.g., they may be derived from a configuration file.
+The extraction of these parameters via code parsing of the executable \SysteMoC{} specification is in general not possible because these parameters may depend on data not included in the \SysteMoC{} code, e.g., they may be derived from a configuration file.
 Therefore, it is necessary that these values are extracted at run time after the SystemC elaboration phase has finished.
 To facilitate this extraction the constructor parameters are wrapped by the \code{SMOC\_ACTOR\_CPARAM(type, name)} which enables the retention of the values of these parameters, till they can be inserted into an XML representation of the network graph which can be generated after the SystemC elaboration phase has finished.
 Note that the macro must not be applied to the \code{sc\_module\_name} parameter.
