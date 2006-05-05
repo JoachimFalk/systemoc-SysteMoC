@@ -159,11 +159,11 @@ protected:
 public:
   SqrRoot( sc_module_name name )
     : smoc_graph(name),
-      src("A1", 50),
-      sqrloop("A2"),
-      approx("A3"),
-      dup("A4"),
-      sink("A5") {
+      src("a1", 50),
+      sqrloop("a2"),
+      approx("a3"),
+      dup("a4"),
+      sink("a5") {
     connectNodePorts(src.out,    sqrloop.i1);
     connectNodePorts(sqrloop.o1, approx.i1);
     connectNodePorts(approx.o1,  dup.i1,
