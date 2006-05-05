@@ -2,15 +2,15 @@
 <!DOCTYPE networkgraph SYSTEM "networkgraph.dtd">
 <networkgraph name="smoc_modes::dump">
   <problemgraph name="sqrroot_pg" id="id0">
-    <process name="sqrroot.A1" type="actor" id="id1">
-      <port name="sqrroot.A1.smoc_port_out_0" type="out" id="id2"/>
+    <process name="sqrroot.a1" type="actor" id="id1">
+      <port name="sqrroot.a1.smoc_port_out_0" type="out" id="id2"/>
       <state id="id3"/>
       <actor actorClass="3Src">
         <constructorParameter type="i" value="50"/>
         <fsm startstate="id3">
           <state id="id3">
             <transition nextstate="id3"             action="Src::src">
-              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+              <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
                 <lhs>
                   <ASTNodeBinOp valueType="b" opType="DOpBinLe">
                     <lhs>
@@ -22,7 +22,7 @@
                   </ASTNodeBinOp>
                 </lhs>
                 <rhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                     <lhs>
                       <PortTokens valueType="j" portid="id2"/>
                     </lhs>
@@ -37,22 +37,22 @@
         </fsm>
       </actor>
     </process>
-    <process name="sqrroot.A2" type="actor" id="id4">
-      <port name="sqrroot.A2.smoc_port_in_0" type="in" id="id5"/>
-      <port name="sqrroot.A2.smoc_port_in_1" type="in" id="id6"/>
-      <port name="sqrroot.A2.smoc_port_out_0" type="out" id="id7"/>
-      <port name="sqrroot.A2.smoc_port_out_1" type="out" id="id8"/>
+    <process name="sqrroot.a2" type="actor" id="id4">
+      <port name="sqrroot.a2.smoc_port_in_0" type="in" id="id5"/>
+      <port name="sqrroot.a2.smoc_port_in_1" type="in" id="id6"/>
+      <port name="sqrroot.a2.smoc_port_out_0" type="out" id="id7"/>
+      <port name="sqrroot.a2.smoc_port_out_1" type="out" id="id8"/>
       <state id="id9"/>
       <state id="id10"/>
       <actor actorClass="7SqrLoop">
         <fsm startstate="id9">
           <state id="id10">
             <transition nextstate="id9"             action="SqrLoop::copyApprox">
-              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+              <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
                 <lhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
                     <lhs>
-                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                      <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                         <lhs>
                           <PortTokens valueType="j" portid="id6"/>
                         </lhs>
@@ -67,7 +67,7 @@
                   </ASTNodeBinOp>
                 </lhs>
                 <rhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                     <lhs>
                       <PortTokens valueType="j" portid="id8"/>
                     </lhs>
@@ -79,11 +79,11 @@
               </ASTNodeBinOp>
             </transition>
             <transition nextstate="id10"             action="SqrLoop::copyInput">
-              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+              <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
                 <lhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
                     <lhs>
-                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                      <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                         <lhs>
                           <PortTokens valueType="j" portid="id6"/>
                         </lhs>
@@ -102,7 +102,7 @@
                   </ASTNodeBinOp>
                 </lhs>
                 <rhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                     <lhs>
                       <PortTokens valueType="j" portid="id7"/>
                     </lhs>
@@ -116,9 +116,9 @@
           </state>
           <state id="id9">
             <transition nextstate="id10"             action="SqrLoop::copyStore">
-              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+              <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
                 <lhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                     <lhs>
                       <PortTokens valueType="j" portid="id5"/>
                     </lhs>
@@ -128,7 +128,7 @@
                   </ASTNodeBinOp>
                 </lhs>
                 <rhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                     <lhs>
                       <PortTokens valueType="j" portid="id7"/>
                     </lhs>
@@ -143,20 +143,20 @@
         </fsm>
       </actor>
     </process>
-    <process name="sqrroot.A3" type="actor" id="id11">
-      <port name="sqrroot.A3.smoc_port_in_0" type="in" id="id12"/>
-      <port name="sqrroot.A3.smoc_port_in_1" type="in" id="id13"/>
-      <port name="sqrroot.A3.smoc_port_out_0" type="out" id="id14"/>
+    <process name="sqrroot.a3" type="actor" id="id11">
+      <port name="sqrroot.a3.smoc_port_in_0" type="in" id="id12"/>
+      <port name="sqrroot.a3.smoc_port_in_1" type="in" id="id13"/>
+      <port name="sqrroot.a3.smoc_port_out_0" type="out" id="id14"/>
       <state id="id15"/>
       <actor actorClass="6Approx">
         <fsm startstate="id15">
           <state id="id15">
             <transition nextstate="id15"             action="Approx::approx">
-              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+              <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
                 <lhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
                     <lhs>
-                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                      <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                         <lhs>
                           <PortTokens valueType="j" portid="id12"/>
                         </lhs>
@@ -166,7 +166,7 @@
                       </ASTNodeBinOp>
                     </lhs>
                     <rhs>
-                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                      <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                         <lhs>
                           <PortTokens valueType="j" portid="id13"/>
                         </lhs>
@@ -178,7 +178,7 @@
                   </ASTNodeBinOp>
                 </lhs>
                 <rhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                     <lhs>
                       <PortTokens valueType="j" portid="id14"/>
                     </lhs>
@@ -193,18 +193,18 @@
         </fsm>
       </actor>
     </process>
-    <process name="sqrroot.A4" type="actor" id="id16">
-      <port name="sqrroot.A4.smoc_port_in_0" type="in" id="id17"/>
-      <port name="sqrroot.A4.smoc_port_out_0" type="out" id="id18"/>
-      <port name="sqrroot.A4.smoc_port_out_1" type="out" id="id19"/>
+    <process name="sqrroot.a4" type="actor" id="id16">
+      <port name="sqrroot.a4.smoc_port_in_0" type="in" id="id17"/>
+      <port name="sqrroot.a4.smoc_port_out_0" type="out" id="id18"/>
+      <port name="sqrroot.a4.smoc_port_out_1" type="out" id="id19"/>
       <state id="id20"/>
       <actor actorClass="3Dup">
         <fsm startstate="id20">
           <state id="id20">
             <transition nextstate="id20"             action="Dup::dup">
-              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+              <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
                 <lhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                     <lhs>
                       <PortTokens valueType="j" portid="id17"/>
                     </lhs>
@@ -214,9 +214,9 @@
                   </ASTNodeBinOp>
                 </lhs>
                 <rhs>
-                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                  <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
                     <lhs>
-                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                      <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                         <lhs>
                           <PortTokens valueType="j" portid="id18"/>
                         </lhs>
@@ -226,7 +226,7 @@
                       </ASTNodeBinOp>
                     </lhs>
                     <rhs>
-                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                      <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                         <lhs>
                           <PortTokens valueType="j" portid="id19"/>
                         </lhs>
@@ -243,14 +243,14 @@
         </fsm>
       </actor>
     </process>
-    <process name="sqrroot.A5" type="actor" id="id21">
-      <port name="sqrroot.A5.smoc_port_in_0" type="in" id="id22"/>
+    <process name="sqrroot.a5" type="actor" id="id21">
+      <port name="sqrroot.a5.smoc_port_in_0" type="in" id="id22"/>
       <state id="id23"/>
       <actor actorClass="4Sink">
         <fsm startstate="id23">
           <state id="id23">
             <transition nextstate="id23"             action="Sink::sink">
-              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+              <ASTNodeBinOp valueType="b" opType="DOpBinGe">
                 <lhs>
                   <PortTokens valueType="j" portid="id22"/>
                 </lhs>
