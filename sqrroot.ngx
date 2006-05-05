@@ -1,260 +1,325 @@
-running fallbackmode
 <?xml version="1.0"?>
 <!DOCTYPE networkgraph SYSTEM "networkgraph.dtd">
 <networkgraph name="smoc_modes::dump">
   <problemgraph name="sqrroot_pg" id="id0">
-    <process name="sqrroot.A1" id="id1">
+    <process name="sqrroot.A1" type="actor" id="id1">
       <port name="sqrroot.A1.smoc_port_out_0" type="out" id="id2"/>
-      <fsm startstate="id3">
-        <state id="id3">
-          <transition nextstate="id3"           action="Src::src">
-            <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
-              <lhs>
-                <MemGuard valueType="b" name="Src::nTimesTrue" addrObj="0xbfffe2b0" addrFun="0x8053312"/>
-              </lhs>
-              <rhs>
-                <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                  <lhs>
-                    <PortTokens valueType="j" portid="id2"/>
-                  </lhs>
-                  <rhs>
-                    <Literal valueType="j" value="1"/>
-                  </rhs>
-                </ASTNodeBinOp>
-              </rhs>
-            </ASTNodeBinOp>
-          </transition>
-        </state>
-      </fsm>
+      <state id="id3"/>
+      <actor actorClass="3Src">
+        <constructorParameter type="i" value="50"/>
+        <fsm startstate="id3">
+          <state id="id3">
+            <transition nextstate="id3"             action="Src::src">
+              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                <lhs>
+                  <ASTNodeBinOp valueType="b" opType="DOpBinLe">
+                    <lhs>
+                      <Var valueType="i" name="i" addr="0xbfffe334"/>
+                    </lhs>
+                    <rhs>
+                      <Literal valueType="i" value="100"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens valueType="j" portid="id2"/>
+                    </lhs>
+                    <rhs>
+                      <Literal valueType="j" value="1"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+        </fsm>
+      </actor>
     </process>
-    <process name="sqrroot.A2" id="id4">
+    <process name="sqrroot.A2" type="actor" id="id4">
       <port name="sqrroot.A2.smoc_port_in_0" type="in" id="id5"/>
       <port name="sqrroot.A2.smoc_port_in_1" type="in" id="id6"/>
       <port name="sqrroot.A2.smoc_port_out_0" type="out" id="id7"/>
       <port name="sqrroot.A2.smoc_port_out_1" type="out" id="id8"/>
-      <fsm startstate="id9">
-        <state id="id10">
-          <transition nextstate="id9"           action="SqrLoop::copyApprox">
-            <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
-              <lhs>
-                <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
-                  <lhs>
-                    <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                      <lhs>
-                        <PortTokens valueType="j" portid="id6"/>
-                      </lhs>
-                      <rhs>
-                        <Literal valueType="j" value="1"/>
-                      </rhs>
-                    </ASTNodeBinOp>
-                  </lhs>
-                  <rhs>
-                    <MemGuard valueType="b" name="SqrLoop::check" addrObj="0xbfffe3a4" addrFun="0x8053852"/>
-                  </rhs>
-                </ASTNodeBinOp>
-              </lhs>
-              <rhs>
-                <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                  <lhs>
-                    <PortTokens valueType="j" portid="id8"/>
-                  </lhs>
-                  <rhs>
-                    <Literal valueType="j" value="1"/>
-                  </rhs>
-                </ASTNodeBinOp>
-              </rhs>
-            </ASTNodeBinOp>
-          </transition>
-          <transition nextstate="id10"           action="SqrLoop::copyInput">
-            <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
-              <lhs>
-                <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
-                  <lhs>
-                    <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                      <lhs>
-                        <PortTokens valueType="j" portid="id6"/>
-                      </lhs>
-                      <rhs>
-                        <Literal valueType="j" value="1"/>
-                      </rhs>
-                    </ASTNodeBinOp>
-                  </lhs>
-                  <rhs>
-                    <ASTNodeUnOp valueType="b" opType="DOpUnLNot">
-                      <ChildNode>
-                        <MemGuard valueType="b" name="SqrLoop::check" addrObj="0xbfffe3a4" addrFun="0x8053852"/>
-                      </ChildNode>
-                    </ASTNodeUnOp>
-                  </rhs>
-                </ASTNodeBinOp>
-              </lhs>
-              <rhs>
-                <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                  <lhs>
-                    <PortTokens valueType="j" portid="id7"/>
-                  </lhs>
-                  <rhs>
-                    <Literal valueType="j" value="1"/>
-                  </rhs>
-                </ASTNodeBinOp>
-              </rhs>
-            </ASTNodeBinOp>
-          </transition>
-        </state>
-        <state id="id9">
-          <transition nextstate="id10"           action="SqrLoop::copyStore">
-            <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
-              <lhs>
-                <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                  <lhs>
-                    <PortTokens valueType="j" portid="id5"/>
-                  </lhs>
-                  <rhs>
-                    <Literal valueType="j" value="1"/>
-                  </rhs>
-                </ASTNodeBinOp>
-              </lhs>
-              <rhs>
-                <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                  <lhs>
-                    <PortTokens valueType="j" portid="id7"/>
-                  </lhs>
-                  <rhs>
-                    <Literal valueType="j" value="1"/>
-                  </rhs>
-                </ASTNodeBinOp>
-              </rhs>
-            </ASTNodeBinOp>
-          </transition>
-        </state>
-      </fsm>
+      <state id="id9"/>
+      <state id="id10"/>
+      <actor actorClass="7SqrLoop">
+        <fsm startstate="id9">
+          <state id="id10">
+            <transition nextstate="id9"             action="SqrLoop::copyApprox">
+              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                <lhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                    <lhs>
+                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens valueType="j" portid="id6"/>
+                        </lhs>
+                        <rhs>
+                          <Literal valueType="j" value="1"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </lhs>
+                    <rhs>
+                      <MemGuard valueType="b" name="SqrLoop::check" addrObj="0xbfffe354" addrFun="0x8056234"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens valueType="j" portid="id8"/>
+                    </lhs>
+                    <rhs>
+                      <Literal valueType="j" value="1"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+            <transition nextstate="id10"             action="SqrLoop::copyInput">
+              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                <lhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                    <lhs>
+                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens valueType="j" portid="id6"/>
+                        </lhs>
+                        <rhs>
+                          <Literal valueType="j" value="1"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </lhs>
+                    <rhs>
+                      <ASTNodeUnOp valueType="b" opType="DOpUnLNot">
+                        <ChildNode>
+                          <MemGuard valueType="b" name="SqrLoop::check" addrObj="0xbfffe354" addrFun="0x8056234"/>
+                        </ChildNode>
+                      </ASTNodeUnOp>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens valueType="j" portid="id7"/>
+                    </lhs>
+                    <rhs>
+                      <Literal valueType="j" value="1"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+          <state id="id9">
+            <transition nextstate="id10"             action="SqrLoop::copyStore">
+              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                <lhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens valueType="j" portid="id5"/>
+                    </lhs>
+                    <rhs>
+                      <Literal valueType="j" value="1"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens valueType="j" portid="id7"/>
+                    </lhs>
+                    <rhs>
+                      <Literal valueType="j" value="1"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+        </fsm>
+      </actor>
     </process>
-    <process name="sqrroot.A3" id="id11">
+    <process name="sqrroot.A3" type="actor" id="id11">
       <port name="sqrroot.A3.smoc_port_in_0" type="in" id="id12"/>
       <port name="sqrroot.A3.smoc_port_in_1" type="in" id="id13"/>
       <port name="sqrroot.A3.smoc_port_out_0" type="out" id="id14"/>
-      <fsm startstate="id15">
-        <state id="id15">
-          <transition nextstate="id15"           action="Approx::approx">
-            <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
-              <lhs>
-                <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
-                  <lhs>
-                    <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                      <lhs>
-                        <PortTokens valueType="j" portid="id12"/>
-                      </lhs>
-                      <rhs>
-                        <Literal valueType="j" value="1"/>
-                      </rhs>
-                    </ASTNodeBinOp>
-                  </lhs>
-                  <rhs>
-                    <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                      <lhs>
-                        <PortTokens valueType="j" portid="id13"/>
-                      </lhs>
-                      <rhs>
-                        <Literal valueType="j" value="1"/>
-                      </rhs>
-                    </ASTNodeBinOp>
-                  </rhs>
-                </ASTNodeBinOp>
-              </lhs>
-              <rhs>
-                <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                  <lhs>
-                    <PortTokens valueType="j" portid="id14"/>
-                  </lhs>
-                  <rhs>
-                    <Literal valueType="j" value="1"/>
-                  </rhs>
-                </ASTNodeBinOp>
-              </rhs>
-            </ASTNodeBinOp>
-          </transition>
-        </state>
-      </fsm>
+      <state id="id15"/>
+      <actor actorClass="6Approx">
+        <fsm startstate="id15">
+          <state id="id15">
+            <transition nextstate="id15"             action="Approx::approx">
+              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                <lhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                    <lhs>
+                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens valueType="j" portid="id12"/>
+                        </lhs>
+                        <rhs>
+                          <Literal valueType="j" value="1"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </lhs>
+                    <rhs>
+                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens valueType="j" portid="id13"/>
+                        </lhs>
+                        <rhs>
+                          <Literal valueType="j" value="1"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens valueType="j" portid="id14"/>
+                    </lhs>
+                    <rhs>
+                      <Literal valueType="j" value="1"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+        </fsm>
+      </actor>
     </process>
-    <process name="sqrroot.A4" id="id16">
+    <process name="sqrroot.A4" type="actor" id="id16">
       <port name="sqrroot.A4.smoc_port_in_0" type="in" id="id17"/>
       <port name="sqrroot.A4.smoc_port_out_0" type="out" id="id18"/>
       <port name="sqrroot.A4.smoc_port_out_1" type="out" id="id19"/>
-      <fsm startstate="id20">
-        <state id="id20">
-          <transition nextstate="id20"           action="Dup::dup">
-            <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
-              <lhs>
-                <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                  <lhs>
-                    <PortTokens valueType="j" portid="id17"/>
-                  </lhs>
-                  <rhs>
-                    <Literal valueType="j" value="1"/>
-                  </rhs>
-                </ASTNodeBinOp>
-              </lhs>
-              <rhs>
-                <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
-                  <lhs>
-                    <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                      <lhs>
-                        <PortTokens valueType="j" portid="id18"/>
-                      </lhs>
-                      <rhs>
-                        <Literal valueType="j" value="1"/>
-                      </rhs>
-                    </ASTNodeBinOp>
-                  </lhs>
-                  <rhs>
-                    <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-                      <lhs>
-                        <PortTokens valueType="j" portid="id19"/>
-                      </lhs>
-                      <rhs>
-                        <Literal valueType="j" value="1"/>
-                      </rhs>
-                    </ASTNodeBinOp>
-                  </rhs>
-                </ASTNodeBinOp>
-              </rhs>
-            </ASTNodeBinOp>
-          </transition>
-        </state>
-      </fsm>
+      <state id="id20"/>
+      <actor actorClass="3Dup">
+        <fsm startstate="id20">
+          <state id="id20">
+            <transition nextstate="id20"             action="Dup::dup">
+              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                <lhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                    <lhs>
+                      <PortTokens valueType="j" portid="id17"/>
+                    </lhs>
+                    <rhs>
+                      <Literal valueType="j" value="1"/>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </lhs>
+                <rhs>
+                  <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinLAnd">
+                    <lhs>
+                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens valueType="j" portid="id18"/>
+                        </lhs>
+                        <rhs>
+                          <Literal valueType="j" value="1"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </lhs>
+                    <rhs>
+                      <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                        <lhs>
+                          <PortTokens valueType="j" portid="id19"/>
+                        </lhs>
+                        <rhs>
+                          <Literal valueType="j" value="1"/>
+                        </rhs>
+                      </ASTNodeBinOp>
+                    </rhs>
+                  </ASTNodeBinOp>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+        </fsm>
+      </actor>
     </process>
-    <process name="sqrroot.A5" id="id21">
+    <process name="sqrroot.A5" type="actor" id="id21">
       <port name="sqrroot.A5.smoc_port_in_0" type="in" id="id22"/>
-      <fsm startstate="id23">
-        <state id="id23">
-          <transition nextstate="id23"           action="Sink::sink">
-            <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
-              <lhs>
-                <PortTokens valueType="j" portid="id22"/>
-              </lhs>
-              <rhs>
-                <Literal valueType="j" value="1"/>
-              </rhs>
-            </ASTNodeBinOp>
-          </transition>
-        </state>
-      </fsm>
+      <state id="id23"/>
+      <actor actorClass="4Sink">
+        <fsm startstate="id23">
+          <state id="id23">
+            <transition nextstate="id23"             action="Sink::sink">
+              <ASTNodeBinOp valueType="19smoc_root_port_bool" opType="DOpBinGe">
+                <lhs>
+                  <PortTokens valueType="j" portid="id22"/>
+                </lhs>
+                <rhs>
+                  <Literal valueType="j" value="1"/>
+                </rhs>
+              </ASTNodeBinOp>
+            </transition>
+          </state>
+        </fsm>
+      </actor>
     </process>
-    <edge name="sqrroot.smoc_fifo_0" source="id2" target="id5" type="d" size="2" id="id24">
-    </edge>
-    <edge name="sqrroot.smoc_fifo_1" source="id7" target="id12" type="d" size="2" id="id25">
-    </edge>
-    <edge name="sqrroot.smoc_fifo_2" source="id14" target="id17" type="d" size="2" id="id26">
-    </edge>
-    <edge name="sqrroot.smoc_fifo_3" source="id18" target="id13" type="d" size="2" id="id27">
-      <token value="2"/>
-    </edge>
-    <edge name="sqrroot.smoc_fifo_4" source="id19" target="id6" type="d" size="2" id="id28">
-    </edge>
-    <edge name="sqrroot.smoc_fifo_5" source="id8" target="id22" type="d" size="2" id="id29">
-    </edge>
+    <edge name="sqrroot.smoc_fifo_0.to-edge" source="id2" target="id25" id="id27"/>
+    <process name="sqrroot.smoc_fifo_0" type="fifo" id="id24">
+      <port name="sqrroot.smoc_fifo_0.in" type="in" id="id25"/>
+      <port name="sqrroot.smoc_fifo_0.out" type="out" id="id26"/>
+      <fifo tokenType="d">
+      </fifo>
+      <attribute type="size" value="2"/>
+    </process>
+    <edge name="sqrroot.smoc_fifo_0.from-edge" source="id26" target="id5" id="id28"/>
+    <edge name="sqrroot.smoc_fifo_1.to-edge" source="id7" target="id30" id="id32"/>
+    <process name="sqrroot.smoc_fifo_1" type="fifo" id="id29">
+      <port name="sqrroot.smoc_fifo_1.in" type="in" id="id30"/>
+      <port name="sqrroot.smoc_fifo_1.out" type="out" id="id31"/>
+      <fifo tokenType="d">
+      </fifo>
+      <attribute type="size" value="2"/>
+    </process>
+    <edge name="sqrroot.smoc_fifo_1.from-edge" source="id31" target="id12" id="id33"/>
+    <edge name="sqrroot.smoc_fifo_2.to-edge" source="id14" target="id35" id="id37"/>
+    <process name="sqrroot.smoc_fifo_2" type="fifo" id="id34">
+      <port name="sqrroot.smoc_fifo_2.in" type="in" id="id35"/>
+      <port name="sqrroot.smoc_fifo_2.out" type="out" id="id36"/>
+      <fifo tokenType="d">
+      </fifo>
+      <attribute type="size" value="2"/>
+    </process>
+    <edge name="sqrroot.smoc_fifo_2.from-edge" source="id36" target="id17" id="id38"/>
+    <edge name="sqrroot.smoc_fifo_3.to-edge" source="id18" target="id40" id="id42"/>
+    <process name="sqrroot.smoc_fifo_3" type="fifo" id="id39">
+      <port name="sqrroot.smoc_fifo_3.in" type="in" id="id40"/>
+      <port name="sqrroot.smoc_fifo_3.out" type="out" id="id41"/>
+      <fifo tokenType="d">
+        <token value="2"/>
+      </fifo>
+      <attribute type="size" value="2"/>
+    </process>
+    <edge name="sqrroot.smoc_fifo_3.from-edge" source="id41" target="id13" id="id43"/>
+    <edge name="sqrroot.smoc_fifo_4.to-edge" source="id19" target="id45" id="id47"/>
+    <process name="sqrroot.smoc_fifo_4" type="fifo" id="id44">
+      <port name="sqrroot.smoc_fifo_4.in" type="in" id="id45"/>
+      <port name="sqrroot.smoc_fifo_4.out" type="out" id="id46"/>
+      <fifo tokenType="d">
+      </fifo>
+      <attribute type="size" value="2"/>
+    </process>
+    <edge name="sqrroot.smoc_fifo_4.from-edge" source="id46" target="id6" id="id48"/>
+    <edge name="sqrroot.smoc_fifo_5.to-edge" source="id8" target="id50" id="id52"/>
+    <process name="sqrroot.smoc_fifo_5" type="fifo" id="id49">
+      <port name="sqrroot.smoc_fifo_5.in" type="in" id="id50"/>
+      <port name="sqrroot.smoc_fifo_5.out" type="out" id="id51"/>
+      <fifo tokenType="d">
+      </fifo>
+      <attribute type="size" value="2"/>
+    </process>
+    <edge name="sqrroot.smoc_fifo_5.from-edge" source="id51" target="id22" id="id53"/>
   </problemgraph>
-  <architecturegraph name="architecture graph" id="id30">
+  <architecturegraph name="architecture graph" id="id54">
   </architecturegraph>
   <mappings>
   </mappings>
