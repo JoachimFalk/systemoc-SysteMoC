@@ -1,26 +1,58 @@
 \chapter{\SysteMoC{} - XML formats}\label{sec:systemoc-ngx}
 
-\SysteMoC{} enables an XML representation of the network graph as defined in Section~\ref{sec:network-graph} to be automatically extracted.
+\SysteMoC{} enables an XML representation of the network graph as defined in Section~\ref{sec:network-graph} to be automatically extracted, e.g., a skeleton of the XML representation of the network graph shown in Figure~\ref{fig:ng-sqrroot} can be seen in the following example.
 
 %\verbatiminput{sqrroot.ngx}
 
-\begin{figure}[t]
+\begin{example}
+Skeleton of a network graph XML representation:
 \begin{verbatim}
 <?xml version="1.0"?>
 <!DOCTYPE networkgraph SYSTEM "networkgraph.dtd">
-<networkgraph name="smoc_modes::dump">
-  <problemgraph name="sqrroot_pg" id="id0">
-    <!-- Here all vertices of the network graph are
-         -->
-  </problemgraph>
+<networkgraph name="sqrroot">
+  <!-- All actors and channels of a network graph are given below.
+       Where both actors and channels are represented via the XML
+       process tag.
+    -->
+  <!-- Process tag describing SqrRoot actor a1 -->
+  <process name="sqrroot.a1" type="actor" id="id1">
+    <port name="sqrroot.a1.smoc_port_out_0" type="out" id="id2"/>
+    <!-- Contains more tags describing the actor in more detail -->
+    ...
+  </process>
+  ...
+  <!-- Process tag describing FIFO channel c1 -->
+  <process name="sqrroot.smoc_fifo_0" type="fifo" id="id24">
+    <port name="sqrroot.smoc_fifo_0.in"  type="in"  id="id25"/>
+    <port name="sqrroot.smoc_fifo_0.out" type="out" id="id26"/>
+    <!-- Contains more tags describing the FIFO in more detail -->
+    ...
+  </process>
+  ...
+  <!-- Process tag describing SqrLoop actor a2 -->
+  <process name="sqrroot.a2" type="actor" id="id4">
+    <port name="sqrroot.a2.smoc_port_in_0"  type="in"  id="id5"/>
+    <port name="sqrroot.a2.smoc_port_in_1"  type="in"  id="id6"/>
+    <port name="sqrroot.a2.smoc_port_out_0" type="out" id="id7"/>
+    <port name="sqrroot.a2.smoc_port_out_1" type="out" id="id8"/>
+    <!-- Contains more tags describing the actor in more detail -->
+    ...
+  </process>
+  ...
+  <!-- Edge tags describing the FIFO connection from a1.o1 -> a2.i1 -->
+  <edge name="sqrroot.smoc_fifo_0.to-edge"   source="id2"  target="id25"/>
+  <edge name="sqrroot.smoc_fifo_0.from-edge" source="id26" target="id5"/>
+  ...
 </networkgraph>
 \end{verbatim}
-\caption{\label{fig:ngx-skeleton}%
-XML representation of the transition $t_2$ of the \code{SqrLoop} actor $a_2$ including the \emph{abstract syntax tree} derived from the activation pattern used in the transition.
-}
-\end{figure}
+\end{example}
 
-\begin{figure}[t]
+The actors and channels of a network graph are represented as \code{process} tags contained in the \code{networkgraph} tag.
+The \code{process} tags are marked via the attribute \code{type} as representing an actor or FIFO channel.
+The edges of the network graph are represented as \code{edge} tags.
+
+\begin{example}\label{ex:xml-t2-sqrloop}%
+XML representation of the transition $t_2$ of the \code{SqrLoop} actor $a_2$ including the \emph{abstract syntax tree} derived from the activation pattern used in the transition.
 \begin{verbatim}
 <transition nextstate="id9" action="SqrLoop::copyApprox">
   <ASTNodeBinOp valueType="b" opType="DOpBinLAnd">
@@ -38,7 +70,4 @@ XML representation of the transition $t_2$ of the \code{SqrLoop} actor $a_2$ inc
   </ASTNodeBinOp>
 </transition>
 \end{verbatim}
-\caption{\label{fig:xml-t2-sqrloop}%
-XML representation of the transition $t_2$ of the \code{SqrLoop} actor $a_2$ including the \emph{abstract syntax tree} derived from the activation pattern used in the transition.
-}
-\end{figure}
+\end{example}
