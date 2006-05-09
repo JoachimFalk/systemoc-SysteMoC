@@ -10,7 +10,7 @@
 # include <smoc_pggen.hpp>
 #endif
 
-#include <callib.hpp>
+#include "callib.hpp"
 
 #include "IDCT2d.hpp"
 #include "block2row.hpp"
@@ -34,7 +34,7 @@ class m_block_idct
 	connectInterfacePorts(I, block2row1.b);
         
 	connectInterfacePorts(MIN, idct2d1.min);
-  	
+#ifndef KASCPAR_PARSING  	
         connectNodePorts( block2row1.C0, idct2d1.i0, smoc_fifo<int>(16) );
       	connectNodePorts( block2row1.C1, idct2d1.i1, smoc_fifo<int>(16) );
       	connectNodePorts( block2row1.C2, idct2d1.i2, smoc_fifo<int>(16) );
@@ -52,7 +52,7 @@ class m_block_idct
       	connectNodePorts( idct2d1.o5, col2block1.R5, smoc_fifo<int>(16) );
     	connectNodePorts( idct2d1.o6, col2block1.R6, smoc_fifo<int>(16) );
       	connectNodePorts( idct2d1.o7, col2block1.R7, smoc_fifo<int>(16) );
-        
+#endif        
 	connectInterfacePorts(O, col2block1.b);
       }
   };

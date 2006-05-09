@@ -26,7 +26,6 @@ private:
   
   smoc_firing_state start;
 public:
-#ifndef KASCPAR_PARSING
   m_IDCTfly(sc_module_name name,
             SMOC_ACTOR_CPARAM(int, W0),
 	    SMOC_ACTOR_CPARAM(int, OS),
@@ -41,7 +40,6 @@ public:
              O2.getAvailableSpace() >= 1)   >>
             CALL(m_IDCTfly::action0)  	    >> start;
   }
-#endif
   
   virtual ~m_IDCTfly() {}
 };

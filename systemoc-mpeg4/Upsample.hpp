@@ -28,20 +28,18 @@ private:
   smoc_firing_state start;
 
 public:
-#ifndef KASCPAR_PARSING
   m_Upsample(sc_module_name name,
              SMOC_ACTOR_CPARAM(int, factor))
     : smoc_actor(name, start),
       factor(factor), state(0) {
     start = (I.getAvailableTokens() >= 1 &&
-             var(state) == 0)                 >>
+             VAR(state) == 0)                 >>
             (O.getAvailableSpace() >= 1)      >>
             CALL(m_Upsample::action0)         >> start
-          | (var(state)  > 0)                 >>
+          | (VAR(state)  > 0)                 >>
             (O.getAvailableSpace() >= 1)      >>
             CALL(m_Upsample::action1)         >> start;
   }
-#endif
 };
 
 #endif // _INCLUDED_UPSAMPLE_HPP

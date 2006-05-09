@@ -23,7 +23,6 @@ private:
   
     smoc_firing_state start;
 public:
-#ifndef KASCPAR_PARSING
   m_IDCTclip(sc_module_name name,
              SMOC_ACTOR_CPARAM(int, MAX))
     : smoc_actor(name, start),
@@ -34,7 +33,6 @@ public:
             CALL(m_IDCTclip::action0)  	      >> start;
 
   }
-#endif
   virtual ~m_IDCTclip(){}
 };
 

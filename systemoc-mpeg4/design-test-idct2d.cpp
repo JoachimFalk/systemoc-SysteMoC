@@ -14,7 +14,7 @@
 # include <smoc_pggen.hpp>
 #endif
 
-#include <callib.hpp>
+#include "callib.hpp"
 
 #include "block_idct.hpp"
 
@@ -27,20 +27,24 @@ class m_source_idct: public smoc_actor {
     smoc_port_out<int> out;
     smoc_port_out<int> min;
   private:
-    int i;
-    
+    int counter;
+//#ifndef KASCPAR_PARSING    
     std::ifstream i1; 
+//#endif
     
     void process() {
-      int myMin, myOut;
+      int myMin;
+      int myOut;
       
-#ifndef NDEBUG
+#ifndef KASCPAR_PARSING
+      
+//#ifndef NDEBUG
       if (i1.good()) {
-#endif
+//#endif
         for ( int j = 0; j <= 63; j++ ) {
-          i++;
+          counter++;
 #ifdef NDEBUG
-          myOut = i;
+          myOut = counter;
 #else
           i1 >> myOut;
           std::cout << name() << "  write " << myOut << std::endl;
@@ -58,21 +62,31 @@ class m_source_idct: public smoc_actor {
         exit (1) ;
       }
 #endif
+
+#endif //KASCPAR_PARSING
     }
     
     smoc_firing_state start;
   public:
-    m_source_idct( sc_module_name name, size_t periods )
-      :smoc_actor( name, start ), i(0) {
+    m_source_idct( sc_module_name name
+#ifndef KASCPAR_PARSING
+, size_t periods
+#endif
+)
+      :smoc_actor( name, start ), counter(0) {
+//#ifndef KASCPAR_PARSING
       i1.open(INAMEblk);
       start = ((out.getAvailableSpace() >= 64) &&
                (min.getAvailableSpace() >= 1) &&
-               (var(i) < periods*64))
+               (VAR(counter) < periods*64))
               >> CALL(m_source_idct::process)
               >> start;
-    }
+//#endif
+  }
   ~m_source_idct( ){
+//#ifndef KASCPAR_PARSING
         i1.close();
+//#endif
   }
 };
 
@@ -81,15 +95,19 @@ class m_sink: public smoc_actor {
     smoc_port_in<int> in;
   
   private:
+//#ifndef KASCPAR_PARSING
     std::ofstream fo; 
+//#endif
     int           foo;
     
     void process() {
+#ifndef KASCPAR_PARSING
 #ifndef NDEBUG
       std::cout << name() << " receiving " << in[0] << std::endl;
       fo << in[0] << std::endl;
 #else
       foo = in[0];
+#endif
 #endif
     }
     
@@ -135,7 +153,7 @@ class m_source: public smoc_actor {
     m_source( sc_module_name name,int init_value=0, int step=1)
       :smoc_actor( name, start ), i(init_value) , step(step){
       //i1.open("test.txt");
-      start = ((out.getAvailableSpace() >= 1) && (var(i) <= 655)) >>
+      start = ((out.getAvailableSpace() >= 1) && (VAR(i) <= 655)) >>
               CALL(m_source::process)               >> start;
     }
 };
@@ -148,19 +166,24 @@ private:
   m_block_idct  blidct;
   m_sink        snk;
 public:
-  IDCT2d_TEST(sc_module_name name, size_t periods)
+  IDCT2d_TEST(sc_module_name name
+#ifndef KASCPAR_PARSING
+     , size_t periods
+#endif
+)
     : smoc_graph(name),
       src_idct("src_idct", periods),
       blidct("blidct"),
       snk("snk") {
-    
+#ifndef KASCPAR_PARSING    
     connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
     connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(2));
     connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
-  
+#endif
       }
 };
 
+#ifndef KASCPAR_PARSING
 int sc_main (int argc, char **argv) {
   bool generateProblemgraph =
     (argc > 1) && !strcmp(argv[1], "--generate-problemgraph");
@@ -178,3 +201,6 @@ int sc_main (int argc, char **argv) {
   }
   return 0;
 }
+#endif
+
+

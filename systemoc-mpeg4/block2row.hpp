@@ -1,7 +1,7 @@
 #ifndef _INCLUDED_BLOCK2ROW_HPP
 #define _INCLUDED_BLOCK2ROW_HPP
 
-#include <callib.hpp>
+#include "callib.hpp"
 
 class m_block2row: public smoc_actor {
 public:
@@ -11,7 +11,9 @@ private:
   void action0() {
 #ifndef NDEBUG
     for ( int i = 0; i <= 63; ++i )
+#ifndef KASCPAR_PARSING 
       std::cout << "b[" << i << "] == " << b[i] << std::endl;
+#endif
 #endif
     C0[0]=b[0];C0[1]=b[ 8];C0[2]=b[16];C0[3]=b[24];C0[4]=b[32];C0[5]=b[40];C0[6]=b[48];C0[7]=b[56];
     C1[0]=b[1];C1[1]=b[ 9];C1[2]=b[17];C1[3]=b[25];C1[4]=b[33];C1[5]=b[41];C1[6]=b[49];C1[7]=b[57];
