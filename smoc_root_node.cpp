@@ -54,7 +54,7 @@ std::stack<std::pair<std::string, std::string> >smoc_root_node::global_arg_stack
 const smoc_firing_state &smoc_root_node::_communicate() {
     
 # ifdef SYSTEMOC_DEBUG
-  std::cerr << "  <call actor=" << myModule()->name()
+  std::cerr << "    <call actor=" << myModule()->name()
 	    << " func=smoc_root_node::communicate>" << std::endl;
   std::cerr << "    <communication type=\"execute\"/>" << std::endl;
 # endif
@@ -65,7 +65,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
  
   assert( vpc_event );
   
-  Expr::evalTo<Expr::Communicate>(*_guard);
+  Expr::evalTo<Expr::CommExec>(*_guard);
   
 /*  
   for ( smoc_port_list::iterator iter = ports_setup.begin();
@@ -82,7 +82,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
 #endif
 
 # ifdef SYSTEMOC_DEBUG
-  std::cerr << "  </call>"<< std::endl;
+  std::cerr << "    </call>"<< std::endl;
 # endif
   return nextState;
 }

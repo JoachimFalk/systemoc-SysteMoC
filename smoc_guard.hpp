@@ -46,26 +46,41 @@ public:
   
   friend class smoc_firing_state;
 //protected:
-  Expr::Ex<smoc_root_port_bool>::type guard;
-
+  smoc_event_and_list  al;
+  Expr::Ex<bool>::type guard;
+protected:
   static
   void guardAssemble( smoc_modes::PGWriter &pgw, const Expr::PASTNode &n );
 public:
-  smoc_root_port_bool knownSatisfiable() const
-    { return  Expr::evalTo<Expr::Value>(guard); }
-//  smoc_root_port_bool knownUnsatisfiable() const
-//    { return !Expr::evalTo<Expr::Value>(guard); }
-  
+  bool isEnabled() const {
+    bool result = al;
+    
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "smoc_activation_pattern::isEnabled al: " << al << std::endl;
+#endif
+    if (result) {
+      result = Expr::evalTo<Expr::Value>(guard);
+      Expr::evalTo<Expr::CommReset>(guard);
+    }
+    return result;
+  }
+
   template <class E>
-  smoc_activation_pattern(const Expr::D<E> &guard)
-    : guard(guard) {}
-  
+  smoc_activation_pattern(const Expr::D<E> &_guard)
+    : guard(_guard) {}
+
+  void finalise() {
+    Expr::evalTo<Expr::Sensitivity>(guard, al);
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "smoc_activation_pattern::finalise()"
+                <<  " this == " << this
+                << ", al == " << al << std::endl;
+#endif
+  }
+
   void guardAssemble( smoc_modes::PGWriter &pgw ) const
     { guardAssemble(pgw, Expr::evalTo<Expr::AST>(guard) ); }
-  
-//  this_type concat( const smoc_activation_pattern &ap ) const
-//    { return this_type(guard && ap.guard); }
-  
+
   void dump(std::ostream &out) const;
 };
 

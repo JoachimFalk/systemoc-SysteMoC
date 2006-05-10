@@ -22,7 +22,7 @@
 
 using namespace CoSupport;
 
-smoc_ctx _ctx;
+// smoc_ctx _ctx;
 
 void smoc_root_port::dump( std::ostream &out ) const {
   out << "port(" << this
@@ -32,6 +32,8 @@ void smoc_root_port::dump( std::ostream &out ) const {
 }
 
 const char* const smoc_root_port::kind_string = "smoc_root_port";
+
+/*
 
 smoc_root_port_bool::smoc_root_port_bool( bool v )
   : v(v ? IS_ENABLED : IS_DISABLED) {}
@@ -53,7 +55,7 @@ smoc_root_port_bool::smoc_root_port_bool(smoc_root_port *p, size_t n) {
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "enabled" << std::endl;
 #endif
-  } else if ( /* p->getParentPort() != NULL || */
+  } else if ( // p->getParentPort() != NULL ||
               p->peerIsV1() ) {
     v = IS_BLOCKED;
     p->blockEvent().reset();
@@ -85,3 +87,5 @@ void smoc_root_port_bool::dump(std::ostream &out) const {
   out << "smoc_root_port_bool( status: "
       << v << ")";
 }
+
+*/

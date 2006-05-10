@@ -126,12 +126,13 @@ public:
   // FIXME: protection
   bool               is_v1_actor;
 #ifdef ENABLE_SYSTEMC_VPC  
+  // vpc_event must be constructed before commstate
+  smoc_event         vpc_event;
   smoc_firing_state  commstate;
   smoc_firing_state  nextState;
 #endif //ENABLE_SYSTEMC_VPC  
-  smoc_event         vpc_event;
   
-  Expr::Ex<smoc_root_port_bool>::type *_guard;
+  Expr::Ex<bool>::type *_guard;
   
   virtual void finalise();
 #ifndef __SCFE__

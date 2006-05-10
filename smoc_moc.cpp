@@ -47,8 +47,8 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
   
   getLeafNodes(nodes, c);
   do {
-    // FIXME: Big hack !!!
-    smoc_ctx       _oldctx = _ctx;
+    //// FIXME: Big hack !!!
+    //smoc_ctx       _oldctx = _ctx;
     // _ctx.ports_setup.clear();
     
 #ifdef SYSTEMOC_DEBUG
@@ -73,14 +73,8 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
             for ( transitionlist_ty::iterator titer = (*rs)->tl.begin();
                   titer != (*rs)->tl.end() && !canexec;
                   ++titer ) {
-              canexec =
-                titer->knownSatisfiable().getStatus() ==
-                smoc_root_port_bool::IS_ENABLED;
+              canexec = titer->isEnabled();
               
-              assert( isType<NILTYPE>(titer->f) ||
-                      isType<smoc_func_diverge>(titer->f) ||
-                      isType<smoc_func_branch>(titer->f) ||
-                      isType<smoc_func_call>(titer->f) );
               if ( canexec ) {
                 titer->execute(rs,*iter);
                 again = true;
@@ -114,8 +108,8 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
 #ifdef SYSTEMOC_DEBUG
       std::cerr << "</smoc_scheduler_top::schedule>" << std::endl;
 #endif
-      // FIXME: Big hack !!!
-      _ctx = _oldctx;
+      //// FIXME: Big hack !!!
+      //_ctx = _oldctx;
 //    std::cerr << "guard_success: " << guard_success << std::endl;
 //    std::cerr << "guard_fail:    " << guard_fail    << std::endl;
       smoc_wait(ol);

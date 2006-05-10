@@ -181,27 +181,31 @@ struct smoc_firing_types {
   class transition_ty {
   public:
     smoc_activation_pattern ap;
-    smoc_event_and_list     al;
     func_ty                 f;
     statelist_ty            sl;
   public:
     transition_ty( smoc_firing_state_ref *r, const smoc_transition &t );
     
-    smoc_root_port_bool knownSatisfiable() const
-      { return ap.knownSatisfiable(); }
+//    smoc_root_port_bool knownSatisfiable() const
+//      { return ap.knownSatisfiable(); }
+    bool isEnabled() const
+      { return ap.isEnabled(); }
     
 //  bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
     void execute(resolved_state_ty **rs, smoc_root_node *actor);
     
     void findBlocked(smoc_event_or_list &l);
+
+    inline
+    void finalise() { ap.finalise(); }
     
     void dump(std::ostream &out) const;
 
-#ifdef SYSTEMOC_DEBUG
-    ~transition_ty() {
-      std::cerr << "~transition_ty() this == " << this << std::endl;
-    }
-#endif
+//#ifdef SYSTEMOC_DEBUG
+//    ~transition_ty() {
+//      std::cerr << "~transition_ty() this == " << this << std::endl;
+//    }
+//#endif
   };
   
   class resolved_state_ty {
@@ -219,6 +223,8 @@ struct smoc_firing_types {
     
 //  bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
     void findBlocked(smoc_event_or_list &l);
+
+    void finalise();
 
 #ifdef SYSTEMOC_DEBUG
     ~resolved_state_ty() {

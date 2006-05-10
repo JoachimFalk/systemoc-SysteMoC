@@ -31,11 +31,11 @@
 template <typename T> class smoc_port_in;
 template <typename T> class smoc_port_out;
 
+namespace Expr {
+
 /****************************************************************************
  * DToken is a placeholder for a token in the expression.
  */
-
-namespace Expr {
 
 class ASTNodeToken: public ASTNodeTerminal {
 private:
@@ -103,6 +103,205 @@ template <typename T>
 typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
   { return typename Token<T>::type(p,pos); }
 
+/****************************************************************************
+ * DPortTokens represents a count of available tokens or free space in
+ * the port p
+ */
+
+class ASTNodePortTokens: public ASTNodeTerminal {
+private:
+  smoc_root_port *p;
+public:
+  ASTNodePortTokens(smoc_root_port *p)
+    : ASTNodeTerminal(), p(p) {}
+  
+  const smoc_root_port *getPort() const
+    { return p; }
+};
+
+template<class P>
+class DPortTokens {
+public:
+  typedef size_t          value_type;
+  typedef DPortTokens<P>  this_type;
+  
+  friend class AST<this_type>;
+  template <class E> friend class Value;
+  template <class E> friend class CommExec;
+  template <class E> friend class CommSetup;
+  template <class E> friend class Sensitivity;
+private:
+  P      &p;
+public:
+  explicit DPortTokens(P &p)
+    : p(p) {}
+};
+
+template<class P>
+struct AST<DPortTokens<P> > {
+  typedef PASTNode result_type;
+  
+  static inline
+  result_type apply(const DPortTokens<P> &e)
+    { return PASTNode(new ASTNodePortTokens(&e.p)); }
+};
+
+template<class P>
+struct D<DPortTokens<P> >: public DBase<DPortTokens<P> > {
+  D(P &p)
+    : DBase<DPortTokens<P> >(DPortTokens<P>(p)) {}
+};
+
+// Make a convenient typedef for the token type.
+template<class P>
+struct PortTokens {
+  typedef D<DPortTokens<P> > type;
+};
+
+template <class P>
+typename PortTokens<P>::type portTokens(P &p)
+  { return typename PortTokens<P>::type(p); }
+
+/****************************************************************************
+ * DBinOp<DPortTokens<P>,E,DOpBinGe> represents a request for available/free
+ * number of tokens on actor ports
+ */
+
+template <class P, class E>
+struct CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
+                 "::apply(" << e.a.p << ", ... )" << std::endl;
+#endif
+    return e.a.p.commExec();
+  }
+};
+
+template <class P, class E>
+struct CommSetup<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommSetup<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
+                 "::apply(" << e.a.p << ", ... )" << std::endl;
+#endif
+    return e.a.p.commSetup(Value<E>::apply(e.b));
+  }
+};
+
+template <class P, class E>
+struct Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
+  typedef Detail::Sensitive    match_type;
+  
+  typedef void                 result_type;
+  typedef smoc_event_and_list &param1_type;
+
+  static
+  void apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e,
+             smoc_event_and_list &al) {
+    al &= e.a.p.blockEvent();
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply al == " << al << std::endl;
+#endif
+  }
+};
+
+template <class P, class E>
+struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
+  typedef bool result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
+    size_t req = Value<E>::apply(e.b);
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "Value<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply "
+      <<  e.a.p.availableCount() << " >= " << req << std::endl;
+#endif
+    if (e.a.p.availableCount() >= req) {
+      e.a.p.commSetup(req);
+      return true;
+    } else {
+      e.a.p.blockEvent().reset();
+      return false;
+    }
+  }
+//  { return true; }
+};
+
+/****************************************************************************
+ * DSMOCEvent represents a smoc_event guard which turns true if the event is
+ * signaled
+ */
+
+struct ASTNodeSMOCEvent: public ASTNodeTerminal {
+};
+
+class DSMOCEvent {
+public:
+  typedef smoc_event value_type;
+  typedef DSMOCEvent this_type;
+  
+  friend class Value<this_type>;
+  friend class AST<this_type>;
+  friend class Sensitivity<this_type>;
+private:
+  value_type &v;
+public:
+  explicit DSMOCEvent(value_type &v): v(v) {}
+};
+
+template <>
+struct Value<DSMOCEvent> {
+  typedef bool result_type;
+  
+  static inline
+  result_type apply(const DSMOCEvent &e)
+    { return e.v; }
+};
+
+template <>
+struct Sensitivity<DSMOCEvent> {
+  typedef Detail::Sensitive    match_type;
+  
+  typedef void                 result_type;
+  typedef smoc_event_and_list &param1_type;
+  
+  static inline
+  void apply(const DSMOCEvent &e, smoc_event_and_list &al) {
+    al &= e.v;
+//#ifdef SYSTEMOC_DEBUG
+//    std::cerr << "Sensitivity<DSMOCEvent>::apply(...) al == " << al << std::endl;
+//#endif
+  }
+};
+
+template <>
+struct AST<DSMOCEvent> {
+  typedef PASTNode result_type;
+  
+  static inline
+  result_type apply(const DSMOCEvent &e)
+    { return PASTNode(new ASTNodeSMOCEvent()); }
+};
+
+template <>
+struct D<DSMOCEvent>: public DBase<DSMOCEvent> {
+  D(smoc_event &v): DBase<DSMOCEvent>(DSMOCEvent(v)) {}
+};
+
+// Make a convenient typedef for the placeholder type.
+struct SMOCEvent { typedef D<DSMOCEvent> type; };
+
+static inline
+SMOCEvent::type till(smoc_event &e)
+  { return SMOCEvent::type(e); }
+
 } // namespace Expr
 
 /****************************************************************************/
@@ -113,6 +312,8 @@ class smoc_port_base
 public:
   typedef T                   iface_type;
   typedef smoc_port_base<T>   this_type;
+
+  template <class E> friend class Expr::Sensitivity;
 private:
   typedef smoc_root_port      base_type;
   
@@ -185,8 +386,9 @@ public:
   typedef typename smoc_storage_in<data_type>::return_type  return_type;
   typedef smoc_ring_access<storage_type, return_type>	    ring_type;
   
-  template <class E>
-  friend class Expr::Communicate;
+  template <class E> friend class Expr::CommExec;
+  template <class E> friend class Expr::CommSetup;
+  template <class E> friend class Expr::Value;
 protected:
   void add_interface( sc_interface *i ) {
     this->push_interface(i); (*this)->addPortIf( this );
@@ -248,8 +450,9 @@ public:
   typedef typename smoc_storage_out<data_type>::return_type  return_type;
   typedef smoc_ring_access<storage_type, return_type>	     ring_type;
   
-  template <class E>
-  friend class Expr::Communicate;
+  template <class E> friend class Expr::CommExec;
+  template <class E> friend class Expr::CommSetup;
+  template <class E> friend class Expr::Value;
 protected:
   void add_interface( sc_interface *i ) {
     this->push_interface(i); (*this)->addPortIf( this );

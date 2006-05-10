@@ -28,6 +28,7 @@
 #include <list>
 
 #include <boost/intrusive_ptr.hpp>
+#include <smoc_event.hpp>
 
 #include <cosupport/oneof.hpp>
 #include <cosupport/functor.hpp>
@@ -68,6 +69,13 @@ void intrusive_ptr_release( _RefCount *r )
 typedef boost::intrusive_ptr<_RefCount> ref_ty;
 
 namespace Expr {
+
+namespace Detail {
+  struct True  { operator bool() const { return true;  } };
+  struct False { operator bool() const { return false; } };
+  struct Sensitive; // Sensitive type marker for evalTo<Sensitivity>( ... )
+  struct Ignore;    // Ignore type marker for evalTo<Sensitivity>( ... )
+} // namespace Expr::Detail
 
 /****************************************************************************
  * Node hierarchy
@@ -133,30 +141,78 @@ std::ostream &operator << (std::ostream &o, const ASTNode &n)
   { o << "expr(" << &n << ")"; return o; }
 
 /****************************************************************************
- * Expr
+ * Expr wrapper
  */
 
 template<class E>
 class D;
 
-template <class E>
-struct Value {};
+/****************************************************************************
+ * Expr evaluators
+ */
 
 template <class E>
 struct AST {};
 
 // Default do nothing
 template <class E>
-struct Communicate {
+struct CommExec {
   typedef void result_type;
   
   static inline
   result_type apply(const E &e) {}
 };
 
+// Default do nothing
+template <class E>
+struct CommReset {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const E &e) {}
+};
+
+// Default do nothing
+template <class E>
+struct CommSetup {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const E &e) {}
+};
+
+// Default do nothing
+template <class E>
+struct Sensitivity {
+  typedef Detail::Ignore       match_type;
+  
+  typedef void                 result_type;
+  typedef smoc_event_and_list &param1_type;
+  
+  static inline
+  result_type apply(const E &e, smoc_event_and_list &al) {
+//#ifdef SYSTEMOC_DEBUG
+//    std::cerr << "Sensitivity<E>::apply(...) al == " << al << std::endl;
+//#endif
+  }
+};
+
+// Default is invalid
+template <class E>
+struct Value {};
+
+/****************************************************************************
+ * Expr evalTo helper functions
+ */
+
 template<template <class> class Z, class E>
 typename Z<E>::result_type evalTo(const D<E> &e) {
   return Z<E>::apply(e.getExpr());
+}
+
+template<template <class> class Z, class E>
+typename Z<E>::result_type evalTo(const D<E> &e, typename Z<E>::param1_type p) {
+  return Z<E>::apply(e.getExpr(), p);
 }
 
 /****************************************************************************
@@ -208,8 +264,11 @@ public:
     typedef TT       value_type;
   public:
     virtual PASTNode   evalToAST()         const = 0;
+    virtual void       evalToCommExec()    const = 0;
+    virtual void       evalToCommSetup()   const = 0;
+    virtual void       evalToSensitivity
+                 (smoc_event_and_list &al) const = 0;
     virtual value_type evalToValue()       const = 0;
-    virtual void       evalToCommunicate() const = 0;
   };
   
   boost::intrusive_ptr<virt_ty<T> > v;
@@ -229,24 +288,20 @@ protected:
     
     PASTNode   evalToAST() const
       { return AST<E>::apply(e); }
+    void       evalToCommExec() const
+      { return CommExec<E>::apply(e); }
+    void       evalToCommSetup() const
+      { return CommSetup<E>::apply(e); }
+    void       evalToSensitivity
+         (smoc_event_and_list &al) const
+      { return Sensitivity<E>::apply(e, al); }
     value_type evalToValue() const
       { return Value<E>::apply(e); }
-    void       evalToCommunicate() const
-      { return Communicate<E>::apply(e); }
   };
 public:
   template <class E>
   DVirtual( const D<E> &e )
     : v(new impl_ty<E>(e.getExpr())) {}
-};
-
-template <typename T>
-struct Value<DVirtual<T> > {
-  typedef T result_type;
-  
-  static inline
-  T apply(const DVirtual <T> &e)
-    { return e.v->evalToValue(); }
 };
 
 template <typename T>
@@ -259,16 +314,54 @@ struct AST<DVirtual<T> > {
 };
 
 template <typename T>
-struct Communicate<DVirtual<T> > {
+struct CommExec<DVirtual<T> > {
   typedef void result_type;
   
   static inline
   result_type apply(const DVirtual <T> &e) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "Communicate<DVirtual<T> >::apply(e)" << std::endl;
+    std::cerr << "CommExec<DVirtual<T> >::apply(e)" << std::endl;
 #endif
-    return e.v->evalToCommunicate();
+    return e.v->evalToCommExec();
   }
+};
+
+template <typename T>
+struct CommSetup<DVirtual<T> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DVirtual <T> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommSetup<DVirtual<T> >::apply(e)" << std::endl;
+#endif
+    return e.v->evalToCommSetup();
+  }
+};
+
+template <typename T>
+struct Sensitivity<DVirtual<T> > {
+  typedef Detail::Sensitive    match_type;
+  
+  typedef void                 result_type;
+  typedef smoc_event_and_list &param1_type;
+  
+  static inline
+  result_type apply(const DVirtual <T> &e, smoc_event_and_list &al) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "Sensitivity<DVirtual<T> >::apply(e, al)" << std::endl;
+#endif
+    return e.v->evalToSensitivity(al);
+  }
+};
+
+template <typename T>
+struct Value<DVirtual<T> > {
+  typedef T result_type;
+  
+  static inline
+  T apply(const DVirtual <T> &e)
+    { return e.v->evalToValue(); }
 };
 
 template<class T>
@@ -315,15 +408,6 @@ public:
 };
 
 template <typename T>
-struct Value<DVar<T> > {
-  typedef T result_type;
-  
-  static inline
-  T apply(const DVar <T> &e)
-    { return e.x; }
-};
-
-template <typename T>
 struct AST<DVar<T> > {
   typedef PASTNode result_type;
   
@@ -332,6 +416,15 @@ struct AST<DVar<T> > {
     //std::cerr << "AST<DVar<T> >: Was here !!!" << std::endl;
     return PASTNode(new ASTNodeVar(e.x,e.name));
   }
+};
+
+template <typename T>
+struct Value<DVar<T> > {
+  typedef T result_type;
+  
+  static inline
+  T apply(const DVar <T> &e)
+    { return e.x; }
 };
 
 template<class T>
@@ -382,21 +475,21 @@ public:
 };
 
 template <typename T>
-struct Value<DLiteral<T> > {
-  typedef T result_type;
-  
-  static inline
-  T apply(const DLiteral<T> &e)
-    { return e.v; }
-};
-
-template <typename T>
 struct AST<DLiteral<T> > {
   typedef PASTNode result_type;
   
   static inline
   PASTNode apply(const DLiteral <T> &e)
     { return PASTNode(new ASTNodeLiteral(e.v)); }
+};
+
+template <typename T>
+struct Value<DLiteral<T> > {
+  typedef T result_type;
+  
+  static inline
+  T apply(const DLiteral<T> &e)
+    { return e.v; }
 };
 
 template<class T>
@@ -442,21 +535,21 @@ public:
 };
 
 template <typename T>
-struct Value<DProc<T> > {
-  typedef T result_type;
-  
-  static inline
-  T apply(const DProc <T> &e)
-    { return e.f(); }
-};
-
-template <typename T>
 struct AST<DProc<T> > {
   typedef PASTNode result_type;
   
   static inline
   PASTNode apply(const DProc <T> &e)
     { return PASTNode(new ASTNodeProc(e.f)); }
+};
+
+template <typename T>
+struct Value<DProc<T> > {
+  typedef T result_type;
+  
+  static inline
+  T apply(const DProc <T> &e)
+    { return e.f(); }
 };
 
 template<class T>
@@ -511,21 +604,21 @@ public:
 };
 
 template <typename T, class X>
-struct Value<DMemProc<T,X> > {
-  typedef T result_type;
-  
-  static inline
-  T apply(const DMemProc<T,X> &e)
-    { return (e.o->*e.m)(); }
-};
-
-template <typename T, class X>
 struct AST<DMemProc<T,X> > {
   typedef PASTNode result_type;
   
   static inline
   PASTNode apply(const DMemProc <T,X> &e)
     { return PASTNode(new ASTNodeMemProc(e.o,e.m)); }
+};
+
+template <typename T, class X>
+struct Value<DMemProc<T,X> > {
+  typedef T result_type;
+  
+  static inline
+  T apply(const DMemProc<T,X> &e)
+    { return (e.o->*e.m)(); }
 };
 
 template<typename T, class X>
@@ -583,6 +676,15 @@ public:
 };
 
 template<class F, class PL>
+struct AST<DMemGuard<F,PL> > {
+  typedef PASTNode result_type;
+  
+  static inline
+  PASTNode apply(const DMemGuard <F,PL> &e)
+    { return PASTNode(new ASTNodeMemGuard(e.f)); }
+};
+
+template<class F, class PL>
 struct Value<DMemGuard<F,PL> > {
   typedef typename F::return_type result_type;
   
@@ -590,15 +692,6 @@ struct Value<DMemGuard<F,PL> > {
   result_type apply(const DMemGuard<F,PL> &e) {
     return e.f.call(e.pl);
   }
-};
-
-template<class F, class PL>
-struct AST<DMemGuard<F,PL> > {
-  typedef PASTNode result_type;
-  
-  static inline
-  PASTNode apply(const DMemGuard <F,PL> &e)
-    { return PASTNode(new ASTNodeMemGuard(e.f)); }
 };
 
 template<class F, class PL>
@@ -699,7 +792,7 @@ typedef boost::intrusive_ptr<ASTNodeBinOp> PASTNodeBinOp;
  * APPLICATIVE TEMPLATE CLASSES
  */
 
-template<typename TA, typename TB, OpBinT Op>
+template<typename TA, typename TB, OpBinT Op, template <class> class K = Value>
 class DBinOpExecute;
 
 #define DBINOPEXECUTE(Op,op)                                          \
@@ -713,18 +806,6 @@ struct DBinOpExecute<TA,TB,Op> {                                      \
   result_type apply( const A &a, const B &b ) {                       \
     return Value<A>::apply(a) op Value<B>::apply(b);                  \
   }                                                                   \
-};
-
-template <class A, class B, OpBinT Op>
-struct Value<DBinOp<A,B,Op> > {
-  typedef DBinOpExecute<
-    typename Value<A>::result_type,
-    typename Value<B>::result_type, Op> OpT;
-  typedef typename OpT::result_type     result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,Op> &e)
-    { return OpT::apply(e.a,e.b); }
 };
 
 template <class A, class B, OpBinT Op>
@@ -745,16 +826,63 @@ struct AST<DBinOp<A,B,Op> > {
 };
 
 template <class A, class B>
-struct Communicate<DBinOp<A,B,DOpBinLAnd> > {
+struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
   typedef void result_type;
   
   static inline
   result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "Communicate<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+    std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
 #endif
-    Communicate<A>::apply(e.a);
-    Communicate<B>::apply(e.b);
+    CommExec<A>::apply(e.a);
+    CommExec<B>::apply(e.b);
+  }
+};
+
+template <class A, class B>
+struct CommSetup<DBinOp<A,B,DOpBinLAnd> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommSetup<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+#endif
+    CommSetup<A>::apply(e.a);
+    CommSetup<B>::apply(e.b);
+  }
+};
+
+template <class A, class B, OpBinT Op>
+struct Value<DBinOp<A,B,Op> > {
+  typedef DBinOpExecute<
+    typename Value<A>::result_type,
+    typename Value<B>::result_type,
+    Op, Expr::Value>                      OpT;
+  typedef typename OpT::result_type       result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,Op> &e)
+    { return OpT::apply(e.a,e.b); }
+};
+
+template <class A, class B, OpBinT Op>
+struct Sensitivity<DBinOp<A,B,Op> > {
+  typedef DBinOpExecute<
+    typename Sensitivity<A>::match_type,
+    typename Sensitivity<B>::match_type,
+    Op, Expr::Sensitivity>                OpT;
+  typedef typename OpT::match_type        match_type;
+  
+  typedef void                            result_type;
+  typedef smoc_event_and_list            &param1_type;
+  
+  static inline
+  void apply(const DBinOp<A,B,Op> &e, smoc_event_and_list &al) {
+    OpT::apply(e.a, e.b, al);
+//#ifdef SYSTEMOC_DEBUG
+//    std::cerr << "Sensitivity<DBinOp<A,B,Op>>::apply(...) al == " << al << std::endl;
+//#endif
   }
 };
 
@@ -819,6 +947,44 @@ DOP(LOr,||)
 #undef DOP
 #undef DOPBIN
 #undef DBINOPEXECUTE
+
+template <OpBinT op>
+struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,Sensitivity> {
+  typedef Detail::Ignore match_type;
+
+  template <class A, class B>
+  static inline
+  void apply(const A &a, const B &b, smoc_event_and_list &al)
+    {}
+};
+
+struct DBinOpExecute<Detail::Sensitive,Detail::Ignore,DOpBinLAnd,Sensitivity> {
+  typedef Detail::Sensitive match_type;
+
+  template <class A, class B>
+  static inline
+  void apply(const A &a, const B &b, smoc_event_and_list &al)
+    { Sensitivity<A>::apply(a, al); }
+};
+
+struct DBinOpExecute<Detail::Ignore,Detail::Sensitive,DOpBinLAnd,Sensitivity> {
+  typedef Detail::Sensitive match_type;
+
+  template <class A, class B>
+  static inline
+  void apply(const A &a, const B &b, smoc_event_and_list &al)
+    { Sensitivity<B>::apply(b, al); }
+};
+
+template <>
+struct DBinOpExecute<Detail::Sensitive,Detail::Sensitive,DOpBinLAnd,Sensitivity> {
+  typedef Detail::Sensitive match_type;
+
+  template <class A, class B>
+  static inline
+  void apply(const A &a, const B &b, smoc_event_and_list &al)
+    { Sensitivity<A>::apply(a, al); Sensitivity<B>::apply(b, al); }
+};
 
 /* DOpBinField Operator */
 
@@ -919,15 +1085,6 @@ public:                                                               \
 };
 
 template <class A, OpUnT Op>
-struct Value<DUnOp<A,Op> > {
-  typedef typename DUnOp<A,Op>::value_type result_type;
-  
-  static inline
-  result_type apply(const DUnOp<A,Op> &e)
-    { return e.value(); }
-};
-
-template <class A, OpUnT Op>
 struct AST<DUnOp<A,Op> > {
   typedef PASTNode result_type;
   
@@ -938,6 +1095,15 @@ struct AST<DUnOp<A,Op> > {
         typeid(typename DUnOp<A,Op>::value_type).name(),
         Op,AST<A>::apply(e.a)));
   }
+};
+
+template <class A, OpUnT Op>
+struct Value<DUnOp<A,Op> > {
+  typedef typename DUnOp<A,Op>::value_type result_type;
+  
+  static inline
+  result_type apply(const DUnOp<A,Op> &e)
+    { return e.value(); }
 };
 
 /****************************************************************************

@@ -172,6 +172,11 @@ void smoc_firing_rules::finalise( smoc_root_node *actor_ ) {
   // assert( unresolved_states.empty() );
   assert( actor == NULL );
   actor = actor_;
+
+  for (statelist_ty::iterator iter = states.begin();
+       iter != states.end();
+       ++iter)
+    (*iter)->finalise();
 }
 
 smoc_firing_rules::~smoc_firing_rules() {
@@ -187,10 +192,14 @@ smoc_firing_rules::~smoc_firing_rules() {
 
 smoc_firing_types::transition_ty::transition_ty(
     smoc_firing_state_ref *s, const smoc_transition &t)
-  : ap(t.getActivationPattern()), f(t.ia.f) {
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "transition_ty::transition_ty( ... ) this == " << this << std::endl;
-#endif
+  : ap(t.getActivationPattern()),
+    f (t.getInterfaceAction().f) {
+//#ifdef SYSTEMOC_DEBUG
+//  std::cerr << "transition_ty::transition_ty( ... )"
+//              <<  " this == " << this << std::endl;
+////              << ", al == " << ap.al << std::endl;
+////  std::cerr << "smoc_transition::ap::al == " << t.getActivationPattern().al << std::endl;
+//#endif
   assert(s->fr != NULL && s->rs != NULL);
   assert((isType<smoc_func_call>(t.ia.f)    && t.ia.sl.size() == 1) ||
          (isType<smoc_func_diverge>(t.ia.f) && t.ia.sl.size() == 0));
@@ -254,9 +263,18 @@ bool smoc_firing_types::transition_ty::tryExecute(
 
 void smoc_firing_types::transition_ty::execute(
     resolved_state_ty **rs, smoc_root_node *actor) {
+  std::cerr << "  <transition actor=\""
+            << actor->myModule()->name() << "\">"
+            << std::endl;
+  Expr::evalTo<Expr::CommSetup>(ap.guard);
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceStartTryExecute(actor->myModule()->name()); //
 #endif
+  
+  assert( isType<NILTYPE>(f) ||
+          isType<smoc_func_diverge>(f) ||
+          isType<smoc_func_branch>(f) ||
+          isType<smoc_func_call>(f) );
   if ( isType<smoc_func_diverge>(f) ) {
     // FIXME: this must only be used internally
     const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
@@ -282,9 +300,11 @@ void smoc_firing_types::transition_ty::execute(
       smoc_func_call &fc = f;
       
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << "  <call actor="<<actor->myModule()->name()
-                << " func="<< fc.getFuncName()
-                << ">"<< std::endl;
+      std::cerr << "    <call actor=\""
+                << actor->myModule()->name()
+                << " func=\"" << fc.getFuncName()
+                << "\">"
+                << std::endl;
 #endif
       
 #ifdef SYSTEMOC_TRACE
@@ -314,14 +334,14 @@ void smoc_firing_types::transition_ty::execute(
       // actor->ports_setup = _ctx.ports_setup;
       // _ctx.ports_setup.clear();
 # ifdef SYSTEMOC_DEBUG
-      std::cerr << "    <communication type=\"defered\"/>" << std::endl;
+      std::cerr << "      <communication type=\"defered\"/>" << std::endl;
 # endif
 #else
       *rs = sl.front();
 #endif // ENABLE_SYSTEMC_VPC
 
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << "  </call>"<< std::endl;
+      std::cerr << "    </call>"<< std::endl;
 #endif
     } else {
       assert( sl.size() == 1 );
@@ -335,7 +355,7 @@ void smoc_firing_types::transition_ty::execute(
 #ifdef ENABLE_SYSTEMC_VPC
   if (!isType<smoc_func_call>(f))
 #endif
-    Expr::evalTo<Expr::Communicate>(ap.guard);
+    Expr::evalTo<Expr::CommExec>(ap.guard);
 
 /*
   for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
@@ -346,6 +366,7 @@ void smoc_firing_types::transition_ty::execute(
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceEndTryExecute(actor->myModule()->name()); //
 #endif
+  std::cerr << "  </transition>"<< std::endl;
 }
 
 void smoc_firing_types::resolved_state_ty::findBlocked(smoc_event_or_list &l) {
@@ -356,26 +377,39 @@ void smoc_firing_types::resolved_state_ty::findBlocked(smoc_event_or_list &l) {
   }
 }
 
+void smoc_firing_types::resolved_state_ty::finalise() {
+  for ( transitionlist_ty::iterator titer = tl.begin();
+        titer != tl.end();
+        ++titer )
+    titer->finalise();
+}
+
 void smoc_firing_types::transition_ty::findBlocked(smoc_event_or_list &l) {
-  // FIXME: Big hack !!!
-  al.clear();
-  _ctx.blocked = &al;
+  //// FIXME: Big hack !!!
+  // al.clear();
+  // _ctx.blocked = &al;
   
-  smoc_root_port_bool b      = knownSatisfiable();
+  // smoc_root_port_bool b      = knownSatisfiable();
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "  <transition status=" << b.getStatus() << "/>" << std::endl;
+  std::cerr << "  <transition status=\"" <<
+    (!ap.al
+     ? "blocked"
+     : ap.isEnabled()
+       ? "enabled"
+       : "disabled") << "\"/>" << std::endl;
 #endif
-  if ( b.getStatus() != smoc_root_port_bool::IS_DISABLED ) {
-    assert( b.getStatus() == smoc_root_port_bool::IS_BLOCKED );
-    l |= al;
+  // if ( b.getStatus() != smoc_root_port_bool::IS_DISABLED ) {
+  if (!ap.al || ap.isEnabled()) {
+    l |= ap.al;
   }
-  _ctx.blocked = NULL;
+  // _ctx.blocked = NULL;
 }
 
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {
   out << "transition("
         << this << ","
-        << "status="   << knownSatisfiable().getStatus() << ","
+        << "enabled="   << isEnabled() << ","
+//        << "status="   << knownSatisfiable().getStatus() << ","
 //        << "knownUnsatisfiable=" << knownUnsatisfiable() << ", "
         << "ap: "                << ap << ")";
 }

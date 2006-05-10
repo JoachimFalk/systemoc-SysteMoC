@@ -97,16 +97,17 @@ std::ostream &operator <<( std::ostream &out, const smoc_root_port &p )
 
 typedef std::list<smoc_root_port *> smoc_port_list;
 
-struct smoc_ctx {
-//  smoc_port_list      ports_setup;
-  smoc_event_and_list *blocked;
-  
-  smoc_ctx()
-    : blocked(NULL) {}
-};
+//struct smoc_ctx {
+////  smoc_port_list      ports_setup;
+//  smoc_event_and_list *blocked;
+//  
+//  smoc_ctx()
+//    : blocked(NULL) {}
+//};
+//
+//extern smoc_ctx _ctx;
 
-extern smoc_ctx _ctx;
-
+/*
 class smoc_root_port_bool {
 public:
   typedef smoc_root_port_bool this_type;
@@ -139,206 +140,6 @@ public:
 static inline
 std::ostream &operator <<( std::ostream &out, const smoc_root_port_bool &p )
   { p.dump(out); return out; }
-
-namespace Expr {
-
-/****************************************************************************
- * DPortTokens represents a count of available tokens or free space in
- * the port p
- */
-
-class ASTNodePortTokens: public ASTNodeTerminal {
-private:
-  smoc_root_port *p;
-public:
-  ASTNodePortTokens(smoc_root_port *p)
-    : ASTNodeTerminal(), p(p) {}
-  
-  const smoc_root_port *getPort() const
-    { return p; }
-};
-
-template<class P>
-class DPortTokens {
-public:
-  typedef size_t          value_type;
-  typedef DPortTokens<P>  this_type;
-  
-  friend class AST<this_type>;
-  template <class E>
-  friend class Value;
-  template <class E>
-  friend class Communicate;
-private:
-  P      &p;
-public:
-  explicit DPortTokens(P &p)
-    : p(p) {}
-};
-
-template<class P>
-struct AST<DPortTokens<P> > {
-  typedef PASTNode result_type;
-  
-  static inline
-  result_type apply(const DPortTokens<P> &e)
-    { return PASTNode(new ASTNodePortTokens(&e.p)); }
-};
-
-template<class P>
-struct D<DPortTokens<P> >: public DBase<DPortTokens<P> > {
-  D(P &p)
-    : DBase<DPortTokens<P> >(DPortTokens<P>(p)) {}
-};
-
-// Make a convenient typedef for the token type.
-template<class P>
-struct PortTokens {
-  typedef D<DPortTokens<P> > type;
-};
-
-template <class P>
-typename PortTokens<P>::type portTokens(P &p)
-  { return typename PortTokens<P>::type(p); }
-
-/****************************************************************************
- * DBinOp<DPortTokens<P>,E,DOpBinGe> represents a request for available/free
- * number of tokens on actor ports
- */
-
-template <class P, class E>
-struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
-  typedef smoc_root_port_bool result_type;
-  
-  static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e)
-    { return smoc_root_port_bool(&e.a.p, Value<E>::apply(e.b) ); }
-};
-
-template <class P, class E>
-struct Communicate<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
-  typedef void result_type;
-  
-  static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "Communicate<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
-                 "::apply(" << e.a.p << ", ... )" << std::endl;
-#endif
-    return e.a.p.commExec();
-  }
-};
-
-/****************************************************************************
- * DSMOCEvent represents a smoc_event guard which turns true if the event is
- * signaled
- */
-
-struct ASTNodeSMOCEvent: public ASTNodeTerminal {
-};
-
-class DSMOCEvent {
-public:
-  typedef smoc_event value_type;
-  typedef DSMOCEvent this_type;
-  
-  friend class Value<this_type>;
-  friend class AST<this_type>;
-private:
-  value_type &v;
-public:
-  explicit DSMOCEvent(value_type &v): v(v) {}
-};
-
-template <>
-struct Value<DSMOCEvent> {
-  typedef smoc_root_port_bool result_type;
-  
-  static inline
-  result_type apply(const DSMOCEvent &e)
-    { return smoc_root_port_bool(&e.v); }
-};
-
-template <>
-struct AST<DSMOCEvent> {
-  typedef PASTNode result_type;
-  
-  static inline
-  PASTNode apply(const DSMOCEvent &e)
-    { return PASTNode(new ASTNodeSMOCEvent()); }
-};
-
-template <>
-struct D<DSMOCEvent>: public DBase<DSMOCEvent> {
-  D(smoc_event &v): DBase<DSMOCEvent>(DSMOCEvent(v)) {}
-};
-
-// Make a convenient typedef for the placeholder type.
-struct SMOCEvent { typedef D<DSMOCEvent> type; };
-
-static inline
-SMOCEvent::type till(smoc_event &e)
-  { return SMOCEvent::type(e); }
-
-/****************************************************************************/
-
-// NEEDED:
-//  to implement short circuit boolean evaluation
-//  with smoc_root_port_bool
-template <typename T>
-struct DBinOpExecute<smoc_root_port_bool,T,DOpBinLAnd> {
-  typedef smoc_root_port_bool result_type;
-  
-  template <class A, class B>
-  static inline
-  result_type apply( const A &a, const B &b ) {
-//    std::cerr << "foo" << std::endl;
-    result_type ra =  Value<A>::apply(a);
-    return ra.getStatus() == smoc_root_port_bool::IS_ENABLED
-      ? ( Value<B>::apply(b)
-          ? ra
-          : result_type() )
-      : ra;
-  }
-};
-
-// NEEDED:
-//  to implement short circuit boolean evaluation
-//  with smoc_root_port_bool
-template <typename T>
-struct DBinOpExecute<T,smoc_root_port_bool,DOpBinLAnd> {
-  typedef smoc_root_port_bool result_type;
-  
-  template <class A, class B>
-  static inline
-  result_type apply( const A &a, const B &b ) {
-//    std::cerr << "hix" << std::endl;
-    return Value<A>::apply(a)
-      ? Value<B>::apply(b)
-      : result_type();
-  }
-};
-
-// NEEDED:
-//  to implement short circuit boolean evaluation
-//  with smoc_root_port_bool
-template <>
-struct DBinOpExecute<smoc_root_port_bool,smoc_root_port_bool,DOpBinLAnd> {
-  typedef smoc_root_port_bool result_type;
-  
-  template <class A, class B>
-  static inline
-  result_type apply( const A &a, const B &b ) {
-//    std::cerr << "bar" << std::endl;
-    
-    result_type ra(Value<A>::apply(a));
-    if ( ra.getStatus() == smoc_root_port_bool::IS_ENABLED )
-      return result_type(ra, Value<B>::apply(b));
-    else
-      return ra;
-  }
-};
-
-}
+*/
 
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP

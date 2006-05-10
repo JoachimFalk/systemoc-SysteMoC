@@ -177,7 +177,9 @@ protected:
   smoc_event write_event;
   
   // constructor
-  smoc_chan_in_if() {}
+  smoc_chan_in_if()
+    // write_event start notified
+    : write_event(true) {}
 private:
   // disabled
   const sc_event& default_event() const = 0;
@@ -215,7 +217,9 @@ protected:
   smoc_event read_event;
   
   // constructor
-  smoc_chan_out_if() {}
+  smoc_chan_out_if()
+    // read_event start notified
+    : read_event(true) {}
 private:
   // disabled
   const sc_event& default_event() const = 0;
