@@ -38,9 +38,9 @@ class m_source_idct: public smoc_actor {
       
 #ifndef KASCPAR_PARSING
       
-//#ifndef NDEBUG
+#ifndef NDEBUG
       if (i1.good()) {
-//#endif
+#endif
         for ( int j = 0; j <= 63; j++ ) {
           counter++;
 #ifdef NDEBUG
