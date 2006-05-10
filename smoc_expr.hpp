@@ -998,6 +998,8 @@ isType(const D<A> &a) {
   );
 }
 
+using CoSupport::isType;
+
 void dump(const PASTNode &node);
 
 } // namespace Expr
