@@ -958,6 +958,7 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,Sensitivity> {
     {}
 };
 
+template <>
 struct DBinOpExecute<Detail::Sensitive,Detail::Ignore,DOpBinLAnd,Sensitivity> {
   typedef Detail::Sensitive match_type;
 
@@ -967,6 +968,7 @@ struct DBinOpExecute<Detail::Sensitive,Detail::Ignore,DOpBinLAnd,Sensitivity> {
     { Sensitivity<A>::apply(a, al); }
 };
 
+template <>
 struct DBinOpExecute<Detail::Ignore,Detail::Sensitive,DOpBinLAnd,Sensitivity> {
   typedef Detail::Sensitive match_type;
 

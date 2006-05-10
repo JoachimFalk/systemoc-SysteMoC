@@ -318,4 +318,6 @@ protected:
       portInIf(NULL), portOutIf(NULL) {}
 };
 
+#include <smoc_port.hpp>
+
 #endif // _INCLUDED_SMOC_CHAN_IF
