@@ -263,13 +263,15 @@ bool smoc_firing_types::transition_ty::tryExecute(
 
 void smoc_firing_types::transition_ty::execute(
     resolved_state_ty **rs, smoc_root_node *actor) {
+#ifdef SYSTEMOC_DEBUG
   std::cerr << "  <transition actor=\""
             << actor->myModule()->name() << "\">"
             << std::endl;
-  Expr::evalTo<Expr::CommSetup>(ap.guard);
+#endif
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceStartTryExecute(actor->myModule()->name()); //
 #endif
+  Expr::evalTo<Expr::CommSetup>(ap.guard);
   
   assert( isType<NILTYPE>(f) ||
           isType<smoc_func_diverge>(f) ||
@@ -366,7 +368,9 @@ void smoc_firing_types::transition_ty::execute(
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceEndTryExecute(actor->myModule()->name()); //
 #endif
+#ifdef SYSTEMOC_DEBUG
   std::cerr << "  </transition>"<< std::endl;
+#endif
 }
 
 void smoc_firing_types::resolved_state_ty::findBlocked(smoc_event_or_list &l) {
