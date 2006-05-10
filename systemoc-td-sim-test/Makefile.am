@@ -5,9 +5,9 @@ root_builddir=$(top_builddir)/..
 
 SUBDIRS=
 
-INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
+INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 
-AM_LDFLAGS = @SYSTEMOC_LDFLAGS@
+AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS=-Wno-deprecated
 
 LIBS=-lsystemoc

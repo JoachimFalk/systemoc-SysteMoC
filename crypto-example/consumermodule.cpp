@@ -4,14 +4,26 @@ ConsumerModule::ConsumerModule(sc_module_name name,
                                ExampleNetworkPacket::EncryptionAlgorithm type)
 : RSModule(name, type){
 
-  this->command = "echo \"";
- 
   this->data = "";
   this->diter = this->data.end();
 
 }
 
+void ConsumerModule::produceKey(){
+#ifdef LOG_METHOD_ENTER
+  LOG_METHOD_ENTER("consumermodule", "produceKey")
+#endif
+    RSModule::produceKey();
+#ifdef LOG_METHOD_EXIT
+  LOG_METHOD_EXIT("consumermodule", "produceKey")
+#endif
+}
+
 void ConsumerModule::consumeData(){
+ 
+#ifdef LOG_METHOD_ENTER
+    LOG_METHOD_ENTER("consumermodule", "consumeData")
+#endif
   
   // read next packet from input
   ExampleNetworkPacket packet;
@@ -22,6 +34,7 @@ void ConsumerModule::consumeData(){
     
     // 1. print content of packet
     std::cout << this->basename() << "> received data: " << std::endl;
+    std::cout << "\"";
     Helper::Datachars data;
     for(int i=0; i < packet.getUsedPayload(); i++){
       Helper::datawordToString(packet.payload[i], data);
@@ -32,16 +45,28 @@ void ConsumerModule::consumeData(){
     std::cout << "\"" <<  std::endl;
 
     // 2. build up command out of it
-    if(this->buildCommand(packet)){
-      this->executeCommand(packet.encryption_algorithm);
+    int cmdID = this->buildCommand(packet); 
+    // command completly received?
+    if(cmdID != -1){
+      this->executeCommand(cmdID, packet.encryption_algorithm);
     }
   }
+  
+#ifdef LOG_METHOD_EXIT
+    LOG_METHOD_EXIT("consumermodule", "consumeData")
+#endif
 
 }
 
 void ConsumerModule::produceData(){
+  
+#ifdef LOG_METHOD_ENTER
+  LOG_METHOD_ENTER("consumermodule", "produceData")
+#endif
 
   ExampleNetworkPacket packet;
+
+  packet.setPacketID(this->packetID);
   
   packet.encryption_algorithm = this->nextAlgo;
   packet.processing_request = ExampleNetworkPacket::PR_encrypt;
@@ -62,7 +87,8 @@ void ConsumerModule::produceData(){
   // if result transmitted set up next round
   if(this->diter == this->data.end() && this->results.size() > 0){
       
-      this->data = this->results.front(); 
+      this->data = this->results.front().second; 
+      this->packetID = this->results.front().first;
       this->results.pop();
       this->diter = this->data.begin();
 
@@ -70,22 +96,27 @@ void ConsumerModule::produceData(){
       
   }
 
+#ifdef LOG_METHOD_EXIT
+    LOG_METHOD_EXIT("consumermodule", "produceData")
+#endif
+
 }
 
-bool ConsumerModule::buildCommand(ExampleNetworkPacket packet){
-  
+int ConsumerModule::buildCommand(ExampleNetworkPacket packet){
+  int cmdID = packet.getPacketID(); 
   Helper::Datachars data;
   for(int i=0; i < packet.getUsedPayload(); i++){
     Helper::datawordToString(packet.payload[i], data);
     for(int j=0; j < BYTES_PER_DATAWORD; j++){
       // if end of command line reached stop
       if(data.position[j] == '\n'){
-        return true;
+        return cmdID;
       }
-      this->command.append(1, data.position[j]);
+      //this->command.append(1, data.position[j]);
+      this->commands[cmdID].append(1, data.position[j]);
     }          
   }
-  return false;
+  return -1;
 }
 
 void inline setResultPrefix(std::string &result, ExampleNetworkPacket::EncryptionAlgorithm algo){
@@ -106,14 +137,19 @@ void inline setResultPrefix(std::string &result, ExampleNetworkPacket::Encryptio
   }
 }
 
-void ConsumerModule::executeCommand(ExampleNetworkPacket::EncryptionAlgorithm algo){
+void ConsumerModule::executeCommand(int cmdID, ExampleNetworkPacket::EncryptionAlgorithm algo){
   
   std::string tmp;
+  setResultPrefix(tmp, algo);
 
   FILE *proc;
 
   // finish command
-  this->command += "\" | bc";
+  std::string command ="echo \"";
+  command += this->commands[cmdID];
+  command += "\" | bc";
+  // remove command from to_execute_map
+  this->commands.erase(cmdID);
   
   char buf[256];
   memset(buf, '\0', 256);
@@ -130,22 +166,23 @@ void ConsumerModule::executeCommand(ExampleNetworkPacket::EncryptionAlgorithm al
      tmp += buf[i];
     } 
   }
+  pclose(proc);
 
-  std::cout << this->basename() << "> execution result=\"" << tmp << "\"" << std::endl;
-  this->command = "echo \"";
-  
   // perform updating of results to return
   // if actually no results to transmit set current to be transferable
   if(this->results.size() == 0 && this->diter == this->data.end()){
     this->data = tmp;
+    this->packetID = cmdID;
     this->diter = this->data.begin();
+
+    this->setNext();
   }else{
     // else enqueue result
-    this->results.push(tmp);
+    this->results.push(std::pair<int, std::string>(cmdID, tmp));
+
   }
-  pclose(proc);
 }
 
 bool ConsumerModule::transmitData() const{
-  return (this->results.size() > 0 || this->diter != this->data.end());
+    return (this->results.size() > 0 || this->diter != this->data.end());
 }

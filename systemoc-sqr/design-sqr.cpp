@@ -17,22 +17,18 @@ public:
   smoc_port_out<double> out;
 private:
   int i;
-  int n;
-  
-  bool nTimesTrue() const { return n != 0 ;}
   
   void src() {
     std::cout << "src: " << i << std::endl;
     out[0] = i++;
-    if(n>0) n--;
   }
   
   smoc_firing_state start;
 public:
-  Src(sc_module_name name, int times)
-    : smoc_actor(name, start), i(1), n(times) {
+  Src(sc_module_name name, SMOC_ACTOR_CPARAM(int,from))
+    : smoc_actor(name, start), i(from) {
     start =
-        GUARD(Src::nTimesTrue)    >>
+        (VAR(i) <= 100)           >>
         out(1)                    >>
         CALL(Src::src)            >> start
       ;
@@ -163,11 +159,11 @@ protected:
 public:
   SqrRoot( sc_module_name name )
     : smoc_graph(name),
-      src("A1", 50),
-      sqrloop("A2"),
-      approx("A3"),
-      dup("A4"),
-      sink("A5") {
+      src("a1", 50),
+      sqrloop("a2"),
+      approx("a3"),
+      dup("a4"),
+      sink("a5") {
     connectNodePorts(src.out,    sqrloop.i1);
     connectNodePorts(sqrloop.o1, approx.i1);
     connectNodePorts(approx.o1,  dup.i1,

@@ -24,14 +24,23 @@ root_builddir=$(top_builddir)/..
 
 SUBDIRS=
 
-INCLUDES = @SYSTEMOC_INCLUDE@ -I$(srcdir)
+INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 
-AM_LDFLAGS = @SYSTEMOC_LDFLAGS@
+AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS=-Wno-deprecated -DSC_USE_SC_STRING_OLD
 
 LIBS=-lsystemoc
 
 noinst_PROGRAMS= simulation-crypto
 
-simulation_crypto_SOURCES= design_crypto.cpp producermodule.cpp consumermodule.cpp cryptoalgorithm.cpp blowfish.cpp des3.cpp md5.cpp panchamround.cpp
+simulation_crypto_SOURCES=	\
+	design_crypto.cpp	\
+	producermodule.cpp	\
+	consumermodule.cpp	\
+	cryptoalgorithm.cpp	\
+	blowfish.cpp		\
+	des3.cpp		\
+	md5.cpp			\
+	panchamround.cpp	\
+	exectimelogger.cpp
 simulation_crypto_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@

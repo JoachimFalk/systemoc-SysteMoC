@@ -25,7 +25,12 @@ class ProducerModule: public RSModule {
     //std::string::iterator diter;
     // instance to retrieve commands from input file
 	  CommandReader reader;
-    
+   
+    /**
+     * overloaded for logging purpose
+     */
+    void produceKey();
+
     /**
      * used to create payload data packets for transmission
      * using command reader
@@ -41,6 +46,11 @@ class ProducerModule: public RSModule {
      * checks if there is still data to transfer
      */
     bool transmitData() const;
+  
+    /**
+     * performs RSModule::setNext() plus updating internal vars
+     */
+    void setNext();
 
   public:
   

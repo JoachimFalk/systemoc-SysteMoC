@@ -10,6 +10,7 @@
 
 #include "cryptoalgorithm.hpp"
 #include "examplenetworkpacket.hpp"
+#include "exectimelogger.hpp"
 
 /**
  * Base class for consumer and producer module containing state machine
@@ -26,7 +27,10 @@ class RSModule : public smoc_actor{
     int num_of_keys;
     
   protected: 
-    
+  
+    // id to group data over more than one packet
+    int packetID;
+     
     // represents data to transmit
     std::string data;
     std::string::iterator diter;
@@ -64,13 +68,13 @@ class RSModule : public smoc_actor{
       // update number of remaining keys to transmit
       this->num_of_keys -= PACKET_PAYLOAD;
 #ifdef EX_DEBUG
-      std::cerr << "producer> key packet generated:" << endl << packet << endl;
+      std::cerr << this->basename() << "> key packet generated:" << endl << packet << endl;
 #endif //EX_DEBUG
       out[0] = packet;
       
     }
 
-    void setNext(){
+    virtual void setNext(){
       
       //determine next encrytpion algorithm
       if(*(this->diter) != '#'){
@@ -85,11 +89,11 @@ class RSModule : public smoc_actor{
         this->diter++;
         
         for(; *(this->diter) != '#'; this->diter++){
-          enc_req.append(*(this->diter), 1);
+          enc_req += *(this->diter); 
         }
         // leave out '#' for data parsing
         this->diter++;
-        
+
         if(enc_req == "DES"){
 #ifdef EX_DEBUG
           std::cerr << this->basename() << "> next encryption algorithm: DES" << std::endl;
@@ -105,7 +109,7 @@ class RSModule : public smoc_actor{
         }        
       }
 
-      std::cout << this->basename() << "> next command to send: " << this->data; 
+      std::cout << this->basename() << "> next data to send: " << this->data << std::endl; 
     }
     
     /*****  GUARDs ******/
@@ -135,7 +139,7 @@ class RSModule : public smoc_actor{
     RSModule(sc_module_name name, 
              ExampleNetworkPacket::EncryptionAlgorithm type = ExampleNetworkPacket::EM_des3) 
       : smoc_actor(name, start), 
-        nextAlgo(type) {
+        nextAlgo(type) , packetID(0){
     
       start = // transition 1: input available-> consume it
               in(1) >> CALL(RSModule::consumeData) >> start
