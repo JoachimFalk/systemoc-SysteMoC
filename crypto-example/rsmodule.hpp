@@ -139,8 +139,8 @@ class RSModule : public smoc_actor{
     RSModule(sc_module_name name, 
              ExampleNetworkPacket::EncryptionAlgorithm type = ExampleNetworkPacket::EM_des3) 
       : smoc_actor(name, start), 
-        nextAlgo(type) , packetID(0){
-    
+        packetID(0)  , nextAlgo(type){
+      
       start = // transition 1: input available-> consume it
               in(1) >> CALL(RSModule::consumeData) >> start
               // transition 2: output space availabe and still encryption keys to transmit and still data to be send -> produce keys
