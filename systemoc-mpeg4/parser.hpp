@@ -462,48 +462,55 @@ vol14 = ((bits.getAvailableTokens() >= 9) &&
 
 ///////////////////////////////////////////////////////////////////////////////
 // VOP
-vop  = (bits.getAvailableTokens() >= (8-(var(bit_count)&7))) >>
-        //JT hier stand n = 8 - bitand(bitcount,7) auf der rechten Seite
-	//JT statt 8 => neuer Guard einfügen!
-        CALL(m_parser::action_byte_align)  >> vop2;
+ vop  = (bits.getAvailableTokens() >= (8-(var(bit_count)&7))) >>
+	 //JT hier stand n = 8 - bitand(bitcount,7) auf der rechten Seite
+	 //JT statt 8 => neuer Guard einfügen!
+	 CALL(m_parser::action_byte_align)  >> vop2;
 
-vop2 = ((bits.getAvailableTokens() >= VOP_START_CODE_LENGTH) &&
-        (guard(&m_parser::guard_vop_code_done))) >>
-	CALL(m_parser::action_vop_code_done)  >> vol
-     | ((bits.getAvailableTokens() >= VOP_START_CODE_LENGTH) &&
-	(guard(&m_parser::guard_vop_code_start))) >>
-	CALL(m_parser::action_vop_code_start)  >> vop3
-     | ((bits.getAvailableTokens() >= VOP_START_CODE_LENGTH)) >>
-	CALL(m_parser::action_vop_code_other)  >> stuck;
+ vop2 = ((bits.getAvailableTokens() >= VOP_START_CODE_LENGTH) &&
+				 (guard(&m_parser::guard_vop_code_done))) >>
+	 CALL(m_parser::action_vop_code_done)  >> vol
+	 | ((bits.getAvailableTokens() >= VOP_START_CODE_LENGTH) &&
+			(guard(&m_parser::guard_vop_code_start))) >>
+	 CALL(m_parser::action_vop_code_start)  >> vop3
+	 | ((bits.getAvailableTokens() >= VOP_START_CODE_LENGTH)) >>
+	 CALL(m_parser::action_vop_code_other)  >> stuck;
 
-vop3 = ((bits.getAvailableTokens() >= 2) &&
-	(guard(&m_parser::guard_vop_predict_bvop))) >>
-	CALL(m_parser::action_vop_predict_bvop)  >> stuck
-     | (bits.getAvailableTokens() >= 2) >>
-	CALL(m_parser::action_vop_predict_other)  >> vop4;
+ vop3 = ((bits.getAvailableTokens() >= 2) &&
+				 (guard(&m_parser::guard_vop_predict_bvop))) >>
+	 //no B-frames supported
+	 CALL(m_parser::action_vop_predict_bvop)  >> stuck
+	 | (bits.getAvailableTokens() >= 2) >>
+	 //get prediction type (I or P frame)
+	 CALL(m_parser::action_vop_predict_other)  >> vop4;
 
-vop4 = ((bits.getAvailableTokens() >= 1) &&
-	(bits.getValueAt(0) == 1) ) >>
-	CALL(m_parser::action_vop_timebase_one)  >> vop4
-     | (bits.getAvailableTokens() >= 2) >>
-	CALL(m_parser::action_vop_timebase_zero)  >> vop5;
+ vop4 = ((bits.getAvailableTokens() >= 1) &&
+				 (bits.getValueAt(0) == 1) ) >>
+	 //skip one bit
+	 CALL(m_parser::action_vop_timebase_one)  >> vop4
+	 | (bits.getAvailableTokens() >= 2) >>
+	 //skip two bits
+	 CALL(m_parser::action_vop_timebase_zero)  >> vop5;
 
-vop5 = (bits.getAvailableTokens() >= (var(mylog) + 1)) >>
-	CALL(m_parser::action_vop_time_inc)  >> vop6;
+ vop5 = (bits.getAvailableTokens() >= (var(mylog) + 1)) >>
+	 //skip mylog+1 bits
+	 CALL(m_parser::action_vop_time_inc)  >> vop6;
 
-vop6 = ((bits.getAvailableTokens() >= 1) &&
-	(bits.getValueAt(0) == 0) ) >>
-	CALL(m_parser::action_vop_uncoded)  >> vop
-     | ((bits.getAvailableTokens() >= (8 + BITS_QUANT)) &&
-	(var(prediction_type) == P_VOP) &&
-	(param.getAvailableSpace() >= 4) &&  
-        (mv.getAvailableSpace() >= 6)) >>
-         CALL(m_parser::action_vop_coded_pvop)  >> mb
-     | ((bits.getAvailableTokens() >= (4 + BITS_QUANT)) &&
-	(var(prediction_type) == I_VOP) &&
-        (param.getAvailableSpace() >= 4) &&  
-        (mv.getAvailableSpace() >= 6)) >>
-	CALL(m_parser::action_vop_coded_ivop)  >> mb;
+ vop6 = ((bits.getAvailableTokens() >= 1) &&
+				 (bits.getValueAt(0) == 0) ) >>
+	 CALL(m_parser::action_vop_uncoded)  >> vop
+	 | ((bits.getAvailableTokens() >= (8 + BITS_QUANT)) &&
+			(var(prediction_type) == P_VOP) &&
+			(param.getAvailableSpace() >= 4) &&  
+			(mv.getAvailableSpace() >= 6)) >>
+	 //calculate parameters for P-frame decoding
+	 CALL(m_parser::action_vop_coded_pvop)  >> mb
+	 | ((bits.getAvailableTokens() >= (4 + BITS_QUANT)) &&
+			(var(prediction_type) == I_VOP) &&
+			(param.getAvailableSpace() >= 4) &&  
+			(mv.getAvailableSpace() >= 6)) >>
+	 //calculate parameters for I-frame decoding
+	 CALL(m_parser::action_vop_coded_ivop)  >> mb;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -922,6 +929,9 @@ cal_list<int>::t m_parser::initList( int v, int sz ){
 }
 
 
+/*
+	Ignores os bits. Then it takes the next n bits and generates the corresponding integer value.
+ */
 int m_parser::value( cal_list<int>::t bits, int n, int os ) const{
   //os describes the lowest array position where number starts
   //n describes the number of bits. At position os, we find MSB, at position os+1 the next less significant bit
@@ -945,27 +955,27 @@ int m_parser::dc_scaler( int QP, int bltype, int blnum ){
   }else{
     if ( blnum < 4) {
       if ( (QP > 0) && (QP < 5)){ 
-	return_value = 8;
+				return_value = 8;
       }else{
-	if ( (QP > 4) && (QP < 9)) { 
-	  return_value = 2 * QP;
-	}else{
-	  if (( QP > 8) && (QP < 25)) { 
-	    return_value = QP + 8;
-	  }else{ 
-	    return_value = (2 * QP) - 16 ;
-	  }
-	}
+				if ( (QP > 4) && (QP < 9)) { 
+					return_value = 2 * QP;
+				}else{
+					if (( QP > 8) && (QP < 25)) { 
+						return_value = QP + 8;
+					}else{ 
+						return_value = (2 * QP) - 16 ;
+					}
+				}
       }
     }else{
       if ( (QP > 0) && (QP < 5)) { 
-	return_value = 8;
+				return_value = 8;
       }else{
-	if ( (QP > 4) && (QP < 25)){ 
-	  return_value = cal_rshift(QP + 13,1);
-	}else{ 
-	  return_value = QP - 6;
-	}
+				if ( (QP > 4) && (QP < 25)){ 
+					return_value = cal_rshift(QP + 13,1);
+				}else{ 
+					return_value = QP - 6;
+				}
       }
     }
   }
@@ -1118,8 +1128,8 @@ void m_parser::action_vol_time_inc(void){
 
   while (i < 16) {
     if ( b[15-i] == 1) {
-      count = count + 1;
-      nbits = i;
+      count = count + 1; //number of ones
+      nbits = i; //position of most significant one
     }
     i = i + 1;
   }
@@ -1182,6 +1192,10 @@ void m_parser::action_vol_misc_supported(void){
  *************************************************************/
 
 
+/*
+	Performs byte alignment, so that new VOP starts a byte border.
+	Stuffing bits must be one.
+ */
 void m_parser::action_byte_align(void){
   unsigned int n_stuffed = 8 - cal_bitand( bit_count, 7 );
   cout << "Bit_count at  VOP bytealign : " << bit_count << endl; 
