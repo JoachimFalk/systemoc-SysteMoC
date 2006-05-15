@@ -40,7 +40,7 @@ public:
     m_idct_col    &idctcol = registerNode(new m_idct_col("idctcol"));
     m_clip        &rowclip = registerNode(new m_clip("rowclip"));
     m_transpose   &transpose1 = registerNode(new m_transpose("transpose1"));
-    m_Upsample    &upsample1 = registerNode(new m_Upsample("upsample1",8));
+    m_Upsample    &upsample1 = registerNode(new m_Upsample("upsample1"));
    
     
   
