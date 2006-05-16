@@ -88,9 +88,9 @@ private:
   
   const smoc_firing_state &_communicate();
 
-  static  std::stack<std::pair<std::string, std::string> >global_arg_stack;
+  static  std::vector<std::pair<std::string, std::string> >global_constr_args;
   
-  std::vector<std::pair<std::string, std::string> > local_arg_vector;
+  std::vector<std::pair<std::string, std::string> > local_constr_args;
 
   friend class smoc_scheduler_top;
 protected:
@@ -109,7 +109,7 @@ protected:
         std::pair<std::string, std::string> arg_info;
         arg_info.first = typeid(T).name();
         arg_info.second = allToString.str();
-        smoc_root_node::global_arg_stack.push(arg_info);
+        smoc_root_node::global_constr_args.push_back(arg_info);
       }
   
       operator T(){
