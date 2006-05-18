@@ -37,10 +37,11 @@ smoc_root_node::smoc_root_node(const smoc_firing_state &s)
 						       this,&smoc_root_node::communicate)) ) 
 #endif // ENABLE_SYSTEMC_VPC
   {
+    /*
     while(!smoc_root_node::global_arg_stack.empty()){
       local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
       smoc_root_node::global_arg_stack.pop();
-    }
+    }*/
   }
 smoc_root_node::smoc_root_node(smoc_firing_state &s)
   :
@@ -55,14 +56,20 @@ smoc_root_node::smoc_root_node(smoc_firing_state &s)
 						       this,&smoc_root_node::communicate)) )
 #endif // ENABLE_SYSTEMC_VPC
   {
-    while(!smoc_root_node::global_arg_stack.empty()){
+    local_constr_args.insert(
+        local_constr_args.end(),
+        global_constr_args.begin(),
+        global_constr_args.end());
+    global_constr_args.clear();
+    /*
+    while(!smoc_root_node::global_constr_args.empty()){
       local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
       smoc_root_node::global_arg_stack.pop();
-    }
+    }*/
   }
  
   
-std::stack<std::pair<std::string, std::string> >smoc_root_node::global_arg_stack; 
+std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_args; 
 
 
 #ifdef ENABLE_SYSTEMC_VPC
@@ -205,12 +212,12 @@ void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
         {
           pgw.indentUp();
           //***************************CONSTRUCTORPARAMETERS***************************
-          for (unsigned int i = 0; i < local_arg_vector.size(); i++) {
-          std::pair<std::string, std::string> parameterpair = local_arg_vector[i];
-          pgw << "<constructorParameter "
+          for (unsigned int i = 0; i < local_constr_args.size(); i++) {
+            std::pair<std::string, std::string> parameterpair = local_constr_args[i];
+            pgw << "<constructorParameter "
                    "type=\""  << parameterpair.first  << "\" "
                    "value=\"" << parameterpair.second << "\"/>" << std::endl;
-        }
+          }
         //************************************FSM************************************
         assembleFSM(pgw);
         pgw.indentDown();
