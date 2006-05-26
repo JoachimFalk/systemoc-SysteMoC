@@ -41,11 +41,11 @@ private:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_port_in::communicate>" << std::endl;
 #endif
-    commSetup(n); // access to new tokens
+    this->commSetup(n); // access to new tokens
     input.resize(n);
     for ( size_t i = 0; i < n; i++ )
       input[i] = smoc_port_in<T>::operator[](i);
-    commExec(); // consume tokens
+    this->commExec(); // consume tokens
     ready = true;
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "</hscd_port_in::communicate>" << std::endl;
@@ -54,7 +54,7 @@ private:
 public:
   hscd_port_in()
     : smoc_port_in<T>()
-    { is_smoc_v1_port = true; }
+    { this->is_smoc_v1_port = true; }
   
   operator bool() const { return ready; }
   
@@ -89,12 +89,12 @@ private:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_port_out::communicate>" << std::endl;
 #endif
-    commSetup(n); // access to free space on fifo
+    this->commSetup(n); // access to free space on fifo
     assert( n <= output.size() );
     for ( size_t i = 0; i < n; i++ )
       smoc_port_out<T>::operator[](i) = output[i];
     output.clear();
-    commExec(); // produce tokens
+    this->commExec(); // produce tokens
     ready = true;
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "</hscd_port_out::communicate>" << std::endl;
@@ -103,7 +103,7 @@ private:
 public:
   hscd_port_out()
     : smoc_port_out<T>()
-    { is_smoc_v1_port = true; }
+    { this->is_smoc_v1_port = true; }
   
   operator bool() const { return ready; }
 
