@@ -56,6 +56,17 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
 #endif
     // FIXME: Big hack !!!
     // _ctx.hierarchy = c->myModule();
+    /*
+    for ( smoc_node_list::const_iterator iter = nodes.begin();
+          iter != nodes.end();
+          ++iter ) {
+      smoc_firing_types::resolved_state_ty *rs = (*iter)->_currentState;
+      
+      for ( transitionlist_ty::iterator titer = rs->tl.begin();
+            titer != rs->tl.end();
+            ++titer )
+        ol |= titer->ap.al;
+    }*/
     do {
       again = false;
       for ( smoc_node_list::const_iterator iter = nodes.begin();
