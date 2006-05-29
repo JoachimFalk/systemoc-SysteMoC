@@ -40,23 +40,24 @@
 //using boost::logic::tribool;
 //using boost::logic::indeterminate;
 
-class smoc_activation_pattern {
+class smoc_activation_pattern
+: public smoc_event_and_list {
 public:
   typedef smoc_activation_pattern this_type;
   
   friend class smoc_firing_state;
 //protected:
-  smoc_event_and_list  al;
+//smoc_event_and_list  al;
   Expr::Ex<bool>::type guard;
 protected:
   static
   void guardAssemble( smoc_modes::PGWriter &pgw, const Expr::PASTNode &n );
 public:
   bool isEnabled() const {
-    bool result = al;
+    bool result = *this;
     
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "smoc_activation_pattern::isEnabled al: " << al << std::endl;
+    std::cerr << "smoc_activation_pattern::isEnabled: " << *this << std::endl;
 #endif
     if (result) {
       result = Expr::evalTo<Expr::Value>(guard);
@@ -70,11 +71,11 @@ public:
     : guard(_guard) {}
 
   void finalise() {
-    Expr::evalTo<Expr::Sensitivity>(guard, al);
+    Expr::evalTo<Expr::Sensitivity>(guard, *this);
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "smoc_activation_pattern::finalise()"
                 <<  " this == " << this
-                << ", al == " << al << std::endl;
+                << ", " << *this << std::endl;
 #endif
   }
 

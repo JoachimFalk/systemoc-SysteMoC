@@ -396,15 +396,15 @@ void smoc_firing_types::transition_ty::findBlocked(smoc_event_or_list &l) {
   // smoc_root_port_bool b      = knownSatisfiable();
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "  <transition status=\"" <<
-    (!ap.al
+    (!ap
      ? "blocked"
      : ap.isEnabled()
        ? "enabled"
        : "disabled") << "\"/>" << std::endl;
 #endif
   // if ( b.getStatus() != smoc_root_port_bool::IS_DISABLED ) {
-  if (!ap.al || ap.isEnabled()) {
-    l |= ap.al;
+  if (!ap || ap.isEnabled()) {
+    l |= ap;
   }
   // _ctx.blocked = NULL;
 }
