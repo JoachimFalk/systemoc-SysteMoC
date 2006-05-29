@@ -23,8 +23,10 @@
 
 typedef CoSupport::SystemC::Event         smoc_event;
 typedef CoSupport::SystemC::EventWaiter   smoc_event_waiter;
-typedef CoSupport::SystemC::EventOrList   smoc_event_or_list;
-typedef CoSupport::SystemC::EventAndList  smoc_event_and_list;
+typedef CoSupport::SystemC::EventOrList
+  <CoSupport::SystemC::EventWaiter>       smoc_event_or_list;
+typedef CoSupport::SystemC::EventAndList
+  <CoSupport::SystemC::EventWaiter>       smoc_event_and_list;
 
 static inline
 void smoc_notify(smoc_event &e)
