@@ -217,6 +217,8 @@ protected:
     TraceLog.traceCommExecIn(r.getLimit(), this->name());
 #endif
     rpp(r.getLimit()); this->read_event.notify(); 
+    if (this->usedStorage() < 1)
+      this->write_event.reset();
   }
   
   ring_out_type commSetupOut(size_t req) {
@@ -230,11 +232,18 @@ protected:
     TraceLog.traceCommExecOut(r.getLimit(), this->name());
 #endif
     wpp(r.getLimit()); this->write_event.notify();
+    if (this->unusedStorage() < 1)
+      this->read_event.reset();
   }
 public:
   // constructors
   smoc_fifo_type( const typename smoc_fifo_storage<T>::chan_init &i )
-    : smoc_fifo_storage<T>(i) {}
+    : smoc_fifo_storage<T>(i) {
+    if (this->usedStorage() >= 1)
+      this->write_event.notify();
+    if (this->unusedStorage() >= 1)
+      this->read_event.notify();
+  }
   
   size_t committedOutCount() const {
     return this->usedStorage();// + (portOutIf->committedCount() - portOutIf->doneCount());

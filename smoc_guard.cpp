@@ -20,13 +20,6 @@
 
 #include <typeinfo>
 
-void smoc_activation_pattern::dump(std::ostream &out) const {
-//  for ( guards_ty::const_iterator iter = guards.begin();
-//        iter != guards.end();
-//        ++iter )
-//    out << " " << **iter;
-}
-
 void smoc_activation_pattern::guardAssemble(
     smoc_modes::PGWriter &pgw, const Expr::PASTNode &n ) {
   pgw.indentUp();

@@ -122,7 +122,11 @@ public:
 protected:
   typedef std::pair<transition_ty *, smoc_root_node *>  transition_node_ty;
   typedef std::list<transition_node_ty>                 transition_node_list_ty;
-  smoc_event_or_list              ol;
+
+  typedef CoSupport::SystemC::EventOrList
+    <smoc_activation_pattern> smoc_transition_ready_list;
+  
+  smoc_transition_ready_list ol;
   
   void getLeafNodes(smoc_node_list &nodes, smoc_graph *node);
   

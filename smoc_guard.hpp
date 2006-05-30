@@ -34,11 +34,7 @@
 #include <smoc_port.hpp>
 #include <smoc_pggen.hpp>
 
-//#include <boost/logic/tribool.hpp>
-//#include <boost/intrusive_ptr.hpp>
-//
-//using boost::logic::tribool;
-//using boost::logic::indeterminate;
+class smoc_root_node;
 
 class smoc_activation_pattern
 : public smoc_event_and_list {
@@ -46,31 +42,27 @@ public:
   typedef smoc_activation_pattern this_type;
   
   friend class smoc_firing_state;
+
+  enum status_t {
+    DISABLED = -1,
+    BLOCKED  =  0,
+    ENABLED  =  1
+  };
 //protected:
-//smoc_event_and_list  al;
-  Expr::Ex<bool>::type guard;
+  Expr::Ex<bool>::type  guard;
 protected:
+  smoc_root_node       *actor;
+
   static
   void guardAssemble( smoc_modes::PGWriter &pgw, const Expr::PASTNode &n );
 public:
-  bool isEnabled() const {
-    bool result = *this;
-    
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "smoc_activation_pattern::isEnabled: " << *this << std::endl;
-#endif
-    if (result) {
-      result = Expr::evalTo<Expr::Value>(guard);
-      Expr::evalTo<Expr::CommReset>(guard);
-    }
-    return result;
-  }
-
   template <class E>
   smoc_activation_pattern(const Expr::D<E> &_guard)
-    : guard(_guard) {}
+    : guard(_guard), actor(NULL) {}
 
-  void finalise() {
+  void finalise(smoc_root_node *a) {
+    assert(actor == NULL && a != NULL);
+    actor = a;
     Expr::evalTo<Expr::Sensitivity>(guard, *this);
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "smoc_activation_pattern::finalise()"
@@ -78,11 +70,40 @@ public:
                 << ", " << *this << std::endl;
 #endif
   }
+ 
+  smoc_root_node &getActor() {
+    assert(actor != NULL);
+    return *actor;
+  }
+
+  status_t getStatus() const {
+    status_t retval;
+    
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "smoc_activation_pattern::getStatus: " << *this;
+#endif
+    if (*this) {
+      retval = Expr::evalTo<Expr::Value>(guard)
+        ? ENABLED
+        : DISABLED;
+      Expr::evalTo<Expr::CommReset>(guard);
+    } else
+      retval = BLOCKED;
+#ifdef SYSTEMOC_DEBUG
+    switch (retval) {
+      case DISABLED: std::cerr << " DISABLED" << std::endl; break;
+      case BLOCKED:  std::cerr << " BLOCKED"  << std::endl; break;
+      case ENABLED:  std::cerr << " ENABLED"  << std::endl; break;
+    }
+#endif
+    return retval;
+//  return *this
+//    ? ( Expr::evalTo<Expr::Value>(guard) ? ENABLED : DISABLED )
+//    : BLOCKED;
+  }
 
   void guardAssemble( smoc_modes::PGWriter &pgw ) const
     { guardAssemble(pgw, Expr::evalTo<Expr::AST>(guard) ); }
-
-  void dump(std::ostream &out) const;
 };
 
 static inline

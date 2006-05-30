@@ -176,7 +176,7 @@ void smoc_firing_rules::finalise( smoc_root_node *actor_ ) {
   for (statelist_ty::iterator iter = states.begin();
        iter != states.end();
        ++iter)
-    (*iter)->finalise();
+    (*iter)->finalise(actor_);
 }
 
 smoc_firing_rules::~smoc_firing_rules() {
@@ -373,6 +373,7 @@ void smoc_firing_types::transition_ty::execute(
 #endif
 }
 
+/*
 void smoc_firing_types::resolved_state_ty::findBlocked(smoc_event_or_list &l) {
   for ( transitionlist_ty::iterator titer = tl.begin();
         titer != tl.end();
@@ -380,14 +381,16 @@ void smoc_firing_types::resolved_state_ty::findBlocked(smoc_event_or_list &l) {
     titer->findBlocked(l);
   }
 }
+*/
 
-void smoc_firing_types::resolved_state_ty::finalise() {
+void smoc_firing_types::resolved_state_ty::finalise(smoc_root_node *a) {
   for ( transitionlist_ty::iterator titer = tl.begin();
         titer != tl.end();
         ++titer )
-    titer->finalise();
+    titer->finalise(a);
 }
 
+/*
 void smoc_firing_types::transition_ty::findBlocked(smoc_event_or_list &l) {
   //// FIXME: Big hack !!!
   // al.clear();
@@ -408,14 +411,11 @@ void smoc_firing_types::transition_ty::findBlocked(smoc_event_or_list &l) {
   }
   // _ctx.blocked = NULL;
 }
+*/
 
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {
   out << "transition("
         << this << ","
-        << "enabled="   << isEnabled() << ","
-//        << "status="   << knownSatisfiable().getStatus() << ","
-//        << "knownUnsatisfiable=" << knownUnsatisfiable() << ", "
-        << "ap: "                << ap << ")";
+        << "status == " << ap.getStatus() << ", "
+        << "ap == "     << ap << ")";
 }
-
-

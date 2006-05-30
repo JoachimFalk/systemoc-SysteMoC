@@ -178,8 +178,8 @@ protected:
   
   // constructor
   smoc_chan_in_if()
-    // write_event start notified
-    : write_event(true) {}
+    // write_event start unnotified
+    : write_event(false) {}
 private:
   // disabled
   const sc_event& default_event() const = 0;
@@ -218,8 +218,8 @@ protected:
   
   // constructor
   smoc_chan_out_if()
-    // read_event start notified
-    : read_event(true) {}
+    // read_event start unnotified
+    : read_event(false) {}
 private:
   // disabled
   const sc_event& default_event() const = 0;

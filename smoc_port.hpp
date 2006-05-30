@@ -219,6 +219,12 @@ struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   static inline
   result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
     size_t req = Value<E>::apply(e.b);
+    assert(e.a.p.availableCount() >= req);
+    e.a.p.commSetup(req);
+    return true;
+  }
+/*{
+    size_t req = Value<E>::apply(e.b);
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "Value<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply "
       <<  e.a.p.availableCount() << " >= " << req << std::endl;
@@ -230,8 +236,7 @@ struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
       e.a.p.blockEvent().reset();
       return false;
     }
-  }
-//  { return true; }
+  } */
 };
 
 /****************************************************************************

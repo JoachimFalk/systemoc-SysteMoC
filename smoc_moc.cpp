@@ -39,24 +39,12 @@ void smoc_scheduler_top::getLeafNodes(
 }
 
 void smoc_scheduler_top::schedule(smoc_graph *c) {
-  bool           again;
-  smoc_node_list nodes;
-
   //int guard_success = 0;
   //int guard_fail    = 0;
-  
-  getLeafNodes(nodes, c);
-  do {
-    //// FIXME: Big hack !!!
-    //smoc_ctx       _oldctx = _ctx;
-    // _ctx.ports_setup.clear();
+  {
+    smoc_node_list nodes;
     
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "<smoc_scheduler_top::schedule>" << std::endl;
-#endif
-    // FIXME: Big hack !!!
-    // _ctx.hierarchy = c->myModule();
-    /*
+    getLeafNodes(nodes, c);
     for ( smoc_node_list::const_iterator iter = nodes.begin();
           iter != nodes.end();
           ++iter ) {
@@ -65,10 +53,68 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
       for ( transitionlist_ty::iterator titer = rs->tl.begin();
             titer != rs->tl.end();
             ++titer )
-        ol |= titer->ap.al;
-    }*/
-    do {
-      again = false;
+        ol |= titer->ap;
+    }
+  }
+  do {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "<smoc_scheduler_top::schedule>" << std::endl;
+#endif
+    while (ol) {
+      smoc_activation_pattern           &ap     = ol.getEventTrigger();
+      smoc_activation_pattern::status_t  status = ap.getStatus();
+      
+      switch (status) {
+        case smoc_activation_pattern::DISABLED: {
+          ol.remove(ap);
+          break;
+        }
+        case smoc_activation_pattern::ENABLED: {                                                
+          smoc_root_node                        &n  = ap.getActor();
+          
+#ifdef SYSTEMOC_DEBUG
+          std::cerr << "<actor name=\"" << n.myModule()->name() << "\">" << std::endl;
+#endif
+          for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
+                titer != n._currentState->tl.end();
+                ++titer )
+            ol.remove(titer->ap);
+          for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
+                titer != n._currentState->tl.end();
+                ++titer ) {
+            if (&titer->ap == &ap) {
+              titer->execute(&n._currentState, &n);
+              break;
+            }
+          }
+          for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
+                titer != n._currentState->tl.end();
+                ++titer )
+            ol |= titer->ap;
+#ifdef SYSTEMOC_DEBUG
+          std::cerr << "</actor>" << std::endl;
+#endif
+          break;
+        }
+        default: {
+          assert(status == smoc_activation_pattern::ENABLED ||
+                 status == smoc_activation_pattern::DISABLED   );
+        }
+      }
+    }
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "</smoc_scheduler_top::schedule>" << std::endl;
+#endif
+//  std::cerr << "guard_success: " << guard_success << std::endl;
+//  std::cerr << "guard_fail:    " << guard_fail    << std::endl;
+    smoc_wait(ol);
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << ol << std::endl;
+#endif
+  } while ( 1 );
+}
+
+/*
       for ( smoc_node_list::const_iterator iter = nodes.begin();
             iter != nodes.end();
             ++iter ) {
@@ -90,13 +136,6 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
                 titer->execute(rs,*iter);
                 again = true;
               }
-              /*
-              for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
-                    iter != _ctx.ports_setup.end();
-                    ++iter )
-                (*iter)->reset();
-              _ctx.ports_setup.clear();
-               */
             }
           } while ( canexec );
         }
@@ -116,18 +155,4 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
 #endif
         }
       }
-#ifdef SYSTEMOC_DEBUG
-      std::cerr << "</smoc_scheduler_top::schedule>" << std::endl;
-#endif
-      //// FIXME: Big hack !!!
-      //_ctx = _oldctx;
-//    std::cerr << "guard_success: " << guard_success << std::endl;
-//    std::cerr << "guard_fail:    " << guard_fail    << std::endl;
-      smoc_wait(ol);
-      ol.clear();
-#ifdef SYSTEMOC_DEBUG
-      std::cerr << ol << std::endl;
-#endif
-    }
-  } while ( 1 );
-}
+ */
