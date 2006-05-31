@@ -76,35 +76,46 @@ public:
     return *actor;
   }
 
-  status_t getStatus() const {
-    status_t retval;
-    
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "smoc_activation_pattern::getStatus: " << *this;
-#endif
-    if (*this) {
-      retval = Expr::evalTo<Expr::Value>(guard)
-        ? ENABLED
-        : DISABLED;
-      Expr::evalTo<Expr::CommReset>(guard);
-    } else
-      retval = BLOCKED;
-#ifdef SYSTEMOC_DEBUG
-    switch (retval) {
-      case DISABLED: std::cerr << " DISABLED" << std::endl; break;
-      case BLOCKED:  std::cerr << " BLOCKED"  << std::endl; break;
-      case ENABLED:  std::cerr << " ENABLED"  << std::endl; break;
-    }
-#endif
-    return retval;
-//  return *this
-//    ? ( Expr::evalTo<Expr::Value>(guard) ? ENABLED : DISABLED )
-//    : BLOCKED;
-  }
+  inline
+  status_t smoc_activation_pattern::getStatus() const;
 
   void guardAssemble( smoc_modes::PGWriter &pgw ) const
     { guardAssemble(pgw, Expr::evalTo<Expr::AST>(guard) ); }
 };
+
+#ifdef SYSTEMOC_DEBUG
+static inline
+std::ostream &operator <<( std::ostream &out, smoc_activation_pattern::status_t s) {
+  static const char *display[3] = { "DISABLED", "BLOCKED", "ENABLED" };
+  
+  assert( 0 <= s+1 && s+1  < sizeof(display)/sizeof(display[0]));
+  out << display[s+1];
+  return out;
+}
+#endif
+
+inline
+smoc_activation_pattern::status_t smoc_activation_pattern::getStatus() const {
+  status_t retval;
+  
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_activation_pattern::getStatus: " << *this;
+#endif
+  if (*this) {
+    retval = Expr::evalTo<Expr::Value>(guard)
+      ? ENABLED
+      : DISABLED;
+    Expr::evalTo<Expr::CommReset>(guard);
+  } else
+    retval = BLOCKED;
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << " " << retval << std::endl;
+#endif
+  return retval;
+//  return *this
+//    ? ( Expr::evalTo<Expr::Value>(guard) ? ENABLED : DISABLED )
+//    : BLOCKED;
+}
 
 static inline
 std::ostream &operator <<( std::ostream &out, const smoc_activation_pattern &ap)
