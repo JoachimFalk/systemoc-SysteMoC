@@ -77,7 +77,7 @@ static inline
 std::ostream &operator <<( std::ostream &out, smoc_activation_pattern::status_t s) {
   static const char *display[3] = { "DISABLED", "BLOCKED", "ENABLED" };
   
-  assert( 0 <= s+1 && s+1  < sizeof(display)/sizeof(display[0]));
+  assert(static_cast<size_t>(s+1) < sizeof(display)/sizeof(display[0]));
   out << display[s+1];
   return out;
 }
