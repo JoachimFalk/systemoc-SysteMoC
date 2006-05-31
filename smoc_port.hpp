@@ -205,7 +205,7 @@ struct Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   static
   void apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e,
              smoc_event_and_list &al) {
-    al &= e.a.p.blockEvent();
+    al &= e.a.p.blockEvent(Value<E>::apply(e.b));
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply al == " << al << std::endl;
 #endif
@@ -419,8 +419,8 @@ public:
   
   size_t availableCount() const
     { return (*this)->committedOutCount(); }
-  smoc_event &blockEvent()
-    { return (*this)->blockEventOut(); }
+  smoc_event &blockEvent(size_t n)
+    { return (*this)->blockEventOut(n); }
   
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
@@ -483,8 +483,8 @@ public:
   
   size_t availableCount() const
     { return (*this)->committedInCount(); }
-  smoc_event &blockEvent()
-    { return (*this)->blockEventIn(); }
+  smoc_event &blockEvent(size_t n)
+    { return (*this)->blockEventIn(n); }
   
   typename Expr::PortTokens<this_type>::type getAvailableSpace()
     { return Expr::portTokens<this_type>(*this); }

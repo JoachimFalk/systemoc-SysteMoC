@@ -164,7 +164,7 @@ public:
   
   virtual void addPortIf(iface_in_type *_i) = 0;
   virtual size_t committedOutCount() const = 0;
-  smoc_event &blockEventOut() { return write_event; }
+  smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual ring_type commSetupIn(size_t req) = 0;
   virtual void commExecIn(const ring_type &) = 0;
   virtual bool portOutIsV1() const = 0;
@@ -204,7 +204,7 @@ public:
   
   virtual void   addPortIf(iface_out_type *_i) = 0;
   virtual size_t committedInCount() const = 0;
-  smoc_event    &blockEventIn() { return read_event; }
+  smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual ring_type commSetupOut(size_t req) = 0;
   virtual void commExecOut(const ring_type &) = 0;
   virtual bool portInIsV1() const = 0;
