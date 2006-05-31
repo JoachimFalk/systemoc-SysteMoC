@@ -97,49 +97,4 @@ std::ostream &operator <<( std::ostream &out, const smoc_root_port &p )
 
 typedef std::list<smoc_root_port *> smoc_port_list;
 
-//struct smoc_ctx {
-////  smoc_port_list      ports_setup;
-//  smoc_event_and_list *blocked;
-//  
-//  smoc_ctx()
-//    : blocked(NULL) {}
-//};
-//
-//extern smoc_ctx _ctx;
-
-/*
-class smoc_root_port_bool {
-public:
-  typedef smoc_root_port_bool this_type;
-  typedef void (this_type::*unspecified_bool_type)();
-  
-  enum status_ty {
-    IS_DISABLED,  // this guard is definitely false
-    IS_BLOCKED,   // this guard is blocked
-    IS_ENABLED    // this guard is still true
-  };
-  
-  friend class smoc_scheduler_top;
-private:
-  status_ty v;
-protected:
-public:
-  smoc_root_port_bool( bool v = false );
-  smoc_root_port_bool( smoc_event *e );
-  smoc_root_port_bool( smoc_root_port *p, size_t n );
-  smoc_root_port_bool( const this_type &a, const this_type &b );
-  smoc_root_port_bool( const this_type &rhs );
-  
-//  smoc_root_port_bool recheck() const;
-  
-  status_ty getStatus() const { return v; }
-  
-  void dump(std::ostream &out) const;
-};
-
-static inline
-std::ostream &operator <<( std::ostream &out, const smoc_root_port_bool &p )
-  { p.dump(out); return out; }
-*/
-
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP
