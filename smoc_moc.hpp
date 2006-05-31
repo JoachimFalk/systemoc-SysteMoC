@@ -124,7 +124,7 @@ protected:
   typedef std::list<transition_node_ty>                 transition_node_list_ty;
 
   typedef CoSupport::SystemC::EventOrList
-    <smoc_activation_pattern> smoc_transition_ready_list;
+    <transition_ty> smoc_transition_ready_list;
   
   smoc_transition_ready_list ol;
   

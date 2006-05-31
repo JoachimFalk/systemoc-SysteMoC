@@ -240,7 +240,7 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
             } else {
               pgw << "action=\"\">" << std::endl;
             }
-            titer->ap.guardAssemble(pgw);
+            titer->guardAssemble(pgw);
             pgw << "</transition>" << std::endl;
           } else {
             pgw << "<transition nextState=\"FIXME!!!\"/>" << std::endl;

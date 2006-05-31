@@ -34,8 +34,6 @@
 #include <smoc_port.hpp>
 #include <smoc_pggen.hpp>
 
-class smoc_root_node;
-
 class smoc_activation_pattern
 : public smoc_event_and_list {
 public:
@@ -51,18 +49,14 @@ public:
 //protected:
   Expr::Ex<bool>::type  guard;
 protected:
-  smoc_root_node       *actor;
-
   static
   void guardAssemble( smoc_modes::PGWriter &pgw, const Expr::PASTNode &n );
 public:
   template <class E>
   smoc_activation_pattern(const Expr::D<E> &_guard)
-    : guard(_guard), actor(NULL) {}
+    : guard(_guard) {}
 
-  void finalise(smoc_root_node *a) {
-    assert(actor == NULL && a != NULL);
-    actor = a;
+  void finalise() {
     Expr::evalTo<Expr::Sensitivity>(guard, *this);
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "smoc_activation_pattern::finalise()"
@@ -71,11 +65,6 @@ public:
 #endif
   }
  
-  smoc_root_node &getActor() {
-    assert(actor != NULL);
-    return *actor;
-  }
-
   inline
   status_t smoc_activation_pattern::getStatus() const;
 
@@ -98,9 +87,6 @@ inline
 smoc_activation_pattern::status_t smoc_activation_pattern::getStatus() const {
   status_t retval;
   
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_activation_pattern::getStatus: " << *this;
-#endif
   if (*this) {
     retval = Expr::evalTo<Expr::Value>(guard)
       ? ENABLED
@@ -108,18 +94,11 @@ smoc_activation_pattern::status_t smoc_activation_pattern::getStatus() const {
     Expr::evalTo<Expr::CommReset>(guard);
   } else
     retval = BLOCKED;
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << " " << retval << std::endl;
-#endif
   return retval;
 //  return *this
 //    ? ( Expr::evalTo<Expr::Value>(guard) ? ENABLED : DISABLED )
 //    : BLOCKED;
 }
-
-static inline
-std::ostream &operator <<( std::ostream &out, const smoc_activation_pattern &ap)
-  { ap.dump(out); return out; }
 
 namespace Expr {
 

@@ -178,27 +178,36 @@ struct smoc_firing_types {
   typedef CoSupport::oneof<smoc_func_call, smoc_func_branch, smoc_func_diverge>
                                           func_ty;
   
-  class transition_ty {
+  class transition_ty
+  : public smoc_activation_pattern {
   public:
-    smoc_activation_pattern ap;
+//  smoc_activation_pattern ap;
     func_ty                 f;
     statelist_ty            sl;
+    
+    smoc_root_node         *actor;
   public:
     transition_ty( smoc_firing_state_ref *r, const smoc_transition &t );
-    
-//    smoc_root_port_bool knownSatisfiable() const
-//      { return ap.knownSatisfiable(); }
-    bool isEnabled() const
-      { return ap.getStatus() == smoc_activation_pattern::ENABLED; }
-    
-//  bool tryExecute(resolved_state_ty **rs, smoc_root_node *actor);
-    void execute(resolved_state_ty **rs, smoc_root_node *actor);
-    
-//  void findBlocked(smoc_event_or_list &l);
 
-    inline
-    void finalise(smoc_root_node *a) { ap.finalise(a); }
-    
+#ifdef SYSTEMOC_DEBUG
+    status_t getStatus() const {
+      std::cerr << "transition_ty::getStatus: " << *this << std::endl;
+      return smoc_activation_pattern::getStatus();
+    }
+#endif
+
+    bool isEnabled() const
+      { return getStatus() == ENABLED; }
+
+    smoc_root_node &getActor() {
+      assert(actor != NULL);
+      return *actor;
+    }
+
+    void execute(resolved_state_ty **rs, smoc_root_node *actor);
+
+    void finalise(smoc_root_node *a);
+
     void dump(std::ostream &out) const;
 
 //#ifdef SYSTEMOC_DEBUG

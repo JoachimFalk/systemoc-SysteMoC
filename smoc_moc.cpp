@@ -53,7 +53,7 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
       for ( transitionlist_ty::iterator titer = rs->tl.begin();
             titer != rs->tl.end();
             ++titer )
-        ol |= titer->ap;
+        ol |= *titer;
     }
   }
   do {
@@ -61,16 +61,16 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
     std::cerr << "<smoc_scheduler_top::schedule>" << std::endl;
 #endif
     while (ol) {
-      smoc_activation_pattern           &ap     = ol.getEventTrigger();
-      smoc_activation_pattern::status_t  status = ap.getStatus();
+      transition_ty           &transition = ol.getEventTrigger();
+      transition_ty::status_t  status     = transition.getStatus();
       
       switch (status) {
-        case smoc_activation_pattern::DISABLED: {
-          ol.remove(ap);
+        case transition_ty::DISABLED: {
+          ol.remove(transition);
           break;
         }
-        case smoc_activation_pattern::ENABLED: {                                                
-          smoc_root_node                        &n  = ap.getActor();
+        case transition_ty::ENABLED: {                                                
+          smoc_root_node &n = transition.getActor();
           
 #ifdef SYSTEMOC_DEBUG
           std::cerr << "<actor name=\"" << n.myModule()->name() << "\">" << std::endl;
@@ -78,27 +78,20 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
           for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
                 titer != n._currentState->tl.end();
                 ++titer )
-            ol.remove(titer->ap);
-          for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-                titer != n._currentState->tl.end();
-                ++titer ) {
-            if (&titer->ap == &ap) {
-              titer->execute(&n._currentState, &n);
-              break;
-            }
-          }
+            ol.remove(*titer);
+          transition.execute(&n._currentState, &n);
           for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
                 titer != n._currentState->tl.end();
                 ++titer )
-            ol |= titer->ap;
+            ol |= *titer;
 #ifdef SYSTEMOC_DEBUG
           std::cerr << "</actor>" << std::endl;
 #endif
           break;
         }
         default: {
-          assert(status == smoc_activation_pattern::ENABLED ||
-                 status == smoc_activation_pattern::DISABLED   );
+          assert(status == transition_ty::ENABLED ||
+                 status == transition_ty::DISABLED   );
         }
       }
     }
