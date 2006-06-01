@@ -162,24 +162,25 @@ public:
   
   bool is_v1_in_port;
   
-  virtual void addPortIf(iface_in_type *_i) = 0;
-  virtual size_t committedOutCount() const = 0;
-  smoc_event &blockEventOut(size_t n) { return write_event; }
-  virtual ring_type commSetupIn(size_t req) = 0;
-  virtual void commExecIn(const ring_type &) = 0;
-  virtual bool portOutIsV1() const = 0;
+  virtual void        addPortIf(iface_in_type *_i) = 0;
+  virtual size_t      committedOutCount() const = 0;
+//smoc_event &blockEventOut(size_t n) { return write_event; }
+  virtual smoc_event &blockEventOut(size_t n) = 0;
+  virtual ring_type   commSetupIn(size_t req) = 0;
+  virtual void        commExecIn(const ring_type &) = 0;
+  virtual bool        portOutIsV1() const = 0;
   
   sc_module *getHierarchy() const {
     assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
     return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
   }
 protected:
-  smoc_event write_event;
+//smoc_event write_event;
   
   // constructor
-  smoc_chan_in_if()
-    // write_event start unnotified
-    : write_event(false) {}
+  smoc_chan_in_if() {}
+//  // write_event start unnotified
+//  : write_event(false) {}
 private:
   // disabled
   const sc_event& default_event() const = 0;
@@ -202,24 +203,25 @@ public:
   
   bool is_v1_out_port;
   
-  virtual void   addPortIf(iface_out_type *_i) = 0;
-  virtual size_t committedInCount() const = 0;
-  smoc_event    &blockEventIn(size_t n) { return read_event; }
-  virtual ring_type commSetupOut(size_t req) = 0;
-  virtual void commExecOut(const ring_type &) = 0;
-  virtual bool portInIsV1() const = 0;
+  virtual void        addPortIf(iface_out_type *_i) = 0;
+  virtual size_t      committedInCount() const = 0;
+//smoc_event    &blockEventIn(size_t n) { return read_event; }
+  virtual smoc_event &blockEventIn(size_t n) = 0;
+  virtual ring_type   commSetupOut(size_t req) = 0;
+  virtual void        commExecOut(const ring_type &) = 0;
+  virtual bool        portInIsV1() const = 0;
   
   sc_module *getHierarchy() const {
     assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
     return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
   }
 protected:
-  smoc_event read_event;
+//smoc_event read_event;
   
   // constructor
-  smoc_chan_out_if()
-    // read_event start unnotified
-    : read_event(false) {}
+  smoc_chan_out_if() {}
+//  // read_event start unnotified
+//  : read_event(false) {}
 private:
   // disabled
   const sc_event& default_event() const = 0;

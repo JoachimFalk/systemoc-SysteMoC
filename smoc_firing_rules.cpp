@@ -345,10 +345,7 @@ void smoc_firing_types::resolved_state_ty::finalise(smoc_root_node *a) {
 }
 
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {
-  out << "transition("
-        << this << ","
-        << "status == " << smoc_activation_pattern::getStatus() << ", "
-        << "ap == ";
+  out << "transition(" << this << ", ap == ";
   smoc_event_and_list::dump(out);
-  out   << ")";
+  out   << ", status == " << smoc_activation_pattern::getStatus() << ")";
 }

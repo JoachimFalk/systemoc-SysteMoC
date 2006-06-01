@@ -24,6 +24,7 @@
 
 #include <systemc.h>
 #include <vector>
+#include <map>
 
 // #include <iostream>
 
@@ -42,23 +43,15 @@ public:
       : name(name), n(n) {}
   };
 protected:
+  typedef std::map<size_t, smoc_event *> EventMap;
+
   size_t const fsize;
   size_t       rindex;
   size_t       windex;
-  
-  void rpp(size_t n) {
-    if ( rindex + n >= fsize )
-      rindex = rindex + n - fsize;
-    else
-      rindex = rindex + n;
-  }
-  void wpp(size_t n) {
-    if ( windex + n >= fsize )
-      windex = windex + n - fsize;
-    else
-      windex = windex + n;
-  }
-  
+
+  EventMap     eventMapAvailable;
+  EventMap     eventMapFree;
+
   size_t usedStorage() const {
     size_t used = windex - rindex;
     
@@ -66,13 +59,75 @@ protected:
       used += fsize;
     return used;
   }
-  
+
   size_t unusedStorage() const {
     size_t unused = rindex - windex - 1;
     
     if ( unused > fsize )
       unused += fsize;
     return unused;
+  }
+
+  void rpp(size_t n) {
+    if ( rindex + n >= fsize )
+      rindex = rindex + n - fsize;
+    else
+      rindex = rindex + n;
+    
+    size_t used   = usedStorage();
+    size_t unused = fsize - used - 1;
+    
+    // reset all enabled events for more then usedStorage() available tokens
+    for (EventMap::iterator iter = eventMapAvailable.upper_bound(used);
+         iter != eventMapAvailable.end() && *iter->second;
+         ++iter)
+      iter->second->reset();
+    // notify all disabled events for less/equal unusedStorage() free space
+    for (EventMap::iterator iter = eventMapFree.upper_bound(unused);
+         iter != eventMapFree.begin() && !*(--iter)->second;
+         )
+      iter->second->notify();
+  }
+
+  void wpp(size_t n) {
+    if ( windex + n >= fsize )
+      windex = windex + n - fsize;
+    else
+      windex = windex + n;
+    
+    size_t unused = unusedStorage();
+    size_t used   = fsize - unused - 1;
+    
+    // reset all enabled events for more then unusedStorage() free space
+    for (EventMap::iterator iter = eventMapFree.upper_bound(unused);
+         iter != eventMapFree.end() && *iter->second;
+         ++iter)
+      iter->second->reset();
+    // notify all disabled events for less/equal usedStorage() available tokens
+    for (EventMap::iterator iter = eventMapAvailable.upper_bound(used);
+         iter != eventMapAvailable.begin() && !*(--iter)->second;
+         )
+      iter->second->notify();
+  }
+
+  smoc_event &getEventAvailable(size_t n) {
+    EventMap::iterator iter = eventMapAvailable.find(n);
+    if (iter == eventMapAvailable.end()) {
+      iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
+      if (usedStorage() >= n)
+        iter->second->notify();
+    }
+    return *iter->second;
+  }
+
+  smoc_event &getEventFree(size_t n) {
+    EventMap::iterator iter = eventMapFree.find(n);
+    if (iter == eventMapFree.end()) {
+      iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
+      if (unusedStorage() >= n)
+        iter->second->notify();
+    }
+    return *iter->second;
   }
 
   void channelAttributes(smoc_modes::PGWriter &pgw) const {
@@ -216,9 +271,10 @@ protected:
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecIn(r.getLimit(), this->name());
 #endif
-    rpp(r.getLimit()); this->read_event.notify(); 
-    if (this->usedStorage() < 1)
-      this->write_event.reset();
+    rpp(r.getLimit());
+//  this->read_event.notify(); 
+//  if (this->usedStorage() < 1)
+//    this->write_event.reset();
   }
   
   ring_out_type commSetupOut(size_t req) {
@@ -231,26 +287,30 @@ protected:
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(r.getLimit(), this->name());
 #endif
-    wpp(r.getLimit()); this->write_event.notify();
-    if (this->unusedStorage() < 1)
-      this->read_event.reset();
+    wpp(r.getLimit());
+//  this->write_event.notify();
+//  if (this->unusedStorage() < 1)
+//    this->read_event.reset();
   }
 public:
   // constructors
   smoc_fifo_type( const typename smoc_fifo_storage<T>::chan_init &i )
     : smoc_fifo_storage<T>(i) {
-    if (this->usedStorage() >= 1)
-      this->write_event.notify();
-    if (this->unusedStorage() >= 1)
-      this->read_event.notify();
+//  if (this->usedStorage() >= 1)
+//    this->write_event.notify();
+//  if (this->unusedStorage() >= 1)
+//    this->read_event.notify();
   }
-  
-  size_t committedOutCount() const {
-    return this->usedStorage();// + (portOutIf->committedCount() - portOutIf->doneCount());
-  }
-  size_t committedInCount() const {
-    return this->unusedStorage();// + (portInIf->committedCount() - portInIf->doneCount());
-  }
+
+  // bounce functions
+  size_t committedOutCount() const
+    { return this->usedStorage(); }
+  size_t committedInCount() const
+    { return this->unusedStorage(); }
+  smoc_event &blockEventOut(size_t n)
+    { return this->getEventAvailable(n); }
+  smoc_event &blockEventIn(size_t n)
+    { return this->getEventFree(n); }
 };
 
 template <typename T>
