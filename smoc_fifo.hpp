@@ -268,7 +268,7 @@ protected:
   }
   
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecIn(const ring_in_type &r, smoc_event *le)
+  void commExecIn(const ring_in_type &r, const smoc_ref_event_p &le)
 #else
   void commExecIn(const ring_in_type &r)
 #endif
@@ -289,7 +289,7 @@ protected:
   }
   
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecOut(const ring_out_type &r, smoc_event *le)
+  void commExecOut(const ring_out_type &r, const smoc_ref_event_p &le)
 #else
   void commExecOut(const ring_out_type &r)
 #endif

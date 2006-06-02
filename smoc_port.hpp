@@ -171,10 +171,10 @@ template <class P, class E>
 struct CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   typedef void        result_type;
 #ifdef ENABLE_SYSTEMC_VPC
-  typedef smoc_event *param1_type;
+  typedef const smoc_ref_event_p &param1_type;
   
   static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e, smoc_event *le) {
+  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e, const smoc_ref_event_p &le) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
@@ -419,7 +419,7 @@ protected:
       (*this)->commSetupIn(req);
   }
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExec(smoc_event *le) { (*this)->commExecIn(*this, le); }
+  void commExec(const smoc_ref_event_p &le) { (*this)->commExecIn(*this, le); }
 #else
   void commExec() { (*this)->commExecIn(*this); }
 #endif
@@ -487,7 +487,7 @@ protected:
       (*this)->commSetupOut(req);
   }
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExec(smoc_event *le) { (*this)->commExecOut(*this, le); }
+  void commExec(const smoc_ref_event_p &le) { (*this)->commExecOut(*this, le); }
 #else
   void commExec() { (*this)->commExecOut(*this); }
 #endif

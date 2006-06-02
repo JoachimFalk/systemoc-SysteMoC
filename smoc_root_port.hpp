@@ -49,13 +49,13 @@ protected:
   smoc_root_port( const char* name_ )
     : sc_port_base( name_, 1 ), parent(NULL), is_smoc_v1_port(false) {}
 public:
-  virtual void commSetup(size_t req)    = 0;
+  virtual void commSetup(size_t req)                = 0;
 #ifdef ENABLE_SYSTEMC_VPC
-  virtual void commExec(smoc_event *le) = 0;
+  virtual void commExec(const smoc_ref_event_p &le) = 0;
 #else
-  virtual void commExec()               = 0;
+  virtual void commExec()                           = 0;
 #endif
-  virtual void reset()                  = 0;
+  virtual void reset()                              = 0;
 public:
   bool is_smoc_v1_port;
   

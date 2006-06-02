@@ -168,7 +168,7 @@ public:
   virtual smoc_event &blockEventOut(size_t n) = 0;
   virtual ring_type   commSetupIn(size_t req) = 0;
 #ifdef ENABLE_SYSTEMC_VPC
-  virtual void        commExecIn(const ring_type &, smoc_event *) = 0;
+  virtual void        commExecIn(const ring_type &, const smoc_ref_event_p &) = 0;
 #else
   virtual void        commExecIn(const ring_type &) = 0;
 #endif
@@ -213,7 +213,7 @@ public:
   virtual smoc_event &blockEventIn(size_t n) = 0;
   virtual ring_type   commSetupOut(size_t req) = 0;
 #ifdef ENABLE_SYSTEMC_VPC
-  virtual void        commExecOut(const ring_type &, smoc_event *) = 0;
+  virtual void        commExecOut(const ring_type &, const smoc_ref_event_p &) = 0;
 #else
   virtual void        commExecOut(const ring_type &) = 0;
 #endif

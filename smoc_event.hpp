@@ -19,10 +19,13 @@
 #ifndef _INCLUDED_SMOC_EVENT_HPP
 #define _INCLUDED_SMOC_EVENT_HPP
 
+#include <boost/intrusive_ptr.hpp>
+
 #include <cosupport/systemc_support.hpp>
 
 typedef CoSupport::SystemC::Event         smoc_event;
 typedef CoSupport::SystemC::EventWaiter   smoc_event_waiter;
+typedef CoSupport::SystemC::EventListener smoc_event_listener;
 typedef CoSupport::SystemC::EventOrList
   <CoSupport::SystemC::EventWaiter>       smoc_event_or_list;
 typedef CoSupport::SystemC::EventAndList
@@ -40,6 +43,43 @@ static inline
 void smoc_wait(smoc_event_waiter &e)
   { return CoSupport::SystemC::wait(e); }
 
+static inline
+void intrusive_ptr_add_ref( class _RefCount *r );
+static inline
+void intrusive_ptr_release( class _RefCount *r );
+
+class _RefCount {
+public:
+  typedef _RefCount this_type;
+  
+  friend void intrusive_ptr_add_ref(this_type *);
+  friend void intrusive_ptr_release(this_type *);
+private:
+  size_t refcount;
+public:
+  _RefCount()
+    : refcount(0) {}
+  
+  virtual ~_RefCount() {}
+};
+
+static inline
+void intrusive_ptr_add_ref( _RefCount *r )
+  { ++r->refcount; }
+static inline
+void intrusive_ptr_release( _RefCount *r )
+  { if ( !--r->refcount ) delete r; }
+
+class smoc_ref_event
+: public _RefCount, public smoc_event {
+public:
+  typedef smoc_ref_event this_type;
+public:
+  smoc_ref_event(bool startNotified = false)
+    : smoc_event(startNotified) {}
+};
+
+typedef boost::intrusive_ptr<smoc_ref_event> smoc_ref_event_p;
 
 #endif // _INCLUDED_SMOC_EVENT_HPP
 

@@ -273,7 +273,7 @@ void smoc_firing_types::transition_ty::execute(
 #ifdef ENABLE_SYSTEMC_VPC
       actor->vpc_event_dii.reset();
 
-      actor->vpc_event_lat = new smoc_event();
+      actor->vpc_event_lat = new smoc_ref_event();
       SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
 
       SystemC_VPC::Director::getInstance().  	

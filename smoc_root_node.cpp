@@ -69,14 +69,37 @@ const smoc_firing_state &smoc_root_node::_communicate() {
 	    << " func=smoc_root_node::communicate>" << std::endl;
   std::cerr << "    <communication type=\"execute\"/>" << std::endl;
 # endif
-
+  
 #ifdef SYSTEMOC_TRACE
    TraceLog.traceStartDeferredCommunication(myModule()->name());
 #endif
   
   assert(vpc_event_dii && vpc_event_lat != NULL);
   
-  Expr::evalTo<Expr::CommExec>(*_guard, vpc_event_lat);
+  {
+    smoc_ref_event_p foo(vpc_event_lat);
+    Expr::evalTo<Expr::CommExec>(*_guard, foo);
+    if (!*foo) {
+      // latency event not signaled
+      struct _: public smoc_event_listener {
+        smoc_ref_event_p foo;
+        
+        bool signaled(smoc_event_waiter *_e) {
+          assert(_e == &*foo);
+          foo = NULL;
+          return false;
+        }
+        void eventDestroyed(smoc_event_waiter *_e) {
+          delete this;
+        }
+        
+        _(const smoc_ref_event_p &foo): foo(foo) {};
+        
+        virtual ~_() {}
+      };
+      new _(foo);
+    }
+  }
   
 #ifndef NDEBUG
   vpc_event_lat = NULL;

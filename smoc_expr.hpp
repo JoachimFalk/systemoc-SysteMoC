@@ -27,7 +27,6 @@
 
 #include <list>
 
-#include <boost/intrusive_ptr.hpp>
 #include <smoc_event.hpp>
 
 #include <cosupport/oneof.hpp>
@@ -38,35 +37,6 @@
  * Header file declaring the expression classes.  This simplified example only
  * handles expressions involving doubles.
  */
-
-static inline
-void intrusive_ptr_add_ref( class _RefCount *r );
-static inline
-void intrusive_ptr_release( class _RefCount *r );
-
-class _RefCount {
-public:
-  typedef _RefCount this_type;
-  
-  friend void intrusive_ptr_add_ref(this_type *);
-  friend void intrusive_ptr_release(this_type *);
-private:
-  size_t refcount;
-public:
-  _RefCount()
-    : refcount(0) {}
-  
-  virtual ~_RefCount() {}
-};
-
-static inline
-void intrusive_ptr_add_ref( _RefCount *r )
-  { ++r->refcount; }
-static inline
-void intrusive_ptr_release( _RefCount *r )
-  { if ( !--r->refcount ) delete r; }
-
-typedef boost::intrusive_ptr<_RefCount> ref_ty;
 
 namespace Expr {
 
@@ -159,10 +129,10 @@ template <class E>
 struct CommExec {
   typedef void        result_type;
 #ifdef ENABLE_SYSTEMC_VPC
-  typedef smoc_event *param1_type;
+  typedef const smoc_ref_event_p &param1_type;
   
   static inline
-  result_type apply(const E &e, smoc_event *le) {}
+  result_type apply(const E &e, const smoc_ref_event_p &le) {}
 #else
   static inline
   result_type apply(const E &e) {}
@@ -272,7 +242,7 @@ public:
     virtual PASTNode   evalToAST()         const = 0;
 #ifdef ENABLE_SYSTEMC_VPC
     virtual void       evalToCommExec
-                 (smoc_event *le)          const = 0;
+                 (const smoc_ref_event_p &le)  const = 0;
 #else
     virtual void       evalToCommExec()    const = 0;
 #endif
@@ -300,7 +270,7 @@ protected:
     PASTNode   evalToAST() const
       { return AST<E>::apply(e); }
 #ifdef ENABLE_SYSTEMC_VPC
-    void       evalToCommExec(smoc_event *le) const
+    void       evalToCommExec(const smoc_ref_event_p &le) const
       { return CommExec<E>::apply(e, le); }
 #else
     void       evalToCommExec() const
@@ -333,10 +303,10 @@ template <typename T>
 struct CommExec<DVirtual<T> > {
   typedef void        result_type;
 #ifdef ENABLE_SYSTEMC_VPC
-  typedef smoc_event *param1_type;
+  typedef const smoc_ref_event_p &param1_type;
   
   static inline
-  result_type apply(const DVirtual <T> &e, smoc_event *le) {
+  result_type apply(const DVirtual <T> &e, const smoc_ref_event_p &le) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DVirtual<T> >::apply(e)" << std::endl;
 # endif
@@ -856,10 +826,10 @@ template <class A, class B>
 struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
   typedef void        result_type;
 #ifdef ENABLE_SYSTEMC_VPC
-  typedef smoc_event *param1_type;
+  typedef const smoc_ref_event_p &param1_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e, smoc_event *le) {
+  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e, const smoc_ref_event_p &le) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
 # endif
