@@ -126,8 +126,9 @@ public:
   // FIXME: protection
   bool               is_v1_actor;
 #ifdef ENABLE_SYSTEMC_VPC  
-  // vpc_event must be constructed before commstate
-  smoc_event         vpc_event;
+  // vpc_event_xxx must be constructed before commstate
+  smoc_event         vpc_event_dii; // VPC data introduction interval event
+  smoc_event        *vpc_event_lat; // VPC latency event
   smoc_firing_state  commstate;
   smoc_firing_state  nextState;
 #endif //ENABLE_SYSTEMC_VPC  

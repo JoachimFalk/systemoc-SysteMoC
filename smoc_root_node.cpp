@@ -33,13 +33,19 @@ smoc_root_node::smoc_root_node(smoc_firing_state &s)
     _initialState(s),
     is_v1_actor(false),
 #ifdef ENABLE_SYSTEMC_VPC
+# ifndef NDEBUG
+    vpc_event_lat(NULL),
+# endif
     commstate(
       smoc_transition(
-        smoc_activation_pattern(Expr::till(vpc_event)),
+        smoc_activation_pattern(Expr::till(vpc_event_dii)),
         smoc_func_diverge(this,&smoc_root_node::_communicate))),
 #endif // ENABLE_SYSTEMC_VPC
     _guard(NULL)
   {
+#ifdef ENABLE_SYSTEMC_VPC
+    commstate.finalise(this);
+#endif // ENABLE_SYSTEMC_VPC
     local_constr_args.insert(
         local_constr_args.end(),
         global_constr_args.begin(),
@@ -58,7 +64,6 @@ std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_a
  
 #ifdef ENABLE_SYSTEMC_VPC
 const smoc_firing_state &smoc_root_node::_communicate() {
-    
 # ifdef SYSTEMOC_DEBUG
   std::cerr << "    <call actor=" << myModule()->name()
 	    << " func=smoc_root_node::communicate>" << std::endl;
@@ -68,28 +73,22 @@ const smoc_firing_state &smoc_root_node::_communicate() {
 #ifdef SYSTEMOC_TRACE
    TraceLog.traceStartDeferredCommunication(myModule()->name());
 #endif
- 
-  assert( vpc_event );
+  
+  assert(vpc_event_dii && vpc_event_lat != NULL);
   
   Expr::evalTo<Expr::CommExec>(*_guard);
   
-/*  
-  for ( smoc_port_list::iterator iter = ports_setup.begin();
-	iter != ports_setup.end();
-	++iter ) {
-    (*iter)->commExec();
-    (*iter)->reset();
-  }
-  ports_setup.clear();
-*/
-
+#ifndef NDEBUG
+  vpc_event_lat = NULL;
+#endif
+  
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceEndDeferredCommunication(myModule()->name());
 #endif
-
-# ifdef SYSTEMOC_DEBUG
+  
+#ifdef SYSTEMOC_DEBUG
   std::cerr << "    </call>"<< std::endl;
-# endif
+#endif
   return nextState;
 }
 #endif // ENABLE_SYSTEMC_VPC

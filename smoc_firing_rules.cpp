@@ -271,12 +271,13 @@ void smoc_firing_types::transition_ty::execute(
       TraceLog.traceStartFunction(fc.getFuncName()); //
 #endif
 #ifdef ENABLE_SYSTEMC_VPC
-      actor->vpc_event.reset();
+      actor->vpc_event_dii.reset();
+
+      actor->vpc_event_lat = new smoc_event();
+      SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
 
       SystemC_VPC::Director::getInstance().  	
-	compute( actor->myModule()->name(),
-                 fc.getFuncName(),
-                 &actor->vpc_event );
+	compute( actor->myModule()->name(), fc.getFuncName(), p);
 #endif //ENABLE_SYSTEMC_VPC
       fc();
 #ifdef SYSTEMOC_TRACE
