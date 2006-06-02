@@ -315,8 +315,10 @@ void smoc_firing_types::transition_ty::execute(
   
 #ifdef ENABLE_SYSTEMC_VPC
   if (!isType<smoc_func_call>(f))
+    Expr::evalTo<Expr::CommExec>(guard, NULL);
+#else
+  Expr::evalTo<Expr::CommExec>(guard);
 #endif
-    Expr::evalTo<Expr::CommExec>(guard);
 
 /*
   for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();

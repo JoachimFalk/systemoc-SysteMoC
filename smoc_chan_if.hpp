@@ -167,7 +167,11 @@ public:
 //smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual smoc_event &blockEventOut(size_t n) = 0;
   virtual ring_type   commSetupIn(size_t req) = 0;
+#ifdef ENABLE_SYSTEMC_VPC
+  virtual void        commExecIn(const ring_type &, smoc_event *) = 0;
+#else
   virtual void        commExecIn(const ring_type &) = 0;
+#endif
   virtual bool        portOutIsV1() const = 0;
   
   sc_module *getHierarchy() const {
@@ -208,7 +212,11 @@ public:
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual smoc_event &blockEventIn(size_t n) = 0;
   virtual ring_type   commSetupOut(size_t req) = 0;
+#ifdef ENABLE_SYSTEMC_VPC
+  virtual void        commExecOut(const ring_type &, smoc_event *) = 0;
+#else
   virtual void        commExecOut(const ring_type &) = 0;
+#endif
   virtual bool        portInIsV1() const = 0;
   
   sc_module *getHierarchy() const {

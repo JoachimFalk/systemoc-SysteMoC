@@ -157,10 +157,16 @@ struct AST {};
 // Default do nothing
 template <class E>
 struct CommExec {
-  typedef void result_type;
+  typedef void        result_type;
+#ifdef ENABLE_SYSTEMC_VPC
+  typedef smoc_event *param1_type;
   
   static inline
+  result_type apply(const E &e, smoc_event *le) {}
+#else
+  static inline
   result_type apply(const E &e) {}
+#endif
 };
 
 // Default do nothing
@@ -264,7 +270,12 @@ public:
     typedef TT       value_type;
   public:
     virtual PASTNode   evalToAST()         const = 0;
+#ifdef ENABLE_SYSTEMC_VPC
+    virtual void       evalToCommExec
+                 (smoc_event *le)          const = 0;
+#else
     virtual void       evalToCommExec()    const = 0;
+#endif
     virtual void       evalToCommSetup()   const = 0;
     virtual void       evalToSensitivity
                  (smoc_event_and_list &al) const = 0;
@@ -288,8 +299,13 @@ protected:
     
     PASTNode   evalToAST() const
       { return AST<E>::apply(e); }
+#ifdef ENABLE_SYSTEMC_VPC
+    void       evalToCommExec(smoc_event *le) const
+      { return CommExec<E>::apply(e, le); }
+#else
     void       evalToCommExec() const
       { return CommExec<E>::apply(e); }
+#endif
     void       evalToCommSetup() const
       { return CommSetup<E>::apply(e); }
     void       evalToSensitivity
@@ -315,15 +331,26 @@ struct AST<DVirtual<T> > {
 
 template <typename T>
 struct CommExec<DVirtual<T> > {
-  typedef void result_type;
+  typedef void        result_type;
+#ifdef ENABLE_SYSTEMC_VPC
+  typedef smoc_event *param1_type;
   
   static inline
-  result_type apply(const DVirtual <T> &e) {
-#ifdef SYSTEMOC_DEBUG
+  result_type apply(const DVirtual <T> &e, smoc_event *le) {
+# ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DVirtual<T> >::apply(e)" << std::endl;
-#endif
+# endif
+    return e.v->evalToCommExec(le);
+  }
+#else
+  static inline
+  result_type apply(const DVirtual <T> &e) {
+# ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommExec<DVirtual<T> >::apply(e)" << std::endl;
+# endif
     return e.v->evalToCommExec();
   }
+#endif
 };
 
 template <typename T>
@@ -827,16 +854,28 @@ struct AST<DBinOp<A,B,Op> > {
 
 template <class A, class B>
 struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
-  typedef void result_type;
+  typedef void        result_type;
+#ifdef ENABLE_SYSTEMC_VPC
+  typedef smoc_event *param1_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
-#ifdef SYSTEMOC_DEBUG
+  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e, smoc_event *le) {
+# ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
-#endif
+# endif
+    CommExec<A>::apply(e.a, le);
+    CommExec<B>::apply(e.b, le);
+  }
+#else
+  static inline
+  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
+# ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+# endif
     CommExec<A>::apply(e.a);
     CommExec<B>::apply(e.b);
   }
+#endif
 };
 
 template <class A, class B>

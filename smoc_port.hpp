@@ -169,16 +169,28 @@ typename PortTokens<P>::type portTokens(P &p)
 
 template <class P, class E>
 struct CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
-  typedef void result_type;
+  typedef void        result_type;
+#ifdef ENABLE_SYSTEMC_VPC
+  typedef smoc_event *param1_type;
   
   static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
-#ifdef SYSTEMOC_DEBUG
+  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e, smoc_event *le) {
+# ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
-#endif
+# endif
+    return e.a.p.commExec(le);
+  }
+#else
+  static inline
+  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
+# ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
+                 "::apply(" << e.a.p << ", ... )" << std::endl;
+# endif
     return e.a.p.commExec();
   }
+#endif
 };
 
 template <class P, class E>
@@ -406,7 +418,11 @@ protected:
     static_cast<ring_type &>(*this) =
       (*this)->commSetupIn(req);
   }
+#ifdef ENABLE_SYSTEMC_VPC
+  void commExec(smoc_event *le) { (*this)->commExecIn(*this, le); }
+#else
   void commExec() { (*this)->commExecIn(*this); }
+#endif
   void reset() { ring_type::reset(); }
 public:
 //void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
@@ -470,7 +486,11 @@ protected:
     static_cast<ring_type &>(*this) =
       (*this)->commSetupOut(req);
   }
+#ifdef ENABLE_SYSTEMC_VPC
+  void commExec(smoc_event *le) { (*this)->commExecOut(*this, le); }
+#else
   void commExec() { (*this)->commExecOut(*this); }
+#endif
   void reset() { ring_type::reset(); }
 public:
 //  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }

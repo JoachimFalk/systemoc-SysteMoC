@@ -76,7 +76,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
   
   assert(vpc_event_dii && vpc_event_lat != NULL);
   
-  Expr::evalTo<Expr::CommExec>(*_guard);
+  Expr::evalTo<Expr::CommExec>(*_guard, vpc_event_lat);
   
 #ifndef NDEBUG
   vpc_event_lat = NULL;

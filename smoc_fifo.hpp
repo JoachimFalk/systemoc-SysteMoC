@@ -267,7 +267,12 @@ protected:
         this->fsize, this->rindex, req);
   }
   
-  void commExecIn(const ring_in_type &r){
+#ifdef ENABLE_SYSTEMC_VPC
+  void commExecIn(const ring_in_type &r, smoc_event *le)
+#else
+  void commExecIn(const ring_in_type &r)
+#endif
+  {
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecIn(r.getLimit(), this->name());
 #endif
@@ -283,7 +288,12 @@ protected:
         this->fsize, this->windex, req);
   }
   
-  void commExecOut(const ring_out_type &r){
+#ifdef ENABLE_SYSTEMC_VPC
+  void commExecOut(const ring_out_type &r, smoc_event *le)
+#else
+  void commExecOut(const ring_out_type &r)
+#endif
+  {
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(r.getLimit(), this->name());
 #endif
