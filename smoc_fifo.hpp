@@ -45,19 +45,53 @@ public:
 protected:
   typedef std::map<size_t, smoc_event *> EventMap;
 
+  /// Stores FIFO size + 1 .
+  /// The FIFO consists of a ring buffer of size fsize.
+  /// However due to the ambiguity of rindex == windex
+  /// indicating either an empty or a full FIFO, which
+  /// is resolved to rindex == windex indicating an empty
+  /// FIFO, one ring buffer entry is lost and the ringe
+  /// buffer must be one entry greater than the actual
+  /// FIFO size.
   size_t const fsize;
-  size_t       rindex;
-  size_t       windex;
+  size_t       rindex;  ///< The FIFO read    ptr
+#ifdef ENABLE_SYSTEMC_VPC
+  size_t       vindex;  ///< The FIFO visible ptr
+#endif
+  size_t       windex;  ///< The FIFO write   ptr
 
   EventMap     eventMapAvailable;
   EventMap     eventMapFree;
 
   size_t usedStorage() const {
-    size_t used = windex - rindex;
+    size_t used =
+#ifdef ENABLE_SYSTEMC_VPC
+      vindex - rindex;
+#else
+      windex - rindex;
+#endif
     
     if ( used > fsize )
       used += fsize;
     return used;
+  }
+
+  void usedIncr(size_t used) const {
+    assert(used == usedStorage());
+    // notify all disabled events for less/equal usedStorage() available tokens
+    for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
+         iter != eventMapAvailable.begin() && !*(--iter)->second;
+         )
+      iter->second->notify();
+  }
+
+  void usedDecr(size_t used) const {
+    assert(used == usedStorage());
+    // reset all enabled events for more then usedStorage() available tokens
+    for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
+         iter != eventMapAvailable.end() && *iter->second;
+         ++iter)
+      iter->second->reset();
   }
 
   size_t unusedStorage() const {
@@ -68,6 +102,24 @@ protected:
     return unused;
   }
 
+  void unusedIncr(size_t unused) const {
+    assert(unused == unusedStorage());
+    // notify all disabled events for less/equal unusedStorage() free space
+    for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
+         iter != eventMapFree.begin() && !*(--iter)->second;
+         )
+      iter->second->notify();
+  }
+
+  void unusedDecr(size_t unused) const {
+    assert(unused == unusedStorage());
+    // reset all enabled events for more then unusedStorage() free space
+    for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
+         iter != eventMapFree.end() && *iter->second;
+         ++iter)
+      iter->second->reset();
+  }
+
   void rpp(size_t n) {
     if ( rindex + n >= fsize )
       rindex = rindex + n - fsize;
@@ -75,18 +127,8 @@ protected:
       rindex = rindex + n;
     
     size_t used   = usedStorage();
-    size_t unused = fsize - used - 1;
-    
-    // reset all enabled events for more then usedStorage() available tokens
-    for (EventMap::iterator iter = eventMapAvailable.upper_bound(used);
-         iter != eventMapAvailable.end() && *iter->second;
-         ++iter)
-      iter->second->reset();
-    // notify all disabled events for less/equal unusedStorage() free space
-    for (EventMap::iterator iter = eventMapFree.upper_bound(unused);
-         iter != eventMapFree.begin() && !*(--iter)->second;
-         )
-      iter->second->notify();
+    usedDecr(used);
+    unusedIncr(fsize - used - 1);
   }
 
   void wpp(size_t n) {
@@ -96,19 +138,27 @@ protected:
       windex = windex + n;
     
     size_t unused = unusedStorage();
-    size_t used   = fsize - unused - 1;
-    
-    // reset all enabled events for more then unusedStorage() free space
-    for (EventMap::iterator iter = eventMapFree.upper_bound(unused);
-         iter != eventMapFree.end() && *iter->second;
-         ++iter)
-      iter->second->reset();
-    // notify all disabled events for less/equal usedStorage() available tokens
-    for (EventMap::iterator iter = eventMapAvailable.upper_bound(used);
-         iter != eventMapAvailable.begin() && !*(--iter)->second;
-         )
-      iter->second->notify();
+    unusedDecr(unused);
+#ifndef ENABLE_SYSTEMC_VPC
+    usedIncr(fsize - unused - 1);
+#endif
   }
+
+#ifdef ENABLE_SYSTEMC_VPC
+  void incrVisible(size_t visible) {
+    // PARANOIA: rindex <= visible <= windex in modulo fsize arith
+    assert(visible < fsize &&
+      (windex >= rindex && (visible >= rindex && visible <= windex) ||
+       windex <  rindex && (visible >= rindex || visible <= windex)));
+# ifndef NDEBUG
+    size_t oldUsed = usedStorage();
+# endif
+    vindex = visible;
+    // PARANOIA: usedStorage() must increase
+    assert(usedStorage() >= oldUsed);
+    usedIncr(usedStorage());
+  }
+#endif
 
   smoc_event &getEventAvailable(size_t n) {
     EventMap::iterator iter = eventMapAvailable.find(n);
@@ -141,7 +191,13 @@ protected:
   smoc_fifo_kind( const chan_init &i )
     : smoc_root_chan(
         i.name != NULL ? i.name : sc_gen_unique_name( "smoc_fifo" ) ),
-      fsize(i.n+1), rindex(0), windex(0) {}
+      fsize(i.n+1),
+      rindex(0),
+#ifdef ENABLE_SYSTEMC_VPC
+      vindex(0), 
+#endif
+      windex(0) {
+  }
 private:
   static const char* const kind_string;
   
