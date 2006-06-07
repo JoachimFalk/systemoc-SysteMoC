@@ -11,32 +11,31 @@
  </resources>
 
  <mappings>
-  <mapping source="sqrroot.A3" target="Component1">
+  <mapping source="sqrroot.a1" target="Component1">
     <attribute type="delay" value="100"/>
-    <attribute type="m_approx::approx" value="100"/>
+    <attribute type="Src::src" value="100"/>
   </mapping>
 
-  <mapping source="sqrroot.A4" target="Component1">
+  <mapping source="sqrroot.a2" target="Component1">
     <attribute type="delay" value="100"/>
-    <attribute type="m_dup::dup" value="100"/>
+    <attribute type="SqrLoop::copyStore"  value="100"/>
+    <attribute type="SqrLoop::copyInput"  value="100"/>
+    <attribute type="SqrLoop::copyApprox" value="100"/>
   </mapping>
 
-  <mapping source="sqrroot.A2" target="Component1">
+  <mapping source="sqrroot.a3" target="Component1">
     <attribute type="delay" value="100"/>
-    <attribute type="m_sqrloop::copy1" value="100"/>
-    <attribute type="m_sqrloop::copy2" value="100"/>
-    <attribute type="m_sqrloop::store" value="100"/>
+    <attribute type="Approx::approx" value="100"/>
   </mapping>
 
-  <mapping source="sqrroot.A5" target="Component1">
+  <mapping source="sqrroot.a4" target="Component1">
     <attribute type="delay" value="100"/>
-    <attribute type="m_sink::sink" value="100"/>
+    <attribute type="Dup::dup" value="100"/>
   </mapping>
 
-  <mapping source="sqrroot.A1" target="Component1">
+  <mapping source="sqrroot.a5" target="Component1">
     <attribute type="delay" value="100"/>
-    <attribute type="m_src::src" value="100"/>
+    <attribute type="Sink::sink" value="100"/>
   </mapping>
-
  </mappings>
 </vpcconfiguration>
