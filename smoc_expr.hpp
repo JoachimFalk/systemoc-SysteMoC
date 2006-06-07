@@ -345,9 +345,9 @@ struct Sensitivity<DVirtual<T> > {
   
   static inline
   result_type apply(const DVirtual <T> &e, smoc_event_and_list &al) {
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "Sensitivity<DVirtual<T> >::apply(e, al)" << std::endl;
-#endif
+//#ifdef SYSTEMOC_DEBUG
+//    std::cerr << "Sensitivity<DVirtual<T> >::apply(e, al)" << std::endl;
+//#endif
     return e.v->evalToSensitivity(al);
   }
 };

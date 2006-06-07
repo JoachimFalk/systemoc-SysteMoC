@@ -70,9 +70,9 @@ const smoc_firing_state &smoc_root_node::_communicate() {
   std::cerr << "    <communication type=\"execute\"/>" << std::endl;
 # endif
   
-#ifdef SYSTEMOC_TRACE
+# ifdef SYSTEMOC_TRACE
    TraceLog.traceStartDeferredCommunication(myModule()->name());
-#endif
+# endif
   
   assert(vpc_event_dii && vpc_event_lat != NULL);
   
@@ -85,11 +85,18 @@ const smoc_firing_state &smoc_root_node::_communicate() {
         smoc_ref_event_p foo;
         
         bool signaled(smoc_event_waiter *_e) {
+# ifdef SYSTEMOC_DEBUG
+          std::cerr << "smoc_root_node::_communicate::_::signaled(...)" << std::endl;
+# endif
           assert(_e == &*foo);
+          assert(*_e);
           foo = NULL;
           return false;
         }
         void eventDestroyed(smoc_event_waiter *_e) {
+# ifdef SYSTEMOC_DEBUG
+          std::cerr << "smoc_root_node::_communicate::_:: eventDestroyed(...)" << std::endl;
+# endif
           delete this;
         }
         
@@ -97,7 +104,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
         
         virtual ~_() {}
       };
-      new _(foo);
+      foo->addListener(new _(foo));
     }
   }
   
@@ -117,11 +124,8 @@ const smoc_firing_state &smoc_root_node::_communicate() {
 #endif // ENABLE_SYSTEMC_VPC
 
 void smoc_root_node::finalise() {
-#ifndef NDEBUG
-  // PARANOIA
-  // std::cerr << myModule()->name() << ": finalise" << std::endl;
-  // assert(!_finalizeCalled); _finalizeCalled = true;
-  // assert(&_initialState != &_currentState);
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << myModule()->name() << ": finalise" << std::endl;
 #endif
   _currentState = _initialState.finalise(this);
 }

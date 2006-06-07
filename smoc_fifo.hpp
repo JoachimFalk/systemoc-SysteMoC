@@ -24,10 +24,22 @@
 
 #include <systemc.h>
 #include <vector>
+#include <queue>
 #include <map>
 
 // #include <iostream>
 
+/// Base class of the FIFO implementation.
+/// The FIFO consists of a ring buffer of size fsize.
+/// However due to the ambiguity of rindex == windex
+/// indicating either an empty or a full FIFO, which
+/// is resolved to rindex == windex indicating an empty
+/// FIFO, one ring buffer entry is lost. Therefore the
+/// ringe buffer must be one entry greater than the
+/// actual FIFO size.
+/// Furthermore the storage of the ring buffer is allocated
+/// in a derived class the base class only manages the
+/// read, write, and visible pointers.
 class smoc_fifo_kind
   : public smoc_root_chan {
 public:
@@ -43,17 +55,11 @@ public:
       : name(name), n(n) {}
   };
 protected:
-  typedef std::map<size_t, smoc_event *> EventMap;
+  typedef std::map<size_t, smoc_event *>      EventMap;
+  typedef std::pair<size_t, smoc_ref_event_p> LatencyEntry;
+  typedef std::queue<LatencyEntry>            LatencyQueue;
 
-  /// Stores FIFO size + 1 .
-  /// The FIFO consists of a ring buffer of size fsize.
-  /// However due to the ambiguity of rindex == windex
-  /// indicating either an empty or a full FIFO, which
-  /// is resolved to rindex == windex indicating an empty
-  /// FIFO, one ring buffer entry is lost and the ringe
-  /// buffer must be one entry greater than the actual
-  /// FIFO size.
-  size_t const fsize;
+  size_t const fsize;   ///< Ring buffer size == FIFO size + 1
   size_t       rindex;  ///< The FIFO read    ptr
 #ifdef ENABLE_SYSTEMC_VPC
   size_t       vindex;  ///< The FIFO visible ptr
@@ -62,6 +68,7 @@ protected:
 
   EventMap     eventMapAvailable;
   EventMap     eventMapFree;
+  LatencyQueue latencyQueue;
 
   size_t usedStorage() const {
     size_t used =
@@ -131,7 +138,12 @@ protected:
     unusedIncr(fsize - used - 1);
   }
 
-  void wpp(size_t n) {
+#ifdef ENABLE_SYSTEMC_VPC
+  void wpp(size_t n, const smoc_ref_event_p &le)
+#else
+  void wpp(size_t n)
+#endif
+  {
     if ( windex + n >= fsize )
       windex = windex + n - fsize;
     else
@@ -139,7 +151,53 @@ protected:
     
     size_t unused = unusedStorage();
     unusedDecr(unused);
-#ifndef ENABLE_SYSTEMC_VPC
+#ifdef ENABLE_SYSTEMC_VPC
+    
+    if (latencyQueue.empty()) {
+      if (!*le) {
+        // latency event not signaled
+        struct _: public smoc_event_listener {
+          this_type *fifo;
+          
+          bool signaled(smoc_event_waiter *_e) {
+# ifdef SYSTEMOC_DEBUG
+            std::cerr << "smoc_fifo_kind<X>::wpp::_::signaled(...)" << std::endl;
+# endif
+            assert(!fifo->latencyQueue.empty());
+            assert(_e == &*fifo->latencyQueue.front().second);
+            assert(*_e);
+            size_t visible;
+            do {
+              visible = fifo->latencyQueue.front().first;
+              fifo->latencyQueue.front().second->delListener(this);
+              fifo->latencyQueue.pop(); // pop from front of queue
+            } while (!fifo->latencyQueue.empty() &&
+                     *fifo->latencyQueue.front().second);
+            fifo->incrVisible(visible);
+            if (!fifo->latencyQueue.empty())
+              fifo->latencyQueue.front().second->addListener(this);
+            else
+              delete this;
+            return false;
+          }
+          void eventDestroyed(smoc_event_waiter *_e) {
+            assert(1 ? 0 : "eventDestroyed must never be called !!!");
+          }
+          
+          _(this_type *fifo): fifo(fifo) {};
+          
+          virtual ~_() {}
+        };
+        latencyQueue.push(LatencyEntry(windex, le)); // insert at back of queue
+        le->addListener(new _(this));
+      } else {
+        // latency event allready signaled and top of latencyQueue
+        incrVisible(windex);
+      }
+    } else {
+      latencyQueue.push(LatencyEntry(windex, le)); // insert at back of queue
+    }
+#else
     usedIncr(fsize - unused - 1);
 #endif
   }
@@ -247,6 +305,9 @@ protected:
       storage[j].put(i.marking[j]);
     }
     this->windex = i.marking.size();
+#ifdef ENABLE_SYSTEMC_VPC
+    this->vindex = this->windex;
+#endif
   }
   
   storage_type *getStorage() const { return storage; }
@@ -287,6 +348,9 @@ protected:
     : smoc_chan_nonconflicting_if<smoc_fifo_kind, void>(i) {
     assert( fsize > i.marking );
     windex = i.marking;
+#ifdef ENABLE_SYSTEMC_VPC
+    vindex = windex;
+#endif
   }
   
   void *getStorage() const { return NULL; }
@@ -353,7 +417,11 @@ protected:
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(r.getLimit(), this->name());
 #endif
+#ifdef ENABLE_SYSTEMC_VPC
+    wpp(r.getLimit(), le);
+#else
     wpp(r.getLimit());
+#endif
 //  this->write_event.notify();
 //  if (this->unusedStorage() < 1)
 //    this->read_event.reset();
