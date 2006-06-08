@@ -1,4 +1,4 @@
-<!ELEMENT vpcconfiguration (resultfile?,measurefile?,resources,mappings)>
+<!ELEMENT vpcconfiguration (resultfile?,measurefile?,templates?, resources,mappings)>
 
 <!ELEMENT resultfile EMPTY>
 <!ATTLIST resultfile
@@ -8,18 +8,44 @@ name CDATA #REQUIRED>
 <!ATTLIST measurefile
 name CDATA #REQUIRED>
 
-<!ELEMENT resources (component)*>
+<!ELEMENT templates (template+)>
 
-<!ELEMENT component ((configuration*, defaultconfiguration?)?, attribute*)>
+<!ELEMENT template (attribute*)>
+<!ATTLIST template
+  name ID #REQUIRED>
+
+<!ELEMENT reftemplate EMPTY>
+<!ATTLIST reftemplate
+  name IDREF #REQUIRED>
+
+<!ELEMENT resources (component|recomponent)*>
+
+<!ELEMENT component (attribute|reftemplate)*>
 <!ATTLIST component
 name ID #REQUIRED
 type CDATA #REQUIRED
 scheduler CDATA #REQUIRED>
 
-<!ELEMENT attribute EMPTY>
-<!ATTLIST attribute 
-type CDATA #REQUIRED
-value CDATA #REQUIRED>
+<!ELEMENT recomponent (controller, configuration*, defaultconfiguration?, (attribute|reftemplate)*)>
+<!ATTLIST recomponent
+name ID #REQUIRED
+type CDATA #REQUIRED>
+
+<!ELEMENT controller (binder, mapper, scheduler)>
+<!ATTLIST controller
+name  CDATA "controller">
+
+<!ELEMENT binder (attribute)*>
+<!ATTLIST binder
+name  CDATA #REQUIRED>
+
+<!ELEMENT mapper (attribute)*>
+<!ATTLIST mapper
+name  CDATA #REQUIRED>
+
+<!ELEMENT scheduler (attribute)*>
+<!ATTLIST scheduler
+name  CDATA #REQUIRED>
 
 <!ELEMENT configuration (component)*>
 <!ATTLIST configuration
@@ -31,9 +57,14 @@ storetime CDATA "0 ns">
 <!ATTLIST defaultconfiguration
 name CDATA #REQUIRED>
 
+<!ELEMENT attribute EMPTY>
+<!ATTLIST attribute 
+type CDATA #REQUIRED
+value CDATA #REQUIRED>
+
 <!ELEMENT mappings (mapping)*>
 
-<!ELEMENT mapping (attribute)*>
+<!ELEMENT mapping (attribute|reftemplate)*>
 <!ATTLIST mapping
 source CDATA #REQUIRED
 target IDREF #REQUIRED>

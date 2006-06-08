@@ -22,9 +22,11 @@ class IOActor : public smoc_actor{
     virtual void forwardPacket(){
       ExampleNetworkPacket packet;
       packet = in[0];
-    
+
+#ifdef CRYPTO_DEBUG    
       printMsg(packet);    
-   
+#endif //CRYPTO_DEBUG
+      
       out[0] = packet;
     }
   
