@@ -197,7 +197,8 @@ smoc_firing_types::transition_ty::transition_ty(
     actor(NULL) {
   assert(s->fr != NULL && s->rs != NULL);
   assert((isType<smoc_func_call>(t.ia.f)    && t.ia.sl.size() == 1) ||
-         (isType<smoc_func_diverge>(t.ia.f) && t.ia.sl.size() == 0));
+         (isType<smoc_func_diverge>(t.ia.f) && t.ia.sl.size() == 0) ||
+	 (isType<NILTYPE>(t.ia.f)           && t.ia.sl.size() == 1));
   for ( smoc_firing_state_list::const_iterator siter = t.ia.sl.begin();
         siter != t.ia.sl.end();
         ++siter ) {
