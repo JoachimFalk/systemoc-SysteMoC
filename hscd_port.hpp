@@ -45,7 +45,11 @@ private:
     input.resize(n);
     for ( size_t i = 0; i < n; i++ )
       input[i] = smoc_port_in<T>::operator[](i);
+#ifdef ENABLE_SYSTEMC_VPC
+    this->commExec(NULL); // consume tokens
+#else
     this->commExec(); // consume tokens
+#endif
     ready = true;
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "</hscd_port_in::communicate>" << std::endl;
@@ -94,7 +98,11 @@ private:
     for ( size_t i = 0; i < n; i++ )
       smoc_port_out<T>::operator[](i) = output[i];
     output.clear();
+#ifdef ENABLE_SYSTEMC_VPC
+    this->commExec(NULL); // produce tokens
+#else
     this->commExec(); // produce tokens
+#endif
     ready = true;
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "</hscd_port_out::communicate>" << std::endl;

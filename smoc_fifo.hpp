@@ -19,6 +19,8 @@
 #ifndef _INCLUDED_SMOC_FIFO_HPP
 #define _INCLUDED_SMOC_FIFO_HPP
 
+#include <cosupport/commondefs.h>
+
 #include <smoc_chan_if.hpp>
 #include <smoc_storage.hpp>
 
@@ -66,7 +68,9 @@ protected:
 #endif
   size_t       windex;  ///< The FIFO write   ptr
 
+  smoc_event   eventWrite;
   EventMap     eventMapAvailable;
+  smoc_event   eventRead;
   EventMap     eventMapFree;
   LatencyQueue latencyQueue;
 
@@ -83,16 +87,17 @@ protected:
     return used;
   }
 
-  void usedIncr(size_t used) const {
+  void usedIncr(size_t used) {
     assert(used == usedStorage());
     // notify all disabled events for less/equal usedStorage() available tokens
     for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
          iter != eventMapAvailable.begin() && !*(--iter)->second;
          )
       iter->second->notify();
+    eventWrite.notify();
   }
 
-  void usedDecr(size_t used) const {
+  void usedDecr(size_t used) {
     assert(used == usedStorage());
     // reset all enabled events for more then usedStorage() available tokens
     for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
@@ -109,16 +114,17 @@ protected:
     return unused;
   }
 
-  void unusedIncr(size_t unused) const {
+  void unusedIncr(size_t unused) {
     assert(unused == unusedStorage());
     // notify all disabled events for less/equal unusedStorage() free space
     for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
          iter != eventMapFree.begin() && !*(--iter)->second;
          )
       iter->second->notify();
+    eventRead.notify();
   }
 
-  void unusedDecr(size_t unused) const {
+  void unusedDecr(size_t unused) {
     assert(unused == unusedStorage());
     // reset all enabled events for more then unusedStorage() free space
     for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
@@ -154,7 +160,7 @@ protected:
 #ifdef ENABLE_SYSTEMC_VPC
     
     if (latencyQueue.empty()) {
-      if (!*le) {
+      if (le && !*le) {
         // latency event not signaled
         struct _: public smoc_event_listener {
           this_type *fifo;
@@ -191,7 +197,7 @@ protected:
         latencyQueue.push(LatencyEntry(windex, le)); // insert at back of queue
         le->addListener(new _(this));
       } else {
-        // latency event allready signaled and top of latencyQueue
+        // latency event allready signaled and top of latencyQueue or no latency event
         incrVisible(windex);
       }
     } else {
@@ -219,23 +225,31 @@ protected:
 #endif
 
   smoc_event &getEventAvailable(size_t n) {
-    EventMap::iterator iter = eventMapAvailable.find(n);
-    if (iter == eventMapAvailable.end()) {
-      iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
-      if (usedStorage() >= n)
-        iter->second->notify();
+    if (n != MAX_TYPE(size_t)) {
+      EventMap::iterator iter = eventMapAvailable.find(n);
+      if (iter == eventMapAvailable.end()) {
+        iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
+        if (usedStorage() >= n)
+          iter->second->notify();
+      }
+      return *iter->second;
+    } else {
+      return eventWrite;
     }
-    return *iter->second;
   }
 
   smoc_event &getEventFree(size_t n) {
-    EventMap::iterator iter = eventMapFree.find(n);
-    if (iter == eventMapFree.end()) {
-      iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
-      if (unusedStorage() >= n)
-        iter->second->notify();
+    if (n != MAX_TYPE(size_t)) {
+      EventMap::iterator iter = eventMapFree.find(n);
+      if (iter == eventMapFree.end()) {
+        iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
+        if (unusedStorage() >= n)
+          iter->second->notify();
+      }
+      return *iter->second;
+    } else {
+      return eventRead;
     }
-    return *iter->second;
   }
 
   void channelAttributes(smoc_modes::PGWriter &pgw) const {

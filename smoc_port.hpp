@@ -19,6 +19,8 @@
 #ifndef _INCLUDED_SMOC_POPT_HPP
 #define _INCLUDED_SMOC_POPT_HPP
 
+#include <cosupport/commondefs.h>
+
 #include <smoc_expr.hpp>
 #include <smoc_root_port.hpp>
 #include <smoc_chan_if.hpp>
@@ -435,7 +437,7 @@ public:
   
   size_t availableCount() const
     { return (*this)->committedOutCount(); }
-  smoc_event &blockEvent(size_t n)
+  smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->blockEventOut(n); }
   
   typename Expr::Token<T>::type getValueAt(size_t n)
@@ -503,7 +505,7 @@ public:
   
   size_t availableCount() const
     { return (*this)->committedInCount(); }
-  smoc_event &blockEvent(size_t n)
+  smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->blockEventIn(n); }
   
   typename Expr::PortTokens<this_type>::type getAvailableSpace()

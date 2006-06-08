@@ -73,23 +73,26 @@ public:
   
   friend class hscd_op<this_type>;
 protected:
-  typedef std::map<smoc_event *, const hscd_op_port *>  pm_ty;
+  typedef std::map<smoc_event_waiter *, const hscd_op_port *>  pm_ty;
   
   pm_ty     pm;
   sc_event  e;
-  
-  void signaled( smoc_event *se ) {
+
+  bool signaled( smoc_event_waiter *se ) {
     pm_ty::iterator iter = pm.find(se);
     
     assert( iter != pm.end() );
     if ( iter->second->isReady() ) {
       pm.erase(iter);
+      se->delListener(this);
       if ( pm.empty() )
         e.notify();
-    } else
-      se->addListener(this);
+    }
+    return false;
   }
-  
+
+  void eventDestroyed(smoc_event_waiter *) {}
+
   hscd_running_op_transact( const hscd_op_port_base_list &pl ) {
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_running_op_transact id=\"" << this << "\">" << std::endl;
@@ -139,24 +142,27 @@ public:
   
   friend class hscd_op<this_type>;
 protected:
-  typedef std::map<smoc_event *, const hscd_op_port *>  pm_ty;
+  typedef std::map<smoc_event_waiter *, const hscd_op_port *>  pm_ty;
   
   pm_ty               pm;
   sc_event            e;
   const hscd_op_port *ready;
   
-  void signaled( smoc_event *se ) {
+  bool signaled( smoc_event_waiter *se ) {
     pm_ty::iterator iter = pm.find(se);
     
     assert( iter != pm.end() );
     if ( iter->second->isReady() ) {
       ready = iter->second;
       pm.erase(iter);
+      se->delListener(this);
       e.notify();
-    } else
-      se->addListener(this);
+    }
+    return false;
   }
-  
+
+  void eventDestroyed(smoc_event_waiter *) {}
+
   hscd_running_op_choice( const hscd_op_port_base_list &pl )
     : ready(NULL) {
 #ifdef SYSTEMOC_DEBUG

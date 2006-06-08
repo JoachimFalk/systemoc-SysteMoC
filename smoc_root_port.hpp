@@ -19,6 +19,8 @@
 #ifndef _INCLUDED_SMOC_ROOT_PORT_HPP
 #define _INCLUDED_SMOC_ROOT_PORT_HPP
 
+#include <cosupport/commondefs.h>
+
 #include <iostream>
 #include <cassert>
 
@@ -65,7 +67,7 @@ public:
   
   virtual sc_module  *getHierarchy() const = 0;
   virtual size_t      availableCount() const = 0;
-  virtual smoc_event &blockEvent(size_t n) = 0;
+  virtual smoc_event &blockEvent(size_t n = MAX_TYPE(size_t)) = 0;
   virtual bool        isInput() const = 0;
   bool                isOutput() const
     { return !isInput(); }
