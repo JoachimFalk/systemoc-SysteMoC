@@ -19,6 +19,7 @@
 #include <time.h>
 #include <sstream>
 #include <cassert>
+#include <cmath>
 
 #ifdef SYSTEMOC_TRACE
 
