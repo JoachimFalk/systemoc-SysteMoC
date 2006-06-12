@@ -573,32 +573,35 @@ Transition          ::= ActivationPattern '>>' Action '>>' FiringState |
                                                Action '>>' FiringState |
                         ActivationPattern             '>>' FiringState ;
 
-ActivationPattern   ::= InputPattern '>>' OutputPattern |
-                        InputPattern                    |
-                                          OutputPattern ;
+ActivationPattern   ::= InputPattern '&&' FunCond '>>' OutputPattern |
+                                          FunCond '>>' OutputPattern |
+                        InputPattern              '>>' OutputPattern |
+                        InputPattern '&&' FunCond                    |
+                                                       OutputPattern |
+                                          FunCond                    |
+                        InputPattern                                 ;
 
 Action              ::= 'CALL' '(' <actor action> ')' ;
 
-InputPattern        ::= '(' InputPattern ')'           |
-                        InputPattern '&&' InputPattern |
-                        InputExpression                |
-                        Expr                           ;
+InputPattern        ::= '(' InputPattern  ')'               |
+                        InputExpression  '&&' InputPattern  |
+                        InputExpression                     ;
 
-InputExpression     ::= InputPort '.getAvailableTokens()' '>=' Expr |
-                        InputPort '.getAvailableTokens()' '>'  Expr |
-                        InputPort '(' Integer ')'                   ;
+OutputPattern       ::= '(' OutputPattern ')'               |
+                        OutputExpression '&&' OutputPattern |
+                        OutputExpression                    ;
+
+InputExpression     ::= InputPort  '.getAvailableTokens()' '>=' Expr |
+                        InputPort  '(' Constant ')'                  ;
+
+OutputExpression    ::= OutputPort '.getAvailableSpace()'  '>=' Expr |
+                        OutputPort '(' Constant ')'                  ;
 
 InputPort           ::= <actor input port>
 
-OutputPattern       ::= '(' OutputPattern ')'            |
-                        OutputPattern '&&' OutputPattern |
-                        OutputExpression                 ;
-
-OutputExpression    ::= OutputPort '.getAvailableSpace()'  '>=' Expr |
-                        OutputPort '.getAvailableSpace()'  '>'  Expr |
-                        OutputPort '(' Constant ')'                  ;
-
 OutputPort          ::= <actor output port>
+
+FunCond             ::= Expr ;
 \end{verbatim}
 \end{syntax}
 
@@ -612,11 +615,12 @@ As can be seen in the Example~\ref{ex:systemoc-sqrloop-fsm-def} input and output
 Whereas input expressions check available tokens on input ports, e.g., \code{i1(1)} to check that at least one token is available on port \code{i1}, and output expressions check available space on output ports, e.g., \code{o1(1)} to check that at least one token can be written on port \code{o1}.
 The input expression \code{i1(n)} and output expression \code{o1(m)} are used as shortcuts for the longer forms \code{i1.getAvailableTokens() >= n} and \code{o1.getAvailableSpace() >= m} respectively.
 
-As can be seen in the previous syntax definition input patterns can have additional \emph{transition expressions} (\code{Expr}) checking, e.g., token values on input ports or the functionality state of the actor.
-The syntax rules for legal compositions of these transition expressions is given below.
+As can be seen in the previous syntax definition activation patterns can have additional \emph{functionality conditions} (\code{FunCond}) checking, e.g., token values on input ports or the functionality state of the actor.
+A functionality condition is simply an expression \emph{Expr} which is constraint to have a boolean type.
+The syntax rules for legal compositions of these expressions is given below.
 
 \begin{syntax}\label{syn:systemoc-fsm-bnf-2}%
-\noindent Extended Backus-Naur form of transition expressions:
+\noindent Extended Backus-Naur form of expressions used in activation patterns:
 \begin{verbatim}
 Expr                ::= Expr '+'  Expr | Expr '-'  Expr |
                         Expr '*'  Expr | Expr '/'  Expr |
@@ -643,10 +647,10 @@ Token               ::= InputPort '.getValueAt' '(' Constant ')' ;
 
 % TypeCheck           ::= 'isType' '<' <Type> '>' '(' Expr ')' ;
 
-The transition expressions can be combined via C++ operators listed in the preceding syntax definition, e.g., \code{+} for arithmetic addition.
+The expressions can be combined via C++ operators listed in the preceding syntax definition, e.g., \code{+} for arithmetic addition.
 The precedence of these operators is exactly their C++ precedence.
-A transition expression can be combined from the following terminals:
-(i)   the \code{Constant}-terminal represents a C++ expression which evaluates at instantiation time of the transition expression to a C++ integer, e.g., \code{sqr(a+5)}. A later value change of a variable included in this C++ expression, e.g., \code{a}, will not change the value of instantiated \code{<Integer>}-terminals containing this variable.
+A expression can be combined from the following terminals:
+(i)   the \code{Constant}-terminal represents a C++ expression which evaluates at instantiation time of the expression to a C++ integer, e.g., \code{sqr(a+5)}. A later value change of a variable included in this C++ expression, e.g., \code{a}, will not change the value of instantiated \code{<Integer>}-terminals containing this variable.
 (ii)  the \code{Variable}-terminal represents a actor member variable. A later value change of this variable will change the value of the \code{<Variable>}-terminal.
 (iii) the \code{Guard}-terminal represents an actor guard, as defined previously in Subsection~\ref{sec:actor-functionality}. The value of the \code{Guard}-terminal is returned by its guard function and may depend on token values and the functionality state of the actor.
 (iv)  the \code{Token}-terminal, e.g., \code{i.getValueAt(n)}, represents the \code{n}th token on an actor input port \code{i}. Where \code{n} is starting from zero, e.g., \code{i.getValueAt(0)} is the first token in the channel connected to input port \code{i}
