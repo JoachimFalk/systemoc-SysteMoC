@@ -29,6 +29,8 @@
 #include <queue>
 #include <map>
 
+#include <hscd_tdsim_TraceLog.hpp>
+
 // #include <iostream>
 
 /// Base class of the FIFO implementation.
