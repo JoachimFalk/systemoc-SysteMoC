@@ -24,18 +24,14 @@ root_builddir=$(top_builddir)/..
 
 SUBDIRS=
 
-INCLUDES =						\
-	@SYSTEMC_INCLUDE@				\
-	-I$(root_builddir)/SysteMoC/include/systemoc	\
-	-I$(srcdir)
+INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 
-AM_LDFLAGS=						\
-	@SYSTEMC_LDFLAGS@				\
-	-L$(root_builddir)/SysteMoC
+AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
+AM_CPPFLAGS=-Wno-deprecated
+
+LIBS=-lsystemoc
 
 noinst_PROGRAMS= simulation-csp
-
-LIBS=-lsystemc -lsystemoc
 
 # LDADD= $(root_builddir)/SysteMoC/libsystemoc.la
 

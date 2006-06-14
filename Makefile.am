@@ -1,4 +1,5 @@
-SUBDIRS= systemc-df2 systemc-csp systemc-sdf h261-video-coder
+SUBDIRS= @SUBDIRS@
+
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 ac_aux_dir = @ac_aux_dir@
