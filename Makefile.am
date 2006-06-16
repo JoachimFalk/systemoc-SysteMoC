@@ -76,14 +76,17 @@ pkginclude_HEADERS =			\
 	smoc_storage.hpp		\
 					\
 	hscd_tdsim_TraceLog.hpp		\
+					\
 	hscd_op.hpp			\
 	hscd_port.hpp			\
 	hscd_root_port_list.hpp		\
 	hscd_node_types.hpp		\
 	hscd_fifo.hpp			\
 	hscd_structure.hpp		\
+	hscd_graph_type.hpp		\
 	hscd_scheduler.hpp		\
-	hscd_pggen.hpp
+	hscd_pggen.hpp			\
+	hscd_moc.hpp
 
 # noinst_HEADERS=	oneof.hpp
 

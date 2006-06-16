@@ -35,18 +35,9 @@ public:
 };
 
 class hscd_top {
-private:
-  std::list<hscd_choice_active_node *>   nl;
-  hscd_scheduler_asap             sched;
-  
-  std::list<hscd_choice_active_node *> &setTop( hscd_choice_active_node *top ) {
-    nl.push_front(top); return nl;
-  }
 public:
-  hscd_top(hscd_choice_active_node *top)
-    : sched("xxxx", setTop(top)) {}
+  template <typename T>
+  hscd_top(T *) {}
 };
-
-
 
 #endif // _INCLUDED_HSCD_SCHEDULER_HPP

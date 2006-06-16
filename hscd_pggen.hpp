@@ -17,3 +17,7 @@
  */
 
 #include <smoc_pggen.hpp>
+
+namespace hscd_modes {
+  using namespace smoc_modes;
+}
