@@ -124,7 +124,7 @@ protected:
     assert( n <= output.size() );
     for ( size_t i = 0; i < n; i++ )
       smoc_port_out<T>::operator[](i) = output[i];
-    output.clear();
+//  output.clear();
 #ifdef ENABLE_SYSTEMC_VPC
     this->commExec(NULL); // produce tokens
 #else
