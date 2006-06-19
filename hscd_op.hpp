@@ -79,16 +79,27 @@ protected:
   sc_event  e;
 
   bool signaled( smoc_event_waiter *se ) {
+    // Reset event to be notified again !
+    bool retval          = true;
     pm_ty::iterator iter = pm.find(se);
     
-    assert( iter != pm.end() );
+    assert(*se && iter != pm.end());
     if ( iter->second->isReady() ) {
       pm.erase(iter);
       se->delListener(this);
+      iter->second->communicate();
       if ( pm.empty() )
         e.notify();
+      // Do not need new notification
+      retval = false;
     }
-    return false;
+//#ifdef SYSTEMOC_DEBUG
+//    std::cerr << "hscd_running_op_transact::signaled "
+//      "this == " << this << ", "
+//      "missing == " << pm.size() <<
+//      (retval ? "" : " [HIT]" ) << std::endl;
+//#endif
+    return retval;
   }
 
   void eventDestroyed(smoc_event_waiter *) {}
@@ -102,9 +113,11 @@ protected:
           ++iter ) {
       if ( !iter->isReady() ) {
         smoc_event &se = iter->blockEvent();
+        se.reset();
         se.addListener(this);
         pm[&se] = &*iter;
-      }
+      } else
+        iter->communicate();
     }
     if ( !pm.empty() ) {
 #ifdef SYSTEMOC_DEBUG
@@ -122,10 +135,6 @@ protected:
 #endif
     }
     assert( pm.empty() );
-    for ( hscd_op_port_base_list::const_iterator iter = pl.begin();
-          iter != pl.end();
-          ++iter )
-      iter->communicate();
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "</hscd_running_op_transact id=\"" << this << "\">" << std::endl;
 #endif
@@ -149,16 +158,23 @@ protected:
   const hscd_op_port *ready;
   
   bool signaled( smoc_event_waiter *se ) {
+    // Reset event to be notified again !
+    bool retval          = true;
     pm_ty::iterator iter = pm.find(se);
     
-    assert( iter != pm.end() );
-    if ( iter->second->isReady() ) {
+    assert(*se && iter != pm.end());
+    if (iter->second->isReady() && !ready) {
       ready = iter->second;
+      ready->communicate();
       pm.erase(iter);
       se->delListener(this);
-      e.notify();
+      // Do not need new notification
+      retval = false;
     }
-    return false;
+//#ifdef SYSTEMOC_DEBUG
+//    std::cerr << "hscd_running_op_choice::signaled this == " << this << ", missing == " << pm.size() << std::endl;
+//#endif
+    return retval;
   }
 
   void eventDestroyed(smoc_event_waiter *) {}
@@ -173,10 +189,12 @@ protected:
           ++iter ) {
       if ( !iter->isReady() ) {
         smoc_event &se = iter->blockEvent();
+        se.reset();
         se.addListener(this);
         pm[&se] = &*iter;
       } else {
         ready = &*iter;
+        ready->communicate();
       }
     }
     if ( ready == NULL ) {
@@ -199,8 +217,6 @@ protected:
           iter != pm.end();
           ++iter )
       iter->first->delListener(this);
-    assert( ready->isReady() );
-    ready->communicate();
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "</hscd_running_op_choice id=\"" << this << "\">" << std::endl;
 #endif
