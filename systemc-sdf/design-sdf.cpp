@@ -116,7 +116,7 @@ class m_top
       m_source      &src2 = registerNode(new m_source("src2"));
       m_sink        &sink = registerNode(new m_sink("sink"));
       
-      connectNodePorts( src1.out, top2.in1 );
+      connectNodePorts( src1.out, top2.in1, hscd_fifo<int>(2) );
       connectNodePorts( src2.out, top2.in2 );
       connectNodePorts( top2.out, sink.in );
     }
