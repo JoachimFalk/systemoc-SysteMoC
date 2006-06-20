@@ -27,7 +27,7 @@
   name CDATA #IMPLIED
 >
 
-<!ELEMENT process (port|state|actor|fifo|attribute|problemgraph)*>
+<!ELEMENT process (port|stateDeclaration|actor|fifo|attribute|problemgraph)*>
 <!ATTLIST process
 	name CDATA #REQUIRED
 	id ID #REQUIRED
@@ -113,6 +113,13 @@
 	id ID #REQUIRED
 >
 
+<!ELEMENT stateDeclaration EMPTY>
+<!ATTLIST stateDeclaration
+	id IDREF #REQUIRED
+	name CDATA #REQUIRED
+>
+
+
 <!ENTITY % OPS "(ASTNodeBinOp|ASTNodeUnOp|PortTokens|Literal|Var|Proc|MemGuard|MemProc|Token)" >
 
 <!ELEMENT transition %OPS;>
@@ -157,6 +164,14 @@
         name      CDATA #REQUIRED
 	addr      CDATA #REQUIRED
 >
+
+<!ELEMENT Proc EMPTY>
+<!ATTLIST Proc
+        valueType CDATA #REQUIRED
+        addrObj   CDATA #REQUIRED
+        addrFun   CDATA #REQUIRED
+>
+
 
 <!ELEMENT MemGuard EMPTY>
 <!ATTLIST MemGuard
