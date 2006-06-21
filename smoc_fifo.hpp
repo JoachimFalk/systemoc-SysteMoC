@@ -75,7 +75,9 @@ namespace smoc_detail {
 /// read, write, and visible pointers.
 class smoc_fifo_kind
 : public smoc_root_chan {
+#ifdef ENABLE_SYSTEMC_VPC
   friend class smoc_detail::LatencyQueue;
+#endif // ENABLE_SYSTEMC_VPC
 public:
   typedef smoc_fifo_kind  this_type;
 
