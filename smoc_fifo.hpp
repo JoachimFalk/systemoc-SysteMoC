@@ -42,38 +42,41 @@ namespace smoc_detail {
   public:
     typedef LatencyQueue this_type;
   protected:
-#if 0
-    class VisibleQueue
+    class RequestQueue
     : public smoc_event_listener {
     protected:
       typedef std::pair<size_t, smoc_ref_event_p> Entry;
       typedef std::queue<Entry>                   Queue;
     protected:
       Queue queue;
+
+      smoc_event dummy;
     protected:
       LatencyQueue &getTop() {
         // MAGIC BEGINS HERE
         return *reinterpret_cast<LatencyQueue *>
-          (reinterpret_cast<char *>(this) -
+          (reinterpret_cast<char *>(this) + 4711 -
            reinterpret_cast<char *>
-            (&reinterpret_cast<LatencyQueue *>(NULL)->requestQueue));
+            (&reinterpret_cast<LatencyQueue *>(4711)->requestQueue));
       }
 
-      void doSomething(size_t n)
-        { getTop().fifo->incrVisible(n); }
+      void doSomething(size_t n);
 
       bool signaled(smoc_event_waiter *_e) {
         size_t n = 0;
         
+        assert(*_e);
         assert(!queue.empty());
         assert(_e == &*queue.front().second);
-        assert(*_e);
         _e->delListener(this);
         do {
-          visible += queue.front().first;
+          n += queue.front().first;
           queue.pop(); // pop from front of queue
         } while (!queue.empty() && *queue.front().second);
         doSomething(n);
+        if (!queue.empty())
+          queue.front().second->addListener(this);
+        return false;
       }
 
       void eventDestroyed(smoc_event_waiter *_e)
@@ -91,9 +94,8 @@ namespace smoc_detail {
         }
       }
 
-      virtual ~VisibleQueue() {}
-    } visibleQueue;
-#endif
+      virtual ~RequestQueue() {}
+    } requestQueue;
 
     class VisibleQueue
     : public smoc_event_listener {
@@ -149,13 +151,12 @@ namespace smoc_detail {
     } visibleQueue;
 
     smoc_fifo_kind *fifo;
-
+  protected:
     LatencyQueue(smoc_fifo_kind *fifo)
       : fifo(fifo) {}
 
-    void addEntry(size_t n, const smoc_ref_event_p &le) {
-      visibleQueue.addEntry(n, le);
-    }
+    void addEntry(size_t n, const smoc_ref_event_p &le)
+      { requestQueue.addEntry(n, le); }
   };
 #endif // ENABLE_SYSTEMC_VPC
 };
