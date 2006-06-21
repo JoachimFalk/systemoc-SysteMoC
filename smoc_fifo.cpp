@@ -29,10 +29,10 @@ namespace smoc_detail {
     assert(!queue.empty());
     assert(_e == &*queue.front().second);
     assert(*_e);
+    _e->delListener(this);
     size_t visible;
     do {
       visible = queue.front().first;
-      queue.front().second->delListener(this);
       queue.pop(); // pop from front of queue
     } while (!queue.empty() && *queue.front().second);
     fifo->incrVisible(visible);
