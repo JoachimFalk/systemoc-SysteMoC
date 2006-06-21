@@ -106,17 +106,19 @@
 <!ELEMENT fsm (state)*>
 <!ATTLIST fsm
 	startstate IDREF #REQUIRED
+	startstatename CDATA #IMPLIED
 >
 
 <!ELEMENT state (transition)*>
 <!ATTLIST state
 	id ID #REQUIRED
+	name CDATA #IMPLIED
 >
 
 <!ELEMENT stateDeclaration EMPTY>
 <!ATTLIST stateDeclaration
-	id IDREF #REQUIRED
-	name CDATA #REQUIRED
+	state IDREF #REQUIRED
+	name  CDATA #IMPLIED
 >
 
 
@@ -125,6 +127,7 @@
 <!ELEMENT transition %OPS;>
 <!ATTLIST transition
 	nextstate IDREF #REQUIRED
+	nextstatename CDATA #IMPLIED
 	action CDATA #REQUIRED
 >
 

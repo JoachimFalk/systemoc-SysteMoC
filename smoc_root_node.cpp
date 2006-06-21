@@ -216,7 +216,7 @@ void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
   for ( smoc_firing_states::const_iterator iter = fs.begin();
           iter != fs.end();
           ++iter )
-        pgw << "<stateDeclaration id=\"" << pgw.getId(&(*iter)->getResolvedState())
+        pgw << "<stateDeclaration state=\"" << pgw.getId(&(*iter)->getResolvedState())
             << "\"/>" << std::endl;
         //*******************************ACTOR CLASS*********************************
         pgw << "<actor actorClass=\"" << typeid(*m).name() << "\">" << std::endl;
