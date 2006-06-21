@@ -33,6 +33,35 @@
 
 // #include <iostream>
 
+class smoc_fifo_kind;
+
+namespace smoc_detail {
+#ifdef ENABLE_SYSTEMC_VPC
+  class LatencyQueue
+  : public smoc_event_listener {
+  public:
+    typedef LatencyQueue this_type;
+  protected:
+    typedef std::pair<size_t, smoc_ref_event_p> Entry;
+    typedef std::queue<Entry>                   Queue;
+
+    smoc_fifo_kind *fifo;
+    Queue           queue;
+
+    bool signaled(smoc_event_waiter *_e);
+
+    void eventDestroyed(smoc_event_waiter *_e);
+  public:
+    LatencyQueue(smoc_fifo_kind *fifo)
+      : fifo(fifo) {}
+
+    void addEntry(size_t n, const smoc_ref_event_p &le);
+
+    virtual ~LatencyQueue() {}
+  };
+#endif // ENABLE_SYSTEMC_VPC
+};
+
 /// Base class of the FIFO implementation.
 /// The FIFO consists of a ring buffer of size fsize.
 /// However due to the ambiguity of rindex == windex
@@ -45,10 +74,11 @@
 /// in a derived class the base class only manages the
 /// read, write, and visible pointers.
 class smoc_fifo_kind
-  : public smoc_root_chan {
+: public smoc_root_chan {
+  friend class smoc_detail::LatencyQueue;
 public:
   typedef smoc_fifo_kind  this_type;
-  
+
   class chan_init {
     friend class smoc_fifo_kind;
   private:
@@ -60,8 +90,10 @@ public:
   };
 protected:
   typedef std::map<size_t, smoc_event *>      EventMap;
-  typedef std::pair<size_t, smoc_ref_event_p> LatencyEntry;
-  typedef std::queue<LatencyEntry>            LatencyQueue;
+
+#ifdef ENABLE_SYSTEMC_VPC
+  smoc_detail::LatencyQueue   latencyQueue;
+#endif
 
   size_t const fsize;   ///< Ring buffer size == FIFO size + 1
   size_t       rindex;  ///< The FIFO read    ptr
@@ -74,7 +106,6 @@ protected:
   EventMap     eventMapAvailable;
   smoc_event   eventRead;
   EventMap     eventMapFree;
-  LatencyQueue latencyQueue;
 
   size_t usedStorage() const {
     size_t used =
@@ -160,51 +191,7 @@ protected:
     size_t unused = unusedStorage();
     unusedDecr(unused);
 #ifdef ENABLE_SYSTEMC_VPC
-    
-    if (latencyQueue.empty()) {
-      if (le && !*le) {
-        // latency event not signaled
-        struct _: public smoc_event_listener {
-          this_type *fifo;
-          
-          bool signaled(smoc_event_waiter *_e) {
-# ifdef SYSTEMOC_DEBUG
-            std::cerr << "smoc_fifo_kind<X>::wpp::_::signaled(...)" << std::endl;
-# endif
-            assert(!fifo->latencyQueue.empty());
-            assert(_e == &*fifo->latencyQueue.front().second);
-            assert(*_e);
-            size_t visible;
-            do {
-              visible = fifo->latencyQueue.front().first;
-              fifo->latencyQueue.front().second->delListener(this);
-              fifo->latencyQueue.pop(); // pop from front of queue
-            } while (!fifo->latencyQueue.empty() &&
-                     *fifo->latencyQueue.front().second);
-            fifo->incrVisible(visible);
-            if (!fifo->latencyQueue.empty())
-              fifo->latencyQueue.front().second->addListener(this);
-            else
-              delete this;
-            return false;
-          }
-          void eventDestroyed(smoc_event_waiter *_e) {
-            assert(1 ? 0 : "eventDestroyed must never be called !!!");
-          }
-          
-          _(this_type *fifo): fifo(fifo) {};
-          
-          virtual ~_() {}
-        };
-        latencyQueue.push(LatencyEntry(windex, le)); // insert at back of queue
-        le->addListener(new _(this));
-      } else {
-        // latency event allready signaled and top of latencyQueue or no latency event
-        incrVisible(windex);
-      }
-    } else {
-      latencyQueue.push(LatencyEntry(windex, le)); // insert at back of queue
-    }
+    latencyQueue.addEntry(windex, le);
 #else
     usedIncr(fsize - unused - 1);
 #endif
@@ -265,6 +252,9 @@ protected:
   smoc_fifo_kind( const chan_init &i )
     : smoc_root_chan(
         i.name != NULL ? i.name : sc_gen_unique_name( "smoc_fifo" ) ),
+#ifdef ENABLE_SYSTEMC_VPC
+      latencyQueue(this), 
+#endif
       fsize(i.n+1),
       rindex(0),
 #ifdef ENABLE_SYSTEMC_VPC

@@ -19,3 +19,43 @@
 #include <smoc_fifo.hpp>
 
 const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
+
+namespace smoc_detail {
+#ifdef ENABLE_SYSTEMC_VPC
+  bool LatencyQueue::signaled(smoc_event_waiter *_e) {
+# ifdef SYSTEMOC_DEBUG
+    std::cerr << "smoc_fifo_kind<X>::wpp::_::signaled(...)" << std::endl;
+# endif
+    assert(!queue.empty());
+    assert(_e == &*queue.front().second);
+    assert(*_e);
+    size_t visible;
+    do {
+      visible = queue.front().first;
+      queue.front().second->delListener(this);
+      queue.pop(); // pop from front of queue
+    } while (!queue.empty() && *queue.front().second);
+    fifo->incrVisible(visible);
+    if (!queue.empty())
+      queue.front().second->addListener(this);
+    return false;
+  }
+
+  void LatencyQueue::eventDestroyed(smoc_event_waiter *_e) {
+    assert(1 ? 0 : "eventDestroyed must never be called !!!");
+  }
+
+  void LatencyQueue::addEntry(size_t n, const smoc_ref_event_p &le) {
+    bool queueEmpty = queue.empty();
+    
+    if (!queueEmpty || (le && !*le)) {
+      queue.push(Entry(n, le)); // insert at back of queue
+      if (queueEmpty)
+        le->addListener(this);
+    } else {
+      // latency event allready signaled and top of latencyQueue or no latency event
+      fifo->incrVisible(n);
+    }
+  }
+#endif // ENABLE_SYSTEMC_VPC
+};
