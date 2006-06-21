@@ -37,27 +37,125 @@ class smoc_fifo_kind;
 
 namespace smoc_detail {
 #ifdef ENABLE_SYSTEMC_VPC
-  class LatencyQueue
-  : public smoc_event_listener {
+  class LatencyQueue {
+    friend class smoc_fifo_kind;
   public:
     typedef LatencyQueue this_type;
   protected:
-    typedef std::pair<size_t, smoc_ref_event_p> Entry;
-    typedef std::queue<Entry>                   Queue;
+#if 0
+    class VisibleQueue
+    : public smoc_event_listener {
+    protected:
+      typedef std::pair<size_t, smoc_ref_event_p> Entry;
+      typedef std::queue<Entry>                   Queue;
+    protected:
+      Queue queue;
+    protected:
+      LatencyQueue &getTop() {
+        // MAGIC BEGINS HERE
+        return *reinterpret_cast<LatencyQueue *>
+          (reinterpret_cast<char *>(this) -
+           reinterpret_cast<char *>
+            (&reinterpret_cast<LatencyQueue *>(NULL)->requestQueue));
+      }
+
+      void doSomething(size_t n)
+        { getTop().fifo->incrVisible(n); }
+
+      bool signaled(smoc_event_waiter *_e) {
+        size_t n = 0;
+        
+        assert(!queue.empty());
+        assert(_e == &*queue.front().second);
+        assert(*_e);
+        _e->delListener(this);
+        do {
+          visible += queue.front().first;
+          queue.pop(); // pop from front of queue
+        } while (!queue.empty() && *queue.front().second);
+        doSomething(n);
+      }
+
+      void eventDestroyed(smoc_event_waiter *_e)
+        { assert(!"eventDestroyed must never be called !!!"); }
+    public:
+      void addEntry(size_t n, const smoc_ref_event_p &le) {
+        bool queueEmpty = queue.empty();
+        
+        if (queueEmpty && (!le || *le)) {
+          doSomething(n);
+        } else {
+          queue.push(Entry(n, le)); // insert at back of queue
+          if (queueEmpty)
+            le->addListener(this);
+        }
+      }
+
+      virtual ~VisibleQueue() {}
+    } visibleQueue;
+#endif
+
+    class VisibleQueue
+    : public smoc_event_listener {
+    protected:
+      typedef std::pair<size_t, smoc_ref_event_p> Entry;
+      typedef std::queue<Entry>                   Queue;
+    protected:
+      Queue queue;
+    protected:
+      LatencyQueue &getTop() {
+        // MAGIC BEGINS HERE
+        return *reinterpret_cast<LatencyQueue *>
+          (reinterpret_cast<char *>(this) + 411 -
+           reinterpret_cast<char *>
+            (&reinterpret_cast<LatencyQueue *>(411)->visibleQueue));
+      }
+
+      void doSomething(size_t n);
+
+      bool signaled(smoc_event_waiter *_e) {
+        size_t n = 0;
+        
+        assert(*_e);
+        assert(!queue.empty());
+        assert(_e == &*queue.front().second);
+        _e->delListener(this);
+        do {
+          n += queue.front().first;
+          queue.pop(); // pop from front of queue
+        } while (!queue.empty() && *queue.front().second);
+        doSomething(n);
+        if (!queue.empty())
+          queue.front().second->addListener(this);
+        return false;
+      }
+
+      void eventDestroyed(smoc_event_waiter *_e)
+        { assert(!"eventDestroyed must never be called !!!"); }
+    public:
+      void addEntry(size_t n, const smoc_ref_event_p &le) {
+        bool queueEmpty = queue.empty();
+        
+        if (queueEmpty && (!le || *le)) {
+          doSomething(n);
+        } else {
+          queue.push(Entry(n, le)); // insert at back of queue
+          if (queueEmpty)
+            le->addListener(this);
+        }
+      }
+
+      virtual ~VisibleQueue() {}
+    } visibleQueue;
 
     smoc_fifo_kind *fifo;
-    Queue           queue;
 
-    bool signaled(smoc_event_waiter *_e);
-
-    void eventDestroyed(smoc_event_waiter *_e);
-  public:
     LatencyQueue(smoc_fifo_kind *fifo)
       : fifo(fifo) {}
 
-    void addEntry(size_t n, const smoc_ref_event_p &le);
-
-    virtual ~LatencyQueue() {}
+    void addEntry(size_t n, const smoc_ref_event_p &le) {
+      visibleQueue.addEntry(n, le);
+    }
   };
 #endif // ENABLE_SYSTEMC_VPC
 };
@@ -76,7 +174,7 @@ namespace smoc_detail {
 class smoc_fifo_kind
 : public smoc_root_chan {
 #ifdef ENABLE_SYSTEMC_VPC
-  friend class smoc_detail::LatencyQueue;
+  friend class smoc_detail::LatencyQueue::VisibleQueue;
 #endif // ENABLE_SYSTEMC_VPC
 public:
   typedef smoc_fifo_kind  this_type;
@@ -193,22 +291,25 @@ protected:
     size_t unused = unusedStorage();
     unusedDecr(unused);
 #ifdef ENABLE_SYSTEMC_VPC
-    latencyQueue.addEntry(windex, le);
+    latencyQueue.addEntry(n, le);
 #else
     usedIncr(fsize - unused - 1);
 #endif
   }
 
 #ifdef ENABLE_SYSTEMC_VPC
-  void incrVisible(size_t visible) {
-    // PARANOIA: rindex <= visible <= windex in modulo fsize arith
-    assert(visible < fsize &&
-      (windex >= rindex && (visible >= rindex && visible <= windex) ||
-       windex <  rindex && (visible >= rindex || visible <= windex)));
+  void incrVisible(size_t n) {
 # ifndef NDEBUG
     size_t oldUsed = usedStorage();
 # endif
-    vindex = visible;
+    if ( vindex + n >= fsize )
+      vindex = vindex + n - fsize;
+    else
+      vindex = vindex + n;
+    // PARANOIA: rindex <= visible <= windex in modulo fsize arith
+    assert(vindex < fsize &&
+      (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
+       windex <  rindex && (vindex >= rindex || vindex <= windex)));
     // PARANOIA: usedStorage() must increase
     assert(usedStorage() >= oldUsed);
     usedIncr(usedStorage());

@@ -22,6 +22,10 @@ const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
 
 namespace smoc_detail {
 #ifdef ENABLE_SYSTEMC_VPC
+  void LatencyQueue::VisibleQueue::doSomething(size_t n)
+    { getTop().fifo->incrVisible(n); }
+
+#if 0
   bool LatencyQueue::signaled(smoc_event_waiter *_e) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "smoc_fifo_kind<X>::wpp::_::signaled(...)" << std::endl;
@@ -57,5 +61,7 @@ namespace smoc_detail {
       fifo->incrVisible(n);
     }
   }
+#endif
 #endif // ENABLE_SYSTEMC_VPC
 };
+
