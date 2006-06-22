@@ -221,8 +221,8 @@ protected:
     return used;
   }
 
-  void usedIncr(size_t used) {
-    assert(used == usedStorage());
+  void usedIncr() {
+    size_t used = usedStorage();
     // notify all disabled events for less/equal usedStorage() available tokens
     for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
          iter != eventMapAvailable.begin() && !*(--iter)->second;
@@ -231,8 +231,8 @@ protected:
     eventWrite.notify();
   }
 
-  void usedDecr(size_t used) {
-    assert(used == usedStorage());
+  void usedDecr() {
+    size_t used = usedStorage();
     // reset all enabled events for more then usedStorage() available tokens
     for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
          iter != eventMapAvailable.end() && *iter->second;
@@ -248,8 +248,8 @@ protected:
     return unused;
   }
 
-  void unusedIncr(size_t unused) {
-    assert(unused == unusedStorage());
+  void unusedIncr() {
+    size_t unused = unusedStorage();
     // notify all disabled events for less/equal unusedStorage() free space
     for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
          iter != eventMapFree.begin() && !*(--iter)->second;
@@ -258,8 +258,8 @@ protected:
     eventRead.notify();
   }
 
-  void unusedDecr(size_t unused) {
-    assert(unused == unusedStorage());
+  void unusedDecr() {
+    size_t unused = unusedStorage();
     // reset all enabled events for more then unusedStorage() free space
     for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
          iter != eventMapFree.end() && *iter->second;
@@ -273,9 +273,7 @@ protected:
     else
       rindex = rindex + n;
     
-    size_t used   = usedStorage();
-    usedDecr(used);
-    unusedIncr(fsize - used - 1);
+    usedDecr(); unusedIncr();
   }
 
 #ifdef ENABLE_SYSTEMC_VPC
@@ -289,12 +287,11 @@ protected:
     else
       windex = windex + n;
     
-    size_t unused = unusedStorage();
-    unusedDecr(unused);
+    unusedDecr();
 #ifdef ENABLE_SYSTEMC_VPC
     latencyQueue.addEntry(n, le);
 #else
-    usedIncr(fsize - unused - 1);
+    usedIncr();
 #endif
   }
 
@@ -311,9 +308,11 @@ protected:
     assert(vindex < fsize &&
       (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
        windex <  rindex && (vindex >= rindex || vindex <= windex)));
+# ifndef NDEBUG
     // PARANOIA: usedStorage() must increase
     assert(usedStorage() >= oldUsed);
-    usedIncr(usedStorage());
+# endif
+    usedIncr();
   }
 #endif
 
