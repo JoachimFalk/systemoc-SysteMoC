@@ -49,7 +49,7 @@ AC_EXEEXT
 
 # Checks for library functions.
 
-ACJF_SYSTEMC
+ACJF_CHECK_LIB_SYSTEMC
 ACJF_CHECK_LIB_BOOST
 ACJF_NEED_PKG([Support])
 
