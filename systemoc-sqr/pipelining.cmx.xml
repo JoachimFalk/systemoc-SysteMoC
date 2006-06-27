@@ -41,27 +41,27 @@
     <timing dii="13" latency="19" fname="Sink::sink"/>
   </mapping>
 
-  <mapping source="sqrroot.smoc_fifo_0" target="FIFO">
+  <mapping source="cf_sqrroot.a1_sqrroot.a2_1" target="FIFO">
     <timing dii="7" latency="37"/>
   </mapping>
 
-  <mapping source="sqrroot.smoc_fifo_1" target="FIFO">
+  <mapping source="cf_sqrroot.a2_sqrroot.a3_1" target="FIFO">
     <timing dii="11" latency="31"/>
   </mapping>
 
-  <mapping source="sqrroot.smoc_fifo_2" target="FIFO">
+  <mapping source="cf_sqrroot.a3_sqrroot.a4_1" target="FIFO">
     <timing dii="3" latency="42"/>
   </mapping>
 
-  <mapping source="sqrroot.smoc_fifo_3" target="FIFO">
+  <mapping source="cf_sqrroot.a4_sqrroot.a3_1" target="FIFO">
     <timing dii="2" latency="17"/>
   </mapping>
 
-  <mapping source="sqrroot.smoc_fifo_4" target="FIFO">
+  <mapping source="cf_sqrroot.a4_sqrroot.a2_1" target="FIFO">
     <timing dii="5" latency="55"/>
   </mapping>
 
-  <mapping source="sqrroot.smoc_fifo_5" target="FIFO">
+  <mapping source="cf_sqrroot.a2_sqrroot.a5_1" target="FIFO">
     <timing dii="1" latency="21"/>
   </mapping>
 
