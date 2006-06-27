@@ -124,21 +124,69 @@ public:
             template <typename T_value_type> class T_chan_init_default>
   friend class smoc_graph_petri;
 private:
-  sc_module *hierarchy; // patched in finalize of smoc_graph_petri
+  sc_module *hierarchy; // patched in finalise of smoc_graph_petri
 public:
-  virtual smoc_port_list  getInputPorts()               const = 0;
-  virtual smoc_port_list  getOutputPorts()              const = 0;
-  virtual void            assemble(
-                            smoc_modes::PGWriter &pgw)  const = 0;
-  
+  virtual smoc_port_list  getInputPorts()                   const = 0;
+  virtual smoc_port_list  getOutputPorts()                  const = 0;
+  virtual const char     *name()                            const = 0;
+  virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
+  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
+  virtual void finalise()                                         = 0;
+
   sc_module *getHierarchy() const {
     assert( hierarchy != NULL );  
     return hierarchy;
   }
 protected:
   // constructor
-  smoc_root_chan( const char *name)
+  smoc_root_chan(const char *name)
     : sc_prim_channel(name), hierarchy(NULL) {}
+
+  virtual void assemble(smoc_modes::PGWriter &pgw) const = 0;
+};
+
+class smoc_nonconflicting_chan
+  : public smoc_root_chan {
+public:
+  // typedefs
+  typedef smoc_nonconflicting_chan this_type;
+protected:
+  smoc_root_port_in  *portIn;
+  smoc_root_port_out *portOut;
+
+  std::string myName; // patched in finalise
+public:
+  // constructor
+  smoc_nonconflicting_chan(const char *name)
+    : smoc_root_chan(name), portIn(NULL), portOut(NULL) {}
+
+  void addPort(smoc_root_port_in  *in)
+    { assert(portIn  == NULL); portIn  = in;  }
+  void addPort(smoc_root_port_out *out)
+    { assert(portOut == NULL); portOut = out; }
+
+  smoc_port_list getInputPorts()  const {
+    smoc_port_list retval;
+    
+    assert(portIn != NULL);
+    retval.push_front(portIn);
+    return retval; 
+  }
+
+  smoc_port_list getOutputPorts()  const {
+    smoc_port_list retval;
+    
+    assert(portOut != NULL);
+    retval.push_front(portOut);
+    return retval; 
+  }
+
+  void finalise();
+
+  const char *name() const
+    { return myName.c_str(); }
+protected:
+  void assemble(smoc_modes::PGWriter &pgw) const;
 };
 
 typedef std::list<smoc_root_chan *> smoc_chan_list;
@@ -162,7 +210,7 @@ public:
   
   bool is_v1_in_port;
   
-  virtual void        addPortIf(iface_in_type *_i) = 0;
+  virtual void        addPort(smoc_root_port_in *in) = 0;
   virtual size_t      committedOutCount() const = 0;
 //smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual smoc_event &blockEventOut(size_t n) = 0;
@@ -207,7 +255,7 @@ public:
   
   bool is_v1_out_port;
   
-  virtual void        addPortIf(iface_out_type *_i) = 0;
+  virtual void        addPort(smoc_root_port_out *out) = 0;
   virtual size_t      committedInCount() const = 0;
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual smoc_event &blockEventIn(size_t n) = 0;
@@ -246,86 +294,25 @@ class smoc_chan_if
 public:
   // typedefs
   typedef smoc_chan_if<T_chan_kind, T_data_type>  this_type;
-  
+  typedef T_data_type                             data_type;
+  typedef T_chan_kind                             chan_kind;
+
   bool portInIsV1()  const
     { return this->is_v1_in_port; }
   bool portOutIsV1() const
     { return this->is_v1_out_port; }
+
+  void addPort(smoc_root_port_in  *in)
+    { return T_chan_kind::addPort(in); }
+  void addPort(smoc_root_port_out *out)
+    { return T_chan_kind::addPort(out); }
 protected:
   // constructor
-  smoc_chan_if(const typename T_chan_kind::chan_init &i)
-    : T_chan_kind(i) {}
+  smoc_chan_if(const typename chan_kind::chan_init &i)
+    : chan_kind(i) {}
 private:
   // disabled
   const sc_event& default_event() const { return smoc_default_event_abort(); }
-};
-
-template <typename T_chan_kind, typename T_data_type>
-class smoc_chan_nonconflicting_if
-  : public smoc_chan_if<T_chan_kind, T_data_type> {
-public:
-  // typedefs
-  typedef smoc_chan_nonconflicting_if<T_chan_kind, T_data_type> this_type;
-  typedef typename this_type::iface_in_type                     iface_in_type;
-  typedef typename this_type::iface_out_type                    iface_out_type;
-protected:
-  iface_in_type  *portInIf;
-  iface_out_type *portOutIf;
-public:
-  void addPortIf(iface_in_type *_i)
-    { /*assert( portInIf == NULL );*/  portInIf = _i;  }
-  void addPortIf(iface_out_type *_i)
-    { /*assert( portOutIf == NULL );*/ portOutIf = _i; }
-  smoc_port_list getInputPorts()  const
-    { smoc_port_list retval; retval.push_front(portInIf); return retval; }
-  smoc_port_list getOutputPorts() const
-    { smoc_port_list retval; retval.push_front(portOutIf); return retval; }
-protected:
-  void assemble(smoc_modes::PGWriter &pgw) const {
-    assert(portInIf != NULL && portOutIf != NULL);
-    
-    std::string idChannel        = pgw.getId(this);
-    std::string idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
-    std::string idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
-    
-    pgw << "<edge name=\""   << this->name() << ".to-edge\" "
-                 "source=\"" << pgw.getId(portOutIf) << "\" "
-                 "target=\"" << idChannelPortIn      << "\" "
-                 "id=\""     << pgw.getId()          << "\"/>" << std::endl;
-    pgw << "<process name=\"" << this->name() << "\" "
-                    "type=\"fifo\" "
-                    "id=\"" << idChannel      << "\">" << std::endl;
-    {
-      pgw.indentUp();
-      pgw << "<port name=\"" << this->name() << ".in\" "
-                   "type=\"in\" "
-                   "id=\"" << idChannelPortIn << "\"/>" << std::endl;
-      pgw << "<port name=\"" << this->name() << ".out\" "
-                   "type=\"out\" "
-                   "id=\"" << idChannelPortOut << "\"/>" << std::endl;
-      //*******************************ACTOR CLASS********************************
-      pgw << "<fifo tokenType=\"" << typeid(T_data_type).name() << "\">" << std::endl;
-      {
-        //*************************INITIAL TOKENS, ETC...***************************
-        pgw.indentUp();
-        this->channelContents(pgw);
-        pgw.indentDown();
-      }
-      pgw << "</fifo>" << std::endl;
-      this->channelAttributes(pgw); // fifo size, etc..
-      pgw.indentDown();
-    }
-    pgw << "</process>" << std::endl;
-    pgw << "<edge name=\""   << this->name() << ".from-edge\" "
-                 "source=\"" << idChannelPortOut       << "\" "
-                 "target=\"" << pgw.getId(portInIf)    << "\" "
-                 "id=\""     << pgw.getId()            << "\"/>" << std::endl;
-  }
-
-  // constructor
-  smoc_chan_nonconflicting_if(const typename T_chan_kind::chan_init &i)
-    : smoc_chan_if<T_chan_kind, T_data_type>(i),
-      portInIf(NULL), portOutIf(NULL) {}
 };
 
 #include <smoc_port.hpp>

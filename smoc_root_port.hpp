@@ -103,4 +103,18 @@ std::ostream &operator <<( std::ostream &out, const smoc_root_port &p )
 
 typedef std::list<smoc_root_port *> smoc_port_list;
 
+class smoc_root_port_in
+: public smoc_root_port {
+public:
+  smoc_root_port_in( const char* name_ )
+    : smoc_root_port(name_) {}
+};
+
+class smoc_root_port_out
+: public smoc_root_port {
+public:
+  smoc_root_port_out( const char* name_ )
+    : smoc_root_port(name_) {}
+};
+
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP

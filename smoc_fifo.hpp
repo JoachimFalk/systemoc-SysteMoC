@@ -173,7 +173,7 @@ namespace smoc_detail {
 /// in a derived class the base class only manages the
 /// read, write, and visible pointers.
 class smoc_fifo_kind
-: public smoc_root_chan {
+: public smoc_nonconflicting_chan {
 #ifdef ENABLE_SYSTEMC_VPC
   friend class smoc_detail::LatencyQueue::VisibleQueue;
 #endif // ENABLE_SYSTEMC_VPC
@@ -353,7 +353,7 @@ protected:
 
   // constructors
   smoc_fifo_kind( const chan_init &i )
-    : smoc_root_chan(
+    : smoc_nonconflicting_chan(
         i.name != NULL ? i.name : sc_gen_unique_name( "smoc_fifo" ) ),
 #ifdef ENABLE_SYSTEMC_VPC
       latencyQueue(this), 
@@ -379,7 +379,8 @@ private:
 
 template <typename T>
 class smoc_fifo_storage
-  : public smoc_chan_nonconflicting_if<smoc_fifo_kind, T> {
+//: public smoc_chan_nonconflicting_if<smoc_fifo_kind, T> {
+: public smoc_chan_if<smoc_fifo_kind,T> {
 public:
   typedef T                                  data_type;
   typedef smoc_fifo_storage<data_type>       this_type;
@@ -405,9 +406,10 @@ public:
 private:
   storage_type *storage;
 protected:
-  smoc_fifo_storage( const chan_init &i ) :
-    smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i),
-    storage(new storage_type[this->fsize])
+  smoc_fifo_storage( const chan_init &i )
+//  : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i),
+    : smoc_chan_if<smoc_fifo_kind,T>(i),
+      storage(new storage_type[this->fsize])
   {
     assert(this->fsize > i.marking.size());
     for(size_t j = 0; j < i.marking.size(); ++j) {
@@ -422,8 +424,15 @@ protected:
   storage_type *getStorage() const { return storage; }
   
   void channelContents(smoc_modes::PGWriter &pgw) const {
-    for ( size_t n = 0; n < this->usedStorage(); ++n )
-      pgw << "<token value=\"" << storage[n].get() << "\"/>" << std::endl;
+    pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
+    {
+      //*************************INITIAL TOKENS, ETC...***************************
+      pgw.indentUp();
+      for ( size_t n = 0; n < this->usedStorage(); ++n )
+        pgw << "<token value=\"" << storage[n].get() << "\"/>" << std::endl;
+      pgw.indentDown();
+    }
+    pgw << "</fifo>" << std::endl;
   }
 
   ~smoc_fifo_storage() { delete[] storage; }
@@ -431,7 +440,8 @@ protected:
 
 template <>
 class smoc_fifo_storage<void>
-  : public smoc_chan_nonconflicting_if<smoc_fifo_kind, void> {
+//: public smoc_chan_nonconflicting_if<smoc_fifo_kind, void> {
+: public smoc_chan_if<smoc_fifo_kind,void> {
 public:
   typedef void                               data_type;
   typedef smoc_fifo_storage<data_type>       this_type;
@@ -454,7 +464,8 @@ public:
   };
 protected:
   smoc_fifo_storage( const chan_init &i )
-    : smoc_chan_nonconflicting_if<smoc_fifo_kind, void>(i) {
+//  : smoc_chan_nonconflicting_if<smoc_fifo_kind, void>(i) {
+    : smoc_chan_if<smoc_fifo_kind,void>(i) {
     assert( fsize > i.marking );
     windex = i.marking;
 #ifdef ENABLE_SYSTEMC_VPC
@@ -465,8 +476,15 @@ protected:
   void *getStorage() const { return NULL; }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
-    for ( size_t n = 0; n < usedStorage(); ++n )
-      pgw << "<token value=\"bot\"/>" << std::endl;
+    pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
+    {
+      //*************************INITIAL TOKENS, ETC...***************************
+      pgw.indentUp();
+      for ( size_t n = 0; n < this->usedStorage(); ++n )
+        pgw << "<token value=\"bot\"/>" << std::endl;
+      pgw.indentDown();
+    }
+    pgw << "</fifo>" << std::endl;
   }
 };
 

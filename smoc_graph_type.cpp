@@ -72,8 +72,10 @@ finalise() {
     
     for ( typename smoc_chan_list::iterator iter = chans.begin();
           iter != chans.end();
-          ++iter )
+          ++iter ) {
       (*iter)->hierarchy = this;
+      (*iter)->finalise();
+    }
   }
   {
     smoc_node_list nodes = getNodes();

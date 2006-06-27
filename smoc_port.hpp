@@ -325,16 +325,16 @@ SMOCEvent::type till(smoc_event &e)
 
 /****************************************************************************/
 
-template <typename T>
+template <class P, typename T>
 class smoc_port_base
-  : public smoc_root_port {
+  : public P {
 public:
   typedef T                   iface_type;
-  typedef smoc_port_base<T>   this_type;
+  typedef smoc_port_base<P,T> this_type;
 
   template <class E> friend class Expr::Sensitivity;
 private:
-  typedef smoc_root_port      base_type;
+  typedef P                   base_type;
   
   iface_type  *interface;
   
@@ -378,13 +378,13 @@ protected:
 
   iface_type       *operator -> () {
     if ( interface == NULL )
-      report_error( SC_ID_GET_IF_, "port is not bound" );
+      this->report_error( SC_ID_GET_IF_, "port is not bound" );
     return interface;
   }
   
   iface_type const *operator -> () const {
     if ( interface == NULL )
-      report_error( SC_ID_GET_IF_, "port is not bound" );
+      this->report_error( SC_ID_GET_IF_, "port is not bound" );
     return interface;
   }
 };
@@ -392,7 +392,7 @@ protected:
 template <typename T>
 class smoc_port_in
 //: public smoc_port_storage_in<T> {
-: public smoc_port_base<smoc_chan_in_if<T> >,
+: public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> >,
   public smoc_ring_access<
     typename smoc_storage_in<T>::storage_type,
     typename smoc_storage_in<T>::return_type>
@@ -409,8 +409,10 @@ public:
   template <class E> friend class Expr::CommSetup;
   template <class E> friend class Expr::Value;
 protected:
+  typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> > base_type;
+  
   void add_interface( sc_interface *i ) {
-    this->push_interface(i); (*this)->addPortIf( this );
+    this->push_interface(i); (*this)->addPort( this );
   }
 
   bool peerIsV1() const
@@ -429,9 +431,7 @@ protected:
 public:
 //void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
 //public:
-  smoc_port_in()
-    : smoc_port_base<smoc_chan_in_if<T> >( sc_gen_unique_name( "smoc_port_in" )  )
-    {}
+  smoc_port_in(): base_type(sc_gen_unique_name("smoc_port_in")) {}
   
   bool isInput() const { return true; }
   
@@ -460,7 +460,7 @@ public:
 template <typename T>
 class smoc_port_out
 //: public smoc_port_storage_out<T> {
-: public smoc_port_base<smoc_chan_out_if<T> >,
+: public smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T> >,
   public smoc_ring_access<
     typename smoc_storage_out<T>::storage_type,
     typename smoc_storage_out<T>::return_type>
@@ -477,8 +477,10 @@ public:
   template <class E> friend class Expr::CommSetup;
   template <class E> friend class Expr::Value;
 protected:
+  typedef smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T> > base_type;
+  
   void add_interface( sc_interface *i ) {
-    this->push_interface(i); (*this)->addPortIf( this );
+    this->push_interface(i); (*this)->addPort( this );
   }
   
   bool peerIsV1() const
@@ -497,9 +499,7 @@ protected:
 public:
 //  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
 //public:
-  smoc_port_out()
-    : smoc_port_base<smoc_chan_out_if<T> >( sc_gen_unique_name( "smoc_port_out" )  )
-    {}
+  smoc_port_out(): base_type(sc_gen_unique_name("smoc_port_out")) {}
   
   bool isInput() const { return false; }
   
