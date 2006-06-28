@@ -161,9 +161,9 @@ public:
     : smoc_root_chan(name), portIn(NULL), portOut(NULL) {}
 
   void addPort(smoc_root_port_in  *in)
-    { assert(portIn  == NULL); portIn  = in;  }
+    { /* assert(portIn  == NULL); */ portIn  = in;  }
   void addPort(smoc_root_port_out *out)
-    { assert(portOut == NULL); portOut = out; }
+    { /* assert(portOut == NULL); */ portOut = out; }
 
   smoc_port_list getInputPorts()  const {
     smoc_port_list retval;
