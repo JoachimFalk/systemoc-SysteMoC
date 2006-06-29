@@ -119,17 +119,11 @@ class m_source_idct: public smoc_actor {
 //#ifndef KASCPAR_PARSING
       i1.open(INAMEblk);
       start =
-	  ((out0.getAvailableSpace() >= 1)  &&
-	   (out1.getAvailableSpace() >= 1)  &&
-	   (out2.getAvailableSpace() >= 1)  &&
-	   (out3.getAvailableSpace() >= 1)  &&
-	   (out4.getAvailableSpace() >= 1)  &&
-	   (out5.getAvailableSpace() >= 1)  &&
-	   (out6.getAvailableSpace() >= 1)  &&
-	   (out7.getAvailableSpace() >= 1)  &&
-	   (VAR(counter)     < periods*64))
-         >> CALL(m_source_idct::process)
-         >> start;
+	  (out0(1) && out1(1) && out2(1) && out3(1) &&
+	   out4(1) && out5(1) && out6(1) && out7(1) &&
+	   (VAR(counter) < periods))
+        >> CALL(m_source_idct::process)
+        >> start;
 //#endif
   }
   ~m_source_idct( ){
@@ -158,10 +152,31 @@ class m_sink_idct: public smoc_actor {
     void process() {
 #ifndef KASCPAR_PARSING
 #ifndef NDEBUG
-      std::cout << name() << " receiving " << in[0] << std::endl;
-      fo << in[0] << std::endl;
+      std::cout << name() << " receiving " << in0[0] << std::endl;
+      std::cout << name() << " receiving " << in1[0] << std::endl;
+      std::cout << name() << " receiving " << in2[0] << std::endl;
+      std::cout << name() << " receiving " << in3[0] << std::endl;
+      std::cout << name() << " receiving " << in4[0] << std::endl;
+      std::cout << name() << " receiving " << in5[0] << std::endl;
+      std::cout << name() << " receiving " << in6[0] << std::endl;
+      std::cout << name() << " receiving " << in7[0] << std::endl;
+      fo << in0[0] << std::endl;
+      fo << in1[0] << std::endl;
+      fo << in2[0] << std::endl;
+      fo << in3[0] << std::endl;
+      fo << in4[0] << std::endl;
+      fo << in5[0] << std::endl;
+      fo << in6[0] << std::endl;
+      fo << in7[0] << std::endl;
 #else
-      foo = in[0];
+      foo = in0[0];
+      foo = in1[0];
+      foo = in2[0];
+      foo = in3[0];
+      foo = in4[0];
+      foo = in5[0];
+      foo = in6[0];
+      foo = in7[0];
 #endif
 #endif
     }
@@ -171,12 +186,14 @@ class m_sink_idct: public smoc_actor {
     m_sink_idct( sc_module_name name )
       : smoc_actor( name, start ),
         fo(ONAMEblk) {
-      start = in(1) >> CALL(m_sink_idct::process)  >> start;
+      start =
+	  (in0(1) && in1(1) && in2(1) && in3(1) &&
+	   in4(1) && in5(1) && in6(1) && in7(1))
+        >> CALL(m_sink_idct::process) >> start;
     }
     
     ~m_sink_idct() {
       fo.close();
-    
     }
 };
 
@@ -187,7 +204,7 @@ private:
   m_idct        idct1d;
   m_sink_idct   snk_idct;
 public:
-  IDCT2d_TEST(sc_module_name name
+  IDCT1D_TEST(sc_module_name name
 #ifndef KASCPAR_PARSING
      , size_t periods
 #endif

@@ -31,13 +31,20 @@ AM_CPPFLAGS=-Wno-deprecated
 
 LIBS=-lsystemoc
 
-noinst_PROGRAMS= simulation-mpeg4 simulation-test-idct2d simulation-test-parser
+noinst_PROGRAMS=		\
+	simulation-mpeg4	\
+	simulation-test-idct1d	\
+	simulation-test-idct2d	\
+	simulation-test-parser
 
 simulation_mpeg4_SOURCES = design-mpeg4.cpp
 simulation_mpeg4_DEPENDENCIES =	@SYSTEMOC_DEPENDENCIES@		
 
 simulation_test_idct2d_SOURCES= design-test-idct2d.cpp
 simulation_test_idct2d_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+simulation_test_idct1d_SOURCES= design-test-idct1d.cpp
+simulation_test_idct1d_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 simulation_test_parser_SOURCES= test_parser.cpp
 simulation_test_parser_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
