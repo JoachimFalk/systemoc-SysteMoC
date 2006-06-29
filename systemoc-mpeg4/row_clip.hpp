@@ -35,35 +35,36 @@ class m_clip
       
       m_MIN_duplex &dup = registerNode(new m_MIN_duplex("dup"));
 
+#ifndef KASCPAR_PARSING
+      connectInterfacePorts(i0, clip0.I); 
+      connectInterfacePorts(i1, clip1.I);  
+      connectInterfacePorts(i2, clip2.I);
+      connectInterfacePorts(i3, clip3.I);
+      connectInterfacePorts(i4, clip4.I);
+      connectInterfacePorts(i5, clip5.I);
+      connectInterfacePorts(i6, clip6.I);
+      connectInterfacePorts(i7, clip7.I);
       
-      connectInterfacePorts( i0, clip0.I ); 
-      connectInterfacePorts( i1, clip1.I );  
-      connectInterfacePorts( i2, clip2.I );
-      connectInterfacePorts( i3, clip3.I );
-      connectInterfacePorts( i4, clip4.I );
-      connectInterfacePorts( i5, clip5.I );
-      connectInterfacePorts( i6, clip6.I );
-      connectInterfacePorts( i7, clip7.I );
+      connectInterfacePorts(min, dup.I);
       
-      connectInterfacePorts( min, dup.I);
+      connectNodePorts(dup.O0, clip0.MIN, smoc_fifo<int>(2));
+      connectNodePorts(dup.O1, clip1.MIN, smoc_fifo<int>(2));
+      connectNodePorts(dup.O2, clip2.MIN, smoc_fifo<int>(2));
+      connectNodePorts(dup.O3, clip3.MIN, smoc_fifo<int>(2));
+      connectNodePorts(dup.O4, clip4.MIN, smoc_fifo<int>(2));
+      connectNodePorts(dup.O5, clip5.MIN, smoc_fifo<int>(2));
+      connectNodePorts(dup.O6, clip6.MIN, smoc_fifo<int>(2));
+      connectNodePorts(dup.O7, clip7.MIN, smoc_fifo<int>(2));
       
-      connectNodePorts( dup.O0, clip0.MIN );
-      connectNodePorts( dup.O1, clip1.MIN );
-      connectNodePorts( dup.O2, clip2.MIN );
-      connectNodePorts( dup.O3, clip3.MIN );
-      connectNodePorts( dup.O4, clip4.MIN );
-      connectNodePorts( dup.O5, clip5.MIN );
-      connectNodePorts( dup.O6, clip6.MIN );
-      connectNodePorts( dup.O7, clip7.MIN );
-      
-      connectInterfacePorts( o0, clip0.O );
-      connectInterfacePorts( o1, clip1.O );
-      connectInterfacePorts( o2, clip2.O );
-      connectInterfacePorts( o3, clip3.O );
-      connectInterfacePorts( o4, clip4.O );
-      connectInterfacePorts( o5, clip5.O );
-      connectInterfacePorts( o6, clip6.O );
-      connectInterfacePorts( o7, clip7.O );
+      connectInterfacePorts(o0, clip0.O);
+      connectInterfacePorts(o1, clip1.O);
+      connectInterfacePorts(o2, clip2.O);
+      connectInterfacePorts(o3, clip3.O);
+      connectInterfacePorts(o4, clip4.O);
+      connectInterfacePorts(o5, clip5.O);
+      connectInterfacePorts(o6, clip6.O);
+      connectInterfacePorts(o7, clip7.O);
+#endif
 
     }
 };

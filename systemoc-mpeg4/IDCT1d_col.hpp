@@ -40,46 +40,46 @@ class m_idct_col
       m_IDCTaddsub &addsub9 = registerNode(new m_IDCTaddsub("addsub9", 1, 0, 14));
       m_IDCTaddsub &addsub10 = registerNode(new m_IDCTaddsub("addsub10", 1, 0, 14));//2^14 = 16384
 
-
-      connectInterfacePorts( i0, iscale1.I ); 
-      connectInterfacePorts( i1, ifly2.I1 );  
-      connectInterfacePorts( i2, ifly3.I2 );
-      connectInterfacePorts( i3, ifly1.I2 );
-      connectInterfacePorts( i4, iscale2.I );
-      connectInterfacePorts( i5, ifly1.I1 );
-      connectInterfacePorts( i6, ifly3.I1 );
-      connectInterfacePorts( i7, ifly2.I2 );
+#ifndef KASCPAR_PARSING
+      connectInterfacePorts(i0, iscale1.I); 
+      connectInterfacePorts(i1, ifly2.I1);  
+      connectInterfacePorts(i2, ifly3.I2);
+      connectInterfacePorts(i3, ifly1.I2);
+      connectInterfacePorts(i4, iscale2.I);
+      connectInterfacePorts(i5, ifly1.I1);
+      connectInterfacePorts(i6, ifly3.I1);
+      connectInterfacePorts(i7, ifly2.I2);
      
-      connectNodePorts( iscale1.O, addsub1.I1 );
-      connectNodePorts( iscale2.O, addsub1.I2 ); 
-      connectNodePorts( ifly2.O1,  addsub2.I1 ); 
-      connectNodePorts( ifly2.O2,  addsub3.I1 ); 
-      connectNodePorts( ifly3.O1,  addsub5.I2 ); 
-      connectNodePorts( ifly3.O2,  addsub4.I2 );
-      connectNodePorts( ifly1.O1,  addsub2.I2 );
-      connectNodePorts( ifly1.O2,  addsub3.I2 );
+      connectNodePorts(iscale1.O, addsub1.I1, smoc_fifo<int>(2));
+      connectNodePorts(iscale2.O, addsub1.I2, smoc_fifo<int>(2)); 
+      connectNodePorts(ifly2.O1,  addsub2.I1, smoc_fifo<int>(2)); 
+      connectNodePorts(ifly2.O2,  addsub3.I1, smoc_fifo<int>(2)); 
+      connectNodePorts(ifly3.O1,  addsub5.I2, smoc_fifo<int>(2)); 
+      connectNodePorts(ifly3.O2,  addsub4.I2, smoc_fifo<int>(2));
+      connectNodePorts(ifly1.O1,  addsub2.I2, smoc_fifo<int>(2));
+      connectNodePorts(ifly1.O2,  addsub3.I2, smoc_fifo<int>(2));
       
-      connectNodePorts( addsub1.O1, addsub4.I1 );
-      connectNodePorts( addsub1.O2, addsub5.I1 );
-      connectNodePorts( addsub2.O1, addsub9.I2 );
-      connectNodePorts( addsub2.O2, addsub6.I1 );
-      connectNodePorts( addsub3.O1, addsub7.I2 );
-      connectNodePorts( addsub3.O2, addsub6.I2 );
-      connectNodePorts( addsub4.O1, addsub9.I1 );
-      connectNodePorts( addsub4.O2, addsub7.I1 );
-      connectNodePorts( addsub5.O1, addsub10.I1);
-      connectNodePorts( addsub5.O2, addsub8.I1 );
-      connectNodePorts( addsub6.O1, addsub10.I2);
-      connectNodePorts( addsub6.O2, addsub8.I2 );
+      connectNodePorts(addsub1.O1, addsub4.I1,  smoc_fifo<int>(2));
+      connectNodePorts(addsub1.O2, addsub5.I1,  smoc_fifo<int>(2));
+      connectNodePorts(addsub2.O1, addsub9.I2,  smoc_fifo<int>(2));
+      connectNodePorts(addsub2.O2, addsub6.I1,  smoc_fifo<int>(2));
+      connectNodePorts(addsub3.O1, addsub7.I2,  smoc_fifo<int>(2));
+      connectNodePorts(addsub3.O2, addsub6.I2,  smoc_fifo<int>(2));
+      connectNodePorts(addsub4.O1, addsub9.I1,  smoc_fifo<int>(2));
+      connectNodePorts(addsub4.O2, addsub7.I1,  smoc_fifo<int>(2));
+      connectNodePorts(addsub5.O1, addsub10.I1, smoc_fifo<int>(2));
+      connectNodePorts(addsub5.O2, addsub8.I1,  smoc_fifo<int>(2));
+      connectNodePorts(addsub6.O1, addsub10.I2, smoc_fifo<int>(2));
+      connectNodePorts(addsub6.O2, addsub8.I2,  smoc_fifo<int>(2));
       
-      connectInterfacePorts( o0, addsub9.O1 );
-      connectInterfacePorts( o1, addsub10.O1);
-      connectInterfacePorts( o2, addsub8.O1 );
-      connectInterfacePorts( o3, addsub7.O1 );
-      connectInterfacePorts( o4, addsub7.O2 );
-      connectInterfacePorts( o5, addsub8.O2 );
-      connectInterfacePorts( o6, addsub10.O2);
-      connectInterfacePorts( o7, addsub9.O2 );
-
+      connectInterfacePorts(o0, addsub9.O1);
+      connectInterfacePorts(o1, addsub10.O1);
+      connectInterfacePorts(o2, addsub8.O1);
+      connectInterfacePorts(o3, addsub7.O1);
+      connectInterfacePorts(o4, addsub7.O2);
+      connectInterfacePorts(o5, addsub8.O2);
+      connectInterfacePorts(o6, addsub10.O2);
+      connectInterfacePorts(o7, addsub9.O2);
+#endif
     }
 };

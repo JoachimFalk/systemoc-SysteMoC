@@ -175,9 +175,9 @@ public:
       src_idct("src_idct", periods),
       blidct("blidct"),
       snk("snk") {
-#ifndef KASCPAR_PARSING    
+#ifndef KASCPAR_PARSING
     connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
-    connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(2));
+    connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(4));
     connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
 #endif
       }
