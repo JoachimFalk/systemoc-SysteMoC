@@ -60,7 +60,7 @@ void dump(const PASTNode &node) {
       std::cerr << "Var " << node->isa<ASTNodeVar>()->ptrVar();
     } else if ( node->isa<ASTNodeProc>() ) {
       std::cerr << "Proc 0x" << std::hex << reinterpret_cast<unsigned long>
-        (node->isa<ASTNodeProc>()->ptrProc());
+        (node->isa<ASTNodeProc>()->ptrProc()) << std::dec;
     } else if ( node->isa<ASTNodeMemProc>() ) {
       union {
         struct { void *p; unsigned long o; } e1;
@@ -69,7 +69,7 @@ void dump(const PASTNode &node) {
       
       h.e2 = node->isa<ASTNodeMemProc>()->ptrMemProc();
       std::cerr << "MemProc 0x" << std::hex << reinterpret_cast<unsigned long>(h.e1.p)
-                <<   " obj " << node->isa<ASTNodeMemProc>()->ptrObj();
+                <<   " obj " << node->isa<ASTNodeMemProc>()->ptrObj() << std::dec;
     } else {
       // unknown
       std::cerr << "Unkown Terminal";

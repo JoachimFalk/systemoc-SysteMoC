@@ -79,28 +79,28 @@ void smoc_activation_pattern::guardAssemble(
                  "valueType=\"" << n->isa<Expr::ASTNodeVar>()->getType() << "\" "
                  "name=\"" << n->isa<Expr::ASTNodeVar>()->getName() << "\" "
                  "addr=\"0x" << std::hex << reinterpret_cast<unsigned long>
-                  (n->isa<Expr::ASTNodeVar>()->getAddr()) << "\"/>"
+                  (n->isa<Expr::ASTNodeVar>()->getAddr()) << std::dec << "\"/>"
             << std::endl;
       } else if ( n->isa<Expr::ASTNodeProc>() ) {
         pgw << "<Proc 0x = \"" << std::hex << reinterpret_cast<unsigned long>
-          (n->isa<Expr::ASTNodeProc>()->ptrProc()) << "\"/>" << std::endl;
+          (n->isa<Expr::ASTNodeProc>()->ptrProc()) << "\"/>" << std::dec << std::endl;
         //pgw << "</Proc>" << std::endl;
       } else if ( n->isa<Expr::ASTNodeMemGuard>() ) {
         pgw << "<MemGuard "
                  "valueType=\"" << n->isa<Expr::ASTNodeMemGuard>()->getType() << "\" "
                  "name=\"" << n->isa<Expr::ASTNodeMemGuard>()->getName() << "\" "
                  "addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>
-                  (n->isa<Expr::ASTNodeMemGuard>()->getAddrObj()) << "\" "
+                  (n->isa<Expr::ASTNodeMemGuard>()->getAddrObj()) << std::dec << "\" "
                  "addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>
-                  (n->isa<Expr::ASTNodeMemGuard>()->getAddrFun()) << "\"/>"
+                  (n->isa<Expr::ASTNodeMemGuard>()->getAddrFun()) << std::dec << "\"/>"
             << std::endl;
       } else if ( n->isa<Expr::ASTNodeMemProc>() ) {
         pgw << "<MemProc "
                  "valueType=\"" << n->isa<Expr::ASTNodeMemProc>()->getType() << "\" "
                  "addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>
-                  (n->isa<Expr::ASTNodeMemProc>()->getAddrObj()) << "\" "
+                  (n->isa<Expr::ASTNodeMemProc>()->getAddrObj()) << std::dec << "\" "
                  "addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>
-                  (n->isa<Expr::ASTNodeMemProc>()->getAddrFun()) << "\"/>"
+                  (n->isa<Expr::ASTNodeMemProc>()->getAddrFun()) << std::dec << "\"/>"
             << std::endl;
       } else if ( n->isa<Expr::ASTNodeToken>() ) {
         pgw << "<Token "

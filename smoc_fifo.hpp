@@ -345,7 +345,7 @@ protected:
   }
 
   void channelAttributes(smoc_modes::PGWriter &pgw) const {
-    pgw << "<attribute type=\"size\" value=\"" << fsize << "\"/>" << std::endl;
+    pgw << "<attribute type=\"size\" value=\"" << (fsize - 1) << "\"/>" << std::endl;
   }
 
   virtual
