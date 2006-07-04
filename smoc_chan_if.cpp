@@ -35,7 +35,7 @@ public:
     { n += p; return *this; }
 };
 
-static std::map<const char *, IntDefaultZero> _smoc_channel_name_map;
+static std::map<std::string, IntDefaultZero> _smoc_channel_name_map;
 
 void smoc_nonconflicting_chan::finalise() {
   assert(myName == "");
@@ -53,7 +53,7 @@ void smoc_nonconflicting_chan::finalise() {
 //  << strrchr(sc_prim_channel::name(), '_');
     << "_";
   genName
-    << (_smoc_channel_name_map[genName.str().c_str()] += 1);
+    << (_smoc_channel_name_map[genName.str()] += 1);
   myName = genName.str();
 }
 
