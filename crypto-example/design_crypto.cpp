@@ -65,7 +65,7 @@ int sc_main (int argc, char **argv) {
 
 #define GENERATE "--generate-problemgraph"
   const char* input;
-  int run=1;
+  int run=0;
   
   if(argc == 1){
     std::cerr << "Please specify input file for producer!\nsimulation-crypto [input-file]" << std::endl;

@@ -37,7 +37,7 @@ echo $CONFIGURATIONS
 #check if RUN number specified else set default
 if test -z "$RUN";
 then
-  RUN=1;
+  RUN=0;
 fi
 
 while true;
@@ -65,9 +65,9 @@ do
       chmod 664 $config-$stimuli-vcd.tgz
       # tar czf $config-$stimuli-vcd.tgz *.vcd
       # wert aus result lesen
-      read latency < result
-      echo $index $latency \# $config with $stimuli >> $config-plot.dat
-      index=$( expr $index + 1)
+      # read latency < result
+      # echo $index $latency \# $config with $stimuli >> $config-plot.dat
+      # index=$( expr $index + 1)
       # determine reconf times
       RCVCD=$(ls rc*.vcd)
       for vcd in $RCVCD
@@ -78,7 +78,41 @@ do
       tar czf $config-$stimuli-times.tgz *.rt result latency.log simtime.log
     done
   done
+  
+  echo determine runtime without VPC
+  for stimuli in $STIMULIS
+    do
+      # clean up
+      rm -f *.vcd
+      rm -f *.wlf
+      rm -f *.rt
+      rm -f *.log
+      rm -f result
+
+      echo $top_builddir/simulation-crypto $stimuli_dir/$stimuli
+      exec 3>&2
+      exec 2>>simtime.log
+      time $top_builddir/simulation-crypto $stimuli_dir/$stimuli $RUN
+      exec 2>&3
+      echo tar czf NoVPC-$stimuli.tgz latency.log simtime.log
+      tar czf NoVPC-$stimuli-vcd.tgz latency.log simtime.log
+      chmod 664 NoVPC-$stimuli-vcd.tgz
+      # tar czf $config-$stimuli-vcd.tgz *.vcd
+      # wert aus result lesen
+      # read latency < result
+      # echo $index $latency \# NoVPC with $stimuli >> NoVPC-plot.dat
+    done 
+    
+  $builddir/dat2plot.pl
   mkdir RUN-$RUN
   mv *tgz *dat RUN-$RUN
   let "RUN=$RUN * 10"
+ 
+  # clean up
+  rm -f *.vcd
+  rm -f *.wlf
+  rm -f *.rt
+  rm -f *.log
+  rm -f result
+
 done

@@ -26,7 +26,7 @@ class RLatencyWriter {
     }
 
     void writeLatency(int id, sc_time time, sc_time delta){
-      this->ofile << id << "\t" << time << "\t" << delta << std::endl;
+      this->ofile << id << "\t" << time.to_default_time_units() << "\t" << delta.to_default_time_units() << std::endl;
     }
 
 };
