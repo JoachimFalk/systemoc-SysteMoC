@@ -94,9 +94,9 @@ do
       exec 2>>simtime.log
       time $top_builddir/simulation-crypto $stimuli_dir/$stimuli $RUN
       exec 2>&3
-      echo tar czf NoVPC-$stimuli.tgz latency.log simtime.log
-      tar czf NoVPC-$stimuli-vcd.tgz latency.log simtime.log
-      chmod 664 NoVPC-$stimuli-vcd.tgz
+      echo tar czf NoVPC-$stimuli-times.tgz latency.log simtime.log
+      tar czf NoVPC-$stimuli-times.tgz latency.log simtime.log
+      chmod 664 NoVPC-$stimuli-times.tgz
       # tar czf $config-$stimuli-vcd.tgz *.vcd
       # wert aus result lesen
       # read latency < result
