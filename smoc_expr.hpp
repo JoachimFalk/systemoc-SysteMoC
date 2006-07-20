@@ -41,6 +41,26 @@
 namespace Expr {
 
 namespace Detail {
+  typedef std::pair<std::string, std::string> ArgInfo;
+
+  void registerParam(const ArgInfo &);
+
+  //wrapper for constructor parameters	
+  template <typename T>
+  class ParamWrapper {
+  private:
+    T v;
+  public:
+    ParamWrapper(const T &v)
+      : v(v) {
+      std::stringstream allToString; allToString << v;
+      registerParam(ArgInfo(typeid(T).name(), allToString.str()));
+    }
+
+    operator       T()       { return v; }
+    operator const T() const { return v; }
+  };
+
   struct True  { operator bool() const { return true;  } };
   struct False { operator bool() const { return false; } };
   struct Sensitive; // Sensitive type marker for evalTo<Sensitivity>( ... )
@@ -464,9 +484,22 @@ public:
   typedef T           value_type;
   typedef DLiteral<T> this_type;
   
-  const T v;
+  const value_type v;
 public:
   explicit DLiteral(const T &v): v(v) {}
+  template <typename X>
+  DLiteral(const DLiteral<X> &l): v(l.v) {}
+};
+
+template<typename T>
+class DLiteral<Detail::ParamWrapper<T> > {
+public:
+  typedef T                                        value_type;
+  typedef DLiteral<Detail::ParamWrapper<T> >       this_type;
+  
+  const value_type v;
+public:
+  explicit DLiteral(const Detail::ParamWrapper<T> &v): v(v) {}
   template <typename X>
   DLiteral(const DLiteral<X> &l): v(l.v) {}
 };
@@ -482,10 +515,10 @@ struct AST<DLiteral<T> > {
 
 template <typename T>
 struct Value<DLiteral<T> > {
-  typedef T result_type;
+  typedef typename DLiteral<T>::value_type result_type;
   
   static inline
-  T apply(const DLiteral<T> &e)
+  result_type apply(const DLiteral<T> &e)
     { return e.v; }
 };
 
