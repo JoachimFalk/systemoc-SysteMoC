@@ -41,7 +41,7 @@
 #include <string>
 #include <sstream>
 
-#define SMOC_ACTOR_CPARAM(type, name) smoc_root_node::param_wrapper<type>(name)
+#define SMOC_ACTOR_CPARAM(type, name) smoc_root_node::param_wrapper<type> name
 
 class smoc_opbase_node {
 public:
