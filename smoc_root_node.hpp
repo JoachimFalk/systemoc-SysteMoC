@@ -41,7 +41,7 @@
 #include <string>
 #include <sstream>
 
-#define SMOC_ACTOR_CPARAM(type, name) smoc_root_node::param_wrapper<type> name
+#define SMOC_ACTOR_CPARAM(type, name) Expr::Detail::ParamWrapper<type> name
 
 class smoc_opbase_node {
 public:
@@ -88,40 +88,15 @@ private:
   
   const smoc_firing_state &_communicate();
 
-  static  std::vector<std::pair<std::string, std::string> >global_constr_args;
-  
-  std::vector<std::pair<std::string, std::string> > local_constr_args;
+  static  std::vector<Expr::Detail::ArgInfo>  global_constr_args;
+  std::vector<Expr::Detail::ArgInfo>          local_constr_args;
 
   friend class smoc_scheduler_top;
 protected:
   //smoc_root_node(const smoc_firing_state &s);
   smoc_root_node(smoc_firing_state &s);
   
-        
-  //wrapper for constructor parameters	
-  template <typename T>
-  class param_wrapper{
-    public:
-      param_wrapper(const T& x) {
-        m_value = x;
-        std::stringstream allToString;
-        allToString << x;
-        std::pair<std::string, std::string> arg_info;
-        arg_info.first = typeid(T).name();
-        arg_info.second = allToString.str();
-        smoc_root_node::global_constr_args.push_back(arg_info);
-      }
-  
-      operator T(){
-        return m_value;
-      }
-    private:
-      T m_value;
-  };
-
-  friend class param_wrapper<class T>;   
-  
-  
+  friend void Expr::Detail::registerParam(const ArgInfo &argInfo);
 public:
   // FIXME: protection
   bool               is_v1_actor;

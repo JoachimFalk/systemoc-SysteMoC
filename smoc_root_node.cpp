@@ -294,3 +294,7 @@ std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
   }
   return o;
 }
+
+void Expr::Detail::registerParam(const ArgInfo &argInfo) {
+  smoc_root_node::global_constr_args.push_back(argInfo);
+}
