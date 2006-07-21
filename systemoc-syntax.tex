@@ -334,7 +334,7 @@ the following description:
 \begin{eqnarray}
 F_\mathrm{action}   & = & \{f_\mathtt{copyStore}, f_\mathtt{copyInput}, f_\mathtt{copyApprox}\} \nonumber \\
 F_\mathrm{guard}    & = & \{f_\mathtt{check}\} \nonumber \\
-S_\mathrm{func}     & = & \mathbb{R} \nonumber \\
+Q_\mathrm{func}     & = & \mathbb{R} \nonumber \\
 q_{_0\mathrm{func}} & = & 0 \nonumber
 %f_\mathtt{copyStore}    & : &  \nonumber
 \end{eqnarray}
@@ -345,13 +345,12 @@ q_{_0\mathrm{func}} & = & 0 \nonumber
 The actions $f_\mathrm{action} \in F_\mathrm{action}$ of the actor functionality map sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|a.I|}} \in V^*$ at the actor input ports $a.I$ into sequences of token values $\mathbf{v}_{o_1},\mathbf{v}_{o_2},\ldots,\mathbf{v}_{o_{|a.O|}} \in V^*$ at the actor output ports $a.O$, thereby potentially also modifying the functionality state:
 
 \begin{equation}
-f_\mathrm{action} : V^{N_{i_1}} \times V^{N_{i_2}} \ldots \times V^{N_{i_{|a.I|}}} \times S_\mathrm{func} \to V^{M_{o_1}} \times V^{M_{o_2}} \ldots \times V^{M_{o_{|a.O|}}} \times S_\mathrm{func}  \nonumber
+f_\mathrm{action} : V^{N_{i_1}} \times V^{N_{i_2}} \ldots \times V^{N_{i_{|a.I|}}} \times Q_\mathrm{func} \to V^{M_{o_1}} \times V^{M_{o_2}} \ldots \times V^{M_{o_{|a.O|}}} \times Q_\mathrm{func}  \nonumber
 \end{equation}
 
 \noindent
-In the above equation, $N_i \in \mathbb{N}_{0}$ denotes the number of tokens that may be 
-read from the current token sequence $\mathbf{v}_{i}$ at the $i$th actor input port. 
-Similarly, $M_o \in \mathbb{N}_{0}$ denotes the number of tokens designated for the $o$th actor output port the values of which are computed by the action.
+In the above equation, $N_i \in \mathbb{N}_{0}$ denotes the number of tokens that are consumed from the current token sequence $\mathbf{v}_{i}$ at the $i$th actor input port by the firing FSM after the action $f_\mathrm{action}$ has finished.
+Similarly, $M_o \in \mathbb{N}_{0}$ denotes the number of tokens designated for the $o$th actor output port produced by the firing FSM after the action $f_\mathrm{action}$ has computed the associated values for these tokens.
 Note that in the most general case of an actor, the number of token values read as well as 
 the number of token values computed by an action may be dependent also on the 
 state of the actor. The same holds, of course also for the values computed by the 
@@ -374,7 +373,7 @@ the difference between actions and guards.
 A guard $f_\mathrm{guard} \in F_\mathrm{guard}$ of the actor functionality maps sequences of token values $\mathbf{v}_{i_1},\mathbf{v}_{i_2},\ldots,\mathbf{v}_{i_{|a.I|}} \in V^*$ at the  actor input ports $a.I$ and the functionality state to a boolean value:
 
 \begin{equation}
-f_\mathrm{guard} : V^{N_{i_1}} \times V^{N_{i_2}} \ldots \times V^{N_{i_{|a.I|}}} \times S_\mathrm{func} \to \{\mathrm{false}, \mathrm{true} \} \nonumber
+f_\mathrm{guard} : V^{N_{i_1}} \times V^{N_{i_2}} \ldots \times V^{N_{i_{|a.I|}}} \times Q_\mathrm{func} \to \{\mathrm{false}, \mathrm{true} \} \nonumber
 \end{equation}
 
 \noindent
@@ -435,7 +434,7 @@ More formally, we derive the following two formal definitions:
 
 \begin{definition}[Firing FSM]\label{def:firing-fsm}
   The \emph{firing FSM} of an actor $a \in A$ is a tuple $a.\mathcal{R} =$ $(T,$ $Q_\mathrm{firing},$ $q_{_0\mathrm{firing}})$ containing
-  a finite set of \emph{firing transitions} $T$, % \subseteq S_\mathrm{firing} \times \mathcal{K} \times A.\mathcal{F}.F_\mathrm{action} \times S_\mathrm{firing}$,
+  a finite set of \emph{firing transitions} $T$, % \subseteq Q_\mathrm{firing} \times \mathcal{K} \times A.\mathcal{F}.F_\mathrm{action} \times Q_\mathrm{firing}$,
   a finite set of \emph{firing states} $Q_\mathrm{firing}$ and
   an \emph{initial firing state} $q_{_0\mathrm{firing}} \in Q_\mathrm{firing}$.
 \end{definition}
@@ -454,7 +453,7 @@ More formally, we derive the following two formal definitions:
 % Where $k$ is a function from
 % the \emph{input alphabet} $\chi = (V^{**})^{|A.I|} \times \mathbb{Z}^{|A.O|}$ and the \emph{functionality state}
 % $A.\mathcal{F}.Q_\mathrm{func}$ to the trinary boolean set $\{\bot, \mathrm{true}, \mathrm{false}\}$, i.e.,
-% $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\bot, \mathrm{true}, \mathrm{false}\}$.
+% $k: \chi \times A.\mathcal{F}.Q_\mathrm{func} \to \{\mathrm{true}, \mathrm{false}\}$.
 \end{definition}
 
 \begin{figure}[t]
