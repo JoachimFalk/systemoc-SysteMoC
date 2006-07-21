@@ -427,10 +427,13 @@ This will be, however, a topic of future work.
 
 The notion of firing FSM is similar to the concepts introduced in SPI~\cite{ZERTT99a} and an extension of the \emph{finite state machines} in FunState~\cite{STZETG00} by allowing requirements for a minimum of space available in output channels before a transition can be taken.
 The states of the firing FSM are called \emph{firing states}, directed edges between these firing states are called \emph{firing transitions} or \emph{transitions} for short.
-Each transition is annotated with an \emph{activation pattern}, a boolean expression 
-which decides if the transition can be taken, and an \emph{action} from the \emph{actor functionality} which is executed if the transition is taken.
-An \emph{activation pattern} may consist of an \emph{input pattern} and an \emph{output pattern}. Input (output) patterns are responsible for checking conditions on the actor input (output) ports, respectively.
-More formally, we derive the following two formal definitions:
+Each transition is annotated with an \emph{activation pattern}, a boolean expression which decides if the transition can be taken, and an \emph{action} from the \emph{actor functionality} which is executed if the transition is taken.
+The activation patterns are partitioned into:
+ (i)   Predicates on the number of available tokens on the input ports called \emph{input patterns}, e.g., $i_1(1)$ denotes a predicate that tests the availability of at least one token at the actor input port $i_1$,
+ (ii)  predicates on the number of free places on the output ports called \emph{output patterns}, e.g., $o_1(1)$ checks if at least one free place is available at the output port $o_1$, and
+ (iii) more general predicates called \emph{functionality conditions} depending on the \emph{functionality state} or the token values on the input ports.
+% An \emph{activation pattern} may consist of an \emph{input pattern} and an \emph{output pattern}. Input (output) patterns are responsible for checking conditions on the actor input (output) ports, respectively.
+More formally, we derive the following two definitions:
 
 \begin{definition}[Firing FSM]\label{def:firing-fsm}
   The \emph{firing FSM} of an actor $a \in A$ is a tuple $a.\mathcal{R} =$ $(T,$ $Q_\mathrm{firing},$ $q_{_0\mathrm{firing}})$ containing
