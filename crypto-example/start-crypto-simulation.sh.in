@@ -63,7 +63,7 @@ do
       echo VPCCONFIGURATION=$configuration_dir/$config $top_builddir/simulation-crypto $stimuli_dir/$stimuli
       exec 3>&2
       exec 2>>simtime.log
-      time VPCCONFIGURATION=$configuration_dir/$config $top_builddir/simulation-crypto $stimuli_dir/$stimuli $RUN
+      time VPCCONFIGURATION=$configuration_dir/$config $top_builddir/simulation-crypto $stimuli_dir/$stimuli $RUN > /dev/null
       exec 2>&3
       echo tar czf $config-$stimuli.tgz *.vcd result simtime.log
       tar czf $config-$stimuli-vcd.tgz *.vcd result latency.log simtime.log
@@ -104,9 +104,9 @@ do
       echo $top_builddir/simulation-crypto $stimuli_dir/$stimuli
       exec 3>&2
       exec 2>>simtime.log
-      time $top_builddir/simulation-crypto $stimuli_dir/$stimuli $RUN
+      time $top_builddir/simulation-crypto $stimuli_dir/$stimuli $RUN > /dev/null
       exec 2>&3
-      if test -f "gmon.out"; then
+      #if test -f "gmon.out"; then
       #echo tar czf NoVPC-$stimuli-times.tgz latency.log simtime.log
       #  tar czf NoVPC-$stimuli-times.tgz latency.log simtime.log gmon.out
       #else
