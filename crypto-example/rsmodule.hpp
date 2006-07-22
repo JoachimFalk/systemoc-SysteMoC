@@ -26,6 +26,8 @@ class RSModule : public smoc_actor{
     // internal variable referring to number of keys still to transmit
     int num_of_keys;
     
+    bool desInit;
+    bool bfInit;
   protected: 
   
     // id to group data over more than one packet
@@ -56,7 +58,8 @@ class RSModule : public smoc_actor{
       packet.encryption_algorithm = this->nextAlgo;
       packet.processing_request = ExampleNetworkPacket::PR_set_key;
       packet.validation_request = ExampleNetworkPacket::VR_sign;
-
+      if( packet.encryption_algorithm == ExampleNetworkPacket::EM_des3 )     desInit = true;
+      if( packet.encryption_algorithm == ExampleNetworkPacket::EM_blowfish ) bfInit  = true;
       // first of all generate key for transmission
       for(int i=0; i < PACKET_PAYLOAD && i < this->num_of_keys; i++){
         packet.payload[i] = (static_cast< sc_bv<8> >("11111111"), static_cast< sc_bv<56> >(i));
@@ -99,13 +102,13 @@ class RSModule : public smoc_actor{
           std::cerr << this->basename() << "> next encryption algorithm: DES" << std::endl;
 #endif
           this->nextAlgo = ExampleNetworkPacket::EM_des3;
-          this->num_of_keys = RSModule::NUMKEYS_DES3;
+          if(!desInit) this->num_of_keys = RSModule::NUMKEYS_DES3;
         }else if(enc_req == "BF" && this->nextAlgo != ExampleNetworkPacket::EM_blowfish){
 #ifdef EX_DEBUG
           std::cerr << this->basename() << "> next encryption algorithm: Blowfish" << std::endl;
 #endif
           this->nextAlgo = ExampleNetworkPacket::EM_blowfish;
-          this->num_of_keys = RSModule::NUMKEYS_BLOWFISH;
+          if(!bfInit) this->num_of_keys = RSModule::NUMKEYS_BLOWFISH;
         }        
       }
 
@@ -139,6 +142,8 @@ class RSModule : public smoc_actor{
     RSModule(sc_module_name name, 
              ExampleNetworkPacket::EncryptionAlgorithm type = ExampleNetworkPacket::EM_des3) 
       : smoc_actor(name, start), 
+	desInit(false),
+	bfInit(false),
         packetID(0), 
         nextAlgo(type){
       

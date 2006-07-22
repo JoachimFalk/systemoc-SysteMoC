@@ -37,11 +37,13 @@ echo $CONFIGURATIONS
 #check if RUN number specified else set default
 if test -z "$RUN";
 then
-  RUN=0;
+  RUN=10;
 fi
 
-while true;
+for i in `seq 1 100`;
 do
+#while true;
+#do
   for config in $CONFIGURATIONS
   do
     index=0
@@ -54,7 +56,10 @@ do
       rm -f *.rt
       rm -f *.log
       rm -f result
-
+      #if test -f "gmon.out"; then
+      #  rm -f gmon.out
+      #fi
+      
       echo VPCCONFIGURATION=$configuration_dir/$config $top_builddir/simulation-crypto $stimuli_dir/$stimuli
       exec 3>&2
       exec 2>>simtime.log
@@ -70,12 +75,16 @@ do
       # index=$( expr $index + 1)
       # determine reconf times
       RCVCD=$(ls rc*.vcd)
-      for vcd in $RCVCD
-      do
-        echo $srcdir/vcd_sum.pl $vcd
-        $srcdir/vcd_sum.pl $vcd
-      done
+      #for vcd in $RCVCD
+      #do
+      #  echo $srcdir/vcd_sum.pl $vcd
+      #  $srcdir/vcd_sum.pl $vcd
+      #done
+      #if test -f "gmon.out"; then
+      #  tar czf $config-$stimuli-times.tgz *.rt result latency.log simtime.log gmon.out
+      #else
       tar czf $config-$stimuli-times.tgz *.rt result latency.log simtime.log
+      #fi
     done
   done
   
@@ -88,14 +97,21 @@ do
       rm -f *.rt
       rm -f *.log
       rm -f result
-
+      #if test -f "gmon.out"; then
+      #  rm -f gmon.out
+      #fi
+      
       echo $top_builddir/simulation-crypto $stimuli_dir/$stimuli
       exec 3>&2
       exec 2>>simtime.log
       time $top_builddir/simulation-crypto $stimuli_dir/$stimuli $RUN
       exec 2>&3
-      echo tar czf NoVPC-$stimuli-times.tgz latency.log simtime.log
-      tar czf NoVPC-$stimuli-times.tgz latency.log simtime.log
+      if test -f "gmon.out"; then
+      #echo tar czf NoVPC-$stimuli-times.tgz latency.log simtime.log
+      #  tar czf NoVPC-$stimuli-times.tgz latency.log simtime.log gmon.out
+      #else
+        tar czf NoVPC-$stimuli-times.tgz latency.log simtime.log
+      #fi
       chmod 664 NoVPC-$stimuli-times.tgz
       # tar czf $config-$stimuli-vcd.tgz *.vcd
       # wert aus result lesen
@@ -104,9 +120,9 @@ do
     done 
     
   $builddir/dat2plot.pl
-  mkdir RUN-$RUN
-  mv *tgz *dat RUN-$RUN
-  let "RUN=$RUN * 10"
+  mkdir -p /scratch-local/riedel/RUN-$RUN-$i
+  mv *tgz *dat /scratch-local/riedel/RUN-$RUN-$i
+  #let "RUN=$RUN * 10"
  
   # clean up
   rm -f *.vcd
