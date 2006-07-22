@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE vpcconfiguration SYSTEM "cmx.dtd">
+<vpcconfiguration>
+<resultfile name="./result"/>
+<measurefile name="./_measure.xml"/>
+<resources>
+<component name="c1_0" type="threaded" scheduler="FCFS">
+</component>
+<component name="c0_0" type="threaded" scheduler="FCFS">
+</component>
+<component name="c2_0" type="threaded" scheduler="FCFS">
+</component>
+</resources>
+<mappings>
+<mapping source="crypto_example.producer" target="c0_0">
+<attribute type="delay" value="2ns"/>
+</mapping>
+<mapping source="cf_crypto_example.producer_crypto_example.pEncModule.Dispatcher_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.pEncModule.Dispatcher" target="c0_0">
+<attribute type="delay" value="1ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pEncModule.Dispatcher_crypto_example.pEncModule.Blowfish_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pEncModule.Dispatcher_crypto_example.pEncModule.DES3_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.pEncModule.Blowfish" target="c0_0">
+<attribute type="delay" value="8640000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pEncModule.Blowfish_crypto_example.pEncModule.Merger_1" target="c0_0">
+<attribute type="delay" value="0"/>
+</mapping>
+<mapping source="crypto_example.pEncModule.DES3" target="c0_0">
+<attribute type="delay" value="5760000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pEncModule.DES3_crypto_example.pEncModule.Merger_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.pEncModule.Merger" target="c0_0">
+<attribute type="delay" value="1ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pEncModule.Merger_crypto_example.pMd5_sign_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.pMd5_sign" target="c0_0">
+<attribute type="delay" value="8070000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pMd5_sign_crypto_example.channel.io1_1" target="c1_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.channel.io1" target="c1_0">
+<attribute type="delay" value="15ns"/>
+</mapping>
+<mapping source="cf_crypto_example.channel.io1_crypto_example.cMd5_check_1" target="c1_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.cMd5_check" target="c2_0">
+<attribute type="delay" value="8070000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cMd5_check_crypto_example.cDecModule.Dispatcher_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.cDecModule.Dispatcher" target="c2_0">
+<attribute type="delay" value="1ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cDecModule.Dispatcher_crypto_example.cDecModule.Blowfish_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cDecModule.Dispatcher_crypto_example.cDecModule.DES3_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.cDecModule.Blowfish" target="c2_0">
+<attribute type="delay" value="8640000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cDecModule.Blowfish_crypto_example.cDecModule.Merger_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.cDecModule.DES3" target="c2_0">
+<attribute type="delay" value="5760000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cDecModule.DES3_crypto_example.cDecModule.Merger_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.cDecModule.Merger" target="c2_0">
+<attribute type="delay" value="1ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cDecModule.Merger_crypto_example.consumer_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.consumer" target="c2_0">
+<attribute type="delay" value="2ns"/>
+</mapping>
+<mapping source="cf_crypto_example.consumer_crypto_example.cEncModule.Dispatcher_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.cEncModule.Dispatcher" target="c2_0">
+<attribute type="delay" value="1ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cEncModule.Dispatcher_crypto_example.cEncModule.Blowfish_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cEncModule.Dispatcher_crypto_example.cEncModule.DES3_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.cEncModule.Blowfish" target="c2_0">
+<attribute type="delay" value="8640000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cEncModule.Blowfish_crypto_example.cEncModule.Merger_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.cEncModule.DES3" target="c2_0">
+<attribute type="delay" value="5760000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cEncModule.DES3_crypto_example.cEncModule.Merger_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.cEncModule.Merger" target="c2_0">
+<attribute type="delay" value="1ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cEncModule.Merger_crypto_example.cMd5_sign_1" target="c2_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.cMd5_sign" target="c2_0">
+<attribute type="delay" value="8070000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.cMd5_sign_crypto_example.channel.io2_1" target="c1_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.channel.io2" target="c1_0">
+<attribute type="delay" value="15ns"/>
+</mapping>
+<mapping source="cf_crypto_example.channel.io2_crypto_example.pMd5_check_1" target="c1_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.pMd5_check" target="c0_0">
+<attribute type="delay" value="8070000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pMd5_check_crypto_example.pDecModule.Dispatcher_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.pDecModule.Dispatcher" target="c0_0">
+<attribute type="delay" value="1ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pDecModule.Dispatcher_crypto_example.pDecModule.Blowfish_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pDecModule.Dispatcher_crypto_example.pDecModule.DES3_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.pDecModule.Blowfish" target="c0_0">
+<attribute type="delay" value="8640000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pDecModule.Blowfish_crypto_example.pDecModule.Merger_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.pDecModule.DES3" target="c0_0">
+<attribute type="delay" value="5760000ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pDecModule.DES3_crypto_example.pDecModule.Merger_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+<mapping source="crypto_example.pDecModule.Merger" target="c0_0">
+<attribute type="delay" value="1ns"/>
+</mapping>
+<mapping source="cf_crypto_example.pDecModule.Merger_crypto_example.producer_1" target="c0_0">
+<attribute type="delay" value="0ns"/>
+</mapping>
+</mappings>
+</vpcconfiguration>
