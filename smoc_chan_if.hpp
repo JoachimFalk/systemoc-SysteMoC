@@ -123,8 +123,6 @@ public:
             typename T_chan_kind,
             template <typename T_value_type> class T_chan_init_default>
   friend class smoc_graph_petri;
-private:
-  sc_module *hierarchy; // patched in finalise of smoc_graph_petri
 public:
   virtual smoc_port_list  getInputPorts()                   const = 0;
   virtual smoc_port_list  getOutputPorts()                  const = 0;
@@ -132,15 +130,10 @@ public:
   virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
   virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
   virtual void finalise()                                         = 0;
-
-  sc_module *getHierarchy() const {
-    assert( hierarchy != NULL );  
-    return hierarchy;
-  }
 protected:
   // constructor
   smoc_root_chan(const char *name)
-    : sc_prim_channel(name), hierarchy(NULL) {}
+    : sc_prim_channel(name) {}
 
   virtual void assemble(smoc_modes::PGWriter &pgw) const = 0;
 };
@@ -221,11 +214,6 @@ public:
   virtual void        commExecIn(const ring_type &) = 0;
 #endif
   virtual bool        portOutIsV1() const = 0;
-  
-  sc_module *getHierarchy() const {
-    assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
-    return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
-  }
 protected:
 //smoc_event write_event;
   
@@ -266,11 +254,6 @@ public:
   virtual void        commExecOut(const ring_type &) = 0;
 #endif
   virtual bool        portInIsV1() const = 0;
-  
-  sc_module *getHierarchy() const {
-    assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
-    return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
-  }
 protected:
 //smoc_event read_event;
   

@@ -27,7 +27,7 @@ using namespace CoSupport;
 void smoc_root_port::dump( std::ostream &out ) const {
   out << "port(" << this
       <<      ",name=" << name()
-      <<      ",hierarchy=" << getHierarchy()->name()
+//    <<      ",hierarchy=" << getHierarchy()->name()
       <<      ",available=" << availableCount() << ")";
 }
 

@@ -73,7 +73,6 @@ finalise() {
     for ( typename smoc_chan_list::iterator iter = chans.begin();
           iter != chans.end();
           ++iter ) {
-      (*iter)->hierarchy = this;
       (*iter)->finalise();
     }
   }

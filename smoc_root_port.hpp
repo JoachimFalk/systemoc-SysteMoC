@@ -65,7 +65,6 @@ public:
   virtual const char* kind() const
     { return kind_string; }
   
-  virtual sc_module  *getHierarchy() const = 0;
   virtual size_t      availableCount() const = 0;
   virtual smoc_event &blockEvent(size_t n = MAX_TYPE(size_t)) = 0;
   virtual bool        isInput() const = 0;
