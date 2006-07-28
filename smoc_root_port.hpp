@@ -36,6 +36,8 @@
 #include <smoc_expr.hpp>
 #include <smoc_event.hpp>
 
+class smoc_root_node;
+
 class smoc_root_port
   // must be public inheritance for dynamic_cast in smoc_root_node to work
   : public sc_port_base {
@@ -43,13 +45,13 @@ public:
   typedef smoc_root_port  this_type;
   
   template <class E> friend class Expr::Value;
-//  friend class smoc_firing_types::resolved_state_ty;
-//  friend class smoc_firing_types::transition_ty;
+  friend class smoc_root_node;
 protected:
   smoc_root_port *parent;
+  smoc_root_node *actor;
   
   smoc_root_port( const char* name_ )
-    : sc_port_base( name_, 1 ), parent(NULL), is_smoc_v1_port(false) {}
+    : sc_port_base( name_, 1 ), parent(NULL), actor(NULL), is_smoc_v1_port(false) {}
 public:
   virtual void commSetup(size_t req)                = 0;
 #ifdef ENABLE_SYSTEMC_VPC
@@ -80,6 +82,8 @@ public:
   
   smoc_root_port *getParentPort() const
     { return parent; }
+  smoc_root_node *getActor() const
+    { return actor; }
   
   // bind interface to this port
   void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
@@ -90,6 +94,11 @@ public:
   }
   
   void dump( std::ostream &out ) const;
+protected:
+  /// Finalise port set actor.
+  /// Called by smoc_root_node::finalise
+  void finalise(smoc_root_node *node)
+    { actor = node; }
 private:
   // disabled
   smoc_root_port( const this_type & );
