@@ -362,7 +362,7 @@ private:
 protected:
   smoc_port_base( const char* name_ )
     : base_type( name_ ), interface( NULL ) {}
-  
+
   void push_interface( sc_interface *_i ) {
     assert( interface == NULL );
     interface = dynamic_cast<iface_type *>(_i);
@@ -407,14 +407,16 @@ public:
   template <class E> friend class Expr::Value;
 protected:
   typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> > base_type;
-  
+
   void add_interface( sc_interface *i ) {
-    this->push_interface(i); (*this)->addPort( this );
+    this->push_interface(i);
+    if (this->child == NULL)
+      (*this)->addPort(this);
   }
 
   bool peerIsV1() const
     { return (*this)->portOutIsV1(); }
-  
+
   void commSetup(size_t req) {
     static_cast<ring_type &>(*this) =
       (*this)->commSetupIn(req);
@@ -475,14 +477,16 @@ public:
   template <class E> friend class Expr::Value;
 protected:
   typedef smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T> > base_type;
-  
+
   void add_interface( sc_interface *i ) {
-    this->push_interface(i); (*this)->addPort( this );
+    this->push_interface(i);
+    if (this->child == NULL)
+      (*this)->addPort(this);
   }
-  
+
   bool peerIsV1() const
     { return (*this)->portInIsV1(); }
-  
+
   void commSetup(size_t req) {
     static_cast<ring_type &>(*this) =
       (*this)->commSetupOut(req);

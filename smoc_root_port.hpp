@@ -47,11 +47,13 @@ public:
   template <class E> friend class Expr::Value;
   friend class smoc_root_node;
 protected:
-  smoc_root_port *parent;
+  smoc_root_port *parent, *child;
   smoc_root_node *actor;
   
   smoc_root_port( const char* name_ )
-    : sc_port_base( name_, 1 ), parent(NULL), actor(NULL), is_smoc_v1_port(false) {}
+    : sc_port_base( name_, 1 ),
+      parent(NULL), child(NULL),
+      actor(NULL), is_smoc_v1_port(false) {}
 public:
   virtual void commSetup(size_t req)                = 0;
 #ifdef ENABLE_SYSTEMC_VPC
@@ -82,6 +84,10 @@ public:
   
   smoc_root_port *getParentPort() const
     { return parent; }
+  smoc_root_port *getChildPort() const
+    { return child; }
+  /// FIXME: use SystemC get_parent for this !
+  /// dynamic_cast<smoc_root_node *>(this->get_parent())
   smoc_root_node *getActor() const
     { return actor; }
   
@@ -89,7 +95,9 @@ public:
   void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
   // bind parent port to this port
   void bind( this_type &parent_ ) {
-    assert( parent == NULL ); parent = &parent_;
+    assert( parent == NULL && parent_.child == NULL );
+    parent        = &parent_;
+    parent->child = this;
     sc_port_base::bind(parent_);
   }
   
