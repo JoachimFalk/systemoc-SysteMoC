@@ -48,12 +48,11 @@ public:
   friend class smoc_root_node;
 protected:
   smoc_root_port *parent, *child;
-  smoc_root_node *actor;
   
   smoc_root_port( const char* name_ )
     : sc_port_base( name_, 1 ),
       parent(NULL), child(NULL),
-      actor(NULL), is_smoc_v1_port(false) {}
+      is_smoc_v1_port(false) {}
 public:
   virtual void commSetup(size_t req)                = 0;
 #ifdef ENABLE_SYSTEMC_VPC
@@ -86,11 +85,8 @@ public:
     { return parent; }
   smoc_root_port *getChildPort() const
     { return child; }
-  /// FIXME: use SystemC get_parent for this !
-  /// dynamic_cast<smoc_root_node *>(this->get_parent())
-  smoc_root_node *getActor() const
-    { return actor; }
-  
+  smoc_root_node *getActor() const;
+ 
   // bind interface to this port
   void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
   // bind parent port to this port
@@ -103,10 +99,8 @@ public:
   
   void dump( std::ostream &out ) const;
 protected:
-  /// Finalise port set actor.
-  /// Called by smoc_root_node::finalise
-  void finalise(smoc_root_node *node)
-    { actor = node; }
+  /// Finalise port called by smoc_root_node::finalise
+  void finalise(smoc_root_node *node) {}
 private:
   // disabled
   smoc_root_port( const this_type & );
