@@ -201,9 +201,16 @@ struct Value {};
  * Expr evalTo helper functions
  */
 
+  //class Z: specifies, what expression to evaluate (i.e. struct value)
+  //         Z is a template, parameterized with a class
+  //D is a wrapper class and not important for unterstanding
+  //class E: expression to evaluate
 template<template <class> class Z, class E>
 typename Z<E>::result_type evalTo(const D<E> &e) {
-  return Z<E>::apply(e.getExpr());
+  //the functionality to perform is specified by specialisations of Z<E>
+  return Z<E>::apply(
+		     e.getExpr() //eliminate wrapper D
+		     );
 }
 
 template<template <class> class Z, class E>
@@ -519,7 +526,10 @@ struct Value<DLiteral<T> > {
   
   static inline
   result_type apply(const DLiteral<T> &e)
-    { return e.v; }
+    { 
+      //return value of literal
+      return e.v; 
+    }
 };
 
 template<class T>

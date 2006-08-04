@@ -4,6 +4,7 @@
 #include <cassert>
 #include <new>
 
+/// Storage class for a single data element
 template<class T>
 class smoc_storage
 {
@@ -79,7 +80,8 @@ public:
   }  
 };
 
-
+/// Defines the required types, so that smoc_storage
+/// realizes read-only storage class.
 template<class T>
 struct smoc_storage_in
 {
@@ -87,6 +89,8 @@ struct smoc_storage_in
   typedef const T &		return_type;
 };
 
+/// Defines the required types, so that smoc_storage
+/// realizes write-only storage class.
 template<class T>
 struct smoc_storage_out
 {

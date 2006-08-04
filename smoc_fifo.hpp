@@ -172,6 +172,9 @@ namespace smoc_detail {
 /// Furthermore the storage of the ring buffer is allocated
 /// in a derived class the base class only manages the
 /// read, write, and visible pointers.
+/// Additionally to these operations, the events 
+/// sensitive to fifo fill levels are
+/// managed in this class.
 class smoc_fifo_kind
 : public smoc_nonconflicting_chan {
 #ifdef ENABLE_SYSTEMC_VPC
@@ -208,6 +211,7 @@ protected:
   smoc_event   eventRead;
   EventMap     eventMapFree;
 
+  /// Calculate number of tokens available in FIFO
   size_t usedStorage() const {
     size_t used =
 #ifdef ENABLE_SYSTEMC_VPC
@@ -217,10 +221,16 @@ protected:
 #endif
     
     if ( used > fsize )
+      //rindex > windex -> overflow
       used += fsize;
     return used;
   }
 
+  
+  /// Notify all events which require less or equal tokens
+  /// than actually available in the FIFO
+  /// Furthermore, signal, that a write-operation has occured by notifing the
+  /// corresponding event (eventWrite)
   void usedIncr() {
     size_t used = usedStorage();
     // notify all disabled events for less/equal usedStorage() available tokens
@@ -231,6 +241,7 @@ protected:
     eventWrite.notify();
   }
 
+  /// Reset all events which require more tokens than actually available in the FIFO
   void usedDecr() {
     size_t used = usedStorage();
     // reset all enabled events for more then usedStorage() available tokens
@@ -240,6 +251,7 @@ protected:
       iter->second->reset();
   }
 
+  /// Calculate number of free tokens
   size_t unusedStorage() const {
     size_t unused = rindex - windex - 1;
     
@@ -248,6 +260,10 @@ protected:
     return unused;
   }
 
+  /// Notify all events which require less or equal free space in the FIFO than
+  /// currently available.
+  /// Furthermore, signal a read operation by notifying 
+  /// the corresponding event (eventRead)
   void unusedIncr() {
     size_t unused = unusedStorage();
     // notify all disabled events for less/equal unusedStorage() free space
@@ -258,6 +274,8 @@ protected:
     eventRead.notify();
   }
 
+  ///Reset all events which require more free space than currently
+  ///available in the FIFO.
   void unusedDecr() {
     size_t unused = unusedStorage();
     // reset all enabled events for more then unusedStorage() free space
@@ -267,6 +285,11 @@ protected:
       iter->second->reset();
   }
 
+  /// o Update the FIFO read pointer.
+  /// o Notify read-event + all events which require less or equal free
+  ///   FIFO space than available after read-pointer update
+  /// o Reset all events which require more tokens then available after
+  ///   read pointer update (Important, because event is re-used)
   void rpp(size_t n) {
     if ( rindex + n >= fsize )
       rindex = rindex + n - fsize;
@@ -276,6 +299,12 @@ protected:
     usedDecr(); unusedIncr();
   }
 
+  /// o Update FIFO write pointer
+  /// o Notify write-event + all events which require less or equal tokens
+  ///   available in the FIFO than after update of the write pointer
+  /// o Reset all events which require more free space than available
+  ///   in the FIFO after update of the write-pointer (Important, because
+  ///   event is re-used).
 #ifdef ENABLE_SYSTEMC_VPC
   void wpp(size_t n, const smoc_ref_event_p &le)
 #else
@@ -316,12 +345,18 @@ protected:
   }
 #endif
 
+  
+  /// Returns an event which is notified, if n tokens are available in the FIFO
   smoc_event &getEventAvailable(size_t n) {
     if (n != MAX_TYPE(size_t)) {
+      //find event which is associated with key-value n
       EventMap::iterator iter = eventMapAvailable.find(n);
       if (iter == eventMapAvailable.end()) {
+	//No such event found
+	//Create a new event, and insert in map with key-value n
         iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
         if (usedStorage() >= n)
+	  //There are already more then n tokens stored in the FIFO
           iter->second->notify();
       }
       return *iter->second;
@@ -330,12 +365,17 @@ protected:
     }
   }
 
+  /// Returns an event which is notified, when n tokens can be written into the FIFO
   smoc_event &getEventFree(size_t n) {
     if (n != MAX_TYPE(size_t)) {
+      //find event which is associated with key-value n
       EventMap::iterator iter = eventMapFree.find(n);
       if (iter == eventMapFree.end()) {
+	//No such event found
+	//Create a new event, and insert in map with key-value n
         iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
         if (unusedStorage() >= n)
+	  //There are already more than n tokens free for write
           iter->second->notify();
       }
       return *iter->second;
@@ -412,6 +452,8 @@ protected:
       storage(new storage_type[this->fsize])
   {
     assert(this->fsize > i.marking.size());
+
+    //copy initial tokens
     for(size_t j = 0; j < i.marking.size(); ++j) {
       storage[j].put(i.marking[j]);
     }
@@ -421,6 +463,7 @@ protected:
 #endif
   }
   
+  /// returns pointer to FIFO buffer
   storage_type *getStorage() const { return storage; }
   
   void channelContents(smoc_modes::PGWriter &pgw) const {
@@ -508,12 +551,14 @@ protected:
 //  iface_in_type  *in;
 //  iface_out_type *out;
   
+  /// Get ring access object which allows to read req elements.
   ring_in_type commSetupIn(size_t req) {
     assert( req <= this->usedStorage() );
     return ring_in_type(this->getStorage(),
         this->fsize, this->rindex, req);
   }
   
+  /// Performs "Read-Commit"
 #ifdef ENABLE_SYSTEMC_VPC
   void commExecIn(const ring_in_type &r, const smoc_ref_event_p &le)
 #else
@@ -529,12 +574,14 @@ protected:
 //    this->write_event.reset();
   }
   
+  /// Get ring access object which allows to read write elements.
   ring_out_type commSetupOut(size_t req) {
     assert( req <= this->unusedStorage() );
     return ring_out_type(this->getStorage(),
         this->fsize, this->windex, req);
   }
   
+  ///Performs write commit
 #ifdef ENABLE_SYSTEMC_VPC
   void commExecOut(const ring_out_type &r, const smoc_ref_event_p &le)
 #else
@@ -574,14 +621,16 @@ public:
     { return this->getEventFree(n); }
 };
 
+/// Channel initialization class
 template <typename T>
 class smoc_fifo
   : public smoc_fifo_storage<T>::chan_init {
 public:
   typedef T                   data_type;
   typedef smoc_fifo<T>        this_type;
-  typedef smoc_fifo_type<T>   chan_type;
+  typedef smoc_fifo_type<T>   chan_type; //Identifies corresponding channel class
   
+  //Operator to add initial values
   this_type &operator <<( typename smoc_fifo_storage<T>::chan_init::add_param_ty x ) {
     add(x); return *this;
   }

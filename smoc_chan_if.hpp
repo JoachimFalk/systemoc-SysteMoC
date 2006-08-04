@@ -43,6 +43,10 @@ public:
   smoc_ring_access()
     { reset(); }
   
+  //base  : start address of buffer
+  //size  : size of buffer
+  //pos   : start element for read/write access
+  //limit : number of elements to access
   smoc_ring_access(storage_type *base, size_t size, size_t pos, size_t limit)
     : p1(base + pos), boundary(size-pos), p2(base - boundary), limit(limit)
     { assert( pos < size ); assert( limit <= size ); }

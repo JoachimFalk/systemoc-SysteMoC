@@ -58,7 +58,7 @@ public:
 template<typename T>
 class DToken {
 public:
-  typedef const T    value_type;
+  typedef const T    value_type; //return-type of expression
   typedef DToken<T>  this_type;
   
   friend class Value<this_type>;
@@ -392,7 +392,7 @@ class smoc_port_in
 : public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> >,
   public smoc_ring_access<
     typename smoc_storage_in<T>::storage_type,
-    typename smoc_storage_in<T>::return_type>
+    typename smoc_storage_in<T>::return_type> //read-only storage
 {
 public:
   typedef T						    data_type;
@@ -417,9 +417,12 @@ protected:
   bool peerIsV1() const
     { return (*this)->portOutIsV1(); }
 
+  /// Set class variables, so that port (of class smoc_port_in)
+  /// becomes a valid ring_access-element with the given size.
   void commSetup(size_t req) {
     static_cast<ring_type &>(*this) =
-      (*this)->commSetupIn(req);
+      (*this)->commSetupIn(req); //-> overloaded!
+                                 //(*this)-> returns channel (i.e. smoc_fifo_...)
   }
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(const smoc_ref_event_p &le) { (*this)->commExecIn(*this, le); }
@@ -489,7 +492,8 @@ protected:
 
   void commSetup(size_t req) {
     static_cast<ring_type &>(*this) =
-      (*this)->commSetupOut(req);
+      (*this)->commSetupOut(req); //-> overloaded!
+                                 //(*this)-> returns channel (i.e. smoc_fifo_...)
   }
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(const smoc_ref_event_p &le) { (*this)->commExecOut(*this, le); }
