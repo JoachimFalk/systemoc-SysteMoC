@@ -17,6 +17,7 @@
  */
 
 #include <smoc_chan_if.hpp>
+#include <smoc_root_node.hpp>
 
 #include <map>
 #include <sstream>
@@ -37,24 +38,46 @@ public:
 
 static std::map<std::string, IntDefaultZero> _smoc_channel_name_map;
 
-void smoc_nonconflicting_chan::finalise() {
+void smoc_root_chan::finalise() {
   assert(myName == "");
-  assert(portIn != NULL && portOut != NULL );
-  assert(dynamic_cast<sc_module *>(portIn->get_parent()) != NULL);
-  assert(dynamic_cast<sc_module *>(portOut->get_parent()) != NULL);
   
   std::ostringstream genName;
   
-  genName
-    << "cf_"
-    << dynamic_cast<sc_module *>(portOut->get_parent())->name()
-    << "_"
-    << dynamic_cast<sc_module *>(portIn->get_parent())->name()
-//  << strrchr(sc_prim_channel::name(), '_');
-    << "_";
-  genName
-    << (_smoc_channel_name_map[genName.str()] += 1);
+  genName << "cf_";
+  {
+    const smoc_port_list &in = getInputPorts();
+    
+    for ( smoc_port_list::const_iterator iter = in.begin();
+          iter != in.end();
+          ++iter ) {
+      genName
+        << (iter == in.begin() ? "" : "|")
+        << (*iter)->getActor()->myModule()->name();
+    }
+  }
+  genName << "_";
+  {
+    const smoc_port_list &out = getOutputPorts();
+    
+    for ( smoc_port_list::const_iterator iter = out.begin();
+          iter != out.end();
+          ++iter ) {
+      genName
+        << (iter == out.begin() ? "" : "|")
+        << (*iter)->getActor()->myModule()->name();
+    }
+  }
+  genName << "_";
+  genName << (_smoc_channel_name_map[genName.str()] += 1);
   myName = genName.str();
+}
+
+void smoc_nonconflicting_chan::finalise() {
+  smoc_root_chan::finalise();
+  assert(getInputPorts().size() == 1);
+  assert(getOutputPorts().size() == 1);
+  portIn  = getInputPorts().front();
+  portOut = getOutputPorts().front();
 }
 
 void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {

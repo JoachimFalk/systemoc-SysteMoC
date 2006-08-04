@@ -111,94 +111,47 @@ public:
     { limit = 0; }
 };
 
-const sc_event& smoc_default_event_abort();
-
-class smoc_root_chan
-  : public sc_prim_channel {
-public:
-  // typedefs
-  typedef smoc_root_chan              this_type;
-  
-  template <typename T_node_type,
-            typename T_chan_kind,
-            template <typename T_value_type> class T_chan_init_default>
-  friend class smoc_graph_petri;
-private:
-  sc_module *hierarchy; // patched in finalise of smoc_graph_petri
-public:
-  virtual smoc_port_list  getInputPorts()                   const = 0;
-  virtual smoc_port_list  getOutputPorts()                  const = 0;
-  virtual const char     *name()                            const = 0;
-  virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
-  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
-  virtual void finalise()                                         = 0;
-
-  sc_module *getHierarchy() const {
-    assert( hierarchy != NULL );  
-    return hierarchy;
-  }
-protected:
-  // constructor
-  smoc_root_chan(const char *name)
-    : sc_prim_channel(name), hierarchy(NULL) {}
-
-  virtual void assemble(smoc_modes::PGWriter &pgw) const = 0;
-};
-
-class smoc_nonconflicting_chan
-  : public smoc_root_chan {
-public:
-  // typedefs
-  typedef smoc_nonconflicting_chan this_type;
-protected:
-  smoc_root_port_in  *portIn;
-  smoc_root_port_out *portOut;
-
-  std::string myName; // patched in finalise
-public:
-  // constructor
-  smoc_nonconflicting_chan(const char *name)
-    : smoc_root_chan(name), portIn(NULL), portOut(NULL) {}
-
-  void addPort(smoc_root_port_in  *in)
-    { /* assert(portIn  == NULL); */ portIn  = in;  }
-  void addPort(smoc_root_port_out *out)
-    { /* assert(portOut == NULL); */ portOut = out; }
-
-  smoc_port_list getInputPorts()  const {
-    smoc_port_list retval;
-    
-    assert(portIn != NULL);
-    retval.push_front(portIn);
-    return retval; 
-  }
-
-  smoc_port_list getOutputPorts()  const {
-    smoc_port_list retval;
-    
-    assert(portOut != NULL);
-    retval.push_front(portOut);
-    return retval; 
-  }
-
-  void finalise();
-
-  const char *name() const
-    { return myName.c_str(); }
-protected:
-  void assemble(smoc_modes::PGWriter &pgw) const;
-};
-
-typedef std::list<smoc_root_chan *> smoc_chan_list;
-
 template <typename T>
 class smoc_port_in;
 template <typename T>
 class smoc_port_out;
 
+class smoc_chan_in_base_if {
+public:
+  template <typename T> friend class smoc_port_in;
+private:
+  smoc_port_list portsIn;
+protected:
+  // constructor
+  smoc_chan_in_base_if() {}
+
+  void addPort(smoc_root_port_in  *portIn)
+    { portsIn.push_front(portIn); }
+public:
+  const smoc_port_list &getInputPorts()  const
+    { return portsIn;  }
+};
+
+class smoc_chan_out_base_if {
+public:
+  template <typename T> friend class smoc_port_out;
+private:
+  smoc_port_list portsOut;
+protected:
+  // constructor
+  smoc_chan_out_base_if() {}
+
+  void addPort(smoc_root_port_out *portOut)
+    { portsOut.push_front(portOut); }
+public:
+  const smoc_port_list &getOutputPorts() const
+    { return portsOut; }
+};
+
 template <typename T>
 class smoc_chan_in_if
-  : virtual public sc_interface {
+  : virtual public sc_interface,
+    virtual public smoc_chan_in_base_if {
 public:
   // typedefs
   typedef T						    data_type;
@@ -210,7 +163,6 @@ public:
   
   bool is_v1_in_port;
   
-  virtual void        addPort(smoc_root_port_in *in) = 0;
   virtual size_t      committedOutCount() const = 0;
 //smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual smoc_event &blockEventOut(size_t n) = 0;
@@ -221,11 +173,6 @@ public:
   virtual void        commExecIn(const ring_type &) = 0;
 #endif
   virtual bool        portOutIsV1() const = 0;
-  
-  sc_module *getHierarchy() const {
-    assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
-    return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
-  }
 protected:
 //smoc_event write_event;
   
@@ -243,7 +190,8 @@ private:
 
 template <typename T>
 class smoc_chan_out_if
-  : virtual public sc_interface {
+  : virtual public sc_interface,
+    virtual public smoc_chan_out_base_if {
 public:
   // typedefs
   typedef T						     data_type;
@@ -255,7 +203,6 @@ public:
   
   bool is_v1_out_port;
   
-  virtual void        addPort(smoc_root_port_out *out) = 0;
   virtual size_t      committedInCount() const = 0;
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual smoc_event &blockEventIn(size_t n) = 0;
@@ -266,11 +213,6 @@ public:
   virtual void        commExecOut(const ring_type &) = 0;
 #endif
   virtual bool        portInIsV1() const = 0;
-  
-  sc_module *getHierarchy() const {
-    assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
-    return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
-  }
 protected:
 //smoc_event read_event;
   
@@ -285,6 +227,54 @@ private:
   smoc_chan_out_if( const this_type& );
   this_type& operator = ( const this_type & );
 };
+
+class smoc_root_chan
+  : public sc_prim_channel,
+    virtual public smoc_chan_in_base_if,
+    virtual public smoc_chan_out_base_if {
+public:
+  // typedefs
+  typedef smoc_root_chan              this_type;
+  
+  template <typename T_node_type,
+            typename T_chan_kind,
+            template <typename T_value_type> class T_chan_init_default>
+  friend class smoc_graph_petri;
+protected:
+  std::string myName; // patched in finalise
+public:
+  const char *name() const { return myName.c_str(); }
+  virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
+  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
+  
+  virtual void finalise();
+protected:
+  // constructor
+  smoc_root_chan(const char *name)
+    : sc_prim_channel(name) {}
+
+  virtual void assemble(smoc_modes::PGWriter &pgw) const = 0;
+};
+
+class smoc_nonconflicting_chan
+  : public smoc_root_chan {
+public:
+  // typedefs
+  typedef smoc_nonconflicting_chan this_type;
+protected:
+  smoc_root_port *portIn;
+  smoc_root_port *portOut;
+public:
+  virtual void finalise();
+protected:
+  // constructor
+  smoc_nonconflicting_chan(const char *name)
+    : smoc_root_chan(name), portIn(NULL), portOut(NULL) {}
+
+  void assemble(smoc_modes::PGWriter &pgw) const;
+};
+
+extern const sc_event& smoc_default_event_abort();
 
 template <typename T_chan_kind, typename T_data_type>
 class smoc_chan_if
@@ -301,11 +291,6 @@ public:
     { return this->is_v1_in_port; }
   bool portOutIsV1() const
     { return this->is_v1_out_port; }
-
-  void addPort(smoc_root_port_in  *in)
-    { return T_chan_kind::addPort(in); }
-  void addPort(smoc_root_port_out *out)
-    { return T_chan_kind::addPort(out); }
 protected:
   // constructor
   smoc_chan_if(const typename chan_kind::chan_init &i)
@@ -314,6 +299,8 @@ private:
   // disabled
   const sc_event& default_event() const { return smoc_default_event_abort(); }
 };
+
+typedef std::list<smoc_root_chan *> smoc_chan_list;
 
 #include <smoc_port.hpp>
 

@@ -17,6 +17,7 @@
  */
 
 #include <smoc_root_port.hpp>
+#include <smoc_root_node.hpp>
 
 #include <cosupport/oneof.hpp>
 
@@ -27,11 +28,18 @@ using namespace CoSupport;
 void smoc_root_port::dump( std::ostream &out ) const {
   out << "port(" << this
       <<      ",name=" << name()
-      <<      ",hierarchy=" << getHierarchy()->name()
+//    <<      ",hierarchy=" << getHierarchy()->name()
       <<      ",available=" << availableCount() << ")";
 }
 
 const char* const smoc_root_port::kind_string = "smoc_root_port";
+
+smoc_root_node *smoc_root_port::getActor() const {
+  smoc_root_node *retval =
+    dynamic_cast<smoc_root_node *>(this->get_parent());
+  assert(retval != NULL);
+  return retval;
+}
 
 /*
 

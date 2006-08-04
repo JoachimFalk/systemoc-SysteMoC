@@ -67,16 +67,10 @@ template <typename T_node_type,
           template <typename T_value_type> class T_chan_init_default>
 void smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::
 finalise() {
-  {
-    smoc_chan_list chans = getChans();
-    
-    for ( typename smoc_chan_list::iterator iter = chans.begin();
-          iter != chans.end();
-          ++iter ) {
-      (*iter)->hierarchy = this;
-      (*iter)->finalise();
-    }
-  }
+  // finalise for actors must precede finalise for channels,
+  // because finalise for channels needs the patched in actor
+  // references in the ports which are updated by the finalise
+  // methods of their respective actors
   {
     smoc_node_list nodes = getNodes();
     
@@ -85,6 +79,15 @@ finalise() {
           ++iter )
       if ( !(*iter)->is_v1_actor )
         (*iter)->finalise();
+  }
+  {
+    smoc_chan_list chans = getChans();
+    
+    for ( typename smoc_chan_list::iterator iter = chans.begin();
+          iter != chans.end();
+          ++iter ) {
+      (*iter)->finalise();
+    }
   }
 }
 

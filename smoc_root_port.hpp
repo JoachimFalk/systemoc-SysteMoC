@@ -36,6 +36,8 @@
 #include <smoc_expr.hpp>
 #include <smoc_event.hpp>
 
+class smoc_root_node;
+
 class smoc_root_port
   // must be public inheritance for dynamic_cast in smoc_root_node to work
   : public sc_port_base {
@@ -43,13 +45,14 @@ public:
   typedef smoc_root_port  this_type;
   
   template <class E> friend class Expr::Value;
-//  friend class smoc_firing_types::resolved_state_ty;
-//  friend class smoc_firing_types::transition_ty;
+  friend class smoc_root_node;
 protected:
-  smoc_root_port *parent;
+  smoc_root_port *parent, *child;
   
   smoc_root_port( const char* name_ )
-    : sc_port_base( name_, 1 ), parent(NULL), is_smoc_v1_port(false) {}
+    : sc_port_base( name_, 1 ),
+      parent(NULL), child(NULL),
+      is_smoc_v1_port(false) {}
 public:
   virtual void commSetup(size_t req)                = 0;
 #ifdef ENABLE_SYSTEMC_VPC
@@ -65,7 +68,6 @@ public:
   virtual const char* kind() const
     { return kind_string; }
   
-  virtual sc_module  *getHierarchy() const = 0;
   virtual size_t      availableCount() const = 0;
   virtual smoc_event &blockEvent(size_t n = MAX_TYPE(size_t)) = 0;
   virtual bool        isInput() const = 0;
@@ -81,16 +83,24 @@ public:
   
   smoc_root_port *getParentPort() const
     { return parent; }
-  
+  smoc_root_port *getChildPort() const
+    { return child; }
+  smoc_root_node *getActor() const;
+ 
   // bind interface to this port
   void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
   // bind parent port to this port
   void bind( this_type &parent_ ) {
-    assert( parent == NULL ); parent = &parent_;
+    assert( parent == NULL && parent_.child == NULL );
+    parent        = &parent_;
+    parent->child = this;
     sc_port_base::bind(parent_);
   }
   
   void dump( std::ostream &out ) const;
+protected:
+  /// Finalise port called by smoc_root_node::finalise
+  void finalise(smoc_root_node *node) {}
 private:
   // disabled
   smoc_root_port( const this_type & );
