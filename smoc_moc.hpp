@@ -129,6 +129,10 @@ protected:
   smoc_transition_ready_list ol;
   
   void getLeafNodes(smoc_node_list &nodes, smoc_graph *node);
+
+  void getLeafChans(smoc_chan_list &chans, smoc_graph *node);
+
+  void doWSDFBalance(smoc_graph *c);
   
   void schedule(smoc_graph *c);
 };

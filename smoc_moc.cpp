@@ -38,9 +38,38 @@ void smoc_scheduler_top::getLeafNodes(
   }
 }
 
+void smoc_scheduler_top::getLeafChans(
+    smoc_chan_list &chans, smoc_graph *node) {
+  smoc_node_list n  = node->getNodes();
+  smoc_chan_list cs = node->getChans();
+  
+  chans.splice(chans.end(), cs);
+  for ( smoc_node_list::iterator iter = n.begin();
+        iter != n.end();
+        ++iter ) {
+    if ( dynamic_cast<smoc_graph *>(*iter) != NULL ) {
+      getLeafChans(chans, dynamic_cast<smoc_graph *>(*iter));
+    }
+  }
+}
+
+void smoc_scheduler_top::doWSDFBalance(smoc_graph *c) {
+  smoc_chan_list cs;
+  
+  getLeafChans(cs, c);
+  for ( smoc_chan_list::iterator iter = cs.begin();
+        iter != cs.end();
+        ++iter ) {
+    std::cerr << (*iter)->name() << std::endl;
+  }
+}
+
 void smoc_scheduler_top::schedule(smoc_graph *c) {
   //int guard_success = 0;
   //int guard_fail    = 0;
+
+  doWSDFBalance(c);
+  
   {
     smoc_node_list nodes;
     
