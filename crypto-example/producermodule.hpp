@@ -70,6 +70,7 @@ class ProducerModule: public RSModule {
      *  \param type specifies encryption to be used first
      *  \param input specifies input file of data to transmit. Currently expected to be
      *  text file.
+     *  \param run read file run+1 times
      */
     ProducerModule(sc_module_name name, 
                    ExampleNetworkPacket::EncryptionAlgorithm type = ExampleNetworkPacket::EM_des3,
