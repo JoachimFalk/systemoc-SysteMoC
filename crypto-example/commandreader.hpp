@@ -13,10 +13,11 @@ class CommandReader{
     
     ifstream cfile;
     int size;
+    int run;
     
   public:
     
-    CommandReader(const char* commandfile): cfile(commandfile), size(0){
+    CommandReader(const char* commandfile, int run=0): cfile(commandfile), size(0), run(run){
       // if file exists determine size
       if(this->cfile.good()){
         cfile.seekg (0, ios::end);
@@ -36,7 +37,14 @@ class CommandReader{
      * \return true if there are still commands to read
      */
     bool hasCommand(){ 
-      int pos = cfile.tellg(); 
+      int pos = cfile.tellg();
+      // if run > 0 restart read
+      if(pos+1 >= size && run > 0){
+        cfile.clear();
+        cfile.seekg (0, ios::beg);
+        run--;
+        pos = cfile.tellg();
+      }
       return (pos+1 < size); 
     }
     

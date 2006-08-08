@@ -37,6 +37,7 @@ void CryptoAlgorithm::writePacket(){
 }
 
 void CryptoAlgorithm::encryptPacket(){
+
   // foreach payload perform encryption
   for(int i = 0; i < PACKET_PAYLOAD; i++){
     encrypt64(packet.payload[i]);

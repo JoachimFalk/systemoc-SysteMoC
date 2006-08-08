@@ -13,6 +13,7 @@
 
 #include "cryptomodule.hpp"
 
+#define FIFO_SIZE 500
 /**
  * Actor-graph of crypto example
  */
@@ -28,9 +29,9 @@ class CryptoExample : public smoc_graph{
     
   public:
 
-    CryptoExample(sc_module_name name, const char* input)
+    CryptoExample(sc_module_name name, const char* input, int run)
       : smoc_graph(name),
-        pModule("producer", input),
+        pModule("producer", input, run),
         cModule("consumer"),
         pEncModule("pEncModule"),
         pDecModule("pDecModule"),
@@ -43,19 +44,19 @@ class CryptoExample : public smoc_graph{
         channel("channel")
         {
 
-          connectNodePorts(pModule.out, pEncModule.in);
-          connectNodePorts(pEncModule.out, pMd5_sign.in);
-          connectNodePorts(pMd5_sign.out, channel.in1);
-          connectNodePorts(channel.out1, cMd5_check.in);
-          connectNodePorts(cMd5_check.out, cDecModule.in);
-          connectNodePorts(cDecModule.out, cModule.in);
+          connectNodePorts<FIFO_SIZE>(pModule.out, pEncModule.in);
+          connectNodePorts<FIFO_SIZE>(pEncModule.out, pMd5_sign.in);
+          connectNodePorts<FIFO_SIZE>(pMd5_sign.out, channel.in1);
+          connectNodePorts<FIFO_SIZE>(channel.out1, cMd5_check.in);
+          connectNodePorts<FIFO_SIZE>(cMd5_check.out, cDecModule.in);
+          connectNodePorts<FIFO_SIZE>(cDecModule.out, cModule.in);
        
-          connectNodePorts(cModule.out, cEncModule.in);
-          connectNodePorts(cEncModule.out, cMd5_sign.in);
-          connectNodePorts(cMd5_sign.out, channel.in2);
-          connectNodePorts(channel.out2, pMd5_check.in);
-          connectNodePorts(pMd5_check.out, pDecModule.in);
-          connectNodePorts(pDecModule.out, pModule.in);
+          connectNodePorts<FIFO_SIZE>(cModule.out, cEncModule.in);
+          connectNodePorts<FIFO_SIZE>(cEncModule.out, cMd5_sign.in);
+          connectNodePorts<FIFO_SIZE>(cMd5_sign.out, channel.in2);
+          connectNodePorts<FIFO_SIZE>(channel.out2, pMd5_check.in);
+          connectNodePorts<FIFO_SIZE>(pMd5_check.out, pDecModule.in);
+          connectNodePorts<FIFO_SIZE>(pDecModule.out, pModule.in);
 
         }
 };
@@ -64,15 +65,18 @@ int sc_main (int argc, char **argv) {
 
 #define GENERATE "--generate-problemgraph"
   const char* input;
- 
+  int run=0;
+  
   if(argc == 1){
     std::cerr << "Please specify input file for producer!\nsimulation-crypto [input-file]" << std::endl;
   } 
   if(argc > 1 && 0 != strncmp(argv[1], GENERATE, sizeof(GENERATE))){
     input = argv[1];
   }
-
-  smoc_top_moc<CryptoExample> cryptoexample("crypto_example", input);
+  if(argc > 2){
+    run = atoi(argv[2]);
+  }
+  smoc_top_moc<CryptoExample> cryptoexample("crypto_example", input, run);
   
   if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
     smoc_modes::dump(std::cout, cryptoexample);

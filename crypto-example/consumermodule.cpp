@@ -167,7 +167,9 @@ void ConsumerModule::executeCommand(int cmdID, ExampleNetworkPacket::EncryptionA
     } 
   }
   pclose(proc);
-
+  
+  tmp += "\n";
+  
   // perform updating of results to return
   // if actually no results to transmit set current to be transferable
   if(this->results.size() == 0 && this->diter == this->data.end()){

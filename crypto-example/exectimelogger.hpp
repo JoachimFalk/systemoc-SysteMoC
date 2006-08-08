@@ -48,7 +48,12 @@ class ExecValue{
      * \brief returns the average execution time over all recorded time values
      */
     double getAverageExecTime() const;
-    
+   
+    /**
+     *
+     */
+    int getCallCount() const;
+
     void logTime(int time); 
     
     friend std::ostream& operator << (std::ostream& os, const ExecValue& v);
