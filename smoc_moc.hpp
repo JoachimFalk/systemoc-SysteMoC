@@ -129,6 +129,8 @@ protected:
   void getLeafNodes(smoc_node_list &nodes, smoc_graph *node);
   
   void schedule(smoc_graph *c);
+
+  void scheduleSR(smoc_graph *c);
 };
 
 template <typename T_top>
@@ -145,8 +147,10 @@ private:
   void end_of_elaboration()
     { this->finalise(); }
   
-  void scheduleTop()
-    { return smoc_scheduler_top::schedule(this); }
+  void scheduleTop(){ 
+    smoc_scheduler_top::scheduleSR(this); 
+    return smoc_scheduler_top::schedule(this);
+  }
 public:
   typedef smoc_top_moc<T_top> this_type;
   

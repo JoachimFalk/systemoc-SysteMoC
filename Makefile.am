@@ -61,6 +61,7 @@ pkginclude_HEADERS =			\
 	smoc_expr.hpp			\
 	smoc_expr.hpp			\
 	smoc_fifo.hpp			\
+	smoc_sr_signal.hpp		\
 	smoc_moc.hpp			\
 	smoc_port.hpp			\
 	smoc_root_node.hpp		\
@@ -102,6 +103,7 @@ libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include @SYSTEMC_V
 libsystemoc_la_SOURCES =		\
 	smoc_expr.cpp			\
 	smoc_fifo.cpp			\
+	smoc_sr_signal.cpp		\
 	smoc_graph_type.cpp		\
 	smoc_rendezvous.cpp		\
 	smoc_root_node.cpp		\

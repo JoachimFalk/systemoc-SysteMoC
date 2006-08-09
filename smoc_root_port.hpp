@@ -48,6 +48,7 @@ public:
 protected:
   smoc_root_port *parent;
   
+  //FIXME(MS): allow more than one "IN-Port" per Signal
   smoc_root_port( const char* name_ )
     : sc_port_base( name_, 1 ), parent(NULL), is_smoc_v1_port(false) {}
 public:

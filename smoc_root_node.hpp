@@ -93,6 +93,8 @@ private:
 
   friend class smoc_scheduler_top;
 protected:
+  bool _non_strict;
+
   //smoc_root_node(const smoc_firing_state &s);
   smoc_root_node(smoc_firing_state &s);
   
@@ -129,6 +131,12 @@ public:
   
   std::ostream &dumpActor( std::ostream &o );
   
+  //true if actual state is a communication state
+  bool inCommState() const;
+
+  //determines non-strict actors (non-strict blocks in synchronous-reactive domains)
+  bool isNonStrict() const;
+
 //const smoc_firing_state &currentState() const { return _currentState; }
 //smoc_firing_state       &currentState()       { return _currentState; }
 };

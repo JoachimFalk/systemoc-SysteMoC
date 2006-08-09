@@ -17,6 +17,7 @@
  */
 
 #include <smoc_moc.hpp>
+#include <smoc_sr_signal.hpp>
 
 #include <cosupport/oneof.hpp>
 
@@ -106,6 +107,146 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
 #endif
   } while ( 1 );
 }
+
+void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
+  smoc_transition_ready_list bottom;    // starting point for each instant
+  smoc_transition_ready_list nonStrict; // only partial known non-strict actor possibly must be executed several time to fixate them
+  //FIXME(MS): This list is possibly not needed!
+  smoc_transition_ready_list defined;   // no more changes in this instant
+
+#ifdef ENABLE_SYSTEMC_VPC
+  // Needed for VPC coupling??
+  smoc_transition_ready_list inCommState; 
+#endif // ENABLE_SYSTEMC_VPC
+
+  smoc_node_list nodes;
+  getLeafNodes(nodes, c);  
+  const smoc_chan_list cs  = c->getChans();
+
+  do {
+    bottom.clear();
+    nonStrict.clear();
+    defined.clear();
+    { // initialize bottom list
+      for ( smoc_node_list::const_iterator iter = nodes.begin();
+	    iter != nodes.end();
+	    ++iter ) {
+	smoc_firing_types::resolved_state_ty *rs = (*iter)->_currentState;
+	for ( transitionlist_ty::iterator titer = rs->tl.begin();
+	      titer != rs->tl.end();
+	      ++titer ){
+	    bottom |= *titer;
+	}
+      }
+    }
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "<smoc_scheduler_top::scheduleSR>" << std::endl;
+#endif
+#ifdef ENABLE_SYSTEMC_VPC
+    while (nonStrict || bottom || inCommState) {
+      smoc_transition_ready_list  &fromList = (inCommState)?inCommState:((bottom)?bottom:nonStrict); //select by priority
+      //      transition_ty           &transition =
+      //	  (inCommState)?inCommState.getEventTrigger():((bottom)?bottom.getEventTrigger():nonStrict.getEventTrigger());
+#else
+    while (nonStrict || bottom) {
+      smoc_transition_ready_list  &fromList = (bottom)?bottom:nonStrict; //select by priority
+      //      transition_ty           &transition = (bottom)?bottom.getEventTrigger():nonStrict.getEventTrigger();
+#endif // ENABLE_SYSTEMC_VPC
+      transition_ty           &transition = fromList.getEventTrigger();
+      transition_ty::status_t  status     = transition.getStatus();
+      
+      switch (status) {
+        case transition_ty::DISABLED: {
+          fromList.remove(transition);
+          break;
+        }
+        case transition_ty::ENABLED: {                                                
+          smoc_root_node &n = transition.getActor();
+#ifdef SYSTEMOC_DEBUG
+          std::cerr << "<actor name=\"" << n.myModule()->name() << "\">" << std::endl;
+#endif
+          for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
+                titer != n._currentState->tl.end();
+                ++titer ){
+	    fromList.remove(*titer);
+	  }
+	  if(n.isNonStrict()){
+	    std::cerr << "<nonstrict name=\"" << n.myModule()->name() << "\"\\>" << std::endl;
+	    //enable multiple writes (sr_signal will test if nothing changes)
+	    smoc_port_list ps  = n.getPorts();
+	    for(smoc_port_list::iterator iter = ps.begin();
+		iter != ps.end(); iter++){
+	      sc_interface *iface = (*iter)->get_interface();
+	      if( dynamic_cast<class smoc_root_port_out * >(*iter)) {
+		smoc_sr_signal_kind* sig = dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
+		if(sig) sig->multipleWriteSameValue(true);
+		cerr << " (out port) " << iface << endl;;
+	      }
+	    }
+	  }else{
+	    std::cerr << "<strict name=\"" << n.myModule()->name() << "\"\\>" << std::endl;
+	  }
+          transition.execute(&n._currentState, &n);
+
+          for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
+                titer != n._currentState->tl.end();
+                ++titer ){
+#ifdef ENABLE_SYSTEMC_VPC
+	      if(n.inCommState()){
+		inCommState |= *titer; // still in communication delay state
+	      }else
+#endif  // ENABLE_SYSTEMC_VPC
+	      {
+		if(n.isNonStrict()){//FIXME(MS): not only test actors, but test each transition if possible
+		  cerr << "NSNSNSNSNSNSNSNSNSNSNS"<< endl;
+		  nonStrict   |= *titer; 
+		}else{	      // all those strict actors can only be executed once per instant
+		  defined     |= *titer; // add to defined list 
+		}
+	      }
+	  }
+#ifdef SYSTEMOC_DEBUG
+          std::cerr << "</actor>" << std::endl;
+#endif
+          break;
+        }
+        default: {
+          assert(status == transition_ty::ENABLED ||
+                 status == transition_ty::DISABLED   );
+        }
+      }
+      {
+
+	smoc_transition_ready_list instant = bottom | nonStrict;
+#ifdef ENABLE_SYSTEMC_VPC
+	instant |= inCommState;
+#endif  // ENABLE_SYSTEMC_VPC
+	if(instant) smoc_wait(instant); // if no more change instant break loop
+      }
+    }
+    for ( smoc_chan_list::const_iterator iter = cs.begin();
+	  iter != cs.end();
+	  ++iter ){
+      std::cerr << (*iter)->kind() << std::endl;
+      // "tick()" each block
+      dynamic_cast<smoc_sr_signal_kind*>((*iter))->tick();
+    }
+      
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "</smoc_scheduler_top::scheduleSR>" << std::endl;
+#endif
+    smoc_transition_ready_list all;
+    all |= bottom;
+    all |= defined;
+    all |= nonStrict;
+    smoc_wait(all);
+    //FIXME(MS): wait also for nonStrict list
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << bottom << std::endl;
+#endif
+  } while ( 1 );
+}
+
 
 /*
       for ( smoc_node_list::const_iterator iter = nodes.begin();
