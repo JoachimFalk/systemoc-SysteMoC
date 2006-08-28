@@ -61,37 +61,40 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
     std::cerr << "<smoc_scheduler_top::schedule>" << std::endl;
 #endif
     while (ol) {
-      transition_ty           &transition = ol.getEventTrigger();
-      transition_ty::status_t  status     = transition.getStatus();
+      transition_ty                  &transition = ol.getEventTrigger();
+      Expr::Detail::ActivationStatus  status     = transition.getStatus();
       
       switch (status) {
-        case transition_ty::DISABLED: {
+        case Expr::Detail::DISABLED: {
           ol.remove(transition);
           break;
         }
-        case transition_ty::ENABLED: {                                                
-          smoc_root_node &n = transition.getActor();
+        case Expr::Detail::ENABLED: {
+          smoc_root_node                       &n        = transition.getActor();
+          smoc_firing_types::resolved_state_ty *oldState = n._currentState;
           
 #ifdef SYSTEMOC_DEBUG
           std::cerr << "<actor name=\"" << n.myModule()->name() << "\">" << std::endl;
 #endif
-          for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-                titer != n._currentState->tl.end();
-                ++titer )
-            ol.remove(*titer);
           transition.execute(&n._currentState, &n);
-          for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-                titer != n._currentState->tl.end();
-                ++titer )
-            ol |= *titer;
+          if (oldState != n._currentState) {
+            for ( transitionlist_ty::iterator titer = oldState->tl.begin();
+                  titer != oldState->tl.end();
+                  ++titer )
+              ol.remove(*titer);
+            for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
+                  titer != n._currentState->tl.end();
+                  ++titer )
+              ol |= *titer;
+          }
 #ifdef SYSTEMOC_DEBUG
           std::cerr << "</actor>" << std::endl;
 #endif
           break;
         }
         default: {
-          assert(status == transition_ty::ENABLED ||
-                 status == transition_ty::DISABLED   );
+          assert(status == Expr::Detail::ENABLED ||
+                 status == Expr::Detail::DISABLED   );
         }
       }
     }

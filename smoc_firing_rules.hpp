@@ -197,7 +197,7 @@ struct smoc_firing_types {
 #endif
 
     bool isEnabled() const
-      { return getStatus() == ENABLED; }
+      { return getStatus() == Expr::Detail::ENABLED; }
 
     smoc_root_node &getActor() {
       assert(actor != NULL);

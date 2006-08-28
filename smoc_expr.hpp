@@ -63,6 +63,14 @@ namespace Detail {
 
   struct True  { operator bool() const { return true;  } };
   struct False { operator bool() const { return false; } };
+
+  enum ActivationStatus {
+    DISABLED = -1,
+    BLOCKED  =  0,
+    ENABLED  =  1
+  };
+
+  
   struct Sensitive; // Sensitive type marker for evalTo<Sensitivity>( ... )
   struct Ignore;    // Ignore type marker for evalTo<Sensitivity>( ... )
 } // namespace Expr::Detail
