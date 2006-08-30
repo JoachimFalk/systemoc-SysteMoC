@@ -190,7 +190,7 @@ struct smoc_firing_types {
     transition_ty( smoc_firing_state_ref *r, const smoc_transition &t );
 
 #ifdef SYSTEMOC_DEBUG
-    status_t getStatus() const {
+    Expr::Detail::ActivationStatus getStatus() const {
       std::cerr << "transition_ty::getStatus: " << *this << std::endl;
       return smoc_activation_pattern::getStatus();
     }
@@ -208,13 +208,9 @@ struct smoc_firing_types {
 
     void finalise(smoc_root_node *a);
 
+#ifdef SYSTEMOC_DEBUG
     void dump(std::ostream &out) const;
-
-//#ifdef SYSTEMOC_DEBUG
-//    ~transition_ty() {
-//      std::cerr << "~transition_ty() this == " << this << std::endl;
-//    }
-//#endif
+#endif
   };
   
   class resolved_state_ty {

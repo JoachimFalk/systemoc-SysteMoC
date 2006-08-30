@@ -64,7 +64,7 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
       transition_ty                  &transition = ol.getEventTrigger();
       Expr::Detail::ActivationStatus  status     = transition.getStatus();
       
-      switch (status) {
+      switch (status.toSymbol()) {
         case Expr::Detail::DISABLED: {
           ol.remove(transition);
           break;

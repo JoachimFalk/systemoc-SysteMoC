@@ -348,8 +348,10 @@ void smoc_firing_types::resolved_state_ty::finalise(smoc_root_node *a) {
     titer->finalise(a);
 }
 
+#ifdef SYSTEMOC_DEBUG
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {
   out << "transition(" << this << ", ap == ";
   smoc_event_and_list::dump(out);
   out   << ", status == " << smoc_activation_pattern::getStatus() << ")";
 }
+#endif

@@ -61,16 +61,9 @@ namespace Detail {
     operator const T() const { return v; }
   };
 
-  struct True  { operator bool() const { return true;  } };
-  struct False { operator bool() const { return false; } };
+//struct True  { operator bool() const { return true;  } };
+//struct False { operator bool() const { return false; } };
 
-  enum ActivationStatus {
-    DISABLED = -1,
-    BLOCKED  =  0,
-    ENABLED  =  1
-  };
-
-  
   struct Sensitive; // Sensitive type marker for evalTo<Sensitivity>( ... )
   struct Ignore;    // Ignore type marker for evalTo<Sensitivity>( ... )
 } // namespace Expr::Detail
@@ -846,6 +839,62 @@ struct DBinOpExecute<TA,TB,Op> {                                      \
   }                                                                   \
 };
 
+namespace Detail {
+  enum _XXX {
+    DISABLED = -1,
+    BLOCKED  =  0,
+    ENABLED  =  1
+  };
+
+  class ActivationStatus {
+  public:
+    typedef ActivationStatus this_type;
+    typedef _XXX (this_type::*unspecified_bool_type)() const;
+ 
+    friend std::ostream &operator <<(std::ostream &, this_type);
+  private:
+    _XXX value;
+  public:
+    ActivationStatus(bool b)
+      :value(b ? ENABLED : DISABLED) {}
+
+    ActivationStatus(const _XXX value)
+      :value(value) {}
+
+    bool operator == (const _XXX _value) const
+      { return value == _value; }
+    bool operator != (const _XXX _value) const
+      { return value != _value; }
+
+    _XXX toSymbol() const
+      { return value; }
+
+//  operator unspecified_bool_type() const
+//    { return value == ENABLED ? &this_type::toSymbol : NULL; }
+  };
+/*  
+  static inline
+  ActivationStatus operator && (
+      const ActivationStatus &lhs, 
+      const ActivationStatus &rhs ) {
+    return ActivationStatus(DISABLED);
+  }
+ */
+
+#ifdef SYSTEMOC_DEBUG
+static inline
+std::ostream &operator <<( std::ostream &out, Expr::Detail::ActivationStatus s) {
+  static const char *display[3] = { "DISABLED", "BLOCKED", "ENABLED" };
+  
+  assert(static_cast<size_t>(s.value+1) < sizeof(display)/sizeof(display[0]));
+  out << display[s.value+1];
+  return out;
+}
+#endif
+} // namespace Expr::Detail
+
+
+
 template <class A, class B, OpBinT Op>
 struct AST<DBinOp<A,B,Op> > {
   typedef PASTNode result_type;
@@ -1036,6 +1085,49 @@ struct DBinOpExecute<Detail::Sensitive,Detail::Sensitive,DOpBinLAnd,Sensitivity>
   static inline
   void apply(const A &a, const B &b, smoc_event_and_list &al)
     { Sensitivity<A>::apply(a, al); Sensitivity<B>::apply(b, al); }
+};
+
+template <>
+struct DBinOpExecute<Detail::ActivationStatus,bool,DOpBinLAnd,Value> {
+  typedef Detail::ActivationStatus result_type;
+
+  template <class A, class B>
+  static inline
+  result_type apply(const A &a, const B &b) {
+    result_type r = Value<A>::apply(a);
+    
+    return r == Detail::ENABLED && !Value<B>::apply(b)
+      ? false
+      : r;
+  }
+};
+
+template <>
+struct DBinOpExecute<bool,Detail::ActivationStatus,DOpBinLAnd,Value> {
+  typedef Detail::ActivationStatus result_type;
+
+  template <class A, class B>
+  static inline
+  result_type apply(const A &a, const B &b) {
+    return !Value<A>::apply(a)
+      ? false
+      : Value<B>::apply(b);
+  }
+};
+
+template <>
+struct DBinOpExecute<Detail::ActivationStatus,Detail::ActivationStatus,DOpBinLAnd,Value> {
+  typedef Detail::ActivationStatus result_type;
+
+  template <class A, class B>
+  static inline
+  result_type apply(const A &a, const B &b) {
+    result_type r = Value<A>::apply(a);
+    
+    return r != Detail::ENABLED
+      ? r
+      : Value<B>::apply(b);
+  }
 };
 
 /* DOpBinField Operator */

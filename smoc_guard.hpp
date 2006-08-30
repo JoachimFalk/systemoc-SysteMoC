@@ -42,7 +42,7 @@ public:
   friend class smoc_firing_state;
 
 //protected:
-  Expr::Ex<bool>::type  guard;
+  Expr::Ex<Expr::Detail::ActivationStatus>::type  guard;
 protected:
   static
   void guardAssemble( smoc_modes::PGWriter &pgw, const Expr::PASTNode &n );
@@ -67,32 +67,17 @@ public:
     { guardAssemble(pgw, Expr::evalTo<Expr::AST>(guard) ); }
 };
 
-#ifdef SYSTEMOC_DEBUG
-static inline
-std::ostream &operator <<( std::ostream &out, Expr::Detail::ActivationStatus s) {
-  static const char *display[3] = { "DISABLED", "BLOCKED", "ENABLED" };
-  
-  assert(static_cast<size_t>(s+1) < sizeof(display)/sizeof(display[0]));
-  out << display[s+1];
-  return out;
-}
-#endif
-
 inline
 Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
-  Expr::Detail::ActivationStatus retval;
-  
   if (*this) {
-    retval = Expr::evalTo<Expr::Value>(guard)
-      ? Expr::Detail::ENABLED
-      : Expr::Detail::DISABLED;
+    Expr::Detail::ActivationStatus retval =
+      Expr::evalTo<Expr::Value>(guard);
+//    ? Expr::Detail::ENABLED
+//    : Expr::Detail::DISABLED;
     Expr::evalTo<Expr::CommReset>(guard);
+    return retval;
   } else
-    retval = Expr::Detail::BLOCKED;
-  return retval;
-//  return *this
-//    ? ( Expr::evalTo<Expr::Value>(guard) ? ENABLED : DISABLED )
-//    : BLOCKED;
+    return Expr::Detail::BLOCKED;
 }
 
 namespace Expr {
