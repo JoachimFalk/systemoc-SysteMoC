@@ -58,6 +58,7 @@ private:
       b += taps[i] * data[i];
     // data := [a] + [data[i] : for Integer i in Integers(0, #taps-2)];
     data.pop_back(); data.insert(data.begin(), a);
+    output[0] = b;
   }
 public:
   m_h_fir(
