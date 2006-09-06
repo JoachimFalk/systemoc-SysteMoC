@@ -131,6 +131,7 @@ public:
   template <class E> friend class Value;
   template <class E> friend class CommExec;
   template <class E> friend class CommSetup;
+  template <class E> friend class CommReset;
   template <class E> friend class Sensitivity;
 private:
   P      &p;
@@ -193,6 +194,20 @@ struct CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
     return e.a.p.commExec();
   }
 #endif
+};
+
+template <class P, class E>
+struct CommReset<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommReset<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
+                 "::apply(" << e.a.p << ", ... )" << std::endl;
+#endif
+    return e.a.p.reset();
+  }
 };
 
 template <class P, class E>
@@ -405,6 +420,7 @@ public:
   
   template <class E> friend class Expr::CommExec;
   template <class E> friend class Expr::CommSetup;
+  template <class E> friend class Expr::CommReset;
   template <class E> friend class Expr::Value;
 protected:
   typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> > base_type;
@@ -423,9 +439,15 @@ protected:
       (*this)->commSetupIn(req);
   }
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExec(const smoc_ref_event_p &le) { (*this)->commExecIn(*this, le); }
+  void commExec(const smoc_ref_event_p &le) {
+    (*this)->commExecIn(*this, le);
+    ring_type::reset(); 
+  }
 #else
-  void commExec() { (*this)->commExecIn(*this); }
+  void commExec() {
+    (*this)->commExecIn(*this);
+    ring_type::reset(); 
+  }
 #endif
   void reset() { ring_type::reset(); }
 public:
@@ -474,6 +496,7 @@ public:
   typedef smoc_ring_access<storage_type, return_type>	     ring_type;
   
   template <class E> friend class Expr::CommExec;
+  template <class E> friend class Expr::CommReset;
   template <class E> friend class Expr::CommSetup;
   template <class E> friend class Expr::Value;
 protected:

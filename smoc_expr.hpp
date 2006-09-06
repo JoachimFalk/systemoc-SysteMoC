@@ -268,6 +268,7 @@ public:
     virtual void       evalToCommExec()    const = 0;
 #endif
     virtual void       evalToCommSetup()   const = 0;
+    virtual void       evalToCommReset()   const = 0;
     virtual void       evalToSensitivity
                  (smoc_event_and_list &al) const = 0;
     virtual value_type evalToValue()       const = 0;
@@ -297,6 +298,8 @@ protected:
     void       evalToCommExec() const
       { return CommExec<E>::apply(e); }
 #endif
+    void       evalToCommReset() const
+      { return CommReset<E>::apply(e); }
     void       evalToCommSetup() const
       { return CommSetup<E>::apply(e); }
     void       evalToSensitivity
@@ -342,6 +345,19 @@ struct CommExec<DVirtual<T> > {
     return e.v->evalToCommExec();
   }
 #endif
+};
+
+template <typename T>
+struct CommReset<DVirtual<T> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DVirtual <T> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommReset<DVirtual<T> >::apply(e)" << std::endl;
+#endif
+    return e.v->evalToCommReset();
+  }
 };
 
 template <typename T>
@@ -936,6 +952,20 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
     CommExec<B>::apply(e.b);
   }
 #endif
+};
+
+template <class A, class B>
+struct CommReset<DBinOp<A,B,DOpBinLAnd> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommReset<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+#endif
+    CommReset<A>::apply(e.a);
+    CommReset<B>::apply(e.b);
+  }
 };
 
 template <class A, class B>
