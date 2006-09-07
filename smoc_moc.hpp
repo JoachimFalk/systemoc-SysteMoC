@@ -76,44 +76,6 @@ public:
 };
 */
 
-class smoc_graph
-  : public smoc_ndf_constraintset,
-    public smoc_root_node {
-//  public smoc_scheduler_ndf {
-public:
-  typedef smoc_graph this_type;
-private:
-protected:
-  void finalise() {
-    smoc_ndf_constraintset::finalise();
-    smoc_root_node::finalise();
-//  smoc_scheduler_ndf::finalise();
-  }
-
-  smoc_firing_state dummy;
-public:
-  explicit smoc_graph( sc_module_name name )
-    : smoc_ndf_constraintset(name),
-      smoc_root_node(dummy) {
-    dummy = CALL(smoc_graph::finalise) >> dummy;
-  }
-  smoc_graph()
-    : smoc_ndf_constraintset(
-        sc_gen_unique_name("smoc_graph") ),
-      smoc_root_node(dummy) {
-    dummy = CALL(smoc_graph::finalise) >> dummy;
-  }
-
-#ifndef __SCFE__
-  sc_module *myModule() { return this; }
-  
-  void pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
-    { return smoc_ndf_constraintset::pgAssemble(pgw,n); }
-  void assembleActor( smoc_modes::PGWriter &pgw ) const {}
-#endif
-
-};
-
 class smoc_scheduler_top
   : public smoc_firing_types {
 //  public smoc_scheduler_base {
