@@ -60,7 +60,7 @@ public:
 #else
   virtual void commExec()                           = 0;
 #endif
-  virtual void reset()                              = 0;
+  virtual void commReset()                          = 0;
 public:
   bool is_smoc_v1_port;
   
@@ -75,12 +75,12 @@ public:
     { return !isInput(); }
   
   virtual bool peerIsV1() const = 0;
-  
+
   virtual void clearReady()
     { assert( !"SHOULD NEVER BE CALLED !!!" ); }
   virtual void communicate( size_t n )
     { assert( !"SHOULD NEVER BE CALLED !!!" ); }
-  
+
   smoc_root_port *getParentPort() const
     { return parent; }
   smoc_root_port *getChildPort() const
@@ -100,7 +100,7 @@ public:
   void dump( std::ostream &out ) const;
 protected:
   /// Finalise port called by smoc_root_node::finalise
-  void finalise(smoc_root_node *node) {}
+  virtual void finalise(smoc_root_node *node) = 0;
 private:
   // disabled
   smoc_root_port( const this_type & );

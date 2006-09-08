@@ -385,7 +385,9 @@ public:
   typedef T                                  data_type;
   typedef smoc_fifo_storage<data_type>       this_type;
   typedef typename this_type::iface_out_type iface_out_type;
+  typedef typename this_type::ring_out_type  ring_out_type;
   typedef typename this_type::iface_in_type  iface_in_type;
+  typedef typename this_type::ring_in_type   ring_in_type;
   typedef smoc_storage<data_type>	     storage_type;
   
   class chan_init
@@ -420,9 +422,18 @@ protected:
     this->vindex = this->windex;
 #endif
   }
-  
-  storage_type *getStorage() const { return storage; }
-  
+
+  void ringSetupIn(ring_in_type &r) {
+    r.storage     = storage;
+    r.storageSize = this->fsize;
+    r.offset      = &this->rindex;
+  }
+  void ringSetupOut(ring_out_type &r) {
+    r.storage     = storage;
+    r.storageSize = this->fsize;
+    r.offset      = &this->windex;
+  }
+
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
     {
@@ -472,8 +483,9 @@ protected:
     vindex = windex;
 #endif
   }
-  
-  void *getStorage() const { return NULL; }
+ 
+  void ringSetupIn(ring_in_type &r) {}
+  void ringSetupOut(ring_out_type &r) {}
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
@@ -499,55 +511,41 @@ public:
   
   typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
   typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
-  typedef smoc_ring_access<storage_in_type, return_in_type>   ring_in_type;
   
   typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
   typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
-  typedef smoc_ring_access<storage_out_type, return_out_type> ring_out_type;
 protected:
 //  iface_in_type  *in;
 //  iface_out_type *out;
   
-  ring_in_type commSetupIn(size_t req) {
-    assert( req <= this->usedStorage() );
-    return ring_in_type(this->getStorage(),
-        this->fsize, this->rindex, req);
-  }
-  
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecIn(const ring_in_type &r, const smoc_ref_event_p &le)
+  void commExecIn(size_t consume, const smoc_ref_event_p &le)
 #else
-  void commExecIn(const ring_in_type &r)
+  void commExecIn(size_t consume)
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(r.getLimit(), this->name());
+    TraceLog.traceCommExecIn(consume, this->name());
 #endif
-    rpp(r.getLimit());
+    this->rpp(consume);
 //  this->read_event.notify(); 
 //  if (this->usedStorage() < 1)
 //    this->write_event.reset();
   }
   
-  ring_out_type commSetupOut(size_t req) {
-    assert( req <= this->unusedStorage() );
-    return ring_out_type(this->getStorage(),
-        this->fsize, this->windex, req);
-  }
-  
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecOut(const ring_out_type &r, const smoc_ref_event_p &le)
+  void commExecOut(size_t produce, const smoc_ref_event_p &le)
 #else
-  void commExecOut(const ring_out_type &r)
+  void commExecOut(size_t produce)
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(r.getLimit(), this->name());
+    TraceLog.traceCommExecOut(produce, this->name());
 #endif
 #ifdef ENABLE_SYSTEMC_VPC
-    wpp(r.getLimit(), le);
+    this->wpp(produce, le);
 #else
-    wpp(r.getLimit());
+    this->wpp(produce);
 #endif
 //  this->write_event.notify();
 //  if (this->unusedStorage() < 1)

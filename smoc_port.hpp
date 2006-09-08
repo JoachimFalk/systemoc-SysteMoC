@@ -206,7 +206,7 @@ struct CommReset<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
     std::cerr << "CommReset<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
 #endif
-    return e.a.p.reset();
+    return e.a.p.commReset();
   }
 };
 
@@ -434,22 +434,24 @@ protected:
   bool peerIsV1() const
     { return (*this)->portOutIsV1(); }
 
-  void commSetup(size_t req) {
-    static_cast<ring_type &>(*this) =
-      (*this)->commSetupIn(req);
-  }
+  void finalise(smoc_root_node *node)
+    { (*this)->ringSetupIn(*this); }
+
+  void commSetup(size_t req) { this->setLimit(req); }
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExec(const smoc_ref_event_p &le) {
-    (*this)->commExecIn(*this, le);
-    ring_type::reset(); 
-  }
+  void commExec(const smoc_ref_event_p &le)
 #else
-  void commExec() {
-    (*this)->commExecIn(*this);
-    ring_type::reset(); 
-  }
+  void commExec()
 #endif
-  void reset() { ring_type::reset(); }
+  {
+#ifdef ENABLE_SYSTEMC_VPC
+    (*this)->commExecIn(this->getLimit(), le);
+#else
+    (*this)->commExecIn(this->getLimit());
+#endif
+    this->setLimit(0); 
+  }
+  void commReset() { this->setLimit(0); }
 public:
 //void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
 //public:
@@ -511,16 +513,24 @@ protected:
   bool peerIsV1() const
     { return (*this)->portInIsV1(); }
 
-  void commSetup(size_t req) {
-    static_cast<ring_type &>(*this) =
-      (*this)->commSetupOut(req);
-  }
+  void finalise(smoc_root_node *node)
+    { (*this)->ringSetupOut(*this); }
+
+  void commSetup(size_t req) { this->setLimit(req); }
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExec(const smoc_ref_event_p &le) { (*this)->commExecOut(*this, le); }
+  void commExec(const smoc_ref_event_p &le)
 #else
-  void commExec() { (*this)->commExecOut(*this); }
+  void commExec()
 #endif
-  void reset() { ring_type::reset(); }
+  {
+#ifdef ENABLE_SYSTEMC_VPC
+    (*this)->commExecOut(this->getLimit(), le);
+#else
+    (*this)->commExecOut(this->getLimit());
+#endif
+    this->setLimit(0); 
+  }
+  void commReset() { this->setLimit(0); }
 public:
 //  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
 //public:

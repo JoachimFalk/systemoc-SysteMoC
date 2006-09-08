@@ -130,11 +130,11 @@ void smoc_root_node::finalise() {
   _currentState = _initialState.finalise(this);
   
   smoc_port_list ports = getPorts();
-  for ( smoc_port_list::iterator iter = ports.begin();
-        iter != ports.end();
-        ++iter ) {
+  
+  for (smoc_port_list::iterator iter = ports.begin();
+       iter != ports.end();
+       ++iter)
     (*iter)->finalise(this);
-  }
 }
 
 const smoc_port_list smoc_root_node::getPorts() const {
