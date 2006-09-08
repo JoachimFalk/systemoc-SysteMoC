@@ -128,6 +128,13 @@ void smoc_root_node::finalise() {
   std::cerr << myModule()->name() << ": finalise" << std::endl;
 #endif
   _currentState = _initialState.finalise(this);
+
+  smoc_port_list ports = getPorts();
+
+  for (smoc_port_list::iterator iter = ports.begin();
+       iter != ports.end();
+       ++iter)
+    (*iter)->finalise();
 }
 
 const smoc_port_list smoc_root_node::getPorts() const {

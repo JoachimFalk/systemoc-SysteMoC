@@ -57,7 +57,7 @@ public:
 #else
   virtual void commExec()                           = 0;
 #endif
-  virtual void reset()                              = 0;
+  virtual void commReset()                          = 0;
 public:
   bool is_smoc_v1_port;
   
@@ -73,12 +73,15 @@ public:
     { return !isInput(); }
   
   virtual bool peerIsV1() const = 0;
-  
+
+
   virtual void clearReady()
     { assert( !"SHOULD NEVER BE CALLED !!!" ); }
   virtual void communicate( size_t n )
     { assert( !"SHOULD NEVER BE CALLED !!!" ); }
-  
+
+  virtual void finalise() = 0;
+
   smoc_root_port *getParentPort() const
     { return parent; }
   
