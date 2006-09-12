@@ -292,14 +292,10 @@ public:
   
   typedef smoc_firing_state this_type;
 public:
-  smoc_firing_state( const smoc_transition_list &tl )
-    { this->operator = (tl); }
-  smoc_firing_state( const smoc_transition &t )
-    { this->operator = (t); }
-  smoc_firing_state():sc_object(sc_gen_unique_name( "smoc_firing_state" ))
-    {}
-  smoc_firing_state( const this_type &x )
-    { *this = x; }
+  smoc_firing_state(const smoc_transition_list &tl);
+  smoc_firing_state(const smoc_transition &t);
+  smoc_firing_state();
+  smoc_firing_state(const this_type &x);
   
 //  bool isResolvedState() const { return rs != NULL; }
   

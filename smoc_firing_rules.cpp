@@ -81,6 +81,22 @@ void smoc_firing_state_ref::dump( std::ostream &o ) const {
     o << *titer << std::endl;
 }
 
+smoc_firing_state::smoc_firing_state(const smoc_transition_list &tl)
+  :sc_object(sc_gen_unique_name("smoc_firing_state")) {
+  this->operator = (tl);
+}
+smoc_firing_state::smoc_firing_state(const smoc_transition &t)
+  :sc_object(sc_gen_unique_name("smoc_firing_state")) {
+  this->operator = (t);
+}
+smoc_firing_state::smoc_firing_state()
+  :sc_object(sc_gen_unique_name("smoc_firing_state")) {
+}
+smoc_firing_state::smoc_firing_state(const this_type &x)
+  :sc_object(sc_gen_unique_name("smoc_firing_state")) {
+  *this = x;
+}
+
 smoc_firing_state &smoc_firing_state::operator = (const this_type &rhs) {
   assert(rhs.rs != NULL && rhs.fr != NULL ||
          rhs.rs == NULL && rhs.fr == NULL);
