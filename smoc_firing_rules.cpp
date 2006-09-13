@@ -81,20 +81,37 @@ void smoc_firing_state_ref::dump( std::ostream &o ) const {
     o << *titer << std::endl;
 }
 
+smoc_firing_state_ref::~smoc_firing_state_ref() {
+  if ( fr )
+    fr->delRef(this);
+}
+
 smoc_firing_state::smoc_firing_state(const smoc_transition_list &tl)
   :sc_object(sc_gen_unique_name("smoc_firing_state")) {
   this->operator = (tl);
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
+#endif
 }
 smoc_firing_state::smoc_firing_state(const smoc_transition &t)
   :sc_object(sc_gen_unique_name("smoc_firing_state")) {
   this->operator = (t);
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
+#endif
 }
 smoc_firing_state::smoc_firing_state()
   :sc_object(sc_gen_unique_name("smoc_firing_state")) {
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
+#endif
 }
 smoc_firing_state::smoc_firing_state(const this_type &x)
   :sc_object(sc_gen_unique_name("smoc_firing_state")) {
   *this = x;
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
+#endif
 }
 
 smoc_firing_state &smoc_firing_state::operator = (const this_type &rhs) {
@@ -130,15 +147,21 @@ smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl
 smoc_firing_state &smoc_firing_state::operator = (const smoc_transition &t)
   { return *this = static_cast<smoc_transition_list>(t); }
 
+void smoc_firing_state::addTransition(
+    const smoc_transition_list &tl) {
+  getResolvedState().addTransition(this, tl);
+}
+
 void smoc_firing_state::clearTransition() {
   if (rs != NULL)
     // remove old transition of state
     rs->clearTransitions();
 }
 
-void smoc_firing_state::addTransition(
-    const smoc_transition_list &tl) {
-  getResolvedState().addTransition(this, tl);
+smoc_firing_state::~smoc_firing_state() {
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_firing_state::~smoc_firing_state() this == " << this << std::endl;
+#endif
 }
 
 smoc_firing_rules::smoc_firing_rules(const smoc_firing_state_ref *s)

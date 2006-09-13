@@ -305,6 +305,8 @@ public:
   
   void addTransition( const smoc_transition_list &tl );
   void clearTransition();
+
+  ~smoc_firing_state();
 private:
   // smoc_port_list &getPorts() const;
   // disable
@@ -376,14 +378,6 @@ public:
   
   ~smoc_firing_rules();
 };
-
-#ifndef _COMPILEHEADER_SMOC_FIRING_STATE_REF__DESTRUCTOR
-GNU89_EXTERN_INLINE
-#endif
-smoc_firing_state_ref::~smoc_firing_state_ref() {
-  if ( fr )
-    fr->delRef(this);
-}
 
 class smoc_interface_action {
 public:
