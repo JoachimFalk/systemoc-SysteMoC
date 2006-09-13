@@ -67,12 +67,10 @@ private:
     Output[0] = Data1[0];
   }
   smoc_firing_state start;
+  smoc_firing_state atChannel0, atChannel1;
 public:
   Select(sc_module_name name, int initialChannel = 0)
     : smoc_actor(name, start) {
-    smoc_firing_state atChannel0, atChannel1;
-    smoc_firing_state test;
-
     atChannel0
       = (Control.getAvailableTokens() >= 1 &&
          Data0.getAvailableTokens()   >= 1 &&
