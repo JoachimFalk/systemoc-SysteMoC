@@ -361,13 +361,15 @@ private:
   void _addRef(const smoc_firing_state_ref *s,
                const smoc_firing_rules     *p);
 protected:
-  smoc_firing_rules(const smoc_firing_state_ref *s);
+  smoc_firing_rules(const smoc_firing_state_ref *s)
+    : actor(NULL) { addState(s); }
 
   smoc_root_node* getActor() { return actor; }
  
   void addRef(const smoc_firing_state_ref *s)
     { _addRef(s,NULL); }
   void delRef(const smoc_firing_state_ref *s);
+  void addState(const smoc_firing_state_ref *s);
 
   void unify(smoc_firing_rules *fr);
 
