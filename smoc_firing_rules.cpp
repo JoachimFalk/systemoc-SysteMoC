@@ -30,6 +30,8 @@
 
 #include <cosupport/oneof.hpp>
 
+#include <algorithm>
+
 using namespace CoSupport;
 
 smoc_firing_state_ref::smoc_firing_state_ref(
@@ -129,7 +131,7 @@ smoc_firing_state &smoc_firing_state::operator = (const this_type &rhs) {
         rhs.fr->unify(fr);
       } else {
         rs = new resolved_state_ty(*rhs.rs);
-        rhs.fr->addRef(this);
+        rhs.fr->addState(this);
       }
     }
   }
@@ -164,17 +166,12 @@ smoc_firing_state::~smoc_firing_state() {
 #endif
 }
 
-smoc_firing_rules::smoc_firing_rules(const smoc_firing_state_ref *s)
-  : actor(NULL) {
-  assert(s != NULL && s->rs != NULL);
-  addRef(s);
-  states.push_back(s->rs);
-}
-
 void smoc_firing_rules::_addRef(
     const smoc_firing_state_ref *s,
     const smoc_firing_rules     *p) {
-  assert(s != NULL);
+  assert(s != NULL && s->rs != NULL);
+  // Resolved state must be included in state list
+  assert(std::find(states.begin(), states.end(), s->rs) != states.end());
   sassert(references.insert(s).second && s->fr == p);
   s->fr = this;
 }
@@ -187,6 +184,15 @@ void smoc_firing_rules::delRef(
     delete this;
 }
 
+void smoc_firing_rules::addState(
+    const smoc_firing_state_ref *s) {
+  assert(s != NULL && s->rs != NULL);
+  // Must not be included previously
+  assert(std::find(states.begin(), states.end(), s->rs) == states.end());
+  states.push_back(s->rs);
+  addRef(s);
+}
+
 void smoc_firing_rules::unify( smoc_firing_rules *fr ) {
   if ( this != fr ) {
     smoc_firing_rules *src, *dest;
@@ -196,13 +202,13 @@ void smoc_firing_rules::unify( smoc_firing_rules *fr ) {
     } else {
       dest = this; src = fr;
     }
+    dest->states.splice(
+      dest->states.begin(), src->states );
     for ( references_ty::iterator iter = src->references.begin();
           iter != src->references.end();
           ++iter )
       dest->_addRef(*iter, src);
     src->references.clear();
-    dest->states.splice(
-      dest->states.begin(), src->states );
     delete src;
   }
 }
