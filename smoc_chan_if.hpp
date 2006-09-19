@@ -34,34 +34,32 @@ public:
   typedef S					      storage_type;
   typedef T					      return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
+//private:
+  storage_type *storage;
+  size_t        storageSize;
+  size_t       *offset;
 private:
-  storage_type *p1;
-  size_t	boundary;
-  storage_type *p2;
-  size_t	limit;
+  size_t        limit;
 public:
   smoc_ring_access()
-    { reset(); }
-  
-  smoc_ring_access(storage_type *base, size_t size, size_t pos, size_t limit)
-    : p1(base + pos), boundary(size-pos), p2(base - boundary), limit(limit)
-    { assert( pos < size ); assert( limit <= size ); }
-  
-  size_t getLimit() const
-    { return limit; }
-  
-  void reset()
-    { p1 = NULL; boundary = 0; p2 = NULL; limit = 0; }
-  
+    : storage(NULL), storageSize(0), offset(NULL), limit(0) {}
+
+  void   setLimit(size_t l) { limit = l; }
+  size_t getLimit() const   { return limit; }
+
   return_type operator[](size_t n) {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
     assert(n < limit);
-    return n >= boundary ? p2[n] : p1[n];
+    return *offset + n < storageSize
+      ? storage[*offset + n]
+      : storage[*offset + n - storageSize];
   }
   const return_type operator[](size_t n) const {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[](" << n << ") const" << std::endl;
     assert(n < limit);
-    return n >= boundary ? p2[n] : p1[n];
+    return *offset + n < storageSize
+      ? storage[*offset + n]
+      : storage[*offset + n - storageSize];
   }
 };
 
@@ -74,18 +72,10 @@ public:
 private:
   size_t limit;
 public:
-  smoc_ring_access()
-    { reset(); }
-  
-  smoc_ring_access(storage_type *base, size_t size, size_t pos, size_t limit)
-    : limit(limit)
-    { assert( pos < size ); assert( limit <= size ); assert( base == NULL ); }
-  
-  size_t getLimit() const
-    { return limit; }
-  
-  void reset()
-    { limit = 0; }
+  smoc_ring_access(): limit(0) {}
+
+  void   setLimit(size_t l) { limit = l; }
+  size_t getLimit() const   { return limit; }
 };
 
 template <>
@@ -97,18 +87,11 @@ public:
 private:
   size_t limit;
 public:
-  smoc_ring_access()
-    { reset(); }
-  
-  smoc_ring_access(storage_type *base, size_t size, size_t pos, size_t limit)
-    : limit(limit)
-    { assert( pos < size ); assert( limit <= size ); assert( base == NULL ); }
+  smoc_ring_access(): limit(0) {}
 
-  size_t getLimit() const
-    { return limit; }
-  
-  void reset()
-    { limit = 0; }
+  void   reset()            { limit = 0; }
+  void   setLimit(size_t l) { limit = l; }
+  size_t getLimit() const   { return limit; }
 };
 
 const sc_event& smoc_default_event_abort();
@@ -206,21 +189,21 @@ public:
   typedef smoc_port_in<data_type>			    iface_in_type;
   typedef typename smoc_storage_in<data_type>::storage_type storage_type;
   typedef typename smoc_storage_in<data_type>::return_type  return_type;
-  typedef smoc_ring_access<storage_type, return_type>	    ring_type;
+  typedef smoc_ring_access<storage_type, return_type>	    ring_in_type;
   
   bool is_v1_in_port;
   
-  virtual void        addPort(smoc_root_port_in *in) = 0;
-  virtual size_t      committedOutCount() const = 0;
+  virtual void   addPort(smoc_root_port_in *in) = 0;
+  virtual size_t committedOutCount() const = 0;
 //smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual smoc_event &blockEventOut(size_t n) = 0;
-  virtual ring_type   commSetupIn(size_t req) = 0;
+  virtual void   ringSetupIn(ring_in_type &r) = 0;
 #ifdef ENABLE_SYSTEMC_VPC
-  virtual void        commExecIn(const ring_type &, const smoc_ref_event_p &) = 0;
+  virtual void   commExecIn(size_t consume, const smoc_ref_event_p &) = 0;
 #else
-  virtual void        commExecIn(const ring_type &) = 0;
+  virtual void   commExecIn(size_t consume) = 0;
 #endif
-  virtual bool        portOutIsV1() const = 0;
+  virtual bool   portOutIsV1() const = 0;
   
   sc_module *getHierarchy() const {
     assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
@@ -251,7 +234,7 @@ public:
   typedef smoc_port_out<T>				     iface_out_type;
   typedef typename smoc_storage_out<data_type>::storage_type storage_type;
   typedef typename smoc_storage_out<data_type>::return_type  return_type;
-  typedef smoc_ring_access<storage_type, return_type>	     ring_type;
+  typedef smoc_ring_access<storage_type, return_type>	     ring_out_type;
   
   bool is_v1_out_port;
   
@@ -259,11 +242,11 @@ public:
   virtual size_t      committedInCount() const = 0;
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual smoc_event &blockEventIn(size_t n) = 0;
-  virtual ring_type   commSetupOut(size_t req) = 0;
+  virtual void        ringSetupOut(ring_out_type &r) = 0;
 #ifdef ENABLE_SYSTEMC_VPC
-  virtual void        commExecOut(const ring_type &, const smoc_ref_event_p &) = 0;
+  virtual void        commExecOut(size_t produce, const smoc_ref_event_p &) = 0;
 #else
-  virtual void        commExecOut(const ring_type &) = 0;
+  virtual void        commExecOut(size_t produce) = 0;
 #endif
   virtual bool        portInIsV1() const = 0;
   

@@ -131,6 +131,7 @@ public:
   template <class E> friend class Value;
   template <class E> friend class CommExec;
   template <class E> friend class CommSetup;
+  template <class E> friend class CommReset;
   template <class E> friend class Sensitivity;
 private:
   P      &p;
@@ -193,6 +194,20 @@ struct CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
     return e.a.p.commExec();
   }
 #endif
+};
+
+template <class P, class E>
+struct CommReset<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
+  typedef void result_type;
+  
+  static inline
+  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommReset<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
+                 "::apply(" << e.a.p << ", ... )" << std::endl;
+#endif
+    return e.a.p.commReset();
+  }
 };
 
 template <class P, class E>
@@ -407,6 +422,7 @@ public:
   
   template <class E> friend class Expr::CommExec;
   template <class E> friend class Expr::CommSetup;
+  template <class E> friend class Expr::CommReset;
   template <class E> friend class Expr::Value;
 protected:
   typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> > base_type;
@@ -417,17 +433,24 @@ protected:
 
   bool peerIsV1() const
     { return (*this)->portOutIsV1(); }
+
+  void finalise() { (*this)->ringSetupIn(*this); }
   
-  void commSetup(size_t req) {
-    static_cast<ring_type &>(*this) =
-      (*this)->commSetupIn(req);
-  }
+  void commSetup(size_t req) { this->setLimit(req); }
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExec(const smoc_ref_event_p &le) { (*this)->commExecIn(*this, le); }
+  void commExec(const smoc_ref_event_p &le)
 #else
-  void commExec() { (*this)->commExecIn(*this); }
+  void commExec()
 #endif
-  void reset() { ring_type::reset(); }
+  {
+#ifdef ENABLE_SYSTEMC_VPC
+    (*this)->commExecIn(this->getLimit(), le);
+#else
+    (*this)->commExecIn(this->getLimit());
+#endif
+    this->setLimit(0); 
+  }
+  void commReset() { this->setLimit(0); }
 public:
 //void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
 //public:
@@ -474,6 +497,7 @@ public:
   typedef smoc_ring_access<storage_type, return_type>	     ring_type;
   
   template <class E> friend class Expr::CommExec;
+  template <class E> friend class Expr::CommReset;
   template <class E> friend class Expr::CommSetup;
   template <class E> friend class Expr::Value;
 protected:
@@ -486,16 +510,23 @@ protected:
   bool peerIsV1() const
     { return (*this)->portInIsV1(); }
   
-  void commSetup(size_t req) {
-    static_cast<ring_type &>(*this) =
-      (*this)->commSetupOut(req);
-  }
+  void finalise() { (*this)->ringSetupOut(*this); }
+  
+  void commSetup(size_t req) { this->setLimit(req); }
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExec(const smoc_ref_event_p &le) { (*this)->commExecOut(*this, le); }
+  void commExec(const smoc_ref_event_p &le)
 #else
-  void commExec() { (*this)->commExecOut(*this); }
+  void commExec()
 #endif
-  void reset() { ring_type::reset(); }
+  {
+#ifdef ENABLE_SYSTEMC_VPC
+    (*this)->commExecOut(this->getLimit(), le);
+#else
+    (*this)->commExecOut(this->getLimit());
+#endif
+    this->setLimit(0); 
+  }
+  void commReset() { this->setLimit(0); }
 public:
 //  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
 //public:

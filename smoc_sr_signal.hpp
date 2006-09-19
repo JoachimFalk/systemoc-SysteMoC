@@ -196,7 +196,7 @@ private:
   virtual const char* kind() const {
     return kind_string;
   }
-
+  
   void tick(){
     bool needUpdate = (signalState != undefined);
     signalState=undefined;
@@ -206,7 +206,6 @@ private:
     multipleWrite = allow;
   }
   // disabled
-
   smoc_sr_signal_kind( const this_type & );
   this_type& operator = ( const this_type & );
 };
@@ -219,7 +218,9 @@ public:
   typedef T                                  data_type;
   typedef smoc_sr_signal_storage<data_type>  this_type;
   typedef typename this_type::iface_out_type iface_out_type;
+  typedef typename this_type::ring_out_type  ring_out_type;
   typedef typename this_type::iface_in_type  iface_in_type;
+  typedef typename this_type::ring_in_type   ring_in_type;
   typedef smoc_storage<data_type>	     storage_type;
   
   class chan_init
@@ -234,8 +235,8 @@ public:
     void add( add_param_ty x ) {
       //FIXME(MS): Signal initialization should be disabled in future!
       std::cerr << "Warning: Signals in synchronous-reactive systems should not be initialized!\n"
-		   "A better way for breaking undefined feedback loops is using non-strict blocks like non-strict AND!"
-		<< std::endl;
+                  "A better way for breaking undefined feedback loops is using non-strict blocks like non-strict AND!"
+                << std::endl;
       //FIXME(MS): replace with signal value wrapper
       if(marking.size)marking[0]=x;
       else marking.push_back(x);
@@ -246,6 +247,8 @@ public:
   };
 private:
   storage_type *storage;
+  //FIXME(MS) pointer hack for smoc_ring_access->offset
+  size_t offsetHack;
 protected:
   smoc_sr_signal_storage( const chan_init &i )
 //  : smoc_chan_nonconflicting_if<smoc_sr_signal_kind, T>(i),
@@ -258,9 +261,20 @@ protected:
       this->signalState = defined;
     }
   }
-  
-  storage_type *getStorage() const { return storage; }
-  
+
+  void ringSetupIn(ring_in_type &r) {
+    r.storage     = storage;
+    r.storageSize = this->fsize;
+    offsetHack    = (this->signalState==undefined)?1:0;
+    r.offset      = &offsetHack;//&this->rindex;
+  }
+  void ringSetupOut(ring_out_type &r) {
+    r.storage     = storage;
+    r.storageSize = this->fsize;
+    offsetHack    = (this->signalState==undefined)?0:1;
+    r.offset      = &offsetHack;//&this->windex;
+  }
+
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<sr_signal tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
     {
@@ -309,8 +323,9 @@ protected:
     //FIXME (MS) Does an initialised signal<void> equals "defined" or "absent"??
     signalState = defined;
   }
-  
-  void *getStorage() const { return NULL; }
+ 
+  void ringSetupIn(ring_in_type &r) {}
+  void ringSetupOut(ring_out_type &r) {}
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<sr_signal tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
@@ -337,58 +352,41 @@ public:
   
   typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
   typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
-  typedef smoc_ring_access<storage_in_type, return_in_type>   ring_in_type;
   
   typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
   typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
-  typedef smoc_ring_access<storage_out_type, return_out_type> ring_out_type;
 protected:
 //  iface_in_type  *in;
 //  iface_out_type *out;
   
-  ring_in_type commSetupIn(size_t req) {
-    //std::cerr << "commSetupIn(" << req << ")" << endl;
-    assert( req <= this->usedStorage() );
-    return ring_in_type(this->getStorage(),
-        this->fsize, (this->signalState==undefined)?1:0, req);
-  }
-  
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecIn(const ring_in_type &r, const smoc_ref_event_p &le)
+  void commExecIn(size_t consume, const smoc_ref_event_p &le)
 #else
-  void commExecIn(const ring_in_type &r)
+  void commExecIn(size_t consume)
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(r.getLimit(), this->name());
+    TraceLog.traceCommExecIn(consume, this->name());
 #endif
-    rpp(r.getLimit());
+    this->rpp(consume);
 //  this->read_event.notify(); 
 //  if (this->usedStorage() < 1)
 //    this->write_event.reset();
   }
   
-  ring_out_type commSetupOut(size_t req) {
-    std::cerr << "commSetupOut(" << req << ")" << endl;
-    assert( req <= this->unusedStorage() );
-    return ring_out_type(this->getStorage(),
-        this->fsize, (this->signalState==undefined)?0:1, req);
-
-  }
-  
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecOut(const ring_out_type &r, const smoc_ref_event_p &le)
+  void commExecOut(size_t produce, const smoc_ref_event_p &le)
 #else
-  void commExecOut(const ring_out_type &r)
+  void commExecOut(size_t produce)
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(r.getLimit(), this->name());
+    TraceLog.traceCommExecOut(produce, this->name());
 #endif
 #ifdef ENABLE_SYSTEMC_VPC
-    wpp(r.getLimit(), le);
+    this->wpp(produce, le);
 #else
-    wpp(r.getLimit());
+    this->wpp(produce);
 #endif
 //  this->write_event.notify();
 //  if (this->unusedStorage() < 1)
