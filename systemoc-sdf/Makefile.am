@@ -19,10 +19,12 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
-root_srcdir=$(top_srcdir)/..
-root_builddir=$(top_builddir)/..
+root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
+root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
 SUBDIRS=
+
+include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 
 INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 
@@ -35,3 +37,11 @@ noinst_PROGRAMS= simulation-sdf
 
 simulation_sdf_SOURCES= design-sdf.cpp
 simulation_sdf_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+SYNTHESIS_SUBDIR = synthesis
+
+synth: $(SYNTHESIS_SUBDIR)/smoc-synth-sdf
+
+$(SYNTHESIS_SUBDIR)/sdf.ac.xml: $(SYNTHESIS_SUBDIR)/design-sdf.ast.xml
+
+.PHONY: synth

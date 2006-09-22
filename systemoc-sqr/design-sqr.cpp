@@ -12,6 +12,8 @@
 # include <smoc_pggen.hpp>
 #endif
 
+using namespace std; 
+
 class Src: public smoc_actor {
 public:
   smoc_port_out<double> out;
@@ -19,7 +21,9 @@ private:
   int i;
   
   void src() {
-    std::cout << "src: " << i << std::endl;
+#ifndef NDEBUG
+    cout << "src: " << i << std::endl;
+#endif
     out[0] = i++;
   }
   
@@ -28,7 +32,7 @@ public:
   Src(sc_module_name name, SMOC_ACTOR_CPARAM(int,from))
     : smoc_actor(name, start), i(from) {
     start =
-        (VAR(i) <= 100)           >>
+        (VAR(i) <= 1000000)       >>
         out(1)                    >>
         CALL(Src::src)            >> start
       ;
@@ -58,7 +62,9 @@ private:
   // guard  functions used by the
   // FSM declared in the constructor
   bool check() const {
-    std::cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
+#ifndef NDEBUG
+    cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
+#endif
     return fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
   }
   
@@ -134,7 +140,11 @@ class Sink: public smoc_actor {
 public:
   smoc_port_in<double> in;
 private:
-  void sink(void) { std::cout << "sink: " << in[0] << std::endl; }
+  void sink(void) {
+#ifndef NDEBUG
+    cout << "sink: " << in[0] << std::endl;
+#endif  
+  }
   
   smoc_firing_state start;
 public:
@@ -142,7 +152,8 @@ public:
     : smoc_actor(name, start) {
     start =
         in(1)             >>
-        CALL(Sink::sink)  >> start
+        CALL(Sink::sink)  >>
+	start
       ;
   }
 };
@@ -159,17 +170,19 @@ protected:
 public:
   SqrRoot( sc_module_name name )
     : smoc_graph(name),
-      src("a1", 50),
+      src("a1", 1),
       sqrloop("a2"),
       approx("a3"),
       dup("a4"),
       sink("a5") {
     connectNodePorts(src.out,    sqrloop.i1);
     connectNodePorts(sqrloop.o1, approx.i1);
+#ifndef KASCPAR_PARSING
     connectNodePorts(approx.o1,  dup.i1,
                      smoc_fifo<double>(1));
     connectNodePorts(dup.o1,     approx.i2,
                      smoc_fifo<double>() << 2 );
+#endif
     connectNodePorts(dup.o2,     sqrloop.i2);
     connectNodePorts(sqrloop.o2, sink.in);
   }
@@ -177,7 +190,7 @@ public:
 
 int sc_main (int argc, char **argv) {
   smoc_top_moc<SqrRoot> sqrroot("sqrroot");
-  
+#ifndef KASCPAR_PARSING  
 #define GENERATE "--generate-problemgraph"
   if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
     smoc_modes::dump(std::cout, sqrroot);
@@ -185,5 +198,6 @@ int sc_main (int argc, char **argv) {
     sc_start(-1);
   }
 #undef GENERATE
+#endif
   return 0;
 }

@@ -28,15 +28,12 @@ class m_source_idct: public smoc_actor {
     smoc_port_out<int> min;
   private:
     int counter;
-//#ifndef KASCPAR_PARSING    
     std::ifstream i1; 
-//#endif
     
     void process() {
       int myMin;
       int myOut;
       
-#ifndef KASCPAR_PARSING
       
 #ifndef NDEBUG
       if (i1.good()) {
@@ -47,23 +44,22 @@ class m_source_idct: public smoc_actor {
           myOut = counter;
 #else
           i1 >> myOut;
-          std::cout << name() << "  write " << myOut << std::endl;
+          cout << name() << "  write " << myOut << std::endl;
 #endif
           out[j] = myOut;
         }
         myMin = -256;
 #ifndef NDEBUG
-        std::cout << name() << "  write min " << myMin << std::endl;
+        cout << name() << "  write min " << myMin << std::endl;
 #endif
         min[0] = myMin;
 #ifndef NDEBUG
       } else {
-        std::cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
+        cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
         exit (1) ;
       }
 #endif
 
-#endif //KASCPAR_PARSING
     }
     
     smoc_firing_state start;
@@ -101,13 +97,11 @@ class m_sink: public smoc_actor {
     int           foo;
     
     void process() {
-#ifndef KASCPAR_PARSING
 #ifndef NDEBUG
-      std::cout << name() << " receiving " << in[0] << std::endl;
+      cout << name() << " receiving " << in[0] << std::endl;
       fo << in[0] << std::endl;
 #else
       foo = in[0];
-#endif
 #endif
     }
     

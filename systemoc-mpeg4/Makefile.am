@@ -19,10 +19,12 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
-root_srcdir=$(top_srcdir)/..
-root_builddir=$(top_builddir)/..
+root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
+root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
 SUBDIRS=
+
+include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 
 INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 
@@ -54,3 +56,16 @@ all: test_in.dat
 
 %.dat: %-dat
 	cp $^ $@
+
+SYNTHESIS_SUBDIR = synthesis
+
+$(SYNTHESIS_SUBDIR)/%.dat: %-dat
+	cp $^ $@
+
+synth: $(SYNTHESIS_SUBDIR)/smoc-synth-test-idct2d $(SYNTHESIS_SUBDIR)/test_in.dat
+
+$(SYNTHESIS_SUBDIR)/test-idct2d.ac.xml: $(SYNTHESIS_SUBDIR)/design-test-idct2d.ast.xml
+
+.PHONY: synth
+
+
