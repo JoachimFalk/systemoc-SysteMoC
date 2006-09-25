@@ -22,136 +22,109 @@
 #define INAMEblk "test_in.dat"
 #define ONAMEblk "test_out.dat"
 
-class m_source_idct: public smoc_actor {
-  public:
-    smoc_port_out<int> out;
-    smoc_port_out<int> min;
-  private:
-    int counter;
-    std::ifstream i1; 
-    
-    void process() {
-      int myMin;
-      int myOut;
-      
-      
-#ifndef NDEBUG
-      if (i1.good()) {
+#ifdef EDK_XILINX_RUNTIME
+# define USE_COUNTER_INPUT
 #endif
-        for ( int j = 0; j <= 63; j++ ) {
-          counter++;
-#ifdef NDEBUG
-          myOut = counter;
-#else
-          i1 >> myOut;
-          cout << name() << "  write " << myOut << std::endl;
-#endif
-          out[j] = myOut;
-        }
-        myMin = -256;
-#ifndef NDEBUG
-        cout << name() << "  write min " << myMin << std::endl;
-#endif
-        min[0] = myMin;
-#ifndef NDEBUG
-      } else {
-        cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
-        exit (1) ;
-      }
+#ifdef KASCPAR_PARSING
+# define USE_COUNTER_INPUT
+typedef unsigned int size_t;
 #endif
 
-    }
-    
-    smoc_firing_state start;
-  public:
-    m_source_idct( sc_module_name name
-#ifndef KASCPAR_PARSING
-, size_t periods
+class m_source_idct: public smoc_actor {
+public:
+  smoc_port_out<int> out;
+  smoc_port_out<int> min;
+private:
+  int counter;
+#ifndef USE_COUNTER_INPUT
+  std::ifstream i1; 
 #endif
-)
-      :smoc_actor( name, start ), counter(0) {
-//#ifndef KASCPAR_PARSING
-      i1.open(INAMEblk);
-      start = ((out.getAvailableSpace() >= 64) &&
-               (min.getAvailableSpace() >= 1) &&
-               (VAR(counter) < periods*64))
-              >> CALL(m_source_idct::process)
-              >> start;
-//#endif
+  
+  void process() {
+    int myMin;
+    int myOut;
+    
+#ifndef USE_COUNTER_INPUT
+    if (i1.good()) {
+#endif
+      for ( int j = 0; j <= 63; j++ ) {
+        counter++;
+#ifdef USE_COUNTER_INPUT
+        myOut = counter;
+#else
+        i1 >> myOut;
+        cout << name() << "  write " << myOut << std::endl;
+#endif
+        out[j] = myOut;
+      }
+      myMin = -256;
+#ifndef USE_COUNTER_INPUT
+      cout << name() << "  write min " << myMin << std::endl;
+#endif
+      min[0] = myMin;
+#ifndef USE_COUNTER_INPUT
+    } else {
+      cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
+      exit (1) ;
+    }
+#endif
   }
-  ~m_source_idct( ){
-//#ifndef KASCPAR_PARSING
-        i1.close();
-//#endif
+ 
+  smoc_firing_state start;
+public:
+  m_source_idct(sc_module_name name,
+      SMOC_ACTOR_CPARAM(size_t, periods))
+    : smoc_actor(name, start), counter(0) {
+#ifndef USE_COUNTER_INPUT
+    i1.open(INAMEblk);
+#endif
+    start = ((out.getAvailableSpace() >= 64) &&
+             (min.getAvailableSpace() >= 1) &&
+             (VAR(counter) < periods*64))
+            >> CALL(m_source_idct::process)
+            >> start;
+  }
+  ~m_source_idct() {
+#ifndef USE_COUNTER_INPUT
+    i1.close();
+#endif
   }
 };
 
 class m_sink: public smoc_actor {
-  public:
-    smoc_port_in<int> in;
-  
-  private:
-//#ifndef KASCPAR_PARSING
-    std::ofstream fo; 
-//#endif
-    int           foo;
-    
-    void process() {
-#ifndef NDEBUG
-      cout << name() << " receiving " << in[0] << std::endl;
-      fo << in[0] << std::endl;
-#else
-      foo = in[0];
+public:
+  smoc_port_in<int> in;
+private:
+#ifndef USE_COUNTER_INPUT
+  std::ofstream fo; 
 #endif
-    }
-    
-    smoc_firing_state start;
-  public:
-    m_sink( sc_module_name name )
-      : smoc_actor( name, start ),
-        fo(ONAMEblk) {
-      start = in(1) >> CALL(m_sink::process)  >> start;
-    }
-    
-    ~m_sink() {
-      fo.close();
-    
-    }
+  
+  void process() {
+#ifndef USE_COUNTER_INPUT
+    cout << name() << " receiving " << in[0] << std::endl;
+    fo << in[0] << std::endl;
+#else
+    int foo = in[0];
+#endif
+  }
+  
+  smoc_firing_state start;
+public:
+  m_sink( sc_module_name name )
+    : smoc_actor( name, start )
+#ifndef USE_COUNTER_INPUT
+    , fo(ONAMEblk)
+#endif
+  {
+    start = in(1) >> CALL(m_sink::process)  >> start;
+  }
+  
+  ~m_sink() {
+#ifndef USE_COUNTER_INPUT
+    fo.close();
+#endif
+  }
 };
-
-/*
-class m_source: public smoc_actor {
-  public:
-    smoc_port_out<int> out;
-  private:
-    int i;
-    const int step;
-
-    //std::ifstream i1;
-
-    void process() {
-      //int data;
-      //std::cout << name() << " generating " << i << std::endl;
-     // if(i1.good()){
-       // i1 >> data;
-        out[0] = i;//data;
-        cout << name() << "  write " << out[0] << std::endl;
-        i+=step;
-      //}else{
-       // cout << "  file empty" << std::endl;
-      //}
-    }
-    
-    smoc_firing_state start;
-  public:
-    m_source( sc_module_name name,int init_value=0, int step=1)
-      :smoc_actor( name, start ), i(init_value) , step(step){
-      //i1.open("test.txt");
-      start = ((out.getAvailableSpace() >= 1) && (VAR(i) <= 655)) >>
-              CALL(m_source::process)               >> start;
-    }
-};
-*/
 
 class IDCT2d_TEST
 : public smoc_graph {
@@ -160,11 +133,7 @@ private:
   m_block_idct  blidct;
   m_sink        snk;
 public:
-  IDCT2d_TEST(sc_module_name name
-#ifndef KASCPAR_PARSING
-     , size_t periods
-#endif
-)
+  IDCT2d_TEST(sc_module_name name, size_t periods)
     : smoc_graph(name),
       src_idct("src_idct", periods),
       blidct("blidct"),
@@ -174,7 +143,7 @@ public:
     connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(4));
     connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
 #endif
-      }
+  }
 };
 
 #ifndef KASCPAR_PARSING
@@ -196,5 +165,3 @@ int sc_main (int argc, char **argv) {
   return 0;
 }
 #endif
-
-

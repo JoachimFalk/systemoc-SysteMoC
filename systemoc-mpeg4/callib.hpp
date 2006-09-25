@@ -1,11 +1,15 @@
-#include <vector>
-#include <iostream>
+//#include <vector>
+#ifndef XILINX_EDK_RUNTIME
+# include <iostream>
+#endif
 
 #ifndef _INCLUDED_CALLIB_HPP
 #define _INCLUDED_CALLIB_HPP
 
-#ifndef KASCPAR_PARSING
-template <class T>
+#define DEFAULT_FIFO_SIZE 1
+
+/*
+template <typename T>
 struct cal_list {
   typedef std::vector<T> t;
 };
@@ -17,30 +21,31 @@ cal_list<int>::t Integers(int s, int e) {
     retval.push_back(i);
   return retval;
 }
-#endif
+*/
 
-template <class T>
+template <typename T>
 T cal_bitand( T a, T b ) { return a & b; }
 
-template <class T>
+template <typename T>
 T cal_bitor( T a, T b ) { return a | b; }
 
-template <class T>
+template <typename T>
 T cal_bitxor( T a, T b ) { return a ^ b; }
 
-template <class T1>
+template <typename T1>
 T1 cal_rshift( T1 value, unsigned int factor ) { return value >> factor; }
 
-template <class T1>
+template <typename T1>
 T1 cal_lshift( T1 value, unsigned int factor ) { return value << factor; }
 
-#ifndef KASCPAR_PARSING
-template <class T>
+/*
+#ifndef XILINX_EDK_RUNTIME
+template <typename T>
 std::ostream &operator << ( std::ostream &o, const std::vector<T> &l ) {
   o << "[" << std::endl;
   
   int index = 0;
-  for ( class cal_list<T>::t::const_iterator iter = l.begin();
+  for ( typename cal_list<T>::t::const_iterator iter = l.begin();
         iter != l.end();
         ++iter, ++index )
     o << "  " << index << " => " << (*iter) << std::endl;
@@ -48,16 +53,6 @@ std::ostream &operator << ( std::ostream &o, const std::vector<T> &l ) {
   return o;
 }
 #endif
-/*
-template <typename T1, typename F, typename T2>
-cal_list<T1>::t map( const cal_list<T2>::t &l ) {
-  cal_list<T1>::t retval;
-  
-  for ( cal_list<T2>::t::const_iterator iter = l.begin();
-        iter != l.end();
-        ++iter )
-    retval.push_back( F::apply(*iter) );
-  return retval;
-}*/
+*/
 
 #endif // _INCLUDED_CALLIB_HPP
