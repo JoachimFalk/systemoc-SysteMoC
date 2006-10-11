@@ -1,4 +1,5 @@
-//#include <vector>
+# include <vector>
+
 #ifndef XILINX_EDK_RUNTIME
 # include <iostream>
 #endif
@@ -8,7 +9,8 @@
 
 #define DEFAULT_FIFO_SIZE 1
 
-/*
+
+#ifndef KASCPAR_PARSING
 template <typename T>
 struct cal_list {
   typedef std::vector<T> t;
@@ -21,7 +23,6 @@ cal_list<int>::t Integers(int s, int e) {
     retval.push_back(i);
   return retval;
 }
-*/
 
 template <typename T>
 T cal_bitand( T a, T b ) { return a & b; }
@@ -38,7 +39,7 @@ T1 cal_rshift( T1 value, unsigned int factor ) { return value >> factor; }
 template <typename T1>
 T1 cal_lshift( T1 value, unsigned int factor ) { return value << factor; }
 
-/*
+
 #ifndef XILINX_EDK_RUNTIME
 template <typename T>
 std::ostream &operator << ( std::ostream &o, const std::vector<T> &l ) {
@@ -53,6 +54,7 @@ std::ostream &operator << ( std::ostream &o, const std::vector<T> &l ) {
   return o;
 }
 #endif
-*/
+
+#endif //KASCPAR_PARSING
 
 #endif // _INCLUDED_CALLIB_HPP
