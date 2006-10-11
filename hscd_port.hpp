@@ -35,14 +35,16 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_port_in::communicate>" << std::endl;
 #endif
-    this->commSetup(n); // access to new tokens
+#ifndef NDEBUG    
+    this->setLimit(n); // access to new tokens
+#endif
     input.resize(n);
     for ( size_t i = 0; i < n; i++ )
       input[i] = smoc_port_in<T>::operator[](i);
 #ifdef ENABLE_SYSTEMC_VPC
-    this->commExec(NULL); // consume tokens
+    this->commExec(n, NULL); // consume tokens
 #else
-    this->commExec(); // consume tokens
+    this->commExec(n); // consume tokens
 #endif
     ready = true;
 #ifdef SYSTEMOC_DEBUG
@@ -68,11 +70,13 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_port_in::communicate>" << std::endl;
 #endif
-    this->commSetup(n); // access to new tokens
+#ifndef NDEBUG    
+    this->setLimit(n); // access to new tokens
+#endif
 #ifdef ENABLE_SYSTEMC_VPC
-    this->commExec(NULL); // consume tokens
+    this->commExec(n, NULL); // consume tokens
 #else
-    this->commExec(); // consume tokens
+    this->commExec(n); // consume tokens
 #endif
     ready = true;
 #ifdef SYSTEMOC_DEBUG
@@ -120,15 +124,17 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_port_out::communicate>" << std::endl;
 #endif
-    this->commSetup(n); // access to free space on fifo
+#ifndef NDEBUG    
+    this->setLimit(n); // access to new tokens
+#endif
     assert( n <= output.size() );
     for ( size_t i = 0; i < n; i++ )
       smoc_port_out<T>::operator[](i) = output[i];
 //  output.clear();
 #ifdef ENABLE_SYSTEMC_VPC
-    this->commExec(NULL); // produce tokens
+    this->commExec(n, NULL); // produce tokens
 #else
-    this->commExec(); // produce tokens
+    this->commExec(n); // produce tokens
 #endif
     ready = true;
 #ifdef SYSTEMOC_DEBUG
@@ -155,11 +161,13 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_port_out::communicate>" << std::endl;
 #endif
-    this->commSetup(n); // access to free space on fifo
+#ifndef NDEBUG    
+    this->setLimit(n); // access to new tokens
+#endif
 #ifdef ENABLE_SYSTEMC_VPC
-    this->commExec(NULL); // produce tokens
+    this->commExec(n, NULL); // produce tokens
 #else
-    this->commExec(); // produce tokens
+    this->commExec(n); // produce tokens
 #endif
     ready = true;
 #ifdef SYSTEMOC_DEBUG

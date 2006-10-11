@@ -130,8 +130,10 @@ public:
   friend class AST<this_type>;
   template <class E> friend class Value;
   template <class E> friend class CommExec;
+#ifndef NDEBUG
   template <class E> friend class CommSetup;
   template <class E> friend class CommReset;
+#endif
   template <class E> friend class Sensitivity;
 private:
   P      &p;
@@ -170,43 +172,44 @@ typename PortTokens<P>::type portTokens(P &p)
  * number of tokens on actor ports
  */
 
-template <class P, class E>
-struct CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
+template <class P, typename T>
+struct CommExec<DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> > {
   typedef void        result_type;
 #ifdef ENABLE_SYSTEMC_VPC
   typedef const smoc_ref_event_p &param1_type;
   
   static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e, const smoc_ref_event_p &le) {
+  result_type apply(const DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> &e, const smoc_ref_event_p &le) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
 # endif
-    return e.a.p.commExec(le);
+    return e.a.p.commExec(Value<DLiteral<T> >::apply(e.b), le);
   }
 #else
   static inline
-  result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
+  result_type apply(const DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> &e) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
 # endif
-    return e.a.p.commExec();
+    return e.a.p.commExec(Value<DLiteral<T> >::apply(e.b));
   }
 #endif
 };
 
+#ifndef NDEBUG
 template <class P, class E>
 struct CommReset<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   typedef void result_type;
   
   static inline
   result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
     std::cerr << "CommReset<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
-#endif
-    return e.a.p.commReset();
+# endif
+    return e.a.p.setLimit(0);
   }
 };
 
@@ -216,25 +219,26 @@ struct CommSetup<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   
   static inline
   result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
     std::cerr << "CommSetup<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
-#endif
-    return e.a.p.commSetup(Value<E>::apply(e.b));
+# endif
+    return e.a.p.setLimit(Value<E>::apply(e.b));
   }
 };
+#endif
 
-template <class P, class E>
-struct Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
+template <class P, typename T>
+struct Sensitivity<DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> > {
   typedef Detail::Sensitive    match_type;
   
   typedef void                 result_type;
   typedef smoc_event_and_list &param1_type;
 
   static
-  void apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e,
+  void apply(const DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> &e,
              smoc_event_and_list &al) {
-    al &= e.a.p.blockEvent(Value<E>::apply(e.b));
+    al &= e.a.p.blockEvent(Value<DLiteral<T> >::apply(e.b));
 //#ifdef SYSTEMOC_DEBUG
 //    std::cerr << "Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply al == " << al << std::endl;
 //#endif
@@ -249,7 +253,9 @@ struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
     size_t req = Value<E>::apply(e.b);
     assert(e.a.p.availableCount() >= req);
-    e.a.p.commSetup(req);
+#ifndef NDEBUG
+    e.a.p.setLimit(req);
+#endif
     return result_type();
   }
   /*{
@@ -419,8 +425,10 @@ public:
   typedef smoc_ring_access<storage_type, return_type>	    ring_type;
   
   template <class E> friend class Expr::CommExec;
-  template <class E> friend class Expr::CommSetup;
+#ifndef NDEBUG
   template <class E> friend class Expr::CommReset;
+  template <class E> friend class Expr::CommSetup;
+#endif
   template <class E> friend class Expr::Value;
 protected:
   typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> > base_type;
@@ -437,21 +445,13 @@ protected:
   void finalise(smoc_root_node *node)
     { (*this)->ringSetupIn(*this); }
 
-  void commSetup(size_t req) { this->setLimit(req); }
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExec(const smoc_ref_event_p &le)
+  void commExec(size_t n, const smoc_ref_event_p &le)
+    { return (*this)->commExecIn(n, le); }
 #else
-  void commExec()
+  void commExec(size_t n)
+    { return (*this)->commExecIn(n); }
 #endif
-  {
-#ifdef ENABLE_SYSTEMC_VPC
-    (*this)->commExecIn(this->getLimit(), le);
-#else
-    (*this)->commExecIn(this->getLimit());
-#endif
-    this->setLimit(0); 
-  }
-  void commReset() { this->setLimit(0); }
 public:
 //void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
 //public:
@@ -498,8 +498,10 @@ public:
   typedef smoc_ring_access<storage_type, return_type>	     ring_type;
   
   template <class E> friend class Expr::CommExec;
+#ifndef NDEBUG
   template <class E> friend class Expr::CommReset;
   template <class E> friend class Expr::CommSetup;
+#endif
   template <class E> friend class Expr::Value;
 protected:
   typedef smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T> > base_type;
@@ -516,21 +518,13 @@ protected:
   void finalise(smoc_root_node *node)
     { (*this)->ringSetupOut(*this); }
 
-  void commSetup(size_t req) { this->setLimit(req); }
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExec(const smoc_ref_event_p &le)
+  void commExec(size_t n, const smoc_ref_event_p &le)
+    { return (*this)->commExecOut(n, le); }
 #else
-  void commExec()
+  void commExec(size_t n)
+    { return (*this)->commExecOut(n); }
 #endif
-  {
-#ifdef ENABLE_SYSTEMC_VPC
-    (*this)->commExecOut(this->getLimit(), le);
-#else
-    (*this)->commExecOut(this->getLimit());
-#endif
-    this->setLimit(0); 
-  }
-  void commReset() { this->setLimit(0); }
 public:
 //  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
 //public:

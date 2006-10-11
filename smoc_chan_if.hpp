@@ -34,18 +34,25 @@ public:
   typedef S					      storage_type;
   typedef T					      return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
-//private:
+private:
+#ifndef NDEBUG
+  size_t        limit;
+#endif
+public: // <-- FIXME
   storage_type *storage;
   size_t        storageSize;
   size_t       *offset;
-private:
-  size_t        limit;
 public:
-  smoc_ring_access()
-    : storage(NULL), storageSize(0), offset(NULL), limit(0) {}
+  smoc_ring_access():
+#ifndef NDEBUG
+      limit(0),
+#endif
+      storage(NULL), storageSize(0), offset(NULL) {}
 
+#ifndef NDEBUG
   void   setLimit(size_t l) { limit = l; }
-  size_t getLimit() const   { return limit; }
+//size_t getLimit() const   { return limit; }
+#endif
 
   return_type operator[](size_t n) {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
@@ -70,12 +77,20 @@ public:
   typedef void					      return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
 private:
+#ifndef NDEBUG
   size_t limit;
+#endif
 public:
-  smoc_ring_access(): limit(0) {}
+  smoc_ring_access()
+#ifndef NDEBUG
+    : limit(0)
+#endif
+    {}
 
+#ifndef NDEBUG
   void   setLimit(size_t l) { limit = l; }
-  size_t getLimit() const   { return limit; }
+//size_t getLimit() const   { return limit; }
+#endif
 };
 
 template <>
@@ -85,13 +100,20 @@ public:
   typedef const void				      return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
 private:
+#ifndef NDEBUG
   size_t limit;
+#endif
 public:
-  smoc_ring_access(): limit(0) {}
+  smoc_ring_access()
+#ifndef NDEBUG
+    : limit(0)
+#endif
+    {}
 
-  void   reset()            { limit = 0; }
+#ifndef NDEBUG
   void   setLimit(size_t l) { limit = l; }
-  size_t getLimit() const   { return limit; }
+//size_t getLimit() const   { return limit; }
+#endif
 };
 
 template <typename T>

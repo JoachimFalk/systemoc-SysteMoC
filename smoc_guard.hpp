@@ -72,7 +72,9 @@ Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
   if (*this) {
     Expr::Detail::ActivationStatus retval =
       Expr::evalTo<Expr::Value>(guard);
+#ifndef NDEBUG
     Expr::evalTo<Expr::CommReset>(guard);
+#endif
     return retval;
   } else
     return Expr::Detail::BLOCKED();

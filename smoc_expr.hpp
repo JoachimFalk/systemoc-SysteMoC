@@ -160,6 +160,7 @@ struct CommExec {
 #endif
 };
 
+#ifndef NDEBUG
 // Default do nothing
 template <class E>
 struct CommReset {
@@ -177,6 +178,7 @@ struct CommSetup {
   static inline
   result_type apply(const E &e) {}
 };
+#endif
 
 // Default do nothing
 template <class E>
@@ -267,8 +269,10 @@ public:
 #else
     virtual void       evalToCommExec()    const = 0;
 #endif
-    virtual void       evalToCommSetup()   const = 0;
+#ifndef NDEBUG
     virtual void       evalToCommReset()   const = 0;
+    virtual void       evalToCommSetup()   const = 0;
+#endif
     virtual void       evalToSensitivity
                  (smoc_event_and_list &al) const = 0;
     virtual value_type evalToValue()       const = 0;
@@ -298,10 +302,12 @@ protected:
     void       evalToCommExec() const
       { return CommExec<E>::apply(e); }
 #endif
+#ifndef NDEBUG
     void       evalToCommReset() const
       { return CommReset<E>::apply(e); }
     void       evalToCommSetup() const
       { return CommSetup<E>::apply(e); }
+#endif
     void       evalToSensitivity
          (smoc_event_and_list &al) const
       { return Sensitivity<E>::apply(e, al); }
@@ -347,15 +353,16 @@ struct CommExec<DVirtual<T> > {
 #endif
 };
 
+#ifndef NDEBUG
 template <typename T>
 struct CommReset<DVirtual<T> > {
   typedef void result_type;
   
   static inline
   result_type apply(const DVirtual <T> &e) {
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
     std::cerr << "CommReset<DVirtual<T> >::apply(e)" << std::endl;
-#endif
+# endif
     return e.v->evalToCommReset();
   }
 };
@@ -366,12 +373,13 @@ struct CommSetup<DVirtual<T> > {
   
   static inline
   result_type apply(const DVirtual <T> &e) {
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
     std::cerr << "CommSetup<DVirtual<T> >::apply(e)" << std::endl;
-#endif
+# endif
     return e.v->evalToCommSetup();
   }
 };
+#endif
 
 template <typename T>
 struct Sensitivity<DVirtual<T> > {
@@ -839,13 +847,13 @@ typedef boost::intrusive_ptr<ASTNodeBinOp> PASTNodeBinOp;
  * APPLICATIVE TEMPLATE CLASSES
  */
 
-template<typename TA, typename TB, OpBinT Op, template <class> class K = Value>
+template<typename TA, typename TB, OpBinT Op, template <class> class K>
 class DBinOpExecute;
 
 #define DBINOPEXECUTE(Op,op)                                          \
 template<typename TA, typename TB>                                    \
-struct DBinOpExecute<TA,TB,Op> {                                      \
-  typedef DBinOpExecute<TA,TB,Op>                       this_type;    \
+struct DBinOpExecute<TA,TB,Op,Value> {                                \
+  typedef DBinOpExecute<TA,TB,Op,Value>                 this_type;    \
   typedef typeof((*(TA*)(NULL)) op (*(TB*)(NULL)))      result_type;  \
                                                                       \
   template <class A, class B>                                         \
@@ -932,7 +940,7 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
     CommExec<A>::apply(e.a, le);
     CommExec<B>::apply(e.b, le);
   }
-#else
+#else // !ENABLE_SYSTEMC_VPC
   static inline
   result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
 # ifdef SYSTEMOC_DEBUG
@@ -941,18 +949,19 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
     CommExec<A>::apply(e.a);
     CommExec<B>::apply(e.b);
   }
-#endif
+#endif // ENABLE_SYSTEMC_VPC
 };
 
+#ifndef NDEBUG
 template <class A, class B>
 struct CommReset<DBinOp<A,B,DOpBinLAnd> > {
   typedef void result_type;
   
   static inline
   result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
     std::cerr << "CommReset<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
-#endif
+# endif
     CommReset<A>::apply(e.a);
     CommReset<B>::apply(e.b);
   }
@@ -964,13 +973,14 @@ struct CommSetup<DBinOp<A,B,DOpBinLAnd> > {
   
   static inline
   result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
-#ifdef SYSTEMOC_DEBUG
+# ifdef SYSTEMOC_DEBUG
     std::cerr << "CommSetup<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
-#endif
+# endif
     CommSetup<A>::apply(e.a);
     CommSetup<B>::apply(e.b);
   }
 };
+#endif
 
 template <class A, class B, OpBinT Op>
 struct Value<DBinOp<A,B,Op> > {

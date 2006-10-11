@@ -54,13 +54,11 @@ protected:
       parent(NULL), child(NULL),
       is_smoc_v1_port(false) {}
 public:
-  virtual void commSetup(size_t req)                = 0;
 #ifdef ENABLE_SYSTEMC_VPC
-  virtual void commExec(const smoc_ref_event_p &le) = 0;
+  virtual void commExec(size_t, const smoc_ref_event_p &) = 0;
 #else
-  virtual void commExec()                           = 0;
+  virtual void commExec(size_t)                           = 0;
 #endif
-  virtual void commReset()                          = 0;
 public:
   bool is_smoc_v1_port;
   

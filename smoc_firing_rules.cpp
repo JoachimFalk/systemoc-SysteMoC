@@ -275,7 +275,9 @@ void smoc_firing_types::transition_ty::execute(
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceStartTryExecute(actor->myModule()->name()); //
 #endif
+#ifndef NDEBUG
   Expr::evalTo<Expr::CommSetup>(guard);
+#endif
   
   assert( isType<NILTYPE>(f) ||
           isType<smoc_func_diverge>(f) ||
@@ -358,7 +360,10 @@ void smoc_firing_types::transition_ty::execute(
     TraceLog.traceEndActor(actor->myModule()->name()); //
 #endif
   }
-  
+#ifndef NDEBUG
+  Expr::evalTo<Expr::CommReset>(guard);
+#endif
+
 #ifdef ENABLE_SYSTEMC_VPC
   if (!isType<smoc_func_call>(f))
     Expr::evalTo<Expr::CommExec>(guard, NULL);
