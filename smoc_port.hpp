@@ -243,10 +243,16 @@ struct Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
 
 template <class P, class E>
 struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
-  typedef Expr::Detail::ActivationStatus result_type;
+  typedef Expr::Detail::ENABLED result_type;
   
   static inline
   result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
+    size_t req = Value<E>::apply(e.b);
+    assert(e.a.p.availableCount() >= req);
+    e.a.p.commSetup(req);
+    return result_type();
+  }
+  /*{
     size_t req = Value<E>::apply(e.b);
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "Value<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply "
@@ -259,12 +265,6 @@ struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
       e.a.p.blockEvent().reset();
       return Expr::Detail::BLOCKED;
     }
-  }
-/* {
-    size_t req = Value<E>::apply(e.b);
-    assert(e.a.p.availableCount() >= req);
-    e.a.p.commSetup(req);
-    return true;
   }*/
 
 };

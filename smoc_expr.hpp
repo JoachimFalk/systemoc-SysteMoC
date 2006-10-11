@@ -857,30 +857,40 @@ struct DBinOpExecute<TA,TB,Op> {                                      \
 
 namespace Detail {
   enum _XXX {
-    DISABLED = -1,
-    BLOCKED  =  0,
-    ENABLED  =  1
+    _DISABLED = -1,
+    _BLOCKED  =  0,
+    _ENABLED  =  1
   };
+
+  struct DISABLED { operator bool() const { return false; } };
+  struct BLOCKED  {};
+  struct ENABLED  { operator bool() const { return true; } };
 
   class ActivationStatus {
   public:
     typedef ActivationStatus this_type;
-    typedef _XXX (this_type::*unspecified_bool_type)() const;
+//  typedef _XXX (this_type::*unspecified_bool_type)() const;
  
+#ifdef SYSTEMOC_DEBUG
     friend std::ostream &operator <<(std::ostream &, this_type);
+#endif
   private:
     _XXX value;
   public:
     ActivationStatus(bool b)
-      :value(b ? ENABLED : DISABLED) {}
+      :value(b ? _ENABLED : _DISABLED) {}
 
-    ActivationStatus(const _XXX value)
-      :value(value) {}
+    ActivationStatus(const DISABLED _)
+      :value(_DISABLED) {}
+    ActivationStatus(const BLOCKED  _)
+      :value(_BLOCKED) {}
+    ActivationStatus(const ENABLED _)
+      :value(_ENABLED) {}
 
-    bool operator == (const _XXX _value) const
-      { return value == _value; }
-    bool operator != (const _XXX _value) const
-      { return value != _value; }
+    bool operator == (const this_type &s) const
+      { return value == s.value; }
+    bool operator != (const this_type &s) const
+      { return value != s.value; }
 
     _XXX toSymbol() const
       { return value; }
@@ -888,28 +898,8 @@ namespace Detail {
 //  operator unspecified_bool_type() const
 //    { return value == ENABLED ? &this_type::toSymbol : NULL; }
   };
-/*  
-  static inline
-  ActivationStatus operator && (
-      const ActivationStatus &lhs, 
-      const ActivationStatus &rhs ) {
-    return ActivationStatus(DISABLED);
-  }
- */
 
-#ifdef SYSTEMOC_DEBUG
-static inline
-std::ostream &operator <<( std::ostream &out, Expr::Detail::ActivationStatus s) {
-  static const char *display[3] = { "DISABLED", "BLOCKED", "ENABLED" };
-  
-  assert(static_cast<size_t>(s.value+1) < sizeof(display)/sizeof(display[0]));
-  out << display[s.value+1];
-  return out;
-}
-#endif
 } // namespace Expr::Detail
-
-
 
 template <class A, class B, OpBinT Op>
 struct AST<DBinOp<A,B,Op> > {
@@ -1118,45 +1108,46 @@ struct DBinOpExecute<Detail::Sensitive,Detail::Sensitive,DOpBinLAnd,Sensitivity>
 };
 
 template <>
-struct DBinOpExecute<Detail::ActivationStatus,bool,DOpBinLAnd,Value> {
-  typedef Detail::ActivationStatus result_type;
+struct DBinOpExecute<Detail::ENABLED,bool,DOpBinLAnd,Value> {
+  typedef bool result_type;
+
+  template <class A, class B>
+  static inline
+  result_type apply(const A &a, const B &b) {
+#ifndef NDEBUG
+    Value<A>::apply(a);
+#endif
+    return Value<B>::apply(b);
+  }
+};
+
+template <>
+struct DBinOpExecute<bool,Detail::ENABLED,DOpBinLAnd,Value> {
+  typedef bool result_type;
 
   template <class A, class B>
   static inline
   result_type apply(const A &a, const B &b) {
     result_type r = Value<A>::apply(a);
-    
-    return r == Detail::ENABLED && !Value<B>::apply(b)
-      ? false
-      : r;
+#ifndef NDEBUG
+    Value<B>::apply(b);
+#endif
+    return r;
   }
 };
 
 template <>
-struct DBinOpExecute<bool,Detail::ActivationStatus,DOpBinLAnd,Value> {
-  typedef Detail::ActivationStatus result_type;
+struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,DOpBinLAnd,Value> {
+  typedef Detail::ENABLED result_type;
 
   template <class A, class B>
   static inline
   result_type apply(const A &a, const B &b) {
-    return !Value<A>::apply(a)
-      ? false
-      : Value<B>::apply(b);
-  }
-};
-
-template <>
-struct DBinOpExecute<Detail::ActivationStatus,Detail::ActivationStatus,DOpBinLAnd,Value> {
-  typedef Detail::ActivationStatus result_type;
-
-  template <class A, class B>
-  static inline
-  result_type apply(const A &a, const B &b) {
-    result_type r = Value<A>::apply(a);
-    
-    return r != Detail::ENABLED
-      ? r
-      : Value<B>::apply(b);
+#ifndef NDEBUG
+    Value<A>::apply(a);
+    Value<B>::apply(b);
+#endif
+    return result_type();
   }
 };
 

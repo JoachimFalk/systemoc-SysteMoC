@@ -19,6 +19,20 @@
 
 namespace Expr {
 
+namespace Detail {
+
+#ifdef SYSTEMOC_DEBUG
+std::ostream &operator <<( std::ostream &out, Expr::Detail::ActivationStatus s) {
+  static const char *display[3] = { "DISABLED", "BLOCKED", "ENABLED" };
+  
+  assert(static_cast<size_t>(s.value+1) < sizeof(display)/sizeof(display[0]));
+  out << display[s.value+1];
+  return out;
+}
+#endif
+
+} // namespace Expr::Detail
+
 void dump(const PASTNode &node) {
 /*
   std::cerr << "Node: ";

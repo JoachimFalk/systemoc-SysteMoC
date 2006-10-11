@@ -65,11 +65,11 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
       Expr::Detail::ActivationStatus  status     = transition.getStatus();
       
       switch (status.toSymbol()) {
-        case Expr::Detail::DISABLED: {
+        case Expr::Detail::_DISABLED: {
           ol.remove(transition);
           break;
         }
-        case Expr::Detail::ENABLED: {
+        case Expr::Detail::_ENABLED: {
           smoc_root_node                       &n        = transition.getActor();
           smoc_firing_types::resolved_state_ty *oldState = n._currentState;
           
@@ -77,7 +77,7 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
           std::cerr << "<actor name=\"" << n.myModule()->name() << "\">" << std::endl;
 #endif
           transition.execute(&n._currentState, &n);
-          if (oldState != n._currentState) {
+//        if (oldState != n._currentState) {
             for ( transitionlist_ty::iterator titer = oldState->tl.begin();
                   titer != oldState->tl.end();
                   ++titer )
@@ -86,15 +86,15 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
                   titer != n._currentState->tl.end();
                   ++titer )
               ol |= *titer;
-          }
+//        }
 #ifdef SYSTEMOC_DEBUG
           std::cerr << "</actor>" << std::endl;
 #endif
           break;
         }
         default: {
-          assert(status == Expr::Detail::ENABLED ||
-                 status == Expr::Detail::DISABLED   );
+          assert(status == Expr::Detail::_ENABLED ||
+                 status == Expr::Detail::_DISABLED   );
         }
       }
     }

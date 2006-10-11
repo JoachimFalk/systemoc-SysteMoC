@@ -42,7 +42,7 @@ public:
   friend class smoc_firing_state;
 
 //protected:
-  Expr::Ex<Expr::Detail::ActivationStatus>::type  guard;
+  Expr::Ex<bool>::type  guard;
 protected:
   static
   void guardAssemble( smoc_modes::PGWriter &pgw, const Expr::PASTNode &n );
@@ -72,12 +72,10 @@ Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
   if (*this) {
     Expr::Detail::ActivationStatus retval =
       Expr::evalTo<Expr::Value>(guard);
-//    ? Expr::Detail::ENABLED
-//    : Expr::Detail::DISABLED;
     Expr::evalTo<Expr::CommReset>(guard);
     return retval;
   } else
-    return Expr::Detail::BLOCKED;
+    return Expr::Detail::BLOCKED();
 }
 
 namespace Expr {
