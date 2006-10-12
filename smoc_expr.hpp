@@ -64,8 +64,8 @@ namespace Detail {
 //struct True  { operator bool() const { return true;  } };
 //struct False { operator bool() const { return false; } };
 
-  struct Sensitive; // Sensitive type marker for evalTo<Sensitivity>( ... )
-  struct Ignore;    // Ignore type marker for evalTo<Sensitivity>( ... )
+  struct Process;   // Process type marker for evalTo<{Sensitivity|CommExec}>( ... )
+  struct Ignore;    // Ignore type marker for evalTo<{Sensitivity|CommExec}>( ... )
 } // namespace Expr::Detail
 
 /****************************************************************************
@@ -148,7 +148,9 @@ struct AST {};
 // Default do nothing
 template <class E>
 struct CommExec {
-  typedef void        result_type;
+  typedef Detail::Ignore          match_type;
+
+  typedef void                    result_type;
 #ifdef ENABLE_SYSTEMC_VPC
   typedef const smoc_ref_event_p &param1_type;
   
@@ -165,7 +167,7 @@ struct CommExec {
 template <class E>
 struct CommReset {
   typedef void result_type;
-  
+
   static inline
   result_type apply(const E &e) {}
 };
@@ -174,7 +176,7 @@ struct CommReset {
 template <class E>
 struct CommSetup {
   typedef void result_type;
-  
+
   static inline
   result_type apply(const E &e) {}
 };
@@ -184,10 +186,10 @@ struct CommSetup {
 template <class E>
 struct Sensitivity {
   typedef Detail::Ignore       match_type;
-  
+
   typedef void                 result_type;
   typedef smoc_event_and_list &param1_type;
-  
+
   static inline
   result_type apply(const E &e, smoc_event_and_list &al) {
 //#ifdef SYSTEMOC_DEBUG
@@ -331,10 +333,12 @@ struct AST<DVirtual<T> > {
 
 template <typename T>
 struct CommExec<DVirtual<T> > {
-  typedef void        result_type;
+  typedef Detail::Process         match_type;
+
+  typedef void                    result_type;
 #ifdef ENABLE_SYSTEMC_VPC
   typedef const smoc_ref_event_p &param1_type;
-  
+
   static inline
   result_type apply(const DVirtual <T> &e, const smoc_ref_event_p &le) {
 # ifdef SYSTEMOC_DEBUG
@@ -383,11 +387,11 @@ struct CommSetup<DVirtual<T> > {
 
 template <typename T>
 struct Sensitivity<DVirtual<T> > {
-  typedef Detail::Sensitive    match_type;
-  
+  typedef Detail::Process      match_type;
+ 
   typedef void                 result_type;
   typedef smoc_event_and_list &param1_type;
-  
+
   static inline
   result_type apply(const DVirtual <T> &e, smoc_event_and_list &al) {
 //#ifdef SYSTEMOC_DEBUG
@@ -928,17 +932,22 @@ struct AST<DBinOp<A,B,Op> > {
 
 template <class A, class B>
 struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
-  typedef void        result_type;
+  typedef DBinOpExecute<
+    typename CommExec<A>::match_type,
+    typename CommExec<B>::match_type,
+    DOpBinLAnd, Expr::CommExec>           OpT;
+  typedef typename OpT::match_type        match_type;
+
+  typedef void                            result_type;
 #ifdef ENABLE_SYSTEMC_VPC
-  typedef const smoc_ref_event_p &param1_type;
-  
+  typedef const smoc_ref_event_p         &param1_type;
+
   static inline
   result_type apply(const DBinOp<A,B,DOpBinLAnd> &e, const smoc_ref_event_p &le) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
 # endif
-    CommExec<A>::apply(e.a, le);
-    CommExec<B>::apply(e.b, le);
+    OpT::apply(e.a, e.b, le);
   }
 #else // !ENABLE_SYSTEMC_VPC
   static inline
@@ -946,8 +955,7 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
 # endif
-    CommExec<A>::apply(e.a);
-    CommExec<B>::apply(e.b);
+    OpT::apply(e.a, e.b);
   }
 #endif // ENABLE_SYSTEMC_VPC
 };
@@ -983,19 +991,6 @@ struct CommSetup<DBinOp<A,B,DOpBinLAnd> > {
 #endif
 
 template <class A, class B, OpBinT Op>
-struct Value<DBinOp<A,B,Op> > {
-  typedef DBinOpExecute<
-    typename Value<A>::result_type,
-    typename Value<B>::result_type,
-    Op, Expr::Value>                      OpT;
-  typedef typename OpT::result_type       result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,Op> &e)
-    { return OpT::apply(e.a,e.b); }
-};
-
-template <class A, class B, OpBinT Op>
 struct Sensitivity<DBinOp<A,B,Op> > {
   typedef DBinOpExecute<
     typename Sensitivity<A>::match_type,
@@ -1013,6 +1008,19 @@ struct Sensitivity<DBinOp<A,B,Op> > {
 //    std::cerr << "Sensitivity<DBinOp<A,B,Op>>::apply(...) al == " << al << std::endl;
 //#endif
   }
+};
+
+template <class A, class B, OpBinT Op>
+struct Value<DBinOp<A,B,Op> > {
+  typedef DBinOpExecute<
+    typename Value<A>::result_type,
+    typename Value<B>::result_type,
+    Op, Expr::Value>                      OpT;
+  typedef typename OpT::result_type       result_type;
+  
+  static inline
+  result_type apply(const DBinOp<A,B,Op> &e)
+    { return OpT::apply(e.a,e.b); }
 };
 
 /****************************************************************************
@@ -1078,6 +1086,70 @@ DOP(LOr,||)
 #undef DBINOPEXECUTE
 
 template <OpBinT op>
+struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
+  typedef Detail::Ignore match_type;
+
+  template <class A, class B>
+  static inline
+#ifdef ENABLE_SYSTEMC_VPC
+  void apply(const A &a, const B &b, const smoc_ref_event_p &le)
+    {}
+#else // !ENABLE_SYSTEMC_VPC
+  void apply(const A &a, const B &b)
+    {}
+#endif // ENABLE_SYSTEMC_VPC
+};
+
+template <>
+struct DBinOpExecute<Detail::Process,Detail::Ignore,DOpBinLAnd,CommExec> {
+  typedef Detail::Process match_type;
+
+  template <class A, class B>
+  static inline
+#ifdef ENABLE_SYSTEMC_VPC
+  void apply(const A &a, const B &b, const smoc_ref_event_p &le)
+    { CommExec<A>::apply(a, le); }
+#else // !ENABLE_SYSTEMC_VPC
+  void apply(const A &a, const B &b)
+    { CommExec<A>::apply(a); }
+#endif // ENABLE_SYSTEMC_VPC
+};
+
+template <>
+struct DBinOpExecute<Detail::Ignore,Detail::Process,DOpBinLAnd,CommExec> {
+  typedef Detail::Process match_type;
+
+  template <class A, class B>
+  static inline
+#ifdef ENABLE_SYSTEMC_VPC
+  void apply(const A &a, const B &b, const smoc_ref_event_p &le)
+    { CommExec<B>::apply(b, le); }
+#else // !ENABLE_SYSTEMC_VPC
+  void apply(const A &a, const B &b)
+    { CommExec<B>::apply(b); }
+#endif // ENABLE_SYSTEMC_VPC
+};
+
+template <>
+struct DBinOpExecute<Detail::Process,Detail::Process,DOpBinLAnd,CommExec> {
+  typedef Detail::Process match_type;
+
+  template <class A, class B>
+  static inline
+#ifdef ENABLE_SYSTEMC_VPC
+  void apply(const A &a, const B &b, const smoc_ref_event_p &le) {
+    CommExec<A>::apply(a, le);
+    CommExec<B>::apply(b, le);
+  }
+#else // !ENABLE_SYSTEMC_VPC
+  void apply(const A &a, const B &b) {
+    CommExec<A>::apply(a);
+    CommExec<B>::apply(b);
+  }
+#endif // ENABLE_SYSTEMC_VPC
+};
+
+template <OpBinT op>
 struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,Sensitivity> {
   typedef Detail::Ignore match_type;
 
@@ -1088,8 +1160,8 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,Sensitivity> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Sensitive,Detail::Ignore,DOpBinLAnd,Sensitivity> {
-  typedef Detail::Sensitive match_type;
+struct DBinOpExecute<Detail::Process,Detail::Ignore,DOpBinLAnd,Sensitivity> {
+  typedef Detail::Process match_type;
 
   template <class A, class B>
   static inline
@@ -1098,8 +1170,8 @@ struct DBinOpExecute<Detail::Sensitive,Detail::Ignore,DOpBinLAnd,Sensitivity> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Ignore,Detail::Sensitive,DOpBinLAnd,Sensitivity> {
-  typedef Detail::Sensitive match_type;
+struct DBinOpExecute<Detail::Ignore,Detail::Process,DOpBinLAnd,Sensitivity> {
+  typedef Detail::Process match_type;
 
   template <class A, class B>
   static inline
@@ -1108,8 +1180,8 @@ struct DBinOpExecute<Detail::Ignore,Detail::Sensitive,DOpBinLAnd,Sensitivity> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Sensitive,Detail::Sensitive,DOpBinLAnd,Sensitivity> {
-  typedef Detail::Sensitive match_type;
+struct DBinOpExecute<Detail::Process,Detail::Process,DOpBinLAnd,Sensitivity> {
+  typedef Detail::Process match_type;
 
   template <class A, class B>
   static inline

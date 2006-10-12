@@ -174,7 +174,8 @@ typename PortTokens<P>::type portTokens(P &p)
 
 template <class P, typename T>
 struct CommExec<DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> > {
-  typedef void        result_type;
+  typedef Detail::Process         match_type;
+  typedef void                    result_type;
 #ifdef ENABLE_SYSTEMC_VPC
   typedef const smoc_ref_event_p &param1_type;
   
@@ -230,7 +231,7 @@ struct CommSetup<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
 
 template <class P, typename T>
 struct Sensitivity<DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> > {
-  typedef Detail::Sensitive    match_type;
+  typedef Detail::Process      match_type;
   
   typedef void                 result_type;
   typedef smoc_event_and_list &param1_type;
@@ -308,7 +309,7 @@ struct Value<DSMOCEvent> {
 
 template <>
 struct Sensitivity<DSMOCEvent> {
-  typedef Detail::Sensitive    match_type;
+  typedef Detail::Process      match_type;
   
   typedef void                 result_type;
   typedef smoc_event_and_list &param1_type;
