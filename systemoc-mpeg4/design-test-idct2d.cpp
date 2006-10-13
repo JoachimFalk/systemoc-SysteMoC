@@ -27,7 +27,7 @@ class m_source_idct: public smoc_actor {
     smoc_port_out<int> out;
     smoc_port_out<int> min;
   private:
-    int counter;
+    size_t counter;
 //#ifndef KASCPAR_PARSING    
     std::ifstream i1; 
 //#endif
