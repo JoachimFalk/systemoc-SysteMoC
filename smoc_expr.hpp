@@ -72,7 +72,7 @@ namespace Detail {
  * Node hierarchy
  */
 
-class ASTNode: public _RefCount {
+class ASTNode: public CoSupport::RefCountObject {
 public:
   template <class X>
   boost::intrusive_ptr<X> isa() {
@@ -259,7 +259,7 @@ public:
   typedef DVirtual<T> this_type;
   
   template <typename TT>
-  class virt_ty: public _RefCount {
+  class virt_ty: public CoSupport::RefCountObject {
   public:
     typedef virt_ty  this_type;
     typedef TT       value_type;
