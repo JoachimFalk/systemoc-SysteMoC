@@ -252,9 +252,9 @@ struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   
   static inline
   result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
+#ifndef NDEBUG
     size_t req = Value<E>::apply(e.b);
     assert(e.a.p.availableCount() >= req);
-#ifndef NDEBUG
     e.a.p.setLimit(req);
 #endif
     return result_type();
