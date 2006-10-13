@@ -68,17 +68,16 @@ AC_ARG_ENABLE(
 
 if test x"$enable_vpc" = x"yes"; then
   SYSTEMC_VPC_INCLUDE=" \
-    -I`pwd`/../SysteMoC/include/systemoc \
-    -I`pwd`/../SystemC-VPC/include \
+    -I\$(top_builddir)/../SystemC-VPC/include \
     $SYSTEMC_INCLUDE"
 
   SYSTEMC_VPC_LDFLAGS=" \
-    -L`pwd`/../SystemC-VPC \
+    -L\$(top_builddir)/../SystemC-VPC \
     -lsystemcvpc \
     $SYSTEMC_LDFLAGS"
 
   SYSTEMC_VPC_DEPENDENCIES=" \
-    `pwd`/../SystemC-VPC/libsystemcvpc.la"
+    \$(top_builddir)/../SystemC-VPC/libsystemcvpc.la"
 
   CPPFLAGS="$CPPFLAGS -DENABLE_SYSTEMC_VPC"
 else
