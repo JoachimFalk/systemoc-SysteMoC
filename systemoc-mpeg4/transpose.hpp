@@ -26,87 +26,38 @@ private:
 public:
   m_transpose(sc_module_name name)
     : smoc_actor(name, s0) {
-    s0 = (I0.getAvailableTokens() >= 1 &&
-		I1.getAvailableTokens() >= 1 &&
-		I2.getAvailableTokens() >= 1 &&
-		I3.getAvailableTokens() >= 1 &&
-		I4.getAvailableTokens() >= 1 &&
-		I5.getAvailableTokens() >= 1 &&
-		I6.getAvailableTokens() >= 1 &&
-		I7.getAvailableTokens() >= 1 ) >>
-		(O0.getAvailableSpace() >= 8)  >>
-		CALL(m_transpose::action0)     >> s1;
-    s1 = (I0.getAvailableTokens() >= 1 &&
-		I1.getAvailableTokens() >= 1 &&
-		I2.getAvailableTokens() >= 1 &&
-		I3.getAvailableTokens() >= 1 &&
-		I4.getAvailableTokens() >= 1 &&
-		I5.getAvailableTokens() >= 1 &&
-		I6.getAvailableTokens() >= 1 &&
-		I7.getAvailableTokens() >= 1 ) >>
-		(O1.getAvailableSpace() >= 8)  >>
-		CALL(m_transpose::action1)     >> s2;
-    s2 = (I0.getAvailableTokens() >= 1 &&
-		I1.getAvailableTokens() >= 1 &&
-		I2.getAvailableTokens() >= 1 &&
-		I3.getAvailableTokens() >= 1 &&
-		I4.getAvailableTokens() >= 1 &&
-		I5.getAvailableTokens() >= 1 &&
-		I6.getAvailableTokens() >= 1 &&
-		I7.getAvailableTokens() >= 1 ) >>
-		(O2.getAvailableSpace() >= 8)  >>
-		CALL(m_transpose::action2)     >> s3;
-    s3 = (I0.getAvailableTokens() >= 1 &&
-		I1.getAvailableTokens() >= 1 &&
-		I2.getAvailableTokens() >= 1 &&
-		I3.getAvailableTokens() >= 1 &&
-		I4.getAvailableTokens() >= 1 &&
-		I5.getAvailableTokens() >= 1 &&
-		I6.getAvailableTokens() >= 1 &&
-		I7.getAvailableTokens() >= 1 ) >>
-		(O3.getAvailableSpace() >= 8)  >>
-		CALL(m_transpose::action3)     >> s4;
-    s4 = (I0.getAvailableTokens() >= 1 &&
-		I1.getAvailableTokens() >= 1 &&
-		I2.getAvailableTokens() >= 1 &&
-		I3.getAvailableTokens() >= 1 &&
-		I4.getAvailableTokens() >= 1 &&
-		I5.getAvailableTokens() >= 1 &&
-		I6.getAvailableTokens() >= 1 &&
-		I7.getAvailableTokens() >= 1 ) >>
-		(O4.getAvailableSpace() >= 8)  >>
-		CALL(m_transpose::action4)     >> s5;
-    s5 = (I0.getAvailableTokens() >= 1 &&
-		I1.getAvailableTokens() >= 1 &&
-		I2.getAvailableTokens() >= 1 &&
-		I3.getAvailableTokens() >= 1 &&
-		I4.getAvailableTokens() >= 1 &&
-		I5.getAvailableTokens() >= 1 &&
-		I6.getAvailableTokens() >= 1 &&
-		I7.getAvailableTokens() >= 1 ) >>
-		(O5.getAvailableSpace() >= 8)  >>
-		CALL(m_transpose::action5)     >> s6;
-    s6 = (I0.getAvailableTokens() >= 1 &&
-		I1.getAvailableTokens() >= 1 &&
-		I2.getAvailableTokens() >= 1 &&
-		I3.getAvailableTokens() >= 1 &&
-		I4.getAvailableTokens() >= 1 &&
-		I5.getAvailableTokens() >= 1 &&
-		I6.getAvailableTokens() >= 1 &&
-		I7.getAvailableTokens() >= 1 ) >>
-		(O6.getAvailableSpace() >= 8)  >>
-		CALL(m_transpose::action6)     >> s7;
-    s7 = (I0.getAvailableTokens() >= 1 &&
-		I1.getAvailableTokens() >= 1 &&
-		I2.getAvailableTokens() >= 1 &&
-		I3.getAvailableTokens() >= 1 &&
-		I4.getAvailableTokens() >= 1 &&
-		I5.getAvailableTokens() >= 1 &&
-		I6.getAvailableTokens() >= 1 &&
-		I7.getAvailableTokens() >= 1 ) >>
-		(O7.getAvailableSpace() >= 8)  >>
-		CALL(m_transpose::action7)     >> s0;
-    
-    }
+    s0 = (I0(1) && I1(1) && I2(1) && I3(1) &&
+          I4(1) && I5(1) && I6(1) && I7(1))   >>
+         O0(8)                                >>
+         CALL(m_transpose::action0)           >> s1;
+    s1 = (I0(1) && I1(1) && I2(1) && I3(1) &&
+          I4(1) && I5(1) && I6(1) && I7(1))   >>
+         O1(8)                                >>
+         CALL(m_transpose::action1)           >> s2;
+    s2 = (I0(1) && I1(1) && I2(1) && I3(1) &&
+          I4(1) && I5(1) && I6(1) && I7(1))   >>
+         O2(8)                                >>
+         CALL(m_transpose::action2)           >> s3;
+    s3 = (I0(1) && I1(1) && I2(1) && I3(1) &&
+          I4(1) && I5(1) && I6(1) && I7(1))   >>
+         O3(8)                                >>
+         CALL(m_transpose::action3)           >> s4;
+    s4 = (I0(1) && I1(1) && I2(1) && I3(1) &&
+          I4(1) && I5(1) && I6(1) && I7(1))   >>
+         O4(8)                                >>
+         CALL(m_transpose::action4)           >> s5;
+    s5 = (I0(1) && I1(1) && I2(1) && I3(1) &&
+          I4(1) && I5(1) && I6(1) && I7(1))   >>
+         O5(8)                                >>
+         CALL(m_transpose::action5)           >> s6;
+    s6 = (I0(1) && I1(1) && I2(1) && I3(1) &&
+          I4(1) && I5(1) && I6(1) && I7(1))   >>
+         O6(8)                                >>
+         CALL(m_transpose::action6)           >> s7;
+    s7 = (I0(1) && I1(1) && I2(1) && I3(1) &&
+          I4(1) && I5(1) && I6(1) && I7(1))   >>
+         O7(8)                                >>
+         CALL(m_transpose::action7)           >> s0;
+  }
 };
 #endif // _INCLUDED_TRANSPOSE_HPP

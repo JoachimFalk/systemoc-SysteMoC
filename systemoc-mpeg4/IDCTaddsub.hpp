@@ -28,11 +28,9 @@ public:
 	       SMOC_ACTOR_CPARAM(int, ATTEN))
     : smoc_actor(name, start),
       G(G), OS(OS), ATTEN(ATTEN) {
-    start = (I1.getAvailableTokens() >= 1 &&
-             I2.getAvailableTokens() >= 1)    >>
-            (O1.getAvailableSpace()  >= 1 &&
-             O2.getAvailableSpace()  >= 1)    >>
-            CALL(m_IDCTaddsub::action0)       >> start;
+    start = (I1(1) && I2(1))            >>
+            (O1(1) && O2(1))            >>
+            CALL(m_IDCTaddsub::action0) >> start;
   }
   
   virtual ~m_IDCTaddsub(){}

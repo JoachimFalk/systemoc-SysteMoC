@@ -27,11 +27,9 @@ public:
              SMOC_ACTOR_CPARAM(int, MAX))
     : smoc_actor(name, start),
       MAX(MAX) {
-    start = (I.getAvailableTokens() >= 1 &&
-             MIN.getAvailableTokens() >= 1 )  >>
-            (O.getAvailableSpace() >= 1)      >>
-            CALL(m_IDCTclip::action0)  	      >> start;
-
+    start = (I(1) && MIN(1))          >>
+            O(1)                      >>
+            CALL(m_IDCTclip::action0) >> start;
   }
   virtual ~m_IDCTclip(){}
 };

@@ -28,7 +28,7 @@ public:
   m_h_src(sc_module_name name)
     : smoc_actor(name, start),
       i(1) {
-    start = (out.getAvailableSpace() >= 1) >> call(&m_h_src::src) >> start;
+    start = out(1) >> call(&m_h_src::src) >> start;
   }
 };
 
@@ -70,8 +70,8 @@ public:
   {
 //  action [x] ==> [y]
 
-    start = (input.getAvailableTokens() >= 1) >>
-            (output.getAvailableSpace() >= 1) >>
+    start = input(1) >>
+            output(1) >>
             call(&m_h_fir::dofir)             >> start;
   }
 };
@@ -89,7 +89,7 @@ private:
 public:
   m_h_sink(sc_module_name name)
     : smoc_actor(name, start) {
-    start = (in.getAvailableTokens() >= 1) >> call(&m_h_sink::sink) >> start;
+    start = in(1) >> call(&m_h_sink::sink) >> start;
   }
 };
 

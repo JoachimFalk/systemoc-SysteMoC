@@ -29,16 +29,10 @@ private:
 public:
   m_col2block(sc_module_name name)
     : smoc_actor(name, start) {
-    start = (R0.getAvailableTokens() >= 8 &&
-             R1.getAvailableTokens() >= 8 &&
-             R2.getAvailableTokens() >= 8 &&
-             R3.getAvailableTokens() >= 8 &&
-             R4.getAvailableTokens() >= 8 &&
-             R5.getAvailableTokens() >= 8 &&
-             R6.getAvailableTokens() >= 8 &&
-             R7.getAvailableTokens() >= 8 )   >>
-            (b.getAvailableSpace() >= 64)     >>
-            CALL(m_col2block::action0)        >> start;
+    start = (R0(8) && R1(8) && R2(8) && R3(8) &&
+             R4(8) && R5(8) && R6(8) && R7(8))    >>
+            b(64)                                 >>
+            CALL(m_col2block::action0)            >> start;
   }
   
   virtual ~m_col2block(){}

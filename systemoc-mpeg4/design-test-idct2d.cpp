@@ -76,11 +76,8 @@ class m_source_idct: public smoc_actor {
       :smoc_actor( name, start ), counter(0) {
 //#ifndef KASCPAR_PARSING
       i1.open(INAMEblk);
-      start = ((out.getAvailableSpace() >= 64) &&
-               (min.getAvailableSpace() >= 1) &&
-               (VAR(counter) < periods*64))
-              >> CALL(m_source_idct::process)
-              >> start;
+      start = (out(64) && min(1) && VAR(counter) < periods * 64)  >>
+              CALL(m_source_idct::process)                        >> start;
 //#endif
   }
   ~m_source_idct( ){

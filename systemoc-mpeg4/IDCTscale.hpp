@@ -23,9 +23,8 @@ public:
 	      SMOC_ACTOR_CPARAM(int, OS))
     : smoc_actor(name, start),
       G(G), OS(OS) {
-    start = (I.getAvailableTokens() >= 1) >>
-            (O.getAvailableSpace() >= 1)  >>
-            CALL(m_IDCTscale::action0)    >> start;
+    start = I(1) >> O(1)                >>
+            CALL(m_IDCTscale::action0)  >> start;
   }
 };
 #endif // _INCLUDED_IDCTSCALE_HPP

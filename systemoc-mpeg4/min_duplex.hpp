@@ -31,18 +31,12 @@ private:
   
 public:
   m_MIN_duplex(sc_module_name name)
-    : smoc_actor(name, start){
-      start =  (I.getAvailableTokens() >= 1) >>
-      		(O0.getAvailableSpace() >= 1 &&
-		O1.getAvailableSpace() >= 1 &&
-		O2.getAvailableSpace() >= 1 &&
-		O3.getAvailableSpace() >= 1 &&
-		O4.getAvailableSpace() >= 1 &&
-		O5.getAvailableSpace() >= 1 &&
-		O6.getAvailableSpace() >= 1 &&
-		O7.getAvailableSpace() >= 1) >>
-	      CALL(m_MIN_duplex::action) 	>> start;
-    }
+    : smoc_actor(name, start) {
+    start = I(1) >>
+            (O0(1) && O1(1) && O2(1) && O3(1) &&
+             O4(1) && O5(1) && O6(1) && O7(1))    >>
+            CALL(m_MIN_duplex::action)            >> start;
+  }
 };
 
 #endif // _INCLUDED_MIN_DUPLEX_HPP

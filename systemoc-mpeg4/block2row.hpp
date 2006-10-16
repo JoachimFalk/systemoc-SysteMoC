@@ -27,19 +27,12 @@ private:
   smoc_firing_state start;
 public:
   m_block2row(sc_module_name name)
-    : smoc_actor(name, start){
-    start = (b.getAvailableTokens() >= 64)   >>
-            (C0.getAvailableSpace() >= 8 &&
-             C1.getAvailableSpace() >= 8 &&
-             C2.getAvailableSpace() >= 8 &&
-             C3.getAvailableSpace() >= 8 &&
-             C4.getAvailableSpace() >= 8 &&
-             C5.getAvailableSpace() >= 8 &&
-             C6.getAvailableSpace() >= 8 &&
-             C7.getAvailableSpace() >= 8)   >>
-            CALL(m_block2row::action0)      >> start;
-    
-    }
+    : smoc_actor(name, start) {
+    start = b(64)                                 >>
+            (C0(8) && C1(8) && C2(8) && C3(8) &&
+             C4(8) && C5(8) && C6(8) && C7(8))    >>
+            CALL(m_block2row::action0)            >> start;
+  }
   virtual ~m_block2row(){}
 };
 #endif // _INCLUDED_BLOCK2ROW_HPP

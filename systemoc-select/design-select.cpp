@@ -28,7 +28,7 @@ public:
   m_h_src(sc_module_name name)
     : smoc_actor(name, start),
       i(1) {
-    start = (out.getAvailableSpace() >= 1) >> call(&m_h_src::src) >> start;
+    start = out(1) >> call(&m_h_src::src) >> start;
   }
 };
 
@@ -47,7 +47,7 @@ public:
   m_h_srcbool(sc_module_name name)
     : smoc_actor(name, start),
       i(false) {
-    start = (out.getAvailableSpace() >= 1) >> call(&m_h_srcbool::src) >> start;
+    start = out(1) >> call(&m_h_srcbool::src) >> start;
   }
 };
 
@@ -71,37 +71,32 @@ public:
   Select(sc_module_name name, int initialChannel = 0)
     : smoc_actor(name, start) {
     smoc_firing_state atChannel0, atChannel1;
-    smoc_firing_state test;
-
+    
     atChannel0
-      = (Control.getAvailableTokens() >= 1 &&
-         Data0.getAvailableTokens()   >= 1 &&
-         Control.getValueAt(0) == 0        )  >>
-        (Output.getAvailableSpace()   >= 1 )  >>
-        call(&Select::action0)                >> atChannel0
-      | (Control.getAvailableTokens() >= 1 &&
-         Data1.getAvailableTokens()   >= 1 &&
-         Control.getValueAt(0) == 1        )  >>
-        (Output.getAvailableSpace()   >= 1 )  >>
-        call(&Select::action1)                >> atChannel1
-      | (Data0.getAvailableTokens()   >= 1 )  >>
-        (Output.getAvailableSpace()   >= 1 )  >>
-         call(&Select::action0)               >> atChannel0;
-
+      = (Control(1) && Data0(1) &&
+         Control.getValueAt(0) == 0)  >>
+        Output(1)                     >>
+        call(&Select::action0)        >> atChannel0
+      | (Control(1) && Data1(1) &&
+         Control.getValueAt(0) == 1)  >>
+        Output(1)                     >>
+        call(&Select::action1)        >> atChannel1
+      | Data0(1)                      >>
+        Output(1)                     >>
+        call(&Select::action0)        >> atChannel0;
+    
     atChannel1
-      = (Control.getAvailableTokens() >= 1 &&
-         Data1.getAvailableTokens()   >= 1 &&
-         Control.getValueAt(0) == 1        )  >>
-        (Output.getAvailableSpace()   >= 1 )  >>
-        call(&Select::action1)                >> atChannel1
-      | (Control.getAvailableTokens() >= 1 &&
-         Data0.getAvailableTokens()   >= 1 &&
-         Control.getValueAt(0) == 0        )  >>
-        (Output.getAvailableSpace()   >= 1 )  >>
-        call(&Select::action0)                >> atChannel0
-      | (Data1.getAvailableTokens()   >= 1 )  >>
-        (Output.getAvailableSpace()   >= 1 )  >>
-         call(&Select::action1)               >> atChannel1;
+      = (Control(1) && Data0(1) &&
+         Control.getValueAt(0) == 0)  >>
+        Output(1)                     >>
+        call(&Select::action0)        >> atChannel0
+      | (Control(1) && Data1(1) &&
+         Control.getValueAt(0) == 1)  >>
+        Output(1)                     >>
+        call(&Select::action1)        >> atChannel1
+      | Data0(1)                      >>
+        Output(1)                     >>
+        call(&Select::action1)        >> atChannel1;
     
     start = initialChannel == 0
       ? atChannel0
@@ -122,7 +117,7 @@ private:
 public:
   m_h_sink(sc_module_name name)
     : smoc_actor(name, start) {
-    start = (in.getAvailableTokens() >= 1) >> call(&m_h_sink::sink) >> start;
+    start = in(1) >> call(&m_h_sink::sink) >> start;
   }
 };
 

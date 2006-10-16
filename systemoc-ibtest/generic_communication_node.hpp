@@ -31,9 +31,8 @@ protected:
 
 public:
   generic_communication_node( sc_module_name name ) : smoc_actor( name, main ){
-    main = ( in.getAvailableTokens() >= ReadTokenAtOnce )
-	 >> ( out.getAvailableSpace() >= WriteTokenAtOnce )
-	 >> CALL(generic_communication_node::processCommunication)
-	 >> main;
+    main =
+      in(ReadTokenAtOnce) >> out(WriteTokenAtOnce)            >>
+      CALL(generic_communication_node::processCommunication)  >> main;
   }
 };
