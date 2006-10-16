@@ -21,8 +21,18 @@
 
 #include <boost/intrusive_ptr.hpp>
 
+#ifndef BOOST_BOOST_HAS_THREADS
+# define BOOST_BOOST_HAS_THREADS
+# define BOOST_BOOST_HAS_THREADS_
+#endif
+
 #include <cosupport/systemc_support.hpp>
 #include <cosupport/refcount_object.hpp>
+
+#ifdef BOOST_BOOST_HAS_THREADS_
+# undef BOOST_BOOST_HAS_THREADS
+# undef BOOST_BOOST_HAS_THREADS_
+#endif
 
 typedef CoSupport::SystemC::Event         smoc_event;
 typedef CoSupport::SystemC::EventWaiter   smoc_event_waiter;
