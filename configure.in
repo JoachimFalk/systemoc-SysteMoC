@@ -154,6 +154,10 @@ if test -d $srcdir/systemoc-fir; then
   AC_CONFIG_FILES([systemoc-fir/Makefile])
   subdirs="$subdirs systemoc-fir"
 fi
+if test -d $srcdir/systemoc-src-snk; then
+  AC_CONFIG_FILES([systemoc-src-snk/Makefile])
+  subdirs="$subdirs systemoc-src-snk"
+fi
 if test -d $srcdir/systemoc-select; then
   AC_CONFIG_FILES([systemoc-select/Makefile])
   subdirs="$subdirs systemoc-select"
