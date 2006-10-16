@@ -73,10 +73,11 @@ public:
 	uvector_type snk_iteration_max() const;
 	uvector_type src_iteration_max() const;
 
-	/// Calculate the sink data element mapping matrix
 	svector_type snk_data_element_mapping_vector() const;
-
 	umatrix_type snk_data_element_mapping_matrix() const;
+
+	uvector_type src_data_element_mapping_vector() const;
+	umatrix_type src_data_element_mapping_matrix() const;
 
 	
 											

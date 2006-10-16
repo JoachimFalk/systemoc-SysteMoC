@@ -100,6 +100,52 @@ smoc_wsdf_edge_descr::snk_data_element_mapping_matrix() const {
 }
 
 
+smoc_wsdf_edge_descr::uvector_type 
+smoc_wsdf_edge_descr::src_data_element_mapping_vector() const {
+	return d;
+}
+
+
+smoc_wsdf_edge_descr::umatrix_type 
+smoc_wsdf_edge_descr::src_data_element_mapping_matrix() const {
+
+	uvector_type prev_mapping_factor(token_dimensions);
+	for(unsigned int i = 0; i < token_dimensions; i++)
+		prev_mapping_factor[i] = 1;
+
+	const unsigned matrix_rows = token_dimensions;
+	const unsigned matrix_cols = calc_src_iteration_levels(); 	
+	umatrix_type return_matrix(matrix_rows, matrix_cols);
+
+	unsigned iter_level = calc_src_iteration_levels()-1;
+
+	for(unsigned firing_level = 0; 
+			firing_level < snk_num_firing_levels; 
+			firing_level++){
+		for(unsigned token_dimension = 0;
+				token_dimension < token_dimensions;
+				token_dimension++){
+			if (src_has_iteration_level(firing_level, token_dimension)){
+				//default assignment
+				for(unsigned row = 0; row < matrix_rows; row++){
+					return_matrix(row, iter_level) = 0;
+				}
+
+				return_matrix(token_dimension,iter_level) =
+					prev_mapping_factor[token_dimension];
+				
+				prev_mapping_factor[token_dimension] = 
+					src_firing_blocks[firing_level][token_dimension];
+
+				iter_level--;
+			}
+		}
+	}	
+
+	return return_matrix;
+}
+
+
 smoc_wsdf_edge_descr::uvector_type
 smoc_wsdf_edge_descr::calc_snk_r_vtu() const {
 
