@@ -143,18 +143,18 @@ public:
 };
 
 template<class P>
+struct D<DPortTokens<P> >: public DBase<DPortTokens<P> > {
+  D(P &p)
+    : DBase<DPortTokens<P> >(DPortTokens<P>(p)) {}
+};
+
+template<class P>
 struct AST<DPortTokens<P> > {
   typedef PASTNode result_type;
   
   static inline
   result_type apply(const DPortTokens<P> &e)
     { return PASTNode(new ASTNodePortTokens(&e.p)); }
-};
-
-template<class P>
-struct D<DPortTokens<P> >: public DBase<DPortTokens<P> > {
-  D(P &p)
-    : DBase<DPortTokens<P> >(DPortTokens<P>(p)) {}
 };
 
 // Make a convenient typedef for the token type.
@@ -168,36 +168,92 @@ typename PortTokens<P>::type portTokens(P &p)
   { return typename PortTokens<P>::type(p); }
 
 /****************************************************************************
- * DBinOp<DPortTokens<P>,E,DOpBinGe> represents a request for available/free
- * number of tokens on actor ports
+ * DCommExec represents request to consume/produce tokens
  */
 
-template <class P, typename T>
-struct CommExec<DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> > {
+template<class P, class E>
+class DComm {
+public:
+  typedef DComm<P,E>                              this_type;
+  typedef typename Value<this_type>::result_type  value_type;
+
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+  friend class Value<this_type>;
+private:
+  P &p;
+  E  e;
+public:
+  explicit DComm(P &p, const E &e): p(p), e(e) {}
+};
+
+template<class P, class E>
+struct D<DComm<P,E> >: public DBase<DComm<P,E> > {
+  D(P &p, const E &e): DBase<DComm<P,E> >(DComm<P,E>(p,e)) {}
+};
+
+// Make a convenient typedef for the token type.
+template<class P, class E>
+struct Comm {
+  typedef D<DComm<P,E> > type;
+};
+
+template <class P, class E>
+typename Comm<P,E>::type comm(P &p, const E &e)
+  { return typename Comm<P,E>::type(p,e); }
+
+template<class P, class E>
+struct AST<DComm<P,E> > {
+  typedef PASTNode result_type;
+  
+  static inline
+  result_type apply(const DComm<P,E> &e)
+    { return PASTNode(NULL); }
+};
+
+template <class P, class E>
+struct CommExec<DComm<P, E> > {
   typedef Detail::Process         match_type;
   typedef void                    result_type;
 #ifdef ENABLE_SYSTEMC_VPC
   typedef const smoc_ref_event_p &param1_type;
   
   static inline
-  result_type apply(const DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> &e, const smoc_ref_event_p &le) {
+  result_type apply(const DComm<P, E> &e, const smoc_ref_event_p &le) {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
-                 "::apply(" << e.a.p << ", ... )" << std::endl;
+    std::cerr << "CommExec<DComm<P, E> >"
+                 "::apply(" << e.p << ", ... )" << std::endl;
 # endif
-    return e.a.p.commExec(Value<DLiteral<T> >::apply(e.b), le);
+    return e.p.commExec(Value<E>::apply(e.e), le);
   }
 #else
   static inline
-  result_type apply(const DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> &e) {
+  result_type apply(const DComm<P, E> &e) {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommExec<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
-                 "::apply(" << e.a.p << ", ... )" << std::endl;
+    std::cerr << "CommExec<DComm<P, E> >"
+                 "::apply(" << e.p << ", ... )" << std::endl;
 # endif
-    return e.a.p.commExec(Value<DLiteral<T> >::apply(e.b));
+    return e.p.commExec(Value<E>::apply(e.e));
   }
 #endif
 };
+
+template <class P, class E>
+struct Value<DComm<P, E> > {
+  typedef Expr::Detail::ENABLED result_type;
+  
+  static inline
+  result_type apply(const DComm<P, E> &e) {
+    return result_type();
+  }
+};
+
+
+
+/****************************************************************************
+ * DBinOp<DPortTokens<P>,E,DOpBinGe> represents a request for available/free
+ * number of tokens on actor ports
+ */
 
 #ifndef NDEBUG
 template <class P, class E>
@@ -240,9 +296,9 @@ struct Sensitivity<DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> > {
   void apply(const DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> &e,
              smoc_event_and_list &al) {
     al &= e.a.p.blockEvent(Value<DLiteral<T> >::apply(e.b));
-//#ifdef SYSTEMOC_DEBUG
-//    std::cerr << "Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply al == " << al << std::endl;
-//#endif
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply al == " << al << std::endl;
+#endif
   }
 };
 
@@ -259,21 +315,6 @@ struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
 #endif
     return result_type();
   }
-  /*{
-    size_t req = Value<E>::apply(e.b);
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "Value<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply "
-      <<  e.a.p.availableCount() << " >= " << req << std::endl;
-#endif
-    if (e.a.p.availableCount() >= req) {
-      e.a.p.commSetup(req);
-      return Expr::Detail::ENABLED;
-    } else {
-      e.a.p.blockEvent().reset();
-      return Expr::Detail::BLOCKED;
-    }
-  }*/
-
 };
 
 /****************************************************************************
@@ -467,15 +508,19 @@ public:
   
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
-  typename Expr::PortTokens<this_type>::type getAvailableTokens()
+  typename Expr::PortTokens<this_type>::type getConsumableTokens()
     { return Expr::portTokens(*this); }
-  
-  Expr::D<Expr::DBinOp<Expr::DPortTokens<this_type>,
-                       Expr::DLiteral<size_t>,
-                       Expr::DOpBinGe> >
-  operator ()( size_t n )
-    { return getAvailableTokens() >= n; }
-  
+ 
+  typename Expr::BinOp<
+    Expr::DComm<this_type,Expr::DLiteral<size_t> >,
+    Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
+    Expr::DOpBinLAnd>::type
+  operator ()(size_t n) {
+    return
+      Expr::comm(*this, Expr::DLiteral<size_t>(n)) &&
+      getConsumableTokens() >= n;
+  }
+ 
   void operator () ( iface_type& interface_ )
     { interface_.is_v1_in_port = this->is_smoc_v1_port; bind(interface_); }
   void operator () ( this_type& parent_ )
@@ -538,15 +583,19 @@ public:
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->blockEventIn(n); }
   
-  typename Expr::PortTokens<this_type>::type getAvailableSpace()
+  typename Expr::PortTokens<this_type>::type getFreeSpace()
     { return Expr::portTokens<this_type>(*this); }
-  
-  Expr::D<Expr::DBinOp<Expr::DPortTokens<this_type>,
-                       Expr::DLiteral<size_t>,
-                       Expr::DOpBinGe> >
-  operator ()( size_t n )
-    { return getAvailableSpace() >= n; }
-  
+
+  typename Expr::BinOp<
+    Expr::DComm<this_type,Expr::DLiteral<size_t> >,
+    Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
+    Expr::DOpBinLAnd>::type
+  operator ()(size_t n) {
+    return
+      Expr::comm(*this, Expr::DLiteral<size_t>(n)) &&
+      getFreeSpace() >= n;
+  }
+ 
   void operator () ( iface_type& interface_ )
     { interface_.is_v1_out_port = this->is_smoc_v1_port; bind(interface_); }
   void operator () ( this_type& parent_ )

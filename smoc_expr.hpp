@@ -207,11 +207,13 @@ struct Value {};
  */
 
 template<template <class> class Z, class E>
+static inline
 typename Z<E>::result_type evalTo(const D<E> &e) {
   return Z<E>::apply(e.getExpr());
 }
 
 template<template <class> class Z, class E>
+static inline
 typename Z<E>::result_type evalTo(const D<E> &e, typename Z<E>::param1_type p) {
   return Z<E>::apply(e.getExpr(), p);
 }
@@ -788,6 +790,23 @@ typedef enum {
   DOpBinField
 } OpBinT;
 
+class ASTNodeBinOp: public ASTNodeNonTerminal {
+private:
+  std::string type;
+  OpBinT      op;
+  PASTNode    l, r;
+public:
+  ASTNodeBinOp( const std::string &type, OpBinT op, const PASTNode &l, const PASTNode &r)
+    : type(type), op(op), l(l), r(r) {}
+  
+  const char *getType() const   { return type.c_str(); }
+  PASTNode    getLeftNode()     { return l; }
+  PASTNode    getRightNode()    { return r; }
+  OpBinT      getOpType() const { return op; }
+};
+
+typedef boost::intrusive_ptr<ASTNodeBinOp> PASTNodeBinOp;
+
 template<class A, class B, OpBinT Op>
 class DBinOp {
 public:
@@ -804,6 +823,10 @@ template<class A, class B, OpBinT Op>
 struct D<DBinOp<A,B,Op> >: public DBase<DBinOp<A,B,Op> > {
   D(const A &a, const B &b): DBase<DBinOp<A,B,Op> >(DBinOp<A,B,Op>(a,b)) {}
 };
+
+// Make a convenient typedef for the op type.
+template <class A, class B, OpBinT Op>
+struct BinOp { typedef D<DBinOp<A,B,Op> > type; };
 
 static inline
 std::ostream &operator << (std::ostream &o, const OpBinT &op ) {
@@ -829,23 +852,6 @@ std::ostream &operator << (std::ostream &o, const OpBinT &op ) {
   }
   return o;
 }
-
-class ASTNodeBinOp: public ASTNodeNonTerminal {
-private:
-  std::string type;
-  OpBinT      op;
-  PASTNode    l, r;
-public:
-  ASTNodeBinOp( const std::string &type, OpBinT op, const PASTNode &l, const PASTNode &r)
-    : type(type), op(op), l(l), r(r) {}
-  
-  const char *getType() const   { return type.c_str(); }
-  PASTNode    getLeftNode()     { return l; }
-  PASTNode    getRightNode()    { return r; }
-  OpBinT      getOpType() const { return op; }
-};
-
-typedef boost::intrusive_ptr<ASTNodeBinOp> PASTNodeBinOp;
 
 /****************************************************************************
  * APPLICATIVE TEMPLATE CLASSES
@@ -1284,6 +1290,10 @@ template<class A, OpUnT Op>
 struct D<DUnOp<A,Op> >: public DBase<DUnOp<A,Op> > {
   D(const A &a): DBase<DUnOp<A,Op> >(DUnOp<A,Op>(a)) {}
 };
+
+// Make a convenient typedef for the op type.
+template <class A, OpUnT Op>
+struct UnOp { typedef D<DUnOp<A,Op> > type; };
 
 static inline
 std::ostream &operator << (std::ostream &o, const OpUnT &op ) {
