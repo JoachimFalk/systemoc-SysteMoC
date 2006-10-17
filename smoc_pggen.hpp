@@ -38,8 +38,8 @@ namespace smoc_modes {
     typedef  std::map<const void *,int> idmap_ty;
     
     std::ostream    &out;
-    int              idmap_last;
-    idmap_ty         idmap;
+    static int       idmap_last;
+    static idmap_ty  idmap;
     
     static const char   indent_buf[];
     static const size_t indent_buf_len;
@@ -49,10 +49,10 @@ namespace smoc_modes {
     const char *
     indentation () const;
     
-    std::string toId(int id);
+    static std::string toId(int id);
   public:
-    PGWriter( std::ostream &_out )
-      : out(_out), idmap_last(0), indent_lev(0) {}
+    PGWriter(std::ostream &out)
+      : out(out), indent_lev(0) {}
     
     void indentUp() { ++indent_lev; }
     void indentDown() { --indent_lev; }
@@ -60,8 +60,8 @@ namespace smoc_modes {
     template <typename T>
     std::ostream &operator << (T t) { return out << indentation() << t; }
     
-    std::string getId( const void *p );
-    std::string getId();
+    static std::string getId( const void *p );
+    static std::string getId();
     
     ~PGWriter( void ) {
       out.flush();

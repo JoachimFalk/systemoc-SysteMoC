@@ -49,8 +49,10 @@ public:
     : ASTLeafNode(static_cast<T*>(NULL)),
       port(port), pos(pos) {}
 
-  const smoc_root_port *getPort() const { return &port; }
-  size_t                getPos() const { return pos; }
+  const smoc_root_port *getPort() const;
+  size_t                getPos() const;
+  std::string           getNodeType() const;
+  std::string           getNodeParam() const;
 };
 
 template<typename T>
@@ -110,13 +112,15 @@ typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
 
 class ASTNodePortTokens: public ASTLeafNode {
 private:
-  smoc_root_port *p;
+  const smoc_root_port &port;
 public:
-  ASTNodePortTokens(smoc_root_port *p)
-    : ASTLeafNode(static_cast<size_t*>(NULL)), p(p) {}
+  ASTNodePortTokens(const smoc_root_port &port)
+    : ASTLeafNode(static_cast<size_t*>(NULL)),
+      port(port) {}
  
-  const smoc_root_port *getPort() const
-    { return p; }
+  const smoc_root_port *getPort() const;
+  std::string getNodeType() const;
+  std::string getNodeParam() const;
 };
 
 template<class P>
@@ -152,7 +156,7 @@ struct AST<DPortTokens<P> > {
   
   static inline
   result_type apply(const DPortTokens<P> &e)
-    { return PASTNode(new ASTNodePortTokens(&e.p)); }
+    { return PASTNode(new ASTNodePortTokens(e.p)); }
 };
 
 // Make a convenient typedef for the token type.
@@ -168,6 +172,19 @@ typename PortTokens<P>::type portTokens(P &p)
 /****************************************************************************
  * DCommExec represents request to consume/produce tokens
  */
+
+class ASTNodeComm: public ASTInternalUnNode {
+private:
+  const smoc_root_port &port;
+public:
+  ASTNodeComm(const smoc_root_port &port, const PASTNode &c)
+    : ASTInternalUnNode(c,static_cast<Expr::Detail::ENABLED*>(NULL)),
+      port(port) {}
+
+  const smoc_root_port *getPort() const;
+  std::string           getNodeType() const;
+  std::string           getNodeParam() const;
+};
 
 template<class P, class E>
 class DComm {
@@ -203,10 +220,10 @@ typename Comm<P,E>::type comm(P &p, const E &e)
 template<class P, class E>
 struct AST<DComm<P,E> > {
   typedef PASTNode result_type;
-  
+
   static inline
   result_type apply(const DComm<P,E> &e)
-    { return PASTNode(NULL); }
+    { return PASTNode(new ASTNodeComm(e.p, AST<E>::apply(e.e))); }
 };
 
 template <class P, class E>
@@ -324,6 +341,9 @@ struct ASTNodeSMOCEvent: public ASTLeafNode {
 public:
   ASTNodeSMOCEvent()
     : ASTLeafNode(static_cast<bool*>(NULL)) {}
+
+  std::string getNodeType() const;
+  std::string getNodeParam() const;
 };
 
 class DSMOCEvent {

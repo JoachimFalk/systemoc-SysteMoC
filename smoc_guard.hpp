@@ -32,7 +32,6 @@
 
 #include <smoc_expr.hpp>
 #include <smoc_port.hpp>
-#include <smoc_pggen.hpp>
 
 class smoc_activation_pattern
 : public smoc_event_and_list {
@@ -43,9 +42,6 @@ public:
 
 //protected:
   Expr::Ex<bool>::type  guard;
-protected:
-  static
-  void guardAssemble( smoc_modes::PGWriter &pgw, const Expr::PASTNode &n );
 public:
   template <class E>
   smoc_activation_pattern(const Expr::D<E> &_guard)
@@ -64,7 +60,7 @@ public:
   Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const;
 
   void guardAssemble( smoc_modes::PGWriter &pgw ) const
-    { guardAssemble(pgw, Expr::evalTo<Expr::AST>(guard) ); }
+    { Expr::evalTo<Expr::AST>(guard)->assemble(pgw); }
 };
 
 inline

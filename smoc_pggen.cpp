@@ -21,12 +21,14 @@
 
 namespace smoc_modes {
 
-  const char   PGWriter::indent_buf[] = 
+  int                 PGWriter::idmap_last = 0;
+  PGWriter::idmap_ty  PGWriter::idmap;
+  const char          PGWriter::indent_buf[] = 
      "                                                                "
      "                                                                "
      "                                                                "
      "                                                                ";
-  const size_t PGWriter::indent_buf_len = sizeof(PGWriter::indent_buf) - 1;
+  const size_t        PGWriter::indent_buf_len = sizeof(PGWriter::indent_buf) - 1;
 
   const char *
   PGWriter::indentation () const {

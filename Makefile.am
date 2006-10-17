@@ -107,7 +107,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_root_node.cpp		\
 	smoc_root_port.cpp		\
 	smoc_firing_rules.cpp		\
-	smoc_guard.cpp			\
+	smoc_port.cpp			\
 	smoc_pggen.cpp			\
 	smoc_chan_if.cpp		\
 	smoc_moc.cpp			\

@@ -16,17 +16,63 @@
  * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include <smoc_guard.hpp>
+#include <smoc_port.hpp>
 
+namespace Expr {
+
+const smoc_root_port *ASTNodeToken::getPort() const
+  { return &port; }
+size_t                ASTNodeToken::getPos() const
+  { return pos; }
+std::string           ASTNodeToken::getNodeType() const
+  { return "Token"; }
+std::string           ASTNodeToken::getNodeParam() const {
+  std::ostringstream o;
+  o << "portid=\"" << smoc_modes::PGWriter::getId(getPort()) << "\" ";
+  o << "pos=\"" << getPos() << "\"";
+  return o.str();
+}
+
+const smoc_root_port *ASTNodePortTokens::getPort() const
+  { return &port; }
+std::string           ASTNodePortTokens::getNodeType() const
+  { return "PortTokens"; }
+std::string           ASTNodePortTokens::getNodeParam() const {
+  std::ostringstream o;
+  o << "portid=\"" << smoc_modes::PGWriter::getId(getPort()) << "\"";
+  return o.str();
+}
+
+const smoc_root_port *ASTNodeComm::getPort() const
+  { return &port; }
+std::string           ASTNodeComm::getNodeType() const
+  { return "Comm"; }
+std::string           ASTNodeComm::getNodeParam() const {
+  std::ostringstream o;
+  o << "portid=\"" << smoc_modes::PGWriter::getId(getPort()) << "\"";
+  return o.str();
+};
+
+std::string ASTNodeSMOCEvent::getNodeType() const
+  { return "ASTNodeSMOCEvent"; }
+std::string ASTNodeSMOCEvent::getNodeParam() const
+  { return ""; }
+
+} // namespace Expr;
+
+/*
 #include <typeinfo>
 
 void smoc_activation_pattern::guardAssemble(
     smoc_modes::PGWriter &pgw, const Expr::PASTNode &n ) {
   pgw.indentUp();
   do {
-    if (n->isa<Expr::ASTNodeBinOp>()) {
-   
-      Expr::PASTNodeBinOp p = n->isa<Expr::ASTNodeBinOp>();
+    Expr::PASTInternalBinNode pBN;
+    Expr::PASTInternalUnNode  pUN;
+    Expr::PASTLeafNode        pLN;
+    
+    if (n->isa<Expr::ASTInternalBinNode>()) {
+      Expr::PASTInternalBinNode p = n->isa<Expr::ASTNodeBinOp>();
       pgw << "<ASTNodeBinOp "
                "valueType=\""   << p->getType()   << "\" "
                "opType=\"" << p->getOpType() <<"\">"
@@ -115,4 +161,4 @@ void smoc_activation_pattern::guardAssemble(
   } while (0);
   pgw.indentDown();
 }
-
+*/

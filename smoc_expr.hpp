@@ -38,6 +38,10 @@
  * handles expressions involving doubles.
  */
 
+namespace smoc_modes {
+  class PGWriter;
+}
+
 namespace Expr {
 
 namespace Detail {
@@ -79,20 +83,10 @@ public:
   template <typename T>
   ASTNode(T *): type(typeid(T).name()) {}
 
-  const char *getType() const
-    { return type.c_str(); }
-
-  template <class X>
-  boost::intrusive_ptr<X> isa() {
-    return boost::intrusive_ptr<X>
-      (dynamic_cast<X *>(this));
-  }
-
-  template <class X>
-  boost::intrusive_ptr<const X> isa() const {
-    return boost::intrusive_ptr<const X>
-      (dynamic_cast<const X *>(this));
-  }
+  const std::string  &getValueType() const { return type; }
+  virtual std::string getNodeType() const                       = 0;
+  virtual std::string getNodeParam() const                      = 0;
+  virtual void        assemble(smoc_modes::PGWriter &pgw) const = 0;
 };
 
 typedef boost::intrusive_ptr<ASTNode> PASTNode;
@@ -102,7 +96,11 @@ public:
   template <typename T>
   ASTLeafNode(T *)
     : ASTNode(static_cast<T*>(NULL)) {}
+
+  void assemble(smoc_modes::PGWriter &pgw) const;
 };
+
+typedef boost::intrusive_ptr<ASTLeafNode> PASTLeafNode;
 
 class ASTInternalBinNode: public ASTNode {
 private:
@@ -112,11 +110,15 @@ public:
   ASTInternalBinNode(const PASTNode &l, const PASTNode &r, T *)
     : ASTNode(static_cast<T*>(NULL)), l(l), r(r) {}
 
-  PASTNode getLeftNode()
+  const PASTNode &getLeftNode() const
     { return l; }
-  PASTNode getRightNode()
+  const PASTNode &getRightNode() const
     { return r; }
+
+  void assemble(smoc_modes::PGWriter &pgw) const;
 };
+
+typedef boost::intrusive_ptr<ASTInternalBinNode> PASTInternalBinNode;
 
 class ASTInternalUnNode: public ASTNode {
 private:
@@ -126,13 +128,17 @@ public:
   ASTInternalUnNode(const PASTNode &c, T *)
     : ASTNode(static_cast<T*>(NULL)), c(c) {}
 
-  PASTNode getChildNode()
+  PASTNode getChildNode() const
     { return c; }
+
+  void assemble(smoc_modes::PGWriter &pgw) const;
 };
 
-static inline
-std::ostream &operator << (std::ostream &o, const ASTNode &n)
-  { o << "expr(" << &n << ")"; return o; }
+typedef boost::intrusive_ptr<ASTInternalUnNode> PASTInternalUnNode;
+
+//static inline
+//std::ostream &operator << (std::ostream &o, const ASTNode &n)
+//  { o << "expr(" << &n << ")"; return o; }
 
 /****************************************************************************
  * Expr wrapper
@@ -435,8 +441,10 @@ public:
   ASTNodeVar(const T &x, const char *name)
     : ASTLeafNode(static_cast<T*>(NULL)), name(name), addr(&x) {}
 
-  const char *getName() const { return name.c_str(); }
-  const void *getAddr() const { return addr; }
+  std::string getName() const;
+  const void *getAddr() const;
+  std::string getNodeType() const;
+  std::string getNodeParam() const;
 };
 
 template<typename T>
@@ -501,7 +509,9 @@ public:
     o << v; value = o.str();
   }
 
-  const char *getValue() const { return value.c_str(); }
+  std::string getValue() const;
+  std::string getNodeType() const;
+  std::string getNodeParam() const;
 };
 
 template<typename T>
@@ -708,10 +718,11 @@ public:
       o(reinterpret_cast<const dummy *>(f.obj)),
       m(*reinterpret_cast<const fun *>(&f.func)) {}
 
-  const char *getName() const { return name.c_str(); }
-  const void *getAddrObj() const { return o; }
-  const void *getAddrFun() const
-    { return *reinterpret_cast<const void *const *>(&m); }
+  std::string getName() const;
+  const void *getAddrObj() const;
+  const void *getAddrFun() const;
+  std::string getNodeType() const;
+  std::string getNodeParam() const;
 };
 
 template<class F, class PL>
@@ -781,6 +792,8 @@ typedef enum {
   DOpBinField
 } OpBinT;
 
+std::ostream &operator << (std::ostream &o, const OpBinT &op );
+
 class ASTNodeBinOp: public ASTInternalBinNode {
 private:
   OpBinT op;
@@ -789,8 +802,9 @@ public:
   ASTNodeBinOp(OpBinT op, const PASTNode &l, const PASTNode &r, T *)
     : ASTInternalBinNode(l,r,static_cast<T*>(NULL)), op(op) {}
 
-  OpBinT getOpType() const
-    { return op; }
+  OpBinT getOpType() const;
+  std::string getNodeType() const;
+  std::string getNodeParam() const;
 };
 
 typedef boost::intrusive_ptr<ASTNodeBinOp> PASTNodeBinOp;
@@ -815,31 +829,6 @@ struct D<DBinOp<A,B,Op> >: public DBase<DBinOp<A,B,Op> > {
 // Make a convenient typedef for the op type.
 template <class A, class B, OpBinT Op>
 struct BinOp { typedef D<DBinOp<A,B,Op> > type; };
-
-static inline
-std::ostream &operator << (std::ostream &o, const OpBinT &op ) {
-  switch (op) {
-    case DOpBinAdd:      o << "DOpBinAdd"; break;
-    case DOpBinSub:      o << "DOpBinSub"; break;
-    case DOpBinMultiply: o << "DOpBinMultiply"; break;
-    case DOpBinDivide:   o << "DOpBinDivide"; break;
-    case DOpBinEq:       o << "DOpBinEq"; break;
-    case DOpBinNe:       o << "DOpBinNe"; break;
-    case DOpBinLt:       o << "DOpBinLt"; break;
-    case DOpBinLe:       o << "DOpBinLe"; break;
-    case DOpBinGt:       o << "DOpBinGt"; break;
-    case DOpBinGe:       o << "DOpBinGe"; break;
-    case DOpBinBAnd:     o << "DOpBinBAnd"; break;
-    case DOpBinBOr:      o << "DOpBinBOr"; break;
-    case DOpBinBXor:     o << "DOpBinBXor"; break;
-    case DOpBinLAnd:     o << "DOpBinLAnd"; break;
-    case DOpBinLOr:      o << "DOpBinLOr"; break;
-    case DOpBinLXor:     o << "DOpBinLXor"; break;
-    case DOpBinField:    o << "DOpBinField"; break;
-    default:             o << "???"; break;
-  }
-  return o;
-}
 
 /****************************************************************************
  * APPLICATIVE TEMPLATE CLASSES
@@ -1270,6 +1259,8 @@ typedef enum {
   DOpUnType
 } OpUnT;
 
+std::ostream &operator << (std::ostream &o, const OpUnT &op );
+
 template<class A, OpUnT Op>
 class DUnOp;
 
@@ -1282,19 +1273,6 @@ struct D<DUnOp<A,Op> >: public DBase<DUnOp<A,Op> > {
 template <class A, OpUnT Op>
 struct UnOp { typedef D<DUnOp<A,Op> > type; };
 
-static inline
-std::ostream &operator << (std::ostream &o, const OpUnT &op ) {
-  switch (op) {
-    case DOpUnLNot:      o << "DOpUnLNot"; break;
-    case DOpUnBNot:      o << "DOpUnBNot"; break;
-    case DOpUnRef:       o << "DOpUnRef"; break;
-    case DOpUnDeRef:     o << "DOpUnDeRef"; break;
-    case DOpUnType:      o << "DOpUnType"; break;
-    default:             o << "???"; break;
-  }
-  return o;
-}
-
 class ASTNodeUnOp: public ASTInternalUnNode {
 public:
   OpUnT op;
@@ -1303,8 +1281,9 @@ public:
   ASTNodeUnOp(OpUnT op, const PASTNode &c, T*)
     : ASTInternalUnNode(c, static_cast<T*>(NULL)), op(op) {}
 
-  OpUnT getOpType() const
-    { return op; }
+  OpUnT getOpType() const;
+  std::string getNodeType() const;
+  std::string getNodeParam() const;
 };
 
 typedef boost::intrusive_ptr<ASTNodeUnOp> PASTNodeUnOp;
