@@ -63,7 +63,7 @@ void smoc_activation_pattern::guardAssemble(
     
     } else { 
       //***********here is Terminal************
-      //assert( n->isa<Expr::ASTNodeTerminal>() );
+      //assert( n->isa<Expr::ASTLeafNode>() );
       if ( n->isa<Expr::ASTNodePortTokens>() ) {
         pgw << "<PortTokens "
                  "valueType=\"" << typeid(unsigned int).name() << "\" "

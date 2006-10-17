@@ -39,18 +39,16 @@ namespace Expr {
  * DToken is a placeholder for a token in the expression.
  */
 
-class ASTNodeToken: public ASTNodeTerminal {
+class ASTNodeToken: public ASTLeafNode {
 private:
-  std::string           type;
   const smoc_root_port &port;
   size_t                pos;
 public:
   template <typename T>
   ASTNodeToken(const smoc_port_in<T> &port, size_t pos)
-    : type(typeid(T).name()),
+    : ASTLeafNode(static_cast<T*>(NULL)),
       port(port), pos(pos) {}
 
-  const char           *getType() const { return type.c_str(); }
   const smoc_root_port *getPort() const { return &port; }
   size_t                getPos() const { return pos; }
 };
@@ -110,13 +108,13 @@ typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
  * the port p
  */
 
-class ASTNodePortTokens: public ASTNodeTerminal {
+class ASTNodePortTokens: public ASTLeafNode {
 private:
   smoc_root_port *p;
 public:
   ASTNodePortTokens(smoc_root_port *p)
-    : ASTNodeTerminal(), p(p) {}
-  
+    : ASTLeafNode(static_cast<size_t*>(NULL)), p(p) {}
+ 
   const smoc_root_port *getPort() const
     { return p; }
 };
@@ -322,30 +320,37 @@ struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
  * signaled
  */
 
-struct ASTNodeSMOCEvent: public ASTNodeTerminal {
+struct ASTNodeSMOCEvent: public ASTLeafNode {
+public:
+  ASTNodeSMOCEvent()
+    : ASTLeafNode(static_cast<bool*>(NULL)) {}
 };
 
 class DSMOCEvent {
 public:
-  typedef smoc_event value_type;
+  typedef bool       value_type;
   typedef DSMOCEvent this_type;
   
   friend class Value<this_type>;
   friend class AST<this_type>;
   friend class Sensitivity<this_type>;
 private:
-  value_type &v;
+  smoc_event &v;
 public:
-  explicit DSMOCEvent(value_type &v): v(v) {}
+  explicit DSMOCEvent(smoc_event &v): v(v) {}
 };
 
 template <>
 struct Value<DSMOCEvent> {
-  typedef bool result_type;
-  
+  typedef Expr::Detail::ENABLED result_type;
+
   static inline
-  result_type apply(const DSMOCEvent &e)
-    { return e.v; }
+  result_type apply(const DSMOCEvent &e) {
+#ifndef NDEBUG
+    assert(e.v);
+#endif
+    return result_type();
+  }
 };
 
 template <>
