@@ -898,7 +898,7 @@ namespace Detail {
  */
 
 #ifdef SYSTEMOC_DEBUG
-static inline
+inline
 std::ostream &operator <<( std::ostream &out, Expr::Detail::ActivationStatus s) {
   static const char *display[3] = { "DISABLED", "BLOCKED", "ENABLED" };
   
