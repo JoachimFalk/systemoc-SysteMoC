@@ -24,7 +24,9 @@ root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
 SUBDIRS=
 
-include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
+if SYNTH
+  include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
+endif
 
 INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 
@@ -57,6 +59,7 @@ all: test_in.dat
 %.dat: %-dat
 	cp $^ $@
 
+if SYNTH
 SYNTHESIS_SUBDIR = synthesis
 
 $(SYNTHESIS_SUBDIR)/%.dat: %-dat
@@ -67,5 +70,4 @@ synth: $(SYNTHESIS_SUBDIR)/smoc-synth-test-idct2d $(SYNTHESIS_SUBDIR)/test_in.da
 $(SYNTHESIS_SUBDIR)/test-idct2d.ac.xml: $(SYNTHESIS_SUBDIR)/design-test-idct2d.ast.xml
 
 .PHONY: synth
-
-
+endif

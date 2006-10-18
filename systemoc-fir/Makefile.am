@@ -24,7 +24,9 @@ root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
 SUBDIRS=
 
-include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
+if SYNTH
+  include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
+endif
 
 INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 
@@ -38,6 +40,7 @@ noinst_PROGRAMS= simulation-fir
 simulation_fir_SOURCES= design-fir.cpp
 simulation_fir_DEPENDENCIES=@SYSTEMOC_DEPENDENCIES@
 
+if SYNTH
 SYNTHESIS_SUBDIR = synthesis
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-fir
@@ -45,5 +48,4 @@ synth: $(SYNTHESIS_SUBDIR)/smoc-synth-fir
 $(SYNTHESIS_SUBDIR)/fir.ac.xml: $(SYNTHESIS_SUBDIR)/design-fir.ast.xml
 
 .PHONY: synth
-
-
+endif

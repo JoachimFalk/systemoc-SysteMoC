@@ -24,7 +24,9 @@ root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
 SUBDIRS=
 
-include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
+if SYNTH
+  include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
+endif
 
 INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 
@@ -38,6 +40,7 @@ noinst_PROGRAMS= simulation-sqr
 simulation_sqr_SOURCES= design-sqr.cpp
 simulation_sqr_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
+if SYNTH
 SYNTHESIS_SUBDIR = synthesis
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-sqr
@@ -45,4 +48,4 @@ synth: $(SYNTHESIS_SUBDIR)/smoc-synth-sqr
 $(SYNTHESIS_SUBDIR)/sqr.ac.xml: $(SYNTHESIS_SUBDIR)/design-sqr.ast.xml
 
 .PHONY: synth
-
+endif
