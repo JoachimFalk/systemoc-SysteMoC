@@ -65,7 +65,7 @@ class hscd_choice_node
     for (smoc_port_list::iterator iter = ports.begin();
 	 iter != ports.end();
 	 ++iter)
-      (*iter)->finalise();
+      (*iter)->finalise(this);
   }
 
     hscd_choice_node()
