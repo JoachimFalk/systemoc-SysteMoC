@@ -28,6 +28,16 @@ AC_PROG_CPP
 
 ACJF_ARG_DEBUG([yes], [], [-DNDEBUG])
 
+AC_ARG_ENABLE(synthesis-support,
+  [  --enable-synthesis-support     Turn on Support for synth target in selected examples],
+  [case "${enableval}" in
+    yes) synth=true ;;
+    no)  synth=false ;;
+    *) AC_MSG_ERROR(bad value ${enableval} for --enable-synthesis-support) ;;
+   esac],
+  [synth=false])
+AM_CONDITIONAL(SYNTH, test x$synth = xtrue)
+
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADER([config.h])
 
