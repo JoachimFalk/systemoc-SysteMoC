@@ -35,7 +35,7 @@ public:
   smoc_port_out<int> out;
   smoc_port_out<int> min;
 private:
-  int counter;
+  size_t counter;
 #ifndef USE_COUNTER_INPUT
   std::ifstream i1; 
 #endif
