@@ -52,6 +52,22 @@ class hscd_choice_node
 #endif
  }
     
+  // overloads finalise in smoc_root_node
+  // don't calls finalise on _initialState
+  // but "finalising" smoc_v1 ports
+  void finalise() {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << myModule()->name() << ": finalise" << std::endl;
+#endif
+
+    smoc_port_list ports = getPorts();
+
+    for (smoc_port_list::iterator iter = ports.begin();
+	 iter != ports.end();
+	 ++iter)
+      (*iter)->finalise();
+  }
+
     hscd_choice_node()
       : smoc_root_node(start) { is_v1_actor = true; }
 };
