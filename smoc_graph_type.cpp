@@ -77,8 +77,7 @@ finalise() {
     for ( typename smoc_node_list::iterator iter = nodes.begin();
           iter != nodes.end();
           ++iter )
-      if ( !(*iter)->is_v1_actor )
-        (*iter)->finalise();
+      { (*iter)->finalise(); }
   }
   {
     smoc_chan_list chans = getChans();
