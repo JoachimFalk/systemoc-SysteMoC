@@ -61,7 +61,7 @@ class MD5 : public smoc_actor{
     sc_bv<32> SALT_C;
     sc_bv<32> SALT_D;
     
-    smoc_firing_state start, check, process, send;
+    smoc_firing_state start, process, check, send;
 
     ExampleNetworkPacket packet;
     bool packet_valid;
@@ -85,14 +85,14 @@ class MD5 : public smoc_actor{
     smoc_port_out< ExampleNetworkPacket > out;
 
     MD5(sc_module_name name);
-    virtual ~MD5();
+    ~MD5();
 
-    virtual void setKeyBits(sc_uint<3> part, sc_bv<56> bits, sc_uint<3> used_bytes_in_key);
-    virtual void initialize();
-    virtual void encrypt64(sc_bv<64> & data);
-    virtual void decrypt64(sc_bv<64> & data);
-    virtual void encryptUpTo128(sc_bv<128> & data, sc_uint<5> length_in_bytes);
-    virtual void decryptUpTo128(sc_bv<128> & data, sc_uint<5> length_in_bytes);
+    void setKeyBits(sc_uint<3> part, sc_bv<56> bits, sc_uint<3> used_bytes_in_key);
+    void initialize();
+    void encrypt64(sc_bv<64> & data);
+    void decrypt64(sc_bv<64> & data);
+    void encryptUpTo128(sc_bv<128> & data, sc_uint<5> length_in_bytes);
+    void decryptUpTo128(sc_bv<128> & data, sc_uint<5> length_in_bytes);
 
 };
 

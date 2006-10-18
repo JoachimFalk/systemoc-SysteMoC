@@ -32,23 +32,23 @@
   </component>
  </resources>
  <mappings>
-  <mapping source="sqrroot.A1" target="HWM11">
+  <mapping source="sqrroot.a1" target="HWM11">
     <attribute type="delay" value="10"/>
     <attribute type="Src::src" value="0"/>
   </mapping>
-  <mapping source="sqrroot.A4" target="HWM2">
+  <mapping source="sqrroot.a4" target="HWM2">
   	<attribute type="delay" value="10"/>
     <attribute type="Dup::dup" value="0"/>
   </mapping>
-  <mapping source="sqrroot.A2" target="HWM21">
+  <mapping source="sqrroot.a2" target="HWM21">
   	<attribute type="delay" value="10"/>
     <attribute type="sum" value="1"/>
   </mapping>
-  <mapping source="sqrroot.A3" target="HWM11">
+  <mapping source="sqrroot.a3" target="HWM11">
     <attribute type="delay" value="10"/>
     <attribute type="div" value="5"/>
   </mapping>
-  <mapping source="sqrroot.A5" target="HWM2">
+  <mapping source="sqrroot.a5" target="HWM2">
   	<attribute type="delay" value="10"/>
     <attribute type="mul" value="2"/>
   </mapping>

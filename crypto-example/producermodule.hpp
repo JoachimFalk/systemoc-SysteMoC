@@ -6,6 +6,7 @@
 
 #include "rsmodule.hpp"
 #include "commandreader.hpp"
+#include "rlatencywriter.hpp"
 #include "helper.hpp"
 
 //#define EX_DEBUG 1
@@ -18,14 +19,21 @@
 class ProducerModule: public RSModule {
 
   private:
-	  
-    // contains next data (command) to be transmitted
-    //std::string data;
-    // current position in data string to be transmitted next
-    //std::string::iterator diter;
+
+    bool succ;
+    sc_time delta;
+    
+    struct result{
+      sc_time start;
+      std::string str_result;
+    };
+    
+    std::map<int, result> results;
     // instance to retrieve commands from input file
 	  CommandReader reader;
-   
+    // instance to write request latency into output file
+    RLatencyWriter rwriter;
+
     /**
      * overloaded for logging purpose
      */
@@ -52,6 +60,8 @@ class ProducerModule: public RSModule {
      */
     void setNext();
 
+    int buildResult(ExampleNetworkPacket packet);
+
   public:
   
     /**
@@ -60,12 +70,13 @@ class ProducerModule: public RSModule {
      *  \param type specifies encryption to be used first
      *  \param input specifies input file of data to transmit. Currently expected to be
      *  text file.
+     *  \param run read file run+1 times
      */
     ProducerModule(sc_module_name name, 
                    ExampleNetworkPacket::EncryptionAlgorithm type = ExampleNetworkPacket::EM_des3,
-                   const char* input=NULL);
+                   const char* input=NULL, int run=0);
     
-    ProducerModule(sc_module_name name, const char* input);
+    ProducerModule(sc_module_name name, const char* input, int run=0);
 
     ~ProducerModule();
 };

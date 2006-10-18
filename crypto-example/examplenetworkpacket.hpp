@@ -4,7 +4,7 @@
 #include "systemc.h"
 
 // Amount of 64 bit data words in packet
-#define PACKET_PAYLOAD 4
+#define PACKET_PAYLOAD 1
 
 class ExampleNetworkPacket
 {

@@ -3,7 +3,7 @@
 std::auto_ptr<ExecTimeLogger> ExecTimeLogger::singleton(new ExecTimeLogger());
 
 std::ostream& operator << (std::ostream& os, const ExecValue& v){
-    return os << v.getMaxExecTime() << "#" << v.getMinExecTime() << "#" << v.getAverageExecTime();
+    return os << v.getMaxExecTime() << "#" << v.getMinExecTime() << "#" << v.getAverageExecTime() << "#" << v.getCallCount();
 }
 
 std::ostream& operator << (std::ostream& os, const ActorLogger& al){
@@ -46,7 +46,11 @@ double ExecValue::getAverageExecTime() const{
   
   return average;
 }
-       
+
+int ExecValue::getCallCount() const{
+  return this->exec_times.size();
+}
+
 void ExecValue::logTime(int time){
 
   this->exec_times.push_back(time);

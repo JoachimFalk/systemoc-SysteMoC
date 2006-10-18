@@ -44,3 +44,10 @@ simulation_crypto_SOURCES=	\
 	panchamround.cpp	\
 	exectimelogger.cpp
 simulation_crypto_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+all: start-crypto-simulation.sh
+
+%.sh: %.sh.in
+	sed	-e 's|[@]top_srcdir[@]|@top_srcdir@|g'	\
+		-e 's|[@]srcdir[@]|@srcdir@|g'		< $^ > $@
+	chmod 0755 $@

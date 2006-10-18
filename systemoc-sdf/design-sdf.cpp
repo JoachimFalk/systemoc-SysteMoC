@@ -12,48 +12,58 @@
 # include <smoc_pggen.hpp>
 #endif
 
-template <typename T>
+using namespace std;
+//template <class T>
 class m_adder: public smoc_actor {
   public:
-    smoc_port_in<T>  in1;
-    smoc_port_in<T>  in2;
-    smoc_port_out<T> out;
+    smoc_port_in<int>  in1;
+    smoc_port_in<int>  in2;
+    smoc_port_out<int> out;
   private:
     void process() {
-      T retval = in1[0] + in1[1] + in2[0];
+      int retval = in1[0] + in1[1] + in2[0];
       out[0] = retval;
-      std::cout << name() << " adding " << in1[0] << " + " << in1[1] << " + " << in2[0] << " = " << retval << std::endl;
+#ifndef NDEBUG      
+      cout << name() << " adding " << in1[0] 
+                     << " + " << in1[1] << " + " << in2[0] 
+                     << " = " << retval << std::endl;
+#endif
     }
     
     smoc_firing_state start;
   public:
     m_adder( sc_module_name name )
       :smoc_actor( name, start ) {
-      start = (in1(2) && in2(1) && out(1)) >> call(&m_adder::process) >> start;
+      start = (in1(2) && in2(1) && out(1)) >> CALL(m_adder::process) >> start;
     }
 };
 
-template <typename T>
+//template <class T>
 class m_multiply: public smoc_actor {
   public:
-    smoc_port_in<T>  in1;
-    smoc_port_in<T>  in2;
-    smoc_port_out<T> out1;
-    smoc_port_out<T> out2;
+    smoc_port_in<int>  in1;
+    smoc_port_in<int>  in2;
+    smoc_port_out<int> out1;
+    smoc_port_out<int> out2;
   private:
     void process() {
-      T retval = in1[0] * in2[0];
+      int retval = in1[0] * in2[0];
       
       out1[0] = retval;
-      out2[0] = retval; 
-      std::cout << name() << " multiplying " << in1[0] << " * " << in2[0] << " = " << retval << std::endl;
+      out2[0] = retval;
+#ifndef NDEBUG
+      cout << name() << " multiplying " << in1[0] 
+                     << " * " << in2[0] << " = " << retval << std::endl;
+#endif
     }
     
     smoc_firing_state start;
   public:
     m_multiply( sc_module_name name )
       :smoc_actor( name, start ) {
-      start = (in1(1) && in2(1) && out1(1) && out2(1)) >> call(&m_multiply::process) >> start;
+      start = (in1(1) && in2(1) && 
+               out1(1) && out2(1)) >>
+               CALL(m_multiply::process) >> start;
     }
 };
 
@@ -67,13 +77,15 @@ class m_top2
     m_top2( sc_module_name name )
       : smoc_graph(name)
     {
-      m_adder<int>    &adder = registerNode(new m_adder<int>("adder"));
-      m_multiply<int> &mult  = registerNode(new m_multiply<int>("multiply"));
+      m_adder    &adder = registerNode(new m_adder("adder"));
+      m_multiply &mult  = registerNode(new m_multiply("multiply"));
       
       connectInterfacePorts( in1, adder.in1 ); // adder.in(in1);
       connectInterfacePorts( in2, mult.in1 );  // mult.in1(in2);
       connectNodePorts( adder.out, mult.in2 );
+#ifndef KASCPAR_PARSING
       connectNodePorts( mult.out2, adder.in2, smoc_fifo<int>() << 13 );
+#endif
       connectInterfacePorts( out, mult.out1 ); // mult.out(out);
     }
 };
@@ -85,7 +97,9 @@ class m_source: public smoc_actor {
     int i;
     
     void process() {
-      std::cout << name() << " generating " << i << std::endl;
+#ifndef NDEBUG
+      cout << name() << " generating " << i << std::endl;
+#endif
       out[0] = i++;
     }
 
@@ -93,7 +107,7 @@ class m_source: public smoc_actor {
   public:
     m_source( sc_module_name name )
       :smoc_actor( name, start ), i(0) {
-      start =  out(1) >> call(&m_source::process) >> start;
+      start =  out(1) >> (VAR(i) < 1000000) >> CALL(m_source::process) >> start;
     }
 };
 
@@ -102,14 +116,16 @@ class m_sink: public smoc_actor {
     smoc_port_in<int> in;
   private:
     void process() {
-      std::cout << name() << " receiving " << in[0] << std::endl;
+#ifndef NDEBUG
+      cout << name() << " receiving " << in[0] << std::endl;
+#endif
     }
     
     smoc_firing_state start;
   public:
     m_sink( sc_module_name name )
       :smoc_actor( name, start ) {
-      start = in(1) >> call(&m_sink::process) >> start;
+      start = in(1) >> CALL(m_sink::process) >> start;
     }
 };
 
@@ -122,16 +138,25 @@ class m_top
       m_source      &src1 = registerNode(new m_source("src1"));
       m_source      &src2 = registerNode(new m_source("src2"));
       m_sink        &sink = registerNode(new m_sink("sink"));
-      
+#ifndef KASCPAR_PARSING      
       connectNodePorts( src1.out, top2.in1, smoc_fifo<int>(2) );
       connectNodePorts( src2.out, top2.in2, smoc_fifo<int>(2) );
       connectNodePorts( top2.out, sink.in,  smoc_fifo<int>(2) );
+#endif
     }
 };
 
 int sc_main (int argc, char **argv) {
   smoc_top_moc<m_top> top("top");
   
-  sc_start(-1);
+#ifndef KASCPAR_PARSING  
+#define GENERATE "--generate-problemgraph"
+  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
+    smoc_modes::dump(std::cout, top);
+  } else {
+    sc_start(-1);
+  }
+#undef GENERATE
+#endif
   return 0;
 }

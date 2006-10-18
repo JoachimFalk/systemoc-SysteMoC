@@ -67,11 +67,10 @@ private:
     Output[0] = Data1[0];
   }
   smoc_firing_state start;
+  smoc_firing_state atChannel0, atChannel1;
 public:
   Select(sc_module_name name, int initialChannel = 0)
     : smoc_actor(name, start) {
-    smoc_firing_state atChannel0, atChannel1;
-    
     atChannel0
       = (Control(1) && Data0(1) &&
          Control.getValueAt(0) == 0)  >>
@@ -144,6 +143,12 @@ public:
 int sc_main (int argc, char **argv) {
   smoc_top_moc<m_h_top> top("top");
   
-  sc_start(-1);
+#define GENERATE "--generate-problemgraph"
+  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
+    smoc_modes::dump(std::cout, top);
+  } else {
+    sc_start(-1);
+  }
+#undef GENERATE
   return 0;
 }

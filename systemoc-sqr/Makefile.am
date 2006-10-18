@@ -19,10 +19,12 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
-root_srcdir=$(top_srcdir)/..
-root_builddir=$(top_builddir)/..
+root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
+root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
 SUBDIRS=
+
+include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 
 INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
 
@@ -35,3 +37,12 @@ noinst_PROGRAMS= simulation-sqr
 
 simulation_sqr_SOURCES= design-sqr.cpp
 simulation_sqr_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+SYNTHESIS_SUBDIR = synthesis
+
+synth: $(SYNTHESIS_SUBDIR)/smoc-synth-sqr
+
+$(SYNTHESIS_SUBDIR)/sqr.ac.xml: $(SYNTHESIS_SUBDIR)/design-sqr.ast.xml
+
+.PHONY: synth
+

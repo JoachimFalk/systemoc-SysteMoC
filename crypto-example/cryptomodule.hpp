@@ -16,6 +16,8 @@
 
 #include "examplenetworkpacket.hpp"
 
+#define FIFO_SIZE 500
+
 class CryptoModule : public smoc_graph{
 
   private:
@@ -43,11 +45,11 @@ class CryptoModule : public smoc_graph{
           connectInterfacePorts(out, merger.out);
 
           // establish connection btw actor in subgraph
-          connectNodePorts(dispatcher.out_des3, des.in);
-          connectNodePorts(dispatcher.out_blowfish, bf.in);
+          connectNodePorts<FIFO_SIZE>(dispatcher.out_des3, des.in);
+          connectNodePorts<FIFO_SIZE>(dispatcher.out_blowfish, bf.in);
           
-          connectNodePorts(des.out, merger.in_des3);
-          connectNodePorts(bf.out, merger.in_blowfish);
+          connectNodePorts<FIFO_SIZE>(des.out, merger.in_des3);
+          connectNodePorts<FIFO_SIZE>(bf.out, merger.in_blowfish);
           
         }
 };
