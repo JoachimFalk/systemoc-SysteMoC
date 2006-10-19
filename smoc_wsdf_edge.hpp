@@ -79,6 +79,9 @@ public:
 	uvector_type src_data_element_mapping_vector() const;
 	umatrix_type src_data_element_mapping_matrix() const;
 
+	smatrix_type calc_border_condition_matrix() const;
+	svector_type calc_border_condition_vector() const;
+
 	
 											
 
@@ -161,7 +164,8 @@ private:
 	/// Output parameters:
 	/// - snk_iteration_level_table: modified iteration_level_table
 	/// - snk_vtu_iteration_level:   specifies the iteration levels
-	///                              which cover the virtual token union
+	///                              which cover the firing block corresponding
+	///                              to a virtual token union.
 	/// - new_vtu_iteration          is true, if an additional iteration
 	///                              for the virtual token union 
 	///                              has been inserted
@@ -195,7 +199,7 @@ private:
 		
 
 	/// Calculate the sink data element mapping matrix
-	/// Does NOT include window iteration
+	/// Includes the iterations over the window
 	umatrix_type calc_snk_data_element_mapping_matrix(const u2vector_type& snk_iteration_level_table,
 																										const uvector_type& snk_vtu_iteration_level,
 																										const uvector_type& snk_iter_max
@@ -203,6 +207,19 @@ private:
 
 	/// Inserts the data element mapping for the snk window
 	void insert_snk_window_mapping(umatrix_type& data_element_mapping_matrix) const;
+
+	
+	/// This function returns the condition matrix for the lower extended
+	/// border by which we can detect whether a data element is situated on the
+	/// extended border or not.
+	/// A data element is situated on the lower extended border, when
+	/// cond_matrix * (iteration_vector) < 0 for one component.
+	/// A data element is situated on the higher extended border, when
+	/// cond_matrix * (iteration_vector) > high_ext_border_cond_vector
+	void calc_border_condition_matrix(const umatrix_type& mapping_matrix,
+																		const uvector_type& snk_vtu_iteration_level,
+																		smatrix_type& border_cond_matrix
+																		) const;
 
 };
 
