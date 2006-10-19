@@ -219,10 +219,7 @@ public:
   // typedefs
   typedef smoc_root_chan              this_type;
   
-  template <typename T_node_type,
-            typename T_chan_kind,
-            template <typename T_value_type> class T_chan_init_default>
-  friend class smoc_graph_petri;
+  friend class smoc_graph;
 protected:
   std::string myName; // patched in finalise
 public:
