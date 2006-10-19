@@ -20,7 +20,7 @@
 
 const smoc_node_list smoc_graph::getNodes() const {
   smoc_node_list subnodes;
- 
+  
   for (
 #if SYSTEMC_VERSION < 20050714
         sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
@@ -29,11 +29,8 @@ const smoc_node_list smoc_graph::getNodes() const {
 #endif
         iter != get_child_objects().end();
         ++iter ) {
-    std::cerr << (*iter)->name() << std::endl;
-    
     smoc_root_node *node = dynamic_cast<smoc_root_node *>(*iter);
-    
-    if ( node != NULL /*&& !node->is_v1_actor*/ )
+    if (node != NULL)
       subnodes.push_back(node);
   }
   return subnodes;
