@@ -72,12 +72,7 @@ protected:
 // is derived. This requirement comes from the reinterpret_cast in
 // smoc_func_xxx classes in smoc_firing_rules.hpp
 class smoc_root_node
-#ifndef __SCFE__
-: public smoc_opbase_node,
-  public smoc_modes::smoc_modes_base_structure {
-#else
 : public smoc_opbase_node {
-#endif
 private:
 #ifndef NDEBUG
   // bool _finalizeCalled;
@@ -128,13 +123,7 @@ public:
   const smoc_firing_states getFiringStates() const;
   
   std::ostream &dumpActor( std::ostream &o );
-  
-//const smoc_firing_state &currentState() const { return _currentState; }
-//smoc_firing_state       &currentState()       { return _currentState; }
 };
-
-
-
 
 typedef std::list<smoc_root_node *> smoc_node_list;
 

@@ -83,8 +83,6 @@ void smoc_nonconflicting_chan::finalise() {
 void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   assert(portIn != NULL && portOut != NULL);
   
-  // FIXME: BIG HACK !!!
-  const_cast<this_type *>(this)->finalise();
   std::string idChannel        = pgw.getId(this);
   std::string idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
   std::string idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
