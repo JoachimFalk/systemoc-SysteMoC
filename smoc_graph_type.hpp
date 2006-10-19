@@ -32,16 +32,14 @@
 #include <list>
 #include <map>
 
-template <typename T_node_type,
-          typename T_chan_kind,
-          template <typename T_value_type> class T_chan_init_default>
-class smoc_graph_petri
-: public sc_module {
+#define T_chan_init_default smoc_fifo
+class smoc_graph
+: public sc_module,
+  public smoc_root_node {
 public:
-  typedef T_node_type					node_type;
-  typedef T_chan_kind					chan_kind;
-  typedef smoc_graph_petri
-    <T_node_type, T_chan_kind, T_chan_init_default>     this_type;
+//typedef T_node_type	node_type;
+//typedef T_chan_kind	chan_kind;
+  typedef smoc_graph    this_type;
 protected:
   template <typename T_chan_init>
   void connectNodePorts(
@@ -81,14 +79,22 @@ protected:
       smoc_port_in<T_value_type> &a,
       smoc_port_in<T_value_type> &b )
     { b(a); }
-  
+
   void finalise();
+
+  smoc_firing_state dummy;
 public:
-  explicit smoc_graph_petri( sc_module_name name )
-    : sc_module( name ) {}
-  smoc_graph_petri()
-    : sc_module(
-        sc_gen_unique_name("smoc_graph_petri") ) {}
+  explicit smoc_graph(sc_module_name name)
+    : sc_module(name),
+      smoc_root_node(dummy) {
+    dummy = CALL(smoc_graph::finalise) >> dummy;
+  }
+  smoc_graph()
+    : sc_module(sc_gen_unique_name("smoc_graph")),
+      smoc_root_node(dummy) {
+    dummy = CALL(smoc_graph::finalise) >> dummy;
+  }
+
   template <typename T>
   T &registerNode( T *node ) {
     return *node;
@@ -98,23 +104,16 @@ public:
   typename T_chan_init::chan_type &registerChan( const T_chan_init i ) {
     typename T_chan_init::chan_type *chan =
       new typename T_chan_init::chan_type(i);
-//    chan2ports[chan];
     return *chan;
   }
   template <typename T_chan_type>
   void connectChanPort( T_chan_type &chan,
                         smoc_port_out<typename T_chan_type::data_type> &p ) {
-//    assert( port2chan.find(&p) ==  port2chan.end() );
-//    port2chan[&p] = &chan;
-//    chan2ports[&chan].push_back(&p);
     p(chan);
   }
   template <typename T_chan_type>
   void connectChanPort( T_chan_type &chan,
                         smoc_port_in<typename T_chan_type::data_type> &p ) {
-//    assert( port2chan.find(&p) ==  port2chan.end() );
-//    port2chan[&p] = &chan;
-//    chan2ports[&chan].push_back(&p);
     p(chan);
   }
   
@@ -122,88 +121,12 @@ public:
   const smoc_chan_list getChans() const;
   
 #ifndef __SCFE__
+  sc_module *myModule();
+
   void pgAssemble(smoc_modes::PGWriter &, const smoc_root_node *) const;
+  void assembleActor( smoc_modes::PGWriter &pgw ) const;
 #endif
 };
-
-template <typename T_node_type,
-          typename T_chan_kind,
-          template <typename T_value_type> class T_chan_init_default>
-class smoc_graph_dataflow
-  : public smoc_graph_petri<T_node_type,T_chan_kind,T_chan_init_default> {
-public:
-  typedef smoc_graph_dataflow
-    <T_node_type, T_chan_kind, T_chan_init_default> this_type;
-  
-  explicit smoc_graph_dataflow( sc_module_name name )
-    : smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>(name) {}
-  smoc_graph_dataflow()
-    : smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>(
-        sc_gen_unique_name("smoc_graph_dataflow") ) {}
-private:
-  // disable
-  template <typename T_chan_type>
-  void connectChanPort( T_chan_type &chan,
-                        smoc_port_out<typename T_chan_type::data_type> &p );
-  template <typename T_chan_type>
-  void connectChanPort( T_chan_type &chan,
-                        smoc_port_in<typename T_chan_type::data_type> &p );
-};
-
-typedef smoc_graph_dataflow<smoc_root_node, smoc_fifo_kind, smoc_fifo>
-          smoc_sdf_constraintset;
-typedef smoc_graph_dataflow<smoc_root_node, smoc_fifo_kind, smoc_fifo>
-          smoc_ddf_constraintset;
-typedef smoc_graph_dataflow<smoc_root_node, smoc_fifo_kind, smoc_fifo>
-          smoc_ndf_constraintset;
-/*
-typedef smoc_graph_dataflow<smoc_fixed_transact_node, smoc_fifo_kind, smoc_fifo>
-          smoc_sdf_constraintset;
-typedef smoc_graph_dataflow<smoc_transact_node, smoc_fifo_kind, smoc_fifo>
-          smoc_ddf_constraintset;
-typedef smoc_graph_dataflow<smoc_choice_node, smoc_fifo_kind, smoc_fifo>
-          smoc_ndf_constraintset;
-
-typedef smoc_graph_dataflow<smoc_choice_node, smoc_rendezvous_kind, smoc_rendezvous>
-          smoc_csp_constraintset;
-*/
-
-class smoc_graph
-  : public smoc_ndf_constraintset,
-    public smoc_root_node {
-//  public smoc_scheduler_ndf {
-public:
-  typedef smoc_graph this_type;
-private:
-protected:
-  void finalise() {
-    smoc_ndf_constraintset::finalise();
-    smoc_root_node::finalise();
-//  smoc_scheduler_ndf::finalise();
-  }
-
-  smoc_firing_state dummy;
-public:
-  explicit smoc_graph( sc_module_name name )
-    : smoc_ndf_constraintset(name),
-      smoc_root_node(dummy) {
-    dummy = CALL(smoc_graph::finalise) >> dummy;
-  }
-  smoc_graph()
-    : smoc_ndf_constraintset(
-        sc_gen_unique_name("smoc_graph") ),
-      smoc_root_node(dummy) {
-    dummy = CALL(smoc_graph::finalise) >> dummy;
-  }
-
-#ifndef __SCFE__
-  sc_module *myModule() { return this; }
-  
-  void pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
-    { return smoc_ndf_constraintset::pgAssemble(pgw,n); }
-  void assembleActor( smoc_modes::PGWriter &pgw ) const {}
-#endif
-
-};
+#undef T_chan_init_default
 
 #endif // _INCLUDED_SMOC_GRAPH_TYPE_HPP

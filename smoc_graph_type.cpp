@@ -18,10 +18,7 @@
 #include <smoc_graph_type.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
 
-template <typename T_node_type,
-          typename T_chan_kind,
-          template <typename T_value_type> class T_chan_init_default>
-const smoc_node_list smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::getNodes() const {
+const smoc_node_list smoc_graph::getNodes() const {
   smoc_node_list subnodes;
  
   for (
@@ -32,6 +29,8 @@ const smoc_node_list smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_defa
 #endif
         iter != get_child_objects().end();
         ++iter ) {
+    std::cerr << (*iter)->name() << std::endl;
+    
     smoc_root_node *node = dynamic_cast<smoc_root_node *>(*iter);
     
     if ( node != NULL /*&& !node->is_v1_actor*/ )
@@ -40,10 +39,7 @@ const smoc_node_list smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_defa
   return subnodes;
 }
 
-template <typename T_node_type,
-          typename T_chan_kind,
-          template <typename T_value_type> class T_chan_init_default>
-const smoc_chan_list smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::getChans() const {
+const smoc_chan_list smoc_graph::getChans() const {
   smoc_chan_list channels;
   
   for (
@@ -62,11 +58,10 @@ const smoc_chan_list smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_defa
   return channels;
 }
 
-template <typename T_node_type,
-          typename T_chan_kind,
-          template <typename T_value_type> class T_chan_init_default>
-void smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::
-finalise() {
+void smoc_graph::finalise() {
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_graph::finalise() name == " << name() << std::endl;
+#endif
   // finalise for actors must precede finalise for channels,
   // because finalise for channels needs the patched in actor
   // references in the ports which are updated by the finalise
@@ -74,27 +69,28 @@ finalise() {
   {
     smoc_node_list nodes = getNodes();
     
-    for ( typename smoc_node_list::iterator iter = nodes.begin();
+    for ( smoc_node_list::iterator iter = nodes.begin();
           iter != nodes.end();
           ++iter )
-      { (*iter)->finalise(); }
+      (*iter)->finalise();
   }
   {
     smoc_chan_list chans = getChans();
     
-    for ( typename smoc_chan_list::iterator iter = chans.begin();
+    for ( smoc_chan_list::iterator iter = chans.begin();
           iter != chans.end();
-          ++iter ) {
+          ++iter )
       (*iter)->finalise();
-    }
   }
+  smoc_root_node::finalise();
 }
 
-template <typename T_node_type,
-          typename T_chan_kind,
-          template <typename T_value_type> class T_chan_init_default>
-void smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_default>::
-pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const {
+sc_module *smoc_graph::myModule()
+  { return this; }
+
+void smoc_graph::pgAssemble(
+    smoc_modes::PGWriter &pgw,
+    const smoc_root_node *n) const {
   const sc_module *m = this;
   const smoc_node_list ns  = getNodes();
   const smoc_chan_list cs  = getChans();
@@ -103,15 +99,15 @@ pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const {
   pgw << "<problemgraph name=\"" << m->name() << "_pg\" id=\"" << pgw.getId() << "\">" << std::endl;
   {
     pgw.indentUp();
-    for ( typename smoc_node_list::const_iterator iter = ns.begin();
+    for ( smoc_node_list::const_iterator iter = ns.begin();
           iter != ns.end();
           ++iter )
       (*iter)->assemble(pgw);
-    for ( typename smoc_chan_list::const_iterator iter = cs.begin();
+    for ( smoc_chan_list::const_iterator iter = cs.begin();
           iter != cs.end();
           ++iter )
       (*iter)->assemble(pgw);
-    for ( typename smoc_node_list::const_iterator iter = ns.begin();
+    for ( smoc_node_list::const_iterator iter = ns.begin();
           iter != ns.end();
           ++iter ) {
       smoc_port_list nsps = (*iter)->getPorts();
@@ -132,7 +128,5 @@ pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const {
   pgw << "</problemgraph>" << std::endl;
 }
 
-template void smoc_graph_petri<smoc_root_node, smoc_fifo_kind, smoc_fifo>::
-  pgAssemble(smoc_modes::PGWriter &, const smoc_root_node *) const;
-template void smoc_graph_petri<smoc_root_node, smoc_fifo_kind, smoc_fifo>::
-  finalise();
+void smoc_graph::assembleActor(
+    smoc_modes::PGWriter &pgw) const {}
