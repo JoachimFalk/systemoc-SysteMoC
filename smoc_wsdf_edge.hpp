@@ -80,7 +80,8 @@ public:
 	umatrix_type src_data_element_mapping_matrix() const;
 
 	smatrix_type calc_border_condition_matrix() const;
-	svector_type calc_border_condition_vector() const;
+	svector_type calc_low_border_condition_vector() const;
+	svector_type calc_high_border_condition_vector() const;
 
 	
 											
@@ -213,7 +214,7 @@ private:
 	/// border by which we can detect whether a data element is situated on the
 	/// extended border or not.
 	/// A data element is situated on the lower extended border, when
-	/// cond_matrix * (iteration_vector) < 0 for one component.
+	/// cond_matrix * (iteration_vector) < low_ext_border_cond_vector for one component.
 	/// A data element is situated on the higher extended border, when
 	/// cond_matrix * (iteration_vector) > high_ext_border_cond_vector
 	void calc_border_condition_matrix(const umatrix_type& mapping_matrix,

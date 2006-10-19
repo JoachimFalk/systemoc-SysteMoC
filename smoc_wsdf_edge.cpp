@@ -152,7 +152,12 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 
 
 smoc_wsdf_edge_descr::svector_type
-smoc_wsdf_edge_descr::calc_border_condition_vector() const {
+smoc_wsdf_edge_descr::calc_low_border_condition_vector() const {
+	return bs;
+}
+
+smoc_wsdf_edge_descr::svector_type
+smoc_wsdf_edge_descr::calc_high_border_condition_vector() const {
 	svector_type return_vector(u0.size());
 
 	for(unsigned int i = 0; i < u0.size(); i++){
