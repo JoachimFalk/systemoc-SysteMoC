@@ -81,12 +81,6 @@ if test x"$enable_vpc" = x"yes"; then
     `pwd`/../SystemC-VPC/libsystemcvpc.la"
 
   CPPFLAGS="$CPPFLAGS -DENABLE_SYSTEMC_VPC"
-  
-  AC_CONFIG_FILES([h261-video-coder/Makefile])
-
-#FIXME: (Hack) TraceLog only exists in SysteMoc <- this is only needed for InfiniBand HCA "hybrid mode"
-#because of this vpc-test-h261 doesn't compile
-#  subdirs="$subdirs vpc-test-h261"
 else
   SYSTEMC_VPC_INCLUDE=""
   SYSTEMC_VPC_LDFLAGS=""
@@ -118,15 +112,10 @@ if test -d $srcdir/systemc-df2; then
   AC_CONFIG_FILES([systemc-df2/Makefile])
   subdirs="$subdirs systemc-df2"
 fi
-#if test -d $srcdir/systemc-csp; then
-#  AC_CONFIG_FILES([systemc-csp/Makefile])
-#  subdirs="$subdirs systemc-csp"
-#fi
 if test -d $srcdir/systemc-sdf; then
   AC_CONFIG_FILES([systemc-sdf/Makefile])
   subdirs="$subdirs systemc-sdf"
 fi
-
 
 SUBDIRS=$subdirs
 AC_SUBST(SUBDIRS)
