@@ -1,23 +1,25 @@
 ## Process this file with automake to produce Makefile.in
 # vim: set noet sw=2 ts=8 sts=0:
-root_srcdir=$(top_srcdir)/..
-root_builddir=$(top_builddir)/..
+root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
+root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
-include ../../BuildSystem/jfrules.mk
+include $(auxdir)/jfrules.mk
+
+SUBDIRS=
 
 compileheader-simulation.stamp: $(simulation_CH_LTOBJS)
 	@date > $@
 
-SUBDIRS=
-
 SYSTEMCVPC_BUILDDIR=$(root_builddir)/SystemC-VPC
 
-INCLUDES =						\
+AM_CPPFLAGS=						\
+	@AM_CPPFLAGS@					\
 	@SYSTEMC_INCLUDE@				\
 	-I$(SYSTEMCVPC_BUILDDIR)/include/systemcvpc	\
 	-I$(srcdir)
 
 AM_LDFLAGS=						\
+	@AM_LDFLAGS@					\
 	@SYSTEMC_LDFLAGS@				\
 	-L$(SYSTEMCVPC_BUILDDIR)
 
