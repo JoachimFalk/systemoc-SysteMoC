@@ -9,7 +9,12 @@ const smoc_port_list smoc_root_node::getPorts() const {
   const sc_module *m = myModule();
   
   // std::cout << "=== getPorts ===" << this << std::endl;
-  for ( sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+  for ( 
+#if SYSTEMC_VERSION < 20050714
+        sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+#else
+        std::vector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+#endif
         iter != m->get_child_objects().end();
         ++iter ) {
     smoc_root_port *port = dynamic_cast<smoc_root_port *>(*iter);
