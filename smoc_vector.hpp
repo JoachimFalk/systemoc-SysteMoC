@@ -56,6 +56,17 @@ public:
     }
   }
 
+	/// Generates a vector with size elements and fills them with
+  /// with the constant value v
+  BOOST_UBLAS_INLINE
+  smoc_vector (const size_type size, const T v)
+    : parent_type(size)
+  {
+    for(size_type i = 0; i < size; i++){
+      (*this)[i] = v;
+    }
+  }
+
 public:
 	/// Lexicographic comparison
 	bool is_lex_smaller_than(const this_type& vec) const {
