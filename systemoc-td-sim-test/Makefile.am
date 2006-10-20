@@ -1,16 +1,16 @@
 ## Process this file with automake to produce Makefile.in
 # vim: set noet sw=2 ts=8 sts=0:
-root_srcdir=$(top_srcdir)/..
-root_builddir=$(top_builddir)/..
+root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
+root_builddir := $(shell cd $(top_builddir)/.. && pwd)
+
+include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
-
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
-AM_CPPFLAGS=-Wno-deprecated
+AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-LIBS=-lsystemoc
+LIBS= @LIBS@ -lsystemoc
 
 noinst_PROGRAMS=     sim_event single_transition td_sim  till_test
 
