@@ -60,7 +60,12 @@ assemble( hscd_modes::PGWriter &pgw ) const {
     pgw << "<process name=\"" << m->name() << "\" id=\"" << pgw.getId(this) << "\">" << std::endl;
     {
       pgw.indentUp();
-      for ( sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+      for (
+#if SYSTEMC_VERSION < 20050714
+            sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+#else
+            std::vector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+#endif
             iter != m->get_child_objects().end();
             ++iter ) {
   //      if ( *iter == &fire_port )
