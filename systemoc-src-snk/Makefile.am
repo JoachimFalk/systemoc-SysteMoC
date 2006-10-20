@@ -19,15 +19,15 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
-root_srcdir=$(top_srcdir)/..
-root_builddir=$(top_builddir)/..
+root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
+root_builddir := $(shell cd $(top_builddir)/.. && pwd)
+
+include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-INCLUDES = @INCLUDES@ @SYSTEMOC_INCLUDE@
-
-AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
-AM_CPPFLAGS=-Wno-deprecated
+AM_LDFLAGS = @AM_LDFLAGS@  @SYSTEMOC_LDFLAGS@
+AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
 LIBS=-lsystemoc
 
