@@ -19,34 +19,34 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
+root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
+root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
-root_srcdir=$(top_srcdir)/..
-root_builddir = $(top_builddir)/..
+include $(auxdir)/jfrules.mk
 
 SUBDIRS=
+
+# This is only needed if there is a configure.in in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
-ac_aux_dir = @ac_aux_dir@
-
-include $(ac_aux_dir)/jfrules.mk
-
 pkgincludeprefix=systemoc/
-
 
 compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 	@date > $@
 
-INCLUDES = @INCLUDES@					\
-	   @SYSTEMC_INCLUDE@				\
-	   @BOOST_INCLUDE@				\
-	   @SYSTEMC_VPC_INCLUDE@			\
-	   -I./include					\
-	   -I$(srcdir)
+AM_CPPFLAGS =				\
+	@AM_CPPFLAGS@			\
+	@SYSTEMC_INCLUDE@		\
+	@BOOST_INCLUDE@			\
+	@SYSTEMC_VPC_INCLUDE@		\
+	-I./include			\
+	-I$(srcdir)
 
-AM_LDFLAGS= @AM_LDFLAGS@				\
-	    @SYSTEMC_LDFLAGS@				\
-	    @BOOST_LDFLAGS@				\
-	    @SYSTEMC_VPC_LDFLAGS@
+AM_LDFLAGS=				\
+	@AM_LDFLAGS@			\
+	@SYSTEMC_LDFLAGS@		\
+	@BOOST_LDFLAGS@			\
+	@SYSTEMC_VPC_LDFLAGS@
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -95,9 +95,9 @@ libsystemoc_CH_LTOBJS=				\
 	$(smoc_pggen_hpp_CH_LTOBJS)
 #	$(smoc_op_hpp_CH_LTOBJS)
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined @SYSTEMC_LDFLAGS@ -lsystemc -lstdc++
+libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lsystemc -lcosupport -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
-libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include @SYSTEMC_VPC_DEPENDENCIES@
+libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include @pkg_support_builddir@/libcosupport.la @SYSTEMC_VPC_DEPENDENCIES@
 
 libsystemoc_la_SOURCES =		\
 	smoc_expr.cpp			\
@@ -115,11 +115,3 @@ libsystemoc_la_SOURCES =		\
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include
-
-#noinst_PROGRAMS = bar
-#
-#bar_SOURCES= bar.cpp
-#bar_LDFLAGS= @SYSTEMC_LDFLAGS@
-
-#test_pathstuff_LDADD = libsystemoc.la
-#test_pathstuff_SOURCES = test_pathstuff.C
