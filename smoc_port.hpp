@@ -536,15 +536,23 @@ public:
   typename Expr::PortTokens<this_type>::type getConsumableTokens()
     { return Expr::portTokens(*this); }
  
+  // operator(n,m) n: How much to consume, m: How many tokens/space must be available
   typename Expr::BinOp<
     Expr::DComm<this_type,Expr::DLiteral<size_t> >,
     Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
     Expr::DOpBinLAnd>::type
-  operator ()(size_t n) {
+  operator ()(size_t n, size_t m) {
+    assert(m >= n);
     return
       Expr::comm(*this, Expr::DLiteral<size_t>(n)) &&
-      getConsumableTokens() >= n;
+      getConsumableTokens() >= m;
   }
+  typename Expr::BinOp<
+    Expr::DComm<this_type,Expr::DLiteral<size_t> >,
+    Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
+    Expr::DOpBinLAnd>::type
+  operator ()(size_t n)
+    { return this->operator()(n,n); }
  
   void operator () ( iface_type& interface_ )
     { interface_.is_v1_in_port = this->is_smoc_v1_port; bind(interface_); }
@@ -611,15 +619,23 @@ public:
   typename Expr::PortTokens<this_type>::type getFreeSpace()
     { return Expr::portTokens<this_type>(*this); }
 
+  // operator(n,m) n: How much to consume, m: How many tokens/space must be available
   typename Expr::BinOp<
     Expr::DComm<this_type,Expr::DLiteral<size_t> >,
     Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
     Expr::DOpBinLAnd>::type
-  operator ()(size_t n) {
+  operator ()(size_t n, size_t m) {
+    assert(m >= n);
     return
       Expr::comm(*this, Expr::DLiteral<size_t>(n)) &&
-      getFreeSpace() >= n;
+      getFreeSpace() >= m;
   }
+  typename Expr::BinOp<
+    Expr::DComm<this_type,Expr::DLiteral<size_t> >,
+    Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
+    Expr::DOpBinLAnd>::type
+  operator ()(size_t n)
+    { return this->operator()(n,n); }
  
   void operator () ( iface_type& interface_ )
     { interface_.is_v1_out_port = this->is_smoc_v1_port; bind(interface_); }
