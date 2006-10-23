@@ -21,7 +21,18 @@
 
 #include <boost/intrusive_ptr.hpp>
 
+#ifndef BOOST_BOOST_HAS_THREADS
+# define BOOST_BOOST_HAS_THREADS
+# define BOOST_BOOST_HAS_THREADS_
+#endif
+
 #include <cosupport/systemc_support.hpp>
+#include <cosupport/refcount_object.hpp>
+
+#ifdef BOOST_BOOST_HAS_THREADS_
+# undef BOOST_BOOST_HAS_THREADS
+# undef BOOST_BOOST_HAS_THREADS_
+#endif
 
 typedef CoSupport::SystemC::Event         smoc_event;
 typedef CoSupport::SystemC::EventWaiter   smoc_event_waiter;
@@ -43,35 +54,8 @@ static inline
 void smoc_wait(smoc_event_waiter &e)
   { return CoSupport::SystemC::wait(e); }
 
-static inline
-void intrusive_ptr_add_ref( class _RefCount *r );
-static inline
-void intrusive_ptr_release( class _RefCount *r );
-
-class _RefCount {
-public:
-  typedef _RefCount this_type;
-  
-  friend void intrusive_ptr_add_ref(this_type *);
-  friend void intrusive_ptr_release(this_type *);
-private:
-  size_t refcount;
-public:
-  _RefCount()
-    : refcount(0) {}
-  
-  virtual ~_RefCount() {}
-};
-
-static inline
-void intrusive_ptr_add_ref( _RefCount *r )
-  { ++r->refcount; }
-static inline
-void intrusive_ptr_release( _RefCount *r )
-  { if ( !--r->refcount ) delete r; }
-
 class smoc_ref_event
-: public _RefCount, public smoc_event {
+: public CoSupport::RefCountObject, public smoc_event {
 public:
   typedef smoc_ref_event this_type;
 public:

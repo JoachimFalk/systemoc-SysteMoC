@@ -93,6 +93,9 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
                "id=\""     << pgw.getId()            << "\"/>" << std::endl;
 }
 
+#ifdef __GNUC__
+__attribute__((noreturn))
+#endif
 const sc_event& smoc_default_event_abort() {
-  assert(0);
+  assert(!"smoc_default_event_abort");
 }
