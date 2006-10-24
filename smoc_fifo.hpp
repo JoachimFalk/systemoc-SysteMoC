@@ -384,9 +384,7 @@ class smoc_fifo_storage
 public:
   typedef T                                  data_type;
   typedef smoc_fifo_storage<data_type>       this_type;
-  typedef typename this_type::iface_out_type iface_out_type;
   typedef typename this_type::ring_out_type  ring_out_type;
-  typedef typename this_type::iface_in_type  iface_in_type;
   typedef typename this_type::ring_in_type   ring_in_type;
   typedef smoc_storage<data_type>	     storage_type;
   
@@ -506,8 +504,6 @@ class smoc_fifo_type
 public:
   typedef T						      data_type;
   typedef smoc_fifo_type<data_type>			      this_type;
-  typedef typename this_type::iface_in_type		      iface_in_type;
-  typedef typename this_type::iface_out_type		      iface_out_type;
   
   typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
   typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
@@ -515,8 +511,6 @@ public:
   typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
   typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
 protected:
-//  iface_in_type  *in;
-//  iface_out_type *out;
   
 #ifdef ENABLE_SYSTEMC_VPC
   void commExecIn(size_t consume, const smoc_ref_event_p &le)

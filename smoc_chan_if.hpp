@@ -161,7 +161,6 @@ public:
   // typedefs
   typedef T						    data_type;
   typedef smoc_chan_in_if<data_type>			    this_type;
-  typedef smoc_port_in<data_type>			    iface_in_type;
   typedef typename smoc_storage_in<data_type>::storage_type storage_type;
   typedef typename smoc_storage_in<data_type>::return_type  return_type;
   typedef smoc_ring_access<storage_type, return_type>	    ring_in_type;
@@ -201,7 +200,6 @@ public:
   // typedefs
   typedef T						     data_type;
   typedef smoc_chan_out_if<T>				     this_type;
-  typedef smoc_port_out<T>				     iface_out_type;
   typedef typename smoc_storage_out<data_type>::storage_type storage_type;
   typedef typename smoc_storage_out<data_type>::return_type  return_type;
   typedef smoc_ring_access<storage_type, return_type>	     ring_out_type;
