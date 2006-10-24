@@ -20,6 +20,7 @@ private:
   { return reinterpret_cast<const T*>(mem); }
   
 public:
+  typedef T data_type;
   smoc_storage() : valid(false) {
   }
   

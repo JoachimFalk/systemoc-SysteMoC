@@ -423,15 +423,19 @@ protected:
 #endif
   }
 
-  void ringSetupIn(ring_in_type &r) {
-    r.storage     = storage;
-    r.storageSize = this->fsize;
-    r.offset      = &this->rindex;
+  ring_in_type * ringSetupIn() {
+    smoc_ring_access<smoc_storage<data_type>, data_type> *r = new smoc_ring_access<smoc_storage<data_type>, data_type>();
+    r->storage     = storage;
+    r->storageSize = this->fsize;
+    r->offset      = &this->rindex;
+    return r;
   }
-  void ringSetupOut(ring_out_type &r) {
-    r.storage     = storage;
-    r.storageSize = this->fsize;
-    r.offset      = &this->windex;
+  ring_out_type * ringSetupOut() {
+    smoc_ring_access<smoc_storage<data_type>, data_type> *r = new smoc_ring_access<smoc_storage<data_type>, data_type>();
+    r->storage     = storage;
+    r->storageSize = this->fsize;
+    r->offset      = &this->windex; 
+    return r;
   }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
@@ -484,8 +488,14 @@ protected:
 #endif
   }
  
-  void ringSetupIn(ring_in_type &r) {}
-  void ringSetupOut(ring_out_type &r) {}
+  ring_in_type  * ringSetupIn()  {
+    smoc_ring_access<void, void> *r = new smoc_ring_access<void, void>();
+    return r;
+  }
+  ring_out_type * ringSetupOut() {
+    smoc_ring_access<void, void> *r = new smoc_ring_access<void, void>();
+    return r;
+  }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;

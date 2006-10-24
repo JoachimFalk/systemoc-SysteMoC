@@ -28,8 +28,31 @@
 
 #include <list>
 
+template<class T>
+class smoc_channel_access {
+public:
+  typedef T                                              data_type;
+  typedef smoc_storage<T>                                storage_type;
+  typedef smoc_channel_access<data_type>                 this_type;
+
+  virtual void   setLimit(size_t l)                    = 0;
+  virtual size_t getLimit() const                      = 0;
+  virtual smoc_storage<data_type>& operator[](size_t n)             = 0;
+  virtual const smoc_storage<data_type> operator[](size_t n) const = 0;
+};
+
+template<>
+class smoc_channel_access<void> {
+public:
+  typedef void                                           data_type;
+  typedef smoc_channel_access<data_type>                 this_type;
+
+  virtual void   setLimit(size_t l)                    = 0;
+  virtual size_t getLimit() const                      = 0;
+};
+
 template<class S, class T>
-class smoc_ring_access {
+class smoc_ring_access : public smoc_channel_access<typename S::data_type> {
 public:
   typedef S					      storage_type;
   typedef T					      return_type;
@@ -47,14 +70,14 @@ public:
   void   setLimit(size_t l) { limit = l; }
   size_t getLimit() const   { return limit; }
 
-  return_type operator[](size_t n) {
+  smoc_storage<typename S::data_type>& operator[](size_t n) {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
     assert(n < limit);
     return *offset + n < storageSize
       ? storage[*offset + n]
       : storage[*offset + n - storageSize];
   }
-  const return_type operator[](size_t n) const {
+  const smoc_storage<typename S::data_type> operator[](size_t n) const {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[](" << n << ") const" << std::endl;
     assert(n < limit);
     return *offset + n < storageSize
@@ -64,7 +87,7 @@ public:
 };
 
 template <>
-class smoc_ring_access<void, void> {
+class smoc_ring_access<void, void> : public smoc_channel_access<void> {
 public:
   typedef void					      storage_type;
   typedef void					      return_type;
@@ -189,7 +212,7 @@ public:
   typedef smoc_port_in<data_type>			    iface_in_type;
   typedef typename smoc_storage_in<data_type>::storage_type storage_type;
   typedef typename smoc_storage_in<data_type>::return_type  return_type;
-  typedef smoc_ring_access<storage_type, return_type>	    ring_in_type;
+  typedef smoc_channel_access<data_type>                    ring_in_type;
   
   bool is_v1_in_port;
   
@@ -197,7 +220,7 @@ public:
   virtual size_t committedOutCount() const = 0;
 //smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual smoc_event &blockEventOut(size_t n) = 0;
-  virtual void   ringSetupIn(ring_in_type &r) = 0;
+  virtual ring_in_type * ringSetupIn() = 0;
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void   commExecIn(size_t consume, const smoc_ref_event_p &) = 0;
 #else
@@ -234,7 +257,7 @@ public:
   typedef smoc_port_out<T>				     iface_out_type;
   typedef typename smoc_storage_out<data_type>::storage_type storage_type;
   typedef typename smoc_storage_out<data_type>::return_type  return_type;
-  typedef smoc_ring_access<storage_type, return_type>	     ring_out_type;
+  typedef smoc_channel_access<data_type>                     ring_out_type;
   
   bool is_v1_out_port;
   
@@ -242,7 +265,7 @@ public:
   virtual size_t      committedInCount() const = 0;
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual smoc_event &blockEventIn(size_t n) = 0;
-  virtual void        ringSetupOut(ring_out_type &r) = 0;
+  virtual ring_out_type * ringSetupOut() = 0;
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void        commExecOut(size_t produce, const smoc_ref_event_p &) = 0;
 #else

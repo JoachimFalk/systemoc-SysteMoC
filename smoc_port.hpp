@@ -407,10 +407,7 @@ protected:
 template <typename T>
 class smoc_port_in
 //: public smoc_port_storage_in<T> {
-: public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> >,
-  public smoc_ring_access<
-    typename smoc_storage_in<T>::storage_type,
-    typename smoc_storage_in<T>::return_type>
+: public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> >
 {
 public:
   typedef T						    data_type;
@@ -425,6 +422,7 @@ public:
   template <class E> friend class Expr::CommReset;
   template <class E> friend class Expr::Value;
 protected:
+  smoc_channel_access<data_type>            *channel_access;
   typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> > base_type;
   
   void add_interface( sc_interface *i ) {
@@ -434,9 +432,9 @@ protected:
   bool peerIsV1() const
     { return (*this)->portOutIsV1(); }
 
-  void finalise() { (*this)->ringSetupIn(*this); }
+  void finalise() { channel_access = (*this)->ringSetupIn(); }
   
-  void commSetup(size_t req) { this->setLimit(req); }
+  void commSetup(size_t req) { channel_access->setLimit(req); }
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(const smoc_ref_event_p &le)
 #else
@@ -444,14 +442,18 @@ protected:
 #endif
   {
 #ifdef ENABLE_SYSTEMC_VPC
-    (*this)->commExecIn(this->getLimit(), le);
+    (*this)->commExecIn(channel_access->getLimit(), le);
 #else
-    (*this)->commExecIn(this->getLimit());
+    (*this)->commExecIn(channel_access->getLimit());
 #endif
-    this->setLimit(0); 
+    channel_access->setLimit(0); 
   }
-  void commReset() { this->setLimit(0); }
+  void commReset() { channel_access->setLimit(0); }
 public:
+  const return_type operator[](size_t n) const {
+    return (*channel_access)[n];
+  }
+
 //void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
 //public:
   smoc_port_in(): base_type(sc_gen_unique_name("smoc_port_in")) {}
@@ -483,10 +485,7 @@ public:
 template <typename T>
 class smoc_port_out
 //: public smoc_port_storage_out<T> {
-: public smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T> >,
-  public smoc_ring_access<
-    typename smoc_storage_out<T>::storage_type,
-    typename smoc_storage_out<T>::return_type>
+: public smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T> >
 {
 public:
   typedef T						     data_type;
@@ -501,6 +500,7 @@ public:
   template <class E> friend class Expr::CommSetup;
   template <class E> friend class Expr::Value;
 protected:
+  smoc_channel_access<data_type>                                  *channel_access;
   typedef smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T> > base_type;
   
   void add_interface( sc_interface *i ) {
@@ -510,9 +510,9 @@ protected:
   bool peerIsV1() const
     { return (*this)->portInIsV1(); }
   
-  void finalise() { (*this)->ringSetupOut(*this); }
+  void finalise() { channel_access = (*this)->ringSetupOut(); }
   
-  void commSetup(size_t req) { this->setLimit(req); }
+  void commSetup(size_t req) { channel_access->setLimit(req); }
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(const smoc_ref_event_p &le)
 #else
@@ -520,14 +520,18 @@ protected:
 #endif
   {
 #ifdef ENABLE_SYSTEMC_VPC
-    (*this)->commExecOut(this->getLimit(), le);
+    (*this)->commExecOut(channel_access->getLimit(), le);
 #else
-    (*this)->commExecOut(this->getLimit());
+    (*this)->commExecOut(channel_access->getLimit());
 #endif
-    this->setLimit(0); 
+    channel_access->setLimit(0); 
   }
-  void commReset() { this->setLimit(0); }
+  void commReset() { channel_access->setLimit(0); }
 public:
+  return_type operator[](size_t n) {
+    return (*channel_access)[n];
+  }
+
 //  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
 //public:
   smoc_port_out(): base_type(sc_gen_unique_name("smoc_port_out")) {}
