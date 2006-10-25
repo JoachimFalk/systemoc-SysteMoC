@@ -102,7 +102,7 @@ public:
 };
 
 template <>
-class smoc_ring_access<const void, const void> {
+class smoc_ring_access<const void, const void> : public smoc_channel_access<const void> {
 public:
   typedef const void				      storage_type;
   typedef const void				      return_type;
