@@ -45,18 +45,6 @@ void smoc_root_chan::finalise() {
   
   genName << "cf_";
   {
-    const smoc_port_list &in = getInputPorts();
-    
-    for ( smoc_port_list::const_iterator iter = in.begin();
-          iter != in.end();
-          ++iter ) {
-      genName
-        << (iter == in.begin() ? "" : "|")
-        << (*iter)->getActor()->myModule()->name();
-    }
-  }
-  genName << "_";
-  {
     const smoc_port_list &out = getOutputPorts();
     
     for ( smoc_port_list::const_iterator iter = out.begin();
@@ -64,6 +52,18 @@ void smoc_root_chan::finalise() {
           ++iter ) {
       genName
         << (iter == out.begin() ? "" : "|")
+        << (*iter)->getActor()->myModule()->name();
+    }
+  }
+  genName << "_";
+  {
+    const smoc_port_list &in = getInputPorts();
+    
+    for ( smoc_port_list::const_iterator iter = in.begin();
+          iter != in.end();
+          ++iter ) {
+      genName
+        << (iter == in.begin() ? "" : "|")
         << (*iter)->getActor()->myModule()->name();
     }
   }
