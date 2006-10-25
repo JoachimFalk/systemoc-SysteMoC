@@ -416,7 +416,7 @@ SMOCEvent::type till(smoc_event &e)
 
 template <class P, typename T>
 class smoc_port_base
-  : public P {
+  : public P, public T::access_type {
 public:
   typedef T                   iface_type;
   typedef smoc_port_base<P,T> this_type;
@@ -477,19 +477,12 @@ protected:
 
 template <typename T>
 class smoc_port_in
-//: public smoc_port_storage_in<T> {
-: public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> >,
-  public smoc_ring_access<
-    typename smoc_storage_in<T>::storage_type,
-    typename smoc_storage_in<T>::return_type>
-{
+: public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T, smoc_ring_access> > {
 public:
-  typedef T						    data_type;
-  typedef smoc_port_in<data_type>			    this_type;
-  typedef typename this_type::iface_type		    iface_type;
-  typedef typename smoc_storage_in<data_type>::storage_type storage_type;
-  typedef typename smoc_storage_in<data_type>::return_type  return_type;
-  typedef smoc_ring_access<storage_type, return_type>	    ring_type;
+  typedef T				    data_type;
+  typedef smoc_port_in<data_type>	    this_type;
+  typedef typename this_type::iface_type    iface_type;
+  typedef typename iface_type::access_type  ring_type;
   
   template <class E> friend class Expr::CommExec;
 #ifndef NDEBUG
@@ -498,7 +491,7 @@ public:
 #endif
   template <class E> friend class Expr::Value;
 protected:
-  typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T> > base_type;
+  typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T, smoc_ring_access> > base_type;
 
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
@@ -510,7 +503,7 @@ protected:
     { return (*this)->portOutIsV1(); }
 
   void finalise(smoc_root_node *node)
-    { (*this)->ringSetupIn(*this); }
+    { (*this)->accessSetupIn(*this); }
 
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)
@@ -562,19 +555,12 @@ public:
 
 template <typename T>
 class smoc_port_out
-//: public smoc_port_storage_out<T> {
-: public smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T> >,
-  public smoc_ring_access<
-    typename smoc_storage_out<T>::storage_type,
-    typename smoc_storage_out<T>::return_type>
-{
+: public smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T, smoc_ring_access> > {
 public:
-  typedef T						     data_type;
-  typedef smoc_port_out<data_type>			     this_type;
-  typedef typename this_type::iface_type		     iface_type;
-  typedef typename smoc_storage_out<data_type>::storage_type storage_type;
-  typedef typename smoc_storage_out<data_type>::return_type  return_type;
-  typedef smoc_ring_access<storage_type, return_type>	     ring_type;
+  typedef T				    data_type;
+  typedef smoc_port_out<data_type>	    this_type;
+  typedef typename this_type::iface_type    iface_type;
+  typedef typename iface_type::access_type  ring_type;
   
   template <class E> friend class Expr::CommExec;
 #ifndef NDEBUG
@@ -583,7 +569,7 @@ public:
 #endif
   template <class E> friend class Expr::Value;
 protected:
-  typedef smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T> > base_type;
+  typedef smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T, smoc_ring_access> > base_type;
 
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
@@ -595,7 +581,7 @@ protected:
     { return (*this)->portInIsV1(); }
 
   void finalise(smoc_root_node *node)
-    { (*this)->ringSetupOut(*this); }
+    { (*this)->accessSetupOut(*this); }
 
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)

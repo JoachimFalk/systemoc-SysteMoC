@@ -153,24 +153,25 @@ public:
     { return portsOut; }
 };
 
-template <typename T>
+template <typename T, template <typename, typename> class R>
 class smoc_chan_in_if
   : virtual public sc_interface,
     virtual public smoc_chan_in_base_if {
 public:
   // typedefs
-  typedef T						    data_type;
-  typedef smoc_chan_in_if<data_type>			    this_type;
-  typedef typename smoc_storage_in<data_type>::storage_type storage_type;
-  typedef typename smoc_storage_in<data_type>::return_type  return_type;
-  typedef smoc_ring_access<storage_type, return_type>	    ring_in_type;
+  typedef smoc_chan_in_if<T,R>			this_type;
+  typedef T					data_type;
+  typedef R<
+    typename smoc_storage_in<T>::storage_type,
+    typename smoc_storage_in<T>::return_type>   access_type;
+  typedef access_type                           access_in_type;
   
   bool is_v1_in_port;
   
   virtual size_t committedOutCount() const = 0;
 //smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual smoc_event &blockEventOut(size_t n) = 0;
-  virtual void   ringSetupIn(ring_in_type &r) = 0;
+  virtual void   accessSetupIn(access_type &r) = 0;
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void   commExecIn(size_t consume, const smoc_ref_event_p &) = 0;
 #else
@@ -192,24 +193,25 @@ private:
   this_type &operator = ( const this_type & );
 };
 
-template <typename T>
+template <typename T, template <typename, typename> class R>
 class smoc_chan_out_if
   : virtual public sc_interface,
     virtual public smoc_chan_out_base_if {
 public:
   // typedefs
-  typedef T						     data_type;
-  typedef smoc_chan_out_if<T>				     this_type;
-  typedef typename smoc_storage_out<data_type>::storage_type storage_type;
-  typedef typename smoc_storage_out<data_type>::return_type  return_type;
-  typedef smoc_ring_access<storage_type, return_type>	     ring_out_type;
+  typedef smoc_chan_out_if<T,R>			this_type;
+  typedef T					data_type;
+  typedef R<
+    typename smoc_storage_out<T>::storage_type,
+    typename smoc_storage_out<T>::return_type>  access_type;
+  typedef access_type                           access_out_type;
   
   bool is_v1_out_port;
   
   virtual size_t      committedInCount() const = 0;
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual smoc_event &blockEventIn(size_t n) = 0;
-  virtual void        ringSetupOut(ring_out_type &r) = 0;
+  virtual void        accessSetupOut(access_type &r) = 0;
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void        commExecOut(size_t produce, const smoc_ref_event_p &) = 0;
 #else
@@ -276,14 +278,14 @@ protected:
 
 extern const sc_event& smoc_default_event_abort();
 
-template <typename T_chan_kind, typename T_data_type>
+template <typename T_chan_kind, typename T_data_type, template <typename, typename> class R>
 class smoc_chan_if
-  : public smoc_chan_in_if<T_data_type>,
-    public smoc_chan_out_if<T_data_type>,
+  : public smoc_chan_in_if<T_data_type, R>,
+    public smoc_chan_out_if<T_data_type, R>,
     public T_chan_kind {
 public:
   // typedefs
-  typedef smoc_chan_if<T_chan_kind, T_data_type>  this_type;
+  typedef smoc_chan_if<T_chan_kind,T_data_type,R> this_type;
   typedef T_data_type                             data_type;
   typedef T_chan_kind                             chan_kind;
 
