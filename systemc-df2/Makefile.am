@@ -22,6 +22,8 @@
 root_srcdir=$(top_srcdir)/..
 root_builddir=$(top_builddir)/..
 
+include $(auxdir)/jfrules.mk
+
 SUBDIRS=
 
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
