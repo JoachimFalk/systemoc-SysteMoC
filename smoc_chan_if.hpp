@@ -278,14 +278,17 @@ protected:
 
 extern const sc_event& smoc_default_event_abort();
 
-template <typename T_chan_kind, typename T_data_type, template <typename, typename> class R>
+template <typename T_chan_kind, typename T_data_type, 
+	        template <typename, typename> class R_IN,
+	        template <typename, typename> class R_OUT
+	        >
 class smoc_chan_if
-  : public smoc_chan_in_if<T_data_type, R>,
-    public smoc_chan_out_if<T_data_type, R>,
+  : public smoc_chan_in_if<T_data_type, R_IN>,
+    public smoc_chan_out_if<T_data_type, R_OUT>,
     public T_chan_kind {
 public:
   // typedefs
-  typedef smoc_chan_if<T_chan_kind,T_data_type,R> this_type;
+  typedef smoc_chan_if<T_chan_kind,T_data_type,R_IN,R_OUT> this_type;
   typedef T_data_type                             data_type;
   typedef T_chan_kind                             chan_kind;
 
