@@ -83,13 +83,16 @@ public:
 	svector_type calc_low_border_condition_vector() const;
 	svector_type calc_high_border_condition_vector() const;
 
+	uvector_type max_data_element_id() const;
 	
 											
 
-protected:
+public:
 
 	/* WSDF edge parameters */
 	const unsigned token_dimensions;
+
+protected:
 
 	/// Actor invocation order (firing blocks)
 	const u2vector_type src_firing_blocks;

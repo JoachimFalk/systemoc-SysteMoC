@@ -54,7 +54,7 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
 							 current_firing_block_size[token_dimension] == 0);
 				return_vector[iter_level] = 
 					src_firing_blocks[firing_level][token_dimension] /
-					current_firing_block_size[token_dimension];
+					current_firing_block_size[token_dimension] - 1;
 				
 				iter_level--;
 				current_firing_block_size[token_dimension] = 
@@ -161,10 +161,22 @@ smoc_wsdf_edge_descr::calc_high_border_condition_vector() const {
 	svector_type return_vector(u0.size());
 
 	for(unsigned int i = 0; i < u0.size(); i++){
-		return_vector[i] = u0[i] - 1;
+		return_vector[i] = u0[i] + bs[i] - 1;
 	}
 
 	return return_vector;
+}
+
+smoc_wsdf_edge_descr::uvector_type 
+smoc_wsdf_edge_descr::max_data_element_id() const{
+	uvector_type return_vector(src_firing_blocks[src_firing_blocks.size()-1]);
+	
+	for(unsigned int i = 0; i < return_vector.size(); i++){
+		return_vector[i] --;
+	}
+
+	return return_vector;
+
 }
 
 
