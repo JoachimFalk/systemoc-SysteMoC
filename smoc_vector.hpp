@@ -70,7 +70,7 @@ public:
 public:
 	/// Lexicographic comparison
 	bool is_lex_smaller_than(const this_type& vec) const {
-		for(size_type i = 0; i < size(); i++){
+		for(size_type i = 0; i < (*this).size(); i++){
 			if ((*this)[i] < vec[i]){
 				return true;
 			}else if((*this)[i] > vec[i]){
@@ -82,7 +82,7 @@ public:
 	}
 
 	bool is_lex_larger_than(const this_type& vec) const {
-		for(size_type i = 0; i < size(); i++){
+		for(size_type i = 0; i < (*this).size(); i++){
 			if ((*this)[i] > vec[i]){
 				return true;
 			}else if((*this)[i] < vec[i]){
