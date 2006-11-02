@@ -39,7 +39,7 @@ DX_RTF_FEATURE(OFF)
 DX_XML_FEATURE(OFF)
 DX_PDF_FEATURE(ON)
 DX_PS_FEATURE(OFF)
-DX_INIT_DOXYGEN([SysteMoC--mainline-], [doxygen.cfg], [doxygen-doc])
+DX_INIT_DOXYGEN([SysteMoC--event-scheduler], [doxygen.cfg], [doxygen-doc])
 
 AC_DISABLE_SHARED
 AM_PROG_LIBTOOL
