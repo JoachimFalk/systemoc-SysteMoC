@@ -257,7 +257,9 @@ public:
 protected:
 	const unsigned _token_dimensions;
 	const mapping_matrix_type mapping_matrix;
+public:
 	const mapping_offset_type mapping_offset;
+protected:
 	const data_element_id_type _max_data_element_id;
 
 	///This table indicates for each column of the

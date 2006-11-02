@@ -360,12 +360,32 @@ public:
   smoc_simple_md_buffer_kind(const buffer_init& i)
     : smoc_md_buffer_mgmt_base(i),
 			buffer_lines(i.buffer_lines),
-			wr_schedule_period_start(0),
-			wr_max_data_element_offset(size_token_space[_token_dimensions-1]-1),
 			rd_schedule_period_start(0),
-			rd_min_data_element_offset(0),
-			free_lines(i.buffer_lines),
-			init(true){}
+			rd_min_data_element_offset(0)
+	{
+		//currently, we only support initial data elements in
+		//the highest token dimension
+		for(unsigned int i = 0; i < _token_dimensions-1; i++){
+			assert(src_data_el_mapper.mapping_offset[i] == 0);
+		}
+
+		// wr_schedule_period_start = k* buffer_lines - size_token_space[_token_dimensions-1]
+		// whereas k the smallest possible integer, such that wr_schedule_period_start > 0
+		wr_schedule_period_start = buffer_lines - 
+			(size_token_space[_token_dimensions-1] % buffer_lines);
+
+
+		wr_max_data_element_offset = 
+			size_token_space[_token_dimensions-1] + 
+			 src_data_el_mapper.mapping_offset[_token_dimensions - 1] - 1;
+
+		assert(src_data_el_mapper.mapping_offset[_token_dimensions - 1] >= 0);
+		assert(src_data_el_mapper.mapping_offset[_token_dimensions - 1] <= buffer_lines);
+		free_lines = buffer_lines - 
+			src_data_el_mapper.mapping_offset[_token_dimensions - 1];
+
+
+	}
 
 	virtual ~smoc_simple_md_buffer_kind(){}
 
@@ -423,9 +443,6 @@ private:
 	/// for storage of the given data element
 	unsigned long calc_req_new_lines(const data_element_id_type& data_element_id, 
 																	 bool new_schedule_period) const;
-
-	/// This flag is set before the first write access
-	bool init;
   
 };
 

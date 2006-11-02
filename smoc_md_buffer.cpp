@@ -20,7 +20,7 @@ bool smoc_simple_md_buffer_kind::allocate_buffer(const smoc_md_loop_iterator_kin
 	const bool new_schedule_period = src_iterator.is_new_schedule_period();
 
 	//check, whether source iterator has started a new schedule period
-	if ((new_schedule_period) && (!init)){
+	if (new_schedule_period){
 		wr_schedule_period_start += 
 			size_token_space[_token_dimensions-1];
 
@@ -49,11 +49,9 @@ bool smoc_simple_md_buffer_kind::allocate_buffer(const smoc_md_loop_iterator_kin
 	}else if (new_lines > 0){
 		free_lines -= new_lines;
 		wr_max_data_element_offset = max_src_data_element_id[_token_dimensions-1];
-		init = false;
 		return_value = true;		
 	}else{
 		// buffer line already allocated
-		init = false;
 		return_value = true;
 	}	
 
