@@ -30,8 +30,11 @@
 #include <systemc.h>
 #include <vector>
 
-template <typename T> class smoc_port_in;
-template <typename T> class smoc_port_out;
+template <typename T, template <typename, typename> class R> 
+class smoc_port_in_base;
+
+template <typename T, template <typename, typename> class R> 
+class smoc_port_out_base;
 
 namespace Expr {
 
@@ -44,8 +47,8 @@ private:
   const smoc_root_port &port;
   size_t                pos;
 public:
-  template <typename T>
-  ASTNodeToken(const smoc_port_in<T> &port, size_t pos)
+  template <typename T, template <typename, typename> class R>
+  ASTNodeToken(const smoc_port_in_base<T,R> &port, size_t pos)
     : ASTLeafNode(static_cast<T*>(NULL)),
       port(port), pos(pos) {}
 
@@ -55,55 +58,55 @@ public:
   std::string           getNodeParam() const;
 };
 
-template<typename T>
+template<typename T, template <typename, typename> class R>
 class DToken {
 public:
   typedef const T    value_type;
-  typedef DToken<T>  this_type;
+  typedef DToken<T,R>  this_type;
   
   friend class Value<this_type>;
   friend class AST<this_type>;
 private:
-  smoc_port_in<T> &p;
+  smoc_port_in_base<T,R> &p;
   size_t           pos;
 public:
-  explicit DToken(smoc_port_in<T> &p, size_t pos)
+  explicit DToken(smoc_port_in_base<T,R> &p, size_t pos)
     : p(p), pos(pos) {}
 };
 
-template<typename T>
-struct Value<DToken<T> > {
+template<typename T, template <typename, typename> class R>
+struct Value<DToken<T,R> > {
   typedef const T result_type;
   
-  static inline
-  result_type apply(const DToken<T> &e)
-    { return e.p[e.pos]; }
+	static inline
+	result_type apply(const DToken<T,R> &e)
+  { return e.p[e.pos]; }
 };
 
-template<typename T>
-struct AST<DToken<T> > {
+template<typename T, template <typename, typename> class R>
+struct AST<DToken<T,R> > {
   typedef PASTNode result_type;
   
   static inline
-  result_type apply(const DToken<T> &e)
+  result_type apply(const DToken<T,R> &e)
     { return PASTNode(new ASTNodeToken(e.p, e.pos)); }
 };
 
-template<typename T>
-struct D<DToken<T> >: public DBase<DToken<T> > {
-  D(smoc_port_in<T> &p, size_t pos)
-    : DBase<DToken<T> >(DToken<T>(p,pos)) {}
+template<typename T, template <typename, typename> class R>
+struct D<DToken<T,R> >: public DBase<DToken<T,R> > {
+	D(smoc_port_in_base<T,R> &p, size_t pos)
+			: DBase<DToken<T,R> >(DToken<T,R>(p,pos)) {}
 };
 
 // Make a convenient typedef for the token type.
-template<typename T>
+template<typename T, template <typename, typename> class R>
 struct Token {
-  typedef D<DToken<T> > type;
+  typedef D<DToken<T, R> > type;
 };
 
-template <typename T>
-typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
-  { return typename Token<T>::type(p,pos); }
+template <typename T, template <typename, typename> class R>
+typename Token<T,R>::type token(smoc_port_in_base<T,R> &p, size_t pos)
+  { return typename Token<T,R>::type(p,pos); }
 
 /****************************************************************************
  * DPortTokens represents a count of available tokens or free space in
@@ -475,12 +478,13 @@ protected:
   }
 };
 
-template <typename T>
-class smoc_port_in
-: public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T, smoc_ring_access> > {
+template <typename T,
+					template <typename, typename> class R>
+class smoc_port_in_base
+: public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R> > {
 public:
   typedef T				    data_type;
-  typedef smoc_port_in<data_type>	    this_type;
+  typedef smoc_port_in_base<data_type,R>	    this_type;
   typedef typename this_type::iface_type    iface_type;
   typedef typename iface_type::access_type  ring_type;
   
@@ -491,7 +495,7 @@ public:
 #endif
   template <class E> friend class Expr::Value;
 protected:
-  typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T, smoc_ring_access> > base_type;
+  typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R > > base_type;
 
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
@@ -512,10 +516,9 @@ protected:
   void commExec(size_t n)
     { return (*this)->commExecIn(n); }
 #endif
+
 public:
-//void transferIn( const T *in ) { /*storagePushBack(in);*/ incrDoneCount(); }
-//public:
-  smoc_port_in(): base_type(sc_gen_unique_name("smoc_port_in")) {}
+  smoc_port_in_base(): base_type(sc_gen_unique_name("smoc_port_in")) {}
   
   bool isInput() const { return true; }
   
@@ -524,7 +527,7 @@ public:
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->blockEventOut(n); }
   
-  typename Expr::Token<T>::type getValueAt(size_t n)
+	typename Expr::Token<T,R>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
   typename Expr::PortTokens<this_type>::type getConsumableTokens()
     { return Expr::portTokens(*this); }
@@ -553,12 +556,14 @@ public:
     { bind(parent_); }
 };
 
-template <typename T>
-class smoc_port_out
-: public smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T, smoc_ring_access> > {
+
+template <typename T,
+					template <typename, typename> class R>
+class smoc_port_out_base
+: public smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T,R> > {
 public:
   typedef T				    data_type;
-  typedef smoc_port_out<data_type>	    this_type;
+	typedef smoc_port_out_base<data_type,R>	    this_type;
   typedef typename this_type::iface_type    iface_type;
   typedef typename iface_type::access_type  ring_type;
   
@@ -569,7 +574,7 @@ public:
 #endif
   template <class E> friend class Expr::Value;
 protected:
-  typedef smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T, smoc_ring_access> > base_type;
+  typedef smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T,R> > base_type;
 
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
@@ -591,9 +596,7 @@ protected:
     { return (*this)->commExecOut(n); }
 #endif
 public:
-//  const T *transferOut( void ) { /*return storageElement(*/;incrDoneCount()/*)*/; return NULL; }
-//public:
-  smoc_port_out(): base_type(sc_gen_unique_name("smoc_port_out")) {}
+  smoc_port_out_base(): base_type(sc_gen_unique_name("smoc_port_out")) {}
   
   bool isInput() const { return false; }
   
@@ -627,6 +630,39 @@ public:
     { interface_.is_v1_out_port = this->is_smoc_v1_port; bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
+};
+
+template <typename T>
+class smoc_port_in
+: public smoc_port_in_base<T, smoc_ring_access > {
+public:
+  typedef T				    data_type;
+  typedef smoc_port_in<data_type>	    this_type;
+  typedef typename this_type::iface_type    iface_type;
+  typedef typename iface_type::access_type  ring_type;
+
+protected:
+	typedef smoc_port_in_base<T, smoc_ring_access > base_type;
+  
+public:
+  smoc_port_in(): base_type() {}
+};
+
+
+template <typename T>
+class smoc_port_out
+: public smoc_port_out_base<T, smoc_ring_access > {
+public:
+  typedef T				    data_type;
+  typedef smoc_port_out<data_type>	    this_type;
+  typedef typename this_type::iface_type    iface_type;
+  typedef typename iface_type::access_type  ring_type;
+
+protected:
+	typedef smoc_port_out_base<T, smoc_ring_access > base_type;
+  
+public:
+  smoc_port_out(): base_type() {}
 };
 
 #endif // _INCLUDED_SMOC_POPT_HPP
