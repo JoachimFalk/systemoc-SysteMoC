@@ -1319,7 +1319,7 @@ template<class A>
 class DUnOp<A,DOpUnType> {
 public:
   typedef DUnOp<A,DOpUnType>   this_type;
-  typedef CoSupport::oneof_typeid value_type;
+  typedef unsigned int         value_type;
   
   A a;
   
@@ -1330,11 +1330,11 @@ public:
 };
 
 template <class TO, class A>
-D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<CoSupport::oneof_typeid>,DOpBinEq> >
+D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<unsigned int>,DOpBinEq> >
 isType(const D<A> &a) {
-  return D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<CoSupport::oneof_typeid>,DOpBinEq> >(
+  return D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<unsigned int>,DOpBinEq> >(
     DUnOp<A,DOpUnType>(a.getExpr()),
-    DLiteral<CoSupport::oneof_typeid>(CoSupport::detail::oneofTypeid<typename A::value_type,TO>::type())
+    DLiteral<unsigned int>(CoSupport::oneofTypeid<typename A::value_type,TO>::type)
   );
 }
 
