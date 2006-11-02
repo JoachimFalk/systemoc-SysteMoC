@@ -1234,7 +1234,7 @@ D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<CoSupport::oneof_typeid>,DOpBinEq> >
 isType(const D<A> &a) {
   return D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<CoSupport::oneof_typeid>,DOpBinEq> >(
     DUnOp<A,DOpUnType>(a.getExpr()),
-    DLiteral<CoSupport::oneof_typeid>(CoSupport::detail::oneofTypeid<typename A::value_type,TO>::type())
+    DLiteral<CoSupport::oneof_typeid>(CoSupport::oneofTypeid<typename A::value_type,TO>::type)
   );
 }
 
