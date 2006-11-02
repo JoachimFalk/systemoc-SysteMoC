@@ -6,6 +6,9 @@
   of dimensions
  */
 
+#include <stdlib.h>
+#include <cassert>
+
 template <typename DATA_TYPE>
 class smoc_md_array{
 public:
