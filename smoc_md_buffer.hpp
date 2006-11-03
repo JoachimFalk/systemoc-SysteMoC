@@ -6,7 +6,9 @@
 #include <smoc_vector.hpp>
 #include <smoc_md_array.hpp>
 
-#define VERBOSE_LEVEL 101
+#define VERBOSE_LEVEL 102
+///101: operator[]
+///102: border processing
 
 /// This class represents the base class for all SMOC buffer models.
 /// It is responsible for buffer management.
@@ -130,7 +132,18 @@ public:
 		/// Set limit, how many windows can be accessed
 		/// dummy function
 		void setLimit(size_t limit) {
+#if VERBOSE_LEVEL == 101
+			dout << "Enter smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::setLimit"
+					 << endl;
+			dout << inc_level;
+			dout << "limit = " << limit << endl;
+#endif
 			assert(limit <= 1);
+#if VERBOSE_LEVEL == 101
+			dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::setLimit"
+					 << endl;
+			dout << dec_level;
+#endif
 		};
 #endif
 		
@@ -150,12 +163,39 @@ public:
 		/// Check, whether data element is situated on extended border
 		virtual border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration,
 																									bool& is_border) const { 
+#if VERBOSE_LEVEL == 102
+			dout << "Enter smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::is_ext_border" << endl;
+			dout << inc_level;
+			dout << "snk_iterator->iteration_vector() = " << snk_iterator->iteration_vector();
+			dout << endl;
+			dout << "window_iteration = " << window_iteration;
+			dout << endl;
+#endif
+
 			border_condition_vector_type border_condition_vector = 
 				snk_data_el_mapper->calc_base_border_condition_vector(snk_iterator->iteration_vector());
+#if VERBOSE_LEVEL == 102
+			dout << "base_border_condition_vector = " << border_condition_vector;
+			dout << endl;
+#endif
 			border_condition_vector += 
 				snk_data_el_mapper->calc_border_condition_offset(window_iteration);			
 
-			return snk_data_el_mapper->is_border_pixel(border_condition_vector, is_border);
+#if VERBOSE_LEVEL == 102
+			dout << "border_condition_vector = " << border_condition_vector;
+			dout << endl;
+#endif
+			
+			border_type_vector_type
+				return_vector(snk_data_el_mapper->is_border_pixel(border_condition_vector, is_border));
+
+#if VERBOSE_LEVEL == 102
+			dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::is_ext_border" << endl;
+			dout << dec_level;
+#endif
+
+			return return_vector;
+			
 		}
 		
 	protected:
@@ -403,7 +443,7 @@ public:
 	};
 
 
-template<class S, class T>
+	template<class S, class T>
 	class smoc_md_storage_access_snk
 		: public smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk<S,T>
 	{
@@ -435,8 +475,18 @@ template<class S, class T>
 		
 		/* Data Element Access */
 		virtual return_type operator[](const iter_domain_vector_type& window_iteration){
+#if VERBOSE_LEVEL == 101
+			dout << "Enter smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
+					 << endl;
+			dout << inc_level;
+#endif
 
 			checkLimit(window_iteration);
+
+#if VERBOSE_LEVEL == 101
+			dout << "window_iteration = " << window_iteration;
+			dout << endl;
+#endif
 
 			unsigned token_dimensions = (*this).snk_data_el_mapper->token_dimensions();
 
@@ -447,20 +497,48 @@ template<class S, class T>
 
 			data_element_id_type data_element_id(token_dimensions);			
 			this->snk_data_el_mapper->get_window_data_element_offset(window_iteration,
-																															 data_element_id);
-				
-			
+																															 data_element_id);			
 			data_element_id += base_data_element_id;
+
+#if VERBOSE_LEVEL == 101
+			dout << "data_element_id = " << data_element_id;
+			dout << endl;
+#endif
+
 			data_element_id[token_dimensions-1] += 
 				(*simple_md_buffer).rd_schedule_period_start;
 			data_element_id[token_dimensions-1] = 
-				data_element_id[token_dimensions-1] % (*simple_md_buffer).buffer_lines;			
+				data_element_id[token_dimensions-1] % (*simple_md_buffer).buffer_lines;
 
-			return (*storage)[data_element_id];
+#if VERBOSE_LEVEL == 101
+			dout << "Array element = " << data_element_id;
+			dout << endl;
+#endif
+
+			return_type return_value = (*storage)[data_element_id];
+
+#if VERBOSE_LEVEL == 101
+			dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
+					 << endl;
+			dout << dec_level;
+#endif
+
+			return return_value;
 		}
 		
 		virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const{
+#if VERBOSE_LEVEL == 101
+			dout << "Enter smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
+					 << endl;
+			dout << inc_level;
+#endif
+
 			checkLimit(window_iteration);
+
+#if VERBOSE_LEVEL == 101
+			dout << "window_iteration = " << window_iteration;
+			dout << endl;
+#endif
 
 			unsigned token_dimensions = (*this).snk_data_el_mapper->token_dimensions();
 
@@ -471,16 +549,33 @@ template<class S, class T>
 
 			data_element_id_type data_element_id(token_dimensions);			
 			this->snk_data_el_mapper->get_window_data_element_offset(window_iteration,
-																															 data_element_id);
-				
-			
+																															 data_element_id);			
 			data_element_id += base_data_element_id;
+
+#if VERBOSE_LEVEL == 101
+			dout << "data_element_id = " << data_element_id;
+			dout << endl;
+#endif
+
 			data_element_id[token_dimensions-1] += 
 				(*simple_md_buffer).rd_schedule_period_start;
 			data_element_id[token_dimensions-1] = 
-				data_element_id[token_dimensions-1] % (*simple_md_buffer).buffer_lines;			
+				data_element_id[token_dimensions-1] % (*simple_md_buffer).buffer_lines;
 
-			return (*storage)[data_element_id];
+#if VERBOSE_LEVEL == 101
+			dout << "Array element = " << data_element_id;
+			dout << endl;
+#endif
+
+			return_type return_value = (*storage)[data_element_id];
+
+#if VERBOSE_LEVEL == 101
+			dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
+					 << endl;
+			dout << dec_level;
+#endif
+
+			return return_value;
 
 		}
 

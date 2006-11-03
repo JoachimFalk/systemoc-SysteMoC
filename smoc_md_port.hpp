@@ -12,7 +12,7 @@
 #define PORT_IN_SMOC_MD_STORAGE_ACCESS smoc_simple_md_buffer_kind::smoc_md_storage_access_snk
 #define PORT_OUT_SMOC_MD_STORAGE_ACCESS smoc_simple_md_buffer_kind::smoc_md_storage_access_src
 
-
+#define VERBOSE_LEVEL 101
 
 
 /// This class perfoms a port access with
@@ -38,10 +38,10 @@ public:
 	{
 		friend class smoc_cst_border_ext<T>;
 	public:
-		border_init(return_type& value)
+		border_init(const T& value)
 			: value(value){};
 	protected:
-		return_type value;
+		const T value;
 	};
 	
 public:
@@ -53,19 +53,34 @@ public:
 	
 public:
 	return_type operator[](const iter_domain_vector_type& window_iteration) const{
+#if VERBOSE_LEVEL == 101
+		dout << "Enter smoc_cst_border_ext::operator[]" << endl;
+		dout << inc_level;
+#endif
 		bool is_border;
 		border_type_vector_type 
 			border_type(is_ext_border(window_iteration,is_border));
+
+#if VERBOSE_LEVEL == 101
+		dout << "window_iteration = " << window_iteration;
+		if (is_border)
+			dout << " is situated on extended border.";
+		dout << endl;
+#endif
+				
+
+		return_type return_value(is_border ? border_value : base_type::operator[](window_iteration));
+
+#if VERBOSE_LEVEL == 101
+		dout << "Leave smoc_cst_border_ext::operator[]" << endl;
+		dout << dec_level;
+#endif
 		
-		if (is_border){
-			return border_value;
-		}else{
-			return base_type::operator[](window_iteration);
-		}
+		return return_value;
 	}	
 
 private:
-	return_type border_value;
+	const T border_value;
 };
 
 

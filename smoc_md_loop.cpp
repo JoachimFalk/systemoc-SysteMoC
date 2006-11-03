@@ -2,13 +2,14 @@
 #include <smoc_md_loop.hpp>
 #include <smoc_debug_out.hpp>
 
-#define VERBOSE_LEVEL 104
+#define VERBOSE_LEVEL 106
 // 100: verbose execution
 // 101: general debug
 // 102: memory access error
 // 103: get_req_src_data_element
 // 104: calc_eff_window_displacement
 // 105: max_data_element_id
+// 106: Border processing
 
 /* ******************************************************************************* */
 /*                              smoc_md_loop_iterator_kind                         */
@@ -848,7 +849,11 @@ smoc_md_loop_snk_data_element_mapper::calc_window_border_condition_vector(const 
 
 smoc_md_loop_snk_data_element_mapper::border_condition_vector_type
 smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_domain_vector_type& window_iteration) const {
-	border_condition_vector_type return_vector(window_iteration.size());
+#if VERBOSE_LEVEL == 106
+	dout << "Enter smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset" << endl;
+	dout << inc_level;
+#endif
+	border_condition_vector_type return_vector(window_iteration.size(),(id_type)0);
 
 	for(unsigned row = 0; row < border_condition_matrix.size1(); row++){
 		for(unsigned int delta_col = 0, col = border_condition_matrix.size2() - _token_dimensions;
@@ -858,6 +863,11 @@ smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_do
 				border_condition_matrix(row,col) * window_iteration[delta_col];
 		}
 	}
+
+#if VERBOSE_LEVEL == 106
+	dout << "Leave smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset" << endl;
+	dout << dec_level;
+#endif
 
 	return return_vector;
 }
