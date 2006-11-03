@@ -204,13 +204,6 @@ public:
 													 id_type& schedule_period_offset
 													 ) const;	
 	
-  /// Same as above, but use a separate window iteration
-	void get_data_element_id(const smoc_md_loop_iterator_kind& loop_iterator,
-													 const iter_domain_vector_type& window_iteration,
-													 data_element_id_type& data_element_id,
-													 id_type& schedule_period_offset
-													 ) const;
-
 	/// Same as above, but without taken window iteration into account
 	/// The schedule period offset is NOT calculated. Instead, data element
 	/// identifiers might be returned which are larger than one schedule
@@ -222,6 +215,8 @@ public:
 	/// Calculate the data element offset which is caused by the window
 	/// iteration. Note: ONLY the window iteration must be passed as
 	/// argument, not the complete iteration vector
+	/// The order of the window_iteration must be the same than the
+	/// iteration vector itself!
 	void get_window_data_element_offset(const iter_domain_vector_type& window_iteration,
 																			data_element_id_type& data_element_offset) const;
 
@@ -349,12 +344,6 @@ public:
 	void get_data_element_id(const iter_domain_vector_type& iteration_vector,
 													 data_element_id_type& data_element_id) const;
 	
-  /// Same as above, but use a separate window iteration
-	void get_data_element_id(const smoc_md_loop_iterator_kind& loop_iterator,
-													 const iter_domain_vector_type& window_iteration,
-													 data_element_id_type& data_element_id
-													 ) const;
-
 	/// Same as above, but without taking window iteration into account
 	void get_base_data_element_id(const iter_domain_vector_type& iteration_vector,
 																data_element_id_type& data_element_id) const;
@@ -362,6 +351,8 @@ public:
 	/// Calculate the data element offset which is caused by the window
 	/// iteration. Note: ONLY the window iteration must be passed as
 	/// argument, not the complete iteration vector
+	/// The order of the window_iteration must be the SAME than in the
+	/// iterator itself.
 	void get_window_data_element_offset(const iter_domain_vector_type& window_iteration,
 																			data_element_id_type& data_element_offset) const;
 	

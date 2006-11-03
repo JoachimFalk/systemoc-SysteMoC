@@ -110,43 +110,6 @@ void smoc_md_loop_src_data_element_mapper::get_data_element_id(const iter_domain
 	
 }
 
-void smoc_md_loop_src_data_element_mapper::get_data_element_id(const smoc_md_loop_iterator_kind& loop_iterator,
-																															 const iter_domain_vector_type& window_iteration,
-																															 data_element_id_type& data_element_id,
-																															 id_type& schedule_period_offset
-																															 ) const {
-
-	//init return-vector
-	data_element_id = mapping_offset;
-	
-	for(unsigned i = 0; 
-			i < loop_iterator.iterator_depth() - loop_iterator.window_dimensions();
-			i++){
-		for(unsigned j = 0; j < mapping_matrix.size1(); j++){
-			data_element_id[j] += mapping_matrix(j,i) * loop_iterator[i];
-		}
-	}
-
-	for(unsigned i = loop_iterator.iterator_depth() - loop_iterator.window_dimensions();
-			i < loop_iterator.iterator_depth();
-			i++){
-		for(unsigned j = 0; j < mapping_matrix.size1(); j++){
-			data_element_id[j] += mapping_matrix(j,i) * 
-				window_iteration[i - (loop_iterator.iterator_depth() - loop_iterator.window_dimensions())];
-		}
-	}
-
-
-	//Calculate schedule period offset
-	schedule_period_offset = 
-		data_element_id[_token_dimensions-1] / (_max_data_element_id[_token_dimensions-1]+1);
-
-	data_element_id[_token_dimensions-1] -= 
-		schedule_period_offset *  (_max_data_element_id[_token_dimensions-1]+1);
-
-
-}
-
 void smoc_md_loop_src_data_element_mapper::get_base_data_element_id(const iter_domain_vector_type& iteration_vector,
 																																		data_element_id_type& data_element_id
 																																		) const {
@@ -362,32 +325,6 @@ void smoc_md_loop_snk_data_element_mapper::get_data_element_id(const iter_domain
 	data_element_id = mapping_offset;
 	data_element_id += prod(mapping_matrix, iteration_vector);
 
-}
-
-void smoc_md_loop_snk_data_element_mapper::get_data_element_id(const smoc_md_loop_iterator_kind& loop_iterator,
-																															 const iter_domain_vector_type& window_iteration,
-																															 data_element_id_type& data_element_id
-																															 ) const {
-
-	//init return-vector
-	data_element_id = mapping_offset;
-	
-	for(unsigned i = 0; 
-			i < loop_iterator.iterator_depth() - loop_iterator.window_dimensions();
-			i++){
-		for(unsigned j = 0; j < mapping_matrix.size1(); j++){
-			data_element_id[j] += mapping_matrix(j,i) * loop_iterator[i];
-		}
-	}
-
-	for(unsigned i = loop_iterator.iterator_depth() - loop_iterator.window_dimensions();
-			i < loop_iterator.iterator_depth();
-			i++){
-		for(unsigned j = 0; j < mapping_matrix.size1(); j++){
-			data_element_id[j] += mapping_matrix(j,i) * 
-				window_iteration[i - (loop_iterator.iterator_depth() - loop_iterator.window_dimensions())];
-		}
-	}
 }
 
 void smoc_md_loop_snk_data_element_mapper::get_base_data_element_id(const iter_domain_vector_type& iteration_vector,

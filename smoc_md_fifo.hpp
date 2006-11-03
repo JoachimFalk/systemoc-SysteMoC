@@ -373,6 +373,8 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 		//new schedule period has been started
 		schedule_period_difference++;
 	}
+	/// Memory has been occupied
+	src_allocated = false;
 	
   generate_write_events();
 
@@ -588,14 +590,9 @@ protected:
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
 	dout << inc_level;
 #endif
-		//reserve memory
-		bool temp = (*this).allocate_buffer((*this).src_loop_iterator);
-		assert(temp);
-
-		r.SetTokenDimension((*this)._token_dimensions);
 		initStorageAccess(r);
 		r.SetBuffer(storage);
-		r.SetBaseIteration((*this).src_loop_iterator);
+		r.SetIterator(snk_loop_iterator);
 #if VERBOSE_LEVEL == 101
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
 	dout << dec_level;
@@ -618,10 +615,9 @@ protected:
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
 	dout << inc_level;
 #endif
-		r.SetTokenDimension((*this)._token_dimensions);
 		initStorageAccess(r);
 		r.SetBuffer(storage);
-		r.SetBaseIteration((*this).snk_loop_iterator);
+		r.SetIterator(src_loop_iterator);
 #if VERBOSE_LEVEL == 101
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
 	dout << dec_level;

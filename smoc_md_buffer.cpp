@@ -5,56 +5,82 @@
 
 #define VERBOSE_LEVEL 102
 ///101: general Debug
-///102: unusedStorage
+///102: allocate_buffer
 
 bool smoc_simple_md_buffer_kind::allocate_buffer(const smoc_md_loop_iterator_kind& src_iterator) {
 
-	bool return_value;
+	bool return_value = src_allocated;
 
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Enter smoc_simple_md_buffer_kind::allocate_buffer" << endl;
 	dout << inc_level;
 #endif
 
-	unsigned long wr_schedule_period_start_old(wr_schedule_period_start);
-	const bool new_schedule_period = src_iterator.is_new_schedule_period();
+	if (!return_value){
 
-	//check, whether source iterator has started a new schedule period
-	if (new_schedule_period){
-		wr_schedule_period_start += 
-			size_token_space[_token_dimensions-1];
+		unsigned long wr_schedule_period_start_old(wr_schedule_period_start);
+		const bool new_schedule_period = src_iterator.is_new_schedule_period();
 
-		wr_schedule_period_start =
-			wr_schedule_period_start % buffer_lines;
-	}
-	
-	data_element_id_type max_src_data_element_id(_token_dimensions);
-	id_type schedule_period_offset;
-	
-	//Get data element with maximum coordinate
-	src_data_el_mapper.max_data_element_id(src_iterator,
-																				 max_src_data_element_id,
-																				 schedule_period_offset);
-	max_src_data_element_id[_token_dimensions-1] +=
-		schedule_period_offset * size_token_space[_token_dimensions-1];
-
-	// Calculate number of new lines
-	unsigned long new_lines = calc_req_new_lines(max_src_data_element_id,
-																							 new_schedule_period);
-
-	if(free_lines < new_lines){
-		//buffer allocation failed
-		wr_schedule_period_start = wr_schedule_period_start_old;
-		return_value = false;
-	}else if (new_lines > 0){
-		free_lines -= new_lines;
-		wr_max_data_element_offset = max_src_data_element_id[_token_dimensions-1];
-		return_value = true;		
+		//check, whether source iterator has started a new schedule period
+		if (new_schedule_period){
+#if VERBOSE_LEVEL == 102
+			dout << "New schedule period" << endl;
+#endif
+			wr_schedule_period_start += 
+				size_token_space[_token_dimensions-1];
+			
+			wr_schedule_period_start =
+				wr_schedule_period_start % buffer_lines;
+		}
+		
+		data_element_id_type max_src_data_element_id(_token_dimensions);
+		id_type schedule_period_offset;
+		
+		//Get data element with maximum coordinate
+		src_data_el_mapper.max_data_element_id(src_iterator,
+																					 max_src_data_element_id,
+																					 schedule_period_offset);
+		max_src_data_element_id[_token_dimensions-1] +=
+			schedule_period_offset * size_token_space[_token_dimensions-1];
+#if VERBOSE_LEVEL == 102
+		dout << "max_src_data_element_id = " << max_src_data_element_id;
+		dout << endl;
+#endif
+		
+		// Calculate number of new lines
+		unsigned long new_lines = calc_req_new_lines(max_src_data_element_id,
+																								 new_schedule_period);
+#if VERBOSE_LEVEL == 102
+		dout << "Required " << new_lines << " new lines" << endl;
+#endif
+		
+		if(free_lines < new_lines){
+			//buffer allocation failed
+			wr_schedule_period_start = wr_schedule_period_start_old;
+			return_value = false;
+		}else if (new_lines > 0){
+			free_lines -= new_lines;
+			wr_max_data_element_offset = max_src_data_element_id[_token_dimensions-1];
+			return_value = true;		
+			src_allocated = true;
+		}else{
+			// buffer line already allocated
+			return_value = true;
+			src_allocated = true;
+		}			
+#if VERBOSE_LEVEL == 102
+		if (return_value){
+			dout << "Allocation succeeded" << endl;
+		}else{
+			dout << "Allocation failed" << endl;
+		}
+#endif
 	}else{
-		// buffer line already allocated
-		return_value = true;
-	}	
-
+#if VERBOSE_LEVEL == 102
+		dout << "Buffer already allocated" << endl;
+#endif
+	}
+		
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Leave smoc_simple_md_buffer_kind::allocate_buffer" << endl;
 	dout << dec_level;
@@ -63,68 +89,79 @@ bool smoc_simple_md_buffer_kind::allocate_buffer(const smoc_md_loop_iterator_kin
 	return return_value;
 }
 
-
-
 bool smoc_simple_md_buffer_kind::unusedStorage(const smoc_md_loop_iterator_kind& src_iterator) const {
-	unsigned long wr_schedule_period_start(this->wr_schedule_period_start);
-	const bool new_schedule_period = src_iterator.is_new_schedule_period();
 
-	bool return_value;
+	bool return_value = src_allocated;
 
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Enter smoc_simple_md_buffer_kind::unusedStorage" << endl;
 	dout << inc_level;
 #endif
 
-	//check, whether source iterator has started a new schedule period
-	if (new_schedule_period){
+	if (!return_value){
+
+		unsigned long wr_schedule_period_start = this->wr_schedule_period_start;
+		const bool new_schedule_period = src_iterator.is_new_schedule_period();
+
+		//check, whether source iterator has started a new schedule period
+		if (new_schedule_period){
 #if VERBOSE_LEVEL == 102
-		dout << "New Schedule period." << endl;
+			dout << "New schedule period" << endl;
 #endif
-		wr_schedule_period_start += 
-			size_token_space[_token_dimensions-1];
-
-		wr_schedule_period_start =
-			wr_schedule_period_start % buffer_lines;
-	}
-	
-	data_element_id_type max_src_data_element_id(_token_dimensions);
-	id_type schedule_period_offset;
-	
-	//Get data element with maximum coordinate
-	src_data_el_mapper.max_data_element_id(src_iterator,
-																				 max_src_data_element_id,
-																				 schedule_period_offset);
-	max_src_data_element_id[_token_dimensions-1] +=
-		schedule_period_offset * size_token_space[_token_dimensions-1];
-
+			wr_schedule_period_start += 
+				size_token_space[_token_dimensions-1];
+			
+			wr_schedule_period_start =
+				wr_schedule_period_start % buffer_lines;
+		}
+		
+		data_element_id_type max_src_data_element_id(_token_dimensions);
+		id_type schedule_period_offset;
+		
+		//Get data element with maximum coordinate
+		src_data_el_mapper.max_data_element_id(src_iterator,
+																					 max_src_data_element_id,
+																					 schedule_period_offset);
+		max_src_data_element_id[_token_dimensions-1] +=
+			schedule_period_offset * size_token_space[_token_dimensions-1];
 #if VERBOSE_LEVEL == 102
-	dout << "max_src_data_element_id = " << max_src_data_element_id;
-	dout << endl;
+		dout << "max_src_data_element_id = " << max_src_data_element_id;
+		dout << endl;
 #endif
-
-	// Calculate number of new lines
-	unsigned long new_lines = calc_req_new_lines(max_src_data_element_id,
-																							 new_schedule_period);
-#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
-	dout << "Requires " << new_lines << " new lines" << endl;
-	dout << "free_lines = " << free_lines << endl;
+		
+		// Calculate number of new lines
+		unsigned long new_lines = calc_req_new_lines(max_src_data_element_id,
+																								 new_schedule_period);
+#if VERBOSE_LEVEL == 102
+		dout << "Would require " << new_lines << " new lines" << endl;
 #endif
-
-	if(free_lines < new_lines){
-		//buffer allocation failed
-		return_value = false;
+		
+		if(free_lines < new_lines){
+			//buffer allocation failed
+			return_value = false;
+		}else{
+			//allocation possible
+			return_value = true;
+		}			
+#if VERBOSE_LEVEL == 102
+		if (return_value){
+			dout << "Allocation possible" << endl;
+		}else{
+			dout << "Allocation impossible" << endl;
+		}
+#endif
 	}else{
-		return_value = true;
+#if VERBOSE_LEVEL == 102
+		dout << "Buffer already allocated" << endl;
+#endif
 	}
-
+		
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Leave smoc_simple_md_buffer_kind::unusedStorage" << endl;
 	dout << dec_level;
 #endif
 
 	return return_value;
-
 }
 
 
