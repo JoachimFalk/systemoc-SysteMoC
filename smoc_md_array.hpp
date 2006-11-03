@@ -115,7 +115,8 @@ unsigned long smoc_md_array<DATA_TYPE>::get_mem_position(const T2& idx) const{
   unsigned long mul_factor = 1;  
 
   for (unsigned int i = 0; i < nbr_dimensions; i++){
-    assert(idx[i] < buffer_extensions[i]);
+		assert(idx[i] >= 0);
+    assert((unsigned long)idx[i] < buffer_extensions[i]);
     mem_pos += idx[i] * mul_factor;
     mul_factor *= buffer_extensions[i];
   }

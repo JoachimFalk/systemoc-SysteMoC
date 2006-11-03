@@ -454,7 +454,11 @@ public:
 	/// This function takes a border condition vector and determines for each 
 	/// token dimension, on which border the corresponding data element is
 	/// situated.
-	border_type_vector_type is_border_pixel(const border_condition_vector_type& border_condition_vector) const;
+	/// is_border is true, when the pixel is situated on an extended border.
+	///  On which one precisely can be determined by the return-value
+	/// Otherwise is_border is false
+	border_type_vector_type is_border_pixel(const border_condition_vector_type& border_condition_vector,
+																					bool& is_border) const;
 	
 
 };

@@ -18,101 +18,171 @@ public:
 	public:
 		typedef void type;
 	};
-
+	
 	template <typename DATA_TYPE>
 	class smoc_md_storage_type<const DATA_TYPE> {
 	public:
 		typedef const void type;
 	};
-
-
+	
+	
 public:
-
+	
 	/// This class represents the common base class for access of
 	/// data elements in a multi-dimensional buffer. Border processing
 	/// is not performed.
 	template<class S, class T>
-	class smoc_md_storage_access{
+	class smoc_md_storage_access_src{
 		friend class smoc_md_buffer_mgmt_base;
 	public:
 		typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
-		typedef smoc_md_loop_snk_data_element_mapper::border_condition_vector_type border_condition_vector_type;
-		typedef smoc_md_loop_snk_data_element_mapper::border_type_vector_type border_type_vector_type;
 		
 		typedef S					      storage_type;
 		typedef T					      return_type;
-
+		
 	public:
-
-		smoc_md_storage_access()
-			: is_snk(false),
-				src_data_el_mapper(NULL),
-				snk_data_el_mapper(NULL)				
+		
+		smoc_md_storage_access_src(unsigned token_dimensions = 0)
+			: src_data_el_mapper(NULL),
+				_token_dimensions(token_dimensions)
 		{}
 
+		virtual ~smoc_md_storage_access_src(){};
+		
 	public:
 		
 		/* Buffer Access Setup Routines */
 #ifndef NDEBUG		
-		/// Set window iteration limit
-		virtual void setLimit(const iter_domain_vector_type& window_iteration_limit) {
-			this->window_iteration_limit = window_iteration_limit;
+		/// Set limit, how many windows can be accessed
+		/// dummy function
+		void setLimit(size_t limit) {
+			assert(limit == 1);
 		};
 #endif
-
+		
 		/// Set buffer pointer
 		virtual void SetBuffer(typename smoc_md_buffer_mgmt_base::smoc_md_storage_type<storage_type>::type *storage){};
 		
+		/// Set token dimensions
+		virtual void SetTokenDimension(unsigned token_dimensions){
+			_token_dimensions = token_dimensions;
+		}
+		
 		/// Set base iteration (without iteration levels representing window)
-		/// If the iteration belongs to the sink, is_snk must be set to true, otherwise to false.
-		virtual void setBaseIteration(const iter_domain_vector_type& base_iteration,
-																	bool is_snk) {
-			this->is_snk = is_snk;
-			
-			if (is_snk){
-				base_border_condition_vector = 
-					snk_data_el_mapper->calc_base_border_condition_vector(base_iteration);				
-			}
+		virtual void SetBaseIteration(const smoc_md_loop_iterator_kind& base_iteration){
+#ifndef NDEBUG
+			//set window limit
+			window_iteration_limit = base_iteration.max_window_iteration();
+#endif
 		};
 		
 		/* Data Element Access */
 		virtual return_type operator[](const iter_domain_vector_type& window_iteration) { assert(false); }
-		virtual const return_type operator[](const iter_domain_vector_type& window_iteration) { assert(false); }
+		virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const { assert(false); }
+		
+	protected:
+		
+		const smoc_md_loop_src_data_element_mapper* src_data_el_mapper;
+		iter_domain_vector_type window_iteration_limit;
+		unsigned _token_dimensions;
+		
+		void checkLimit(const iter_domain_vector_type& window_iteration) const{
+#ifndef NDEBUG
+			for(unsigned i = 0; i < window_iteration_limit.size(); i++){
+				assert(window_iteration[i] <= window_iteration_limit[i]);
+			}
+#endif
+		}
+	};
+	
+	template<class S, class T>
+	class smoc_md_storage_access_snk{
+		friend class smoc_md_buffer_mgmt_base;
+	public:
+		typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+		typedef smoc_md_loop_snk_data_element_mapper::border_condition_vector_type border_condition_vector_type;
+		typedef smoc_md_loop_snk_data_element_mapper::border_type border_type;
+		typedef smoc_md_loop_snk_data_element_mapper::border_type_vector_type border_type_vector_type;
+		
+		typedef S					      storage_type;
+		typedef T					      return_type;
+		
+	public:
+		
+		smoc_md_storage_access_snk(unsigned token_dimensions = 0)
+			: snk_data_el_mapper(NULL),
+				base_border_condition_vector(token_dimensions),
+				_token_dimensions(token_dimensions)
+		{}
+
+		virtual ~smoc_md_storage_access_snk(){};
+		
+	public:
+		
+		/* Buffer Access Setup Routines */
+#ifndef NDEBUG		
+		/// Set limit, how many windows can be accessed
+		/// dummy function
+		void setLimit(size_t limit) {
+			assert(limit == 1);
+		};
+#endif
+		
+		/// Set buffer pointer
+		virtual void SetBuffer(typename smoc_md_buffer_mgmt_base::smoc_md_storage_type<storage_type>::type *storage){};
+		
+		/// Set token dimensions
+		virtual void SetTokenDimension(unsigned token_dimensions){
+			base_border_condition_vector.resize(token_dimensions,false);
+			_token_dimensions = token_dimensions;
+		}
+		
+		/// Set base iteration (without iteration levels representing window)
+		virtual void SetBaseIteration(const smoc_md_loop_iterator_kind& base_iteration){
+#ifndef NDEBUG
+			//set window limit
+			window_iteration_limit = base_iteration.max_window_iteration();
+#endif
+			base_border_condition_vector = 
+				snk_data_el_mapper->calc_base_border_condition_vector(base_iteration.iteration_vector());				
+		};
+		
+		/* Data Element Access */
+		virtual return_type operator[](const iter_domain_vector_type& window_iteration) { assert(false); }
+		virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const { assert(false); }
 
 		/// Check, whether data element is situated on extended border
-		virtual border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration) const { 
-			///only sink actor sees extended border
-			assert(is_snk);
+		virtual border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration,
+																									bool& is_border) const { 
 			border_condition_vector_type border_condition_vector = 
 				snk_data_el_mapper->calc_border_condition_offset(window_iteration) +
 				base_border_condition_vector;
 
-			return snk_data_el_mapper->is_border_pixel(border_condition_vector);
+			return snk_data_el_mapper->is_border_pixel(border_condition_vector, is_border);
 		}
 		
 	protected:
 
-		bool is_snk;
-
-		const smoc_md_loop_src_data_element_mapper* src_data_el_mapper;
 		const smoc_md_loop_snk_data_element_mapper* snk_data_el_mapper;
-
 		border_condition_vector_type base_border_condition_vector;
-
 		iter_domain_vector_type window_iteration_limit;
+		unsigned _token_dimensions;
 		
 		void checkLimit(const iter_domain_vector_type& window_iteration) const{
 #ifndef NDEBUG
 			for(unsigned i = 0; i < window_iteration_limit.size(); i++){
 				assert(window_iteration[i] < window_iteration_limit[i]);
 			}
+			bool is_border;
+			is_ext_border(window_iteration, is_border);
+			assert(!is_border);
 #endif
 		}
 	};
 	
 public:
 	
-	/// Dummy buffer init
+	/// buffer init
 	class buffer_init {
 		friend class smoc_md_buffer_mgmt_base;
 	private:
@@ -156,13 +226,17 @@ public:
 	virtual bool unusedStorage(const smoc_md_loop_iterator_kind& src_iterator) const = 0;
 
 
-	/// Init storage access
+  /// Init storage access
 	template<class S, class T>
-	void initStorageAccess(smoc_md_storage_access<S,T> &storage_access){
+	void initStorageAccess(smoc_md_storage_access_src<S,T> &storage_access){
 		storage_access.src_data_el_mapper = &src_data_el_mapper;
+	};
+
+  template<class S, class T>
+	void initStorageAccess(smoc_md_storage_access_snk<S,T> &storage_access){
 		storage_access.snk_data_el_mapper = &snk_data_el_mapper;
-		assert(src_data_el_mapper.token_dimensions() == snk_data_el_mapper.token_dimensions());
-		storage_access.base_border_condition_vector.resize(src_data_el_mapper.token_dimensions(),false);
+		assert(snk_data_el_mapper.token_dimensions() == 
+					 storage_access.base_border_condition_vector.size());
 	};
 
  	/// Create buffer (reserve memory)
@@ -228,38 +302,39 @@ public:
 public:
 
 	template<class S, class T>
-	class smoc_md_storage_access
-		: public smoc_md_buffer_mgmt_base::smoc_md_storage_access<S,T>
+	class smoc_md_storage_access_src
+		: public smoc_md_buffer_mgmt_base::smoc_md_storage_access_src<S,T>
 	{
 		friend class smoc_simple_md_buffer_kind;
 	public:
-		typedef smoc_md_buffer_mgmt_base::smoc_md_storage_access<S,T> parent_type;
+		typedef smoc_md_buffer_mgmt_base::smoc_md_storage_access_src<S,T> parent_type;
 		typedef typename parent_type::iter_domain_vector_type iter_domain_vector_type;
 		
 		typedef S					      storage_type;
 		typedef T					      return_type;
 
-		typedef smoc_md_loop_snk_data_element_mapper::border_condition_vector_type border_condition_vector_type;
-
 	public:
-		smoc_md_storage_access()
-			: storage(NULL)
+		smoc_md_storage_access_src(unsigned int token_dimensions = 0)
+			: smoc_md_buffer_mgmt_base::smoc_md_storage_access_src<S,T>(token_dimensions),
+				storage(NULL),
+				base_data_element(token_dimensions)
 		{}
 
+		virtual ~smoc_md_storage_access_src(){};
+
 	public:
+
+		/// Set token dimensions
+		virtual void SetTokenDimension(unsigned token_dimensions){
+			parent_type::SetTokenDimension(token_dimensions);
+			base_data_element.resize(token_dimensions,false);
+		}
 		
 		/* Buffer Access Setup Routines */		
-		virtual void setBaseIteration(const iter_domain_vector_type& base_iteration,
-													bool is_snk){
-			parent_type::setBaseIteration(base_iteration, is_snk);
-
-			if (is_snk){
-				(*this).snk_data_el_mapper->get_base_data_element_id(base_iteration,
-																										 base_data_element);			
-			}else{
-				(*this).src_data_el_mapper->get_base_data_element_id(base_iteration,
-																										 base_data_element);
-			}
+		virtual void SetBaseIteration(const smoc_md_loop_iterator_kind& base_iteration){
+			parent_type::SetBaseIteration(base_iteration);
+			(*this).src_data_el_mapper->get_base_data_element_id(base_iteration.iteration_vector(),
+																													 base_data_element);
 		}
 
 		virtual void SetBuffer(typename smoc_md_storage_type<storage_type>::type *storage){
@@ -268,61 +343,37 @@ public:
 		
 		/* Data Element Access */
 		virtual return_type operator[](const iter_domain_vector_type& window_iteration){
-			check_limit(window_iteration);			
-			if ((*this).is_snk){
-				unsigned token_dimensions;
-				token_dimensions = (*this).snk_data_el_mapper->token_dimensions();
+			checkLimit(window_iteration);
 
-				data_element_id_type data_element_id(token_dimensions);
-				(*this).snk_data_el_mapper->get_window_data_element_offset(window_iteration,
-																													 data_element_id);
-
-				data_element_id += base_data_element;
-
-				return (*storage)[data_element_id];
-				
-			}else{
-				unsigned token_dimensions;
-				token_dimensions = (*this).src_data_el_mapper->token_dimensions();
-
-				data_element_id_type data_element_id(token_dimensions);
-				(*this).src_data_el_mapper->get_window_data_element_offset(window_iteration,
-																																	 data_element_id);
+			unsigned token_dimensions = (*this).src_data_el_mapper->token_dimensions();
+			data_element_id_type data_element_id(token_dimensions);
+			
+			(*this).src_data_el_mapper->get_window_data_element_offset(window_iteration,
+																																 data_element_id);
 
 				
-				data_element_id += base_data_element;
+			data_element_id += base_data_element;
+			data_element_id[_token_dimensions] += wr_schedule_period_start;
+			data_element_id[_token_dimensions] = data_element_id[_token_dimensions] % buffer_lines;			
 
-				return (*storage)[data_element_id];
-			}
+			return (*storage)[data_element_id];
 		}
 		
-		virtual const return_type operator[](const iter_domain_vector_type& window_iteration){
-			check_limit(window_iteration);			
-			if ((*this).is_snk){
-				unsigned token_dimensions;
-				token_dimensions = (*this).snk_data_el_mapper->token_dimensions();
+		virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const{
+			checkLimit(window_iteration);
 
-				data_element_id_type data_element_id(token_dimensions);
-				(*this).snk_data_el_mapper->get_window_data_element_offset(window_iteration,
-																																	 data_element_id);
-
-				data_element_id += base_data_element;
-
-				return (*storage)[data_element_id];
-				
-			}else{
-				unsigned token_dimensions;
-				token_dimensions = (*this).src_data_el_mapper->token_dimensions();
-
-				data_element_id_type data_element_id(token_dimensions);
-				(*this).src_data_el_mapper->get_window_data_element_offset(window_iteration,
-																													 data_element_id);
+			unsigned token_dimensions = (*this).src_data_el_mapper->token_dimensions();
+			data_element_id_type data_element_id(token_dimensions);
+			
+			(*this).src_data_el_mapper->get_window_data_element_offset(window_iteration,
+																																 data_element_id);
 
 				
-				data_element_id += base_data_element;
+			data_element_id += base_data_element;
+			data_element_id[_token_dimensions] += wr_schedule_period_start;
+			data_element_id[_token_dimensions] = data_element_id[_token_dimensions] % buffer_lines;			
 
-				return (*storage)[data_element_id];
-			}
+			return (*storage)[data_element_id];
 		}
 
 		
@@ -332,6 +383,100 @@ public:
 	protected:
 
 		data_element_id_type base_data_element;
+		size_t buffer_lines;	
+		unsigned long wr_schedule_period_start;
+		
+	};
+
+
+template<class S, class T>
+	class smoc_md_storage_access_snk
+		: public smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk<S,T>
+	{
+		friend class smoc_simple_md_buffer_kind;
+	public:
+		typedef smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk<S,T> parent_type;
+		typedef typename parent_type::iter_domain_vector_type iter_domain_vector_type;
+		
+		typedef S					      storage_type;
+		typedef T					      return_type;
+
+		typedef smoc_md_loop_snk_data_element_mapper::border_condition_vector_type border_condition_vector_type;
+		typedef smoc_md_loop_snk_data_element_mapper::border_type border_type;
+
+	public:
+		smoc_md_storage_access_snk(unsigned int token_dimensions = 0)
+			: smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk<S,T>(token_dimensions),
+				storage(NULL),
+				base_data_element(token_dimensions)
+		{}
+
+		virtual ~smoc_md_storage_access_snk(){};
+
+	public:
+
+		/// Set token dimensions
+		virtual void SetTokenDimension(unsigned token_dimensions){
+			parent_type::SetTokenDimension(token_dimensions);
+			base_data_element.resize(token_dimensions,false);
+		}
+		
+		/* Buffer Access Setup Routines */		
+		virtual void SetBaseIteration(const smoc_md_loop_iterator_kind& base_iteration){
+			parent_type::SetBaseIteration(base_iteration);
+
+			(*this).snk_data_el_mapper->get_base_data_element_id(base_iteration.iteration_vector(),
+																													 base_data_element);			
+		}
+
+		virtual void SetBuffer(typename smoc_md_storage_type<storage_type>::type *storage){
+			this->storage = storage;
+		}
+		
+		/* Data Element Access */
+		virtual return_type operator[](const iter_domain_vector_type& window_iteration){
+			checkLimit(window_iteration);
+
+			unsigned token_dimensions = (*this).snk_data_el_mapper->token_dimensions();
+			data_element_id_type data_element_id(token_dimensions);
+			
+			(*this).snk_data_el_mapper->get_window_data_element_offset(window_iteration,
+																																 data_element_id);
+
+				
+			data_element_id += base_data_element;
+			data_element_id[_token_dimensions] += rd_schedule_period_start;
+			data_element_id[_token_dimensions] = data_element_id[_token_dimensions] % buffer_lines;			
+
+			return (*storage)[data_element_id];
+		}
+		
+		virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const{			
+			checkLimit(window_iteration);
+
+			unsigned token_dimensions = (*this).snk_data_el_mapper->token_dimensions();
+			data_element_id_type data_element_id(token_dimensions);
+			
+			(*this).snk_data_el_mapper->get_window_data_element_offset(window_iteration,
+																																 data_element_id);
+
+				
+			data_element_id += base_data_element;
+			data_element_id[_token_dimensions] += rd_schedule_period_start;
+			data_element_id[_token_dimensions] = data_element_id[_token_dimensions] % buffer_lines;			
+
+			return (*storage)[data_element_id];
+		}
+
+		
+	private:
+		typename smoc_md_storage_type<storage_type>::type *storage;
+
+	protected:
+
+		data_element_id_type base_data_element;
+		size_t buffer_lines;	
+		unsigned long rd_schedule_period_start;
 		
 	};
 	
@@ -395,9 +540,17 @@ public:
   bool unusedStorage(const smoc_md_loop_iterator_kind& src_iterator) const;
 
 	template<class S, class T>
-	void initStorageAccess(smoc_md_storage_access<S,T> &storage_access){
+	void initStorageAccess(smoc_md_storage_access_snk<S,T> &storage_access){
 		parent_type::initStorageAccess(storage_access);
-		storage_access.base_data_element.resize(src_data_el_mapper.token_dimensions(),false);
+		storage_access.rd_schedule_period_start = rd_schedule_period_start;
+		storage_access.buffer_lines = buffer_lines;
+	};
+	
+	template<class S, class T>
+	void initStorageAccess(smoc_md_storage_access_src<S,T> &storage_access){
+		parent_type::initStorageAccess(storage_access);
+		storage_access.wr_schedule_period_start = wr_schedule_period_start;
+		storage_access.buffer_lines = buffer_lines;
 	};
 
 	/// Create buffer (reserve memory)
@@ -408,11 +561,6 @@ public:
 		
 		ptr = new BUFFER_TYPE(_token_dimensions, buffer_size);
 
-	}
-
-	template <typename T>
-	void coucou(T*& ptr) {
-		ptr = NULL;
 	}
 
 

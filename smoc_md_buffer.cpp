@@ -1,9 +1,9 @@
 
 #include "smoc_md_buffer.hpp"
-#include <smoc_debug_out.h>
+#include <smoc_debug_out.hpp>
 
 
-#define VERBOSE_LEVEL 101
+#define VERBOSE_LEVEL 102
 ///101: general Debug
 ///102: unusedStorage
 
@@ -11,7 +11,7 @@ bool smoc_simple_md_buffer_kind::allocate_buffer(const smoc_md_loop_iterator_kin
 
 	bool return_value;
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Enter smoc_simple_md_buffer_kind::allocate_buffer" << endl;
 	dout << inc_level;
 #endif
@@ -55,7 +55,7 @@ bool smoc_simple_md_buffer_kind::allocate_buffer(const smoc_md_loop_iterator_kin
 		return_value = true;
 	}	
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Leave smoc_simple_md_buffer_kind::allocate_buffer" << endl;
 	dout << dec_level;
 #endif
@@ -71,13 +71,16 @@ bool smoc_simple_md_buffer_kind::unusedStorage(const smoc_md_loop_iterator_kind&
 
 	bool return_value;
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Enter smoc_simple_md_buffer_kind::unusedStorage" << endl;
 	dout << inc_level;
 #endif
 
 	//check, whether source iterator has started a new schedule period
 	if (new_schedule_period){
+#if VERBOSE_LEVEL == 102
+		dout << "New Schedule period." << endl;
+#endif
 		wr_schedule_period_start += 
 			size_token_space[_token_dimensions-1];
 
@@ -103,7 +106,7 @@ bool smoc_simple_md_buffer_kind::unusedStorage(const smoc_md_loop_iterator_kind&
 	// Calculate number of new lines
 	unsigned long new_lines = calc_req_new_lines(max_src_data_element_id,
 																							 new_schedule_period);
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Requires " << new_lines << " new lines" << endl;
 	dout << "free_lines = " << free_lines << endl;
 #endif
@@ -115,7 +118,7 @@ bool smoc_simple_md_buffer_kind::unusedStorage(const smoc_md_loop_iterator_kind&
 		return_value = true;
 	}
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Leave smoc_simple_md_buffer_kind::unusedStorage" << endl;
 	dout << dec_level;
 #endif
@@ -142,7 +145,7 @@ unsigned long smoc_simple_md_buffer_kind::calc_req_new_lines(const data_element_
 
 void smoc_simple_md_buffer_kind::free_buffer(const smoc_md_loop_iterator_kind& snk_iterator) {
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Enter smoc_simple_md_buffer_kind::free_buffer" << endl;
 	dout << inc_level;
 	dout << "free_lines = " << free_lines << endl;
@@ -152,7 +155,7 @@ void smoc_simple_md_buffer_kind::free_buffer(const smoc_md_loop_iterator_kind& s
 	for(unsigned i = 0; i < _token_dimensions-1; i++){
 		if (!snk_data_el_mapper.is_iteration_max(snk_iterator,i)){
 			//we cannot free complete line
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 			dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << endl;
 			dout << dec_level;
 #endif
@@ -166,7 +169,7 @@ void smoc_simple_md_buffer_kind::free_buffer(const smoc_md_loop_iterator_kind& s
 																										 _token_dimensions-1,
 																										 window_displacement)){
 		//We are at the end of a schedule period.
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 		dout << "End of schedule period" << endl;
 #endif
 		free_lines += 
@@ -176,7 +179,7 @@ void smoc_simple_md_buffer_kind::free_buffer(const smoc_md_loop_iterator_kind& s
 		rd_schedule_period_start += size_token_space[_token_dimensions-1];
 		rd_schedule_period_start %= buffer_lines;
 	}else{
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 		dout << "free " << window_displacement << " lines" << endl;
 		dout << endl;
 #endif
@@ -185,7 +188,7 @@ void smoc_simple_md_buffer_kind::free_buffer(const smoc_md_loop_iterator_kind& s
 		rd_min_data_element_offset += window_displacement;
 	}	
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << endl;
 	dout << dec_level;
 #endif

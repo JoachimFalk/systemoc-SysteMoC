@@ -22,11 +22,11 @@
 
 #include <smoc_md_loop.hpp>
 #include <smoc_md_buffer.hpp>
-#include <smoc_md_buffer_access.hpp>
 #include <smoc_wsdf_edge.hpp>
-#include <smoc_debug_out.h>
+#include <smoc_debug_out.hpp>
 
 #define VERBOSE_LEVEL 101
+
 
 
 /// Common base class for all multi-dimensional FIFOs
@@ -128,7 +128,11 @@ protected:
   /// The paramter n specifies the number of effective
   /// tokens which have been generated. Currently,
   /// only n = 1 is supported
+#ifdef ENABLE_SYSTEMC_VPC
+  virtual void wpp(size_t n, const smoc_ref_event_p &le);
+#else
   virtual void wpp(size_t n = 1);
+#endif
 
 
   /* *****************************************
@@ -147,7 +151,7 @@ protected:
   /// which is notified whenever a write operation has taken place.
   /// Currently, only n = 1 or n = MAX_TYPE(size_t) is supported.
 #ifndef NO_SMOC
-  smoc_event& getEventAvailable(size_t n = 1) const;
+  smoc_event& getEventAvailable(size_t n = 1);
 #endif
 
   /// Returns an event which is notified when n complete effective
@@ -156,7 +160,7 @@ protected:
   /// which is notified whenever a read operation has taken place.
   /// Currently, only n = 1 or n = MAX_TYPE(size_t) is supported.
 #ifndef NO_SMOC
-  smoc_event& getEventFree(size_t n = 1) const;  
+  smoc_event& getEventFree(size_t n = 1);  
 #endif
 
   /* Functions for generation of problem graph */
@@ -213,6 +217,7 @@ template <class BUFFER_CLASS>
 size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 
 #if VERBOSE_LEVEL == 101
+	dout << this->name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage()" << endl;
 	dout << inc_level;
 #endif
@@ -296,15 +301,37 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 
 template <class BUFFER_CLASS>
 size_t smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage() const {
+#if VERBOSE_LEVEL == 101
+	dout << this->name() << ": ";
+	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << endl;
+	dout << inc_level;
+	dout << "src_loop_iterator = " << src_loop_iterator.iteration_vector();
+	dout << endl;
+#endif
+
+	size_t return_value;
+
 	if (BUFFER_CLASS::unusedStorage(src_loop_iterator)){
-		return 1;
+		return_value = 1;
 	}else{
-		return 0;
+		return_value = 0;
 	}
+
+#if VERBOSE_LEVEL == 101
+	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << endl;
+	dout << dec_level;
+#endif
+
+	return return_value;
 }
 
 template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
+#if VERBOSE_LEVEL == 101
+	dout << this->name() << ": ";
+	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::rpp" << endl;
+	dout << inc_level;
+#endif
   assert(n == 1);
 
 	//free memory
@@ -317,11 +344,28 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
 	}
 	
   generate_read_events();
+
+#if VERBOSE_LEVEL == 101
+	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::rpp" << endl;
+	dout << dec_level;
+#endif
 	
 }
 
+#ifdef ENABLE_SYSTEMC_VPC
+template <class BUFFER_CLASS>
+void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n, const smoc_ref_event_p &le){
+#else
 template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
+#endif
+
+#if VERBOSE_LEVEL == 101
+	dout << this->name() << ": ";
+	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::wpp" << endl;
+	dout << inc_level;
+#endif
+
   assert(n == 1);
 
   // Move to next loop iteration
@@ -331,6 +375,12 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 	}
 	
   generate_write_events();
+
+#if VERBOSE_LEVEL == 101
+	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::wpp" << endl;
+	dout << dec_level;
+#endif
+
 		
 }
 
@@ -365,7 +415,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::generate_read_events() {
   // check, if there is still a window available
   if(usedStorage() != 0){
 #ifndef NO_SMOC
-    eventWindowAvailale.notify();
+    eventWindowAvailable.notify();
 #endif
   }else{
 #ifndef NO_SMOC
@@ -388,25 +438,57 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::generate_read_events() {
 
 #ifndef NO_SMOC
 template <class BUFFER_CLASS>
-smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n = 1) const {
+smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n) {
+#if VERBOSE_LEVEL == 101
+	dout << this->name() << ": ";
+	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable" << endl;
+	dout << inc_level;
+#endif
+
   assert((n == 1) || (n == MAX_TYPE(size_t)));
 	
-  if (n == 1)
+  if (n == 1){
+		if (usedStorage() >= n){
+			eventWindowAvailable.notify();
+		}
+#if VERBOSE_LEVEL == 101
+		dout << dec_level;
+#endif
     return eventWindowAvailable;
-  else
+	}else{
+#if VERBOSE_LEVEL == 101
+		dout << dec_level;
+#endif
     return eventWrite;
+	}
+
 }
 #endif
 
 #ifndef NO_SMOC
 template <class BUFFER_CLASS>
-smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n = 1) const {
+smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n) {
+#if VERBOSE_LEVEL == 101
+	dout << (*this).name() << ": ";
+	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree" << endl;
+	dout << inc_level;
+#endif
   assert((n == 1) || (n == MAX_TYPE(size_t)));
 	
-  if (n == 1)
+  if (n == 1){
+		if (unusedStorage() >= n){
+			eventEffTokenFree.notify();
+		}
+#if VERBOSE_LEVEL == 101
+		dout << dec_level;
+#endif
     return eventEffTokenFree;
-  else
+	}else{
+#if VERBOSE_LEVEL == 101
+		dout << dec_level;
+#endif
     return eventRead;
+	}
 };
 #endif
 
@@ -427,25 +509,39 @@ public:
 */
 
 
+
 /// Provide the multi-dimensional FIFO with the SysteMoC Channel Interface
-template <typename T_DATA_TYPE, class BUFFER_CLASS,
-          template <class, class, template <class, class> class > class BORDER_PROC_CLASS >
+template <typename T_DATA_TYPE, 
+					class BUFFER_CLASS, 
+					template <typename, typename> class R_IN, 
+					template <typename, typename> class R_OUT >
 class smoc_md_fifo_storage
 #ifndef NO_SMOC
 	: public smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
 	                      T_DATA_TYPE,
-												smoc_md_buffer_access_wrapper<BORDER_PROC_CLASS, BUFFER_CLASS::smoc_md_storage_access >::wrapper,
-	                      BUFFER_CLASS::smoc_md_storage_access > 
+												R_IN,
+	                      R_OUT > 
 #else
-: public smoc_md_fifo_kind<BUFFER_CLASS>
+		: public smoc_md_fifo_kind<BUFFER_CLASS>
+		//: public smoc_dummy_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
+		//														T_DATA_TYPE,
+		//														R_IN,
+		//														R_OUT > 	
 #endif
 {
 	
 public:
 
   typedef T_DATA_TYPE                                              data_type;
+#ifndef NO_SMOC
+	typedef smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
+											 T_DATA_TYPE,
+											 R_IN,
+											 R_OUT >  parent_type;
+#else
 	typedef smoc_md_fifo_kind<BUFFER_CLASS> parent_type;
-  typedef smoc_md_fifo_storage<data_type, BUFFER_CLASS, BORDER_PROC_CLASS>       this_type;
+#endif
+  typedef smoc_md_fifo_storage<data_type, BUFFER_CLASS, R_IN, R_OUT>       this_type;
 #ifndef NO_SMOC
   typedef typename this_type::access_out_type  ring_out_type;
   typedef typename this_type::access_in_type   ring_in_type;
@@ -461,7 +557,7 @@ public:
 
 	class chan_init
     : public parent_type::chan_init {
-    friend class smoc_md_fifo_storage<T_DATA_TYPE, BUFFER_CLASS, BORDER_PROC_CLASS>;
+    friend class smoc_md_fifo_storage<T_DATA_TYPE, BUFFER_CLASS, R_IN, R_OUT>;
   protected:
     chan_init( const char *name, 
 							 const unsigned int token_dimensions,
@@ -480,25 +576,30 @@ private:
 
 protected:
 	smoc_md_fifo_storage( const chan_init &i)
-#ifndef NO_SMOC
-		: smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
-	                 T_DATA_TYPE, 
-		               BORDER_PROC_CLASS<BUFFER_CLASS::smoc_md_storage_access>,
-		               BUFFER_CLASS::smoc_md_storage_access>(i),
-#else
-			: parent_type(i)
-#endif
+		: parent_type(i)
 	{
 		createStorage(storage);
 	}
 
 #ifndef NO_SMOC
 	void accessSetupIn(ring_in_type &r) {
+#if VERBOSE_LEVEL == 101
+	dout << this->name() << ": ";
+	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
+	dout << inc_level;
+#endif
 		//reserve memory
 		bool temp = (*this).allocate_buffer((*this).src_loop_iterator);
 		assert(temp);
 
+		r.SetTokenDimension((*this)._token_dimensions);
 		initStorageAccess(r);
+		r.SetBuffer(storage);
+		r.SetBaseIteration((*this).src_loop_iterator);
+#if VERBOSE_LEVEL == 101
+	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
+	dout << dec_level;
+#endif
   }
 #else
 public:
@@ -512,7 +613,19 @@ protected:
 
 #ifndef NO_SMOC
   void accessSetupOut(ring_out_type &r) {
+#if VERBOSE_LEVEL == 101
+  dout << this->name() << ": ";
+	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
+	dout << inc_level;
+#endif
+		r.SetTokenDimension((*this)._token_dimensions);
 		initStorageAccess(r);
+		r.SetBuffer(storage);
+		r.SetBaseIteration((*this).snk_loop_iterator);
+#if VERBOSE_LEVEL == 101
+	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
+	dout << dec_level;
+#endif
   }
 
 	void channelContents(smoc_modes::PGWriter &pgw) const {};	
@@ -525,14 +638,20 @@ protected:
 };
 
 
-template <typename T_DATA_TYPE,
-          template <class, class, template <class, class> class > class BORDER_PROC_CLASS = smoc_cst_border_buffer_access >
+template <typename T_DATA_TYPE>
 class smoc_md_fifo_type
-  : public smoc_md_fifo_storage<T_DATA_TYPE, smoc_simple_md_buffer_kind, BORDER_PROC_CLASS > {
+  : public smoc_md_fifo_storage<T_DATA_TYPE, 
+																smoc_simple_md_buffer_kind, 
+																smoc_simple_md_buffer_kind::smoc_md_storage_access_snk, 
+																smoc_simple_md_buffer_kind::smoc_md_storage_access_src> {
 public:
   typedef T_DATA_TYPE						      data_type;
-  typedef smoc_md_fifo_storage<T_DATA_TYPE, smoc_simple_md_buffer_kind, BORDER_PROC_CLASS > parent_type;
-	typedef smoc_md_fifo_type<T_DATA_TYPE, BORDER_PROC_CLASS> this_type;
+  typedef smoc_md_fifo_storage<T_DATA_TYPE, 
+															 smoc_simple_md_buffer_kind,
+															 smoc_simple_md_buffer_kind::smoc_md_storage_access_snk, 
+															 smoc_simple_md_buffer_kind::smoc_md_storage_access_src
+															 > parent_type;
+	typedef smoc_md_fifo_type<T_DATA_TYPE> this_type;
   
   typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
   typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
@@ -616,7 +735,7 @@ protected:
 public:
   // constructors
   smoc_md_fifo_type( const chan_init &i )
-    : smoc_md_fifo_storage<T_DATA_TYPE, smoc_simple_md_buffer_kind, BORDER_PROC_CLASS >(i) {
+    : parent_type(i) {
   }
 
   // bounce functions
@@ -656,36 +775,35 @@ public:
 };
 
 /// Channel initialization class
-template <typename T,
-          template <class, class, template <class, class> class > class BORDER_PROC_CLASS = smoc_cst_border_buffer_access >
+template <typename T>
 class smoc_md_fifo
-  : public smoc_md_fifo_type<T, BORDER_PROC_CLASS >::chan_init {
+  : public smoc_md_fifo_type<T>::chan_init {
 public:
   typedef T                   data_type;
-  typedef smoc_md_fifo<T, BORDER_PROC_CLASS>        this_type;
+  typedef smoc_md_fifo<T>        this_type;
 
 	//Identification of corresponding channel class
-  typedef smoc_md_fifo_type<T, BORDER_PROC_CLASS>   chan_type;
+  typedef smoc_md_fifo_type<T>   chan_type;
 
 	//Make buffer_init visible
-	typedef typename smoc_md_fifo_storage<T, smoc_simple_md_buffer_kind, BORDER_PROC_CLASS >::buffer_init buffer_init;
+	typedef typename smoc_md_fifo_type<T>::buffer_init buffer_init;
   
   smoc_md_fifo( const smoc_wsdf_edge_descr& wsdf_edge_param, 
 								size_t n)
-    : smoc_md_fifo_type<T, BORDER_PROC_CLASS >::chan_init(NULL,
-																													wsdf_edge_param.token_dimensions,
-																													wsdf_edge_param.src_iteration_max(),
-																													wsdf_edge_param.snk_iteration_max(),
-																													assemble_buffer_init(wsdf_edge_param, n))
+    : smoc_md_fifo_type<T>::chan_init(NULL,
+																			wsdf_edge_param.token_dimensions,
+																			wsdf_edge_param.src_iteration_max(),
+																			wsdf_edge_param.snk_iteration_max(),
+																			assemble_buffer_init(wsdf_edge_param, n))
 	{}
   explicit smoc_md_fifo( const char *name, 
 												 const smoc_wsdf_edge_descr& wsdf_edge_param, 
 												 size_t n)
-    : smoc_md_fifo_type<T, BORDER_PROC_CLASS >::chan_init(name,
-																													wsdf_edge_param.token_dimensions,
-																													wsdf_edge_param.src_iteration_max(),
-																													wsdf_edge_param.snk_iteration_max(),
-																													assemble_buffer_init(wsdf_edge_param, n)) {}
+    : smoc_md_fifo_type<T>::chan_init(name,
+																			wsdf_edge_param.token_dimensions,
+																			wsdf_edge_param.src_iteration_max(),
+																			wsdf_edge_param.snk_iteration_max(),
+																			assemble_buffer_init(wsdf_edge_param, n)) {}
 
 private:
 	buffer_init assemble_buffer_init(const smoc_wsdf_edge_descr& wsdf_edge_param, 

@@ -20,6 +20,7 @@
 #define _INCLUDED_SMOC_GRAPH_TYPE_HPP
 
 #include <smoc_port.hpp>
+#include <smoc_md_port.hpp>
 #include <smoc_fifo.hpp>
 #include <smoc_rendezvous.hpp>
 #include <smoc_node_types.hpp>
@@ -41,44 +42,58 @@ public:
 //typedef T_chan_kind	chan_kind;
   typedef smoc_graph    this_type;
 protected:
-  template <typename T_chan_init>
+  template <typename T_chan_init, 
+						template <typename, typename> class R>
   void connectNodePorts(
-      smoc_port_out<typename T_chan_init::data_type> &b,
-      smoc_port_in<typename T_chan_init::data_type>  &a,
-      const T_chan_init i ) {
+												smoc_port_out_base<typename T_chan_init::data_type, R> &b,
+												smoc_port_in_base<typename T_chan_init::data_type, R>  &a,
+												const T_chan_init i ) {
     typename T_chan_init::chan_type &chan =
       registerChan<T_chan_init>(i);
     connectChanPort(chan,a);
     connectChanPort(chan,b);
   }
-  template <int i, typename T_data_type>
+	template <typename T_chan_init, 
+						unsigned N,
+						template <typename> class R
+						>
   void connectNodePorts(
-      smoc_port_out<T_data_type> &b,
-      smoc_port_in<T_data_type>  &a ) {
+												smoc_md_port_out<typename T_chan_init::data_type, N> &b,
+												smoc_md_port_in<typename T_chan_init::data_type, N, R>  &a,
+												const T_chan_init i ) {
+    typename T_chan_init::chan_type &chan =
+      registerChan<T_chan_init>(i);
+    connectChanPort(chan,a);
+    connectChanPort(chan,b);
+  }
+  template <int i, typename T_data_type, template <typename, typename> class R>
+  void connectNodePorts(
+												smoc_port_out_base<T_data_type,R> &b,
+												smoc_port_in_base<T_data_type,R>  &a ) {
     typename T_chan_init_default<T_data_type>::chan_type &chan =
       registerChan( T_chan_init_default<T_data_type>(i) );
     connectChanPort(chan,a);
     connectChanPort(chan,b);
   }
-  template <typename T_data_type>
+  template <typename T_data_type, template <typename, typename> class R>
   void connectNodePorts(
-      smoc_port_out<T_data_type> &b,
-      smoc_port_in<T_data_type>  &a ) {
+												smoc_port_out_base<T_data_type,R> &b,
+												smoc_port_in_base<T_data_type,R>  &a ) {
     typename T_chan_init_default<T_data_type>::chan_type &chan =
       registerChan( T_chan_init_default<T_data_type>() );
     connectChanPort(chan,a);
     connectChanPort(chan,b);
   }
-  template <typename T_value_type>
+  template <typename T_value_type,template <typename, typename> class R>
   void connectInterfacePorts(
-      smoc_port_out<T_value_type> &a,
-      smoc_port_out<T_value_type> &b )
+														 smoc_port_out_base<T_value_type,R> &a,
+														 smoc_port_out_base<T_value_type,R> &b )
     { b(a); }
-  template <typename T_value_type>
+  template <typename T_value_type, template <typename, typename> class R>
   void connectInterfacePorts(
-      smoc_port_in<T_value_type> &a,
-      smoc_port_in<T_value_type> &b )
-    { b(a); }
+														 smoc_port_in_base<T_value_type,R> &a,
+														 smoc_port_in_base<T_value_type,R> &b )
+	{ b(a); }
 
   void finalise();
 
@@ -106,14 +121,14 @@ public:
       new typename T_chan_init::chan_type(i);
     return *chan;
   }
-  template <typename T_chan_type>
+  template <typename T_chan_type, template <typename, typename> class R>
   void connectChanPort( T_chan_type &chan,
-                        smoc_port_out<typename T_chan_type::data_type> &p ) {
+                        smoc_port_out_base<typename T_chan_type::data_type, R> &p ) {
     p(chan);
   }
-  template <typename T_chan_type>
+  template <typename T_chan_type, template <typename, typename> class R>
   void connectChanPort( T_chan_type &chan,
-                        smoc_port_in<typename T_chan_type::data_type> &p ) {
+                        smoc_port_in_base<typename T_chan_type::data_type, R> &p ) {
     p(chan);
   }
   

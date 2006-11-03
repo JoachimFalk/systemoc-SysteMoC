@@ -487,6 +487,8 @@ public:
   typedef smoc_port_in_base<data_type,R>	    this_type;
   typedef typename this_type::iface_type    iface_type;
   typedef typename iface_type::access_type  ring_type;
+
+  typedef typename iface_type::access_type::return_type return_type;
   
   template <class E> friend class Expr::CommExec;
 #ifndef NDEBUG
@@ -573,6 +575,10 @@ public:
   template <class E> friend class Expr::CommSetup;
 #endif
   template <class E> friend class Expr::Value;
+
+  typedef typename iface_type::access_type::return_type return_type;
+
+
 protected:
   typedef smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T,R> > base_type;
 

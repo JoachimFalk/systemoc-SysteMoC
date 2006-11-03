@@ -1,6 +1,6 @@
 
 #include <smoc_md_loop.hpp>
-#include <smoc_debug_out.h>
+#include <smoc_debug_out.hpp>
 
 #define VERBOSE_LEVEL 104
 // 100: verbose execution
@@ -926,14 +926,19 @@ smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_do
 }
 
 smoc_md_loop_snk_data_element_mapper::border_type_vector_type 
-smoc_md_loop_snk_data_element_mapper::is_border_pixel(const border_condition_vector_type& border_condition_vector) const{
+smoc_md_loop_snk_data_element_mapper::is_border_pixel(const border_condition_vector_type& border_condition_vector,
+																											bool& is_border) const{
 	border_type_vector_type return_vector(_token_dimensions);
+
+	is_border = false;
 
 	for(unsigned int i = 0; i < _token_dimensions; i++){
 		if (border_condition_vector[i] < low_border_condition_vector[i]){
 			return_vector[i] = LEFT_BORDER;
+			is_border = true;
 		}else if(border_condition_vector[i] > high_border_condition_vector[i]){
 			return_vector[i] = RIGHT_BORDER;
+			is_border = true;
 		}else{
 			return_vector[i] = NO_BORDER;
 		}
