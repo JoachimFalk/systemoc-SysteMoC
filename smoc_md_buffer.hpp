@@ -5,6 +5,7 @@
 #include <cosupport/commondefs.h>
 #include <smoc_vector.hpp>
 #include <smoc_md_array.hpp>
+#include <smoc_debug_out.hpp>
 
 #define VERBOSE_LEVEL 102
 ///101: operator[]
@@ -390,7 +391,7 @@ public:
 			dout << "window_iteration = " << window_iteration;
 			dout << endl;
 #endif
-			simple_md_buffer->allocate_buffer(*src_iterator);
+			simple_md_buffer->allocate_buffer(*((*this).src_iterator));
 
 			unsigned token_dimensions = (*this).src_data_el_mapper->token_dimensions();
 

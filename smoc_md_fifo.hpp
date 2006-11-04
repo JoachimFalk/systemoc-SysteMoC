@@ -374,7 +374,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 		schedule_period_difference++;
 	}
 	/// Memory has been occupied
-	src_allocated = false;
+	(*this).src_allocated = false;
 	
   generate_write_events();
 
@@ -592,7 +592,7 @@ protected:
 #endif
 		initStorageAccess(r);
 		r.SetBuffer(storage);
-		r.SetIterator(snk_loop_iterator);
+		r.SetIterator((*this).snk_loop_iterator);
 #if VERBOSE_LEVEL == 101
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
 	dout << dec_level;
@@ -617,7 +617,7 @@ protected:
 #endif
 		initStorageAccess(r);
 		r.SetBuffer(storage);
-		r.SetIterator(src_loop_iterator);
+		r.SetIterator((*this).src_loop_iterator);
 #if VERBOSE_LEVEL == 101
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
 	dout << dec_level;

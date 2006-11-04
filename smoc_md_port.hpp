@@ -7,6 +7,8 @@
 #include <smoc_vector.hpp>
 #include <smoc_md_array_access.hpp>
 
+#include <smoc_debug_out.hpp>
+
 //#define PORT_IN_SMOC_MD_STORAGE_ACCESS smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk
 //#define PORT_OUT_SMOC_MD_STORAGE_ACCESS smoc_md_buffer_mgmt_base::smoc_md_storage_access_src
 #define PORT_IN_SMOC_MD_STORAGE_ACCESS smoc_simple_md_buffer_kind::smoc_md_storage_access_snk
