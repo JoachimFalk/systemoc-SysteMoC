@@ -53,12 +53,33 @@ public:
 	}
 };
 
+class m_filter: public smoc_actor {
+public:
+	smoc_md_port_in<int,2> in;
+	smoc_md_port_out<int,2> out;
+private:
+	void process() {
+#ifndef NDEBUG
+		cout << name() << " forwarding " << in[0][0] << std::endl;
+#endif
+		out[0][0] = in[0][0];
+	}
+  
+	smoc_firing_state start;
+public:
+	m_filter( sc_module_name name )
+		:smoc_actor( name, start ) {
+		start = (in(1) && out(1)) >> CALL(m_filter::process) >> start;
+	}
+};
+
 class m_top
 	: public smoc_graph {
 public:
 	m_top( sc_module_name name )
       : smoc_graph(name) {
       m_source      &src = registerNode(new m_source("src"));
+			m_filter      &filter = registerNode(new m_filter("filter"));
       m_sink        &sink = registerNode(new m_sink("sink"));
 
 			const unsigned token_dimensions = 2;
@@ -70,8 +91,7 @@ public:
 			src_firing_blocks[1] = smoc_wsdf_edge_descr::uvector_type(token_dimensions, src_fbl1_array);
 			
 			const smoc_wsdf_edge_descr::udata_type c_array[] = {1,1};
-			const smoc_wsdf_edge_descr::uvector_type c(token_dimensions,c_array);
-			
+			const smoc_wsdf_edge_descr::uvector_type c(token_dimensions,c_array);			
 			
 			smoc_wsdf_edge_descr::u2vector_type snk_firing_blocks(1);
 			const smoc_wsdf_edge_descr::udata_type snk_fbl1_array[] = {9,9};
@@ -86,11 +106,11 @@ public:
 			const smoc_wsdf_edge_descr::udata_type d_array[] = {0,0};
 			const smoc_wsdf_edge_descr::uvector_type d(token_dimensions, d_array);
 			
-			const smoc_wsdf_edge_descr::sdata_type bs_array[] = {0,0};
-			const smoc_wsdf_edge_descr::svector_type bs(token_dimensions,bs_array);
+			const smoc_wsdf_edge_descr::sdata_type snk_bs_array[] = {0,0};
+			const smoc_wsdf_edge_descr::svector_type snk_bs(token_dimensions,snk_bs_array);
 			
-			const smoc_wsdf_edge_descr::sdata_type bt_array[] = {0,0};
-			const smoc_wsdf_edge_descr::svector_type bt(token_dimensions,bt_array);
+			const smoc_wsdf_edge_descr::sdata_type snk_bt_array[] = {0,0};
+			const smoc_wsdf_edge_descr::svector_type snk_bt(token_dimensions,snk_bt_array);
 			
 			const unsigned int buffer_size = 2;
 
@@ -101,10 +121,20 @@ public:
 																						c,
 																						delta_c,
 																						d,
-																						bs,bt);
+																						snk_bs,snk_bt);
+
+			const smoc_wsdf_edge_descr wsdf_edge2(token_dimensions,
+																						src_firing_blocks,
+																						snk_firing_blocks,
+																						u0,
+																						c,
+																						delta_c,
+																						d,
+																						snk_bs,snk_bt);
 
 #ifndef KASCPAR_PARSING
-      connectNodePorts( src.out, sink.in, smoc_md_fifo<int>(wsdf_edge1,buffer_size));
+      connectNodePorts( src.out, filter.in, smoc_md_fifo<int>(wsdf_edge1,buffer_size));
+			connectNodePorts( filter.out, sink.in, smoc_md_fifo<int>(wsdf_edge1,buffer_size));
 #endif
     }
 };
