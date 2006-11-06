@@ -639,10 +639,10 @@ void smoc_wsdf_edge_descr::append_snk_window_iteration(uvector_type& iteration_m
 	unsigned new_size = old_size + token_dimensions;
 	iteration_max.resize(new_size);
 
-	for(int token_dimension = token_dimensions-1;
+	for(int token_dimension = token_dimensions-1, iter_level = old_size;
 			token_dimension >= 0;
-			token_dimension--){
-		iteration_max[old_size+token_dimension] = c[token_dimension]-1;
+			token_dimension--, iter_level++){
+		iteration_max[iter_level] = c[token_dimension]-1;
 	}
 }
 

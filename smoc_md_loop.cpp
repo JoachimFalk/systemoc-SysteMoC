@@ -875,6 +875,17 @@ smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_do
 smoc_md_loop_snk_data_element_mapper::border_type_vector_type 
 smoc_md_loop_snk_data_element_mapper::is_border_pixel(const border_condition_vector_type& border_condition_vector,
 																											bool& is_border) const{
+#if VERBOSE_LEVEL == 106
+	dout << "Enter smoc_md_loop_snk_data_element_mapper::is_border_pixel" << endl;
+	dout << inc_level;
+	dout << "border_condition_vector = " << border_condition_vector;
+	dout << endl;
+	dout << "low_border_condition_vector = " << low_border_condition_vector;
+	dout << endl;
+	dout << "high_border_condition_vector = " << high_border_condition_vector;
+	dout << endl;
+#endif
+
 	border_type_vector_type return_vector(_token_dimensions);
 
 	is_border = false;
@@ -890,6 +901,11 @@ smoc_md_loop_snk_data_element_mapper::is_border_pixel(const border_condition_vec
 			return_vector[i] = NO_BORDER;
 		}
 	}
+
+#if VERBOSE_LEVEL == 106
+	dout << "Leavesmoc_md_loop_snk_data_element_mapper::is_border_pixel" << endl;
+	dout << dec_level;
+#endif
 
 	return return_vector;
 }

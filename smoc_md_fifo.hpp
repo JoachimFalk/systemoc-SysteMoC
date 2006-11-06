@@ -368,6 +368,11 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 
   assert(n == 1);
 
+	//be paranoiac
+	//allocate memory, if not already done by user
+	allocate_buffer(src_loop_iterator);
+	
+
   // Move to next loop iteration
 	if(src_loop_iterator.inc()){
 		//new schedule period has been started
@@ -586,26 +591,18 @@ protected:
 #ifndef NO_SMOC
 	void accessSetupIn(ring_in_type &r) {
 #if VERBOSE_LEVEL == 101
-	dout << this->name() << ": ";
-	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
-	dout << inc_level;
+		dout << this->name() << ": ";
+		dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
+		dout << inc_level;
 #endif
 		initStorageAccess(r);
 		r.SetBuffer(storage);
 		r.SetIterator((*this).snk_loop_iterator);
 #if VERBOSE_LEVEL == 101
-	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
-	dout << dec_level;
+		dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
+		dout << dec_level;
 #endif
   }
-#else
-public:
-	void accessSetupIn() {
-		//reserve memory
-		bool temp = (*this).allocate_buffer((*this).src_loop_iterator);
-		assert(temp);
-	}
-protected:
 #endif
 
 #ifndef NO_SMOC

@@ -25,12 +25,12 @@ public:
 public:
 	//NOT virtual!
 	base_type& operator[](size_t idx) {
-		(*this).id[N1-N2] = idx;
+		(*this).id[N2-1] = idx;
 		return (*this);
 	}
 
 	const base_type& operator[](size_t idx) const {
-		(*this).id[N1-N2] = idx;
+		(*this).id[N2-1] = idx;
 		return (*this);
 	}
 };
@@ -49,12 +49,12 @@ public:
 public:
 	//NOT virtual!
 	RETURN_TYPE operator[](size_t idx) {
-		id[N1-1] = idx;
+		id[0] = idx;
 		return array[id];
 	}
 
 	const RETURN_TYPE operator[](size_t idx) const {
-		id[N1-1] = idx;
+		id[0] = idx;
 		return array[id];
 	}
 
