@@ -40,8 +40,16 @@ noinst_PROGRAMS= simulation-wsdf
 simulation_wsdf_SOURCES= design-wsdf.cpp
 simulation_wsdf_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
+all: ref_data.dat
+
+%.dat: %-dat
+	cp $^ $@
+
 if SYNTH
 SYNTHESIS_SUBDIR = synthesis
+
+$(SYNTHESIS_SUBDIR)/%.dat: %-dat
+	cp $^ $@
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-wsdf
 

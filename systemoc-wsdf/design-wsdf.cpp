@@ -12,6 +12,8 @@
 # include <smoc_pggen.hpp>
 #endif
 
+#define REF_FILENAME "ref_data.dat"
+
 using namespace std;
 
 class m_source: public smoc_actor {
@@ -31,24 +33,41 @@ private:
 public:
 	m_source( sc_module_name name )
 		:smoc_actor( name, start ), i(0) {
-		start =  out(1) >> (VAR(i) < 100) >> CALL(m_source::process) >> start;
+		start =  out(1) >> (VAR(i) < 12*9+24) >> CALL(m_source::process) >> start;
 	}
 };
 
 class m_sink: public smoc_actor {
 public:
 	smoc_md_port_in<int,2> in;
+
 private:
+
+	ifstream ref_data_file;
+
 	void process() {
 #ifndef NDEBUG
 		cout << name() << " receiving " << in[0][0] << std::endl;
+
+
+		double ref_pixel;
+		ref_data_file >> ref_pixel;		
+		if (!ref_data_file.eof()){
+			cout << name() << " reference value " << ref_pixel << std::endl;
+			assert((int)ref_pixel == in[0][0]);
+		}else{
+			cout << name() << " no reference value" << std::endl;
+		}
 #endif
+		
 	}
   
 	smoc_firing_state start;
 public:
 	m_sink( sc_module_name name )
-		:smoc_actor( name, start ) {
+		:smoc_actor( name, start ),
+		 ref_data_file(REF_FILENAME)
+	{
 		start = in(1) >> CALL(m_sink::process) >> start;
 	}
 };
@@ -59,10 +78,29 @@ public:
 	smoc_md_port_out<int,2> out;
 private:
 	void process() {
+		const int filter_size = 3;
 #ifndef NDEBUG
-		cout << name() << " forwarding " << in[0][0] << std::endl;
+		cout << "=======================================" << std::endl;
+		cout << name() << std::endl;
+		cout << "Window pixels:" << std::endl;
+		for(unsigned y = 0; y < 3; y++){
+			for(unsigned x = 0; x < 1; x++){
+				cout << in[x][y] << " ";
+			}
+			cout << std::endl;
+		}
 #endif
-		out[0][0] = in[0][0];
+		int output_value = 0;
+		for(unsigned y = 0; y < 3; y++){
+			for(unsigned x = 0; x < 1; x++){
+				output_value += in[x][y];
+			}
+		}
+		output_value /= filter_size;
+#ifndef NDEBUG
+		cout << "Output value: " << output_value << std::endl;
+#endif
+		out[0][0] = output_value;		
 	}
   
 	smoc_firing_state start;
@@ -102,18 +140,21 @@ public:
 
 		smoc_wsdf_edge_descr::u2vector_type src_firing_blocks(2);
 		const smoc_wsdf_edge_descr::udata_type p_array[] = {1,1};
-		const smoc_wsdf_edge_descr::udata_type src_fbl1_array[] = {9,9};
+		const smoc_wsdf_edge_descr::udata_type src_fbl1_array[] = {12,9};
 		src_firing_blocks[0] = smoc_wsdf_edge_descr::uvector_type(token_dimensions, p_array);
 		src_firing_blocks[1] = smoc_wsdf_edge_descr::uvector_type(token_dimensions, src_fbl1_array);
 			
-		const smoc_wsdf_edge_descr::udata_type c_array[] = {1,1};
-		const smoc_wsdf_edge_descr::uvector_type c(token_dimensions,c_array);			
+		const smoc_wsdf_edge_descr::udata_type snk_c_array[] = {1,1};
+		const smoc_wsdf_edge_descr::uvector_type snk_c(token_dimensions,snk_c_array);			
+
+		const smoc_wsdf_edge_descr::udata_type filter_c_array[] = {1,3};
+		const smoc_wsdf_edge_descr::uvector_type filter_c(token_dimensions,filter_c_array);			
 			
 		smoc_wsdf_edge_descr::u2vector_type snk_firing_blocks(1);
-		const smoc_wsdf_edge_descr::udata_type snk_fbl1_array[] = {9,9};
+		const smoc_wsdf_edge_descr::udata_type snk_fbl1_array[] = {12,9};
 		snk_firing_blocks[0] = smoc_wsdf_edge_descr::uvector_type(token_dimensions, snk_fbl1_array);
 			
-		const smoc_wsdf_edge_descr::udata_type u0_array[] = {9,9};
+		const smoc_wsdf_edge_descr::udata_type u0_array[] = {12,9};
 		const smoc_wsdf_edge_descr::uvector_type u0(token_dimensions,u0_array);
 			
 		const smoc_wsdf_edge_descr::udata_type delta_c_array[] = {1,1};
@@ -127,30 +168,37 @@ public:
 			
 		const smoc_wsdf_edge_descr::sdata_type snk_bt_array[] = {0,0};
 		const smoc_wsdf_edge_descr::svector_type snk_bt(token_dimensions,snk_bt_array);
+
+		const smoc_wsdf_edge_descr::sdata_type filter_bs_array[] = {0,1};
+		const smoc_wsdf_edge_descr::svector_type filter_bs(token_dimensions,filter_bs_array);
 			
-		const unsigned int buffer_size = 2;
+		const smoc_wsdf_edge_descr::sdata_type filter_bt_array[] = {0,1};
+		const smoc_wsdf_edge_descr::svector_type filter_bt(token_dimensions,filter_bt_array);
+			
+		const unsigned int buffer_size_edge1 = 3;
+		const unsigned int buffer_size_edge2 = 1;
 
 		const smoc_wsdf_edge_descr wsdf_edge1(token_dimensions,
 																					src_firing_blocks,
 																					snk_firing_blocks,
 																					u0,
-																					c,
+																					filter_c,
 																					delta_c,
 																					d,
-																					snk_bs,snk_bt);
+																					filter_bs,filter_bt);
 
 		const smoc_wsdf_edge_descr wsdf_edge2(token_dimensions,
 																					src_firing_blocks,
 																					snk_firing_blocks,
 																					u0,
-																					c,
+																					snk_c,
 																					delta_c,
 																					d,
 																					snk_bs,snk_bt);
 
 #ifndef KASCPAR_PARSING
-		connectNodePorts( src.out, top2.in, smoc_md_fifo<int>(wsdf_edge1,buffer_size));
-		connectNodePorts( top2.out, sink.in, smoc_md_fifo<int>(wsdf_edge1,buffer_size));
+		connectNodePorts( src.out, top2.in, smoc_md_fifo<int>(wsdf_edge1,buffer_size_edge1));
+		connectNodePorts( top2.out, sink.in, smoc_md_fifo<int>(wsdf_edge2,buffer_size_edge2));
 #endif
 	}
 };
