@@ -124,7 +124,8 @@ libsystemoc_la_SOURCES =		\
 	hscd_tdsim_TraceLog.cpp \
 	smoc_md_buffer.cpp \
 	smoc_md_loop.cpp \
-	smoc_wsdf_edge.cpp
+	smoc_wsdf_edge.cpp \
+	smoc_vector.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include
