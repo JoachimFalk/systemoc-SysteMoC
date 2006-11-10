@@ -48,7 +48,6 @@ private:
     if (i1.good()) {
 #endif
       for ( int j = 0; j <= 63; j++ ) {
-        counter++;
 #ifdef USE_COUNTER_INPUT
         myOut = counter;
 #else
@@ -56,6 +55,7 @@ private:
         cout << name() << "  write " << myOut << std::endl;
 #endif
         out[j] = myOut;
+				counter++;
       }
       myMin = -256;
 #ifndef USE_COUNTER_INPUT
@@ -153,7 +153,7 @@ int sc_main (int argc, char **argv) {
   size_t periods            =
     (argc > 1 && !generateProblemgraph)
     ? atoi(argv[1])
-    : 100;
+    : 1;
   
   smoc_top_moc<IDCT2d_TEST> top("top", periods);
   

@@ -2,6 +2,8 @@
 #ifndef _INCLUDED_MIN_DUPLEX_HPP
 #define _INCLUDED_MIN_DUPLES_HPP
 
+#define VERBOSE_MIN_DUPLEX
+
 class m_MIN_duplex: public smoc_actor {
 public:
   smoc_port_in<int> I;
@@ -17,6 +19,15 @@ public:
 private:
   
   void action() {
+#ifdef VERBOSE_MIN_DUPLEX
+#ifndef NDEBUG
+#ifndef XILINX_EDK_RUNTIME
+		cout << name() << ": " << "I[0] = " << I[0] << endl;
+#else
+		xil_printf("%s: I[0] = %d\r\n",name(),I[0]);
+#endif		
+#endif
+#endif
     O0[0] = I[0];
     O1[0] = I[0];
     O2[0] = I[0];
