@@ -25,7 +25,17 @@
 #include <smoc_wsdf_edge.hpp>
 #include <smoc_debug_out.hpp>
 
+#include <smoc_md_port.hpp>
+
+/// 101: SysteMoC Interface
+/// 102: Memory access error
+/// 103: Parameter propagation
 #define VERBOSE_LEVEL 101
+
+
+
+template <typename T>
+class smoc_wsdf_edge;
 
 
 
@@ -216,7 +226,7 @@ protected:
 template <class BUFFER_CLASS>
 size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << this->name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage()" << endl;
 	dout << inc_level;
@@ -227,7 +237,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
   // belonging to the maximum window iteration is produced
   // by the source at last!
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Next sink invocation ID: " << snk_loop_iterator.iteration_vector();
 	dout << endl;
 #endif
@@ -241,13 +251,13 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 																													 src_data_element_id)){
 		/// Source does not need to produce anythouth for 
 		/// this sink iteration
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 		dout << "Source actor does not need to produce anything" << endl;
 #endif
 		return_value = 1;
 	}else{		
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 		dout << "Required data element: " << src_data_element_id;
 		dout << endl;
 #endif
@@ -257,6 +267,9 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 		// element
 		iter_domain_vector_type req_src_iteration(src_loop_iterator.iterator_depth()); 
 		smoc_md_loop_src_data_element_mapper::id_type schedule_period_offset;
+#if VERBOSE_LEVEL == 102
+		dout << "src_loop_iterator.iterator_depth() = " << src_loop_iterator.iterator_depth() << endl;
+#endif
 		bool temp = 
 			(*this).src_data_el_mapper.get_src_loop_iteration(src_data_element_id,
 																												req_src_iteration,
@@ -265,7 +278,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 		// error checking
 		assert(temp);
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 		dout << "Required src iteration: " << req_src_iteration;
 		dout << " (schedule_period_offset  = " << schedule_period_offset << ")";
 		dout << endl;
@@ -274,7 +287,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 		if (schedule_period_difference > schedule_period_offset){
 			//Sink actor can fire
 			return_value = 1;
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 			dout << "Sink can fire due to schedule period difference" << endl;
 			dout << inc_level;
 			dout << "schedule_period_difference = " << schedule_period_difference << endl;
@@ -290,7 +303,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 		}	
 	}
 
-#if VERBOSE_LEVEL == 101
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage()" << endl;
 	dout << dec_level;
 #endif
@@ -780,6 +793,8 @@ public:
 
 	//Make buffer_init visible
 	typedef typename smoc_md_fifo_type<T>::buffer_init buffer_init;
+
+public:
   
   smoc_md_fifo( const smoc_wsdf_edge_descr& wsdf_edge_param, 
 								size_t n)
@@ -789,6 +804,7 @@ public:
 																			wsdf_edge_param.snk_iteration_max(),
 																			assemble_buffer_init(wsdf_edge_param, n))
 	{}
+
   explicit smoc_md_fifo( const char *name, 
 												 const smoc_wsdf_edge_descr& wsdf_edge_param, 
 												 size_t n)
@@ -796,11 +812,101 @@ public:
 																			wsdf_edge_param.token_dimensions,
 																			wsdf_edge_param.src_iteration_max(),
 																			wsdf_edge_param.snk_iteration_max(),
-																			assemble_buffer_init(wsdf_edge_param, n)) {}
+																			assemble_buffer_init(wsdf_edge_param, n)) 
+	{}
+
+	smoc_md_fifo(const smoc_wsdf_edge<T>& edge_param,
+							 const smoc_wsdf_src_param& src_param,
+							 const smoc_wsdf_snk_param& snk_param)
+		: smoc_md_fifo_type<T>::chan_init(
+					 edge_param.name,
+					 assemble_wsdf_edge(edge_param, src_param, snk_param).token_dimensions,
+					 assemble_wsdf_edge(edge_param, src_param, snk_param).src_iteration_max(),
+					 assemble_wsdf_edge(edge_param, src_param, snk_param).snk_iteration_max(),
+					 assemble_buffer_init(assemble_wsdf_edge(edge_param, src_param, snk_param), edge_param.n)
+					 )
+	{
+	}
+	
 
 private:
+
+
+
+	smoc_wsdf_edge_descr assemble_wsdf_edge(const smoc_wsdf_edge<T>& edge_param,
+																					const smoc_wsdf_src_param& src_param,
+																					const smoc_wsdf_snk_param& snk_param) const {
+#if VERBOSE_LEVEL == 103
+		dout << "Enter smoc_md_fifo::assemble_wsdf_edge" << endl;
+		dout << inc_level;
+#endif
+
+		typedef smoc_wsdf_edge_descr::udata_type     udata_type;
+		typedef smoc_wsdf_edge_descr::uvector_type   uvector_type;
+
+		unsigned token_dimensions = src_param.src_firing_blocks[0].size();
+
+#if VERBOSE_LEVEL == 103
+		dout << "token_dimensions = " << token_dimensions << endl;
+#endif
+		
+		
+		uvector_type d;
+
+		if (edge_param.d_valid)
+			d = edge_param.d;
+		else
+			d = uvector_type(token_dimensions,(udata_type)0);
+
+#if VERBOSE_LEVEL == 103
+		dout << "d = " << d;
+		dout << endl;
+
+		dout << "src_firing_blocks = " << src_param.src_firing_blocks;
+		dout << endl;
+
+		dout << "snk_firing_blocks = " << snk_param.snk_firing_blocks;
+		dout << endl;
+
+		dout << "u0 = " << snk_param.u0;
+		dout << endl;
+
+		dout << "c = " << snk_param.c;
+		dout << endl;
+
+		dout << "delta_c = " << snk_param.delta_c;
+		dout << endl;
+
+		dout << "bs = " << snk_param.bs;
+		dout << endl;
+
+		dout << "bt = " << snk_param.bt;
+		dout << endl;
+#endif
+
+
+		const smoc_wsdf_edge_descr 
+			wsdf_edge_param(token_dimensions,
+											src_param.src_firing_blocks,
+											snk_param.snk_firing_blocks,
+											snk_param.u0,
+											snk_param.c,
+											snk_param.delta_c,
+											d,
+											snk_param.bs,
+											snk_param.bt);
+
+#if VERBOSE_LEVEL == 103
+		dout << "Leave smoc_md_fifo::assemble_wsdf_edge" << endl;
+		dout << dec_level;
+#endif
+
+		return wsdf_edge_param;
+	}
+	
+
 	buffer_init assemble_buffer_init(const smoc_wsdf_edge_descr& wsdf_edge_param, 
-																	 size_t n){
+																	 size_t n) const{
 		smoc_md_loop_src_data_element_mapper 
 			src_data_el_mapper(wsdf_edge_param.src_data_element_mapping_matrix(),
 												 wsdf_edge_param.src_data_element_mapping_vector(),
@@ -821,6 +927,73 @@ private:
 	}
 };
 
+
+
+
+
+/// If we want to annotate the parameters at the ports instead of
+/// associating them all with the FIFO, we can use this class
+template <typename T>
+class smoc_wsdf_edge{
+public:
+
+	typedef T                   data_type;
+
+	// associated channel init
+	typedef smoc_md_fifo<T> chan_init_type;
+
+	//Make buffer_init visible
+	typedef typename chan_init_type::buffer_init buffer_init;	
+
+	typedef smoc_wsdf_edge_descr::sdata_type     sdata_type;
+	typedef smoc_wsdf_edge_descr::udata_type     udata_type;
+	typedef smoc_wsdf_edge_descr::svector_type   svector_type;
+	typedef smoc_wsdf_edge_descr::uvector_type   uvector_type;
+	typedef smoc_wsdf_edge_descr::u2vector_type  u2vector_type;
+	typedef smoc_wsdf_edge_descr::smatrix_type   smatrix_type;
+	typedef smoc_wsdf_edge_descr::umatrix_type   umatrix_type;	
+
+public:
+	smoc_wsdf_edge(size_t n,
+								 const uvector_type& d
+								 )
+		: name(NULL),
+			n(n), 
+			d(d), 
+			d_valid(true)
+	{}
+
+	smoc_wsdf_edge(size_t n)
+		: name(NULL),
+			n(n), 
+			d_valid(false)
+	{}
+
+
+	explicit smoc_wsdf_edge(const char *name, 
+													size_t n,
+													const uvector_type& d
+													)
+		: name(name),
+			n(n), 
+			d(d), 
+			d_valid(true)
+	{}
+
+	explicit smoc_wsdf_edge(const char *name, 
+													size_t n)
+		: name(name),
+			n(n), 
+			d_valid(false)
+	{}
+
+public:
+	const char* name;
+	const size_t n;
+
+	const uvector_type d;
+	const bool d_valid;
+};
 
 
 #endif // _INCLUDED_SMOC_FIFO_HPP

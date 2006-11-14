@@ -4,6 +4,7 @@
 #include "smoc_vector.hpp"
 #include <boost/numeric/ublas/matrix.hpp>
 
+
 /// Descriptor of a WSDF edge
 class smoc_wsdf_edge_descr {
 public:
@@ -226,5 +227,6 @@ private:
 																		) const;
 
 };
+
 
 #endif

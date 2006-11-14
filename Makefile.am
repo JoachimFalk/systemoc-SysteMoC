@@ -125,7 +125,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_md_buffer.cpp \
 	smoc_md_loop.cpp \
 	smoc_wsdf_edge.cpp \
-	smoc_vector.cpp
+	smoc_md_port.cpp
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include

@@ -116,14 +116,14 @@ public:
 #endif
 };
 
-template <typename T, template <typename, typename> class R>
+template <typename T, template <typename, typename> class R, class PARAM_TYPE>
 class smoc_port_in_base;
-template <typename T, template <typename, typename> class R>
+template <typename T, template <typename, typename> class R, class PARAM_TYPE>
 class smoc_port_out_base;
 
 class smoc_chan_in_base_if {
 public:
-  template <typename T, template <typename, typename> class R> friend class smoc_port_in_base;
+  template <typename T, template <typename, typename> class R, class PARAM_TYPE> friend class smoc_port_in_base;
 private:
   smoc_port_list portsIn;
 protected:
@@ -139,7 +139,7 @@ public:
 
 class smoc_chan_out_base_if {
 public:
-  template <typename T, template <typename, typename> class R> friend class smoc_port_out_base;
+  template <typename T, template <typename, typename> class R, class PARAM_TYPE> friend class smoc_port_out_base;
 private:
   smoc_port_list portsOut;
 protected:

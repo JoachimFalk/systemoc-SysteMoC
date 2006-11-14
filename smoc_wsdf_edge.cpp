@@ -298,6 +298,17 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 
 
 void smoc_wsdf_edge_descr::check_parameters() const {
+
+	/* Check number of dimensions */
+	assert(v.size() == token_dimensions);
+	assert(u0.size() == token_dimensions);
+	assert(c.size() == token_dimensions);
+	assert(delta_c.size() == token_dimensions);
+	assert(d.size() == token_dimensions);
+	assert(bs.size() == token_dimensions);
+	assert(bt.size() == token_dimensions);
+
+
 	/* Check, that we only have complete firing blocks */
 	//source
 	for(unsigned int i = 0; i < token_dimensions; i++){		

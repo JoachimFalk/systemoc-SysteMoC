@@ -2,7 +2,7 @@
 #include <smoc_md_loop.hpp>
 #include <smoc_debug_out.hpp>
 
-#define VERBOSE_LEVEL 106
+#define VERBOSE_LEVEL 100
 // 100: verbose execution
 // 101: general debug
 // 102: memory access error
@@ -241,7 +241,15 @@ smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_
 	dout << "schedule_period_offset = " << schedule_period_offset << endl;
 #endif
 
+#if VERBOSE_LEVEL == 102
+	dout << "Calculate iteration vector ..." << endl;
+#endif
 	for(unsigned i = 0; i < mapping_table.size(); i++){
+#if VERBOSE_LEVEL == 102
+		dout << "i = " << i
+				 << " mapping_table[i] = " << mapping_table[i] << endl;
+		dout << "iteration_vector.size() = " << iteration_vector.size() << endl;
+#endif
 		iteration_vector[i] = 
 			temp_id[mapping_table[i]] / mapping_matrix(mapping_table[i],i);
 		temp_id[mapping_table[i]] -= 
