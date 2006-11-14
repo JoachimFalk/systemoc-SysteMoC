@@ -383,7 +383,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 
 	//be paranoiac
 	//allocate memory, if not already done by user
-	allocate_buffer(src_loop_iterator);
+	this->allocate_buffer(src_loop_iterator);
 	
 
   // Move to next loop iteration
