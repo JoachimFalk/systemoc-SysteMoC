@@ -17,6 +17,9 @@ public:
 	/// signed vector
 	typedef smoc_vector<sdata_type> svector_type;
 
+	///vector of svector_type
+	typedef smoc_vector<svector_type> s2vector_type;
+
 	/// unsigned vector
 	typedef smoc_vector<udata_type> uvector_type;
 
@@ -85,7 +88,23 @@ public:
 	svector_type calc_high_border_condition_vector() const;
 
 	uvector_type max_data_element_id() const;
-	
+
+
+	/// This function generates a table which assigns to
+	/// each firing block the corresponding iteration level
+	/// The iteration over the sliding window is NOT included.
+	/// Suppose, that the function returns return_vector.
+	/// Then return_vector[firing_level][token_dimension] returns the
+	/// iteration level for the given firing_level and token_dimensions.
+	/// Note, that the smallest firing block has the smallest firing level.
+	/// If return_vector[firing_level][token_dimension] < 0, then no
+	/// iteration level exists.
+	s2vector_type calc_snk_iteration_level_table() const;
+
+	/// Returns the corresponding table for the source. Note,
+	/// That the iteration over the effective token is NOT
+	/// included.
+	s2vector_type calc_src_iteration_level_table() const;
 											
 
 public:
@@ -148,17 +167,11 @@ private:
 
 	/// check for a firing level, whether it must be covered by
 	/// an iteration level
+	/// The smallest firing block has the smallest firing level
 	bool snk_has_iteration_level(unsigned firing_level, 
 															 unsigned token_dimension) const;
 	bool src_has_iteration_level(unsigned firing_level, 
 															 unsigned token_dimension) const;
-
-
-	/// This function generates a table which assigns to
-	/// each firing block the corresponding iteration level
-	/// The iteration over the sliding window is NOT included.
-	u2vector_type calc_snk_iteration_level_table() const;
-
 	
 	/// This function inserts int a given iteration level table
 	/// the iteration for the virtual token union if necessary
@@ -174,11 +187,11 @@ private:
 	/// - new_vtu_iteration          is true, if an additional iteration
 	///                              for the virtual token union 
 	///                              has been inserted
-	void insert_snk_vtu_iterations(u2vector_type& snk_iteration_level_table,
+	void insert_snk_vtu_iterations(s2vector_type& snk_iteration_level_table,
 																 uvector_type& snk_vtu_iteration_level,
 																 bvector_type& new_vtu_iteration
 																 ) const;
-	void insert_snk_vtu_iterations(u2vector_type& snk_iteration_level_table,
+	void insert_snk_vtu_iterations(s2vector_type& snk_iteration_level_table,
 																 uvector_type& snk_vtu_iteration_level
 																 ) const;
 	
@@ -187,14 +200,14 @@ private:
 	/// The function returns, how many iteration levels are described by the
 	/// iteration level table
 	/// NOTE: The iteration over the sliding window is not included
-	unsigned get_num_iteration_levels(const u2vector_type& snk_iteration_level_table,
+	unsigned get_num_iteration_levels(const s2vector_type& snk_iteration_level_table,
 																		const uvector_type& snk_vtu_iteration_level
 																		) const;
 	unsigned calc_src_iteration_levels() const;
 
 
 	/// Calculates the maximum for each iteration level
-	uvector_type calc_snk_iteration_max(const u2vector_type& snk_iteration_level_table,
+	uvector_type calc_snk_iteration_max(const s2vector_type& snk_iteration_level_table,
 																			const uvector_type& snk_vtu_iteration_level) const;
 
 
@@ -205,7 +218,7 @@ private:
 
 	/// Calculate the sink data element mapping matrix
 	/// Includes the iterations over the window
-	umatrix_type calc_snk_data_element_mapping_matrix(const u2vector_type& snk_iteration_level_table,
+	umatrix_type calc_snk_data_element_mapping_matrix(const s2vector_type& snk_iteration_level_table,
 																										const uvector_type& snk_vtu_iteration_level,
 																										const uvector_type& snk_iter_max
 																										) const;

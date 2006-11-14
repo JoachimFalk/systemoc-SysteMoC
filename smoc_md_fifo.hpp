@@ -802,7 +802,8 @@ public:
 																			wsdf_edge_param.token_dimensions,
 																			wsdf_edge_param.src_iteration_max(),
 																			wsdf_edge_param.snk_iteration_max(),
-																			assemble_buffer_init(wsdf_edge_param, n))
+																			assemble_buffer_init(wsdf_edge_param, n)),
+		wsdf_edge_param(wsdf_edge_param)
 	{}
 
   explicit smoc_md_fifo( const char *name, 
@@ -812,7 +813,9 @@ public:
 																			wsdf_edge_param.token_dimensions,
 																			wsdf_edge_param.src_iteration_max(),
 																			wsdf_edge_param.snk_iteration_max(),
-																			assemble_buffer_init(wsdf_edge_param, n)) 
+																			assemble_buffer_init(wsdf_edge_param, n)),
+		wsdf_edge_param(wsdf_edge_param)
+
 	{}
 
 	smoc_md_fifo(const smoc_wsdf_edge<T>& edge_param,
@@ -824,12 +827,16 @@ public:
 					 assemble_wsdf_edge(edge_param, src_param, snk_param).src_iteration_max(),
 					 assemble_wsdf_edge(edge_param, src_param, snk_param).snk_iteration_max(),
 					 assemble_buffer_init(assemble_wsdf_edge(edge_param, src_param, snk_param), edge_param.n)
-					 )
+					 ),
+		wsdf_edge_param(assemble_wsdf_edge(edge_param, src_param, snk_param))
 	{
 	}
 	
 
+	const smoc_wsdf_edge_descr wsdf_edge_param;
+
 private:
+	
 
 
 

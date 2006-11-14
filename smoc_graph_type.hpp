@@ -91,6 +91,8 @@ protected:
       registerChan<T_chan_init>(i);
     connectChanPort(chan,a);
     connectChanPort(chan,b);
+		b.setFiringLevelMap(i.wsdf_edge_param.calc_src_iteration_level_table());
+		a.setFiringLevelMap(i.wsdf_edge_param.calc_snk_iteration_level_table());
   }
 	/// Connect multi-dimensional actor output port with multi-dimensional interface input port
 	template <typename T_chan_init, 
@@ -103,6 +105,8 @@ protected:
       registerChan<T_chan_init>(i);
     connectChanPort(chan,a);
     connectChanPort(chan,b);
+		b.setFiringLevelMap(i.wsdf_edge_param.calc_src_iteration_level_table());
+		a.setFiringLevelMap(i.wsdf_edge_param.calc_snk_iteration_level_table());
   }
 	/// Connect multi-dimensional interface output port with multi-dimensional actor input port
 	template <typename T_chan_init, 
@@ -116,6 +120,8 @@ protected:
       registerChan<T_chan_init>(i);
     connectChanPort(chan,a);
     connectChanPort(chan,b);
+		b.setFiringLevelMap(i.wsdf_edge_param.calc_src_iteration_level_table());
+		a.setFiringLevelMap(i.wsdf_edge_param.calc_snk_iteration_level_table());
   }
 
 	
@@ -132,6 +138,8 @@ protected:
 		  registerChan<T_chan_init>(chan_init);
 		connectChanPort(chan,a);
 		connectChanPort(chan,b);
+		b.setFiringLevelMap(chan_init.wsdf_edge_param.calc_src_iteration_level_table());
+		a.setFiringLevelMap(chan_init.wsdf_edge_param.calc_snk_iteration_level_table());
   }
 	template <unsigned N,
 						typename T_edge_init>
@@ -144,8 +152,10 @@ protected:
 		  registerChan<T_chan_init>(chan_init);
 		connectChanPort(chan,a);
 		connectChanPort(chan,b);
+		b.setFiringLevelMap(chan_init.wsdf_edge_param.calc_src_iteration_level_table());
+		a.setFiringLevelMap(chan_init.wsdf_edge_param.calc_snk_iteration_level_table());
   }
-template <unsigned N,
+	template <unsigned N,
 						template <typename,typename> class R,
 						typename T_edge_init>
 	void indConnectNodePorts(smoc_md_iport_out<typename T_edge_init::data_type, N> &b,
@@ -157,6 +167,8 @@ template <unsigned N,
 		  registerChan<T_chan_init>(chan_init);
 		connectChanPort(chan,a);
 		connectChanPort(chan,b);
+		b.setFiringLevelMap(chan_init.wsdf_edge_param.calc_src_iteration_level_table());
+		a.setFiringLevelMap(chan_init.wsdf_edge_param.calc_snk_iteration_level_table());
   }
 
 

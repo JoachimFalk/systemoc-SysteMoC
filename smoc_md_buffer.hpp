@@ -40,10 +40,13 @@ public:
 	class smoc_md_storage_access_src{
 		friend class smoc_md_buffer_mgmt_base;
 	public:
+		typedef smoc_md_loop_iterator_kind::data_type iteration_type;
 		typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
 		
 		typedef S					      storage_type;
 		typedef T					      return_type;
+
+
 		
 	public:
 		
@@ -86,6 +89,12 @@ public:
 		/* Data Element Access */
 		virtual return_type operator[](const iter_domain_vector_type& window_iteration) { assert(false); }
 		virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const { assert(false); }
+
+		/// Returns the value of the loop iterator for the given iteration level
+		iteration_type iteration(size_t iteration_level) const {
+			return (*src_iterator)[iteration_level];
+		}
+		
 		
 	protected:
 		
@@ -109,7 +118,10 @@ public:
 	class smoc_md_storage_access_snk{
 		friend class smoc_md_buffer_mgmt_base;
 	public:
+		typedef smoc_md_loop_iterator_kind::data_type iteration_type;
 		typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+
+
 		typedef smoc_md_loop_snk_data_element_mapper::border_condition_vector_type border_condition_vector_type;
 		typedef smoc_md_loop_snk_data_element_mapper::border_type border_type;
 		typedef smoc_md_loop_snk_data_element_mapper::border_type_vector_type border_type_vector_type;
@@ -160,6 +172,11 @@ public:
 		/* Data Element Access */
 		virtual return_type operator[](const iter_domain_vector_type& window_iteration) { assert(false); }
 		virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const { assert(false); }
+
+		/// Returns the value of the loop iterator for the given iteration level
+		iteration_type iteration(size_t iteration_level) const {
+			return (*snk_iterator)[iteration_level];
+		}
 
 		/// Check, whether data element is situated on extended border
 		virtual border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration,

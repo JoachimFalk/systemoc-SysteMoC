@@ -8,7 +8,7 @@
 smoc_wsdf_edge_descr::uvector_type 
 smoc_wsdf_edge_descr::snk_iteration_max() const {
 
-	u2vector_type snk_iteration_level_table = 
+	s2vector_type snk_iteration_level_table = 
 		calc_snk_iteration_level_table();
 	
 	uvector_type snk_vtu_iteration_level(token_dimensions);
@@ -79,7 +79,7 @@ smoc_wsdf_edge_descr::snk_data_element_mapping_vector() const {
 smoc_wsdf_edge_descr::umatrix_type 
 smoc_wsdf_edge_descr::snk_data_element_mapping_matrix() const {
 
-	u2vector_type snk_iteration_level_table = 
+	s2vector_type snk_iteration_level_table = 
 		calc_snk_iteration_level_table();
 	
 	uvector_type snk_vtu_iteration_level(token_dimensions);
@@ -112,7 +112,7 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 	std::cout << "Enter smoc_wsdf_edge_descr::calc_border_condition_matrix()" << std::endl;
 #endif
 
-	u2vector_type snk_iteration_level_table = 
+	s2vector_type snk_iteration_level_table = 
 		calc_snk_iteration_level_table();
 	
 	uvector_type snk_vtu_iteration_level(token_dimensions);
@@ -355,7 +355,53 @@ bool smoc_wsdf_edge_descr::src_has_iteration_level(unsigned firing_level,
 }
 
 
-smoc_wsdf_edge_descr::u2vector_type 
+smoc_wsdf_edge_descr::s2vector_type 
+smoc_wsdf_edge_descr::calc_src_iteration_level_table() const {
+
+#if VERBOSE_LEVEL == 100
+	std::cout << "Enter  smoc_wsdf_edge_descr::calc_src_iteration_level_table()" << std::endl;
+#endif
+
+	unsigned iteration_level = 0;
+
+	s2vector_type return_table(src_firing_blocks.size()-1,svector_type(token_dimensions));
+	
+
+#if VERBOSE_LEVEL == 100
+	std::cout << "Size of return-table: " << return_table.size() << std::endl;
+#endif
+
+	for(int firing_level = src_num_firing_levels-1; 
+			firing_level >= 1; //exclude effective token
+			firing_level--){
+		for(int token_dimension = token_dimensions-1; 
+				token_dimension >= 0; 
+				token_dimension--){
+
+#if VERBOSE_LEVEL == 100
+			std::cout << "firing_level = " << firing_level << std::endl;
+			std::cout << "token_dimension = " << token_dimension << std::endl;
+			std::cout << "iteration_level = " << iteration_level << std::endl;
+#endif
+			
+			if (src_has_iteration_level(firing_level, token_dimension)){
+				return_table[firing_level-1][token_dimension] = iteration_level;
+				iteration_level++;
+			}else{
+				return_table[firing_level-1][token_dimension] = -1;
+			}
+		}
+	}
+
+#if VERBOSE_LEVEL == 100
+	std::cout << "Leave  smoc_wsdf_edge_descr::calc_src_iteration_level_table()" << std::endl;
+#endif
+
+	return return_table;
+}
+
+
+smoc_wsdf_edge_descr::s2vector_type 
 smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
 
 #if VERBOSE_LEVEL == 100
@@ -366,7 +412,7 @@ smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
 
 	//Generate a data structure with the same number of data elements than
 	//snk_firing_blocks
-	u2vector_type return_table(snk_firing_blocks);
+	s2vector_type return_table(snk_firing_blocks.size(),svector_type(token_dimensions));
 
 #if VERBOSE_LEVEL == 100
 	std::cout << "Size of return-table: " << return_table.size() << std::endl;
@@ -384,10 +430,12 @@ smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
 			std::cout << "token_dimension = " << token_dimension << std::endl;
 			std::cout << "iteration_level = " << iteration_level << std::endl;
 #endif
-			return_table[firing_level][token_dimension] = iteration_level;
 			
 			if (snk_has_iteration_level(firing_level, token_dimension)){
+				return_table[firing_level][token_dimension] = iteration_level;
 				iteration_level++;
+			}else{
+				return_table[firing_level][token_dimension] = -1;
 			}
 		}
 	}
@@ -400,7 +448,7 @@ smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
 }
 
 
-void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(u2vector_type& iteration_level_table,
+void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(s2vector_type& iteration_level_table,
 																										 uvector_type& vtu_iteration_level,
 																										 bvector_type& new_vtu_iteration) const {
 
@@ -432,11 +480,13 @@ void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(u2vector_type& iteration_le
 
 			//update iteration level table in order to take
 			//previous modifications into account
-			iteration_level_table[firing_level][token_dimension] += level_inc;
+			if (iteration_level_table[firing_level][token_dimension] >= 0)
+				iteration_level_table[firing_level][token_dimension] += level_inc;
 
 						
 			if (!found[token_dimension]){
-				if (snk_has_iteration_level(firing_level, token_dimension)){
+				//if (snk_has_iteration_level(firing_level, token_dimension)){
+				if (iteration_level_table[firing_level][token_dimension] >= 0){
 					if (snk_firing_blocks[firing_level][token_dimension] == 
 							snk_r_vtu[token_dimension]){
 						
@@ -486,7 +536,7 @@ void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(u2vector_type& iteration_le
 
 }
 
-void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(u2vector_type& snk_iteration_level_table,
+void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(s2vector_type& snk_iteration_level_table,
 																										 uvector_type& snk_vtu_iteration_level
 																										 ) const {
 	bvector_type dummy(snk_vtu_iteration_level.size());
@@ -497,7 +547,7 @@ void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(u2vector_type& snk_iteratio
 }
 
 unsigned 
-smoc_wsdf_edge_descr::get_num_iteration_levels(const u2vector_type& snk_iteration_level_table,
+smoc_wsdf_edge_descr::get_num_iteration_levels(const s2vector_type& snk_iteration_level_table,
 																							 const uvector_type& snk_vtu_iteration_level) const {
 
 	unsigned return_value;
@@ -506,7 +556,7 @@ smoc_wsdf_edge_descr::get_num_iteration_levels(const u2vector_type& snk_iteratio
 	std::cout << "Enter smoc_wsdf_edge_descr::get_num_iteration_levels" << std::endl;
 #endif
 
-	if(snk_iteration_level_table[0][0] > snk_vtu_iteration_level[0])
+	if(snk_iteration_level_table[0][0] > (sdata_type)snk_vtu_iteration_level[0])
 		return_value = snk_iteration_level_table[0][0]+1;
 	else
 		return_value = snk_vtu_iteration_level[0] + 1;
@@ -540,7 +590,7 @@ unsigned smoc_wsdf_edge_descr::calc_src_iteration_levels() const {
 
 
 smoc_wsdf_edge_descr::uvector_type 
-smoc_wsdf_edge_descr::calc_snk_iteration_max(const u2vector_type& snk_iteration_level_table,
+smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_level_table,
 																						 const uvector_type& snk_vtu_iteration_level
 																						 ) const {
 
@@ -577,7 +627,8 @@ smoc_wsdf_edge_descr::calc_snk_iteration_max(const u2vector_type& snk_iteration_
 		for(unsigned firing_level = 0; 
 				firing_level < snk_num_firing_levels; 
 				firing_level++){
-			if (snk_has_iteration_level(firing_level, token_dimension)){
+			//if (snk_has_iteration_level(firing_level, token_dimension)){
+			if(snk_iteration_level_table[firing_level][token_dimension] >= 0){
 #if VERBOSE_LEVEL == 100
 				std::cout << "firing_level = " << firing_level << std::endl;
 				std::cout << "token_dimension = " << token_dimension << std::endl;
@@ -593,7 +644,7 @@ smoc_wsdf_edge_descr::calc_snk_iteration_max(const u2vector_type& snk_iteration_
 					-1;				
 
 				// Check, if vtu is covered
-				if (snk_vtu_iteration_level[token_dimension] ==
+				if ((sdata_type)snk_vtu_iteration_level[token_dimension] ==
 						snk_iteration_level_table[firing_level][token_dimension]){
 					
 					found_vtu[token_dimension] = true;					
@@ -659,7 +710,7 @@ void smoc_wsdf_edge_descr::append_snk_window_iteration(uvector_type& iteration_m
 
 
 smoc_wsdf_edge_descr::umatrix_type 
-smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const u2vector_type& snk_iteration_level_table,
+smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& snk_iteration_level_table,
 																													 const uvector_type& snk_vtu_iteration_level,
 																													 const uvector_type& snk_iter_max
 																													 ) const {
@@ -688,8 +739,9 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const u2vector_type& 
 			token_dimension++){
 		for(unsigned firing_level = 0; 
 				firing_level < snk_num_firing_levels; 
-				firing_level++){
-			if (snk_has_iteration_level(firing_level, token_dimension)){
+				firing_level++){			
+			//if (snk_has_iteration_level(firing_level, token_dimension)){
+			if(snk_iteration_level_table[firing_level][token_dimension] >= 0){
 #if VERBOSE_LEVEL == 100
 				std::cout << "firing_level = " << firing_level << std::endl;
 				std::cout << "token_dimension = " << token_dimension << std::endl;
@@ -704,13 +756,13 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const u2vector_type& 
 					prev_mapping_factor[token_dimension];
 				
 				//check, whether iteration level represents vtu
-				if (snk_vtu_iteration_level[token_dimension] == 
+				if ((sdata_type)snk_vtu_iteration_level[token_dimension] == 
 						snk_iteration_level_table[firing_level][token_dimension]){
 					//vtu requires special attention
 					prev_mapping_factor[token_dimension] =
 						u0[token_dimension];
 					found_vtu[token_dimension] = true;
-				}else if((snk_vtu_iteration_level[token_dimension] > 
+				}else if(((sdata_type)snk_vtu_iteration_level[token_dimension] > 
 									snk_iteration_level_table[firing_level][token_dimension]) &&
 								 (!found_vtu[token_dimension])){
 					//Firing block is already larger than vtu. However, vtu has not already

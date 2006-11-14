@@ -16,17 +16,50 @@
 #define PORT_IN_SMOC_MD_STORAGE_ACCESS smoc_simple_md_buffer_kind::smoc_md_storage_access_snk
 #define PORT_OUT_SMOC_MD_STORAGE_ACCESS smoc_simple_md_buffer_kind::smoc_md_storage_access_src
 
-#define VERBOSE_LEVEL 101
+///101: border processing
+///102: parameter propagation
+#define VERBOSE_LEVEL 102
+
+
+template <typename T,
+					template <typename, typename> class R,
+					class PARAM_TYPE>
+class smoc_md_port_in_base
+	: public smoc_port_in_base<T,R,PARAM_TYPE>
+{
+
+public:
+	typedef smoc_wsdf_edge_descr::s2vector_type s2vector_type;
+
+public:
+	virtual void setFiringLevelMap(const s2vector_type& firing_level_map) = 0;	
+};
+
+
+template <typename T,
+					template <typename, typename> class R,
+					class PARAM_TYPE>
+class smoc_md_port_out_base
+	: public smoc_port_out_base<T,R,PARAM_TYPE>
+{
+
+public:
+	typedef smoc_wsdf_edge_descr::s2vector_type s2vector_type;
+
+public:
+	virtual void setFiringLevelMap(const s2vector_type& firing_level_map) = 0;	
+
+};
 
 
 /// This class perfoms a port access with
 /// constant border extension
 template<typename T, class PARAM_TYPE>
 class smoc_cst_border_ext
-	: public smoc_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS, PARAM_TYPE>
+	: public smoc_md_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS, PARAM_TYPE>
 {
 public:	
-	typedef smoc_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS, PARAM_TYPE> base_type;
+	typedef smoc_md_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS, PARAM_TYPE> base_type;
 	typedef T				    data_type;
 	typedef smoc_cst_border_ext<T,PARAM_TYPE> this_type;
 	typedef typename this_type::iface_type    iface_type;
@@ -168,12 +201,16 @@ public:
 	typedef T				    data_type;
 	typedef smoc_md_port_in<data_type, N, BORDER_PROC_CLASS>	    this_type;
 	typedef typename this_type::iface_type    iface_type;
-	typedef typename iface_type::access_type  ring_type;
+	typedef typename iface_type::access_type  access_type;
 
   typedef const smoc_wsdf_snk_param& param_type;
 
 	//Make border init visible
 	typedef typename border_proc_parent_type::border_init border_init;
+
+	typedef typename border_proc_parent_type::s2vector_type s2vector_type;
+
+	typedef typename access_type::iteration_type iteration_type;
 	
 public:
   smoc_md_port_in()
@@ -256,9 +293,42 @@ public:
 	{}
 
 public:
+
+	iteration_type iteration(unsigned firing_level, unsigned dimension) const {
+		if (firing_level_map[firing_level][dimension] < 0){
+			//Firing level is not covered by an iteration level
+			return 0;
+		}else{
+			return access_type::iteration(firing_level_map[firing_level][dimension]);
+		}
+	}
+
   param_type params() const{
 		return *this;
 	}
+
+
+	void setFiringLevelMap(const s2vector_type& firing_level_map){
+#if VERBOSE_LEVEL == 102
+		dout << "Enter smoc_md_port_in::setFiringLevelMap" << endl;
+		dout << inc_level;
+#endif
+		this->firing_level_map = firing_level_map;
+
+#if VERBOSE_LEVEL == 102
+
+		dout << "firing_level_map = " << firing_level_map;
+		dout << endl;
+
+		dout << "Leave smoc_md_port_in::setFiringLevelMap" << endl;
+		dout << dec_level;
+#endif
+	}
+
+private:
+	s2vector_type firing_level_map;
+
+
 };
 
 
@@ -270,16 +340,17 @@ public:
 template <typename T,
 					unsigned N>
 class smoc_md_iport_in
-	: public smoc_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS,const smoc_wsdf_snk_param&>
+	: public smoc_md_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS,const smoc_wsdf_snk_param&>
 {
 public:
 	typedef T				    data_type;
 	typedef smoc_md_port_in<data_type, N>	    this_type;
-	typedef smoc_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS,const smoc_wsdf_snk_param&> parent_type;
+	typedef smoc_md_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS,const smoc_wsdf_snk_param&> parent_type;
 	typedef typename this_type::iface_type    iface_type;
-	typedef typename iface_type::access_type  ring_type;
+	typedef typename iface_type::access_type  access_type;
 
 	typedef const smoc_wsdf_snk_param& param_type;
+	typedef typename parent_type::s2vector_type s2vector_type;
 
 public:
   smoc_md_iport_in()
@@ -292,6 +363,14 @@ public:
 		assert(parent_port != NULL);
 		return parent_port->params();
 	}
+
+	void setFiringLevelMap(const s2vector_type& firing_level_map){
+		parent_type *parent_port = dynamic_cast<parent_type*> (this->getChildPort());
+		assert(parent_port != NULL);
+		parent_port->setFiringLevelMap(firing_level_map);		
+	}
+
+
 
 };
 
@@ -336,15 +415,15 @@ public:
 template <typename T,
 					unsigned N>
 class smoc_md_port_out
-	: public smoc_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS,const smoc_wsdf_src_param&> ,
-		public smoc_md_array_access<typename smoc_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param& >::return_type,
+	: public smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS,const smoc_wsdf_src_param&> ,
+		public smoc_md_array_access<typename smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param& >::return_type,
 																smoc_vector<unsigned long>,
-																smoc_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param& >,N>,
+																smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param& >,N>,
 		private smoc_wsdf_src_param
 {
 
 public:
-	typedef smoc_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&> port_parent_type;
+	typedef smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&> port_parent_type;
 	typedef typename port_parent_type::return_type return_type;
 	typedef smoc_md_array_access<return_type, smoc_vector<unsigned long>, port_parent_type,N> md_array_access_parent_type;
 
@@ -354,10 +433,13 @@ public:
   typedef T				    data_type;
   typedef smoc_md_port_out<data_type,N>	    this_type;
   typedef typename this_type::iface_type    iface_type;
-  typedef typename iface_type::access_type  ring_type;
+  typedef typename iface_type::access_type  access_type;
 
 	typedef const smoc_wsdf_src_param& param_type;
-	typedef smoc_wsdf_src_param::u2vector_type u2vector_type;
+	typedef typename smoc_wsdf_src_param::u2vector_type u2vector_type;
+	typedef typename port_parent_type::s2vector_type s2vector_type;
+
+	typedef typename access_type::iteration_type iteration_type;
 
 public:
   smoc_md_port_out()
@@ -373,9 +455,43 @@ public:
 	{}
 
 public:
+
+	iteration_type iteration(unsigned firing_level, unsigned dimension) const {
+		if (firing_level_map[firing_level][dimension] < 0){
+			//Firing level is not covered by an iteration level
+			return 0;
+		}else{
+			return access_type::iteration(firing_level_map[firing_level][dimension]);
+		}
+	}
+
+
 	param_type params() const {
 		return *this;
 	}
+
+	void setFiringLevelMap(const s2vector_type& firing_level_map){
+#if VERBOSE_LEVEL == 102
+		dout << "Enter smoc_md_port_out::setFiringLevelMap" << endl;
+		dout << inc_level;
+#endif
+
+		this->firing_level_map = firing_level_map;
+
+#if VERBOSE_LEVEL == 102
+
+		dout << "firing_level_map = " << firing_level_map;
+		dout << endl;
+
+		dout << "Leave smoc_md_port_out::setFiringLevelMap" << endl;
+		dout << dec_level;
+#endif
+	}
+
+private:
+	s2vector_type firing_level_map;
+
+	
 };
 
 
@@ -383,19 +499,20 @@ public:
 template <typename T,
 					unsigned N>
 class smoc_md_iport_out
-	: public smoc_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&>
+	: public smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&>
 {
 
 public:
-	typedef smoc_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&> port_parent_type;
+	typedef smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&> port_parent_type;
 
 public:
   typedef T				    data_type;
   typedef smoc_md_port_out<data_type,N>	    this_type;
   typedef typename this_type::iface_type    iface_type;
-  typedef typename iface_type::access_type  ring_type;
+  typedef typename iface_type::access_type  access_type;
 
 	typedef const smoc_wsdf_src_param& param_type;
+	typedef typename port_parent_type::s2vector_type s2vector_type;
 
 public:
   smoc_md_iport_out()
@@ -409,6 +526,13 @@ public:
 		assert(parent_port != NULL);
 		return parent_port->params();
 	}
+
+	void setFiringLevelMap(const s2vector_type& firing_level_map){
+		port_parent_type *parent_port = dynamic_cast<port_parent_type*> (this->getChildPort());
+		assert(parent_port != NULL);
+		parent_port->setFiringLevelMap(firing_level_map);		
+	}
+
 
 };
 
