@@ -15,6 +15,7 @@
 #define REF_FILENAME "ref_data.dat"
 
 using namespace std;
+using namespace ns_smoc_vector_init;
 
 class m_source: public smoc_actor {
 public:
@@ -32,7 +33,11 @@ private:
 	smoc_firing_state start;
 public:
 	m_source( sc_module_name name )
-		:smoc_actor( name, start ), i(0) {
+		:smoc_actor( name, start ), 
+		 out(ul_vector_init[1][1] <<
+				 ul_vector_init[12][9]),
+		 i(0)		 
+	{
 		start =  out(1) >> (VAR(i) < 12*9+24) >> CALL(m_source::process) >> start;
 	}
 };
@@ -66,6 +71,13 @@ private:
 public:
 	m_sink( sc_module_name name )
 		:smoc_actor( name, start ),
+		 in(ul_vector_init[12][9], //firing_blocks
+				ul_vector_init[12][9], //u0
+				ul_vector_init[1][1], //c
+				ul_vector_init[1][1], //delta_c
+				sl_vector_init[0][0], //bs
+				sl_vector_init[0][0] //bt
+				),				
 		 ref_data_file(REF_FILENAME)
 	{
 		start = in(1) >> CALL(m_sink::process) >> start;
@@ -106,7 +118,18 @@ private:
 	smoc_firing_state start;
 public:
 	m_filter( sc_module_name name )
-		:smoc_actor( name, start ) {
+		: smoc_actor( name, start ) ,
+			in(ul_vector_init[12][9], //firing_blocks
+				 ul_vector_init[12][9], //u0
+				 ul_vector_init[1][3], //c
+				 ul_vector_init[1][1], //delta_c
+				 sl_vector_init[0][1], //bs
+				 sl_vector_init[0][1] //bt
+				 ),
+			out(ul_vector_init[1][1] <<
+					ul_vector_init[12][9])
+		
+	{
 		start = (in(1) && out(1)) >> CALL(m_filter::process) >> start;
 	}
 };
@@ -114,8 +137,8 @@ public:
 class m_top2
   : public smoc_graph {
 public:
-	smoc_md_port_in<int,2>  in;
-	smoc_md_port_out<int,2> out;
+	smoc_md_iport_in<int,2>  in;
+	smoc_md_iport_out<int,2> out;
     
 	m_top2( sc_module_name name )
 		: smoc_graph(name)
@@ -136,69 +159,9 @@ public:
 		m_top2        &top2 = registerNode(new m_top2("m_top2"));
 		m_sink        &sink = registerNode(new m_sink("sink"));
 
-		const unsigned token_dimensions = 2;
-
-		smoc_wsdf_edge_descr::u2vector_type src_firing_blocks(2);
-		const smoc_wsdf_edge_descr::udata_type p_array[] = {1,1};
-		const smoc_wsdf_edge_descr::udata_type src_fbl1_array[] = {12,9};
-		src_firing_blocks[0] = smoc_wsdf_edge_descr::uvector_type(token_dimensions, p_array);
-		src_firing_blocks[1] = smoc_wsdf_edge_descr::uvector_type(token_dimensions, src_fbl1_array);
-			
-		const smoc_wsdf_edge_descr::udata_type snk_c_array[] = {1,1};
-		const smoc_wsdf_edge_descr::uvector_type snk_c(token_dimensions,snk_c_array);			
-
-		const smoc_wsdf_edge_descr::udata_type filter_c_array[] = {1,3};
-		const smoc_wsdf_edge_descr::uvector_type filter_c(token_dimensions,filter_c_array);			
-			
-		smoc_wsdf_edge_descr::u2vector_type snk_firing_blocks(1);
-		const smoc_wsdf_edge_descr::udata_type snk_fbl1_array[] = {12,9};
-		snk_firing_blocks[0] = smoc_wsdf_edge_descr::uvector_type(token_dimensions, snk_fbl1_array);
-			
-		const smoc_wsdf_edge_descr::udata_type u0_array[] = {12,9};
-		const smoc_wsdf_edge_descr::uvector_type u0(token_dimensions,u0_array);
-			
-		const smoc_wsdf_edge_descr::udata_type delta_c_array[] = {1,1};
-		const smoc_wsdf_edge_descr::uvector_type delta_c(token_dimensions,delta_c_array);
-			
-		const smoc_wsdf_edge_descr::udata_type d_array[] = {0,0};
-		const smoc_wsdf_edge_descr::uvector_type d(token_dimensions, d_array);
-			
-		const smoc_wsdf_edge_descr::sdata_type snk_bs_array[] = {0,0};
-		const smoc_wsdf_edge_descr::svector_type snk_bs(token_dimensions,snk_bs_array);
-			
-		const smoc_wsdf_edge_descr::sdata_type snk_bt_array[] = {0,0};
-		const smoc_wsdf_edge_descr::svector_type snk_bt(token_dimensions,snk_bt_array);
-
-		const smoc_wsdf_edge_descr::sdata_type filter_bs_array[] = {0,1};
-		const smoc_wsdf_edge_descr::svector_type filter_bs(token_dimensions,filter_bs_array);
-			
-		const smoc_wsdf_edge_descr::sdata_type filter_bt_array[] = {0,1};
-		const smoc_wsdf_edge_descr::svector_type filter_bt(token_dimensions,filter_bt_array);
-			
-		const unsigned int buffer_size_edge1 = 3;
-		const unsigned int buffer_size_edge2 = 1;
-
-		const smoc_wsdf_edge_descr wsdf_edge1(token_dimensions,
-																					src_firing_blocks,
-																					snk_firing_blocks,
-																					u0,
-																					filter_c,
-																					delta_c,
-																					d,
-																					filter_bs,filter_bt);
-
-		const smoc_wsdf_edge_descr wsdf_edge2(token_dimensions,
-																					src_firing_blocks,
-																					snk_firing_blocks,
-																					u0,
-																					snk_c,
-																					delta_c,
-																					d,
-																					snk_bs,snk_bt);
-
 #ifndef KASCPAR_PARSING
-		connectNodePorts( src.out, top2.in, smoc_md_fifo<int>(wsdf_edge1,buffer_size_edge1));
-		connectNodePorts( top2.out, sink.in, smoc_md_fifo<int>(wsdf_edge2,buffer_size_edge2));
+		indConnectNodePorts( src.out, top2.in, smoc_wsdf_edge<int>(3));
+		indConnectNodePorts( top2.out, sink.in,smoc_wsdf_edge<int>(1));
 #endif
 	}
 };
