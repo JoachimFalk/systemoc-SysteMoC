@@ -2,7 +2,7 @@
 #include <smoc_md_loop.hpp>
 #include <smoc_debug_out.hpp>
 
-#define VERBOSE_LEVEL 100
+#define VERBOSE_LEVEL 0
 // 100: verbose execution
 // 101: general debug
 // 102: memory access error

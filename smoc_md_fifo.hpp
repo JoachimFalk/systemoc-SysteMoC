@@ -30,7 +30,7 @@
 /// 101: SysteMoC Interface
 /// 102: Memory access error
 /// 103: Parameter propagation
-#define VERBOSE_LEVEL 101
+#define VERBOSE_LEVEL 0
 
 
 

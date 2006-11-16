@@ -3,7 +3,7 @@
 #include <smoc_debug_out.hpp>
 
 
-#define VERBOSE_LEVEL 102
+#define VERBOSE_LEVEL 0
 ///101: general Debug
 ///102: allocate_buffer
 

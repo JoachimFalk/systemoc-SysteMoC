@@ -18,7 +18,7 @@
 
 ///101: border processing
 ///102: parameter propagation
-#define VERBOSE_LEVEL 102
+#define VERBOSE_LEVEL 0
 
 
 

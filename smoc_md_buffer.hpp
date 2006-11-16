@@ -7,7 +7,7 @@
 #include <smoc_md_array.hpp>
 #include <smoc_debug_out.hpp>
 
-#define VERBOSE_LEVEL 102
+#define VERBOSE_LEVEL 0
 ///101: operator[]
 ///102: border processing
 
