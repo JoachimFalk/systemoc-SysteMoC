@@ -117,6 +117,11 @@ private:
 #endif
 		out[0][0] = output_value;		
 	}
+
+	void process2() {
+		cout << "Start new output image" << endl;
+		process();
+	}
   
 	smoc_firing_state start;
 public:
@@ -133,7 +138,14 @@ public:
 					ul_vector_init[12][9])
 		
 	{
-		start = (in(1) && out(1)) >> CALL(m_filter::process) >> start;
+		start = (in(1) && out(1)) 
+			>> ((out.getIteration(0,0) == (size_t)0) && (out.getIteration(0,1) == (size_t)0))
+			>> CALL(m_filter::process2) 
+			>> start
+			| (in(1) && out(1)) 
+			>> ((out.getIteration(0,0) != (size_t)0) || (out.getIteration(0,1) != (size_t)0))
+			>> CALL(m_filter::process) 
+			>> start;
 	}
 };
 
