@@ -16,7 +16,6 @@ class smoc_md_array_access
 {
 public:
 	typedef smoc_md_array_access<RETURN_TYPE,ID_TYPE,ARRAY_TYPE,N1,N2-1> base_type;
-	typedef unsigned long size_t;
 public:
 	
 	smoc_md_array_access(ARRAY_TYPE& array)
@@ -44,8 +43,6 @@ class smoc_md_array_access<RETURN_TYPE,ID_TYPE,ARRAY_TYPE,N1,1>
 public:
 	smoc_md_array_access(ARRAY_TYPE& array)
 		: id(N1),array(array){}
-public:
-	typedef unsigned long size_t;
 public:
 	//NOT virtual!
 	RETURN_TYPE operator[](size_t idx) {

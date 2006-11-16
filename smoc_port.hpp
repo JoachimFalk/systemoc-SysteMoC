@@ -126,6 +126,7 @@ public:
   std::string getNodeParam() const;
 };
 
+//P: Port class
 template<class P>
 class DPortTokens {
 public:
@@ -163,6 +164,7 @@ struct AST<DPortTokens<P> > {
 };
 
 // Make a convenient typedef for the token type.
+// P: port class
 template<class P>
 struct PortTokens {
   typedef D<DPortTokens<P> > type;
@@ -489,7 +491,7 @@ class smoc_port_in_base
 	: public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R>, PARAM_TYPE > {
 public:
   typedef T				    data_type;
-						typedef smoc_port_in_base<data_type,R,PARAM_TYPE>	    this_type;
+	typedef smoc_port_in_base<data_type,R,PARAM_TYPE>	    this_type;
   typedef typename this_type::iface_type    iface_type;
   typedef typename iface_type::access_type  ring_type;
 

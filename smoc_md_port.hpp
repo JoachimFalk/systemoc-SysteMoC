@@ -21,6 +21,114 @@
 #define VERBOSE_LEVEL 102
 
 
+
+
+
+
+namespace Expr {
+
+
+	/****************************************************************************
+	 * DPortIteration represents the value of the iterator for the given port
+	 * 
+	 */
+
+
+	class ASTNodePortIteration: public ASTLeafNode {
+	private:
+		const smoc_root_port &port;
+	public:
+		ASTNodePortIteration(const smoc_root_port &port)
+			: ASTLeafNode(static_cast<size_t*>(NULL)),
+				port(port) {}
+ 
+		const smoc_root_port *getPort() const;
+		std::string getNodeType() const;
+		std::string getNodeParam() const;
+	};
+
+	//P: Port class
+	template<class P>
+	class DPortIteration {
+	public:
+		typedef size_t          value_type;
+		typedef DPortIteration<P>  this_type;
+  
+		friend class AST<this_type>;
+		template <class E> friend class Value;
+	private:
+		P      &p;
+		size_t firing_level;
+		size_t dimension;
+	public:
+		explicit DPortIteration(P &p, 
+														size_t firing_level, 
+														size_t dimension)
+			: p(p),
+				firing_level(firing_level),
+				dimension(dimension)
+		{}
+	};
+
+	template<class P>
+	struct D<DPortIteration<P> >: public DBase<DPortIteration<P> > {
+		D(P &p,
+			size_t firing_level, 
+			size_t dimension)
+			: DBase<DPortIteration<P> >(DPortIteration<P>(p, firing_level, dimension)) {}
+	};
+
+	template<class P>
+	struct AST<DPortIteration<P> > {
+		typedef PASTNode result_type;
+  
+		static inline
+		result_type apply(const DPortIteration<P> &e)
+    { return PASTNode(new ASTNodePortIteration(e.p)); }
+	};
+
+
+	template<class P>
+	struct Value<DPortIteration<P> > {
+		typedef typename P::iteration_type result_type;
+
+		static inline
+		result_type apply(const DPortIteration<P>& e){
+			return e.p.iteration(e.firing_level, e.dimension);
+		}
+	};
+
+
+
+
+	// Make a convenient typedef for the token type.
+	// P: port class
+	template<class P>
+	struct PortIteration {
+		typedef D<DPortIteration<P> > type;
+	};
+
+	template <class P>
+	typename PortIteration<P>::type portIteration(P &p, 
+																								size_t firing_level,
+																								size_t dimension
+																								) { 
+		return typename PortIteration<P>::type(p,firing_level,dimension); 
+	}
+
+
+
+};
+
+
+
+
+
+
+
+
+
+
 template <typename T,
 					template <typename, typename> class R,
 					class PARAM_TYPE>
@@ -304,6 +412,7 @@ public:
 	}
 
   param_type params() const{
+		assert(valid);
 		return *this;
 	}
 
@@ -323,6 +432,13 @@ public:
 		dout << "Leave smoc_md_port_in::setFiringLevelMap" << endl;
 		dout << dec_level;
 #endif
+	}
+
+public:
+
+	typename Expr::PortIteration<const this_type>::type getIteration(size_t firing_level,
+																														 size_t dimension) const{ 
+		return Expr::portIteration<const this_type>(*this,firing_level,dimension); 
 	}
 
 private:
@@ -467,6 +583,7 @@ public:
 
 
 	param_type params() const {
+		assert(valid);
 		return *this;
 	}
 
@@ -487,6 +604,14 @@ public:
 		dout << dec_level;
 #endif
 	}
+
+public:
+
+	typename Expr::PortIteration<const this_type>::type getIteration(size_t firing_level,
+																																	 size_t dimension) const{ 
+		return Expr::portIteration<const this_type>(*this,firing_level,dimension); 
+	}
+	
 
 private:
 	s2vector_type firing_level_map;
