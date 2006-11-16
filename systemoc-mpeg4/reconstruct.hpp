@@ -206,28 +206,28 @@ public:
     // (falls guard type=0).
     // Von Zustand wait geht es immer wieder zurück in den Zustand read, sobald die 3. Aktion
     // (getdc) ausgeführt wurde.
-    read = (PARAM.getAvailableTokens() >= 4 &&
+    read = (PARAM(4 )&&
             PARAM.getValueAt(0) < 0)            >>
            CALL(m_reconstruct::action_eof)      >> read
-         | (PARAM.getAvailableTokens() >= 4 &&
-            FLAGS.getAvailableTokens() >= 3 &&
-            DATA.getAvailableTokens()  >= 1 &&
+         | (PARAM(4 )&&
+            FLAGS(3 )&&
+            DATA(1 )&&
             PARAM.getValueAt(0) == 1)           >>
-           (OUT.getAvailableSpace()    >= 1 &&
-            OFLAGS.getAvailableSpace() >= 3)    >>
+           (OUT(1 )&&
+            OFLAGS(3))    >>
            CALL(m_reconstruct::action_inter)    >> read
-         | (PARAM.getAvailableTokens() >= 4 &&
-            FLAGS.getAvailableTokens() >= 3 &&
-            DATA.getAvailableTokens()  >= 1 &&
-            A.getAvailableTokens()     >= 1 &&
-            B.getAvailableTokens()     >= 1 &&
-            C.getAvailableTokens()     >= 1 &&
+         | (PARAM(4 )&&
+            FLAGS(3 )&&
+            DATA(1 )&&
+            A(1 )&&
+            B(1 )&&
+            C(1 )&&
             PARAM.getValueAt(0) == 0)           >> 
-           (OUT.getAvailableSpace()    >= 1 &&
-            OFLAGS.getAvailableSpace() >= 3)    >>
+           (OUT(1 )&&
+            OFLAGS(3))    >>
            CALL(m_reconstruct::action_intra)    >> wait;
     
-    wait = (DC.getAvailableTokens()    >= 1)    >>
+    wait = (DC(1))    >>
            CALL(m_reconstruct::action_getdc)    >> read;
   }
 };

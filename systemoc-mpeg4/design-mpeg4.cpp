@@ -48,7 +48,7 @@ class m_source: public smoc_actor {
     m_source( sc_module_name name,int init_value=0, int step=1)
       :smoc_actor( name, start ), i(init_value) , step(step){
       foo = 1;
-      start = (out.getAvailableSpace() >= var(foo)) >>
+      start = (out(var(foo))) >>
               CALL(m_source::process)               >> start;
     }
 };

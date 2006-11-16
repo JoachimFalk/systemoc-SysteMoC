@@ -18,8 +18,8 @@ private:
 public:
   m_byte2bit(sc_module_name name)
     : smoc_actor(name, start) {
-    start = (in8.getAvailableTokens() >= 1) >>
-            (out.getAvailableSpace() >= 8)  >>
-            CALL(m_byte2bit::action0)       >> start;
+    start = (in8(1)) >>
+			(out(8))  >>
+			CALL(m_byte2bit::action0)       >> start;
   }
 };

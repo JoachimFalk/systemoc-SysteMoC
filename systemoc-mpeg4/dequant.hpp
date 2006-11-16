@@ -53,18 +53,18 @@ private:
 public:
   m_dequant(sc_module_name name)
     : smoc_actor(name, start) {
-    start = (IN.getAvailableTokens() >= 1 && 
-             FLAGS.getAvailableTokens() >= 3 &&
+    start = (IN(1 )&& 
+             FLAGS(3 )&&
              FLAGS.getValueAt(0) == 1) >>
-            (OUT.getAvailableSpace() >= 1 &&
-             MIN.getAvailableSpace() >= 1) >>
+            (OUT(1 )&&
+             MIN(1)) >>
             CALL(m_dequant::action_inter)  >> start
-          | (IN.getAvailableTokens() >= 1 &&
-             FLAGS.getAvailableTokens() >= 3 &&
+          | (IN(1 )&&
+             FLAGS(3 )&&
              FLAGS.getValueAt(0) == 0) >>
-            (OUT.getAvailableSpace() >= 1 &&
-             DC.getAvailableSpace() >= 1 &&
-             MIN.getAvailableSpace() >= 1) >>
+            (OUT(1 )&&
+             DC(1 )&&
+             MIN(1)) >>
             CALL(m_dequant::action_intra)  >> start;
   }
 private:
