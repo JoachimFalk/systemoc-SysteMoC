@@ -38,11 +38,15 @@ LIBS= @LIBS@ -lsystemoc -lX11
 noinst_PROGRAMS= simulation-wsdf-recons-dila
 
 simulation_wsdf_recons_dila_SOURCES= \
-	design-wsdf-recons-dila.cpp \
-	wsdf_img_snk.cpp \
-	wsdf_img_src.cpp
+	design-wsdf-recons-dila.cpp
+#	test_input_switch.cpp
 
 simulation_wsdf_recons_dila_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+all: example.bmp seed.bmp
+
+%.bmp: %-bmp
+	cp $^ $@
 
 if SYNTH
 SYNTHESIS_SUBDIR = synthesis
