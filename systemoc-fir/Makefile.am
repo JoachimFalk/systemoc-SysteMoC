@@ -33,6 +33,7 @@
 # ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 # ENHANCEMENTS, OR MODIFICATIONS.
 
+root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
 root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
 SUBDIRS=
