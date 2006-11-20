@@ -30,6 +30,7 @@
 /// 101: SysteMoC Interface
 /// 102: Memory access error
 /// 103: Parameter propagation
+/// 104: Actor invocation
 #define VERBOSE_LEVEL 0
 
 
@@ -297,8 +298,14 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 		}else if (req_src_iteration.is_lex_smaller_than(src_loop_iterator.iteration_vector())){
 			//Sink actor can fire
 			return_value = 1;
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+			dout << "Sink can fire" << endl;
+#endif
 		}else{
 			//Sink actor is blocked
+#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+			dout << "Sink is blocked" << endl;
+#endif
 			return_value = 0;
 		}	
 	}
@@ -325,9 +332,15 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage() const {
 	size_t return_value;
 
 	if (BUFFER_CLASS::unusedStorage(src_loop_iterator)){
+#if VERBOSE_LEVEL == 101
+		dout << "Source can fire" << endl;
+#endif
 		return_value = 1;
 	}else{
 		return_value = 0;
+#if VERBOSE_LEVEL == 101
+		dout << "Source is blocked" << endl;
+#endif
 	}
 
 #if VERBOSE_LEVEL == 101
