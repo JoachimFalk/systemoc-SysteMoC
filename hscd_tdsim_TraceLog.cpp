@@ -38,6 +38,7 @@
 #include <sstream>
 #include <cassert>
 #include <cmath>
+#include <systemc.h>
 
 #ifdef SYSTEMOC_TRACE
 
@@ -95,36 +96,36 @@ bool Sequence::next() {
 TraceLogStream TraceLog("test.trace");
 
 void  TraceLogStream::traceBlockingWaitStart(){
-  stream << "<waiting type=\"sleep\"/>" << std::endl;
+  stream << "<waiting type=\"sleep\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
 }
 void  TraceLogStream::traceBlockingWaitEnd(){
-  stream << "<waiting type=\"wake up\"/>" << std::endl;
+  stream << "<waiting type=\"wake up\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
 }
 void  TraceLogStream::traceStartChoice(const char * actor){
-  stream << "<choice type=\"begin\" name=\""<< actor << "\"/>" << std::endl;
+  stream << "<choice type=\"begin\" name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   actors.insert(actor);
   actor_activation_count[actor]++;
   lastactor = actor;
   fifo_actor_last = actor;
 }
 void  TraceLogStream::traceEndChoice(const char * actor){
-  stream << "<choice type=\"end\" name=\""<< actor << "\"/>" << std::endl;
+  stream << "<choice type=\"end\" name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_actor_last = "";
 }
 void  TraceLogStream::traceStartTransact(const char * actor){
-  stream << "<transact type=\"begin\" name=\""<< actor << "\"/>" << std::endl;
+  stream << "<transact type=\"begin\" name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   actors.insert(actor);
   actor_activation_count[actor]++;
   lastactor = actor;
   fifo_actor_last = actor;
 }
 void  TraceLogStream::traceEndTransact(const char * actor){
-  stream << "<transact type=\"end\" name=\""<< actor << "\"/>" << std::endl;
+  stream << "<transact type=\"end\" name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_actor_last = "";
 }
 
 void TraceLogStream::traceStartActor(const char * actor){
-  stream << "<actor name=\""<< actor << "\">" << std::endl;
+  stream << "<actor name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\">" << std::endl;
   actors.insert(actor);
   actor_activation_count[actor]++;
   lastactor=actor;
@@ -133,7 +134,7 @@ void TraceLogStream::traceEndActor(const char * actor){
   stream << "</actor>" << std::endl;
 }
 void TraceLogStream::traceStartFunction(const char * func){
-  stream << "<function name=\""<< func << "\">" << std::endl;
+  stream << "<function name=\""<< func << "\" timestamp=\"" << sc_time_stamp() << "\">" << std::endl;
   function_call_count[string(lastactor)+" -> "+string(func)]++;
   functions[lastactor].insert(func);
   last_actor_function[lastactor] = func;
@@ -142,13 +143,13 @@ void TraceLogStream::traceEndFunction(const char * func){
   stream << "</function>" << std::endl;
 }
 void TraceLogStream::traceStartTryExecute(const char * actor){
-  stream << "<tryexecute name=\""<< actor << "\">" << std::endl;
+  stream << "<tryexecute name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\">" << std::endl;
 }
 void TraceLogStream::traceEndTryExecute(const char * actor){
   stream << "</tryexecute>" << std::endl;
 }
 void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
-  stream << "<commexecin size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
+  stream << "<commexecin size=\""<<size<<"\" channel=\""<<actor<<"\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_info[actor].size -= size;
   if(fifo_actor_last != "") {
     fifo_info[actor].to.name = fifo_actor_last;
@@ -156,7 +157,7 @@ void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
   }
 }
 void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
-  stream << "<commexecout size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
+  stream << "<commexecout size=\""<<size<<"\" channel=\""<<actor<<"\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_info[actor].size += size;
   if(fifo_actor_last != "") {
     fifo_info[actor].from.name = fifo_actor_last;
@@ -164,7 +165,7 @@ void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
   }
 }
 void TraceLogStream::traceStartDeferredCommunication(const char * actor){
-  stream << "<deferred_communication actor=\""<< actor << "\">" << std::endl;
+  stream << "<deferred_communication actor=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\">" << std::endl;
   fifo_actor_last = actor;
 }
 void TraceLogStream::traceEndDeferredCommunication(const char * actor){
