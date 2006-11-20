@@ -75,7 +75,6 @@ public:
 	// (infact, it does!). In this case we would obtain an error when returning a reference.
 	smoc_vector_init<ID_TYPE, N1+1>
 	operator[](const ID_TYPE& id){
-		std::cout << "smoc_vector_init[]: N1 = " << N1 << " id = " << id << std::endl;
 		return smoc_vector_init<ID_TYPE, N1+1>(*this, id);
 	}
 
