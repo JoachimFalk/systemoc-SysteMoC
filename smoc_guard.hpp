@@ -67,9 +67,11 @@ public:
   void finalise() {
     Expr::evalTo<Expr::Sensitivity>(guard, *this);
 #ifdef SYSTEMOC_DEBUG
+    // DO not dump status of activation pattern as
+    // that may call guards which operate on as yet
+    // unititialized data
     std::cerr << "smoc_activation_pattern::finalise()"
-                <<  " this == " << this
-                << ", " << *this << std::endl;
+              << " this == " << this << std::endl;
 #endif
   }
  
