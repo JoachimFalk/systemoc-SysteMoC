@@ -161,4 +161,26 @@ public:
     { SC_THREAD(scheduleTop); }
 };
 
+class smoc_top
+: public sc_module,
+  public smoc_scheduler_top {
+private:
+  // called by elaboration_done (does nothing by default)
+  void end_of_elaboration()
+    { c->finalise(); }
+  
+  smoc_graph *c;
+
+  void scheduleTop()
+    { return smoc_scheduler_top::schedule(c); }
+public:
+  typedef smoc_top this_type;
+  
+  SC_HAS_PROCESS(this_type);
+  
+  smoc_top(smoc_graph *c)
+    : sc_module(sc_module_name("top")), c(c)
+    { SC_THREAD(scheduleTop); }
+};
+
 #endif // _INCLUDED_SMOC_MOC_HPP
