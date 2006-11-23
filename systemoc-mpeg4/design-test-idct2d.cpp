@@ -148,20 +148,15 @@ public:
 
 #ifndef KASCPAR_PARSING
 int sc_main (int argc, char **argv) {
-  bool generateProblemgraph =
-    (argc > 1) && !strcmp(argv[1], "--generate-problemgraph");
   size_t periods            =
-    (argc > 1 && !generateProblemgraph)
+    (argc > 1)
     ? atoi(argv[1])
     : 1;
   
   smoc_top_moc<IDCT2d_TEST> top("top", periods);
   
-  if (generateProblemgraph) {
-    smoc_modes::dump(std::cout, top);
-  } else {  
-    sc_start(-1);
-  }
+  sc_start(-1);
+  
   return 0;
 }
 #endif
