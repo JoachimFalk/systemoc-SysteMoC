@@ -161,8 +161,34 @@ class smoc_top_moc
     public smoc_scheduler_top {
 private:
   // called by elaboration_done (does nothing by default)
-  void end_of_elaboration()
-    { this->finalise(); }
+  void end_of_elaboration() {
+    this->finalise();
+    bool generate = false;
+    
+    const char* const * argv=sc_argv();
+    for(int i=0; i< sc_argc() ; i++){
+      if(0==strcmp(argv[i], "--generate-problemgraph")) generate = true;
+      else if(0==strcmp(argv[i], "--generate-networkgraph")) generate = true;
+    }
+    if (generate) {
+      smoc_modes::dump(std::cout, *this);
+
+      sc_set_stop_mode(SC_STOP_IMMEDIATE);
+      sc_report_handler::suppress(SC_UNSPECIFIED  |
+				  SC_DO_NOTHING   |
+				  SC_THROW        |
+				  SC_LOG          |
+				  SC_DISPLAY      |
+				  SC_CACHE_REPORT |
+				  SC_INTERRUPT    |
+				  SC_STOP         |
+				  SC_ABORT
+				  );
+      // suppress intrusive SystemC std::cout messages
+      std::cout.rdbuf(std::cerr.rdbuf()); 
+      sc_stop();
+    }
+  }
   
   void scheduleTop()
     { return smoc_scheduler_top::schedule(this); }
