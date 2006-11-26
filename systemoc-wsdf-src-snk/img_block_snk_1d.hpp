@@ -84,7 +84,7 @@ public:
 			>> (VAR(this->cur_file) < num_files)
 			>> CALL(m_img_block_snk_1d::store_image) 
 			>> start
-			| in(1)
+			| in(size_x*size_y)
 			>> (VAR(this->cur_file) == num_files)
 			>> CALL(m_img_block_snk_1d::store_image) 
 			>> end;	

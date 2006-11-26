@@ -15,7 +15,7 @@
 #include <img_block_src_1d.hpp>
 #include <img_block_snk_1d.hpp>
 
-#define BLOCK_OPERATION
+//#define BLOCK_OPERATION
 
 using namespace std;
 

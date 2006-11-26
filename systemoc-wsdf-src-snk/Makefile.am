@@ -36,7 +36,8 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 LIBS= @LIBS@ -lsystemoc -lX11
 
 noinst_PROGRAMS= simulation-wsdf-src-snk \
-	simulation-1D-src-snk
+	simulation-1D-src-snk \
+	plain-cpp
 
 simulation_wsdf_src_snk_SOURCES= \
 	design-wsdf-src-snk.cpp
@@ -44,8 +45,12 @@ simulation_wsdf_src_snk_SOURCES= \
 simulation_1D_src_snk_SOURCES= \
 	design1D-src-snk.cpp
 
+plain_cpp_SOURCES= \
+	plain_cpp.cpp
+
 simulation_wsdf_src_snk_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 simulation_1D_src_snk_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+plain_cpp_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 if SYNTH
 SYNTHESIS_SUBDIR = synthesis
