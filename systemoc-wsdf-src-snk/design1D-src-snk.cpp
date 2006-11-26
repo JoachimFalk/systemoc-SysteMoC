@@ -12,6 +12,11 @@
 #include <img_src_1d.hpp>
 #include <img_snk_1d.hpp>
 
+#include <img_block_src_1d.hpp>
+#include <img_block_snk_1d.hpp>
+
+#define BLOCK_OPERATION
+
 using namespace std;
 
 template <typename T>
@@ -22,8 +27,13 @@ public:
 				 char* input_filename,
 				 char* output_filename)
 		: smoc_graph(name) {
+#ifdef BLOCK_OPERATION
+		m_img_block_src_1d<T> &src = registerNode(new m_img_block_src_1d<T>("src",input_filename));
+		m_img_block_snk_1d<T> &sink = registerNode(new m_img_block_snk_1d<T>("sink",output_filename,src.size_x,src.size_y));
+#else
 		m_img_src_1d<T> &src = registerNode(new m_img_src_1d<T>("src",input_filename));
 		m_img_snk_1d<T> &sink = registerNode(new m_img_snk_1d<T>("sink",output_filename,src.size_x,src.size_y));
+#endif
 
 #ifndef KASCPAR_PARSING
 		connectNodePorts( src.out, sink.in, smoc_fifo<T>(src.size_x*src.size_y));
