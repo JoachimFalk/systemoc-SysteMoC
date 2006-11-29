@@ -148,6 +148,29 @@ smoc_md_loop_data_element_mapper::check_matrix(const mapping_matrix_type& mappin
 	return true;
 }
 
+#if 0
+smoc_vector<smoc_vector<unsigned int> > 
+smoc_md_loop_data_element_mapper::calc_iteration_table(const mapping_matrix_type& mapping_matrix) const {
+	smoc_vector<smoc_vector<unsigned int> >  return_list (mapping_matrix.size1());
+
+	for(unsigned row = 0; row < mapping_matrix.size1(); row++){
+		smoc_vector<unsigned int> temp_vector(0);
+
+		for (unsigned col = 0; col < mapping_matrix.size2(); col++){
+			if(mapping_matrix(row,col) != 0){
+				temp_vector.resize(temp_vector.size()+1);
+				temp_vector[temp_vector.size()-1] = col;
+			}
+		}
+
+		return_list[row] = temp_vector;
+	}
+
+	return return_list;
+	
+}
+#endif
+
 
 /* ******************************************************************************* */
 /*                     smoc_md_loop_src_data_element_mapper                        */
@@ -170,6 +193,16 @@ void smoc_md_loop_src_data_element_mapper::get_data_element_id(const iter_domain
 				mapping_matrix(row,col) * iteration_vector[col];
 		}
 	}
+#if 0
+	for(unsigned int row = 0; row < mapping_matrix.size1(); row++){
+		const unsigned num_col_iter = iteration_table[row].size();
+		for(unsigned col_iter = 0; col_iter < num_col_iter; col_iter++){
+			const unsigned col = iteration_table[row][col_iter];
+			data_element_id[row] += 
+				mapping_matrix(row,col) * iteration_vector[col];
+		}
+	}
+#endif
 #else
 	data_element_id += prod(mapping_matrix, iteration_vector);
 #endif
@@ -923,11 +956,23 @@ smoc_md_loop_snk_data_element_mapper::calc_window_border_condition(id_type base_
 smoc_md_loop_snk_data_element_mapper::border_condition_vector_type
 smoc_md_loop_snk_data_element_mapper::calc_base_border_condition_vector(const iter_domain_vector_type& iteration) const {
 	border_condition_vector_type return_vector(_token_dimensions);
-
+#ifdef FAST_CALC_MODE
+	for(unsigned row = 0; row < _token_dimensions; row++){
+		return_vector[row] = 0;
+	}
+	for(unsigned col = 0; col < iteration.size(); col++){
+		const int row = mapping_table[col];
+		if (row >= 0){
+			return_vector[row] += 
+				border_condition_matrix(row,col)*iteration[col];
+		}
+	}
+#else
 	for(unsigned row = 0; row < _token_dimensions; row++){
 		return_vector[row] = 
 			calc_base_border_condition(iteration,row);				
 	}
+#endif
 
 	return return_vector;	
 }
@@ -956,8 +1001,20 @@ smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_do
 	dout << "Enter smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset" << endl;
 	dout << inc_level;
 #endif
+
 	border_condition_vector_type return_vector(window_iteration.size(),(id_type)0);
 
+#ifdef FAST_CALC_MODE
+	for(unsigned int delta_col = 0, col = border_condition_matrix.size2() - _token_dimensions;
+			delta_col < _token_dimensions;
+			delta_col++, col++){
+		const int row = mapping_table[col];
+		if(row >= 0){
+			return_vector[row] += 
+				border_condition_matrix(row,col) * window_iteration[delta_col];
+		}
+	}
+#else
 	for(unsigned row = 0; row < border_condition_matrix.size1(); row++){
 		for(unsigned int delta_col = 0, col = border_condition_matrix.size2() - _token_dimensions;
 				delta_col < _token_dimensions;
@@ -966,6 +1023,7 @@ smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_do
 				border_condition_matrix(row,col) * window_iteration[delta_col];
 		}
 	}
+#endif
 
 #if VERBOSE_LEVEL == 106
 	dout << "Leave smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset" << endl;

@@ -165,6 +165,9 @@ public:
 		: _token_dimensions(mapping_matrix.size1()),
 			mapping_matrix(mapping_matrix),
 			mapping_table(calc_mapping_table(mapping_matrix))
+#if 0
+		,iteration_table(calc_iteration_table(mapping_matrix))
+#endif
 	{
 		assert(check_matrix(mapping_matrix));
 	}
@@ -185,11 +188,26 @@ protected:
 	/// column is -1.
 	const smoc_vector<int> mapping_table;
 
+private:
+
 	/// builds a map which assignes to each column of the mapping
 	/// matrix which token dimension is influenced
 	/// When no token dimension is influenced, the corresponding entry for the
 	/// column is -1.
 	smoc_vector<int> calc_mapping_table(const mapping_matrix_type& mapping_matrix) const;
+
+#if 0
+protected:
+	
+	/// For each dimension, this table contains a list of columns
+	/// identifing the non-zero elements in the mapping matrix.
+	const smoc_vector<smoc_vector<unsigned int> > iteration_table;
+
+private:
+	smoc_vector<smoc_vector<unsigned int> > 
+	calc_iteration_table(const mapping_matrix_type& mapping_matrix) const;
+#endif
+	
 
 private:
 
