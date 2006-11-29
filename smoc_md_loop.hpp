@@ -148,22 +148,68 @@ protected:
 
 
 
+/// Common data element mapping for source and sink actor
+class smoc_md_loop_data_element_mapper
+{
+
+public:
+
+	/// Mapping vector
+	typedef unsigned long mapping_type;
+	typedef boost::numeric::ublas::matrix<mapping_type> mapping_matrix_type;
+	typedef smoc_vector<mapping_type> mapping_vector_type;
+
+public:
+	
+	smoc_md_loop_data_element_mapper(const mapping_matrix_type& mapping_matrix)
+		: _token_dimensions(mapping_matrix.size1()),
+			mapping_matrix(mapping_matrix),
+			mapping_table(calc_mapping_table(mapping_matrix))
+	{
+		assert(check_matrix(mapping_matrix));
+	}
+
+public:
+	/// return the number of token_dimensions
+	unsigned token_dimensions() const { return _token_dimensions;}
+
+protected:
+	const unsigned _token_dimensions;
+	const mapping_matrix_type mapping_matrix;
+
+protected:
+
+	///This table indicates for each column of the
+	///mapping matrix which token dimension is influenced
+	/// When no token dimension is influenced, the corresponding entry for the
+	/// column is -1.
+	const smoc_vector<int> mapping_table;
+
+	/// builds a map which assignes to each column of the mapping
+	/// matrix which token dimension is influenced
+	/// When no token dimension is influenced, the corresponding entry for the
+	/// column is -1.
+	smoc_vector<int> calc_mapping_table(const mapping_matrix_type& mapping_matrix) const;
+
+private:
+
+	/// Checks matrix properties
+	bool check_matrix(const mapping_matrix_type& mapping_matrix) const;
+
+};
 
 
 
 /// Data element mapping for source actor
 class smoc_md_loop_src_data_element_mapper 
+	: public smoc_md_loop_data_element_mapper
 {
 public:
   typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
 
   /// Data element identifier
 	typedef long id_type;
-  typedef smoc_vector<id_type> data_element_id_type;
-
-	/// Mapping vector
-	typedef unsigned long mapping_type;
-	typedef boost::numeric::ublas::matrix<mapping_type> mapping_matrix_type;
+  typedef smoc_vector<id_type> data_element_id_type;	
 
 	/// Offset vector
 	typedef unsigned long offset_type;
@@ -179,18 +225,12 @@ public:
 																			 const mapping_offset_type& mapping_offset,
 																			 const data_element_id_type& max_data_element_id
 																			 ):
-		_token_dimensions(mapping_offset.size()),
-		mapping_matrix(mapping_matrix),
+		smoc_md_loop_data_element_mapper(mapping_matrix),
 		mapping_offset(mapping_offset),
-		_max_data_element_id(max_data_element_id),
-		mapping_table(calc_mapping_table(mapping_matrix))
-	{
-		assert(check_matrix(mapping_matrix));
-	};
-	
+		_max_data_element_id(max_data_element_id)
+	{};
+
 public:
-	/// return the number of token_dimensions
-	unsigned token_dimensions() const { return _token_dimensions;}
 
 	/// Input parameters:
 	/// - iteration_vector:       loop iteration, for which the accessed data element
@@ -249,28 +289,11 @@ public:
 															id_type& schedule_period_offset
 															) const;
 
-protected:
-	const unsigned _token_dimensions;
-	const mapping_matrix_type mapping_matrix;
 public:
 	const mapping_offset_type mapping_offset;
 protected:
 	const data_element_id_type _max_data_element_id;
-
-	///This table indicates for each column of the
-	///mapping matrix which token dimension is influenced
-	const smoc_vector<int> mapping_table;
-
 	
-
-private:
-
-	/// Checks matrix properties
-	bool check_matrix(const mapping_matrix_type& mapping_matrix) const;
-
-	/// builds a map which assignes to each column of the mapping
-	/// matrix which token dimension is influenced
-	smoc_vector<int> calc_mapping_table(const mapping_matrix_type& mapping_matrix) const;
 
 };
 
@@ -279,6 +302,7 @@ private:
 
 /// Data element mapping for sink actor
 class smoc_md_loop_snk_data_element_mapper
+	: public smoc_md_loop_data_element_mapper
 {
 public:
 	typedef smoc_md_loop_iterator_kind::data_type iter_item_type;
@@ -287,11 +311,6 @@ public:
   /// Data element identifier
 	typedef long id_type;
   typedef smoc_vector<id_type> data_element_id_type;
-
-	/// Mapping vector
-	typedef unsigned long mapping_type;
-	typedef boost::numeric::ublas::matrix<mapping_type> mapping_matrix_type;
-	typedef smoc_vector<mapping_type> mapping_vector_type;
 
 	/// Offset vector
 	typedef long offset_type;
@@ -321,8 +340,7 @@ public:
 																			 const border_condition_vector_type& low_border_vector,
 																			 const border_condition_vector_type& high_border_vector
 																			 ):
-		_token_dimensions(mapping_offset.size()),
-		mapping_matrix(mapping_matrix),
+		smoc_md_loop_data_element_mapper(mapping_matrix),
 		mapping_offset(mapping_offset),
 		border_condition_matrix(border_matrix),
 		low_border_condition_vector(low_border_vector),
@@ -332,10 +350,6 @@ public:
 	};
 
 public:
-	/// return the number of token_dimensions
-	unsigned token_dimensions() const { return _token_dimensions;}
-	
-
 	/// Input parameters:
 	/// - iteration_vector:       loop iteration, for which the accessed data element
 	///                           shall be calculated.
@@ -404,8 +418,6 @@ public:
 	
 
 protected:
-	const unsigned _token_dimensions;
-	const mapping_matrix_type mapping_matrix;
 	const mapping_offset_type mapping_offset;
 
 	const border_condition_matrix_type border_condition_matrix;

@@ -1,6 +1,8 @@
 
 #include "smoc_wsdf_edge.hpp"
 
+#define FAST_CALC_MODE
+
 //0: No output
 ///100: debug
 #define VERBOSE_LEVEL 0
@@ -94,6 +96,11 @@ smoc_wsdf_edge_descr::snk_data_element_mapping_matrix() const {
 																																	snk_vtu_iteration_level,
 																																	iteration_max));
 
+#ifdef FAST_CALC_MODE
+	append_snk_window_iteration(iteration_max);
+	matrix_thin_out(return_matrix, iteration_max);
+#endif	
+	
 
 	return return_matrix;
 
@@ -135,12 +142,16 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 	std::cout << "Mapping-matrix: " << mapping_matrix << std::endl;
 #endif
 
-
 	smatrix_type return_matrix(mapping_matrix.size1(),mapping_matrix.size2());
 
 	calc_border_condition_matrix(mapping_matrix,
 															 snk_vtu_iteration_level,
 															 return_matrix);
+
+#ifdef FAST_CALC_MODE
+	append_snk_window_iteration(iteration_max);
+	matrix_thin_out(return_matrix, iteration_max);
+#endif	
 
 #if VERBOSE_LEVEL == 100
 	std::cout << "Leave smoc_wsdf_edge_descr::calc_border_condition_matrix()" << std::endl;

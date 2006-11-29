@@ -239,6 +239,23 @@ private:
 																		smatrix_type& border_cond_matrix
 																		) const;
 
+
+	/// This function allows to thin out a matrix
+	/// To do so, the function checks, which iteration indeces have
+	/// a maximum of zero. The corresponding mapping coefficients
+	/// can be set to zero,
+	template <typename matrix_type>
+	void matrix_thin_out(matrix_type& mapping_matrix, 
+											 const uvector_type& iteration_max) const {
+		for(unsigned int col = 0; col < iteration_max.size(); col++){
+			if (iteration_max[col] == 0){
+				for(unsigned int row = 0; row < mapping_matrix.size1(); row++){
+					mapping_matrix(row,col) = 0;
+				}
+			}
+		}
+	}
+
 };
 
 
