@@ -102,7 +102,9 @@ public:
 #endif
 			src_loop_iterator(i.src_iter_max, i.token_dimensions),
 			snk_loop_iterator(i.snk_iter_max, i.token_dimensions),
-			schedule_period_difference(0)
+			schedule_period_difference(0),
+			_usedStorage(0),
+			_usedStorageValid(false)
 	{}
 
 protected:
@@ -113,7 +115,7 @@ protected:
      ***************************************** */
   /// This function verifies, whever a complete new window
   /// can be read. If yes, the function returns 1, otherwise zero.
-  virtual size_t usedStorage() const;
+  virtual size_t usedStorage() const;	
 
   /* *****************************************
      Functions treating the number of         
@@ -219,25 +221,62 @@ protected:
 #endif
 
 
+private:
+	//in order to increase simulation speed, we buffer the value
+	//calculated by the function usedStorage.
+	mutable size_t _usedStorage;
+	mutable bool _usedStorageValid;
 
+	//updates _usedStorage
+	virtual void calcUsedStorage() const;
+
+	//called, when one window is consumed
+	virtual void decUsedStorage();
+	
+	//called, when one effective token is produced
+	virtual void incUsedStorage();
 
 };
 
 
 template <class BUFFER_CLASS>
 size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
+	if (!_usedStorageValid)
+		calcUsedStorage();
+	return _usedStorage;
+}
+
+template <class BUFFER_CLASS>
+void smoc_md_fifo_kind<BUFFER_CLASS>::decUsedStorage(){
+	//currently, we only support consumption of one window
+	_usedStorage = 0;
+
+	//request new calculation
+	_usedStorageValid = false;
+}
+
+template <class BUFFER_CLASS>
+void smoc_md_fifo_kind<BUFFER_CLASS>::incUsedStorage(){
+	//currently, we only support consumption of one window
+	if (_usedStorage < 1){
+		//request new calculation
+		_usedStorageValid = false;
+	}
+}
+
+
+template <class BUFFER_CLASS>
+void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << this->name() << ": ";
-	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage()" << endl;
+	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage()" << endl;
 	dout << inc_level;
 #endif
-	size_t return_value = 0;
 
   // In this function we assume, that the data element
   // belonging to the maximum window iteration is produced
   // by the source at last!
-
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 	dout << "Next sink invocation ID: " << snk_loop_iterator.iteration_vector();
 	dout << endl;
@@ -255,7 +294,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 		dout << "Source actor does not need to produce anything" << endl;
 #endif
-		return_value = 1;
+		_usedStorage = 1;
 	}else{		
 
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
@@ -287,7 +326,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 	
 		if (schedule_period_difference > schedule_period_offset){
 			//Sink actor can fire
-			return_value = 1;
+			_usedStorage = 1;
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 			dout << "Sink can fire due to schedule period difference" << endl;
 			dout << inc_level;
@@ -297,7 +336,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 #endif
 		}else if (req_src_iteration.is_lex_smaller_than(src_loop_iterator.iteration_vector())){
 			//Sink actor can fire
-			return_value = 1;
+			_usedStorage = 1;
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 			dout << "Sink can fire" << endl;
 #endif
@@ -306,16 +345,16 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage() const{
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
 			dout << "Sink is blocked" << endl;
 #endif
-			return_value = 0;
+			_usedStorage = 0;
 		}	
 	}
 
+	_usedStorageValid = true;
+
 #if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
-	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::usedStorage()" << endl;
+	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage()" << endl;
 	dout << dec_level;
 #endif
-
-	return return_value;
 		
 }
 
@@ -362,6 +401,8 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
 
 	//free memory
 	(*this).free_buffer(snk_loop_iterator);
+
+	decUsedStorage();
 	
   // Move to next loop iteration
   if(snk_loop_iterator.inc()){
@@ -397,7 +438,8 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 	//be paranoiac
 	//allocate memory, if not already done by user
 	this->allocate_buffer(src_loop_iterator);
-	
+
+	incUsedStorage();
 
   // Move to next loop iteration
 	if(src_loop_iterator.inc()){
