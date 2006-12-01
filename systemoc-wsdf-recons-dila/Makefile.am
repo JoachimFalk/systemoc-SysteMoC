@@ -30,10 +30,10 @@ if SYNTH
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 endif
 
-AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@ -L/usr/X11R6/lib
-AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
+AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
+AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated -Dcimg_display_type=0
 
-LIBS= @LIBS@ -lsystemoc -lX11
+LIBS= @LIBS@ -lsystemoc
 
 noinst_PROGRAMS= simulation-wsdf-recons-dila
 

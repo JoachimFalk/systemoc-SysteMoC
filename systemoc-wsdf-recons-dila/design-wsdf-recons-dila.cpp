@@ -25,6 +25,7 @@
 #include "wsdf_output_switch.hpp"
 
 #define CAPTURE_DILATATION
+#define LARGE_BUFFER_SIZE
 
 
 using namespace std;
@@ -85,30 +86,67 @@ public:
 		connectInterfacePorts( seed_in, seed_switch.orig_in );
 		connectInterfacePorts( image_in, input_switch.orig_in );
 		
+#ifdef LARGE_BUFFER_SIZE
+		indConnectNodePorts( seed_switch.out, seed_dup.in, smoc_wsdf_edge<T>(size_y));
+		indConnectNodePorts( input_switch.out, input_dup.in, smoc_wsdf_edge<T>(size_y));
+#else
 		indConnectNodePorts( seed_switch.out, seed_dup.in, smoc_wsdf_edge<T>(1));
 		indConnectNodePorts( input_switch.out, input_dup.in, smoc_wsdf_edge<T>(1));
+#endif
 
-		indConnectNodePorts(input_dup.out1, min_image.in2, smoc_wsdf_edge<T>(1));
+#ifdef LARGE_BUFFER_SIZE
+		indConnectNodePorts(input_dup.out1, min_image.in2, smoc_wsdf_edge<T>(size_y));		
+#else
+		indConnectNodePorts(input_dup.out1, min_image.in2, smoc_wsdf_edge<T>(1));		
+#endif
 		indConnectNodePorts(input_dup.out2, input_switch.buffered_in, smoc_wsdf_edge<T>(size_y,ns_smoc_vector_init::ul_vector_init[0][size_y]));
 		
+#ifdef LARGE_BUFFER_SIZE
+		indConnectNodePorts(seed_dup.out1, dilatation.in, smoc_wsdf_edge<T>(size_y));
+		indConnectNodePorts(seed_dup.out2, diff_image.in1, smoc_wsdf_edge<T>(size_y));
+#else
 		indConnectNodePorts(seed_dup.out1, dilatation.in, smoc_wsdf_edge<T>(3));
 		indConnectNodePorts(seed_dup.out2, diff_image.in1, smoc_wsdf_edge<T>(3));
+#endif
 
 #ifdef CAPTURE_DILATATION
+# ifdef LARGE_BUFFER_SIZE
+		indConnectNodePorts(dilatation.out, dil_dup.in, smoc_wsdf_edge<T>(size_y));
+
+		indConnectNodePorts(dil_dup.out1, min_image.in1, smoc_wsdf_edge<T>(size_y));
+		indConnectNodePorts(dil_dup.out2, dil_sink.in, smoc_wsdf_edge<T>(size_y));
+# else
 		indConnectNodePorts(dilatation.out, dil_dup.in, smoc_wsdf_edge<T>(1));
 
 		indConnectNodePorts(dil_dup.out1, min_image.in1, smoc_wsdf_edge<T>(1));
 		indConnectNodePorts(dil_dup.out2, dil_sink.in, smoc_wsdf_edge<T>(1));
+# endif
 #else
+# ifdef LARGE_BUFFER_SIZE
+		indConnectNodePorts(dilatation.out, min_image.in1, smoc_wsdf_edge<T>(size_y));
+# else
 		indConnectNodePorts(dilatation.out, min_image.in1, smoc_wsdf_edge<T>(1));
+# endif
 #endif
 		
+#ifdef LARGE_BUFFER_SIZE
+		indConnectNodePorts(min_image.out, min_image_dup.in, smoc_wsdf_edge<T>(size_y));
+#else
 		indConnectNodePorts(min_image.out, min_image_dup.in, smoc_wsdf_edge<T>(1));
+#endif
 
+#ifdef LARGE_BUFFER_SIZE
+		indConnectNodePorts(min_image_dup.out1, diff_image.in2, smoc_wsdf_edge<T>(size_y));
+#else
 		indConnectNodePorts(min_image_dup.out1, diff_image.in2, smoc_wsdf_edge<T>(1));
+#endif
 		indConnectNodePorts(min_image_dup.out2, output_switch.in, smoc_wsdf_edge<T>(size_y));
 		
+#ifdef LARGE_BUFFER_SIZE
+		indConnectNodePorts(diff_image.out,image_max.in,smoc_wsdf_edge<T>(size_y));
+#else
 		indConnectNodePorts(diff_image.out,image_max.in,smoc_wsdf_edge<T>(1));
+#endif
 		connectNodePorts(image_max.out, dup_1D_1.in);
 
 		connectNodePorts(dup_1D_1.out1, dup_1D_2.in, smoc_fifo<T>(1) << 0);
@@ -117,7 +155,11 @@ public:
 		connectNodePorts(dup_1D_2.out1, seed_switch.max_in);
 		connectNodePorts(dup_1D_2.out2, input_switch.max_in);
 
+#ifdef LARGE_BUFFER_SIZE
+		indConnectNodePorts(output_switch.intermediate_out,seed_switch.intermediate_in, smoc_wsdf_edge<T>(size_y));
+#else
 		indConnectNodePorts(output_switch.intermediate_out,seed_switch.intermediate_in, smoc_wsdf_edge<T>(1));
+#endif
 		connectInterfacePorts(out , output_switch.final_out );		
 		
 

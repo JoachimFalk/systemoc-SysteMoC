@@ -30,6 +30,7 @@ public:
 		m_wsdf_img_snk<T> &sink = registerNode(new m_wsdf_img_snk<T>("sink",output_filename,src.size_x,src.size_y));
 
 #ifndef KASCPAR_PARSING
+		//indConnectNodePorts( src.out, sink.in, smoc_wsdf_edge<T>(src.size_y));
 		indConnectNodePorts( src.out, sink.in, smoc_wsdf_edge<T>(1));
 #endif
 	}
