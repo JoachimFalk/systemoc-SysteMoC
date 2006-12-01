@@ -58,7 +58,8 @@ smoc_md_array<DATA_TYPE>::smoc_md_array(
 						)
   : data_buffer(NULL)
 {
-  assert(allocate_memory(nbr_dimensions, buffer_extensions));
+  bool temp = allocate_memory(nbr_dimensions, buffer_extensions);
+	assert(temp);
 }
 
 template <typename DATA_TYPE>

@@ -153,18 +153,19 @@ public:
   }
 
 	/// Generates a vector with size elements and fills them with
-																			/// with the constant value v
-																			BOOST_UBLAS_INLINE
-																			smoc_vector (const size_type size, const T& v)
-																				: parent_type(size)
+	/// with the constant value v
+	BOOST_UBLAS_INLINE
+	smoc_vector (const size_type size, const T& v)
+	  : parent_type(size)
   {
     for(size_type i = 0; i < size; i++){
       (*this)[i] = v;
     }
   }
 
-	BOOST_UBLAS_INLINE
+	
 	template <int N>
+	BOOST_UBLAS_INLINE
   smoc_vector(const smoc_vector_init<T,N>& 
 							vector_init)
     : parent_type(N)
