@@ -437,7 +437,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 
 	//be paranoiac
 	//allocate memory, if not already done by user
-	this->allocate_buffer(src_loop_iterator);
+	this->allocate_buffer();
 
 	incUsedStorage();
 
@@ -446,8 +446,9 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 		//new schedule period has been started
 		schedule_period_difference++;
 	}
-	/// Memory has been occupied
-	(*this).src_allocated = false;
+	
+	/// Memory will not be written anymore
+	(*this).release_buffer();
 	
   generate_write_events();
 

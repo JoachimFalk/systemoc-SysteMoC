@@ -11,6 +11,9 @@
 ///101: operator[]
 ///102: border processing
 
+/// Add additional asserts
+#define PARANOIA_MODE
+
 /// This class represents the base class for all SMOC buffer models.
 /// It is responsible for buffer management.
 class smoc_md_buffer_mgmt_base {
@@ -256,8 +259,7 @@ public:
     : src_data_el_mapper(i.src_data_el_mapper),
       snk_data_el_mapper(i.snk_data_el_mapper),
 			_token_dimensions(i.src_data_el_mapper.token_dimensions()),
-			size_token_space(i.src_data_el_mapper.size_token_space()),
-			src_allocated(false)
+			size_token_space(i.src_data_el_mapper.size_token_space())
 	{
 		assert(src_data_el_mapper.token_dimensions() == 
 					 snk_data_el_mapper.token_dimensions());
@@ -267,9 +269,17 @@ public:
 
 
 public:
-  /// Allocate the memory required by the given source iteration (effective token)
-	/// Returns false, if function fails
-  virtual bool allocate_buffer(const smoc_md_loop_iterator_kind& src_iterator) = 0;
+	/// This function allocates the memory for the next source iteration
+	/// The next source iteration is this one which has been passed
+	/// previously to unusedStorage.
+	/// (allocate_buffer must only be called when we are sure, that 
+	///  the buffer can be allocated). Hence, a previous call to
+	///  unusedStorage is required.
+  virtual void allocate_buffer() = 0;
+
+	/// This function is called, when the source actor has finished writing
+	/// to the memory zone allocated by "allocate_buffer()".
+	virtual void release_buffer() = 0;
 
   /// Free the memory read the last time by the following sink iteration
   virtual void free_buffer(const smoc_md_loop_iterator_kind& snk_iterator) = 0;
@@ -305,12 +315,6 @@ protected:
 	typedef smoc_md_loop_src_data_element_mapper::data_element_id_type data_element_id_type;
 
 	const data_element_id_type size_token_space;
-
-protected:
-	/// By help of this flag we determine
-	/// whether the memory for a given source iteration already has been
-	/// allocated or nor.
-	bool src_allocated;
 
   
 };
@@ -408,7 +412,8 @@ public:
 			dout << "window_iteration = " << window_iteration;
 			dout << endl;
 #endif
-			simple_md_buffer->allocate_buffer(*((*this).src_iterator));
+			//Allocate the memory for the current source iteration.
+			simple_md_buffer->allocate_buffer();
 
 			unsigned token_dimensions = (*this).src_data_el_mapper->token_dimensions();
 
@@ -630,7 +635,12 @@ public:
     : smoc_md_buffer_mgmt_base(i),
 			buffer_lines(i.buffer_lines),
 			rd_schedule_period_start(0),
-			rd_min_data_element_offset(0)
+			rd_min_data_element_offset(0),
+			cache_unusedStorage(false)
+#ifdef PARANOIA_MODE
+		,cache_src_iterator(NULL)
+#endif
+			
 	{
 		//currently, we only support initial data elements in
 		//the highest token dimension
@@ -659,7 +669,8 @@ public:
 	virtual ~smoc_simple_md_buffer_kind(){}
 
 public:
-  bool allocate_buffer(const smoc_md_loop_iterator_kind& src_iterator);	
+  void allocate_buffer();	
+	void release_buffer();
   void free_buffer(const smoc_md_loop_iterator_kind& snk_iterator);
 	bool unusedStorage(const smoc_md_loop_iterator_kind& src_iterator) const;
 
@@ -712,6 +723,22 @@ private:
 	/// for storage of the given data element
 	unsigned long calc_req_new_lines(const data_element_id_type& data_element_id, 
 																	 bool new_schedule_period) const;
+
+private:
+	/// The following elements help to make simulation faster
+	/// by caching already calculated values
+	
+	/// Does there exist unusedStorage
+	mutable bool cache_unusedStorage;
+	
+	mutable unsigned long cache_wr_schedule_period_start;
+	mutable unsigned long cache_wr_max_data_element_offset;
+	mutable unsigned long cache_free_lines;
+
+#ifdef PARANOIA_MODE
+	mutable const smoc_md_loop_iterator_kind* cache_src_iterator;
+#endif
+	
   
 };
 
