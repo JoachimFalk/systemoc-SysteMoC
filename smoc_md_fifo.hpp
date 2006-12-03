@@ -30,8 +30,9 @@
 /// 101: SysteMoC Interface
 /// 102: Memory access error
 /// 103: Parameter propagation
-/// 104: Actor invocation
-#define VERBOSE_LEVEL 0
+#ifndef VERBOSE_LEVEL_SMOC_MD_FIFO
+#define VERBOSE_LEVEL_SMOC_MD_FIFO 0
+#endif
 
 
 
@@ -98,7 +99,7 @@ public:
 			BUFFER_CLASS(i.b),
 #else
 			: BUFFER_CLASS(i.b),
-				_name(i.name != NULL ? i.name : "md_fifo"),
+				_name(i.name != NULL ? i.name : "smoc_md_fifo"),
 #endif
 			src_loop_iterator(i.src_iter_max, i.token_dimensions),
 			snk_loop_iterator(i.snk_iter_max, i.token_dimensions),
@@ -185,21 +186,22 @@ protected:
   virtual void channelContents(smoc_modes::PGWriter &pgw) const {};
 #endif
 
+	const char *name() const { return smoc_nonconflicting_chan::name(); }
+
 private:
   
   //disabled
   smoc_md_fifo_kind( const this_type&);
   this_type& operator = (const this_type &);
   
-protected:
-
 #ifdef NO_SMOC
 private:
 	std::string _name;
 protected:
 	std::string name() const {return _name;}
 #endif
-  
+
+protected:  
   /// Current source and sink iteration vectors.
   /// They specify, which iteration is executed NEXT.	
   smoc_md_static_loop_iterator src_loop_iterator;
@@ -268,7 +270,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::incUsedStorage(){
 template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 
-#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
 	dout << this->name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage()" << endl;
 	dout << inc_level;
@@ -277,7 +279,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
   // In this function we assume, that the data element
   // belonging to the maximum window iteration is produced
   // by the source at last!
-#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
 	dout << "Next sink invocation ID: " << snk_loop_iterator.iteration_vector();
 	dout << endl;
 #endif
@@ -291,13 +293,13 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 																													 src_data_element_id)){
 		/// Source does not need to produce anythouth for 
 		/// this sink iteration
-#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
 		dout << "Source actor does not need to produce anything" << endl;
 #endif
 		_usedStorage = 1;
 	}else{		
 
-#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
 		dout << "Required data element: " << src_data_element_id;
 		dout << endl;
 #endif
@@ -307,7 +309,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 		// element
 		iter_domain_vector_type req_src_iteration(src_loop_iterator.iterator_depth()); 
 		smoc_md_loop_src_data_element_mapper::id_type schedule_period_offset;
-#if VERBOSE_LEVEL == 102
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 102
 		dout << "src_loop_iterator.iterator_depth() = " << src_loop_iterator.iterator_depth() << endl;
 #endif
 		bool temp = 
@@ -318,7 +320,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 		// error checking
 		assert(temp);
 
-#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
 		dout << "Required src iteration: " << req_src_iteration;
 		dout << " (schedule_period_offset  = " << schedule_period_offset << ")";
 		dout << endl;
@@ -327,7 +329,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 		if (schedule_period_difference > schedule_period_offset){
 			//Sink actor can fire
 			_usedStorage = 1;
-#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
 			dout << "Sink can fire due to schedule period difference" << endl;
 			dout << inc_level;
 			dout << "schedule_period_difference = " << schedule_period_difference << endl;
@@ -337,12 +339,12 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 		}else if (req_src_iteration.is_lex_smaller_than(src_loop_iterator.iteration_vector())){
 			//Sink actor can fire
 			_usedStorage = 1;
-#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
 			dout << "Sink can fire" << endl;
 #endif
 		}else{
 			//Sink actor is blocked
-#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
 			dout << "Sink is blocked" << endl;
 #endif
 			_usedStorage = 0;
@@ -351,7 +353,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 
 	_usedStorageValid = true;
 
-#if (VERBOSE_LEVEL == 101) || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage()" << endl;
 	dout << dec_level;
 #endif
@@ -360,7 +362,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 
 template <class BUFFER_CLASS>
 size_t smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage() const {
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << this->name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << endl;
 	dout << inc_level;
@@ -371,18 +373,18 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage() const {
 	size_t return_value;
 
 	if (BUFFER_CLASS::unusedStorage(src_loop_iterator)){
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << "Source can fire" << endl;
 #endif
 		return_value = 1;
 	}else{
 		return_value = 0;
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << "Source is blocked" << endl;
 #endif
 	}
 
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << endl;
 	dout << dec_level;
 #endif
@@ -392,7 +394,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage() const {
 
 template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << this->name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::rpp" << endl;
 	dout << inc_level;
@@ -412,7 +414,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
 	
   generate_read_events();
 
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::rpp" << endl;
 	dout << dec_level;
 #endif
@@ -427,7 +429,7 @@ template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 #endif
 
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << this->name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::wpp" << endl;
 	dout << inc_level;
@@ -452,7 +454,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 	
   generate_write_events();
 
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::wpp" << endl;
 	dout << dec_level;
 #endif
@@ -515,7 +517,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::generate_read_events() {
 #ifndef NO_SMOC
 template <class BUFFER_CLASS>
 smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n) {
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << this->name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable" << endl;
 	dout << inc_level;
@@ -527,12 +529,12 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n) {
 		if (usedStorage() >= n){
 			eventWindowAvailable.notify();
 		}
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << dec_level;
 #endif
     return eventWindowAvailable;
 	}else{
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << dec_level;
 #endif
     return eventWrite;
@@ -544,7 +546,7 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n) {
 #ifndef NO_SMOC
 template <class BUFFER_CLASS>
 smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n) {
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << (*this).name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree" << endl;
 	dout << inc_level;
@@ -555,18 +557,20 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n) {
 		if (unusedStorage() >= n){
 			eventEffTokenFree.notify();
 		}
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << dec_level;
 #endif
     return eventEffTokenFree;
 	}else{
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << dec_level;
 #endif
     return eventRead;
 	}
 };
 #endif
+
+
 
 
 
@@ -659,7 +663,7 @@ protected:
 
 #ifndef NO_SMOC
 	void accessSetupIn(ring_in_type &r) {
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << this->name() << ": ";
 		dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
 		dout << inc_level;
@@ -667,7 +671,7 @@ protected:
 		initStorageAccess(r);
 		r.SetBuffer(storage);
 		r.SetIterator((*this).snk_loop_iterator);
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
 		dout << dec_level;
 #endif
@@ -676,7 +680,7 @@ protected:
 
 #ifndef NO_SMOC
   void accessSetupOut(ring_out_type &r) {
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   dout << this->name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
 	dout << inc_level;
@@ -684,7 +688,7 @@ protected:
 		initStorageAccess(r);
 		r.SetBuffer(storage);
 		r.SetIterator((*this).src_loop_iterator);
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
 	dout << dec_level;
 #endif
@@ -737,7 +741,7 @@ protected:
   void commExecIn(size_t consume)
 #endif
   {
-#if VERBOSE_LEVEL >= 2
+#if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
 		dout << this->name() << ": Enter commExecIn" << endl;
 		dout << inc_level;
 		dout << "Iteration : " << (*this).snk_loop_iterator.iteration_vector();
@@ -753,7 +757,7 @@ protected:
 #endif
     this->rpp(consume);
 
-#if VERBOSE_LEVEL >= 2
+#if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
 		dout << "Leave commExecIn" << endl;
 		dout << dec_level;
 #endif
@@ -767,7 +771,7 @@ protected:
 #endif
   {
 
-#if VERBOSE_LEVEL >= 2
+#if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
 		dout << this->name() << ": Enter commExecOut" << endl;
 		dout << inc_level;
 		dout << "Iteration : " << (*this).src_loop_iterator.iteration_vector();
@@ -788,7 +792,7 @@ protected:
     this->wpp(produce);
 #endif
 
-#if VERBOSE_LEVEL >= 2
+#if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
 		dout << "Leave commExecOut" << endl;
 		dout << dec_level;
 #endif
@@ -802,12 +806,12 @@ public:
 
   // bounce functions
   size_t committedOutCount() const { 
-#if VERBOSE_LEVEL >= 2
+#if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
 		dout << this->name() << ": Enter committedOutCount()" << endl;
 		dout << inc_level;
 #endif
 		size_t return_value = this->usedStorage();
-#if VERBOSE_LEVEL >= 2
+#if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
 		dout << "Fifo contains at least " << return_value << " windows" << endl;
 		dout << "Leave committedOutCount()" << endl;
 		dout << dec_level;
@@ -815,13 +819,13 @@ public:
 		return return_value;
 	}
   size_t committedInCount() const { 
-#if VERBOSE_LEVEL >= 2
+#if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
 		dout << this->name() << ": Enter committedInCount()" << endl;
 		dout << inc_level;
 #endif
 		size_t return_value = this->unusedStorage(); 
 
-#if VERBOSE_LEVEL >= 2
+#if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
 		dout << "Fifo accepts at least " << return_value << " effective tokens" << endl;
 		dout << "Leave committedInCount()" << endl;
 		dout << dec_level;
@@ -899,7 +903,7 @@ private:
 	smoc_wsdf_edge_descr assemble_wsdf_edge(const smoc_wsdf_edge<T>& edge_param,
 																					const smoc_wsdf_src_param& src_param,
 																					const smoc_wsdf_snk_param& snk_param) const {
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
 		dout << "Enter smoc_md_fifo::assemble_wsdf_edge" << endl;
 		dout << inc_level;
 #endif
@@ -909,7 +913,7 @@ private:
 
 		unsigned token_dimensions = src_param.src_firing_blocks[0].size();
 
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
 		dout << "token_dimensions = " << token_dimensions << endl;
 #endif
 		
@@ -921,7 +925,7 @@ private:
 		else
 			d = uvector_type(token_dimensions,(udata_type)0);
 
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
 		dout << "d = " << d;
 		dout << endl;
 
@@ -959,7 +963,7 @@ private:
 											snk_param.bs,
 											snk_param.bt);
 
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
 		dout << "Leave smoc_md_fifo::assemble_wsdf_edge" << endl;
 		dout << dec_level;
 #endif

@@ -4,7 +4,8 @@
 
 #define FAST_CALC_MODE
 
-#define VERBOSE_LEVEL 0
+#ifndef VERBOSE_LEVEL_SMOC_MD_LOOP
+#define VERBOSE_LEVEL_SMOC_MD_LOOP 0
 // 100: verbose execution
 // 101: general debug
 // 102: memory access error
@@ -12,6 +13,7 @@
 // 104: calc_eff_window_displacement
 // 105: max_data_element_id
 // 106: Border processing
+#endif
 
 /* ******************************************************************************* */
 /*                              smoc_md_loop_iterator_kind                         */
@@ -40,7 +42,7 @@ smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(const smoc_md_static_
 
 bool smoc_md_static_loop_iterator::inc(){
 
-#if VERBOSE_LEVEL >= 101
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "Enter smoc_md_static_loop_iterator::inc()" << endl;
 	dout << inc_level;
 #endif
@@ -61,12 +63,12 @@ bool smoc_md_static_loop_iterator::inc(){
     }
   }
 
-#if VERBOSE_LEVEL >= 101
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "New loop iteration: " << current_iteration;
 	dout << endl;
 #endif
 
-#if VERBOSE_LEVEL >= 101
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "Leave smoc_md_static_loop_iterator::inc()" << endl;
 	dout << dec_level;
 #endif
@@ -96,7 +98,7 @@ smoc_md_static_loop_iterator::max_window_iteration() const{
 smoc_vector<int> 
 smoc_md_loop_data_element_mapper::calc_mapping_table(const mapping_matrix_type& mapping_matrix) const {
 
-#if VERBOSE_LEVEL == 102
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 	dout << "Enter smoc_md_loop_src_data_element_mapper::calc_mapping_table" << endl;
 	dout << inc_level;
 #endif
@@ -117,7 +119,7 @@ smoc_md_loop_data_element_mapper::calc_mapping_table(const mapping_matrix_type& 
 		}
 	}
 
-#if VERBOSE_LEVEL == 102
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 	dout << "Mapping table: " << return_vector;
 	dout << endl;
 	dout << "Leave smoc_md_loop_src_data_element_mapper::calc_mapping_table" << endl;
@@ -279,7 +281,7 @@ void smoc_md_loop_src_data_element_mapper::get_window_data_element_offset(const 
 void smoc_md_loop_src_data_element_mapper::max_data_element_id(const smoc_md_loop_iterator_kind& loop_iterator,
 																															 data_element_id_type& max_data_element_id,
 																															 id_type& schedule_period_offset) const{
-#if VERBOSE_LEVEL == 105
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 105
 	dout << "Enter smoc_md_loop_src_data_element_mapper::max_data_element_id" << endl;
 	dout << inc_level;
 #endif
@@ -288,7 +290,7 @@ void smoc_md_loop_src_data_element_mapper::max_data_element_id(const smoc_md_loo
 	const iter_domain_vector_type 
 		max_window_iteration(loop_iterator.max_window_iteration());
 
-#if VERBOSE_LEVEL == 105
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 105
 	dout << "max_window_iteration = " << max_window_iteration;
 	dout << endl;
 #endif
@@ -298,7 +300,7 @@ void smoc_md_loop_src_data_element_mapper::max_data_element_id(const smoc_md_loo
 											schedule_period_offset
 											);
 
-#if VERBOSE_LEVEL == 105
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 105
 	dout << "Leave smoc_md_loop_src_data_element_mapper::max_data_element_id" << endl;
 	dout << dec_level;
 #endif
@@ -322,7 +324,7 @@ smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_
 																														 id_type& schedule_period_offset
 																														 ) const {
 
-#if VERBOSE_LEVEL >= 101
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "Enter smoc_md_loop_src_data_element_mapper::get_src_loop_iteration" << endl;
 	dout << inc_level;
 
@@ -330,7 +332,7 @@ smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_
 	dout << endl;
 #endif
 
-#if VERBOSE_LEVEL == 102
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 	dout << "iteration_vector.size() = " << iteration_vector.size() << endl;
 #endif
 
@@ -345,12 +347,12 @@ smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_
 	for(unsigned int i = 0; i < _token_dimensions-1; i++){
 		if (temp_id[i] < 0){
 			//data element is not produced by source actor
-#if VERBOSE_LEVEL >= 101
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 			dout << "Data element not produced by source actor" << endl;
 #endif
 			return_value = false;
 			//goto smoc_md_loop_src_data_element_mapper_get_src_loop_iteration_end;
-#if VERBOSE_LEVEL >= 101
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 			dout << "Leave smoc_md_loop_src_data_element_mapper::get_src_loop_iteration" << endl;
 			dout << dec_level;
 #endif
@@ -372,15 +374,15 @@ smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_
 		schedule_period_offset = 0;
 	}
 
-#if VERBOSE_LEVEL >= 101
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "schedule_period_offset = " << schedule_period_offset << endl;
 #endif
 
-#if VERBOSE_LEVEL == 102
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 	dout << "Calculate iteration vector ..." << endl;
 #endif
 	for(unsigned i = 0; i < mapping_table.size(); i++){
-#if VERBOSE_LEVEL == 102
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 		dout << "i = " << i
 				 << " mapping_table[i] = " << mapping_table[i] << endl;
 		dout << "iteration_vector.size() = " << iteration_vector.size() << endl;
@@ -397,7 +399,7 @@ smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_
 
 	//smoc_md_loop_src_data_element_mapper_get_src_loop_iteration_end:
 
-#if VERBOSE_LEVEL >= 101
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "Leave smoc_md_loop_src_data_element_mapper::get_src_loop_iteration" << endl;
 	dout << dec_level;
 #endif
@@ -413,7 +415,7 @@ smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_
 void smoc_md_loop_snk_data_element_mapper::get_data_element_id(const iter_domain_vector_type& iteration_vector,
 																															 data_element_id_type& data_element_id
 																															 ) const {
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Enter smoc_md_loop_snk_data_element_mapper::get_data_element_id";
 	dout << endl;
 	dout << inc_level;
@@ -432,7 +434,7 @@ void smoc_md_loop_snk_data_element_mapper::get_data_element_id(const iter_domain
 	data_element_id += prod(mapping_matrix, iteration_vector);
 #endif
 
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Leave smoc_md_loop_snk_data_element_mapper::get_data_element_id";
 	dout << endl;
 	dout << dec_level;
@@ -503,7 +505,7 @@ void smoc_md_loop_snk_data_element_mapper::get_window_data_element_offset(const 
 
 bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_md_loop_iterator_kind& snk_iterator,
 																																		data_element_id_type& data_element_id) const {
-#if (VERBOSE_LEVEL == 103) || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_LOOP == 103) || (VERBOSE_LEVEL_SMOC_MD_LOOP == 102)
 	dout << "Enter smoc_md_loop_snk_data_element_mapper::get_req_src_data_element" << endl;
 	dout << inc_level;
 	dout << "high_border_condition_vector = " << high_border_condition_vector;
@@ -516,7 +518,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 	// Get the maximum iteration vector for the given window position
 	iter_domain_vector_type 
 		window_iteration(snk_iterator.max_window_iteration());
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Max window iteration: " << window_iteration;
 	dout << endl;
 #endif
@@ -525,7 +527,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 	border_condition_vector_type 
 		temp_vector(calc_base_border_condition_vector(window_iteration));
 
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Base border condition: " << temp_vector;
 	dout << endl;
 #endif
@@ -537,7 +539,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 		if (temp_vector[dim] > high_border_condition_vector[dim]){
 			//Window is completely situated on extended border
 			return_value = false;
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 			dout << "Window is completely situated on high extended border" << endl;
 			dout << "Leave smoc_md_loop_snk_data_element_mapper::get_req_src_data_element" << endl;
 			dout << dec_level;
@@ -550,7 +552,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 	border_condition_vector_type 
 	temp2_vector(calc_window_border_condition_vector(temp_vector,
 																									 window_iteration));
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Border condition for max window iteration: " << temp2_vector;
 	dout << endl;
 #endif
@@ -561,7 +563,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 		if (temp2_vector[dim] < low_border_condition_vector[dim]){
 			//Window is completely situated on extended border
 			return_value = false;
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 			dout << "Window is completely situated on low extended border" << endl;
 #endif
 			goto smoc_md_loop_snk_data_element_mapper_get_req_src_data_element_end;
@@ -587,7 +589,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 		}
 	}
 
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Window iteration not situated on the extended border:";
 	dout << window_iteration;
 	dout << endl;
@@ -600,7 +602,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 
 smoc_md_loop_snk_data_element_mapper_get_req_src_data_element_end:
 
-#if (VERBOSE_LEVEL == 103)  || (VERBOSE_LEVEL == 102)
+#if (VERBOSE_LEVEL_SMOC_MD_LOOP == 103)  || (VERBOSE_LEVEL_SMOC_MD_LOOP == 102)
 	dout << "Leave smoc_md_loop_snk_data_element_mapper::get_req_src_data_element" << endl;
 	dout << dec_level;
 #endif
@@ -740,7 +742,7 @@ bool
 smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md_loop_iterator_kind& snk_iterator,
 																																	 unsigned token_dimension,
 																																	 mapping_type& window_displacement) const {
-#if VERBOSE_LEVEL == 104
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 104
 	dout << "Enter smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement" << endl;
 	dout << inc_level;
 	dout << "snk_iterator.iteration_vector() = " << snk_iterator.iteration_vector();
@@ -778,7 +780,7 @@ smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md
 		}
 	}
 
-#if VERBOSE_LEVEL == 104
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 104
 	dout << "border_condition_change = " << border_condition_change << endl;
 	dout << "temp_window_displacement = " << temp_window_displacement << endl;
 #endif
@@ -786,7 +788,7 @@ smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md
 
 	if (!finished){
 		//In the given dimension, we are at the end of a schedule period
-#if VERBOSE_LEVEL == 104
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 104
 		dout << "End of schedule period" << endl;
 		dout << "Leave smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement" << endl;
 		dout << dec_level;
@@ -814,7 +816,7 @@ smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md
 		id_type delta_high_condition =
 			base_border_condition - high_border_condition_vector[token_dimension];
 
-#if VERBOSE_LEVEL == 104
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 104
 		dout << "delta_low_condition = " << delta_low_condition << endl;
 		dout << "delta_high_condition = " << delta_high_condition << endl;
 #endif
@@ -867,7 +869,7 @@ smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md
 
 	window_displacement = (mapping_type) temp_window_displacement;
 
-#if VERBOSE_LEVEL == 104
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 104
 	dout << "Leave smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement" << endl;
 	dout << dec_level;
 #endif
@@ -925,7 +927,7 @@ smoc_md_loop_snk_data_element_mapper::id_type
 smoc_md_loop_snk_data_element_mapper::calc_window_border_condition(id_type base_border_condition,
 																																	 const iter_domain_vector_type& iteration,
 																																	 unsigned dimension) const {
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Enter smoc_md_loop_snk_data_element_mapper::calc_window_border_condition" << endl;
 	dout << inc_level;
 	dout << "dimension = " << dimension << endl;
@@ -943,7 +945,7 @@ smoc_md_loop_snk_data_element_mapper::calc_window_border_condition(id_type base_
 			border_condition_matrix(dimension,col) * iteration[col];
 	}
 
-#if VERBOSE_LEVEL == 103
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "return_value = " << base_border_condition << endl;
 	dout << "Leave smoc_md_loop_snk_data_element_mapper::calc_window_border_condition" << endl;
 	dout << dec_level;
@@ -960,7 +962,7 @@ smoc_md_loop_snk_data_element_mapper::calc_base_border_condition_vector(const it
 	for(unsigned row = 0; row < _token_dimensions; row++){
 		return_vector[row] = 0;
 	}
-	for(unsigned col = 0; col < iteration.size(); col++){
+	for(unsigned col = 0; col < iteration.size()-_token_dimensions; col++){
 		const int row = mapping_table[col];
 		if (row >= 0){
 			return_vector[row] += 
@@ -980,7 +982,17 @@ smoc_md_loop_snk_data_element_mapper::calc_base_border_condition_vector(const it
 smoc_md_loop_snk_data_element_mapper::border_condition_vector_type 
 smoc_md_loop_snk_data_element_mapper::calc_window_border_condition_vector(const border_condition_vector_type& base_border_condition_vector,
 																																					const iter_domain_vector_type& iteration) const {
-
+#ifdef FAST_CALC_MODE
+	border_condition_vector_type 
+		return_vector(base_border_condition_vector.size(),(id_type)0);
+	for(unsigned col = iteration.size()-_token_dimensions; col < iteration.size(); col++){
+		const int row = mapping_table[col];
+		if (row >= 0){
+			return_vector[row] += 
+				border_condition_matrix(row,col)*iteration[col];
+		}
+	}
+#else
 	border_condition_vector_type 
 		return_vector(base_border_condition_vector.size());
 	
@@ -990,6 +1002,7 @@ smoc_md_loop_snk_data_element_mapper::calc_window_border_condition_vector(const 
 																		 iteration,
 																		 row);			
 	}
+#endif
 
 	return return_vector;
 }
@@ -997,7 +1010,7 @@ smoc_md_loop_snk_data_element_mapper::calc_window_border_condition_vector(const 
 
 smoc_md_loop_snk_data_element_mapper::border_condition_vector_type
 smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_domain_vector_type& window_iteration) const {
-#if VERBOSE_LEVEL == 106
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
 	dout << "Enter smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset" << endl;
 	dout << inc_level;
 #endif
@@ -1025,7 +1038,7 @@ smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_do
 	}
 #endif
 
-#if VERBOSE_LEVEL == 106
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
 	dout << "Leave smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset" << endl;
 	dout << dec_level;
 #endif
@@ -1036,7 +1049,7 @@ smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_do
 smoc_md_loop_snk_data_element_mapper::border_type_vector_type 
 smoc_md_loop_snk_data_element_mapper::is_border_pixel(const border_condition_vector_type& border_condition_vector,
 																											bool& is_border) const{
-#if VERBOSE_LEVEL == 106
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
 	dout << "Enter smoc_md_loop_snk_data_element_mapper::is_border_pixel" << endl;
 	dout << inc_level;
 	dout << "border_condition_vector = " << border_condition_vector;
@@ -1063,7 +1076,7 @@ smoc_md_loop_snk_data_element_mapper::is_border_pixel(const border_condition_vec
 		}
 	}
 
-#if VERBOSE_LEVEL == 106
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
 	dout << "Leavesmoc_md_loop_snk_data_element_mapper::is_border_pixel" << endl;
 	dout << dec_level;
 #endif

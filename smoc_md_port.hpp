@@ -18,7 +18,9 @@
 
 ///101: border processing
 ///102: parameter propagation
-#define VERBOSE_LEVEL 0
+#ifdef VERBOSE_LEVEL_SMOC_MD_PORT
+#define VERBOSE_LEVEL_SMOC_MD_PORT 0
+#endif
 
 
 
@@ -198,7 +200,7 @@ public:
 	
 public:
 	return_type operator[](const iter_domain_vector_type& window_iteration) const{
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 101
 		dout << "Enter smoc_cst_border_ext::operator[]" << endl;
 		dout << inc_level;
 #endif
@@ -206,7 +208,7 @@ public:
 		border_type_vector_type 
 			border_type(is_ext_border(window_iteration,is_border));
 
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 101
 		dout << "window_iteration = " << window_iteration;
 		if (is_border)
 			dout << " is situated on extended border.";
@@ -216,7 +218,7 @@ public:
 
 		return_type return_value(is_border ? border_value : base_type::operator[](window_iteration));
 
-#if VERBOSE_LEVEL == 101
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 101
 		dout << "Leave smoc_cst_border_ext::operator[]" << endl;
 		dout << dec_level;
 #endif
@@ -418,13 +420,13 @@ public:
 
 
 	void setFiringLevelMap(const s2vector_type& firing_level_map){
-#if VERBOSE_LEVEL == 102
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 102
 		dout << "Enter smoc_md_port_in::setFiringLevelMap" << endl;
 		dout << inc_level;
 #endif
 		this->firing_level_map = firing_level_map;
 
-#if VERBOSE_LEVEL == 102
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 102
 
 		dout << "firing_level_map = " << firing_level_map;
 		dout << endl;
@@ -588,14 +590,14 @@ public:
 	}
 
 	void setFiringLevelMap(const s2vector_type& firing_level_map){
-#if VERBOSE_LEVEL == 102
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 102
 		dout << "Enter smoc_md_port_out::setFiringLevelMap" << endl;
 		dout << inc_level;
 #endif
 
 		this->firing_level_map = firing_level_map;
 
-#if VERBOSE_LEVEL == 102
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 102
 
 		dout << "firing_level_map = " << firing_level_map;
 		dout << endl;
