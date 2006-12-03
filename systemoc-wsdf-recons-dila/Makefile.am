@@ -43,7 +43,7 @@ simulation_wsdf_recons_dila_SOURCES= \
 
 simulation_wsdf_recons_dila_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-all: example.bmp seed.bmp
+all: example.bmp seed.bmp example2.bmp seed2.bmp
 
 %.bmp: %-bmp
 	cp $^ $@
