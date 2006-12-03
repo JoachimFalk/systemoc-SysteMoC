@@ -189,9 +189,15 @@ public:
 		m_recons<T> &recons = registerNode(new m_recons<T>("recons", src_image.size_x,src_image.size_y));
 	
 #ifndef KASCPAR_PARSING
+#ifdef LARGE_BUFFER_SIZE
+		indConnectNodePorts( src_image.out, recons.image_in, smoc_wsdf_edge<T>(src_image.size_y));
+		indConnectNodePorts( src_seed.out, recons.seed_in, smoc_wsdf_edge<T>(src_image.size_y));
+		indConnectNodePorts( recons.out, sink.in, smoc_wsdf_edge<T>(src_image.size_y));
+#else
 		indConnectNodePorts( src_image.out, recons.image_in, smoc_wsdf_edge<T>(1));
 		indConnectNodePorts( src_seed.out, recons.seed_in, smoc_wsdf_edge<T>(1));
 		indConnectNodePorts( recons.out, sink.in, smoc_wsdf_edge<T>(1));
+#endif
 #endif
 	}
 };
