@@ -104,8 +104,12 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   std::string idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
   std::string idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
   
+  // search highest interface port (multiple hierachie layers)
+  smoc_root_port  *ifPort = portOut;
+  while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
+
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "
-               "source=\"" << pgw.getId(portOut) << "\" "
+               "source=\"" << pgw.getId(ifPort)  << "\" "
                "target=\"" << idChannelPortIn    << "\" "
                "id=\""     << pgw.getId()        << "\"/>" << std::endl;
   pgw << "<process name=\"" << this->name() << "\" "
@@ -124,10 +128,15 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
     channelAttributes(pgw); // fifo size, etc...
     pgw.indentDown();
   }
+
+  // search highest interface port (multiple hierachie layers)
+  ifPort = portIn;
+  while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
+
   pgw << "</process>" << std::endl;
   pgw << "<edge name=\""   << this->name() << ".from-edge\" "
                "source=\"" << idChannelPortOut       << "\" "
-               "target=\"" << pgw.getId(portIn)      << "\" "
+               "target=\"" << pgw.getId(ifPort)      << "\" "
                "id=\""     << pgw.getId()            << "\"/>" << std::endl;
 }
 
