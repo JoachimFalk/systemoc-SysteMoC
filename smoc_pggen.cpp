@@ -77,8 +77,6 @@ namespace smoc_modes {
   }
 
   void dump( std::ostream &out, smoc_root_node &top ) {
-    sc_get_curr_simcontext()->elaborate();
-    
     PGWriter pgw( out );
     pgw << "<?xml version=\"1.0\"?>" << std::endl;
 	pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
