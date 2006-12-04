@@ -35,6 +35,8 @@
 #ifndef _INCLUDED_IDCTCLIP_HPP
 #define _INCLUDED_IDCTCLIP_HPP
 
+#define VERBOSE_IDCT_CLIP
+
 class m_IDCTclip: public smoc_actor {
 public:
   smoc_port_in<int>  I;
@@ -52,8 +54,24 @@ private:
   }
   
   void action0() { 
-    //std::cout<<"M_clip debugzeile hier ist I wert: "<< I[0] <<"\n";
-    O[0] = bound(MIN[0], I[0], MAX); }
+		int O_internal = bound(MIN[0], I[0], MAX);
+#ifdef VERBOSE_IDCT_CLIP
+#ifndef NDEBUG
+#ifndef XILINX_EDK_RUNTIME
+		cout << name() << ": " << "I[0] = " << I[0] << endl;
+		cout << name() << ": " << "MIN[0] = " << MIN[0] << endl;
+		cout << name() << ": " << "MAX = " << MAX << endl;
+		cout << name() << ": " << "O[0] = " << O_internal << endl;
+#else
+		xil_printf("%s: I[0] = %d\r\n",name(),I[0]);
+		xil_printf("%s: MIN[0] = %d\r\n",name(),MIN[0]);
+		xil_printf("%s: MAX = %d\r\n",name(),MAX);
+		xil_printf("%s: O[0] = %d\r\n",name(),O_internal);
+#endif
+#endif
+#endif
+    O[0] = O_internal; 
+	}
   
     smoc_firing_state start;
 public:

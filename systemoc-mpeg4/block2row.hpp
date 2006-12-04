@@ -37,20 +37,24 @@
 
 #include "callib.hpp"
 
+#define VERBOSE_IDCT_BLOCK2ROW
+
 class m_block2row: public smoc_actor {
 public:
   smoc_port_in<int>  b;
   smoc_port_out<int> C0, C1, C2, C3, C4, C5, C6, C7;
 private:
   void action0() {
-#ifndef XILINX_EDK_RUNTIME
+#ifdef VERBOSE_IDCT_BLOCK2ROW
 #ifndef NDEBUG
-    for ( int i = 0; i <= 63; ++i )
-#ifndef KASCPAR_PARSING 
-      std::cout << "b[" << i << "] == " << b[i] << std::endl;
+		for ( int i = 0; i < 64; i++ )
+#ifndef XILINX_EDK_RUNTIME
+			cout << name() << ": " << "b[" << i << "] = " << b[i] << endl;
+#else
+  		xil_printf("%s: b[%d] = %d\r\n",name(),i,b[i]);
 #endif
 #endif
-#endif //XILINX_EDK_RUNTIME
+#endif
     C0[0]=b[0];C0[1]=b[ 8];C0[2]=b[16];C0[3]=b[24];C0[4]=b[32];C0[5]=b[40];C0[6]=b[48];C0[7]=b[56];
     C1[0]=b[1];C1[1]=b[ 9];C1[2]=b[17];C1[3]=b[25];C1[4]=b[33];C1[5]=b[41];C1[6]=b[49];C1[7]=b[57];
     C2[0]=b[2];C2[1]=b[10];C2[2]=b[18];C2[3]=b[26];C2[4]=b[34];C2[5]=b[42];C2[6]=b[50];C2[7]=b[58];

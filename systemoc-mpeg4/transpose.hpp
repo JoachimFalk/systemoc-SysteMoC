@@ -35,27 +35,114 @@
 #ifndef _INCLUDED_TRANSPOSE_HPP
 #define _INCLUDED_TRANSPOSE_HPP
 
+#define VERBOSE_TRANSPOSE
+
+
 class m_transpose: public smoc_actor {
 public:
   smoc_port_in<int>  I0, I1, I2, I3, I4, I5, I6, I7;
   smoc_port_out<int> O0, O1, O2, O3, O4, O5, O6, O7;
 private:
-  void action0() { O0[0] = I0[0]; O0[1] = I1[0]; O0[2] = I2[0]; O0[3] = I3[0];
-                   O0[4] = I4[0]; O0[5] = I5[0]; O0[6] = I6[0]; O0[7] = I7[0]; }
-  void action1() { O1[0] = I0[0]; O1[1] = I1[0]; O1[2] = I2[0]; O1[3] = I3[0];
-                   O1[4] = I4[0]; O1[5] = I5[0]; O1[6] = I6[0]; O1[7] = I7[0]; }
-  void action2() { O2[0] = I0[0]; O2[1] = I1[0]; O2[2] = I2[0]; O2[3] = I3[0];
-                   O2[4] = I4[0]; O2[5] = I5[0]; O2[6] = I6[0]; O2[7] = I7[0]; }
-  void action3() { O3[0] = I0[0]; O3[1] = I1[0]; O3[2] = I2[0]; O3[3] = I3[0];
-                   O3[4] = I4[0]; O3[5] = I5[0]; O3[6] = I6[0]; O3[7] = I7[0]; }
-  void action4() { O4[0] = I0[0]; O4[1] = I1[0]; O4[2] = I2[0]; O4[3] = I3[0];
-                   O4[4] = I4[0]; O4[5] = I5[0]; O4[6] = I6[0]; O4[7] = I7[0]; }
-  void action5() { O5[0] = I0[0]; O5[1] = I1[0]; O5[2] = I2[0]; O5[3] = I3[0];
-                   O5[4] = I4[0]; O5[5] = I5[0]; O5[6] = I6[0]; O5[7] = I7[0]; }
-  void action6() { O6[0] = I0[0]; O6[1] = I1[0]; O6[2] = I2[0]; O6[3] = I3[0];
-                   O6[4] = I4[0]; O6[5] = I5[0]; O6[6] = I6[0]; O6[7] = I7[0]; }
-  void action7() { O7[0] = I0[0]; O7[1] = I1[0]; O7[2] = I2[0]; O7[3] = I3[0];
-                   O7[4] = I4[0]; O7[5] = I5[0]; O7[6] = I6[0]; O7[7] = I7[0]; }
+
+
+	void print_input() const {
+#ifndef NDEBUG
+#ifdef VERBOSE_TRANSPOSE
+#ifndef KASCPAR_PARSING
+#ifndef XILINX_EDK_RUNTIME
+		std::cout << name() << ": " << "I0[0] = " << I0[0] << std::endl;
+		std::cout << name() << ": " << "I1[0] = " << I1[0] << std::endl;
+		std::cout << name() << ": " << "I2[0] = " << I2[0] << std::endl;
+		std::cout << name() << ": " << "I3[0] = " << I3[0] << std::endl;
+		std::cout << name() << ": " << "I4[0] = " << I4[0] << std::endl;
+		std::cout << name() << ": " << "I5[0] = " << I5[0] << std::endl;
+		std::cout << name() << ": " << "I6[0] = " << I6[0] << std::endl;
+		std::cout << name() << ": " << "I7[0] = " << I7[0] << std::endl;
+#else
+		xil_printf("%s: I0[0] = %d\n\r", name(), I0[0]);
+		xil_printf("%s: I1[0] = %d\n\r", name(), I1[0]);
+		xil_printf("%s: I2[0] = %d\n\r", name(), I2[0]);
+		xil_printf("%s: I3[0] = %d\n\r", name(), I3[0]);
+		xil_printf("%s: I4[0] = %d\n\r", name(), I4[0]);
+		xil_printf("%s: I5[0] = %d\n\r", name(), I5[0]);
+		xil_printf("%s: I6[0] = %d\n\r", name(), I6[0]);
+		xil_printf("%s: I7[0] = %d\n\r", name(), I7[0]);
+#endif
+#else
+		//BUGFIX AC-Generation
+		//ports which are not used during parsing cannot be replaced!
+		//std::cout cannot be used due to EDK!
+		cout << name() << ": " << "I0[0] = " << I0[0] << endl;
+		cout << name() << ": " << "I1[0] = " << I1[0] << endl;
+		cout << name() << ": " << "I2[0] = " << I2[0] << endl;
+		cout << name() << ": " << "I3[0] = " << I3[0] << endl;
+		cout << name() << ": " << "I4[0] = " << I4[0] << endl;
+		cout << name() << ": " << "I5[0] = " << I5[0] << endl;
+		cout << name() << ": " << "I6[0] = " << I6[0] << endl;
+		cout << name() << ": " << "I7[0] = " << I7[0] << endl;
+
+#endif
+#endif
+#endif
+	}
+
+
+  void action0() { 
+#ifndef NDEBUG
+		print_input();
+#endif
+		O0[0] = I0[0]; O0[1] = I1[0]; O0[2] = I2[0]; O0[3] = I3[0];
+		O0[4] = I4[0]; O0[5] = I5[0]; O0[6] = I6[0]; O0[7] = I7[0]; 
+	}
+  void action1() { 
+#ifndef NDEBUG
+		print_input();
+#endif
+		O1[0] = I0[0]; O1[1] = I1[0]; O1[2] = I2[0]; O1[3] = I3[0];
+		O1[4] = I4[0]; O1[5] = I5[0]; O1[6] = I6[0]; O1[7] = I7[0]; 
+	}
+  void action2() { 
+#ifndef NDEBUG
+		print_input();
+#endif
+		O2[0] = I0[0]; O2[1] = I1[0]; O2[2] = I2[0]; O2[3] = I3[0];
+		O2[4] = I4[0]; O2[5] = I5[0]; O2[6] = I6[0]; O2[7] = I7[0]; 
+	}
+  void action3() { 
+#ifndef NDEBUG
+		print_input();
+#endif
+		O3[0] = I0[0]; O3[1] = I1[0]; O3[2] = I2[0]; O3[3] = I3[0];
+		O3[4] = I4[0]; O3[5] = I5[0]; O3[6] = I6[0]; O3[7] = I7[0]; 
+	}
+  void action4() { 
+#ifndef NDEBUG
+		print_input();
+#endif
+		O4[0] = I0[0]; O4[1] = I1[0]; O4[2] = I2[0]; O4[3] = I3[0];
+		O4[4] = I4[0]; O4[5] = I5[0]; O4[6] = I6[0]; O4[7] = I7[0]; 
+	}
+  void action5() { 
+#ifndef NDEBUG
+		print_input();
+#endif
+		O5[0] = I0[0]; O5[1] = I1[0]; O5[2] = I2[0]; O5[3] = I3[0];
+		O5[4] = I4[0]; O5[5] = I5[0]; O5[6] = I6[0]; O5[7] = I7[0]; 
+	}
+  void action6() { 
+#ifndef NDEBUG
+		print_input();
+#endif
+		O6[0] = I0[0]; O6[1] = I1[0]; O6[2] = I2[0]; O6[3] = I3[0];
+		O6[4] = I4[0]; O6[5] = I5[0]; O6[6] = I6[0]; O6[7] = I7[0]; 
+	}
+  void action7() { 
+#ifndef NDEBUG
+		print_input();
+#endif
+		O7[0] = I0[0]; O7[1] = I1[0]; O7[2] = I2[0]; O7[3] = I3[0];
+		O7[4] = I4[0]; O7[5] = I5[0]; O7[6] = I6[0]; O7[7] = I7[0]; 
+	}
   smoc_firing_state s0, s1, s2, s3, s4, s5, s6, s7;
 public:
   m_transpose(sc_module_name name)

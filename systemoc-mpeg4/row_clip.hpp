@@ -48,6 +48,7 @@
 
 #define MAXVAL_PIXEL		(  255 ) // 2^BITS_PIXEL - 1
 
+
 class m_clip
   : public smoc_graph {
   public:

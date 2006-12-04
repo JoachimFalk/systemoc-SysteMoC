@@ -35,6 +35,7 @@
 #ifndef _INCLUDED_IDCTSCALE_HPP
 #define _INCLUDED_IDCTSCALE_HPP
 
+#define VERBOSE_IDCT_SCALE
 
 class m_IDCTscale: public smoc_actor {
 public:
@@ -45,9 +46,19 @@ private:
   const int  OS;
   
   void action0() {
-    O[0] = OS + (G * I[0]);
-    
-    //std::cout<<name()<<"  M_IDCTscale Debugzeile hier ist I O wert: "<< I[0]<<" "<<O[0] <<"\n";
+		int temp = OS + (G * I[0]);
+#ifdef VERBOSE_IDCT_SCALE
+#ifndef NDEBUG
+#ifndef XILINX_EDK_RUNTIME
+		cout << name() << ": " << "I[0] = " << I[0] << endl;
+		cout << name() << ": " << "O[0] = " << temp << endl;
+#else
+		xil_printf("%s: I[0] = %d\r\n",name(),I[0]);
+		xil_printf("%s: O[0] = %d\r\n",name(),temp);
+#endif
+#endif
+#endif
+    O[0] = temp;
   }
   
   smoc_firing_state start;

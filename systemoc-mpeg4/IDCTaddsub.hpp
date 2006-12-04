@@ -34,6 +34,11 @@
 
 #ifndef _INCLUDED_IDCTADDSUB_HPP
 #define _INCLUDED_IDCTADDSUB_HPP
+
+
+#define VERBOSE_IDCT_ADDSUB
+
+
 class m_IDCTaddsub: public smoc_actor {
 public:
   smoc_port_in<int> I1;
@@ -46,11 +51,26 @@ private:
   const int  ATTEN;
   
   void action0() {
-    O1[0] = cal_rshift(G * (I1[0] + I2[0]) + OS, ATTEN);
-    O2[0] = cal_rshift(G * (I1[0] - I2[0]) + OS, ATTEN);
+		int O1_internal = cal_rshift(G * (I1[0] + I2[0]) + OS, ATTEN);
+		int O2_internal = cal_rshift(G * (I1[0] - I2[0]) + OS, ATTEN);
+    O1[0] = O1_internal;
+    O2[0] = O2_internal;
+#ifdef VERBOSE_IDCT_ADDSUB
+#ifndef NDEBUG
+#ifndef XILINX_EDK_RUNTIME
+		cout << name() << ": " << "I1[0] = " << I1[0] << endl;
+		cout << name() << ": " << "I2[0] = " << I2[0] << endl;
+		cout << name() << ": " << "O1[0] = " << O1_internal << endl;
+		cout << name() << ": " << "O2[0] = " << O2_internal << endl;
+#else
+		xil_printf("%s: I1[0] = %d\r\n",name(),I1[0]);
+		xil_printf("%s: I2[0] = %d\r\n",name(),I2[0]);
+		xil_printf("%s: O1[0] = %d\r\n",name(),O1_internal);
+		xil_printf("%s: O2[0] = %d\r\n",name(),O2_internal);
 
-    //std::cout<<name()<<"  M_IDCTaddsub Debugzeile hier ist I1 O1 wert: "<< I1[0]<<" "<<O1[0] <<"\n";
-    //std::cout<<name()<<"  M_IDCTaddsub Debugzeile hier ist I2 O2 wert: "<< I2[0]<<" "<<O2[0] <<"\n";
+#endif
+#endif
+#endif
   }
   
   smoc_firing_state start;
