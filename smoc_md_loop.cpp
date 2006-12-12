@@ -147,32 +147,15 @@ void smoc_src_md_loop_iterator_kind::get_data_element_id(const iter_domain_vecto
 	
 }
 
+bool smoc_src_md_loop_iterator_kind::inc(){
+	update_base_data_element_id();
+	return true;
+}
 
-void smoc_src_md_loop_iterator_kind::get_base_data_element_id(
-																															data_element_id_type& data_element_id
-																															) const {
-	data_element_id = mapping_offset;
 
-#ifdef FAST_CALC_MODE
-	for(unsigned int col = 0; 
-			col < mapping_matrix.size2() - _token_dimensions; 
-			col++){
-		const int row = mapping_table[col];
-		if (row >= 0){
-			data_element_id[row] += 
-				mapping_matrix(row,col) * current_iteration[col];
-		}
-	}
-#else
-	for(unsigned int row = 0; row < mapping_matrix.size1(); row++){
-		for(unsigned int col = 0; 
-				col < mapping_matrix.size2() - _token_dimensions; 
-				col++){
-			data_element_id[row] += 
-				mapping_matrix(row,col) * current_iteration[col];
-		}
-	}	
-#endif
+const smoc_src_md_loop_iterator_kind::data_element_id_type& 
+smoc_src_md_loop_iterator_kind::get_base_data_element_id() const {
+	return base_data_element_id;
 }
 
 void smoc_src_md_loop_iterator_kind::get_window_data_element_offset(const iter_domain_vector_type& window_iteration,
@@ -350,13 +333,39 @@ smoc_src_md_loop_iterator_kind::get_src_loop_iteration(const data_element_id_typ
 	
 }
 
+void smoc_src_md_loop_iterator_kind::update_base_data_element_id(){
+
+	base_data_element_id = mapping_offset;
+
+#ifdef FAST_CALC_MODE
+	for(unsigned int col = 0; 
+			col < mapping_matrix.size2() - _token_dimensions; 
+			col++){
+		const int row = mapping_table[col];
+		if (row >= 0){
+			base_data_element_id[row] += 
+				mapping_matrix(row,col) * current_iteration[col];
+		}
+	}
+#else
+	for(unsigned int row = 0; row < mapping_matrix.size1(); row++){
+		for(unsigned int col = 0; 
+				col < mapping_matrix.size2() - _token_dimensions; 
+				col++){
+			base_data_element_id[row] += 
+				mapping_matrix(row,col) * current_iteration[col];
+		}
+	}	
+#endif
+}
+
 /* ******************************************************************************* */
 /*                     smoc_snk_md_loop_iterator_kind                        */
 /* ******************************************************************************* */
 
 void smoc_snk_md_loop_iterator_kind::get_data_element_id(const iter_domain_vector_type& iteration_vector,
-																															 data_element_id_type& data_element_id
-																															 ) const {
+																												 data_element_id_type& data_element_id
+																												 ) const {
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Enter smoc_snk_md_loop_iterator_kind::get_data_element_id";
 	dout << endl;
@@ -384,31 +393,14 @@ void smoc_snk_md_loop_iterator_kind::get_data_element_id(const iter_domain_vecto
 
 }
 
-void smoc_snk_md_loop_iterator_kind::get_base_data_element_id(
-																															data_element_id_type& data_element_id
-																															) const {
-	data_element_id = mapping_offset;
+bool smoc_snk_md_loop_iterator_kind::inc(){
+	update_base_data_element_id();
+	return true;
+}
 
-#ifdef FAST_CALC_MODE
-	for(unsigned col = 0; 
-			col < mapping_matrix.size2() - _token_dimensions; 
-			col++){
-		const int row = mapping_table[col];
-		if (row >= 0){
-			data_element_id[row] += 
-				mapping_matrix(row,col) * current_iteration[col];
-		}
-	}
-#else
-	for(unsigned row = 0; row < mapping_matrix.size1(); row++){
-		for(unsigned col = 0; 
-				col < mapping_matrix.size2() - _token_dimensions; 
-				col++){
-			data_element_id[row] += 
-				mapping_matrix(row,col) * current_iteration[col];
-		}
-	}
-#endif
+const smoc_snk_md_loop_iterator_kind::data_element_id_type& 
+smoc_snk_md_loop_iterator_kind::get_base_data_element_id() const {
+	return base_data_element_id;
 }
 
 void smoc_snk_md_loop_iterator_kind::get_window_data_element_offset(const iter_domain_vector_type& window_iteration,
@@ -919,6 +911,31 @@ smoc_snk_md_loop_iterator_kind::is_border_pixel(const border_condition_vector_ty
 	return return_vector;
 }
 
+void smoc_snk_md_loop_iterator_kind::update_base_data_element_id() {
+	base_data_element_id = mapping_offset;
+
+#ifdef FAST_CALC_MODE
+	for(unsigned col = 0; 
+			col < mapping_matrix.size2() - _token_dimensions; 
+			col++){
+		const int row = mapping_table[col];
+		if (row >= 0){
+			base_data_element_id[row] += 
+				mapping_matrix(row,col) * current_iteration[col];
+		}
+	}
+#else
+	for(unsigned row = 0; row < mapping_matrix.size1(); row++){
+		for(unsigned col = 0; 
+				col < mapping_matrix.size2() - _token_dimensions; 
+				col++){
+			base_data_element_id[row] += 
+				mapping_matrix(row,col) * current_iteration[col];
+		}
+	}
+#endif
+}
+
 
 
 /* ******************************************************************************* */
@@ -986,6 +1003,8 @@ bool smoc_src_md_static_loop_iterator::inc(){
 	dout << "New loop iteration: " << current_iteration;
 	dout << endl;
 #endif
+
+	parent_type::inc();
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "Leave smoc_md_static_loop_iterator::inc()" << endl;
@@ -1071,6 +1090,8 @@ bool smoc_snk_md_static_loop_iterator::inc(){
 	dout << "New loop iteration: " << current_iteration;
 	dout << endl;
 #endif
+
+	parent_type::inc();
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "Leave smoc_md_static_loop_iterator::inc()" << endl;

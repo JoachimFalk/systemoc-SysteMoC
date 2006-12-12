@@ -476,8 +476,8 @@ public:
 
 			unsigned token_dimensions = (*this).src_loop_iterator->token_dimensions();
 
-			data_element_id_type base_data_element_id(token_dimensions);
-			(*this).src_loop_iterator->get_base_data_element_id(base_data_element_id);
+			const data_element_id_type& base_data_element_id = 
+			(*this).src_loop_iterator->get_base_data_element_id();
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
 			dout << "base_data_element_id = " << base_data_element_id;
 			dout << endl;
@@ -574,8 +574,8 @@ public:
 
 			unsigned token_dimensions = (*this).snk_loop_iterator->token_dimensions();
 
-			data_element_id_type base_data_element_id(token_dimensions);
-			(*this).snk_loop_iterator->get_base_data_element_id(base_data_element_id);
+			const data_element_id_type& base_data_element_id = 
+			(*this).snk_loop_iterator->get_base_data_element_id();
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
 			dout << "base_data_element_id = " << base_data_element_id;
@@ -629,8 +629,8 @@ public:
 
 			unsigned token_dimensions = (*this).snk_loop_iterator->token_dimensions();
 
-			data_element_id_type base_data_element_id(token_dimensions);
-			(*this).snk_loop_iterator->get_base_data_element_id(base_data_element_id);
+			const data_element_id_type& base_data_element_id = 
+			(*this).snk_loop_iterator->get_base_data_element_id();
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
 			dout << "base_data_element_id = " << base_data_element_id;

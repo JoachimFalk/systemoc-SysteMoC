@@ -221,6 +221,11 @@ public:
 		dout << "Enter smoc_src_md_loop_iterator_kind::smoc_src_md_loop_iterator_kind" << endl;
 		dout << inc_level;
 		dout << "size of mapping_offset: " << mapping_offset.size() << endl;
+#endif
+
+		update_base_data_element_id();
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 		dout << dec_level;
 		dout << "Leave smoc_src_md_loop_iterator_kind::smoc_src_md_loop_iterator_kind" << endl;
 #endif
@@ -230,7 +235,8 @@ public:
 		: smoc_md_loop_iterator_kind(loop_iterator),
 			smoc_md_loop_data_element_mapper(loop_iterator),
 			mapping_offset(loop_iterator.mapping_offset),
-			_max_data_element_id(loop_iterator._max_data_element_id)
+			_max_data_element_id(loop_iterator._max_data_element_id),
+			base_data_element_id(loop_iterator.base_data_element_id)
 	{}
 
 protected:
@@ -248,14 +254,14 @@ protected:
 													 ) const;
 
 public:
+
+	virtual bool inc();
 	
 	/// Calculates the base data element ID for the current iteration.
 	/// The schedule period offset is NOT calculated. Instead, data element
 	/// identifiers might be returned which are larger than one schedule
 	/// period.
-	void get_base_data_element_id(
-																data_element_id_type& data_element_id
-																) const;
+	const data_element_id_type& get_base_data_element_id() const;
 
 
 	/// Calculate the data element offset which is caused by the window
@@ -300,7 +306,10 @@ public:
 	const mapping_offset_type mapping_offset;
 protected:
 	const data_element_id_type _max_data_element_id;
-	
+
+private:
+	void update_base_data_element_id();
+	data_element_id_type base_data_element_id;
 
 };
 
@@ -361,6 +370,7 @@ public:
 		dout << "size of mapping-offset: " << mapping_offset.size() << endl;
 #endif
 		assert(check_border_condition_matrix(border_matrix));
+		update_base_data_element_id();
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 		dout << "Leave smoc_snk_md_loop_iterator_kind::smoc_snk_md_loop_iterator_kind" << endl;
 		dout << dec_level;
@@ -373,7 +383,8 @@ public:
 			mapping_offset(iterator.mapping_offset),
 			border_condition_matrix(iterator.border_condition_matrix),
 			low_border_condition_vector(iterator.low_border_condition_vector),
-			high_border_condition_vector(iterator.high_border_condition_vector)
+			high_border_condition_vector(iterator.high_border_condition_vector),
+			base_data_element_id(iterator.base_data_element_id)
 	{}
 
 
@@ -387,11 +398,12 @@ protected:
 													 data_element_id_type& data_element_id) const;
 
 public:	
+
+	virtual bool inc();
+
 	/// Calculates the base data element ID for the current
 	/// iteration, without taking window iteration into account
-	void get_base_data_element_id(
-																data_element_id_type& data_element_id
-																) const;
+	const data_element_id_type& get_base_data_element_id() const;
 
 	/// Calculate the data element offset which is caused by the window
 	/// iteration. Note: ONLY the window iteration must be passed as
@@ -476,6 +488,10 @@ public:
 	/// Otherwise is_border is false
 	border_type_vector_type is_border_pixel(const border_condition_vector_type& border_condition_vector,
 																					bool& is_border) const;
+
+private:
+	void update_base_data_element_id();
+	data_element_id_type base_data_element_id;
 	
 
 };
@@ -503,12 +519,14 @@ class smoc_src_md_static_loop_iterator
 {
 public:
   // Typedefs
-  typedef smoc_md_loop_iterator_kind::data_type data_type;  
+	typedef smoc_src_md_loop_iterator_kind parent_type;
+
+  typedef parent_type::data_type data_type;  
 
   //Specification of iteration domain
-  typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+  typedef parent_type::iter_domain_vector_type iter_domain_vector_type;
 
-  typedef smoc_md_loop_iterator_kind::size_type size_type;
+  typedef parent_type::size_type size_type;
 public:
   /* Constructors */
 
@@ -558,12 +576,14 @@ class smoc_snk_md_static_loop_iterator
 {
 public:
   // Typedefs
-  typedef smoc_md_loop_iterator_kind::data_type data_type;  
+	typedef smoc_snk_md_loop_iterator_kind parent_type;
+
+  typedef parent_type::data_type data_type;  
 
   //Specification of iteration domain
-  typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+  typedef parent_type::iter_domain_vector_type iter_domain_vector_type;
 
-  typedef smoc_md_loop_iterator_kind::size_type size_type;
+  typedef parent_type::size_type size_type;
 public:
   /* Constructors */
 
