@@ -30,17 +30,17 @@ void smoc_simple_md_buffer_kind::release_buffer(){
 	cache_unusedStorage = false;
 }
 
-bool smoc_simple_md_buffer_kind::unusedStorage(const smoc_md_loop_iterator_kind& src_iterator) const {
+bool smoc_simple_md_buffer_kind::hasUnusedStorage() const {
 
 	bool return_value = cache_unusedStorage;
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-	dout << "Enter smoc_simple_md_buffer_kind::unusedStorage" << endl;
+	dout << "Enter smoc_simple_md_buffer_kind::hasUnusedStorage" << endl;
 	dout << inc_level;
 #endif
 
 	if (!return_value){
-		const bool new_schedule_period = src_iterator.is_new_schedule_period();
+		const bool new_schedule_period = src_loop_iterator.is_new_schedule_period();
 
 		//check, whether source iterator has started a new schedule period
 		if (new_schedule_period){
@@ -59,9 +59,8 @@ bool smoc_simple_md_buffer_kind::unusedStorage(const smoc_md_loop_iterator_kind&
 		id_type schedule_period_offset;
 		
 		//Get data element with maximum coordinate
-		src_data_el_mapper.max_data_element_id(src_iterator,
-																					 max_src_data_element_id,
-																					 schedule_period_offset);
+		src_loop_iterator.max_data_element_id(max_src_data_element_id,
+																			schedule_period_offset);
 		max_src_data_element_id[_token_dimensions-1] +=
 			schedule_period_offset * size_token_space[_token_dimensions-1];
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
@@ -84,16 +83,10 @@ bool smoc_simple_md_buffer_kind::unusedStorage(const smoc_md_loop_iterator_kind&
 			cache_wr_max_data_element_offset = max_src_data_element_id[_token_dimensions-1];
 			return_value = true;		
 			cache_unusedStorage = true;
-#ifdef PARANOIA_MODE
-			cache_src_iterator = &src_iterator;
-#endif
 		}else{
 			// buffer line already allocated
 			return_value = true;
 			cache_unusedStorage = true;
-#ifdef PARANOIA_MODE
-			cache_src_iterator = &src_iterator;
-#endif
 		}			
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
 		if (return_value){
@@ -103,9 +96,6 @@ bool smoc_simple_md_buffer_kind::unusedStorage(const smoc_md_loop_iterator_kind&
 		}
 #endif
 	}else{
-#ifdef PARANOIA_MODE
-		assert(&src_iterator == cache_src_iterator);
-#endif
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
 		dout << "Buffer already allocated" << endl;
@@ -113,7 +103,7 @@ bool smoc_simple_md_buffer_kind::unusedStorage(const smoc_md_loop_iterator_kind&
 	}
 		
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-	dout << "Leave smoc_simple_md_buffer_kind::unusedStorage" << endl;
+	dout << "Leave smoc_simple_md_buffer_kind::hasUnusedStorage" << endl;
 	dout << dec_level;
 #endif
 
@@ -136,7 +126,7 @@ unsigned long smoc_simple_md_buffer_kind::calc_req_new_lines(const data_element_
 	return new_lines;
 }
 
-void smoc_simple_md_buffer_kind::free_buffer(const smoc_md_loop_iterator_kind& snk_iterator) {
+void smoc_simple_md_buffer_kind::free_buffer() {
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
 	dout << "Enter smoc_simple_md_buffer_kind::free_buffer" << endl;
@@ -146,7 +136,7 @@ void smoc_simple_md_buffer_kind::free_buffer(const smoc_md_loop_iterator_kind& s
 #endif
 
 	for(unsigned i = 0; i < _token_dimensions-1; i++){
-		if (!snk_data_el_mapper.is_iteration_max(snk_iterator,i)){
+		if (!snk_loop_iterator.is_iteration_max(i)){
 			//we cannot free complete line
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
 			dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << endl;
@@ -157,10 +147,9 @@ void smoc_simple_md_buffer_kind::free_buffer(const smoc_md_loop_iterator_kind& s
 	}
 
 	//If we arrived here, we can free a complete line
-	smoc_md_loop_snk_data_element_mapper::mapping_type window_displacement;
-	if(!snk_data_el_mapper.calc_eff_window_displacement(snk_iterator,
-																										 _token_dimensions-1,
-																										 window_displacement)){
+	smoc_snk_md_loop_iterator_kind::mapping_type window_displacement;
+	if(!snk_loop_iterator.calc_eff_window_displacement(_token_dimensions-1,
+																								window_displacement)){
 		//We are at the end of a schedule period.
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
 		dout << "End of schedule period" << endl;

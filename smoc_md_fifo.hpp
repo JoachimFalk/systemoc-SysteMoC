@@ -71,21 +71,12 @@ public:
     friend class smoc_md_fifo_kind;
   private:
     const char *name;
-		const unsigned int token_dimensions;
-		const iter_domain_vector_type src_iter_max;
-		const iter_domain_vector_type snk_iter_max;
 		const buffer_init b;
 		
   protected:
     chan_init(const char *name,
-							const unsigned int token_dimensions,
-							const iter_domain_vector_type& src_iter_max,
-							const iter_domain_vector_type& snk_iter_max,
 							const buffer_init& b)
       : name(name),
-				token_dimensions(token_dimensions),
-				src_iter_max(src_iter_max),
-				snk_iter_max(snk_iter_max),
 				b(b)
 		{}
   };
@@ -101,12 +92,15 @@ public:
 			: BUFFER_CLASS(i.b),
 				_name(i.name != NULL ? i.name : "smoc_md_fifo"),
 #endif
-			src_loop_iterator(i.src_iter_max, i.token_dimensions),
-			snk_loop_iterator(i.snk_iter_max, i.token_dimensions),
 			schedule_period_difference(0),
 			_usedStorage(0),
 			_usedStorageValid(false)
-	{}
+	{
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 102
+		dout << "Enter smoc_md_fifo_kind::smoc_md_fifo_kind(const chan_init &i)" << endl;
+		dout << "Leave smoc_md_fifo_kind::smoc_md_fifo_kind(const chan_init &i)" << endl;
+#endif
+	}
 
 protected:
 
@@ -201,12 +195,7 @@ protected:
 	std::string name() const {return _name;}
 #endif
 
-protected:  
-  /// Current source and sink iteration vectors.
-  /// They specify, which iteration is executed NEXT.	
-  smoc_md_static_loop_iterator src_loop_iterator;
-  smoc_md_static_loop_iterator snk_loop_iterator;
-
+protected:
 	/// The source and the sink iterator can be in different schedule
 	/// periods. The next variable specifies the difference between
 	/// the sink and the source schedule period:
@@ -287,10 +276,9 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 
   // Get latest produced data element required by the
   // next sink actor invocation
-	smoc_md_loop_snk_data_element_mapper::data_element_id_type 
-		src_data_element_id((*this).snk_data_el_mapper.token_dimensions());
-	if (!(*this).snk_data_el_mapper.get_req_src_data_element(snk_loop_iterator,
-																													 src_data_element_id)){
+	smoc_snk_md_loop_iterator_kind::data_element_id_type 
+		src_data_element_id((*this).snk_loop_iterator.token_dimensions());
+	if (!(*this).snk_loop_iterator.get_req_src_data_element(src_data_element_id)){
 		/// Source does not need to produce anythouth for 
 		/// this sink iteration
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
@@ -308,15 +296,15 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 		// Required source iteration for production of this data
 		// element
 		iter_domain_vector_type req_src_iteration(src_loop_iterator.iterator_depth()); 
-		smoc_md_loop_src_data_element_mapper::id_type schedule_period_offset;
+		smoc_src_md_loop_iterator_kind::id_type schedule_period_offset;
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 102
 		dout << "src_loop_iterator.iterator_depth() = " << src_loop_iterator.iterator_depth() << endl;
 #endif
 		bool temp = 
-			(*this).src_data_el_mapper.get_src_loop_iteration(src_data_element_id,
-																												req_src_iteration,
-																												schedule_period_offset
-																												);
+			(*this).src_loop_iterator.get_src_loop_iteration(src_data_element_id,
+																									req_src_iteration,
+																									schedule_period_offset
+																									);
 		// error checking
 		assert(temp);
 
@@ -372,7 +360,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage() const {
 
 	size_t return_value;
 
-	if (BUFFER_CLASS::unusedStorage(src_loop_iterator)){
+	if (BUFFER_CLASS::hasUnusedStorage()){
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << "Source can fire" << endl;
 #endif
@@ -402,7 +390,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
   assert(n == 1);
 
 	//free memory
-	(*this).free_buffer(snk_loop_iterator);
+	(*this).free_buffer();
 
 	decUsedStorage();
 	
@@ -640,14 +628,8 @@ public:
     friend class smoc_md_fifo_storage<T_DATA_TYPE, BUFFER_CLASS, R_IN, R_OUT>;
   protected:
     chan_init( const char *name, 
-							 const unsigned int token_dimensions,
-							 const iter_domain_vector_type& src_iter_max,
-							 const iter_domain_vector_type& snk_iter_max,
 							 const buffer_init &b )
       : parent_type::chan_init(name, 
-															 token_dimensions,
-															 src_iter_max, 
-															 snk_iter_max, 
 															 b) {}
   };
 
@@ -670,7 +652,6 @@ protected:
 #endif
 		initStorageAccess(r);
 		r.SetBuffer(storage);
-		r.SetIterator((*this).snk_loop_iterator);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
 		dout << dec_level;
@@ -687,7 +668,6 @@ protected:
 #endif
 		initStorageAccess(r);
 		r.SetBuffer(storage);
-		r.SetIterator((*this).src_loop_iterator);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
 	dout << dec_level;
@@ -859,10 +839,8 @@ public:
   smoc_md_fifo( const smoc_wsdf_edge_descr& wsdf_edge_param, 
 								size_t n)
     : smoc_md_fifo_type<T>::chan_init(NULL,
-																			wsdf_edge_param.token_dimensions,
-																			wsdf_edge_param.src_iteration_max(),
-																			wsdf_edge_param.snk_iteration_max(),
-																			assemble_buffer_init(wsdf_edge_param, n)),
+																			assemble_buffer_init(wsdf_edge_param, n)
+																			),
 		wsdf_edge_param(wsdf_edge_param)
 	{}
 
@@ -870,10 +848,8 @@ public:
 												 const smoc_wsdf_edge_descr& wsdf_edge_param, 
 												 size_t n)
     : smoc_md_fifo_type<T>::chan_init(name,
-																			wsdf_edge_param.token_dimensions,
-																			wsdf_edge_param.src_iteration_max(),
-																			wsdf_edge_param.snk_iteration_max(),
-																			assemble_buffer_init(wsdf_edge_param, n)),
+																			assemble_buffer_init(wsdf_edge_param, n)
+																			),
 		wsdf_edge_param(wsdf_edge_param)
 
 	{}
@@ -883,9 +859,6 @@ public:
 							 const smoc_wsdf_snk_param& snk_param)
 		: smoc_md_fifo_type<T>::chan_init(
 					 edge_param.name,
-					 assemble_wsdf_edge(edge_param, src_param, snk_param).token_dimensions,
-					 assemble_wsdf_edge(edge_param, src_param, snk_param).src_iteration_max(),
-					 assemble_wsdf_edge(edge_param, src_param, snk_param).snk_iteration_max(),
 					 assemble_buffer_init(assemble_wsdf_edge(edge_param, src_param, snk_param), edge_param.n)
 					 ),
 		wsdf_edge_param(assemble_wsdf_edge(edge_param, src_param, snk_param))
@@ -974,20 +947,18 @@ private:
 
 	buffer_init assemble_buffer_init(const smoc_wsdf_edge_descr& wsdf_edge_param, 
 																	 size_t n) const{
-		smoc_md_loop_src_data_element_mapper 
-			src_data_el_mapper(wsdf_edge_param.src_data_element_mapping_matrix(),
-												 wsdf_edge_param.src_data_element_mapping_vector(),
-												 wsdf_edge_param.max_data_element_id()
-												 );		
-		smoc_md_loop_snk_data_element_mapper
-			snk_data_el_mapper(wsdf_edge_param.snk_data_element_mapping_matrix(),
-												 wsdf_edge_param.snk_data_element_mapping_vector(),
-												 wsdf_edge_param.calc_border_condition_matrix(),
-												 wsdf_edge_param.calc_low_border_condition_vector(),
-												 wsdf_edge_param.calc_high_border_condition_vector()
-												 );
-		buffer_init return_value(src_data_el_mapper,
-														 snk_data_el_mapper,
+		buffer_init return_value(wsdf_edge_param.src_iteration_max(),
+														 wsdf_edge_param.src_data_element_mapping_matrix(),
+														 wsdf_edge_param.src_data_element_mapping_vector(),
+														 
+														 wsdf_edge_param.snk_iteration_max(),
+														 wsdf_edge_param.snk_data_element_mapping_matrix(),
+														 wsdf_edge_param.snk_data_element_mapping_vector(),
+
+														 wsdf_edge_param.calc_border_condition_matrix(),
+														 wsdf_edge_param.calc_low_border_condition_vector(),
+														 wsdf_edge_param.calc_high_border_condition_vector(),
+														 
 														 n);
 
 		return return_value;

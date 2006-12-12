@@ -1,6 +1,6 @@
 
 #include <smoc_md_loop.hpp>
-#include <smoc_debug_out.hpp>
+
 
 #define FAST_CALC_MODE
 
@@ -19,77 +19,6 @@
 /*                              smoc_md_loop_iterator_kind                         */
 /* ******************************************************************************* */
 
-
-/* ******************************************************************************* */
-/*                           smoc_md_static_loop_iterator                          */
-/* ******************************************************************************* */
-
-smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(
-																													 const iter_domain_vector_type& max,
-																													 const size_type window_dimensions
-																													 )
-  : smoc_md_loop_iterator_kind(window_dimensions, 
-															 iter_domain_vector_type(max.size(),(smoc_md_loop_iterator_kind::data_type)0)),
-    _iteration_max(max)
-{
-}
-
-smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(const smoc_md_static_loop_iterator& src_iterator)
-  : smoc_md_loop_iterator_kind(src_iterator),
-    _iteration_max(src_iterator._iteration_max)
-{
-}
-
-bool smoc_md_static_loop_iterator::inc(){
-
-#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
-	dout << "Enter smoc_md_static_loop_iterator::inc()" << endl;
-	dout << inc_level;
-#endif
-
-	//default initialization
-	_new_schedule_period = true;
-  
-  for(int i = current_iteration.size() -  _window_dimensions - 1;
-			i >= 0;
-			i--){
-    current_iteration[i]++;
-
-    if (current_iteration[i] > _iteration_max[i]){
-      current_iteration[i] = 0;
-    }else{
-			_new_schedule_period = false;
-			break;
-    }
-  }
-
-#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
-	dout << "New loop iteration: " << current_iteration;
-	dout << endl;
-#endif
-
-#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
-	dout << "Leave smoc_md_static_loop_iterator::inc()" << endl;
-	dout << dec_level;
-#endif
-
-  return _new_schedule_period;
-}
-
-const smoc_md_static_loop_iterator::iter_domain_vector_type
-smoc_md_static_loop_iterator::max_window_iteration() const{
-  iter_domain_vector_type return_vector(current_iteration);
-
-  //replace coordinates corresponding to iteration in the inner
-  //of the window by its maximum values.
-  for(unsigned int i = return_vector.size() - _window_dimensions;
-      i < return_vector.size();
-      i++){
-    return_vector[i] = _iteration_max[i];
-  }
-
-  return return_vector;
-}
 
 /* ******************************************************************************* */
 /*                     smoc_md_loop_data_element_mapper                        */
@@ -175,14 +104,14 @@ smoc_md_loop_data_element_mapper::calc_iteration_table(const mapping_matrix_type
 
 
 /* ******************************************************************************* */
-/*                     smoc_md_loop_src_data_element_mapper                        */
+/*                     smoc_src_md_loop_iterator_kind                        */
 /* ******************************************************************************* */
-const smoc_md_loop_src_data_element_mapper::data_element_id_type& 
-smoc_md_loop_src_data_element_mapper::max_data_element_id() const {
+const smoc_src_md_loop_iterator_kind::data_element_id_type& 
+smoc_src_md_loop_iterator_kind::schedule_period_max_data_element_id() const {
 	return _max_data_element_id;
 }
 
-void smoc_md_loop_src_data_element_mapper::get_data_element_id(const iter_domain_vector_type& iteration_vector,
+void smoc_src_md_loop_iterator_kind::get_data_element_id(const iter_domain_vector_type& iteration_vector,
 																															 data_element_id_type& data_element_id,
 																															 id_type& schedule_period_offset
 																															 ) const {
@@ -218,9 +147,10 @@ void smoc_md_loop_src_data_element_mapper::get_data_element_id(const iter_domain
 	
 }
 
-void smoc_md_loop_src_data_element_mapper::get_base_data_element_id(const iter_domain_vector_type& iteration_vector,
-																																		data_element_id_type& data_element_id
-																																		) const {
+
+void smoc_src_md_loop_iterator_kind::get_base_data_element_id(
+																															data_element_id_type& data_element_id
+																															) const {
 	data_element_id = mapping_offset;
 
 #ifdef FAST_CALC_MODE
@@ -230,7 +160,7 @@ void smoc_md_loop_src_data_element_mapper::get_base_data_element_id(const iter_d
 		const int row = mapping_table[col];
 		if (row >= 0){
 			data_element_id[row] += 
-				mapping_matrix(row,col) * iteration_vector[col];
+				mapping_matrix(row,col) * current_iteration[col];
 		}
 	}
 #else
@@ -239,14 +169,14 @@ void smoc_md_loop_src_data_element_mapper::get_base_data_element_id(const iter_d
 				col < mapping_matrix.size2() - _token_dimensions; 
 				col++){
 			data_element_id[row] += 
-				mapping_matrix(row,col) * iteration_vector[col];
+				mapping_matrix(row,col) * current_iteration[col];
 		}
 	}	
 #endif
 }
 
-void smoc_md_loop_src_data_element_mapper::get_window_data_element_offset(const iter_domain_vector_type& window_iteration,
-																																					data_element_id_type& data_element_offset) const {
+void smoc_src_md_loop_iterator_kind::get_window_data_element_offset(const iter_domain_vector_type& window_iteration,
+																																		data_element_id_type& data_element_offset) const {
 	// init return value
 	for(unsigned int i = 0; 
 			i < data_element_offset.size(); 
@@ -277,18 +207,17 @@ void smoc_md_loop_src_data_element_mapper::get_window_data_element_offset(const 
 #endif
 }
 
-
-void smoc_md_loop_src_data_element_mapper::max_data_element_id(const smoc_md_loop_iterator_kind& loop_iterator,
-																															 data_element_id_type& max_data_element_id,
-																															 id_type& schedule_period_offset) const{
+void smoc_src_md_loop_iterator_kind::max_data_element_id(
+																												 data_element_id_type& max_data_element_id,
+																												 id_type& schedule_period_offset) const{
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 105
-	dout << "Enter smoc_md_loop_src_data_element_mapper::max_data_element_id" << endl;
+	dout << "Enter smoc_src_md_loop_iterator_kind::max_data_element_id" << endl;
 	dout << inc_level;
 #endif
 
 	//get the data element with the larges coordinates	
 	const iter_domain_vector_type 
-		max_window_iteration(loop_iterator.max_window_iteration());
+		max_window_iteration(max_window_iteration());
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 105
 	dout << "max_window_iteration = " << max_window_iteration;
@@ -301,31 +230,44 @@ void smoc_md_loop_src_data_element_mapper::max_data_element_id(const smoc_md_loo
 											);
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 105
-	dout << "Leave smoc_md_loop_src_data_element_mapper::max_data_element_id" << endl;
+	dout << "Leave smoc_src_md_loop_iterator_kind::max_data_element_id" << endl;
 	dout << dec_level;
 #endif
 }
 
-const smoc_md_loop_src_data_element_mapper::data_element_id_type 
-smoc_md_loop_src_data_element_mapper::size_token_space() const {
+const smoc_src_md_loop_iterator_kind::data_element_id_type 
+smoc_src_md_loop_iterator_kind::size_token_space() const {
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
+	dout << "Enter smoc_src_md_loop_iterator_kind::size_token_space()" << endl;
+	dout << inc_level;
+#endif
 	data_element_id_type return_vector(_max_data_element_id);
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
+	dout << "Size of return_vector: " << return_vector.size() << endl;
+#endif
 
 	for(unsigned i = 0; i < return_vector.size(); i++){
 		return_vector[i]++;
 	}
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
+	dout << "Leave smoc_src_md_loop_iterator_kind::size_token_space()" << endl;
+	dout << dec_level;
+#endif
 
 	return return_vector;
 }
 
 
 bool
-smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_id_type& src_data_el_id,
-																														 iter_domain_vector_type& iteration_vector,
-																														 id_type& schedule_period_offset
-																														 ) const {
+smoc_src_md_loop_iterator_kind::get_src_loop_iteration(const data_element_id_type& src_data_el_id,
+																											 iter_domain_vector_type& iteration_vector,
+																											 id_type& schedule_period_offset
+																											 ) const {
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
-	dout << "Enter smoc_md_loop_src_data_element_mapper::get_src_loop_iteration" << endl;
+	dout << "Enter smoc_src_md_loop_iterator_kind::get_src_loop_iteration" << endl;
 	dout << inc_level;
 
 	dout << "Source data element ID: " << src_data_el_id;
@@ -351,9 +293,9 @@ smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_
 			dout << "Data element not produced by source actor" << endl;
 #endif
 			return_value = false;
-			//goto smoc_md_loop_src_data_element_mapper_get_src_loop_iteration_end;
+			//goto smoc_src_md_loop_iterator_kind_get_src_loop_iteration_end;
 #if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
-			dout << "Leave smoc_md_loop_src_data_element_mapper::get_src_loop_iteration" << endl;
+			dout << "Leave smoc_src_md_loop_iterator_kind::get_src_loop_iteration" << endl;
 			dout << dec_level;
 #endif
 
@@ -397,10 +339,10 @@ smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_
 	}
 
 
-	//smoc_md_loop_src_data_element_mapper_get_src_loop_iteration_end:
+	//smoc_src_md_loop_iterator_kind_get_src_loop_iteration_end:
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
-	dout << "Leave smoc_md_loop_src_data_element_mapper::get_src_loop_iteration" << endl;
+	dout << "Leave smoc_src_md_loop_iterator_kind::get_src_loop_iteration" << endl;
 	dout << dec_level;
 #endif
 
@@ -409,14 +351,14 @@ smoc_md_loop_src_data_element_mapper::get_src_loop_iteration(const data_element_
 }
 
 /* ******************************************************************************* */
-/*                     smoc_md_loop_snk_data_element_mapper                        */
+/*                     smoc_snk_md_loop_iterator_kind                        */
 /* ******************************************************************************* */
 
-void smoc_md_loop_snk_data_element_mapper::get_data_element_id(const iter_domain_vector_type& iteration_vector,
+void smoc_snk_md_loop_iterator_kind::get_data_element_id(const iter_domain_vector_type& iteration_vector,
 																															 data_element_id_type& data_element_id
 																															 ) const {
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
-	dout << "Enter smoc_md_loop_snk_data_element_mapper::get_data_element_id";
+	dout << "Enter smoc_snk_md_loop_iterator_kind::get_data_element_id";
 	dout << endl;
 	dout << inc_level;
 #endif
@@ -435,16 +377,16 @@ void smoc_md_loop_snk_data_element_mapper::get_data_element_id(const iter_domain
 #endif
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
-	dout << "Leave smoc_md_loop_snk_data_element_mapper::get_data_element_id";
+	dout << "Leave smoc_snk_md_loop_iterator_kind::get_data_element_id";
 	dout << endl;
 	dout << dec_level;
 #endif
 
 }
 
-void smoc_md_loop_snk_data_element_mapper::get_base_data_element_id(const iter_domain_vector_type& iteration_vector,
-																																		data_element_id_type& data_element_id
-																																		) const {
+void smoc_snk_md_loop_iterator_kind::get_base_data_element_id(
+																															data_element_id_type& data_element_id
+																															) const {
 	data_element_id = mapping_offset;
 
 #ifdef FAST_CALC_MODE
@@ -454,7 +396,7 @@ void smoc_md_loop_snk_data_element_mapper::get_base_data_element_id(const iter_d
 		const int row = mapping_table[col];
 		if (row >= 0){
 			data_element_id[row] += 
-				mapping_matrix(row,col) * iteration_vector[col];
+				mapping_matrix(row,col) * current_iteration[col];
 		}
 	}
 #else
@@ -463,13 +405,13 @@ void smoc_md_loop_snk_data_element_mapper::get_base_data_element_id(const iter_d
 				col < mapping_matrix.size2() - _token_dimensions; 
 				col++){
 			data_element_id[row] += 
-				mapping_matrix(row,col) * iteration_vector[col];
+				mapping_matrix(row,col) * current_iteration[col];
 		}
 	}
 #endif
 }
 
-void smoc_md_loop_snk_data_element_mapper::get_window_data_element_offset(const iter_domain_vector_type& window_iteration,
+void smoc_snk_md_loop_iterator_kind::get_window_data_element_offset(const iter_domain_vector_type& window_iteration,
 																																					data_element_id_type& data_element_offset) const {
 	// init return value
 	for(unsigned int i = 0; 
@@ -503,10 +445,9 @@ void smoc_md_loop_snk_data_element_mapper::get_window_data_element_offset(const 
 
 
 
-bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_md_loop_iterator_kind& snk_iterator,
-																																		data_element_id_type& data_element_id) const {
+bool smoc_snk_md_loop_iterator_kind::get_req_src_data_element(data_element_id_type& data_element_id) const {
 #if (VERBOSE_LEVEL_SMOC_MD_LOOP == 103) || (VERBOSE_LEVEL_SMOC_MD_LOOP == 102)
-	dout << "Enter smoc_md_loop_snk_data_element_mapper::get_req_src_data_element" << endl;
+	dout << "Enter smoc_snk_md_loop_iterator_kind::get_req_src_data_element" << endl;
 	dout << inc_level;
 	dout << "high_border_condition_vector = " << high_border_condition_vector;
 	dout << endl;
@@ -517,7 +458,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 
 	// Get the maximum iteration vector for the given window position
 	iter_domain_vector_type 
-		window_iteration(snk_iterator.max_window_iteration());
+		window_iteration(max_window_iteration());
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Max window iteration: " << window_iteration;
 	dout << endl;
@@ -525,7 +466,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 
 
 	border_condition_vector_type 
-		temp_vector(calc_base_border_condition_vector(window_iteration));
+		temp_vector(calc_base_border_condition_vector());
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Base border condition: " << temp_vector;
@@ -541,7 +482,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 			return_value = false;
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 			dout << "Window is completely situated on high extended border" << endl;
-			dout << "Leave smoc_md_loop_snk_data_element_mapper::get_req_src_data_element" << endl;
+			dout << "Leave smoc_snk_md_loop_iterator_kind::get_req_src_data_element" << endl;
 			dout << dec_level;
 #endif
 			return return_value;
@@ -566,7 +507,7 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 			dout << "Window is completely situated on low extended border" << endl;
 #endif
-			goto smoc_md_loop_snk_data_element_mapper_get_req_src_data_element_end;
+			goto smoc_snk_md_loop_iterator_kind_get_req_src_data_element_end;
 		}
 	}
 
@@ -583,8 +524,8 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 			//we assume, that coefficients in the condition matrix
 			//belonging to the window iteration are 1
 			//(see check_border_condition_matrix)
-			assert((id_type)window_iteration[snk_iterator.iterator_depth()-1-dim] > high_border_condition_vector[dim] - temp2_vector[dim]);
-			window_iteration[snk_iterator.iterator_depth()-1-dim] -=
+			assert((id_type)window_iteration[iterator_depth()-1-dim] > high_border_condition_vector[dim] - temp2_vector[dim]);
+			window_iteration[iterator_depth()-1-dim] -=
 				temp2_vector[dim] - high_border_condition_vector[dim];
 		}
 	}
@@ -600,10 +541,10 @@ bool smoc_md_loop_snk_data_element_mapper::get_req_src_data_element(const smoc_m
 	//but as it is easy:
 	get_data_element_id(window_iteration,	data_element_id);	
 
-smoc_md_loop_snk_data_element_mapper_get_req_src_data_element_end:
+smoc_snk_md_loop_iterator_kind_get_req_src_data_element_end:
 
 #if (VERBOSE_LEVEL_SMOC_MD_LOOP == 103)  || (VERBOSE_LEVEL_SMOC_MD_LOOP == 102)
-	dout << "Leave smoc_md_loop_snk_data_element_mapper::get_req_src_data_element" << endl;
+	dout << "Leave smoc_snk_md_loop_iterator_kind::get_req_src_data_element" << endl;
 	dout << dec_level;
 #endif
 
@@ -612,16 +553,17 @@ smoc_md_loop_snk_data_element_mapper_get_req_src_data_element_end:
 }
 
 
-bool smoc_md_loop_snk_data_element_mapper::is_iteration_max(const smoc_md_loop_iterator_kind& snk_iterator,
-																														unsigned token_dimension,
-																														bool ignore_window_iteration) const {
-
+bool smoc_snk_md_loop_iterator_kind::is_iteration_max(
+																											unsigned token_dimension,
+																											bool ignore_window_iteration
+																											) const {
+	
 	unsigned loop_bound = 
 		ignore_window_iteration ? mapping_matrix.size2() - _token_dimensions : mapping_matrix.size2();
 
 	for(unsigned col = 0; col < loop_bound; col++){
 		if (mapping_matrix(token_dimension,col) != 0){
-			if (snk_iterator[col] != snk_iterator.iteration_max()[col]){
+			if (current_iteration[col] != iteration_max()[col]){
 				return false;
 			}
 		}
@@ -631,119 +573,13 @@ bool smoc_md_loop_snk_data_element_mapper::is_iteration_max(const smoc_md_loop_i
 
 }
 
-#if 0
-smoc_md_loop_snk_data_element_mapper::mapping_type 
-smoc_md_loop_snk_data_element_mapper::calc_num_low_border_data_elements(const smoc_md_loop_iterator_kind& snk_iterator,
-																																				unsigned token_dimension) const {
-	id_type temp = 0;
-	mapping_type return_value;
-
-	for(unsigned col = 0; 
-			col < border_condition_matrix.size2() - _token_dimensions;
-			col++){
-		temp += 
-			border_condition_matrix(token_dimension,col) * snk_iterator[col];
-	}		
-	
-
-	if (temp >= (id_type)low_border_condition_vector[token_dimension]){
-		return_value = 0;
-	}else{
-		return_value = 
-			(mapping_type)((id_type)low_border_condition_vector[token_dimension] - temp);
-
-		mapping_type window_size = 			
-			snk_iterator.iteration_max(mapping_matrix.size2() - _token_dimensions + token_dimension,
-																 snk_iterator.iteration_vector());
-		assert(mapping_matrix(token_dimension, mapping_matrix.size2() - _token_dimensions + token_dimension) == 1);	
-
-		if (return_value > window_size)
-			return_value = window_size;
-	}
-
-	return return_value;	
-}
-
-smoc_md_loop_snk_data_element_mapper::mapping_type 
-smoc_md_loop_snk_data_element_mapper::calc_num_high_border_data_elements(const smoc_md_loop_iterator_kind& snk_iterator,
-																																				 unsigned token_dimension) const {
-	id_type temp = 0;
-	mapping_type return_value;
-
-	const iter_domain_vector_type 
-		max_window_iteration(snk_iterator.max_window_iteration());
-
-	for(unsigned col = 0; 
-			col < border_condition_matrix.size2();
-			col++){
-		temp += 
-			border_condition_matrix(token_dimension,col) * max_window_iteration[col];
-	}		
-	
-
-	if (temp <= (id_type)high_border_condition_vector[token_dimension]){
-		return_value = 0;
-	}else{
-		return_value = 
-			(mapping_type)(temp - (id_type)high_border_condition_vector[token_dimension]);
-
-		mapping_type window_size = 			
-			snk_iterator.iteration_max(mapping_matrix.size2() - _token_dimensions + token_dimension,
-																 snk_iterator.iteration_vector());
-		assert(mapping_matrix(token_dimension, mapping_matrix.size2() - _token_dimensions + token_dimension) == 1);	
-
-		if (return_value > window_size)
-			return_value = window_size;
-	}
-
-	return return_value;	
-}
-
-
-
-bool smoc_md_loop_snk_data_element_mapper::calc_window_displacement(const smoc_md_loop_iterator_kind& snk_iterator,
-																																		unsigned token_dimension,
-																																		mapping_type& window_displacement
-																																		) const {
-	id_type temp_window_displacement = 0;
-
-	bool finished = false;
-
-	for(int col = mapping_matrix.size2() - 1 - _token_dimensions;
-			col >= 0;
-			col--){
-		if(mapping_matrix(token_dimension, col) != 0){
-			//iteration level is relevant for given token dimension
-			if (snk_iterator[col] >= 
-					snk_iterator.iteration_max(col, snk_iterator.iteration_vector())){
-				temp_window_displacement -= snk_iterator[col] * mapping_matrix(row,col);
-			}else{
-				temp_window_displacement += mapping_matrix(row,col);
-				finished = true;
-				break;
-			}
-		}
-	}
-
-
-	if (!finished){
-		//In the given dimension, we are at the end of a schedule period
-		return false;
-	}else{
-		assert(temp_window_displacement > 0);
-		return (mapping_type)temp_window_displacement;
-	}
-
-}
-#endif
-
-
 bool
-smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md_loop_iterator_kind& snk_iterator,
-																																	 unsigned token_dimension,
-																																	 mapping_type& window_displacement) const {
+smoc_snk_md_loop_iterator_kind::calc_eff_window_displacement(
+																														 unsigned token_dimension,
+																														 mapping_type& window_displacement
+																														 ) const {
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 104
-	dout << "Enter smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement" << endl;
+	dout << "Enter smoc_snk_md_loop_iterator_kind::calc_eff_window_displacement" << endl;
 	dout << inc_level;
 	dout << "snk_iterator.iteration_vector() = " << snk_iterator.iteration_vector();
 	dout << endl;
@@ -764,12 +600,12 @@ smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md
 			col--){
 		if(mapping_matrix(token_dimension, col) != 0){
 			//iteration level is relevant for given token dimension
-			if (snk_iterator[col] >= 
-					snk_iterator.iteration_max(col, snk_iterator.iteration_vector())){
+			if (current_iteration[col] >= 
+					iteration_max(col, current_iteration)){
 				//coordinate will become zero
-				temp_window_displacement -= snk_iterator[col] * 
+				temp_window_displacement -= current_iteration[col] * 
 					mapping_matrix(token_dimension,col);
-				border_condition_change -= snk_iterator[col] * 
+				border_condition_change -= current_iteration[col] * 
 					border_condition_matrix(token_dimension, col);
 			}else{
 				temp_window_displacement += mapping_matrix(token_dimension,col);
@@ -790,7 +626,7 @@ smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md
 		//In the given dimension, we are at the end of a schedule period
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 104
 		dout << "End of schedule period" << endl;
-		dout << "Leave smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement" << endl;
+		dout << "Leave smoc_snk_md_loop_iterator_kind::calc_eff_window_displacement" << endl;
 		dout << dec_level;
 #endif
 		return false;
@@ -809,8 +645,7 @@ smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md
 	if (border_condition_change > 0){
 		//Window might have left low extended border
 		id_type 
-			base_border_condition(calc_base_border_condition(snk_iterator.iteration_vector(),
-																											 token_dimension));
+			base_border_condition(calc_base_border_condition(token_dimension));
 		id_type delta_low_condition = 
 			low_border_condition_vector[token_dimension] - base_border_condition;
 		id_type delta_high_condition =
@@ -850,8 +685,7 @@ smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md
 	if (border_condition_change < 0){
 		//window might have entered extended border
 		id_type 
-			base_border_condition(calc_base_border_condition(snk_iterator.iteration_vector(),
-																											 token_dimension));
+			base_border_condition(calc_base_border_condition(token_dimension));
 		id_type delta_low_condition = 
 			low_border_condition_vector[token_dimension] - base_border_condition;
 
@@ -870,7 +704,7 @@ smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md
 	window_displacement = (mapping_type) temp_window_displacement;
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 104
-	dout << "Leave smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement" << endl;
+	dout << "Leave smoc_snk_md_loop_iterator_kind::calc_eff_window_displacement" << endl;
 	dout << dec_level;
 #endif
 
@@ -880,7 +714,7 @@ smoc_md_loop_snk_data_element_mapper::calc_eff_window_displacement(const smoc_md
 }
 
 
-bool smoc_md_loop_snk_data_element_mapper::check_border_condition_matrix(const border_condition_matrix_type& border_matrix) const {
+bool smoc_snk_md_loop_iterator_kind::check_border_condition_matrix(const border_condition_matrix_type& border_matrix) const {
 	//Check properties of the matrix coefficients belonging to the window
 	//iteration
 
@@ -908,27 +742,28 @@ bool smoc_md_loop_snk_data_element_mapper::check_border_condition_matrix(const b
 }
 
 
-smoc_md_loop_snk_data_element_mapper::id_type 
-smoc_md_loop_snk_data_element_mapper::calc_base_border_condition(const iter_domain_vector_type& iteration,
-																																 unsigned dimension) const {
+smoc_snk_md_loop_iterator_kind::id_type 
+smoc_snk_md_loop_iterator_kind::calc_base_border_condition(
+																													 unsigned dimension
+																													 ) const {
 	id_type return_value = 0;
 
 	for(unsigned col = 0;
-			col < iteration.size() - _token_dimensions;
+			col < current_iteration.size() - _token_dimensions;
 			col++){
 		return_value += 
-			border_condition_matrix(dimension,col) * iteration[col];
+			border_condition_matrix(dimension,col) * current_iteration[col];
 	}
 
 	return return_value;
 }
 
-smoc_md_loop_snk_data_element_mapper::id_type 
-smoc_md_loop_snk_data_element_mapper::calc_window_border_condition(id_type base_border_condition,
-																																	 const iter_domain_vector_type& iteration,
-																																	 unsigned dimension) const {
+smoc_snk_md_loop_iterator_kind::id_type 
+smoc_snk_md_loop_iterator_kind::calc_window_border_condition(id_type base_border_condition,
+																														 const iter_domain_vector_type& iteration,
+																														 unsigned dimension) const {
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
-	dout << "Enter smoc_md_loop_snk_data_element_mapper::calc_window_border_condition" << endl;
+	dout << "Enter smoc_snk_md_loop_iterator_kind::calc_window_border_condition" << endl;
 	dout << inc_level;
 	dout << "dimension = " << dimension << endl;
 	dout << "iteration.size() = " << iteration.size() << endl;
@@ -947,7 +782,7 @@ smoc_md_loop_snk_data_element_mapper::calc_window_border_condition(id_type base_
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "return_value = " << base_border_condition << endl;
-	dout << "Leave smoc_md_loop_snk_data_element_mapper::calc_window_border_condition" << endl;
+	dout << "Leave smoc_snk_md_loop_iterator_kind::calc_window_border_condition" << endl;
 	dout << dec_level;
 #endif
 
@@ -955,33 +790,33 @@ smoc_md_loop_snk_data_element_mapper::calc_window_border_condition(id_type base_
 }
 
 
-smoc_md_loop_snk_data_element_mapper::border_condition_vector_type
-smoc_md_loop_snk_data_element_mapper::calc_base_border_condition_vector(const iter_domain_vector_type& iteration) const {
+smoc_snk_md_loop_iterator_kind::border_condition_vector_type
+smoc_snk_md_loop_iterator_kind::calc_base_border_condition_vector() const {
 	border_condition_vector_type return_vector(_token_dimensions);
 #ifdef FAST_CALC_MODE
 	for(unsigned row = 0; row < _token_dimensions; row++){
 		return_vector[row] = 0;
 	}
-	for(unsigned col = 0; col < iteration.size()-_token_dimensions; col++){
+	for(unsigned col = 0; col < current_iteration.size()-_token_dimensions; col++){
 		const int row = mapping_table[col];
 		if (row >= 0){
 			return_vector[row] += 
-				border_condition_matrix(row,col)*iteration[col];
+				border_condition_matrix(row,col)*current_iteration[col];
 		}
 	}
 #else
 	for(unsigned row = 0; row < _token_dimensions; row++){
 		return_vector[row] = 
-			calc_base_border_condition(iteration,row);				
+			calc_base_border_condition(row);				
 	}
 #endif
 
 	return return_vector;	
 }
 
-smoc_md_loop_snk_data_element_mapper::border_condition_vector_type 
-smoc_md_loop_snk_data_element_mapper::calc_window_border_condition_vector(const border_condition_vector_type& base_border_condition_vector,
-																																					const iter_domain_vector_type& iteration) const {
+smoc_snk_md_loop_iterator_kind::border_condition_vector_type 
+smoc_snk_md_loop_iterator_kind::calc_window_border_condition_vector(const border_condition_vector_type& base_border_condition_vector,
+																																		const iter_domain_vector_type& iteration) const {
 #ifdef FAST_CALC_MODE
 	border_condition_vector_type 
 		return_vector(base_border_condition_vector.size(),(id_type)0);
@@ -1008,10 +843,10 @@ smoc_md_loop_snk_data_element_mapper::calc_window_border_condition_vector(const 
 }
 
 
-smoc_md_loop_snk_data_element_mapper::border_condition_vector_type
-smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_domain_vector_type& window_iteration) const {
+smoc_snk_md_loop_iterator_kind::border_condition_vector_type
+smoc_snk_md_loop_iterator_kind::calc_border_condition_offset(const iter_domain_vector_type& window_iteration) const {
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
-	dout << "Enter smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset" << endl;
+	dout << "Enter smoc_snk_md_loop_iterator_kind::calc_border_condition_offset" << endl;
 	dout << inc_level;
 #endif
 
@@ -1039,18 +874,18 @@ smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset(const iter_do
 #endif
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
-	dout << "Leave smoc_md_loop_snk_data_element_mapper::calc_border_condition_offset" << endl;
+	dout << "Leave smoc_snk_md_loop_iterator_kind::calc_border_condition_offset" << endl;
 	dout << dec_level;
 #endif
 
 	return return_vector;
 }
 
-smoc_md_loop_snk_data_element_mapper::border_type_vector_type 
-smoc_md_loop_snk_data_element_mapper::is_border_pixel(const border_condition_vector_type& border_condition_vector,
-																											bool& is_border) const{
+smoc_snk_md_loop_iterator_kind::border_type_vector_type 
+smoc_snk_md_loop_iterator_kind::is_border_pixel(const border_condition_vector_type& border_condition_vector,
+																								bool& is_border) const{
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
-	dout << "Enter smoc_md_loop_snk_data_element_mapper::is_border_pixel" << endl;
+	dout << "Enter smoc_snk_md_loop_iterator_kind::is_border_pixel" << endl;
 	dout << inc_level;
 	dout << "border_condition_vector = " << border_condition_vector;
 	dout << endl;
@@ -1077,9 +912,185 @@ smoc_md_loop_snk_data_element_mapper::is_border_pixel(const border_condition_vec
 	}
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
-	dout << "Leavesmoc_md_loop_snk_data_element_mapper::is_border_pixel" << endl;
+	dout << "Leavesmoc_snk_md_loop_iterator_kind::is_border_pixel" << endl;
 	dout << dec_level;
 #endif
 
 	return return_vector;
+}
+
+
+
+/* ******************************************************************************* */
+/*                           smoc_src_md_static_loop_iterator                      */
+/* ******************************************************************************* */
+
+smoc_src_md_static_loop_iterator::smoc_src_md_static_loop_iterator(
+																																	 const iter_domain_vector_type& iteration_max,
+																																	 const mapping_matrix_type& mapping_matrix,
+																																	 const mapping_offset_type& mapping_offset
+																																	 )
+  : smoc_src_md_loop_iterator_kind(iter_domain_vector_type(iteration_max.size(),(smoc_md_loop_iterator_kind::data_type)0),
+																	 mapping_matrix,
+																	 mapping_offset																 ,
+																	 calc_max_data_element_id(iteration_max,mapping_matrix)
+																	 ),
+    _iteration_max(iteration_max)
+{
+}
+
+smoc_src_md_static_loop_iterator::smoc_src_md_static_loop_iterator(const smoc_src_md_static_loop_iterator& src_iterator)
+  : smoc_src_md_loop_iterator_kind(src_iterator),
+    _iteration_max(src_iterator._iteration_max)
+{
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
+		dout << "Enter smoc_src_md_static_loop_iterator::smoc_src_md_static_loop_iterator" << endl;
+		dout << "Leave smoc_src_md_static_loop_iterator::smoc_src_md_static_loop_iterator" << endl;
+#endif
+}
+
+smoc_src_md_static_loop_iterator::data_element_id_type 
+smoc_src_md_static_loop_iterator::calc_max_data_element_id(const iter_domain_vector_type& iteration_max,
+																													 const mapping_matrix_type& mapping_matrix) const {
+
+	//Attention: when this function is called, we cannot already access the mapping table
+	//Hence, we use an ordinary multiplication.
+	return prod(mapping_matrix,iteration_max);
+}
+
+
+bool smoc_src_md_static_loop_iterator::inc(){
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
+	dout << "Enter smoc_md_static_loop_iterator::inc()" << endl;
+	dout << inc_level;
+#endif
+
+	//default initialization
+	_new_schedule_period = true;
+  
+  for(int i = current_iteration.size() -  _token_dimensions - 1;
+			i >= 0;
+			i--){
+    current_iteration[i]++;
+
+    if (current_iteration[i] > _iteration_max[i]){
+      current_iteration[i] = 0;
+    }else{
+			_new_schedule_period = false;
+			break;
+    }
+  }
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
+	dout << "New loop iteration: " << current_iteration;
+	dout << endl;
+#endif
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
+	dout << "Leave smoc_md_static_loop_iterator::inc()" << endl;
+	dout << dec_level;
+#endif
+
+  return _new_schedule_period;
+}
+
+const smoc_src_md_static_loop_iterator::iter_domain_vector_type
+smoc_src_md_static_loop_iterator::max_window_iteration() const{
+  iter_domain_vector_type return_vector(current_iteration);
+
+  //replace coordinates corresponding to iteration in the inner
+  //of the window by its maximum values.
+  for(unsigned int i = return_vector.size() - _token_dimensions;
+      i < return_vector.size();
+      i++){
+    return_vector[i] = _iteration_max[i];
+  }
+
+  return return_vector;
+}
+
+
+/* ******************************************************************************* */
+/*                           smoc_snk_md_static_loop_iterator                      */
+/* ******************************************************************************* */
+
+smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator(
+																																	 const iter_domain_vector_type& iteration_max,
+																																	 const mapping_matrix_type& mapping_matrix,
+																																	 const mapping_offset_type& mapping_offset,
+																																	 const border_condition_matrix_type& border_matrix,
+																																	 const border_condition_vector_type& low_border_vector,
+																																	 const border_condition_vector_type& high_border_vector
+																																	 )
+  : smoc_snk_md_loop_iterator_kind(iter_domain_vector_type(iteration_max.size(),(smoc_md_loop_iterator_kind::data_type)0),
+																	 mapping_matrix,
+																	 mapping_offset,
+																	 border_matrix,
+																	 low_border_vector,
+																	 high_border_vector
+																	 ),
+    _iteration_max(iteration_max)
+{
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
+		dout << "Enter smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator" << endl;
+		dout << "Leave smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator" << endl;
+#endif
+}
+
+smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator(const smoc_snk_md_static_loop_iterator& snk_iterator)
+  : smoc_snk_md_loop_iterator_kind(snk_iterator),
+    _iteration_max(snk_iterator._iteration_max)
+{
+}
+
+bool smoc_snk_md_static_loop_iterator::inc(){
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
+	dout << "Enter smoc_md_static_loop_iterator::inc()" << endl;
+	dout << inc_level;
+#endif
+
+	//default initialization
+	_new_schedule_period = true;
+  
+  for(int i = current_iteration.size() -  _token_dimensions - 1;
+			i >= 0;
+			i--){
+    current_iteration[i]++;
+
+    if (current_iteration[i] > _iteration_max[i]){
+      current_iteration[i] = 0;
+    }else{
+			_new_schedule_period = false;
+			break;
+    }
+  }
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
+	dout << "New loop iteration: " << current_iteration;
+	dout << endl;
+#endif
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
+	dout << "Leave smoc_md_static_loop_iterator::inc()" << endl;
+	dout << dec_level;
+#endif
+
+  return _new_schedule_period;
+}
+
+const smoc_snk_md_static_loop_iterator::iter_domain_vector_type
+smoc_snk_md_static_loop_iterator::max_window_iteration() const{
+  iter_domain_vector_type return_vector(current_iteration);
+
+  //replace coordinates corresponding to iteration in the inner
+  //of the window by its maximum values.
+  for(unsigned int i = return_vector.size() - _token_dimensions;
+      i < return_vector.size();
+      i++){
+    return_vector[i] = _iteration_max[i];
+  }
+
+  return return_vector;
 }

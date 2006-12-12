@@ -3,6 +3,18 @@
 
 #include <smoc_vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <smoc_debug_out.hpp>
+
+#ifndef VERBOSE_LEVEL_SMOC_MD_LOOP
+#define VERBOSE_LEVEL_SMOC_MD_LOOP 0
+// 100: verbose execution
+// 101: general debug
+// 102: memory access error
+// 103: get_req_src_data_element
+// 104: calc_eff_window_displacement
+// 105: max_data_element_id
+// 106: Border processing
+#endif
 
 /// Common base class for all loop iterators
 /// A loop iterator describes a nested loop
@@ -23,12 +35,17 @@ public:
 														 )
 		: current_iteration(iteration_start),
 			_new_schedule_period(true),			  
-			_window_dimensions(window_dimensions){};
+			_token_dimensions(window_dimensions){
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
+		dout << "Enter smoc_md_loop_iterator_kind::smoc_md_loop_iterator_kind" << endl;
+		dout << "Leave smoc_md_loop_iterator_kind::smoc_md_loop_iterator_kind" << endl;
+#endif
+	};
 
 	/// Copy constructor
 	smoc_md_loop_iterator_kind(const smoc_md_loop_iterator_kind& src_iterator)
 		: current_iteration(src_iterator.current_iteration),
-			_window_dimensions(src_iterator._window_dimensions){};
+			_token_dimensions(src_iterator._token_dimensions){};
 
 	/// Destructor
 	virtual ~smoc_md_loop_iterator_kind(){};
@@ -57,7 +74,7 @@ public:
 	bool is_new_schedule_period() const { return _new_schedule_period;}
 
 	/// Return number of window dimensions
-	const size_type window_dimensions() const { return _window_dimensions;}
+	const size_type token_dimensions() const { return _token_dimensions;}
 
 	/// Return number of iterator dimenions
 	const data_type iterator_depth() const {return current_iteration.size();}
@@ -88,62 +105,8 @@ protected:
 
 
 	/// Number of dimensions of window
-  const size_type _window_dimensions;  
+  const size_type _token_dimensions;  
 };
-
-
-
-
-/// Description of a static nested loop
-/// The iteration bounds are independent on dimension i are
-/// independent of the other dimensions.
-class smoc_md_static_loop_iterator 
-	: public smoc_md_loop_iterator_kind
-{
-public:
-  // Typedefs
-  typedef smoc_md_loop_iterator_kind::data_type data_type;  
-
-  //Specification of iteration domain
-  typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
-
-  typedef smoc_md_loop_iterator_kind::size_type size_type;
-public:
-  /* Constructors */
-
-  /// This constructor allows to declare a so called
-  /// window-iteration domain. The window iteration domain
-  /// Is supposed to be executed externally.
-  smoc_md_static_loop_iterator(const iter_domain_vector_type& max,
-															 const size_type window_dimension
-															 );
-
-  smoc_md_static_loop_iterator(const smoc_md_static_loop_iterator& src_iterator);
-
-public:
-
-	virtual bool inc();
-
-	/// Calculation of some special window iterations
-  virtual const iter_domain_vector_type max_window_iteration() const;
-
-	virtual data_type iteration_max(const size_type dimension,
-																	const iter_domain_vector_type& fixed_iteration) const {
-		return _iteration_max[dimension];
-	}
-
-	virtual const iter_domain_vector_type iteration_max() const{
-		return _iteration_max;
-	}
-
-protected:  
-
-  //Iteration bounds
-  const iter_domain_vector_type _iteration_max;
-
-  
-};
-
 
 
 
@@ -162,8 +125,7 @@ public:
 public:
 	
 	smoc_md_loop_data_element_mapper(const mapping_matrix_type& mapping_matrix)
-		: _token_dimensions(mapping_matrix.size1()),
-			mapping_matrix(mapping_matrix),
+		: mapping_matrix(mapping_matrix),
 			mapping_table(calc_mapping_table(mapping_matrix))
 #if 0
 		,iteration_table(calc_iteration_table(mapping_matrix))
@@ -172,12 +134,20 @@ public:
 		assert(check_matrix(mapping_matrix));
 	}
 
-public:
-	/// return the number of token_dimensions
-	unsigned token_dimensions() const { return _token_dimensions;}
+	smoc_md_loop_data_element_mapper(const smoc_md_loop_data_element_mapper& mapper)
+		: mapping_matrix(mapper.mapping_matrix),
+			mapping_table(mapper.mapping_table)
+#if 0
+		,iteration_table(mapper.iteration_table)
+#endif
+	{
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
+		dout << "Enter smoc_md_loop_data_element_mapper::smoc_md_loop_data_element_mapper" << endl;
+		dout << "Leave smoc_md_loop_data_element_mapper::smoc_md_loop_data_element_mapper" << endl;
+#endif
+	}
 
 protected:
-	const unsigned _token_dimensions;
 	const mapping_matrix_type mapping_matrix;
 
 protected:
@@ -219,8 +189,8 @@ private:
 
 
 /// Data element mapping for source actor
-class smoc_md_loop_src_data_element_mapper 
-	: public smoc_md_loop_data_element_mapper
+class smoc_src_md_loop_iterator_kind
+	: public smoc_md_loop_iterator_kind, public smoc_md_loop_data_element_mapper
 {
 public:
   typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
@@ -237,18 +207,33 @@ public:
 	///Constructor
 	///Input parameters:
 	/// - mapping_matrix, mapping_offset
-	/// - max_data_element_id: data element with maximum ID in all dimensions, occuring
-	///                        in one schedule period.
-	smoc_md_loop_src_data_element_mapper(const mapping_matrix_type& mapping_matrix,
-																			 const mapping_offset_type& mapping_offset,
-																			 const data_element_id_type& max_data_element_id
-																			 ):
+	smoc_src_md_loop_iterator_kind(const iter_domain_vector_type& iteration_start,
+																 const mapping_matrix_type& mapping_matrix,
+																 const mapping_offset_type& mapping_offset,
+																 const data_element_id_type& max_data_element_id
+																 ):
+		smoc_md_loop_iterator_kind(mapping_matrix.size1(),iteration_start),
 		smoc_md_loop_data_element_mapper(mapping_matrix),
 		mapping_offset(mapping_offset),
 		_max_data_element_id(max_data_element_id)
-	{};
+	{	
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
+		dout << "Enter smoc_src_md_loop_iterator_kind::smoc_src_md_loop_iterator_kind" << endl;
+		dout << inc_level;
+		dout << "size of mapping_offset: " << mapping_offset.size() << endl;
+		dout << dec_level;
+		dout << "Leave smoc_src_md_loop_iterator_kind::smoc_src_md_loop_iterator_kind" << endl;
+#endif
+	};
 
-public:
+	smoc_src_md_loop_iterator_kind(const smoc_src_md_loop_iterator_kind& loop_iterator)
+		: smoc_md_loop_iterator_kind(loop_iterator),
+			smoc_md_loop_data_element_mapper(loop_iterator),
+			mapping_offset(loop_iterator.mapping_offset),
+			_max_data_element_id(loop_iterator._max_data_element_id)
+	{}
+
+protected:
 
 	/// Input parameters:
 	/// - iteration_vector:       loop iteration, for which the accessed data element
@@ -260,15 +245,18 @@ public:
 	void get_data_element_id(const iter_domain_vector_type& iteration_vector,
 													 data_element_id_type& data_element_id,
 													 id_type& schedule_period_offset
-													 ) const;	
+													 ) const;
+
+public:
 	
-	/// Same as above, but without taken window iteration into account
+	/// Calculates the base data element ID for the current iteration.
 	/// The schedule period offset is NOT calculated. Instead, data element
 	/// identifiers might be returned which are larger than one schedule
 	/// period.
-	void get_base_data_element_id(const iter_domain_vector_type& iteration_vector,
+	void get_base_data_element_id(
 																data_element_id_type& data_element_id
 																) const;
+
 
 	/// Calculate the data element offset which is caused by the window
 	/// iteration. Note: ONLY the window iteration must be passed as
@@ -279,13 +267,14 @@ public:
 																			data_element_id_type& data_element_offset) const;
 
 	/// Returns the data element with the maximum coordinate for the 
-	/// given loop iterator
-	void max_data_element_id(const smoc_md_loop_iterator_kind& loop_iterator,
+	/// current loop iterator
+	void max_data_element_id(
 													 data_element_id_type& max_data_element_id,
-													 id_type& schedule_period_offset) const;	
+													 id_type& schedule_period_offset
+													 ) const;	
 
 	/// Returns the overal maximum data element ID for one schedule period
-	const data_element_id_type& max_data_element_id() const;
+	const data_element_id_type& schedule_period_max_data_element_id() const;
 
 	/// Returns the size of the token space
 	const data_element_id_type size_token_space() const;	
@@ -319,8 +308,8 @@ protected:
 
 
 /// Data element mapping for sink actor
-class smoc_md_loop_snk_data_element_mapper
-	: public smoc_md_loop_data_element_mapper
+class smoc_snk_md_loop_iterator_kind
+	: public smoc_md_loop_iterator_kind, public smoc_md_loop_data_element_mapper
 {
 public:
 	typedef smoc_md_loop_iterator_kind::data_type iter_item_type;
@@ -352,22 +341,43 @@ public:
 	///                        on the extended border or not.
 	/// - high_border_vector : Vector by which can be detected whether a data element is situated
 	///                        on the extended border (with large coordinates) or not.
-	smoc_md_loop_snk_data_element_mapper(const mapping_matrix_type& mapping_matrix,
-																			 const mapping_offset_type& mapping_offset,
-																			 const border_condition_matrix_type& border_matrix,
-																			 const border_condition_vector_type& low_border_vector,
-																			 const border_condition_vector_type& high_border_vector
-																			 ):
+	smoc_snk_md_loop_iterator_kind(const iter_domain_vector_type& iteration_start,
+																 const mapping_matrix_type& mapping_matrix,
+																 const mapping_offset_type& mapping_offset,
+																 const border_condition_matrix_type& border_matrix,
+																 const border_condition_vector_type& low_border_vector,
+																 const border_condition_vector_type& high_border_vector
+																 ):
+		smoc_md_loop_iterator_kind(mapping_matrix.size1(), iteration_start),
 		smoc_md_loop_data_element_mapper(mapping_matrix),
 		mapping_offset(mapping_offset),
 		border_condition_matrix(border_matrix),
 		low_border_condition_vector(low_border_vector),
 		high_border_condition_vector(high_border_vector)
 	{
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
+		dout << "Enter smoc_snk_md_loop_iterator_kind::smoc_snk_md_loop_iterator_kind" << endl;
+		dout << inc_level;
+		dout << "size of mapping-offset: " << mapping_offset.size() << endl;
+#endif
 		assert(check_border_condition_matrix(border_matrix));
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
+		dout << "Leave smoc_snk_md_loop_iterator_kind::smoc_snk_md_loop_iterator_kind" << endl;
+		dout << dec_level;
+#endif
 	};
 
-public:
+	smoc_snk_md_loop_iterator_kind(const smoc_snk_md_loop_iterator_kind& iterator)
+		: smoc_md_loop_iterator_kind(iterator),
+			smoc_md_loop_data_element_mapper(iterator),
+			mapping_offset(iterator.mapping_offset),
+			border_condition_matrix(iterator.border_condition_matrix),
+			low_border_condition_vector(iterator.low_border_condition_vector),
+			high_border_condition_vector(iterator.high_border_condition_vector)
+	{}
+
+
+protected:
 	/// Input parameters:
 	/// - iteration_vector:       loop iteration, for which the accessed data element
 	///                           shall be calculated.
@@ -375,10 +385,13 @@ public:
 	/// - data_element_id:        accessed data element ID
 	void get_data_element_id(const iter_domain_vector_type& iteration_vector,
 													 data_element_id_type& data_element_id) const;
-	
-	/// Same as above, but without taking window iteration into account
-	void get_base_data_element_id(const iter_domain_vector_type& iteration_vector,
-																data_element_id_type& data_element_id) const;
+
+public:	
+	/// Calculates the base data element ID for the current
+	/// iteration, without taking window iteration into account
+	void get_base_data_element_id(
+																data_element_id_type& data_element_id
+																) const;
 
 	/// Calculate the data element offset which is caused by the window
 	/// iteration. Note: ONLY the window iteration must be passed as
@@ -389,37 +402,18 @@ public:
 																			data_element_id_type& data_element_offset) const;
 	
 	/// This function determines the data element which is required for execution of
-	/// the given sink iterator and and which is produced latest by the source actor.
+	/// the current sink iteration and and which is produced latest by the source actor.
 	/// The function returns 'false' when no data element produced by the source actor
 	/// is required. Otherwise 'true' is returned.
-	bool get_req_src_data_element(const smoc_md_loop_iterator_kind& snk_iterator,
-																data_element_id_type& data_element_id) const;
+	bool get_req_src_data_element(data_element_id_type& data_element_id) const;
 
-	/// This function determines whether the given loop iterator
+	/// This function determines whether the current loop iterator
 	/// has its maximum position regarding the given token dimension
 	/// By default, the window iteration is ignored
-	bool is_iteration_max(const smoc_md_loop_iterator_kind& snk_iterator,
+	bool is_iteration_max(
 												unsigned token_dimension,
-												bool ignore_window_iteration = true) const;
-
-#if 0
-# error "The following functions are not tested"
-	/// Calculates for the given iterator the number of pixels which are situated on the low border
-	mapping_type calc_num_low_border_data_elements(const smoc_md_loop_iterator_kind& snk_iterator,
-																								 unsigned token_dimension) const;
-	/// Calculates for the given iterator the number of pixels which are situated on the high border
-	mapping_type calc_num_high_border_data_elements(const smoc_md_loop_iterator_kind& snk_iterator,
-																								 unsigned token_dimension) const;
-	
-
-	/// Calculates the window displacement for the given sink iteration.
-	/// If the return-value is false, the iterator is for the given dimension
-	/// at the end of the schedule period and the value of window_displacement
-	/// is not valid. Otherwise the return-value is true.
-	bool calc_window_displacement(const smoc_md_loop_iterator_kind& snk_iterator,
-																unsigned token_dimension,
-																mapping_type& window_displacement) const;
-#endif
+												bool ignore_window_iteration = true
+												) const;
 
 	/// This function calculates the window displacement from the SOURCE 
 	/// POINT of view. Due to border processing this is not identical
@@ -427,9 +421,10 @@ public:
 	/// If the return-value is false, the iterator is for the given dimension
 	/// at the end of the schedule period and the value of window_displacement
 	/// is not valid. Otherwise the return-value is true.
-	bool calc_eff_window_displacement(const smoc_md_loop_iterator_kind& snk_iterator,
+	bool calc_eff_window_displacement(
 																		unsigned token_dimension,
-																		mapping_type& window_displacement) const;
+																		mapping_type& window_displacement
+																		) const;
 
 	
 	
@@ -452,7 +447,7 @@ public:
 	/// This function multiplies the given iteration vector with the
 	/// border condition matrix. However, the window iteration ARE NOT
 	/// TAKEN into account.
-	border_condition_vector_type calc_base_border_condition_vector(const iter_domain_vector_type& iteration) const;
+	border_condition_vector_type calc_base_border_condition_vector() const;
 
 	/// This function takes the border condition calculated by the above
 	/// function and adds the part for the window iteration given by
@@ -466,8 +461,9 @@ public:
 	border_condition_vector_type calc_border_condition_offset(const iter_domain_vector_type& window_iteration) const;
 	
 	/// Same as above, but only for specified dimension
-	id_type calc_base_border_condition(const iter_domain_vector_type& iteration,
-																		 unsigned dimension) const;
+	id_type calc_base_border_condition(
+																		 unsigned dimension
+																		 ) const;
 	id_type calc_window_border_condition(id_type base_border_condition,
 																			 const iter_domain_vector_type& iteration,
 																			 unsigned dimension) const;
@@ -484,6 +480,130 @@ public:
 
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/// Description of a static nested loop
+/// The iteration bounds are independent on dimension i are
+/// independent of the other dimensions.
+class smoc_src_md_static_loop_iterator 
+	: public smoc_src_md_loop_iterator_kind
+{
+public:
+  // Typedefs
+  typedef smoc_md_loop_iterator_kind::data_type data_type;  
+
+  //Specification of iteration domain
+  typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+
+  typedef smoc_md_loop_iterator_kind::size_type size_type;
+public:
+  /* Constructors */
+
+  /// This constructor allows to declare a so called
+  /// window-iteration domain. The window iteration domain
+  /// Is supposed to be executed externally.
+  smoc_src_md_static_loop_iterator(const iter_domain_vector_type& iteration_max,
+																	 const mapping_matrix_type& mapping_matrix,
+																	 const mapping_offset_type& mapping_offset
+																	 );
+
+  smoc_src_md_static_loop_iterator(const smoc_src_md_static_loop_iterator& src_iterator);
+
+private:
+	data_element_id_type calc_max_data_element_id(const iter_domain_vector_type& iteration_max,
+																								const mapping_matrix_type& mapping_matrix
+																								) const;
+
+public:
+
+	virtual bool inc();
+
+	/// Calculation of some special window iterations
+  virtual const iter_domain_vector_type max_window_iteration() const;
+
+	virtual data_type iteration_max(const size_type dimension,
+																	const iter_domain_vector_type& fixed_iteration) const {
+		return _iteration_max[dimension];
+	}
+
+	virtual const iter_domain_vector_type iteration_max() const{
+		return _iteration_max;
+	}
+
+protected:  
+
+  //Iteration bounds
+  const iter_domain_vector_type _iteration_max;
+
+  
+};
+
+
+
+class smoc_snk_md_static_loop_iterator 
+	: public smoc_snk_md_loop_iterator_kind
+{
+public:
+  // Typedefs
+  typedef smoc_md_loop_iterator_kind::data_type data_type;  
+
+  //Specification of iteration domain
+  typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+
+  typedef smoc_md_loop_iterator_kind::size_type size_type;
+public:
+  /* Constructors */
+
+  /// This constructor allows to declare a so called
+  /// window-iteration domain. The window iteration domain
+  /// Is supposed to be executed externally.
+  smoc_snk_md_static_loop_iterator(
+																	 const iter_domain_vector_type& iteration_max,
+																	 const mapping_matrix_type& mapping_matrix,
+																	 const mapping_offset_type& mapping_offset,
+																	 const border_condition_matrix_type& border_matrix,
+																	 const border_condition_vector_type& low_border_vector,
+																	 const border_condition_vector_type& high_border_vector
+																	 );
+
+  smoc_snk_md_static_loop_iterator(const smoc_snk_md_static_loop_iterator& snk_iterator);
+
+public:
+
+	virtual bool inc();
+
+	/// Calculation of some special window iterations
+  virtual const iter_domain_vector_type max_window_iteration() const;
+
+	virtual data_type iteration_max(const size_type dimension,
+																	const iter_domain_vector_type& fixed_iteration) const {
+		return _iteration_max[dimension];
+	}
+
+	virtual const iter_domain_vector_type iteration_max() const{
+		return _iteration_max;
+	}
+
+protected:  
+
+  //Iteration bounds
+  const iter_domain_vector_type _iteration_max;
+
+  
+};
 
 
 
