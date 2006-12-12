@@ -193,7 +193,12 @@ class smoc_src_md_loop_iterator_kind
 	: public smoc_md_loop_iterator_kind, public smoc_md_loop_data_element_mapper
 {
 public:
-  typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+	typedef smoc_md_loop_iterator_kind parent_type;
+
+  typedef parent_type::iter_domain_vector_type iter_domain_vector_type;
+	typedef parent_type::data_type iter_item_type;
+
+	typedef smoc_md_loop_data_element_mapper::mapping_type mapping_type;
 
   /// Data element identifier
 	typedef long id_type;
@@ -307,7 +312,7 @@ public:
 protected:
 	const data_element_id_type _max_data_element_id;
 
-private:
+protected:
 	void update_base_data_element_id();
 	data_element_id_type base_data_element_id;
 
@@ -323,6 +328,8 @@ class smoc_snk_md_loop_iterator_kind
 public:
 	typedef smoc_md_loop_iterator_kind::data_type iter_item_type;
   typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+
+	typedef smoc_md_loop_data_element_mapper::mapping_type mapping_type;
 
   /// Data element identifier
 	typedef long id_type;
@@ -489,7 +496,7 @@ public:
 	border_type_vector_type is_border_pixel(const border_condition_vector_type& border_condition_vector,
 																					bool& is_border) const;
 
-private:
+protected:
 	void update_base_data_element_id();
 	data_element_id_type base_data_element_id;
 	
@@ -521,12 +528,16 @@ public:
   // Typedefs
 	typedef smoc_src_md_loop_iterator_kind parent_type;
 
-  typedef parent_type::data_type data_type;  
+	
 
   //Specification of iteration domain
+	typedef parent_type::iter_item_type iter_item_type;
   typedef parent_type::iter_domain_vector_type iter_domain_vector_type;
 
   typedef parent_type::size_type size_type;
+
+	typedef parent_type::mapping_type mapping_type;
+
 public:
   /* Constructors */
 
@@ -578,12 +589,13 @@ public:
   // Typedefs
 	typedef smoc_snk_md_loop_iterator_kind parent_type;
 
-  typedef parent_type::data_type data_type;  
-
-  //Specification of iteration domain
+	//Specification of iteration domain
+	typedef parent_type::iter_item_type iter_item_type;
   typedef parent_type::iter_domain_vector_type iter_domain_vector_type;
 
   typedef parent_type::size_type size_type;
+
+	typedef parent_type::mapping_type mapping_type;
 public:
   /* Constructors */
 

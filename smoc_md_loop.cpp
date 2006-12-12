@@ -3,6 +3,7 @@
 
 
 #define FAST_CALC_MODE
+#define FAST_CALC_MODE2
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_LOOP
 #define VERBOSE_LEVEL_SMOC_MD_LOOP 0
@@ -989,12 +990,30 @@ bool smoc_src_md_static_loop_iterator::inc(){
   for(int i = current_iteration.size() -  _token_dimensions - 1;
 			i >= 0;
 			i--){
+#ifdef FAST_CALC_MODE2
+		iter_item_type old_value = current_iteration[i];
+#endif
     current_iteration[i]++;
 
     if (current_iteration[i] > _iteration_max[i]){
       current_iteration[i] = 0;
+#ifdef FAST_CALC_MODE2
+			const int row = mapping_table[i];
+			if (row >= 0){
+				//update base data element
+				base_data_element_id[row] -= old_value * mapping_matrix(row,i);
+			}
+#endif
     }else{
 			_new_schedule_period = false;
+#ifdef FAST_CALC_MODE2
+			const int row = mapping_table[i];
+			if (row >= 0){
+				//update base data element
+				base_data_element_id[row] += mapping_matrix(row,i);
+			}
+#endif
+
 			break;
     }
   }
@@ -1004,7 +1023,9 @@ bool smoc_src_md_static_loop_iterator::inc(){
 	dout << endl;
 #endif
 
+#ifndef FAST_CALC_MODE2
 	parent_type::inc();
+#endif
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "Leave smoc_md_static_loop_iterator::inc()" << endl;
@@ -1072,26 +1093,48 @@ bool smoc_snk_md_static_loop_iterator::inc(){
 
 	//default initialization
 	_new_schedule_period = true;
-  
-  for(int i = current_iteration.size() -  _token_dimensions - 1;
+
+
+	for(int i = current_iteration.size() -  _token_dimensions - 1;
 			i >= 0;
 			i--){
+#ifdef FAST_CALC_MODE2
+		iter_item_type old_value = current_iteration[i];
+#endif
     current_iteration[i]++;
 
     if (current_iteration[i] > _iteration_max[i]){
       current_iteration[i] = 0;
+#ifdef FAST_CALC_MODE2
+			const int row = mapping_table[i];
+			if (row >= 0){
+				//update base data element
+				base_data_element_id[row] -= old_value * mapping_matrix(row,i);
+			}
+#endif
     }else{
 			_new_schedule_period = false;
+#ifdef FAST_CALC_MODE2
+			const int row = mapping_table[i];
+			if (row >= 0){
+				//update base data element
+				base_data_element_id[row] += mapping_matrix(row,i);
+			}
+#endif
+
 			break;
     }
   }
+
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "New loop iteration: " << current_iteration;
 	dout << endl;
 #endif
 
+#ifndef FAST_CALC_MODE2
 	parent_type::inc();
+#endif
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
 	dout << "Leave smoc_md_static_loop_iterator::inc()" << endl;
