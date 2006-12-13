@@ -107,12 +107,10 @@ public:
 
 		void checkLimit(const iter_domain_vector_type& window_iteration) const{
 #ifndef NDEBUG
-			iter_domain_vector_type max_window_iteration(src_loop_iterator->max_window_iteration());
+			const iter_domain_vector_type& max_window_iteration(src_loop_iterator->max_window_iteration());
 			for(unsigned i = 0; i < window_iteration.size(); i++){
 				assert(window_iteration[i] <= 
-							 max_window_iteration[max_window_iteration.size() - 
-																		window_iteration.size()+
-																		i]);
+							 max_window_iteration[i]);
 			}
 #endif
 		}
@@ -222,12 +220,10 @@ public:
 
 		void checkLimit(const iter_domain_vector_type& window_iteration) const{
 #ifndef NDEBUG
-			iter_domain_vector_type max_window_iteration(snk_loop_iterator->max_window_iteration());
+			const iter_domain_vector_type& max_window_iteration(snk_loop_iterator->max_window_iteration());
 			for(unsigned i = 0; i < window_iteration.size(); i++){
 				assert(window_iteration[i] <= 
-							 max_window_iteration[max_window_iteration.size() - 
-																		window_iteration.size()+
-																		i]);
+							 max_window_iteration[i]);
 			}
 #endif
 		}

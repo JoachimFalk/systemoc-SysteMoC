@@ -112,6 +112,16 @@ smoc_src_md_loop_iterator_kind::schedule_period_max_data_element_id() const {
 	return _max_data_element_id;
 }
 
+void smoc_src_md_loop_iterator_kind::calc_schedule_period_offset(data_element_id_type& data_element_id,
+																																 id_type& schedule_period_offset) const{
+	//Calculate schedule period offset
+	schedule_period_offset = 
+		data_element_id[ _token_dimensions - 1] / (_max_data_element_id[_token_dimensions-1]+1);
+
+	data_element_id[_token_dimensions-1] -= 
+		schedule_period_offset *  (_max_data_element_id[_token_dimensions-1]+1);
+}
+
 void smoc_src_md_loop_iterator_kind::get_data_element_id(const iter_domain_vector_type& iteration_vector,
 																															 data_element_id_type& data_element_id,
 																															 id_type& schedule_period_offset
@@ -139,12 +149,7 @@ void smoc_src_md_loop_iterator_kind::get_data_element_id(const iter_domain_vecto
 	data_element_id += prod(mapping_matrix, iteration_vector);
 #endif
 
-	//Calculate schedule period offset
-	schedule_period_offset = 
-		data_element_id[ _token_dimensions - 1] / (_max_data_element_id[_token_dimensions-1]+1);
-
-	data_element_id[_token_dimensions-1] -= 
-		schedule_period_offset *  (_max_data_element_id[_token_dimensions-1]+1);
+	calc_schedule_period_offset(data_element_id, schedule_period_offset);
 	
 }
 
@@ -200,7 +205,7 @@ void smoc_src_md_loop_iterator_kind::max_data_element_id(
 #endif
 
 	//get the data element with the larges coordinates	
-	const iter_domain_vector_type 
+	const iter_domain_vector_type& 
 		max_window_iteration(max_window_iteration());
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 105
@@ -208,10 +213,11 @@ void smoc_src_md_loop_iterator_kind::max_data_element_id(
 	dout << endl;
 #endif
 
-	get_data_element_id(max_window_iteration,
-											max_data_element_id,
-											schedule_period_offset
-											);
+	get_window_data_element_offset(max_window_iteration,
+																 max_data_element_id);
+	max_data_element_id += base_data_element_id;
+
+	calc_schedule_period_offset(max_data_element_id, schedule_period_offset);
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 105
 	dout << "Leave smoc_src_md_loop_iterator_kind::max_data_element_id" << endl;
@@ -483,9 +489,9 @@ bool smoc_snk_md_loop_iterator_kind::get_req_src_data_element(data_element_id_ty
 	}
 	
 	/* Check, whether complete window is situated on the lower extended border */
-	border_condition_vector_type 
-	temp2_vector(calc_window_border_condition_vector(temp_vector,
-																									 window_iteration));
+	border_condition_vector_type temp2_vector = 
+		temp_vector + calc_border_condition_offset(window_iteration);
+
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Border condition for max window iteration: " << temp2_vector;
 	dout << endl;
@@ -517,8 +523,9 @@ bool smoc_snk_md_loop_iterator_kind::get_req_src_data_element(data_element_id_ty
 			//we assume, that coefficients in the condition matrix
 			//belonging to the window iteration are 1
 			//(see check_border_condition_matrix)
-			assert((id_type)window_iteration[iterator_depth()-1-dim] > high_border_condition_vector[dim] - temp2_vector[dim]);
-			window_iteration[iterator_depth()-1-dim] -=
+			assert((id_type)window_iteration[_token_dimensions-1-dim] > 
+						 high_border_condition_vector[dim] - temp2_vector[dim]);
+			window_iteration[_token_dimensions-1-dim] -=
 				temp2_vector[dim] - high_border_condition_vector[dim];
 		}
 	}
@@ -530,9 +537,8 @@ bool smoc_snk_md_loop_iterator_kind::get_req_src_data_element(data_element_id_ty
 #endif
 
 	
-	//The following operation can be done more efficiently, 
-	//but as it is easy:
-	get_data_element_id(window_iteration,	data_element_id);	
+	get_window_data_element_offset(window_iteration,	data_element_id);	
+	data_element_id += base_data_element_id;
 
 smoc_snk_md_loop_iterator_kind_get_req_src_data_element_end:
 
@@ -938,6 +944,43 @@ void smoc_snk_md_loop_iterator_kind::update_base_data_element_id() {
 }
 
 
+/* ******************************************************************************* */
+/*                          smoc_md_static_loop_iterator                           */
+/* ******************************************************************************* */
+
+
+smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(const iter_domain_vector_type& iteration_max,
+																													 unsigned int token_dimensions)
+	: _iteration_max(iteration_max),
+		_max_window_iteration(calc_max_window_iteration(token_dimensions,iteration_max))
+{}
+
+smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(const smoc_md_static_loop_iterator& src_iterator)
+	: _iteration_max(src_iterator._iteration_max),
+		_max_window_iteration(src_iterator._max_window_iteration)
+{}
+
+
+const smoc_md_static_loop_iterator::iter_domain_vector_type&
+smoc_md_static_loop_iterator::max_window_iteration() const{
+  return _max_window_iteration;
+}
+
+const smoc_md_static_loop_iterator::iter_domain_vector_type 
+smoc_md_static_loop_iterator::calc_max_window_iteration(unsigned int token_dimensions,
+																												const iter_domain_vector_type& iteration_max) {
+	iter_domain_vector_type return_vector(token_dimensions);
+	for(unsigned int i = 0, j = iteration_max.size() - token_dimensions; 
+			i < token_dimensions; 
+			i++, j++){
+		return_vector[i] = iteration_max[j];
+	}
+
+	return return_vector;
+}
+
+
+
 
 /* ******************************************************************************* */
 /*                           smoc_src_md_static_loop_iterator                      */
@@ -953,13 +996,13 @@ smoc_src_md_static_loop_iterator::smoc_src_md_static_loop_iterator(
 																	 mapping_offset																 ,
 																	 calc_max_data_element_id(iteration_max,mapping_matrix)
 																	 ),
-    _iteration_max(iteration_max)
+    smoc_md_static_loop_iterator(iteration_max, mapping_offset.size())
 {
 }
 
 smoc_src_md_static_loop_iterator::smoc_src_md_static_loop_iterator(const smoc_src_md_static_loop_iterator& src_iterator)
   : smoc_src_md_loop_iterator_kind(src_iterator),
-    _iteration_max(src_iterator._iteration_max)
+    smoc_md_static_loop_iterator(src_iterator)
 {
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 		dout << "Enter smoc_src_md_static_loop_iterator::smoc_src_md_static_loop_iterator" << endl;
@@ -1035,20 +1078,7 @@ bool smoc_src_md_static_loop_iterator::inc(){
   return _new_schedule_period;
 }
 
-const smoc_src_md_static_loop_iterator::iter_domain_vector_type
-smoc_src_md_static_loop_iterator::max_window_iteration() const{
-  iter_domain_vector_type return_vector(current_iteration);
 
-  //replace coordinates corresponding to iteration in the inner
-  //of the window by its maximum values.
-  for(unsigned int i = return_vector.size() - _token_dimensions;
-      i < return_vector.size();
-      i++){
-    return_vector[i] = _iteration_max[i];
-  }
-
-  return return_vector;
-}
 
 
 /* ******************************************************************************* */
@@ -1070,7 +1100,7 @@ smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator(
 																	 low_border_vector,
 																	 high_border_vector
 																	 ),
-    _iteration_max(iteration_max)
+    smoc_md_static_loop_iterator(iteration_max, mapping_offset.size())
 {
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 		dout << "Enter smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator" << endl;
@@ -1080,7 +1110,7 @@ smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator(
 
 smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator(const smoc_snk_md_static_loop_iterator& snk_iterator)
   : smoc_snk_md_loop_iterator_kind(snk_iterator),
-    _iteration_max(snk_iterator._iteration_max)
+    smoc_md_static_loop_iterator(snk_iterator)
 {
 }
 
@@ -1144,17 +1174,3 @@ bool smoc_snk_md_static_loop_iterator::inc(){
   return _new_schedule_period;
 }
 
-const smoc_snk_md_static_loop_iterator::iter_domain_vector_type
-smoc_snk_md_static_loop_iterator::max_window_iteration() const{
-  iter_domain_vector_type return_vector(current_iteration);
-
-  //replace coordinates corresponding to iteration in the inner
-  //of the window by its maximum values.
-  for(unsigned int i = return_vector.size() - _token_dimensions;
-      i < return_vector.size();
-      i++){
-    return_vector[i] = _iteration_max[i];
-  }
-
-  return return_vector;
-}

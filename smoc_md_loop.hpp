@@ -16,6 +16,11 @@
 // 106: Border processing
 #endif
 
+
+/* **************************************************************************** */
+/*                         smoc_md_loop_iterator_kind                           */
+/* **************************************************************************** */
+
 /// Common base class for all loop iterators
 /// A loop iterator describes a nested loop
 class smoc_md_loop_iterator_kind {
@@ -81,9 +86,10 @@ public:
 
 	/* Determination of iteration borders */
 
-	/// Calculate the maximum iteration vector possible for the
+	/// Gets the maximum iteration vector possible for the
 	/// current window position.
-  virtual const iter_domain_vector_type max_window_iteration() const = 0;
+	/// ONLY returns the iteration levels belonging to the window
+  virtual const iter_domain_vector_type& max_window_iteration() const = 0;
 
 	/// This function returns the maximum iteration value
 	/// for the given dimension, supposing, that the smaller dimensions
@@ -111,6 +117,12 @@ protected:
 
 
 
+
+
+/* ******************************************************************************* */
+/*                     smoc_md_loop_data_element_mapper                        */
+/* ******************************************************************************* */
+
 /// Common data element mapping for source and sink actor
 class smoc_md_loop_data_element_mapper
 {
@@ -121,6 +133,10 @@ public:
 	typedef unsigned long mapping_type;
 	typedef boost::numeric::ublas::matrix<mapping_type> mapping_matrix_type;
 	typedef smoc_vector<mapping_type> mapping_vector_type;
+
+	/// Data element identifier
+	typedef long id_type;
+  typedef smoc_vector<id_type> data_element_id_type;
 
 public:
 	
@@ -188,6 +204,12 @@ private:
 
 
 
+
+/* ******************************************************************************* */
+/*                     smoc_src_md_loop_iterator_kind                        */
+/* ******************************************************************************* */
+
+
 /// Data element mapping for source actor
 class smoc_src_md_loop_iterator_kind
 	: public smoc_md_loop_iterator_kind, public smoc_md_loop_data_element_mapper
@@ -201,8 +223,8 @@ public:
 	typedef smoc_md_loop_data_element_mapper::mapping_type mapping_type;
 
   /// Data element identifier
-	typedef long id_type;
-  typedef smoc_vector<id_type> data_element_id_type;	
+	typedef smoc_md_loop_data_element_mapper::id_type id_type;
+  typedef smoc_md_loop_data_element_mapper::data_element_id_type data_element_id_type;
 
 	/// Offset vector
 	typedef unsigned long offset_type;
@@ -257,6 +279,14 @@ protected:
 													 data_element_id_type& data_element_id,
 													 id_type& schedule_period_offset
 													 ) const;
+
+
+	/// Function takes a calculated data_element_id.
+	/// If it lies beyond the maximum allowed data element of one schedule period
+	/// it is corrected correspondingly.
+	/// by determining a schedule_period_offset.
+	void calc_schedule_period_offset(data_element_id_type& data_element_id,
+																	 id_type& schedule_period_offset) const;
 
 public:
 
@@ -321,7 +351,15 @@ protected:
 
 
 
-/// Data element mapping for sink actor
+
+
+
+/* ******************************************************************************* */
+/*                     smoc_snk_md_loop_iterator_kind                        */
+/* ******************************************************************************* */
+
+
+/// Sink loop iterator
 class smoc_snk_md_loop_iterator_kind
 	: public smoc_md_loop_iterator_kind, public smoc_md_loop_data_element_mapper
 {
@@ -332,8 +370,8 @@ public:
 	typedef smoc_md_loop_data_element_mapper::mapping_type mapping_type;
 
   /// Data element identifier
-	typedef long id_type;
-  typedef smoc_vector<id_type> data_element_id_type;
+	typedef smoc_md_loop_data_element_mapper::id_type id_type;
+  typedef smoc_md_loop_data_element_mapper::data_element_id_type data_element_id_type;
 
 	/// Offset vector
 	typedef long offset_type;
@@ -507,6 +545,58 @@ protected:
 
 
 
+/* ******************************************************************************* */
+/*                          smoc_md_static_loop_iterator                           */
+/* ******************************************************************************* */
+
+
+class smoc_md_static_loop_iterator 
+{
+public:
+
+  //Specification of iteration domain
+	typedef smoc_md_loop_iterator_kind::data_type iter_item_type;
+  typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+	typedef smoc_md_loop_iterator_kind::size_type size_type;
+
+public:
+  /* Constructors */
+
+	/// base_data_element_id points to the corresponding entry in the data
+	/// element mapper.
+  smoc_md_static_loop_iterator(const iter_domain_vector_type& iteration_max,
+															 unsigned int token_dimensions);
+
+  smoc_md_static_loop_iterator(const smoc_md_static_loop_iterator& src_iterator);
+
+	virtual ~smoc_md_static_loop_iterator() {}
+
+public:
+
+	/// Calculation of some special window iterations
+  virtual const iter_domain_vector_type& max_window_iteration() const;
+
+	virtual iter_item_type iteration_max(const size_type dimension,
+																			 const iter_domain_vector_type& fixed_iteration) const {
+		return _iteration_max[dimension];
+	}
+
+	virtual const iter_domain_vector_type iteration_max() const{
+		return _iteration_max;
+	}
+
+protected:  
+
+  //Iteration bounds
+  const iter_domain_vector_type _iteration_max;
+
+	//Maximum window iteration
+	const iter_domain_vector_type _max_window_iteration;
+
+private:
+	const iter_domain_vector_type calc_max_window_iteration(unsigned int token_dimensions,
+																													const iter_domain_vector_type& iteration_max);
+};
 
 
 
@@ -516,13 +606,16 @@ protected:
 
 
 
+/* ******************************************************************************* */
+/*                           smoc_src_md_static_loop_iterator                      */
+/* ******************************************************************************* */
 
 
 /// Description of a static nested loop
 /// The iteration bounds are independent on dimension i are
 /// independent of the other dimensions.
 class smoc_src_md_static_loop_iterator 
-	: public smoc_src_md_loop_iterator_kind
+	: public smoc_src_md_loop_iterator_kind, public smoc_md_static_loop_iterator
 {
 public:
   // Typedefs
@@ -558,32 +651,32 @@ private:
 
 public:
 
-	virtual bool inc();
+	bool inc();
 
-	/// Calculation of some special window iterations
-  virtual const iter_domain_vector_type max_window_iteration() const;
-
-	virtual data_type iteration_max(const size_type dimension,
-																	const iter_domain_vector_type& fixed_iteration) const {
-		return _iteration_max[dimension];
+	virtual iter_item_type iteration_max(const size_type dimension,
+																			 const iter_domain_vector_type& fixed_iteration) const {
+		return smoc_md_static_loop_iterator::iteration_max(dimension,fixed_iteration);
 	}
 
 	virtual const iter_domain_vector_type iteration_max() const{
-		return _iteration_max;
+		return smoc_md_static_loop_iterator::iteration_max();
 	}
 
-protected:  
-
-  //Iteration bounds
-  const iter_domain_vector_type _iteration_max;
-
+	virtual const iter_domain_vector_type& max_window_iteration() const{
+		return smoc_md_static_loop_iterator::max_window_iteration();
+	}
+	
   
 };
 
 
 
+/* ******************************************************************************* */
+/*                           smoc_snk_md_static_loop_iterator                      */
+/* ******************************************************************************* */
+
 class smoc_snk_md_static_loop_iterator 
-	: public smoc_snk_md_loop_iterator_kind
+	: public smoc_snk_md_loop_iterator_kind, public smoc_md_static_loop_iterator
 {
 public:
   // Typedefs
@@ -617,24 +710,19 @@ public:
 
 	virtual bool inc();
 
-	/// Calculation of some special window iterations
-  virtual const iter_domain_vector_type max_window_iteration() const;
-
-	virtual data_type iteration_max(const size_type dimension,
-																	const iter_domain_vector_type& fixed_iteration) const {
-		return _iteration_max[dimension];
+	virtual iter_item_type iteration_max(const size_type dimension,
+																			 const iter_domain_vector_type& fixed_iteration) const {
+		return smoc_md_static_loop_iterator::iteration_max(dimension,fixed_iteration);
 	}
 
 	virtual const iter_domain_vector_type iteration_max() const{
-		return _iteration_max;
+		return smoc_md_static_loop_iterator::iteration_max();
 	}
 
-protected:  
+	virtual const iter_domain_vector_type& max_window_iteration() const{
+		return smoc_md_static_loop_iterator::max_window_iteration();
+	}
 
-  //Iteration bounds
-  const iter_domain_vector_type _iteration_max;
-
-  
 };
 
 
