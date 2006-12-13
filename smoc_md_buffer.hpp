@@ -187,7 +187,7 @@ public:
 #endif
 
 			border_condition_vector_type border_condition_vector = 
-				snk_loop_iterator->calc_base_border_condition_vector();
+				snk_loop_iterator->get_base_border_condition_vector();
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101)
 			dout << "base_border_condition_vector = " << border_condition_vector;
 			dout << endl;

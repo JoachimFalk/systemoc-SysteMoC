@@ -402,6 +402,7 @@ void smoc_snk_md_loop_iterator_kind::get_data_element_id(const iter_domain_vecto
 
 bool smoc_snk_md_loop_iterator_kind::inc(){
 	update_base_data_element_id();
+	update_base_border_condition_vector();
 	return true;
 }
 
@@ -464,8 +465,8 @@ bool smoc_snk_md_loop_iterator_kind::get_req_src_data_element(data_element_id_ty
 #endif
 
 
-	border_condition_vector_type 
-		temp_vector(calc_base_border_condition_vector());
+	const border_condition_vector_type&
+		temp_vector(get_base_border_condition_vector());
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 103
 	dout << "Base border condition: " << temp_vector;
@@ -644,7 +645,7 @@ smoc_snk_md_loop_iterator_kind::calc_eff_window_displacement(
 	if (border_condition_change > 0){
 		//Window might have left low extended border
 		id_type 
-			base_border_condition(calc_base_border_condition(token_dimension));
+			base_border_condition(base_border_condition_vector[token_dimension]);
 		id_type delta_low_condition = 
 			low_border_condition_vector[token_dimension] - base_border_condition;
 		id_type delta_high_condition =
@@ -684,7 +685,7 @@ smoc_snk_md_loop_iterator_kind::calc_eff_window_displacement(
 	if (border_condition_change < 0){
 		//window might have entered extended border
 		id_type 
-			base_border_condition(calc_base_border_condition(token_dimension));
+			base_border_condition(base_border_condition_vector[token_dimension]);
 		id_type delta_low_condition = 
 			low_border_condition_vector[token_dimension] - base_border_condition;
 
@@ -741,6 +742,7 @@ bool smoc_snk_md_loop_iterator_kind::check_border_condition_matrix(const border_
 }
 
 
+#if 0
 smoc_snk_md_loop_iterator_kind::id_type 
 smoc_snk_md_loop_iterator_kind::calc_base_border_condition(
 																													 unsigned dimension
@@ -756,6 +758,7 @@ smoc_snk_md_loop_iterator_kind::calc_base_border_condition(
 
 	return return_value;
 }
+#endif
 
 smoc_snk_md_loop_iterator_kind::id_type 
 smoc_snk_md_loop_iterator_kind::calc_window_border_condition(id_type base_border_condition,
@@ -786,31 +789,6 @@ smoc_snk_md_loop_iterator_kind::calc_window_border_condition(id_type base_border
 #endif
 
 	return base_border_condition;
-}
-
-
-smoc_snk_md_loop_iterator_kind::border_condition_vector_type
-smoc_snk_md_loop_iterator_kind::calc_base_border_condition_vector() const {
-	border_condition_vector_type return_vector(_token_dimensions);
-#ifdef FAST_CALC_MODE
-	for(unsigned row = 0; row < _token_dimensions; row++){
-		return_vector[row] = 0;
-	}
-	for(unsigned col = 0; col < current_iteration.size()-_token_dimensions; col++){
-		const int row = mapping_table[col];
-		if (row >= 0){
-			return_vector[row] += 
-				border_condition_matrix(row,col)*current_iteration[col];
-		}
-	}
-#else
-	for(unsigned row = 0; row < _token_dimensions; row++){
-		return_vector[row] = 
-			calc_base_border_condition(row);				
-	}
-#endif
-
-	return return_vector;	
 }
 
 smoc_snk_md_loop_iterator_kind::border_condition_vector_type 
@@ -942,6 +920,31 @@ void smoc_snk_md_loop_iterator_kind::update_base_data_element_id() {
 	}
 #endif
 }
+
+void smoc_snk_md_loop_iterator_kind::update_base_border_condition_vector(){
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
+	dout << "Enter smoc_snk_md_loop_iterator_kind::update_base_border_condition_vector";
+	dout << inc_level;
+	dout << "current_iteration = " << current_iteration;
+	dout << endl;
+#endif
+	
+	for(unsigned row = 0; row < _token_dimensions; row++){
+		base_border_condition_vector[row] = 0;
+	}
+	for(unsigned col = 0; col < current_iteration.size()-_token_dimensions; col++){
+		const int row = mapping_table[col];
+		if (row >= 0){
+			base_border_condition_vector[row] += 
+				border_condition_matrix(row,col)*current_iteration[col];
+		}
+	}
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
+	dout << "Leave smoc_snk_md_loop_iterator_kind::update_base_border_condition_vector";
+	dout << dec_level;
+#endif
+}
+
 
 
 /* ******************************************************************************* */
@@ -1140,6 +1143,10 @@ bool smoc_snk_md_static_loop_iterator::inc(){
 			if (row >= 0){
 				//update base data element
 				base_data_element_id[row] -= old_value * mapping_matrix(row,i);
+				//update base border condition
+				base_border_condition_vector[row] -= 
+					old_value * border_condition_matrix(row,i);
+
 			}
 #endif
     }else{
@@ -1149,6 +1156,10 @@ bool smoc_snk_md_static_loop_iterator::inc(){
 			if (row >= 0){
 				//update base data element
 				base_data_element_id[row] += mapping_matrix(row,i);
+				//update base border condition
+				base_border_condition_vector[row] += 
+					border_condition_matrix(row,i);
+
 			}
 #endif
 

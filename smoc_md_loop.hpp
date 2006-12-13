@@ -407,7 +407,8 @@ public:
 		mapping_offset(mapping_offset),
 		border_condition_matrix(border_matrix),
 		low_border_condition_vector(low_border_vector),
-		high_border_condition_vector(high_border_vector)
+		high_border_condition_vector(high_border_vector),
+		base_border_condition_vector(mapping_matrix.size1())
 	{
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 		dout << "Enter smoc_snk_md_loop_iterator_kind::smoc_snk_md_loop_iterator_kind" << endl;
@@ -416,6 +417,7 @@ public:
 #endif
 		assert(check_border_condition_matrix(border_matrix));
 		update_base_data_element_id();
+		update_base_border_condition_vector();
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
 		dout << "Leave smoc_snk_md_loop_iterator_kind::smoc_snk_md_loop_iterator_kind" << endl;
 		dout << dec_level;
@@ -429,7 +431,8 @@ public:
 			border_condition_matrix(iterator.border_condition_matrix),
 			low_border_condition_vector(iterator.low_border_condition_vector),
 			high_border_condition_vector(iterator.high_border_condition_vector),
-			base_data_element_id(iterator.base_data_element_id)
+			base_data_element_id(iterator.base_data_element_id),
+			base_border_condition_vector(iterator.base_border_condition_vector)
 	{}
 
 
@@ -504,7 +507,9 @@ public:
 	/// This function multiplies the given iteration vector with the
 	/// border condition matrix. However, the window iteration ARE NOT
 	/// TAKEN into account.
-	border_condition_vector_type calc_base_border_condition_vector() const;
+	const border_condition_vector_type& get_base_border_condition_vector() const{
+		return base_border_condition_vector;
+	}
 
 	/// This function takes the border condition calculated by the above
 	/// function and adds the part for the window iteration given by
@@ -518,9 +523,6 @@ public:
 	border_condition_vector_type calc_border_condition_offset(const iter_domain_vector_type& window_iteration) const;
 	
 	/// Same as above, but only for specified dimension
-	id_type calc_base_border_condition(
-																		 unsigned dimension
-																		 ) const;
 	id_type calc_window_border_condition(id_type base_border_condition,
 																			 const iter_domain_vector_type& iteration,
 																			 unsigned dimension) const;
@@ -537,6 +539,9 @@ public:
 protected:
 	void update_base_data_element_id();
 	data_element_id_type base_data_element_id;
+
+	void update_base_border_condition_vector();
+	border_condition_vector_type base_border_condition_vector;
 	
 
 };
