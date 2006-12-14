@@ -1,11 +1,12 @@
 
 #include "smoc_wsdf_edge.hpp"
+#include "smoc_debug_out.hpp"
 
 #define FAST_CALC_MODE
 
 //0: No output
 ///100: debug
-#ifdef VERBOSE_LEVEL_SMOC_WSDF_EDGE
+#ifndef VERBOSE_LEVEL_SMOC_WSDF_EDGE
 #define VERBOSE_LEVEL_SMOC_WSDF_EDGE 0
 #endif
 
@@ -33,7 +34,8 @@ smoc_wsdf_edge_descr::uvector_type
 smoc_wsdf_edge_descr::src_iteration_max() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	std::cout << "Enter  smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
+	dout << "Enter  smoc_wsdf_edge_descr::src_iteration_max()" << endl;
+	dout << inc_level;
 #endif
 
 	uvector_type return_vector(calc_src_iteration_levels());
@@ -50,8 +52,8 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
 				token_dimension < token_dimensions;
 				token_dimension++){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-			std::cout << "firing_level = " << firing_level;
-			std::cout << " token_dimension = " << token_dimension << std::endl;
+			dout << "firing_level = " << firing_level;
+			dout << " token_dimension = " << token_dimension << endl;
 #endif
 			if (src_has_iteration_level(firing_level, token_dimension)){
 				assert(src_firing_blocks[firing_level][token_dimension] %
@@ -68,7 +70,8 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
 	}
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	std::cout << "Leave smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
+	dout << "Leave smoc_wsdf_edge_descr::src_iteration_max()" << endl;
+	dout << dec_level;
 #endif
 
 	return return_vector;
@@ -240,7 +243,8 @@ smoc_wsdf_edge_descr::uvector_type
 smoc_wsdf_edge_descr::calc_snk_r_vtu() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	std::cout << "Enter smoc_wsdf_edge_descr::calc_snk_r_vtu()" << std::endl;
+	dout << "Enter smoc_wsdf_edge_descr::calc_snk_r_vtu()" << endl;
+	dout << inc_level;
 #endif
 
 	uvector_type return_vector(u0+bs+bt-c);
@@ -253,11 +257,13 @@ smoc_wsdf_edge_descr::calc_snk_r_vtu() const {
 	}
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	std::cout << "snk_r_vtu = " << return_vector << std::endl;
+	dout << "snk_r_vtu = " << return_vector;
+	dout << endl;
 #endif
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	std::cout << "Leave smoc_wsdf_edge_descr::calc_snk_r_vtu()" << std::endl;
+	dout << "Leave smoc_wsdf_edge_descr::calc_snk_r_vtu()" << endl;
+	dout << dec_level;
 #endif
 
 	return return_vector;
@@ -265,6 +271,12 @@ smoc_wsdf_edge_descr::calc_snk_r_vtu() const {
 
 smoc_wsdf_edge_descr::uvector_type 
 smoc_wsdf_edge_descr::calc_src_r_vtu() const {
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+	dout << "Enter smoc_wsdf_edge_descr::calc_src_r_vtu()" << endl;
+	dout << inc_level;
+#endif
+
 	uvector_type return_vector(token_dimensions);
 	
 	for(unsigned int i = 0; i < token_dimensions; i++){
@@ -275,12 +287,35 @@ smoc_wsdf_edge_descr::calc_src_r_vtu() const {
 		return_vector[i] = u0[i] / p[i];
 	}
 
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+	dout << "src_r_vtu = " << return_vector;
+	dout << endl;
+#endif
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+	dout << "Leave smoc_wsdf_edge_descr::calc_src_r_vtu()" << endl;
+	dout << dec_level;
+#endif
+
 	return return_vector;
 }
 
 
 
 void smoc_wsdf_edge_descr::check_local_balance() const {
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+	dout << "Enter smoc_wsdf_edge_descr::check_local_balance" << endl;
+	dout << inc_level;
+
+	dout << "snk_firing_blocks = " << snk_firing_blocks;
+	dout << endl;
+	dout << "c = " << c;
+	dout << endl;
+
+	dout << "src_firing_blocks = " << src_firing_blocks;
+	dout << endl;
+#endif
 
 	//Calculate number of invocations per virtual token union
 	const uvector_type snk_r_vtu(calc_snk_r_vtu());
@@ -291,22 +326,43 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 	udata_type src_num_vtu;
 
 	for(unsigned int i = 0; i < token_dimensions; i++){
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+		dout << "Token dimension " << i << endl;
+		dout << inc_level;
+#endif
 		//Check for incomplete virtual token union
 		assert(snk_firing_blocks[snk_num_firing_levels-1][i] % snk_r_vtu[i] == 0);
 
 		snk_num_vtu = 
 			snk_firing_blocks[snk_num_firing_levels-1][i] / snk_r_vtu[i];
 
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+		dout << "snk_num_vtu =  " << snk_num_vtu  << endl;
+#endif
+
 		//Check for incomplete virtual token unions
-		assert(src_firing_blocks[src_num_firing_levels-1][i] % src_r_vtu[i] == 0);
+		assert((src_firing_blocks[src_num_firing_levels-1][i] / p[i]) % src_r_vtu[i] == 0);
 
 		src_num_vtu = 
-			src_firing_blocks[src_num_firing_levels-1][i] / src_r_vtu[i];
+			src_firing_blocks[src_num_firing_levels-1][i] / p[i] / src_r_vtu[i];
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+		dout << "src_num_vtu =  " << src_num_vtu  << endl;
+#endif
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+		dout << dec_level;
+#endif
 
 		
 		//Check, if edge balanced
 		assert(snk_num_vtu == src_num_vtu);
 	}	
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+	dout << "Leave smoc_wsdf_edge_descr::check_local_balance" << endl;
+	dout << dec_level;
+#endif
 }
 
 
@@ -356,8 +412,9 @@ bool smoc_wsdf_edge_descr::snk_has_iteration_level(unsigned firing_level,
 
 bool smoc_wsdf_edge_descr::src_has_iteration_level(unsigned firing_level,
 																									 unsigned token_dimension) const {
-	if (firing_level == 0){
-		//Always include firing_level 0
+	if (firing_level <= 1){
+		//Always include firing_level 0 (effective token)
+		//+next firing level
 		return true;
 	}else if (src_firing_blocks[firing_level][token_dimension] == 
 						src_firing_blocks[firing_level-1][token_dimension]){

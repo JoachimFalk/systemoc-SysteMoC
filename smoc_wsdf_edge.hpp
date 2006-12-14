@@ -173,7 +173,7 @@ private:
 	bool src_has_iteration_level(unsigned firing_level, 
 															 unsigned token_dimension) const;
 	
-	/// This function inserts int a given iteration level table
+	/// This function inserts into a given iteration level table
 	/// the iteration for the virtual token union if necessary
 	///
 	/// Input parameters: 
