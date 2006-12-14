@@ -30,29 +30,17 @@ if SYNTH
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 endif
 
-AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@ -L/local/lib
-AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated -Dcimg_display_type=0 
-# -Dcimg_use_magick
+AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
+AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated -Dcimg_display_type=0
 
 LIBS= @LIBS@ -lsystemoc
-# -lMagick++
 
-noinst_PROGRAMS= simulation-wsdf-src-snk \
-	simulation-1D-src-snk \
-	plain-cpp
+noinst_PROGRAMS= simulation-wsdf-dist
 
-simulation_wsdf_src_snk_SOURCES= \
-	design-wsdf-src-snk.cpp
+simulation_wsdf_dist_SOURCES= \
+	design-wsdf-dist.cpp
 
-simulation_1D_src_snk_SOURCES= \
-	design1D-src-snk.cpp
-
-plain_cpp_SOURCES= \
-	plain_cpp.cpp
-
-simulation_wsdf_src_snk_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-simulation_1D_src_snk_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-plain_cpp_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_wsdf_dist_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 if SYNTH
 SYNTHESIS_SUBDIR = synthesis

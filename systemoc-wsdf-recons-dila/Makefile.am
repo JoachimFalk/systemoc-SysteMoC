@@ -35,13 +35,16 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated -Dcimg_display_typ
 
 LIBS= @LIBS@ -lsystemoc
 
-noinst_PROGRAMS= simulation-wsdf-recons-dila
+noinst_PROGRAMS= simulation-wsdf-recons-dila simulation-wsdf-recons-dila-fast
 
 simulation_wsdf_recons_dila_SOURCES= \
 	design-wsdf-recons-dila.cpp
-#	test_input_switch.cpp
+
+simulation_wsdf_recons_dila_fast_SOURCES= \
+	design-wsdf-recons-dila-fast.cpp
 
 simulation_wsdf_recons_dila_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_wsdf_recons_dila_fast_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 all: example.bmp seed.bmp example2.bmp seed2.bmp
 

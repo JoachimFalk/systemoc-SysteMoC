@@ -209,6 +209,10 @@ if test -d $srcdir/systemoc-wsdf-src-snk; then
   AC_CONFIG_FILES([systemoc-wsdf-src-snk/Makefile])
   subdirs="$subdirs systemoc-wsdf-src-snk"
 fi
+if test -d $srcdir/systemoc-wsdf-dist; then
+  AC_CONFIG_FILES([systemoc-wsdf-dist/Makefile])
+  subdirs="$subdirs systemoc-wsdf-dist"
+fi
 
 
 SUBDIRS=$subdirs
