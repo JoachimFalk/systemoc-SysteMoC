@@ -131,13 +131,6 @@ public:
 
 int sc_main (int argc, char **argv) {
   m_top top("top");
-  
-#define GENERATE "--generate-problemgraph"
-  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
-    smoc_modes::dump(std::cout, top);
-  } else {
-    sc_start(-1);
-  }
-#undef GENERATE
+  sc_start(-1);
   return 0;
 }
