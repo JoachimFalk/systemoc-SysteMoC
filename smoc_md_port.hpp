@@ -358,7 +358,7 @@ public:
 									const svector_type& bs,
 									const svector_type& bt,
 									const border_init& i)
-		: border_proc_parent_type(),
+		: border_proc_parent_type(i),
 			md_array_access_parent_type((border_proc_parent_type&)*this),
 			smoc_wsdf_snk_param(snk_firing_blocks,
 													u0,
@@ -392,7 +392,7 @@ public:
 									const svector_type& bs,
 									const svector_type& bt,
 									const border_init& i)
-		: border_proc_parent_type(),
+		: border_proc_parent_type(i),
 			md_array_access_parent_type((border_proc_parent_type&)*this),
 			smoc_wsdf_snk_param(u2vector_type(1,snk_firing_block),
 													u0,
