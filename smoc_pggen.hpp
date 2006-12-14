@@ -45,6 +45,8 @@
 
 namespace smoc_modes {
 
+  extern bool dumpProblemgraph;
+
   class eNoChannel : public std::exception {};
   class eNoInterface : public std::exception {};
   class eNoPort : public std::exception {};

@@ -38,6 +38,8 @@
 
 namespace smoc_modes {
 
+  bool dumpProblemgraph = false;
+
   const char   PGWriter::indent_buf[] = 
      "                                                                "
      "                                                                "
