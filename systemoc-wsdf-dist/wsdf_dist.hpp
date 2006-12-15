@@ -32,21 +32,23 @@ public:
 private:
 
 	void process() {
+		const T mask[3][2] = {{2,1},{1,0},{2,1}};
+
 		T output_value = orig_in[0][0];
 		//cout << "orig_in[0][0] = " << (unsigned int)output_value << endl;
 
-		for(unsigned int x = 1; x < 3; x++){
+		for(unsigned int x = 0; x < 3; x++){
 			T input_value = prev_line_in[x][0];
 			//cout << "prev_line_in[" << x << "][0]" << (unsigned int)input_value << endl;
-			if (output_value > input_value){
-				output_value = input_value+1;
+			if (output_value > input_value+mask[x][0]){
+				output_value = input_value+mask[x][0];
 			}
 		}
 
 		T input_value = prev_pixel_in[0][0];
 		//cout << "prev_pixel_in[0][0] = " << (unsigned int)input_value << endl;
-		if (output_value > input_value){
-			output_value = input_value+1;
+		if (output_value > input_value+mask[1][0]){
+			output_value = input_value+mask[1][0];
 		}
 
 		out[0][0] = output_value;

@@ -31,10 +31,16 @@ public:
 private:
 
 	void process(){
-		if ((out.iteration(0,0) == 0) && (out.iteration(0,1) == 0))
-			out[0][0] = 0;
-		else
+		if (out.iteration(0,1) == size_y/2){
+			if (out.iteration(0,0) == 0)
+				out[0][0] = 0;
+			else if (out.iteration(0,0) == size_x - 1)
+				out[0][0] = 0;
+			else
+				out[0][0] = ~((T)0);
+		}else{
 			out[0][0] = ~((T)0);
+		}
 	}
 	smoc_firing_state start;
 	smoc_firing_state end;
