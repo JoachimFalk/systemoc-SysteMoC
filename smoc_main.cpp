@@ -33,63 +33,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_PGGEN_HPP
-#define _INCLUDED_SMOC_PGGEN_HPP
+#include "sysc/kernel/sc_cmnhdr.h"
+#include "sysc/kernel/sc_externs.h"
 
-#include <iostream>
-#include <exception>
+#include "smoc_pggen.hpp"
 
-#include <cassert>
-
-#include <map>
-
-class smoc_root_node;
-
-namespace smoc_modes {
-
-  extern bool dumpProblemgraph;
-
-  class eNoChannel : public std::exception {};
-  class eNoInterface : public std::exception {};
-  class eNoPort : public std::exception {};
+int main(int argc, char* argv[]) {
+  int i, j;
   
-  class PGWriter {
-    friend class Node;
-  protected:
-    typedef  std::map<const void *,int> idmap_ty;
-    
-    std::ostream    &out;
-    static int       idmap_last;
-    static idmap_ty  idmap;
-    
-    static const char   indent_buf[];
-    static const size_t indent_buf_len;
-    
-    int indent_lev;
-    
-    const char *
-    indentation () const;
-    
-    static std::string toId(int id);
-  public:
-    PGWriter(std::ostream &out)
-      : out(out), indent_lev(0) {}
-    
-    void indentUp() { ++indent_lev; }
-    void indentDown() { --indent_lev; }
-    
-    template <typename T>
-    std::ostream &operator << (T t) { return out << indentation() << t; }
-    
-    static std::string getId( const void *p );
-    static std::string getId();
-    
-    ~PGWriter( void ) {
-      out.flush();
+  for (i = j = 0; argv[i] != NULL; i++) {
+    if(!strcmp(argv[i], "--generate-problemgraph") ||
+       !strcmp(argv[i], "--generate-networkgraph")) {
+      smoc_modes::dumpProblemgraph = true;
+      --argc;
+      continue;
     }
-  };
-
-  void dump(std::ostream &out, smoc_root_node &top);
-};
-
-#endif // _INCLUDED_SMOC_PGGEN_HPP
+    argv[j++] = argv[i];
+  }
+  return sc_core::sc_elab_and_sim(argc, argv);
+}

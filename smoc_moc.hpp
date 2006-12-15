@@ -125,16 +125,11 @@ private:
   // called by elaboration_done (does nothing by default)
   void end_of_elaboration() {
     this->finalise();
-    bool generate = false;
-    
-    const char* const * argv=sc_argv();
-    for(int i=0; i< sc_argc() ; i++){
-      if(0==strcmp(argv[i], "--generate-problemgraph")) generate = true;
-      else if(0==strcmp(argv[i], "--generate-networkgraph")) generate = true;
-    }
-    if (generate) {
+    if (smoc_modes::dumpProblemgraph) {
       smoc_modes::dump(std::cout, *this);
-
+      exit(0);
+    }
+/*
       sc_set_stop_mode(SC_STOP_IMMEDIATE);
       sc_report_handler::suppress(SC_UNSPECIFIED  |
 				  SC_DO_NOTHING   |
@@ -149,7 +144,7 @@ private:
       // suppress intrusive SystemC std::cout messages
       std::cout.rdbuf(std::cerr.rdbuf()); 
       sc_stop();
-    }
+ */
   }
   
   void scheduleTop()
