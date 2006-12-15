@@ -16,6 +16,11 @@
  * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef VERBOSE_LEVEL_SMOC_FIRING_RULES
+#define VERBOSE_LEVEL_SMOC_FIRING_RULES 0
+///100: Actor invocation
+#endif
+
 #include <smoc_firing_rules.hpp>
 #include <smoc_node_types.hpp>
 
@@ -307,7 +312,7 @@ void smoc_firing_types::transition_ty::execute(
     if ( isType<smoc_func_call>(f) ) {
       smoc_func_call &fc = f;
       
-#ifdef SYSTEMOC_DEBUG
+#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES == 100)
       std::cerr << "    <call actor=\""
                 << actor->myModule()->name()
                 << " func=\"" << fc.getFuncName()

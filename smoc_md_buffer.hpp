@@ -12,6 +12,7 @@
 ///101: operator[]
 ///102: border processing
 ///103: memory access error
+///104: iteration()
 #endif
 
 /// This class represents the base class for all SMOC buffer models.
@@ -95,7 +96,23 @@ public:
 
 		/// Returns the value of the loop iterator for the given iteration level
 		iteration_type iteration(size_t iteration_level) const {
-			return (*src_loop_iterator)[iteration_level];
+#if VERBOSE_LEVEL_SMOC_MD_BUFFER == 104
+			dout << buffer->name() << ": Enter smoc_md_storage_access_src::iteration" << endl;
+			dout << inc_level;
+			dout << "iteration-level = " << iteration_level << endl;
+#endif
+
+			iteration_type return_value = (*src_loop_iterator)[iteration_level];
+
+#if VERBOSE_LEVEL_SMOC_MD_BUFFER == 104
+			dout << "return_value = " << return_value << endl;
+#endif
+
+#if VERBOSE_LEVEL_SMOC_MD_BUFFER == 104
+			dout << "Leave smoc_md_storage_access_src::iteration" << endl;
+			dout << dec_level;
+#endif
+			return return_value;
 		}
 		
 		

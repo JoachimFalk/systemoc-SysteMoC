@@ -439,7 +439,7 @@ public:
 public:
 
 	typename Expr::PortIteration<const this_type>::type getIteration(size_t firing_level,
-																														 size_t dimension) const{ 
+																																	 size_t dimension) const{ 
 		return Expr::portIteration<const this_type>(*this,firing_level,dimension); 
 	}
 
