@@ -26,48 +26,17 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-if SYNTH
-  include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
-endif
-
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
-AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
+AM_CPPFLAGS= @AM_CPPFLAGS@ -I$(srcdir)/../systemoc-idct2d @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
 LIBS= @LIBS@ -lsystemoc
 
 noinst_PROGRAMS=		\
 	simulation-mpeg4	\
-	simulation-test-idct1d	\
-	simulation-test-idct2d	\
 	simulation-test-parser
 
 simulation_mpeg4_SOURCES = design-mpeg4.cpp
 simulation_mpeg4_DEPENDENCIES =	@SYSTEMOC_DEPENDENCIES@		
 
-simulation_test_idct2d_SOURCES= design-test-idct2d.cpp
-simulation_test_idct2d_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-
-simulation_test_idct1d_SOURCES= design-test-idct1d.cpp
-simulation_test_idct1d_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-
 simulation_test_parser_SOURCES= test_parser.cpp
 simulation_test_parser_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-
-
-all: test_in.dat
-
-%.dat: %-dat
-	cp $^ $@
-
-if SYNTH
-SYNTHESIS_SUBDIR = synthesis
-
-$(SYNTHESIS_SUBDIR)/%.dat: %-dat
-	cp $^ $@
-
-synth: $(SYNTHESIS_SUBDIR)/smoc-synth-test-idct2d $(SYNTHESIS_SUBDIR)/test_in.dat
-
-$(SYNTHESIS_SUBDIR)/test-idct2d.ac.xml: $(SYNTHESIS_SUBDIR)/design-test-idct2d.ast.xml
-
-.PHONY: synth
-endif
