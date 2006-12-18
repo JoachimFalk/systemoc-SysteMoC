@@ -729,13 +729,13 @@ protected:
 		dout << "Consume " << consume << " windows" << endl;
 #endif
 
-		//Currently, we only support the consumption of exactly one
-		//effective token respectively window
-		assert(consume == 1);
+		//Currently, we only support the consumption zero or one window.
+		assert(consume <= 1);
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecIn(consume, this->name());
 #endif
-    this->rpp(consume);
+		if (consume >= 1)
+			this->rpp(consume);
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
 		dout << "Leave commExecIn" << endl;
