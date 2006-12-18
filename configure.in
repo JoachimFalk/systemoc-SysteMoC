@@ -5,7 +5,7 @@ AC_INIT(SysteMoC, 0.1, falk@cs.fau.de)
 AC_PREREQ(2.57)
 ACJF_INIT
 
-AC_CONFIG_SRCDIR([SystemC-Examples.txt])
+AC_CONFIG_SRCDIR([LICENSE-NAME])
 
 AC_CONFIG_AUX_DIR([../BuildSystem])
 
@@ -61,17 +61,21 @@ ACJF_CHECK_LIB_BOOST
 ACJF_NEED_PKG([Support])
 
 ### SystemC-VPC ###
-# --enable-vpc option
-AC_ARG_ENABLE(
-  [vpc],
-  [[  --enable-vpc            enable vpc support for SysteMoC [default=yes]]],
-  [case "$enableval" in
-     yes) enable_vpc=yes ;;
-     no)  enable_vpc=no  ;;
-     *)   enable_vpc=no  ;;
-   esac],
-  [enable_vpc=yes # default]
-)
+if test -d $srcdir/../SystemC-VPC; then
+  # --enable-vpc option
+  AC_ARG_ENABLE(
+    [vpc],
+    [[  --enable-vpc            enable vpc support for SysteMoC [default=yes]]],
+    [case "$enableval" in
+       yes) enable_vpc=yes ;;
+       no)  enable_vpc=no  ;;
+       *)   enable_vpc=no  ;;
+     esac],
+    [enable_vpc=yes # default]
+  )
+else
+  enable_vpc=no
+fi
 
 if test x"$enable_vpc" = x"yes"; then
   SYSTEMC_VPC_INCLUDE=" \
@@ -89,7 +93,7 @@ if test x"$enable_vpc" = x"yes"; then
 
   CPPFLAGS="$CPPFLAGS -DENABLE_SYSTEMC_VPC"
   
-  AC_CONFIG_FILES([vpc-test-h261/Makefile])
+# AC_CONFIG_FILES([vpc-test-h261/Makefile])
 
 #FIXME: (Hack) TraceLog only exists in SysteMoc <- this is only needed for InfiniBand HCA "hybrid mode"
 #because of this vpc-test-h261 doesn't compile
@@ -129,22 +133,22 @@ if test -d $srcdir/systemc-idct; then
   AC_CONFIG_FILES([systemc-idct/Makefile])
 # subdirs="$subdirs systemc-idct"
 fi
-if test -d $srcdir/mpeg4-ref; then
-  AC_CONFIG_FILES([mpeg4-ref/Makefile])
-  subdirs="$subdirs mpeg4-ref"
-fi
+#if test -d $srcdir/mpeg4-ref; then
+#  AC_CONFIG_FILES([mpeg4-ref/Makefile])
+#  subdirs="$subdirs mpeg4-ref"
+#fi
 if test -d $srcdir/systemoc-idct2d; then
   AC_CONFIG_FILES([systemoc-idct2d/Makefile])
   subdirs="$subdirs systemoc-idct2d"
 fi
-if test -d $srcdir/systemoc-mpeg4; then
-  AC_CONFIG_FILES([systemoc-mpeg4/Makefile])
-# subdirs="$subdirs systemoc-mpeg4"
-fi
-if test -d $srcdir/systemoc-csp; then
-  AC_CONFIG_FILES([systemoc-csp/Makefile])
-# subdirs="$subdirs systemoc-csp"
-fi
+#if test -d $srcdir/systemoc-mpeg4; then
+#  AC_CONFIG_FILES([systemoc-mpeg4/Makefile])
+## subdirs="$subdirs systemoc-mpeg4"
+#fi
+#if test -d $srcdir/systemoc-csp; then
+#  AC_CONFIG_FILES([systemoc-csp/Makefile])
+## subdirs="$subdirs systemoc-csp"
+#fi
 if test -d $srcdir/systemoc-sdf; then
   AC_CONFIG_FILES([systemoc-sdf/Makefile])
   subdirs="$subdirs systemoc-sdf"
@@ -177,23 +181,18 @@ if test -d $srcdir/systemoc-select; then
   AC_CONFIG_FILES([systemoc-select/Makefile])
   subdirs="$subdirs systemoc-select"
 fi
-if test -d $srcdir/systemoc-ibtest; then
-  AC_CONFIG_FILES([systemoc-ibtest/Makefile])
-# subdirs="$subdirs systemoc-ibtest"
-fi
-if test -d $srcdir/systemoc-td-sim-test; then
-  AC_CONFIG_FILES([systemoc-td-sim-test/Makefile])
-# subdirs="$subdirs systemoc-td-sim-test"
-fi
-if test -d $srcdir/systemoc-mpeg4-teich-v2; then
-  AC_CONFIG_FILES([systemoc-mpeg4-teich-v2/Makefile])
-# subdirs="$subdirs systemoc-mpeg4-teich-v2"
-fi
-if test -d $srcdir/crypto-example; then
-  AC_CONFIG_FILES([crypto-example/Makefile])
-  subdirs="$subdirs crypto-example"
-fi
-
+#if test -d $srcdir/systemoc-ibtest; then
+#  AC_CONFIG_FILES([systemoc-ibtest/Makefile])
+## subdirs="$subdirs systemoc-ibtest"
+#fi
+#if test -d $srcdir/systemoc-td-sim-test; then
+#  AC_CONFIG_FILES([systemoc-td-sim-test/Makefile])
+## subdirs="$subdirs systemoc-td-sim-test"
+#fi
+#if test -d $srcdir/crypto-example; then
+#  AC_CONFIG_FILES([crypto-example/Makefile])
+#  subdirs="$subdirs crypto-example"
+#fi
 
 SUBDIRS=$subdirs
 AC_SUBST(SUBDIRS)
