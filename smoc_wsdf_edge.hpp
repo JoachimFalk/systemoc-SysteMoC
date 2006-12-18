@@ -105,7 +105,10 @@ public:
 	/// That the iteration over the effective token is NOT
 	/// included.
 	s2vector_type calc_src_iteration_level_table() const;
-											
+
+
+	///Print edge parameters
+	void print_edge_parameters(std::ostream &os) const;											
 
 public:
 

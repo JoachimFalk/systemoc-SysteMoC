@@ -331,7 +331,17 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 		dout << inc_level;
 #endif
 		//Check for incomplete virtual token union
-		assert(snk_firing_blocks[snk_num_firing_levels-1][i] % snk_r_vtu[i] == 0);
+		if (snk_firing_blocks[snk_num_firing_levels-1][i] % snk_r_vtu[i] != 0){
+			std::cout << "Violation of balance equation in dimension " << i << std::endl;
+			std::cout << "snk_firing_blocks[snk_num_firing_levels-1][i] = " 
+								<< snk_firing_blocks[snk_num_firing_levels-1][i]
+								<< std::endl;
+			std::cout << "snk_r_vtu[i] = " 
+					 << snk_r_vtu[i]
+					 << std::endl;
+			print_edge_parameters(std::cout);
+			assert(false);
+		}
 
 		snk_num_vtu = 
 			snk_firing_blocks[snk_num_firing_levels-1][i] / snk_r_vtu[i];
@@ -468,6 +478,21 @@ smoc_wsdf_edge_descr::calc_src_iteration_level_table() const {
 #endif
 
 	return return_table;
+}
+
+
+
+void smoc_wsdf_edge_descr::print_edge_parameters(std::ostream& os) const{
+	os << "Token dimensions: " << token_dimensions << std::endl;
+	os << "p = " << p << std::endl;
+	os << "u0 = " << u0 << std::endl;
+	os << "c = " << c << std::endl;
+	os << "delta_c = " << delta_c << std::endl;
+	os << "d = " << d << std::endl;
+	os << "bs = " << bs << std::endl;
+	os << "bt = " << bt << std::endl;
+	os << "src_firing_blocks = " << src_firing_blocks << std::endl;
+	os << "snk_firing_blocks = " << snk_firing_blocks << std::endl;
 }
 
 
