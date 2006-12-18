@@ -96,28 +96,22 @@ class CryptoExample : public smoc_graph{
 };
 
 int sc_main (int argc, char **argv) {
-
-#define GENERATE "--generate-problemgraph"
   const char* input;
   int run=0;
   
-  if(argc == 1){
-    std::cerr << "Please specify input file for producer!\nsimulation-crypto [input-file]" << std::endl;
+  if(argc <= 1){
+    std::cerr << "Please specify input file for producer!\n"
+                 "simulation-crypto [input-file]" << std::endl;
   } 
-  if(argc > 1 && 0 != strncmp(argv[1], GENERATE, sizeof(GENERATE))){
+  if (argc > 1) {
     input = argv[1];
   }
-  if(argc > 2){
+  if (argc > 2) {
     run = atoi(argv[2]);
   }
   smoc_top_moc<CryptoExample> cryptoexample("crypto_example", input, run);
   
-  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
-    smoc_modes::dump(std::cout, cryptoexample);
-  } else {
-    sc_start(-1);
-  }
-#undef GENERATE
+  sc_start(-1);
   return 0;
 }
 
