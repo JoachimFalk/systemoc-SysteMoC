@@ -27,9 +27,11 @@
 #include "wsdf_dil_in_switch.hpp"
 #include "wsdf_dil_out_switch.hpp"
 #include "wsdf_rot180.hpp"
+#include "wsdf_rot180_ex.hpp"
 
 #define CAPTURE_DILATATION
 //#define LARGE_BUFFER_SIZE
+//#define BLOCK_ROTATION
 
 
 using namespace std;
@@ -70,10 +72,17 @@ public:
 		m_wsdf_dil_out_switch<T> &dil_switch =
 			registerNode(new m_wsdf_dil_out_switch<T>("dil_switch",size_x,size_y));
 
+#ifdef BLOCK_ROTATION
 		m_wsdf_rot180<T> &input_rot180 =
 			registerNode(new m_wsdf_rot180<T>("input_rot180", size_x,size_y));
 		m_wsdf_rot180<T> &dil_rot180 =
 			registerNode(new m_wsdf_rot180<T>("dil_rot180", size_x,size_y));
+#else
+		m_wsdf_rot180_ex<T> &input_rot180 =
+			registerNode(new m_wsdf_rot180_ex<T>("input_rot180", size_x,size_y));
+		m_wsdf_rot180_ex<T> &dil_rot180 =
+			registerNode(new m_wsdf_rot180_ex<T>("dil_rot180", size_x,size_y));
+#endif
 
 		
 		m_wsdf_1dil_fast<T> &dilatation = 
@@ -122,7 +131,12 @@ public:
 		indConnectNodePorts(input_dup.out3, input_switch.buffered_in, 
 												smoc_wsdf_edge<T>(size_y,ns_smoc_vector_init::ul_vector_init[0][size_y]));
 
+#if defined(BLOCK_ROTATION) || defined(LARGE_BUFFER_SIZE)
 		indConnectNodePorts(input_rot180.out, input_rot_switch.rot_in, smoc_wsdf_edge<T>(size_y));
+#else
+		indConnectNodePorts(input_rot180.out, input_rot_switch.rot_in, smoc_wsdf_edge<T>(1));
+#endif
+
 
 #ifdef LARGE_BUFFER_SIZE
 		indConnectNodePorts(input_rot_switch.out,min_image.in2,smoc_wsdf_edge<T>(size_y));
@@ -178,7 +192,15 @@ public:
 #endif
 		indConnectNodePorts(min_image_dup.out1, dil_rot180.in, smoc_wsdf_edge<T>(size_y));
 
+#if defined(BLOCK_ROTATION) || defined(LARGE_BUFFER_SIZE)
 		indConnectNodePorts(dil_rot180.out, dil_switch.in, smoc_wsdf_edge<T>(size_y));
+#else
+		indConnectNodePorts(dil_rot180.out, dil_switch.in, smoc_wsdf_edge<T>(size_y));
+		// !!!!!!
+		// This is extremely tricky. If we would set size_y = 1, then the graph deadlocks:
+		// The input buffer of rot180 is occupied by the previous frame. Hence dilatation
+		// cannot produce a new image.
+#endif
 
 #ifdef LARGE_BUFFER_SIZE
 		indConnectNodePorts(dil_switch.rot_out, seed_rot_switch.rot_in, smoc_wsdf_edge<T>(size_y));

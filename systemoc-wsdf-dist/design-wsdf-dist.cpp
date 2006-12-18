@@ -1,4 +1,4 @@
-// vim: set sw=2 ts=8:
+// vim: set sw=2 ts=8:-b
 
 #include <cstdlib>
 #include <iostream>
@@ -20,11 +20,13 @@
 #include "wsdf_dummy_src.hpp"
 #include "wsdf_img_snk.hpp"
 #include "wsdf_rot180.hpp"
+#include "wsdf_rot180_ex.hpp"
 
 #define SIZE_X 200
 #define SIZE_Y 100
 
 //#define OMMIT_FINAL_ROT
+//#define BLOCK_ROTATION
 
 using namespace std;
 
@@ -81,24 +83,37 @@ public:
 
 		m_pdist<T>& forward_dist = 
 			registerNode(new m_pdist<T>("forward_dist",size_x,size_y));
-		
+ 
+#ifdef BLOCK_ROTATION
 		m_wsdf_rot180<T>& rot1 =
 			registerNode(new m_wsdf_rot180<T>("rot1",size_x,size_y));
+#else
+		m_wsdf_rot180_ex<T>& rot1 =
+			registerNode(new m_wsdf_rot180_ex<T>("rot1",size_x,size_y));
+#endif
 		
 		m_pdist<T>& backward_dist = 
 			registerNode(new m_pdist<T>("backward_dist",size_x,size_y));
 
 #ifndef OMMIT_FINAL_ROT		
+# ifdef BLOCK_ROTATION
 		m_wsdf_rot180<T>& rot2 =
 			registerNode(new m_wsdf_rot180<T>("rot2",size_x,size_y));
+# else
+		m_wsdf_rot180_ex<T>& rot2 =
+			registerNode(new m_wsdf_rot180_ex<T>("rot2",size_x,size_y));
+# endif
 #endif
 
 		
 		connectInterfacePorts( in, forward_dist.in );
 
 		indConnectNodePorts( forward_dist.out, rot1.in, smoc_wsdf_edge<T>(size_y));
-
+#ifdef BLOCK_ROTATION
 		indConnectNodePorts( rot1.out, backward_dist.in, smoc_wsdf_edge<T>(size_y));
+#else
+		indConnectNodePorts( rot1.out, backward_dist.in, smoc_wsdf_edge<T>(1));
+#endif
 
 #ifndef OMMIT_FINAL_ROT
 		indConnectNodePorts( backward_dist.out, rot2.in, smoc_wsdf_edge<T>(size_y));
@@ -128,7 +143,11 @@ public:
 	
 
 		indConnectNodePorts( src_image.out, top_dist.in, smoc_wsdf_edge<T>(1));
+#ifdef BLOCK_ROTATION
 		indConnectNodePorts( top_dist.out, sink.in, smoc_wsdf_edge<T>(src_image.size_y));
+#else
+		indConnectNodePorts( top_dist.out, sink.in, smoc_wsdf_edge<T>(1));
+#endif
 
 	}
 };
