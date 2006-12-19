@@ -459,6 +459,10 @@ public:
   smoc_port_in(): base_type(sc_gen_unique_name("smoc_port_in")) {}
   
   bool isInput() const { return true; }
+
+  bool isValid(size_t i=0){
+    return (*channel_access)[i].isValid();
+  }
   
   size_t availableCount() const
     { return (*this)->committedOutCount(); }

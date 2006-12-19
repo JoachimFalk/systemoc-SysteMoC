@@ -53,6 +53,10 @@ public:
     }
   }
   
+  const bool isValid() const{
+    return valid;
+  }
+  
   ~smoc_storage() {
     if(valid) {
       ptr()->~T();
