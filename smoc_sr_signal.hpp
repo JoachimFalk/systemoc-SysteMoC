@@ -56,6 +56,7 @@ protected:
 
   SignalState signalState;
   bool        multipleWrite;
+  bool        undefinedRead;
 
   size_t const fsize;   /// fsize == 1 signal type
   //  size_t       rindex;  ///< The SR_SIGNAL read    ptr
@@ -68,13 +69,12 @@ protected:
 
   size_t usedStorage() const {
     size_t ret;
-    if(multipleWrite) ret = 1;
+    if(/*multipleWrite ||*/ undefinedRead) ret = 1;
     else              ret = (signalState == undefined)?0:1;
     return ret;
   }
 
   void usedIncr() {
-    //std::cerr << __FILE__ << ":" << __LINE__ << ": marker"  << std::endl;
     size_t used = usedStorage();
     // notify all disabled events for less/equal usedStorage() available tokens
     for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
@@ -97,7 +97,8 @@ protected:
 
   size_t unusedStorage() const {
     //std::cerr << "unusedStorage()="<< 1-usedStorage()  << std::endl;
-    return (signalState == undefined)?1:0;
+    if(multipleWrite) return 1;
+    else              return (signalState == undefined)?1:0;
   }
 
   void unusedIncr() {
@@ -120,7 +121,8 @@ protected:
   }
 
   void rpp(size_t n) {
-    //std::cerr << "rpp(" << n << ")"  << std::endl;
+    //    if(signalState == undefined) std::cerr << "undefinedRead: ";
+    //    std::cerr << "rpp(" << n << ")"  << std::endl;
     assert(n <= 1);
     //    usedDecr(); unusedIncr();
   }
@@ -131,14 +133,12 @@ protected:
   void wpp(size_t n)
 #endif
   {
-    //std::cerr << "wpp(" << n << ")"  << std::endl;
+    //    std::cerr << "wpp(" << n << ")"  << std::endl;
     assert(n <= 1);
     
-    if(!multipleWrite){
-      this->signalState = defined;
-      unusedDecr();
-      usedIncr();
-    }
+    this->signalState = defined;
+    //unusedDecr();
+    usedIncr();
   }
 
   smoc_event &getEventAvailable(size_t n) {
@@ -188,6 +188,7 @@ protected:
         i.name != NULL ? i.name : sc_gen_unique_name( "smoc_sr_signal" ) ),
       signalState(undefined),
       multipleWrite(false),
+      undefinedRead(false),
       fsize(1){
   }
 private:
@@ -197,14 +198,33 @@ private:
     return kind_string;
   }
   
+  bool isDefined(){
+    return (signalState == defined);
+  }
+
+  virtual void reset()=0;
+
   void tick(){
     bool needUpdate = (signalState != undefined);
     signalState=undefined;
-    if(needUpdate) usedDecr(); unusedIncr(); // update events (storage state changed)
+    if(needUpdate){
+      usedDecr(); unusedIncr(); // update events (storage state changed)
+    }
+    this->reset();
   }
+
   void multipleWriteSameValue(bool allow){
     multipleWrite = allow;
   }
+
+  void allowUndefinedRead(bool allow){
+    undefinedRead = allow;
+    //  signalState=defined;
+    unusedDecr();
+    usedIncr();
+
+  }
+
   // disabled
   smoc_sr_signal_kind( const this_type & );
   this_type& operator = ( const this_type & );
@@ -213,7 +233,8 @@ private:
 template <typename T>
 class smoc_sr_signal_storage
 //: public smoc_chan_nonconflicting_if<smoc_sr_signal_kind, T> {
-: public smoc_chan_if<smoc_sr_signal_kind,T> {
+  : public smoc_chan_if<smoc_sr_signal_kind,T>,
+    public smoc_channel_access<T> {
 public:
   typedef T                                  data_type;
   typedef smoc_sr_signal_storage<data_type>  this_type;
@@ -222,7 +243,39 @@ public:
   typedef typename this_type::iface_in_type  iface_in_type;
   typedef typename this_type::ring_in_type   ring_in_type;
   typedef smoc_storage<data_type>	     storage_type;
-  
+public: // smoc_channel_access interface
+
+  void   setLimit(size_t l){
+    limit=l;
+  }
+
+  size_t getLimit() const{
+    return limit;
+  }
+
+  smoc_storage<data_type>& operator[](size_t n){
+    return actualValue;
+  }
+
+  const smoc_storage<data_type> operator[](size_t n) const{
+    return actualValue;
+  }
+protected:
+  //FIXME(MS): is there a need for making edge detection in SR
+  //           or is it part of the application 
+  //  storage_type   lastValue;
+
+  storage_type   actualValue;
+  size_t         limit;
+
+private:
+
+  void reset(){
+    //lastValue = actualValue;
+    actualValue = storage_type();
+  }
+
+public:
   class chan_init
     : public smoc_sr_signal_kind::chan_init {
     friend class smoc_sr_signal_storage<T>;
@@ -245,34 +298,23 @@ public:
     chan_init( const char *name, size_t n )
       : smoc_sr_signal_kind::chan_init(name, n) {}
   };
-private:
-  storage_type *storage;
-  //FIXME(MS) pointer hack for smoc_ring_access->offset
-  size_t offsetHack;
 protected:
   smoc_sr_signal_storage( const chan_init &i )
 //  : smoc_chan_nonconflicting_if<smoc_sr_signal_kind, T>(i),
-    : smoc_chan_if<smoc_sr_signal_kind,T>(i),
-      storage(new storage_type[this->fsize])
+    : smoc_chan_if<smoc_sr_signal_kind,T>(i)
   {
     assert(1 >= i.marking.size());
     if(1 == i.marking.size()){
-      storage[0].put(i.marking[0]);
+      (*this)[0].put(i.marking[0]);
       this->signalState = defined;
     }
   }
 
-  void ringSetupIn(ring_in_type &r) {
-    r.storage     = storage;
-    r.storageSize = this->fsize;
-    offsetHack    = (this->signalState==undefined)?1:0;
-    r.offset      = &offsetHack;//&this->rindex;
+  ring_in_type * ringSetupIn() {
+    return this;
   }
-  void ringSetupOut(ring_out_type &r) {
-    r.storage     = storage;
-    r.storageSize = this->fsize;
-    offsetHack    = (this->signalState==undefined)?0:1;
-    r.offset      = &offsetHack;//&this->windex;
+  ring_out_type * ringSetupOut() {
+    return this;
   }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
@@ -282,23 +324,40 @@ protected:
       //*************************INITIAL TOKENS, ETC...***************************
       pgw.indentUp();
       for ( size_t n = 0; n < this->usedStorage(); ++n )
-        pgw << "<token value=\"" << storage[n].get() << "\"/>" << std::endl;
+        pgw << "<token value=\"" << (*this)[n] << "\"/>" << std::endl;
       pgw.indentDown();
     }
     pgw << "</sr_signal>" << std::endl;
   }
 
-  ~smoc_sr_signal_storage() { delete[] storage; }
+  ~smoc_sr_signal_storage() { }
+
 };
 
+/*
 template <>
 class smoc_sr_signal_storage<void>
 //: public smoc_chan_nonconflicting_if<smoc_sr_signal_kind, void> {
-: public smoc_chan_if<smoc_sr_signal_kind,void> {
+  : public smoc_chan_if<smoc_sr_signal_kind,void>,
+    public smoc_channel_access<void> {
 public:
   typedef void                                    data_type;
   typedef smoc_sr_signal_storage<data_type>       this_type;
+
+public: // smoc_channel_access interface
+
+  void   setLimit(size_t l){
+    limit=l;
+  }
+
+  size_t getLimit() const{
+    return limit;
+  }
   
+private:
+  size_t         limit;
+
+public:
   class chan_init
     : public smoc_sr_signal_kind::chan_init {
     friend class smoc_sr_signal_storage<void>;
@@ -324,14 +383,20 @@ protected:
     signalState = defined;
   }
  
-  void ringSetupIn(ring_in_type &r) {}
-  void ringSetupOut(ring_out_type &r) {}
+  ring_in_type  * ringSetupIn()  {
+    smoc_ring_access<void, void> *r = new smoc_ring_access<void, void>();
+    return r;
+  }
+  ring_out_type * ringSetupOut() {
+    smoc_ring_access<void, void> *r = new smoc_ring_access<void, void>();
+    return r;
+  }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<sr_signal tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
     {
       //FIXME(MS): Signal initialization should be disabled in future!
-      //*************************INITIAL TOKENS, ETC...***************************
+      // *************************INITIAL TOKENS, ETC...***************************
       pgw.indentUp();
       for ( size_t n = 0; n < this->usedStorage(); ++n )
         pgw << "<token value=\"bot\"/>" << std::endl;
@@ -340,6 +405,7 @@ protected:
     pgw << "</sr_signal>" << std::endl;
   }
 };
+*/
 
 template <typename T>
 class smoc_sr_signal_type
@@ -384,9 +450,9 @@ protected:
     TraceLog.traceCommExecOut(produce, this->name());
 #endif
 #ifdef ENABLE_SYSTEMC_VPC
-    this->wpp(produce, le);
+    if( this->actualValue.isValid() ) this->wpp(produce, le);
 #else
-    this->wpp(produce);
+    if( this->actualValue.isValid() ) this->wpp(produce);
 #endif
 //  this->write_event.notify();
 //  if (this->unusedStorage() < 1)
