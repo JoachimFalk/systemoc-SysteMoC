@@ -242,6 +242,7 @@ smoc_firing_types::transition_ty::transition_ty(
     actor(NULL) {
   assert(s->fr != NULL && s->rs != NULL);
   assert((isType<smoc_func_call>(t.ia.f)    && t.ia.sl.size() == 1) ||
+         (isType<smoc_sr_func_pair>(t.ia.f) && t.ia.sl.size() == 1) ||
          (isType<smoc_func_diverge>(t.ia.f) && t.ia.sl.size() == 0) ||
 	 (isType<NILTYPE>(t.ia.f)           && t.ia.sl.size() == 1));
   for ( smoc_firing_state_list::const_iterator siter = t.ia.sl.begin();
@@ -266,7 +267,7 @@ smoc_firing_types::resolved_state_ty::addTransition(
 }
 
 void smoc_firing_types::transition_ty::execute(
-    resolved_state_ty **rs, smoc_root_node *actor) {
+    resolved_state_ty **rs, smoc_root_node *actor, int mode) {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "  <transition actor=\""
             << actor->myModule()->name() << "\">"
@@ -280,7 +281,8 @@ void smoc_firing_types::transition_ty::execute(
   assert( isType<NILTYPE>(f) ||
           isType<smoc_func_diverge>(f) ||
           isType<smoc_func_branch>(f) ||
-          isType<smoc_func_call>(f) );
+          isType<smoc_func_call>(f) ||
+          isType<smoc_sr_func_pair>(f) );
   if ( isType<smoc_func_diverge>(f) ) {
     // FIXME: this must only be used internally
     const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
@@ -340,6 +342,62 @@ void smoc_firing_types::transition_ty::execute(
       
       // actor->ports_setup = _ctx.ports_setup;
       // _ctx.ports_setup.clear();
+# ifdef SYSTEMOC_DEBUG
+      std::cerr << "      <communication type=\"defered\"/>" << std::endl;
+# endif
+#else
+      *rs = sl.front();
+#endif // ENABLE_SYSTEMC_VPC
+
+#ifdef SYSTEMOC_DEBUG
+      std::cerr << "    </call>"<< std::endl;
+#endif
+    } else if( isType<smoc_sr_func_pair>(f) ){
+      // SR GO & TICK calls:
+      smoc_sr_func_pair &fc = f;
+      
+#ifdef SYSTEMOC_DEBUG
+      std::cerr << "    <call actor=\""
+                << actor->myModule()->name()
+                << " func=\"" << fc.getFuncName()
+                << "\">"
+                << std::endl;
+#endif
+      
+#ifdef SYSTEMOC_TRACE
+      TraceLog.traceStartFunction(fc.go.getFuncName()); //
+#endif
+#ifdef ENABLE_SYSTEMC_VPC
+      if(mode & GO){
+	actor->vpc_event_dii.reset();
+	
+	actor->vpc_event_lat = new smoc_ref_event();
+	SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
+	
+	SystemC_VPC::Director::getInstance().  	
+	  compute( actor->myModule()->name(), fc.go.getFuncName(), p);
+      }
+#endif //ENABLE_SYSTEMC_VPC
+      if(mode & GO)   fc.go();
+      if(mode & TICK) fc.tick();
+#ifdef SYSTEMOC_TRACE
+      TraceLog.traceEndFunction(fc.go.getFuncName());  //
+#endif
+      
+      assert( sl.size() == 1 );
+      
+#ifdef ENABLE_SYSTEMC_VPC
+      if(mode & GO){
+	*rs = actor->commstate.rs;
+	// save guard and next state to later execute communication
+	actor->nextState.rs = sl.front();
+	actor->_guard       =  &guard;
+      
+	// actor->ports_setup = _ctx.ports_setup;
+	// _ctx.ports_setup.clear();
+      }else{
+	*rs = sl.front();
+      }
 # ifdef SYSTEMOC_DEBUG
       std::cerr << "      <communication type=\"defered\"/>" << std::endl;
 # endif

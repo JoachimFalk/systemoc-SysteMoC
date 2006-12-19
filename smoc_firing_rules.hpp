@@ -51,6 +51,8 @@ class smoc_transition_list;
 #define CALL(func)    call(&func,#func)
 #define GUARD(func)   guard(&func,#func)
 #define VAR(variable) var(variable,#variable)
+#define SR_TICK(func)    call(&func,#func)
+#define SR_GO(func)    call(&func,#func)
 
 template <typename R>
 class smoc_member_func_interface;
@@ -166,6 +168,20 @@ public:
     : smoc_func_diverge(_k) {}
 };
 
+class smoc_sr_func_pair {
+public:
+  friend class smoc_transition;
+  friend class smoc_transition_part;
+  //private:
+  smoc_func_call             go;
+  smoc_func_call             tick;
+public:
+  smoc_sr_func_pair(
+      const smoc_func_call &go,
+      const smoc_func_call &tick)
+    : go(go), tick(tick) {}
+};
+
 class smoc_firing_state_ref;
 
 struct smoc_firing_types {
@@ -175,7 +191,7 @@ struct smoc_firing_types {
   typedef std::list<transition_ty>        transitionlist_ty;
   typedef std::pair<bool,transition_ty *> maybe_transition_ty;
 //  typedef std::set<smoc_root_port *>  ports_ty;
-  typedef CoSupport::oneof<smoc_func_call, smoc_func_branch, smoc_func_diverge>
+  typedef CoSupport::oneof<smoc_func_call, smoc_func_branch, smoc_func_diverge, smoc_sr_func_pair>
                                           func_ty;
   
   class transition_ty
@@ -186,6 +202,10 @@ struct smoc_firing_types {
     statelist_ty            sl;
     
     smoc_root_node         *actor;
+
+    //execution mask used for SR Scheduling
+    static const int GO   = 1;
+    static const int TICK = 2;
   public:
     transition_ty( smoc_firing_state_ref *r, const smoc_transition &t );
 
@@ -204,7 +224,7 @@ struct smoc_firing_types {
       return *actor;
     }
 
-    void execute(resolved_state_ty **rs, smoc_root_node *actor);
+    void execute(resolved_state_ty **rs, smoc_root_node *actor, int mode = GO|TICK);
 
     void finalise(smoc_root_node *a);
 
@@ -399,14 +419,8 @@ protected:
     : sl(s), f() {}
   explicit smoc_interface_action(const smoc_func_diverge &f)
     : sl(), f(f) {}
-  smoc_interface_action(const smoc_firing_state_ref &s,
-                        const smoc_func_call &f)
-    : sl(s), f(f) {}
-  smoc_interface_action(const smoc_firing_state_ref &s,
-                        const smoc_func_branch &f)
-    : sl(s), f(f) {}
   smoc_interface_action(const smoc_firing_state_list &sl,
-                        const smoc_func_branch &f)
+                        const smoc_firing_types::func_ty &f)
     : sl(sl), f(f) {}
 };
 
@@ -417,13 +431,18 @@ public:
   typedef smoc_transition_part this_type;
 private:
   smoc_activation_pattern    ap;
-  smoc_func_call             f;
+  smoc_firing_types::func_ty f;
 public:
   smoc_transition_part(
       const smoc_activation_pattern &ap,
       const smoc_func_call          &f)
     : ap(ap),
       f(f) {}
+  smoc_transition_part(
+      const smoc_activation_pattern &ap,
+      const smoc_sr_func_pair      &fp)
+    : ap(ap),
+      f(fp) {}
 };
 
 class smoc_transition {
@@ -452,6 +471,10 @@ public:
       const smoc_firing_state_ref   &s)
     : ap(tp.ap),
       ia(s,tp.f) {}
+  smoc_transition(
+      const smoc_sr_func_pair      &fp,
+      const smoc_firing_state_ref   &s)
+    : ap(Expr::literal(true)), ia(s,fp) {}
   
   const smoc_activation_pattern &getActivationPattern() const { return ap; }
   const smoc_interface_action   &getInterfaceAction() const { return ia; }
@@ -521,6 +544,32 @@ smoc_transition operator >> (const smoc_activation_pattern &ap,
                              const smoc_firing_state_ref   &s) {
 //  std::cerr << ">>" << std::endl;
   return smoc_transition(ap,s);
+}
+
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_5
+GNU89_EXTERN_INLINE
+#endif
+smoc_transition_part operator >> (const smoc_activation_pattern &ap,
+                                  const smoc_sr_func_pair      &fp) {
+//  std::cerr << ">>" << std::endl;
+  return smoc_transition_part(ap,fp);
+}
+
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_6
+GNU89_EXTERN_INLINE
+#endif
+smoc_transition operator >> (const smoc_sr_func_pair    &fp,
+			     const smoc_firing_state_ref &s) {
+//  std::cerr << ">>" << std::endl;
+  return smoc_transition(fp,s);
+}
+
+#ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_AND_1
+GNU89_EXTERN_INLINE
+#endif
+smoc_sr_func_pair operator && (const smoc_func_call        &g,
+			       const smoc_func_call        &t) {
+  return smoc_sr_func_pair(g, t);
 }
 
 #endif // _INCLUDED_SMOC_OP_PORT_LIST_HPP
