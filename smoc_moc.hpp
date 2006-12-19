@@ -131,6 +131,17 @@ protected:
   void schedule(smoc_graph *c);
 
   void scheduleSR(smoc_graph *c);
+
+  /**
+   * count number of defined inputs
+   */
+  size_t countDefinedInports(smoc_root_node & n);
+
+  /**
+   * count number of defined outputs
+   */
+  size_t countDefinedOutports(smoc_root_node & n);
+
 };
 
 template <typename T_top>

@@ -108,7 +108,11 @@ public:
   smoc_ref_event    *vpc_event_lat; // VPC latency event
   smoc_firing_state  commstate;
   smoc_firing_state  nextState;
+  smoc_firing_types::transition_ty* 
+                     lastTransition;//non strict scheduling
 #endif //ENABLE_SYSTEMC_VPC  
+  smoc_firing_types::resolved_state_ty*
+                     lastState;     //non strict scheduling
   
   Expr::Ex<bool>::type *_guard;
   
