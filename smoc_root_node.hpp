@@ -92,9 +92,10 @@ private:
   std::vector<Expr::Detail::ArgInfo>          local_constr_args;
 
   friend class smoc_scheduler_top;
-protected:
+
   bool _non_strict;
 
+protected:
   //smoc_root_node(const smoc_firing_state &s);
   smoc_root_node(smoc_firing_state &s);
   
