@@ -319,6 +319,8 @@ protected:
 private:
   // disabled
   const sc_event& default_event() const { return smoc_default_event_abort(); }
+
+  virtual void reset(){};
 };
 
 #include <smoc_port.hpp>

@@ -580,6 +580,8 @@ public:
     { return this->getEventAvailable(n); }
   smoc_event &blockEventIn(size_t n)
     { return this->getEventFree(n); }
+private:
+    void reset(){};
 };
 
 template <typename T>
@@ -598,6 +600,8 @@ public:
     : smoc_fifo_storage<T>::chan_init(NULL,n) {}
   explicit smoc_fifo( const char *name, size_t n = 1)
     : smoc_fifo_storage<T>::chan_init(name,n) {}
+private:
+    void reset(){};
 };
 
 #endif // _INCLUDED_SMOC_FIFO_HPP
