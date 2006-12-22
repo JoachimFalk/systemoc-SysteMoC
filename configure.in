@@ -133,6 +133,10 @@ if test -d $srcdir/mpeg4-ref; then
   AC_CONFIG_FILES([mpeg4-ref/Makefile])
   subdirs="$subdirs mpeg4-ref"
 fi
+if test -d $srcdir/systemoc-idct2d; then
+  AC_CONFIG_FILES([systemoc-idct2d/Makefile])
+  subdirs="$subdirs systemoc-idct2d"
+fi
 if test -d $srcdir/systemoc-mpeg4; then
   AC_CONFIG_FILES([systemoc-mpeg4/Makefile])
 # subdirs="$subdirs systemoc-mpeg4"
