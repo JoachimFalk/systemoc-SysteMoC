@@ -75,7 +75,7 @@ public:
 									 ns_smoc_vector_init::ul_vector_init[1][1], //delta_c
 									 ns_smoc_vector_init::sl_vector_init[1][1], //bs
 									 ns_smoc_vector_init::sl_vector_init[1][-1], //bt
-									 smoc_md_port_in<T,2>::border_init(~((T)0))
+									 typename smoc_md_port_in<T,2>::border_init(~((T)0))
 									 ),
 			prev_pixel_in(ns_smoc_vector_init::ul_vector_init[size_x][size_y], //firing_blocks
 										ns_smoc_vector_init::ul_vector_init[size_x][size_y], //u0
@@ -83,7 +83,7 @@ public:
 										ns_smoc_vector_init::ul_vector_init[1][1], //delta_c
 										ns_smoc_vector_init::sl_vector_init[1][0], //bs
 										ns_smoc_vector_init::sl_vector_init[-1][0], //bt
-										smoc_md_port_in<T,2>::border_init(~((T)0))
+										typename smoc_md_port_in<T,2>::border_init(~((T)0))
 										),			
 			out(ns_smoc_vector_init::ul_vector_init[1][1] <<
 					ns_smoc_vector_init::ul_vector_init[size_x][size_y])			
