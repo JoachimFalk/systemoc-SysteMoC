@@ -269,7 +269,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
   // belonging to the maximum window iteration is produced
   // by the source at last!
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
-	dout << "Next sink invocation ID: " << snk_loop_iterator.iteration_vector();
+	dout << "Next sink invocation ID: " << (*this).snk_loop_iterator.iteration_vector();
 	dout << endl;
 #endif
 		
@@ -295,10 +295,10 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 	
 		// Required source iteration for production of this data
 		// element
-		iter_domain_vector_type req_src_iteration(src_loop_iterator.iterator_depth()); 
+		iter_domain_vector_type req_src_iteration((*this).src_loop_iterator.iterator_depth()); 
 		smoc_src_md_loop_iterator_kind::id_type schedule_period_offset;
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 102
-		dout << "src_loop_iterator.iterator_depth() = " << src_loop_iterator.iterator_depth() << endl;
+		dout << "(*this).src_loop_iterator.iterator_depth() = " << (*this).src_loop_iterator.iterator_depth() << endl;
 #endif
 		bool temp = 
 			(*this).src_loop_iterator.get_src_loop_iteration(src_data_element_id,
@@ -324,7 +324,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 			dout << "schedule_period_offset = " << schedule_period_offset << endl;
 			dout << dec_level;
 #endif
-		}else if (req_src_iteration.is_lex_smaller_than(src_loop_iterator.iteration_vector())){
+		}else if (req_src_iteration.is_lex_smaller_than((*this).src_loop_iterator.iteration_vector())){
 			//Sink actor can fire
 			_usedStorage = 1;
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
@@ -354,7 +354,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage() const {
 	dout << this->name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << endl;
 	dout << inc_level;
-	dout << "src_loop_iterator = " << src_loop_iterator.iteration_vector();
+	dout << "src_loop_iterator = " << (*this).src_loop_iterator.iteration_vector();
 	dout << endl;
 #endif
 
@@ -395,7 +395,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
 	decUsedStorage();
 	
   // Move to next loop iteration
-  if(snk_loop_iterator.inc()){
+  if((*this).snk_loop_iterator.inc()){
 		//new schedule period has been started
 		schedule_period_difference--;
 	}
@@ -432,7 +432,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 	incUsedStorage();
 
   // Move to next loop iteration
-	if(src_loop_iterator.inc()){
+	if((*this).src_loop_iterator.inc()){
 		//new schedule period has been started
 		schedule_period_difference++;
 	}

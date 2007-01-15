@@ -206,7 +206,7 @@ void smoc_src_md_loop_iterator_kind::max_data_element_id(
 
 	//get the data element with the larges coordinates	
 	const iter_domain_vector_type& 
-		max_window_iteration(max_window_iteration());
+		max_window_iteration(this->max_window_iteration());
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 105
 	dout << "max_window_iteration = " << max_window_iteration;
