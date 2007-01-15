@@ -118,7 +118,10 @@ public:
 
 template <typename T, template <typename, typename> class R, class PARAM_TYPE>
 class smoc_port_in_base;
-template <typename T, template <typename, typename> class R, class PARAM_TYPE>
+template <typename T, 
+					template <typename, typename> class R, 
+					class PARAM_TYPE, 
+					template <typename> class STORAGE_TYPE>
 class smoc_port_out_base;
 
 class smoc_chan_in_base_if {
@@ -193,17 +196,20 @@ private:
   this_type &operator = ( const this_type & );
 };
 
-template <typename T, template <typename, typename> class R>
+template <typename T,                                    //data type
+					template <typename, typename> class R,         //ring access type
+					template <typename> class S = smoc_storage_out //smoc_storage
+					>
 class smoc_chan_out_if
   : virtual public sc_interface,
     virtual public smoc_chan_out_base_if {
 public:
   // typedefs
-  typedef smoc_chan_out_if<T,R>			this_type;
+						typedef smoc_chan_out_if<T,R,S>			this_type;
   typedef T					data_type;
   typedef R<
-    typename smoc_storage_out<T>::storage_type,
-    typename smoc_storage_out<T>::return_type>  access_type;
+    typename S<T>::storage_type,
+    typename S<T>::return_type>  access_type;
   typedef access_type                           access_out_type;
   
   bool is_v1_out_port;
@@ -278,17 +284,19 @@ protected:
 
 extern const sc_event& smoc_default_event_abort();
 
-template <typename T_chan_kind, typename T_data_type, 
-	        template <typename, typename> class R_IN,
-	        template <typename, typename> class R_OUT
+template <typename T_chan_kind, 
+					typename T_data_type, 
+	        template <typename, typename> class R_IN, //ring access in
+	        template <typename, typename> class R_OUT,//ring access out
+					template <typename> class S = smoc_storage_out
 	        >
 class smoc_chan_if
   : public smoc_chan_in_if<T_data_type, R_IN>,
-    public smoc_chan_out_if<T_data_type, R_OUT>,
+    public smoc_chan_out_if<T_data_type, R_OUT, S>,
     public T_chan_kind {
 public:
   // typedefs
-  typedef smoc_chan_if<T_chan_kind,T_data_type,R_IN,R_OUT> this_type;
+  typedef smoc_chan_if<T_chan_kind,T_data_type,R_IN,R_OUT,S> this_type;
   typedef T_data_type                             data_type;
   typedef T_chan_kind                             chan_kind;
 

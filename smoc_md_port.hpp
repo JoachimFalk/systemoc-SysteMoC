@@ -120,7 +120,94 @@ namespace Expr {
 
 
 
-};
+
+
+
+
+
+	/****************************************************************************
+	 * DMDToken is a placeholder for a multi-dimensional token in the expression.
+	 */
+
+#if 0
+	//FIXME
+	class ASTNodeToken: public ASTLeafNode {
+	private:
+		const smoc_root_port &port;
+		size_t                pos;
+	public:
+		template <typename T, template <typename, typename> class R, class PARAM_TYPE>
+		ASTNodeToken(const smoc_port_in_base<T,R,PARAM_TYPE> &port, size_t pos)
+			: ASTLeafNode(static_cast<T*>(NULL)),
+				port(port), pos(pos) {}
+		
+		const smoc_root_port *getPort() const;
+		size_t                getPos() const;
+		std::string           getNodeType() const;
+		std::string           getNodeParam() const;
+	};
+#endif
+
+	template<typename PORT_TYPE>
+	class DMDToken {
+	public:
+		typedef const typename PORT_TYPE::data_type                value_type;
+		typedef const typename PORT_TYPE::iter_domain_vector_type  iter_domain_vector_type;
+		typedef DMDToken<PORT_TYPE>                                this_type;
+  
+		friend class Value<this_type>;
+		friend class AST<this_type>;
+	private:
+		const PORT_TYPE               &p;
+		iter_domain_vector_type  pos;
+	public:
+		explicit DMDToken(const PORT_TYPE &p, iter_domain_vector_type &pos)
+			: p(p), pos(pos) {}
+	};
+
+	
+	template<typename PORT_TYPE>
+	struct Value<DMDToken<PORT_TYPE> > {
+		typedef const typename PORT_TYPE::data_type result_type;
+  
+		static inline
+		result_type apply(const DMDToken<PORT_TYPE> &e)
+		{ return e.p[e.pos]; }
+	};
+
+#if 0
+	//FIXME
+	template<typename T, template <typename, typename> class R, class PARAM_TYPE>
+	struct AST<DToken<T,R,PARAM_TYPE> > {
+		typedef PASTNode result_type;
+  
+		static inline
+		result_type apply(const DToken<T,R,PARAM_TYPE> &e)
+    { return PASTNode(new ASTNodeToken(e.p, e.pos)); }
+	};
+#endif
+
+	template<class PORT_TYPE>
+	struct D<DMDToken<PORT_TYPE> >: public DBase<DMDToken<PORT_TYPE> > {
+		typedef const typename PORT_TYPE::iter_domain_vector_type iter_domain_vector_type;
+		D(const PORT_TYPE &p, iter_domain_vector_type &pos)
+			: DBase<DMDToken<PORT_TYPE> >(DMDToken<PORT_TYPE>(p,pos)) {}
+	};
+
+	// Make a convenient typedef for the token type.
+	template<class PORT_TYPE>
+	struct MDToken {
+		typedef D<DMDToken<PORT_TYPE> > type;
+	};
+
+	template <class PORT_TYPE>
+	typename MDToken<PORT_TYPE>::type 
+	mdtoken(const PORT_TYPE &p, const typename PORT_TYPE::iter_domain_vector_type &pos)
+	{ return typename MDToken<PORT_TYPE>::type(p,pos); }
+
+
+
+}; //Expr
 
 
 
@@ -148,9 +235,10 @@ public:
 
 template <typename T,
 					template <typename, typename> class R,
-					class PARAM_TYPE>
+					class PARAM_TYPE,
+					template <typename> class STORAGE_TYPE = smoc_storage_out> 
 class smoc_md_port_out_base
-	: public smoc_port_out_base<T,R,PARAM_TYPE>
+	: public smoc_port_out_base<T,R,PARAM_TYPE, STORAGE_TYPE>
 {
 
 public:
@@ -443,6 +531,10 @@ public:
 		return Expr::portIteration<const this_type>(*this,firing_level,dimension); 
 	}
 
+	typename Expr::MDToken<const this_type>::type 
+	getValueAt(const iteration_type& n)
+	{ return Expr::mdtoken(*this,n); }
+
 private:
 	s2vector_type firing_level_map;
 
@@ -531,25 +623,41 @@ public:
 
 /// Actor Port
 template <typename T,
-					unsigned N>
+					unsigned N,
+					template <typename> class STORAGE_TYPE = smoc_storage_out>
 class smoc_md_port_out
-	: public smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS,const smoc_wsdf_src_param&> ,
-		public smoc_md_array_access<typename smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param& >::return_type,
+	: public smoc_md_port_out_base<T, 
+																 PORT_OUT_SMOC_MD_STORAGE_ACCESS,
+																 const smoc_wsdf_src_param&, 
+																 STORAGE_TYPE> ,
+		public smoc_md_array_access<typename smoc_md_port_out_base<T, 
+																															 PORT_OUT_SMOC_MD_STORAGE_ACCESS, 
+																															 const smoc_wsdf_src_param&,
+																															 STORAGE_TYPE>::return_type,
 																smoc_vector<unsigned long>,
-																smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param& >,N>,
+																smoc_md_port_out_base<T, 
+																											PORT_OUT_SMOC_MD_STORAGE_ACCESS, 
+																											const smoc_wsdf_src_param&,
+																											STORAGE_TYPE>,
+																N>,
 		private smoc_wsdf_src_param
 {
 
 public:
-	typedef smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&> port_parent_type;
+	typedef smoc_md_port_out_base<T, 
+																PORT_OUT_SMOC_MD_STORAGE_ACCESS, 
+																const smoc_wsdf_src_param&,
+																STORAGE_TYPE>                     port_parent_type;
 	typedef typename port_parent_type::return_type return_type;
-	typedef smoc_md_array_access<return_type, smoc_vector<unsigned long>, port_parent_type,N> md_array_access_parent_type;
+	typedef smoc_md_array_access<return_type, 
+															 smoc_vector<unsigned long>, 
+															 port_parent_type,N>                md_array_access_parent_type;
 
 public:
 	using md_array_access_parent_type::operator[];
 public:
   typedef T				    data_type;
-  typedef smoc_md_port_out<data_type,N>	    this_type;
+  typedef smoc_md_port_out<data_type,N, STORAGE_TYPE>	    this_type;
   typedef typename this_type::iface_type    iface_type;
   typedef typename iface_type::access_type  access_type;
 
@@ -613,6 +721,10 @@ public:
 																																	 size_t dimension) const{ 
 		return Expr::portIteration<const this_type>(*this,firing_level,dimension); 
 	}
+
+	typename Expr::MDToken<const this_type>::type 
+	getValueAt(const iteration_type& n)
+	{ return Expr::mdtoken(*this,n); }
 	
 
 private:
@@ -624,17 +736,18 @@ private:
 
 /// Interface port
 template <typename T,
-					unsigned N>
+					unsigned N,
+					template <typename> class STORAGE_TYPE = smoc_storage_out>
 class smoc_md_iport_out
-	: public smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&>
+	: public smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&, STORAGE_TYPE>
 {
 
 public:
-	typedef smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&> port_parent_type;
+	typedef smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&, STORAGE_TYPE> port_parent_type;
 
 public:
   typedef T				    data_type;
-  typedef smoc_md_port_out<data_type,N>	    this_type;
+  typedef smoc_md_iport_out<data_type,N, STORAGE_TYPE>	    this_type;
   typedef typename this_type::iface_type    iface_type;
   typedef typename iface_type::access_type  access_type;
 

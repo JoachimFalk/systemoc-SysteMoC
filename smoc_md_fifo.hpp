@@ -36,7 +36,7 @@
 
 
 
-template <typename T>
+template <typename T, template <typename> class STORAGE_OUT_TYPE>
 class smoc_wsdf_edge;
 
 
@@ -582,13 +582,17 @@ public:
 template <typename T_DATA_TYPE, 
 					class BUFFER_CLASS, 
 					template <typename, typename> class R_IN, 
-					template <typename, typename> class R_OUT >
+		      template <typename, typename> class R_OUT,
+          template <typename> class STORAGE_OUT_TYPE
+		     >
 class smoc_md_fifo_storage
 #ifndef NO_SMOC
 	: public smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
 	                      T_DATA_TYPE,
 												R_IN,
-	                      R_OUT > 
+		                    R_OUT,
+		                    STORAGE_OUT_TYPE
+                       >  
 #else
 		: public smoc_md_fifo_kind<BUFFER_CLASS>
 		//: public smoc_dummy_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
@@ -605,11 +609,16 @@ public:
 	typedef smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
 											 T_DATA_TYPE,
 											 R_IN,
-											 R_OUT >  parent_type;
+											 R_OUT,
+                       STORAGE_OUT_TYPE >  parent_type;
 #else
 	typedef smoc_md_fifo_kind<BUFFER_CLASS> parent_type;
 #endif
-  typedef smoc_md_fifo_storage<data_type, BUFFER_CLASS, R_IN, R_OUT>       this_type;
+  typedef smoc_md_fifo_storage<data_type, 
+															 BUFFER_CLASS, 
+															 R_IN, 
+															 R_OUT, 
+															 STORAGE_OUT_TYPE>       this_type;
 #ifndef NO_SMOC
   typedef typename this_type::access_out_type  ring_out_type;
   typedef typename this_type::access_in_type   ring_in_type;
@@ -625,7 +634,7 @@ public:
 
 	class chan_init
     : public parent_type::chan_init {
-    friend class smoc_md_fifo_storage<T_DATA_TYPE, BUFFER_CLASS, R_IN, R_OUT>;
+    friend class smoc_md_fifo_storage<T_DATA_TYPE, BUFFER_CLASS, R_IN, R_OUT, STORAGE_OUT_TYPE>;
   protected:
     chan_init( const char *name, 
 							 const buffer_init &b )
@@ -684,26 +693,30 @@ protected:
 };
 
 
-template <typename T_DATA_TYPE>
+template <typename T_DATA_TYPE,
+		      template <typename> class STORAGE_OUT_TYPE = smoc_storage_out
+		     >
 class smoc_md_fifo_type
   : public smoc_md_fifo_storage<T_DATA_TYPE, 
 																smoc_simple_md_buffer_kind, 
 																smoc_simple_md_buffer_kind::smoc_md_storage_access_snk, 
-																smoc_simple_md_buffer_kind::smoc_md_storage_access_src> {
+		                            smoc_simple_md_buffer_kind::smoc_md_storage_access_src,
+		                            STORAGE_OUT_TYPE> {
 public:
   typedef T_DATA_TYPE						      data_type;
   typedef smoc_md_fifo_storage<T_DATA_TYPE, 
 															 smoc_simple_md_buffer_kind,
 															 smoc_simple_md_buffer_kind::smoc_md_storage_access_snk, 
-															 smoc_simple_md_buffer_kind::smoc_md_storage_access_src
+															 smoc_simple_md_buffer_kind::smoc_md_storage_access_src,
+															 STORAGE_OUT_TYPE
 															 > parent_type;
-	typedef smoc_md_fifo_type<T_DATA_TYPE> this_type;
+	typedef smoc_md_fifo_type<T_DATA_TYPE, STORAGE_OUT_TYPE> this_type;
   
   typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
   typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
   
-  typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
-  typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
+  typedef typename STORAGE_OUT_TYPE<data_type>::storage_type  storage_out_type;
+  typedef typename STORAGE_OUT_TYPE<data_type>::return_type   return_out_type;
 
 	//Make channel init visible
 	typedef typename parent_type::chan_init chan_init;
@@ -760,17 +773,19 @@ protected:
 #endif
 
 
-		//Currently, we only support the consumption of exactly one
-		//effective token respectively window
-		assert(produce == 1);
+		//Currently, we only support the consumption of zero or one
+		//effective token
+		assert(produce <= 1);
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(produce, this->name());
 #endif
+		if (produce >= 1){
 #ifdef ENABLE_SYSTEMC_VPC
-    this->wpp(produce, le);
+			this->wpp(produce, le);
 #else
-    this->wpp(produce);
+			this->wpp(produce);
 #endif
+		}
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
 		dout << "Leave commExecOut" << endl;
@@ -821,46 +836,47 @@ public:
 };
 
 /// Channel initialization class
-template <typename T>
+template <typename T, 
+		      template <typename> class STORAGE_OUT_TYPE = smoc_storage_out>
 class smoc_md_fifo
-  : public smoc_md_fifo_type<T>::chan_init {
+  : public smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::chan_init {
 public:
   typedef T                   data_type;
   typedef smoc_md_fifo<T>        this_type;
 
 	//Identification of corresponding channel class
-  typedef smoc_md_fifo_type<T>   chan_type;
+  typedef smoc_md_fifo_type<T, STORAGE_OUT_TYPE>   chan_type;
 
 	//Make buffer_init visible
-	typedef typename smoc_md_fifo_type<T>::buffer_init buffer_init;
+	typedef typename smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::buffer_init buffer_init;
 
 public:
   
   smoc_md_fifo( const smoc_wsdf_edge_descr& wsdf_edge_param, 
 								size_t n)
-    : smoc_md_fifo_type<T>::chan_init(NULL,
-																			assemble_buffer_init(wsdf_edge_param, n)
-																			),
+    : smoc_md_fifo_type<T,STORAGE_OUT_TYPE>::chan_init(NULL,
+																											 assemble_buffer_init(wsdf_edge_param, n)
+																											 ),
 		wsdf_edge_param(wsdf_edge_param)
 	{}
 
   explicit smoc_md_fifo( const char *name, 
 												 const smoc_wsdf_edge_descr& wsdf_edge_param, 
 												 size_t n)
-    : smoc_md_fifo_type<T>::chan_init(name,
-																			assemble_buffer_init(wsdf_edge_param, n)
-																			),
+    : smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::chan_init(name,
+																												assemble_buffer_init(wsdf_edge_param, n)
+																												),
 		wsdf_edge_param(wsdf_edge_param)
 
 	{}
 
-	smoc_md_fifo(const smoc_wsdf_edge<T>& edge_param,
+	smoc_md_fifo(const smoc_wsdf_edge<T,STORAGE_OUT_TYPE>& edge_param,
 							 const smoc_wsdf_src_param& src_param,
 							 const smoc_wsdf_snk_param& snk_param)
-		: smoc_md_fifo_type<T>::chan_init(
-					 edge_param.name,
-					 assemble_buffer_init(assemble_wsdf_edge(edge_param, src_param, snk_param), edge_param.n)
-					 ),
+		: smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::chan_init(
+																												edge_param.name,
+																												assemble_buffer_init(assemble_wsdf_edge(edge_param, src_param, snk_param), edge_param.n)
+																												),
 		wsdf_edge_param(assemble_wsdf_edge(edge_param, src_param, snk_param))
 	{
 	}
@@ -873,7 +889,7 @@ private:
 
 
 
-	smoc_wsdf_edge_descr assemble_wsdf_edge(const smoc_wsdf_edge<T>& edge_param,
+	smoc_wsdf_edge_descr assemble_wsdf_edge(const smoc_wsdf_edge<T, STORAGE_OUT_TYPE>& edge_param,
 																					const smoc_wsdf_src_param& src_param,
 																					const smoc_wsdf_snk_param& snk_param) const {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
@@ -971,14 +987,15 @@ private:
 
 /// If we want to annotate the parameters at the ports instead of
 /// associating them all with the FIFO, we can use this class
-template <typename T>
+template <typename T, 
+		      template <typename> class STORAGE_OUT_TYPE = smoc_storage_out >
 class smoc_wsdf_edge{
 public:
 
 	typedef T                   data_type;
 
 	// associated channel init
-	typedef smoc_md_fifo<T> chan_init_type;
+	typedef smoc_md_fifo<T, STORAGE_OUT_TYPE> chan_init_type;
 
 	//Make buffer_init visible
 	typedef typename chan_init_type::buffer_init buffer_init;	

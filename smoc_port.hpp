@@ -33,7 +33,10 @@
 template <typename T, template <typename, typename> class R, class PARAM_TYPE> 
 class smoc_port_in_base;
 
-template <typename T, template <typename, typename> class R, class PARAM_TYPE> 
+template <typename T, 
+					template <typename, typename> class R, 
+					class PARAM_TYPE, 
+					template <typename> class STORAGE_TYPE> 
 class smoc_port_out_base;
 
 namespace Expr {
@@ -536,7 +539,7 @@ public:
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->blockEventOut(n); }
   
-						typename Expr::Token<T,R,PARAM_TYPE>::type getValueAt(size_t n)
+	typename Expr::Token<T,R,PARAM_TYPE>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
   typename Expr::PortTokens<this_type>::type getConsumableTokens()
     { return Expr::portTokens(*this); }
@@ -566,15 +569,18 @@ public:
 };
 
 
-template <typename T,
-					template <typename, typename> class R,
-					class PARAM_TYPE
+template <typename T,                            //data type
+					template <typename, typename> class R, //ring access type
+					class PARAM_TYPE,                      //parameter type
+					template <typename> class STORAGE_TYPE = smoc_storage_out
 					>
 class smoc_port_out_base
-	: public smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T,R>, PARAM_TYPE > {
+	: public smoc_port_base<smoc_root_port_out, 
+													smoc_chan_out_if<T,R,STORAGE_TYPE>, 
+													PARAM_TYPE > {
 public:
   typedef T				    data_type;
-	typedef smoc_port_out_base<data_type,R, PARAM_TYPE>	    this_type;
+	typedef smoc_port_out_base<data_type,R, PARAM_TYPE, STORAGE_TYPE>	    this_type;
   typedef typename this_type::iface_type    iface_type;
   typedef typename iface_type::access_type  ring_type;
   
@@ -589,7 +595,9 @@ public:
 
 
 protected:
-	typedef smoc_port_base<smoc_root_port_out, smoc_chan_out_if<T,R>, PARAM_TYPE > base_type;
+	typedef smoc_port_base<smoc_root_port_out, 
+												 smoc_chan_out_if<T,R,STORAGE_TYPE>, 
+												 PARAM_TYPE > base_type;
 
   void add_interface( sc_interface *i ) {
     this->push_interface(i);

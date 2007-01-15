@@ -82,9 +82,11 @@ protected:
 	/// Connect multi-dimensional actor output port with multi-dimensional actor input port
 	template <typename T_chan_init, 
 						unsigned N,
-						template <typename,typename> class R>
+						template <typename,typename> class R,
+						template <typename> class STORAGE_OUT_TYPE
+						>
   void connectNodePorts(
-												smoc_md_port_out<typename T_chan_init::data_type, N> &b,
+												smoc_md_port_out<typename T_chan_init::data_type, N, STORAGE_OUT_TYPE> &b,
 												smoc_md_port_in<typename T_chan_init::data_type, N, R>  &a,
 												const T_chan_init i ) {
     typename T_chan_init::chan_type &chan =
@@ -96,9 +98,10 @@ protected:
   }
 	/// Connect multi-dimensional actor output port with multi-dimensional interface input port
 	template <typename T_chan_init, 
-						unsigned N>
+						unsigned N,
+						template <typename> class STORAGE_OUT_TYPE>
   void connectNodePorts(
-												smoc_md_port_out<typename T_chan_init::data_type, N> &b,
+												smoc_md_port_out<typename T_chan_init::data_type, N, STORAGE_OUT_TYPE> &b,
 												smoc_md_iport_in<typename T_chan_init::data_type, N> &a,
 												const T_chan_init i ) {
     typename T_chan_init::chan_type &chan =
@@ -111,9 +114,10 @@ protected:
 	/// Connect multi-dimensional interface output port with multi-dimensional actor input port
 	template <typename T_chan_init, 
 						unsigned N,
-						template <typename, typename> class R>
+						template <typename, typename> class R,
+						template <typename> class STORAGE_OUT_TYPE>
   void connectNodePorts(
-												smoc_md_iport_out<typename T_chan_init::data_type, N> &b,
+												smoc_md_iport_out<typename T_chan_init::data_type, N, STORAGE_OUT_TYPE> &b,
 												smoc_md_port_in<typename T_chan_init::data_type, N, R>  &a,
 												const T_chan_init i ) {
     typename T_chan_init::chan_type &chan =
@@ -128,8 +132,9 @@ protected:
 	/* Indirect channel setup */
 	template <unsigned N,
 						template <typename,typename> class R,
-						typename T_edge_init>
-	void indConnectNodePorts(smoc_md_port_out<typename T_edge_init::data_type, N> &b,
+						typename T_edge_init,
+						template <typename> class STORAGE_OUT_TYPE>
+	void indConnectNodePorts(smoc_md_port_out<typename T_edge_init::data_type, N, STORAGE_OUT_TYPE> &b,
 													 smoc_md_port_in<typename T_edge_init::data_type, N, R>  &a,
 													 const T_edge_init i ) {
 		typedef typename T_edge_init::chan_init_type T_chan_init;
@@ -142,8 +147,9 @@ protected:
 		a.setFiringLevelMap(chan_init.wsdf_edge_param.calc_snk_iteration_level_table());
   }
 	template <unsigned N,
-						typename T_edge_init>
-	void indConnectNodePorts(smoc_md_port_out<typename T_edge_init::data_type, N> &b,
+						typename T_edge_init,
+						template <typename> class STORAGE_OUT_TYPE>
+	void indConnectNodePorts(smoc_md_port_out<typename T_edge_init::data_type, N, STORAGE_OUT_TYPE> &b,
 													 smoc_md_iport_in<typename T_edge_init::data_type, N>  &a,
 													 const T_edge_init i ) {
 		typedef typename T_edge_init::chan_init_type T_chan_init;
@@ -157,8 +163,9 @@ protected:
   }
 	template <unsigned N,
 						template <typename,typename> class R,
-						typename T_edge_init>
-	void indConnectNodePorts(smoc_md_iport_out<typename T_edge_init::data_type, N> &b,
+						typename T_edge_init,
+						template <typename> class STORAGE_OUT_TYPE>
+	void indConnectNodePorts(smoc_md_iport_out<typename T_edge_init::data_type, N, STORAGE_OUT_TYPE> &b,
 													 smoc_md_port_in<typename T_edge_init::data_type, N, R>  &a,
 													 const T_edge_init i ) {
 		typedef typename T_edge_init::chan_init_type T_chan_init;
@@ -192,10 +199,10 @@ protected:
 	{ b(a); }
 
   /// Connect multi-dimensional interface output port with actor output port
-	template <typename T_value_type, unsigned N>
+	template <typename T_value_type, unsigned N, template <typename> class STORAGE_OUT_TYPE>
   void connectInterfacePorts(
-														 smoc_md_iport_out<T_value_type,N> &a,
-														 smoc_md_port_out<T_value_type,N> &b )
+														 smoc_md_iport_out<T_value_type,N,STORAGE_OUT_TYPE> &a,
+														 smoc_md_port_out<T_value_type,N,STORAGE_OUT_TYPE> &b )
     { b(a); }
 
   /// Connect multi-dimensional interface input port with actor input port
@@ -206,10 +213,10 @@ protected:
 	{ b(a); }
 
   /// Connect multi-dimensional interface output ports
-	template <typename T_value_type, unsigned N>
+	template <typename T_value_type, unsigned N, template <typename> class STORAGE_OUT_TYPE>
   void connectInterfacePorts(
-														 smoc_md_iport_out<T_value_type,N> &a,
-														 smoc_md_iport_out<T_value_type,N> &b )
+														 smoc_md_iport_out<T_value_type,N, STORAGE_OUT_TYPE> &a,
+														 smoc_md_iport_out<T_value_type,N, STORAGE_OUT_TYPE> &b )
     { b(a); }
 
   /// Connect multi-dimensional interface output ports
@@ -245,9 +252,9 @@ public:
       new typename T_chan_init::chan_type(i);
     return *chan;
   }
-  template <typename T_chan_type, template <typename, typename> class R, class P>
+  template <typename T_chan_type, template <typename, typename> class R, class P, template <typename> class STORAGE_OUT_TYPE>
   void connectChanPort( T_chan_type &chan,
-                        smoc_port_out_base<typename T_chan_type::data_type, R, P> &p ) {
+                        smoc_port_out_base<typename T_chan_type::data_type, R, P, STORAGE_OUT_TYPE> &p ) {
     p(chan);
   }
   template <typename T_chan_type, template <typename, typename> class R, class P>
