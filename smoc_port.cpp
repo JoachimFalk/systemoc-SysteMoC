@@ -1,32 +1,95 @@
 // vim: set sw=2 ts=8:
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Library General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Erlangen-Nuremberg. All rights reserved.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *   This library is free software; you can redistribute it and/or modify it under
+ *   the terms of the GNU Lesser General Public License as published by the Free
+ *   Software Foundation; either version 2 of the License, or (at your option) any
+ *   later version.
  * 
- * You should have received a copy of the GNU Library General Public
- * License along with this program; if not, write to the
- * Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   This library is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ *   details.
+ * 
+ *   You should have received a copy of the GNU Lesser General Public License
+ *   along with this library; if not, write to the Free Software Foundation, Inc.,
+ *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * 
+ * --- This software and any associated documentation is provided "as is" 
+ * 
+ * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
+ * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+ * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
+ * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
+ * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
+ * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
+ * HEREUNDER IS ON AN "AS IS" BASIS, AND HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF
+ * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc_guard.hpp>
+#include <smoc_port.hpp>
 
+namespace Expr {
+
+const smoc_root_port *ASTNodeToken::getPort() const
+  { return &port; }
+size_t                ASTNodeToken::getPos() const
+  { return pos; }
+std::string           ASTNodeToken::getNodeType() const
+  { return "Token"; }
+std::string           ASTNodeToken::getNodeParam() const {
+  std::ostringstream o;
+  o << "portid=\"" << smoc_modes::PGWriter::getId(getPort()) << "\" ";
+  o << "pos=\"" << getPos() << "\"";
+  return o.str();
+}
+
+const smoc_root_port *ASTNodePortTokens::getPort() const
+  { return &port; }
+std::string           ASTNodePortTokens::getNodeType() const
+  { return "PortTokens"; }
+std::string           ASTNodePortTokens::getNodeParam() const {
+  std::ostringstream o;
+  o << "portid=\"" << smoc_modes::PGWriter::getId(getPort()) << "\"";
+  return o.str();
+}
+
+const smoc_root_port *ASTNodeComm::getPort() const
+  { return &port; }
+std::string           ASTNodeComm::getNodeType() const
+  { return "Comm"; }
+std::string           ASTNodeComm::getNodeParam() const {
+  std::ostringstream o;
+  o << "portid=\"" << smoc_modes::PGWriter::getId(getPort()) << "\"";
+  return o.str();
+};
+
+std::string ASTNodeSMOCEvent::getNodeType() const
+  { return "ASTNodeSMOCEvent"; }
+std::string ASTNodeSMOCEvent::getNodeParam() const
+  { return ""; }
+
+} // namespace Expr;
+
+/*
 #include <typeinfo>
 
 void smoc_activation_pattern::guardAssemble(
     smoc_modes::PGWriter &pgw, const Expr::PASTNode &n ) {
   pgw.indentUp();
   do {
-    if (n->isa<Expr::ASTNodeBinOp>()) {
-   
-      Expr::PASTNodeBinOp p = n->isa<Expr::ASTNodeBinOp>();
+    Expr::PASTInternalBinNode pBN;
+    Expr::PASTInternalUnNode  pUN;
+    Expr::PASTLeafNode        pLN;
+    
+    if (n->isa<Expr::ASTInternalBinNode>()) {
+      Expr::PASTInternalBinNode p = n->isa<Expr::ASTNodeBinOp>();
       pgw << "<ASTNodeBinOp "
                "valueType=\""   << p->getType()   << "\" "
                "opType=\"" << p->getOpType() <<"\">"
@@ -63,7 +126,7 @@ void smoc_activation_pattern::guardAssemble(
     
     } else { 
       //***********here is Terminal************
-      //assert( n->isa<Expr::ASTNodeTerminal>() );
+      //assert( n->isa<Expr::ASTLeafNode>() );
       if ( n->isa<Expr::ASTNodePortTokens>() ) {
         pgw << "<PortTokens "
                  "valueType=\"" << typeid(unsigned int).name() << "\" "
@@ -115,4 +178,4 @@ void smoc_activation_pattern::guardAssemble(
   } while (0);
   pgw.indentDown();
 }
-
+*/

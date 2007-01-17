@@ -1,19 +1,36 @@
 // vim: set sw=2 ts=8:
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Library General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Erlangen-Nuremberg. All rights reserved.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *   This library is free software; you can redistribute it and/or modify it under
+ *   the terms of the GNU Lesser General Public License as published by the Free
+ *   Software Foundation; either version 2 of the License, or (at your option) any
+ *   later version.
  * 
- * You should have received a copy of the GNU Library General Public
- * License along with this program; if not, write to the
- * Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   This library is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ *   details.
+ * 
+ *   You should have received a copy of the GNU Lesser General Public License
+ *   along with this library; if not, write to the Free Software Foundation, Inc.,
+ *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * 
+ * --- This software and any associated documentation is provided "as is" 
+ * 
+ * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
+ * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+ * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
+ * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
+ * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
+ * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
+ * HEREUNDER IS ON AN "AS IS" BASIS, AND HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF
+ * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #ifndef _INCLUDED_SMOC_CHAN_IF
@@ -34,18 +51,25 @@ public:
   typedef S					      storage_type;
   typedef T					      return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
-//private:
+private:
+#ifndef NDEBUG
+  size_t        limit;
+#endif
+public: // <-- FIXME
   storage_type *storage;
   size_t        storageSize;
   size_t       *offset;
-private:
-  size_t        limit;
 public:
-  smoc_ring_access()
-    : storage(NULL), storageSize(0), offset(NULL), limit(0) {}
+  smoc_ring_access():
+#ifndef NDEBUG
+      limit(0),
+#endif
+      storage(NULL), storageSize(0), offset(NULL) {}
 
+#ifndef NDEBUG
   void   setLimit(size_t l) { limit = l; }
-  size_t getLimit() const   { return limit; }
+//size_t getLimit() const   { return limit; }
+#endif
 
   return_type operator[](size_t n) {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
@@ -70,12 +94,20 @@ public:
   typedef void					      return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
 private:
+#ifndef NDEBUG
   size_t limit;
+#endif
 public:
-  smoc_ring_access(): limit(0) {}
+  smoc_ring_access()
+#ifndef NDEBUG
+    : limit(0)
+#endif
+    {}
 
+#ifndef NDEBUG
   void   setLimit(size_t l) { limit = l; }
-  size_t getLimit() const   { return limit; }
+//size_t getLimit() const   { return limit; }
+#endif
 };
 
 template <>
@@ -85,13 +117,20 @@ public:
   typedef const void				      return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
 private:
+#ifndef NDEBUG
   size_t limit;
+#endif
 public:
-  smoc_ring_access(): limit(0) {}
+  smoc_ring_access()
+#ifndef NDEBUG
+    : limit(0)
+#endif
+    {}
 
-  void   reset()            { limit = 0; }
+#ifndef NDEBUG
   void   setLimit(size_t l) { limit = l; }
-  size_t getLimit() const   { return limit; }
+//size_t getLimit() const   { return limit; }
+#endif
 };
 
 template <typename T>
@@ -131,25 +170,25 @@ public:
     { return portsOut; }
 };
 
-template <typename T>
+template <typename T, template <typename, typename> class R>
 class smoc_chan_in_if
   : virtual public sc_interface,
     virtual public smoc_chan_in_base_if {
 public:
   // typedefs
-  typedef T						    data_type;
-  typedef smoc_chan_in_if<data_type>			    this_type;
-  typedef smoc_port_in<data_type>			    iface_in_type;
-  typedef typename smoc_storage_in<data_type>::storage_type storage_type;
-  typedef typename smoc_storage_in<data_type>::return_type  return_type;
-  typedef smoc_ring_access<storage_type, return_type>	    ring_in_type;
+  typedef smoc_chan_in_if<T,R>			this_type;
+  typedef T					data_type;
+  typedef R<
+    typename smoc_storage_in<T>::storage_type,
+    typename smoc_storage_in<T>::return_type>   access_type;
+  typedef access_type                           access_in_type;
   
   bool is_v1_in_port;
   
   virtual size_t committedOutCount() const = 0;
 //smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual smoc_event &blockEventOut(size_t n) = 0;
-  virtual void   ringSetupIn(ring_in_type &r) = 0;
+  virtual void   accessSetupIn(access_type &r) = 0;
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void   commExecIn(size_t consume, const smoc_ref_event_p &) = 0;
 #else
@@ -171,25 +210,25 @@ private:
   this_type &operator = ( const this_type & );
 };
 
-template <typename T>
+template <typename T, template <typename, typename> class R>
 class smoc_chan_out_if
   : virtual public sc_interface,
     virtual public smoc_chan_out_base_if {
 public:
   // typedefs
-  typedef T						     data_type;
-  typedef smoc_chan_out_if<T>				     this_type;
-  typedef smoc_port_out<T>				     iface_out_type;
-  typedef typename smoc_storage_out<data_type>::storage_type storage_type;
-  typedef typename smoc_storage_out<data_type>::return_type  return_type;
-  typedef smoc_ring_access<storage_type, return_type>	     ring_out_type;
+  typedef smoc_chan_out_if<T,R>			this_type;
+  typedef T					data_type;
+  typedef R<
+    typename smoc_storage_out<T>::storage_type,
+    typename smoc_storage_out<T>::return_type>  access_type;
+  typedef access_type                           access_out_type;
   
   bool is_v1_out_port;
   
   virtual size_t      committedInCount() const = 0;
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual smoc_event &blockEventIn(size_t n) = 0;
-  virtual void        ringSetupOut(ring_out_type &r) = 0;
+  virtual void        accessSetupOut(access_type &r) = 0;
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void        commExecOut(size_t produce, const smoc_ref_event_p &) = 0;
 #else
@@ -256,14 +295,14 @@ protected:
 
 extern const sc_event& smoc_default_event_abort();
 
-template <typename T_chan_kind, typename T_data_type>
+template <typename T_chan_kind, typename T_data_type, template <typename, typename> class R>
 class smoc_chan_if
-  : public smoc_chan_in_if<T_data_type>,
-    public smoc_chan_out_if<T_data_type>,
+  : public smoc_chan_in_if<T_data_type, R>,
+    public smoc_chan_out_if<T_data_type, R>,
     public T_chan_kind {
 public:
   // typedefs
-  typedef smoc_chan_if<T_chan_kind, T_data_type>  this_type;
+  typedef smoc_chan_if<T_chan_kind,T_data_type,R> this_type;
   typedef T_data_type                             data_type;
   typedef T_chan_kind                             chan_kind;
 

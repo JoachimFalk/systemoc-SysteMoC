@@ -33,78 +33,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_GUARD_HPP
-#define _INCLUDED_SMOC_GUARD_HPP
+#include "sysc/kernel/sc_cmnhdr.h"
+#include "sysc/kernel/sc_externs.h"
 
-#include <iostream>
+#include "smoc_pggen.hpp"
 
-#include <cassert>
-#include <climits>
-#include <cmath>
-
-#include <list>
-#include <cosupport/stl_output_for_list.hpp>
-
-#include <systemc.h>
-
-#include <smoc_expr.hpp>
-#include <smoc_port.hpp>
-
-class smoc_activation_pattern
-: public smoc_event_and_list {
-public:
-  typedef smoc_activation_pattern this_type;
+int main(int argc, char* argv[]) {
+  int i, j;
   
-  friend class smoc_firing_state;
-
-//protected:
-  Expr::Ex<bool>::type  guard;
-public:
-  template <class E>
-  smoc_activation_pattern(const Expr::D<E> &_guard)
-    : guard(_guard) {}
-
-  void finalise() {
-    Expr::evalTo<Expr::Sensitivity>(guard, *this);
-#ifdef SYSTEMOC_DEBUG
-    // DO not dump status of activation pattern as
-    // that may call guards which operate on as yet
-    // unititialized data
-    std::cerr << "smoc_activation_pattern::finalise()"
-              << " this == " << this << std::endl;
-#endif
+  for (i = j = 0; argv[i] != NULL; i++) {
+    if(!strcmp(argv[i], "--generate-problemgraph") ||
+       !strcmp(argv[i], "--generate-networkgraph")) {
+      smoc_modes::dumpProblemgraph = true;
+      --argc;
+      continue;
+    }
+    argv[j++] = argv[i];
   }
- 
-  inline
-  Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const;
-
-  void guardAssemble( smoc_modes::PGWriter &pgw ) const
-    { Expr::evalTo<Expr::AST>(guard)->assemble(pgw); }
-};
-
-inline
-Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
-  if (*this) {
-    Expr::Detail::ActivationStatus retval =
-      Expr::evalTo<Expr::Value>(guard);
-#ifndef NDEBUG
-    Expr::evalTo<Expr::CommReset>(guard);
-#endif
-    return retval;
-  } else
-    return Expr::Detail::BLOCKED();
+  return sc_core::sc_elab_and_sim(argc, argv);
 }
-
-namespace Expr {
-
-template <class A, class B>
-static inline
-typename DOpBinConstruct<A,B,DOpBinLAnd>::result_type
-operator >> (const D<A> &a, const D<B> &b) {
-  return DOpBinConstruct<A,B,DOpBinLAnd>::
-    apply(a.getExpr(),b.getExpr());
-}
-
-}
-
-#endif // _INCLUDED_SMOC_GUARD_HPP

@@ -23,6 +23,7 @@ root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
 root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
 include $(auxdir)/jfrules.mk
+include ../BuildSystem/doxygen.am
 
 SUBDIRS=
 
@@ -100,6 +101,7 @@ libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include @pkg_support_builddir@/libcosupport.la @SYSTEMC_VPC_DEPENDENCIES@
 
 libsystemoc_la_SOURCES =		\
+	smoc_main.cpp			\
 	smoc_expr.cpp			\
 	smoc_fifo.cpp			\
 	smoc_graph_type.cpp		\
@@ -107,7 +109,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_root_node.cpp		\
 	smoc_root_port.cpp		\
 	smoc_firing_rules.cpp		\
-	smoc_guard.cpp			\
+	smoc_port.cpp			\
 	smoc_pggen.cpp			\
 	smoc_chan_if.cpp		\
 	smoc_moc.cpp			\

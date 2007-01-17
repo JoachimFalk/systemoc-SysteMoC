@@ -1,19 +1,36 @@
 // vim: set sw=2 ts=8:
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Library General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Erlangen-Nuremberg. All rights reserved.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *   This library is free software; you can redistribute it and/or modify it under
+ *   the terms of the GNU Lesser General Public License as published by the Free
+ *   Software Foundation; either version 2 of the License, or (at your option) any
+ *   later version.
  * 
- * You should have received a copy of the GNU Library General Public
- * License along with this program; if not, write to the
- * Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   This library is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ *   details.
+ * 
+ *   You should have received a copy of the GNU Lesser General Public License
+ *   along with this library; if not, write to the Free Software Foundation, Inc.,
+ *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * 
+ * --- This software and any associated documentation is provided "as is" 
+ * 
+ * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
+ * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+ * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
+ * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
+ * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
+ * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
+ * HEREUNDER IS ON AN "AS IS" BASIS, AND HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF
+ * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #ifndef _INCLUDED_HSCD_POPT_HPP
@@ -35,14 +52,16 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_port_in::communicate>" << std::endl;
 #endif
-    this->commSetup(n); // access to new tokens
+#ifndef NDEBUG    
+    this->setLimit(n); // access to new tokens
+#endif
     input.resize(n);
     for ( size_t i = 0; i < n; i++ )
       input[i] = smoc_port_in<T>::operator[](i);
 #ifdef ENABLE_SYSTEMC_VPC
-    this->commExec(NULL); // consume tokens
+    this->commExec(n, NULL); // consume tokens
 #else
-    this->commExec(); // consume tokens
+    this->commExec(n); // consume tokens
 #endif
     ready = true;
 #ifdef SYSTEMOC_DEBUG
@@ -68,11 +87,13 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_port_in::communicate>" << std::endl;
 #endif
-    this->commSetup(n); // access to new tokens
+#ifndef NDEBUG    
+    this->setLimit(n); // access to new tokens
+#endif
 #ifdef ENABLE_SYSTEMC_VPC
-    this->commExec(NULL); // consume tokens
+    this->commExec(n, NULL); // consume tokens
 #else
-    this->commExec(); // consume tokens
+    this->commExec(n); // consume tokens
 #endif
     ready = true;
 #ifdef SYSTEMOC_DEBUG
@@ -120,15 +141,17 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_port_out::communicate>" << std::endl;
 #endif
-    this->commSetup(n); // access to free space on fifo
+#ifndef NDEBUG    
+    this->setLimit(n); // access to new tokens
+#endif
     assert( n <= output.size() );
     for ( size_t i = 0; i < n; i++ )
       smoc_port_out<T>::operator[](i) = output[i];
 //  output.clear();
 #ifdef ENABLE_SYSTEMC_VPC
-    this->commExec(NULL); // produce tokens
+    this->commExec(n, NULL); // produce tokens
 #else
-    this->commExec(); // produce tokens
+    this->commExec(n); // produce tokens
 #endif
     ready = true;
 #ifdef SYSTEMOC_DEBUG
@@ -155,11 +178,13 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "<hscd_port_out::communicate>" << std::endl;
 #endif
-    this->commSetup(n); // access to free space on fifo
+#ifndef NDEBUG    
+    this->setLimit(n); // access to new tokens
+#endif
 #ifdef ENABLE_SYSTEMC_VPC
-    this->commExec(NULL); // produce tokens
+    this->commExec(n, NULL); // produce tokens
 #else
-    this->commExec(); // produce tokens
+    this->commExec(n); // produce tokens
 #endif
     ready = true;
 #ifdef SYSTEMOC_DEBUG

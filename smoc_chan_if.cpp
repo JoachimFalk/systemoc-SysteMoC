@@ -1,19 +1,36 @@
 // vim: set sw=2 ts=8:
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Library General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Erlangen-Nuremberg. All rights reserved.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *   This library is free software; you can redistribute it and/or modify it under
+ *   the terms of the GNU Lesser General Public License as published by the Free
+ *   Software Foundation; either version 2 of the License, or (at your option) any
+ *   later version.
  * 
- * You should have received a copy of the GNU Library General Public
- * License along with this program; if not, write to the
- * Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   This library is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ *   details.
+ * 
+ *   You should have received a copy of the GNU Lesser General Public License
+ *   along with this library; if not, write to the Free Software Foundation, Inc.,
+ *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * 
+ * --- This software and any associated documentation is provided "as is" 
+ * 
+ * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
+ * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+ * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
+ * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
+ * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
+ * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
+ * HEREUNDER IS ON AN "AS IS" BASIS, AND HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF
+ * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #include <smoc_chan_if.hpp>
@@ -45,18 +62,6 @@ void smoc_root_chan::finalise() {
   
   genName << "cf_";
   {
-    const smoc_port_list &in = getInputPorts();
-    
-    for ( smoc_port_list::const_iterator iter = in.begin();
-          iter != in.end();
-          ++iter ) {
-      genName
-        << (iter == in.begin() ? "" : "|")
-        << (*iter)->getActor()->myModule()->name();
-    }
-  }
-  genName << "_";
-  {
     const smoc_port_list &out = getOutputPorts();
     
     for ( smoc_port_list::const_iterator iter = out.begin();
@@ -64,6 +69,18 @@ void smoc_root_chan::finalise() {
           ++iter ) {
       genName
         << (iter == out.begin() ? "" : "|")
+        << (*iter)->getActor()->myModule()->name();
+    }
+  }
+  genName << "_";
+  {
+    const smoc_port_list &in = getInputPorts();
+    
+    for ( smoc_port_list::const_iterator iter = in.begin();
+          iter != in.end();
+          ++iter ) {
+      genName
+        << (iter == in.begin() ? "" : "|")
         << (*iter)->getActor()->myModule()->name();
     }
   }
@@ -87,8 +104,12 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   std::string idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
   std::string idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
   
+  // search highest interface port (multiple hierachie layers)
+  smoc_root_port  *ifPort = portOut;
+  while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
+
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "
-               "source=\"" << pgw.getId(portOut) << "\" "
+               "source=\"" << pgw.getId(ifPort)  << "\" "
                "target=\"" << idChannelPortIn    << "\" "
                "id=\""     << pgw.getId()        << "\"/>" << std::endl;
   pgw << "<process name=\"" << this->name() << "\" "
@@ -107,10 +128,15 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
     channelAttributes(pgw); // fifo size, etc...
     pgw.indentDown();
   }
+
+  // search highest interface port (multiple hierachie layers)
+  ifPort = portIn;
+  while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
+
   pgw << "</process>" << std::endl;
   pgw << "<edge name=\""   << this->name() << ".from-edge\" "
                "source=\"" << idChannelPortOut       << "\" "
-               "target=\"" << pgw.getId(portIn)      << "\" "
+               "target=\"" << pgw.getId(ifPort)      << "\" "
                "id=\""     << pgw.getId()            << "\"/>" << std::endl;
 }
 

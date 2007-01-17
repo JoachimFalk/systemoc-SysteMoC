@@ -1,19 +1,36 @@
 // vim: set sw=2 ts=8:
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Library General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Erlangen-Nuremberg. All rights reserved.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *   This library is free software; you can redistribute it and/or modify it under
+ *   the terms of the GNU Lesser General Public License as published by the Free
+ *   Software Foundation; either version 2 of the License, or (at your option) any
+ *   later version.
  * 
- * You should have received a copy of the GNU Library General Public
- * License along with this program; if not, write to the
- * Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   This library is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ *   details.
+ * 
+ *   You should have received a copy of the GNU Lesser General Public License
+ *   along with this library; if not, write to the Free Software Foundation, Inc.,
+ *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * 
+ * --- This software and any associated documentation is provided "as is" 
+ * 
+ * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
+ * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+ * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
+ * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
+ * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
+ * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
+ * HEREUNDER IS ON AN "AS IS" BASIS, AND HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF
+ * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #ifndef _INCLUDED_SMOC_FIFO_HPP
@@ -379,16 +396,13 @@ private:
 
 template <typename T>
 class smoc_fifo_storage
-//: public smoc_chan_nonconflicting_if<smoc_fifo_kind, T> {
-: public smoc_chan_if<smoc_fifo_kind,T> {
+: public smoc_chan_if<smoc_fifo_kind,T,smoc_ring_access> {
 public:
-  typedef T                                  data_type;
-  typedef smoc_fifo_storage<data_type>       this_type;
-  typedef typename this_type::iface_out_type iface_out_type;
-  typedef typename this_type::ring_out_type  ring_out_type;
-  typedef typename this_type::iface_in_type  iface_in_type;
-  typedef typename this_type::ring_in_type   ring_in_type;
-  typedef smoc_storage<data_type>	     storage_type;
+  typedef T                                   data_type;
+  typedef smoc_fifo_storage<data_type>        this_type;
+  typedef typename this_type::access_out_type ring_out_type;
+  typedef typename this_type::access_in_type  ring_in_type;
+  typedef smoc_storage<data_type>	      storage_type;
   
   class chan_init
     : public smoc_fifo_kind::chan_init {
@@ -410,7 +424,7 @@ private:
 protected:
   smoc_fifo_storage( const chan_init &i )
 //  : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i),
-    : smoc_chan_if<smoc_fifo_kind,T>(i),
+    : smoc_chan_if<smoc_fifo_kind,T,smoc_ring_access>(i),
       storage(new storage_type[this->fsize])
   {
     assert(this->fsize > i.marking.size());
@@ -423,12 +437,12 @@ protected:
 #endif
   }
 
-  void ringSetupIn(ring_in_type &r) {
+  void accessSetupIn(ring_in_type &r) {
     r.storage     = storage;
     r.storageSize = this->fsize;
     r.offset      = &this->rindex;
   }
-  void ringSetupOut(ring_out_type &r) {
+  void accessSetupOut(ring_out_type &r) {
     r.storage     = storage;
     r.storageSize = this->fsize;
     r.offset      = &this->windex;
@@ -452,10 +466,12 @@ protected:
 template <>
 class smoc_fifo_storage<void>
 //: public smoc_chan_nonconflicting_if<smoc_fifo_kind, void> {
-: public smoc_chan_if<smoc_fifo_kind,void> {
+: public smoc_chan_if<smoc_fifo_kind,void,smoc_ring_access> {
 public:
-  typedef void                               data_type;
-  typedef smoc_fifo_storage<data_type>       this_type;
+  typedef void                          data_type;
+  typedef smoc_fifo_storage<data_type>  this_type;
+  typedef this_type::access_out_type    ring_out_type;
+  typedef this_type::access_in_type     ring_in_type;
   
   class chan_init
     : public smoc_fifo_kind::chan_init {
@@ -476,7 +492,7 @@ public:
 protected:
   smoc_fifo_storage( const chan_init &i )
 //  : smoc_chan_nonconflicting_if<smoc_fifo_kind, void>(i) {
-    : smoc_chan_if<smoc_fifo_kind,void>(i) {
+    : smoc_chan_if<smoc_fifo_kind,void,smoc_ring_access>(i) {
     assert( fsize > i.marking );
     windex = i.marking;
 #ifdef ENABLE_SYSTEMC_VPC
@@ -484,8 +500,8 @@ protected:
 #endif
   }
  
-  void ringSetupIn(ring_in_type &r) {}
-  void ringSetupOut(ring_out_type &r) {}
+  void accessSetupIn(ring_in_type &r) {}
+  void accessSetupOut(ring_out_type &r) {}
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
@@ -506,8 +522,6 @@ class smoc_fifo_type
 public:
   typedef T						      data_type;
   typedef smoc_fifo_type<data_type>			      this_type;
-  typedef typename this_type::iface_in_type		      iface_in_type;
-  typedef typename this_type::iface_out_type		      iface_out_type;
   
   typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
   typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
@@ -515,8 +529,6 @@ public:
   typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
   typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
 protected:
-//  iface_in_type  *in;
-//  iface_out_type *out;
   
 #ifdef ENABLE_SYSTEMC_VPC
   void commExecIn(size_t consume, const smoc_ref_event_p &le)

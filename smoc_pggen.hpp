@@ -1,19 +1,36 @@
 // vim: set sw=2 ts=8:
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Library General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Erlangen-Nuremberg. All rights reserved.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *   This library is free software; you can redistribute it and/or modify it under
+ *   the terms of the GNU Lesser General Public License as published by the Free
+ *   Software Foundation; either version 2 of the License, or (at your option) any
+ *   later version.
  * 
- * You should have received a copy of the GNU Library General Public
- * License along with this program; if not, write to the
- * Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   This library is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ *   details.
+ * 
+ *   You should have received a copy of the GNU Lesser General Public License
+ *   along with this library; if not, write to the Free Software Foundation, Inc.,
+ *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * 
+ * --- This software and any associated documentation is provided "as is" 
+ * 
+ * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
+ * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+ * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
+ * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
+ * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
+ * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
+ * HEREUNDER IS ON AN "AS IS" BASIS, AND HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF
+ * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
 #ifndef _INCLUDED_SMOC_PGGEN_HPP
@@ -30,6 +47,8 @@ class smoc_root_node;
 
 namespace smoc_modes {
 
+  extern bool dumpProblemgraph;
+
   class eNoChannel : public std::exception {};
   class eNoInterface : public std::exception {};
   class eNoPort : public std::exception {};
@@ -40,8 +59,8 @@ namespace smoc_modes {
     typedef  std::map<const void *,int> idmap_ty;
     
     std::ostream    &out;
-    int              idmap_last;
-    idmap_ty         idmap;
+    static int       idmap_last;
+    static idmap_ty  idmap;
     
     static const char   indent_buf[];
     static const size_t indent_buf_len;
@@ -51,10 +70,10 @@ namespace smoc_modes {
     const char *
     indentation () const;
     
-    std::string toId(int id);
+    static std::string toId(int id);
   public:
-    PGWriter( std::ostream &_out )
-      : out(_out), idmap_last(0), indent_lev(0) {}
+    PGWriter(std::ostream &out)
+      : out(out), indent_lev(0) {}
     
     void indentUp() { ++indent_lev; }
     void indentDown() { --indent_lev; }
@@ -62,8 +81,8 @@ namespace smoc_modes {
     template <typename T>
     std::ostream &operator << (T t) { return out << indentation() << t; }
     
-    std::string getId( const void *p );
-    std::string getId();
+    static std::string getId( const void *p );
+    static std::string getId();
     
     ~PGWriter( void ) {
       out.flush();

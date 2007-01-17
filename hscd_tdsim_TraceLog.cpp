@@ -1,25 +1,44 @@
 // vim: set sw=2 ts=8:
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Library General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Erlangen-Nuremberg. All rights reserved.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *   This library is free software; you can redistribute it and/or modify it under
+ *   the terms of the GNU Lesser General Public License as published by the Free
+ *   Software Foundation; either version 2 of the License, or (at your option) any
+ *   later version.
  * 
- * You should have received a copy of the GNU Library General Public
- * License along with this program; if not, write to the
- * Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   This library is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ *   details.
+ * 
+ *   You should have received a copy of the GNU Lesser General Public License
+ *   along with this library; if not, write to the Free Software Foundation, Inc.,
+ *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * 
+ * --- This software and any associated documentation is provided "as is" 
+ * 
+ * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
+ * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+ * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
+ * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
+ * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
+ * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
+ * HEREUNDER IS ON AN "AS IS" BASIS, AND HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF
+ * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ * ENHANCEMENTS, OR MODIFICATIONS.
  */
+
 #include <hscd_tdsim_TraceLog.hpp>
 #include <time.h>
 #include <sstream>
 #include <cassert>
 #include <cmath>
+#include <systemc.h>
 
 #ifdef SYSTEMOC_TRACE
 
@@ -77,36 +96,36 @@ bool Sequence::next() {
 TraceLogStream TraceLog("test.trace");
 
 void  TraceLogStream::traceBlockingWaitStart(){
-  stream << "<waiting type=\"sleep\"/>" << std::endl;
+  stream << "<waiting type=\"sleep\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
 }
 void  TraceLogStream::traceBlockingWaitEnd(){
-  stream << "<waiting type=\"wake up\"/>" << std::endl;
+  stream << "<waiting type=\"wake up\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
 }
 void  TraceLogStream::traceStartChoice(const char * actor){
-  stream << "<choice type=\"begin\" name=\""<< actor << "\"/>" << std::endl;
+  stream << "<choice type=\"begin\" name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   actors.insert(actor);
   actor_activation_count[actor]++;
   lastactor = actor;
   fifo_actor_last = actor;
 }
 void  TraceLogStream::traceEndChoice(const char * actor){
-  stream << "<choice type=\"end\" name=\""<< actor << "\"/>" << std::endl;
+  stream << "<choice type=\"end\" name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_actor_last = "";
 }
 void  TraceLogStream::traceStartTransact(const char * actor){
-  stream << "<transact type=\"begin\" name=\""<< actor << "\"/>" << std::endl;
+  stream << "<transact type=\"begin\" name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   actors.insert(actor);
   actor_activation_count[actor]++;
   lastactor = actor;
   fifo_actor_last = actor;
 }
 void  TraceLogStream::traceEndTransact(const char * actor){
-  stream << "<transact type=\"end\" name=\""<< actor << "\"/>" << std::endl;
+  stream << "<transact type=\"end\" name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_actor_last = "";
 }
 
 void TraceLogStream::traceStartActor(const char * actor){
-  stream << "<actor name=\""<< actor << "\">" << std::endl;
+  stream << "<actor name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\">" << std::endl;
   actors.insert(actor);
   actor_activation_count[actor]++;
   lastactor=actor;
@@ -115,7 +134,7 @@ void TraceLogStream::traceEndActor(const char * actor){
   stream << "</actor>" << std::endl;
 }
 void TraceLogStream::traceStartFunction(const char * func){
-  stream << "<function name=\""<< func << "\">" << std::endl;
+  stream << "<function name=\""<< func << "\" timestamp=\"" << sc_time_stamp() << "\">" << std::endl;
   function_call_count[string(lastactor)+" -> "+string(func)]++;
   functions[lastactor].insert(func);
   last_actor_function[lastactor] = func;
@@ -124,13 +143,13 @@ void TraceLogStream::traceEndFunction(const char * func){
   stream << "</function>" << std::endl;
 }
 void TraceLogStream::traceStartTryExecute(const char * actor){
-  stream << "<tryexecute name=\""<< actor << "\">" << std::endl;
+  stream << "<tryexecute name=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\">" << std::endl;
 }
 void TraceLogStream::traceEndTryExecute(const char * actor){
   stream << "</tryexecute>" << std::endl;
 }
 void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
-  stream << "<commexecin size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
+  stream << "<commexecin size=\""<<size<<"\" channel=\""<<actor<<"\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_info[actor].size -= size;
   if(fifo_actor_last != "") {
     fifo_info[actor].to.name = fifo_actor_last;
@@ -138,7 +157,7 @@ void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
   }
 }
 void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
-  stream << "<commexecout size=\""<<size<<"\" channel=\""<<actor<<"\"/>" << std::endl;
+  stream << "<commexecout size=\""<<size<<"\" channel=\""<<actor<<"\" timestamp=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_info[actor].size += size;
   if(fifo_actor_last != "") {
     fifo_info[actor].from.name = fifo_actor_last;
@@ -146,7 +165,7 @@ void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
   }
 }
 void TraceLogStream::traceStartDeferredCommunication(const char * actor){
-  stream << "<deferred_communication actor=\""<< actor << "\">" << std::endl;
+  stream << "<deferred_communication actor=\""<< actor << "\" timestamp=\"" << sc_time_stamp() << "\">" << std::endl;
   fifo_actor_last = actor;
 }
 void TraceLogStream::traceEndDeferredCommunication(const char * actor){
