@@ -60,45 +60,9 @@ ACJF_CHECK_LIB_SYSTEMC
 ACJF_CHECK_LIB_BOOST
 ACJF_NEED_PKG([Support])
 
-### SystemC-VPC ###
-# --enable-vpc option
-AC_ARG_ENABLE(
-  [vpc],
-  [[  --enable-vpc            enable vpc support for SysteMoC [default=yes]]],
-  [case "$enableval" in
-     yes) enable_vpc=yes ;;
-     no)  enable_vpc=no  ;;
-     *)   enable_vpc=no  ;;
-   esac],
-  [enable_vpc=yes # default]
-)
-
-if test x"$enable_vpc" = x"yes"; then
-  SYSTEMC_VPC_INCLUDE=" \
-    -I\$(top_builddir)/../SysteMoC/include/systemoc \
-    -I\$(top_builddir)/../SystemC-VPC/include/systemcvpc \
-    $SYSTEMC_INCLUDE"
-
-  SYSTEMC_VPC_LDFLAGS=" \
-    -L\$(top_builddir)/../SystemC-VPC \
-    -lsystemcvpc \
-    $SYSTEMC_LDFLAGS"
-
-  SYSTEMC_VPC_DEPENDENCIES=" \
-    \$(top_builddir)/../SystemC-VPC/libsystemcvpc.la"
-
-  CPPFLAGS="$CPPFLAGS -DENABLE_SYSTEMC_VPC"
-  
-  AC_CONFIG_FILES([vpc-test-h261/Makefile])
-
-#FIXME: (Hack) TraceLog only exists in SysteMoc <- this is only needed for InfiniBand HCA "hybrid mode"
-#because of this vpc-test-h261 doesn't compile
-#  subdirs="$subdirs vpc-test-h261"
-else
-  SYSTEMC_VPC_INCLUDE=""
-  SYSTEMC_VPC_LDFLAGS=""
-  SYSTEMC_VPC_DEPENDENCIES=""
-fi
+SYSTEMC_VPC_INCLUDE=""
+SYSTEMC_VPC_LDFLAGS=""
+SYSTEMC_VPC_DEPENDENCIES=""
 
 AC_SUBST([SYSTEMC_VPC_INCLUDE])
 AC_SUBST([SYSTEMC_VPC_LDFLAGS])
