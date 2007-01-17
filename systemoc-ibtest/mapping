@@ -1,8 +1,0 @@
-threadedcomponent: HWM1 RR
-
-top.snk 	HWM1	2	1
-top.src		HWM1	2	3
-top.atu		HWM1	4	1
-top.al.sqr	HWM1	2	1
-top.al.sqrloop	HWM1	2	2
-top.al.dup	HWM1 	2	2
