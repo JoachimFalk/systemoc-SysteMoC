@@ -190,7 +190,7 @@ if test -d $srcdir/crypto-example; then
   subdirs="$subdirs crypto-example"
 fi
 if test -d $srcdir/systemoc-sr; then
-  AC_CONFIG_FILES([systemoc-sr/Makefile])
+#  AC_CONFIG_FILES([systemoc-sr/Makefile])
 #  subdirs="$subdirs systemoc-sr"
 fi
 

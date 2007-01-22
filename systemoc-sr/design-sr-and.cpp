@@ -131,7 +131,7 @@ public:
  
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<NonStrictAndTestBench> nsa_tb("top", argc-1);
+  smoc_top_sr_moc<NonStrictAndTestBench> nsa_tb("top", argc-1);
   
 #define GENERATE "--generate-problemgraph"
   if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
