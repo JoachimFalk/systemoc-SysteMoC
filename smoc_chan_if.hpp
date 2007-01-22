@@ -32,13 +32,13 @@ template<class T>
 class smoc_channel_access {
 public:
   typedef T                                              data_type;
-  typedef smoc_storage<T>                                storage_type;
+  typedef smoc_storage<data_type>                        storage_type;
   typedef smoc_channel_access<data_type>                 this_type;
 
   virtual void   setLimit(size_t l)                    = 0;
   virtual size_t getLimit() const                      = 0;
-  virtual smoc_storage<data_type>& operator[](size_t n)             = 0;
-  virtual const smoc_storage<data_type> operator[](size_t n) const = 0;
+  virtual storage_type& operator[](size_t n)             = 0;
+  virtual const storage_type operator[](size_t n) const = 0;
 };
 
 template<>
@@ -185,6 +185,50 @@ public:
     assert(portOut != NULL);
     retval.push_front(portOut);
     return retval; 
+  }
+
+  void finalise();
+
+  const char *name() const
+    { return myName.c_str(); }
+protected:
+  void assemble(smoc_modes::PGWriter &pgw) const;
+};
+
+class smoc_multicast_chan
+  : public smoc_root_chan {
+public:
+  // typedefs
+  typedef smoc_multicast_chan this_type;
+protected:
+  smoc_root_port_in  *portIn;
+  smoc_port_list      outPorts;
+
+  std::string myName; // patched in finalise
+public:
+  // constructor
+  smoc_multicast_chan(const char *name)
+    : smoc_root_chan(name), portIn(NULL), outPorts() {}
+
+  void addPort(smoc_root_port_in  *in)
+    { /* assert(portIn  == NULL); */ portIn  = in;  }
+  void addPort(smoc_root_port_out *out)
+    {
+      /* assert(portOut == NULL); */
+      //FIXME: (MS) Hierarchie Ports are added several times!?
+      outPorts.push_back(out);
+    }
+
+  smoc_port_list getInputPorts()  const {
+    smoc_port_list retval;
+    
+    assert(portIn != NULL);
+    retval.push_front(portIn);
+    return retval; 
+  }
+
+  smoc_port_list getOutputPorts()  const {
+    return outPorts; 
   }
 
   void finalise();
