@@ -101,8 +101,6 @@ protected:
   
   friend void Expr::Detail::registerParam(const ArgInfo &argInfo);
 public:
-  // FIXME: protection
-  bool               is_v1_actor;
 #ifdef ENABLE_SYSTEMC_VPC  
   // vpc_event_xxx must be constructed before commstate
   smoc_event         vpc_event_dii; // VPC data introduction interval event

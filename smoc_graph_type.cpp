@@ -34,7 +34,7 @@ const smoc_node_list smoc_graph_petri<T_node_type, T_chan_kind, T_chan_init_defa
         ++iter ) {
     smoc_root_node *node = dynamic_cast<smoc_root_node *>(*iter);
     
-    if ( node != NULL /*&& !node->is_v1_actor*/ )
+    if ( node != NULL )
       subnodes.push_back(node);
   }
   return subnodes;

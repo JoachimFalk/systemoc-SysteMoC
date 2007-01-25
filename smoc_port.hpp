@@ -429,9 +429,6 @@ protected:
     this->push_interface(i); (*this)->addPort( this );
   }
 
-  bool peerIsV1() const
-    { return (*this)->portOutIsV1(); }
-
   void finalise() { channel_access = (*this)->ringSetupIn(); }
   
   void commSetup(size_t req) { channel_access->setLimit(req); }
@@ -481,7 +478,7 @@ public:
     { return getAvailableTokens() >= n; }
   
   void operator () ( iface_type& interface_ )
-    { interface_.is_v1_in_port = this->is_smoc_v1_port; bind(interface_); }
+    { bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
 };
@@ -510,9 +507,6 @@ protected:
   void add_interface( sc_interface *i ) {
     this->push_interface(i); (*this)->addPort( this );
   }
-  
-  bool peerIsV1() const
-    { return (*this)->portInIsV1(); }
   
   void finalise() { channel_access = (*this)->ringSetupOut(); }
   
@@ -557,7 +551,7 @@ public:
     { return getAvailableSpace() >= n; }
   
   void operator () ( iface_type& interface_ )
-    { interface_.is_v1_out_port = this->is_smoc_v1_port; bind(interface_); }
+    { bind(interface_); }
   void operator () ( this_type& parent_ )
     { bind(parent_); }
 };

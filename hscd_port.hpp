@@ -94,7 +94,7 @@ private:
     { this->ready = false; }
 public:
   hscd_port_in()
-    { this->is_smoc_v1_port = true; }
+    { }
   
   operator bool() const
     { return this->ready; }
@@ -181,7 +181,7 @@ private:
     { this->ready = false; }
 public:
   hscd_port_out()
-    { this->is_smoc_v1_port = true; }
+    { }
   
   operator bool() const
     { return this->ready; }

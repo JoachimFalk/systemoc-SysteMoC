@@ -258,8 +258,6 @@ public:
   typedef typename smoc_storage_in<data_type>::return_type  return_type;
   typedef smoc_channel_access<data_type>                    ring_in_type;
   
-  bool is_v1_in_port;
-  
   virtual void   addPort(smoc_root_port_in *in) = 0;
   virtual size_t committedOutCount() const = 0;
 //smoc_event &blockEventOut(size_t n) { return write_event; }
@@ -270,8 +268,6 @@ public:
 #else
   virtual void   commExecIn(size_t consume) = 0;
 #endif
-  virtual bool   portOutIsV1() const = 0;
-  
   sc_module *getHierarchy() const {
     assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
     return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
@@ -303,8 +299,6 @@ public:
   typedef typename smoc_storage_out<data_type>::return_type  return_type;
   typedef smoc_channel_access<data_type>                     ring_out_type;
   
-  bool is_v1_out_port;
-  
   virtual void        addPort(smoc_root_port_out *out) = 0;
   virtual size_t      committedInCount() const = 0;
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
@@ -315,8 +309,6 @@ public:
 #else
   virtual void        commExecOut(size_t produce) = 0;
 #endif
-  virtual bool        portInIsV1() const = 0;
-  
   sc_module *getHierarchy() const {
     assert( dynamic_cast<const smoc_root_chan *>(this) != NULL );
     return dynamic_cast<const smoc_root_chan *>(this)->getHierarchy();
@@ -346,11 +338,6 @@ public:
   typedef smoc_chan_if<T_chan_kind, T_data_type>  this_type;
   typedef T_data_type                             data_type;
   typedef T_chan_kind                             chan_kind;
-
-  bool portInIsV1()  const
-    { return this->is_v1_in_port; }
-  bool portOutIsV1() const
-    { return this->is_v1_out_port; }
 
   void addPort(smoc_root_port_in  *in)
     { return T_chan_kind::addPort(in); }

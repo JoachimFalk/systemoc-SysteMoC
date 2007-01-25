@@ -32,7 +32,6 @@ smoc_root_node::smoc_root_node(smoc_firing_state &s)
 #endif
     _initialState(s),
     _non_strict(false),
-    is_v1_actor(false),
 #ifdef ENABLE_SYSTEMC_VPC
 # ifndef NDEBUG
     vpc_event_lat(NULL),
