@@ -149,6 +149,10 @@ if test -d $srcdir/systemoc-sdf; then
   AC_CONFIG_FILES([systemoc-sdf/Makefile])
   subdirs="$subdirs systemoc-sdf"
 fi
+if test -d $srcdir/systemoc-sdf-clustering; then
+  AC_CONFIG_FILES([systemoc-sdf-clustering/Makefile])
+  subdirs="$subdirs systemoc-sdf-clustering"
+fi
 if test -d $srcdir/systemoc-sqr; then
   AC_CONFIG_FILES([systemoc-sqr/Makefile])
   subdirs="$subdirs systemoc-sqr"
