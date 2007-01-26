@@ -195,7 +195,7 @@ std::string ASTNodeMemGuard::getNodeParam() const {
   std::ostringstream o;
   o << "name=\"" << getName() << "\" ";
   o << "addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>(getAddrObj()) << std::dec << "\" ";
-  o << "addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>(getAddrFun()) << std::dec;
+  o << "addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>(getAddrFun()) << std::dec << "\"";
   return o.str();
 }
 
