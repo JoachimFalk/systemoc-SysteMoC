@@ -38,7 +38,7 @@ noinst_PROGRAMS=			\
 
 simulation_cluster_sdf_1_SOURCES= design-cluster-sdf-1.cpp
 simulation_cluster_sdf_1_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-simulation_cluster_sdf_2_SOURCES= design-cluster-sdf-1.cpp
+simulation_cluster_sdf_2_SOURCES= design-cluster-sdf-2.cpp
 simulation_cluster_sdf_2_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-simulation_cluster_sdf_3_SOURCES= design-cluster-sdf-1.cpp
+simulation_cluster_sdf_3_SOURCES= design-cluster-sdf-3.cpp
 simulation_cluster_sdf_3_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
