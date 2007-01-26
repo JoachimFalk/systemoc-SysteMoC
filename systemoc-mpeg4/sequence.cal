@@ -1,0 +1,233 @@
+actor sequence () int DATA, int BUF ==> int A, int B, int C :
+
+  // Blocks are assigned a sequence number starting at 1. The output
+  // consists of the sequence numbers for the A, B, C block positions
+  // of each block. 0 means that the block is not present in the stream.
+  // The sequence numbers can be used to index into a line buffer to get
+  // ACDC prediction values.
+
+  int mb_x;                // Current macroblock position
+  int mb_y;
+  List[int] mb_seq;        // Sequence numbers for blocks in current MB
+  int mb_x_last;           // Previous MB position
+  int mb_y_last;
+  List[int] mb_seq_last;   // Sequence numbers of previous MB
+  int block_count := 0;
+
+  // The input stream is cloned, and read in up to the MB directly above
+  // the current MB position. buf_next is the next delayed MB (used to tell
+  // when buf is completely read in. buf_last is the MB before buf.
+  int buf_x;
+  int buf_y;
+  List[ int ] buf_seq;
+  int buf_x_last;
+  int buf_y_last;
+  List[ int ] buf_seq_last;
+  int buf_x_next;
+  int buf_y_next;
+  List[ int ] buf_seq_next;
+  int buf_count := 0;
+  int buf_eof;
+
+  int this_n; // Current block number
+  // int frame_count := 0;
+
+  flush_buf: action BUF:[ type, x, y, n] ==>
+  guard
+    buf_count < block_count
+  do
+    // Drain buffered input queue
+    if type != 1 then
+      buf_count := buf_count + 1;
+    end
+  end
+
+  reset_actor: action ==>
+  guard
+    buf_count = block_count    // Don't reset until delayed queue is drained
+  do
+    // frame_count := frame_count + 1;
+    // println( "********* Frame "+frame_count+" *********" );
+    block_count := 0;
+    mb_x := -1;
+    mb_y := -1;
+    mb_x_last := -1;
+    mb_y_last := -1;
+    mb_seq := [ 0, 0, 0, 0, 0, 0 ];
+
+    buf_count := 0;
+    buf_x := -1;
+    buf_y := -1;
+    buf_x_last := -1;
+    buf_y_last := -1;
+    buf_x_next := -1;
+    buf_y_next := -1;
+    buf_seq := [ 0, 0, 0, 0, 0, 0 ];
+    buf_seq_next := [ 0, 0, 0, 0, 0, 0 ];
+    buf_eof := 0;
+  end
+
+  eof_detect: action DATA:[ type, x, y, n ] ==>
+  guard
+    type < 0
+  do
+    block_count := block_count + 1;
+  end
+
+  discard_block: action DATA:[ type, x, y, n ] ==>
+  guard
+    type = 1
+  end
+
+  read_block: action DATA:[ type, x, y, n ] ==>
+  guard
+    type = 0
+  do
+    block_count := block_count + 1;
+    if x != mb_x or y != mb_y then
+      // Processing a new macroblock
+      mb_x_last := mb_x;
+      mb_y_last := mb_y;
+      mb_seq_last := mb_seq;
+      mb_x := x;
+      mb_y := y;
+      mb_seq := [ 0, 0, 0, 0, 0, 0 ];
+    end
+    mb_seq.set( n, block_count );
+    this_n := n;
+  end
+
+  // Tells us that buf_next has information that should be in buf,
+  // or that buf has information that should be in buf_last
+  function keep_reading_buf( bxnext, bynext, bx, by, mbx, mby ):
+    bynext < (mby-1) or
+   ( bynext = (mby-1) and bxnext <= mbx ) or
+    by < (mby-1) or
+   ( by = (mby-1) and bx < mbx )
+  end
+
+  read_buf.block: action BUF:[ type, x, y, n ] ==>
+  guard
+    buf_eof = 0,
+    keep_reading_buf( buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y )
+  do
+    if type != 1 then
+      buf_count := buf_count + 1;
+      if x != buf_x_next or y != buf_y_next then
+        buf_x_last := buf_x;
+        buf_y_last := buf_y;
+        buf_seq_last := buf_seq;
+        buf_x := buf_x_next;
+        buf_y := buf_y_next;
+        buf_seq := buf_seq_next;
+        buf_seq_next := [ 0, 0, 0, 0, 0, 0 ];
+        buf_x_next := x;
+        buf_y_next := y;
+      end
+
+      if type < 0 then
+        buf_eof := 1;
+      else
+        buf_seq_next.set( n, buf_count );
+      end
+    end
+  end
+
+  // Read intra blocks
+  predict.b0: action  ==> A:[a], B:[b], C:[c]
+  guard
+    this_n = 0 and ( buf_eof = 1 or
+     (not keep_reading_buf( buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y )) )
+  var
+    int a = 0,
+    int b = 0,
+    int c = 0
+  do
+    if mb_x_last = (mb_x-1) and mb_y_last = mb_y then
+      a := mb_seq_last.get( 1 );
+    end
+    if buf_x_last = (mb_x-1) and buf_y_last = (mb_y-1) then
+      b := buf_seq_last.get( 3 );
+    end
+    if buf_x = mb_x and buf_y = (mb_y-1) then
+      c := buf_seq.get( 2 );
+    end
+//    println(" intra 0 at ( "+mb_x+", "+mb_y+")  ABC: "+a+" "+b+" "+c );
+  end
+
+  predict.b1: action  ==> A:[a], B:[b], C:[c]
+  guard
+    this_n = 1 and ( buf_eof = 1 or
+     (not keep_reading_buf( buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y )) )
+  var
+    int a = mb_seq.get( 0 ),
+    int b = 0,
+    int c = 0
+  do
+    if buf_x = mb_x and buf_y = (mb_y-1) then
+      b := buf_seq.get( 2 );
+      c := buf_seq.get( 3 );
+    end
+   // println(" intra 1 at ( "+mb_x+", "+mb_y+")  ABC: "+a+" "+b+" "+c );
+  end
+
+  predict.b2: action  ==> A:[a], B:[b], C:[c]
+  guard
+    this_n = 2 and ( buf_eof = 1 or
+     (not keep_reading_buf( buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y )) )
+  var
+    int a = 0,
+    int b = 0,
+    int c = mb_seq.get( 0 )
+  do
+    if mb_x_last = (mb_x-1) and mb_y_last = mb_y then
+      a := mb_seq_last.get( 3 );
+      b := mb_seq_last.get( 1 );
+    end
+//    println(" intra 2 at ( "+mb_x+", "+mb_y+")  ABC: "+a+" "+b+" "+c );
+  end
+
+  predict.b3: action  ==> A:[a], B:[b], C:[c]
+  guard
+    this_n = 3 and ( buf_eof = 1 or
+     (not keep_reading_buf( buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y )) )
+  var
+    int a = mb_seq.get( 2 ),
+    int b = mb_seq.get( 0 ),
+    int c = mb_seq.get( 1 )
+//  do
+//    println(" intra 3 at ( "+mb_x+", "+mb_y+")  "+a+" "+b+" "+c );
+  end
+
+  predict.b45: action  ==> A:[a], B:[b], C:[c]
+  guard
+    this_n > 3 and ( buf_eof = 1 or
+     (not keep_reading_buf( buf_x_next, buf_y_next, buf_x, buf_y, mb_x, mb_y )) )
+  var
+    int a = 0,
+    int b = 0,
+    int c = 0
+  do
+    if mb_x_last = (mb_x-1) and mb_y_last = mb_y then
+      a := mb_seq_last.get( this_n );
+    end
+    if buf_x_last = (mb_x-1) and buf_y_last = (mb_y-1) then
+      b := buf_seq_last.get( this_n );
+    end
+    if buf_x = mb_x and buf_y = (mb_y-1) then
+      c := buf_seq.get( this_n );
+    end
+  //  println(" intra "+this_n+" at ( "+mb_x+", "+mb_y+")  ABC: "+a+" "+b+" "+c );
+  end
+
+  schedule fsm read :
+    reset   ( flush_buf     ) --> reset;
+    reset   ( reset_actor   ) --> read;
+    read    ( eof_detect    ) --> reset;
+    read    ( discard_block ) --> read;
+    read    ( read_block    ) --> process;
+    process ( predict       ) --> read;
+    process ( read_buf      ) --> process;
+ end
+
+end

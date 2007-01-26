@@ -1,0 +1,2056 @@
+import all caltrop.lib.BitOps;
+actor parser[int] (
+  int VOL_START_CODE_LENGTH,
+  int VOL_START_CODE,
+  int VOP_START_CODE_LENGTH,
+  int VOP_START_CODE,
+  int B_VOP,
+  int P_VOP,
+  int I_VOP,
+  int BITS_QUANT,
+  int MCBPC_LENGTH,
+  int INTER,
+  int INTRA,
+  int MAXW_IN_MB
+) int bits ==> int param, List(type:int, size=64) b, int flags, int mv :
+
+  function initList( v, sz ) :
+    [ v : for i in Integers(1, sz) ]
+  end
+
+  function value( bits, n, os )
+  var int thisb = bitand( bits[os], 1 ) :
+    if n = 1 then
+      thisb
+    else
+      bitor( lshift( thisb, n-1 ), value( bits, n-1, os+1 ) )
+    end
+  end
+
+  function dc_scaler( QP, bltype, blnum ) :
+    if bltype = 1 then 0 else
+      if blnum < 4 then
+        if QP > 0 and QP < 5 then 8 else
+          if QP > 4 and QP < 9 then 2 * QP else
+            if QP > 8 and QP < 25 then QP + 8 else (2 * QP) - 16 end
+          end
+        end
+      else
+        if QP > 0 and QP < 5 then 8 else
+          if QP > 4 and QP < 25 then rshift(QP + 13,1) else QP - 6 end
+        end
+      end
+    end
+  end
+
+  int bit_count := 0;
+
+/*************************************************************
+ *************************************************************
+ ********                  start VOL                  ********
+ *************************************************************
+ *************************************************************/
+
+  // Detect VOL without short header
+  vol_header_good: action bits:[ b ] repeat 32 ==>
+  guard
+    value( b, 27, 0 ) = 8
+  do
+    bit_count := bit_count + 32;
+    println("Good vol header");
+  end
+
+  vol_header_bad: action bits:[ b ] repeat 32 ==>
+  do
+    bit_count := bit_count + 32;
+    println("Unsupported VOL header type "+value( b, 27, 0 ));
+  end
+
+  vol_startcode_good: action bits:[ b ] repeat VOL_START_CODE_LENGTH ==>
+  guard
+    value( b, VOL_START_CODE_LENGTH, 0 ) = VOL_START_CODE
+  do
+    bit_count := bit_count + VOL_START_CODE_LENGTH;
+    println("Got VOL start code");
+  end
+
+  vol_startcode_bad: action bits:[ b ] repeat VOL_START_CODE_LENGTH ==>
+  do
+    bit_count := bit_count + VOL_START_CODE_LENGTH;
+    println("Invalid VOL start code "+value( b, VOL_START_CODE_LENGTH, 0 ));
+  end
+
+  int vol_layer_is_detailed;
+
+  vol_id: action bits:[ b ] repeat 14 ==>
+  do
+    // skip vol_id(4), random_accessible_vol(1), video_object_type(8)
+    vol_layer_is_detailed := b [13];
+    bit_count := bit_count + 14;
+  end
+
+  int vol_aspect_val;
+
+  vol_layer.detailed: action bits:[b] repeat 11 ==>
+  guard
+    vol_layer_is_detailed = 1
+  do
+    // skip vo_layer_verid(4), vo_layer_priority(3)
+    vol_aspect_val := value( b, 4, 7 );
+    bit_count := bit_count + 11;
+  end
+
+  vol_layer.nodetails: action bits:[b] repeat 4 ==>
+  do
+    vol_aspect_val := value( b, 4, 0 );
+    bit_count := bit_count + 4;
+  end
+
+  int vol_control_is_detailed;
+
+  vol_aspect.detailed: action bits:[b] repeat 17 ==>
+  guard
+    vol_aspect_val = 15
+  do
+    // skip par_width(8), par_height(8)
+    vol_control_is_detailed := b [16];
+    bit_count := bit_count + 17;
+  end
+
+  vol_aspect.nodetails: action bits:[b] repeat 1 ==>
+  do
+    vol_control_is_detailed := b [0];
+    bit_count := bit_count + 1;
+  end
+
+  int vol_vbv_is_detailed;
+
+  vol_control_detailed: action bits:[b] repeat 4 ==>
+  guard
+    vol_control_is_detailed = 1
+  do
+    // skip chroma_format(2), low_delay(1)
+    vol_vbv_is_detailed := b [3];
+    bit_count := bit_count + 4;
+  end
+
+  vol_control_nodetails: action bits:[b] repeat 3 ==>
+  do
+    // skip vol_shape(2), marker(1)
+    bit_count := bit_count + 3;
+  end
+
+  vol_vbv.detailed: action bits:[b] repeat 82 ==>
+  guard
+    vol_vbv_is_detailed = 1
+  do
+    // skip 1st_half_bit_rate(16), last_half_bit_rate(16)
+    // skip 1st_half_vbv_buf(16), last_half_vbv_buf(3)
+    // skip 1st_half_vbv_occ(12), last_half_vbv_occ(16)
+    // skip vol_shape(2), marker(1)
+    bit_count := bit_count + 82;
+  end
+
+  vol_vbv.nodetails: action bits:[b] repeat 3 ==>
+  do
+    // skip vol_shape(2), marker(1)
+    bit_count := bit_count + 3;
+  end
+
+  int mylog;
+  int vol_fixed_rate;
+
+  vol_time_inc: action bits:[b] repeat 18 ==>
+  var
+    int i = 0,
+    int count = 0,
+    int nbits = 0
+  do
+    while i < 16 do
+      if b[15-i] = 1 then
+        count := count + 1;
+        nbits := i;
+      end
+      i := i + 1;
+    end
+    mylog := if nbits = 0 then
+               1
+             else
+               if count > 1 then
+                 (nbits+1)
+               else
+                 nbits
+               end
+             end;
+    // skip marker(1)
+    vol_fixed_rate := b [17];
+    bit_count := bit_count + 18;
+  end
+
+  vop_rate.variable: action bits:[b] ==>
+  guard
+    vol_fixed_rate = 0
+  do
+    // skip marker(1)
+    bit_count := bit_count + 1;
+  end
+
+  vop_rate.fixed: action bits:[b] repeat mylog+1 ==>
+  do
+    // skip vop_time_inc(mylog), marker(1)
+    bit_count := bit_count + mylog + 1;
+  end
+
+  int vol_width;
+  int vol_height;
+
+  vol_size: action bits:[b] repeat 28 ==>
+  do
+    vol_width  := value( b, 9,  0 ); // divide by 16
+    vol_height := value( b, 9, 14 );
+    bit_count := bit_count + 28;
+    // println("VOL width = "+vol_width+", height = "+vol_height);
+  end
+
+  vol_misc_unsupported: action bits:[b] repeat 9 ==>
+  guard
+    b[0] = 1 or     // interlaced
+    b[2] = 1 or     // sprites
+    b[3] = 1 or     // not 8-bit pixels
+    b[4] = 1 or     // not using method 2 quantization
+    b[7] = 1 or     // data partitioning
+    b[8] = 1        // scalability
+  do
+    bit_count := bit_count + 9;
+    println("Unsupported VOL feature");
+  end
+
+  vol_misc_supported: action bits:[b] repeat 9 ==>
+  do
+    bit_count := bit_count + 9;
+  end
+
+/*************************************************************
+ *************************************************************
+ ********                  start VOP                  ********
+ *************************************************************
+ *************************************************************/
+
+  byte_align: action bits:[b] repeat n ==>
+  var
+    int n = 8 - bitand( bit_count, 7 )
+  do
+    // println("Byte align at bit_count = "+bit_count+", reading "+n+" bits");
+    bit_count := 0;
+  end
+
+  vop_code_done: action bits:[b] repeat VOP_START_CODE_LENGTH ==>
+  guard
+    value( b, VOP_START_CODE_LENGTH, 0 ) = 1
+  do
+    bit_count := 0;
+    println("End of VOL");
+  end
+
+  int mbx;
+  int mby;
+
+  vop_code_start: action bits:[b] repeat VOP_START_CODE_LENGTH ==>
+  guard
+    value( b, VOP_START_CODE_LENGTH, 0 ) = VOP_START_CODE
+  do
+    mbx     := 0;
+    mby     := 0;
+    bit_count := bit_count + VOP_START_CODE_LENGTH;
+  end
+
+  vop_code_other: action bits:[b] repeat VOP_START_CODE_LENGTH ==>
+  do
+    bit_count := bit_count + VOP_START_CODE_LENGTH;
+    println("Invalid VOP start code "+value(b, VOP_START_CODE_LENGTH, 0) );
+  end
+
+  int prediction_type;
+
+  vop_predict_bvop:  action bits:[b] repeat 2 ==>
+  guard
+    value( b, 2, 0 ) = B_VOP
+  do
+    bit_count := bit_count + 2;
+  end
+
+  // int time_base;
+
+  vop_predict_other:  action bits:[b] repeat 2 ==>
+  do
+    bit_count := bit_count + 2;
+    prediction_type := value( b, 2, 0 );
+    // time_base := 0;
+  end
+
+  vop_timebase_one: action bits:[b] ==>
+  guard
+    b = 1
+  do
+    bit_count := bit_count + 1;
+    // time_base := time_base + 1;
+  end
+
+  vop_timebase_zero:action bits:[b] repeat 2 ==>
+  do
+    bit_count := bit_count + 2;
+    // println("VOP timebase = "+time_base);
+  end
+
+  vop_time_inc: action bits:[b] repeat mylog+1 ==>
+  do
+    // println("Read "+mylog+" bits for vop time increment");
+    bit_count := bit_count + mylog + 1;
+  end
+ 
+  int comp;
+
+  vop_uncoded: action bits:[b] ==>
+  guard
+    b = 0
+  do
+    comp := 0;
+    bit_count := bit_count + 1;
+  end
+
+  int round_type;
+  int vop_quant;
+  int fcode;
+  int decode_type;
+  int resync_marker_length;
+  int mv_rsize;
+  int mv_range;
+  int mv_low;
+  int mv_high;
+
+  vop_coded.pvop: action bits:[b] repeat (8 + BITS_QUANT) ==>
+                      param:[ -1, vol_width, vol_height, -1 ],
+                      mv:[-1, vol_width, vol_height, round_type, 0, 0 ]
+  guard
+    prediction_type = P_VOP
+  do
+    decode_type := 1;
+    round_type := b[1];
+    vop_quant := value( b, BITS_QUANT, 5 );
+    fcode := value( b, 3, BITS_QUANT+5 );
+    mv_rsize := fcode - 1;
+    mv_range := lshift( 1, mv_rsize + 5 );
+    mv_low := - mv_range;
+    mv_high := mv_range - 1;
+    mv_range := lshift( mv_range, 1);
+    resync_marker_length := 16 + fcode;
+    bit_count := bit_count + (8 + BITS_QUANT);
+    // println("Found a P_VOP with quant = "+vop_quant+", fcode = "+fcode );
+  end
+
+  vop_coded.ivop: action bits:[b] repeat (4 + BITS_QUANT) ==>
+                      param:[ -1, vol_width, vol_height, -1 ],
+                      mv:[-1, vol_width, vol_height, round_type, 0, 0 ]
+  guard
+    prediction_type = I_VOP
+  do
+    decode_type := 0;
+    round_type := 0;
+    vop_quant := value( b, BITS_QUANT, 4 );
+    resync_marker_length := 17;
+    bit_count := bit_count + (4 + BITS_QUANT);
+    // println("Found an I_VOP with quant = "+vop_quant );
+  end
+
+/*************************************************************
+ *************************************************************
+ ********                  start MB                   ********
+ *************************************************************
+ *************************************************************/
+
+  int mcbpc;
+  int cbp;
+
+  // Motion vector line buffers
+  int mvindex := 0;
+  List[int] lb_x_y0  := initList( 0, 2 );
+  List[int] lb_x_y1  := initList( 0, 2 );
+  List[int] lb_x_y2  := initList( 0, MAXW_IN_MB + 1 );
+  List[int] lb_x_y3  := initList( 0, MAXW_IN_MB + 1 );
+  List[int] lb_y_y0  := initList( 0, 2 );
+  List[int] lb_y_y1  := initList( 0, 2 );
+  List[int] lb_y_y2  := initList( 0, MAXW_IN_MB + 1 );
+  List[int] lb_y_y3  := initList( 0, MAXW_IN_MB + 1 );
+  int mvx_uv;
+  int mvy_uv;
+
+  procedure next_mvindex()
+  begin
+    mvindex := mvindex + 1;
+    if mvindex > MAXW_IN_MB then
+      mvindex := 0;
+    end
+  end
+
+  function get_mvx( dx, dy, num )
+    var int index = mvindex + (dy* vol_width) + dx,
+        int i = if index < 0 then index + MAXW_IN_MB + 1 else index end,
+        int act_x = mbx + dx,
+        int act_y = mby + dy :
+    if act_x < 0 or act_x >= vol_width or act_y < 0 then 0 else
+      if num = 0 then lb_x_y0[ bitand( i, 1 ) ] else
+        if num = 1 then lb_x_y1[ bitand( i, 1 ) ] else
+          if num = 2 then lb_x_y2[ i ] else lb_x_y3 [ i ] end
+        end
+      end
+    end
+  end
+
+  procedure set_mvx( num, val )
+  begin
+    if num = 0 then lb_x_y0 [ bitand( mvindex, 1)] :=  val ; else
+      if num = 1 then lb_x_y1 [ bitand( mvindex, 1)] :=  val ; else
+        if num = 2 then lb_x_y2 [ mvindex] :=  val; else  lb_x_y3 [ mvindex] := val ; end
+      end
+    end
+  end
+
+  function get_mvy( dx, dy, num )
+    var int index = mvindex + (dy* vol_width) + dx,
+        int i = if index < 0 then index + MAXW_IN_MB + 1 else index end,
+        int act_x = mbx + dx,
+        int act_y = mby + dy :
+    if act_x < 0 or act_x >= vol_width or act_y < 0 then 0 else
+      if num = 0 then lb_y_y0 [ bitand( i, 1 ) ] else
+        if num = 1 then lb_y_y1 [ bitand( i, 1 ) ] else
+          if num = 2 then lb_y_y2 [ i ] else lb_y_y3 [ i ] end
+        end
+      end
+    end
+  end
+
+  procedure set_mvy( num, val )
+  begin
+    if num = 0 then lb_y_y0 [ bitand( mvindex, 1)] := val ; else
+      if num = 1 then lb_y_y1 [ bitand( mvindex, 1)] :=  val ; else
+        if num = 2 then lb_y_y2 [ mvindex ] :=  val ; else lb_y_y3 [ mvindex] :=  val ; end
+      end
+    end
+  end
+
+  function middle( a, b, c ) :
+    if a < b then
+      if a > c then
+        a
+      else
+        if b < c then b else c end
+      end
+    else
+      if b > c then b
+      else
+        if a < c then a else c end
+      end
+    end
+  end
+
+  procedure next_mbxy()
+  begin
+    mbx := mbx + 1;
+    if mbx = vol_width then
+      mbx := 0;
+      mby := mby + 1;
+    end
+  end
+
+  // Go look for next VOP
+  mb_done: action ==>
+  guard
+    mby = vol_height
+  end;
+
+  // Nothing to do - uncoded
+  mcbpc_pvop_uncoded: action bits:[b] ==>
+      mv:[ 0, old mbx, old mby, 0, 0, 0,
+           0, old mbx, old mby, 1, 0, 0,
+           0, old mbx, old mby, 2, 0, 0,
+           0, old mbx, old mby, 3, 0, 0,
+           0, old mbx, old mby, 4, 0, 0,
+           0, old mbx, old mby, 5, 0, 0 ]
+  guard
+    prediction_type = P_VOP,
+    b = 1
+  do
+    next_mbxy();
+    set_mvx( 0, 0 );
+    set_mvx( 1, 0 );
+    set_mvx( 2, 0 );
+    set_mvx( 3, 0 );
+    mvx_uv := 0;
+    set_mvy( 0, 0 );
+    set_mvy( 1, 0 );
+    set_mvy( 2, 0 );
+    set_mvy( 3, 0 );
+    mvy_uv := 0;
+    next_mvindex();
+    // println("Found an uncoded PVOP mb");
+    bit_count := bit_count + 1;
+  end
+
+  // 1xxxxx   3
+  mcbpc.ivop.b1: action bits:[b] ==>
+  guard
+    prediction_type = I_VOP,
+    b = 1
+  do
+    mcbpc := 3;
+    bit_count := bit_count + 1;
+    // println("IVOP with 1 bit mcbpc = "+mcbpc);
+  end
+
+  //  001xxx  19
+  //  010xxx  35
+  //  011xxx  51
+  mcbpc.ivop.b3: action bits:[b] repeat 3 ==>
+  guard
+    prediction_type = I_VOP,
+    b [1] = 1 or b [2] = 1
+  do
+    mcbpc := if b[1] = 0 then 19 else
+               if b[2] = 0 then 35 else 51 end
+             end;
+    bit_count := bit_count + 3;
+    // println("IVOP with 3 bit mcbpc = "+mcbpc);
+  end
+
+  //  0001xx   4
+  ivop.b4: action bits:[b] repeat 4 ==>
+  guard
+    prediction_type = I_VOP,
+    b[3] = 1
+  do
+    mcbpc := 4;
+    bit_count := bit_count + 4;
+    // println("IVOP with 4 bit mcbpc = "+mcbpc);
+  end
+
+  //  000001  20
+  //  000010  36
+  //  000011  52
+  ivop.b6: action bits:[b] repeat 6 ==>
+  guard
+    prediction_type = I_VOP,
+    b[4] = 1 or b[5] = 1
+  do
+    mcbpc := if b[4] = 0 then 20 else
+               if b[5] = 0 then 36 else 52 end
+             end; 
+    bit_count := bit_count + 6;
+    // println("IVOP with 6 bit mcbpc = "+mcbpc);
+  end
+
+  // Note: all pvop actions consume a leading bit which is the
+  // "uncoded flag".
+
+  //  1xxxxxxxx     0
+  mcbpc.pvop.b1: action bits:[b] repeat 2 ==>
+  guard
+    prediction_type = P_VOP,
+    b[1] = 1
+  do
+    mcbpc := 0;
+    bit_count := bit_count + 2;
+    // println("PVOP with 1 bit mcbpc = "+mcbpc);
+  end
+
+  //  010xxxxxx     2
+  //  011xxxxxx     1
+  mcbpc.pvop.b3: action bits:[b] repeat 4 ==>
+  guard
+    prediction_type = P_VOP,
+    b[2] = 1
+  do
+    mcbpc := if b[3] = 0 then 2 else 1 end; 
+    bit_count := bit_count + 4;
+    // println("PVOP with 3 bit mcbpc = "+mcbpc);
+  end
+
+  //  0010xxxxx    32
+  //  0011xxxxx    16
+  mcbpc.pvop.b4: action bits:[b] repeat 5 ==>
+  guard
+    prediction_type = P_VOP,
+    b[3] = 1
+  do
+    mcbpc := if b[4] = 0 then 32 else 16 end; 
+    bit_count := bit_count + 5;
+    // println("PVOP with 4 bit mcbpc = "+mcbpc);
+  end
+
+  // 00011xxxx     3
+  mcbpc.pvop.b5: action bits:[b] repeat 6 ==>
+  guard
+    prediction_type = P_VOP,
+    b[4] = 1,
+    b[5] = 1
+  do
+    mcbpc := 3; 
+    bit_count := bit_count + 6;
+    // println("PVOP with 5 bit mcbpc = "+mcbpc);
+  end
+
+  //  000100xxx     4
+  //  000101xxx    48
+  mcbpc.pvop.b6: action bits:[b] repeat 7 ==>
+  guard
+    prediction_type = P_VOP,
+    b[4] = 1,
+    b[5] = 0
+  do
+    mcbpc := if b[6] = 0 then 4 else 48 end; 
+    bit_count := bit_count + 7;
+    // println("PVOP with 6 bit mcbpc = "+mcbpc);
+  end
+
+  //  0000011xx    51
+  //  0000100xx    34
+  //  0000101xx    18
+  //  0000110xx    33
+  //  0000111xx    17
+  mcbpc.pvop.b7: action bits:[b] repeat 8 ==>
+  guard
+    prediction_type = P_VOP,
+    b[5] = 1 or ( b[6] = 1 and b[7] = 1 )
+  do
+    mcbpc := if b[5] = 0 then 51 else
+               if b[6] = 0 then
+                 if b[7] = 0 then 34 else 18 end
+               else
+                 if b[7] = 0 then 33 else 17 end
+               end
+             end; 
+    bit_count := bit_count + 8;
+    // println("PVOP with 7 bit mcbpc = "+mcbpc);
+  end
+
+  //  00000011x    35    8 bits
+  //  00000100x    19
+  //  00000101x    50
+  mcbpc.pvop.b8: action bits:[b] repeat 9 ==>
+  guard
+    prediction_type = P_VOP,
+    b[6] = 1 or (b[7] = 1 and b[8] = 1)
+  do
+    mcbpc := if b[6] = 0 then 35 else
+               if b[8] = 0 then 19 else 50 end
+             end;
+    bit_count := bit_count + 9;
+    // println("PVOP with 8 bit mcbpc = "+mcbpc);
+  end
+
+  //  000000001   255
+  //  000000010    52
+  //  000000011    36
+  //  000000100    20
+  //  000000101    49
+  mcbpc.pvop.b9: action bits:[b] repeat 10 ==>
+  guard
+    prediction_type = P_VOP,
+    b[7] = 1 or b[8] = 1 or b[9] = 1
+  do
+    mcbpc := if b[7] = 0 then
+               if b[8] = 0 then 255 else
+                 if b[9] = 0 then 52 else 36 end
+               end
+             else
+               if b[9] = 0 then 20 else 49 end
+             end;
+    bit_count := bit_count + 10;
+    // println("PVOP with 9 bit mcbpc = "+mcbpc);
+  end
+
+  mcbpc_bad: action bits:[b] repeat MCBPC_LENGTH+1 ==>
+  do
+    bit_count := bit_count + MCBPC_LENGTH + 1;
+    println("Bad mcbpc in mb header"+value( b, MCBPC_LENGTH+1, 1) );
+  end
+
+  int acpredflag;
+  int btype;
+  int cbpc;
+  int fourmvflag;
+
+  get_mbtype.noac: action ==>
+  guard
+    type != 3,
+    type != 4
+  var
+    type = bitand( mcbpc, 7 )
+  do
+    btype := if type < 3 then INTER else INTRA end;
+    fourmvflag := if type = 2 then 1 else 0 end;
+    cbpc := bitand( rshift( mcbpc, 4 ), 3 );
+    acpredflag := 0;
+  end
+
+  get_mbtype.ac: action bits:[b] ==> 
+  do
+    btype := INTRA;
+    cbpc := bitand( rshift( mcbpc, 4 ), 3 );
+    acpredflag := b;
+    bit_count := bit_count + 1;
+  end
+  
+  int cbpy;
+
+  //  11xxxx    15
+  get_cbpy.b2: action bits:[b] repeat 2 ==>
+  guard
+    b[0] = 1,
+    b[1] = 1
+  do
+    cbpy := 15;
+    bit_count := bit_count + 2;
+  end
+
+  // 0011xx     0
+  // 0100xx    12
+  // 0101xx    10
+  // 0110xx    14
+  // 0111xx     5
+  // 1000xx    13
+  // 1001xx     3
+  // 1010xx    11
+  // 1011xx     7
+  get_cbpy.b4: action bits:[b] repeat 4 ==>
+  guard
+    b[0] = 1 or b[1] = 1 or (b[2] = 1 and b[3] = 1)
+  do
+    cbpy := if b[0] = 0 then
+              if b[1] = 0 then 0 else
+                if b[2] = 0 then
+                  if b[3] = 0 then 12 else 10 end
+                else
+                  if b[3] = 0 then 14 else 5 end
+                end
+              end
+            else
+              if b[2] = 0 then
+                if b[3] = 0 then 13 else 3 end
+              else
+                if b[3] = 0 then 11 else 7 end
+              end
+            end;
+    bit_count := bit_count + 4;
+  end
+
+  // 00010x     8
+  // 00011x     4
+  // 00100x     2
+  // 00101x     1
+  get_cbpy.b5: action bits:[b] repeat 5 ==>
+  guard
+    b[2] = 1 or b[3] = 1
+  do
+    cbpy := if b[2] = 0 then
+              if b[4] = 0 then 8 else 4 end
+            else
+              if b[4] = 0 then 2 else 1 end
+            end;
+    bit_count := bit_count + 5;
+  end
+
+  // 000010     6
+  // 000011     9
+  get_cbpy.b6: action bits:[b] repeat 6 ==>
+  guard
+     b[4] = 1
+  do
+    cbpy := if b[5] = 0 then 6 else 9 end;
+    bit_count := bit_count + 6;
+  end
+
+  bad_cbpy: action bits:[b] repeat 6 ==>
+  do
+    println("Bad CBPY code "+value( b, 6, 0) );
+    bit_count := bit_count + 6;
+  end
+
+  int mvcomp;
+  int ac_coded;
+
+  final_cbpy_inter: action ==>
+  guard
+    btype = INTER
+  do
+    comp := 0;
+    mvcomp := 0;
+    cbpy := 15 - cbpy;
+    cbp := bitor( lshift( cbpy, 2), cbpc );
+    // println( "inter CBPY is "+cbpy+", CBP is "+cbp);
+  end
+
+  final_cbpy_intra: action ==>
+  do
+    comp := 0;
+    mvcomp := 0;
+    cbp := bitor( lshift( cbpy, 2), cbpc );
+    // println( "intra CBPY is "+cbpy+", CBP is "+cbp);
+  end
+
+  mb_dispatch_done: action ==>
+  guard
+    comp = 6
+  do
+    next_mbxy();
+    next_mvindex();
+  end
+
+  mb_dispatch_intra: action ==> param:[ INTRA, mbx, mby, comp ],
+                                mv:[ 6, mbx, mby, comp, 0, 0 ]
+  guard
+    btype = INTRA
+  do
+    ac_coded := bitand( cbp, lshift( 1,  5 - comp));
+    if comp < 4 then
+      set_mvx( comp, 0 );
+      set_mvy( comp, 0 );
+    end
+  end
+
+  mb_dispatch_inter_no_ac: action ==>
+       mv:[ if mvx = 0 and mvy = 0 then 0 else 1 end, mbx, mby, old comp, mvx, mvy ]
+  guard
+    bitand( cbp, lshift( 1,  5 - comp)) = 0
+  var
+    int mvx = if comp < 4 then get_mvx(0, 0, comp) else mvx_uv end,
+    int mvy = if comp < 4 then get_mvy(0, 0, comp) else mvy_uv end
+  do
+    ac_coded := 0;
+    // println("Dispatch INTER no ac");
+    comp := comp + 1;
+  end
+
+  mb_dispatch_inter_ac_coded: action ==>
+       param:[ INTER, mbx, mby, comp ],
+       mv:[ 4, mbx, mby, comp, mvx, mvy ]
+  var
+    int mvx = if comp < 4 then get_mvx(0, 0, comp) else mvx_uv end,
+    int mvy = if comp < 4 then get_mvy(0, 0, comp) else mvy_uv end
+  do
+    ac_coded := 1;
+    // println("Dispatch INTER ac");
+  end
+
+/*************************************************************
+ *************************************************************
+ ********                start texture                ********
+ *************************************************************
+ *************************************************************/
+
+  List[int] block;
+  int b_index;
+  int b_last;
+
+  vld_start_intra: action ==>
+  guard
+    prediction_type = I_VOP 
+  do
+    block := initList( 0, 64 );
+    b_index   := 0;
+    b_last := 0;
+  end
+
+  vld_start_inter: action ==>
+  do
+    block := initList( 0, 64 );
+    b_index   := 0;
+    b_last := 0;
+  end
+
+  int dcbits;
+
+  /* Code for number of DC bits
+                          Y      UV
+     000000000000        err    err
+     000000000001        err     12
+     00000000001x         12     11
+     0000000001xx         11     10
+     000000001xxx         10      9
+     00000001xxxx          9      8
+     0000001xxxxx          8      7
+     000001xxxxxx          7      6
+     00001xxxxxxx          6      5
+     0001xxxxxxxx          5      4
+     001xxxxxxxxx          4      3
+     010xxxxxxxxx          3        \   2
+     011xxxxxxxxx          0        /   2
+     10xxxxxxxxxx          2      1
+     11xxxxxxxxxx          1      0          */
+
+  dcbits.b2: action bits:[b] repeat 2 ==>
+  guard
+    b[0] = 1 or (b[1] = 1 and comp > 3 )
+  do
+    dcbits := if comp < 4 then
+                if b[1] = 0 then 2 else 1 end
+              else
+                if b[0] = 0 then 2 else
+                  if b[1] = 0 then 1 else 0 end
+                end
+              end;
+    bit_count := bit_count + 2;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits.b3: action bits:[b] repeat 3 ==>
+  guard
+    b[1] = 1 or b[2] = 1
+  do
+    dcbits := if comp > 3 then 3 else
+                if b[1] = 0 then 4 else
+                  if b[2] = 0 then 3 else 0 end
+                end
+              end;
+    bit_count := bit_count + 3;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits.b4: action bits:[b] repeat 4 ==>
+  guard
+    b[3] = 1
+  do
+    dcbits := if comp > 3 then 4 else 5 end;
+    bit_count := bit_count + 4;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits.b5: action bits:[b] repeat 5 ==>
+  guard
+    b[4] = 1
+  do
+    dcbits := if comp > 3 then 5 else 6 end;
+    bit_count := bit_count + 5;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits.b6: action bits:[b] repeat 6 ==>
+  guard
+    b[5] = 1
+  do
+    dcbits := if comp > 3 then 6 else 7 end;
+    bit_count := bit_count + 6;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits.b7: action bits:[b] repeat 7 ==>
+  guard
+    b[6] = 1
+  do
+    dcbits := if comp > 3 then 7 else 8 end;
+    bit_count := bit_count + 7;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits.b8: action bits:[b] repeat 8 ==>
+  guard
+    b[7] = 1
+  do
+    dcbits := if comp > 3 then 8 else 9 end;
+    bit_count := bit_count + 8;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits.b9: action bits:[b] repeat 9 ==>
+  guard
+    b[8] = 1
+  do
+    dcbits := if comp > 3 then 9 else 10 end;
+    bit_count := bit_count + 9;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits.b10: action bits:[b] repeat 10 ==>
+  guard
+    b[9] = 1
+  do
+    dcbits := if comp > 3 then 10 else 11 end;
+    bit_count := bit_count + 10;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits.b11: action bits:[b] repeat 11 ==>
+  guard
+    b[10] = 1
+  do
+    dcbits := if comp > 3 then 11 else 12 end;
+    bit_count := bit_count + 11;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits.b12: action bits:[b] repeat 12 ==>
+  guard
+    b[11] = 1,
+    comp > 3
+  do
+    dcbits := 12;
+    bit_count := bit_count + 12;
+    // println("comp "+comp+" dc bits = "+dcbits);
+  end
+
+  dcbits_bad: action bits:[b] repeat 12 ==>
+  do
+    bit_count := bit_count + 12;
+    println("bad DC bit count");
+  end
+
+  get_dc.none: action ==>
+  guard
+    dcbits = 0
+  do
+   //  println( "DC = 0");
+   b_index := 1;
+  end
+
+  get_dc.small: action bits:[b] repeat dcbits ==>
+  guard
+    dcbits <=8
+  var
+    v = value( b, dcbits, 0 )
+  do
+    if b[0] = 0 then
+      v := v + 1 - lshift( 1, dcbits);
+    end;
+    block[ 0] :=  v;
+    b_index := 1;
+    // println( "DC = "+v);
+    bit_count := bit_count + dcbits;
+  end
+
+  get_dc.large: action bits:[b] repeat dcbits+1 ==>
+  var
+    v = value( b, dcbits, 0 )
+  do
+    if b[0] = 0 then
+      v := v + 1 - lshift( 1, dcbits);
+    end;
+    block[0] := v;
+    b_index := 1;
+    // println( "DC = "+v);
+    // skip marker(1)
+    bit_count := bit_count + dcbits + 1;
+  end
+
+  block_done: action ==> b:[block], flags:[ acpredflag, vop_quant, scaler ]
+  guard
+    b_index = 64 or b_last = 1 or ac_coded = 0
+  var
+    int scaler = dc_scaler( vop_quant, btype, comp)
+  do
+    /* if ac_coded = 0 then
+      println("block "+comp+" was not AC coded");
+    else
+      println("block "+comp+" done");
+    end */
+    // println(block);
+    comp := comp + 1;
+  end
+
+  // Used to look up value in ivop, pvop ROMs
+  int vld_index;
+ 
+  /* 2-bit codes 
+  10xxxxxxxxxx       1       1       0 */
+  vld_code.b2: action bits:[b] repeat 2 ==>
+  guard
+    b[0] = 1,
+    b[1] = 0
+  do
+    vld_index := 0;
+    bit_count := bit_count + 2;
+  end
+
+  /* 3-bit codes 
+  110xxxxxxxxx       2      17       1 */
+  vld_code.b3: action bits:[b] repeat 3 ==>
+  guard
+    b[0] = 1,
+    b[1] = 1,
+    b[2] = 0
+  do
+    vld_index := 1;
+    bit_count := bit_count + 3;
+  end
+
+  /* 4-bit codes 
+  0111xxxxxxxx   65537    4097       2
+  1110xxxxxxxx     257      33       3
+  1111xxxxxxxx       3       2       4 */
+  vld_code.b4: action bits:[b] repeat 4 ==>
+  guard
+    v = 7 or v = 14 or v = 15
+  var
+    v = value( b, 4, 0 )
+  do
+    vld_index := if b[0] = 0 then 2 else
+                   if b[3] = 0 then 3 else 4 end
+                 end;
+    bit_count := bit_count + 4;
+  end
+
+  /* 5-bit codes 
+  01011xxxxxxx     513      81       5
+  01100xxxxxxx       5      65       6
+  01101xxxxxxx       4      49       7 */
+  vld_code.b5: action bits:[b] repeat 5 ==>
+  guard
+    v = 11 or v = 12 or v = 13
+  var
+    v = value( b, 5, 0 )
+  do
+    vld_index := if b[2] = 0 then 5 else
+                   if b[4] = 0 then 6 else 7 end
+                 end;
+    bit_count := bit_count + 5;
+  end
+
+  /* 6-bit codes 
+  001100xxxxxx   65538    4161       8
+  001101xxxxxx    1281    4145       9
+  001110xxxxxx   66049    4129      10
+  001111xxxxxx   65793    4113      11
+  010000xxxxxx    1025     145      12
+  010001xxxxxx     769     129      13
+  010010xxxxxx       8     113      14
+  010011xxxxxx       7      97      15
+  010100xxxxxx     258      18      16
+  010101xxxxxx       6       3      17 */
+  vld_code.b6: action bits:[b] repeat 6 ==>
+  guard
+    v >= 12 and v <= 21
+  var
+    v = value( b, 6, 0 )
+  do
+    vld_index := v - 4;
+    bit_count := bit_count + 6;
+  end
+
+  /* 7-bit codes 
+  0000011xxxxx    7167    7167      18
+  0010000xxxxx   66561    4225      19
+  0010001xxxxx   66305    4209      20
+  0010010xxxxx    1537    4193      21
+  0010011xxxxx   66817    4177      22
+  0010100xxxxx    1793     193      23
+  0010101xxxxx     514     177      24
+  0010110xxxxx     259     161      25
+  0010111xxxxx       9       4      26 */
+  vld_code.b7: action bits:[b] repeat 7 ==>
+  guard
+    v = 3 or (v >= 16 and v <= 23)
+  var
+    v = value( b, 7, 0 )
+  do
+    vld_index := if v = 3 then 18 else
+                   v + 3
+                 end;
+    bit_count := bit_count + 7;
+  end
+
+  /* 8-bit codes 
+  00010011xxxx   67585    4353      27
+  00010100xxxx   67329    4337      28
+  00010101xxxx   67073    4321      29
+  00010110xxxx   65539    4305      30
+  00010111xxxx    2561    4289      31
+  00011000xxxx    2305    4273      32
+  00011001xxxx    2049    4257      33
+  00011010xxxx   67841    4241      34
+  00011011xxxx     770     225      35
+  00011100xxxx     260     209      36
+  00011101xxxx      12      34      37
+  00011110xxxx      11      19      38
+  00011111xxxx      10       5      39 */
+  vld_code.b8: action bits:[b] repeat 8 ==>
+  guard
+    v >= 19 and v <= 31
+  var
+    v = value( b, 8, 0 )
+  do
+    vld_index := v + 8;
+    bit_count := bit_count + 8;
+  end
+
+  /* 9-bit codes  
+  000010001xxx   69121    4481      40
+  000010010xxx   68865    4465      41
+  000010011xxx   68609    4449      42
+  000010100xxx   68353    4433      43
+  000010101xxx   68097    4417      44
+  000010110xxx   65794    4401      45
+  000010111xxx   65540    4385      46
+  000011000xxx    3073    4369      47
+  000011001xxx    2817    4098      48
+  000011010xxx    1794     353      49
+  000011011xxx    1538     337      50
+  000011100xxx    1282     321      51
+  000011101xxx     771     305      52
+  000011110xxx     515     289      53
+  000011111xxx     262     273      54
+  000100000xxx     261     257      55
+  000100001xxx      16     241      56
+  000100010xxx    1026      66      57
+  000100011xxx      15      50      58
+  000100100xxx      14       7      59
+  000100101xxx      13       6      60 */
+  vld_code.b9: action bits:[b] repeat 9 ==>
+  guard
+    v >= 17 and v <= 37
+  var
+    v = value( b, 9, 0 )
+  do
+    vld_index := v + 23;
+    bit_count := bit_count + 9;
+  end
+
+  /* 10-bit codes 
+  0000000100xx   66050    4545      61
+  0000000101xx   65795    4529      62
+  0000000110xx   65541    4513      63
+  0000000111xx    3329    4497      64
+  0000001000xx    1283     146      65
+  0000001001xx    2050     130      66
+  0000001010xx    1027     114      67
+  0000001011xx     772      98      68
+  0000001100xx     516      82      69
+  0000001101xx     263      51      70
+  0000001110xx      20      35      71
+  0000001111xx      19      20      72
+  0000100000xx      18       9      73
+  0000100001xx      17       8      74 */
+  vld_code.b10: action bits:[b] repeat 10 ==>
+  guard
+    (v >= 4 and v <= 15) or v = 32 or v = 33
+  var
+    v = value( b, 10, 0 )
+  do
+    vld_index := if b[4] = 0 then v + 57 else
+                   if b[9] = 0 then 73 else 74 end
+                 end;
+    bit_count := bit_count + 10;
+  end
+
+  /* 11-bit codes 
+  00000000100x   65543    4114      75
+  00000000101x   65542    4099      76
+  00000000110x      22      11      77
+  00000000111x      21      10      78
+  00000100000x      23      12      79
+  00000100001x      24      21      80
+  00000100010x     264     369      81
+  00000100011x    2306     385      82
+  00000100100x   66306    4561      83
+  00000100101x   66562    4577      84
+  00000100110x   69377    4593      85
+  00000100111x   69633    4609      86 */
+  vld_code.b11: action bits:[b] repeat 11 ==>
+  guard
+    (v >= 4 and v <= 7) or (v >= 32 and v <= 39)
+  var
+    v = value( b, 11, 0 )
+  do
+    vld_index := v + if b[5] = 0 then
+                       71
+                     else
+                       47
+                     end;
+    bit_count := bit_count + 11;
+  end
+
+  /* 12-bit codes 
+  000001010000      25      22      87
+  000001010001      26      36      88
+  000001010010      27      67      89
+  000001010011     265      83      90
+  000001010100    1539      99      91
+  000001010101     266     162      92
+  000001010110     517     401      93
+  000001010111    1795     417      94
+  000001011000    3585    4625      95
+  000001011001   65544    4641      96
+  000001011010   66818    4657      97
+  000001011011   67074    4673      98
+  000001011100   69889    4689      99
+  000001011101   70145    4705     100
+  000001011110   70401    4721     101
+  000001011111   70657    4737     102 */
+  vld_code.b12: action bits:[b] repeat 12 ==>
+  guard
+    v >= 80 and v <= 95
+  var
+    v = value( b, 12, 0 )
+  do
+    vld_index := v + 7;
+    bit_count := bit_count + 12;
+  end
+
+  vld_code_bad: action bits:[b] repeat 12 ==>
+  do
+    println("Invalid vld_code "+value( b, 12, 0 ));
+    bit_count := bit_count + 12;
+  end
+
+  List[int] intra_lookup =
+  [      1,     2, 65537,   257,     3,   513,     5,     4, 65538,  1281,
+     66049, 65793,  1025,   769,     8,     7,   258,     6,  7167, 66561,
+     66305,  1537, 66817,  1793,   514,   259,     9, 67585, 67329, 67073,
+     65539,  2561,  2305,  2049, 67841,   770,   260,    12,    11,    10,
+     69121, 68865, 68609, 68353, 68097, 65794, 65540,  3073,  2817,  1794,
+      1538,  1282,   771,   515,   262,   261,    16,  1026,    15,    14,
+        13, 66050, 65795, 65541,  3329,  1283,  2050,  1027,   772,   516,
+       263,    20,    19,    18,    17, 65543, 65542,    22,    21,    23,
+        24,   264,  2306, 66306, 66562, 69377, 69633,    25,    26,    27,
+       265,  1539,   266,   517,  1795,  3585, 65544, 66818, 67074, 69889,
+     70145, 70401, 70657 ];
+ 
+  List[int] inter_lookup =
+  [      1,    17,  4097,    33,     2,    81,    65,    49,  4161,  4145,
+      4129,  4113,   145,   129,   113,    97,    18,     3,  7167,  4225,
+      4209,  4193,  4177,   193,   177,   161,     4,  4353,  4337,  4321,
+      4305,  4289,  4273,  4257,  4241,   225,   209,    34,    19,     5,
+      4481,  4465,  4449,  4433,  4417,  4401,  4385,  4369,  4098,   353,
+       337,   321,   305,   289,   273,   257,   241,    66,    50,     7,
+         6,  4545,  4529,  4513,  4497,   146,   130,   114,    98,    82,
+        51,    35,    20,     9,     8,  4114,  4099,    11,    10,    12,
+        21,   369,   385,  4561,  4577,  4593,  4609,    22,    36,    67,
+        83,    99,   162,   401,   417,  4625,  4641,  4657,  4673,  4689,
+      4705,  4721,  4737 ];
+
+  vld_code_lookup: action bits:[sign] ==>
+  guard
+    vld_index != 18
+  var
+    int val,
+    int run,
+    int level
+  do
+    if btype = INTRA then
+      val := intra_lookup[ vld_index ];
+      run   := bitand( rshift( val, 8), 255);
+      b_last  := bitand( rshift( val, 16), 1);
+      level := bitand( val, 255);
+    else
+      val := inter_lookup[ vld_index ];
+      run   := bitand( rshift( val, 4), 255);
+      b_last  := bitand( rshift( val, 12), 1);
+      level := bitand( val, 15);
+    end;
+    b_index := b_index + run;
+    block [b_index] :=  if sign = 1 then -level else level end ;
+    // if btype = INTER then println( "b("+mbx+","+mby+","+comp+","+b_index+") = "+block.get(b_index)+", run = "+run+", level = "+level+", last = "+b_last+"  : code lookup" ); end
+    b_index := b_index + 1;
+    bit_count := bit_count + 1;
+  end
+
+  vld_level: action bits:[level_offset] ==>
+  guard
+    level_offset = 0
+  do
+    bit_count := bit_count + 1;
+  end
+
+  function intra_max_level(last,run) :
+    if last = 0 then
+      if run = 0 then 27 else
+        if run = 1 then 10 else
+          if run = 2 then 5 else
+            if run = 3 then 4 else
+              if run < 8 then 3 else
+                if run < 10 then 2 else
+                  if run < 15 then 1 else 0 end
+                end
+              end
+            end
+          end
+        end
+      end
+    else
+      if run = 0 then 8 else
+        if run = 1 then 3 else
+          if run < 7 then 2 else
+            if run < 21 then 1 else 0 end
+          end
+        end
+      end
+    end
+  end
+
+  function inter_max_level(last,run) :
+    if last = 0 then
+      if run = 0 then 12 else
+        if run = 1 then 6 else
+          if run = 2 then 4 else
+            if run < 7 then 3 else
+              if run < 11 then 2 else
+                if run < 27 then 1 else 0 end
+              end
+            end
+          end
+        end
+      end
+    else
+      if run = 0 then 3 else
+        if run = 1 then 2 else
+          if run < 41 then 1 else 0 end
+        end
+      end
+    end
+  end
+
+  vld_level_lookup: action bits:[sign] ==>
+  var
+    int val,
+    int run,
+    int level
+
+  do
+    if btype = INTRA then
+      val := intra_lookup[ vld_index ];
+      run   := bitand( rshift( val, 8), 255);
+      b_last  := bitand( rshift( val, 16), 1);
+      level := bitand( val, 255) + intra_max_level(b_last,run);
+   else
+      val := inter_lookup[ vld_index ];
+      run   := bitand( rshift( val, 4), 255);
+      b_last  := bitand( rshift( val, 12), 1);
+      level := bitand( val, 15)+inter_max_level(b_last,run);
+    end;
+    b_index := b_index + run;
+    block [b_index] := if sign = 1 then -level else level end ;
+    // if btype = INTER then println( "b("+mbx+","+mby+","+comp+","+b_index+") = "+block.get(b_index)+", run = "+run+", level = "+level+", last = "+b_last+"  : level lookup" ); end
+    b_index := b_index + 1;
+    bit_count := bit_count + 1;
+  end
+
+  vld_run: action bits:[level_offset, run_offset] ==>
+  guard
+    run_offset = 0
+  do
+    bit_count := bit_count + 2;
+  end
+
+  function intra_max_run( last, level) :
+    if last = 0 then
+      if level = 1 then 14 else
+        if level = 2 then 9 else
+          if level = 3 then 7 else
+            if level = 4 then 3 else
+              if level = 5 then 2 else
+                if level < 11 then 1 else 0 end
+              end
+            end
+          end
+        end
+      end
+    else
+     if level = 1 then 20 else
+        if level = 2 then 6 else
+          if level = 3 then 1 else 0 end
+        end
+      end
+    end
+  end
+
+  function inter_max_run( last, level) :
+    if last = 0 then
+      if level = 1 then 26 else
+        if level = 2 then 10 else
+          if level = 3 then 6 else
+            if level = 4 then 2 else
+              if level = 5 or level = 6 then 1 else 0 end
+            end
+          end
+        end
+      end
+    else
+     if level = 1 then 40 else
+       if level = 2 then 1 else 0 end
+     end
+    end
+  end
+
+  vld_run_lookup: action bits:[sign] ==>
+  var
+    int val,
+    int run,
+    int level
+
+  do
+    if btype = INTRA then
+      val := intra_lookup[ vld_index ];
+      b_last  := bitand( rshift( val, 16), 1);
+      level := bitand( val, 255);
+      run   := bitand( rshift( val, 8), 255) + intra_max_run( b_last, level) + 1;
+
+   else
+      val := inter_lookup[ vld_index ];
+      b_last  := bitand( rshift( val, 12), 1);
+      level := bitand( val, 15);
+      run   := bitand( rshift( val, 4), 255) + inter_max_run( b_last, level) + 1;
+    end;
+    b_index := b_index + run;
+    block[ b_index] :=  if sign = 1 then -level else level end ;
+    // if btype = INTER then println( "b("+mbx+","+mby+","+comp+","+b_index+") = "+block.get(b_index)+", run = "+run+", level = "+level+", last = "+b_last+"  : run lookup" ); end
+    b_index := b_index + 1;
+    bit_count := bit_count + 1;
+  end
+
+  vld_direct_lookup: action bits:[b] repeat 23 ==>
+  var
+    int run,
+    int level,
+    int sign
+  do
+    // skip level_offset(1), run_offset(1)
+    b_last  := b[2];
+    run   := value( b, 6, 3 );
+    // skip marker(1)
+    level := value( b, 12, 10 );
+    // skip marker(1) 
+    if level >= 2048 then
+      sign  := 1;
+      level := 4096 - level;
+    else
+      sign := 0;
+    end
+    b_index := b_index + run;
+    block[ b_index ] := if sign = 1 then -level else level end ;
+    // if btype = INTER then println( "b("+mbx+","+mby+","+comp+","+b_index+") = "+block.get(b_index)+", run = "+run+", level = "+level+", last = "+b_last+"  : direct lookup" ); end
+    b_index := b_index + 1;
+    bit_count := bit_count + 23;
+  end
+
+/*************************************************************
+ *************************************************************
+ ********               Motion Decode                 ********
+ *************************************************************
+ *************************************************************/
+
+  int mvval;
+
+  function uvclip_1( v )
+  var int vv = rshift( v, 1 ) :
+    bitor( vv, if bitand( v, 3 ) = 0 then 0 else 1 end )
+  end
+
+  function uvclip_4( y0, y1, y2, y3 )
+  var int v = y0 + y1 + y2 + y3,
+      int sign = if v < 0 then 1 else 0 end,
+      int absv = if sign = 0 then v else -v end,
+      int delta = if v < 3 then 0 else if v > 13 then 2 else 1 end end,
+      int vv = lshift( rshift( absv, 4), 1 ) + delta :
+    if sign = 0 then vv else -vv end
+  end
+
+  mvcode_done: action ==>
+  guard
+    mvcomp = 4 or (mvcomp = 1 and fourmvflag = 0 )
+  var
+    int v
+  do
+    if fourmvflag = 0 then
+      // copy the motion vectors
+      v := get_mvx( 0, 0, 0 );
+      set_mvx( 1, v );
+      set_mvx( 2, v );
+      set_mvx( 3, v );
+      mvx_uv := uvclip_1( v );
+      v := get_mvy( 0, 0, 0 );
+      set_mvy( 1, v );
+      set_mvy( 2, v );
+      set_mvy( 3, v );
+      mvy_uv := uvclip_1( v );
+    else
+      // Just compute the u,v vectors
+      mvx_uv := uvclip_4 ( get_mvx( 0, 0, 0 ), get_mvx( 0, 0, 1 ),
+                           get_mvx( 0, 0, 2 ), get_mvx( 0, 0, 3 ) );
+      mvy_uv := uvclip_4 ( get_mvy( 0, 0, 0 ), get_mvy( 0, 0, 1 ),
+                           get_mvy( 0, 0, 2 ), get_mvy( 0, 0, 3 ) );
+    end
+    // println("uv("+mbx+","+mby+") mv = ("+mvx_uv+","+mvy_uv+")");
+  end
+
+  mvcode.b1: action bits:[b] ==>
+  guard
+    b = 1
+  do
+    mvval := 0;
+    // println("Got 1-bit mv["+mvcomp+"] "+mvval);
+    bit_count := bit_count + 1;
+  end
+
+  // Note - all of the following swallow a leading zero bit
+
+  // 10xxxxxxxxxx       1       0
+  // 11xxxxxxxxxx      -1       1
+  mvcode.b2: action bits:[b] repeat 3 ==>
+  guard
+    b[1] = 1
+  do
+    mvval := if b[2] = 0 then 1 else -1 end;
+    if mbx = 10 and mby = 1 then println("Got 2-bit mv["+mvcomp+"] "+mvval); end
+    bit_count := bit_count + 3;
+  end
+
+  // 010xxxxxxxxx       2       2
+  // 011xxxxxxxxx      -2       3
+  mvcode.b3: action bits:[b] repeat 4 ==>
+  guard
+    b[2] = 1
+  do
+    mvval := if b[3] = 0 then 2 else -2 end;
+    // println("Got 3-bit mv["+mvcomp+"] "+mvval);
+    bit_count := bit_count + 4;
+  end
+
+  // 0010xxxxxxxx       3       4
+  // 0011xxxxxxxx      -3       5
+  mvcode.b4: action bits:[b] repeat 5 ==>
+  guard
+    b[3] = 1
+  do
+    mvval := if b[4] = 0 then 3 else -3 end;
+    // println("Got 4-bit mv["+mvcomp+"] "+mvval);
+   bit_count := bit_count + 5;
+  end
+
+  // 000110xxxxxx       4       6
+  // 000111xxxxxx      -4       7
+  mvcode.b6: action bits:[b] repeat 7 ==>
+  guard
+    b[4] = 1,
+    b[5] = 1
+  do
+    mvval := if b[6] = 0 then 4 else -4 end;
+    // if mbx = 10 and mby = 1 then println("Got 6-bit mv["+mvcomp+"] "+mvval); end
+    bit_count := bit_count + 7;
+  end
+
+  // 0000110xxxxx       7       8
+  // 0000111xxxxx      -7       9
+  // 0001000xxxxx       6      10
+  // 0001001xxxxx      -6      11
+  // 0001010xxxxx       5      12
+  // 0001011xxxxx      -5      13
+  mvcode.b7: action bits:[b] repeat 8 ==>
+  guard
+    v = 3 or b[4] = 1
+  var
+    int v = value( b, 3, 4)
+  do
+    mvval := 10 - v;
+    if b[7] = 1 then
+      mvval := - mvval;
+    end
+    // println("Got 7-bit mv["+mvcomp+"] "+mvval);
+    bit_count := bit_count + 8;
+  end
+
+  // 000010010xxx      10      14
+  // 000010011xxx     -10      15
+  // 000010100xxx       9      16
+  // 000010101xxx      -9      17
+  // 000010110xxx       8      18
+  // 000010111xxx      -8      19
+  mvcode.b9: action bits:[b] repeat 10 ==>
+  guard
+    v = 5 or v = 6 or v = 7
+  var
+    int v = value( b, 5, 4)
+  do
+    mvval := 15 - v;
+    if b[9] = 1 then
+      mvval := - mvval;
+    end
+    // println("Got 9-bit mv["+mvcomp+"] "+mvval);
+    bit_count := bit_count + 10;
+  end
+
+  /* 0000001000xx      24      20
+     0000001001xx     -24      21
+     0000001010xx      23      22
+     0000001011xx     -23      23
+     0000001100xx      22      24
+     0000001101xx     -22      25
+     0000001110xx      21      26
+     0000001111xx     -21      27
+     0000010000xx      20      28
+     0000010001xx     -20      29
+     0000010010xx      19      30
+     0000010011xx     -19      31
+     0000010100xx      18      32
+     0000010101xx     -18      33
+     0000010110xx      17      34
+     0000010111xx     -17      35
+     0000011000xx      16      36
+     0000011001xx     -16      37
+     0000011010xx      15      38
+     0000011011xx     -15      39
+     0000011100xx      14      40
+     0000011101xx     -14      41
+     0000011110xx      13      42
+     0000011111xx     -13      43
+     0000100000xx      12      44
+     0000100001xx     -12      45
+     0000100010xx      11      46
+     0000100011xx     -11      47 */
+  mvcode.b10: action bits:[b] repeat 11 ==>
+  guard
+    v >= 4,
+    v <= 17
+  var
+    int v = value( b, 3, 7)
+  do
+    mvval := 28 - v;
+    if b[10] = 1 then
+      mvval := - mvval;
+    end
+    // println("Got 10-bit mv["+mvcomp+"] "+mvval);
+    bit_count := bit_count + 11;
+  end
+
+  /* 00000000100x      30      48
+     00000000101x     -30      49
+     00000000110x      29      50
+     00000000111x     -29      51
+     00000001000x      28      52
+     00000001001x     -28      53
+     00000001010x      27      54
+     00000001011x     -27      55
+     00000001100x      26      56
+     00000001101x     -26      57
+     00000001110x      25      58
+     00000001111x     -25      59 */
+  mvcode.b11: action bits:[b] repeat 12 ==>
+  guard
+    v >= 2,
+    v <= 7
+  var
+    int v = value( b, 7, 4)
+  do
+    mvval := 32 - v;
+    if b[11] = 1 then
+      mvval := - mvval;
+    end
+    // println("Got 11-bit mv["+mvcomp+"] "+mvval);
+    bit_count := bit_count + 12;
+  end
+
+  /* 000000000100      32      60
+     000000000101     -32      61
+     000000000110      31      62
+     000000000111     -31      63 */
+  mvcode.b12: action bits:[b] repeat 13 ==>
+  guard
+    v = 2 or v = 3
+  var
+    int v = value( b, 3, 9)
+  do
+    mvval := 34 - v;
+    if b[12] = 1 then
+      mvval := - mvval;
+    end
+    // println("Got 12-bit mv["+mvcomp+"] "+mvval);
+    bit_count := bit_count + 13;
+  end
+
+  mvcode.bad: action bits:[b] repeat 13 ==>
+  do
+    println("Bad MV code "+value(b,12,1));
+    bit_count := bit_count + 13;
+  end
+
+  int mag_x;
+  int mag_y;
+  int res_x;
+  int res_y;
+
+  get_residual_x.none: action ==>
+  guard
+    fcode <= 1 or mvval = 0
+  do
+    mag_x := mvval;
+    res_x := 0;
+    // println( "mv x mag = "+mag_x+", res = "+res_x+" in x residual.none");
+  end
+
+  get_residual_x.some: action bits:[b] repeat fcode ==>
+  do
+    mag_x := mvval;
+    res_x := value( b, fcode, 0);
+    // println( "mv x mag = "+mag_x+", res = "+res_x+" in x residual.some");
+    bit_count := bit_count + fcode;
+  end
+
+  get_residual_y.none: action ==>
+  guard
+    fcode <= 1 or mvval = 0
+  do
+    mag_y := mvval;
+    res_y := 0;
+/* if mbx = 6 and mby = 1 and mvcomp = 0 then
+     println( "mv y mag = "+mag_y+", res = "+res_y);
+end */
+  end
+
+  get_residual_y.some: action bits:[b] repeat fcode-1 ==>
+  do
+    mag_y := mvval;
+    res_y := value( b, fcode-1, 0);
+/* if mbx = 6 and mby = 1 and mvcomp = 0 then
+     println( "mv y mag = "+mag_y+", res = "+res_y);
+end */
+    bit_count := bit_count + fcode - 1;
+  end
+
+  int mvpred_x;
+  int mvpred_y;
+
+  // When at least 2 of the prediction blocks are out of frame,
+  // take the value of the one that's available (or zero if none)
+  mvpred.y0.cornercase: action ==>
+  guard
+    mvcomp = 0,
+    mby = 0
+  do
+    mvpred_x := get_mvx( -1,  0, 1 );
+    mvpred_y := get_mvy( -1,  0, 1 );
+  end
+
+  mvpred.y0.other: action ==>
+  guard
+    mvcomp = 0
+  do
+    mvpred_x := middle( get_mvx( -1,  0, 1 ),
+                        get_mvx(  0, -1, 2 ),
+                        get_mvx(  1, -1, 3 ) );
+    mvpred_y := middle( get_mvy( -1,  0, 1 ),
+                        get_mvy(  0, -1, 2 ),
+                        get_mvy(  1, -1, 3 ) );
+  end
+
+  // When two or more prediction points are out of frame,
+  // use the third one (it may be out of frame too)
+  mvpred.y1.cornercase: action ==>
+  guard
+    mvcomp = 1,
+    mby = 0
+  do
+    mvpred_x := get_mvx( 0, 0, 0 );
+    mvpred_y := get_mvy( 0, 0, 0 );
+  end
+
+  mvpred.y1.other: action ==>
+  guard
+    mvcomp = 1
+  do
+    mvpred_x := middle( get_mvx( 0,  0, 0 ),
+                        get_mvx( 0, -1, 3 ),
+                        get_mvx( 1, -1, 2 ) );
+    mvpred_y := middle( get_mvy( 0,  0, 0 ),
+                        get_mvy( 0, -1, 3 ),
+                        get_mvy( 1, -1, 2 ) );
+  end
+
+  mvpred.y2: action ==>
+  guard
+    mvcomp = 2
+  do
+    mvpred_x := middle( get_mvx( -1, 0, 3 ),
+                        get_mvx(  0, 0, 0 ),
+                        get_mvx(  0, 0, 1 ) );
+    mvpred_y := middle( get_mvy( -1, 0, 3 ),
+                        get_mvy(  0, 0, 0 ),
+                        get_mvy(  0, 0, 1 ) );
+  end
+
+  mvpred.y3: action ==>
+  do
+    mvpred_x := middle( get_mvx( 0, 0, 2 ),
+                        get_mvx( 0, 0, 1 ),
+                        get_mvx( 0, 0, 3 ) );
+    mvpred_y := middle( get_mvy( 0, 0, 2 ),
+                        get_mvy( 0, 0, 1 ),
+                        get_mvy( 0, 0, 3 ) );
+  end
+
+  function mvclip( v ) :
+    if v < mv_low then
+      v + mv_range
+    else
+      if v > mv_high then
+        v - mv_range
+      else
+        v
+      end
+    end
+  end
+
+  function mvcalc( pred, mag, res ) :
+    mvclip (  pred + if mv_rsize = 0 or mag = 0 then mag else
+                       if mag < 0 then
+                         -( lshift( (-mag)-1, mv_rsize ) + res + 1 )
+                       else
+                         lshift( mag-1, mv_rsize ) + res + 1
+                       end
+                     end
+           )
+  end
+
+  mvcompute: action ==>
+  var
+    int val
+  do
+    val := mvcalc( mvpred_x, mag_x, res_x );
+    set_mvx( mvcomp, val );
+    // if mbx = 10 and mby = 1 then println( "mv("+mbx+","+mby+","+mvcomp+") x = "+val+", pred = "+mvpred_x+", mag = "+mag_x+", res = "+res_x); end
+    val := mvcalc( mvpred_y, mag_y, res_y );
+    set_mvy( mvcomp, val );
+    // if mbx = 10 and mby = 1 then println( "mv("+mbx+","+mby+","+mvcomp+") y = "+val+", pred = "+mvpred_y+", mag = "+mag_y+", res = "+res_y); end
+    mvcomp := mvcomp + 1;
+  end
+
+  schedule fsm vol :
+
+    // Start VOL
+    vol  ( vol_header_good            ) --> vol2;
+    vol  ( vol_header_bad             ) --> stuck;
+    vol2 ( vol_startcode_good         ) --> vol3;
+    vol2 ( vol_startcode_bad          ) --> stuck;
+    vol3 ( vol_id                     ) --> vol4;
+    vol4 ( vol_layer                  ) --> vol5;
+    vol5 ( vol_aspect                 ) --> vol6;
+    vol6 ( vol_control_detailed       ) --> vol7;
+    vol6 ( vol_control_nodetails      ) --> vol9;
+    vol7 ( vol_vbv                    ) --> vol9;
+    vol9 ( vol_time_inc               ) --> vol10;
+    vol10( vop_rate                   ) --> vol12;
+    vol12( vol_size                   ) --> vol14;
+    vol14( vol_misc_supported         ) --> vop;
+    vol14( vol_misc_unsupported       ) --> stuck;
+
+    // Start VOP
+    vop  ( byte_align                 ) --> vop2;
+    vop2 ( vop_code_done              ) --> vol;
+    vop2 ( vop_code_start             ) --> vop3;
+    vop2 ( vop_code_other             ) --> stuck;
+    vop3 ( vop_predict_bvop           ) --> stuck;
+    vop3 ( vop_predict_other          ) --> vop4;
+    vop4 ( vop_timebase_one           ) --> vop4;
+    vop4 ( vop_timebase_zero          ) --> vop5;
+    vop5 ( vop_time_inc               ) --> vop6;
+    vop6 ( vop_uncoded                ) --> vop;
+    vop6 ( vop_coded                  ) --> mb;
+
+    // Start MB
+    mb   ( mb_done                    ) --> vop;
+    mb   ( mcbpc_pvop_uncoded         ) --> mb;
+    mb   ( mcbpc                      ) --> mb2;
+    mb   ( mcbpc_bad                  ) --> stuck;
+
+    mb2  ( get_mbtype                 ) --> mb3;
+    mb3  ( get_cbpy                   ) --> mb4;
+    mb3  ( bad_cbpy                   ) --> stuck;
+    mb4  ( final_cbpy_intra           ) --> blk;
+    mb4  ( final_cbpy_inter           ) --> mv0;
+
+    // process all blocks in an MB
+    blk  ( mb_dispatch_done           ) --> mb;
+    blk  ( mb_dispatch_intra          ) --> tex;
+    blk  ( mb_dispatch_inter_ac_coded ) --> tex;
+    blk  ( mb_dispatch_inter_no_ac    ) --> blk;
+
+    // Start texture
+    tex  ( vld_start_intra            ) --> texdc;
+    tex  ( vld_start_inter            ) --> texac;
+    texdc( dcbits                     ) --> tex1;
+    texdc( dcbits_bad                 ) --> stuck;
+    tex1 ( get_dc                     ) --> texac;
+    texac( block_done                 ) --> blk;
+    texac( vld_code                   ) --> vld;
+    texac( vld_code_bad               ) --> stuck;
+    vld  ( vld_code_lookup            ) --> texac;
+    vld  ( vld_level                  ) --> vld3;
+    vld  ( vld_run                    ) --> vld5;
+    vld  ( vld_direct_lookup          ) --> texac;
+    vld3 ( vld_code                   ) --> vld4;
+    vld3 ( vld_code_bad               ) --> stuck;
+    vld4 ( vld_level_lookup           ) --> texac;
+    vld5 ( vld_code                   ) --> vld6;
+    vld5 ( vld_code_bad               ) --> stuck;
+    vld6 ( vld_run_lookup             ) --> texac;
+
+    // mv()
+    mv0  ( mvcode_done                ) --> blk;
+    mv0  ( mvcode                     ) --> mv1;
+    mv1  ( get_residual_x             ) --> mv2;
+    mv2  ( mvcode                     ) --> mv3;
+    mv3  ( get_residual_y             ) --> mv4;
+    mv4  ( mvpred                     ) --> mv5;
+    mv5  ( mvcompute                  ) --> mv0;
+
+  end
+
+  priority
+    vol_header_good      > vol_header_bad;
+    vol_start_code_good  > vol_start_code_bad;
+    vol_layer.detailed   > vol_layer.nodetails;
+    vol_aspect.detailed  > vol_aspect.nodetails;
+    vol_control_detailed > vol_control_nodetails;
+    vol_vbv.detailed     > vol_vbv.nodetails;
+    vop_rate.variable    > vop_rate.fixed;
+    vol_misc_unsupported > vol_misc_supported;
+    vop_code_done        > vop_code_other;
+    vop_code_start       > vop_code_other;
+    vop_predict_bvop     > vop_predict_other;
+    vop_timebase_one     > vop_timebase_zero;
+    vop_uncoded          > vop_coded;
+
+    mb_done > mcbpc_pvop_uncoded > mcbpc > mcbpc_bad;
+    mcbpc.ivop.b1 > mcbpc.ivop.b3 > mcbpc.ivop.b4 > mcbpc.ivop.b6;
+    mcbpc.pvop.b1 > mcbpc.pvop.b3 > mcbpc.pvop.b4 > mcbpc.pvop.b5 >
+    mcbpc.pvop.b6 > mcbpc.pvop.b7 > mcbpc.pvop.b8 > mcbpc.pvop.b9;
+
+    get_mbtype.noac > get_mbtype.ac;
+    get_cbpy.b2 > get_cbpy.b4 > get_cbpy.b5 > get_cbpy.b6 > bad_cbpy;
+    final_cbpy_inter > final_cbpy_intra;
+
+    mb_dispatch_done > mb_dispatch_intra >
+    mb_dispatch_inter_no_ac > mb_dispatch_inter_ac_coded;
+
+    //dc_bits must be replaced by dcbits !! (keinert, yao)
+    dc_bits.b2 > dc_bits.b3 > dc_bits.b4 > dc_bits.b5 > dc_bits.b6 >
+    dc_bits.b7 > dc_bits.b8 > dc_bits.b9 > dc_bits.b10 >
+    dc_bits.b11 > dc_bits.b12 > dcbits_bad;
+
+    get_dc.none > get_dc.small > get_dc.large;
+
+    block_done > 
+    vld_code.b2  > vld_code.b3  > vld_code.b4  > vld_code.b5 >
+    vld_code.b6  > vld_code.b7  > vld_code.b8  > vld_code.b9 >
+    vld_code.b10 > vld_code.b11 > vld_code.b12 >
+    vld_code_bad;
+
+    vld_code_lookup > vld_level > vld_run > vld_direct_lookup;
+
+    mvcode_done > mvcode.b1 >
+    mvcode.b2 > mvcode.b3 > mvcode.b4 > mvcode.b6 > mvcode.b7 >
+    mvcode.b9 > mvcode.b10 > mvcode.b11 > mvcode.b12 > mvcode.bad;
+
+    mvpred.y0.cornercase > mvpred.y0.other;
+    mvpred.y1.cornercase > mvpred.y1.other;
+    mvpred.y0 > mvpred.y1 > mvpred.y2 > mvpred.y3;
+
+    get_residual_x.none > get_residual_x.some;
+    get_residual_y.none > get_residual_y.some;
+  end
+end

@@ -1,0 +1,101 @@
+
+#include <callib.hpp>
+
+class m_dequant: public smoc_actor {
+// The actor has 5 Ports.
+public: 
+   smoc_port_in<cal_list<int>::t> IN;
+   smoc_port_in<int> FLAGS;
+   smoc_port_out<cal_list<int>::t> OUT;
+   smoc_port_out<int> DC;
+   smoc_port_out<int> MIN;
+
+// The actor has 0 Parameters and 0 Variable declarations.
+private: 
+   
+   int saturate(int x) const {
+   return( (x < (-2048)) ? (-2048) : ((x > 2047) ? 2047 : (x)) );
+   }
+   
+   
+   int limit(int x, int max) const {
+   return( (x > max) ? max : (x) );
+   }
+   
+   
+   cal_list<int>::t deq(cal_list<int>::t v, int QP, int scale, int r) const {
+      cal_list<int>::t ret_list;
+   
+     for (unsigned int i = 0; i <= 63; ++i) 
+                     {      
+        ret_list.push_back((v[i] == 0) ? 0 : ((i == 0 && scale != 0) ? saturate(v[0]) : ((v[i] < 0) ? (-limit((QP * (((-v[i]) * 2) + 1) - r), 2048)) : (limit((QP * ((v[i] * 2) + 1) - r), 2047)))));   
+     }
+
+   return( ret_list );
+   }
+   
+   
+// The actor has 2 Actions and 2 Guards.
+private:
+bool m_dequant::guard_inter(void)  const {
+   const cal_list<int>::t &d = IN[0];
+   const int type = FLAGS[0];
+   const int q = FLAGS[1];
+   const int scaler = FLAGS[2];
+   int round = bitxor(cal_bitand(q, 1), 1);
+   return( (type == 1) );
+}
+bool m_dequant::guard_intra(void)  const {
+   const cal_list<int>::t &d = IN[0];
+   const int type = FLAGS[0];
+   const int q = FLAGS[1];
+   const int scaler = FLAGS[2];
+   int round = bitxor(cal_bitand(q, 1), 1);
+   cal_list<int>::t dd = deq(d, q, scaler, round);
+   return( (type == 0) );
+}
+void m_dequant::inter(void) {
+// The action has 1 local variable declarations.
+   const cal_list<int>::t &d = IN[0];
+   int type = FLAGS[0];
+   int q = FLAGS[1];
+   int scaler = FLAGS[2];
+   int round = bitxor(cal_bitand(q, 1), 1);
+   OUT[0] = deq(d, q, scaler, round);
+   MIN[0] = (scaler == 0) ? (-256) : (0);
+}
+void m_dequant::intra(void) {
+// The action has 2 local variable declarations.
+   const cal_list<int>::t &d = IN[0];
+   int type = FLAGS[0];
+   int q = FLAGS[1];
+   int scaler = FLAGS[2];
+   int round = bitxor(cal_bitand(q, 1), 1);
+   cal_list<int>::t dd = deq(d, q, scaler, round);
+   OUT[0] = dd;
+   DC[0] = dd[0];
+   MIN[0] = (scaler == 0) ? (-256) : (0);
+}
+
+   smoc_firing_state start;
+      
+public:
+ m_dequant(sc_module_name name)
+ : smoc_actor(name, start) {
+ start = 
+   (IN.getAvailableTokens() >= 1 && 
+   FLAGS.getAvailableTokens() >= 3 && 
+   guard(&m_dequant::guard_inter)) >> 
+   (OUT.getAvailableSpace() >= 1 &&  
+   MIN.getAvailableSpace() >= 1)  >>
+   call(&m_dequant::inter) >> start |  
+   (IN.getAvailableTokens() >= 1 && 
+   FLAGS.getAvailableTokens() >= 3 && 
+   guard(&m_dequant::guard_intra)) >> 
+   (OUT.getAvailableSpace() >= 1 &&  
+   DC.getAvailableSpace() >= 1 &&  
+   MIN.getAvailableSpace() >= 1)  >>
+   call(&m_dequant::intra) >> start;  
+ }
+};
+

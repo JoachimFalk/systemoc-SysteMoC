@@ -1,0 +1,351 @@
+import all caltrop.lib.BitOps;
+
+// WINSIZE is the search window size, measured in macroblocks
+//     - should be an odd number, probably
+// MAXMB width is the maximum line width, measured in macroblocks
+actor MCadd[ int ] ( int WINSIZE, int MAXMBWIDTH )
+    List(type:int, size=64) LAST, List(type:int, size=64) TEX, int MV ==> List(type:int, size=64) VID :
+
+  // Dimensions of current frame in MB
+  int MBwidth  := 0;
+  int MBheight := 0;
+  int rounding_type := 0;
+
+  // Expected coordinates for the next block
+  int next_x;
+  int next_y;
+  int next_n;
+
+  // Number of blocks in interal and external memory,
+  // expected counts in steady state.
+  int int_buf_count := 0;
+  int int_buf_count_ss;
+  int ext_buf_count := 0;
+  int ext_buf_count_ss;
+  int frame_count;
+  int frame_number := 0;
+
+  // block number of block most recently added to internal memory
+  // (i.e. ranges from 0 to ( 6 * MBwidth * MBheight - 1 )
+  int head_index;
+
+  function initList( v, size ) :
+   [ v : for i in Integers(1,size) ]
+  end
+
+  // macroblock buffer holds 6 blocks per MB, requires one less lines
+  // than WINSIZE, plus WINSIZE extra MBs.
+  int MBbuf_size = 6 * ( ( (WINSIZE-1) * MAXMBWIDTH ) + WINSIZE );
+  int MBbuf_ptr  := 0;
+  List[ List[int] ] MBbuf = initList( initList( 0, 64 ), MBbuf_size );
+
+  // ring buffer implementation
+  procedure MBbuf_add( b )
+  begin
+    MBbuf_ptr := MBbuf_ptr + 1;
+    if MBbuf_ptr >= MBbuf_size then
+      MBbuf_ptr := 0;
+    end
+    MBbuf.set( MBbuf_ptr, b );
+  end
+
+  function MBbuf_get( offset )
+  var
+    int ptr = MBbuf_ptr - offset,
+    int ptr_wrapped = ( if ptr < 0 then
+                         ptr + MBbuf_size
+                        else
+                          if ptr >= MBbuf_size then
+                            ptr - MBbuf_size
+                          else
+                            ptr
+                          end
+                        end ) :
+    MBbuf [ ptr_wrapped ]
+  end
+
+  newFrame: action MV:[ cmd, x, y, rounding, unused1, unused2 ] ==>
+  guard
+    cmd = -1
+  do
+    if x != MBwidth or y != MBheight then
+      int_buf_count_ss := 6 * (((WINSIZE-1) * x) + WINSIZE);
+      int_buf_count    := 6 * rshift( ((WINSIZE-1) * x) + WINSIZE, 1 );
+      frame_count      := x * y * 6;
+      head_index       := int_buf_count + 5;
+      ext_buf_count_ss := frame_count + int_buf_count - int_buf_count_ss;
+      // println("Start of frame ("+x+" x "+y+")  rounding = "+rounding_type);
+      // println("frame count = "+frame_count+", int_buf_count = "+int_buf_count+"(ss "
+      // +int_buf_count_ss+"), ext_buf_count_ss = "+ext_buf_count_ss);
+      MBwidth  := x;
+      MBheight := y;
+    end
+    rounding_type := rounding;
+    next_x := 0;
+    next_y := 0;
+    next_n := 0;
+    frame_number := frame_number + 1;
+    if frame_number = 190 then
+println("Frame "+frame_number+", rounding = "+rounding_type );
+end
+  end
+
+  function detect_skipped( x, y, n ) :
+    if x = next_x and y = next_y and n = next_n then 0 else 1 end
+  end
+
+  // Advance next_* to refer to the next block in the sequence
+  procedure next_block()
+  begin
+    next_n := next_n + 1;
+    if next_n = 6 then
+      next_n := 0;
+      next_x := next_x + 1;
+      if next_x = MBwidth then
+        next_x := 0;
+        next_y := next_y + 1;
+        if next_y = MBheight then
+          next_y := 0;
+        end
+      end
+    end
+  end
+
+  docmd.missingBlock: action MV:[ cmd, x, y, n, mvx, mvy ] ==>
+             VID:[ initList( if next_n < 4 then 0 else 128 end, 64 ) ]
+  guard
+    cmd >= 0,
+    detect_skipped( x, y, n ) = 1
+  do
+    println("Missing block at ("+next_x+","+next_y+","+next_n+")" );
+    next_block();
+  end
+
+  // cmds
+  // 0   motion only, mv  = 0
+  // 1   motion only, mv != 0
+  // 4   motion and texture
+  // 6   texture only
+  docmd.textureOnly: action MV:[ cmd, x, y, n, mvx, mvy ], TEX:[tex] ==> VID:[tex]
+  guard
+    cmd = 6,
+    detect_skipped( x, y, n ) = 0
+  do
+if frame_number = 190 and y = 0 and x < 2 and n < 4 then
+    println("TEX only at ("+next_x+","+next_y+","+next_n+")" );
+end
+/* if x = 0 and y = 0 and n = 3 then
+println("INTRA at 0,0,3");
+println(tex);
+end */
+    next_block();
+  end
+
+  function xadjust( n, dx ):
+    if n < 4 then
+      (6 * rshift( dx, 4 )) + 
+         if bitand( dx, 8 ) = 0 then
+           0
+         else
+           if n = 0 or n = 2 then
+             1
+           else
+             5
+           end
+         end
+    else
+      6 * rshift( dx, 3 )
+    end
+  end
+
+  function yadjust( n, dy ):
+    if n < 4 then
+      (6 * MBwidth * rshift( dy, 4 )) + 
+         if bitand( dy, 8 ) = 0 then
+           0
+         else
+           if n = 0 or n = 1 then
+             2
+           else
+             (6 * MBwidth) - 2
+           end
+         end
+    else
+      6 * MBwidth * rshift( dy, 3 )
+    end
+  end
+
+  // Get individual pixel for motion comp
+  // dx and dy must already be clipped to frame boundary
+  // x,y,n are macroblock coords
+  function get_pixel( x, y, n, dx, dy ) :
+//    (MBbuf.get( (head_index - xadjust(n,dx)) - yadjust(n,dy) ) )
+//         .get( bitand( dx, 7) + lshift( bitand( dy, 7), 3) )
+    MBbuf_get( (head_index - xadjust(n,dx)) - yadjust(n,dy) )[ bitand( dx, 7) + lshift( bitand( dy, 7), 3) ]
+  end
+
+  // Limit motion dx or dy to image boundary
+  function xyclip( xy, xymax, dxy ) :
+    if xy + dxy < 0 then
+      -xy
+    else
+      if xy + dxy >= xymax then
+        xymax - xy - 1
+      else
+        dxy
+      end
+    end
+  end
+
+  // Convert MB x and block number to pixel x
+  function xpixel( x, n ) :
+    if n = 0 or n = 2 then
+      lshift( x, 4 )
+    else
+      if n = 1 or n = 3 then
+        lshift( x, 4 ) + 8
+      else
+        lshift( x, 3 )
+      end
+    end
+  end
+
+  // Convert MB y and block number to pixel y
+  function ypixel( y, n ) :
+    if n = 0 or n = 1 then
+      lshift( y, 4 )
+    else
+      if n = 2 or n = 3 then
+        lshift( y, 4 ) + 8
+      else
+        lshift( y, 3 )
+      end
+    end
+  end
+
+  function comp_block( x, y, n, mvx, mvy )
+  var
+    int lmvx = rshift( mvx, 1 ),
+    int lmvy = rshift( mvy, 1 ),
+    int maxx = lshift(MBwidth ,if n < 4 then 4 else 3 end),
+    int maxy = lshift(MBheight,if n < 4 then 4 else 3 end),
+    int ulx = xpixel(x,n),
+    int uly = ypixel(y,n),
+    List[int] b =
+      [ get_pixel( x, y, n, xyclip( ulx, maxx, xx + lmvx ),
+                            xyclip( uly, maxy, yy + lmvy )  )
+         : for yy, xx in Integers( 0, 8 ) ] :
+    if bitand( mvx, 1) = 0 then
+      if bitand( mvy, 1) = 0 then
+        // No interpolation
+        [ b [ (yy * 9) + xx ] : for yy, xx in Integers( 0, 7 ) ]
+      else
+        // Y interpolation only
+        [ rshift( b [(yy*9) + xx     ] +
+                  b [(yy*9) + xx + 9 ] + 1 - rounding_type, 1) : for yy, xx in Integers( 0, 7 ) ]
+      end
+    else
+      if bitand( mvy, 1) = 0 then
+        // X interpolation only
+        [ rshift( b [ (yy*9) + xx     ] +
+                  b [ (yy*9) + xx + 1 ] + 1 - rounding_type, 1) : for yy, xx in Integers( 0, 7 ) ]
+      else
+        // X and Y interpolation
+        [ rshift( b [ (yy*9) + xx      ] +
+                  b [ (yy*9) + xx +  1 ] + 
+                  b [ (yy*9) + xx +  9 ] + 
+                  b [ (yy*9) + xx + 10 ] + 2 - rounding_type, 2) : for yy, xx in Integers( 0, 7 ) ]
+      end
+    end
+  end
+
+  docmd.nothing: action MV:[ cmd, x, y, n, mvx, mvy ] ==> VID:[ MBbuf_get(head_index) ]
+  guard
+    cmd = 0,
+    detect_skipped( x, y, n ) = 0
+  do
+/* if frame_number = 190 and y = 0 and x < 2 and n < 4 then
+    println("No change at ("+next_x+","+next_y+","+next_n+")" );
+end */
+    next_block();
+  end
+
+  docmd.motionOnly: action MV:[ cmd, x, y, n, mvx, mvy ] ==> VID:[b]
+  guard
+    cmd = 0 or cmd = 1,
+    detect_skipped( x, y, n ) = 0
+  var
+    List[int] b = comp_block( x, y, n, mvx, mvy )
+  do
+/* if frame_number = 190 and y = 0 and x < 2 and n < 4 then
+    println("MV( "+mvx+","+mvy+") only at ("+next_x+","+next_y+","+next_n+")" );
+end */
+    next_block();
+  end
+
+  function clip( x ) :
+    if x < 0 then 0 else
+      if x > 255 then 255 else x end
+    end
+  end
+
+  function combine( a, b ) :
+  [ clip( a [i] + b [i] ) : for i in Integers( 0, 63 ) ]
+  end
+
+  docmd.both: action MV:[ cmd, x, y, n, mvx, mvy ], TEX:[tex] ==> VID:[ combine( tex, b ) ]
+  guard
+    cmd = 4,
+    detect_skipped( x, y, n ) = 0
+  var
+    List[int] b = comp_block( x, y, n, mvx, mvy )
+  do
+/* if y = 0 and x = 0 and n = 3 then
+    println("MV( "+mvx+","+mvy+") and TEX at ("+next_x+","+next_y+","+next_n+")" );
+ println(tex);
+end */
+    next_block();
+  end
+
+  // Previous frame queue needs to fill up
+  mbbuf.tooEmptyInt: action LAST:[b] ==>
+  guard
+    int_buf_count < int_buf_count_ss
+  do
+   // MBbuf := [ if i = 0 then b else MBbuf.get(i-1) end : for i in Integers( 0, int_buf_count-1 ) ];
+    MBbuf_add( b );
+    int_buf_count := int_buf_count + 1;
+  end
+
+  mbbuf.tooEmptyExt: action ==>
+  guard
+    int_buf_count = int_buf_count_ss,
+    ext_buf_count < ext_buf_count_ss
+  do
+    ext_buf_count := ext_buf_count + 1;
+  end
+
+  mbbuf.tooFull: action ==>
+  guard
+    int_buf_count > int_buf_count_ss or ext_buf_count > ext_buf_count_ss
+  do
+    println("Unsupported action: mbbuf.tooFull in actor MCadd");
+  end
+
+  // Counts do not change - we're in steady state
+  mbbuf.justRight: action LAST:[b] ==>
+  guard
+    int_buf_count = int_buf_count_ss,
+    ext_buf_count = ext_buf_count_ss
+  do
+    // MBbuf := [ if i = 0 then b else MBbuf.get(i-1) end : for i in Integers( 0, int_buf_count-1 ) ];
+    MBbuf_add( b );
+  end
+
+  schedule fsm process:
+    process( newFrame ) --> process;
+    process( docmd    ) --> update;
+    update ( mbbuf    ) --> process;
+  end
+
+end

@@ -1,0 +1,16 @@
+import all caltrop.lib.BitOps;
+actor byte2bit[int] () int in8 ==> int out :
+
+  action in8:[i] ==> out:[ b7, b6, b5, b4, b3, b2, b1, b0 ]
+  var
+    int b7 = bitand( rshift( i, 7 ), 1 ),
+    int b6 = bitand( rshift( i, 6 ), 1 ),
+    int b5 = bitand( rshift( i, 5 ), 1 ),
+    int b4 = bitand( rshift( i, 4 ), 1 ),
+    int b3 = bitand( rshift( i, 3 ), 1 ),
+    int b2 = bitand( rshift( i, 2 ), 1 ),
+    int b1 = bitand( rshift( i, 1 ), 1 ),
+    int b0 = bitand(              i, 1 )
+  end
+
+end

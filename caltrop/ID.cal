@@ -1,0 +1,14 @@
+
+/**
+ *  A type-polymorphic actor that transfers one token per 
+ *  firing from its input port to its output port.
+ *
+ * @author JWJ
+ */
+
+actor ID [T]		
+         ()
+         T In ==> T Out :
+
+  action [a] ==> [a] end
+end
