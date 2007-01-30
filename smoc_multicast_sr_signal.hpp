@@ -337,11 +337,14 @@ public:
   typedef T                                  data_type;
   typedef smoc_multicast_sr_signal_type<data_type>  this_type;
   typedef smoc_storage<data_type>	     storage_type;
+  typedef smoc_port_in<data_type>            Port;
+  typedef smoc_multicast_outlet<data_type>   Outlet;
+  typedef smoc_multicast_entry<data_type>    Entry;
+  typedef std::map< const Port* , Outlet* >  OutletMap;
 
   smoc_multicast_sr_signal_type( const chan_init &i )
     : smoc_multicast_sr_signal_kind(i),
-      entry(this, actualValue),
-      outlet(this, actualValue)
+      entry(this, actualValue)
   {
     assert(1 >= i.marking.size());
     if(1 == i.marking.size()){
@@ -350,27 +353,43 @@ public:
     }
   }
 
-  smoc_multicast_entry<data_type>& getEntry(){
+  this_type & connect(smoc_port_in<data_type> &inPort){
+    inPort(this->getOutlet(inPort));
+    return *this;
+
+  }
+
+  Entry& getEntry(){
     return entry;
   }
 
-  smoc_multicast_outlet<data_type>& getOutlet(){
-    return outlet;
+  Outlet& getOutlet(const Port &port){
+    if(outlets.find(&port) == outlets.end()){
+      //cout << "Create new Outlet!!" << endl;
+      Outlet* out = new Outlet(this, actualValue);
+      assert(out);
+      outlets[&port] = out;
+    }
+    assert(outlets.find(&port) != outlets.end());
+    return *(outlets[&port]);
   }
 
 #ifdef ENABLE_SYSTEMC_VPC
   void wpp(size_t n, const smoc_ref_event_p &le)
-  { 
-    //FIXME: call wpp for all outlets
-    outlet.wpp(n,le);
-  }
 #else
   void wpp(size_t n)
-  { 
-    //FIXME: call wpp for all outlets
-    outlet.wpp(n);
-  }
 #endif
+  { 
+    for(typename OutletMap::iterator iter = outlets.begin();
+	iter != outlets.end();
+	iter++){
+#ifdef ENABLE_SYSTEMC_VPC
+      iter->second->wpp(n,le);
+#else
+      iter->second->wpp(n);
+#endif
+    }
+  }
 
   void rpp(size_t n){
     entry.rpp(n);
@@ -384,9 +403,8 @@ protected:
   storage_type   actualValue;
 
 private:
-  smoc_multicast_entry<data_type>  entry;
-  smoc_multicast_outlet<data_type>  outlet;
-  std::list<smoc_multicast_outlet<data_type> > outlets;
+  Entry  entry;
+  OutletMap outlets;
 
   void reset(){
     actualValue = storage_type();
@@ -397,8 +415,11 @@ private:
     signalState=undefined;
     if(needUpdate){
       // update events (storage state changed)
-      //FIXME: call for all outlets
-      outlet.usedDecr();
+      for(typename OutletMap::iterator iter = outlets.begin();
+	  iter != outlets.end();
+	  iter++){
+	iter->second->usedDecr();
+      }
       entry.unusedIncr();
     }
     this->reset();
@@ -431,6 +452,12 @@ public:
   this_type &operator <<
     (typename smoc_multicast_sr_signal_type<T>::chan_init::add_param_ty x){
     add(x); return *this;
+  }
+
+  chan_type &connect(smoc_port_out<data_type> &outPort){
+    chan_type *chan = new chan_type(*this);
+    outPort(chan->getEntry());
+    return *chan;
   }
   
   smoc_multicast_sr_signal( )
