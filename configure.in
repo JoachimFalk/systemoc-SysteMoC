@@ -12,6 +12,8 @@ AC_CONFIG_AUX_DIR([../BuildSystem])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 
+AC_LANG([C++])
+
 dnl Checks for programs.
 ACJF_CHECK_CROSSTOOL( CC, gcc)
 ACJF_CHECK_CROSSTOOL( CXX, g++)
@@ -47,7 +49,42 @@ AM_PROG_LIBTOOL
 dnl check for exe extension
 AC_EXEEXT
 
+ACJF_CHECK_LIB_SYSTEMC
+AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_INCLUDE"
+AM_LDFLAGS="$AM_LDFLAGS   $SYSTEMC_LDFLAGS"
+
+ACJF_CHECK_LIB_BOOST
+AM_CPPFLAGS="$AM_CPPFLAGS $BOOST_INCLUDE"
+AM_LDFLAGS="$AM_LDFLAGS   $BOOST_LDFLAGS"
+
+ACJF_NEED_PKG([Support])
+ACJF_NEED_PKG([SysteMoC],
+  [AM_CPPFLAGS="$AM_CPPFLAGS -I$acjf_pkg_builddir/include/systemoc";
+   AM_LDFLAGS="$AM_LDFLAGS -L$acjf_pkg_builddir";
+   SYSTEMOC_DEPENDENCIES="$acjf_pkg_builddir/libsystemoc.la";]
+)
+AC_SUBST([SYSTEMOC_DEPENDENCIES])
+# Backward compatibility cruft
+SYSTEMOC_INCLUDE=""
+AC_SUBST([SYSTEMOC_INCLUDE])
+SYSTEMOC_LDFLAGS=""
+AC_SUBST([SYSTEMOC_LDFLAGS])
+
+acjf_CPPFLAGS="$CPPFLAGS"
+
+# Rape idiot autoconf
+acjf_builddir=`pwd`
+CPPFLAGS=`echo $AM_CPPFLAGS | sed -e "s@\\$(top_srcdir)@$srcdir@g" -e "s@\\$(top_builddir)@$acjf_builddir@g"`
+
 # Checks for header files.
+AC_CHECK_HEADER(
+  [smoc_md_port.hpp],
+  [enable_wsdf=true; AM_CPPFLAGS="$AM_CPPFLAGS -DSMOC_ENABLE_WSDF";],
+  [enable_wsdf=false]
+)
+CPPFLAGS="$acjf_CPPFLAGS"
+
+
 # AC_FUNC_ALLOCA
 # AC_HEADER_STDC
 # AC_CHECK_HEADERS([OS.h fcntl.h limits.h mach/mach.h malloc.h stddef.h stdint.h stdlib.h string.h sys/time.h unistd.h])
@@ -55,10 +92,6 @@ AC_EXEEXT
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
-
-ACJF_CHECK_LIB_SYSTEMC
-ACJF_CHECK_LIB_BOOST
-ACJF_NEED_PKG([Support])
 
 ### SystemC-VPC ###
 # --enable-vpc option
@@ -103,21 +136,6 @@ fi
 AC_SUBST([SYSTEMC_VPC_INCLUDE])
 AC_SUBST([SYSTEMC_VPC_LDFLAGS])
 AC_SUBST([SYSTEMC_VPC_DEPENDENCIES])
-
-### SysteMoC ###
-SYSTEMOC_INCLUDE=" \
-  -I\$(top_builddir)/../SysteMoC/include/systemoc \
-  $SYSTEMC_INCLUDE $BOOST_INCLUDE"
-AC_SUBST([SYSTEMOC_INCLUDE])
-
-SYSTEMOC_LDFLAGS=" \
-  -L\$(top_builddir)/../SysteMoC \
-  $SYSTEMC_LDFLAGS $BOOST_LDFLAGS"
-AC_SUBST([SYSTEMOC_LDFLAGS])
-
-SYSTEMOC_DEPENDENCIES=" \
-  \$(top_builddir)/../SysteMoC/libsystemoc.la"
-AC_SUBST([SYSTEMOC_DEPENDENCIES])
 
 AC_CONFIG_FILES([Makefile])
 
@@ -201,27 +219,28 @@ if test -d $srcdir/crypto-example; then
   AC_CONFIG_FILES([crypto-example/Makefile])
   subdirs="$subdirs crypto-example"
 fi
-if test -d $srcdir/systemoc-wsdf; then
-  AC_CONFIG_FILES([systemoc-wsdf/Makefile])
-  subdirs="$subdirs systemoc-wsdf"
+if test x$enable_wsdf = xtrue; then
+  if test -d $srcdir/systemoc-wsdf; then
+    AC_CONFIG_FILES([systemoc-wsdf/Makefile])
+    subdirs="$subdirs systemoc-wsdf"
+  fi
+  if test -d $srcdir/systemoc-wsdf-expr; then
+    AC_CONFIG_FILES([systemoc-wsdf-expr/Makefile])
+    subdirs="$subdirs systemoc-wsdf-expr"
+  fi
+  if test -d $srcdir/systemoc-wsdf-recons-dila; then
+    AC_CONFIG_FILES([systemoc-wsdf-recons-dila/Makefile])
+    subdirs="$subdirs systemoc-wsdf-recons-dila"
+  fi
+  if test -d $srcdir/systemoc-wsdf-src-snk; then
+    AC_CONFIG_FILES([systemoc-wsdf-src-snk/Makefile])
+    subdirs="$subdirs systemoc-wsdf-src-snk"
+  fi
+  if test -d $srcdir/systemoc-wsdf-dist; then
+    AC_CONFIG_FILES([systemoc-wsdf-dist/Makefile])
+    subdirs="$subdirs systemoc-wsdf-dist"
+  fi
 fi
-if test -d $srcdir/systemoc-wsdf-expr; then
-  AC_CONFIG_FILES([systemoc-wsdf-expr/Makefile])
-  subdirs="$subdirs systemoc-wsdf-expr"
-fi
-if test -d $srcdir/systemoc-wsdf-recons-dila; then
-  AC_CONFIG_FILES([systemoc-wsdf-recons-dila/Makefile])
-  subdirs="$subdirs systemoc-wsdf-recons-dila"
-fi
-if test -d $srcdir/systemoc-wsdf-src-snk; then
-  AC_CONFIG_FILES([systemoc-wsdf-src-snk/Makefile])
-  subdirs="$subdirs systemoc-wsdf-src-snk"
-fi
-if test -d $srcdir/systemoc-wsdf-dist; then
-  AC_CONFIG_FILES([systemoc-wsdf-dist/Makefile])
-  subdirs="$subdirs systemoc-wsdf-dist"
-fi
-
 
 SUBDIRS=$subdirs
 AC_SUBST(SUBDIRS)
