@@ -22,6 +22,8 @@
 root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
 root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
+include $(auxdir)/jfrules.mk
+
 SUBDIRS=
 
 if SYNTH
