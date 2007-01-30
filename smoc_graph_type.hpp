@@ -20,8 +20,10 @@
 #define _INCLUDED_SMOC_GRAPH_TYPE_HPP
 
 #include <smoc_port.hpp>
-#include <smoc_md_port.hpp>
-#include <smoc_md_fifo.hpp>
+#ifdef SMOC_ENABLE_WSDF 
+# include <smoc_md_port.hpp>
+# include <smoc_md_fifo.hpp>
+#endif
 #include <smoc_fifo.hpp>
 #include <smoc_rendezvous.hpp>
 #include <smoc_node_types.hpp>
@@ -78,7 +80,7 @@ protected:
     connectChanPort(chan,b);
   }
 
-
+#ifdef SMOC_ENABLE_WSDF 
 	/// Connect multi-dimensional actor output port with multi-dimensional actor input port
 	template <typename T_chan_init, 
 						unsigned N,
@@ -177,6 +179,7 @@ protected:
 		b.setFiringLevelMap(chan_init.wsdf_edge_param.calc_src_iteration_level_table());
 		a.setFiringLevelMap(chan_init.wsdf_edge_param.calc_snk_iteration_level_table());
   }
+#endif
 
 
 
@@ -198,6 +201,7 @@ protected:
 														 smoc_port_in<T_value_type> &b )
 	{ b(a); }
 
+#ifdef SMOC_ENABLE_WSDF 
   /// Connect multi-dimensional interface output port with actor output port
 	template <typename T_value_type, unsigned N, template <typename> class STORAGE_OUT_TYPE>
   void connectInterfacePorts(
@@ -225,6 +229,7 @@ protected:
 														 smoc_md_iport_in<T_value_type,N> &a,
 														 smoc_md_iport_in<T_value_type,N> &b )
 	{ b(a); }
+#endif
 
   void finalise();
 

@@ -41,6 +41,7 @@ AM_CPPFLAGS =				\
 	@BOOST_INCLUDE@			\
 	@SYSTEMC_VPC_INCLUDE@		\
 	-I./include			\
+	-I$(srcdir)/wsdf		\
 	-I$(srcdir)
 
 AM_LDFLAGS=				\
@@ -87,15 +88,19 @@ pkginclude_HEADERS =			\
 	hscd_graph_type.hpp		\
 	hscd_scheduler.hpp		\
 	hscd_pggen.hpp			\
-	hscd_moc.hpp \
-	smoc_md_array_access.hpp \
-	smoc_md_array.hpp \
-	smoc_md_buffer.hpp \
-	smoc_md_fifo.hpp \
-	smoc_md_loop.hpp \
-	smoc_md_port.hpp \
-	smoc_vector.hpp \
-	smoc_wsdf_edge.hpp
+	hscd_moc.hpp
+
+if WSDF
+pkginclude_HEADERS +=			\
+	wsdf/smoc_md_array_access.hpp	\
+	wsdf/smoc_md_array.hpp		\
+	wsdf/smoc_md_buffer.hpp		\
+	wsdf/smoc_md_fifo.hpp		\
+	wsdf/smoc_md_loop.hpp		\
+	wsdf/smoc_md_port.hpp		\
+	wsdf/smoc_vector.hpp		\
+	wsdf/smoc_wsdf_edge.hpp
+endif
 
 
 # noinst_HEADERS=	oneof.hpp
@@ -121,11 +126,16 @@ libsystemoc_la_SOURCES =		\
 	smoc_pggen.cpp			\
 	smoc_chan_if.cpp		\
 	smoc_moc.cpp			\
-	hscd_tdsim_TraceLog.cpp \
-	smoc_md_buffer.cpp \
-	smoc_md_loop.cpp \
-	smoc_wsdf_edge.cpp \
-	smoc_md_port.cpp
+					\
+	hscd_tdsim_TraceLog.cpp
+
+if WSDF
+libsystemoc_la_SOURCES +=		\
+	wsdf/smoc_md_buffer.cpp		\
+	wsdf/smoc_md_loop.cpp		\
+	wsdf/smoc_wsdf_edge.cpp		\
+	wsdf/smoc_md_port.cpp
+endif
 
 # Need pkinclude files in include/$(pkgincludeprefix)
 $(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include
