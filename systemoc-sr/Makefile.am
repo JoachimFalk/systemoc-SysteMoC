@@ -31,7 +31,7 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
 LIBS= @LIBS@ -lsystemoc
 
-noinst_PROGRAMS= sr-and sr-phil-simple sr-PLMON
+noinst_PROGRAMS= sr-and sr-phil-simple sr-PLMON sr-multicast-test
 
 sr_and_SOURCES= design-sr-and.cpp
 sr_and_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
@@ -41,3 +41,6 @@ sr_phil_simple_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 sr_PLMON_SOURCES= design-PLMON.cpp
 sr_PLMON_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+sr_multicast_test_SOURCES= design-mc-test.cpp
+sr_multicast_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
