@@ -41,8 +41,6 @@
 
 #include <list>
 
-#include <hscd_tdsim_TraceLog.hpp>
-
 /*
 class smoc_scheduler_base {
 protected:
