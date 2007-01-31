@@ -47,6 +47,8 @@ const smoc_node_list smoc_graph::getNodes() const {
 #endif
         iter != get_child_objects().end();
         ++iter ) {
+    std::cerr << (*iter)->name() << std::endl;
+    
     smoc_root_node *node = dynamic_cast<smoc_root_node *>(*iter);
     if (node != NULL)
       subnodes.push_back(node);
