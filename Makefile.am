@@ -115,6 +115,7 @@ libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include @pkg_support_builddir@/libcosupport.la @SYSTEMC_VPC_DEPENDENCIES@
 
 libsystemoc_la_SOURCES =		\
+	smoc_main.cpp			\
 	smoc_expr.cpp			\
 	smoc_fifo.cpp			\
 	smoc_graph_type.cpp		\

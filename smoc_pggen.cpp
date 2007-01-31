@@ -39,6 +39,8 @@
 
 namespace smoc_modes {
 
+  bool dumpProblemgraph = false;
+
   int                 PGWriter::idmap_last = 0;
   PGWriter::idmap_ty  PGWriter::idmap;
   const char          PGWriter::indent_buf[] = 
