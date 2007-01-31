@@ -61,6 +61,8 @@ public:
 //typedef T_node_type	node_type;
 //typedef T_chan_kind	chan_kind;
   typedef smoc_graph    this_type;
+
+  friend class smoc_top;
 protected:
   template <typename T_chan_init, 
 						template <typename, typename> class R,
