@@ -336,9 +336,9 @@ struct Sensitivity<DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> > {
   void apply(const DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> &e,
              smoc_event_and_list &al) {
     al &= e.a.p.blockEvent(Value<DLiteral<T> >::apply(e.b));
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply al == " << al << std::endl;
-#endif
+//#ifdef SYSTEMOC_DEBUG
+//  std::cerr << "Sensitivity<DBinOp<DPortTokens<P>,E,DOpBinGe> >::apply al == " << al << std::endl;
+//#endif
   }
 };
 
