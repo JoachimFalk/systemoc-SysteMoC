@@ -48,6 +48,7 @@ smoc_root_node::smoc_root_node(smoc_firing_state &s)
 //  _finalizeCalled(false),
 #endif
     _initialState(s),
+    _non_strict(false),
     is_v1_actor(false),
 #ifdef ENABLE_SYSTEMC_VPC
 # ifndef NDEBUG
@@ -317,6 +318,18 @@ std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
     o << "  " << *iter << std::endl;
   }
   return o;
+}
+
+bool smoc_root_node::inCommState() const{
+#ifdef ENABLE_SYSTEMC_VPC
+    return (_currentState == &commstate.getResolvedState());
+#else
+    return false;
+#endif // ENABLE_SYSTEMC_VPC
+}
+
+bool smoc_root_node::isNonStrict() const{
+  return _non_strict;
 }
 
 void Expr::Detail::registerParam(const ArgInfo &argInfo) {

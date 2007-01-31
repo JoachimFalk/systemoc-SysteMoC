@@ -72,6 +72,8 @@ public:
     }
   }
 
+  //FIXME(MS): allow "const" access for non-strict
+  //void operator=(const T& t) const {
   void operator=(const T& t)
     { put(t); }  
 
