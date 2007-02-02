@@ -298,6 +298,8 @@ class smoc_sr_signal_storage<void>
 public:
   typedef void                                    data_type;
   typedef smoc_sr_signal_storage<data_type>       this_type;
+  typedef this_type::access_out_type    ring_out_type;
+  typedef this_type::access_in_type     ring_in_type;
   
   class chan_init
     : public smoc_sr_signal_kind::chan_init {
