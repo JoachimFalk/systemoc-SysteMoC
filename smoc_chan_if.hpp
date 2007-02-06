@@ -227,8 +227,6 @@ public:
     typename smoc_storage_in<T>::return_type>   access_type;
   typedef access_type                           access_in_type;
   
-  bool is_v1_in_port;
-  
   virtual size_t committedOutCount() const = 0;
 //smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual smoc_event &blockEventOut(size_t n) = 0;
@@ -238,7 +236,6 @@ public:
 #else
   virtual void   commExecIn(size_t consume) = 0;
 #endif
-  virtual bool   portOutIsV1() const = 0;
 protected:
 //smoc_event write_event;
   
@@ -270,8 +267,6 @@ public:
     typename S<T>::return_type>  access_type;
   typedef access_type                           access_out_type;
   
-  bool is_v1_out_port;
-  
   virtual size_t      committedInCount() const = 0;
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual smoc_event &blockEventIn(size_t n) = 0;
@@ -281,7 +276,6 @@ public:
 #else
   virtual void        commExecOut(size_t produce) = 0;
 #endif
-  virtual bool        portInIsV1() const = 0;
 protected:
 //smoc_event read_event;
   
@@ -358,10 +352,6 @@ public:
   typedef T_data_type                             data_type;
   typedef T_chan_kind                             chan_kind;
 
-  bool portInIsV1()  const
-    { return this->is_v1_in_port; }
-  bool portOutIsV1() const
-    { return this->is_v1_out_port; }
 protected:
   // constructor
   smoc_chan_if(const typename chan_kind::chan_init &i)

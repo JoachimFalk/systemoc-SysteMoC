@@ -70,8 +70,7 @@ protected:
   //FIXME(MS): allow more than one "IN-Port" per Signal
   smoc_root_port( const char* name_ )
     : sc_port_base( name_, 1 ),
-      parent(NULL), child(NULL),
-      is_smoc_v1_port(false) {}
+      parent(NULL), child(NULL) {}
 public:
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void commExec(size_t, const smoc_ref_event_p &) = 0;
@@ -79,8 +78,6 @@ public:
   virtual void commExec(size_t)                           = 0;
 #endif
 public:
-  bool is_smoc_v1_port;
-  
   static const char* const kind_string;
   virtual const char* kind() const
     { return kind_string; }
@@ -91,8 +88,6 @@ public:
   bool                isOutput() const
     { return !isInput(); }
   
-  virtual bool peerIsV1() const = 0;
-
   virtual void clearReady()
     { assert( !"SHOULD NEVER BE CALLED !!!" ); }
   virtual void communicate( size_t n )

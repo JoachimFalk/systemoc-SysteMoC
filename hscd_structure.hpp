@@ -51,9 +51,9 @@ public:
   
 public:
   explicit hscd_graph( sc_module_name name )
-    : smoc_top_moc<smoc_graph>(name) { is_v1_actor = true; }
+    : smoc_top_moc<smoc_graph>(name) { }
   hscd_graph()
-    : smoc_top_moc<smoc_graph>( sc_gen_unique_name("hscd_graph") ) { is_v1_actor = true; }
+    : smoc_top_moc<smoc_graph>( sc_gen_unique_name("hscd_graph") ) { }
 
   template <typename T_chan_init>
   void connectNodePorts(

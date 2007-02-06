@@ -86,7 +86,7 @@ class hscd_choice_node
   }
 
     hscd_choice_node()
-      : smoc_root_node(start) { is_v1_actor = true; }
+      : smoc_root_node(start) { }
 };
 
 class hscd_choice_active_node
