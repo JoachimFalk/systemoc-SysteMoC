@@ -158,8 +158,7 @@ private:
  */
   }
   
-  void scheduleTop(){ 
-    smoc_scheduler_top::scheduleSR(this); 
+  virtual void scheduleTop(){ 
     return smoc_scheduler_top::schedule(this);
   }
 public:
@@ -215,6 +214,43 @@ public:
   smoc_top(smoc_graph *c)
     : sc_module(sc_module_name("top")), c(c)
     { SC_THREAD(scheduleTop); }
+};
+
+template <typename T_top>
+class smoc_top_sr_moc
+  : public smoc_top_moc<T_top> {
+private:
+  // called by elaboration_done (does nothing by default)
+  void end_of_elaboration()
+    { this->finalise(); }
+  
+  void scheduleTop(){ 
+    return smoc_scheduler_top::scheduleSR(this); 
+  }
+public:
+  typedef smoc_top_moc<T_top> this_type;
+  
+  SC_HAS_PROCESS(this_type);
+  
+  smoc_top_sr_moc()
+    : smoc_top_moc<T_top>() {}
+  explicit smoc_top_sr_moc( sc_module_name name )
+    : smoc_top_moc<T_top>(name) {}
+  template <typename T1>
+  explicit smoc_top_sr_moc( sc_module_name name, T1 p1 )
+    : smoc_top_moc<T_top>(name,p1) {}
+  template <typename T1, typename T2>
+  explicit smoc_top_sr_moc( sc_module_name name, T1 p1, T2 p2 )
+    : smoc_top_moc<T_top>(name,p1,p2) {}
+  template <typename T1, typename T2, typename T3>
+  explicit smoc_top_sr_moc( sc_module_name name, T1 p1, T2 p2, T3 p3 )
+    : smoc_top_moc<T_top>(name,p1,p2,p3) {}
+  template <typename T1, typename T2, typename T3, typename T4>
+  explicit smoc_top_sr_moc( sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4 )
+    : smoc_top_moc<T_top>(name,p1,p2,p3,p4) {}
+  template <typename T1, typename T2, typename T3, typename T4, typename T5>
+  explicit smoc_top_sr_moc( sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5 )
+    : smoc_top_moc<T_top>(name,p1,p2,p3,p4,p5) {}
 };
 
 #endif // _INCLUDED_SMOC_MOC_HPP
