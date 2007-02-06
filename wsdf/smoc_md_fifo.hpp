@@ -653,34 +653,38 @@ protected:
 	}
 
 #ifndef NO_SMOC
-	void accessSetupIn(ring_in_type &r) {
+	ring_in_type * accessSetupIn() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << this->name() << ": ";
 		dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
 		dout << inc_level;
 #endif
-		initStorageAccess(r);
-		r.SetBuffer(storage);
+		ring_in_type *r = new ring_in_type();
+		initStorageAccess(*r);
+		r->SetBuffer(storage);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 		dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
 		dout << dec_level;
 #endif
+		return r;
   }
 #endif
 
 #ifndef NO_SMOC
-  void accessSetupOut(ring_out_type &r) {
+  ring_out_type * accessSetupOut() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   dout << this->name() << ": ";
 	dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
 	dout << inc_level;
 #endif
-		initStorageAccess(r);
-		r.SetBuffer(storage);
+	ring_out_type *r = new ring_out_type();
+		initStorageAccess(*r);
+		r->SetBuffer(storage);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
 	dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
 	dout << dec_level;
 #endif
+	return r;
   }
 
 	void channelContents(smoc_modes::PGWriter &pgw) const {};	

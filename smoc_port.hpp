@@ -441,11 +441,12 @@ SMOCEvent::type till(smoc_event &e)
 
 template <class P, typename T, class PARAM_TYPE>
 class smoc_port_base
-  : public P, public T::access_type {
+  : public P {
 public:
   typedef T                   iface_type;
   typedef smoc_port_base<P,T,PARAM_TYPE> this_type;
 
+  typedef typename T::access_type        ChannelAccess;
   template <class E> friend class Expr::Sensitivity;
 private:
   typedef P                   base_type;
@@ -474,6 +475,14 @@ private:
       return 0;
   }
 protected:
+  ChannelAccess *channel_access;
+
+#ifndef NDEBUG
+  virtual void   setLimit(size_t l)
+    {channel_access->setLimit(l);}
+  //virtual size_t getLimit() const {return channel_access->getLimit();}
+#endif
+
   smoc_port_base( const char* name_ )
     : base_type( name_ ), interface( NULL ) {}
 
@@ -513,7 +522,6 @@ public:
   typedef T				    data_type;
 	typedef smoc_port_in_base<data_type,R,PARAM_TYPE>	    this_type;
   typedef typename this_type::iface_type    iface_type;
-  typedef typename iface_type::access_type  ring_type;
 
   typedef typename iface_type::access_type::return_type return_type;
   
@@ -536,7 +544,7 @@ protected:
     { return (*this)->portOutIsV1(); }
 
   void finalise(smoc_root_node *node)
-    { (*this)->accessSetupIn(*this); }
+    { this->channel_access = (*this)->accessSetupIn(); }
 
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)
@@ -547,6 +555,10 @@ protected:
 #endif
 
 public:
+  const return_type operator[](size_t n) const {
+    return (*(this->channel_access))[n];
+  }
+
   smoc_port_in_base(): base_type(sc_gen_unique_name("smoc_port_in")) {}
   
   bool isInput() const { return true; }
@@ -599,7 +611,6 @@ public:
   typedef T				    data_type;
 	typedef smoc_port_out_base<data_type,R, PARAM_TYPE, STORAGE_TYPE>	    this_type;
   typedef typename this_type::iface_type    iface_type;
-  typedef typename iface_type::access_type  ring_type;
   
   template <class E> friend class Expr::CommExec;
 #ifndef NDEBUG
@@ -626,7 +637,7 @@ protected:
     { return (*this)->portInIsV1(); }
 
   void finalise(smoc_root_node *node)
-    { (*this)->accessSetupOut(*this); }
+    { this->channel_access = (*this)->accessSetupOut(); }
 
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)
@@ -636,6 +647,10 @@ protected:
     { return (*this)->commExecOut(n); }
 #endif
 public:
+  return_type operator[](size_t n) {
+    return (*(this->channel_access))[n];
+  }
+
   smoc_port_out_base(): base_type(sc_gen_unique_name("smoc_port_out")) {}
   
   bool isInput() const { return false; }
@@ -674,15 +689,15 @@ public:
 
 template <typename T>
 class smoc_port_in
-	: public smoc_port_in_base<T, smoc_ring_access, void > {
+	: public smoc_port_in_base<T, smoc_channel_access, void > {
 public:
   typedef T				    data_type;
   typedef smoc_port_in<data_type>	    this_type;
   typedef typename this_type::iface_type    iface_type;
-  typedef typename iface_type::access_type  ring_type;
+  typedef typename this_type::return_type   return_type;
 
 protected:
-	typedef smoc_port_in_base<T, smoc_ring_access, void > base_type;
+	typedef smoc_port_in_base<T, smoc_channel_access, void > base_type;
   
 public:
   smoc_port_in(): base_type() {}
@@ -699,15 +714,15 @@ public:
 
 template <typename T>
 class smoc_port_out
-	: public smoc_port_out_base<T, smoc_ring_access, void > {
+	: public smoc_port_out_base<T, smoc_channel_access, void > {
 public:
   typedef T				    data_type;
   typedef smoc_port_out<data_type>	    this_type;
   typedef typename this_type::iface_type    iface_type;
-  typedef typename iface_type::access_type  ring_type;
+  typedef typename this_type::return_type   return_type;
 
 protected:
-	typedef smoc_port_out_base<T, smoc_ring_access, void > base_type;
+	typedef smoc_port_out_base<T, smoc_channel_access, void > base_type;
   
 public:
   smoc_port_out(): base_type() {}

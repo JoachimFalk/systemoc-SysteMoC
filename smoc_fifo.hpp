@@ -396,13 +396,22 @@ private:
 
 template <typename T>
 class smoc_fifo_storage
-: public smoc_chan_if<smoc_fifo_kind,T,smoc_ring_access,smoc_ring_access> {
+: public smoc_chan_if<smoc_fifo_kind,
+		      T,
+		      smoc_channel_access,
+		      smoc_channel_access> {
 public:
   typedef T                                   data_type;
   typedef smoc_fifo_storage<data_type>        this_type;
   typedef typename this_type::access_out_type ring_out_type;
   typedef typename this_type::access_in_type  ring_in_type;
   typedef smoc_storage<data_type>	      storage_type;
+  typedef smoc_ring_access<
+    typename ring_in_type::storage_type,
+    typename ring_in_type::return_type>       ring_access_in_type;
+  typedef smoc_ring_access<
+    typename ring_out_type::storage_type,
+    typename ring_out_type::return_type>      ring_access_out_type;
   
   class chan_init
     : public smoc_fifo_kind::chan_init {
@@ -424,7 +433,10 @@ private:
 protected:
   smoc_fifo_storage( const chan_init &i )
 //  : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i),
-    : smoc_chan_if<smoc_fifo_kind,T,smoc_ring_access,smoc_ring_access>(i),
+    : smoc_chan_if<smoc_fifo_kind,
+		   T,
+		   smoc_channel_access,
+		   smoc_channel_access>(i),
       storage(new storage_type[this->fsize])
   {
     assert(this->fsize > i.marking.size());
@@ -437,15 +449,19 @@ protected:
 #endif
   }
 
-  void accessSetupIn(ring_in_type &r) {
-    r.storage     = storage;
-    r.storageSize = this->fsize;
-    r.offset      = &this->rindex;
+  ring_in_type * accessSetupIn() {
+    ring_access_in_type *r = new ring_access_in_type();
+    r->storage     = storage;
+    r->storageSize = this->fsize;
+    r->offset      = &this->rindex;
+    return r;
   }
-  void accessSetupOut(ring_out_type &r) {
-    r.storage     = storage;
-    r.storageSize = this->fsize;
-    r.offset      = &this->windex;
+  ring_out_type * accessSetupOut() {
+    ring_access_out_type *r = new ring_access_out_type();
+    r->storage     = storage;
+    r->storageSize = this->fsize;
+    r->offset      = &this->windex; 
+    return r;
   }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
@@ -466,12 +482,21 @@ protected:
 template <>
 class smoc_fifo_storage<void>
 //: public smoc_chan_nonconflicting_if<smoc_fifo_kind, void> {
-: public smoc_chan_if<smoc_fifo_kind,void,smoc_ring_access,smoc_ring_access> {
+: public smoc_chan_if<smoc_fifo_kind,
+		      void,
+		      smoc_channel_access,
+		      smoc_channel_access> {
 public:
   typedef void                          data_type;
   typedef smoc_fifo_storage<data_type>  this_type;
   typedef this_type::access_out_type    ring_out_type;
   typedef this_type::access_in_type     ring_in_type;
+  typedef smoc_ring_access<
+    ring_in_type::storage_type,
+    ring_in_type::return_type>       ring_access_in_type;
+  typedef smoc_ring_access<
+    ring_out_type::storage_type,
+    ring_out_type::return_type>      ring_access_out_type;
   
   class chan_init
     : public smoc_fifo_kind::chan_init {
@@ -492,7 +517,10 @@ public:
 protected:
   smoc_fifo_storage( const chan_init &i )
 //  : smoc_chan_nonconflicting_if<smoc_fifo_kind, void>(i) {
-    : smoc_chan_if<smoc_fifo_kind,void,smoc_ring_access,smoc_ring_access>(i) {
+    : smoc_chan_if<smoc_fifo_kind,
+		   void,
+		   smoc_channel_access,
+		   smoc_channel_access>(i) {
     assert( fsize > i.marking );
     windex = i.marking;
 #ifdef ENABLE_SYSTEMC_VPC
@@ -500,8 +528,14 @@ protected:
 #endif
   }
  
-  void accessSetupIn(ring_in_type &r) {}
-  void accessSetupOut(ring_out_type &r) {}
+  ring_in_type  * accessSetupIn()  {
+    ring_access_in_type *r = new ring_access_in_type();
+    return r;
+  }
+  ring_out_type * accessSetupOut() {
+    ring_access_out_type *r = new ring_access_out_type();
+    return r;
+  }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;

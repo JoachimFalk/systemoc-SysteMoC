@@ -229,6 +229,17 @@ public:
 	typedef smoc_wsdf_edge_descr::s2vector_type s2vector_type;
 
 public:
+  typedef smoc_port_in_base<T,R,PARAM_TYPE> base_type;
+  typedef typename base_type::ChannelAccess::iter_domain_vector_type iter_domain_vector_type;
+  typedef smoc_snk_md_loop_iterator_kind::border_type_vector_type border_type_vector_type;
+
+  virtual border_type_vector_type is_ext_border(
+    const iter_domain_vector_type& window_iteration,
+    bool& is_border) const
+  {
+    return this->channel_access->is_ext_border(window_iteration, is_border);
+  }
+
 	virtual void setFiringLevelMap(const s2vector_type& firing_level_map) = 0;	
 };
 
@@ -242,6 +253,14 @@ class smoc_md_port_out_base
 {
 
 public:
+  typedef smoc_port_out_base<T,R,PARAM_TYPE, STORAGE_TYPE> base_type;
+  typedef typename base_type::ChannelAccess::iter_domain_vector_type iter_domain_vector_type;
+  typedef typename base_type::ChannelAccess::return_type             return_type;
+
+  virtual return_type operator[](const iter_domain_vector_type& id){
+    return (*(this->channel_access))[id];
+  }
+
 	typedef smoc_wsdf_edge_descr::s2vector_type s2vector_type;
 
 public:
@@ -304,7 +323,7 @@ public:
 #endif
 				
 
-		return_type return_value(is_border ? border_value : base_type::operator[](window_iteration));
+		return_type return_value(is_border ? border_value : (*(this->channel_access))[window_iteration]);
 
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
 		dout << "Leave smoc_cst_border_ext::operator[]" << endl;
@@ -497,7 +516,7 @@ public:
 			//Firing level is not covered by an iteration level
 			return 0;
 		}else{
-			return access_type::iteration(firing_level_map[firing_level][dimension]);
+			return this->channel_access->iteration(firing_level_map[firing_level][dimension]);
 		}
 	}
 
@@ -687,7 +706,7 @@ public:
 			//Firing level is not covered by an iteration level
 			return 0;
 		}else{
-			return access_type::iteration(firing_level_map[firing_level][dimension]);
+			return this->channel_access->iteration(firing_level_map[firing_level][dimension]);
 		}
 	}
 

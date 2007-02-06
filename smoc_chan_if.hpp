@@ -46,7 +46,48 @@
 #include <list>
 
 template<class S, class T>
-class smoc_ring_access {
+class smoc_channel_access {
+public:
+  typedef S                                              storage_type;
+  typedef T                                              return_type;
+  typedef smoc_channel_access<storage_type, return_type> this_type;
+
+#ifndef NDEBUG
+  virtual void   setLimit(size_t l)                    = 0;
+  //virtual size_t getLimit() const                      = 0;
+#endif
+  virtual return_type operator[](size_t n)             = 0;
+  virtual const return_type operator[](size_t n) const = 0;
+};
+
+template<>
+class smoc_channel_access<void, void> {
+public:
+  typedef void                                           storage_type;
+  typedef void                                           return_type;
+  typedef smoc_channel_access<storage_type, return_type> this_type;
+
+#ifndef NDEBUG
+  virtual void   setLimit(size_t l)                    = 0;
+  //virtual size_t getLimit() const                      = 0;
+#endif
+};
+
+template<>
+class smoc_channel_access<const void, const void> {
+public:
+  typedef const void					 storage_type;
+  typedef const void					 return_type;
+  typedef smoc_channel_access<storage_type, return_type> this_type;
+
+#ifndef NDEBUG
+  virtual void   setLimit(size_t l)                    = 0;
+  //virtual size_t getLimit() const                      = 0;
+#endif
+};
+
+template<class S, class T>
+class smoc_ring_access : public smoc_channel_access<S, T> {
 public:
   typedef S					      storage_type;
   typedef T					      return_type;
@@ -88,7 +129,7 @@ public:
 };
 
 template <>
-class smoc_ring_access<void, void> {
+class smoc_ring_access<void, void> : public smoc_channel_access<void, void> {
 public:
   typedef void					      storage_type;
   typedef void					      return_type;
@@ -111,7 +152,7 @@ public:
 };
 
 template <>
-class smoc_ring_access<const void, const void> {
+class smoc_ring_access<const void, const void> : public smoc_channel_access<const void, const void> {
 public:
   typedef const void				      storage_type;
   typedef const void				      return_type;
@@ -191,7 +232,7 @@ public:
   virtual size_t committedOutCount() const = 0;
 //smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual smoc_event &blockEventOut(size_t n) = 0;
-  virtual void   accessSetupIn(access_type &r) = 0;
+  virtual access_in_type * accessSetupIn() = 0;
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void   commExecIn(size_t consume, const smoc_ref_event_p &) = 0;
 #else
@@ -234,7 +275,7 @@ public:
   virtual size_t      committedInCount() const = 0;
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual smoc_event &blockEventIn(size_t n) = 0;
-  virtual void        accessSetupOut(access_type &r) = 0;
+  virtual access_out_type * accessSetupOut() = 0;
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void        commExecOut(size_t produce, const smoc_ref_event_p &) = 0;
 #else
