@@ -71,8 +71,6 @@ public:
   NonStrictAnd(sc_module_name name)
     : smoc_actor(name, start){
 
-    _non_strict = true;
-
     start = (op0(1) && op1(1))                          >>
       out(1)                                            >>
       (SR_GO(NonStrictAnd::goAnd)(true) && SR_TICK(NonStrictAnd::tick)(2)(3))  >> start

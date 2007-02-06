@@ -49,8 +49,6 @@ public:
     : smoc_actor(name, main),
       undefined(true){
 
-    _non_strict = true;
-
     main = in(1)                                        >>
       out(1)                                            >>
       (SR_GO(Delay::forward) && SR_TICK(Delay::store) ) >> main;
