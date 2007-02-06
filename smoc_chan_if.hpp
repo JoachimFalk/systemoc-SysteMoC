@@ -369,6 +369,8 @@ protected:
 private:
   // disabled
   const sc_event& default_event() const { return smoc_default_event_abort(); }
+
+  virtual void reset(){};
 };
 
 typedef std::list<smoc_root_chan *> smoc_chan_list;
