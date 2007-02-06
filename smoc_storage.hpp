@@ -77,6 +77,10 @@ public:
   void operator=(const T& t)
     { put(t); }  
 
+  const bool isValid() const{
+    return valid;
+  }
+  
   ~smoc_storage() {
     if(valid) {
       ptr()->~T();
