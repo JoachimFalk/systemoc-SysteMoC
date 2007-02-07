@@ -98,11 +98,11 @@ class PanchamRound
     ~PanchamRound();
 
     sc_uint<32>
-    PanchamRound::perform(sc_uint<32> a, sc_uint<32> b, sc_uint<32> c, sc_uint<32> d,
-                      // Note that for a 128-bit long input message, X[k] = M[k] = m :
-                      sc_uint<32> m, sc_uint<32> s,
-                      sc_uint<32> t,     // t-th sample of abs(sin(i)), i = 1, 2, ..., 64
-                      sc_uint<2>  round); // round number (1-4).
+    perform(sc_uint<32> a, sc_uint<32> b, sc_uint<32> c, sc_uint<32> d,
+	    // Note that for a 128-bit long input message, X[k] = M[k] = m :
+	    sc_uint<32> m, sc_uint<32> s,
+	    sc_uint<32> t,     // t-th sample of abs(sin(i)), i = 1, 2, ..., 64
+	    sc_uint<2>  round); // round number (1-4).
 
 };
 
