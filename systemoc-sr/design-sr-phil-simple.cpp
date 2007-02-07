@@ -1,69 +1,14 @@
-// vim: set sw=2 ts=8:
-
 #include <cstdlib>
 #include <iostream>
 
 #include <smoc_moc.hpp>
-#include <smoc_port.hpp>
 #include <smoc_sr_signal.hpp>
-#include <smoc_node_types.hpp>
-#ifndef __SCFE__
-//# include <smoc_scheduler.hpp>
-# include <smoc_pggen.hpp>
-#endif
 
-
-//ADeVA Lib ??
-template<typename T>
-class Delay : public smoc_actor{
-public:
-  typedef T                  signal_t;
-
-  smoc_port_in<signal_t>     in;
-  smoc_port_out<signal_t>    out;
-
-private:
-  signal_t                   m_signal;
-  bool                       undefined;
-
-  void forward(){ // GO
-    if(!undefined){
-      //cout << name() << ".forward()" << endl;
-      out[0] = m_signal;
-    }
-  }
-
-  void store(){ // TICK
-    if(in.isValid(0)){
-      //cout << name() << ".store()" << endl;
-      m_signal = in[0];
-      undefined = false;
-    } else {
-      //undefined = true;
-    }
-  }
-
-  smoc_firing_state main;
-public:
-  Delay(sc_module_name name)
-    : smoc_actor(name, main),
-      undefined(true){
-
-    main = in(1)                                        >>
-      out(1)                                            >>
-      (SR_GO(Delay::forward) && SR_TICK(Delay::store) ) >> main;
-  }
-};
-
-
+#include <adeva_lib.hpp>
 
 //pkg:
-//enum    phil_type   {eating, right_fork_taken, thinking};
+enum    phil_type   {eating, right_fork_taken, thinking};
 typedef unsigned short timer_type;
-typedef unsigned short phil_type;
-#define eating 0
-#define right_fork_taken 1
-#define thinking 2
 
 
 class Clock: public smoc_actor {
@@ -133,9 +78,13 @@ public:
 class Philosopher: public smoc_actor {
 public:
   smoc_port_in<bool>            clk;
+  smoc_port_in<bool>            clk_hist;
   smoc_port_in<timer_type>      timer;
+  smoc_port_in<timer_type>      timer_hist;
   smoc_port_in<phil_type>       left_phil;
+  smoc_port_in<phil_type>       left_phil_hist;
   smoc_port_in<phil_type>       right_phil;
+  smoc_port_in<phil_type>       right_phil_hist;
   smoc_port_out<phil_type>      phil1;
   smoc_port_out<phil_type>      phil2;
   smoc_port_out<phil_type>      phil3;
@@ -216,7 +165,9 @@ class Timer
   : public smoc_actor{
 public:
   smoc_port_in<bool>            clk;
+  smoc_port_in<bool>            clk_hist;
   smoc_port_in<phil_type>       phil;
+  smoc_port_in<phil_type>       phil_hist;
   smoc_port_out<timer_type>     timer;
   
 private:
@@ -224,7 +175,7 @@ private:
 
   bool c1() const{
     //TODO: edge detection
-    return clk[0];
+    return clk[0] && (clk[0] != clk_hist[0]);
   }
 
   bool c2() const{
@@ -253,17 +204,20 @@ private:
 public:
   Timer(sc_module_name name)
     :smoc_actor(name, main), m_timer(0){
-    main = (clk(1) && phil(1) && GUARD(Timer::c1) && GUARD(Timer::c2) && !GUARD(Timer::c3) && !GUARD(Timer::c4)) >>
+    main = (clk(1) && clk_hist(1) && phil(1) && GUARD(Timer::c1)
+      && GUARD(Timer::c2) && !GUARD(Timer::c3) && !GUARD(Timer::c4)) >>
       timer(1)                                        >>
       CALL(Timer::zero)                               >>
       main
 
-      | (clk(1) && phil(1) && GUARD(Timer::c1) && !GUARD(Timer::c2) && GUARD(Timer::c3) && GUARD(Timer::c4)) >>
+      | (clk(1) && clk_hist(1) && phil(1) && GUARD(Timer::c1)
+      && !GUARD(Timer::c2) && GUARD(Timer::c3) && GUARD(Timer::c4)) >>
       timer(1)                                        >>
       CALL(Timer::add)                                >>
       main
 
-      | (clk(1) && phil(1) && GUARD(Timer::c1) && !GUARD(Timer::c2) && !GUARD(Timer::c3) && GUARD(Timer::c4)) >>
+      | (clk(1) && clk_hist(1) && phil(1) && GUARD(Timer::c1)
+      && !GUARD(Timer::c2) && !GUARD(Timer::c3) && GUARD(Timer::c4)) >>
       timer(1)                                        >>
       CALL(Timer::add)                                >>
       main;
@@ -292,12 +246,14 @@ private:
   void connect(
       smoc_port_out<typename T_chan_init::data_type> &b,
       smoc_port_in<typename T_chan_init::data_type>  &a,
+      smoc_port_in<typename T_chan_init::data_type>  &a_hist,
       const T_chan_init i 
       //L l, R r, C c
       ){
     Delay<typename T_chan_init::data_type> *delay = new Delay<typename T_chan_init::data_type>("Delay");
-    connectNodePorts(b,          delay->in, i);
-    connectNodePorts(delay->out, a,         T_chan_init(i));
+    connectNodePorts(b,              delay->in, i);
+    connectNodePorts(delay->out,     a,         T_chan_init(i));
+    connectNodePorts(delay->history, a_hist,    T_chan_init(i));
   }
 
 
@@ -315,41 +271,41 @@ public:
      timer4("Timer4"),
      timer5("Timer5"),
      clk("CLK", times){
-    connect( phil5.phil1,   phil4.right_phil,    smoc_sr_signal<phil_type>() );
-    connect( phil4.phil1,   phil3.right_phil,    smoc_sr_signal<phil_type>() );
-    connect( phil3.phil1,   phil2.right_phil,    smoc_sr_signal<phil_type>() );
-    connect( phil2.phil1,   phil1.right_phil,    smoc_sr_signal<phil_type>() );
-    connect( phil1.phil1,   phil5.right_phil,    smoc_sr_signal<phil_type>() );
+    connect( phil5.phil1,   phil4.right_phil,   phil4.right_phil_hist,   smoc_sr_signal<phil_type>() );
+    connect( phil4.phil1,   phil3.right_phil,   phil3.right_phil_hist,   smoc_sr_signal<phil_type>() );
+    connect( phil3.phil1,   phil2.right_phil,   phil2.right_phil_hist,   smoc_sr_signal<phil_type>() );
+    connect( phil2.phil1,   phil1.right_phil,   phil1.right_phil_hist,   smoc_sr_signal<phil_type>() );
+    connect( phil1.phil1,   phil5.right_phil,   phil5.right_phil_hist,   smoc_sr_signal<phil_type>() );
 
-    connect( phil5.phil2,   phil1.left_phil,    smoc_sr_signal<phil_type>() );
-    connect( phil4.phil2,   phil5.left_phil,    smoc_sr_signal<phil_type>() );
-    connect( phil3.phil2,   phil4.left_phil,    smoc_sr_signal<phil_type>() );
-    connect( phil2.phil2,   phil3.left_phil,    smoc_sr_signal<phil_type>() );
-    connect( phil1.phil2,   phil2.left_phil,    smoc_sr_signal<phil_type>() );
-
-    connect( timer5.timer,  phil5.timer,        smoc_sr_signal<phil_type>() );
-    connect( timer4.timer,  phil4.timer,        smoc_sr_signal<phil_type>() );
-    connect( timer3.timer,  phil3.timer,        smoc_sr_signal<phil_type>() );
-    connect( timer2.timer,  phil2.timer,        smoc_sr_signal<phil_type>() );
-    connect( timer1.timer,  phil1.timer,        smoc_sr_signal<phil_type>() );
-
-    connect( phil5.phil3,   timer5.phil,        smoc_sr_signal<phil_type>() );
-    connect( phil4.phil3,   timer4.phil,        smoc_sr_signal<phil_type>() );
-    connect( phil3.phil3,   timer3.phil,        smoc_sr_signal<phil_type>() );
-    connect( phil2.phil3,   timer2.phil,        smoc_sr_signal<phil_type>() );
-    connect( phil1.phil3,   timer1.phil,        smoc_sr_signal<phil_type>() );
-
-    connect( clk.out5,       timer5.clk,        smoc_sr_signal<bool>()      );
-    connect( clk.out4,       timer4.clk,        smoc_sr_signal<bool>()      );
-    connect( clk.out3,       timer3.clk,        smoc_sr_signal<bool>()      );
-    connect( clk.out2,       timer2.clk,        smoc_sr_signal<bool>()      );
-    connect( clk.out1,       timer1.clk,        smoc_sr_signal<bool>()      );
-
-    connect( clk.out10,      phil5.clk,         smoc_sr_signal<bool>()      );
-    connect( clk.out9,       phil4.clk,         smoc_sr_signal<bool>()      );
-    connect( clk.out8,       phil3.clk,         smoc_sr_signal<bool>()      );
-    connect( clk.out7,       phil2.clk,         smoc_sr_signal<bool>()      );
-    connect( clk.out6,       phil1.clk,         smoc_sr_signal<bool>()      );
+    connect( phil5.phil2,   phil1.left_phil,    phil1.left_phil_hist,    smoc_sr_signal<phil_type>() );
+    connect( phil4.phil2,   phil5.left_phil,    phil5.left_phil_hist,    smoc_sr_signal<phil_type>() );
+    connect( phil3.phil2,   phil4.left_phil,    phil4.left_phil_hist,    smoc_sr_signal<phil_type>() );
+    connect( phil2.phil2,   phil3.left_phil,    phil3.left_phil_hist,    smoc_sr_signal<phil_type>() );
+    connect( phil1.phil2,   phil2.left_phil,    phil2.left_phil_hist,    smoc_sr_signal<phil_type>() );
+			  		    					    			    
+    connect( timer5.timer,  phil5.timer,        phil5.timer_hist,        smoc_sr_signal<timer_type>() );
+    connect( timer4.timer,  phil4.timer,        phil4.timer_hist,        smoc_sr_signal<timer_type>() );
+    connect( timer3.timer,  phil3.timer,        phil3.timer_hist,        smoc_sr_signal<timer_type>() );
+    connect( timer2.timer,  phil2.timer,        phil2.timer_hist,        smoc_sr_signal<timer_type>() );
+    connect( timer1.timer,  phil1.timer,        phil1.timer_hist,        smoc_sr_signal<timer_type>() );
+			  		    					    			    
+    connect( phil5.phil3,   timer5.phil,        timer5.phil_hist,        smoc_sr_signal<phil_type>() );
+    connect( phil4.phil3,   timer4.phil,        timer4.phil_hist,        smoc_sr_signal<phil_type>() );
+    connect( phil3.phil3,   timer3.phil,        timer3.phil_hist,        smoc_sr_signal<phil_type>() );
+    connect( phil2.phil3,   timer2.phil,        timer2.phil_hist,        smoc_sr_signal<phil_type>() );
+    connect( phil1.phil3,   timer1.phil,        timer1.phil_hist,        smoc_sr_signal<phil_type>() );
+			  		    					    			    
+    connect( clk.out5,       timer5.clk,         timer5.clk_hist,        smoc_sr_signal<bool>()      );
+    connect( clk.out4,       timer4.clk,         timer4.clk_hist,        smoc_sr_signal<bool>()      );
+    connect( clk.out3,       timer3.clk,         timer3.clk_hist,        smoc_sr_signal<bool>()      );
+    connect( clk.out2,       timer2.clk,         timer2.clk_hist,        smoc_sr_signal<bool>()      );
+    connect( clk.out1,       timer1.clk,         timer1.clk_hist,        smoc_sr_signal<bool>()      );
+			  		    					    			    
+    connect( clk.out10,      phil5.clk,          phil5.clk_hist,         smoc_sr_signal<bool>()      );
+    connect( clk.out9,       phil4.clk,          phil4.clk_hist,         smoc_sr_signal<bool>()      );
+    connect( clk.out8,       phil3.clk,          phil3.clk_hist,         smoc_sr_signal<bool>()      );
+    connect( clk.out7,       phil2.clk,          phil2.clk_hist,         smoc_sr_signal<bool>()      );
+    connect( clk.out6,       phil1.clk,          phil1.clk_hist,         smoc_sr_signal<bool>()      );
 
   }
 };
