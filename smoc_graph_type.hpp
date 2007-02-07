@@ -287,28 +287,37 @@ public:
                         smoc_port_in_base<typename T_chan_type::data_type, R, P> &p ) {
     p(chan);
   }
-  template <typename T>
-  void connectChanPort( smoc_multicast_sr_signal_type<T> &chan,
-                        smoc_port_in<typename smoc_multicast_sr_signal_type<T>::data_type> &p ) {
+  template <typename T,
+	    template <typename, typename> class R,
+	    class P>
+  void connectChanPort(
+    smoc_multicast_sr_signal_type<T> &chan,
+    smoc_port_in_base<
+      typename smoc_multicast_sr_signal_type<T>::data_type,
+      R,
+      P> &p )
+  {
 //    assert( port2chan.find(&p) ==  port2chan.end() );
 //    port2chan[&p] = &chan;
 //    chan2ports[&chan].push_back(&p);
-    cout << "jippie" <<  endl;
-    sc_port_base *base = dynamic_cast<sc_port_base*>(&p);
-    if(base){
-      cout << "base: " << base << " " << base->kind() << endl;
-      sc_interface *IF = base->get_interface();
-      if(IF){
-	cout << ": " << IF << endl;
-	smoc_multicast_sr_signal_kind *sig = dynamic_cast<smoc_multicast_sr_signal_kind*>(IF);
-	if(sig){
-	  cout << ": " << sig->name() << endl;
-	  sig->dump();
-	}
-      }
-    }
-
-    p(chan);
+    p(chan.getOutlet());
+  }
+  template <typename T,
+	    template <typename, typename> class R,
+	    class P,
+	    template <typename> class STORAGE_OUT_TYPE>
+  void connectChanPort(
+    smoc_multicast_sr_signal_type<T> &chan,
+    smoc_port_out_base<
+      typename smoc_multicast_sr_signal<T>::data_type,
+      R,
+      P,
+      STORAGE_OUT_TYPE> &p )
+  {
+//    assert( port2chan.find(&p) ==  port2chan.end() );
+//    port2chan[&p] = &chan;
+//    chan2ports[&chan].push_back(&p);
+    p(chan.getEntry());
   }
   
   const smoc_node_list getNodes() const;

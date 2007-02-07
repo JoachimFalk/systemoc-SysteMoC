@@ -32,36 +32,9 @@
 
 #include <hscd_tdsim_TraceLog.hpp>
 
+//forw. decl.
 template <typename T>
-class smoc_multicast_entry {
-  typedef T                                  data_type;
-  typedef smoc_storage<data_type>	     storage_type;
-private:
-  storage_type &actualValue;
-public:
-  smoc_multicast_entry(storage_type &actualValue)
-    : actualValue(actualValue){}
-
-  smoc_storage<data_type>& operator[](size_t n){
-    return actualValue;
-  }
-};
-
-template <typename T>
-class smoc_multicast_outlet {
-  typedef T                                  data_type;
-  typedef smoc_storage<data_type>	     storage_type;
-private:
-  storage_type &actualValue;
-public:
-  smoc_multicast_outlet(storage_type &actualValue)
-    : actualValue(actualValue){}
-  const smoc_storage<data_type> operator[](size_t n) const{
-    return actualValue;
-  }
-};
-
-
+class smoc_multicast_sr_signal_type;
 
 /// Base class of the MULTICAST_SR_SIGNAL implementation.
 class smoc_multicast_sr_signal_kind
@@ -77,211 +50,174 @@ public:
     const char *name;
     size_t      n;
   protected:
-    chan_init( const char *name, size_t n )
-      : name(name), n(n) {}
+    chan_init( const char *name, size_t n );
   };
-protected:
-  typedef std::map<size_t, smoc_event *>      EventMap;
+public:
+  SignalState getSignalState() const;
 
-  SignalState signalState;
-  bool        multipleWrite;
-  bool        undefinedRead;
-
-  size_t const fsize;   /// fsize == 1 signal type
-  //  size_t       rindex;  ///< The SR_SIGNAL read    ptr
-  //  size_t       windex;  ///< The SR_SIGNAL write   ptr
-
-  smoc_event   eventWrite;
-  EventMap     eventMapAvailable;
-  smoc_event   eventRead;
-  EventMap     eventMapFree;
-
-  size_t usedStorage() const {
-    size_t ret;
-    if(/*multipleWrite ||*/ undefinedRead) ret = 1;
-    else              ret = (signalState == undefined)?0:1;
-    return ret;
-  }
-
-  void usedIncr() {
-    size_t used = usedStorage();
-    // notify all disabled events for less/equal usedStorage() available tokens
-    for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
-         iter != eventMapAvailable.begin() && !*(--iter)->second;
-         ){
-      //std::cerr << __FILE__ << ":" << __LINE__ << ": marker"  << std::endl;
-      iter->second->notify();
-    }
-    eventWrite.notify();
-  }
-
-  void usedDecr() {
-     size_t used = usedStorage();
-    // reset all enabled events for more then usedStorage() available tokens
-    for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
-         iter != eventMapAvailable.end() && *iter->second;
-         ++iter)
-      iter->second->reset();
-  }
-
-  size_t unusedStorage() const {
-    //std::cerr << "unusedStorage()="<< 1-usedStorage()  << std::endl;
-    if(multipleWrite) return 1;
-    else              return (signalState == undefined)?1:0;
-  }
-
-  void unusedIncr() {
-    size_t unused = unusedStorage();
-    // notify all disabled events for less/equal unusedStorage() free space
-    for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
-         iter != eventMapFree.begin() && !*(--iter)->second;
-         )
-      iter->second->notify();
-    eventRead.notify();
-  }
-
-  void unusedDecr() {
-    size_t unused = unusedStorage();
-    // reset all enabled events for more then unusedStorage() free space
-    for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
-         iter != eventMapFree.end() && *iter->second;
-         ++iter)
-      iter->second->reset();
-  }
-
-  void rpp(size_t n) {
-    //    if(signalState == undefined) std::cerr << "undefinedRead: ";
-    //    std::cerr << "rpp(" << n << ")"  << std::endl;
-    assert(n <= 1);
-    //    usedDecr(); unusedIncr();
-  }
+  void setSignalState(SignalState s);
 
 #ifdef ENABLE_SYSTEMC_VPC
-  void wpp(size_t n, const smoc_ref_event_p &le)
+  virtual void wpp(size_t n, const smoc_ref_event_p &le) = 0;
 #else
-  void wpp(size_t n)
+  virtual void wpp(size_t n) = 0;
 #endif
-  {
-    //    std::cerr << "wpp(" << n << ")"  << std::endl;
-    assert(n <= 1);
-    
-    this->signalState = defined;
-    //unusedDecr();
-    usedIncr();
-  }
 
-  smoc_event &getEventAvailable(size_t n) {
-    //std::cerr << "getEventAvailable(" << n << ")"  << std::endl;
-    assert(n <= 1);
-    if (n != MAX_TYPE(size_t)) {
-      EventMap::iterator iter = eventMapAvailable.find(n);
-      if (iter == eventMapAvailable.end()) {
-        iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
-        if (usedStorage() >= n)
-          iter->second->notify();
-      }
-      return *iter->second;
-    } else {
-      return eventWrite;
-    }
-  }
+  virtual void rpp(size_t n) = 0;
 
-  smoc_event &getEventFree(size_t n) {
-    //std::cerr << "getEventAvailable(" << n << ")"  << std::endl;
-    assert(n <= 1);
-    if (n != MAX_TYPE(size_t)) {
-      EventMap::iterator iter = eventMapFree.find(n);
-      if (iter == eventMapFree.end()) {
-        iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
-        if (unusedStorage() >= n)
-          iter->second->notify();
-      }
-      return *iter->second;
-    } else {
-      return eventRead;
-    }
-  }
+  virtual void unusedDecr() = 0;
 
-  void channelAttributes(smoc_modes::PGWriter &pgw) const {
-    //std::cerr << __FILE__ << ":" << __LINE__ << ": marker"  << std::endl;
-    // Signal has no size!!
-    // pgw << "<attribute type=\"size\" value=\"1\"/>" << std::endl;
-  }
+  bool isDefined();
+protected:
+  SignalState signalState;
+
+  void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
   virtual
   void channelContents(smoc_modes::PGWriter &pgw) const = 0;
 
   // constructors
-  smoc_multicast_sr_signal_kind( const chan_init &i )
-    : smoc_multicast_chan(
-        i.name != NULL ? i.name
-	: sc_gen_unique_name( "smoc_multicast_sr_signal" ) ),
-      signalState(undefined),
-      multipleWrite(false),
-      undefinedRead(false),
-      fsize(1){
-  }
+  smoc_multicast_sr_signal_kind( const chan_init &i );
 private:
   static const char* const kind_string;
   
-  virtual const char* kind() const {
-    return kind_string;
-  }
+  virtual const char* kind() const;
   
-  bool isDefined(){
-    return (signalState == defined);
-  }
-
   virtual void reset()=0;
 
-  void tick(){
-    bool needUpdate = (signalState != undefined);
-    signalState=undefined;
-    if(needUpdate){
-      usedDecr(); unusedIncr(); // update events (storage state changed)
-    }
-    this->reset();
-  }
-
-  void multipleWriteSameValue(bool allow){
-    multipleWrite = allow;
-  }
-
-  void allowUndefinedRead(bool allow){
-    undefinedRead = allow;
-    //  signalState=defined;
-    unusedDecr();
-    usedIncr();
-
-  }
+  virtual void tick() = 0;
 
   // disabled
   smoc_multicast_sr_signal_kind( const this_type & );
   this_type& operator = ( const this_type & );
 };
 
-template <typename T>
-class smoc_multicast_sr_signal_storage
-  : public smoc_chan_if<smoc_multicast_sr_signal_kind,
-			T,
-			smoc_channel_access,
-			smoc_channel_access>,
-    public smoc_channel_access<
-  typename smoc_chan_if<smoc_sr_signal_kind, T, smoc_channel_access,
-			smoc_channel_access>::access_out_type::storage_type,
-  typename smoc_chan_if<smoc_sr_signal_kind, T, smoc_channel_access,
-			smoc_channel_access>::access_out_type::storage_type>
-{
-public:
-  typedef T                                  data_type;
-  typedef smoc_multicast_sr_signal_storage<data_type>  this_type;
-  typedef typename this_type::iface_out_type iface_out_type;
-  typedef typename this_type::ring_out_type  ring_out_type;
-  typedef typename this_type::iface_in_type  iface_in_type;
-  typedef typename this_type::ring_in_type   ring_in_type;
-  typedef smoc_storage<data_type>	     storage_type;
-public: // smoc_channel_access interface
 
+class smoc_outlet_kind
+  : public sc_interface {
+  friend class smoc_scheduler_top;
+public:
+  smoc_outlet_kind(smoc_multicast_sr_signal_kind* base);
+
+  void usedDecr();
+
+#ifdef ENABLE_SYSTEMC_VPC
+  void wpp(size_t n, const smoc_ref_event_p &le);
+#else
+  void wpp(size_t n);
+#endif
+
+protected:
+  bool undefinedRead;
+  smoc_multicast_sr_signal_kind* _base;
+
+  size_t usedStorage() const;
+
+  void usedIncr();
+
+
+  smoc_event &getEventAvailable(size_t n);
+
+private:
+  typedef std::map<size_t, smoc_event *>      EventMap;
+
+  EventMap     eventMapAvailable;
+  smoc_event   eventWrite;
+
+  bool isDefined();
+
+  void allowUndefinedRead(bool allow);
+};
+
+class smoc_entry_kind
+  : public sc_interface {
+  friend class smoc_scheduler_top;
+public:
+  smoc_entry_kind(smoc_multicast_sr_signal_kind* base);
+
+  void unusedIncr();
+
+  void unusedDecr();
+
+  void rpp(size_t n);
+protected:
+  bool multipleWrite;
+  smoc_multicast_sr_signal_kind* _base;
+
+  size_t unusedStorage() const;
+
+  smoc_event &getEventFree(size_t n);
+private:
+  typedef std::map<size_t, smoc_event *>      EventMap;
+
+  smoc_event   eventRead;
+  EventMap     eventMapFree;
+
+  bool isDefined();
+
+  void multipleWriteSameValue(bool allow);
+};
+
+
+
+template <typename T>
+class smoc_multicast_outlet
+  : public smoc_chan_in_if<T, smoc_channel_access>,
+    public smoc_outlet_kind,
+    public smoc_channel_access<
+  typename smoc_chan_in_if<T, smoc_channel_access>::access_type::storage_type,
+  typename smoc_chan_in_if<T, smoc_channel_access>::access_type::return_type>
+{
+  typedef T                                  data_type;
+  typedef smoc_storage<data_type>	     storage_type;
+  typedef smoc_multicast_outlet<data_type>   this_type;
+  typedef typename this_type::access_in_type ring_in_type;
+  typedef typename this_type::return_type    return_type;
+public:
+  smoc_multicast_outlet(smoc_multicast_sr_signal_kind* base,
+			storage_type &actualValue)
+    : smoc_outlet_kind(base),
+      actualValue(actualValue) {
+    assert(this->_base);
+  }
+
+  return_type operator[](size_t n){
+    return actualValue;
+  }
+
+  const return_type operator[](size_t n) const{
+    assert(0); //schould never be called on an input port
+    return actualValue;
+  }
+
+  void addPort(smoc_root_port_in *in) {
+    assert(this->_base);
+    return this->_base->addPort(in);
+  }
+
+  // bounce functions
+  size_t committedOutCount() const
+    { return this->usedStorage(); }
+  smoc_event &blockEventOut(size_t n)
+    { return this->getEventAvailable(n); }
+
+  ring_in_type * accessSetupIn() {
+    return this;
+  }
+
+#ifdef ENABLE_SYSTEMC_VPC
+  void commExecIn(size_t consume, const smoc_ref_event_p &le)
+#else
+  void commExecIn(size_t consume)
+#endif
+  {
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommExecIn(consume, this->name());
+#endif
+    this->_base->rpp(consume);
+  }
+  
+  // smoc_channel_access interface
   void   setLimit(size_t l){
     limit=l;
   }
@@ -290,34 +226,87 @@ public: // smoc_channel_access interface
     return limit;
   }
 
-  smoc_storage<data_type>& operator[](size_t n){
-    return actualValue;
-  }
-
-  const smoc_storage<data_type> operator[](size_t n) const{
-    return actualValue;
-  }
-protected:
-  //FIXME(MS): is there a need for making edge detection in SR
-  //           or is it part of the application 
-  //  storage_type   lastValue;
-
-  storage_type   actualValue;
+private:
   size_t         limit;
-  //std::list<smoc_multicast_outlet<data_type> > outlets;
-  //smoc_multicast_entry<data_type>              entry;
+  storage_type &actualValue;
+
+  // disabled
+  const sc_event& default_event() const { return smoc_default_event_abort(); }
+};
+
+template <typename T>
+class smoc_multicast_entry
+  : public smoc_chan_out_if<T, smoc_channel_access>,
+    public smoc_entry_kind,
+    public smoc_channel_access<
+  typename smoc_chan_out_if<T, smoc_channel_access>::access_type::storage_type,
+  typename smoc_chan_out_if<T, smoc_channel_access>::access_type::return_type>
+{
+  typedef T                                  data_type;
+  typedef smoc_multicast_entry<data_type>   this_type;
+  typedef smoc_storage<data_type>	     storage_type;
+  typedef typename this_type::access_out_type  ring_out_type;
+  typedef typename this_type::return_type      return_type;
+public:
+  smoc_multicast_entry(smoc_multicast_sr_signal_kind* base,
+			storage_type &actualValue)
+    : smoc_entry_kind(base),
+      actualValue(actualValue) {}
+
+  return_type operator[](size_t n){
+    return actualValue;
+  }
+
+
+  const return_type operator[](size_t n) const{
+    return actualValue;
+  }
+  void addPort(smoc_root_port_out *out) {
+    return this->_base->addPort(out);
+  }
+  size_t committedInCount() const
+    { return this->unusedStorage(); }
+  smoc_event &blockEventIn(size_t n)
+    { return this->getEventFree(n); }
+  virtual ring_out_type * accessSetupOut() {
+    return this;
+  }
+#ifdef ENABLE_SYSTEMC_VPC
+  void commExecOut(size_t produce, const smoc_ref_event_p &le) {
+    if( this->actualValue.isValid() ) this->_base->wpp(produce, le);
+#else
+  void commExecOut(size_t produce) {
+    if( this->actualValue.isValid() ) this->_base->wpp(produce);
+#endif
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommExecOut(produce, this->name());
+#endif
+  }
+
+  // smoc_channel_access interface
+  void   setLimit(size_t l){
+    limit=l;
+  }
+
+  size_t getLimit() const{
+    return limit;
+  }
 
 private:
+  size_t         limit;
+  storage_type &actualValue;
 
-  void reset(){
-    //lastValue = actualValue;
-    actualValue = storage_type();
-  }
+  // disabled
+  const sc_event& default_event() const { return smoc_default_event_abort(); }
+};
 
+template <typename T>
+class smoc_multicast_sr_signal_type
+  : public smoc_multicast_sr_signal_kind {
 public:
   class chan_init
     : public smoc_multicast_sr_signal_kind::chan_init {
-    friend class smoc_multicast_sr_signal_storage<T>;
+    friend class smoc_multicast_sr_signal_type<T>;
   private:
     //FIXME(MS): replace with signal value wrapper
     std::vector<T>  marking;
@@ -339,27 +328,81 @@ public:
     chan_init( const char *name, size_t n )
       : smoc_multicast_sr_signal_kind::chan_init(name, n) {}
   };
-protected:
-  smoc_multicast_sr_signal_storage( const chan_init &i )
-    : smoc_chan_if<smoc_multicast_sr_signal_kind,
-		   T,
-		   smoc_channel_access,
-		   smoc_channel_access>(i)
+
+
+
+
+public:
+  typedef T                                  data_type;
+  typedef smoc_multicast_sr_signal_type<data_type>  this_type;
+  typedef smoc_storage<data_type>	     storage_type;
+
+  smoc_multicast_sr_signal_type( const chan_init &i )
+    : smoc_multicast_sr_signal_kind(i),
+      entry(this, actualValue),
+      outlet(this, actualValue)
   {
     assert(1 >= i.marking.size());
     if(1 == i.marking.size()){
-      (*this)[0].put(i.marking[0]);
+      actualValue.put(i.marking[0]);
       this->signalState = defined;
     }
   }
 
-  ring_in_type * ringSetupIn() {
-    return this;
-  }
-  ring_out_type * ringSetupOut() {
-    return this;
+  smoc_multicast_entry<data_type>& getEntry(){
+    return entry;
   }
 
+  smoc_multicast_outlet<data_type>& getOutlet(){
+    return outlet;
+  }
+
+#ifdef ENABLE_SYSTEMC_VPC
+  void wpp(size_t n, const smoc_ref_event_p &le)
+  { 
+    //FIXME: call wpp for all outlets
+    outlet.wpp(n,le);
+  }
+#else
+  void wpp(size_t n)
+  { 
+    //FIXME: call wpp for all outlets
+    outlet.wpp(n);
+  }
+#endif
+
+  void rpp(size_t n){
+    entry.rpp(n);
+  }
+
+  void unusedDecr(){
+    entry.unusedDecr();
+  }
+
+protected:
+  storage_type   actualValue;
+
+private:
+  smoc_multicast_entry<data_type>  entry;
+  smoc_multicast_outlet<data_type>  outlet;
+  std::list<smoc_multicast_outlet<data_type> > outlets;
+
+  void reset(){
+    actualValue = storage_type();
+  }
+
+  void tick(){
+    bool needUpdate = (signalState != undefined);
+    signalState=undefined;
+    if(needUpdate){
+      // update events (storage state changed)
+      //FIXME: call for all outlets
+      outlet.usedDecr();
+      entry.unusedIncr();
+    }
+    this->reset();
+  }
+protected:
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<sr_signal tokenType=\"" << typeid(data_type).name() << "\">"
 	<< std::endl;
@@ -367,179 +410,32 @@ protected:
       //FIXME(MS): Signal initialization should be disabled in future!
       //*************************INITIAL TOKENS, ETC...************************
       pgw.indentUp();
-      for ( size_t n = 0; n < this->usedStorage(); ++n )
-        pgw << "<token value=\"" << (*this)[n] << "\"/>" << std::endl;
+      //      for ( size_t n = 0; n < this->usedStorage(); ++n )
+      if(this->getSignalState())
+        pgw << "<token value=\"" << actualValue.get() << "\"/>" << std::endl;
       pgw.indentDown();
     }
     pgw << "</sr_signal>" << std::endl;
   }
-
-  ~smoc_multicast_sr_signal_storage() { }
-
-};
-
-/*
-template <>
-class smoc_multicast_sr_signal_storage<void>
-//: public smoc_chan_multicast_if<smoc_multicast_sr_signal_kind, void> {
-  : public smoc_chan_if<smoc_multicast_sr_signal_kind,void>,
-    public smoc_channel_access<void> {
-public:
-  typedef void                                    data_type;
-  typedef smoc_multicast_sr_signal_storage<data_type>       this_type;
-
-public: // smoc_channel_access interface
-
-  void   setLimit(size_t l){
-    limit=l;
-  }
-
-  size_t getLimit() const{
-    return limit;
-  }
-  
-private:
-  size_t         limit;
-
-public:
-  class chan_init
-    : public smoc_multicast_sr_signal_kind::chan_init {
-    friend class smoc_multicast_sr_signal_storage<void>;
-  private:
-    size_t          marking;
-  protected:
-    typedef size_t  add_param_ty;
-  public:
-    void add( add_param_ty x ) {
-      marking += x;
-    }
-  protected:
-    chan_init( const char *name, size_t n )
-      : smoc_multicast_sr_signal_kind::chan_init(name, n),
-        marking(0) {}
-  };
-protected:
-  smoc_multicast_sr_signal_storage( const chan_init &i )
-    : smoc_chan_if<smoc_multicast_sr_signal_kind,void>(i) {
-    assert( 1 >= i.marking );
-    //FIXME (MS) Does an initialised signal<void> equals "defined" or "absent"?
-    signalState = defined;
-  }
- 
-  ring_in_type  * ringSetupIn()  {
-    smoc_ring_access<void, void> *r = new smoc_ring_access<void, void>();
-    return r;
-  }
-  ring_out_type * ringSetupOut() {
-    smoc_ring_access<void, void> *r = new smoc_ring_access<void, void>();
-    return r;
-  }
-
-  void channelContents(smoc_modes::PGWriter &pgw) const {
-    pgw << "<sr_signal tokenType=\"" << typeid(data_type).name() << "\">"
-        << std::endl;
-    {
-      //FIXME(MS): Signal initialization should be disabled in future!
-      // *************************INITIAL TOKENS, ETC...******************
-      pgw.indentUp();
-      for ( size_t n = 0; n < this->usedStorage(); ++n )
-        pgw << "<token value=\"bot\"/>" << std::endl;
-      pgw.indentDown();
-    }
-    pgw << "</sr_signal>" << std::endl;
-  }
-};
-*/
-
-template <typename T>
-class smoc_multicast_sr_signal_type
-  : public smoc_multicast_sr_signal_storage<T> {
-public:
-  typedef T						      data_type;
-  typedef smoc_multicast_sr_signal_type<data_type>	      this_type;
-  typedef typename this_type::iface_in_type		      iface_in_type;
-  typedef typename this_type::iface_out_type		      iface_out_type;
-  
-  typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
-  typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
-  
-  typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
-  typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
-protected:
-//  iface_in_type  *in;
-//  iface_out_type *out;
-  
-#ifdef ENABLE_SYSTEMC_VPC
-  void commExecIn(size_t consume, const smoc_ref_event_p &le)
-#else
-  void commExecIn(size_t consume)
-#endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(consume, this->name());
-#endif
-    this->rpp(consume);
-//  this->read_event.notify(); 
-//  if (this->usedStorage() < 1)
-//    this->write_event.reset();
-  }
-  
-#ifdef ENABLE_SYSTEMC_VPC
-  void commExecOut(size_t produce, const smoc_ref_event_p &le)
-#else
-  void commExecOut(size_t produce)
-#endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(produce, this->name());
-#endif
-#ifdef ENABLE_SYSTEMC_VPC
-    if( this->actualValue.isValid() ) this->wpp(produce, le);
-#else
-    if( this->actualValue.isValid() ) this->wpp(produce);
-#endif
-//  this->write_event.notify();
-//  if (this->unusedStorage() < 1)
-//    this->read_event.reset();
-  }
-public:
-  // constructors
-  smoc_multicast_sr_signal_type( const typename smoc_multicast_sr_signal_storage<T>::chan_init &i )
-    : smoc_multicast_sr_signal_storage<T>(i) {
-//  if (this->usedStorage() >= 1)
-//    this->write_event.notify();
-//  if (this->unusedStorage() >= 1)
-//    this->read_event.notify();
-  }
-
-  // bounce functions
-  size_t committedOutCount() const
-    { return this->usedStorage(); }
-  size_t committedInCount() const
-    { return this->unusedStorage(); }
-  smoc_event &blockEventOut(size_t n)
-    { return this->getEventAvailable(n); }
-  smoc_event &blockEventIn(size_t n)
-    { return this->getEventFree(n); }
 };
 
 template <typename T>
 class smoc_multicast_sr_signal
-  : public smoc_multicast_sr_signal_storage<T>::chan_init {
+  : public smoc_multicast_sr_signal_type<T>::chan_init {
 public:
   typedef T                        data_type;
   typedef smoc_multicast_sr_signal<T>        this_type;
   typedef smoc_multicast_sr_signal_type<T>   chan_type;
   
   this_type &operator <<
-    (typename smoc_multicast_sr_signal_storage<T>::chan_init::add_param_ty x){
+    (typename smoc_multicast_sr_signal_type<T>::chan_init::add_param_ty x){
     add(x); return *this;
   }
   
   smoc_multicast_sr_signal( )
-    : smoc_multicast_sr_signal_storage<T>::chan_init( NULL, 1 ) {}
+    : smoc_multicast_sr_signal_type<T>::chan_init( NULL, 1 ) {}
   explicit smoc_multicast_sr_signal( const char *name )
-    : smoc_multicast_sr_signal_storage<T>::chan_init( name, 1 ) {}
+    : smoc_multicast_sr_signal_type<T>::chan_init( name, 1 ) {}
 };
 
 #endif // _INCLUDED_SMOC_MULTICAST_SR_SIGNAL_HPP

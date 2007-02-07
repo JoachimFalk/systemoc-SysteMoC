@@ -177,8 +177,8 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 
 	    smoc_sr_signal_kind* sig =
 	      dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
-	    smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
-	      class smoc_multicast_sr_signal_kind* >(&(*iface));
+	    smoc_entry_kind* mc_sig = dynamic_cast<
+	      class smoc_entry_kind* >(&(*iface));
 
 	    if(NULL != sig){
 	      sig->multipleWriteSameValue(true); //ENABLE_SYSTEMC_VPC
@@ -191,8 +191,8 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 	  }else if( dynamic_cast<class smoc_root_port_in * >(*iter) ){
 	    smoc_sr_signal_kind* sig =
 	      dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
-	    smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
-	      class smoc_multicast_sr_signal_kind* >(&(*iface));
+	    smoc_outlet_kind* mc_sig =
+	      dynamic_cast<class smoc_outlet_kind* >(&(*iface));
 
 	    if(NULL != sig){
 	      sig->allowUndefinedRead(true);
@@ -702,8 +702,8 @@ size_t smoc_scheduler_top::countDefinedInports(smoc_root_node &n){
     if( dynamic_cast<class smoc_root_port_in * >(*iter)) {
       smoc_sr_signal_kind* sig =
 	dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
-      smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
-	class smoc_multicast_sr_signal_kind* >(&(*iface));
+      smoc_outlet_kind* mc_sig = dynamic_cast<
+	class smoc_outlet_kind* >(&(*iface));
 
       if(NULL != sig){
 	if(sig->isDefined()) definedInPorts++;
@@ -726,8 +726,8 @@ size_t smoc_scheduler_top::countDefinedOutports(smoc_root_node &n){
     if( dynamic_cast<class smoc_root_port_out * >(*iter)) {
       smoc_sr_signal_kind* sig =
 	dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
-      smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
-	class smoc_multicast_sr_signal_kind* >(&(*iface));
+      smoc_entry_kind* mc_sig = dynamic_cast<
+	class smoc_entry_kind* >(&(*iface));
 
       if(NULL != sig){
 	if(sig->isDefined()) definedOutPorts++;
