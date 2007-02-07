@@ -304,8 +304,10 @@ DES3::key_sel3(sc_bv<48> & K_sub,
   sc_bv<48> K1, K2, K3, K4, K5, K6, K7, K8, K9,
             K10, K11, K12, K13, K14, K15, K16;
 
-
-  bool decrypt_int = ( roundSel[5] == 0 && roundSel[4] == 1
+  //FIXME: no operator[] in sc_bv:
+  //       replaced [] by get_bit
+  //bool decrypt_int = ( roundSel[5] == 0 && roundSel[4] == 1
+  bool decrypt_int = ( roundSel.get_bit(5) == 0 && roundSel.get_bit(4) == 1
                        ? !decrypt
                        : decrypt );
 
