@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include <smoc_moc.hpp>
-#include <smoc_sr_signal.hpp>
 
 #include <adeva_lib.hpp>
 
@@ -10,49 +9,26 @@
 enum    phil_type   {eating, right_fork_taken, thinking};
 typedef unsigned short timer_type;
 
+typedef smoc_multicast_sr_signal<phil_type>  PhilSignal;
+typedef smoc_multicast_sr_signal<timer_type> TimerSignal;
+typedef smoc_multicast_sr_signal<bool>       BoolSignal;
+
 
 class Clock: public smoc_actor {
 public:
-  smoc_port_out<bool> out1;
-  smoc_port_out<bool> out2;
-  smoc_port_out<bool> out3;
-  smoc_port_out<bool> out4;
-  smoc_port_out<bool> out5;
-  smoc_port_out<bool> out6;
-  smoc_port_out<bool> out7;
-  smoc_port_out<bool> out8;
-  smoc_port_out<bool> out9;
-  smoc_port_out<bool> out10;
+  smoc_port_out<bool> out;
 private:
   int limitCount;
 
   void pos() {
     cout << name() << ".pos()" << endl;
     limitCount++;
-    out1[0] = 1;
-    out2[0] = 1;
-    out3[0] = 1;
-    out4[0] = 1;
-    out5[0] = 1;
-    out6[0] = 1;
-    out7[0] = 1;
-    out8[0] = 1;
-    out9[0] = 1;
-    out10[0] = 1;
+    out[0] = 1;
   }
 
   void neg(){
     cout << name() << ".neg()" << endl;
-    out1[0] = 0;
-    out2[0] = 0;
-    out3[0] = 0;
-    out4[0] = 0;
-    out5[0] = 0;
-    out6[0] = 0;
-    out7[0] = 0;
-    out8[0] = 0;
-    out9[0] = 0;
-    out10[0] = 0;
+    out[0] = 0;
   }
   
   smoc_firing_state s_pos, s_neg;
@@ -61,14 +37,12 @@ public:
     : smoc_actor(name, s_pos),  limitCount( 0 ) {
 
     s_pos = (VAR(limitCount)<limit) >>
-      ( out1(1) && out2(1) && out3(1) && out4(1) && out5(1)
-      && out6(1) && out7(1) && out8(1) && out9(1) && out10(1) ) >>
-      CALL(Clock::pos) >>
+      ( out(1) )                    >>
+      CALL(Clock::pos)              >>
       s_neg;
 
     s_neg = 
-      ( out1(1) && out2(1) && out3(1) && out4(1) && out5(1)
-      && out6(1) && out7(1) && out8(1) && out9(1) && out10(1) ) >>
+      ( out(1) )       >>
       CALL(Clock::neg) >>
       s_pos;
   }
@@ -85,9 +59,7 @@ public:
   smoc_port_in<phil_type>       left_phil_hist;
   smoc_port_in<phil_type>       right_phil;
   smoc_port_in<phil_type>       right_phil_hist;
-  smoc_port_out<phil_type>      phil1;
-  smoc_port_out<phil_type>      phil2;
-  smoc_port_out<phil_type>      phil3;
+  smoc_port_out<phil_type>      phil;
 private:
   bool c1() const{
     //TODO: edge detection
@@ -112,23 +84,17 @@ private:
 
   void think(){
     cout << name() << ".think()" << endl;
-    phil1[0] = thinking;
-    phil2[0] = thinking;
-    phil3[0] = thinking;
+    phil[0] = thinking;
   }
 
   void take_right_fork(){
     cout << name() << ".right_fork_taken()" << endl;
-    phil1[0] = right_fork_taken;
-    phil2[0] = right_fork_taken;
-    phil3[0] = right_fork_taken;
+    phil[0] = right_fork_taken;
   }
 
   void eat(){
     cout << name() << ".eat()" << endl;
-    phil1[0] = eating;
-    phil2[0] = eating;
-    phil3[0] = eating;
+    phil[0] = eating;
   }
   smoc_firing_state s_thinking, s_right_fork_taken, s_eating;
   smoc_firing_state init;
@@ -136,26 +102,29 @@ public:
   Philosopher(sc_module_name name)
     : smoc_actor(name, init){
 
-    init = (phil1(1) && phil2(1) && phil3(1))                                       >>
-      CALL(Philosopher::think)                                                      >>
+    init = ( phil(1) )                                       >>
+      CALL(Philosopher::think)                                >>
       s_thinking;
 
-    s_thinking = (clk(1) && timer(1) && right_phil(1) && GUARD(Philosopher::c1)     &&
-		  GUARD(Philosopher::c2) && GUARD(Philosopher::c5) )                >>
-      (phil1(1) && phil2(1) && phil3(1))                                            >>
-      CALL(Philosopher::take_right_fork)                                            >>
+    s_thinking =
+      (clk(1) && timer(1) && right_phil(1) && GUARD(Philosopher::c1) &&
+       GUARD(Philosopher::c2) && GUARD(Philosopher::c5) )            >>
+      ( phil(1) )                                                    >>
+      CALL(Philosopher::take_right_fork)                             >>
       s_right_fork_taken;
     
-    s_right_fork_taken = (clk(1) && left_phil(1) && GUARD(Philosopher::c1)          &&
-		  GUARD(Philosopher::c3) )                                          >>
-      (phil1(1) && phil2(1) && phil3(1))                                            >>
-      CALL(Philosopher::eat)                                                        >>
+    s_right_fork_taken = 
+      (clk(1) && left_phil(1) && GUARD(Philosopher::c1) &&
+       GUARD(Philosopher::c3) )                         >>
+      ( phil(1) )                                       >>
+      CALL(Philosopher::eat)                            >>
       s_eating;
 
-    s_eating = (clk(1) && timer(1) && GUARD(Philosopher::c1)                        &&
-		  GUARD(Philosopher::c4) )                                          >>
-      (phil1(1) && phil2(1) && phil3(1))                                            >>
-      CALL(Philosopher::think)                                                      >>
+    s_eating =
+      (clk(1) && timer(1) && GUARD(Philosopher::c1) &&
+       GUARD(Philosopher::c4) )                     >>
+      ( phil(1) )                                   >>
+      CALL(Philosopher::think)                      >>
       s_thinking;
 
   }
@@ -240,21 +209,17 @@ protected:
   Timer       timer5;
   Clock       clk;
 
-
-private:
-  template <typename T_chan_init>
-  void connect(
-      smoc_port_out<typename T_chan_init::data_type> &b,
-      smoc_port_in<typename T_chan_init::data_type>  &a,
-      smoc_port_in<typename T_chan_init::data_type>  &a_hist,
-      const T_chan_init i 
-      //L l, R r, C c
-      ){
-    Delay<typename T_chan_init::data_type> *delay = new Delay<typename T_chan_init::data_type>("Delay");
-    connectNodePorts(b,              delay->in, i);
-    connectNodePorts(delay->out,     a,         T_chan_init(i));
-    connectNodePorts(delay->history, a_hist,    T_chan_init(i));
-  }
+  Delay<phil_type>  d1;
+  Delay<phil_type>  d2;
+  Delay<phil_type>  d3;
+  Delay<phil_type>  d4;
+  Delay<phil_type>  d5;
+  Delay<timer_type> d6;
+  Delay<timer_type> d7;
+  Delay<timer_type> d8;
+  Delay<timer_type> d9;
+  Delay<timer_type> d10;
+  Delay<bool>       d11;
 
 
 public:
@@ -270,43 +235,113 @@ public:
      timer3("Timer3"),
      timer4("Timer4"),
      timer5("Timer5"),
-     clk("CLK", times){
-    connect( phil5.phil1,   phil4.right_phil,   phil4.right_phil_hist,   smoc_sr_signal<phil_type>() );
-    connect( phil4.phil1,   phil3.right_phil,   phil3.right_phil_hist,   smoc_sr_signal<phil_type>() );
-    connect( phil3.phil1,   phil2.right_phil,   phil2.right_phil_hist,   smoc_sr_signal<phil_type>() );
-    connect( phil2.phil1,   phil1.right_phil,   phil1.right_phil_hist,   smoc_sr_signal<phil_type>() );
-    connect( phil1.phil1,   phil5.right_phil,   phil5.right_phil_hist,   smoc_sr_signal<phil_type>() );
+     clk("CLK", times),
+     d1("d1"),
+     d2("d2"),
+     d3("d3"),
+     d4("d4"),
+     d5("d5"),
+     d6("d6"),
+     d7("d7"),
+     d8("d8"),
+     d9("d9"),
+     d10("d10"),
+     d11("d11")
+  {
+    PhilSignal().connect(phil5.phil).connect(d5.in);
+    PhilSignal().connect(d5.out)
+      .connect(phil4.right_phil)
+      .connect(phil1.left_phil)
+      .connect(timer5.phil);
+    PhilSignal().connect(d5.history)
+      .connect(phil4.right_phil_hist)
+      .connect(phil1.left_phil_hist)
+      .connect(timer5.phil_hist);
 
-    connect( phil5.phil2,   phil1.left_phil,    phil1.left_phil_hist,    smoc_sr_signal<phil_type>() );
-    connect( phil4.phil2,   phil5.left_phil,    phil5.left_phil_hist,    smoc_sr_signal<phil_type>() );
-    connect( phil3.phil2,   phil4.left_phil,    phil4.left_phil_hist,    smoc_sr_signal<phil_type>() );
-    connect( phil2.phil2,   phil3.left_phil,    phil3.left_phil_hist,    smoc_sr_signal<phil_type>() );
-    connect( phil1.phil2,   phil2.left_phil,    phil2.left_phil_hist,    smoc_sr_signal<phil_type>() );
-			  		    					    			    
-    connect( timer5.timer,  phil5.timer,        phil5.timer_hist,        smoc_sr_signal<timer_type>() );
-    connect( timer4.timer,  phil4.timer,        phil4.timer_hist,        smoc_sr_signal<timer_type>() );
-    connect( timer3.timer,  phil3.timer,        phil3.timer_hist,        smoc_sr_signal<timer_type>() );
-    connect( timer2.timer,  phil2.timer,        phil2.timer_hist,        smoc_sr_signal<timer_type>() );
-    connect( timer1.timer,  phil1.timer,        phil1.timer_hist,        smoc_sr_signal<timer_type>() );
-			  		    					    			    
-    connect( phil5.phil3,   timer5.phil,        timer5.phil_hist,        smoc_sr_signal<phil_type>() );
-    connect( phil4.phil3,   timer4.phil,        timer4.phil_hist,        smoc_sr_signal<phil_type>() );
-    connect( phil3.phil3,   timer3.phil,        timer3.phil_hist,        smoc_sr_signal<phil_type>() );
-    connect( phil2.phil3,   timer2.phil,        timer2.phil_hist,        smoc_sr_signal<phil_type>() );
-    connect( phil1.phil3,   timer1.phil,        timer1.phil_hist,        smoc_sr_signal<phil_type>() );
-			  		    					    			    
-    connect( clk.out5,       timer5.clk,         timer5.clk_hist,        smoc_sr_signal<bool>()      );
-    connect( clk.out4,       timer4.clk,         timer4.clk_hist,        smoc_sr_signal<bool>()      );
-    connect( clk.out3,       timer3.clk,         timer3.clk_hist,        smoc_sr_signal<bool>()      );
-    connect( clk.out2,       timer2.clk,         timer2.clk_hist,        smoc_sr_signal<bool>()      );
-    connect( clk.out1,       timer1.clk,         timer1.clk_hist,        smoc_sr_signal<bool>()      );
-			  		    					    			    
-    connect( clk.out10,      phil5.clk,          phil5.clk_hist,         smoc_sr_signal<bool>()      );
-    connect( clk.out9,       phil4.clk,          phil4.clk_hist,         smoc_sr_signal<bool>()      );
-    connect( clk.out8,       phil3.clk,          phil3.clk_hist,         smoc_sr_signal<bool>()      );
-    connect( clk.out7,       phil2.clk,          phil2.clk_hist,         smoc_sr_signal<bool>()      );
-    connect( clk.out6,       phil1.clk,          phil1.clk_hist,         smoc_sr_signal<bool>()      );
 
+    PhilSignal().connect(phil4.phil).connect(d4.in);
+    PhilSignal().connect(d4.out)
+      .connect(phil3.right_phil)
+      .connect(phil5.left_phil)
+      .connect(timer4.phil);
+    PhilSignal().connect(d4.history)
+      .connect(phil3.right_phil_hist)
+      .connect(phil5.left_phil_hist)
+      .connect(timer4.phil_hist);
+
+    PhilSignal().connect(phil3.phil).connect(d3.in);
+    PhilSignal().connect(d3.out)
+      .connect(phil2.right_phil)
+      .connect(phil4.left_phil)
+      .connect(timer3.phil);
+    PhilSignal().connect(d3.history)
+      .connect(phil2.right_phil_hist)
+      .connect(phil4.left_phil_hist)
+      .connect(timer3.phil_hist);
+
+    PhilSignal().connect(phil2.phil).connect(d2.in);
+    PhilSignal().connect(d2.out)
+      .connect(phil1.right_phil)
+      .connect(phil3.left_phil)
+      .connect(timer2.phil);
+    PhilSignal().connect(d2.history)
+      .connect(phil1.right_phil_hist)
+      .connect(phil3.left_phil_hist)
+      .connect(timer2.phil_hist);
+
+    PhilSignal().connect(phil1.phil).connect(d1.in);
+    PhilSignal().connect(d1.out)
+      .connect(phil5.right_phil)
+      .connect(phil2.left_phil)
+      .connect(timer1.phil);
+    PhilSignal().connect(d1.history)
+      .connect(phil5.right_phil_hist)
+      .connect(phil2.left_phil_hist)
+      .connect(timer1.phil_hist);
+
+    TimerSignal().connect(timer5.timer).connect(d6.in);
+    TimerSignal().connect(d6.out).connect(phil5.timer);
+    TimerSignal().connect(d6.history).connect(phil5.timer_hist);
+
+    TimerSignal().connect(timer4.timer).connect(d7.in);
+    TimerSignal().connect(d7.out).connect(phil4.timer);
+    TimerSignal().connect(d7.history).connect(phil4.timer_hist);
+
+    TimerSignal().connect(timer3.timer).connect(d8.in);
+    TimerSignal().connect(d8.out).connect(phil3.timer);
+    TimerSignal().connect(d8.history).connect(phil3.timer_hist);
+
+    TimerSignal().connect(timer2.timer).connect(d9.in);
+    TimerSignal().connect(d9.out).connect(phil2.timer);
+    TimerSignal().connect(d9.history).connect(phil2.timer_hist);
+
+    TimerSignal().connect(timer1.timer).connect(d10.in);
+    TimerSignal().connect(d10.out).connect(phil1.timer);
+    TimerSignal().connect(d10.history).connect(phil1.timer_hist);
+
+    BoolSignal().connect(clk.out).connect(d11.in);
+    BoolSignal().connect(d11.out)
+      .connect(timer5.clk)
+      .connect(timer4.clk)
+      .connect(timer3.clk)
+      .connect(timer2.clk)
+      .connect(timer1.clk)
+      .connect(phil5.clk)
+      .connect(phil4.clk)
+      .connect(phil3.clk)
+      .connect(phil2.clk)
+      .connect(phil1.clk);
+    BoolSignal().connect(d11.history)
+      .connect(timer5.clk_hist)
+      .connect(timer4.clk_hist)
+      .connect(timer3.clk_hist)
+      .connect(timer2.clk_hist)
+      .connect(timer1.clk_hist)
+      .connect(phil5.clk_hist)
+      .connect(phil4.clk_hist)
+      .connect(phil3.clk_hist)
+      .connect(phil2.clk_hist)
+      .connect(phil1.clk_hist);
   }
 };
  
