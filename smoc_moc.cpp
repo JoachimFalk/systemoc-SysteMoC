@@ -419,8 +419,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 	    for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
 		  titer != n._currentState->tl.end();
 		  ++titer ){
-	      if( !nonStrictReleased.contains(*titer) // allready tested and deactivated
-		  &&  (*titer != *n.lastTransition) )  // actually tested
+	      if( !nonStrictReleased.contains(*titer) ) // allready tested and deactivated
 		nonStrict |= *titer;
 	    }
 	  } else { // some output became defined -> remove all concurent transitions
@@ -436,7 +435,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 	  }
 
 	  nonStrictReleased |= transition; // deactivate transition, until input changes
-	  assert( definedInputs.find(n) != definedInputs.end() ); // definedInputs[n] = countDefinedInports(n);
+	  assert( definedInputs.find(&n) != definedInputs.end() ); // definedInputs[n] = countDefinedInports(n);
 #endif  // ENABLE_SYSTEMC_VPC
 
 	}
@@ -484,10 +483,12 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 	    
 
 	// test if fixpoint is reached
+#ifdef ENABLE_SYSTEMC_VPC
 	if( nonStrictStable && inCommState.empty() ){
 	  //paranoia:
-#ifdef ENABLE_SYSTEMC_VPC
 	  assert(inCommState.empty());
+#else
+	if( nonStrictStable ){
 #endif
 	  assert(!bottom);
 	  assert(nonStrict.empty());
@@ -574,7 +575,11 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 	//wait(...);
       }
 
+#ifdef ENABLE_SYSTEMC_VPC
       if( !bottom && !inCommState && nonStrictStable && !inCommState.empty() ){
+#else
+      if( !bottom && nonStrictStable ){
+#endif
 	cerr << "WAIT" << endl;
 	smoc_transition_ready_list all;
 	all |= bottom;
