@@ -200,7 +200,7 @@ public:
 
 class smoc_chan_out_base_if {
 public:
-  template <typename T, template <typename, typename> class R, class PARAM_TYPE> friend class smoc_port_out_base;
+  template <typename T, template <typename, typename> class R, class PARAM_TYPE, template <typename> class STORAGE_TYPE> friend class smoc_port_out_base;
 private:
   smoc_port_list portsOut;
 protected:

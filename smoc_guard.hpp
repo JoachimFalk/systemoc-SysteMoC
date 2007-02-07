@@ -76,7 +76,7 @@ public:
   }
  
   inline
-  Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const;
+  Expr::Detail::ActivationStatus getStatus() const;
 
   void guardAssemble( smoc_modes::PGWriter &pgw ) const
     { Expr::evalTo<Expr::AST>(guard)->assemble(pgw); }
