@@ -300,7 +300,7 @@ public:
 //    assert( port2chan.find(&p) ==  port2chan.end() );
 //    port2chan[&p] = &chan;
 //    chan2ports[&chan].push_back(&p);
-    p(chan.getOutlet());
+    p(chan.getOutlet(p));
   }
   template <typename T,
 	    template <typename, typename> class R,
