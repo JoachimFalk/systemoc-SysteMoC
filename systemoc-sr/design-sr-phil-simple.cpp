@@ -313,7 +313,7 @@ public:
 
 int sc_main (int argc, char **argv) {
   size_t count = (argc>1?atoi(argv[1]):0);
-  smoc_top_moc<PhilosopherTestBench> nsa_tb("top", count);
+  smoc_top_sr_moc<PhilosopherTestBench> nsa_tb("top", count);
   
 #define GENERATE "--generate-problemgraph"
   if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
