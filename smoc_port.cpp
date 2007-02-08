@@ -125,7 +125,7 @@ void smoc_activation_pattern::guardAssemble(
       pgw << "</ASTNodeUnOp>" << std::endl;
     
     } else { 
-      //***********here is Terminal************
+      // ***********here is Terminal************
       //assert( n->isa<Expr::ASTLeafNode>() );
       if ( n->isa<Expr::ASTNodePortTokens>() ) {
         pgw << "<PortTokens "
