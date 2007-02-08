@@ -118,8 +118,8 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
           break;
         }
         default: {
-          assert(status == Expr::Detail::_ENABLED ||
-                 status == Expr::Detail::_DISABLED   );
+          assert(status.toSymbol() == Expr::Detail::_ENABLED ||
+                 status.toSymbol() == Expr::Detail::_DISABLED   );
         }
       }
     }
@@ -271,8 +271,10 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 	Expr::Detail::ActivationStatus      status = transition.getStatus();
 	smoc_root_node                   &n = transition.getActor(); //FIXME(MS): rename n -> node, block..
 
-	assert( status == Expr::Detail::_ENABLED /*|| status == Expr::Detail::_DISABLED */);
-	//	if( status == Expr::Detail::_DISABLED ){ // do not treat disabled transitions
+	assert( status.toSymbol() == Expr::Detail::_ENABLED
+		/*|| status.toSymbol() == Expr::Detail::_DISABLED */);
+	//	if( status.toSymbol() == Expr::Detail::_DISABLED ){
+	// do not treat disabled transitions
 	//	  inCommState.remove(transition);
 	//	}else{
 
@@ -331,9 +333,9 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 	transition_ty           &transition = bottom.getEventTrigger();
 	Expr::Detail::ActivationStatus      status = transition.getStatus();
 	smoc_root_node                   &n = transition.getActor(); //FIXME(MS): rename n -> node, block..
-
-	assert( status == Expr::Detail::_ENABLED || status == Expr::Detail::_DISABLED );
-	if( status == Expr::Detail::_DISABLED ){ // do not treat disabled transitions
+	assert( (status.toSymbol() == Expr::Detail::_ENABLED)
+		|| (status.toSymbol() == Expr::Detail::_DISABLED) );
+	if( status.toSymbol() == Expr::Detail::_DISABLED ){ // do not treat disabled transitions
 	  bottom.remove(transition);
 	  defined |= transition;
 	}else{
@@ -380,8 +382,10 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 	Expr::Detail::ActivationStatus      status = transition.getStatus();
 	smoc_root_node                   &n = transition.getActor(); //FIXME(MS): rename n -> node, block..
 
-	assert( status == Expr::Detail::_ENABLED || status == Expr::Detail::_DISABLED );
-	if( status == Expr::Detail::_DISABLED ){ // do not execute disabled transitions
+	assert( status.toSymbol() == Expr::Detail::_ENABLED
+		|| status.toSymbol() == Expr::Detail::_DISABLED );
+	// do not execute disabled transitions
+	if( status.toSymbol() == Expr::Detail::_DISABLED ){
 	  nonStrict.remove(transition);
 	  nonStrictReleased |= transition;
 	}else{
