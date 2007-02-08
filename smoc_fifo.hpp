@@ -236,6 +236,8 @@ protected:
     if ( used > fsize )
       used += fsize;
     return used;
+    // less lines of code but slightly slower
+    //return (used + fsize) % fsize;
   }
 
   void usedIncr() {
@@ -259,7 +261,7 @@ protected:
 
   size_t unusedStorage() const {
     size_t unused = rindex - windex - 1;
-    
+
     if ( unused > fsize )
       unused += fsize;
     return unused;
@@ -285,10 +287,11 @@ protected:
   }
 
   void rpp(size_t n) {
-    if ( rindex + n >= fsize )
+    /*if ( rindex + n >= fsize )
       rindex = rindex + n - fsize;
     else
-      rindex = rindex + n;
+      rindex = rindex + n;*/
+    rindex = (rindex + n) % fsize;
     
     usedDecr(); unusedIncr();
   }
@@ -299,10 +302,11 @@ protected:
   void wpp(size_t n)
 #endif
   {
-    if ( windex + n >= fsize )
+    /*if ( windex + n >= fsize )
       windex = windex + n - fsize;
     else
-      windex = windex + n;
+      windex = windex + n;*/
+    windex = (windex + n) % fsize;
     
     unusedDecr();
 #ifdef ENABLE_SYSTEMC_VPC
@@ -317,10 +321,11 @@ protected:
 # ifndef NDEBUG
     size_t oldUsed = usedStorage();
 # endif
-    if ( vindex + n >= fsize )
+    /*if ( vindex + n >= fsize )
       vindex = vindex + n - fsize;
     else
-      vindex = vindex + n;
+      vindex = vindex + n;*/
+    vindex = (vindex + n) % fsize;
     // PARANOIA: rindex <= visible <= windex in modulo fsize arith
     assert(vindex < fsize &&
       (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
@@ -380,7 +385,11 @@ protected:
 #ifdef ENABLE_SYSTEMC_VPC
       vindex(0), 
 #endif
-      windex(0) {
+      windex(0)
+  {
+    // for lazy % overflow protection fsize must be less than half the datatype
+    //  size
+    assert(fsize < (MAX_TYPE(size_t) >> 1));
   }
 private:
   static const char* const kind_string;
