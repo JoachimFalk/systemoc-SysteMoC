@@ -3,6 +3,10 @@
 
 AC_INIT(SysteMoC, 0.1, falk@cs.fau.de)
 AC_PREREQ(2.57)
+
+AC_PATH_PROGS(BASH, bash)
+AC_PATH_PROGS(PERL, perl)
+
 ACJF_INIT
 
 AC_CONFIG_SRCDIR([SystemC-Examples.txt])
