@@ -120,7 +120,6 @@ libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\
 	smoc_expr.cpp			\
 	smoc_fifo.cpp			\
-	smoc_sr_signal.cpp		\
 	smoc_multicast_sr_signal.cpp	\
 	smoc_graph_type.cpp		\
 	smoc_rendezvous.cpp		\

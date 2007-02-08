@@ -175,32 +175,24 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 	  sc_interface *iface = (*iter)->get_interface();
 	  if( dynamic_cast<class smoc_root_port_out * >(*iter) ) {
 
-	    smoc_sr_signal_kind* sig =
-	      dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
 	    smoc_entry_kind* mc_sig = dynamic_cast<
 	      class smoc_entry_kind* >(&(*iface));
 
-	    if(NULL != sig){
-	      sig->multipleWriteSameValue(true); //ENABLE_SYSTEMC_VPC
-	    }else if(NULL != mc_sig){
+	    if(NULL != mc_sig){
 	      mc_sig->multipleWriteSameValue(true);
 	    }
 
-	    assert(NULL != sig || NULL != mc_sig );
+	    assert( NULL != mc_sig );
 	    //	    cerr << " (out port) " << iface << endl;;
 	  }else if( dynamic_cast<class smoc_root_port_in * >(*iter) ){
-	    smoc_sr_signal_kind* sig =
-	      dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
 	    smoc_outlet_kind* mc_sig =
 	      dynamic_cast<class smoc_outlet_kind* >(&(*iface));
 
-	    if(NULL != sig){
-	      sig->allowUndefinedRead(true);
-	    }else if(NULL != mc_sig){
+	    if(NULL != mc_sig){
 	      mc_sig->allowUndefinedRead(true);
 	    }
 
-	    assert(NULL != sig || NULL != mc_sig );
+	    assert( NULL != mc_sig );
 	    //	    cerr << " (in port) " << iface << endl;;
 	  }
 	}
@@ -548,18 +540,14 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 		iter != cs.end();
 		++iter ){
 	    // "tick()" each block
-	    smoc_sr_signal_kind* sig =
-	      dynamic_cast<smoc_sr_signal_kind*>((*iter));
 	    smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
 	      class smoc_multicast_sr_signal_kind* >((*iter));
 
-	    if(NULL != sig){
-	      sig->tick();
-	    }else if(NULL != mc_sig){
+	    if(NULL != mc_sig){
 	      mc_sig->tick();
 	    }
 
-	    assert(NULL != sig || NULL != mc_sig );
+	    assert( NULL != mc_sig );
 	  }
 
 	  //??move strict transitions back to bottom??
@@ -704,18 +692,14 @@ size_t smoc_scheduler_top::countDefinedInports(smoc_root_node &n){
       iter != ps.end(); iter++){
     sc_interface *iface = (*iter)->get_interface();
     if( dynamic_cast<class smoc_root_port_in * >(*iter)) {
-      smoc_sr_signal_kind* sig =
-	dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
       smoc_outlet_kind* mc_sig = dynamic_cast<
 	class smoc_outlet_kind* >(&(*iface));
 
-      if(NULL != sig){
-	if(sig->isDefined()) definedInPorts++;
-      }else if(NULL != mc_sig){
+      if(NULL != mc_sig){
 	if(mc_sig->isDefined()) definedInPorts++;
       }
 
-      assert(NULL != sig || NULL != mc_sig );
+      assert( NULL != mc_sig );
     }
   }
   return definedInPorts;
@@ -728,18 +712,14 @@ size_t smoc_scheduler_top::countDefinedOutports(smoc_root_node &n){
       iter != ps.end(); iter++){
     sc_interface *iface = (*iter)->get_interface();
     if( dynamic_cast<class smoc_root_port_out * >(*iter)) {
-      smoc_sr_signal_kind* sig =
-	dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
       smoc_entry_kind* mc_sig = dynamic_cast<
 	class smoc_entry_kind* >(&(*iface));
 
-      if(NULL != sig){
-	if(sig->isDefined()) definedOutPorts++;
-      }else if(NULL != mc_sig){
+      if(NULL != mc_sig){
 	if(mc_sig->isDefined()) definedOutPorts++;
       }
 
-      assert(NULL != sig || NULL != mc_sig );
+      assert( NULL != mc_sig );
 
     }
   }
