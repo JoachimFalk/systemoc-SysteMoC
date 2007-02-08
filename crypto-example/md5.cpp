@@ -209,6 +209,9 @@ void MD5::writePacket(){
     case ExampleNetworkPacket::VR_check:
       packet.validation_request = ExampleNetworkPacket::VR_sign;
       break;
+    case ExampleNetworkPacket::VR_just_forward:
+    default:
+      break;
   }
 
   out[0] = packet;

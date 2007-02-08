@@ -58,10 +58,10 @@
 class ExecValue{
 
   private:
-    // maximal logged execution time
-    int max_exec;
     // minimal logged execution time
     int min_exec;
+    // maximal logged execution time
+    int max_exec;
     // list of all logged execution times
     std::vector<int> exec_times;
 
