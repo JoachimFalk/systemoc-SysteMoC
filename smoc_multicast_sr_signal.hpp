@@ -227,6 +227,10 @@ public:
     return limit;
   }
 
+  virtual bool isValid(size_t i){
+    return actualValue.isValid();
+  }
+
 private:
   size_t         limit;
   storage_type &actualValue;
@@ -291,6 +295,10 @@ public:
 
   size_t getLimit() const{
     return limit;
+  }
+
+  virtual bool isValid(size_t i){
+    return actualValue.isValid();
   }
 
 private:

@@ -58,6 +58,7 @@ public:
 #endif
   virtual return_type operator[](size_t n)             = 0;
   virtual const return_type operator[](size_t n) const = 0;
+  virtual bool isValid(size_t i)                       = 0;
 };
 
 template<>
@@ -125,6 +126,13 @@ public:
     return *offset + n < storageSize
       ? storage[*offset + n]
       : storage[*offset + n - storageSize];
+  }
+
+  bool isValid(size_t n=0){
+    assert(n < limit);
+    return *offset + n < storageSize
+      ? storage[*offset + n].isValid()
+      : storage[*offset + n - storageSize].isValid();
   }
 };
 

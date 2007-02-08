@@ -561,7 +561,7 @@ public:
   bool isInput() const { return true; }
 
   bool isValid(size_t i=0){
-    return (*(this->channel_access))[i].isValid();
+    return this->channel_access->isValid(i);
   }
   
   size_t availableCount() const
