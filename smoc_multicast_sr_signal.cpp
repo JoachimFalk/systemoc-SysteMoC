@@ -60,7 +60,7 @@ smoc_event &smoc_outlet_kind::getEventAvailable(size_t n) {
     if (iter == eventMapAvailable.end()) {
       iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
       if (usedStorage() >= n)
-	iter->second->notify();
+  iter->second->notify();
     }
     return *iter->second;
   } else {
@@ -144,7 +144,7 @@ smoc_event &smoc_entry_kind::getEventFree(size_t n) {
     if (iter == eventMapFree.end()) {
       iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
       if (unusedStorage() >= n)
-	iter->second->notify();
+  iter->second->notify();
     }
     return *iter->second;
   } else {
@@ -159,7 +159,7 @@ bool smoc_entry_kind::isDefined(){
 
 
 smoc_multicast_sr_signal_kind::chan_init::chan_init(const char *name,
-						    size_t n )
+                size_t n )
   : name(name), n(n) {}
 SignalState smoc_multicast_sr_signal_kind::getSignalState() const {
   return signalState;

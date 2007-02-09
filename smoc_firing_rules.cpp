@@ -266,7 +266,7 @@ smoc_firing_types::transition_ty::transition_ty(
   assert((isType<smoc_func_call>(t.ia.f)    && t.ia.sl.size() == 1) ||
          (isType<smoc_sr_func_pair>(t.ia.f) && t.ia.sl.size() == 1) ||
          (isType<smoc_func_diverge>(t.ia.f) && t.ia.sl.size() == 0) ||
-	 (isType<NILTYPE>(t.ia.f)           && t.ia.sl.size() == 1));
+   (isType<NILTYPE>(t.ia.f)           && t.ia.sl.size() == 1));
   for ( smoc_firing_state_list::const_iterator siter = t.ia.sl.begin();
         siter != t.ia.sl.end();
         ++siter ) {
@@ -348,8 +348,8 @@ void smoc_firing_types::transition_ty::execute(
       actor->vpc_event_lat = new smoc_ref_event();
       SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
 
-      SystemC_VPC::Director::getInstance().  	
-	compute( actor->myModule()->name(), fc.getFuncName(), p);
+      SystemC_VPC::Director::getInstance().    
+  compute( actor->myModule()->name(), fc.getFuncName(), p);
 #endif //ENABLE_SYSTEMC_VPC
       fc();
 #ifdef SYSTEMOC_TRACE
@@ -393,13 +393,13 @@ void smoc_firing_types::transition_ty::execute(
 #endif
 #ifdef ENABLE_SYSTEMC_VPC
       if(mode & GO){
-	actor->vpc_event_dii.reset();
-	
-	actor->vpc_event_lat = new smoc_ref_event();
-	SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
-	
-	SystemC_VPC::Director::getInstance().  	
-	  compute( actor->myModule()->name(), fc.go.getFuncName(), p);
+  actor->vpc_event_dii.reset();
+  
+  actor->vpc_event_lat = new smoc_ref_event();
+  SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
+  
+  SystemC_VPC::Director::getInstance().    
+    compute( actor->myModule()->name(), fc.go.getFuncName(), p);
       }
 #endif //ENABLE_SYSTEMC_VPC
       if(mode & GO)   fc.go();
@@ -412,15 +412,15 @@ void smoc_firing_types::transition_ty::execute(
       
 #ifdef ENABLE_SYSTEMC_VPC
       if(mode & GO){
-	*rs = actor->commstate.rs;
-	// save guard and next state to later execute communication
-	actor->nextState.rs = sl.front();
-	actor->_guard       =  &guard;
+  *rs = actor->commstate.rs;
+  // save guard and next state to later execute communication
+  actor->nextState.rs = sl.front();
+  actor->_guard       =  &guard;
       
-	// actor->ports_setup = _ctx.ports_setup;
-	// _ctx.ports_setup.clear();
+  // actor->ports_setup = _ctx.ports_setup;
+  // _ctx.ports_setup.clear();
       }else{
-	*rs = sl.front();
+  *rs = sl.front();
       }
 # ifdef SYSTEMOC_DEBUG
       std::cerr << "      <communication type=\"defered\"/>" << std::endl;

@@ -170,13 +170,13 @@ class smoc_multicast_outlet
   typename smoc_chan_in_if<T, smoc_channel_access>::access_type::return_type>
 {
   typedef T                                  data_type;
-  typedef smoc_storage<data_type>	     storage_type;
+  typedef smoc_storage<data_type>       storage_type;
   typedef smoc_multicast_outlet<data_type>   this_type;
   typedef typename this_type::access_in_type ring_in_type;
   typedef typename this_type::return_type    return_type;
 public:
   smoc_multicast_outlet(smoc_multicast_sr_signal_kind* base,
-			storage_type &actualValue)
+      storage_type &actualValue)
     : smoc_outlet_kind(base),
       actualValue(actualValue) {
     assert(this->_base);
@@ -249,12 +249,12 @@ class smoc_multicast_entry
 {
   typedef T                                  data_type;
   typedef smoc_multicast_entry<data_type>   this_type;
-  typedef smoc_storage<data_type>	     storage_type;
+  typedef smoc_storage<data_type>       storage_type;
   typedef typename this_type::access_out_type  ring_out_type;
   typedef typename this_type::return_type      return_type;
 public:
   smoc_multicast_entry(smoc_multicast_sr_signal_kind* base,
-			storage_type &actualValue)
+      storage_type &actualValue)
     : smoc_entry_kind(base),
       actualValue(actualValue) {}
 
@@ -325,9 +325,9 @@ public:
     void add( add_param_ty x ) {
       //FIXME(MS): Signal initialization should be disabled in future!
       std::cerr << "Warning: Signals in synchronous-reactive systems should"
-	           " not be initialized!\n"
+             " not be initialized!\n"
                    "A better way for breaking undefined feedback loops is"
-	           " using non-strict blocks like non-strict AND!"
+             " using non-strict blocks like non-strict AND!"
                 << std::endl;
       //FIXME(MS): replace with signal value wrapper
       if(marking.size)marking[0]=x;
@@ -344,10 +344,10 @@ public:
 public:
   typedef T                                  data_type;
   typedef smoc_multicast_sr_signal_type<data_type>  this_type;
-  typedef smoc_storage<data_type>	     storage_type;
+  typedef smoc_storage<data_type>       storage_type;
   typedef smoc_port_in_base<data_type,
-			    smoc_channel_access,
-			    void>            Port;
+          smoc_channel_access,
+          void>            Port;
   typedef smoc_multicast_outlet<data_type>   Outlet;
   typedef smoc_multicast_entry<data_type>    Entry;
   typedef std::map< const Port* , Outlet* >  OutletMap;
@@ -391,8 +391,8 @@ public:
 #endif
   { 
     for(typename OutletMap::iterator iter = outlets.begin();
-	iter != outlets.end();
-	iter++){
+  iter != outlets.end();
+  iter++){
 #ifdef ENABLE_SYSTEMC_VPC
       iter->second->wpp(n,le);
 #else
@@ -426,9 +426,9 @@ private:
     if(needUpdate){
       // update events (storage state changed)
       for(typename OutletMap::iterator iter = outlets.begin();
-	  iter != outlets.end();
-	  iter++){
-	iter->second->usedDecr();
+    iter != outlets.end();
+    iter++){
+  iter->second->usedDecr();
       }
       entry.unusedIncr();
     }
@@ -437,7 +437,7 @@ private:
 protected:
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<sr_signal tokenType=\"" << typeid(data_type).name() << "\">"
-	<< std::endl;
+  << std::endl;
     {
       //FIXME(MS): Signal initialization should be disabled in future!
       //*************************INITIAL TOKENS, ETC...************************

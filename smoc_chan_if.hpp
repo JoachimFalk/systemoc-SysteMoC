@@ -77,8 +77,8 @@ public:
 template<>
 class smoc_channel_access<const void, const void> {
 public:
-  typedef const void					 storage_type;
-  typedef const void					 return_type;
+  typedef const void           storage_type;
+  typedef const void           return_type;
   typedef smoc_channel_access<storage_type, return_type> this_type;
 
 #ifndef NDEBUG
@@ -90,8 +90,8 @@ public:
 template<class S, class T>
 class smoc_ring_access : public smoc_channel_access<S, T> {
 public:
-  typedef S					      storage_type;
-  typedef T					      return_type;
+  typedef S                storage_type;
+  typedef T                return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
 private:
 #ifndef NDEBUG
@@ -139,8 +139,8 @@ public:
 template <>
 class smoc_ring_access<void, void> : public smoc_channel_access<void, void> {
 public:
-  typedef void					      storage_type;
-  typedef void					      return_type;
+  typedef void                storage_type;
+  typedef void                return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
 private:
 #ifndef NDEBUG
@@ -162,8 +162,8 @@ public:
 template <>
 class smoc_ring_access<const void, const void> : public smoc_channel_access<const void, const void> {
 public:
-  typedef const void				      storage_type;
-  typedef const void				      return_type;
+  typedef const void              storage_type;
+  typedef const void              return_type;
   typedef smoc_ring_access<storage_type, return_type> this_type;
 private:
 #ifndef NDEBUG
@@ -185,9 +185,9 @@ public:
 template <typename T, template <typename, typename> class R, class PARAM_TYPE>
 class smoc_port_in_base;
 template <typename T, 
-					template <typename, typename> class R, 
-					class PARAM_TYPE, 
-					template <typename> class STORAGE_TYPE>
+          template <typename, typename> class R, 
+          class PARAM_TYPE, 
+          template <typename> class STORAGE_TYPE>
 class smoc_port_out_base;
 
 class smoc_chan_in_base_if {
@@ -228,8 +228,8 @@ class smoc_chan_in_if
     virtual public smoc_chan_in_base_if {
 public:
   // typedefs
-  typedef smoc_chan_in_if<T,R>			this_type;
-  typedef T					data_type;
+  typedef smoc_chan_in_if<T,R>      this_type;
+  typedef T          data_type;
   typedef R<
     typename smoc_storage_in<T>::storage_type,
     typename smoc_storage_in<T>::return_type>   access_type;
@@ -260,16 +260,16 @@ private:
 };
 
 template <typename T,                                    //data type
-					template <typename, typename> class R,         //ring access type
-					template <typename> class S = smoc_storage_out //smoc_storage
-					>
+          template <typename, typename> class R,         //ring access type
+          template <typename> class S = smoc_storage_out //smoc_storage
+          >
 class smoc_chan_out_if
   : virtual public sc_interface,
     virtual public smoc_chan_out_base_if {
 public:
   // typedefs
-						typedef smoc_chan_out_if<T,R,S>			this_type;
-  typedef T					data_type;
+            typedef smoc_chan_out_if<T,R,S>      this_type;
+  typedef T          data_type;
   typedef R<
     typename S<T>::storage_type,
     typename S<T>::return_type>  access_type;
@@ -345,11 +345,11 @@ protected:
 extern const sc_event& smoc_default_event_abort();
 
 template <typename T_chan_kind, 
-					typename T_data_type, 
-	        template <typename, typename> class R_IN, //ring access in
-	        template <typename, typename> class R_OUT,//ring access out
-					template <typename> class S = smoc_storage_out
-	        >
+          typename T_data_type, 
+          template <typename, typename> class R_IN, //ring access in
+          template <typename, typename> class R_OUT,//ring access out
+          template <typename> class S = smoc_storage_out
+          >
 class smoc_chan_if
   : public smoc_chan_in_if<T_data_type, R_IN>,
     public smoc_chan_out_if<T_data_type, R_OUT, S>,

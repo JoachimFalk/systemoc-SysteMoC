@@ -406,15 +406,15 @@ private:
 template <typename T>
 class smoc_fifo_storage
 : public smoc_chan_if<smoc_fifo_kind,
-		      T,
-		      smoc_channel_access,
-		      smoc_channel_access> {
+          T,
+          smoc_channel_access,
+          smoc_channel_access> {
 public:
   typedef T                                   data_type;
   typedef smoc_fifo_storage<data_type>        this_type;
   typedef typename this_type::access_out_type ring_out_type;
   typedef typename this_type::access_in_type  ring_in_type;
-  typedef smoc_storage<data_type>	      storage_type;
+  typedef smoc_storage<data_type>        storage_type;
   typedef smoc_ring_access<
     typename ring_in_type::storage_type,
     typename ring_in_type::return_type>       ring_access_in_type;
@@ -443,9 +443,9 @@ protected:
   smoc_fifo_storage( const chan_init &i )
 //  : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i),
     : smoc_chan_if<smoc_fifo_kind,
-		   T,
-		   smoc_channel_access,
-		   smoc_channel_access>(i),
+       T,
+       smoc_channel_access,
+       smoc_channel_access>(i),
       storage(new storage_type[this->fsize])
   {
     assert(this->fsize > i.marking.size());
@@ -492,9 +492,9 @@ template <>
 class smoc_fifo_storage<void>
 //: public smoc_chan_nonconflicting_if<smoc_fifo_kind, void> {
 : public smoc_chan_if<smoc_fifo_kind,
-		      void,
-		      smoc_channel_access,
-		      smoc_channel_access> {
+          void,
+          smoc_channel_access,
+          smoc_channel_access> {
 public:
   typedef void                          data_type;
   typedef smoc_fifo_storage<data_type>  this_type;
@@ -527,9 +527,9 @@ protected:
   smoc_fifo_storage( const chan_init &i )
 //  : smoc_chan_nonconflicting_if<smoc_fifo_kind, void>(i) {
     : smoc_chan_if<smoc_fifo_kind,
-		   void,
-		   smoc_channel_access,
-		   smoc_channel_access>(i) {
+       void,
+       smoc_channel_access,
+       smoc_channel_access>(i) {
     assert( fsize > i.marking );
     windex = i.marking;
 #ifdef ENABLE_SYSTEMC_VPC
@@ -563,8 +563,8 @@ template <typename T>
 class smoc_fifo_type
   : public smoc_fifo_storage<T> {
 public:
-  typedef T						      data_type;
-  typedef smoc_fifo_type<data_type>			      this_type;
+  typedef T                  data_type;
+  typedef smoc_fifo_type<data_type>            this_type;
   
   typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
   typedef typename smoc_storage_in<data_type>::return_type    return_in_type;

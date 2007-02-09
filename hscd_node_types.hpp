@@ -80,8 +80,8 @@ class hscd_choice_node
     smoc_port_list ports = getPorts();
 
     for (smoc_port_list::iterator iter = ports.begin();
-	 iter != ports.end();
-	 ++iter)
+   iter != ports.end();
+   ++iter)
       (*iter)->finalise(this);
   }
 

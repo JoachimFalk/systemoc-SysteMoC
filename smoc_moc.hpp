@@ -143,15 +143,15 @@ private:
 /*
       sc_set_stop_mode(SC_STOP_IMMEDIATE);
       sc_report_handler::suppress(SC_UNSPECIFIED  |
-				  SC_DO_NOTHING   |
-				  SC_THROW        |
-				  SC_LOG          |
-				  SC_DISPLAY      |
-				  SC_CACHE_REPORT |
-				  SC_INTERRUPT    |
-				  SC_STOP         |
-				  SC_ABORT
-				  );
+          SC_DO_NOTHING   |
+          SC_THROW        |
+          SC_LOG          |
+          SC_DISPLAY      |
+          SC_CACHE_REPORT |
+          SC_INTERRUPT    |
+          SC_STOP         |
+          SC_ABORT
+          );
       // suppress intrusive SystemC std::cout messages
       std::cout.rdbuf(std::cerr.rdbuf()); 
       sc_stop();

@@ -53,9 +53,9 @@ class hscd_op {
 public:
   friend class hscd_choice_node;
   
-  typedef T				running_op_type;
-  typedef typename T::op_list_type	op_list_type;
-  typedef hscd_op<T>			this_type;
+  typedef T        running_op_type;
+  typedef typename T::op_list_type  op_list_type;
+  typedef hscd_op<T>      this_type;
 private:
   hscd_op_port_base_list pl;
   
@@ -242,7 +242,7 @@ protected:
   virtual ~hscd_running_op_choice() {}
 };
  
-typedef hscd_op<hscd_running_op_transact>	hscd_op_transact;
-typedef hscd_op<hscd_running_op_choice>		hscd_op_choice;
+typedef hscd_op<hscd_running_op_transact>  hscd_op_transact;
+typedef hscd_op<hscd_running_op_choice>    hscd_op_choice;
 
 #endif // _INCLUDED_HSCD_OP_HPP

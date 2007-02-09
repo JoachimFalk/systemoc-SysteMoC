@@ -134,7 +134,7 @@ public:
 
 class smoc_func_call {
 private:
-  typedef void					return_type;
+  typedef void          return_type;
   
   boost::intrusive_ptr<
     smoc_member_func_interface<return_type> >   k;
@@ -155,7 +155,7 @@ public:
 
 class smoc_func_diverge {
 private:
-  typedef const smoc_firing_state	       &return_type;
+  typedef const smoc_firing_state         &return_type;
   
   boost::intrusive_ptr<
     smoc_member_func_interface<return_type> >   k;
@@ -168,9 +168,9 @@ public:
   template <class T>
   smoc_func_diverge( T *_obj, return_type (T::*_f)() )
     : k(new typename CoSupport::ParamAccumulator<
-	      smoc_member_func,
-	      CoSupport::Functor<return_type, return_type (T::*)()> >::accumulated_type
-	    (CoSupport::Functor<return_type, return_type (T::*)()>(_obj, _f, "")))
+        smoc_member_func,
+        CoSupport::Functor<return_type, return_type (T::*)()> >::accumulated_type
+      (CoSupport::Functor<return_type, return_type (T::*)()>(_obj, _f, "")))
     {}
   
   return_type operator()() const {
@@ -514,13 +514,13 @@ public:
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition_list operator | (const smoc_transition_list &tl,
-				 const smoc_transition &t )
+         const smoc_transition &t )
   { return smoc_transition_list(tl) |= t; }
 #ifndef _COMPILEHEADER_SMOC_TRANSITION_LIST__OPERATOR_OR_2
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition_list operator | (const smoc_transition &tx,
-				 const smoc_transition &t )
+         const smoc_transition &t )
   { return smoc_transition_list(tx) |= t; }
 
 #ifndef _COMPILEHEADER_SMOC_INTERFACE_TRANSITION__OPERATOR_SHIFTRR_1
@@ -536,7 +536,7 @@ smoc_transition_part operator >> (const smoc_activation_pattern &ap,
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition operator >> (const smoc_func_call        &f,
-			     const smoc_firing_state_ref &s) {
+           const smoc_firing_state_ref &s) {
 //  std::cerr << ">>" << std::endl;
   return smoc_transition(f,s);
 }
@@ -545,7 +545,7 @@ smoc_transition operator >> (const smoc_func_call        &f,
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition operator >> (const smoc_transition_part  &tp,
-			     const smoc_firing_state_ref &s) {
+           const smoc_firing_state_ref &s) {
 //  std::cerr << ">>" << std::endl;
   return smoc_transition(tp,s);
 }
@@ -572,7 +572,7 @@ smoc_transition_part operator >> (const smoc_activation_pattern &ap,
 GNU89_EXTERN_INLINE
 #endif
 smoc_transition operator >> (const smoc_sr_func_pair    &fp,
-			     const smoc_firing_state_ref &s) {
+           const smoc_firing_state_ref &s) {
 //  std::cerr << ">>" << std::endl;
   return smoc_transition(fp,s);
 }
@@ -581,7 +581,7 @@ smoc_transition operator >> (const smoc_sr_func_pair    &fp,
 GNU89_EXTERN_INLINE
 #endif
 smoc_sr_func_pair operator && (const smoc_func_call        &g,
-			       const smoc_func_call        &t) {
+             const smoc_func_call        &t) {
   return smoc_sr_func_pair(g, t);
 }
 

@@ -55,10 +55,10 @@ public:
   template <typename T> friend class hscd_port_in;
   template <typename T> friend class hscd_port_out;
   
-  typedef hscd_op_port	this_type;
+  typedef hscd_op_port  this_type;
 private:
   smoc_root_port       *port;
-  size_t		tokens;
+  size_t    tokens;
   
   hscd_op_port( smoc_root_port *port, size_t tokens )
     : port(port), tokens(tokens) {}
@@ -90,10 +90,10 @@ protected:
     this_type retval;
     
     for ( const_iterator iter = begin();
-	  iter != end();
-	  ++iter ) {
+    iter != end();
+    ++iter ) {
       if ( filter(*iter) )
-	retval.push_back( *iter );
+  retval.push_back( *iter );
     }
     return retval;
   }

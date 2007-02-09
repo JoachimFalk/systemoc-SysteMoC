@@ -83,7 +83,7 @@ std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_a
 const smoc_firing_state &smoc_root_node::_communicate() {
 # ifdef SYSTEMOC_DEBUG
   std::cerr << "    <call actor=" << myModule()->name()
-	    << " func=smoc_root_node::communicate>" << std::endl;
+      << " func=smoc_root_node::communicate>" << std::endl;
   std::cerr << "    <communication type=\"execute\"/>" << std::endl;
 # endif
   
@@ -163,18 +163,18 @@ void smoc_root_node::finalise() {
     const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
         
     for ( smoc_firing_types::transitionlist_ty::const_iterator titer = cTraSt.begin(); 
-	  titer != cTraSt.end(); 
-	  ++titer ) {
+    titer != cTraSt.end(); 
+    ++titer ) {
       const smoc_firing_types::statelist_ty &cToNState = titer->sl;
       
       assert( cToNState.size() <= 1 );
       if ( cToNState.size() == 1 ) {
-	if (CoSupport::isType<smoc_sr_func_pair>(titer->f)) {
+  if (CoSupport::isType<smoc_sr_func_pair>(titer->f)) {
 #ifdef SYSTEMOC_DEBUG
-	  cout << "found non strict SR block: " << myModule()->name() << endl;
+    cout << "found non strict SR block: " << myModule()->name() << endl;
 #endif
-	  _non_strict = true;
-	}
+    _non_strict = true;
+  }
       }
     }
   }

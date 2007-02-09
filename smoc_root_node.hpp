@@ -69,7 +69,7 @@ protected:
   typename CoSupport::ParamAccumulator<smoc_member_func, CoSupport::Functor<void, F> >::accumulated_type
   call(const F &f, const char *name = "") {
     return typename CoSupport::ParamAccumulator<smoc_member_func, CoSupport::Functor<void, F> >::accumulated_type
-	    (CoSupport::Functor<void, F>(this, f, name));
+      (CoSupport::Functor<void, F>(this, f, name));
   }
   
   template<typename F>

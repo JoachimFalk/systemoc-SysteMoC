@@ -67,7 +67,7 @@ namespace Detail {
 
   void registerParam(const ArgInfo &);
 
-  //wrapper for constructor parameters	
+  //wrapper for constructor parameters  
   template <typename T>
   class ParamWrapper {
   private:
@@ -747,7 +747,7 @@ template<class F, class PL>
 class DMemGuard {
 public:
   typedef typename F::return_type value_type;
-  typedef DMemGuard<F,PL>	  this_type;
+  typedef DMemGuard<F,PL>    this_type;
   
   F  f;
   PL pl;

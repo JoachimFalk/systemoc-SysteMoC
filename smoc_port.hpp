@@ -51,9 +51,9 @@ template <typename T, template <typename, typename> class R, class PARAM_TYPE>
 class smoc_port_in_base;
 
 template <typename T, 
-					template <typename, typename> class R, 
-					class PARAM_TYPE, 
-					template <typename> class STORAGE_TYPE> 
+          template <typename, typename> class R, 
+          class PARAM_TYPE, 
+          template <typename> class STORAGE_TYPE> 
 class smoc_port_out_base;
 
 namespace Expr {
@@ -94,12 +94,12 @@ public:
     : p(p), pos(pos) {}
 };
 
-	template<typename T, template <typename, typename> class R, class PARAM_TYPE>
-	struct Value<DToken<T,R,PARAM_TYPE> > {
+  template<typename T, template <typename, typename> class R, class PARAM_TYPE>
+  struct Value<DToken<T,R,PARAM_TYPE> > {
   typedef const T result_type;
   
-	static inline
-	result_type apply(const DToken<T,R,PARAM_TYPE> &e)
+  static inline
+  result_type apply(const DToken<T,R,PARAM_TYPE> &e)
   { return e.p[e.pos]; }
 };
 
@@ -114,8 +114,8 @@ struct AST<DToken<T,R,PARAM_TYPE> > {
 
 template<typename T, template <typename, typename> class R, class PARAM_TYPE>
 struct D<DToken<T,R,PARAM_TYPE> >: public DBase<DToken<T,R,PARAM_TYPE> > {
-	D(smoc_port_in_base<T,R,PARAM_TYPE> &p, size_t pos)
-		: DBase<DToken<T,R,PARAM_TYPE> >(DToken<T,R,PARAM_TYPE>(p,pos)) {}
+  D(smoc_port_in_base<T,R,PARAM_TYPE> &p, size_t pos)
+    : DBase<DToken<T,R,PARAM_TYPE> >(DToken<T,R,PARAM_TYPE>(p,pos)) {}
 };
 
 // Make a convenient typedef for the token type.
@@ -509,18 +509,18 @@ protected:
   }
 
 public:
-	virtual PARAM_TYPE params() const = 0;
+  virtual PARAM_TYPE params() const = 0;
 
 };
 
 template <typename T,
-					template <typename, typename> class R,
-					class PARAM_TYPE>
+          template <typename, typename> class R,
+          class PARAM_TYPE>
 class smoc_port_in_base
-	: public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R>, PARAM_TYPE > {
+  : public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R>, PARAM_TYPE > {
 public:
-  typedef T				    data_type;
-	typedef smoc_port_in_base<data_type,R,PARAM_TYPE>	    this_type;
+  typedef T            data_type;
+  typedef smoc_port_in_base<data_type,R,PARAM_TYPE>      this_type;
   typedef typename this_type::iface_type    iface_type;
 
   typedef typename iface_type::access_type::return_type return_type;
@@ -532,7 +532,7 @@ public:
 #endif
   template <class E> friend class Expr::Value;
 protected:
-	typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R >, PARAM_TYPE > base_type;
+  typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R >, PARAM_TYPE > base_type;
 
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
@@ -569,7 +569,7 @@ public:
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->blockEventOut(n); }
   
-	typename Expr::Token<T,R,PARAM_TYPE>::type getValueAt(size_t n)
+  typename Expr::Token<T,R,PARAM_TYPE>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
   typename Expr::PortTokens<this_type>::type getConsumableTokens()
     { return Expr::portTokens(*this); }
@@ -600,17 +600,17 @@ public:
 
 
 template <typename T,                            //data type
-					template <typename, typename> class R, //ring access type
-					class PARAM_TYPE,                      //parameter type
-					template <typename> class STORAGE_TYPE = smoc_storage_out
-					>
+          template <typename, typename> class R, //ring access type
+          class PARAM_TYPE,                      //parameter type
+          template <typename> class STORAGE_TYPE = smoc_storage_out
+          >
 class smoc_port_out_base
-	: public smoc_port_base<smoc_root_port_out, 
-													smoc_chan_out_if<T,R,STORAGE_TYPE>, 
-													PARAM_TYPE > {
+  : public smoc_port_base<smoc_root_port_out, 
+                          smoc_chan_out_if<T,R,STORAGE_TYPE>, 
+                          PARAM_TYPE > {
 public:
-  typedef T				    data_type;
-	typedef smoc_port_out_base<data_type,R, PARAM_TYPE, STORAGE_TYPE>	    this_type;
+  typedef T            data_type;
+  typedef smoc_port_out_base<data_type,R, PARAM_TYPE, STORAGE_TYPE>      this_type;
   typedef typename this_type::iface_type    iface_type;
   
   template <class E> friend class Expr::CommExec;
@@ -624,9 +624,9 @@ public:
 
 
 protected:
-	typedef smoc_port_base<smoc_root_port_out, 
-												 smoc_chan_out_if<T,R,STORAGE_TYPE>, 
-												 PARAM_TYPE > base_type;
+  typedef smoc_port_base<smoc_root_port_out, 
+                         smoc_chan_out_if<T,R,STORAGE_TYPE>, 
+                         PARAM_TYPE > base_type;
 
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
@@ -687,49 +687,49 @@ public:
 
 template <typename T>
 class smoc_port_in
-	: public smoc_port_in_base<T, smoc_channel_access, void > {
+  : public smoc_port_in_base<T, smoc_channel_access, void > {
 public:
-  typedef T				    data_type;
-  typedef smoc_port_in<data_type>	    this_type;
+  typedef T            data_type;
+  typedef smoc_port_in<data_type>      this_type;
   typedef typename this_type::iface_type    iface_type;
   typedef typename this_type::return_type   return_type;
 
 protected:
-	typedef smoc_port_in_base<T, smoc_channel_access, void > base_type;
+  typedef smoc_port_in_base<T, smoc_channel_access, void > base_type;
   
 public:
   smoc_port_in(): base_type() {}
 
 public:
 
-	///dummy function
-	void params() const {
-		assert(false);
-	}
-	
+  ///dummy function
+  void params() const {
+    assert(false);
+  }
+  
 };
 
 
 template <typename T>
 class smoc_port_out
-	: public smoc_port_out_base<T, smoc_channel_access, void > {
+  : public smoc_port_out_base<T, smoc_channel_access, void > {
 public:
-  typedef T				    data_type;
-  typedef smoc_port_out<data_type>	    this_type;
+  typedef T            data_type;
+  typedef smoc_port_out<data_type>      this_type;
   typedef typename this_type::iface_type    iface_type;
   typedef typename this_type::return_type   return_type;
 
 protected:
-	typedef smoc_port_out_base<T, smoc_channel_access, void > base_type;
+  typedef smoc_port_out_base<T, smoc_channel_access, void > base_type;
   
 public:
   smoc_port_out(): base_type() {}
 
 public:
-	///dummy function
-	void params() const {
-		assert(false);
-	}
+  ///dummy function
+  void params() const {
+    assert(false);
+  }
 };
 
 #endif // _INCLUDED_SMOC_POPT_HPP
