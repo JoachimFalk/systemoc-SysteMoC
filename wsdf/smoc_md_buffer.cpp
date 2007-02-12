@@ -1,6 +1,6 @@
 
 #include "smoc_md_buffer.hpp"
-#include <smoc_debug_out.hpp>
+#include <cosupport/smoc_debug_out.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BUFFER
 #define VERBOSE_LEVEL_SMOC_MD_BUFFER 0

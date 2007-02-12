@@ -2,12 +2,12 @@
 #define _INCLUDED_SMOC_MD_FIFO_HPP
 
 #include <cosupport/commondefs.h>
+#include <cosupport/smoc_debug_out.hpp>
 
 #ifndef NO_SMOC
-#include <smoc_chan_if.hpp>
+#include "smoc_chan_if.hpp"
 #endif
-#include <smoc_storage.hpp>
-
+#include "smoc_storage.hpp"
 
 //#include <systemc.h>
 //#include <vector>
@@ -20,12 +20,10 @@
 #include <string>
 #endif
 
-#include <smoc_md_loop.hpp>
-#include <smoc_md_buffer.hpp>
-#include <smoc_wsdf_edge.hpp>
-#include <smoc_debug_out.hpp>
-
-#include <smoc_md_port.hpp>
+#include "smoc_md_loop.hpp"
+#include "smoc_md_buffer.hpp"
+#include "smoc_md_port.hpp"
+#include "smoc_wsdf_edge.hpp"
 
 /// 101: SysteMoC Interface
 /// 102: Memory access error

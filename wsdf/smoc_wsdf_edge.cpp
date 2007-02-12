@@ -1,6 +1,7 @@
 
+#include <cosupport/smoc_debug_out.hpp>
+
 #include "smoc_wsdf_edge.hpp"
-#include "smoc_debug_out.hpp"
 
 #define FAST_CALC_MODE
 
