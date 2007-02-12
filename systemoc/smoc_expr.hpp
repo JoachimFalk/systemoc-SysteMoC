@@ -99,6 +99,10 @@ namespace Detail {
   struct BLOCKED  {};
   struct ENABLED  { operator bool() const { return true; } };
 
+  template <typename T> struct TypeFilter { typedef T type; };
+  template <> struct TypeFilter<DISABLED> { typedef bool type; };
+  template <> struct TypeFilter<ENABLED>  { typedef bool type; };
+
   class ActivationStatus {
   public:
     typedef ActivationStatus this_type;
@@ -143,7 +147,8 @@ private:
   std::string type;
 public:
   template <typename T>
-  ASTNode(T *): type(typeid(T).name()) {}
+  ASTNode(T *):
+    type(typeid(typename Detail::TypeFilter<T>::type).name()) {}
 
   const std::string  &getValueType() const { return type; }
   virtual std::string getNodeType() const                       = 0;
