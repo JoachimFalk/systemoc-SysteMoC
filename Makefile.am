@@ -30,7 +30,7 @@ SUBDIRS=
 # This is only needed if there is a configure.in in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
-pkgincludeprefix=systemoc/
+systemocdir=$(includedir)/systemoc
 
 compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 	@date > $@
@@ -40,7 +40,7 @@ AM_CPPFLAGS =				\
 	@SYSTEMC_INCLUDE@		\
 	@BOOST_INCLUDE@			\
 	@SYSTEMC_VPC_INCLUDE@		\
-	-I./include			\
+	-I$(srcdir)/systemoc		\
 	-I$(srcdir)/wsdf		\
 	-I$(srcdir)
 
@@ -59,49 +59,48 @@ EXTRA_DIST	=
 PROGLDFLAGS=
 
 lib_LTLIBRARIES = libsystemoc.la
-pkginclude_HEADERS =			\
-	smoc_expr.hpp			\
-	smoc_expr.hpp			\
-	smoc_fifo.hpp			\
-	smoc_sr_signal.hpp		\
-	smoc_multicast_sr_signal.hpp	\
-	smoc_moc.hpp			\
-	smoc_port.hpp			\
-	smoc_root_node.hpp		\
-	smoc_firing_rules.hpp		\
-	smoc_guard.hpp			\
-	smoc_node_types.hpp		\
-	smoc_rendezvous.hpp		\
-	smoc_root_port.hpp		\
-	smoc_graph_type.hpp		\
-	smoc_pggen.hpp			\
-	smoc_chan_if.hpp		\
-	smoc_event.hpp			\
-	smoc_storage.hpp		\
-					\
-	hscd_tdsim_TraceLog.hpp		\
-					\
-	hscd_op.hpp			\
-	hscd_port.hpp			\
-	hscd_root_port_list.hpp		\
-	hscd_node_types.hpp		\
-	hscd_fifo.hpp			\
-	hscd_structure.hpp		\
-	hscd_graph_type.hpp		\
-	hscd_scheduler.hpp		\
-	hscd_pggen.hpp			\
-	hscd_moc.hpp
+pkginclude_HEADERS =				\
+	systemoc/smoc_expr.hpp			\
+	systemoc/smoc_fifo.hpp			\
+	systemoc/smoc_sr_signal.hpp		\
+	systemoc/smoc_multicast_sr_signal.hpp	\
+	systemoc/smoc_moc.hpp			\
+	systemoc/smoc_port.hpp			\
+	systemoc/smoc_root_node.hpp		\
+	systemoc/smoc_firing_rules.hpp		\
+	systemoc/smoc_guard.hpp			\
+	systemoc/smoc_node_types.hpp		\
+	systemoc/smoc_rendezvous.hpp		\
+	systemoc/smoc_root_port.hpp		\
+	systemoc/smoc_graph_type.hpp		\
+	systemoc/smoc_pggen.hpp			\
+	systemoc/smoc_chan_if.hpp		\
+	systemoc/smoc_event.hpp			\
+	systemoc/smoc_storage.hpp		\
+						\
+	systemoc/hscd_tdsim_TraceLog.hpp	\
+						\
+	systemoc/hscd_op.hpp			\
+	systemoc/hscd_port.hpp			\
+	systemoc/hscd_root_port_list.hpp	\
+	systemoc/hscd_node_types.hpp		\
+	systemoc/hscd_fifo.hpp			\
+	systemoc/hscd_structure.hpp		\
+	systemoc/hscd_graph_type.hpp		\
+	systemoc/hscd_scheduler.hpp		\
+	systemoc/hscd_pggen.hpp			\
+	systemoc/hscd_moc.hpp
 
 if WSDF
-pkginclude_HEADERS +=			\
-	wsdf/smoc_md_array_access.hpp	\
-	wsdf/smoc_md_array.hpp		\
-	wsdf/smoc_md_buffer.hpp		\
-	wsdf/smoc_md_fifo.hpp		\
-	wsdf/smoc_md_loop.hpp		\
-	wsdf/smoc_md_port.hpp		\
-	wsdf/smoc_vector.hpp		\
-	wsdf/smoc_wsdf_edge.hpp
+pkginclude_HEADERS +=				\
+	systemoc/smoc_md_array_access.hpp	\
+	systemoc/smoc_md_array.hpp		\
+	systemoc/smoc_md_buffer.hpp		\
+	systemoc/smoc_md_fifo.hpp		\
+	systemoc/smoc_md_loop.hpp		\
+	systemoc/smoc_md_port.hpp		\
+	systemoc/smoc_vector.hpp		\
+	systemoc/smoc_wsdf_edge.hpp
 endif
 
 
@@ -114,7 +113,7 @@ libsystemoc_CH_LTOBJS=				\
 
 libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lsystemc -lcosupport -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
-libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp include @pkg_support_builddir@/libcosupport.la @SYSTEMC_VPC_DEPENDENCIES@
+libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp @pkg_support_builddir@/libcosupport.la @SYSTEMC_VPC_DEPENDENCIES@
 
 libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\
@@ -140,6 +139,3 @@ libsystemoc_la_SOURCES +=		\
 	wsdf/smoc_wsdf_edge.cpp		\
 	wsdf/smoc_md_port.cpp
 endif
-
-# Need pkinclude files in include/$(pkgincludeprefix)
-$(libsystemoc_la_OBJECTS) $(libsystemoc_CH_LTOBJS): include
