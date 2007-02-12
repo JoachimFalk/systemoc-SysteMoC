@@ -19,11 +19,11 @@ AC_CANONICAL_HOST
 AC_LANG([C++])
 
 dnl Checks for programs.
-ACJF_CHECK_CROSSTOOL( CC, gcc)
-ACJF_CHECK_CROSSTOOL( CXX, g++)
-ACJF_CHECK_CROSSTOOL( AR, ar)
-ACJF_CHECK_CROSSTOOL( RANLIB, ranlib)
-ACJF_CHECK_CROSSTOOL( NM, nm)
+ACJF_CHECK_CROSSTOOL(CC, gcc)
+ACJF_CHECK_CROSSTOOL(CXX, g++)
+ACJF_CHECK_CROSSTOOL(AR, ar)
+ACJF_CHECK_CROSSTOOL(RANLIB, ranlib)
+ACJF_CHECK_CROSSTOOL(NM, nm)
 AC_PROG_CXXCPP
 AC_PROG_CPP
 # Checks for programs.
@@ -31,6 +31,8 @@ AC_PROG_CPP
 #AC_PROG_INSTALL
 #AC_PROG_LN_S
 #AC_PROG_MAKE_SET
+
+AM_INIT_AUTOMAKE
 
 ACJF_ARG_DEBUG([yes], [], [-DNDEBUG])
 
@@ -44,7 +46,19 @@ AC_ARG_ENABLE(synthesis-support,
   [synth=false])
 AM_CONDITIONAL(SYNTH, test x$synth = xtrue)
 
-AM_INIT_AUTOMAKE
+### SystemC-VPC ###
+# --enable-vpc option
+AC_ARG_ENABLE(
+  [vpc],
+  [[  --enable-vpc            enable vpc support for SysteMoC [default=auto]]],
+  [case "$enableval" in
+     yes) enable_vpc=yes ;;
+     no)  enable_vpc=no  ;;
+     *)   enable_vpc=no  ;;
+   esac],
+  [enable_vpc=no# default]
+)
+
 AC_CONFIG_HEADER([config.h])
 
 AC_DISABLE_SHARED
@@ -63,7 +77,7 @@ AM_LDFLAGS="$AM_LDFLAGS   $BOOST_LDFLAGS"
 
 ACJF_NEED_PKG([Support])
 ACJF_NEED_PKG([SysteMoC],
-  [AM_CPPFLAGS="$AM_CPPFLAGS -I$acjf_pkg_builddir/include/systemoc";
+  [AM_CPPFLAGS="$AM_CPPFLAGS -I$acjf_pkg_srcdir/pkginclude/systemoc";
    AM_LDFLAGS="$AM_LDFLAGS -L$acjf_pkg_builddir";
    SYSTEMOC_DEPENDENCIES="$acjf_pkg_builddir/libsystemoc.la";]
 )
@@ -97,19 +111,6 @@ CPPFLAGS="$acjf_CPPFLAGS"
 
 # Checks for library functions.
 
-### SystemC-VPC ###
-# --enable-vpc option
-AC_ARG_ENABLE(
-  [vpc],
-  [[  --enable-vpc            enable vpc support for SysteMoC [default=yes]]],
-  [case "$enableval" in
-     yes) enable_vpc=yes ;;
-     no)  enable_vpc=no  ;;
-     *)   enable_vpc=no  ;;
-   esac],
-  [enable_vpc=yes # default]
-)
-
 if test x"$enable_vpc" = x"yes"; then
   SYSTEMC_VPC_INCLUDE=" \
     -I\$(top_builddir)/../SysteMoC/include/systemoc \
@@ -136,10 +137,6 @@ else
   SYSTEMC_VPC_LDFLAGS=""
   SYSTEMC_VPC_DEPENDENCIES=""
 fi
-if test -d $srcdir/systemoc-sr; then
-  AC_CONFIG_FILES([systemoc-sr/Makefile])
-#  subdirs="$subdirs systemoc-sr"
-fi
 
 AC_SUBST([SYSTEMC_VPC_INCLUDE])
 AC_SUBST([SYSTEMC_VPC_LDFLAGS])
@@ -147,6 +144,10 @@ AC_SUBST([SYSTEMC_VPC_DEPENDENCIES])
 
 AC_CONFIG_FILES([Makefile])
 
+if test -d $srcdir/systemoc-sr; then
+  AC_CONFIG_FILES([systemoc-sr/Makefile])
+#  subdirs="$subdirs systemoc-sr"
+fi
 if test -d $srcdir/idct2d-ref; then
   AC_CONFIG_FILES([idct2d-ref/Makefile])
   subdirs="$subdirs idct2d-ref"
