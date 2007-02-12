@@ -77,7 +77,11 @@ AM_LDFLAGS="$AM_LDFLAGS   $BOOST_LDFLAGS"
 
 ACJF_NEED_PKG([Support])
 ACJF_NEED_PKG([SysteMoC],
-  [AM_CPPFLAGS="$AM_CPPFLAGS -I$acjf_pkg_srcdir/pkginclude/systemoc";
+  [if test -d "$srcdir/$acjf_pkgdir/pkginclude"; then
+     AM_CPPFLAGS="$AM_CPPFLAGS -I$acjf_pkg_srcdir/pkginclude/systemoc";
+   else
+     AM_CPPFLAGS="$AM_CPPFLAGS -I$acjf_pkg_builddir/include/systemoc";
+   fi
    AM_LDFLAGS="$AM_LDFLAGS -L$acjf_pkg_builddir";
    SYSTEMOC_DEPENDENCIES="$acjf_pkg_builddir/libsystemoc.la";]
 )
