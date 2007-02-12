@@ -30,7 +30,7 @@ SUBDIRS=
 # This is only needed if there is a configure.in in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
-systemocdir=$(includedir)/systemoc
+pkgincludedir=$(includedir)/systemoc
 
 compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 	@date > $@
