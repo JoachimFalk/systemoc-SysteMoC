@@ -94,8 +94,8 @@ public:
     : p(p), pos(pos) {}
 };
 
-  template<typename T, template <typename, typename> class R, class PARAM_TYPE>
-  struct Value<DToken<T,R,PARAM_TYPE> > {
+template<typename T, template <typename, typename> class R, class PARAM_TYPE>
+struct Value<DToken<T,R,PARAM_TYPE> > {
   typedef const T result_type;
   
   static inline
@@ -150,7 +150,6 @@ public:
 template<class P>
 class DPortTokens {
 public:
-  typedef size_t          value_type;
   typedef DPortTokens<P>  this_type;
   
   friend class AST<this_type>;
@@ -214,8 +213,7 @@ public:
 template<class P, class E>
 class DComm {
 public:
-  typedef DComm<P,E>                              this_type;
-  typedef typename Value<this_type>::result_type  value_type;
+  typedef DComm<P,E> this_type;
 
   friend class AST<this_type>;
   friend class CommExec<this_type>;

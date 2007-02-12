@@ -88,6 +88,50 @@ namespace Detail {
 
   struct Process;   // Process type marker for evalTo<{Sensitivity|CommExec}>( ... )
   struct Ignore;    // Ignore type marker for evalTo<{Sensitivity|CommExec}>( ... )
+
+  enum _XXX {
+    _DISABLED = -1,
+    _BLOCKED  =  0,
+    _ENABLED  =  1
+  };
+
+  struct DISABLED { operator bool() const { return false; } };
+  struct BLOCKED  {};
+  struct ENABLED  { operator bool() const { return true; } };
+
+  class ActivationStatus {
+  public:
+    typedef ActivationStatus this_type;
+//  typedef _XXX (this_type::*unspecified_bool_type)() const;
+ 
+#ifdef SYSTEMOC_DEBUG
+    friend std::ostream &operator <<(std::ostream &, this_type);
+#endif
+  private:
+    _XXX value;
+  public:
+    ActivationStatus(bool b)
+      :value(b ? _ENABLED : _DISABLED) {}
+
+    ActivationStatus(const DISABLED _)
+      :value(_DISABLED) {}
+    ActivationStatus(const BLOCKED  _)
+      :value(_BLOCKED) {}
+    ActivationStatus(const ENABLED _)
+      :value(_ENABLED) {}
+
+    bool operator == (const this_type &s) const
+      { return value == s.value; }
+    bool operator != (const this_type &s) const
+      { return value != s.value; }
+
+    _XXX toSymbol() const
+      { return value; }
+
+//  operator unspecified_bool_type() const
+//    { return value == ENABLED ? &this_type::toSymbol : NULL; }
+  };
+
 } // namespace Expr::Detail
 
 /****************************************************************************
@@ -253,9 +297,8 @@ typename Z<E>::result_type evalTo(const D<E> &e, typename Z<E>::param1_type p) {
 template<class E>
 class DBase {
 public:
-  typedef E                       expr_type;
-  typedef D<expr_type>            this_type;
-  typedef typename E::value_type  value_type;
+  typedef E             expr_type;
+  typedef D<expr_type>  this_type;
 private:
   expr_type e;
 public:
@@ -271,30 +314,28 @@ struct D: public DBase<E> {
 };
 
 /****************************************************************************
- *
- */
-
-
-/****************************************************************************
  * DVirtual is a placeholder for some other kind of DXXX classes
  */
 
 template <typename T>
 class DVirtual {
 public:
-  typedef T           value_type;
-  typedef DVirtual<T> this_type;
-  
-  template <typename TT>
-  class virt_ty: public CoSupport::RefCountObject {
-  public:
-    typedef virt_ty  this_type;
-    typedef TT       value_type;
-  public:
+  typedef DVirtual<T>  this_type;
+
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#ifndef NDEBUG
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
+  struct virt_ty: public CoSupport::RefCountObject {
     virtual PASTNode   evalToAST()         const = 0;
 #ifdef ENABLE_SYSTEMC_VPC
     virtual void       evalToCommExec
-                 (const smoc_ref_event_p &le)  const = 0;
+              (const smoc_ref_event_p &le) const = 0;
 #else
     virtual void       evalToCommExec()    const = 0;
 #endif
@@ -304,19 +345,14 @@ public:
 #endif
     virtual void       evalToSensitivity
                  (smoc_event_and_list &al) const = 0;
-    virtual value_type evalToValue()       const = 0;
+    virtual T          evalToValue()       const = 0;
   };
-  
-  boost::intrusive_ptr<virt_ty<T> > v;
-protected:
-//  class impl_ty: public virt_ty<typename E::value_type> {
+
   template <class E>
-  class impl_ty: public virt_ty<T> {
+  class impl_ty: public virt_ty {
   public:
-    typedef E                       expr_type;
-//    typedef typename E::value_type  value_type;
-    typedef T                       value_type;
-    typedef impl_ty<E>              this_type;
+    typedef E          expr_type;
+    typedef impl_ty<E> this_type;
   private:
     E e;
   public:
@@ -340,9 +376,11 @@ protected:
     void       evalToSensitivity
          (smoc_event_and_list &al) const
       { return Sensitivity<E>::apply(e, al); }
-    value_type evalToValue() const
+    T          evalToValue() const
       { return Value<E>::apply(e); }
   };
+
+  boost::intrusive_ptr<virt_ty> v;
 public:
   template <class E>
   DVirtual( const D<E> &e )
@@ -468,10 +506,18 @@ public:
 template<typename T>
 class DVar {
 public:
-  typedef T       value_type;
   typedef DVar<T> this_type;
-  
-  const T &x;
+
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#ifndef NDEBUG
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
+  const T    &x;
   const char *name;
 public:
   explicit DVar(T &x, const char *name_ = NULL)
@@ -535,10 +581,18 @@ public:
 template<typename T>
 class DLiteral {
 public:
-  typedef T           value_type;
   typedef DLiteral<T> this_type;
-  
-  const value_type v;
+
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#ifndef NDEBUG
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
+  const T v;
 public:
   explicit DLiteral(const T &v): v(v) {}
   template <typename X>
@@ -548,10 +602,18 @@ public:
 template<typename T>
 class DLiteral<Detail::ParamWrapper<T> > {
 public:
-  typedef T                                        value_type;
-  typedef DLiteral<Detail::ParamWrapper<T> >       this_type;
+  typedef DLiteral<Detail::ParamWrapper<T> >  this_type;
   
-  const value_type v;
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#ifndef NDEBUG
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
+  const T v;
 public:
   explicit DLiteral(const Detail::ParamWrapper<T> &v): v(v) {}
   template <typename X>
@@ -569,7 +631,7 @@ struct AST<DLiteral<T> > {
 
 template <typename T>
 struct Value<DLiteral<T> > {
-  typedef typename DLiteral<T>::value_type result_type;
+  typedef T result_type;
   
   static inline
   result_type apply(const DLiteral<T> &e)
@@ -611,9 +673,17 @@ public:
 template<typename T>
 class DProc {
 public:
-  typedef T         value_type;
   typedef DProc<T>  this_type;
 
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#ifndef NDEBUG
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
   T (*f)();
 public:
   explicit DProc(T (*f)()): f(f) {}
@@ -676,9 +746,17 @@ public:
 template<typename T, class X>
 class DMemProc {
 public:
-  typedef T             value_type;
   typedef DMemProc<T,X> this_type;
   
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#ifndef NDEBUG
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
   X     *o;
   T (X::*m)();
 public:
@@ -746,9 +824,17 @@ public:
 template<class F, class PL>
 class DMemGuard {
 public:
-  typedef typename F::return_type value_type;
-  typedef DMemGuard<F,PL>    this_type;
+  typedef DMemGuard<F,PL> this_type;
   
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#ifndef NDEBUG
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
   F  f;
   PL pl;
 public:
@@ -830,9 +916,17 @@ typedef boost::intrusive_ptr<ASTNodeBinOp> PASTNodeBinOp;
 template<class A, class B, OpBinT Op>
 class DBinOp {
 public:
-  typedef DBinOp<A,B,Op>                          this_type;
-  typedef typename Value<this_type>::result_type  value_type;
-//private:
+  typedef DBinOp<A,B,Op> this_type;
+
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#ifndef NDEBUG
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
   A a;
   B b;
 public:
@@ -863,56 +957,9 @@ struct DBinOpExecute<TA,TB,Op,Value> {                                \
                                                                       \
   template <class A, class B>                                         \
   static inline                                                       \
-  result_type apply( const A &a, const B &b ) {                       \
-    return Value<A>::apply(a) op Value<B>::apply(b);                  \
-  }                                                                   \
+  result_type apply( const A &a, const B &b )                         \
+    { return Value<A>::apply(a) op Value<B>::apply(b); }              \
 };
-
-namespace Detail {
-  enum _XXX {
-    _DISABLED = -1,
-    _BLOCKED  =  0,
-    _ENABLED  =  1
-  };
-
-  struct DISABLED { operator bool() const { return false; } };
-  struct BLOCKED  {};
-  struct ENABLED  { operator bool() const { return true; } };
-
-  class ActivationStatus {
-  public:
-    typedef ActivationStatus this_type;
-//  typedef _XXX (this_type::*unspecified_bool_type)() const;
- 
-#ifdef SYSTEMOC_DEBUG
-    friend std::ostream &operator <<(std::ostream &, this_type);
-#endif
-  private:
-    _XXX value;
-  public:
-    ActivationStatus(bool b)
-      :value(b ? _ENABLED : _DISABLED) {}
-
-    ActivationStatus(const DISABLED _)
-      :value(_DISABLED) {}
-    ActivationStatus(const BLOCKED  _)
-      :value(_BLOCKED) {}
-    ActivationStatus(const ENABLED _)
-      :value(_ENABLED) {}
-
-    bool operator == (const this_type &s) const
-      { return value == s.value; }
-    bool operator != (const this_type &s) const
-      { return value != s.value; }
-
-    _XXX toSymbol() const
-      { return value; }
-
-//  operator unspecified_bool_type() const
-//    { return value == ENABLED ? &this_type::toSymbol : NULL; }
-  };
-
-} // namespace Expr::Detail
 
 template <class A, class B, OpBinT Op>
 struct AST<DBinOp<A,B,Op> > {
@@ -926,7 +973,7 @@ struct AST<DBinOp<A,B,Op> > {
                 << Op << "> >: Was here !!!" << std::endl;*/
     return PASTNode(
       new ASTNodeBinOp(Op,AST<A>::apply(e.a),AST<B>::apply(e.b),
-        static_cast<typename DBinOp<A,B,Op>::value_type *>(NULL)));
+        static_cast<typename Value<DBinOp<A,B,Op> >::result_type *>(NULL)));
   }
 };
 
@@ -1233,22 +1280,29 @@ struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,DOpBinLAnd,Value> {
   }
 };
 
-/* DOpBinField Operator */
+/* DOpBinField Operator
 
 template<class A, typename V>
-class DBinOp<A,DLiteral<V A::value_type::*>,DOpBinField> {
+class DBinOp<A,DLiteral<V Value<A>::result_type::*>,DOpBinField> {
 public:
-  typedef DBinOp<A,DLiteral<V A::value_type::*>,DOpBinField>  this_type;
-  typedef V                                                   value_type;
+  typedef DBinOp<A,DLiteral<V Value<A>::result_type::*>,DOpBinField>  this_type;
   
-  A                            a;
-  DLiteral<V A::value_type::*> b;
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#ifndef NDEBUG
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
+  A                                    a;
+  DLiteral<V Value<A>::result_type::*> b;
   
-  value_type value() const {
+  V value() const {
     return Value<A>::apply(a) .*
            Value<DLiteral<V A::value_type::*> >::apply(b);
   }
-//  { return Value<A>::apply(a) op Value<B>::apply(b); }
 public:
   DBinOp(const A& a, const DLiteral<V A::value_type::*> &b): a(a), b(b) {}
 };
@@ -1262,6 +1316,7 @@ typename Field<A,V>::type
 field(const D<A> &a, V A::value_type::* b) {
   return typename Field<A,V>::type(a.getExpr(), DLiteral<V A::value_type::*>(b));
 }
+*/
 
 /****************************************************************************
  * DUnOp represents a unary operation in an expressions.
@@ -1279,18 +1334,6 @@ typedef enum {
 
 std::ostream &operator << (std::ostream &o, const OpUnT &op );
 
-template<class A, OpUnT Op>
-class DUnOp;
-
-template<class A, OpUnT Op>
-struct D<DUnOp<A,Op> >: public DBase<DUnOp<A,Op> > {
-  D(const A &a): DBase<DUnOp<A,Op> >(DUnOp<A,Op>(a)) {}
-};
-
-// Make a convenient typedef for the op type.
-template <class A, OpUnT Op>
-struct UnOp { typedef D<DUnOp<A,Op> > type; };
-
 class ASTNodeUnOp: public ASTInternalUnNode {
 public:
   OpUnT op;
@@ -1306,23 +1349,51 @@ public:
 
 typedef boost::intrusive_ptr<ASTNodeUnOp> PASTNodeUnOp;
 
+template<class E, OpUnT Op>
+class DUnOp {
+public:
+  typedef DUnOp<E,Op> this_type;
+
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#ifndef NDEBUG
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
+  E e;
+public:
+  DUnOp(const E &e): e(e) {}
+};
+
+template<class E, OpUnT Op>
+struct D<DUnOp<E,Op> >: public DBase<DUnOp<E,Op> > {
+  D(const E &e): DBase<DUnOp<E,Op> >(DUnOp<E,Op>(e)) {}
+};
+
+// Make a convenient typedef for the op type.
+template <class E, OpUnT Op>
+struct UnOp { typedef D<DUnOp<E,Op> > type; };
+
 /****************************************************************************
  * APPLICATIVE TEMPLATE CLASSES
  */
 
-#define DUNOP(Op,op)                                                  \
-template<class A>                                                     \
-class DUnOp<A,Op> {                                                   \
-public:                                                               \
-  typedef DUnOp<A,Op>                                   this_type;    \
-  typedef typeof(op (*(typename A::value_type*)(NULL))) value_type;   \
+template<typename TE, OpUnT Op, template <class> class K>
+class DUnOpExecute;
+
+#define DUNOPEXECUTE(Op,op)                                           \
+template<typename TE>                                                 \
+struct DUnOpExecute<TE,Op,Value> {                                    \
+  typedef DUnOpExecute<TE,Op,Value>   this_type;                      \
+  typedef typeof(op (*(TE*)(NULL)))   result_type;                    \
                                                                       \
-  A a;                                                                \
-                                                                      \
-  value_type value() const                                            \
-    { return op Value<A>::apply(a); }                                 \
-public:                                                               \
-  DUnOp(const A& a): a(a) {}                                          \
+  template <class E>                                                  \
+  static inline                                                       \
+  result_type apply(const E &e)                                       \
+    { return op Value<E>::apply(e); }                                 \
 };
 
 template <class A, OpUnT Op>
@@ -1332,43 +1403,46 @@ struct AST<DUnOp<A,Op> > {
   static inline
   result_type apply(const DUnOp<A,Op> &e) {
     return PASTNode(
-      new ASTNodeUnOp(Op,AST<A>::apply(e.a),
-        static_cast<typename DUnOp<A,Op>::value_type *>(NULL)));
+      new ASTNodeUnOp(Op,AST<A>::apply(e.e),
+        static_cast<typename Value<DUnOp<A,Op> >::result_type *>(NULL)));
   }
 };
 
-template <class A, OpUnT Op>
-struct Value<DUnOp<A,Op> > {
-  typedef typename DUnOp<A,Op>::value_type result_type;
-  
+template <class E, OpUnT Op>
+struct Value<DUnOp<E,Op> > {
+  typedef DUnOpExecute<
+    typename Value<E>::result_type,
+    Op, Expr::Value>                      OpT;
+  typedef typename OpT::result_type       result_type;
+
   static inline
-  result_type apply(const DUnOp<A,Op> &e)
-    { return e.value(); }
+  result_type apply(const DUnOp<E,Op> &e)
+    { return OpT::apply(e.e); }
 };
 
 /****************************************************************************
  * OPERATORS for APPLICATIVE TEMPLATE CLASSES
  */
 
-template <class A, OpUnT Op>
+template <class E, OpUnT Op>
 class DOpUnConstruct {
 public:
-  typedef D<DUnOp<A,Op> > result_type;
+  typedef D<DUnOp<E,Op> > result_type;
   
   static inline
-  result_type apply(const A &a)
-    { return result_type(a); }
+  result_type apply(const E &e)
+    { return result_type(e); }
 };
 
 #define DOPUN(name,op)                                          \
-template<class A>                                               \
+template<class E>                                               \
 static inline                                                   \
-typename DOpUnConstruct<A,name>::result_type                    \
-operator op (const D<A> &a) {                                   \
-  return DOpUnConstruct<A,name>::apply(a.getExpr());            \
+typename DOpUnConstruct<E,name>::result_type                    \
+operator op (const D<E> &e) {                                   \
+  return DOpUnConstruct<E,name>::apply(e.getExpr());            \
 }
 
-#define DOP(name,op) DUNOP(DOpUn##name,op) DOPUN(DOpUn##name,op)
+#define DOP(name,op) DUNOPEXECUTE(DOpUn##name,op) DOPUN(DOpUn##name,op)
 
 DOP(LNot,!)
 DOP(BNot,~)
@@ -1377,22 +1451,18 @@ DOP(DeRef,*)
 
 #undef DOP
 #undef DOPUN
-#undef DUNOP
+#undef DUNOPEXECUTE
 
 /* DOpUnType Operator */
 
-template<class A>
-class DUnOp<A,DOpUnType> {
-public:
-  typedef DUnOp<A,DOpUnType>   this_type;
-  typedef unsigned int         value_type;
-  
-  A a;
-  
-  value_type value() const
-    { return Value<A>::apply(a).type(); }
-public:
-  DUnOp(const A& a): a(a) {}
+template<class TE>
+struct DUnOpExecute<TE,DOpUnType,Value> {
+  typedef unsigned int result_type;
+
+  template <class E>
+  static inline
+  result_type apply(const E &e)
+    { return Value<E>::apply(e).type(); }
 };
 
 template <class TO, class A>
