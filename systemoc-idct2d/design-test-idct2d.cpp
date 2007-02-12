@@ -22,6 +22,10 @@
 #define INAMEblk "test_in.dat"
 #define ONAMEblk "test_out.dat"
 
+#ifndef DEFAULT_BLOCK_COUNT
+#define DEFAULT_BLOCK_COUNT 25
+#endif
+
 #ifdef EDK_XILINX_RUNTIME
 # define USE_COUNTER_INPUT
 #endif
@@ -151,7 +155,7 @@ int sc_main (int argc, char **argv) {
   size_t periods            =
     (argc > 1)
     ? atoi(argv[1])
-    : 1;
+    : DEFAULT_BLOCK_COUNT;
   
   smoc_top_moc<IDCT2d_TEST> top("top", periods);
   
