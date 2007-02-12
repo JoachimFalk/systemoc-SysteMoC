@@ -47,11 +47,11 @@
 # include <smoc_pggen.hpp>
 #endif
 
-#include <par_port.hpp>
-#include <par_actor.hpp>
-#include <par_actor_factory.hpp>
+#include <cosupport/par_port.hpp>
+#include <cosupport/par_actor.hpp>
+#include <cosupport/par_actor_factory.hpp>
 
-#include <oneof.hpp>
+#include <cosupport/oneof.hpp>
 
 using CoSupport::par_port_out;
 using CoSupport::par_port_in;
