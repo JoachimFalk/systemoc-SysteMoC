@@ -1,11 +1,12 @@
 #ifndef _INCLUDED_SMOC_MD_BUFFER_HPP
 #define _INCLUDED_SMOC_MD_BUFFER_HPP
 
-#include <smoc_md_loop.hpp>
 #include <cosupport/commondefs.h>
-#include <smoc_vector.hpp>
-#include <smoc_md_array.hpp>
-#include <smoc_debug_out.hpp>
+#include <cosupport/smoc_debug_out.hpp>
+
+#include "smoc_vector.hpp"
+#include "smoc_md_loop.hpp"
+#include "smoc_md_array.hpp"
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BUFFER
 #define VERBOSE_LEVEL_SMOC_MD_BUFFER 0

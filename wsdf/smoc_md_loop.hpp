@@ -1,9 +1,10 @@
 #ifndef _INCLUDED_SMOC_MD_LOOP_HPP
 #define _INCLUDED_SMOC_MD_LOOP_HPP
 
-#include <smoc_vector.hpp>
+#include "smoc_vector.hpp"
+
 #include <boost/numeric/ublas/matrix.hpp>
-#include <smoc_debug_out.hpp>
+#include <cosupport/smoc_debug_out.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_LOOP
 #define VERBOSE_LEVEL_SMOC_MD_LOOP 0

@@ -1,15 +1,14 @@
 #ifndef _INCLUDED_MD_SMOC_PORT_HPP
 #define _INCLUDED_MD_SMOC_PORT_HPP
 
-#include <smoc_port.hpp>
+#include <cosupport/smoc_debug_out.hpp>
 
-#include <smoc_wsdf_edge.hpp>
+#include "smoc_port.hpp"
+#include "smoc_wsdf_edge.hpp"
 
-#include <smoc_md_buffer.hpp>
-#include <smoc_vector.hpp>
-#include <smoc_md_array_access.hpp>
-
-#include <smoc_debug_out.hpp>
+#include "smoc_md_buffer.hpp"
+#include "smoc_vector.hpp"
+#include "smoc_md_array_access.hpp"
 
 //#define PORT_IN_SMOC_MD_STORAGE_ACCESS smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk
 //#define PORT_OUT_SMOC_MD_STORAGE_ACCESS smoc_md_buffer_mgmt_base::smoc_md_storage_access_src
