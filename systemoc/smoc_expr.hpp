@@ -916,8 +916,6 @@ public:
   std::string getNodeParam() const;
 };
 
-typedef boost::intrusive_ptr<ASTNodeBinOp> PASTNodeBinOp;
-
 template<class A, class B, OpBinT Op>
 class DBinOp {
 public:
@@ -1351,8 +1349,6 @@ public:
   std::string getNodeType() const;
   std::string getNodeParam() const;
 };
-
-typedef boost::intrusive_ptr<ASTNodeUnOp> PASTNodeUnOp;
 
 template<class E, OpUnT Op>
 class DUnOp {
