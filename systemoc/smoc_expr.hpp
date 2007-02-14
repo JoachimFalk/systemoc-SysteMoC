@@ -46,7 +46,9 @@
 #include <list>
 
 #include <smoc_event.hpp>
+#include <smoc_ast.hpp>
 
+#include <cosupport/refcount_object.hpp>
 #include <cosupport/oneof.hpp>
 #include <cosupport/functor.hpp>
 /****************************************************************************
@@ -56,14 +58,14 @@
  * handles expressions involving doubles.
  */
 
-namespace smoc_modes {
-  class PGWriter;
-}
-
 namespace Expr {
+
+using namespace SysteMoC::ActivationPattern;
 
 namespace Detail {
   typedef std::pair<std::string, std::string> ArgInfo;
+
+  using namespace SysteMoC::ActivationPattern::Detail;
 
   void registerParam(const ArgInfo &);
 
@@ -94,14 +96,6 @@ namespace Detail {
     _BLOCKED  =  0,
     _ENABLED  =  1
   };
-
-  struct DISABLED { operator bool() const { return false; } };
-  struct BLOCKED  {};
-  struct ENABLED  { operator bool() const { return true; } };
-
-  template <typename T> struct TypeFilter { typedef T type; };
-  template <> struct TypeFilter<DISABLED> { typedef bool type; };
-  template <> struct TypeFilter<ENABLED>  { typedef bool type; };
 
   class ActivationStatus {
   public:
@@ -137,75 +131,6 @@ namespace Detail {
   };
 
 } // namespace Expr::Detail
-
-/****************************************************************************
- * Node hierarchy
- */
-
-class ASTNode: public CoSupport::RefCountObject {
-private:
-  std::string type;
-public:
-  template <typename T>
-  ASTNode(T *):
-    type(typeid(typename Detail::TypeFilter<T>::type).name()) {}
-
-  const std::string  &getValueType() const { return type; }
-  virtual std::string getNodeType() const                       = 0;
-  virtual std::string getNodeParam() const                      = 0;
-  virtual void        assemble(smoc_modes::PGWriter &pgw) const = 0;
-};
-
-typedef boost::intrusive_ptr<ASTNode> PASTNode;
-
-class ASTLeafNode: public ASTNode {
-public:
-  template <typename T>
-  ASTLeafNode(T *)
-    : ASTNode(static_cast<T*>(NULL)) {}
-
-  void assemble(smoc_modes::PGWriter &pgw) const;
-};
-
-typedef boost::intrusive_ptr<ASTLeafNode> PASTLeafNode;
-
-class ASTInternalBinNode: public ASTNode {
-private:
-  PASTNode l, r;
-public:
-  template <typename T>
-  ASTInternalBinNode(const PASTNode &l, const PASTNode &r, T *)
-    : ASTNode(static_cast<T*>(NULL)), l(l), r(r) {}
-
-  const PASTNode &getLeftNode() const
-    { return l; }
-  const PASTNode &getRightNode() const
-    { return r; }
-
-  void assemble(smoc_modes::PGWriter &pgw) const;
-};
-
-typedef boost::intrusive_ptr<ASTInternalBinNode> PASTInternalBinNode;
-
-class ASTInternalUnNode: public ASTNode {
-private:
-  PASTNode c;
-public:
-  template <typename T>
-  ASTInternalUnNode(const PASTNode &c, T *)
-    : ASTNode(static_cast<T*>(NULL)), c(c) {}
-
-  PASTNode getChildNode() const
-    { return c; }
-
-  void assemble(smoc_modes::PGWriter &pgw) const;
-};
-
-typedef boost::intrusive_ptr<ASTInternalUnNode> PASTInternalUnNode;
-
-//static inline
-//std::ostream &operator << (std::ostream &o, const ASTNode &n)
-//  { o << "expr(" << &n << ")"; return o; }
 
 /****************************************************************************
  * Expr wrapper
@@ -493,21 +418,6 @@ struct Ex { typedef D<DVirtual<T> > type; };
  * DVar is a placeholder for the variable in the expression.
  */
 
-class ASTNodeVar: public ASTLeafNode {
-private:
-  std::string name;
-  const void *addr;
-public:
-  template <typename T>
-  ASTNodeVar(const T &x, const char *name)
-    : ASTLeafNode(static_cast<T*>(NULL)), name(name), addr(&x) {}
-
-  std::string getName() const;
-  const void *getAddr() const;
-  std::string getNodeType() const;
-  std::string getNodeParam() const;
-};
-
 template<typename T>
 class DVar {
 public:
@@ -564,24 +474,8 @@ typename Var<T>::type var(T &x, const char *name = NULL)
   { return typename Var<T>::type(x,name); }
 
 /****************************************************************************
- * DLiteral represents a double literal which appears in the expression.
+ * DLiteral represents a literal which appears in the expression.
  */
-
-class ASTNodeLiteral: public ASTLeafNode {
-private:
-  std::string value;
-public:
-  template <typename T >
-  ASTNodeLiteral(const T &v)
-    : ASTLeafNode(static_cast<T*>(NULL)) {
-    std::ostringstream o;
-    o << v; value = o.str();
-  }
-
-  std::string getValue() const;
-  std::string getNodeType() const;
-  std::string getNodeParam() const;
-};
 
 template<typename T>
 class DLiteral {
@@ -658,22 +552,8 @@ typename Literal<T>::type literal(const T &v)
   { return typename Literal<T>::type(v); }
 
 /****************************************************************************
- * DProc
+ * DProc represents a function call in the expression
  */
-
-class ASTNodeProc: public ASTLeafNode {
-public:
-  typedef void (*proc_ty)();
-private:
-  proc_ty f;
-public:
-  template <typename T>
-  ASTNodeProc(T (*f)())
-    : ASTLeafNode(static_cast<T*>(NULL)),
-      f(reinterpret_cast<proc_ty>(f)) {}
- 
-  proc_ty ptrProc() const { return f; }
-};
 
 template<typename T>
 class DProc {
@@ -726,27 +606,8 @@ typename Proc<T>::type call(T (*f)())
   { return Proc<T>::type(f); }
 
 /****************************************************************************
- * DMemProc
+ * DMemProc represents a member function call in the expression
  */
-
-class ASTNodeMemProc: public ASTLeafNode {
-private:
-  struct dummy;
-  typedef void (dummy::*fun)();
-
-  dummy *o;
-  fun    m;
-public:
-  template<typename T, class X>
-  ASTNodeMemProc(X *o, T (X::*m)())
-    : ASTLeafNode(static_cast<T*>(NULL)),
-      o(reinterpret_cast<dummy *>(o)),
-      m(*reinterpret_cast<fun *>(&m)) {}
-
-  const void *getAddrObj() const { return o; }
-  const void *getAddrFun() const
-    { return *reinterpret_cast<const void *const *>(&m); }
-};
 
 template<typename T, class X>
 class DMemProc {
@@ -802,29 +663,6 @@ typename MemProc<T,X>::type call(X *o, T (X::*m)())
 /****************************************************************************
  * DMemGuard
  */
-
-class ASTNodeMemGuard: public ASTLeafNode {
-private:
-  std::string name;
-
-  struct dummy;
-  typedef void (dummy::*fun)() const;
-
-  const dummy *o;
-  fun          m;
-public:
-  template<typename F>
-  ASTNodeMemGuard(const F &f)
-    : ASTLeafNode(static_cast<typename F::return_type *>(NULL)),
-      o(reinterpret_cast<const dummy *>(f.obj)),
-      m(*reinterpret_cast<const fun *>(&f.func)) {}
-
-  std::string getName() const;
-  const void *getAddrObj() const;
-  const void *getAddrFun() const;
-  std::string getNodeType() const;
-  std::string getNodeParam() const;
-};
 
 template<class F, class PL>
 class DMemGuard {
@@ -893,28 +731,6 @@ typename MemGuard<F>::type guard(const X *o, const F &f, const char *name = "") 
  * A and B are the two expressions being combined, and Op is
  * an enum which represents the operation.
  */
-
-typedef enum {
-  DOpBinAdd, DOpBinSub, DOpBinMultiply, DOpBinDivide,
-  DOpBinEq, DOpBinNe, DOpBinLt, DOpBinLe, DOpBinGt, DOpBinGe,
-  DOpBinBAnd, DOpBinBOr, DOpBinBXor, DOpBinLAnd, DOpBinLOr, DOpBinLXor,
-  DOpBinField
-} OpBinT;
-
-std::ostream &operator << (std::ostream &o, const OpBinT &op );
-
-class ASTNodeBinOp: public ASTInternalBinNode {
-private:
-  OpBinT op;
-public:
-  template <typename T>
-  ASTNodeBinOp(OpBinT op, const PASTNode &l, const PASTNode &r, T *)
-    : ASTInternalBinNode(l,r,static_cast<T*>(NULL)), op(op) {}
-
-  OpBinT getOpType() const;
-  std::string getNodeType() const;
-  std::string getNodeParam() const;
-};
 
 template<class A, class B, OpBinT Op>
 class DBinOp {
@@ -1326,29 +1142,6 @@ field(const D<A> &a, V A::value_type::* b) {
  * A is the input expression of the operation, and Op is
  * an enum which represents the operation.
  */
-
-typedef enum {
-  DOpUnLNot,
-  DOpUnBNot,
-  DOpUnRef,
-  DOpUnDeRef,
-  DOpUnType
-} OpUnT;
-
-std::ostream &operator << (std::ostream &o, const OpUnT &op );
-
-class ASTNodeUnOp: public ASTInternalUnNode {
-public:
-  OpUnT op;
-public:
-  template <typename T>
-  ASTNodeUnOp(OpUnT op, const PASTNode &c, T*)
-    : ASTInternalUnNode(c, static_cast<T*>(NULL)), op(op) {}
-
-  OpUnT getOpType() const;
-  std::string getNodeType() const;
-  std::string getNodeParam() const;
-};
 
 template<class E, OpUnT Op>
 class DUnOp {

@@ -47,36 +47,11 @@
 #include <systemc.h>
 #include <vector>
 
-template <typename T, template <typename, typename> class R, class PARAM_TYPE> 
-class smoc_port_in_base;
-
-template <typename T, 
-          template <typename, typename> class R, 
-          class PARAM_TYPE, 
-          template <typename> class STORAGE_TYPE> 
-class smoc_port_out_base;
-
 namespace Expr {
 
 /****************************************************************************
  * DToken is a placeholder for a token in the expression.
  */
-
-class ASTNodeToken: public ASTLeafNode {
-private:
-  const smoc_root_port &port;
-  size_t                pos;
-public:
-  template <typename T, template <typename, typename> class R, class PARAM_TYPE>
-  ASTNodeToken(const smoc_port_in_base<T,R,PARAM_TYPE> &port, size_t pos)
-    : ASTLeafNode(static_cast<T*>(NULL)),
-      port(port), pos(pos) {}
-
-  const smoc_root_port *getPort() const;
-  size_t                getPos() const;
-  std::string           getNodeType() const;
-  std::string           getNodeParam() const;
-};
 
 template<typename T, template <typename, typename> class R, class PARAM_TYPE>
 class DToken {
@@ -133,19 +108,6 @@ typename Token<T,R,PARAM_TYPE>::type token(smoc_port_in_base<T,R,PARAM_TYPE> &p,
  * the port p
  */
 
-class ASTNodePortTokens: public ASTLeafNode {
-private:
-  const smoc_root_port &port;
-public:
-  ASTNodePortTokens(const smoc_root_port &port)
-    : ASTLeafNode(static_cast<size_t*>(NULL)),
-      port(port) {}
- 
-  const smoc_root_port *getPort() const;
-  std::string getNodeType() const;
-  std::string getNodeParam() const;
-};
-
 //P: Port class
 template<class P>
 class DPortTokens {
@@ -194,21 +156,8 @@ typename PortTokens<P>::type portTokens(P &p)
   { return typename PortTokens<P>::type(p); }
 
 /****************************************************************************
- * DCommExec represents request to consume/produce tokens
+ * DComm represents request to consume/produce tokens
  */
-
-class ASTNodeComm: public ASTInternalUnNode {
-private:
-  const smoc_root_port &port;
-public:
-  ASTNodeComm(const smoc_root_port &port, const PASTNode &c)
-    : ASTInternalUnNode(c,static_cast<Expr::Detail::ENABLED*>(NULL)),
-      port(port) {}
-
-  const smoc_root_port *getPort() const;
-  std::string           getNodeType() const;
-  std::string           getNodeParam() const;
-};
 
 template<class P, class E>
 class DComm {
@@ -359,15 +308,6 @@ struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
  * DSMOCEvent represents a smoc_event guard which turns true if the event is
  * signaled
  */
-
-struct ASTNodeSMOCEvent: public ASTLeafNode {
-public:
-  ASTNodeSMOCEvent()
-    : ASTLeafNode(static_cast<bool*>(NULL)) {}
-
-  std::string getNodeType() const;
-  std::string getNodeParam() const;
-};
 
 class DSMOCEvent {
 public:

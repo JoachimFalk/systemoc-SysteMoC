@@ -55,6 +55,9 @@
 
 class smoc_root_node;
 
+// forward declaration
+namespace Expr { template <class E> class Value; }
+
 class smoc_root_port
   // must be public inheritance for dynamic_cast in smoc_root_node to work
   : public sc_port_base {
