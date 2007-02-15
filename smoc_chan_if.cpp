@@ -93,19 +93,18 @@ void smoc_nonconflicting_chan::finalise() {
   smoc_root_chan::finalise();
   assert(getInputPorts().size() == 1);
   assert(getOutputPorts().size() == 1);
-  portIn  = getInputPorts().front();
-  portOut = getOutputPorts().front();
 }
 
 void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
-  assert(portIn != NULL && portOut != NULL);
+  assert(getInputPorts().size() == 1);
+  assert(getOutputPorts().size() == 1);
   
   std::string idChannel        = pgw.getId(this);
   std::string idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
   std::string idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
   
   // search highest interface port (multiple hierachie layers)
-  smoc_root_port  *ifPort = portOut;
+  smoc_root_port  *ifPort = getOutputPorts().front();
   while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
 
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "
@@ -130,7 +129,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   }
 
   // search highest interface port (multiple hierachie layers)
-  ifPort = portIn;
+  ifPort = getInputPorts().front();
   while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
 
   pgw << "</process>" << std::endl;
@@ -141,9 +140,11 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
 }
 
 void smoc_multicast_chan::finalise() {
-  assert(myName == "");
+  smoc_root_chan::finalise();
+  assert(getInputPorts().size() == 1);
+  assert(getOutputPorts().size() >= 1);
+
   /*  FIXME (MS)
-  assert(portIn != NULL && portOut != NULL );
   assert(dynamic_cast<sc_module *>(portIn->get_parent()) != NULL);
   assert(dynamic_cast<sc_module *>(portOut->get_parent()) != NULL);
   std::ostringstream genName;
@@ -160,6 +161,7 @@ void smoc_multicast_chan::finalise() {
   myName = genName.str();
   */
 
+  myName = "FIXME: Martin";
 }
 
 void smoc_multicast_chan::assemble(smoc_modes::PGWriter &pgw) const {

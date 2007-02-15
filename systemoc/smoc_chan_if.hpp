@@ -329,16 +329,28 @@ public:
   // typedefs
   typedef smoc_nonconflicting_chan this_type;
 protected:
-  smoc_root_port *portIn;
-  smoc_root_port *portOut;
-public:
-  virtual void finalise();
-protected:
   // constructor
   smoc_nonconflicting_chan(const char *name)
-    : smoc_root_chan(name), portIn(NULL), portOut(NULL) {}
+    : smoc_root_chan(name) {}
 
   void assemble(smoc_modes::PGWriter &pgw) const;
+
+  virtual void finalise();
+};
+
+class smoc_multicast_chan
+  : public smoc_root_chan {
+public:
+  // typedefs
+  typedef smoc_multicast_chan this_type;
+protected:
+  // constructor
+  smoc_multicast_chan(const char *name)
+    : smoc_root_chan(name) {}
+
+  void assemble(smoc_modes::PGWriter &pgw) const;
+
+  virtual void finalise();
 };
 
 extern const sc_event& smoc_default_event_abort();
@@ -368,50 +380,6 @@ private:
   const sc_event& default_event() const { return smoc_default_event_abort(); }
 
   virtual void reset(){};
-};
-
-class smoc_multicast_chan
-  : public smoc_root_chan {
-public:
-  // typedefs
-  typedef smoc_multicast_chan this_type;
-protected:
-  smoc_root_port_in  *portIn;
-  smoc_port_list      outPorts;
-
-  std::string myName; // patched in finalise
-public:
-  // constructor
-  smoc_multicast_chan(const char *name)
-    : smoc_root_chan(name), portIn(NULL), outPorts() {}
-
-  void addPort(smoc_root_port_in  *in)
-    { /* assert(portIn  == NULL); */ portIn  = in;  }
-  void addPort(smoc_root_port_out *out)
-    {
-      /* assert(portOut == NULL); */
-      //FIXME: (MS) Hierarchie Ports are added several times!?
-      outPorts.push_back(out);
-    }
-
-  smoc_port_list getInputPorts()  const {
-    smoc_port_list retval;
-    
-    assert(portIn != NULL);
-    retval.push_front(portIn);
-    return retval; 
-  }
-
-  smoc_port_list getOutputPorts()  const {
-    return outPorts; 
-  }
-
-  void finalise();
-
-  const char *name() const
-    { return myName.c_str(); }
-protected:
-  void assemble(smoc_modes::PGWriter &pgw) const;
 };
 
 typedef std::list<smoc_root_chan *> smoc_chan_list;
