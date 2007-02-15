@@ -60,22 +60,9 @@ AM_CPPFLAGS="$AM_CPPFLAGS $BOOST_INCLUDE"
 AM_LDFLAGS="$AM_LDFLAGS   $BOOST_LDFLAGS"
 
 ACJF_NEED_PKG([Support])
-ACJF_NEED_PKG([SysteMoC],
-  [if test -d "$srcdir/$acjf_pkgdir/pkginclude"; then
-     AM_CPPFLAGS="$AM_CPPFLAGS -I$acjf_pkg_srcdir/pkginclude/systemoc";
-   else
-     AM_CPPFLAGS="$AM_CPPFLAGS -I$acjf_pkg_builddir/include/systemoc";
-   fi
-   AM_LDFLAGS="$AM_LDFLAGS -L$acjf_pkg_builddir";
-   SYSTEMOC_DEPENDENCIES="$acjf_pkg_builddir/libsystemoc.la";]
-)
+ACJF_NEED_PKG([SysteMoC])
+SYSTEMOC_DEPENDENCIES="$acjf_pkg_builddir/libsystemoc.la"
 AC_SUBST([SYSTEMOC_DEPENDENCIES])
-# Backward compatibility cruft
-SYSTEMOC_INCLUDE=""
-AC_SUBST([SYSTEMOC_INCLUDE])
-SYSTEMOC_LDFLAGS=""
-AC_SUBST([SYSTEMOC_LDFLAGS])
-
 
 # Checks for header files.
 # AC_FUNC_ALLOCA

@@ -3,13 +3,13 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <hscd_moc.hpp>
-#include <hscd_port.hpp>
-#include <hscd_fifo.hpp>
-#include <hscd_node_types.hpp>
+#include <systemoc/hscd_moc.hpp>
+#include <systemoc/hscd_port.hpp>
+#include <systemoc/hscd_fifo.hpp>
+#include <systemoc/hscd_node_types.hpp>
 #ifndef __SCFE__
-# include <hscd_scheduler.hpp>
-# include <hscd_pggen.hpp>
+# include <systemoc/hscd_scheduler.hpp>
+# include <systemoc/hscd_pggen.hpp>
 #endif
 
 template <typename T>

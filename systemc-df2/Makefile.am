@@ -26,8 +26,8 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
-AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
+AM_LDFLAGS = @AM_LDFLAGS@
+AM_CPPFLAGS= @AM_CPPFLAGS@ -Wno-deprecated
 
 LIBS= @LIBS@ -lsystemoc
 

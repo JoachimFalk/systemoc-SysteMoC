@@ -1,13 +1,13 @@
 // vim: set sw=2 ts=8:
 
-#include <hscd_port.hpp>
-#include <hscd_fifo.hpp>
-#include <hscd_node_types.hpp>
-#include <hscd_structure.hpp>
-#include <hscd_scheduler.hpp>
 #include <cstdlib>
 #include <iostream>
 
+#include <systemoc/hscd_port.hpp>
+#include <systemoc/hscd_fifo.hpp>
+#include <systemoc/hscd_node_types.hpp>
+#include <systemoc/hscd_structure.hpp>
+#include <systemoc/hscd_scheduler.hpp>
 
 // queue pair number
 typedef int t_qpn;
