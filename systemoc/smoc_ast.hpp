@@ -36,9 +36,13 @@
 #ifndef _INCLUDED_SMOC_AST_HPP
 #define _INCLUDED_SMOC_AST_HPP
 
-#include <cosupport/refcount_object.hpp>
+#include <string>
+#include <typeinfo>
+#include <sstream>
 
-#include "smoc_root_port.hpp"
+#include <boost/intrusive_ptr.hpp>
+
+#include <cosupport/refcount_object.hpp>
 
 namespace smoc_modes {
   class PGWriter;
