@@ -58,7 +58,7 @@ public:
 #endif
   virtual return_type operator[](size_t n)             = 0;
   virtual const return_type operator[](size_t n) const = 0;
-  virtual bool isValid(size_t i)                       = 0;
+  virtual bool tokenIsValid(size_t i)                  = 0;
 };
 
 template<>
@@ -128,11 +128,10 @@ public:
       : storage[*offset + n - storageSize];
   }
 
-  bool isValid(size_t n=0){
-    assert(n < limit);
-    return *offset + n < storageSize
-      ? storage[*offset + n].isValid()
-      : storage[*offset + n - storageSize].isValid();
+  bool tokenIsValid(size_t n=0){
+    // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
+    // then it a failure in design
+    return true;
   }
 };
 

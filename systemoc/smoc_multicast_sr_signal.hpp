@@ -119,13 +119,13 @@ protected:
 
   smoc_event &getEventAvailable(size_t n);
 
+  bool isDefined();
+
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;
 
   EventMap     eventMapAvailable;
   smoc_event   eventWrite;
-
-  bool isDefined();
 
   void allowUndefinedRead(bool allow);
 };
@@ -148,13 +148,13 @@ protected:
   size_t unusedStorage() const;
 
   smoc_event &getEventFree(size_t n);
+
+  bool isDefined();
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;
 
   smoc_event   eventRead;
   EventMap     eventMapFree;
-
-  bool isDefined();
 
   void multipleWriteSameValue(bool allow);
 };
@@ -227,8 +227,8 @@ public:
     return limit;
   }
 
-  virtual bool isValid(size_t i){
-    return actualValue.isValid();
+  virtual bool tokenIsValid(size_t i){
+    return this->isDefined();
   }
 
 private:
@@ -297,8 +297,8 @@ public:
     return limit;
   }
 
-  virtual bool isValid(size_t i){
-    return actualValue.isValid();
+  virtual bool tokenIsValid(size_t i){
+    return this->isDefined();
   }
 
 private:

@@ -498,8 +498,8 @@ public:
   
   bool isInput() const { return true; }
 
-  bool isValid(size_t i=0){
-    return this->channel_access->isValid(i);
+  bool tokenIsValid(size_t i=0){
+    return this->channel_access->tokenIsValid(i);
   }
   
   size_t availableCount() const
