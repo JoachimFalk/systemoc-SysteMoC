@@ -37,8 +37,8 @@
 #define _INCLUDED_HSCD_SCHEDULER_HPP
 
 #include <systemc.h>
-#include <hscd_node_types.hpp>
-#include <hscd_structure.hpp>
+#include "hscd_node_types.hpp"
+#include "hscd_structure.hpp"
 // #include <hscd_rendezvous.hpp>
 
 #include <list>

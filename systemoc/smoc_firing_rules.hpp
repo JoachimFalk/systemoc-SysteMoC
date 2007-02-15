@@ -48,8 +48,8 @@
 #include <cosupport/oneof.hpp>
 
 #include <systemc.h>
-#include <smoc_guard.hpp>
-#include <smoc_root_port.hpp>
+#include "smoc_guard.hpp"
+#include "smoc_root_port.hpp"
 
 #include <boost/shared_ptr.hpp>
 

@@ -36,10 +36,10 @@
 #ifndef _INCLUDED_SMOC_CHAN_IF
 #define _INCLUDED_SMOC_CHAN_IF
 
-#include <smoc_root_port.hpp>
-#include <smoc_event.hpp>
-#include <smoc_pggen.hpp>
-#include <smoc_storage.hpp>
+#include "smoc_root_port.hpp"
+#include "smoc_event.hpp"
+#include "smoc_pggen.hpp"
+#include "smoc_storage.hpp"
 
 #include <systemc.h>
 
@@ -384,6 +384,6 @@ private:
 
 typedef std::list<smoc_root_chan *> smoc_chan_list;
 
-#include <smoc_port.hpp>
+#include "smoc_port.hpp"
 
 #endif // _INCLUDED_SMOC_CHAN_IF

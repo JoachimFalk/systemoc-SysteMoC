@@ -36,8 +36,8 @@
 #ifndef _INCLUDED_HSCD_POPT_HPP
 #define _INCLUDED_HSCD_POPT_HPP
 
-#include <hscd_root_port_list.hpp>
-#include <smoc_port.hpp>
+#include "hscd_root_port_list.hpp"
+#include "smoc_port.hpp"
 
 template <typename T>
 class hscd_storage_port_in

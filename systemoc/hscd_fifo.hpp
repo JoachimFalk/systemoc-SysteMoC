@@ -36,7 +36,7 @@
 #ifndef _INCLUDED_HSCD_FIFO_HPP
 #define _INCLUDED_HSCD_FIFO_HPP
 
-#include <smoc_fifo.hpp>
+#include "smoc_fifo.hpp"
 
 // #include <iostream>
 

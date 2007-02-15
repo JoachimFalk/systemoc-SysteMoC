@@ -36,10 +36,10 @@
 #ifndef _INCLUDED_HSCD_NODE_TYPES_HPP
 #define _INCLUDED_HSCD_NODE_TYPES_HPP
 
-#include <hscd_tdsim_TraceLog.hpp>
+#include "hscd_tdsim_TraceLog.hpp"
 
-#include <smoc_node_types.hpp>
-#include <hscd_op.hpp>
+#include "smoc_node_types.hpp"
+#include "hscd_op.hpp"
 
 class hscd_choice_node
   : public smoc_root_node {

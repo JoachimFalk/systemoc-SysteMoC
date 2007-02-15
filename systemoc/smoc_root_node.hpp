@@ -36,14 +36,14 @@
 #ifndef _INCLUDED_SMOC_ROOT_NODE_HPP
 #define _INCLUDED_SMOC_ROOT_NODE_HPP
 
-#include <smoc_firing_rules.hpp>
-#include <smoc_port.hpp>
+#include "smoc_firing_rules.hpp"
+#include "smoc_port.hpp"
 //#include <smoc_op.hpp>
 #ifndef __SCFE__
-# include <smoc_pggen.hpp>
+# include "smoc_pggen.hpp"
 #endif
 
-#include <smoc_expr.hpp>
+#include "smoc_expr.hpp"
 
 //#include <oneof.hpp>
 

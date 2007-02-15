@@ -36,7 +36,7 @@
 #ifndef _INCLUDED_SMOC_RENDEZVOUS_HPP
 #define _INCLUDED_SMOC_RENDEZVOUS_HPP
 
-#include <smoc_chan_if.hpp>
+#include "smoc_chan_if.hpp"
 #include <systemc.h>
 
 /*

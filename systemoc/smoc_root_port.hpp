@@ -50,8 +50,8 @@
 
 #include <systemc.h>
 
-#include <smoc_expr.hpp>
-#include <smoc_event.hpp>
+#include "smoc_expr.hpp"
+#include "smoc_event.hpp"
 
 class smoc_root_node;
 

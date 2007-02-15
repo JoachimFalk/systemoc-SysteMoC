@@ -38,11 +38,11 @@
 
 #include <cosupport/commondefs.h>
 
-#include <smoc_expr.hpp>
-#include <smoc_root_port.hpp>
-#include <smoc_chan_if.hpp>
-#include <smoc_event.hpp>
-#include <smoc_storage.hpp>
+#include "smoc_expr.hpp"
+#include "smoc_root_port.hpp"
+#include "smoc_chan_if.hpp"
+#include "smoc_event.hpp"
+#include "smoc_storage.hpp"
 
 #include <systemc.h>
 #include <vector>

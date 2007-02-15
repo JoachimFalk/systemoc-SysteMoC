@@ -36,12 +36,12 @@
 #ifndef _INCLUDED_HSCD_STRUCTURE_HPP
 #define _INCLUDED_HSCD_STRUCTURE_HPP
 
-#include <hscd_fifo.hpp>
+#include "hscd_fifo.hpp"
 //#include <hscd_rendezvous.hpp>
-#include <hscd_node_types.hpp>
+#include "hscd_node_types.hpp"
 
-#include <smoc_graph_type.hpp>
-#include <smoc_moc.hpp>
+#include "smoc_graph_type.hpp"
+#include "smoc_moc.hpp"
 
 class hscd_graph
 : public smoc_top_moc<smoc_graph> {

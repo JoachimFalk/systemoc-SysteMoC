@@ -39,7 +39,7 @@
 #include <vector>
 #include <iostream>
 
-#include <smoc_root_port.hpp>
+#include "smoc_root_port.hpp"
 
 class hscd_op_port_list;
 class hscd_op_port_or_list;

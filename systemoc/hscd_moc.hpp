@@ -37,7 +37,7 @@
 #define _INCLUDED_HSCD_MOC_HPP
 
 #include <systemc.h>
-#include <hscd_graph_type.hpp>
+#include "hscd_graph_type.hpp"
 
 #include <list>
 

@@ -37,7 +37,7 @@
 #define _INCLUDED_SMOC_MOC_HPP
 
 #include <systemc.h>
-#include <smoc_graph_type.hpp>
+#include "smoc_graph_type.hpp"
 
 #include <list>
 

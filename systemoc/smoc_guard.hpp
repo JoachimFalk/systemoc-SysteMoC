@@ -47,8 +47,8 @@
 
 #include <systemc.h>
 
-#include <smoc_expr.hpp>
-#include <smoc_port.hpp>
+#include "smoc_expr.hpp"
+#include "smoc_port.hpp"
 
 class smoc_activation_pattern
 : public smoc_event_and_list {

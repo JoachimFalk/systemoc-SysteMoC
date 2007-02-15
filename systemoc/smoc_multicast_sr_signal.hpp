@@ -21,15 +21,15 @@
 
 #include <cosupport/commondefs.h>
 
-#include <smoc_chan_if.hpp>
-#include <smoc_storage.hpp>
+#include "smoc_chan_if.hpp"
+#include "smoc_storage.hpp"
 
 #include <systemc.h>
 #include <vector>
 #include <queue>
 #include <map>
 
-#include <hscd_tdsim_TraceLog.hpp>
+#include "hscd_tdsim_TraceLog.hpp"
 
 enum SignalState {undefined, defined, absent};
 

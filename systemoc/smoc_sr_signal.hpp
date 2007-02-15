@@ -21,9 +21,9 @@
 
 #include <cosupport/commondefs.h>
 
-#include <smoc_chan_if.hpp>
-#include <smoc_storage.hpp>
-#include <smoc_multicast_sr_signal.hpp>
+#include "smoc_chan_if.hpp"
+#include "smoc_storage.hpp"
+#include "smoc_multicast_sr_signal.hpp"
 
 #include <systemc.h>
 

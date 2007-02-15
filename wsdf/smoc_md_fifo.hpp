@@ -15,7 +15,7 @@
 //#include <map>
 
 #ifndef NO_SMOC
-#include <hscd_tdsim_TraceLog.hpp>
+#include "hscd_tdsim_TraceLog.hpp"
 #else
 #include <string>
 #endif

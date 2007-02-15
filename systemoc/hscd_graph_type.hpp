@@ -36,14 +36,14 @@
 #ifndef _INCLUDED_HSCD_GRAPH_TYPE_HPP
 #define _INCLUDED_HSCD_GRAPH_TYPE_HPP
 
-#include <hscd_port.hpp>
-#include <hscd_fifo.hpp>
+#include "hscd_port.hpp"
+#include "hscd_fifo.hpp"
 //#include <hscd_rendezvous.hpp>
-#include <hscd_node_types.hpp>
+#include "hscd_node_types.hpp"
 #ifndef __SCFE__
-# include <hscd_pggen.hpp>
+# include "hscd_pggen.hpp"
 #endif
-#include <hscd_structure.hpp>
+#include "hscd_structure.hpp"
 
 #include <systemc.h>
 

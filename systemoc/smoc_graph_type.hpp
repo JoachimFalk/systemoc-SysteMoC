@@ -36,17 +36,17 @@
 #ifndef _INCLUDED_SMOC_GRAPH_TYPE_HPP
 #define _INCLUDED_SMOC_GRAPH_TYPE_HPP
 
-#include <smoc_port.hpp>
+#include "smoc_port.hpp"
 #ifdef SMOC_ENABLE_WSDF 
-# include <smoc_md_port.hpp>
-# include <smoc_md_fifo.hpp>
+# include "smoc_md_port.hpp"
+# include "smoc_md_fifo.hpp"
 #endif
-#include <smoc_fifo.hpp>
-#include <smoc_multicast_sr_signal.hpp>
-#include <smoc_rendezvous.hpp>
-#include <smoc_node_types.hpp>
+#include "smoc_fifo.hpp"
+#include "smoc_multicast_sr_signal.hpp"
+#include "smoc_rendezvous.hpp"
+#include "smoc_node_types.hpp"
 #ifndef __SCFE__
-# include <smoc_pggen.hpp>
+# include "smoc_pggen.hpp"
 #endif
 
 #include <systemc.h>

@@ -36,15 +36,15 @@
 #ifndef _INCLUDED_HSCD_OP_HPP
 #define _INCLUDED_HSCD_OP_HPP
 
-#include <smoc_root_port.hpp>
-#include <smoc_event.hpp>
-#include <hscd_root_port_list.hpp>
+#include "smoc_root_port.hpp"
+#include "smoc_event.hpp"
+#include "hscd_root_port_list.hpp"
 
 #include <systemc.h>
 
 #include <map>
 
-#include <hscd_tdsim_TraceLog.hpp>
+#include "hscd_tdsim_TraceLog.hpp"
 
 //template <typename T> class hscd_op;
 
