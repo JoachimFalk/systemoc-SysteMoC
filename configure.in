@@ -150,7 +150,7 @@ AC_CONFIG_FILES([Makefile])
 
 if test -d $srcdir/systemoc-sr; then
   AC_CONFIG_FILES([systemoc-sr/Makefile])
-#  subdirs="$subdirs systemoc-sr"
+  subdirs="$subdirs systemoc-sr"
 fi
 if test -d $srcdir/idct2d-ref; then
   AC_CONFIG_FILES([idct2d-ref/Makefile])
