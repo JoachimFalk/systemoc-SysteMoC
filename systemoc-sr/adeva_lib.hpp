@@ -27,7 +27,7 @@ private:
   }
 
   void store(){ // TICK
-    if(in.isValid(0)){
+    if(in.tokenIsValid(0)){
       //cout << name() << ".store()" << endl;
       m_signal = in[0];
       if(undefined) m_history = in[0]; // initialize with no history
