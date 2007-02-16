@@ -165,7 +165,7 @@ void smoc_multicast_chan::finalise() {
 }
 
 void smoc_multicast_chan::assemble(smoc_modes::PGWriter &pgw) const {
-  assert(portIn != NULL && !outPorts.empty());
+  assert(!getInputPorts().empty() && !getOutputPorts().empty());
   
   // FIXME: BIG HACK !!!
   const_cast<this_type *>(this)->finalise();
