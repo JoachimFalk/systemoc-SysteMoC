@@ -220,10 +220,8 @@ private:
   PortIdentifier port;
   size_t         pos;
 public:
-  template <typename T, template <typename, typename> class R, class PARAM_TYPE>
-  ASTNodeToken(const smoc_port_in_base<T,R,PARAM_TYPE> &port, size_t pos)
-    : ASTLeafNode(static_cast<T*>(NULL)),
-      port(port), pos(pos) {}
+  ASTNodeToken(const TypePortIdentifier &tp, size_t pos)
+    : ASTLeafNode(tp), port(tp), pos(pos) {}
 
   const PortIdentifier &getPort() const;
   size_t                getPos() const;
@@ -329,7 +327,7 @@ private:
   PortIdentifier port;
 public:
   ASTNodeComm(const PortIdentifier &port, const PASTNode &c)
-    : ASTInternalUnNode(c,static_cast<Detail::ENABLED*>(NULL)),
+    : ASTInternalUnNode(c, static_cast<bool *>(NULL)),
       port(port) {}
 
   const PortIdentifier &getPort() const;

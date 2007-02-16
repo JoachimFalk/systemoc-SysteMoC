@@ -134,6 +134,16 @@ public:
     { return port; }
 };
 
+class TypePortIdentifier
+: public TypeIdentifier
+, public PortIdentifier {
+public:
+  template <typename T, template <typename, typename> class R, class PARAM_TYPE>
+  TypePortIdentifier(const smoc_port_in_base<T,R,PARAM_TYPE> &port)
+    : TypeIdentifier(static_cast<T*>(NULL)),
+      PortIdentifier(port) {}
+};
+
 } } // namespace SysteMoC::ActivationPattern
 
 #include "smoc_ast_common.hpp"
