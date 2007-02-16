@@ -61,7 +61,8 @@ PROGLDFLAGS=
 lib_LTLIBRARIES = libsystemoc.la
 pkginclude_HEADERS =				\
 	systemoc/smoc_expr.hpp			\
-	systemoc/smoc_ast.hpp			\
+	systemoc/smoc_ast_common.hpp		\
+	systemoc/smoc_ast_systemoc.hpp		\
 	systemoc/smoc_fifo.hpp			\
 	systemoc/smoc_sr_signal.hpp		\
 	systemoc/smoc_multicast_sr_signal.hpp	\
@@ -118,7 +119,7 @@ libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp @pkg_support_build
 
 libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\
-	smoc_ast.cpp			\
+	smoc_ast_systemoc.cpp		\
 	smoc_fifo.cpp			\
 	smoc_multicast_sr_signal.cpp	\
 	smoc_graph_type.cpp		\

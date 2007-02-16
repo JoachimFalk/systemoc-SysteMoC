@@ -33,60 +33,28 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_AST_HPP
-#define _INCLUDED_SMOC_AST_HPP
+#ifndef _INCLUDED_SMOC_AST_COMMON_HPP
+#define _INCLUDED_SMOC_AST_COMMON_HPP
 
 #include <string>
-#include <typeinfo>
-#include <sstream>
 
 #include <boost/intrusive_ptr.hpp>
 
 #include <cosupport/refcount_object.hpp>
 
-namespace smoc_modes {
-  class PGWriter;
-}
-
-class smoc_root_port;
-
-template <typename T,
-          template <typename, typename> class R,
-          class PARAM_TYPE> 
-class smoc_port_in_base;
-
-template <typename T, 
-          template <typename, typename> class R, 
-          class PARAM_TYPE, 
-          template <typename> class STORAGE_TYPE> 
-class smoc_port_out_base;
-
 namespace SysteMoC { namespace ActivationPattern {
-
-namespace Detail {
-
-  struct DISABLED { operator bool() const { return false; } };
-  struct BLOCKED  {};
-  struct ENABLED  { operator bool() const { return true; } };
-
-  template <typename T> struct TypeFilter { typedef T type; };
-  template <> struct TypeFilter<DISABLED> { typedef bool type; };
-  template <> struct TypeFilter<ENABLED>  { typedef bool type; };
-
-} // namespace SysteMoC::ActivationPattern::Detail
 
 class ASTNode: public CoSupport::RefCountObject {
 private:
-  std::string type;
+  TypeIdentifier type;
 public:
-  template <typename T>
-  ASTNode(T *):
-    type(typeid(typename Detail::TypeFilter<T>::type).name()) {}
+  ASTNode(const TypeIdentifier &type)
+    : type(type) {}
 
-  const std::string  &getValueType() const { return type; }
-  virtual std::string getNodeType() const                       = 0;
-  virtual std::string getNodeParam() const                      = 0;
-  virtual void        assemble(smoc_modes::PGWriter &pgw) const = 0;
+  const TypeIdentifier &getValueType() const { return type; }
+  virtual std::string   getNodeType() const                       = 0;
+  virtual std::string   getNodeParam() const                      = 0;
+  virtual void          assemble(smoc_modes::PGWriter &pgw) const = 0;
 };
 
 typedef boost::intrusive_ptr<ASTNode> PASTNode;
@@ -97,9 +65,8 @@ typedef boost::intrusive_ptr<ASTNode> PASTNode;
 
 class ASTLeafNode: public ASTNode {
 public:
-  template <typename T>
-  ASTLeafNode(T *)
-    : ASTNode(static_cast<T*>(NULL)) {}
+  ASTLeafNode(const TypeIdentifier &type)
+    : ASTNode(type) {}
 
   void assemble(smoc_modes::PGWriter &pgw) const;
 };
@@ -110,9 +77,10 @@ class ASTInternalBinNode: public ASTNode {
 private:
   PASTNode l, r;
 public:
-  template <typename T>
-  ASTInternalBinNode(const PASTNode &l, const PASTNode &r, T *)
-    : ASTNode(static_cast<T*>(NULL)), l(l), r(r) {}
+  ASTInternalBinNode(
+      const PASTNode &l, const PASTNode &r,
+      const TypeIdentifier &type)
+    : ASTNode(type), l(l), r(r) {}
 
   const PASTNode &getLeftNode() const
     { return l; }
@@ -128,9 +96,8 @@ class ASTInternalUnNode: public ASTNode {
 private:
   PASTNode c;
 public:
-  template <typename T>
-  ASTInternalUnNode(const PASTNode &c, T *)
-    : ASTNode(static_cast<T*>(NULL)), c(c) {}
+  ASTInternalUnNode(const PASTNode &c, const TypeIdentifier &type)
+    : ASTNode(type), c(c) {}
 
   PASTNode getChildNode() const
     { return c; }
@@ -165,16 +132,12 @@ public:
 
 class ASTNodeLiteral: public ASTLeafNode {
 private:
-  std::string value;
+  ValueContainer value;
 public:
-  template <typename T >
-  ASTNodeLiteral(const T &v)
-    : ASTLeafNode(static_cast<T*>(NULL)) {
-    std::ostringstream o;
-    o << v; value = o.str();
-  }
-
-  std::string getValue() const;
+  ASTNodeLiteral(const ValueTypeContainer &vt)
+    : ASTLeafNode(vt), value(vt) {}
+  
+  const ValueContainer &getValue() const;
   std::string getNodeType() const;
   std::string getNodeParam() const;
 };
@@ -254,15 +217,15 @@ public:
 
 class ASTNodeToken: public ASTLeafNode {
 private:
-  const smoc_root_port &port;
-  size_t                pos;
+  PortIdentifier port;
+  size_t         pos;
 public:
   template <typename T, template <typename, typename> class R, class PARAM_TYPE>
   ASTNodeToken(const smoc_port_in_base<T,R,PARAM_TYPE> &port, size_t pos)
     : ASTLeafNode(static_cast<T*>(NULL)),
       port(port), pos(pos) {}
 
-  const smoc_root_port *getPort() const;
+  const PortIdentifier &getPort() const;
   size_t                getPos() const;
   std::string           getNodeType() const;
   std::string           getNodeParam() const;
@@ -275,15 +238,15 @@ public:
 
 class ASTNodePortTokens: public ASTLeafNode {
 private:
-  const smoc_root_port &port;
+  PortIdentifier port;
 public:
-  ASTNodePortTokens(const smoc_root_port &port)
+  ASTNodePortTokens(const PortIdentifier &port)
     : ASTLeafNode(static_cast<size_t*>(NULL)),
       port(port) {}
  
-  const smoc_root_port *getPort() const;
-  std::string getNodeType() const;
-  std::string getNodeParam() const;
+  const PortIdentifier &getPort() const;
+  std::string           getNodeType() const;
+  std::string           getNodeParam() const;
 };
 
 /****************************************************************************
@@ -363,17 +326,26 @@ public:
 
 class ASTNodeComm: public ASTInternalUnNode {
 private:
-  const smoc_root_port &port;
+  PortIdentifier port;
 public:
-  ASTNodeComm(const smoc_root_port &port, const PASTNode &c)
+  ASTNodeComm(const PortIdentifier &port, const PASTNode &c)
     : ASTInternalUnNode(c,static_cast<Detail::ENABLED*>(NULL)),
       port(port) {}
 
-  const smoc_root_port *getPort() const;
+  const PortIdentifier &getPort() const;
   std::string           getNodeType() const;
   std::string           getNodeParam() const;
 };
 
+template <class V> // V is the visitor type
+typename V::result_type apply_visitor(V &v, PASTNode pASTNode) {
+
+
+
+}
+
+
+
 } } // namespace SysteMoC::ActivationPattern
 
-#endif // _INCLUDED_SMOC_AST_HPP
+#endif // _INCLUDED_SMOC_AST_COMMON_HPP

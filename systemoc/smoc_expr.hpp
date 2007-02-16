@@ -46,7 +46,7 @@
 #include <list>
 
 #include "smoc_event.hpp"
-#include "smoc_ast.hpp"
+#include "smoc_ast_systemoc.hpp"
 
 #include <cosupport/refcount_object.hpp>
 #include <cosupport/oneof.hpp>

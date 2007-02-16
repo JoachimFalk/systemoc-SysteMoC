@@ -37,36 +37,36 @@
 
 namespace Expr {
 
-const smoc_root_port *ASTNodeToken::getPort() const
-  { return &port; }
+const PortIdentifier &ASTNodeToken::getPort() const
+  { return port; }
 size_t                ASTNodeToken::getPos() const
   { return pos; }
 std::string           ASTNodeToken::getNodeType() const
   { return "Token"; }
 std::string           ASTNodeToken::getNodeParam() const {
   std::ostringstream o;
-  o << "portid=\"" << smoc_modes::PGWriter::getId(getPort()) << "\" ";
+  o << "portid=\"" << smoc_modes::PGWriter::getId(&getPort()) << "\" ";
   o << "pos=\"" << getPos() << "\"";
   return o.str();
 }
 
-const smoc_root_port *ASTNodePortTokens::getPort() const
-  { return &port; }
+const PortIdentifier &ASTNodePortTokens::getPort() const
+  { return port; }
 std::string           ASTNodePortTokens::getNodeType() const
   { return "PortTokens"; }
 std::string           ASTNodePortTokens::getNodeParam() const {
   std::ostringstream o;
-  o << "portid=\"" << smoc_modes::PGWriter::getId(getPort()) << "\"";
+  o << "portid=\"" << smoc_modes::PGWriter::getId(&getPort()) << "\"";
   return o.str();
 }
 
-const smoc_root_port *ASTNodeComm::getPort() const
-  { return &port; }
+const PortIdentifier &ASTNodeComm::getPort() const
+  { return port; }
 std::string           ASTNodeComm::getNodeType() const
   { return "Comm"; }
 std::string           ASTNodeComm::getNodeParam() const {
   std::ostringstream o;
-  o << "portid=\"" << smoc_modes::PGWriter::getId(getPort()) << "\"";
+  o << "portid=\"" << smoc_modes::PGWriter::getId(&getPort()) << "\"";
   return o.str();
 };
 

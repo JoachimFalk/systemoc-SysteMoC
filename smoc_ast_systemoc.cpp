@@ -33,7 +33,7 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "smoc_ast.hpp"
+#include "smoc_ast_systemoc.hpp"
 
 #include <smoc_pggen.hpp>
 
@@ -74,6 +74,18 @@ std::ostream &operator << (std::ostream &o, const OpUnT &op ) {
   }
   return o;
 }
+
+std::ostream &operator << (std::ostream &o, const ValueContainer &value)
+  { return o << static_cast<const std::string &>(value); }
+
+std::ostream &operator << (std::ostream &o, const TypeIdentifier &type)
+  { return o << static_cast<const std::string &>(type); }
+
+ValueContainer::ValueContainer(const ValueTypeContainer &vt)
+  : value(vt.value) {}
+
+TypeIdentifier::TypeIdentifier(const ValueTypeContainer &vt)
+  : type(vt.type) {}
 
 void ASTLeafNode::assemble(smoc_modes::PGWriter &pgw) const {
   pgw << "<" << getNodeType() 
@@ -160,7 +172,7 @@ std::string ASTNodeVar::getNodeParam() const {
   return o.str();
 }
 
-std::string ASTNodeLiteral::getValue() const
+const ValueContainer &ASTNodeLiteral::getValue() const
   { return value; }
 std::string ASTNodeLiteral::getNodeType() const
   { return "Literal"; }
