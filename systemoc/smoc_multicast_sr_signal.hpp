@@ -197,7 +197,7 @@ public:
   }
 
   // bounce functions
-  size_t committedOutCount() const
+  size_t numAvailable() const
     { return this->usedStorage(); }
   smoc_event &blockEventOut(size_t n)
     { return this->getEventAvailable(n); }
@@ -269,7 +269,7 @@ public:
   void addPort(smoc_root_port_out *out) {
     return this->_base->addPort(out);
   }
-  size_t committedInCount() const
+  size_t numFree() const
     { return this->unusedStorage(); }
   smoc_event &blockEventIn(size_t n)
     { return this->getEventFree(n); }

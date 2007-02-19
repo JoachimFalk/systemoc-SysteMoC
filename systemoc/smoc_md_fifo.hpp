@@ -802,29 +802,29 @@ public:
   }
 
   // bounce functions
-  size_t committedOutCount() const { 
+  size_t numAvailable() const { 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
-    dout << this->name() << ": Enter committedOutCount()" << endl;
+    dout << this->name() << ": Enter numAvailable()" << endl;
     dout << inc_level;
 #endif
     size_t return_value = this->usedStorage();
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
     dout << "Fifo contains at least " << return_value << " windows" << endl;
-    dout << "Leave committedOutCount()" << endl;
+    dout << "Leave numAvailable()" << endl;
     dout << dec_level;
 #endif
     return return_value;
   }
-  size_t committedInCount() const { 
+  size_t numFree() const { 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
-    dout << this->name() << ": Enter committedInCount()" << endl;
+    dout << this->name() << ": Enter numFree()" << endl;
     dout << inc_level;
 #endif
     size_t return_value = this->unusedStorage(); 
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
     dout << "Fifo accepts at least " << return_value << " effective tokens" << endl;
-    dout << "Leave committedInCount()" << endl;
+    dout << "Leave numFree()" << endl;
     dout << dec_level;
 #endif
     return return_value;

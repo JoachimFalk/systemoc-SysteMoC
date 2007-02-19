@@ -234,7 +234,7 @@ public:
     typename smoc_storage_in<T>::return_type>   access_type;
   typedef access_type                           access_in_type;
   
-  virtual size_t committedOutCount() const = 0;
+  virtual size_t numAvailable() const = 0;
 //smoc_event &blockEventOut(size_t n) { return write_event; }
   virtual smoc_event &blockEventOut(size_t n) = 0;
   virtual access_in_type * accessSetupIn() = 0;
@@ -274,7 +274,7 @@ public:
     typename S<T>::return_type>  access_type;
   typedef access_type                           access_out_type;
   
-  virtual size_t      committedInCount() const = 0;
+  virtual size_t      numFree() const = 0;
 //smoc_event    &blockEventIn(size_t n) { return read_event; }
   virtual smoc_event &blockEventIn(size_t n) = 0;
   virtual access_out_type * accessSetupOut() = 0;

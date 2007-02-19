@@ -92,11 +92,11 @@ public:
   smoc_rendezvous_type( const smoc_rendezvous_kind::chan_init &i )
     : smoc_chan_nonconflicting_if<smoc_rendezvous_kind, T>(i) {}
   
-  size_t committedOutCount() const
+  size_t numAvailable() const
     { return (portOutIf->committedCount() - portOutIf->doneCount()); }
 //  size_t maxCommittableOutCount() const
 //    { return (portOutIf->maxCommittableCount() - portOutIf->doneCount()); }
-  size_t committedInCount() const
+  size_t numFree() const
     { return (portInIf->committedCount() - portInIf->doneCount()); }
 //  size_t maxCommittableInCount() const
 //    { return (portInIf->maxCommittableCount() - portInIf->doneCount()); }

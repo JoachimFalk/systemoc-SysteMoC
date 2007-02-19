@@ -503,7 +503,7 @@ public:
   }
   
   size_t availableCount() const
-    { return (*this)->committedOutCount(); }
+    { return (*this)->numAvailable(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->blockEventOut(n); }
   
@@ -592,7 +592,7 @@ public:
   bool isInput() const { return false; }
   
   size_t availableCount() const
-    { return (*this)->committedInCount(); }
+    { return (*this)->numFree(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->blockEventIn(n); }
   

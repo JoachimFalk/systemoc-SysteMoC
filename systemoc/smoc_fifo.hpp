@@ -617,9 +617,9 @@ public:
   }
 
   // bounce functions
-  size_t committedOutCount() const
+  size_t numAvailable() const
     { return this->usedStorage(); }
-  size_t committedInCount() const
+  size_t numFree() const
     { return this->unusedStorage(); }
   smoc_event &blockEventOut(size_t n)
     { return this->getEventAvailable(n); }
