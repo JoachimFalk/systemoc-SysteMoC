@@ -479,7 +479,7 @@ protected:
   }
 
   void finalise(smoc_root_node *node)
-    { this->channel_access = (*this)->accessSetupIn(); }
+    { this->channel_access = (*this)->getWriteChannelAccess(); }
 
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)
@@ -573,7 +573,7 @@ protected:
   }
 
   void finalise(smoc_root_node *node)
-    { this->channel_access = (*this)->accessSetupOut(); }
+    { this->channel_access = (*this)->getReadChannelAccess(); }
 
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)

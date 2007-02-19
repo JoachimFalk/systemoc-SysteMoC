@@ -237,7 +237,7 @@ public:
   virtual size_t numAvailable() const = 0;
 //smoc_event &dataAvailableEvent(size_t n) { return write_event; }
   virtual smoc_event &dataAvailableEvent(size_t n) = 0;
-  virtual access_in_type * accessSetupIn() = 0;
+  virtual access_in_type * getWriteChannelAccess() = 0;
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void   commitRead(size_t consume, const smoc_ref_event_p &) = 0;
 #else
@@ -277,7 +277,7 @@ public:
   virtual size_t      numFree() const = 0;
 //smoc_event    &spaceAvailableEvent(size_t n) { return read_event; }
   virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
-  virtual access_out_type * accessSetupOut() = 0;
+  virtual access_out_type * getReadChannelAccess() = 0;
 #ifdef ENABLE_SYSTEMC_VPC
   virtual void commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
 #else

@@ -202,7 +202,7 @@ public:
   smoc_event &dataAvailableEvent(size_t n)
     { return this->getEventAvailable(n); }
 
-  ring_in_type * accessSetupIn() {
+  ring_in_type * getWriteChannelAccess() {
     return this;
   }
 
@@ -273,7 +273,7 @@ public:
     { return this->unusedStorage(); }
   smoc_event &spaceAvailableEvent(size_t n)
     { return this->getEventFree(n); }
-  virtual ring_out_type * accessSetupOut() {
+  virtual ring_out_type * getReadChannelAccess() {
     return this;
   }
 #ifdef ENABLE_SYSTEMC_VPC

@@ -651,17 +651,17 @@ protected:
   }
 
 #ifndef NO_SMOC
-  ring_in_type * accessSetupIn() {
+  ring_in_type * getWriteChannelAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
     dout << this->name() << ": ";
-    dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
+    dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << endl;
     dout << inc_level;
 #endif
     ring_in_type *r = new ring_in_type();
     initStorageAccess(*r);
     r->SetBuffer(storage);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-    dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupIn" << endl;
+    dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << endl;
     dout << dec_level;
 #endif
     return r;
@@ -669,17 +669,17 @@ protected:
 #endif
 
 #ifndef NO_SMOC
-  ring_out_type * accessSetupOut() {
+  ring_out_type * getReadChannelAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   dout << this->name() << ": ";
-  dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
+  dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << endl;
   dout << inc_level;
 #endif
   ring_out_type *r = new ring_out_type();
     initStorageAccess(*r);
     r->SetBuffer(storage);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-  dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::accessSetupOut" << endl;
+  dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << endl;
   dout << dec_level;
 #endif
   return r;
