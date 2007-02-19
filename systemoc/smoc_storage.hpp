@@ -113,7 +113,7 @@ template<class T>
 class smoc_storage_rw
 {
 private:
-  typedef smoc_storage_wom<T> this_type;
+  typedef smoc_storage_rw<T> this_type;
 private:
   smoc_storage<T> &s;
 public:

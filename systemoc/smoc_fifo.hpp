@@ -574,9 +574,9 @@ public:
 protected:
   
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecIn(size_t consume, const smoc_ref_event_p &le)
+  void commitRead(size_t consume, const smoc_ref_event_p &le)
 #else
-  void commExecIn(size_t consume)
+  void commitRead(size_t consume)
 #endif
   {
 #ifdef SYSTEMOC_TRACE
@@ -589,9 +589,9 @@ protected:
   }
   
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecOut(size_t produce, const smoc_ref_event_p &le)
+  void commitWrite(size_t produce, const smoc_ref_event_p &le)
 #else
-  void commExecOut(size_t produce)
+  void commitWrite(size_t produce)
 #endif
   {
 #ifdef SYSTEMOC_TRACE

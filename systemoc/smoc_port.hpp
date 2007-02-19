@@ -483,10 +483,10 @@ protected:
 
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)
-    { return (*this)->commExecIn(n, le); }
+    { return (*this)->commitRead(n, le); }
 #else
   void commExec(size_t n)
-    { return (*this)->commExecIn(n); }
+    { return (*this)->commitRead(n); }
 #endif
 
 public:
@@ -577,10 +577,10 @@ protected:
 
 #ifdef ENABLE_SYSTEMC_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)
-    { return (*this)->commExecOut(n, le); }
+    { return (*this)->commitWrite(n, le); }
 #else
   void commExec(size_t n)
-    { return (*this)->commExecOut(n); }
+    { return (*this)->commitWrite(n); }
 #endif
 public:
   return_type operator[](size_t n) {

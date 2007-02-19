@@ -239,9 +239,9 @@ public:
   virtual smoc_event &blockEventOut(size_t n) = 0;
   virtual access_in_type * accessSetupIn() = 0;
 #ifdef ENABLE_SYSTEMC_VPC
-  virtual void   commExecIn(size_t consume, const smoc_ref_event_p &) = 0;
+  virtual void   commitRead(size_t consume, const smoc_ref_event_p &) = 0;
 #else
-  virtual void   commExecIn(size_t consume) = 0;
+  virtual void   commitRead(size_t consume) = 0;
 #endif
 protected:
 //smoc_event write_event;
@@ -279,9 +279,9 @@ public:
   virtual smoc_event &blockEventIn(size_t n) = 0;
   virtual access_out_type * accessSetupOut() = 0;
 #ifdef ENABLE_SYSTEMC_VPC
-  virtual void        commExecOut(size_t produce, const smoc_ref_event_p &) = 0;
+  virtual void commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
 #else
-  virtual void        commExecOut(size_t produce) = 0;
+  virtual void commitWrite(size_t produce) = 0;
 #endif
 protected:
 //smoc_event read_event;

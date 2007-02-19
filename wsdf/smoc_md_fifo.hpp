@@ -731,9 +731,9 @@ protected:
 #endif
   
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecIn(size_t consume, const smoc_ref_event_p &le)
+  void commitWrite(size_t consume, const smoc_ref_event_p &le)
 #else
-  void commExecIn(size_t consume)
+  void commitWrite(size_t consume)
 #endif
   {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2

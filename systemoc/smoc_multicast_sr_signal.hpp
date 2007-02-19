@@ -187,7 +187,7 @@ public:
   }
 
   const return_type operator[](size_t n) const{
-    assert(0); //schould never be called on an input port
+    assert(0); //should never be called on an input port
     return actualValue;
   }
 
@@ -207,9 +207,9 @@ public:
   }
 
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecIn(size_t consume, const smoc_ref_event_p &le)
+  void commitRead(size_t consume, const smoc_ref_event_p &le)
 #else
-  void commExecIn(size_t consume)
+  void commitRead(size_t consume)
 #endif
   {
 #ifdef SYSTEMOC_TRACE
@@ -277,10 +277,10 @@ public:
     return this;
   }
 #ifdef ENABLE_SYSTEMC_VPC
-  void commExecOut(size_t produce, const smoc_ref_event_p &le) {
+  void commitWrite(size_t produce, const smoc_ref_event_p &le) {
     if( this->actualValue.isValid() ) this->_base->wpp(produce, le);
 #else
-  void commExecOut(size_t produce) {
+  void commitWrite(size_t produce) {
     if( this->actualValue.isValid() ) this->_base->wpp(produce);
 #endif
 #ifdef SYSTEMOC_TRACE
