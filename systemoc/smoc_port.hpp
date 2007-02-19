@@ -505,7 +505,7 @@ public:
   size_t availableCount() const
     { return (*this)->numAvailable(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
-    { return (*this)->blockEventOut(n); }
+    { return (*this)->dataAvailableEvent(n); }
   
   typename Expr::Token<T,R,PARAM_TYPE>::type getValueAt(size_t n)
     { return Expr::token(*this,n); }
@@ -594,7 +594,7 @@ public:
   size_t availableCount() const
     { return (*this)->numFree(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
-    { return (*this)->blockEventIn(n); }
+    { return (*this)->spaceAvailableEvent(n); }
   
   typename Expr::PortTokens<this_type>::type getFreeSpace()
     { return Expr::portTokens<this_type>(*this); }

@@ -199,7 +199,7 @@ public:
   // bounce functions
   size_t numAvailable() const
     { return this->usedStorage(); }
-  smoc_event &blockEventOut(size_t n)
+  smoc_event &dataAvailableEvent(size_t n)
     { return this->getEventAvailable(n); }
 
   ring_in_type * accessSetupIn() {
@@ -271,7 +271,7 @@ public:
   }
   size_t numFree() const
     { return this->unusedStorage(); }
-  smoc_event &blockEventIn(size_t n)
+  smoc_event &spaceAvailableEvent(size_t n)
     { return this->getEventFree(n); }
   virtual ring_out_type * accessSetupOut() {
     return this;

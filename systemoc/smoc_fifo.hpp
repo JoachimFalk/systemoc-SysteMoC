@@ -621,9 +621,9 @@ public:
     { return this->usedStorage(); }
   size_t numFree() const
     { return this->unusedStorage(); }
-  smoc_event &blockEventOut(size_t n)
+  smoc_event &dataAvailableEvent(size_t n)
     { return this->getEventAvailable(n); }
-  smoc_event &blockEventIn(size_t n)
+  smoc_event &spaceAvailableEvent(size_t n)
     { return this->getEventFree(n); }
 private:
     void reset(){};

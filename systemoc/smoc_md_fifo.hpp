@@ -830,9 +830,9 @@ public:
     return return_value;
   }
 #ifndef NO_SMOC
-  smoc_event &blockEventOut(size_t n)
+  smoc_event &dataAvailableEvent(size_t n)
     { return this->getEventAvailable(n); }
-  smoc_event &blockEventIn(size_t n)
+  smoc_event &spaceAvailableEvent(size_t n)
     { return this->getEventFree(n); }
 #endif
 };
