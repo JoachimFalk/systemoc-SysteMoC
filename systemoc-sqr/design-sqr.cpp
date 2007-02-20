@@ -47,6 +47,10 @@
 
 using namespace std; 
 
+// Maximum (and default) number of Src iterations. Lower default number via
+//  command line parameter.
+const int NUM_MAX_ITERATIONS = 1000000;
+
 class Src: public smoc_actor {
 public:
   smoc_port_out<double> out;
@@ -65,9 +69,9 @@ public:
   Src(sc_module_name name, SMOC_ACTOR_CPARAM(int,from))
     : smoc_actor(name, start), i(from) {
     start =
-        (VAR(i) <= 1000000)       >>
-        out(1)                    >>
-        CALL(Src::src)            >> start
+        (VAR(i) <= NUM_MAX_ITERATIONS) >>
+        out(1)                         >>
+        CALL(Src::src)                 >> start
       ;
   }
 };
@@ -201,9 +205,9 @@ protected:
   Dup      dup;
   Sink     sink;
 public:
-  SqrRoot( sc_module_name name )
+  SqrRoot( sc_module_name name, const int from = 1 )
     : smoc_graph(name),
-      src("a1", 1),
+      src("a1", from),
       sqrloop("a2"),
       approx("a3"),
       dup("a4"),
@@ -222,7 +226,13 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<SqrRoot> sqrroot("sqrroot");
+  int from = 1;
+  if (argc == 2) {
+    const int iterations = atoi(argv[1]);
+    assert(iterations < NUM_MAX_ITERATIONS);
+    from = NUM_MAX_ITERATIONS - iterations;
+  }
+  smoc_top_moc<SqrRoot> sqrroot("sqrroot", from);
   sc_start(-1);
   return 0;
 }

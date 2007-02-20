@@ -190,6 +190,7 @@ if test -d $srcdir/systemoc-sdf-clustering; then
 fi
 if test -d $srcdir/systemoc-sqr; then
   AC_CONFIG_FILES([systemoc-sqr/Makefile])
+  AC_OUTPUT([systemoc-sqr/autovars.sh])
   subdirs="$subdirs systemoc-sqr"
 fi
 if test -d $srcdir/systemoc-par; then
@@ -231,6 +232,10 @@ fi
 if test -d $srcdir/crypto-example; then
   AC_CONFIG_FILES([crypto-example/Makefile])
   subdirs="$subdirs crypto-example"
+fi
+if test -d $srcdir/systemoc-tlm-start; then
+  AC_CONFIG_FILES([systemoc-tlm-start/Makefile])
+  subdirs="$subdirs systemoc-tlm-start"
 fi
 if test x$enable_wsdf = xtrue; then
   if test -d $srcdir/systemoc-wsdf; then
