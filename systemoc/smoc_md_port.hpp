@@ -30,23 +30,9 @@ namespace Expr {
 
 
 	/****************************************************************************
-	 * DPortIteration represents the value of the iterator for the given port
-	 * 
+	 * DPortIteration represents the value of the iterator
+   * for the given port.
 	 */
-
-
-	class ASTNodePortIteration: public ASTLeafNode {
-	private:
-		const smoc_root_port &port;
-	public:
-		ASTNodePortIteration(const smoc_root_port &port)
-			: ASTLeafNode(static_cast<size_t*>(NULL)),
-				port(port) {}
- 
-		const smoc_root_port *getPort() const;
-		std::string getNodeType() const;
-		std::string getNodeParam() const;
-	};
 
 	//P: Port class
 	template<class P>

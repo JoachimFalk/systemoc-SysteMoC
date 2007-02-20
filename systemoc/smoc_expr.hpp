@@ -732,7 +732,7 @@ typename MemGuard<F>::type guard(const X *o, const F &f, const char *name = "") 
  * an enum which represents the operation.
  */
 
-template<class A, class B, OpBinT Op>
+template<class A, class B, _OpBinT Op>
 class DBinOp {
 public:
   typedef DBinOp<A,B,Op> this_type;
@@ -752,20 +752,20 @@ public:
   DBinOp(const A& a, const B& b): a(a), b(b) {}
 };
 
-template<class A, class B, OpBinT Op>
+template<class A, class B, _OpBinT Op>
 struct D<DBinOp<A,B,Op> >: public DBase<DBinOp<A,B,Op> > {
   D(const A &a, const B &b): DBase<DBinOp<A,B,Op> >(DBinOp<A,B,Op>(a,b)) {}
 };
 
 // Make a convenient typedef for the op type.
-template <class A, class B, OpBinT Op>
+template <class A, class B, _OpBinT Op>
 struct BinOp { typedef D<DBinOp<A,B,Op> > type; };
 
 /****************************************************************************
  * APPLICATIVE TEMPLATE CLASSES
  */
 
-template<typename TA, typename TB, OpBinT Op, template <class> class K>
+template<typename TA, typename TB, _OpBinT Op, template <class> class K>
 class DBinOpExecute;
 
 #define DBINOPEXECUTE(Op,op)                                          \
@@ -780,7 +780,7 @@ struct DBinOpExecute<TA,TB,Op,Value> {                                \
     { return Value<A>::apply(a) op Value<B>::apply(b); }              \
 };
 
-template <class A, class B, OpBinT Op>
+template <class A, class B, _OpBinT Op>
 struct AST<DBinOp<A,B,Op> > {
   typedef PASTNode result_type;
   
@@ -856,7 +856,7 @@ struct CommSetup<DBinOp<A,B,DOpBinLAnd> > {
 };
 #endif
 
-template <class A, class B, OpBinT Op>
+template <class A, class B, _OpBinT Op>
 struct Sensitivity<DBinOp<A,B,Op> > {
   typedef DBinOpExecute<
     typename Sensitivity<A>::match_type,
@@ -876,7 +876,7 @@ struct Sensitivity<DBinOp<A,B,Op> > {
   }
 };
 
-template <class A, class B, OpBinT Op>
+template <class A, class B, _OpBinT Op>
 struct Value<DBinOp<A,B,Op> > {
   typedef DBinOpExecute<
     typename Value<A>::result_type,
@@ -893,7 +893,7 @@ struct Value<DBinOp<A,B,Op> > {
  * OPERATORS for APPLICATIVE TEMPLATE CLASSES
  */
 
-template <class A, class B, OpBinT Op>
+template <class A, class B, _OpBinT Op>
 class DOpBinConstruct {
 public:
   typedef D<DBinOp<A,B,Op> >  result_type;
@@ -951,7 +951,7 @@ DOP(LOr,||)
 #undef DOPBIN
 #undef DBINOPEXECUTE
 
-template <OpBinT op>
+template <_OpBinT op>
 struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
   typedef Detail::Ignore match_type;
 
@@ -1015,7 +1015,7 @@ struct DBinOpExecute<Detail::Process,Detail::Process,DOpBinLAnd,CommExec> {
 #endif // ENABLE_SYSTEMC_VPC
 };
 
-template <OpBinT op>
+template <_OpBinT op>
 struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,Sensitivity> {
   typedef Detail::Ignore match_type;
 
@@ -1143,7 +1143,7 @@ field(const D<A> &a, V A::value_type::* b) {
  * an enum which represents the operation.
  */
 
-template<class E, OpUnT Op>
+template<class E, _OpUnT Op>
 class DUnOp {
 public:
   typedef DUnOp<E,Op> this_type;
@@ -1162,20 +1162,20 @@ public:
   DUnOp(const E &e): e(e) {}
 };
 
-template<class E, OpUnT Op>
+template<class E, _OpUnT Op>
 struct D<DUnOp<E,Op> >: public DBase<DUnOp<E,Op> > {
   D(const E &e): DBase<DUnOp<E,Op> >(DUnOp<E,Op>(e)) {}
 };
 
 // Make a convenient typedef for the op type.
-template <class E, OpUnT Op>
+template <class E, _OpUnT Op>
 struct UnOp { typedef D<DUnOp<E,Op> > type; };
 
 /****************************************************************************
  * APPLICATIVE TEMPLATE CLASSES
  */
 
-template<typename TE, OpUnT Op, template <class> class K>
+template<typename TE, _OpUnT Op, template <class> class K>
 class DUnOpExecute;
 
 #define DUNOPEXECUTE(Op,op)                                           \
@@ -1190,7 +1190,7 @@ struct DUnOpExecute<TE,Op,Value> {                                    \
     { return op Value<E>::apply(e); }                                 \
 };
 
-template <class A, OpUnT Op>
+template <class A, _OpUnT Op>
 struct AST<DUnOp<A,Op> > {
   typedef PASTNode result_type;
 
@@ -1202,7 +1202,7 @@ struct AST<DUnOp<A,Op> > {
   }
 };
 
-template <class E, OpUnT Op>
+template <class E, _OpUnT Op>
 struct Value<DUnOp<E,Op> > {
   typedef DUnOpExecute<
     typename Value<E>::result_type,
@@ -1218,7 +1218,7 @@ struct Value<DUnOp<E,Op> > {
  * OPERATORS for APPLICATIVE TEMPLATE CLASSES
  */
 
-template <class E, OpUnT Op>
+template <class E, _OpUnT Op>
 class DOpUnConstruct {
 public:
   typedef D<DUnOp<E,Op> > result_type;

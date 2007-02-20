@@ -44,14 +44,53 @@
 
 namespace SysteMoC { namespace ActivationPattern {
 
+// Please always sync this with DASTNodeType[] in smoc_ast_common.cpp
+typedef enum {
+  _ASTNodeTypeMagicBase = 0x51FDA, ///< Magic constant
+  ASTNodeTypeVar = _ASTNodeTypeMagicBase,
+  ASTNodeTypeLiteral,
+  ASTNodeTypeProc,
+  ASTNodeTypeMemProc,
+  ASTNodeTypeMemGuard,
+  ASTNodeTypeToken,
+  ASTNodeTypePortTokens,
+  ASTNodeTypeSMOCEvent,
+  ASTNodeTypePortIteration,
+  ASTNodeTypeBinOp,
+  ASTNodeTypeUnOp,
+  ASTNodeTypeComm,
+  _ASTNodeTypeMagicMax // allways keep this as the first invalid entry
+} _ASTNodeType;
+
+class ASTNodeType {
+public:
+  typedef ASTNodeType this_type;
+protected:
+  _ASTNodeType op;
+public:
+  ASTNodeType(const std::string &op);
+  ASTNodeType(const char *op);
+  ASTNodeType(_ASTNodeType op);
+
+  this_type &operator =(const std::string &op);
+  this_type &operator =(const char *op);
+  this_type &operator =(_ASTNodeType op);
+
+  operator _ASTNodeType() const;
+  operator const char *() const;
+};
+
 class ASTNode: public CoSupport::RefCountObject {
 private:
-  TypeIdentifier type;
+  ASTNodeType     nodeType;
+  TypeIdentifier  valueType;
 public:
-  ASTNode(const TypeIdentifier &type)
-    : type(type) {}
+  ASTNode(
+      const ASTNodeType     &nodeType,
+      const TypeIdentifier  &valueType)
+    : nodeType(nodeType), valueType(valueType) {}
 
-  const TypeIdentifier &getValueType() const { return type; }
+  const TypeIdentifier &getValueType() const { return valueType; }
   virtual std::string   getNodeType() const                       = 0;
   virtual std::string   getNodeParam() const                      = 0;
   virtual void          assemble(smoc_modes::PGWriter &pgw) const = 0;
@@ -65,8 +104,10 @@ typedef boost::intrusive_ptr<ASTNode> PASTNode;
 
 class ASTLeafNode: public ASTNode {
 public:
-  ASTLeafNode(const TypeIdentifier &type)
-    : ASTNode(type) {}
+  ASTLeafNode(
+      const ASTNodeType     &nodeType,
+      const TypeIdentifier  &valueType)
+    : ASTNode(nodeType, valueType) {}
 
   void assemble(smoc_modes::PGWriter &pgw) const;
 };
@@ -78,9 +119,11 @@ private:
   PASTNode l, r;
 public:
   ASTInternalBinNode(
-      const PASTNode &l, const PASTNode &r,
-      const TypeIdentifier &type)
-    : ASTNode(type), l(l), r(r) {}
+      const ASTNodeType     &nodeType,
+      const PASTNode        &l,
+      const PASTNode        &r,
+      const TypeIdentifier  &valueType)
+    : ASTNode(nodeType, valueType), l(l), r(r) {}
 
   const PASTNode &getLeftNode() const
     { return l; }
@@ -96,8 +139,11 @@ class ASTInternalUnNode: public ASTNode {
 private:
   PASTNode c;
 public:
-  ASTInternalUnNode(const PASTNode &c, const TypeIdentifier &type)
-    : ASTNode(type), c(c) {}
+  ASTInternalUnNode(
+      const ASTNodeType     &nodeType,
+      const PASTNode        &c,
+      const TypeIdentifier  &valueType)
+    : ASTNode(nodeType, valueType), c(c) {}
 
   PASTNode getChildNode() const
     { return c; }
@@ -112,13 +158,15 @@ typedef boost::intrusive_ptr<ASTInternalUnNode> PASTInternalUnNode;
  */
 
 class ASTNodeVar: public ASTLeafNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypeVar;
 private:
   std::string name;
   const void *addr;
 public:
   template <typename T>
   ASTNodeVar(const T &x, const char *name)
-    : ASTLeafNode(static_cast<T*>(NULL)), name(name), addr(&x) {}
+    : ASTLeafNode(nodeType, static_cast<T*>(NULL)), name(name), addr(&x) {}
 
   std::string getName() const;
   const void *getAddr() const;
@@ -131,11 +179,13 @@ public:
  */
 
 class ASTNodeLiteral: public ASTLeafNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypeLiteral;
 private:
   ValueContainer value;
 public:
   ASTNodeLiteral(const ValueTypeContainer &vt)
-    : ASTLeafNode(vt), value(vt) {}
+    : ASTLeafNode(nodeType, vt), value(vt) {}
   
   const ValueContainer &getValue() const;
   std::string getNodeType() const;
@@ -148,13 +198,15 @@ public:
 
 class ASTNodeProc: public ASTLeafNode {
 public:
+  static const _ASTNodeType nodeType = ASTNodeTypeProc;
+public:
   typedef void (*proc_ty)();
 private:
   proc_ty f;
 public:
   template <typename T>
   ASTNodeProc(T (*f)())
-    : ASTLeafNode(static_cast<T*>(NULL)),
+    : ASTLeafNode(nodeType, static_cast<T*>(NULL)),
       f(reinterpret_cast<proc_ty>(f)) {}
  
   proc_ty ptrProc() const { return f; }
@@ -165,6 +217,8 @@ public:
  */
 
 class ASTNodeMemProc: public ASTLeafNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypeMemProc;
 private:
   struct dummy;
   typedef void (dummy::*fun)();
@@ -174,7 +228,7 @@ private:
 public:
   template<typename T, class X>
   ASTNodeMemProc(X *o, T (X::*m)())
-    : ASTLeafNode(static_cast<T*>(NULL)),
+    : ASTLeafNode(nodeType, static_cast<T*>(NULL)),
       o(reinterpret_cast<dummy *>(o)),
       m(*reinterpret_cast<fun *>(&m)) {}
 
@@ -189,6 +243,8 @@ public:
  */
 
 class ASTNodeMemGuard: public ASTLeafNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypeMemGuard;
 private:
   std::string name;
 
@@ -200,7 +256,7 @@ private:
 public:
   template<typename F>
   ASTNodeMemGuard(const F &f)
-    : ASTLeafNode(static_cast<typename F::return_type *>(NULL)),
+    : ASTLeafNode(nodeType, static_cast<typename F::return_type *>(NULL)),
       o(reinterpret_cast<const dummy *>(f.obj)),
       m(*reinterpret_cast<const fun *>(&f.func)) {}
 
@@ -216,12 +272,14 @@ public:
  */
 
 class ASTNodeToken: public ASTLeafNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypeToken;
 private:
   PortIdentifier port;
   size_t         pos;
 public:
   ASTNodeToken(const TypePortIdentifier &tp, size_t pos)
-    : ASTLeafNode(tp), port(tp), pos(pos) {}
+    : ASTLeafNode(nodeType, tp), port(tp), pos(pos) {}
 
   const PortIdentifier &getPort() const;
   size_t                getPos() const;
@@ -235,11 +293,13 @@ public:
  */
 
 class ASTNodePortTokens: public ASTLeafNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypePortTokens;
 private:
   PortIdentifier port;
 public:
   ASTNodePortTokens(const PortIdentifier &port)
-    : ASTLeafNode(static_cast<size_t*>(NULL)),
+    : ASTLeafNode(nodeType, static_cast<size_t*>(NULL)),
       port(port) {}
  
   const PortIdentifier &getPort() const;
@@ -252,13 +312,35 @@ public:
  * if the event is signaled
  */
 
-struct ASTNodeSMOCEvent: public ASTLeafNode {
+class ASTNodeSMOCEvent: public ASTLeafNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypeSMOCEvent;
+private:
 public:
   ASTNodeSMOCEvent()
-    : ASTLeafNode(static_cast<bool*>(NULL)) {}
+    : ASTLeafNode(nodeType, static_cast<bool*>(NULL)) {}
 
   std::string getNodeType() const;
   std::string getNodeParam() const;
+};
+
+/****************************************************************************
+ * ASTNodePortIteration represents the value of the iterator
+ * for the given port.
+ */
+class ASTNodePortIteration: public ASTLeafNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypePortIteration;
+private:
+  const smoc_root_port &port;
+public:
+  ASTNodePortIteration(const smoc_root_port &port)
+    : ASTLeafNode(nodeType, static_cast<size_t*>(NULL)),
+      port(port) {}
+
+  const PortIdentifier &getPort() const;
+  std::string           getNodeType() const;
+  std::string           getNodeParam() const;
 };
 
 /****************************************************************************
@@ -267,22 +349,44 @@ public:
  * an enum which represents the operation.
  */
 
+// Please always sync this with DOpBin[] in smoc_ast_common.cpp
 typedef enum {
   DOpBinAdd, DOpBinSub, DOpBinMultiply, DOpBinDivide,
   DOpBinEq, DOpBinNe, DOpBinLt, DOpBinLe, DOpBinGt, DOpBinGe,
   DOpBinBAnd, DOpBinBOr, DOpBinBXor, DOpBinLAnd, DOpBinLOr, DOpBinLXor,
   DOpBinField
-} OpBinT;
+} _OpBinT;
 
-std::ostream &operator << (std::ostream &o, const OpBinT &op );
+class OpBinT {
+public:
+  typedef OpBinT this_type;
+protected:
+  _OpBinT op;
+public:
+  OpBinT(const std::string &op);
+  OpBinT(const char *op);
+  OpBinT(_OpBinT op);
+
+  this_type &operator =(const std::string &op);
+  this_type &operator =(const char *op);
+  this_type &operator =(_OpBinT op);
+
+  operator _OpBinT() const;
+  operator const char *() const;
+};
+
+std::ostream &operator << (std::ostream &o, const OpBinT &op);
+std::ostream &operator << (std::ostream &o, _OpBinT op);
 
 class ASTNodeBinOp: public ASTInternalBinNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypeBinOp;
 private:
   OpBinT op;
 public:
   template <typename T>
   ASTNodeBinOp(OpBinT op, const PASTNode &l, const PASTNode &r, T *)
-    : ASTInternalBinNode(l,r,static_cast<T*>(NULL)), op(op) {}
+    : ASTInternalBinNode(nodeType, l,r,static_cast<T*>(NULL)), op(op) {}
 
   OpBinT getOpType() const;
   std::string getNodeType() const;
@@ -295,23 +399,45 @@ public:
  * an enum which represents the operation.
  */
 
+// Please always sync this with DOpUn[] in smoc_ast_common.cpp
 typedef enum {
   DOpUnLNot,
   DOpUnBNot,
   DOpUnRef,
   DOpUnDeRef,
   DOpUnType
-} OpUnT;
+} _OpUnT;
 
-std::ostream &operator << (std::ostream &o, const OpUnT &op );
+class OpUnT {
+public:
+  typedef OpUnT this_type;
+protected:
+  _OpUnT op;
+public:
+  OpUnT(const std::string &op);
+  OpUnT(const char *op);
+  OpUnT(_OpUnT op);
+
+  this_type &operator =(const std::string &op);
+  this_type &operator =(const char *op);
+  this_type &operator =(_OpUnT op);
+
+  operator _OpUnT() const;
+  operator const char *() const;
+};
+
+std::ostream &operator << (std::ostream &o, const OpUnT &op);
+std::ostream &operator << (std::ostream &o, _OpUnT op);
 
 class ASTNodeUnOp: public ASTInternalUnNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypeUnOp;
 public:
   OpUnT op;
 public:
   template <typename T>
   ASTNodeUnOp(OpUnT op, const PASTNode &c, T*)
-    : ASTInternalUnNode(c, static_cast<T*>(NULL)), op(op) {}
+    : ASTInternalUnNode(nodeType, c, static_cast<T*>(NULL)), op(op) {}
 
   OpUnT getOpType() const;
   std::string getNodeType() const;
@@ -323,11 +449,13 @@ public:
  */
 
 class ASTNodeComm: public ASTInternalUnNode {
+public:
+  static const _ASTNodeType nodeType = ASTNodeTypeComm;
 private:
   PortIdentifier port;
 public:
   ASTNodeComm(const PortIdentifier &port, const PASTNode &c)
-    : ASTInternalUnNode(c, static_cast<bool *>(NULL)),
+    : ASTInternalUnNode(nodeType, c, static_cast<bool *>(NULL)),
       port(port) {}
 
   const PortIdentifier &getPort() const;
@@ -337,6 +465,7 @@ public:
 
 template <class V> // V is the visitor type
 typename V::result_type apply_visitor(V &v, PASTNode pASTNode) {
+//if (
 
 
 

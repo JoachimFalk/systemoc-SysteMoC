@@ -35,45 +35,14 @@
 
 #include "smoc_ast_systemoc.hpp"
 
+// Common code between SysteMoC and AC-PG-Access. But compiled
+// differently between SysteMoC and AC-PG-Access. For SysteMoC
+// compilation use definitions from smoc_ast_systemoc.hpp
+#include "smoc_ast_common.cpp"
+
 #include <smoc_pggen.hpp>
 
 namespace SysteMoC { namespace ActivationPattern {
-
-std::ostream &operator << (std::ostream &o, const OpBinT &op ) {
-  switch (op) {
-    case DOpBinAdd:      o << "DOpBinAdd"; break;
-    case DOpBinSub:      o << "DOpBinSub"; break;
-    case DOpBinMultiply: o << "DOpBinMultiply"; break;
-    case DOpBinDivide:   o << "DOpBinDivide"; break;
-    case DOpBinEq:       o << "DOpBinEq"; break;
-    case DOpBinNe:       o << "DOpBinNe"; break;
-    case DOpBinLt:       o << "DOpBinLt"; break;
-    case DOpBinLe:       o << "DOpBinLe"; break;
-    case DOpBinGt:       o << "DOpBinGt"; break;
-    case DOpBinGe:       o << "DOpBinGe"; break;
-    case DOpBinBAnd:     o << "DOpBinBAnd"; break;
-    case DOpBinBOr:      o << "DOpBinBOr"; break;
-    case DOpBinBXor:     o << "DOpBinBXor"; break;
-    case DOpBinLAnd:     o << "DOpBinLAnd"; break;
-    case DOpBinLOr:      o << "DOpBinLOr"; break;
-    case DOpBinLXor:     o << "DOpBinLXor"; break;
-    case DOpBinField:    o << "DOpBinField"; break;
-    default:             assert(!"Unknown binary operation !"); break;
-  }
-  return o;
-}
-
-std::ostream &operator << (std::ostream &o, const OpUnT &op ) {
-  switch (op) {
-    case DOpUnLNot:      o << "DOpUnLNot"; break;
-    case DOpUnBNot:      o << "DOpUnBNot"; break;
-    case DOpUnRef:       o << "DOpUnRef"; break;
-    case DOpUnDeRef:     o << "DOpUnDeRef"; break;
-    case DOpUnType:      o << "DOpUnType"; break;
-    default:             assert(!"Unknown unary operation !"); break;
-  }
-  return o;
-}
 
 std::ostream &operator << (std::ostream &o, const ValueContainer &value)
   { return o << static_cast<const std::string &>(value); }
@@ -120,10 +89,6 @@ void ASTInternalBinNode::assemble(smoc_modes::PGWriter &pgw) const {
   pgw << "</" << getNodeType() << ">" << std::endl;
 }
 
-OpBinT      ASTNodeBinOp::getOpType() const
-  { return op; }
-std::string ASTNodeBinOp::getNodeType() const
-  { return "ASTNodeBinOp"; }
 std::string ASTNodeBinOp::getNodeParam() const {
   std::ostringstream o;
   o << "opType=\"" << getOpType() << "\"";
@@ -149,22 +114,18 @@ void ASTInternalUnNode::assemble(smoc_modes::PGWriter &pgw) const {
   pgw << "</" << getNodeType() << ">" << std::endl;
 }
 
-OpUnT       ASTNodeUnOp::getOpType() const
-  { return op; }
-std::string ASTNodeUnOp::getNodeType() const
-  { return "ASTNodeUnOp"; }
 std::string ASTNodeUnOp::getNodeParam() const {
   std::ostringstream o;
   o << "opType=\"" << getOpType() << "\"";
   return o.str();
 }
 
+/*
 std::string ASTNodeVar::getName() const
   { return name; }
 const void *ASTNodeVar::getAddr() const
   { return addr; }
-std::string ASTNodeVar::getNodeType() const
-  { return "Var"; }
+*/
 std::string ASTNodeVar::getNodeParam() const {
   std::ostringstream o;
   o << "name=\"" << getName() << "\" ";
@@ -172,24 +133,24 @@ std::string ASTNodeVar::getNodeParam() const {
   return o.str();
 }
 
+/*
 const ValueContainer &ASTNodeLiteral::getValue() const
   { return value; }
-std::string ASTNodeLiteral::getNodeType() const
-  { return "Literal"; }
+*/
 std::string ASTNodeLiteral::getNodeParam() const {
   std::ostringstream o;
   o << "value=\"" << getValue() << "\"";
   return o.str();
 }
 
+/*
 std::string ASTNodeMemGuard::getName() const
   { return name.c_str(); }
 const void *ASTNodeMemGuard::getAddrObj() const
   { return o; }
 const void *ASTNodeMemGuard::getAddrFun() const
   { return *reinterpret_cast<const void *const *>(&m); }
-std::string ASTNodeMemGuard::getNodeType() const
-  { return "MemGuard"; }
+*/
 std::string ASTNodeMemGuard::getNodeParam() const {
   std::ostringstream o;
   o << "name=\"" << getName() << "\" ";
@@ -197,5 +158,31 @@ std::string ASTNodeMemGuard::getNodeParam() const {
   o << "addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>(getAddrFun()) << std::dec << "\"";
   return o.str();
 }
+
+std::string           ASTNodeToken::getNodeParam() const {
+  std::ostringstream o;
+  o << "portid=\"" << smoc_modes::PGWriter::getId(&getPort()) << "\" ";
+  o << "pos=\"" << getPos() << "\"";
+  return o.str();
+}
+
+std::string           ASTNodePortTokens::getNodeParam() const {
+  std::ostringstream o;
+  o << "portid=\"" << smoc_modes::PGWriter::getId(&getPort()) << "\"";
+  return o.str();
+}
+
+std::string           ASTNodeComm::getNodeParam() const {
+  std::ostringstream o;
+  o << "portid=\"" << smoc_modes::PGWriter::getId(&getPort()) << "\"";
+  return o.str();
+};
+
+std::string           ASTNodeSMOCEvent::getNodeParam() const
+  { assert(false); }
+
+std::string           ASTNodePortIteration::getNodeParam() const
+  { assert(false); }
+
 
 } } // namespace SysteMoC::ActivationPattern
