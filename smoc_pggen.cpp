@@ -43,21 +43,7 @@ namespace smoc_modes {
 
   int                 PGWriter::idmap_last = 0;
   PGWriter::idmap_ty  PGWriter::idmap;
-  const char          PGWriter::indent_buf[] = 
-     "                                                                "
-     "                                                                "
-     "                                                                "
-     "                                                                ";
-  const size_t        PGWriter::indent_buf_len = sizeof(PGWriter::indent_buf) - 1;
 
-  const char *
-  PGWriter::indentation () const {
-    unsigned int indent = 2*indent_lev;
-    
-    return indent >= indent_buf_len
-      ? indent_buf : indent_buf + indent_buf_len - indent;
-  }
-    
   std::string PGWriter::toId(int id) {
     std::ostringstream o;
     o << "id" << id;

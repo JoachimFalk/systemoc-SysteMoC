@@ -43,6 +43,8 @@
 
 #include <map>
 
+#include <cosupport/filter_ostream.hpp>
+
 class smoc_root_node;
 
 namespace smoc_modes {
@@ -57,30 +59,26 @@ namespace smoc_modes {
     friend class Node;
   protected:
     typedef  std::map<const void *,int> idmap_ty;
-    
-    std::ostream    &out;
-    static int       idmap_last;
-    static idmap_ty  idmap;
-    
-    static const char   indent_buf[];
-    static const size_t indent_buf_len;
-    
-    int indent_lev;
-    
-    const char *
-    indentation () const;
+
+    CoSupport::FilterOstream    out;
+    CoSupport::IndentStreambuf  indenter;
+
+    static int                  idmap_last;
+    static idmap_ty             idmap;
     
     static std::string toId(int id);
   public:
-    PGWriter(std::ostream &out)
-      : out(out), indent_lev(0) {}
+    PGWriter(std::ostream &_out)
+      : out(_out) { out.insert(indenter); }
     
-    void indentUp() { ++indent_lev; }
-    void indentDown() { --indent_lev; }
-    
+    void indentUp() 
+      { out << CoSupport::Indent::Up; }
+    void indentDown()
+      { out << CoSupport::Indent::Down; }
+
     template <typename T>
-    std::ostream &operator << (T t) { return out << indentation() << t; }
-    
+    std::ostream &operator << (T t) { return out << t; }
+
     static std::string getId( const void *p );
     static std::string getId();
     
