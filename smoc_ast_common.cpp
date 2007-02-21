@@ -39,19 +39,20 @@
 namespace SysteMoC { namespace ActivationPattern {
 
 static const char *DASTNodeType[] = {
-  "ASTNodeTypeVar",
-  "ASTNodeTypeLiteral",
-  "ASTNodeTypeProc",
-  "ASTNodeTypeMemProc",
-  "ASTNodeTypeMemGuard",
-  "ASTNodeTypeToken",
-  "ASTNodeTypePortTokens",
-  "ASTNodeTypeSMOCEvent",
-  "ASTNodeTypePortIteration",
-  "ASTNodeTypeBinOp",
-  "ASTNodeTypeUnOp",
-  "ASTNodeTypeComm"
+  "Var",                      ///< XML tag for ASTNodeTypeVar
+  "Literal",                  ///< XML tag for ASTNodeTypeLiteral
+  "ASTNodeTypeProc",          ///< XML tag for ASTNodeTypeProc
+  "ASTNodeTypeMemProc",       ///< XML tag for ASTNodeTypeMemProc
+  "MemGuard",                 ///< XML tag for ASTNodeTypeMemGuard
+  "Token",                    ///< XML tag for ASTNodeTypeToken
+  "PortTokens",               ///< XML tag for ASTNodeTypePortTokens
+  "ASTNodeSMOCEvent",         ///< XML tag for ASTNodeTypeSMOCEvent
+  "PortIteration",            ///< XML tag for ASTNodeTypePortIteration
+  "ASTNodeBinOp",             ///< XML tag for ASTNodeTypeBinOp
+  "ASTNodeUnOp",              ///< XML tag for ASTNodeTypeUnOp
+  "Comm"                      ///< XML tag for ASTNodeTypeComm
 };
+
 #define DASTNODETYPEELEMCOUNT (sizeof(DASTNodeType)/sizeof(DASTNodeType[0]))
 #define ASTNODETYPEELEMCOUNT  (_ASTNodeTypeMagicMax - _ASTNodeTypeMagicBase)
 
@@ -97,6 +98,11 @@ ASTNodeType::operator const char *() const {
   return static_cast<const char *>(*this);
 } */
 
+std::ostream &operator << (std::ostream &o, const ASTNodeType &nodeType)
+  { o << static_cast<const char *>(nodeType); return o; }
+std::ostream &operator << (std::ostream &o, _ASTNodeType nodeType)
+  { return o << ASTNodeType(nodeType); }
+
 static const char *DOpBin[] = {
   "DOpBinAdd", "DOpBinSub", "DOpBinMultiply", "DOpBinDivide",
   "DOpBinEq", "DOpBinNe", "DOpBinLt", "DOpBinLe", "DOpBinGt", "DOpBinGe",
@@ -141,6 +147,11 @@ OpBinT::operator const char *() const {
 /* OpBinT::operator std::string() const {
   return static_cast<const char *>(*this);
 } */
+
+std::ostream &operator << (std::ostream &o, const OpBinT &op)
+  { o << static_cast<const char *>(op); return o; }
+std::ostream &operator << (std::ostream &o, _OpBinT op)
+  { return o << OpBinT(op); }
 
 static const char *DOpUn[] = {
   "DOpUnLNot",
@@ -188,37 +199,24 @@ OpUnT::operator const char *() const {
   return static_cast<const char *>(*this);
 } */
 
-std::ostream &operator << (std::ostream &o, const OpBinT &op)
-  { o << static_cast<const char *>(op); return o; }
-std::ostream &operator << (std::ostream &o, _OpBinT op)
-  { o << static_cast<const char *>(OpBinT(op)); return o; }
-
 std::ostream &operator << (std::ostream &o, const OpUnT &op)
   { o << static_cast<const char *>(op); return o; }
 std::ostream &operator << (std::ostream &o, _OpUnT op)
-  { o << static_cast<const char *>(OpUnT(op)); return o; }
+  { return o << OpUnT(op); }
 
 OpBinT      ASTNodeBinOp::getOpType() const
   { return op; }
-std::string ASTNodeBinOp::getNodeType() const
-  { return "ASTNodeBinOp"; }
 
 OpUnT       ASTNodeUnOp::getOpType() const
   { return op; }
-std::string ASTNodeUnOp::getNodeType() const
-  { return "ASTNodeUnOp"; }
 
 std::string ASTNodeVar::getName() const
   { return name; }
 const void *ASTNodeVar::getAddr() const
   { return addr; }
-std::string ASTNodeVar::getNodeType() const
-  { return "Var"; }
 
 const ValueContainer &ASTNodeLiteral::getValue() const
   { return value; }
-std::string ASTNodeLiteral::getNodeType() const
-  { return "Literal"; }
 
 std::string ASTNodeMemGuard::getName() const
   { return name.c_str(); }
@@ -226,33 +224,19 @@ const void *ASTNodeMemGuard::getAddrObj() const
   { return o; }
 const void *ASTNodeMemGuard::getAddrFun() const
   { return *reinterpret_cast<const void *const *>(&m); }
-std::string ASTNodeMemGuard::getNodeType() const
-  { return "MemGuard"; }
 
 const PortIdentifier &ASTNodeToken::getPort() const
   { return port; }
 size_t                ASTNodeToken::getPos() const
   { return pos; }
-std::string           ASTNodeToken::getNodeType() const
-  { return "Token"; }
 
 const PortIdentifier &ASTNodePortTokens::getPort() const
   { return port; }
-std::string           ASTNodePortTokens::getNodeType() const
-  { return "PortTokens"; }
 
 const PortIdentifier &ASTNodeComm::getPort() const
   { return port; }
-std::string           ASTNodeComm::getNodeType() const
-  { return "Comm"; }
-
-std::string           ASTNodeSMOCEvent::getNodeType() const
-  { return "ASTNodeSMOCEvent"; }
 
 const PortIdentifier &ASTNodePortIteration::getPort() const
   { return port; }
-
-std::string           ASTNodePortIteration::getNodeType() const
-  { return "PortIteration"; }
 
 } } // namespace SysteMoC::ActivationPattern

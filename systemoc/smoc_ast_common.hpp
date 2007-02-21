@@ -80,6 +80,9 @@ public:
   operator const char *() const;
 };
 
+std::ostream &operator << (std::ostream &o, const ASTNodeType &nodeType);
+std::ostream &operator << (std::ostream &o, _ASTNodeType nodeType);
+
 class ASTNode: public CoSupport::RefCountObject {
 private:
   ASTNodeType     nodeType;
@@ -91,7 +94,7 @@ public:
     : nodeType(nodeType), valueType(valueType) {}
 
   const TypeIdentifier &getValueType() const { return valueType; }
-  virtual std::string   getNodeType() const                       = 0;
+  const ASTNodeType    &getNodeType() const  { return nodeType; }
   virtual std::string   getNodeParam() const                      = 0;
   virtual void          assemble(smoc_modes::PGWriter &pgw) const = 0;
 };
@@ -170,7 +173,6 @@ public:
 
   std::string getName() const;
   const void *getAddr() const;
-  std::string getNodeType() const;
   std::string getNodeParam() const;
 };
 
@@ -188,7 +190,6 @@ public:
     : ASTLeafNode(nodeType, vt), value(vt) {}
   
   const ValueContainer &getValue() const;
-  std::string getNodeType() const;
   std::string getNodeParam() const;
 };
 
@@ -263,7 +264,6 @@ public:
   std::string getName() const;
   const void *getAddrObj() const;
   const void *getAddrFun() const;
-  std::string getNodeType() const;
   std::string getNodeParam() const;
 };
 
@@ -283,7 +283,6 @@ public:
 
   const PortIdentifier &getPort() const;
   size_t                getPos() const;
-  std::string           getNodeType() const;
   std::string           getNodeParam() const;
 };
 
@@ -303,7 +302,6 @@ public:
       port(port) {}
  
   const PortIdentifier &getPort() const;
-  std::string           getNodeType() const;
   std::string           getNodeParam() const;
 };
 
@@ -320,7 +318,6 @@ public:
   ASTNodeSMOCEvent()
     : ASTLeafNode(nodeType, static_cast<bool*>(NULL)) {}
 
-  std::string getNodeType() const;
   std::string getNodeParam() const;
 };
 
@@ -332,14 +329,13 @@ class ASTNodePortIteration: public ASTLeafNode {
 public:
   static const _ASTNodeType nodeType = ASTNodeTypePortIteration;
 private:
-  const smoc_root_port &port;
+  PortIdentifier port;
 public:
-  ASTNodePortIteration(const smoc_root_port &port)
+  ASTNodePortIteration(const PortIdentifier &port)
     : ASTLeafNode(nodeType, static_cast<size_t*>(NULL)),
       port(port) {}
 
   const PortIdentifier &getPort() const;
-  std::string           getNodeType() const;
   std::string           getNodeParam() const;
 };
 
@@ -389,7 +385,6 @@ public:
     : ASTInternalBinNode(nodeType, l,r,static_cast<T*>(NULL)), op(op) {}
 
   OpBinT getOpType() const;
-  std::string getNodeType() const;
   std::string getNodeParam() const;
 };
 
@@ -440,7 +435,6 @@ public:
     : ASTInternalUnNode(nodeType, c, static_cast<T*>(NULL)), op(op) {}
 
   OpUnT getOpType() const;
-  std::string getNodeType() const;
   std::string getNodeParam() const;
 };
 
@@ -459,7 +453,6 @@ public:
       port(port) {}
 
   const PortIdentifier &getPort() const;
-  std::string           getNodeType() const;
   std::string           getNodeParam() const;
 };
 
