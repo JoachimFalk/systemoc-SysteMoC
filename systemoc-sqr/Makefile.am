@@ -47,10 +47,10 @@ noinst_SCRIPTS=autotest.sh
 
 CLEANFILES=$(noinst_SCRIPTS)
 
-autotest.sh: simulation-sqr $(srcdir)/autotest.sh autovars.sh
+autotest.sh: simulation-sqr $(srcdir)/autotest-sh
 	rm -f $@
 	echo "#!" $(BASH) > $@
-	cat autovars.sh $(srcdir)/autotest.sh >> $@
+	cat autovars.sh $(srcdir)/autotest-sh >> $@
 	chmod +x $@
 
 # to check we just call the 'autotest.sh' script
