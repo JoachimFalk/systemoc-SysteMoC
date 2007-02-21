@@ -286,6 +286,117 @@ void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
       pgw << "</actor>" << std::endl;
 }
 
+namespace {
+  using namespace SysteMoC::ActivationPattern;
+
+  class ASTXMLDumperVisitor {
+  public:
+    typedef void result_type;
+  private:
+    smoc_modes::PGWriter &pgw;
+  protected:
+    void openNodeTag(const ASTNode &astNode) {
+      pgw << "<" << astNode.getNodeType() 
+                 << " valueType=\"" << astNode.getValueType() << "\"";
+    }
+    void closeNodeTag(const ASTNode &astNode) {
+      pgw << "</" << astNode.getNodeType() << ">" << std::endl;
+    }
+    void dumpASTUnNode(const ASTInternalUnNode &astNode) {
+      pgw.indentUp();
+      pgw << "<ChildNode>" << std::endl;
+      {
+        pgw.indentUp();
+        apply_visitor(*this, astNode.getChildNode());
+        pgw.indentDown();
+      }
+      pgw << "</ChildNode>" << std::endl;
+      pgw.indentDown();
+    }
+    void dumpASTBinNode(const ASTInternalBinNode &astNode) {
+      pgw.indentUp();
+      pgw << "<lhs>" << std::endl;
+      {
+        pgw.indentUp();
+        apply_visitor(*this, astNode.getLeftNode());
+        pgw.indentDown();
+      }
+      pgw << "</lhs>" << std::endl;
+      pgw << "<rhs>" << std::endl;
+      {
+        pgw.indentUp();
+        apply_visitor(*this, astNode.getRightNode());
+        pgw.indentDown();
+      }
+      pgw << "</rhs>" << std::endl;
+      pgw.indentDown();
+    }
+  public:
+    ASTXMLDumperVisitor(smoc_modes::PGWriter &pgw)
+      : pgw(pgw) {}
+
+    result_type operator ()(ASTNodeVar &astNode) {
+      openNodeTag(astNode);
+      pgw << " name=\"" << astNode.getName() << "\"";
+      pgw << " addr=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddr()) << "\">";
+      closeNodeTag(astNode);
+    }
+    result_type operator ()(ASTNodeLiteral &astNode) {
+      openNodeTag(astNode);
+      pgw << " value=\"" << astNode.getValue() << "\">";
+      closeNodeTag(astNode);
+    }
+    result_type operator ()(ASTNodeProc &astNode) {
+      assert(!"Unimplemented");
+    }
+    result_type operator ()(ASTNodeMemProc &astNode) {
+      assert(!"Unimplemented");
+    }
+    result_type operator ()(ASTNodeMemGuard &astNode) {
+      openNodeTag(astNode);
+      pgw << " name=\"" << astNode.getName() << "\"";
+      pgw << " addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrObj()) << std::dec << "\"";
+      pgw << " addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrFun()) << std::dec << "\">";
+      closeNodeTag(astNode);
+    }
+    result_type operator ()(ASTNodeToken &astNode) {
+      openNodeTag(astNode);
+      pgw << "portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\"";
+      pgw << "pos=\"" << astNode.getPos() << "\">";
+      closeNodeTag(astNode);
+    }
+    result_type operator ()(ASTNodePortTokens &astNode) {
+      openNodeTag(astNode);
+      pgw << "portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\">";
+      closeNodeTag(astNode);
+    }
+    result_type operator ()(ASTNodeSMOCEvent &astNode) {
+      assert(!"Unimplemented");
+    }
+    result_type operator ()(ASTNodePortIteration &astNode) {
+      assert(!"Unimplemented");
+    }
+    result_type operator ()(ASTNodeBinOp &astNode) {
+      openNodeTag(astNode);
+      pgw << "opType=\"" << astNode.getOpType() << "\">" << std::endl;
+      dumpASTBinNode(astNode);
+      closeNodeTag(astNode);
+    }
+    result_type operator ()(ASTNodeUnOp &astNode) {
+      openNodeTag(astNode);
+      pgw << "opType=\"" << astNode.getOpType() << "\">" << std::endl;
+      dumpASTUnNode(astNode);
+      closeNodeTag(astNode);
+    }
+    result_type operator ()(ASTNodeComm &astNode) {
+      openNodeTag(astNode);
+      pgw << "portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\">" << std::endl;
+      dumpASTUnNode(astNode);
+      closeNodeTag(astNode);
+    }
+  };
+}
+
 void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
   pgw << "<fsm startstate=\"" << pgw.getId(&_initialState.getResolvedState()) << "\">" << std::endl;
   {
@@ -316,7 +427,9 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
             } else {
               pgw << "action=\"\">" << std::endl;
             }
-            titer->guardAssemble(pgw);
+            ASTXMLDumperVisitor astDumper(pgw);
+            apply_visitor(astDumper, Expr::evalTo<Expr::AST>(titer->guard));
+            //titer->guardAssemble(pgw);
             pgw << "</transition>" << std::endl;
           } else {
             pgw << "<transition nextState=\"FIXME!!!\"/>" << std::endl;

@@ -78,8 +78,8 @@ public:
   inline
   Expr::Detail::ActivationStatus getStatus() const;
 
-  void guardAssemble( smoc_modes::PGWriter &pgw ) const
-    { Expr::evalTo<Expr::AST>(guard)->assemble(pgw); }
+//void guardAssemble( smoc_modes::PGWriter &pgw ) const
+//  { Expr::evalTo<Expr::AST>(guard)->assemble(pgw); }
 };
 
 inline

@@ -44,7 +44,8 @@
 
 namespace SysteMoC { namespace ActivationPattern {
 
-// Please always sync this with DASTNodeType[] in smoc_ast_common.cpp
+// WARNING: Always sync this with DASTNodeType[] in smoc_ast_common.cpp
+//          and apply_visitor at the end of this file !!!
 typedef enum {
   _ASTNodeTypeMagicBase = 0x51FDA, ///< Magic constant
   ASTNodeTypeVar = _ASTNodeTypeMagicBase,
@@ -95,8 +96,6 @@ public:
 
   const TypeIdentifier &getValueType() const { return valueType; }
   const ASTNodeType    &getNodeType() const  { return nodeType; }
-  virtual std::string   getNodeParam() const                      = 0;
-  virtual void          assemble(smoc_modes::PGWriter &pgw) const = 0;
 };
 
 typedef boost::intrusive_ptr<ASTNode> PASTNode;
@@ -111,8 +110,6 @@ public:
       const ASTNodeType     &nodeType,
       const TypeIdentifier  &valueType)
     : ASTNode(nodeType, valueType) {}
-
-  void assemble(smoc_modes::PGWriter &pgw) const;
 };
 
 typedef boost::intrusive_ptr<ASTLeafNode> PASTLeafNode;
@@ -132,8 +129,6 @@ public:
     { return l; }
   const PASTNode &getRightNode() const
     { return r; }
-
-  void assemble(smoc_modes::PGWriter &pgw) const;
 };
 
 typedef boost::intrusive_ptr<ASTInternalBinNode> PASTInternalBinNode;
@@ -150,8 +145,6 @@ public:
 
   PASTNode getChildNode() const
     { return c; }
-
-  void assemble(smoc_modes::PGWriter &pgw) const;
 };
 
 typedef boost::intrusive_ptr<ASTInternalUnNode> PASTInternalUnNode;
@@ -345,7 +338,7 @@ public:
  * an enum which represents the operation.
  */
 
-// Please always sync this with DOpBin[] in smoc_ast_common.cpp
+// WARNING: Always sync this with DOpBin[] in smoc_ast_common.cpp !!!
 typedef enum {
   DOpBinAdd, DOpBinSub, DOpBinMultiply, DOpBinDivide,
   DOpBinEq, DOpBinNe, DOpBinLt, DOpBinLe, DOpBinGt, DOpBinGe,
@@ -394,7 +387,7 @@ public:
  * an enum which represents the operation.
  */
 
-// Please always sync this with DOpUn[] in smoc_ast_common.cpp
+// WARNING: always sync this with DOpUn[] in smoc_ast_common.cpp !!!
 typedef enum {
   DOpUnLNot,
   DOpUnBNot,
@@ -458,13 +451,36 @@ public:
 
 template <class V> // V is the visitor type
 typename V::result_type apply_visitor(V &v, PASTNode pASTNode) {
-//if (
-
-
-
+  // Handle all enums values defined in _ASTNodeType
+  switch (pASTNode->getNodeType()) {
+    case ASTNodeTypeVar:
+      return v(reinterpret_cast<ASTNodeVar &>(*pASTNode));
+    case ASTNodeTypeLiteral:
+      return v(reinterpret_cast<ASTNodeLiteral &>(*pASTNode));
+    case ASTNodeTypeProc:
+      return v(reinterpret_cast<ASTNodeProc &>(*pASTNode));
+    case ASTNodeTypeMemProc:
+      return v(reinterpret_cast<ASTNodeMemProc &>(*pASTNode));
+    case ASTNodeTypeMemGuard:
+      return v(reinterpret_cast<ASTNodeMemGuard &>(*pASTNode));
+    case ASTNodeTypeToken:
+      return v(reinterpret_cast<ASTNodeToken &>(*pASTNode));
+    case ASTNodeTypePortTokens:
+      return v(reinterpret_cast<ASTNodePortTokens &>(*pASTNode));
+    case ASTNodeTypeSMOCEvent:
+      return v(reinterpret_cast<ASTNodeSMOCEvent &>(*pASTNode));
+    case ASTNodeTypePortIteration:
+      return v(reinterpret_cast<ASTNodePortIteration &>(*pASTNode));
+    case ASTNodeTypeBinOp:
+      return v(reinterpret_cast<ASTNodeBinOp &>(*pASTNode));
+    case ASTNodeTypeUnOp:
+      return v(reinterpret_cast<ASTNodeUnOp &>(*pASTNode));
+    case ASTNodeTypeComm:
+      return v(reinterpret_cast<ASTNodeComm &>(*pASTNode));
+    default:
+      assert(!"Never Reached");
+  }
 }
-
-
 
 } } // namespace SysteMoC::ActivationPattern
 
