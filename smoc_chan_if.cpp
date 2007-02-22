@@ -141,8 +141,9 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
 
 void smoc_multicast_chan::finalise() {
   smoc_root_chan::finalise();
-  assert(getInputPorts().size() == 1);
-  assert(getOutputPorts().size() >= 1);
+  //FIXME (MS)
+  //assert(getInputPorts().size() == 1);
+  //assert(getOutputPorts().size() >= 1);
 
   /*  FIXME (MS)
   assert(dynamic_cast<sc_module *>(portIn->get_parent()) != NULL);
