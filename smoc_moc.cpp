@@ -489,7 +489,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     assert(!bottom);
     assert(nonStrict.empty());
 
-    cerr << "FIXPOINT FIXPOINT FIXPOINT FIXPOINT FIXPOINT FIXPOINT" << endl;
+    //cerr << "FIXPOINT FIXPOINT FIXPOINT FIXPOINT FIXPOINT FIXPOINT" << endl;
     //fixpoint reached
 
     //tick all ns transitions
