@@ -191,11 +191,6 @@ public:
     return actualValue;
   }
 
-  void addPort(smoc_root_port_in *in) {
-    assert(this->_base);
-    return this->_base->addPort(in);
-  }
-
   // bounce functions
   size_t numAvailable() const
     { return this->usedStorage(); }
@@ -266,9 +261,7 @@ public:
   const return_type operator[](size_t n) const{
     return actualValue;
   }
-  void addPort(smoc_root_port_out *out) {
-    return this->_base->addPort(out);
-  }
+
   size_t numFree() const
     { return this->unusedStorage(); }
   smoc_event &spaceAvailableEvent(size_t n)
