@@ -458,14 +458,14 @@ protected:
 #endif
   }
 
-  ring_in_type * getWriteChannelAccess() {
+  ring_in_type * getReadChannelAccess() {
     ring_access_in_type *r = new ring_access_in_type();
     r->storage     = storage;
     r->storageSize = this->fsize;
     r->offset      = &this->rindex;
     return r;
   }
-  ring_out_type * getReadChannelAccess() {
+  ring_out_type * getWriteChannelAccess() {
     ring_access_out_type *r = new ring_access_out_type();
     r->storage     = storage;
     r->storageSize = this->fsize;
@@ -537,11 +537,11 @@ protected:
 #endif
   }
  
-  ring_in_type  * getWriteChannelAccess()  {
+  ring_in_type  * getReadChannelAccess()  {
     ring_access_in_type *r = new ring_access_in_type();
     return r;
   }
-  ring_out_type * getReadChannelAccess() {
+  ring_out_type * getWriteChannelAccess() {
     ring_access_out_type *r = new ring_access_out_type();
     return r;
   }
