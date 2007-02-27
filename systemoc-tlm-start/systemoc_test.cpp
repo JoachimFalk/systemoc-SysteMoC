@@ -12,6 +12,8 @@
 
 #include "debug_on.h"
 
+#include "tlm.h"
+
 
 enum e_colors {
   C_BLUE,
@@ -19,52 +21,15 @@ enum e_colors {
 };
 
 
-#if 0
 /******************************************************************************
  *
  *
  */
-template<class C>
-class ChannelInAccess :
-  public smoc_channel_access<const smoc_storage<C>, const C&>
+template<typename T>
+class smoc_port_in_storage_write_if
 {
 public:
-  typedef C                                           data_type;
-  typedef smoc_channel_access<const smoc_storage<C>,
-                              const C&>               this_type;
-  typedef typename
-    smoc_channel_access<const smoc_storage<C>,
-                        const C&>::return_type        return_type;
-
-  // implement obsolete function because interface demands it...
-  void setLimit(size_t l) {}
-
-  //
-  return_type operator[](size_t n)
-  {
-    DBG_SC_OUT("ChannelInAccess::operator[]: n = " << n << std::endl);
-    assert(n == 0);
-    return m_storage;
-  }
-  
-  //
-  const return_type operator[](size_t n) const
-  {
-    assert(0);
-  }
-
-  //
-  bool isValid(size_t i) { return true; }
-
-  //
-  void setData(C c) { m_storage = c; }
-
-  //
-  C getData(void) const { return m_storage; }
-  
-
-private:
-  smoc_storage<C> m_storage;
+  virtual void setPos(size_t n, const T& t) = 0;
 };
 
 
@@ -72,49 +37,170 @@ private:
  *
  *
  */
-template<class C>
-class ChannelOutAccess :
-  public smoc_channel_access<smoc_storage<C>, smoc_storage_wom<C> >
+template<typename T>
+class smoc_port_in_storage_read_if
 {
 public:
-  typedef C                                                 data_type;
-  typedef smoc_channel_access<smoc_storage<C>,
-                              smoc_storage_wom<C> >         this_type;
-  typedef typename
-    smoc_channel_access<smoc_storage<C>,
-                        smoc_storage_wom<C> >::return_type  return_type;
+  typedef smoc_channel_access<const smoc_storage<T>,
+                              const T&>               read_access_type;
+  typedef typename read_access_type::return_type      access_return_type;
 
-  // implement obsolete function because interface demands it...
-  void setLimit(size_t l) {}
+  virtual read_access_type* getReadChannelAccess(void) = 0;
+};
+
+
+/******************************************************************************
+ *
+ *
+ */
+template<typename T>
+class smoc_port_in_storage :
+  public smoc_port_in_storage_read_if<T>,
+  public smoc_port_in_storage_write_if<T>
+{
+public:
+  typedef typename smoc_port_in_storage_read_if<T>::read_access_type
+    read_access_type;
+  typedef typename smoc_port_in_storage_read_if<T>::access_return_type
+    access_return_type;
 
   //
-  return_type operator[](size_t n)
+  smoc_port_in_storage(const size_t size = 1) :
+    m_storage_vec(size),
+    m_read_access_wrapper(m_storage_vec)
+  {}
+
+  // smoc_port_in_storage_read_if
+  read_access_type* getReadChannelAccess(void)
   {
-    DBG_SC_OUT("ChannelOutAccess::operator[]: n = " << n << std::endl);
-    assert(n == 0);
-    return m_storage;
-  }
-  
-  //
-  const return_type operator[](size_t n) const
-  {
-    assert(0);
+    return &m_read_access_wrapper;
   }
 
-  //
-  bool isValid(size_t i)
+  // smoc_port_in_storage_write_if
+  void setPos(size_t n, const T& t)
   {
-    assert(i == 0);
-    return m_storage.isValid();
+    // FIXME
+    m_storage_vec[n] = t;
   }
-
-  //
-  C getData(void) const { return m_storage; }
 
 private:
-  smoc_storage<C> m_storage;
+  /*
+   * wraps our storage
+   */
+  class read_access_wrapper :
+    public read_access_type
+  {
+  public:
+    read_access_wrapper(std::vector<smoc_storage<T> > &storage) :
+      m_storage_vec(storage)
+    {}
+
+    // FIXME: set limit and assert in operator[]
+    void setLimit(size_t l) {} 
+
+    const access_return_type operator[](size_t n) const
+    {
+      assert(n < m_storage_vec.size());
+      return m_storage_vec[n];
+    }
+
+    access_return_type operator[](size_t n)
+    {
+      assert(n < m_storage_vec.size());
+      return m_storage_vec[n];
+    }
+    
+    bool tokenIsValid(size_t n)
+    {
+      assert(n < m_storage_vec.size());
+      return m_storage_vec[n].isValid();
+    }
+
+  private:
+    std::vector<smoc_storage<T> > &m_storage_vec;
+  };
+
+  // local storage
+  std::vector<smoc_storage<T> >  m_storage_vec;
+  // and its wrapper object
+  read_access_wrapper            m_read_access_wrapper;
 };
+
+
+/******************************************************************************
+ * part of smoc_chan_in_if which every adapter has to implement
+ *
+ */
+template<typename T>
+class PortInAdapterIf
+{
+public:
+  virtual size_t numAvailable() const = 0;
+  virtual smoc_event &dataAvailableEvent(size_t n) = 0;
+#ifdef ENABLE_SYSTEMC_VPC
+  virtual void commitRead(size_t consume, const smoc_ref_event_p &) = 0;
+#else
+  virtual void commitRead(size_t consume) = 0;
 #endif
+};
+
+
+/******************************************************************************
+ * this plug basically wraps smoc_chan_in_if functions to two objects.
+ *
+ */
+template<typename T>
+class SmocPortInPlug :
+  public smoc_chan_in_if<T, smoc_channel_access>
+{
+public:
+  typedef SmocPortInPlug<T>                   this_type;
+  typedef typename this_type::access_in_type  access_in_type;
+
+  // constructor
+  SmocPortInPlug(smoc_port_in_storage_read_if<T> &storage,
+                 PortInAdapterIf<T> &parent_adapter) :
+    m_storage(storage),
+    m_parent_adapter(parent_adapter)
+  {}
+
+  //
+  size_t numAvailable(void) const
+  {
+    DBG_SC_OUT("SmocPortInPlug::numAvailable():\n");
+    return m_parent_adapter.numAvailable();
+  }
+
+  //
+  smoc_event &dataAvailableEvent(size_t n)
+  {
+    DBG_SC_OUT("SmocPortInPlug::dataAvailableEvent():\n");
+    return m_parent_adapter.dataAvailableEvent(n);
+  }
+
+  //
+  access_in_type *getReadChannelAccess(void)
+  {
+    DBG_SC_OUT("SmocPortInPlug::getReadChannelAccess():\n");
+    return m_storage.getReadChannelAccess();
+  }
+
+  //
+  void commitRead(size_t consume)
+  {
+    DBG_SC_OUT("SmocPortInPlug::commtRead(): got " << consume
+               << " data.\n");
+    assert(consume == 1);
+    m_parent_adapter.commitRead(consume);
+  }
+  
+private:
+  //
+  const sc_event& default_event() const { return smoc_default_event_abort(); };
+
+  smoc_port_in_storage_read_if<T>  &m_storage;
+  PortInAdapterIf<T>               &m_parent_adapter;
+};
 
 
 /******************************************************************************
@@ -122,135 +208,95 @@ private:
  * Adapter sc_fifo -> smoc_port_in
  */
 template<typename T>
-class InPortAdapter :
-  public smoc_chan_in_if<T, smoc_channel_access>,
-  public smoc_channel_access<const smoc_storage<T>, const T&>,
+class PortInToFifoAdapter :
+  public PortInAdapterIf<T>,
   public sc_module
 {
 public:
-  typedef InPortAdapter<T>                      this_type;
-  typedef typename this_type::access_in_type    access_in_type;
-  typedef typename access_in_type::return_type  return_type;
+  SC_HAS_PROCESS(PortInToFifoAdapter);
 
-  // connect sc_fifo to this port
   sc_fifo_in<T> fifo_in;
 
   //
-  InPortAdapter(sc_module_name name) :
+  PortInToFifoAdapter(sc_module_name name, size_t n = 1) :
     sc_module(name),
-    m_read_new_data(true)
-  {
-    SC_HAS_PROCESS(InPortAdapter);
-    SC_THREAD(process);
-  }
+    m_read_new_data(true),
+    m_storage(n),
+    m_smoc_port_in_plug(m_storage, *this)
+  {}
+
+  //
+  SmocPortInPlug<T> &get_smoc_port_in_plug() { return m_smoc_port_in_plug; }
 
   /*
-   * smoc_chan_in_if implementation
+   * PortInAdapterIf
    */
   //
-  size_t numAvailable() const
+  size_t numAvailable(void) const
   {
-    DBG_SC_OUT("committedOutCount():\n");
-    if (fifo_in.num_available() > 0)
-      return 1;
-    else
-      return 0;
+    // FIXME
+    return fifo_in.num_available() + 1;
   }
 
   //
   smoc_event &dataAvailableEvent(size_t n)
   {
-    DBG_SC_OUT("blockEventOut():\n");
+    DBG_SC_OUT("PortInAdapter::dataAvailableEvent():\n");
     assert(n == 1);
-    return event_data_available;
-  }
-
-  //
-  access_in_type *getWriteChannelAccess(void)
-  {
-    DBG_SC_OUT("accessSetupIn():\n");
-    return this;
-  }
-
-  //
-  void commitRead(size_t consume)
-  {
-    DBG_SC_OUT("OutAdapter::commExecIn(): read " << consume << " data.\n");
-    DBG_DOBJ(fifo_in.num_available());
-
-    assert(consume == 1);
-
-    // reset data available event if fifo is empty
-    if (fifo_in.num_available() == 0)
-      event_data_available.reset();
-
-    m_read_new_data = true;
-  }
-
-  /*
-   * smoc_channel_access implementation
-   */
-  // implement obsolete function because interface demands it...
-  void setLimit(size_t l) {}
-
-  //
-  return_type operator[](size_t n)
-  {
-    DBG_SC_OUT("ChannelInAccess::operator[]: n = " << n << std::endl);
-    assert(n == 0);
-
-    // guard read access to allow multiple reading the same value
-    if (m_read_new_data) {
-      m_storage = fifo_in.read();
-      m_read_new_data = false;
-    }
-    return m_storage;
+    return m_event_data_available;
   }
   
   //
-  const return_type operator[](size_t n) const
+  void commitRead(size_t consume)
   {
-    assert(0);
+    DBG_SC_OUT("PortInAdapter::commitRead(): consumed " << consume
+               << " data.\n");
+
+    assert(consume == 1);
+
+    // TODO: invalidate data
+
+    if (fifo_in.num_available() == 0)
+      m_event_data_available.reset();
+
+    m_read_new_data = true;
+    check_fifo_data_method();
   }
-
-  //
-  bool tokenIsValid(size_t i)
-  {
-    DBG_SC_OUT("InPortAdapter::isValid(): i == " << i << std::endl);
-    assert(i == 0);
-    return true;
-  }
-
-  /*
-   * module implementation
-   */
-  //
-  void setData(T t) { m_storage = t; }
-
-  //
-  T getData(void) const { return m_storage; }
-
+  
 private:
-  // smoc_chan_in_if interface
-  const sc_event& default_event() const { return smoc_default_event_abort(); };
+  //
+  void end_of_elaboration(void)
+  {
+    SC_METHOD(check_fifo_data_method);
+    sensitive << fifo_in.data_written_event();
+  }
 
   //
-  void process(void)
+  void check_fifo_data_method(void)
   {
-    while (1) {
-      if (fifo_in.num_available() == 0)
-        wait(fifo_in.data_written_event());
-
-      //DBG_SC_OUT("InAdapter::process(): Data: "
-      //           << getData() << std::endl);
-      event_data_available.notify();
-      wait(1, SC_PS);
+    if ((fifo_in.num_available() > 0) && m_read_new_data) {
+      m_storage.setPos(0, fifo_in.read());
+      m_read_new_data = false;
+      m_event_data_available.notify();
     }
   }
 
-  smoc_event event_data_available;
-  smoc_storage<T> m_storage;
-  bool m_read_new_data;
+  bool                     m_read_new_data;
+  smoc_event               m_event_data_available;
+  smoc_port_in_storage<T>  m_storage;
+  SmocPortInPlug<T>        m_smoc_port_in_plug;
+};
+
+ 
+/******************************************************************************
+ *
+ *
+ */
+template<typename T>
+class smoc_port_out_storage_read_if
+{
+public:
+  virtual const T& operator[](size_t n) const = 0;
 };
 
 
@@ -259,129 +305,247 @@ private:
  *
  */
 template<typename T>
-class OutPortAdapter :
-  public smoc_chan_out_if<T, smoc_channel_access>,
-  public smoc_channel_access<smoc_storage<T>, smoc_storage_wom<T> >,
-  public sc_module
+class smoc_port_out_storage_write_if
 {
 public:
-  typedef OutPortAdapter<T>                      this_type;
-  typedef typename this_type::access_out_type    access_out_type;
-  typedef typename access_out_type::return_type  return_type;
+  typedef smoc_channel_access<smoc_storage<T>,
+                              smoc_storage_wom<T> >  write_access_type;
+  typedef typename write_access_type::return_type    access_return_type;
 
-  // connect sc_fifo to this port
-  sc_fifo_out<T> fifo_out;
+  virtual write_access_type* getWriteChannelAccess(void) = 0;
+};
+
+
+/******************************************************************************
+ *
+ *
+ */
+template<typename T>
+class smoc_port_out_storage :
+  public smoc_port_out_storage_read_if<T>,
+  public smoc_port_out_storage_write_if<T>
+{
+public:
+  typedef typename smoc_port_out_storage_write_if<T>::write_access_type
+    write_access_type;
+  typedef typename smoc_port_out_storage_write_if<T>::access_return_type
+    access_return_type;
 
   //
-  OutPortAdapter(sc_module_name name) :
-    sc_module(name)
+  smoc_port_out_storage(const size_t size = 1) :
+    m_storage_vec(size),
+    m_write_access_wrapper(m_storage_vec)
+  {}
+
+  // smoc_port_out_storage_write_if
+  write_access_type* getWriteChannelAccess(void)
   {
-    SC_HAS_PROCESS(OutPortAdapter);
-    SC_THREAD(process);
+    return &m_write_access_wrapper;
   }
 
-  /*
-   * smoc_chan_out_if implementation
-   */
-  // what does committedInCount mean? FIFO returns unusedStorage.
-  //
-  size_t numFree() const
+  // smoc_port_out_storage_read_if
+  const T& operator[](size_t n) const
   {
-    DBG_SC_OUT("committedInCount():\n");
-    return fifo_out.num_free();
+    assert(m_storage_vec[n].isValid());
+    return m_storage_vec[n];
+  }
+
+private:
+  /*
+   * wraps our storage
+   */
+  class write_access_wrapper :
+    public write_access_type
+  {
+  public:
+    write_access_wrapper(std::vector<smoc_storage<T> > &storage) :
+      m_storage_vec(storage)
+    {}
+
+    // FIXME: set limit and assert in operator[]
+    void setLimit(size_t l) {} 
+
+    const access_return_type operator[](size_t n) const
+    {
+      assert(n < m_storage_vec.size());
+      return m_storage_vec[n];
+    }
+
+    access_return_type operator[](size_t n)
+    {
+      assert(n < m_storage_vec.size());
+      return m_storage_vec[n];
+    }
+    
+    bool tokenIsValid(size_t n)
+    {
+      assert(n < m_storage_vec.size());
+      return m_storage_vec[n].isValid();
+    }
+
+  private:
+    std::vector<smoc_storage<T> > &m_storage_vec;
+  };
+
+  // local storage
+  std::vector<smoc_storage<T> >  m_storage_vec;
+  // and its wrapper object
+  write_access_wrapper           m_write_access_wrapper;
+};
+
+
+/******************************************************************************
+ * part of smoc_chan_out_if which every adapter has to implement
+ *
+ */
+template<typename T>
+class PortOutAdapterIf
+{
+public:
+  virtual size_t numFree(void) const = 0;
+  virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
+#ifdef ENABLE_SYSTEMC_VPC
+  virtual void commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
+#else
+  virtual void commitWrite(size_t produce) = 0;
+#endif
+};
+
+
+/******************************************************************************
+ * this plug basically wraps smoc_chan_out_if functions to two objects.
+ *
+ */
+template<typename T>
+class SmocPortOutPlug :
+  public smoc_chan_out_if<T, smoc_channel_access>
+{
+public:
+  typedef SmocPortOutPlug<T>                   this_type;
+  typedef typename this_type::access_out_type  access_out_type;
+
+  // constructor
+  SmocPortOutPlug(smoc_port_out_storage_write_if<T> &storage,
+                  PortOutAdapterIf<T> &parent_adapter) :
+    m_storage(storage),
+    m_parent_adapter(parent_adapter)
+  {}
+
+  //
+  size_t numFree(void) const
+  {
+    DBG_SC_OUT("SmocPortOutPlug::numFree():\n");
+    return m_parent_adapter.numFree();
   }
 
   //
   smoc_event &spaceAvailableEvent(size_t n)
   {
-    DBG_SC_OUT("blockEventIn():\n");
-    assert(n == 1);
-    return event_space_available;
+    DBG_SC_OUT("SmocPortOutPlug::spaceAvailableEvent():\n");
+    return m_parent_adapter.spaceAvailableEvent(n);
   }
 
   //
-  access_out_type *getReadChannelAccess(void)
+  access_out_type *getWriteChannelAccess(void)
   {
-    DBG_SC_OUT("accessSetupOut():\n");
-    return this;
+    DBG_SC_OUT("SmocPortOutPlug::getWriteChannelAccess():\n");
+    return m_storage.getWriteChannelAccess();
   }
 
   //
   void commitWrite(size_t produce)
   {
-    DBG_SC_OUT("OutAdapter::commExecOut(): got " << produce << " data.\n");
-
+    DBG_SC_OUT("SmocPortOutPlug::commitWrite(): got " << produce
+               << " data.\n");
     assert(produce == 1);
-    assert(fifo_out.num_free() > 0);
-
-    fifo_out.write(m_storage);
-
-    if (fifo_out.num_free() == 0)
-      event_space_available.reset();
-  }
-
-  /*
-   * smoc_channel_access implementation
-   */
-  // implement obsolete function because interface demands it...
-  void setLimit(size_t l) {}
-
-  //
-  return_type operator[](size_t n)
-  {
-    DBG_SC_OUT("ChannelOutAccess::operator[]: n = " << n << std::endl);
-    assert(n == 0);
-
-    return m_storage;
+    m_parent_adapter.commitWrite(produce);
   }
   
-  //
-  const return_type operator[](size_t n) const
-  {
-    assert(0);
-  }
-
-  //
-  bool tokenIsValid(size_t i)
-  {
-    DBG_SC_OUT("OutPortAdapter::isValid(): i == " << i << std::endl);
-    assert(i == 0);
-    return true;
-  }
-  
-  /*
-   * module implementation
-   */
-  //
-  T getData(void) const { return m_storage; }
-
 private:
   //
   const sc_event& default_event() const { return smoc_default_event_abort(); };
 
-  //
-  void process(void)
-  {
-    while (1) {
-      /*if (isValid(0))
-        DBG_SC_OUT("OutAdapter::process(): Data: "
-                   << getData() << std::endl);
-      else
-        DBG_SC_OUT("OutAdapter::process(): Data not valid.\n");
-      */
-
-      if (fifo_out.num_free() == 0)
-        wait(fifo_out.data_read_event());
-
-      event_space_available.notify();
-      wait(1, SC_PS);
-    }
-  }
-
-  smoc_event event_space_available;
-  smoc_storage<T> m_storage;
+  smoc_port_out_storage_write_if<T>  &m_storage;
+  PortOutAdapterIf<T>                &m_parent_adapter;
 };
 
+
+/******************************************************************************
+ *
+ *
+ */
+template<typename T>
+class PortOutToFifoAdapter :
+  public PortOutAdapterIf<T>,
+  public sc_module
+{
+public:
+  SC_HAS_PROCESS(PortOutToFifoAdapter);
+
+  sc_fifo_out<T> fifo_out;
+
+  //
+  PortOutToFifoAdapter(sc_module_name name, size_t n = 1) :
+    sc_module(name),
+    m_storage(n),
+    m_smoc_port_out_plug(m_storage, *this)
+  {}
+
+  //
+  SmocPortOutPlug<T> &get_smoc_port_out_plug() { return m_smoc_port_out_plug; }
+
+  /*
+   * PortOutAdapterIf
+   */
+  //
+  size_t numFree() const { return fifo_out.num_free();; }
+
+  //
+  smoc_event &spaceAvailableEvent(size_t n)
+  {
+    DBG_SC_OUT("PortOutAdapter::spaceAvailableEvent():\n");
+    assert(n == 1);
+    return m_event_space_available;
+  }
+
+  //
+  void commitWrite(size_t produce)
+  {
+    DBG_SC_OUT("OutAdapter::commitWrite(): got " << produce << " data.\n");
+
+    assert(produce == 1);
+    assert(fifo_out.num_free() >= (int)produce);
+
+    fifo_out.write(m_storage[0]);
+    wait(1, SC_PS);
+
+    if (fifo_out.num_free() == 0)
+      m_event_space_available.reset();
+  }
+
+private:
+  //
+  void end_of_elaboration(void)
+  {
+    if (fifo_out.num_free() > 0)
+      m_event_space_available.notify();
+
+    SC_METHOD(check_fifo_space_method);
+    sensitive << fifo_out.data_read_event();
+  }
+
+  //
+  void check_fifo_space_method(void)
+  {
+    assert(fifo_out.num_free() > 0); 
+    m_event_space_available.notify();
+  }
+
+  smoc_event                m_event_space_available;
+  smoc_port_out_storage<T>  m_storage;
+  SmocPortOutPlug<T>        m_smoc_port_out_plug;
+};
+ 
 
 /******************************************************************************
  *
@@ -414,7 +578,7 @@ private:
 
   void func_a1(void)
   {
-    DBG_SC_OUT("A1: func_a1()\n");
+    DBG_SC_OUT("A1::func_a1(): read " << in1[0] << std::endl);
     out1[0] = in1[0];
     out2[0] = in1[0];
   }
@@ -453,6 +617,7 @@ private:
   void func_a1(void)
   {
     const int i = in1[0] + in2[0];
+    DBG_SC_OUT("A2::func_a1(): read " << in1[0] << " " << in2[0] << std::endl);
     DBG_SC_OUT("A2::func_a1(): write " << i << std::endl);
     out1[0] = i;
   }
@@ -478,21 +643,23 @@ public:
     outAdapter("outAdapter"),
     inAdapter("inAdapter")
   {
+    // connect intern SysteMoC channels
     connectNodePorts(a1.out1, a2.in1, smoc_fifo<int>(8) << 42);
     connectNodePorts(a2.out1, a1.in1, smoc_fifo<int>(8));
-    connectChanPort(outAdapter, a1.out2);
-    connectChanPort(inAdapter, a2.in2);
 
+    // connect adapter to SysteMoC ports still unbound
+    connectChanPort(outAdapter.get_smoc_port_out_plug(), a1.out2);
+    connectChanPort(inAdapter.get_smoc_port_in_plug(), a2.in2);
+
+    // bind adapter to this module's ports
     outAdapter.fifo_out.bind(outAdapter_out);
     inAdapter.fifo_in.bind(inAdapter_in);
   }
 private:
   A1 a1;
   A2 a2;
-  OutPortAdapter<int> outAdapter;
-  InPortAdapter<int>  inAdapter;
-
-public:
+  PortOutToFifoAdapter<int> outAdapter;
+  PortInToFifoAdapter<int>  inAdapter;
 };
 
 
@@ -544,3 +711,5 @@ int sc_main (int argc, char **argv)
 #endif  
   return 0;
 }
+
+
