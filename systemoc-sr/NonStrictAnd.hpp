@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <smoc_port.hpp>
+#include <systemoc/smoc_port.hpp>
 
 template<typename T>
 class NonStrictAnd: public smoc_actor {

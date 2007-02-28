@@ -35,11 +35,11 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <smoc_moc.hpp>
-#include <smoc_port.hpp>
-#include <smoc_fifo.hpp>
-#include <smoc_node_types.hpp>
-#include <smoc_event.hpp>
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_node_types.hpp>
+#include <systemoc/smoc_event.hpp>
 
 smoc_event timeout;
 

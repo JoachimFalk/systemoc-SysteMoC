@@ -1,4 +1,4 @@
-#include <smoc_moc.hpp>
+#include <systemoc/smoc_moc.hpp>
 
 //ADeVA Lib ??
 template<typename T>

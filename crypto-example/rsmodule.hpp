@@ -37,10 +37,10 @@
 
 #include <string>
 
-#include <smoc_moc.hpp>
-#include <smoc_port.hpp>
-#include <smoc_fifo.hpp>
-#include <smoc_node_types.hpp>
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
 #include "cryptoalgorithm.hpp"
 #include "examplenetworkpacket.hpp"

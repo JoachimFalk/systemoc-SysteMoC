@@ -1,4 +1,4 @@
-#include <smoc_event.hpp>
+#include <systemoc/smoc_event.hpp>
 
 #define IN_ID106005 "IN"
 #define C_IN_RF_ID106026 "C_IN_RF"

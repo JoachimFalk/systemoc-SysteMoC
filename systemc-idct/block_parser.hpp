@@ -35,16 +35,16 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <smoc_moc.hpp>
-#include <smoc_port.hpp>
-#include <smoc_fifo.hpp>
-#include <smoc_node_types.hpp>
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
 #define MAX_WIDTH			(  720 )
 #define MB_WIDTH			(   16 )
 
 #ifndef __SCFE__
-# include <smoc_pggen.hpp>
+# include <systemoc/smoc_pggen.hpp>
 #endif
 
 #include <callib.hpp>

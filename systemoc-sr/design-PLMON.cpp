@@ -1,5 +1,5 @@
-#include <smoc_moc.hpp>
-#include <smoc_sr_signal.hpp>
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_sr_signal.hpp>
 
 #include <adeva_lib.hpp>
 

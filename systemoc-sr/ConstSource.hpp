@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <smoc_moc.hpp>
+#include <systemoc/smoc_moc.hpp>
 
 template<typename T>
 class ConstSource: public smoc_actor {

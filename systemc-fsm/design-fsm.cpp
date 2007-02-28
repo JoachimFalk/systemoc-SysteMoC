@@ -33,7 +33,7 @@
  */
 
 #include <systemc.h>
-#include <smoc_sr.hpp>
+#include <systemoc/smoc_sr.hpp>
 #include <cstdlib>
 #include <iostream>
 

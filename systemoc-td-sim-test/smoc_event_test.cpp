@@ -33,7 +33,7 @@
  */
 
 #include <systemc.h>
-#include <smoc_event.hpp>
+#include <systemoc/smoc_event.hpp>
 
 
 class B: public sc_module{

@@ -35,8 +35,8 @@
 #ifndef CHANNEL_HPP_
 #define CHANNEL_HPP_
 
-#include <smoc_fifo.hpp>
-#include <smoc_node_types.hpp>
+#include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_node_types.hpp>
 #include "ioactor.hpp"
 
 /**

@@ -3,8 +3,8 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <smoc_moc.hpp>
-#include <smoc_multicast_sr_signal.hpp>
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_multicast_sr_signal.hpp>
 
 #include "ConstSource.hpp"
 #include "NonStrictAnd.hpp"

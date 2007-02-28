@@ -6,11 +6,11 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <smoc_moc.hpp>
-#include <smoc_port.hpp>
-#include <smoc_node_types.hpp>
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_node_types.hpp>
 #ifndef __SCFE__
-# include <smoc_pggen.hpp>
+# include <systemoc/smoc_pggen.hpp>
 #endif
 
 template <typename T = unsigned char>

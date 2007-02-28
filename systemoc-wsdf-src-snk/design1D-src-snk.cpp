@@ -3,10 +3,10 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <smoc_moc.hpp>
-#include <smoc_node_types.hpp>
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_node_types.hpp>
 #ifndef __SCFE__
-# include <smoc_pggen.hpp>
+# include <systemoc/smoc_pggen.hpp>
 #endif
 
 #include <img_src_1d.hpp>

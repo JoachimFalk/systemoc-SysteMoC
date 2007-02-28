@@ -3,14 +3,14 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <smoc_moc.hpp>
-#include <smoc_md_port.hpp>
-#include <smoc_md_fifo.hpp>
-#include <smoc_fifo.hpp>
-#include <smoc_wsdf_edge.hpp>
-#include <smoc_node_types.hpp>
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_md_port.hpp>
+#include <systemoc/smoc_md_fifo.hpp>
+#include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_wsdf_edge.hpp>
+#include <systemoc/smoc_node_types.hpp>
 #ifndef __SCFE__
-# include <smoc_pggen.hpp>
+# include <systemoc/smoc_pggen.hpp>
 #endif
 
 #include "wsdf_img_src.hpp"

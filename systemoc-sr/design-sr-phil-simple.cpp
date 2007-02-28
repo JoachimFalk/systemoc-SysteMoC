@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <smoc_moc.hpp>
+#include <systemoc/smoc_moc.hpp>
 
 #include <adeva_lib.hpp>
 
