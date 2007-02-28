@@ -12,11 +12,11 @@ AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 
 dnl Checks for programs.
-ACJF_CHECK_CROSSTOOL( CC, gcc)
-ACJF_CHECK_CROSSTOOL( CXX, g++)
-ACJF_CHECK_CROSSTOOL( AR, ar)
-ACJF_CHECK_CROSSTOOL( RANLIB, ranlib)
-ACJF_CHECK_CROSSTOOL( NM, nm)
+ACJF_CHECK_CROSSTOOL(CC, gcc)
+ACJF_CHECK_CROSSTOOL(CXX, g++)
+ACJF_CHECK_CROSSTOOL(AR, ar)
+ACJF_CHECK_CROSSTOOL(RANLIB, ranlib)
+ACJF_CHECK_CROSSTOOL(NM, nm)
 AC_PROG_CXXCPP
 AC_PROG_CPP
 # Checks for programs.
@@ -28,6 +28,35 @@ AC_PROG_CPP
 AM_INIT_AUTOMAKE
 
 ACJF_ARG_DEBUG([yes], [], [-DNDEBUG])
+
+### SystemC-VPC ###
+# --enable-vpc option
+AC_ARG_ENABLE(
+ [vpc],
+ [[  --enable-vpc            enable vpc support for SysteMoC [default=auto]]],
+ [case "$enableval" in
+    yes)  enable_vpc=yes  ;;
+    no)   enable_vpc=no   ;;
+    auto) enable_vpc=auto ;;
+    *)    AC_MSG_ERROR(bad value ${enableval} for --enable-vpc) ;;
+  esac],
+ [enable_vpc=auto #default]
+)
+
+if test -d $srcdir/wsdf; then
+  AC_ARG_ENABLE(
+   [wsdf],
+   [[  --enable-wsdf           Turn on SysteMoC WSDF support [default=yes]]],
+   [case "${enableval}" in
+      yes)  enable_wsdf=yes ;;
+      no)   enable_wsdf=no  ;;
+      *)    AC_MSG_ERROR(bad value ${enableval} for --enable-wsdf) ;;
+    esac],
+   [enable_wsdf=yes #default]
+  )
+else
+  enable_wsdf=no
+fi
 
 AC_CONFIG_HEADER([config.h])
 
@@ -60,59 +89,22 @@ ACJF_CHECK_LIB_SYSTEMC
 ACJF_CHECK_LIB_BOOST
 ACJF_NEED_PKG([Support])
 
-### SystemC-VPC ###
-# --enable-vpc option
-AC_ARG_ENABLE(
-  [vpc],
-  [[  --enable-vpc            enable vpc support for SysteMoC [default=yes]]],
-  [case "$enableval" in
-     yes) enable_vpc=yes ;;
-     no)  enable_vpc=no  ;;
-     *)   enable_vpc=no  ;;
-   esac],
-  [enable_vpc=yes # default]
-)
-
-if test x"$enable_vpc" = x"yes"; then
-  SYSTEMC_VPC_INCLUDE=" \
-    -I\$(top_builddir)/../SystemC-VPC/include \
-    $SYSTEMC_INCLUDE"
-
-  SYSTEMC_VPC_LDFLAGS=" \
-    -L\$(top_builddir)/../SystemC-VPC \
-    -lsystemcvpc \
-    $SYSTEMC_LDFLAGS"
-
-  SYSTEMC_VPC_DEPENDENCIES=" \
-    \$(top_builddir)/../SystemC-VPC/libsystemcvpc.la"
-
-  CPPFLAGS="$CPPFLAGS -DENABLE_SYSTEMC_VPC"
-else
-  SYSTEMC_VPC_INCLUDE=""
-  SYSTEMC_VPC_LDFLAGS=""
-  SYSTEMC_VPC_DEPENDENCIES=""
+SYSTEMC_VPC_DEPENDENCIES=""
+if test x"$enable_vpc" != x"no"; then
+  ACJF_CHECK_PKG([SystemC-VPC], [],
+   [test x"$enable_vpc" = x"yes" && {
+     AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out]) } ])
 fi
-
-AC_SUBST([SYSTEMC_VPC_INCLUDE])
-AC_SUBST([SYSTEMC_VPC_LDFLAGS])
+if test x"$pkg_systemc_vpc_srcdir" != "x"; then
+  CPPFLAGS="$CPPFLAGS -DENABLE_SYSTEMC_VPC"
+  SYSTEMC_VPC_DEPENDENCIES="$pkg_systemc_vpc_builddir/libsystemcvpc.la"
+  AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_VPC_INCLUDE"
+  AM_LDFLAGS="$AM_LDFLAGS $SYSTEMC_VPC_LDFLAGS"
+fi
 AC_SUBST([SYSTEMC_VPC_DEPENDENCIES])
 
-if test -d $srcdir/wsdf; then
-  AC_ARG_ENABLE(
-    [wsdf],
-    [[  --enable-wsdf           Turn on SysteMoC WSDF support [default=yes]]],
-    [case "${enableval}" in
-       yes) enable_wsdf=true ;;
-       no)  enable_wsdf=false ;;
-       *) AC_MSG_ERROR(bad value ${enableval} for --enable-wsdf) ;;
-     esac],
-    [enable_wsdf=true # default]
-  )
-else
-  enable_wsdf=false
-fi
-AM_CONDITIONAL([WSDF], [test x$enable_wsdf = xtrue])
-if test x$enable_wsdf = xtrue; then
+AM_CONDITIONAL([WSDF], [test x"$enable_wsdf" = x"yes"])
+if test x"$enable_wsdf" = x"yes"; then
   AC_DEFINE([SMOC_ENABLE_WSDF], [yes], [Define if you want WSDF Support])
 fi
 
