@@ -87,7 +87,10 @@ AC_EXEEXT
 
 ACJF_CHECK_LIB_SYSTEMC
 ACJF_CHECK_LIB_BOOST
+
 ACJF_NEED_PKG([Support])
+SUPPORT_DEPENDENCIES="$pkg_support_builddir/libcosupport.la"
+AC_SUBST([SUPPORT_DEPENDENCIES])
 
 SYSTEMC_VPC_DEPENDENCIES=""
 if test x"$enable_vpc" != x"no"; then
@@ -95,8 +98,9 @@ if test x"$enable_vpc" != x"no"; then
    [test x"$enable_vpc" = x"yes" && {
      AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out]) } ])
 fi
+AM_CONDITIONAL([ENABLE_SYSTEMC_VPC], [test x"$pkg_systemc_vpc_srcdir" != "x"])
 if test x"$pkg_systemc_vpc_srcdir" != "x"; then
-  CPPFLAGS="$CPPFLAGS -DENABLE_SYSTEMC_VPC"
+  AC_DEFINE([ENABLE_SYSTEMC_VPC], [yes], [Define if you want SystemC-VPC Support])
   SYSTEMC_VPC_DEPENDENCIES="$pkg_systemc_vpc_builddir/libsystemcvpc.la"
   AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_VPC_INCLUDE"
   AM_LDFLAGS="$AM_LDFLAGS $SYSTEMC_VPC_LDFLAGS"

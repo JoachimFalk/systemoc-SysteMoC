@@ -113,9 +113,13 @@ libsystemoc_CH_LTOBJS=				\
 	$(smoc_pggen_hpp_CH_LTOBJS)
 #	$(smoc_op_hpp_CH_LTOBJS)
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined -lsystemc -lcosupport -lstdc++
+if ENABLE_SYSTEMC_VPC
+SYSTEMC_VPC_LIB = -lsystemcvpc
+endif
+
+libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined $(SYSTEMC_VPC_LIB) -lcosupport -lsystemc -lstdc++
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
-libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp @pkg_support_builddir@/libcosupport.la @SYSTEMC_VPC_DEPENDENCIES@
+libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp @SUPPORT_DEPENDENCIES@ @SYSTEMC_VPC_DEPENDENCIES@
 
 libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\
