@@ -363,7 +363,7 @@ private:
   OpBinT op;
 public:
   ASTNodeBinOp(
-      OpBinT op, const TypeIdentifier &valueType,
+      const TypeIdentifier &valueType, OpBinT op,
       const PASTNode &l, const PASTNode &r)
     : ASTInternalBinNode(nodeType, valueType, l, r), op(op) {}
 
@@ -414,8 +414,7 @@ public:
   OpUnT op;
 public:
   ASTNodeUnOp(
-      OpUnT op, const TypeIdentifier &valueType,
-      const PASTNode &c)
+      const TypeIdentifier &valueType, OpUnT op, const PASTNode &c)
     : ASTInternalUnNode(nodeType, valueType, c), op(op) {}
 
   OpUnT getOpType() const;
