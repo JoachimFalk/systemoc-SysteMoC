@@ -52,8 +52,9 @@ private:
   const T* ptr() const
   { return reinterpret_cast<const T*>(mem); }
 public:
-  smoc_storage() : valid(false) {
-  }
+  smoc_storage() : valid(false) {}
+
+  smoc_storage(const T& t) : valid(true) { new(mem) T(t); }
 
   const T& get() const {
     assert(valid);
@@ -79,6 +80,15 @@ public:
 
   const bool isValid() const{
     return valid;
+  }
+
+  // invalidate data (e.g., to avoid reread of commited data)
+  void invalidate()
+  {
+    if(valid) {
+      ptr()->~T();
+      valid = false;
+    }
   }
   
   ~smoc_storage() {

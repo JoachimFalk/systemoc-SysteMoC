@@ -181,8 +181,11 @@ public:
 #endif
 };
 
+// forward
 template <typename T, template <typename, typename> class R, class PARAM_TYPE>
 class smoc_port_in_base;
+
+// forward
 template <typename T, 
           template <typename, typename> class R, 
           class PARAM_TYPE, 
@@ -267,12 +270,11 @@ class smoc_chan_out_if
     virtual public smoc_chan_out_base_if {
 public:
   // typedefs
-            typedef smoc_chan_out_if<T,R,S>      this_type;
-  typedef T          data_type;
-  typedef R<
-    typename S<T>::storage_type,
-    typename S<T>::return_type>  access_type;
-  typedef access_type                           access_out_type;
+  typedef smoc_chan_out_if<T,R,S>        this_type;
+  typedef T                              data_type;
+  typedef R<typename S<T>::storage_type,
+           typename S<T>::return_type>   access_type;
+  typedef access_type                    access_out_type;
   
   virtual size_t      numFree() const = 0;
 //smoc_event    &spaceAvailableEvent(size_t n) { return read_event; }
