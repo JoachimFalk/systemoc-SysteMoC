@@ -36,8 +36,6 @@
 // DO NOT ADD THIS FILE TO THE LIBSYSTEMOC SOURCES AS IT IS INCLUDED BY
 // smoc_ast_systemoc.cpp WHICH DEFINES TYPES TO COMPILE IT IN SYSTEMOC MODE
 
-namespace SysteMoC { namespace ActivationPattern {
-
 static const char *DASTNodeType[] = {
   "Var",                      ///< XML tag for ASTNodeTypeVar
   "Literal",                  ///< XML tag for ASTNodeTypeLiteral
@@ -238,5 +236,3 @@ const PortIdentifier &ASTNodeComm::getPort() const
 
 const PortIdentifier &ASTNodePortIteration::getPort() const
   { return port; }
-
-} } // namespace SysteMoC::ActivationPattern

@@ -40,6 +40,9 @@
 #include <typeinfo>
 #include <sstream>
 
+#include <boost/intrusive_ptr.hpp>
+#include <cosupport/refcount_object.hpp>
+
 namespace smoc_modes {
   class PGWriter;
 }
@@ -111,6 +114,9 @@ public:
     { return type; }
 };
 
+extern TypeIdentifier SMOC_AST_TYPE_SIZE_T;
+extern TypeIdentifier SMOC_AST_TYPE_BOOL;
+
 std::ostream &operator << (std::ostream &o, const TypeIdentifier &type);
 
 class ValueTypeContainer
@@ -144,8 +150,8 @@ public:
       PortIdentifier(port) {}
 };
 
-} } // namespace SysteMoC::ActivationPattern
-
 #include "smoc_ast_common.hpp"
+
+} } // namespace SysteMoC::ActivationPattern
 
 #endif // _INCLUDED_SMOC_AST_SYSTEMOC_HPP

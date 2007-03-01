@@ -35,14 +35,17 @@
 
 #include "smoc_ast_systemoc.hpp"
 
+#include <smoc_pggen.hpp>
+
+namespace SysteMoC { namespace ActivationPattern {
+
 // Common code between SysteMoC and AC-PG-Access. But compiled
 // differently between SysteMoC and AC-PG-Access. For SysteMoC
 // compilation use definitions from smoc_ast_systemoc.hpp
 #include "smoc_ast_common.cpp"
 
-#include <smoc_pggen.hpp>
-
-namespace SysteMoC { namespace ActivationPattern {
+TypeIdentifier SMOC_AST_TYPE_SIZE_T(static_cast<size_t *>(NULL));
+TypeIdentifier SMOC_AST_TYPE_BOOL(static_cast<bool *>(NULL));
 
 std::ostream &operator << (std::ostream &o, const ValueContainer &value)
   { return o << static_cast<const std::string &>(value); }

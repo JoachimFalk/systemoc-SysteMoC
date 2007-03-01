@@ -33,17 +33,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_AST_COMMON_HPP
-#define _INCLUDED_SMOC_AST_COMMON_HPP
-
-#include <string>
-
-#include <boost/intrusive_ptr.hpp>
-
-#include <cosupport/refcount_object.hpp>
-
-namespace SysteMoC { namespace ActivationPattern {
-
 // WARNING: Always sync this with DASTNodeType[] in smoc_ast_common.cpp
 //          and apply_visitor at the end of this file !!!
 typedef enum {
@@ -120,9 +109,9 @@ private:
 public:
   ASTInternalBinNode(
       const ASTNodeType     &nodeType,
+      const TypeIdentifier  &valueType,
       const PASTNode        &l,
-      const PASTNode        &r,
-      const TypeIdentifier  &valueType)
+      const PASTNode        &r)
     : ASTNode(nodeType, valueType), l(l), r(r) {}
 
   const PASTNode &getLeftNode() const
@@ -139,8 +128,8 @@ private:
 public:
   ASTInternalUnNode(
       const ASTNodeType     &nodeType,
-      const PASTNode        &c,
-      const TypeIdentifier  &valueType)
+      const TypeIdentifier  &valueType,
+      const PASTNode        &c)
     : ASTNode(nodeType, valueType), c(c) {}
 
   PASTNode getChildNode() const
@@ -291,7 +280,7 @@ private:
   PortIdentifier port;
 public:
   ASTNodePortTokens(const PortIdentifier &port)
-    : ASTLeafNode(nodeType, static_cast<size_t*>(NULL)),
+    : ASTLeafNode(nodeType, SMOC_AST_TYPE_SIZE_T),
       port(port) {}
  
   const PortIdentifier &getPort() const;
@@ -309,7 +298,7 @@ public:
 private:
 public:
   ASTNodeSMOCEvent()
-    : ASTLeafNode(nodeType, static_cast<bool*>(NULL)) {}
+    : ASTLeafNode(nodeType, SMOC_AST_TYPE_BOOL) {}
 
   std::string getNodeParam() const;
 };
@@ -325,7 +314,7 @@ private:
   PortIdentifier port;
 public:
   ASTNodePortIteration(const PortIdentifier &port)
-    : ASTLeafNode(nodeType, static_cast<size_t*>(NULL)),
+    : ASTLeafNode(nodeType, SMOC_AST_TYPE_SIZE_T),
       port(port) {}
 
   const PortIdentifier &getPort() const;
@@ -373,9 +362,10 @@ public:
 private:
   OpBinT op;
 public:
-  template <typename T>
-  ASTNodeBinOp(OpBinT op, const PASTNode &l, const PASTNode &r, T *)
-    : ASTInternalBinNode(nodeType, l,r,static_cast<T*>(NULL)), op(op) {}
+  ASTNodeBinOp(
+      OpBinT op, const TypeIdentifier &valueType,
+      const PASTNode &l, const PASTNode &r)
+    : ASTInternalBinNode(nodeType, valueType, l, r), op(op) {}
 
   OpBinT getOpType() const;
   std::string getNodeParam() const;
@@ -423,9 +413,10 @@ public:
 public:
   OpUnT op;
 public:
-  template <typename T>
-  ASTNodeUnOp(OpUnT op, const PASTNode &c, T*)
-    : ASTInternalUnNode(nodeType, c, static_cast<T*>(NULL)), op(op) {}
+  ASTNodeUnOp(
+      OpUnT op, const TypeIdentifier &valueType,
+      const PASTNode &c)
+    : ASTInternalUnNode(nodeType, valueType, c), op(op) {}
 
   OpUnT getOpType() const;
   std::string getNodeParam() const;
@@ -442,7 +433,7 @@ private:
   PortIdentifier port;
 public:
   ASTNodeComm(const PortIdentifier &port, const PASTNode &c)
-    : ASTInternalUnNode(nodeType, c, static_cast<bool *>(NULL)),
+    : ASTInternalUnNode(nodeType, SMOC_AST_TYPE_BOOL, c),
       port(port) {}
 
   const PortIdentifier &getPort() const;
@@ -481,7 +472,3 @@ typename V::result_type apply_visitor(V &v, PASTNode pASTNode) {
       assert(!"Never Reached");
   }
 }
-
-} } // namespace SysteMoC::ActivationPattern
-
-#endif // _INCLUDED_SMOC_AST_COMMON_HPP
