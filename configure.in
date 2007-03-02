@@ -244,7 +244,8 @@ if test x"$acjf_cv_systemoc_wsdf_support" = x"yes"; then
   fi
   if test -d $srcdir/systemoc-wsdf-recons-dila; then
     AC_CONFIG_FILES([systemoc-wsdf-recons-dila/Makefile])
-    subdirs="$subdirs systemoc-wsdf-recons-dila"
+		AC_OUTPUT([systemoc-wsdf-recons-dila/autovars.sh])
+    subdirs="$subdirs systemoc-wsdf-recons-dila"	
   fi
   if test -d $srcdir/systemoc-wsdf-src-snk; then
     AC_CONFIG_FILES([systemoc-wsdf-src-snk/Makefile])
