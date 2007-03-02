@@ -385,7 +385,7 @@ void smoc_firing_types::transition_ty::execute(
 #ifdef SYSTEMOC_DEBUG
       std::cerr << "    <call actor=\""
                 << actor->myModule()->name()
-                << " func=\"" << fc.getFuncName()
+                << " func=\"" << fc.go.getFuncName()
                 << "\">"
                 << std::endl;
 #endif
@@ -484,6 +484,7 @@ void smoc_firing_types::resolved_state_ty::finalise(smoc_root_node *a) {
 void smoc_firing_types::transition_ty::dump(std::ostream &out) const {
   out << "transition(" << this << ", ap == ";
   smoc_event_and_list::dump(out);
-  out   << ", status == " << smoc_activation_pattern::getStatus() << ")";
+  out   << ", status == " << smoc_activation_pattern::getStatus().toSymbol()
+        << ")";
 }
 #endif
