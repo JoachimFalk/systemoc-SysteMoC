@@ -71,6 +71,14 @@ public:
   virtual void unusedDecr() = 0;
 
   bool isDefined();
+
+  void addPort(smoc_root_port_in *inPort){
+    smoc_chan_in_base_if::addPort(inPort);
+  }
+
+  void addPort(smoc_root_port_out *outPort){
+    smoc_chan_out_base_if::addPort(outPort);
+  }
 protected:
   SignalState signalState;
 
@@ -228,6 +236,10 @@ public:
     return this->isDefined();
   }
 
+protected:
+  virtual void addPort(smoc_root_port_in  *portIn){
+    this->_base->addPort(portIn);
+  }
 private:
   size_t         limit;
   storage_type &actualValue;
@@ -296,6 +308,10 @@ public:
     return this->isDefined();
   }
 
+protected:
+  virtual void addPort(smoc_root_port_out  *portOut){
+    this->_base->addPort(portOut);
+  }
 private:
   size_t         limit;
   storage_type &actualValue;

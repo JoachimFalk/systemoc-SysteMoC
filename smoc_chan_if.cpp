@@ -141,28 +141,9 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
 
 void smoc_multicast_chan::finalise() {
   smoc_root_chan::finalise();
-  //FIXME (MS)
-  //assert(getInputPorts().size() == 1);
-  //assert(getOutputPorts().size() >= 1);
-
-  /*  FIXME (MS)
-  assert(dynamic_cast<sc_module *>(portIn->get_parent()) != NULL);
-  assert(dynamic_cast<sc_module *>(portOut->get_parent()) != NULL);
-  std::ostringstream genName;
-  
-  genName
-    << "cf_"
-    << dynamic_cast<sc_module *>(portOut->get_parent())->name()
-    << "_"
-    << dynamic_cast<sc_module *>(portIn->get_parent())->name()
-//  << strrchr(sc_prim_channel::name(), '_');
-    << "_";
-  genName
-    << (_smoc_channel_name_map[genName.str()] += 1);
-  myName = genName.str();
-  */
-
-  myName = "FIXME: Martin";
+  assert(getOutputPorts().size() == 1);
+  // supporting dangling signals (no inPort at channel egress)
+  //assert(getInputPorts().size() >= 1);
 }
 
 void smoc_multicast_chan::assemble(smoc_modes::PGWriter &pgw) const {

@@ -203,11 +203,14 @@ protected:
   // constructor
   smoc_chan_in_base_if() {}
 
-  void addPort(smoc_root_port_in  *portIn)
+  virtual void addPort(smoc_root_port_in  *portIn)
     { portsIn.push_front(portIn); }
 public:
   const smoc_port_list &getInputPorts()  const
     { return portsIn;  }
+  virtual ~smoc_chan_in_base_if() {
+    portsIn.clear();
+  }
 };
 
 class smoc_chan_out_base_if {
@@ -219,11 +222,14 @@ protected:
   // constructor
   smoc_chan_out_base_if() {}
 
-  void addPort(smoc_root_port_out *portOut)
+  virtual void addPort(smoc_root_port_out *portOut)
     { portsOut.push_front(portOut); }
 public:
   const smoc_port_list &getOutputPorts() const
     { return portsOut; }
+  virtual ~smoc_chan_out_base_if() {
+    portsOut.clear();
+  }
 };
 
 template <typename T, template <typename, typename> class R>
