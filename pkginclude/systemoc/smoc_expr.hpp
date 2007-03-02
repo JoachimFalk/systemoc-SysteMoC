@@ -792,9 +792,9 @@ struct AST<DBinOp<A,B,Op> > {
                 << typeid(A).name() << ","
                 << typeid(B).name() << ","
                 << Op << "> >: Was here !!!" << std::endl;*/
-    return PASTNode(
-      new ASTNodeBinOp(Op,AST<A>::apply(e.a),AST<B>::apply(e.b),
-        static_cast<typename Value<DBinOp<A,B,Op> >::result_type *>(NULL)));
+    return PASTNode(new ASTNodeBinOp(
+        static_cast<typename Value<DBinOp<A,B,Op> >::result_type *>(NULL), Op,
+        AST<A>::apply(e.a), AST<B>::apply(e.b)));
   }
 };
 
@@ -1198,9 +1198,9 @@ struct AST<DUnOp<A,Op> > {
 
   static inline
   result_type apply(const DUnOp<A,Op> &e) {
-    return PASTNode(
-      new ASTNodeUnOp(Op,AST<A>::apply(e.e),
-        static_cast<typename Value<DUnOp<A,Op> >::result_type *>(NULL)));
+    return PASTNode(new ASTNodeUnOp(
+        static_cast<typename Value<DUnOp<A,Op> >::result_type *>(NULL), Op,
+        AST<A>::apply(e.e)));
   }
 };
 
