@@ -235,6 +235,7 @@ fi
 if test x"$acjf_cv_systemoc_wsdf_support" = x"yes"; then
   if test -d $srcdir/systemoc-wsdf; then
     AC_CONFIG_FILES([systemoc-wsdf/Makefile])
+	  AC_OUTPUT([systemoc-wsdf/autovars.sh])
     subdirs="$subdirs systemoc-wsdf"
   fi
   if test -d $srcdir/systemoc-wsdf-expr; then

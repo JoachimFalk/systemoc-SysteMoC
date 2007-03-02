@@ -1,0 +1,377 @@
+#LyX 1.4.3-5 created this file. For more info see http://www.lyx.org/
+\lyxformat 245
+\begin_document
+\begin_header
+\textclass codesign
+\begin_preamble
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\heavyrulewidth=0.1em
+\newcommand{\remark}{\tiny® \normalsize}
+\newcommand{\trademark}{\tiny\texttrademark \normalsize}
+
+\floatstyle{ruled}
+\floatname{algorithm}{\sffamily\bfseries Algorithm}
+\newfloat{algorithm}{tbp}{lol}[section]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% NEWCOMMAND \datetitle
+%%
+%% \datetitle{Title}{Author}{Matrikennummer}{Betreuer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\hscdtitle}[3]{
+  \begin{titlepage}
+          \titlehead{
+          \quad
+          \hbox to 13.8cm{   
+              \parbox{57mm}{\scalebox{0.6}{\includegraphics{d://Programme//Office//Lyx//LyX14//Resources//templates//fau.pdf}}}
+              \hfill
+              \parbox{42mm}{\scalebox{0.15}{\includegraphics{d://Programme//Office//Lyx//LyX14//Resources//templates//codesign.pdf}}}
+          }}
+         \title{\Huge{#1}}
+               
+  \author{
+          \Large #2\\[4mm]
+          \Large Department of Computer Science 12\\
+          \Large Hardware-Software-Co-Design\\
+          \Large University of Erlangen-Nuremberg\\
+          \Large Am Weichselgarten 3\\
+          \Large D-91058 Erlangen, Germany \\[7mm]
+          \Large {\bf Co-Design-Report #3}\\[16mm]}
+  \date{\today}
+  \thispagestyle{empty}
+  \end{titlepage}   
+
+  \maketitle
+}
+
+\makeindex
+\end_preamble
+\options , BCOR2cm, headsepline, pointlessnumbers, bibtotoc, idxtotoc
+\language english
+\inputencoding auto
+\fontscheme times
+\graphics default
+\paperfontsize 12
+\spacing single
+\papersize a4paper
+\use_geometry false
+\use_amsmath 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes true
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Standard
+
+
+\backslash
+hscdtitle{Example of a Report}{Your Name}{1-2003}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Standard
+
+ 
+\backslash
+clearpage
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset LatexCommand \tableofcontents{}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Standard
+
+
+\backslash
+clearpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Section
+Specification
+\end_layout
+
+\begin_layout Itemize
+Baseline profile (Page 22)
+\end_layout
+
+\begin_layout Itemize
+1 or 3 components
+\end_layout
+
+\begin_layout Itemize
+Interleaved and non-interleaved, if not too complex
+\end_layout
+
+\begin_layout Itemize
+No Downsampling
+\end_layout
+
+\begin_layout Itemize
+Variables image sizes
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+not multiple of eight must be supported
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Restart intervall has to be supported.
+\end_layout
+
+\begin_layout Itemize
+DNL marker needs not to be supported
+\end_layout
+
+\begin_layout Itemize
+Comments and Application data shall be allowed.
+\end_layout
+
+\begin_layout Section
+Error Management
+\end_layout
+
+\begin_layout Standard
+In case of
+\end_layout
+
+\begin_layout Itemize
+Inexpected values (e.g.
+ wrong profile, illegal values), the corresponding actor enters an error
+ state.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+In a fist version, the actor stays forever in this state.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Implementation shall catch possible errors!
+\end_layout
+
+\begin_layout Standard
+A VERBOSE mode where each actor tells what it does, shall be activatable
+ on actor level via a define
+\end_layout
+
+\begin_layout Standard
+Naming-convention of define: DEBUG_JPEG_<MODULE_NAME>
+\end_layout
+
+\begin_layout Section
+Actors
+\end_layout
+
+\begin_layout Itemize
+All commands shall be propagated to client actors.
+\end_layout
+
+\begin_layout Subsection
+Parser
+\end_layout
+
+\begin_layout Itemize
+Checks
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+profile (Page 35)
+\end_layout
+
+\begin_layout Itemize
+Sample precision
+\end_layout
+
+\begin_layout Itemize
+Sampling factor (horizontal, vertical)
+\end_layout
+
+\begin_layout Itemize
+Check QT Index
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Removes optional X'FF' Bytes (Standard, page 78)
+\end_layout
+
+\begin_layout Itemize
+Discard unknown markers
+\end_layout
+
+\begin_layout Itemize
+Known markers
+\end_layout
+
+\begin_layout Itemize
+Flow: similar to
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Standard, Figure E.6
+\end_layout
+
+\begin_layout Itemize
+Standard, Figure E.7
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Inverse QT
+\end_layout
+
+\begin_layout Itemize
+Report Overflows!
+\end_layout
+
+\begin_layout Subsection
+Inverse Huffman
+\end_layout
+
+\begin_layout Itemize
+If unexpected restart marker, signal an error and stop
+\end_layout
+
+\begin_layout Itemize
+Flow:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Standard, Figure E.8, E.9, E.10, F.13, F.12, F.14
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+If possible, split into smaller components
+\end_layout
+
+\begin_layout Subsection
+Huffman Management
+\end_layout
+
+\begin_layout Itemize
+Flow:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+F15, 
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+DC-Decoding
+\end_layout
+
+\begin_layout Itemize
+Keep track per component (standard, page 80)
+\end_layout
+
+\begin_layout Subsection
+IDCT
+\end_layout
+
+\begin_layout Itemize
+Calcilation precision
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+standard, page 87
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Standard
+
+
+\backslash
+clearpage
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Standard
+
+
+\backslash
+appendix
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset LatexCommand \bibtex[alpha]{literature}
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
