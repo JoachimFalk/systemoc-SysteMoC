@@ -36,7 +36,7 @@
 #include "sysc/kernel/sc_cmnhdr.h"
 #include "sysc/kernel/sc_externs.h"
 
-#include "smoc_pggen.hpp"
+#include <systemoc/smoc_pggen.hpp>
 
 int main(int argc, char* argv[]) {
   int i, j;

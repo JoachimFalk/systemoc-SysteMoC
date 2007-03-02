@@ -1,5 +1,5 @@
 
-#include "smoc_md_buffer.hpp"
+#include <systemoc/smoc_md_buffer.hpp>
 #include <cosupport/smoc_debug_out.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BUFFER

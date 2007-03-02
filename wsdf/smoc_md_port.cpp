@@ -1,5 +1,5 @@
 
-#include <smoc_md_port.hpp>
+#include <systemoc/smoc_md_port.hpp>
 
 
 namespace ns_smoc_vector_init {

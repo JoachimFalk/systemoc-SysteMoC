@@ -33,6 +33,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc_rendezvous.hpp>
+#include <systemoc/smoc_rendezvous.hpp>
 
 // const char* const smoc_rendezvous_kind::kind_string = "smoc_rendezvous";

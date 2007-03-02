@@ -50,6 +50,8 @@
 
 #include <systemc.h>
 
+#include <systemoc/smoc_config.h>
+
 #include "smoc_expr.hpp"
 #include "smoc_event.hpp"
 
@@ -75,7 +77,7 @@ protected:
     : sc_port_base( name_, 1 ),
       parent(NULL), child(NULL) {}
 public:
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   virtual void commExec(size_t, const smoc_ref_event_p &) = 0;
 #else
   virtual void commExec(size_t)                           = 0;

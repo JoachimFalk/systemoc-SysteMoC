@@ -33,7 +33,7 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc_graph_type.hpp>
+#include <systemoc/smoc_graph_type.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
 
 const smoc_node_list smoc_graph::getNodes() const {

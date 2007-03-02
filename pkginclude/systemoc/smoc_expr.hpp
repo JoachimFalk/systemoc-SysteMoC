@@ -45,6 +45,8 @@
 
 #include <list>
 
+#include <systemoc/smoc_config.h>
+
 #include "smoc_event.hpp"
 #include "smoc_ast_systemoc.hpp"
 
@@ -152,7 +154,7 @@ struct CommExec {
   typedef Detail::Ignore          match_type;
 
   typedef void                    result_type;
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   typedef const smoc_ref_event_p &param1_type;
   
   static inline
@@ -263,7 +265,7 @@ public:
 private:
   struct virt_ty: public CoSupport::RefCountObject {
     virtual PASTNode   evalToAST()         const = 0;
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     virtual void       evalToCommExec
               (const smoc_ref_event_p &le) const = 0;
 #else
@@ -290,7 +292,7 @@ private:
     
     PASTNode   evalToAST() const
       { return AST<E>::apply(e); }
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     void       evalToCommExec(const smoc_ref_event_p &le) const
       { return CommExec<E>::apply(e, le); }
 #else
@@ -331,7 +333,7 @@ struct CommExec<DVirtual<T> > {
   typedef Detail::Process         match_type;
 
   typedef void                    result_type;
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   typedef const smoc_ref_event_p &param1_type;
 
   static inline
@@ -805,7 +807,7 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
   typedef typename OpT::match_type        match_type;
 
   typedef void                            result_type;
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   typedef const smoc_ref_event_p         &param1_type;
 
   static inline
@@ -815,7 +817,7 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
 # endif
     OpT::apply(e.a, e.b, le);
   }
-#else // !ENABLE_SYSTEMC_VPC
+#else // !SYSTEMOC_ENABLE_VPC
   static inline
   result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
 # ifdef SYSTEMOC_DEBUG
@@ -823,7 +825,7 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
 # endif
     OpT::apply(e.a, e.b);
   }
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 };
 
 #ifndef NDEBUG
@@ -957,13 +959,13 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
 
   template <class A, class B>
   static inline
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b, const smoc_ref_event_p &le)
     {}
-#else // !ENABLE_SYSTEMC_VPC
+#else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b)
     {}
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 };
 
 template <>
@@ -972,13 +974,13 @@ struct DBinOpExecute<Detail::Process,Detail::Ignore,DOpBinLAnd,CommExec> {
 
   template <class A, class B>
   static inline
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b, const smoc_ref_event_p &le)
     { CommExec<A>::apply(a, le); }
-#else // !ENABLE_SYSTEMC_VPC
+#else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b)
     { CommExec<A>::apply(a); }
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 };
 
 template <>
@@ -987,13 +989,13 @@ struct DBinOpExecute<Detail::Ignore,Detail::Process,DOpBinLAnd,CommExec> {
 
   template <class A, class B>
   static inline
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b, const smoc_ref_event_p &le)
     { CommExec<B>::apply(b, le); }
-#else // !ENABLE_SYSTEMC_VPC
+#else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b)
     { CommExec<B>::apply(b); }
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 };
 
 template <>
@@ -1002,17 +1004,17 @@ struct DBinOpExecute<Detail::Process,Detail::Process,DOpBinLAnd,CommExec> {
 
   template <class A, class B>
   static inline
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b, const smoc_ref_event_p &le) {
     CommExec<A>::apply(a, le);
     CommExec<B>::apply(b, le);
   }
-#else // !ENABLE_SYSTEMC_VPC
+#else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b) {
     CommExec<A>::apply(a);
     CommExec<B>::apply(b);
   }
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 };
 
 template <_OpBinT op>

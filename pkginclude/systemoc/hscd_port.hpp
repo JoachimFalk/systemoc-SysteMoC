@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_HSCD_POPT_HPP
 #define _INCLUDED_HSCD_POPT_HPP
 
+#include <systemoc/smoc_config.h>
+
 #include "hscd_root_port_list.hpp"
 #include "smoc_port.hpp"
 
@@ -58,7 +60,7 @@ protected:
     input.resize(n);
     for ( size_t i = 0; i < n; i++ )
       input[i] = smoc_port_in<T>::operator[](i);
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     this->commExec(n, NULL); // consume tokens
 #else
     this->commExec(n); // consume tokens
@@ -90,7 +92,7 @@ protected:
 #ifndef NDEBUG    
     this->setLimit(n); // access to new tokens
 #endif
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     this->commExec(n, NULL); // consume tokens
 #else
     this->commExec(n); // consume tokens
@@ -148,7 +150,7 @@ protected:
     for ( size_t i = 0; i < n; i++ )
       smoc_port_out<T>::operator[](i) = output[i];
 //  output.clear();
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     this->commExec(n, NULL); // produce tokens
 #else
     this->commExec(n); // produce tokens
@@ -181,7 +183,7 @@ protected:
 #ifndef NDEBUG    
     this->setLimit(n); // access to new tokens
 #endif
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     this->commExec(n, NULL); // produce tokens
 #else
     this->commExec(n); // produce tokens

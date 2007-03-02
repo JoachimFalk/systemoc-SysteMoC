@@ -33,12 +33,13 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <hscd_tdsim_TraceLog.hpp>
 #include <time.h>
 #include <sstream>
 #include <cassert>
 #include <cmath>
 #include <systemc.h>
+
+#include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 #ifdef SYSTEMOC_TRACE
 

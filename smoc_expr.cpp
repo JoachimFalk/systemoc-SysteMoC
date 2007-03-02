@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc_expr.hpp>
-#include <smoc_pggen.hpp>
+#include <systemoc/smoc_expr.hpp>
+#include <systemoc/smoc_pggen.hpp>
 
 namespace Expr {
 

@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_SMOC_CHAN_IF
 #define _INCLUDED_SMOC_CHAN_IF
 
+#include <systemoc/smoc_config.h>
+
 #include "smoc_root_port.hpp"
 #include "smoc_event.hpp"
 #include "smoc_pggen.hpp"
@@ -241,7 +243,7 @@ public:
 //smoc_event &dataAvailableEvent(size_t n) { return write_event; }
   virtual smoc_event &dataAvailableEvent(size_t n) = 0;
   virtual access_in_type * getReadChannelAccess() = 0;
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   virtual void   commitRead(size_t consume, const smoc_ref_event_p &) = 0;
 #else
   virtual void   commitRead(size_t consume) = 0;
@@ -280,7 +282,7 @@ public:
 //smoc_event    &spaceAvailableEvent(size_t n) { return read_event; }
   virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
   virtual access_out_type * getWriteChannelAccess() = 0;
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   virtual void commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
 #else
   virtual void commitWrite(size_t produce) = 0;

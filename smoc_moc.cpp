@@ -33,9 +33,11 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc_moc.hpp>
-#include <smoc_sr_signal.hpp>
-#include <smoc_multicast_sr_signal.hpp>
+#include <systemoc/smoc_config.h>
+
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_sr_signal.hpp>
+#include <systemoc/smoc_multicast_sr_signal.hpp>
 
 #include <cosupport/oneof.hpp>
 
@@ -146,10 +148,10 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
   smoc_transition_ready_list defined;   // no more changes in this instant
   bool nonStrictStable = false;
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   // Needed for VPC coupling??
   smoc_transition_ready_list inCommState; 
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 
   smoc_node_list nodes;
   getLeafNodes(nodes, c);  
@@ -222,19 +224,19 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     while(nonStrict
     || bottom
     || nonStrictReleased
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     || inCommState
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
     ){
     */
     do{
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       DEBUG_CODE(
      if(inCommState) cerr << " inCommState "  << inCommState.size();
      else if(inCommState.size()) cerr << " (inCommState) " << inCommState.size();
      else            cerr << " ------------- " ;
      )
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
   DEBUG_CODE(
      if(bottom)     cerr << " bottom " << bottom.size();
      else if(bottom.size()) cerr << " (bottom) " << bottom.size();
@@ -255,7 +257,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
      cerr << endl;
      )
       //Select one of the transition lists by priority (inCommState, bottom, nonStrict)
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       if( inCommState ){
   // release all ready actors in commstate: data production hopefully making signals become "more defined"
 
@@ -318,7 +320,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     //  }
 
       }else  // yet another spooky ifdef: "else if"
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
       if( bottom ){
   // bottom contains strict blocks, releasing them hopefully causes data production
 
@@ -346,7 +348,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
 
       // move transition to next list
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     assert(n.inCommState());
     n.lastTransition=&transition;
     for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
@@ -362,7 +364,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     ++titer ){
       defined           |= *titer; 
     }
-#endif  // ENABLE_SYSTEMC_VPC
+#endif  // SYSTEMOC_ENABLE_VPC
   }
   
       }else if( nonStrict ){
@@ -391,7 +393,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     
     // test transition by execution
     n.lastState      = n._currentState;
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     n.lastTransition = &transition;
 #endif
     DEBUG_CODE( std::cerr << "<actor type=\"non strict\" name=\"" << n.myModule()->name() << "\">" << std::endl; )
@@ -399,7 +401,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
           DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
 
     // move transition to next list
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     assert(n.inCommState());
     for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
     titer != n._currentState->tl.end();
@@ -432,7 +434,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 
     nonStrictReleased |= transition; // deactivate transition, until input changes
     assert( definedInputs.find(&n) != definedInputs.end() ); // definedInputs[n] = countDefinedInports(n);
-#endif  // ENABLE_SYSTEMC_VPC
+#endif  // SYSTEMOC_ENABLE_VPC
 
   }
 
@@ -479,7 +481,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
       
 
   // test if fixpoint is reached
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   if( nonStrictStable && inCommState.empty() ){
     //paranoia:
     assert(inCommState.empty());
@@ -506,7 +508,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 
     //FIXME(MS): assume not to call compute (no commState)
     transition.execute(&n._currentState, &n, smoc_firing_types::transition_ty::TICK);
-// #ifdef ENABLE_SYSTEMC_VPC
+// #ifdef SYSTEMOC_ENABLE_VPC
 //     assert( n.inCommState() );
 //     smoc_transition_ready_list comm;
   
@@ -556,7 +558,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
   }
 
       }else{
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   assert(inCommState.empty());
 #endif
   assert(nonStrict.empty());
@@ -567,7 +569,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
   //wait(...);
       }
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       if( !bottom && !inCommState && nonStrictStable && !inCommState.empty() ){
 #else
       if( !bottom && nonStrictStable ){
@@ -583,7 +585,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     }while(1);
     assert(0);
     /*    //////////////======================================================================================
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     while (nonStrict || bottom || inCommState) {
       smoc_transition_ready_list  &fromList = (inCommState)?inCommState:((bottom)?bottom:nonStrict); //select by priority
       //      transition_ty           &transition =
@@ -592,7 +594,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     while (nonStrict || bottom) {
       smoc_transition_ready_list  &fromList = (bottom)?bottom:nonStrict; //select by priority
       //      transition_ty           &transition = (bottom)?bottom.getEventTrigger():nonStrict.getEventTrigger();
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
       transition_ty                  &transition = fromList.getEventTrigger();
       Expr::Detail::ActivationStatus  status     = transition.getStatus();
       std::cerr << "<smoc_scheduler_top::scheduleSR>" << std::endl;
@@ -624,7 +626,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
         if( dynamic_cast<class smoc_root_port_out * >(*iter)) {
     smoc_sr_signal_kind* sig = dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
     assert(NULL != sig);
-    if(sig) sig->multipleWriteSameValue(true); //ENABLE_SYSTEMC_VPC
+    if(sig) sig->multipleWriteSameValue(true); //SYSTEMOC_ENABLE_VPC
     cerr << " (out port) " << iface << endl;;
         }
       }
@@ -639,11 +641,11 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
       for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
       titer != n._currentState->tl.end();
       ++titer ){
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
         if(n.inCommState()){
     inCommState |= *titer; // still in communication delay state
         }else
-#endif  // ENABLE_SYSTEMC_VPC
+#endif  // SYSTEMOC_ENABLE_VPC
     {
       // all those strict actors can only be executed once per instant
       defined     |= *titer; // add to defined list 
@@ -662,9 +664,9 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
       }
       {
   smoc_transition_ready_list instant = bottom | nonStrict;
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   instant |= inCommState;
-#endif  // ENABLE_SYSTEMC_VPC
+#endif  // SYSTEMOC_ENABLE_VPC
   if(instant) smoc_wait(instant); // if no more change instant break loop
       }
     }

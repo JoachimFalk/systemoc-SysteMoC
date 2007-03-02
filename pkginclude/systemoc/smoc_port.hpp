@@ -38,6 +38,8 @@
 
 #include <cosupport/commondefs.h>
 
+#include <systemoc/smoc_config.h>
+
 #include "smoc_expr.hpp"
 #include "smoc_root_port.hpp"
 #include "smoc_chan_if.hpp"
@@ -202,7 +204,7 @@ template <class P, class E>
 struct CommExec<DComm<P, E> > {
   typedef Detail::Process         match_type;
   typedef void                    result_type;
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   typedef const smoc_ref_event_p &param1_type;
   
   static inline
@@ -481,7 +483,7 @@ protected:
   void finalise(smoc_root_node *node)
     { this->channel_access = (*this)->getReadChannelAccess(); }
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)
     { return (*this)->commitRead(n, le); }
 #else
@@ -575,7 +577,7 @@ protected:
   void finalise(smoc_root_node *node)
     { this->channel_access = (*this)->getWriteChannelAccess(); }
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)
     { return (*this)->commitWrite(n, le); }
 #else

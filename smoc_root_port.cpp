@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc_root_port.hpp>
-#include <smoc_root_node.hpp>
+#include <systemoc/smoc_root_port.hpp>
+#include <systemoc/smoc_root_node.hpp>
 
 #include <cosupport/oneof.hpp>
 

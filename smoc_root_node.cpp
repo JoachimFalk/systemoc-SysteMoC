@@ -33,14 +33,15 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc_root_port.hpp>
-#include <smoc_root_node.hpp>
-// #include <systemc/kernel/sc_object_manager.h>
 #include <typeinfo>
-#include <smoc_firing_rules.hpp>
-#include <hscd_tdsim_TraceLog.hpp>
 
-#include <typeinfo>
+#include <systemoc/smoc_config.h>
+
+#include <systemoc/smoc_root_port.hpp>
+#include <systemoc/smoc_root_node.hpp>
+// #include <systemc/kernel/sc_object_manager.h>
+#include <systemoc/smoc_firing_rules.hpp>
+#include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 smoc_root_node::smoc_root_node(smoc_firing_state &s)
   :
@@ -49,7 +50,7 @@ smoc_root_node::smoc_root_node(smoc_firing_state &s)
 #endif
     _initialState(s),
     _non_strict(false),
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
 # ifndef NDEBUG
     vpc_event_lat(NULL),
 # endif
@@ -57,12 +58,12 @@ smoc_root_node::smoc_root_node(smoc_firing_state &s)
       smoc_transition(
         smoc_activation_pattern(Expr::till(vpc_event_dii)),
         smoc_func_diverge(this,&smoc_root_node::_communicate))),
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
     _guard(NULL)
   {
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     commstate.finalise(this);
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
     local_constr_args.insert(
         local_constr_args.end(),
         global_constr_args.begin(),
@@ -79,7 +80,7 @@ smoc_root_node::smoc_root_node(smoc_firing_state &s)
 std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_args; 
 
  
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
 const smoc_firing_state &smoc_root_node::_communicate() {
 # ifdef SYSTEMOC_DEBUG
   std::cerr << "    <call actor=" << myModule()->name()
@@ -138,7 +139,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
 #endif
   return nextState;
 }
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 
 void smoc_root_node::finalise() {
 #ifdef SYSTEMOC_DEBUG
@@ -459,11 +460,11 @@ std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
 }
 
 bool smoc_root_node::inCommState() const{
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     return (_currentState == &commstate.getResolvedState());
 #else
     return false;
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 }
 
 bool smoc_root_node::isNonStrict() const{

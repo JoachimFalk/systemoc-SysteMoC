@@ -34,7 +34,6 @@ namespace Expr {
    * for the given port.
 	 */
 
-
 	//P: Port class
 	template<class P>
 	class DPortIteration {

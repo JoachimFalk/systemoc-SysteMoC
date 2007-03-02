@@ -16,11 +16,13 @@
  * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include <smoc_multicast_sr_signal.hpp>
+#include <systemoc/smoc_config.h>
 
-#ifdef ENABLE_SYSTEMC_VPC
+#include <systemoc/smoc_multicast_sr_signal.hpp>
+
+#ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
-#endif //ENABLE_SYSTEMC_VPC
+#endif //SYSTEMOC_ENABLE_VPC
 
 const char* const smoc_multicast_sr_signal_kind::kind_string = "smoc_multicast_sr_signal";
 smoc_outlet_kind::smoc_outlet_kind(smoc_multicast_sr_signal_kind* base)
@@ -68,7 +70,7 @@ smoc_event &smoc_outlet_kind::getEventAvailable(size_t n) {
   }
 }
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
 void smoc_outlet_kind::wpp(size_t n, const smoc_ref_event_p &le)
 #else
   void smoc_outlet_kind::wpp(size_t n)

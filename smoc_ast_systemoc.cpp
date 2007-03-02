@@ -33,9 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "smoc_ast_systemoc.hpp"
-
-#include <smoc_pggen.hpp>
+#include <systemoc/smoc_ast_systemoc.hpp>
+#include <systemoc/smoc_pggen.hpp>
 
 namespace SysteMoC { namespace ActivationPattern {
 

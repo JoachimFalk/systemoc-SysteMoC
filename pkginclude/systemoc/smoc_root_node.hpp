@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_SMOC_ROOT_NODE_HPP
 #define _INCLUDED_SMOC_ROOT_NODE_HPP
 
+#include <systemoc/smoc_config.h>
+
 #include "smoc_firing_rules.hpp"
 #include "smoc_port.hpp"
 //#include <smoc_op.hpp>
@@ -113,7 +115,7 @@ protected:
   
   friend void Expr::Detail::registerParam(const ArgInfo &argInfo);
 public:
-#ifdef ENABLE_SYSTEMC_VPC  
+#ifdef SYSTEMOC_ENABLE_VPC  
   // vpc_event_xxx must be constructed before commstate
   smoc_event         vpc_event_dii; // VPC data introduction interval event
   smoc_ref_event    *vpc_event_lat; // VPC latency event
@@ -121,7 +123,7 @@ public:
   smoc_firing_state  nextState;
   smoc_firing_types::transition_ty* 
                      lastTransition;//non strict scheduling
-#endif //ENABLE_SYSTEMC_VPC  
+#endif //SYSTEMOC_ENABLE_VPC  
   smoc_firing_types::resolved_state_ty*
                      lastState;     //non strict scheduling
   

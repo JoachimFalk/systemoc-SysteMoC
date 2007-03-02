@@ -38,6 +38,8 @@
 
 #include <cosupport/commondefs.h>
 
+#include <systemoc/smoc_config.h>
+
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
 
@@ -53,7 +55,7 @@
 class smoc_fifo_kind;
 
 namespace smoc_detail {
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   class LatencyQueue {
     friend class smoc_fifo_kind;
   public:
@@ -175,7 +177,7 @@ namespace smoc_detail {
     void addEntry(size_t n, const smoc_ref_event_p &le)
       { requestQueue.addEntry(n, le); }
   };
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 };
 
 /// Base class of the FIFO implementation.
@@ -191,9 +193,9 @@ namespace smoc_detail {
 /// read, write, and visible pointers.
 class smoc_fifo_kind
 : public smoc_nonconflicting_chan {
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   friend class smoc_detail::LatencyQueue::VisibleQueue;
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 public:
   typedef smoc_fifo_kind  this_type;
 
@@ -209,13 +211,13 @@ public:
 protected:
   typedef std::map<size_t, smoc_event *>      EventMap;
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   smoc_detail::LatencyQueue   latencyQueue;
 #endif
 
   size_t const fsize;   ///< Ring buffer size == FIFO size + 1
   size_t       rindex;  ///< The FIFO read    ptr
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   size_t       vindex;  ///< The FIFO visible ptr
 #endif
   size_t       windex;  ///< The FIFO write   ptr
@@ -227,7 +229,7 @@ protected:
 
   size_t usedStorage() const {
     size_t used =
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       vindex - rindex;
 #else
       windex - rindex;
@@ -296,7 +298,7 @@ protected:
     usedDecr(); unusedIncr();
   }
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void wpp(size_t n, const smoc_ref_event_p &le)
 #else
   void wpp(size_t n)
@@ -309,14 +311,14 @@ protected:
     windex = (windex + n) % fsize;
     
     unusedDecr();
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue.addEntry(n, le);
 #else
     usedIncr();
 #endif
   }
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void incrVisible(size_t n) {
 # ifndef NDEBUG
     size_t oldUsed = usedStorage();
@@ -377,12 +379,12 @@ protected:
   smoc_fifo_kind( const chan_init &i )
     : smoc_nonconflicting_chan(
         i.name != NULL ? i.name : sc_gen_unique_name( "smoc_fifo" ) ),
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       latencyQueue(this), 
 #endif
       fsize(i.n+1),
       rindex(0),
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       vindex(0), 
 #endif
       windex(0)
@@ -453,7 +455,7 @@ protected:
       storage[j].put(i.marking[j]);
     }
     this->windex = i.marking.size();
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     this->vindex = this->windex;
 #endif
   }
@@ -532,7 +534,7 @@ protected:
        smoc_channel_access>(i) {
     assert( fsize > i.marking );
     windex = i.marking;
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     vindex = windex;
 #endif
   }
@@ -573,7 +575,7 @@ public:
   typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
 protected:
   
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &le)
 #else
   void commitRead(size_t consume)
@@ -588,7 +590,7 @@ protected:
 //    this->write_event.reset();
   }
   
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &le)
 #else
   void commitWrite(size_t produce)
@@ -597,7 +599,7 @@ protected:
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(produce, this->name());
 #endif
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
     this->wpp(produce, le);
 #else
     this->wpp(produce);

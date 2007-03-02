@@ -58,7 +58,7 @@ else
   enable_wsdf=no
 fi
 
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADER([config.h pkginclude/systemoc/smoc_config.h])
 
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
@@ -98,18 +98,18 @@ if test x"$enable_vpc" != x"no"; then
    [test x"$enable_vpc" = x"yes" && {
      AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out]) } ])
 fi
-AM_CONDITIONAL([ENABLE_SYSTEMC_VPC], [test x"$pkg_systemc_vpc_srcdir" != "x"])
+AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$pkg_systemc_vpc_srcdir" != "x"])
 if test x"$pkg_systemc_vpc_srcdir" != "x"; then
-  AC_DEFINE([ENABLE_SYSTEMC_VPC], [yes], [Define if you want SystemC-VPC Support])
+  AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Define if you want SystemC-VPC Support])
   SYSTEMC_VPC_DEPENDENCIES="$pkg_systemc_vpc_builddir/libsystemcvpc.la"
   AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_VPC_INCLUDE"
   AM_LDFLAGS="$AM_LDFLAGS $SYSTEMC_VPC_LDFLAGS"
 fi
 AC_SUBST([SYSTEMC_VPC_DEPENDENCIES])
 
-AM_CONDITIONAL([WSDF], [test x"$enable_wsdf" = x"yes"])
+AM_CONDITIONAL([SYSTEMOC_ENABLE_WSDF], [test x"$enable_wsdf" = x"yes"])
 if test x"$enable_wsdf" = x"yes"; then
-  AC_DEFINE([SMOC_ENABLE_WSDF], [yes], [Define if you want WSDF Support])
+  AC_DEFINE([SYSTEMOC_ENABLE_WSDF], [yes], [Define if you want WSDF Support])
 fi
 
 AC_CONFIG_FILES([Makefile])

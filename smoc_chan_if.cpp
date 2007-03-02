@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc_chan_if.hpp>
-#include <smoc_root_node.hpp>
+#include <systemoc/smoc_chan_if.hpp>
+#include <systemoc/smoc_root_node.hpp>
 
 #include <map>
 #include <sstream>

@@ -33,16 +33,17 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc_fifo.hpp>
+#include <systemoc/smoc_config.h>
+#include <systemoc/smoc_fifo.hpp>
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
-#endif //ENABLE_SYSTEMC_VPC
+#endif //SYSTEMOC_ENABLE_VPC
 
 const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
 
 namespace smoc_detail {
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void LatencyQueue::RequestQueue::doSomething(size_t n) {
     for (;n > 0; --n) {
       smoc_ref_event_p le(new smoc_ref_event());
@@ -56,6 +57,6 @@ namespace smoc_detail {
   void LatencyQueue::VisibleQueue::doSomething(size_t n) {
     getTop().fifo->incrVisible(n);
   }
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 };
 

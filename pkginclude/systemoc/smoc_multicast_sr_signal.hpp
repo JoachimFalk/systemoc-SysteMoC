@@ -21,6 +21,8 @@
 
 #include <cosupport/commondefs.h>
 
+#include <systemoc/smoc_config.h>
+
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
 
@@ -58,7 +60,7 @@ public:
 
   void setSignalState(SignalState s);
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   virtual void wpp(size_t n, const smoc_ref_event_p &le) = 0;
 #else
   virtual void wpp(size_t n) = 0;
@@ -102,7 +104,7 @@ public:
 
   void usedDecr();
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void wpp(size_t n, const smoc_ref_event_p &le);
 #else
   void wpp(size_t n);
@@ -201,7 +203,7 @@ public:
     return this;
   }
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &le)
 #else
   void commitRead(size_t consume)
@@ -269,7 +271,7 @@ public:
   virtual ring_out_type * getWriteChannelAccess() {
     return this;
   }
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &le) {
     if( this->actualValue.isValid() ) this->_base->wpp(produce, le);
 #else
@@ -377,7 +379,7 @@ public:
     return *(outlets[&port]);
   }
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   void wpp(size_t n, const smoc_ref_event_p &le)
 #else
   void wpp(size_t n)
@@ -386,7 +388,7 @@ public:
     for(typename OutletMap::iterator iter = outlets.begin();
   iter != outlets.end();
   iter++){
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       iter->second->wpp(n,le);
 #else
       iter->second->wpp(n);

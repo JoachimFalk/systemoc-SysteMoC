@@ -1,5 +1,5 @@
 
-#include <smoc_md_loop.hpp>
+#include <systemoc/smoc_md_loop.hpp>
 
 
 #define FAST_CALC_MODE

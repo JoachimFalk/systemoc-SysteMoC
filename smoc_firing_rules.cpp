@@ -38,17 +38,19 @@
 ///100: Actor invocation
 #endif
 
-#include <smoc_firing_rules.hpp>
-#include <smoc_node_types.hpp>
+#include <systemoc/smoc_config.h>
+
+#include <systemoc/smoc_firing_rules.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
 #include <map>
 #include <set>
 
-#include <hscd_tdsim_TraceLog.hpp>
+#include <systemoc/hscd_tdsim_TraceLog.hpp>
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
-#endif //ENABLE_SYSTEMC_VPC
+#endif //SYSTEMOC_ENABLE_VPC
 
 #include <cosupport/oneof.hpp>
 
@@ -342,7 +344,7 @@ void smoc_firing_types::transition_ty::execute(
 #ifdef SYSTEMOC_TRACE
       TraceLog.traceStartFunction(fc.getFuncName()); //
 #endif
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       actor->vpc_event_dii.reset();
 
       actor->vpc_event_lat = new smoc_ref_event();
@@ -350,7 +352,7 @@ void smoc_firing_types::transition_ty::execute(
 
       SystemC_VPC::Director::getInstance().    
   compute( actor->myModule()->name(), fc.getFuncName(), p);
-#endif //ENABLE_SYSTEMC_VPC
+#endif //SYSTEMOC_ENABLE_VPC
       fc();
 #ifdef SYSTEMOC_TRACE
       TraceLog.traceEndFunction(fc.getFuncName());  //
@@ -358,7 +360,7 @@ void smoc_firing_types::transition_ty::execute(
       
       assert( sl.size() == 1 );
       
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       *rs = actor->commstate.rs;
       // save guard and next state to later execute communication
       actor->nextState.rs = sl.front();
@@ -371,7 +373,7 @@ void smoc_firing_types::transition_ty::execute(
 # endif
 #else
       *rs = sl.front();
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_DEBUG
       std::cerr << "    </call>"<< std::endl;
@@ -391,7 +393,7 @@ void smoc_firing_types::transition_ty::execute(
 #ifdef SYSTEMOC_TRACE
       TraceLog.traceStartFunction(fc.go.getFuncName()); //
 #endif
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       if(mode & GO){
   actor->vpc_event_dii.reset();
   
@@ -401,7 +403,7 @@ void smoc_firing_types::transition_ty::execute(
   SystemC_VPC::Director::getInstance().    
     compute( actor->myModule()->name(), fc.go.getFuncName(), p);
       }
-#endif //ENABLE_SYSTEMC_VPC
+#endif //SYSTEMOC_ENABLE_VPC
       if(mode & GO)   fc.go();
       if(mode & TICK) fc.tick();
 #ifdef SYSTEMOC_TRACE
@@ -410,7 +412,7 @@ void smoc_firing_types::transition_ty::execute(
       
       assert( sl.size() == 1 );
       
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
       if(mode & GO){
   *rs = actor->commstate.rs;
   // save guard and next state to later execute communication
@@ -427,7 +429,7 @@ void smoc_firing_types::transition_ty::execute(
 # endif
 #else
       *rs = sl.front();
-#endif // ENABLE_SYSTEMC_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_DEBUG
       std::cerr << "    </call>"<< std::endl;
@@ -444,7 +446,7 @@ void smoc_firing_types::transition_ty::execute(
   Expr::evalTo<Expr::CommReset>(guard);
 #endif
 
-#ifdef ENABLE_SYSTEMC_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   if (!isType<smoc_func_call>(f))
     Expr::evalTo<Expr::CommExec>(guard, NULL);
 #else

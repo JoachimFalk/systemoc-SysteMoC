@@ -37,7 +37,7 @@
 #define _INCLUDED_SMOC_GRAPH_TYPE_HPP
 
 #include "smoc_port.hpp"
-#ifdef SMOC_ENABLE_WSDF 
+#ifdef SYSTEMOC_ENABLE_WSDF 
 # include "smoc_md_port.hpp"
 # include "smoc_md_fifo.hpp"
 #endif
@@ -100,7 +100,7 @@ protected:
     connectChanPort(chan,b);
   }
 
-#ifdef SMOC_ENABLE_WSDF 
+#ifdef SYSTEMOC_ENABLE_WSDF 
   /// Connect multi-dimensional actor output port with multi-dimensional actor input port
   template <typename T_chan_init, 
             unsigned N,
@@ -221,7 +221,7 @@ protected:
                              smoc_port_in<T_value_type> &b )
   { b(a); }
 
-#ifdef SMOC_ENABLE_WSDF 
+#ifdef SYSTEMOC_ENABLE_WSDF 
   /// Connect multi-dimensional interface output port with actor output port
   template <typename T_value_type, unsigned N, template <typename> class STORAGE_OUT_TYPE>
   void connectInterfacePorts(
