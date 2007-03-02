@@ -96,20 +96,33 @@ if test x"$enable_vpc" != x"no"; then
 fi
 if test x"$pkg_systemc_vpc_srcdir" != "x"; then
   SYSTEMC_VPC_DEPENDENCIES="$pkg_systemc_vpc_builddir/libsystemcvpc.la"
-  AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_VPC_INCLUDE -DENABLE_SYSTEMC_VPC"
+  AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_VPC_INCLUDE"
   AM_LDFLAGS="$AM_LDFLAGS $SYSTEMC_VPC_LDFLAGS"
 fi
 AC_SUBST([SYSTEMC_VPC_DEPENDENCIES])
 
 # Check for WSDF Support in SysteMoC
-acjf_CPPFLAGS="$CPPFLAGS"; CPPFLAGS="$CPPFLAGS $SUPPORT_INCLUDE $SYSTEMOC_INCLUDE"
-# Checks for header files.
-AC_CHECK_HEADER(
-  [smoc_md_port.hpp],
-  [enable_wsdf=true; AM_CPPFLAGS="$AM_CPPFLAGS -DSMOC_ENABLE_WSDF";],
-  [enable_wsdf=false]
-)
-CPPFLAGS="$acjf_CPPFLAGS"
+AC_MSG_CHECKING([for WSDF support in SysteMoC])
+AC_CACHE_VAL([acjf_cv_systemoc_wsdf_support], 
+ [acjf_CPPFLAGS="$CPPFLAGS"; CPPFLAGS="$CPPFLAGS $SUPPORT_INCLUDE $SYSTEMOC_INCLUDE"
+  # Checks for header files.
+  AC_TRY_COMPILE(
+   [#include <systemoc/smoc_config.h>
+   ],
+   [#ifndef SYSTEMOC_ENABLE_WSDF
+    # error "No WSDF Support in SysteMoC"
+    #endif
+   ],
+   [acjf_cv_systemoc_wsdf_support=yes;],
+   [acjf_cv_systemoc_wsdf_support=no;]
+  )
+  CPPFLAGS="$acjf_CPPFLAGS"
+  unset acjf_CPPFLAGS])
+if test x"$acjf_cv_systemoc_wsdf_support" = x"yes"; then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+fi
 
 # AC_FUNC_ALLOCA
 # AC_HEADER_STDC
@@ -214,7 +227,7 @@ if test -d $srcdir/systemoc-tlm-start; then
   AC_CONFIG_FILES([systemoc-tlm-start/Makefile])
 #  subdirs="$subdirs systemoc-tlm-start"
 fi
-if test x$enable_wsdf = xtrue; then
+if test x"$acjf_cv_systemoc_wsdf_support" = x"yes"; then
   if test -d $srcdir/systemoc-wsdf; then
     AC_CONFIG_FILES([systemoc-wsdf/Makefile])
     subdirs="$subdirs systemoc-wsdf"
