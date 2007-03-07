@@ -362,13 +362,13 @@ namespace {
     }
     result_type operator ()(ASTNodeToken &astNode) {
       openNodeTag(astNode);
-      pgw << "portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\"";
-      pgw << "pos=\"" << astNode.getPos() << "\">";
+      pgw << " portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\"";
+      pgw << " pos=\"" << astNode.getPos() << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodePortTokens &astNode) {
       openNodeTag(astNode);
-      pgw << "portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\">";
+      pgw << " portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeSMOCEvent &astNode) {
@@ -379,19 +379,19 @@ namespace {
     }
     result_type operator ()(ASTNodeBinOp &astNode) {
       openNodeTag(astNode);
-      pgw << "opType=\"" << astNode.getOpType() << "\">" << std::endl;
+      pgw << " opType=\"" << astNode.getOpType() << "\">" << std::endl;
       dumpASTBinNode(astNode);
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeUnOp &astNode) {
       openNodeTag(astNode);
-      pgw << "opType=\"" << astNode.getOpType() << "\">" << std::endl;
+      pgw << " opType=\"" << astNode.getOpType() << "\">" << std::endl;
       dumpASTUnNode(astNode);
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeComm &astNode) {
       openNodeTag(astNode);
-      pgw << "portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\">" << std::endl;
+      pgw << " portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\">" << std::endl;
       dumpASTUnNode(astNode);
       closeNodeTag(astNode);
     }
