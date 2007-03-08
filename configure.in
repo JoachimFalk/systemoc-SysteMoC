@@ -134,6 +134,10 @@ fi
 
 AC_CONFIG_FILES([Makefile])
 
+if test -d $srcdir/jpeg-encoder; then
+  AC_CONFIG_FILES([jpeg-encoder/Makefile])
+  subdirs="$subdirs jpeg-encoder"
+fi
 if test x"$pkg_systemc_vpc_srcdir" != "x"; then
   AC_CONFIG_FILES([vpc-test-h261/Makefile])
 # subdirs="$subdirs vpc-test-h261"
