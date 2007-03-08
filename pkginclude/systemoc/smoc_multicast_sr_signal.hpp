@@ -428,12 +428,13 @@ private:
   OutletMap outlets;
 
   void reset(){
-    actualValue = storage_type();
+    actualValue.reset();
   }
 
   void tick(){
-    bool needUpdate = (signalState != undefined);
-    signalState=undefined;
+    bool needUpdate = (this->getSignalState() != undefined);
+    this->setSignalState(undefined);
+    this->reset();
     if(needUpdate){
       // update events (storage state changed)
       for(typename OutletMap::iterator iter = outlets.begin();
@@ -443,7 +444,6 @@ private:
       }
       entry.unusedIncr();
     }
-    this->reset();
   }
 protected:
   void channelContents(smoc_modes::PGWriter &pgw) const {

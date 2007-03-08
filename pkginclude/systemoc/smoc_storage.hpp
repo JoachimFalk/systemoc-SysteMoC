@@ -90,6 +90,14 @@ public:
       valid = false;
     }
   }
+
+  // reset storage
+  // used in SR (signals are reseted if fixed point is reached)
+  //
+  // (FIXME: may also be used for destructive reading)
+  void reset(){
+    valid = false;
+  }
   
   ~smoc_storage() {
     if(valid) {
