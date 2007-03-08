@@ -79,7 +79,7 @@ void smoc_outlet_kind::wpp(size_t n, const smoc_ref_event_p &le)
   assert(n <= 1);
     
   this->_base->setSignalState(defined);
-  //unusedDecr();
+  this->_base->unusedDecr();
   usedIncr();
 }
 
