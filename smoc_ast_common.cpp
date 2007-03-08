@@ -208,10 +208,10 @@ OpBinT      ASTNodeBinOp::getOpType() const
 OpUnT       ASTNodeUnOp::getOpType() const
   { return op; }
 
-std::string ASTNodeVar::getName() const
-  { return name; }
-const void *ASTNodeVar::getAddr() const
-  { return addr; }
+const SymbolIdentifier &ASTNodeVar::getName() const
+  { return symbol; }
+//const void *ASTNodeVar::getAddr() const
+//  { return addr; }
 
 const ValueContainer &ASTNodeLiteral::getValue() const
   { return value; }

@@ -146,16 +146,13 @@ class ASTNodeVar: public ASTLeafNode {
 public:
   static const _ASTNodeType nodeType = ASTNodeTypeVar;
 private:
-  std::string name;
-  const void *addr;
+  SymbolIdentifier symbol;
 public:
-  template <typename T>
-  ASTNodeVar(const T &x, const char *name)
-    : ASTLeafNode(nodeType, Type<T>()), name(name), addr(&x) {}
+  ASTNodeVar(const TypeSymbolIdentifier &typeSymbol)
+    : ASTLeafNode(nodeType, typeSymbol), symbol(typeSymbol) {}
 
-  std::string getName() const;
-  const void *getAddr() const;
-  std::string getNodeParam() const;
+  const SymbolIdentifier &getName() const;
+//std::string getNodeParam() const;
 };
 
 /****************************************************************************

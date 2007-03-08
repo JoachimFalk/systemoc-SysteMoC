@@ -448,7 +448,7 @@ struct AST<DVar<T> > {
   static inline
   PASTNode apply(const DVar <T> &e) {
     //std::cerr << "AST<DVar<T> >: Was here !!!" << std::endl;
-    return PASTNode(new ASTNodeVar(e.x,e.name));
+    return PASTNode(new ASTNodeVar(TypeSymbolIdentifier(e.x,e.name)));
   }
 };
 

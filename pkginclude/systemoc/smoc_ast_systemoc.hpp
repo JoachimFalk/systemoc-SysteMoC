@@ -42,6 +42,7 @@
 
 #include <boost/intrusive_ptr.hpp>
 #include <cosupport/refcount_object.hpp>
+#include <cosupport/functor.hpp>
 
 namespace smoc_modes {
   class PGWriter;
@@ -169,11 +170,22 @@ class TypeSymbolIdentifier
 : public TypeIdentifier
 , public SymbolIdentifier {
 public:
-  template<typename F>
+  template<class R, class F>
   explicit
-  TypeSymbolIdentifier(const F &f)
-    : TypeIdentifier(Type<typename F::return_type *>()),
-      SymbolIdentifier(f.name) {}
+  TypeSymbolIdentifier(const CoSupport::Functor<R,F> &functor)
+    : TypeIdentifier(Type<typename CoSupport::Functor<R,F>::return_type>()),
+      SymbolIdentifier(functor.name) {}
+  template<class R, class F>
+  explicit
+  TypeSymbolIdentifier(const CoSupport::ConstFunctor<R,F> &functor)
+    : TypeIdentifier(Type<typename CoSupport::Functor<R,F>::return_type>()),
+      SymbolIdentifier(functor.name) {}
+  template<typename T>
+  explicit
+  TypeSymbolIdentifier(const T &var, const std::string &name)
+    : TypeIdentifier(Type<T>()),
+      SymbolIdentifier(name) {}
+
 //reinterpret_cast<const dummy *>(f.obj)
 //reinterpret_cast<const fun   *>(&f.func)
 };
