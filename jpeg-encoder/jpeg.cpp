@@ -11,6 +11,8 @@
 #include <iomanip>
 #include <Magick++.h>
 
+using namespace Magick;
+
 typedef unsigned int uint_ty;
 static const uint_ty dctX = 8;
 static const uint_ty dctY = 8;
@@ -229,24 +231,24 @@ class Block {
     void Dump( std::ostream &out ) {
       uint_ty x, y;
       
-      out << "// Start Block-Dump" << endl;
+      out << "// Start Block-Dump" << std::endl;
       for ( y = 0; y < dctY; y++ ) {
 	for ( x = 0; x < dctX; x++ ) {
 	  out
 	    << std::setw(4) << get(x,y) << ",";
 	}
-	out << endl;
+	out << std::endl;
       }
-      out << "// End Block-Dump" << endl;
+      out << "// End Block-Dump" << std::endl;
     }
     
     void ZigZagDump( std::ostream &out ) {
       zigzag_iterator ziter;
       
-      out << "// Start ZigZagBlock-Dump" << endl;
+      out << "// Start ZigZagBlock-Dump" << std::endl;
       for ( ziter = zigzag_begin(); ziter != zigzag_end(); ++ziter )
 	std::cout << *ziter << ", ";
-      out << endl << "// End ZigZagBlock-Dump" << endl;
+      out << std::endl << "// End ZigZagBlock-Dump" << std::endl;
     }
 };
 
@@ -461,7 +463,7 @@ class HuffmanTable {
     for ( i = 0; i < 256; i++ ) {
       out << "0x" << std::setw(2) << std::setfill('0') << std::hex << i
 	<< " => ( " << std::setw(2) << std::setfill(' ') << std::dec << data[i].len
-	<< ", 0b" << std::setw(data[i].len) << ubint_o(data[i].code) << " )" << endl;
+	<< ", 0b" << std::setw(data[i].len) << ubint_o(data[i].code) << " )" << std::endl;
     }
   }
   
@@ -775,12 +777,12 @@ void catcodetest( int x ) {
   
   std::cout
     << "catcodetest(" << x << ") => " << cc.len
-    << ", 0b" << std::setw(cc.len) << ubint_o(cc.code) << endl;
+    << ", 0b" << std::setw(cc.len) << ubint_o(cc.code) << std::endl;
 }
 
 int main( int argc, char *argv[] ) {
   if ( argc != 2 ) {
-    std::cerr << "Usage: " << argv[0] << " <imagefile>" << endl;
+    std::cerr << "Usage: " << argv[0] << " <imagefile>" << std::endl;
     exit( 1 );
   }
   
@@ -799,8 +801,8 @@ int main( int argc, char *argv[] ) {
     uint_ty columns = image_rgb.columns();
     uint_ty rows    = image_rgb.rows();
     
-//    std::cout << columns << endl;
-//    std::cout << rows << endl;
+//    std::cout << columns << std::endl;
+//    std::cout << rows << std::endl;
 
 
     {
@@ -817,7 +819,7 @@ int main( int argc, char *argv[] ) {
 	  YCbCr Y( rgb );
 //	  std::cout
 //	    << "(" << r << "," << g << "," << b << ") =>"
-//	    << "(" << Y << "," << Cb << "," << Cr << ")" << endl;
+//	    << "(" << Y << "," << Cb << "," << Cr << ")" << std::endl;
 	  pixels_y[(x+columns*y)*3+0] = (Y.y << 8) + Y.y;
 	  pixels_y[(x+columns*y)*3+1] = (Y.y << 8) + Y.y;
 	  pixels_y[(x+columns*y)*3+2] = (Y.y << 8) + Y.y;
@@ -839,9 +841,9 @@ int main( int argc, char *argv[] ) {
 	image_y.quality(100);
 	image_cb.quality(100);
 	image_cr.quality(100);
-	image_y.write( std::string("Y_")+image_name );
-	image_cb.write( std::string("Cb_")+image_name );
-	image_cr.write( std::string("Cr_")+image_name );
+	image_y.write( std::string("Y_")+basename(image_name.c_str()) );
+	image_cb.write( std::string("Cb_")+basename(image_name.c_str()) );
+	image_cr.write( std::string("Cr_")+basename(image_name.c_str()) );
       }
       delete[] pixels_y;
       delete[] pixels_cb;
@@ -863,7 +865,8 @@ int main( int argc, char *argv[] ) {
 
       DCT2DDoubleTransform dct;
       DataBlock res;
-      QuantTable   qbY(0,QuantTBLY);
+//    QuantTable   qbY(0,QuantTBLY);
+      QuantTable   qbY(0,QuantTBLId);
       std::istringstream	inDCY(HuffmanDCYStr);
       HuffmanTable		htDCY(inDCY);
       std::istringstream	inACY(HuffmanACYStr);
@@ -872,12 +875,12 @@ int main( int argc, char *argv[] ) {
 //	HuffmanTable htDCCbCr(HuffmanTable::HT_DC|2, HuffmanDCCbCr);
 //	HuffmanTable htACCbCr(HuffmanTable::HT_AC|3, HuffmanACCbCr);
 
-      std::cout << "htDCY-Dump" << endl;
+      std::cout << "htDCY-Dump" << std::endl;
       htDCY.dump(std::cout);
-      std::cout << endl;
-      std::cout << "htACY-Dump" << endl;
+      std::cout << std::endl;
+      std::cout << "htACY-Dump" << std::endl;
       htACY.dump(std::cout);
-      std::cout << endl;
+      std::cout << std::endl;
       
       std::ofstream myjpgfile( "myjpeg.jpg" );
       JPEGOutStream myjpg( myjpgfile );
@@ -906,13 +909,13 @@ int main( int argc, char *argv[] ) {
 	  for ( x = 0; x < columns; x += 8 ) {
 	    PixelBlock pb( view_rgb, x, y );
 	    pb.Set( view_y8x8tile, (x/8)*9, (y/8)*9 );
-	    std::cout << "Block at X:" << x << " Y:" << y << endl;
-	    std::cout << "Y Values" << endl;
+	    std::cout << "Block at X:" << x << " Y:" << y << std::endl;
+	    std::cout << "Y Values" << std::endl;
 	    pb.Dump( std::cout );
-	    std::cout << "DCT Values" << endl;
+	    std::cout << "DCT Values" << std::endl;
 	    dct.transform(pb,res);
 	    res.Dump( std::cout );
-	    std::cout << "Quant Values" << endl;
+	    std::cout << "Quant Values" << std::endl;
 	    qbY.quantise(res,res);
 	    res.Dump( std::cout );
 	    res.ZigZagDump( std::cout );
@@ -942,7 +945,7 @@ int main( int argc, char *argv[] ) {
 	}
       }
       myjpg.finalise();
-      image_y8x8tile.write( std::string("Y8x8Tile_")+image_name );
+      image_y8x8tile.write( std::string("Y8x8Tile_")+basename(image_name.c_str()));
     }
   }
 }
@@ -957,13 +960,13 @@ int main( int argc, char *argv[] ) {
   {
     uint_ty x, y;
     
-    std::cout << "DCT2DDoubleTransform Coefficients beginn" << endl;
+    std::cout << "DCT2DDoubleTransform Coefficients beginn" << std::endl;
     for ( x = 0; x < dctX; x++ ) {
       for ( y = 0; y < dctY; y++ ) {
-	std::cout << res[x][y] << endl;
+	std::cout << res[x][y] << std::endl;
       }
     }
-    std::cout << "DCT2DDoubleTransform Coefficients end" << endl;
+    std::cout << "DCT2DDoubleTransform Coefficients end" << std::endl;
   }
 
   {
@@ -973,7 +976,7 @@ int main( int argc, char *argv[] ) {
       for ( y = 0; y < dctY; y++ ) {
 	for ( u = 0; u < dctX; u++ ) {
 	  for ( v = 0; v < dctY; v++ ) {
-	    std::cout << DCT2Dfact( x, y, u, v ) << endl;
+	    std::cout << DCT2Dfact( x, y, u, v ) << std::endl;
 	  }
 	}
       }

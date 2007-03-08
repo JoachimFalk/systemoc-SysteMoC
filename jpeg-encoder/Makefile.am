@@ -32,4 +32,4 @@ LIBS= @LIBS@
 noinst_PROGRAMS= simple-jpeg-encoder
 
 simple_jpeg_encoder_SOURCES= jpeg.cpp
-simple_jpeg_encoder_LDFLAGS= -lmagic
+simple_jpeg_encoder_LDFLAGS= -lMagick++
