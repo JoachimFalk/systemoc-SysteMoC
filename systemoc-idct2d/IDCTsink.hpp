@@ -34,59 +34,60 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_IDCTSINK_HPP
+#define _INCLUDED_IDCTSINK_HPP
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 
-#include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-//# include <smoc_scheduler.hpp>
-# include <systemoc/smoc_pggen.hpp>
-#endif
-
 #include "callib.hpp"
 
-#include "block_idct.hpp"
-#include "IDCTsource.hpp"
-#include "IDCTsink.hpp"
+#define ONAMEblk "test_out.dat"
 
+#ifdef EDK_XILINX_RUNTIME
+# define USE_COUNTER_INPUT
+#endif
+#ifdef KASCPAR_PARSING
+# define USE_COUNTER_INPUT
+typedef unsigned int size_t;
+#endif
 
-
-class IDCT2d_TEST
-: public smoc_graph {
-private:
-  m_source_idct src_idct;
-  m_block_idct  blidct;
-  m_sink        snk;
+class m_sink: public smoc_actor {
 public:
-  IDCT2d_TEST(sc_module_name name, size_t periods)
-    : smoc_graph(name),
-      src_idct("src_idct", periods),
-      blidct("blidct"),
-      snk("snk") {
-#ifndef KASCPAR_PARSING
-    connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
-    connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(4));
-    connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
+  smoc_port_in<int> in;
+private:
+#ifndef USE_COUNTER_INPUT
+  std::ofstream fo; 
+#endif
+  
+  void process() {
+#ifndef USE_COUNTER_INPUT
+    cout << name() << " receiving " << in[0] << std::endl;
+    fo << in[0] << std::endl;
+#else
+    int foo = in[0];
+#endif
+  }
+  
+  smoc_firing_state start;
+public:
+  m_sink( sc_module_name name )
+    : smoc_actor( name, start )
+#ifndef USE_COUNTER_INPUT
+    , fo(ONAMEblk)
+#endif
+  {
+    start = in(1) >> CALL(m_sink::process)  >> start;
+  }
+  
+  ~m_sink() {
+#ifndef USE_COUNTER_INPUT
+    fo.close();
 #endif
   }
 };
 
-#ifndef KASCPAR_PARSING
-int sc_main (int argc, char **argv) {
-  size_t periods            =
-    (argc > 1)
-    ? atoi(argv[1])
-    : 1;
-  
-  smoc_top_moc<IDCT2d_TEST> top("top", periods);
-  
-  sc_start(-1);
-  
-  return 0;
-}
 #endif

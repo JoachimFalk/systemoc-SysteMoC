@@ -34,59 +34,84 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_IDCTSOURCE_HPP
+#define _INCLUDED_IDCTSOURCE_HPP
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 
-#include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-//# include <smoc_scheduler.hpp>
-# include <systemoc/smoc_pggen.hpp>
-#endif
-
 #include "callib.hpp"
 
-#include "block_idct.hpp"
-#include "IDCTsource.hpp"
-#include "IDCTsink.hpp"
+#define INAMEblk "test_in.dat"
 
+#ifdef EDK_XILINX_RUNTIME
+# define USE_COUNTER_INPUT
+#endif
+#ifdef KASCPAR_PARSING
+# define USE_COUNTER_INPUT
+typedef unsigned int size_t;
+#endif
 
-
-class IDCT2d_TEST
-: public smoc_graph {
-private:
-  m_source_idct src_idct;
-  m_block_idct  blidct;
-  m_sink        snk;
+class m_source_idct: public smoc_actor {
 public:
-  IDCT2d_TEST(sc_module_name name, size_t periods)
-    : smoc_graph(name),
-      src_idct("src_idct", periods),
-      blidct("blidct"),
-      snk("snk") {
-#ifndef KASCPAR_PARSING
-    connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
-    connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(4));
-    connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
+  smoc_port_out<int> out;
+  smoc_port_out<int> min;
+private:
+  size_t counter;
+#ifndef USE_COUNTER_INPUT
+  std::ifstream i1; 
+#endif
+  
+  void process() {
+    int myMin;
+    int myOut;
+    
+#ifndef USE_COUNTER_INPUT
+    if (i1.good()) {
+#endif
+      for ( int j = 0; j <= 63; j++ ) {
+#ifdef USE_COUNTER_INPUT
+        myOut = counter;
+#else
+        i1 >> myOut;
+        cout << name() << "  write " << myOut << std::endl;
+#endif
+        out[j] = myOut;
+				counter++;
+      }
+      myMin = -256;
+#ifndef USE_COUNTER_INPUT
+      cout << name() << "  write min " << myMin << std::endl;
+#endif
+      min[0] = myMin;
+#ifndef USE_COUNTER_INPUT
+    } else {
+      cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
+      exit (1) ;
+    }
+#endif
+  }
+ 
+  smoc_firing_state start;
+public:
+  m_source_idct(sc_module_name name,
+      SMOC_ACTOR_CPARAM(size_t, periods))
+    : smoc_actor(name, start), counter(0) {
+#ifndef USE_COUNTER_INPUT
+    i1.open(INAMEblk);
+#endif
+    start = (out(64) && min(1) && VAR(counter) < periods * 64)  >>
+            CALL(m_source_idct::process)                        >> start;
+  }
+  ~m_source_idct() {
+#ifndef USE_COUNTER_INPUT
+    i1.close();
 #endif
   }
 };
 
-#ifndef KASCPAR_PARSING
-int sc_main (int argc, char **argv) {
-  size_t periods            =
-    (argc > 1)
-    ? atoi(argv[1])
-    : 1;
-  
-  smoc_top_moc<IDCT2d_TEST> top("top", periods);
-  
-  sc_start(-1);
-  
-  return 0;
-}
+
 #endif
