@@ -35,7 +35,9 @@
 #ifndef _INCLUDED_COL2BLOCK_HPP
 #define _INCLUDED_COL2BLOCK_HPP
 
+#ifdef VERBOSE_ACTOR
 #define VERBOSE_IDCT_COL2BLOCK
+#endif
 
 class m_col2block: public smoc_actor {
 public:

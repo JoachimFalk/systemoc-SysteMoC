@@ -1,3 +1,5 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
+// vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
@@ -32,62 +34,81 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_IDCTADDSUB_HPP
-#define _INCLUDED_IDCTADDSUB_HPP
+#ifndef _INCLUDED_IDCTBLOCKSINK_HPP
+#define _INCLUDED_IDCTBLOCKSINK_HPP
 
-#ifdef VERBOSE_ACTOR
-#define VERBOSE_IDCT_ADDSUB
+#ifdef KASCPAR_PARSING
+# define USE_COUNTER_INPUT
+typedef unsigned int size_t;
 #endif
 
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
 
-class m_IDCTaddsub: public smoc_actor {
+#include <systemoc/smoc_port.hpp>
+#include "callib.hpp"
+
+class m_block_sink: public smoc_actor {
 public:
-  smoc_port_in<int> I1;
-  smoc_port_in<int> I2;
-  smoc_port_out<int> O1;
-  smoc_port_out<int> O2;
+  smoc_port_in<int> in;
 private:
-  const int  G;
-  const int  OS;
-  const int  ATTEN;
-  
-  void action0() {
-		int O1_internal = cal_rshift(G * (I1[0] + I2[0]) + OS, ATTEN);
-		int O2_internal = cal_rshift(G * (I1[0] - I2[0]) + OS, ATTEN);
-    O1[0] = O1_internal;
-    O2[0] = O2_internal;
-#ifdef VERBOSE_IDCT_ADDSUB
-#ifndef NDEBUG
-#ifndef XILINX_EDK_RUNTIME
-		cout << name() << ": " << "I1[0] = " << I1[0] << endl;
-		cout << name() << ": " << "I2[0] = " << I2[0] << endl;
-		cout << name() << ": " << "O1[0] = " << O1_internal << endl;
-		cout << name() << ": " << "O2[0] = " << O2_internal << endl;
-#else
-		xil_printf("%s: I1[0] = %d\r\n",name(),I1[0]);
-		xil_printf("%s: I2[0] = %d\r\n",name(),I2[0]);
-		xil_printf("%s: O1[0] = %d\r\n",name(),O1_internal);
-		xil_printf("%s: O2[0] = %d\r\n",name(),O2_internal);
 
-#endif
-#endif
-#endif
+  const size_t image_width;
+  const size_t image_height;
+
+  unsigned long block_count;
+  const unsigned long block_nbr;
+
+  void new_image() {
+    cout << "P2 " 
+         << image_width << " "
+         << image_height<< " "
+         << 255 
+         << endl;
+    process();
+  }
+  
+  void process() {
+    //output a complete block line
+    for(unsigned int y = 0; y < 8; y++){
+      for(unsigned int x = 0; x < image_width; x++){      
+        unsigned int bx = x / 8;
+        unsigned int rx = x % 8;
+        std::cout << in[bx*64+y*8+rx] << " ";
+      }
+      std::cout << std::endl;
+    }
+    block_count += image_width / 8;
+    if (block_count >= block_nbr)
+      block_count = 0;
   }
   
   smoc_firing_state start;
 public:
-  m_IDCTaddsub(sc_module_name name,
-               SMOC_ACTOR_CPARAM(int, G),
-	       SMOC_ACTOR_CPARAM(int, OS),
-	       SMOC_ACTOR_CPARAM(int, ATTEN))
-    : smoc_actor(name, start),
-      G(G), OS(OS), ATTEN(ATTEN) {
-    start = (I1(1) && I2(1))            >>
-            (O1(1) && O2(1))            >>
-            CALL(m_IDCTaddsub::action0) >> start;
+  m_block_sink( sc_module_name name,
+                SMOC_ACTOR_CPARAM(size_t, image_width),
+                SMOC_ACTOR_CPARAM(size_t, image_height)
+                )
+    : smoc_actor( name, start ),
+      image_width(image_width),
+      image_height(image_height),
+      block_count(0),
+      //Only support complete blocks
+      block_nbr(image_width/8*image_height/8)
+  {
+    // Read a complete line as once
+    start = in(64*(image_width/8)) 
+      >> (VAR(block_count) != (unsigned)0)
+      >> CALL(m_block_sink::process)  >> start
+      | in(64*(image_width/8)) 
+      >> (VAR(block_count) == (unsigned)0)
+      >> CALL(m_block_sink::new_image)  >> start;
   }
   
-  virtual ~m_IDCTaddsub(){}
+  ~m_block_sink() {
+  }
 };
 
-#endif // _INCLUDED_IDCTADDSUB_HPP
+#endif

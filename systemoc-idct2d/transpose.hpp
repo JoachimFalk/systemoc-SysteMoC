@@ -35,7 +35,9 @@
 #ifndef _INCLUDED_TRANSPOSE_HPP
 #define _INCLUDED_TRANSPOSE_HPP
 
+#ifdef VERBOSE_ACTOR
 #define VERBOSE_TRANSPOSE
+#endif
 
 
 class m_transpose: public smoc_actor {

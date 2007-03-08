@@ -34,82 +34,99 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_IDCTBLOCKSOURCE_HPP
+#define _INCLUDED_IDCTBLOCKSOURCE_HPP
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 
-#include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-//# include <smoc_scheduler.hpp>
-# include <systemoc/smoc_pggen.hpp>
-#endif
-
 #include "callib.hpp"
 
-
-#define REAL_BLOCK_DATA
-#define IMAGE_WIDTH 16
-#define IMAGE_HEIGHT 16
-
-#include "block_idct.hpp"
-
-#ifndef REAL_BLOCK_DATA
-# include "IDCTsource.hpp"
-# include "IDCTsink.hpp"
-#else
-# include "IDCT_block_source.hpp"
-# include "IDCT_block_sink.hpp"
+#ifdef KASCPAR_PARSING
+# define USE_COUNTER_INPUT
+typedef unsigned int size_t;
 #endif
 
-
-
-
-class IDCT2d_TEST
-: public smoc_graph {
-private:
-#ifndef REAL_BLOCK_DATA
-  m_source_idct src_idct;
-  m_sink        snk;
-#else
-  m_block_source_idct src_idct;
-  m_block_sink        snk;
-#endif
-  m_block_idct  blidct;
-
+class m_block_source_idct: public smoc_actor {
 public:
-  IDCT2d_TEST(sc_module_name name, size_t periods)
-    : smoc_graph(name),
-      src_idct("src_idct", periods),
-#ifdef REAL_BLOCK_DATA
-      snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT) ,
-#else
-      snk("snk"),
-#endif
-      blidct("blidct")
-{
-#ifndef KASCPAR_PARSING
-    connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
-    connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(4));
-    connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
-#endif
+  smoc_port_out<int> out;
+  smoc_port_out<int> min;
+private:
+  size_t counter;
+  size_t counter2;
+  
+  const static unsigned long block_data_size;
+  const static int block_data[];
+  
+  void process() {
+    int myMin;
+    int myOut;
+    
+    for ( int j = 0; j <= 63; j++ ) {
+      myOut = block_data[counter];
+      out[j] = myOut;
+      counter++;
+      counter2++;
+      if (counter >= block_data_size)
+        counter = 0;
+    }
+    myMin = -256;
+    min[0] = myMin;
+  }
+ 
+  smoc_firing_state start;
+public:
+  m_block_source_idct(sc_module_name name,
+      SMOC_ACTOR_CPARAM(size_t, periods))
+    : smoc_actor(name, start), counter(0), counter2(0) {
+    start = (out(64) && min(1) && VAR(counter2) < periods * 64)  >>
+      CALL(m_block_source_idct::process)                        >> start;
+  }
+
+  ~m_block_source_idct() {
   }
 };
 
-#ifndef KASCPAR_PARSING
-int sc_main (int argc, char **argv) {
-  size_t periods            =
-    (argc > 1)
-    ? atoi(argv[1])
-    : IMAGE_WIDTH/8*IMAGE_HEIGHT/8;
+const unsigned long m_block_source_idct::block_data_size = 4*64;
+const int m_block_source_idct::block_data[] = {
+  128,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
   
-  smoc_top_moc<IDCT2d_TEST> top("top", periods);
+  128,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
   
-  sc_start(-1);
+  128,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
   
-  return 0;
-}
+  128,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+};
+
 #endif
