@@ -216,12 +216,12 @@ const void *ASTNodeVar::getAddr() const
 const ValueContainer &ASTNodeLiteral::getValue() const
   { return value; }
 
-std::string ASTNodeMemGuard::getName() const
-  { return name.c_str(); }
-const void *ASTNodeMemGuard::getAddrObj() const
-  { return o; }
-const void *ASTNodeMemGuard::getAddrFun() const
-  { return *reinterpret_cast<const void *const *>(&m); }
+const SymbolIdentifier &ASTNodeMemGuard::getName() const
+  { return symbol; }
+//const void *ASTNodeMemGuard::getAddrObj() const
+//  { return o; }
+//const void *ASTNodeMemGuard::getAddrFun() const
+//  { return *reinterpret_cast<const void *const *>(&m); }
 
 const PortIdentifier &ASTNodeToken::getPort() const
   { return port; }

@@ -338,8 +338,8 @@ namespace {
 
     result_type operator ()(ASTNodeVar &astNode) {
       openNodeTag(astNode);
-      pgw << " name=\"" << astNode.getName() << "\"";
-      pgw << " addr=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddr()) << "\">";
+      pgw << " name=\"" << astNode.getName() << "\">";
+//    pgw << " addr=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddr()) << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeLiteral &astNode) {
@@ -355,9 +355,9 @@ namespace {
     }
     result_type operator ()(ASTNodeMemGuard &astNode) {
       openNodeTag(astNode);
-      pgw << " name=\"" << astNode.getName() << "\"";
-      pgw << " addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrObj()) << std::dec << "\"";
-      pgw << " addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrFun()) << std::dec << "\">";
+      pgw << " name=\"" << astNode.getName() << "\">";
+//    pgw << " addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrObj()) << std::dec << "\"";
+//    pgw << " addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrFun()) << std::dec << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeToken &astNode) {

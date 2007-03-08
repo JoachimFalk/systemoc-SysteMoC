@@ -81,6 +81,7 @@ protected:
   std::string value;
 public:
   template <typename T >
+  explicit
   ValueContainer(const T &v) {
     std::ostringstream o;
     o << v; value = o.str();
@@ -100,22 +101,22 @@ std::ostream &operator << (std::ostream &o, const ValueContainer &value);
 class TypeIdentifier {
 protected:
   std::string type;
+
+  TypeIdentifier(const std::string &type):
+    type(type) {}
 public:
-  template <typename T>
-  TypeIdentifier(T *):
-    type(typeid(typename Detail::TypeFilter<T>::type).name()) {}
-  
-  TypeIdentifier(const TypeIdentifier &t)
-    : type(t.type) {}
-  
-  TypeIdentifier(const ValueTypeContainer &vt);
-  
   operator const std::string &() const
     { return type; }
 };
 
-extern TypeIdentifier SMOC_AST_TYPE_SIZE_T;
-extern TypeIdentifier SMOC_AST_TYPE_BOOL;
+template <typename T>
+class Type: public TypeIdentifier {
+protected:
+  std::string type;
+public:
+  Type():
+    TypeIdentifier(typeid(typename Detail::TypeFilter<T>::type).name()) {}
+};
 
 std::ostream &operator << (std::ostream &o, const TypeIdentifier &type);
 
@@ -124,9 +125,10 @@ class ValueTypeContainer
 , public TypeIdentifier {
 public:
   template <typename T >
+  explicit
   ValueTypeContainer(const T &v)
     : ValueContainer(v),
-      TypeIdentifier(static_cast<T*>(NULL)) {}
+      TypeIdentifier(Type<T>()) {}
 };
 
 class PortIdentifier {
@@ -146,8 +148,34 @@ class TypePortIdentifier
 public:
   template <typename T, template <typename, typename> class R, class PARAM_TYPE>
   TypePortIdentifier(const smoc_port_in_base<T,R,PARAM_TYPE> &port)
-    : TypeIdentifier(static_cast<T*>(NULL)),
+    : TypeIdentifier(Type<T>()),
       PortIdentifier(port) {}
+};
+
+class SymbolIdentifier {
+protected:
+  std::string name;
+public:
+  SymbolIdentifier(const std::string &name)
+    : name(name) {}
+
+  operator const std::string &() const
+    { return name; }
+};
+
+std::ostream &operator << (std::ostream &o, const SymbolIdentifier &symbol);
+
+class TypeSymbolIdentifier
+: public TypeIdentifier
+, public SymbolIdentifier {
+public:
+  template<typename F>
+  explicit
+  TypeSymbolIdentifier(const F &f)
+    : TypeIdentifier(Type<typename F::return_type *>()),
+      SymbolIdentifier(f.name) {}
+//reinterpret_cast<const dummy *>(f.obj)
+//reinterpret_cast<const fun   *>(&f.func)
 };
 
 #include "smoc_ast_common.hpp"

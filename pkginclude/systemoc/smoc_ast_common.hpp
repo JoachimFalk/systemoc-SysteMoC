@@ -151,7 +151,7 @@ private:
 public:
   template <typename T>
   ASTNodeVar(const T &x, const char *name)
-    : ASTLeafNode(nodeType, static_cast<T*>(NULL)), name(name), addr(&x) {}
+    : ASTLeafNode(nodeType, Type<T>()), name(name), addr(&x) {}
 
   std::string getName() const;
   const void *getAddr() const;
@@ -189,7 +189,7 @@ private:
 public:
   template <typename T>
   ASTNodeProc(T (*f)())
-    : ASTLeafNode(nodeType, static_cast<T*>(NULL)),
+    : ASTLeafNode(nodeType, Type<T>()),
       f(reinterpret_cast<proc_ty>(f)) {}
  
   proc_ty ptrProc() const { return f; }
@@ -211,7 +211,7 @@ private:
 public:
   template<typename T, class X>
   ASTNodeMemProc(X *o, T (X::*m)())
-    : ASTLeafNode(nodeType, static_cast<T*>(NULL)),
+    : ASTLeafNode(nodeType, Type<T>()),
       o(reinterpret_cast<dummy *>(o)),
       m(*reinterpret_cast<fun *>(&m)) {}
 
@@ -229,24 +229,21 @@ class ASTNodeMemGuard: public ASTLeafNode {
 public:
   static const _ASTNodeType nodeType = ASTNodeTypeMemGuard;
 private:
-  std::string name;
+  SymbolIdentifier symbol;
 
-  struct dummy;
-  typedef void (dummy::*fun)() const;
+//struct dummy;
+//typedef void (dummy::*fun)() const;
 
-  const dummy *o;
-  fun          m;
+//const dummy *o;
+//fun          m;
 public:
-  template<typename F>
-  ASTNodeMemGuard(const F &f)
-    : ASTLeafNode(nodeType, static_cast<typename F::return_type *>(NULL)),
-      o(reinterpret_cast<const dummy *>(f.obj)),
-      m(*reinterpret_cast<const fun *>(&f.func)) {}
+  ASTNodeMemGuard(const TypeSymbolIdentifier &typeSymbol)
+    : ASTLeafNode(nodeType, typeSymbol), symbol(typeSymbol) {}
 
-  std::string getName() const;
-  const void *getAddrObj() const;
-  const void *getAddrFun() const;
-  std::string getNodeParam() const;
+  const SymbolIdentifier &getName() const;
+//const void *getAddrObj() const;
+//const void *getAddrFun() const;
+//std::string getNodeParam() const;
 };
 
 /****************************************************************************
@@ -280,7 +277,7 @@ private:
   PortIdentifier port;
 public:
   ASTNodePortTokens(const PortIdentifier &port)
-    : ASTLeafNode(nodeType, SMOC_AST_TYPE_SIZE_T),
+    : ASTLeafNode(nodeType, Type<size_t>()),
       port(port) {}
  
   const PortIdentifier &getPort() const;
@@ -298,7 +295,7 @@ public:
 private:
 public:
   ASTNodeSMOCEvent()
-    : ASTLeafNode(nodeType, SMOC_AST_TYPE_BOOL) {}
+    : ASTLeafNode(nodeType, Type<bool>()) {}
 
   std::string getNodeParam() const;
 };
@@ -314,7 +311,7 @@ private:
   PortIdentifier port;
 public:
   ASTNodePortIteration(const PortIdentifier &port)
-    : ASTLeafNode(nodeType, SMOC_AST_TYPE_SIZE_T),
+    : ASTLeafNode(nodeType, Type<size_t>()),
       port(port) {}
 
   const PortIdentifier &getPort() const;
@@ -432,7 +429,7 @@ private:
   PortIdentifier port;
 public:
   ASTNodeComm(const PortIdentifier &port, const PASTNode &c)
-    : ASTInternalUnNode(nodeType, SMOC_AST_TYPE_BOOL, c),
+    : ASTInternalUnNode(nodeType, Type<bool>(), c),
       port(port) {}
 
   const PortIdentifier &getPort() const;

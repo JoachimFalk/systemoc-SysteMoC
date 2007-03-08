@@ -43,19 +43,16 @@ namespace SysteMoC { namespace ActivationPattern {
 // compilation use definitions from smoc_ast_systemoc.hpp
 #include "smoc_ast_common.cpp"
 
-TypeIdentifier SMOC_AST_TYPE_SIZE_T(static_cast<size_t *>(NULL));
-TypeIdentifier SMOC_AST_TYPE_BOOL(static_cast<bool *>(NULL));
-
 std::ostream &operator << (std::ostream &o, const ValueContainer &value)
   { return o << static_cast<const std::string &>(value); }
 
 std::ostream &operator << (std::ostream &o, const TypeIdentifier &type)
   { return o << static_cast<const std::string &>(type); }
 
+std::ostream &operator << (std::ostream &o, const SymbolIdentifier &symbol)
+  { return o << static_cast<const std::string &>(symbol); }
+
 ValueContainer::ValueContainer(const ValueTypeContainer &vt)
   : value(vt.value) {}
-
-TypeIdentifier::TypeIdentifier(const ValueTypeContainer &vt)
-  : type(vt.type) {}
 
 } } // namespace SysteMoC::ActivationPattern

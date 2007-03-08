@@ -526,8 +526,10 @@ struct AST<DLiteral<T> > {
   typedef PASTNode result_type;
   
   static inline
-  PASTNode apply(const DLiteral <T> &e)
-    { return PASTNode(new ASTNodeLiteral(e.v)); }
+  PASTNode apply(const DLiteral <T> &e) {
+    return PASTNode(new ASTNodeLiteral(
+      SysteMoC::ActivationPattern::ValueTypeContainer(e.v)));
+  }
 };
 
 template <typename T>
@@ -692,8 +694,10 @@ struct AST<DMemGuard<F,PL> > {
   typedef PASTNode result_type;
   
   static inline
-  PASTNode apply(const DMemGuard <F,PL> &e)
-    { return PASTNode(new ASTNodeMemGuard(e.f)); }
+  PASTNode apply(const DMemGuard <F,PL> &e) {
+    return PASTNode(new ASTNodeMemGuard(
+      SysteMoC::ActivationPattern::TypeSymbolIdentifier(e.f)));
+  }
 };
 
 template<class F, class PL>
@@ -793,7 +797,7 @@ struct AST<DBinOp<A,B,Op> > {
                 << typeid(B).name() << ","
                 << Op << "> >: Was here !!!" << std::endl;*/
     return PASTNode(new ASTNodeBinOp(
-        static_cast<typename Value<DBinOp<A,B,Op> >::result_type *>(NULL), Op,
+        Type<typename Value<DBinOp<A,B,Op> >::result_type>(), Op,
         AST<A>::apply(e.a), AST<B>::apply(e.b)));
   }
 };
@@ -1192,15 +1196,18 @@ struct DUnOpExecute<TE,Op,Value> {                                    \
     { return op Value<E>::apply(e); }                                 \
 };
 
-template <class A, _OpUnT Op>
-struct AST<DUnOp<A,Op> > {
+template <class E, _OpUnT Op>
+struct AST<DUnOp<E,Op> > {
   typedef PASTNode result_type;
 
   static inline
-  result_type apply(const DUnOp<A,Op> &e) {
+  result_type apply(const DUnOp<E,Op> &e) {
+   /* std::cerr << "AST<DUnOp<"
+                << typeid(E).name() << ","
+                << Op << "> >: Was here !!!" << std::endl;*/
     return PASTNode(new ASTNodeUnOp(
-        static_cast<typename Value<DUnOp<A,Op> >::result_type *>(NULL), Op,
-        AST<A>::apply(e.e)));
+        Type<typename Value<DUnOp<E,Op> >::result_type>(), Op,
+        AST<E>::apply(e.e)));
   }
 };
 
