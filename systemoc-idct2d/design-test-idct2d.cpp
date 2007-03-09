@@ -52,8 +52,8 @@
 
 
 #define REAL_BLOCK_DATA
-#define IMAGE_WIDTH 16
-#define IMAGE_HEIGHT 16
+#define IMAGE_WIDTH  648
+#define IMAGE_HEIGHT 408
 
 //#define VERBOSE_ACTOR
 
