@@ -604,9 +604,9 @@ int main( int argc, char *argv[] ) {
 //	    std::cout << "DCT Values" << std::endl;
 	    dct.transform(pb,res);
 
-            for (int i = 0; i < dctX; ++i) {
-              for (int j = 0; j < dctY; ++j) {
-                idctCoeff << res[i][j] << ",";
+            for (int i = 0; i < dctY; ++i) {
+              for (int j = 0; j < dctX; ++j) {
+                idctCoeff << res[j][i] << ",";
               }
               idctCoeff << std::endl;
             }
