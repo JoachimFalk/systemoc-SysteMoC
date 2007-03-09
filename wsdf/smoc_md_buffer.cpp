@@ -35,8 +35,8 @@ bool smoc_simple_md_buffer_kind::hasUnusedStorage() const {
 	bool return_value = cache_unusedStorage;
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-	dout << "Enter smoc_simple_md_buffer_kind::hasUnusedStorage" << endl;
-	dout << inc_level;
+	CoSupport::dout << "Enter smoc_simple_md_buffer_kind::hasUnusedStorage" << std::endl;
+	CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
 	if (!return_value){
@@ -45,7 +45,7 @@ bool smoc_simple_md_buffer_kind::hasUnusedStorage() const {
 		//check, whether source iterator has started a new schedule period
 		if (new_schedule_period){
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
-			dout << "New schedule period" << endl;
+			CoSupport::dout << "New schedule period" << std::endl;
 #endif
 			cache_wr_schedule_period_start = 
 				wr_schedule_period_start +
@@ -64,15 +64,15 @@ bool smoc_simple_md_buffer_kind::hasUnusedStorage() const {
 		max_src_data_element_id[_token_dimensions-1] +=
 			schedule_period_offset * size_token_space[_token_dimensions-1];
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
-		dout << "max_src_data_element_id = " << max_src_data_element_id;
-		dout << endl;
+		CoSupport::dout << "max_src_data_element_id = " << max_src_data_element_id;
+		CoSupport::dout << std::endl;
 #endif
 		
 		// Calculate number of new lines
 		unsigned long new_lines = calc_req_new_lines(max_src_data_element_id,
 																								 new_schedule_period);
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
-		dout << "Required " << new_lines << " new lines" << endl;
+		CoSupport::dout << "Required " << new_lines << " new lines" << std::endl;
 #endif
 		
 		if(free_lines < new_lines){
@@ -90,21 +90,21 @@ bool smoc_simple_md_buffer_kind::hasUnusedStorage() const {
 		}			
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
 		if (return_value){
-			dout << "Allocation succeeded" << endl;
+			CoSupport::dout << "Allocation succeeded" << std::endl;
 		}else{
-			dout << "Allocation failed" << endl;
+			CoSupport::dout << "Allocation failed" << std::endl;
 		}
 #endif
 	}else{
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
-		dout << "Buffer already allocated" << endl;
+		CoSupport::dout << "Buffer already allocated" << std::endl;
 #endif
 	}
 		
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-	dout << "Leave smoc_simple_md_buffer_kind::hasUnusedStorage" << endl;
-	dout << dec_level;
+	CoSupport::dout << "Leave smoc_simple_md_buffer_kind::hasUnusedStorage" << std::endl;
+	CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
 	return return_value;
@@ -129,18 +129,18 @@ unsigned long smoc_simple_md_buffer_kind::calc_req_new_lines(const data_element_
 void smoc_simple_md_buffer_kind::free_buffer() {
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-	dout << "Enter smoc_simple_md_buffer_kind::free_buffer" << endl;
-	dout << inc_level;
-	dout << "free_lines = " << free_lines << endl;
-	dout << "buffer_lines = " << buffer_lines << endl;
+	CoSupport::dout << "Enter smoc_simple_md_buffer_kind::free_buffer" << std::endl;
+	CoSupport::dout << CoSupport::Indent::Up;
+	CoSupport::dout << "free_lines = " << free_lines << std::endl;
+	CoSupport::dout << "buffer_lines = " << buffer_lines << std::endl;
 #endif
 
 	for(unsigned i = 0; i < _token_dimensions-1; i++){
 		if (!snk_loop_iterator.is_iteration_max(i)){
 			//we cannot free complete line
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-			dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << endl;
-			dout << dec_level;
+			CoSupport::dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << std::endl;
+			CoSupport::dout << CoSupport::Indent::Down;
 #endif
 			return;
 		}
@@ -152,7 +152,7 @@ void smoc_simple_md_buffer_kind::free_buffer() {
 																								window_displacement)){
 		//We are at the end of a schedule period.
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-		dout << "End of schedule period" << endl;
+		CoSupport::dout << "End of schedule period" << std::endl;
 #endif
 		free_lines += 
 			size_token_space[_token_dimensions-1] - rd_min_data_element_offset;
@@ -164,8 +164,8 @@ void smoc_simple_md_buffer_kind::free_buffer() {
 		rd_schedule_period_start %= buffer_lines;
 	}else{
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-		dout << "free " << window_displacement << " lines" << endl;
-		dout << endl;
+		CoSupport::dout << "free " << window_displacement << " lines" << std::endl;
+		CoSupport::dout << std::endl;
 #endif
 		free_lines += window_displacement;
 		cache_free_lines += window_displacement;
@@ -174,8 +174,8 @@ void smoc_simple_md_buffer_kind::free_buffer() {
 	}	
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-	dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << endl;
-	dout << dec_level;
+	CoSupport::dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << std::endl;
+	CoSupport::dout << CoSupport::Indent::Down;
 #endif
 }
 

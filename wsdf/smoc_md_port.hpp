@@ -293,26 +293,26 @@ public:
 public:
 	return_type operator[](const iter_domain_vector_type& window_iteration) const{
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-		dout << "Enter smoc_cst_border_ext::operator[]" << endl;
-		dout << inc_level;
+		CoSupport::dout << "Enter smoc_cst_border_ext::operator[]" << std::endl;
+		CoSupport::dout << CoSupport::Indent::Up;
 #endif
 		bool is_border;
 		border_type_vector_type 
 			border_type(is_ext_border(window_iteration,is_border));
 
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-		dout << "window_iteration = " << window_iteration;
+		CoSupport::dout << "window_iteration = " << window_iteration;
 		if (is_border)
-			dout << " is situated on extended border.";
-		dout << endl;
+			CoSupport::dout << " is situated on extended border.";
+		CoSupport::dout << std::endl;
 #endif
 				
 
 		return_type return_value(is_border ? border_value : (*(this->channel_access))[window_iteration]);
 
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-		dout << "Leave smoc_cst_border_ext::operator[]" << endl;
-		dout << dec_level;
+		CoSupport::dout << "Leave smoc_cst_border_ext::operator[]" << std::endl;
+		CoSupport::dout << CoSupport::Indent::Down;
 #endif
 		
 		return return_value;
@@ -513,18 +513,18 @@ public:
 
 	void setFiringLevelMap(const s2vector_type& firing_level_map){
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
-		dout << "Enter smoc_md_port_in::setFiringLevelMap" << endl;
-		dout << inc_level;
+		CoSupport::dout << "Enter smoc_md_port_in::setFiringLevelMap" << std::endl;
+		CoSupport::dout << CoSupport::Indent::Up;
 #endif
 		this->firing_level_map = firing_level_map;
 
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
 
-		dout << "firing_level_map = " << firing_level_map;
-		dout << endl;
+		CoSupport::dout << "firing_level_map = " << firing_level_map;
+		CoSupport::dout << std::endl;
 
-		dout << "Leave smoc_md_port_in::setFiringLevelMap" << endl;
-		dout << dec_level;
+		CoSupport::dout << "Leave smoc_md_port_in::setFiringLevelMap" << std::endl;
+		CoSupport::dout << CoSupport::Indent::Down;
 #endif
 	}
 
@@ -703,19 +703,19 @@ public:
 
 	void setFiringLevelMap(const s2vector_type& firing_level_map){
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
-		dout << "Enter smoc_md_port_out::setFiringLevelMap" << endl;
-		dout << inc_level;
+		CoSupport::dout << "Enter smoc_md_port_out::setFiringLevelMap" << std::endl;
+		CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
 		this->firing_level_map = firing_level_map;
 
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
 
-		dout << "firing_level_map = " << firing_level_map;
-		dout << endl;
+		CoSupport::dout << "firing_level_map = " << firing_level_map;
+		CoSupport::dout << std::endl;
 
-		dout << "Leave smoc_md_port_out::setFiringLevelMap" << endl;
-		dout << dec_level;
+		CoSupport::dout << "Leave smoc_md_port_out::setFiringLevelMap" << std::endl;
+		CoSupport::dout << CoSupport::Indent::Down;
 #endif
 	}
 

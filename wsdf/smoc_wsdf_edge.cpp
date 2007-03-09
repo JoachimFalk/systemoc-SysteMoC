@@ -35,8 +35,8 @@ smoc_wsdf_edge_descr::uvector_type
 smoc_wsdf_edge_descr::src_iteration_max() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	dout << "Enter  smoc_wsdf_edge_descr::src_iteration_max()" << endl;
-	dout << inc_level;
+	CoSupport::dout << "Enter  smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
+	CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
 	uvector_type return_vector(calc_src_iteration_levels());
@@ -53,8 +53,8 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
 				token_dimension < token_dimensions;
 				token_dimension++){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-			dout << "firing_level = " << firing_level;
-			dout << " token_dimension = " << token_dimension << endl;
+			CoSupport::dout << "firing_level = " << firing_level;
+			CoSupport::dout << " token_dimension = " << token_dimension << std::endl;
 #endif
 			if (src_has_iteration_level(firing_level, token_dimension)){
 				assert(src_firing_blocks[firing_level][token_dimension] %
@@ -71,8 +71,8 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
 	}
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	dout << "Leave smoc_wsdf_edge_descr::src_iteration_max()" << endl;
-	dout << dec_level;
+	CoSupport::dout << "Leave smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
+	CoSupport::dout << CuSupport::Indent:Down;
 #endif
 
 	return return_vector;
@@ -244,8 +244,8 @@ smoc_wsdf_edge_descr::uvector_type
 smoc_wsdf_edge_descr::calc_snk_r_vtu() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	dout << "Enter smoc_wsdf_edge_descr::calc_snk_r_vtu()" << endl;
-	dout << inc_level;
+	CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_snk_r_vtu()" << std::endl;
+	CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
 	uvector_type return_vector(u0+bs+bt-c);
@@ -258,13 +258,13 @@ smoc_wsdf_edge_descr::calc_snk_r_vtu() const {
 	}
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	dout << "snk_r_vtu = " << return_vector;
-	dout << endl;
+	CoSupport::dout << "snk_r_vtu = " << return_vector;
+	CoSupport::dout << std::endl;
 #endif
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	dout << "Leave smoc_wsdf_edge_descr::calc_snk_r_vtu()" << endl;
-	dout << dec_level;
+	CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_snk_r_vtu()" << std::endl;
+	CoSupport::dout << CuSupport::Indent:Down;
 #endif
 
 	return return_vector;
@@ -274,8 +274,8 @@ smoc_wsdf_edge_descr::uvector_type
 smoc_wsdf_edge_descr::calc_src_r_vtu() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	dout << "Enter smoc_wsdf_edge_descr::calc_src_r_vtu()" << endl;
-	dout << inc_level;
+	CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_src_r_vtu()" << std::endl;
+	CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
 	uvector_type return_vector(token_dimensions);
@@ -289,13 +289,13 @@ smoc_wsdf_edge_descr::calc_src_r_vtu() const {
 	}
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	dout << "src_r_vtu = " << return_vector;
-	dout << endl;
+	CoSupport::dout << "src_r_vtu = " << return_vector;
+	CoSupport::dout << std::endl;
 #endif
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	dout << "Leave smoc_wsdf_edge_descr::calc_src_r_vtu()" << endl;
-	dout << dec_level;
+	CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_src_r_vtu()" << std::endl;
+	CoSupport::dout << CuSupport::Indent:Down;
 #endif
 
 	return return_vector;
@@ -306,16 +306,16 @@ smoc_wsdf_edge_descr::calc_src_r_vtu() const {
 void smoc_wsdf_edge_descr::check_local_balance() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	dout << "Enter smoc_wsdf_edge_descr::check_local_balance" << endl;
-	dout << inc_level;
+	CoSupport::dout << "Enter smoc_wsdf_edge_descr::check_local_balance" << std::endl;
+	CoSupport::dout << CoSupport::Indent::Up;
 
-	dout << "snk_firing_blocks = " << snk_firing_blocks;
-	dout << endl;
-	dout << "c = " << c;
-	dout << endl;
+	CoSupport::dout << "snk_firing_blocks = " << snk_firing_blocks;
+	CoSupport::dout << std::endl;
+	CoSupport::dout << "c = " << c;
+	CoSupport::dout << std::endl;
 
-	dout << "src_firing_blocks = " << src_firing_blocks;
-	dout << endl;
+	CoSupport::dout << "src_firing_blocks = " << src_firing_blocks;
+	CoSupport::dout << std::endl;
 #endif
 
 	//Calculate number of invocations per virtual token union
@@ -328,8 +328,8 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 
 	for(unsigned int i = 0; i < token_dimensions; i++){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-		dout << "Token dimension " << i << endl;
-		dout << inc_level;
+		CoSupport::dout << "Token dimension " << i << std::endl;
+		CoSupport::dout << CoSupport::Indent::Up;
 #endif
 		//Check for incomplete virtual token union
 		if (snk_firing_blocks[snk_num_firing_levels-1][i] % snk_r_vtu[i] != 0){
@@ -348,7 +348,7 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 			snk_firing_blocks[snk_num_firing_levels-1][i] / snk_r_vtu[i];
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-		dout << "snk_num_vtu =  " << snk_num_vtu  << endl;
+		CoSupport::dout << "snk_num_vtu =  " << snk_num_vtu  << std::endl;
 #endif
 
 		//Check for incomplete virtual token unions
@@ -358,11 +358,11 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 			src_firing_blocks[src_num_firing_levels-1][i] / p[i] / src_r_vtu[i];
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-		dout << "src_num_vtu =  " << src_num_vtu  << endl;
+		CoSupport::dout << "src_num_vtu =  " << src_num_vtu  << std::endl;
 #endif
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-		dout << dec_level;
+		CoSupport::dout << CuSupport::Indent:Down;
 #endif
 
 		
@@ -371,8 +371,8 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 	}	
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	dout << "Leave smoc_wsdf_edge_descr::check_local_balance" << endl;
-	dout << dec_level;
+	CoSupport::dout << "Leave smoc_wsdf_edge_descr::check_local_balance" << std::endl;
+	CoSupport::dout << CuSupport::Indent:Down;
 #endif
 }
 

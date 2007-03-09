@@ -43,8 +43,8 @@ public:
 			_new_schedule_period(true),			  
 			_token_dimensions(window_dimensions){
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
-		dout << "Enter smoc_md_loop_iterator_kind::smoc_md_loop_iterator_kind" << endl;
-		dout << "Leave smoc_md_loop_iterator_kind::smoc_md_loop_iterator_kind" << endl;
+		CoSupport::dout << "Enter smoc_md_loop_iterator_kind::smoc_md_loop_iterator_kind" << std::endl;
+		CoSupport::dout << "Leave smoc_md_loop_iterator_kind::smoc_md_loop_iterator_kind" << std::endl;
 #endif
 	};
 
@@ -159,8 +159,8 @@ public:
 #endif
 	{
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
-		dout << "Enter smoc_md_loop_data_element_mapper::smoc_md_loop_data_element_mapper" << endl;
-		dout << "Leave smoc_md_loop_data_element_mapper::smoc_md_loop_data_element_mapper" << endl;
+		CoSupport::dout << "Enter smoc_md_loop_data_element_mapper::smoc_md_loop_data_element_mapper" << std::endl;
+		CoSupport::dout << "Leave smoc_md_loop_data_element_mapper::smoc_md_loop_data_element_mapper" << std::endl;
 #endif
 	}
 
@@ -246,16 +246,16 @@ public:
 		_max_data_element_id(max_data_element_id)
 	{	
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
-		dout << "Enter smoc_src_md_loop_iterator_kind::smoc_src_md_loop_iterator_kind" << endl;
-		dout << inc_level;
-		dout << "size of mapping_offset: " << mapping_offset.size() << endl;
+		CoSupport::dout << "Enter smoc_src_md_loop_iterator_kind::smoc_src_md_loop_iterator_kind" << std::endl;
+		CoSupport::dout << CoSupport::Indent::Up;
+		CoSupport::dout << "size of mapping_offset: " << mapping_offset.size() << std::endl;
 #endif
 
 		update_base_data_element_id();
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
-		dout << dec_level;
-		dout << "Leave smoc_src_md_loop_iterator_kind::smoc_src_md_loop_iterator_kind" << endl;
+		CoSupport::dout << CoSupport::Indent::Down;
+		CoSupport::dout << "Leave smoc_src_md_loop_iterator_kind::smoc_src_md_loop_iterator_kind" << std::endl;
 #endif
 	};
 
@@ -412,16 +412,16 @@ public:
 		base_border_condition_vector(mapping_matrix.size1())
 	{
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
-		dout << "Enter smoc_snk_md_loop_iterator_kind::smoc_snk_md_loop_iterator_kind" << endl;
-		dout << inc_level;
-		dout << "size of mapping-offset: " << mapping_offset.size() << endl;
+		CoSupport::dout << "Enter smoc_snk_md_loop_iterator_kind::smoc_snk_md_loop_iterator_kind" << std::endl;
+		CoSupport::dout << CoSupport::Indent::Up;
+		CoSupport::dout << "size of mapping-offset: " << mapping_offset.size() << std::endl;
 #endif
 		assert(check_border_condition_matrix(border_matrix));
 		update_base_data_element_id();
 		update_base_border_condition_vector();
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
-		dout << "Leave smoc_snk_md_loop_iterator_kind::smoc_snk_md_loop_iterator_kind" << endl;
-		dout << dec_level;
+		CoSupport::dout << "Leave smoc_snk_md_loop_iterator_kind::smoc_snk_md_loop_iterator_kind" << std::endl;
+		CoSupport::dout << CoSupport::Indent::Down;
 #endif
 	};
 
