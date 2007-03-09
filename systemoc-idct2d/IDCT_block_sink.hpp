@@ -39,7 +39,7 @@
 
 #ifdef KASCPAR_PARSING
 # define USE_COUNTER_INPUT
-typedef unsigned int size_t;
+typedef unsigned long size_t;
 #endif
 
 #include <cstdlib>
@@ -76,7 +76,8 @@ private:
       for(unsigned int x = 0; x < image_width; x++){      
         unsigned int bx = x / 8;
         unsigned int rx = x % 8;
-        std::cout << in[bx*64+y*8+rx] << " ";
+        // +128 : DC-Level shift
+        std::cout << in[bx*64+y*8+rx] + 128 << " ";
       }
       std::cout << std::endl;
     }
