@@ -55,6 +55,8 @@
 #define IMAGE_WIDTH 16
 #define IMAGE_HEIGHT 16
 
+//#define VERBOSE_ACTOR
+
 #include "block_idct.hpp"
 
 #ifndef REAL_BLOCK_DATA
@@ -94,7 +96,11 @@ public:
 #ifndef KASCPAR_PARSING
     connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
     connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(4));
+# ifndef REAL_BLOCK_DATA
     connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(128));
+# else
+    connectNodePorts( blidct.O, snk.in, smoc_fifo<int>(IMAGE_WIDTH/8*64));
+# endif
 #endif
   }
 };
