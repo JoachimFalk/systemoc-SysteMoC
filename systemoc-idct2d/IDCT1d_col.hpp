@@ -68,7 +68,7 @@ class m_idct_col
       m_IDCTaddsub &addsub3 = registerNode(new m_IDCTaddsub("addsub3", 1, 0, 0));
       m_IDCTaddsub &addsub4 = registerNode(new m_IDCTaddsub("addsub4", 1, 0, 0));
       m_IDCTaddsub &addsub5 = registerNode(new m_IDCTaddsub("addsub5", 1, 0, 0));
-      m_IDCTaddsub &addsub6 = registerNode(new m_IDCTaddsub("addsub6", 181, 128, 9));
+      m_IDCTaddsub &addsub6 = registerNode(new m_IDCTaddsub("addsub6", 181, 128, 8));
       m_IDCTaddsub &addsub7 = registerNode(new m_IDCTaddsub("addsub7", 1, 0, 14));
       m_IDCTaddsub &addsub8 = registerNode(new m_IDCTaddsub("addsub8", 1, 0, 14));
       m_IDCTaddsub &addsub9 = registerNode(new m_IDCTaddsub("addsub9", 1, 0, 14));
