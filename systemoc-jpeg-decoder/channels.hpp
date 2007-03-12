@@ -4,9 +4,11 @@
 #ifndef _INCLUDED_CHANNELS_HPP
 #define _INCLUDED_CHANNELS_HPP
 
-#include <stdint.h>
+#define JPEG_BLOCK_WIDTH  8
+#define JPEG_BLOCK_HEIGHT 8
+#define JPEG_BLOCK_SIZE ((JPEG_BLOCK_HEIGHT) * (JPEG_BLOCK_WIDTH))
 
-typedef unsigned char codeword_t;
+#include <stdint.h>
 
 typedef uint8_t  uint2_t;
 typedef uint8_t  uint4_t;
@@ -14,19 +16,15 @@ typedef uint16_t uint12_t;
 typedef uint32_t uint28_t;
 typedef uint32_t uint19_t;
 
-
-
 /// JPEG channel communication type
 #define JPEGCHANNEL_BITS 28
 typedef uint28_t JpegChannel_t;
 
 #define CODEWORD_BITS 8
-
-#define DEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
+typedef uint8_t codeword_t;
 
 /// Source -> Parser
 typedef codeword_t ct_src_parser_t;
-
 
 /// Entry coding QT table destination selection
 #define QT_TBL_ID_BITS 4
@@ -101,6 +99,8 @@ enum CtrlCmd_t {
   CTRLCMD_DEF_RESTART_INTERVAL
   
 };
+
+#define DEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
 
 // struct JpegScan {
   // bool ctrl : is data word or control
@@ -193,18 +193,12 @@ enum CtrlCmd_t {
 #  error "Too many bits"
 # endif
 
-
 //};
-//
 
-
-
-
-
-/// Parser -> InvByteStuffing
-typedef codeword_t ct_src_parser_t;
-
-
-
+struct ImageParam {
+  uint16_t width;     ///< Width of Image
+  uint16_t height;    ///< Height if Image
+  uint2_t  compCount; ///< Component count in Image
+};
 
 #endif // _INCLUDED_CHANNELS_HPP

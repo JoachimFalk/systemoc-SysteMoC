@@ -4,6 +4,16 @@
 #ifndef _INCLUDED_PARSER_HPP
 #define _INCLUDED_PARSER_HPP
 
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
+
+#include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_node_types.hpp>
+
+#include "channels.hpp"
+
 /// JPEG Markers
 
 /// Start Of Image
@@ -23,7 +33,6 @@
 /// End of Image
 #define JEPG_IS_MARKER_EOI(x) (0xFFD9 == (x))
 
-
 /// Byte Stuffing
 #define JPEG_IS_BYTE_STUFFING(x) (0xFF00 == (x))
 
@@ -31,7 +40,24 @@
 #define JPEG_IS_FILL_BYTE(x) (0xFF == (x))
 /// Usage see standard page 31
 
+class Parser: public smoc_actor {
+public:
+  smoc_port_in<codeword_t>      in;
+  smoc_port_out<JpegChannel_t>  out;
+  smoc_port_out<ImageParam>     outCtrlImage;
+  smoc_port_out<codeword_t>     outCodedHuffTbl;
+private:
+  void process() {
+    // do something
+  }
 
-
+  smoc_firing_state start;
+public:
+  Parser(sc_module_name name)
+    : smoc_actor(name, start) {
+//  start = (out(1) && GUARD(Parser::streamValid)) >>
+//          CALL(Parser::process)                  >> start;
+  }
+};
 
 #endif // _INCLUDED_CHANNELS_HPP
