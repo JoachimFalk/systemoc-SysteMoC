@@ -45,6 +45,7 @@
 #include "InvByteStuff.hpp"
 #include "InvHuffman.hpp"
 #include "HuffmanManagement.hpp"
+#include "InvZrl.hpp"
 
 class Jpeg
 : public smoc_graph {
@@ -54,6 +55,7 @@ private:
   InvByteStuff  mInvByteStuff;
   InvHuffman    mInvHuffman;
   HuffmanManagement mHuffmanManagement;
+  InvZrl            mInvZrl;
 public:
   Jpeg(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
@@ -61,7 +63,8 @@ public:
       mParser("mParser"),
       mInvByteStuff("mInvByteStuff"),
       mInvHuffman("mInvHuffman"),
-      mHuffmanManagement("mHuffmanManagement")
+      mHuffmanManagement("mHuffmanManagement"),
+      mInvZrl("mInvZrl")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<1>(mSrc.out,                    mParser.in);
@@ -75,6 +78,8 @@ public:
     connectNodePorts<1>(mHuffmanManagement.minCode,  mInvHuffman.minCode);
     connectNodePorts<1>(mHuffmanManagement.maxCode,  mInvHuffman.maxCode);
     connectNodePorts<1>(mHuffmanManagement.huffVal,  mInvHuffman.huffVal);
+
+    connectNodePorts<1>(mInvHuffman.out,             mInvZrl.in);
 
 #endif
   }
