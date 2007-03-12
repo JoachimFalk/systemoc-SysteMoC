@@ -201,4 +201,7 @@ struct ImageParam {
   uint2_t  compCount; ///< Component count in Image
 };
 
+struct ExpHuffTbl{
+
+};
 #endif // _INCLUDED_CHANNELS_HPP

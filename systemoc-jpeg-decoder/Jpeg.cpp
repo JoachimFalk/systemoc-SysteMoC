@@ -43,6 +43,7 @@
 #include "FileSource.hpp"
 #include "Parser.hpp"
 #include "InvByteStuff.hpp"
+#include "InvHuffman.hpp"
 
 class Jpeg
 : public smoc_graph {
@@ -50,16 +51,19 @@ private:
   FileSource    mSrc;
   Parser        mParser;
   InvByteStuff  mInvByteStuff;
+  InvHuffman    mInvHuffman;
 public:
   Jpeg(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),
-      mInvByteStuff("mInvByteStuff")
+      mInvByteStuff("mInvByteStuff"),
+      mInvHuffman("mInvHuffman")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<1>(mSrc.out, mParser.in);
     connectNodePorts<1>(mParser.out, mInvByteStuff.in);
+    connectNodePorts<1>(mInvByteStuff.out, mInvHuffman.in);
 #endif
   }
 };
