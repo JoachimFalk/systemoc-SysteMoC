@@ -52,22 +52,57 @@ public:
   smoc_port_in<JpegChannel_t>  in;
   smoc_port_out<JpegChannel_t> out;
 private:
-  void process() {
-    // do something
+  bool detectFF() const {
+    return 0xFF == JS_DATA_GET( in[0] );
+  }
+
+  bool detect00() const {
+    return 0x00 == JS_DATA_GET( in[0] );
   }
 
   // forward control commands from input to output
-  void forwardCtrl()
-    { out[0] = in[0]; }
+  void forwardCtrl() {
+    out[0] = in[0];
+  }
 
-  smoc_firing_state start;
+  // forward data from input to output
+  void forwardData() {
+    out[0] = in[0];
+  }
+
+  smoc_firing_state main, discardZero;
 public:
   InvByteStuff(sc_module_name name)
-    : smoc_actor(name, start) {
-    start
-      = (in(1) && JS_ISCTRL(in.getValueAt(1)))  >>
-        out(1)                                  >>
-        CALL(InvByteStuff::forwardCtrl)         >> start
+    : smoc_actor(name, main) {
+    main
+      // forward control tokens
+      = ( in(1) && JS_ISCTRL(in.getValueAt(0)) )     >>
+        out(1)                                       >>
+        CALL(InvByteStuff::forwardCtrl)              >> main
+      | // detect 0xFF -> discard next 0x00 (inv. stuffing)
+        ( in(1) && !JS_ISCTRL(in.getValueAt(0))      &&
+          GUARD(InvByteStuff::detectFF) )            >>
+          CALL(InvByteStuff::forwardData)            >> discardZero
+      | // forward data
+        ( in(1) && !JS_ISCTRL(in.getValueAt(0))      &&
+          !GUARD(InvByteStuff::detectFF) )           >>
+        CALL(InvByteStuff::forwardData)              >> main
+      ;
+    discardZero
+      // forward control tokens
+      // PARANOIA (MS):
+      // forward CTRL token if these tokens interleave stuffed bytes
+      = ( in(1) && JS_ISCTRL(in.getValueAt(0)) )     >>
+        out(1)                                       >>
+        CALL(InvByteStuff::forwardCtrl)              >> discardZero
+      | // discard 0x00 (inv. stuffing)
+        ( in(1) && !JS_ISCTRL(in.getValueAt(0))      &&
+          !GUARD(InvByteStuff::detect00) )           >> main
+      | // forward marker (anything except 0x00)
+        ( in(1) && !JS_ISCTRL(in.getValueAt(0))      &&
+          GUARD(InvByteStuff::detect00) )            >>
+        out(1)                                       >>
+      CALL(InvByteStuff::forwardData)                >> main
       ;
   }
 };
