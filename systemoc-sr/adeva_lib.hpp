@@ -1,3 +1,6 @@
+#ifndef __INCLUDE_ADEVA_LIB_HPP
+#define __INCLUDE_ADEVA_LIB_HPP
+
 #include <systemoc/smoc_moc.hpp>
 
 //ADeVA Lib ??
@@ -49,3 +52,4 @@ public:
   }
 };
 
+#endif // __INCLUDE_ADEVA_LIB_HPP
