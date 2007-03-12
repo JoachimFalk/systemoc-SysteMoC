@@ -212,4 +212,8 @@ ostream &operator<<(ostream &output, const ExpHuffTbl &eht) {
   return output;
 }
 
+std::ostream &operator << (std::ostream &out, const ImageParam &val)
+  { out << "[ImageParam width: " << val.width << ", height: " << val.height << ", component count: " << val.compCount;
+return out; }
+
 #endif // _INCLUDED_CHANNELS_HPP
