@@ -47,6 +47,24 @@
 
 #include "channels.hpp"
 
+/**
+ * F.1.2.3 Byte stuffing
+ * ---------------------
+ *
+ * In order to provide code space for marker codes which can be located in the
+ * compressed image data without decoding, byte stuffing is used.
+ *
+ * Whenever, in the course of normal encoding, the byte value X’FF’ is created
+ * in the code string, a X’00’ byte is stuffed into the code string.
+ *
+ * If a X’00’ byte is detected after a X’FF’ byte, the decoder must discard it.
+ * If the byte is not zero, a marker has been detected, and shall be
+ * interpreted to the extent needed to complete the decoding of the scan.
+ *
+ * Byte alignment of markers is achieved by padding incomplete bytes with
+ * 1-bits. If padding with 1-bits creates a X’FF’ value, a zero byte is stuffed
+ * before adding the marker.
+ */
 class InvByteStuff: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t>  in;
