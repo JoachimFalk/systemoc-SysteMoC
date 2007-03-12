@@ -58,8 +58,8 @@ public:
       mInvByteStuff("mInvByteStuff")
   {
 #ifndef KASCPAR_PARSING
-    connectNodePorts(mSrc.out, mParser.in, smoc_fifo<codeword_t>(1));
-    connectNodePorts(mParser.out, mInvByteStuff.in, smoc_fifo<JpegChannel_t>(1));
+    connectNodePorts<1>(mSrc.out, mParser.in);
+    connectNodePorts<1>(mParser.out, mInvByteStuff.in);
 #endif
   }
 };
