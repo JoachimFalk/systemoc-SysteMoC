@@ -56,12 +56,19 @@ private:
     // do something
   }
 
+  // forward control commands from input to output
+  void forwardCtrl()
+    { out[0] = in[0]; }
+
   smoc_firing_state start;
 public:
   InvByteStuff(sc_module_name name)
     : smoc_actor(name, start) {
-//  start = (out(1) && GUARD(InvByteStuff::streamValid)) >>
-//          CALL(InvByteStuff::process)                  >> start;
+    start
+      = (in(1) && JS_ISCTRL(in.getValueAt(1)))  >>
+        out(1)                                  >>
+        CALL(InvByteStuff::forwardCtrl)         >> start
+      ;
   }
 };
 

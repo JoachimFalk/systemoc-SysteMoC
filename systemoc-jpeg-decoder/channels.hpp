@@ -100,7 +100,7 @@ enum CtrlCmd_t {
   
 };
 
-#define DEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
+#define DEMASK(x,off,width) (((x) / (1 << (off))) & ((1 << (width)) - 1))
 
 // struct JpegScan {
   // bool ctrl : is data word or control
