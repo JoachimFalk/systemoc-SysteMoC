@@ -202,6 +202,14 @@ struct ImageParam {
 };
 
 struct ExpHuffTbl{
+  //FIXME: implement stub
 
 };
+
+static inline
+ostream &operator<<(ostream &output, const ExpHuffTbl &eht) {
+  // FIXME: compile dummy
+  return output;
+}
+
 #endif // _INCLUDED_CHANNELS_HPP

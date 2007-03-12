@@ -1,5 +1,5 @@
-//  -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
-// vim: set sw=2 ts=8 sts=2 expandtab:
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
+// vim: set sw=2 ts=8 sts=2 et:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
@@ -34,65 +34,54 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_HUFFMAN_MANAGEMENT_HPP
+#define _INCLUDED_HUFFMAN_MANAGEMENT_HPP
+
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
+
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
 #include "channels.hpp"
 
-#include "FileSource.hpp"
-#include "Parser.hpp"
-#include "InvByteStuff.hpp"
-#include "InvHuffman.hpp"
-#include "HuffmanManagement.hpp"
-
-class Jpeg
-: public smoc_graph {
-private:
-  FileSource    mSrc;
-  Parser        mParser;
-  InvByteStuff  mInvByteStuff;
-  InvHuffman    mInvHuffman;
-  HuffmanManagement mHuffmanManagement;
+class HuffmanManagement: public smoc_actor {
 public:
-  Jpeg(sc_module_name name, const std::string &fileName)
-    : smoc_graph(name),
-      mSrc("mSrc", fileName),
-      mParser("mParser"),
-      mInvByteStuff("mInvByteStuff"),
-      mInvHuffman("mInvHuffman"),
-      mHuffmanManagement("mHuffmanManagement")
-  {
-#ifndef KASCPAR_PARSING
-    connectNodePorts<1>(mSrc.out,                    mParser.in);
-    connectNodePorts<1>(mParser.out,                 mInvByteStuff.in);
-    connectNodePorts<1>(mParser.outCodedHuffTbl,     mHuffmanManagement.in);
+  smoc_port_in<codeword_t>      in;
+  smoc_port_out<ExpHuffTbl>     valPtr;
+  smoc_port_out<ExpHuffTbl>     minCode;
+  smoc_port_out<ExpHuffTbl>     maxCode;
+  smoc_port_out<ExpHuffTbl>     huffVal;
+private:
+  bool sufficientData() const {
+    //FIXME: dummy stub
+    return true;
+  }
 
-    connectNodePorts<1>(mInvByteStuff.out,           mInvHuffman.in);
+  void collect(){
+    //FIXME: dummy stub
+  }
 
-    // Extended Huffman Table (2x2)
-    connectNodePorts<1>(mHuffmanManagement.valPtr,   mInvHuffman.valPtr);
-    connectNodePorts<1>(mHuffmanManagement.minCode,  mInvHuffman.minCode);
-    connectNodePorts<1>(mHuffmanManagement.maxCode,  mInvHuffman.maxCode);
-    connectNodePorts<1>(mHuffmanManagement.huffVal,  mInvHuffman.huffVal);
-
-#endif
+  void transform(){
+    //FIXME: dummy stub
+  }
+  
+  smoc_firing_state main;
+public:
+  HuffmanManagement(sc_module_name name)
+    : smoc_actor(name, main) {
+    main
+      // collect data
+      = ( GUARD(HuffmanManagement::sufficientData) )            >>
+        ( in(1) && !GUARD(HuffmanManagement::sufficientData) )  >>
+        CALL(HuffmanManagement::collect)                        >> main
+      | // transform collected data
+        ( valPtr(1) && minCode(1) && maxCode(1) && huffVal(1) ) >>
+        CALL(HuffmanManagement::transform)                      >> main
+      ;
   }
 };
 
-#ifndef KASCPAR_PARSING
-int sc_main (int argc, char **argv) {
-  if (argc != 2) {
-    std::cerr
-      << (argv[0] != NULL ? argv[0] : "???")
-      << " <jpeg filename>" << std::endl;
-    exit(-1);
-  }
-  
-  smoc_top_moc<Jpeg> jpeg("jpeg", argv[1]);
-  
-  sc_start(-1);
-  
-  return 0;
-}
 #endif
