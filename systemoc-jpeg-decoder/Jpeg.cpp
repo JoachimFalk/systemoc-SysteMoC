@@ -46,6 +46,10 @@
 #include "InvHuffman.hpp"
 #include "HuffmanManagement.hpp"
 #include "InvZrl.hpp"
+#include "DcDecoding.hpp"
+#include "InvQuant.hpp"
+#include "InvZigZag.hpp"
+#include "CtrlSieve.hpp"
 
 class Jpeg
 : public smoc_graph {
@@ -56,6 +60,10 @@ private:
   InvHuffman    mInvHuffman;
   HuffmanManagement mHuffmanManagement;
   InvZrl            mInvZrl;
+  DcDecoding        mDcDecoding;
+  InvQuant          mInvQuant;
+  CtrlSieve         mCtrlSieve;
+  InvZigZag         mInvZigZag;
 public:
   Jpeg(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
@@ -64,7 +72,11 @@ public:
       mInvByteStuff("mInvByteStuff"),
       mInvHuffman("mInvHuffman"),
       mHuffmanManagement("mHuffmanManagement"),
-      mInvZrl("mInvZrl")
+      mInvZrl("mInvZrl"),
+      mDcDecoding("mDcDecoding"),
+      mInvQuant("InvQuant"),
+      mCtrlSieve("CtrlSieve"),
+      mInvZigZag("InvZigZag")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<1>(mSrc.out,                    mParser.in);
@@ -79,7 +91,10 @@ public:
     connectNodePorts<1>(mHuffmanManagement.maxCode,  mInvHuffman.maxCode);
     connectNodePorts<1>(mHuffmanManagement.huffVal,  mInvHuffman.huffVal);
 
-    connectNodePorts<1>(mInvHuffman.out,             mInvZrl.in);
+    connectNodePorts<1>(mInvHuffman.out,             mCtrlSieve.in);
+    connectNodePorts<1>(mCtrlSieve.out,              mInvZrl.in);
+    connectNodePorts<1>(mInvZrl.out,                 mDcDecoding.in);
+    connectNodePorts<1>(mDcDecoding.out,             mInvQuant.in);
 
 #endif
   }
