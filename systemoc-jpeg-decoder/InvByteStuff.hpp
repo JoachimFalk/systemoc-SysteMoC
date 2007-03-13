@@ -100,25 +100,21 @@ public:
       | // detect 0xFF -> discard next 0x00 (inv. stuffing)
         ( in(1) && !JS_ISCTRL(in.getValueAt(0))      &&
           GUARD(InvByteStuff::detectFF) )            >>
-          CALL(InvByteStuff::forwardData)            >> discardZero
+        out(1)                                       >>
+        CALL(InvByteStuff::forwardData)              >> discardZero
       | // forward data
         ( in(1) && !JS_ISCTRL(in.getValueAt(0))      &&
           !GUARD(InvByteStuff::detectFF) )           >>
+        out(1)                                       >>
         CALL(InvByteStuff::forwardData)              >> main
       ;
     discardZero
-      // forward control tokens
-      // PARANOIA (MS):
-      // forward CTRL token if these tokens interleave stuffed bytes
-      = ( in(1) && JS_ISCTRL(in.getValueAt(0)) )     >>
-        out(1)                                       >>
-        CALL(InvByteStuff::forwardCtrl)              >> discardZero
-      | // discard 0x00 (inv. stuffing)
+      = // discard 0x00 (inv. stuffing)
         ( in(1) && !JS_ISCTRL(in.getValueAt(0))      &&
-          !GUARD(InvByteStuff::detect00) )           >> main
+          GUARD(InvByteStuff::detect00) )            >> main
       | // forward marker (anything except 0x00)
         ( in(1) && !JS_ISCTRL(in.getValueAt(0))      &&
-          GUARD(InvByteStuff::detect00) )            >>
+          !GUARD(InvByteStuff::detect00) )           >>
         out(1)                                       >>
       CALL(InvByteStuff::forwardData)                >> main
       ;
