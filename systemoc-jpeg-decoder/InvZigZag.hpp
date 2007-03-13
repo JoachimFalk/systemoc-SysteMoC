@@ -47,58 +47,59 @@
 
 #include "channels.hpp"
 
+
+
+
+/// This actor takes the IDCT coefficients arriving in zig-zag order
+/// and outputs them in a line based manner.
 class InvZigZag: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t>      in;
   smoc_port_out<JpegChannel_t>     out;
 private:
-  bool thisMattersMe() const {
-    //FIXME: dummy stub
-    return false;
-  }
 
-  void doSomething(){
-    //FIXME: dummy stub
+  static const unsigned char zigzag_order[JPEG_BLOCK_SIZE];
 
-    forwardCtrl();
-  }
+  unsigned int block_pixel_id;
 
-  void transform(){
-    //FIXME: dummy stub
-    out[0] = in[0];
-  }
-  
-  // forward control commands from input to output
-  void forwardCtrl() {
-    out[0] = in[0];
-  }
-
-  // forward data from input to output
-  void forwardData() {
-    out[0] = in[0];
+  void forward_pixel(){
+    // Check, that no control words occur any more
+    // Otherwise we produce wrong data!
+    assert(!JS_ISCTRL(in[zigzag_order[block_pixel_id]]));
+    out[0] = in[zigzag_order[block_pixel_id]];
+    block_pixel_id++;
+    if (block_pixel_id >= JPEG_BLOCK_SIZE){
+      block_pixel_id = 0;
+    }
   }
 
   smoc_firing_state main;
 public:
   InvZigZag(sc_module_name name)
-    : smoc_actor(name, main) {
+    : smoc_actor(name, main),
+      block_pixel_id(0)
+  {
     main
       // ignore and forward control tokens
-      = ( in(1) && JS_ISCTRL(in.getValueAt(0))       &&
-          !GUARD(InvZigZag::thisMattersMe) )        >>
-        out(1)                                       >>
-        CALL(InvZigZag::forwardCtrl)                >> main
-      | // treat and forward control tokens
-        ( in(1) && JS_ISCTRL(in.getValueAt(0))       &&
-          GUARD(InvZigZag::thisMattersMe) )         >>
-        out(1)                                       >>
-        CALL(InvZigZag::doSomething)                >> main
-      | // data transformation
-        ( in(1) && !JS_ISCTRL(in.getValueAt(0)) )    >>
-        out(1)                                       >>
-        CALL(InvZigZag::transform)                  >> main
-      ;
+      = ( in(0,JPEG_BLOCK_SIZE) && out(1))       >>
+      (VAR(block_pixel_id) != (unsigned int)JPEG_BLOCK_SIZE-1) >>
+      CALL(InvZigZag::forward_pixel)             >> main
+      | ( in(JPEG_BLOCK_SIZE) && out(1))         >>
+      (VAR(block_pixel_id) == (unsigned int)JPEG_BLOCK_SIZE-1) >>
+      CALL(InvZigZag::forward_pixel)             >> main;
   }
 };
+
+const unsigned char InvZigZag::zigzag_order[JPEG_BLOCK_SIZE] =
+  {  0, 1, 5, 6,14,15,27,28,
+     2, 4, 7,13,16,26,29,42,
+     3, 8,12,17,25,30,41,43,
+     9,11,18,24,31,40,44,53,
+    10,19,23,32,39,45,52,54,
+    20,22,33,38,46,51,55,60,
+    21,34,37,47,50,56,59,61,
+    35,36,48,49,57,58,62,63
+  };
+
 
 #endif // _INCLUDED_INV_ZIGZAG_HPP
