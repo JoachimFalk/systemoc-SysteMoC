@@ -59,8 +59,8 @@ typedef std::vector<Scan> ScanVector;
 
 class IDCTScanSource: public smoc_actor {
 public:
-  smoc_port_out<IDCTCoeff_t>   out;
-  smoc_port_out<ImageParam>    outCtrlImage;
+  smoc_port_out<IDCTCoeff_t>    out;
+  smoc_port_out<JpegChannel_t>  outCtrlImage;
 protected:
   size_t      width, height;
   ScanVector  scanVector;

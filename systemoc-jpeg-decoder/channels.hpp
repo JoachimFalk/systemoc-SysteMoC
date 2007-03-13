@@ -8,33 +8,40 @@
 
 typedef uint8_t   uint2_t;
 typedef uint8_t   uint4_t;
+typedef uint16_t  uint10_t;
 typedef uint32_t  uint19_t;
-typedef uint32_t  uint28_t;
+typedef uint32_t  uint29_t;
 
 typedef int16_t   int12_t;
 typedef int32_t   int19_t;
 
-#define JPEG_BLOCK_WIDTH  8
-#define JPEG_BLOCK_HEIGHT 8
-#define JPEG_BLOCK_SIZE ((JPEG_BLOCK_HEIGHT) * (JPEG_BLOCK_WIDTH))
-
-
+#define JPEG_BLOCK_WIDTH  8U
+#define JPEG_BLOCK_HEIGHT 8U
+#define JPEG_BLOCK_SIZE   ((JPEG_BLOCK_HEIGHT) * (JPEG_BLOCK_WIDTH))
 
 /// JPEG channel communication type
-#define JPEGCHANNEL_BITS 28
-typedef uint28_t JpegChannel_t;
+#define JPEGCHANNEL_BITS 29
+typedef uint29_t JpegChannel_t;
 
 #define CODEWORD_BITS 8
 typedef uint8_t codeword_t;
 
-#define DEMASK(x,off,width) (((x) / (1 << (off))) & ((1 << (width)) - 1))
+// FIXME: Fix SysteMoC to also accept format below
 //#define DEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
 
-#define SET_MASK(x,off,width) (((x) & ((1 << (width)) -1)) << (off))
+#define DEMASK(x,off,width)   (((x) / (1 << (off))) & ((1 << (width)) - 1))
+#define SET_MASK(x,off,width) (((x) & ((1 << (width)) -1 )) << (off))
 
 /// Source -> Parser
 typedef codeword_t ct_src_parser_t;
 
+/// Entry encoding the x dimension of the frame
+#define FRAME_DIM_X_BITS 10
+typedef uint10_t FrameDimX_t;
+
+/// Entry encoding the y dimension of the frame
+#define FRAME_DIM_Y_BITS 10
+typedef uint10_t FrameDimY_t;
 
 /// Entry coding QT table destination selection
 #define QT_TBL_ID_BITS 4
@@ -81,7 +88,7 @@ typedef int19_t IDCTCoeff_t;
 #define RESTART_INTERVAL_BITS (16+3)
 typedef uint19_t RestartInterval_t;
 
-#define CTRLCMD_BITS 3
+#define CTRLCMD_BITS 4
 enum CtrlCmd_t {
   /// Signals for each component, which AC and DC Huffman Table to use
   CTRLCMD_USEHUFF,
@@ -108,7 +115,9 @@ enum CtrlCmd_t {
   /// Signals the restart periodicity
   /// ATTENTION: In contrast to standard, the value is transmitted 
   /// in number of blocks instead of MCUs
-  CTRLCMD_DEF_RESTART_INTERVAL
+  CTRLCMD_DEF_RESTART_INTERVAL,
+  /// Signals the beginning of a new frame
+  CTRLCMD_NEWFRAME
 };
 
 // struct JpegScan {
@@ -141,7 +150,7 @@ enum CtrlCmd_t {
 #   define JS_CTRL_USEHUFF_SETACTBL(tbl_id,c) \
     SET_MASK(tbl_id,1+CTRLCMD_BITS+(2*(c)+1)*HUFF_TBL_ID_BITS,HUFF_TBL_ID_BITS)
 #   if JPEGCHANNEL_BITS < (1+CTRLCMD_BITS+(2*2+1)*HUFF_TBL_ID_BITS+HUFF_TBL_ID_BITS)
-#    error "Too many bits"
+#     error "Too many bits"
 #   endif
 
     // Set complete channel word
@@ -170,7 +179,7 @@ enum CtrlCmd_t {
 #   define JS_CTRL_DISCARDHUFFTBL_SETTYPE(type) \
     (SET_MASK(type,1+CTRLCMD_BITS+HUFF_TBL_ID_BITS,1))
 #   if JPEGCHANNEL_BITS < (1+CTRLCMD_BITS+HUFF_TBL_ID_BITS+1)
-#    error "Too many bits"
+#     error "Too many bits"
 #   endif
 
     // Set complete channel word
@@ -190,7 +199,7 @@ enum CtrlCmd_t {
 #   define JS_CTRL_NEWSCAN_SETCOMP(comp,n) \
     (SET_MASK(comp,1+CTRLCMD_BITS+(n)*INTCOMPID_BITS,INTCOMPID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+(5)*INTCOMPID_BITS+INTCOMPID_BITS
-#    error "Too many bits"
+#     error "Too many bits"
 #   endif
 
     // Set complete channel word
@@ -221,7 +230,7 @@ enum CtrlCmd_t {
 #   define JS_CTRL_USEQT_SETQTID(qt_id,comp) \
     (SET_MASK(qt_id,1+CTRLCMD_BITS+(comp)*QT_TBL_ID_BITS,QT_TBL_ID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+(2)*QT_TBL_ID_BITS+QT_TBL_ID_BITS
-#    error "Too many bits"
+#     error "Too many bits"
 #   endif
 
     // Set complete channel word
@@ -241,7 +250,7 @@ enum CtrlCmd_t {
 #   define JS_CTRL_DISCARDQT_SETQTID(qt_id) \
     (SET_MASK(qt_id,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+QT_TBL_ID_BITS
-#    error "Too many bits"
+#     error "Too many bits"
 #   endif
 
     // Set complete channel word
@@ -259,7 +268,7 @@ enum CtrlCmd_t {
 #   define JS_CTRL_INTERNALCOMPSTART_SETCOMPID(comp) \
     (SET_MASK(comp,1+CTRLCMD_BITS,INTCOMPID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+INTCOMPID_BITS
-#    error "Too many bits"
+#     error "Too many bits"
 #   endif
 
     // Set complete channel word
@@ -272,23 +281,50 @@ enum CtrlCmd_t {
     /*            in case of CTRLCMD_DEF_RESTART_INTERVAL              */
     /* *************************************************************** */    
 #   define JS_CTRL_RESTART_GET_INTERVAL(x) \
-  static_cast<RestartInterval_t>(DEMASK(x,1+CTRLCMD_BITS, RESTART_INTERVAL_BITS))
+  static_cast<RestartInterval_t>(DEMASK(x,1+CTRLCMD_BITS,RESTART_INTERVAL_BITS))
 #   define JS_CTRL_RESTART_SET_INTERVAL(interval) \
       (SET_MASK(interval,1+CTRLCMD_BITS, RESTART_INTERVAL_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+ RESTART_INTERVAL_BITS
-#    error "Too many bits"
+#     error "Too many bits"
 #   endif
 
     // Set complete channel word
-#   define JS_CTRL_DEF_RESTART_INTERVAL_SET_CHWORD(interval)  \
-    ( JS_SETCTRLCMD(CTRLCMD_DEF_RESTART_INTERVAL) |         \
-    JS_CTRL_RESTART_SET_INTERVAL(interval) \
+#   define JS_CTRL_DEF_RESTART_INTERVAL_SET_CHWORD(interval) \
+    (JS_SETCTRLCMD(CTRLCMD_DEF_RESTART_INTERVAL) | \
+     JS_CTRL_RESTART_SET_INTERVAL(interval) \
     )
 
-  /* *************************************************************** */
-  /*                in case of data (ctrl == false)                  */
-  /* *************************************************************** */
-  //   codeword_t data : the raw something
+    /* *************************************************************** */
+    /*            in case of CTRLCMD_NEWFRAME                          */
+    /* *************************************************************** */    
+#   define JS_CTRL_NEWFRAME_GET_DIMX(x) \
+  static_cast<FrameDimX_t>(DEMASK(x,1+CTRLCMD_BITS,FRAME_DIM_X_BITS))
+#   define JS_CTRL_NEWFRAME_SET_DIMX(dimX) \
+      (SET_MASK(dimX,1+CTRLCMD_BITS,FRAME_DIM_X_BITS))
+#   define JS_CTRL_NEWFRAME_GET_DIMY(x) \
+  static_cast<FrameDimY_t>(DEMASK(x,1+CTRLCMD_BITS+FRAME_DIM_X_BITS,FRAME_DIM_Y_BITS))
+#   define JS_CTRL_NEWFRAME_SET_DIMY(dimY) \
+      (SET_MASK(dimY,1+CTRLCMD_BITS+FRAME_DIM_X_BITS,FRAME_DIM_Y_BITS))
+#   define JS_CTRL_NEWFRAME_GET_COMPCOUNT(x) \
+  static_cast<IntCompID_t>(DEMASK(x,1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS,INTCOMPID_BITS))
+#   define JS_CTRL_NEWFRAME_SET_COMPCOUNT(count) \
+      (SET_MASK(count,1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS,INTCOMPID_BITS))
+#   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS+INTCOMPID_BITS
+#     error "Too many bits"
+#   endif
+
+    // Set complete channel word
+#   define JS_CTRL_NEWFRAME_SET_CHWORD(dimX,dimY,count) \
+    (JS_SETCTRLCMD(CTRLCMD_NEWFRAME) | \
+     JS_CTRL_NEWFRAME_SET_DIMX(dimX) | \
+     JS_CTRL_NEWFRAME_SET_DIMY(dimY) | \
+     JS_CTRL_NEWFRAME_SET_COMPCOUNT(count) \
+    )
+
+    /* *************************************************************** */
+    /*                in case of data (ctrl == false)                  */
+    /* *************************************************************** */
+    //   codeword_t data : the raw something
 # define JS_DATA_GET(x) \
     static_cast<codeword_t>(DEMASK(x,1,CODEWORD_BITS))
 # define JS_DATA_SET(x) \
@@ -296,7 +332,7 @@ enum CtrlCmd_t {
      SET_MASK(x,1,CODEWORD_BITS) \
     )
 # if JPEGCHANNEL_BITS < 1+CODEWORD_BITS
-#  error "Too many bits"
+#   error "Too many bits"
 # endif
 
 
@@ -317,7 +353,7 @@ enum CtrlCmd_t {
 # define JS_TUP_SETCATEGORY(x) \
     (SET_MASK(x,1+QUANTIDCTCOEFF_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
 # if JPEGCHANNEL_BITS < 1+QUANTIDCTCOEFF_BITS+RUNLENGTH_BITS+CATEGORY_BITS
-#  error "Too many bits"
+#   error "Too many bits"
 # endif
 
     // Set complete channel word
@@ -337,7 +373,7 @@ enum CtrlCmd_t {
 # define JS_QCOEFF_SETIDCTCOEFF(x) \
     (SET_MASK(x,1,QUANTIDCTCOEFF_BITS))
 # if JPEGCHANNEL_BITS < 1+QUANTIDCTCOEFF_BITS
-#  error "Too many bits"
+#   error "Too many bits"
 # endif
 
     // Set complete channel word
@@ -355,7 +391,7 @@ enum CtrlCmd_t {
 # define JS_COEFF_SETIDCTCOEFF(x) \
     (SET_MASK(x,1,IDCTCOEFF_BITS))
 # if JPEGCHANNEL_BITS < 1+IDCTCOEFF_BITS
-#  error "Too many bits"
+#   error "Too many bits"
 # endif
 
 
@@ -368,14 +404,10 @@ enum CtrlCmd_t {
 //};
 //
 
-
-
-
-
 /// Parser -> InvByteStuffing
 typedef codeword_t ct_src_parser_t;
 
-
+/*
 struct ImageParam {
   uint16_t width;     ///< Width of Image
   uint16_t height;    ///< Height if Image
@@ -385,5 +417,6 @@ struct ImageParam {
 std::ostream &operator << (std::ostream &out, const ImageParam &val)
   { out << "[ImageParam width: " << val.width << ", height: " << val.height << ", component count: " << val.compCount;
 return out; }
+*/
 
 #endif // _INCLUDED_CHANNELS_HPP

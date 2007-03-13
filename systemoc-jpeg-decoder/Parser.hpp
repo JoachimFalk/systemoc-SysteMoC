@@ -96,7 +96,7 @@ class Parser: public smoc_actor {
 public:
   smoc_port_in<codeword_t>      in;
   smoc_port_out<JpegChannel_t>  out;
-  smoc_port_out<ImageParam>     outCtrlImage;
+  smoc_port_out<JpegChannel_t>  outCtrlImage;
   smoc_port_out<codeword_t>     outCodedHuffTbl;
 private:
   void foundSOI() {

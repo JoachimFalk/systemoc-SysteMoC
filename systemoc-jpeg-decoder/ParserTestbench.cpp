@@ -62,9 +62,10 @@ public:
   }
 };
 
+/*
 class TestSinkCtrl: public smoc_actor {
 public:
-  smoc_port_in<ImageParam> in;
+  smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
     ImageParam ip = in[0];
@@ -79,6 +80,7 @@ public:
     start = in(1) >> CALL(TestSinkCtrl::process)  >> start;
   }
 };
+ */
 
 class TestSinkCoded: public smoc_actor {
 public:
@@ -104,7 +106,8 @@ private:
   FileSource    mSrc;
   Parser        mParser;
   TestSink      mSink;
-  TestSinkCtrl  mSinkCtrl;
+  TestSink      mSinkCtrl;
+//TestSinkCtrl  mSinkCtrl;
   TestSinkCoded mSinkCoded;
   
 public:

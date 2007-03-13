@@ -47,21 +47,20 @@
 #include "InvByteStuff.hpp"
 #include "HuffDecoder.hpp"
 
-class TestSinkCtrl: public smoc_actor {
+class TestSink: public smoc_actor {
 public:
-  smoc_port_in<ImageParam> in;
+  smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
-    ImageParam ip = in[0];
-    std::cout << name() << " receiving " << ip.width << " " << ip.height << " " << ip.compCount << std::endl;
+    std::cout << name() << " receiving " << in[0] << std::endl;
   }
   
   smoc_firing_state start;
 public:
-  TestSinkCtrl( sc_module_name name )
+  TestSink( sc_module_name name )
     : smoc_actor( name, start )
   {
-    start = in(1) >> CALL(TestSinkCtrl::process)  >> start;
+    start = in(1) >> CALL(TestSink::process)  >> start;
   }
 };
 
@@ -82,18 +81,15 @@ public:
   }
 };
 
-
 class HuffmanTestbench
 : public smoc_graph {
 private:
   FileSource    mSrc;
   Parser        mParser;
-  InvByteStuff      mInvByteStuff;
-  HuffDecoder       mHuffDecoder;
-
-  TestSinkCtrl  mSinkCtrl;
-  TestToInvZrl mToInvZrl;
-  
+  InvByteStuff  mInvByteStuff;
+  HuffDecoder   mHuffDecoder;
+  TestSink      mSinkCtrl;
+  TestToInvZrl  mToInvZrl;
 public:
   HuffmanTestbench(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
@@ -101,7 +97,6 @@ public:
       mParser("mParser"),
       mInvByteStuff("mInvByteStuff"),
       mHuffDecoder("mHuffDecoder"),
-
       mSinkCtrl("mSinkCtrl"),
       mToInvZrl("mToInvZrl")
   {

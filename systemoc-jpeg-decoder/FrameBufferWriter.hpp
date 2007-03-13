@@ -49,8 +49,8 @@
 
 class FrameBufferWriter: public smoc_actor {
 public:
-  smoc_port_in<JpegChannel_t>      in;
-  smoc_port_in<ImageParam>         inCtrlImage;
+  smoc_port_in<JpegChannel_t> in;
+  smoc_port_in<JpegChannel_t> inCtrlImage;
 private:
   void transform(){
     //FIXME: dummy stub
