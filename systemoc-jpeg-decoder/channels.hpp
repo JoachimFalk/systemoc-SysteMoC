@@ -18,6 +18,7 @@ typedef int32_t   int19_t;
 #define JPEG_BLOCK_WIDTH  8U
 #define JPEG_BLOCK_HEIGHT 8U
 #define JPEG_BLOCK_SIZE   ((JPEG_BLOCK_HEIGHT) * (JPEG_BLOCK_WIDTH))
+#define JPEG_MAX_COLOUR_COMPNENTS 3
 
 /// JPEG channel communication type
 #define JPEGCHANNEL_BITS 29
@@ -248,7 +249,7 @@ enum CtrlCmd_t {
     /*                  in case of CTRLCMD_DISCARDQT                   */
     /* *************************************************************** */    
 #   define JS_CTRL_DISCARDQT_GETQTID(x) \
-    static_cast<QtTblID_t>(DEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
+    (DEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
 #   define JS_CTRL_DISCARDQT_SETQTID(qt_id) \
     (SET_MASK(qt_id,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+QT_TBL_ID_BITS
@@ -396,6 +397,15 @@ enum CtrlCmd_t {
 #   error "Too many bits"
 # endif
 
+/* *************************************************************** */
+/*     Data types for QT table                                     */
+/* *************************************************************** */
+typedef uint8_t qt_table_t;
+
+/// Size of a SINGLE QT Table
+/// consisting of one quantization coefficient for each code block pixel
+/// and a header. (See standard, page 40)
+#define JS_QT_TABLE_SIZE (JPEG_BLOCK_SIZE+1)
 
     // Write complete channel word    
 #   define JS_DATA_COEFF_SET_CHWORD(coeff)    \

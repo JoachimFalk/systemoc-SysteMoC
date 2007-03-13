@@ -47,58 +47,209 @@
 
 #include "channels.hpp"
 
+// if compiled with DBG_HUFF_DECODER create stream and include debug macros
+#define DBG_INV_QT
+#ifdef DBG_INV_QT
+  #include <cosupport/smoc_debug_out.hpp>
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
+
 class InvQuant: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t>      in;
   smoc_port_out<JpegChannel_t>     out;
+
+  smoc_port_in<qt_table_t>        qt_table_0;
+  smoc_port_in<qt_table_t>        qt_table_1;
+  smoc_port_in<qt_table_t>        qt_table_2;
+  smoc_port_in<qt_table_t>        qt_table_3;
+
 private:
-  bool thisMattersMe() const {
-    //FIXME: dummy stub
-    return false;
+
+  void discard_qt_table(unsigned int table_id){
+    dbgout << "Discard QT table with ID " << table_id << endl;
+
+    //forward control word
+    forward_command();
   }
 
-  void doSomething(){
-    //FIXME: dummy stub
-
-    forwardCtrl();
+  void illegal_qt_id(){    
+    dbgout << "Found illegal QT table"  << endl;
   }
 
-  void transform(){
-    //FIXME: dummy stub
+  /// Stores for each colour component which QT table to use
+  unsigned char qt_id[JPEG_MAX_COLOUR_COMPNENTS];
+  void use_qt_table() {
+    dbgout << "Store QT index which has to be used" << endl;
+    dbgout << CoSupport::Indent::Up;
+    for(unsigned int i = 0; i < JPEG_MAX_COLOUR_COMPNENTS; i++){      
+      qt_id[i] = JS_CTRL_USEQT_GETQTID(in[0],i);
+      dbgout << "Component " << i << ": " << qt_id[i] << endl;
+    }
+    dbgout << CoSupport::Indent::Down;
+
+    forward_command();
+  }
+
+  /// Stores which component will follow next
+  unsigned char comp_id;
+  void store_comp_id(){
+    dbgout << "Store which component will follow next" << endl;
+    dbgout << CoSupport::Indent::Up;
+
+    //forward control word
+    forward_command();
+
+    comp_id = JS_CTRL_INTERNALCOMPSTART_GETCOMPID(in[0]);
+    dbgout << "Next component: " << comp_id << endl;
+
+    dbgout << CoSupport::Indent::Down;
+  }
+
+  ///Forward commands
+  void forward_command(){
+    dbgout << "Forward command" << endl;
     out[0] = in[0];
   }
-  
-  // forward control commands from input to output
-  void forwardCtrl() {
-    out[0] = in[0];
+
+
+  /// Perform QT  
+  void quantize0(){ quantize(0); }
+  void quantize1(){ quantize(1); }
+  void quantize2(){ quantize(2); }
+  void quantize3(){ quantize(3); }
+  void quantize(unsigned int qt_tb){
+    dbgout << "Perform QT with table ID " << qt_tb  << endl;
+
+    switch (qt_tb){
+    case 0:
+      out[0] = in[0] * qt_table_0[block_pixel_id];
+      break;
+    case 1:
+      out[0] = in[0] * qt_table_1[block_pixel_id];
+      break;
+    case 2:
+      out[0] = in[0] * qt_table_2[block_pixel_id];
+      break;
+    case 3:
+      out[0] = in[0] * qt_table_3[block_pixel_id];
+      break;
+    default:
+      dbgout << "Illegal QT table!" << qt_tb  << endl;
+    }
+
+    block_pixel_id++;
+    if (block_pixel_id > JPEG_BLOCK_SIZE)
+      block_pixel_id = 0;
   }
 
-  // forward data from input to output
-  void forwardData() {
-    out[0] = in[0];
-  }
+  //Which pixel to process
+  unsigned char block_pixel_id;
+
 
   smoc_firing_state main;
+  smoc_firing_state stuck;
+
+
+  CoSupport::DebugOstream dbgout;
+
+  
 public:
   InvQuant(sc_module_name name)
-    : smoc_actor(name, main) {
-    main
-      // ignore and forward control tokens
-      = ( in(1) && JS_ISCTRL(in.getValueAt(0))       &&
-          !GUARD(InvQuant::thisMattersMe) )        >>
-        out(1)                                       >>
-        CALL(InvQuant::forwardCtrl)                >> main
-      | // treat and forward control tokens
-        ( in(1) && JS_ISCTRL(in.getValueAt(0))       &&
-          GUARD(InvQuant::thisMattersMe) )         >>
-        out(1)                                       >>
-        CALL(InvQuant::doSomething)                >> main
-      | // data transformation
-        ( in(1) && !JS_ISCTRL(in.getValueAt(0)) )    >>
-        out(1)                                       >>
-        CALL(InvQuant::transform)                  >> main
-      ;
-  }
+    : smoc_actor(name, main),
+      comp_id(0),
+      block_pixel_id(0),
+      dbgout(std::cerr)
+  {
+
+    //Set Debug ostream options
+    CoSupport::Header my_header("InvQuant");
+    dbgout << my_header;
+
+    //Init qt_id[JPEG_MAX_COLOUR_COMPNENTS]
+    for(unsigned int i = 0; i < JPEG_MAX_COLOUR_COMPNENTS; i++){
+      qt_id[i] = 0;
+    }
+    
+    main =
+      /* discard Huffman tables */
+      (( in(1) && qt_table_0(JS_QT_TABLE_SIZE) && out(1)) >>
+       (JS_ISCTRL(in.getValueAt(0)) && 
+	(JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
+	(JS_CTRL_DISCARDQT_GETQTID(in.getValueAt(0)) == (JpegChannel_t)0)) >>
+       CALL(InvQuant::discard_qt_table)(0)) >> main
+      |(( in(1) && qt_table_1(JS_QT_TABLE_SIZE) && out(1)) >>
+	(JS_ISCTRL(in.getValueAt(0)) && 
+	 (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
+	 (JS_CTRL_DISCARDQT_GETQTID(in.getValueAt(0)) == (JpegChannel_t)1)) >>
+	CALL(InvQuant::discard_qt_table)(1)) >> main
+      |(( in(1) && qt_table_2(JS_QT_TABLE_SIZE) && out(1)) >>
+	(JS_ISCTRL(in.getValueAt(0)) && 
+	 (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
+	 (JS_CTRL_DISCARDQT_GETQTID(in.getValueAt(0)) == (JpegChannel_t)2)) >>
+	CALL(InvQuant::discard_qt_table)(2)) >> main
+      |(( in(1) && qt_table_3(JS_QT_TABLE_SIZE) && out(1)) >>
+	(JS_ISCTRL(in.getValueAt(0)) && 
+	 (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
+	 (JS_CTRL_DISCARDQT_GETQTID(in.getValueAt(0)) == (JpegChannel_t)3)) >>
+	CALL(InvQuant::discard_qt_table)(3)) >> main
+      // Check for illegal QT table IDs
+      |(( in(1) && out(1)) >>
+	(JS_ISCTRL(in.getValueAt(0)) && 
+	 (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
+	 (JS_CTRL_DISCARDQT_GETQTID(in.getValueAt(0)) > (JpegChannel_t)3)) >>
+	CALL(InvQuant::illegal_qt_id)) >> stuck
+
+      /* store QT table to use */
+      |(( in(1) && out(1)) >>
+	(JS_ISCTRL(in.getValueAt(0)) && 
+	 (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_USEQT)) >>
+	CALL(InvQuant::use_qt_table)) >> main
+
+      /* Store which colour component to process */      
+      |(( in(1) && out(1)) >>
+	(JS_ISCTRL(in.getValueAt(0)) && 
+	 (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_INTERNALCOMPSTART)) >>
+	CALL(InvQuant::store_comp_id)) >> main
+      
+      /* Forward non processed commands */
+      |(( in(1) && out(1)) >>
+	(JS_ISCTRL(in.getValueAt(0)) && 
+	 (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_INTERNALCOMPSTART) &&
+	 (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_USEQT) &&
+	 (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_DISCARDQT)
+	 ) >>
+	CALL(InvQuant::forward_command)) >> main
+
+      /* Process data value */
+      |(( in(1) && out(1) && qt_table_0(0,JS_QT_TABLE_SIZE)) >>
+	((!JS_ISCTRL(in.getValueAt(0)))  &&
+	 (VAR(qt_id[comp_id]) == 0)) >>
+	CALL(InvQuant::quantize0)) >> main
+
+      |(( in(1) && out(1) && qt_table_1(0,JS_QT_TABLE_SIZE)) >>
+	((!JS_ISCTRL(in.getValueAt(0)))  &&
+	 (VAR(qt_id[comp_id]) == 1)) >>
+	CALL(InvQuant::quantize1)) >> main
+
+      |(( in(1) && out(1) && qt_table_2(0,JS_QT_TABLE_SIZE)) >>
+	((!JS_ISCTRL(in.getValueAt(0)))  &&
+	 (VAR(qt_id[comp_id]) == 2)) >>
+	CALL(InvQuant::quantize2)) >> main
+
+      |(( in(1) && out(1) && qt_table_3(0,JS_QT_TABLE_SIZE)) >>
+	((!JS_ISCTRL(in.getValueAt(0)))  &&
+	 (VAR(qt_id[comp_id]) == 3)) >>
+	CALL(InvQuant::quantize3)) >> main;   
+
+      }
 };
 
 #endif // _INCLUDED_INV_QUANT_HPP
