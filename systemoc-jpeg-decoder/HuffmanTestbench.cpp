@@ -65,9 +65,9 @@ public:
   }
 };
 
-class TestSinkCoded: public smoc_actor {
+class TestToInvZrl: public smoc_actor {
 public:
-  smoc_port_in<codeword_t> in;
+  smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
     std::cout << name() << " receiving " << in[0] << std::endl;
@@ -75,10 +75,10 @@ private:
   
   smoc_firing_state start;
 public:
-  TestSinkCoded( sc_module_name name )
+  TestToInvZrl( sc_module_name name )
     : smoc_actor( name, start )
   {
-    start = in(1) >> CALL(TestSinkCoded::process)  >> start;
+    start = in(1) >> CALL(TestToInvZrl::process)  >> start;
   }
 };
 
@@ -92,7 +92,7 @@ private:
   HuffDecoder       mHuffDecoder;
 
   TestSinkCtrl  mSinkCtrl;
-  TestSinkCoded mSinkCoded;
+  TestToInvZrl mToInvZrl;
   
 public:
   HuffmanTestbench(sc_module_name name, const std::string &fileName)
@@ -103,15 +103,16 @@ public:
       mHuffDecoder("mHuffDecoder"),
 
       mSinkCtrl("mSinkCtrl"),
-      mSinkCoded("mSinkCoded")
+      mToInvZrl("mToInvZrl")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
     connectNodePorts<1>(mParser.out,              mInvByteStuff.in);
     connectNodePorts<1>(mParser.outCtrlImage,     mSinkCtrl.in);
-    connectNodePorts<1>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
+    connectNodePorts<2>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
     
     connectNodePorts<1>(mInvByteStuff.out,        mHuffDecoder.in);
+    connectNodePorts<1>(mHuffDecoder.out,         mToInvZrl.in);
 #endif
   }
 };

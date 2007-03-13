@@ -89,6 +89,9 @@
 #define JPEG_IS_FILL_BYTE(x) (0xFF == (x))
 /// Usage see standard page 31
 
+/// Debug dht synchronisation
+#define DHT_SYNC 0xF0
+
 class Parser: public smoc_actor {
 public:
   smoc_port_in<codeword_t>      in;
@@ -117,9 +120,36 @@ private:
     readBytes += 2;
   }
 
+  /// DHT processing
   void foundDHT1() {
     debug("Found DHT in Level 1");
     readBytes += 2;
+
+    // debug synchronisazion
+    outCodedHuffTbl[0] = DHT_SYNC;
+    outCodedHuffTbl[1] = DHT_SYNC;
+  }
+
+  void foundDHT2() {
+    debug("Found DHT in Level 2");
+    readBytes += 2;
+
+    // debug synchronisazion
+    outCodedHuffTbl[0] = DHT_SYNC;
+    outCodedHuffTbl[1] = DHT_SYNC;
+  }
+
+  void dhtSendLength(){
+    debug("Send DHT length to HuffDecoder");
+    outCodedHuffTbl[0] = in[0];
+    outCodedHuffTbl[1] = in[1];
+    readLengthField();
+  }
+
+  void dhtSendByte(){
+    debug("Send DHT byte to HuffDecoder");
+    outCodedHuffTbl[0] = in[0];
+    decLengthField();
   }
 
   void foundDRI1() {
@@ -144,11 +174,6 @@ private:
 
   void foundDQT2() {
     debug("Found DQT in Level 2");
-    readBytes += 2;
-  }
-
-  void foundDHT2() {
-    debug("Found DHT in Level 2");
     readBytes += 2;
   }
 
@@ -250,6 +275,7 @@ public:
               CALL(Parser::foundDQT1) >> dqt1 
             | (in(1) && 
               JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
+              outCodedHuffTbl(2)      >>
               CALL(Parser::foundDHT1) >> dht1 
             | (in(1) && 
               JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
@@ -280,9 +306,12 @@ public:
     dqt1 = in(2) >> CALL(Parser::readLengthField) >> skipDqt1;
     skipDqt1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDqt1
              | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> frame;
-    dht1 = in(2) >> CALL(Parser::readLengthField) >> skipDht1;
-    skipDht1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDht1
-             | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> frame;
+    dht1 =     in(2) >> outCodedHuffTbl(2) >>
+               CALL(Parser::dhtSendLength) >> skipDht1;
+    skipDht1 = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
+               CALL(Parser::dhtSendByte) >> skipDht1
+             | (in(1) && (VAR(lengthField)==1)) >> outCodedHuffTbl(1) >>
+               CALL(Parser::dhtSendByte) >> frame;
     dri1 = in(2) >> CALL(Parser::readLengthField) >> skipDri1;
     skipDri1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDri1
              | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> frame;
@@ -308,6 +337,7 @@ public:
               CALL(Parser::foundDQT2) >> dqt2_1 
             | (in(1) && 
               JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
+              outCodedHuffTbl(2)      >>
               CALL(Parser::foundDHT2) >> dht2_1 
             | (in(1) && 
               JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
@@ -333,9 +363,12 @@ public:
     dqt2_1 = in(2) >> CALL(Parser::readLengthField) >> skipDqt2_1;
     skipDqt2_1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDqt2_1
                | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scan1;
-    dht2_1 = in(2) >> CALL(Parser::readLengthField) >> skipDht2_1;
-    skipDht2_1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDht2_1
-               | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scan1;
+    dht2_1 =     in(2) >> outCodedHuffTbl(2) >>
+                 CALL(Parser::dhtSendLength) >> skipDht2_1;
+    skipDht2_1 = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
+                 CALL(Parser::dhtSendByte) >> skipDht2_1
+               | (in(1) && (VAR(lengthField)==1)) >> outCodedHuffTbl(1) >>
+                 CALL(Parser::dhtSendByte) >> scan1;
     dri2_1 = in(2) >> CALL(Parser::readLengthField) >> skipDri2_1;
     skipDri2_1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDri2_1
                | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scan1;
@@ -366,6 +399,7 @@ public:
              CALL(Parser::foundDNL) >> dnl 
            | (in(1) && 
              JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
+             outCodedHuffTbl(2)      >>
              CALL(Parser::foundDHT2) >> dht2_x 
            | (in(1) && 
              JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
@@ -434,9 +468,12 @@ public:
     dqt2_x = in(2) >> CALL(Parser::readLengthField) >> skipDqt2_x;
     skipDqt2_x = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDqt2_x
                | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scanx;
-    dht2_x = in(2) >> CALL(Parser::readLengthField) >> skipDht2_x;
-    skipDht2_x = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDht2_x
-               | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scanx;
+    dht2_x =     in(2) >> outCodedHuffTbl(2) >>
+                 CALL(Parser::dhtSendLength) >> skipDht2_x;
+    skipDht2_x = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
+                 CALL(Parser::dhtSendByte) >> skipDht2_x
+               | (in(1) && (VAR(lengthField)==1)) >> outCodedHuffTbl(1) >>
+                 CALL(Parser::dhtSendByte) >> scanx;
     dri2_x = in(2) >> CALL(Parser::readLengthField) >> skipDri2_x;
     skipDri2_x = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDri2_x
                | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scanx;
@@ -464,6 +501,7 @@ public:
              CALL(Parser::foundDQT2) >> dqt2_x 
            | (in(1) && 
              JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
+             outCodedHuffTbl(2)      >>
              CALL(Parser::foundDHT2) >> dht2_x 
            | (in(1) && 
              JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 

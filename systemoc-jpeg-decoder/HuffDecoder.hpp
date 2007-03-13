@@ -132,10 +132,11 @@ public:
 private:
   bool sufficientData() const {
     //FIXME: dummy stub
-    return true;
+    return false;
   }
 
   void collect(){
+    cerr << "HuffTblDecoder::collect() 0x" << hex << (unsigned int)in[0] << dec << endl;
     //FIXME: dummy stub
   }
 
@@ -149,10 +150,10 @@ public:
     : smoc_actor(name, main) {
     main
       // collect data
-      = (GUARD(HuffTblDecoder::sufficientData) )           >>
-        (in(1) && !GUARD(HuffTblDecoder::sufficientData) ) >>
+      = (in(1) && !GUARD(HuffTblDecoder::sufficientData) ) >>
         CALL(HuffTblDecoder::collect)                      >> main
       | // transform collected data
+        ( GUARD(HuffTblDecoder::sufficientData) )           >>
         (outHuffTblAC0(1) && outHuffTblDC0(1) &&
          outHuffTblAC1(1) && outHuffTblDC1(1))                >>
         CALL(HuffTblDecoder::transform)                    >> main

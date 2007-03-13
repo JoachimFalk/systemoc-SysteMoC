@@ -120,7 +120,7 @@ public:
     connectNodePorts<2>(mSrc.out,                 mParser.in);
     connectNodePorts<1>(mParser.out,              mSink.in);
     connectNodePorts<1>(mParser.outCtrlImage,     mSinkCtrl.in);
-    connectNodePorts<1>(mParser.outCodedHuffTbl,  mSinkCoded.in);
+    connectNodePorts<2>(mParser.outCodedHuffTbl,  mSinkCoded.in);
 #endif
   }
 };
