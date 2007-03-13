@@ -62,8 +62,10 @@ public:
   smoc_port_out<IDCTCoeff_t>   out;
   smoc_port_out<ImageParam>    outCtrlImage;
 protected:
+  size_t      width, height;
+  ScanVector  scanVector;
+
   std::ifstream inputStream;
-  ScanVector    scanVector;
 
   void process() {
     codeword_t byte = inputStream.get();
@@ -75,8 +77,10 @@ protected:
 
   smoc_firing_state start;
 public:
-  IDCTScanSource(sc_module_name name, const ScanVector &scanVector)
-    : smoc_actor(name, start), scanVector(scanVector) {
+  IDCTScanSource(sc_module_name name,
+      size_t width, size_t height, const ScanVector &scanVector)
+    : smoc_actor(name, start),
+      width(width), height(height), scanVector(scanVector) {
     start = (out(1) && GUARD(IDCTScanSource::streamValid)) >>
             CALL(IDCTScanSource::process)                  >> start;
   }
@@ -95,9 +99,9 @@ private:
   Clip              mClip;
   FrameBufferWriter mSink;
 public:
-  Testbench(sc_module_name name, const ScanVector &scanVector)
+  Testbench(sc_module_name name, size_t width, size_t height, const ScanVector &scanVector)
     : smoc_graph(name),
-      mIDCTScanSource("mIDCTScanSource", scanVector),
+      mIDCTScanSource("mIDCTScanSource", width, height, scanVector),
       // Begin IDCT2D
       mBlock2Row("mBlock2Row"),
       mIDCT2D("mIDCT2D"),
@@ -143,13 +147,37 @@ int sc_main (int argc, char **argv) {
   if (argc > 3) {
     std::cerr
       << (argv[0] != NULL ? argv[0] : "???")
-      << " <width> <height> <scanpattern: idctcoeff filename>+" << std::endl;
+      << " <width> <height> <scanpattern:idctcoeff filename>+" << std::endl;
     exit(-1);
   }
-
-  ScanVector scanVector;
   
-  smoc_top_moc<Testbench> testbench("testbench", scanVector);
+  size_t      width, height;
+  ScanVector  scanVector;
+  
+  width  = atoi(argv[1]);
+  height = atoi(argv[2]);
+  
+  for (const char *const *argIter = &argv[3]; *argIter != NULL; ++argIter) {
+    size_t      pos = 0;
+    const char *arg = *argIter;
+    
+    Scan scan;
+
+    while (pos < sizeof(scan.scanPattern)/sizeof(scan.scanPattern[0])) {
+      if (arg[pos] < '0' || arg[pos] > '2') {
+        std::cerr << argv[0] << ": scanpattern format error, scanpattern: [0-2]{6} !" << std::endl;
+        exit (-1);
+      }
+      scan.scanPattern[pos] = arg[pos++] - '0';
+    }
+    if (arg[pos++] != ':') {
+      std::cerr << argv[0] << ": missing colon after scanpattern !" << std::endl;
+    }
+    scan.idctCoeffFileName = &arg[pos];
+    scanVector.push_back(scan);
+  }
+  
+  smoc_top_moc<Testbench> testbench("testbench", width, height, scanVector);
   
   sc_start(-1);
   
