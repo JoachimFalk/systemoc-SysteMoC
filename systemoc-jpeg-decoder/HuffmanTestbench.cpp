@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 sts=2 expandtab:
 /*
- * Copyright (c) 2007 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This program is free software; you can redistribute it and/or modify it under
@@ -34,6 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <iostream>
+
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_moc.hpp>
@@ -44,72 +46,72 @@
 #include "Parser.hpp"
 #include "InvByteStuff.hpp"
 #include "HuffDecoder.hpp"
-#include "InvZrl.hpp"
-#include "DcDecoding.hpp"
-#include "InvQuant.hpp"
-#include "InvZigZag.hpp"
-#include "CtrlSieve.hpp"
-//IDCT
-#include "Round.hpp"
-#include "InvLevel.hpp"
-#include "Clip.hpp"
-#include "FrameBufferWriter.hpp"
 
-class Jpeg: public smoc_graph {
+class TestSinkCtrl: public smoc_actor {
+public:
+  smoc_port_in<ImageParam> in;
 private:
-  FileSource        mSrc;
-  Parser            mParser;
+  void process() {
+    ImageParam ip = in[0];
+    std::cout << name() << " receiving " << ip.width << " " << ip.height << " " << ip.compCount << std::endl;
+  }
+  
+  smoc_firing_state start;
+public:
+  TestSinkCtrl( sc_module_name name )
+    : smoc_actor( name, start )
+  {
+    start = in(1) >> CALL(TestSinkCtrl::process)  >> start;
+  }
+};
+
+class TestSinkCoded: public smoc_actor {
+public:
+  smoc_port_in<codeword_t> in;
+private:
+  void process() {
+    std::cout << name() << " receiving " << in[0] << std::endl;
+  }
+  
+  smoc_firing_state start;
+public:
+  TestSinkCoded( sc_module_name name )
+    : smoc_actor( name, start )
+  {
+    start = in(1) >> CALL(TestSinkCoded::process)  >> start;
+  }
+};
+
+
+class HuffmanTestbench
+: public smoc_graph {
+private:
+  FileSource    mSrc;
+  Parser        mParser;
   InvByteStuff      mInvByteStuff;
   HuffDecoder       mHuffDecoder;
-  InvZrl            mInvZrl;
-  DcDecoding        mDcDecoding;
-  InvQuant          mInvQuant;
-  CtrlSieve         mCtrlSieve;
-  InvZigZag         mInvZigZag;
-  //IDCT
-  Round             mRound;
-  InvLevel          mInvLevel;
-  Clip              mClip;
-  FrameBufferWriter mSink;
+
+  TestSinkCtrl  mSinkCtrl;
+  TestSinkCoded mSinkCoded;
+  
 public:
-  Jpeg(sc_module_name name, const std::string &fileName)
+  HuffmanTestbench(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),
       mInvByteStuff("mInvByteStuff"),
       mHuffDecoder("mHuffDecoder"),
-      mInvZrl("mInvZrl"),
-      mDcDecoding("mDcDecoding"),
-      mInvQuant("InvQuant"),
-      mCtrlSieve("CtrlSieve"),
-      mInvZigZag("InvZigZag"),
-      //IDCT
-      mRound("Round"),
-      mInvLevel("InvLevel"),
-      mClip("Clip"),
-      mSink("Sink")
+
+      mSinkCtrl("mSinkCtrl"),
+      mSinkCoded("mSinkCoded")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
     connectNodePorts<1>(mParser.out,              mInvByteStuff.in);
-    connectNodePorts<1>(mParser.outCtrlImage,     mSink.inCtrlImage);
+    connectNodePorts<1>(mParser.outCtrlImage,     mSinkCtrl.in);
     connectNodePorts<1>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
     
     connectNodePorts<1>(mInvByteStuff.out,        mHuffDecoder.in);
-    
-    connectNodePorts<1>(mHuffDecoder.out,         mInvZrl.in);
-    
-    connectNodePorts<1>(mInvZrl.out,              mDcDecoding.in);
-    connectNodePorts<1>(mDcDecoding.out,          mInvQuant.in);
-    connectNodePorts<1>(mInvQuant.out,            mCtrlSieve.in);
-    connectNodePorts<1>(mCtrlSieve.out,           mInvZigZag.in);
-
-    //InvZigZag -> IDCT, IDCT -> mRound
-
-    connectNodePorts<1>(mRound.out,               mInvLevel.in);
-    connectNodePorts<1>(mInvLevel.out,            mClip.in);
-    connectNodePorts<1>(mClip.out,                mSink.in);
-
 #endif
   }
 };
@@ -123,7 +125,7 @@ int sc_main (int argc, char **argv) {
     exit(-1);
   }
   
-  smoc_top_moc<Jpeg> jpeg("jpeg", argv[1]);
+  smoc_top_moc<HuffmanTestbench> huffmanTestbench("huffmanTestbench", argv[1]);
   
   sc_start(-1);
   

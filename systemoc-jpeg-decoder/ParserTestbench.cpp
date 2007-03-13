@@ -117,10 +117,10 @@ public:
       mSinkCoded("mSinkCoded")
   {
 #ifndef KASCPAR_PARSING
-    connectNodePorts(mSrc.out, mParser.in, smoc_fifo<codeword_t>(2));
-    connectNodePorts(mParser.out, mSink.in, smoc_fifo<JpegChannel_t>(1));
-    connectNodePorts(mParser.outCtrlImage, mSinkCtrl.in, smoc_fifo<ImageParam>(1));
-    connectNodePorts(mParser.outCodedHuffTbl, mSinkCoded.in, smoc_fifo<codeword_t>(1));
+    connectNodePorts<2>(mSrc.out,                 mParser.in);
+    connectNodePorts<1>(mParser.out,              mSink.in);
+    connectNodePorts<1>(mParser.outCtrlImage,     mSinkCtrl.in);
+    connectNodePorts<1>(mParser.outCodedHuffTbl,  mSinkCoded.in);
 #endif
   }
 };
@@ -134,7 +134,7 @@ int sc_main (int argc, char **argv) {
     exit(-1);
   }
   
-  smoc_top_moc<ParserTestbench> parserTestbecnh("parserTestbench", argv[1]);
+  smoc_top_moc<ParserTestbench> parserTestbench("parserTestbench", argv[1]);
   
   sc_start(-1);
   
