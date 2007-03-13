@@ -70,7 +70,7 @@ private:
   Round             mRound;
   InvLevel          mInvLevel;
   Clip              mClip;
-  FrameBufferWriter mSource;
+  FrameBufferWriter mSink;
 public:
   Jpeg(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
@@ -87,12 +87,12 @@ public:
       mRound("Round"),
       mInvLevel("Round"),
       mClip("Clip"),
-      mSource("Source")
+      mSink("Sink")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<1>(mSrc.out,                    mParser.in);
     connectNodePorts<1>(mParser.out,                 mInvByteStuff.in);
-    connectNodePorts<1>(mParser.outCtrlImage,        mSource.inCtrlImage);
+    connectNodePorts<1>(mParser.outCtrlImage,        mSink.inCtrlImage);
     connectNodePorts<1>(mParser.outCodedHuffTbl,     mHuffDecoder.inCodedHuffTbl);
     
     connectNodePorts<1>(mInvByteStuff.out,           mHuffDecoder.in);
@@ -108,7 +108,7 @@ public:
 
     connectNodePorts<1>(mRound.out,                  mInvLevel.in);
     connectNodePorts<1>(mInvLevel.out,               mClip.in);
-    connectNodePorts<1>(mClip.out,                   mSource.in);
+    connectNodePorts<1>(mClip.out,                   mSink.in);
 
 #endif
   }
