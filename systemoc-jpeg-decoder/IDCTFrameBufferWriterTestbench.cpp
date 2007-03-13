@@ -72,17 +72,60 @@ protected:
     out[0] = byte;
   }
 
+  void sendNewFrame() {
+    outCtrlImage[0] = JS_CTRL_NEWFRAME_SET_CHWORD
+      (width, height, scanVector.size());
+  }
+
+  void sendNewScan() {
+    outCtrlImage[0] = JS_CTRL_NEWSCAN_SET_CHWORD
+      (scanVector.front().scanPattern[0],
+       scanVector.front().scanPattern[1],
+       scanVector.front().scanPattern[2],
+       scanVector.front().scanPattern[3],
+       scanVector.front().scanPattern[4],
+       scanVector.front().scanPattern[5]);
+    inputStream.open(scanVector.front().idctCoeffFileName.c_str());
+  }
+
+  void sendIDCTCoeff() {
+    IDCTCoeff_t coeff;
+    
+    inputStream >> coeff;
+    out[0] = coeff;
+  }
+
+  bool haveScans() const
+    { return !scanVector.empty(); }
+
   bool streamValid() const
     { return inputStream.good(); }
 
   smoc_firing_state start;
+  smoc_firing_state scanNew;
+  smoc_firing_state scanSend;
+  smoc_firing_state end;
 public:
   IDCTScanSource(sc_module_name name,
       size_t width, size_t height, const ScanVector &scanVector)
     : smoc_actor(name, start),
       width(width), height(height), scanVector(scanVector) {
-    start = (out(1) && GUARD(IDCTScanSource::streamValid)) >>
-            CALL(IDCTScanSource::process)                  >> start;
+    start
+      = outCtrlImage(1)                       >>
+        CALL(IDCTScanSource::sendNewFrame)    >> scanNew
+      ;
+    scanNew
+      = GUARD(IDCTScanSource::haveScans)      >>
+        outCtrlImage(1)                       >>
+        CALL(IDCTScanSource::sendNewScan)     >> scanSend
+      | !GUARD(IDCTScanSource::haveScans)     >> end
+      ;
+    scanSend
+      = GUARD(IDCTScanSource::streamValid)    >>
+        out(1)                                >>
+        CALL(IDCTScanSource::sendIDCTCoeff)   >> scanSend
+      | !GUARD(IDCTScanSource::streamValid)   >> scanNew
+      ;
   }
 };
 
