@@ -50,6 +50,10 @@
 #include "InvQuant.hpp"
 #include "InvZigZag.hpp"
 #include "CtrlSieve.hpp"
+//IDCT
+#include "Round.hpp"
+#include "InvLevel.hpp"
+#include "Clip.hpp"
 
 class Jpeg
 : public smoc_graph {
@@ -64,6 +68,10 @@ private:
   InvQuant          mInvQuant;
   CtrlSieve         mCtrlSieve;
   InvZigZag         mInvZigZag;
+  //IDCT
+  Round             mRound;
+  InvLevel          mInvLevel;
+  Clip              mClip;
 public:
   Jpeg(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
@@ -76,7 +84,11 @@ public:
       mDcDecoding("mDcDecoding"),
       mInvQuant("InvQuant"),
       mCtrlSieve("CtrlSieve"),
-      mInvZigZag("InvZigZag")
+      mInvZigZag("InvZigZag"),
+      //IDCT
+      mRound("Round"),
+      mInvLevel("Round"),
+      mClip("Clip")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<1>(mSrc.out,                    mParser.in);
@@ -96,6 +108,11 @@ public:
     connectNodePorts<1>(mDcDecoding.out,             mInvQuant.in);
     connectNodePorts<1>(mInvQuant.out,               mCtrlSieve.in);
     connectNodePorts<1>(mCtrlSieve.out,              mInvZigZag.in);
+
+    //InvZigZag -> IDCT, IDCT -> mRound
+
+    connectNodePorts<1>(mRound.out,                  mInvLevel.in);
+    connectNodePorts<1>(mInvLevel.out,               mClip.in);
 
 #endif
   }
