@@ -35,8 +35,6 @@
 #ifndef _INCLUDED_IDCT2D_HPP
 #define _INCLUDED_IDCT2D_HPP
 
-
-
 #include <cstdlib>
 #include <iostream>
 
@@ -51,84 +49,45 @@
 
 #include "callib.hpp"
 
-#include "IDCT1d.hpp"
-#include "IDCT1d_col.hpp"
-#include "row_clip.hpp"
-
-
-#include "Upsample.hpp"
+#include "IDCT1d_row.hpp"
 #include "transpose.hpp"
+#include "IDCT1d_col.hpp"
 
-
-
-
-class m_idct2d:public smoc_graph {
-  
+class m_idct2d: public smoc_graph {
 public:
-  smoc_port_in<int>  i0, i1, i2, i3, i4, i5, i6, i7, min; 
+  smoc_port_in<int>  i0, i1, i2, i3, i4, i5, i6, i7;
   smoc_port_out<int> o0, o1, o2, o3, o4, o5, o6, o7;
-
-  m_idct2d(sc_module_name name): smoc_graph(name) {
-        
-    m_idct        &idctrow = registerNode(new m_idct("idctrow"));
-    m_idct_col    &idctcol = registerNode(new m_idct_col("idctcol"));
-    m_clip        &rowclip = registerNode(new m_clip("rowclip"));
-    m_transpose   &transpose1 = registerNode(new m_transpose("transpose1"));
-    m_Upsample    &upsample1 = registerNode(new m_Upsample("upsample1"));
-   
-    
-  
+protected:
+  m_idct_row  idctrow;
+  m_transpose transpose;
+  m_idct_col  idctcol;
+public:
+  m_idct2d(sc_module_name name)
+    : smoc_graph(name),
+      idctrow("idctrow"), transpose("transpose"), idctcol("idctcol")
+  {
 #ifndef KASCPAR_PARSING
-    connectInterfacePorts(i0, idctrow.i0); 
-    connectInterfacePorts(i1, idctrow.i1);  
-    connectInterfacePorts(i2, idctrow.i2);
-    connectInterfacePorts(i3, idctrow.i3);
-    connectInterfacePorts(i4, idctrow.i4);
-    connectInterfacePorts(i5, idctrow.i5);
-    connectInterfacePorts(i6, idctrow.i6);
-    connectInterfacePorts(i7, idctrow.i7);
-  
-    connectInterfacePorts(min, upsample1.I);
-  
-    connectNodePorts(idctrow.o0, transpose1.I0, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o1, transpose1.I1, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o2, transpose1.I2, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o3, transpose1.I3, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o4, transpose1.I4, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o5, transpose1.I5, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o6, transpose1.I6, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o7, transpose1.I7, smoc_fifo<int>(2));
-  
-    connectNodePorts(transpose1.O0, idctcol.i0, smoc_fifo<int>(16));
-    connectNodePorts(transpose1.O1, idctcol.i1, smoc_fifo<int>(16));
-    connectNodePorts(transpose1.O2, idctcol.i2, smoc_fifo<int>(16));
-    connectNodePorts(transpose1.O3, idctcol.i3, smoc_fifo<int>(16));
-    connectNodePorts(transpose1.O4, idctcol.i4, smoc_fifo<int>(16));
-    connectNodePorts(transpose1.O5, idctcol.i5, smoc_fifo<int>(16));
-    connectNodePorts(transpose1.O6, idctcol.i6, smoc_fifo<int>(16));
-    connectNodePorts(transpose1.O7, idctcol.i7, smoc_fifo<int>(16));
-
-    connectNodePorts(idctcol.o0, rowclip.i0, smoc_fifo<int>(2));
-    connectNodePorts(idctcol.o1, rowclip.i1, smoc_fifo<int>(2));
-    connectNodePorts(idctcol.o2, rowclip.i2, smoc_fifo<int>(2));
-    connectNodePorts(idctcol.o3, rowclip.i3, smoc_fifo<int>(2));
-    connectNodePorts(idctcol.o4, rowclip.i4, smoc_fifo<int>(2));
-    connectNodePorts(idctcol.o5, rowclip.i5, smoc_fifo<int>(2));
-    connectNodePorts(idctcol.o6, rowclip.i6, smoc_fifo<int>(2));
-    connectNodePorts(idctcol.o7, rowclip.i7, smoc_fifo<int>(2));
-  
-    connectNodePorts(upsample1.O, rowclip.min, smoc_fifo<int>(2));
-        
-    connectInterfacePorts(o0, rowclip.o0); 
-    connectInterfacePorts(o1, rowclip.o1);  
-    connectInterfacePorts(o2, rowclip.o2);
-    connectInterfacePorts(o3, rowclip.o3);
-    connectInterfacePorts(o4, rowclip.o4);
-    connectInterfacePorts(o5, rowclip.o5);
-    connectInterfacePorts(o6, rowclip.o6);
-    connectInterfacePorts(o7, rowclip.o7);
+    idctrow.i0(i0); idctrow.i1(i1); idctrow.i2(i2); idctrow.i3(i3);
+    idctrow.i4(i4); idctrow.i5(i5); idctrow.i6(i6); idctrow.i7(i7);
+    connectNodePorts(idctrow.o0, transpose.I0, smoc_fifo<int>(2));
+    connectNodePorts(idctrow.o1, transpose.I1, smoc_fifo<int>(2));
+    connectNodePorts(idctrow.o2, transpose.I2, smoc_fifo<int>(2));
+    connectNodePorts(idctrow.o3, transpose.I3, smoc_fifo<int>(2));
+    connectNodePorts(idctrow.o4, transpose.I4, smoc_fifo<int>(2));
+    connectNodePorts(idctrow.o5, transpose.I5, smoc_fifo<int>(2));
+    connectNodePorts(idctrow.o6, transpose.I6, smoc_fifo<int>(2));
+    connectNodePorts(idctrow.o7, transpose.I7, smoc_fifo<int>(2));
+    connectNodePorts(transpose.O0, idctcol.i0, smoc_fifo<int>(16));
+    connectNodePorts(transpose.O1, idctcol.i1, smoc_fifo<int>(16));
+    connectNodePorts(transpose.O2, idctcol.i2, smoc_fifo<int>(16));
+    connectNodePorts(transpose.O3, idctcol.i3, smoc_fifo<int>(16));
+    connectNodePorts(transpose.O4, idctcol.i4, smoc_fifo<int>(16));
+    connectNodePorts(transpose.O5, idctcol.i5, smoc_fifo<int>(16));
+    connectNodePorts(transpose.O6, idctcol.i6, smoc_fifo<int>(16));
+    connectNodePorts(transpose.O7, idctcol.i7, smoc_fifo<int>(16));
+    idctcol.o0(o0); idctcol.o1(o1); idctcol.o2(o2); idctcol.o3(o3);
+    idctcol.o4(o4); idctcol.o5(o5); idctcol.o6(o6); idctcol.o7(o7);
 #endif
- 
   }
 };
 

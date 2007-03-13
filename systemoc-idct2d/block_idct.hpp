@@ -32,6 +32,9 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_BLOCK_IDCT_HPP
+#define _INCLUDED_BLOCK_IDCT_HPP
+
 #include <cstdlib>
 #include <iostream>
 
@@ -46,47 +49,67 @@
 
 #include "callib.hpp"
 
-#include "IDCT2d.hpp"
 #include "block2row.hpp"
+#include "IDCT2d.hpp"
+#include "Upsample.hpp"
+#include "row_clip.hpp"
 #include "col2block.hpp"
 
-class m_block_idct
-  : public smoc_graph {
-  
-    public:
-    smoc_port_in<int> I;  
-    smoc_port_in<int> MIN;
-    smoc_port_out<int> O;
-
-    m_block_idct(sc_module_name name )
-      : smoc_graph(name) {
-        
-	m_block2row &block2row1 = registerNode(new m_block2row("block2row1"));
-	m_col2block &col2block1 = registerNode(new m_col2block("col2block1"));
-	m_idct2d    &idct2d1    = registerNode(new m_idct2d("idct2d1"));
-        
-	connectInterfacePorts(I, block2row1.b);
-        
-	connectInterfacePorts(MIN, idct2d1.min);
-#ifndef KASCPAR_PARSING  	
-        connectNodePorts( block2row1.C0, idct2d1.i0, smoc_fifo<int>(16) );
-      	connectNodePorts( block2row1.C1, idct2d1.i1, smoc_fifo<int>(16) );
-      	connectNodePorts( block2row1.C2, idct2d1.i2, smoc_fifo<int>(16) );
-      	connectNodePorts( block2row1.C3, idct2d1.i3, smoc_fifo<int>(16) );
-      	connectNodePorts( block2row1.C4, idct2d1.i4, smoc_fifo<int>(16) );
-      	connectNodePorts( block2row1.C5, idct2d1.i5, smoc_fifo<int>(16) );
-    	connectNodePorts( block2row1.C6, idct2d1.i6, smoc_fifo<int>(16) );
-      	connectNodePorts( block2row1.C7, idct2d1.i7, smoc_fifo<int>(16) );
-        
-	connectNodePorts( idct2d1.o0, col2block1.R0, smoc_fifo<int>(16) );
-      	connectNodePorts( idct2d1.o1, col2block1.R1, smoc_fifo<int>(16) );
-      	connectNodePorts( idct2d1.o2, col2block1.R2, smoc_fifo<int>(16) );
-      	connectNodePorts( idct2d1.o3, col2block1.R3, smoc_fifo<int>(16) );
-      	connectNodePorts( idct2d1.o4, col2block1.R4, smoc_fifo<int>(16) );
-      	connectNodePorts( idct2d1.o5, col2block1.R5, smoc_fifo<int>(16) );
-    	connectNodePorts( idct2d1.o6, col2block1.R6, smoc_fifo<int>(16) );
-      	connectNodePorts( idct2d1.o7, col2block1.R7, smoc_fifo<int>(16) );
+class m_block_idct: public smoc_graph {
+public:
+  smoc_port_in<int>  I;  
+  smoc_port_in<int>  MIN;
+  smoc_port_out<int> O;
+protected:
+  m_block2row block2row;
+  m_idct2d    idct2d;
+  m_Upsample  upsample;
+  m_clip      rowclip;
+  m_col2block col2block;
+public:
+  m_block_idct(sc_module_name name )
+    : smoc_graph(name),
+      block2row("block2row"),
+      idct2d("idct2d"),
+      upsample("upsample"),
+      rowclip("rowclip"),
+      col2block("col2block")
+  {
+#ifndef KASCPAR_PARSING
+    block2row.b(I);
+    upsample.I(MIN);
+    
+    connectNodePorts(block2row.C0, idct2d.i0, smoc_fifo<int>(16));
+    connectNodePorts(block2row.C1, idct2d.i1, smoc_fifo<int>(16));
+    connectNodePorts(block2row.C2, idct2d.i2, smoc_fifo<int>(16));
+    connectNodePorts(block2row.C3, idct2d.i3, smoc_fifo<int>(16));
+    connectNodePorts(block2row.C4, idct2d.i4, smoc_fifo<int>(16));
+    connectNodePorts(block2row.C5, idct2d.i5, smoc_fifo<int>(16));
+    connectNodePorts(block2row.C6, idct2d.i6, smoc_fifo<int>(16));
+    connectNodePorts(block2row.C7, idct2d.i7, smoc_fifo<int>(16));
+    
+    connectNodePorts(upsample.O, rowclip.min, smoc_fifo<int>(2));
+    connectNodePorts(idct2d.o0, rowclip.i0, smoc_fifo<int>(2));
+    connectNodePorts(idct2d.o1, rowclip.i1, smoc_fifo<int>(2));
+    connectNodePorts(idct2d.o2, rowclip.i2, smoc_fifo<int>(2));
+    connectNodePorts(idct2d.o3, rowclip.i3, smoc_fifo<int>(2));
+    connectNodePorts(idct2d.o4, rowclip.i4, smoc_fifo<int>(2));
+    connectNodePorts(idct2d.o5, rowclip.i5, smoc_fifo<int>(2));
+    connectNodePorts(idct2d.o6, rowclip.i6, smoc_fifo<int>(2));
+    connectNodePorts(idct2d.o7, rowclip.i7, smoc_fifo<int>(2));
+    
+    connectNodePorts(rowclip.o0, col2block.R0, smoc_fifo<int>(16));
+    connectNodePorts(rowclip.o1, col2block.R1, smoc_fifo<int>(16));
+    connectNodePorts(rowclip.o2, col2block.R2, smoc_fifo<int>(16));
+    connectNodePorts(rowclip.o3, col2block.R3, smoc_fifo<int>(16));
+    connectNodePorts(rowclip.o4, col2block.R4, smoc_fifo<int>(16));
+    connectNodePorts(rowclip.o5, col2block.R5, smoc_fifo<int>(16));
+    connectNodePorts(rowclip.o6, col2block.R6, smoc_fifo<int>(16));
+    connectNodePorts(rowclip.o7, col2block.R7, smoc_fifo<int>(16));
+    
+    col2block.b(O);
 #endif        
-	connectInterfacePorts(O, col2block1.b);
-      }
-  };
+  }
+};
+
+#endif // _INCLUDED_BLOCK_IDCT_HPP

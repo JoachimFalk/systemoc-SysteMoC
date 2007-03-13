@@ -32,8 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_IDCT1D_COL_HPP
-#define _INCLUDED_IDCT1D_COL_HPP
+#ifndef _INCLUDED_IDCT1D_ROW_HPP
+#define _INCLUDED_IDCT1D_ROW_HPP
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
@@ -50,7 +50,7 @@
 #include "IDCTfly.hpp"
 #include "IDCTscale.hpp"
 
-class m_idct_col: public smoc_graph {
+class m_idct_row: public smoc_graph {
 public:
   smoc_port_in<int>  i0, i1, i2, i3, i4, i5, i6, i7; 
   smoc_port_out<int> o0, o1, o2, o3, o4, o5, o6, o7;
@@ -60,23 +60,23 @@ protected:
   m_IDCTaddsub  addsub1, addsub2, addsub3, addsub4, addsub5;
   m_IDCTaddsub  addsub6, addsub7, addsub8, addsub9, addsub10;
 public:
-  m_idct_col( sc_module_name name )
+  m_idct_row(sc_module_name name)
     : smoc_graph(name),
-      iscale1("iscale1", 256, 8192),
-      iscale2("iscale2", 256,    0),
-      ifly1("ifly1",2408,4, -799,-4017,3),
-      ifly2("ifly2", 565,4, 2276,-3406,3),
-      ifly3("ifly3",1108,4,-3784, 1568,3),
+      iscale1("iscale1", 2048, 128),
+      iscale2("iscale2", 2048,   0),
+      ifly1("ifly1",2408,0, -799,-4017,0),
+      ifly2("ifly2", 565,0, 2276,-3406,0),
+      ifly3("ifly3",1108,0,-3784, 1568,0),
       addsub1("addsub1",   1,   0, 0),
       addsub2("addsub2",   1,   0, 0),
       addsub3("addsub3",   1,   0, 0),
       addsub4("addsub4",   1,   0, 0),
       addsub5("addsub5",   1,   0, 0),
       addsub6("addsub6", 181, 128, 8),
-      addsub7("addsub7",   1,   0, 14),
-      addsub8("addsub8",   1,   0, 14),
-      addsub9("addsub9",   1,   0, 14),
-      addsub10("addsub10", 1,   0, 14)//2^14 = 16384
+      addsub7("addsub7",   1,   0, 8),
+      addsub8("addsub8",   1,   0, 8),
+      addsub9("addsub9",   1,   0, 8),
+      addsub10("addsub10", 1,   0, 8)
   {
 #ifndef KASCPAR_PARSING
     connectInterfacePorts(i0, iscale1.I); 
@@ -87,7 +87,7 @@ public:
     connectInterfacePorts(i5, ifly1.I1);
     connectInterfacePorts(i6, ifly3.I1);
     connectInterfacePorts(i7, ifly2.I2);
-   
+    
     connectNodePorts(iscale1.O, addsub1.I1, smoc_fifo<int>(2));
     connectNodePorts(iscale2.O, addsub1.I2, smoc_fifo<int>(2)); 
     connectNodePorts(ifly2.O1,  addsub2.I1, smoc_fifo<int>(2)); 
@@ -122,4 +122,4 @@ public:
   }
 };
 
-#endif // _INCLUDED_IDCT1D_COL_HPP
+#endif // _INCLUDED_IDCT1D_ROW_HPP
