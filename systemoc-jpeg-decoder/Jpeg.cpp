@@ -91,10 +91,11 @@ public:
     connectNodePorts<1>(mHuffmanManagement.maxCode,  mInvHuffman.maxCode);
     connectNodePorts<1>(mHuffmanManagement.huffVal,  mInvHuffman.huffVal);
 
-    connectNodePorts<1>(mInvHuffman.out,             mCtrlSieve.in);
-    connectNodePorts<1>(mCtrlSieve.out,              mInvZrl.in);
+    connectNodePorts<1>(mInvHuffman.out,             mInvZrl.in);
     connectNodePorts<1>(mInvZrl.out,                 mDcDecoding.in);
     connectNodePorts<1>(mDcDecoding.out,             mInvQuant.in);
+    connectNodePorts<1>(mInvQuant.out,               mCtrlSieve.in);
+    connectNodePorts<1>(mCtrlSieve.out,              mInvZigZag.in);
 
 #endif
   }
