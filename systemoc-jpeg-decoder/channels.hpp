@@ -385,17 +385,6 @@ struct ImageParam {
   uint2_t  compCount; ///< Component count in Image
 };
 
-struct ExpHuffTbl{
-  //FIXME: implement stub
-
-};
-
-static inline
-ostream &operator<<(ostream &output, const ExpHuffTbl &eht) {
-  // FIXME: compile dummy
-  return output;
-}
-
 std::ostream &operator << (std::ostream &out, const ImageParam &val)
   { out << "[ImageParam width: " << val.width << ", height: " << val.height << ", component count: " << val.compCount;
 return out; }

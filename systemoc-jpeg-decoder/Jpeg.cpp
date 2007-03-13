@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 sts=2 expandtab:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2007 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This program is free software; you can redistribute it and/or modify it under
@@ -43,8 +43,7 @@
 #include "FileSource.hpp"
 #include "Parser.hpp"
 #include "InvByteStuff.hpp"
-#include "InvHuffman.hpp"
-#include "HuffmanManagement.hpp"
+#include "HuffDecoder.hpp"
 #include "InvZrl.hpp"
 #include "DcDecoding.hpp"
 #include "InvQuant.hpp"
@@ -56,14 +55,12 @@
 #include "Clip.hpp"
 #include "FrameBufferWriter.hpp"
 
-class Jpeg
-: public smoc_graph {
+class Jpeg: public smoc_graph {
 private:
-  FileSource    mSrc;
-  Parser        mParser;
-  InvByteStuff  mInvByteStuff;
-  InvHuffman    mInvHuffman;
-  HuffmanManagement mHuffmanManagement;
+  FileSource        mSrc;
+  Parser            mParser;
+  InvByteStuff      mInvByteStuff;
+  HuffDecoder       mHuffDecoder;
   InvZrl            mInvZrl;
   DcDecoding        mDcDecoding;
   InvQuant          mInvQuant;
@@ -80,8 +77,7 @@ public:
       mSrc("mSrc", fileName),
       mParser("mParser"),
       mInvByteStuff("mInvByteStuff"),
-      mInvHuffman("mInvHuffman"),
-      mHuffmanManagement("mHuffmanManagement"),
+      mHuffDecoder("mHuffDecoder"),
       mInvZrl("mInvZrl"),
       mDcDecoding("mDcDecoding"),
       mInvQuant("InvQuant"),
@@ -96,18 +92,13 @@ public:
 #ifndef KASCPAR_PARSING
     connectNodePorts<1>(mSrc.out,                    mParser.in);
     connectNodePorts<1>(mParser.out,                 mInvByteStuff.in);
-    connectNodePorts<1>(mParser.outCodedHuffTbl,     mHuffmanManagement.in);
     connectNodePorts<1>(mParser.outCtrlImage,        mSource.inCtrlImage);
-
-    connectNodePorts<1>(mInvByteStuff.out,           mInvHuffman.in);
-
-    // Extended Huffman Table (2x2)
-    connectNodePorts<1>(mHuffmanManagement.valPtr,   mInvHuffman.valPtr);
-    connectNodePorts<1>(mHuffmanManagement.minCode,  mInvHuffman.minCode);
-    connectNodePorts<1>(mHuffmanManagement.maxCode,  mInvHuffman.maxCode);
-    connectNodePorts<1>(mHuffmanManagement.huffVal,  mInvHuffman.huffVal);
-
-    connectNodePorts<1>(mInvHuffman.out,             mInvZrl.in);
+    connectNodePorts<1>(mParser.outCodedHuffTbl,     mHuffDecoder.inCodedHuffTbl);
+    
+    connectNodePorts<1>(mInvByteStuff.out,           mHuffDecoder.in);
+    
+    connectNodePorts<1>(mHuffDecoder.out,            mInvZrl.in);
+    
     connectNodePorts<1>(mInvZrl.out,                 mDcDecoding.in);
     connectNodePorts<1>(mDcDecoding.out,             mInvQuant.in);
     connectNodePorts<1>(mInvQuant.out,               mCtrlSieve.in);

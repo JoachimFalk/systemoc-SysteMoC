@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_INV_HUFFMAN_HPP
-#define _INCLUDED_INV_HUFFMAN_HPP
+#ifndef _INCLUDED_INVHUFFMAN_HPP
+#define _INCLUDED_INVHUFFMAN_HPP
 
 #include <cstdlib>
 #include <iostream>
@@ -53,14 +53,25 @@
 #define HUFF_EOB 0x00
 #define HUFF_RUNLENGTH_ZERO_AMPLITUDE 0xF0
 
+struct ExpHuffTbl {
+  //FIXME: implement stub
+  int dummy;
+};
+
+static inline
+ostream &operator<<(ostream &out, const ExpHuffTbl &eht) {
+  // FIXME: compile dummy
+  return out;
+}
+
 class InvHuffman: public smoc_actor {
 public:
-  smoc_port_in<JpegChannel_t>  in;
-  smoc_port_in<ExpHuffTbl>     valPtr;
-  smoc_port_in<ExpHuffTbl>     minCode;
-  smoc_port_in<ExpHuffTbl>     maxCode;
-  smoc_port_in<ExpHuffTbl>     huffVal;
-  smoc_port_out<JpegChannel_t> out;
+  smoc_port_in<JpegChannel_t>   in;
+  smoc_port_in<ExpHuffTbl>      inHuffTblAC0;
+  smoc_port_in<ExpHuffTbl>      inHuffTblDC0;
+  smoc_port_in<ExpHuffTbl>      inHuffTblAC1;
+  smoc_port_in<ExpHuffTbl>      inHuffTblDC1;
+  smoc_port_out<JpegChannel_t>  out;
 private:
   bool thisMattersMe() const {
     //FIXME: dummy stub
@@ -111,4 +122,76 @@ public:
   }
 };
 
-#endif
+class HuffTblDecoder: public smoc_actor {
+public:
+  smoc_port_in<codeword_t>  in;
+  smoc_port_out<ExpHuffTbl> outHuffTblAC0;
+  smoc_port_out<ExpHuffTbl> outHuffTblDC0;
+  smoc_port_out<ExpHuffTbl> outHuffTblAC1;
+  smoc_port_out<ExpHuffTbl> outHuffTblDC1;
+private:
+  bool sufficientData() const {
+    //FIXME: dummy stub
+    return true;
+  }
+
+  void collect(){
+    //FIXME: dummy stub
+  }
+
+  void transform(){
+    //FIXME: dummy stub
+  }
+  
+  smoc_firing_state main;
+public:
+  HuffTblDecoder(sc_module_name name)
+    : smoc_actor(name, main) {
+    main
+      // collect data
+      = (GUARD(HuffTblDecoder::sufficientData) )           >>
+        (in(1) && !GUARD(HuffTblDecoder::sufficientData) ) >>
+        CALL(HuffTblDecoder::collect)                      >> main
+      | // transform collected data
+        (outHuffTblAC0(1) && outHuffTblDC0(1) &&
+         outHuffTblAC1(1) && outHuffTblDC1(1))                >>
+        CALL(HuffTblDecoder::transform)                    >> main
+      ;
+  }
+};
+
+class HuffDecoder: public smoc_graph {
+public:
+  smoc_port_in<JpegChannel_t>  in;
+  smoc_port_out<JpegChannel_t> out;
+  smoc_port_in<codeword_t>     inCodedHuffTbl;
+private:
+  InvHuffman      mInvHuffman;
+  HuffTblDecoder  mHuffTblDecoder;
+public:
+  HuffDecoder(sc_module_name name)
+    : smoc_graph(name),
+      mInvHuffman("mInvHuffman"),
+      mHuffTblDecoder("mHuffTblDecoder")
+  {
+#ifndef KASCPAR_PARSING
+    mInvHuffman.in(in);
+    mHuffTblDecoder.in(inCodedHuffTbl);
+    connectNodePorts(
+      mHuffTblDecoder.outHuffTblAC0,
+      mInvHuffman.inHuffTblAC0);
+    connectNodePorts(
+      mHuffTblDecoder.outHuffTblAC1,
+      mInvHuffman.inHuffTblAC1);
+    connectNodePorts(
+      mHuffTblDecoder.outHuffTblDC0,
+      mInvHuffman.inHuffTblDC0);
+    connectNodePorts(
+      mHuffTblDecoder.outHuffTblDC1,
+      mInvHuffman.inHuffTblDC1);
+    mInvHuffman.out(out);
+  #endif
+  }
+};
+
+#endif // _INCLUDED_INVHUFFMAN_HPP
