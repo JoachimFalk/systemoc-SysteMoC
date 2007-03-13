@@ -49,14 +49,14 @@
 
 class InvLevel: public smoc_actor {
 public:
-  smoc_port_in<JpegChannel_t>      in;
-  smoc_port_out<JpegChannel_t>     out;
+  smoc_port_in<IDCTCoeff_t>      in;
+  smoc_port_out<JpegChannel_t>   out;
 private:
   void transform(){
     //FIXME: dummy stub
     out[0] = in[0];
   }
-  
+
   // forward control commands from input to output
   void forwardCtrl() {
     assert(0); // no ctrl

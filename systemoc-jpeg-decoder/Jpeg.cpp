@@ -49,8 +49,12 @@
 #include "InvQuant.hpp"
 #include "InvZigZag.hpp"
 #include "CtrlSieve.hpp"
-//IDCT
-#include "Round.hpp"
+// Begin IDCT2D
+#include "block2row.hpp"
+#include "IDCT2d.hpp"
+#include "col2block.hpp"
+// End IDCT2D
+//#include "Round.hpp"
 #include "InvLevel.hpp"
 #include "Clip.hpp"
 #include "FrameBufferWriter.hpp"
@@ -66,8 +70,12 @@ private:
   InvQuant          mInvQuant;
   CtrlSieve         mCtrlSieve;
   InvZigZag         mInvZigZag;
-  //IDCT
-  Round             mRound;
+  // Begin IDCT2D
+  m_block2row       mBlock2Row;
+  m_idct2d          mIDCT2D;
+  m_col2block       mCol2Block;
+  // End IDCT2D
+//Round             mRound;
   InvLevel          mInvLevel;
   Clip              mClip;
   FrameBufferWriter mSink;
@@ -83,8 +91,12 @@ public:
       mInvQuant("InvQuant"),
       mCtrlSieve("CtrlSieve"),
       mInvZigZag("InvZigZag"),
-      //IDCT
-      mRound("Round"),
+      // Begin IDCT2D
+      mBlock2Row("mBlock2Row"),
+      mIDCT2D("mIDCT2D"),
+      mCol2Block("mCol2Block"),
+      // End IDCT2D
+//    mRound("Round"),
       mInvLevel("InvLevel"),
       mClip("Clip"),
       mSink("Sink")
@@ -103,13 +115,33 @@ public:
     connectNodePorts<1>(mDcDecoding.out,          mInvQuant.in);
     connectNodePorts<1>(mInvQuant.out,            mCtrlSieve.in);
     connectNodePorts<1>(mCtrlSieve.out,           mInvZigZag.in);
-
+    
     //InvZigZag -> IDCT, IDCT -> mRound
-
-    connectNodePorts<1>(mRound.out,               mInvLevel.in);
-    connectNodePorts<1>(mInvLevel.out,            mClip.in);
-    connectNodePorts<1>(mClip.out,                mSink.in);
-
+    connectNodePorts<1>(mInvZigZag.out, mBlock2Row.b);
+    
+    connectNodePorts<16>(mBlock2Row.C0, mIDCT2D.i0);
+    connectNodePorts<16>(mBlock2Row.C1, mIDCT2D.i1);
+    connectNodePorts<16>(mBlock2Row.C2, mIDCT2D.i2);
+    connectNodePorts<16>(mBlock2Row.C3, mIDCT2D.i3);
+    connectNodePorts<16>(mBlock2Row.C4, mIDCT2D.i4);
+    connectNodePorts<16>(mBlock2Row.C5, mIDCT2D.i5);
+    connectNodePorts<16>(mBlock2Row.C6, mIDCT2D.i6);
+    connectNodePorts<16>(mBlock2Row.C7, mIDCT2D.i7);
+    
+    connectNodePorts<16>(mIDCT2D.o0, mCol2Block.R0);
+    connectNodePorts<16>(mIDCT2D.o1, mCol2Block.R1);
+    connectNodePorts<16>(mIDCT2D.o2, mCol2Block.R2);
+    connectNodePorts<16>(mIDCT2D.o3, mCol2Block.R3);
+    connectNodePorts<16>(mIDCT2D.o4, mCol2Block.R4);
+    connectNodePorts<16>(mIDCT2D.o5, mCol2Block.R5);
+    connectNodePorts<16>(mIDCT2D.o6, mCol2Block.R6);
+    connectNodePorts<16>(mIDCT2D.o7, mCol2Block.R7);
+    
+//  connectNodePorts<16>(mCol2Block.b, mRound.in);
+//  connectNodePorts<1>(mRound.out, mInvLevel.in);
+    connectNodePorts<16>(mCol2Block.b, mInvLevel.in);
+    connectNodePorts<1>(mInvLevel.out, mClip.in);
+    connectNodePorts<1>(mClip.out,     mSink.in);
 #endif
   }
 };

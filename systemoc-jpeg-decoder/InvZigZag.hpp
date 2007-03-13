@@ -47,15 +47,12 @@
 
 #include "channels.hpp"
 
-
-
-
 /// This actor takes the IDCT coefficients arriving in zig-zag order
 /// and outputs them in a line based manner.
 class InvZigZag: public smoc_actor {
 public:
-  smoc_port_in<JpegChannel_t>      in;
-  smoc_port_out<JpegChannel_t>     out;
+  smoc_port_in<JpegChannel_t> in;
+  smoc_port_out<IDCTCoeff_t>  out;
 private:
 
   static const unsigned char zigzag_order[JPEG_BLOCK_SIZE];
@@ -66,7 +63,7 @@ private:
     // Check, that no control words occur any more
     // Otherwise we produce wrong data!
     assert(!JS_ISCTRL(in[zigzag_order[block_pixel_id]]));
-    out[0] = in[zigzag_order[block_pixel_id]];
+    out[0] = JS_COEFF_GETIDCTCOEFF(in[zigzag_order[block_pixel_id]]);
     block_pixel_id++;
     if (block_pixel_id >= JPEG_BLOCK_SIZE){
       block_pixel_id = 0;

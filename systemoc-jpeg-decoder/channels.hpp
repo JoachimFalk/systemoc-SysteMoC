@@ -6,11 +6,13 @@
 
 #include <stdint.h>
 
-typedef uint8_t  uint2_t;
-typedef uint8_t  uint4_t;
-typedef uint16_t uint12_t;
-typedef uint32_t uint28_t;
-typedef uint32_t uint19_t;
+typedef uint8_t   uint2_t;
+typedef uint8_t   uint4_t;
+typedef uint32_t  uint19_t;
+typedef uint32_t  uint28_t;
+
+typedef int16_t   int12_t;
+typedef int32_t   int19_t;
 
 #define JPEG_BLOCK_WIDTH  8
 #define JPEG_BLOCK_HEIGHT 8
@@ -67,14 +69,14 @@ typedef uint4_t Category_t;
 
 /// The quantized IDCT coefficients
 #define QUANTIDCTCOEFF_BITS 12
-typedef uint12_t QuantIDCTCoeff_t;
+typedef int12_t QuantIDCTCoeff_t;
 
 /// The IDCT coefficients (maximum of 8 bit extension by dequantization)
 /// But only 11 Bits needed for AC coefficients (DC coefficients need one
 /// more bit because of difference coding, which is removed before
 /// dequantization)
 #define IDCTCOEFF_BITS (11+8)
-typedef uint19_t IDCTCoeff_t;
+typedef int19_t IDCTCoeff_t;
 
 #define RESTART_INTERVAL_BITS (16+3)
 typedef uint19_t RestartInterval_t;

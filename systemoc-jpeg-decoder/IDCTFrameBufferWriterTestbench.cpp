@@ -41,10 +41,11 @@
 #include "channels.hpp"
 
 #include "FileSource.hpp"
-//IDCT
+// Begin IDCT2D
 #include "block2row.hpp"
 #include "IDCT2d.hpp"
 #include "col2block.hpp"
+// End IDCT2D
 #include "InvLevel.hpp"
 #include "Clip.hpp"
 #include "FrameBufferWriter.hpp"
@@ -107,33 +108,33 @@ public:
       mClip("mClip"),
       mSink("mSink")
   {
-    connectNodePorts(mIDCTScanSource.out, mBlock2Row.b, smoc_fifo<IDCTCoeff_t>(16));
+    connectNodePorts<16>(mIDCTScanSource.out, mBlock2Row.b);
     
-    connectNodePorts(mBlock2Row.C0, mIDCT2D.i0, smoc_fifo<int>(16));
-    connectNodePorts(mBlock2Row.C1, mIDCT2D.i1, smoc_fifo<int>(16));
-    connectNodePorts(mBlock2Row.C2, mIDCT2D.i2, smoc_fifo<int>(16));
-    connectNodePorts(mBlock2Row.C3, mIDCT2D.i3, smoc_fifo<int>(16));
-    connectNodePorts(mBlock2Row.C4, mIDCT2D.i4, smoc_fifo<int>(16));
-    connectNodePorts(mBlock2Row.C5, mIDCT2D.i5, smoc_fifo<int>(16));
-    connectNodePorts(mBlock2Row.C6, mIDCT2D.i6, smoc_fifo<int>(16));
-    connectNodePorts(mBlock2Row.C7, mIDCT2D.i7, smoc_fifo<int>(16));
+    connectNodePorts<16>(mBlock2Row.C0, mIDCT2D.i0);
+    connectNodePorts<16>(mBlock2Row.C1, mIDCT2D.i1);
+    connectNodePorts<16>(mBlock2Row.C2, mIDCT2D.i2);
+    connectNodePorts<16>(mBlock2Row.C3, mIDCT2D.i3);
+    connectNodePorts<16>(mBlock2Row.C4, mIDCT2D.i4);
+    connectNodePorts<16>(mBlock2Row.C5, mIDCT2D.i5);
+    connectNodePorts<16>(mBlock2Row.C6, mIDCT2D.i6);
+    connectNodePorts<16>(mBlock2Row.C7, mIDCT2D.i7);
     
-    connectNodePorts(mIDCT2D.o0, mCol2Block.R0, smoc_fifo<int>(16));
-    connectNodePorts(mIDCT2D.o1, mCol2Block.R1, smoc_fifo<int>(16));
-    connectNodePorts(mIDCT2D.o2, mCol2Block.R2, smoc_fifo<int>(16));
-    connectNodePorts(mIDCT2D.o3, mCol2Block.R3, smoc_fifo<int>(16));
-    connectNodePorts(mIDCT2D.o4, mCol2Block.R4, smoc_fifo<int>(16));
-    connectNodePorts(mIDCT2D.o5, mCol2Block.R5, smoc_fifo<int>(16));
-    connectNodePorts(mIDCT2D.o6, mCol2Block.R6, smoc_fifo<int>(16));
-    connectNodePorts(mIDCT2D.o7, mCol2Block.R7, smoc_fifo<int>(16));
+    connectNodePorts<16>(mIDCT2D.o0, mCol2Block.R0);
+    connectNodePorts<16>(mIDCT2D.o1, mCol2Block.R1);
+    connectNodePorts<16>(mIDCT2D.o2, mCol2Block.R2);
+    connectNodePorts<16>(mIDCT2D.o3, mCol2Block.R3);
+    connectNodePorts<16>(mIDCT2D.o4, mCol2Block.R4);
+    connectNodePorts<16>(mIDCT2D.o5, mCol2Block.R5);
+    connectNodePorts<16>(mIDCT2D.o6, mCol2Block.R6);
+    connectNodePorts<16>(mIDCT2D.o7, mCol2Block.R7);
     
-//  connectNodePorts(mCol2Block.b, mRound.in, smoc_fifo<int>(16));
-//  connectNodePorts(mRound.out, mInvLevel.in, smoc_fifo<int>(1));
-    connectNodePorts(mCol2Block.b,  mInvLevel.in, smoc_fifo<int>(16));
-    connectNodePorts(mInvLevel.out, mClip.in, smoc_fifo<int>(1));
-    connectNodePorts(mClip.out,     mSink.in, smoc_fifo<int>(1));
+//  connectNodePorts<16>(mCol2Block.b, mRound.in);
+//  connectNodePorts<1>(mRound.out, mInvLevel.in);
+    connectNodePorts<16>(mCol2Block.b,  mInvLevel.in);
+    connectNodePorts<1>(mInvLevel.out, mClip.in);
+    connectNodePorts<1>(mClip.out,     mSink.in);
     
-    connectNodePorts(mIDCTScanSource.outCtrlImage, mSink.inCtrlImage, smoc_fifo<int>(1));
+    connectNodePorts<1>(mIDCTScanSource.outCtrlImage, mSink.inCtrlImage);
   }
 };
 
@@ -145,8 +146,10 @@ int sc_main (int argc, char **argv) {
       << " <width> <height> <scanpattern: idctcoeff filename>+" << std::endl;
     exit(-1);
   }
+
+  ScanVector scanVector;
   
-  smoc_top_moc<Testbench> testbench("testbench", argv[1]);
+  smoc_top_moc<Testbench> testbench("testbench", scanVector);
   
   sc_start(-1);
   
