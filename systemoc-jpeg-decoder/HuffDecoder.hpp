@@ -58,12 +58,32 @@ struct ExpHuffTbl {
   int dummy;
 };
 
-static inline
+// if compiled with DBG_HUFF_DECODER create stream and include debug macros
+#define DBG_HUFF_DECODER
+#ifdef DBG_HUFF_DECODER
+  #include <cosupport/smoc_debug_out.hpp>
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
+/*****************************************************************************/
+
+
 ostream &operator<<(ostream &out, const ExpHuffTbl &eht) {
   // FIXME: compile dummy
   return out;
 }
 
+
+/******************************************************************************
+ *
+ *
+ */
 class InvHuffman: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t>   in;
@@ -72,37 +92,11 @@ public:
   smoc_port_in<ExpHuffTbl>      inHuffTblAC1;
   smoc_port_in<ExpHuffTbl>      inHuffTblDC1;
   smoc_port_out<JpegChannel_t>  out;
-private:
-  bool thisMattersMe() const {
-    //FIXME: dummy stub
-    return false;
-  }
 
-  void doSomething(){
-    //FIXME: dummy stub
-
-    forwardCtrl();
-  }
-
-  void transform(){
-    //FIXME: dummy stub
-    out[0] = in[0];
-  }
-  
-  // forward control commands from input to output
-  void forwardCtrl() {
-    out[0] = in[0];
-  }
-
-  // forward data from input to output
-  void forwardData() {
-    out[0] = in[0];
-  }
-
-  smoc_firing_state main;
-public:
   InvHuffman(sc_module_name name)
-    : smoc_actor(name, main) {
+    : smoc_actor(name, main),
+      dbgout(std::cerr)
+  {
     main
       // ignore and forward control tokens
       = ( in(1) && JS_ISCTRL(in.getValueAt(0))       &&
@@ -120,8 +114,46 @@ public:
         CALL(InvHuffman::transform)                  >> main
       ;
   }
+
+private:
+  //
+  bool thisMattersMe() const {
+    //FIXME: dummy stub
+    return false;
+  }
+
+  //
+  void doSomething(){
+    //FIXME: dummy stub
+
+    forwardCtrl();
+  }
+
+  //
+  void transform(){
+    //FIXME: dummy stub
+    out[0] = in[0];
+  }
+  
+  // forward control commands from input to output
+  void forwardCtrl() {
+    out[0] = in[0];
+  }
+
+  // forward data from input to output
+  void forwardData() {
+    out[0] = in[0];
+  }
+
+  CoSupport::DebugOstream dbgout;
+  smoc_firing_state main;
 };
 
+
+/******************************************************************************
+ *
+ *
+ */
 class HuffTblDecoder: public smoc_actor {
 public:
   smoc_port_in<codeword_t>  in;
@@ -129,25 +161,17 @@ public:
   smoc_port_out<ExpHuffTbl> outHuffTblDC0;
   smoc_port_out<ExpHuffTbl> outHuffTblAC1;
   smoc_port_out<ExpHuffTbl> outHuffTblDC1;
-private:
-  bool sufficientData() const {
-    //FIXME: dummy stub
-    return false;
-  }
 
-  void collect(){
-    cerr << "HuffTblDecoder::collect() 0x" << hex << (unsigned int)in[0] << dec << endl;
-    //FIXME: dummy stub
-  }
-
-  void transform(){
-    //FIXME: dummy stub
-  }
-  
-  smoc_firing_state main;
-public:
   HuffTblDecoder(sc_module_name name)
-    : smoc_actor(name, main) {
+    : smoc_actor(name, main),
+      dbgout(std::cerr)
+  {
+    CoSupport::Header myHeader("HuffTblDecoder> ");
+
+    dbgout << myHeader;
+
+    DBG_OUT("testout\n");
+    
     main
       // collect data
       = (in(1) && !GUARD(HuffTblDecoder::sufficientData) ) >>
@@ -159,17 +183,37 @@ public:
         CALL(HuffTblDecoder::transform)                    >> main
       ;
   }
+
+private:
+  bool sufficientData() const {
+    //FIXME: dummy stub
+    return false;
+  }
+
+  void collect(){
+    DBG_OUT("collect() 0x" << hex << (unsigned int)in[0] << dec << endl);
+    //FIXME: dummy stub
+  }
+
+  void transform(){
+    //FIXME: dummy stub
+  }
+  
+  CoSupport::DebugOstream dbgout;
+  smoc_firing_state main;
 };
 
+
+/******************************************************************************
+ *
+ *
+ */
 class HuffDecoder: public smoc_graph {
 public:
   smoc_port_in<JpegChannel_t>  in;
-  smoc_port_out<JpegChannel_t> out;
   smoc_port_in<codeword_t>     inCodedHuffTbl;
-private:
-  InvHuffman      mInvHuffman;
-  HuffTblDecoder  mHuffTblDecoder;
-public:
+  smoc_port_out<JpegChannel_t> out;
+
   HuffDecoder(sc_module_name name)
     : smoc_graph(name),
       mInvHuffman("mInvHuffman"),
@@ -193,6 +237,11 @@ public:
     mInvHuffman.out(out);
   #endif
   }
+
+private:
+  InvHuffman      mInvHuffman;
+  HuffTblDecoder  mHuffTblDecoder;
 };
+
 
 #endif // _INCLUDED_INVHUFFMAN_HPP
