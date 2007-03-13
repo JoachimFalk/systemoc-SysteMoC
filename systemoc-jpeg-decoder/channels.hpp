@@ -68,6 +68,8 @@ typedef uint16_t HuffmanCode_t;
 #define INTCOMPID_BITS 2
 typedef uint2_t IntCompID_t;
 
+#define SCANPATTERN_LENGTH 6
+
 #define RUNLENGTH_BITS 4
 typedef uint4_t RunLength_t;
 
@@ -193,7 +195,7 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     /*               in case of CTRLCMD_NEWSCAN                        */
     /* *************************************************************** */
-    // (0<=n<=5)    
+    // (0 <= n < SCANPATTERN_LENGTH)    
 #   define JS_CTRL_NEWSCAN_GETCOMP(x,n) \
     static_cast<IntCompID_t>(DEMASK(x,1+CTRLCMD_BITS+(n)*INTCOMPID_BITS,INTCOMPID_BITS))
 #   define JS_CTRL_NEWSCAN_SETCOMP(comp,n) \

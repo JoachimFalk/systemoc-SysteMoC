@@ -34,6 +34,9 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <list>
+#include <set>
+
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_moc.hpp>
@@ -51,11 +54,11 @@
 #include "FrameBufferWriter.hpp"
 
 struct Scan {
-  IntCompID_t scanPattern[6];
+  IntCompID_t scanPattern[SCANPATTERN_LENGTH];
   std::string idctCoeffFileName;
 };
 
-typedef std::vector<Scan> ScanVector;
+typedef std::list<Scan> ScanVector;
 
 class IDCTScanSource: public smoc_actor {
 public:
@@ -67,32 +70,55 @@ protected:
 
   std::ifstream inputStream;
 
-  void process() {
-    codeword_t byte = inputStream.get();
-    out[0] = byte;
-  }
-
   void sendNewFrame() {
+    std::set<IntCompID_t> componentSet;
+    
+    for (ScanVector::const_iterator iter = scanVector.begin();
+         iter != scanVector.end();
+         ++iter) {
+      const Scan &scan = *iter;
+      
+      for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i) {
+        componentSet.insert(scan.scanPattern[i]);
+      }
+    }
+    std::cerr << "IDCTScanSource: sendNewFrame"
+      << " witdh: " << width
+      << " height: " << height
+      << " component count: " << componentSet.size()
+      << std::endl;
     outCtrlImage[0] = JS_CTRL_NEWFRAME_SET_CHWORD
-      (width, height, scanVector.size());
+      (width, height, componentSet.size());
   }
 
   void sendNewScan() {
+    const Scan &scan = scanVector.front();
+    
+    std::cerr << "IDCTScanSource: sendNewScan"
+      << " from file: " << scan.idctCoeffFileName
+      << " scanPattern: ";
+    for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i) {
+      std::cerr << static_cast<unsigned int>(scan.scanPattern[i]);
+    }
+    std::cerr << std::endl;
     outCtrlImage[0] = JS_CTRL_NEWSCAN_SET_CHWORD
-      (scanVector.front().scanPattern[0],
-       scanVector.front().scanPattern[1],
-       scanVector.front().scanPattern[2],
-       scanVector.front().scanPattern[3],
-       scanVector.front().scanPattern[4],
-       scanVector.front().scanPattern[5]);
-    inputStream.open(scanVector.front().idctCoeffFileName.c_str());
+      (scan.scanPattern[0], scan.scanPattern[1], scan.scanPattern[2],
+       scan.scanPattern[3], scan.scanPattern[4], scan.scanPattern[5]);
+    inputStream.open(scan.idctCoeffFileName.c_str());
+    scanVector.pop_front();
   }
 
   void sendIDCTCoeff() {
     IDCTCoeff_t coeff;
     
     inputStream >> coeff;
+    std::cerr << "IDCTScanSource: Got IDCT Coeff " << coeff << std::endl;
     out[0] = coeff;
+  }
+
+  void allDone() {
+    std::cerr << "IDCTScanSource: All done !!!" << std::endl;
+    inputStream.close();
   }
 
   bool haveScans() const
@@ -118,7 +144,8 @@ public:
       = GUARD(IDCTScanSource::haveScans)      >>
         outCtrlImage(1)                       >>
         CALL(IDCTScanSource::sendNewScan)     >> scanSend
-      | !GUARD(IDCTScanSource::haveScans)     >> end
+      | !GUARD(IDCTScanSource::haveScans)     >>
+        CALL(IDCTScanSource::allDone)         >> end
       ;
     scanSend
       = GUARD(IDCTScanSource::streamValid)    >>
@@ -187,7 +214,7 @@ public:
 
 #ifndef KASCPAR_PARSING
 int sc_main (int argc, char **argv) {
-  if (argc > 3) {
+  if (argc <= 3) {
     std::cerr
       << (argv[0] != NULL ? argv[0] : "???")
       << " <width> <height> <scanpattern:idctcoeff filename>+" << std::endl;
@@ -206,7 +233,7 @@ int sc_main (int argc, char **argv) {
     
     Scan scan;
 
-    while (pos < sizeof(scan.scanPattern)/sizeof(scan.scanPattern[0])) {
+    while (pos < SCANPATTERN_LENGTH) {
       if (arg[pos] < '0' || arg[pos] > '2') {
         std::cerr << argv[0] << ": scanpattern format error, scanpattern: [0-2]{6} !" << std::endl;
         exit (-1);
