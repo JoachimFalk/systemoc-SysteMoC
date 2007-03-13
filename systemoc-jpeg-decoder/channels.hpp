@@ -30,11 +30,6 @@ typedef uint8_t codeword_t;
 
 #define SET_MASK(x,off,width) (((x) & ((1 << (width)) -1)) << (off))
 
-// OR given 'v' with b starting at 'pos'
-#define BITSET(b,pos,v) ((b) = (b) | ((v) <<(pos)))
-
-
-
 /// Source -> Parser
 typedef codeword_t ct_src_parser_t;
 
