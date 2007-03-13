@@ -51,8 +51,6 @@ class InvQuant: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t>      in;
   smoc_port_out<JpegChannel_t>     out;
-
-  smoc_port_in< 
 private:
   bool thisMattersMe() const {
     //FIXME: dummy stub
