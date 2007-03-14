@@ -184,7 +184,7 @@ public:
       mClip("mClip"),
       mSink("mSink")
   {
-    connectNodePorts<16>(mIDCTScanSource.out, mBlock2Row.b);
+    connectNodePorts<64>(mIDCTScanSource.out, mBlock2Row.b);
     
     connectNodePorts<16>(mBlock2Row.C0, mIDCT2D.i0);
     connectNodePorts<16>(mBlock2Row.C1, mIDCT2D.i1);
