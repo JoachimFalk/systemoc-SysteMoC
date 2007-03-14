@@ -47,57 +47,130 @@
 
 #include "channels.hpp"
 
+// if compiled with DBG_HUFF_DECODER create stream and include debug macros
+#define DBG_INV_QT
+#ifdef DBG_INV_QT
+  #include <cosupport/smoc_debug_out.hpp>
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
 class DcDecoding: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t>      in;
   smoc_port_out<JpegChannel_t>     out;
 private:
-  bool thisMattersMe() const {
-    //FIXME: dummy stub
-    return false;
-  }
-
-  void doSomething(){
-    //FIXME: dummy stub
-
-    forwardCtrl();
-  }
-
-  void transform(){
-    //FIXME: dummy stub
-    out[0] = in[0];
-  }
   
-  // forward control commands from input to output
-  void forwardCtrl() {
+  // Previous DC coefficient
+  // One for each component
+  QuantIDCTCoeff_t prev_DC[JPEG_MAX_COLOR_COMPONENTS];
+
+  void forward_cmd(){
+    dbgout << "Forward command" << endl;
     out[0] = in[0];
   }
 
-  // forward data from input to output
-  void forwardData() {
+
+  // reset previous DC coefficient
+  void reset_DC(){
+    dbgout << "Reset previous DC coefficient for all components" << endl;
+    for(unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++){
+      prev_DC[i] = 0;
+    }
+    
+    forward_cmd();
+  }
+
+  // stores the colour component which will follow next
+  IntCompID_t comp_id;
+  void store_color(){
+    dbgout << "Store the colour component" << endl;
+    
+    comp_id = JS_CTRL_INTERNALCOMPSTART_GETCOMPID(in[0]);
+    
+    dbgout << " (Expect colour component " << comp_id << ")" << endl;    
+
+    forward_cmd();
+  }
+
+  unsigned char pixel_id;
+
+  // Perform DC decoding
+  void decode_dc(){
+    dbgout << "Perform DC decoding" << endl;
+    
+    assert(comp_id >= 0);
+    assert(comp_id < JPEG_MAX_COLOR_COMPONENTS);
+
+    out[0] = prev_DC[comp_id] + in[0];
+  }
+
+  void forward_ac(){
+    dbgout << "Forward AC coefficient" << endl;
+
     out[0] = in[0];
   }
 
   smoc_firing_state main;
+
+  CoSupport::DebugOstream dbgout;
 public:
   DcDecoding(sc_module_name name)
-    : smoc_actor(name, main) {
+    : smoc_actor(name, main),
+      comp_id(0),
+      pixel_id(0),
+      dbgout(std::cerr)
+  {
+
+    //Set Debug ostream options
+    CoSupport::Header my_header("DcDecoding");
+    dbgout << my_header;
+
+    //init previous DC
+    for(unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++){
+      prev_DC[i] = 0;
+    }
+
     main
-      // ignore and forward control tokens
-      = ( in(1) && JS_ISCTRL(in.getValueAt(0))       &&
-          !GUARD(DcDecoding::thisMattersMe) )        >>
-        out(1)                                       >>
-        CALL(DcDecoding::forwardCtrl)                >> main
-      | // treat and forward control tokens
-        ( in(1) && JS_ISCTRL(in.getValueAt(0))       &&
-          GUARD(DcDecoding::thisMattersMe) )         >>
-        out(1)                                       >>
-        CALL(DcDecoding::doSomething)                >> main
-      | // data transformation
-        ( in(1) && !JS_ISCTRL(in.getValueAt(0)) )    >>
-        out(1)                                       >>
-        CALL(DcDecoding::transform)                  >> main
-      ;
+      /* Process commands */
+      = (in(1) && JS_ISCTRL(in.getValueAt(0)))       >>
+      (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_NEWSCAN)        >>
+      (out(1)) >>
+      CALL(DcDecoding::reset_DC)                >> main
+      | (in(1) && JS_ISCTRL(in.getValueAt(0)))       >>
+      (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_SCANRESTART)        >>
+      (out(1)) >>
+      CALL(DcDecoding::reset_DC)                >> main
+      | (in(1) && JS_ISCTRL(in.getValueAt(0)))       >>
+      (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_INTERNALCOMPSTART)        >>
+      (out(1)) >>
+      CALL(DcDecoding::store_color)                >> main      
+
+      /* Forward non-processed commands */
+      | (in(1) && JS_ISCTRL(in.getValueAt(0)))       >>
+      ((JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_NEWSCAN) &&
+       (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_SCANRESTART) &&
+       (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_INTERNALCOMPSTART))        >>
+      (out(1)) >>
+      CALL(DcDecoding::forward_cmd)                >> main
+
+      /* Perfrom inverse DC Decoding */
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0))))       >>
+      (VAR(pixel_id) == 0) >> 
+      (out(1)) >>
+      CALL(DcDecoding::decode_dc)                >> main
+
+      /* Forward AC coefficient */
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0))))       >>
+      (VAR(pixel_id) != 0) >> 
+      (out(1)) >>
+      CALL(DcDecoding::forward_ac)                >> main;
+      
   }
 };
 
