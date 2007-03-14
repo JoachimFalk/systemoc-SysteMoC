@@ -52,7 +52,7 @@ public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
-    std::cout << name() << " receiving " << in[0] << std::endl;
+    std::cout << name() << " receiving " << hex << in[0] << dec << std::endl;
   }
   
   smoc_firing_state start;
@@ -69,7 +69,7 @@ public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
-    std::cout << name() << " receiving " << in[0] << std::endl;
+    std::cout << name() << " receiving " << hex << in[0] << dec << std::endl;
   }
   
   smoc_firing_state start;

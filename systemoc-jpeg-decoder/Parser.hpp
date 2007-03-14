@@ -48,6 +48,21 @@
 
 #include "channels.hpp"
 
+
+// if compiled with DBG_PARSER create stream and include debug macros
+#define DBG_PARSER
+#ifdef DBG_PARSER
+  #include <cosupport/smoc_debug_out.hpp>
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
+
 /// JPEG Markers
 
 /// Assemble marker from to consecutive bytes 
@@ -101,114 +116,178 @@ public:
 private:
   void foundSOI() {
     readBytes = 0;
-    debug("Found SOI");
+    DBG_OUT("Found SOI\n");
     readBytes += 2;
   }
 
   void foundSOS1() {
-    debug("Found SOS1");
+    DBG_OUT("Found SOS1\n");
     readBytes += 2;
   }
 
   void foundSOSx() {
-    debug("Found SOSx");
+    DBG_OUT("Found SOSx\n");
     readBytes += 2;
   }
 
   void foundDQT1() {
-    debug("Found DQT in Level 1");
+    DBG_OUT("Found DQT in Level 1\n");
     readBytes += 2;
   }
 
-  /// DHT processing
-  void foundDHT1() {
-    debug("Found DHT in Level 1");
-    readBytes += 2;
+  // ########################################################################################
+  // # Define Huffman Table Processing
+  // ########################################################################################
 
+  void foundDHT1() {
+    DBG_OUT("Found DHT in Level 1\n");
+    readBytes += 2;
     // debug synchronisazion
     outCodedHuffTbl[0] = DHT_SYNC;
     outCodedHuffTbl[1] = DHT_SYNC;
   }
 
   void foundDHT2() {
-    debug("Found DHT in Level 2");
+    DBG_OUT("Found DHT in Level 2\n");
     readBytes += 2;
-
     // debug synchronisazion
     outCodedHuffTbl[0] = DHT_SYNC;
     outCodedHuffTbl[1] = DHT_SYNC;
   }
 
   void dhtSendLength(){
-    debug("Send DHT length to HuffDecoder");
+    //DBG_OUT("Send DHT length to HuffDecoder\n");
     outCodedHuffTbl[0] = in[0];
     outCodedHuffTbl[1] = in[1];
     readLengthField();
   }
 
   void dhtSendByte(){
-    //    debug("Send DHT byte to HuffDecoder");
+    //DBG_OUT("Send DHT byte to HuffDecoder\n");
     outCodedHuffTbl[0] = in[0];
     decLengthField();
   }
 
   void foundDRI1() {
-    debug("Found DRI in Level 1");
+    DBG_OUT("Found DRI in Level 1\n");
     readBytes += 2;
   }
 
-  void foundCOM1() {
-    debug("Found COM in Level 1");
-    readBytes += 2;
-  }
+  // ########################################################################################
+  // # Application Segment Processing
+  // ########################################################################################
 
   void foundAPP1() {
-    debug("Found APP in Level 1");
+    DBG_OUT("Found APP in Level 1\n");
     readBytes += 2;
   }
+
+  // ########################################################################################
+  // # Comment Processing
+  // ########################################################################################
+
+  void foundCOM1() {
+    DBG_OUT("Found COM in Level 1\n");
+    readBytes += 2;
+  }
+
+  // ########################################################################################
+  // # Start of Frame Processing
+  // ########################################################################################
 
   void foundSOF() {
-    debug("Found SOF");
+    DBG_OUT("Found SOF\n");
+    newFrame = JS_SETCTRLCMD(CTRLCMD_NEWFRAME);
     readBytes += 2;
   }
 
+  void readDimY() {
+    uint10_t dimY = in[0]*0x100 | in[1];
+    newFrame |= JS_CTRL_NEWFRAME_SET_DIMY(dimY);
+    // sample precision (1 byte) is already read
+    readBytes += 3;
+    lengthField -= 3;
+  }
+
+  void readDimX() {
+    uint10_t dimX = in[0]*0x100 | in[1];
+    newFrame |= JS_CTRL_NEWFRAME_SET_DIMX(dimX);
+    readBytes += 2;
+    lengthField -= 2;
+  }
+
+  void readCompCount() {
+    componentCount = in[0];
+    newFrame |= JS_CTRL_NEWFRAME_SET_COMPCOUNT(componentCount);
+    outCtrlImage[0] = newFrame;
+    DBG_OUT("Send control command NEWFRAME 0x" << hex << newFrame << dec << 
+            " (dimX: " << JS_CTRL_NEWFRAME_GET_DIMX(newFrame) << ", dimY: " <<
+             JS_CTRL_NEWFRAME_GET_DIMY(newFrame) << ", CompCount: " << 
+             (unsigned int)JS_CTRL_NEWFRAME_GET_COMPCOUNT(newFrame) << ")" << std::endl);
+    // required for storing component IDs and corresponding QT IDs
+    currentCompCount = 0;
+    componentCount--;
+    readBytes += 1;
+    lengthField -= 1;
+  }
+
+  void readCompIDs() {
+    compIDs[currentCompCount] = in[0];
+    readBytes += 1;
+  }
+  
+  void readSamplingFactors() {
+    samplingFactors = in[0];
+    readBytes += 1;
+  }
+
+  void readQtTblIDs() {
+    qtTblIDs[currentCompCount] = in[0];
+    DBG_OUT("New component ID: 0x" << hex << (unsigned int)compIDs[currentCompCount] << 
+             dec << ", sampling factors: 0x" << hex << (unsigned int)samplingFactors << 
+             dec << ", QT ID: 0x" << hex << (unsigned int)qtTblIDs[currentCompCount] << 
+             dec << std::endl);
+    currentCompCount++;
+    readBytes += 1;
+  }
+  
   void foundDQT2() {
-    debug("Found DQT in Level 2");
+    DBG_OUT("Found DQT in Level 2\n");
     readBytes += 2;
   }
 
   void foundDRI2() {
-    debug("Found DRI in Level 2");
+    DBG_OUT("Found DRI in Level 2\n");
     readBytes += 2;
   }
 
   void foundCOM2() {
-    debug("Found COM in Level 2");
+    DBG_OUT("Found COM in Level 2\n");
     readBytes += 2;
   }
 
   void foundAPP2() {
-    debug("Found APP in Level 2");
+    DBG_OUT("Found APP in Level 2\n");
     readBytes += 2;
   }
 
   void foundDNL() {
-    debug("Found DNL");
+    DBG_OUT("Found DNL\n");
     readBytes += 2;
   }
 
   void foundRST() {
-    debug("Found RST");
+    //DBG_OUT("Found RST\n");
     readBytes += 2;
   }
 
   void foundBST() {
-    debug("Found Byte Stuffing");
+    //DBG_OUT("Found Byte Stuffing\n");
     readBytes += 2;
   }
 
   void foundEOI() {
-    debug("Found EOI");
+    DBG_OUT("Found EOI\n");
     readBytes += 2;
   }
 
@@ -229,17 +308,22 @@ private:
     readBytes++;
   }
 
-  void debug(std::string msg) {
-    std::cout << "Parser Debug (Byte " << readBytes << "): " << msg << std::endl;
-  }
-
   void errorMsg(std::string msg) {
     std::cerr << "Parser Error (Byte " << readBytes << "): " << msg << std::endl;
   }
 
+  JpegChannel_t newFrame;
+
+  IntCompID_t componentCount, currentCompCount;
+  uint8_t compIDs[JPEG_MAX_COLOR_COMPONENTS]; 
+  uint8_t samplingFactors;
+  QtTblID_t qtTblIDs[JPEG_MAX_COLOR_COMPONENTS]; 
+
   uint32_t readBytes;
 
   uint16_t lengthField;
+
+  CoSupport::DebugOstream dbgout;
 
   smoc_firing_state start, 
     frame, frameFF, 
@@ -247,16 +331,22 @@ private:
     ecs1, ecs1FF, ecsx, ecsxFF, 
     scan1, scan1FF, scanx, scanxFF, 
     dqt1, skipDqt1, dqt2_1, skipDqt2_1, dqt2_x, skipDqt2_x, 
-    dht1, skipDht1, dht2_1, skipDht2_1, dht2_x, skipDht2_x, 
+    dht1, sendDht1, dht2_1, sendDht2_1, dht2_x, sendDht2_x, 
     dri1, skipDri1, dri2_1, skipDri2_1, dri2_x, skipDri2_x, 
     com1, skipCom1, com2_1, skipCom2_1, com2_x, skipCom2_x, 
     app1, skipApp1, app2_1, skipApp2_1, app2_x, skipApp2_x, 
-    sof, skipSof, 
+    sof, sofReadSamplePrecision, sofReadDimY, sofReadDimX, sofReadCompCount, 
+    sofReadCompIDs, sofReadSamplingFactors, sofReadQtTblIDs,
     dnl, skipDnl, 
     error;
 public:
   Parser(sc_module_name name)
-    : smoc_actor(name, start) {
+    : smoc_actor(name, start), dbgout(std::cerr) {
+
+    CoSupport::Header myHeader("Parser> ");
+
+    dbgout << myHeader;
+
     // Detect Start of Image (SOI) maker
     start = (in(2) && 
             JPEG_IS_MARKER_SOI(ASSEMBLE_MARKER(in.getValueAt(0),in.getValueAt(1)))) >> 
@@ -307,9 +397,9 @@ public:
     skipDqt1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDqt1
              | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> frame;
     dht1 =     in(2) >> outCodedHuffTbl(2) >>
-               CALL(Parser::dhtSendLength) >> skipDht1;
-    skipDht1 = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
-               CALL(Parser::dhtSendByte) >> skipDht1
+               CALL(Parser::dhtSendLength) >> sendDht1;
+    sendDht1 = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
+               CALL(Parser::dhtSendByte) >> sendDht1
              | (in(1) && (VAR(lengthField)==1)) >> outCodedHuffTbl(1) >>
                CALL(Parser::dhtSendByte) >> frame;
     dri1 = in(2) >> CALL(Parser::readLengthField) >> skipDri1;
@@ -321,9 +411,29 @@ public:
     app1 = in(2) >> CALL(Parser::readLengthField) >> skipApp1;
     skipApp1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipApp1
              | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> frame;
-    sof = in(2) >> CALL(Parser::readLengthField) >> skipSof;
-    skipSof = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipSof
-            | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scan1;
+    sof = in(2) >> CALL(Parser::readLengthField) >> sofReadSamplePrecision;
+    // Sample precision must be 8 bit
+    sofReadSamplePrecision = (in(1) && in.getValueAt(0) == 0x08) >> sofReadDimY
+                           | (in(1) && in.getValueAt(0) != 0x08) >> 
+                             CALL(Parser::errorMsg)("Sample precision != 8 bit!") >> error;
+    sofReadDimY = in(2) >> CALL(Parser::readDimY) >> sofReadDimX;
+    sofReadDimX = in(2) >> CALL(Parser::readDimX) >> sofReadCompCount;
+    sofReadCompCount = in(1) >> outCtrlImage(1) >> CALL(Parser::readCompCount) >> 
+                       sofReadCompIDs;
+    sofReadCompIDs = in(1) >> CALL(Parser::readCompIDs) >> sofReadSamplingFactors;
+    sofReadSamplingFactors = (in(1) && VAR(currentCompCount) == 0) >> 
+                             CALL(Parser::readSamplingFactors) >>
+                             sofReadQtTblIDs
+                           | (in(1) && VAR(currentCompCount) != 0 && 
+                             in.getValueAt(0) == VAR(samplingFactors)) >> sofReadQtTblIDs 
+                           | (in(1) && VAR(currentCompCount) != 0 && 
+                             in.getValueAt(0) != VAR(samplingFactors)) >> 
+                             CALL(Parser::errorMsg)("Sorry, no support for subsampling!") >> 
+                             error;
+    sofReadQtTblIDs = (in(1) && VAR(currentCompCount) < VAR(componentCount)) >> 
+                      CALL(Parser::readQtTblIDs) >> sofReadCompIDs
+                    | (in(1) && VAR(currentCompCount) == VAR(componentCount)) >> 
+                      CALL(Parser::readQtTblIDs) >> scan1;
     scan1 = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> scan1FF
           | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> 
             CALL(Parser::errorMsg)("Error while detecting 0xFF in Table/Misc Level 2 (Scan1)!") >> 
@@ -364,9 +474,9 @@ public:
     skipDqt2_1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDqt2_1
                | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scan1;
     dht2_1 =     in(2) >> outCodedHuffTbl(2) >>
-                 CALL(Parser::dhtSendLength) >> skipDht2_1;
-    skipDht2_1 = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
-                 CALL(Parser::dhtSendByte) >> skipDht2_1
+                 CALL(Parser::dhtSendLength) >> sendDht2_1;
+    sendDht2_1 = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
+                 CALL(Parser::dhtSendByte) >> sendDht2_1
                | (in(1) && (VAR(lengthField)==1)) >> outCodedHuffTbl(1) >>
                  CALL(Parser::dhtSendByte) >> scan1;
     dri2_1 = in(2) >> CALL(Parser::readLengthField) >> skipDri2_1;
@@ -469,9 +579,9 @@ public:
     skipDqt2_x = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDqt2_x
                | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scanx;
     dht2_x =     in(2) >> outCodedHuffTbl(2) >>
-                 CALL(Parser::dhtSendLength) >> skipDht2_x;
-    skipDht2_x = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
-                 CALL(Parser::dhtSendByte) >> skipDht2_x
+                 CALL(Parser::dhtSendLength) >> sendDht2_x;
+    sendDht2_x = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
+                 CALL(Parser::dhtSendByte) >> sendDht2_x
                | (in(1) && (VAR(lengthField)==1)) >> outCodedHuffTbl(1) >>
                  CALL(Parser::dhtSendByte) >> scanx;
     dri2_x = in(2) >> CALL(Parser::readLengthField) >> skipDri2_x;

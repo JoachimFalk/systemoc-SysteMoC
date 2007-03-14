@@ -18,7 +18,7 @@ typedef int32_t   int19_t;
 #define JPEG_BLOCK_WIDTH  8U
 #define JPEG_BLOCK_HEIGHT 8U
 #define JPEG_BLOCK_SIZE   ((JPEG_BLOCK_HEIGHT) * (JPEG_BLOCK_WIDTH))
-#define JPEG_MAX_COLOUR_COMPNENTS 3
+#define JPEG_MAX_COLOR_COMPONENTS 3
 
 /// JPEG channel communication type
 #define JPEGCHANNEL_BITS 29

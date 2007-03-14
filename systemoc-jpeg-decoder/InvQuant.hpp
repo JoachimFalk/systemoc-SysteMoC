@@ -85,11 +85,11 @@ private:
   }
 
   /// Stores for each colour component which QT table to use
-  unsigned char qt_id[JPEG_MAX_COLOUR_COMPNENTS];
+  unsigned char qt_id[JPEG_MAX_COLOR_COMPONENTS];
   void use_qt_table() {
     dbgout << "Store QT index which has to be used" << endl;
     dbgout << CoSupport::Indent::Up;
-    for(unsigned int i = 0; i < JPEG_MAX_COLOUR_COMPNENTS; i++){      
+    for(unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++){      
       qt_id[i] = JS_CTRL_USEQT_GETQTID(in[0],i);
       dbgout << "Component " << i << ": " << qt_id[i] << endl;
     }
@@ -173,8 +173,8 @@ public:
     CoSupport::Header my_header("InvQuant");
     dbgout << my_header;
 
-    //Init qt_id[JPEG_MAX_COLOUR_COMPNENTS]
-    for(unsigned int i = 0; i < JPEG_MAX_COLOUR_COMPNENTS; i++){
+    //Init qt_id[JPEG_MAX_COLOR_COMPONENTS]
+    for(unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++){
       qt_id[i] = 0;
     }
     
