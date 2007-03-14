@@ -88,6 +88,11 @@ typedef int12_t QuantIDCTCoeff_t;
 #define IDCTCOEFF_BITS (11+8)
 typedef int19_t IDCTCoeff_t;
 
+/// The value for one component of a pixel.
+/// In case of grayscale images this is the pixel.
+#define COMPONENTVAL_BITS 8
+typedef uint8_t ComponentVal_t;
+
 #define RESTART_INTERVAL_BITS (16+3)
 typedef uint19_t RestartInterval_t;
 
@@ -394,6 +399,18 @@ enum CtrlCmd_t {
 # define JS_COEFF_SETIDCTCOEFF(x) \
     (SET_MASK(x,1,IDCTCOEFF_BITS))
 # if JPEGCHANNEL_BITS < 1+IDCTCOEFF_BITS
+#   error "Too many bits"
+# endif
+
+    /* *************************************************************** */
+    /* in case of data (ctrl == false)                                 */
+    /*   and component value transmission                              */
+    /* *************************************************************** */
+# define JS_COMPONENT_GETVAL(x) \
+    static_cast<ComponentVal_t>(DEMASK(x,1,COMPONENTVAL_BITS))
+# define JS_COMPONENT_SETVAL(x) \
+    (SET_MASK(x,1,COMPONENTVAL_BITS))
+# if JPEGCHANNEL_BITS < 1+COMPONENTVAL_BITS
 #   error "Too many bits"
 # endif
 
