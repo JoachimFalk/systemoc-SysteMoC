@@ -146,18 +146,22 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     /*                 in case of CTRLCMD_USEHUFF                      */
     /* *************************************************************** */
-    // c is the internal component id 0-2
+    // Get considered colour component
+#   define JS_CTRL_USEHUFF_GETCOMP(x)  \
+    static_cast<IntCompID_t>(DEMASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS))
+#   define JS_CTRL_USEHUFF_SETCOMP(x)  \
+    (SET_MASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS))
     // Get DC Table ID
-#   define JS_CTRL_USEHUFF_GETDCTBL(x,c)  \
-    DEMASK(x,1+CTRLCMD_BITS+(2*(c)+0)*HUFF_TBL_ID_BITS,HUFF_TBL_ID_BITS)
-#   define JS_CTRL_USEHUFF_SETDCTBL(tbl_id,c) \
-    SET_MASK(tbl_id,1+CTRLCMD_BITS+(2*(c)+0)*HUFF_TBL_ID_BITS,HUFF_TBL_ID_BITS)
+#   define JS_CTRL_USEHUFF_GETDCTBL(x)  \
+    DEMASK(x,1+CTRLCMD_BITS+INTCOMPID_BITS,HUFF_TBL_ID_BITS)
+#   define JS_CTRL_USEHUFF_SETDCTBL(tbl_id) \
+    SET_MASK(tbl_id,1+CTRLCMD_BITS+INTCOMPID_BITS,HUFF_TBL_ID_BITS)
     // Get AC Table ID
-#   define JS_CTRL_USEHUFF_GETACTBL(x,c)  \
-    DEMASK(x,1+CTRLCMD_BITS+(2*(c)+1)*HUFF_TBL_ID_BITS,HUFF_TBL_ID_BITS)
-#   define JS_CTRL_USEHUFF_SETACTBL(tbl_id,c) \
-    SET_MASK(tbl_id,1+CTRLCMD_BITS+(2*(c)+1)*HUFF_TBL_ID_BITS,HUFF_TBL_ID_BITS)
-#   if JPEGCHANNEL_BITS < (1+CTRLCMD_BITS+(2*2+1)*HUFF_TBL_ID_BITS+HUFF_TBL_ID_BITS)
+#   define JS_CTRL_USEHUFF_GETACTBL(x)  \
+    DEMASK(x,1+CTRLCMD_BITS+INTCOMPID_BITS+HUFF_TBL_ID_BITS,HUFF_TBL_ID_BITS)
+#   define JS_CTRL_USEHUFF_SETACTBL(tbl_id) \
+    SET_MASK(tbl_id,1+CTRLCMD_BITS+INTCOMPID_BITS+HUFF_TBL_ID_BITS,HUFF_TBL_ID_BITS)
+#   if JPEGCHANNEL_BITS < (1+CTRLCMD_BITS+INTCOMPID_BITS+HUFF_TBL_ID_BITS+HUFF_TBL_ID_BITS)
 #     error "Too many bits"
 #   endif
 
@@ -165,14 +169,11 @@ enum CtrlCmd_t {
     // Sets the Channel word for the USEHUFF CMD
     // Ci_DC: DC-Table ID for colour component Ci
     // Ci_AC: AC-Table ID for colour component Ci
-#   define JS_CTRL_USEHUFF_SET_CHWORD(C0_DC,C0_AC,C1_DC,C1_AC,C2_DC,C2_AC) \
-  (JS_SETCTRLCMD(CTRLCMD_USEHUFF) |                                     \
-   JS_CTRL_USEHUFF_SETDCTBL(C0_DC,0) |                                  \
-   JS_CTRL_USEHUFF_SETACTBL(C0_AC,0) |                                  \
-   JS_CTRL_USEHUFF_SETDCTBL(C1_DC,1) |                                  \
-   JS_CTRL_USEHUFF_SETACTBL(C1_AC,1) |                                  \
-   JS_CTRL_USEHUFF_SETDCTBL(C2_DC,2) |                                  \
-   JS_CTRL_USEHUFF_SETACTBL(C2_AC,2) \
+#   define JS_CTRL_USEHUFF_SET_CHWORD(COMP_ID,DC_ID,AC_ID) \
+  (JS_SETCTRLCMD(CTRLCMD_USEHUFF) |  \
+   JS_CTRL_USEHUFF_SETCOMP(COMP_ID) | \
+   JS_CTRL_USEHUFF_SETDCTBL(DC_ID) | \
+   JS_CTRL_USEHUFF_SETACTBL(AC_ID) \
    )
 
     /* *************************************************************** */
@@ -359,7 +360,7 @@ enum CtrlCmd_t {
 # define JS_TUP_SETRUNLENGTH(x) \
     (SET_MASK(x,1+QUANTIDCTCOEFF_BITS,RUNLENGTH_BITS))
 # define JS_TUP_GETCATEGORY(x) \
-    static_cast<Category_t>(DEMASK(x,1+QUANTIDCTCOEFF_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
+    (DEMASK(x,1+QUANTIDCTCOEFF_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
 # define JS_TUP_SETCATEGORY(x) \
     (SET_MASK(x,1+QUANTIDCTCOEFF_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
 # if JPEGCHANNEL_BITS < 1+QUANTIDCTCOEFF_BITS+RUNLENGTH_BITS+CATEGORY_BITS
