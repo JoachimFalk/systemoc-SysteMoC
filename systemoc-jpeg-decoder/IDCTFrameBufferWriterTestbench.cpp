@@ -204,9 +204,9 @@ public:
     connectNodePorts<16>(mIDCT2D.o6, mCol2Block.R6);
     connectNodePorts<16>(mIDCT2D.o7, mCol2Block.R7);
     
-//  connectNodePorts<16>(mCol2Block.b, mRound.in);
+//  connectNodePorts<64>(mCol2Block.b, mRound.in);
 //  connectNodePorts<1>(mRound.out, mInvLevel.in);
-    connectNodePorts<16>(mCol2Block.b,  mInvLevel.in);
+    connectNodePorts<64>(mCol2Block.b,  mInvLevel.in);
     connectNodePorts<1>(mInvLevel.out, mClip.in);
     connectNodePorts<1>(mClip.out,     mSink.in);
     
