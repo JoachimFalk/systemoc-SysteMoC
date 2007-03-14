@@ -98,8 +98,12 @@ protected:
     size_t index = 0;
     
     std::cerr << "FrameBufferWriter: dumpFrame" << std::endl;
+    assert(compCount == 1 || compCount == 3);
     
-    std::cout << "P2 " << frameDim.x << " " << frameDim.y << " 255" << std::endl;
+    if (compCount == 1)
+      std::cout << "P2 " << frameDim.x << " " << frameDim.y << " 255" << std::endl;
+    else
+      std::cout << "P3 " << frameDim.x << " " << frameDim.y << " 255" << std::endl;
     //output a complete block line
     for (FrameBuffer::const_iterator iter = frameBuffer.begin();
          iter != frameBuffer.end();
@@ -120,8 +124,10 @@ protected:
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWSCAN);
     
     // Mark all possible components as already done
-    for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i)
+    for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
+      compPos[i].x = 0;
       compPos[i].y = frameDim.y;
+    }
     for (int i = 0; i < SCANPATTERN_LENGTH; ++i) {
       scanPattern[i] = JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], i);
       // component contained in scan must be filled into frame => start at pos 0, 0
@@ -149,25 +155,37 @@ protected:
         compPos[scanPattern[scanIndex]].x + blockIndex % JPEG_BLOCK_WIDTH
       ) + scanPattern[scanIndex]] = JS_COMPONENT_GETVAL(in[0]);
     
-    if (++blockIndex == JPEG_BLOCK_SIZE) {
-      blockIndex = 0;
+    blockIndex = (blockIndex + 1) % JPEG_BLOCK_SIZE;
+    if (blockIndex == 0) {
       compPos[scanPattern[scanIndex]].x += JPEG_BLOCK_WIDTH;
       if (compPos[scanPattern[scanIndex]].x >= frameDim.x) {
         compPos[scanPattern[scanIndex]].x = 0;
         compPos[scanPattern[scanIndex]].y += JPEG_BLOCK_HEIGHT;
       }
-      if (++scanIndex == SCANPATTERN_LENGTH)
-        scanIndex = 0;
+      scanIndex = (scanIndex + 1) % SCANPATTERN_LENGTH;
     }
   }
 
-  bool frameEnd() const
-    { return compMissing == 0; }
+  bool frameEnd() const {
+    assert(/*compMissing >= 0 &&*/ compMissing <= compCount);
+    return compMissing == 0;
+  }
 
   bool scanEnd() const {
-    for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i)
-      if (compPos[i].y != frameDim.y)
+#ifndef NDEBUG
+    for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
+      assert(/*compPos[i].x >= 0 &&*/ compPos[i].x <  frameDim.x);
+      assert(/*compPos[i].y >= 0 &&*/ compPos[i].y <= frameDim.y);
+    }
+#endif
+    for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
+      std::cerr << compPos[i].y << ", ";
+      if (compPos[i].y != frameDim.y) {
+        std::cerr << std::endl;
         return false;
+      }
+    }
+    std::cerr << std::endl;
     return true;
   }
 
