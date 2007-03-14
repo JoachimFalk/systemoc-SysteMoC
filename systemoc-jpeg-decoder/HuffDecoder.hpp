@@ -56,9 +56,15 @@
 /// Debug dht synchronisation
 #define IS_DHT_SYNC(x) (0xF0 == (x))
 
+
 struct ExpHuffTbl {
-  //FIXME: implement stub
-  int dummy;
+  // FIXME: only 16 values are needed! for easy reading codelength is index
+  uint8_t         valPtr[17];   // value pointers to first symbol of codelength
+                                //  'index'
+  uint8_t         minCode[17];  // minimal code value for codewords of length
+                                //  'index'
+  uint8_t         maxCode[17];  // max ...
+  DecodedSymbol_t huffVal[256]; // symbol-length assignment parameters (B.2.4.2)
 };
 
 // if compiled with DBG_HUFF_DECODER create stream and include debug macros
@@ -74,9 +80,23 @@ struct ExpHuffTbl {
   #include "debug_off.h"
 #endif
 
+
+#define IS_TABLE_CLASS_DC(v) ((v) & 0xF0 == 0x00)
+#define IS_TABLE_CLASS_AC(v) ((v) & 0xF0 == 0x10)
+
+#define IS_TABLE_DEST_ZERO(v) ((v) & 0x0F == 0x00)
+#define IS_TABLE_DEST_ONE(v) ((v) & 0x0F == 0x01)
+
+enum HuffTableType {
+  AC0,
+  AC1,
+  DC0,
+  DC1
+};
+
 /*****************************************************************************/
 
-
+// needed by SysteMoC!
 ostream &operator<<(ostream &out, const ExpHuffTbl &eht) {
   // FIXME: compile dummy
   return out;
@@ -153,6 +173,7 @@ private:
 };
 
 
+
 /******************************************************************************
  *
  *
@@ -167,7 +188,8 @@ public:
 
   HuffTblDecoder(sc_module_name name)
     : smoc_actor(name, main),
-      lengthField(0),
+      m_length(0),
+      m_huffWritePos(0),
       dbgout(std::cerr)
   {
     CoSupport::Header myHeader("HuffTblDecoder> ");
@@ -176,61 +198,152 @@ public:
 
     main
       // collect data
-      = (in(2) &&  IS_DHT_SYNC(in.getValueAt(0)) )  >>
-        CALL(HuffTblDecoder::start)                 >> length
-      ;
-    length
+      = ( in(2) &&  IS_DHT_SYNC(in.getValueAt(0)) ) >>
+        CALL(HuffTblDecoder::start)                 >> waitLength;
+
+    waitLength
       //read length 
       = in(2)                                       >>
-        CALL(HuffTblDecoder::readLengthField)       >> data;
-    data
+        CALL(HuffTblDecoder::readLengthField)       >> waitTcTh;
+
+    waitTcTh
+      = in(1)                                       >>
+        CALL(HuffTblDecoder::storeTcTh)             >> waitBITS;
+
+    waitBITS
+      = in(16)                                      >>
+        CALL(HuffTblDecoder::storeBITS)             >> waitHUFFVAL;
+
+    waitHUFFVAL
+      = ( in(1) &&
+          GUARD(HuffTblDecoder::hasMoreHUFFVAL) )   >>
+        CALL(HuffTblDecoder::storeHUFFVAL)          >> waitHUFFVAL
+      | ( !GUARD(HuffTblDecoder::hasMoreHUFFVAL)    &&
+         GUARD(HuffTblDecoder::isTable)(AC0) )      >>
+        outHuffTblAC0(1)                            >>
+        // FIXME: avoid parameterized functions for synthesis
+        CALL(HuffTblDecoder::writeTable)(outHuffTblAC0) >> main;
+    // FIXME: x4
+
+    /*waitDC0Data
+      = in(16)
+
+    waitTcTh
+      // read Tc & Th
+      = in(1)                                       >>
+        CALL(HuffTblDecoder::interpretTcTh)         >> waitData
+    waitData
       // read data
-      = (in(1) && (VAR(lengthField)!=1))            >>
-        CALL(HuffTblDecoder::collect)(false)        >> data
+      = (in(1) && (VAR(m_length)!=1))               >>
+        CALL(HuffTblDecoder::collect)(false)        >> waitData
       | // read last byte 
-        (in(1) && (VAR(lengthField)==1))            >>
+        (in(1) && (VAR(m_length)==1))               >>
         CALL(HuffTblDecoder::collect)(true)         >> main
-      ;
+      ;*/
 
   }
 
 private:
-  bool sufficientData() const {
-    //FIXME: dummy stub
-    return false;
+  bool hasMoreHUFFVAL() const {
+    return m_length > 0;
+  }
+
+  bool isTable(const HuffTableType type) const {
+    if (IS_TABLE_CLASS_AC(m_tcth))
+      if (IS_TABLE_DEST_ZERO(m_tcth))
+        return type == AC0;
+      else
+        return type == AC1;
+    else
+      if (IS_TABLE_DEST_ZERO(m_tcth))
+        return type == DC0;
+      else
+        return type == DC1;
   }
 
   void start(){
   }
 
-  void readLengthField() {
-    // Length Field is 16 bit
-    lengthField = in[0]*0x100 + in[1];
-    // subtract length field
-    lengthField -= 2;
+  void storeTcTh() {
+    m_tcth = in[0];
   }
 
-  void decLengthField() {
-    lengthField--;
+  void readLengthField() {
+    // Length Field is 16 bit
+    m_length = in[0]*0x100 + in[1];
+    // subtract length field from total length
+    m_length -= 2;
+  }
+
+  void storeBITS() {
+    for (int i = 0; i < 16; ++i)
+      m_BITS[i] = in[i];
+
+    m_length -= 16;
+  }
+
+  void storeHUFFVAL() {
+    m_tmpHuff.huffVal[m_huffWritePos++] = in[0];
+  }
+
+  void writeTable(smoc_port_out<ExpHuffTbl> &out) {
+    assert(m_length == 0);
+
+    // generate ValPtr
+    m_tmpHuff.valPtr[0] = 0;
+    int offset = 0;
+    for (int i = 1; i < 16; ++i) {
+      m_tmpHuff.valPtr[i - 1] = offset + in[i];
+      offset += in[i];
+    }
+
+    out[0] = m_tmpHuff;
+
+    // reset tmpHuff
+    m_huffWritePos = 0;
+  }
+
+  /*void ...() {
+    m_tmpHuff.valPtr[1] = 0;
+
+    int offset = 0;
+    for (int i = 2; i < 17; ++i) {
+      out[0].valPtr[i] = offset + in[i - 1];
+      offset += in[i - 1];
+    }
+  }*/
+
+  void decLength() {
+    m_length--;
   } 
 
-  void collect(bool last){
+  /*void collect(bool last){
     //FIXME: dummy stub
-    decLengthField();
+    decLength();
 
     DBG_OUT("| " << hex << (unsigned int)in[0] << dec);
     if(last) DBG_OUT(endl);
-  }
+  }*/
 
   void transform(){
     //FIXME: dummy stub
   }
   
-  uint16_t lengthField;
+  uint16_t m_length;
+  uint8_t  m_tcth;
+
+  uint8_t  m_BITS[16];
+
+  ExpHuffTbl m_tmpHuff;
+
+  size_t m_huffWritePos;
 
   CoSupport::DebugOstream dbgout;
-  smoc_firing_state main, data, length;
-
+  smoc_firing_state main;
+  smoc_firing_state waitLength;
+  smoc_firing_state waitTcTh;
+  smoc_firing_state waitHUFFVAL;
+  smoc_firing_state waitBITS;
 };
 
 
