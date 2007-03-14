@@ -232,7 +232,6 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     /*                   in case of CTRLCMD_USEQT                      */
     /* *************************************************************** */    
-    // c is the internal component id 0-2
 #   define JS_CTRL_USEQT_GETQTID(x) \
     static_cast<QtTblID_t>(DEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
 #   define JS_CTRL_USEQT_SETQTID(qt_id) \
@@ -284,7 +283,7 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_INTERNALCOMPSTART_SET_CHWORD(comp)  \
-    (JS_SETCTRLCMD(CTRLCMD_DEF_RESTART_INTERVAL) | \
+    (JS_SETCTRLCMD(CTRLCMD_INTERNALCOMPSTART) | \
      JS_CTRL_INTERNALCOMPSTART_SETCOMPID(comp) \
      )
 
@@ -356,7 +355,7 @@ enum CtrlCmd_t {
 # define JS_TUP_SETIDCTCOEFF(x) \
     (SET_MASK(x,1,QUANTIDCTCOEFF_BITS))
 # define JS_TUP_GETRUNLENGTH(x) \
-    static_cast<RunLength_t>(DEMASK(x,1+QUANTIDCTCOEFF_BITS,RUNLENGTH_BITS))
+    (DEMASK(x,1+QUANTIDCTCOEFF_BITS,RUNLENGTH_BITS))
 # define JS_TUP_SETRUNLENGTH(x) \
     (SET_MASK(x,1+QUANTIDCTCOEFF_BITS,RUNLENGTH_BITS))
 # define JS_TUP_GETCATEGORY(x) \
