@@ -98,7 +98,9 @@ protected:
       << " from file: " << scan.idctCoeffFileName
       << " scanPattern: ";
     for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i) {
-      std::cerr << static_cast<unsigned int>(scan.scanPattern[i]);
+      std::cerr
+        << static_cast<unsigned int>(scan.scanPattern[i]);
+//      << (i < SCANPATTERN_LENGTH-1 ? ":" : "");
     }
     std::cerr << std::endl;
     outCtrlImage[0] = JS_CTRL_NEWSCAN_SET_CHWORD

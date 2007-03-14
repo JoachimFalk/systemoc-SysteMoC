@@ -78,6 +78,8 @@ protected:
   FrameBuffer frameBuffer;
 
   void processNewFrame() {
+    std::cerr << "FrameBufferWriter: processNewFrame";
+
     assert(JS_ISCTRL(inCtrlImage[0]));
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWFRAME);
     
@@ -85,12 +87,17 @@ protected:
     frameDim.y = JS_CTRL_NEWFRAME_GET_DIMY(inCtrlImage[0]);
     compCount  = JS_CTRL_NEWFRAME_GET_COMPCOUNT(inCtrlImage[0]);
     
+    std::cerr << " width: " << frameDim.x << " height: " << frameDim.y
+              << " component count: " << static_cast<unsigned int>(compCount) << std::endl;
+    
     compMissing = compCount;
     frameBuffer.resize(frameDim.x * frameDim.y * compCount);
   }
 
   void dumpFrame() {
     size_t index = 0;
+    
+    std::cerr << "FrameBufferWriter: dumpFrame" << std::endl;
     
     std::cout << "P2 " << frameDim.x << " " << frameDim.y << " 255" << std::endl;
     //output a complete block line
@@ -107,6 +114,8 @@ protected:
   }
 
   void processNewScan() {
+    std::cerr << "FrameBufferWriter: processNewScan ";
+    
     assert(JS_ISCTRL(inCtrlImage[0]));
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWSCAN);
     
@@ -121,7 +130,11 @@ protected:
         --compMissing;
       compPos[scanPattern[i]].x = 0;
       compPos[scanPattern[i]].y = 0;
+      std::cerr
+        << static_cast<unsigned int>(scanPattern[i]);
+//      << (i < SCANPATTERN_LENGTH-1 ? ":" : "");
     }
+    std::cerr << std::endl;
     scanIndex = blockIndex = 0;
   }
 
