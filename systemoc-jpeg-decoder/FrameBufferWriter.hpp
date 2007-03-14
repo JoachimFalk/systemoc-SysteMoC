@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 sts=2 et:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2007 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This program is free software; you can redistribute it and/or modify it under
@@ -51,34 +51,68 @@ class FrameBufferWriter: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t> in;
   smoc_port_in<JpegChannel_t> inCtrlImage;
-private:
-  void transform(){
-    //FIXME: dummy stub
-  }
-  
-  void ctrlImage() {
-    //FIXME: dummy stub
+protected:
+  FrameDimX_t width;
+  FrameDimY_t height;
+  IntCompID_t compCount;
+
+  // Is of size width*height*compCount
+  std::vector<ComponentVal_t> frameBuffer;
+
+  void processNewFrame() {
+
+
   }
 
-  // forward control commands from input to output
-  void forwardCtrl() {
-    assert(0); // no ctrl
+  void dumpFrame() {
+
+
   }
 
-  smoc_firing_state main;
+  void processNewScan() {
+
+
+  }
+
+  void writeComponent() {
+
+  }
+
+  bool frameEnd() const {
+
+    return true;
+  }
+
+  bool scanEnd() const {
+
+    return true;
+  }
+
+  smoc_firing_state newFrame;
+  smoc_firing_state newScan;
+  smoc_firing_state readScan;
 public:
   FrameBufferWriter(sc_module_name name)
-    : smoc_actor(name, main) {
-    main
-      // ignore and forward control tokens
-      = ( in(1) && JS_ISCTRL(in.getValueAt(0)) )     >>
-        CALL(FrameBufferWriter::forwardCtrl)         >> main
-      | // read CtrlImage
-        ( inCtrlImage(1) )                           >>
-        CALL(FrameBufferWriter::ctrlImage)           >> main
-      | // data transformation
-        ( in(1) && !JS_ISCTRL(in.getValueAt(0)) )    >>
-        CALL(FrameBufferWriter::transform)           >> main
+    : smoc_actor(name, newFrame) {
+    newFrame
+      // this must be a CTRLCMD_NEWFRAME
+      = inCtrlImage(1)                              >>
+        CALL(FrameBufferWriter::processNewFrame)    >> newScan
+      ;
+    newScan
+      // this must be a CTRLCMD_NEWSCAN
+      =   GUARD(FrameBufferWriter::frameEnd)        >>
+        CALL(FrameBufferWriter::dumpFrame)          >> newFrame
+      | (!GUARD(FrameBufferWriter::frameEnd) &&
+         inCtrlImage(1))                            >>
+        CALL(FrameBufferWriter::processNewScan)     >> readScan
+      ;
+    readScan
+      // read component values for scan
+      =   GUARD(FrameBufferWriter::scanEnd)         >> newScan
+      | (!GUARD(FrameBufferWriter::scanEnd) &&
+         in(1))                                     >>
+        CALL(FrameBufferWriter::writeComponent)     >> readScan
       ;
   }
 };
