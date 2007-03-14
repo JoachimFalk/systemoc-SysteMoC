@@ -53,6 +53,9 @@
 #define HUFF_EOB 0x00
 #define HUFF_RUNLENGTH_ZERO_AMPLITUDE 0xF0
 
+/// Debug dht synchronisation
+#define IS_DHT_SYNC(x) (0xF0 == (x))
+
 struct ExpHuffTbl {
   //FIXME: implement stub
   int dummy;
@@ -164,24 +167,31 @@ public:
 
   HuffTblDecoder(sc_module_name name)
     : smoc_actor(name, main),
+      lengthField(0),
       dbgout(std::cerr)
   {
     CoSupport::Header myHeader("HuffTblDecoder> ");
 
     dbgout << myHeader;
 
-    DBG_OUT("testout\n");
-    
     main
       // collect data
-      = (in(1) && !GUARD(HuffTblDecoder::sufficientData) ) >>
-        CALL(HuffTblDecoder::collect)                      >> main
-      | // transform collected data
-        ( GUARD(HuffTblDecoder::sufficientData) )           >>
-        (outHuffTblAC0(1) && outHuffTblDC0(1) &&
-         outHuffTblAC1(1) && outHuffTblDC1(1))                >>
-        CALL(HuffTblDecoder::transform)                    >> main
+      = (in(2) &&  IS_DHT_SYNC(in.getValueAt(0)) )  >>
+        CALL(HuffTblDecoder::start)                 >> length
       ;
+    length
+      //read length 
+      = in(2)                                       >>
+        CALL(HuffTblDecoder::readLengthField)       >> data;
+    data
+      // read data
+      = (in(1) && (VAR(lengthField)!=1))            >>
+        CALL(HuffTblDecoder::collect)(false)        >> data
+      | // read last byte 
+        (in(1) && (VAR(lengthField)==1))            >>
+        CALL(HuffTblDecoder::collect)(true)         >> main
+      ;
+
   }
 
 private:
@@ -190,17 +200,37 @@ private:
     return false;
   }
 
-  void collect(){
-    DBG_OUT("collect() 0x" << hex << (unsigned int)in[0] << dec << endl);
+  void start(){
+  }
+
+  void readLengthField() {
+    // Length Field is 16 bit
+    lengthField = in[0]*0x100 + in[1];
+    // subtract length field
+    lengthField -= 2;
+  }
+
+  void decLengthField() {
+    lengthField--;
+  } 
+
+  void collect(bool last){
     //FIXME: dummy stub
+    decLengthField();
+
+    DBG_OUT("| " << hex << (unsigned int)in[0] << dec);
+    if(last) DBG_OUT(endl);
   }
 
   void transform(){
     //FIXME: dummy stub
   }
   
+  uint16_t lengthField;
+
   CoSupport::DebugOstream dbgout;
-  smoc_firing_state main;
+  smoc_firing_state main, data, length;
+
 };
 
 
@@ -235,7 +265,7 @@ public:
       mHuffTblDecoder.outHuffTblDC1,
       mInvHuffman.inHuffTblDC1);
     mInvHuffman.out(out);
-  #endif
+#endif
   }
 
 private:

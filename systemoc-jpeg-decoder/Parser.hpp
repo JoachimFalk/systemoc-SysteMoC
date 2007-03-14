@@ -147,7 +147,7 @@ private:
   }
 
   void dhtSendByte(){
-    debug("Send DHT byte to HuffDecoder");
+    //    debug("Send DHT byte to HuffDecoder");
     outCodedHuffTbl[0] = in[0];
     decLengthField();
   }
