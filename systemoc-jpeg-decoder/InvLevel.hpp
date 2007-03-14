@@ -52,27 +52,30 @@ public:
   smoc_port_in<IDCTCoeff_t>      in;
   smoc_port_out<JpegChannel_t>   out;
 private:
-  void transform(){
-    //FIXME: dummy stub
-    out[0] = in[0];
+  void transform() {
+    IDCTCoeff_t val = in[0] + 128;
+    out[0] = JS_COMPONENT_SETVAL(
+      val < 0 ? 0
+              : val > 255 ? 255 : val);
   }
 
-  // forward control commands from input to output
-  void forwardCtrl() {
-    assert(0); // no ctrl
-  }
+//// forward control commands from input to output
+//void forwardCtrl() {
+//  assert(0); // no ctrl
+//}
 
   smoc_firing_state main;
 public:
   InvLevel(sc_module_name name)
     : smoc_actor(name, main) {
     main
-      // ignore and forward control tokens
-      = ( in(1) && JS_ISCTRL(in.getValueAt(0)) )     >>
-        out(1)                                       >>
-        CALL(InvLevel::forwardCtrl)                  >> main
-      | // data transformation
-        ( in(1) && !JS_ISCTRL(in.getValueAt(0)) )    >>
+//    // ignore and forward control tokens
+//    = ( in(1) && JS_ISCTRL(in.getValueAt(0)) )     >>
+//      out(1)                                       >>
+//      CALL(InvLevel::forwardCtrl)                  >> main
+//    | // data transformation
+//      ( in(1) && !JS_ISCTRL(in.getValueAt(0)) )    >>
+      = in(1)                                        >>
         out(1)                                       >>
         CALL(InvLevel::transform)                    >> main
       ;
