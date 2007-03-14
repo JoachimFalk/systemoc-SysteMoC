@@ -104,7 +104,7 @@ protected:
     for (FrameBuffer::const_iterator iter = frameBuffer.begin();
          iter != frameBuffer.end();
          ++iter) {
-      std::cout << *iter;
+      std::cout << static_cast<unsigned int>(*iter);
       if (++index % 20 == 0)
         std::cout << std::endl;
       else
@@ -145,12 +145,17 @@ protected:
     
     assert(scanPattern[scanIndex] < compCount);
     frameBuffer[compCount * (
-        compPos[scanPattern[scanIndex]].y * frameDim.x +
-        compPos[scanPattern[scanIndex]].x 
+       (compPos[scanPattern[scanIndex]].y + blockIndex / JPEG_BLOCK_WIDTH) * frameDim.x +
+        compPos[scanPattern[scanIndex]].x + blockIndex % JPEG_BLOCK_WIDTH
       ) + scanPattern[scanIndex]] = JS_COMPONENT_GETVAL(in[0]);
     
     if (++blockIndex == JPEG_BLOCK_SIZE) {
       blockIndex = 0;
+      compPos[scanPattern[scanIndex]].x += JPEG_BLOCK_WIDTH;
+      if (compPos[scanPattern[scanIndex]].x >= frameDim.x) {
+        compPos[scanPattern[scanIndex]].x = 0;
+        compPos[scanPattern[scanIndex]].y += JPEG_BLOCK_HEIGHT;
+      }
       if (++scanIndex == SCANPATTERN_LENGTH)
         scanIndex = 0;
     }
