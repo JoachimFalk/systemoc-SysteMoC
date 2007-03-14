@@ -114,7 +114,7 @@ protected:
     IDCTCoeff_t coeff;
     
     inputStream >> coeff;
-    std::cerr << "IDCTScanSource: Got IDCT Coeff " << coeff << std::endl;
+//  std::cerr << "IDCTScanSource: Got IDCT Coeff " << coeff << std::endl;
     out[0] = coeff;
   }
 

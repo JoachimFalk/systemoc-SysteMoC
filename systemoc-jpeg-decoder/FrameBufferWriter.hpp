@@ -139,7 +139,9 @@ protected:
   }
 
   void writeComponent() {
-    assert(JS_ISCTRL(in[0]));
+//  std::cerr << "FrameBufferWriter: writeComponent" << std::endl;
+    
+    assert(!JS_ISCTRL(in[0]));
     
     assert(scanPattern[scanIndex] < compCount);
     frameBuffer[compCount * (
