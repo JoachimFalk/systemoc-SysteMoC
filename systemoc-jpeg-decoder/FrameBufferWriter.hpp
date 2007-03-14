@@ -91,6 +91,11 @@ protected:
               << " component count: " << static_cast<unsigned int>(compCount) << std::endl;
     
     compMissing = compCount;
+    
+    // Only support color and grayscale output
+    if (compCount > 1 && compCount < 3)
+      compCount = 3;
+    
     frameBuffer.resize(frameDim.x * frameDim.y * compCount);
   }
 
@@ -179,13 +184,13 @@ protected:
     }
 #endif
     for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
-      std::cerr << compPos[i].y << ", ";
+//    std::cerr << compPos[i].y << ", ";
       if (compPos[i].y != frameDim.y) {
-        std::cerr << std::endl;
+//      std::cerr << std::endl;
         return false;
       }
     }
-    std::cerr << std::endl;
+//  std::cerr << std::endl;
     return true;
   }
 
