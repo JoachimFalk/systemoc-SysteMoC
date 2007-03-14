@@ -68,6 +68,8 @@ protected:
   size_t      width, height;
   ScanVector  scanVector;
 
+  size_t      componentVals;
+
   std::ifstream inputStream;
 
   void sendNewFrame() {
@@ -78,9 +80,8 @@ protected:
          ++iter) {
       const Scan &scan = *iter;
       
-      for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i) {
+      for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i)
         componentSet.insert(scan.scanPattern[i]);
-      }
     }
     std::cerr << "IDCTScanSource: sendNewFrame"
       << " witdh: " << width
@@ -108,6 +109,12 @@ protected:
        scan.scanPattern[3], scan.scanPattern[4], scan.scanPattern[5]);
     inputStream.open(scan.idctCoeffFileName.c_str());
     assert(inputStream.good());
+    {
+      std::set<IntCompID_t> componentSet;
+      for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i)
+        componentSet.insert(scan.scanPattern[i]);
+      componentVals = width * height * componentSet.size();
+    }
     scanVector.pop_front();
   }
 
@@ -115,6 +122,7 @@ protected:
     IDCTCoeff_t coeff;
     
     inputStream >> coeff;
+    assert(inputStream.good()); --componentVals;
 //  std::cerr << "IDCTScanSource: Got IDCT Coeff " << coeff << std::endl;
     out[0] = coeff;
   }
@@ -131,9 +139,6 @@ protected:
 
   bool haveScans() const
     { return !scanVector.empty(); }
-
-  bool streamValid() const
-    { return inputStream.good(); }
 
   smoc_firing_state start;
   smoc_firing_state scanNew;
@@ -156,10 +161,10 @@ public:
         CALL(IDCTScanSource::allDone)         >> end
       ;
     scanSend
-      = GUARD(IDCTScanSource::streamValid)    >>
+      = (VAR(componentVals)  > 0U)            >>
         out(1)                                >>
         CALL(IDCTScanSource::sendIDCTCoeff)   >> scanSend
-      | !GUARD(IDCTScanSource::streamValid)   >>
+      | (VAR(componentVals) == 0U)            >>
         CALL(IDCTScanSource::closeStream)     >> scanNew
       ;
   }
