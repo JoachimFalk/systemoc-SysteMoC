@@ -65,7 +65,7 @@ protected:
   IntCompID_t compCount;
   IntCompID_t compMissing;
 
-  Pos         compPos[JPEG_MAX_COLOUR_COMPNENTS];
+  Pos         compPos[JPEG_MAX_COLOR_COMPONENTS];
   IntCompID_t scanPattern[SCANPATTERN_LENGTH];
 
   // index into scanPattern
@@ -120,7 +120,7 @@ protected:
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWSCAN);
     
     // Mark all possible components as already done
-    for (int i = 0; i < JPEG_MAX_COLOUR_COMPNENTS; ++i)
+    for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i)
       compPos[i].y = frameDim.y;
     for (int i = 0; i < SCANPATTERN_LENGTH; ++i) {
       scanPattern[i] = JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], i);
@@ -160,7 +160,7 @@ protected:
     { return compMissing == 0; }
 
   bool scanEnd() const {
-    for (int i = 0; i < JPEG_MAX_COLOUR_COMPNENTS; ++i)
+    for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i)
       if (compPos[i].y != frameDim.y)
         return false;
     return true;
