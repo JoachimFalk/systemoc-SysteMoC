@@ -233,20 +233,23 @@ enum CtrlCmd_t {
     /*                   in case of CTRLCMD_USEQT                      */
     /* *************************************************************** */    
     // c is the internal component id 0-2
-#   define JS_CTRL_USEQT_GETQTID(x,c) \
-    static_cast<QtTblID_t>(DEMASK(x,1+CTRLCMD_BITS+(c)*QT_TBL_ID_BITS,QT_TBL_ID_BITS))
-#   define JS_CTRL_USEQT_SETQTID(qt_id,comp) \
-    (SET_MASK(qt_id,1+CTRLCMD_BITS+(comp)*QT_TBL_ID_BITS,QT_TBL_ID_BITS))
-#   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+(2)*QT_TBL_ID_BITS+QT_TBL_ID_BITS
+#   define JS_CTRL_USEQT_GETQTID(x) \
+    static_cast<QtTblID_t>(DEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
+#   define JS_CTRL_USEQT_SETQTID(qt_id) \
+    (SET_MASK(qt_id,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
+#   define JS_CTRL_USEQT_GETCOMPID(x) \
+    static_cast<IntCompID_t>(DEMASK(x,1+CTRLCMD_BITS+QT_TBL_ID_BITS,INTCOMPID_BITS))
+#   define JS_CTRL_USEQT_SETCOMPID(x) \
+    (SET_MASK(x,1+CTRLCMD_BITS+QT_TBL_ID_BITS,INTCOMPID_BITS))
+#   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+QT_TBL_ID_BITS+INTCOMPID_BITS
 #     error "Too many bits"
 #   endif
 
     // Set complete channel word
-#   define JS_CTRL_USEQT_SET_CHWORD(QT_C0,QT_C1,QT_C2)  \
+#   define JS_CTRL_USEQT_SET_CHWORD(QT_ID,COMP_ID)  \
     (JS_SETCTRLCMD(CTRLCMD_USEQT) |                   \
-     JS_CTRL_USEQT_SETQTID(QT_C0,0) | \
-     JS_CTRL_USEQT_SETQTID(QT_C1,1) | \
-     JS_CTRL_USEQT_SETQTID(QT_C2,2) \
+     JS_CTRL_USEQT_SETQTID(QT_ID) | \
+     JS_CTRL_USEQT_SETCOMPID(COMP_ID) \
      )
     
 

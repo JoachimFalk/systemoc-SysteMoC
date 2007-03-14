@@ -90,7 +90,7 @@ private:
     dbgout << "Store QT index which has to be used" << endl;
     dbgout << CoSupport::Indent::Up;
     for(unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++){      
-      qt_id[i] = JS_CTRL_USEQT_GETQTID(in[0],i);
+      //qt_id[i] = JS_CTRL_USEQT_GETQTID(in[0],i);
       dbgout << "Component " << i << ": " << qt_id[i] << endl;
     }
     dbgout << CoSupport::Indent::Down;
