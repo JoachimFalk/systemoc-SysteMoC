@@ -21,7 +21,7 @@
 
 // make DBG.*() statements disapear in non-debug builds
 #ifdef ENABLE_DEBUG
-  #define DBG(e) (e)
+  #define DBG(e) e
   #define DBG_OUT(s) DBG_STREAM <<  s
   #define DBG_SC_OUT(s) DBG_STREAM << "[" << sc_time_stamp() << "]: " << s
   #define DBG_DOBJ(o) DBG_STREAM << " Object " #o ": " << o << std::endl

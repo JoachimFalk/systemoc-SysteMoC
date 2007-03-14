@@ -105,7 +105,7 @@ public:
     connectNodePorts<2>(mSrc.out,                 mParser.in);
     connectNodePorts<1>(mParser.out,              mInvByteStuff.in);
     connectNodePorts<1>(mParser.outCtrlImage,     mSink.inCtrlImage);
-    connectNodePorts<1>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
+    connectNodePorts<16>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
     
     connectNodePorts<1>(mInvByteStuff.out,        mHuffDecoder.in);
     

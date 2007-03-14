@@ -235,7 +235,8 @@ private:
   }
 
   void dhtSendLength(){
-    //DBG_OUT("Send DHT length to HuffDecoder\n");
+    DBG_OUT("Send DHT length to HuffDecoder: " << hex << " 0x" << (unsigned int) in[0] << " "
+            << (unsigned int) in[1] << dec << endl);
     outCodedHuffTbl[0] = in[0];
     outCodedHuffTbl[1] = in[1];
     readLengthField();

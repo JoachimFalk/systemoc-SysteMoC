@@ -247,7 +247,7 @@ public:
     connectNodePorts<1>(mParser.qt_table_2,       mSinkQT2.in);
     connectNodePorts<1>(mParser.qt_table_3,       mSinkQT3.in);
     connectNodePorts<1>(mParser.outCtrlImage,     mSinkCtrl.in);
-    connectNodePorts<2>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
+    connectNodePorts<16>(mParser.outCodedHuffTbl, mHuffDecoder.inCodedHuffTbl);
     
     connectNodePorts<1>(mInvByteStuff.out,        mHuffDecoder.in);
     connectNodePorts<1>(mHuffDecoder.out,         mToInvZrl.in);
