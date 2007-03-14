@@ -47,37 +47,148 @@
 #include "InvByteStuff.hpp"
 #include "HuffDecoder.hpp"
 
+// if compiled with DBG_PARSER create stream and include debug macros
+#define DBG_HUFFMAN_TB
+#ifdef DBG_HUFFMAN_TB
+  #include <cosupport/smoc_debug_out.hpp>
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
 class TestSink: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
-    std::cout << name() << " receiving " << hex << in[0] << dec << std::endl;
+    DBG_OUT("| " << hex << (unsigned int)in[0] << dec << std::endl);
   }
   
+  CoSupport::DebugOstream dbgout;
   smoc_firing_state start;
 public:
   TestSink( sc_module_name name )
-    : smoc_actor( name, start )
+    : smoc_actor( name, start ), dbgout(std::cerr)
   {
+    CoSupport::Header myHeader("TestSink> ");
+    dbgout << myHeader;
     start = in(1) >> CALL(TestSink::process)  >> start;
   }
 };
 
-class TestQTSink: public smoc_actor {
+class TestQT0Sink: public smoc_actor {
 public:
   smoc_port_in<qt_table_t> in;
 private:
-  void process() {
-    std::cout << name() << " receiving " << hex << in[0] << dec << std::endl;
+  void process(bool last) {
+    DBG_OUT("| " << hex << (unsigned int)in[0] << dec);
+    if (last)
+      DBG_OUT(std::endl);
+    count++;
   }
   
+  CoSupport::DebugOstream dbgout;
+
+  int count;
+
   smoc_firing_state start;
 public:
-  TestQTSink( sc_module_name name )
-    : smoc_actor( name, start )
+  TestQT0Sink( sc_module_name name )
+    : smoc_actor( name, start ), dbgout(std::cerr)
   {
-    start = in(1) >> CALL(TestQTSink::process)  >> start;
+    CoSupport::Header myHeader("TestQTSink0> ");
+    dbgout << myHeader;
+    count = 1;
+    start = (in(1) && (VAR(count) < 65)) >> CALL(TestQT0Sink::process)(false)  >> start
+          | (in(1) && (VAR(count) == 65)) >> CALL(TestQT0Sink::process)(true)  >> start;
+  }
+};
+
+class TestQT1Sink: public smoc_actor {
+public:
+  smoc_port_in<qt_table_t> in;
+private:
+  void process(bool last) {
+    DBG_OUT("| " << hex << (unsigned int)in[0] << dec);
+    if (last)
+      DBG_OUT(std::endl);
+    count++;
+  }
+  
+  CoSupport::DebugOstream dbgout;
+
+  int count;
+
+  smoc_firing_state start;
+public:
+  TestQT1Sink( sc_module_name name )
+    : smoc_actor( name, start ), dbgout(std::cerr)
+  {
+    CoSupport::Header myHeader("TestQTSink1> ");
+    dbgout << myHeader;
+    count = 1;
+    start = (in(1) && (VAR(count) < 65)) >> CALL(TestQT1Sink::process)(false)  >> start
+          | (in(1) && (VAR(count) == 65)) >> CALL(TestQT1Sink::process)(true)  >> start;
+  }
+};
+
+class TestQT2Sink: public smoc_actor {
+public:
+  smoc_port_in<qt_table_t> in;
+private:
+  void process(bool last) {
+    DBG_OUT("| " << hex << (unsigned int)in[0] << dec);
+    if (last)
+      DBG_OUT(std::endl);
+    count++;
+  }
+  
+  CoSupport::DebugOstream dbgout;
+
+  int count;
+
+  smoc_firing_state start;
+public:
+  TestQT2Sink( sc_module_name name )
+    : smoc_actor( name, start ), dbgout(std::cerr)
+  {
+    CoSupport::Header myHeader("TestQTSink2> ");
+    dbgout << myHeader;
+    count = 1;
+    start = (in(1) && (VAR(count) < 65)) >> CALL(TestQT2Sink::process)(false)  >> start
+          | (in(1) && (VAR(count) == 65)) >> CALL(TestQT2Sink::process)(true)  >> start;
+  }
+};
+
+class TestQT3Sink: public smoc_actor {
+public:
+  smoc_port_in<qt_table_t> in;
+private:
+  void process(bool last) {
+    DBG_OUT("| " << hex << (unsigned int)in[0] << dec);
+    if (last)
+      DBG_OUT(std::endl);
+    count++;
+  }
+  
+  CoSupport::DebugOstream dbgout;
+
+  int count;
+
+  smoc_firing_state start;
+public:
+  TestQT3Sink( sc_module_name name )
+    : smoc_actor( name, start ), dbgout(std::cerr)
+  {
+    CoSupport::Header myHeader("TestQTSink3> ");
+    dbgout << myHeader;
+    count = 1;
+    start = (in(1) && (VAR(count) < 65)) >> CALL(TestQT3Sink::process)(false)  >> start
+          | (in(1) && (VAR(count) == 65)) >> CALL(TestQT3Sink::process)(true)  >> start;
   }
 };
 
@@ -86,14 +197,17 @@ public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
-    std::cout << name() << " receiving " << hex << in[0] << dec << std::endl;
+    DBG_OUT("| " << hex << (unsigned int)in[0] << dec << std::endl);
   }
   
+  CoSupport::DebugOstream dbgout;
   smoc_firing_state start;
 public:
   TestToInvZrl( sc_module_name name )
-    : smoc_actor( name, start )
+    : smoc_actor( name, start ), dbgout(std::cerr)
   {
+    CoSupport::Header myHeader("TestToInvZrl> ");
+    dbgout << myHeader;
     start = in(1) >> CALL(TestToInvZrl::process)  >> start;
   }
 };
@@ -106,10 +220,10 @@ private:
   InvByteStuff  mInvByteStuff;
   HuffDecoder   mHuffDecoder;
   TestSink      mSinkCtrl;
-  TestQTSink    mSinkQT0;
-  TestQTSink    mSinkQT1;
-  TestQTSink    mSinkQT2;
-  TestQTSink    mSinkQT3;
+  TestQT0Sink   mSinkQT0;
+  TestQT1Sink   mSinkQT1;
+  TestQT2Sink   mSinkQT2;
+  TestQT3Sink   mSinkQT3;
   TestToInvZrl  mToInvZrl;
 public:
   HuffmanTestbench(sc_module_name name, const std::string &fileName)
