@@ -42,6 +42,8 @@
 #include <fstream>
 #include <stdlib.h>
 
+#include <vector>
+
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_node_types.hpp>
 
@@ -52,39 +54,100 @@ public:
   smoc_port_in<JpegChannel_t> in;
   smoc_port_in<JpegChannel_t> inCtrlImage;
 protected:
-  FrameDimX_t width;
-  FrameDimY_t height;
+  struct Pos {
+    FrameDimX_t x;
+    FrameDimY_t y;
+  };
+
+  typedef std::vector<ComponentVal_t> FrameBuffer;
+
+  Pos         frameDim;
   IntCompID_t compCount;
+  IntCompID_t compMissing;
+
+  Pos         compPos[JPEG_MAX_COLOUR_COMPNENTS];
+  IntCompID_t scanPattern[SCANPATTERN_LENGTH];
+
+  // index into scanPattern
+  int         scanIndex;
+
+  // index into 8x8 block
+  int         blockIndex;
 
   // Is of size width*height*compCount
-  std::vector<ComponentVal_t> frameBuffer;
+  FrameBuffer frameBuffer;
 
   void processNewFrame() {
-
-
+    assert(JS_ISCTRL(inCtrlImage[0]));
+    assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWFRAME);
+    
+    frameDim.x = JS_CTRL_NEWFRAME_GET_DIMX(inCtrlImage[0]);
+    frameDim.y = JS_CTRL_NEWFRAME_GET_DIMY(inCtrlImage[0]);
+    compCount  = JS_CTRL_NEWFRAME_GET_COMPCOUNT(inCtrlImage[0]);
+    
+    compMissing = compCount;
+    frameBuffer.resize(frameDim.x * frameDim.y * compCount);
   }
 
   void dumpFrame() {
-
-
+    size_t index = 0;
+    
+    std::cout << "P2 " << frameDim.x << " " << frameDim.y << " 255" << std::endl;
+    //output a complete block line
+    for (FrameBuffer::const_iterator iter = frameBuffer.begin();
+         iter != frameBuffer.end();
+         ++iter) {
+      std::cout << *iter;
+      if (++index % 20 == 0)
+        std::cout << std::endl;
+      else
+        std::cout << " ";
+    }
+    std::cout << std::endl << std::endl;
   }
 
   void processNewScan() {
-
-
+    assert(JS_ISCTRL(inCtrlImage[0]));
+    assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWSCAN);
+    
+    // Mark all possible components as already done
+    for (int i = 0; i < JPEG_MAX_COLOUR_COMPNENTS; ++i)
+      compPos[i].y = frameDim.y;
+    for (int i = 0; i < SCANPATTERN_LENGTH; ++i) {
+      scanPattern[i] = JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], i);
+      // component contained in scan must be filled into frame => start at pos 0, 0
+      if (compPos[scanPattern[i]].y)
+        // found new component in scan => decrement missing component count
+        --compMissing;
+      compPos[scanPattern[i]].x = 0;
+      compPos[scanPattern[i]].y = 0;
+    }
+    scanIndex = blockIndex = 0;
   }
 
   void writeComponent() {
-
+    assert(JS_ISCTRL(in[0]));
+    
+    assert(scanPattern[scanIndex] < compCount);
+    frameBuffer[compCount * (
+        compPos[scanPattern[scanIndex]].y * frameDim.x +
+        compPos[scanPattern[scanIndex]].x 
+      ) + scanPattern[scanIndex]] = JS_COMPONENT_GETVAL(in[0]);
+    
+    if (++blockIndex == JPEG_BLOCK_SIZE) {
+      blockIndex = 0;
+      if (++scanIndex == SCANPATTERN_LENGTH)
+        scanIndex = 0;
+    }
   }
 
-  bool frameEnd() const {
-
-    return true;
-  }
+  bool frameEnd() const
+    { return compMissing == 0; }
 
   bool scanEnd() const {
-
+    for (int i = 0; i < JPEG_MAX_COLOUR_COMPNENTS; ++i)
+      if (compPos[i].y != frameDim.y)
+        return false;
     return true;
   }
 
