@@ -104,10 +104,17 @@ private:
   void decode_dc(){
     dbgout << "Perform DC decoding" << endl;
     
-    assert(comp_id >= 0);
+    //assert(comp_id >= 0);
+    //Check, that comp_id is not signed
+    IntCompID_t temp = (IntCompID_t)-1;
+    assert(temp > 0);
+    
     assert(comp_id < JPEG_MAX_COLOR_COMPONENTS);
 
-    out[0] = prev_DC[comp_id] + in[0];
+    // Update DC value
+    prev_DC[comp_id] += JS_QCOEFF_GETIDCTCOEFF(in[0]);
+
+    out[0] = JS_DATA_QCOEFF_SET_CHWORD(prev_DC[comp_id]);
 
     pixel_id++;
     if(pixel_id >= JPEG_BLOCK_SIZE)

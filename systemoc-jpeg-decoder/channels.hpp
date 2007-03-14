@@ -8,6 +8,7 @@
 
 typedef uint8_t   uint2_t;
 typedef uint8_t   uint4_t;
+typedef uint16_t  uint11_t;
 typedef uint16_t  uint10_t;
 typedef uint32_t  uint19_t;
 typedef uint32_t  uint29_t;
@@ -76,6 +77,10 @@ typedef uint4_t RunLength_t;
 
 #define CATEGORY_BITS 4
 typedef uint4_t Category_t;
+
+/// The IDCT Category Amplitude
+#define CATEGORYAMPLITUDE_BITS 11
+typedef uint11_t CategoryAmplitude_t;
 
 /// The quantized IDCT coefficients
 #define QUANTIDCTCOEFF_BITS 12
@@ -351,19 +356,19 @@ enum CtrlCmd_t {
     /*            in case of data (ctrl == false)                      */
     /*              and tuppled data transmission                      */
     /* *************************************************************** */
-# define JS_TUP_GETIDCTCOEFF(x) \
-    static_cast<QuantIDCTCoeff_t>(DEMASK(x,1,QUANTIDCTCOEFF_BITS))
-# define JS_TUP_SETIDCTCOEFF(x) \
-    (SET_MASK(x,1,QUANTIDCTCOEFF_BITS))
+# define JS_TUP_GETIDCTAMPLCOEFF(x) \
+    static_cast<CategoryAmplitude_t>(DEMASK(x,1,CATEGORYAMPLITUDE_BITS))
+# define JS_TUP_SETIDCTAMPLCOEFF(x) \
+    (SET_MASK(x,1,CATEGORYAMPLITUDE_BITS))
 # define JS_TUP_GETRUNLENGTH(x) \
-    (DEMASK(x,1+QUANTIDCTCOEFF_BITS,RUNLENGTH_BITS))
+    (DEMASK(x,1+CATEGORYAMPLITUDE_BITS,RUNLENGTH_BITS))
 # define JS_TUP_SETRUNLENGTH(x) \
-    (SET_MASK(x,1+QUANTIDCTCOEFF_BITS,RUNLENGTH_BITS))
+    (SET_MASK(x,1+CATEGORYAMPLITUDE_BITS,RUNLENGTH_BITS))
 # define JS_TUP_GETCATEGORY(x) \
-    (DEMASK(x,1+QUANTIDCTCOEFF_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
+    (DEMASK(x,1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
 # define JS_TUP_SETCATEGORY(x) \
-    (SET_MASK(x,1+QUANTIDCTCOEFF_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
-# if JPEGCHANNEL_BITS < 1+QUANTIDCTCOEFF_BITS+RUNLENGTH_BITS+CATEGORY_BITS
+    (SET_MASK(x,1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
+# if JPEGCHANNEL_BITS < 1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS+CATEGORY_BITS
 #   error "Too many bits"
 # endif
 
@@ -405,6 +410,12 @@ enum CtrlCmd_t {
 #   error "Too many bits"
 # endif
 
+   // Write complete channel word    
+#   define JS_DATA_COEFF_SET_CHWORD(coeff)    \
+    (JS_SET_CTRL(0) | \
+    JS_COEFF_SETIDCTCOEFF(coeff) \
+     )
+
     /* *************************************************************** */
     /* in case of data (ctrl == false)                                 */
     /*   and component value transmission                              */
@@ -427,11 +438,7 @@ typedef uint8_t qt_table_t;
 /// and a header. (See standard, page 40)
 #define JS_QT_TABLE_SIZE (JPEG_BLOCK_SIZE+1)
 
-    // Write complete channel word    
-#   define JS_DATA_COEFF_SET_CHWORD(coeff)    \
-    (JS_SET_CTRL(0) | \
-    JS_COEFF_SETIDCTCOEFF(coeff) \
-     )
+ 
 
 //};
 //

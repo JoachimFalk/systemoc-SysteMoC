@@ -92,7 +92,10 @@ private:
 
     IntCompID_t comp_id = JS_CTRL_USEQT_GETCOMPID(in[0]);
 
-    assert(comp_id >= 0);
+    //assert(comp_id >= 0);
+    //Check, that component ID is positive
+    IntCompID_t temp = (IntCompID_t)-1;
+    assert(temp > 0);
     assert(comp_id < JPEG_MAX_COLOR_COMPONENTS);
 
     qt_id[comp_id] = JS_CTRL_USEQT_GETQTID(in[0]);    
@@ -133,22 +136,25 @@ private:
   void quantize(unsigned int qt_tb){
     dbgout << "Perform QT with table ID " << qt_tb  << endl;
 
+    IDCTCoeff_t temp;
     switch (qt_tb){
     case 0:
-      out[0] = in[0] * qt_table_0[block_pixel_id];
+      temp = JS_QCOEFF_GETIDCTCOEFF(in[0]) * qt_table_0[block_pixel_id];
       break;
     case 1:
-      out[0] = in[0] * qt_table_1[block_pixel_id];
+      temp = JS_QCOEFF_GETIDCTCOEFF(in[0]) * qt_table_1[block_pixel_id];
       break;
     case 2:
-      out[0] = in[0] * qt_table_2[block_pixel_id];
+      temp = JS_QCOEFF_GETIDCTCOEFF(in[0]) * qt_table_2[block_pixel_id];
       break;
     case 3:
-      out[0] = in[0] * qt_table_3[block_pixel_id];
+      temp = JS_QCOEFF_GETIDCTCOEFF(in[0]) * qt_table_3[block_pixel_id];
       break;
     default:
       dbgout << "Illegal QT table!" << qt_tb  << endl;
     }
+
+    out[0] = JS_DATA_COEFF_SET_CHWORD(temp);
 
     block_pixel_id++;
     if (block_pixel_id > JPEG_BLOCK_SIZE)

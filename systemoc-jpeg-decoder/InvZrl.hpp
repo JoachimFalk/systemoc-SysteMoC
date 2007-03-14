@@ -52,52 +52,252 @@ public:
   smoc_port_in<JpegChannel_t>      in;
   smoc_port_out<JpegChannel_t>     out;
 private:
-  bool thisMattersMe() const {
-    //FIXME: dummy stub
-    return false;
+
+  unsigned char pixel_id;
+  unsigned char runlength;
+
+  /* for debugging purposes */
+  bool sob; //start of block
+  void check_sob(){
+    if (sob){
+      assert(pixel_id == 0);
+      sob = false;
+    }
+      
   }
 
-  void doSomething(){
-    //FIXME: dummy stub
-
-    forwardCtrl();
-  }
-
-  void transform(){
-    //FIXME: dummy stub
-    out[0] = in[0];
+  // unexpected CtrlCommand
+  void unexpectedCtrl(){
+    dbgout << "Unexpected control" << endl;
+    dbgout << "pixel_id = " << pixel_id << endl;
   }
   
-  // forward control commands from input to output
-  void forwardCtrl() {
+
+  // forwards commands
+  void forwardCtrl(){    
+    dbgout << "Forward command" << endl;
     out[0] = in[0];
+
+    //For debugging purposes
+    check_sob();
   }
 
-  // forward data from input to output
-  void forwardData() {
-    out[0] = in[0];
+  // repeat coefficient of last runlength
+  void write_rl_coeff(){
+    dbgout << "Write runlength coefficient" << endl;
+    dbgout << "Runlength position: " << runlength << endl;
+
+    out[0] = JS_DATA_QCOEFF_SET_CHWORD(0);
+
+    runlength--;
+    pixel_id++;
+
+    if (pixel_id >= JPEG_BLOCK_SIZE){
+      dbgout << "Start new block!" << endl;
+      pixel_id = 0;
+      sob = true;  //For debugging purposes
+    }
   }
 
-  smoc_firing_state main;
+  // Start Zero Runlength
+  void start_zero_rl(){
+    dbgout << "Start zero runlength" << endl;
+
+    runlength = 16;    
+
+    write_rl_coeff();
+  }
+
+  // Start a run length which will be followed by a non-zero coefficient
+  void start_non_zero_rl(){
+    dbgout << "Start run with a non-zero coefficient" << endl;
+
+    runlength = JS_TUP_GETRUNLENGTH(in[0]);
+
+    dbgout << "Runlength = " << runlength << endl;
+
+    write_rl_coeff();
+  }
+
+  // Finish block
+  void start_eob(){
+    dbgout << "Finish block" << endl;
+    sob = true;  //For debugging purposes
+
+    assert(pixel_id < JPEG_BLOCK_SIZE);
+    runlength = JPEG_BLOCK_SIZE - pixel_id;    
+
+    dbgout << "runlength = " << runlength << endl;
+
+    write_rl_coeff();
+  }
+
+  // Standard, page F.12
+  QuantIDCTCoeff_t extend_coeff(CategoryAmplitude_t amplitude,
+				Category_t category){
+
+    QuantIDCTCoeff_t return_value = 1 << (category-1);
+
+    if (category == 0){
+      return_value = 0;
+    }else if (amplitude < return_value){
+      return_value = (-1) << category;
+      return_value++;
+
+      return_value += amplitude;
+    }else{
+      return_value = amplitude;
+    }
+
+    return return_value;
+  }
+
+  // Perform DC coefficient decoding
+  void wr_dc_coeff(){
+    Category_t category = JS_TUP_GETCATEGORY(in[0]);
+    CategoryAmplitude_t amplitude = JS_TUP_GETIDCTAMPLCOEFF(in[0]);
+
+    // Error checking
+    CategoryAmplitude_t max_amplitude = ~0;
+    max_amplitude = max_amplitude << category;
+    
+    // Check, that only desired bits are set
+    assert((max_amplitude & amplitude) == 0);
+
+    QuantIDCTCoeff_t dc_coeff = extend_coeff(amplitude,category);
+    
+    out[0] = JS_DATA_QCOEFF_SET_CHWORD(dc_coeff);    
+    
+  }
+
+  // Perform AC coefficient decoding
+  void wr_ac_coeff(){
+    Category_t category = JS_TUP_GETCATEGORY(in[0]);
+    CategoryAmplitude_t amplitude = JS_TUP_GETIDCTAMPLCOEFF(in[0]);
+
+    // Error checking
+    assert(category > 0);
+    CategoryAmplitude_t max_amplitude = ~0;
+    max_amplitude = max_amplitude << category;
+    
+    // Check, that only desired bits are set
+    assert((max_amplitude & amplitude) == 0);
+
+    QuantIDCTCoeff_t dc_coeff = extend_coeff(amplitude,category);
+    
+    out[0] = JS_DATA_QCOEFF_SET_CHWORD(dc_coeff);    
+    
+  }
+
+  smoc_firing_state process_dc_coeff;
+  smoc_firing_state process_ac_coeff;
+  smoc_firing_state write_ac_coeff;
+  smoc_firing_state zero_run;
+  smoc_firing_state non_zero_run;
+  smoc_firing_state stuck;
+
+  CoSupport::DebugOstream dbgout;
 public:
   InvZrl(sc_module_name name)
-    : smoc_actor(name, main) {
-    main
-      // ignore and forward control tokens
-      = ( in(1) && JS_ISCTRL(in.getValueAt(0))       &&
-          !GUARD(InvZrl::thisMattersMe) )        >>
-        out(1)                                       >>
-        CALL(InvZrl::forwardCtrl)                >> main
-      | // treat and forward control tokens
-        ( in(1) && JS_ISCTRL(in.getValueAt(0))       &&
-          GUARD(InvZrl::thisMattersMe) )         >>
-        out(1)                                       >>
-        CALL(InvZrl::doSomething)                >> main
-      | // data transformation
-        ( in(1) && !JS_ISCTRL(in.getValueAt(0)) )    >>
-        out(1)                                       >>
-        CALL(InvZrl::transform)                  >> main
-      ;
+    : smoc_actor(name, process_dc_coeff),
+      pixel_id(0),
+      runlength(0),
+      dbgout(std::cerr)
+  {
+
+    //Set Debug ostream options
+    CoSupport::Header my_header("InvZrl");
+    dbgout << my_header;
+
+    
+    process_dc_coeff =
+      /* ignore and forward control tokens */
+      (in(1) && JS_ISCTRL(in.getValueAt(0))) >>
+      (out(1))                                       >>
+      CALL(InvZrl::forwardCtrl)                >> process_dc_coeff
+      
+      /* Process DC coeff */
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
+      (out(1))                                  >>
+      CALL(InvZrl::wr_dc_coeff)                >> process_dc_coeff;
+      
+
+
+    process_ac_coeff
+      /* ignore and forward control tokens */
+      = (in(1) && JS_ISCTRL(in.getValueAt(0))) >>
+      (out(1))                                       >>
+      CALL(InvZrl::unexpectedCtrl)                >> stuck
+
+      /* Process special zero run length */
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
+      ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) == (JpegChannel_t)0xF) &&
+       (JS_TUP_GETCATEGORY(in.getValueAt(0)) == (JpegChannel_t)0)) >>
+      (out(1))                                       >>
+      CALL(InvZrl::start_zero_rl)                >> zero_run
+
+      /* Process end of block */
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
+      ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) == (JpegChannel_t)0) &&
+       (JS_TUP_GETCATEGORY(in.getValueAt(0)) == (JpegChannel_t)0) &&
+       //More than one pixel is missing
+       (VAR(pixel_id) < JPEG_BLOCK_SIZE-1)) >>
+      (out(1))                                       >>
+      CALL(InvZrl::start_eob)                >> zero_run
+
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
+      ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) == (JpegChannel_t)0) &&
+       (JS_TUP_GETCATEGORY(in.getValueAt(0)) == (JpegChannel_t)0) &&
+       //Only one pixel is missing
+       (VAR(pixel_id) >= JPEG_BLOCK_SIZE-1)) >>
+      (out(1))                                       >>
+      CALL(InvZrl::start_eob)                >> process_dc_coeff
+
+      /* Process AC coeff */
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
+      (((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0) ||
+	(JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0)) &&
+       ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0xF) ||
+	(JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0))) >>
+      (out(1))                                       >>
+      CALL(InvZrl::start_non_zero_rl)                >> non_zero_run;
+
+    /* Complete zero run */
+    zero_run = 
+      // continue zero-run
+      (VAR(runlength) != 1) >>
+      (out(1)) >>      
+      CALL(InvZrl::write_rl_coeff) >> zero_run
+      // more than one pixel is missing for block
+      | ((VAR(runlength) == 1) && (VAR(pixel_id) < JPEG_BLOCK_SIZE-1)) >>
+      (out(1)) >>
+      CALL(InvZrl::write_rl_coeff) >> process_ac_coeff
+      // only one pixel is missing for block
+      | ((VAR(runlength) == 1) && (VAR(pixel_id) >= JPEG_BLOCK_SIZE-1)) >>
+      (out(1)) >>
+      CALL(InvZrl::write_rl_coeff) >> process_dc_coeff;
+
+    /* Complete non-zero run */
+    non_zero_run = 
+      // continue non-zero-run
+      (VAR(runlength) != 1) >>
+      (out(1)) >>      
+      CALL(InvZrl::write_rl_coeff) >> non_zero_run
+      //write last zero for run
+      | (VAR(runlength) == 1) >>
+      (out(1)) >>      
+      CALL(InvZrl::write_rl_coeff) >> write_ac_coeff;
+
+    write_ac_coeff =
+      // more than one pixel is missing for block
+      (VAR(pixel_id) < JPEG_BLOCK_SIZE-1) >>
+      (out(1)) >>
+      CALL(InvZrl::wr_ac_coeff) >> process_ac_coeff
+      // only one pixel is missing for block
+      | (VAR(pixel_id) >= JPEG_BLOCK_SIZE-1) >>
+      (out(1)) >>
+      CALL(InvZrl::wr_ac_coeff) >> process_dc_coeff;
+      
   }
 };
 

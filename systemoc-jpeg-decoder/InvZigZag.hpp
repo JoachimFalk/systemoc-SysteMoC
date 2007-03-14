@@ -63,7 +63,7 @@ private:
     // Check, that no control words occur any more
     // Otherwise we produce wrong data!
     assert(!JS_ISCTRL(in[zigzag_order[block_pixel_id]]));
-    out[0] = JS_COEFF_GETIDCTCOEFF(in[zigzag_order[block_pixel_id]]);
+    out[0] = in[zigzag_order[block_pixel_id]];
     block_pixel_id++;
     if (block_pixel_id >= JPEG_BLOCK_SIZE){
       block_pixel_id = 0;
