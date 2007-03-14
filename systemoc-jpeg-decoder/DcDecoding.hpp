@@ -108,12 +108,20 @@ private:
     assert(comp_id < JPEG_MAX_COLOR_COMPONENTS);
 
     out[0] = prev_DC[comp_id] + in[0];
+
+    pixel_id++;
+    if(pixel_id >= JPEG_BLOCK_SIZE)
+      pixel_id = 0;
   }
 
   void forward_ac(){
     dbgout << "Forward AC coefficient" << endl;
 
     out[0] = in[0];
+
+    pixel_id++;
+    if(pixel_id >= JPEG_BLOCK_SIZE)
+      pixel_id = 0;
   }
 
   smoc_firing_state main;
