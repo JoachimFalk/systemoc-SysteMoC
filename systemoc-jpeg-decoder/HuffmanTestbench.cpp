@@ -64,6 +64,23 @@ public:
   }
 };
 
+class TestQTSink: public smoc_actor {
+public:
+  smoc_port_in<qt_table_t> in;
+private:
+  void process() {
+    std::cout << name() << " receiving " << hex << in[0] << dec << std::endl;
+  }
+  
+  smoc_firing_state start;
+public:
+  TestQTSink( sc_module_name name )
+    : smoc_actor( name, start )
+  {
+    start = in(1) >> CALL(TestQTSink::process)  >> start;
+  }
+};
+
 class TestToInvZrl: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t> in;
@@ -89,6 +106,10 @@ private:
   InvByteStuff  mInvByteStuff;
   HuffDecoder   mHuffDecoder;
   TestSink      mSinkCtrl;
+  TestQTSink    mSinkQT0;
+  TestQTSink    mSinkQT1;
+  TestQTSink    mSinkQT2;
+  TestQTSink    mSinkQT3;
   TestToInvZrl  mToInvZrl;
 public:
   HuffmanTestbench(sc_module_name name, const std::string &fileName)
@@ -98,11 +119,19 @@ public:
       mInvByteStuff("mInvByteStuff"),
       mHuffDecoder("mHuffDecoder"),
       mSinkCtrl("mSinkCtrl"),
+      mSinkQT0("mSinkQT0"),
+      mSinkQT1("mSinkQT1"),
+      mSinkQT2("mSinkQT2"),
+      mSinkQT3("mSinkQT3"),
       mToInvZrl("mToInvZrl")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
     connectNodePorts<1>(mParser.out,              mInvByteStuff.in);
+    connectNodePorts<1>(mParser.qt_table_0,       mSinkQT0.in);
+    connectNodePorts<1>(mParser.qt_table_1,       mSinkQT1.in);
+    connectNodePorts<1>(mParser.qt_table_2,       mSinkQT2.in);
+    connectNodePorts<1>(mParser.qt_table_3,       mSinkQT3.in);
     connectNodePorts<1>(mParser.outCtrlImage,     mSinkCtrl.in);
     connectNodePorts<2>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
     
