@@ -107,6 +107,7 @@ protected:
       (scan.scanPattern[0], scan.scanPattern[1], scan.scanPattern[2],
        scan.scanPattern[3], scan.scanPattern[4], scan.scanPattern[5]);
     inputStream.open(scan.idctCoeffFileName.c_str());
+    assert(inputStream.good());
     scanVector.pop_front();
   }
 
@@ -118,9 +119,14 @@ protected:
     out[0] = coeff;
   }
 
+  void closeStream() {
+    inputStream.close();
+    // Reset EOF and ERROR bits
+    inputStream.clear();
+  }
+
   void allDone() {
     std::cerr << "IDCTScanSource: All done !!!" << std::endl;
-    inputStream.close();
   }
 
   bool haveScans() const
@@ -153,7 +159,8 @@ public:
       = GUARD(IDCTScanSource::streamValid)    >>
         out(1)                                >>
         CALL(IDCTScanSource::sendIDCTCoeff)   >> scanSend
-      | !GUARD(IDCTScanSource::streamValid)   >> scanNew
+      | !GUARD(IDCTScanSource::streamValid)   >>
+        CALL(IDCTScanSource::closeStream)     >> scanNew
       ;
   }
 };
