@@ -47,11 +47,26 @@
 
 #include "channels.hpp"
 
+// if compiled with DBG_INV_ZRL create stream and include debug macros
+#define DBG_INV_ZRL
+#ifdef DBG_INV_ZRL
+  #include <cosupport/smoc_debug_out.hpp>
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
 class InvZrl: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t>      in;
   smoc_port_out<JpegChannel_t>     out;
 private:
+
+  CoSupport::DebugOstream dbgout;
 
   unsigned char pixel_id;
   unsigned char runlength;
@@ -196,13 +211,13 @@ private:
   smoc_firing_state non_zero_run;
   smoc_firing_state stuck;
 
-  CoSupport::DebugOstream dbgout;
+  
 public:
   InvZrl(sc_module_name name)
     : smoc_actor(name, process_dc_coeff),
+      dbgout(std::cerr),
       pixel_id(0),
-      runlength(0),
-      dbgout(std::cerr)
+      runlength(0)      
   {
 
     //Set Debug ostream options

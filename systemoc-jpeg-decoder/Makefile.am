@@ -52,7 +52,7 @@ huffman_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 idct_fbw_test_SOURCES = IDCTFrameBufferWriterTestbench.cpp $(PROJECT_CPPS)
 idct_fbw_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-invzrl_test_SOURCES = InvZrl_tb.cpp
+invzrl_test_SOURCES = InvZrl_tb.cpp $(PROJECT_CPPS)
 invzrl_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 
