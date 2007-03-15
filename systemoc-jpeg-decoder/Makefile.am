@@ -35,18 +35,21 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -I$(srcdir)/../systemoc-idct2d -Wn
 
 LIBS= @LIBS@ -lsystemoc
 
+PROJECT_CPPS=HuffDecoder.cpp channels.cpp
+
+
 noinst_PROGRAMS= simulation-jpeg parser-test huffman-test idct-fbw-test invzrl-test
 
-simulation_jpeg_SOURCES= Jpeg.cpp
+simulation_jpeg_SOURCES= Jpeg.cpp $(PROJECT_CPPS)
 simulation_jpeg_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-parser_test_SOURCES = ParserTestbench.cpp
+parser_test_SOURCES = ParserTestbench.cpp $(PROJECT_CPPS)
 parser_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-huffman_test_SOURCES = HuffmanTestbench.cpp
+huffman_test_SOURCES = HuffmanTestbench.cpp $(PROJECT_CPPS)
 huffman_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-idct_fbw_test_SOURCES = IDCTFrameBufferWriterTestbench.cpp
+idct_fbw_test_SOURCES = IDCTFrameBufferWriterTestbench.cpp $(PROJECT_CPPS)
 idct_fbw_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 invzrl_test_SOURCES = InvZrl_tb.cpp

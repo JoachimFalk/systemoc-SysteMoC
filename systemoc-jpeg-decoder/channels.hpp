@@ -5,6 +5,7 @@
 #define _INCLUDED_CHANNELS_HPP
 
 #include <stdint.h>
+#include <iostream>
 
 typedef uint8_t   uint2_t;
 typedef uint8_t   uint4_t;
@@ -458,9 +459,6 @@ std::ostream &operator << (std::ostream &out, const ImageParam &val)
 return out; }
 */
 
-std::ostream &operator << (std::ostream &out, const codeword_t val) {
-  out << (unsigned int) val;
-  return out;
-}
+std::ostream &operator << (std::ostream &out, const codeword_t val);
 
 #endif // _INCLUDED_CHANNELS_HPP
