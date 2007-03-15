@@ -3,6 +3,8 @@
 #include "PixelFormats.hpp"
 #include "HuffmanTable.hpp"
 
+#include <boost/program_options.hpp>
+
 #include <cstdlib>
 #include <cmath>
 #include <stdint.h>
@@ -15,6 +17,8 @@
 #include <Magick++.h>
 
 using namespace Magick;
+
+namespace po { using namespace boost::program_options; }
 
 typedef unsigned int uint_ty;
 static const uint_ty dctX = 8;
@@ -350,12 +354,16 @@ class RandomBlock: public DataBlock {
 
 class PixelBlock: public DataBlock {
   public:
-    PixelBlock( Magick::Pixels &v,
-	uint_ty xoff, uint_ty yoff ) {
+    PixelBlock() {}
+
+    PixelBlock(Magick::Pixels &v, uint_ty xoff, uint_ty yoff)
+      { load(v, xoff, yoff); }
+
+    void load(Magick::Pixels &v, uint_ty xoff, uint_ty yoff) {
       const Magick::PixelPacket *pp =
 	v.get( xoff, yoff, dctX, dctY );
       uint_ty x, y;
-       
+      
       for ( y = 0; y < dctY; y++ ) {
 	for ( x = 0; x < dctX; x++ ) {
 	  RGB rgb( pp[x+dctX*y] );
@@ -365,8 +373,7 @@ class PixelBlock: public DataBlock {
       }
     }
 
-    void Set( Magick::Pixels &v,
-	uint_ty xoff, uint_ty yoff ) {
+    void store(Magick::Pixels &v, uint_ty xoff, uint_ty yoff) {
       Magick::PixelPacket *pp =
 	v.set( xoff, yoff, dctX, dctY );
       uint_ty x, y;
@@ -468,10 +475,38 @@ void catcodetest( int x ) {
 }
 
 int main( int argc, char *argv[] ) {
-  if ( argc != 2 ) {
-    std::cerr << "Usage: " << argv[0] << " <imagefile>" << std::endl;
-    exit( 1 );
+//if ( argc != 2 ) {
+//  std::cerr << "Usage: " << argv[0] << " <imagefile>" << std::endl;
+//  exit( 1 );
+//}
+
+  // Declare the supported options.
+  po::options_description desc("Allowed options");
+  desc.add_options()
+      ("help", "produce help message")
+      ("do-dct", "Do DCT transformation step")
+      ("src-image", po::value<std::string>(), "source image")
+      ("idctcoeff-file", po::value<std::string>(), "if and where to store IDCT 8x8 block coefficients")
+      ("block-file", po::value<std::string>(), "if and where to store 8x8 block data")
+      ("tupple-file", po::value<std::string>(), "if and where to store tupple data")
+  ;
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);    
+
+  if (vm.count("help")) {
+    std::cout << desc << std::endl;
+    return 1;
   }
+
+  /*
+  if (vm.count("compression")) {
+    std::cout << "Compression level was set to " << vm["compression"].as<int>() << "." << std::endl;
+  } else {
+    std::cout << "Compression level was not set." << std::endl;
+  }
+  */
   
   /* {
     int x;
@@ -481,54 +516,46 @@ int main( int argc, char *argv[] ) {
   } */
   
   {
-    std::string    image_name( argv[1] );
+    std::string    image_name(vm["src-image"].as<std::string>());
     Magick::Image  image_rgb( image_name );
     Magick::Pixels view_rgb(image_rgb);
     
-    uint_ty columns = image_rgb.columns();
-    uint_ty rows    = image_rgb.rows();
+    size_t columns = image_rgb.columns();
+    size_t rows    = image_rgb.rows();
     
-//    std::cout << columns << std::endl;
-//    std::cout << rows << std::endl;
-
+//  std::cout << columns << std::endl;
+//  std::cout << rows << std::endl;
 
     {
-      short *pixels_y = new short[columns*rows*3];
-      short *pixels_cb = new short[columns*rows*3];
-      short *pixels_cr = new short[columns*rows*3];
-      uint_ty x, y;
+      uint8_t pixels_y[columns*rows*3];
+      uint8_t pixels_cb[columns*rows*3];
+      uint8_t pixels_cr[columns*rows*3];
+//    uint8_t pixels_r[columns*rows];
+//    uint8_t pixels_g[columns*rows];
+//    uint8_t pixels_b[columns*rows];
       
       const Magick::PixelPacket *pp_rgb =
 	view_rgb.get( 0, 0, columns, rows);
-      for ( y = 0; y < rows; y++ ) {
-	for ( x = 0; x < columns; x++ ) {
+      for (size_t y = 0; y < rows; y++) {
+	for (size_t x = 0; x < columns; x++) {
 	  RGB   rgb(pp_rgb[x+columns*y]);
+//        pixels_r[x+columns*y] = rgb.r;
+//        pixels_g[x+columns*y] = rgb.g;
+//        pixels_b[x+columns*y] = rgb.b;
+
 	  YCbCr Y(rgb);
-//        std::cout
-//	    << "(" << static_cast<size_t>(rgb.r) << ","
-//                   << static_cast<size_t>(rgb.g) << ","
-//                   << static_cast<size_t>(rgb.b) << ") => "
-//	    << "(" << static_cast<size_t>(Y.y)  << ","
-//                   << static_cast<size_t>(Y.cb) << ","
-//                   << static_cast<size_t>(Y.cr) << ")" << std::endl;
-	  pixels_y[(x+columns*y)*3+0] = (Y.y << 8) + Y.y;
-	  pixels_y[(x+columns*y)*3+1] = (Y.y << 8) + Y.y;
-	  pixels_y[(x+columns*y)*3+2] = (Y.y << 8) + Y.y;
-	  pixels_cb[(x+columns*y)*3+0] = (Y.cb << 8) + Y.cb;
-	  pixels_cb[(x+columns*y)*3+1] = (Y.cb << 8) + Y.cb;
-	  pixels_cb[(x+columns*y)*3+2] = (Y.cb << 8) + Y.cb;
-	  pixels_cr[(x+columns*y)*3+0] = (Y.cr << 8) + Y.cr;
-	  pixels_cr[(x+columns*y)*3+1] = (Y.cr << 8) + Y.cr;
-	  pixels_cr[(x+columns*y)*3+2] = (Y.cr << 8) + Y.cr;
+	  pixels_y[(x+columns*y)*3+0] = pixels_y[(x+columns*y)*3+1] = pixels_y[(x+columns*y)*3+2] = Y.y;
+	  pixels_cb[(x+columns*y)*3+0] = pixels_cb[(x+columns*y)*3+1] = pixels_cb[(x+columns*y)*3+2] = Y.cb;
+	  pixels_cr[(x+columns*y)*3+0] = pixels_cr[(x+columns*y)*3+1] = pixels_cr[(x+columns*y)*3+2] = Y.cr;
 	}
       }
       {
 	Magick::Image image_y(
-	    columns, rows, "RGB", Magick::ShortPixel, pixels_y );
+	    columns, rows, "RGB", Magick::CharPixel, pixels_y );
 	Magick::Image image_cb(
-	    columns, rows, "RGB", Magick::ShortPixel, pixels_cb );
+	    columns, rows, "RGB", Magick::CharPixel, pixels_cb );
 	Magick::Image image_cr(
-	    columns, rows, "RGB", Magick::ShortPixel, pixels_cr );
+	    columns, rows, "RGB", Magick::CharPixel, pixels_cr );
 	image_y.quality(100);
 	image_cb.quality(100);
 	image_cr.quality(100);
@@ -536,9 +563,6 @@ int main( int argc, char *argv[] ) {
 	image_cb.write( std::string("Cb_")+basename(image_name.c_str()) );
 	image_cr.write( std::string("Cr_")+basename(image_name.c_str()) );
       }
-      delete[] pixels_y;
-      delete[] pixels_cb;
-      delete[] pixels_cr;
     }
     {
       Magick::Image image_y8x8tile(
@@ -587,8 +611,18 @@ int main( int argc, char *argv[] ) {
 	myjpg.SOS(1, dhtnrs );
       }
 
-      std::ofstream idctCoeff((std::string("Y_IdctCoeff__")+basename(image_name.c_str())).c_str());
+      std::ofstream fileIDCTCoeff;
+      if (vm.count("idctcoeff-file"))
+        fileIDCTCoeff.open(vm["idctcoeff-file"].as<std::string>().c_str());
 
+      std::ofstream fileTupple;
+      if (vm.count("tupple-file"))
+        fileTupple.open(vm["tupple-file"].as<std::string>().c_str());
+
+      std::ofstream fileBlock;
+      if (vm.count("block-file"))
+        fileBlock.open(vm["block-file"].as<std::string>().c_str());
+      
       {
 	uint_ty x, y;
 	BitAccumulator ba(myjpg);
@@ -596,21 +630,43 @@ int main( int argc, char *argv[] ) {
 	
 	for ( y = 0; y < rows; y += 8 ) {
 	  for ( x = 0; x < columns; x += 8 ) {
-	    PixelBlock pb( view_rgb, x, y );
-	    pb.Set( view_y8x8tile, (x/8)*9, (y/8)*9 );
+            PixelBlock pb;
+            if (vm.count("src-image"))
+              pb.load(view_rgb, x, y);
+            else
+              // do counter
+              ;
+
+	    pb.store(view_y8x8tile, (x/8)*9, (y/8)*9);
 //	    std::cout << "Block at X:" << x << " Y:" << y << std::endl;
 //	    std::cout << "Y Values" << std::endl;
 //	    pb.Dump( std::cout );
 //	    std::cout << "DCT Values" << std::endl;
-	    dct.transform(pb,res);
 
-            for (int i = 0; i < dctY; ++i) {
-              for (int j = 0; j < dctX; ++j) {
-                idctCoeff << res[j][i] << ",";
+            if (fileBlock.good()) {
+              for (size_t i = 0; i < dctY; ++i) {
+                for (size_t j = 0; j < dctX; ++j) {
+                  fileBlock << pb[j][i] << ",";
+                }
+                fileBlock << std::endl;
               }
-              idctCoeff << std::endl;
+              fileBlock << std::endl;
             }
-            idctCoeff << std::endl;
+
+            if (vm.count("do-dct"))
+              dct.transform(pb,res);
+            else
+              res = pb;
+
+            if (fileIDCTCoeff.good()) {
+              for (size_t i = 0; i < dctY; ++i) {
+                for (size_t j = 0; j < dctX; ++j) {
+                  fileIDCTCoeff << res[j][i] << ",";
+                }
+                fileIDCTCoeff << std::endl;
+              }
+              fileIDCTCoeff << std::endl;
+            }
 
 //	    res.Dump( std::cout );
 //	    std::cout << "Quant Values" << std::endl;
@@ -624,20 +680,34 @@ int main( int argc, char *argv[] ) {
 	      {
 		CategoryCode cc(*ziter - olddc);
 		ba << htDCY.encode( cc.len ) << cc;
+                if (fileTupple.good()) {
+                  fileTupple << "DC " << cc.len << " " << cc.code << std::endl;
+                }
 		olddc = *ziter++;
 	      }
 	      for ( ; ziter != res.zigzag_end(); ++ziter ) {
 		if ( *ziter != 0 ) {
-		  for ( ; rlz >= 16; rlz -= 16 )
+		  for ( ; rlz >= 16; rlz -= 16 ) {
 		    ba << htACY.encode( 0xF0 ); // 16 zeros
+                    if (fileTupple.good()) {
+                      fileTupple << 15 << " " << 0 << " " << 0 << std::endl;
+                    }
+                  }
 		  CategoryCode cc(*ziter);
 		  ba << htACY.encode( (rlz << 4) | cc.len ) << cc;
+                  if (fileTupple.good()) {
+                    fileTupple << rlz << " " << cc.len << " " << cc.code << std::endl;
+                  }
 		  rlz = 0;
 		} else
 		  ++rlz;
 	      }
-	      if ( rlz > 0 )
+	      if ( rlz > 0 ) {
 		ba << htACY.encode( 0x00 ); // EOB
+                if (fileTupple.good()) {
+                  fileTupple << 0 << " " << 0 << " " << 0 << std::endl;
+                }
+              }
 	    }
 	  }
 	}

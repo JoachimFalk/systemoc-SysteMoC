@@ -32,4 +32,4 @@ LIBS= @LIBS@
 noinst_PROGRAMS= simple-jpeg-encoder
 
 simple_jpeg_encoder_SOURCES= jpeg.cpp PixelFormats.cpp HuffmanTable.cpp BigEndianData.cpp
-simple_jpeg_encoder_LDFLAGS= -lMagick++
+simple_jpeg_encoder_LDFLAGS= -lMagick++ -lboost_program_options@BOOST_LIBPOSTFIX@
