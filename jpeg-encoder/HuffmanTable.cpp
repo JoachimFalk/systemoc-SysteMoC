@@ -1,6 +1,7 @@
 /* vim: set sw=2 ts=8 sts=2 expandtab: */
 
 #include "HuffmanTable.hpp"
+#include <cassert>
 
 static const char ExampleHuffmanDCYDef[] =
   "\x00\x1F\x00"

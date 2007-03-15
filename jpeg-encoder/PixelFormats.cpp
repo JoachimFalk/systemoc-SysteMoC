@@ -1,6 +1,7 @@
 /* vim: set sw=2 ts=8 sts=2 expandtab: */
 
 #include "PixelFormats.hpp"
+#include <cassert>
 
 RGB_data &RGB_data::operator = (const Magick::PixelPacket &pp) {
   r = (pp.red & 0xFF);
