@@ -58,13 +58,12 @@
 
 
 struct ExpHuffTbl {
-  // FIXME: only 16 values are needed! for easy reading codelength is index
-  uint8_t         valPtr[16];   // value pointers to first symbol of codelength
-                                //  'index'
-  uint8_t         minCode[16];  // minimal code value for codewords of length
-                                //  'index'
-  uint8_t         maxCode[16];  // max ...
-  DecodedSymbol_t huffVal[256]; // symbol-length assignment parameters (B.2.4.2)
+  uint8_t          valPtr[16];   // value pointers to first symbol of codelength
+                                 //  'index'
+  uint16_t         minCode[16];  // minimal code value for codewords of length
+                                 //  'index'
+  uint16_t         maxCode[16];  // max ...
+  DecodedSymbol_t  huffVal[256]; // symbol-length assignment parameters (B.2.4.2)
 };
 
 // if compiled with DBG_HUFF_DECODER create stream and include debug macros
@@ -328,8 +327,8 @@ private:
     for (int i = 0; i < 16; ++i) {
       m_BITS[i] = in[i];
       DBG(totalCodes += m_BITS[i]);
-      DBG_OUT("  codewords with length " << i+1 << " occure " << (int)m_BITS[i]
-              << " times.\n");
+      //DBG_OUT("  codewords with length " << i+1 << " occure " << (int)m_BITS[i]
+      //        << " times.\n");
     }
     DBG_OUT("  total codewords: " << totalCodes << std::endl);
 
@@ -345,22 +344,72 @@ private:
     m_tmpHuff.huffVal[m_huffWritePos++] = in[0];
   }
 
+  //
   void finishTable() {
     DBG_OUT("finishTable()\n");
-    // TODO: create huffmann tree und determine MINCODE() MAXCODE() values
+
+    // HUFFSIZE table (huffmann code sizes) - p.51 C.1
+    // FIXME: omit table and calculate this ad hoc to save mem
+    uint4_t HUFFSIZE[256];
+
+    int tablePos = 0;
+    for (int i = 0; i < 16; ++i) {
+      for (int j = 0; j < m_BITS[i]; ++j)
+        HUFFSIZE[tablePos++] = i + 1;
+    }
+    const int totalCodes = tablePos;
+
+    // HUFFCODE table (huffmann codes table) - p.52 C.2
+    uint16_t HUFFCODE[256];
+    {
+      uint16_t code = 0;
+      uint4_t size = HUFFSIZE[0];
+
+      for (int i = 0; i < totalCodes; ++i) {
+        HUFFCODE[i] = code;
+        ++code;
+        if (HUFFSIZE[i + 1] != size) {
+          code = code << (HUFFSIZE[i + 1] - size);
+          size = HUFFSIZE[i + 1];
+        }
+      }
+    }
+
+    // MINCODE, MAXCODE, and VALPTR - p.108 F.15
+    int codePos = 0;
+    DBG_OUT("Calculate 16-value tables\n");
+    for (int i = 0; i < 16; ++i) { // i + 1 == CodeSize
+      if (m_BITS[i] == 0) {
+        m_tmpHuff.maxCode[i] = 0xffff;
+        //DBG_OUT("  code size " << i + 1 << " - maxCode: "
+        //        << m_tmpHuff.maxCode[i] << std::endl);
+      }
+      else {        
+        m_tmpHuff.valPtr[i] = codePos;
+        m_tmpHuff.minCode[i] = HUFFCODE[codePos];
+        codePos = codePos + m_BITS[i] - 1;
+        m_tmpHuff.maxCode[i] = HUFFCODE[codePos];
+        ++codePos;
+        /*DBG_OUT("  code size " << i + 1
+                << " - maxCode: " << m_tmpHuff.maxCode[i]
+                << ", minCode: " << m_tmpHuff.minCode[i]
+                << ", valPtr: " << (int)m_tmpHuff.valPtr[i]
+                << std::endl);*/
+      }
+    }
+
+    /*
+    // debug dump tables
+    for (int i = 0; i < totalCodes; ++i) {
+      DBG_OUT(" " << i << " - size: " << (int)HUFFSIZE[i]
+              << ", code: " << HUFFCODE[i] << std::endl);
+    }*/
   }
 
+  //
   void writeTable(smoc_port_out<ExpHuffTbl> &out) {
     DBG_OUT("writeTable()\n");
     assert(m_bytesLeft == 0);
-
-    // generate ValPtr
-    m_tmpHuff.valPtr[0] = 0;
-    int offset = 0;
-    for (int i = 1; i < 16; ++i) {
-      m_tmpHuff.valPtr[i - 1] = offset + m_BITS[i];
-      offset += m_BITS[i];
-    }
 
     out[0] = m_tmpHuff;
 
