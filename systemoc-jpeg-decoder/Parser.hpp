@@ -149,7 +149,7 @@ private:
   }
 
   // ########################################################################################
-  // # Define Huffman Table processing
+  // # Define Quantization Table processing
   // ########################################################################################
 
   void foundDQT1() {
@@ -160,34 +160,41 @@ private:
 
   void foundDQT2() {
     DBG_OUT("Found DQT in Level 2\n");
-    qtLength = JS_QT_TABLE_SIZE;
     readBytes += 2;
   }
 
   void sendDqtHeader() {
+    // internal counter to identify multiple defined QTs in a single DQT
+    qtLength = JS_QT_TABLE_SIZE;
     codeword_t header = in[0];
+    // QT ID is in 4 LSBs
     currentQT = header & 0x0F;
-    JpegChannel_t ctrlCmd;
-    ctrlCmd |= JS_SETCTRLCMD(CTRLCMD_DISCARDQT); 
+    JpegChannel_t discardQT;
     switch (currentQT) {
       case 0x0:
-        ctrlCmd |= JS_CTRL_DISCARDQT_SETQTID(0x0);
+        discardQT = JS_CTRL_DISCARDQT_SET_CHWORD(0);
         qt_table_0[0] = header;
+        DBG_OUT("Send DQT header on channel 0 0x" << hex << (unsigned int)header << dec << std::endl);
         break;
       case 0x1:
-        ctrlCmd |= JS_CTRL_DISCARDQT_SETQTID(0x1);
+        discardQT = JS_CTRL_DISCARDQT_SET_CHWORD(1);
         qt_table_1[0] = header;
+        DBG_OUT("Send DQT header on channel 1 0x" << hex << (unsigned int)header << dec << std::endl);
         break;
       case 0x2:
-        ctrlCmd |= JS_CTRL_DISCARDQT_SETQTID(0x2);
+        discardQT = JS_CTRL_DISCARDQT_SET_CHWORD(2);
         qt_table_2[0] = header;
+        DBG_OUT("Send DQT header on channel 2 0x" << hex << (unsigned int)header << dec << std::endl);
         break;
       case 0x3:
-        ctrlCmd |= JS_CTRL_DISCARDQT_SETQTID(0x3);
+        discardQT = JS_CTRL_DISCARDQT_SET_CHWORD(3);
         qt_table_3[0] = header;
+        DBG_OUT("Send DQT header on channel 3 0x" << hex << (unsigned int)header << dec << std::endl);
         break;
     }
-    out[0] = ctrlCmd;
+    out[0] = discardQT;
+    DBG_OUT("Send control command DISCARDQT 0x" << hex << discardQT << dec << 
+            " (QTID: " << JS_CTRL_DISCARDQT_GETQTID(discardQT) << ")" << std::endl);
     readBytes += 1;
     lengthField -= 1;
     qtLength -= 1;
@@ -212,6 +219,11 @@ private:
     readBytes += 1;
     lengthField -= 1;
     qtLength -= 1;
+    DBG_OUT("0x" << hex << (unsigned int)in[0] << dec);
+    if (qtLength) 
+      DBG_OUT(" | ");
+    else
+      DBG_OUT("\n");
   }
 
   // ########################################################################################
@@ -235,8 +247,8 @@ private:
   }
 
   void dhtSendLength(){
-    DBG_OUT("Send DHT length to HuffDecoder: " << hex << " 0x" << (unsigned int) in[0] << " "
-            << (unsigned int) in[1] << dec << endl);
+    /*DBG_OUT("Send DHT length to HuffDecoder: " << hex << " 0x" << (unsigned int) in[0] << " "
+            << (unsigned int) in[1] << dec << endl);*/
     outCodedHuffTbl[0] = in[0];
     outCodedHuffTbl[1] = in[1];
     readLengthField();
@@ -427,72 +439,101 @@ public:
 
     dbgout << myHeader;
 
-    // Detect Start of Image (SOI) maker
-    start = (in(2) && 
-            JPEG_IS_MARKER_SOI(ASSEMBLE_MARKER(in.getValueAt(0),in.getValueAt(1)))) >> 
-            CALL(Parser::foundSOI) >> frame 
-          | (in(2) && 
-            !JPEG_IS_MARKER_SOI(ASSEMBLE_MARKER(in.getValueAt(0),in.getValueAt(1)))) >>
-            CALL(Parser::errorMsg)("Error while detecting SOI marker!") >> error; 
+    // Detect Start of Image (SOI) maker 
+    // -----------------------------
+    // | SOI | remaining image data 
+    // -----------------------------
+    start = (in(2) && JPEG_IS_MARKER_SOI(ASSEMBLE_MARKER(in.getValueAt(0),in.getValueAt(1)))) 
+            >> CALL(Parser::foundSOI) 
+            >> frame 
+          | (in(2) && !JPEG_IS_MARKER_SOI(ASSEMBLE_MARKER(in.getValueAt(0),in.getValueAt(1)))) 
+            >> CALL(Parser::errorMsg)("Error while detecting SOI marker!") 
+            >> error; 
     // Tables/Miscs are defined in Section B.2.4
-    frame = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> frameFF
-          | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> 
-            CALL(Parser::errorMsg)("Error while detecting 0xFF in Table/Misc Level 1!") >> 
-            error;
-    frameFF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) >> frameFF
+    // -------------------------------
+    // | 0xFF00  | 
+    // | DQT     | 
+    // | DHT     | 
+    // | DRI     | remaining image data 
+    // | COM     | 
+    // | APP     | 
+    // | SOF_0   | 
+    // | (SOF_X) | (not supported)
+    // -------------------------------
+    frame = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+            >> frameFF
+          | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+            >> CALL(Parser::errorMsg)("Error while detecting 0xFF in Table/Misc Level 1!") 
+            >> error;
+    frameFF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) 
+              >> frameFF
+            | (in(1) && JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundDQT1) 
+              >> dqt1 
+            | (in(1) && JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> outCodedHuffTbl(2) 
+              >> CALL(Parser::foundDHT1) 
+              >> dht1 
+            | (in(1) && JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundDRI1) 
+              >> dri1 
+            | (in(1) && JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundCOM1) 
+              >> com1 
+            | (in(1) && JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundAPP1) 
+              >> app1 
+            | (in(1) && JPEG_IS_MARKER_SOF_0(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundSOF) 
+              >> sof 
+            | (in(1) && JPEG_IS_MARKER_SOF_1_15(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::errorMsg)("Sorry, SOF_1 to SOF_15 are not supported!") 
+              >> error
             | (in(1) && 
-              JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundDQT1) >> dqt1 
-            | (in(1) && 
-              JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              outCodedHuffTbl(2)      >>
-              CALL(Parser::foundDHT1) >> dht1 
-            | (in(1) && 
-              JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundDRI1) >> dri1 
-            | (in(1) && 
-              JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundCOM1) >> com1 
-            | (in(1) && 
-              JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundAPP1) >> app1 
-            | (in(1) && 
-              JPEG_IS_MARKER_SOF_0(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundSOF) >> sof 
-            | (in(1) && 
-              JPEG_IS_MARKER_SOF_1_15(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::errorMsg)("Sorry, SOF_1 to SOF_15 are not supported!") >> error
-            | (in(1) && 
-              !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
-              !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_SOF_0(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_SOF_1_15(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >>
-              CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 1!") >> 
-              error;
+                !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
+                !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_SOF_0(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_SOF_1_15(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 1!") 
+              >> error;
+    // Process Define Quantization Table (DQT) maker at level 1 (see Section B.2.4.1)
+    // - Each quantization table consits of a single header (P_q, T_q) and 64 data values
+    // - Each DQT may contain several quantization table definitions
+    // - P_q: precision, must be 0x00 (indicating 8 bit) here
+    // - T_q: table destination ID (0,1,2,3)
+    // -----------------------------------------------------------------------------------------
+    // | L_q | P_q | T_q | Q_0 | Q_1 | ... | Q_63 | [P_q | T_q | Q_0 ...] | remaining image data 
+    // -----------------------------------------------------------------------------------------
+    // destination state is: frame
     dqt1 = in(2) 
            >> CALL(Parser::readLengthField) 
            >> sendDqt1Header;
-    sendDqt1Header = (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                       ((in.getValueAt(0) & 0x0F) == 0x00)) 
+           
+    sendDqt1Header = (in(1) && 
+                       ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                       ((in.getValueAt(0) & 0x0F) == 0x00))   // QT ID == 0
                      >> (out(1) && qt_table_0(1)) 
                      >> CALL(Parser::sendDqtHeader) 
                      >> sendDqt1Data
-                   | (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                       ((in.getValueAt(0) & 0x0F) == 0x01)) 
+                   | (in(1) && 
+                       ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                       ((in.getValueAt(0) & 0x0F) == 0x01))   // QT ID == 1
                      >> (out(1) && qt_table_1(1))
                      >> CALL(Parser::sendDqtHeader) 
                      >> sendDqt1Data
-                   | (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                       ((in.getValueAt(0) & 0x0F) == 0x02)) 
+                   | (in(1) && 
+                       ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                       ((in.getValueAt(0) & 0x0F) == 0x02))   // QT ID == 2
                      >> (out(1) && qt_table_2(1))
                      >> CALL(Parser::sendDqtHeader) 
                      >> sendDqt1Data
-                   | (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                       ((in.getValueAt(0) & 0x0F) == 0x03)) 
+                   | (in(1) && 
+                       ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                       ((in.getValueAt(0) & 0x0F) == 0x03))   // QT ID == 3
                      >> (out(1) && qt_table_3(1))
                      >> CALL(Parser::sendDqtHeader) 
                      >> sendDqt1Data
@@ -515,26 +556,28 @@ public:
                    >> qt_table_3(1) 
                    >> CALL(Parser::sendDqtData) 
                    >> sendDqt1Data
-                 | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+    // More QT tables to be processed
+                 | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                      (VAR(currentQT) == 0x00)) 
                    >> qt_table_0(1) 
                    >> CALL(Parser::sendDqtData) 
                    >> sendDqt1Header
-                 | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+                 | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                      (VAR(currentQT) == 0x01)) 
                    >> qt_table_1(1) 
                    >> CALL(Parser::sendDqtData) 
                    >> sendDqt1Header
-                 | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+                 | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                      (VAR(currentQT) == 0x02)) 
                    >> qt_table_2(1) 
                    >> CALL(Parser::sendDqtData) 
                    >> sendDqt1Header
-                 | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+                 | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                      (VAR(currentQT) == 0x03)) 
                    >> qt_table_3(1) 
                    >> CALL(Parser::sendDqtData) 
                    >> sendDqt1Header
+    // All QT tables are processed
                  | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)==1) && 
                      (VAR(currentQT) == 0x00)) 
                    >> qt_table_0(1) 
@@ -631,26 +674,39 @@ public:
     sos1 = in(2) >> CALL(Parser::readLengthField) >> skipSos1;
     skipSos1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipSos1
              | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> ecs1;
+    // Process Define Quantization Table (DQT) maker at level 2 scan 1 (see Section B.2.4.1)
+    // - Each quantization table consits of a single header (P_q, T_q) and 64 data values
+    // - Each DQT may contain several quantization table definitions
+    // - P_q: precision, must be 0x00 (indicating 8 bit) here
+    // - T_q: table destination ID (0,1,2,3)
+    // -----------------------------------------------------------------------------------------
+    // | L_q | P_q | T_q | Q_0 | Q_1 | ... | Q_63 | [P_q | T_q | Q_0 ...] | remaining image data 
+    // -----------------------------------------------------------------------------------------
+    // destination state is: scan1
     dqt2_1 = in(2) 
              >> CALL(Parser::readLengthField) 
              >> sendDqt2_1Header;
-    sendDqt2_1Header = (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                         ((in.getValueAt(0) & 0x0F) == 0x00)) 
+    sendDqt2_1Header = (in(1) && 
+                         ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                         ((in.getValueAt(0) & 0x0F) == 0x00))   // QT ID == 0
                        >> (out(1) && qt_table_0(1)) 
                        >> CALL(Parser::sendDqtHeader) 
                        >> sendDqt2_1Data
-                     | (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                         ((in.getValueAt(0) & 0x0F) == 0x01)) 
+                     | (in(1) && 
+                         ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                         ((in.getValueAt(0) & 0x0F) == 0x01))   // QT ID == 1
                        >> (out(1) && qt_table_1(1))
                        >> CALL(Parser::sendDqtHeader) 
                        >> sendDqt2_1Data
-                     | (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                         ((in.getValueAt(0) & 0x0F) == 0x02)) 
+                     | (in(1) && 
+                         ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                         ((in.getValueAt(0) & 0x0F) == 0x02))   // QT ID == 2
                        >> (out(1) && qt_table_2(1))
                        >> CALL(Parser::sendDqtHeader) 
                        >> sendDqt2_1Data
-                     | (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                         ((in.getValueAt(0) & 0x0F) == 0x03)) 
+                     | (in(1) && 
+                         ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                         ((in.getValueAt(0) & 0x0F) == 0x03))   // QT ID == 3
                        >> (out(1) && qt_table_3(1))
                        >> CALL(Parser::sendDqtHeader) 
                        >> sendDqt2_1Data
@@ -673,26 +729,28 @@ public:
                      >> qt_table_3(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_1Data
-                   | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+    // More QT tables to be processed
+                   | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                        (VAR(currentQT) == 0x00)) 
                      >> qt_table_0(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_1Header
-                   | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+                   | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                        (VAR(currentQT) == 0x01)) 
                      >> qt_table_1(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_1Header
-                   | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+                   | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                        (VAR(currentQT) == 0x02)) 
                      >> qt_table_2(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_1Header
-                   | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+                   | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                        (VAR(currentQT) == 0x03)) 
                      >> qt_table_3(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_1Header
+    // All QT tables are processed
                    | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)==1) && 
                        (VAR(currentQT) == 0x00)) 
                      >> qt_table_0(1) 
@@ -815,26 +873,39 @@ public:
     sosx = in(2) >> CALL(Parser::readLengthField) >> skipSosx;
     skipSosx = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipSosx
              | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> ecsx;
+    // Process Define Quantization Table (DQT) maker at level 2 scan (x>1) (see Section B.2.4.1)
+    // - Each quantization table consits of a single header (P_q, T_q) and 64 data values
+    // - Each DQT may contain several quantization table definitions
+    // - P_q: precision, must be 0x00 (indicating 8 bit) here
+    // - T_q: table destination ID (0,1,2,3)
+    // -----------------------------------------------------------------------------------------
+    // | L_q | P_q | T_q | Q_0 | Q_1 | ... | Q_63 | [P_q | T_q | Q_0 ...] | remaining image data 
+    // -----------------------------------------------------------------------------------------
+    // destination state is: scanx
     dqt2_x = in(2) 
              >> CALL(Parser::readLengthField) 
              >> sendDqt2_xHeader;
-    sendDqt2_xHeader = (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                         ((in.getValueAt(0) & 0x0F) == 0x00)) 
+    sendDqt2_xHeader = (in(1) && 
+                         ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                         ((in.getValueAt(0) & 0x0F) == 0x00))   // QT ID == 0
                        >> (out(1) && qt_table_0(1)) 
                        >> CALL(Parser::sendDqtHeader) 
                        >> sendDqt2_xData
-                     | (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                         ((in.getValueAt(0) & 0x0F) == 0x01)) 
+                     | (in(1) && 
+                         ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                         ((in.getValueAt(0) & 0x0F) == 0x01))   // QT ID == 1
                        >> (out(1) && qt_table_1(1))
                        >> CALL(Parser::sendDqtHeader) 
                        >> sendDqt2_xData
-                     | (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                         ((in.getValueAt(0) & 0x0F) == 0x02)) 
+                     | (in(1) && 
+                         ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                         ((in.getValueAt(0) & 0x0F) == 0x02))   // QT ID == 2
                        >> (out(1) && qt_table_2(1))
                        >> CALL(Parser::sendDqtHeader) 
                        >> sendDqt2_xData
-                     | (in(1) && ((in.getValueAt(0) & 0xF0) == 0x00) && 
-                         ((in.getValueAt(0) & 0x0F) == 0x03)) 
+                     | (in(1) && 
+                         ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
+                         ((in.getValueAt(0) & 0x0F) == 0x03))   // QT ID == 3
                        >> (out(1) && qt_table_3(1))
                        >> CALL(Parser::sendDqtHeader) 
                        >> sendDqt2_xData
@@ -857,26 +928,28 @@ public:
                      >> qt_table_3(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_xData
-                   | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+    // More QT tables to be processed
+                   | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                        (VAR(currentQT) == 0x00)) 
                      >> qt_table_0(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_xHeader
-                   | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+                   | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                        (VAR(currentQT) == 0x01)) 
                      >> qt_table_1(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_xHeader
-                   | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+                   | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                        (VAR(currentQT) == 0x02)) 
                      >> qt_table_2(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_xHeader
-                   | (in(1) && (VAR(lengthField)==1) && (VAR(lengthField)!=1) && 
+                   | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)!=1) && 
                        (VAR(currentQT) == 0x03)) 
                      >> qt_table_3(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_xHeader
+    // All QT tables are processed
                    | (in(1) && (VAR(qtLength)==1) && (VAR(lengthField)==1) && 
                        (VAR(currentQT) == 0x00)) 
                      >> qt_table_0(1) 

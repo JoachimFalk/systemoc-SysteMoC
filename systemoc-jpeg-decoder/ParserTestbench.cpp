@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 sts=2 expandtab:
 /*
- * Copyright (c) 2007 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This program is free software; you can redistribute it and/or modify it under
@@ -45,85 +45,226 @@
 #include "FileSource.hpp"
 #include "Parser.hpp"
 
+// if compiled with DBG_PARSER create stream and include debug macros
+#define DBG_HUFFMAN_TB
+#ifdef DBG_HUFFMAN_TB
+  #include <cosupport/smoc_debug_out.hpp>
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
 class TestSink: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
-    std::cout << name() << " receiving " << in[0] << std::endl;
+    //DBG_OUT("| " << hex << (unsigned int)in[0] << dec << std::endl);
   }
   
+  CoSupport::DebugOstream dbgout;
   smoc_firing_state start;
 public:
   TestSink( sc_module_name name )
-    : smoc_actor( name, start )
+    : smoc_actor( name, start ), dbgout(std::cerr)
   {
+    CoSupport::Header myHeader("TestSink> ");
+    dbgout << myHeader;
     start = in(1) >> CALL(TestSink::process)  >> start;
   }
 };
 
-/*
 class TestSinkCtrl: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
-    ImageParam ip = in[0];
-    std::cout << name() << " receiving " << ip.width << " " << ip.height << " " << ip.compCount << std::endl;
+    //DBG_OUT("" << hex << (unsigned int)in[0] << dec << std::endl);
   }
   
+  CoSupport::DebugOstream dbgout;
   smoc_firing_state start;
 public:
   TestSinkCtrl( sc_module_name name )
-    : smoc_actor( name, start )
+    : smoc_actor( name, start ), dbgout(std::cerr)
   {
+    CoSupport::Header myHeader("TestSinkCtrl> ");
+    dbgout << myHeader;
     start = in(1) >> CALL(TestSinkCtrl::process)  >> start;
   }
 };
- */
 
-class TestSinkCoded: public smoc_actor {
+class TestQT0Sink: public smoc_actor {
+public:
+  smoc_port_in<qt_table_t> in;
+private:
+  void process(bool last) {
+    /*DBG_OUT("| " << hex << (unsigned int)in[0] << dec);
+    if (last)
+      DBG_OUT(std::endl);*/
+    count++;
+  }
+  
+  CoSupport::DebugOstream dbgout;
+
+  int count;
+
+  smoc_firing_state start;
+public:
+  TestQT0Sink( sc_module_name name )
+    : smoc_actor( name, start ), dbgout(std::cerr)
+  {
+    CoSupport::Header myHeader("TestQTSink0> ");
+    dbgout << myHeader;
+    count = 1;
+    start = (in(1) && (VAR(count) < 65)) >> CALL(TestQT0Sink::process)(false)  >> start
+          | (in(1) && (VAR(count) == 65)) >> CALL(TestQT0Sink::process)(true)  >> start;
+  }
+};
+
+class TestQT1Sink: public smoc_actor {
+public:
+  smoc_port_in<qt_table_t> in;
+private:
+  void process(bool last) {
+    /*DBG_OUT("| " << hex << (unsigned int)in[0] << dec);
+    if (last)
+      DBG_OUT(std::endl);*/
+    count++;
+  }
+  
+  CoSupport::DebugOstream dbgout;
+
+  int count;
+
+  smoc_firing_state start;
+public:
+  TestQT1Sink( sc_module_name name )
+    : smoc_actor( name, start ), dbgout(std::cerr)
+  {
+    CoSupport::Header myHeader("TestQTSink1> ");
+    dbgout << myHeader;
+    count = 1;
+    start = (in(1) && (VAR(count) < 65)) >> CALL(TestQT1Sink::process)(false)  >> start
+          | (in(1) && (VAR(count) == 65)) >> CALL(TestQT1Sink::process)(true)  >> start;
+  }
+};
+
+class TestQT2Sink: public smoc_actor {
+public:
+  smoc_port_in<qt_table_t> in;
+private:
+  void process(bool last) {
+    /*DBG_OUT("| " << hex << (unsigned int)in[0] << dec);
+    if (last)
+      DBG_OUT(std::endl);*/
+    count++;
+  }
+  
+  CoSupport::DebugOstream dbgout;
+
+  int count;
+
+  smoc_firing_state start;
+public:
+  TestQT2Sink( sc_module_name name )
+    : smoc_actor( name, start ), dbgout(std::cerr)
+  {
+    CoSupport::Header myHeader("TestQTSink2> ");
+    dbgout << myHeader;
+    count = 1;
+    start = (in(1) && (VAR(count) < 65)) >> CALL(TestQT2Sink::process)(false)  >> start
+          | (in(1) && (VAR(count) == 65)) >> CALL(TestQT2Sink::process)(true)  >> start;
+  }
+};
+
+class TestQT3Sink: public smoc_actor {
+public:
+  smoc_port_in<qt_table_t> in;
+private:
+  void process(bool last) {
+    /*DBG_OUT("| " << hex << (unsigned int)in[0] << dec);
+    if (last)
+      DBG_OUT(std::endl);*/
+    count++;
+  }
+  
+  CoSupport::DebugOstream dbgout;
+
+  int count;
+
+  smoc_firing_state start;
+public:
+  TestQT3Sink( sc_module_name name )
+    : smoc_actor( name, start ), dbgout(std::cerr)
+  {
+    CoSupport::Header myHeader("TestQTSink3> ");
+    dbgout << myHeader;
+    count = 1;
+    start = (in(1) && (VAR(count) < 65)) >> CALL(TestQT3Sink::process)(false)  >> start
+          | (in(1) && (VAR(count) == 65)) >> CALL(TestQT3Sink::process)(true)  >> start;
+  }
+};
+
+class TestSinkCodedHuffTbl: public smoc_actor {
 public:
   smoc_port_in<codeword_t> in;
 private:
   void process() {
-    std::cout << name() << " receiving " << in[0] << std::endl;
+    //DBG_OUT("| " << hex << (unsigned int)in[0] << dec << std::endl);
   }
   
+  CoSupport::DebugOstream dbgout;
   smoc_firing_state start;
 public:
-  TestSinkCoded( sc_module_name name )
-    : smoc_actor( name, start )
+  TestSinkCodedHuffTbl( sc_module_name name )
+    : smoc_actor( name, start ), dbgout(std::cerr)
   {
-    start = in(1) >> CALL(TestSinkCoded::process)  >> start;
+    CoSupport::Header myHeader("TestSinkCodedHuffTbl> ");
+    dbgout << myHeader;
+    start = in(1) >> CALL(TestSinkCodedHuffTbl::process)  >> start;
   }
 };
 
-
-class ParserTestbench
+class HuffmanTestbench
 : public smoc_graph {
 private:
-  FileSource    mSrc;
-  Parser        mParser;
-  TestSink      mSink;
-  TestSink      mSinkCtrl;
-//TestSinkCtrl  mSinkCtrl;
-  TestSinkCoded mSinkCoded;
-  
+  FileSource            mSrc;
+  Parser                mParser;
+  TestSinkCtrl          mSinkCtrl;
+  TestSink              mSink;
+  TestQT0Sink           mSinkQT0;
+  TestQT1Sink           mSinkQT1;
+  TestQT2Sink           mSinkQT2;
+  TestQT3Sink           mSinkQT3;
+  TestSinkCodedHuffTbl  mSinkHT;
 public:
-  ParserTestbench(sc_module_name name, const std::string &fileName)
+  HuffmanTestbench(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),
-      mSink("mSink"),
       mSinkCtrl("mSinkCtrl"),
-      mSinkCoded("mSinkCoded")
+      mSink("mSink"),
+      mSinkQT0("mSinkQT0"),
+      mSinkQT1("mSinkQT1"),
+      mSinkQT2("mSinkQT2"),
+      mSinkQT3("mSinkQT3"),
+      mSinkHT("mSinkHT")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
     connectNodePorts<1>(mParser.out,              mSink.in);
+    connectNodePorts<1>(mParser.qt_table_0,       mSinkQT0.in);
+    connectNodePorts<1>(mParser.qt_table_1,       mSinkQT1.in);
+    connectNodePorts<1>(mParser.qt_table_2,       mSinkQT2.in);
+    connectNodePorts<1>(mParser.qt_table_3,       mSinkQT3.in);
     connectNodePorts<1>(mParser.outCtrlImage,     mSinkCtrl.in);
-    connectNodePorts<2>(mParser.outCodedHuffTbl,  mSinkCoded.in);
+    connectNodePorts<2>(mParser.outCodedHuffTbl,  mSinkHT.in);
+    
 #endif
   }
 };
@@ -137,7 +278,7 @@ int sc_main (int argc, char **argv) {
     exit(-1);
   }
   
-  smoc_top_moc<ParserTestbench> parserTestbench("parserTestbench", argv[1]);
+  smoc_top_moc<HuffmanTestbench> huffmanTestbench("huffmanTestbench", argv[1]);
   
   sc_start(-1);
   
