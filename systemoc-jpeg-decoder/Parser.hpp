@@ -121,6 +121,120 @@ public:
 
 private:
   // ########################################################################################
+  // # Marker processing (see page 32)
+  // ########################################################################################
+  
+  // ########################################################################################
+  // # Start of Frame processing (only baseline profile is supported, i.e., SOF_0 marker)
+  // ########################################################################################
+
+  void foundSOF() {
+    DBG_OUT("Found SOF\n");
+    newFrame = JS_SETCTRLCMD(CTRLCMD_NEWFRAME);
+    readBytes += 2;
+  }
+
+  void readDimY() {
+    uint10_t dimY = in[0]*0x100 | in[1];
+    newFrame |= JS_CTRL_NEWFRAME_SET_DIMY(dimY);
+    // sample precision (1 byte) is already read
+    readBytes += 3;
+    lengthField -= 3;
+  }
+
+  void readDimX() {
+    uint10_t dimX = in[0]*0x100 | in[1];
+    newFrame |= JS_CTRL_NEWFRAME_SET_DIMX(dimX);
+    readBytes += 2;
+    lengthField -= 2;
+  }
+
+  void readCompCount() {
+    componentCount = in[0];
+    newFrame |= JS_CTRL_NEWFRAME_SET_COMPCOUNT(componentCount);
+    outCtrlImage[0] = newFrame;
+    DBG_OUT("Send control command NEWFRAME 0x" << hex << newFrame << dec << 
+            " (dimX: " << JS_CTRL_NEWFRAME_GET_DIMX(newFrame) << ", dimY: " <<
+             JS_CTRL_NEWFRAME_GET_DIMY(newFrame) << ", CompCount: " << 
+             (unsigned int)JS_CTRL_NEWFRAME_GET_COMPCOUNT(newFrame) << ")" << std::endl);
+    // required for storing component IDs and corresponding QT IDs
+    currentCompCount = 0;
+    componentCount--;
+    readBytes += 1;
+    lengthField -= 1;
+  }
+
+  void readCompIDs() {
+    // internally only component IDs 0,1,2 are used
+    compIDs[currentCompCount] = in[0];
+    readBytes += 1;
+  }
+  
+  void readSamplingFactors() {
+    // all sampling factors must be identical
+    samplingFactors = in[0];
+    readBytes += 1;
+  }
+
+  void readQtTblIDs() {
+    QtTblID_t qtTblID = in[0];
+    JpegChannel_t useQT = JS_CTRL_USEQT_SET_CHWORD(qtTblID,currentCompCount);
+    out[0] = useQT;
+    DBG_OUT("Send control command USEQT 0x" << hex << useQT << dec << " (CompID: 0x" <<
+              hex << (unsigned int)JS_CTRL_USEQT_GETCOMPID(useQT) << dec << ", QTID: 0x" << 
+              hex << (unsigned int)JS_CTRL_USEQT_GETQTID(useQT) << dec << ")\n");
+    currentCompCount++;
+    readBytes += 1;
+  }
+
+  // ########################################################################################
+  // # Define Huffman Table Processing
+  // ########################################################################################
+
+  void foundDHT1() {
+    DBG_OUT("Found DHT in Level 1\n");
+    readBytes += 2;
+    // debug synchronisazion
+    outCodedHuffTbl[0] = DHT_SYNC;
+    outCodedHuffTbl[1] = DHT_SYNC;
+  }
+
+  void foundDHT2() {
+    DBG_OUT("Found DHT in Level 2\n");
+    readBytes += 2;
+    // debug synchronisazion
+    outCodedHuffTbl[0] = DHT_SYNC;
+    outCodedHuffTbl[1] = DHT_SYNC;
+  }
+
+  void dhtSendLength(){
+    DBG_OUT("Send DHT length to HuffDecoder: 0x" << hex << (unsigned int)in[0] << " "
+            << (unsigned int)in[1] << dec << endl);
+    outCodedHuffTbl[0] = in[0];
+    outCodedHuffTbl[1] = in[1];
+    readLengthField();
+  }
+
+  void dhtSendByte(){
+    outCodedHuffTbl[0] = in[0];
+    decLengthField();
+    DBG_OUT("0x" << hex << (unsigned int)in[0] << dec);
+    if (lengthField) 
+      DBG_OUT(" | ");
+    else
+      DBG_OUT("\n");
+  }
+
+  // ########################################################################################
+  // # Restart with modulo 8 processing
+  // ########################################################################################
+
+  void foundRST() {
+    //DBG_OUT("Found RST\n");
+    readBytes += 2;
+  }
+
+  // ########################################################################################
   // # Start of Image processing
   // ########################################################################################
 
@@ -131,17 +245,22 @@ private:
   }
 
   // ########################################################################################
-  // # Start of Scan1 processing
+  // # End of Image processing
+  // ########################################################################################
+
+  void foundEOI() {
+    DBG_OUT("Found EOI\n");
+    readBytes += 2;
+  }
+
+  // ########################################################################################
+  // # Start of Scan processing
   // ########################################################################################
 
   void foundSOS1() {
     DBG_OUT("Found SOS1\n");
     readBytes += 2;
   }
-
-  // ########################################################################################
-  // # Start of Scan X processing
-  // ########################################################################################
 
   void foundSOSx() {
     DBG_OUT("Found SOSx\n");
@@ -227,41 +346,25 @@ private:
   }
 
   // ########################################################################################
-  // # Define Huffman Table Processing
+  // # Define Number of Lines processing (not supported)
   // ########################################################################################
 
-  void foundDHT1() {
-    DBG_OUT("Found DHT in Level 1\n");
+  void foundDNL() {
+    DBG_OUT("Found DNL\n");
     readBytes += 2;
-    // debug synchronisazion
-    outCodedHuffTbl[0] = DHT_SYNC;
-    outCodedHuffTbl[1] = DHT_SYNC;
   }
 
-  void foundDHT2() {
-    DBG_OUT("Found DHT in Level 2\n");
-    readBytes += 2;
-    // debug synchronisazion
-    outCodedHuffTbl[0] = DHT_SYNC;
-    outCodedHuffTbl[1] = DHT_SYNC;
-  }
-
-  void dhtSendLength(){
-    /*DBG_OUT("Send DHT length to HuffDecoder: " << hex << " 0x" << (unsigned int) in[0] << " "
-            << (unsigned int) in[1] << dec << endl);*/
-    outCodedHuffTbl[0] = in[0];
-    outCodedHuffTbl[1] = in[1];
-    readLengthField();
-  }
-
-  void dhtSendByte(){
-    //DBG_OUT("Send DHT byte to HuffDecoder\n");
-    outCodedHuffTbl[0] = in[0];
-    decLengthField();
-  }
+  // ########################################################################################
+  // # Define Restart Interval processing
+  // ########################################################################################
 
   void foundDRI1() {
     DBG_OUT("Found DRI in Level 1\n");
+    readBytes += 2;
+  }
+
+  void foundDRI2() {
+    DBG_OUT("Found DRI in Level 2\n");
     readBytes += 2;
   }
 
@@ -274,6 +377,11 @@ private:
     readBytes += 2;
   }
 
+  void foundAPP2() {
+    DBG_OUT("Found APP in Level 2\n");
+    readBytes += 2;
+  }
+
   // ########################################################################################
   // # Comment processing
   // ########################################################################################
@@ -283,101 +391,25 @@ private:
     readBytes += 2;
   }
 
-  // ########################################################################################
-  // # Start of Frame processing
-  // ########################################################################################
-
-  void foundSOF() {
-    DBG_OUT("Found SOF\n");
-    newFrame = JS_SETCTRLCMD(CTRLCMD_NEWFRAME);
-    readBytes += 2;
-  }
-
-  void readDimY() {
-    uint10_t dimY = in[0]*0x100 | in[1];
-    newFrame |= JS_CTRL_NEWFRAME_SET_DIMY(dimY);
-    // sample precision (1 byte) is already read
-    readBytes += 3;
-    lengthField -= 3;
-  }
-
-  void readDimX() {
-    uint10_t dimX = in[0]*0x100 | in[1];
-    newFrame |= JS_CTRL_NEWFRAME_SET_DIMX(dimX);
-    readBytes += 2;
-    lengthField -= 2;
-  }
-
-  void readCompCount() {
-    componentCount = in[0];
-    newFrame |= JS_CTRL_NEWFRAME_SET_COMPCOUNT(componentCount);
-    outCtrlImage[0] = newFrame;
-    DBG_OUT("Send control command NEWFRAME 0x" << hex << newFrame << dec << 
-            " (dimX: " << JS_CTRL_NEWFRAME_GET_DIMX(newFrame) << ", dimY: " <<
-             JS_CTRL_NEWFRAME_GET_DIMY(newFrame) << ", CompCount: " << 
-             (unsigned int)JS_CTRL_NEWFRAME_GET_COMPCOUNT(newFrame) << ")" << std::endl);
-    // required for storing component IDs and corresponding QT IDs
-    currentCompCount = 0;
-    componentCount--;
-    readBytes += 1;
-    lengthField -= 1;
-  }
-
-  void readCompIDs() {
-    compIDs[currentCompCount] = in[0];
-    readBytes += 1;
-  }
-  
-  void readSamplingFactors() {
-    samplingFactors = in[0];
-    readBytes += 1;
-  }
-
-  void readQtTblIDs() {
-    qtTblIDs[currentCompCount] = in[0];
-    DBG_OUT("New component ID: 0x" << hex << (unsigned int)compIDs[currentCompCount] << 
-             dec << ", sampling factors: 0x" << hex << (unsigned int)samplingFactors << 
-             dec << ", QT ID: 0x" << hex << (unsigned int)qtTblIDs[currentCompCount] << 
-             dec << std::endl);
-    currentCompCount++;
-    readBytes += 1;
-  }
-  
-  void foundDRI2() {
-    DBG_OUT("Found DRI in Level 2\n");
-    readBytes += 2;
-  }
-
   void foundCOM2() {
     DBG_OUT("Found COM in Level 2\n");
     readBytes += 2;
   }
 
-  void foundAPP2() {
-    DBG_OUT("Found APP in Level 2\n");
-    readBytes += 2;
-  }
-
-  void foundDNL() {
-    DBG_OUT("Found DNL\n");
-    readBytes += 2;
-  }
-
-  void foundRST() {
-    //DBG_OUT("Found RST\n");
-    readBytes += 2;
-  }
+  // ########################################################################################
+  // # Byte Stuffing processing
+  // ########################################################################################
 
   void foundBST() {
     //DBG_OUT("Found Byte Stuffing\n");
     readBytes += 2;
   }
 
-  void foundEOI() {
-    DBG_OUT("Found EOI\n");
-    readBytes += 2;
-  }
+  // ########################################################################################
+  // # Helper functions 
+  // ########################################################################################
 
+  // most markers are succeeded by a 16 bit length field
   void readLengthField() {
     // Length Field is 16 bit
     lengthField = in[0]*0x100 + in[1];
@@ -395,25 +427,46 @@ private:
     readBytes++;
   }
 
+  // ########################################################################################
+  // # FIXME: Should be reimplemented using a dedicated error channel
+  // ########################################################################################
+
   void errorMsg(std::string msg) {
     std::cerr << "Parser Error (Byte " << readBytes << "): " << msg << std::endl;
   }
 
+  // ########################################################################################
+  // # Member variables
+  // ########################################################################################
+
+  // Control command for new frame
   JpegChannel_t newFrame;
 
+  // component information
   IntCompID_t componentCount, currentCompCount;
   uint8_t compIDs[JPEG_MAX_COLOR_COMPONENTS]; 
+  // only identical sampling factors for all components are supported
   uint8_t samplingFactors;
-  QtTblID_t qtTblIDs[JPEG_MAX_COLOR_COMPONENTS]; 
 
+  // quantization table variables
   QtTblID_t currentQT; 
   uint16_t qtLength;
 
+  // number of bytes processed by the parser
   uint32_t readBytes;
 
+  // length field information
   uint16_t lengthField;
 
+  // ########################################################################################
+  // # Debug
+  // ########################################################################################
+
   CoSupport::DebugOstream dbgout;
+
+  // ########################################################################################
+  // # States
+  // ########################################################################################
 
   smoc_firing_state start, 
     frame, frameFF, 
@@ -432,17 +485,22 @@ private:
     dnl, skipDnl, 
     error;
 public:
+  // ########################################################################################
+  // # Constructor
+  // ########################################################################################
+
   Parser(sc_module_name name)
     : smoc_actor(name, start), dbgout(std::cerr) {
 
+    // Debug
     CoSupport::Header myHeader("Parser> ");
-
     dbgout << myHeader;
 
     // Detect Start of Image (SOI) maker 
     // -----------------------------
     // | SOI | remaining image data 
     // -----------------------------
+    // destination state: frame
     start = (in(2) && JPEG_IS_MARKER_SOI(ASSEMBLE_MARKER(in.getValueAt(0),in.getValueAt(1)))) 
             >> CALL(Parser::foundSOI) 
             >> frame 
@@ -450,6 +508,8 @@ public:
             >> CALL(Parser::errorMsg)("Error while detecting SOI marker!") 
             >> error; 
     // Tables/Miscs are defined in Section B.2.4
+    // Action:
+    // - Detect next marker
     // -------------------------------
     // | 0xFF00  | 
     // | DQT     | 
@@ -505,6 +565,9 @@ public:
     // - Each DQT may contain several quantization table definitions
     // - P_q: precision, must be 0x00 (indicating 8 bit) here
     // - T_q: table destination ID (0,1,2,3)
+    // Actions:
+    // - Send control command DISCARDQT
+    // - Send quantization table definition to InvQuant
     // -----------------------------------------------------------------------------------------
     // | L_q | P_q | T_q | Q_0 | Q_1 | ... | Q_63 | [P_q | T_q | Q_0 ...] | remaining image data 
     // -----------------------------------------------------------------------------------------
@@ -598,87 +661,200 @@ public:
                    >> qt_table_3(1) 
                    >> CALL(Parser::sendDqtData) 
                    >> frame;
+    // Process Define Huffman Table (DHT) maker at level 1 (see Section B.2.4.2)
+    // L_h: length field
+    // D_i: data
+    // Action:
+    // Send raw data (including length field) to Huffman decoder
+    // -----------------------------------------------------------------------------------------
+    // | L_h | D_0 | D_1 | ... | D_(L_h-3) | remaining image data 
+    // -----------------------------------------------------------------------------------------
+    // destination state is: frame
     dht1 =     in(2) 
                >> outCodedHuffTbl(2) 
                >> CALL(Parser::dhtSendLength) 
                >> sendDht1;
-    sendDht1 = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
-               CALL(Parser::dhtSendByte) >> sendDht1
-             | (in(1) && (VAR(lengthField)==1)) >> outCodedHuffTbl(1) >>
-               CALL(Parser::dhtSendByte) >> frame;
-    dri1 = in(2) >> CALL(Parser::readLengthField) >> skipDri1;
-    skipDri1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDri1
-             | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> frame;
-    com1 = in(2) >> CALL(Parser::readLengthField) >> skipCom1;
-    skipCom1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipCom1
-             | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> frame;
-    app1 = in(2) >> CALL(Parser::readLengthField) >> skipApp1;
-    skipApp1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipApp1
-             | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> frame;
+    sendDht1 = (in(1) && (VAR(lengthField)!=1)) 
+               >> outCodedHuffTbl(1) 
+               >> CALL(Parser::dhtSendByte) 
+               >> sendDht1
+             | (in(1) && (VAR(lengthField)==1)) 
+               >> outCodedHuffTbl(1) 
+               >> CALL(Parser::dhtSendByte) 
+               >> frame;
+    dri1 = in(2) 
+           >> CALL(Parser::readLengthField) 
+           >> skipDri1;
+    skipDri1 = (in(1) && (VAR(lengthField)!=1)) 
+               >> CALL(Parser::decLengthField) 
+               >> skipDri1
+             | (in(1) && (VAR(lengthField)==1)) 
+               >> CALL(Parser::decLengthField) 
+               >> frame;
+    // Process Comment (COM) maker at level 1 (see B.2.4.5)
+    // L_c: length field
+    // D_i: data
+    // Action: skip data
+    // ---------------------------------------------------------
+    // | L_c | D_0 | D_1| ... | D_(L_c-3) | remaining image data 
+    // ---------------------------------------------------------
+    // Destination state: frame
+    com1 = in(2) 
+           >> CALL(Parser::readLengthField) 
+           >> skipCom1;
+    skipCom1 = (in(1) && (VAR(lengthField)!=1)) 
+               >> CALL(Parser::decLengthField) 
+               >> skipCom1
+             | (in(1) && (VAR(lengthField)==1)) 
+               >> CALL(Parser::decLengthField) 
+               >> frame;
+    // Process Application specific (APP) maker at level 1 (see B.2.4.6)
+    // L_p: length field
+    // D_i: data
+    // Action: skip data
+    // ---------------------------------------------------------
+    // | L_p | D_0 | D_1| ... | D_(L_p-3) | remaining image data 
+    // ---------------------------------------------------------
+    // Destination state: frame
+    app1 = in(2) 
+           >> CALL(Parser::readLengthField) 
+           >> skipApp1;
+    skipApp1 = (in(1) && (VAR(lengthField)!=1)) 
+               >> CALL(Parser::decLengthField) 
+               >> skipApp1
+             | (in(1) && (VAR(lengthField)==1)) 
+               >> CALL(Parser::decLengthField) 
+               >> frame;
+    // Process Start of Frame (SOF_0) maker (see Section B.2.2) (only baseline DCT is supported)
+    // L_f: length field
+    // P: precision
+    // Y, X: image dimension
+    // N_f: number of image components
+    // C_i: component identifier (must be stored for later translation as internally only 
+    //      IDs 0,1,2 are use
+    // H_i: horizontal sampling factor
+    // V_i: vertical sampling factor 
+    //      only identical sampling factors for all components are supported
+    //      (general case see Section A.1.1)
+    //
+    // Actions: 
+    // - Image dimensions and number of components are send to FrameBufferWriter
+    // - for each component the used quantization table is declared by USEQT control command
+    // ------------------------------------------------------------------
+    // | L_f | P | Y | X | N_f | C_1 | H_1 | V_1 | T_q1 | C_2 | H_2 | ... 
+    // ------------------------------------------------------------------
+    // ----------------------------------------------------------
+    // ... | C_N_f| H_N_f | V_N_f | T_qN_f | remaining image data 
+    // ----------------------------------------------------------
+    // destination state is: scan1
     sof = in(2) >> CALL(Parser::readLengthField) >> sofReadSamplePrecision;
     // Sample precision must be 8 bit
-    sofReadSamplePrecision = (in(1) && in.getValueAt(0) == 0x08) >> sofReadDimY
-                           | (in(1) && in.getValueAt(0) != 0x08) >> 
-                             CALL(Parser::errorMsg)("Sample precision != 8 bit!") >> error;
-    sofReadDimY = in(2) >> CALL(Parser::readDimY) >> sofReadDimX;
-    sofReadDimX = in(2) >> CALL(Parser::readDimX) >> sofReadCompCount;
-    sofReadCompCount = in(1) >> outCtrlImage(1) >> CALL(Parser::readCompCount) >> 
-                       sofReadCompIDs;
-    sofReadCompIDs = in(1) >> CALL(Parser::readCompIDs) >> sofReadSamplingFactors;
-    sofReadSamplingFactors = (in(1) && VAR(currentCompCount) == 0) >> 
-                             CALL(Parser::readSamplingFactors) >>
-                             sofReadQtTblIDs
+    sofReadSamplePrecision = (in(1) && in.getValueAt(0) == 0x08) 
+                             >> sofReadDimY
+                           | (in(1) && in.getValueAt(0) != 0x08) 
+                             >> CALL(Parser::errorMsg)("Sample precision != 8 bit!") 
+                             >> error;
+    sofReadDimY = in(2) 
+                  >> CALL(Parser::readDimY) 
+                  >> sofReadDimX;
+    sofReadDimX = in(2) 
+                  >> CALL(Parser::readDimX) 
+                  >> sofReadCompCount;
+    sofReadCompCount = in(1) 
+                       >> outCtrlImage(1) 
+                       >> CALL(Parser::readCompCount) 
+                       >> sofReadCompIDs;
+    sofReadCompIDs = in(1) 
+                     >> CALL(Parser::readCompIDs) 
+                     >> sofReadSamplingFactors;
+    sofReadSamplingFactors = (in(1) && VAR(currentCompCount) == 0) 
+                             >> CALL(Parser::readSamplingFactors) 
+                             >> sofReadQtTblIDs
                            | (in(1) && VAR(currentCompCount) != 0 && 
-                             in.getValueAt(0) == VAR(samplingFactors)) >> sofReadQtTblIDs 
+                               in.getValueAt(0) == VAR(samplingFactors)) 
+                             >> sofReadQtTblIDs 
                            | (in(1) && VAR(currentCompCount) != 0 && 
-                             in.getValueAt(0) != VAR(samplingFactors)) >> 
-                             CALL(Parser::errorMsg)("Sorry, no support for subsampling!") >> 
-                             error;
-    sofReadQtTblIDs = (in(1) && VAR(currentCompCount) < VAR(componentCount)) >> 
-                      CALL(Parser::readQtTblIDs) >> sofReadCompIDs
-                    | (in(1) && VAR(currentCompCount) == VAR(componentCount)) >> 
-                      CALL(Parser::readQtTblIDs) >> scan1;
-    scan1 = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> scan1FF
-          | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> 
-            CALL(Parser::errorMsg)("Error while detecting 0xFF in Table/Misc Level 2 (Scan1)!") >> 
-            error;
-    scan1FF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) >> scan1FF
+                               in.getValueAt(0) != VAR(samplingFactors)) 
+                             >> CALL(Parser::errorMsg)("Sorry, no support for subsampling!") 
+                             >> error;
+    sofReadQtTblIDs = (in(1) && VAR(currentCompCount) < VAR(componentCount)) 
+                      >> out(1) 
+                      >> CALL(Parser::readQtTblIDs) 
+                      >> sofReadCompIDs
+                    | (in(1) && VAR(currentCompCount) == VAR(componentCount)) 
+                      >> out(1) 
+                      >> CALL(Parser::readQtTblIDs) 
+                      >> scan1;
+    // Action:
+    // - Detect next marker
+    // -------------------------------
+    // | 0xFF00  | 
+    // | SOS     | 
+    // | DQT     | 
+    // | DHT     | remaining image data 
+    // | DRI     | 
+    // | COM     | 
+    // | APP     | 
+    // -------------------------------
+    scan1 = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+            >> scan1FF
+          | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+            >> CALL(Parser::errorMsg)("Error while detecting 0xFF in Table/Misc Level 2 (Scan1)!") 
+            >> error;
+    scan1FF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) 
+              >> scan1FF
             | (in(1) && 
-              JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundSOS1) >> sos1 
+              JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundSOS1) 
+              >> sos1 
             | (in(1) && 
-              JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundDQT2) >> dqt2_1 
+              JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundDQT2) 
+              >> dqt2_1 
             | (in(1) && 
-              JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              outCodedHuffTbl(2)      >>
-              CALL(Parser::foundDHT2) >> dht2_1 
+              JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> outCodedHuffTbl(2) 
+              >> CALL(Parser::foundDHT2) 
+              >> dht2_1 
             | (in(1) && 
-              JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundDRI2) >> dri2_1 
+              JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundDRI2) 
+              >> dri2_1 
             | (in(1) && 
-              JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundCOM2) >> com2_1 
+              JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundCOM2) 
+              >> com2_1 
             | (in(1) && 
-              JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundAPP2) >> app2_1 
+              JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundAPP2) 
+              >> app2_1 
             | (in(1) && 
-              !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
-              !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >>
-              CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (Scan1)!") >> 
-              error;
-    sos1 = in(2) >> CALL(Parser::readLengthField) >> skipSos1;
-    skipSos1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipSos1
-             | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> ecs1;
+                !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
+                !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (Scan1)!") 
+              >> error;
+    // Process Start of Scan (SOS) marker for 1. scan (see B.2.3)
+    sos1 = in(2) 
+           >> CALL(Parser::readLengthField) 
+           >> skipSos1;
+    skipSos1 = (in(1) && (VAR(lengthField)!=1)) 
+               >> CALL(Parser::decLengthField) 
+               >> skipSos1
+             | (in(1) && (VAR(lengthField)==1)) 
+               >> CALL(Parser::decLengthField) 
+               >> ecs1;
     // Process Define Quantization Table (DQT) maker at level 2 scan 1 (see Section B.2.4.1)
     // - Each quantization table consits of a single header (P_q, T_q) and 64 data values
     // - Each DQT may contain several quantization table definitions
     // - P_q: precision, must be 0x00 (indicating 8 bit) here
     // - T_q: table destination ID (0,1,2,3)
+    // Actions:
+    // - Send control command DISCARDQT
+    // - Send quantization table definition to InvQuant
     // -----------------------------------------------------------------------------------------
     // | L_q | P_q | T_q | Q_0 | Q_1 | ... | Q_63 | [P_q | T_q | Q_0 ...] | remaining image data 
     // -----------------------------------------------------------------------------------------
@@ -771,21 +947,64 @@ public:
                      >> qt_table_3(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> scan1;
-    dht2_1 =     in(2) >> outCodedHuffTbl(2) >>
-                 CALL(Parser::dhtSendLength) >> sendDht2_1;
-    sendDht2_1 = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
-                 CALL(Parser::dhtSendByte) >> sendDht2_1
-               | (in(1) && (VAR(lengthField)==1)) >> outCodedHuffTbl(1) >>
-                 CALL(Parser::dhtSendByte) >> scan1;
+    // Process Define Huffman Table (DHT) maker at level 2 scan 1 (see Section B.2.4.2)
+    // L_h: length field
+    // D_i: data
+    // Action:
+    // Send raw data (including length field) to Huffman decoder
+    // -----------------------------------------------------------------------------------------
+    // | L_h | D_0 | D_1 | ... | D_(L_h-3) | remaining image data 
+    // -----------------------------------------------------------------------------------------
+    // destination state is: scan1
+    dht2_1 = in(2) 
+             >> outCodedHuffTbl(2) 
+             >> CALL(Parser::dhtSendLength) 
+             >> sendDht2_1;
+    sendDht2_1 = (in(1) && (VAR(lengthField)!=1)) 
+                 >> outCodedHuffTbl(1) 
+                 >> CALL(Parser::dhtSendByte) 
+                 >> sendDht2_1
+               | (in(1) && (VAR(lengthField)==1)) 
+                 >> outCodedHuffTbl(1) 
+                 >> CALL(Parser::dhtSendByte) 
+                 >> scan1;
     dri2_1 = in(2) >> CALL(Parser::readLengthField) >> skipDri2_1;
     skipDri2_1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDri2_1
                | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scan1;
-    com2_1 = in(2) >> CALL(Parser::readLengthField) >> skipCom2_1;
-    skipCom2_1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipCom2_1
-               | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scan1;
-    app2_1 = in(2) >> CALL(Parser::readLengthField) >> skipApp2_1;
-    skipApp2_1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipApp2_1
-               | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scan1;
+    // Process Comment (COM) maker at level 2 scan 1 (see B.2.4.5)
+    // L_c: length field
+    // D_i: data
+    // Action: skip data
+    // ---------------------------------------------------------
+    // | L_c | D_0 | D_1| ... | D_(L_c-3) | remaining image data 
+    // ---------------------------------------------------------
+    // Destination state: scan1
+    com2_1 = in(2) 
+             >> CALL(Parser::readLengthField) 
+             >> skipCom2_1;
+    skipCom2_1 = (in(1) && (VAR(lengthField)!=1)) 
+                 >> CALL(Parser::decLengthField) 
+                 >> skipCom2_1
+               | (in(1) && (VAR(lengthField)==1)) 
+                 >> CALL(Parser::decLengthField) 
+                 >> scan1;
+    // Process Application specific (APP) maker at level 2 scan 1 (see B.2.4.6)
+    // L_p: length field
+    // D_i: data
+    // Action: skip data
+    // ---------------------------------------------------------
+    // | L_p | D_0 | D_1| ... | D_(L_p-3) | remaining image data 
+    // ---------------------------------------------------------
+    // Destination state: scan1
+    app2_1 = in(2) 
+             >> CALL(Parser::readLengthField) 
+             >> skipApp2_1;
+    skipApp2_1 = (in(1) && (VAR(lengthField)!=1)) 
+                 >> CALL(Parser::decLengthField) 
+                 >> skipApp2_1
+               | (in(1) && (VAR(lengthField)==1)) 
+                 >> CALL(Parser::decLengthField) 
+                 >> scan1;
     ecs1 = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> ecs1FF
          | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> 
            CALL(Parser::incReadBytes) >> ecs1;
@@ -835,49 +1054,92 @@ public:
              !JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >>
              CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (End of Scan1)!") >> 
              error;
-    dnl = in(2) >> CALL(Parser::readLengthField) >> skipDnl;
-    skipDnl = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDnl
-            | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scanx;
-    scanx = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> scanxFF
-          | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> 
-            CALL(Parser::errorMsg)("Error while detecting 0xFF in Table/Misc Level 2 (Scan1)!") >> 
-            error;
-    scanxFF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) >> scan1FF
+    // Process Define Number of Lines (DNL) maker (see B.2.5) (not supported)
+    // L_d: length field
+    // D_i: data
+    // Action: skip data
+    // ---------------------------------------------------------
+    // | L_d | D_0 | D_1| ... | D_(L_d-3) | remaining image data 
+    // ---------------------------------------------------------
+    // Destination state: scanx
+    dnl = in(2) 
+          >> CALL(Parser::readLengthField) 
+          >> skipDnl;
+    skipDnl = (in(1) && (VAR(lengthField)!=1)) 
+              >> CALL(Parser::decLengthField) 
+              >> skipDnl
+            | (in(1) && (VAR(lengthField)==1)) 
+              >> CALL(Parser::decLengthField) 
+              >> scanx;
+    // Action:
+    // - Detect next marker
+    // -------------------------------
+    // | 0xFF00  | 
+    // | SOS     | 
+    // | DQT     | 
+    // | DHT     | remaining image data 
+    // | DRI     | 
+    // | COM     | 
+    // | APP     | 
+    // -------------------------------
+    scanx = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+            >> scanxFF
+          | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+            >> CALL(Parser::errorMsg)("Error while detecting 0xFF in Table/Misc Level 2 (Scan1)!") 
+            >> error;
+    scanxFF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) 
+              >> scan1FF
             | (in(1) && 
-              JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundSOSx) >> sosx 
+                JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundSOSx) 
+              >> sosx 
             | (in(1) && 
-              JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundDQT2) >> dqt2_x 
+                JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundDQT2) 
+              >> dqt2_x 
             | (in(1) && 
-              JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundDHT2) >> dht2_x 
+                JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundDHT2) 
+              >> dht2_x 
             | (in(1) && 
-              JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundDRI2) >> dri2_x 
+                JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundDRI2) 
+              >> dri2_x 
             | (in(1) && 
-              JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundCOM2) >> com2_x 
+                JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundCOM2) 
+              >> com2_x 
             | (in(1) && 
-              JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-              CALL(Parser::foundAPP2) >> app2_x 
+                JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::foundAPP2) 
+              >> app2_x 
             | (in(1) && 
-              !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
-              !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-              !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >>
-              CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (Scan1)!") >> 
-              error;
-    sosx = in(2) >> CALL(Parser::readLengthField) >> skipSosx;
-    skipSosx = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipSosx
-             | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> ecsx;
+                !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
+                !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+                !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+              >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (Scan1)!") 
+              >> error;
+    // Process Start of Scan (SOS) marker for (x>1). scan (see B.2.3)
+    sosx = in(2) 
+           >> CALL(Parser::readLengthField) 
+           >> skipSosx;
+    skipSosx = (in(1) && (VAR(lengthField)!=1)) 
+               >> CALL(Parser::decLengthField) 
+               >> skipSosx
+             | (in(1) && (VAR(lengthField)==1)) 
+               >> CALL(Parser::decLengthField) 
+               >> ecsx;
     // Process Define Quantization Table (DQT) maker at level 2 scan (x>1) (see Section B.2.4.1)
     // - Each quantization table consits of a single header (P_q, T_q) and 64 data values
     // - Each DQT may contain several quantization table definitions
     // - P_q: precision, must be 0x00 (indicating 8 bit) here
     // - T_q: table destination ID (0,1,2,3)
+    // Actions:
+    // - Send control command DISCARDQT
+    // - Send quantization table definition to InvQuant
     // -----------------------------------------------------------------------------------------
     // | L_q | P_q | T_q | Q_0 | Q_1 | ... | Q_63 | [P_q | T_q | Q_0 ...] | remaining image data 
     // -----------------------------------------------------------------------------------------
@@ -970,21 +1232,64 @@ public:
                      >> qt_table_3(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> scanx;
-    dht2_x =     in(2) >> outCodedHuffTbl(2) >>
-                 CALL(Parser::dhtSendLength) >> sendDht2_x;
-    sendDht2_x = (in(1) && (VAR(lengthField)!=1)) >> outCodedHuffTbl(1) >>
-                 CALL(Parser::dhtSendByte) >> sendDht2_x
-               | (in(1) && (VAR(lengthField)==1)) >> outCodedHuffTbl(1) >>
-                 CALL(Parser::dhtSendByte) >> scanx;
+    // Process Define Huffman Table (DHT) maker at level 2 scan (x>1) (see Section B.2.4.2)
+    // L_h: length field
+    // D_i: data
+    // Action:
+    // Send raw data (including length field) to Huffman decoder
+    // -----------------------------------------------------------------------------------------
+    // | L_h | D_0 | D_1 | ... | D_(L_h-3) | remaining image data 
+    // -----------------------------------------------------------------------------------------
+    // destination state is: scanx
+    dht2_x = in(2) 
+             >> outCodedHuffTbl(2) 
+             >> CALL(Parser::dhtSendLength) 
+             >> sendDht2_x;
+    sendDht2_x = (in(1) && (VAR(lengthField)!=1)) 
+                 >> outCodedHuffTbl(1) 
+                 >> CALL(Parser::dhtSendByte) 
+                 >> sendDht2_x
+               | (in(1) && (VAR(lengthField)==1)) 
+                 >> outCodedHuffTbl(1) 
+                 >> CALL(Parser::dhtSendByte) 
+                 >> scanx;
     dri2_x = in(2) >> CALL(Parser::readLengthField) >> skipDri2_x;
     skipDri2_x = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDri2_x
                | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scanx;
-    com2_x = in(2) >> CALL(Parser::readLengthField) >> skipCom2_x;
-    skipCom2_x = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipCom2_x
-               | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scanx;
-    app2_x = in(2) >> CALL(Parser::readLengthField) >> skipApp2_x;
-    skipApp2_x = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipApp2_x
-               | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scanx;
+    // Process Comment (COM) maker at level 2 scan (x>1) (see B.2.4.5)
+    // L_c: length field
+    // D_i: data
+    // Action: skip data
+    // ---------------------------------------------------------
+    // | L_c | D_0 | D_1| ... | D_(L_c-3) | remaining image data 
+    // ---------------------------------------------------------
+    // Destination state: scanx
+    com2_x = in(2) 
+             >> CALL(Parser::readLengthField) 
+             >> skipCom2_x;
+    skipCom2_x = (in(1) && (VAR(lengthField)!=1)) 
+                 >> CALL(Parser::decLengthField) 
+                 >> skipCom2_x
+               | (in(1) && (VAR(lengthField)==1)) 
+                 >> CALL(Parser::decLengthField) 
+                 >> scanx;
+    // Process Application specific (APP) maker at level 2 scan (x>1) (see B.2.4.6)
+    // L_p: length field
+    // D_i: data
+    // Action: skip data
+    // ---------------------------------------------------------
+    // | L_p | D_0 | D_1| ... | D_(L_p-3) | remaining image data 
+    // ---------------------------------------------------------
+    // Destination state: scanx
+    app2_x = in(2) 
+             >> CALL(Parser::readLengthField) 
+             >> skipApp2_x;
+    skipApp2_x = (in(1) && (VAR(lengthField)!=1)) 
+                 >> CALL(Parser::decLengthField) 
+                 >> skipApp2_x
+               | (in(1) && (VAR(lengthField)==1)) 
+                 >> CALL(Parser::decLengthField) 
+                 >> scanx;
     ecsx = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> ecsxFF
          | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> 
            CALL(Parser::incReadBytes) >> ecs1;
