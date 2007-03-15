@@ -267,6 +267,105 @@ private:
     readBytes += 2;
   }
 
+  void readCompCountInScan() {
+    componentCount = in[0];
+    currentCompCount = 0;
+    componentCount--;
+    readBytes += 1;
+    lengthField -= 1;
+  }
+
+  void readCompInScan() {
+    uint8_t compID = in[0];
+    // Transalte component ID to internally used ID 0,1,2
+    bool found = false;
+    for (int i=0; i<JPEG_MAX_COLOR_COMPONENTS; i++) {
+      if (compIDs[i] == compID) {
+        found = true;
+        compID = i;
+        break;
+      }
+    }
+    assert(found); 
+    
+    // Store compID for NEWSCAN control command
+    scanCompIDs[currentCompCount] = compID; 
+
+    // Read DC and AC Selectors
+    HuffTblID_t dcSelector = DEMASK(in[1],0,4);
+    HuffTblID_t acSelector = DEMASK(in[1],4,4);
+    
+    // Send USEHUFF control command
+    JpegChannel_t useHuff = JS_CTRL_USEHUFF_SET_CHWORD(compID,dcSelector,acSelector);
+    out[0] = useHuff;
+    DBG_OUT("Send USEHUFF control command 0x" << hex << useHuff << dec << "(component ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_USEHUFF_GETCOMP(useHuff) << dec << ", DC ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_USEHUFF_GETDCTBL(useHuff) << dec << ", AC ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_USEHUFF_GETACTBL(useHuff) << dec << ")\n");
+
+    currentCompCount++;
+    readBytes += 2;
+    lengthField -= 2;
+  }
+
+  void sendNewScan() {
+    uint8_t compID = in[0];
+    // Transalte component ID to internally used ID 0,1,2
+    bool found = false;
+    for (int i=0; i<JPEG_MAX_COLOR_COMPONENTS; i++) {
+      if (compIDs[i] == compID) {
+        found = true;
+        compID = i;
+        break;
+      }
+    }
+    assert(found); 
+    
+    // Store compID for NEWSCAN control command
+    scanCompIDs[currentCompCount] = compID; 
+
+    // Read DC and AC Selectors
+    HuffTblID_t dcSelector = DEMASK(in[1],0,4);
+    HuffTblID_t acSelector = DEMASK(in[1],4,4);
+    
+    // Send USEHUFF control command
+    JpegChannel_t useHuff = JS_CTRL_USEHUFF_SET_CHWORD(compID,dcSelector,acSelector);
+    out[0] = useHuff;
+    DBG_OUT("Send USEHUFF control command 0x" << hex << useHuff << dec << "(component ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_USEHUFF_GETCOMP(useHuff) << dec << ", DC ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_USEHUFF_GETDCTBL(useHuff) << dec << ", AC ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_USEHUFF_GETACTBL(useHuff) << dec << ")\n");
+
+    // Send NEWSCAN control command
+    JpegChannel_t newScan;
+    switch (componentCount) {
+    case 0:
+      newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs[0],scanCompIDs[0],scanCompIDs[0],
+        scanCompIDs[0],scanCompIDs[0],scanCompIDs[0]);
+      break;
+    case 1:
+      newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs[0],scanCompIDs[1],scanCompIDs[0],
+        scanCompIDs[1],scanCompIDs[0],scanCompIDs[1]);
+      break;
+    case 2:
+      newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs[0],scanCompIDs[1],scanCompIDs[2],
+        scanCompIDs[0],scanCompIDs[1],scanCompIDs[2]);
+      break;
+    }
+    out[1] = newScan;
+    DBG_OUT("Send NEWSCAN control command 0x" << hex << newScan << dec << "(C0 ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_NEWSCAN_GETCOMP(newScan,0) << dec << ", C1 ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_NEWSCAN_GETCOMP(newScan,1) << dec << ", C2 ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_NEWSCAN_GETCOMP(newScan,2) << dec << ", C3 ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_NEWSCAN_GETCOMP(newScan,3) << dec << ", C4 ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_NEWSCAN_GETCOMP(newScan,4) << dec << ", C5 ID: 0x" <<
+              hex << (unsigned int)JS_CTRL_NEWSCAN_GETCOMP(newScan,5) << dec << ")\n");
+
+    currentCompCount++;
+    readBytes += 2;
+    lengthField -= 2;
+  }
+
   // ########################################################################################
   // # Define Quantization Table processing
   // ########################################################################################
@@ -448,6 +547,9 @@ private:
   // only identical sampling factors for all components are supported
   uint8_t samplingFactors;
 
+  // components in scan
+  uint8_t scanCompIDs[JPEG_MAX_COLOR_COMPONENTS]; 
+
   // quantization table variables
   QtTblID_t currentQT; 
   uint16_t qtLength;
@@ -470,7 +572,8 @@ private:
 
   smoc_firing_state start, 
     frame, frameFF, 
-    sos1, skipSos1, sosx, skipSosx, 
+    sos1, sos1ReadCompCount, sos1ReadComp, skipSos1, 
+    sosx, sosxReadCompCount, sosxReadComp, skipSosx, 
     ecs1, ecs1FF, ecsx, ecsxFF, 
     scan1, scan1FF, scanx, scanxFF, 
     dqt1, sendDqt1Header, sendDqt1Data, 
@@ -838,9 +941,39 @@ public:
               >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (Scan1)!") 
               >> error;
     // Process Start of Scan (SOS) marker for 1. scan (see B.2.3)
+    // Ls: length field
+    // Ns: number of image components in scan
+    // Cs_i: component selector
+    // Td_i: DC entropy encoding table destination selector
+    // Ta_i: AC entropy encoding table destination selector
+    // Ss: start of spectral section (not supported)
+    // Se: end of spectral section (not supported)
+    // Ah: successive approximation bit position high (not supported)
+    // Al: successive approximation bit position low (not supported)
+    // Actons:
+    // - For each component send USEHUFF control command
+    // - Send NEWSCAN control command
+    // --------------------------------------------
+    // | Ls | Ns | Cs_1 | Td_1 | Ta_1 | Cs_2 | ... 
+    // --------------------------------------------
+    // ----------------------------------------------------------------------
+    // ... | Cs_Ns | Td_Ns | Ta_Ns | Ss | Se | Ah | Al | remaining image data
+    // ----------------------------------------------------------------------
+    // destination state: ecs1
     sos1 = in(2) 
            >> CALL(Parser::readLengthField) 
-           >> skipSos1;
+           >> sos1ReadCompCount;
+    sos1ReadCompCount = in(1) 
+                      >> CALL(Parser::readCompCountInScan)
+                      >> sos1ReadComp;
+    sos1ReadComp = (in(2) && VAR(currentCompCount) < VAR(componentCount)) 
+                   >> out(1) 
+                   >> CALL(Parser::readCompInScan) 
+                   >> sos1ReadComp
+                 | (in(2) && VAR(currentCompCount) == VAR(componentCount)) 
+                   >> out(2) 
+                   >> CALL(Parser::sendNewScan) 
+                   >> skipSos1;
     skipSos1 = (in(1) && (VAR(lengthField)!=1)) 
                >> CALL(Parser::decLengthField) 
                >> skipSos1
@@ -1122,10 +1255,40 @@ public:
                 !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
               >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (Scan1)!") 
               >> error;
-    // Process Start of Scan (SOS) marker for (x>1). scan (see B.2.3)
+    // Process Start of Scan (SOS) marker for 1. scan (see B.2.3)
+    // Ls: length field
+    // Ns: number of image components in scan
+    // Cs_i: component selector
+    // Td_i: DC entropy encoding table destination selector
+    // Ta_i: AC entropy encoding table destination selector
+    // Ss: start of spectral section (not supported)
+    // Se: end of spectral section (not supported)
+    // Ah: successive approximation bit position high (not supported)
+    // Al: successive approximation bit position low (not supported)
+    // Actons:
+    // - For each component send USEHUFF control command
+    // - Send NEWSCAN control command
+    // --------------------------------------------
+    // | Ls | Ns | Cs_1 | Td_1 | Ta_1 | Cs_2 | ... 
+    // --------------------------------------------
+    // ----------------------------------------------------------------------
+    // ... | Cs_Ns | Td_Ns | Ta_Ns | Ss | Se | Ah | Al | remaining image data
+    // ----------------------------------------------------------------------
+    // destination state: ecs1
     sosx = in(2) 
            >> CALL(Parser::readLengthField) 
-           >> skipSosx;
+           >> sosxReadCompCount;
+    sosxReadCompCount = in(1) 
+                      >> CALL(Parser::readCompCountInScan)
+                      >> sosxReadComp;
+    sosxReadComp = (in(2) && VAR(currentCompCount) < VAR(componentCount)) 
+                   >> out(1) 
+                   >> CALL(Parser::readCompInScan) 
+                   >> sosxReadComp
+                 | (in(2) && VAR(currentCompCount) == VAR(componentCount)) 
+                   >> out(2) 
+                   >> CALL(Parser::sendNewScan) 
+                   >> skipSosx;
     skipSosx = (in(1) && (VAR(lengthField)!=1)) 
                >> CALL(Parser::decLengthField) 
                >> skipSosx

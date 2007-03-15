@@ -257,7 +257,7 @@ public:
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
-    connectNodePorts<1>(mParser.out,              mSink.in);
+    connectNodePorts<2>(mParser.out,              mSink.in);
     connectNodePorts<1>(mParser.qt_table_0,       mSinkQT0.in);
     connectNodePorts<1>(mParser.qt_table_1,       mSinkQT1.in);
     connectNodePorts<1>(mParser.qt_table_2,       mSinkQT2.in);
