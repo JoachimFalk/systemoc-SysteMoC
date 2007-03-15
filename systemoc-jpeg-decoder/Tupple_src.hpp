@@ -1,7 +1,7 @@
-//  -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
-// vim: set sw=2 ts=8 sts=2 expandtab:
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
+// vim: set sw=2 ts=8 sts=2 et:
 /*
- * Copyright (c) 2007 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This program is free software; you can redistribute it and/or modify it under
@@ -34,54 +34,78 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <list>
-#include <set>
+#ifndef _INCLUDED_TUPPLE_SRC_HPP
+#define _INCLUDED_TUPPLE_SRC_HPP
+
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
 
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
 #include "channels.hpp"
 
-#include "Tupple_src.hpp"
-#include "InvZrl.hpp"
-#include "GenSnk.hpp"
-
-class Testbench: public smoc_graph {
-private:
-  TuppleSrc tupple_src;
-  InvZrl inv_zrl;
-  m_gen_sink gen_sink;
+class TuppleSrc: public smoc_actor {
 public:
-  Testbench(sc_module_name name, const std::string& tupple_input_file)
-    : smoc_graph(name),
-      tupple_src("mTuppleSource",tupple_input_file),
-      inv_zrl("mInvZrl"),
-      gen_sink("mGenSink")
-  {    
+  smoc_port_out<JpegChannel_t>     out;
+private:
 
-    connectNodePorts<1>(tupple_src.out,inv_zrl.in);
-    connectNodePorts<1>(inv_zrl.out,gen_sink.in);    
+	ifstream infile;
+	bool eof;
+
+	CategoryAmplitude_t amplitude;
+	Category_t category;
+	RunLength_t rle;
+	
+
+  smoc_firing_state read_file;
+	smoc_firing_state write_tupple;
+
+	// writes it the the port
+	void WriteTupple(){
+		out[0] = JS_DATA_TUPPLED_SET_CHWORD(amplitude,rle,category);
+	}	
+
+	void ReadTupple(){
+		std::string rlz;
+		
+		infile >> rlz >> category >> amplitude;
+ 		
+		if (rlz == "DC")
+			rle = 0;
+		else
+			rle = atol(rlz.c_str());
+
+		if (!infile.good())
+			eof = true;
+
+	}
+
+  CoSupport::DebugOstream dbgout;
+public:
+  TuppleSrc(sc_module_name name, const std::string& filename )
+    : smoc_actor(name, read_file),
+			infile(filename.c_str()),
+			eof(false),
+      dbgout(std::cerr)
+  {
+
+    //Set Debug ostream options
+    CoSupport::Header my_header("TuppleSrc");
+    dbgout << my_header;
+
     
+    read_file =
+      /* ignore and forward control tokens */
+      CALL(TuppleSrc::ReadTupple)                >> write_tupple;
+
+		write_tupple =
+			(!VAR(eof)) >>
+			(out(1)) >>
+			CALL(TuppleSrc::WriteTupple) >> read_file;
   }
 };
 
-#ifndef KASCPAR_PARSING
-int sc_main (int argc, char **argv) {
-  if (argc <= 1) {
-    std::cerr
-      << (argv[0] != NULL ? argv[0] : "???")
-      << "<tupple_file>" << std::endl;
-    exit(-1);
-  }
-  
-  std::string tupple_file(argv[1]);
-
-
-  smoc_top_moc<Testbench> testbench("testbench",tupple_file);
-  
-  sc_start(-1);
-  
-  return 0;
-}
-#endif
+#endif // _INCLUDED_TUPPLE_SRC_HPP

@@ -376,7 +376,7 @@ enum CtrlCmd_t {
     // Set complete channel word
 #   define JS_DATA_TUPPLED_SET_CHWORD(coeff,rle,cat)    \
     (JS_SET_CTRL(0) | \
-     JS_TUP_SETIDCTCOEFF(coeff) | \
+     JS_TUP_SETIDCTAMPLCOEFF(coeff) | \
      JS_TUP_SETRUNLENGTH(rle) | \
      JS_TUP_SETCATEGORY(cat) \
     )
