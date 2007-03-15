@@ -45,23 +45,26 @@
 
 #include "Tupple_src.hpp"
 #include "InvZrl.hpp"
+#include "DcDecoding.hpp"
 #include "GenSnk.hpp"
 
 class Testbench: public smoc_graph {
 private:
   TuppleSrc tupple_src;
-  InvZrl inv_zrl;
+  InvZrl inv_zrl;  
+  DcDecoding dc_decoder;
   m_gen_sink gen_sink;
 public:
   Testbench(sc_module_name name, const std::string& tupple_input_file)
     : smoc_graph(name),
       tupple_src("mTuppleSource",tupple_input_file),
       inv_zrl("mInvZrl"),
+      dc_decoder("mDcDecoder"),
       gen_sink("mGenSink")
-  {    
-
+  { 
     connectNodePorts<1>(tupple_src.out,inv_zrl.in);
-    connectNodePorts<1>(inv_zrl.out,gen_sink.in);    
+    connectNodePorts<1>(inv_zrl.out,dc_decoder.in);
+    connectNodePorts<1>(dc_decoder.out,gen_sink.in);
     
   }
 };

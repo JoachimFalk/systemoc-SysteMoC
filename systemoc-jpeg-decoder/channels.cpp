@@ -1,5 +1,8 @@
 
 #include "channels.hpp"
+
+#include <cassert>
+
 //
 std::ostream &operator << (std::ostream &out, const codeword_t val) {
   out << (unsigned int) val;

@@ -47,6 +47,19 @@
 
 #include "channels.hpp"
 
+// if compiled with DBG_INV_ZRL create stream and include debug macros
+//#define DBG_TUPPLE_SRC
+#ifdef DBG_TUPPLE_SRC
+  #include <cosupport/smoc_debug_out.hpp>
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
 class TuppleSrc: public smoc_actor {
 public:
   smoc_port_out<JpegChannel_t>     out;
@@ -71,15 +84,28 @@ private:
   void ReadTupple(){
     std::string rlz;
 		
-    infile >> rlz >> category >> amplitude;
+    // Workaround, because >> is too silly.
+    unsigned int temp;
+    infile >> rlz >> temp >> amplitude;
+    category = temp;
  		
-    if (rlz == "DC")
+    if (rlz == "DC"){
       rle = 0;
-    else
+    }else{
       rle = atol(rlz.c_str());
+    }
 
-    if (!infile.good())
+    if (!infile.good()){
       eof = true;
+    }else{
+      if (rlz == "DC"){
+	DBG_OUT("DC ");
+      }
+      DBG_OUT("rle = " << rle 
+	     << ", cat = " << (unsigned int)category 
+	     << ", amplitude = " << amplitude 
+	     << endl);
+    }
 
   }
 
@@ -89,11 +115,11 @@ public:
     : smoc_actor(name, read_file),
       infile(filename.c_str()),
       eof(false),
-      dbgout(std::cerr)
+      dbgout(std::cout)
   {
 
     //Set Debug ostream options
-    CoSupport::Header my_header("TuppleSrc");
+    CoSupport::Header my_header("TuppleSrc> ");
     dbgout << my_header;
 
     

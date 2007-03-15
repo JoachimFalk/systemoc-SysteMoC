@@ -71,6 +71,9 @@ private:
   unsigned char pixel_id;
   unsigned char runlength;
 
+  CategoryAmplitude_t amplitude;
+  Category_t category;
+
   /* for debugging purposes */
   bool sob; //start of block
   void check_sob(){
@@ -83,14 +86,25 @@ private:
 
   // unexpected CtrlCommand
   void unexpectedCtrl(){
-    dbgout << "Unexpected control" << endl;
-    dbgout << "pixel_id = " << pixel_id << endl;
+    DBG_OUT("Unexpected control" << endl);
+    DBG_OUT("pixel_id = " << pixel_id << endl);
+  }
+
+  // Must be called, if a coefficient is written
+  void update_pixel_id(){
+    pixel_id++;
+
+    if (pixel_id >= JPEG_BLOCK_SIZE){
+      DBG_OUT("Start new block!" << endl);
+      pixel_id = 0;
+      sob = true;  //For debugging purposes
+    }
   }
   
 
   // forwards commands
   void forwardCtrl(){    
-    dbgout << "Forward command" << endl;
+    DBG_OUT("Forward command" << endl);
     out[0] = in[0];
 
     //For debugging purposes
@@ -99,50 +113,60 @@ private:
 
   // repeat coefficient of last runlength
   void write_rl_coeff(){
-    dbgout << "Write runlength coefficient" << endl;
-    dbgout << "Runlength position: " << runlength << endl;
+    DBG_OUT("Write runlength coefficient: ");
+    DBG_OUT("Runlength position: " << runlength);
+    DBG_OUT(", Pixel-ID: " << pixel_id << endl);
 
     out[0] = JS_DATA_QCOEFF_SET_CHWORD(0);
 
     runlength--;
-    pixel_id++;
 
-    if (pixel_id >= JPEG_BLOCK_SIZE){
-      dbgout << "Start new block!" << endl;
-      pixel_id = 0;
-      sob = true;  //For debugging purposes
-    }
+    update_pixel_id();
   }
 
   // Start Zero Runlength
   void start_zero_rl(){
-    dbgout << "Start zero runlength" << endl;
+    DBG_OUT("Start zero runlength" << endl);
 
     runlength = 16;    
 
     write_rl_coeff();
   }
 
+  // don't output zero run-length
+  void skip_run(){
+    DBG_OUT("Skip zero run" << endl);
+
+    //store for later usage
+
+    category = JS_TUP_GETCATEGORY(in[0]);
+    amplitude = JS_TUP_GETIDCTAMPLCOEFF(in[0]);
+  }
+
   // Start a run length which will be followed by a non-zero coefficient
   void start_non_zero_rl(){
-    dbgout << "Start run with a non-zero coefficient" << endl;
+    DBG_OUT("Start run with a non-zero coefficient" << endl);
 
     runlength = JS_TUP_GETRUNLENGTH(in[0]);
 
-    dbgout << "Runlength = " << runlength << endl;
+    DBG_OUT("Runlength = " << runlength << endl);
 
     write_rl_coeff();
+
+    // Store for later usage
+    category = JS_TUP_GETCATEGORY(in[0]);
+    amplitude = JS_TUP_GETIDCTAMPLCOEFF(in[0]);
   }
 
   // Finish block
   void start_eob(){
-    dbgout << "Finish block" << endl;
+    DBG_OUT("Finish block" << endl);
     sob = true;  //For debugging purposes
 
     assert(pixel_id < JPEG_BLOCK_SIZE);
     runlength = JPEG_BLOCK_SIZE - pixel_id;    
 
-    dbgout << "runlength = " << runlength << endl;
+    DBG_OUT("runlength = " << runlength << endl);
 
     write_rl_coeff();
   }
@@ -169,9 +193,11 @@ private:
 
   // Perform DC coefficient decoding
   void wr_dc_coeff(){
+    DBG_OUT("Write DC coefficient: ");
+    
     Category_t category = JS_TUP_GETCATEGORY(in[0]);
     CategoryAmplitude_t amplitude = JS_TUP_GETIDCTAMPLCOEFF(in[0]);
-
+    
     // Error checking
     CategoryAmplitude_t max_amplitude = ~0;
     max_amplitude = max_amplitude << category;
@@ -183,12 +209,15 @@ private:
     
     out[0] = JS_DATA_QCOEFF_SET_CHWORD(dc_coeff);    
     
+
+    DBG_OUT(dc_coeff << endl);
+    update_pixel_id();
+    
   }
 
   // Perform AC coefficient decoding
   void wr_ac_coeff(){
-    Category_t category = JS_TUP_GETCATEGORY(in[0]);
-    CategoryAmplitude_t amplitude = JS_TUP_GETIDCTAMPLCOEFF(in[0]);
+    DBG_OUT("Write AC coefficient: ");    
 
     // Error checking
     assert(category > 0);
@@ -198,9 +227,12 @@ private:
     // Check, that only desired bits are set
     assert((max_amplitude & amplitude) == 0);
 
-    QuantIDCTCoeff_t dc_coeff = extend_coeff(amplitude,category);
+    QuantIDCTCoeff_t ac_coeff = extend_coeff(amplitude,category);
     
-    out[0] = JS_DATA_QCOEFF_SET_CHWORD(dc_coeff);    
+    out[0] = JS_DATA_QCOEFF_SET_CHWORD(ac_coeff);
+    DBG_OUT(ac_coeff << endl);
+
+    update_pixel_id();
     
   }
 
@@ -215,13 +247,13 @@ private:
 public:
   InvZrl(sc_module_name name)
     : smoc_actor(name, process_dc_coeff),
-      dbgout(std::cerr),
+      dbgout(std::cout),
       pixel_id(0),
       runlength(0)      
   {
 
     //Set Debug ostream options
-    CoSupport::Header my_header("InvZrl");
+    CoSupport::Header my_header("InvZrl> ");
     dbgout << my_header;
 
     
@@ -234,7 +266,7 @@ public:
       /* Process DC coeff */
       | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
       (out(1))                                  >>
-      CALL(InvZrl::wr_dc_coeff)                >> process_dc_coeff;
+      CALL(InvZrl::wr_dc_coeff)                >> process_ac_coeff;
       
 
 
@@ -270,8 +302,19 @@ public:
 
       /* Process AC coeff */
       | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
-      (((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0) ||
-	(JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0)) &&
+      ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) == (JpegChannel_t)0) &&
+       (JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0)) >>
+      //only AC coeff
+      CALL(InvZrl::skip_run)                >> write_ac_coeff
+
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
+      (JS_TUP_GETRUNLENGTH(in.getValueAt(0)) == (JpegChannel_t)1) >> 
+      //only one zero
+      (out(1)) >>
+      CALL(InvZrl::start_non_zero_rl) >> write_ac_coeff
+      
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
+      ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0) &&
        ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0xF) ||
 	(JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0))) >>
       (out(1))                                       >>
