@@ -344,7 +344,7 @@ enum CtrlCmd_t {
 # define JS_DATA_GET(x) \
     static_cast<codeword_t>(DEMASK(x,1,CODEWORD_BITS))
 # define JS_DATA_SET(x) \
-    (JS_SET_CTRL(0) \
+    (JS_SET_CTRL(0) | \
      SET_MASK(x,1,CODEWORD_BITS) \
     )
 # if JPEGCHANNEL_BITS < 1+CODEWORD_BITS

@@ -230,7 +230,7 @@ private:
   // ########################################################################################
 
   void foundRST() {
-    //DBG_OUT("Found RST\n");
+    DBG_OUT("Found RST\n");
     readBytes += 2;
   }
 
@@ -366,6 +366,12 @@ private:
     lengthField -= 2;
   }
 
+  void sendData() {
+    JpegChannel_t data = JS_DATA_SET(in[0]);
+    out[0] = data;
+    readBytes += 1;
+  }
+
   // ########################################################################################
   // # Define Quantization Table processing
   // ########################################################################################
@@ -499,8 +505,11 @@ private:
   // # Byte Stuffing processing
   // ########################################################################################
 
+  // Perform inverse byte stuffing
   void foundBST() {
-    //DBG_OUT("Found Byte Stuffing\n");
+    DBG_OUT("Found Byte Stuffing\n");
+    JpegChannel_t dataFF = JS_DATA_SET(0xFF);
+    out[0] = dataFF;
     readBytes += 2;
   }
 
@@ -1138,55 +1147,75 @@ public:
                | (in(1) && (VAR(lengthField)==1)) 
                  >> CALL(Parser::decLengthField) 
                  >> scan1;
-    ecs1 = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> ecs1FF
-         | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> 
-           CALL(Parser::incReadBytes) >> ecs1;
-    ecs1FF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) >> ecs1FF
+    // Raw data transfer
+    // Actions:
+    // - send data
+    // - detect next marker or byte stuffing
+    ecs1 = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+           >> ecs1FF
+         | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+           >> out(1)
+           >> CALL(Parser::sendData) 
+           >> ecs1;
+    ecs1FF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) 
+             >> CALL(Parser::incReadBytes)
+             >> ecs1FF
            | (in(1) && 
-             JPEG_IS_BYTE_STUFFING(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundBST) >> ecs1 
+               JPEG_IS_BYTE_STUFFING(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> out(1)
+             >> CALL(Parser::foundBST) 
+             >> ecs1 
            | (in(1) && 
-             JPEG_IS_MARKER_RST(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundRST) >> ecs1 
+               JPEG_IS_MARKER_RST(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundRST) 
+             >> ecs1 
            | (in(1) && 
-             JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundSOSx) >> sosx 
+               JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundSOSx) 
+             >> sosx 
            | (in(1) && 
-             JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundDQT2) >> dqt2_x 
+               JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundDQT2) 
+             >> dqt2_x 
            | (in(1) && 
-             JPEG_IS_MARKER_DNL(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundDNL) >> dnl 
+               JPEG_IS_MARKER_DNL(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundDNL) 
+             >> dnl 
            | (in(1) && 
-             JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             outCodedHuffTbl(2)      >>
-             CALL(Parser::foundDHT2) >> dht2_x 
+               JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> outCodedHuffTbl(2) 
+             >> CALL(Parser::foundDHT2) 
+             >> dht2_x 
            | (in(1) && 
-             JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundDRI2) >> dri2_x 
+               JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundDRI2) 
+             >> dri2_x 
            | (in(1) && 
-             JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundCOM2) >> com2_x 
+               JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundCOM2) 
+             >> com2_x 
            | (in(1) && 
-             JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundAPP2) >> app2_x 
+               JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundAPP2) 
+             >> app2_x 
            | (in(1) && 
-             JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundEOI) >> start 
+               JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundEOI) 
+             >> start 
            | (in(1) && 
-             !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
-             !JPEG_IS_BYTE_STUFFING(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_RST(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_DNL(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >>
-             CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (End of Scan1)!") >> 
-             error;
+               !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
+               !JPEG_IS_BYTE_STUFFING(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_RST(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_DNL(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (End of Scan1)!") 
+             >> error;
     // Process Define Number of Lines (DNL) maker (see B.2.5) (not supported)
     // L_d: length field
     // D_i: data
@@ -1453,50 +1482,68 @@ public:
                | (in(1) && (VAR(lengthField)==1)) 
                  >> CALL(Parser::decLengthField) 
                  >> scanx;
-    ecsx = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> ecsxFF
-         | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) >> 
-           CALL(Parser::incReadBytes) >> ecs1;
-    ecsxFF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) >> ecsxFF
+    // Raw data transfer
+    // Actions:
+    // - send data
+    // - detect next marker or byte stuffing
+    ecsx = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+           >> ecsxFF
+         | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+           >> CALL(Parser::sendData) 
+           >> ecs1;
+    ecsxFF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) 
+             >> CALL(Parser::incReadBytes)
+             >> ecsxFF
            | (in(1) && 
-             JPEG_IS_BYTE_STUFFING(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundBST) >> ecsx 
+               JPEG_IS_BYTE_STUFFING(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> out(1)
+             >> CALL(Parser::foundBST) 
+             >> ecsx 
            | (in(1) && 
-             JPEG_IS_MARKER_RST(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundRST) >> ecsx 
+               JPEG_IS_MARKER_RST(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundRST) 
+             >> ecsx 
            | (in(1) && 
-             JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundSOSx) >> sosx 
+               JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundSOSx) 
+             >> sosx 
            | (in(1) && 
-             JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundDQT2) >> dqt2_x 
+               JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundDQT2) 
+             >> dqt2_x 
            | (in(1) && 
-             JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             outCodedHuffTbl(2)      >>
-             CALL(Parser::foundDHT2) >> dht2_x 
+               JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> outCodedHuffTbl(2) 
+             >> CALL(Parser::foundDHT2) 
+             >> dht2_x 
            | (in(1) && 
-             JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundDRI2) >> dri2_x 
+               JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundDRI2) 
+             >> dri2_x 
            | (in(1) && 
-             JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundCOM2) >> com2_x 
+               JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundCOM2) 
+             >> com2_x 
            | (in(1) && 
-             JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundAPP2) >> app2_x 
+               JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundAPP2) 
+             >> app2_x 
            | (in(1) && 
-             JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >> 
-             CALL(Parser::foundEOI) >> start 
+               JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::foundEOI) 
+             >> start 
            | (in(1) && 
-             !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
-             !JPEG_IS_BYTE_STUFFING(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_RST(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
-             !JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) >>
-             CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (End of Scan1)!") >> 
-             error;
+               !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
+               !JPEG_IS_BYTE_STUFFING(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_RST(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
+               !JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
+             >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (End of Scan1)!") 
+             >> error;
   }
 };
 
