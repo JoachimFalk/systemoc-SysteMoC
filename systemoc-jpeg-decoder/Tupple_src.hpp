@@ -52,43 +52,43 @@ public:
   smoc_port_out<JpegChannel_t>     out;
 private:
 
-	ifstream infile;
-	bool eof;
+  ifstream infile;
+  bool eof;
 
-	CategoryAmplitude_t amplitude;
-	Category_t category;
-	RunLength_t rle;
+  CategoryAmplitude_t amplitude;
+  Category_t category;
+  RunLength_t rle;
 	
 
   smoc_firing_state read_file;
-	smoc_firing_state write_tupple;
+  smoc_firing_state write_tupple;
 
-	// writes it the the port
-	void WriteTupple(){
-		out[0] = JS_DATA_TUPPLED_SET_CHWORD(amplitude,rle,category);
-	}	
+  // writes it the the port
+  void WriteTupple(){
+    out[0] = JS_DATA_TUPPLED_SET_CHWORD(amplitude,rle,category);
+  }	
 
-	void ReadTupple(){
-		std::string rlz;
+  void ReadTupple(){
+    std::string rlz;
 		
-		infile >> rlz >> category >> amplitude;
+    infile >> rlz >> category >> amplitude;
  		
-		if (rlz == "DC")
-			rle = 0;
-		else
-			rle = atol(rlz.c_str());
+    if (rlz == "DC")
+      rle = 0;
+    else
+      rle = atol(rlz.c_str());
 
-		if (!infile.good())
-			eof = true;
+    if (!infile.good())
+      eof = true;
 
-	}
+  }
 
   CoSupport::DebugOstream dbgout;
 public:
   TuppleSrc(sc_module_name name, const std::string& filename )
     : smoc_actor(name, read_file),
-			infile(filename.c_str()),
-			eof(false),
+      infile(filename.c_str()),
+      eof(false),
       dbgout(std::cerr)
   {
 
@@ -101,10 +101,10 @@ public:
       /* ignore and forward control tokens */
       CALL(TuppleSrc::ReadTupple)                >> write_tupple;
 
-		write_tupple =
-			(!VAR(eof)) >>
-			(out(1)) >>
-			CALL(TuppleSrc::WriteTupple) >> read_file;
+    write_tupple =
+      (!VAR(eof)) >>
+      (out(1)) >>
+      CALL(TuppleSrc::WriteTupple) >> read_file;
   }
 };
 
