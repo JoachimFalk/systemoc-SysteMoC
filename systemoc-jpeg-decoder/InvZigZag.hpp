@@ -52,7 +52,7 @@
 class InvZigZag: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t> in;
-  smoc_port_out<IDCTCoeff_t>  out;
+  smoc_port_out<JpegChannel_t>  out;
 private:
 
   static const unsigned char zigzag_order[JPEG_BLOCK_SIZE];

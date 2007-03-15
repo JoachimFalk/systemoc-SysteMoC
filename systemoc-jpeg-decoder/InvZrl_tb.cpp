@@ -46,25 +46,29 @@
 #include "Tupple_src.hpp"
 #include "InvZrl.hpp"
 #include "DcDecoding.hpp"
+#include "InvZigZag.hpp"
 #include "GenSnk.hpp"
 
 class Testbench: public smoc_graph {
 private:
-  TuppleSrc tupple_src;
-  InvZrl inv_zrl;  
-  DcDecoding dc_decoder;
-  m_gen_sink gen_sink;
+  TuppleSrc tupple_src_i;
+  InvZrl inv_zrl_i;  
+  DcDecoding dc_decoder_i;
+  InvZigZag invzigzag_i;
+  m_gen_sink gen_sink_i;
 public:
   Testbench(sc_module_name name, const std::string& tupple_input_file)
     : smoc_graph(name),
-      tupple_src("mTuppleSource",tupple_input_file),
-      inv_zrl("mInvZrl"),
-      dc_decoder("mDcDecoder"),
-      gen_sink("mGenSink")
+      tupple_src_i("mTuppleSource",tupple_input_file),
+      inv_zrl_i("mInvZrl"),
+      dc_decoder_i("mDcDecoder"),
+      invzigzag_i("mInvZigZag"),
+      gen_sink_i("mGenSink")
   { 
-    connectNodePorts<1>(tupple_src.out,inv_zrl.in);
-    connectNodePorts<1>(inv_zrl.out,dc_decoder.in);
-    connectNodePorts<1>(dc_decoder.out,gen_sink.in);
+    connectNodePorts<1>(tupple_src_i.out,inv_zrl_i.in);
+    connectNodePorts<1>(inv_zrl_i.out,dc_decoder_i.in);
+    connectNodePorts<JPEG_BLOCK_SIZE>(dc_decoder_i.out,invzigzag_i.in);
+    connectNodePorts<1>(invzigzag_i.out,gen_sink_i.in);
     
   }
 };

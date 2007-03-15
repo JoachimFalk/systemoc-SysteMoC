@@ -52,9 +52,15 @@ typedef uint29_t JpegChannel_t;
 typedef uint8_t codeword_t;
 
 // FIXME: Fix SysteMoC to also accept format below
-//#define DEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
+//#define UDEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
 
-#define DEMASK(x,off,width)   (((x) / (1 << (off))) & ((1 << (width)) - 1))
+// Demask to unsigned value
+#define UDEMASK(x,off,width)   (((x) / (1 << (off))) & ((1 << (width)) - 1))
+// Demask to signed value
+#define SDEMASK(x,off,width)   ((x) & (1 << ((off) + (width) - 1))	\
+                                ? ((x) / (1 << (off))) |  ((~0U) << (width)) \
+                                : ((x) / (1 << (off))) & ~((~0U) << (width)))
+
 #define SET_MASK(x,off,width) (((x) & ((1 << (width)) -1 )) << (off))
 
 /// Source -> Parser
@@ -158,14 +164,14 @@ enum CtrlCmd_t {
 
 // struct JpegScan {
   // bool ctrl : is data word or control
-#define JS_ISCTRL(x) DEMASK(x,0,1)
+#define JS_ISCTRL(x) UDEMASK(x,0,1)
 #define JS_SET_CTRL(is_ctrl)  SET_MASK(is_ctrl,0,1)
 
   /* *************************************************************** */
   /*             in case of ctrl (ctrl == true)                      */
   /* *************************************************************** */  
 # define JS_GETCTRLCMD(x) \
-  DEMASK(x,1,CTRLCMD_BITS)
+  UDEMASK(x,1,CTRLCMD_BITS)
 # define JS_SETCTRLCMD(cmd) \
   (JS_SET_CTRL(1) | \
    SET_MASK(cmd,1,CTRLCMD_BITS) \
@@ -176,17 +182,17 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     // Get considered colour component
 #   define JS_CTRL_USEHUFF_GETCOMP(x)  \
-    static_cast<IntCompID_t>(DEMASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS))
+    static_cast<IntCompID_t>(UDEMASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS))
 #   define JS_CTRL_USEHUFF_SETCOMP(x)  \
     (SET_MASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS))
     // Get DC Table ID
 #   define JS_CTRL_USEHUFF_GETDCTBL(x)  \
-    DEMASK(x,1+CTRLCMD_BITS+INTCOMPID_BITS,HUFF_TBL_ID_BITS)
+    UDEMASK(x,1+CTRLCMD_BITS+INTCOMPID_BITS,HUFF_TBL_ID_BITS)
 #   define JS_CTRL_USEHUFF_SETDCTBL(tbl_id) \
     SET_MASK(tbl_id,1+CTRLCMD_BITS+INTCOMPID_BITS,HUFF_TBL_ID_BITS)
     // Get AC Table ID
 #   define JS_CTRL_USEHUFF_GETACTBL(x)  \
-    DEMASK(x,1+CTRLCMD_BITS+INTCOMPID_BITS+HUFF_TBL_ID_BITS,HUFF_TBL_ID_BITS)
+    UDEMASK(x,1+CTRLCMD_BITS+INTCOMPID_BITS+HUFF_TBL_ID_BITS,HUFF_TBL_ID_BITS)
 #   define JS_CTRL_USEHUFF_SETACTBL(tbl_id) \
     SET_MASK(tbl_id,1+CTRLCMD_BITS+INTCOMPID_BITS+HUFF_TBL_ID_BITS,HUFF_TBL_ID_BITS)
 #   if JPEGCHANNEL_BITS < (1+CTRLCMD_BITS+INTCOMPID_BITS+HUFF_TBL_ID_BITS+HUFF_TBL_ID_BITS)
@@ -209,11 +215,11 @@ enum CtrlCmd_t {
     /*                in case of CTRLCMD_DISCARDHUFF                   */
     /* *************************************************************** */    
 #   define JS_CTRL_DISCARDHUFFTBL_GETHUFFID(x) \
-    static_cast<HuffTblID_t>(DEMASK(x,1+CTRLCMD_BITS,HUFF_TBL_ID_BITS))
+    static_cast<HuffTblID_t>(UDEMASK(x,1+CTRLCMD_BITS,HUFF_TBL_ID_BITS))
 #   define JS_CTRL_DISCARDHUFFTBL_SETHUFFID(id) \
     (SET_MASK(id,1+CTRLCMD_BITS,HUFF_TBL_ID_BITS))
 #   define JS_CTRL_DISCARDHUFFTBL_GETTYPE(x) \
-    static_cast<HuffTblType_t>(DEMASK(x,1+CTRLCMD_BITS+HUFF_TBL_ID_BITS,1))
+    static_cast<HuffTblType_t>(UDEMASK(x,1+CTRLCMD_BITS+HUFF_TBL_ID_BITS,1))
 #   define JS_CTRL_DISCARDHUFFTBL_SETTYPE(type) \
     (SET_MASK(type,1+CTRLCMD_BITS+HUFF_TBL_ID_BITS,1))
 #   if JPEGCHANNEL_BITS < (1+CTRLCMD_BITS+HUFF_TBL_ID_BITS+1)
@@ -234,7 +240,7 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     // (0 <= n < SCANPATTERN_LENGTH)    
 #   define JS_CTRL_NEWSCAN_GETCOMP(x,n) \
-    static_cast<IntCompID_t>(DEMASK(x,1+CTRLCMD_BITS+(n)*INTCOMPID_BITS,INTCOMPID_BITS))
+    static_cast<IntCompID_t>(UDEMASK(x,1+CTRLCMD_BITS+(n)*INTCOMPID_BITS,INTCOMPID_BITS))
 #   define JS_CTRL_NEWSCAN_SETCOMP(comp,n) \
     (SET_MASK(comp,1+CTRLCMD_BITS+(n)*INTCOMPID_BITS,INTCOMPID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+(5)*INTCOMPID_BITS+INTCOMPID_BITS
@@ -266,11 +272,11 @@ enum CtrlCmd_t {
     /*                   in case of CTRLCMD_USEQT                      */
     /* *************************************************************** */    
 #   define JS_CTRL_USEQT_GETQTID(x) \
-    static_cast<QtTblID_t>(DEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
+    static_cast<QtTblID_t>(UDEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
 #   define JS_CTRL_USEQT_SETQTID(qt_id) \
     (SET_MASK(qt_id,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
 #   define JS_CTRL_USEQT_GETCOMPID(x) \
-    static_cast<IntCompID_t>(DEMASK(x,1+CTRLCMD_BITS+QT_TBL_ID_BITS,INTCOMPID_BITS))
+    static_cast<IntCompID_t>(UDEMASK(x,1+CTRLCMD_BITS+QT_TBL_ID_BITS,INTCOMPID_BITS))
 #   define JS_CTRL_USEQT_SETCOMPID(x) \
     (SET_MASK(x,1+CTRLCMD_BITS+QT_TBL_ID_BITS,INTCOMPID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+QT_TBL_ID_BITS+INTCOMPID_BITS
@@ -290,7 +296,7 @@ enum CtrlCmd_t {
     /*                  in case of CTRLCMD_DISCARDQT                   */
     /* *************************************************************** */    
 #   define JS_CTRL_DISCARDQT_GETQTID(x) \
-    (DEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
+    (UDEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
 #   define JS_CTRL_DISCARDQT_SETQTID(qt_id) \
     (SET_MASK(qt_id,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+QT_TBL_ID_BITS
@@ -309,7 +315,7 @@ enum CtrlCmd_t {
     /* *************************************************************** */    
     
 #   define JS_CTRL_INTERNALCOMPSTART_GETCOMPID(x) \
-    static_cast<IntCompID_t>(DEMASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS))
+    static_cast<IntCompID_t>(UDEMASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS))
 #   define JS_CTRL_INTERNALCOMPSTART_SETCOMPID(comp) \
     (SET_MASK(comp,1+CTRLCMD_BITS,INTCOMPID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+INTCOMPID_BITS
@@ -327,7 +333,7 @@ enum CtrlCmd_t {
     /*            in case of CTRLCMD_DEF_RESTART_INTERVAL              */
     /* *************************************************************** */    
 #   define JS_CTRL_RESTART_GET_INTERVAL(x) \
-  static_cast<RestartInterval_t>(DEMASK(x,1+CTRLCMD_BITS,RESTART_INTERVAL_BITS))
+  static_cast<RestartInterval_t>(UDEMASK(x,1+CTRLCMD_BITS,RESTART_INTERVAL_BITS))
 #   define JS_CTRL_RESTART_SET_INTERVAL(interval) \
       (SET_MASK(interval,1+CTRLCMD_BITS, RESTART_INTERVAL_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+ RESTART_INTERVAL_BITS
@@ -345,15 +351,15 @@ enum CtrlCmd_t {
     /*            in case of CTRLCMD_NEWFRAME                          */
     /* *************************************************************** */    
 #   define JS_CTRL_NEWFRAME_GET_DIMX(x) \
-  static_cast<FrameDimX_t>(DEMASK(x,1+CTRLCMD_BITS,FRAME_DIM_X_BITS))
+  static_cast<FrameDimX_t>(UDEMASK(x,1+CTRLCMD_BITS,FRAME_DIM_X_BITS))
 #   define JS_CTRL_NEWFRAME_SET_DIMX(dimX) \
       (SET_MASK(dimX,1+CTRLCMD_BITS,FRAME_DIM_X_BITS))
 #   define JS_CTRL_NEWFRAME_GET_DIMY(x) \
-  static_cast<FrameDimY_t>(DEMASK(x,1+CTRLCMD_BITS+FRAME_DIM_X_BITS,FRAME_DIM_Y_BITS))
+  static_cast<FrameDimY_t>(UDEMASK(x,1+CTRLCMD_BITS+FRAME_DIM_X_BITS,FRAME_DIM_Y_BITS))
 #   define JS_CTRL_NEWFRAME_SET_DIMY(dimY) \
       (SET_MASK(dimY,1+CTRLCMD_BITS+FRAME_DIM_X_BITS,FRAME_DIM_Y_BITS))
 #   define JS_CTRL_NEWFRAME_GET_COMPCOUNT(x) \
-  static_cast<IntCompID_t>(DEMASK(x,1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS,INTCOMPID_BITS))
+  static_cast<IntCompID_t>(UDEMASK(x,1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS,INTCOMPID_BITS))
 #   define JS_CTRL_NEWFRAME_SET_COMPCOUNT(count) \
       (SET_MASK(count,1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS,INTCOMPID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS+INTCOMPID_BITS
@@ -374,7 +380,7 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     //   codeword_t data : the raw something
 # define JS_DATA_GET(x) \
-    static_cast<codeword_t>(DEMASK(x,1,CODEWORD_BITS))
+    static_cast<codeword_t>(UDEMASK(x,1,CODEWORD_BITS))
 # define JS_DATA_SET(x) \
     (JS_SET_CTRL(0) | \
      SET_MASK(x,1,CODEWORD_BITS) \
@@ -389,15 +395,15 @@ enum CtrlCmd_t {
     /*              and tuppled data transmission                      */
     /* *************************************************************** */
 # define JS_TUP_GETIDCTAMPLCOEFF(x) \
-    static_cast<CategoryAmplitude_t>(DEMASK(x,1,CATEGORYAMPLITUDE_BITS))
+    static_cast<CategoryAmplitude_t>(UDEMASK(x,1,CATEGORYAMPLITUDE_BITS))
 # define JS_TUP_SETIDCTAMPLCOEFF(x) \
     (SET_MASK(x,1,CATEGORYAMPLITUDE_BITS))
 # define JS_TUP_GETRUNLENGTH(x) \
-    (DEMASK(x,1+CATEGORYAMPLITUDE_BITS,RUNLENGTH_BITS))
+    (UDEMASK(x,1+CATEGORYAMPLITUDE_BITS,RUNLENGTH_BITS))
 # define JS_TUP_SETRUNLENGTH(x) \
     (SET_MASK(x,1+CATEGORYAMPLITUDE_BITS,RUNLENGTH_BITS))
 # define JS_TUP_GETCATEGORY(x) \
-    (DEMASK(x,1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
+    (UDEMASK(x,1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
 # define JS_TUP_SETCATEGORY(x) \
     (SET_MASK(x,1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
 # if JPEGCHANNEL_BITS < 1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS+CATEGORY_BITS
@@ -418,7 +424,7 @@ enum CtrlCmd_t {
     /*      and quantized IDCT coeff transmission                      */
     /* *************************************************************** */
 # define JS_QCOEFF_GETIDCTCOEFF(x) \
-    static_cast<QuantIDCTCoeff_t>(DEMASK(x,1,QUANTIDCTCOEFF_BITS))
+    static_cast<QuantIDCTCoeff_t>(SDEMASK(x,1,QUANTIDCTCOEFF_BITS))
 # define JS_QCOEFF_SETIDCTCOEFF(x) \
     (SET_MASK(x,1,QUANTIDCTCOEFF_BITS))
 # if JPEGCHANNEL_BITS < 1+QUANTIDCTCOEFF_BITS
@@ -437,7 +443,7 @@ enum CtrlCmd_t {
     /*   and de-quantized IDCT coeff transmission                      */
     /* *************************************************************** */
 # define JS_COEFF_GETIDCTCOEFF(x) \
-    static_cast<IDCTCoeff_t>(DEMASK(x,1,IDCTCOEFF_BITS))
+    static_cast<IDCTCoeff_t>(SDEMASK(x,1,IDCTCOEFF_BITS))
 # define JS_COEFF_SETIDCTCOEFF(x) \
     (SET_MASK(x,1,IDCTCOEFF_BITS))
 # if JPEGCHANNEL_BITS < 1+IDCTCOEFF_BITS
@@ -456,7 +462,7 @@ enum CtrlCmd_t {
     /*   and component value transmission                              */
     /* *************************************************************** */
 # define JS_COMPONENT_GETVAL(x) \
-    static_cast<ComponentVal_t>(DEMASK(x,1,COMPONENTVAL_BITS))
+    static_cast<ComponentVal_t>(UDEMASK(x,1,COMPONENTVAL_BITS))
 # define JS_COMPONENT_SETVAL(x) \
     (SET_MASK(x,1,COMPONENTVAL_BITS))
 # if JPEGCHANNEL_BITS < 1+COMPONENTVAL_BITS

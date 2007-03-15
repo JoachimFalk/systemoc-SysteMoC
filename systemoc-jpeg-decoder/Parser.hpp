@@ -203,8 +203,8 @@ private:
 
   void dhtSendDiscard(){
     // Read table class (AC|DC) and table destination ID
-    HuffTblID_t tblClass = DEMASK(in[0],0,4);
-    HuffTblID_t tblID    = DEMASK(in[0],4,4);
+    HuffTblID_t tblClass = UDEMASK(in[0],0,4);
+    HuffTblID_t tblID    = UDEMASK(in[0],4,4);
 
     JpegChannel_t discardHuff = JS_CTRL_DISCARDHUFFTBL_SET_CHWORD(tblID, tblClass);
     out[0] = discardHuff;
@@ -305,8 +305,8 @@ private:
     scanCompIDs[currentCompCount] = compID; 
 
     // Read DC and AC Selectors
-    HuffTblID_t dcSelector = DEMASK(in[1],0,4);
-    HuffTblID_t acSelector = DEMASK(in[1],4,4);
+    HuffTblID_t dcSelector = UDEMASK(in[1],0,4);
+    HuffTblID_t acSelector = UDEMASK(in[1],4,4);
     
     // Send USEHUFF control command
     JpegChannel_t useHuff = JS_CTRL_USEHUFF_SET_CHWORD(compID,dcSelector,acSelector);
@@ -338,8 +338,8 @@ private:
     scanCompIDs[currentCompCount] = compID; 
 
     // Read DC and AC Selectors
-    HuffTblID_t dcSelector = DEMASK(in[1],0,4);
-    HuffTblID_t acSelector = DEMASK(in[1],4,4);
+    HuffTblID_t dcSelector = UDEMASK(in[1],0,4);
+    HuffTblID_t acSelector = UDEMASK(in[1],4,4);
     
     // Send USEHUFF control command
     JpegChannel_t useHuff = JS_CTRL_USEHUFF_SET_CHWORD(compID,dcSelector,acSelector);

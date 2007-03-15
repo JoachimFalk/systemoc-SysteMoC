@@ -102,7 +102,9 @@ private:
 
   // Perform DC decoding
   void decode_dc(){
-    DBG_OUT("Perform DC decoding" << endl);
+    DBG_OUT("Perform DC decoding (comp = " << comp_id << "):");
+    DBG_OUT(" Input: " << JS_QCOEFF_GETIDCTCOEFF(in[0]));
+    DBG_OUT(", Prev: " << prev_DC[comp_id]);
     
     //assert(comp_id >= 0);
     //Check, that comp_id is not signed
@@ -119,6 +121,10 @@ private:
     pixel_id++;
     if(pixel_id >= JPEG_BLOCK_SIZE)
       pixel_id = 0;
+    
+    //output DC coefficient
+    DBG_OUT(", DC= " << prev_DC[comp_id] << endl);
+    
   }
 
   void forward_ac(){
