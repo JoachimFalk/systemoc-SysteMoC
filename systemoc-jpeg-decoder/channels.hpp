@@ -24,7 +24,29 @@ typedef int32_t   int19_t;
 
 /// JPEG channel communication type
 #define JPEGCHANNEL_BITS 29
+#ifndef NDEBUG
+class JpegChannel_t {
+public:
+  typedef JpegChannel_t this_type;
+protected:
+  uint29_t val;
+public:
+  JpegChannel_t(uint29_t _val): val(_val) {}
+  JpegChannel_t()                         {}
+
+  this_type &operator = (uint29_t _val)
+    { val = _val; return *this; }
+  this_type &operator |= (uint29_t _val)
+    { val |= _val; return *this; }
+
+  operator uint29_t() const
+    { return val; }
+};
+
+std::ostream &operator << (std::ostream &out, const JpegChannel_t &x);
+#else
 typedef uint29_t JpegChannel_t;
+#endif
 
 #define CODEWORD_BITS 8
 typedef uint8_t codeword_t;
@@ -176,6 +198,7 @@ enum CtrlCmd_t {
     // Ci_DC: DC-Table ID for colour component Ci
     // Ci_AC: AC-Table ID for colour component Ci
 #   define JS_CTRL_USEHUFF_SET_CHWORD(COMP_ID,DC_ID,AC_ID) \
+  static_cast<JpegChannel_t> \
   (JS_SETCTRLCMD(CTRLCMD_USEHUFF) |  \
    JS_CTRL_USEHUFF_SETCOMP(COMP_ID) | \
    JS_CTRL_USEHUFF_SETDCTBL(DC_ID) | \
@@ -199,6 +222,7 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_DISCARDHUFFTBL_SET_CHWORD(id,type) \
+    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_DISCARDHUFF) |               \
      JS_CTRL_DISCARDHUFFTBL_SETHUFFID(id) | \
      JS_CTRL_DISCARDHUFFTBL_SETTYPE(type) \
@@ -219,6 +243,7 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_NEWSCAN_SET_CHWORD(C0,C1,C2,C3,C4,C5)  \
+    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_NEWSCAN) |                       \
      JS_CTRL_NEWSCAN_SETCOMP(C0,0) | \
      JS_CTRL_NEWSCAN_SETCOMP(C1,1) | \
@@ -234,6 +259,7 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     //  Does not have any parameters!
 #   define JS_CTRL_SCANRESTART_SET_CHWORD  \
+    static_cast<JpegChannel_t> \
     JS_SETCTRLCMD(CTRLCMD_SCANRESTART)
 
     /* *************************************************************** */
@@ -253,6 +279,7 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_USEQT_SET_CHWORD(QT_ID,COMP_ID)  \
+    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_USEQT) |                   \
      JS_CTRL_USEQT_SETQTID(QT_ID) | \
      JS_CTRL_USEQT_SETCOMPID(COMP_ID) \
@@ -272,6 +299,7 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_DISCARDQT_SET_CHWORD(QT_ID)  \
+    static_cast<JpegChannel_t> \
     ( JS_SETCTRLCMD(CTRLCMD_DISCARDQT) | \
       JS_CTRL_DISCARDQT_SETQTID(QT_ID) \
     )
@@ -290,6 +318,7 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_INTERNALCOMPSTART_SET_CHWORD(comp)  \
+    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_INTERNALCOMPSTART) | \
      JS_CTRL_INTERNALCOMPSTART_SETCOMPID(comp) \
      )
@@ -307,6 +336,7 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_DEF_RESTART_INTERVAL_SET_CHWORD(interval) \
+    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_DEF_RESTART_INTERVAL) | \
      JS_CTRL_RESTART_SET_INTERVAL(interval) \
     )
@@ -332,6 +362,7 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_NEWFRAME_SET_CHWORD(dimX,dimY,count) \
+    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_NEWFRAME) | \
      JS_CTRL_NEWFRAME_SET_DIMX(dimX) | \
      JS_CTRL_NEWFRAME_SET_DIMY(dimY) | \
@@ -375,6 +406,7 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_DATA_TUPPLED_SET_CHWORD(coeff,rle,cat)    \
+    static_cast<JpegChannel_t> \
     (JS_SET_CTRL(0) | \
      JS_TUP_SETIDCTAMPLCOEFF(coeff) | \
      JS_TUP_SETRUNLENGTH(rle) | \
@@ -395,6 +427,7 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_DATA_QCOEFF_SET_CHWORD(coeff)    \
+    static_cast<JpegChannel_t> \
     (JS_SET_CTRL(0) | \
     JS_QCOEFF_SETIDCTCOEFF(coeff) \
      )
@@ -413,6 +446,7 @@ enum CtrlCmd_t {
 
    // Write complete channel word    
 #   define JS_DATA_COEFF_SET_CHWORD(coeff)    \
+    static_cast<JpegChannel_t> \
     (JS_SET_CTRL(0) | \
     JS_COEFF_SETIDCTCOEFF(coeff) \
      )
