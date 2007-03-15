@@ -344,9 +344,43 @@ private:
     m_tmpHuff.huffVal[m_huffWritePos++] = in[0];
   }
 
+#if 0
+  //
+  int getHUFFSIZE(const uint8_t valPtr[16], const uint8_t pos) const {
+    int tablePos = m_BITS[0];
+    int codeSize = 1;
+
+    while (tablePos < pos) {
+      codeSize++;
+      assert(codeSize < 17);
+      tablePos += m_BITS[codeSize - 1];
+    }
+    assert(pos <= tablePos);
+    return codeSize;
+  }
+#endif
+ 
   //
   void finishTable() {
     DBG_OUT("finishTable()\n");
+
+#if 0
+    // precalculate valPtr for use of getHUFFSIZE() which is buggy right now.
+    //  in future this could save HUFFSIZE[256] table.
+    {
+      int codePos = 0;
+      for (int i = 0; i < 16; ++i) { // i + 1 == CodeSize
+        if (m_BITS[i] != 0) {
+          m_tmpHuff.valPtr[i] = codePos;
+          codePos = codePos + m_BITS[i] - 1;
+          ++codePos;
+          DBG_OUT("  code size " << i + 1
+                  << ", valPtr: " << (int)m_tmpHuff.valPtr[i]
+                  << std::endl);
+        }
+      }
+    }
+#endif
 
     // HUFFSIZE table (huffmann code sizes) - p.51 C.1
     // FIXME: omit table and calculate this ad hoc to save mem
@@ -354,8 +388,11 @@ private:
 
     int tablePos = 0;
     for (int i = 0; i < 16; ++i) {
-      for (int j = 0; j < m_BITS[i]; ++j)
+      for (int j = 0; j < m_BITS[i]; ++j) {
         HUFFSIZE[tablePos++] = i + 1;
+        //assert(HUFFSIZE[tablePos - 1] ==
+        //                getHUFFSIZE(m_tmpHuff.valPtr, tablePos - 1));
+      }
     }
     const int totalCodes = tablePos;
 
@@ -376,6 +413,8 @@ private:
     }
 
     // MINCODE, MAXCODE, and VALPTR - p.108 F.15
+    // NOTE: we use unsigned 16bit values for min and max! test for 0xffff in
+    // decode() function in addition to code > maxcode(i) in F.16.
     int codePos = 0;
     DBG_OUT("Calculate 16-value tables\n");
     for (int i = 0; i < 16; ++i) { // i + 1 == CodeSize
