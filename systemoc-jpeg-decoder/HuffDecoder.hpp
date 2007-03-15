@@ -68,7 +68,7 @@ struct ExpHuffTbl {
 };
 
 // if compiled with DBG_HUFF_DECODER create stream and include debug macros
-#define DBG_HUFF_DECODER
+//#define DBG_HUFF_DECODER
 #ifdef DBG_HUFF_DECODER
   #include <cosupport/smoc_debug_out.hpp>
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
@@ -81,11 +81,11 @@ struct ExpHuffTbl {
 #endif
 
 
-#define IS_TABLE_CLASS_DC(v) ((v) & 0xF0 == 0x00)
-#define IS_TABLE_CLASS_AC(v) ((v) & 0xF0 == 0x10)
+#define IS_TABLE_CLASS_DC(v) (((v) & 0xF0) == 0x00)
+#define IS_TABLE_CLASS_AC(v) (((v) & 0xF0) == 0x10)
 
-#define IS_TABLE_DEST_ZERO(v) ((v) & 0x0F == 0x00)
-#define IS_TABLE_DEST_ONE(v) ((v) & 0x0F == 0x01)
+#define IS_TABLE_DEST_ZERO(v) (((v) & 0x0F) == 0x00)
+#define IS_TABLE_DEST_ONE(v) (((v) & 0x0F) == 0x01)
 
 enum HuffTableType {
   AC0,

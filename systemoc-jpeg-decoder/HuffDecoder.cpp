@@ -121,8 +121,8 @@ void HuffTblDecoder::storeBITS() {
   for (int i = 0; i < 16; ++i) {
     m_BITS[i] = in[i];
     totalCodes += m_BITS[i];
-    //DBG_OUT("  codewords with length " << i+1 << " occure " << (int)m_BITS[i]
-    //        << " times.\n");
+    DBG_OUT("  codewords with length " << i+1 << " occure " << (int)m_BITS[i]
+            << " times.\n");
   }
   DBG_OUT("  total codewords: " << totalCodes << std::endl);
 
@@ -134,8 +134,8 @@ void HuffTblDecoder::storeBITS() {
 void HuffTblDecoder::storeHUFFVAL() {
   assert(m_symbolsLeft);
   --m_symbolsLeft;
-  //DBG_OUT("storeHUFFVAL(): write pos: " << m_huffWritePos << "; "
-  //        << m_symbolsLeft << " bytes left now\n");
+  DBG_OUT("storeHUFFVAL(): write pos: " << m_huffWritePos << "; "
+          << m_symbolsLeft << " bytes left now\n");
   m_tmpHuff.huffVal[m_huffWritePos++] = in[0];
 }
 
