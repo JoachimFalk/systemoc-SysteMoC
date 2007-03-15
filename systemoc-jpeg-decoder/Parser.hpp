@@ -194,35 +194,48 @@ private:
   void foundDHT1() {
     DBG_OUT("Found DHT in Level 1\n");
     readBytes += 2;
-    // debug synchronisazion
-    outCodedHuffTbl[0] = DHT_SYNC;
-    outCodedHuffTbl[1] = DHT_SYNC;
   }
 
   void foundDHT2() {
     DBG_OUT("Found DHT in Level 2\n");
     readBytes += 2;
-    // debug synchronisazion
-    outCodedHuffTbl[0] = DHT_SYNC;
-    outCodedHuffTbl[1] = DHT_SYNC;
   }
 
-  void dhtSendLength(){
-    DBG_OUT("Send DHT length to HuffDecoder: 0x" << hex << (unsigned int)in[0] << " "
-            << (unsigned int)in[1] << dec << endl);
+  void dhtSendDiscard(){
+    // Read table class (AC|DC) and table destination ID
+    HuffTblID_t tblClass = DEMASK(in[0],0,4);
+    HuffTblID_t tblID    = DEMASK(in[0],4,4);
+
+    JpegChannel_t discardHuff = JS_CTRL_DISCARDHUFFTBL_SET_CHWORD(tblID, tblClass);
+    out[0] = discardHuff;
+    DBG_OUT("Send control command DISCARDHUFFTBL 0x" << hex << (unsigned int)discardHuff << dec <<
+              " (Type: 0x" << hex << (unsigned int)JS_CTRL_DISCARDHUFFTBL_GETTYPE(discardHuff) << dec <<
+              ", ID: 0x" << hex << (unsigned int)JS_CTRL_DISCARDHUFFTBL_GETHUFFID(discardHuff) << dec << ")\n"); 
+
+    // Send info to Huffman management
     outCodedHuffTbl[0] = in[0];
-    outCodedHuffTbl[1] = in[1];
-    readLengthField();
+    DBG_OUT("Send table info to Huffman management: 0x" << hex << (unsigned int)in[0] << dec << std::endl);
+    
+    // set htCount to number of Huffman length fields
+    htCount = 16;
+    htLength = 0;
+    readBytes += 1;
+    lengthField -= 1;
   }
 
-  void dhtSendByte(){
+  void dhtSendLength() {
+    htLength += in[0];
     outCodedHuffTbl[0] = in[0];
-    decLengthField();
-    DBG_OUT("0x" << hex << (unsigned int)in[0] << dec);
-    if (lengthField) 
-      DBG_OUT(" | ");
-    else
-      DBG_OUT("\n");
+    htCount--;
+    readBytes += 1;
+    lengthField -= 1;
+  }
+
+  void dhtSendData() {
+    outCodedHuffTbl[0] = in[0];
+    htLength--;
+    readBytes += 1;
+    lengthField -= 1;
   }
 
   // ########################################################################################
@@ -563,6 +576,10 @@ private:
   QtTblID_t currentQT; 
   uint16_t qtLength;
 
+  // huffman table variable
+  uint16_t htLength;
+  uint8_t htCount;
+
   // number of bytes processed by the parser
   uint32_t readBytes;
 
@@ -579,6 +596,7 @@ private:
   // # States
   // ########################################################################################
 
+    
   smoc_firing_state start, 
     frame, frameFF, 
     sos1, sos1ReadCompCount, sos1ReadComp, skipSos1, 
@@ -588,7 +606,9 @@ private:
     dqt1, sendDqt1Header, sendDqt1Data, 
     dqt2_1, sendDqt2_1Header, sendDqt2_1Data, 
     dqt2_x, sendDqt2_xHeader, sendDqt2_xData, 
-    dht1, sendDht1, dht2_1, sendDht2_1, dht2_x, sendDht2_x, 
+    dht1, dht1SendDiscard, dht1SendLengthInfo, dht1SendData,
+    dht2_1, dht2_1SendDiscard, dht2_1SendLengthInfo, dht2_1SendData,
+    dht2_x, dht2_xSendDiscard, dht2_xSendLengthInfo, dht2_xSendData,
     dri1, skipDri1, dri2_1, skipDri2_1, dri2_x, skipDri2_x, 
     com1, skipCom1, com2_1, skipCom2_1, com2_x, skipCom2_x, 
     app1, skipApp1, app2_1, skipApp2_1, app2_x, skipApp2_x, 
@@ -643,7 +663,6 @@ public:
               >> CALL(Parser::foundDQT1) 
               >> dqt1 
             | (in(1) && JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
-              >> outCodedHuffTbl(2) 
               >> CALL(Parser::foundDHT1) 
               >> dht1 
             | (in(1) && JPEG_IS_MARKER_DRI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
@@ -687,7 +706,6 @@ public:
     dqt1 = in(2) 
            >> CALL(Parser::readLengthField) 
            >> sendDqt1Header;
-           
     sendDqt1Header = (in(1) && 
                        ((in.getValueAt(0) & 0xF0) == 0x00) && // 8 bit?
                        ((in.getValueAt(0) & 0x0F) == 0x00))   // QT ID == 0
@@ -774,26 +792,50 @@ public:
                    >> CALL(Parser::sendDqtData) 
                    >> frame;
     // Process Define Huffman Table (DHT) maker at level 1 (see Section B.2.4.2)
-    // L_h: length field
-    // D_i: data
-    // Action:
-    // Send raw data (including length field) to Huffman decoder
-    // -----------------------------------------------------------------------------------------
-    // | L_h | D_0 | D_1 | ... | D_(L_h-3) | remaining image data 
-    // -----------------------------------------------------------------------------------------
+    // Note: DHT may contain several Huffman tables
+    // Lh: length field
+    // Tc: type class (AC or DC)
+    // Th: Huffman table ID
+    // Li: Number of Huffman codes of length i
+    // Di,j: data
+    // Actions:
+    // - For each table Send control command DISCARDHUFFTBL for (Tc,Th)
+    // - Send TC, Th, Li, Di,j to Huffmann management
+    // -----------------------------------------------------------------------------
+    // | Lh | Tc | Th | L1 | L2 | ... | L16 | D1,1 | D1,2 | ... | D1,L1 | D2,1 | ... 
+    // -----------------------------------------------------------------------------
+    // ------------------------------------
+    // ... | D16,L16 | remaining image data 
+    // ------------------------------------
+    // Note: L1 ... D16,L16 may repeat n times
     // destination state is: frame
     dht1 =     in(2) 
-               >> outCodedHuffTbl(2) 
-               >> CALL(Parser::dhtSendLength) 
-               >> sendDht1;
-    sendDht1 = (in(1) && (VAR(lengthField)!=1)) 
-               >> outCodedHuffTbl(1) 
-               >> CALL(Parser::dhtSendByte) 
-               >> sendDht1
-             | (in(1) && (VAR(lengthField)==1)) 
-               >> outCodedHuffTbl(1) 
-               >> CALL(Parser::dhtSendByte) 
-               >> frame;
+               >> CALL(Parser::readLengthField) 
+               >> dht1SendDiscard;
+    dht1SendDiscard = in(1) 
+                      >> (out(1) && outCodedHuffTbl(1)) 
+                      >> CALL(Parser::dhtSendDiscard) 
+                      >> dht1SendLengthInfo;
+    dht1SendLengthInfo = (in(1) && (VAR(htCount)!=1)) 
+                         >> outCodedHuffTbl(1) 
+                         >> CALL(Parser::dhtSendLength) 
+                         >> dht1SendLengthInfo
+                       | (in(1) && (VAR(htCount) == 1))
+                         >> outCodedHuffTbl(1) 
+                         >> CALL(Parser::dhtSendLength) 
+                         >> dht1SendData;
+    dht1SendData = (in(1) && (VAR(htLength) != 1))
+                   >> outCodedHuffTbl(1) 
+                   >> CALL(Parser::dhtSendData) 
+                   >> dht1SendData
+                 | (in(1) && (VAR(htLength) == 1 && VAR(lengthField) != 1))
+                   >> outCodedHuffTbl(1) 
+                   >> CALL(Parser::dhtSendData) 
+                   >> dht1SendDiscard
+                 | (in(1) && (VAR(htLength) == 1 && VAR(lengthField) == 1))
+                   >> outCodedHuffTbl(1) 
+                   >> CALL(Parser::dhtSendData) 
+                   >> frame;
     dri1 = in(2) 
            >> CALL(Parser::readLengthField) 
            >> skipDri1;
@@ -925,7 +967,6 @@ public:
               >> dqt2_1 
             | (in(1) && 
               JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
-              >> outCodedHuffTbl(2) 
               >> CALL(Parser::foundDHT2) 
               >> dht2_1 
             | (in(1) && 
@@ -1089,27 +1130,52 @@ public:
                      >> qt_table_3(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> scan1;
-    // Process Define Huffman Table (DHT) maker at level 2 scan 1 (see Section B.2.4.2)
-    // L_h: length field
-    // D_i: data
-    // Action:
-    // Send raw data (including length field) to Huffman decoder
-    // -----------------------------------------------------------------------------------------
-    // | L_h | D_0 | D_1 | ... | D_(L_h-3) | remaining image data 
-    // -----------------------------------------------------------------------------------------
+    // Process Define Huffman Table (DHT) maker at level 1 (see Section B.2.4.2)
+    // Note: DHT may contain several Huffman tables
+    // Lh: length field
+    // Tc: type class (AC or DC)
+    // Th: Huffman table ID
+    // Li: Number of Huffman codes of length i
+    // Di,j: data
+    // Actions:
+    // - For each table Send control command DISCARDHUFFTBL for (Tc,Th)
+    // - Send TC, Th, Li, Di,j to Huffmann management
+    // -----------------------------------------------------------------------------
+    // | Lh | Tc | Th | L1 | L2 | ... | L16 | D1,1 | D1,2 | ... | D1,L1 | D2,1 | ... 
+    // -----------------------------------------------------------------------------
+    // ------------------------------------
+    // ... | D16,L16 | remaining image data 
+    // ------------------------------------
+    // Note: L1 ... D16,L16 may repeat n times
     // destination state is: scan1
     dht2_1 = in(2) 
-             >> outCodedHuffTbl(2) 
-             >> CALL(Parser::dhtSendLength) 
-             >> sendDht2_1;
-    sendDht2_1 = (in(1) && (VAR(lengthField)!=1)) 
-                 >> outCodedHuffTbl(1) 
-                 >> CALL(Parser::dhtSendByte) 
-                 >> sendDht2_1
-               | (in(1) && (VAR(lengthField)==1)) 
-                 >> outCodedHuffTbl(1) 
-                 >> CALL(Parser::dhtSendByte) 
-                 >> scan1;
+             >> CALL(Parser::readLengthField) 
+             >> dht2_1SendDiscard;
+    dht2_1SendDiscard = in(1) 
+                        >> (out(1) && outCodedHuffTbl(1)) 
+                        >> CALL(Parser::dhtSendDiscard) 
+                        >> dht2_1SendLengthInfo;
+    dht2_1SendLengthInfo = (in(1) && (VAR(htCount)!=1)) 
+                           >> outCodedHuffTbl(1) 
+                           >> CALL(Parser::dhtSendLength) 
+                           >> dht2_1SendLengthInfo
+                         | (in(1) && (VAR(htCount) == 1))
+                           >> outCodedHuffTbl(1) 
+                           >> CALL(Parser::dhtSendLength) 
+                           >> dht2_1SendData;
+    dht2_1SendData = (in(1) && (VAR(htLength) != 1))
+                     >> outCodedHuffTbl(1) 
+                     >> CALL(Parser::dhtSendData) 
+                     >> dht2_1SendData
+                   | (in(1) && (VAR(htLength) == 1 && VAR(lengthField) != 1))
+                     >> outCodedHuffTbl(1) 
+                     >> CALL(Parser::dhtSendData) 
+                     >> dht2_1SendDiscard
+                   | (in(1) && (VAR(htLength) == 1 && VAR(lengthField) == 1))
+                     >> outCodedHuffTbl(1) 
+                     >> CALL(Parser::dhtSendData) 
+                     >> scan1;
+    
     dri2_1 = in(2) >> CALL(Parser::readLengthField) >> skipDri2_1;
     skipDri2_1 = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDri2_1
                | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scan1;
@@ -1183,7 +1249,6 @@ public:
              >> dnl 
            | (in(1) && 
                JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
-             >> outCodedHuffTbl(2) 
              >> CALL(Parser::foundDHT2) 
              >> dht2_x 
            | (in(1) && 
@@ -1424,27 +1489,52 @@ public:
                      >> qt_table_3(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> scanx;
-    // Process Define Huffman Table (DHT) maker at level 2 scan (x>1) (see Section B.2.4.2)
-    // L_h: length field
-    // D_i: data
-    // Action:
-    // Send raw data (including length field) to Huffman decoder
-    // -----------------------------------------------------------------------------------------
-    // | L_h | D_0 | D_1 | ... | D_(L_h-3) | remaining image data 
-    // -----------------------------------------------------------------------------------------
+    // Process Define Huffman Table (DHT) maker at level 1 (see Section B.2.4.2)
+    // Note: DHT may contain several Huffman tables
+    // Lh: length field
+    // Tc: type class (AC or DC)
+    // Th: Huffman table ID
+    // Li: Number of Huffman codes of length i
+    // Di,j: data
+    // Actions:
+    // - For each table Send control command DISCARDHUFFTBL for (Tc,Th)
+    // - Send TC, Th, Li, Di,j to Huffmann management
+    // -----------------------------------------------------------------------------
+    // | Lh | Tc | Th | L1 | L2 | ... | L16 | D1,1 | D1,2 | ... | D1,L1 | D2,1 | ... 
+    // -----------------------------------------------------------------------------
+    // ------------------------------------
+    // ... | D16,L16 | remaining image data 
+    // ------------------------------------
+    // Note: L1 ... D16,L16 may repeat n times
     // destination state is: scanx
     dht2_x = in(2) 
-             >> outCodedHuffTbl(2) 
-             >> CALL(Parser::dhtSendLength) 
-             >> sendDht2_x;
-    sendDht2_x = (in(1) && (VAR(lengthField)!=1)) 
-                 >> outCodedHuffTbl(1) 
-                 >> CALL(Parser::dhtSendByte) 
-                 >> sendDht2_x
-               | (in(1) && (VAR(lengthField)==1)) 
-                 >> outCodedHuffTbl(1) 
-                 >> CALL(Parser::dhtSendByte) 
-                 >> scanx;
+           >> CALL(Parser::readLengthField) 
+           >> dht2_xSendDiscard;
+    dht2_xSendDiscard = in(1) 
+                        >> (out(1) && outCodedHuffTbl(1)) 
+                        >> CALL(Parser::dhtSendDiscard) 
+                        >> dht2_xSendLengthInfo;
+    dht2_xSendLengthInfo = (in(1) && (VAR(htCount)!=1)) 
+                           >> outCodedHuffTbl(1) 
+                           >> CALL(Parser::dhtSendLength) 
+                           >> dht2_xSendLengthInfo
+                         | (in(1) && (VAR(htCount) == 1))
+                           >> outCodedHuffTbl(1) 
+                           >> CALL(Parser::dhtSendLength) 
+                           >> dht2_xSendData;
+    dht2_xSendData = (in(1) && (VAR(htLength) != 1))
+                     >> outCodedHuffTbl(1) 
+                     >> CALL(Parser::dhtSendData) 
+                     >> dht2_xSendData
+                   | (in(1) && (VAR(htLength) == 1 && VAR(lengthField) != 1))
+                     >> outCodedHuffTbl(1) 
+                     >> CALL(Parser::dhtSendData) 
+                     >> dht2_xSendDiscard
+                   | (in(1) && (VAR(htLength) == 1 && VAR(lengthField) == 1))
+                     >> outCodedHuffTbl(1) 
+                     >> CALL(Parser::dhtSendData) 
+                     >> scanx;
+    
     dri2_x = in(2) >> CALL(Parser::readLengthField) >> skipDri2_x;
     skipDri2_x = (in(1) && (VAR(lengthField)!=1)) >> CALL(Parser::decLengthField) >> skipDri2_x
                | (in(1) && (VAR(lengthField)==1)) >> CALL(Parser::decLengthField) >> scanx;
@@ -1489,8 +1579,9 @@ public:
     ecsx = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
            >> ecsxFF
          | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
+           >> out(1)
            >> CALL(Parser::sendData) 
-           >> ecs1;
+           >> ecsx;
     ecsxFF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) 
              >> CALL(Parser::incReadBytes)
              >> ecsxFF
@@ -1513,7 +1604,6 @@ public:
              >> dqt2_x 
            | (in(1) && 
                JPEG_IS_MARKER_DHT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
-             >> outCodedHuffTbl(2) 
              >> CALL(Parser::foundDHT2) 
              >> dht2_x 
            | (in(1) && 
