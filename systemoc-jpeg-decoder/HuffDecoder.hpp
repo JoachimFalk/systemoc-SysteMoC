@@ -304,7 +304,7 @@ private:
       //DBG_OUT("  codewords with length " << i+1 << " occure " << (int)m_BITS[i]
       //        << " times.\n");
     }
-    DBG_OBJ("  total codewords: " << totalCodes << std::endl);
+    //DBG_OBJ("  total codewords: " << totalCodes << std::endl);
 
     m_symbolsLeft = totalCodes;
   }
