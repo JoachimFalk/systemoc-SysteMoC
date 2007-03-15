@@ -74,21 +74,21 @@ public:
 private:
 
   void discard_qt_table(unsigned int table_id){
-    dbgout << "Discard QT table with ID " << table_id << endl;
+    DBG_OUT("Discard QT table with ID " << table_id << endl);
 
     //forward control word
     forward_command();
   }
 
   void illegal_qt_id(){    
-    dbgout << "Found illegal QT table"  << endl;
+    DBG_OUT("Found illegal QT table"  << endl);
   }
 
   /// Stores for each colour component which QT table to use
   unsigned char qt_id[JPEG_MAX_COLOR_COMPONENTS];
   void use_qt_table() {
-    dbgout << "Store QT index which has to be used" << endl;
-    dbgout << CoSupport::Indent::Up;
+    DBG_OUT("Store QT index which has to be used" << endl);
+    DBG_OUT(dbgout << CoSupport::Indent::Up);
 
     IntCompID_t comp_id = JS_CTRL_USEQT_GETCOMPID(in[0]);
 
@@ -99,31 +99,31 @@ private:
     assert(comp_id < JPEG_MAX_COLOR_COMPONENTS);
 
     qt_id[comp_id] = JS_CTRL_USEQT_GETQTID(in[0]);    
-    dbgout << "Component " << comp_id << ": " << qt_id[comp_id] << endl;
+    DBG_OUT("Component " << comp_id << ": " << qt_id[comp_id] << endl);
 
-    dbgout << CoSupport::Indent::Down;
+    DBG_OUT(CoSupport::Indent::Down);
 
     forward_command();
   }
 
   /// Stores which component will follow next
-  unsigned char comp_id;
+  IntCompID_t comp_id;
   void store_comp_id(){
-    dbgout << "Store which component will follow next" << endl;
-    dbgout << CoSupport::Indent::Up;
+    DBG_OUT("Store which component will follow next" << endl);
+    DBG_OUT(CoSupport::Indent::Up);
 
     //forward control word
     forward_command();
 
     comp_id = JS_CTRL_INTERNALCOMPSTART_GETCOMPID(in[0]);
-    dbgout << "Next component: " << comp_id << endl;
+    DBG_OUT("Next component: " << comp_id << endl);
 
-    dbgout << CoSupport::Indent::Down;
+    DBG_OUT(CoSupport::Indent::Down);
   }
 
   ///Forward commands
   void forward_command(){
-    dbgout << "Forward command" << endl;
+    DBG_OUT("Forward command" << endl);
     out[0] = in[0];
   }
 
@@ -134,7 +134,7 @@ private:
   void quantize2(){ quantize(2); }
   void quantize3(){ quantize(3); }
   void quantize(unsigned int qt_tb){
-    dbgout << "Perform QT with table ID " << qt_tb  << endl;
+    DBG_OUT("Perform QT with table ID " << qt_tb  << endl);
 
     IDCTCoeff_t temp;
     switch (qt_tb){
@@ -151,7 +151,7 @@ private:
       temp = JS_QCOEFF_GETIDCTCOEFF(in[0]) * qt_table_3[block_pixel_id];
       break;
     default:
-      dbgout << "Illegal QT table!" << qt_tb  << endl;
+      DBG_OUT("Illegal QT table!" << qt_tb  << endl);
     }
 
     out[0] = JS_DATA_COEFF_SET_CHWORD(temp);
@@ -177,7 +177,7 @@ public:
     : smoc_actor(name, main),
       comp_id(0),
       block_pixel_id(0),
-      dbgout(std::cerr)
+      dbgout(std::cout)
   {
 
     //Set Debug ostream options

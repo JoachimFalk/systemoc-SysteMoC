@@ -1,5 +1,5 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
-// vim: set sw=2 ts=8 sts=2 et:
+// vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_INV_ZIGZAG_HPP
-#define _INCLUDED_INV_ZIGZAG_HPP
+#ifndef _INCLUDED_BLOCKSINK_HPP
+#define _INCLUDED_BLOCKSINK_HPP
 
 #include <cstdlib>
 #include <iostream>
@@ -43,60 +43,41 @@
 #include <stdlib.h>
 
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_node_types.hpp>
-
 #include "channels.hpp"
 
-/// This actor takes the IDCT coefficients arriving in zig-zag order
-/// and outputs them in a line based manner.
-class InvZigZag: public smoc_actor {
+#define ONAMEblk "test_out.dat"
+
+class m_block_sink: public smoc_actor {
 public:
-  smoc_port_in<JpegChannel_t> in;
-  smoc_port_out<IDCTCoeff_t>  out;
+  smoc_port_in<IDCTCoeff_t> in;
 private:
+  std::ofstream fo; 
 
-  static const unsigned char zigzag_order[JPEG_BLOCK_SIZE];
+  unsigned int pixel_id;
+  
+  void process() {
+    fo << in[0] << ",";
+    pixel_id = (pixel_id+1) % JPEG_BLOCK_SIZE;    
 
-  unsigned int block_pixel_id;
+    if ((pixel_id % JPEG_BLOCK_WIDTH) == 0)
+      //end of line
+      fo << endl;
 
-  void forward_pixel(){
-    // Check, that no control words occur any more
-    // Otherwise we produce wrong data!
-    assert(!JS_ISCTRL(in[zigzag_order[block_pixel_id]]));
-    out[0] = JS_COEFF_GETIDCTCOEFF(in[zigzag_order[block_pixel_id]]);
-    block_pixel_id++;
-    if (block_pixel_id >= JPEG_BLOCK_SIZE){
-      block_pixel_id = 0;
-    }
+    if (pixel_id == 0)
+      //new block
+      fo << endl;
   }
-
-  smoc_firing_state main;
+  
+  smoc_firing_state start;
 public:
-  InvZigZag(sc_module_name name)
-    : smoc_actor(name, main),
-      block_pixel_id(0)
+  m_block_sink( sc_module_name name )
+    : smoc_actor( name, start ),
+      fo(ONAMEblk),
+      pixel_id(0)
   {
-    main
-      // ignore and forward control tokens
-      = ( in(0,JPEG_BLOCK_SIZE) && out(1))       >>
-      (VAR(block_pixel_id) != (unsigned int)JPEG_BLOCK_SIZE-1) >>
-      CALL(InvZigZag::forward_pixel)             >> main
-      | ( in(JPEG_BLOCK_SIZE) && out(1))         >>
-      (VAR(block_pixel_id) == (unsigned int)JPEG_BLOCK_SIZE-1) >>
-      CALL(InvZigZag::forward_pixel)             >> main;
+    start = in(1) >> CALL(m_block_sink::process)  >> start;
   }
+  
 };
 
-const unsigned char InvZigZag::zigzag_order[JPEG_BLOCK_SIZE] =
-  {  0, 1, 5, 6,14,15,27,28,
-     2, 4, 7,13,16,26,29,42,
-     3, 8,12,17,25,30,41,43,
-     9,11,18,24,31,40,44,53,
-    10,19,23,32,39,45,52,54,
-    20,22,33,38,46,51,55,60,
-    21,34,37,47,50,56,59,61,
-    35,36,48,49,57,58,62,63
-  };
-
-
-#endif // _INCLUDED_INV_ZIGZAG_HPP
+#endif

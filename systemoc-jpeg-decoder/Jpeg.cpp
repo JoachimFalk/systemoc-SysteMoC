@@ -117,7 +117,7 @@ public:
     connectNodePorts<1>(mCtrlSieve.out,           mInvZigZag.in);
     
     //InvZigZag -> IDCT, IDCT -> mRound
-    //connectNodePorts<64>(mInvZigZag.out, mBlock2Row.b);
+    connectNodePorts<64>(mInvZigZag.out, mBlock2Row.b);
     
     connectNodePorts<16>(mBlock2Row.C0, mIDCT2D.i0);
     connectNodePorts<16>(mBlock2Row.C1, mIDCT2D.i1);
