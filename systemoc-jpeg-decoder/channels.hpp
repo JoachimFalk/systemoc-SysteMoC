@@ -458,4 +458,9 @@ std::ostream &operator << (std::ostream &out, const ImageParam &val)
 return out; }
 */
 
+std::ostream &operator << (std::ostream &out, const codeword_t val) {
+  out << (unsigned int) val;
+  return out;
+}
+
 #endif // _INCLUDED_CHANNELS_HPP
