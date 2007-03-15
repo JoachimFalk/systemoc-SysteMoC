@@ -212,25 +212,14 @@ public:
   smoc_port_out<ExpHuffTbl> outHuffTblDC1;
 
   HuffTblDecoder(sc_module_name name)
-    : smoc_actor(name, main),
-      m_bytesLeft(0),
+    : smoc_actor(name, waitTcTh),
+      m_symbolsLeft(0),
       m_huffWritePos(0),
       dbgout(std::cerr)
   {
     CoSupport::Header myHeader("HuffTblDecoder> ");
 
     dbgout << myHeader;
-
-    main
-      // collect data
-      = ( in(2) && IS_DHT_SYNC(in.getValueAt(0))    &&
-          IS_DHT_SYNC(in.getValueAt(1)) )           >>
-        CALL(HuffTblDecoder::start)                 >> waitLength;
-
-    waitLength
-      //read length (16 bit)
-      = in(2)                                       >>
-        CALL(HuffTblDecoder::readLengthField)       >> waitTcTh;
 
     waitTcTh
       // read Tc & Th (8 bit)
@@ -253,16 +242,16 @@ public:
     s_writeTable
       = GUARD(HuffTblDecoder::isTable)(AC0)         >>
         outHuffTblAC0(1)                            >>
-        CALL(HuffTblDecoder::writeTable)(outHuffTblAC0) >> main
+        CALL(HuffTblDecoder::writeTable)(outHuffTblAC0) >> waitTcTh
       | GUARD(HuffTblDecoder::isTable)(AC1)         >>
         outHuffTblAC1(1)                            >>
-        CALL(HuffTblDecoder::writeTable)(outHuffTblAC1) >> main
+        CALL(HuffTblDecoder::writeTable)(outHuffTblAC1) >> waitTcTh
       | GUARD(HuffTblDecoder::isTable)(DC0)         >>
         outHuffTblDC0(1)                            >>
-        CALL(HuffTblDecoder::writeTable)(outHuffTblDC0) >> main
+        CALL(HuffTblDecoder::writeTable)(outHuffTblDC0) >> waitTcTh
       | GUARD(HuffTblDecoder::isTable)(DC1)         >>
         outHuffTblDC1(1)                            >>
-        CALL(HuffTblDecoder::writeTable)(outHuffTblDC1) >> main;
+        CALL(HuffTblDecoder::writeTable)(outHuffTblDC1) >> waitTcTh;
 
     /*waitDC0Data
       = in(16)
@@ -283,10 +272,12 @@ public:
 
 private:
   bool hasMoreHUFFVAL() const {
-    return m_bytesLeft > 0;
+    return m_symbolsLeft > 0;
   }
 
   bool isTable(const HuffTableType type) const {
+    assert(IS_TABLE_CLASS_AC(m_tcth) || IS_TABLE_CLASS_DC(m_tcth));
+    assert(IS_TABLE_DEST_ZERO(m_tcth) || IS_TABLE_DEST_ONE(m_tcth));
     if (IS_TABLE_CLASS_AC(m_tcth))
       if (IS_TABLE_DEST_ZERO(m_tcth))
         return type == AC0;
@@ -299,48 +290,30 @@ private:
         return type == DC1;
   }
 
-  void start(){
-    DBG_OUT("start(): got sync\n");
-  }
-
   void storeTcTh() {
     DBG_OUT("storeTcTh()\n");
     m_tcth = in[0];
-    --m_bytesLeft;
-  }
-
-  void readLengthField() {
-    // Length Field is 16 bit
-    m_bytesLeft = (in[0] << 8) | in[1];
-
-    DBG_OUT("readLengthField(): m_bytesLeft: " << m_bytesLeft << hex << " (0x" <<
-        (unsigned int) in[0]
-        << " " << (unsigned int) in[1] << dec << ")\n");
-
-    // subtract length field from total length
-    m_bytesLeft -= 2;
   }
 
   void storeBITS() {
     DBG_OUT("storeBITS()\n");
-    DBG(int totalCodes = 0);
+    int totalCodes = 0;
     for (int i = 0; i < 16; ++i) {
       m_BITS[i] = in[i];
-      DBG(totalCodes += m_BITS[i]);
+      totalCodes += m_BITS[i];
       //DBG_OUT("  codewords with length " << i+1 << " occure " << (int)m_BITS[i]
       //        << " times.\n");
     }
-    DBG_OUT("  total codewords: " << totalCodes << std::endl);
+    DBG_OBJ("  total codewords: " << totalCodes << std::endl);
 
-    m_bytesLeft -= 16;
-
-    DBG(assert(totalCodes == m_bytesLeft));
+    m_symbolsLeft = totalCodes;
   }
 
   void storeHUFFVAL() {
-    --m_bytesLeft;
+    assert(m_symbolsLeft);
+    --m_symbolsLeft;
     //DBG_OUT("storeHUFFVAL(): write pos: " << m_huffWritePos << "; "
-    //        << m_bytesLeft << " bytes left now\n");
+    //        << m_symbolsLeft << " bytes left now\n");
     m_tmpHuff.huffVal[m_huffWritePos++] = in[0];
   }
 
@@ -448,17 +421,17 @@ private:
   //
   void writeTable(smoc_port_out<ExpHuffTbl> &out) {
     DBG_OUT("writeTable()\n");
-    assert(m_bytesLeft == 0);
+    assert(m_symbolsLeft == 0);
 
     out[0] = m_tmpHuff;
 
-    // reset tmpHuff
+    // "reset" tmpHuff
     m_huffWritePos = 0;
 
     DBG_OUT("writeTable(): done\n");
   }
   
-  uint16_t m_bytesLeft;
+  uint16_t m_symbolsLeft;
   uint8_t  m_tcth;
 
   uint8_t  m_BITS[16];
@@ -468,8 +441,6 @@ private:
   size_t m_huffWritePos;
 
   CoSupport::DebugOstream dbgout;
-  smoc_firing_state main;
-  smoc_firing_state waitLength;
   smoc_firing_state waitTcTh;
   smoc_firing_state waitHUFFVAL;
   smoc_firing_state waitBITS;
