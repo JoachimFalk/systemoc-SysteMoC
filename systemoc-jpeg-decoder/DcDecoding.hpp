@@ -71,14 +71,14 @@ private:
   QuantIDCTCoeff_t prev_DC[JPEG_MAX_COLOR_COMPONENTS];
 
   void forward_cmd(){
-    dbgout << "Forward command" << endl;
+    DBG_OUT("Forward command" << endl);
     out[0] = in[0];
   }
 
 
   // reset previous DC coefficient
   void reset_DC(){
-    dbgout << "Reset previous DC coefficient for all components" << endl;
+    DBG_OUT("Reset previous DC coefficient for all components" << endl);
     for(unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++){
       prev_DC[i] = 0;
     }
@@ -89,11 +89,11 @@ private:
   // stores the colour component which will follow next
   IntCompID_t comp_id;
   void store_color(){
-    dbgout << "Store the colour component" << endl;
+    DBG_OUT("Store the colour component" << endl);
     
     comp_id = JS_CTRL_INTERNALCOMPSTART_GETCOMPID(in[0]);
     
-    dbgout << " (Expect colour component " << comp_id << ")" << endl;    
+    DBG_OUT(" (Expect colour component " << comp_id << ")" << endl);    
 
     forward_cmd();
   }
@@ -102,7 +102,7 @@ private:
 
   // Perform DC decoding
   void decode_dc(){
-    dbgout << "Perform DC decoding" << endl;
+    DBG_OUT("Perform DC decoding" << endl);
     
     //assert(comp_id >= 0);
     //Check, that comp_id is not signed
@@ -122,7 +122,7 @@ private:
   }
 
   void forward_ac(){
-    dbgout << "Forward AC coefficient" << endl;
+    DBG_OUT("Forward AC coefficient" << endl);
 
     out[0] = in[0];
 
@@ -139,11 +139,11 @@ public:
     : smoc_actor(name, main),
       comp_id(0),
       pixel_id(0),
-      dbgout(std::cerr)
+      dbgout(std::cout)
   {
 
     //Set Debug ostream options
-    CoSupport::Header my_header("DcDecoding");
+    CoSupport::Header my_header("DcDecoding> ");
     dbgout << my_header;
 
     //init previous DC
