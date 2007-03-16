@@ -106,6 +106,13 @@ public:
     connectNodePorts<2>(mParser.out,              mInvByteStuff.in);
     connectNodePorts<1>(mParser.outCtrlImage,     mSink.inCtrlImage);
     connectNodePorts<16>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
+
+    //the +1 is required, because the parser wants to send the QT header
+    //together with the discard command!
+    connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_0,mInvQuant.qt_table_0);
+    connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_1,mInvQuant.qt_table_1);
+    connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_2,mInvQuant.qt_table_2);
+    connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_3,mInvQuant.qt_table_3);
     
     connectNodePorts<1>(mInvByteStuff.out,        mHuffDecoder.in);
     
@@ -114,7 +121,10 @@ public:
     connectNodePorts<1>(mInvZrl.out,              mDcDecoding.in);
     connectNodePorts<1>(mDcDecoding.out,          mInvQuant.in);
     connectNodePorts<1>(mInvQuant.out,            mCtrlSieve.in);
-    connectNodePorts<1>(mCtrlSieve.out,           mInvZigZag.in);
+
+    // FIXME: by rewriting mInvZigZag, the required buffer space can
+    // be reduced
+    connectNodePorts<JPEG_BLOCK_SIZE>(mCtrlSieve.out,mInvZigZag.in);
     
     //InvZigZag -> IDCT, IDCT -> mRound
     connectNodePorts<64>(mInvZigZag.out, mBlock2Row.b);
