@@ -34,11 +34,19 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#define DUMP_INTERMEDIATE
+
+
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_moc.hpp>
 
 #include "channels.hpp"
+
+#ifdef DUMP_INTERMEDIATE
+# include "1D_dup2.hpp"
+# include "BlockSnk.hpp"
+#endif
 
 #include "FileSource.hpp"
 #include "Parser.hpp"
@@ -70,6 +78,10 @@ private:
   InvQuant          mInvQuant;
   CtrlSieve         mCtrlSieve;
   InvZigZag         mInvZigZag;
+#ifdef DUMP_INTERMEDIATE
+  m_1D_dup2<IDCTCoeff_t>mDup2_1;
+  m_block_sink mBlockSnk;
+#endif
   // Begin IDCT2D
   m_block2row       mBlock2Row;
   m_idct2d          mIDCT2D;
@@ -79,6 +91,8 @@ private:
   InvLevel          mInvLevel;
   Clip              mClip;
   FrameBufferWriter mSink;
+
+
 public:
   Jpeg(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
@@ -91,6 +105,10 @@ public:
       mInvQuant("InvQuant"),
       mCtrlSieve("CtrlSieve"),
       mInvZigZag("InvZigZag"),
+#ifdef DUMP_INTERMEDIATE
+      mDup2_1("DupIDCTCoeff"),
+      mBlockSnk("mBlockSnk"),
+#endif
       // Begin IDCT2D
       mBlock2Row("mBlock2Row"),
       mIDCT2D("mIDCT2D"),
@@ -125,9 +143,15 @@ public:
     // FIXME: by rewriting mInvZigZag, the required buffer space can
     // be reduced
     connectNodePorts<JPEG_BLOCK_SIZE>(mCtrlSieve.out,mInvZigZag.in);
-    
+
+#ifdef DUMP_INTERMEDIATE
+    connectNodePorts<1>(mInvZigZag.out,mDup2_1.in);
+    connectNodePorts<64>(mDup2_1.out1,mBlock2Row.b);
+    connectNodePorts<1>(mDup2_1.out2,mBlockSnk.in);
+#else
     //InvZigZag -> IDCT, IDCT -> mRound
     connectNodePorts<64>(mInvZigZag.out, mBlock2Row.b);
+#endif   
     
     connectNodePorts<16>(mBlock2Row.C0, mIDCT2D.i0);
     connectNodePorts<16>(mBlock2Row.C1, mIDCT2D.i1);
