@@ -245,6 +245,11 @@ private:
   void foundRST() {
     DBG_OUT("Found RST\n");
     readBytes += 2;
+
+    out[0] = JS_CTRL_SCANRESTART_SET_CHWORD;
+    DBG_OUT("Send control command SCANRESTART 0x" 
+	    << hex << (unsigned int)JS_CTRL_SCANRESTART_SET_CHWORD 
+	    << dec << std::endl);
   }
 
   // ########################################################################################
@@ -1233,7 +1238,8 @@ public:
              >> ecs1 
            | (in(1) && 
                JPEG_IS_MARKER_RST(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
-             >> CALL(Parser::foundRST) 
+      	     >> out(1) 
+             >> CALL(Parser::foundRST)
              >> ecs1 
            | (in(1) && 
                JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
@@ -1592,7 +1598,8 @@ public:
              >> ecsx 
            | (in(1) && 
                JPEG_IS_MARKER_RST(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
-             >> CALL(Parser::foundRST) 
+             >> out(1)
+	     >> CALL(Parser::foundRST) 
              >> ecsx 
            | (in(1) && 
                JPEG_IS_MARKER_SOS(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
