@@ -197,14 +197,58 @@ public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
-    DBG_OUT("| " << hex << (unsigned int)in[0] << dec << std::endl);
+    //DBG_OUT("| " << hex << (unsigned int)in[0] << dec << std::endl);
+    
+    CategoryAmplitude_t amplitude  = JS_TUP_GETIDCTAMPLCOEFF(in[0]);
+    RunLength_t rle = JS_TUP_GETRUNLENGTH(in[0]);
+    Category_t category = JS_TUP_GETCATEGORY(in[0]);
+
+    if (pixel_id == 0){
+      // DC coeff
+      outfile << "DC "
+	      << (unsigned int)category << " "
+	      << (int)amplitude << endl;
+      pixel_id++;
+    }else{
+      // AC coeff
+      if ((rle == 0) && (category == 0)){
+	//End of block
+	pixel_id = 0;
+	outfile << "0 0 0" << endl;
+      }else if ((rle == 0xF) && (category == 0)){
+	// Add 16 zeros	
+	pixel_id += 16;
+	outfile << rle 
+		<< " " << category 
+	  //dummy zero
+		<< " 0" << endl;
+      }else{	
+	pixel_id += rle+1;
+	outfile << rle 
+		<< " " << category 
+		<< " " << amplitude << endl;
+      }
+
+      if (pixel_id >= JPEG_BLOCK_SIZE)
+	// Start new block
+	pixel_id = 0;
+    }
+    
   }
+
+  ofstream outfile;
+
+  unsigned int pixel_id;
   
   CoSupport::DebugOstream dbgout;
   smoc_firing_state start;
 public:
-  TestToInvZrl( sc_module_name name )
-    : smoc_actor( name, start ), dbgout(std::cerr)
+  TestToInvZrl( sc_module_name name,
+		const std::string& outfile_name)
+    : smoc_actor( name, start ), 
+      outfile(outfile_name.c_str()),
+      pixel_id(0),
+      dbgout(std::cerr)
   {
     CoSupport::Header myHeader("TestToInvZrl> ");
     dbgout << myHeader;
@@ -226,7 +270,9 @@ private:
   TestQT3Sink   mSinkQT3;
   TestToInvZrl  mToInvZrl;
 public:
-  HuffmanTestbench(sc_module_name name, const std::string &fileName)
+  HuffmanTestbench(sc_module_name name, 
+		   const std::string &fileName, 
+		   const std::string& outfilename)
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),
@@ -237,7 +283,7 @@ public:
       mSinkQT1("mSinkQT1"),
       mSinkQT2("mSinkQT2"),
       mSinkQT3("mSinkQT3"),
-      mToInvZrl("mToInvZrl")
+      mToInvZrl("mToInvZrl",outfilename)
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
@@ -257,14 +303,15 @@ public:
 
 #ifndef KASCPAR_PARSING
 int sc_main (int argc, char **argv) {
-  if (argc != 2) {
+  if (argc != 3) {
     std::cerr
       << (argv[0] != NULL ? argv[0] : "???")
-      << " <jpeg filename>" << std::endl;
+      << " <jpeg filename> <output_file>" << std::endl;
     exit(-1);
   }
   
-  smoc_top_moc<HuffmanTestbench> huffmanTestbench("huffmanTestbench", argv[1]);
+  smoc_top_moc<HuffmanTestbench> 
+    huffmanTestbench("huffmanTestbench", argv[1],argv[2]);
   
   sc_start(-1);
   
