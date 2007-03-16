@@ -371,6 +371,7 @@ private:
       break;
     }
     out[1] = newScan;
+    outCtrlImage[0] = newScan;
     DBG_OUT("Send NEWSCAN control command 0x" << hex << newScan << dec << "(C0 ID: 0x" <<
               hex << (unsigned int)JS_CTRL_NEWSCAN_GETCOMP(newScan,0) << dec << ", C1 ID: 0x" <<
               hex << (unsigned int)JS_CTRL_NEWSCAN_GETCOMP(newScan,1) << dec << ", C2 ID: 0x" <<
@@ -1026,7 +1027,7 @@ public:
                    >> CALL(Parser::readCompInScan) 
                    >> sos1ReadComp
                  | (in(2) && VAR(currentCompCount) == VAR(componentCount)) 
-                   >> out(2) 
+                   >> (out(2) && outCtrlImage(1))
                    >> CALL(Parser::sendNewScan) 
                    >> skipSos1;
     skipSos1 = (in(1) && (VAR(lengthField)!=1)) 
@@ -1386,7 +1387,7 @@ public:
                    >> CALL(Parser::readCompInScan) 
                    >> sosxReadComp
                  | (in(2) && VAR(currentCompCount) == VAR(componentCount)) 
-                   >> out(2) 
+                   >> (out(2) && outCtrlImage(1))
                    >> CALL(Parser::sendNewScan) 
                    >> skipSosx;
     skipSosx = (in(1) && (VAR(lengthField)!=1)) 
