@@ -114,7 +114,7 @@ public:
     connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_2,mInvQuant.qt_table_2);
     connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_3,mInvQuant.qt_table_3);
     
-    connectNodePorts<1>(mInvByteStuff.out,        mHuffDecoder.in);
+    connectNodePorts<3>(mInvByteStuff.out,        mHuffDecoder.in);
     
     connectNodePorts<1>(mHuffDecoder.out,         mInvZrl.in);
     

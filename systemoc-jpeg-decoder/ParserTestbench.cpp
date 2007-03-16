@@ -63,7 +63,7 @@ public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
-    //DBG_OUT("| " << hex << (unsigned int)in[0] << dec << std::endl);
+    DBG_OUT("| " << in[0] << std::endl);
   }
   
   CoSupport::DebugOstream dbgout;

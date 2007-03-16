@@ -287,7 +287,7 @@ public:
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
-    connectNodePorts<1>(mParser.out,              mInvByteStuff.in);
+    connectNodePorts<2>(mParser.out,              mInvByteStuff.in);
     connectNodePorts<1>(mParser.qt_table_0,       mSinkQT0.in);
     connectNodePorts<1>(mParser.qt_table_1,       mSinkQT1.in);
     connectNodePorts<1>(mParser.qt_table_2,       mSinkQT2.in);
@@ -295,7 +295,7 @@ public:
     connectNodePorts<1>(mParser.outCtrlImage,     mSinkCtrl.in);
     connectNodePorts<16>(mParser.outCodedHuffTbl, mHuffDecoder.inCodedHuffTbl);
     
-    connectNodePorts<1>(mInvByteStuff.out,        mHuffDecoder.in);
+    connectNodePorts<3>(mInvByteStuff.out,        mHuffDecoder.in);
     connectNodePorts<1>(mHuffDecoder.out,         mToInvZrl.in);
 #endif
   }

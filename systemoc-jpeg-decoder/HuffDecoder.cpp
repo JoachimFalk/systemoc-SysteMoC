@@ -27,7 +27,7 @@ ostream &operator<<(ostream &out, const ExpHuffTbl &eht) {
   for(int i = 0; i<256; ++i){
     out << " | " << eht.huffVal[i];
   }
-  out << " |\n";
+  out << " |";
   out << dec;
   return out;
 }
@@ -41,11 +41,13 @@ HuffTblDecoder::HuffTblDecoder(sc_module_name name)
   : smoc_actor(name, waitTcTh),
     m_symbolsLeft(0),
     m_huffWritePos(0),
-    dbgout(std::cerr)
+    dbgout(std::cerr),
+    dbgbuff(Debug::None)
 {
   CoSupport::Header myHeader("HuffTblDecoder> ");
 
   dbgout << myHeader;
+  dbgout.insert(dbgbuff);
 
   waitTcTh
     // read Tc & Th (8 bit)

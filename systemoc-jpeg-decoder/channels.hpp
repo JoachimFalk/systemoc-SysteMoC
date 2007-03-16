@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <iostream>
 
+typedef bool      bit_t;
 typedef uint8_t   uint2_t;
 typedef uint8_t   uint4_t;
 typedef uint16_t  uint11_t;
