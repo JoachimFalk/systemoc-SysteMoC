@@ -60,18 +60,18 @@ ACJF_CHECK_LIB_SYSTEMC
 ACJF_CHECK_LIB_BOOST
 ACJF_NEED_PKG([Support])
 
-### SystemC-VPC ###
-# --enable-vpc option
-AC_ARG_ENABLE(
-  [vpc],
-  [[  --enable-vpc            enable vpc support for SysteMoC [default=yes]]],
-  [case "$enableval" in
-     yes) enable_vpc=yes ;;
-     no)  enable_vpc=no  ;;
-     *)   enable_vpc=no  ;;
-   esac],
-  [enable_vpc=yes # default]
-)
+#### SystemC-VPC ###
+## --enable-vpc option
+#AC_ARG_ENABLE(
+#  [vpc],
+#  [[  --enable-vpc            enable vpc support for SysteMoC [default=yes]]],
+#  [case "$enableval" in
+#     yes) enable_vpc=yes ;;
+#     no)  enable_vpc=no  ;;
+#     *)   enable_vpc=no  ;;
+#   esac],
+#  [enable_vpc=yes # default]
+#)
 
 if test x"$enable_vpc" = x"yes"; then
   SYSTEMC_VPC_INCLUDE=" \
