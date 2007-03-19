@@ -646,7 +646,7 @@ int main( int argc, char *argv[] ) {
             if (fileBlock.good()) {
               for (size_t i = 0; i < dctY; ++i) {
                 for (size_t j = 0; j < dctX; ++j) {
-                  fileBlock << pb[j][i] << ",";
+                  fileBlock << pb[j][i] << " ";
                 }
                 fileBlock << std::endl;
               }
@@ -661,7 +661,7 @@ int main( int argc, char *argv[] ) {
             if (fileIDCTCoeff.good()) {
               for (size_t i = 0; i < dctY; ++i) {
                 for (size_t j = 0; j < dctX; ++j) {
-                  fileIDCTCoeff << res[j][i] << ",";
+                  fileIDCTCoeff << res[j][i] << " ";
                 }
                 fileIDCTCoeff << std::endl;
               }

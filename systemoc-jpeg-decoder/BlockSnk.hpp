@@ -56,7 +56,7 @@ private:
   unsigned int pixel_id;
   
   void process() {
-    fo << in[0] << ",";
+    fo << in[0] << " ";
     pixel_id = (pixel_id+1) % JPEG_BLOCK_SIZE;    
 
     if ((pixel_id % JPEG_BLOCK_WIDTH) == 0)
