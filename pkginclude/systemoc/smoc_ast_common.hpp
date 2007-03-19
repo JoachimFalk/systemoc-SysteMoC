@@ -169,7 +169,7 @@ public:
     : ASTLeafNode(nodeType, vt), value(vt) {}
   
   const ValueContainer &getValue() const;
-  std::string getNodeParam() const;
+//std::string getNodeParam() const;
 };
 
 /****************************************************************************
@@ -259,7 +259,7 @@ public:
 
   const PortIdentifier &getPort() const;
   size_t                getPos() const;
-  std::string           getNodeParam() const;
+//std::string           getNodeParam() const;
 };
 
 /****************************************************************************
@@ -278,7 +278,7 @@ public:
       port(port) {}
  
   const PortIdentifier &getPort() const;
-  std::string           getNodeParam() const;
+//std::string           getNodeParam() const;
 };
 
 /****************************************************************************
@@ -294,7 +294,7 @@ public:
   ASTNodeSMOCEvent()
     : ASTLeafNode(nodeType, Type<bool>()) {}
 
-  std::string getNodeParam() const;
+//std::string getNodeParam() const;
 };
 
 /****************************************************************************
@@ -312,7 +312,7 @@ public:
       port(port) {}
 
   const PortIdentifier &getPort() const;
-  std::string           getNodeParam() const;
+//std::string           getNodeParam() const;
 };
 
 /****************************************************************************
@@ -362,7 +362,7 @@ public:
     : ASTInternalBinNode(nodeType, valueType, l, r), op(op) {}
 
   OpBinT getOpType() const;
-  std::string getNodeParam() const;
+//std::string getNodeParam() const;
 };
 
 /****************************************************************************
@@ -412,7 +412,7 @@ public:
     : ASTInternalUnNode(nodeType, valueType, c), op(op) {}
 
   OpUnT getOpType() const;
-  std::string getNodeParam() const;
+//std::string getNodeParam() const;
 };
 
 /****************************************************************************
@@ -430,7 +430,7 @@ public:
       port(port) {}
 
   const PortIdentifier &getPort() const;
-  std::string           getNodeParam() const;
+//std::string           getNodeParam() const;
 };
 
 template <class V> // V is the visitor type
