@@ -257,8 +257,8 @@ public:
   ASTNodeToken(const TypePortIdentifier &tp, size_t pos)
     : ASTLeafNode(nodeType, tp), port(tp), pos(pos) {}
 
-  const PortIdentifier &getPort() const;
-  size_t                getPos() const;
+  const PortIdentifier &getPortId() const;
+  size_t                getPos()    const;
 //std::string           getNodeParam() const;
 };
 
@@ -277,7 +277,7 @@ public:
     : ASTLeafNode(nodeType, Type<size_t>()),
       port(port) {}
  
-  const PortIdentifier &getPort() const;
+  const PortIdentifier &getPortId() const;
 //std::string           getNodeParam() const;
 };
 
@@ -311,7 +311,7 @@ public:
     : ASTLeafNode(nodeType, Type<size_t>()),
       port(port) {}
 
-  const PortIdentifier &getPort() const;
+  const PortIdentifier &getPortId() const;
 //std::string           getNodeParam() const;
 };
 
@@ -429,7 +429,7 @@ public:
     : ASTInternalUnNode(nodeType, Type<bool>(), c),
       port(port) {}
 
-  const PortIdentifier &getPort() const;
+  const PortIdentifier &getPortId() const;
 //std::string           getNodeParam() const;
 };
 

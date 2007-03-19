@@ -223,16 +223,16 @@ const SymbolIdentifier &ASTNodeMemGuard::getName() const
 //const void *ASTNodeMemGuard::getAddrFun() const
 //  { return *reinterpret_cast<const void *const *>(&m); }
 
-const PortIdentifier &ASTNodeToken::getPort() const
+const PortIdentifier &ASTNodeToken::getPortId() const
   { return port; }
 size_t                ASTNodeToken::getPos() const
   { return pos; }
 
-const PortIdentifier &ASTNodePortTokens::getPort() const
+const PortIdentifier &ASTNodePortTokens::getPortId() const
   { return port; }
 
-const PortIdentifier &ASTNodeComm::getPort() const
+const PortIdentifier &ASTNodeComm::getPortId() const
   { return port; }
 
-const PortIdentifier &ASTNodePortIteration::getPort() const
+const PortIdentifier &ASTNodePortIteration::getPortId() const
   { return port; }

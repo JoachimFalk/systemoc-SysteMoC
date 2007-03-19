@@ -139,8 +139,8 @@ public:
   PortIdentifier(const smoc_root_port &port)
     : port(port) {}
 
-  operator const smoc_root_port &() const
-    { return port; }
+  const smoc_root_port *getPortPtr() const
+    { return &port; }
 };
 
 class TypePortIdentifier

@@ -362,13 +362,13 @@ namespace {
     }
     result_type operator ()(ASTNodeToken &astNode) {
       openNodeTag(astNode);
-      pgw << " portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\"";
+      pgw << " portid=\"" << smoc_modes::PGWriter::getId(astNode.getPortId().getPortPtr()) << "\"";
       pgw << " pos=\"" << astNode.getPos() << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodePortTokens &astNode) {
       openNodeTag(astNode);
-      pgw << " portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\">";
+      pgw << " portid=\"" << smoc_modes::PGWriter::getId(astNode.getPortId().getPortPtr()) << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeSMOCEvent &astNode) {
@@ -391,7 +391,7 @@ namespace {
     }
     result_type operator ()(ASTNodeComm &astNode) {
       openNodeTag(astNode);
-      pgw << " portid=\"" << smoc_modes::PGWriter::getId(&astNode.getPort()) << "\">" << std::endl;
+      pgw << " portid=\"" << smoc_modes::PGWriter::getId(astNode.getPortId().getPortPtr()) << "\">" << std::endl;
       dumpASTUnNode(astNode);
       closeNodeTag(astNode);
     }
