@@ -44,16 +44,14 @@
 #include "smoc_moc.hpp"
 
 class hscd_graph
-: public smoc_top_moc<smoc_graph> {
+: public smoc_graph {
 public:
   typedef hscd_graph this_type;
-  
-  
 public:
   explicit hscd_graph( sc_module_name name )
-    : smoc_top_moc<smoc_graph>(name) { }
+    : smoc_graph(name) { }
   hscd_graph()
-    : smoc_top_moc<smoc_graph>( sc_gen_unique_name("hscd_graph") ) { }
+    : smoc_graph(sc_gen_unique_name("hscd_graph")) { }
 
   template <typename T_chan_init>
   void connectNodePorts(
