@@ -206,7 +206,8 @@ private:
     HuffTblID_t tblClass = UDEMASK(in[0],0,4);
     HuffTblID_t tblID    = UDEMASK(in[0],4,4);
 
-    JpegChannel_t discardHuff = JS_CTRL_DISCARDHUFFTBL_SET_CHWORD(tblID, tblClass);
+    JpegChannel_t discardHuff =
+      JS_CTRL_DISCARDHUFFTBL_SET_CHWORD(tblClass, tblID);
     out[0] = discardHuff;
     DBG_OUT("Send control command DISCARDHUFFTBL 0x" << hex << (unsigned int)discardHuff << dec <<
               " (Type: 0x" << hex << (unsigned int)JS_CTRL_DISCARDHUFFTBL_GETTYPE(discardHuff) << dec <<
