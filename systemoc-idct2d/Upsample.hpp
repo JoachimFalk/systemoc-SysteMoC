@@ -37,7 +37,9 @@
 
 #include "callib.hpp"
 
-//#define VERBOSE_IDCT_UPSAMPLE
+#ifdef VERBOSE_ACTOR
+#define VERBOSE_IDCT_UPSAMPLE
+#endif
 
 class m_Upsample: public smoc_actor {
 public:

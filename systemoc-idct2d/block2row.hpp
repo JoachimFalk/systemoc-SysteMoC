@@ -37,7 +37,9 @@
 
 #include "callib.hpp"
 
+#ifdef VERBOSE_ACTOR
 #define VERBOSE_IDCT_BLOCK2ROW
+#endif
 
 class m_block2row: public smoc_actor {
 public:

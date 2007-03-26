@@ -35,7 +35,9 @@
 #ifndef _INCLUDED_MIN_DUPLEX_HPP
 #define _INCLUDED_MIN_DUPLES_HPP
 
+#ifdef VERBOSE_ACTOR
 #define VERBOSE_MIN_DUPLEX
+#endif
 
 class m_MIN_duplex: public smoc_actor {
 public:

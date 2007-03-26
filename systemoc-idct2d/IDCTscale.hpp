@@ -35,7 +35,9 @@
 #ifndef _INCLUDED_IDCTSCALE_HPP
 #define _INCLUDED_IDCTSCALE_HPP
 
+#ifdef VERBOSE_ACTOR
 #define VERBOSE_IDCT_SCALE
+#endif
 
 class m_IDCTscale: public smoc_actor {
 public:

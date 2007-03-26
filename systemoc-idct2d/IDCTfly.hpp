@@ -35,7 +35,9 @@
 #ifndef _INCLUDED_IDCTFLY_HPP
 #define _INCLUDED_IDCTFLY_HPP
 
+#ifdef VERBOSE_ACTOR
 #define VERBOSE_IDCT_FLY
+#endif
 
 class m_IDCTfly: public smoc_actor {
 public:

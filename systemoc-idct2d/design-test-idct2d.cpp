@@ -17,27 +17,52 @@
 
 #include "callib.hpp"
 
+#define REAL_BLOCK_DATA
+#define IMAGE_WIDTH 16
+#define IMAGE_HEIGHT 16
+
 #include "block_idct.hpp"
-#include "IDCTsource.hpp"
-#include "IDCTsink.hpp"
+
+
+#ifndef REAL_BLOCK_DATA
+# include "IDCTsource.hpp"
+# include "IDCTsink.hpp"
+#else
+# include "IDCT_block_source.hpp"
+# include "IDCT_block_sink.hpp"
+#endif
 
 
 #ifndef DEFAULT_BLOCK_COUNT
-#define DEFAULT_BLOCK_COUNT 25
+# ifdef REAL_BLOCK_DATA
+#  define DEFAULT_BLOCK_COUNT ((IMAGE_WIDTH)/8*(IMAGE_HEIGHT)/8)
+# else
+#  define DEFAULT_BLOCK_COUNT 25
+# endif
 #endif
 
 class IDCT2d_TEST
 : public smoc_graph {
 private:
-  m_source_idct src_idct;
-  m_block_idct  blidct;
+#ifndef REAL_BLOCK_DATA
+  m_source_idct src_idct;  
   m_sink        snk;
+#else
+  m_block_source_idct src_idct;
+  m_block_sink        snk;
+#endif
+  m_block_idct  blidct;
 public:
   IDCT2d_TEST(sc_module_name name, size_t periods)
     : smoc_graph(name),
       src_idct("src_idct", periods),
-      blidct("blidct"),
-      snk("snk") {
+#ifdef REAL_BLOCK_DATA
+      snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT) ,
+#else
+      snk("snk"),
+#endif
+      blidct("blidct")
+{
 #ifndef KASCPAR_PARSING
     connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
     connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(4));

@@ -35,7 +35,9 @@
 #ifndef _INCLUDED_IDCTCLIP_HPP
 #define _INCLUDED_IDCTCLIP_HPP
 
+#ifdef VERBOSE_ACTOR
 #define VERBOSE_IDCT_CLIP
+#endif
 
 class m_IDCTclip: public smoc_actor {
 public:
