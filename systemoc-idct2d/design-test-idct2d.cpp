@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 
 #include <cstdlib>
@@ -17,118 +18,13 @@
 #include "callib.hpp"
 
 #include "block_idct.hpp"
+#include "IDCTsource.hpp"
+#include "IDCTsink.hpp"
 
-
-#define INAMEblk "test_in.dat"
-#define ONAMEblk "test_out.dat"
 
 #ifndef DEFAULT_BLOCK_COUNT
 #define DEFAULT_BLOCK_COUNT 25
 #endif
-
-#ifdef EDK_XILINX_RUNTIME
-# define USE_COUNTER_INPUT
-#endif
-#ifdef KASCPAR_PARSING
-# define USE_COUNTER_INPUT
-typedef unsigned int size_t;
-#endif
-
-class m_source_idct: public smoc_actor {
-public:
-  smoc_port_out<int> out;
-  smoc_port_out<int> min;
-private:
-  size_t counter;
-#ifndef USE_COUNTER_INPUT
-  std::ifstream i1; 
-#endif
-  
-  void process() {
-    int myMin;
-    int myOut;
-    
-#ifndef USE_COUNTER_INPUT
-    if (i1.good()) {
-#endif
-      for ( int j = 0; j <= 63; j++ ) {
-#ifdef USE_COUNTER_INPUT
-        myOut = counter;
-#else
-        i1 >> myOut;
-        cout << name() << "  write " << myOut << std::endl;
-#endif
-        out[j] = myOut;
-				counter++;
-      }
-      myMin = -256;
-#ifndef USE_COUNTER_INPUT
-      cout << name() << "  write min " << myMin << std::endl;
-#endif
-      min[0] = myMin;
-#ifndef USE_COUNTER_INPUT
-    } else {
-      cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
-      exit (1) ;
-    }
-#endif
-  }
- 
-  smoc_firing_state start;
-public:
-  m_source_idct(sc_module_name name,
-      SMOC_ACTOR_CPARAM(size_t, periods))
-    : smoc_actor(name, start), counter(0) {
-#ifndef USE_COUNTER_INPUT
-    i1.open(INAMEblk);
-#endif
-    start = ((out.getAvailableSpace() >= 64) &&
-             (min.getAvailableSpace() >= 1) &&
-             (VAR(counter) < periods*64))
-            >> CALL(m_source_idct::process)
-            >> start;
-  }
-  ~m_source_idct() {
-#ifndef USE_COUNTER_INPUT
-    i1.close();
-#endif
-  }
-};
-
-class m_sink: public smoc_actor {
-public:
-  smoc_port_in<int> in;
-private:
-#ifndef USE_COUNTER_INPUT
-  std::ofstream fo; 
-#endif
-  
-  void process() {
-#ifndef USE_COUNTER_INPUT
-    cout << name() << " receiving " << in[0] << std::endl;
-    fo << in[0] << std::endl;
-#else
-    int foo = in[0];
-#endif
-  }
-  
-  smoc_firing_state start;
-public:
-  m_sink( sc_module_name name )
-    : smoc_actor( name, start )
-#ifndef USE_COUNTER_INPUT
-    , fo(ONAMEblk)
-#endif
-  {
-    start = in(1) >> CALL(m_sink::process)  >> start;
-  }
-  
-  ~m_sink() {
-#ifndef USE_COUNTER_INPUT
-    fo.close();
-#endif
-  }
-};
 
 class IDCT2d_TEST
 : public smoc_graph {
