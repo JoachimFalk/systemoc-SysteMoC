@@ -51,7 +51,7 @@ private:
   m_sink        snk;
 #else
   m_block_source_idct src_idct;
-  m_block_sink        snk;
+  //m_block_sink        snk;
 #endif
   m_block_idct  blidct;
 public:
@@ -59,12 +59,16 @@ public:
     : smoc_graph(name),
       src_idct("src_idct", periods),
 #ifdef REAL_BLOCK_DATA
-      snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT) ,
+      //snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT) ,
 #else
       snk("snk"),
 #endif
       blidct("blidct")
 {
+
+  //m_block_sink &snk = registerNode(new m_block_sink("snk",IMAGE_WIDTH, IMAGE_HEIGHT));
+  m_block_sink &snk = *(new m_block_sink("snk",IMAGE_WIDTH, IMAGE_HEIGHT));
+
 #ifndef KASCPAR_PARSING
     connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
     connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(4));

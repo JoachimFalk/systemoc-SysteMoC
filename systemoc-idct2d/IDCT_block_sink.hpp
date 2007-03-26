@@ -59,7 +59,7 @@ private:
   const size_t image_height;
 
   unsigned long block_count;
-  const unsigned long block_nbr;
+  unsigned long block_nbr;
 
   void new_image() {
     cout << "P2 " 
@@ -103,10 +103,13 @@ public:
     : smoc_actor( name, start ),
       image_width(image_width),
       image_height(image_height),
-      block_count(0),
-      //Only support complete blocks
-      block_nbr(image_width/8*image_height/8)
+      block_count(0)
+      
   {
+    //Only support complete blocks
+    block_nbr = (image_width/8*image_height/8);
+
+    
     // Read a complete line as once
     start = in(64*(image_width/8)) 
       >> (VAR(block_count) != (unsigned)0)
