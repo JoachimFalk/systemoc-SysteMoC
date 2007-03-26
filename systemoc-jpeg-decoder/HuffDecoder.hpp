@@ -224,19 +224,19 @@ private:
   //
   bool isEnoughAcBits(void) const {
     // see F.13, p. 106
-    return (m_BitSplitter.bitsLeft() >= (m_receiveAcSymbol % 16));
+    return (m_BitSplitter.bitsLeft() >= (m_receiveAcSymbol & 0x0f));
   }
 
   //
   bool canStore(void) const { return !m_BitSplitter.isFull(); }
 
   //
-  bool isMoreAc(void) const { return (m_currentAc <= 64); }
+  bool isMoreAc(void) const { return (m_currentAc < 63); }
 
   //
   void storeData(void) {
     DBG_OUT("storeData(): store one byte: "
-            << (size_t)JS_DATA_GET(in[0]) << endl);
+            << hex << (size_t)JS_DATA_GET(in[0]) << dec << endl);
     m_BitSplitter.addByte(JS_DATA_GET(in[0]));
   }
 
@@ -356,10 +356,8 @@ private:
   //
   void finishedBlock(void) {
     DBG_OUT("finishedBlock(): finished decoding block\n");
-
     // select next component
     compIndex = (compIndex + 1) % SCANPATTERN_LENGTH;
-
     m_currentAc = 0;
   }
 

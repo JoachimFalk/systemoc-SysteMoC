@@ -575,16 +575,18 @@ void InvHuffman::huffDecodeAC(void) {
 
 //
 void InvHuffman::writeAcDiff(void) {
-  const uint4_t readBits = m_receiveAcSymbol % 16; // SSSS
-  const uint4_t r = (m_receiveAcSymbol >> 4); // R = RRRR
+  const uint4_t readBits = m_receiveAcSymbol & 0x0f; // SSSS
+  const uint4_t r = (m_receiveAcSymbol >> 4) & 0x0f; // R = RRRR
   uint11_t receivedBits = 0;
 
   if (readBits == 0) {
     if (r == 15)
       m_currentAc += 16;
     else {
+      assert(r == 0);
+      assert(m_currentAc < 63);
       // no more ACs, set counter to high value to avoid reading bits
-      m_currentAc = 65;
+      m_currentAc = 99;
     }
   }
   else {
@@ -605,10 +607,13 @@ void InvHuffman::writeAcDiff(void) {
 //
 void InvHuffman::writeDcDiff(void) {
   assert(m_receiveDcBits <= 11);
-  size_t receivedBits = m_BitSplitter.getBits(m_receiveDcBits);
+  
+  const size_t receivedBits = m_BitSplitter.getBits(m_receiveDcBits);
+  m_BitSplitter.skipBits(m_receiveDcBits);
+  
   JpegChannel_t dcDiff =
     JS_DATA_TUPPLED_SET_CHWORD(receivedBits, 0, m_receiveDcBits);
-  m_BitSplitter.skipBits(m_receiveDcBits);
+  
   DBG_OUT("writeDcDiff(): write DC difference: " << dcDiff << endl);
   out[0] = dcDiff;
 }

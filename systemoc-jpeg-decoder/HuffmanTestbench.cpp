@@ -202,7 +202,7 @@ public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
-    //DBG_OUT("| " << hex << (unsigned int)in[0] << dec << std::endl);
+    DBG_OUT("got " << in[0] << std::endl);
 
     CategoryAmplitude_t amplitude  = JS_TUP_GETIDCTAMPLCOEFF(in[0]);
     RunLength_t rle = JS_TUP_GETRUNLENGTH(in[0]);
