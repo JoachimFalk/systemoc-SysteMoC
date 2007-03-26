@@ -43,8 +43,8 @@ BitSplitter::return_type BitSplitter::getBits(const size_t n) const {
   unsigned int bits;
 
   // FIXME: remove debug code
-  cerr << "getBits(): n = " << n << endl;
-  dumpBuffer();
+  //cerr << "getBits(): n = " << n << endl;
+  //dumpBuffer();
 
   if (n > m_firstByteBitsLeft) {
     if (n > m_firstByteBitsLeft + 8) {
@@ -76,14 +76,14 @@ BitSplitter::return_type BitSplitter::getBits(const size_t n) const {
   bits = UDEMASK(bits, 0, n);
 
   // FIXME: remove debug code
-  for (int i = 31; i >= 0; --i) {
+  /*for (int i = 31; i >= 0; --i) {
     cerr << UDEMASK(bits, i, 1);
     if (i % 8 == 0)
       cerr << " ";
   }
   cerr << endl;
 
-  cerr << "  getBits(): bits: " << bits << endl;
+  cerr << "  getBits(): bits: " << bits << endl;*/
 
 #if 0
   { // FIXME: some old code for differen byte order

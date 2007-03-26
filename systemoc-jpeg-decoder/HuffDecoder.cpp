@@ -626,10 +626,6 @@ bool InvHuffman::decodeHuff(const smoc_port_in<ExpHuffTbl> &in,
 
   const ExpHuffTbl &table = in[0];
 
-  for (int i = 0; i < 16; ++i) {
-    cerr << "   maxCode " << i << " is " << table.maxCode[i] << endl;
-  }
-
   while (m_BitSplitter.bitsLeft() >= codeSize) {
     codeWord = m_BitSplitter.getBits(codeSize);
     cerr << " DECODE> codeSize == " << codeSize << endl;
@@ -645,9 +641,9 @@ bool InvHuffman::decodeHuff(const smoc_port_in<ExpHuffTbl> &in,
     else {
       size_t pos = table.valPtr[codeSize - 1];
       pos = pos + codeWord - table.minCode[codeSize - 1];
-      cerr << " pos: " << pos << endl;
+      cerr << " DECODE> pos: " << pos << endl;
       // FIXME: remove debug code
-      cerr << " codeSize " << codeSize
+      cerr << " DECODE> codeSize " << codeSize
            << " table.valPtr[codeSize - 1] " << table.valPtr[codeSize - 1]
            << " codeWord " << codeWord
            << " table.minCode[codeSize - 1] " << table.minCode[codeSize - 1]

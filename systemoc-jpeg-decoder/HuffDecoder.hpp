@@ -126,12 +126,6 @@ public:
 
 private:
   //
-  bool isNextBlock() const {
-    //FIXME:
-    return false;
-  }
-
-  //
   bool isUseHuff() const {
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_USEHUFF);
   }
@@ -183,10 +177,6 @@ private:
 
   //
   bool currentAcIsAc0(void) const {
-    if (m_useHuffTableAc[m_currentComp] == 0)
-      cerr << " --- currentAcIsAc0 is TRUE\n";
-    else
-      cerr << " --- currentAcIsAc0 is FALSE\n";
     return m_useHuffTableAc[m_currentComp] == 0;
   }
 
@@ -290,10 +280,8 @@ private:
 
   //
   const smoc_port_in<ExpHuffTbl> &getCurrentAcTable(void) const {
-    if (m_useHuffTableAc[m_currentComp] == 0) {
-      cerr << " --- current table is AC0\n";
+    if (m_useHuffTableAc[m_currentComp] == 0)
       return inHuffTblAC0;
-    }
     else {
       assert(m_useHuffTableAc[m_currentComp] == 1);
       return inHuffTblAC1;
@@ -357,19 +345,6 @@ private:
     forwardCtrl();
   }
 
-  //
-  void discardHuff2(const smoc_port_in<ExpHuffTbl> &tableIn) {
-    DBG_OUT("discardHuff() ");
-    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
-    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
-    DBG_OUT("\n");
-  
-    DBG_OUT(tableIn[0] << endl);
-
-    forwardCtrl();
-    assert("X" == "discardHuff2");
-  }
-
   // forward control commands from input to output
   void forwardCtrl() {
 // FIXME
@@ -381,6 +356,10 @@ private:
   //
   void finishedBlock(void) {
     DBG_OUT("finishedBlock(): finished decoding block\n");
+
+    // select next component
+    compIndex = (compIndex + 1) % SCANPATTERN_LENGTH;
+
     m_currentAc = 0;
   }
 
@@ -396,8 +375,6 @@ private:
   smoc_firing_state discoverDC;
   smoc_firing_state discoverAC;
   smoc_firing_state writeAC;
-  //smoc_firing_state acDecoding;
-  //smoc_firing_state dcDecoding;
   BitSplitter m_BitSplitter;
   int m_currentComp;
   DecodedSymbol_t m_receiveDcBits;
