@@ -56,12 +56,19 @@ public:
   smoc_port_out<int> min;
 private:
   size_t counter;
-  size_t counter2;
-  
-  const static unsigned long block_data_size;
-  const static int block_data[];
+  size_t counter2; 
+
   
   void process() {
+
+#ifndef KASCPAR_PARSING    
+    const static int block_data[] = {
+# include "Y_IdctCoeff.txt"
+    };
+    const static unsigned long block_data_size =   
+      sizeof(block_data)/sizeof(block_data[0]);
+#endif
+
     int myMin;
     int myOut;
     
@@ -89,56 +96,5 @@ public:
   ~m_block_source_idct() {
   }
 };
-
-
-/*
-const int m_block_source_idct::block_data[] = {
-  128,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-  
-  128,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-  
-  128,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-  
-  128,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-};
-
-*/
-
-const int m_block_source_idct::block_data[] = {
-# include "Y_IdctCoeff.txt"
-};
-
-const unsigned long m_block_source_idct::block_data_size =
-  sizeof(m_block_source_idct::block_data)/sizeof(m_block_source_idct::block_data[0]);
-
-
 
 #endif

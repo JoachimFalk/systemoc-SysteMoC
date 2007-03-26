@@ -77,9 +77,17 @@ private:
         unsigned int bx = x / 8;
         unsigned int rx = x % 8;
         // +128 : DC-Level shift
-        std::cout << in[bx*64+y*8+rx] + 128 << " ";
+#ifndef XILINX_EDK_RUNTIME
+        cout << in[bx*64+y*8+rx] + 128 << " ";
+#else
+        xil_printf("%u ", in[bx*64+y*8+rx] + 128);
+#endif
       }
-      std::cout << std::endl;
+#ifndef XILINX_EDK_RUNTIME
+      cout << endl;
+#else
+      xil_printf("\n");
+#endif
     }
     block_count += image_width / 8;
     if (block_count >= block_nbr)
