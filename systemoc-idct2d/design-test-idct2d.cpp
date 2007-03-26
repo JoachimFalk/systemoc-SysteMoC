@@ -17,7 +17,7 @@
 
 #include "callib.hpp"
 
-#define REAL_BLOCK_DATA
+//#define REAL_BLOCK_DATA
 #define IMAGE_WIDTH  648
 #define IMAGE_HEIGHT 408
 
