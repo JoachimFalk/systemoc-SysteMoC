@@ -73,7 +73,7 @@ private:
       if (counter >= block_data_size)
         counter = 0;
     }
-    myMin = -256;
+    myMin = -128;
     min[0] = myMin;
   }
  
@@ -90,7 +90,8 @@ public:
   }
 };
 
-const unsigned long m_block_source_idct::block_data_size = 4*64;
+
+/*
 const int m_block_source_idct::block_data[] = {
   128,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,
@@ -128,5 +129,16 @@ const int m_block_source_idct::block_data[] = {
     0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,
 };
+
+*/
+
+const int m_block_source_idct::block_data[] = {
+# include "Y_IdctCoeff.txt"
+};
+
+const unsigned long m_block_source_idct::block_data_size =
+  sizeof(m_block_source_idct::block_data)/sizeof(m_block_source_idct::block_data[0]);
+
+
 
 #endif

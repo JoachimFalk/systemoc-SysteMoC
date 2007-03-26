@@ -185,66 +185,104 @@ static void idctrow(short *in, short *out)
  */
 static void idctcol(short *blk, short negMaxval)
 {
-  int v;
-  int x[9];
+  int tmpval;
+  int x[B_WIDTH];
 
-  /* shortcut */
+  /* shortcut
   if (!((x[1] = (blk[8*4]<<8)) | (x[2] = blk[8*6]) | (x[3] = blk[8*2]) |
 		(x[4] = blk[8*1]) | (x[5] = blk[8*7]) | (x[6] = blk[8*5]) | (x[7] = blk[8*3])))
   {
-		v = (blk[8*0]+32)>>6;
-		blk[8*0]=blk[8*1]=blk[8*2]=blk[8*3]=blk[8*4]=blk[8*5]=blk[8*6]=blk[8*7] = v < negMaxval ? negMaxval : v > MAXVAL_PIXEL ? MAXVAL_PIXEL : v;
+		tmpval = (blk[8*0]+32)>>6;
+		blk[8*0]=blk[8*1]=blk[8*2]=blk[8*3]=blk[8*4]=blk[8*5]=blk[8*6]=blk[8*7] = tmpval < negMaxval ? negMaxval : tmpval > MAXVAL_PIXEL ? MAXVAL_PIXEL : tmpval;
 
    return;
-  }
-
+  } */
   
-  x[0] = (blk[8*0]<<8) + 8192;// iscale1 (2^8,8129)
+  x[0] = (blk[8*0]<<8) + 8192;// iscale1 (2^8,8192) von I0
+  x[1] = blk[8*4]<<8;         // iscale2 (2^8,   0) von I4
+  x[2] = blk[8*6]; // I6
+  x[3] = blk[8*2]; // I2
+  x[4] = blk[8*1]; // I1
+  x[5] = blk[8*7]; // I7
+  x[6] = blk[8*5]; // I5
+  x[7] = blk[8*3]; // I3
 	
   /* first stage */
-  x[8] = W7*(x[4]+x[5]) + 4;
-  x[4] = (x[8]+(W1-W7)*x[4])>>3;
-  x[5] = (x[8]-(W1+W7)*x[5])>>3;
-  x[8] = W3*(x[6]+x[7]) + 4;
-  x[6] = (x[8]-(W3-W5)*x[6])>>3;
-  x[7] = (x[8]-(W3+W5)*x[7])>>3;
+  tmpval = W7*(x[4]+x[5]) + 4;      // fly2.t = (565*(I1+I7)+OS:4
+  x[4] = (tmpval+(W1-W7)*x[4])>>3;  // fly2.O1 = (t+(I1*2276))>>ATTEN:3
+  x[5] = (tmpval-(W1+W7)*x[5])>>3;  // fly2.O2 = (t+(I2*-3406))>>ATTEN:3
+  tmpval = W3*(x[6]+x[7]) + 4;      // fly1.t = (2408*(I5+I3))+OS:4
+  x[6] = (tmpval-(W3-W5)*x[6])>>3;  // fly1.O1 = (t+(I5*-799))>>ATTEN:3
+  x[7] = (tmpval-(W3+W5)*x[7])>>3;  // fly1.O2 = (t+(I3*-4017))>>ATTEN:3
   
   /* second stage */
-  x[8] = x[0] + x[1];
-  x[0] -= x[1];
-  x[1] = W6*(x[3]+x[2]) + 4;
-  x[2] = (x[1]-(W2+W6)*x[2])>>3;
-  x[3] = (x[1]+(W2-W6)*x[3])>>3;
-  x[1] = x[4] + x[6];
-  x[4] -= x[6];
-  x[6] = x[5] + x[7];
-  x[5] -= x[7];
+  x[8] = x[0] + x[1];               // addsub1.O1 G:1 OS:0 ATTEN:0
+  x[0] -= x[1];                     // addsub1.O2
+  tmpval = W6*(x[3]+x[2]) + 4;      // fly3.t = (1108*(I2+I6)+OS:4
+  x[2] = (tmpval-(W2+W6)*x[2])>>3;  // fly3.O1 = (t+(I6*-3784))>>ATTEN:3
+  x[3] = (tmpval+(W2-W6)*x[3])>>3;  // fly3.O2 = (t+(I2*1568))>>ATTEN:3
+  x[1] = x[4] + x[6];               // addsub2.O1 G:1 OS:0 ATTEN:0
+  x[4] -= x[6];                     // addsub2.O2
+  x[6] = x[5] + x[7];               // addsub3.O1 G:1 OS:0 ATTEN:0
+  x[5] -= x[7];                     // addsub3.O2
   
   /* third stage */
-  x[7] = x[8] + x[3];
-  x[8] -= x[3];
-  x[3] = x[0] + x[2];
-  x[0] -= x[2];
-  x[2] = (181*(x[4]+x[5])+128)>>8;
-  x[4] = (181*(x[4]-x[5])+128)>>8;
+  x[7] = x[8] + x[3];               // addsub4.O1 G:1 OS:0 ATTEN:0
+  x[8] -= x[3];                     // addsub4.O2
+  x[3] = x[0] + x[2];               // addsub5.O1 G:1 OS:0 ATTEN:0
+  x[0] -= x[2];                     // addsub5.O2
+  x[2] = (181*(x[4]+x[5])+128)>>8;  // addsub6.O1 G:181 OS:128 ATTEN:8
+  x[4] = (181*(x[4]-x[5])+128)>>8;  // addsub6.O2
   
   /* fourth stage */
-	v = (x[7]+x[1])>>14;
-  blk[8*0] = v < negMaxval ? negMaxval : v > MAXVAL_PIXEL ? MAXVAL_PIXEL : v;
-	v = (x[3]+x[2])>>14;
-  blk[8*1] = v < negMaxval ? negMaxval : v > MAXVAL_PIXEL ? MAXVAL_PIXEL : v;
-	v =  (x[0]+x[4])>>14;
-  blk[8*2] = v < negMaxval ? negMaxval : v > MAXVAL_PIXEL ? MAXVAL_PIXEL : v;
-	v = (x[8]+x[6])>>14;
-  blk[8*3] = v < negMaxval ? negMaxval : v > MAXVAL_PIXEL ? MAXVAL_PIXEL : v;
-	v = (x[8]-x[6])>>14;
-  blk[8*4] = v < negMaxval ? negMaxval : v > MAXVAL_PIXEL ? MAXVAL_PIXEL : v;
-	v = (x[0]-x[4])>>14;
-  blk[8*5] = v < negMaxval ? negMaxval : v > MAXVAL_PIXEL ? MAXVAL_PIXEL : v;
-	v = (x[3]-x[2])>>14;
-  blk[8*6] = v < negMaxval ? negMaxval : v > MAXVAL_PIXEL ? MAXVAL_PIXEL : v;
-	v = (x[7]-x[1])>>14;
-  blk[8*7] = v < negMaxval ? negMaxval : v > MAXVAL_PIXEL ? MAXVAL_PIXEL : v;
+  tmpval = (x[7]+x[1])>>14;
+  blk[8*0] = tmpval < negMaxval
+    ? negMaxval
+    : tmpval > MAXVAL_PIXEL
+      ? MAXVAL_PIXEL
+      : tmpval;
+  tmpval = (x[3]+x[2])>>14;
+  blk[8*1] = tmpval < negMaxval
+    ? negMaxval
+    : tmpval > MAXVAL_PIXEL
+      ? MAXVAL_PIXEL 
+      : tmpval;
+  tmpval =  (x[0]+x[4])>>14;
+  blk[8*2] = tmpval < negMaxval
+    ? negMaxval
+    : tmpval > MAXVAL_PIXEL
+      ? MAXVAL_PIXEL
+      : tmpval;
+  tmpval = (x[8]+x[6])>>14;
+  blk[8*3] = tmpval < negMaxval
+    ? negMaxval
+    : tmpval > MAXVAL_PIXEL
+      ? MAXVAL_PIXEL
+      : tmpval;
+  tmpval = (x[8]-x[6])>>14;
+  blk[8*4] = tmpval < negMaxval
+    ? negMaxval
+    : tmpval > MAXVAL_PIXEL
+      ? MAXVAL_PIXEL
+      : tmpval;
+  tmpval = (x[0]-x[4])>>14;
+  blk[8*5] = tmpval < negMaxval
+    ? negMaxval
+    : tmpval > MAXVAL_PIXEL
+      ? MAXVAL_PIXEL
+      : tmpval;
+  tmpval = (x[3]-x[2])>>14;
+  blk[8*6] = tmpval < negMaxval
+    ? negMaxval
+    : tmpval > MAXVAL_PIXEL
+      ? MAXVAL_PIXEL
+      : tmpval;
+  tmpval = (x[7]-x[1])>>14;
+  blk[8*7] = tmpval < negMaxval
+    ? negMaxval
+    : tmpval > MAXVAL_PIXEL
+      ? MAXVAL_PIXEL
+      : tmpval;
 
-	return;
+  return;
 } // idctcol

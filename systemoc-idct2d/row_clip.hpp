@@ -46,8 +46,8 @@
 #include "IDCTclip.hpp"
 #include "min_duplex.hpp"
 
-#define MAXVAL_PIXEL		(  255 ) // 2^BITS_PIXEL - 1
-
+//#define MAXVAL_PIXEL		( 255 ) // 2^BITS_PIXEL - 1
+#define MAXVAL_PIXEL		( 127 ) // 2^(BITS_PIXEL-1) - 1
 
 class m_clip
   : public smoc_graph {
