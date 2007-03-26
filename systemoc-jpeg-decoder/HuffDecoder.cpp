@@ -104,15 +104,23 @@ bool HuffTblDecoder::isTable(const HuffTableType type) const {
   assert(IS_TABLE_CLASS_AC(m_tcth) || IS_TABLE_CLASS_DC(m_tcth));
   assert(IS_TABLE_DEST_ZERO(m_tcth) || IS_TABLE_DEST_ONE(m_tcth));
   if (IS_TABLE_CLASS_AC(m_tcth))
-    if (IS_TABLE_DEST_ZERO(m_tcth))
+    if (IS_TABLE_DEST_ZERO(m_tcth)) {
+      cerr << " --- table is AC0\n\n";
       return type == AC0;
-    else
+    }
+    else {
+      cerr << " --- table is AC1\n\n";
       return type == AC1;
+    }
   else
-    if (IS_TABLE_DEST_ZERO(m_tcth))
+    if (IS_TABLE_DEST_ZERO(m_tcth)) {
+      cerr << " --- table is DC0\n\n";
       return type == DC0;
-    else
+    }
+    else {
+      cerr << " --- table is DC1\n\n";
       return type == DC1;
+    }
 }
 
 
@@ -136,7 +144,8 @@ void HuffTblDecoder::storeBITS() {
 void HuffTblDecoder::storeHUFFVAL() {
   assert(m_symbolsLeft);
   --m_symbolsLeft;
-  DBG_OUT("storeHUFFVAL(): write pos: " << m_huffWritePos << "; "
+  DBG_OUT("storeHUFFVAL(): symbol: " << hex <<  in[0] << dec
+          << " write pos: " << m_huffWritePos << "; "
           << m_symbolsLeft << " bytes left now\n");
   m_tmpHuff.huffVal[m_huffWritePos++] = in[0];
 }
@@ -213,6 +222,36 @@ void HuffTblDecoder::finishTable() {
     }
   }
 
+#if 0
+  { // FIXME: just to debug above algorithm. remove
+    int k = 0;
+    int code = 0;
+    int size = HUFFSIZE[0];
+
+    do {
+      do {
+        //HUFFCODE[k] = code;
+        assert(HUFFCODE[k] == code);
+        ++code;
+        ++k;
+      }
+      while (HUFFSIZE[k] == size);
+
+      if (k == totalCodes)
+        break; // do {} while (1)
+
+      do {
+        code = code << 1;
+        ++size;
+      }
+      while (HUFFSIZE[k] != size);
+    }
+    while (1);
+  }
+#endif
+
+
+
   // MINCODE, MAXCODE, and VALPTR - p.108 F.15
   // NOTE: we use unsigned 16bit values for min and max! test for 0xffff in
   // decode() function in addition to code > maxcode(i) in F.16.
@@ -221,8 +260,8 @@ void HuffTblDecoder::finishTable() {
   for (int i = 0; i < 16; ++i) { // i + 1 == CodeSize
     if (m_BITS[i] == 0) {
       m_tmpHuff.maxCode[i] = 0xffff;
-      //DBG_OUT("  code size " << i + 1 << " - maxCode: "
-      //        << m_tmpHuff.maxCode[i] << std::endl);
+      DBG_OUT("  code size " << i + 1 << " - maxCode: "
+              << m_tmpHuff.maxCode[i] << std::endl);
     }
     else {        
       m_tmpHuff.valPtr[i] = codePos;
@@ -230,20 +269,41 @@ void HuffTblDecoder::finishTable() {
       codePos = codePos + m_BITS[i] - 1;
       m_tmpHuff.maxCode[i] = HUFFCODE[codePos];
       ++codePos;
-      /*DBG_OUT("  code size " << i + 1
+      DBG_OUT("  code size " << i + 1
               << " - maxCode: " << m_tmpHuff.maxCode[i]
               << ", minCode: " << m_tmpHuff.minCode[i]
               << ", valPtr: " << (int)m_tmpHuff.valPtr[i]
-              << std::endl);*/
+              << std::endl);
     }
   }
 
-  /*
   // debug dump tables
   for (int i = 0; i < totalCodes; ++i) {
     DBG_OUT(" " << i << " - size: " << (int)HUFFSIZE[i]
             << ", code: " << HUFFCODE[i] << std::endl);
-  }*/
+  }
+
+
+  { // FIXME: remove, just for debugging purpose
+    ExpHuffTbl table;
+    int j = 0;
+    for (int size = 1; size < 17; ++size) {
+      if (m_BITS[size - 1] == 0) {
+        table.maxCode[size - 1] = 0xffff;
+        assert(table.maxCode[size - 1] == m_tmpHuff.maxCode[size - 1]);
+      }
+      else {
+        table.valPtr[size - 1] = j;
+        assert(table.valPtr[size - 1] == m_tmpHuff.valPtr[size - 1]);
+        table.minCode[size - 1] = HUFFCODE[j];
+        assert(table.minCode[size - 1] == m_tmpHuff.minCode[size - 1]);
+        j = j + m_BITS[size - 1] - 1;
+        table.maxCode[size - 1] = HUFFCODE[j];
+        assert(table.maxCode[size - 1] == m_tmpHuff.maxCode[size - 1]);
+        ++j;
+      }
+    }
+  }
 }
 
 
@@ -260,3 +320,348 @@ void HuffTblDecoder::writeTable(smoc_port_out<ExpHuffTbl> &out) {
   DBG_OUT("writeTable(): done\n");
 }
 
+
+/*****************************************************************************/
+
+
+InvHuffman::InvHuffman(sc_module_name name)
+  : smoc_actor(name, main),
+    compIndex(0),
+    nextBitIndex(0),
+    dbgout(std::cerr),
+    dbgbuff(Debug::Low),
+    m_currentComp(0),
+    m_currentAc(0)
+{
+  CoSupport::Header myHeader("InvHuffman> ");
+
+  dbgout << myHeader;
+  dbgout.insert(dbgbuff);
+
+  main
+    /*
+     * handle ctrls
+     */
+    // ignore and forward control tokens
+    = ( in(1) && JS_ISCTRL(in.getValueAt(0))                   &&
+        GUARD(InvHuffman::isTediousCtrl) )                     >>
+// FIXME: disabled for testbench
+//      out(1)                                                   >>
+      CALL(InvHuffman::forwardCtrl)                            >> main
+    | // treat and forward USEHUFF CTRLs                                    
+      ( in(1) && JS_ISCTRL(in.getValueAt(0))                   &&
+        GUARD(InvHuffman::isUseHuff) )                         >>
+//      out(1)                                                   >>
+      CALL(InvHuffman::useHuff)                                >> main
+    | // treat and forward NEWSCAN CTRLs                                    
+      ( in(1) && JS_ISCTRL(in.getValueAt(0))                   &&
+        GUARD(InvHuffman::isNewScan) )                         >>
+//      out(1)                                                   >>
+      CALL(InvHuffman::setCompInterleaving)                    >> main
+    | // discard HuffTable AC0
+      ( inHuffTblAC0(1) && in(1)                               &&
+        JS_ISCTRL(in.getValueAt(0))                            &&
+        GUARD(InvHuffman::isDiscardHuff)                       &&
+        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_AC)(0) )        >>
+//      out(1)                                                   >>
+      CALL(InvHuffman::discardHuff)(inHuffTblAC0)              >> main
+    | // discard HuffTable AC1
+      ( inHuffTblAC1(1) && in(1)                               &&
+        JS_ISCTRL(in.getValueAt(0))                            &&
+        GUARD(InvHuffman::isDiscardHuff)                       &&
+        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_AC)(1) )        >>
+//      out(1)                                                   >>
+      CALL(InvHuffman::discardHuff)(inHuffTblAC1)              >> main
+    | // discard HuffTable DC0
+      ( inHuffTblDC0(1) && in(1)                               &&
+        JS_ISCTRL(in.getValueAt(0))                            &&
+        GUARD(InvHuffman::isDiscardHuff)                       &&
+        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_DC)(0) )        >>
+//      out(1)                                                   >>
+      CALL(InvHuffman::discardHuff)(inHuffTblDC0)              >> main
+    | // discard HuffTable DC1
+      ( inHuffTblDC1(1)  && in(1)                              &&
+        JS_ISCTRL(in.getValueAt(0))                            &&
+        GUARD(InvHuffman::isDiscardHuff)                       &&
+        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_DC)(1) )        >>
+//      out(1)                                                   >>
+      CALL(InvHuffman::discardHuff)(inHuffTblDC1)              >> main
+    /*
+     * handle data
+     */
+    | // store data
+      ( in(1)                                                  &&
+        !JS_ISCTRL(in.getValueAt(0))                           &&
+        GUARD(InvHuffman::canStore) )                          >>
+      CALL(InvHuffman::storeData)                              >> main
+    | // huffmann decode DC bit length using table 0
+      ( GUARD(InvHuffman::currentDcIsDc0)                      &&
+        inHuffTblDC0(0, 1)                                     &&
+        GUARD(InvHuffman::canHuffDecodeDc) )                   >>
+      CALL(InvHuffman::huffDecodeDC)                           >> discoverDC
+    | // huffmann decode DC bit length using table 1
+      ( GUARD(InvHuffman::currentDcIsDc1)                      &&
+        inHuffTblDC1(0, 1)                                     &&
+        GUARD(InvHuffman::canHuffDecodeDc) )                   >>
+      CALL(InvHuffman::huffDecodeDC)                           >> discoverDC
+    ;
+
+  discoverDC
+    = // enough bits to read DC difference?
+      GUARD(InvHuffman::isEnoughDcBits)                        >>
+      out(1)                                                   >>
+      CALL(InvHuffman::writeDcDiff)                            >> discoverAC
+    | // store data
+      ( in(1)                                                  &&
+        !JS_ISCTRL(in.getValueAt(0))                           &&
+        GUARD(InvHuffman::canStore) )                          >>
+      CALL(InvHuffman::storeData)                              >> discoverDC
+    ;
+
+  discoverAC // NOTE: we probably have tables, maybe remove check?
+    = //
+      ( GUARD(InvHuffman::currentAcIsAc0)                      &&
+        inHuffTblAC0(0, 1)                                     &&
+        GUARD(InvHuffman::canHuffDecodeAc)                     &&
+        GUARD(InvHuffman::isMoreAc) )                          >>
+      CALL(InvHuffman::huffDecodeAC)                           >> writeAC
+    | //
+      ( GUARD(InvHuffman::currentAcIsAc1)                      &&
+        inHuffTblAC1(0, 1)                                     &&
+        GUARD(InvHuffman::canHuffDecodeAc)                     &&
+        GUARD(InvHuffman::isMoreAc) )                          >>
+      CALL(InvHuffman::huffDecodeAC)                           >> writeAC
+    | // store data
+      ( in(1)                                                  &&
+        !JS_ISCTRL(in.getValueAt(0))                           &&
+        GUARD(InvHuffman::canStore) )                          >>
+      CALL(InvHuffman::storeData)                              >> discoverAC
+    |
+      !GUARD(InvHuffman::isMoreAc)                             >>
+      CALL(InvHuffman::finishedBlock)                          >> main
+    ;
+
+  writeAC
+    = //
+      GUARD(InvHuffman::isEnoughAcBits)                        >>
+      out(1)                                                   >>
+      CALL(InvHuffman::writeAcDiff)                            >> discoverAC
+    | // store data
+      ( in(1)                                                  &&
+        !JS_ISCTRL(in.getValueAt(0))                           &&
+        GUARD(InvHuffman::canStore) )                          >>
+      CALL(InvHuffman::storeData)                              >> writeAC
+    ;
+
+
+
+#if 0  
+
+  main
+    // ignore and forward control tokens
+    = ( in(1) && JS_ISCTRL(in.getValueAt(0))                    &&
+        !GUARD(InvHuffman::isUseHuff)                           &&
+        !GUARD(InvHuffman::isDiscardHuff)                       &&
+        !GUARD(InvHuffman::isNewScan) )                         >>
+      out(1)                                                    >>
+      CALL(InvHuffman::forwardCtrl)                             >> main
+    | // treat and forward USEHUFF CTRLs                                    
+      ( in(1) && JS_ISCTRL(in.getValueAt(0))                    &&
+        GUARD(InvHuffman::isUseHuff) )                          >>
+      out(1)                                                    >>
+      CALL(InvHuffman::useHuff)                                 >> main
+    | // treat and forward NEWSCAN CTRLs                                    
+      ( in(1) && JS_ISCTRL(in.getValueAt(0))                    &&
+        GUARD(InvHuffman::isNewScan) )                          >>
+      out(1)                                                    >>
+      CALL(InvHuffman::setCompInterleaving)                     >> main
+    | // decode DC
+      ( in(0, 1) && !JS_ISCTRL(in.getValueAt(0)) ) >> dcDecoding
+    | // discard HuffTable AC0
+      ( inHuffTblAC0(1) && in(1)                              &&
+        JS_ISCTRL(in.getValueAt(0))                           &&
+        GUARD(InvHuffman::isDiscardHuff)                      &&
+        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_AC)(0) )       >>
+      out(1)                                                  >>
+      CALL(InvHuffman::discardHuff)(inHuffTblAC0)             >> main
+    | // discard HuffTable AC1
+      ( inHuffTblAC1(1) && in(1)                              &&
+        JS_ISCTRL(in.getValueAt(0))                           &&
+        GUARD(InvHuffman::isDiscardHuff)                      &&
+        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_AC)(1) )       >>
+      out(1)                                                  >>
+      CALL(InvHuffman::discardHuff)(inHuffTblAC1)             >> main
+    | // discard HuffTable DC0
+      ( inHuffTblDC0(1) && in(1)                              &&
+        JS_ISCTRL(in.getValueAt(0))                           &&
+        GUARD(InvHuffman::isDiscardHuff)                      &&
+        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_DC)(0) )       >>
+      out(1)                                                  >>
+      CALL(InvHuffman::discardHuff)(inHuffTblDC0)             >> main
+    | // discard HuffTable DC1
+      ( inHuffTblDC1(1)  && in(1)                             &&
+        JS_ISCTRL(in.getValueAt(0))                           &&
+        GUARD(InvHuffman::isDiscardHuff)                      &&
+        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_DC)(1) )       >>
+      out(1)                                                  >>
+      CALL(InvHuffman::discardHuff)(inHuffTblDC1)             >> main
+    ;
+
+  dcDecoding 
+    = // decodeDC
+    ( in(0, NEXTBIT_MAX_CLAIM) && inHuffTblDC0(0,1)           && 
+      !JS_ISCTRL(in.getValueAt(0))                            &&
+      !GUARD(InvHuffman::needToClaimBits) )                   >>
+    out(1)                                                    >>
+    CALL(InvHuffman::decodeDC)(inHuffTblDC0)                  >> acDecoding
+    | // consum token if 8 or more bits are processed 
+    ( in(1)                                                   && 
+      !JS_ISCTRL(in.getValueAt(0))                            &&
+      GUARD(InvHuffman::needToClaimBits) )                    >>
+      CALL(InvHuffman::claimBits)                             >> dcDecoding
+    | // go back to main if CTRL is found
+    ( in(0,1)                                                 &&
+      JS_ISCTRL(in.getValueAt(0)) )                           >> main;
+
+  acDecoding // decodeAC
+    = ( in(0, NEXTBIT_MAX_CLAIM) && inHuffTblAC0(0,1)         &&
+        !JS_ISCTRL(in.getValueAt(0))                          &&
+        !GUARD(InvHuffman::needToClaimBits) )                 >>
+      out(1)                                                  >>
+      CALL(InvHuffman::decodeAC)(inHuffTblAC0)                >> acDecoding
+    | // consum token if 8 or more bits are processed 
+    ( in(1)                                                   && 
+      !JS_ISCTRL(in.getValueAt(0))                            &&
+      GUARD(InvHuffman::needToClaimBits) )                    >>
+      CALL(InvHuffman::claimBits)                             >> acDecoding
+    | // go back to main if CTRL is found
+    ( in(0,1)                                                 &&
+      JS_ISCTRL(in.getValueAt(0)) )                           >> main
+    | // after reading 63 codeworts or R == 15
+    ( in(0,1) &&
+      GUARD(InvHuffman::isNextBlock) )  >>
+      CALL(InvHuffman::nextBlock) >> dcDecoding
+    ;
+#endif
+}
+
+
+//
+void InvHuffman::huffDecodeDC(void) {
+  size_t codeSize;
+  DecodedSymbol_t symbol;
+
+  const bool ret = decodeHuff(getCurrentDcTable(), symbol, codeSize);
+  assert(ret);
+  DBG_OUT("decodeDc(): used " << codeSize << " bits\n");
+  m_BitSplitter.skipBits(codeSize);
+  DBG_OUT("decodeDc(): need to read " << symbol << " bits\n");
+  m_receiveDcBits = symbol;
+}
+
+
+//
+void InvHuffman::huffDecodeAC(void) {
+  size_t codeSize;
+  DecodedSymbol_t symbol;
+
+  const bool ret = decodeHuff(getCurrentAcTable(), symbol, codeSize);
+  assert(ret);
+  DBG_OUT("decodeAc(): used " << codeSize << " bits\n");
+  m_BitSplitter.skipBits(codeSize);
+  m_receiveAcSymbol = symbol;
+}
+
+
+//
+void InvHuffman::writeAcDiff(void) {
+  const uint4_t readBits = m_receiveAcSymbol % 16; // SSSS
+  const uint4_t r = (m_receiveAcSymbol >> 4); // R = RRRR
+  uint11_t receivedBits = 0;
+
+  if (readBits == 0) {
+    if (r == 15)
+      m_currentAc += 16;
+    else {
+      // no more ACs, set counter to high value to avoid reading bits
+      m_currentAc = 65;
+    }
+  }
+  else {
+    m_currentAc += r;
+    ++m_currentAc;
+    receivedBits = m_BitSplitter.getBits(readBits);
+    m_BitSplitter.skipBits(readBits);
+  }
+
+  JpegChannel_t acDiff =
+    JS_DATA_TUPPLED_SET_CHWORD(receivedBits, r, readBits);
+
+  DBG_OUT("writeAcDiff(): write AC difference: " << acDiff << endl);
+  out[0] = acDiff;
+}
+
+
+//
+void InvHuffman::writeDcDiff(void) {
+  assert(m_receiveDcBits <= 11);
+  size_t receivedBits = m_BitSplitter.getBits(m_receiveDcBits);
+  JpegChannel_t dcDiff =
+    JS_DATA_TUPPLED_SET_CHWORD(receivedBits, 0, m_receiveDcBits);
+  m_BitSplitter.skipBits(m_receiveDcBits);
+  DBG_OUT("writeDcDiff(): write DC difference: " << dcDiff << endl);
+  out[0] = dcDiff;
+}
+
+
+// decode
+bool InvHuffman::decodeHuff(const smoc_port_in<ExpHuffTbl> &in,
+                            DecodedSymbol_t &symbol,
+                            size_t &numBits) const
+{
+  size_t codeSize = 1;
+
+  //HuffmanCode_t codeWord;
+  size_t codeWord;
+
+  const ExpHuffTbl &table = in[0];
+
+  for (int i = 0; i < 16; ++i) {
+    cerr << "   maxCode " << i << " is " << table.maxCode[i] << endl;
+  }
+
+  while (m_BitSplitter.bitsLeft() >= codeSize) {
+    codeWord = m_BitSplitter.getBits(codeSize);
+    cerr << " DECODE> codeSize == " << codeSize << endl;
+    cerr << " DECODE> i try codeword " << codeWord << endl;
+    if ((table.maxCode[codeSize - 1] == 0xffff) ||
+        (codeWord > table.maxCode[codeSize - 1]))
+    {
+      cerr << " DECODE> table.maxCode[codeSize - 1] == "
+           << table.maxCode[codeSize - 1] << endl;
+      ++codeSize;
+      cerr << " DECODE> increased codesize\n";
+    }
+    else {
+      size_t pos = table.valPtr[codeSize - 1];
+      pos = pos + codeWord - table.minCode[codeSize - 1];
+      cerr << " pos: " << pos << endl;
+      // FIXME: remove debug code
+      cerr << " codeSize " << codeSize
+           << " table.valPtr[codeSize - 1] " << table.valPtr[codeSize - 1]
+           << " codeWord " << codeWord
+           << " table.minCode[codeSize - 1] " << table.minCode[codeSize - 1]
+           << endl;
+      assert(pos < 256);
+      symbol = table.huffVal[pos];
+      break; // while
+    }
+  }
+
+  if (m_BitSplitter.bitsLeft() < codeSize)
+    return false; // sorry, couldn't decode
+  else {
+    numBits = codeSize;
+    return true;
+  }
+}

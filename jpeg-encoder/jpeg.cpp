@@ -590,8 +590,8 @@ int main( int argc, char *argv[] ) {
 //    HuffmanTable htDCCbCr(HuffmanTable::HT_DC|2, HuffmanDCCbCr);
 //    HuffmanTable htACCbCr(HuffmanTable::HT_AC|3, HuffmanACCbCr);
 
-//    std::cout << "htDCY-Dump" << std::endl << htDCY << std::endl;
-//    std::cout << "htACY-Dump" << std::endl << htACY << std::endl;
+      std::cout << "htDCY-Dump" << std::endl << htDCY << std::endl;
+      std::cout << "htACY-Dump" << std::endl << htACY << std::endl;
       
       std::ofstream myjpgfile( "myjpeg.jpg" );
       JPEGOutStream myjpg( myjpgfile );

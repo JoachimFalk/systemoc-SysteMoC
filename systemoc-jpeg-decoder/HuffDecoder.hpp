@@ -46,7 +46,10 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_node_types.hpp>
 
+#include <assert.h>
+
 #include "channels.hpp"
+#include "BitSplitter.hpp"
 
 #define HUFF_GET_CATEGORY(x) ((x) && 0x0F)
 #define HUFF_GET_RUNLENGTH(x) ((x) && 0xF0)
@@ -58,7 +61,7 @@
 /// Debug dht synchronisation
 #define IS_DHT_SYNC(x) (0xF0 == (x))
 
-
+// what does 'Exp' mean?
 struct ExpHuffTbl {
   uint8_t          valPtr[16];   // value pointers to first symbol of codelength
                                  //  'index'
@@ -96,10 +99,14 @@ enum HuffTableType {
   DC1
 };
 
+
+
+
 /*****************************************************************************/
 
 // needed by SysteMoC!
 ostream &operator<<(ostream &out, const ExpHuffTbl &eht);
+
 
 /******************************************************************************
  *
@@ -114,104 +121,8 @@ public:
   smoc_port_in<ExpHuffTbl>      inHuffTblDC1;
   smoc_port_out<JpegChannel_t>  out;
 
-  InvHuffman(sc_module_name name)
-    : smoc_actor(name, main),
-      compIndex(0),
-      nextBitIndex(0),
-      dbgout(std::cerr),
-    dbgbuff(Debug::Low)
-  {
-  CoSupport::Header myHeader("InvHuffman> ");
-
-  dbgout << myHeader;
-  dbgout.insert(dbgbuff);
-
-    main
-      // ignore and forward control tokens
-      = ( in(1) && JS_ISCTRL(in.getValueAt(0))                    &&
-          !GUARD(InvHuffman::isUseHuff)                           &&
-          !GUARD(InvHuffman::isDiscardHuff)                       &&
-          !GUARD(InvHuffman::isNewScan) )                         >>
-        out(1)                                                    >>
-        CALL(InvHuffman::forwardCtrl)                             >> main
-      | // treat and forward USEHUFF CTRLs                                    
-        ( in(1) && JS_ISCTRL(in.getValueAt(0))                    &&
-          GUARD(InvHuffman::isUseHuff) )                          >>
-        out(1)                                                    >>
-        CALL(InvHuffman::useHuff)                                 >> main
-      | // treat and forward NEWSCAN CTRLs                                    
-        ( in(1) && JS_ISCTRL(in.getValueAt(0))                    &&
-          GUARD(InvHuffman::isNewScan) )                          >>
-        out(1)                                                    >>
-        CALL(InvHuffman::setCompInterleaving)                     >> main
-      | // decode DC
-        ( in(0, 1) && !JS_ISCTRL(in.getValueAt(0)) ) >> dcDecoding
-      | // discard HuffTable AC0
-        ( inHuffTblAC0(1) && in(1)                              &&
-          JS_ISCTRL(in.getValueAt(0))                           &&
-          GUARD(InvHuffman::isDiscardHuff)                      &&
-          GUARD(InvHuffman::isHuffTblId)(HUFFTBL_AC)(0) )       >>
-        out(1)                                                  >>
-        CALL(InvHuffman::discardHuff)(inHuffTblAC0)             >> main
-      | // discard HuffTable AC1
-        ( inHuffTblAC1(1) && in(1)                              &&
-          JS_ISCTRL(in.getValueAt(0))                           &&
-          GUARD(InvHuffman::isDiscardHuff)                      &&
-          GUARD(InvHuffman::isHuffTblId)(HUFFTBL_AC)(1) )       >>
-        out(1)                                                  >>
-        CALL(InvHuffman::discardHuff)(inHuffTblAC1)             >> main
-      | // discard HuffTable DC0
-        ( inHuffTblDC0(1) && in(1)                              &&
-          JS_ISCTRL(in.getValueAt(0))                           &&
-          GUARD(InvHuffman::isDiscardHuff)                      &&
-          GUARD(InvHuffman::isHuffTblId)(HUFFTBL_DC)(0) )       >>
-        out(1)                                                  >>
-        CALL(InvHuffman::discardHuff)(inHuffTblDC0)             >> main
-      | // discard HuffTable DC1
-        ( inHuffTblDC1(1)  && in(1)                             &&
-          JS_ISCTRL(in.getValueAt(0))                           &&
-          GUARD(InvHuffman::isDiscardHuff)                      &&
-          GUARD(InvHuffman::isHuffTblId)(HUFFTBL_DC)(1) )       >>
-        out(1)                                                  >>
-        CALL(InvHuffman::discardHuff)(inHuffTblDC1)             >> main
-      ;
-
-    dcDecoding 
-      = // decodeDC
-      ( in(0, NEXTBIT_MAX_CLAIM) && inHuffTblDC0(0,1)           && 
-        !JS_ISCTRL(in.getValueAt(0))                            &&
-        !GUARD(InvHuffman::needToClaimBits) )                   >>
-      out(1)                                                    >>
-      CALL(InvHuffman::decodeDC)(inHuffTblDC0)                  >> acDecoding
-      | // consum token if 8 or more bits are processed 
-      ( in(1)                                                   && 
-        !JS_ISCTRL(in.getValueAt(0))                            &&
-        GUARD(InvHuffman::needToClaimBits) )                    >>
-        CALL(InvHuffman::claimBits)                             >> dcDecoding
-      | // go back to main if CTRL is found
-      ( in(0,1)                                                 &&
-        JS_ISCTRL(in.getValueAt(0)) )                           >> main;
- 
-    acDecoding // decodeAC
-      = ( in(0, NEXTBIT_MAX_CLAIM) && inHuffTblAC0(0,1)         &&
-          !JS_ISCTRL(in.getValueAt(0))                          &&
-          !GUARD(InvHuffman::needToClaimBits) )                 >>
-        out(1)                                                  >>
-        CALL(InvHuffman::decodeAC)(inHuffTblAC0)                >> acDecoding
-      | // consum token if 8 or more bits are processed 
-      ( in(1)                                                   && 
-        !JS_ISCTRL(in.getValueAt(0))                            &&
-        GUARD(InvHuffman::needToClaimBits) )                    >>
-        CALL(InvHuffman::claimBits)                             >> acDecoding
-      | // go back to main if CTRL is found
-      ( in(0,1)                                                 &&
-        JS_ISCTRL(in.getValueAt(0)) )                           >> main
-      | // after reading 63 codeworts or R == 15
-      ( in(0,1) &&
-        GUARD(InvHuffman::isNextBlock) )  >>
-        CALL(InvHuffman::nextBlock) >> dcDecoding
-      ;
-  }
+  //
+  InvHuffman(sc_module_name name);
 
 private:
   //
@@ -232,48 +143,130 @@ private:
 
   //
   bool isNewScan() const {
-    cerr << "isNewScan() "
-         << (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_NEWSCAN)
-         << endl;
-
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_NEWSCAN);
   }
 
   //
   bool isDiscardHuff() const {
-    cerr << "isDiscardHuff() "
-         << ( (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_DISCARDHUFF))
-         << endl;
-
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_DISCARDHUFF);
+  }
+
+  // some ctrl we are not interested in
+  bool isTediousCtrl() const {
+    return !(isDiscardHuff() || isNewScan() || isUseHuff());
   }
 
   //
   bool isHuffTblId(HuffTblType_t type, HuffTblID_t id) const {
-    cerr << "isHuffTblId() "
+    /*cerr << "isHuffTblId() "
          << ( (JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) == id) &&
               (JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) == type) )
-         << endl;
+         << endl;*/
+    cerr << "isHuffTblId(): type: " << JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0])
+         << "; id: " << JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << endl
+         << "   is? type: " << type << "; id: " << id << endl;
     assert(JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_DISCARDHUFF);
 
     return ( (JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) == id) &&
              (JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) == type) );
   }
 
-  // decodeDC
-  void decodeDC(const smoc_port_in<ExpHuffTbl> &table){
-    DBG_OUT("decodeDC() " << in[0] << endl);
-    bit_t b = nextBit();
-    //FIXME: dummy stub
-    out[0] = in[0];
-
+  //
+  bool currentDcIsDc0(void) const {
+    return m_useHuffTableDc[m_currentComp] == 0;
   }
 
   //
+  bool currentDcIsDc1(void) const {
+    return m_useHuffTableDc[m_currentComp] == 1;
+  }
+
+  //
+  bool currentAcIsAc0(void) const {
+    if (m_useHuffTableAc[m_currentComp] == 0)
+      cerr << " --- currentAcIsAc0 is TRUE\n";
+    else
+      cerr << " --- currentAcIsAc0 is FALSE\n";
+    return m_useHuffTableAc[m_currentComp] == 0;
+  }
+
+  //
+  bool currentAcIsAc1(void) const {
+    return m_useHuffTableAc[m_currentComp] == 1;
+  }
+
+  //
+  bool canHuffDecodeDc(void) const {
+    size_t dummy;
+    DecodedSymbol_t symbol;
+
+    const bool ret = decodeHuff(getCurrentDcTable(), symbol, dummy);
+    // FIXME: remove debug code
+    if (ret)
+      cerr << "canDecodeDc(): can decode :-)\n";
+    else
+      cerr << "canDecodeDc(): can't decode :-(\n";
+    return ret;
+  }
+
+  //
+  bool canHuffDecodeAc(void) const {
+    size_t dummy;
+    DecodedSymbol_t symbol;
+
+    const bool ret = decodeHuff(getCurrentAcTable(), symbol, dummy);
+    // FIXME: remove debug code
+    if (ret)
+      cerr << "canDecodeAc(): can decode :-)\n";
+    else
+      cerr << "canDecodeAc(): can't decode :-(\n";
+    return ret;
+  }
+
+  //
+  bool isData(void) const { return !m_BitSplitter.isEmpty(); }
+
+  //
+  bool isEnoughDcBits(void) const {
+    return (m_BitSplitter.bitsLeft() >= m_receiveDcBits);
+  }
+
+  //
+  bool isEnoughAcBits(void) const {
+    // see F.13, p. 106
+    return (m_BitSplitter.bitsLeft() >= (m_receiveAcSymbol % 16));
+  }
+
+  //
+  bool canStore(void) const { return !m_BitSplitter.isFull(); }
+
+  //
+  bool isMoreAc(void) const { return (m_currentAc <= 64); }
+
+  //
+  void storeData(void) {
+    DBG_OUT("storeData(): store one byte: "
+            << (size_t)JS_DATA_GET(in[0]) << endl);
+    m_BitSplitter.addByte(JS_DATA_GET(in[0]));
+  }
+
+  // decode huffmann encoded DC bit length
+  void huffDecodeDC(void);
+
+  //
+  void huffDecodeAC(void);
+
+  //
+  void writeDcDiff(void);
+  
+  //
+  void writeAcDiff(void);
+
+  /*//
   bit_t nextBit() {
     DBG_OUT("nextBit()\n");
-    int fifoIdx = nextBitIndex/8;
-    int wordIdx = nextBitIndex%8;
+    int fifoIdx = nextBitIndex / 8;
+    int wordIdx = nextBitIndex % 8;
     assert(fifoIdx < NEXTBIT_MAX_CLAIM);
     bit_t b = UDEMASK(in[fifoIdx], wordIdx, 1);
     ++nextBitIndex;
@@ -293,12 +286,34 @@ private:
     bit_t b = nextBit();
     //FIXME: dummy stub
     out[0] = in[0];
+  }*/
+
+  //
+  const smoc_port_in<ExpHuffTbl> &getCurrentAcTable(void) const {
+    if (m_useHuffTableAc[m_currentComp] == 0) {
+      cerr << " --- current table is AC0\n";
+      return inHuffTblAC0;
+    }
+    else {
+      assert(m_useHuffTableAc[m_currentComp] == 1);
+      return inHuffTblAC1;
+    }
+  }
+
+  //
+  const smoc_port_in<ExpHuffTbl> &getCurrentDcTable(void) const {
+    if (m_useHuffTableDc[m_currentComp] == 0)
+      return inHuffTblDC0;
+    else {
+      assert(m_useHuffTableDc[m_currentComp] == 1);
+      return inHuffTblDC1;
+    }
   }
 
   // decode
-  void decode(const smoc_port_in<ExpHuffTbl> &in){
-    
-  }
+  bool decodeHuff(const smoc_port_in<ExpHuffTbl> &in,
+                  DecodedSymbol_t &symbol,
+                  size_t &numBits) const;
 
   //
   void claimBits(){
@@ -308,48 +323,67 @@ private:
 
   //
   void setCompInterleaving(){
-    // forward CTRL
-    out[0] = in[0];
-
     DBG_OUT("setCompInterleaving()");
-    for(int i = 0; i < SCANPATTERN_LENGTH; ++i){
+    for (int i = 0; i < SCANPATTERN_LENGTH; ++i) {
       m_compInterleaving[i] = JS_CTRL_NEWSCAN_GETCOMP(in[0],i);
       DBG_OUT(" " << m_compInterleaving[i]);
     }
     DBG_OUT(endl);
+
+    forwardCtrl();
   }
 
   //
   void useHuff() {
-    // forward CTRL
-    out[0] = in[0];
-
     IntCompID_t cmp = JS_CTRL_USEHUFF_GETCOMP(in[0]);
     HuffTblID_t  dc = JS_CTRL_USEHUFF_GETDCTBL(in[0]);
     HuffTblID_t  ac = JS_CTRL_USEHUFF_GETACTBL(in[0]);
     DBG_OUT("useHuff() c: " << cmp << " dc: " << dc << " ac: " << ac << endl);
     m_useHuffTableAc[cmp] = ac;
     m_useHuffTableDc[cmp] = dc;
+
+    forwardCtrl();
   }
 
   //
   void discardHuff(const smoc_port_in<ExpHuffTbl> &tableIn) {
-    // forward CTRL
-    out[0] = in[0];
-
     DBG_OUT("discardHuff() ");
     DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
     DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
     DBG_OUT("\n");
   
     DBG_OUT(tableIn[0] << endl);
+
+    forwardCtrl();
+  }
+
+  //
+  void discardHuff2(const smoc_port_in<ExpHuffTbl> &tableIn) {
+    DBG_OUT("discardHuff() ");
+    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
+    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
+    DBG_OUT("\n");
+  
+    DBG_OUT(tableIn[0] << endl);
+
+    forwardCtrl();
+    assert("X" == "discardHuff2");
   }
 
   // forward control commands from input to output
   void forwardCtrl() {
-    DBG_OUT("forwardCtrl() " << in[0]  << endl);
-    out[0] = in[0];
+// FIXME
+    DBG_OUT("FIXME: NOT forwardCtrl() " << in[0]  << endl);
+    assert(JS_ISCTRL(in[0]));
+//    out[0] = in[0];
   }
+
+  //
+  void finishedBlock(void) {
+    DBG_OUT("finishedBlock(): finished decoding block\n");
+    m_currentAc = 0;
+  }
+
 
   int compIndex;
   int nextBitIndex;
@@ -359,8 +393,16 @@ private:
   CoSupport::DebugOstream dbgout;
   CoSupport::DebugStreambuf dbgbuff;
   smoc_firing_state main;
-  smoc_firing_state acDecoding;
-  smoc_firing_state dcDecoding;
+  smoc_firing_state discoverDC;
+  smoc_firing_state discoverAC;
+  smoc_firing_state writeAC;
+  //smoc_firing_state acDecoding;
+  //smoc_firing_state dcDecoding;
+  BitSplitter m_BitSplitter;
+  int m_currentComp;
+  DecodedSymbol_t m_receiveDcBits;
+  DecodedSymbol_t m_receiveAcSymbol;
+  size_t m_currentAc;
 };
 
 
@@ -387,8 +429,11 @@ private:
   bool isTable(const HuffTableType type) const;
 
   void storeTcTh() {
-    DBG_OUT("storeTcTh()\n");
     m_tcth = in[0];
+    const size_t tc = (m_tcth >> 4) & 0x0f;
+    const size_t th = m_tcth & 0x0f;
+    DBG_OUT("storeTcTh(): TC = " << tc
+            << "; TH = " << th << endl);
   }
 
   void storeBITS();

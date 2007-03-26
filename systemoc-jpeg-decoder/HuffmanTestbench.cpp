@@ -192,25 +192,32 @@ public:
   }
 };
 
+
+/******************************************************************************
+ *
+ *
+ */
 class TestToInvZrl: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
     //DBG_OUT("| " << hex << (unsigned int)in[0] << dec << std::endl);
-    
+
     CategoryAmplitude_t amplitude  = JS_TUP_GETIDCTAMPLCOEFF(in[0]);
     RunLength_t rle = JS_TUP_GETRUNLENGTH(in[0]);
     Category_t category = JS_TUP_GETCATEGORY(in[0]);
 
     if (pixel_id == 0){
       // DC coeff
+      DBG_OUT("got DC coeff\n");
       outfile << "DC "
 	      << (unsigned int)category << " "
 	      << (int)amplitude << endl;
       pixel_id++;
     }else{
       // AC coeff
+      DBG_OUT("got AC coeff\n");
       if ((rle == 0) && (category == 0)){
 	//End of block
 	pixel_id = 0;
@@ -255,6 +262,8 @@ public:
     start = in(1) >> CALL(TestToInvZrl::process)  >> start;
   }
 };
+
+
 
 class HuffmanTestbench
 : public smoc_graph {
