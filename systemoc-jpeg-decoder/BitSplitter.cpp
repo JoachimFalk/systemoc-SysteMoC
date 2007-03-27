@@ -1,8 +1,8 @@
 
 #include "BitSplitter.hpp"
 
-// FIXME
-using namespace std;
+using std::endl;
+using std::cerr;
 
 #undef UDEMASK
 #define UDEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
@@ -24,7 +24,7 @@ void BitSplitter::skipBits(const size_t n) {
   
   size_t bitsTodo = n;
   
-  cerr << " skipBits(): n = " << n << endl;
+  //cerr << " skipBits(): n = " << n << endl;
   
   // FIXME: remove loop?
   while ((bitsTodo > 0) && (bitsTodo >= m_firstByteBitsLeft)) {
@@ -85,21 +85,7 @@ BitSplitter::return_type BitSplitter::getBits(const size_t n) const {
 
   cerr << "  getBits(): bits: " << bits << endl;*/
 
-#if 0
-  { // FIXME: some old code for differen byte order
-    unsigned int ret = peekByte();
-    if (n > m_firstByteBitsLeft) {
-      ret |= (peekByteBefore(1) << 8);
-      if (n > m_firstByteBitsLeft + 8)
-        ret |= (peekByteBefore(2) << 16);
-    }
-    ret = ret >> (8 - m_firstByteBitsLeft);
-    ret = UDEMASK(ret, 0, n);
-    assert(ret == bits);
-  }
-#endif
-
-  return (return_type)bits;
+  return static_cast<return_type>(bits);
 }
 
 
@@ -134,7 +120,7 @@ void BitSplitter::dumpBuffer(std::ostream &out) const {
 
 //
 void BitSplitter::skipByte(void) {
-  cerr << " skipByte()" << endl;
+  //cerr << " skipByte()" << endl;
   assert(!isEmpty());
   --m_bufferNum;
   m_readPos = (m_readPos + 1) % m_bufferSize;
@@ -144,4 +130,3 @@ void BitSplitter::skipByte(void) {
   else
     m_firstByteBitsLeft = 0;
 }
-

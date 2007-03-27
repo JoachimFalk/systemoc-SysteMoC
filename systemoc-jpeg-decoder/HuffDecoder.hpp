@@ -130,11 +130,6 @@ private:
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_USEHUFF);
   }
 
-  // consum token if 8 or more bits are processed 
-  bool needToClaimBits() const {
-    return (nextBitIndex > 7);
-  }
-
   //
   bool isNewScan() const {
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_NEWSCAN);
@@ -152,13 +147,9 @@ private:
 
   //
   bool isHuffTblId(HuffTblType_t type, HuffTblID_t id) const {
-    /*cerr << "isHuffTblId() "
-         << ( (JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) == id) &&
-              (JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) == type) )
-         << endl;*/
-    cerr << "isHuffTblId(): type: " << JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0])
+    /*cerr << "isHuffTblId(): type: " << JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0])
          << "; id: " << JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << endl
-         << "   is? type: " << type << "; id: " << id << endl;
+         << "   is? type: " << type << "; id: " << id << endl;*/
     assert(JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_DISCARDHUFF);
 
     return ( (JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) == id) &&
@@ -189,13 +180,7 @@ private:
   bool canHuffDecodeDc(void) const {
     size_t dummy;
     DecodedSymbol_t symbol;
-
     const bool ret = decodeHuff(getCurrentDcTable(), symbol, dummy);
-    // FIXME: remove debug code
-    if (ret)
-      cerr << "canDecodeDc(): can decode :-)\n";
-    else
-      cerr << "canDecodeDc(): can't decode :-(\n";
     return ret;
   }
 
@@ -203,13 +188,7 @@ private:
   bool canHuffDecodeAc(void) const {
     size_t dummy;
     DecodedSymbol_t symbol;
-
     const bool ret = decodeHuff(getCurrentAcTable(), symbol, dummy);
-    // FIXME: remove debug code
-    if (ret)
-      cerr << "canDecodeAc(): can decode :-)\n";
-    else
-      cerr << "canDecodeAc(): can't decode :-(\n";
     return ret;
   }
 
@@ -224,7 +203,8 @@ private:
   //
   bool isEnoughAcBits(void) const {
     // see F.13, p. 106
-    return (m_BitSplitter.bitsLeft() >= static_cast<size_t>(m_receiveAcSymbol & 0x0f));
+    return (m_BitSplitter.bitsLeft() >=
+              static_cast<size_t>(m_receiveAcSymbol & 0x0f));
   }
 
   //
@@ -252,32 +232,6 @@ private:
   //
   void writeAcDiff(void);
 
-  /*//
-  bit_t nextBit() {
-    DBG_OUT("nextBit()\n");
-    int fifoIdx = nextBitIndex / 8;
-    int wordIdx = nextBitIndex % 8;
-    assert(fifoIdx < NEXTBIT_MAX_CLAIM);
-    bit_t b = UDEMASK(in[fifoIdx], wordIdx, 1);
-    ++nextBitIndex;
-    return b;
-  }
-
-  void nextBlock() {
-    // select next component
-    compIndex = (compIndex+1)%SCANPATTERN_LENGTH;
-
-    // select next HuffTables??
-  }
-
-  // decodeAC
-  void decodeAC(const smoc_port_in<ExpHuffTbl> &table){
-    DBG_OUT("decodeAC() " << in[0] << endl);
-    bit_t b = nextBit();
-    //FIXME: dummy stub
-    out[0] = in[0];
-  }*/
-
   //
   const smoc_port_in<ExpHuffTbl> &getCurrentAcTable(void) const {
     if (m_useHuffTableAc[m_currentComp] == 0)
@@ -302,12 +256,6 @@ private:
   bool decodeHuff(const smoc_port_in<ExpHuffTbl> &in,
                   DecodedSymbol_t &symbol,
                   size_t &numBits) const;
-
-  //
-  void claimBits(){
-    DBG_OUT("claimBits() " << endl);
-    nextBitIndex-=8;
-  }
 
   //
   void setCompInterleaving(){
@@ -360,8 +308,8 @@ private:
     m_currentAc = 0;
   }
 
+
   int compIndex;
-  int nextBitIndex;
   IntCompID_t m_compInterleaving[SCANPATTERN_LENGTH];      //6
   HuffTblID_t m_useHuffTableAc[JPEG_MAX_COLOR_COMPONENTS]; //3
   HuffTblID_t m_useHuffTableDc[JPEG_MAX_COLOR_COMPONENTS]; //3
@@ -377,7 +325,6 @@ private:
   DecodedSymbol_t m_receiveAcSymbol;
   size_t m_currentAc;
 };
-
 
 
 /******************************************************************************

@@ -34,9 +34,6 @@ public:
   size_t bitsLeft(void) const {
     if (isEmpty())
       return 0;
-
-    if (m_bufferNum == 1)
-      return m_firstByteBitsLeft;
     else
       return (m_bufferNum - 1) * 8 + m_firstByteBitsLeft;
   }
@@ -82,3 +79,4 @@ private:
 
 
 #endif // BIT_SPLITTER_H
+
