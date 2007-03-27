@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 /* vim: set sw=2 ts=8 sts=2 expandtab: */
 
 #include "PixelFormats.hpp"
@@ -487,6 +488,7 @@ int main( int argc, char *argv[] ) {
       ("do-dct", "Do DCT transformation step")
       ("src-image", po::value<std::string>(), "source image")
       ("idctcoeff-file", po::value<std::string>(), "if and where to store IDCT 8x8 block coefficients")
+      ("rle-idctcoeff-file", po::value<std::string>(), "if and where to store rle compressed IDCT 8x8 block coefficients")
       ("block-file", po::value<std::string>(), "if and where to store 8x8 block data")
       ("tupple-file", po::value<std::string>(), "if and where to store tupple data")
   ;
@@ -615,6 +617,10 @@ int main( int argc, char *argv[] ) {
       if (vm.count("idctcoeff-file"))
         fileIDCTCoeff.open(vm["idctcoeff-file"].as<std::string>().c_str());
 
+      std::ofstream rlefileIDCTCoeff;
+      if (vm.count("rle-idctcoeff-file"))
+        rlefileIDCTCoeff.open(vm["rle-idctcoeff-file"].as<std::string>().c_str());
+
       std::ofstream fileTupple;
       if (vm.count("tupple-file"))
         fileTupple.open(vm["tupple-file"].as<std::string>().c_str());
@@ -666,6 +672,31 @@ int main( int argc, char *argv[] ) {
                 fileIDCTCoeff << std::endl;
               }
               fileIDCTCoeff << std::endl;
+            }
+
+	    if (rlefileIDCTCoeff.good()) {
+	      // Perform zero run-length encoding
+	      // Note: different then in standard!!
+	      size_t rle = 0;
+              for (size_t i = 0; i < dctY; ++i) {
+                for (size_t j = 0; j < dctX; ++j) {
+		  if (res[j][i] == 0){
+		    rle++;
+		  }else{
+		    // write previous zeros, if any
+		    if (rle != 0){
+		      rlefileIDCTCoeff << "0, " << rle << ", ";
+		      rle = 0;
+		    }
+		    rlefileIDCTCoeff << res[j][i] << ", ";
+		  }
+                }
+              }
+	      if (rle != 0){
+		rlefileIDCTCoeff << "0, " << rle << ", ";
+		rle = 0;
+	      }
+              rlefileIDCTCoeff << std::endl;
             }
 
 //	    res.Dump( std::cout );
