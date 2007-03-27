@@ -247,7 +247,7 @@ private:
 public:
   InvZrl(sc_module_name name)
     : smoc_actor(name, process_dc_coeff),
-      dbgout(std::cout),
+      dbgout(std::cerr),
       pixel_id(0),
       runlength(0)      
   {

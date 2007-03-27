@@ -145,7 +145,7 @@ public:
     : smoc_actor(name, main),
       comp_id(0),
       pixel_id(0),
-      dbgout(std::cout)
+      dbgout(std::cerr)
   {
 
     //Set Debug ostream options

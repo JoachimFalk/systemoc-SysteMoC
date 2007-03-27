@@ -132,15 +132,15 @@ public:
     connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_2,mInvQuant.qt_table_2);
     connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_3,mInvQuant.qt_table_3);
     */   
-    smoc_fifo<qt_table_t> qtFifo(2*JS_QT_TABLE_SIZE+1);
-    for(int i=0; i <= 2*JS_QT_TABLE_SIZE; i++)
+    smoc_fifo<qt_table_t> qtFifo(JS_QT_TABLE_SIZE+1);
+    for (size_t i = 0; i < JS_QT_TABLE_SIZE; ++i)
       qtFifo << qt_table_t();
-
+    
+    connectNodePorts(mParser.qt_table_0, mInvQuant.qt_table_0, qtFifo);
     connectNodePorts(mParser.qt_table_1, mInvQuant.qt_table_1, qtFifo);
     connectNodePorts(mParser.qt_table_2, mInvQuant.qt_table_2, qtFifo);
     connectNodePorts(mParser.qt_table_3, mInvQuant.qt_table_3, qtFifo);
-
-    connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_0,mInvQuant.qt_table_0);
+    
     connectNodePorts<3>(mInvByteStuff.out,        mHuffDecoder.in);
     
     connectNodePorts<1>(mHuffDecoder.out,         mInvZrl.in);
@@ -148,11 +148,11 @@ public:
     connectNodePorts<1>(mInvZrl.out,              mDcDecoding.in);
     connectNodePorts<1>(mDcDecoding.out,          mInvQuant.in);
     connectNodePorts<1>(mInvQuant.out,            mCtrlSieve.in);
-
+    
     // FIXME: by rewriting mInvZigZag, the required buffer space can
     // be reduced
     connectNodePorts<JPEG_BLOCK_SIZE>(mCtrlSieve.out,mInvZigZag.in);
-
+    
 #ifdef DUMP_INTERMEDIATE
     connectNodePorts<1>(mInvZigZag.out,mDup2_1.in);
     connectNodePorts<64>(mDup2_1.out1,mBlock2Row.b);

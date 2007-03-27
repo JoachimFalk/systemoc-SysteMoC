@@ -224,7 +224,7 @@ private:
   //
   bool isEnoughAcBits(void) const {
     // see F.13, p. 106
-    return (m_BitSplitter.bitsLeft() >= (m_receiveAcSymbol & 0x0f));
+    return (m_BitSplitter.bitsLeft() >= static_cast<size_t>(m_receiveAcSymbol & 0x0f));
   }
 
   //
@@ -347,7 +347,7 @@ private:
 
   // forward control commands from input to output
   void forwardCtrl() {
-    DBG_OUT("FIXME: NOT forwardCtrl() " << in[0]  << endl);
+    DBG_OUT("forwardCtrl() " << in[0]  << endl);
     assert(JS_ISCTRL(in[0]));
     out[0] = in[0];
   }
@@ -360,14 +360,13 @@ private:
     m_currentAc = 0;
   }
 
-
   int compIndex;
   int nextBitIndex;
   IntCompID_t m_compInterleaving[SCANPATTERN_LENGTH];      //6
   HuffTblID_t m_useHuffTableAc[JPEG_MAX_COLOR_COMPONENTS]; //3
   HuffTblID_t m_useHuffTableDc[JPEG_MAX_COLOR_COMPONENTS]; //3
   CoSupport::DebugOstream dbgout;
-  CoSupport::DebugStreambuf dbgbuff;
+//CoSupport::DebugStreambuf dbgbuff;
   smoc_firing_state main;
   smoc_firing_state discoverDC;
   smoc_firing_state discoverAC;
@@ -435,7 +434,7 @@ private:
   size_t m_huffWritePos;
 
   CoSupport::DebugOstream dbgout;
-  CoSupport::DebugStreambuf dbgbuff;
+//CoSupport::DebugStreambuf dbgbuff;
   smoc_firing_state waitTcTh;
   smoc_firing_state waitHUFFVAL;
   smoc_firing_state waitBITS;

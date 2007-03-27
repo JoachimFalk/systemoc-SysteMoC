@@ -41,14 +41,12 @@ HuffTblDecoder::HuffTblDecoder(sc_module_name name)
   : smoc_actor(name, waitTcTh),
     m_symbolsLeft(0),
     m_huffWritePos(0),
-    dbgout(std::cerr),
-    dbgbuff(Debug::None)
+    dbgout(std::cerr, Debug::None)
 {
   CoSupport::Header myHeader("HuffTblDecoder> ");
-
+  
   dbgout << myHeader;
-  dbgout.insert(dbgbuff);
-
+  
   waitTcTh
     // read Tc & Th (8 bit)
     = in(1)                                       >>
@@ -328,16 +326,14 @@ InvHuffman::InvHuffman(sc_module_name name)
   : smoc_actor(name, main),
     compIndex(0),
     nextBitIndex(0),
-    dbgout(std::cerr),
-    dbgbuff(Debug::Low),
+    dbgout(std::cerr, Debug::Low),
     m_currentComp(0),
     m_currentAc(0)
 {
   CoSupport::Header myHeader("InvHuffman> ");
-
+  
   dbgout << myHeader;
-  dbgout.insert(dbgbuff);
-
+  
   main
     /*
      * handle ctrls

@@ -85,24 +85,26 @@ private:
   }
 
   /// Stores for each colour component which QT table to use
-  unsigned char qt_id[JPEG_MAX_COLOR_COMPONENTS];
+  unsigned char qmap_id[JPEG_MAX_COLOR_COMPONENTS];
+  unsigned char qtbl_id;
+
   void use_qt_table() {
     DBG_OUT("Store QT index which has to be used" << endl);
-    DBG_OUT(dbgout << CoSupport::Indent::Up);
-
+    DBG_OUT(CoSupport::Indent::Up);
+    
     IntCompID_t comp_id = JS_CTRL_USEQT_GETCOMPID(in[0]);
-
+    
     //assert(comp_id >= 0);
     //Check, that component ID is positive
     IntCompID_t temp = (IntCompID_t)-1;
     assert(temp > 0);
     assert(comp_id < JPEG_MAX_COLOR_COMPONENTS);
-
-    qt_id[comp_id] = JS_CTRL_USEQT_GETQTID(in[0]);    
-    DBG_OUT("Component " << comp_id << ": " << qt_id[comp_id] << endl);
-
+    
+    qmap_id[comp_id] = JS_CTRL_USEQT_GETQTID(in[0]);    
+    DBG_OUT("Component " << comp_id << ": " << qmap_id[comp_id] << endl);
+    
     DBG_OUT(CoSupport::Indent::Down);
-
+    
     forward_command();
   }
 
@@ -111,13 +113,15 @@ private:
   void store_comp_id(){
     DBG_OUT("Store which component will follow next" << endl);
     DBG_OUT(CoSupport::Indent::Up);
-
+    
     //forward control word
     forward_command();
-
+    
     comp_id = JS_CTRL_INTERNALCOMPSTART_GETCOMPID(in[0]);
+    qtbl_id = qmap_id[comp_id];
     DBG_OUT("Next component: " << comp_id << endl);
-
+    DBG_OUT("Next QT Table: "  << qtbl_id << endl);
+    
     DBG_OUT(CoSupport::Indent::Down);
   }
 
@@ -177,16 +181,15 @@ public:
     : smoc_actor(name, main),
       comp_id(0),
       block_pixel_id(0),
-      dbgout(std::cout)
+      dbgout(std::cerr)
   {
-
     //Set Debug ostream options
-    CoSupport::Header my_header("InvQuant");
+    CoSupport::Header my_header("InvQuant> ");
     dbgout << my_header;
-
-    //Init qt_id[JPEG_MAX_COLOR_COMPONENTS]
-    for(unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++){
-      qt_id[i] = 0;
+    
+    //Init qmap_id[JPEG_MAX_COLOR_COMPONENTS]
+    for (unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++) {
+      qmap_id[i] = 0;
     }
     
     main =
@@ -242,22 +245,22 @@ public:
       /* Process data value */
       |(( in(1) && out(1) && qt_table_0(0,JS_QT_TABLE_SIZE)) >>
 	((!JS_ISCTRL(in.getValueAt(0)))  &&
-	 (VAR(qt_id[comp_id]) == 0)) >>
+	 (VAR(qtbl_id) == 0)) >>
 	CALL(InvQuant::quantize0)) >> main
 
       |(( in(1) && out(1) && qt_table_1(0,JS_QT_TABLE_SIZE)) >>
 	((!JS_ISCTRL(in.getValueAt(0)))  &&
-	 (VAR(qt_id[comp_id]) == 1)) >>
+	 (VAR(qtbl_id) == 1)) >>
 	CALL(InvQuant::quantize1)) >> main
 
       |(( in(1) && out(1) && qt_table_2(0,JS_QT_TABLE_SIZE)) >>
 	((!JS_ISCTRL(in.getValueAt(0)))  &&
-	 (VAR(qt_id[comp_id]) == 2)) >>
+	 (VAR(qtbl_id) == 2)) >>
 	CALL(InvQuant::quantize2)) >> main
 
       |(( in(1) && out(1) && qt_table_3(0,JS_QT_TABLE_SIZE)) >>
 	((!JS_ISCTRL(in.getValueAt(0)))  &&
-	 (VAR(qt_id[comp_id]) == 3)) >>
+	 (VAR(qtbl_id) == 3)) >>
 	CALL(InvQuant::quantize3)) >> main;   
 
       }

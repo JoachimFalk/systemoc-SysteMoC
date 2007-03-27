@@ -153,7 +153,7 @@ private:
     componentCount = in[0];
     newFrame |= JS_CTRL_NEWFRAME_SET_COMPCOUNT(componentCount);
     outCtrlImage[0] = newFrame;
-    DBG_OUT("Send control command NEWFRAME 0x" << hex << newFrame << dec << 
+    DBG_OUT("Send control command NEWFRAME " << newFrame << 
             " (dimX: " << JS_CTRL_NEWFRAME_GET_DIMX(newFrame) << ", dimY: " <<
              JS_CTRL_NEWFRAME_GET_DIMY(newFrame) << ", CompCount: " << 
              (unsigned int)JS_CTRL_NEWFRAME_GET_COMPCOUNT(newFrame) << ")" << std::endl);
@@ -180,7 +180,7 @@ private:
     QtTblID_t qtTblID = in[0];
     JpegChannel_t useQT = JS_CTRL_USEQT_SET_CHWORD(qtTblID,currentCompCount);
     out[0] = useQT;
-    DBG_OUT("Send control command USEQT 0x" << hex << useQT << dec << " (CompID: 0x" <<
+    DBG_OUT("Send control command USEQT " << useQT << " (CompID: 0x" <<
               hex << (unsigned int)JS_CTRL_USEQT_GETCOMPID(useQT) << dec << ", QTID: 0x" << 
               hex << (unsigned int)JS_CTRL_USEQT_GETQTID(useQT) << dec << ")\n");
     currentCompCount++;
@@ -209,7 +209,7 @@ private:
     JpegChannel_t discardHuff =
       JS_CTRL_DISCARDHUFFTBL_SET_CHWORD(tblClass, tblID);
     out[0] = discardHuff;
-    DBG_OUT("Send control command DISCARDHUFFTBL 0x" << hex << (unsigned int)discardHuff << dec <<
+    DBG_OUT("Send control command DISCARDHUFFTBL " << discardHuff <<
               " (Type: 0x" << hex << (unsigned int)JS_CTRL_DISCARDHUFFTBL_GETTYPE(discardHuff) << dec <<
               ", ID: 0x" << hex << (unsigned int)JS_CTRL_DISCARDHUFFTBL_GETHUFFID(discardHuff) << dec << ")\n"); 
 
@@ -248,9 +248,8 @@ private:
     readBytes += 2;
 
     out[0] = JS_CTRL_SCANRESTART_SET_CHWORD;
-    DBG_OUT("Send control command SCANRESTART 0x" 
-	    << hex << (unsigned int)JS_CTRL_SCANRESTART_SET_CHWORD 
-	    << dec << std::endl);
+    DBG_OUT("Send control command SCANRESTART " 
+	    << JS_CTRL_SCANRESTART_SET_CHWORD << std::endl);
   }
 
   // ########################################################################################
@@ -437,7 +436,7 @@ private:
         break;
     }
     out[0] = discardQT;
-    DBG_OUT("Send control command DISCARDQT 0x" << hex << discardQT << dec << 
+    DBG_OUT("Send control command DISCARDQT " << discardQT << 
             " (QTID: " << JS_CTRL_DISCARDQT_GETQTID(discardQT) << ")" << std::endl);
     readBytes += 1;
     lengthField -= 1;
