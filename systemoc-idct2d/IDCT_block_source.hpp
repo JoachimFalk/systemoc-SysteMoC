@@ -70,16 +70,29 @@ private:
 #endif
 
     int myMin;
-    int myOut;
-    
-    for ( int j = 0; j <= 63; j++ ) {
-      myOut = block_data[counter];
-      out[j] = myOut;
+
+    int j = 0;
+
+    while(j <= 63){
+      if (block_data[counter] == 0){
+        counter++;
+        for(int i = 0; i < block_data[counter]; i++){
+          out[j] = 0;
+          j++;
+          counter2++;
+        }
+      }else{
+        out[j] = block_data[counter];        
+        counter2++;
+        j++;
+      }
       counter++;
-      counter2++;
-      if (counter >= block_data_size)
-        counter = 0;
     }
+    
+    if (counter >= block_data_size){
+      counter = 0;
+    }
+
     myMin = -128;
     min[0] = myMin;
   }

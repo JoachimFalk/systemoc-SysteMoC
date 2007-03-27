@@ -62,11 +62,17 @@ private:
   unsigned long block_nbr;
 
   void new_image() {
+#ifdef XILINX_EDK_RUNTIME
+    xil_printf("P2 %u %u 255\n",
+               image_width,
+               image_height);
+#else
     cout << "P2 " 
          << image_width << " "
          << image_height<< " "
          << 255 
          << endl;
+#endif
     process();
   }
   
