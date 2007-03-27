@@ -202,6 +202,12 @@ public:
   smoc_port_in<JpegChannel_t> in;
 private:
   void process() {
+
+    if (JS_ISCTRL(in[0])) {
+      DBG_OUT("ignoring CTRL\n");
+      return;
+    }
+
     DBG_OUT("got " << in[0] << std::endl);
 
     CategoryAmplitude_t amplitude  = JS_TUP_GETIDCTAMPLCOEFF(in[0]);

@@ -27,7 +27,7 @@ void BitSplitter::skipBits(const size_t n) {
   cerr << " skipBits(): n = " << n << endl;
   
   // FIXME: remove loop?
-  while (bitsTodo > 0 && bitsTodo >= m_firstByteBitsLeft) {
+  while ((bitsTodo > 0) && (bitsTodo >= m_firstByteBitsLeft)) {
     assert(!isEmpty());
     bitsTodo -= m_firstByteBitsLeft;
     skipByte();
@@ -134,8 +134,8 @@ void BitSplitter::dumpBuffer(std::ostream &out) const {
 
 //
 void BitSplitter::skipByte(void) {
-  assert(!isEmpty());
   cerr << " skipByte()" << endl;
+  assert(!isEmpty());
   --m_bufferNum;
   m_readPos = (m_readPos + 1) % m_bufferSize;
  

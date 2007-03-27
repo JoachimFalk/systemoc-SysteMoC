@@ -345,46 +345,45 @@ InvHuffman::InvHuffman(sc_module_name name)
     // ignore and forward control tokens
     = ( in(1) && JS_ISCTRL(in.getValueAt(0))                   &&
         GUARD(InvHuffman::isTediousCtrl) )                     >>
-// FIXME: disabled for testbench
-//      out(1)                                                   >>
+      out(1)                                                   >>
       CALL(InvHuffman::forwardCtrl)                            >> main
     | // treat and forward USEHUFF CTRLs                                    
       ( in(1) && JS_ISCTRL(in.getValueAt(0))                   &&
         GUARD(InvHuffman::isUseHuff) )                         >>
-//      out(1)                                                   >>
+      out(1)                                                   >>
       CALL(InvHuffman::useHuff)                                >> main
     | // treat and forward NEWSCAN CTRLs                                    
       ( in(1) && JS_ISCTRL(in.getValueAt(0))                   &&
         GUARD(InvHuffman::isNewScan) )                         >>
-//      out(1)                                                   >>
+      out(1)                                                   >>
       CALL(InvHuffman::setCompInterleaving)                    >> main
     | // discard HuffTable AC0
       ( inHuffTblAC0(1) && in(1)                               &&
         JS_ISCTRL(in.getValueAt(0))                            &&
         GUARD(InvHuffman::isDiscardHuff)                       &&
         GUARD(InvHuffman::isHuffTblId)(HUFFTBL_AC)(0) )        >>
-//      out(1)                                                   >>
+      out(1)                                                   >>
       CALL(InvHuffman::discardHuff)(inHuffTblAC0)              >> main
     | // discard HuffTable AC1
       ( inHuffTblAC1(1) && in(1)                               &&
         JS_ISCTRL(in.getValueAt(0))                            &&
         GUARD(InvHuffman::isDiscardHuff)                       &&
         GUARD(InvHuffman::isHuffTblId)(HUFFTBL_AC)(1) )        >>
-//      out(1)                                                   >>
+      out(1)                                                   >>
       CALL(InvHuffman::discardHuff)(inHuffTblAC1)              >> main
     | // discard HuffTable DC0
       ( inHuffTblDC0(1) && in(1)                               &&
         JS_ISCTRL(in.getValueAt(0))                            &&
         GUARD(InvHuffman::isDiscardHuff)                       &&
         GUARD(InvHuffman::isHuffTblId)(HUFFTBL_DC)(0) )        >>
-//      out(1)                                                   >>
+      out(1)                                                   >>
       CALL(InvHuffman::discardHuff)(inHuffTblDC0)              >> main
     | // discard HuffTable DC1
       ( inHuffTblDC1(1)  && in(1)                              &&
         JS_ISCTRL(in.getValueAt(0))                            &&
         GUARD(InvHuffman::isDiscardHuff)                       &&
         GUARD(InvHuffman::isHuffTblId)(HUFFTBL_DC)(1) )        >>
-//      out(1)                                                   >>
+      out(1)                                                   >>
       CALL(InvHuffman::discardHuff)(inHuffTblDC1)              >> main
     /*
      * handle data

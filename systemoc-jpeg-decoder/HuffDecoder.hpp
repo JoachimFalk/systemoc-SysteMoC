@@ -347,10 +347,9 @@ private:
 
   // forward control commands from input to output
   void forwardCtrl() {
-// FIXME
     DBG_OUT("FIXME: NOT forwardCtrl() " << in[0]  << endl);
     assert(JS_ISCTRL(in[0]));
-//    out[0] = in[0];
+    out[0] = in[0];
   }
 
   //
