@@ -127,11 +127,20 @@ public:
 
     //the +1 is required, because the parser wants to send the QT header
     //together with the discard command!
-    connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_0,mInvQuant.qt_table_0);
+    /*
     connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_1,mInvQuant.qt_table_1);
     connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_2,mInvQuant.qt_table_2);
     connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_3,mInvQuant.qt_table_3);
-    
+    */   
+    smoc_fifo<qt_table_t> qtFifo(2*JS_QT_TABLE_SIZE+1);
+    for(int i=0; i <= 2*JS_QT_TABLE_SIZE; i++)
+      qtFifo << qt_table_t();
+
+    connectNodePorts(mParser.qt_table_1, mInvQuant.qt_table_1, qtFifo);
+    connectNodePorts(mParser.qt_table_2, mInvQuant.qt_table_2, qtFifo);
+    connectNodePorts(mParser.qt_table_3, mInvQuant.qt_table_3, qtFifo);
+
+    connectNodePorts<JS_QT_TABLE_SIZE+1>(mParser.qt_table_0,mInvQuant.qt_table_0);
     connectNodePorts<3>(mInvByteStuff.out,        mHuffDecoder.in);
     
     connectNodePorts<1>(mHuffDecoder.out,         mInvZrl.in);
