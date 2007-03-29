@@ -63,7 +63,7 @@ private:
 
   void new_image() {
 #ifdef XILINX_EDK_RUNTIME
-    xil_printf("P2 %u %u 255\n",
+    xil_printf("P2 %d %d 255\n",
                image_width,
                image_height);
 #else
@@ -86,7 +86,7 @@ private:
 #ifndef XILINX_EDK_RUNTIME
         cout << in[bx*64+y*8+rx] + 128 << " ";
 #else
-        xil_printf("%u ", in[bx*64+y*8+rx] + 128);
+        xil_printf("%d ", in[bx*64+y*8+rx] + 128);
 #endif
       }
 #ifndef XILINX_EDK_RUNTIME
