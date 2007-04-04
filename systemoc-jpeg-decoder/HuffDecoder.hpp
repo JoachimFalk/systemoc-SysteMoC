@@ -100,8 +100,6 @@ enum HuffTableType {
 };
 
 
-
-
 /*****************************************************************************/
 
 // needed by SysteMoC!
@@ -123,6 +121,11 @@ public:
 
   //
   InvHuffman(sc_module_name name);
+
+  //
+  ~InvHuffman() {
+    assert(m_BitSplitter.isEmpty());
+  }
 
 private:
   //
@@ -342,22 +345,26 @@ public:
   HuffTblDecoder(sc_module_name name);
 
 private:
+  //
   bool hasMoreHUFFVAL() const {
     return m_symbolsLeft > 0;
   }
 
+  //
   bool isTable(const HuffTableType type) const;
 
+  //
   void storeTcTh() {
     m_tcth = in[0];
     const size_t tc = (m_tcth >> 4) & 0x0f;
     const size_t th = m_tcth & 0x0f;
-    DBG_OUT("storeTcTh(): TC = " << tc
-            << "; TH = " << th << endl);
+    DBG_OUT("storeTcTh(): TC = " << tc << "; TH = " << th << endl);
   }
 
+  //
   void storeBITS();
 
+  //
   void storeHUFFVAL();
 
 #if 0
@@ -371,17 +378,13 @@ private:
   //
   void writeTable(smoc_port_out<ExpHuffTbl> &out);
   
+
   uint16_t m_symbolsLeft;
   uint8_t  m_tcth;
-
   uint8_t  m_BITS[16];
-
   ExpHuffTbl m_tmpHuff;
-
   size_t m_huffWritePos;
-
   CoSupport::DebugOstream dbgout;
-//CoSupport::DebugStreambuf dbgbuff;
   smoc_firing_state waitTcTh;
   smoc_firing_state waitHUFFVAL;
   smoc_firing_state waitBITS;

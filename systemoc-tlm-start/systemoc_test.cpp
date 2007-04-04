@@ -1,6 +1,7 @@
 
 #include <iostream>
 
+#undef SYSTEMOC_ENABLE_WSDF
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>

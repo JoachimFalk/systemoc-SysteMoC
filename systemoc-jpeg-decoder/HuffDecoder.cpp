@@ -185,6 +185,7 @@ void HuffTblDecoder::finishTable() {
   const int totalCodes = tablePos;
 
   // HUFFCODE table (huffmann codes table) - p.52 C.2
+  // NOTE: I think it's possible to avoid HUFFCODE table for calculation below
   uint16_t HUFFCODE[256];
   {
     uint16_t code = 0;
@@ -474,6 +475,7 @@ void InvHuffman::writeAcDiff(void) {
     }
   }
   else {
+    assert(readBits < 11);
     m_currentAc += r + 1;
     receivedBits = m_BitSplitter.getBits(readBits);
     m_BitSplitter.skipBits(readBits);
@@ -527,6 +529,7 @@ bool InvHuffman::decodeHuff(const smoc_port_in<ExpHuffTbl> &in,
       //cerr << " DECODE> increased codesize\n";
     }
     else {
+      // found code word, get symbol
       size_t pos = table.valPtr[codeSize - 1];
       pos = pos + codeWord - table.minCode[codeSize - 1];
       /*cerr << " DECODE> pos: " << pos << endl;
