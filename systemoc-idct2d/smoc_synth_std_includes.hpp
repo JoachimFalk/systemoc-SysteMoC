@@ -35,10 +35,7 @@
 using namespace std;
 
 #define USE_COUNTER_INPUT
-
-#ifdef XILINX_EDK_RUNTIME
-# define USE_COUNTER_INPUT
-#endif
+#define SINK_BINARY_OUTPUT
 
 #ifndef USE_COUNTER_INPUT
 # include <fstream>

@@ -42,6 +42,8 @@
 typedef unsigned long size_t;
 #endif
 
+#define SINK_BINARY_OUTPUT
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -62,16 +64,30 @@ private:
   unsigned long block_nbr;
 
   void new_image() {
-#ifdef XILINX_EDK_RUNTIME
+#ifdef SINK_BINARY_OUTPUT
+  #ifdef XILINX_EDK_RUNTIME
+    xil_printf("P5 %d %d 255\n",
+               image_width,
+               image_height);
+  #else
+    cout << "P5 " 
+         << image_width << " "
+         << image_height<< " "
+         << 255 
+         << endl;
+  #endif
+#else
+  #ifdef XILINX_EDK_RUNTIME
     xil_printf("P2 %d %d 255\n",
                image_width,
                image_height);
-#else
+  #else
     cout << "P2 " 
          << image_width << " "
          << image_height<< " "
          << 255 
          << endl;
+  #endif
 #endif
     process();
   }
@@ -83,16 +99,26 @@ private:
         unsigned int bx = x / 8;
         unsigned int rx = x % 8;
         // +128 : DC-Level shift
-#ifndef XILINX_EDK_RUNTIME
-        cout << in[bx*64+y*8+rx] + 128 << " ";
+#ifdef SINK_BINARY_OUTPUT
+  #ifndef XILINX_EDK_RUNTIME
+        cout << (char)(in[bx*64+y*8+rx] + 128);
+  #else
+        xil_printf("%c", in[bx*64+y*8+rx] + 128);
+  #endif
 #else
+  #ifndef XILINX_EDK_RUNTIME
+        cout << in[bx*64+y*8+rx] + 128 << " ";
+  #else
         xil_printf("%d ", in[bx*64+y*8+rx] + 128);
+  #endif
 #endif
       }
-#ifndef XILINX_EDK_RUNTIME
+#ifndef SINK_BINARY_OUTPUT
+  #ifndef XILINX_EDK_RUNTIME
       cout << endl;
-#else
+  #else
       xil_printf("\n");
+  #endif
 #endif
     }
     block_count += image_width / 8;
