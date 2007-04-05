@@ -17,290 +17,29 @@
 #include "tlm_pvt_annotated_fifo.h"
 
 #include "circular_buffer.h"
+#include "transactor_storages.h"
 #include "debug_on.h"
 
-// SysteMoC uses different debugging style: if NDEBUG is set, debugging code is
-//  disabled. Define macro for NDEBUG undefed code.
-#ifndef NDEBUG
-  #define DBG_SMOC(e) do {e;} while(0)
-#else
-  #define DBG_SMOC(e) do {} while(0)
-#endif
-
-
 
 /******************************************************************************
- * get and put data in bytewise manner. This makes it independent of concrete
- * data type.
+ * part of smoc_chan_in_if
  *
  */
-class StorageByteAccessIf
-{
-public:
-  typedef unsigned char byteType;
-  
-  // storage is empty?
-  virtual bool isEmpty(void) const = 0;
-
-  // storage has data available?
-  virtual bool isFree(void) const = 0;
-
-  // not virtual to prevent bypassing of test
-  size_t getBytes(byteType *a, const size_t n)
-  {
-    if (isEmpty() || (n != dataSize()))
-      return 0;
-
-    return getBytesImpl(a, dataSize());
-  }
-
-  //
-  size_t putBytes(byteType *a, const size_t n)
-  {
-    // FIXME: remove debug code
-    DBG_OUT("StorageByteAccessIf::putBytes()\n");
-    if (!isFree() || (n != dataSize()))
-      return 0;
-
-    return putBytesImpl(a, dataSize());
-  }
-
-private:
-  //
-  virtual size_t getBytesImpl(byteType *a, const size_t n) = 0;
-
-  //
-  virtual size_t putBytesImpl(byteType *a, const size_t n) = 0;
-
-  //
-  virtual size_t dataSize(void) const = 0;
-};
-
-
-/******************************************************************************
- * smoc_port_in_plug needs this interface to access storage
- *
- */
-template<typename T>
-class SmocPortInStorageReadIf
-{
-public:
-  typedef smoc_channel_access<const T&>         readAccessType;
-  typedef typename readAccessType::return_type  accessReturnType;//const T&
-
-  //
-  virtual readAccessType* getReadChannelAccess(void) = 0;
-};
-
-
-/******************************************************************************
- *
- *
- */
-class StorageTransactorIf
-{
-public:
-  //
-  virtual size_t numAvailable(void) const = 0;
-
-  //
-  virtual void skip(const size_t n) = 0;
-
-  //
-  virtual void invalidate(const size_t n) = 0;
-};
-
-
-/******************************************************************************
- *
- *
- */
-template<typename T>
-class SmocPortInStorage :
-  public SmocPortInStorageReadIf<T>, // interface for smoc port
-  public StorageByteAccessIf,        // interface for PlugAggregation
-  public StorageTransactorIf         // interface for PortInTransactor
-{
-public:
-  typedef typename SmocPortInStorageReadIf<T>::readAccessType   readAccessType;
-  typedef typename SmocPortInStorageReadIf<T>::accessReturnType
-    accessReturnType;
-  typedef circular_buffer_ra_data<smoc_storage<T> >             storageType;
-
-  //
-  SmocPortInStorage(const size_t size = 1) :
-    mStorage(size),
-    mReadAccessWrapper(mStorage)
-  {}
-
-  //
-  virtual ~SmocPortInStorage(void) {}
-
-  // wrapper for random_access_circular_buffer::is_full()
-  bool isFull(void) const { return mStorage.is_full(); }
-
-  // wrapper for random_access_circular_buffer::put()
-  void put(const T& t) { mStorage.put(t); }
-
-
-  /*
-   * StorageTransactorIf
-   */
-  // wrapper for random_access_circular_buffer:num_available()
-  size_t numAvailable(void) const { return mStorage.num_available(); }
-  
-  // wrapper for random_access_circular_buffer::skip()
-  void skip(const size_t n) { mStorage.skip(n); }
-
-  // call invalidate() on smoc_storages
-  void invalidate(const size_t n)
-  {
-    for (size_t i = 0; i < n; ++i)
-      mStorage[i].invalidate();
-  }
-
-
-  /*
-   * StorageByteAccessIf
-   */
-  // wrapper for random_access_circular_buffer::is_empty()
-  bool isEmpty(void) const { return mStorage.is_empty(); }
-
-  //
-  bool isFree(void) const { return mStorage.num_free() > 0; }
- 
-
-  /*
-   * smoc_port_in_storage_read_if
-   */
-  //
-  readAccessType* getReadChannelAccess(void)
-  {
-    return &mReadAccessWrapper;
-  }
-
-private:
-  /*
-   * StorageByteAccessIf
-   */
-  size_t getBytesImpl(byteType *a, const size_t n)
-  {
-    assert(0);
-    return 0;
-  }
-
-  //
-  size_t putBytesImpl(byteType *a, const size_t n)
-  {
-    DBG_OUT("SmocPortInStorage::putBytesImpl():\n");
-    assert(n == dataSize());
-    mStorage.put(*(reinterpret_cast<T*>(a)));
-    return dataSize();
-  }
-
-  //
-  size_t dataSize(void) const { return sizeof(T); }
-
-
-  /********************************************************
-   * wraps our storage so smoc_port_in likes it
-   */
-  class ReadAccessWrapper :
-    public readAccessType
-  {
-  public:
-    ReadAccessWrapper(const storageType &storage) :
-      mStorage(storage)
-#ifndef NDEBUG
-      , mLimit(0)
-#endif
-    {}
-
-    /*
-     * write_access_type
-     */
-#ifndef NDEBUG
-    // set limit and assert in operator[]
-    void setLimit(size_t l) { mLimit = l; }
-#endif
-
-    const accessReturnType operator[](size_t n) const
-    {
-      DBG_SMOC(assert(n < mLimit));
-      return mStorage[n];
-    }
-
-    accessReturnType operator[](size_t n)
-    {
-      DBG_SMOC(assert(n < mLimit));
-      return mStorage[n];
-    }
-    
-    bool tokenIsValid(size_t n) const
-    {
-      DBG_SMOC(assert(n < mLimit));
-      return mStorage[n].isValid();
-    }
-
-  private:
-    const storageType  &mStorage;
-#ifndef NDEBUG
-    size_t              mLimit;
-#endif
-  };
-  /*******************************************************/
-
-  // local storage
-  storageType        mStorage;  
-  // and its wrapper object
-  ReadAccessWrapper  mReadAccessWrapper;
-};
-
-
-/******************************************************************************
- * part of smoc_chan_in_if which every transactor has to implement
- *
- */
-class PortInTransactorIf
-{
-public:
-  virtual size_t numAvailable() const = 0;
-  virtual smoc_event &dataAvailableEvent(size_t n) = 0;
-#ifdef ENABLE_SYSTEMC_VPC
-  virtual void commitRead(size_t consume, const smoc_ref_event_p &) = 0;
-#else
-  virtual void commitRead(size_t consume) = 0;
-#endif
-};
-
-
-/******************************************************************************
- *
- *
- */
-// FIXME: interface not needed anymore
-class PortInTransactor :
-  public PortInTransactorIf
+class PortInTransactor
 {
 public:
   typedef std::map<size_t, smoc_event *>  eventMapType;
 
   //
-  PortInTransactor(StorageTransactorIf &storage) :
+  PortInTransactor(StorageInTransactorIf &storage) :
     mStorage(storage)
   {}
 
   //
   virtual ~PortInTransactor(void) {}
 
-  /*
-   * port_in_transactor_if
-   */
   //
-  size_t numAvailable(void) const
-  {
-    return mStorage.numAvailable();
-  }
+  size_t numAvailable(void) const { return mStorage.numAvailable(); }
 
   // create or return event
   smoc_event &dataAvailableEvent(size_t n)
@@ -311,10 +50,9 @@ public:
       const eventMapType::value_type value(n, new smoc_event());
       iter = mEventMap.insert(value).first;
 
-      // FIXME: remove debug code
       DBG_OUT("PortInAdapter::dataAvailableEvent(): create new event\n");
 
-      if (mStorage.numAvailable() >= n)
+      if (numAvailable() >= n)
         iter->second->notify();
     }
     return *(iter->second);
@@ -326,7 +64,7 @@ public:
     DBG_SC_OUT("PortInAdapter::commitRead(): consumed " << consume
                << " data.\n");
 
-    assert(mStorage.numAvailable() >= consume);
+    assert(numAvailable() >= consume);
 
     // invalidate data in storage (avoid accidentally reread)
     mStorage.invalidate(consume);
@@ -352,79 +90,101 @@ public:
         iter->second->notify();
         DBG_OUT("   notify\n");
       }
+      ++iter;
+    }
+  }
+
+private:
+  eventMapType            mEventMap;
+  StorageInTransactorIf  &mStorage;
+};
+
+
+/******************************************************************************
+ * part of smoc_chan_out_if
+ *
+ */
+class PortOutTransactor
+{
+public:
+  typedef std::map<size_t, smoc_event *>  eventMapType;
+  
+  //
+  PortOutTransactor(StorageOutTransactorIf &storage) :
+    mStorage(storage)
+  {}
+
+  //
+  virtual ~PortOutTransactor(void) {}
+
+  //
+  size_t numFree(void) const { return mStorage.numFree(); }
+
+  //
+  smoc_event &spaceAvailableEvent(size_t n)
+  {
+    DBG_SC_OUT("PortOutAdapter::spaceAvailableEvent(): n = " << n << std::endl);
+    eventMapType::iterator iter = mEventMap.find(n);
+    if (iter == mEventMap.end()) {
+      const eventMapType::value_type value(n, new smoc_event());
+      iter = mEventMap.insert(value).first;
+
+      // FIXME: remove debug code
+      DBG_OUT("PortOutAdapter::spaceAvailableEvent(): create new event\n");
+
+      if (numFree() >= n)
+        iter->second->notify();
+    }
+    return *(iter->second);
+  }
+
+  //
+  void commitWrite(size_t produce)
+  {
+    DBG_SC_OUT("OutAdapter::commitWrite(): produced " << produce
+               << " data.\n");
+
+    mStorage.commitRaWrite(produce);
+
+    updateSpaceAvailableEvents();
+  }
+
+  //
+  void updateSpaceAvailableEvents()
+  {
+    eventMapType::iterator iter = mEventMap.begin();
+
+    while (iter != mEventMap.end()) {
+      if (iter->first > numFree())
+        iter->second->reset();
+      else
+        iter->second->notify();
 
       ++iter;
     }
   }
 
 private:
-  eventMapType          mEventMap;
-  StorageTransactorIf  &mStorage;
+  eventMapType             mEventMap;
+  StorageOutTransactorIf  &mStorage;
 };
 
 
-#if 0
 /******************************************************************************
- *
- *
- */
-class SmocPortInPlugBasic
-{
-public:
-  // constructor
-  SmocPortInPlugBasic(StorageTransactorIf &storage) :
-    mTransactor(storage)
-  {}
-
-  //
-  size_t numAvailable(void) const
-  {
-    DBG_SC_OUT("smoc_port_in_plug::numAvailable():\n");
-    return mTransactor.numAvailable();
-  }
-
-  //
-  smoc_event &dataAvailableEvent(size_t n)
-  {
-    DBG_SC_OUT("smoc_port_in_plug::dataAvailableEvent():\n");
-    return mTransactor.dataAvailableEvent(n);
-  }
-
-  //
-  void commitRead(size_t consume)
-  {
-    DBG_SC_OUT("smoc_port_in_plug::commitRead(): got " << consume
-               << " data.\n");
-    mTransactor.commitRead(consume);
-  }
-
-private:
-  //
-  const sc_event& default_event() const { return smoc_default_event_abort(); };
-
-  PortInTransactor           mTransactor;
-};
-#endif
-
-
-/******************************************************************************
- * this plug basically wraps smoc_chan_in_if functions to two objects.
+ * this plug basically wraps smoc_chan_in_if functions.
  *
  */
 template<typename T>
 class SmocPortInPlug :
   public smoc_chan_in_if<T, smoc_channel_access>,
   public PortInTransactor
-  //public SmocPortInPlugBasic
 {
 public:
   typedef SmocPortInPlug<T>                  thisType;
   typedef typename thisType::access_in_type  accessInType;
 
   // constructor
-  //SmocPortInPlug(SmocPortInStorageReadIf<T> &storage) :
   SmocPortInPlug(SmocPortInStorage<T> &storage) :
-    //SmocPortInPlugBasic(storage), // StorageTransactorIf
     PortInTransactor(storage),    // StorageTransactorIf
     mStorage(storage)             // SmocPortInStorageReadIf<T>
   {}
@@ -435,30 +195,29 @@ public:
   //
   size_t numAvailable(void) const
   {
-    DBG_SC_OUT("smoc_port_in_plug::numAvailable():\n");
+    DBG_SC_OUT("SmocPortInPlug::numAvailable():\n");
     return PortInTransactor::numAvailable();
   }
 
   //
   smoc_event &dataAvailableEvent(size_t n)
   {
-    DBG_SC_OUT("smoc_port_in_plug::dataAvailableEvent():\n");
+    DBG_SC_OUT("SmocPortInPlug::dataAvailableEvent():\n");
     return PortInTransactor::dataAvailableEvent(n);
   }
 
   //
   void commitRead(size_t consume)
   {
-    DBG_SC_OUT("smoc_port_in_plug::commitRead(): got " << consume
+    DBG_SC_OUT("SmocPortInPlug::commitRead(): got " << consume
                << " data.\n");
     PortInTransactor::commitRead(consume);
   }
 
-
   //
   accessInType *getReadChannelAccess(void)
   {
-    DBG_SC_OUT("smoc_port_in_plug::getReadChannelAccess():\n");
+    DBG_SC_OUT("SmocPortInPlug::getReadChannelAccess():\n");
     return mStorage.getReadChannelAccess();
   }
   
@@ -471,10 +230,74 @@ private:
 
 
 /******************************************************************************
+ * this plug basically wraps smoc_chan_out_if functions to two objects.
+ *
+ */
+template<typename T>
+class SmocPortOutPlug :
+  public smoc_chan_out_if<T, smoc_channel_access>,
+  public PortOutTransactor
+{
+public:
+  typedef SmocPortOutPlug<T>                  thisType;
+  typedef typename thisType::access_out_type  accessOutType;
+
+  // constructor
+  SmocPortOutPlug(SmocPortOutStorageWriteIf<T> &storage) :
+    mStorage(storage)
+  {}
+
+  /*
+   * smoc_chan_in_if
+   */
+  //
+  size_t numFree(void) const
+  {
+    DBG_SC_OUT("smoc_port_out_plug::numFree():\n");
+    //return SmocPortOutTransactor::numFree();
+    return PortOutTransactor::numFree();
+  }
+
+  //
+  smoc_event &spaceAvailableEvent(size_t n)
+  {
+    DBG_SC_OUT("smoc_port_out_plug::spaceAvailableEvent():\n");
+    return PortOutTransactor::spaceAvailableEvent(n);
+  }
+
+  //
+  accessOutType *getWriteChannelAccess(void)
+  {
+    DBG_SC_OUT("smoc_port_out_plug::getWriteChannelAccess():\n");
+    return mStorage.getWriteChannelAccess();
+  }
+
+  //
+  void commitWrite(size_t produce)
+  {
+    DBG_SC_OUT("smoc_port_out_plug::commitWrite(): got " << produce
+               << " data.\n");
+
+    // check if every comitted token is valid
+    for (size_t i = 0; i < produce; ++i)
+      assert(mStorage.tokenIsValid(i));
+
+    PortOutTransactor::commitWrite(produce);
+  }
+  
+private:
+  // smoc_chan_in_if
+  const sc_event& default_event() const { return smoc_default_event_abort(); };
+
+  SmocPortOutStorageWriteIf<T>  &mStorage;
+};
+ 
+
+/******************************************************************************
  *
  *
  */
-class PlugAggregation
+class InPortPlugAggregation
 {
 public:
   typedef std::pair<StorageByteAccessIf*,
@@ -482,16 +305,13 @@ public:
   typedef StorageByteAccessIf::byteType   byteType;
 
   //
-  PlugAggregation(void)
-  {
-    DBG_OUT("PlugAggregation::PlugAggregation()\n");
-  }
+  InPortPlugAggregation(void) {}
 
   //
   template<typename T>
   SmocPortInPlug<T> &createInPlug(const size_t size = 1)
   {
-    DBG_OUT("PlugAggregation::createInPlug(): create new in plug.\n");
+    DBG_OUT("InPortPlugAggregation::createInPlug(): create new in plug.\n");
     SmocPortInStorage<T> *storage = new SmocPortInStorage<T>(size);
 
     SmocPortInPlug<T> *plug = new SmocPortInPlug<T>(*storage);
@@ -503,10 +323,10 @@ public:
   }
 
   //
-  void writeBytes(const size_t pos, byteType *a, const size_t n)
+  void writeBytes(const size_t pos, const byteType *a, const size_t n)
   {
-    DBG_OUT("writeBytes()\n");
-    assert(pos < mDynamicPlugs.size());
+    DBG_OUT("InPortPlugAggregation::writeBytes(): pos: " << pos << std::endl);
+    assert(pos < getNumPlugs());
     StorageByteAccessIf *byteAccess = mDynamicPlugs[pos].first;
     const size_t ret = byteAccess->putBytes(a, n);
     assert(ret == n);
@@ -519,8 +339,8 @@ public:
   size_t getNumPlugs(void) const { return mDynamicPlugs.size(); }
 
 private:
-  //
-  PlugAggregation(const PlugAggregation &other) { assert(0); }
+  // disabled
+  InPortPlugAggregation(const InPortPlugAggregation &other) { assert(0); }
 
   std::vector<storagePlugPairType> mDynamicPlugs;
 };
@@ -535,6 +355,7 @@ class A1 :
 {
 public:
   smoc_port_in<int>  in1;
+  smoc_port_in<unsigned long long>  in2;
 
   A1(sc_module_name name) :
     smoc_actor(name, start),
@@ -542,7 +363,10 @@ public:
   {
     start =
       in1(1)           >>
-      CALL(A1::func1)  >> start;
+      CALL(A1::func1)  >> start
+    |
+      in2(1)           >>
+      CALL(A1::func2)  >> start;
   }
 
 private:
@@ -552,6 +376,13 @@ private:
   void func1(void)
   {
     DBG_SC_OUT("A1::func1(): got " << in1[0] << std::endl);
+    ++m_fire_counter;
+  }
+
+  //
+  void func2(void)
+  {
+    DBG_SC_OUT("A1::func2(): got " << in2[0] << std::endl);
     ++m_fire_counter;
   }
 };
@@ -565,22 +396,27 @@ class PutModule :
   public sc_module
 {
 public:
-  PutModule(sc_module_name name, PlugAggregation &plugAggregation) :
+  PutModule(sc_module_name name, InPortPlugAggregation &plugAggregation) :
     sc_module(name),
     mPlugAggregation(plugAggregation)
   {}
 
 private:
+  typedef InPortPlugAggregation::byteType byteType;
   //
   void end_of_elaboration(void)
   {
-    int i = 42;
+    const int i = 42;
     mPlugAggregation.writeBytes(0,
-                                reinterpret_cast<PlugAggregation::byteType*>(&i),
+                                reinterpret_cast<const byteType*>(&i),
                                 sizeof(int));
+    const unsigned long long j = 11;
+    mPlugAggregation.writeBytes(1,
+                                reinterpret_cast<const byteType*>(&j),
+                                sizeof(unsigned long long));
   }
 
-  PlugAggregation &mPlugAggregation;
+  InPortPlugAggregation &mPlugAggregation;
 };
 
 
@@ -596,13 +432,13 @@ class Tlm_tester :
 {
 public:
   //
-  // FIXME: systemoc copies parameter! we must use pointer instead of reference
-  Tlm_tester(sc_module_name name, PlugAggregation *plugAggregation) :
+  Tlm_tester(sc_module_name name, InPortPlugAggregation &plugAggregation) :
     smoc_graph(name),
     a1("A1")
   {
-    SmocPortInPlug<int> &port = plugAggregation->createInPlug<int>();
-    connectChanPort(port, a1.in1);
+    connectChanPort(plugAggregation.createInPlug<int>(), a1.in1);
+    connectChanPort(plugAggregation.createInPlug<unsigned long long>(),
+                    a1.in2);
   }
 
 private:
@@ -637,10 +473,11 @@ int sc_main (int argc, char **argv)
     request_fifo_type,
     response_fifo_type>                           channel_type;
 
-  PlugAggregation plugAggregation;
+  InPortPlugAggregation plugAggregation;
 
-  smoc_top_moc<Tlm_tester<address_type, data_type, data_mode> >
-    tlm_tester("tlm_tester", &plugAggregation);
+  Tlm_tester<address_type, data_type, data_mode>
+    tlm_tester("tlm_tester", plugAggregation);
+  smoc_top top(&tlm_tester);
 
   PutModule putModule("putModule", plugAggregation);
 
