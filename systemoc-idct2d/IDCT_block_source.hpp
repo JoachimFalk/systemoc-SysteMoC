@@ -43,12 +43,8 @@
 #include <stdlib.h>
 
 #include <smoc_port.hpp>
-#include "callib.hpp"
 
-#ifdef KASCPAR_PARSING
-# define USE_COUNTER_INPUT
-typedef unsigned int size_t;
-#endif
+#include "smoc_synth_std_includes.hpp"
 
 class m_block_source_idct: public smoc_actor {
 public:

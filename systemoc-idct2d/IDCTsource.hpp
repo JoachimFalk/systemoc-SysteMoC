@@ -43,17 +43,8 @@
 #include <stdlib.h>
 
 #include <smoc_port.hpp>
-#include "callib.hpp"
 
-#define INAMEblk "test_in.dat"
-
-#ifdef EDK_XILINX_RUNTIME
-# define USE_COUNTER_INPUT
-#endif
-#ifdef KASCPAR_PARSING
-# define USE_COUNTER_INPUT
-typedef unsigned int size_t;
-#endif
+#include "smoc_synth_std_includes.hpp"
 
 class m_source_idct: public smoc_actor {
 public:

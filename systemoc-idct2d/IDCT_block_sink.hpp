@@ -37,20 +37,14 @@
 #ifndef _INCLUDED_IDCTBLOCKSINK_HPP
 #define _INCLUDED_IDCTBLOCKSINK_HPP
 
-#ifdef KASCPAR_PARSING
-# define USE_COUNTER_INPUT
-typedef unsigned long size_t;
-#endif
-
-#define SINK_BINARY_OUTPUT
-
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 
 #include <smoc_port.hpp>
-#include "callib.hpp"
+
+#include "smoc_synth_std_includes.hpp"
 
 class m_block_sink: public smoc_actor {
 public:

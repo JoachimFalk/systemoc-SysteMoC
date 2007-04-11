@@ -15,16 +15,9 @@
 # include <smoc_pggen.hpp>
 #endif
 
-#include "callib.hpp"
-
-//#define REAL_BLOCK_DATA
-#define IMAGE_WIDTH  176
-#define IMAGE_HEIGHT 144
-
-//#define VERBOSE_ACTOR
+#include "smoc_synth_std_includes.hpp"
 
 #include "block_idct.hpp"
-
 
 #ifndef REAL_BLOCK_DATA
 # include "IDCTsource.hpp"
@@ -33,7 +26,6 @@
 # include "IDCT_block_source.hpp"
 # include "IDCT_block_sink.hpp"
 #endif
-
 
 #ifndef DEFAULT_BLOCK_COUNT
 # ifdef REAL_BLOCK_DATA
