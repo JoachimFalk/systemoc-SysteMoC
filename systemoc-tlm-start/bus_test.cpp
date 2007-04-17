@@ -346,6 +346,47 @@ private:
 };
 
 
+#if 0
+/******************************************************************************
+ *
+ *
+ */
+class SmocInPlugContainer
+{
+public:
+  SiblingInfo const *getSiblingInfo(void) const { return mSiblingInfo; }
+private:
+  Plug*;
+  Storage*;
+  SiblingInfo const *mSiblingInfo;
+  MyInfo;
+}
+
+/******************************************************************************
+ *
+ *
+ */
+class SmocPlugFactory
+{
+public:
+
+  //
+  void createPlugPair() {}
+};
+
+class TransactorAggregation
+{
+public:
+
+  //
+  void registerInTransactor() {}
+
+  //
+  void registerOutTransactor() {}
+};
+#endif
+
+
 /******************************************************************************
  *
  *
