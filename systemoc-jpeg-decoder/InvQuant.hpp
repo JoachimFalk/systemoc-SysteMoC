@@ -139,20 +139,31 @@ private:
   void quantize3(){ quantize(3); }
   void quantize(unsigned int qt_tb){
     DBG_OUT("Perform QT with table ID " << qt_tb  << endl);
+    if (block_pixel_id == 1){
+      DBG_OUT("input DC coefficient: " << JS_QCOEFF_GETIDCTCOEFF(in[0]) << std::endl);
+    }
 
     IDCTCoeff_t temp;
     switch (qt_tb){
     case 0:
       temp = JS_QCOEFF_GETIDCTCOEFF(in[0]) * qt_table_0[block_pixel_id];
+      if (block_pixel_id == 1)
+	DBG_OUT("DC QT-Table value: " << qt_table_0[block_pixel_id] << std::endl);
       break;
     case 1:
       temp = JS_QCOEFF_GETIDCTCOEFF(in[0]) * qt_table_1[block_pixel_id];
+      if (block_pixel_id == 1)
+	DBG_OUT("DC QT-Table value: " << qt_table_1[block_pixel_id] << std::endl);
       break;
     case 2:
       temp = JS_QCOEFF_GETIDCTCOEFF(in[0]) * qt_table_2[block_pixel_id];
+      if (block_pixel_id == 1)
+	DBG_OUT("DC QT-Table value: " << qt_table_2[block_pixel_id] << std::endl);
       break;
     case 3:
       temp = JS_QCOEFF_GETIDCTCOEFF(in[0]) * qt_table_3[block_pixel_id];
+      if (block_pixel_id == 1)
+	DBG_OUT("DC QT-Table value: " << qt_table_3[block_pixel_id] << std::endl);
       break;
     default:
       DBG_OUT("Illegal QT table!" << qt_tb  << endl);
@@ -160,9 +171,14 @@ private:
 
     out[0] = JS_DATA_COEFF_SET_CHWORD(temp);
 
+    if (block_pixel_id == 1)
+      DBG_OUT("DC coefficient: " << temp << std::endl);
+
     block_pixel_id++;
     if (block_pixel_id > JPEG_BLOCK_SIZE)
-      block_pixel_id = 0;
+      //by running the counter from 1 to 64,
+      //we automatically skip the table header!
+      block_pixel_id = 1;
   }
 
   //Which pixel to process
@@ -180,7 +196,7 @@ public:
   InvQuant(sc_module_name name)
     : smoc_actor(name, main),
       comp_id(0),
-      block_pixel_id(0),
+      block_pixel_id(1), //counter runs from 1 to JPEG_BLOCK_SIZE
       dbgout(std::cerr)
   {
     //Set Debug ostream options
