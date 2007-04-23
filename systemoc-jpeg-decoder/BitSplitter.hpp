@@ -3,6 +3,7 @@
 #define BIT_SPLITTER_H
 
 #include "channels.hpp"
+#include <cassert>
 
 
 #define BIT_SPLITTER_BUFFER_SIZE 3
