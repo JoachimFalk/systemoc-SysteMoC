@@ -142,9 +142,9 @@ OpBinT::operator const char *() const {
   assert(static_cast<size_t>(op) < sizeof(DOpBin)/sizeof(DOpBin[0]));
   return DOpBin[op];
 }
-/* OpBinT::operator std::string() const {
+OpBinT::operator std::string() const {
   return static_cast<const char *>(*this);
-} */
+}
 
 std::ostream &operator << (std::ostream &o, const OpBinT &op)
   { o << static_cast<const char *>(op); return o; }
@@ -193,9 +193,9 @@ OpUnT::operator const char *() const {
   assert(static_cast<size_t>(op) < sizeof(DOpUn)/sizeof(DOpUn[0]));
   return DOpUn[op];
 }
-/* OpUnT::operator std::string() const {
+OpUnT::operator std::string() const {
   return static_cast<const char *>(*this);
-} */
+}
 
 std::ostream &operator << (std::ostream &o, const OpUnT &op)
   { o << static_cast<const char *>(op); return o; }

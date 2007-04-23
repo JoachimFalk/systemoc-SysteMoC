@@ -349,6 +349,7 @@ public:
 
   operator _OpBinT() const;
   operator const char *() const;
+  operator std::string() const;
 };
 
 std::ostream &operator << (std::ostream &o, const OpBinT &op);
@@ -400,6 +401,7 @@ public:
 
   operator _OpUnT() const;
   operator const char *() const;
+  operator std::string() const;
 };
 
 std::ostream &operator << (std::ostream &o, const OpUnT &op);
