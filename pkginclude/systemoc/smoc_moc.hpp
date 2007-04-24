@@ -162,7 +162,7 @@ public:
   SC_HAS_PROCESS(this_type);
   
   smoc_top(smoc_graph *c)
-    : sc_module(sc_module_name("top")), c(c)
+    : sc_module(sc_gen_unique_name("smoc_top")), c(c)
     { SC_THREAD(scheduleTop); }
 };
 
