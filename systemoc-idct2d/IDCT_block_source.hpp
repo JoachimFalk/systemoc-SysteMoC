@@ -46,7 +46,6 @@
 #include "callib.hpp"
 
 #ifdef KASCPAR_PARSING
-# define USE_COUNTER_INPUT
 typedef unsigned int size_t;
 #endif
 
@@ -58,8 +57,17 @@ private:
   size_t counter;
   size_t counter2;
   
-  const static unsigned long block_data_size;
-  const static int block_data[];
+  // KaScPar is an idiot
+#ifndef KASCPAR_PARSING
+  const static
+#endif
+  unsigned long block_data_size;
+
+  // KaScPar is an idiot
+#ifndef KASCPAR_PARSING
+  const static
+#endif
+  int block_data[];
   
   void process() {
     int myMin;
@@ -90,55 +98,14 @@ public:
   }
 };
 
-
-/*
-const int m_block_source_idct::block_data[] = {
-  128,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-  
-  128,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-  
-  128,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-  
-  128,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-};
-
-*/
-
+// KaScPar is an idiot
+#ifndef KASCPAR_PARSING
 const int m_block_source_idct::block_data[] = {
 # include "Y_IdctCoeff.txt"
 };
 
 const unsigned long m_block_source_idct::block_data_size =
   sizeof(m_block_source_idct::block_data)/sizeof(m_block_source_idct::block_data[0]);
-
-
+#endif // KASCPAR_PARSING
 
 #endif

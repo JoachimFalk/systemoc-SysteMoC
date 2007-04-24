@@ -38,7 +38,6 @@
 #define _INCLUDED_IDCTBLOCKSINK_HPP
 
 #ifdef KASCPAR_PARSING
-# define USE_COUNTER_INPUT
 typedef unsigned long size_t;
 #endif
 
@@ -62,15 +61,18 @@ private:
   const unsigned long block_nbr;
 
   void new_image() {
+#ifndef KASCPAR_PARSING
     cout << "P2 " 
          << image_width << " "
          << image_height<< " "
          << 255 
          << endl;
     process();
+#endif
   }
   
   void process() {
+#ifndef KASCPAR_PARSING
     //output a complete block line
     for(unsigned int y = 0; y < 8; y++){
       for(unsigned int x = 0; x < image_width; x++){      
@@ -81,6 +83,7 @@ private:
       }
       std::cout << std::endl;
     }
+#endif
     block_count += image_width / 8;
     if (block_count >= block_nbr)
       block_count = 0;
