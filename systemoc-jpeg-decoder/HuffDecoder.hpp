@@ -71,10 +71,10 @@ struct ExpHuffTbl {
   DecodedSymbol_t  huffVal[256]; // symbol-length assignment parameters (B.2.4.2)
 };
 
+#include "debug_config.h"
+#include <cosupport/smoc_debug_out.hpp>
 // if compiled with DBG_HUFF_DECODER create stream and include debug macros
-#define DBG_HUFF_DECODER
 #ifdef DBG_HUFF_DECODER
-  #include <cosupport/smoc_debug_out.hpp>
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.

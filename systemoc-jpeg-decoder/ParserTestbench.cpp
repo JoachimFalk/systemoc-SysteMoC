@@ -45,10 +45,10 @@
 #include "FileSource.hpp"
 #include "Parser.hpp"
 
-// if compiled with DBG_PARSER create stream and include debug macros
-#define DBG_HUFFMAN_TB
-#ifdef DBG_HUFFMAN_TB
-  #include <cosupport/smoc_debug_out.hpp>
+#include "debug_config.h"
+#include <cosupport/smoc_debug_out.hpp>
+// if compiled with DBG_PARSER_TB create stream and include debug macros
+#ifdef DBG_PARSER_TB
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.

@@ -47,10 +47,10 @@
 
 #include "channels.hpp"
 
-// if compiled with DBG_INV_ZRL create stream and include debug macros
-#define DBG_TUPPLESCAN_SRC
+#include "debug_config.h"
+#include <cosupport/smoc_debug_out.hpp>
+// if compiled with DBG_TUPPLESCAN_SRC create stream and include debug macros
 #ifdef DBG_TUPPLESCAN_SRC
-  #include <cosupport/smoc_debug_out.hpp>
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.

@@ -45,11 +45,14 @@
 #include "FileSource.hpp"
 #include "Parser.hpp"
 #include "HuffDecoder.hpp"
+//#include "Tupple_src.hpp"
+//#include "Voter.hpp"
+//#include "CtrlSieve.hpp"
 
-// if compiled with DBG_PARSER create stream and include debug macros
-#define DBG_HUFFMAN_TB
+#include "debug_config.h"
+#include <cosupport/smoc_debug_out.hpp>
+// if compiled with DBG_HUFFMAN_TB create stream and include debug macros
 #ifdef DBG_HUFFMAN_TB
-  #include <cosupport/smoc_debug_out.hpp>
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.
@@ -282,6 +285,9 @@ private:
   TestQT2Sink   mSinkQT2;
   TestQT3Sink   mSinkQT3;
   TestToInvZrl  mToInvZrl;
+  //  Voter<JpegChannel_t>         mVoter;
+  //  TuppleSrc                    mTuppleSrc;
+  //  CtrlSieve                    mCtrlSieve;
 public:
   HuffmanTestbench(sc_module_name name, 
 		   const std::string &fileName, 
@@ -296,6 +302,9 @@ public:
       mSinkQT2("mSinkQT2"),
       mSinkQT3("mSinkQT3"),
       mToInvZrl("mToInvZrl",outfilename)
+    //mVoter("mVoter"),
+    //mTuppleSrc("mTuppleSrc", infilename),
+    //mCtrlSieve("mCtrlSieve")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
@@ -308,6 +317,9 @@ public:
     connectNodePorts<16>(mParser.outCodedHuffTbl, mHuffDecoder.inCodedHuffTbl);
     
     connectNodePorts<1>(mHuffDecoder.out,         mToInvZrl.in);
+    //    connectNodePorts<1>(mHuffDecoder.out,         mCtrlSieve.in);
+    //    connectNodePorts<1>(mCtrlSieve.out,           mVoter.test);
+    //    connectNodePorts<1>(mTuppleSrc.out,           mVoter.ref);
 #endif
   }
 };

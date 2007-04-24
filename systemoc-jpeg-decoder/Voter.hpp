@@ -1,5 +1,5 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
-// vim: set sw=2 ts=8 sts=2 et:
+// vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
@@ -34,23 +34,17 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_TUPPLE_SRC_HPP
-#define _INCLUDED_TUPPLE_SRC_HPP
+#ifndef _INCLUDED_VOTER_HPP
+#define _INCLUDED_VOTER_HPP
 
-#include <cstdlib>
 #include <iostream>
-#include <fstream>
-#include <stdlib.h>
 
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_node_types.hpp>
-
-#include "channels.hpp"
 
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
-// if compiled with DBG_TUPPLE_SRC create stream and include debug macros
-#ifdef DBG_TUPPLE_SRC
+// if compiled with DBG_VOTER create stream and include debug macros
+#ifdef DBG_VOTER
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.
@@ -60,78 +54,38 @@
   #include "debug_off.h"
 #endif
 
-class TuppleSrc: public smoc_actor {
+template<typename T>
+class Voter: public smoc_actor {
 public:
-  smoc_port_out<JpegChannel_t>     out;
-private:
+  smoc_port_in<T> ref;
+  smoc_port_in<T> test;
 
-  ifstream infile;
-  bool eof;
-
-  CategoryAmplitude_t amplitude;
-  Category_t category;
-  RunLength_t rle;
-	
-
-  smoc_firing_state read_file;
-  smoc_firing_state write_tupple;
-
-  // writes it the the port
-  void WriteTupple(){
-    out[0] = JS_DATA_TUPPLED_SET_CHWORD(amplitude,rle,category);
-  }	
-
-  void ReadTupple(){
-    std::string rlz;
-		
-    // Workaround, because >> is too silly.
-    unsigned int temp;
-    infile >> rlz >> temp >> amplitude;
-    category = temp;
- 		
-    if (rlz == "DC"){
-      rle = 0;
-    }else{
-      rle = atol(rlz.c_str());
-    }
-
-    if (!infile.good()){
-      eof = true;
-    }else{
-      if (rlz == "DC"){
-	DBG_OUT("DC ");
-      }
-      DBG_OUT("rle = " << rle 
-	     << ", cat = " << (unsigned int)category 
-	     << ", amplitude = " << amplitude 
-	     << endl);
-    }
-
-  }
-
-  CoSupport::DebugOstream dbgout;
-public:
-  TuppleSrc(sc_module_name name, const std::string& filename )
-    : smoc_actor(name, read_file),
-      infile(filename.c_str()),
-      eof(false),
-      dbgout(std::cout)
+  Voter( sc_module_name name )
+    : smoc_actor( name, main ),
+      dbgout(std::cerr)
   {
+    CoSupport::Header myHeader("Voter> ");
+    dbgout << myHeader;
 
-    //Set Debug ostream options
-    CoSupport::Header my_header("TuppleSrc> ");
-    dbgout << my_header;
-
-    
-    read_file =
-      /* ignore and forward control tokens */
-      CALL(TuppleSrc::ReadTupple)                >> write_tupple;
-
-    write_tupple =
-      (!VAR(eof)) >>
-      (out(1)) >>
-      CALL(TuppleSrc::WriteTupple) >> read_file;
+    main
+      = ( test(1) && ref(1) )                  >>
+        CALL(Voter::compare)                   >> main;
   }
+private:
+  CoSupport::DebugOstream dbgout;
+  
+  void compare() {
+    if(ref[0] != test[0]){
+      std::cerr << "Voter: Expected to receive: "  << ref[0]  << std::endl;
+      std::cerr << "       But received:        "  << test[0] << std::endl;
+    } else {
+      DBG_OUT( "Test is OK!" << std::endl);
+    }
+    assert(ref[0] == test[0]);
+  }
+  
+  smoc_firing_state main;
+  
 };
 
-#endif // _INCLUDED_TUPPLE_SRC_HPP
+#endif
