@@ -124,7 +124,8 @@ public:
 
   //
   ~InvHuffman() {
-    assert(m_BitSplitter.isEmpty());
+    // ignore fill bits
+    //assert(m_BitSplitter.isEmpty());
   }
 
 private:
