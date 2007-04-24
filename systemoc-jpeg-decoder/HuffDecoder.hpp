@@ -267,6 +267,9 @@ private:
       m_compInterleaving[i] = JS_CTRL_NEWSCAN_GETCOMP(in[0],i);
       DBG_OUT(" " << m_compInterleaving[i]);
     }
+
+    m_currentComp = m_compInterleaving[compIndex];
+
     DBG_OUT(endl);
 
     forwardCtrl();
@@ -309,6 +312,7 @@ private:
     // select next component
     compIndex = (compIndex + 1) % SCANPATTERN_LENGTH;
     m_currentAc = 0;
+    m_currentComp = m_compInterleaving[compIndex];
   }
 
 

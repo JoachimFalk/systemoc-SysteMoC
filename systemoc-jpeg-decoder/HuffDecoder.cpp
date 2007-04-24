@@ -382,7 +382,9 @@ InvHuffman::InvHuffman(sc_module_name name)
   discoverDC
     = // enough bits to read DC difference?
       GUARD(InvHuffman::isEnoughDcBits)                        >>
-      out(1)                                                   >>
+      // out[0] : component index CTRL
+      // out[1] : DC diff tupple
+      out(2)                                                   >>
       CALL(InvHuffman::writeDcDiff)                            >> discoverAC
     | // store data
       ( in(1)                                                  &&
@@ -500,7 +502,8 @@ void InvHuffman::writeDcDiff(void) {
     JS_DATA_TUPPLED_SET_CHWORD(receivedBits, 0, m_receiveDcBits);
   
   DBG_OUT("writeDcDiff(): write DC difference: " << dcDiff << endl);
-  out[0] = dcDiff;
+  out[0] = JS_CTRL_INTERNALCOMPSTART_SET_CHWORD(m_currentComp);
+  out[1] = dcDiff;
 }
 
 

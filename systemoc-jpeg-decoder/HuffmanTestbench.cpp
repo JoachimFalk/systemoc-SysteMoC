@@ -316,7 +316,7 @@ public:
     connectNodePorts<1>(mParser.outCtrlImage,     mSinkCtrl.in);
     connectNodePorts<16>(mParser.outCodedHuffTbl, mHuffDecoder.inCodedHuffTbl);
     
-    connectNodePorts<1>(mHuffDecoder.out,         mToInvZrl.in);
+    connectNodePorts<2>(mHuffDecoder.out,         mToInvZrl.in);
     //    connectNodePorts<1>(mHuffDecoder.out,         mCtrlSieve.in);
     //    connectNodePorts<1>(mCtrlSieve.out,           mVoter.test);
     //    connectNodePorts<1>(mTuppleSrc.out,           mVoter.ref);

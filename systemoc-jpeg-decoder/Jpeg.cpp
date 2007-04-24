@@ -138,7 +138,7 @@ public:
     connectNodePorts(mParser.qt_table_2, mInvQuant.qt_table_2, qtFifo);
     connectNodePorts(mParser.qt_table_3, mInvQuant.qt_table_3, qtFifo);
     
-    connectNodePorts<1>(mHuffDecoder.out,         mInvZrl.in);
+    connectNodePorts<2>(mHuffDecoder.out,         mInvZrl.in);
     
     connectNodePorts<1>(mInvZrl.out,              mDcDecoding.in);
     connectNodePorts<1>(mDcDecoding.out,          mInvQuant.in);
