@@ -37,63 +37,17 @@
 #define _INCLUDED_SMOC_MOC_HPP
 
 #include <systemc.h>
-#include "smoc_graph_type.hpp"
 
 #include <list>
 
-/*
-class smoc_scheduler_base {
-protected:
-};
+#include "smoc_firing_rules.hpp"
+#include "smoc_root_node.hpp"
 
-class smoc_scheduler_sdf
-  : public smoc_root_node,
-    public smoc_scheduler_base {
-public:
-  typedef smoc_scheduler_sdf  this_type;
-  typedef smoc_sdf_constraintset  cset_ty;
-protected:
-  cset_ty *c;
-  
-  void schedule();
-private:
-  smoc_firing_state s;
-  
-  void analyse();
-public:
-  smoc_scheduler_sdf( cset_ty *c );
-};
-
-typedef class smoc_scheduler_ndf smoc_scheduler_ddf;
-
-class smoc_scheduler_ndf
-  : public smoc_root_node,
-    public smoc_firing_types,
-    public smoc_scheduler_base {
-public:
-  typedef smoc_scheduler_ndf      this_type;
-  typedef smoc_ndf_constraintset  cset_ty;
-private:
-  smoc_firing_state  s;
-  cset_ty           *c;
-protected:
-  typedef std::pair<transition_ty *, smoc_root_node *>  transition_node_ty;
-  typedef std::list<transition_node_ty>                 transition_node_list_ty;
-  
-  const smoc_firing_state &schedule();
- 
-  void finalise() {
-    s = smoc_activation_pattern() >> diverge(&smoc_scheduler_ndf::schedule);
-    smoc_root_node::finalise();
-  }
-public:
-  smoc_scheduler_ndf( cset_ty *c );
-};
-*/
+class smoc_graph;
 
 class smoc_scheduler_top
   : public smoc_firing_types {
-//  public smoc_scheduler_base {
+  friend class smoc_graph;
 public:
   typedef smoc_scheduler_top      this_type;
 protected:
@@ -106,6 +60,8 @@ protected:
   smoc_transition_ready_list ol;
   
   void getLeafNodes(smoc_node_list &nodes, smoc_graph *node);
+
+  void elabEnd(smoc_graph *c);
   
   void schedule(smoc_graph *c);
 
@@ -124,79 +80,36 @@ protected:
 };
 
 class smoc_top
-: public sc_module,
-  public smoc_scheduler_top {
-protected:
-  // called by elaboration_done (does nothing by default)
-  void end_of_elaboration() {
-    c->finalise();
-    if (smoc_modes::dumpProblemgraph) {
-      smoc_modes::dump(std::cout, *c);
-      exit(0);
-    }
-/*
-      sc_set_stop_mode(SC_STOP_IMMEDIATE);
-      sc_report_handler::suppress(SC_UNSPECIFIED  |
-          SC_DO_NOTHING   |
-          SC_THROW        |
-          SC_LOG          |
-          SC_DISPLAY      |
-          SC_CACHE_REPORT |
-          SC_INTERRUPT    |
-          SC_STOP         |
-          SC_ABORT
-          );
-      // suppress intrusive SystemC std::cout messages
-      std::cout.rdbuf(std::cerr.rdbuf()); 
-      sc_stop();
- */
-  }
-
-  smoc_graph *c;
-
-  void scheduleTop()
-    { return smoc_scheduler_top::schedule(c); }
+  : public smoc_scheduler_top {
 public:
-  typedef smoc_top this_type;
-  
-  SC_HAS_PROCESS(this_type);
-  
-  smoc_top(smoc_graph *c)
-    : sc_module(sc_gen_unique_name("smoc_top")), c(c)
-    { SC_THREAD(scheduleTop); }
+  smoc_top(smoc_graph *c);
 };
 
 template <typename T_top>
-class smoc_top_moc: public smoc_top {
-protected:
-  T_top top;
+class smoc_top_moc
+  : public T_top, public smoc_top {
 public:
   typedef smoc_top_moc<T_top> this_type;
 
   smoc_top_moc()
-    : smoc_top(&top), top() {}
+    : T_top(), smoc_top(this) {}
   explicit smoc_top_moc(sc_module_name name)
-    : smoc_top(&top), top(name) {}
+    : T_top(name), smoc_top(this) {}
   template <typename T1>
   explicit smoc_top_moc(sc_module_name name, T1 p1)
-    : smoc_top(&top), top(name, p1) {}
+    : T_top(name, p1), smoc_top(this) {}
   template <typename T1, typename T2>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2)
-    : smoc_top(&top), top(name, p1, p2) {}
+    : T_top(name, p1, p2), smoc_top(this) {}
   template <typename T1, typename T2, typename T3>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3)
-    : smoc_top(&top), top(name, p1, p2, p3) {}
+    : T_top(name, p1, p2, p3), smoc_top(this) {}
   template <typename T1, typename T2, typename T3, typename T4>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4)
-    : smoc_top(&top), top(name, p1, p2, p3, p4) {}
+    : T_top(name, p1, p2, p3, p4), smoc_top(this) {}
   template <typename T1, typename T2, typename T3, typename T4, typename T5>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
-    : smoc_top(&top), top(name, p1, p2, p3, p4, p5) {}
-
-  operator T_top &()
-    { return *this; }
-  operator const T_top &() const
-    { return *this; }
+    : T_top(name, p1, p2, p3, p4, p5), smoc_top(this) {}
 };
 
 template <typename T_top>
@@ -233,3 +146,5 @@ public:
 };
 
 #endif // _INCLUDED_SMOC_MOC_HPP
+
+#include <systemoc/smoc_graph_type.hpp>

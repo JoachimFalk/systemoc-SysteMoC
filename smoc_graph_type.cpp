@@ -145,5 +145,15 @@ void smoc_graph::pgAssemble(
   pgw << "</problemgraph>" << std::endl;
 }
 
+void smoc_graph::smocCallTop() {
+  if (top != NULL)
+    top->schedule(this);
+}
+
+void smoc_graph::end_of_elaboration() {
+  if (top != NULL)
+    top->elabEnd(this);
+}
+
 void smoc_graph::assembleActor(
     smoc_modes::PGWriter &pgw) const {}

@@ -36,6 +36,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_sr_signal.hpp>
 #include <systemoc/smoc_multicast_sr_signal.hpp>
 
@@ -48,6 +49,14 @@
 #endif
 
 using namespace CoSupport;
+
+void smoc_scheduler_top::elabEnd(smoc_graph *c) {
+  c->finalise();
+  if (smoc_modes::dumpProblemgraph) {
+    smoc_modes::dump(std::cout, *c);
+    exit(0);
+  }
+}
 
 void smoc_scheduler_top::getLeafNodes(
     smoc_node_list &nodes, smoc_graph *node) {
@@ -770,3 +779,6 @@ size_t smoc_scheduler_top::countDefinedOutports(smoc_root_node &n){
         }
       }
  */
+
+smoc_top::smoc_top(smoc_graph *c)
+  { assert(c->top == NULL); c->top = this; }

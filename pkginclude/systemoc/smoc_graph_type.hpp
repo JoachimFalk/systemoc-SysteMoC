@@ -45,6 +45,7 @@
 #include "smoc_multicast_sr_signal.hpp"
 #include "smoc_rendezvous.hpp"
 #include "smoc_node_types.hpp"
+#include "smoc_moc.hpp"
 #ifndef __SCFE__
 # include "smoc_pggen.hpp"
 #endif
@@ -54,16 +55,24 @@
 #include <list>
 #include <map>
 
+class smoc_top;
+class smoc_scheduler_top;
+
 #define T_chan_init_default smoc_fifo
 class smoc_graph
-: public sc_module,
-  public smoc_root_node {
-public:
-//typedef T_node_type  node_type;
-//typedef T_chan_kind  chan_kind;
-  typedef smoc_graph    this_type;
-
+  : public sc_module,
+    public smoc_root_node {
   friend class smoc_top;
+  friend class smoc_scheduler_top;
+
+  typedef smoc_graph    this_type;
+private:
+  smoc_scheduler_top *top;
+
+  void smocCallTop();
+
+  // called by elaboration_done (does nothing by default)
+  void end_of_elaboration();
 protected:
   template <typename T_chan_init, 
             template <typename, typename> class R,
@@ -201,15 +210,6 @@ protected:
   }
 #endif
 
-
-
-
-
-
-
-
-
-
   template <typename T_value_type>
   void connectInterfacePorts(
                              smoc_port_out<T_value_type> &a,
@@ -254,16 +254,25 @@ protected:
   void finalise();
 
   smoc_firing_state dummy;
+
+  SC_HAS_PROCESS(this_type);
+private:
+
+
 public:
   explicit smoc_graph(sc_module_name name)
     : sc_module(name),
-      smoc_root_node(dummy) {
+      smoc_root_node(dummy),
+      top(NULL) {
     dummy = CALL(smoc_graph::finalise) >> dummy;
-  }
+    SC_THREAD(smocCallTop);
+   }
   smoc_graph()
     : sc_module(sc_gen_unique_name("smoc_graph")),
-      smoc_root_node(dummy) {
+      smoc_root_node(dummy),
+      top(NULL) {
     dummy = CALL(smoc_graph::finalise) >> dummy;
+    SC_THREAD(smocCallTop);
   }
 
   template <typename T>
