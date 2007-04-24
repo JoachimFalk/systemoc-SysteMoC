@@ -356,8 +356,8 @@ private:
   //
   void storeTcTh() {
     m_tcth = in[0];
-    const size_t tc = (m_tcth >> 4) & 0x0f;
-    const size_t th = m_tcth & 0x0f;
+    DBG(const size_t tc = (m_tcth >> 4) & 0x0f);
+    DBG(const size_t th = m_tcth & 0x0f);
     DBG_OUT("storeTcTh(): TC = " << tc << "; TH = " << th << endl);
   }
 
