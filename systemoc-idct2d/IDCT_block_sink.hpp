@@ -37,17 +37,14 @@
 #ifndef _INCLUDED_IDCTBLOCKSINK_HPP
 #define _INCLUDED_IDCTBLOCKSINK_HPP
 
-#ifdef KASCPAR_PARSING
-typedef unsigned long size_t;
-#endif
-
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 
 #include <systemoc/smoc_port.hpp>
-#include "callib.hpp"
+
+#include "smoc_synth_std_includes.hpp"
 
 class m_block_sink: public smoc_actor {
 public:
@@ -58,17 +55,37 @@ private:
   const size_t image_height;
 
   unsigned long block_count;
-  const unsigned long block_nbr;
+  unsigned long block_nbr;
 
   void new_image() {
 #ifndef KASCPAR_PARSING
+#ifdef SINK_BINARY_OUTPUT
+  #ifdef XILINX_EDK_RUNTIME
+    xil_printf("P5 %d %d 255\n",
+               image_width,
+               image_height);
+  #else
+    cout << "P5 " 
+         << image_width << " "
+         << image_height<< " "
+         << 255 
+         << endl;
+  #endif
+# else
+  #ifdef XILINX_EDK_RUNTIME
+    xil_printf("P2 %d %d 255\n",
+               image_width,
+               image_height);
+  #else
     cout << "P2 " 
          << image_width << " "
          << image_height<< " "
          << 255 
          << endl;
-    process();
+  #endif
 #endif
+#endif
+    process();
   }
   
   void process() {
@@ -79,9 +96,27 @@ private:
         unsigned int bx = x / 8;
         unsigned int rx = x % 8;
         // +128 : DC-Level shift
-        std::cout << in[bx*64+y*8+rx] + 128 << " ";
+#ifdef SINK_BINARY_OUTPUT
+  #ifndef XILINX_EDK_RUNTIME
+        cout << (char)(in[bx*64+y*8+rx] + 128);
+  #else
+        xil_printf("%c", in[bx*64+y*8+rx] + 128);
+  #endif
+#else
+  #ifndef XILINX_EDK_RUNTIME
+        cout << in[bx*64+y*8+rx] + 128 << " ";
+  #else
+        xil_printf("%d ", in[bx*64+y*8+rx] + 128);
+  #endif
+#endif
       }
-      std::cout << std::endl;
+#ifndef SINK_BINARY_OUTPUT
+  #ifndef XILINX_EDK_RUNTIME
+      cout << endl;
+  #else
+      xil_printf("\n");
+  #endif
+#endif
     }
 #endif
     block_count += image_width / 8;
@@ -98,10 +133,13 @@ public:
     : smoc_actor( name, start ),
       image_width(image_width),
       image_height(image_height),
-      block_count(0),
-      //Only support complete blocks
-      block_nbr(image_width/8*image_height/8)
+      block_count(0)
+      
   {
+    //Only support complete blocks
+    block_nbr = (image_width/8*image_height/8);
+
+    
     // Read a complete line as once
     start = in(64*(image_width/8)) 
       >> (VAR(block_count) != (unsigned)0)

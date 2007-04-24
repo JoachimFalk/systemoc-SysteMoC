@@ -43,17 +43,8 @@
 #include <stdlib.h>
 
 #include <systemoc/smoc_port.hpp>
-#include "callib.hpp"
 
-#define ONAMEblk "test_out.dat"
-
-#ifdef EDK_XILINX_RUNTIME
-# define USE_COUNTER_INPUT
-#endif
-#ifdef KASCPAR_PARSING
-# define USE_COUNTER_INPUT
-typedef unsigned int size_t;
-#endif
+#include "smoc_synth_std_includes.hpp"
 
 class m_sink: public smoc_actor {
 public:

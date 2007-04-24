@@ -43,11 +43,8 @@
 #include <stdlib.h>
 
 #include <systemoc/smoc_port.hpp>
-#include "callib.hpp"
 
-#ifdef KASCPAR_PARSING
-typedef unsigned int size_t;
-#endif
+#include "smoc_synth_std_includes.hpp"
 
 class m_block_source_idct: public smoc_actor {
 public:
@@ -55,32 +52,43 @@ public:
   smoc_port_out<int> min;
 private:
   size_t counter;
-  size_t counter2;
-  
-  // KaScPar is an idiot
-#ifndef KASCPAR_PARSING
-  const static
-#endif
-  unsigned long block_data_size;
+  size_t counter2; 
 
-  // KaScPar is an idiot
-#ifndef KASCPAR_PARSING
-  const static
-#endif
-  int block_data[];
   
   void process() {
+
+#ifndef KASCPAR_PARSING    
+    const static int block_data[] = {
+# include "Y_IdctCoeff.txt"
+    };
+    const static unsigned long block_data_size =   
+      sizeof(block_data)/sizeof(block_data[0]);
+#endif
+
     int myMin;
-    int myOut;
-    
-    for ( int j = 0; j <= 63; j++ ) {
-      myOut = block_data[counter];
-      out[j] = myOut;
+
+    int j = 0;
+
+    while(j <= 63){
+      if (block_data[counter] == 0){
+        counter++;
+        for(int i = 0; i < block_data[counter]; i++){
+          out[j] = 0;
+          j++;
+          counter2++;
+        }
+      }else{
+        out[j] = block_data[counter];        
+        counter2++;
+        j++;
+      }
       counter++;
-      counter2++;
-      if (counter >= block_data_size)
-        counter = 0;
     }
+    
+    if (counter >= block_data_size){
+      counter = 0;
+    }
+
     myMin = -128;
     min[0] = myMin;
   }
@@ -97,15 +105,5 @@ public:
   ~m_block_source_idct() {
   }
 };
-
-// KaScPar is an idiot
-#ifndef KASCPAR_PARSING
-const int m_block_source_idct::block_data[] = {
-# include "Y_IdctCoeff.txt"
-};
-
-const unsigned long m_block_source_idct::block_data_size =
-  sizeof(m_block_source_idct::block_data)/sizeof(m_block_source_idct::block_data[0]);
-#endif // KASCPAR_PARSING
 
 #endif

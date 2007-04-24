@@ -32,12 +32,29 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+#define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+
 using namespace std;
 
-#define USE_COUNTER_INPUT
+#ifdef KASCPAR_PARSING
+typedef unsigned long size_t;
+#endif
 
-#ifdef XILINX_EDK_RUNTIME
-# define USE_COUNTER_INPUT
+//#define REAL_BLOCK_DATA
+
+#ifdef REAL_BLOCK_DATA
+// Only significant in case of REAL_BLOCK_DATA
+# define SINK_BINARY_OUTPUT 
+# define IMAGE_WIDTH  176
+# define IMAGE_HEIGHT 144
+#else
+// Only significant in case of !REAL_BLOCK_DATA
+//# define USE_COUNTER_INPUT
+# ifdef EDK_XILINX_RUNTIME
+    // No std::fstream in xilinx EDK !!!
+#   define USE_COUNTER_INPUT
+# endif
 #endif
 
 #ifndef USE_COUNTER_INPUT
@@ -46,6 +63,7 @@ using namespace std;
 # define ONAMEblk "test_out.dat"
 #endif
 
+//#define VERBOSE_ACTOR
 //#define VERBOSE_TRANSPOSE
 //#define VERBOSE_IDCT_UPSAMPLE
 //#define VERBOSE_MIN_DUPLEX
@@ -56,5 +74,6 @@ using namespace std;
 //#define VERBOSE_IDCT_COL2BLOCK
 //#define VERBOSE_IDCT_BLOCK2ROW
 
-
 #include "callib.hpp"
+
+#endif // _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP

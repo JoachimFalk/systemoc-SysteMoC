@@ -48,14 +48,7 @@
 # include <systemoc/smoc_pggen.hpp>
 #endif
 
-#include "callib.hpp"
-
-
-#define REAL_BLOCK_DATA
-#define IMAGE_WIDTH  648
-#define IMAGE_HEIGHT 408
-
-//#define VERBOSE_ACTOR
+#include "smoc_synth_std_includes.hpp"
 
 #include "block_idct.hpp"
 
@@ -67,18 +60,23 @@
 # include "IDCT_block_sink.hpp"
 #endif
 
-
-
+#ifndef DEFAULT_BLOCK_COUNT
+# ifdef REAL_BLOCK_DATA
+#  define DEFAULT_BLOCK_COUNT ((IMAGE_WIDTH)/8*(IMAGE_HEIGHT)/8)
+# else
+#  define DEFAULT_BLOCK_COUNT 25
+# endif
+#endif
 
 class IDCT2d_TEST
 : public smoc_graph {
 private:
 #ifndef REAL_BLOCK_DATA
   m_source_idct src_idct;
-  m_sink        snk;
+  //m_sink        snk;
 #else
   m_block_source_idct src_idct;
-  m_block_sink        snk;
+  //m_block_sink        snk;
 #endif
   m_block_idct  blidct;
 
@@ -87,12 +85,19 @@ public:
     : smoc_graph(name),
       src_idct("src_idct", periods),
 #ifdef REAL_BLOCK_DATA
-      snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT) ,
+      //snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT) ,
 #else
-      snk("snk"),
+      //snk("snk"),
 #endif
       blidct("blidct")
 {
+
+#ifndef REAL_BLOCK_DATA
+  m_sink &snk = registerNode(new m_sink("snk"));
+#else
+  m_block_sink &snk = registerNode(new m_block_sink("snk",IMAGE_WIDTH, IMAGE_HEIGHT));
+#endif
+
 #ifndef KASCPAR_PARSING
     connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
     connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(4));
@@ -110,7 +115,7 @@ int sc_main (int argc, char **argv) {
   size_t periods            =
     (argc > 1)
     ? atoi(argv[1])
-    : IMAGE_WIDTH/8*IMAGE_HEIGHT/8;
+    : DEFAULT_BLOCK_COUNT;
   
   smoc_top_moc<IDCT2d_TEST> top("top", periods);
   
