@@ -44,7 +44,6 @@
 
 #include "FileSource.hpp"
 #include "Parser.hpp"
-#include "InvByteStuff.hpp"
 #include "HuffDecoder.hpp"
 
 // if compiled with DBG_PARSER create stream and include debug macros
@@ -276,7 +275,6 @@ class HuffmanTestbench
 private:
   FileSource    mSrc;
   Parser        mParser;
-  InvByteStuff  mInvByteStuff;
   HuffDecoder   mHuffDecoder;
   TestSink      mSinkCtrl;
   TestQT0Sink   mSinkQT0;
@@ -291,7 +289,6 @@ public:
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),
-      mInvByteStuff("mInvByteStuff"),
       mHuffDecoder("mHuffDecoder"),
       mSinkCtrl("mSinkCtrl"),
       mSinkQT0("mSinkQT0"),
@@ -302,7 +299,7 @@ public:
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
-    connectNodePorts<2>(mParser.out,              mInvByteStuff.in);
+    connectNodePorts<2>(mParser.out,              mHuffDecoder.in);
     connectNodePorts<1>(mParser.qt_table_0,       mSinkQT0.in);
     connectNodePorts<1>(mParser.qt_table_1,       mSinkQT1.in);
     connectNodePorts<1>(mParser.qt_table_2,       mSinkQT2.in);
@@ -310,7 +307,6 @@ public:
     connectNodePorts<1>(mParser.outCtrlImage,     mSinkCtrl.in);
     connectNodePorts<16>(mParser.outCodedHuffTbl, mHuffDecoder.inCodedHuffTbl);
     
-    connectNodePorts<3>(mInvByteStuff.out,        mHuffDecoder.in);
     connectNodePorts<1>(mHuffDecoder.out,         mToInvZrl.in);
 #endif
   }

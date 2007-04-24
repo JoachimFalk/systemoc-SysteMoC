@@ -50,7 +50,6 @@
 
 #include "FileSource.hpp"
 #include "Parser.hpp"
-#include "InvByteStuff.hpp"
 #include "HuffDecoder.hpp"
 #include "InvZrl.hpp"
 #include "DcDecoding.hpp"
@@ -71,7 +70,6 @@ class Jpeg: public smoc_graph {
 private:
   FileSource        mSrc;
   Parser            mParser;
-  InvByteStuff      mInvByteStuff;
   HuffDecoder       mHuffDecoder;
   InvZrl            mInvZrl;
   DcDecoding        mDcDecoding;
@@ -98,7 +96,6 @@ public:
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),
-      mInvByteStuff("mInvByteStuff"),
       mHuffDecoder("mHuffDecoder"),
       mInvZrl("mInvZrl"),
       mDcDecoding("mDcDecoding"),
@@ -121,7 +118,7 @@ public:
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
-    connectNodePorts<2>(mParser.out,              mInvByteStuff.in);
+    connectNodePorts<2>(mParser.out,              mHuffDecoder.in);
     connectNodePorts<1>(mParser.outCtrlImage,     mSink.inCtrlImage);
     connectNodePorts<16>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
 
@@ -140,8 +137,6 @@ public:
     connectNodePorts(mParser.qt_table_1, mInvQuant.qt_table_1, qtFifo);
     connectNodePorts(mParser.qt_table_2, mInvQuant.qt_table_2, qtFifo);
     connectNodePorts(mParser.qt_table_3, mInvQuant.qt_table_3, qtFifo);
-    
-    connectNodePorts<3>(mInvByteStuff.out,        mHuffDecoder.in);
     
     connectNodePorts<1>(mHuffDecoder.out,         mInvZrl.in);
     
