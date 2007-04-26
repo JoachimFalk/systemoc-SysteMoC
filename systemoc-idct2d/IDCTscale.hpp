@@ -66,10 +66,11 @@ private:
   smoc_firing_state start;
 public:
   m_IDCTscale(sc_module_name name,
-              SMOC_ACTOR_CPARAM(int, G),
-	      SMOC_ACTOR_CPARAM(int, OS))
+              int G, int OS)
     : smoc_actor(name, start),
       G(G), OS(OS) {
+    SMOC_REGISTER_CPARAM(G);
+    SMOC_REGISTER_CPARAM(OS);
     start = I(1) >> O(1)                >>
             CALL(m_IDCTscale::action0)  >> start;
   }

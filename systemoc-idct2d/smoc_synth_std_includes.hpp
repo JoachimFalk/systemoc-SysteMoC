@@ -41,7 +41,7 @@ using namespace std;
 typedef unsigned long size_t;
 #endif
 
-//#define REAL_BLOCK_DATA
+#define REAL_BLOCK_DATA
 
 #ifdef REAL_BLOCK_DATA
 // Only significant in case of REAL_BLOCK_DATA
@@ -75,5 +75,9 @@ typedef unsigned long size_t;
 //#define VERBOSE_IDCT_BLOCK2ROW
 
 #include "callib.hpp"
+
+#ifndef SMOC_REGISTER_CPARAM
+#define SMOC_REGISTER_CPARAM(name) do {} while(0)
+#endif
 
 #endif // _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP

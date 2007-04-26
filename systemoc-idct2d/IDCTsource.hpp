@@ -89,8 +89,9 @@ private:
   smoc_firing_state start;
 public:
   m_source_idct(sc_module_name name,
-      SMOC_ACTOR_CPARAM(size_t, periods))
+      size_t periods)
     : smoc_actor(name, start), counter(0) {
+    SMOC_REGISTER_CPARAM(periods);
 #ifndef USE_COUNTER_INPUT
     i1.open(INAMEblk);
 #endif

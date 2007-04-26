@@ -58,7 +58,6 @@ private:
   unsigned long block_nbr;
 
   void new_image() {
-#ifndef KASCPAR_PARSING
 #ifdef SINK_BINARY_OUTPUT
   #ifdef XILINX_EDK_RUNTIME
     xil_printf("P5 %d %d 255\n",
@@ -84,12 +83,10 @@ private:
          << endl;
   #endif
 #endif
-#endif
     process();
   }
   
   void process() {
-#ifndef KASCPAR_PARSING
     //output a complete block line
     for(unsigned int y = 0; y < 8; y++){
       for(unsigned int x = 0; x < image_width; x++){      
@@ -118,7 +115,6 @@ private:
   #endif
 #endif
     }
-#endif
     block_count += image_width / 8;
     if (block_count >= block_nbr)
       block_count = 0;
@@ -127,8 +123,8 @@ private:
   smoc_firing_state start;
 public:
   m_block_sink( sc_module_name name,
-                SMOC_ACTOR_CPARAM(size_t, image_width),
-                SMOC_ACTOR_CPARAM(size_t, image_height)
+                size_t image_width,
+                size_t image_height
                 )
     : smoc_actor( name, start ),
       image_width(image_width),
@@ -136,6 +132,8 @@ public:
       block_count(0)
       
   {
+    SMOC_REGISTER_CPARAM(image_width);
+    SMOC_REGISTER_CPARAM(image_height);
     //Only support complete blocks
     block_nbr = (image_width/8*image_height/8);
 

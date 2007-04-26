@@ -78,9 +78,10 @@ private:
     smoc_firing_state start;
 public:
   m_IDCTclip(sc_module_name name,
-             SMOC_ACTOR_CPARAM(int, MAX))
+             int MAX)
     : smoc_actor(name, start),
       MAX(MAX) {
+    SMOC_REGISTER_CPARAM(MAX);
     start = (I(1) && MIN(1))          >>
             O(1)                      >>
             CALL(m_IDCTclip::action0) >> start;

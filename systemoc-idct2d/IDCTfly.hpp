@@ -78,13 +78,16 @@ private:
   smoc_firing_state start;
 public:
   m_IDCTfly(sc_module_name name,
-            SMOC_ACTOR_CPARAM(int, W0),
-	    SMOC_ACTOR_CPARAM(int, OS),
-	    SMOC_ACTOR_CPARAM(int, W1),
-	    SMOC_ACTOR_CPARAM(int, W2),
-	    SMOC_ACTOR_CPARAM(int, ATTEN))
+            int W0, int OS,
+	    int W1, int W2,
+	    int ATTEN)
     : smoc_actor(name, start),
       W0(W0), OS(OS), W1(W1), W2(W2), ATTEN(ATTEN) {
+    SMOC_REGISTER_CPARAM(W0);
+    SMOC_REGISTER_CPARAM(OS);
+    SMOC_REGISTER_CPARAM(W1);
+    SMOC_REGISTER_CPARAM(W2);
+    SMOC_REGISTER_CPARAM(ATTEN);
     start = (I1(1) && I2(1))          >>
             (O1(1) && O2(1))          >>
             CALL(m_IDCTfly::action0)  >> start;

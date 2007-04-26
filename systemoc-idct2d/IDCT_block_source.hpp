@@ -96,8 +96,9 @@ private:
   smoc_firing_state start;
 public:
   m_block_source_idct(sc_module_name name,
-      SMOC_ACTOR_CPARAM(size_t, periods))
+      size_t periods)
     : smoc_actor(name, start), counter(0), counter2(0) {
+    SMOC_REGISTER_CPARAM(periods);
     start = (out(64) && min(1) && VAR(counter2) < periods * 64)  >>
       CALL(m_block_source_idct::process)                        >> start;
   }

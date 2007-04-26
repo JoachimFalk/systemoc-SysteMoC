@@ -77,11 +77,12 @@ private:
   smoc_firing_state start;
 public:
   m_IDCTaddsub(sc_module_name name,
-               SMOC_ACTOR_CPARAM(int, G),
-	       SMOC_ACTOR_CPARAM(int, OS),
-	       SMOC_ACTOR_CPARAM(int, ATTEN))
+               int G, int OS, int ATTEN)
     : smoc_actor(name, start),
       G(G), OS(OS), ATTEN(ATTEN) {
+	SMOC_REGISTER_CPARAM(G);
+	SMOC_REGISTER_CPARAM(OS);
+	SMOC_REGISTER_CPARAM(ATTEN);
     start = (I1(1) && I2(1))            >>
             (O1(1) && O2(1))            >>
             CALL(m_IDCTaddsub::action0) >> start;
