@@ -60,6 +60,9 @@
 #include <string>
 #include <sstream>
 
+#undef  SMOC_REGISTER_CPARAM
+#define SMOC_REGISTER_CPARAM(name) Expr::Detail::doRegisterParam(name)
+
 #define SMOC_ACTOR_CPARAM(type, name) Expr::Detail::ParamWrapper<type> name
 
 class smoc_opbase_node {
@@ -102,6 +105,8 @@ private:
   
   const smoc_firing_state &_communicate();
 
+  static smoc_root_node *current_actor;
+
   static  std::vector<Expr::Detail::ArgInfo>  global_constr_args;
   std::vector<Expr::Detail::ArgInfo>          local_constr_args;
 
@@ -114,6 +119,7 @@ protected:
   smoc_root_node(smoc_firing_state &s);
   
   friend void Expr::Detail::registerParam(const ArgInfo &argInfo);
+  friend void Expr::Detail::registerParamOnCurrentActor(const ArgInfo &argInfo);
 public:
 #ifdef SYSTEMOC_ENABLE_VPC  
   // vpc_event_xxx must be constructed before commstate

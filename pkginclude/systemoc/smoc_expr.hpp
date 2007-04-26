@@ -70,14 +70,23 @@ namespace Detail {
   using namespace SysteMoC::ActivationPattern::Detail;
 
   void registerParam(const ArgInfo &);
+  void registerParamOnCurrentActor(const ArgInfo &);
 
-  //wrapper for constructor parameters  
+  //register constructor parameter
+  template <typename T>
+  void doRegisterParam(const T&v)
+  {
+    std::stringstream allToString; allToString << v;
+    registerParamOnCurrentActor(ArgInfo(typeid(T).name(), allToString.str()));
+  }
+
+  //wrapper for constructor parameters (deprecated! use SMOC_REGISTER_CPARAM() macro instead)
   template <typename T>
   class ParamWrapper {
   private:
     T v;
   public:
-    ParamWrapper(const T &v)
+    ParamWrapper(const T &v) __attribute__ ((deprecated))
       : v(v) {
       std::stringstream allToString; allToString << v;
       registerParam(ArgInfo(typeid(T).name(), allToString.str()));
