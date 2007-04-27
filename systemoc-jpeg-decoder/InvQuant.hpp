@@ -37,6 +37,10 @@
 #ifndef _INCLUDED_INV_QUANT_HPP
 #define _INCLUDED_INV_QUANT_HPP
 
+#ifdef KASCPAR_PARSING
+# define NDEBUG
+#endif
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -50,7 +54,7 @@
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
 // if compiled with DBG_INV_QT create stream and include debug macros
-#ifdef DBG_INV_QT
+#if defined(DBG_INV_QT) && !defined(NDEBUG)
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.
@@ -189,19 +193,25 @@ private:
   smoc_firing_state stuck;
 
 
+#ifndef KASCPAR_PARSING
   CoSupport::DebugOstream dbgout;
+#endif // KASCPAR_PARSING
 
   
 public:
   InvQuant(sc_module_name name)
     : smoc_actor(name, main),
       comp_id(0),
-      block_pixel_id(1), //counter runs from 1 to JPEG_BLOCK_SIZE
-      dbgout(std::cerr)
+      block_pixel_id(1) //counter runs from 1 to JPEG_BLOCK_SIZE
+#ifndef KASCPAR_PARSING
+      , dbgout(std::cerr)
+#endif // KASCPAR_PARSING
   {
+#ifndef KASCPAR_PARSING
     //Set Debug ostream options
     CoSupport::Header my_header("InvQuant> ");
     dbgout << my_header;
+#endif // KASCPAR_PARSING
     
     //Init qmap_id[JPEG_MAX_COLOR_COMPONENTS]
     for (unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++) {

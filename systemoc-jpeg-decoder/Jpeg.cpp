@@ -36,6 +36,10 @@
 
 #define DUMP_INTERMEDIATE
 
+#ifdef KASCPAR_PARSING
+# define NDEBUG
+#endif
+
 
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_graph_type.hpp>

@@ -37,6 +37,10 @@
 #ifndef _INCLUDED_INV_ZIGZAG_HPP
 #define _INCLUDED_INV_ZIGZAG_HPP
 
+#ifdef KASCPAR_PARSING
+# define NDEBUG
+#endif
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -55,7 +59,10 @@ public:
   smoc_port_out<IDCTCoeff_t>  out;
 private:
 
-  static const unsigned char zigzag_order[JPEG_BLOCK_SIZE];
+#ifndef KASCPAR_PARSING
+  static
+#endif // KASCPAR_PARSING
+  const unsigned char zigzag_order[JPEG_BLOCK_SIZE];
 
   unsigned int block_pixel_id;
 

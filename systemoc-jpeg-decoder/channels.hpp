@@ -4,9 +4,14 @@
 #ifndef _INCLUDED_CHANNELS_HPP
 #define _INCLUDED_CHANNELS_HPP
 
+#ifdef KASCPAR_PARSING
+# define NDEBUG
+#endif
+
 #include <stdint.h>
 #include <iostream>
 
+#ifndef KASCPAR_PARSING
 typedef bool      bit_t;
 typedef uint8_t   uint2_t;
 typedef uint8_t   uint4_t;
@@ -17,6 +22,17 @@ typedef uint32_t  uint29_t;
 
 typedef int16_t   int12_t;
 typedef int32_t   int19_t;
+#else
+# define bit_t    bool
+# define uint2_t  unsigned char
+# define uint4_t  unsigned char
+# define uint11_t unsigned short
+# define uint10_t unsigned short
+# define uint19_t unsigned int
+# define uint29_t unsigned int
+# define int12_t  short
+# define int19_t  int
+#endif // KASCPAR_PARSING
 
 #define JPEG_BLOCK_WIDTH  8U
 #define JPEG_BLOCK_HEIGHT 8U
@@ -46,11 +62,19 @@ public:
 
 std::ostream &operator << (std::ostream &out, const JpegChannel_t &x);
 #else
+# ifndef KASCPAR_PARSING
 typedef uint29_t JpegChannel_t;
+# else
+#   define JpegChannel_t unsigned int
+# endif // KASCPAR_PARSING
 #endif
 
 #define CODEWORD_BITS 8
+#ifndef KASCPAR_PARSING
 typedef uint8_t codeword_t;
+#else
+# define codeword_t unsigned char
+#endif // KASCPAR_PARSING
 
 // FIXME: Fix SysteMoC to also accept format below
 //#define UDEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
@@ -65,23 +89,43 @@ typedef uint8_t codeword_t;
 #define SET_MASK(x,off,width) (((x) & ((1 << (width)) -1 )) << (off))
 
 /// Source -> Parser
+#ifndef KASCPAR_PARSING
 typedef codeword_t ct_src_parser_t;
+#else
+# define ct_src_parser_t unsigned char
+#endif // KASCPAR_PARSING
 
 /// Entry encoding the x dimension of the frame
 #define FRAME_DIM_X_BITS 10
+#ifndef KASCPAR_PARSING
 typedef uint10_t FrameDimX_t;
+#else
+# define FrameDimX_t unsigned short
+#endif // KASCPAR_PARSING
 
 /// Entry encoding the y dimension of the frame
 #define FRAME_DIM_Y_BITS 10
+#ifndef KASCPAR_PARSING
 typedef uint10_t FrameDimY_t;
+#else
+# define FrameDimY_t unsigned short
+#endif // KASCPAR_PARSING
 
 /// Entry coding QT table destination selection
 #define QT_TBL_ID_BITS 4
+#ifndef KASCPAR_PARSING
 typedef uint4_t QtTblID_t;
+#else
+# define QtTblID_t unsigned char
+#endif // KASCPAR_PARSING
 
 /// Entry coding Huffman table destination selection (Page. 38)
 #define HUFF_TBL_ID_BITS 4
+#ifndef KASCPAR_PARSING
 typedef uint4_t HuffTblID_t;
+#else
+# define HuffTblID_t unsigned char
+#endif // KASCPAR_PARSING
 
 enum HuffTblType_t {
   HUFFTBL_DC = 0,
@@ -89,47 +133,88 @@ enum HuffTblType_t {
 };
 
 /// Coded Huffman Table Item
+#ifndef KASCPAR_PARSING
 typedef codeword_t CodedHuffTblItem_t;
+#else
+# define CodedHuffTblItem_t unsigned char
+#endif // KASCPAR_PARSING
 
 /// Expanded Huffman Tables
+#ifndef KASCPAR_PARSING
 typedef uint8_t DecodedSymbol_t;
 typedef uint16_t HuffmanCode_t;
+#else
+# define DecodedSymbol_t unsigned char
+# define HuffmanCode_t   unsigned short
+#endif // KASCPAR_PARSING
 
 /// Internal Component Identifier
 /// (Component counter, not component label specified in the standard)
 #define INTCOMPID_BITS 2
+#ifndef KASCPAR_PARSING
 typedef uint2_t IntCompID_t;
+#else
+# define IntCompID_t unsigned char
+#endif // KASCPAR_PARSING
 
 #define SCANPATTERN_LENGTH 6
 
 #define RUNLENGTH_BITS 4
+#ifndef KASCPAR_PARSING
 typedef uint4_t RunLength_t;
+#else
+# define RunLength_t unsigned char
+#endif // KASCPAR_PARSING
 
 #define CATEGORY_BITS 4
+#ifndef KASCPAR_PARSING
 typedef uint4_t Category_t;
+#else
+# define Category_t unsigned char
+#endif // KASCPAR_PARSING
 
 /// The IDCT Category Amplitude
 #define CATEGORYAMPLITUDE_BITS 11
+#ifndef KASCPAR_PARSING
 typedef uint11_t CategoryAmplitude_t;
+#else
+# define CategoryAmplitude_t unsigned short
+#endif // KASCPAR_PARSING
 
 /// The quantized IDCT coefficients
 #define QUANTIDCTCOEFF_BITS 12
+#ifndef KASCPAR_PARSING
 typedef int12_t QuantIDCTCoeff_t;
+#else
+# define QuantIDCTCoeff_t unsigned short
+#endif // KASCPAR_PARSING
 
 /// The IDCT coefficients (maximum of 8 bit extension by dequantization)
 /// But only 11 Bits needed for AC coefficients (DC coefficients need one
 /// more bit because of difference coding, which is removed before
 /// dequantization)
 #define IDCTCOEFF_BITS (11+8)
+#ifndef KASCPAR_PARSING
 typedef int19_t IDCTCoeff_t;
+#else
+# define IDCTCoeff_t unsigned int
+#endif // KASCPAR_PARSING
 
 /// The value for one component of a pixel.
 /// In case of grayscale images this is the pixel.
 #define COMPONENTVAL_BITS 8
+#ifndef KASCPAR_PARSING
 typedef uint8_t ComponentVal_t;
+#else
+# define ComponentVal_t unsigned char
+#endif // KASCPAR_PARSING
 
 #define RESTART_INTERVAL_BITS (16+3)
+#ifndef KASCPAR_PARSING
 typedef uint19_t RestartInterval_t;
+#else
+# define RestartInterval_t unsigned int
+#endif // KASCPAR_PARSING
 
 #define CTRLCMD_BITS 4
 enum CtrlCmd_t {
@@ -183,7 +268,7 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     // Get considered colour component
 #   define JS_CTRL_USEHUFF_GETCOMP(x)  \
-    static_cast<IntCompID_t>(UDEMASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS)
 #   define JS_CTRL_USEHUFF_SETCOMP(x)  \
     (SET_MASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS))
     // Get DC Table ID
@@ -205,7 +290,6 @@ enum CtrlCmd_t {
     // Ci_DC: DC-Table ID for colour component Ci
     // Ci_AC: AC-Table ID for colour component Ci
 #   define JS_CTRL_USEHUFF_SET_CHWORD(COMP_ID,DC_ID,AC_ID) \
-  static_cast<JpegChannel_t> \
   (JS_SETCTRLCMD(CTRLCMD_USEHUFF) |  \
    JS_CTRL_USEHUFF_SETCOMP(COMP_ID) | \
    JS_CTRL_USEHUFF_SETDCTBL(DC_ID) | \
@@ -216,11 +300,11 @@ enum CtrlCmd_t {
     /*                in case of CTRLCMD_DISCARDHUFF                   */
     /* *************************************************************** */    
 #   define JS_CTRL_DISCARDHUFFTBL_GETHUFFID(x) \
-    static_cast<HuffTblID_t>(UDEMASK(x,1+CTRLCMD_BITS,HUFF_TBL_ID_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS,HUFF_TBL_ID_BITS)
 #   define JS_CTRL_DISCARDHUFFTBL_SETHUFFID(id) \
     (SET_MASK(id,1+CTRLCMD_BITS,HUFF_TBL_ID_BITS))
 #   define JS_CTRL_DISCARDHUFFTBL_GETTYPE(x) \
-    static_cast<HuffTblType_t>(UDEMASK(x,1+CTRLCMD_BITS+HUFF_TBL_ID_BITS,1))
+    UDEMASK(x,1+CTRLCMD_BITS+HUFF_TBL_ID_BITS,1)
 #   define JS_CTRL_DISCARDHUFFTBL_SETTYPE(type) \
     (SET_MASK(type,1+CTRLCMD_BITS+HUFF_TBL_ID_BITS,1))
 #   if JPEGCHANNEL_BITS < (1+CTRLCMD_BITS+HUFF_TBL_ID_BITS+1)
@@ -229,7 +313,6 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_DISCARDHUFFTBL_SET_CHWORD(id,type) \
-    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_DISCARDHUFF) |               \
      JS_CTRL_DISCARDHUFFTBL_SETHUFFID(id) | \
      JS_CTRL_DISCARDHUFFTBL_SETTYPE(type) \
@@ -241,7 +324,7 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     // (0 <= n < SCANPATTERN_LENGTH)    
 #   define JS_CTRL_NEWSCAN_GETCOMP(x,n) \
-    static_cast<IntCompID_t>(UDEMASK(x,1+CTRLCMD_BITS+(n)*INTCOMPID_BITS,INTCOMPID_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS+(n)*INTCOMPID_BITS,INTCOMPID_BITS)
 #   define JS_CTRL_NEWSCAN_SETCOMP(comp,n) \
     (SET_MASK(comp,1+CTRLCMD_BITS+(n)*INTCOMPID_BITS,INTCOMPID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+(5)*INTCOMPID_BITS+INTCOMPID_BITS
@@ -250,7 +333,6 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_NEWSCAN_SET_CHWORD(C0,C1,C2,C3,C4,C5)  \
-    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_NEWSCAN) |                       \
      JS_CTRL_NEWSCAN_SETCOMP(C0,0) | \
      JS_CTRL_NEWSCAN_SETCOMP(C1,1) | \
@@ -266,18 +348,17 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     //  Does not have any parameters!
 #   define JS_CTRL_SCANRESTART_SET_CHWORD  \
-    static_cast<JpegChannel_t> \
     JS_SETCTRLCMD(CTRLCMD_SCANRESTART)
 
     /* *************************************************************** */
     /*                   in case of CTRLCMD_USEQT                      */
     /* *************************************************************** */    
 #   define JS_CTRL_USEQT_GETQTID(x) \
-    static_cast<QtTblID_t>(UDEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS)
 #   define JS_CTRL_USEQT_SETQTID(qt_id) \
     (SET_MASK(qt_id,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
 #   define JS_CTRL_USEQT_GETCOMPID(x) \
-    static_cast<IntCompID_t>(UDEMASK(x,1+CTRLCMD_BITS+QT_TBL_ID_BITS,INTCOMPID_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS+QT_TBL_ID_BITS,INTCOMPID_BITS)
 #   define JS_CTRL_USEQT_SETCOMPID(x) \
     (SET_MASK(x,1+CTRLCMD_BITS+QT_TBL_ID_BITS,INTCOMPID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+QT_TBL_ID_BITS+INTCOMPID_BITS
@@ -286,7 +367,6 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_USEQT_SET_CHWORD(QT_ID,COMP_ID)  \
-    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_USEQT) |                   \
      JS_CTRL_USEQT_SETQTID(QT_ID) | \
      JS_CTRL_USEQT_SETCOMPID(COMP_ID) \
@@ -306,7 +386,6 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_DISCARDQT_SET_CHWORD(QT_ID)  \
-    static_cast<JpegChannel_t> \
     ( JS_SETCTRLCMD(CTRLCMD_DISCARDQT) | \
       JS_CTRL_DISCARDQT_SETQTID(QT_ID) \
     )
@@ -316,7 +395,7 @@ enum CtrlCmd_t {
     /* *************************************************************** */    
     
 #   define JS_CTRL_INTERNALCOMPSTART_GETCOMPID(x) \
-    static_cast<IntCompID_t>(UDEMASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS,INTCOMPID_BITS)
 #   define JS_CTRL_INTERNALCOMPSTART_SETCOMPID(comp) \
     (SET_MASK(comp,1+CTRLCMD_BITS,INTCOMPID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+INTCOMPID_BITS
@@ -325,7 +404,6 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_INTERNALCOMPSTART_SET_CHWORD(comp)  \
-    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_INTERNALCOMPSTART) | \
      JS_CTRL_INTERNALCOMPSTART_SETCOMPID(comp) \
      )
@@ -334,7 +412,7 @@ enum CtrlCmd_t {
     /*            in case of CTRLCMD_DEF_RESTART_INTERVAL              */
     /* *************************************************************** */    
 #   define JS_CTRL_RESTART_GET_INTERVAL(x) \
-  static_cast<RestartInterval_t>(UDEMASK(x,1+CTRLCMD_BITS,RESTART_INTERVAL_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS,RESTART_INTERVAL_BITS)
 #   define JS_CTRL_RESTART_SET_INTERVAL(interval) \
       (SET_MASK(interval,1+CTRLCMD_BITS, RESTART_INTERVAL_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+ RESTART_INTERVAL_BITS
@@ -343,7 +421,6 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_DEF_RESTART_INTERVAL_SET_CHWORD(interval) \
-    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_DEF_RESTART_INTERVAL) | \
      JS_CTRL_RESTART_SET_INTERVAL(interval) \
     )
@@ -352,15 +429,15 @@ enum CtrlCmd_t {
     /*            in case of CTRLCMD_NEWFRAME                          */
     /* *************************************************************** */    
 #   define JS_CTRL_NEWFRAME_GET_DIMX(x) \
-  static_cast<FrameDimX_t>(UDEMASK(x,1+CTRLCMD_BITS,FRAME_DIM_X_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS,FRAME_DIM_X_BITS)
 #   define JS_CTRL_NEWFRAME_SET_DIMX(dimX) \
       (SET_MASK(dimX,1+CTRLCMD_BITS,FRAME_DIM_X_BITS))
 #   define JS_CTRL_NEWFRAME_GET_DIMY(x) \
-  static_cast<FrameDimY_t>(UDEMASK(x,1+CTRLCMD_BITS+FRAME_DIM_X_BITS,FRAME_DIM_Y_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS+FRAME_DIM_X_BITS,FRAME_DIM_Y_BITS)
 #   define JS_CTRL_NEWFRAME_SET_DIMY(dimY) \
       (SET_MASK(dimY,1+CTRLCMD_BITS+FRAME_DIM_X_BITS,FRAME_DIM_Y_BITS))
 #   define JS_CTRL_NEWFRAME_GET_COMPCOUNT(x) \
-  static_cast<IntCompID_t>(UDEMASK(x,1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS,INTCOMPID_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS,INTCOMPID_BITS)
 #   define JS_CTRL_NEWFRAME_SET_COMPCOUNT(count) \
       (SET_MASK(count,1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS,INTCOMPID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+FRAME_DIM_X_BITS+FRAME_DIM_Y_BITS+INTCOMPID_BITS
@@ -369,7 +446,6 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_CTRL_NEWFRAME_SET_CHWORD(dimX,dimY,count) \
-    static_cast<JpegChannel_t> \
     (JS_SETCTRLCMD(CTRLCMD_NEWFRAME) | \
      JS_CTRL_NEWFRAME_SET_DIMX(dimX) | \
      JS_CTRL_NEWFRAME_SET_DIMY(dimY) | \
@@ -381,7 +457,7 @@ enum CtrlCmd_t {
     /* *************************************************************** */
     //   codeword_t data : the raw something
 # define JS_DATA_GET(x) \
-    static_cast<codeword_t>(UDEMASK(x,1,CODEWORD_BITS))
+    UDEMASK(x,1,CODEWORD_BITS)
 # define JS_DATA_SET(x) \
     (JS_SET_CTRL(0) | \
      SET_MASK(x,1,CODEWORD_BITS) \
@@ -396,7 +472,7 @@ enum CtrlCmd_t {
     /*              and tuppled data transmission                      */
     /* *************************************************************** */
 # define JS_TUP_GETIDCTAMPLCOEFF(x) \
-    static_cast<CategoryAmplitude_t>(UDEMASK(x,1,CATEGORYAMPLITUDE_BITS))
+    UDEMASK(x,1,CATEGORYAMPLITUDE_BITS)
 # define JS_TUP_SETIDCTAMPLCOEFF(x) \
     (SET_MASK(x,1,CATEGORYAMPLITUDE_BITS))
 # define JS_TUP_GETRUNLENGTH(x) \
@@ -413,7 +489,6 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_DATA_TUPPLED_SET_CHWORD(coeff,rle,cat)    \
-    static_cast<JpegChannel_t> \
     (JS_SET_CTRL(0) | \
      JS_TUP_SETIDCTAMPLCOEFF(coeff) | \
      JS_TUP_SETRUNLENGTH(rle) | \
@@ -425,7 +500,7 @@ enum CtrlCmd_t {
     /*      and quantized IDCT coeff transmission                      */
     /* *************************************************************** */
 # define JS_QCOEFF_GETIDCTCOEFF(x) \
-    static_cast<QuantIDCTCoeff_t>(SDEMASK(x,1,QUANTIDCTCOEFF_BITS))
+    SDEMASK(x,1,QUANTIDCTCOEFF_BITS)
 # define JS_QCOEFF_SETIDCTCOEFF(x) \
     (SET_MASK(x,1,QUANTIDCTCOEFF_BITS))
 # if JPEGCHANNEL_BITS < 1+QUANTIDCTCOEFF_BITS
@@ -434,7 +509,6 @@ enum CtrlCmd_t {
 
     // Set complete channel word
 #   define JS_DATA_QCOEFF_SET_CHWORD(coeff)    \
-    static_cast<JpegChannel_t> \
     (JS_SET_CTRL(0) | \
     JS_QCOEFF_SETIDCTCOEFF(coeff) \
      )
@@ -444,7 +518,7 @@ enum CtrlCmd_t {
     /*   and de-quantized IDCT coeff transmission                      */
     /* *************************************************************** */
 # define JS_COEFF_GETIDCTCOEFF(x) \
-    static_cast<IDCTCoeff_t>(SDEMASK(x,1,IDCTCOEFF_BITS))
+    SDEMASK(x,1,IDCTCOEFF_BITS)
 # define JS_COEFF_SETIDCTCOEFF(x) \
     (SET_MASK(x,1,IDCTCOEFF_BITS))
 # if JPEGCHANNEL_BITS < 1+IDCTCOEFF_BITS
@@ -453,7 +527,6 @@ enum CtrlCmd_t {
 
    // Write complete channel word    
 #   define JS_DATA_COEFF_SET_CHWORD(coeff)    \
-    static_cast<JpegChannel_t> \
     (JS_SET_CTRL(0) | \
     JS_COEFF_SETIDCTCOEFF(coeff) \
      )
@@ -463,7 +536,7 @@ enum CtrlCmd_t {
     /*   and component value transmission                              */
     /* *************************************************************** */
 # define JS_COMPONENT_GETVAL(x) \
-    static_cast<ComponentVal_t>(UDEMASK(x,1,COMPONENTVAL_BITS))
+    UDEMASK(x,1,COMPONENTVAL_BITS)
 # define JS_COMPONENT_SETVAL(x) \
     (SET_MASK(x,1,COMPONENTVAL_BITS))
 # if JPEGCHANNEL_BITS < 1+COMPONENTVAL_BITS
@@ -473,7 +546,11 @@ enum CtrlCmd_t {
 /* *************************************************************** */
 /*     Data types for QT table                                     */
 /* *************************************************************** */
+#ifndef KASCPAR_PARSING
 typedef uint8_t qt_table_t;
+#else
+# define qt_table_t unsigned char
+#endif // KASCPAR_PARSING
 
 /// Size of a SINGLE QT Table
 /// consisting of one quantization coefficient for each code block pixel
@@ -486,7 +563,11 @@ typedef uint8_t qt_table_t;
 //
 
 /// Parser -> InvByteStuffing
+#ifndef KASCPAR_PARSING
 typedef codeword_t ct_src_parser_t;
+#else
+# define ct_src_parser_t unsigned char
+#endif // KASCPAR_PARSING
 
 /*
 struct ImageParam {

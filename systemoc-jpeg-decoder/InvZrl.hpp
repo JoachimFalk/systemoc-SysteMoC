@@ -37,6 +37,10 @@
 #ifndef _INCLUDED_INV_ZRL_HPP
 #define _INCLUDED_INV_ZRL_HPP
 
+#ifdef KASCPAR_PARSING
+# define NDEBUG
+#endif
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -50,7 +54,7 @@
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
 // if compiled with DBG_INV_ZRL create stream and include debug macros
-#ifdef DBG_INV_ZRL
+#if defined(DBG_INV_ZRL) && !defined(NDEBUG)
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.
@@ -66,7 +70,9 @@ public:
   smoc_port_out<JpegChannel_t>     out;
 private:
 
+#ifndef KASCPAR_PARSING
   CoSupport::DebugOstream dbgout;
+#endif // KASCPAR_PARSING
 
   unsigned char pixel_id;
   unsigned char runlength;
@@ -247,14 +253,18 @@ private:
 public:
   InvZrl(sc_module_name name)
     : smoc_actor(name, process_dc_coeff),
+#ifndef KASCPAR_PARSING
       dbgout(std::cerr),
+#endif // KASCPAR_PARSING
       pixel_id(0),
       runlength(0)      
   {
 
+#ifndef KASCPAR_PARSING
     //Set Debug ostream options
     CoSupport::Header my_header("InvZrl> ");
     dbgout << my_header;
+#endif // KASCPAR_PARSING
 
     
     process_dc_coeff =

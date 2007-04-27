@@ -37,6 +37,10 @@
 #ifndef _INCLUDED_FRAME_BUFFER_WRITER_HPP
 #define _INCLUDED_FRAME_BUFFER_WRITER_HPP
 
+#ifdef KASCPAR_PARSING
+# define NDEBUG
+#endif
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -59,7 +63,11 @@ protected:
     FrameDimY_t y;
   };
 
+#ifndef KASCPAR_PARSING
   typedef std::vector<ComponentVal_t> FrameBuffer;
+#else
+# define FrameBuffer vector<ComponentVal_t>
+#endif // KASCPAR_PARSING
 
   Pos         frameDim;
   IntCompID_t compCount;
@@ -78,7 +86,9 @@ protected:
   FrameBuffer frameBuffer;
 
   void processNewFrame() {
+#ifndef KASCPAR_PARSING
     std::cerr << "FrameBufferWriter: processNewFrame";
+#endif // KASCPAR_PARSING
 
     assert(JS_ISCTRL(inCtrlImage[0]));
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWFRAME);
@@ -87,8 +97,10 @@ protected:
     frameDim.y = JS_CTRL_NEWFRAME_GET_DIMY(inCtrlImage[0]);
     compCount  = JS_CTRL_NEWFRAME_GET_COMPCOUNT(inCtrlImage[0]);
     
+#ifndef KASCPAR_PARSING
     std::cerr << " width: " << frameDim.x << " height: " << frameDim.y
               << " component count: " << static_cast<unsigned int>(compCount) << std::endl;
+#endif // KASCPAR_PARSING
     
     compMissing = compCount;
     
@@ -102,6 +114,7 @@ protected:
   void dumpFrame() {
     size_t index = 0;
     
+#ifndef KASCPAR_PARSING
     std::cerr << "FrameBufferWriter: dumpFrame" << std::endl;
     assert(compCount == 1 || compCount == 3);
     
@@ -120,10 +133,13 @@ protected:
         std::cout << " ";
     }
     std::cout << std::endl << std::endl;
+#endif // KASCPAR_PARSING
   }
 
   void processNewScan() {
+#ifndef KASCPAR_PARSING
     std::cerr << "FrameBufferWriter: processNewScan ";
+#endif // KASCPAR_PARSING
     
     assert(JS_ISCTRL(inCtrlImage[0]));
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWSCAN);
@@ -141,11 +157,15 @@ protected:
         --compMissing;
       compPos[scanPattern[i]].x = 0;
       compPos[scanPattern[i]].y = 0;
+#ifndef KASCPAR_PARSING
       std::cerr
         << static_cast<unsigned int>(scanPattern[i]);
 //      << (i < SCANPATTERN_LENGTH-1 ? ":" : "");
+#endif // KASCPAR_PARSING
     }
+#ifndef KASCPAR_PARSING
     std::cerr << std::endl;
+#endif // KASCPAR_PARSING
     scanIndex = blockIndex = 0;
   }
 

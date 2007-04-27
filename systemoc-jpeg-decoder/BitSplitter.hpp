@@ -1,6 +1,9 @@
-
 #ifndef BIT_SPLITTER_H
 #define BIT_SPLITTER_H
+
+#ifdef KASCPAR_PARSING
+# define NDEBUG
+#endif
 
 #include "channels.hpp"
 #include <cassert>
@@ -48,8 +51,10 @@ public:
   //
   return_type getBits(const size_t n) const;
 
+#ifndef KASCPAR_PARSING
   //
   void dumpBuffer(std::ostream &out = std::cerr) const;
+#endif // KASCPAR_PARSING
 
 private:
   //

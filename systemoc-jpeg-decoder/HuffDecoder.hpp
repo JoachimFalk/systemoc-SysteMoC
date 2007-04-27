@@ -37,6 +37,10 @@
 #ifndef _INCLUDED_INVHUFFMAN_HPP
 #define _INCLUDED_INVHUFFMAN_HPP
 
+#ifdef KASCPAR_PARSING
+# define NDEBUG
+#endif
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -74,7 +78,7 @@ struct ExpHuffTbl {
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
 // if compiled with DBG_HUFF_DECODER create stream and include debug macros
-#ifdef DBG_HUFF_DECODER
+#if defined(DBG_HUFF_DECODER) && !defined(NDEBUG)
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.
@@ -84,7 +88,9 @@ struct ExpHuffTbl {
   #include "debug_off.h"
 #endif
 
+#ifndef KASCPAR_PARSING
 using CoSupport::Debug;
+#endif // KASCPAR_PARSING
 
 #define IS_TABLE_CLASS_DC(v) (((v) & 0xF0) == 0x00)
 #define IS_TABLE_CLASS_AC(v) (((v) & 0xF0) == 0x10)
@@ -102,8 +108,10 @@ enum HuffTableType {
 
 /*****************************************************************************/
 
+#ifndef KASCPAR_PARSING
 // needed by SysteMoC!
 ostream &operator<<(ostream &out, const ExpHuffTbl &eht);
+#endif // KASCPAR_PARSING
 
 
 /******************************************************************************
@@ -131,17 +139,23 @@ public:
 private:
   //
   bool isUseHuff() const {
+#ifndef KASCPAR_PARSING
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_USEHUFF);
+#endif // KASCPAR_PARSING
   }
 
   //
   bool isNewScan() const {
+#ifndef KASCPAR_PARSING
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_NEWSCAN);
+#endif // KASCPAR_PARSING
   }
 
   //
   bool isDiscardHuff() const {
+#ifndef KASCPAR_PARSING
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_DISCARDHUFF);
+#endif // KASCPAR_PARSING
   }
 
   // some ctrl we are not interested in
@@ -207,8 +221,7 @@ private:
   //
   bool isEnoughAcBits(void) const {
     // see F.13, p. 106
-    return (m_BitSplitter.bitsLeft() >=
-              static_cast<size_t>(m_receiveAcSymbol & 0x0f));
+    return (m_BitSplitter.bitsLeft() >= (m_receiveAcSymbol & 0x0f));
   }
 
   //
@@ -321,8 +334,10 @@ private:
   IntCompID_t m_compInterleaving[SCANPATTERN_LENGTH];      //6
   HuffTblID_t m_useHuffTableAc[JPEG_MAX_COLOR_COMPONENTS]; //3
   HuffTblID_t m_useHuffTableDc[JPEG_MAX_COLOR_COMPONENTS]; //3
+#ifndef KASCPAR_PARSING
   CoSupport::DebugOstream dbgout;
 //CoSupport::DebugStreambuf dbgbuff;
+#endif // KASCPAR_PARSING
   smoc_firing_state main;
   smoc_firing_state discoverDC;
   smoc_firing_state discoverAC;
@@ -389,7 +404,9 @@ private:
   uint8_t  m_BITS[16];
   ExpHuffTbl m_tmpHuff;
   size_t m_huffWritePos;
+#ifndef KASCPAR_PARSING
   CoSupport::DebugOstream dbgout;
+#endif // KASCPAR_PARSING
   smoc_firing_state waitTcTh;
   smoc_firing_state waitHUFFVAL;
   smoc_firing_state waitBITS;
@@ -412,7 +429,6 @@ public:
       mInvHuffman("mInvHuffman"),
       mHuffTblDecoder("mHuffTblDecoder")
   {
-#ifndef KASCPAR_PARSING
     mInvHuffman.in(in);
     mHuffTblDecoder.in(inCodedHuffTbl);
     connectNodePorts(
@@ -432,7 +448,6 @@ public:
       mInvHuffman.inHuffTblDC1,
       smoc_fifo<ExpHuffTbl>(2) << ExpHuffTbl()); // Parser sends DISCARDHUFF
     mInvHuffman.out(out);
-#endif
   }
 
 private:

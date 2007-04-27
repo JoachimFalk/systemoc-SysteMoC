@@ -18,7 +18,7 @@
 ///Duplication of a token
 ///Template parameters:
 /// T  : data type of token
-template <typename T>
+template <class T>
 class m_1D_dup2: public smoc_actor {
 
 public:
