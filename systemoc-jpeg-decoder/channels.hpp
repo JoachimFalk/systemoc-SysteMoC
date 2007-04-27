@@ -563,9 +563,9 @@ enum CtrlCmd_t {
 
 //Set all components of a raw pixel
 #define JS_RAWPIXEL_SETVAL(c0,c1,c2) \
-  JS_RAWPIXEL_SETCOMP(c0,0) |	     \
-  JS_RAWPIXEL_SETCOMP(c1,1) |	     \
-  JS_RAWPIXEL_SETCOMP(c2,2);
+  (JS_RAWPIXEL_SETCOMP(c0,0) |	     \
+   JS_RAWPIXEL_SETCOMP(c1,1) |	     \
+   JS_RAWPIXEL_SETCOMP(c2,2))
 
 /* *************************************************************** */
 /*     Data types for QT table                                     */
