@@ -543,6 +543,30 @@ enum CtrlCmd_t {
 #   error "Too many bits"
 # endif
 
+
+
+
+
+/* *************************************************************** */
+/*                Macros for accessing raw pixels                  */
+/* *************************************************************** */
+//c: component, 0 <= c <= 2
+#define JS_RAWPIXEL_GETCOMP(x,c)			\
+  (UDEMASK(x,(c)*COMPONENTVAL_BITS,COMPONENTVAL_BITS))
+#if JPEGCHANNEL_BITS < 3*COMPONENTVAL_BITS
+# error "Too many bits"
+#endif
+
+//Set single component of a raw pixel
+#define JS_RAWPIXEL_SETCOMP(x,c)			\
+  (SET_MASK(x,(c)*COMPONENTVAL_BITS,COMPONENTVAL_BITS))
+
+//Set all components of a raw pixel
+#define JS_RAWPIXEL_SETVAL(c0,c1,c2) \
+  JS_RAWPIXEL_SETCOMP(c0,0) |	     \
+  JS_RAWPIXEL_SETCOMP(c1,1) |	     \
+  JS_RAWPIXEL_SETCOMP(c2,2);
+
 /* *************************************************************** */
 /*     Data types for QT table                                     */
 /* *************************************************************** */
