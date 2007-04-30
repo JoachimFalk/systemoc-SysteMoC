@@ -463,7 +463,7 @@ public:
 };
 
 template <typename T,
-          template <typename, typename> class R,
+          template <typename> class R,
           class PARAM_TYPE>
 class smoc_port_in_base
   : public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R>, PARAM_TYPE > {
@@ -544,7 +544,8 @@ public:
 
 
 template <typename T,                            //data type
-          template <typename, typename> class R, //ring access type
+          //template <typename, typename> class R, //ring access type
+          template <typename> class R, //ring access type
           class PARAM_TYPE,                      //parameter type
           template <typename> class STORAGE_TYPE = smoc_storage_out
           >

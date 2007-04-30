@@ -177,8 +177,8 @@ struct smoc_storage_inout
 template<>
 struct smoc_storage_in<void>
 {
-  typedef const void storage_type;
-  typedef const void return_type;
+  typedef void storage_type;
+  typedef void return_type;
 };
 
 template<>

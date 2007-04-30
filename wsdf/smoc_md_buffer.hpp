@@ -47,12 +47,12 @@ public:
   /// is not performed.
   template<class S, class T>
   class smoc_md_storage_access_src
-    : public smoc_md_src_channel_access<S,T>
+    : public smoc_md_src_channel_access<T>
   {
     friend class smoc_md_buffer_mgmt_base;
   public:
     typedef smoc_md_storage_access_src<S,T> this_type;
-    typedef smoc_md_src_channel_access<S,T> parent_type;
+    typedef smoc_md_src_channel_access<T> parent_type;
 
     typedef typename parent_type::iteration_type iteration_type;
     typedef typename parent_type::iter_domain_vector_type iter_domain_vector_type;
@@ -145,13 +145,13 @@ public:
         
   template<class S, class T>
   class smoc_md_storage_access_snk
-    : public smoc_md_snk_channel_access<S,T>
+    : public smoc_md_snk_channel_access<T>
   {
     friend class smoc_md_buffer_mgmt_base;
   public:
 
     typedef smoc_md_storage_access_snk<S,T> this_type;
-    typedef smoc_md_snk_channel_access<S,T> parent_type;
+    typedef smoc_md_snk_channel_access<T> parent_type;
     
     typedef typename parent_type::iteration_type iteration_type;
     typedef typename parent_type::iter_domain_vector_type iter_domain_vector_type;

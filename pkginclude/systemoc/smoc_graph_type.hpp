@@ -75,7 +75,8 @@ private:
   void end_of_elaboration();
 protected:
   template <typename T_chan_init, 
-            template <typename, typename> class R,
+            //template <typename, typename> class R,
+            template <typename> class R,
             class P>
   void connectNodePorts(
                         smoc_port_out_base<typename T_chan_init::data_type, R, P> &b,
@@ -87,7 +88,8 @@ protected:
     connectChanPort(chan,b);
   }  
   template <int i, typename T_data_type, 
-            template <typename, typename> class R,
+            //template <typename, typename> class R,
+            template <typename> class R,
             class P>
   void connectNodePorts(
                         smoc_port_out_base<T_data_type,R,P> &b,
@@ -98,7 +100,8 @@ protected:
     connectChanPort(chan,b);
   }
   template <typename T_data_type, 
-            template <typename, typename> class R,
+            //template <typename, typename> class R,
+            template <typename> class R,
             class P>
   void connectNodePorts(
                         smoc_port_out_base<T_data_type,R,P> &b,
@@ -286,18 +289,21 @@ public:
       new typename T_chan_init::chan_type(i);
     return *chan;
   }
-  template <typename T_chan_type, template <typename, typename> class R, class P, template <typename> class STORAGE_OUT_TYPE>
+  //template <typename T_chan_type, template <typename, typename> class R, class P, template <typename> class STORAGE_OUT_TYPE>
+  template <typename T_chan_type, template <typename> class R, class P, template <typename> class STORAGE_OUT_TYPE>
   void connectChanPort( T_chan_type &chan,
                         smoc_port_out_base<typename T_chan_type::data_type, R, P, STORAGE_OUT_TYPE> &p ) {
     p(chan);
   }
-  template <typename T_chan_type, template <typename, typename> class R, class P>
+  //template <typename T_chan_type, template <typename, typename> class R, class P>
+  template <typename T_chan_type, template <typename> class R, class P>
   void connectChanPort( T_chan_type &chan,
                         smoc_port_in_base<typename T_chan_type::data_type, R, P> &p ) {
     p(chan);
   }
   template <typename T,
-      template <typename, typename> class R,
+      //template <typename, typename> class R,
+      template <typename> class R,
       class P>
   void connectChanPort(
     smoc_multicast_sr_signal_type<T> &chan,
@@ -312,7 +318,8 @@ public:
     p(chan.getOutlet(p));
   }
   template <typename T,
-      template <typename, typename> class R,
+      //template <typename, typename> class R,
+      template <typename> class R,
       class P,
       template <typename> class STORAGE_OUT_TYPE>
   void connectChanPort(

@@ -70,7 +70,7 @@ public:
 
   virtual void unusedDecr() = 0;
 
-  bool isDefined();
+  bool isDefined() const;
 
   void addPort(smoc_root_port_in *inPort){
     smoc_chan_in_base_if::addPort(inPort);
@@ -129,7 +129,7 @@ protected:
 
   smoc_event &getEventAvailable(size_t n);
 
-  bool isDefined();
+  bool isDefined() const;
 
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;
@@ -159,7 +159,7 @@ protected:
 
   smoc_event &getEventFree(size_t n);
 
-  bool isDefined();
+  bool isDefined() const;
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;
 
@@ -176,7 +176,7 @@ class smoc_multicast_outlet
   : public smoc_chan_in_if<T, smoc_channel_access>,
     public smoc_outlet_kind,
     public smoc_channel_access<
-  typename smoc_chan_in_if<T, smoc_channel_access>::access_type::storage_type,
+//  typename smoc_chan_in_if<T, smoc_channel_access>::access_type::storage_type,
   typename smoc_chan_in_if<T, smoc_channel_access>::access_type::return_type>
 {
   typedef T                                  data_type;
@@ -232,7 +232,7 @@ public:
     return limit;
   }
 
-  virtual bool tokenIsValid(size_t i){
+  virtual bool tokenIsValid(size_t i) const {
     return this->isDefined();
   }
 
@@ -253,7 +253,7 @@ class smoc_multicast_entry
   : public smoc_chan_out_if<T, smoc_channel_access>,
     public smoc_entry_kind,
     public smoc_channel_access<
-  typename smoc_chan_out_if<T, smoc_channel_access>::access_type::storage_type,
+  //typename smoc_chan_out_if<T, smoc_channel_access>::access_type::storage_type,
   typename smoc_chan_out_if<T, smoc_channel_access>::access_type::return_type>
 {
   typedef T                                  data_type;
@@ -304,7 +304,7 @@ public:
     return limit;
   }
 
-  virtual bool tokenIsValid(size_t i){
+  virtual bool tokenIsValid(size_t i) const {
     return this->isDefined();
   }
 

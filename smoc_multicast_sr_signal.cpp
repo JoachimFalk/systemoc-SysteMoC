@@ -92,7 +92,7 @@ void smoc_outlet_kind::usedDecr() {
     iter->second->reset();
 }
 
-bool smoc_outlet_kind::isDefined(){
+bool smoc_outlet_kind::isDefined() const {
   return this->_base->isDefined();
 }
 
@@ -154,7 +154,7 @@ smoc_event &smoc_entry_kind::getEventFree(size_t n) {
   }
 }
 
-bool smoc_entry_kind::isDefined(){
+bool smoc_entry_kind::isDefined() const {
   return this->_base->isDefined();
 }
 
@@ -189,6 +189,6 @@ const char* smoc_multicast_sr_signal_kind::kind() const {
   return kind_string;
 }
   
-bool smoc_multicast_sr_signal_kind::isDefined(){
+bool smoc_multicast_sr_signal_kind::isDefined() const {
   return (signalState == defined);
 }

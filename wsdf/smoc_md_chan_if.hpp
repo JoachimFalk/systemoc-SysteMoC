@@ -10,11 +10,10 @@
 /// Interface for multi-dimensional channel access
 /// This interface is used by the multi-dimensional ports
 /// in order to access the data stored in the FIFO
-template<class S, class T>
+template<class T>
 class smoc_md_src_channel_access {
 public:
                 
-  typedef S  storage_type;
   typedef T  return_type; 
 
   //Iteration vector
@@ -35,11 +34,10 @@ public:
   virtual iteration_type iteration(size_t iteration_level) const = 0;
 };
 
-template<class S, class T>
+template<class T>
 class smoc_md_snk_channel_access {
 public:
                 
-  typedef S  storage_type;
   typedef T  return_type; 
 
   //Iteration vector

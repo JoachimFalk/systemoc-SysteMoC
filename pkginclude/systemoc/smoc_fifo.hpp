@@ -239,7 +239,7 @@ protected:
     if ( used > fsize )
       used += fsize;
     return used;
-    // less lines of code but slightly slower
+    // slightly slower
     //return (used + fsize) % fsize;
   }
 
@@ -419,10 +419,10 @@ public:
   typedef typename this_type::access_in_type  ring_in_type;
   typedef smoc_storage<data_type>        storage_type;
   typedef smoc_ring_access<
-    typename ring_in_type::storage_type,
+    storage_type,
     typename ring_in_type::return_type>       ring_access_in_type;
   typedef smoc_ring_access<
-    typename ring_out_type::storage_type,
+    storage_type,
     typename ring_out_type::return_type>      ring_access_out_type;
   
   class chan_init
@@ -504,11 +504,15 @@ public:
   typedef this_type::access_out_type    ring_out_type;
   typedef this_type::access_in_type     ring_in_type;
   typedef smoc_ring_access<
-    ring_in_type::storage_type,
-    ring_in_type::return_type>       ring_access_in_type;
+    smoc_storage<void>,
+    void>       ring_access_in_type;
+    //ring_in_type::storage_type,
+    //ring_in_type::return_type>       ring_access_in_type;
   typedef smoc_ring_access<
-    ring_out_type::storage_type,
-    ring_out_type::return_type>      ring_access_out_type;
+    smoc_storage<void>,
+    void>      ring_access_out_type;
+    //ring_out_type::storage_type,
+    //ring_out_type::return_type>      ring_access_out_type;
   
   class chan_init
     : public smoc_fifo_kind::chan_init {

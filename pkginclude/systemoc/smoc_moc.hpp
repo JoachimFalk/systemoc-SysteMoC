@@ -91,6 +91,15 @@ class smoc_top_moc
 public:
   typedef smoc_top_moc<T_top> this_type;
 
+  
+  
+  // -jens-
+  // FIXME: this copies given parameter and makes it impossible to use
+  //   references in constructor of smoc_graph! Copying is evil anyway (much
+  //   data, pointers, references, copy constructor has to exist, ...)
+
+
+
   smoc_top_moc()
     : T_top(), smoc_top(this) {}
   explicit smoc_top_moc(sc_module_name name)

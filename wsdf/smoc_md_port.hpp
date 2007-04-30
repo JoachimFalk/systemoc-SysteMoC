@@ -203,7 +203,7 @@ namespace Expr {
 
 
 template <typename T,
-	  template <typename, typename> class R,
+	  template <typename> class R,
 	  class PARAM_TYPE>
 class smoc_md_port_in_base
   : public smoc_port_in_base<T,R,PARAM_TYPE>
@@ -229,7 +229,7 @@ public:
 
 
 template <typename T,
-	  template <typename, typename> class R,
+	  template <typename> class R,
 	  class PARAM_TYPE,
 	  template <typename> class STORAGE_TYPE = smoc_storage_out> 
 class smoc_md_port_out_base

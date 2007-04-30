@@ -48,12 +48,14 @@
 
 #include <list>
 
-template<class S, class T>
+//template<class S, class T>
+template<class T>
 class smoc_channel_access {
 public:
-  typedef S                                              storage_type;
+  //typedef S                                              storage_type;
   typedef T                                              return_type;
-  typedef smoc_channel_access<storage_type, return_type> this_type;
+  //typedef smoc_channel_access<storage_type, return_type> this_type;
+  typedef smoc_channel_access<return_type> this_type;
 
 #ifndef NDEBUG
   virtual void   setLimit(size_t l)                    = 0;
@@ -61,15 +63,15 @@ public:
 #endif
   virtual return_type operator[](size_t n)             = 0;
   virtual const return_type operator[](size_t n) const = 0;
-  virtual bool tokenIsValid(size_t i)                  = 0;
+  virtual bool tokenIsValid(size_t i) const            = 0;
 };
 
 template<>
-class smoc_channel_access<void, void> {
+class smoc_channel_access<void> {
 public:
-  typedef void                                           storage_type;
+  //typedef void                                           storage_type;
   typedef void                                           return_type;
-  typedef smoc_channel_access<storage_type, return_type> this_type;
+  typedef smoc_channel_access<return_type> this_type;
 
 #ifndef NDEBUG
   virtual void   setLimit(size_t l)                    = 0;
@@ -78,11 +80,10 @@ public:
 };
 
 template<>
-class smoc_channel_access<const void, const void> {
+class smoc_channel_access<const void> {
 public:
-  typedef const void           storage_type;
   typedef const void           return_type;
-  typedef smoc_channel_access<storage_type, return_type> this_type;
+  typedef smoc_channel_access<return_type> this_type;
 
 #ifndef NDEBUG
   virtual void   setLimit(size_t l)                    = 0;
@@ -90,8 +91,12 @@ public:
 #endif
 };
 
+// FIXME
+// -jens- this seems not be an access but an access + storage. This violates
+//  'is a' relationship of inheritance :-(
 template<class S, class T>
-class smoc_ring_access : public smoc_channel_access<S, T> {
+//class smoc_ring_access : public smoc_channel_access<S, T> {
+class smoc_ring_access : public smoc_channel_access<T> {
 public:
   typedef S                storage_type;
   typedef T                return_type;
@@ -131,7 +136,7 @@ public:
       : storage[*offset + n - storageSize];
   }
 
-  bool tokenIsValid(size_t n=0){
+  bool tokenIsValid(size_t n=0) const {
     // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
     // then it a failure in design
     return true;
@@ -139,7 +144,8 @@ public:
 };
 
 template <>
-class smoc_ring_access<void, void> : public smoc_channel_access<void, void> {
+//class smoc_ring_access<void, void> : public smoc_channel_access<void, void> {
+class smoc_ring_access<void, void> : public smoc_channel_access<void> {
 public:
   typedef void                storage_type;
   typedef void                return_type;
@@ -159,10 +165,12 @@ public:
   void   setLimit(size_t l) { limit = l; }
 //size_t getLimit() const   { return limit; }
 #endif
+//}
 };
 
 template <>
-class smoc_ring_access<const void, const void> : public smoc_channel_access<const void, const void> {
+//class smoc_ring_access<const void, const void> : public smoc_channel_access<const void, const void> {
+class smoc_ring_access<const void, const void> : public smoc_channel_access<const void> {
 public:
   typedef const void              storage_type;
   typedef const void              return_type;
@@ -185,19 +193,22 @@ public:
 };
 
 // forward
-template <typename T, template <typename, typename> class R, class PARAM_TYPE>
+//template <typename T, template <typename, typename> class R, class PARAM_TYPE>
+template <typename T, template <typename> class R, class PARAM_TYPE>
 class smoc_port_in_base;
 
 // forward
 template <typename T, 
-          template <typename, typename> class R, 
+          //template <typename, typename> class R, 
+          template <typename> class R, 
           class PARAM_TYPE, 
           template <typename> class STORAGE_TYPE>
 class smoc_port_out_base;
 
 class smoc_chan_in_base_if {
 public:
-  template <typename T, template <typename, typename> class R, class PARAM_TYPE> friend class smoc_port_in_base;
+  //template <typename T, template <typename, typename> class R, class PARAM_TYPE> friend class smoc_port_in_base;
+  template <typename T, template <typename> class R, class PARAM_TYPE> friend class smoc_port_in_base;
 private:
   smoc_port_list portsIn;
 protected:
@@ -216,7 +227,7 @@ public:
 
 class smoc_chan_out_base_if {
 public:
-  template <typename T, template <typename, typename> class R, class PARAM_TYPE, template <typename> class STORAGE_TYPE> friend class smoc_port_out_base;
+  template <typename T, template <typename> class R, class PARAM_TYPE, template <typename> class STORAGE_TYPE> friend class smoc_port_out_base;
 private:
   smoc_port_list portsOut;
 protected:
@@ -233,7 +244,8 @@ public:
   }
 };
 
-template <typename T, template <typename, typename> class R>
+//template <typename T, template <typename, typename> class R>
+template <typename T, template <typename> class R>
 class smoc_chan_in_if
   : virtual public sc_interface,
     virtual public smoc_chan_in_base_if {
@@ -242,7 +254,7 @@ public:
   typedef smoc_chan_in_if<T,R>      this_type;
   typedef T          data_type;
   typedef R<
-    typename smoc_storage_in<T>::storage_type,
+    //typename smoc_storage_in<T>::storage_type,
     typename smoc_storage_in<T>::return_type>   access_type;
   typedef access_type                           access_in_type;
   
@@ -271,7 +283,8 @@ private:
 };
 
 template <typename T,                                    //data type
-          template <typename, typename> class R,         //ring access type
+          //template <typename, typename> class R,         //ring access type
+          template <typename> class R,         //ring access type
           template <typename> class S = smoc_storage_out //smoc_storage
           >
 class smoc_chan_out_if
@@ -281,7 +294,7 @@ public:
   // typedefs
   typedef smoc_chan_out_if<T,R,S>        this_type;
   typedef T                              data_type;
-  typedef R<typename S<T>::storage_type,
+  typedef R<//typename S<T>::storage_type,
            typename S<T>::return_type>   access_type;
   typedef access_type                    access_out_type;
   
@@ -368,8 +381,8 @@ extern const sc_event& smoc_default_event_abort();
 
 template <typename T_chan_kind, 
           typename T_data_type, 
-          template <typename, typename> class R_IN, //ring access in
-          template <typename, typename> class R_OUT,//ring access out
+          template <typename> class R_IN, //ring access in
+          template <typename> class R_OUT,//ring access out
           template <typename> class S = smoc_storage_out
           >
 class smoc_chan_if
