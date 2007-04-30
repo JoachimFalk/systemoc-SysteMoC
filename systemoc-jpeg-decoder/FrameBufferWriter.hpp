@@ -56,6 +56,7 @@
 class FrameBufferWriter: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t> in;
+  smoc_port_out<Pixel_t>      out;
   smoc_port_in<JpegChannel_t> inCtrlImage;
 protected:
   struct Pos {
@@ -82,6 +83,9 @@ protected:
   // index into 8x8 block
   int         blockIndex;
 
+  //
+  int         framePixels;
+
   // Is of size width*height*compCount
   FrameBuffer frameBuffer;
 
@@ -89,13 +93,15 @@ protected:
 #ifndef KASCPAR_PARSING
     std::cerr << "FrameBufferWriter: processNewFrame";
 #endif // KASCPAR_PARSING
-
+    
     assert(JS_ISCTRL(inCtrlImage[0]));
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWFRAME);
     
     frameDim.x = JS_CTRL_NEWFRAME_GET_DIMX(inCtrlImage[0]);
     frameDim.y = JS_CTRL_NEWFRAME_GET_DIMY(inCtrlImage[0]);
     compCount  = JS_CTRL_NEWFRAME_GET_COMPCOUNT(inCtrlImage[0]);
+    
+    framePixels = frameDim.x * frameDim.y;
     
 #ifndef KASCPAR_PARSING
     std::cerr << " width: " << frameDim.x << " height: " << frameDim.y
@@ -111,29 +117,19 @@ protected:
     frameBuffer.resize(frameDim.x * frameDim.y * compCount);
   }
 
-  void dumpFrame() {
-    size_t index = 0;
-    
-#ifndef KASCPAR_PARSING
-    std::cerr << "FrameBufferWriter: dumpFrame" << std::endl;
-    assert(compCount == 1 || compCount == 3);
-    
+  void writePixel() {
+    --framePixels;
     if (compCount == 1)
-      std::cout << "P2 " << frameDim.x << " " << frameDim.y << " 255" << std::endl;
+      // Y Cb Cr => Grayscale no Cb Cr
+      out[0] = JS_RAWPIXEL_SETVAL(
+        frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0],
+        0
+        0);
     else
-      std::cout << "P3 " << frameDim.x << " " << frameDim.y << " 255" << std::endl;
-    //output a complete block line
-    for (FrameBuffer::const_iterator iter = frameBuffer.begin();
-         iter != frameBuffer.end();
-         ++iter) {
-      std::cout << static_cast<unsigned int>(*iter);
-      if (++index % 20 == 0)
-        std::cout << std::endl;
-      else
-        std::cout << " ";
-    }
-    std::cout << std::endl << std::endl;
-#endif // KASCPAR_PARSING
+      out[0] = JS_RAWPIXEL_SETVAL(
+        frameBuffer[(frameDim.x * frameDim.y - framePixels) * 3 + 0],
+        frameBuffer[(frameDim.x * frameDim.y - framePixels) * 3 + 1],
+        frameBuffer[(frameDim.x * frameDim.y - framePixels) * 3 + 2]);
   }
 
   void processNewScan() {
@@ -217,6 +213,7 @@ protected:
   smoc_firing_state newFrame;
   smoc_firing_state newScan;
   smoc_firing_state readScan;
+  smoc_firing_state dumpFrame;
 public:
   FrameBufferWriter(sc_module_name name)
     : smoc_actor(name, newFrame) {
@@ -227,8 +224,7 @@ public:
       ;
     newScan
       // this must be a CTRLCMD_NEWSCAN
-      =   GUARD(FrameBufferWriter::frameEnd)        >>
-        CALL(FrameBufferWriter::dumpFrame)          >> newFrame
+      =   GUARD(FrameBufferWriter::frameEnd)        >> dumpFrame
       | (!GUARD(FrameBufferWriter::frameEnd) &&
          inCtrlImage(1))                            >>
         CALL(FrameBufferWriter::processNewScan)     >> readScan
@@ -239,6 +235,11 @@ public:
       | (!GUARD(FrameBufferWriter::scanEnd) &&
          in(1))                                     >>
         CALL(FrameBufferWriter::writeComponent)     >> readScan
+      ;
+    dumpFrame
+      = (out(1) && VAR(framePixels) > 1)            >>
+        CALL(FrameBufferWriter::writePixel)         >> dumpFrame
+      | (VAR(framePixels) == 0)                     >> newFrame
       ;
   }
 };
