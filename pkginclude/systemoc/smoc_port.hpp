@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
@@ -49,61 +50,66 @@
 #include <systemc.h>
 #include <vector>
 
+//forward declaration
+template <typename T>
+class smoc_port_in;
+
 namespace Expr {
+
 
 /****************************************************************************
  * DToken is a placeholder for a token in the expression.
  */
 
-template<typename T, template <typename, typename> class R, class PARAM_TYPE>
+template<typename T>
 class DToken {
 public:
   typedef const T    value_type;
-  typedef DToken<T,R,PARAM_TYPE>  this_type;
+  typedef DToken<T>  this_type;
   
   friend class Value<this_type>;
   friend class AST<this_type>;
 private:
-  smoc_port_in_base<T,R,PARAM_TYPE> &p;
+  smoc_port_in<T> &p;
   size_t           pos;
 public:
-  explicit DToken(smoc_port_in_base<T,R,PARAM_TYPE> &p, size_t pos)
+  explicit DToken(smoc_port_in<T> &p, size_t pos)
     : p(p), pos(pos) {}
 };
 
-template<typename T, template <typename, typename> class R, class PARAM_TYPE>
-struct Value<DToken<T,R,PARAM_TYPE> > {
+template<typename T>
+struct Value<DToken<T> > {
   typedef const T result_type;
   
   static inline
-  result_type apply(const DToken<T,R,PARAM_TYPE> &e)
+  result_type apply(const DToken<T> &e)
   { return e.p[e.pos]; }
 };
 
-template<typename T, template <typename, typename> class R, class PARAM_TYPE>
-struct AST<DToken<T,R,PARAM_TYPE> > {
+template<typename T>
+struct AST<DToken<T> > {
   typedef PASTNode result_type;
   
   static inline
-  result_type apply(const DToken<T,R,PARAM_TYPE> &e)
+  result_type apply(const DToken<T> &e)
     { return PASTNode(new ASTNodeToken(e.p, e.pos)); }
 };
 
-template<typename T, template <typename, typename> class R, class PARAM_TYPE>
-struct D<DToken<T,R,PARAM_TYPE> >: public DBase<DToken<T,R,PARAM_TYPE> > {
-  D(smoc_port_in_base<T,R,PARAM_TYPE> &p, size_t pos)
-    : DBase<DToken<T,R,PARAM_TYPE> >(DToken<T,R,PARAM_TYPE>(p,pos)) {}
+template<typename T>
+struct D<DToken<T> >: public DBase<DToken<T> > {
+  D(smoc_port_in<T> &p, size_t pos)
+    : DBase<DToken<T> >(DToken<T>(p,pos)) {}
 };
 
 // Make a convenient typedef for the token type.
-template<typename T, template <typename, typename> class R, class PARAM_TYPE>
+template<typename T>
 struct Token {
-  typedef D<DToken<T, R, PARAM_TYPE> > type;
+  typedef D<DToken<T> > type;
 };
 
-template <typename T, template <typename, typename> class R, class PARAM_TYPE>
-typename Token<T,R,PARAM_TYPE>::type token(smoc_port_in_base<T,R,PARAM_TYPE> &p, size_t pos)
-{ return typename Token<T,R,PARAM_TYPE>::type(p,pos); }
+template <typename T>
+typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
+{ return typename Token<T>::type(p,pos); }
 
 /****************************************************************************
  * DPortTokens represents a count of available tokens or free space in
@@ -379,7 +385,10 @@ SMOCEvent::type till(smoc_event &e)
 
 /****************************************************************************/
 
-template <class P, typename T, class PARAM_TYPE>
+template <class P,          //parent class
+					typename T,       //interface type
+					class PARAM_TYPE  //port parameters
+					>
 class smoc_port_base
   : public P {
 public:
@@ -491,10 +500,7 @@ protected:
     { return (*this)->commitRead(n); }
 #endif
 
-public:
-  const return_type operator[](size_t n) const {
-    return (*(this->channel_access))[n];
-  }
+public: 
 
   smoc_port_in_base(): base_type(sc_gen_unique_name("smoc_port_in")) {}
   
@@ -507,10 +513,8 @@ public:
   size_t availableCount() const
     { return (*this)->numAvailable(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
-    { return (*this)->dataAvailableEvent(n); }
+    { return (*this)->dataAvailableEvent(n); }  
   
-  typename Expr::Token<T,R,PARAM_TYPE>::type getValueAt(size_t n)
-    { return Expr::token(*this,n); }
   typename Expr::PortTokens<this_type>::type getConsumableTokens()
     { return Expr::portTokens(*this); }
  
@@ -584,10 +588,7 @@ protected:
   void commExec(size_t n)
     { return (*this)->commitWrite(n); }
 #endif
-public:
-  return_type operator[](size_t n) {
-    return (*(this->channel_access))[n];
-  }
+public:  
 
   smoc_port_out_base(): base_type(sc_gen_unique_name("smoc_port_out")) {}
   
@@ -640,6 +641,13 @@ protected:
 public:
   smoc_port_in(): base_type() {}
 
+  const return_type operator[](size_t n) const {
+    return (*(this->channel_access))[n];
+  }
+
+  typename Expr::Token<T>::type getValueAt(size_t n)
+    { return Expr::token<T>(*this,n); }
+
 public:
 
   ///dummy function
@@ -664,6 +672,10 @@ protected:
   
 public:
   smoc_port_out(): base_type() {}
+
+  return_type operator[](size_t n)  {
+    return (*(this->channel_access))[n];
+  }
 
 public:
   ///dummy function
