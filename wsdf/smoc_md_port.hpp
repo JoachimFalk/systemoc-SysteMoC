@@ -10,6 +10,7 @@
 #include "smoc_wsdf_edge.hpp"
 
 #include "smoc_md_buffer.hpp"
+#include "smoc_md_chan_if.hpp"
 #include "smoc_vector.hpp"
 #include "smoc_md_array_access.hpp"
 

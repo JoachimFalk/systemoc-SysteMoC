@@ -98,6 +98,7 @@ if SYSTEMOC_ENABLE_WSDF
 pkginclude_HEADERS +=					\
 	pkginclude/systemoc/smoc_md_array_access.hpp	\
 	pkginclude/systemoc/smoc_md_array.hpp		\
+	pkginclude/systemoc/smoc_md_chan_if.hpp \
 	pkginclude/systemoc/smoc_md_buffer.hpp		\
 	pkginclude/systemoc/smoc_md_fifo.hpp		\
 	pkginclude/systemoc/smoc_md_loop.hpp		\

@@ -10,6 +10,7 @@
 #include "smoc_vector.hpp"
 #include "smoc_md_loop.hpp"
 #include "smoc_md_array.hpp"
+#include "smoc_md_chan_if.hpp"
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BUFFER
 #define VERBOSE_LEVEL_SMOC_MD_BUFFER 0
@@ -45,11 +46,16 @@ public:
   /// data elements in a multi-dimensional buffer. Border processing
   /// is not performed.
   template<class S, class T>
-  class smoc_md_storage_access_src{
+  class smoc_md_storage_access_src
+    : public smoc_md_src_channel_access<S,T>
+  {
     friend class smoc_md_buffer_mgmt_base;
   public:
-    typedef smoc_md_loop_iterator_kind::data_type iteration_type;
-    typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+    typedef smoc_md_storage_access_src<S,T> this_type;
+    typedef smoc_md_src_channel_access<S,T> parent_type;
+
+    typedef typename parent_type::iteration_type iteration_type;
+    typedef typename parent_type::iter_domain_vector_type iter_domain_vector_type;
                 
     typedef S                                             storage_type;
     typedef T                                             return_type;
@@ -138,16 +144,22 @@ public:
   };
         
   template<class S, class T>
-  class smoc_md_storage_access_snk{
+  class smoc_md_storage_access_snk
+    : public smoc_md_snk_channel_access<S,T>
+  {
     friend class smoc_md_buffer_mgmt_base;
   public:
-    typedef smoc_md_loop_iterator_kind::data_type iteration_type;
-    typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
+
+    typedef smoc_md_storage_access_snk<S,T> this_type;
+    typedef smoc_md_snk_channel_access<S,T> parent_type;
+    
+    typedef typename parent_type::iteration_type iteration_type;
+    typedef typename parent_type::iter_domain_vector_type iter_domain_vector_type;
 
 
-    typedef smoc_snk_md_loop_iterator_kind::border_condition_vector_type border_condition_vector_type;
-    typedef smoc_snk_md_loop_iterator_kind::border_type border_type;
-    typedef smoc_snk_md_loop_iterator_kind::border_type_vector_type border_type_vector_type;
+    typedef typename parent_type::border_condition_vector_type border_condition_vector_type;
+    typedef typename parent_type::border_type border_type;
+    typedef typename parent_type::border_type_vector_type border_type_vector_type;
                 
     typedef S                                             storage_type;
     typedef T                                             return_type;
