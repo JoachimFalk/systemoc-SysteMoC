@@ -124,6 +124,8 @@ private:
       SHIFT_AND_ROUND(pixel_out[i], nbr_fractional_digits);
       if (pixel_out[i] >= 256){
 	pixel_out[i] = 255;
+      }else if (pixel_out[i] < 0){
+	pixel_out[i] = 0;
       }
     }    
 
