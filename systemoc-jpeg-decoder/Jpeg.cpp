@@ -69,6 +69,7 @@
 #include "InvLevel.hpp"
 #include "Clip.hpp"
 #include "FrameBufferWriter.hpp"
+#include "PixelSnk.hpp"
 
 class Jpeg: public smoc_graph {
 private:
@@ -92,9 +93,8 @@ private:
 //Round             mRound;
   InvLevel          mInvLevel;
   Clip              mClip;
-  FrameBufferWriter mSink;
-
-
+  FrameBufferWriter mShuffle;
+  PixelSnk          mSink;
 public:
   Jpeg(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
@@ -118,12 +118,13 @@ public:
 //    mRound("Round"),
       mInvLevel("InvLevel"),
       mClip("Clip"),
+      mShuffle("Shuffle"),
       mSink("Sink")
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
     connectNodePorts<2>(mParser.out,              mHuffDecoder.in);
-    connectNodePorts<1>(mParser.outCtrlImage,     mSink.inCtrlImage);
+    connectNodePorts<1>(mParser.outCtrlImage,     mShuffle.inCtrlImage);
     connectNodePorts<16>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
 
     //the +1 is required, because the parser wants to send the QT header
@@ -183,7 +184,8 @@ public:
 //  connectNodePorts<1>(mRound.out, mInvLevel.in);
     connectNodePorts<64>(mCol2Block.b, mInvLevel.in);
     connectNodePorts<1>(mInvLevel.out, mClip.in);
-    connectNodePorts<1>(mClip.out,     mSink.in);
+    connectNodePorts<65536>(mClip.out, mShuffle.in);
+    connectNodePorts<1>(mShuffle.out, mSink.in);
 #endif
   }
 };

@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_GENSINK_HPP
-#define _INCLUDED_GENSINK_HPP
+#ifndef _INCLUDED_PIXELSNK_HPP
+#define _INCLUDED_PIXELSNK_HPP
 
 #include <cstdlib>
 #include <iostream>
@@ -44,9 +44,9 @@
 
 #include <systemoc/smoc_port.hpp>
 
-class m_gen_sink: public smoc_actor {
+class PixelSnk: public smoc_actor {
 public:
-  smoc_port_in<JpegChannel_t> in;
+  smoc_port_in<Pixel_t> in;
 
   void process() {
     cout << name() << " receiving " << in[0] << std::endl;
@@ -54,11 +54,11 @@ public:
   
   smoc_firing_state start;
 public:
-  m_gen_sink( sc_module_name name )
+  PixelSnk( sc_module_name name )
     : smoc_actor( name, start )
   {
-    start = in(1) >> CALL(m_gen_sink::process)  >> start;
+    start = in(1) >> CALL(PixelSnk::process)  >> start;
   }
 };
 
-#endif
+#endif // _INCLUDED_PIXELSNK_HPP

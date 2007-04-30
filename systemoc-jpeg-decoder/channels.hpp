@@ -18,6 +18,7 @@ typedef uint8_t   uint4_t;
 typedef uint16_t  uint11_t;
 typedef uint16_t  uint10_t;
 typedef uint32_t  uint19_t;
+typedef uint32_t  uint24_t;
 typedef uint32_t  uint29_t;
 
 typedef int16_t   int12_t;
@@ -29,6 +30,7 @@ typedef int32_t   int19_t;
 # define uint11_t unsigned short
 # define uint10_t unsigned short
 # define uint19_t unsigned int
+# define uint24_t unsigned int
 # define uint29_t unsigned int
 # define int12_t  short
 # define int19_t  int
@@ -68,6 +70,13 @@ typedef uint29_t JpegChannel_t;
 #   define JpegChannel_t unsigned int
 # endif // KASCPAR_PARSING
 #endif
+
+#define PIXEL_BITS 24
+#ifndef KASCPAR_PARSING
+typedef uint24_t Pixel_t;
+#else
+# define pixel_t unsigned int
+#endif // KASCPAR_PARSING
 
 #define CODEWORD_BITS 8
 #ifndef KASCPAR_PARSING
