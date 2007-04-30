@@ -203,6 +203,8 @@ private:
     
     Category_t category = JS_TUP_GETCATEGORY(in[0]);
     CategoryAmplitude_t amplitude = JS_TUP_GETIDCTAMPLCOEFF(in[0]);
+
+    DBG_OUT("cat = " << (int)category << ", ampl = " << (int)amplitude << ", ");
     
     // Error checking
     CategoryAmplitude_t max_amplitude = ~0;
@@ -216,7 +218,7 @@ private:
     out[0] = JS_DATA_QCOEFF_SET_CHWORD(dc_coeff);    
     
 
-    DBG_OUT(dc_coeff << endl);
+    DBG_OUT("DC = " << dc_coeff << endl);    
     update_pixel_id();
     
   }

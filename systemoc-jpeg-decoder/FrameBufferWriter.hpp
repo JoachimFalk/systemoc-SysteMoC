@@ -119,8 +119,7 @@ protected:
     frameBuffer.resize(frameDim.x * frameDim.y * compCount);
   }
 
-  void writePixel() {
-    --framePixels;
+  void writePixel() {    
     if (compCount == 1){
       //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0] >= 0);
       //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0] < 256);
@@ -141,6 +140,7 @@ protected:
         frameBuffer[(frameDim.x * frameDim.y - framePixels) * 3 + 1],
         frameBuffer[(frameDim.x * frameDim.y - framePixels) * 3 + 2]);
     }
+    --framePixels;
   }
 
   void processNewScan() {

@@ -108,8 +108,8 @@ private:
   // Perform DC decoding
   void decode_dc(){
     DBG_OUT("Perform DC decoding (comp = " << comp_id << "):");
-    DBG_OUT(" Input: " << JS_QCOEFF_GETIDCTCOEFF(in[0]));
-    DBG_OUT(", Prev: " << prev_DC[comp_id]);
+    DBG_OUT(" Input: " << (int)JS_QCOEFF_GETIDCTCOEFF(in[0]));
+    DBG_OUT(", Prev: " << (int)prev_DC[comp_id]);
     
     //assert(comp_id >= 0);
     //Check, that comp_id is not signed
@@ -133,7 +133,7 @@ private:
   }
 
   void forward_ac(){
-    DBG_OUT("Forward AC coefficient" << endl);
+    DBG_OUT("Forward AC coefficient: " << (int)JS_QCOEFF_GETIDCTCOEFF(in[0]) << endl);
 
     out[0] = in[0];
 
