@@ -95,7 +95,7 @@ protected:
 
   void processFrameDesc() {
 #ifndef KASCPAR_PARSING
-    std::cerr << "FrameBufferWriter: processFrameDesc";
+    std::cerr << "FrameBufferWriter::processFrameDesc";
 #endif // KASCPAR_PARSING
 
     assert(JS_ISCTRL(inCtrlImage[0]));
@@ -123,7 +123,7 @@ protected:
     size_t index = 0;
     
 #ifndef KASCPAR_PARSING
-    std::cerr << "FrameBufferWriter: dumpFrame" << std::endl;
+    std::cerr << "FrameBufferWriter::dumpFrame" << std::endl;
     assert(compCount == 1 || compCount == 3);
     
     if (compCount == 1)
@@ -146,7 +146,7 @@ protected:
 
   void processScanDesc() {
 #ifndef KASCPAR_PARSING
-    std::cerr << "FrameBufferWriter: processScanDesc ";
+    std::cerr << "FrameBufferWriter::processScanDesc ";
 #endif // KASCPAR_PARSING
     
     assert(JS_ISCTRL(inCtrlImage[0]));
@@ -178,10 +178,17 @@ protected:
   }
 
   void writeComponent() {
-//  std::cerr << "FrameBufferWriter: writeComponent" << std::endl;
-    
+    std::cerr << "FrameBufferWriter::writeComponent" << std::endl;
     assert(!JS_ISCTRL(in[0]));
-    
+
+
+    if (--shuffleMissing == 0)
+      shuffleMissing = shuffleInterval;
+    --frameMissing;
+
+    out[0] = 0xFFFFFF;
+
+/*
     assert(scanPattern[scanIndex] < compCount);
     frameBuffer[compCount * (
        (compPos[scanPattern[scanIndex]].y + blockIndex / JPEG_BLOCK_WIDTH) * frameDim.x +
@@ -197,14 +204,17 @@ protected:
       }
       scanIndex = (scanIndex + 1) % SCANPATTERN_LENGTH;
     }
+ */
   }
 
   bool frameEnd() const {
     assert(/*compMissing >= 0 &&*/ compMissing <= compCount);
+    std::cerr << "FrameBufferWriter::frameEnd" << std::endl;
     return compMissing == 0;
   }
 
   bool scanEnd() const {
+    std::cerr << "FrameBufferWriter::scanEnd" << std::endl;
 #ifndef NDEBUG
     for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
       assert(/*compPos[i].x >= 0 &&*/ compPos[i].x <  frameDim.x);
@@ -227,7 +237,11 @@ protected:
   smoc_firing_state readScans;
 public:
   FrameBufferWriter(sc_module_name name)
-    : smoc_actor(name, getFrameDesc) {
+    : smoc_actor(name, getFrameDesc),
+      shuffleInterval(1),
+      shuffleMissing(1),
+      frameMissing(16)
+  {
     getFrameDesc
       // this must be a CTRLCMD_NEWFRAME
       = inCtrlImage(1)                              >>
