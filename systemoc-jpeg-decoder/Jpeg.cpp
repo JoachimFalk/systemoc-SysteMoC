@@ -73,7 +73,9 @@
 #else
 # include "FrameBufferWriter.hpp"
 #endif
-#include "PixelSnk.hpp"
+#include "YCbCr2RGB.hpp"
+#include "PGMsink.hpp"
+//#include "PixelSnk.hpp"
 
 class Jpeg: public smoc_graph {
 private:
@@ -86,7 +88,7 @@ private:
   CtrlSieve         mCtrlSieve;
   InvZigZag         mInvZigZag;
 #ifdef DUMP_INTERMEDIATE
-  m_1D_dup2<IDCTCoeff_t>mDup2_1;
+  m_1D_dup2<IDCTCoeff_t> mDup2_1;
   m_block_sink mBlockSnk;
 #endif
   // Begin IDCT2D
@@ -99,10 +101,14 @@ private:
   Clip              mClip;
 #ifdef STATIC_IMAGE_SIZE
   FrameShuffler     mShuffle;
-  PixelSnk          mSink;
+  //PixelSnk          mSink;
 #else
   FrameBufferWriter mFrameBuffer;
 #endif
+  m_1D_dup2<JpegChannel_t> mDup2_2;
+  YCrCb2RGB         mYCbCr;
+  m_pgm_sink        mPGMsink;
+  
 public:
   Jpeg(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
@@ -128,18 +134,24 @@ public:
       mClip("Clip"),
 #ifdef STATIC_IMAGE_SIZE
       mShuffle("Shuffle"),
-      mSink("Sink")
+      //mSink("Sink")
 #else
-      mFrameBuffer("FrameBuffer")
+      mFrameBuffer("FrameBuffer"),
 #endif
+      mDup2_2("Dup2_2"),
+      mYCbCr("mYCbCr"),
+      mPGMsink("mPGMsink")
+      
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
     connectNodePorts<2>(mParser.out,              mHuffDecoder.in);
+    connectNodePorts<1>(mParser.outCtrlImage,     mDup2_2.in);    
+    connectNodePorts<1>(mDup2_2.out1,             mPGMsink.inCtrlImage);
 #ifdef STATIC_IMAGE_SIZE
-    connectNodePorts<1>(mParser.outCtrlImage,     mShuffle.inCtrlImage);
+    connectNodePorts<1>(mDup2_2.out2,             mShuffle.inCtrlImage);
 #else
-    connectNodePorts<1>(mParser.outCtrlImage,     mFrameBuffer.inCtrlImage);
+    connectNodePorts<1>(mDup2_2.out2,             mFrameBuffer.inCtrlImage);
 #endif
     connectNodePorts<16>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
 
@@ -202,10 +214,13 @@ public:
     connectNodePorts<1>(mInvLevel.out, mClip.in);
 #ifdef STATIC_IMAGE_SIZE
     connectNodePorts<65536>(mClip.out, mShuffle.in);
-    connectNodePorts<1>(mShuffle.out, mSink.in);
+    connectNodePorts<1>(mShuffle.out, mYCbCr.in);
 #else
     connectNodePorts<1>(mClip.out, mFrameBuffer.in);
-#endif
+    connectNodePorts<1>(mFrameBuffer.out, mYCbCr.in);
+#endif    
+    connectNodePorts<1>(mYCbCr.out, mPGMsink.in);
+    
 #endif // KASCPAR_PARSING
   }
 };

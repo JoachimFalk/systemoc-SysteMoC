@@ -71,7 +71,9 @@ protected:
 #endif // KASCPAR_PARSING
 
   Pos         frameDim;
-  IntCompID_t compCount;
+
+  //number of components
+  IntCompID_t compCount; 
   IntCompID_t compMissing;
 
   Pos         compPos[JPEG_MAX_COLOR_COMPONENTS];
@@ -119,17 +121,26 @@ protected:
 
   void writePixel() {
     --framePixels;
-    if (compCount == 1)
+    if (compCount == 1){
+      //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0] >= 0);
+      //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0] < 256);
       // Y Cb Cr => Grayscale no Cb Cr
       out[0] = JS_RAWPIXEL_SETVAL(
         frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0],
-        0
+        0,
         0);
-    else
+    }else{
+      //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0] >= 0);
+      //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0] < 256);
+      //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 1] >= 0);
+      //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 1] < 256);
+      //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 2] >= 0);
+      //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 2] < 256);
       out[0] = JS_RAWPIXEL_SETVAL(
         frameBuffer[(frameDim.x * frameDim.y - framePixels) * 3 + 0],
         frameBuffer[(frameDim.x * frameDim.y - framePixels) * 3 + 1],
         frameBuffer[(frameDim.x * frameDim.y - framePixels) * 3 + 2]);
+    }
   }
 
   void processNewScan() {
@@ -193,10 +204,13 @@ protected:
   }
 
   bool scanEnd() const {
+    // std::cerr << "scanEnd" << std::endl;
+    // std::cerr << frameDim.x << " " << frameDim.y << std::endl;
 #ifndef NDEBUG
     for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
+      // std::cerr << compPos[i].x << " " << compPos[i].y << std::endl;
       assert(/*compPos[i].x >= 0 &&*/ compPos[i].x <  frameDim.x);
-      assert(/*compPos[i].y >= 0 &&*/ compPos[i].y <= frameDim.y);
+      assert(/*compPos[i].y >= 0 &&*/ compPos[i].y <= frameDim.y);      
     }
 #endif
     for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
@@ -237,7 +251,7 @@ public:
         CALL(FrameBufferWriter::writeComponent)     >> readScan
       ;
     dumpFrame
-      = (out(1) && VAR(framePixels) > 1)            >>
+      = (out(1) && VAR(framePixels) >= 1)            >>
         CALL(FrameBufferWriter::writePixel)         >> dumpFrame
       | (VAR(framePixels) == 0)                     >> newFrame
       ;
