@@ -53,9 +53,10 @@
 
 #include "channels.hpp"
 
-class FrameBufferWriter: public smoc_actor {
+class FrameShuffler: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t> in;
+  smoc_port_out<Pixel_t>      out;
   smoc_port_in<JpegChannel_t> inCtrlImage;
 protected:
   struct Pos {
@@ -76,6 +77,13 @@ protected:
   Pos         compPos[JPEG_MAX_COLOR_COMPONENTS];
   IntCompID_t scanPattern[SCANPATTERN_LENGTH];
 
+  // pixel count in shuffle
+  int         shuffleInterval;
+  // how many pixels left to complete shuffle
+  int         shuffleMissing;
+  // how many pixels left till frame completion
+  int         frameMissing;
+
   // index into scanPattern
   int         scanIndex;
 
@@ -85,9 +93,9 @@ protected:
   // Is of size width*height*compCount
   FrameBuffer frameBuffer;
 
-  void processNewFrame() {
+  void processFrameDesc() {
 #ifndef KASCPAR_PARSING
-    std::cerr << "FrameBufferWriter: processNewFrame";
+    std::cerr << "FrameShuffler::processFrameDesc";
 #endif // KASCPAR_PARSING
 
     assert(JS_ISCTRL(inCtrlImage[0]));
@@ -115,7 +123,7 @@ protected:
     size_t index = 0;
     
 #ifndef KASCPAR_PARSING
-    std::cerr << "FrameBufferWriter: dumpFrame" << std::endl;
+    std::cerr << "FrameShuffler::dumpFrame" << std::endl;
     assert(compCount == 1 || compCount == 3);
     
     if (compCount == 1)
@@ -136,9 +144,9 @@ protected:
 #endif // KASCPAR_PARSING
   }
 
-  void processNewScan() {
+  void processScanDesc() {
 #ifndef KASCPAR_PARSING
-    std::cerr << "FrameBufferWriter: processNewScan ";
+    std::cerr << "FrameShuffler::processScanDesc ";
 #endif // KASCPAR_PARSING
     
     assert(JS_ISCTRL(inCtrlImage[0]));
@@ -170,10 +178,17 @@ protected:
   }
 
   void writeComponent() {
-//  std::cerr << "FrameBufferWriter: writeComponent" << std::endl;
-    
+    std::cerr << "FrameShuffler::writeComponent" << std::endl;
     assert(!JS_ISCTRL(in[0]));
-    
+
+
+    if (--shuffleMissing == 0)
+      shuffleMissing = shuffleInterval;
+    --frameMissing;
+
+    out[0] = 0xFFFFFF;
+
+/*
     assert(scanPattern[scanIndex] < compCount);
     frameBuffer[compCount * (
        (compPos[scanPattern[scanIndex]].y + blockIndex / JPEG_BLOCK_WIDTH) * frameDim.x +
@@ -189,14 +204,17 @@ protected:
       }
       scanIndex = (scanIndex + 1) % SCANPATTERN_LENGTH;
     }
+ */
   }
 
   bool frameEnd() const {
     assert(/*compMissing >= 0 &&*/ compMissing <= compCount);
+    std::cerr << "FrameShuffler::frameEnd" << std::endl;
     return compMissing == 0;
   }
 
   bool scanEnd() const {
+    std::cerr << "FrameShuffler::scanEnd" << std::endl;
 #ifndef NDEBUG
     for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
       assert(/*compPos[i].x >= 0 &&*/ compPos[i].x <  frameDim.x);
@@ -214,32 +232,63 @@ protected:
     return true;
   }
 
-  smoc_firing_state newFrame;
-  smoc_firing_state newScan;
-  smoc_firing_state readScan;
+  smoc_firing_state getFrameDesc;
+  smoc_firing_state getScanDescs;
+  smoc_firing_state readScans;
 public:
-  FrameBufferWriter(sc_module_name name)
-    : smoc_actor(name, newFrame) {
-    newFrame
+  FrameShuffler(sc_module_name name)
+    : smoc_actor(name, getFrameDesc),
+      shuffleInterval(1),
+      shuffleMissing(1),
+      frameMissing(16)
+  {
+    getFrameDesc
       // this must be a CTRLCMD_NEWFRAME
       = inCtrlImage(1)                              >>
-        CALL(FrameBufferWriter::processNewFrame)    >> newScan
+        CALL(FrameShuffler::processFrameDesc)   >> getScanDescs
       ;
+    getScanDescs
+      =(!GUARD(FrameShuffler::frameEnd) &&
+      // this must be a CTRLCMD_NEWSCAN
+        inCtrlImage(1))                             >>
+        CALL(FrameShuffler::processScanDesc)    >> getScanDescs
+      |  GUARD(FrameShuffler::frameEnd)         >> readScans
+      ;
+    readScans
+      =(VAR(shuffleMissing) > 1 &&
+        in(0, VAR(shuffleInterval)))                >>
+        out(1)                                      >>
+        CALL(FrameShuffler::writeComponent)     >> readScans
+      |(VAR(shuffleMissing) == 1 &&
+        VAR(frameMissing) > 1 &&
+        in(VAR(shuffleInterval)))                   >>
+        out(1)                                      >>
+        CALL(FrameShuffler::writeComponent)     >> readScans
+      |(VAR(frameMissing) == 1 &&
+        in(VAR(shuffleInterval)))                   >>
+        out(1)                                      >>
+        CALL(FrameShuffler::writeComponent)     >> getFrameDesc
+      ;
+/*
+
+    newScan
+
     newScan
       // this must be a CTRLCMD_NEWSCAN
-      =   GUARD(FrameBufferWriter::frameEnd)        >>
-        CALL(FrameBufferWriter::dumpFrame)          >> newFrame
-      | (!GUARD(FrameBufferWriter::frameEnd) &&
+      =   GUARD(FrameShuffler::frameEnd)        >>
+        CALL(FrameShuffler::dumpFrame)          >> newFrame
+      | (!GUARD(FrameShuffler::frameEnd) &&
          inCtrlImage(1))                            >>
-        CALL(FrameBufferWriter::processNewScan)     >> readScan
+        CALL(FrameShuffler::processNewScan)     >> readScan
       ;
     readScan
       // read component values for scan
-      =   GUARD(FrameBufferWriter::scanEnd)         >> newScan
-      | (!GUARD(FrameBufferWriter::scanEnd) &&
+      =   GUARD(FrameShuffler::scanEnd)         >> newScan
+      | (!GUARD(FrameShuffler::scanEnd) &&
          in(1))                                     >>
-        CALL(FrameBufferWriter::writeComponent)     >> readScan
+        CALL(FrameShuffler::writeComponent)     >> readScan
       ;
+    */
   }
 };
 

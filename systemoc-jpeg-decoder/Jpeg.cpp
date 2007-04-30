@@ -68,7 +68,11 @@
 //#include "Round.hpp"
 #include "InvLevel.hpp"
 #include "Clip.hpp"
-#include "FrameBufferWriter.hpp"
+#ifdef STATIC_IMAGE_SIZE
+# include "FrameShuffler.hpp"
+#else
+# include "FrameBufferWriter.hpp"
+#endif
 #include "PixelSnk.hpp"
 
 class Jpeg: public smoc_graph {
@@ -93,8 +97,12 @@ private:
 //Round             mRound;
   InvLevel          mInvLevel;
   Clip              mClip;
-  FrameBufferWriter mShuffle;
+#ifdef STATIC_IMAGE_SIZE
+  FrameShuffler     mShuffle;
   PixelSnk          mSink;
+#else
+  FrameBufferWriter mFrameBuffer;
+#endif
 public:
   Jpeg(sc_module_name name, const std::string &fileName)
     : smoc_graph(name),
@@ -118,13 +126,21 @@ public:
 //    mRound("Round"),
       mInvLevel("InvLevel"),
       mClip("Clip"),
+#ifdef STATIC_IMAGE_SIZE
       mShuffle("Shuffle"),
       mSink("Sink")
+#else
+      mFrameBuffer("FrameBuffer")
+#endif
   {
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
     connectNodePorts<2>(mParser.out,              mHuffDecoder.in);
+#ifdef STATIC_IMAGE_SIZE
     connectNodePorts<1>(mParser.outCtrlImage,     mShuffle.inCtrlImage);
+#else
+    connectNodePorts<1>(mParser.outCtrlImage,     mFrameBuffer.inCtrlImage);
+#endif
     connectNodePorts<16>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
 
     //the +1 is required, because the parser wants to send the QT header
@@ -184,9 +200,13 @@ public:
 //  connectNodePorts<1>(mRound.out, mInvLevel.in);
     connectNodePorts<64>(mCol2Block.b, mInvLevel.in);
     connectNodePorts<1>(mInvLevel.out, mClip.in);
+#ifdef STATIC_IMAGE_SIZE
     connectNodePorts<65536>(mClip.out, mShuffle.in);
     connectNodePorts<1>(mShuffle.out, mSink.in);
+#else
+    connectNodePorts<1>(mClip.out, mFrameBuffer.in);
 #endif
+#endif // KASCPAR_PARSING
   }
 };
 
