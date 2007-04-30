@@ -86,7 +86,13 @@ namespace Detail {
   private:
     T v;
   public:
-    ParamWrapper(const T &v) __attribute__ ((deprecated))
+		ParamWrapper(const T &v)
+#if __GNUC__ > 3 ||														 \
+	(__GNUC__ == 3 && (__GNUC_MINOR__ > 3 ||				\
+										 (__GNUC_MINOR__ == 3 &&			\
+											__GNUC_PATCHLEVEL__ > 5)))
+			__attribute__ ((deprecated))
+#endif
       : v(v) {
       std::stringstream allToString; allToString << v;
       registerParam(ArgInfo(typeid(T).name(), allToString.str()));
