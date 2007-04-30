@@ -386,8 +386,8 @@ SMOCEvent::type till(smoc_event &e)
 /****************************************************************************/
 
 template <class P,          //parent class
-					typename T,       //interface type
-					class PARAM_TYPE  //port parameters
+	  typename T,       //interface type
+	  class PARAM_TYPE  //port parameters
 					>
 class smoc_port_base
   : public P {

@@ -9,15 +9,10 @@
 #include "smoc_port.hpp"
 #include "smoc_wsdf_edge.hpp"
 
-#include "smoc_md_buffer.hpp"
 #include "smoc_md_chan_if.hpp"
 #include "smoc_vector.hpp"
 #include "smoc_md_array_access.hpp"
 
-//#define PORT_IN_SMOC_MD_STORAGE_ACCESS smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk
-//#define PORT_OUT_SMOC_MD_STORAGE_ACCESS smoc_md_buffer_mgmt_base::smoc_md_storage_access_src
-#define PORT_IN_SMOC_MD_STORAGE_ACCESS smoc_simple_md_buffer_kind::smoc_md_storage_access_snk
-#define PORT_OUT_SMOC_MD_STORAGE_ACCESS smoc_simple_md_buffer_kind::smoc_md_storage_access_src
 
 ///101: border processing
 ///102: parameter propagation
@@ -262,10 +257,10 @@ public:
 /// constant border extension
 template<typename T, class PARAM_TYPE>
 class smoc_cst_border_ext
-  : public smoc_md_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS, PARAM_TYPE>
+  : public smoc_md_port_in_base<T,smoc_md_snk_channel_access, PARAM_TYPE>
 {
 public: 
-  typedef smoc_md_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS, PARAM_TYPE> base_type;
+  typedef smoc_md_port_in_base<T,smoc_md_snk_channel_access, PARAM_TYPE> base_type;
   typedef T                                   data_type;
   typedef smoc_cst_border_ext<T,PARAM_TYPE> this_type;
   typedef typename this_type::iface_type    iface_type;
@@ -558,12 +553,12 @@ private:
 template <typename T,
 	  unsigned N>
 class smoc_md_iport_in
-  : public smoc_md_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS,const smoc_wsdf_snk_param&>
+  : public smoc_md_port_in_base<T,smoc_md_snk_channel_access,const smoc_wsdf_snk_param&>
 {
 public:
   typedef T                                   data_type;
   typedef smoc_md_port_in<data_type, N>       this_type;
-  typedef smoc_md_port_in_base<T,PORT_IN_SMOC_MD_STORAGE_ACCESS,const smoc_wsdf_snk_param&> parent_type;
+  typedef smoc_md_port_in_base<T,smoc_md_snk_channel_access,const smoc_wsdf_snk_param&> parent_type;
   typedef typename this_type::iface_type    iface_type;
   typedef typename iface_type::access_type  access_type;
 
@@ -635,16 +630,16 @@ template <typename T,
 	  template <typename> class STORAGE_TYPE = smoc_storage_out>
 class smoc_md_port_out
   : public smoc_md_port_out_base<T, 
-				 PORT_OUT_SMOC_MD_STORAGE_ACCESS,
+				 smoc_md_src_channel_access,
 				 const smoc_wsdf_src_param&, 
 				 STORAGE_TYPE> ,
     public smoc_md_array_access<typename smoc_md_port_out_base<T, 
-							       PORT_OUT_SMOC_MD_STORAGE_ACCESS, 
+							       smoc_md_src_channel_access, 
 							       const smoc_wsdf_src_param&,
 							       STORAGE_TYPE>::return_type,
 				smoc_vector<unsigned long>,
 				smoc_md_port_out_base<T, 
-						      PORT_OUT_SMOC_MD_STORAGE_ACCESS, 
+						      smoc_md_src_channel_access, 
 						      const smoc_wsdf_src_param&,
 						      STORAGE_TYPE>,
 				N>,
@@ -653,7 +648,7 @@ class smoc_md_port_out
 
 public:
   typedef smoc_md_port_out_base<T, 
-				PORT_OUT_SMOC_MD_STORAGE_ACCESS, 
+				smoc_md_src_channel_access, 
 				const smoc_wsdf_src_param&,
 				STORAGE_TYPE>                     port_parent_type;
   typedef typename port_parent_type::return_type return_type;
@@ -747,11 +742,11 @@ template <typename T,
 	  unsigned N,
 	  template <typename> class STORAGE_TYPE = smoc_storage_out>
 class smoc_md_iport_out
-  : public smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&, STORAGE_TYPE>
+  : public smoc_md_port_out_base<T, smoc_md_src_channel_access, const smoc_wsdf_src_param&, STORAGE_TYPE>
 {
 
 public:
-  typedef smoc_md_port_out_base<T, PORT_OUT_SMOC_MD_STORAGE_ACCESS, const smoc_wsdf_src_param&, STORAGE_TYPE> port_parent_type;
+  typedef smoc_md_port_out_base<T, smoc_md_src_channel_access, const smoc_wsdf_src_param&, STORAGE_TYPE> port_parent_type;
 
 public:
   typedef T                                 data_type;

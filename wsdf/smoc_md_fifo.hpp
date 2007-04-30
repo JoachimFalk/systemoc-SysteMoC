@@ -27,6 +27,7 @@
 
 #include "smoc_md_loop.hpp"
 #include "smoc_md_buffer.hpp"
+#include "smoc_md_chan_if.hpp"
 #include "smoc_md_port.hpp"
 #include "smoc_wsdf_edge.hpp"
 
@@ -584,16 +585,14 @@ public:
 /// Provide the multi-dimensional FIFO with the SysteMoC Channel Interface
 template <typename T_DATA_TYPE, 
           class BUFFER_CLASS, 
-          template <typename, typename> class R_IN, 
-          template <typename, typename> class R_OUT,
           template <typename> class STORAGE_OUT_TYPE
          >
 class smoc_md_fifo_storage
 #ifndef NO_SMOC
   : public smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
                         T_DATA_TYPE,
-                        R_IN,
-                        R_OUT,
+                        smoc_md_snk_channel_access,
+                        smoc_md_src_channel_access,
                         STORAGE_OUT_TYPE
                        >  
 #else
@@ -611,20 +610,27 @@ public:
 #ifndef NO_SMOC
   typedef smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
                        T_DATA_TYPE,
-                       R_IN,
-                       R_OUT,
+                       smoc_md_snk_channel_access,
+                       smoc_md_src_channel_access,
                        STORAGE_OUT_TYPE >  parent_type;
 #else
   typedef smoc_md_fifo_kind<BUFFER_CLASS> parent_type;
 #endif
   typedef smoc_md_fifo_storage<data_type, 
                                BUFFER_CLASS, 
-                               R_IN, 
-                               R_OUT, 
                                STORAGE_OUT_TYPE>       this_type;
+
+  typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
+  typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
+  
+  typedef typename STORAGE_OUT_TYPE<data_type>::storage_type  storage_out_type;
+  typedef typename STORAGE_OUT_TYPE<data_type>::return_type   return_out_type;
+
 #ifndef NO_SMOC
-  typedef typename this_type::access_out_type  ring_out_type;
-  typedef typename this_type::access_in_type   ring_in_type;
+  typedef typename BUFFER_CLASS::smoc_md_storage_access_src<storage_out_type,return_out_type>  
+  ring_out_type;
+  typedef typename BUFFER_CLASS::smoc_md_storage_access_snk<storage_in_type,return_in_type>  
+  ring_in_type;
 #endif
   typedef smoc_storage<data_type>       storage_type;
 
@@ -637,7 +643,7 @@ public:
 
   class chan_init
     : public parent_type::chan_init {
-    friend class smoc_md_fifo_storage<T_DATA_TYPE, BUFFER_CLASS, R_IN, R_OUT, STORAGE_OUT_TYPE>;
+    friend class smoc_md_fifo_storage<T_DATA_TYPE, BUFFER_CLASS, STORAGE_OUT_TYPE>;
   protected:
     chan_init( const char *name, 
                const buffer_init &b )
@@ -706,24 +712,20 @@ template <typename T_DATA_TYPE,
 class smoc_md_fifo_type
   : public smoc_md_fifo_storage<T_DATA_TYPE, 
                                 smoc_simple_md_buffer_kind, 
-                                smoc_simple_md_buffer_kind::smoc_md_storage_access_snk, 
-                                smoc_simple_md_buffer_kind::smoc_md_storage_access_src,
                                 STORAGE_OUT_TYPE> {
 public:
   typedef T_DATA_TYPE                  data_type;
   typedef smoc_md_fifo_storage<T_DATA_TYPE, 
                                smoc_simple_md_buffer_kind,
-                               smoc_simple_md_buffer_kind::smoc_md_storage_access_snk, 
-                               smoc_simple_md_buffer_kind::smoc_md_storage_access_src,
                                STORAGE_OUT_TYPE
                                > parent_type;
   typedef smoc_md_fifo_type<T_DATA_TYPE, STORAGE_OUT_TYPE> this_type;
   
-  typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
-  typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
+  typedef typename parent_type::storage_in_type storage_in_type;
+  typedef typename parent_type::return_in_type return_in_type;
   
-  typedef typename STORAGE_OUT_TYPE<data_type>::storage_type  storage_out_type;
-  typedef typename STORAGE_OUT_TYPE<data_type>::return_type   return_out_type;
+  typedef typename parent_type::storage_out_type storage_out_type;
+  typedef typename parent_type::return_out_type return_out_type;
 
   //Make channel init visible
   typedef typename parent_type::chan_init chan_init;
