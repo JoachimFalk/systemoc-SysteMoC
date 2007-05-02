@@ -627,9 +627,9 @@ public:
   typedef typename STORAGE_OUT_TYPE<data_type>::return_type   return_out_type;
 
 #ifndef NO_SMOC
-  typedef typename BUFFER_CLASS::smoc_md_storage_access_src<storage_out_type,return_out_type>  
+  typedef typename BUFFER_CLASS::template smoc_md_storage_access_src<storage_out_type,return_out_type>  
   ring_out_type;
-  typedef typename BUFFER_CLASS::smoc_md_storage_access_snk<storage_in_type,return_in_type>  
+  typedef typename BUFFER_CLASS::template smoc_md_storage_access_snk<storage_in_type,return_in_type>  
   ring_in_type;
 #endif
   typedef smoc_storage<data_type>       storage_type;
