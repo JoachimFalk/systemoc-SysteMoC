@@ -40,6 +40,7 @@
 # define NDEBUG
 #endif
 
+#include "smoc_synth_std_includes.hpp"
 
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_graph_type.hpp>
@@ -77,6 +78,8 @@
 #include "PGMsink.hpp"
 //#include "PixelSnk.hpp"
 
+#include <cosupport/string_convert.hpp>
+
 class Jpeg: public smoc_graph {
 private:
   FileSource        mSrc;
@@ -110,7 +113,7 @@ private:
   m_pgm_sink        mPGMsink;
   
 public:
-  Jpeg(sc_module_name name, const std::string &fileName)
+  Jpeg(sc_module_name name, const std::string &fileName, size_t dimX, size_t dimY, size_t comp)
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),
@@ -133,7 +136,7 @@ public:
       mInvLevel("InvLevel"),
       mClip("Clip"),
 #ifdef STATIC_IMAGE_SIZE
-      mShuffle("Shuffle"),
+      mShuffle("Shuffle", dimX, dimY, comp),
       //mSink("Sink")
 #else
       mFrameBuffer("FrameBuffer"),
@@ -227,14 +230,20 @@ public:
 
 #ifndef KASCPAR_PARSING
 int sc_main (int argc, char **argv) {
-  if (argc != 2) {
+  if (argc != 5) {
     std::cerr
       << (argv[0] != NULL ? argv[0] : "???")
-      << " <jpeg filename>" << std::endl;
+      << " <jpeg filename> <width> <height> <compCount>" << std::endl;
     exit(-1);
   }
   
-  smoc_top_moc<Jpeg> jpeg("jpeg", argv[1]);
+  smoc_top_moc<Jpeg> jpeg(
+      "jpeg",
+      argv[1],
+      CoSupport::strAs<size_t>(argv[2]),
+      CoSupport::strAs<size_t>(argv[3]),
+      CoSupport::strAs<size_t>(argv[4])
+    );
   
   sc_start(-1);
   

@@ -64,83 +64,37 @@ protected:
     FrameDimY_t y;
   };
 
-#ifndef KASCPAR_PARSING
-  typedef std::vector<ComponentVal_t> FrameBuffer;
-#else
-# define FrameBuffer vector<ComponentVal_t>
-#endif // KASCPAR_PARSING
-
-  Pos         frameDim;
+  FrameDimX_t dimX;
+  FrameDimY_t dimY;
   IntCompID_t compCount;
-  IntCompID_t compMissing;
 
-  Pos         compPos[JPEG_MAX_COLOR_COMPONENTS];
-  IntCompID_t scanPattern[SCANPATTERN_LENGTH];
-
-  // pixel count in shuffle
-  int         shuffleInterval;
-  // how many pixels left to complete shuffle
-  int         shuffleMissing;
-  // how many pixels left till frame completion
-  int         frameMissing;
-
-  // index into scanPattern
-  int         scanIndex;
-
-  // index into 8x8 block
-  int         blockIndex;
-
-  // Is of size width*height*compCount
-  FrameBuffer frameBuffer;
+  // line count in shuffle
+  const int   shuffleLines;
+  // on which shuffle line am I
+  int         shufflePosY;
+  // pixel position in frame
+  FrameDimX_t posX;
+  FrameDimY_t posY;
 
   void processFrameDesc() {
 #ifndef KASCPAR_PARSING
     std::cerr << "FrameShuffler::processFrameDesc";
 #endif // KASCPAR_PARSING
-
+    
     assert(JS_ISCTRL(inCtrlImage[0]));
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWFRAME);
     
-    frameDim.x = JS_CTRL_NEWFRAME_GET_DIMX(inCtrlImage[0]);
-    frameDim.y = JS_CTRL_NEWFRAME_GET_DIMY(inCtrlImage[0]);
-    compCount  = JS_CTRL_NEWFRAME_GET_COMPCOUNT(inCtrlImage[0]);
+    assert(dimX == JS_CTRL_NEWFRAME_GET_DIMX(inCtrlImage[0]));
+    assert(dimY == JS_CTRL_NEWFRAME_GET_DIMY(inCtrlImage[0]));
+    posX = posY = shufflePosY = 0;
     
-#ifndef KASCPAR_PARSING
-    std::cerr << " width: " << frameDim.x << " height: " << frameDim.y
-              << " component count: " << static_cast<unsigned int>(compCount) << std::endl;
-#endif // KASCPAR_PARSING
-    
-    compMissing = compCount;
-    
+    assert(compCount  == JS_CTRL_NEWFRAME_GET_COMPCOUNT(inCtrlImage[0]));
     // Only support color and grayscale output
-    if (compCount > 1 && compCount < 3)
-      compCount = 3;
-    
-    frameBuffer.resize(frameDim.x * frameDim.y * compCount);
-  }
-
-  void dumpFrame() {
-    size_t index = 0;
-    
-#ifndef KASCPAR_PARSING
-    std::cerr << "FrameShuffler::dumpFrame" << std::endl;
     assert(compCount == 1 || compCount == 3);
     
-    if (compCount == 1)
-      std::cout << "P2 " << frameDim.x << " " << frameDim.y << " 255" << std::endl;
-    else
-      std::cout << "P3 " << frameDim.x << " " << frameDim.y << " 255" << std::endl;
-    //output a complete block line
-    for (FrameBuffer::const_iterator iter = frameBuffer.begin();
-         iter != frameBuffer.end();
-         ++iter) {
-      std::cout << static_cast<unsigned int>(*iter);
-      if (++index % 20 == 0)
-        std::cout << std::endl;
-      else
-        std::cout << " ";
-    }
-    std::cout << std::endl << std::endl;
+#ifndef KASCPAR_PARSING
+    std::cerr << " width: " << dimX << " height: " << dimY
+              << " component count: " << static_cast<unsigned int>(compCount) << std::endl;
 #endif // KASCPAR_PARSING
   }
 
@@ -152,143 +106,103 @@ protected:
     assert(JS_ISCTRL(inCtrlImage[0]));
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWSCAN);
     
-    // Mark all possible components as already done
-    for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
-      compPos[i].x = 0;
-      compPos[i].y = frameDim.y;
-    }
+#ifndef KASCPAR_PARSING
     for (int i = 0; i < SCANPATTERN_LENGTH; ++i) {
-      scanPattern[i] = JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], i);
       // component contained in scan must be filled into frame => start at pos 0, 0
-      if (compPos[scanPattern[i]].y)
-        // found new component in scan => decrement missing component count
-        --compMissing;
-      compPos[scanPattern[i]].x = 0;
-      compPos[scanPattern[i]].y = 0;
-#ifndef KASCPAR_PARSING
       std::cerr
-        << static_cast<unsigned int>(scanPattern[i]);
-//      << (i < SCANPATTERN_LENGTH-1 ? ":" : "");
-#endif // KASCPAR_PARSING
+        << static_cast<unsigned int>(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], i));
     }
-#ifndef KASCPAR_PARSING
     std::cerr << std::endl;
 #endif // KASCPAR_PARSING
-    scanIndex = blockIndex = 0;
+    
+    assert(compCount == 1 || compCount == 3);
+    if (compCount == 3) {
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 0) == 0);
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 1) == 1);
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 2) == 2);
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 3) == 0);
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 4) == 1);
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 5) == 2);
+    } else {
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 0) == 0);
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 1) == 0);
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 2) == 0);
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 3) == 0);
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 4) == 0);
+      assert(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], 5) == 0);
+    }
   }
 
   void writeComponent() {
-    std::cerr << "FrameShuffler::writeComponent" << std::endl;
+    std::cerr << "FrameShuffler::writeComponent for (" << posX << ", " << posY << ")" << std::endl;
     assert(!JS_ISCTRL(in[0]));
 
+    size_t posInBlock = (posX &  7U) + ((posY & 7U) << 3);
+    size_t posOfBlock = ((posX & ~7U) << 3);
+    if (compCount == 1) {
+      std::cerr << "@" << (posInBlock | posOfBlock) << std::endl;
 
-    if (--shuffleMissing == 0)
-      shuffleMissing = shuffleInterval;
-    --frameMissing;
-
-    out[0] = 0xFFFFFF;
-
-/*
-    assert(scanPattern[scanIndex] < compCount);
-    frameBuffer[compCount * (
-       (compPos[scanPattern[scanIndex]].y + blockIndex / JPEG_BLOCK_WIDTH) * frameDim.x +
-        compPos[scanPattern[scanIndex]].x + blockIndex % JPEG_BLOCK_WIDTH
-      ) + scanPattern[scanIndex]] = JS_COMPONENT_GETVAL(in[0]);
-    
-    blockIndex = (blockIndex + 1) % JPEG_BLOCK_SIZE;
-    if (blockIndex == 0) {
-      compPos[scanPattern[scanIndex]].x += JPEG_BLOCK_WIDTH;
-      if (compPos[scanPattern[scanIndex]].x >= frameDim.x) {
-        compPos[scanPattern[scanIndex]].x = 0;
-        compPos[scanPattern[scanIndex]].y += JPEG_BLOCK_HEIGHT;
-      }
-      scanIndex = (scanIndex + 1) % SCANPATTERN_LENGTH;
+      out[0] = JS_RAWPIXEL_SETVAL(
+        JS_COMPONENT_GETVAL(in[posInBlock | posOfBlock]),
+        128,
+        128);
+    } else {
+      out[0] = JS_RAWPIXEL_SETVAL(
+        JS_COMPONENT_GETVAL(in[posInBlock | (posOfBlock*3 + (0<<6))]),
+        JS_COMPONENT_GETVAL(in[posInBlock | (posOfBlock*3 + (1<<6))]),
+        JS_COMPONENT_GETVAL(in[posInBlock | (posOfBlock*3 + (2<<6))]));
     }
- */
-  }
 
-  bool frameEnd() const {
-    assert(/*compMissing >= 0 &&*/ compMissing <= compCount);
-    std::cerr << "FrameShuffler::frameEnd" << std::endl;
-    return compMissing == 0;
-  }
-
-  bool scanEnd() const {
-    std::cerr << "FrameShuffler::scanEnd" << std::endl;
-#ifndef NDEBUG
-    for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
-      assert(/*compPos[i].x >= 0 &&*/ compPos[i].x <  frameDim.x);
-      assert(/*compPos[i].y >= 0 &&*/ compPos[i].y <= frameDim.y);
-    }
-#endif
-    for (int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; ++i) {
-//    std::cerr << compPos[i].y << ", ";
-      if (compPos[i].y != frameDim.y) {
-//      std::cerr << std::endl;
-        return false;
-      }
-    }
-//  std::cerr << std::endl;
-    return true;
+    if (posX == dimX - 1) {
+      posX = 0;
+      if (shufflePosY == shuffleLines - 1) {
+        shufflePosY = 0;
+      } else
+        ++shufflePosY;
+      if (posY == dimY - 1) {
+        posY = 0;
+      } else
+        ++posY;
+    } else
+      ++posX;
   }
 
   smoc_firing_state getFrameDesc;
   smoc_firing_state getScanDescs;
-  smoc_firing_state readScans;
+  smoc_firing_state readScan;
 public:
-  FrameShuffler(sc_module_name name)
+  FrameShuffler(sc_module_name name, size_t dimX, size_t dimY, size_t comp)
     : smoc_actor(name, getFrameDesc),
-      shuffleInterval(1),
-      shuffleMissing(1),
-      frameMissing(16)
+      dimX(dimX), dimY(dimY), compCount(comp), shuffleLines(8)
   {
     getFrameDesc
       // this must be a CTRLCMD_NEWFRAME
-      = inCtrlImage(1)                              >>
+      = inCtrlImage(1)                          >>
         CALL(FrameShuffler::processFrameDesc)   >> getScanDescs
       ;
     getScanDescs
-      =(!GUARD(FrameShuffler::frameEnd) &&
-      // this must be a CTRLCMD_NEWSCAN
-        inCtrlImage(1))                             >>
-        CALL(FrameShuffler::processScanDesc)    >> getScanDescs
-      |  GUARD(FrameShuffler::frameEnd)         >> readScans
-      ;
-    readScans
-      =(VAR(shuffleMissing) > 1 &&
-        in(0, VAR(shuffleInterval)))                >>
-        out(1)                                      >>
-        CALL(FrameShuffler::writeComponent)     >> readScans
-      |(VAR(shuffleMissing) == 1 &&
-        VAR(frameMissing) > 1 &&
-        in(VAR(shuffleInterval)))                   >>
-        out(1)                                      >>
-        CALL(FrameShuffler::writeComponent)     >> readScans
-      |(VAR(frameMissing) == 1 &&
-        in(VAR(shuffleInterval)))                   >>
-        out(1)                                      >>
-        CALL(FrameShuffler::writeComponent)     >> getFrameDesc
-      ;
-/*
-
-    newScan
-
-    newScan
-      // this must be a CTRLCMD_NEWSCAN
-      =   GUARD(FrameShuffler::frameEnd)        >>
-        CALL(FrameShuffler::dumpFrame)          >> newFrame
-      | (!GUARD(FrameShuffler::frameEnd) &&
-         inCtrlImage(1))                            >>
-        CALL(FrameShuffler::processNewScan)     >> readScan
+      = // this must be a CTRLCMD_NEWSCAN
+        inCtrlImage(1)                          >>
+        CALL(FrameShuffler::processScanDesc)    >> readScan
       ;
     readScan
-      // read component values for scan
-      =   GUARD(FrameShuffler::scanEnd)         >> newScan
-      | (!GUARD(FrameShuffler::scanEnd) &&
-         in(1))                                     >>
+      =((VAR(shufflePosY) != shuffleLines - 1 ||
+         VAR(posX)        != dimX - 1) &&
+        in(0, comp * dimX * shuffleLines))      >>
+        out(1)                                  >>
         CALL(FrameShuffler::writeComponent)     >> readScan
+      |((VAR(shufflePosY) == shuffleLines - 1 &&
+         VAR(posY)        != dimY - 1 &&
+         VAR(posX)        == dimX - 1) &&
+        in(comp * dimX * shuffleLines))         >>
+        out(1)                                  >>
+        CALL(FrameShuffler::writeComponent)     >> readScan
+      |((VAR(shufflePosY) == shuffleLines - 1 &&
+         VAR(posY)        == dimY - 1) &&
+        in(comp * dimX * shuffleLines))         >>
+        out(1)                                  >>
+        CALL(FrameShuffler::writeComponent)     >> getFrameDesc
       ;
-    */
   }
 };
 
