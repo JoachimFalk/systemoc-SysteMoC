@@ -126,8 +126,8 @@ protected:
       // Y Cb Cr => Grayscale no Cb Cr
       out[0] = JS_RAWPIXEL_SETVAL(
         frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0],
-        0,
-        0);
+        128,
+        128);
     }else{
       //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0] >= 0);
       //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0] < 256);
