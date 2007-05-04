@@ -37,10 +37,6 @@
 #ifndef _INCLUDED_INV_QUANT_HPP
 #define _INCLUDED_INV_QUANT_HPP
 
-#ifdef KASCPAR_PARSING
-# define NDEBUG
-#endif
-
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -54,7 +50,7 @@
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
 // if compiled with DBG_INV_QT create stream and include debug macros
-#if defined(DBG_INV_QT) && !defined(NDEBUG)
+#ifdef DBG_INV_QT
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.
@@ -77,8 +73,29 @@ public:
 
 private:
 
-  void discard_qt_table(unsigned int table_id){
-    DBG_OUT("Discard QT table with ID " << table_id << endl);
+  void discard_qt_table_0(){
+    DBG_OUT("Discard QT table with ID 0" << endl);
+
+    //forward control word
+    forward_command();
+  }
+
+  void discard_qt_table_1(){
+    DBG_OUT("Discard QT table with ID 1" << endl);
+
+    //forward control word
+    forward_command();
+  }
+
+  void discard_qt_table_2(){
+    DBG_OUT("Discard QT table with ID 2" << endl);
+
+    //forward control word
+    forward_command();
+  }
+
+  void discard_qt_table_3(){
+    DBG_OUT("Discard QT table with ID 3" << endl);
 
     //forward control word
     forward_command();
@@ -89,7 +106,10 @@ private:
   }
 
   /// Stores for each colour component which QT table to use
-  unsigned char qmap_id[JPEG_MAX_COLOR_COMPONENTS];
+  // unsigned char qmap_id[JPEG_MAX_COLOR_COMPONENTS]; // Arrays not supported for Synthesis
+  unsigned char qmap_id_0;
+  unsigned char qmap_id_1;
+  unsigned char qmap_id_2;
   unsigned char qtbl_id;
 
   void use_qt_table() {
@@ -104,8 +124,19 @@ private:
     assert(temp > 0);
     assert(comp_id < JPEG_MAX_COLOR_COMPONENTS);
     
-    qmap_id[comp_id] = JS_CTRL_USEQT_GETQTID(in[0]);    
-    DBG_OUT("Component " << comp_id << ": " << qmap_id[comp_id] << endl);
+    // qmap_id[comp_id] = JS_CTRL_USEQT_GETQTID(in[0]); // Arrays not supported for Synthesis
+    switch(comp_id) {
+      case 0:
+        qmap_id_0 = JS_CTRL_USEQT_GETQTID(in[0]);
+        break;
+      case 1:
+        qmap_id_1 = JS_CTRL_USEQT_GETQTID(in[0]);
+        break;
+      case 2:
+        qmap_id_2 = JS_CTRL_USEQT_GETQTID(in[0]);
+        break;
+    }
+    // DBG_OUT("Component " << comp_id << ": " << qmap_id[comp_id] << endl); // Arrays not supported for Synthesis
     
     DBG_OUT(CoSupport::Indent::Down);
     
@@ -122,7 +153,20 @@ private:
     forward_command();
     
     comp_id = JS_CTRL_INTERNALCOMPSTART_GETCOMPID(in[0]);
-    qtbl_id = qmap_id[comp_id];
+    // qtbl_id = qmap_id[comp_id]; // Arrays not supported for Synthesis
+    assert(comp_id < 3);
+    switch(comp_id) {
+      case 0:
+        qtbl_id = qmap_id_0;
+        break;
+      case 1:
+        qtbl_id = qmap_id_1;
+        break;
+      case 2:
+        qtbl_id = qmap_id_2;
+        break;
+    }
+
     DBG_OUT("Next component: " << comp_id << endl);
     DBG_OUT("Next QT Table: "  << qtbl_id << endl);
     
@@ -193,9 +237,9 @@ private:
   smoc_firing_state stuck;
 
 
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
   CoSupport::DebugOstream dbgout;
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
 
   
 public:
@@ -203,20 +247,23 @@ public:
     : smoc_actor(name, main),
       comp_id(0),
       block_pixel_id(1) //counter runs from 1 to JPEG_BLOCK_SIZE
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
       , dbgout(std::cerr)
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
   {
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
     //Set Debug ostream options
     CoSupport::Header my_header("InvQuant> ");
     dbgout << my_header;
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
     
     //Init qmap_id[JPEG_MAX_COLOR_COMPONENTS]
+    /* Arrays not supported for Synthesis
     for (unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++) {
       qmap_id[i] = 0;
     }
+    */
+    qmap_id_0 = qmap_id_1 = qmap_id_2 = 0;
     
     main =
       /* discard Huffman tables */
@@ -224,22 +271,22 @@ public:
        (JS_ISCTRL(in.getValueAt(0)) && 
 	(JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
 	(JS_CTRL_DISCARDQT_GETQTID(in.getValueAt(0)) == (JpegChannel_t)0)) >>
-       CALL(InvQuant::discard_qt_table)(0)) >> main
+       CALL(InvQuant::discard_qt_table_0)) >> main
       |(( in(1) && qt_table_1(JS_QT_TABLE_SIZE) && out(1)) >>
 	(JS_ISCTRL(in.getValueAt(0)) && 
 	 (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
 	 (JS_CTRL_DISCARDQT_GETQTID(in.getValueAt(0)) == (JpegChannel_t)1)) >>
-	CALL(InvQuant::discard_qt_table)(1)) >> main
+	CALL(InvQuant::discard_qt_table_1)) >> main
       |(( in(1) && qt_table_2(JS_QT_TABLE_SIZE) && out(1)) >>
 	(JS_ISCTRL(in.getValueAt(0)) && 
 	 (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
 	 (JS_CTRL_DISCARDQT_GETQTID(in.getValueAt(0)) == (JpegChannel_t)2)) >>
-	CALL(InvQuant::discard_qt_table)(2)) >> main
+	CALL(InvQuant::discard_qt_table_2)) >> main
       |(( in(1) && qt_table_3(JS_QT_TABLE_SIZE) && out(1)) >>
 	(JS_ISCTRL(in.getValueAt(0)) && 
 	 (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
 	 (JS_CTRL_DISCARDQT_GETQTID(in.getValueAt(0)) == (JpegChannel_t)3)) >>
-	CALL(InvQuant::discard_qt_table)(3)) >> main
+	CALL(InvQuant::discard_qt_table_3)) >> main
       // Check for illegal QT table IDs
       |(( in(1) && out(1)) >>
 	(JS_ISCTRL(in.getValueAt(0)) && 

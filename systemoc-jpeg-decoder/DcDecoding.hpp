@@ -37,10 +37,6 @@
 #ifndef _INCLUDED_DC_DECODING_HPP
 #define _INCLUDED_DC_DECODING_HPP
 
-#ifdef KASCPAR_PARSING
-# define NDEBUG
-#endif
-
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -53,9 +49,8 @@
 
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
-#include <cosupport/smoc_debug_out.hpp>
 // if compiled with DBG_DC_DECODING create stream and include debug macros
-#if defined(DBG_DC_DECODING) && !defined(NDEBUG)
+#ifdef DBG_DC_DECODING
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.
@@ -73,7 +68,10 @@ private:
   
   // Previous DC coefficient
   // One for each component
-  QuantIDCTCoeff_t prev_DC[JPEG_MAX_COLOR_COMPONENTS];
+  // QuantIDCTCoeff_t prev_DC[JPEG_MAX_COLOR_COMPONENTS]; // Arrays not supported for Synthesis
+  QuantIDCTCoeff_t prev_DC_0;
+  QuantIDCTCoeff_t prev_DC_1;
+  QuantIDCTCoeff_t prev_DC_2;
 
   void forward_cmd(){
     DBG_OUT("Forward command" << endl);
@@ -84,10 +82,13 @@ private:
   // reset previous DC coefficient
   void reset_DC(){
     DBG_OUT("Reset previous DC coefficient for all components" << endl);
+    /* Arrays not supported for Synthesis
     for(unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++){
       prev_DC[i] = 0;
     }
-    
+    */
+    prev_DC_0 = prev_DC_1 = prev_DC_2 = 0;
+
     forward_cmd();
   }
 
@@ -109,7 +110,7 @@ private:
   void decode_dc(){
     DBG_OUT("Perform DC decoding (comp = " << comp_id << "):");
     DBG_OUT(" Input: " << (int)JS_QCOEFF_GETIDCTCOEFF(in[0]));
-    DBG_OUT(", Prev: " << (int)prev_DC[comp_id]);
+    // DBG_OUT(", Prev: " << (int)prev_DC[comp_id]); // Arrays not supported for Synthesis
     
     //assert(comp_id >= 0);
     //Check, that comp_id is not signed
@@ -119,16 +120,29 @@ private:
     assert(comp_id < JPEG_MAX_COLOR_COMPONENTS);
 
     // Update DC value
-    prev_DC[comp_id] += JS_QCOEFF_GETIDCTCOEFF(in[0]);
-
-    out[0] = JS_DATA_QCOEFF_SET_CHWORD(prev_DC[comp_id]);
+    // prev_DC[comp_id] += JS_QCOEFF_GETIDCTCOEFF(in[0]); // Arrays not supported for Synthesis
+    // out[0] = JS_DATA_QCOEFF_SET_CHWORD(prev_DC[comp_id]);
+    switch(comp_id) {
+      case 0:
+        prev_DC_0 += JS_QCOEFF_GETIDCTCOEFF(in[0]);
+        out[0] = JS_DATA_QCOEFF_SET_CHWORD(prev_DC_0);
+        break;
+      case 1:
+        prev_DC_1 += JS_QCOEFF_GETIDCTCOEFF(in[0]);
+        out[0] = JS_DATA_QCOEFF_SET_CHWORD(prev_DC_1);
+        break;
+      case 2:
+        prev_DC_2 += JS_QCOEFF_GETIDCTCOEFF(in[0]);
+        out[0] = JS_DATA_QCOEFF_SET_CHWORD(prev_DC_2);
+        break;
+    }
 
     pixel_id++;
     if(pixel_id >= JPEG_BLOCK_SIZE)
       pixel_id = 0;
     
     //output DC coefficient
-    DBG_OUT(", DC= " << prev_DC[comp_id] << endl);
+    // DBG_OUT(", DC= " << prev_DC[comp_id] << endl); // Arrays not supported for Synthesis
     
   }
 
@@ -144,29 +158,32 @@ private:
 
   smoc_firing_state main;
 
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
   CoSupport::DebugOstream dbgout;
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
 public:
   DcDecoding(sc_module_name name)
     : smoc_actor(name, main),
       comp_id(0),
       pixel_id(0)
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
       , dbgout(std::cerr)
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
   {
 
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
     //Set Debug ostream options
     CoSupport::Header my_header("DcDecoding> ");
     dbgout << my_header;
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
 
     //init previous DC
+    /* Arrays not supported for Synthesis
     for(unsigned int i = 0; i < JPEG_MAX_COLOR_COMPONENTS; i++){
       prev_DC[i] = 0;
     }
+    */
+    prev_DC_0 = prev_DC_1 = prev_DC_2 = 0;
 
     main
       /* Process commands */

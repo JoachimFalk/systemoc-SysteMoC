@@ -40,6 +40,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <stdlib.h>
 
 #include <systemoc/smoc_port.hpp>

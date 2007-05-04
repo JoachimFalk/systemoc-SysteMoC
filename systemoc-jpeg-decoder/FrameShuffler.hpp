@@ -37,10 +37,6 @@
 #ifndef _INCLUDED_FRAME_BUFFER_WRITER_HPP
 #define _INCLUDED_FRAME_BUFFER_WRITER_HPP
 
-#ifdef KASCPAR_PARSING
-# define NDEBUG
-#endif
-
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -134,13 +130,17 @@ protected:
   }
 
   void writeComponent() {
+#ifndef KASCPAR_PARSING
     std::cerr << "FrameShuffler::writeComponent for (" << posX << ", " << posY << ")" << std::endl;
+#endif // KASCPAR_PARSING
     assert(!JS_ISCTRL(in[0]));
 
     size_t posInBlock = (posX &  7U) + ((posY & 7U) << 3);
     size_t posOfBlock = ((posX & ~7U) << 3);
     if (compCount == 1) {
+#ifndef KASCPAR_PARSING
       std::cerr << "@" << (posInBlock | posOfBlock) << std::endl;
+#endif // KASCPAR_PARSING
 
       out[0] = JS_RAWPIXEL_SETVAL(
         JS_COMPONENT_GETVAL(in[posInBlock | posOfBlock]),

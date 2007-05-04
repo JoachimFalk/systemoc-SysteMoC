@@ -1,5 +1,7 @@
+/** enable/disable debugging for any module */
+//#define DBG_ENABLE
 
-/** enable/disable debugging for */
+/** enable/disable debugging for Voter */
 //#define DBG_VOTER
 
 /** enable/disable debugging for DcDecoding */

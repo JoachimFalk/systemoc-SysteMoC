@@ -127,21 +127,24 @@ private:
   }
   
   void process_pixel() {
+    Pixel_t _in = in[0];
+#ifndef KASCPAR_PARSING
     for (unsigned int c = 0; c < compCount; c++){      
 #ifdef SINK_BINARY_OUTPUT
 # ifndef XILINX_EDK_RUNTIME
-      cout << (char)(JS_RAWPIXEL_GETCOMP(in[0],c));
+      cout << (char)(JS_RAWPIXEL_GETCOMP(_in,c));
 # else
-      xil_printf("%c", JS_RAWPIXEL_GETCOMP(in[0],c));
+      xil_printf("%c", JS_RAWPIXEL_GETCOMP(_in,c));
 # endif
 #else
 # ifndef XILINX_EDK_RUNTIME
-      cout << (int)(JS_RAWPIXEL_GETCOMP(in[0],c)) << " ";
+      cout << (int)(JS_RAWPIXEL_GETCOMP(_in,c)) << " ";
 # else
-      xil_printf("%d ", JS_RAWPIXEL_GETCOMP(in[0],c));
+      xil_printf("%d ", JS_RAWPIXEL_GETCOMP(_in,c));
 # endif
 #endif
     }
+#endif // KASCPAR_PARSING
 
     missing_pixels--;
 #ifndef SINK_BINARY_OUTPUT

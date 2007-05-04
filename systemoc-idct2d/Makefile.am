@@ -42,7 +42,6 @@ SUBDIRS=
 
 if SYNTH
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
-  include $(root_builddir)/Synthesis-Actor-Cynthesizer/Rules-Synth.mk
 endif
 
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
@@ -67,16 +66,13 @@ all: test_in.dat
 
 if SYNTH
 SYNTHESIS_SUBDIR = synthesis
-HWSYNTH_SUBDIR = hwsynth
 
 $(SYNTHESIS_SUBDIR)/%.dat: %-dat
 	cp $^ $@
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-test-idct2d $(SYNTHESIS_SUBDIR)/test_in.dat
-hwsynth: $(HWSYNTH_SUBDIR)/smoc-hwsynth-all-test-idct2d.stamp
 
-$(SYNTHESIS_SUBDIR)/test-idct2d.ac.xml: $(SYNTHESIS_SUBDIR)/design-test-idct2d.ast.xml
-$(HWSYNTH_SUBDIR)/test-idct2d.ac.xml: $(HWSYNTH_SUBDIR)/design-test-idct2d.ast.xml
+$(SYNTHESIS_SUBDIR)/test-idct2d.ast.xml: design-test-idct2d.cpp
 
-.PHONY: synth hwsynth
+.PHONY: synth
 endif

@@ -77,7 +77,7 @@ typedef unsigned long size_t;
 #include "callib.hpp"
 
 #ifndef SMOC_REGISTER_CPARAM
-#define SMOC_REGISTER_CPARAM(name) do {} while(0)
+# define SMOC_REGISTER_CPARAM(name) do {} while(0)
 #endif
 
 #endif // _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP

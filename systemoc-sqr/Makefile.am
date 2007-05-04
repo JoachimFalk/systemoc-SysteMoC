@@ -62,7 +62,7 @@ SYNTHESIS_SUBDIR = synthesis
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-sqr
 
-$(SYNTHESIS_SUBDIR)/sqr.ac.xml: $(SYNTHESIS_SUBDIR)/design-sqr.ast.xml
+$(SYNTHESIS_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 
 .PHONY: synth
 endif

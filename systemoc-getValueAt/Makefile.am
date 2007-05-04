@@ -45,7 +45,7 @@ SYNTHESIS_SUBDIR = synthesis
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-getValueAt
 
-$(SYNTHESIS_SUBDIR)/getValueAt.ac.xml: $(SYNTHESIS_SUBDIR)/design-getValueAt.ast.xml
+$(SYNTHESIS_SUBDIR)/getValueAt.ast.xml: design-getValueAt.cpp
 
 .PHONY: synth
 endif

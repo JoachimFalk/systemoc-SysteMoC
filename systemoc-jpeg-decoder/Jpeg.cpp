@@ -34,12 +34,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#define DUMP_INTERMEDIATE
-
-#ifdef KASCPAR_PARSING
-# define NDEBUG
-#endif
-
 #include "smoc_synth_std_includes.hpp"
 
 #include <systemoc/smoc_port.hpp>
@@ -74,6 +68,7 @@
 #else
 # include "FrameBufferWriter.hpp"
 #endif
+#include "Dup.hpp"
 #include "YCbCr2RGB.hpp"
 #include "PGMsink.hpp"
 //#include "PixelSnk.hpp"
@@ -108,7 +103,7 @@ private:
 #else
   FrameBufferWriter mFrameBuffer;
 #endif
-  m_1D_dup2<JpegChannel_t> mDup2_2;
+  Dup               mDup;
   YCrCb2RGB         mYCbCr;
   m_pgm_sink        mPGMsink;
   
@@ -141,7 +136,7 @@ public:
 #else
       mFrameBuffer("FrameBuffer"),
 #endif
-      mDup2_2("Dup2_2"),
+      mDup("mDup"),
       mYCbCr("mYCbCr"),
       mPGMsink("mPGMsink")
       
@@ -149,12 +144,12 @@ public:
 #ifndef KASCPAR_PARSING
     connectNodePorts<2>(mSrc.out,                 mParser.in);
     connectNodePorts<2>(mParser.out,              mHuffDecoder.in);
-    connectNodePorts<1>(mParser.outCtrlImage,     mDup2_2.in);    
-    connectNodePorts<1>(mDup2_2.out1,             mPGMsink.inCtrlImage);
+    connectNodePorts<1>(mParser.outCtrlImage,     mDup.in);    
+    connectNodePorts<1>(mDup.out1,             mPGMsink.inCtrlImage);
 #ifdef STATIC_IMAGE_SIZE
-    connectNodePorts<1>(mDup2_2.out2,             mShuffle.inCtrlImage);
+    connectNodePorts<1>(mDup.out2,             mShuffle.inCtrlImage);
 #else
-    connectNodePorts<1>(mDup2_2.out2,             mFrameBuffer.inCtrlImage);
+    connectNodePorts<1>(mDup.out2,             mFrameBuffer.inCtrlImage);
 #endif
     connectNodePorts<16>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
 
@@ -230,20 +225,21 @@ public:
 
 #ifndef KASCPAR_PARSING
 int sc_main (int argc, char **argv) {
+  std::string filename;
+  ssize_t width, height, compCount;
+  
   if (argc != 5) {
     std::cerr
       << (argv[0] != NULL ? argv[0] : "???")
       << " <jpeg filename> <width> <height> <compCount>" << std::endl;
-    exit(-1);
+  } else {
+    filename  = argv[1];
+    width     = CoSupport::strAs<size_t>(argv[2]);
+    height    = CoSupport::strAs<size_t>(argv[3]);
+    compCount = CoSupport::strAs<size_t>(argv[4]);
   }
   
-  smoc_top_moc<Jpeg> jpeg(
-      "jpeg",
-      argv[1],
-      CoSupport::strAs<size_t>(argv[2]),
-      CoSupport::strAs<size_t>(argv[3]),
-      CoSupport::strAs<size_t>(argv[4])
-    );
+  smoc_top_moc<Jpeg> jpeg("jpeg", filename, width, height, compCount);
   
   sc_start(-1);
   

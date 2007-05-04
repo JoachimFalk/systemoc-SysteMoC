@@ -45,7 +45,7 @@ SYNTHESIS_SUBDIR = synthesis
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-sdf
 
-$(SYNTHESIS_SUBDIR)/sdf.ac.xml: $(SYNTHESIS_SUBDIR)/design-sdf.ast.xml
+$(SYNTHESIS_SUBDIR)/sdf.ast.xml: design-sdf.cpp
 
 .PHONY: synth
 endif

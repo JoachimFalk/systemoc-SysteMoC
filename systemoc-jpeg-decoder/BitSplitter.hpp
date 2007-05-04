@@ -1,10 +1,6 @@
 #ifndef BIT_SPLITTER_H
 #define BIT_SPLITTER_H
 
-#ifdef KASCPAR_PARSING
-# define NDEBUG
-#endif
-
 #include "channels.hpp"
 #include <cassert>
 

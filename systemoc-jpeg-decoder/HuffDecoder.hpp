@@ -37,10 +37,6 @@
 #ifndef _INCLUDED_INVHUFFMAN_HPP
 #define _INCLUDED_INVHUFFMAN_HPP
 
-#ifdef KASCPAR_PARSING
-# define NDEBUG
-#endif
-
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -65,20 +61,10 @@
 /// Debug dht synchronisation
 #define IS_DHT_SYNC(x) (0xF0 == (x))
 
-// what does 'Exp' mean?
-struct ExpHuffTbl {
-  uint8_t          valPtr[16];   // value pointers to first symbol of codelength
-                                 //  'index'
-  uint16_t         minCode[16];  // minimal code value for codewords of length
-                                 //  'index'
-  uint16_t         maxCode[16];  // max ...
-  DecodedSymbol_t  huffVal[256]; // symbol-length assignment parameters (B.2.4.2)
-};
-
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
 // if compiled with DBG_HUFF_DECODER create stream and include debug macros
-#if defined(DBG_HUFF_DECODER) && !defined(NDEBUG)
+#ifdef DBG_HUFF_DECODER
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.
@@ -88,9 +74,9 @@ struct ExpHuffTbl {
   #include "debug_off.h"
 #endif
 
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
 using CoSupport::Debug;
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
 
 #define IS_TABLE_CLASS_DC(v) (((v) & 0xF0) == 0x00)
 #define IS_TABLE_CLASS_AC(v) (((v) & 0xF0) == 0x10)
@@ -334,10 +320,10 @@ private:
   IntCompID_t m_compInterleaving[SCANPATTERN_LENGTH];      //6
   HuffTblID_t m_useHuffTableAc[JPEG_MAX_COLOR_COMPONENTS]; //3
   HuffTblID_t m_useHuffTableDc[JPEG_MAX_COLOR_COMPONENTS]; //3
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
   CoSupport::DebugOstream dbgout;
 //CoSupport::DebugStreambuf dbgbuff;
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
   smoc_firing_state main;
   smoc_firing_state discoverDC;
   smoc_firing_state discoverAC;
@@ -404,9 +390,9 @@ private:
   uint8_t  m_BITS[16];
   ExpHuffTbl m_tmpHuff;
   size_t m_huffWritePos;
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
   CoSupport::DebugOstream dbgout;
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
   smoc_firing_state waitTcTh;
   smoc_firing_state waitHUFFVAL;
   smoc_firing_state waitBITS;

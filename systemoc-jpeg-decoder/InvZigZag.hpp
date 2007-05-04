@@ -37,10 +37,6 @@
 #ifndef _INCLUDED_INV_ZIGZAG_HPP
 #define _INCLUDED_INV_ZIGZAG_HPP
 
-#ifdef KASCPAR_PARSING
-# define NDEBUG
-#endif
-
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -59,14 +55,19 @@ public:
   smoc_port_out<IDCTCoeff_t>  out;
 private:
 
-#ifndef KASCPAR_PARSING
-  static
-#endif // KASCPAR_PARSING
-  const unsigned char zigzag_order[JPEG_BLOCK_SIZE];
-
   unsigned int block_pixel_id;
 
   void forward_pixel(){
+    static const unsigned char zigzag_order[JPEG_BLOCK_SIZE] =
+    {  0, 1, 5, 6,14,15,27,28,
+       2, 4, 7,13,16,26,29,42,
+       3, 8,12,17,25,30,41,43,
+       9,11,18,24,31,40,44,53,
+      10,19,23,32,39,45,52,54,
+      20,22,33,38,46,51,55,60,
+      21,34,37,47,50,56,59,61,
+      35,36,48,49,57,58,62,63
+    };
     // Check, that no control words occur any more
     // Otherwise we produce wrong data!
     assert(!JS_ISCTRL(in[zigzag_order[block_pixel_id]]));
@@ -93,17 +94,6 @@ public:
       CALL(InvZigZag::forward_pixel)             >> main;
   }
 };
-
-const unsigned char InvZigZag::zigzag_order[JPEG_BLOCK_SIZE] =
-  {  0, 1, 5, 6,14,15,27,28,
-     2, 4, 7,13,16,26,29,42,
-     3, 8,12,17,25,30,41,43,
-     9,11,18,24,31,40,44,53,
-    10,19,23,32,39,45,52,54,
-    20,22,33,38,46,51,55,60,
-    21,34,37,47,50,56,59,61,
-    35,36,48,49,57,58,62,63
-  };
 
 
 #endif // _INCLUDED_INV_ZIGZAG_HPP

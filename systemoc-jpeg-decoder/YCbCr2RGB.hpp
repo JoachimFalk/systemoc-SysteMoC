@@ -61,15 +61,6 @@
 #endif
 
 
-#define CALC_INT_FIXPOINT(value,frac_digits) \
-  ((int)round((value) * (1 << (frac_digits))))
-
-#define SHIFT_AND_ROUND(value,shift) { \
-	value >>= shift - 1; \
-	value += 1; \
-	value >>= 1; \
-}
-
 class YCrCb2RGB: public smoc_actor {
 public:
   smoc_port_in<Pixel_t>      in;
@@ -92,6 +83,7 @@ private:
 	    << " " << pixel_in[2] + 128
 	    << std::endl);
 
+#ifndef KASCPAR_PARSING
     const int matrix[3][3] = {
       {
 	CALC_INT_FIXPOINT(1,nbr_fractional_digits), 
@@ -109,6 +101,7 @@ private:
 	CALC_INT_FIXPOINT(0,nbr_fractional_digits), 
       }
     };
+#endif
 
     //check, that lines and columns are not flipped.
     //line 2, column 0
@@ -141,18 +134,23 @@ private:
 
   smoc_firing_state main;
 
-
+#ifdef DBG_ENABLE
   CoSupport::DebugOstream dbgout;
+#endif // DBG_ENABLE
 
   
 public:
   YCrCb2RGB(sc_module_name name)
-    : smoc_actor(name, main),
-      dbgout(std::cerr)
+    : smoc_actor(name, main)
+#ifdef DBG_ENABLE
+    , dbgout(std::cerr)
+#endif // DBG_ENABLE
   {
+#ifdef DBG_ENABLE
     //Set Debug ostream options
     CoSupport::Header my_header("YCbCr2RGB> ");
     dbgout << my_header;
+#endif // DBG_ENABLE
     
     
     main =

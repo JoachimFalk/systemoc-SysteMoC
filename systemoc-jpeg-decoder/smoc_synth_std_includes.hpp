@@ -35,29 +35,26 @@
 #ifndef _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 #define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 
+#ifndef KASCPAR_PARSING
 using namespace std;
-
-#ifdef KASCPAR_PARSING
-typedef unsigned long size_t;
 #endif
 
-#define STATIC_IMAGE_SIZE
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
 
-//#define VERBOSE_ACTOR
-//#define VERBOSE_TRANSPOSE
-//#define VERBOSE_IDCT_UPSAMPLE
-//#define VERBOSE_MIN_DUPLEX
-//#define VERBOSE_IDCT_SCALE
-//#define VERBOSE_IDCT_FLY
-//#define VERBOSE_IDCT_CLIP
-//#define VERBOSE_IDCT_ADDSUB
-//#define VERBOSE_IDCT_COL2BLOCK
-//#define VERBOSE_IDCT_BLOCK2ROW
+#include "debug_off.h"
+
+#define STATIC_IMAGE_SIZE
+//#define DUMP_INTERMEDIATE
 
 #include "callib.hpp"
+#include "channels.hpp"
+#include "BitSplitter.hpp"
 
 #ifndef SMOC_REGISTER_CPARAM
-#define SMOC_REGISTER_CPARAM(name) do {} while(0)
+# define SMOC_REGISTER_CPARAM(name) do {} while(0)
 #endif
 
 #endif // _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP

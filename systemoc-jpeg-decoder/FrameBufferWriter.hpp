@@ -37,10 +37,6 @@
 #ifndef _INCLUDED_FRAME_BUFFER_WRITER_HPP
 #define _INCLUDED_FRAME_BUFFER_WRITER_HPP
 
-#ifdef KASCPAR_PARSING
-# define NDEBUG
-#endif
-
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -59,17 +55,6 @@ public:
   smoc_port_out<Pixel_t>      out;
   smoc_port_in<JpegChannel_t> inCtrlImage;
 protected:
-  struct Pos {
-    FrameDimX_t x;
-    FrameDimY_t y;
-  };
-
-#ifndef KASCPAR_PARSING
-  typedef std::vector<ComponentVal_t> FrameBuffer;
-#else
-# define FrameBuffer vector<ComponentVal_t>
-#endif // KASCPAR_PARSING
-
   Pos         frameDim;
 
   //number of components

@@ -9,7 +9,7 @@ std::ostream &operator << (std::ostream &out, const codeword_t val) {
   return out;
 }
 
-#ifndef NDEBUG
+#ifdef DBG_ENABLE
 std::ostream &operator << (std::ostream &out, const JpegChannel_t &x) {
   out << "[JpegChannel_t:";
   if (!JS_ISCTRL(x)) {

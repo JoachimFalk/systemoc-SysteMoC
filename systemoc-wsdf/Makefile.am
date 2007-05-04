@@ -74,7 +74,7 @@ $(SYNTHESIS_SUBDIR)/%.dat: %-dat
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-wsdf
 
-$(SYNTHESIS_SUBDIR)/sdf.ac.xml: $(SYNTHESIS_SUBDIR)/design-wsdf.ast.xml
+$(SYNTHESIS_SUBDIR)/wsdf.ast.xml: design-wsdf.cpp
 
 .PHONY: synth
 endif

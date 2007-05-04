@@ -52,11 +52,10 @@
 
 #include "channels.hpp"
 
-
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
 // if compiled with DBG_PARSER create stream and include debug macros
-#if defined(DBG_PARSER) && !defined(NDEBUG)
+#ifdef DBG_PARSER
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
   //  own stream.
@@ -170,7 +169,19 @@ private:
 
   void readCompIDs() {
     // internally only component IDs 0,1,2 are used
-    compIDs[currentCompCount] = in[0];
+    // compIDs[currentCompCount] = in[0]; // Arrays not supported for Synthesis
+    assert(currentCompCount < 3);
+    switch(currentCompCount) {
+      case 0:
+        compIDs_0 = in[0];
+        break;
+      case 1:
+        compIDs_1 = in[0];
+        break;
+      case 2:
+        compIDs_2 = in[0];
+        break;
+    }
     readBytes += 1;
   }
   
@@ -300,6 +311,7 @@ private:
   void readCompInScan() {
     uint8_t compID = in[0];
     // Transalte component ID to internally used ID 0,1,2
+    /* Arrays not supported for Synthesis
     bool found = false;
     for (int i=0; i<JPEG_MAX_COLOR_COMPONENTS; i++) {
       if (compIDs[i] == compID) {
@@ -309,9 +321,34 @@ private:
       }
     }
     assert(found); 
+    */
+    if(compIDs_0 == compID)
+      compID = 0;
+    else if(compIDs_1 == compID)
+      compID = 1;
+    else if(compIDs_2 == compID)
+      compID = 2;
+#ifndef NDEBUG
+    else {
+      std::cerr << "compID not found in function Parser::readCompInScan()" << std::endl;
+      abort();
+    }
+#endif
     
     // Store compID for NEWSCAN control command
-    scanCompIDs[currentCompCount] = compID; 
+    // scanCompIDs[currentCompCount] = compID; // Arrays not supported for Synthesis
+    assert(currentCompCount < 3);
+    switch(currentCompCount) {
+      case 0:
+        scanCompIDs_0 = compID;
+        break;
+      case 1:
+        scanCompIDs_1 = compID;
+        break;
+      case 2:
+        scanCompIDs_2 = compID;
+        break;
+    }
 
     // Read DC and AC Selectors
     HuffTblID_t dcSelector = UDEMASK(in[1],0,4);
@@ -333,6 +370,7 @@ private:
   void sendNewScan() {
     uint8_t compID = in[0];
     // Transalte component ID to internally used ID 0,1,2
+    /* Arrays not supported for Synthesis
     bool found = false;
     for (int i=0; i<JPEG_MAX_COLOR_COMPONENTS; i++) {
       if (compIDs[i] == compID) {
@@ -341,10 +379,35 @@ private:
         break;
       }
     }
-    assert(found); 
+    assert(found);
+    */
+    if(compIDs_0 == compID)
+      compID = 0;
+    else if(compIDs_1 == compID)
+      compID = 1;
+    else if(compIDs_2 == compID)
+      compID = 2;
+#ifndef NDEBUG
+    else {
+      std::cerr << "compID not found in function Parser::sendNewScan()" << std::endl;
+      abort();
+    }
+#endif
     
     // Store compID for NEWSCAN control command
-    scanCompIDs[currentCompCount] = compID; 
+    // scanCompIDs[currentCompCount] = compID; // Arrays not supported for Synthesis
+    assert(currentCompCount < 3);
+    switch(currentCompCount) {
+      case 0:
+        scanCompIDs_0 = compID;
+        break;
+      case 1:
+        scanCompIDs_1 = compID;
+        break;
+      case 2:
+        scanCompIDs_2 = compID;
+        break;
+    }
 
     // Read DC and AC Selectors
     HuffTblID_t dcSelector = UDEMASK(in[1],0,4);
@@ -362,16 +425,25 @@ private:
     JpegChannel_t newScan;
     switch (componentCount) {
     case 0:
-      newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs[0],scanCompIDs[0],scanCompIDs[0],
-        scanCompIDs[0],scanCompIDs[0],scanCompIDs[0]);
+      // Arrays not supported for Synthesis
+      // newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs[0],scanCompIDs[0],scanCompIDs[0],
+      //   scanCompIDs[0],scanCompIDs[0],scanCompIDs[0]);
+      newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs_0,scanCompIDs_0,scanCompIDs_0,
+        scanCompIDs_0,scanCompIDs_0,scanCompIDs_0);
       break;
     case 1:
-      newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs[0],scanCompIDs[1],scanCompIDs[0],
-        scanCompIDs[1],scanCompIDs[0],scanCompIDs[1]);
+      // Arrays not supported for Synthesis
+      // newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs[0],scanCompIDs[1],scanCompIDs[0],
+      //   scanCompIDs[1],scanCompIDs[0],scanCompIDs[1]);
+      newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs_0,scanCompIDs_1,scanCompIDs_0,
+        scanCompIDs_1,scanCompIDs_0,scanCompIDs_1);
       break;
     case 2:
-      newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs[0],scanCompIDs[1],scanCompIDs[2],
-        scanCompIDs[0],scanCompIDs[1],scanCompIDs[2]);
+      // Arrays not supported for Synthesis
+      // newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs[0],scanCompIDs[1],scanCompIDs[2],
+      //   scanCompIDs[0],scanCompIDs[1],scanCompIDs[2]);
+      newScan = JS_CTRL_NEWSCAN_SET_CHWORD(scanCompIDs_0,scanCompIDs_1,scanCompIDs_2,
+        scanCompIDs_0,scanCompIDs_1,scanCompIDs_2);
       break;
     }
     out[1] = newScan;
@@ -561,12 +633,11 @@ private:
   // ########################################################################################
   // # FIXME: Should be reimplemented using a dedicated error channel
   // ########################################################################################
-
+#ifdef DBG_ENABLE
   void errorMsg(std::string msg) {
-#ifndef KASCPAR_PARSING
     std::cerr << "Parser Error (Byte " << readBytes << "): " << msg << std::endl;
-#endif
   }
+#endif
 
   // ########################################################################################
   // # Member variables
@@ -577,12 +648,20 @@ private:
 
   // component information
   IntCompID_t componentCount, currentCompCount;
-  uint8_t compIDs[JPEG_MAX_COLOR_COMPONENTS]; 
+  
+  // uint8_t compIDs[JPEG_MAX_COLOR_COMPONENTS]; // Arrays not supported for Synthesis
+  uint8_t compIDs_0; 
+  uint8_t compIDs_1; 
+  uint8_t compIDs_2; 
+  
   // only identical sampling factors for all components are supported
   uint8_t samplingFactors;
 
   // components in scan
-  uint8_t scanCompIDs[JPEG_MAX_COLOR_COMPONENTS]; 
+  // uint8_t scanCompIDs[JPEG_MAX_COLOR_COMPONENTS];  // Arrays not supported for Synthesis
+  uint8_t scanCompIDs_0;
+  uint8_t scanCompIDs_1;
+  uint8_t scanCompIDs_2;
 
   // quantization table variables
   QtTblID_t currentQT; 
@@ -602,9 +681,9 @@ private:
   // # Debug
   // ########################################################################################
 
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
   CoSupport::DebugOstream dbgout;
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
 
   // ########################################################################################
   // # States
@@ -637,16 +716,16 @@ public:
 
   Parser(sc_module_name name)
     : smoc_actor(name, start)
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
       , dbgout(std::cerr)
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
   {
 
-#ifndef KASCPAR_PARSING
+#ifdef DBG_ENABLE
     // Debug
     CoSupport::Header myHeader("Parser> ");
     dbgout << myHeader;
-#endif // KASCPAR_PARSING
+#endif // DBG_ENABLE
 
     // Detect Start of Image (SOI) maker 
     // -----------------------------
@@ -655,10 +734,13 @@ public:
     // destination state: frame
     start = (in(2) && JPEG_IS_MARKER_SOI(ASSEMBLE_MARKER(in.getValueAt(0),in.getValueAt(1)))) 
             >> CALL(Parser::foundSOI) 
-            >> frame 
+            >> frame
+#ifdef DBG_ENABLE
           | (in(2) && !JPEG_IS_MARKER_SOI(ASSEMBLE_MARKER(in.getValueAt(0),in.getValueAt(1)))) 
             >> CALL(Parser::errorMsg)("Error while detecting SOI marker!") 
-            >> error; 
+            >> error
+#endif
+    ;
     // Tables/Miscs are defined in Section B.2.4
     // Action:
     // - Detect next marker
@@ -674,9 +756,12 @@ public:
     // -------------------------------
     frame = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
             >> frameFF
+#ifdef DBG_ENABLE
           | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
             >> CALL(Parser::errorMsg)("Error while detecting 0xFF in Table/Misc Level 1!") 
-            >> error;
+            >> error
+#endif
+    ;
     frameFF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) 
               >> frameFF
             | (in(1) && JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
@@ -697,6 +782,7 @@ public:
             | (in(1) && JPEG_IS_MARKER_SOF_0(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
               >> CALL(Parser::foundSOF) 
               >> sof 
+#ifdef DBG_ENABLE
             | (in(1) && JPEG_IS_MARKER_SOF_1_15(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
               >> CALL(Parser::errorMsg)("Sorry, SOF_1 to SOF_15 are not supported!") 
               >> error
@@ -710,7 +796,9 @@ public:
                 !JPEG_IS_MARKER_SOF_0(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
                 !JPEG_IS_MARKER_SOF_1_15(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
               >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 1!") 
-              >> error;
+              >> error
+#endif
+    ;
     // Process Define Quantization Table (DQT) maker at level 1 (see Section B.2.4.1)
     // - Each quantization table consits of a single header (P_q, T_q) and 64 data values
     // - Each DQT may contain several quantization table definitions
@@ -750,9 +838,12 @@ public:
                      >> (out(1) && qt_table_3(1))
                      >> CALL(Parser::sendDqtHeader) 
                      >> sendDqt1Data
+#ifdef DBG_ENABLE
                    | (in(1) && ((in.getValueAt(0) & 0xF0) != 0x00)) 
                      >> CALL(Parser::errorMsg)("Sample precision != 8 bit!") 
-                     >> error;
+                     >> error
+#endif
+    ;
     sendDqt1Data = (in(1) && (VAR(qtLength)!=1) && (VAR(currentQT) == 0x00)) 
                    >> qt_table_0(1) 
                    >> CALL(Parser::sendDqtData) 
@@ -925,9 +1016,12 @@ public:
     // Sample precision must be 8 bit
     sofReadSamplePrecision = (in(1) && in.getValueAt(0) == 0x08) 
                              >> sofReadDimY
+#ifdef DBG_ENABLE
                            | (in(1) && in.getValueAt(0) != 0x08) 
                              >> CALL(Parser::errorMsg)("Sample precision != 8 bit!") 
-                             >> error;
+                             >> error
+#endif
+    ;
     sofReadDimY = in(2) 
                   >> CALL(Parser::readDimY) 
                   >> sofReadDimX;
@@ -947,10 +1041,13 @@ public:
                            | (in(1) && VAR(currentCompCount) != 0 && 
                                in.getValueAt(0) == VAR(samplingFactors)) 
                              >> sofReadQtTblIDs 
+#ifdef DBG_ENABLE
                            | (in(1) && VAR(currentCompCount) != 0 && 
                                in.getValueAt(0) != VAR(samplingFactors)) 
                              >> CALL(Parser::errorMsg)("Sorry, no support for subsampling!") 
-                             >> error;
+                             >> error
+#endif
+    ;
     sofReadQtTblIDs = (in(1) && VAR(currentCompCount) < VAR(componentCount)) 
                       >> out(1) 
                       >> CALL(Parser::readQtTblIDs) 
@@ -972,9 +1069,12 @@ public:
     // -------------------------------
     scan1 = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
             >> scan1FF
+#ifdef DBG_ENABLE
           | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
             >> CALL(Parser::errorMsg)("Error while detecting 0xFF in Table/Misc Level 2 (Scan1)!") 
-            >> error;
+            >> error
+#endif
+    ;
     scan1FF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) 
               >> scan1FF
             | (in(1) && 
@@ -1001,6 +1101,7 @@ public:
               JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
               >> CALL(Parser::foundAPP2) 
               >> app2_1 
+#ifdef DBG_ENABLE
             | (in(1) && 
                 !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
                 !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
@@ -1009,7 +1110,9 @@ public:
                 !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
                 !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
               >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (Scan1)!") 
-              >> error;
+              >> error
+#endif
+    ;
     // Process Start of Scan (SOS) marker for 1. scan (see B.2.3)
     // Ls: length field
     // Ns: number of image components in scan
@@ -1089,9 +1192,12 @@ public:
                        >> (out(1) && qt_table_3(1))
                        >> CALL(Parser::sendDqtHeader) 
                        >> sendDqt2_1Data
+#ifdef DBG_ENABLE
                      | (in(1) && ((in.getValueAt(0) & 0xF0) != 0x00)) 
                        >> CALL(Parser::errorMsg)("Sample precision != 8 bit!") 
-                       >> error;
+                       >> error
+#endif
+      ;
       sendDqt2_1Data = (in(1) && (VAR(qtLength)!=1) && (VAR(currentQT) == 0x00)) 
                      >> qt_table_0(1) 
                      >> CALL(Parser::sendDqtData) 
@@ -1288,6 +1394,7 @@ public:
                JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
              >> CALL(Parser::foundEOI) 
              >> start 
+#ifdef DBG_ENABLE
            | (in(1) && 
                !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
                !JPEG_IS_BYTE_STUFFING(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
@@ -1301,7 +1408,9 @@ public:
                !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
                !JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
              >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (End of Scan1)!") 
-             >> error;
+             >> error
+#endif
+    ;
     // Process Define Number of Lines (DNL) maker (see B.2.5) (not supported)
     // L_d: length field
     // D_i: data
@@ -1332,9 +1441,12 @@ public:
     // -------------------------------
     scanx = (in(1) && (JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
             >> scanxFF
+#ifdef DBG_ENABLE
           | (in(1) && (!JPEG_IS_FILL_BYTE(in.getValueAt(0)))) 
             >> CALL(Parser::errorMsg)("Error while detecting 0xFF in Table/Misc Level 2 (Scan1)!") 
-            >> error;
+            >> error
+#endif
+    ;
     scanxFF = (in(1) && JPEG_IS_FILL_BYTE(in.getValueAt(0))) 
               >> scan1FF
             | (in(1) && 
@@ -1361,6 +1473,7 @@ public:
                 JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
               >> CALL(Parser::foundAPP2) 
               >> app2_x 
+#ifdef DBG_ENABLE
             | (in(1) && 
                 !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
                 !JPEG_IS_MARKER_DQT(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
@@ -1369,7 +1482,9 @@ public:
                 !JPEG_IS_MARKER_COM(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
                 !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
               >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (Scan1)!") 
-              >> error;
+              >> error
+#endif
+    ;
     // Process Start of Scan (SOS) marker for 1. scan (see B.2.3)
     // Ls: length field
     // Ns: number of image components in scan
@@ -1449,10 +1564,13 @@ public:
                        >> (out(1) && qt_table_3(1))
                        >> CALL(Parser::sendDqtHeader) 
                        >> sendDqt2_xData
+#ifdef DBG_ENABLE
                      | (in(1) && ((in.getValueAt(0) & 0xF0) != 0x00)) 
                        >> CALL(Parser::errorMsg)("Sample precision != 8 bit!") 
-                       >> error;
-      sendDqt2_xData = (in(1) && (VAR(qtLength)!=1) && (VAR(currentQT) == 0x00)) 
+                       >> error
+#endif
+    ;
+    sendDqt2_xData = (in(1) && (VAR(qtLength)!=1) && (VAR(currentQT) == 0x00)) 
                      >> qt_table_0(1) 
                      >> CALL(Parser::sendDqtData) 
                      >> sendDqt2_xData
@@ -1644,6 +1762,7 @@ public:
                JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
              >> CALL(Parser::foundEOI) 
              >> start 
+#ifdef DBG_ENABLE
            | (in(1) && 
                !JPEG_IS_FILL_BYTE(in.getValueAt(0)) &&
                !JPEG_IS_BYTE_STUFFING(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
@@ -1655,7 +1774,9 @@ public:
                !JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0))) && 
                !JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
              >> CALL(Parser::errorMsg)("Error while detecting marker in Table/Misc Level 2 (End of Scan1)!") 
-             >> error;
+             >> error
+#endif
+    ;
   }
 };
 

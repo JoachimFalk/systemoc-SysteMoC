@@ -1,6 +1,10 @@
 
 // debug.h
 
+#ifdef KASCPAR_PARSING
+# undef DBG_ENABLE
+#endif
+
 /*
  * no guard. can be included multiple times to define or undefine debug
  * statements for some code section - debug_on.h and debug_off.h will do this
@@ -20,7 +24,7 @@
 #endif
 
 // make DBG.*() statements disapear in non-debug builds
-#ifdef ENABLE_DEBUG
+#if defined(ENABLE_DEBUG) && defined(DBG_ENABLE)
   #define DBG(e) e
   #define DBG_OUT(s) DBG_STREAM <<  s
   #define DBG_SC_OUT(s) DBG_STREAM << "[" << sc_time_stamp() << "]: " << s

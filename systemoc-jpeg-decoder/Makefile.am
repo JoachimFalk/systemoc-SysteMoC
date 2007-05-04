@@ -76,9 +76,11 @@ check: autotest.sh
 if SYNTH
 SYNTHESIS_SUBDIR = synthesis
 
+USR_DEF_SKELETONS = $(srcdir)/../systemoc-idct2d
+
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-jpeg
 
-$(SYNTHESIS_SUBDIR)/jpeg.ac.xml: $(SYNTHESIS_SUBDIR)/design-jpeg.ast.xml
+$(SYNTHESIS_SUBDIR)/jpeg.ast.xml: Jpeg.cpp HuffDecoder.cpp
 
 .PHONY: synth
 endif

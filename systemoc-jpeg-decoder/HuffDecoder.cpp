@@ -1,4 +1,4 @@
-
+#include <systemoc/smoc_moc.hpp>
 
 #include "HuffDecoder.hpp"
 
@@ -6,6 +6,7 @@
 /*****************************************************************************/
 
 
+#ifndef KASCPAR_PARSING
 // needed by SysteMoC!
 ostream &operator<<(ostream &out, const ExpHuffTbl &eht) {
   out << hex << "valPtr:";
@@ -31,6 +32,7 @@ ostream &operator<<(ostream &out, const ExpHuffTbl &eht) {
   out << dec;
   return out;
 }
+#endif // KASCPAR_PARSING
 
 
 /*****************************************************************************/
@@ -40,12 +42,16 @@ ostream &operator<<(ostream &out, const ExpHuffTbl &eht) {
 HuffTblDecoder::HuffTblDecoder(sc_module_name name)
   : smoc_actor(name, waitTcTh),
     m_symbolsLeft(0),
-    m_huffWritePos(0),
-    dbgout(std::cerr, Debug::None)
+    m_huffWritePos(0)
+#ifdef DBG_ENABLE
+    , dbgout(std::cerr, Debug::None)
+#endif // DBG_ENABLE
 {
+#ifdef DBG_ENABLE
   CoSupport::Header myHeader("HuffTblDecoder> ");
   
   dbgout << myHeader;
+#endif // DBG_ENABLE
   
   waitTcTh
     // read Tc & Th (8 bit)
@@ -304,13 +310,17 @@ void HuffTblDecoder::writeTable(smoc_port_out<ExpHuffTbl> &out) {
 InvHuffman::InvHuffman(sc_module_name name)
   : smoc_actor(name, main),
     compIndex(0),
+#ifdef DBG_ENABLE
     dbgout(std::cerr, Debug::Low),
+#endif // DBG_ENABLE
     m_currentComp(0),
     m_currentAc(0)
 {
+#ifdef DBG_ENABLE
   CoSupport::Header myHeader("InvHuffman> ");
   
   dbgout << myHeader;
+#endif // DBG_ENABLE
   
   main
     /*

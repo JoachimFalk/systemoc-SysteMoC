@@ -4,12 +4,11 @@
 #ifndef _INCLUDED_CHANNELS_HPP
 #define _INCLUDED_CHANNELS_HPP
 
-#ifdef KASCPAR_PARSING
-# define NDEBUG
-#endif
-
 #include <stdint.h>
 #include <iostream>
+#include <vector>
+
+#include "debug_config.h"
 
 #ifndef KASCPAR_PARSING
 typedef bool      bit_t;
@@ -43,7 +42,7 @@ typedef int32_t   int19_t;
 
 /// JPEG channel communication type
 #define JPEGCHANNEL_BITS 29
-#ifndef NDEBUG
+#ifdef DBG_ENABLE
 class JpegChannel_t {
 public:
   typedef JpegChannel_t this_type;
@@ -75,7 +74,7 @@ typedef uint29_t JpegChannel_t;
 #ifndef KASCPAR_PARSING
 typedef uint24_t Pixel_t;
 #else
-# define pixel_t unsigned int
+# define Pixel_t unsigned int
 #endif // KASCPAR_PARSING
 
 #define CODEWORD_BITS 8
@@ -195,7 +194,7 @@ typedef uint11_t CategoryAmplitude_t;
 #ifndef KASCPAR_PARSING
 typedef int12_t QuantIDCTCoeff_t;
 #else
-# define QuantIDCTCoeff_t unsigned short
+# define QuantIDCTCoeff_t short
 #endif // KASCPAR_PARSING
 
 /// The IDCT coefficients (maximum of 8 bit extension by dequantization)
@@ -206,7 +205,7 @@ typedef int12_t QuantIDCTCoeff_t;
 #ifndef KASCPAR_PARSING
 typedef int19_t IDCTCoeff_t;
 #else
-# define IDCTCoeff_t unsigned int
+# define IDCTCoeff_t int
 #endif // KASCPAR_PARSING
 
 /// The value for one component of a pixel.
@@ -386,7 +385,7 @@ enum CtrlCmd_t {
     /*                  in case of CTRLCMD_DISCARDQT                   */
     /* *************************************************************** */    
 #   define JS_CTRL_DISCARDQT_GETQTID(x) \
-    (UDEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
+    UDEMASK(x,1+CTRLCMD_BITS,QT_TBL_ID_BITS)
 #   define JS_CTRL_DISCARDQT_SETQTID(qt_id) \
     (SET_MASK(qt_id,1+CTRLCMD_BITS,QT_TBL_ID_BITS))
 #   if JPEGCHANNEL_BITS < 1+CTRLCMD_BITS+QT_TBL_ID_BITS
@@ -485,11 +484,11 @@ enum CtrlCmd_t {
 # define JS_TUP_SETIDCTAMPLCOEFF(x) \
     (SET_MASK(x,1,CATEGORYAMPLITUDE_BITS))
 # define JS_TUP_GETRUNLENGTH(x) \
-    (UDEMASK(x,1+CATEGORYAMPLITUDE_BITS,RUNLENGTH_BITS))
+    UDEMASK(x,1+CATEGORYAMPLITUDE_BITS,RUNLENGTH_BITS)
 # define JS_TUP_SETRUNLENGTH(x) \
     (SET_MASK(x,1+CATEGORYAMPLITUDE_BITS,RUNLENGTH_BITS))
 # define JS_TUP_GETCATEGORY(x) \
-    (UDEMASK(x,1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
+    UDEMASK(x,1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS,CATEGORY_BITS)
 # define JS_TUP_SETCATEGORY(x) \
     (SET_MASK(x,1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS,CATEGORY_BITS))
 # if JPEGCHANNEL_BITS < 1+CATEGORYAMPLITUDE_BITS+RUNLENGTH_BITS+CATEGORY_BITS
@@ -561,7 +560,7 @@ enum CtrlCmd_t {
 /* *************************************************************** */
 //c: component, 0 <= c <= 2
 #define JS_RAWPIXEL_GETCOMP(x,c)			\
-  (UDEMASK(x,(c)*COMPONENTVAL_BITS,COMPONENTVAL_BITS))
+  UDEMASK(x,(c)*COMPONENTVAL_BITS,COMPONENTVAL_BITS)
 #if JPEGCHANNEL_BITS < 3*COMPONENTVAL_BITS
 # error "Too many bits"
 #endif
@@ -615,5 +614,43 @@ return out; }
 */
 
 std::ostream &operator << (std::ostream &out, const codeword_t val);
+
+
+/// Struct for Huffman Decoder
+// what does 'Exp' mean?
+struct ExpHuffTbl {
+  uint8_t          valPtr[16];   // value pointers to first symbol of codelength
+                                 //  'index'
+  uint16_t         minCode[16];  // minimal code value for codewords of length
+                                 //  'index'
+  uint16_t         maxCode[16];  // max ...
+  DecodedSymbol_t  huffVal[256]; // symbol-length assignment parameters (B.2.4.2)
+};
+
+
+/// Struct from FrameBufferWriter
+struct Pos {
+  FrameDimX_t x;
+  FrameDimY_t y;
+};
+
+/// Typedef from FrameBufferWriter
+#ifndef KASCPAR_PARSING
+  typedef std::vector<ComponentVal_t> FrameBuffer;
+#else
+# define FrameBuffer std::vector<ComponentVal_t>
+#endif // KASCPAR_PARSING
+
+
+/// Defines for YCrCb2RGB
+#define CALC_INT_FIXPOINT(value,frac_digits) \
+  ((int)round((value) * (1 << (frac_digits))))
+
+#define SHIFT_AND_ROUND(value,shift) { \
+	value >>= shift - 1; \
+	value += 1; \
+	value >>= 1; \
+}
+
 
 #endif // _INCLUDED_CHANNELS_HPP
