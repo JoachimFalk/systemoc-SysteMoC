@@ -82,7 +82,7 @@ int main(){
 #endif
 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
-  smoc_md_ba_ui_schedule buffer_schedule_analysis_obj;
+  smoc_md_ba_ui_schedule buffer_schedule_analysis_obj("snk_self_schedule.txt");
 #endif
         
   smoc_md_fifo<void> my_fifo(edge_e1,
@@ -118,6 +118,8 @@ int main(){
       break;
     }
   }
+
+  delete my_channel;
         
 
 }
