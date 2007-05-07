@@ -9,6 +9,8 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <iostream>
+
 #ifndef NO_SMOC
 #include "smoc_chan_if.hpp"
 #endif
@@ -30,6 +32,14 @@
 #include "smoc_md_chan_if.hpp"
 #include "smoc_md_port.hpp"
 #include "smoc_wsdf_edge.hpp"
+
+
+//#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+// Buffer analysis classes
+# include "smoc_md_buffer_analysis.hpp"
+# include "smoc_md_ba_linearized_buffer_schedule.hpp"
+#endif
 
 /// 101: SysteMoC Interface
 /// 102: Memory access error
@@ -76,12 +86,23 @@ public:
   private:
     const char *name;
     const buffer_init b;
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+    //buffer analysis user inter
+    const smoc_md_ba::smoc_md_ba_user_interface* ba_ui;
+#endif
     
   protected:
     chan_init(const char *name,
-              const buffer_init& b)
+              const buffer_init& b
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+	      , const smoc_md_ba::smoc_md_ba_user_interface* ba_ui
+#endif
+	      )
       : name(name),
         b(b)
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+      , ba_ui(ba_ui)
+#endif
     {}
   };
 
@@ -99,10 +120,16 @@ public:
       schedule_period_difference(0),
       _usedStorage(0),
       _usedStorageValid(false)
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+      , buffer_analysis(i.ba_ui != NULL ? 
+			i.ba_ui->create_buffer_analysis_object(this->src_loop_iterator,
+							       this->snk_loop_iterator) :
+			NULL)
+#endif
   {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 102
-    CoSupport::dout << "Enter smoc_md_fifo_kind::smoc_md_fifo_kind(const chan_init &i)" << std::end;
-    CoSupport::dout << "Leave smoc_md_fifo_kind::smoc_md_fifo_kind(const chan_init &i)" << std::end;
+    CoSupport::dout << "Enter smoc_md_fifo_kind::smoc_md_fifo_kind(const chan_init &i)" << std::endl;
+    CoSupport::dout << "Leave smoc_md_fifo_kind::smoc_md_fifo_kind(const chan_init &i)" << std::endl;
 #endif
   }
 
@@ -231,6 +258,13 @@ private:
   //called, when one effective token is produced
   virtual void incUsedStorage();
 
+
+private:
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+  //Object for buffer analysis
+  smoc_md_ba::smoc_md_buffer_analysis* buffer_analysis;
+#endif
+
 };
 
 
@@ -265,7 +299,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
   CoSupport::dout << this->name() << ": ";
-  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage()" << std::end;
+  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage()" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
@@ -274,7 +308,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
   // by the source at last!
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
   CoSupport::dout << "Next sink invocation ID: " << (*this).snk_loop_iterator.iteration_vector();
-  CoSupport::dout << std::end;
+  CoSupport::dout << std::endl;
 #endif
     
 
@@ -286,14 +320,14 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
     /// Source does not need to produce anythouth for 
     /// this sink iteration
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
-    CoSupport::dout << "Source actor does not need to produce anything" << std::end;
+    CoSupport::dout << "Source actor does not need to produce anything" << std::endl;
 #endif
     _usedStorage = 1;
   }else{    
 
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
     CoSupport::dout << "Required data element: " << src_data_element_id;
-    CoSupport::dout << std::end;
+    CoSupport::dout << std::endl;
 #endif
 
   
@@ -302,42 +336,42 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
     iter_domain_vector_type req_src_iteration((*this).src_loop_iterator.iterator_depth()); 
     smoc_src_md_loop_iterator_kind::id_type schedule_period_offset;
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 102
-    CoSupport::dout << "(*this).src_loop_iterator.iterator_depth() = " << (*this).src_loop_iterator.iterator_depth() << std::end;
+    CoSupport::dout << "(*this).src_loop_iterator.iterator_depth() = " << (*this).src_loop_iterator.iterator_depth() << std::endl;
 #endif
     bool temp = 
       (*this).src_loop_iterator.get_src_loop_iteration(src_data_element_id,
-                                                  req_src_iteration,
-                                                  schedule_period_offset
-                                                  );
+						       req_src_iteration,
+						       schedule_period_offset
+						       );
     // error checking
     assert(temp);
 
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
     CoSupport::dout << "Required src iteration: " << req_src_iteration;
     CoSupport::dout << " (schedule_period_offset  = " << schedule_period_offset << ")";
-    CoSupport::dout << std::end;
+    CoSupport::dout << std::endl;
 #endif
   
     if (schedule_period_difference > schedule_period_offset){
       //Sink actor can fire
       _usedStorage = 1;
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
-      CoSupport::dout << "Sink can fire due to schedule period difference" << std::end;
+      CoSupport::dout << "Sink can fire due to schedule period difference" << std::endl;
       CoSupport::dout << CoSupport::Indent::Up;
-      CoSupport::dout << "schedule_period_difference = " << schedule_period_difference << std::end;
-      CoSupport::dout << "schedule_period_offset = " << schedule_period_offset << std::end;
+      CoSupport::dout << "schedule_period_difference = " << schedule_period_difference << std::endl;
+      CoSupport::dout << "schedule_period_offset = " << schedule_period_offset << std::endl;
       CoSupport::dout << CoSupport::Indent::Down;
 #endif
     }else if (req_src_iteration.is_lex_smaller_than((*this).src_loop_iterator.iteration_vector())){
       //Sink actor can fire
       _usedStorage = 1;
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
-      CoSupport::dout << "Sink can fire" << std::end;
+      CoSupport::dout << "Sink can fire" << std::endl;
 #endif
     }else{
       //Sink actor is blocked
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
-      CoSupport::dout << "Sink is blocked" << std::end;
+      CoSupport::dout << "Sink is blocked" << std::endl;
 #endif
       _usedStorage = 0;
     }  
@@ -346,7 +380,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
   _usedStorageValid = true;
 
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
-  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage()" << std::end;
+  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage()" << std::endl;
   CoSupport::dout << CoSupport::Indent::Down;
 #endif
     
@@ -356,28 +390,28 @@ template <class BUFFER_CLASS>
 size_t smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage() const {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::dout << this->name() << ": ";
-  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << std::end;
+  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
   CoSupport::dout << "src_loop_iterator = " << (*this).src_loop_iterator.iteration_vector();
-  CoSupport::dout << std::end;
+  CoSupport::dout << std::endl;
 #endif
 
   size_t return_value;
 
   if (BUFFER_CLASS::hasUnusedStorage()){
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-    CoSupport::dout << "Source can fire" << std::end;
+    CoSupport::dout << "Source can fire" << std::endl;
 #endif
     return_value = 1;
   }else{
     return_value = 0;
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-    CoSupport::dout << "Source is blocked" << std::end;
+    CoSupport::dout << "Source is blocked" << std::endl;
 #endif
   }
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << std::end;
+  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << std::endl;
   CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
@@ -388,7 +422,7 @@ template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::dout << this->name() << ": ";
-  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::rpp" << std::end;
+  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::rpp" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
   assert(n == 1);
@@ -397,6 +431,11 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
   (*this).free_buffer();
 
   decUsedStorage();
+
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+  if (buffer_analysis != NULL)
+    buffer_analysis->consumption_update();
+#endif
   
   // Move to next loop iteration
   if((*this).snk_loop_iterator.inc()){
@@ -407,7 +446,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
   generate_read_events();
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::rpp" << std::end;
+  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::rpp" << std::endl;
   CoSupport::dout << CoSupport::Indent::Down;
 #endif
   
@@ -423,7 +462,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::dout << this->name() << ": ";
-  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::wpp" << std::end;
+  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::wpp" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
@@ -434,6 +473,11 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
   this->allocate_buffer();
 
   incUsedStorage();
+
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+  if (buffer_analysis != NULL)
+    buffer_analysis->production_update();
+#endif
 
   // Move to next loop iteration
   if((*this).src_loop_iterator.inc()){
@@ -447,7 +491,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
   generate_write_events();
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::wpp" << std::end;
+  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::wpp" << std::endl;
   CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
@@ -511,7 +555,7 @@ template <class BUFFER_CLASS>
 smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n) {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::dout << this->name() << ": ";
-  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable" << std::end;
+  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
@@ -540,7 +584,7 @@ template <class BUFFER_CLASS>
 smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n) {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::dout << (*this).name() << ": ";
-  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree" << std::end;
+  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
   assert((n == 1) || (n == MAX_TYPE(size_t)));
@@ -646,9 +690,17 @@ public:
     friend class smoc_md_fifo_storage<T_DATA_TYPE, BUFFER_CLASS, STORAGE_OUT_TYPE>;
   protected:
     chan_init( const char *name, 
-               const buffer_init &b )
+               const buffer_init &b 
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+	      , const smoc_md_ba::smoc_md_ba_user_interface* ba_ui
+#endif
+	       )
       : parent_type::chan_init(name, 
-                               b) {}
+                               b
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+			       , ba_ui
+#endif
+			       ) {}
   };
 
 private:
@@ -665,14 +717,14 @@ protected:
   ring_in_type * getReadChannelAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
     CoSupport::dout << this->name() << ": ";
-    CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::end;
+    CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
     CoSupport::dout << CoSupport::Indent::Up;
 #endif
     ring_in_type *r = new ring_in_type();
     initStorageAccess(*r);
     r->SetBuffer(storage);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-    CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::end;
+    CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
     CoSupport::dout << CoSupport::Indent::Down;
 #endif
     return r;
@@ -683,14 +735,14 @@ protected:
   ring_out_type * getWriteChannelAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::dout << this->name() << ": ";
-  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::end;
+  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
   ring_out_type *r = new ring_out_type();
     initStorageAccess(*r);
     r->SetBuffer(storage);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::end;
+  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
   CoSupport::dout << CoSupport::Indent::Down;
 #endif
   return r;
@@ -701,6 +753,130 @@ protected:
 
   ~smoc_md_fifo_storage() { 
     delete storage; 
+  }
+
+};
+
+
+
+template <class BUFFER_CLASS, 
+          template <typename> class STORAGE_OUT_TYPE>
+class smoc_md_fifo_storage<void,BUFFER_CLASS,STORAGE_OUT_TYPE>
+#ifndef NO_SMOC
+  : public smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
+                        void,
+                        smoc_md_snk_channel_access,
+                        smoc_md_src_channel_access,
+                        STORAGE_OUT_TYPE
+                       >  
+#else
+    : public smoc_md_fifo_kind<BUFFER_CLASS>
+    //: public smoc_dummy_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
+    //                            T_DATA_TYPE,
+    //                            R_IN,
+    //                            R_OUT >   
+#endif
+{
+  
+public:
+
+  typedef void data_type;
+#ifndef NO_SMOC
+  typedef smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
+                       void,
+                       smoc_md_snk_channel_access,
+                       smoc_md_src_channel_access,
+                       STORAGE_OUT_TYPE >  parent_type;
+#else
+  typedef smoc_md_fifo_kind<BUFFER_CLASS> parent_type;
+#endif
+  typedef smoc_md_fifo_storage<data_type, 
+                               void, 
+                               STORAGE_OUT_TYPE>       this_type;
+
+  typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
+  typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
+  
+  typedef typename STORAGE_OUT_TYPE<data_type>::storage_type  storage_out_type;
+  typedef typename STORAGE_OUT_TYPE<data_type>::return_type   return_out_type;
+
+#ifndef NO_SMOC
+  typedef typename BUFFER_CLASS::template smoc_md_storage_access_src<storage_out_type,return_out_type>  
+  ring_out_type;
+  typedef typename BUFFER_CLASS::template smoc_md_storage_access_snk<storage_in_type,return_in_type>  
+  ring_in_type;
+#endif
+  typedef smoc_storage<data_type>       storage_type;
+
+  /// Make buffer_init visible
+  typedef typename parent_type::buffer_init buffer_init;  
+
+  typedef typename parent_type::iter_domain_vector_type iter_domain_vector_type;  
+
+public:
+
+  class chan_init
+    : public parent_type::chan_init {
+    friend class smoc_md_fifo_storage<void, BUFFER_CLASS, STORAGE_OUT_TYPE>;
+  protected:
+    chan_init( const char *name, 
+               const buffer_init &b 
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+	      , const smoc_md_ba::smoc_md_ba_user_interface* ba_ui
+#endif
+	       )
+      : parent_type::chan_init(name, 
+                               b
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+			       , ba_ui
+#endif
+			       ) {}
+  };
+
+private:
+
+protected:
+  smoc_md_fifo_storage( const chan_init &i)
+    : parent_type(i)
+  { }
+
+#ifndef NO_SMOC
+  ring_in_type * getReadChannelAccess() {
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
+    CoSupport::dout << this->name() << ": ";
+    CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
+    CoSupport::dout << CoSupport::Indent::Up;
+#endif
+    ring_in_type *r = new ring_in_type();
+    initStorageAccess(*r);
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
+    CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
+    CoSupport::dout << CoSupport::Indent::Down;
+#endif
+    return r;
+  }
+#endif
+
+#ifndef NO_SMOC
+  ring_out_type * getWriteChannelAccess() {
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
+  CoSupport::dout << this->name() << ": ";
+  CoSupport::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+#endif
+  ring_out_type *r = new ring_out_type();
+  initStorageAccess(*r);
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
+  CoSupport::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
+  return r;
+  }
+
+  void channelContents(smoc_modes::PGWriter &pgw) const {};  
+#endif
+
+  ~smoc_md_fifo_storage() { 
   }
 
 };
@@ -734,7 +910,8 @@ public:
 #ifdef NO_SMOC
 public:
 #else
-protected:
+public:
+  //protected:
 #endif
   
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -744,11 +921,11 @@ protected:
 #endif
   {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
-    CoSupport::dout << this->name() << ": Enter commitRead" << std::end;
+    CoSupport::dout << this->name() << ": Enter commitRead" << std::endl;
     CoSupport::dout << CoSupport::Indent::Up;
     CoSupport::dout << "Iteration : " << (*this).snk_loop_iterator.iteration_vector();
-    CoSupport::dout << std::end;
-    CoSupport::dout << "Consume " << consume << " windows" << std::end;
+    CoSupport::dout << std::endl;
+    CoSupport::dout << "Consume " << consume << " windows" << std::endl;
 #endif
 
     //Currently, we only support the consumption zero or one window.
@@ -760,7 +937,7 @@ protected:
       this->rpp(consume);
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
-    CoSupport::dout << "Leave commitRead" << std::end;
+    CoSupport::dout << "Leave commitRead" << std::endl;
     CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
@@ -774,11 +951,11 @@ protected:
   {
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
-    CoSupport::dout << this->name() << ": Enter commitWrite" << std::end;
+    CoSupport::dout << this->name() << ": Enter commitWrite" << std::endl;
     CoSupport::dout << CoSupport::Indent::Up;
     CoSupport::dout << "Iteration : " << (*this).src_loop_iterator.iteration_vector();
-    CoSupport::dout << std::end;
-    CoSupport::dout << "Write " << produce << " effective tokens" << std::end;
+    CoSupport::dout << std::endl;
+    CoSupport::dout << "Write " << produce << " effective tokens" << std::endl;
 #endif
 
 
@@ -797,7 +974,7 @@ protected:
     }
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
-    CoSupport::dout << "Leave commitWrite" << std::end;
+    CoSupport::dout << "Leave commitWrite" << std::endl;
     CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
@@ -811,27 +988,27 @@ public:
   // bounce functions
   size_t numAvailable() const { 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
-    CoSupport::dout << this->name() << ": Enter numAvailable()" << std::end;
+    CoSupport::dout << this->name() << ": Enter numAvailable()" << std::endl;
     CoSupport::dout << CoSupport::Indent::Up;
 #endif
     size_t return_value = this->usedStorage();
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
-    CoSupport::dout << "Fifo contains at least " << return_value << " windows" << std::end;
-    CoSupport::dout << "Leave numAvailable()" << std::end;
+    CoSupport::dout << "Fifo contains at least " << return_value << " windows" << std::endl;
+    CoSupport::dout << "Leave numAvailable()" << std::endl;
     CoSupport::dout << CoSupport::Indent::Down;
 #endif
     return return_value;
   }
   size_t numFree() const { 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
-    CoSupport::dout << this->name() << ": Enter numFree()" << std::end;
+    CoSupport::dout << this->name() << ": Enter numFree()" << std::endl;
     CoSupport::dout << CoSupport::Indent::Up;
 #endif
     size_t return_value = this->unusedStorage(); 
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
-    CoSupport::dout << "Fifo accepts at least " << return_value << " effective tokens" << std::end;
-    CoSupport::dout << "Leave numFree()" << std::end;
+    CoSupport::dout << "Fifo accepts at least " << return_value << " effective tokens" << std::endl;
+    CoSupport::dout << "Leave numFree()" << std::endl;
     CoSupport::dout << CoSupport::Indent::Down;
 #endif
     return return_value;
@@ -862,9 +1039,16 @@ public:
 public:
   
   smoc_md_fifo( const smoc_wsdf_edge_descr& wsdf_edge_param, 
-                size_t n)
+                size_t n
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+		,const smoc_md_ba::smoc_md_ba_user_interface* ba_ui = NULL
+#endif
+		)
     : smoc_md_fifo_type<T,STORAGE_OUT_TYPE>::chan_init(NULL,
                                                        assemble_buffer_init(wsdf_edge_param, n)
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+						       , ba_ui
+#endif
                                                        ),
     wsdf_edge_param(wsdf_edge_param)
   {}
@@ -874,6 +1058,10 @@ public:
                          size_t n)
     : smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::chan_init(name,
                                                         assemble_buffer_init(wsdf_edge_param, n)
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+							, NULL
+#endif
+							
                                                         ),
     wsdf_edge_param(wsdf_edge_param)
 
@@ -885,6 +1073,9 @@ public:
     : smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::chan_init(
                                                         edge_param.name,
                                                         assemble_buffer_init(assemble_wsdf_edge(edge_param, src_param, snk_param), edge_param.n)
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+							, NULL
+#endif
                                                         ),
     wsdf_edge_param(assemble_wsdf_edge(edge_param, src_param, snk_param))
   {
@@ -902,7 +1093,7 @@ private:
                                           const smoc_wsdf_src_param& src_param,
                                           const smoc_wsdf_snk_param& snk_param) const {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
-    CoSupport::dout << "Enter smoc_md_fifo::assemble_wsdf_edge" << std::end;
+    CoSupport::dout << "Enter smoc_md_fifo::assemble_wsdf_edge" << std::endl;
     CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
@@ -912,7 +1103,8 @@ private:
     unsigned token_dimensions = src_param.src_firing_blocks[0].size();
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
-    CoSupport::dout << "token_dimensions = " << token_dimensions << std::end;
+    CoSupport::dout << "src_param.src_firing_blocks = " << src_param.src_firing_blocks << std::endl;
+    CoSupport::dout << "token_dimensions = " << token_dimensions << std::endl;
 #endif
     
     
@@ -925,28 +1117,28 @@ private:
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
     CoSupport::dout << "d = " << d;
-    CoSupport::dout << std::end;
+    CoSupport::dout << std::endl;
 
     CoSupport::dout << "src_firing_blocks = " << src_param.src_firing_blocks;
-    CoSupport::dout << std::end;
+    CoSupport::dout << std::endl;
 
     CoSupport::dout << "snk_firing_blocks = " << snk_param.snk_firing_blocks;
-    CoSupport::dout << std::end;
+    CoSupport::dout << std::endl;
 
     CoSupport::dout << "u0 = " << snk_param.u0;
-    CoSupport::dout << std::end;
+    CoSupport::dout << std::endl;
 
     CoSupport::dout << "c = " << snk_param.c;
-    CoSupport::dout << std::end;
+    CoSupport::dout << std::endl;
 
     CoSupport::dout << "delta_c = " << snk_param.delta_c;
-    CoSupport::dout << std::end;
+    CoSupport::dout << std::endl;
 
     CoSupport::dout << "bs = " << snk_param.bs;
-    CoSupport::dout << std::end;
+    CoSupport::dout << std::endl;
 
     CoSupport::dout << "bt = " << snk_param.bt;
-    CoSupport::dout << std::end;
+    CoSupport::dout << std::endl;
 #endif
 
 
@@ -962,7 +1154,7 @@ private:
                       snk_param.bt);
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
-    CoSupport::dout << "Leave smoc_md_fifo::assemble_wsdf_edge" << std::end;
+    CoSupport::dout << "Leave smoc_md_fifo::assemble_wsdf_edge" << std::endl;
     CoSupport::dout << CoSupport::Indent::Down;
 #endif
 

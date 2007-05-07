@@ -414,6 +414,11 @@ smoc_snk_md_loop_iterator_kind::get_base_data_element_id() const {
   return base_data_element_id;
 }
 
+const smoc_snk_md_loop_iterator_kind::id_type 
+smoc_snk_md_loop_iterator_kind::get_base_data_element_id(unsigned int token_dimension) const {
+  return base_data_element_id[token_dimension];
+}
+
 void smoc_snk_md_loop_iterator_kind::get_window_data_element_offset(const iter_domain_vector_type& window_iteration,
 								    data_element_id_type& data_element_offset) const {
   // init return value
@@ -541,7 +546,7 @@ bool smoc_snk_md_loop_iterator_kind::get_req_src_data_element(data_element_id_ty
 #endif
 
         
-  get_window_data_element_offset(window_iteration,        data_element_id);       
+  get_window_data_element_offset(window_iteration, data_element_id);       
   data_element_id += base_data_element_id;
 
  smoc_snk_md_loop_iterator_kind_get_req_src_data_element_end:
@@ -714,6 +719,98 @@ smoc_snk_md_loop_iterator_kind::calc_eff_window_displacement(
   return true;
         
         
+}
+
+
+bool
+smoc_snk_md_loop_iterator_kind::calc_consumed_window_iterations(
+								const data_element_id_type& max_data_element_id,
+								iter_domain_vector_type& consumed_window_start,
+								iter_domain_vector_type& consumed_window_end
+								) const {
+  for(unsigned int i = 0; i < _token_dimensions; i++){
+
+    //in order to make things simpler
+    assert((mapping_matrix(i,mapping_matrix.size2()-i-1) == 1) ||
+	   // When the window extension is only one pixel
+	   // then the mapping coefficient might also be zero
+	   (mapping_matrix(i,mapping_matrix.size2()-i-1) == 0)
+	   );
+
+    consumed_window_start[_token_dimensions-i-1] = 
+      calc_num_low_border_pixels(i);
+
+    mapping_type eff_window_displacement;
+    if (calc_eff_window_displacement(i,eff_window_displacement)){
+      if (eff_window_displacement <= 0){
+	return false;
+      }
+
+      consumed_window_end[_token_dimensions-i-1] = 
+	consumed_window_start[_token_dimensions-i-1] + 
+	eff_window_displacement - 1;
+
+    }else{
+      //End of schedule period in dimension i
+	
+      //Set consumed_window_end[_token_dimensions-i-1] 
+      //in such a way, that all
+      //resting data elements are read the last time
+	
+      consumed_window_end[_token_dimensions-i-1] =
+	get_window_iteration(i,max_data_element_id[i]);
+	
+    }    
+      
+  }
+
+  return true;
+
+}
+
+
+smoc_snk_md_loop_iterator_kind::id_type 
+smoc_snk_md_loop_iterator_kind::calc_num_low_border_pixels(unsigned int token_dimension) const{
+  id_type 
+    base_border_condition(base_border_condition_vector[token_dimension]);
+  id_type delta_low_condition = 
+    low_border_condition_vector[token_dimension] - base_border_condition;
+
+  if (delta_low_condition > 0){
+    // window is (partly) situated on extended lower border
+    return delta_low_condition;
+  }else{
+    //window is not situated on extended lower border
+    return 0;
+  }
+}
+
+smoc_snk_md_loop_iterator_kind::iter_item_type 
+smoc_snk_md_loop_iterator_kind::get_window_iteration(unsigned int token_dimension, id_type coord) const{
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 101
+  CoSupport::dout << "Enter smoc_snk_md_loop_iterator_kind::get_window_iteration" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+
+  CoSupport::dout << "mapping_matrix = " << mapping_matrix << std::endl;
+#endif
+
+
+  assert(
+	 (mapping_matrix(token_dimension,
+			 mapping_matrix.size2() - token_dimension -1) == 1) || 
+	 //if the size of the window is one, then the corresponding
+	 //mapping coefficient might also be zero
+	 (mapping_matrix(token_dimension,
+			 mapping_matrix.size2() - token_dimension -1) == 0)
+	 );
+  
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 101
+  CoSupport::dout << "Leave smoc_snk_md_loop_iterator_kind::get_window_iteration" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
+
+  return coord - base_data_element_id[token_dimension];
 }
 
 

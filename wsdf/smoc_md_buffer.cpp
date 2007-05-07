@@ -34,6 +34,14 @@ void smoc_simple_md_buffer_kind::release_buffer(){
 
 bool smoc_simple_md_buffer_kind::hasUnusedStorage() const {
 
+  if (buffer_lines == MAX_TYPE(size_t)){
+    //Assume infinite buffer size
+
+    cache_unusedStorage = true;
+    
+    return true;
+  }
+
   bool return_value = cache_unusedStorage;
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
@@ -130,6 +138,11 @@ unsigned long smoc_simple_md_buffer_kind::calc_req_new_lines(const data_element_
 
 void smoc_simple_md_buffer_kind::free_buffer() {
 
+  if (buffer_lines == MAX_TYPE(size_t)){
+    //Assume infinite storage
+    return;
+  }
+
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
   CoSupport::dout << "Enter smoc_simple_md_buffer_kind::free_buffer" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
@@ -182,3 +195,12 @@ void smoc_simple_md_buffer_kind::free_buffer() {
 }
 
 
+template<>
+void smoc_simple_md_buffer_kind::initStorageAccess(smoc_md_storage_access_snk<void,void> &storage_access){
+  parent_type::initStorageAccess(storage_access);
+};
+        
+template<>
+void smoc_simple_md_buffer_kind::initStorageAccess(smoc_md_storage_access_src<void,void> &storage_access){
+  parent_type::initStorageAccess(storage_access);
+};

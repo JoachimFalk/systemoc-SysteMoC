@@ -254,6 +254,10 @@ public:
     CoSupport::dout << "size of mapping_offset: " << mapping_offset.size() << std::endl;
 #endif
 
+    for (unsigned int i = 0; i < mapping_offset.size(); i++){
+      assert(mapping_offset[i] >= 0);
+    }
+
     update_base_data_element_id();
 
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
@@ -329,7 +333,6 @@ public:
   /// is unambiguous.
   /// Function input parameters
   ///  - src_data_el_id: Identifier of the source data element
-  ///  - loop_iterator:  Loop iterator belonging to the source actor
   /// Function output parameters
   ///  - iteration_vector       : source iteration generating the source data element
   ///  - schedule_period_offset : Offset in the schedule period.
@@ -457,6 +460,9 @@ public:
   /// iteration, without taking window iteration into account
   const data_element_id_type& get_base_data_element_id() const;
 
+  /// Same as above, but only for a given token-dimension
+  const id_type get_base_data_element_id(unsigned int token_dimension) const;
+
   /// Calculate the data element offset which is caused by the window
   /// iteration. Note: ONLY the window iteration must be passed as
   /// argument, not the complete iteration vector
@@ -490,9 +496,33 @@ public:
 				    mapping_type& window_displacement
 				    ) const;
 
-        
-        
-        
+  /// This function calculates the window iterations identifing the
+  /// data elements which are read the last time.
+  /// The return value is false, when no data elements are read the
+  /// last time.
+  ///
+  /// Input parameters: 
+  ///  - max_data_element_id: Maximum data element of the token space
+  /// Output paraemters:
+  /// - consumed_window_start, consumed_window_end:
+  ///   Window iterators describing the consumed data elements.  
+  bool calc_consumed_window_iterations(
+				       const data_element_id_type& max_data_element_id,
+				       iter_domain_vector_type& consumed_window_start,
+				       iter_domain_vector_type& consumed_window_end
+				       ) const;
+
+  /// This function calculates the number of border pixels which are situated
+  /// on the lower extended border
+  /// ATTENTION: If the extended border is larger than the sliding window,
+  /// the returned value might be larger than the sliding window extendion.
+  id_type calc_num_low_border_pixels(unsigned int token_dimension) const;
+
+
+  /// This function calculates the window iteration in the given dimension
+  /// which would be necessary in order to obtain the specified coordinate
+  iter_item_type get_window_iteration(unsigned int token_dimension, id_type coord) const;
+
 
 protected:
   const mapping_offset_type mapping_offset;

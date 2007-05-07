@@ -10,7 +10,7 @@
 //0: No output
 ///100: debug
 #ifndef VERBOSE_LEVEL_SMOC_WSDF_EDGE
-#define VERBOSE_LEVEL_SMOC_WSDF_EDGE 0
+#define VERBOSE_LEVEL_SMOC_WSDF_EDGE 100
 #endif
 
 smoc_wsdf_edge_descr::uvector_type 
@@ -74,7 +74,7 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
-  CoSupport::dout << CuSupport::Indent:Down;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
   return return_vector;
@@ -266,7 +266,7 @@ smoc_wsdf_edge_descr::calc_snk_r_vtu() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_snk_r_vtu()" << std::endl;
-  CoSupport::dout << CuSupport::Indent:Down;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
   return return_vector;
@@ -297,7 +297,7 @@ smoc_wsdf_edge_descr::calc_src_r_vtu() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_src_r_vtu()" << std::endl;
-  CoSupport::dout << CuSupport::Indent:Down;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
   return return_vector;
@@ -364,7 +364,7 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 #endif
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-    CoSupport::dout << CuSupport::Indent:Down;
+    CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
                 
@@ -374,12 +374,22 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::check_local_balance" << std::endl;
-  CoSupport::dout << CuSupport::Indent:Down;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 }
 
 
 void smoc_wsdf_edge_descr::check_parameters() const {
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Enter smoc_wsdf_edge_descr::check_parameters" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+#endif
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "token_dimensions = " << token_dimensions << std::endl;
+  CoSupport::dout << "v.size() = " << v.size() << std::endl;
+#endif
 
   /* Check number of dimensions */
   assert(v.size() == token_dimensions);
@@ -407,6 +417,11 @@ void smoc_wsdf_edge_descr::check_parameters() const {
   }
 
   check_local_balance();
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Leave smoc_wsdf_edge_descr::check_parameters" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
 }
 
 

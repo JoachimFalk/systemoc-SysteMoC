@@ -390,6 +390,15 @@ public:
   //must be mapped by the FIFO to the FIFO name
   virtual const char *name() const = 0;   
 
+public:
+  /// Wrapper functions
+  inline bool src_new_schedule_period() const {
+    return src_loop_iterator.is_new_schedule_period();
+  }
+
+  inline bool snk_new_schedule_period() const {
+    return snk_loop_iterator.is_new_schedule_period();
+  }
 
 protected:
   /// Current source and sink iteration vectors.
@@ -549,11 +558,9 @@ public:
     typename smoc_md_storage_type<storage_type>::type *storage;
     smoc_simple_md_buffer_kind* simple_md_buffer;
 
-  protected:
-                
-                
-                
-  };
+  protected:                
+    
+  };  
 
 
   template<class S, class T>
@@ -705,8 +712,6 @@ public:
     const smoc_simple_md_buffer_kind* simple_md_buffer;
                 
   };
-        
-
 
 
 public:
@@ -764,7 +769,7 @@ public:
       buffer_lines(i.buffer_lines),
       rd_schedule_period_start(0),
       rd_min_data_element_offset(0),
-      cache_unusedStorage(false)
+      cache_unusedStorage(i.buffer_lines == MAX_TYPE(size_t) ? true : false)
                         
   {
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 103
@@ -836,6 +841,10 @@ public:
   /// Create buffer (reserve memory)
   template <typename BUFFER_TYPE>
   void createStorage(BUFFER_TYPE *& ptr) const{
+
+    // Check, that buffer size is not set to infinite
+    assert(buffer_lines != MAX_TYPE(size_t));
+
     data_element_id_type buffer_size(size_token_space);
     buffer_size[_token_dimensions-1] = buffer_lines;
                 
@@ -883,6 +892,90 @@ private:
   mutable unsigned long cache_free_lines;
 
 };
+
+
+template<>
+class smoc_simple_md_buffer_kind::smoc_md_storage_access_src<void,void>
+  : public smoc_md_buffer_mgmt_base::smoc_md_storage_access_src<void,void>
+{
+  friend class smoc_simple_md_buffer_kind;
+public:
+  typedef smoc_md_buffer_mgmt_base::smoc_md_storage_access_src<void,void> parent_type;
+  typedef parent_type::iter_domain_vector_type iter_domain_vector_type;
+  
+  typedef void                                             storage_type;
+  typedef void                                             return_type;
+  
+public:
+  smoc_md_storage_access_src()
+    : smoc_md_buffer_mgmt_base::smoc_md_storage_access_src<void,void>()
+  {}
+  
+  virtual ~smoc_md_storage_access_src(){};
+  
+public:
+  
+  virtual void SetBuffer(smoc_md_storage_type<storage_type>::type *storage){
+  }
+  
+  /* Data Element Access */
+  virtual void operator[](const iter_domain_vector_type& window_iteration){
+  }               
+  
+private:
+  
+protected:                
+  
+};
+
+
+
+template<>
+class smoc_simple_md_buffer_kind::smoc_md_storage_access_snk<void,void>
+  : public smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk<void,void>
+{
+  friend class smoc_simple_md_buffer_kind;
+public:
+  typedef smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk<void,void> parent_type;
+  typedef parent_type::iter_domain_vector_type iter_domain_vector_type;
+  
+  typedef void                                             storage_type;
+  typedef void                                             return_type;
+  
+  typedef smoc_snk_md_loop_iterator_kind::border_condition_vector_type border_condition_vector_type;
+  typedef smoc_snk_md_loop_iterator_kind::border_type border_type;
+  
+public:
+  smoc_md_storage_access_snk()
+    : smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk<void,void>()
+  {}
+  
+  virtual ~smoc_md_storage_access_snk(){};
+  
+public:
+  
+  virtual void SetBuffer(smoc_md_storage_type<storage_type>::type *storage){
+  }
+  
+  /* Data Element Access */
+  virtual void operator[](const iter_domain_vector_type& window_iteration){
+  }
+  
+  virtual const void operator[](const iter_domain_vector_type& window_iteration) const{
+  }
+  
+  
+private:
+  
+};
+
+
+template<>
+void smoc_simple_md_buffer_kind::initStorageAccess(smoc_md_storage_access_snk<void,void> &storage_access);
+template<>
+void smoc_simple_md_buffer_kind::initStorageAccess(smoc_md_storage_access_src<void,void> &storage_access);
+        
+
 
 
 

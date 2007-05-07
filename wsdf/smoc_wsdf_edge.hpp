@@ -75,6 +75,31 @@ public:
     check_parameters();
   }
 
+  smoc_wsdf_edge_descr(unsigned token_dimensions,
+		       const u2vector_type& src_firing_blocks,
+		       const uvector_type& snk_firing_block,
+		       const uvector_type& u0,
+		       const uvector_type& c,
+		       const uvector_type& delta_c,
+		       const uvector_type& d,
+		       const svector_type& bs,
+		       const svector_type& bt)
+    : token_dimensions(token_dimensions),
+      src_firing_blocks(src_firing_blocks),
+      src_num_firing_levels(src_firing_blocks.size()),      
+      snk_firing_blocks(u2vector_type(snk_firing_block)),
+      snk_num_firing_levels(snk_firing_blocks.size()),
+      p(this->src_firing_blocks[0]),
+      v(u0),u0(u0),
+      c(c),
+      delta_c(delta_c),
+      d(d),
+      bs(bs),
+      bt(bt)                  
+  {
+    check_parameters();
+  }
+
 public:
 
   uvector_type snk_iteration_max() const;

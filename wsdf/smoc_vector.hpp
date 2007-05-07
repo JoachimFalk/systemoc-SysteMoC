@@ -10,7 +10,14 @@
 #include <boost/numeric/ublas/storage.hpp>
 
 #include <iostream>
+#include <vector>
 
+#include <cosupport/smoc_debug_out.hpp>
+
+#ifndef SMOC_VECTOR_VERBOSE_LEVEL
+#define SMOC_VECTOR_VERBOSE_LEVEL 0
+///implemented: 100
+#endif
 
 
 /* ************************************************************* */
@@ -36,6 +43,9 @@ public:
 public:
   typedef smoc_vector_init_base<ID_TYPE> this_type;
   typedef boost::numeric::ublas::vector<ID_TYPE> vector_type;
+
+public:
+  explicit smoc_vector_init_base<ID_TYPE>(){};
                 
 public:
                 
@@ -63,7 +73,7 @@ std::ostream& operator<<(std::ostream& os, const smoc_vector_init_base<ID_TYPE>&
 //intended. The reason is, that then, we require a special vector init for each
 //possible dimension.
 template <typename ID_TYPE, 
-	  int N1 = 0>
+          int N1 = 0>
 class smoc_vector_init
   : public smoc_vector_init_base<ID_TYPE>
 {
@@ -84,13 +94,13 @@ public:
 
 public:
 
-  smoc_vector_init<ID_TYPE,N1>()
+  explicit smoc_vector_init<ID_TYPE,N1>()
     : smoc_vector_init_base<ID_TYPE>(){};
 
                 
   ///special copy constructor required by operator[]
-  smoc_vector_init<ID_TYPE,N1>(const smoc_vector_init<ID_TYPE,N1-1>& i, 
-			       const ID_TYPE& id)
+  explicit smoc_vector_init<ID_TYPE,N1>(const smoc_vector_init<ID_TYPE,N1-1>& i, 
+					const ID_TYPE& id)
     : smoc_vector_init_base<ID_TYPE>(i)
   {
     (*this).vector.resize(N1);
@@ -125,17 +135,17 @@ public:
   smoc_vector (size_type size, const array_type &data):parent_type(size,data){};
 
   BOOST_UBLAS_INLINE
-  smoc_vector (const smoc_vector &v):parent_type(v){};
+  smoc_vector (const smoc_vector<T,A> &v):parent_type(v){};
 
   template<class AE>
   BOOST_UBLAS_INLINE
   smoc_vector (const boost::numeric::ublas::vector_expression<AE> &ae):parent_type(ae){};
 
   /// Generates a vector with size elements and fills them with
-	      /// with the values of v
-	      BOOST_UBLAS_INLINE
-	      smoc_vector (const size_type size, const smoc_vector &v)
-		: parent_type(size)
+  /// with the values of v
+  BOOST_UBLAS_INLINE
+  smoc_vector (const size_type size, const smoc_vector &v)
+    : parent_type(size)
   {
     size_type upper_loop_bound = size > v.size() ? v.size() : size;
 
@@ -145,10 +155,10 @@ public:
   }
 
   /// Generates a vector with size elements and fills them with
-			  /// with the values of v
-			  BOOST_UBLAS_INLINE
-			  smoc_vector (const size_type size, const T v[])
-			    : parent_type(size)
+  /// with the values of v
+  BOOST_UBLAS_INLINE
+  smoc_vector (const size_type size, const T v[])
+    : parent_type(size)
   {
     for(size_type i = 0; i < size; i++){
       (*this)[i] = v[i];
@@ -156,10 +166,10 @@ public:
   }
 
   /// Generates a vector with size elements and fills them with
-				      /// with the constant value v
-				      BOOST_UBLAS_INLINE
-				      smoc_vector (const size_type size, const T& v)
-					: parent_type(size)
+  /// with the constant value v
+  BOOST_UBLAS_INLINE
+  smoc_vector (const size_type size, const T& v)
+    : parent_type(size)
   {
     for(size_type i = 0; i < size; i++){
       (*this)[i] = v;
@@ -169,14 +179,27 @@ public:
         
   template <int N>
   BOOST_UBLAS_INLINE
-  smoc_vector(const smoc_vector_init<T,N>& 
-	      vector_init)
+  smoc_vector(const smoc_vector_init<T,N>& vector_init)
     : parent_type(N)
   {
+#if SMOC_VECTOR_VERBOSE_LEVEL == 100
+    CoSupport::dout << "Enter smoc_vector(const smoc_vector_init<T,N>& vector_init)";
+    CoSupport::dout << std::endl;
+    CoSupport::dout << CoSupport::Indent::Up;
+
+    CoSupport::dout << "vector_init = " 
+		    << vector_init << std::endl;
+#endif
     for(size_type i = 0; i < N; i++){
       (*this)[i] = vector_init(i);
     }
-  }     
+#if SMOC_VECTOR_VERBOSE_LEVEL == 100
+    CoSupport::dout << "Leave smoc_vector(const smoc_vector_init<T,N>& vector_init)";
+    CoSupport::dout << std::endl;
+    CoSupport::dout << CoSupport::Indent::Down;
+#endif
+  }
+
 
 #if 0
   //ATTENTION: This leads to conflicts with src_loop_iterator.iterator_depth()
@@ -192,13 +215,26 @@ public:
 
 public:
 
+
   template <int N>
   this_type& operator=(const smoc_vector_init<size_type,N> &rhs) {
+#if SMOC_VECTOR_VERBOSE_LEVEL == 100
+    CoSupport::dout << "Enter this_type& operator=(const smoc_vector_init<size_type,N> &rhs)";
+    CoSupport::dout << std::endl;
+    CoSupport::dout << CoSupport::Indent::Up;
+
+    CoSupport::dout << "rhs = " << rhs << std::endl;
+#endif
     if(N != (*this).size())
       (*this).resize(N);
     for(unsigned int i = 0; i < N; i++){
       (*this)[i] = rhs(i);
     }
+#if SMOC_VECTOR_VERBOSE_LEVEL == 100
+    CoSupport::dout << "Leave this_type& operator=(const smoc_vector_init<size_type,N> &rhs)";
+    CoSupport::dout << std::endl;
+    CoSupport::dout << CoSupport::Indent::Down;
+#endif
     return (*this);
   }
 
@@ -207,9 +243,9 @@ public:
   bool is_lex_smaller_than(const this_type& vec) const {
     for(size_type i = 0; i < (*this).size(); i++){
       if ((*this)[i] < vec[i]){
-	return true;
+        return true;
       }else if((*this)[i] > vec[i]){
-	return false;
+        return false;
       }
     }
 
@@ -219,15 +255,79 @@ public:
   bool is_lex_larger_than(const this_type& vec) const {
     for(size_type i = 0; i < (*this).size(); i++){
       if ((*this)[i] > vec[i]){
-	return true;
+        return true;
       }else if((*this)[i] < vec[i]){
-	return false;
+        return false;
       }
     }
 
     return false;
   }
 
+};
+
+
+/* Specialization for vectors of vectors */
+template <class T2, class A >
+class smoc_vector<smoc_vector<T2>, A>
+  : public boost::numeric::ublas::vector<smoc_vector<T2>,A>
+{
+public:
+  typedef smoc_vector<smoc_vector<T2>, A> this_type;
+  typedef typename boost::numeric::ublas::vector<smoc_vector<T2>,A> parent_type;
+  typedef typename parent_type::size_type size_type;
+  typedef typename parent_type::array_type array_type;
+public:
+
+  BOOST_UBLAS_INLINE
+  smoc_vector (): parent_type() {};
+
+  BOOST_UBLAS_INLINE
+  smoc_vector (const smoc_vector<smoc_vector<T2>, A> &v):parent_type(v){};
+
+  explicit BOOST_UBLAS_INLINE
+  smoc_vector (size_type size): parent_type(size){};
+
+  explicit BOOST_UBLAS_INLINE
+  smoc_vector (const size_type size, const smoc_vector<T2>& a)
+    : parent_type(size)
+  {
+    for (unsigned int i = 0; i < size; i++){
+      (*this)[i] = a;
+    }
+  };
+
+  explicit BOOST_UBLAS_INLINE
+  smoc_vector (const smoc_vector<T2>& a): 
+    parent_type(1)
+  {
+    (*this)[0] = a;
+  };
+
+  template <int N, class A2>
+  BOOST_UBLAS_INLINE
+  smoc_vector(const std::vector<smoc_vector_init<T2,N>,A2> &vector_vector_init)
+    : parent_type(vector_vector_init.size())
+  {
+#if SMOC_VECTOR_VERBOSE_LEVEL == 100
+    CoSupport::dout << "Enter smoc_vector(const std::vector<smoc_vector_init<T2,N>,A2> &vector_vector_init)";
+    CoSupport::dout << std::endl;
+    CoSupport::dout << CoSupport::Indent::Up;
+#endif
+    for(size_type i = 0; i < vector_vector_init.size(); i++){
+#if SMOC_VECTOR_VERBOSE_LEVEL == 100
+      CoSupport::dout << "i = " << i;
+      CoSupport::dout << ": " << vector_vector_init[i];
+      CoSupport::dout << std::endl;
+#endif      
+      (*this)[i] = smoc_vector<T2>(vector_vector_init[i]);
+    }
+#if SMOC_VECTOR_VERBOSE_LEVEL == 100
+    CoSupport::dout << "Leave smoc_vector(const std::vector<smoc_vector_init<T2,N>,A2> &vector_vector_init)";
+    CoSupport::dout << std::endl;
+    CoSupport::dout << CoSupport::Indent::Down;
+#endif
+  }
 };
 
 
@@ -254,7 +354,7 @@ public:
         
   BOOST_UBLAS_INLINE
   smoc_vector_cs(const smoc_vector_init<unsigned long,N>& 
-		 vector_init)
+                 vector_init)
     : parent_type(N)
   {
     for(size_type i = 0; i < N; i++){
@@ -270,10 +370,10 @@ public:
 /*                      Stream Initialization                         */
 /* ****************************************************************** */
 
-template <class T1, class T2, class A>
-boost::numeric::ublas::vector<T1,A>& 
-operator<<(boost::numeric::ublas::vector<T1,A>& input_vector, 
-	   const T2& data_el){
+template <class T1, class A>
+smoc_vector<T1,A>& 
+operator<<(smoc_vector<T1,A>& input_vector, 
+           const T1& data_el){
   typename boost::numeric::ublas::vector<T1,A>::size_type old_size(input_vector.size());
 
   input_vector.resize(old_size+1);
@@ -282,11 +382,20 @@ operator<<(boost::numeric::ublas::vector<T1,A>& input_vector,
   return input_vector;
 }
 
+/// Note: Here we have used explicitly the standard-vector
+/// Reason: If we use smoc_vector, the compiler achieves
+///         to convert smoc_vector<smoc_vector_init<ID_TYPE, ...>
+///         to smoc_vector<ID_TYPE>, thus delivering a compile
+///         error. The conversion goes somehow by using implicit
+///         calls of smoc_vector
+///         (const boost::numeric::ublas::vector_expression<AE> &ae).
+///         However, making this call explicit results in various
+///         compilation troubles.
 template <typename ID_TYPE, int N1>
-boost::numeric::ublas::vector<smoc_vector_init<ID_TYPE,N1> >
+std::vector<smoc_vector_init<ID_TYPE,N1> >
 operator<<(const smoc_vector_init<ID_TYPE,N1>& vector_init1,
-	   const smoc_vector_init<ID_TYPE,N1>& vector_init2){
-  boost::numeric::ublas::vector<smoc_vector_init<ID_TYPE,N1> > return_vector(2);
+           const smoc_vector_init<ID_TYPE,N1>& vector_init2){
+  std::vector<smoc_vector_init<ID_TYPE,N1> > return_vector(2);
 
   return_vector[0] = vector_init1;
   return_vector[1] = vector_init2;
@@ -296,12 +405,12 @@ operator<<(const smoc_vector_init<ID_TYPE,N1>& vector_init1,
 
 /// The above operator returns a constant object. 
 /// Hence define the following (although not very efficient)
-template <class T1, class T2, class A>
-boost::numeric::ublas::vector<T1,A>
-operator<<(const boost::numeric::ublas::vector<T1,A>& input_vector, 
-	   const T2& data_el){
+template <class T1, class A>
+std::vector<T1,A>
+operator<<(const std::vector<T1,A>& input_vector, 
+           const T1& data_el){
 
-  boost::numeric::ublas::vector<T1,A> return_vector(input_vector);        
+  std::vector<T1,A> return_vector(input_vector);        
   unsigned long old_size = input_vector.size();
         
   return_vector.resize(old_size+1);
