@@ -196,22 +196,82 @@ private:
 
   //
   bool currentDcIsDc0(void) const {
-    return m_useHuffTableDc[m_currentComp] == 0;
+    assert(m_currentComp <  3);
+    switch (m_currentComp) {
+      case 0:
+        return m_useHuffTableDc_0 == 0;
+        break;
+      case 1:
+        return m_useHuffTableDc_1 == 0;
+        break;
+      case 2:
+        return m_useHuffTableDc_2 == 0;
+        break;
+      default:
+        assert(0);
+        return false;
+        break;
+    }
   }
 
   //
   bool currentDcIsDc1(void) const {
-    return m_useHuffTableDc[m_currentComp] == 1;
+    assert(m_currentComp <  3);
+    switch (m_currentComp) {
+      case 0:
+        return m_useHuffTableDc_0 == 1;
+        break;
+      case 1:
+        return m_useHuffTableDc_1 == 1;
+        break;
+      case 2:
+        return m_useHuffTableDc_2 == 1;
+        break;
+      default:
+        assert(0);
+        return false;
+        break;
+    }
   }
 
   //
   bool currentAcIsAc0(void) const {
-    return m_useHuffTableAc[m_currentComp] == 0;
+    assert(m_currentComp <  3);
+    switch (m_currentComp) {
+      case 0:
+        return m_useHuffTableAc_0 == 0;
+        break;
+      case 1:
+        return m_useHuffTableAc_1 == 0;
+        break;
+      case 2:
+        return m_useHuffTableAc_2 == 0;
+        break;
+      default:
+        assert(0);
+        return false;
+        break;
+    }
   }
 
   //
   bool currentAcIsAc1(void) const {
-    return m_useHuffTableAc[m_currentComp] == 1;
+    assert(m_currentComp <  3);
+    switch (m_currentComp) {
+      case 0:
+        return m_useHuffTableAc_0 == 1;
+        break;
+      case 1:
+        return m_useHuffTableAc_1 == 1;
+        break;
+      case 2:
+        return m_useHuffTableAc_2 == 1;
+        break;
+      default:
+        assert(0);
+        return false;
+        break;
+    }
   }
 
   //
@@ -271,39 +331,114 @@ private:
   void writeAcDiff(void);
 
   //
-  const smoc_port_in<ExpHuffTbl> &getCurrentAcTable(void) const {
+  //const smoc_port_in<ExpHuffTbl> &getCurrentAcTable(void) const {
+  const ExpHuffTbl &getCurrentAcTable(void) const {
+    switch (m_currentComp) {
+      case 0:
+        if (m_useHuffTableAc_0 == 0)
+          return inHuffTblAC0[0];
+        else
+          return inHuffTblAC1[0];
+        break;
+      case 1:
+        if (m_useHuffTableAc_1 == 0)
+          return inHuffTblAC0[0];
+        else
+          return inHuffTblAC1[0];
+        break;
+      case 2:
+        if (m_useHuffTableAc_2 == 0)
+          return inHuffTblAC0[0];
+        else
+          return inHuffTblAC1[0];
+        break;
+    }
+
+    assert(0);
+    /*
     if (m_useHuffTableAc[m_currentComp] == 0)
-      return inHuffTblAC0;
+      return inHuffTblAC0[0];
     else {
       assert(m_useHuffTableAc[m_currentComp] == 1);
-      return inHuffTblAC1;
-    }
+      return inHuffTblAC1[0];
+    }*/
   }
 
   //
-  const smoc_port_in<ExpHuffTbl> &getCurrentDcTable(void) const {
+  const ExpHuffTbl &getCurrentDcTable(void) const {
+    switch (m_currentComp) {
+      case 0:
+        if (m_useHuffTableDc_0 == 0)
+          return inHuffTblDC0[0];
+        else
+          return inHuffTblDC1[0];
+        break;
+      case 1:
+        if (m_useHuffTableDc_1 == 0)
+          return inHuffTblDC0[0];
+        else
+          return inHuffTblDC1[0];
+        break;
+      case 2:
+        if (m_useHuffTableDc_2 == 0)
+          return inHuffTblDC0[0];
+        else
+          return inHuffTblDC1[0];
+        break;
+    }
+
+    assert(0);
+    /*
     if (m_useHuffTableDc[m_currentComp] == 0)
-      return inHuffTblDC0;
+      return inHuffTblDC0[0];
     else {
       assert(m_useHuffTableDc[m_currentComp] == 1);
-      return inHuffTblDC1;
-    }
+      return inHuffTblDC1[0];
+    }*/
   }
 
   // decode
-  bool decodeHuff(const smoc_port_in<ExpHuffTbl> &in,
+  bool decodeHuff(const ExpHuffTbl &in,
                   DecodedSymbol_t &symbol,
                   size_t &numBits) const;
 
   //
   void setCompInterleaving(){
     DBG_OUT("setCompInterleaving()");
-    for (int i = 0; i < SCANPATTERN_LENGTH; ++i) {
+    /*for (int i = 0; i < SCANPATTERN_LENGTH; ++i) {
       m_compInterleaving[i] = JS_CTRL_NEWSCAN_GETCOMP(in[0],i);
       DBG_OUT(" " << m_compInterleaving[i]);
-    }
+    }*/
+    
+    assert(SCANPATTERN_LENGTH == 6);
+    m_compInterleaving_0 = JS_CTRL_NEWSCAN_GETCOMP(in[0],0);
+    m_compInterleaving_1 = JS_CTRL_NEWSCAN_GETCOMP(in[0],1);
+    m_compInterleaving_2 = JS_CTRL_NEWSCAN_GETCOMP(in[0],2);
+    m_compInterleaving_3 = JS_CTRL_NEWSCAN_GETCOMP(in[0],3);
+    m_compInterleaving_4 = JS_CTRL_NEWSCAN_GETCOMP(in[0],4);
+    m_compInterleaving_5 = JS_CTRL_NEWSCAN_GETCOMP(in[0],5);
 
-    m_currentComp = m_compInterleaving[compIndex];
+    switch (m_compIndex) {
+      case 0:
+        m_currentComp = m_compInterleaving_0;
+        break;
+      case 1:
+        m_currentComp = m_compInterleaving_1;
+        break;
+      case 2:
+        m_currentComp = m_compInterleaving_2;
+        break;
+      case 3:
+        m_currentComp = m_compInterleaving_3;
+        break;
+      case 4:
+        m_currentComp = m_compInterleaving_4;
+        break;
+      case 5:
+        m_currentComp = m_compInterleaving_5;
+        break;
+    }
+    //m_currentComp = m_compInterleaving[m_compIndex];
 
     DBG_OUT(endl);
 
@@ -316,8 +451,22 @@ private:
     HuffTblID_t  dc = JS_CTRL_USEHUFF_GETDCTBL(in[0]);
     HuffTblID_t  ac = JS_CTRL_USEHUFF_GETACTBL(in[0]);
     DBG_OUT("useHuff() c: " << cmp << " dc: " << dc << " ac: " << ac << endl);
-    m_useHuffTableAc[cmp] = ac;
-    m_useHuffTableDc[cmp] = dc;
+    switch (cmp) {
+      case 0:
+        m_useHuffTableAc_0 = ac;
+        m_useHuffTableDc_0 = dc;
+        break;
+      case 1:
+        m_useHuffTableAc_1 = ac;
+        m_useHuffTableDc_1 = dc;
+        break;
+      case 2:
+        m_useHuffTableAc_2 = ac;
+        m_useHuffTableDc_2 = dc;
+        break;
+    }
+    //m_useHuffTableAc[cmp] = ac;
+    //m_useHuffTableDc[cmp] = dc;
 
     forwardCtrl();
   }
@@ -335,8 +484,6 @@ private:
     forwardCtrl();
   }
 #endif
-
-  // NOTE: discardHuff?C? can be omitted (only debug)
 
   //
   void discardHuffAC0() {
@@ -397,24 +544,59 @@ private:
   void finishedBlock(void) {
     DBG_OUT("finishedBlock(): finished decoding block\n");
     // select next component
-    compIndex = (compIndex + 1) % SCANPATTERN_LENGTH;
+    m_compIndex = (m_compIndex + 1) % SCANPATTERN_LENGTH;
     m_currentAc = 0;
-    m_currentComp = m_compInterleaving[compIndex];
+
+    switch (m_compIndex) {
+      case 0:
+        m_currentComp = m_compInterleaving_0;
+        break;
+      case 1:
+        m_currentComp = m_compInterleaving_1;
+        break;
+      case 2:
+        m_currentComp = m_compInterleaving_2;
+        break;
+      case 3:
+        m_currentComp = m_compInterleaving_3;
+        break;
+      case 4:
+        m_currentComp = m_compInterleaving_4;
+        break;
+      case 5:
+        m_currentComp = m_compInterleaving_5;
+        break;
+    }
+    //m_currentComp = m_compInterleaving[m_compIndex];
   }
 
-
-  int compIndex;
-  IntCompID_t m_compInterleaving[SCANPATTERN_LENGTH];      //6
-  HuffTblID_t m_useHuffTableAc[JPEG_MAX_COLOR_COMPONENTS]; //3
-  HuffTblID_t m_useHuffTableDc[JPEG_MAX_COLOR_COMPONENTS]; //3
-#ifdef DBG_ENABLE
-  CoSupport::DebugOstream dbgout;
-//CoSupport::DebugStreambuf dbgbuff;
-#endif // DBG_ENABLE
   smoc_firing_state main;
   smoc_firing_state discoverDC;
   smoc_firing_state discoverAC;
   smoc_firing_state writeAC;
+  int m_compIndex;
+  
+  //IntCompID_t m_compInterleaving[SCANPATTERN_LENGTH];      //6
+  IntCompID_t m_compInterleaving_0;
+  IntCompID_t m_compInterleaving_1;
+  IntCompID_t m_compInterleaving_2;
+  IntCompID_t m_compInterleaving_3;
+  IntCompID_t m_compInterleaving_4;
+  IntCompID_t m_compInterleaving_5;
+
+  //HuffTblID_t m_useHuffTableAc[JPEG_MAX_COLOR_COMPONENTS]; //3
+  HuffTblID_t m_useHuffTableAc_0;
+  HuffTblID_t m_useHuffTableAc_1;
+  HuffTblID_t m_useHuffTableAc_2;
+
+  //HuffTblID_t m_useHuffTableDc[JPEG_MAX_COLOR_COMPONENTS]; //3
+  HuffTblID_t m_useHuffTableDc_0;
+  HuffTblID_t m_useHuffTableDc_1;
+  HuffTblID_t m_useHuffTableDc_2;
+#ifdef DBG_ENABLE
+  CoSupport::DebugOstream dbgout;
+//CoSupport::DebugStreambuf dbgbuff;
+#endif // DBG_ENABLE
   BitSplitter m_BitSplitter;
   int m_currentComp;
   DecodedSymbol_t m_receiveDcBits;

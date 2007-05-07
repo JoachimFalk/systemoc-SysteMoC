@@ -359,7 +359,7 @@ void HuffTblDecoder::writeTableDC1() {
 
 InvHuffman::InvHuffman(sc_module_name name)
   : smoc_actor(name, main),
-    compIndex(0),
+    m_compIndex(0),
 #ifdef DBG_ENABLE
     dbgout(std::cerr, Debug::Low),
 #endif // DBG_ENABLE
@@ -397,8 +397,6 @@ InvHuffman::InvHuffman(sc_module_name name)
         GUARD(InvHuffman::isDiscardHuff)                       &&
         GUARD(InvHuffman::isHuffTblIdAC0) )                    >>
       out(1)                                                   >>
-      // FIXME: -jens- sole purpose of function is dump debug infos
-      //  just remove for synthesis?
       CALL(InvHuffman::discardHuffAC0)                         >> main
     | // discard HuffTable AC1
       ( inHuffTblAC1(1) && in(1)                               &&
@@ -570,7 +568,7 @@ void InvHuffman::writeDcDiff(void) {
 
 
 // decode
-bool InvHuffman::decodeHuff(const smoc_port_in<ExpHuffTbl> &in,
+bool InvHuffman::decodeHuff(const ExpHuffTbl &table,
                             DecodedSymbol_t &symbol,
                             size_t &numBits) const
 {
@@ -579,7 +577,7 @@ bool InvHuffman::decodeHuff(const smoc_port_in<ExpHuffTbl> &in,
   HuffmanCode_t codeWord;
 
   // alias
-  const ExpHuffTbl &table = in[0];
+  //const ExpHuffTbl &table = in[0];
 
   while (m_BitSplitter.bitsLeft() >= codeSize) {
     codeWord = m_BitSplitter.getBits(codeSize);
