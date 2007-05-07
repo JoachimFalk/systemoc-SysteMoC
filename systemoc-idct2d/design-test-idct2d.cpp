@@ -44,7 +44,6 @@
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
 #ifndef __SCFE__
-//# include <smoc_scheduler.hpp>
 # include <systemoc/smoc_pggen.hpp>
 #endif
 
@@ -73,10 +72,10 @@ class IDCT2d_TEST
 private:
 #ifndef REAL_BLOCK_DATA
   m_source_idct src_idct;
-  //m_sink        snk;
+  m_sink        snk;
 #else
   m_block_source_idct src_idct;
-  //m_block_sink        snk;
+  m_block_sink        snk;
 #endif
   m_block_idct  blidct;
 
@@ -85,19 +84,12 @@ public:
     : smoc_graph(name),
       src_idct("src_idct", periods),
 #ifdef REAL_BLOCK_DATA
-      //snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT) ,
+      snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT) ,
 #else
-      //snk("snk"),
+      snk("snk"),
 #endif
       blidct("blidct")
-{
-
-#ifndef REAL_BLOCK_DATA
-  m_sink &snk = registerNode(new m_sink("snk"));
-#else
-  m_block_sink &snk = registerNode(new m_block_sink("snk",IMAGE_WIDTH, IMAGE_HEIGHT));
-#endif
-
+  {
 #ifndef KASCPAR_PARSING
     connectNodePorts( src_idct.out, blidct.I,   smoc_fifo<int>(128));
     connectNodePorts( src_idct.min, blidct.MIN, smoc_fifo<int>(4));
@@ -116,8 +108,10 @@ int sc_main (int argc, char **argv) {
     (argc > 1)
     ? atoi(argv[1])
     : DEFAULT_BLOCK_COUNT;
-  
-  smoc_top_moc<IDCT2d_TEST> top("top", periods);
+
+  IDCT2d_TEST idct2d("top", periods);
+
+  smoc_top top(&idct2d);
   
   sc_start(-1);
   
