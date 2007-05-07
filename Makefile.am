@@ -104,7 +104,12 @@ pkginclude_HEADERS +=					\
 	pkginclude/systemoc/smoc_md_loop.hpp		\
 	pkginclude/systemoc/smoc_md_port.hpp		\
 	pkginclude/systemoc/smoc_vector.hpp		\
-	pkginclude/systemoc/smoc_wsdf_edge.hpp
+	pkginclude/systemoc/smoc_wsdf_edge.hpp \
+	pkginclude/systemoc/smoc_md_ba_basic_tree.hpp \
+	pkginclude/systemoc/smoc_md_buffer_analysis.hpp \
+	pkginclude/systemoc/smoc_md_ba_linearized_buffer.hpp \
+	pkginclude/systemoc/smoc_md_ba_linearized_buffer_size.hpp \
+	pkginclude/systemoc/smoc_md_ba_linearized_buffer_schedule.hpp
 endif
 
 
@@ -144,5 +149,9 @@ libsystemoc_la_SOURCES +=		\
 	wsdf/smoc_md_buffer.cpp		\
 	wsdf/smoc_md_loop.cpp		\
 	wsdf/smoc_wsdf_edge.cpp		\
-	wsdf/smoc_md_port.cpp
+	wsdf/smoc_md_port.cpp \
+	wsdf/smoc_md_buffer_analysis.cpp \
+	wsdf/smoc_md_ba_linearized_buffer.cpp \
+	wsdf/smoc_md_ba_linearized_buffer_size.cpp \
+	wsdf/smoc_md_ba_linearized_buffer_schedule.cpp
 endif
