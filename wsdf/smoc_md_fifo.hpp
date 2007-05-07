@@ -133,6 +133,13 @@ public:
 #endif
   }
 
+  virtual ~smoc_md_fifo_kind(){
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+    if (buffer_analysis != NULL)
+      delete buffer_analysis;
+#endif
+  }
+
 protected:
 
   /* *****************************************
@@ -713,6 +720,11 @@ protected:
     createStorage(storage);
   }
 
+  ~smoc_md_fifo_storage()
+  {
+    destroyStorage(storage);
+  }
+
 #ifndef NO_SMOC
   ring_in_type * getReadChannelAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
@@ -750,10 +762,6 @@ protected:
 
   void channelContents(smoc_modes::PGWriter &pgw) const {};  
 #endif
-
-  ~smoc_md_fifo_storage() { 
-    delete storage; 
-  }
 
 };
 

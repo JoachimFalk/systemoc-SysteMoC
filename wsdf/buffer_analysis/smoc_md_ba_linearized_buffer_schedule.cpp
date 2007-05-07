@@ -14,16 +14,23 @@ namespace smoc_md_ba
 
   smoc_mb_ba_lin_buffer_schedule::smoc_mb_ba_lin_buffer_schedule(const smoc_src_md_loop_iterator_kind& src_md_loop_iterator,
 								 const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator,
-								 unsigned int buffer_height)
+								 unsigned int buffer_height,
+								 const std::string& outfilename)
     : smoc_mb_ba_lin_buffer(src_md_loop_iterator,
 			    snk_md_loop_iterator,
 			    buffer_height),
-      outfile("self-schedule.txt")
+      outfile(outfilename.c_str())
   {
     init_order_vector();
+
+    //write dimensions of sink iterator
+    outfile << src_md_loop_iterator.iterator_depth() << std::endl;
+    outfile << src_md_loop_iterator.iteration_max() << std::endl;
   }
 
   smoc_mb_ba_lin_buffer_schedule::~smoc_mb_ba_lin_buffer_schedule(){
+    outfile << std::endl;
+    outfile.close();
     delete[] order_vector;
   }
 
@@ -73,12 +80,14 @@ namespace smoc_md_ba
     CoSupport::dout << "num_invocations = " << num_invocations << std::endl;
 #endif
 
+#if 0
     for(unsigned int i = 0; i < token_dimensions; i++){
       if (is_snk_iteration_max(i))
 	outfile << std::endl;
       else
 	break;
     }
+#endif
 
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
     CoSupport::dout << "Leave smoc_mb_ba_lin_buffer_schedule::consumption_update" << std::endl;
@@ -99,12 +108,14 @@ namespace smoc_md_ba
     //Write to result file
     outfile << 0 << " ";
 
+#if 0
     for(unsigned int i = 0; i < token_dimensions; i++){
       if (is_snk_iteration_max(i))
 	outfile << std::endl;
       else
 	break;
     }
+#endif
     
   }
 
@@ -159,13 +170,15 @@ namespace smoc_md_ba
   smoc_md_ba_ui_schedule::create_buffer_analysis_object(const smoc_src_md_loop_iterator_kind& src_md_loop_iterator,
 							const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator) const {
 
-    unsigned int buffer_height = 1;
-    //src_md_loop_iterator.iteration_max()[0];
+    unsigned int buffer_height = // 1;
+      src_md_loop_iterator.iteration_max()[0];
 
     smoc_md_buffer_analysis* return_value = 
       new smoc_mb_ba_lin_buffer_schedule(src_md_loop_iterator,
 					 snk_md_loop_iterator,
-					 buffer_height);
+					 buffer_height,
+					 output_file
+					 );
 
     return return_value;
   }

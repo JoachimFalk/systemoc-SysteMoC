@@ -23,7 +23,8 @@ namespace smoc_md_ba
   public:
     smoc_mb_ba_lin_buffer_schedule(const smoc_src_md_loop_iterator_kind& src_md_loop_iterator,
 				   const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator,
-				   unsigned int buffer_height = 1);
+				   unsigned int buffer_height = 1,
+				   const std::string& outfilename = "self-schedule.txt");
 
     virtual ~smoc_mb_ba_lin_buffer_schedule();
 
@@ -66,11 +67,21 @@ namespace smoc_md_ba
   {
 
   public:
+    smoc_md_ba_ui_schedule(const std::string& output_file)
+      : output_file(output_file)
+    {}
+
+    virtual ~smoc_md_ba_ui_schedule(){}
+
+  public:
     /// This function sets up the corresponding buffer analysis class
     /// and returns a corresponding pointer
     virtual smoc_md_buffer_analysis*
     create_buffer_analysis_object(const smoc_src_md_loop_iterator_kind& src_md_loop_iterator,
 				  const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator) const;
+
+  private:
+    const std::string output_file;
   };
 
 };

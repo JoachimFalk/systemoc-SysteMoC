@@ -386,6 +386,12 @@ public:
     ptr = NULL;
   }
 
+  /// Destroy storage
+  template <typename BUFFER_TYPE>
+  void destroyStorage(BUFFER_TYPE *& ptr) const{
+    //do nothing
+  }
+
 public:
   //must be mapped by the FIFO to the FIFO name
   virtual const char *name() const = 0;   
@@ -850,6 +856,13 @@ public:
                 
     ptr = new BUFFER_TYPE(_token_dimensions, buffer_size);
 
+  }
+
+  /// Destroy storage
+  template <typename BUFFER_TYPE>
+  void destroyStorage(BUFFER_TYPE *& ptr) const{
+    delete ptr;
+    ptr = NULL;
   }
 
 
