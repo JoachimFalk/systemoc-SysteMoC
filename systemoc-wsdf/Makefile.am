@@ -35,13 +35,16 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
 LIBS= @LIBS@ -lsystemoc
 
-noinst_PROGRAMS= simulation-wsdf simulation-wsdf-no-border
+noinst_PROGRAMS= simulation-wsdf simulation-wsdf-no-border simulation-fifo
 
 simulation_wsdf_SOURCES= design-wsdf.cpp
 simulation_wsdf_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 simulation_wsdf_no_border_SOURCES= design-wsdf-no-border.cpp
 simulation_wsdf_no_border_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+simulation_fifo_SOURCES = fifo-sim.cpp
+simulation_fifo_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 all: ref_data.dat
 
@@ -74,7 +77,7 @@ $(SYNTHESIS_SUBDIR)/%.dat: %-dat
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-wsdf
 
-$(SYNTHESIS_SUBDIR)/wsdf.ast.xml: design-wsdf.cpp
+$(SYNTHESIS_SUBDIR)/sdf.ac.xml: $(SYNTHESIS_SUBDIR)/design-wsdf.ast.xml
 
 .PHONY: synth
 endif
