@@ -149,6 +149,7 @@ private:
     return !(isDiscardHuff() || isNewScan() || isUseHuff());
   }
 
+#if 0
   //
   bool isHuffTblId(HuffTblType_t type, HuffTblID_t id) const {
     /*cerr << "isHuffTblId(): type: " << JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0])
@@ -158,6 +159,39 @@ private:
 
     return ( (JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) == id) &&
              (JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) == type) );
+  }
+#endif
+
+  //
+  bool isHuffTblIdAC0() const {
+    assert(JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_DISCARDHUFF);
+
+    return ( (JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) == 0) &&
+             (JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) == HUFFTBL_AC) );
+  }
+
+  //
+  bool isHuffTblIdAC1() const {
+    assert(JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_DISCARDHUFF);
+
+    return ( (JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) == 1) &&
+             (JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) == HUFFTBL_AC) );
+  }
+
+  //
+  bool isHuffTblIdDC0() const {
+    assert(JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_DISCARDHUFF);
+
+    return ( (JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) == 0) &&
+             (JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) == HUFFTBL_DC) );
+  }
+
+  //
+  bool isHuffTblIdDC1() const {
+    assert(JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_DISCARDHUFF);
+
+    return ( (JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) == 1) &&
+             (JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) == HUFFTBL_DC) );
   }
 
   //
@@ -207,7 +241,8 @@ private:
   //
   bool isEnoughAcBits(void) const {
     // see F.13, p. 106
-    return (m_BitSplitter.bitsLeft() >= (m_receiveAcSymbol & 0x0f));
+    // cast to avoid compiler warning
+    return (m_BitSplitter.bitsLeft() >= (size_t)(m_receiveAcSymbol & 0x0f));
   }
 
   //
@@ -287,6 +322,7 @@ private:
     forwardCtrl();
   }
 
+#if 0
   //
   void discardHuff(const smoc_port_in<ExpHuffTbl> &tableIn) {
     DBG_OUT("discardHuff() ");
@@ -295,6 +331,57 @@ private:
     DBG_OUT("\n");
   
     DBG_OUT(tableIn[0] << endl);
+
+    forwardCtrl();
+  }
+#endif
+
+  // NOTE: discardHuff?C? can be omitted (only debug)
+
+  //
+  void discardHuffAC0() {
+    DBG_OUT("discardHuff() ");
+    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
+    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
+    DBG_OUT("\n");
+  
+    DBG_OUT(inHuffTblAC0[0] << endl);
+
+    forwardCtrl();
+  }
+
+  //
+  void discardHuffAC1() {
+    DBG_OUT("discardHuff() ");
+    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
+    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
+    DBG_OUT("\n");
+  
+    DBG_OUT(inHuffTblAC1[0] << endl);
+
+    forwardCtrl();
+  }
+
+  //
+  void discardHuffDC0() {
+    DBG_OUT("discardHuff() ");
+    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
+    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
+    DBG_OUT("\n");
+  
+    DBG_OUT(inHuffTblDC0[0] << endl);
+
+    forwardCtrl();
+  }
+
+  //
+  void discardHuffDC1() {
+    DBG_OUT("discardHuff() ");
+    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
+    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
+    DBG_OUT("\n");
+  
+    DBG_OUT(inHuffTblDC1[0] << endl);
 
     forwardCtrl();
   }
@@ -357,7 +444,29 @@ private:
   }
 
   //
-  bool isTable(const HuffTableType type) const;
+  //bool isTable(const HuffTableType type) const;
+
+  //
+  bool HuffTblDecoder::isTableAC0() const {
+    return (IS_TABLE_CLASS_AC(m_tcth)) && (IS_TABLE_DEST_ZERO(m_tcth));
+  }
+
+  //
+  bool HuffTblDecoder::isTableAC1() const {
+    return (IS_TABLE_CLASS_AC(m_tcth)) && (IS_TABLE_DEST_ONE(m_tcth));
+  }
+
+  //
+  bool HuffTblDecoder::isTableDC0() const {
+    return (IS_TABLE_CLASS_DC(m_tcth)) && (IS_TABLE_DEST_ZERO(m_tcth));
+  }
+
+  //
+  bool HuffTblDecoder::isTableDC1() const {
+    return (IS_TABLE_CLASS_DC(m_tcth)) && (IS_TABLE_DEST_ONE(m_tcth));
+  }
+
+
 
   //
   void storeTcTh() {
@@ -381,8 +490,23 @@ private:
   //
   void finishTable();
 
+#if 0
+  // no parameter anymore
   //
   void writeTable(smoc_port_out<ExpHuffTbl> &out);
+#endif
+
+  //
+  void HuffTblDecoder::writeTableAC0();
+
+  //
+  void HuffTblDecoder::writeTableAC1();
+
+  //
+  void HuffTblDecoder::writeTableDC0();
+
+  //
+  void HuffTblDecoder::writeTableDC1();
   
 
   uint16_t m_symbolsLeft;

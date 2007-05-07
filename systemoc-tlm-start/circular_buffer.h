@@ -68,7 +68,7 @@ protected:
 template<typename T>
 void circular_buffer<T>::put(const data_type &d)
 {
-  DBG_OUT("put(): num_data: " << m_num_data << std::endl);
+  DBG_OUT("circular_buffer<T>::put(): num_data: " << m_num_data << std::endl);
   assert(!is_full());
 
   m_buffer[m_write] = d;
@@ -82,12 +82,11 @@ template<typename T>
 T circular_buffer<T>::get(void)
 {
   assert(!is_empty());
-  DBG_OUT("get(): num_data: " << m_num_data << std::endl);
+  DBG_OUT("circular_buffer<T>::get(): num_data: " << m_num_data << std::endl);
 
   const size_t ret = m_read;
   m_read = (m_read + 1) % m_size;
   --m_num_data;
-  DBG_OUT("get(): num_data: " << m_num_data << std::endl);
   return m_buffer[ret];
 }
 

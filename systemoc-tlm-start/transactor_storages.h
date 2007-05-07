@@ -20,7 +20,7 @@
 
 /******************************************************************************
  * get and put data in bytewise manner. This makes it independent of concrete
- * data type.
+ * data type. TODO: split in read/write
  *
  */
 class StorageByteAccessIf
@@ -37,22 +37,25 @@ public:
   // not virtual to prevent bypassing of test
   size_t getBytes(byteType *a, const size_t n)
   {
+    DBG_OUT("StorageByteAccessIf::getBytes().\n");
     if (isEmpty() || (n < dataSize()))
       return 0;
 
     return getBytesImpl(a, dataSize());
   }
 
-  //
+  // NOTE: now n == dataSize(), maybe allow bursts
   size_t putBytes(const byteType *a, const size_t n)
   {
-    if (!isFree() || (n < dataSize()))
+    DBG_OUT("StorageByteAccessIf::putBytes(); n = " << n << std::endl);
+    if (!isFree() || (n != dataSize()))
       return 0;
 
     return putBytesImpl(a, dataSize());
   }
 
 private:
+//protected:
   //
   virtual size_t getBytesImpl(byteType *a, const size_t n) = 0;
 
@@ -97,10 +100,11 @@ public:
 
 
 /******************************************************************************
- * Functions independent from data type and needed by transactor
+ * Functions independent from data type and needed by transactor and adapter
  *
  */
-class StorageInTransactorIf
+class StorageInIf :
+  public StorageByteAccessIf
 {
 public:
   //
@@ -118,7 +122,8 @@ public:
  *
  *
  */
-class StorageOutTransactorIf
+class StorageOutIf :
+  public StorageByteAccessIf
 {
 public:
   //
@@ -139,8 +144,8 @@ public:
 template<typename T>
 class SmocPortInStorage :
   public SmocPortInStorageReadIf<T>, // interface for smoc port
-  public StorageByteAccessIf,        // interface for PlugAggregation
-  public StorageInTransactorIf       // interface for PortInTransactor
+  //public StorageByteAccessIf,        // interface for PlugAggregation
+  public StorageInIf                 // remaining data independent functions
 {
 public:
   typedef typename SmocPortInStorageReadIf<T>::readAccessType   readAccessType;
@@ -164,7 +169,7 @@ public:
   void put(const T& t) { mStorage.put(t); }
   
   /*
-   * StorageInTransactorIf
+   * StorageInIf
    */
   //
   size_t numAvailable(void) const { return mStorage.num_available(); }
@@ -208,7 +213,6 @@ private:
   //
   size_t putBytesImpl(const byteType *a, const size_t n)
   {
-    DBG_OUT("SmocPortInStorage::putBytesImpl():\n");
     assert(n == dataSize());
     mStorage.put(*(reinterpret_cast<const T*>(a)));
     return dataSize();
@@ -280,8 +284,8 @@ private:
 template<typename T>
 class SmocPortOutStorage :
   public SmocPortOutStorageWriteIf<T>, // interface for smoc port
-  public StorageByteAccessIf,          // interface for PlugOutAggregation
-  public StorageOutTransactorIf        // interface for PortOutTransactor
+  //public StorageByteAccessIf,          // interface for PlugOutAggregation
+  public StorageOutIf
 {
 public:
   typedef T  dataType;
@@ -300,12 +304,15 @@ public:
   //
   virtual ~SmocPortOutStorage(void) {}
 
+  // FIXME: some functions into StorageOutIf?
+#if 0
   //
   void invalidate(const size_t n)
   {
     for (size_t i = 0; i < n; ++i)
       mStorage[i].invalidate();
   }
+#endif
 
   // wrapper for random_access_circular_buffer::is_full()
   bool isFull(void) const { return mStorage.is_full(); }
@@ -333,7 +340,7 @@ public:
   bool isFree(void) const { return mStorage.num_free() > 0; }
 
   /*
-   * StorageInTransactorIf
+   * StorageOutIf
    */
   //
   bool tokenIsValid(size_t n) const { return mStorage[n].isValid(); }
@@ -353,6 +360,28 @@ public:
   }
 
 private:
+  /*
+   * StorageByteAccessIf
+   */
+  // only smoc port should read from storage
+  size_t getBytesImpl(byteType *a, const size_t n)
+  {
+    assert(n == dataSize());
+    T data = mStorage.get();
+    memcpy(a, &data, sizeof(data));
+    return dataSize();
+  }
+
+  //
+  size_t putBytesImpl(const byteType *a, const size_t n)
+  {
+    assert(0);
+    return 0;
+  }
+
+  //
+  size_t dataSize(void) const { return sizeof(T); }
+
   /********************************************************
    * wraps our storage for smoc_port_out
    */

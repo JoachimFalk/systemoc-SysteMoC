@@ -72,21 +72,22 @@ HuffTblDecoder::HuffTblDecoder(sc_module_name name)
       CALL(HuffTblDecoder::finishTable)           >> s_writeTable;
 
   s_writeTable
-    = GUARD(HuffTblDecoder::isTable)(AC0)         >>
+    = GUARD(HuffTblDecoder::isTableAC0)           >>
       outHuffTblAC0(1)                            >>
-      CALL(HuffTblDecoder::writeTable)(outHuffTblAC0) >> waitTcTh
-    | GUARD(HuffTblDecoder::isTable)(AC1)         >>
+      CALL(HuffTblDecoder::writeTableAC0)         >> waitTcTh
+    | GUARD(HuffTblDecoder::isTableAC1)           >>
       outHuffTblAC1(1)                            >>
-      CALL(HuffTblDecoder::writeTable)(outHuffTblAC1) >> waitTcTh
-    | GUARD(HuffTblDecoder::isTable)(DC0)         >>
+      CALL(HuffTblDecoder::writeTableAC1)         >> waitTcTh
+    | GUARD(HuffTblDecoder::isTableDC0)           >>
       outHuffTblDC0(1)                            >>
-      CALL(HuffTblDecoder::writeTable)(outHuffTblDC0) >> waitTcTh
-    | GUARD(HuffTblDecoder::isTable)(DC1)         >>
+      CALL(HuffTblDecoder::writeTableDC0)         >> waitTcTh
+    | GUARD(HuffTblDecoder::isTableDC1)           >>
       outHuffTblDC1(1)                            >>
-      CALL(HuffTblDecoder::writeTable)(outHuffTblDC1) >> waitTcTh;
+      CALL(HuffTblDecoder::writeTableDC1)         >> waitTcTh;
 }
 
 
+#if 0
 //
 bool HuffTblDecoder::isTable(const HuffTableType type) const {
   assert(IS_TABLE_CLASS_AC(m_tcth) || IS_TABLE_CLASS_DC(m_tcth));
@@ -106,6 +107,7 @@ bool HuffTblDecoder::isTable(const HuffTableType type) const {
       return type == DC1;
     }
 }
+#endif
 
 
 //
@@ -292,6 +294,8 @@ void HuffTblDecoder::finishTable() {
 }
 
 
+#if 0
+// avoid parameter
 //
 void HuffTblDecoder::writeTable(smoc_port_out<ExpHuffTbl> &out) {
   DBG_OUT("writeTable()\n");
@@ -300,6 +304,52 @@ void HuffTblDecoder::writeTable(smoc_port_out<ExpHuffTbl> &out) {
   out[0] = m_tmpHuff;
 
   // "reset" tmpHuff
+  m_huffWritePos = 0;
+}
+#endif
+
+
+//
+void HuffTblDecoder::writeTableAC0() {
+  DBG_OUT("writeTable()\n");
+  assert(m_symbolsLeft == 0);
+
+  outHuffTblAC0[0] = m_tmpHuff;
+
+  // "reset" tmpHuff
+  m_huffWritePos = 0;
+}
+
+
+//
+void HuffTblDecoder::writeTableAC1() {
+  DBG_OUT("writeTable()\n");
+  assert(m_symbolsLeft == 0);
+
+  outHuffTblAC1[0] = m_tmpHuff;
+
+  m_huffWritePos = 0;
+}
+
+
+//
+void HuffTblDecoder::writeTableDC0() {
+  DBG_OUT("writeTable()\n");
+  assert(m_symbolsLeft == 0);
+
+  outHuffTblDC0[0] = m_tmpHuff;
+
+  m_huffWritePos = 0;
+}
+
+
+//
+void HuffTblDecoder::writeTableDC1() {
+  DBG_OUT("writeTable()\n");
+  assert(m_symbolsLeft == 0);
+
+  outHuffTblDC1[0] = m_tmpHuff;
+
   m_huffWritePos = 0;
 }
 
@@ -345,30 +395,32 @@ InvHuffman::InvHuffman(sc_module_name name)
       ( inHuffTblAC0(1) && in(1)                               &&
         JS_ISCTRL(in.getValueAt(0))                            &&
         GUARD(InvHuffman::isDiscardHuff)                       &&
-        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_AC)(0) )        >>
+        GUARD(InvHuffman::isHuffTblIdAC0) )                    >>
       out(1)                                                   >>
-      CALL(InvHuffman::discardHuff)(inHuffTblAC0)              >> main
+      // FIXME: -jens- sole purpose of function is dump debug infos
+      //  just remove for synthesis?
+      CALL(InvHuffman::discardHuffAC0)                         >> main
     | // discard HuffTable AC1
       ( inHuffTblAC1(1) && in(1)                               &&
         JS_ISCTRL(in.getValueAt(0))                            &&
         GUARD(InvHuffman::isDiscardHuff)                       &&
-        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_AC)(1) )        >>
+        GUARD(InvHuffman::isHuffTblIdAC1) )                    >>
       out(1)                                                   >>
-      CALL(InvHuffman::discardHuff)(inHuffTblAC1)              >> main
+      CALL(InvHuffman::discardHuffAC1)                         >> main
     | // discard HuffTable DC0
       ( inHuffTblDC0(1) && in(1)                               &&
         JS_ISCTRL(in.getValueAt(0))                            &&
         GUARD(InvHuffman::isDiscardHuff)                       &&
-        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_DC)(0) )        >>
+        GUARD(InvHuffman::isHuffTblIdDC0) )                    >>
       out(1)                                                   >>
-      CALL(InvHuffman::discardHuff)(inHuffTblDC0)              >> main
+      CALL(InvHuffman::discardHuffDC0)                         >> main
     | // discard HuffTable DC1
       ( inHuffTblDC1(1)  && in(1)                              &&
         JS_ISCTRL(in.getValueAt(0))                            &&
         GUARD(InvHuffman::isDiscardHuff)                       &&
-        GUARD(InvHuffman::isHuffTblId)(HUFFTBL_DC)(1) )        >>
+        GUARD(InvHuffman::isHuffTblIdDC1) )                    >>
       out(1)                                                   >>
-      CALL(InvHuffman::discardHuff)(inHuffTblDC1)              >> main
+      CALL(InvHuffman::discardHuffDC1)                         >> main
     /*
      * handle data
      */
