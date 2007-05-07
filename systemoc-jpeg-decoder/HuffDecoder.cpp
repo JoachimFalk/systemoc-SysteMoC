@@ -52,6 +52,8 @@ HuffTblDecoder::HuffTblDecoder(sc_module_name name)
   
   dbgout << myHeader;
 #endif // DBG_ENABLE
+
+  m_BITS = (uint8_t*)calloc(16, sizeof(uint8_t));
   
   waitTcTh
     // read Tc & Th (8 bit)

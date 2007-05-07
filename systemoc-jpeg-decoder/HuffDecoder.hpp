@@ -693,7 +693,8 @@ private:
 
   uint16_t m_symbolsLeft;
   uint8_t  m_tcth;
-  uint8_t  m_BITS[16];
+  //uint8_t  m_BITS[16];
+  uint8_t  *m_BITS;
   ExpHuffTbl m_tmpHuff;
   size_t m_huffWritePos;
 #ifdef DBG_ENABLE
