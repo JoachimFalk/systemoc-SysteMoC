@@ -54,8 +54,6 @@ using namespace std;
 #ifdef REAL_BLOCK_DATA
 // Only significant in case of REAL_BLOCK_DATA
 # define SINK_BINARY_OUTPUT 
-# define IMAGE_WIDTH  176
-# define IMAGE_HEIGHT 144
 #else
 // Only significant in case of !REAL_BLOCK_DATA
 //# define USE_COUNTER_INPUT

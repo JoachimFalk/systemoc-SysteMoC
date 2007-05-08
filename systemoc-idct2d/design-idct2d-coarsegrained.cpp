@@ -38,4 +38,4 @@
 
 #define IDCT2D_ARCH IDCT2D_FINEGRAINED
 
-#include "idct2d_main.hpp"
+#include "MTopIdct2D.hpp"

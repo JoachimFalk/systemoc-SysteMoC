@@ -43,14 +43,10 @@
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-//# include <smoc_scheduler.hpp>
-# include <systemoc/smoc_pggen.hpp>
-#endif
 
 #include "callib.hpp"
 
-#include "IDCT1d_row.hpp"
+#include "MIdct1D.hpp"
 
 #define INAMEblk "test_in.dat"
 #define ONAMEblk "test_out.dat"
@@ -235,7 +231,7 @@ class IDCT1D_TEST
 : public smoc_graph {
 private:
   m_source_idct src_idct;
-  m_idct_row    idct1d;
+  MIdct1D       mIdctRow;
   m_sink_idct   snk_idct;
 public:
   IDCT1D_TEST(sc_module_name name
@@ -245,27 +241,27 @@ public:
 )
     : smoc_graph(name),
       src_idct("src_idct", periods),
-      idct1d("idct1d"),
+      mIdctRow("mIdctRow", IDCT1D_ROW_PARAM),
       snk_idct("snk_idct") {
 #ifndef KASCPAR_PARSING    
     // src_idct -> idct1d
-    connectNodePorts( src_idct.out0, idct1d.i0,    smoc_fifo<int>(2));
-    connectNodePorts( src_idct.out1, idct1d.i1,    smoc_fifo<int>(2));
-    connectNodePorts( src_idct.out2, idct1d.i2,    smoc_fifo<int>(2));
-    connectNodePorts( src_idct.out3, idct1d.i3,    smoc_fifo<int>(2));
-    connectNodePorts( src_idct.out4, idct1d.i4,    smoc_fifo<int>(2));
-    connectNodePorts( src_idct.out5, idct1d.i5,    smoc_fifo<int>(2));
-    connectNodePorts( src_idct.out6, idct1d.i6,    smoc_fifo<int>(2));
-    connectNodePorts( src_idct.out7, idct1d.i7,    smoc_fifo<int>(2));
-    // idct1d -> snk_idct
-    connectNodePorts( idct1d.o0,     snk_idct.in0, smoc_fifo<int>(2));
-    connectNodePorts( idct1d.o1,     snk_idct.in1, smoc_fifo<int>(2));
-    connectNodePorts( idct1d.o2,     snk_idct.in2, smoc_fifo<int>(2));
-    connectNodePorts( idct1d.o3,     snk_idct.in3, smoc_fifo<int>(2));
-    connectNodePorts( idct1d.o4,     snk_idct.in4, smoc_fifo<int>(2));
-    connectNodePorts( idct1d.o5,     snk_idct.in5, smoc_fifo<int>(2));
-    connectNodePorts( idct1d.o6,     snk_idct.in6, smoc_fifo<int>(2));
-    connectNodePorts( idct1d.o7,     snk_idct.in7, smoc_fifo<int>(2));
+    connectNodePorts(src_idct.out0, mIdctRow.i0,  smoc_fifo<int>(2));
+    connectNodePorts(src_idct.out1, mIdctRow.i1,  smoc_fifo<int>(2));
+    connectNodePorts(src_idct.out2, mIdctRow.i2,  smoc_fifo<int>(2));
+    connectNodePorts(src_idct.out3, mIdctRow.i3,  smoc_fifo<int>(2));
+    connectNodePorts(src_idct.out4, mIdctRow.i4,  smoc_fifo<int>(2));
+    connectNodePorts(src_idct.out5, mIdctRow.i5,  smoc_fifo<int>(2));
+    connectNodePorts(src_idct.out6, mIdctRow.i6,  smoc_fifo<int>(2));
+    connectNodePorts(src_idct.out7, mIdctRow.i7,  smoc_fifo<int>(2));
+    // mIdctRow -> snk_idct
+    connectNodePorts(mIdctRow.o0,   snk_idct.in0, smoc_fifo<int>(2));
+    connectNodePorts(mIdctRow.o1,   snk_idct.in1, smoc_fifo<int>(2));
+    connectNodePorts(mIdctRow.o2,   snk_idct.in2, smoc_fifo<int>(2));
+    connectNodePorts(mIdctRow.o3,   snk_idct.in3, smoc_fifo<int>(2));
+    connectNodePorts(mIdctRow.o4,   snk_idct.in4, smoc_fifo<int>(2));
+    connectNodePorts(mIdctRow.o5,   snk_idct.in5, smoc_fifo<int>(2));
+    connectNodePorts(mIdctRow.o6,   snk_idct.in6, smoc_fifo<int>(2));
+    connectNodePorts(mIdctRow.o7,   snk_idct.in7, smoc_fifo<int>(2));
 #endif
       }
 };

@@ -34,69 +34,79 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_IDCTFLY_HPP
-#define _INCLUDED_IDCTFLY_HPP
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
 
-#ifdef VERBOSE_ACTOR
-#define VERBOSE_IDCT_FLY
-#endif
+#include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
-class m_IDCTfly: public smoc_actor {
-public:
-  smoc_port_in<int> I1;
-  smoc_port_in<int> I2;
-  smoc_port_out<int> O1;
-  smoc_port_out<int> O2;
-private:
-  const int  W0;
-  const int  OS;
-  const int  W1;
-  const int  W2;
-  const int  ATTEN;
-  
-  void action0() {
-    int t = (W0 * (I1[0] + I2[0])) + OS;
-		int O1_internal = cal_rshift(t + (I1[0] * W1), ATTEN);
-		int O2_internal = cal_rshift(t + (I2[0] * W2), ATTEN);
-    O1[0] = O1_internal;
-    O2[0] = O2_internal;
-#ifdef VERBOSE_IDCT_FLY
-#ifndef NDEBUG
-#ifndef XILINX_EDK_RUNTIME
-		cout << name() << ": " << "I1[0] = " << I1[0] << endl;
-		cout << name() << ": " << "I2[0] = " << I2[0] << endl;
-		cout << name() << ": " << "O1[0] = " << O1_internal << endl;
-		cout << name() << ": " << "O2[0] = " << O2_internal << endl;
+#include "smoc_synth_std_includes.hpp"
+
+#include "MIdct2D.hpp"
+
+#ifdef REAL_BLOCK_DATA
+# include "MIdctImageSource.hpp"
+# include "MImageSink.hpp"
+# define DEFAULT_BLOCK_COUNT ((IMAGE_WIDTH)/8*(IMAGE_HEIGHT)/8)
 #else
-		xil_printf("%s: I1[0] = %d\r\n",name(),I1[0]);
-		xil_printf("%s: I2[0] = %d\r\n",name(),I2[0]);
-		xil_printf("%s: O1[0] = %d\r\n",name(),O1_internal);
-		xil_printf("%s: O2[0] = %d\r\n",name(),O2_internal);
+# include "IDCTsource.hpp"
+# include "IDCTsink.hpp"
+# define DEFAULT_BLOCK_COUNT 25
 #endif
+
+class MTopIdct2D
+: public smoc_graph {
+private:
+#ifdef REAL_BLOCK_DATA
+  MIdctImageSource  mSrc;
+#else
+
 #endif
+  MIdct2D           mIdct2D;
+#ifdef REAL_BLOCK_DATA
+  MImageSink        mSnk;
+#else
+
 #endif
-  }
-  
-  smoc_firing_state start;
 public:
-  m_IDCTfly(sc_module_name name,
-            int W0, int OS,
-	    int W1, int W2,
-	    int ATTEN)
-    : smoc_actor(name, start),
-      W0(W0), OS(OS), W1(W1), W2(W2), ATTEN(ATTEN) {
-    SMOC_REGISTER_CPARAM(W0);
-    SMOC_REGISTER_CPARAM(OS);
-    SMOC_REGISTER_CPARAM(W1);
-    SMOC_REGISTER_CPARAM(W2);
-    SMOC_REGISTER_CPARAM(ATTEN);
-    start = (I1(1) && I2(1))          >>
-            (O1(1) && O2(1))          >>
-            CALL(m_IDCTfly::action0)  >> start;
+  MTopIdct2D(sc_module_name name, size_t periods)
+    : smoc_graph(name),
+      mSrc("mSrc", periods),
+      mIdct2D("mIdct2D", 0, -128, 127),
+#ifdef REAL_BLOCK_DATA
+      mSnk("mSnk", IMAGE_WIDTH, IMAGE_HEIGHT)
+#else
+      mSnk("mSnk")
+#endif
+  {
+#ifndef KASCPAR_PARSING
+    connectNodePorts(mSrc.out,     mIdct2D.in, smoc_fifo<int>(128));
+# ifdef REAL_BLOCK_DATA
+    connectNodePorts(mIdct2D.out,  mSnk.in,    smoc_fifo<int>(IMAGE_WIDTH/8*64));
+# else
+    connectNodePorts(mIdct2D.out,  mSnk.in,    smoc_fifo<int>(128));
+# endif
+#endif
   }
-  
-  virtual ~m_IDCTfly() {}
 };
 
-
-#endif // _INCLUDED_IDCTFLY_HPP
+#ifndef KASCPAR_PARSING
+int sc_main (int argc, char **argv) {
+  size_t periods            =
+    (argc > 1)
+    ? atoi(argv[1])
+    : DEFAULT_BLOCK_COUNT;
+  
+  MTopIdct2D mTopIdct2D("mTopIdct2D", periods);
+  
+  smoc_top mTop(&mTopIdct2D);
+  
+  sc_start(-1);
+  
+  return 0;
+}
+#endif

@@ -34,52 +34,66 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_INV_LEVEL_HPP
-#define _INCLUDED_INV_LEVEL_HPP
+#ifndef _INCLUDED_MIDCTFLY_HPP
+#define _INCLUDED_MIDCTFLY_HPP
 
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <stdlib.h>
+#ifdef VERBOSE_ACTOR
+# define VERBOSE_IDCT_FLY
+#endif
 
-#include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_node_types.hpp>
-
-#include "channels.hpp"
-
-class InvLevel: public smoc_actor {
+class MIdctFly: public smoc_actor {
 public:
-  smoc_port_in<IDCTCoeff_t>      in;
-  smoc_port_out<JpegChannel_t>   out;
+  smoc_port_in<int> I1;
+  smoc_port_in<int> I2;
+  smoc_port_out<int> O1;
+  smoc_port_out<int> O2;
 private:
-  void transform() {
-    IDCTCoeff_t val = in[0] + 128;
-    out[0] = JS_COMPONENT_SETVAL(
-      val < 0 ? 0
-              : val > 255 ? 255 : val);
+  const int  W0;
+  const int  OS;
+  const int  W1;
+  const int  W2;
+  const int  ATTEN;
+  
+  void action0() {
+    int t = (W0 * (I1[0] + I2[0])) + OS;
+    int O1_internal = cal_rshift(t + (I1[0] * W1), ATTEN);
+    int O2_internal = cal_rshift(t + (I2[0] * W2), ATTEN);
+    O1[0] = O1_internal;
+    O2[0] = O2_internal;
+#ifdef VERBOSE_IDCT_FLY
+# ifndef NDEBUG
+#   ifndef XILINX_EDK_RUNTIME
+    cout << name() << ": " << "I1[0] = " << I1[0] << endl;
+    cout << name() << ": " << "I2[0] = " << I2[0] << endl;
+    cout << name() << ": " << "O1[0] = " << O1_internal << endl;
+    cout << name() << ": " << "O2[0] = " << O2_internal << endl;
+#   else
+    xil_printf("%s: I1[0] = %d\r\n", name(), I1[0]);
+    xil_printf("%s: I2[0] = %d\r\n", name(), I2[0]);
+    xil_printf("%s: O1[0] = %d\r\n", name(), O1_internal);
+    xil_printf("%s: O2[0] = %d\r\n", name(), O2_internal);
+#   endif
+# endif
+#endif
   }
 
-//// forward control commands from input to output
-//void forwardCtrl() {
-//  assert(0); // no ctrl
-//}
-
-  smoc_firing_state main;
+  smoc_firing_state start;
 public:
-  InvLevel(sc_module_name name)
-    : smoc_actor(name, main) {
-    main
-//    // ignore and forward control tokens
-//    = ( in(1) && JS_ISCTRL(in.getValueAt(0)) )     >>
-//      out(1)                                       >>
-//      CALL(InvLevel::forwardCtrl)                  >> main
-//    | // data transformation
-//      ( in(1) && !JS_ISCTRL(in.getValueAt(0)) )    >>
-      = in(1)                                        >>
-        out(1)                                       >>
-        CALL(InvLevel::transform)                    >> main
+  MIdctFly(
+    sc_module_name name, int W0, int OS, int W1, int W2, int ATTEN)
+    : smoc_actor(name, start), W0(W0), OS(OS), W1(W1), W2(W2), ATTEN(ATTEN)
+  {
+    SMOC_REGISTER_CPARAM(W0);
+    SMOC_REGISTER_CPARAM(OS);
+    SMOC_REGISTER_CPARAM(W1);
+    SMOC_REGISTER_CPARAM(W2);
+    SMOC_REGISTER_CPARAM(ATTEN);
+    start
+      = (I1(1) && I2(1))        >>
+        (O1(1) && O2(1))        >>
+        CALL(MIdctFly::action0) >> start
       ;
   }
 };
 
-#endif // _INCLUDED_INV_LEVEL_HPP
+#endif // _INCLUDED_MIDCTFLY_HPP

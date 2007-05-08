@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_IDCTBLOCKSINK_HPP
-#define _INCLUDED_IDCTBLOCKSINK_HPP
+#ifndef _INCLUDED_MIMAGESINK_HPP
+#define _INCLUDED_MIMAGESINK_HPP
 
 #include <cstdlib>
 #include <iostream>
@@ -46,7 +46,7 @@
 
 #include "smoc_synth_std_includes.hpp"
 
-class m_block_sink: public smoc_actor {
+class MImageSink: public smoc_actor {
 public:
   smoc_port_in<int> in;
 private:
@@ -122,33 +122,29 @@ private:
   
   smoc_firing_state start;
 public:
-  m_block_sink( sc_module_name name,
-                size_t image_width,
-                size_t image_height
-                )
-    : smoc_actor( name, start ),
+  MImageSink(sc_module_name name,
+               size_t image_width,
+               size_t image_height)
+    : smoc_actor(name, start),
       image_width(image_width),
       image_height(image_height),
       block_count(0)
-      
   {
     SMOC_REGISTER_CPARAM(image_width);
     SMOC_REGISTER_CPARAM(image_height);
     //Only support complete blocks
     block_nbr = (image_width/8*image_height/8);
-
     
     // Read a complete line as once
-    start = in(64*(image_width/8)) 
-      >> (VAR(block_count) != (unsigned)0)
-      >> CALL(m_block_sink::process)  >> start
-      | in(64*(image_width/8)) 
-      >> (VAR(block_count) == (unsigned)0)
-      >> CALL(m_block_sink::new_image)  >> start;
-  }
-  
-  ~m_block_sink() {
+    start
+      = in(64*(image_width/8))            >>
+        (VAR(block_count) != (unsigned)0) >>
+        CALL(MImageSink::process)       >> start
+      | in(64*(image_width/8))            >>
+        (VAR(block_count) == (unsigned)0) >>
+        CALL(MImageSink::new_image)     >> start
+      ;
   }
 };
 
-#endif
+#endif // _INCLUDED_MIMAGESINK_HPP

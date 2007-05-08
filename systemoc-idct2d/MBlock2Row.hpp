@@ -34,30 +34,30 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_BLOCK2ROW_HPP
-#define _INCLUDED_BLOCK2ROW_HPP
+#ifndef _INCLUDED_MBLOCK2ROW_HPP
+#define _INCLUDED_MBLOCK2ROW_HPP
 
 #include "callib.hpp"
 
 #ifdef VERBOSE_ACTOR
-#define VERBOSE_IDCT_BLOCK2ROW
+# define VERBOSE_IDCT_BLOCK2ROW
 #endif
 
-class m_block2row: public smoc_actor {
+class MBlock2Row: public smoc_actor {
 public:
   smoc_port_in<int>  b;
   smoc_port_out<int> C0, C1, C2, C3, C4, C5, C6, C7;
 private:
   void action0() {
 #ifdef VERBOSE_IDCT_BLOCK2ROW
-#ifndef NDEBUG
+# ifndef NDEBUG
     for ( int i = 0; i < 64; i++ )
-#ifndef XILINX_EDK_RUNTIME
+#   ifndef XILINX_EDK_RUNTIME
       cout << name() << ": " << "b[" << i << "] = " << b[i] << endl;
-#else
-      xil_printf("%s: b[%d] = %d\r\n",name(),i,b[i]);
-#endif
-#endif
+#   else
+      xil_printf("%s: b[%d] = %d\r\n",name(), i, b[i]);
+#   endif
+# endif
 #endif
     for ( int i = 0; i < 8; ++i ) {
       C0[i] = b[8*i];
@@ -72,13 +72,13 @@ private:
   }
   smoc_firing_state start;
 public:
-  m_block2row(sc_module_name name)
+  MBlock2Row(sc_module_name name)
     : smoc_actor(name, start) {
-    start = b(64)                                 >>
-            (C0(8) && C1(8) && C2(8) && C3(8) &&
-             C4(8) && C5(8) && C6(8) && C7(8))    >>
-            CALL(m_block2row::action0)            >> start;
+    start
+      = b(64)                                 >>
+        (C0(8) && C1(8) && C2(8) && C3(8) &&
+         C4(8) && C5(8) && C6(8) && C7(8))    >>
+        CALL(MBlock2Row::action0)             >> start;
   }
-  virtual ~m_block2row(){}
 };
-#endif // _INCLUDED_BLOCK2ROW_HPP
+#endif // _INCLUDED_MBLOCK2ROW_HPP

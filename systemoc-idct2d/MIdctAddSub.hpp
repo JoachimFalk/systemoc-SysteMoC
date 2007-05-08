@@ -34,47 +34,60 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_IDCTSCALE_HPP
-#define _INCLUDED_IDCTSCALE_HPP
+#ifndef _INCLUDED_MIDCTADDSUB_HPP
+#define _INCLUDED_MIDCTADDSUB_HPP
 
 #ifdef VERBOSE_ACTOR
-#define VERBOSE_IDCT_SCALE
+# define VERBOSE_IDCT_ADDSUB
 #endif
 
-class m_IDCTscale: public smoc_actor {
+class MIdctAddSub: public smoc_actor {
 public:
-  smoc_port_in<int> I;
-  smoc_port_out<int> O;
+  smoc_port_in<int>  I1;
+  smoc_port_in<int>  I2;
+  smoc_port_out<int> O1;
+  smoc_port_out<int> O2;
 private:
   const int  G;
   const int  OS;
-  
+  const int  ATTEN;
+
   void action0() {
-		int temp = OS + (G * I[0]);
-#ifdef VERBOSE_IDCT_SCALE
-#ifndef NDEBUG
-#ifndef XILINX_EDK_RUNTIME
-		cout << name() << ": " << "I[0] = " << I[0] << endl;
-		cout << name() << ": " << "O[0] = " << temp << endl;
-#else
-		xil_printf("%s: I[0] = %d\r\n",name(),I[0]);
-		xil_printf("%s: O[0] = %d\r\n",name(),temp);
+    int O1_internal = cal_rshift(G * (I1[0] + I2[0]) + OS, ATTEN);
+    int O2_internal = cal_rshift(G * (I1[0] - I2[0]) + OS, ATTEN);
+    O1[0] = O1_internal;
+    O2[0] = O2_internal;
+#ifdef VERBOSE_IDCT_ADDSUB
+# ifndef NDEBUG
+#   ifndef XILINX_EDK_RUNTIME
+    cout << name() << ": " << "I1[0] = " << I1[0] << endl;
+    cout << name() << ": " << "I2[0] = " << I2[0] << endl;
+    cout << name() << ": " << "O1[0] = " << O1_internal << endl;
+    cout << name() << ": " << "O2[0] = " << O2_internal << endl;
+#   else
+    xil_printf("%s: I1[0] = %d\r\n", name(), I1[0]);
+    xil_printf("%s: I2[0] = %d\r\n", name(), I2[0]);
+    xil_printf("%s: O1[0] = %d\r\n", name(), O1_internal);
+    xil_printf("%s: O2[0] = %d\r\n", name(), O2_internal);
+#   endif
+# endif
 #endif
-#endif
-#endif
-    O[0] = temp;
   }
-  
+
   smoc_firing_state start;
 public:
-  m_IDCTscale(sc_module_name name,
-              int G, int OS)
-    : smoc_actor(name, start),
-      G(G), OS(OS) {
+  MIdctAddSub(sc_module_name name, int G, int OS, int ATTEN)
+    : smoc_actor(name, start), G(G), OS(OS), ATTEN(ATTEN)
+  {
     SMOC_REGISTER_CPARAM(G);
     SMOC_REGISTER_CPARAM(OS);
-    start = I(1) >> O(1)                >>
-            CALL(m_IDCTscale::action0)  >> start;
+    SMOC_REGISTER_CPARAM(ATTEN);
+    start
+      = (I1(1) && I2(1))           >>
+        (O1(1) && O2(1))           >>
+        CALL(MIdctAddSub::action0) >> start
+      ;
   }
 };
-#endif // _INCLUDED_IDCTSCALE_HPP
+
+#endif // _INCLUDED_MIDCTADDSUB_HPP

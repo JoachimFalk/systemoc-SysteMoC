@@ -38,4 +38,4 @@
 
 #define IDCT2D_ARCH IDCT2D_MONOLITHIC
 
-#include "idct2d_main.hpp"
+#include "MTopIdct2D.hpp"

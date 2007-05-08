@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_IDCTBLOCKSOURCE_HPP
-#define _INCLUDED_IDCTBLOCKSOURCE_HPP
+#ifndef _INCLUDED_MRANGEADJ_HPP
+#define _INCLUDED_MRANGEADJ_HPP
 
 #include <cstdlib>
 #include <iostream>
@@ -43,68 +43,36 @@
 #include <stdlib.h>
 
 #include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
-#include "smoc_synth_std_includes.hpp"
-
-class m_block_source_idct: public smoc_actor {
+class MRangeAdj: public smoc_actor {
 public:
-  smoc_port_out<int> out;
-  smoc_port_out<int> min;
+  smoc_port_in<int>   in;
+  smoc_port_out<int>  out;
 private:
-  size_t counter;
-  size_t counter2; 
+  const int levelAdj;
+  const int min;
+  const int max;
 
-  
-  void process() {
-
-#ifndef KASCPAR_PARSING    
-    const static int block_data[] = {
-# include "Y_IdctCoeff.txt"
-    };
-    const static unsigned long block_data_size =   
-      sizeof(block_data)/sizeof(block_data[0]);
-#endif
-
-    int myMin;
-
-    int j = 0;
-
-    while(j <= 63){
-      if (block_data[counter] == 0){
-        counter++;
-        for(int i = 0; i < block_data[counter]; i++){
-          out[j] = 0;
-          j++;
-          counter2++;
-        }
-      }else{
-        out[j] = block_data[counter];        
-        counter2++;
-        j++;
-      }
-      counter++;
-    }
-    
-    if (counter >= block_data_size){
-      counter = 0;
-    }
-
-    myMin = -128;
-    min[0] = myMin;
+  void transform() {
+    int val = in[0] + levelAdj;
+    out[0] =
+      val < min
+        ? min
+        : val > max ? max : val;
   }
- 
-  smoc_firing_state start;
+
+  smoc_firing_state main;
 public:
-  m_block_source_idct(sc_module_name name,
-      size_t periods)
-    : smoc_actor(name, start), counter(0), counter2(0) {
-    SMOC_REGISTER_CPARAM(periods);
-    start = (out(64) && min(1) && VAR(counter2) < periods * 64)  >>
-      CALL(m_block_source_idct::process)                        >> start;
-  }
-
-  ~m_block_source_idct() {
+  MRangeAdj(sc_module_name name, int levelAdj, int min, int max)
+    : smoc_actor(name, main), levelAdj(levelAdj), min(min), max(max)
+  {
+    main
+      = in(1)                       >>
+        out(1)                      >>
+        CALL(MRangeAdj::transform)  >> main
+      ;
   }
 };
 
-#endif
+#endif // _INCLUDED_MRANGEADJ_HPP

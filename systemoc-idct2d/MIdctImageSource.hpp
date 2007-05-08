@@ -34,90 +34,65 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_MIDCTIMAGESOURCE_HPP
+#define _INCLUDED_MIDCTIMAGESOURCE_HPP
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 
-#include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-# include <systemoc/smoc_pggen.hpp>
-#endif
 
 #include "smoc_synth_std_includes.hpp"
 
-#include "idct2d.hpp"
-
-#ifndef REAL_BLOCK_DATA
-# include "IDCTsource.hpp"
-# include "IDCTsink.hpp"
-#else
-# include "IDCT_block_source.hpp"
-# include "IDCT_block_sink.hpp"
-#endif
-
-#ifndef DEFAULT_BLOCK_COUNT
-# ifdef REAL_BLOCK_DATA
-#  define DEFAULT_BLOCK_COUNT ((IMAGE_WIDTH)/8*(IMAGE_HEIGHT)/8)
-# else
-#  define DEFAULT_BLOCK_COUNT 25
-# endif
-#endif
-
-class mTopIdct2D
-: public smoc_graph {
-private:
-#ifndef REAL_BLOCK_DATA
-  m_source_idct       src;
-#else
-  m_block_source_idct src;
-#endif
-  MIdct2D             mIdct2D;
-#ifndef REAL_BLOCK_DATA
-  m_sink              snk;
-#else
-  m_block_sink        snk;
-#endif
-
+class MIdctImageSource: public smoc_actor {
 public:
-  mTopIdct2D(sc_module_name name, size_t periods)
-    : smoc_graph(name),
-      src("src", periods),
-      mIdct2D("mIdct2D"),
-#ifdef REAL_BLOCK_DATA
-      snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT)
-#else
-      snk("snk")
+  smoc_port_out<int> out;
+private:
+  size_t coeffs;
+  size_t zeroRep;
+  size_t dataOff;
+
+  void process() {
+    int val;
+    
+#ifndef KASCPAR_PARSING    
+# define IMAGE_WIDTH  176
+# define IMAGE_HEIGHT 144
+    // ZRL coded IDCT coeffs
+    const static int block_data[] = {
+# include "Y_IdctCoeff.txt"
+    };
+    const size_t block_data_size =   
+      sizeof(block_data)/sizeof(block_data[0]);
 #endif
+
+    if (zeroRep > 0) {
+      out[0] = 0; --zeroRep;
+    } else {
+      out[0] = (val = block_data[dataOff]); ++dataOff;
+      if (val == 0) {
+        // RLZ
+        zeroRep = block_data[dataOff] - 1; ++dataOff;
+      }
+    }
+    ++coeffs;
+    if (dataOff >= block_data_size)
+      dataOff = 0;
+  }
+ 
+  smoc_firing_state start;
+public:
+  MIdctImageSource(sc_module_name name, size_t periods)
+    : smoc_actor(name, start), coeffs(0), zeroRep(0), dataOff(0)
   {
-#ifndef KASCPAR_PARSING
-    connectNodePorts(src.out,      mIdct2D.in,  smoc_fifo<int>(128));
-    connectNodePorts(src.min,      mIdct2D.min, smoc_fifo<int>(4));
-# ifndef REAL_BLOCK_DATA
-    connectNodePorts(mIdct2D.out,  snk.in,     smoc_fifo<int>(128));
-# else
-    connectNodePorts(mIdct2D.out,  snk.in,     smoc_fifo<int>(IMAGE_WIDTH/8*64));
-# endif
-#endif
+    SMOC_REGISTER_CPARAM(periods);
+    start
+      = (out(1) && VAR(coeffs) < periods * 64)  >>
+        CALL(MIdctImageSource::process)         >> start
+      ;
   }
 };
 
-#ifndef KASCPAR_PARSING
-int sc_main (int argc, char **argv) {
-  size_t periods            =
-    (argc > 1)
-    ? atoi(argv[1])
-    : DEFAULT_BLOCK_COUNT;
-  
-  mTopIdct2D topIdct2D("topIdct2D", periods);
-  
-  smoc_top top(&topIdct2D);
-  
-  sc_start(-1);
-  
-  return 0;
-}
-#endif
+#endif // _INCLUDED_MIDCTIMAGESOURCE_HPP
