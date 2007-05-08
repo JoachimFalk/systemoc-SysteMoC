@@ -34,76 +34,36 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_IDCTSOURCE_HPP
-#define _INCLUDED_IDCTSOURCE_HPP
-
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <stdlib.h>
+#ifndef _INCLUDED_MCOUNTERSOURCE_HPP
+#define _INCLUDED_MCOUNTERSOURCE_HPP
 
 #include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
 #include "smoc_synth_std_includes.hpp"
 
-class m_source_idct: public smoc_actor {
+class MCounterSource: public smoc_actor {
 public:
   smoc_port_out<int> out;
-  smoc_port_out<int> min;
 private:
   size_t counter;
-#ifndef USE_COUNTER_INPUT
-  std::ifstream i1; 
-#endif
-  
+
   void process() {
-    int myMin;
-    int myOut;
-    
-#ifndef USE_COUNTER_INPUT
-    if (i1.good()) {
-#endif
-      for ( int j = 0; j <= 63; j++ ) {
-#ifdef USE_COUNTER_INPUT
-        myOut = counter;
-#else
-        i1 >> myOut;
-        cout << name() << "  write " << myOut << std::endl;
-#endif
-        out[j] = myOut;
-				counter++;
-      }
-      myMin = -256;
-#ifndef USE_COUNTER_INPUT
-      cout << name() << "  write min " << myMin << std::endl;
-#endif
-      min[0] = myMin;
-#ifndef USE_COUNTER_INPUT
-    } else {
-      cout << "File empty! Please create a file with name test_in.dat!" << std::endl;
-      exit (1) ;
-    }
-#endif
+    out[0] = counter & 63;
+    ++counter;
   }
  
   smoc_firing_state start;
 public:
-  m_source_idct(sc_module_name name,
-      size_t periods)
-    : smoc_actor(name, start), counter(0) {
+  MCounterSource(sc_module_name name, size_t periods)
+    : smoc_actor(name, start), counter(0)
+  {
     SMOC_REGISTER_CPARAM(periods);
-#ifndef USE_COUNTER_INPUT
-    i1.open(INAMEblk);
-#endif
-    start = (out(64) && min(1) && VAR(counter) < periods * 64)  >>
-            CALL(m_source_idct::process)                        >> start;
-  }
-  ~m_source_idct() {
-#ifndef USE_COUNTER_INPUT
-    i1.close();
-#endif
+    start
+      = (out(1) && VAR(counter) < periods * 64) >>
+        CALL(MCounterSource::process)           >> start
+      ;
   }
 };
 
-
-#endif
+#endif // _INCLUDED_MCOUNTERSOURCE_HPP

@@ -43,6 +43,7 @@
 #include <stdlib.h>
 
 #include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
 #include "smoc_synth_std_includes.hpp"
 

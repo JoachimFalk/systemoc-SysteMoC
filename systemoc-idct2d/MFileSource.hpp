@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_IDCTSINK_HPP
-#define _INCLUDED_IDCTSINK_HPP
+#ifndef _INCLUDED_MFILESOURCE_HPP
+#define _INCLUDED_MFILESOURCE_HPP
 
 #include <cstdlib>
 #include <iostream>
@@ -43,42 +43,38 @@
 #include <stdlib.h>
 
 #include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
-#include "smoc_synth_std_includes.hpp"
-
-class m_sink: public smoc_actor {
+class MFileSource: public smoc_actor {
 public:
-  smoc_port_in<int> in;
+  smoc_port_out<int> out;
 private:
-#ifndef USE_COUNTER_INPUT
-  std::ofstream fo; 
-#endif
-  
+  size_t        counter;
+  std::ifstream i1; 
+
   void process() {
-#ifndef USE_COUNTER_INPUT
-    cout << name() << " receiving " << in[0] << std::endl;
-    fo << in[0] << std::endl;
-#else
-    int foo = in[0];
-#endif
+    if (i1.good()) {
+      int h;
+      
+      i1 >> h; out[j] = h;
+      counter++;
+    } else {
+      cerr << "File empty! Please create a file with name test_in.dat!" << std::endl;
+      exit (1) ;
+    }
   }
-  
+ 
   smoc_firing_state start;
 public:
-  m_sink( sc_module_name name )
-    : smoc_actor( name, start )
-#ifndef USE_COUNTER_INPUT
-    , fo(ONAMEblk)
-#endif
+  MFileSource(sc_module_name name, size_t periods, const std::string &inFileName)
+    : smoc_actor(name, start), counter(0), i1(inFileName.c_str())
   {
-    start = in(1) >> CALL(m_sink::process)  >> start;
-  }
-  
-  ~m_sink() {
-#ifndef USE_COUNTER_INPUT
-    fo.close();
-#endif
+    SMOC_REGISTER_CPARAM(periods);
+    start
+      = (out(1) && min(1) && VAR(counter) < periods * 64) >>
+        CALL(MFileSource::process)                        >> start
+      ;
   }
 };
 
-#endif
+#endif // _INCLUDED_MFILESOURCE_HPP
