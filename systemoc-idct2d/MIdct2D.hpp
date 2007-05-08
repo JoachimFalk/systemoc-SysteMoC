@@ -47,30 +47,54 @@
 
 #include "callib.hpp"
 
-#include "MIdct1D.hpp"
-#include "MBlock2Row.hpp"
-#include "MTranspose.hpp"
-#include "MRangeAdj.hpp"
-#include "MCol2Block.hpp"
+#if IDCT2D_ARCH != IDCT2D_MONOLITHIC
+# if IDCT2D_ARCH == IDCT2D_FINEGRAINED
+#   include "MHIdct1D.hpp"
+# else
+#   include "MNIdctRow.hpp"
+#   include "MNIdctCol.hpp"
+# endif
+# include "MBlock2Row.hpp"
+# include "MTranspose.hpp"
+# include "MRangeAdj.hpp"
+# include "MCol2Block.hpp"
+#endif
 
+#if IDCT2D_ARCH != IDCT2D_MONOLITHIC
 class MIdct2D: public smoc_graph {
 public:
   smoc_port_in<int>  in;  
   smoc_port_out<int> out;
 protected:
   MBlock2Row  mBlock2Row;
-  MIdct1D     mIdctRow;
+#if IDCT2D_ARCH == IDCT2D_FINEGRAINED
+  MHIdct1D    mIdctRow;
+#else
+  MNIdctRow   mIdctRow;
+#endif
   MTranspose  mTranspose;
-  MIdct1D     mIdctCol;
+#if IDCT2D_ARCH == IDCT2D_FINEGRAINED
+  MHIdct1D    mIdctCol;
+#else
+  MNIdctCol   mIdctCol;
+#endif
   MRangeAdj   mRangeAdj;
   MCol2Block  mCol2Block;
 public:
   MIdct2D(sc_module_name name, int levelAdj, int min, int max)
     : smoc_graph(name),
       mBlock2Row("mBlock2Row"),
+#if IDCT2D_ARCH == IDCT2D_FINEGRAINED
       mIdctRow("mIdctRow", IDCT1D_ROW_PARAM),
+#else
+      mIdctRow("mIdctRow"),
+#endif
       mTranspose("mTranspose"),
+#if IDCT2D_ARCH == IDCT2D_FINEGRAINED
       mIdctCol("mIDctCol", IDCT1D_COL_PARAM),
+#else
+      mIdctCol("mIdctCol"),
+#endif
       mRangeAdj("mRangeAdj", levelAdj, min, max),
       mCol2Block("mCol2Block")
   {
@@ -113,5 +137,19 @@ public:
 #endif
   }
 };
+#else // IDCT2D_ARCH == IDCT2D_MONOLITHIC
+class MIdct2D: public smoc_actor {
+public:
+  smoc_port_in<int>  in;  
+  smoc_port_out<int> out;
+protected:
+  smoc_firing_state start;
+public:
+  MIdct2D(sc_module_name name, int levelAdj, int min, int max)
+    : smoc_actor(name, start)
+  {
+  }
+};
+#endif // IDCT2D_ARCH == IDCT2D_MONOLITHIC
 
 #endif // _INCLUDED_MIDCT2D_HPP

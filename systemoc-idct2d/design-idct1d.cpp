@@ -46,7 +46,7 @@
 
 #include "callib.hpp"
 
-#include "MIdct1D.hpp"
+#include "MHIdct1D.hpp"
 
 #define INAMEblk "test_in.dat"
 #define ONAMEblk "test_out.dat"
@@ -231,7 +231,7 @@ class IDCT1D_TEST
 : public smoc_graph {
 private:
   m_source_idct src_idct;
-  MIdct1D       mIdctRow;
+  MHIdct1D      mIdctRow;
   m_sink_idct   snk_idct;
 public:
   IDCT1D_TEST(sc_module_name name

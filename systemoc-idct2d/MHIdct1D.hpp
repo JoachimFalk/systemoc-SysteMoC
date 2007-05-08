@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_MIDCT1D_HPP
-#define _INCLUDED_MIDCT1D_HPP
+#ifndef _INCLUDED_MHIDCT1D_HPP
+#define _INCLUDED_MHIDCT1D_HPP
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
@@ -82,7 +82,7 @@
   1,   0, 14,           /* addsub9 */ \
   1,   0, 14            /* addsub10*/
 
-class MIdct1D: public smoc_graph {
+class MHIdct1D: public smoc_graph {
 public:
   smoc_port_in<int>  i0, i1, i2, i3, i4, i5, i6, i7; 
   smoc_port_out<int> o0, o1, o2, o3, o4, o5, o6, o7;
@@ -92,7 +92,7 @@ protected:
   MIdctAddSub   mAddSub1, mAddSub2, mAddSub3, mAddSub4, mAddSub5;
   MIdctAddSub   mAddSub6, mAddSub7, mAddSub8, mAddSub9, mAddSub10;
 public:
-  MIdct1D(sc_module_name name,
+  MHIdct1D(sc_module_name name,
       int scale1Gain, int scale1Off,
       int scale2Gain, int scale2Off,
       int fly1W0, int fly1OS, int fly1W1, int fly1W2, int fly1Atten,
@@ -169,4 +169,4 @@ public:
   }
 };
 
-#endif // _INCLUDED_MIDCT1D_HPP
+#endif // _INCLUDED_MHIDCT1D_HPP
