@@ -290,8 +290,8 @@ private:
   //  CtrlSieve                    mCtrlSieve;
 public:
   HuffmanTestbench(sc_module_name name, 
-		   const std::string &fileName, 
-		   const std::string& outfilename)
+		   char *fileName, 
+		   char *outfilename)
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),

@@ -627,6 +627,8 @@ struct ExpHuffTbl {
   DecodedSymbol_t  huffVal[256]; // symbol-length assignment parameters (B.2.4.2)
 };
 
+std::ostream &operator<<(std::ostream &out, const ExpHuffTbl &eht);
+
 
 /// Struct from FrameBufferWriter
 struct Pos {

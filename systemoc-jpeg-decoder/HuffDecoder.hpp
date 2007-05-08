@@ -48,6 +48,7 @@
 
 #include <assert.h>
 
+#include "smoc_synth_std_includes.hpp"
 #include "channels.hpp"
 #include "BitSplitter.hpp"
 
@@ -78,26 +79,12 @@
 using CoSupport::Debug;
 #endif // DBG_ENABLE
 
-#define IS_TABLE_CLASS_DC(v) (((v) & 0xF0) == 0x00)
-#define IS_TABLE_CLASS_AC(v) (((v) & 0xF0) == 0x10)
-
-#define IS_TABLE_DEST_ZERO(v) (((v) & 0x0F) == 0x00)
-#define IS_TABLE_DEST_ONE(v) (((v) & 0x0F) == 0x01)
-
 enum HuffTableType {
   AC0,
   AC1,
   DC0,
   DC1
 };
-
-
-/*****************************************************************************/
-
-#ifndef KASCPAR_PARSING
-// needed by SysteMoC!
-ostream &operator<<(ostream &out, const ExpHuffTbl &eht);
-#endif // KASCPAR_PARSING
 
 
 /******************************************************************************
@@ -125,23 +112,17 @@ public:
 private:
   //
   bool isUseHuff() const {
-#ifndef KASCPAR_PARSING
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_USEHUFF);
-#endif // KASCPAR_PARSING
   }
 
   //
   bool isNewScan() const {
-#ifndef KASCPAR_PARSING
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_NEWSCAN);
-#endif // KASCPAR_PARSING
   }
 
   //
   bool isDiscardHuff() const {
-#ifndef KASCPAR_PARSING
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_DISCARDHUFF);
-#endif // KASCPAR_PARSING
   }
 
   // some ctrl we are not interested in
@@ -330,9 +311,9 @@ private:
   //
   void writeAcDiff(void);
 
-  //
+  // FIXME use reference!
   //const smoc_port_in<ExpHuffTbl> &getCurrentAcTable(void) const {
-  const ExpHuffTbl &getCurrentAcTable(void) const {
+  const ExpHuffTbl getCurrentAcTable(void) const {
     switch (m_currentComp) {
       case 0:
         if (m_useHuffTableAc_0 == 0)
@@ -364,8 +345,8 @@ private:
     }*/
   }
 
-  //
-  const ExpHuffTbl &getCurrentDcTable(void) const {
+  // FIXME use reference!
+  const ExpHuffTbl getCurrentDcTable(void) const {
     switch (m_currentComp) {
       case 0:
         if (m_useHuffTableDc_0 == 0)

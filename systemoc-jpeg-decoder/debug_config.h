@@ -33,3 +33,6 @@
 
 /** enable/disable debugging for YCbCr conversion */
 //#define DBG_YCBCR2RGB
+
+/** enable/disable debugging for FrameShuffler */
+//#define DBG_SHUFFLER

@@ -108,7 +108,7 @@ private:
   m_pgm_sink        mPGMsink;
   
 public:
-  Jpeg(sc_module_name name, const std::string &fileName, size_t dimX, size_t dimY, size_t comp)
+  Jpeg(sc_module_name name, char *fileName, size_t dimX, size_t dimY, size_t comp)
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),
@@ -225,8 +225,8 @@ public:
 
 #ifndef KASCPAR_PARSING
 int sc_main (int argc, char **argv) {
-  std::string filename;
-  ssize_t width, height, compCount;
+  char *filename = "lena_256.jpg";
+  ssize_t width = 256, height = 256, compCount = 3;
   
   if (argc != 5) {
     std::cerr

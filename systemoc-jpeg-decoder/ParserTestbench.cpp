@@ -243,7 +243,7 @@ private:
   TestQT3Sink           mSinkQT3;
   TestSinkCodedHuffTbl  mSinkHT;
 public:
-  HuffmanTestbench(sc_module_name name, const std::string &fileName)
+  HuffmanTestbench(sc_module_name name, char *fileName)
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),

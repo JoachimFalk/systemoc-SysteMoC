@@ -6,38 +6,6 @@
 /*****************************************************************************/
 
 
-#ifndef KASCPAR_PARSING
-// needed by SysteMoC!
-ostream &operator<<(ostream &out, const ExpHuffTbl &eht) {
-  out << hex << "valPtr:";
-  for(int i = 0; i<16; ++i){
-    out << " | " << eht.valPtr[i];
-  }
- 
-  out << " |\nminCode:";
-  for(int i = 0; i<16; ++i){
-    out << " | " << eht.minCode[i];
-  }
- 
-  out << " |\nmaxCode:";
-  for(int i = 0; i<16; ++i){
-    out << " | " << eht.maxCode[i];
-  }
-
-  out << " |\nhuffVal:";
-  for(int i = 0; i<256; ++i){
-    out << " | " << eht.huffVal[i];
-  }
-  out << " |";
-  out << dec;
-  return out;
-}
-#endif // KASCPAR_PARSING
-
-
-/*****************************************************************************/
-
-
 //
 HuffTblDecoder::HuffTblDecoder(sc_module_name name)
   : smoc_actor(name, waitTcTh),

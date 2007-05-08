@@ -64,8 +64,9 @@ private:
  
   smoc_firing_state start;
 public:
-  FileSource(sc_module_name name, const std::string &fileName)
-    : smoc_actor(name, start), inputStream(fileName.c_str()) {
+  FileSource(sc_module_name name, char *fileName)
+    : smoc_actor(name, start), inputStream(fileName) {
+    SMOC_REGISTER_CPARAM(fileName);
     start = (out(1) && GUARD(FileSource::streamValid)) >>
             CALL(FileSource::process)                  >> start;
   }

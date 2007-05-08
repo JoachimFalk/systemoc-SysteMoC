@@ -57,4 +57,10 @@ using namespace std;
 # define SMOC_REGISTER_CPARAM(name) do {} while(0)
 #endif
 
+#define IS_TABLE_CLASS_DC(v) (((v) & 0xF0) == 0x00)
+#define IS_TABLE_CLASS_AC(v) (((v) & 0xF0) == 0x10)
+
+#define IS_TABLE_DEST_ZERO(v) (((v) & 0x0F) == 0x00)
+#define IS_TABLE_DEST_ONE(v) (((v) & 0x0F) == 0x01)
+
 #endif // _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP

@@ -49,6 +49,19 @@
 
 #include "channels.hpp"
 
+#include "debug_config.h"
+#include <cosupport/smoc_debug_out.hpp>
+// if compiled with DBG_SHUFFLER create stream and include debug macros
+#ifdef DBG_SHUFFLER
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
 class FrameShuffler: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t> in;
@@ -64,6 +77,10 @@ protected:
   FrameDimY_t dimY;
   IntCompID_t compCount;
 
+#ifdef DBG_ENABLE
+  CoSupport::DebugOstream dbgout;
+#endif // DBG_ENABLE
+
   // line count in shuffle
   const int   shuffleLines;
   // on which shuffle line am I
@@ -73,9 +90,7 @@ protected:
   FrameDimY_t posY;
 
   void processFrameDesc() {
-#ifndef KASCPAR_PARSING
-    std::cerr << "FrameShuffler::processFrameDesc";
-#endif // KASCPAR_PARSING
+    DBG_OUT("processFrameDesc()");
     
     assert(JS_ISCTRL(inCtrlImage[0]));
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWFRAME);
@@ -88,28 +103,21 @@ protected:
     // Only support color and grayscale output
     assert(compCount == 1 || compCount == 3);
     
-#ifndef KASCPAR_PARSING
-    std::cerr << " width: " << dimX << " height: " << dimY
-              << " component count: " << static_cast<unsigned int>(compCount) << std::endl;
-#endif // KASCPAR_PARSING
+    DBG_OUT(" width: " << dimX << " height: " << dimY
+              << " component count: " << static_cast<unsigned int>(compCount) << std::endl);
   }
 
   void processScanDesc() {
-#ifndef KASCPAR_PARSING
-    std::cerr << "FrameShuffler::processScanDesc ";
-#endif // KASCPAR_PARSING
+    DBG_OUT("processScanDesc()");
     
     assert(JS_ISCTRL(inCtrlImage[0]));
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWSCAN);
     
-#ifndef KASCPAR_PARSING
     for (int i = 0; i < SCANPATTERN_LENGTH; ++i) {
       // component contained in scan must be filled into frame => start at pos 0, 0
-      std::cerr
-        << static_cast<unsigned int>(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], i));
+      DBG_OUT(static_cast<unsigned int>(JS_CTRL_NEWSCAN_GETCOMP(inCtrlImage[0], i)));
     }
-    std::cerr << std::endl;
-#endif // KASCPAR_PARSING
+    DBG_OUT(std::endl);
     
     assert(compCount == 1 || compCount == 3);
     if (compCount == 3) {
@@ -130,17 +138,13 @@ protected:
   }
 
   void writeComponent() {
-#ifndef KASCPAR_PARSING
-    std::cerr << "FrameShuffler::writeComponent for (" << posX << ", " << posY << ")" << std::endl;
-#endif // KASCPAR_PARSING
+    DBG_OUT("writeComponent for (" << posX << ", " << posY << ")" << std::endl);
     assert(!JS_ISCTRL(in[0]));
 
     size_t posInBlock = (posX &  7U) + ((posY & 7U) << 3);
     size_t posOfBlock = ((posX & ~7U) << 3);
     if (compCount == 1) {
-#ifndef KASCPAR_PARSING
-      std::cerr << "@" << (posInBlock | posOfBlock) << std::endl;
-#endif // KASCPAR_PARSING
+      DBG_OUT("@" << (posInBlock | posOfBlock) << std::endl);
 
       out[0] = JS_RAWPIXEL_SETVAL(
         JS_COMPONENT_GETVAL(in[posInBlock | posOfBlock]),
@@ -174,7 +178,20 @@ public:
   FrameShuffler(sc_module_name name, size_t dimX, size_t dimY, size_t comp)
     : smoc_actor(name, getFrameDesc),
       dimX(dimX), dimY(dimY), compCount(comp), shuffleLines(8)
+#ifdef DBG_ENABLE
+    , dbgout(std::cerr)
+#endif // DBG_ENABLE
   {
+    SMOC_REGISTER_CPARAM(dimX);
+    SMOC_REGISTER_CPARAM(dimY);
+    SMOC_REGISTER_CPARAM(comp);
+
+#ifdef DBG_ENABLE
+    //Set Debug ostream options
+    CoSupport::Header my_header("FrameShuffler> ");
+    dbgout << my_header;
+#endif // DBG_ENABLE
+
     getFrameDesc
       // this must be a CTRLCMD_NEWFRAME
       = inCtrlImage(1)                          >>

@@ -50,6 +50,7 @@ struct cal_list {
   typedef std::vector<T> t;
 };
 
+inline
 cal_list<int>::t Integers(int s, int e) {
   cal_list<int>::t retval;
   

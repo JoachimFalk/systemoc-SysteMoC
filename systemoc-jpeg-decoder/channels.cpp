@@ -9,6 +9,36 @@ std::ostream &operator << (std::ostream &out, const codeword_t val) {
   return out;
 }
 
+//
+std::ostream &operator<<(std::ostream &out, const ExpHuffTbl &eht) {
+#ifndef DEBUG_ENABLE
+  out << "ExpHuffTbl()";
+#else
+  out << hex << "valPtr:";
+  for(int i = 0; i<16; ++i){
+    out << " | " << eht.valPtr[i];
+  }
+ 
+  out << " |\nminCode:";
+  for(int i = 0; i<16; ++i){
+    out << " | " << eht.minCode[i];
+  }
+ 
+  out << " |\nmaxCode:";
+  for(int i = 0; i<16; ++i){
+    out << " | " << eht.maxCode[i];
+  }
+
+  out << " |\nhuffVal:";
+  for(int i = 0; i<256; ++i){
+    out << " | " << eht.huffVal[i];
+  }
+  out << " |";
+  out << dec;
+#endif
+  return out;
+}
+
 #ifdef DBG_ENABLE
 std::ostream &operator << (std::ostream &out, const JpegChannel_t &x) {
   out << "[JpegChannel_t:";
