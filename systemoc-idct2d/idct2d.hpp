@@ -58,7 +58,7 @@
 #include "row_clip.hpp"
 #include "col2block.hpp"
 
-class mIdct2D: public smoc_graph {
+class MIdct2D: public smoc_graph {
 public:
   smoc_port_in<int>  in;  
   smoc_port_in<int>  min;
@@ -72,7 +72,7 @@ protected:
   m_clip      rowclip;
   m_col2block col2block;
 public:
-  mIdct2D(sc_module_name name)
+  MIdct2D(sc_module_name name)
     : smoc_graph(name),
       block2row("block2row"),
       idctrow("idctrow"),

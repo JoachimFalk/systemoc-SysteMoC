@@ -75,7 +75,7 @@ private:
 #else
   m_block_source_idct src;
 #endif
-  mIdct2D             idct2d;
+  MIdct2D             mIdct2D;
 #ifndef REAL_BLOCK_DATA
   m_sink              snk;
 #else
@@ -86,7 +86,7 @@ public:
   mTopIdct2D(sc_module_name name, size_t periods)
     : smoc_graph(name),
       src("src", periods),
-      idct2d("idct2d"),
+      mIdct2D("mIdct2D"),
 #ifdef REAL_BLOCK_DATA
       snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT)
 #else
@@ -94,12 +94,12 @@ public:
 #endif
   {
 #ifndef KASCPAR_PARSING
-    connectNodePorts(src.out,     idct2d.in,  smoc_fifo<int>(128));
-    connectNodePorts(src.min,     idct2d.min, smoc_fifo<int>(4));
+    connectNodePorts(src.out,      mIdct2D.in,  smoc_fifo<int>(128));
+    connectNodePorts(src.min,      mIdct2D.min, smoc_fifo<int>(4));
 # ifndef REAL_BLOCK_DATA
-    connectNodePorts(idct2d.out,  snk.in,     smoc_fifo<int>(128));
+    connectNodePorts(mIdct2D.out,  snk.in,     smoc_fifo<int>(128));
 # else
-    connectNodePorts(idct2d.out,  snk.in,     smoc_fifo<int>(IMAGE_WIDTH/8*64));
+    connectNodePorts(mIdct2D.out,  snk.in,     smoc_fifo<int>(IMAGE_WIDTH/8*64));
 # endif
 #endif
   }
