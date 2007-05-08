@@ -1,7 +1,7 @@
 // -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2007 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This program is free software; you can redistribute it and/or modify it under
@@ -34,57 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
-#define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+#include "smoc_synth_std_includes.hpp"
 
-using namespace std;
+#define IDCT2D_ARCH IDCT2D_COARSEGRAINED
 
-#ifdef KASCPAR_PARSING
-typedef unsigned long size_t;
-#endif
-
-// Constants for IDCT2D_ARCH define
-#define IDCT2D_FINEGRAINED    1
-#define IDCT2D_COARSEGRAINED  2
-#define IDCT2D_MONOLITHIC     3
-
-#define REAL_BLOCK_DATA
-
-#ifdef REAL_BLOCK_DATA
-// Only significant in case of REAL_BLOCK_DATA
-# define SINK_BINARY_OUTPUT 
-# define IMAGE_WIDTH  176
-# define IMAGE_HEIGHT 144
-#else
-// Only significant in case of !REAL_BLOCK_DATA
-//# define USE_COUNTER_INPUT
-# ifdef EDK_XILINX_RUNTIME
-    // No std::fstream in xilinx EDK !!!
-#   define USE_COUNTER_INPUT
-# endif
-#endif
-
-#ifndef USE_COUNTER_INPUT
-# include <fstream>
-# define INAMEblk "test_in.dat"
-# define ONAMEblk "test_out.dat"
-#endif
-
-//#define VERBOSE_ACTOR
-//#define VERBOSE_TRANSPOSE
-//#define VERBOSE_IDCT_UPSAMPLE
-//#define VERBOSE_MIN_DUPLEX
-//#define VERBOSE_IDCT_SCALE
-//#define VERBOSE_IDCT_FLY
-//#define VERBOSE_IDCT_CLIP
-//#define VERBOSE_IDCT_ADDSUB
-//#define VERBOSE_IDCT_COL2BLOCK
-//#define VERBOSE_IDCT_BLOCK2ROW
-
-#include "callib.hpp"
-
-#ifndef SMOC_REGISTER_CPARAM
-# define SMOC_REGISTER_CPARAM(name) do {} while(0)
-#endif
-
-#endif // _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+#include "idct2d_main.hpp"

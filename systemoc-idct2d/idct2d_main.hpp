@@ -1,3 +1,5 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
+// vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
@@ -32,63 +34,90 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_IDCT2D_HPP
-#define _INCLUDED_IDCT2D_HPP
-
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
+#include <stdlib.h>
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
 #ifndef __SCFE__
-//# include <smoc_scheduler.hpp>
 # include <systemoc/smoc_pggen.hpp>
 #endif
 
-#include "callib.hpp"
+#include "smoc_synth_std_includes.hpp"
 
-#include "IDCT1d_row.hpp"
-#include "transpose.hpp"
-#include "IDCT1d_col.hpp"
+#include "idct2d.hpp"
 
-class m_idct2d: public smoc_graph {
+#ifndef REAL_BLOCK_DATA
+# include "IDCTsource.hpp"
+# include "IDCTsink.hpp"
+#else
+# include "IDCT_block_source.hpp"
+# include "IDCT_block_sink.hpp"
+#endif
+
+#ifndef DEFAULT_BLOCK_COUNT
+# ifdef REAL_BLOCK_DATA
+#  define DEFAULT_BLOCK_COUNT ((IMAGE_WIDTH)/8*(IMAGE_HEIGHT)/8)
+# else
+#  define DEFAULT_BLOCK_COUNT 25
+# endif
+#endif
+
+class mTopIdct2D
+: public smoc_graph {
+private:
+#ifndef REAL_BLOCK_DATA
+  m_source_idct       src;
+#else
+  m_block_source_idct src;
+#endif
+  mIdct2D             idct2d;
+#ifndef REAL_BLOCK_DATA
+  m_sink              snk;
+#else
+  m_block_sink        snk;
+#endif
+
 public:
-  smoc_port_in<int>  i0, i1, i2, i3, i4, i5, i6, i7;
-  smoc_port_out<int> o0, o1, o2, o3, o4, o5, o6, o7;
-protected:
-  m_idct_row  idctrow;
-  m_transpose transpose;
-  m_idct_col  idctcol;
-public:
-  m_idct2d(sc_module_name name)
+  mTopIdct2D(sc_module_name name, size_t periods)
     : smoc_graph(name),
-      idctrow("idctrow"), transpose("transpose"), idctcol("idctcol")
+      src("src", periods),
+      idct2d("idct2d"),
+#ifdef REAL_BLOCK_DATA
+      snk("snk",IMAGE_WIDTH, IMAGE_HEIGHT)
+#else
+      snk("snk")
+#endif
   {
 #ifndef KASCPAR_PARSING
-    idctrow.i0(i0); idctrow.i1(i1); idctrow.i2(i2); idctrow.i3(i3);
-    idctrow.i4(i4); idctrow.i5(i5); idctrow.i6(i6); idctrow.i7(i7);
-    connectNodePorts(idctrow.o0, transpose.I0, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o1, transpose.I1, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o2, transpose.I2, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o3, transpose.I3, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o4, transpose.I4, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o5, transpose.I5, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o6, transpose.I6, smoc_fifo<int>(2));
-    connectNodePorts(idctrow.o7, transpose.I7, smoc_fifo<int>(2));
-    connectNodePorts(transpose.O0, idctcol.i0, smoc_fifo<int>(16));
-    connectNodePorts(transpose.O1, idctcol.i1, smoc_fifo<int>(16));
-    connectNodePorts(transpose.O2, idctcol.i2, smoc_fifo<int>(16));
-    connectNodePorts(transpose.O3, idctcol.i3, smoc_fifo<int>(16));
-    connectNodePorts(transpose.O4, idctcol.i4, smoc_fifo<int>(16));
-    connectNodePorts(transpose.O5, idctcol.i5, smoc_fifo<int>(16));
-    connectNodePorts(transpose.O6, idctcol.i6, smoc_fifo<int>(16));
-    connectNodePorts(transpose.O7, idctcol.i7, smoc_fifo<int>(16));
-    idctcol.o0(o0); idctcol.o1(o1); idctcol.o2(o2); idctcol.o3(o3);
-    idctcol.o4(o4); idctcol.o5(o5); idctcol.o6(o6); idctcol.o7(o7);
+    connectNodePorts(src.out,     idct2d.in,  smoc_fifo<int>(128));
+    connectNodePorts(src.min,     idct2d.min, smoc_fifo<int>(4));
+# ifndef REAL_BLOCK_DATA
+    connectNodePorts(idct2d.out,  snk.in,     smoc_fifo<int>(128));
+# else
+    connectNodePorts(idct2d.out,  snk.in,     smoc_fifo<int>(IMAGE_WIDTH/8*64));
+# endif
 #endif
   }
 };
 
-#endif // _INCLUDED_IDCT2D_HPP
+#ifndef KASCPAR_PARSING
+int sc_main (int argc, char **argv) {
+  size_t periods            =
+    (argc > 1)
+    ? atoi(argv[1])
+    : DEFAULT_BLOCK_COUNT;
+  
+  mTopIdct2D topIdct2D("topIdct2D", periods);
+  
+  smoc_top top(&topIdct2D);
+  
+  sc_start(-1);
+  
+  return 0;
+}
+#endif

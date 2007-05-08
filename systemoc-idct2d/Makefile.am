@@ -49,15 +49,23 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
 LIBS= @LIBS@ -lsystemoc
 
-noinst_PROGRAMS=		\
-	simulation-test-idct1d	\
-	simulation-test-idct2d
+noinst_PROGRAMS=				\
+	simulation-idct1d			\
+	simulation-idct2d-finegrained		\
+	simulation-idct2d-coarsegrained		\
+	simulation-idct2d-monolithic
 
-simulation_test_idct2d_SOURCES= design-test-idct2d.cpp
-simulation_test_idct2d_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_idct1d_SOURCES= design-idct1d.cpp
+simulation_idct1d_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-simulation_test_idct1d_SOURCES= design-test-idct1d.cpp
-simulation_test_idct1d_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_idct2d_finegrained_SOURCES= design-idct2d-finegrained.cpp
+simulation_idct2d_finegrained_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+simulation_idct2d_coarsegrained_SOURCES= design-idct2d-coarsegrained.cpp
+simulation_idct2d_coarsegrained_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+simulation_idct2d_monolithic_SOURCES= design-idct2d-monolithic.cpp
+simulation_idct2d_monolithic_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 all: test_in.dat
 
@@ -70,9 +78,25 @@ SYNTHESIS_SUBDIR = synthesis
 $(SYNTHESIS_SUBDIR)/%.dat: %-dat
 	cp $^ $@
 
-synth: $(SYNTHESIS_SUBDIR)/smoc-synth-test-idct2d $(SYNTHESIS_SUBDIR)/test_in.dat
+synth: synth-idct2d-coarsegrained synth-idct2d-finegrained synth-idct2d-monolithic
 
-$(SYNTHESIS_SUBDIR)/test-idct2d.ast.xml: design-test-idct2d.cpp
+synth-idct2d-finegrained: \
+	$(SYNTHESIS_SUBDIR)/smoc-synth-idct2d-finegrained \
+	$(SYNTHESIS_SUBDIR)/test_in.dat
+$(SYNTHESIS_SUBDIR)/idct2d-finegrained.ast.xml: \
+	simulation-idct2d-finegrained.cpp
 
-.PHONY: synth
+synth-idct2d-coarsegrained: \
+	$(SYNTHESIS_SUBDIR)/smoc-synth-idct2d-coarsegrained \
+	$(SYNTHESIS_SUBDIR)/test_in.dat
+$(SYNTHESIS_SUBDIR)/idct2d-coarsegrained.ast.xml: \
+	simulation-idct2d-coarsegrained.cpp
+
+synth-idct2d-monolithic: \
+	$(SYNTHESIS_SUBDIR)/smoc-synth-idct2d-monolithic \
+	$(SYNTHESIS_SUBDIR)/test_in.dat
+$(SYNTHESIS_SUBDIR)/idct2d-monolithic.ast.xml: \
+	simulation-idct2d-monolithic.cpp
+
+.PHONY: synth synth-idct2d-coarsegrained synth-idct2d-finegrained synth-idct2d-monolithic
 endif
