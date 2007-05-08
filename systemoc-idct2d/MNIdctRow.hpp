@@ -44,6 +44,14 @@
 
 #include "callib.hpp"
 
+// IDCT constants
+#define W1 2841 /* 2048*sqrt(2)*cos(1*pi/16) */
+#define W2 2676 /* 2048*sqrt(2)*cos(2*pi/16) */
+#define W3 2408 /* 2048*sqrt(2)*cos(3*pi/16) */
+#define W5 1609 /* 2048*sqrt(2)*cos(5*pi/16) */
+#define W6 1108 /* 2048*sqrt(2)*cos(6*pi/16) */
+#define W7 565  /* 2048*sqrt(2)*cos(7*pi/16) */
+
 class MNIdctRow: public smoc_actor {
 public:
   smoc_port_in<int>  i0, i1, i2, i3, i4, i5, i6, i7; 
@@ -52,9 +60,51 @@ protected:
   smoc_firing_state start;
 
   void idct() {
+    int tmpval;
+    int x[8];
 
-
-
+    /* first stage */
+    /* for proper rounding in the fourth stage */
+    x[0] = (i0[0]<<11) + 128;  // iscale1 (2^11,128)
+    x[4] = i4[0]<<11;          // iscale2 (2^11,  0)
+    
+    tmpval = W7*(i1[0]+i7[0]);      //fly2.t  = (565*(I1+I2))+OS:0
+    x[1] = tmpval + (W1-W7)*i1[0];  //fly2.O1 = (t+(I1*2276))    /*((coeff1:2841-Coeff7:565)=2276)*/
+    x[7] = tmpval - (W1+W7)*i7[0];  //fly2.O2 = (t+(I2*(-3406))) /*(-(Coeff1:2841+Coeff7:565)=-3406)*/ 
+    tmpval = W3*(i5[0]+i3[0]);      //fly.t   = (2408*(I1+I2))+OS:0 
+    x[5] = tmpval - (W3-W5)*i5[0];  //fly.O1  = (t+(I1*(-799)))  /*(-(Coeff3:2408-Coeff5:1609)=-799)*/
+    x[3] = tmpval - (W3+W5)*i3[0];  //fly.O2  = (t+(I2*(-4017))) /*(-(Coeff3:2408+Coeff5:1609)=-4017*/
+    x[2] = i2[0];
+    x[6] = i6[0];
+                    
+    /* second stage */
+    tmpval = x[0] + x[4]; // addsub01.o1 (1,0,0)
+    x[0] -= x[4];         // addsub01.o2
+    x[4] = W6*(x[2]+x[6]);          //fly3.t  = (1108*(I1+I2))+OS:0
+    x[6] = x[4] - (W2+W6)*x[6];     //fly3.O1 = (t+(I1*(-3784))) /*(-(Coeff2:2676+Coeff6:1108)=-3784*/
+    x[2] = x[4] + (W2-W6)*x[2];     //fly3.O2 = (t+(I2*1568))    /*((Coeff2:2676-Coeff6:1108)=1568)*/
+    x[4] = x[1] + x[5]; // addsub02.o1 (1,0,0)
+    x[1] -= x[5];       // addsub02.o2
+    x[5] = x[7] + x[3]; // addsub03.o1 (1,0,0)
+    x[7] -= x[3];       // addsub03.o2
+                    
+    /* third stage */
+    x[3] = tmpval + x[2]; // addsub04.o1 (1,0,0)
+    tmpval -= x[2];       // addsub04.o2
+    x[2] = x[0] + x[6];   // addsub05.o1 (1,0,0)
+    x[0] -= x[6];         // addsub05.o2
+    x[6] = (181*(x[1]+x[7])+128)>>8; // addsub06.o1 (181,128,8)
+    x[1] = (181*(x[1]-x[7])+128)>>8; // addsub06.o2
+                    
+    /* fourth stage */
+    o0[0] = (x[3]+x[4])>>8;   // addsub09.O1 (1,0,8)
+    o1[0] = (x[2]+x[6])>>8;   // addsub10.o1 (1,0,8)
+    o2[0] = (x[0]+x[1])>>8;   // addsub08.o1 (1,0,8)
+    o3[0] = (tmpval+x[5])>>8; // addsub07.o1 (1,0,8)
+    o4[0] = (tmpval-x[5])>>8; // addsub07.o2
+    o5[0] = (x[0]-x[1])>>8;   // addsub08.o2
+    o6[0] = (x[2]-x[6])>>8;   // addsub10.o2
+    o7[0] = (x[3]-x[4])>>8;   // addsub09.o2
   }
 public:
   MNIdctRow(sc_module_name name)
@@ -69,5 +119,12 @@ public:
       ;
   }
 };
+
+#undef W1
+#undef W2
+#undef W3
+#undef W5
+#undef W6
+#undef W7
 
 #endif // _INCLUDED_MNIDCTROW_HPP
