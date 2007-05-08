@@ -84,19 +84,19 @@ synth-idct2d-finegrained: \
 	$(SYNTHESIS_SUBDIR)/smoc-synth-idct2d-finegrained \
 	$(SYNTHESIS_SUBDIR)/test_in.dat
 $(SYNTHESIS_SUBDIR)/idct2d-finegrained.ast.xml: \
-	simulation-idct2d-finegrained.cpp
+	design-idct2d-finegrained.cpp
 
 synth-idct2d-coarsegrained: \
 	$(SYNTHESIS_SUBDIR)/smoc-synth-idct2d-coarsegrained \
 	$(SYNTHESIS_SUBDIR)/test_in.dat
 $(SYNTHESIS_SUBDIR)/idct2d-coarsegrained.ast.xml: \
-	simulation-idct2d-coarsegrained.cpp
+	design-idct2d-coarsegrained.cpp
 
 synth-idct2d-monolithic: \
 	$(SYNTHESIS_SUBDIR)/smoc-synth-idct2d-monolithic \
 	$(SYNTHESIS_SUBDIR)/test_in.dat
 $(SYNTHESIS_SUBDIR)/idct2d-monolithic.ast.xml: \
-	simulation-idct2d-monolithic.cpp
+	design-idct2d-monolithic.cpp
 
 .PHONY: synth synth-idct2d-coarsegrained synth-idct2d-finegrained synth-idct2d-monolithic
 endif

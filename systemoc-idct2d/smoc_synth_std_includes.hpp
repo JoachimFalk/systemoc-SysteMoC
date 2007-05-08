@@ -37,10 +37,11 @@
 #ifndef _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 #define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 
-using namespace std;
 
 #ifdef KASCPAR_PARSING
 typedef unsigned long size_t;
+#else
+using namespace std;
 #endif
 
 // Constants for IDCT2D_ARCH define
