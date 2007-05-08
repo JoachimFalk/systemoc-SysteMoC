@@ -44,14 +44,15 @@
 #include "channels.hpp"
 
 #include "FileSource.hpp"
-// Begin IDCT2D
-#include "block2row.hpp"
-#include "IDCT2d.hpp"
-#include "col2block.hpp"
-// End IDCT2D
-#include "InvLevel.hpp"
-#include "Clip.hpp"
-#include "FrameBufferWriter.hpp"
+#include "idct2d.hpp"
+#ifdef STATIC_IMAGE_SIZE
+# include "FrameShuffler.hpp"
+#else
+# include "FrameBufferWriter.hpp"
+#endif
+#include "Dup.hpp"
+#include "YCbCr2RGB.hpp"
+#include "PGMsink.hpp"
 
 struct Scan {
   IntCompID_t scanPattern[SCANPATTERN_LENGTH];
@@ -59,6 +60,21 @@ struct Scan {
 };
 
 typedef std::list<Scan> ScanVector;
+
+static
+int componentCount(const ScanVector &scanVector) {
+  std::set<IntCompID_t> componentSet;
+  
+  for (ScanVector::const_iterator iter = scanVector.begin();
+       iter != scanVector.end();
+       ++iter) {
+    const Scan &scan = *iter;
+    
+    for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i)
+      componentSet.insert(scan.scanPattern[i]);
+  }
+  return componentSet.size();
+}
 
 class IDCTScanSource: public smoc_actor {
 public:
@@ -73,23 +89,15 @@ protected:
   std::ifstream inputStream;
 
   void sendNewFrame() {
-    std::set<IntCompID_t> componentSet;
-    
-    for (ScanVector::const_iterator iter = scanVector.begin();
-         iter != scanVector.end();
-         ++iter) {
-      const Scan &scan = *iter;
-      
-      for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i)
-        componentSet.insert(scan.scanPattern[i]);
-    }
+    int comps = componentCount(scanVector);
+
     std::cerr << "IDCTScanSource: sendNewFrame"
       << " witdh: " << width
       << " height: " << height
-      << " component count: " << componentSet.size()
+      << " component count: " << comps
       << std::endl;
     outCtrlImage[0] = JS_CTRL_NEWFRAME_SET_CHWORD
-      (width, height, componentSet.size());
+      (width, height, comps);
   }
 
   void sendNewScan() {
@@ -173,56 +181,47 @@ public:
 class Testbench: public smoc_graph {
 private:
   IDCTScanSource    mIDCTScanSource;
-  // Begin IDCT2D
-  m_block2row       mBlock2Row;
-  m_idct2d          mIDCT2D;
-  m_col2block       mCol2Block;
-  // End IDCT2D
-//Round             mRound;
-  InvLevel          mInvLevel;
-  Clip              mClip;
-  FrameBufferWriter mSink;
+  MIdct2D           mIdct2D;
+#ifdef STATIC_IMAGE_SIZE
+  FrameShuffler     mShuffle;
+#else
+  FrameBufferWriter mFrameBuffer;
+#endif
+  Dup               mDup;
+  YCrCb2RGB         mYCbCr;
+  m_pgm_sink        mPGMsink;
 public:
   Testbench(sc_module_name name, size_t width, size_t height, const ScanVector &scanVector)
     : smoc_graph(name),
       mIDCTScanSource("mIDCTScanSource", width, height, scanVector),
-      // Begin IDCT2D
-      mBlock2Row("mBlock2Row"),
-      mIDCT2D("mIDCT2D"),
-      mCol2Block("mCol2Block"),
-      // End IDCT2D
-//    mRound("mRound"),
-      mInvLevel("mInvLevel"),
-      mClip("mClip"),
-      mSink("mSink")
+      mIdct2D("mIdct2D"),
+#ifdef STATIC_IMAGE_SIZE
+      mShuffle("Shuffle", width, height, componentCount(scanVector)),
+#else
+      mFrameBuffer("FrameBuffer"),
+#endif
+      mDup("mDup"),
+      mYCbCr("mYCbCr"),
+      mPGMsink("mPGMsink")
   {
-    connectNodePorts<64>(mIDCTScanSource.out, mBlock2Row.b);
+    connectNodePorts<64>(mIDCTScanSource.out,           mIdct2D.in);
+    connectNodePorts<1> (mIDCTScanSource.outCtrlImage,  mDup.in);
     
-    connectNodePorts<16>(mBlock2Row.C0, mIDCT2D.i0);
-    connectNodePorts<16>(mBlock2Row.C1, mIDCT2D.i1);
-    connectNodePorts<16>(mBlock2Row.C2, mIDCT2D.i2);
-    connectNodePorts<16>(mBlock2Row.C3, mIDCT2D.i3);
-    connectNodePorts<16>(mBlock2Row.C4, mIDCT2D.i4);
-    connectNodePorts<16>(mBlock2Row.C5, mIDCT2D.i5);
-    connectNodePorts<16>(mBlock2Row.C6, mIDCT2D.i6);
-    connectNodePorts<16>(mBlock2Row.C7, mIDCT2D.i7);
+    connectNodePorts<1> (mDup.out1,                     mPGMsink.inCtrlImage);
+#ifdef STATIC_IMAGE_SIZE
+    connectNodePorts<1> (mDup.out2,                     mShuffle.inCtrlImage);
+#else
+    connectNodePorts<1> (mDup.out2,                     mFrameBuffer.inCtrlImage);
+#endif
     
-    connectNodePorts<16>(mIDCT2D.o0, mCol2Block.R0);
-    connectNodePorts<16>(mIDCT2D.o1, mCol2Block.R1);
-    connectNodePorts<16>(mIDCT2D.o2, mCol2Block.R2);
-    connectNodePorts<16>(mIDCT2D.o3, mCol2Block.R3);
-    connectNodePorts<16>(mIDCT2D.o4, mCol2Block.R4);
-    connectNodePorts<16>(mIDCT2D.o5, mCol2Block.R5);
-    connectNodePorts<16>(mIDCT2D.o6, mCol2Block.R6);
-    connectNodePorts<16>(mIDCT2D.o7, mCol2Block.R7);
-    
-//  connectNodePorts<64>(mCol2Block.b, mRound.in);
-//  connectNodePorts<1>(mRound.out, mInvLevel.in);
-    connectNodePorts<64>(mCol2Block.b,  mInvLevel.in);
-    connectNodePorts<1>(mInvLevel.out, mClip.in);
-    connectNodePorts<1>(mClip.out,     mSink.in);
-    
-    connectNodePorts<1>(mIDCTScanSource.outCtrlImage, mSink.inCtrlImage);
+#ifdef STATIC_IMAGE_SIZE
+    connectNodePorts<65536>(mIdct2D.out, mShuffle.in);
+    connectNodePorts<1>(mShuffle.out, mYCbCr.in);
+#else
+    connectNodePorts<1>(mIdct2D.out, mFrameBuffer.in);
+    connectNodePorts<1>(mFrameBuffer.out, mYCbCr.in);
+#endif    
+    connectNodePorts<1>(mYCbCr.out, mPGMsink.in);
   }
 };
 
@@ -246,7 +245,7 @@ int sc_main (int argc, char **argv) {
     const char *arg = *argIter;
     
     Scan scan;
-
+    
     while (pos < SCANPATTERN_LENGTH) {
       if (arg[pos] < '0' || arg[pos] > '2') {
         std::cerr << argv[0] << ": scanpattern format error, scanpattern: [0-2]{6} !" << std::endl;

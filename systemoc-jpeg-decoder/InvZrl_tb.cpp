@@ -57,41 +57,41 @@
 #include "InvQuant.hpp"
 #include "InvZigZag.hpp"
 #include "CtrlSieve.hpp"
-// Begin IDCT2D
-#include "block2row.hpp"
-#include "IDCT2d.hpp"
-#include "col2block.hpp"
-// End IDCT2D
-//#include "Round.hpp"
-#include "InvLevel.hpp"
-#include "Clip.hpp"
-#include "FrameBufferWriter.hpp"
+#include "idct2d.hpp"
+#ifdef STATIC_IMAGE_SIZE
+# include "FrameShuffler.hpp"
+#else
+# include "FrameBufferWriter.hpp"
+#endif
+#include "Dup.hpp"
+#include "YCbCr2RGB.hpp"
+#include "PGMsink.hpp"
 
 class Testbench: public smoc_graph {
 private:
-  m_const_source<qt_table_t> mConstSrc0;
-  m_const_source<qt_table_t> mConstSrc1;
-  m_const_source<qt_table_t> mConstSrc2;
-  m_const_source<qt_table_t> mConstSrc3;
-  TuppleScanSource mTuppleScanSrc;
-  InvZrl mInvZrl;  
-  DcDecoding mDcDeconding;
-  InvQuant mInvQuant;
-  CtrlSieve         mCtrlSieve;
-  InvZigZag mInvZigZag;
+  m_const_source<qt_table_t>  mConstSrc0;
+  m_const_source<qt_table_t>  mConstSrc1;
+  m_const_source<qt_table_t>  mConstSrc2;
+  m_const_source<qt_table_t>  mConstSrc3;
+  TuppleScanSource            mTuppleScanSrc;
+  InvZrl                      mInvZrl;  
+  DcDecoding                  mDcDeconding;
+  InvQuant                    mInvQuant;
+  CtrlSieve                   mCtrlSieve;
+  InvZigZag                   mInvZigZag;
 #ifdef DUMP_INTERMEDIATE
-  m_1D_dup2<IDCTCoeff_t>mDup2_1;
-  m_block_sink mBlockSnk;
+  m_1D_dup2<IDCTCoeff_t>      mDup2_1;
+  m_block_sink                mBlockSnk;
 #endif
-  // Begin IDCT2D
-  m_block2row       mBlock2Row;
-  m_idct2d          mIDCT2D;
-  m_col2block       mCol2Block;
-  // End IDCT2D
-  //Round             mRound;
-  InvLevel          mInvLevel;
-  Clip              mClip;
-  FrameBufferWriter mSink;
+  MIdct2D                     mIdct2D;
+#ifdef STATIC_IMAGE_SIZE
+  FrameShuffler               mShuffle;
+#else
+  FrameBufferWriter           mFrameBuffer;
+#endif
+  Dup                         mDup;
+  YCrCb2RGB                   mYCbCr;
+  m_pgm_sink                  mPGMsink;
 public:
   Testbench(sc_module_name name, 
 	    size_t width, 
@@ -112,24 +112,30 @@ public:
       mDup2_1("DupIDCTCoeff"),
       mBlockSnk("mBlockSnk"),
 #endif
-      // Begin IDCT2D
-      mBlock2Row("mBlock2Row"),
-      mIDCT2D("mIDCT2D"),
-      mCol2Block("mCol2Block"),
-      // End IDCT2D
-//    mRound("Round"),
-      mInvLevel("InvLevel"),
-      mClip("Clip"),
-      mSink("Sink")
+      mIdct2D("mIdct2D"),
+#ifdef STATIC_IMAGE_SIZE
+      mShuffle("Shuffle", width, height, componentCount(scanVector)),
+#else
+      mFrameBuffer("FrameBuffer"),
+#endif
+      mDup("mDup"),
+      mYCbCr("mYCbCr"),
+      mPGMsink("mPGMsink")
   { 
-
     connectNodePorts<65>(mConstSrc0.out,mInvQuant.qt_table_0);
     connectNodePorts<65>(mConstSrc1.out,mInvQuant.qt_table_1);
     connectNodePorts<65>(mConstSrc2.out,mInvQuant.qt_table_2);
     connectNodePorts<65>(mConstSrc3.out,mInvQuant.qt_table_3);
-
-    connectNodePorts<1>(mTuppleScanSrc.out,mInvZrl.in);
-    connectNodePorts<1>(mTuppleScanSrc.outCtrlImage,mSink.inCtrlImage);
+    
+    connectNodePorts<1>(mTuppleScanSrc.out,           mInvZrl.in);
+    connectNodePorts<1>(mTuppleScanSrc.outCtrlImage,  mDup.in);
+ 
+    connectNodePorts<1>(mDup.out1,                    mPGMsink.inCtrlImage);
+#ifdef STATIC_IMAGE_SIZE
+    connectNodePorts<1>(mDup.out2,                    mShuffle.inCtrlImage);
+#else
+    connectNodePorts<1>(mDup.out2,                    mFrameBuffer.inCtrlImage);
+#endif
     
     connectNodePorts<1>(mInvZrl.out,mDcDeconding.in);
     connectNodePorts<1>(mDcDeconding.out,mInvQuant.in);
@@ -141,37 +147,21 @@ public:
 
 #ifdef DUMP_INTERMEDIATE
     connectNodePorts<1>(mInvZigZag.out,mDup2_1.in);
-    connectNodePorts<64>(mDup2_1.out1,mBlock2Row.b);
+    connectNodePorts<64>(mDup2_1.out1,mIdct2D.in);
     connectNodePorts<1>(mDup2_1.out2,mBlockSnk.in);
 #else
-    //InvZigZag -> IDCT, IDCT -> mRound
-    connectNodePorts<64>(mInvZigZag.out, mBlock2Row.b);
+    // mInvZigZag -> IDCT -> mInvLevel
+    connectNodePorts<64>(mInvZigZag.out, mIdct2D.in);
 #endif   
 
-    connectNodePorts<16>(mBlock2Row.C0, mIDCT2D.i0);
-    connectNodePorts<16>(mBlock2Row.C1, mIDCT2D.i1);
-    connectNodePorts<16>(mBlock2Row.C2, mIDCT2D.i2);
-    connectNodePorts<16>(mBlock2Row.C3, mIDCT2D.i3);
-    connectNodePorts<16>(mBlock2Row.C4, mIDCT2D.i4);
-    connectNodePorts<16>(mBlock2Row.C5, mIDCT2D.i5);
-    connectNodePorts<16>(mBlock2Row.C6, mIDCT2D.i6);
-    connectNodePorts<16>(mBlock2Row.C7, mIDCT2D.i7);
-    
-    connectNodePorts<16>(mIDCT2D.o0, mCol2Block.R0);
-    connectNodePorts<16>(mIDCT2D.o1, mCol2Block.R1);
-    connectNodePorts<16>(mIDCT2D.o2, mCol2Block.R2);
-    connectNodePorts<16>(mIDCT2D.o3, mCol2Block.R3);
-    connectNodePorts<16>(mIDCT2D.o4, mCol2Block.R4);
-    connectNodePorts<16>(mIDCT2D.o5, mCol2Block.R5);
-    connectNodePorts<16>(mIDCT2D.o6, mCol2Block.R6);
-    connectNodePorts<16>(mIDCT2D.o7, mCol2Block.R7);
-    
-//  connectNodePorts<64>(mCol2Block.b, mRound.in);
-//  connectNodePorts<1>(mRound.out, mInvLevel.in);
-    connectNodePorts<64>(mCol2Block.b, mInvLevel.in);
-    connectNodePorts<1>(mInvLevel.out, mClip.in);
-    connectNodePorts<1>(mClip.out,     mSink.in);
-    
+#ifdef STATIC_IMAGE_SIZE
+    connectNodePorts<65536>(mIdct2D.out, mShuffle.in);
+    connectNodePorts<1>(mShuffle.out, mYCbCr.in);
+#else
+    connectNodePorts<1>(mIdct2D.out, mFrameBuffer.in);
+    connectNodePorts<1>(mFrameBuffer.out, mYCbCr.in);
+#endif    
+    connectNodePorts<1>(mYCbCr.out, mPGMsink.in);
   }
 };
 
@@ -196,7 +186,7 @@ int sc_main (int argc, char **argv) {
     const char *arg = *argIter;
     
     Scan scan;
-
+    
     while (pos < SCANPATTERN_LENGTH) {
       if (arg[pos] < '0' || arg[pos] > '2') {
         std::cerr << argv[0] << ": scanpattern format error, scanpattern: [0-2]{6} !" << std::endl;
@@ -216,6 +206,5 @@ int sc_main (int argc, char **argv) {
   sc_start(-1);
   
   return 0;
-
 }
 #endif

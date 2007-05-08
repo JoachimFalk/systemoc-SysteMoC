@@ -64,9 +64,9 @@
 
 class FrameShuffler: public smoc_actor {
 public:
-  smoc_port_in<JpegChannel_t> in;
-  smoc_port_out<Pixel_t>      out;
-  smoc_port_in<JpegChannel_t> inCtrlImage;
+  smoc_port_in<IDCTCoeff_t>     in;
+  smoc_port_out<Pixel_t>        out;
+  smoc_port_in<JpegChannel_t>   inCtrlImage;
 protected:
   struct Pos {
     FrameDimX_t x;
@@ -139,22 +139,21 @@ protected:
 
   void writeComponent() {
     DBG_OUT("writeComponent for (" << posX << ", " << posY << ")" << std::endl);
-    assert(!JS_ISCTRL(in[0]));
-
+    
     size_t posInBlock = (posX &  7U) + ((posY & 7U) << 3);
     size_t posOfBlock = ((posX & ~7U) << 3);
     if (compCount == 1) {
       DBG_OUT("@" << (posInBlock | posOfBlock) << std::endl);
 
       out[0] = JS_RAWPIXEL_SETVAL(
-        JS_COMPONENT_GETVAL(in[posInBlock | posOfBlock]),
+        in[posInBlock | posOfBlock],
         128,
         128);
     } else {
       out[0] = JS_RAWPIXEL_SETVAL(
-        JS_COMPONENT_GETVAL(in[posInBlock | (posOfBlock*3 + (0<<6))]),
-        JS_COMPONENT_GETVAL(in[posInBlock | (posOfBlock*3 + (1<<6))]),
-        JS_COMPONENT_GETVAL(in[posInBlock | (posOfBlock*3 + (2<<6))]));
+        in[posInBlock | (posOfBlock*3 + (0<<6))],
+        in[posInBlock | (posOfBlock*3 + (1<<6))],
+        in[posInBlock | (posOfBlock*3 + (2<<6))]);
     }
 
     if (posX == dimX - 1) {

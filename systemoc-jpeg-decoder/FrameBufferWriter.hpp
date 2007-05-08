@@ -51,7 +51,7 @@
 
 class FrameBufferWriter: public smoc_actor {
 public:
-  smoc_port_in<JpegChannel_t> in;
+  smoc_port_in<IDCTCoeff_t>   in;
   smoc_port_out<Pixel_t>      out;
   smoc_port_in<JpegChannel_t> inCtrlImage;
 protected:
@@ -164,13 +164,11 @@ protected:
   void writeComponent() {
 //  std::cerr << "FrameBufferWriter: writeComponent" << std::endl;
     
-    assert(!JS_ISCTRL(in[0]));
-    
     assert(scanPattern[scanIndex] < compCount);
     frameBuffer[compCount * (
        (compPos[scanPattern[scanIndex]].y + blockIndex / JPEG_BLOCK_WIDTH) * frameDim.x +
         compPos[scanPattern[scanIndex]].x + blockIndex % JPEG_BLOCK_WIDTH
-      ) + scanPattern[scanIndex]] = JS_COMPONENT_GETVAL(in[0]);
+      ) + scanPattern[scanIndex]] = in[0];
     
     blockIndex = (blockIndex + 1) % JPEG_BLOCK_SIZE;
     if (blockIndex == 0) {
