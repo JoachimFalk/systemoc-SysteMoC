@@ -67,6 +67,9 @@ public:
   MRangeAdj(sc_module_name name, int levelAdj, int min, int max)
     : smoc_actor(name, main), levelAdj(levelAdj), min(min), max(max)
   {
+    SMOC_REGISTER_CPARAM(levelAdj);
+    SMOC_REGISTER_CPARAM(min);
+    SMOC_REGISTER_CPARAM(max);
     main
       = in(1)                       >>
         out(1)                      >>

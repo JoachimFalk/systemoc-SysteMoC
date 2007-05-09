@@ -44,14 +44,6 @@
 
 #include "callib.hpp"
 
-// IDCT constants
-#define W1 2841 /* 2048*sqrt(2)*cos(1*pi/16) */
-#define W2 2676 /* 2048*sqrt(2)*cos(2*pi/16) */
-#define W3 2408 /* 2048*sqrt(2)*cos(3*pi/16) */
-#define W5 1609 /* 2048*sqrt(2)*cos(5*pi/16) */
-#define W6 1108 /* 2048*sqrt(2)*cos(6*pi/16) */
-#define W7 565  /* 2048*sqrt(2)*cos(7*pi/16) */
-
 class MNIdctRow: public smoc_actor {
 public:
   smoc_port_in<int>  i0, i1, i2, i3, i4, i5, i6, i7; 
@@ -60,6 +52,14 @@ protected:
   smoc_firing_state start;
 
   void idct() {
+    // IDCT constants
+    static const int W1 = 2841; /* 2048*sqrt(2)*cos(1*pi/16) */
+    static const int W2 = 2676; /* 2048*sqrt(2)*cos(2*pi/16) */
+    static const int W3 = 2408; /* 2048*sqrt(2)*cos(3*pi/16) */
+    static const int W5 = 1609; /* 2048*sqrt(2)*cos(5*pi/16) */
+    static const int W6 = 1108; /* 2048*sqrt(2)*cos(6*pi/16) */
+    static const int W7 = 565;  /* 2048*sqrt(2)*cos(7*pi/16) */
+
     int tmpval;
     int x[8];
 
@@ -119,12 +119,5 @@ public:
       ;
   }
 };
-
-#undef W1
-#undef W2
-#undef W3
-#undef W5
-#undef W6
-#undef W7
 
 #endif // _INCLUDED_MNIDCTROW_HPP

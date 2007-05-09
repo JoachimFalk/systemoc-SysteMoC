@@ -44,7 +44,7 @@
 #include "channels.hpp"
 
 #include "FileSource.hpp"
-#include "idct2d.hpp"
+#include "MIdct2D.hpp"
 #ifdef STATIC_IMAGE_SIZE
 # include "FrameShuffler.hpp"
 #else
@@ -194,7 +194,7 @@ public:
   Testbench(sc_module_name name, size_t width, size_t height, const ScanVector &scanVector)
     : smoc_graph(name),
       mIDCTScanSource("mIDCTScanSource", width, height, scanVector),
-      mIdct2D("mIdct2D"),
+      mIdct2D("mIdct2D", 128, 0, 255),
 #ifdef STATIC_IMAGE_SIZE
       mShuffle("Shuffle", width, height, componentCount(scanVector)),
 #else

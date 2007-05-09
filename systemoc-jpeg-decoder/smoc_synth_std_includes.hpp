@@ -46,6 +46,13 @@ using namespace std;
 
 #include "debug_off.h"
 
+// Constants for IDCT2D_ARCH define
+#define IDCT2D_FINEGRAINED    1
+#define IDCT2D_COARSEGRAINED  2
+#define IDCT2D_MONOLITHIC     3
+
+#define IDCT2D_ARCH IDCT2D_COARSEGRAINED
+
 #define STATIC_IMAGE_SIZE
 //#define DUMP_INTERMEDIATE
 

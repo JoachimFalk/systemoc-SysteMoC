@@ -28,6 +28,7 @@ SUBDIRS=
 
 if SYNTH
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
+  include $(root_builddir)/Synthesis-Actor-Cynthesizer/Rules-Synth.mk
 endif
 
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
@@ -38,7 +39,7 @@ LIBS= @LIBS@ -lsystemoc
 PROJECT_CPPS=HuffDecoder.cpp channels.cpp BitSplitter.cpp
 
 
-noinst_PROGRAMS= simulation-jpeg parser-test huffman-test idct-fbw-test idct-fsh-test invzrl-test
+noinst_PROGRAMS= simulation-jpeg parser-test huffman-test idct-fbw-test invzrl-test # idct-fsh-test
 
 simulation_jpeg_SOURCES= Jpeg.cpp $(PROJECT_CPPS)
 simulation_jpeg_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
@@ -52,9 +53,9 @@ huffman_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 idct_fbw_test_SOURCES = IDCTFrameBufferWriterTestbench.cpp $(PROJECT_CPPS)
 idct_fbw_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-idct_fsh_test_SOURCES = IDCTFrameBufferWriterTestbench.cpp $(PROJECT_CPPS)
-idct_fsh_test_CPPFLAGS = $(AM_CPPFLAGS) -DSTATIC_IMAGE_SIZE
-idct_fsh_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+#idct_fsh_test_SOURCES = IDCTFrameBufferWriterTestbench.cpp $(PROJECT_CPPS)
+#idct_fsh_test_CPPFLAGS = $(AM_CPPFLAGS) -DSTATIC_IMAGE_SIZE
+#idct_fsh_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 invzrl_test_SOURCES = InvZrl_tb.cpp $(PROJECT_CPPS)
 invzrl_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
@@ -78,12 +79,15 @@ check: autotest.sh
 
 if SYNTH
 SYNTHESIS_SUBDIR = synthesis
+HWSYNTH_SUBDIR   = hwsynth
 
 USR_DEF_SKELETONS = $(srcdir)/../systemoc-idct2d
 
-synth: $(SYNTHESIS_SUBDIR)/smoc-synth-jpeg
+synth:   $(SYNTHESIS_SUBDIR)/smoc-synth-jpeg
+hwsynth: $(HWSYNTH_SUBDIR)/smoc-hwsynth-all-jpeg.stamp
 
 $(SYNTHESIS_SUBDIR)/jpeg.ast.xml: Jpeg.cpp HuffDecoder.cpp
+$(HWSYNTH_SUBDIR)/jpeg.ast.xml:   Jpeg.cpp HuffDecoder.cpp
 
-.PHONY: synth
+.PHONY: synth hwsynth
 endif

@@ -57,7 +57,7 @@
 #include "InvQuant.hpp"
 #include "InvZigZag.hpp"
 #include "CtrlSieve.hpp"
-#include "idct2d.hpp"
+#include "MIdct2D.hpp"
 #ifdef STATIC_IMAGE_SIZE
 # include "FrameShuffler.hpp"
 #else
@@ -112,7 +112,7 @@ public:
       mDup2_1("DupIDCTCoeff"),
       mBlockSnk("mBlockSnk"),
 #endif
-      mIdct2D("mIdct2D"),
+      mIdct2D("mIdct2D", 128, 0, 255),
 #ifdef STATIC_IMAGE_SIZE
       mShuffle("Shuffle", width, height, componentCount(scanVector)),
 #else
