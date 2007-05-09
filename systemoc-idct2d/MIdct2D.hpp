@@ -138,18 +138,194 @@ public:
   }
 };
 #else // IDCT2D_ARCH == IDCT2D_MONOLITHIC
+
+// IDCT constants
+# define W1 2841 /* 2048*sqrt(2)*cos(1*pi/16) */
+# define W2 2676 /* 2048*sqrt(2)*cos(2*pi/16) */
+# define W3 2408 /* 2048*sqrt(2)*cos(3*pi/16) */
+# define W5 1609 /* 2048*sqrt(2)*cos(5*pi/16) */
+# define W6 1108 /* 2048*sqrt(2)*cos(6*pi/16) */
+# define W7 565  /* 2048*sqrt(2)*cos(7*pi/16) */
+
 class MIdct2D: public smoc_actor {
 public:
   smoc_port_in<int>  in;  
   smoc_port_out<int> out;
 protected:
+  const int levelAdj;
+  const int min;
+  const int max;
+
+  int blk[64];
+
+  void idctrow(size_t row) {
+    int tmpval;
+    int x[8];
+    
+    /* first stage */
+    /* for proper rounding in the fourth stage */
+    x[0] = (in[(row<<3)|0]<<11) + 128;  // iscale1 (2^11,128)
+    x[4] = in[(row<<3)|4]<<11;          // iscale2 (2^11,  0)
+    
+    tmpval = W7*(in[(row<<3)|1]+in[(row<<3)|7]);      //fly2.t  = (565*(I1+I2))+OS:0
+    x[1] = tmpval + (W1-W7)*in[(row<<3)|1];  //fly2.O1 = (t+(I1*2276))    /*((coeff1:2841-Coeff7:565)=2276)*/
+    x[7] = tmpval - (W1+W7)*in[(row<<3)|7];  //fly2.O2 = (t+(I2*(-3406))) /*(-(Coeff1:2841+Coeff7:565)=-3406)*/ 
+    tmpval = W3*(in[(row<<3)|5]+in[(row<<3)|3]);      //fly.t   = (2408*(I1+I2))+OS:0 
+    x[5] = tmpval - (W3-W5)*in[(row<<3)|5];  //fly.O1  = (t+(I1*(-799)))  /*(-(Coeff3:2408-Coeff5:1609)=-799)*/
+    x[3] = tmpval - (W3+W5)*in[(row<<3)|3];  //fly.O2  = (t+(I2*(-4017))) /*(-(Coeff3:2408+Coeff5:1609)=-4017*/
+    x[2] = in[(row<<3)|2];
+    x[6] = in[(row<<3)|6];
+    
+    /* second stage */
+    tmpval = x[0] + x[4]; // addsub01.o1 (1,0,0)
+    x[0] -= x[4];         // addsub01.o2
+    x[4] = W6*(x[2]+x[6]);          //fly3.t  = (1108*(I1+I2))+OS:0
+    x[6] = x[4] - (W2+W6)*x[6];     //fly3.O1 = (t+(I1*(-3784))) /*(-(Coeff2:2676+Coeff6:1108)=-3784*/
+    x[2] = x[4] + (W2-W6)*x[2];     //fly3.O2 = (t+(I2*1568))    /*((Coeff2:2676-Coeff6:1108)=1568)*/
+    x[4] = x[1] + x[5]; // addsub02.o1 (1,0,0)
+    x[1] -= x[5];       // addsub02.o2
+    x[5] = x[7] + x[3]; // addsub03.o1 (1,0,0)
+    x[7] -= x[3];       // addsub03.o2
+    
+    /* third stage */
+    x[3] = tmpval + x[2]; // addsub04.o1 (1,0,0)
+    tmpval -= x[2];       // addsub04.o2
+    x[2] = x[0] + x[6];   // addsub05.o1 (1,0,0)
+    x[0] -= x[6];         // addsub05.o2
+    x[6] = (181*(x[1]+x[7])+128)>>8; // addsub06.o1 (181,128,8)
+    x[1] = (181*(x[1]-x[7])+128)>>8; // addsub06.o2
+    
+    /* fourth stage */
+    blk[(row<<3)|0] = (x[3]+x[4])>>8;   // addsub09.O1 (1,0,8)
+    blk[(row<<3)|1] = (x[2]+x[6])>>8;   // addsub10.o1 (1,0,8)
+    blk[(row<<3)|2] = (x[0]+x[1])>>8;   // addsub08.o1 (1,0,8)
+    blk[(row<<3)|3] = (tmpval+x[5])>>8; // addsub07.o1 (1,0,8)
+    blk[(row<<3)|4] = (tmpval-x[5])>>8; // addsub07.o2
+    blk[(row<<3)|5] = (x[0]-x[1])>>8;   // addsub08.o2
+    blk[(row<<3)|6] = (x[2]-x[6])>>8;   // addsub10.o2
+    blk[(row<<3)|7] = (x[3]-x[4])>>8;   // addsub09.o2
+  }
+
+  void idctcol(size_t col) {
+    int tmpval;
+    int x[8];
+
+    x[0] = (blk[(0<<3)|col]<<8) + 8192;// iscale1 (2^8,8192) von I0
+    x[1] = blk[(4<<3)|col]<<8;         // iscale2 (2^8,   0) von I4
+    x[2] = blk[(6<<3)|col]; // I6
+    x[3] = blk[(2<<3)|col]; // I2
+    x[4] = blk[(1<<3)|col]; // I1
+    x[5] = blk[(7<<3)|col]; // I7
+    x[6] = blk[(5<<3)|col]; // I5
+    x[7] = blk[(3<<3)|col]; // I3
+          
+    /* first stage */
+    tmpval = W7*(x[4]+x[5]) + 4;      // fly2.t = (565*(I1+I7)+OS:4
+    x[4] = (tmpval+(W1-W7)*x[4])>>3;  // fly2.O1 = (t+(I1*2276))>>ATTEN:3
+    x[5] = (tmpval-(W1+W7)*x[5])>>3;  // fly2.O2 = (t+(I2*-3406))>>ATTEN:3
+    tmpval = W3*(x[6]+x[7]) + 4;      // fly1.t = (2408*(I5+I3))+OS:4
+    x[6] = (tmpval-(W3-W5)*x[6])>>3;  // fly1.O1 = (t+(I5*-799))>>ATTEN:3
+    x[7] = (tmpval-(W3+W5)*x[7])>>3;  // fly1.O2 = (t+(I3*-4017))>>ATTEN:3
+    
+    /* second stage */
+    x[8] = x[0] + x[1];               // addsub1.O1 G:1 OS:0 ATTEN:0
+    x[0] -= x[1];                     // addsub1.O2
+    tmpval = W6*(x[3]+x[2]) + 4;      // fly3.t = (1108*(I2+I6)+OS:4
+    x[2] = (tmpval-(W2+W6)*x[2])>>3;  // fly3.O1 = (t+(I6*-3784))>>ATTEN:3
+    x[3] = (tmpval+(W2-W6)*x[3])>>3;  // fly3.O2 = (t+(I2*1568))>>ATTEN:3
+    x[1] = x[4] + x[6];               // addsub2.O1 G:1 OS:0 ATTEN:0
+    x[4] -= x[6];                     // addsub2.O2
+    x[6] = x[5] + x[7];               // addsub3.O1 G:1 OS:0 ATTEN:0
+    x[5] -= x[7];                     // addsub3.O2
+    
+    /* third stage */
+    x[7] = x[8] + x[3];               // addsub4.O1 G:1 OS:0 ATTEN:0
+    x[8] -= x[3];                     // addsub4.O2
+    x[3] = x[0] + x[2];               // addsub5.O1 G:1 OS:0 ATTEN:0
+    x[0] -= x[2];                     // addsub5.O2
+    x[2] = (181*(x[4]+x[5])+128)>>8;  // addsub6.O1 G:181 OS:128 ATTEN:8
+    x[4] = (181*(x[4]-x[5])+128)>>8;  // addsub6.O2
+    
+    /* fourth stage */
+    tmpval = (x[7]+x[1])>>14 + levelAdj;
+    out[(0<<3)|col] = tmpval < min
+      ? min
+      : tmpval > max
+        ? max
+        : tmpval;
+    tmpval = (x[3]+x[2])>>14 + levelAdj;
+    out[(1<<3)|col] = tmpval < min
+      ? min
+      : tmpval > max
+        ? max 
+        : tmpval;
+    tmpval =  (x[0]+x[4])>>14 + levelAdj;
+    out[(2<<3)|col] = tmpval < min
+      ? min
+      : tmpval > max
+        ? max
+        : tmpval;
+    tmpval = (x[8]+x[6])>>14 + levelAdj;
+    out[(3<<3)|col] = tmpval < min
+      ? min
+      : tmpval > max
+        ? max
+        : tmpval;
+    tmpval = (x[8]-x[6])>>14 + levelAdj;
+    out[(4<<3)|col] = tmpval < min
+      ? min
+      : tmpval > max
+        ? max
+        : tmpval;
+    tmpval = (x[0]-x[4])>>14 + levelAdj;
+    out[(5<<3)|col] = tmpval < min
+      ? min
+      : tmpval > max
+        ? max
+        : tmpval;
+    tmpval = (x[3]-x[2])>>14 + levelAdj;
+    out[(6<<3)|col] = tmpval < min
+      ? min
+      : tmpval > max
+        ? max
+        : tmpval;
+    tmpval = (x[7]-x[1])>>14 + levelAdj;
+    out[(7<<3)|col] = tmpval < min
+      ? min
+      : tmpval > max
+        ? max
+        : tmpval;
+  }
+
+  void idct2D() {
+    // 1-D IDCT on rows
+    for (int i = 0; i <= 7; ++i)
+      idctrow(i);
+    // 1-D IDCT on columns
+    for (int i = 0; i <= 7; ++i)
+      idctcol(i);
+  }
+
   smoc_firing_state start;
 public:
   MIdct2D(sc_module_name name, int levelAdj, int min, int max)
-    : smoc_actor(name, start)
+    : smoc_actor(name, start), levelAdj(levelAdj), min(min), max(max)
   {
+    start
+      = in(64)                >>
+        out(64)               >>
+        CALL(MIdct2D::idct2D) >> start
+      ;
   }
 };
+
+# undef W1
+# undef W2
+# undef W3
+# undef W5
+# undef W6
+# undef W7
+
 #endif // IDCT2D_ARCH == IDCT2D_MONOLITHIC
 
 #endif // _INCLUDED_MIDCT2D_HPP
