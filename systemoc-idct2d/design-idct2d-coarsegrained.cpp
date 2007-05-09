@@ -36,6 +36,6 @@
 
 #include "smoc_synth_std_includes.hpp"
 
-#define IDCT2D_ARCH IDCT2D_FINEGRAINED
+#define IDCT2D_ARCH IDCT2D_COARSEGRAINED
 
 #include "MTopIdct2D.hpp"
