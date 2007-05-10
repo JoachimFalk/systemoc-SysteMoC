@@ -3,6 +3,8 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_md_fifo.hpp>
@@ -82,7 +84,7 @@ int main(){
 #endif
 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
-  smoc_md_ba_ui_schedule buffer_schedule_analysis_obj("snk_self_schedule.txt");
+  smoc_md_ba_ui_schedule buffer_schedule_analysis_obj;
 #endif
         
   smoc_md_fifo<void> my_fifo(edge_e1,
@@ -111,13 +113,26 @@ int main(){
 #endif
     }   
     if (current_src_schedule_period <= max_src_schedule_periods){
+#ifdef SYSTEMOC_ENABLE_VPC
       my_channel->commitWrite(1,dummy_event);
+#else
+      my_channel->commitWrite(1);
+#endif
       if (my_channel->src_new_schedule_period())
         current_src_schedule_period++;
     }else{
       break;
     }
   }
+
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+  
+  stringstream temp;
+  temp << "self-schedule_" << WSDF_EXAMPLE_NBR << ".txt";  
+  ofstream outfile(temp.str().c_str());
+  outfile << buffer_schedule_analysis_obj.get_invocation_table();
+  outfile.close();
+#endif
 
   delete my_channel;
         
