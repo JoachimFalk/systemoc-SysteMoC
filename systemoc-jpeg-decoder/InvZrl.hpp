@@ -324,7 +324,9 @@ public:
       | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
       ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0) &&
        ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0xF) ||
-	(JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0))) >>
+	(JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0)) &&
+       (JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)1)
+       ) >>
       (out(1))                                       >>
       CALL(InvZrl::start_non_zero_rl)                >> non_zero_run;
 
