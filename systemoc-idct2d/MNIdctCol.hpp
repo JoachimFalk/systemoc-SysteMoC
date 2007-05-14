@@ -61,7 +61,7 @@ protected:
     static const int W7 = 565;  /* 2048*sqrt(2)*cos(7*pi/16) */
 
     int tmpval;
-    int x[8];
+    int x[9];
 
     x[0] = (i0[0]<<8) + 8192;// iscale1 (2^8,8192) von I0
     x[1] = i4[0]<<8;         // iscale2 (2^8,   0) von I4

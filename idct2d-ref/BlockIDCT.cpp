@@ -186,7 +186,7 @@ static void idctrow(short *in, short *out)
 static void idctcol(short *blk, short negMaxval)
 {
   int tmpval;
-  int x[B_WIDTH];
+  int x[B_WIDTH+1];
 
   /* shortcut
   if (!((x[1] = (blk[8*4]<<8)) | (x[2] = blk[8*6]) | (x[3] = blk[8*2]) |
