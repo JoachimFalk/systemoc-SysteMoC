@@ -707,8 +707,11 @@ private:
     app1, skipApp1, app2_1, skipApp2_1, app2_x, skipApp2_x, 
     sof, sofReadSamplePrecision, sofReadDimY, sofReadDimX, sofReadCompCount, 
     sofReadCompIDs, sofReadSamplingFactors, sofReadQtTblIDs,
-    dnl, skipDnl, 
-    error;
+    dnl, skipDnl;
+#ifdef DBG_ENABLE
+    smoc_firing_state error;
+#endif
+
 public:
   // ########################################################################################
   // # Constructor
