@@ -1,0 +1,19 @@
+jpeg.mSrc                        ;     jpeg.mSrc                             
+jpeg.mParser                     ;     jpeg.mParser                          
+jpeg.mHuffDecoder.mInvHuffman    ;     jpeg.mHuffDecoder.mInvHuffman         
+jpeg.mHuffDecoder.mHuffTblDecoder;     jpeg.mHuffDecoder.mHuffTblDecoder     
+jpeg.mInvZrl                     ;     jpeg.mInvZrl                          
+jpeg.mDcDecoding                 ;     jpeg.mDcDecoding                      
+jpeg.InvQuant                    ;     jpeg.InvQuant                         
+jpeg.CtrlSieve                   ;     jpeg.CtrlSieve                        
+jpeg.InvZigZag                   ;     jpeg.InvZigZag                        
+jpeg.mIdct2D.mBlock2Row          ;     jpeg.mIdct2D.mBlock2Row               
+jpeg.mIdct2D.mIdctRow            ;     jpeg.mIdct2D.mIdctRow                 
+jpeg.mIdct2D.mTranspose          ;     jpeg.mIdct2D.mTranspose               
+jpeg.mIdct2D.mIdctCol            ;     jpeg.mIdct2D.mIdctCol                 
+jpeg.mIdct2D.mRangeAdj           ;     jpeg.mIdct2D.mRangeAdj                
+jpeg.mIdct2D.mCol2Block          ;     jpeg.mIdct2D.mCol2Block               
+jpeg.Shuffle                     ;     jpeg.Shuffle                          
+jpeg.mDup                        ;     jpeg.mDup                             
+jpeg.mYCbCr                      ;     jpeg.mYCbCr                           
+jpeg.mPGMsink                    ;     jpeg.mPGMsink                         

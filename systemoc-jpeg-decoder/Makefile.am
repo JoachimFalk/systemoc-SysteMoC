@@ -80,14 +80,28 @@ check: autotest.sh
 if SYNTH
 SYNTHESIS_SUBDIR = synthesis
 HWSYNTH_SUBDIR   = hwsynth
+SPECS_DIR        = specs
 
 USR_DEF_SKELETONS = $(srcdir)/../systemoc-idct2d
 
 synth:   $(SYNTHESIS_SUBDIR)/smoc-synth-jpeg
 hwsynth: $(HWSYNTH_SUBDIR)/smoc-hwsynth-all-jpeg.stamp
+sgx:  	 $(SYNTHESIS_SUBDIR)/jpeg.pgx $(root_builddir)/specGen/specGen
+	test -e ${SPECS_DIR} || mkdir ${SPECS_DIR}
+	$(root_builddir)/specGen/specGenDir.sh \
+	$(SYNTHESIS_SUBDIR)/jpeg.pgx \
+	$(srcdir)/specGen-mapping/ \
+	${SPECS_DIR}
+
 
 $(SYNTHESIS_SUBDIR)/jpeg.ast.xml: Jpeg.cpp HuffDecoder.cpp
 $(HWSYNTH_SUBDIR)/jpeg.ast.xml:   Jpeg.cpp HuffDecoder.cpp
+
+
+$(SYNTHESIS_SUBDIR)/%.pgx: $(SYNTHESIS_SUBDIR)/%.pg.xml
+	sed -e 's/networkgraph\.dtd/specgraph\.dtd/g'\
+	    -e 's/networkgraph/specificationgraph/g'\
+	    $^ > $@
 
 .PHONY: synth hwsynth
 endif
