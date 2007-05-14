@@ -29,6 +29,7 @@ SUBDIRS=
 if SYNTH
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
   include $(root_builddir)/Synthesis-Actor-Cynthesizer/Rules-Synth.mk
+  include $(root_builddir)/specGen/Rules-Synth.mk
 endif
 
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
@@ -80,28 +81,29 @@ check: autotest.sh
 if SYNTH
 SYNTHESIS_SUBDIR = synthesis
 HWSYNTH_SUBDIR   = hwsynth
-SPECS_DIR        = specs
+SGX_SUBDIR     = specs
 
 USR_DEF_SKELETONS = $(srcdir)/../systemoc-idct2d
 
 synth:   $(SYNTHESIS_SUBDIR)/smoc-synth-jpeg
 hwsynth: $(HWSYNTH_SUBDIR)/smoc-hwsynth-all-jpeg.stamp
-sgx:  	 $(SYNTHESIS_SUBDIR)/jpeg.pgx $(root_builddir)/specGen/specGen
-	test -e ${SPECS_DIR} || mkdir ${SPECS_DIR}
+sgx:  	 $(SGX_SUBDIR)/jpeg.pgx \
+	 $(root_builddir)/specGen/specGenDir.sh \
+	 $(SGX_SUBDIR)/specgraph.dtd
 	$(root_builddir)/specGen/specGenDir.sh \
-	$(SYNTHESIS_SUBDIR)/jpeg.pgx \
+	$(SGX_SUBDIR)/jpeg.pgx \
 	$(srcdir)/specGen-mapping/ \
-	${SPECS_DIR}
+	${SGX_SUBDIR}
 
 
 $(SYNTHESIS_SUBDIR)/jpeg.ast.xml: Jpeg.cpp HuffDecoder.cpp
 $(HWSYNTH_SUBDIR)/jpeg.ast.xml:   Jpeg.cpp HuffDecoder.cpp
 
 
-$(SYNTHESIS_SUBDIR)/%.pgx: $(SYNTHESIS_SUBDIR)/%.pg.xml
+$(SGX_SUBDIR)/%.pgx: $(SYNTHESIS_SUBDIR)/%.pg.xml
 	sed -e 's/networkgraph\.dtd/specgraph\.dtd/g'\
 	    -e 's/networkgraph/specificationgraph/g'\
 	    $^ > $@
 
-.PHONY: synth hwsynth
+.PHONY: synth hwsynth sgx
 endif
