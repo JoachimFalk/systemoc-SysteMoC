@@ -87,9 +87,9 @@ USR_DEF_SKELETONS = $(srcdir)/../systemoc-idct2d
 
 synth:   $(SYNTHESIS_SUBDIR)/smoc-synth-jpeg
 hwsynth: $(HWSYNTH_SUBDIR)/smoc-hwsynth-all-jpeg.stamp
-sgx:  	 $(SGX_SUBDIR)/jpeg.pgx \
-	 $(root_builddir)/specGen/specGenDir.sh \
-	 $(SGX_SUBDIR)/specgraph.dtd
+sgx:  	 $(SGX_SUBDIR)/specgraph.dtd \
+	 $(SGX_SUBDIR)/jpeg.pgx \
+	 $(root_builddir)/specGen/specGenDir.sh
 	$(root_builddir)/specGen/specGenDir.sh \
 	$(SGX_SUBDIR)/jpeg.pgx \
 	$(srcdir)/specGen-mapping/ \
