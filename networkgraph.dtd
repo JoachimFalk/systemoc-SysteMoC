@@ -12,14 +12,14 @@
 
 <!ELEMENT problemgraph (edge|portmapping|process)*>
 <!ATTLIST problemgraph 
-	id ID #REQUIRED
-	name CDATA #REQUIRED
+  id ID #REQUIRED
+  name CDATA #REQUIRED
 >
 
 <!ELEMENT architecturegraph (edge|portmapping|resource|attribute)*>
 <!ATTLIST architecturegraph 
-	id ID #REQUIRED
-	name CDATA #REQUIRED
+  id ID #REQUIRED
+  name CDATA #REQUIRED
 >
 
 <!ELEMENT mappings (mapping)*>
@@ -29,112 +29,112 @@
 
 <!ELEMENT process (port|stateDeclaration|actor|fifo|attribute|problemgraph)*>
 <!ATTLIST process
-	name CDATA #REQUIRED
-	id ID #REQUIRED
-	x CDATA #IMPLIED
-	y CDATA #IMPLIED
-	type (actor|fifo) #REQUIRED
+  name CDATA #REQUIRED
+  id ID #REQUIRED
+  x CDATA #IMPLIED
+  y CDATA #IMPLIED
+  type (actor|fifo) #REQUIRED
 >
 
 <!ELEMENT actor (constructorParameter*,fsm)>
 <!ATTLIST actor
-	actorClass CDATA #REQUIRED
+  actorClass CDATA #REQUIRED
 >
 
 <!ELEMENT constructorParameter EMPTY>
 <!ATTLIST constructorParameter
-	type  CDATA #REQUIRED
-	value CDATA #REQUIRED
+  type  CDATA #REQUIRED
+  value CDATA #REQUIRED
 >
 
 <!ELEMENT fifo (token)*>
 <!ATTLIST fifo
-	tokenType CDATA #REQUIRED
+  tokenType CDATA #REQUIRED
 >
 
 <!ELEMENT token EMPTY>
 <!ATTLIST token
-        value CDATA #REQUIRED
+  value CDATA #REQUIRED
 >
 
 <!ELEMENT resource (port|architecturegraph|attribute)*>
 <!ATTLIST resource
-	name CDATA #REQUIRED
-	id ID #REQUIRED
-	x CDATA #IMPLIED
-	y CDATA #IMPLIED
+  name CDATA #REQUIRED
+  id ID #REQUIRED
+  x CDATA #IMPLIED
+  y CDATA #IMPLIED
 >
 
 <!ELEMENT mapping (attribute)*>
 <!ATTLIST mapping
-	name CDATA #REQUIRED
-	id ID #REQUIRED
-	source IDREF #REQUIRED
-	target IDREF #REQUIRED
+  name CDATA #REQUIRED
+  id ID #REQUIRED
+  source IDREF #REQUIRED
+  target IDREF #REQUIRED
 >
 
 <!ELEMENT port EMPTY>
 <!ATTLIST port
-	name CDATA #REQUIRED
-	id ID #REQUIRED
-	type (in|out) #REQUIRED
+  name CDATA #REQUIRED
+  id ID #REQUIRED
+  type (in|out) #REQUIRED
 >
 
 <!ELEMENT portmapping EMPTY>
 <!ATTLIST portmapping
-        from IDREF #REQUIRED
-        id ID #REQUIRED
-        to IDREF #REQUIRED
-	x CDATA #IMPLIED
-	y CDATA #IMPLIED
+  from IDREF #REQUIRED
+  id ID #REQUIRED
+  to IDREF #REQUIRED
+  x CDATA #IMPLIED
+  y CDATA #IMPLIED
 >
 
 <!ELEMENT edge EMPTY>
 <!ATTLIST edge
-	name CDATA #REQUIRED
-	id ID #REQUIRED
-	source IDREF #REQUIRED
-	target IDREF #REQUIRED
+  name CDATA #REQUIRED
+  id ID #REQUIRED
+  source IDREF #REQUIRED
+  target IDREF #REQUIRED
 >
 
 <!ELEMENT attribute EMPTY>
 <!ATTLIST attribute
-	type CDATA #REQUIRED
-	value CDATA #REQUIRED
+  type CDATA #REQUIRED
+  value CDATA #REQUIRED
 >
 
 <!ELEMENT fsm (state)*>
 <!ATTLIST fsm
-	startstate IDREF #REQUIRED
-	startstatename CDATA #IMPLIED
+  startstate IDREF #REQUIRED
+  startstatename CDATA #IMPLIED
 >
 
 <!ELEMENT state (transition)*>
 <!ATTLIST state
-	id ID #REQUIRED
-	name CDATA #IMPLIED
+  id ID #REQUIRED
+  name CDATA #IMPLIED
 >
 
 <!ELEMENT stateDeclaration EMPTY>
 <!ATTLIST stateDeclaration
-	state IDREF #REQUIRED
-	name  CDATA #IMPLIED
+  state IDREF #REQUIRED
+  name  CDATA #IMPLIED
 >
 
 
-<!ENTITY % OPS "(ASTNodeBinOp|ASTNodeUnOp|PortTokens|Literal|Var|Proc|MemGuard|MemProc|Token)" >
+<!ENTITY % OPS "(ASTNodeBinOp|ASTNodeUnOp|PortTokens|Literal|Var|Proc|MemGuard|MemProc|Token|Comm)" >
 
 <!ELEMENT transition %OPS;>
 <!ATTLIST transition
-	nextstate IDREF #REQUIRED
-	nextstatename CDATA #IMPLIED
-	action CDATA #REQUIRED
+  nextstate IDREF #REQUIRED
+  nextstatename CDATA #IMPLIED
+  action CDATA #REQUIRED
 >
 
 <!ELEMENT ASTNodeBinOp (lhs,rhs)>
 <!ATTLIST ASTNodeBinOp 
-	valueType CDATA #REQUIRED
-	opType    CDATA #REQUIRED
+  valueType CDATA #REQUIRED
+  opType    CDATA #REQUIRED
 >
 
 <!ELEMENT lhs %OPS;>
@@ -143,57 +143,60 @@
 
 <!ELEMENT ASTNodeUnOp (ChildNode)>
 <!ATTLIST ASTNodeUnOp
-	valueType CDATA #REQUIRED
-	opType    CDATA #REQUIRED
+  valueType CDATA #REQUIRED
+  opType    CDATA #REQUIRED
 >
 
 <!ELEMENT ChildNode %OPS;>
 
 <!ELEMENT PortTokens EMPTY>
 <!ATTLIST PortTokens
-        valueType CDATA #REQUIRED
-	portid    IDREF #REQUIRED
+  valueType CDATA #REQUIRED
+  portid    IDREF #REQUIRED
+>
+
+<!ELEMENT Comm (ChildNode)>
+<!ATTLIST Comm
+  valueType CDATA #REQUIRED
+  portid    IDREF #REQUIRED
 >
 
 <!ELEMENT Literal EMPTY>
 <!ATTLIST Literal
-        valueType CDATA #REQUIRED
-	value     CDATA #REQUIRED
+  valueType CDATA #REQUIRED
+  value     CDATA #REQUIRED
 >
 
 <!ELEMENT Var EMPTY>
 <!ATTLIST Var 
-        valueType CDATA #REQUIRED
-        name      CDATA #REQUIRED
-	addr      CDATA #REQUIRED
+  valueType CDATA #REQUIRED
+  name      CDATA #REQUIRED
 >
 
 <!ELEMENT Proc EMPTY>
 <!ATTLIST Proc
-        valueType CDATA #REQUIRED
-        addrObj   CDATA #REQUIRED
-        addrFun   CDATA #REQUIRED
+  valueType CDATA #REQUIRED
+  addrObj   CDATA #REQUIRED
+  addrFun   CDATA #REQUIRED
 >
 
 
 <!ELEMENT MemGuard EMPTY>
 <!ATTLIST MemGuard
-        valueType CDATA #REQUIRED
-	name      CDATA #REQUIRED
-	addrObj   CDATA #REQUIRED
-        addrFun   CDATA #REQUIRED
+  valueType CDATA #REQUIRED
+  name      CDATA #REQUIRED
 >
 
 <!ELEMENT MemProc EMPTY>
 <!ATTLIST MemProc
-        valueType CDATA #REQUIRED
-	addrObj   CDATA #REQUIRED
-        addrFun   CDATA #REQUIRED
+  valueType CDATA #REQUIRED
+  addrObj   CDATA #REQUIRED
+  addrFun   CDATA #REQUIRED
 >
 
 <!ELEMENT Token EMPTY>
 <!ATTLIST Token
-        valueType CDATA #REQUIRED
-	portid    IDREF #REQUIRED
-	pos       CDATA #REQUIRED
+  valueType CDATA #REQUIRED
+  portid    IDREF #REQUIRED
+  pos       CDATA #REQUIRED
 >
