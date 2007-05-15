@@ -35,11 +35,6 @@
 #ifndef _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 #define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 
-#ifndef KASCPAR_PARSING
-using namespace std;
-#endif
-
-#include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>

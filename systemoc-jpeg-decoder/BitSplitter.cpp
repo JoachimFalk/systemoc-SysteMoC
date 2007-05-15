@@ -1,9 +1,6 @@
 
 #include "BitSplitter.hpp"
 
-using std::endl;
-using std::cerr;
-
 #undef UDEMASK
 #define UDEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
 
@@ -19,12 +16,12 @@ void BitSplitter::addByte(const uint8_t b) {
 
 
 //
-void BitSplitter::skipBits(const size_t n) {
+void BitSplitter::skipBits(const unsigned int n) {
   assert(bitsLeft() >= n);
   
-  size_t bitsTodo = n;
+  unsigned int bitsTodo = n;
   
-  //cerr << " skipBits(): n = " << n << endl;
+  //std::cerr << " skipBits(): n = " << n << std::endl;
   
   // FIXME: remove loop?
   while ((bitsTodo > 0) && (bitsTodo >= m_firstByteBitsLeft)) {
@@ -37,21 +34,21 @@ void BitSplitter::skipBits(const size_t n) {
 
 
 //
-BitSplitter::return_type BitSplitter::getBits(const size_t n) const {
+BitSplitter::return_type BitSplitter::getBits(const unsigned int n) const {
   assert(bitsLeft() >= n);
   assert(n <= 16);
   unsigned int bits;
 
   // FIXME: remove debug code
-  //cerr << "getBits(): n = " << n << endl;
+  //std::cerr << "getBits(): n = " << n << std::endl;
   //dumpBuffer();
 
   if (n > m_firstByteBitsLeft) {
     if (n > m_firstByteBitsLeft + 8) {
       // read three
-      /*cerr << " peekByteBefore(2): " << (size_t)peekByteBefore(2)
-           << " peekByteBefore(1): " << (size_t)peekByteBefore(1)
-           << " peekByte(): " << ((size_t)peekByte() & 0xff)<< endl;*/
+      /*std::cerr << " peekByteBefore(2): " << (unsigned int)peekByteBefore(2)
+           << " peekByteBefore(1): " << (unsigned int)peekByteBefore(1)
+           << " peekByte(): " << ((unsigned int)peekByte() & 0xff)<< std::endl;*/
       bits = (peekByte() << 16) |
              (peekByteBefore(1) << 8)  |
              peekByteBefore(2);
@@ -59,8 +56,8 @@ BitSplitter::return_type BitSplitter::getBits(const size_t n) const {
     }
     else {
       // read two
-      /*cerr << " peekByteBefore(1): " << (size_t)peekByteBefore(1)
-           << " peekByte(): " << ((size_t)peekByte() & 0xff) << endl;*/
+      /*std::cerr << " peekByteBefore(1): " << (unsigned int)peekByteBefore(1)
+           << " peekByte(): " << ((unsigned int)peekByte() & 0xff) << std::endl;*/
       bits = (peekByte() << 8)  |
              peekByteBefore(1);
       bits = bits >> (m_firstByteBitsLeft + 8 - n);
@@ -68,7 +65,7 @@ BitSplitter::return_type BitSplitter::getBits(const size_t n) const {
   }
   else {
     // read one 
-    //cerr << " peekByte(): " << ((size_t)peekByte() & 0xff) << endl;
+    //std::cerr << " peekByte(): " << ((unsigned int)peekByte() & 0xff) << std::endl;
     bits = peekByte();
     bits = bits >> (m_firstByteBitsLeft - n);
   }
@@ -77,28 +74,28 @@ BitSplitter::return_type BitSplitter::getBits(const size_t n) const {
 
   // FIXME: remove debug code
   /*for (int i = 31; i >= 0; --i) {
-    cerr << UDEMASK(bits, i, 1);
+    std::cerr << UDEMASK(bits, i, 1);
     if (i % 8 == 0)
-      cerr << " ";
+      std::cerr << " ";
   }
-  cerr << endl;
+  std::cerr << std::endl;
 
-  cerr << "  getBits(): bits: " << bits << endl;*/
+  std::cerr << "  getBits(): bits: " << bits << std::endl;*/
 
   return static_cast<return_type>(bits);
 }
 
-
+#ifdef DEBUG_ENABLE
 //
 void BitSplitter::dumpBuffer(std::ostream &out) const {
-  const size_t size = sizeof(uint8_t) * 8;
+  const unsigned int size = sizeof(uint8_t) * 8;
 
   out << "  ---dump-buffer---\n";
   out << "  bufferNum: " << m_bufferNum << "; m_readPos: " << m_readPos
-      << "  m_firstByteBitsLeft: " << m_firstByteBitsLeft << endl;
+      << "  m_firstByteBitsLeft: " << m_firstByteBitsLeft << std::endl;
 
   out << "  ";
-  for (size_t j = 0; j < m_bufferSize; ++j) {
+  for (unsigned int j = 0; j < m_bufferSize; ++j) {
     for (int i = size-1; i >= 0; --i) {
       out << UDEMASK(m_byteBuffer[j], i, 1);
       if (i % 8 == 0)
@@ -110,17 +107,17 @@ void BitSplitter::dumpBuffer(std::ostream &out) const {
 
   std::_Ios_Fmtflags old_flags = out.flags();
   out.flags(std::ios::hex | std::ios_base::showbase);
-  for (size_t i = 0; i < m_bufferSize; ++i)
+  for (unsigned int i = 0; i < m_bufferSize; ++i)
     out << m_byteBuffer[i] << " ";
   out.flags(old_flags);
 
   out << std::endl;
 }
-
+#endif // DEBUG_ENABLE
 
 //
 void BitSplitter::skipByte(void) {
-  //cerr << " skipByte()" << endl;
+  //std::cerr << " skipByte()" << std::endl;
   assert(!isEmpty());
   --m_bufferNum;
   m_readPos = (m_readPos + 1) % m_bufferSize;

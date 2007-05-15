@@ -140,8 +140,8 @@ protected:
   void writeComponent() {
     DBG_OUT("writeComponent for (" << posX << ", " << posY << ")" << std::endl);
     
-    size_t posInBlock = (posX &  7U) + ((posY & 7U) << 3);
-    size_t posOfBlock = ((posX & ~7U) << 3);
+    unsigned int posInBlock = (posX &  7U) + ((posY & 7U) << 3);
+    unsigned int posOfBlock = ((posX & ~7U) << 3);
     if (compCount == 1) {
       DBG_OUT("@" << (posInBlock | posOfBlock) << std::endl);
 
@@ -174,7 +174,7 @@ protected:
   smoc_firing_state getScanDescs;
   smoc_firing_state readScan;
 public:
-  FrameShuffler(sc_module_name name, size_t dimX, size_t dimY, size_t comp)
+  FrameShuffler(sc_module_name name, unsigned int dimX, unsigned int dimY, unsigned int comp)
     : smoc_actor(name, getFrameDesc),
       dimX(dimX), dimY(dimY), compCount(comp), shuffleLines(8)
 #ifdef DBG_ENABLE

@@ -257,7 +257,7 @@ private:
 
   //
   bool canHuffDecodeDc(void) const {
-    size_t dummy;
+    unsigned int dummy;
     DecodedSymbol_t symbol;
     const bool ret = decodeHuff(getCurrentDcTable(), symbol, dummy);
     return ret;
@@ -265,7 +265,7 @@ private:
 
   //
   bool canHuffDecodeAc(void) const {
-    size_t dummy;
+    unsigned int dummy;
     DecodedSymbol_t symbol;
     const bool ret = decodeHuff(getCurrentAcTable(), symbol, dummy);
     return ret;
@@ -283,7 +283,7 @@ private:
   bool isEnoughAcBits(void) const {
     // see F.13, p. 106
     // cast to avoid compiler warning
-    return (m_BitSplitter.bitsLeft() >= (size_t)(m_receiveAcSymbol & 0x0f));
+    return (m_BitSplitter.bitsLeft() >= (unsigned int)(m_receiveAcSymbol & 0x0f));
   }
 
   //
@@ -295,7 +295,7 @@ private:
   //
   void storeData(void) {
     DBG_OUT("storeData(): store one byte: "
-            << hex << (size_t)JS_DATA_GET(in[0]) << dec << endl);
+            << hex << (unsigned int)JS_DATA_GET(in[0]) << dec << endl);
     m_BitSplitter.addByte(JS_DATA_GET(in[0]));
   }
 
@@ -381,7 +381,7 @@ private:
   // decode
   bool decodeHuff(const ExpHuffTbl &in,
                   DecodedSymbol_t &symbol,
-                  size_t &numBits) const;
+                  unsigned int &numBits) const;
 
   //
   void setCompInterleaving(){
@@ -582,7 +582,7 @@ private:
   int m_currentComp;
   DecodedSymbol_t m_receiveDcBits;
   DecodedSymbol_t m_receiveAcSymbol;
-  size_t m_currentAc;
+  unsigned int m_currentAc;
 };
 
 
@@ -634,8 +634,8 @@ private:
   //
   void storeTcTh() {
     m_tcth = in[0];
-    DBG(const size_t tc = (m_tcth >> 4) & 0x0f);
-    DBG(const size_t th = m_tcth & 0x0f);
+    DBG(const unsigned int tc = (m_tcth >> 4) & 0x0f);
+    DBG(const unsigned int th = m_tcth & 0x0f);
     DBG_OUT("storeTcTh(): TC = " << tc << "; TH = " << th << endl);
   }
 
@@ -677,7 +677,7 @@ private:
   //uint8_t  m_BITS[16];
   uint8_t  *m_BITS;
   ExpHuffTbl m_tmpHuff;
-  size_t m_huffWritePos;
+  unsigned int m_huffWritePos;
 #ifdef DBG_ENABLE
   CoSupport::DebugOstream dbgout;
 #endif // DBG_ENABLE

@@ -40,7 +40,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdlib.h>
-#include <math.h>
 
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_node_types.hpp>
@@ -71,11 +70,10 @@ private:
   void transform_color(){
     const unsigned int nbr_fractional_digits = 5;
 
-    const int pixel_in[] = 
-      {(int)JS_RAWPIXEL_GETCOMP(in[0],0), //Y
-       (int)JS_RAWPIXEL_GETCOMP(in[0],1) - 128, //Cb
-       (int)JS_RAWPIXEL_GETCOMP(in[0],2) - 128  //Cr
-      };
+    int pixel_in[3];
+    pixel_in[0] = JS_RAWPIXEL_GETCOMP(in[0],0);       //Y
+    pixel_in[1] = JS_RAWPIXEL_GETCOMP(in[0],1) - 128; //Cb
+    pixel_in[2] = JS_RAWPIXEL_GETCOMP(in[0],2) - 128; //Cr
 
     DBG_OUT("Input pixel values: " 
 	    << pixel_in[0] << " " 

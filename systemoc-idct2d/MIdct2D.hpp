@@ -139,14 +139,6 @@ public:
 };
 #else // IDCT2D_ARCH == IDCT2D_MONOLITHIC
 
-// IDCT constants
-# define W1 2841 /* 2048*sqrt(2)*cos(1*pi/16) */
-# define W2 2676 /* 2048*sqrt(2)*cos(2*pi/16) */
-# define W3 2408 /* 2048*sqrt(2)*cos(3*pi/16) */
-# define W5 1609 /* 2048*sqrt(2)*cos(5*pi/16) */
-# define W6 1108 /* 2048*sqrt(2)*cos(6*pi/16) */
-# define W7 565  /* 2048*sqrt(2)*cos(7*pi/16) */
-
 class MIdct2D: public smoc_actor {
 public:
   smoc_port_in<int>  in;  
@@ -156,6 +148,15 @@ protected:
   const int min;
   const int max;
 
+  // IDCT constants
+  static const int W1 = 2841; /* 2048*sqrt(2)*cos(1*pi/16) */
+  static const int W2 = 2676; /* 2048*sqrt(2)*cos(2*pi/16) */
+  static const int W3 = 2408; /* 2048*sqrt(2)*cos(3*pi/16) */
+  static const int W5 = 1609; /* 2048*sqrt(2)*cos(5*pi/16) */
+  static const int W6 = 1108; /* 2048*sqrt(2)*cos(6*pi/16) */
+  static const int W7 = 565;  /* 2048*sqrt(2)*cos(7*pi/16) */
+
+  // FIXME! Arrays not supported for Synthesis
   int blk[64];
 
   void idctrow(size_t row) {
@@ -318,13 +319,6 @@ public:
       ;
   }
 };
-
-# undef W1
-# undef W2
-# undef W3
-# undef W5
-# undef W6
-# undef W7
 
 #endif // IDCT2D_ARCH == IDCT2D_MONOLITHIC
 

@@ -70,7 +70,7 @@ int componentCount(const ScanVector &scanVector) {
        ++iter) {
     const Scan &scan = *iter;
     
-    for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i)
+    for (unsigned int i = 0; i < SCANPATTERN_LENGTH; ++i)
       componentSet.insert(scan.scanPattern[i]);
   }
   return componentSet.size();
@@ -81,10 +81,10 @@ public:
   smoc_port_out<IDCTCoeff_t>    out;
   smoc_port_out<JpegChannel_t>  outCtrlImage;
 protected:
-  size_t      width, height;
+  unsigned int      width, height;
   ScanVector  scanVector;
 
-  size_t      componentVals;
+  unsigned int      componentVals;
 
   std::ifstream inputStream;
 
@@ -106,7 +106,7 @@ protected:
     std::cerr << "IDCTScanSource: sendNewScan"
       << " from file: " << scan.idctCoeffFileName
       << " scanPattern: ";
-    for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i) {
+    for (unsigned int i = 0; i < SCANPATTERN_LENGTH; ++i) {
       std::cerr
         << static_cast<unsigned int>(scan.scanPattern[i]);
 //      << (i < SCANPATTERN_LENGTH-1 ? ":" : "");
@@ -119,7 +119,7 @@ protected:
     assert(inputStream.good());
     {
       std::set<IntCompID_t> componentSet;
-      for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i)
+      for (unsigned int i = 0; i < SCANPATTERN_LENGTH; ++i)
         componentSet.insert(scan.scanPattern[i]);
       componentVals = width * height * componentSet.size();
     }
@@ -154,7 +154,7 @@ protected:
   smoc_firing_state end;
 public:
   IDCTScanSource(sc_module_name name,
-      size_t width, size_t height, const ScanVector &scanVector)
+      unsigned int width, unsigned int height, const ScanVector &scanVector)
     : smoc_actor(name, start),
       width(width), height(height), scanVector(scanVector) {
     start
@@ -191,7 +191,7 @@ private:
   YCrCb2RGB         mYCbCr;
   m_pgm_sink        mPGMsink;
 public:
-  Testbench(sc_module_name name, size_t width, size_t height, const ScanVector &scanVector)
+  Testbench(sc_module_name name, unsigned int width, unsigned int height, const ScanVector &scanVector)
     : smoc_graph(name),
       mIDCTScanSource("mIDCTScanSource", width, height, scanVector),
       mIdct2D("mIdct2D", 128, 0, 255),
@@ -234,14 +234,14 @@ int sc_main (int argc, char **argv) {
     exit(-1);
   }
   
-  size_t      width, height;
+  unsigned int width, height;
   ScanVector  scanVector;
   
   width  = atoi(argv[1]);
   height = atoi(argv[2]);
   
   for (const char *const *argIter = &argv[3]; *argIter != NULL; ++argIter) {
-    size_t      pos = 0;
+    unsigned int pos = 0;
     const char *arg = *argIter;
     
     Scan scan;

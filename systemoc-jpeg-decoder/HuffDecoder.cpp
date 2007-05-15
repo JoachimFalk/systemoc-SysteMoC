@@ -462,7 +462,7 @@ InvHuffman::InvHuffman(sc_module_name name)
 
 //
 void InvHuffman::huffDecodeDC(void) {
-  size_t codeSize;
+  unsigned int codeSize;
   DecodedSymbol_t symbol;
 
   const bool ret = decodeHuff(getCurrentDcTable(), symbol, codeSize);
@@ -477,7 +477,7 @@ void InvHuffman::huffDecodeDC(void) {
 
 //
 void InvHuffman::huffDecodeAC(void) {
-  size_t codeSize;
+  unsigned int codeSize;
   DecodedSymbol_t symbol;
 
   const bool ret = decodeHuff(getCurrentAcTable(), symbol, codeSize);
@@ -525,7 +525,7 @@ void InvHuffman::writeAcDiff(void) {
 void InvHuffman::writeDcDiff(void) {
   assert(m_receiveDcBits <= 11);
   
-  const size_t receivedBits = m_BitSplitter.getBits(m_receiveDcBits);
+  const unsigned int receivedBits = m_BitSplitter.getBits(m_receiveDcBits);
   m_BitSplitter.skipBits(m_receiveDcBits);
   
   const JpegChannel_t dcDiff =
@@ -540,9 +540,9 @@ void InvHuffman::writeDcDiff(void) {
 // decode
 bool InvHuffman::decodeHuff(const ExpHuffTbl &table,
                             DecodedSymbol_t &symbol,
-                            size_t &numBits) const
+                            unsigned int &numBits) const
 {
-  size_t codeSize = 1;
+  unsigned int codeSize = 1;
 
   HuffmanCode_t codeWord;
 
@@ -563,7 +563,7 @@ bool InvHuffman::decodeHuff(const ExpHuffTbl &table,
     }
     else {
       // found code word, get symbol
-      size_t pos = table.valPtr[codeSize - 1];
+      unsigned int pos = table.valPtr[codeSize - 1];
       pos = pos + codeWord - table.minCode[codeSize - 1];
       /*cerr << " DECODE> pos: " << pos << endl;
       cerr << " DECODE> codeSize " << codeSize

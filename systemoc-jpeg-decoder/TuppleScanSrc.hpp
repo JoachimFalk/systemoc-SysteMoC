@@ -72,10 +72,10 @@ public:
   smoc_port_out<JpegChannel_t>    out;
   smoc_port_out<JpegChannel_t>  outCtrlImage;
 protected:
-  size_t      width, height;
+  unsigned int width, height;
   ScanVector  scanVector;
 
-  size_t      componentVals;
+  unsigned int componentVals;
 
   std::ifstream inputStream;
 
@@ -87,7 +87,7 @@ protected:
          ++iter) {
       const Scan &scan = *iter;
       
-      for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i)
+      for (unsigned int i = 0; i < SCANPATTERN_LENGTH; ++i)
         componentSet.insert(scan.scanPattern[i]);
     }
     DBG_OUT("TuppleScanSource: sendNewFrame"
@@ -105,7 +105,7 @@ protected:
     DBG_OUT("TuppleScanSource: sendNewScan"
 	    << " from file: " << scan.idctCoeffFileName
 	    << " scanPattern: ");
-    for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i) {
+    for (unsigned int i = 0; i < SCANPATTERN_LENGTH; ++i) {
       DBG_OUT(static_cast<unsigned int>(scan.scanPattern[i]));
     }
     DBG_OUT(std::endl);
@@ -116,7 +116,7 @@ protected:
     assert(inputStream.good());
     {
       std::set<IntCompID_t> componentSet;
-      for (size_t i = 0; i < SCANPATTERN_LENGTH; ++i)
+      for (unsigned int i = 0; i < SCANPATTERN_LENGTH; ++i)
         componentSet.insert(scan.scanPattern[i]);
       componentVals = width * height * componentSet.size();
     }
@@ -186,7 +186,7 @@ protected:
   CoSupport::DebugOstream dbgout;
 public:
   TuppleScanSource(sc_module_name name,
-      size_t width, size_t height, const ScanVector &scanVector)
+      unsigned int width, unsigned int height, const ScanVector &scanVector)
     : smoc_actor(name, start),
       width(width), height(height), scanVector(scanVector),
       dbgout(std::cout) {

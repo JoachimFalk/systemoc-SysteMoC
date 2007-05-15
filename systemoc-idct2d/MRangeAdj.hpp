@@ -56,10 +56,11 @@ private:
 
   void transform() {
     int val = in[0] + levelAdj;
-    out[0] =
-      val < min
-        ? min
-        : val > max ? max : val;
+    if(val < min)
+      val = min;
+    else if(val > max)
+      val = max;
+    out[0] = val;
   }
 
   smoc_firing_state main;

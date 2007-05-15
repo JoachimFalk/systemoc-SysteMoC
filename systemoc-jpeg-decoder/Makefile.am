@@ -37,7 +37,7 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -I$(srcdir)/../systemoc-idct2d -Wn
 
 LIBS= @LIBS@ -lsystemoc
 
-PROJECT_CPPS=HuffDecoder.cpp channels.cpp BitSplitter.cpp
+PROJECT_CPPS=HuffDecoder.cpp BitSplitter.cpp
 
 
 noinst_PROGRAMS= simulation-jpeg parser-test huffman-test idct-fbw-test invzrl-test # idct-fsh-test

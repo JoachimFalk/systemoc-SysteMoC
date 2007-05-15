@@ -94,8 +94,8 @@ private:
   m_pgm_sink                  mPGMsink;
 public:
   Testbench(sc_module_name name, 
-	    size_t width, 
-	    size_t height, 
+	    unsigned int width, 
+	    unsigned int height, 
 	    const ScanVector &scanVector)
     : smoc_graph(name),
       mConstSrc0("mConstSrc0",1),
@@ -175,14 +175,14 @@ int sc_main (int argc, char **argv) {
     exit(-1);
   }
   
-  size_t      width, height;
+  unsigned int width, height;
   ScanVector  scanVector;
   
   width  = atoi(argv[1]);
   height = atoi(argv[2]);
   
   for (const char *const *argIter = &argv[3]; *argIter != NULL; ++argIter) {
-    size_t      pos = 0;
+    unsigned int pos = 0;
     const char *arg = *argIter;
     
     Scan scan;

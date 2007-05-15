@@ -60,9 +60,9 @@ private:
   //number of components
   IntCompID_t compCount; 
 
-  size_t image_width;
-  size_t image_height;
-  size_t missing_pixels;
+  unsigned int image_width;
+  unsigned int image_height;
+  unsigned int missing_pixels;
 
   void processNewFrame() {
     assert(JS_ISCTRL(inCtrlImage[0]));
@@ -81,6 +81,7 @@ private:
   }
 
   void write_image_header() {
+#ifndef KASCPAR_PARSING
 #ifdef SINK_BINARY_OUTPUT
 # ifdef XILINX_EDK_RUNTIME
     if (compCount == 1)
@@ -93,14 +94,14 @@ private:
                image_height);
 # else
     if (compCount == 1)
-      cout << "P5 ";
+      std::cout << "P5 ";
     else
-      cout << "P6 ";
+      std::cout << "P6 ";
 
-    cout << image_width << " "
+    std::cout << image_width << " "
          << image_height<< " "
          << 255 
-         << endl;
+         << std::endl;
 # endif
 #else
 # ifdef XILINX_EDK_RUNTIME
@@ -114,16 +115,17 @@ private:
                image_height);
 # else
     if (compCount == 1)
-      cout << "P2 " ;
+      std::cout << "P2 " ;
     else
-      cout << "P3 " ;
+      std::cout << "P3 " ;
     
-    cout << image_width << " "
+    std::cout << image_width << " "
          << image_height<< " "
          << 255 
-         << endl;
+         << std::endl;
 # endif
 #endif
+#endif // KASCPAR_PARSING
   }
   
   void process_pixel() {
@@ -132,25 +134,24 @@ private:
     for (unsigned int c = 0; c < compCount; c++){      
 #ifdef SINK_BINARY_OUTPUT
 # ifndef XILINX_EDK_RUNTIME
-      cout << (char)(JS_RAWPIXEL_GETCOMP(_in,c));
+      std::cout << (char)(JS_RAWPIXEL_GETCOMP(_in,c));
 # else
       xil_printf("%c", JS_RAWPIXEL_GETCOMP(_in,c));
 # endif
 #else
 # ifndef XILINX_EDK_RUNTIME
-      cout << (int)(JS_RAWPIXEL_GETCOMP(_in,c)) << " ";
+      std::cout << (int)(JS_RAWPIXEL_GETCOMP(_in,c)) << " ";
 # else
       xil_printf("%d ", JS_RAWPIXEL_GETCOMP(_in,c));
 # endif
 #endif
     }
-#endif // KASCPAR_PARSING
 
     missing_pixels--;
 #ifndef SINK_BINARY_OUTPUT
     if (missing_pixels % image_width == 0){
 # ifndef XILINX_EDK_RUNTIME
-      cout << endl;
+      std::cout << std::endl;
 # else
       xil_printf("\n");
 # endif
@@ -158,12 +159,13 @@ private:
 
     if (missing_pixels == 0){
 # ifndef XILINX_EDK_RUNTIME
-      cout << endl;
+      std::cout << std::endl;
 # else
       xil_printf("\n");
 # endif
     }
 #endif
+#endif // KASCPAR_PARSING
       
   }
   

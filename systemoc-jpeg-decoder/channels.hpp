@@ -4,9 +4,20 @@
 #ifndef _INCLUDED_CHANNELS_HPP
 #define _INCLUDED_CHANNELS_HPP
 
-#include <stdint.h>
-#include <iostream>
+#ifndef XILINX_EDK_RUNTIME
+# include <stdint.h>
+# include <iostream>
+#else
+typedef unsigned char  uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned int   uint32_t;
+typedef signed   char  int8_t;
+typedef signed   short int16_t;
+typedef signed   int   int32_t;
+#endif
+
 #include <vector>
+#include <cassert>
 
 #include "debug_config.h"
 
@@ -60,8 +71,6 @@ public:
   operator uint29_t() const
     { return val; }
 };
-
-std::ostream &operator << (std::ostream &out, const JpegChannel_t &x);
 #else
 # ifndef KASCPAR_PARSING
 typedef uint29_t JpegChannel_t;
@@ -613,7 +622,13 @@ std::ostream &operator << (std::ostream &out, const ImageParam &val)
 return out; }
 */
 
-std::ostream &operator << (std::ostream &out, const codeword_t val);
+#ifndef XILINX_EDK_RUNTIME
+inline
+std::ostream &operator << (std::ostream &out, const codeword_t val) {
+  out << (unsigned int) val;
+  return out;
+}
+#endif
 
 
 /// Struct for Huffman Decoder
@@ -625,10 +640,64 @@ struct ExpHuffTbl {
                                  //  'index'
   uint16_t         maxCode[16];  // max ...
   DecodedSymbol_t  huffVal[256]; // symbol-length assignment parameters (B.2.4.2)
+
+  bool operator==(const ExpHuffTbl &rhs) const {
+    for(int i = 0; i < 16; ++i) {
+      if(valPtr[i] != rhs.valPtr[i])
+        return false;
+    }
+    for(int i = 0; i < 16; ++i) {
+      if(minCode[i] != rhs.minCode[i])
+        return false;
+    }
+    for(int i = 0; i < 16; ++i) {
+      if(maxCode[i] != rhs.maxCode[i])
+        return false;
+    }
+    for(int i = 0; i < 256; ++i) {
+      if(huffVal[i] != rhs.huffVal[i])
+        return false;
+    }
+    return true;
+  }
 };
 
-std::ostream &operator<<(std::ostream &out, const ExpHuffTbl &eht);
+#ifndef XILINX_EDK_RUNTIME
+inline
+std::ostream &operator<<(std::ostream &out, const ExpHuffTbl &eht) {
+#ifndef DEBUG_ENABLE
+  out << "ExpHuffTbl()";
+#else
+  out << std::hex << "valPtr:";
+  for(int i = 0; i<16; ++i){
+    out << " | " << eht.valPtr[i];
+  }
+ 
+  out << " |\nminCode:";
+  for(int i = 0; i<16; ++i){
+    out << " | " << eht.minCode[i];
+  }
+ 
+  out << " |\nmaxCode:";
+  for(int i = 0; i<16; ++i){
+    out << " | " << eht.maxCode[i];
+  }
 
+  out << " |\nhuffVal:";
+  for(int i = 0; i<256; ++i){
+    out << " | " << eht.huffVal[i];
+  }
+  out << " |";
+  out << std::dec;
+#endif
+  return out;
+}
+
+#if defined(SYSTEMC_VERSION) && (SYSTEMC_VERSION <= 20020405)
+inline
+void sc_trace(sc_trace_file *, const ExpHuffTbl, sc_string) {}
+#endif
+#endif // XILINX_EDK_RUNTIME
 
 /// Struct from FrameBufferWriter
 struct Pos {
@@ -646,7 +715,7 @@ struct Pos {
 
 /// Defines for YCrCb2RGB
 #define CALC_INT_FIXPOINT(value,frac_digits) \
-  ((int)round((value) * (1 << (frac_digits))))
+  ((int)((value) * (1 << (frac_digits))))
 
 #define SHIFT_AND_ROUND(value,shift) { \
 	value >>= shift - 1; \
@@ -654,5 +723,73 @@ struct Pos {
 	value >>= 1; \
 }
 
+#ifdef DBG_ENABLE
+inline
+std::ostream &operator << (std::ostream &out, const JpegChannel_t &x) {
+  out << "[JpegChannel_t:";
+  if (!JS_ISCTRL(x)) {
+    out << "raw(" << JS_DATA_GET(x) << "),"
+        << "tup(" << JS_TUP_GETIDCTAMPLCOEFF(x) << ","
+                  << JS_TUP_GETRUNLENGTH(x) << ","
+                  << JS_TUP_GETCATEGORY(x) << "),"
+        << "qco(" << JS_QCOEFF_GETIDCTCOEFF(x) << "),"
+        << "ico(" << JS_COEFF_GETIDCTCOEFF(x) << "),"
+        << "com(" << JS_COMPONENT_GETVAL(x) << ")";
+  } else {
+    switch (static_cast<CtrlCmd_t>(JS_GETCTRLCMD(x))) {
+      case CTRLCMD_USEHUFF:
+        out << "CTRLCMD_USEHUFF("
+            << JS_CTRL_USEHUFF_GETCOMP(x) << ","
+            << JS_CTRL_USEHUFF_GETDCTBL(x) << ","
+            << JS_CTRL_USEHUFF_GETACTBL(x) << ")";
+        break;
+      case CTRLCMD_DISCARDHUFF:
+        out << "CTRLCMD_DISCARDHUFF("
+            << JS_CTRL_DISCARDHUFFTBL_GETHUFFID(x) << ","
+            << JS_CTRL_DISCARDHUFFTBL_GETTYPE(x) << ")";
+        break;
+      case CTRLCMD_NEWSCAN:
+        out << "CTRLCMD_NEWSCAN("
+            << JS_CTRL_NEWSCAN_GETCOMP(x,0)
+            << JS_CTRL_NEWSCAN_GETCOMP(x,1)
+            << JS_CTRL_NEWSCAN_GETCOMP(x,2)
+            << JS_CTRL_NEWSCAN_GETCOMP(x,3)
+            << JS_CTRL_NEWSCAN_GETCOMP(x,4)
+            << JS_CTRL_NEWSCAN_GETCOMP(x,5) << ")";
+        break;
+      case CTRLCMD_SCANRESTART:
+        out << "CTRLCMD_SCANRESTART";
+        break;
+      case CTRLCMD_USEQT:
+        out << "CTRLCMD_USEQT("
+            << JS_CTRL_USEQT_GETQTID(x) << ","
+            << JS_CTRL_USEQT_GETCOMPID(x) << ")";
+        break;
+      case CTRLCMD_DISCARDQT:
+        out << "CTRLCMD_DISCARDQT("
+            << JS_CTRL_DISCARDQT_GETQTID(x) << ")";
+        break;
+      case CTRLCMD_INTERNALCOMPSTART:
+        out << "CTRLCMD_INTERNALCOMPSTART("
+            << JS_CTRL_INTERNALCOMPSTART_GETCOMPID(x) << ")";
+        break;
+      case CTRLCMD_DEF_RESTART_INTERVAL:
+        out << "CTRLCMD_DEF_RESTART_INTERVAL("
+            << JS_CTRL_RESTART_GET_INTERVAL(x) << ")";
+        break;
+      case CTRLCMD_NEWFRAME:
+        out << "CTRLCMD_NEWFRAME("
+            << JS_CTRL_NEWFRAME_GET_DIMX(x) << ","
+            << JS_CTRL_NEWFRAME_GET_DIMY(x) << ","
+            << JS_CTRL_NEWFRAME_GET_COMPCOUNT(x) << ")";
+        break;
+      default:
+        assert(!"Unhandle control command in JpegChannel_t");
+    }
+  }
+  out << "]";
+  return out;
+}
+#endif // DBG_ENABLE
 
 #endif // _INCLUDED_CHANNELS_HPP

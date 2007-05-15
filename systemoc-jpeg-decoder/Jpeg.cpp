@@ -91,7 +91,7 @@ private:
   YCrCb2RGB               mYCbCr;
   m_pgm_sink              mPGMsink;
 public:
-  Jpeg(sc_module_name name, char *fileName, size_t dimX, size_t dimY, size_t comp)
+  Jpeg(sc_module_name name, char *fileName, unsigned int dimX, unsigned int dimY, unsigned int comp)
     : smoc_graph(name),
       mSrc("mSrc", fileName),
       mParser("mParser"),
@@ -131,7 +131,7 @@ public:
     // The +1 is required, because the parser wants to send the QT header
     // together with the discard command!
     smoc_fifo<qt_table_t> qtFifo(JS_QT_TABLE_SIZE + 1);
-    for (size_t i = 0; i < JS_QT_TABLE_SIZE; ++i)
+    for (unsigned int i = 0; i < JS_QT_TABLE_SIZE; ++i)
       qtFifo << qt_table_t();
     connectNodePorts(mParser.qt_table_0, mInvQuant.qt_table_0, qtFifo);
     connectNodePorts(mParser.qt_table_1, mInvQuant.qt_table_1, qtFifo);
@@ -172,7 +172,7 @@ public:
 #ifndef KASCPAR_PARSING
 int sc_main (int argc, char **argv) {
   char *filename = "lena_256.jpg";
-  ssize_t width = 256, height = 256, compCount = 3;
+  unsigned int width = 256, height = 256, compCount = 3;
   
   if (argc != 5) {
     std::cerr
@@ -180,9 +180,9 @@ int sc_main (int argc, char **argv) {
       << " <jpeg filename> <width> <height> <compCount>" << std::endl;
   } else {
     filename  = argv[1];
-    width     = CoSupport::strAs<size_t>(argv[2]);
-    height    = CoSupport::strAs<size_t>(argv[3]);
-    compCount = CoSupport::strAs<size_t>(argv[4]);
+    width     = CoSupport::strAs<unsigned int>(argv[2]);
+    height    = CoSupport::strAs<unsigned int>(argv[3]);
+    compCount = CoSupport::strAs<unsigned int>(argv[4]);
   }
   
   smoc_top_moc<Jpeg> jpeg("jpeg", filename, width, height, compCount);
