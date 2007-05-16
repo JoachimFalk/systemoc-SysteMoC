@@ -21,7 +21,19 @@ HuffTblDecoder::HuffTblDecoder(sc_module_name name)
   dbgout << myHeader;
 #endif // DBG_ENABLE
 
-  m_BITS = (uint8_t*)calloc(16, sizeof(uint8_t));
+	/*
+		Due to restrictions in SW synthesis, we cannot declare
+		array member variables. Hence, following HACK.
+		Attention: ONLY ONE instance is allowed!!!!!!
+	 */
+	static uint8_t  m_BITS[16];
+	static bool init = false;
+
+	assert(!init);
+	this->m_BITS = m_BITS;
+	init = true;
+
+  //m_BITS = (uint8_t*)calloc(16, sizeof(uint8_t));
   
   waitTcTh
     // read Tc & Th (8 bit)

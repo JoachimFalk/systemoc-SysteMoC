@@ -1,3 +1,5 @@
+// -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
+// vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
@@ -32,39 +34,66 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
-#define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+#ifndef _INCLUDED_JPEGSOURCE_HPP
+#define _INCLUDED_JPEGSOURCE_HPP
 
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <stdlib.h>
 
-#include "debug_off.h"
+#include <systemoc/smoc_port.hpp>
 
-// Constants for IDCT2D_ARCH define
-#define IDCT2D_FINEGRAINED    1
-#define IDCT2D_COARSEGRAINED  2
-#define IDCT2D_MONOLITHIC     3
+#include "smoc_synth_std_includes.hpp"
 
-#define IDCT2D_ARCH IDCT2D_COARSEGRAINED
-
-#define STATIC_IMAGE_SIZE
-//#define DUMP_INTERMEDIATE
-
-#define JPEG_SRC
-
-#include "callib.hpp"
 #include "channels.hpp"
-#include "BitSplitter.hpp"
 
-#ifndef SMOC_REGISTER_CPARAM
-# define SMOC_REGISTER_CPARAM(name) do {} while(0)
+class JpegSrc: public smoc_actor {
+public:
+  smoc_port_out<codeword_t> out;
+private:
+  size_t coeffs;
+  size_t zeroRep;
+  size_t dataOff;
+
+  /* 
+     Due to silly KASCPar limitations, we cannot declare block_data 
+     as a member variable. Hence we have to do an hack for block_data_size.
+   */
+  size_t block_data_size;
+
+  void process() {
+    int val;
+    
+#ifndef KASCPAR_PARSING    
+    // ZRL coded IDCT coeffs
+    const static int block_data[] = {
+# include "array_jpeg_lena.txt"
+    };
+    block_data_size =   
+      sizeof(block_data)/sizeof(block_data[0]);
 #endif
 
-#define IS_TABLE_CLASS_DC(v) (((v) & 0xF0) == 0x00)
-#define IS_TABLE_CLASS_AC(v) (((v) & 0xF0) == 0x10)
+    out[0] = block_data[dataOff]; 
+    ++dataOff;
 
-#define IS_TABLE_DEST_ZERO(v) (((v) & 0x0F) == 0x00)
-#define IS_TABLE_DEST_ONE(v) (((v) & 0x0F) == 0x01)
 
-#endif // _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+    ++coeffs;
+    if (dataOff >= block_data_size)
+      dataOff = 0;
+  }
+ 
+  smoc_firing_state start;
+public:
+  JpegSrc(sc_module_name name)
+    : smoc_actor(name, start),  coeffs(0), zeroRep(0), dataOff(0)
+  {
+    block_data_size = ~size_t(0);
+    start
+      = (out(1) && VAR(coeffs) < VAR(block_data_size))  >>
+        CALL(JpegSrc::process)         >> start
+      ;
+  }
+};
+
+#endif // _INCLUDED_JPEGSOURCE_HPP

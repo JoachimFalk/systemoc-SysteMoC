@@ -47,7 +47,11 @@
 # include "BlockSnk.hpp"
 #endif
 
-#include "FileSource.hpp"
+#ifndef JPEG_SRC
+# include "FileSource.hpp"
+#else
+# include "JpegSrc.hpp"
+#endif
 #include "Parser.hpp"
 #include "HuffDecoder.hpp"
 #include "InvZrl.hpp"
@@ -69,7 +73,11 @@
 
 class Jpeg: public smoc_graph {
 private:
+#ifdef JPEG_SRC
+  JpegSrc                 mSrc;
+#else
   FileSource              mSrc;
+#endif
   Parser                  mParser;
   HuffDecoder             mHuffDecoder;
   InvZrl                  mInvZrl;
@@ -93,7 +101,11 @@ private:
 public:
   Jpeg(sc_module_name name, char *fileName, unsigned int dimX, unsigned int dimY, unsigned int comp)
     : smoc_graph(name),
+#ifdef JPEG_SRC
+      mSrc("mJpegSrc"),
+#else
       mSrc("mSrc", fileName),
+#endif
       mParser("mParser"),
       mHuffDecoder("mHuffDecoder"),
       mInvZrl("mInvZrl"),
