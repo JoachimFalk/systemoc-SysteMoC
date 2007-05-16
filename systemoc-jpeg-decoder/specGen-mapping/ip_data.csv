@@ -1,19 +1,19 @@
-jpeg.mSrc;42;42;42;42;42;42
-jpeg.mParser;42;42;42;42;42;42
-jpeg.mHuffDecoder.mInvHuffman;42;42;42;42;42;42
-jpeg.mHuffDecoder.mHuffTblDecoder;42;42;42;42;42;42
-jpeg.mInvZrl;42;42;42;42;42;42
-jpeg.mDcDecoding;42;42;42;42;42;42
-jpeg.InvQuant;42;42;42;42;42;42
-jpeg.CtrlSieve;42;42;42;42;42;42
-jpeg.InvZigZag;42;42;42;42;42;42
-jpeg.mIdct2D.mBlock2Row;42;42;42;42;42;42
-jpeg.mIdct2D.mIdctRow;42;42;42;42;42;42
-jpeg.mIdct2D.mTranspose;42;42;42;42;42;42
-jpeg.mIdct2D.mIdctCol;42;42;42;42;42;42
-jpeg.mIdct2D.mRangeAdj;42;42;42;42;42;42
-jpeg.mIdct2D.mCol2Block;42;42;42;42;42;42
-jpeg.Shuffle;42;42;42;42;42;42
-jpeg.mDup;42;42;42;42;42;42
-jpeg.mYCbCr;42;42;42;42;42;42
-jpeg.mPGMsink;42;42;42;42;42;42
+jpeg.mSrc                         ;    - ;    - ; - ; - ; - ;   - ;   -
+jpeg.mParser                      ; 1866 ; 7867 ; 0 ; 0 ; 0 ;  54 ;  54
+jpeg.mHuffDecoder.mInvHuffman     ;    - ;    - ; - ; - ; - ;   - ;   -
+jpeg.mHuffDecoder.mHuffTblDecoder ;    - ;    - ; - ; - ; - ;   - ;   -
+jpeg.mInvZrl                      ;  401 ;  933 ; 0 ; 0 ; 0 ;  52 ;  52
+jpeg.mDcDecoding                  ;  144 ;  286 ; 0 ; 0 ; 0 ;  34 ;  34
+jpeg.InvQuant                     ;  257 ;  606 ; 1 ; 0 ; 0 :  74 ;  74
+jpeg.CtrlSieve                    ;   46 ;   31 ; 0 ; 0 ; 0 ;   8 ;   8
+jpeg.InvZigZag                    ;   88 ;  126 ; 0 ; 0 ; 0 ;  12 ;  12
+jpeg.mIdct2D.mBlock2Row           ;  368 ;   92 ; 0 ; 0 ; 0 ; 147 ; 147
+jpeg.mIdct2D.mIdctRow             ; 1015 ; 1750 ; 2 ; 0 ; 0 ;  44 ;  44
+jpeg.mIdct2D.mTranspose           ;  635 ; 1181 ; 0 ; 0 ; 0 ;  20 ;  20
+jpeg.mIdct2D.mIdctCol             ; 1166 ; 1868 ; 2 ; 0 ; 0 ;  37 ;  37
+jpeg.mIdct2D.mRangeAdj            ;   40 ;   99 ; 0 ; 0 ; 0 ;   4 ;   4
+jpeg.mIdct2D.mCol2Block           ;  221 ;  272 ; 0 ; 0 ; 0 ;  99 ;  99
+jpeg.Shuffle                      ;  357 ;  506 ; 0 ; 0 ; 0 ;  15 ;  15
+jpeg.mDup                         ;   54 ;   22 ; 0 ; 0 ; 0 ;   5 ;   5
+jpeg.mYCbCr                       ;  424 ; 1080 ; 2 ; 0 ; 0 ;  62 ;  62
+jpeg.mPGMsink                     ;    - ;    - ; - ; - ; - ;   - ;   -
