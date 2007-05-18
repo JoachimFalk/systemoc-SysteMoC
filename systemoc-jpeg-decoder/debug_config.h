@@ -36,3 +36,9 @@
 
 /** enable/disable debugging for FrameShuffler */
 //#define DBG_SHUFFLER
+
+/** enable/disable debugging for PGMsink */
+//#define DBG_PGMSINK
+
+/** enable/disable debugging for FrameBufferWriter */
+//#define DBG_FRAME_BUFFER_WRITER

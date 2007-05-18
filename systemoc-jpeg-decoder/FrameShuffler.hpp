@@ -77,10 +77,6 @@ protected:
   FrameDimY_t dimY;
   IntCompID_t compCount;
 
-#ifdef DBG_ENABLE
-  CoSupport::DebugOstream dbgout;
-#endif // DBG_ENABLE
-
   // line count in shuffle
   const int   shuffleLines;
   // on which shuffle line am I
@@ -88,6 +84,10 @@ protected:
   // pixel position in frame
   FrameDimX_t posX;
   FrameDimY_t posY;
+
+#ifdef DBG_ENABLE
+  CoSupport::DebugOstream dbgout;
+#endif // DBG_ENABLE
 
   void processFrameDesc() {
     DBG_OUT("processFrameDesc()");

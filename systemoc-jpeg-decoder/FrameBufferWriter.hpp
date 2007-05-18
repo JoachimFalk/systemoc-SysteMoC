@@ -49,6 +49,20 @@
 
 #include "channels.hpp"
 
+#include "debug_config.h"
+#include <cosupport/smoc_debug_out.hpp>
+// if compiled with DBG_FRAME_BUFFER_WRITER create stream and include debug
+// macros
+#ifdef DBG_FRAME_BUFFER_WRITER
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
 class FrameBufferWriter: public smoc_actor {
 public:
   smoc_port_in<IDCTCoeff_t>   in;
@@ -77,6 +91,7 @@ protected:
   FrameBuffer frameBuffer;
 
   void processNewFrame() {
+    DBG_OUT("processNewFrame()\n");
 #ifndef KASCPAR_PARSING
     std::cerr << "FrameBufferWriter: processNewFrame";
 #endif // KASCPAR_PARSING
@@ -105,6 +120,7 @@ protected:
   }
 
   void writePixel() {    
+    DBG_OUT("\n");
     if (compCount == 1){
       //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0] >= 0);
       //assert(frameBuffer[(frameDim.x * frameDim.y - framePixels) * 1 + 0] < 256);
@@ -129,6 +145,7 @@ protected:
   }
 
   void processNewScan() {
+    DBG_OUT("processNewScan()\n");
 #ifndef KASCPAR_PARSING
     std::cerr << "FrameBufferWriter: processNewScan ";
 #endif // KASCPAR_PARSING
@@ -162,6 +179,7 @@ protected:
   }
 
   void writeComponent() {
+    DBG_OUT("writeComponent()\n");
 //  std::cerr << "FrameBufferWriter: writeComponent" << std::endl;
     
     assert(scanPattern[scanIndex] < compCount);
@@ -211,9 +229,27 @@ protected:
   smoc_firing_state newScan;
   smoc_firing_state readScan;
   smoc_firing_state dumpFrame;
+
+// ############################################################################
+// # Debug
+// ############################################################################
+#ifdef DBG_ENABLE
+  CoSupport::DebugOstream dbgout;
+#endif // DBG_ENABLE
+
 public:
   FrameBufferWriter(sc_module_name name)
-    : smoc_actor(name, newFrame) {
+    : smoc_actor(name, newFrame)
+#ifdef DBG_ENABLE
+      , dbgout(std::cerr)
+#endif // DBG_ENABLE
+  {
+#ifdef DBG_ENABLE
+    // Debug
+    CoSupport::Header myHeader("FrameBufferWriter> ");
+    dbgout << myHeader;
+#endif // DBG_ENABLE
+
     newFrame
       // this must be a CTRLCMD_NEWFRAME
       = inCtrlImage(1)                              >>

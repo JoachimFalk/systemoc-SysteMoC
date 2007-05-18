@@ -46,6 +46,19 @@
 
 //#include "smoc_synth_std_includes.hpp"
 
+#include "debug_config.h"
+#include <cosupport/smoc_debug_out.hpp>
+// if compiled with DBG_PGMSINK create stream and include debug macros
+#ifdef DBG_PGMSINK
+  // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
+  //  with this name exists when DBG.. is used. here every actor creates its
+  //  own stream.
+  #define DBGOUT_STREAM dbgout
+  #include "debug_on.h"
+#else
+  #include "debug_off.h"
+#endif
+
 
 #ifdef SINK_BINARY_OUTPUT
 # error
@@ -65,6 +78,7 @@ private:
   unsigned int missing_pixels;
 
   void processNewFrame() {
+    DBG_OUT("processNewFrame()\n");
     assert(JS_ISCTRL(inCtrlImage[0]));
     assert(JS_GETCTRLCMD(inCtrlImage[0]) == CTRLCMD_NEWFRAME);
     
@@ -81,6 +95,7 @@ private:
   }
 
   void write_image_header() {
+    DBG_OUT("write_image_header()\n");
 #ifndef KASCPAR_PARSING
 #ifdef SINK_BINARY_OUTPUT
 # ifdef XILINX_EDK_RUNTIME
@@ -129,6 +144,7 @@ private:
   }
   
   void process_pixel() {
+    DBG_OUT("process_pixel()\n");
     Pixel_t _in = in[0];
 #ifndef KASCPAR_PARSING
     for (unsigned int c = 0; c < compCount; c++){      
@@ -169,6 +185,12 @@ private:
       
   }
   
+// ############################################################################
+// # Debug
+// ############################################################################
+#ifdef DBG_ENABLE
+  CoSupport::DebugOstream dbgout;
+#endif // DBG_ENABLE
 
   smoc_firing_state newFrame;
   smoc_firing_state main;
@@ -181,7 +203,15 @@ public:
       image_width(0),
       image_height(0),
       missing_pixels(0)
+#ifdef DBG_ENABLE
+      , dbgout(std::cerr)
+#endif // DBG_ENABLE
   {
+#ifdef DBG_ENABLE
+    // Debug
+    CoSupport::Header myHeader("PGMsink> ");
+    dbgout << myHeader;
+#endif // DBG_ENABLE
 
     newFrame
       = inCtrlImage(1) 
