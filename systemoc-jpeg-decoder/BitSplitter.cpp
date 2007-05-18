@@ -96,7 +96,7 @@ void BitSplitter::flush(void)
 }
 
 
-#ifdef DEBUG_ENABLE
+#ifdef DBG_ENABLE
 //
 void BitSplitter::dumpBuffer(std::ostream &out) const
 {
@@ -125,7 +125,7 @@ void BitSplitter::dumpBuffer(std::ostream &out) const
 
   out << std::endl;
 }
-#endif // DEBUG_ENABLE
+#endif // DBG_ENABLE
 
 //
 void BitSplitter::skipByte(void) {

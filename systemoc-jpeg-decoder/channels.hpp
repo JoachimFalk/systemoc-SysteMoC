@@ -667,7 +667,7 @@ struct ExpHuffTbl {
 #ifndef XILINX_EDK_RUNTIME
 inline
 std::ostream &operator<<(std::ostream &out, const ExpHuffTbl &eht) {
-#ifndef DEBUG_ENABLE
+#ifndef DBG_ENABLE
   out << "ExpHuffTbl()";
 #else
   out << std::hex << "valPtr:";

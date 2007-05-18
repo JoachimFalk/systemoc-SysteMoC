@@ -50,10 +50,10 @@ public:
   //
   void flush(void);
 
-#ifdef DEBUG_ENABLE
+#ifdef DBG_ENABLE
   //
   void dumpBuffer(std::ostream &out = std::cerr) const;
-#endif // DEBUG_ENABLE
+#endif // DBG_ENABLE
 
 private:
   //
