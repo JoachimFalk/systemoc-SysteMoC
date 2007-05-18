@@ -129,20 +129,21 @@ public:
       
   {
 #ifndef KASCPAR_PARSING
-    connectNodePorts<2>(mSrc.out,             mParser.in);
-    connectNodePorts<2>(mParser.out,          mHuffDecoder.in);
-    connectNodePorts<1>(mParser.outCtrlImage, mDup.in);    
-    connectNodePorts<1>(mDup.out1,            mPGMsink.inCtrlImage);
+    connectNodePorts<4>(mSrc.out,             mParser.in);
+    connectNodePorts<4>(mParser.out,          mHuffDecoder.in);
+    connectNodePorts<2>(mParser.outCtrlImage, mDup.in);    
+    connectNodePorts<2>(mDup.out1,            mPGMsink.inCtrlImage);
 #ifdef STATIC_IMAGE_SIZE
-    connectNodePorts<1>(mDup.out2,            mShuffle.inCtrlImage);
+    connectNodePorts<2>(mDup.out2,            mShuffle.inCtrlImage);
 #else
-    connectNodePorts<1>(mDup.out2,            mFrameBuffer.inCtrlImage);
+    connectNodePorts<2>(mDup.out2,            mFrameBuffer.inCtrlImage);
 #endif
-    connectNodePorts<16>(mParser.outCodedHuffTbl,  mHuffDecoder.inCodedHuffTbl);
+    connectNodePorts<32>(mParser.outCodedHuffTbl, mHuffDecoder.inCodedHuffTbl);
     
     // The +1 is required, because the parser wants to send the QT header
     // together with the discard command!
-    smoc_fifo<qt_table_t> qtFifo(JS_QT_TABLE_SIZE + 1);
+    //smoc_fifo<qt_table_t> qtFifo(JS_QT_TABLE_SIZE + 1);
+    smoc_fifo<qt_table_t> qtFifo(128); //JS_QT_TABLE_SIZE + 1 = 66 -> 128 = 2^7
     for (unsigned int i = 0; i < JS_QT_TABLE_SIZE; ++i)
       qtFifo << qt_table_t();
     connectNodePorts(mParser.qt_table_0, mInvQuant.qt_table_0, qtFifo);
@@ -150,33 +151,33 @@ public:
     connectNodePorts(mParser.qt_table_2, mInvQuant.qt_table_2, qtFifo);
     connectNodePorts(mParser.qt_table_3, mInvQuant.qt_table_3, qtFifo);
     
-    connectNodePorts<2>(mHuffDecoder.out,         mInvZrl.in);
+    connectNodePorts<4>(mHuffDecoder.out,         mInvZrl.in);
     
-    connectNodePorts<1>(mInvZrl.out,              mDcDecoding.in);
-    connectNodePorts<1>(mDcDecoding.out,          mInvQuant.in);
-    connectNodePorts<1>(mInvQuant.out,            mCtrlSieve.in);
+    connectNodePorts<2>(mInvZrl.out,              mDcDecoding.in);
+    connectNodePorts<2>(mDcDecoding.out,          mInvQuant.in);
+    connectNodePorts<2>(mInvQuant.out,            mCtrlSieve.in);
     
     // FIXME: by rewriting mInvZigZag, the required buffer space can
     // be reduced
-    connectNodePorts<JPEG_BLOCK_SIZE>(mCtrlSieve.out,mInvZigZag.in);
+    connectNodePorts<2*JPEG_BLOCK_SIZE>(mCtrlSieve.out,mInvZigZag.in);
     
 # ifdef DUMP_INTERMEDIATE
-    connectNodePorts<1>(mInvZigZag.out,mDup2_1.in);
-    connectNodePorts<64>(mDup2_1.out1,mIdct2D.in);
-    connectNodePorts<1>(mDup2_1.out2,mBlockSnk.in);
+    connectNodePorts<2>(mInvZigZag.out,mDup2_1.in);
+    connectNodePorts<128>(mDup2_1.out1,mIdct2D.in);
+    connectNodePorts<2>(mDup2_1.out2,mBlockSnk.in);
 # else
     // mInvZigZag -> IDCT -> mInvLevel
-    connectNodePorts<64>(mInvZigZag.out, mIdct2D.in);
+    connectNodePorts<128>(mInvZigZag.out, mIdct2D.in);
 # endif   
     
 # ifdef STATIC_IMAGE_SIZE
     connectNodePorts<65536>(mIdct2D.out, mShuffle.in);
-    connectNodePorts<1>(mShuffle.out, mYCbCr.in);
+    connectNodePorts<2>(mShuffle.out, mYCbCr.in);
 # else
-    connectNodePorts<1>(mIdct2D.out, mFrameBuffer.in);
-    connectNodePorts<1>(mFrameBuffer.out, mYCbCr.in);
+    connectNodePorts<2>(mIdct2D.out, mFrameBuffer.in);
+    connectNodePorts<2>(mFrameBuffer.out, mYCbCr.in);
 # endif    
-    connectNodePorts<1>(mYCbCr.out, mPGMsink.in);
+    connectNodePorts<2>(mYCbCr.out, mPGMsink.in);
 #endif // KASCPAR_PARSING
   }
 };
