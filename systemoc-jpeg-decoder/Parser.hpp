@@ -283,6 +283,7 @@ private:
 
   void foundEOI() {
     DBG_OUT("Found EOI\n");
+    out[0] = JS_SETCTRLCMD(CTRLCMD_ENDOFIMAGE);
     readBytes += 2;
   }
 
@@ -1393,7 +1394,7 @@ public:
                JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
              >> CALL(Parser::foundAPP2) 
              >> app2_x 
-           | (in(1) && 
+           | (in(1) && out(1) &&
                JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
              >> CALL(Parser::foundEOI) 
              >> start 

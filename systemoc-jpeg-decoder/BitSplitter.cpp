@@ -85,9 +85,21 @@ BitSplitter::return_type BitSplitter::getBits(const unsigned int n) const {
   return static_cast<return_type>(bits);
 }
 
+
+//
+void BitSplitter::flush(void)
+{
+  m_readPos = 0;
+  m_writePos = 0;
+  m_bufferNum = 0;
+  m_firstByteBitsLeft = 0;
+}
+
+
 #ifdef DEBUG_ENABLE
 //
-void BitSplitter::dumpBuffer(std::ostream &out) const {
+void BitSplitter::dumpBuffer(std::ostream &out) const
+{
   const unsigned int size = sizeof(uint8_t) * 8;
 
   out << "  ---dump-buffer---\n";

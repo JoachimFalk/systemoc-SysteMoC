@@ -47,6 +47,9 @@ public:
   //
   return_type getBits(const unsigned int n) const;
 
+  //
+  void flush(void);
+
 #ifdef DEBUG_ENABLE
   //
   void dumpBuffer(std::ostream &out = std::cerr) const;

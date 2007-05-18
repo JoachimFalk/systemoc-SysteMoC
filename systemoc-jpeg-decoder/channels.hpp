@@ -262,7 +262,9 @@ enum CtrlCmd_t {
   /// in number of blocks instead of MCUs
   CTRLCMD_DEF_RESTART_INTERVAL,
   /// Signals the beginning of a new frame
-  CTRLCMD_NEWFRAME
+  CTRLCMD_NEWFRAME,
+  /// Signals end of image
+  CTRLCMD_ENDOFIMAGE
 };
 
 // struct JpegScan {

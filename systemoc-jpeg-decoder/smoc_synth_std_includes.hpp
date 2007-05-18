@@ -51,7 +51,8 @@
 #define STATIC_IMAGE_SIZE
 //#define DUMP_INTERMEDIATE
 
-#define JPEG_SRC
+// FIXME: will render parameter handling useless!
+//#define JPEG_SRC
 
 #include "callib.hpp"
 #include "channels.hpp"
