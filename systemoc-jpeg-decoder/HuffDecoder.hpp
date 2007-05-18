@@ -178,97 +178,22 @@ private:
   }
 
   //
-  bool currentDcIsDc0(void) const {
-    switch (m_currentComp) {
-      case 0:
-        return m_useHuffTableDc_0 == 0;
-        break;
-      case 1:
-        return m_useHuffTableDc_1 == 0;
-        break;
-      case 2:
-        return m_useHuffTableDc_2 == 0;
-        break;
-      default:
-        assert(m_currentComp <  3);
-        return false;
-        break;
-    }
-  }
+  bool currentDcIsDc0(void) const;
 
   //
-  bool currentDcIsDc1(void) const {
-    switch (m_currentComp) {
-      case 0:
-        return m_useHuffTableDc_0 == 1;
-        break;
-      case 1:
-        return m_useHuffTableDc_1 == 1;
-        break;
-      case 2:
-        return m_useHuffTableDc_2 == 1;
-        break;
-      default:
-        assert(m_currentComp <  3);
-        return false;
-        break;
-    }
-  }
+  bool currentDcIsDc1(void) const;
 
   //
-  bool currentAcIsAc0(void) const {
-    switch (m_currentComp) {
-      case 0:
-        return m_useHuffTableAc_0 == 0;
-        break;
-      case 1:
-        return m_useHuffTableAc_1 == 0;
-        break;
-      case 2:
-        return m_useHuffTableAc_2 == 0;
-        break;
-      default:
-        assert(m_currentComp <  3);
-        return false;
-        break;
-    }
-  }
+  bool currentAcIsAc0(void) const;
 
   //
-  bool currentAcIsAc1(void) const {
-    switch (m_currentComp) {
-      case 0:
-        return m_useHuffTableAc_0 == 1;
-        break;
-      case 1:
-        return m_useHuffTableAc_1 == 1;
-        break;
-      case 2:
-        return m_useHuffTableAc_2 == 1;
-        break;
-      default:
-        assert(m_currentComp <  3);
-        return false;
-        break;
-    }
-  }
+  bool currentAcIsAc1(void) const;
 
   //
-  bool canHuffDecodeDc0(void) const {
-    unsigned int dummy;
-    DecodedSymbol_t symbol;
-    const bool ret = decodeHuff(inHuffTblDC0[0], symbol, dummy);
-    return ret;
-  }
-
+  bool canHuffDecodeDc0(void) const;
 
   //
-  bool canHuffDecodeDc1(void) const {
-    unsigned int dummy;
-    DecodedSymbol_t symbol;
-    const bool ret = decodeHuff(inHuffTblDC1[0], symbol, dummy);
-    return ret;
-  }
+  bool canHuffDecodeDc1(void) const;
 
   //
   bool isBitSplitterFull(void) const {
@@ -282,12 +207,6 @@ private:
 
   //
   bool isData(void) const { return !m_BitSplitter.isEmpty(); }
-
-  //
-  bool isTooMuchData() const {
-    // FIXME: how many fill bits are possible?
-    return m_BitSplitter.bitsLeft() > 4;
-  }
 
   //
   bool isEnoughDcBits(void) const {
@@ -335,75 +254,6 @@ private:
   //
   void writeAcDiff(void);
 
-#if 0
-  // FIXME use reference!
-  //const smoc_port_in<ExpHuffTbl> &getCurrentAcTable(void) const {
-  const ExpHuffTbl getCurrentAcTable(void) const {
-    switch (m_currentComp) {
-      case 0:
-        if (m_useHuffTableAc_0 == 0)
-          return inHuffTblAC0[0];
-        else
-          return inHuffTblAC1[0];
-        break;
-      case 1:
-        if (m_useHuffTableAc_1 == 0)
-          return inHuffTblAC0[0];
-        else
-          return inHuffTblAC1[0];
-        break;
-      case 2:
-        if (m_useHuffTableAc_2 == 0)
-          return inHuffTblAC0[0];
-        else
-          return inHuffTblAC1[0];
-        break;
-    }
-
-    assert(0);
-    /*
-    if (m_useHuffTableAc[m_currentComp] == 0)
-      return inHuffTblAC0[0];
-    else {
-      assert(m_useHuffTableAc[m_currentComp] == 1);
-      return inHuffTblAC1[0];
-    }*/
-  }
-
-  // FIXME use reference!
-  const ExpHuffTbl getCurrentDcTable(void) const {
-    switch (m_currentComp) {
-      case 0:
-        if (m_useHuffTableDc_0 == 0)
-          return inHuffTblDC0[0];
-        else
-          return inHuffTblDC1[0];
-        break;
-      case 1:
-        if (m_useHuffTableDc_1 == 0)
-          return inHuffTblDC0[0];
-        else
-          return inHuffTblDC1[0];
-        break;
-      case 2:
-        if (m_useHuffTableDc_2 == 0)
-          return inHuffTblDC0[0];
-        else
-          return inHuffTblDC1[0];
-        break;
-    }
-
-    assert(0);
-    /*
-    if (m_useHuffTableDc[m_currentComp] == 0)
-      return inHuffTblDC0[0];
-    else {
-      assert(m_useHuffTableDc[m_currentComp] == 1);
-      return inHuffTblDC1[0];
-    }*/
-  }
-#endif
-
   // decode
   bool decodeHuff(const ExpHuffTbl &table,
                   DecodedSymbol_t &symbol,
@@ -430,52 +280,16 @@ private:
 #endif
 
   //
-  void discardHuffAC0() {
-    DBG_OUT("discardHuff() ");
-    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
-    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
-    DBG_OUT("\n");
-  
-    DBG_OUT(inHuffTblAC0[0] << endl);
-
-    forwardCtrl();
-  }
+  void discardHuffAC0() { forwardCtrl(); }
 
   //
-  void discardHuffAC1() {
-    DBG_OUT("discardHuff() ");
-    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
-    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
-    DBG_OUT("\n");
-  
-    DBG_OUT(inHuffTblAC1[0] << endl);
-
-    forwardCtrl();
-  }
+  void discardHuffAC1() { forwardCtrl(); }
 
   //
-  void discardHuffDC0() {
-    DBG_OUT("discardHuff() ");
-    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
-    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
-    DBG_OUT("\n");
-  
-    DBG_OUT(inHuffTblDC0[0] << endl);
-
-    forwardCtrl();
-  }
+  void discardHuffDC0() { forwardCtrl(); }
 
   //
-  void discardHuffDC1() {
-    DBG_OUT("discardHuff() ");
-    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETHUFFID(in[0]) << " ");
-    DBG_OUT(JS_CTRL_DISCARDHUFFTBL_GETTYPE(in[0]) << " ");
-    DBG_OUT("\n");
-  
-    DBG_OUT(inHuffTblDC1[0] << endl);
-
-    forwardCtrl();
-  }
+  void discardHuffDC1() { forwardCtrl(); }
 
   // forward control commands from input to output
   void forwardCtrl() {
@@ -485,34 +299,7 @@ private:
   }
 
   //
-  void finishedBlock(void) {
-    DBG_OUT("finishedBlock(): finished decoding block\n");
-    // select next component
-    m_compIndex = (m_compIndex + 1) % SCANPATTERN_LENGTH;
-    m_currentAc = 0;
-
-    switch (m_compIndex) {
-      case 0:
-        m_currentComp = m_compInterleaving_0;
-        break;
-      case 1:
-        m_currentComp = m_compInterleaving_1;
-        break;
-      case 2:
-        m_currentComp = m_compInterleaving_2;
-        break;
-      case 3:
-        m_currentComp = m_compInterleaving_3;
-        break;
-      case 4:
-        m_currentComp = m_compInterleaving_4;
-        break;
-      case 5:
-        m_currentComp = m_compInterleaving_5;
-        break;
-    }
-    //m_currentComp = m_compInterleaving[m_compIndex];
-  }
+  void finishedBlock(void);
 
   smoc_firing_state main;
   smoc_firing_state discoverDC;

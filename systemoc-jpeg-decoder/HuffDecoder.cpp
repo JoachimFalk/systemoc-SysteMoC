@@ -519,6 +519,135 @@ InvHuffman::InvHuffman(sc_module_name name)
 
 
 //
+bool InvHuffman::currentDcIsDc0(void) const {
+  switch (m_currentComp) {
+    case 0:
+      return m_useHuffTableDc_0 == 0;
+      break;
+    case 1:
+      return m_useHuffTableDc_1 == 0;
+      break;
+    case 2:
+      return m_useHuffTableDc_2 == 0;
+      break;
+    default:
+      assert(m_currentComp <  3);
+      return false;
+      break;
+  }
+}
+
+
+//
+bool InvHuffman::currentDcIsDc1(void) const {
+  switch (m_currentComp) {
+    case 0:
+      return m_useHuffTableDc_0 == 1;
+      break;
+    case 1:
+      return m_useHuffTableDc_1 == 1;
+      break;
+    case 2:
+      return m_useHuffTableDc_2 == 1;
+      break;
+    default:
+      assert(m_currentComp <  3);
+      return false;
+      break;
+  }
+}
+
+
+//
+bool InvHuffman::currentAcIsAc0(void) const {
+  switch (m_currentComp) {
+    case 0:
+      return m_useHuffTableAc_0 == 0;
+      break;
+    case 1:
+      return m_useHuffTableAc_1 == 0;
+      break;
+    case 2:
+      return m_useHuffTableAc_2 == 0;
+      break;
+    default:
+      assert(m_currentComp <  3);
+      return false;
+      break;
+  }
+}
+
+
+//
+bool InvHuffman::currentAcIsAc1(void) const {
+  switch (m_currentComp) {
+    case 0:
+      return m_useHuffTableAc_0 == 1;
+      break;
+    case 1:
+      return m_useHuffTableAc_1 == 1;
+      break;
+    case 2:
+      return m_useHuffTableAc_2 == 1;
+      break;
+    default:
+      assert(m_currentComp <  3);
+      return false;
+      break;
+  }
+}
+
+
+//
+bool InvHuffman::canHuffDecodeDc0(void) const {
+  unsigned int dummy;
+  DecodedSymbol_t symbol;
+  const bool ret = decodeHuff(inHuffTblDC0[0], symbol, dummy);
+  return ret;
+}
+
+
+//
+bool InvHuffman::canHuffDecodeDc1(void) const {
+  unsigned int dummy;
+  DecodedSymbol_t symbol;
+  const bool ret = decodeHuff(inHuffTblDC1[0], symbol, dummy);
+  return ret;
+}
+
+
+//
+void InvHuffman::finishedBlock(void) {
+  DBG_OUT("finishedBlock(): finished decoding block\n");
+  // select next component
+  m_compIndex = (m_compIndex + 1) % SCANPATTERN_LENGTH;
+  m_currentAc = 0;
+
+  switch (m_compIndex) {
+    case 0:
+      m_currentComp = m_compInterleaving_0;
+      break;
+    case 1:
+      m_currentComp = m_compInterleaving_1;
+      break;
+    case 2:
+      m_currentComp = m_compInterleaving_2;
+      break;
+    case 3:
+      m_currentComp = m_compInterleaving_3;
+      break;
+    case 4:
+      m_currentComp = m_compInterleaving_4;
+      break;
+    case 5:
+      m_currentComp = m_compInterleaving_5;
+      break;
+  }
+  //m_currentComp = m_compInterleaving[m_compIndex];
+}
+
+
+//
 void InvHuffman::huffDecodeDC0(void) {
   unsigned int codeSize;
   DecodedSymbol_t symbol;
@@ -743,4 +872,3 @@ void InvHuffman::useHuff() {
 
   forwardCtrl();
 }
-
