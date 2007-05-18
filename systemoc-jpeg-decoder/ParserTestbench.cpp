@@ -107,6 +107,7 @@ private:
     if (last)
       DBG_OUT(std::endl);*/
     count++;
+    if(last) count = 1;
   }
   
   CoSupport::DebugOstream dbgout;
@@ -135,6 +136,7 @@ private:
     if (last)
       DBG_OUT(std::endl);*/
     count++;
+    if(last) count = 1;
   }
   
   CoSupport::DebugOstream dbgout;
@@ -163,6 +165,7 @@ private:
     if (last)
       DBG_OUT(std::endl);*/
     count++;
+    if(last) count = 1;
   }
   
   CoSupport::DebugOstream dbgout;
@@ -191,6 +194,7 @@ private:
     if (last)
       DBG_OUT(std::endl);*/
     count++;
+    if(last) count = 1;
   }
   
   CoSupport::DebugOstream dbgout;
