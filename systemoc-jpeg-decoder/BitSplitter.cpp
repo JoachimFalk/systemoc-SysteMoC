@@ -18,18 +18,32 @@ void BitSplitter::addByte(const uint8_t b) {
 //
 void BitSplitter::skipBits(const unsigned int n) {
   assert(bitsLeft() >= n);
+  assert(n <= 16);
   
   unsigned int bitsTodo = n;
   
   //std::cerr << " skipBits(): n = " << n << std::endl;
-  
+
+  if (n >= m_firstByteBitsLeft + 8) {
+    bitsTodo -= (m_firstByteBitsLeft + 8);
+    skipByte();
+    skipByte();
+  }
+  else if (n >= m_firstByteBitsLeft) {
+    bitsTodo -= (m_firstByteBitsLeft);
+    skipByte();
+  }
+
+  m_firstByteBitsLeft -= bitsTodo;
+
+  /*
   // FIXME: remove loop?
   while ((bitsTodo > 0) && (bitsTodo >= m_firstByteBitsLeft)) {
     assert(!isEmpty());
     bitsTodo -= m_firstByteBitsLeft;
     skipByte();
   }
-  m_firstByteBitsLeft -= bitsTodo;
+  m_firstByteBitsLeft -= bitsTodo;*/
 }
 
 
