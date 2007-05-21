@@ -96,9 +96,10 @@ sgx:  	 $(SGX_SUBDIR)/specgraph.dtd \
 	${SGX_SUBDIR}
 
 
-$(SYNTHESIS_SUBDIR)/jpeg.ast.xml: Jpeg.cpp HuffDecoder.cpp
-$(HWSYNTH_SUBDIR)/jpeg.ast.xml:   Jpeg.cpp HuffDecoder.cpp
+$(SYNTHESIS_SUBDIR)/jpeg.ast.xml: $(simulation_jpeg_SOURCES)
+$(HWSYNTH_SUBDIR)/jpeg.ast.xml:   $(simulation_jpeg_SOURCES)
 
+$(SYNTHESIS_SUBDIR)/smoc-synth-jpeg: BitSplitter.cpp
 
 $(SGX_SUBDIR)/%.pgx: $(SYNTHESIS_SUBDIR)/%.pg.xml
 	sed -e 's/networkgraph\.dtd/specgraph\.dtd/g'\
