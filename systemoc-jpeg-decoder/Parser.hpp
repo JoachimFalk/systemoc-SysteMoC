@@ -1762,7 +1762,7 @@ public:
                JPEG_IS_MARKER_APP(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
              >> CALL(Parser::foundAPP2) 
              >> app2_x 
-           | (in(1) && 
+           | (in(1) && out(1) && // FIXME: is this transition ever taken?
                JPEG_IS_MARKER_EOI(ASSEMBLE_MARKER(JPEG_FILL_BYTE,in.getValueAt(0)))) 
              >> CALL(Parser::foundEOI) 
              >> start 
