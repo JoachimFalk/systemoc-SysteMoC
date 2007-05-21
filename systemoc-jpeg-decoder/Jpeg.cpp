@@ -102,7 +102,7 @@ public:
   Jpeg(sc_module_name name, char *fileName, unsigned int dimX, unsigned int dimY, unsigned int comp)
     : smoc_graph(name),
 #ifdef JPEG_SRC
-      mSrc("mJpegSrc"),
+      mSrc("mSrc"),
 #else
       mSrc("mSrc", fileName),
 #endif
