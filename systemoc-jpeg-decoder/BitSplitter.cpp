@@ -26,8 +26,7 @@ void BitSplitter::skipBits(const unsigned int n) {
 
   if (n >= m_firstByteBitsLeft + 8) {
     bitsTodo -= (m_firstByteBitsLeft + 8);
-    skipByte();
-    skipByte();
+    skipByte(2);
   }
   else if (n >= m_firstByteBitsLeft) {
     bitsTodo -= (m_firstByteBitsLeft);
@@ -141,12 +140,13 @@ void BitSplitter::dumpBuffer(std::ostream &out) const
 }
 #endif // DBG_ENABLE
 
+
 //
-void BitSplitter::skipByte(void) {
+void BitSplitter::skipByte(const int num) {
   //std::cerr << " skipByte()" << std::endl;
-  assert(!isEmpty());
-  --m_bufferNum;
-  m_readPos = (m_readPos + 1) % m_bufferSize;
+  assert(m_bufferNum >= num);
+  m_bufferNum -= num;
+  m_readPos = (m_readPos + num) % m_bufferSize;
  
   if (!isEmpty())
     m_firstByteBitsLeft = 8;

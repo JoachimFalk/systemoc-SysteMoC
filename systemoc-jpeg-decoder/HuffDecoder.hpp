@@ -196,14 +196,10 @@ private:
   bool canHuffDecodeDc1(void) const;
 
   //
-  bool isBitSplitterFull(void) const {
-    return (m_BitSplitter.isFull());
-  }
+  bool isBitSplitterFull(void) const { return (m_BitSplitter.isFull()); }
 
   //
-  bool isBitSplitterEmpty(void) const {
-    return (m_BitSplitter.isEmpty());
-  }
+  bool isBitSplitterEmpty(void) const { return (m_BitSplitter.isEmpty()); }
 
   //
   bool isData(void) const { return !m_BitSplitter.isEmpty(); }

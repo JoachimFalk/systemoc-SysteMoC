@@ -57,7 +57,7 @@ public:
 
 private:
   //
-  void skipByte(void);
+  void skipByte(const int num = 1);
 
   //
   uint8_t peekByte(void) const {
