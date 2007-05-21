@@ -68,7 +68,7 @@ private:
 #ifndef KASCPAR_PARSING    
     // ZRL coded IDCT coeffs
     const static int block_data[] = {
-# include "array_jpeg_lena.txt"
+# include "array_jpeg_4motion.txt"
     };
     block_data_size =   
       sizeof(block_data)/sizeof(block_data[0]);

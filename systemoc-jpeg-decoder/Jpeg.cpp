@@ -185,7 +185,7 @@ public:
 #ifndef KASCPAR_PARSING
 int sc_main (int argc, char **argv) {
   char *filename = "lena_256.jpg";
-  unsigned int width = 256, height = 256, compCount = 3;
+  unsigned int width = 128, height = 128, compCount = 3;
   
   if (argc != 5) {
     std::cerr
