@@ -198,7 +198,7 @@ namespace smoc_md_ba
     /// and returns a corresponding pointer
     virtual smoc_md_buffer_analysis* 
     create_buffer_analysis_object(const smoc_src_md_loop_iterator_kind& src_md_loop_iterator,
-				  const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator) const = 0;
+				  const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator) = 0;
   };
 
 

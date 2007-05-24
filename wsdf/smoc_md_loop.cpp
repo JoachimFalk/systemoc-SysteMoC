@@ -24,6 +24,18 @@
 /* ******************************************************************************* */
 
 
+const smoc_md_loop_iterator_kind::iter_domain_vector_type 
+smoc_md_loop_iterator_kind::iteration_size() const{
+  iter_domain_vector_type return_vector(iteration_max());
+
+  for(unsigned int i = 0; i < return_vector.size(); i++){
+    return_vector[i]++;
+  }
+
+  return return_vector;
+}
+
+
 /* ******************************************************************************* */
 /*                     smoc_md_loop_data_element_mapper                        */
 /* ******************************************************************************* */

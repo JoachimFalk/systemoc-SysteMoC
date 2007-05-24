@@ -8,6 +8,7 @@
 #include <fstream>
 
 #include "smoc_md_ba_linearized_buffer.hpp"
+#include "smoc_md_array.hpp"
 
 namespace smoc_md_ba 
 {
@@ -23,10 +24,16 @@ namespace smoc_md_ba
   public:
     smoc_mb_ba_lin_buffer_schedule(const smoc_src_md_loop_iterator_kind& src_md_loop_iterator,
 				   const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator,
-				   unsigned int buffer_height = 1,
-				   const std::string& outfilename = "self-schedule.txt");
+				   unsigned int buffer_height = 1
+				   );
 
     virtual ~smoc_mb_ba_lin_buffer_schedule();
+
+  public:
+    // Get invocation table (result)
+    const smoc_md_array<unsigned long>& get_invocation_table() const {
+      return invocation_table;
+    }
 
   protected:
     /// Implementation of interface, inhereted from smoc_md_buffer_analysis
@@ -54,7 +61,9 @@ namespace smoc_md_ba
 			     const iter_domain_vector_type& current_src_iter
 			     ) const;
 
-    std::ofstream outfile;
+
+  private:
+    smoc_md_array<unsigned long> &invocation_table;
     
   };
 
@@ -67,8 +76,7 @@ namespace smoc_md_ba
   {
 
   public:
-    smoc_md_ba_ui_schedule(const std::string& output_file)
-      : output_file(output_file)
+    smoc_md_ba_ui_schedule()
     {}
 
     virtual ~smoc_md_ba_ui_schedule(){}
@@ -78,10 +86,17 @@ namespace smoc_md_ba
     /// and returns a corresponding pointer
     virtual smoc_md_buffer_analysis*
     create_buffer_analysis_object(const smoc_src_md_loop_iterator_kind& src_md_loop_iterator,
-				  const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator) const;
+				  const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator);
+
+  public:
+    const smoc_md_array<unsigned long>& get_invocation_table() const {
+      assert(ba_obj != NULL);
+      return ba_obj->get_invocation_table();
+    }
 
   private:
-    const std::string output_file;
+    /// associated buffer analysis object
+    const smoc_mb_ba_lin_buffer_schedule* ba_obj;
   };
 
 };

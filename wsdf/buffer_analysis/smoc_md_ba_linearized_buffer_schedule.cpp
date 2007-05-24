@@ -14,23 +14,20 @@ namespace smoc_md_ba
 
   smoc_mb_ba_lin_buffer_schedule::smoc_mb_ba_lin_buffer_schedule(const smoc_src_md_loop_iterator_kind& src_md_loop_iterator,
 								 const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator,
-								 unsigned int buffer_height,
-								 const std::string& outfilename)
+								 unsigned int buffer_height
+								 )
     : smoc_mb_ba_lin_buffer(src_md_loop_iterator,
 			    snk_md_loop_iterator,
 			    buffer_height),
-      outfile(outfilename.c_str())
+      invocation_table(*(new smoc_md_array<unsigned long>(snk_md_loop_iterator.iterator_depth(),
+							  snk_md_loop_iterator.iteration_size())))
+    
   {
     init_order_vector();
-
-    //write dimensions of sink iterator
-    outfile << src_md_loop_iterator.iterator_depth() << std::endl;
-    outfile << src_md_loop_iterator.iteration_max() << std::endl;
   }
 
   smoc_mb_ba_lin_buffer_schedule::~smoc_mb_ba_lin_buffer_schedule(){
-    outfile << std::endl;
-    outfile.close();
+    delete &invocation_table;
     delete[] order_vector;
   }
 
@@ -74,20 +71,12 @@ namespace smoc_md_ba
       calc_num_src_invocations(lexorder_smallest_life_data_element_old,
 			       lexorder_smallest_life_data_element);
 
-    //Write to result file
-    outfile << num_invocations << " ";
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
     CoSupport::dout << "num_invocations = " << num_invocations << std::endl;
 #endif
-
-#if 0
-    for(unsigned int i = 0; i < token_dimensions; i++){
-      if (is_snk_iteration_max(i))
-	outfile << std::endl;
-      else
-	break;
-    }
-#endif
+    if (snk_schedule_period < 1)
+      //only consider first schedule period
+      invocation_table[current_iteration] = num_invocations;
 
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
     CoSupport::dout << "Leave smoc_mb_ba_lin_buffer_schedule::consumption_update" << std::endl;
@@ -105,17 +94,7 @@ namespace smoc_md_ba
     //For this sink iteration, no data element 
     //has been consumed the last time
 
-    //Write to result file
-    outfile << 0 << " ";
-
-#if 0
-    for(unsigned int i = 0; i < token_dimensions; i++){
-      if (is_snk_iteration_max(i))
-	outfile << std::endl;
-      else
-	break;
-    }
-#endif
+    invocation_table[current_iteration] = 0;    
     
   }
 
@@ -168,19 +147,21 @@ namespace smoc_md_ba
   /* ******************************************************************** */
   smoc_md_buffer_analysis*
   smoc_md_ba_ui_schedule::create_buffer_analysis_object(const smoc_src_md_loop_iterator_kind& src_md_loop_iterator,
-							const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator) const {
+							const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator) {
 
     unsigned int buffer_height = // 1;
       src_md_loop_iterator.iteration_max()[0];
 
-    smoc_md_buffer_analysis* return_value = 
+    smoc_mb_ba_lin_buffer_schedule* ba_obj = 
       new smoc_mb_ba_lin_buffer_schedule(src_md_loop_iterator,
 					 snk_md_loop_iterator,
-					 buffer_height,
-					 output_file
+					 buffer_height
 					 );
 
-    return return_value;
+    //store pointer for further use
+    this->ba_obj = ba_obj;
+
+    return ba_obj;
   }
 
 

@@ -104,6 +104,9 @@ public:
   /// This function returns the overall iteration maxumum
   virtual const iter_domain_vector_type iteration_max() const = 0;
 
+  /// Same as above, but returns a vector whose components are increased by one
+  virtual const iter_domain_vector_type iteration_size() const;
+
 protected:
 
   /// current iteration vector

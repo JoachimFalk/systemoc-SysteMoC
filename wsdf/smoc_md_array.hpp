@@ -7,13 +7,20 @@
 /*
   Defintion of a multi-dimensional array with variable number
   of dimensions
-*/
+ */
 
 #include <stdlib.h>
 #include <cassert>
+#include <iostream>
 
 template <typename DATA_TYPE>
 class smoc_md_array{
+public:
+  template <typename T> friend
+  std::istream& operator>>(std::istream& stream, smoc_md_array<T>& array);
+
+  template <typename T> friend
+  std::ostream& operator<<(std::ostream& stream, const smoc_md_array<T>& array);
 public:
   /// constructor with immediate allocation of data structures
   template <typename T2>
@@ -88,6 +95,7 @@ bool smoc_md_array<DATA_TYPE>::allocate_memory(unsigned int nbr_dimensions,     
 
   for(unsigned int i = 0; i < nbr_dimensions; i++){
     buffer_size *= buffer_extensions[i];
+    //std::cout << "buffer-extensions: " << buffer_extensions[i] << std::endl;
     this->buffer_extensions[i] = buffer_extensions[i];
   }
   
@@ -120,6 +128,9 @@ unsigned long smoc_md_array<DATA_TYPE>::get_mem_position(const T2& idx) const{
 
   for (unsigned int i = 0; i < nbr_dimensions; i++){
     assert(idx[i] >= 0);
+    //std::cout << "i = " << i << ": ";
+    //std::cout << "idx[i] = " << idx[i] << " ";
+    //std::cout << "buffer_extensions[i] = " << buffer_extensions[i] << std::endl;
     assert((unsigned long)idx[i] < buffer_extensions[i]);
     mem_pos += idx[i] * mul_factor;
     mul_factor *= buffer_extensions[i];
@@ -137,6 +148,82 @@ template <typename DATA_TYPE>   template <typename T2>
 const DATA_TYPE& smoc_md_array<DATA_TYPE>::operator[](const T2& idx) const {
   return data_buffer[get_mem_position(idx)];
 }
+
+template <typename DATA_TYPE>
+std::istream& operator>>(std::istream& stream, smoc_md_array<DATA_TYPE>& array) {
+  unsigned long current_coord[array.nbr_dimensions];
+
+  for(unsigned int i = 0; i < array.nbr_dimensions; i++){
+    current_coord[i] = 0;
+  }
+        
+  bool finished = false;
+  while (!finished){              
+                
+    stream >> array[(unsigned long*)current_coord];
+
+    finished = true;
+    for (unsigned int i = 0; i < array.nbr_dimensions; i++){
+      current_coord[i]++;                     
+
+      if (current_coord[i] >= array.buffer_extensions[i]){
+	current_coord[i] = 0;
+      }else{
+	finished = false;
+	break;
+      }
+    }
+
+    if (!stream.good()){
+      finished = true;
+    }
+  }
+
+  return stream;
+}
+
+template <typename DATA_TYPE>
+std::ostream& operator<<(std::ostream& stream, const smoc_md_array<DATA_TYPE>& array){
+
+  unsigned long current_coord[array.nbr_dimensions];
+
+  for(unsigned int i = 0; i < array.nbr_dimensions; i++){
+    current_coord[i] = 0;
+  }
+
+  //write array extensions
+  stream << "[" << array.nbr_dimensions << "](";
+  for(unsigned int i = 0; i < array.nbr_dimensions-1; i++){
+    stream << array.buffer_extensions[i] << ",";
+  }
+  stream << array.buffer_extensions[array.nbr_dimensions-1] << ")" << std::endl;
+        
+  bool finished = false;
+  while (!finished){
+    //for(unsigned int i = 0; i < array.nbr_dimensions; i++){
+    //      std::cout << current_coord[i];
+    //}
+    //std::cout << std::endl;
+
+    stream << array[(unsigned long*)current_coord] << " ";
+
+    finished = true;
+    for (unsigned int i = 0; i < array.nbr_dimensions; i++){
+      current_coord[i]++;
+
+      if (current_coord[i] >= array.buffer_extensions[i]){
+	current_coord[i] = 0;
+	stream << std::endl;
+      }else{
+	finished = false;
+	break;
+      }
+    }
+  }
+
+  return stream;
+}
+
 
 
 

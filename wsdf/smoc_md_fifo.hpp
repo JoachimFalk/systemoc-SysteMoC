@@ -34,8 +34,8 @@
 #include "smoc_wsdf_edge.hpp"
 
 
-//#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
-#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
+//#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
 // Buffer analysis classes
 # include "smoc_md_buffer_analysis.hpp"
 # include "smoc_md_ba_linearized_buffer_schedule.hpp"
@@ -88,14 +88,14 @@ public:
     const buffer_init b;
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
     //buffer analysis user inter
-    const smoc_md_ba::smoc_md_ba_user_interface* ba_ui;
+    smoc_md_ba::smoc_md_ba_user_interface* ba_ui;
 #endif
     
   protected:
     chan_init(const char *name,
               const buffer_init& b
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
-	      , const smoc_md_ba::smoc_md_ba_user_interface* ba_ui
+	      , smoc_md_ba::smoc_md_ba_user_interface* ba_ui
 #endif
 	      )
       : name(name),
@@ -699,7 +699,7 @@ public:
     chan_init( const char *name, 
                const buffer_init &b 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
-	      , const smoc_md_ba::smoc_md_ba_user_interface* ba_ui
+	       , smoc_md_ba::smoc_md_ba_user_interface* ba_ui
 #endif
 	       )
       : parent_type::chan_init(name, 
@@ -830,7 +830,7 @@ public:
     chan_init( const char *name, 
                const buffer_init &b 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
-	      , const smoc_md_ba::smoc_md_ba_user_interface* ba_ui
+	      , smoc_md_ba::smoc_md_ba_user_interface* ba_ui
 #endif
 	       )
       : parent_type::chan_init(name, 
@@ -1049,7 +1049,7 @@ public:
   smoc_md_fifo( const smoc_wsdf_edge_descr& wsdf_edge_param, 
                 size_t n
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
-		,const smoc_md_ba::smoc_md_ba_user_interface* ba_ui = NULL
+		, smoc_md_ba::smoc_md_ba_user_interface* ba_ui = NULL
 #endif
 		)
     : smoc_md_fifo_type<T,STORAGE_OUT_TYPE>::chan_init(NULL,
