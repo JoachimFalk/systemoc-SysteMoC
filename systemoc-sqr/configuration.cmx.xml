@@ -8,6 +8,8 @@
   <component name="Component1" type="threaded" scheduler="RoundRobin">
    <attribute type="timeslice" value="20ns"/>
   </component>
+
+  <component name="ZeroCom" type="threaded" scheduler="FCFS"></component>
  </resources>
 
  <mappings>
@@ -37,5 +39,30 @@
     <attribute type="delay" value="100"/>
     <attribute type="Sink::sink" value="100"/>
   </mapping>
+
+  <mapping source="cf_sqrroot.a1_sqrroot.a2_1" target="ZeroCom">
+    <timing delay="0"/>
+  </mapping>
+
+  <mapping source="cf_sqrroot.a2_sqrroot.a3_1" target="ZeroCom">
+    <timing delay="0"/>
+  </mapping>
+
+  <mapping source="cf_sqrroot.a3_sqrroot.a4_1" target="ZeroCom">
+    <timing delay="0"/>
+  </mapping>
+
+  <mapping source="cf_sqrroot.a4_sqrroot.a3_1" target="ZeroCom">
+    <timing delay="0"/>
+  </mapping>
+
+  <mapping source="cf_sqrroot.a4_sqrroot.a2_1" target="ZeroCom">
+    <timing delay="0"/>
+  </mapping>
+
+  <mapping source="cf_sqrroot.a2_sqrroot.a5_1" target="ZeroCom">
+    <timing delay="0"/>
+  </mapping>
+
  </mappings>
 </vpcconfiguration>
