@@ -434,7 +434,8 @@ InvHuffman::InvHuffman(sc_module_name name)
       ( GUARD(InvHuffman::currentDcIsDc0)                      &&
         (in(0, 1) && JS_ISCTRL(in.getValueAt(0)))              &&
         inHuffTblDC0(0, 1)                                     &&
-        !GUARD(InvHuffman::canHuffDecodeDc0) )                 >>
+        !GUARD(InvHuffman::canHuffDecodeDc0)                   &&
+        !GUARD(InvHuffman::isBitSplitterEmpty) )               >>
       CALL(InvHuffman::flushBitSplitter)                       >> main
 
     | // huffmann decode DC bit length using table 1
@@ -452,7 +453,8 @@ InvHuffman::InvHuffman(sc_module_name name)
       ( GUARD(InvHuffman::currentDcIsDc1)                      &&
         (in(0, 1) && JS_ISCTRL(in.getValueAt(0)))              &&
         inHuffTblDC1(0, 1)                                     &&
-        !GUARD(InvHuffman::canHuffDecodeDc1) )                 >>
+        !GUARD(InvHuffman::canHuffDecodeDc1)                   &&
+        !GUARD(InvHuffman::isBitSplitterEmpty) )               >>
       CALL(InvHuffman::flushBitSplitter)                       >> main
     ;
 
