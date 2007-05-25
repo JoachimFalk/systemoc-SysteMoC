@@ -64,6 +64,10 @@
 # error
 #endif
 
+#ifdef PERFORMANCE_EVALUATION
+# include <cosupport/PerformanceEvaluation.hpp>
+#endif // PERFORMANCE_EVALUATION
+
 class m_pgm_sink: public smoc_actor {
 public:
   smoc_port_in<Pixel_t> in;
@@ -174,6 +178,9 @@ private:
     }
 
     if (missing_pixels == 0){
+#ifdef PERFORMANCE_EVALUATION
+    PerformanceEvaluation::getInstance().stopUnit();
+#endif // PERFORMANCE_EVALUATION
 # ifndef XILINX_EDK_RUNTIME
       std::cout << std::endl;
 # else

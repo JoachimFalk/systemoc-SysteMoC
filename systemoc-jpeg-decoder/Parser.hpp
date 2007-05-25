@@ -65,6 +65,9 @@
   #include "debug_off.h"
 #endif
 
+#ifdef PERFORMANCE_EVALUATION
+# include <cosupport/PerformanceEvaluation.hpp>
+#endif // PERFORMANCE_EVALUATION
 
 /// JPEG Markers
 
@@ -272,6 +275,9 @@ private:
   // ########################################################################################
 
   void foundSOI() {
+#ifdef PERFORMANCE_EVALUATION
+    PerformanceEvaluation::getInstance().startUnit();
+#endif // PERFORMANCE_EVALUATION
     readBytes = 0;
     DBG_OUT("Found SOI\n");
     readBytes += 2;
