@@ -184,7 +184,7 @@ public:
 
 #ifndef KASCPAR_PARSING
 int sc_main (int argc, char **argv) {
-  char *filename = "lena_256.jpg";
+  char *filename = "4motion_128.jpg";
   unsigned int width = 128, height = 128, compCount = 3;
   
   if (argc != 5) {
