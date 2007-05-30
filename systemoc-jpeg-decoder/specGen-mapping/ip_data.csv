@@ -1,19 +1,19 @@
-jpeg.mSrc                         ;    - ;    - ; - ; - ; - ;     - ;    -
-jpeg.mParser                      ; 1866 ; 7867 ; 0 ; 0 ; 0 ;  1080 ; 1080
-jpeg.mHuffDecoder.mInvHuffman     ;    - ;    - ; - ; - ; - ;     - ;    -
-jpeg.mHuffDecoder.mHuffTblDecoder ;    - ;    - ; - ; - ; - ;     - ;    -
-jpeg.mInvZrl                      ;  401 ;  933 ; 0 ; 0 ; 0 ;  1040 ; 1040
-jpeg.mDcDecoding                  ;  144 ;  286 ; 0 ; 0 ; 0 ;   680 ;  680
-jpeg.InvQuant                     ;  257 ;  606 ; 1 ; 0 ; 0 :  1480 ; 1480
-jpeg.CtrlSieve                    ;   46 ;   31 ; 0 ; 0 ; 0 ;   160 ;  160
-jpeg.InvZigZag                    ;   88 ;  126 ; 0 ; 0 ; 0 ;   240 ;  240
-jpeg.mIdct2D.mBlock2Row           ;  368 ;   92 ; 0 ; 0 ; 0 ;  2940 ; 2940
-jpeg.mIdct2D.mIdctRow             ; 1015 ; 1750 ; 2 ; 0 ; 0 ;   880 ;  880
-jpeg.mIdct2D.mTranspose           ;  635 ; 1181 ; 0 ; 0 ; 0 ;   400 ;  400
-jpeg.mIdct2D.mIdctCol             ; 1166 ; 1868 ; 2 ; 0 ; 0 ;   740 ;  740
-jpeg.mIdct2D.mRangeAdj            ;   40 ;   99 ; 0 ; 0 ; 0 ;    80 ;   80
-jpeg.mIdct2D.mCol2Block           ;  221 ;  272 ; 0 ; 0 ; 0 ;  1980 ; 1980
-jpeg.Shuffle                      ;  357 ;  506 ; 0 ; 0 ; 0 ;   300 ;  300
-jpeg.mDup                         ;   54 ;   22 ; 0 ; 0 ; 0 ;   100 ;  100
-jpeg.mYCbCr                       ;  424 ; 1080 ; 2 ; 0 ; 0 ;  1240 ; 1240
-jpeg.mPGMsink                     ;    - ;    - ; - ; - ; - ;     - ;    -
+jpeg.mSrc                         ;    - ;    - ; - ; - ; FileSource::process 491 ;     - ;    -
+jpeg.mParser                      ; 1866 ; 7867 ; 0 ; 0 ; Parser::decLengthField ?, Parser::dhtSendData 1489, Parser::dhtSendDiscard ?, Parser::dhtSendLength ?, Parser::foundAPP1 ?, Parser::foundBST 871, Parser::foundDHT2 ?, Parser::foundDQT1 ?, Parser::foundEOI ?, Parser::foundSOF ?, Parser::foundSOI ?, Parser::foundSOS1 ?, Parser::readCompCount ?, Parser::readCompCountInScan ?, Parser::readCompIDs ?, Parser::readCompInScan ?, Parser::readDimX ?, Parser::readDimY ?, Parser::readLengthField ?, Parser::readQtTblIDs ?, Parser::readSamplingFactors ?, Parser::sendData 570, Parser::sendDqtData ?, Parser::sendDqtHeader ?, Parser::sendNewScan 1897321 ;  1080 ; 1080
+jpeg.mHuffDecoder.mInvHuffman     ;    - ;    - ; - ; - ; InvHuffman::discardHuffAC0 ?, InvHuffman::discardHuffAC1 ?, InvHuffman::discardHuffDC0 ?, InvHuffman::discardHuffDC1 ?, InvHuffman::finishedBlock 2434, InvHuffman::flushBitSplitter ?, InvHuffman::forwardCtrl 183354, InvHuffman::huffDecodeAC0 578, InvHuffman::huffDecodeAC1 503, InvHuffman::huffDecodeDC0 1525, InvHuffman::huffDecodeDC1 544, InvHuffman::setCompInterleaving ?, InvHuffman::storeData 398, InvHuffman::useHuff ?, InvHuffman::writeAcDiff 708, InvHuffman::writeDcDiff 1852 ;     - ;    -
+jpeg.mHuffDecoder.mHuffTblDecoder ;    - ;    - ; - ; - ; HuffTblDecoder::finishTable 83705, HuffTblDecoder::storeBITS ?, HuffTblDecoder::storeHUFFVAL ?, HuffTblDecoder::storeTcTh ?, HuffTblDecoder::writeTableAC0 ?, HuffTblDecoder::writeTableAC1 ?, HuffTblDecoder::writeTableDC0 ?, HuffTblDecoder::writeTableDC1 ;     - ;    -
+jpeg.mInvZrl                      ;  401 ;  933 ; 0 ; 0 ; InvZrl::forwardCtrl ?, InvZrl::skip_run 574, InvZrl::start_eob 371, InvZrl::start_non_zero_rl 666, InvZrl::start_zero_rl ?, InvZrl::wr_ac_coeff 805, InvZrl::wr_dc_coeff 2107, InvZrl::write_rl_coeff 477 ;  1040 ; 1040
+jpeg.mDcDecoding                  ;  144 ;  286 ; 0 ; 0 ; DcDecoding::decode_dc 4323, DcDecoding::forward_ac 581, DcDecoding::forward_cmd 506, DcDecoding::reset_DC ?, DcDecoding::store_color 435 ;   680 ;  680
+jpeg.InvQuant                     ;  257 ;  606 ; 1 ; 0 ; InvQuant::discard_qt_table_0 ?, InvQuant::discard_qt_table_1 ?, InvQuant::forward_command 433, InvQuant::quantize0 296, InvQuant::quantize1 189, InvQuant::store_comp_id 2833, InvQuant::use_qt_table 1 :  1480 ; 1480
+jpeg.CtrlSieve                    ;   46 ;   31 ; 0 ; 0 ; CtrlSieve::forwardData 376 ;   160 ;  160
+jpeg.InvZigZag                    ;   88 ;  126 ; 0 ; 0 ; InvZigZag::forward_pixel 1439 ;   240 ;  240
+jpeg.mIdct2D.mBlock2Row           ;  368 ;   92 ; 0 ; 0 ; MBlock2Row::action0 30444 ;  2940 ; 2940
+jpeg.mIdct2D.mIdctRow             ; 1015 ; 1750 ; 2 ; 0 ; MNIdctRow::idct 7016 ;   880 ;  880
+jpeg.mIdct2D.mTranspose           ;  635 ; 1181 ; 0 ; 0 ; MTranspose::action0 4214, MTranspose::action1 4759, MTranspose::action2 3633, MTranspose::action3 3960, MTranspose::action4 3705, MTranspose::action5 3814, MTranspose::action6 4105, MTranspose::action7 3778 ;   400 ;  400
+jpeg.mIdct2D.mIdctCol             ; 1166 ; 1868 ; 2 ; 0 ; MNIdctCol::idct 5853 ;   740 ;  740
+jpeg.mIdct2D.mRangeAdj            ;   40 ;   99 ; 0 ; 0 ; MRangeAdj::transform 750 ;    80 ;   80
+jpeg.mIdct2D.mCol2Block           ;  221 ;  272 ; 0 ; 0 ; MCol2Block::action0 28519 ;  1980 ; 1980
+jpeg.Shuffle                      ;  357 ;  506 ; 0 ; 0 ; FrameShuffler::processFrameDesc ?, FrameShuffler::processScanDesc ?, FrameShuffler::writeComponent 1852 ;   300 ;  300
+jpeg.mDup                         ;   54 ;   22 ; 0 ; 0 ; Dup::copy_data ? ;   100 ;  100
+jpeg.mYCbCr                       ;  424 ; 1080 ; 2 ; 0 ; YCrCb2RGB::transform_color 6622 ;  1240 ; 1240
+jpeg.mPGMsink                     ;    - ;    - ; - ; - ; m_pgm_sink::processNewFrame 4575892, m_pgm_sink::process_pixel 7952 ;     - ;    -
