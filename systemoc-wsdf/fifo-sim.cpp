@@ -127,11 +127,22 @@ int main(){
 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
   
-  stringstream temp;
-  temp << "self-schedule_" << WSDF_EXAMPLE_NBR << ".txt";  
-  ofstream outfile(temp.str().c_str());
-  outfile << buffer_schedule_analysis_obj.get_invocation_table();
-  outfile.close();
+  {
+    stringstream temp;
+    temp << "snk2src_" << WSDF_EXAMPLE_NBR << ".txt";  
+    ofstream outfile(temp.str().c_str());
+    outfile << buffer_schedule_analysis_obj.get_snk2src_invocation_table();
+    outfile.close();
+  }
+
+  {
+    stringstream temp;
+    temp << "src2snk_" << WSDF_EXAMPLE_NBR << ".txt";  
+    ofstream outfile(temp.str().c_str());
+    outfile << buffer_schedule_analysis_obj.get_src2snk_invocation_table();
+    outfile.close();
+  }
+  
 #endif
 
   delete my_channel;
