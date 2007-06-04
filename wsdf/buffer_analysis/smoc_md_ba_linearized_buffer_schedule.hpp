@@ -31,8 +31,11 @@ namespace smoc_md_ba
 
   public:
     // Get invocation table (result)
-    const smoc_md_array<unsigned long>& get_invocation_table() const {
-      return invocation_table;
+    const smoc_md_array<unsigned long>& get_snk2src_invocation_table() const {
+      return snk2src_invocation_table;
+    }
+    const smoc_md_array<unsigned long>& get_src2snk_invocation_table() const {
+      return src2snk_invocation_table;
     }
 
   protected:
@@ -52,9 +55,9 @@ namespace smoc_md_ba
 			   bool new_schedule_period);
 
   private:
-    unsigned long *order_vector;
+    unsigned long *src_order_vector;
 
-    void init_order_vector();
+    void init_src_order_vector();
 
     unsigned long 
     calc_num_src_invocations(const iter_domain_vector_type& previous_src_iter,
@@ -63,12 +66,17 @@ namespace smoc_md_ba
 
 
   private:
-    smoc_md_array<unsigned long> &invocation_table;
-    
+    /// Specifies for each snk iteration, how many source iterations
+    /// can be additionally scheduled after terminating sink execution
+    smoc_md_array<unsigned long> &snk2src_invocation_table;
+
+    /// Specifies for each source invocation, how many sink iterations
+    /// can be additionally scheduled after terminating the source
+    /// execution
+    smoc_md_array<unsigned long> &src2snk_invocation_table;
+
+    iter_domain_vector_type current_src_iteration;
   };
-
-
-
 
   /// User interface
   class smoc_md_ba_ui_schedule
@@ -89,9 +97,14 @@ namespace smoc_md_ba
 				  const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator);
 
   public:
-    const smoc_md_array<unsigned long>& get_invocation_table() const {
+    const smoc_md_array<unsigned long>& get_snk2src_invocation_table() const {
       assert(ba_obj != NULL);
-      return ba_obj->get_invocation_table();
+      return ba_obj->get_snk2src_invocation_table();
+    }
+
+    const smoc_md_array<unsigned long>& get_src2snk_invocation_table() const {
+      assert(ba_obj != NULL);
+      return ba_obj->get_src2snk_invocation_table();
     }
 
   private:

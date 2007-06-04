@@ -19,16 +19,21 @@ namespace smoc_md_ba
     : smoc_mb_ba_lin_buffer(src_md_loop_iterator,
 			    snk_md_loop_iterator,
 			    buffer_height),
-      invocation_table(*(new smoc_md_array<unsigned long>(snk_md_loop_iterator.iterator_depth(),
-							  snk_md_loop_iterator.iteration_size())))
-    
+      snk2src_invocation_table(*(new smoc_md_array<unsigned long>
+        (snk_md_loop_iterator.iterator_depth(),
+         snk_md_loop_iterator.iteration_size()))),
+      src2snk_invocation_table(*(new smoc_md_array<unsigned long>
+        (src_md_loop_iterator.iterator_depth(),
+         src_md_loop_iterator.iteration_size()))),
+      current_src_iteration(src_md_loop_iterator.iterator_depth())
   {
-    init_order_vector();
+    init_src_order_vector();
   }
 
   smoc_mb_ba_lin_buffer_schedule::~smoc_mb_ba_lin_buffer_schedule(){
-    delete &invocation_table;
-    delete[] order_vector;
+    delete &snk2src_invocation_table;
+    delete &src2snk_invocation_table;
+    delete[] src_order_vector;
   }
 
 
@@ -42,6 +47,13 @@ namespace smoc_md_ba
     CoSupport::dout << "Enter smoc_mb_ba_lin_buffer_schedule::consumption_update" << std::endl;
     CoSupport::dout << CoSupport::Indent::Up;
 #endif
+
+    /*   ***************  Update src2snk table ****************** */
+    if (snk_schedule_period < 1){
+      src2snk_invocation_table[current_src_iteration]++;
+    }
+
+    /*   ***************  Update snk2src table ****************** */
 
     //back-up previous lexicographically smallest data element
     iter_domain_vector_type 
@@ -76,7 +88,7 @@ namespace smoc_md_ba
 #endif
     if (snk_schedule_period < 1)
       //only consider first schedule period
-      invocation_table[current_iteration] = num_invocations;
+      snk2src_invocation_table[current_iteration] = num_invocations;
 
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
     CoSupport::dout << "Leave smoc_mb_ba_lin_buffer_schedule::consumption_update" << std::endl;
@@ -94,7 +106,7 @@ namespace smoc_md_ba
     //For this sink iteration, no data element 
     //has been consumed the last time
 
-    invocation_table[current_iteration] = 0;    
+    snk2src_invocation_table[current_iteration] = 0;    
     
   }
 
@@ -102,16 +114,47 @@ namespace smoc_md_ba
   smoc_mb_ba_lin_buffer_schedule::production_update(const iter_domain_vector_type& current_iteration,
 						    const iter_domain_vector_type& max_window_iteration,
 						    bool new_schedule_period){
-    // do nothing
+
+#if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
+    CoSupport::dout << "Enter smoc_mb_ba_lin_buffer_schedule::production_update" << std::endl;
+    CoSupport::dout << CoSupport::Indent::Up;
+#endif
+
+    if (src_schedule_period < 1){
+      ///only consider first schedule period
+
+#if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
+      static bool init = true;
+      if (!init){
+	CoSupport::dout << "previous source iteration: " << current_src_iteration << std::endl;
+	CoSupport::dout << "src2snk_invocation_table[current_src_iteration] = " 
+			<< src2snk_invocation_table[current_src_iteration] << std::endl;
+      }
+      init = false;
+#endif
+
+      ///memorize current source iteration
+      current_src_iteration = current_iteration;
+
+      ///init table
+      src2snk_invocation_table[current_src_iteration] = 0;
+
+    }
+
+#if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
+    CoSupport::dout << "Leave smoc_mb_ba_lin_buffer_schedule::production_update" << std::endl;
+    CoSupport::dout << CoSupport::Indent::Down;
+#endif
+
   }
 
   void 
-  smoc_mb_ba_lin_buffer_schedule::init_order_vector(){
-    order_vector = new unsigned long[src_iterator_depth-token_dimensions];
+  smoc_mb_ba_lin_buffer_schedule::init_src_order_vector(){
+    src_order_vector = new unsigned long[src_iterator_depth-token_dimensions];
 
-    order_vector[src_iterator_depth-token_dimensions-1] = 1;
+    src_order_vector[src_iterator_depth-token_dimensions-1] = 1;
     for(int i = src_iterator_depth-token_dimensions-2; i >= 0; i--){
-      order_vector[i] = order_vector[i+1] * (src_iteration_max[i+1]+1);
+      src_order_vector[i] = src_order_vector[i+1] * (src_iteration_max[i+1]+1);
     }
   }
 
@@ -123,7 +166,7 @@ namespace smoc_md_ba
 
     for(unsigned int i = 0; i < src_iterator_depth-token_dimensions; i++){
       return_value +=
-	((long)current_src_iter[i] - (long)previous_src_iter[i]) * (long)order_vector[i];
+	((long)current_src_iter[i] - (long)previous_src_iter[i]) * (long)src_order_vector[i];
     }
 
     assert(return_value >= 0);
