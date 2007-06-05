@@ -157,3 +157,10 @@ void smoc_graph::end_of_elaboration() {
 
 void smoc_graph::assembleActor(
     smoc_modes::PGWriter &pgw) const {}
+
+//
+void smoc_graph_sr::smocCallTop() {
+  if (top != NULL)
+    top->scheduleSR(this);
+}
+

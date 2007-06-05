@@ -64,12 +64,13 @@ class smoc_graph
     public smoc_root_node {
   friend class smoc_top;
   friend class smoc_scheduler_top;
+  friend class smoc_graph_sr;
 
   typedef smoc_graph    this_type;
 private:
   smoc_scheduler_top *top;
 
-  void smocCallTop();
+  virtual void smocCallTop();
 
   // called by elaboration_done (does nothing by default)
   void end_of_elaboration();
@@ -345,6 +346,22 @@ public:
   void pgAssemble(smoc_modes::PGWriter &, const smoc_root_node *) const;
   void assembleActor( smoc_modes::PGWriter &pgw ) const;
 #endif
+};
+
+/******************************************************************************
+ *
+ */
+class smoc_graph_sr : public smoc_graph{
+public:
+  //
+  explicit smoc_graph_sr(sc_module_name name)
+    : smoc_graph(name) {}
+  //
+  smoc_graph_sr()
+    : smoc_graph() {}
+
+private:
+  void smocCallTop();
 };
 #undef T_chan_init_default
 
