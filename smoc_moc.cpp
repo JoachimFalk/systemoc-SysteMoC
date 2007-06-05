@@ -46,7 +46,7 @@
 #ifdef SYSTEMOC_DEBUG
 # define DEBUG_CODE(code) code
 #else
-# define DEBUG_CODE(code)
+# define DEBUG_CODE(code) do {} while(0);
 #endif
 
 using namespace CoSupport;
@@ -501,7 +501,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     assert(!bottom);
     assert(nonStrict.empty());
 
-    //cerr << "FIXPOINT FIXPOINT FIXPOINT FIXPOINT FIXPOINT FIXPOINT" << endl;
+    //cerr << "FIXED POINT" << endl;
     //fixpoint reached
 
     //tick all ns transitions
@@ -567,6 +567,33 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     defined.clear();
   }
 
+      }else if( inCommState.empty() &&
+                nonStrictReleased.empty() &&
+                nonStrict.empty() &&
+                !bottom ){
+        // another way reaching the fixed point is:
+        // having no non strict blocks, no commstate blocks,
+        // and bottom may not be ready
+        // that means only defined list is not empty
+
+        //move strict transitions back to bottom
+        bottom |= defined;
+        defined.clear();
+        //tick all signals
+        for ( smoc_chan_list::const_iterator iter = cs.begin();
+              iter != cs.end();
+              ++iter ){
+          // "tick()" each block
+          smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
+            class smoc_multicast_sr_signal_kind* >((*iter));
+          
+          if(NULL != mc_sig){
+            mc_sig->tick();
+          }
+          
+          assert( NULL != mc_sig );
+        }
+  
       }else{
 #ifdef SYSTEMOC_ENABLE_VPC
   assert(inCommState.empty());
