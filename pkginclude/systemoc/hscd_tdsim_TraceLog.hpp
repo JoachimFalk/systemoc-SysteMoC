@@ -45,6 +45,8 @@
 
 #ifdef SYSTEMOC_TRACE
 
+typedef std::map<std::string, size_t> NameMap;
+
 using std::string;
 
 // dynamically obtained actor infos
@@ -93,6 +95,33 @@ private:
   string seq;         
 };
 
+class NamePool{
+public:
+
+  /**
+   *
+   */
+  size_t getID(string name){
+    NameMap::iterator iter = names.find(name);
+    if(iter != names.end()){
+      return iter->second;
+    }
+    size_t id = names.size();
+    names[name] = id;
+    return id;
+  }
+  
+  /**
+   *
+   */
+  const NameMap& getMap(){
+    return names;
+  }
+
+private:
+  NameMap names;
+};
+
 class TraceLogStream {
 private:
   std::ostream &stream;
@@ -105,6 +134,7 @@ private:
   std::string lastactor; 
   std::string fifo_actor_last;
   std::map<string, s_fifo_info> fifo_info;
+  NamePool namePool;
   
 public:
   template <typename T>
