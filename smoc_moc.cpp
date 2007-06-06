@@ -567,7 +567,10 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
     defined.clear();
   }
 
-      }else if( inCommState.empty() &&
+      }else if(
+#ifdef SYSTEMOC_ENABLE_VPC
+                inCommState.empty() &&
+#endif // SYSTEMOC_ENABLE_VPC
                 nonStrictReleased.empty() &&
                 nonStrict.empty() &&
                 !bottom ){
