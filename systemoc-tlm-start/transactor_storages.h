@@ -9,14 +9,6 @@
 #include "debug_on.h"
 
 
-// SysteMoC uses different debugging style: if NDEBUG is set, debugging code is
-//  disabled. Define macro for NDEBUG undefed code.
-#ifndef NDEBUG
-  #define DBG_SMOC(e) do {e;} while(0)
-#else
-  #define DBG_SMOC(e) do {} while(0)
-#endif
-
 
 /******************************************************************************
  * get and put data in bytewise manner. This makes it independent of concrete
@@ -246,19 +238,19 @@ private:
 
     const accessReturnType operator[](size_t n) const
     {
-      DBG_SMOC(assert(n < mLimit));
+      assert(n < mLimit);
       return mStorage[n];
     }
 
     accessReturnType operator[](size_t n)
     {
-      DBG_SMOC(assert(n < mLimit));
+      assert(n < mLimit);
       return mStorage[n];
     }
     
     bool tokenIsValid(size_t n) const
     {
-      DBG_SMOC(assert(n < mLimit));
+      assert(n < mLimit);
       return mStorage[n].isValid();
     }
 
@@ -407,21 +399,21 @@ private:
     //
     const accessReturnType operator[](size_t n) const
     {
-      DBG_SMOC(assert(n < mLimit));
+      assert(n < mLimit);
       return mStorage[n];
     }
 
     //
     accessReturnType operator[](size_t n)
     {
-      DBG_SMOC(assert(n < mLimit));
+      assert(n < mLimit);
       return mStorage[n];
     }
     
     //
     bool tokenIsValid(size_t n) const
     {
-      DBG_SMOC(assert(n < mLimit));
+      assert(n < mLimit);
       return mStorage[n].isValid();
     }
 
@@ -440,7 +432,5 @@ private:
 };
 
 
-
-#undef DBG_SMOC
 
 #endif // TRANSACTOR_STORAGES_H

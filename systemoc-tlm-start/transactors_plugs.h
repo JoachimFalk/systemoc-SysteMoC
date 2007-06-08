@@ -30,7 +30,7 @@ public:
 
 
 /******************************************************************************
- * part of smoc_chan_in_if
+ * date type independent part of smoc_chan_in_if
  *
  */
 class PortInTransactor
@@ -105,7 +105,7 @@ private:
 
 
 /******************************************************************************
- * part of smoc_chan_out_if
+ * date type independent part of smoc_chan_out_if
  *
  */
 class PortOutTransactor
