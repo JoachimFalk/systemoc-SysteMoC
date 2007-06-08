@@ -122,7 +122,7 @@ public:
 
 
 class PLMONTestBench
-  :public smoc_graph{
+  :public smoc_graph_sr{
 protected:
   AIS   m_AIS;
   //...
@@ -144,7 +144,7 @@ private:
 
 public:
   PLMONTestBench(sc_module_name name, int times)
-    : smoc_graph(name),
+    : smoc_graph_sr(name),
       m_AIS("AIS"),
       //...
       m_PLMON("PLMON"){
@@ -156,7 +156,7 @@ public:
 
 int sc_main (int argc, char **argv) {
   size_t count = (argc>1?atoi(argv[1]):0);
-  smoc_top_sr_moc<PLMONTestBench> nsa_tb("top", count);
+  smoc_top_moc<PLMONTestBench> nsa_tb("top", count);
   
 #define GENERATE "--generate-problemgraph"
   if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {

@@ -9,6 +9,20 @@ template<typename T>
 class ConstSource: public smoc_actor {
 public:
   smoc_port_out<T> out;
+
+  ConstSource(sc_module_name name, T value, int limit )
+    : smoc_actor(name, start),
+      output( value ),
+      limitCount( 0 )
+  {
+    SMOC_REGISTER_CPARAM(value);
+    SMOC_REGISTER_CPARAM(limit);
+
+    start = ( (VAR(limitCount)<limit) && out(1)) >>
+      CALL(ConstSource::src)                     >>
+      start
+      ;
+  }
 private:
   T   output;
   int limitCount;
@@ -17,21 +31,9 @@ private:
     limitCount++;
     out[0] = output;
     //out[1] = output; //What happens if using signals??
-    //                  ( same question: "port.getAvalable...()>=2" )
+    //                  ( same question: "port.getAvailable...()>=2" )
   }
   
   smoc_firing_state start;
-public:
-  ConstSource(sc_module_name name,
-	      SMOC_ACTOR_CPARAM( T, value ),
-	      SMOC_ACTOR_CPARAM( int, limit ))
-    : smoc_actor(name, start),
-      output( value ),
-      limitCount( 0 ) {
-    start = ( (VAR(limitCount)<limit) && out(1)) >>
-      CALL(ConstSource::src)                     >>
-      start
-      ;
-  }
 };
 

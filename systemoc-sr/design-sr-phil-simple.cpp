@@ -33,8 +33,9 @@ private:
   
   smoc_firing_state s_pos, s_neg;
 public:
-  Clock(sc_module_name name, SMOC_ACTOR_CPARAM( int, limit ))
+  Clock(sc_module_name name, int limit )
     : smoc_actor(name, s_pos),  limitCount( 0 ) {
+    SMOC_REGISTER_CPARAM(limit);
 
     s_pos = (VAR(limitCount)<limit) >>
       ( out(1) )                    >>
@@ -195,7 +196,7 @@ public:
 };
 
 class PhilosopherTestBench
-  :public smoc_graph{
+  :public smoc_graph_sr{
 protected:
   Philosopher phil1;
   Philosopher phil2;
@@ -224,7 +225,7 @@ protected:
 
 public:
   PhilosopherTestBench(sc_module_name name, int times)
-    :smoc_graph(name),
+    :smoc_graph_sr(name),
      phil1("Phil1"),
      phil2("Phil2"),
      phil3("Phil3"),
@@ -348,7 +349,7 @@ public:
 
 int sc_main (int argc, char **argv) {
   size_t count = (argc>1?atoi(argv[1]):0);
-  smoc_top_sr_moc<PhilosopherTestBench> nsa_tb("top", count);
+  smoc_top_moc<PhilosopherTestBench> nsa_tb("top", count);
   
 #define GENERATE "--generate-problemgraph"
   if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {

@@ -11,7 +11,7 @@
 #include "TerminalSink.hpp"
 
 class MulticastTestBench
-  :public smoc_graph{
+  :public smoc_graph_sr{
 protected:
   ConstSource<bool>  zero;
   ConstSource<bool>  oneTime;
@@ -21,7 +21,7 @@ protected:
 
 public:
   MulticastTestBench(sc_module_name name, int times)
-    :smoc_graph(name),
+    :smoc_graph_sr(name),
      zero     ("Zero",    0, times),
      oneTime  ("OneTime", 1, 1),
      directSnk("DirectSink", std::string("direct:\t")),
@@ -50,7 +50,7 @@ public:
 
 int sc_main (int argc, char **argv) {
   size_t count = (argc>1?atoi(argv[1]):0);
-  smoc_top_sr_moc<MulticastTestBench> nsa_tb("top", count);
+  smoc_top_moc<MulticastTestBench> nsa_tb("top", count);
   
 #define GENERATE "--generate-problemgraph"
   if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {

@@ -11,6 +11,17 @@ public:
   smoc_port_in<T>     op0;
   smoc_port_in<T>     op1;
   smoc_port_out<bool> out;
+
+  NonStrictAnd(sc_module_name name)
+    : smoc_actor(name, start){
+
+    start = (op0(1) && op1(1))                          >>
+      out(1)                                            >>
+      (SR_GO(NonStrictAnd::goAnd)(true)                 &&
+       SR_TICK(NonStrictAnd::tick)(2)(3))               >>
+      start
+      ;
+  }
 private:
 
   void goAnd(bool t) { //const
@@ -38,15 +49,4 @@ private:
   }
 
   smoc_firing_state start;
-public:
-  NonStrictAnd(sc_module_name name)
-    : smoc_actor(name, start){
-
-    start = (op0(1) && op1(1))                          >>
-      out(1)                                            >>
-      (SR_GO(NonStrictAnd::goAnd)(true)                 &&
-       SR_TICK(NonStrictAnd::tick)(2)(3))               >>
-      start
-      ;
-  }
 };

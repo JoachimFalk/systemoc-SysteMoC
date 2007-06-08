@@ -11,6 +11,14 @@ class TerminalSink: public smoc_actor {
 public:
   smoc_port_in<T>  in;
 
+  TerminalSink(sc_module_name name, S message )
+    : smoc_actor(name, start), message(message)
+  {
+    SMOC_REGISTER_CPARAM(message);
+
+    start = in(1) >> CALL(TerminalSink::terminal) >> start
+      ;
+  }
 protected:
   S message;
   void terminal() const{
@@ -19,11 +27,5 @@ protected:
   }
 
   smoc_firing_state start;
-public:
-  TerminalSink(sc_module_name name, SMOC_ACTOR_CPARAM( S, message ))
-    : smoc_actor(name, start), message(message) {
-    start = in(1) >> CALL(TerminalSink::terminal) >> start
-      ;
-  }
 };
 
