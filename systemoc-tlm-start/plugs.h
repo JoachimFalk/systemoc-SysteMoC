@@ -1,9 +1,8 @@
 
-#ifndef TRANSACTORS_PLUGS
-#define TRANSACTORS_PLUGS
+#ifndef PLUGS_H
+#define PLUGS_H
 
-
-#include "transactor_storages.h"
+#include "storages.h"
 #include "debug_on.h"
 
 
@@ -33,20 +32,20 @@ public:
  * date type independent part of smoc_chan_in_if
  *
  */
-class PortInTransactor
+class InPortPlugBase
 {
 public:
   typedef std::map<size_t, smoc_event *>  eventMapType;
 
   //
-  PortInTransactor(StorageInIf &storage,
-                   CommitReadListener &manager) : // exactly one listener
+  InPortPlugBase(StorageInIf &storage,
+                 CommitReadListener &listener) : // exactly one listener
     mStorage(storage),
-    mManager(manager)
+    mReadListener(listener)
   {}
 
   //
-  virtual ~PortInTransactor(void) {}
+  virtual ~InPortPlugBase(void) {}
 
   //
   size_t numAvailable(void) const { return mStorage.numAvailable(); }
@@ -54,14 +53,14 @@ public:
   // create or return event
   smoc_event &dataAvailableEvent(size_t n)
   {
-    DBG_SC_OUT("PortInTransactor::dataAvailableEvent(): n = "
+    DBG_SC_OUT("InPortPlugBase::dataAvailableEvent(): n = "
                << n << std::endl);
     eventMapType::iterator iter = mEventMap.find(n);
     if (iter == mEventMap.end()) {
       const eventMapType::value_type value(n, new smoc_event());
       iter = mEventMap.insert(value).first;
 
-      DBG_OUT("PortInTransactor::dataAvailableEvent(): create new event\n");
+      DBG_OUT("InPortPlugBase::dataAvailableEvent(): create new event\n");
 
       if (numAvailable() >= n)
         iter->second->notify();
@@ -72,16 +71,16 @@ public:
   //
   void commitRead(size_t consume)
   {
-    DBG_SC_OUT("PortInTransactor::commitRead(): consumed " << consume
-               << " data. Forward to manager.\n");
+    DBG_SC_OUT("InPortPlugBase::commitRead(): consumed " << consume
+               << " data. Forward to adapter.\n");
 
-    mManager.notifyCommitRead(consume);
+    mReadListener.notifyCommitRead(consume);
   }
 
   //
   void updateDataAvailableEvents()
   {
-    DBG_SC_OUT("PortInTransactor::updateDataAvailableEvents(): \n");
+    DBG_SC_OUT("InPortPlugBase::updateDataAvailableEvents(): \n");
     eventMapType::iterator iter = mEventMap.begin();
 
     while (iter != mEventMap.end()) {
@@ -98,9 +97,9 @@ public:
   }
 
 private:
-  eventMapType                  mEventMap;
-  StorageInIf                  &mStorage;
-  CommitReadListener  &mManager;
+  eventMapType         mEventMap;
+  StorageInIf         &mStorage;
+  CommitReadListener  &mReadListener;
 };
 
 
@@ -108,20 +107,20 @@ private:
  * date type independent part of smoc_chan_out_if
  *
  */
-class PortOutTransactor
+class OutPortPlugBase
 {
 public:
   typedef std::map<size_t, smoc_event *>  eventMapType;
   
   //
-  PortOutTransactor(StorageOutIf &storage,
-                    CommitWriteListener &manager) :
+  OutPortPlugBase(StorageOutIf &storage,
+                  CommitWriteListener &listener) :
     mStorage(storage),
-    mManager(manager)
+    mWriteListener(listener)
   {}
 
   //
-  virtual ~PortOutTransactor(void) {}
+  virtual ~OutPortPlugBase(void) {}
 
   // forward to associated storage
   size_t numFree(void) const { return mStorage.numFree(); }
@@ -144,7 +143,7 @@ public:
     return *(iter->second);
   }
 
-  // forward to manager
+  // forward to adapter
   void commitWrite(size_t produce)
   {
     DBG_SC_OUT("OutAdapter::commitWrite(): produced " << produce
@@ -154,9 +153,9 @@ public:
     for (size_t i = 0; i < produce; ++i)
       assert(mStorage.tokenIsValid(i));
 
-    // transactor forwards this to some manager which has some commitPolicy
+    // plug forwards this to some adapter which owns some commitPolicy
     //  and bundles all commiting stuff
-    mManager.notifyCommitWrite(produce);
+    mWriteListener.notifyCommitWrite(produce);
   }
 
   //
@@ -175,30 +174,31 @@ public:
   }
 
 private:
-  eventMapType                   mEventMap;
-  StorageOutIf                  &mStorage;
-  CommitWriteListener  &mManager;
+  eventMapType          mEventMap;
+  StorageOutIf         &mStorage;
+  CommitWriteListener  &mWriteListener;
 };
 
 
 /******************************************************************************
- * this plug basically wraps smoc_chan_in_if functions.
+ * this plug basically wraps smoc_chan_in_if functions to two objects,
+ * InPortPlugBase and InPortStorageReadIf<T>.
  *
  */
 template<typename T>
-class SmocPortInPlug :
+class InPortPlug :
   public smoc_chan_in_if<T, smoc_channel_access>,
-  public PortInTransactor
+  public InPortPlugBase
 {
 public:
-  typedef SmocPortInPlug<T>                  thisType;
+  typedef InPortPlug<T>                      thisType;
   typedef typename thisType::access_in_type  accessInType;
 
   // constructor
-  SmocPortInPlug(SmocPortInStorage<T> &storage,
-                 CommitReadListener &manager) :
-    PortInTransactor(storage, manager),    // only StorageInIf
-    mStorage(storage)                      // SmocPortInStorageReadIf<T>
+  InPortPlug(InPortStorage<T> &storage,
+             CommitReadListener &listener) :
+    InPortPlugBase(storage, listener),    // only StorageInIf
+    mStorage(storage)                     // InPortStorageReadIf<T>
   {}
 
   /*
@@ -207,29 +207,29 @@ public:
   //
   size_t numAvailable(void) const
   {
-    DBG_SC_OUT("SmocPortInPlug::numAvailable():\n");
-    return PortInTransactor::numAvailable();
+    DBG_SC_OUT("InPortPlug::numAvailable():\n");
+    return InPortPlugBase::numAvailable();
   }
 
   //
   smoc_event &dataAvailableEvent(size_t n)
   {
-    DBG_SC_OUT("SmocPortInPlug::dataAvailableEvent():\n");
-    return PortInTransactor::dataAvailableEvent(n);
+    DBG_SC_OUT("InPortPlug::dataAvailableEvent():\n");
+    return InPortPlugBase::dataAvailableEvent(n);
   }
 
   //
   void commitRead(size_t consume)
   {
-    DBG_SC_OUT("SmocPortInPlug::commitRead(): got " << consume
+    DBG_SC_OUT("InPortPlug::commitRead(): got " << consume
                << " data.\n");
-    PortInTransactor::commitRead(consume);
+    InPortPlugBase::commitRead(consume);
   }
 
   //
   accessInType *getReadChannelAccess(void)
   {
-    DBG_SC_OUT("SmocPortInPlug::getReadChannelAccess():\n");
+    DBG_SC_OUT("InPortPlug::getReadChannelAccess():\n");
     return mStorage.getReadChannelAccess();
   }
   
@@ -237,30 +237,29 @@ private:
   // smoc_chan_in_if
   const sc_event& default_event() const { return smoc_default_event_abort(); };
 
-  SmocPortInStorageReadIf<T>  &mStorage;
+  InPortStorageReadIf<T>  &mStorage;
 };
 
 
 /******************************************************************************
  * this plug basically wraps smoc_chan_out_if functions to two objects,
- * transactor and storage. Plug should not have full access to storage, so
- * everything is forwarded to transactor.
+ * OutPortPlugBase and OutPortStorageWriteIf<T>.
  *
  */
 template<typename T>
-class SmocPortOutPlug :
+class OutPortPlug :
   public smoc_chan_out_if<T, smoc_channel_access>,
-  public PortOutTransactor
+  public OutPortPlugBase
 {
 public:
-  typedef SmocPortOutPlug<T>                  thisType;
+  typedef OutPortPlug<T>                      thisType;
   typedef typename thisType::access_out_type  accessOutType;
 
   // constructor
-  SmocPortOutPlug(SmocPortOutStorage<T> &storage,
-                  CommitWriteListener &manager) :
-    PortOutTransactor(storage, manager),    // only StorageOutIf
-    mStorage(storage)                       // SmocPortOutStorageWriteIf<T>
+  OutPortPlug(OutPortStorage<T> &storage,
+              CommitWriteListener &listener) :
+    OutPortPlugBase(storage, listener),    // only StorageOutIf
+    mStorage(storage)                      // OutPortStorageWriteIf<T>
   {}
 
   /*
@@ -270,14 +269,14 @@ public:
   size_t numFree(void) const
   {
     DBG_SC_OUT("smoc_port_out_plug::numFree():\n");
-    return PortOutTransactor::numFree();
+    return OutPortPlugBase::numFree();
   }
 
   //
   smoc_event &spaceAvailableEvent(size_t n)
   {
     DBG_SC_OUT("smoc_port_out_plug::spaceAvailableEvent():\n");
-    return PortOutTransactor::spaceAvailableEvent(n);
+    return OutPortPlugBase::spaceAvailableEvent(n);
   }
 
   //
@@ -293,15 +292,15 @@ public:
     DBG_SC_OUT("smoc_port_out_plug::commitWrite(): got " << produce
                << " data.\n");
 
-    PortOutTransactor::commitWrite(produce);
+    OutPortPlugBase::commitWrite(produce);
   }
   
 private:
   // smoc_chan_in_if
   const sc_event& default_event() const { return smoc_default_event_abort(); };
 
-  SmocPortOutStorageWriteIf<T>  &mStorage;
+  OutPortStorageWriteIf<T>  &mStorage;
 };
  
 
-#endif // TRANSACTORS_PLUGS
+#endif // PLUGS_H

@@ -1,6 +1,6 @@
 
-#ifndef TRANSACTOR_STORAGES_H
-#define TRANSACTOR_STORAGES_H
+#ifndef STORAGES_H
+#define STORAGES_H
 
 
 #include <systemoc/smoc_chan_if.hpp>
@@ -64,7 +64,7 @@ private:
  *
  */
 template<typename T>
-class SmocPortInStorageReadIf
+class InPortStorageReadIf
 {
 public:
   typedef smoc_channel_access<const T&>         readAccessType;
@@ -80,7 +80,7 @@ public:
  *
  */
 template<typename T>
-class SmocPortOutStorageWriteIf
+class OutPortStorageWriteIf
 {
 public:
   typedef smoc_channel_access<smoc_storage_wom<T> >  writeAccessType;
@@ -92,7 +92,8 @@ public:
 
 
 /******************************************************************************
- * Functions independent from data type and needed by transactor and adapter
+ * Functions independent from data type and needed by InPortPlugBase and
+ * InPortAdapter.
  *
  */
 class StorageInIf :
@@ -134,25 +135,25 @@ public:
  *
  */
 template<typename T>
-class SmocPortInStorage :
-  public SmocPortInStorageReadIf<T>, // interface for smoc port
-  //public StorageByteAccessIf,        // interface for PlugAggregation
-  public StorageInIf                 // remaining data independent functions
+class InPortStorage :
+  public InPortStorageReadIf<T>,  // interface for smoc port
+  public StorageInIf              // remaining data independent functions
+                                  //  (including StorageByteAccessIf)
 {
 public:
-  typedef typename SmocPortInStorageReadIf<T>::readAccessType   readAccessType;
-  typedef typename SmocPortInStorageReadIf<T>::accessReturnType
+  typedef typename InPortStorageReadIf<T>::readAccessType   readAccessType;
+  typedef typename InPortStorageReadIf<T>::accessReturnType
     accessReturnType;
   typedef circular_buffer_ra_data<smoc_storage<T> >             storageType;
 
   //
-  SmocPortInStorage(const size_t size = 1) :
+  InPortStorage(const size_t size = 1) :
     mStorage(size),
     mReadAccessWrapper(mStorage)
   {}
 
   //
-  virtual ~SmocPortInStorage(void) {}
+  virtual ~InPortStorage(void) {}
 
   // wrapper for random_access_circular_buffer::is_full()
   bool isFull(void) const { return mStorage.is_full(); }
@@ -274,27 +275,27 @@ private:
  *
  */
 template<typename T>
-class SmocPortOutStorage :
-  public SmocPortOutStorageWriteIf<T>, // interface for smoc port
-  //public StorageByteAccessIf,          // interface for PlugOutAggregation
-  public StorageOutIf
+class OutPortStorage :
+  public OutPortStorageWriteIf<T>, // interface for smoc port
+  public StorageOutIf              // remaining data independent functions
+                                   //  (including StorageByteAccessIf)
 {
 public:
   typedef T  dataType;
-  typedef typename SmocPortOutStorageWriteIf<T>::writeAccessType
+  typedef typename OutPortStorageWriteIf<T>::writeAccessType
     writeAccessType;
-  typedef typename SmocPortOutStorageWriteIf<T>::accessReturnType
+  typedef typename OutPortStorageWriteIf<T>::accessReturnType
     accessReturnType;
   typedef circular_buffer_ra_free_space<smoc_storage<T> >  storageType;
 
   //
-  SmocPortOutStorage(const size_t size = 1) :
+  OutPortStorage(const size_t size = 1) :
     mStorage(size),
     mWriteAccessWrapper(mStorage)
   {}
 
   //
-  virtual ~SmocPortOutStorage(void) {}
+  virtual ~OutPortStorage(void) {}
 
   // FIXME: some functions into StorageOutIf?
 #if 0
@@ -344,7 +345,7 @@ public:
   void commitRaWrite(size_t n) { return mStorage.commit_ra_write(n); }
 
   /*
-   * SmocPortOutStorageWriteIf
+   * OutPortStorageWriteIf
    */
   writeAccessType* getWriteChannelAccess(void)
   {
@@ -433,4 +434,4 @@ private:
 
 
 
-#endif // TRANSACTOR_STORAGES_H
+#endif // STORAGES_H

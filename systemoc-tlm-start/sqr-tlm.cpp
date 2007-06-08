@@ -45,7 +45,7 @@
 # include <systemoc/smoc_pggen.hpp>
 #endif
 
-#include "managers_aggregation.h"
+#include "aggregations.h"
 
 //#define DEBUG_TLM_PVT_BUS
 
@@ -66,9 +66,9 @@ typedef unsigned int     addr_type;
 typedef double           data_type;
 const tlm::tlm_data_mode data_mode = tlm::TLM_PASS_BY_COPY;
 
-typedef PortManagerAggregation<addr_type,
+typedef AdapterAggregation<addr_type,
                                data_type,
-                               data_mode> SqrPortManagerAggregation;
+                               data_mode> SqrAdapterAggregation;
 
 
 /******************************************************************************
@@ -301,38 +301,38 @@ class SqrRoot :
 {
 public:
   SqrRoot(sc_module_name name,
-          SqrPortManagerAggregation *managerAggregationConProd, //no ref possible
-          SqrPortManagerAggregation *managerAggregationCalc,    // ...
+          SqrAdapterAggregation *aggregationConProd, //no ref possible
+          SqrAdapterAggregation *aggregationCalc,    // ...
           const int from = 1) :
     smoc_graph(name),
     sqrConProd("SqrConProd", from),
     sqrCalc("SqrCalc")
   {
-    InPortManager<addr_type> *inPortManager;
-    OutPortManager<addr_type> *outPortManager;
+    InPortAdapter<addr_type> *inPortAdapter;
+    OutPortAdapter<addr_type> *outPortAdapter;
 
-    std::pair<SmocPortInPlug<double>*, SmocPortOutPlug<double>*> plugs =
-      mPortManagerFactory.createManagerPair<double>(1, 1,
-                                                 &inPortManager,
-                                                 &outPortManager);
+    std::pair<InPortPlug<double>*, OutPortPlug<double>*> plugs =
+      mPortAdapterFactory.createAdapterPair<double>(1, 1,
+                                                    &inPortAdapter,
+                                                    &outPortAdapter);
     connectChanPort(*(plugs.first), sqrCalc.in);
     connectChanPort(*(plugs.second), sqrConProd.out);
-    managerAggregationCalc->registerInPortManager(inPortManager);
-    managerAggregationConProd->registerOutPortManager(outPortManager);
+    aggregationCalc->registerInPortAdapter(inPortAdapter);
+    aggregationConProd->registerOutPortAdapter(outPortAdapter);
 
-    plugs = mPortManagerFactory.createManagerPair<double>(1, 1,
-                                                       &inPortManager,
-                                                       &outPortManager);
+    plugs = mPortAdapterFactory.createAdapterPair<double>(1, 1,
+                                                          &inPortAdapter,
+                                                          &outPortAdapter);
     connectChanPort(*(plugs.first), sqrConProd.in);
     connectChanPort(*(plugs.second), sqrCalc.out);
-    managerAggregationConProd->registerInPortManager(inPortManager);
-    managerAggregationCalc->registerOutPortManager(outPortManager);
+    aggregationConProd->registerInPortAdapter(inPortAdapter);
+    aggregationCalc->registerOutPortAdapter(outPortAdapter);
   }
 
 private:
-  SqrConProd          sqrConProd;
-  SqrCalc             sqrCalc;
-  PortManagerFactory<addr_type>  mPortManagerFactory;
+  SqrConProd                     sqrConProd;
+  SqrCalc                        sqrCalc;
+  PortAdapterFactory<addr_type>  mPortAdapterFactory;
 };
 
 
@@ -349,12 +349,12 @@ int sc_main (int argc, char **argv) {
 
   cerr << "from = " << from << endl;
   
-  SqrPortManagerAggregation plugAggregationConProd("conProd", 0, 0);
-  SqrPortManagerAggregation plugAggregationCalc("calc", 1, 1);
+  SqrAdapterAggregation aggregationConProd("conProd", 0, 0);
+  SqrAdapterAggregation aggregationCalc("calc", 1, 1);
 
   smoc_top_moc<SqrRoot> sqrroot("sqrroot",
-                                &plugAggregationConProd,
-                                &plugAggregationCalc,
+                                &aggregationConProd,
+                                &aggregationCalc,
                                 from);
   
   typedef tlm::tlm_request<addr_type,data_type,data_mode> request_type;
@@ -376,15 +376,15 @@ int sc_main (int argc, char **argv) {
   channel_type channelMasterCalc("masterCalc", 1, -1);
   channel_type channelSlaveCalc("slaveCalc", 1, -1);
 
-  plugAggregationConProd.masterPort(channelMasterConProd.master_export);
-  plugAggregationCalc.masterPort(channelMasterCalc.master_export);
+  aggregationConProd.masterPort(channelMasterConProd.master_export);
+  aggregationCalc.masterPort(channelMasterCalc.master_export);
   bus.p_tlm_s(channelMasterConProd.slave_export);
   bus.p_tlm_s(channelMasterCalc.slave_export);
 
   bus.p_tlm_m(channelSlaveConProd.master_export);
   bus.p_tlm_m(channelSlaveCalc.master_export);
-  plugAggregationConProd.slavePort(channelSlaveConProd.slave_export);
-  plugAggregationCalc.slavePort(channelSlaveCalc.slave_export);
+  aggregationConProd.slavePort(channelSlaveConProd.slave_export);
+  aggregationCalc.slavePort(channelSlaveCalc.slave_export);
 
   sc_start(-1);
   return 0;

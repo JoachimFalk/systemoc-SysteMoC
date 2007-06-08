@@ -90,13 +90,13 @@ class PutModule :
   public sc_module
 {
 public:
-  PutModule(sc_module_name name, PortManagerAggregation &managerAggregation) :
+  PutModule(sc_module_name name, AdapterAggregation &managerAggregation) :
     sc_module(name),
     mManagerAggregation(managerAggregation)
   {}
 
 private:
-  typedef PortManagerAggregation::byteType byteType;
+  typedef AdapterAggregation::byteType byteType;
   //
   void end_of_elaboration(void)
   {
@@ -110,7 +110,7 @@ private:
                                  sizeof(int));
   }
 
-  PortManagerAggregation &mManagerAggregation;
+  AdapterAggregation &mManagerAggregation;
 };
 
 
@@ -127,30 +127,30 @@ class Tlm_tester :
 public:
   //
   Tlm_tester(sc_module_name name,
-             PortManagerAggregation &managerAggregation) :
+             AdapterAggregation &managerAggregation) :
     smoc_graph(name),
     a1("A1"),
     a2("A2")
   {
-    InPortManager *inPortManager;
-    OutPortManager *outPortManager;
+    InPortAdapter *inPortManager;
+    OutPortAdapter *outPortManager;
 
-    std::pair<SmocPortInPlug<long long>*, SmocPortOutPlug<long long>*> plugsA =
-      mPortManagerFactory.createManagerPair<long long>(2, 2,
+    std::pair<InPortPlug<long long>*, OutPortPlug<long long>*> plugsA =
+      mPortAdapterFactory.createManagerPair<long long>(2, 2,
                                                        &inPortManager,
                                                        &outPortManager);
-    managerAggregation.registerInPortManager(inPortManager);
-    managerAggregation.registerOutPortManager(outPortManager);
+    managerAggregation.registerInPortAdapter(inPortManager);
+    managerAggregation.registerOutPortAdapter(outPortManager);
 
     connectChanPort(*(plugsA.first), a1.in);
     connectChanPort(*(plugsA.second), a2.out);
 
-    std::pair<SmocPortInPlug<int>*, SmocPortOutPlug<int>*> plugsB =
-      mPortManagerFactory.createManagerPair<int>(2, 2,
+    std::pair<InPortPlug<int>*, OutPortPlug<int>*> plugsB =
+      mPortAdapterFactory.createManagerPair<int>(2, 2,
                                                  &inPortManager,
                                                  &outPortManager);
-    managerAggregation.registerInPortManager(inPortManager);
-    managerAggregation.registerOutPortManager(outPortManager);
+    managerAggregation.registerInPortAdapter(inPortManager);
+    managerAggregation.registerOutPortAdapter(outPortManager);
 
     connectChanPort(*(plugsB.first), a2.in);
     connectChanPort(*(plugsB.second), a1.out);
@@ -159,7 +159,7 @@ public:
 private:
   A1 a1;
   A2 a2;
-  PortManagerFactory mPortManagerFactory;
+  PortAdapterFactory mPortAdapterFactory;
 };
 
 
@@ -190,7 +190,7 @@ int sc_main (int argc, char **argv)
     request_fifo_type,
     response_fifo_type>                           channel_type;
 
-  PortManagerAggregation plugAggregation;
+  AdapterAggregation plugAggregation;
 
   Tlm_tester<address_type, data_type, data_mode>
     tlm_tester("tlm_tester", plugAggregation);
