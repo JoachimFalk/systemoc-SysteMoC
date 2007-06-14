@@ -57,7 +57,6 @@
 
 #define HUFF_EOB 0x00
 #define HUFF_RUNLENGTH_ZERO_AMPLITUDE 0xF0
-#define NEXTBIT_MAX_CLAIM 3
 
 /// Debug dht synchronisation
 #define IS_DHT_SYNC(x) (0xF0 == (x))
@@ -88,6 +87,36 @@ enum HuffTableType {
   DC1
 };
 
+// size of expanded huffman table in 16 bit words
+// FIXME #define HUFF_TABLE_SIZE16 (8 + 16 + 16 + 256/2)
+#define HUFF_TABLE_SIZE16 (16 + 16 + 16 + 256)
+// offset of values when using 16 bit word array
+#define HUFF_VALPTR_OFFSET16  (0)
+#define HUFF_MINCODE_OFFSET16 (16)
+#define HUFF_MAXCODE_OFFSET16 (16 + 16)
+#define HUFF_HUFFVAL_OFFSET16 (16 + 16 + 16)
+
+// maybe you hate me, but by using offsets as values index calculation is easy
+enum HuffTableChannelType {
+  ValPtr  = HUFF_VALPTR_OFFSET16,
+  MinCode = HUFF_MINCODE_OFFSET16,
+  MaxCode = HUFF_MAXCODE_OFFSET16,
+  HuffVal = HUFF_HUFFVAL_OFFSET16
+};
+
+// calculate index of specified huffman table entry in 16 bit array
+inline int huffTableIndex(const HuffTableChannelType type,
+                          const int index)
+{
+  /*
+  if ((type == ValPtr) || (type == HuffVal))
+    return type + index/2; // 8 bit values
+  else
+    return type + index;
+    */
+  return type + index;
+}
+
 
 /******************************************************************************
  *
@@ -95,21 +124,15 @@ enum HuffTableType {
  */
 class InvHuffman: public smoc_actor {
 public:
-  smoc_port_in<JpegChannel_t>   in;
-  smoc_port_in<ExpHuffTbl>      inHuffTblAC0;
-  smoc_port_in<ExpHuffTbl>      inHuffTblDC0;
-  smoc_port_in<ExpHuffTbl>      inHuffTblAC1;
-  smoc_port_in<ExpHuffTbl>      inHuffTblDC1;
-  smoc_port_out<JpegChannel_t>  out;
+  smoc_port_in<JpegChannel_t>       in;
+  smoc_port_in<HuffTableChannel_t>  inHuffTblAC0;
+  smoc_port_in<HuffTableChannel_t>  inHuffTblDC0;
+  smoc_port_in<HuffTableChannel_t>  inHuffTblAC1;
+  smoc_port_in<HuffTableChannel_t>  inHuffTblDC1;
+  smoc_port_out<JpegChannel_t>      out;
 
   //
   InvHuffman(sc_module_name name);
-
-  //
-  ~InvHuffman() {
-    // ignore fill bits
-    //assert(m_BitSplitter.isEmpty());
-  }
 
 private:
   //
@@ -178,52 +201,52 @@ private:
   }
 
   //
-  bool currentDcIsDc0(void) const;
+  bool currentDcIsDc0() const;
 
   //
-  bool currentDcIsDc1(void) const;
+  bool currentDcIsDc1() const;
 
   //
-  bool currentAcIsAc0(void) const;
+  bool currentAcIsAc0() const;
 
   //
-  bool currentAcIsAc1(void) const;
+  bool currentAcIsAc1() const;
 
   //
-  bool canHuffDecodeDc0(void) const;
+  bool canHuffDecodeDc0() const;
 
   //
-  bool canHuffDecodeDc1(void) const;
+  bool canHuffDecodeDc1() const;
 
   //
-  bool isBitSplitterFull(void) const { return (m_BitSplitter.isFull()); }
+  bool isBitSplitterFull() const { return (m_BitSplitter.isFull()); }
 
   //
-  bool isBitSplitterEmpty(void) const { return (m_BitSplitter.isEmpty()); }
+  bool isBitSplitterEmpty() const { return (m_BitSplitter.isEmpty()); }
 
   //
-  bool isData(void) const { return !m_BitSplitter.isEmpty(); }
+  bool isData() const { return !m_BitSplitter.isEmpty(); }
 
   //
-  bool isEnoughDcBits(void) const {
+  bool isEnoughDcBits() const {
     return (m_BitSplitter.bitsLeft() >= m_receiveDcBits);
   }
 
   //
-  bool isEnoughAcBits(void) const {
+  bool isEnoughAcBits() const {
     // see F.13, p. 106
     // cast to avoid compiler warning
     return (m_BitSplitter.bitsLeft() >= (unsigned int)(m_receiveAcSymbol & 0x0f));
   }
 
   //
-  bool canStore(void) const { return !m_BitSplitter.isFull(); }
+  bool canStore() const { return !m_BitSplitter.isFull(); }
 
   //
-  bool isMoreAc(void) const { return (m_currentAc < 63); }
+  bool isMoreAc() const { return (m_currentAc < 63); }
 
   //
-  void storeData(void) {
+  void storeData() {
     DBG_OUT("storeData(): store one byte: "
             << hex << (unsigned int)JS_DATA_GET(in[0]) << dec << endl);
     m_BitSplitter.addByte(JS_DATA_GET(in[0]));
@@ -233,25 +256,25 @@ private:
   void flushBitSplitter() { m_BitSplitter.flush(); }
 
   // decode huffmann encoded DC bit length
-  void huffDecodeDC0(void);
+  void huffDecodeDC0();
 
   //
-  void huffDecodeDC1(void);
+  void huffDecodeDC1();
 
   //
-  void huffDecodeAC0(void);
+  void huffDecodeAC0();
 
   //
-  void huffDecodeAC1(void);
+  void huffDecodeAC1();
 
   //
-  void writeDcDiff(void);
+  void writeDcDiff();
   
   //
-  void writeAcDiff(void);
+  void writeAcDiff();
 
   // decode
-  bool decodeHuff(const ExpHuffTbl &table,
+  bool decodeHuff(const HuffTableType tableType,
                   DecodedSymbol_t &symbol,
                   unsigned int &numBits) const;
 
@@ -295,7 +318,7 @@ private:
   }
 
   //
-  void finishedBlock(void);
+  void finishedBlock();
 
   smoc_firing_state main;
   smoc_firing_state discoverDC;
@@ -338,11 +361,11 @@ private:
  */
 class HuffTblDecoder: public smoc_actor {
 public:
-  smoc_port_in<codeword_t>  in;
-  smoc_port_out<ExpHuffTbl> outHuffTblAC0;
-  smoc_port_out<ExpHuffTbl> outHuffTblDC0;
-  smoc_port_out<ExpHuffTbl> outHuffTblAC1;
-  smoc_port_out<ExpHuffTbl> outHuffTblDC1;
+  smoc_port_in<codeword_t>           in;
+  smoc_port_out<HuffTableChannel_t>  outHuffTblAC0;
+  smoc_port_out<HuffTableChannel_t>  outHuffTblDC0;
+  smoc_port_out<HuffTableChannel_t>  outHuffTblAC1;
+  smoc_port_out<HuffTableChannel_t>  outHuffTblDC1;
 
   HuffTblDecoder(sc_module_name name);
 
@@ -406,6 +429,10 @@ private:
 #endif
 
   //
+  void HuffTblDecoder::writeTableToChannel(const HuffTableType tableType,
+                                           const ExpHuffTbl &table);
+
+  //
   void HuffTblDecoder::writeTableAC0();
 
   //
@@ -449,24 +476,28 @@ public:
       mInvHuffman("mInvHuffman"),
       mHuffTblDecoder("mHuffTblDecoder")
   {
+    smoc_fifo<HuffTableChannel_t> huffFifo(2 * HUFF_TABLE_SIZE16);
+    for (int i = 0; i < HUFF_TABLE_SIZE16; ++i)
+      huffFifo << 0x0;
+
     mInvHuffman.in(in);
     mHuffTblDecoder.in(inCodedHuffTbl);
     connectNodePorts(
       mHuffTblDecoder.outHuffTblAC0,
       mInvHuffman.inHuffTblAC0,
-      smoc_fifo<ExpHuffTbl>(2) << ExpHuffTbl()); // Parser sends DISCARDHUFF
+      huffFifo);
     connectNodePorts(
       mHuffTblDecoder.outHuffTblAC1,
       mInvHuffman.inHuffTblAC1,
-      smoc_fifo<ExpHuffTbl>(2) << ExpHuffTbl()); // Parser sends DISCARDHUFF
+      huffFifo);
     connectNodePorts(
       mHuffTblDecoder.outHuffTblDC0,
       mInvHuffman.inHuffTblDC0,
-      smoc_fifo<ExpHuffTbl>(2) << ExpHuffTbl()); // Parser sends DISCARDHUFF
+      huffFifo);
     connectNodePorts(
       mHuffTblDecoder.outHuffTblDC1,
       mInvHuffman.inHuffTblDC1,
-      smoc_fifo<ExpHuffTbl>(2) << ExpHuffTbl()); // Parser sends DISCARDHUFF
+      huffFifo);
     mInvHuffman.out(out);
   }
 
