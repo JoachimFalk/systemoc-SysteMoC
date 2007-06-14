@@ -633,8 +633,11 @@ std::ostream &operator << (std::ostream &out, const codeword_t val) {
 #endif
 
 
+// we can't use ExpHuffTbl as channel type now (more than 32bit), so use this
+typedef uint16_t HuffTableChannel_t;
+
 /// Struct for Huffman Decoder
-// what does 'Exp' mean?
+// what does 'Exp' mean? -Expanded :-)
 struct ExpHuffTbl {
   uint8_t          valPtr[16];   // value pointers to first symbol of codelength
                                  //  'index'
@@ -664,6 +667,7 @@ struct ExpHuffTbl {
   }
 };
 
+#if 0
 #ifndef XILINX_EDK_RUNTIME
 inline
 std::ostream &operator<<(std::ostream &out, const ExpHuffTbl &eht) {
@@ -694,6 +698,7 @@ std::ostream &operator<<(std::ostream &out, const ExpHuffTbl &eht) {
 #endif
   return out;
 }
+#endif
 
 #if defined(SYSTEMC_VERSION) && (SYSTEMC_VERSION <= 20020405)
 inline
@@ -785,8 +790,12 @@ std::ostream &operator << (std::ostream &out, const JpegChannel_t &x) {
             << JS_CTRL_NEWFRAME_GET_DIMY(x) << ","
             << JS_CTRL_NEWFRAME_GET_COMPCOUNT(x) << ")";
         break;
+      case CTRLCMD_ENDOFIMAGE:
+        out << "CTRLCMD_ENDOFIMAGE";
+        break;
       default:
-        assert(!"Unhandle control command in JpegChannel_t");
+        //assert(!"Unhandle control command in JpegChannel_t");
+        out << "Unknown control command. Fix operator<<()"
     }
   }
   out << "]";
