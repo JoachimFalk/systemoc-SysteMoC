@@ -144,7 +144,7 @@ void BitSplitter::dumpBuffer(std::ostream &out) const
 //
 void BitSplitter::skipByte(const int num) {
   //std::cerr << " skipByte()" << std::endl;
-  assert(m_bufferNum >= num);
+  assert((int)m_bufferNum >= num);
   m_bufferNum -= num;
   m_readPos = (m_readPos + num) % m_bufferSize;
  
