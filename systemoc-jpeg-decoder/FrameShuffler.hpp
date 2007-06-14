@@ -214,7 +214,8 @@ public:
         out(1)                                  >>
         CALL(FrameShuffler::writeComponent)     >> readScan
       |((VAR(shufflePosY) == shuffleLines - 1 &&
-         VAR(posY)        == dimY - 1) &&
+         VAR(posY)        == dimY - 1         &&
+         VAR(posX)        == dimX - 1)        &&
         in(comp * dimX * shuffleLines))         >>
         out(1)                                  >>
         CALL(FrameShuffler::writeComponent)     >> getFrameDesc
