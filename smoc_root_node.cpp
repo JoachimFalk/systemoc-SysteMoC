@@ -103,14 +103,14 @@ const smoc_firing_state &smoc_root_node::_communicate() {
       struct _: public smoc_event_listener {
         smoc_ref_event_p foo;
         
-        bool signaled(smoc_event_waiter *_e) {
+        void signaled(smoc_event_waiter *_e) {
 # ifdef SYSTEMOC_DEBUG
           std::cerr << "smoc_root_node::_communicate::_::signaled(...)" << std::endl;
 # endif
           assert(_e == &*foo);
           assert(*_e);
           foo = NULL;
-          return false;
+          return;// false;
         }
         void eventDestroyed(smoc_event_waiter *_e) {
 # ifdef SYSTEMOC_DEBUG

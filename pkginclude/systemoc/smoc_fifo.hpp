@@ -82,7 +82,7 @@ namespace smoc_detail {
 
       void doSomething(size_t n);
 
-      bool signaled(smoc_event_waiter *_e) {
+      void signaled(smoc_event_waiter *_e) {
         size_t n = 0;
         
         assert(*_e);
@@ -96,7 +96,7 @@ namespace smoc_detail {
         doSomething(n);
         if (!queue.empty())
           queue.front().second->addListener(this);
-        return false;
+        return;// false;
       }
 
       void eventDestroyed(smoc_event_waiter *_e)
@@ -135,7 +135,7 @@ namespace smoc_detail {
 
       void doSomething(size_t n);
 
-      bool signaled(smoc_event_waiter *_e) {
+      void signaled(smoc_event_waiter *_e) {
         size_t n = 0;
         
         assert(*_e);
@@ -149,7 +149,7 @@ namespace smoc_detail {
         doSomething(n);
         if (!queue.empty())
           queue.front().second->addListener(this);
-        return false;
+        return;// false;
       }
 
       void eventDestroyed(smoc_event_waiter *_e)
