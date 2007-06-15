@@ -95,7 +95,7 @@ protected:
   pm_ty     pm;
   sc_event  e;
 
-  bool signaled( smoc_event_waiter *se ) {
+  void signaled( smoc_event_waiter *se ) {
     // Reset event to be notified again !
     bool retval          = true;
     pm_ty::iterator iter = pm.find(se);
@@ -116,7 +116,7 @@ protected:
 //      "missing == " << pm.size() <<
 //      (retval ? "" : " [HIT]" ) << std::endl;
 //#endif
-    return retval;
+    assert(retval == false);
   }
 
   void eventDestroyed(smoc_event_waiter *) {}
@@ -174,7 +174,7 @@ protected:
   sc_event            e;
   const hscd_op_port *ready;
   
-  bool signaled( smoc_event_waiter *se ) {
+  void signaled( smoc_event_waiter *se ) {
     // Reset event to be notified again !
     bool retval          = true;
     pm_ty::iterator iter = pm.find(se);
@@ -191,7 +191,7 @@ protected:
 //#ifdef SYSTEMOC_DEBUG
 //    std::cerr << "hscd_running_op_choice::signaled this == " << this << ", missing == " << pm.size() << std::endl;
 //#endif
-    return retval;
+    assert(retval == false);
   }
 
   void eventDestroyed(smoc_event_waiter *) {}
