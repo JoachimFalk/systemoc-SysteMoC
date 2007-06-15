@@ -295,11 +295,6 @@ void HuffTblDecoder::writeTable(smoc_port_out<ExpHuffTbl> &out) {
 void HuffTblDecoder::writeTableToChannel(const HuffTableType tableType,
                                          const ExpHuffTbl &table)
 {
-  smoc_port_out<HuffTableChannel_t> &port =
-    (tableType == AC0 ? outHuffTblAC0 :
-     (tableType == AC1 ? outHuffTblAC1 :
-      (tableType == DC0 ? outHuffTblDC0 : outHuffTblDC1)));
-
   int writePos = 0;
 
   /*
@@ -313,18 +308,14 @@ void HuffTblDecoder::writeTableToChannel(const HuffTableType tableType,
     port[writePos++] = m_tmpHuff.huffVal[i];
    */
 
-  for (int i = 0; i < 16; i += 2) {
-    port[writePos++] =
-      (m_tmpHuff.valPtr[i] << 8) | m_tmpHuff.valPtr[i + 1];
-  }
+  for (int i = 0; i < 16; i += 2)
+    writeToTable(writePos++, tableType, (m_tmpHuff.valPtr[i] << 8) | m_tmpHuff.valPtr[i + 1]);
   for (int i = 0; i < 16; ++i)
-    port[writePos++] = m_tmpHuff.minCode[i];
+    writeToTable(writePos++, tableType, m_tmpHuff.minCode[i]);
   for (int i = 0; i < 16; ++i)
-    port[writePos++] = m_tmpHuff.maxCode[i];
-  for (int i = 0; i < 256; i += 2) {
-    port[writePos++] =
-      (m_tmpHuff.huffVal[i] << 8) | m_tmpHuff.huffVal[i + 1];
-  }
+    writeToTable(writePos++, tableType, m_tmpHuff.maxCode[i]);
+  for (int i = 0; i < 256; i += 2)
+    writeToTable(writePos++, tableType, (m_tmpHuff.huffVal[i] << 8) | m_tmpHuff.huffVal[i + 1]);
 
   assert(writePos == HUFF_TABLE_SIZE16);
 }
@@ -800,28 +791,23 @@ bool InvHuffman::decodeHuff(const HuffTableType tableType,
                             DecodedSymbol_t &symbol,
                             unsigned int &numBits) const
 {
-  const smoc_port_in<HuffTableChannel_t> &table =
-    (tableType == AC0 ? inHuffTblAC0 :
-     (tableType == AC1 ? inHuffTblAC1 :
-      (tableType == DC0 ? inHuffTblDC0 : inHuffTblDC1)));
-
   unsigned int codeSize = 1;
 
   HuffmanCode_t codeWord;
 
   while (m_BitSplitter.bitsLeft() >= codeSize) {
     codeWord = m_BitSplitter.getBits(codeSize);
-    if ((huffTableValue(MaxCode, codeSize - 1, table) == 0xffff) ||
-        (codeWord > huffTableValue(MaxCode, codeSize - 1, table)))
+    if ((huffTableValue(MaxCode, codeSize - 1, tableType) == 0xffff) ||
+        (codeWord > huffTableValue(MaxCode, codeSize - 1, tableType)))
     {
       ++codeSize;
     }
     else {
       // found code word, get symbol
-      unsigned int pos = huffTableValue(ValPtr, codeSize - 1, table);
-      pos = pos + codeWord - huffTableValue(MinCode, codeSize - 1, table);
+      unsigned int pos = huffTableValue(ValPtr, codeSize - 1, tableType);
+      pos = pos + codeWord - huffTableValue(MinCode, codeSize - 1, tableType);
       assert(pos < 256);
-      symbol = huffTableValue(HuffVal, pos, table);
+      symbol = huffTableValue(HuffVal, pos, tableType);
       break; // while
     }
   }
