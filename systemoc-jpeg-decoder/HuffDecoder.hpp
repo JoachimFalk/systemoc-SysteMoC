@@ -81,6 +81,10 @@ using CoSupport::Debug;
 #endif // DBG_ENABLE
 
 
+// FIXME: many member functions don't need to be members! They are because of
+//   synthesis which has problems using non-member functions.
+
+
 /******************************************************************************
  *
  *
@@ -98,37 +102,15 @@ public:
   InvHuffman(sc_module_name name);
 
 private:
-  HuffTableChannel_t readFromTable(unsigned int offset, HuffTableType tableType) const {
-    switch(tableType) {
-      case AC0:
-        return inHuffTblAC0[offset];
-        break;
-      case AC1:
-        return inHuffTblAC1[offset];
-        break;
-      case DC0:
-        return inHuffTblDC0[offset];
-        break;
-      case DC1:
-        return inHuffTblDC1[offset];
-        break;
-      default:
-        return HuffTableChannel_t();
-    }
-  }
-
-  HuffTableChannel_t huffTableValue(HuffTableChannelType type, int index, HuffTableType tableType) const {
-    /* 8 bit */
-    if ((type == HUFF_HUFFVAL_OFFSET16) || (type == HUFF_VALPTR_OFFSET16)) {
-      if (index % 2) {
-        return readFromTable(type + index/2, tableType) & 0x00ff;
-      }
-      return (readFromTable(type + index/2, tableType) >> 8) & 0x00ff;
-    }
-    /* 16 bit */
-    return readFromTable(type + index, tableType);
-  }
-
+  //
+  HuffTableChannel_t readFromTable(const unsigned int offset,
+                                   const HuffTableType tableType) const;
+  
+  //
+  HuffTableChannel_t huffTableValue(const HuffTableChannelType type,
+                                    const int index,
+                                    const HuffTableType tableType) const;
+  
   //
   bool isUseHuff() const {
     return (JS_GETCTRLCMD(in[0]) == (JpegChannel_t)CTRLCMD_USEHUFF);
@@ -364,22 +346,10 @@ public:
   HuffTblDecoder(sc_module_name name);
 
 private:
-  void writeToTable(unsigned int offset, HuffTableType tableType, HuffTableChannel_t value) {
-    switch(tableType) {
-      case AC0:
-        outHuffTblAC0[offset] = value;
-        break;
-      case AC1:
-        outHuffTblAC1[offset] = value;
-        break;
-      case DC0:
-        outHuffTblDC0[offset] = value;
-        break;
-      case DC1:
-        outHuffTblDC1[offset] = value;
-        break;
-    }
-  }
+  //
+  void writeToTable(const unsigned int offset,
+                    const HuffTableType tableType,
+                    const HuffTableChannel_t value);
 
   //
   bool hasMoreHUFFVAL() const {

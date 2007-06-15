@@ -69,6 +69,28 @@ HuffTblDecoder::HuffTblDecoder(sc_module_name name)
 }
 
 
+//
+void HuffTblDecoder::writeToTable(const unsigned int offset,
+                                  const HuffTableType tableType,
+                                  const HuffTableChannel_t value)
+{
+  switch(tableType) {
+    case AC0:
+      outHuffTblAC0[offset] = value;
+      break;
+    case AC1:
+      outHuffTblAC1[offset] = value;
+      break;
+    case DC0:
+      outHuffTblDC0[offset] = value;
+      break;
+    case DC1:
+      outHuffTblDC1[offset] = value;
+      break;
+  }
+}
+
+
 #if 0
 //
 bool HuffTblDecoder::isTable(const HuffTableType type) const {
@@ -291,31 +313,24 @@ void HuffTblDecoder::writeTable(smoc_port_out<ExpHuffTbl> &out) {
 #endif
 
 
-// write temp table to channel determined by table type
+// write table to channel determined by table type
 void HuffTblDecoder::writeTableToChannel(const HuffTableType tableType,
                                          const ExpHuffTbl &table)
 {
   int writePos = 0;
 
-  /*
-  for (int i = 0; i < 16; ++i)
-    port[writePos++] = m_tmpHuff.valPtr[i];
-  for (int i = 0; i < 16; ++i)
-    port[writePos++] = m_tmpHuff.minCode[i];
-  for (int i = 0; i < 16; ++i)
-    port[writePos++] = m_tmpHuff.maxCode[i];
-  for (int i = 0; i < 256; ++i)
-    port[writePos++] = m_tmpHuff.huffVal[i];
-   */
-
   for (int i = 0; i < 16; i += 2)
-    writeToTable(writePos++, tableType, (m_tmpHuff.valPtr[i] << 8) | m_tmpHuff.valPtr[i + 1]);
+    writeToTable(writePos++,
+                 tableType,
+                 (table.valPtr[i] << 8) | table.valPtr[i + 1]);
   for (int i = 0; i < 16; ++i)
-    writeToTable(writePos++, tableType, m_tmpHuff.minCode[i]);
+    writeToTable(writePos++, tableType, table.minCode[i]);
   for (int i = 0; i < 16; ++i)
-    writeToTable(writePos++, tableType, m_tmpHuff.maxCode[i]);
+    writeToTable(writePos++, tableType, table.maxCode[i]);
   for (int i = 0; i < 256; i += 2)
-    writeToTable(writePos++, tableType, (m_tmpHuff.huffVal[i] << 8) | m_tmpHuff.huffVal[i + 1]);
+    writeToTable(writePos++,
+                 tableType,
+                 (table.huffVal[i] << 8) | table.huffVal[i + 1]);
 
   assert(writePos == HUFF_TABLE_SIZE16);
 }
@@ -547,6 +562,49 @@ InvHuffman::InvHuffman(sc_module_name name)
         GUARD(InvHuffman::canStore) )                          >>
       CALL(InvHuffman::storeData)                              >> writeAC
     ;
+}
+
+
+//
+HuffTableChannel_t InvHuffman::readFromTable(
+    const unsigned int offset,
+    const HuffTableType tableType) const
+{
+  switch (tableType) {
+    case AC0:
+      return inHuffTblAC0[offset];
+      break;
+    case AC1:
+      return inHuffTblAC1[offset];
+      break;
+    case DC0:
+      return inHuffTblDC0[offset];
+      break;
+    case DC1:
+      return inHuffTblDC1[offset];
+      break;
+    default:
+      assert(0);
+      return HuffTableChannel_t();
+  }
+}
+
+
+//
+HuffTableChannel_t InvHuffman::huffTableValue(
+    const HuffTableChannelType type,
+    const int index,
+    const HuffTableType tableType) const
+{
+  /* 8 bit - 'unpack' from 16 bit word */
+  if ((type == HUFF_HUFFVAL_OFFSET16) || (type == HUFF_VALPTR_OFFSET16)) {
+    if (index % 2) {
+      return readFromTable(type + index/2, tableType) & 0x00ff;
+    }
+    return (readFromTable(type + index/2, tableType) >> 8) & 0x00ff;
+  }
+  /* 16 bit */
+  return readFromTable(type + index, tableType);
 }
 
 
