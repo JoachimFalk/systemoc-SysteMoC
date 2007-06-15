@@ -21,17 +21,17 @@ HuffTblDecoder::HuffTblDecoder(sc_module_name name)
   dbgout << myHeader;
 #endif // DBG_ENABLE
 
-	/*
-		Due to restrictions in SW synthesis, we cannot declare
-		array member variables. Hence, following HACK.
-		Attention: ONLY ONE instance is allowed!!!!!!
-	 */
-	static uint8_t  m_BITS[16];
-	static bool init = false;
+  /*
+    Due to restrictions in SW synthesis, we cannot declare
+    array member variables. Hence, following HACK.
+    Attention: ONLY ONE instance is allowed!!!!!!
+   */
+  static uint8_t  m_BITS[16];
+  static bool init = false;
 
-	assert(!init);
-	this->m_BITS = m_BITS;
-	init = true;
+  assert(!init);
+  this->m_BITS = m_BITS;
+  init = true;
 
   //m_BITS = (uint8_t*)calloc(16, sizeof(uint8_t));
   
@@ -302,6 +302,7 @@ void HuffTblDecoder::writeTableToChannel(const HuffTableType tableType,
 
   int writePos = 0;
 
+  /*
   for (int i = 0; i < 16; ++i)
     port[writePos++] = m_tmpHuff.valPtr[i];
   for (int i = 0; i < 16; ++i)
@@ -310,19 +311,21 @@ void HuffTblDecoder::writeTableToChannel(const HuffTableType tableType,
     port[writePos++] = m_tmpHuff.maxCode[i];
   for (int i = 0; i < 256; ++i)
     port[writePos++] = m_tmpHuff.huffVal[i];
+   */
 
-  /*
   for (int i = 0; i < 16; i += 2) {
     port[writePos++] =
       (m_tmpHuff.valPtr[i] << 8) | m_tmpHuff.valPtr[i + 1];
+  }
   for (int i = 0; i < 16; ++i)
     port[writePos++] = m_tmpHuff.minCode[i];
   for (int i = 0; i < 16; ++i)
     port[writePos++] = m_tmpHuff.maxCode[i];
-  for (int i = 0; i < 256; i += 2)
+  for (int i = 0; i < 256; i += 2) {
     port[writePos++] =
-      (m_tmpHuff.huffVal[i] << 8) & m_tmpHuff.huffVal[i + 1];
-   */
+      (m_tmpHuff.huffVal[i] << 8) | m_tmpHuff.huffVal[i + 1];
+  }
+
   assert(writePos == HUFF_TABLE_SIZE16);
 }
 
@@ -793,7 +796,6 @@ void InvHuffman::writeDcDiff() {
 
 
 // decode
-//bool InvHuffman::decodeHuff(const HuffTableChannel_t[] *table,
 bool InvHuffman::decodeHuff(const HuffTableType tableType,
                             DecodedSymbol_t &symbol,
                             unsigned int &numBits) const
@@ -809,28 +811,17 @@ bool InvHuffman::decodeHuff(const HuffTableType tableType,
 
   while (m_BitSplitter.bitsLeft() >= codeSize) {
     codeWord = m_BitSplitter.getBits(codeSize);
-    //cerr << " DECODE> codeSize == " << codeSize << endl;
-    //cerr << " DECODE> i try codeword " << codeWord << endl;
-    if ((table[huffTableIndex(MaxCode, codeSize - 1)] == 0xffff) ||
-        (codeWord > table[huffTableIndex(MaxCode, codeSize - 1)]))
+    if ((huffTableValue(MaxCode, codeSize - 1, table) == 0xffff) ||
+        (codeWord > huffTableValue(MaxCode, codeSize - 1, table)))
     {
-      //cerr << " DECODE> table.maxCode[codeSize - 1] == "
-      //     << table.maxCode[codeSize - 1] << endl;
       ++codeSize;
-      //cerr << " DECODE> increased codesize\n";
     }
     else {
       // found code word, get symbol
-      unsigned int pos = table[huffTableIndex(ValPtr, codeSize - 1)];
-      pos = pos + codeWord - table[huffTableIndex(MinCode, codeSize - 1)];
-      /*cerr << " DECODE> pos: " << pos << endl;
-      cerr << " DECODE> codeSize " << codeSize
-           << " table.valPtr[codeSize - 1] " << table.valPtr[codeSize - 1]
-           << " codeWord " << codeWord
-           << " table.minCode[codeSize - 1] " << table.minCode[codeSize - 1]
-           << endl;*/
+      unsigned int pos = huffTableValue(ValPtr, codeSize - 1, table);
+      pos = pos + codeWord - huffTableValue(MinCode, codeSize - 1, table);
       assert(pos < 256);
-      symbol = table[huffTableIndex(HuffVal, pos)];
+      symbol = huffTableValue(HuffVal, pos, table);
       break; // while
     }
   }

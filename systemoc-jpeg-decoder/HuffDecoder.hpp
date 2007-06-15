@@ -80,41 +80,25 @@
 using CoSupport::Debug;
 #endif // DBG_ENABLE
 
-enum HuffTableType {
-  AC0,
-  AC1,
-  DC0,
-  DC1
-};
 
-// size of expanded huffman table in 16 bit words
-// FIXME #define HUFF_TABLE_SIZE16 (8 + 16 + 16 + 256/2)
-#define HUFF_TABLE_SIZE16 (16 + 16 + 16 + 256)
-// offset of values when using 16 bit word array
-#define HUFF_VALPTR_OFFSET16  (0)
-#define HUFF_MINCODE_OFFSET16 (16)
-#define HUFF_MAXCODE_OFFSET16 (16 + 16)
-#define HUFF_HUFFVAL_OFFSET16 (16 + 16 + 16)
-
-// maybe you hate me, but by using offsets as values index calculation is easy
-enum HuffTableChannelType {
-  ValPtr  = HUFF_VALPTR_OFFSET16,
-  MinCode = HUFF_MINCODE_OFFSET16,
-  MaxCode = HUFF_MAXCODE_OFFSET16,
-  HuffVal = HUFF_HUFFVAL_OFFSET16
-};
-
-// calculate index of specified huffman table entry in 16 bit array
-inline int huffTableIndex(const HuffTableChannelType type,
-                          const int index)
+// return specified value from huffman table
+inline uint16_t huffTableValue(const HuffTableChannelType type,
+                               const int index,
+                               const smoc_port_in<HuffTableChannel_t> &table)
 {
-  /*
-  if ((type == ValPtr) || (type == HuffVal))
-    return type + index/2; // 8 bit values
-  else
-    return type + index;
-    */
-  return type + index;
+  // 8 bit
+  if ((type == HUFF_HUFFVAL_OFFSET16) || (type == HUFF_VALPTR_OFFSET16)) {
+    if (index % 2) {
+      return table[type + index/2] & 0x00ff;
+    }
+    else {
+      return (table[type + index/2] & 0xff00) >> 8;
+    }
+  }
+  // 16 bit
+  else {
+    return table[type + index];
+  }
 }
 
 

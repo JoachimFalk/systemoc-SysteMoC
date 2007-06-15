@@ -803,4 +803,45 @@ std::ostream &operator << (std::ostream &out, const JpegChannel_t &x) {
 }
 #endif // DBG_ENABLE
 
+
+/*
+ * includes from HuffDecoder.hpp -START-
+ */
+
+// FIXME: Please move me! This belongs to HuffDecoder.hpp! But synthesis
+//   doesn't include it. So I must declare it here.
+
+enum HuffTableType {
+  AC0,
+  AC1,
+  DC0,
+  DC1
+};
+
+/*
+  NOTE: we pack two 8 bit values (ValPtr and HuffVal) into one 16 bit word to
+  save space.
+*/
+
+// size of expanded huffman table in 16 bit words
+#define HUFF_TABLE_SIZE16 (16/2 + 16 + 16 + 256/2)
+// offset of values when using 16 bit word array
+#define HUFF_VALPTR_OFFSET16  (0)
+#define HUFF_MINCODE_OFFSET16 (8)
+#define HUFF_MAXCODE_OFFSET16 (8 + 16)
+#define HUFF_HUFFVAL_OFFSET16 (8 + 16 + 16)
+
+// by using offsets as values, index calculation is more easy
+enum HuffTableChannelType {
+  ValPtr  = HUFF_VALPTR_OFFSET16,
+  MinCode = HUFF_MINCODE_OFFSET16,
+  MaxCode = HUFF_MAXCODE_OFFSET16,
+  HuffVal = HUFF_HUFFVAL_OFFSET16
+};
+
+/*
+ * includes from HuffDecoder.hpp -END-
+ */
+
+
 #endif // _INCLUDED_CHANNELS_HPP
