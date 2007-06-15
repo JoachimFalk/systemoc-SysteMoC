@@ -112,6 +112,8 @@ public:
 
   void usedDecr();
 
+  const char *name() const { return _base->name(); }
+
 #ifdef SYSTEMOC_ENABLE_VPC
   void wpp(size_t n, const smoc_ref_event_p &le);
 #else
@@ -151,6 +153,9 @@ public:
   void unusedDecr();
 
   void rpp(size_t n);
+
+  const char *name() const { return _base->name(); }
+
 protected:
   bool multipleWrite;
   smoc_multicast_sr_signal_kind* _base;
