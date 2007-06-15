@@ -326,9 +326,9 @@ public:
   friend class AST<this_type>;
   friend class Sensitivity<this_type>;
 private:
-  smoc_event &v;
+  smoc_event_waiter &v;
 public:
-  explicit DSMOCEvent(smoc_event &v): v(v) {}
+  explicit DSMOCEvent(smoc_event_waiter &v): v(v) {}
 };
 
 template <>
@@ -371,14 +371,16 @@ struct AST<DSMOCEvent> {
 
 template <>
 struct D<DSMOCEvent>: public DBase<DSMOCEvent> {
-  D(smoc_event &v): DBase<DSMOCEvent>(DSMOCEvent(v)) {}
+  D(smoc_event_waiter &v): DBase<DSMOCEvent>(DSMOCEvent(v)) {}
 };
 
 // Make a convenient typedef for the placeholder type.
 struct SMOCEvent { typedef D<DSMOCEvent> type; };
 
+// smoc_event_waiter may be an event or a event list
+// till-waiting for events allows for hierarchical graph scheduling
 static inline
-SMOCEvent::type till(smoc_event &e)
+SMOCEvent::type till(smoc_event_waiter &e)
   { return SMOCEvent::type(e); }
 
 } // namespace Expr
