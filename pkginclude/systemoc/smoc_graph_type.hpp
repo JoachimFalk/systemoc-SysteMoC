@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
@@ -68,6 +69,9 @@ class smoc_graph
 
   typedef smoc_graph    this_type;
 private:
+  typedef CoSupport::SystemC::EventOrList
+    <smoc_firing_types::transition_ty> smoc_transition_ready_list;
+
   smoc_scheduler_top *top;
 
   virtual void smocCallTop();
@@ -257,27 +261,41 @@ protected:
 
   void finalise();
 
-  smoc_firing_state dummy;
+private:
+  /**
+   * schedule this graph
+   */
+  void scheduleDataFlow();
+
+  /**
+   * initialize graph scheduler
+   */
+  void initDataFlow();
+
+  /**
+   * common constructor code
+   */
+  void constructor();
+
+  bool test;
+
+  /**
+   * graph scheduler FSM states
+   */
+  smoc_firing_state schedule, init;
+
+  /**
+   * a list containing the transitions (inside this graph) that may be executed
+   */
+  smoc_transition_ready_list ol;
 
   SC_HAS_PROCESS(this_type);
-private:
 
 
 public:
-  explicit smoc_graph(sc_module_name name)
-    : sc_module(name),
-      smoc_root_node(dummy),
-      top(NULL) {
-    dummy = CALL(smoc_graph::finalise) >> dummy;
-    SC_THREAD(smocCallTop);
-   }
-  smoc_graph()
-    : sc_module(sc_gen_unique_name("smoc_graph")),
-      smoc_root_node(dummy),
-      top(NULL) {
-    dummy = CALL(smoc_graph::finalise) >> dummy;
-    SC_THREAD(smocCallTop);
-  }
+  explicit smoc_graph(sc_module_name name);
+
+  smoc_graph();
 
   template <typename T>
   T &registerNode( T *node ) {

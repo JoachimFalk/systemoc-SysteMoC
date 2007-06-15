@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
@@ -157,6 +158,117 @@ void smoc_graph::end_of_elaboration() {
 
 void smoc_graph::assembleActor(
     smoc_modes::PGWriter &pgw) const {}
+
+//
+void smoc_graph::scheduleDataFlow(){
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "<smoc_scheduler_top::schedule>" << std::endl;
+#endif
+    //while (ol) { // looping is done in FSM
+      smoc_firing_types::transition_ty   &transition = ol.getEventTrigger();
+      Expr::Detail::ActivationStatus          status = transition.getStatus();
+      
+      switch (status.toSymbol()) {
+        case Expr::Detail::_DISABLED: {
+          ol.remove(transition);
+          break;
+        }
+        case Expr::Detail::_ENABLED: {
+          smoc_root_node &n = transition.getActor();
+          smoc_firing_types::resolved_state_ty *oldState = n._currentState;
+          
+#ifdef SYSTEMOC_DEBUG
+          std::cerr << "<actor name=\"" << n.myModule()->name()
+                    << "\">" << std::endl;
+#endif
+          transition.execute(&n._currentState, &n);
+//        if (oldState != n._currentState) {
+            for ( smoc_firing_types::transitionlist_ty::iterator titer
+                    = oldState->tl.begin();
+                  titer != oldState->tl.end();
+                  ++titer )
+              ol.remove(*titer);
+            for ( smoc_firing_types::transitionlist_ty::iterator titer
+                    = n._currentState->tl.begin();
+                  titer != n._currentState->tl.end();
+                  ++titer ){
+              ol |= *titer;
+            }
+//        }
+#ifdef SYSTEMOC_DEBUG
+          std::cerr << "</actor>" << std::endl;
+#endif
+          break;
+        }
+        default: {
+          assert(status.toSymbol() == Expr::Detail::_ENABLED ||
+                 status.toSymbol() == Expr::Detail::_DISABLED   );
+        }
+      }
+      //}
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "</smoc_scheduler_top::schedule>" << std::endl;
+#endif
+    // smoc_wait(ol); // the graph-FSM waits for "ol" using till
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << ol << std::endl;
+#endif
+}
+
+//
+void smoc_graph::initDataFlow(){
+  {
+    smoc_node_list nodes = this->getNodes();
+    //getLeafNodes(nodes, this);
+
+    for ( smoc_node_list::const_iterator iter = nodes.begin();
+          iter != nodes.end();
+          ++iter ) {
+      smoc_firing_types::resolved_state_ty *rs = (*iter)->_currentState;
+      
+      for ( smoc_firing_types::transitionlist_ty::iterator titer
+              = rs->tl.begin();
+            titer != rs->tl.end();
+            ++titer ){
+        ol |= *titer;
+      }
+    }
+  }
+}
+
+//
+smoc_graph::smoc_graph(sc_module_name name)
+  : sc_module(name),
+    smoc_root_node(init),
+    top(NULL)
+{
+  this->constructor();
+}
+
+//
+smoc_graph::smoc_graph()
+  : sc_module(sc_gen_unique_name("smoc_graph")),
+    smoc_root_node(init),
+    top(NULL)
+{
+  this->constructor();
+}
+
+//
+void smoc_graph::constructor() {
+
+  // this is the scheduler realised as an FSM
+  // either a parent graph or the top_moc executes this FSM
+
+  init = // collect all transitions that may be executed
+    CALL(smoc_graph::initDataFlow)       >> schedule;
+
+  schedule = // if there is at least one active transition: execute it
+    Expr::till(ol)                       >>
+    CALL(smoc_graph::scheduleDataFlow)   >> schedule;
+
+  SC_THREAD(smocCallTop);
+}
 
 //
 void smoc_graph_sr::smocCallTop() {

@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
@@ -42,6 +43,7 @@
 
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/smoc_node_types.hpp>
+#include <systemoc/smoc_graph_type.hpp>
 
 #include <map>
 #include <set>
@@ -325,6 +327,35 @@ void smoc_firing_types::transition_ty::execute(
     assert( iter != sl.end() );
 #endif
     *rs = ns.rs;
+  } else if ( dynamic_cast<smoc_graph *>(actor) != NULL ) {
+    // this some kind of MoC that has an own scheduler
+    // the scheduler is realized using SysteMoC FSMs (transitions)
+    // but in no way those transitions needed to call compute to the VPC
+    if ( isType<smoc_func_call>(f) ) {
+      smoc_func_call &fc = f;
+
+#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES == 100)
+      std::cerr << "    <schedule graph=\""
+                << actor->myModule()->name()
+                << " func=\"" << fc.getFuncName()
+                << "\">"
+                << std::endl;
+#endif
+      fc();
+
+      assert( sl.size() == 1 );
+      *rs = sl.front();
+
+#ifdef SYSTEMOC_DEBUG
+      std::cerr << "    </schedule>"<< std::endl;
+#endif
+    } else {
+      // a transition without action (no CALL statement)
+      assert( sl.size() == 1 );
+      *rs = sl.front();
+    }
+
+
   } else {
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceStartActor(actor->myModule()->name()); //
@@ -435,6 +466,7 @@ void smoc_firing_types::transition_ty::execute(
       std::cerr << "    </call>"<< std::endl;
 #endif
     } else {
+      // a transition without action (no CALL statement)
       assert( sl.size() == 1 );
       *rs = sl.front();
     }

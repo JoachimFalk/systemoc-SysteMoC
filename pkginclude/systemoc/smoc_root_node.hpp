@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
@@ -111,6 +112,7 @@ private:
   std::vector<Expr::Detail::ArgInfo>          local_constr_args;
 
   friend class smoc_scheduler_top;
+  friend class smoc_graph;
 
   bool _non_strict;
 
