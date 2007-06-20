@@ -48,13 +48,20 @@
 
 #include "channels.hpp"
 
+#ifdef PERFORMANCE_EVALUATION
+# ifdef XILINX_EDK_RUNTIME
+#  include "x_perf_eval.h"
+# else
+#  include <cosupport/PerformanceEvaluation.hpp>
+# endif
+#endif // PERFORMANCE_EVALUATION
+
 class JpegSrc: public smoc_actor {
 public:
   smoc_port_out<codeword_t> out;
 private:
   size_t coeffs;
   size_t zeroRep;
-  size_t dataOff;
 
   /* 
      Due to silly KASCPar limitations, we cannot declare block_data 
@@ -67,26 +74,37 @@ private:
     
 #ifndef KASCPAR_PARSING    
     // ZRL coded IDCT coeffs
-    const static int block_data[] = {
-# include "array_jpeg_4motion.txt"
+    const static short block_data[] = {
+      //# include "array_jpeg_4motion.txt"
+# include "array_jpeg_lena.txt"
     };
     block_data_size =   
       sizeof(block_data)/sizeof(block_data[0]);
 #endif
 
-    out[0] = block_data[dataOff]; 
-    ++dataOff;
+    while(block_data[coeffs] < 0){
+      //start of image
+#ifdef PERFORMANCE_EVALUATION
+# ifdef XILINX_EDK_RUNTIME
+      x_perf_eval_toggle_start();
+# else
+      PerformanceEvaluation::getInstance().startUnit();
+# endif
+#endif // PERFORMANCE_EVALUATION
 
+      coeffs++;
+      //Start of image must be followed by some data
+      assert(coeffs < block_data_size);
+    }
 
+    out[0] = block_data[coeffs]; 
     ++coeffs;
-    if (dataOff >= block_data_size)
-      dataOff = 0;
   }
  
   smoc_firing_state start;
 public:
   JpegSrc(sc_module_name name)
-    : smoc_actor(name, start),  coeffs(0), zeroRep(0), dataOff(0)
+    : smoc_actor(name, start),  coeffs(0), zeroRep(0)
   {
     block_data_size = ~size_t(0);
     start
