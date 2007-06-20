@@ -2,14 +2,27 @@
 
 use IO::File;
 
-my $fh = IO::File->new($ARGV[0]);
+if ($#ARGV < 0) {
+  print "usage: con_jpeg.pl file1 [file2 [file3 [file4 [...]]]]\n";
+}
 
-while (!$fh->eof) {
-  my $byte;
 
-  $fh->read($byte, 1, 0);
+for(my $i = 0; $i <= $#ARGV; $i++){
+  my $fh = IO::File->new($ARGV[$i]);
 
-  print ord($byte), ", \n";
+  if (!$fh->eof){
+    # File is not empty
+    # Insert start of file-marker
+    print "-1, \n";
+  }
+
+  while (!$fh->eof) {
+    my $byte;
+
+    $fh->read($byte, 1, 0);
+
+    print ord($byte), ", \n";
+  }
 
 
 }
