@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
@@ -34,7 +35,11 @@
  */
 
 #include <cstdlib>
-#include <iostream>
+#ifndef XILINX_EDK_RUNTIME
+# include <iostream>
+#else
+# include <stdlib.h>
+#endif
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
@@ -49,7 +54,7 @@ using namespace std;
 
 // Maximum (and default) number of Src iterations. Lower default number via
 //  command line parameter.
-const int NUM_MAX_ITERATIONS = 1000000;
+const int NUM_MAX_ITERATIONS = 10000;
 
 class Src: public smoc_actor {
 public:
@@ -59,7 +64,11 @@ private:
   
   void src() {
 #ifndef NDEBUG
+# ifndef XILINX_EDK_RUNTIME
     cout << "src: " << i << std::endl;
+# else
+    xil_printf("src: %u\n",i);
+# endif
 #endif
     out[0] = i++;
   }
@@ -100,7 +109,11 @@ private:
   // FSM declared in the constructor
   bool check() const {
 #ifndef NDEBUG
+# ifndef XILINX_EDK_RUNTIME
     cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
+# else
+    xil_printf("check: %u, %u\n",tmp_i1,i2[0]);
+# endif
 #endif
     return fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
   }
@@ -179,7 +192,11 @@ public:
 private:
   void sink(void) {
 #ifndef NDEBUG
+# ifndef XILINX_EDK_RUNTIME
     cout << "sink: " << in[0] << std::endl;
+# else
+    xil_printf("sink: %u\n",in[0]);
+# endif
 #endif  
   }
   
