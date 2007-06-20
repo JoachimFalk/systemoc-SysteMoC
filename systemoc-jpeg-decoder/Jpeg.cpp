@@ -128,6 +128,9 @@ public:
       mPGMsink("mPGMsink")
       
   {
+
+    const unsigned int shuffle_fifo_buffer_slack = 1;
+
 #ifndef KASCPAR_PARSING
     connectNodePorts<4>(mSrc.out,             mParser.in);
     connectNodePorts<4>(mParser.out,          mHuffDecoder.in);
@@ -171,7 +174,7 @@ public:
 # endif   
     
 # ifdef STATIC_IMAGE_SIZE
-    connectNodePorts<65536>(mIdct2D.out, mShuffle.in);
+    connectNodePorts(mIdct2D.out, mShuffle.in, smoc_fifo<IDCTCoeff_t>(dimX*JPEG_BLOCK_HEIGHT*comp*shuffle_fifo_buffer_slack));
     connectNodePorts<2>(mShuffle.out, mYCbCr.in);
 # else
     connectNodePorts<2>(mIdct2D.out, mFrameBuffer.in);
