@@ -60,12 +60,18 @@
 #endif
 
 
+//#define PGM_SINK_SILENT_MODE
+
 #ifdef SINK_BINARY_OUTPUT
 # error
 #endif
 
 #ifdef PERFORMANCE_EVALUATION
-# include <cosupport/PerformanceEvaluation.hpp>
+# ifdef XILINX_EDK_RUNTIME
+#  include "x_perf_eval.h"
+# else
+#  include <cosupport/PerformanceEvaluation.hpp>
+# endif
 #endif // PERFORMANCE_EVALUATION
 
 class m_pgm_sink: public smoc_actor {
@@ -101,6 +107,8 @@ private:
   void write_image_header() {
     DBG_OUT("write_image_header()\n");
 #ifndef KASCPAR_PARSING
+
+#ifndef PGM_SINK_SILENT_MODE
 #ifdef SINK_BINARY_OUTPUT
 # ifdef XILINX_EDK_RUNTIME
     if (compCount == 1)
@@ -144,6 +152,7 @@ private:
          << std::endl;
 # endif
 #endif
+#endif // PGM_SINK_SILENT_MODE
 #endif // KASCPAR_PARSING
   }
   
@@ -151,45 +160,59 @@ private:
     DBG_OUT("process_pixel()\n");
     Pixel_t _in = in[0];
 #ifndef KASCPAR_PARSING
+# ifndef PGM_SINK_SILENT_MODE
     for (unsigned int c = 0; c < compCount; c++){      
-#ifdef SINK_BINARY_OUTPUT
-# ifndef XILINX_EDK_RUNTIME
+#  ifdef SINK_BINARY_OUTPUT
+#   ifndef XILINX_EDK_RUNTIME
       std::cout << (char)(JS_RAWPIXEL_GETCOMP(_in,c));
-# else
+#   else
       xil_printf("%c", JS_RAWPIXEL_GETCOMP(_in,c));
-# endif
-#else
-# ifndef XILINX_EDK_RUNTIME
+#   endif
+#  else
+#   ifndef XILINX_EDK_RUNTIME
       std::cout << (int)(JS_RAWPIXEL_GETCOMP(_in,c)) << " ";
-# else
+#   else
       xil_printf("%d ", JS_RAWPIXEL_GETCOMP(_in,c));
-# endif
-#endif
+#   endif
+#  endif
     }
+# endif //PGM_SINK_SILENT_MODE
+
 
     missing_pixels--;
-#ifndef SINK_BINARY_OUTPUT
+# ifndef SINK_BINARY_OUTPUT
     if (missing_pixels % image_width == 0){
-# ifndef XILINX_EDK_RUNTIME
+#  ifndef PGM_SINK_SILENT_MODE
+#   ifndef XILINX_EDK_RUNTIME
       std::cout << std::endl;
-# else
+#   else
       xil_printf("\n");
-# endif
+#   endif
+#  endif //PGM_SINK_SILENT_MODE
     }
+# endif //SINK_BINARY_OUTPUT
 
     if (missing_pixels == 0){
-#ifdef PERFORMANCE_EVALUATION
-    PerformanceEvaluation::getInstance().stopUnit();
-#endif // PERFORMANCE_EVALUATION
-# ifndef XILINX_EDK_RUNTIME
+# ifdef PERFORMANCE_EVALUATION
+#  ifdef XILINX_EDK_RUNTIME
+      x_perf_eval_toggle_end();
+#  else
+      PerformanceEvaluation::getInstance().stopUnit();
+#  endif //XILINX_EDK_RUNTIME
+# endif // PERFORMANCE_EVALUATION
+
+# ifndef PGM_SINK_SILENT_MODE
+#  ifndef SINK_BINARY_OUTPUT
+
+#   ifndef XILINX_EDK_RUNTIME
       std::cout << std::endl;
-# else
+#   else
       xil_printf("\n");
-# endif
+#   endif
+#  endif //SINK_BINARY_OUTPUT
+# endif //PGM_SINK_SILENT_MODE
     }
-#endif
-#endif // KASCPAR_PARSING
-      
+#endif //KASCPAR_PARSING    
   }
   
 // ############################################################################
