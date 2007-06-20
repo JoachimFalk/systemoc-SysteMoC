@@ -65,6 +65,18 @@
   #include "debug_off.h"
 #endif
 
+#define PARSER_PROFILE_SUPPORT
+
+#ifdef PARSER_PROFILE_SUPPORT
+# ifdef PERFORMANCE_EVALUATION
+#  ifdef XILINX_EDK_RUNTIME
+#   include "x_perf_eval.h"
+#  else
+#   include <cosupport/PerformanceEvaluation.hpp>
+#  endif
+# endif // PERFORMANCE_EVALUATION
+#endif
+
 
 /// JPEG Markers
 
@@ -272,14 +284,14 @@ private:
   // ########################################################################################
 
   void foundSOI() {
-#if 0
-#ifdef PERFORMANCE_EVALUATION
-# ifdef XILINX_EDK_RUNTIME
+#ifdef PARSER_PROFILE_SUPPORT
+# ifdef PERFORMANCE_EVALUATION
+#  ifdef XILINX_EDK_RUNTIME
     x_perf_eval_toggle_start();
-# else
+#  else
     PerformanceEvaluation::getInstance().startUnit();
-# endif
-#endif // PERFORMANCE_EVALUATION
+#  endif
+# endif // PERFORMANCE_EVALUATION
 #endif
     readBytes = 0;
     DBG_OUT("Found SOI\n");
