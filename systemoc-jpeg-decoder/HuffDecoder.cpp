@@ -573,16 +573,12 @@ HuffTableChannel_t InvHuffman::readFromTable(
   switch (tableType) {
     case AC0:
       return inHuffTblAC0[offset];
-      break;
     case AC1:
       return inHuffTblAC1[offset];
-      break;
     case DC0:
       return inHuffTblDC0[offset];
-      break;
     case DC1:
       return inHuffTblDC1[offset];
-      break;
     default:
       assert(0);
       return HuffTableChannel_t();
@@ -593,7 +589,7 @@ HuffTableChannel_t InvHuffman::readFromTable(
 //
 HuffTableChannel_t InvHuffman::huffTableValue(
     const HuffTableChannelType type,
-    const int index,
+    const unsigned int index,
     const HuffTableType tableType) const
 {
   /* 8 bit - 'unpack' from 16 bit word */
@@ -613,17 +609,13 @@ bool InvHuffman::currentDcIsDc0() const {
   switch (m_currentComp) {
     case 0:
       return m_useHuffTableDc_0 == 0;
-      break;
     case 1:
       return m_useHuffTableDc_1 == 0;
-      break;
     case 2:
       return m_useHuffTableDc_2 == 0;
-      break;
     default:
       assert(m_currentComp <  3);
       return false;
-      break;
   }
 }
 
@@ -633,17 +625,13 @@ bool InvHuffman::currentDcIsDc1() const {
   switch (m_currentComp) {
     case 0:
       return m_useHuffTableDc_0 == 1;
-      break;
     case 1:
       return m_useHuffTableDc_1 == 1;
-      break;
     case 2:
       return m_useHuffTableDc_2 == 1;
-      break;
     default:
       assert(m_currentComp <  3);
       return false;
-      break;
   }
 }
 
@@ -653,17 +641,13 @@ bool InvHuffman::currentAcIsAc0() const {
   switch (m_currentComp) {
     case 0:
       return m_useHuffTableAc_0 == 0;
-      break;
     case 1:
       return m_useHuffTableAc_1 == 0;
-      break;
     case 2:
       return m_useHuffTableAc_2 == 0;
-      break;
     default:
       assert(m_currentComp <  3);
       return false;
-      break;
   }
 }
 
@@ -673,17 +657,13 @@ bool InvHuffman::currentAcIsAc1() const {
   switch (m_currentComp) {
     case 0:
       return m_useHuffTableAc_0 == 1;
-      break;
     case 1:
       return m_useHuffTableAc_1 == 1;
-      break;
     case 2:
       return m_useHuffTableAc_2 == 1;
-      break;
     default:
       assert(m_currentComp <  3);
       return false;
-      break;
   }
 }
 
@@ -849,33 +829,25 @@ bool InvHuffman::decodeHuff(const HuffTableType tableType,
                             DecodedSymbol_t &symbol,
                             unsigned int &numBits) const
 {
-  unsigned int codeSize = 1;
-
+  unsigned int codeSize = 0;
+  HuffmanCode_t maxCodeWord;
   HuffmanCode_t codeWord;
 
-  while (m_BitSplitter.bitsLeft() >= codeSize) {
+  do {
+    ++codeSize;
+    if (m_BitSplitter.bitsLeft() < codeSize)
+      return false; // sorry, couldn't decode
     codeWord = m_BitSplitter.getBits(codeSize);
-    if ((huffTableValue(MaxCode, codeSize - 1, tableType) == 0xffff) ||
-        (codeWord > huffTableValue(MaxCode, codeSize - 1, tableType)))
-    {
-      ++codeSize;
-    }
-    else {
-      // found code word, get symbol
-      unsigned int pos = huffTableValue(ValPtr, codeSize - 1, tableType);
-      pos = pos + codeWord - huffTableValue(MinCode, codeSize - 1, tableType);
-      assert(pos < 256);
-      symbol = huffTableValue(HuffVal, pos, tableType);
-      break; // while
-    }
-  }
+    maxCodeWord = huffTableValue(MaxCode, codeSize - 1, tableType);
+  } while ((maxCodeWord == 0xffff) || (codeWord > maxCodeWord));
 
-  if (m_BitSplitter.bitsLeft() < codeSize)
-    return false; // sorry, couldn't decode
-  else {
-    numBits = codeSize;
-    return true;
-  }
+  // found code word, get symbol
+  unsigned int pos = huffTableValue(ValPtr, codeSize - 1, tableType);
+  pos = pos + codeWord - huffTableValue(MinCode, codeSize - 1, tableType);
+  assert(pos < 256);
+  symbol = huffTableValue(HuffVal, pos, tableType);
+  numBits = codeSize;
+  return true;
 }
 
 

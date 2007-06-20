@@ -108,7 +108,7 @@ private:
   
   //
   HuffTableChannel_t huffTableValue(const HuffTableChannelType type,
-                                    const int index,
+                                    const unsigned int index,
                                     const HuffTableType tableType) const;
   
   //

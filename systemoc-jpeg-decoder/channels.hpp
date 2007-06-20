@@ -97,13 +97,13 @@ typedef uint8_t codeword_t;
 //#define UDEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
 
 // Demask to unsigned value
-#define UDEMASK(x,off,width)   (((x) / (1 << (off))) & ((1 << (width)) - 1))
+#define UDEMASK(x,off,width)   (((x) / (1U << (off))) & ((1U << (width)) - 1))
 // Demask to signed value
-#define SDEMASK(x,off,width)   ((x) & (1 << ((off) + (width) - 1))	\
-                                ? ((x) / (1 << (off))) |  ((~0U) << (width)) \
-                                : ((x) / (1 << (off))) & ~((~0U) << (width)))
+#define SDEMASK(x,off,width)   ((x) & (1U << ((off) + (width) - 1))	\
+                                ? ((x) / (1U << (off))) |  ((~0U) << (width)) \
+                                : ((x) / (1U << (off))) & ~((~0U) << (width)))
 
-#define SET_MASK(x,off,width) (((x) & ((1 << (width)) -1 )) << (off))
+#define SET_MASK(x,off,width) (((x) & ((1U << (width)) -1 )) << (off))
 
 /// Source -> Parser
 #ifndef KASCPAR_PARSING
@@ -634,7 +634,11 @@ std::ostream &operator << (std::ostream &out, const codeword_t val) {
 
 
 // we can't use ExpHuffTbl as channel type now (more than 32bit), so use this
+#ifndef KASCPAR_PARSING
 typedef uint16_t HuffTableChannel_t;
+#else
+# define HuffTableChannel_t unsigned short
+#endif
 
 /// Struct for Huffman Decoder
 // what does 'Exp' mean? -Expanded :-)
