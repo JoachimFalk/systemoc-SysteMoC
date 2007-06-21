@@ -70,8 +70,6 @@ private:
   size_t block_data_size;
 
   void process() {
-    int val;
-    
 #ifndef KASCPAR_PARSING    
     // ZRL coded IDCT coeffs
     const static short block_data[] = {
@@ -82,7 +80,9 @@ private:
       sizeof(block_data)/sizeof(block_data[0]);
 #endif
 
-    while(block_data[coeffs] < 0){
+    short val = block_data[coeffs];
+    
+    while(val < 0){
       //start of image
 #ifdef PERFORMANCE_EVALUATION
 # ifdef XILINX_EDK_RUNTIME
@@ -95,9 +95,11 @@ private:
       coeffs++;
       //Start of image must be followed by some data
       assert(coeffs < block_data_size);
+
+      val = block_data[coeffs];
     }
 
-    out[0] = block_data[coeffs]; 
+    out[0] = val;
     ++coeffs;
 
     if( coeffs == block_data_size ) {
