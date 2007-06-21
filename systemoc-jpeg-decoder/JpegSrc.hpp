@@ -61,7 +61,7 @@ public:
   smoc_port_out<codeword_t> out;
 private:
   size_t coeffs;
-  size_t zeroRep;
+  size_t count;
 
   /* 
      Due to silly KASCPar limitations, we cannot declare block_data 
@@ -76,7 +76,7 @@ private:
     // ZRL coded IDCT coeffs
     const static short block_data[] = {
       //# include "array_jpeg_4motion.txt"
-# include "array_jpeg_lena.txt"
+# include "array_institut_qcif.txt"
     };
     block_data_size =   
       sizeof(block_data)/sizeof(block_data[0]);
@@ -99,16 +99,21 @@ private:
 
     out[0] = block_data[coeffs]; 
     ++coeffs;
+
+    if( coeffs == block_data_size ) {
+      --count;
+      coeffs = 0;
+    }
   }
  
   smoc_firing_state start;
 public:
   JpegSrc(sc_module_name name)
-    : smoc_actor(name, start),  coeffs(0), zeroRep(0)
+    : smoc_actor(name, start),  coeffs(0), count(4)
   {
     block_data_size = ~size_t(0);
     start
-      = (out(1) && VAR(coeffs) < VAR(block_data_size))  >>
+      = (out(1) && VAR(count) > 0)  >>
         CALL(JpegSrc::process)         >> start
       ;
   }
