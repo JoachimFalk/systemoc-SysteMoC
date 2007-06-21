@@ -65,7 +65,7 @@
   #include "debug_off.h"
 #endif
 
-#define PARSER_PROFILE_SUPPORT
+//#define PARSER_PROFILE_SUPPORT
 
 #ifdef PARSER_PROFILE_SUPPORT
 # ifdef PERFORMANCE_EVALUATION
