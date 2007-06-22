@@ -54,7 +54,7 @@ using namespace std;
 
 // Maximum (and default) number of Src iterations. Lower default number via
 //  command line parameter.
-const int NUM_MAX_ITERATIONS = 10000;
+const int NUM_MAX_ITERATIONS = 1000000;
 
 class Src: public smoc_actor {
 public:
