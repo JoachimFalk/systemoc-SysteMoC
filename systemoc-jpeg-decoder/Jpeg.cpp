@@ -129,7 +129,7 @@ public:
       
   {
 
-    const unsigned int shuffle_fifo_buffer_slack = 1;
+    const unsigned int shuffle_fifo_buffer_slack = 2;
 
 #ifndef KASCPAR_PARSING
     connectNodePorts<4>(mSrc.out,             mParser.in);
