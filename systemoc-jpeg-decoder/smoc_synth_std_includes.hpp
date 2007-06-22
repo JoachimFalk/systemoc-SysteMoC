@@ -51,10 +51,9 @@
 #define STATIC_IMAGE_SIZE
 //#define DUMP_INTERMEDIATE
 
-// FIXME: will render parameter handling useless!
-//
-// JPEG_SRC is now set in Makefile using "-DJPEG_SRC"
-//#define JPEG_SRC
+#ifdef KASCPAR_PARSING
+# define JPEG_SRC
+#endif
 
 #include "callib.hpp"
 #include "channels.hpp"
