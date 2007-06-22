@@ -115,7 +115,7 @@ public:
   {
     block_data_size = ~size_t(0);
     start
-      = (out(1) && VAR(count) > 0)  >>
+      = (out(1) && VAR(count) != 0U)  >>
         CALL(JpegSrc::process)         >> start
       ;
   }
