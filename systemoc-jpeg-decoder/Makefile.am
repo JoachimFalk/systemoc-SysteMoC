@@ -40,10 +40,14 @@ LIBS= @LIBS@ -lsystemoc
 PROJECT_CPPS=HuffDecoder.cpp BitSplitter.cpp
 
 
-noinst_PROGRAMS= simulation-jpeg parser-test huffman-test idct-fbw-test invzrl-test # idct-fsh-test
+noinst_PROGRAMS= simulation-jpeg simulation-jpeg-file parser-test huffman-test idct-fbw-test invzrl-test # idct-fsh-test
 
 simulation_jpeg_SOURCES= Jpeg.cpp $(PROJECT_CPPS)
 simulation_jpeg_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_jpeg_CPPFLAGS= -DJPEG_SRC $(AM_CPPFLAGS)
+
+simulation_jpeg_file_SOURCES= Jpeg.cpp $(PROJECT_CPPS)
+simulation_jpeg_file_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 parser_test_SOURCES = ParserTestbench.cpp $(PROJECT_CPPS)
 parser_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@

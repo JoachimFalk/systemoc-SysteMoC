@@ -190,16 +190,19 @@ int sc_main (int argc, char **argv) {
   char *filename = "institut_qcif.jpeg";
   unsigned int width = 176, height = 144, compCount = 3;
   
-  if (argc != 5) {
+#ifndef JPEG_SRC
+  if (argc < 5) {
     std::cerr
       << (argv[0] != NULL ? argv[0] : "???")
       << " <jpeg filename> <width> <height> <compCount>" << std::endl;
-  } else {
-    filename  = argv[1];
-    width     = CoSupport::strAs<unsigned int>(argv[2]);
-    height    = CoSupport::strAs<unsigned int>(argv[3]);
-    compCount = CoSupport::strAs<unsigned int>(argv[4]);
+    exit( EXIT_FAILURE );
   }
+  filename  = argv[1];
+  width     = CoSupport::strAs<unsigned int>(argv[2]);
+  height    = CoSupport::strAs<unsigned int>(argv[3]);
+  compCount = CoSupport::strAs<unsigned int>(argv[4]);
+#endif // JPEG_SRC
+
   
   smoc_top_moc<Jpeg> jpeg("jpeg", filename, width, height, compCount);
   

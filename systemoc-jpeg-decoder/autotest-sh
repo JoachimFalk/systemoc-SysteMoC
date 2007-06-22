@@ -7,6 +7,8 @@
 # autovars like $srcdir are inserted by make.
 #
 
+###############################################################################
+# testcase 1: run simulation using different test picture and compare output
 #
 golden_logs_dir=$srcdir/testlogs
 stimuli_dir=$srcdir/test_data
@@ -21,7 +23,7 @@ stimuli+="jpeg-demo/scd-logo-32.jpg 32 32 3;"
 #stimuli+="another.jpeg width height compCount;"
 
 #
-test_bin=$builddir/simulation-jpeg
+test_bin=$builddir/simulation-jpeg-file
 
 # set list seperator
 IFS=';'
@@ -65,5 +67,23 @@ do
   rm -f $logoutfile $err_log
 
 done
+
+
+###############################################################################
+# testcase 2: run simulation using the internally included test picture
+# from JpegSource "-DJPEG_SRC"
+# 
+# !! testcase is not stable yet -> do not compare with golden log
+#
+test_bin=$builddir/simulation-jpeg
+
+# call binary
+$test_bin $stimuli_dir/$data $w $h $c > $logoutfile 2> $err_log
+
+if [ $? -gt 0 ]; then # if binary crashes
+    echo " $data: systemoc-jpeg-decoder autotest failed: test crashed.";
+    cat $err_log;
+    test_failed=1;
+fi
 
 [[ -z "$test_failed" ]]

@@ -52,7 +52,9 @@
 //#define DUMP_INTERMEDIATE
 
 // FIXME: will render parameter handling useless!
-#define JPEG_SRC
+//
+// JPEG_SRC is now set in Makefile using "-DJPEG_SRC"
+//#define JPEG_SRC
 
 #include "callib.hpp"
 #include "channels.hpp"
