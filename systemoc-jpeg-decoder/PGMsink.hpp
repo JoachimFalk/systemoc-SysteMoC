@@ -193,6 +193,9 @@ private:
 # endif //SINK_BINARY_OUTPUT
 
     if (missing_pixels == 0){
+#ifdef SC_MODULE // is "systemc.h" included?
+      std::cerr << "image finished @" << sc_time_stamp() << std::endl;
+#endif
 # ifdef PERFORMANCE_EVALUATION
 #  ifdef XILINX_EDK_RUNTIME
       x_perf_eval_toggle_end();

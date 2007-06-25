@@ -84,6 +84,9 @@ private:
     
     while(val < 0){
       //start of image
+#ifdef SC_MODULE // is "systemc.h" included?
+      std::cerr << "image started @" << sc_time_stamp() << std::endl;
+#endif
 #ifdef PERFORMANCE_EVALUATION
 # ifdef XILINX_EDK_RUNTIME
       x_perf_eval_toggle_start();
