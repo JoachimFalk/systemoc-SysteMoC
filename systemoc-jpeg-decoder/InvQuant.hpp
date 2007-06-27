@@ -266,7 +266,7 @@ public:
     qmap_id_0 = qmap_id_1 = qmap_id_2 = 0;
     
     main =
-      /* discard Huffman tables */
+      /* discard QT tables */
       (( in(1) && qt_table_0(JS_QT_TABLE_SIZE) && out(1)) >>
        (JS_ISCTRL(in.getValueAt(0)) && 
 	(JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
