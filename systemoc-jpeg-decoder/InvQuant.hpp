@@ -61,6 +61,7 @@
 #endif
 
 
+
 class InvQuant: public smoc_actor {
 public:
   smoc_port_in<JpegChannel_t>      in;
@@ -73,32 +74,50 @@ public:
 
 private:
 
-  void discard_qt_table_0(){
-    DBG_OUT("Discard QT table with ID 0" << endl);
+#if INV_QUANT_STATE_MACHINE_VERSION == 2
+
+  // Store which table to discard
+  unsigned char discard_table_id;
+  void discard_qt_table(){
+    discard_table_id = JS_CTRL_DISCARDQT_GETQTID(in[0]);
 
     //forward control word
     forward_command();
+  }
+#endif
+
+  void discard_qt_table_0(){
+    DBG_OUT("Discard QT table with ID 0" << endl);
+
+#if INV_QUANT_STATE_MACHINE_VERSION != 2
+    //forward control word
+    forward_command();
+#endif
   }
 
   void discard_qt_table_1(){
     DBG_OUT("Discard QT table with ID 1" << endl);
-
+#if INV_QUANT_STATE_MACHINE_VERSION != 2
     //forward control word
     forward_command();
+#endif
   }
 
   void discard_qt_table_2(){
     DBG_OUT("Discard QT table with ID 2" << endl);
-
+#if INV_QUANT_STATE_MACHINE_VERSION != 2
     //forward control word
     forward_command();
+#endif
   }
 
   void discard_qt_table_3(){
     DBG_OUT("Discard QT table with ID 3" << endl);
 
+#if INV_QUANT_STATE_MACHINE_VERSION != 2
     //forward control word
     forward_command();
+#endif
   }
 
   void illegal_qt_id(){    
@@ -232,9 +251,21 @@ private:
   //Which pixel to process
   unsigned char block_pixel_id;
 
-
+#if INV_QUANT_STATE_MACHINE_VERSION == 1
   smoc_firing_state main;
   smoc_firing_state stuck;
+#elif INV_QUANT_STATE_MACHINE_VERSION == 2
+  smoc_firing_state fsm_process_qt0;
+  smoc_firing_state fsm_process_qt1;
+  smoc_firing_state fsm_process_qt2;
+  smoc_firing_state fsm_process_qt3;
+  smoc_firing_state fsm_switch_qt;
+  smoc_firing_state fsm_process_command;
+  smoc_firing_state fsm_discard_qt_table;
+  smoc_firing_state stuck;
+#else
+# error "State machine version not defined"
+#endif 
 
 
 #ifdef DBG_ENABLE
@@ -244,7 +275,13 @@ private:
   
 public:
   InvQuant(sc_module_name name)
+#if INV_QUANT_STATE_MACHINE_VERSION == 1
     : smoc_actor(name, main),
+#elif INV_QUANT_STATE_MACHINE_VERSION == 2
+    : smoc_actor(name, fsm_process_command),
+#else
+# error "Undefined statemachine version"
+#endif
       comp_id(0),
       block_pixel_id(1) //counter runs from 1 to JPEG_BLOCK_SIZE
 #ifdef DBG_ENABLE
@@ -264,6 +301,8 @@ public:
     }
     */
     qmap_id_0 = qmap_id_1 = qmap_id_2 = 0;
+
+#if INV_QUANT_STATE_MACHINE_VERSION == 1
     
     main =
       /* discard QT tables */
@@ -336,7 +375,119 @@ public:
 	 (VAR(qtbl_id) == 3)) >>
 	CALL(InvQuant::quantize3)) >> main;   
 
-      }
+#elif INV_QUANT_STATE_MACHINE_VERSION == 2
+
+    //In order to avoid bottlenecks in synthesis, 
+    //we process no commands here
+    //Reason behind: Data values will occur much more often then commands.
+    //Hence, for commands, we accept an idle cycle.
+    fsm_process_qt0 = 
+      /* Process data value */
+      (( in(1) && out(1) && qt_table_0(0,JS_QT_TABLE_SIZE)) >>
+       (!JS_ISCTRL(in.getValueAt(0)))) 
+      >> CALL(InvQuant::quantize0) >> fsm_process_qt0  
+      /* Process commands */
+      | (( in(0,1) ) >>
+         (JS_ISCTRL(in.getValueAt(0)))) >> fsm_process_command;
+
+    fsm_process_qt1 = 
+      /* Process data value */
+      (( in(1) && out(1) && qt_table_1(0,JS_QT_TABLE_SIZE)) >>
+       (!JS_ISCTRL(in.getValueAt(0)))) 
+      >> CALL(InvQuant::quantize1) >> fsm_process_qt1
+      /* Process commands */
+      | (( in(0,1) ) >>
+         (JS_ISCTRL(in.getValueAt(0)))) >> fsm_process_command;
+    
+    fsm_process_qt2 = 
+      /* Process data value */
+      (( in(1) && out(1) && qt_table_2(0,JS_QT_TABLE_SIZE)) >>
+       (!JS_ISCTRL(in.getValueAt(0)))) 
+      >> CALL(InvQuant::quantize2) >> fsm_process_qt2
+      /* Process commands */
+      | (( in(0,1) ) >>
+         (JS_ISCTRL(in.getValueAt(0)))) >> fsm_process_command;
+    
+    fsm_process_qt3 = 
+      /* Process data value */
+      (( in(1) && out(1) && qt_table_3(0,JS_QT_TABLE_SIZE)) >>
+       (!JS_ISCTRL(in.getValueAt(0)))) 
+      >> CALL(InvQuant::quantize3) >> fsm_process_qt3
+      /* Process commands */
+      | (( in(0,1) ) >>
+         (JS_ISCTRL(in.getValueAt(0)))) >> fsm_process_command;
+    
+    /* Select next QT table to use */
+    fsm_switch_qt =
+      (VAR(qtbl_id) == 0) >> fsm_process_qt0
+      | (VAR(qtbl_id) == 1) >> fsm_process_qt1
+      | (VAR(qtbl_id) == 2) >> fsm_process_qt2
+      | (VAR(qtbl_id) == 3) >> fsm_process_qt3
+      | (VAR(qtbl_id) > 3)  >> stuck;
+    
+
+
+    fsm_process_command = 
+      /* discard QT tables */
+      ( (in(1) && out(1)) >>
+        (JS_ISCTRL(in.getValueAt(0)) && 
+         (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT)) >>
+        CALL(InvQuant::discard_qt_table)) >> fsm_discard_qt_table
+      
+      /* store QT table to use */
+      |(( in(1) && out(1)) >>
+        (JS_ISCTRL(in.getValueAt(0)) && 
+         (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_USEQT)) >>
+        CALL(InvQuant::use_qt_table)) >> fsm_process_command
+      
+      /* Store which colour component to process */      
+      |(( in(1) && out(1)) >>
+        (JS_ISCTRL(in.getValueAt(0)) && 
+         (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_INTERNALCOMPSTART)) >>
+        CALL(InvQuant::store_comp_id)) >> fsm_switch_qt
+      
+      /* Forward non processed commands */
+      |(( in(1) && out(1)) >>
+        (JS_ISCTRL(in.getValueAt(0)) && 
+         (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_INTERNALCOMPSTART) &&
+         (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_USEQT) &&
+         (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_DISCARDQT)
+         ) >>
+        CALL(InvQuant::forward_command)) >> fsm_process_command
+      
+      /* Process data value */
+      |(( in(0,1) && out(1)) >>
+        (!JS_ISCTRL(in.getValueAt(0)))) >> fsm_switch_qt;
+    
+    fsm_discard_qt_table = 
+      (qt_table_0(JS_QT_TABLE_SIZE) >>
+       (VAR(discard_table_id) == 0)
+       >> CALL(InvQuant::discard_qt_table_0)) >> fsm_process_command
+      
+      | (qt_table_1(JS_QT_TABLE_SIZE) >>
+         (VAR(discard_table_id) == 1)
+         >> CALL(InvQuant::discard_qt_table_1)) >> fsm_process_command
+      
+      | (qt_table_2(JS_QT_TABLE_SIZE) >>
+         (VAR(discard_table_id) == 2)
+         >> CALL(InvQuant::discard_qt_table_2)) >> fsm_process_command
+      
+      | (qt_table_3(JS_QT_TABLE_SIZE) >>
+         (VAR(discard_table_id) == 3)
+         >> CALL(InvQuant::discard_qt_table_3)) >> fsm_process_command
+      
+      | ((VAR(discard_table_id) > 3)
+         >> CALL(InvQuant::illegal_qt_id)) >> stuck;
+
+  
+#else
+# error "State machine version not defined"
+#endif 
+
+  }
+
+
+
 };
 
 #endif // _INCLUDED_INV_QUANT_HPP
