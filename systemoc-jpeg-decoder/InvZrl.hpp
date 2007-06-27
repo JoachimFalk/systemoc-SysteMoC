@@ -278,11 +278,28 @@ public:
       
 
 
-    process_ac_coeff
-      /* ignore and forward control tokens */
-      = (in(1) && JS_ISCTRL(in.getValueAt(0))) >>
+    process_ac_coeff =
+      /* Process AC coeff */
+      (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
+      ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) == (JpegChannel_t)0) &&
+       (JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0)) >>
+      //only AC coeff
+      CALL(InvZrl::skip_run)                >> write_ac_coeff
+
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
+      (JS_TUP_GETRUNLENGTH(in.getValueAt(0)) == (JpegChannel_t)1) >> 
+      //only one zero
+      (out(1)) >>
+      CALL(InvZrl::start_non_zero_rl) >> write_ac_coeff
+      
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
+      ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0) &&
+       ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0xF) ||
+	(JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0)) &&
+       (JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)1)
+       ) >>
       (out(1))                                       >>
-      CALL(InvZrl::unexpectedCtrl)                >> stuck
+      CALL(InvZrl::start_non_zero_rl)                >> non_zero_run
 
       /* Process special zero run length */
       | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
@@ -308,27 +325,12 @@ public:
       (out(1))                                       >>
       CALL(InvZrl::start_eob)                >> process_dc_coeff
 
-      /* Process AC coeff */
-      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
-      ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) == (JpegChannel_t)0) &&
-       (JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0)) >>
-      //only AC coeff
-      CALL(InvZrl::skip_run)                >> write_ac_coeff
-
-      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
-      (JS_TUP_GETRUNLENGTH(in.getValueAt(0)) == (JpegChannel_t)1) >> 
-      //only one zero
-      (out(1)) >>
-      CALL(InvZrl::start_non_zero_rl) >> write_ac_coeff
-      
-      | (in(1) && (!JS_ISCTRL(in.getValueAt(0)))) >>
-      ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0) &&
-       ((JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)0xF) ||
-	(JS_TUP_GETCATEGORY(in.getValueAt(0)) != (JpegChannel_t)0)) &&
-       (JS_TUP_GETRUNLENGTH(in.getValueAt(0)) != (JpegChannel_t)1)
-       ) >>
+      /* ignore and forward control tokens */
+      | (in(1) && JS_ISCTRL(in.getValueAt(0))) >>
       (out(1))                                       >>
-      CALL(InvZrl::start_non_zero_rl)                >> non_zero_run;
+      CALL(InvZrl::unexpectedCtrl)                >> stuck
+
+      ;
 
     /* Complete zero run */
     zero_run = 

@@ -305,8 +305,29 @@ public:
 #if INV_QUANT_STATE_MACHINE_VERSION == 1
     
     main =
+      /* Process data value */
+       (( in(1) && out(1) && qt_table_0(0,JS_QT_TABLE_SIZE)) >>
+	((!JS_ISCTRL(in.getValueAt(0)))  &&
+	 (VAR(qtbl_id) == 0)) >>
+	CALL(InvQuant::quantize0)) >> main
+
+      |(( in(1) && out(1) && qt_table_1(0,JS_QT_TABLE_SIZE)) >>
+	((!JS_ISCTRL(in.getValueAt(0)))  &&
+	 (VAR(qtbl_id) == 1)) >>
+	CALL(InvQuant::quantize1)) >> main
+
+      |(( in(1) && out(1) && qt_table_2(0,JS_QT_TABLE_SIZE)) >>
+	((!JS_ISCTRL(in.getValueAt(0)))  &&
+	 (VAR(qtbl_id) == 2)) >>
+	CALL(InvQuant::quantize2)) >> main
+
+      |(( in(1) && out(1) && qt_table_3(0,JS_QT_TABLE_SIZE)) >>
+	((!JS_ISCTRL(in.getValueAt(0)))  &&
+	 (VAR(qtbl_id) == 3)) >>
+	CALL(InvQuant::quantize3)) >> main
+
       /* discard QT tables */
-      (( in(1) && qt_table_0(JS_QT_TABLE_SIZE) && out(1)) >>
+      |(( in(1) && qt_table_0(JS_QT_TABLE_SIZE) && out(1)) >>
        (JS_ISCTRL(in.getValueAt(0)) && 
 	(JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_DISCARDQT) &&
 	(JS_CTRL_DISCARDQT_GETQTID(in.getValueAt(0)) == (JpegChannel_t)0)) >>
@@ -352,28 +373,7 @@ public:
 	 (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_USEQT) &&
 	 (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_DISCARDQT)
 	 ) >>
-	CALL(InvQuant::forward_command)) >> main
-
-      /* Process data value */
-      |(( in(1) && out(1) && qt_table_0(0,JS_QT_TABLE_SIZE)) >>
-	((!JS_ISCTRL(in.getValueAt(0)))  &&
-	 (VAR(qtbl_id) == 0)) >>
-	CALL(InvQuant::quantize0)) >> main
-
-      |(( in(1) && out(1) && qt_table_1(0,JS_QT_TABLE_SIZE)) >>
-	((!JS_ISCTRL(in.getValueAt(0)))  &&
-	 (VAR(qtbl_id) == 1)) >>
-	CALL(InvQuant::quantize1)) >> main
-
-      |(( in(1) && out(1) && qt_table_2(0,JS_QT_TABLE_SIZE)) >>
-	((!JS_ISCTRL(in.getValueAt(0)))  &&
-	 (VAR(qtbl_id) == 2)) >>
-	CALL(InvQuant::quantize2)) >> main
-
-      |(( in(1) && out(1) && qt_table_3(0,JS_QT_TABLE_SIZE)) >>
-	((!JS_ISCTRL(in.getValueAt(0)))  &&
-	 (VAR(qtbl_id) == 3)) >>
-	CALL(InvQuant::quantize3)) >> main;   
+	CALL(InvQuant::forward_command)) >> main;
 
 #elif INV_QUANT_STATE_MACHINE_VERSION == 2
 

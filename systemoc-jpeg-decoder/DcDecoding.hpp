@@ -185,9 +185,21 @@ public:
     */
     prev_DC_0 = prev_DC_1 = prev_DC_2 = 0;
 
-    main
+    main =
+      /* Forward AC coefficient */
+        (in(1) && (!JS_ISCTRL(in.getValueAt(0))))       >>
+      (VAR(pixel_id) != 0) >> 
+      (out(1)) >>
+      CALL(DcDecoding::forward_ac)                >> main
+      
+      /* Perfrom inverse DC Decoding */
+      | (in(1) && (!JS_ISCTRL(in.getValueAt(0))))       >>
+      (VAR(pixel_id) == 0) >> 
+      (out(1)) >>
+      CALL(DcDecoding::decode_dc)                >> main
+
       /* Process commands */
-      = (in(1) && JS_ISCTRL(in.getValueAt(0)))       >>
+      | (in(1) && JS_ISCTRL(in.getValueAt(0)))       >>
       (JS_GETCTRLCMD(in.getValueAt(0)) == (JpegChannel_t)CTRLCMD_NEWSCAN)        >>
       (out(1)) >>
       CALL(DcDecoding::reset_DC)                >> main
@@ -206,20 +218,8 @@ public:
        (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_SCANRESTART) &&
        (JS_GETCTRLCMD(in.getValueAt(0)) != (JpegChannel_t)CTRLCMD_INTERNALCOMPSTART))        >>
       (out(1)) >>
-      CALL(DcDecoding::forward_cmd)                >> main
+      CALL(DcDecoding::forward_cmd)                >> main;
 
-      /* Perfrom inverse DC Decoding */
-      | (in(1) && (!JS_ISCTRL(in.getValueAt(0))))       >>
-      (VAR(pixel_id) == 0) >> 
-      (out(1)) >>
-      CALL(DcDecoding::decode_dc)                >> main
-
-      /* Forward AC coefficient */
-      | (in(1) && (!JS_ISCTRL(in.getValueAt(0))))       >>
-      (VAR(pixel_id) != 0) >> 
-      (out(1)) >>
-      CALL(DcDecoding::forward_ac)                >> main;
-      
   }
 };
 

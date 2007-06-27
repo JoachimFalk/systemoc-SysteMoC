@@ -61,13 +61,13 @@ private:
 public:
   CtrlSieve(sc_module_name name)
     : smoc_actor(name, main) {
-    main
-      // consume CTRL token (send to /dev/null)
-      = ( in(1) && JS_ISCTRL(in.getValueAt(0)) )     >> main
-      | // forward only data tokens
+    main =
+      // forward only data tokens
         ( in(1) && !JS_ISCTRL(in.getValueAt(0)) )    >>
         out(1)                                       >>
         CALL(CtrlSieve::forwardData)                 >> main
+      // consume CTRL token (send to /dev/null)
+      | ( in(1) && JS_ISCTRL(in.getValueAt(0)) )     >> main
       ;
   }
 };
