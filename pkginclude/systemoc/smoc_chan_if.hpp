@@ -48,6 +48,13 @@
 
 #include <list>
 
+#ifdef SYSTEMOC_ENABLE_VPC
+namespace SystemC_VPC{
+  class FastLink;
+}
+//# include <FastLink.h>
+#endif //SYSTEMOC_ENABLE_VPC
+
 //template<class S, class T>
 template<class T>
 class smoc_channel_access {
@@ -331,6 +338,10 @@ public:
   typedef smoc_root_chan              this_type;
   
   friend class smoc_graph;
+  // new FastLink interface
+#ifdef SYSTEMOC_ENABLE_VPC
+  SystemC_VPC::FastLink *vpcLink; // patched in finalise
+#endif //SYSTEMOC_ENABLE_VPC
 protected:
   std::string myName; // patched in finalise
 public:

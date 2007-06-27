@@ -39,6 +39,11 @@
 #include <map>
 #include <sstream>
 
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
+#endif //SYSTEMOC_ENABLE_VPC
+
+
 class IntDefaultZero {
 public:
   typedef IntDefaultZero this_type;
@@ -87,6 +92,11 @@ void smoc_root_chan::finalise() {
   genName << "_";
   genName << (_smoc_channel_name_map[genName.str()] += 1);
   myName = genName.str();
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
+    getFastLink(myName, "1") );
+#endif //SYSTEMOC_ENABLE_VPC
 }
 
 void smoc_nonconflicting_chan::finalise() {

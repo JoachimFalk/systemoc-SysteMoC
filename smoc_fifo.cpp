@@ -48,8 +48,10 @@ namespace smoc_detail {
     for (;n > 0; --n) {
       smoc_ref_event_p le(new smoc_ref_event());
       SystemC_VPC::EventPair p(&dummy, &*le);
-      SystemC_VPC::Director::getInstance().    
-        compute( getTop().fifo->name(), "1", p);
+
+      // new FastLink interface
+      getTop().fifo->vpcLink->compute(p);
+
       getTop().visibleQueue.addEntry(1, le);
     }
   }

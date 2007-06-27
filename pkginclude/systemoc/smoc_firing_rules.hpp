@@ -56,6 +56,12 @@
 #include <cosupport/commondefs.h>
 #include <cosupport/functor.hpp>
 
+#ifdef SYSTEMOC_ENABLE_VPC
+namespace SystemC_VPC{
+  class FastLink;
+}
+#endif //SYSTEMOC_ENABLE_VPC
+
 class smoc_activation_pattern;
 class smoc_transition;
 class smoc_port2op_if;
@@ -223,6 +229,11 @@ struct smoc_firing_types {
     //execution mask used for SR Scheduling
     static const int GO   = 1;
     static const int TICK = 2;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+    // FastLink to VPC
+    SystemC_VPC::FastLink  *vpcLink; // patched in finalise
+#endif //SYSTEMOC_ENABLE_VPC
   public:
     transition_ty( smoc_firing_state_ref *r, const smoc_transition &t );
 

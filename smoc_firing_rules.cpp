@@ -381,8 +381,8 @@ void smoc_firing_types::transition_ty::execute(
       actor->vpc_event_lat = new smoc_ref_event();
       SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
 
-      SystemC_VPC::Director::getInstance().    
-  compute( actor->myModule()->name(), fc.getFuncName(), p);
+      // new FastLink interface
+      vpcLink->compute(p);
 #endif //SYSTEMOC_ENABLE_VPC
       fc();
 #ifdef SYSTEMOC_TRACE
@@ -426,13 +426,13 @@ void smoc_firing_types::transition_ty::execute(
 #endif
 #ifdef SYSTEMOC_ENABLE_VPC
       if(mode & GO){
-  actor->vpc_event_dii.reset();
-  
-  actor->vpc_event_lat = new smoc_ref_event();
-  SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
-  
-  SystemC_VPC::Director::getInstance().    
-    compute( actor->myModule()->name(), fc.go.getFuncName(), p);
+        actor->vpc_event_dii.reset();
+
+        actor->vpc_event_lat = new smoc_ref_event();
+        SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
+
+        // new FastLink interface
+        vpcLink->compute(p);
       }
 #endif //SYSTEMOC_ENABLE_VPC
       if(mode & GO)   fc.go();
@@ -503,6 +503,16 @@ void smoc_firing_types::transition_ty::finalise(smoc_root_node *a) {
   assert(actor == NULL && a != NULL);
   actor = a;
   smoc_activation_pattern::finalise();
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  if ( isType<smoc_func_call>(f) &&
+       dynamic_cast<smoc_graph *>(actor) == NULL ) {
+    smoc_func_call &fc = f;
+    vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
+      getFastLink(actor->myModule()->name(),
+                  fc.getFuncName()) );
+  }
+#endif //SYSTEMOC_ENABLE_VPC
 }
 
 void smoc_firing_types::resolved_state_ty::finalise(smoc_root_node *a) {
