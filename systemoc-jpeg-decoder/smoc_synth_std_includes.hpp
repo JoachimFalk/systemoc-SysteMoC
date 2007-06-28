@@ -36,8 +36,11 @@
 #define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 
 #include <cstdlib>
+#ifndef XILINX_EDK_RUNTIME
 #include <iostream>
 #include <fstream>
+#endif
+
 
 #include "debug_off.h"
 
