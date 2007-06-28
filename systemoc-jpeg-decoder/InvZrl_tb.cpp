@@ -54,6 +54,7 @@
 #include "TuppleScanSrc.hpp"
 #include "InvZrl.hpp"
 #include "DcDecoding.hpp"
+#define INV_QUANT_STATE_MACHINE_VERSION 2
 #include "InvQuant.hpp"
 #include "InvZigZag.hpp"
 #include "CtrlSieve.hpp"
