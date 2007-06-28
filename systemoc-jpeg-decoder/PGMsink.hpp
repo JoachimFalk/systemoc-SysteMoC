@@ -62,10 +62,6 @@
 
 //#define PGM_SINK_SILENT_MODE
 
-#ifdef SINK_BINARY_OUTPUT
-# error
-#endif
-
 #ifdef PERFORMANCE_EVALUATION
 # ifdef XILINX_EDK_RUNTIME
 #  include "x_perf_eval.h"

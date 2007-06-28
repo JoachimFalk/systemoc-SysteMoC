@@ -54,6 +54,9 @@
 // Constants for INV-Quant
 #define INV_QUANT_STATE_MACHINE_VERSION 2
 
+//Constants for PGM sink
+//#define SINK_BINARY_OUTPUT
+
 #define STATIC_IMAGE_SIZE
 //#define DUMP_INTERMEDIATE
 
