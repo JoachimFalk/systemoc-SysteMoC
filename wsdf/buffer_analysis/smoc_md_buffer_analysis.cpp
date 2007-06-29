@@ -88,7 +88,7 @@ namespace smoc_md_ba {
 
     data_element += 
       snk_md_loop_iterator.get_base_data_element_id();
-    
+
     return_value =  
       src_md_loop_iterator.get_src_loop_iteration(data_element,
 						  iteration_vector,
@@ -98,6 +98,9 @@ namespace smoc_md_ba {
     schedule_period_offset += snk_schedule_period;
     iteration_vector[0] += 
       schedule_period_offset * (src_iteration_max[0]+1);
+
+    
+    
 
 #if VERBOSE_LEVEL_SMOC_MD_BA == 101
     CoSupport::dout << "iteration_vector = " << iteration_vector << std::endl;

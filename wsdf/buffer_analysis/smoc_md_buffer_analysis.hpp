@@ -121,6 +121,10 @@ namespace smoc_md_ba
 
     // Stores the mapping offset for the source actor
     // (corresponds to the initial tokens)
+    // ATTENTION: Due to theoretical reasons, the source-iteration (0,0,...)
+    //            writes to data element (0,0,0, ...)
+    //            In other words, the token space starts with negative coordinates
+    //            This is different then in SysteMoC!
     const src_mapping_offset_type src_mapping_offset;
 
 
@@ -163,11 +167,13 @@ namespace smoc_md_ba
     /// 
     /// The return-value is a UNIQUE iteration identifier correctly
     /// taking the schedule period into account.
+    /// Furthermore, it takes into account the initial data elements.
+    /// See comments on "src_mapping_offset"!!!!!!!!!!!!!!!!!!
     bool
     get_src_loop_iteration(const iter_domain_vector_type& window_iteration,
 			   iter_domain_vector_type& iteration_vector
 			   ) const;
-    
+
 
   private:
     // The following references are stored in order to be able to

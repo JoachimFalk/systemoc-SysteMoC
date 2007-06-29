@@ -28,6 +28,15 @@ namespace smoc_md_ba
 			   const iter_domain_vector_type& max_window_iteration,
 			   bool new_schedule_period);
 
+    void consumption_update(const iter_domain_vector_type& current_iteration,
+                            bool new_schedule_period
+                            ){};
+
+    unsigned long get_buffer_size() const{
+      assert(number_buffer_elements > 0);
+      return number_buffer_elements;
+    }
+
   private:
     // number of buffer elements
     long number_buffer_elements;
@@ -44,14 +53,39 @@ namespace smoc_md_ba
     long calc_linear_buffer_address(const iter_domain_vector_type& abstract_id) const;
     // same as above, but with separate window iteration
     // Furthermore, the schedule period is explicitly taken into account!
-    long calc_linear_buffer_address(const iter_domain_vector_type& snk_iteration,
-				    const iter_domain_vector_type& window_iteration
-				    ) const;
+    long calc_src_linear_buffer_address(const iter_domain_vector_type& src_iteration,
+                                        const iter_domain_vector_type& window_iteration
+                                        ) const;
 
     // calculates the buffer address including modulo operation
     long calc_modulo_buffer_address(const iter_domain_vector_type& abstract_id, 
 				    unsigned long buffer_size) const;
     
+  };
+
+
+  /// User interface
+  class smoc_md_ba_ui_lin_buffer_size
+  : public smoc_md_ba_user_interface {
+  public:
+    smoc_md_ba_ui_lin_buffer_size() {}
+
+    virtual ~smoc_md_ba_ui_lin_buffer_size() {}
+  public:
+    /// This function sets up the corresponding buffer analysis class
+    /// and returns a corresponding pointer
+    virtual smoc_md_buffer_analysis*
+    create_buffer_analysis_object(
+      const smoc_src_md_loop_iterator_kind& src_md_loop_iterator,
+      const smoc_snk_md_loop_iterator_kind& snk_md_loop_iterator);
+  public:
+    const unsigned long get_buffer_size() const {
+      assert(ba_obj != NULL);
+      return ba_obj->get_buffer_size();
+    }
+  private:
+    /// associated buffer analysis object
+    const smoc_mb_ba_lin_buffer_size* ba_obj;
   };
 
 };
