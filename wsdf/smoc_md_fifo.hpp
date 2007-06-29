@@ -34,7 +34,7 @@
 #include "smoc_wsdf_edge.hpp"
 
 
-#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
+//#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
 // Buffer analysis classes
 # include "smoc_md_buffer_analysis.hpp"
