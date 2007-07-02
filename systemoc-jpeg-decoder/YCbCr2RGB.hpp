@@ -71,9 +71,10 @@ private:
     const unsigned int nbr_fractional_digits = 5;
 
     int pixel_in[3];
-    pixel_in[0] = JS_RAWPIXEL_GETCOMP(in[0],0);       //Y
-    pixel_in[1] = JS_RAWPIXEL_GETCOMP(in[0],1) - 128; //Cb
-    pixel_in[2] = JS_RAWPIXEL_GETCOMP(in[0],2) - 128; //Cr
+    Pixel_t tmp = in[0];
+    pixel_in[0] = JS_RAWPIXEL_GETCOMP(tmp,0);       //Y
+    pixel_in[1] = JS_RAWPIXEL_GETCOMP(tmp,1) - 128; //Cb
+    pixel_in[2] = JS_RAWPIXEL_GETCOMP(tmp,2) - 128; //Cr
 
     DBG_OUT("Input pixel values: " 
 	    << pixel_in[0] << " " 
