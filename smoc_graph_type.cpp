@@ -35,7 +35,7 @@
  */
 
 #include <systemoc/smoc_graph_type.hpp>
-// #include <systemc/kernel/sc_object_manager.h>
+#include <systemoc/hscd_node_types.hpp>
 
 const smoc_node_list smoc_graph::getNodes() const {
   smoc_node_list subnodes;
@@ -217,22 +217,24 @@ void smoc_graph::scheduleDataFlow(){
 
 //
 void smoc_graph::initDataFlow(){
-  {
-    smoc_node_list nodes = this->getNodes();
-    //getLeafNodes(nodes, this);
-
-    for ( smoc_node_list::const_iterator iter = nodes.begin();
-          iter != nodes.end();
-          ++iter ) {
-      smoc_firing_types::resolved_state_ty *rs = (*iter)->_currentState;
-      
+  smoc_node_list nodes = this->getNodes();
+  
+  for ( smoc_node_list::const_iterator iter = nodes.begin();
+        iter != nodes.end();
+        ++iter ) {
+    smoc_root_node *node = *iter;
+    // Is this a SysteMoV v2 actor?
+    if (dynamic_cast<hscd_choice_node *>(node) == NULL) {
+      // yes
+      smoc_firing_types::resolved_state_ty *rs = node->_currentState;
+      assert(rs != NULL);
       for ( smoc_firing_types::transitionlist_ty::iterator titer
               = rs->tl.begin();
             titer != rs->tl.end();
             ++titer ){
         ol |= *titer;
       }
-    }
+    } // else no => is v1 actor!
   }
 }
 
