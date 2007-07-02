@@ -154,7 +154,7 @@ void smoc_root_node::finalise() {
        iter != ports.end();
        ++iter)
     (*iter)->finalise(this);
-
+  
   //check for non strict transitions
   const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
   const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
@@ -163,7 +163,7 @@ void smoc_root_node::finalise() {
        fsmiter != fsmStates.end(); 
        ++fsmiter) {
     const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
-        
+    
     for ( smoc_firing_types::transitionlist_ty::const_iterator titer = cTraSt.begin(); 
     titer != cTraSt.end(); 
     ++titer ) {
@@ -171,12 +171,12 @@ void smoc_root_node::finalise() {
       
       assert( cToNState.size() <= 1 );
       if ( cToNState.size() == 1 ) {
-  if (CoSupport::isType<smoc_sr_func_pair>(titer->f)) {
+        if (CoSupport::isType<smoc_sr_func_pair>(titer->f)) {
 #ifdef SYSTEMOC_DEBUG
-    cout << "found non strict SR block: " << myModule()->name() << endl;
+          cout << "found non strict SR block: " << myModule()->name() << endl;
 #endif
-    _non_strict = true;
-  }
+          _non_strict = true;
+        }
       }
     }
   }
