@@ -45,6 +45,10 @@
 
 #ifdef SYSTEMOC_TRACE
 
+# ifdef NDEBUG
+#   error "SYSTEMOC_TRACE and NDEBUG are incompatible !!!"
+# endif
+
 typedef std::map<std::string, size_t> NameMap;
 
 using std::string;
@@ -186,6 +190,7 @@ public:
   void traceEndChoice(const char * actor);
   void traceStartTransact(const char * actor);
   void traceEndTransact(const char * actor);
+  void traceCommSetup(const char * fifo, size_t req);
   
   void createFifoGraph();
 };

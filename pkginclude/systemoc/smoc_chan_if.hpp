@@ -225,6 +225,7 @@ protected:
   virtual void addPort(smoc_root_port_in  *portIn)
     { portsIn.push_front(portIn); }
 public:
+  virtual const char *name() const = 0;
   const smoc_port_list &getInputPorts()  const
     { return portsIn;  }
   virtual ~smoc_chan_in_base_if() {
@@ -244,6 +245,7 @@ protected:
   virtual void addPort(smoc_root_port_out *portOut)
     { portsOut.push_front(portOut); }
 public:
+  virtual const char *name() const = 0;
   const smoc_port_list &getOutputPorts() const
     { return portsOut; }
   virtual ~smoc_chan_out_base_if() {
@@ -410,6 +412,9 @@ protected:
   // constructor
   smoc_chan_if(const typename chan_kind::chan_init &i)
     : chan_kind(i) {}
+
+  const char *name() const
+    { return this->T_chan_kind::name(); }
 private:
   // disabled
   const sc_event& default_event() const { return smoc_default_event_abort(); }

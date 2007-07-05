@@ -50,6 +50,8 @@
 #include <systemc.h>
 #include <vector>
 
+#include "hscd_tdsim_TraceLog.hpp"
+
 //forward declaration
 template <typename T>
 class smoc_port_in;
@@ -275,7 +277,11 @@ struct CommSetup<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
     std::cerr << "CommSetup<DBinOp<DPortTokens<P>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
 # endif
-    return e.a.p.setLimit(Value<E>::apply(e.b));
+    size_t req = Value<E>::apply(e.b);
+# ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommSetup(e.a.p->name(), req);
+# endif
+    return e.a.p.setLimit(req);
   }
 };
 #endif

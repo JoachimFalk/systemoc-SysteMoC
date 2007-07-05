@@ -120,9 +120,14 @@ void  TraceLogStream::traceStartTransact(const char * actor){
   lastactor = actor;
   fifo_actor_last = actor;
 }
-void  TraceLogStream::traceEndTransact(const char * actor){
+void TraceLogStream::traceEndTransact(const char * actor){
   stream << "<transact type=\"end\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_actor_last = "";
+}
+
+void TraceLogStream::traceCommSetup(const char * fifo, size_t req){
+  size_t id = namePool.getID(fifo);
+  stream << "<r s=\"" << req << "\" c=\"" << id << "\"/>" << std::endl;
 }
 
 void TraceLogStream::traceStartActor(const char * actor){
