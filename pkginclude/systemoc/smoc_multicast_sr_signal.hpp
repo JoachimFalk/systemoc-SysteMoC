@@ -206,6 +206,10 @@ public:
     return actualValue;
   }
 
+  const char* name() const {
+    return this->_base->name();
+  }
+
   // bounce functions
   size_t numAvailable() const
     { return this->usedStorage(); }
@@ -279,6 +283,10 @@ public:
 
   const return_type operator[](size_t n) const{
     return actualValue;
+  }
+
+  const char* name() const {
+    return this->_base->name();
   }
 
   size_t numFree() const
