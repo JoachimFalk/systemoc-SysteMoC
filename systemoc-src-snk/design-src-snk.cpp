@@ -50,18 +50,21 @@ class m_h_src: public smoc_actor {
 public:
   smoc_port_out<T> out;
 private:
-  T i;
+  T       i;
+  size_t  iter;
   
   void src() {
     std::cout << name() << ": " << i << std::endl;
-    out[0] = i++;
+    out[0] = i++; --iter;
   }
   smoc_firing_state start;
 public:
-  m_h_src(sc_module_name name)
+  m_h_src(sc_module_name name, size_t _iter)
     : smoc_actor(name, start),
-      i(1) {
-    start = out(1) >> call(&m_h_src::src) >> start;
+      i(1), iter(_iter) {
+    start =
+         (out(1) && VAR(iter) > 0U)
+      >> call(&m_h_src::src)       >> start;
   }
 };
 
@@ -88,15 +91,20 @@ protected:
   m_h_src<int>     src;
   m_h_sink<int>    snk;
 public:
-  m_h_top( sc_module_name name )
+  m_h_top(sc_module_name name, size_t iter)
     : smoc_graph(name),
-      src("src"), snk("snk") {
+      src("src", iter), snk("snk") {
     connectNodePorts(src.out, snk.in);
   }
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<m_h_top> top("top");
+  size_t iter = static_cast<size_t>(-1);
+  
+  if (argc >= 2)
+    iter = atol(argv[1]);
+  
+  smoc_top_moc<m_h_top> top("top", iter);
   sc_start(-1);
   return 0;
 }
