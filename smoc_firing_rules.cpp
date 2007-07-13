@@ -294,206 +294,165 @@ smoc_firing_types::resolved_state_ty::addTransition(
 
 void smoc_firing_types::transition_ty::execute(
     resolved_state_ty **rs, smoc_root_node *actor, int mode) {
+  const char *name = actor->myModule()->name();
+  
+  enum {
+    MODE_DIISTART,
+    MODE_DIIEND,
+    MODE_GRAPH
+  } execMode;
+  
+  if (dynamic_cast<smoc_graph *>(actor) == NULL) {
+    execMode = *rs != actor->commstate.rs
+      ? MODE_DIISTART : MODE_DIIEND;
+  } else {
+    assert(*rs != actor->commstate.rs);
+    execMode = MODE_GRAPH;
+  }
+  
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "  <transition actor=\""
-            << actor->myModule()->name() << "\">"
-            << std::endl;
+  static const char *execModeName[] = { "diiStart", "diiEnd", "graph" };
+  
+  std::cerr << "  <transition "
+      "actor=\"" << name << "\" "
+      "mode=\"" << execModeName[execMode] << "\""
+    ">" << std::endl;
 #endif
+//#ifdef SYSTEMOC_TRACE
+//  TraceLog.traceStartTryExecute(name);
+//#endif
+  
+  assert(isType<NILTYPE>(f) ||
+         isType<smoc_func_diverge>(f) ||
+         isType<smoc_func_branch>(f) ||
+         isType<smoc_func_call>(f) ||
+         isType<smoc_sr_func_pair>(f));
+  
 #ifdef SYSTEMOC_TRACE
-  TraceLog.traceStartTryExecute(actor->myModule()->name()); //
+  if (execMode != MODE_GRAPH)
+    // leaf actor
+    TraceLog.traceStartActor(name, execMode == MODE_DIISTART ? "s" : "e");
 #endif
-#ifndef NDEBUG
+  
+#if !defined(NDEBUG) || defined(SYSTEMOC_TRACE)
   Expr::evalTo<Expr::CommSetup>(guard);
 #endif
   
-  assert( isType<NILTYPE>(f) ||
-          isType<smoc_func_diverge>(f) ||
-          isType<smoc_func_branch>(f) ||
-          isType<smoc_func_call>(f) ||
-          isType<smoc_sr_func_pair>(f) );
-  if ( isType<smoc_func_diverge>(f) ) {
+  resolved_state_ty *nextState;
+  
+  if (isType<smoc_func_diverge>(f)) {
     // FIXME: this must only be used internally
+#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
+    std::cerr << "    <smoc_func_diverge func=\"???\">" << std::endl;
+#endif
     const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
-    *rs = ns.rs;
-  } else if ( isType<smoc_func_branch>(f) ) {
+#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
+    std::cerr << "    </smoc_func_diverge>" << std::endl;
+#endif
+    nextState = ns.rs;
+  } else if (isType<smoc_func_branch>(f)) {
     // FIXME: this must only be used internally
+#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
+    std::cerr << "    <smoc_func_branch func=\"???\">" << std::endl;
+#endif
     const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
+#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
+    std::cerr << "    </smoc_func_branch>" << std::endl;
+#endif
     statelist_ty::const_iterator iter = sl.begin();
     
 #ifndef NDEBUG
     // check that ns is in sl
-    while ( iter != sl.end() && (*iter) != ns.rs )
+    while (iter != sl.end() && (*iter) != ns.rs)
       ++iter;
-    assert( iter != sl.end() );
+    assert(iter != sl.end());
 #endif
-    *rs = ns.rs;
-  } else if ( dynamic_cast<smoc_graph *>(actor) != NULL ) {
-    // this some kind of MoC that has an own scheduler
-    // the scheduler is realized using SysteMoC FSMs (transitions)
-    // but in no way those transitions needed to call compute to the VPC
-    if ( isType<smoc_func_call>(f) ) {
-      smoc_func_call &fc = f;
-
-#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES == 100)
-      std::cerr << "    <schedule graph=\""
-                << actor->myModule()->name()
-                << " func=\"" << fc.getFuncName()
-                << "\">"
-                << std::endl;
+    nextState = ns.rs;
+  } else if (isType<smoc_func_call>(f)) {
+    smoc_func_call &fc = f;
+    
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceStartFunction(fc.getFuncName()); //
 #endif
-      fc();
-
-      assert( sl.size() == 1 );
-      *rs = sl.front();
-
+#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
+    std::cerr << "    <smoc_func_call func=\"" << fc.getFuncName() << "\">" << std::endl;
+#endif
+    fc();
+#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
+    std::cerr << "    </smoc_func_call>" << std::endl;
+#endif
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceEndFunction(fc.getFuncName());  //
+#endif
+    
+    assert(sl.size() == 1);
+    nextState = sl.front();
+  } else if (isType<smoc_sr_func_pair>(f)) {
+    // SR GO & TICK calls:
+    smoc_sr_func_pair &fc = f;
+    
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceStartFunction(fc.go.getFuncName());
+#endif
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << "    </schedule>"<< std::endl;
+    if(mode & GO)
+      std::cerr << "    <smoc_sr_func_pair go=\"" << fc.go.getFuncName() << "\">" << std::endl;
+    if(mode & TICK)
+      std::cerr << "    <smoc_sr_func_pair tick=\"" << fc.tick.getFuncName() << "\">" << std::endl;
 #endif
-    } else {
-      // a transition without action (no CALL statement)
-      assert( sl.size() == 1 );
-      *rs = sl.front();
-    }
-
-
+    if(mode & GO)   fc.go();
+    if(mode & TICK) fc.tick();
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "    </smoc_sr_func_pair>" << std::endl;
+#endif
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceEndFunction(fc.go.getFuncName());
+#endif
+    
+    assert(sl.size() == 1);
+    nextState = sl.front();
   } else {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceStartActor(actor->myModule()->name()); //
-#endif
-    // FIXME: we assume calls will only be used by leaf actors
-    if ( isType<smoc_func_call>(f) ) {
-      smoc_func_call &fc = f;
-      
-#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES == 100)
-      std::cerr << "    <call actor=\""
-                << actor->myModule()->name()
-                << " func=\"" << fc.getFuncName()
-                << "\">"
-                << std::endl;
-#endif
-      
-#ifdef SYSTEMOC_TRACE
-      TraceLog.traceStartFunction(fc.getFuncName()); //
-#endif
-#ifdef SYSTEMOC_ENABLE_VPC
-      actor->vpc_event_dii.reset();
-
-      actor->vpc_event_lat = new smoc_ref_event();
-      SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
-
-      // new FastLink interface
-      vpcLink->compute(p);
-#endif //SYSTEMOC_ENABLE_VPC
-      fc();
-#ifdef SYSTEMOC_TRACE
-      TraceLog.traceEndFunction(fc.getFuncName());  //
-#endif
-      
-      assert( sl.size() == 1 );
-      
-#ifdef SYSTEMOC_ENABLE_VPC
-      *rs = actor->commstate.rs;
-      // save guard and next state to later execute communication
-      actor->nextState.rs = sl.front();
-      actor->_guard       =  &guard;
-      
-      // actor->ports_setup = _ctx.ports_setup;
-      // _ctx.ports_setup.clear();
-# ifdef SYSTEMOC_DEBUG
-      std::cerr << "      <communication type=\"defered\"/>" << std::endl;
-# endif
-#else
-      *rs = sl.front();
-#endif // SYSTEMOC_ENABLE_VPC
-
-#ifdef SYSTEMOC_DEBUG
-      std::cerr << "    </call>"<< std::endl;
-#endif
-    } else if( isType<smoc_sr_func_pair>(f) ){
-      // SR GO & TICK calls:
-      smoc_sr_func_pair &fc = f;
-      
-#ifdef SYSTEMOC_DEBUG
-      std::cerr << "    <call actor=\""
-                << actor->myModule()->name()
-                << " func=\"" << fc.go.getFuncName()
-                << "\">"
-                << std::endl;
-#endif
-      
-#ifdef SYSTEMOC_TRACE
-      TraceLog.traceStartFunction(fc.go.getFuncName()); //
-#endif
-#ifdef SYSTEMOC_ENABLE_VPC
-      if(mode & GO){
-        actor->vpc_event_dii.reset();
-
-        actor->vpc_event_lat = new smoc_ref_event();
-        SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
-
-        // new FastLink interface
-        vpcLink->compute(p);
-      }
-#endif //SYSTEMOC_ENABLE_VPC
-      if(mode & GO)   fc.go();
-      if(mode & TICK) fc.tick();
-#ifdef SYSTEMOC_TRACE
-      TraceLog.traceEndFunction(fc.go.getFuncName());  //
-#endif
-      
-      assert( sl.size() == 1 );
-      
-#ifdef SYSTEMOC_ENABLE_VPC
-      if(mode & GO){
-  *rs = actor->commstate.rs;
-  // save guard and next state to later execute communication
-  actor->nextState.rs = sl.front();
-  actor->_guard       =  &guard;
-      
-  // actor->ports_setup = _ctx.ports_setup;
-  // _ctx.ports_setup.clear();
-      }else{
-  *rs = sl.front();
-      }
-# ifdef SYSTEMOC_DEBUG
-      std::cerr << "      <communication type=\"defered\"/>" << std::endl;
-# endif
-#else
-      *rs = sl.front();
-#endif // SYSTEMOC_ENABLE_VPC
-
-#ifdef SYSTEMOC_DEBUG
-      std::cerr << "    </call>"<< std::endl;
-#endif
-    } else {
-      // a transition without action (no CALL statement)
-      assert( sl.size() == 1 );
-      *rs = sl.front();
-    }
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceEndActor(actor->myModule()->name()); //
-#endif
+    // a transition without action (no CALL statement)
+    assert(isType<NILTYPE>(f));
+    assert(sl.size() == 1);
+    nextState = sl.front();
   }
-#ifndef NDEBUG
+  
+#if !defined(NDEBUG)
   Expr::evalTo<Expr::CommReset>(guard);
 #endif
-
+  
 #ifdef SYSTEMOC_ENABLE_VPC
-  if (!isType<smoc_func_call>(f))
+  if (execMode == MODE_DIISTART) {
+    actor->vpc_event_dii.reset();
+    
+    actor->vpc_event_lat = new smoc_ref_event();
+    SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
+    
+    // new FastLink interface
+    vpcLink->compute(p);
+    // save guard and nextState to later execute communication
+    actor->_guard       =  &guard;
+    actor->nextState.rs = nextState;
+    // Insert magic commstate
+    nextState           = actor->commstate.rs;
+  } else {
     Expr::evalTo<Expr::CommExec>(guard, NULL);
-#else
+  }
+#else // !SYSTEMOC_ENABLE_VPC
   Expr::evalTo<Expr::CommExec>(guard);
-#endif
-
-/*
-  for ( smoc_port_list::iterator iter =  _ctx.ports_setup.begin();
-        iter != _ctx.ports_setup.end();
-        ++iter )
-    (*iter)->commExec();
- */
+#endif // !SYSTEMOC_ENABLE_VPC
+  
 #ifdef SYSTEMOC_TRACE
-  TraceLog.traceEndTryExecute(actor->myModule()->name()); //
+  if (execMode != MODE_GRAPH)
+    TraceLog.traceEndActor(name);
 #endif
+ 
+  *rs = nextState;
+ 
+//#ifdef SYSTEMOC_TRACE
+//  TraceLog.traceEndTryExecute(name);
+//#endif
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "  </transition>"<< std::endl;
 #endif
@@ -505,12 +464,16 @@ void smoc_firing_types::transition_ty::finalise(smoc_root_node *a) {
   smoc_activation_pattern::finalise();
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  if ( isType<smoc_func_call>(f) &&
-       dynamic_cast<smoc_graph *>(actor) == NULL ) {
-    smoc_func_call &fc = f;
-    vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
-      getFastLink(actor->myModule()->name(),
-                  fc.getFuncName()) );
+  if (dynamic_cast<smoc_actor *>(actor) != NULL) {
+    const char *name = actor->myModule()->name();
+    if (isType<smoc_func_call>(f)) {
+      smoc_func_call &fc = f;
+      vpcLink = new SystemC_VPC::FastLink(SystemC_VPC::Director::getInstance().
+        getFastLink(name, fc.getFuncName()));
+    } else {
+      vpcLink = new SystemC_VPC::FastLink(SystemC_VPC::Director::getInstance().
+        getFastLink(name, "???"));
+    }
   }
 #endif //SYSTEMOC_ENABLE_VPC
 }

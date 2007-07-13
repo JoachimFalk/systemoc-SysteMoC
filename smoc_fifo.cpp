@@ -45,18 +45,39 @@ const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
 namespace smoc_detail {
 #ifdef SYSTEMOC_ENABLE_VPC
   void LatencyQueue::RequestQueue::doSomething(size_t n) {
+    const char *name = getTop().fifo->name();
+    
     for (;n > 0; --n) {
       smoc_ref_event_p le(new smoc_ref_event());
       SystemC_VPC::EventPair p(&dummy, &*le);
-
+      
+# ifdef SYSTEMOC_TRACE
+      TraceLog.traceStartTryExecute(name);
+      TraceLog.traceStartActor(name);
+      TraceLog.traceStartFunction("transmit");
+# endif
+      
       // new FastLink interface
       getTop().fifo->vpcLink->compute(p);
-
       getTop().visibleQueue.addEntry(1, le);
+      
+# ifdef SYSTEMOC_TRACE
+      TraceLog.traceEndFunction("transmit");
+      TraceLog.traceEndActor(name);
+      TraceLog.traceEndTryExecute(name);
+# endif
     }
   }
 
   void LatencyQueue::VisibleQueue::doSomething(size_t n) {
+# ifdef SYSTEMOC_TRACE
+    const char *name = getTop().fifo->name();
+
+    for (size_t i = n; i > 0; --i) {
+      TraceLog.traceStartDeferredCommunication(name);
+      TraceLog.traceEndDeferredCommunication(name);
+    }
+# endif // SYSTEMOC_TRACE
     getTop().fifo->latencyExpired(n);
   }
 #endif // SYSTEMOC_ENABLE_VPC

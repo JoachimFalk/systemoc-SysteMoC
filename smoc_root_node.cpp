@@ -83,16 +83,6 @@ std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_a
  
 #ifdef SYSTEMOC_ENABLE_VPC
 const smoc_firing_state &smoc_root_node::_communicate() {
-# ifdef SYSTEMOC_DEBUG
-  std::cerr << "    <call actor=" << myModule()->name()
-      << " func=smoc_root_node::communicate>" << std::endl;
-  std::cerr << "    <communication type=\"execute\"/>" << std::endl;
-# endif
-  
-# ifdef SYSTEMOC_TRACE
-   TraceLog.traceStartDeferredCommunication(myModule()->name());
-# endif
-  
   assert(vpc_event_dii && vpc_event_lat != NULL);
   
   {
@@ -129,14 +119,6 @@ const smoc_firing_state &smoc_root_node::_communicate() {
   
 #ifndef NDEBUG
   vpc_event_lat = NULL;
-#endif
-  
-#ifdef SYSTEMOC_TRACE
-  TraceLog.traceEndDeferredCommunication(myModule()->name());
-#endif
-  
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "    </call>"<< std::endl;
 #endif
   return nextState;
 }

@@ -130,9 +130,9 @@ void TraceLogStream::traceCommSetup(const char * fifo, size_t req){
   stream << "<r s=\"" << req << "\" c=\"" << id << "\"/>" << std::endl;
 }
 
-void TraceLogStream::traceStartActor(const char * actor){
+void TraceLogStream::traceStartActor(const char * actor, const char *mode){
   size_t id = namePool.getID(actor);
-  stream << "<a n=\"" << id << "\" t=\"" << sc_time_stamp() << "\">"
+  stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
          << std::endl;
   actors.insert(actor);
   actor_activation_count[actor]++;

@@ -174,7 +174,7 @@ public:
 
   ~TraceLogStream();
   
-  void traceStartActor(const char * actor);
+  void traceStartActor(const char * actor, const char *mode = "???");
   void traceEndActor(const char * actor);
   void traceStartFunction(const char * func);
   void traceEndFunction(const char * func);
