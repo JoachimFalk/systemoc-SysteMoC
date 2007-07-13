@@ -52,8 +52,8 @@ namespace smoc_detail {
       SystemC_VPC::EventPair p(&dummy, &*le);
       
 # ifdef SYSTEMOC_TRACE
-      TraceLog.traceStartTryExecute(name);
-      TraceLog.traceStartActor(name);
+//    TraceLog.traceStartTryExecute(name);
+      TraceLog.traceStartActor(name, "s");
       TraceLog.traceStartFunction("transmit");
 # endif
       
@@ -64,7 +64,7 @@ namespace smoc_detail {
 # ifdef SYSTEMOC_TRACE
       TraceLog.traceEndFunction("transmit");
       TraceLog.traceEndActor(name);
-      TraceLog.traceEndTryExecute(name);
+//    TraceLog.traceEndTryExecute(name);
 # endif
     }
   }
@@ -74,8 +74,8 @@ namespace smoc_detail {
     const char *name = getTop().fifo->name();
 
     for (size_t i = n; i > 0; --i) {
-      TraceLog.traceStartDeferredCommunication(name);
-      TraceLog.traceEndDeferredCommunication(name);
+      TraceLog.traceStartActor(name, "l");
+      TraceLog.traceEndActor(name);
     }
 # endif // SYSTEMOC_TRACE
     getTop().fifo->latencyExpired(n);

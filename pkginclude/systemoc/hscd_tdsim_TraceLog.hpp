@@ -182,8 +182,8 @@ public:
   void traceEndTryExecute(const char * actor);
   void traceCommExecIn(size_t size, const char * actor);
   void traceCommExecOut(size_t size, const char * actor);
-  void traceStartDeferredCommunication(const char * actor);
-  void traceEndDeferredCommunication(const char * actor);
+//void traceStartDeferredCommunication(const char * actor);
+//void traceEndDeferredCommunication(const char * actor);
   void traceBlockingWaitStart();
   void traceBlockingWaitEnd();
   void traceStartChoice(const char * actor);

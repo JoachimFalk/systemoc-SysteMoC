@@ -125,9 +125,9 @@ void TraceLogStream::traceEndTransact(const char * actor){
   fifo_actor_last = "";
 }
 
-void TraceLogStream::traceCommSetup(const char * fifo, size_t req){
+void TraceLogStream::traceCommSetup(const char *fifo, size_t req) {
   size_t id = namePool.getID(fifo);
-  stream << "<r s=\"" << req << "\" c=\"" << id << "\"/>" << std::endl;
+  stream << "<r c=\"" << id << "\" s=\"" << req << "\"/>" << std::endl;
 }
 
 void TraceLogStream::traceStartActor(const char * actor, const char *mode){
@@ -177,6 +177,7 @@ void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
     fifo_info[actor].from.unknown = false;
   }
 }
+/*
 void TraceLogStream::traceStartDeferredCommunication(const char * actor){
   stream << "<d a=\""<< namePool.getID(actor) << "\" t=\"" << sc_time_stamp()
          << "\">" << std::endl;
@@ -186,6 +187,7 @@ void TraceLogStream::traceEndDeferredCommunication(const char * actor){
   stream << "</d>" << std::endl;
   fifo_actor_last = "";
 }
+*/
 
 TraceLogStream::~TraceLogStream(){
   const NameMap &names = namePool.getMap();
