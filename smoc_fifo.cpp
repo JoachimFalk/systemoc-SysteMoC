@@ -57,7 +57,7 @@ namespace smoc_detail {
   }
 
   void LatencyQueue::VisibleQueue::doSomething(size_t n) {
-    getTop().fifo->incrVisible(n);
+    getTop().fifo->latencyExpired(n);
   }
 #endif // SYSTEMOC_ENABLE_VPC
 };

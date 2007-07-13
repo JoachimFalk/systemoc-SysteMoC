@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_CHAN_IF
-#define _INCLUDED_SMOC_CHAN_IF
+#ifndef _INCLUDED_SMOC_CHAN_IF_HPP
+#define _INCLUDED_SMOC_CHAN_IF_HPP
 
 #include <systemoc/smoc_config.h>
 
@@ -49,193 +49,138 @@
 #include <list>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-namespace SystemC_VPC{
+namespace SystemC_VPC {
   class FastLink;
 }
-//# include <FastLink.h>
-#endif //SYSTEMOC_ENABLE_VPC
+#endif // SYSTEMOC_ENABLE_VPC
 
-//template<class S, class T>
 template<class T>
 class smoc_channel_access {
 public:
-  //typedef S                                              storage_type;
-  typedef T                                              return_type;
-  //typedef smoc_channel_access<storage_type, return_type> this_type;
+  typedef T                                return_type;
   typedef smoc_channel_access<return_type> this_type;
 
 #ifndef NDEBUG
-  virtual void   setLimit(size_t l)                    = 0;
-  //virtual size_t getLimit() const                      = 0;
+  virtual void   setLimit(size_t)                     = 0;
 #endif
-  virtual return_type operator[](size_t n)             = 0;
-  virtual const return_type operator[](size_t n) const = 0;
-  virtual bool tokenIsValid(size_t i) const            = 0;
+  virtual bool   tokenIsValid(size_t) const           = 0;
+
+  // Access methods
+  virtual return_type operator[](size_t)              = 0;
+  virtual const return_type operator[](size_t) const  = 0;
 };
 
 template<>
 class smoc_channel_access<void> {
 public:
-  //typedef void                                           storage_type;
-  typedef void                                           return_type;
+  typedef void                             return_type;
   typedef smoc_channel_access<return_type> this_type;
 
 #ifndef NDEBUG
-  virtual void   setLimit(size_t l)                    = 0;
-  //virtual size_t getLimit() const                      = 0;
+  virtual void   setLimit(size_t)                     = 0;
 #endif
+  virtual bool   tokenIsValid(size_t) const           = 0;
+
+  // return_type == void => No access methods needed
 };
 
 template<>
 class smoc_channel_access<const void> {
 public:
-  typedef const void           return_type;
+  typedef const void                       return_type;
   typedef smoc_channel_access<return_type> this_type;
 
 #ifndef NDEBUG
-  virtual void   setLimit(size_t l)                    = 0;
-  //virtual size_t getLimit() const                      = 0;
+  virtual void   setLimit(size_t)                    = 0;
 #endif
-};
+  virtual bool   tokenIsValid(size_t) const          = 0;
 
-// FIXME
-// -jens- this seems not be an access but an access + storage. This violates
-//  'is a' relationship of inheritance :-(
-template<class S, class T>
-//class smoc_ring_access : public smoc_channel_access<S, T> {
-class smoc_ring_access : public smoc_channel_access<T> {
-public:
-  typedef S                storage_type;
-  typedef T                return_type;
-  typedef smoc_ring_access<storage_type, return_type> this_type;
-private:
-#ifndef NDEBUG
-  size_t        limit;
-#endif
-public: // <-- FIXME
-  storage_type *storage;
-  size_t        storageSize;
-  size_t       *offset;
-public:
-  smoc_ring_access():
-#ifndef NDEBUG
-      limit(0),
-#endif
-      storage(NULL), storageSize(0), offset(NULL) {}
-
-#ifndef NDEBUG
-  void   setLimit(size_t l) { limit = l; }
-//size_t getLimit() const   { return limit; }
-#endif
-
-  return_type operator[](size_t n) {
-    // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
-    assert(n < limit);
-    return *offset + n < storageSize
-      ? storage[*offset + n]
-      : storage[*offset + n - storageSize];
-  }
-  const return_type operator[](size_t n) const {
-    // std::cerr << "((smoc_ring_access)" << this << ")->operator[](" << n << ") const" << std::endl;
-    assert(n < limit);
-    return *offset + n < storageSize
-      ? storage[*offset + n]
-      : storage[*offset + n - storageSize];
-  }
-
-  bool tokenIsValid(size_t n=0) const {
-    // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
-    // then it a failure in design
-    return true;
-  }
-};
-
-template <>
-//class smoc_ring_access<void, void> : public smoc_channel_access<void, void> {
-class smoc_ring_access<void, void> : public smoc_channel_access<void> {
-public:
-  typedef void                storage_type;
-  typedef void                return_type;
-  typedef smoc_ring_access<storage_type, return_type> this_type;
-private:
-#ifndef NDEBUG
-  size_t limit;
-#endif
-public:
-  smoc_ring_access()
-#ifndef NDEBUG
-    : limit(0)
-#endif
-    {}
-
-#ifndef NDEBUG
-  void   setLimit(size_t l) { limit = l; }
-//size_t getLimit() const   { return limit; }
-#endif
-//}
-};
-
-template <>
-//class smoc_ring_access<const void, const void> : public smoc_channel_access<const void, const void> {
-class smoc_ring_access<const void, const void> : public smoc_channel_access<const void> {
-public:
-  typedef const void              storage_type;
-  typedef const void              return_type;
-  typedef smoc_ring_access<storage_type, return_type> this_type;
-private:
-#ifndef NDEBUG
-  size_t limit;
-#endif
-public:
-  smoc_ring_access()
-#ifndef NDEBUG
-    : limit(0)
-#endif
-    {}
-
-#ifndef NDEBUG
-  void   setLimit(size_t l) { limit = l; }
-//size_t getLimit() const   { return limit; }
-#endif
+  // return_type == const void => No access methods needed
 };
 
 // forward
-//template <typename T, template <typename, typename> class R, class PARAM_TYPE>
-template <typename T, template <typename> class R, class PARAM_TYPE>
+template <
+  typename T,
+  template <typename> class R,
+  class PARAM_TYPE>
 class smoc_port_in_base;
 
-// forward
-template <typename T, 
-          //template <typename, typename> class R, 
-          template <typename> class R, 
-          class PARAM_TYPE, 
-          template <typename> class STORAGE_TYPE>
-class smoc_port_out_base;
-
 class smoc_chan_in_base_if {
+  typedef smoc_chan_in_base_if this_type;
 public:
-  //template <typename T, template <typename, typename> class R, class PARAM_TYPE> friend class smoc_port_in_base;
-  template <typename T, template <typename> class R, class PARAM_TYPE> friend class smoc_port_in_base;
+  template <
+    typename T,
+    template <typename> class R,
+    class PARAM_TYPE>
+  friend class smoc_port_in_base;
 private:
   smoc_port_list portsIn;
 protected:
   // constructor
   smoc_chan_in_base_if() {}
 
-  virtual void addPort(smoc_root_port_in  *portIn)
+  virtual void addPort(smoc_root_port_in *portIn)
     { portsIn.push_front(portIn); }
 public:
+#ifdef SYSTEMOC_ENABLE_VPC
+  virtual void        commitRead(size_t consume, const smoc_ref_event_p &) = 0;
+#else
+  virtual void        commitRead(size_t consume) = 0;
+#endif
+  virtual smoc_event &dataAvailableEvent(size_t n) = 0;
+  virtual size_t      numAvailable() const = 0;
+  virtual size_t      inTokenId() const = 0;
+
   virtual const char *name() const = 0;
+
   const smoc_port_list &getInputPorts()  const
     { return portsIn;  }
-  virtual ~smoc_chan_in_base_if() {
-    portsIn.clear();
-  }
+
+  virtual ~smoc_chan_in_base_if() {}
+private:
+  // disabled
+  smoc_chan_in_base_if(const this_type &);
+  this_type &operator =(const this_type &);
 };
 
-class smoc_chan_out_base_if {
+template <typename T, template <typename> class R>
+class smoc_chan_in_if
+  : virtual public sc_interface,
+    virtual public smoc_chan_in_base_if {
 public:
-  template <typename T, template <typename> class R, class PARAM_TYPE, template <typename> class STORAGE_TYPE> friend class smoc_port_out_base;
+  // typedefs
+  typedef smoc_chan_in_if<T,R>                  this_type;
+  typedef T                                     data_type;
+  typedef R<
+    typename smoc_storage_in<T>::return_type>   access_in_type;
+  typedef access_in_type                        access_type;
+protected:
+  // constructor
+  smoc_chan_in_if() {}
+public:
+  virtual access_in_type *getReadChannelAccess() = 0;
+private:
+  // disabled
+  const sc_event& default_event() const = 0;
+};
+
+// forward
+template <
+  typename T, 
+  template <typename> class R, 
+  class PARAM_TYPE, 
+  template <typename> class STORAGE_TYPE>
+class smoc_port_out_base;
+
+class smoc_chan_out_base_if {
+  typedef smoc_chan_out_base_if this_type;
+public:
+  template <
+    typename T, 
+    template <typename> class R, 
+    class PARAM_TYPE, 
+    template <typename> class STORAGE_TYPE>
+  friend class smoc_port_out_base;
 private:
   smoc_port_list portsOut;
 protected:
@@ -245,90 +190,49 @@ protected:
   virtual void addPort(smoc_root_port_out *portOut)
     { portsOut.push_front(portOut); }
 public:
+#ifdef SYSTEMOC_ENABLE_VPC
+  virtual void        commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
+#else
+  virtual void        commitWrite(size_t produce) = 0;
+#endif
+  virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
+  virtual size_t      numFree() const = 0;
+  virtual size_t      outTokenId() const = 0;
+
   virtual const char *name() const = 0;
+
   const smoc_port_list &getOutputPorts() const
     { return portsOut; }
-  virtual ~smoc_chan_out_base_if() {
-    portsOut.clear();
-  }
-};
 
-//template <typename T, template <typename, typename> class R>
-template <typename T, template <typename> class R>
-class smoc_chan_in_if
-  : virtual public sc_interface,
-    virtual public smoc_chan_in_base_if {
-public:
-  // typedefs
-  typedef smoc_chan_in_if<T,R>      this_type;
-  typedef T          data_type;
-  typedef R<
-    //typename smoc_storage_in<T>::storage_type,
-    typename smoc_storage_in<T>::return_type>   access_type;
-  typedef access_type                           access_in_type;
-  
-  virtual size_t numAvailable() const = 0;
-//smoc_event &dataAvailableEvent(size_t n) { return write_event; }
-  virtual smoc_event &dataAvailableEvent(size_t n) = 0;
-  virtual access_in_type * getReadChannelAccess() = 0;
-#ifdef SYSTEMOC_ENABLE_VPC
-  virtual void   commitRead(size_t consume, const smoc_ref_event_p &) = 0;
-#else
-  virtual void   commitRead(size_t consume) = 0;
-#endif
-protected:
-//smoc_event write_event;
-  
-  // constructor
-  smoc_chan_in_if() {}
-//  // write_event start unnotified
-//  : write_event(false) {}
+  virtual ~smoc_chan_out_base_if() {}
 private:
   // disabled
-  const sc_event& default_event() const = 0;
-  // disabled
-  smoc_chan_in_if( const this_type& );
-  this_type &operator = ( const this_type & );
+  smoc_chan_out_base_if(const this_type &);
+  this_type &operator =(const this_type &);
 };
 
-template <typename T,                                    //data type
-          //template <typename, typename> class R,         //ring access type
-          template <typename> class R,         //ring access type
-          template <typename> class S = smoc_storage_out //smoc_storage
-          >
+template <
+  typename T,                                     // data type
+  template <typename> class R,                    // ring access type
+  template <typename> class S = smoc_storage_out> // smoc_storage
 class smoc_chan_out_if
   : virtual public sc_interface,
     virtual public smoc_chan_out_base_if {
 public:
   // typedefs
-  typedef smoc_chan_out_if<T,R,S>        this_type;
-  typedef T                              data_type;
-  typedef R<//typename S<T>::storage_type,
-           typename S<T>::return_type>   access_type;
-  typedef access_type                    access_out_type;
-  
-  virtual size_t      numFree() const = 0;
-//smoc_event    &spaceAvailableEvent(size_t n) { return read_event; }
-  virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
-  virtual access_out_type * getWriteChannelAccess() = 0;
-#ifdef SYSTEMOC_ENABLE_VPC
-  virtual void commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
-#else
-  virtual void commitWrite(size_t produce) = 0;
-#endif
+  typedef smoc_chan_out_if<T,R,S> this_type;
+  typedef T                       data_type;
+  typedef R<
+    typename S<T>::return_type>   access_out_type;
+  typedef access_out_type         access_type;
 protected:
-//smoc_event read_event;
-  
   // constructor
   smoc_chan_out_if() {}
-//  // read_event start unnotified
-//  : read_event(false) {}
+public:
+  virtual access_out_type *getWriteChannelAccess() = 0;
 private:
   // disabled
   const sc_event& default_event() const = 0;
-  // disabled
-  smoc_chan_out_if( const this_type& );
-  this_type& operator = ( const this_type & );
 };
 
 class smoc_root_chan
@@ -426,4 +330,4 @@ typedef std::list<smoc_root_chan *> smoc_chan_list;
 
 #include "smoc_port.hpp"
 
-#endif // _INCLUDED_SMOC_CHAN_IF
+#endif // _INCLUDED_SMOC_CHAN_IF_HPP

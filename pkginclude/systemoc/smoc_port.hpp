@@ -507,22 +507,21 @@ protected:
   void commExec(size_t n)
     { return (*this)->commitRead(n); }
 #endif
-
 public: 
-
-  smoc_port_in_base(): base_type(sc_gen_unique_name("smoc_port_in")) {}
-  
+  smoc_port_in_base()
+    : base_type(sc_gen_unique_name("smoc_port_in")) {}
+ 
   bool isInput() const { return true; }
 
-  bool tokenIsValid(size_t i=0) const {
-    return this->channel_access->tokenIsValid(i);
-  }
-  
+  bool tokenIsValid(size_t i=0) const
+    { return this->channel_access->tokenIsValid(i); }
+  size_t tokenId(size_t i=0) const
+    { return (*this)->inTokenId() + i; }
   size_t availableCount() const
     { return (*this)->numAvailable(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->dataAvailableEvent(n); }  
-  
+
   typename Expr::PortTokens<this_type>::type getConsumableTokens()
     { return Expr::portTokens(*this); }
  
@@ -598,16 +597,18 @@ protected:
     { return (*this)->commitWrite(n); }
 #endif
 public:  
-
-  smoc_port_out_base(): base_type(sc_gen_unique_name("smoc_port_out")) {}
-  
+  smoc_port_out_base()
+    : base_type(sc_gen_unique_name("smoc_port_out")) {}
+ 
   bool isInput() const { return false; }
-  
+ 
+  size_t tokenId(size_t i=0) const
+    { return (*this)->outTokenId() + i; }
   size_t availableCount() const
     { return (*this)->numFree(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->spaceAvailableEvent(n); }
-  
+
   typename Expr::PortTokens<this_type>::type getFreeSpace()
     { return Expr::portTokens<this_type>(*this); }
 

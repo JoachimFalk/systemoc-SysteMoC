@@ -51,7 +51,76 @@
 
 #include "hscd_tdsim_TraceLog.hpp"
 
-// #include <iostream>
+// FIXME
+// -jens- this seems not be an access but an access + storage. This violates
+//  'is a' relationship of inheritance :-(
+template<class S, class T>
+class smoc_ring_access
+: public smoc_channel_access<T> {
+public:
+  typedef T                     return_type;
+  typedef S                     storage_type;
+  typedef smoc_ring_access<S,T> this_type;
+private:
+#ifndef NDEBUG
+  size_t        limit;
+#endif
+  storage_type *storage;
+  size_t        storageSize;
+  size_t       *offset;
+public:
+  smoc_ring_access(storage_type *storage, size_t storageSize, size_t *offset):
+#ifndef NDEBUG
+      limit(0),
+#endif
+      storage(storage), storageSize(storageSize), offset(offset) {}
+
+#ifndef NDEBUG
+  void setLimit(size_t l) { limit = l; }
+#endif
+  bool tokenIsValid(size_t n) const {
+    // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
+    // then it is an design failure
+    return true;
+  }
+
+  return_type operator[](size_t n) {
+    // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
+    assert(n < limit);
+    return *offset + n < storageSize
+      ? storage[*offset + n]
+      : storage[*offset + n - storageSize];
+  }
+  const return_type operator[](size_t n) const {
+    // std::cerr << "((smoc_ring_access)" << this << ")->operator[](" << n << ") const" << std::endl;
+    assert(n < limit);
+    return *offset + n < storageSize
+      ? storage[*offset + n]
+      : storage[*offset + n - storageSize];
+  }
+};
+
+template <>
+class smoc_ring_access<void, void>
+: public smoc_channel_access<void> {
+public:
+  typedef void                        return_type;
+  typedef void                        storage_type;
+  typedef smoc_ring_access<void,void> this_type;
+private:
+public:
+  smoc_ring_access()
+    {}
+
+#ifndef NDEBUG
+  void setLimit(size_t) {}
+#endif
+  bool tokenIsValid(size_t n) const {
+    // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
+    // then it is an design failure
+    return true;
+  }
+};
 
 class smoc_fifo_kind;
 
@@ -222,30 +291,52 @@ protected:
   size_t       vindex;  ///< The FIFO visible ptr
 #endif
   size_t       windex;  ///< The FIFO write   ptr
+  size_t       tokenId; ///< The tokenId of the next commit token
 
   smoc_event   eventWrite;
   EventMap     eventMapAvailable;
   smoc_event   eventRead;
   EventMap     eventMapFree;
 
-  size_t usedStorage() const {
+  size_t usedCount() const {
     size_t used =
-#ifdef SYSTEMOC_ENABLE_VPC
-      vindex - rindex;
-#else
       windex - rindex;
-#endif
     
-    if ( used > fsize )
+    if (used > fsize)
       used += fsize;
     return used;
-    // slightly slower
-    //return (used + fsize) % fsize;
   }
 
-  void usedIncr() {
-    size_t used = usedStorage();
-    // notify all disabled events for less/equal usedStorage() available tokens
+  size_t visibleCount() const {
+#ifdef SYSTEMOC_ENABLE_VPC
+    size_t used =
+      vindex - rindex;
+    
+    if (used > fsize)
+      used += fsize;
+    return used;
+#else // !SYSTEMOC_ENABLE_VPC
+    return usedCount();
+#endif
+  }
+
+  size_t freeCount() const {
+    size_t unused =
+      rindex - windex - 1;
+
+    if (unused > fsize)
+      unused += fsize;
+    return unused;
+  }
+
+  size_t inTokenId() const
+    { return tokenId - usedCount(); }
+  size_t outTokenId() const
+    { return tokenId; }
+
+  void incrVisible() {
+    size_t used = visibleCount();
+    // notify all disabled events for less/equal visibleCount() available tokens
     for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
          iter != eventMapAvailable.begin() && !*(--iter)->second;
          )
@@ -253,26 +344,18 @@ protected:
     eventWrite.notify();
   }
 
-  void usedDecr() {
-    size_t used = usedStorage();
-    // reset all enabled events for more then usedStorage() available tokens
+  void decrVisible() {
+    size_t used = visibleCount();
+    // reset all enabled events for more then visibleCount() available tokens
     for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
          iter != eventMapAvailable.end() && *iter->second;
          ++iter)
       iter->second->reset();
   }
 
-  size_t unusedStorage() const {
-    size_t unused = rindex - windex - 1;
-
-    if ( unused > fsize )
-      unused += fsize;
-    return unused;
-  }
-
-  void unusedIncr() {
-    size_t unused = unusedStorage();
-    // notify all disabled events for less/equal unusedStorage() free space
+  void incrFree() {
+    size_t unused = freeCount();
+    // notify all disabled events for less/equal freeCount() free space
     for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
          iter != eventMapFree.begin() && !*(--iter)->second;
          )
@@ -280,9 +363,9 @@ protected:
     eventRead.notify();
   }
 
-  void unusedDecr() {
-    size_t unused = unusedStorage();
-    // reset all enabled events for more then unusedStorage() free space
+  void decrFree() {
+    size_t unused = freeCount();
+    // reset all enabled events for more then freeCount() free space
     for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
          iter != eventMapFree.end() && *iter->second;
          ++iter)
@@ -296,7 +379,7 @@ protected:
       rindex = rindex + n;*/
     rindex = (rindex + n) % fsize;
     
-    usedDecr(); unusedIncr();
+    decrVisible(); incrFree();
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -305,24 +388,25 @@ protected:
   void wpp(size_t n)
 #endif
   {
+    tokenId += n;
     /*if ( windex + n >= fsize )
       windex = windex + n - fsize;
     else
       windex = windex + n;*/
     windex = (windex + n) % fsize;
     
-    unusedDecr();
+    decrFree();
 #ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue.addEntry(n, le);
 #else
-    usedIncr();
+    incrVisible();
 #endif
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void incrVisible(size_t n) {
+  void latencyExpired(size_t n) {
 # ifndef NDEBUG
-    size_t oldUsed = usedStorage();
+    size_t oldUsed = visibleCount();
 # endif
     /*if ( vindex + n >= fsize )
       vindex = vindex + n - fsize;
@@ -334,10 +418,10 @@ protected:
       (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
        windex <  rindex && (vindex >= rindex || vindex <= windex)));
 # ifndef NDEBUG
-    // PARANOIA: usedStorage() must increase
-    assert(usedStorage() >= oldUsed);
+    // PARANOIA: visibleCount() must increase
+    assert(visibleCount() >= oldUsed);
 # endif
-    usedIncr();
+    incrVisible();
   }
 #endif
 
@@ -346,7 +430,7 @@ protected:
       EventMap::iterator iter = eventMapAvailable.find(n);
       if (iter == eventMapAvailable.end()) {
         iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
-        if (usedStorage() >= n)
+        if (visibleCount() >= n)
           iter->second->notify();
       }
       return *iter->second;
@@ -360,7 +444,7 @@ protected:
       EventMap::iterator iter = eventMapFree.find(n);
       if (iter == eventMapFree.end()) {
         iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
-        if (unusedStorage() >= n)
+        if (freeCount() >= n)
           iter->second->notify();
       }
       return *iter->second;
@@ -388,7 +472,8 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
       vindex(0), 
 #endif
-      windex(0)
+      windex(0),
+      tokenId(0)
   {
     // for lazy % overflow protection fsize must be less than half the datatype
     //  size
@@ -417,7 +502,7 @@ public:
   typedef smoc_fifo_storage<data_type>        this_type;
   typedef typename this_type::access_out_type ring_out_type;
   typedef typename this_type::access_in_type  ring_in_type;
-  typedef smoc_storage<data_type>        storage_type;
+  typedef smoc_storage<data_type>             storage_type;
   typedef smoc_ring_access<
     storage_type,
     typename ring_in_type::return_type>       ring_access_in_type;
@@ -444,7 +529,6 @@ private:
   storage_type *storage;
 protected:
   smoc_fifo_storage( const chan_init &i )
-//  : smoc_chan_nonconflicting_if<smoc_fifo_kind, T>(i),
     : smoc_chan_if<smoc_fifo_kind,
        T,
        smoc_channel_access,
@@ -461,19 +545,13 @@ protected:
 #endif
   }
 
-  ring_in_type * getReadChannelAccess() {
-    ring_access_in_type *r = new ring_access_in_type();
-    r->storage     = storage;
-    r->storageSize = this->fsize;
-    r->offset      = &this->rindex;
-    return r;
+  ring_in_type *getReadChannelAccess() {
+    return new ring_access_in_type
+      (storage, this->fsize, &this->rindex);
   }
-  ring_out_type * getWriteChannelAccess() {
-    ring_access_out_type *r = new ring_access_out_type();
-    r->storage     = storage;
-    r->storageSize = this->fsize;
-    r->offset      = &this->windex; 
-    return r;
+  ring_out_type *getWriteChannelAccess() {
+    return new ring_access_out_type
+      (storage, this->fsize,  &this->windex);
   }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
@@ -481,7 +559,7 @@ protected:
     {
       //*************************INITIAL TOKENS, ETC...***************************
       pgw.indentUp();
-      for ( size_t n = 0; n < this->usedStorage(); ++n )
+      for ( size_t n = 0; n < this->visibleCount(); ++n )
         pgw << "<token value=\"" << storage[n].get() << "\"/>" << std::endl;
       pgw.indentDown();
     }
@@ -493,7 +571,6 @@ protected:
 
 template <>
 class smoc_fifo_storage<void>
-//: public smoc_chan_nonconflicting_if<smoc_fifo_kind, void> {
 : public smoc_chan_if<smoc_fifo_kind,
           void,
           smoc_channel_access,
@@ -503,17 +580,9 @@ public:
   typedef smoc_fifo_storage<data_type>  this_type;
   typedef this_type::access_out_type    ring_out_type;
   typedef this_type::access_in_type     ring_in_type;
-  typedef smoc_ring_access<
-    smoc_storage<void>,
-    void>       ring_access_in_type;
-    //ring_in_type::storage_type,
-    //ring_in_type::return_type>       ring_access_in_type;
-  typedef smoc_ring_access<
-    smoc_storage<void>,
-    void>      ring_access_out_type;
-    //ring_out_type::storage_type,
-    //ring_out_type::return_type>      ring_access_out_type;
-  
+  typedef smoc_ring_access<void,void>   ring_access_in_type;
+  typedef smoc_ring_access<void,void>   ring_access_out_type;
+
   class chan_init
     : public smoc_fifo_kind::chan_init {
     friend class smoc_fifo_storage<void>;
@@ -544,21 +613,17 @@ protected:
 #endif
   }
  
-  ring_in_type  * getReadChannelAccess()  {
-    ring_access_in_type *r = new ring_access_in_type();
-    return r;
-  }
-  ring_out_type * getWriteChannelAccess() {
-    ring_access_out_type *r = new ring_access_out_type();
-    return r;
-  }
+  ring_in_type  *getReadChannelAccess()
+    { return new ring_access_in_type(); }
+  ring_out_type *getWriteChannelAccess()
+    { return new ring_access_out_type(); }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
     {
       //*************************INITIAL TOKENS, ETC...***************************
       pgw.indentUp();
-      for ( size_t n = 0; n < this->usedStorage(); ++n )
+      for ( size_t n = 0; n < this->visibleCount(); ++n )
         pgw << "<token value=\"bot\"/>" << std::endl;
       pgw.indentDown();
     }
@@ -590,9 +655,6 @@ protected:
     TraceLog.traceCommExecIn(consume, this->name());
 #endif
     this->rpp(consume);
-//  this->read_event.notify(); 
-//  if (this->usedStorage() < 1)
-//    this->write_event.reset();
   }
   
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -609,25 +671,21 @@ protected:
 #else
     this->wpp(produce);
 #endif
-//  this->write_event.notify();
-//  if (this->unusedStorage() < 1)
-//    this->read_event.reset();
   }
 public:
   // constructors
   smoc_fifo_type( const typename smoc_fifo_storage<T>::chan_init &i )
-    : smoc_fifo_storage<T>(i) {
-//  if (this->usedStorage() >= 1)
-//    this->write_event.notify();
-//  if (this->unusedStorage() >= 1)
-//    this->read_event.notify();
-  }
+    : smoc_fifo_storage<T>(i) {}
 
   // bounce functions
   size_t numAvailable() const
-    { return this->usedStorage(); }
+    { return this->visibleCount(); }
   size_t numFree() const
-    { return this->unusedStorage(); }
+    { return this->freeCount(); }
+  size_t inTokenId() const
+    { return this->smoc_fifo_storage<T>::inTokenId(); }
+  size_t outTokenId() const
+    { return this->smoc_fifo_storage<T>::outTokenId(); }
   smoc_event &dataAvailableEvent(size_t n)
     { return this->getEventAvailable(n); }
   smoc_event &spaceAvailableEvent(size_t n)
@@ -643,11 +701,11 @@ public:
   typedef T                   data_type;
   typedef smoc_fifo<T>        this_type;
   typedef smoc_fifo_type<T>   chan_type;
-  
+
   this_type &operator <<( typename smoc_fifo_storage<T>::chan_init::add_param_ty x ) {
     add(x); return *this;
   }
-  
+ 
   smoc_fifo( size_t n = 1 )
     : smoc_fifo_storage<T>::chan_init(NULL,n) {}
   explicit smoc_fifo( const char *name, size_t n = 1)
