@@ -156,7 +156,6 @@ protected:
   static const int W6 = 1108; /* 2048*sqrt(2)*cos(6*pi/16) */
   static const int W7 = 565;  /* 2048*sqrt(2)*cos(7*pi/16) */
 
-  // FIXME! Arrays not supported for Synthesis
   int blk[64];
 
   void idctrow(size_t row) {
@@ -312,6 +311,9 @@ public:
   MIdct2D(sc_module_name name, int levelAdj, int min, int max)
     : smoc_actor(name, start), levelAdj(levelAdj), min(min), max(max)
   {
+    SMOC_REGISTER_CPARAM(levelAdj);
+    SMOC_REGISTER_CPARAM(min);
+    SMOC_REGISTER_CPARAM(max);
     start
       = in(64)                >>
         out(64)               >>
