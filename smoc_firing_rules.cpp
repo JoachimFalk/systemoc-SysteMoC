@@ -309,7 +309,7 @@ void smoc_firing_types::transition_ty::execute(
         ? MODE_DIISTART
         : MODE_DIIEND;
 #else
-      MODE_DIISTART
+      MODE_DIISTART;
 #endif
   } else {
 #ifdef SYSTEMOC_ENABLE_VPC  
