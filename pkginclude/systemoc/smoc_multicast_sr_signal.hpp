@@ -215,6 +215,8 @@ public:
     { return this->usedStorage(); }
   smoc_event &dataAvailableEvent(size_t n)
     { return this->getEventAvailable(n); }
+  size_t inTokenId() const
+    { assert(!"FIXME: Not implemented !!!"); }
 
   ring_in_type * getReadChannelAccess() {
     return this;
@@ -296,6 +298,8 @@ public:
   virtual ring_out_type * getWriteChannelAccess() {
     return this;
   }
+  size_t outTokenId() const
+    { assert(!"FIXME: Not implemented !!!"); }
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &le) {
     if( this->actualValue.isValid() ) this->_base->wpp(produce, le);
