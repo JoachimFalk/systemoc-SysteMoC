@@ -247,49 +247,49 @@ protected:
     x[4] = (181*(x[4]-x[5])+128)>>8;  // addsub6.O2
     
     /* fourth stage */
-    tmpval = (x[7]+x[1])>>14 + levelAdj;
+    tmpval = ((x[7]+x[1])>>14) + levelAdj;
     out[(0<<3)|col] = tmpval < min
       ? min
       : tmpval > max
         ? max
         : tmpval;
-    tmpval = (x[3]+x[2])>>14 + levelAdj;
+    tmpval = ((x[3]+x[2])>>14) + levelAdj;
     out[(1<<3)|col] = tmpval < min
       ? min
       : tmpval > max
         ? max 
         : tmpval;
-    tmpval =  (x[0]+x[4])>>14 + levelAdj;
+    tmpval = ((x[0]+x[4])>>14) + levelAdj;
     out[(2<<3)|col] = tmpval < min
       ? min
       : tmpval > max
         ? max
         : tmpval;
-    tmpval = (x[8]+x[6])>>14 + levelAdj;
+    tmpval = ((x[8]+x[6])>>14) + levelAdj;
     out[(3<<3)|col] = tmpval < min
       ? min
       : tmpval > max
         ? max
         : tmpval;
-    tmpval = (x[8]-x[6])>>14 + levelAdj;
+    tmpval = ((x[8]-x[6])>>14) + levelAdj;
     out[(4<<3)|col] = tmpval < min
       ? min
       : tmpval > max
         ? max
         : tmpval;
-    tmpval = (x[0]-x[4])>>14 + levelAdj;
+    tmpval = ((x[0]-x[4])>>14) + levelAdj;
     out[(5<<3)|col] = tmpval < min
       ? min
       : tmpval > max
         ? max
         : tmpval;
-    tmpval = (x[3]-x[2])>>14 + levelAdj;
+    tmpval = ((x[3]-x[2])>>14) + levelAdj;
     out[(6<<3)|col] = tmpval < min
       ? min
       : tmpval > max
         ? max
         : tmpval;
-    tmpval = (x[7]-x[1])>>14 + levelAdj;
+    tmpval = ((x[7]-x[1])>>14) + levelAdj;
     out[(7<<3)|col] = tmpval < min
       ? min
       : tmpval > max
