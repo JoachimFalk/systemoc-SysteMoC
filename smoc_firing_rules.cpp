@@ -303,10 +303,18 @@ void smoc_firing_types::transition_ty::execute(
   } execMode;
   
   if (dynamic_cast<smoc_graph *>(actor) == NULL) {
-    execMode = *rs != actor->commstate.rs
-      ? MODE_DIISTART : MODE_DIIEND;
+    execMode =
+#ifdef SYSTEMOC_ENABLE_VPC  
+      *rs != actor->commstate.rs
+        ? MODE_DIISTART
+        : MODE_DIIEND;
+#else
+      MODE_DIISTART
+#endif
   } else {
+#ifdef SYSTEMOC_ENABLE_VPC  
     assert(*rs != actor->commstate.rs);
+#endif
     execMode = MODE_GRAPH;
   }
   
