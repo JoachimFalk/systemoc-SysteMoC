@@ -93,18 +93,17 @@ private:
       for(unsigned int x = 0; x < image_width; x++){      
         unsigned int bx = x / 8;
         unsigned int rx = x % 8;
-        // +128 : DC-Level shift
 #ifdef SINK_BINARY_OUTPUT
   #ifndef XILINX_EDK_RUNTIME
-        cout << (char)(in[bx*64+y*8+rx] + 128);
+        cout << (char)(in[bx*64+y*8+rx]);
   #else
-        xil_printf("%c", in[bx*64+y*8+rx] + 128);
+        xil_printf("%c", in[bx*64+y*8+rx]);
   #endif
 #else
   #ifndef XILINX_EDK_RUNTIME
-        cout << in[bx*64+y*8+rx] + 128 << " ";
+        cout << in[bx*64+y*8+rx] << " ";
   #else
-        xil_printf("%d ", in[bx*64+y*8+rx] + 128);
+        xil_printf("%d ", in[bx*64+y*8+rx]);
   #endif
 #endif
       }

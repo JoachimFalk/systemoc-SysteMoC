@@ -76,7 +76,7 @@ public:
   MTopIdct2D(sc_module_name name, size_t periods)
     : smoc_graph(name),
       mSrc("mSrc", periods),
-      mIdct2D("mIdct2D", 0, -128, 127),
+      mIdct2D("mIdct2D", 128, 0, 255),
 #ifdef REAL_BLOCK_DATA
       mSnk("mSnk", IMAGE_WIDTH, IMAGE_HEIGHT)
 #else
