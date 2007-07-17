@@ -1026,6 +1026,10 @@ public:
     { return this->getEventAvailable(n); }
   smoc_event &spaceAvailableEvent(size_t n)
     { return this->getEventFree(n); }
+  size_t inTokenId() const
+    { assert(!"FIXME: Not implemented !!!"); }
+  size_t outTokenId() const
+    { assert(!"FIXME: Not implemented !!!"); }
 #endif
 };
 
