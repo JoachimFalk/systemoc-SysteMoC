@@ -182,7 +182,8 @@ smoc_multicast_sr_signal_kind::smoc_multicast_sr_signal_kind(
   : smoc_multicast_chan(
     i.name != NULL ? i.name
     : sc_gen_unique_name( "smoc_multicast_sr_signal" ) ),
-    signalState(undefined){
+    signalState(undefined),
+    tokenId(0){
 }
 
 const char* smoc_multicast_sr_signal_kind::kind() const {

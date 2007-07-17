@@ -72,15 +72,22 @@ public:
 
   bool isDefined() const;
 
-  void addPort(smoc_root_port_in *inPort){
+  void registerPort(smoc_root_port_in *inPort){
     this->addPort(inPort);
   }
 
-  void addPort(smoc_root_port_out *outPort){
+  void registerPort(smoc_root_port_out *outPort){
     this->addPort(outPort);
   }
+  size_t inTokenId() const
+    { return tokenId; }
+
+  size_t outTokenId() const
+    { return tokenId; }
 protected:
   SignalState signalState;
+
+  size_t      tokenId; ///< The tokenId of the next commit token
 
   void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
@@ -215,8 +222,9 @@ public:
     { return this->usedStorage(); }
   smoc_event &dataAvailableEvent(size_t n)
     { return this->getEventAvailable(n); }
-  size_t inTokenId() const
-    { assert(!"FIXME: Not implemented !!!"); }
+  size_t inTokenId() const {
+    return  _base->inTokenId();
+  }
 
   ring_in_type * getReadChannelAccess() {
     return this;
@@ -249,7 +257,7 @@ public:
 
 protected:
   virtual void registerPort(smoc_root_port_in  *portIn){
-    this->_base->addPort(portIn);
+    this->_base->registerPort(portIn);
   }
 private:
   size_t         limit;
@@ -298,8 +306,9 @@ public:
   virtual ring_out_type * getWriteChannelAccess() {
     return this;
   }
-  size_t outTokenId() const
-    { assert(!"FIXME: Not implemented !!!"); }
+  size_t outTokenId() const {
+    return _base->outTokenId();
+  }
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &le) {
     if( this->actualValue.isValid() ) this->_base->wpp(produce, le);
@@ -327,7 +336,7 @@ public:
 
 protected:
   virtual void registerPort(smoc_root_port_out  *portOut){
-    this->_base->addPort(portOut);
+    this->_base->registerPort(portOut);
   }
 private:
   size_t         limit;
@@ -452,6 +461,7 @@ private:
     bool needUpdate = (this->getSignalState() != undefined);
     this->setSignalState(undefined);
     this->reset();
+    this->tokenId++;
     if(needUpdate){
       // update events (storage state changed)
       for(typename OutletMap::iterator iter = outlets.begin();
