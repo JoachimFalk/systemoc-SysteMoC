@@ -494,7 +494,7 @@ protected:
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
     if (this->child == NULL)
-      (*this)->addPort(this);
+      (*this)->registerPort(this);
   }
 
   void finalise(smoc_root_node *node)
@@ -583,7 +583,7 @@ protected:
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
     if (this->child == NULL)
-      (*this)->addPort(this);
+      (*this)->registerPort(this);
   }
 
   void finalise(smoc_root_node *node)

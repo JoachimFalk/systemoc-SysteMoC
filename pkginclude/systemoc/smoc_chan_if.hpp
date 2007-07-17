@@ -113,14 +113,11 @@ public:
     template <typename> class R,
     class PARAM_TYPE>
   friend class smoc_port_in_base;
-private:
-  smoc_port_list portsIn;
 protected:
   // constructor
   smoc_chan_in_base_if() {}
 
-  virtual void addPort(smoc_root_port_in *portIn)
-    { portsIn.push_front(portIn); }
+  virtual void registerPort(smoc_root_port_in *portIn) = 0;
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitRead(size_t consume, const smoc_ref_event_p &) = 0;
@@ -131,10 +128,7 @@ public:
   virtual size_t      numAvailable() const = 0;
   virtual size_t      inTokenId() const = 0;
 
-  virtual const char *name() const = 0;
-
-  const smoc_port_list &getInputPorts()  const
-    { return portsIn;  }
+  //  virtual const char *name() const = 0;
 
   virtual ~smoc_chan_in_base_if() {}
 private:
@@ -181,14 +175,11 @@ public:
     class PARAM_TYPE, 
     template <typename> class STORAGE_TYPE>
   friend class smoc_port_out_base;
-private:
-  smoc_port_list portsOut;
 protected:
   // constructor
   smoc_chan_out_base_if() {}
 
-  virtual void addPort(smoc_root_port_out *portOut)
-    { portsOut.push_front(portOut); }
+  virtual void registerPort(smoc_root_port_out *portOut) = 0;
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
@@ -199,10 +190,7 @@ public:
   virtual size_t      numFree() const = 0;
   virtual size_t      outTokenId() const = 0;
 
-  virtual const char *name() const = 0;
-
-  const smoc_port_list &getOutputPorts() const
-    { return portsOut; }
+  //  virtual const char *name() const = 0;
 
   virtual ~smoc_chan_out_base_if() {}
 private:
@@ -236,9 +224,7 @@ private:
 };
 
 class smoc_root_chan
-  : public sc_prim_channel,
-    virtual public smoc_chan_in_base_if,
-    virtual public smoc_chan_out_base_if {
+  : public sc_prim_channel {
 public:
   // typedefs
   typedef smoc_root_chan              this_type;
@@ -250,22 +236,40 @@ public:
 #endif //SYSTEMOC_ENABLE_VPC
 protected:
   std::string myName; // patched in finalise
+
+  void addPort(smoc_root_port_in *portIn)
+    { portsIn.push_front(portIn); }
+
+  virtual void addPort(smoc_root_port_out *portOut)
+    { portsOut.push_front(portOut); }
 public:
   const char *name() const { return myName.c_str(); }
   virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
   virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
   
   virtual void finalise();
+
+  const smoc_port_list &getInputPorts()  const
+    { return portsIn;  }
+
+  const smoc_port_list &getOutputPorts() const
+    { return portsOut; }
 protected:
   // constructor
   smoc_root_chan(const char *name)
     : sc_prim_channel(name) {}
 
   virtual void assemble(smoc_modes::PGWriter &pgw) const = 0;
+private:
+  smoc_port_list portsIn;
+
+  smoc_port_list portsOut;
 };
 
 class smoc_nonconflicting_chan
-  : public smoc_root_chan {
+  : public smoc_root_chan,
+    virtual public smoc_chan_in_base_if,
+    virtual public smoc_chan_out_base_if {
 public:
   // typedefs
   typedef smoc_nonconflicting_chan this_type;
@@ -277,6 +281,14 @@ protected:
   void assemble(smoc_modes::PGWriter &pgw) const;
 
   virtual void finalise();
+
+  void registerPort(smoc_root_port_in *portIn) {
+    this->addPort(portIn);
+  }
+
+  void registerPort(smoc_root_port_out *portOut) {
+    this->addPort(portOut);
+  }
 };
 
 class smoc_multicast_chan

@@ -73,11 +73,11 @@ public:
   bool isDefined() const;
 
   void addPort(smoc_root_port_in *inPort){
-    smoc_chan_in_base_if::addPort(inPort);
+    this->addPort(inPort);
   }
 
   void addPort(smoc_root_port_out *outPort){
-    smoc_chan_out_base_if::addPort(outPort);
+    this->addPort(outPort);
   }
 protected:
   SignalState signalState;
@@ -248,7 +248,7 @@ public:
   }
 
 protected:
-  virtual void addPort(smoc_root_port_in  *portIn){
+  virtual void registerPort(smoc_root_port_in  *portIn){
     this->_base->addPort(portIn);
   }
 private:
@@ -326,7 +326,7 @@ public:
   }
 
 protected:
-  virtual void addPort(smoc_root_port_out  *portOut){
+  virtual void registerPort(smoc_root_port_out  *portOut){
     this->_base->addPort(portOut);
   }
 private:
