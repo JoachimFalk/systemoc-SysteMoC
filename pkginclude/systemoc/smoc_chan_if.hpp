@@ -128,7 +128,7 @@ public:
   virtual size_t      numAvailable() const = 0;
   virtual size_t      inTokenId() const = 0;
 
-  //  virtual const char *name() const = 0;
+  virtual const char *name() const = 0;
 
   virtual ~smoc_chan_in_base_if() {}
 private:
@@ -190,7 +190,7 @@ public:
   virtual size_t      numFree() const = 0;
   virtual size_t      outTokenId() const = 0;
 
-  //  virtual const char *name() const = 0;
+  virtual const char *name() const = 0;
 
   virtual ~smoc_chan_out_base_if() {}
 private:
@@ -289,6 +289,9 @@ protected:
   void registerPort(smoc_root_port_out *portOut) {
     this->addPort(portOut);
   }
+public:
+  const char *name() const
+    { return smoc_root_chan::name(); }
 };
 
 class smoc_multicast_chan
