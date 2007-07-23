@@ -85,37 +85,52 @@ std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_a
 const smoc_firing_state &smoc_root_node::_communicate() {
   assert(vpc_event_dii && vpc_event_lat != NULL);
   
-  {
-    smoc_ref_event_p foo(vpc_event_lat);
-    Expr::evalTo<Expr::CommExec>(*_guard, foo);
-    if (!*foo) {
-      // latency event not signaled
-      struct _: public smoc_event_listener {
-        smoc_ref_event_p foo;
+  smoc_ref_event_p latEvent(vpc_event_lat);
+  if (!*latEvent) {
+    // latency event not signaled
+    struct _: public smoc_event_listener {
+      smoc_ref_event_p  latEvent;
+      smoc_root_node   *actor;
+      
+      void signaled(smoc_event_waiter *_e) {
+# ifdef SYSTEMOC_TRACE
+        const char *name = actor->myModule()->name();
         
-        void signaled(smoc_event_waiter *_e) {
-# ifdef SYSTEMOC_DEBUG
-          std::cerr << "smoc_root_node::_communicate::_::signaled(...)" << std::endl;
+        TraceLog.traceStartActor(name, "l");
 # endif
-          assert(_e == &*foo);
-          assert(*_e);
-          foo = NULL;
-          return;// false;
-        }
-        void eventDestroyed(smoc_event_waiter *_e) {
 # ifdef SYSTEMOC_DEBUG
-          std::cerr << "smoc_root_node::_communicate::_:: eventDestroyed(...)" << std::endl;
+        std::cerr << "smoc_root_node::_communicate::_::signaled(...)" << std::endl;
 # endif
-          delete this;
-        }
-        
-        _(const smoc_ref_event_p &foo): foo(foo) {};
-        
-        virtual ~_() {}
-      };
-      foo->addListener(new _(foo));
-    }
+        assert(_e == &*latEvent);
+        assert(*_e);
+        latEvent = NULL;
+# ifdef SYSTEMOC_TRACE
+        TraceLog.traceEndActor(name);
+# endif
+        return;
+      }
+      void eventDestroyed(smoc_event_waiter *_e) {
+# ifdef SYSTEMOC_DEBUG
+        std::cerr << "smoc_root_node::_communicate::_:: eventDestroyed(...)" << std::endl;
+# endif
+        delete this;
+      }
+      
+      _(const smoc_ref_event_p &latEvent, smoc_root_node *actor)
+        : latEvent(latEvent), actor(actor) {};
+      
+      virtual ~_() {}
+    };
+    latEvent->addListener(new _(latEvent, this));
+  } else {
+# ifdef SYSTEMOC_TRACE
+    const char *name = this->myModule()->name();
+    
+    TraceLog.traceStartActor(name, "l");
+    TraceLog.traceEndActor(name);
+# endif
   }
+  Expr::evalTo<Expr::CommExec>(*_guard, latEvent);
   
 #ifndef NDEBUG
   vpc_event_lat = NULL;
