@@ -44,40 +44,82 @@ const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
 
 namespace smoc_detail {
 #ifdef SYSTEMOC_ENABLE_VPC
+
+# ifdef SYSTEMOC_TRACE
+  struct DeferedTraceLogDumper
+  : public smoc_event_listener {
+    smoc_ref_event_p  event;
+    smoc_fifo_kind   *fifo;
+    const char       *mode;
+
+    void signaled(smoc_event_waiter *_e) {
+      const char *name = fifo->name();
+      
+      TraceLog.traceStartActor(name, mode);
+#   ifdef SYSTEMOC_DEBUG
+      std::cerr << "smoc_detail::DeferedTraceLogDumper::signaled(...)" << std::endl;
+#   endif
+      assert(_e == event.get());
+      assert(*_e);
+      event = NULL;
+      TraceLog.traceEndActor(name);
+      return;
+    }
+    void eventDestroyed(smoc_event_waiter *_e) {
+#   ifdef SYSTEMOC_DEBUG
+      std::cerr << "smoc_detail::DeferedTraceLogDumper:: eventDestroyed(...)" << std::endl;
+#   endif
+      delete this;
+    }
+
+    DeferedTraceLogDumper
+      (const smoc_ref_event_p &event, smoc_fifo_kind *fifo, const char *mode)
+      : event(event), fifo(fifo), mode(mode) {};
+ 
+    virtual ~DeferedTraceLogDumper() {}
+  };
+# endif
+
   void LatencyQueue::RequestQueue::doSomething(size_t n) {
     const char *name = getTop().fifo->name();
     
     for (;n > 0; --n) {
-      smoc_ref_event_p le(new smoc_ref_event());
-      SystemC_VPC::EventPair p(&dummy, &*le);
-      
+      smoc_ref_event_p latEvent(new smoc_ref_event());
 # ifdef SYSTEMOC_TRACE
-//    TraceLog.traceStartTryExecute(name);
+      smoc_ref_event_p diiEvent(new smoc_ref_event());
+      
       TraceLog.traceStartActor(name, "s");
       TraceLog.traceStartFunction("transmit");
-# endif
-      
-      // new FastLink interface
-      getTop().fifo->vpcLink->compute(p);
-      getTop().visibleQueue.addEntry(1, le);
-      
-# ifdef SYSTEMOC_TRACE
       TraceLog.traceEndFunction("transmit");
       TraceLog.traceEndActor(name);
-//    TraceLog.traceEndTryExecute(name);
+      
+      SystemC_VPC::EventPair p(diiEvent.get(), latEvent.get());
+# else
+      SystemC_VPC::EventPair p(&dummy, latEvent.get());
 # endif
+      // new FastLink interface
+      getTop().fifo->vpcLink->compute(p);
+# ifdef SYSTEMOC_TRACE
+      if (!*diiEvent) {
+        // dii event not signaled
+        diiEvent->addListener(new DeferedTraceLogDumper(diiEvent, getTop().fifo, "e"));
+      } else {
+        TraceLog.traceStartActor(name, "e");
+        TraceLog.traceEndActor(name);
+      }
+      if (!*latEvent) {
+        // latency event not signaled
+        latEvent->addListener(new DeferedTraceLogDumper(latEvent, getTop().fifo, "l"));
+      } else {
+        TraceLog.traceStartActor(name, "l");
+        TraceLog.traceEndActor(name);
+      }
+# endif
+      getTop().visibleQueue.addEntry(1, latEvent);
     }
   }
 
   void LatencyQueue::VisibleQueue::doSomething(size_t n) {
-# ifdef SYSTEMOC_TRACE
-    const char *name = getTop().fifo->name();
-
-    for (size_t i = n; i > 0; --i) {
-      TraceLog.traceStartActor(name, "l");
-      TraceLog.traceEndActor(name);
-    }
-# endif // SYSTEMOC_TRACE
     getTop().fifo->latencyExpired(n);
   }
 #endif // SYSTEMOC_ENABLE_VPC
