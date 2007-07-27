@@ -54,7 +54,9 @@ private:
   size_t  iter;
   
   void src() {
-    std::cout << name() << ": " << i << std::endl;
+    std::cout
+      << name() << ": generate token with id "
+      << out.tokenId(0) << " with value " << i << std::endl;
     out[0] = i++; --iter;
   }
   smoc_firing_state start;
@@ -76,7 +78,11 @@ public:
 private:
   int i;
   
-  void sink(void) { std::cout << name() << ": " << in[0] << std::endl; }
+  void sink(void) {
+    std::cout
+      << name() << ": received token with id "
+      << in.tokenId(0) << " and value " << in[0] << std::endl;
+  }
   
   smoc_firing_state start;
 public:
