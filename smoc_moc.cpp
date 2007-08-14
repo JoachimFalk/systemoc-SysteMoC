@@ -356,7 +356,8 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 
     // move transition to next list
 #ifdef SYSTEMOC_ENABLE_VPC
-    assert(n.inCommState());
+    //FIXME
+    //assert(n.inCommState());
     for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
     titer != n._currentState->tl.end();
     ++titer ){
