@@ -237,7 +237,7 @@ public:
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(consume, this->name());
+    TraceLog.traceCommExecIn(this->_base, consume);
 #endif
     this->_base->rpp(consume);
   }
@@ -317,7 +317,7 @@ public:
     if( this->actualValue.isValid() ) this->_base->wpp(produce);
 #endif
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(produce, this->name());
+    TraceLog.traceCommExecOut(this->_base, produce);
 #endif
   }
 

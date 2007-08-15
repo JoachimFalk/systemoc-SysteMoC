@@ -35,6 +35,7 @@
 
 #include <systemoc/smoc_chan_if.hpp>
 #include <systemoc/smoc_root_node.hpp>
+#include <systemoc/smoc_pggen.hpp>
 
 #include <map>
 #include <sstream>
@@ -92,7 +93,13 @@ void smoc_root_chan::finalise() {
   genName << "_";
   genName << (_smoc_channel_name_map[genName.str()] += 1);
   myName = genName.str();
-
+  
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_port_in_base::finalise(), name == " << name() << ", myName == " << myName << std::endl;
+#endif
+  // Preallocate ID
+  smoc_modes::PGWriter::getId(this);
+  
 #ifdef SYSTEMOC_ENABLE_VPC
   vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
     getFastLink(myName, "1") );

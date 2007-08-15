@@ -41,6 +41,7 @@
 #include <systemoc/smoc_root_node.hpp>
 // #include <systemc/kernel/sc_object_manager.h>
 #include <systemoc/smoc_firing_rules.hpp>
+#include <systemoc/smoc_pggen.hpp>
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 smoc_root_node::smoc_root_node(smoc_firing_state &s)
@@ -94,9 +95,9 @@ const smoc_firing_state &smoc_root_node::_communicate() {
       
       void signaled(smoc_event_waiter *_e) {
 # ifdef SYSTEMOC_TRACE
-        const char *name = actor->myModule()->name();
+//      const char *name = actor->myModule()->name();
         
-        TraceLog.traceStartActor(name, "l");
+        TraceLog.traceStartActor(actor, "l");
 # endif
 # ifdef SYSTEMOC_DEBUG
         std::cerr << "smoc_root_node::_communicate::_::signaled(...)" << std::endl;
@@ -105,7 +106,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
         assert(*_e);
         latEvent = NULL;
 # ifdef SYSTEMOC_TRACE
-        TraceLog.traceEndActor(name);
+        TraceLog.traceEndActor(actor);
 # endif
         return;
       }
@@ -124,10 +125,10 @@ const smoc_firing_state &smoc_root_node::_communicate() {
     latEvent->addListener(new _(latEvent, this));
   } else {
 # ifdef SYSTEMOC_TRACE
-    const char *name = this->myModule()->name();
+//  const char *name = this->myModule()->name();
     
-    TraceLog.traceStartActor(name, "l");
-    TraceLog.traceEndActor(name);
+    TraceLog.traceStartActor(this, "l");
+    TraceLog.traceEndActor(this);
 # endif
   }
   Expr::evalTo<Expr::CommExec>(*_guard, latEvent);
@@ -141,8 +142,11 @@ const smoc_firing_state &smoc_root_node::_communicate() {
 
 void smoc_root_node::finalise() {
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << myModule()->name() << ": finalise" << std::endl;
+  std::cerr << "smoc_root_node::finalise() begin, name == " << myModule()->name() << std::endl;
 #endif
+  // Preallocate ID
+  smoc_modes::PGWriter::getId(this);
+  
   _currentState = _initialState.finalise(this);
   
   smoc_port_list ports = getPorts();
@@ -177,6 +181,9 @@ void smoc_root_node::finalise() {
       }
     }
   }
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_root_node::finalise() end, name == " << myModule()->name() << std::endl;
+#endif
 }
 
 const smoc_port_list smoc_root_node::getPorts() const {

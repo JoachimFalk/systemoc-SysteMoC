@@ -53,16 +53,16 @@ namespace smoc_detail {
     const char       *mode;
 
     void signaled(smoc_event_waiter *_e) {
-      const char *name = fifo->name();
+//    const char *name = fifo->name();
       
-      TraceLog.traceStartActor(name, mode);
+      TraceLog.traceStartActor(fifo, mode);
 #   ifdef SYSTEMOC_DEBUG
       std::cerr << "smoc_detail::DeferedTraceLogDumper::signaled(...)" << std::endl;
 #   endif
       assert(_e == event.get());
       assert(*_e);
       event = NULL;
-      TraceLog.traceEndActor(name);
+      TraceLog.traceEndActor(fifo);
       return;
     }
     void eventDestroyed(smoc_event_waiter *_e) {
@@ -81,17 +81,19 @@ namespace smoc_detail {
 # endif
 
   void LatencyQueue::RequestQueue::doSomething(size_t n) {
-    const char *name = getTop().fifo->name();
+//# ifdef SYSTEMOC_TRACE
+//    const char *name = getTop().fifo->name();
+//# endif
     
     for (;n > 0; --n) {
       smoc_ref_event_p latEvent(new smoc_ref_event());
 # ifdef SYSTEMOC_TRACE
       smoc_ref_event_p diiEvent(new smoc_ref_event());
       
-      TraceLog.traceStartActor(name, "s");
-      TraceLog.traceStartFunction("transmit");
-      TraceLog.traceEndFunction("transmit");
-      TraceLog.traceEndActor(name);
+      TraceLog.traceStartActor(getTop().fifo, "s");
+//    TraceLog.traceStartFunction("transmit");
+//    TraceLog.traceEndFunction("transmit");
+      TraceLog.traceEndActor(getTop().fifo);
       
       SystemC_VPC::EventPair p(diiEvent.get(), latEvent.get());
 # else
@@ -104,15 +106,15 @@ namespace smoc_detail {
         // dii event not signaled
         diiEvent->addListener(new DeferedTraceLogDumper(diiEvent, getTop().fifo, "e"));
       } else {
-        TraceLog.traceStartActor(name, "e");
-        TraceLog.traceEndActor(name);
+        TraceLog.traceStartActor(getTop().fifo, "e");
+        TraceLog.traceEndActor(getTop().fifo);
       }
       if (!*latEvent) {
         // latency event not signaled
         latEvent->addListener(new DeferedTraceLogDumper(latEvent, getTop().fifo, "l"));
       } else {
-        TraceLog.traceStartActor(name, "l");
-        TraceLog.traceEndActor(name);
+        TraceLog.traceStartActor(getTop().fifo, "l");
+        TraceLog.traceEndActor(getTop().fifo);
       }
 # endif
       getTop().visibleQueue.addEntry(1, latEvent);

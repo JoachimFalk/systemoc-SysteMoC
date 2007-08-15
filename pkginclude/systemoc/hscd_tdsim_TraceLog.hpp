@@ -126,6 +126,9 @@ private:
   NameMap names;
 };
 
+class smoc_root_node;
+class smoc_root_chan;
+
 class TraceLogStream {
 private:
   std::ostream &stream;
@@ -174,23 +177,25 @@ public:
 
   ~TraceLogStream();
   
-  void traceStartActor(const char * actor, const char *mode = "???");
-  void traceEndActor(const char * actor);
-  void traceStartFunction(const char * func);
-  void traceEndFunction(const char * func);
-  void traceStartTryExecute(const char * actor);
-  void traceEndTryExecute(const char * actor);
-  void traceCommExecIn(size_t size, const char * actor);
-  void traceCommExecOut(size_t size, const char * actor);
+  void traceStartActor(const smoc_root_node *actor, const char *mode = "???");
+  void traceEndActor(const smoc_root_node *actor);
+  void traceStartActor(const smoc_root_chan *chan, const char *mode = "???");
+  void traceEndActor(const smoc_root_chan *chan);
+  void traceStartFunction(const char *func);
+  void traceEndFunction(const char *func);
+//void traceStartTryExecute(const smoc_root_node *actor);
+//void traceEndTryExecute(const smoc_root_node *actor);
+  void traceCommExecIn(const smoc_root_chan *chan, size_t size);
+  void traceCommExecOut(const smoc_root_chan *chan, size_t size);
+  void traceCommSetup(const smoc_root_chan *chan, size_t req);
 //void traceStartDeferredCommunication(const char * actor);
 //void traceEndDeferredCommunication(const char * actor);
   void traceBlockingWaitStart();
   void traceBlockingWaitEnd();
-  void traceStartChoice(const char * actor);
-  void traceEndChoice(const char * actor);
-  void traceStartTransact(const char * actor);
-  void traceEndTransact(const char * actor);
-  void traceCommSetup(const char * fifo, size_t req);
+  void traceStartChoice(const smoc_root_node *actor);
+  void traceEndChoice(const smoc_root_node *actor);
+  void traceStartTransact(const smoc_root_node *actor);
+  void traceEndTransact(const smoc_root_node *actor);
   
   void createFifoGraph();
 };

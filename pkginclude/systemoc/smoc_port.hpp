@@ -46,6 +46,7 @@
 #include "smoc_chan_if.hpp"
 #include "smoc_event.hpp"
 #include "smoc_storage.hpp"
+#include "smoc_pggen.hpp"
 
 #include <systemc.h>
 #include <vector>
@@ -279,7 +280,8 @@ struct CommSetup<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
 # endif
     size_t req = Value<E>::apply(e.b);
 # ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommSetup(e.a.p->name(), req);
+    TraceLog.traceCommSetup
+      (dynamic_cast<smoc_root_chan *>(e.a.p.operator ->()), req);
 # endif
     return e.a.p.setLimit(req);
   }
@@ -497,8 +499,14 @@ protected:
       (*this)->registerPort(this);
   }
 
-  void finalise(smoc_root_node *node)
-    { this->channel_access = (*this)->getReadChannelAccess(); }
+  void finalise(smoc_root_node *node) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "smoc_port_in_base::finalise(), name == " << this->name() << std::endl;
+#endif
+    // Preallocate ID
+    smoc_modes::PGWriter::getId(this);
+    this->channel_access = (*this)->getReadChannelAccess();
+  }
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)
@@ -586,8 +594,11 @@ protected:
       (*this)->registerPort(this);
   }
 
-  void finalise(smoc_root_node *node)
-    { this->channel_access = (*this)->getWriteChannelAccess(); }
+  void finalise(smoc_root_node *node) {
+    // Preallocate ID
+    smoc_modes::PGWriter::getId(this);
+    this->channel_access = (*this)->getWriteChannelAccess();
+  }
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void commExec(size_t n, const smoc_ref_event_p &le)

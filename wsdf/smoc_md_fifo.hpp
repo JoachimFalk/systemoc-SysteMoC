@@ -939,7 +939,7 @@ public:
     //Currently, we only support the consumption zero or one window.
     assert(consume <= 1);
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(consume, this->name());
+    TraceLog.traceCommExecIn(this, consume);
 #endif
     if (consume >= 1)
       this->rpp(consume);
@@ -971,7 +971,7 @@ public:
     //effective token
     assert(produce <= 1);
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(produce, this->name());
+    TraceLog.traceCommExecOut(this, produce);
 #endif
     if (produce >= 1){
 #ifdef SYSTEMOC_ENABLE_VPC

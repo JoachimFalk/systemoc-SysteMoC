@@ -652,7 +652,7 @@ protected:
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(consume, this->name());
+    TraceLog.traceCommExecIn(this, consume);
 #endif
     this->rpp(consume);
   }
@@ -664,7 +664,7 @@ protected:
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(produce, this->name());
+    TraceLog.traceCommExecOut(this, produce);
 #endif
 #ifdef SYSTEMOC_ENABLE_VPC
     this->wpp(produce, le);

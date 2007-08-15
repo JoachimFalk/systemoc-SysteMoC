@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
@@ -32,53 +33,32 @@
  * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
+#include <systemoc/smoc_guard.hpp>
 
-#ifndef _INCLUDED_SMOC_GUARD_HPP
-#define _INCLUDED_SMOC_GUARD_HPP
+#include <systemoc/hscd_tdsim_TraceLog.hpp>
+#include <systemoc/smoc_pggen.hpp>
 
-#include <iostream>
-
-#include <cassert>
-#include <climits>
-#include <cmath>
-
-#include <list>
-#include <cosupport/stl_output_for_list.hpp>
-
-#include <systemc.h>
-
-#include "smoc_expr.hpp"
-#include "smoc_port.hpp"
-
-class smoc_activation_pattern
-: public smoc_event_and_list {
-public:
-  typedef smoc_activation_pattern this_type;
-
-  friend class smoc_firing_state;
-
-//protected:
-  Expr::Ex<bool>::type  guard;
-public:
-  template <class E>
-  smoc_activation_pattern(const Expr::D<E> &_guard)
-    : guard(_guard) {}
-
-  void finalise();
- 
-  Expr::Detail::ActivationStatus getStatus() const;
-};
-
-namespace Expr {
-
-  template <class A, class B>
-  static inline
-  typename DOpBinConstruct<A,B,DOpBinLAnd>::result_type
-  operator >> (const D<A> &a, const D<B> &b) {
-    return DOpBinConstruct<A,B,DOpBinLAnd>::
-      apply(a.getExpr(),b.getExpr());
-  }
-
+void smoc_activation_pattern::finalise() {
+#ifdef SYSTEMOC_DEBUG
+  // DO not dump status of activation pattern as
+  // that may call guards which operate on as yet
+  // unititialized data
+  std::cerr << "smoc_activation_pattern::finalise(), this == " << this << std::endl;
+#endif
+  // Preallocate ID
+  smoc_modes::PGWriter::getId(this);
+  
+  Expr::evalTo<Expr::Sensitivity>(guard, *this);
 }
 
-#endif // _INCLUDED_SMOC_GUARD_HPP
+Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
+  if (*this) {
+    Expr::Detail::ActivationStatus retval =
+      Expr::evalTo<Expr::Value>(guard);
+#ifndef NDEBUG
+    Expr::evalTo<Expr::CommReset>(guard);
+#endif
+    return retval;
+  } else
+    return Expr::Detail::BLOCKED();
+}

@@ -48,24 +48,20 @@ class hscd_choice_node
   protected:
     void transact( const hscd_op_transact &op ) { 
 #ifdef SYSTEMOC_TRACE
-      if(dynamic_cast<sc_module*>(this))TraceLog.traceStartTransact( (dynamic_cast<sc_module*>(this))->name() );
-      else TraceLog.traceStartTransact( "Noname" );
+      TraceLog.traceStartTransact(this);
 #endif
-       op.startOp();
+      op.startOp();
 #ifdef SYSTEMOC_TRACE
-      if(dynamic_cast<sc_module*>(this))TraceLog.traceEndTransact( (dynamic_cast<sc_module*>(this))->name() );
-      else TraceLog.traceStartTransact( "Noname" );
+      TraceLog.traceEndTransact(this);
 #endif
      }
     void choice( const hscd_op_choice &op )     {
 #ifdef SYSTEMOC_TRACE
-      if(dynamic_cast<sc_module*>(this))TraceLog.traceStartChoice( (dynamic_cast<sc_module*>(this))->name() );
-      else TraceLog.traceStartTransact( "Noname" );
+      TraceLog.traceStartChoice(this);
 #endif
        op.startOp();
 #ifdef SYSTEMOC_TRACE
-      if(dynamic_cast<sc_module*>(this))TraceLog.traceEndChoice( (dynamic_cast<sc_module*>(this))->name() );
-      else TraceLog.traceStartTransact( "Noname" );
+      TraceLog.traceEndChoice(this);
 #endif
  }
     
@@ -74,11 +70,14 @@ class hscd_choice_node
   // but "finalising" smoc_v1 ports
   void finalise() {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << myModule()->name() << ": finalise" << std::endl;
+    std::cerr << "hscd_choice_node::finalise(), name == " << myModule()->name() << std::endl;
 #endif
-
+    
+    // Preallocate ID
+    smoc_modes::PGWriter::getId(this);
+    
     smoc_port_list ports = getPorts();
-
+    
     for (smoc_port_list::iterator iter = ports.begin();
    iter != ports.end();
    ++iter)

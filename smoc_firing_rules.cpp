@@ -78,9 +78,18 @@ smoc_firing_state_ref::getResolvedState() const {
   return *rs;
 }
 
-smoc_firing_types::resolved_state_ty *smoc_firing_state_ref::finalise(smoc_root_node *actor) const {
+//smoc_firing_types::resolved_state_ty *smoc_firing_state_ref::finalise(smoc_root_node *actor) const {
+smoc_firing_types::resolved_state_ty *smoc_firing_state::finalise(smoc_root_node *actor) const {
+#ifdef SYSTEMOC_DEBUG
+//std::cerr << "smoc_firing_state_ref::finalise() begin, this == " << this << std::endl;
+  std::cerr << "smoc_firing_state::finalise() begin, name == " << this->name() << std::endl;
+#endif
   assert( rs != NULL && fr != NULL );
   fr->finalise(actor);
+#ifdef SYSTEMOC_DEBUG
+//std::cerr << "smoc_firing_state_ref::finalise() end, this == " << this << std::endl;
+  std::cerr << "smoc_firing_state::finalise() end, name == " << this->name() << std::endl;
+#endif
   return rs;
 }
 
@@ -117,37 +126,37 @@ smoc_firing_state_ref::~smoc_firing_state_ref() {
 smoc_firing_state::smoc_firing_state(const smoc_transition_list &tl)
   :sc_object(sc_gen_unique_name("smoc_firing_state")) {
   this->operator = (tl);
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
-#endif
+//#ifdef SYSTEMOC_DEBUG
+//  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
+//#endif
 }
 smoc_firing_state::smoc_firing_state(const smoc_transition &t)
   :sc_object(sc_gen_unique_name("smoc_firing_state")) {
   this->operator = (t);
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
-#endif
+//#ifdef SYSTEMOC_DEBUG
+//  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
+//#endif
 }
 smoc_firing_state::smoc_firing_state()
   :sc_object(sc_gen_unique_name("smoc_firing_state")) {
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
-#endif
+//#ifdef SYSTEMOC_DEBUG
+//  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
+//#endif
 }
 smoc_firing_state::smoc_firing_state(const this_type &x)
   :sc_object(sc_gen_unique_name("smoc_firing_state")) {
   *this = x;
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
-#endif
+//#ifdef SYSTEMOC_DEBUG
+//  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
+//#endif
 }
 
 smoc_firing_state &smoc_firing_state::operator = (const this_type &rhs) {
   assert(rhs.rs != NULL && rhs.fr != NULL ||
          rhs.rs == NULL && rhs.fr == NULL);
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_firing_state::mkCopy(" << &rhs << ") this == " << this << std::endl;
-#endif
+//#ifdef SYSTEMOC_DEBUG
+//  std::cerr << "smoc_firing_state::mkCopy(" << &rhs << ") this == " << this << std::endl;
+//#endif
   if (&rhs != this) {
     // remove old transition of state
     clearTransition();
@@ -187,9 +196,9 @@ void smoc_firing_state::clearTransition() {
 }
 
 smoc_firing_state::~smoc_firing_state() {
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_firing_state::~smoc_firing_state() this == " << this << std::endl;
-#endif
+//#ifdef SYSTEMOC_DEBUG
+//  std::cerr << "smoc_firing_state::~smoc_firing_state() this == " << this << std::endl;
+//#endif
 }
 
 void smoc_firing_rules::_addRef(
@@ -251,9 +260,9 @@ void smoc_firing_rules::finalise( smoc_root_node *actor_ ) {
 }
 
 smoc_firing_rules::~smoc_firing_rules() {
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "~smoc_firing_rules() this == " << this << std::endl;
-#endif
+//#ifdef SYSTEMOC_DEBUG
+//  std::cerr << "~smoc_firing_rules() this == " << this << std::endl;
+//#endif
   for ( statelist_ty::iterator iter = states.begin();
         iter != states.end();
         ++iter )
@@ -339,7 +348,7 @@ void smoc_firing_types::transition_ty::execute(
 #ifdef SYSTEMOC_TRACE
   if (execMode != MODE_GRAPH)
     // leaf actor
-    TraceLog.traceStartActor(name, execMode == MODE_DIISTART ? "s" : "e");
+    TraceLog.traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
 #endif
   
 #if !defined(NDEBUG) || defined(SYSTEMOC_TRACE)
@@ -453,7 +462,7 @@ void smoc_firing_types::transition_ty::execute(
   
 #ifdef SYSTEMOC_TRACE
   if (execMode != MODE_GRAPH)
-    TraceLog.traceEndActor(name);
+    TraceLog.traceEndActor(actor);
 #endif
  
   *rs = nextState;

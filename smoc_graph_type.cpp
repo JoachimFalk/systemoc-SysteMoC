@@ -78,7 +78,7 @@ const smoc_chan_list smoc_graph::getChans() const {
 
 void smoc_graph::finalise() {
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_graph::finalise() name == " << name() << std::endl;
+  std::cerr << "smoc_graph::finalise() begin, name == " << name() << std::endl;
 #endif
   // finalise for actors must precede finalise for channels,
   // because finalise for channels needs the patched in actor
@@ -101,6 +101,9 @@ void smoc_graph::finalise() {
       (*iter)->finalise();
   }
   smoc_root_node::finalise();
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_graph::finalise() end, name == " << name() << std::endl;
+#endif
 }
 
 sc_module *smoc_graph::myModule()

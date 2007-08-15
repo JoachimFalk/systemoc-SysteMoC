@@ -41,6 +41,9 @@
 
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
+#include <systemoc/smoc_root_node.hpp>
+#include <systemoc/smoc_chan_if.hpp>
+
 #ifdef SYSTEMOC_TRACE
 
 /**
@@ -96,51 +99,30 @@ bool Sequence::next() {
 
 TraceLogStream TraceLog("test.trace");
 
-void  TraceLogStream::traceBlockingWaitStart(){
-  stream << "<waiting type=\"sleep\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-}
-void  TraceLogStream::traceBlockingWaitEnd(){
-  stream << "<waiting type=\"wake up\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-}
-void  TraceLogStream::traceStartChoice(const char * actor){
-  stream << "<choice type=\"begin\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-  actors.insert(actor);
-  actor_activation_count[actor]++;
-  lastactor = actor;
-  fifo_actor_last = actor;
-}
-void  TraceLogStream::traceEndChoice(const char * actor){
-  stream << "<choice type=\"end\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-  fifo_actor_last = "";
-}
-void  TraceLogStream::traceStartTransact(const char * actor){
-  stream << "<transact type=\"begin\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-  actors.insert(actor);
-  actor_activation_count[actor]++;
-  lastactor = actor;
-  fifo_actor_last = actor;
-}
-void TraceLogStream::traceEndTransact(const char * actor){
-  stream << "<transact type=\"end\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-  fifo_actor_last = "";
-}
-
-void TraceLogStream::traceCommSetup(const char *fifo, size_t req) {
-  size_t id = namePool.getID(fifo);
-  stream << "<r c=\"" << id << "\" s=\"" << req << "\"/>" << std::endl;
-}
-
-void TraceLogStream::traceStartActor(const char * actor, const char *mode){
-  size_t id = namePool.getID(actor);
+void TraceLogStream::traceStartActor(const smoc_root_node *actor, const char *mode) {
+  lastactor=actor->myModule()->name();
+  size_t id = namePool.getID(lastactor);
   stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
          << std::endl;
-  actors.insert(actor);
-  actor_activation_count[actor]++;
-  lastactor=actor;
+  actors.insert(lastactor);
+  actor_activation_count[lastactor]++;
 }
-void TraceLogStream::traceEndActor(const char * actor){
+void TraceLogStream::traceEndActor(const smoc_root_node *actor){
   stream << "</a>" << std::endl;
 }
+
+void TraceLogStream::traceStartActor(const smoc_root_chan *chan, const char *mode) {
+  lastactor=chan->name();
+  size_t id = namePool.getID(lastactor);
+  stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
+         << std::endl;
+  actors.insert(lastactor);
+  actor_activation_count[lastactor]++;
+}
+void TraceLogStream::traceEndActor(const smoc_root_chan *chan){
+  stream << "</a>" << std::endl;
+}
+
 void TraceLogStream::traceStartFunction(const char * func){
   size_t id = namePool.getID(func);
   stream << "<f n=\""<< id << "\" t=\"" << sc_time_stamp() << "\">"
@@ -152,14 +134,10 @@ void TraceLogStream::traceStartFunction(const char * func){
 void TraceLogStream::traceEndFunction(const char * func){
   stream << "</f>" << std::endl;
 }
-void TraceLogStream::traceStartTryExecute(const char * actor){
-  stream << "<e n=\""<< namePool.getID(actor) << "\" t=\"" <<
-    sc_time_stamp() << "\">" << std::endl;
-}
-void TraceLogStream::traceEndTryExecute(const char * actor){
-  stream << "</e>" << std::endl;
-}
-void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
+
+void TraceLogStream::traceCommExecIn(const smoc_root_chan *chan, size_t size) {
+  const char *actor = chan->name();
+  
   stream << "<i s=\"" << size << "\" c=\"" << namePool.getID(actor)
          << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_info[actor].size -= size;
@@ -168,7 +146,9 @@ void TraceLogStream::traceCommExecIn(size_t size, const char * actor){
     fifo_info[actor].to.unknown = false;
   }
 }
-void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
+void TraceLogStream::traceCommExecOut(const smoc_root_chan *chan, size_t size) {
+  const char *actor = chan->name();
+  
   stream << "<o s=\"" << size << "\" c=\"" << namePool.getID(actor)
          << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_info[actor].size += size;
@@ -177,7 +157,59 @@ void TraceLogStream::traceCommExecOut(size_t size, const char * actor){
     fifo_info[actor].from.unknown = false;
   }
 }
+void TraceLogStream::traceCommSetup(const smoc_root_chan *chan, size_t req) {
+  const char *fifo = chan->name();
+  
+  size_t id = namePool.getID(fifo);
+  stream << "<r c=\"" << id << "\" s=\"" << req << "\"/>" << std::endl;
+}
+
+void  TraceLogStream::traceBlockingWaitStart(){
+  stream << "<waiting type=\"sleep\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
+}
+void  TraceLogStream::traceBlockingWaitEnd(){
+  stream << "<waiting type=\"wake up\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
+}
+void  TraceLogStream::traceStartChoice(const smoc_root_node *foo) {
+  const char *actor = foo->myModule()->name();
+  
+  stream << "<choice type=\"begin\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
+  actors.insert(actor);
+  actor_activation_count[actor]++;
+  lastactor = actor;
+  fifo_actor_last = actor;
+}
+void  TraceLogStream::traceEndChoice(const smoc_root_node *foo) {
+  const char *actor = foo->myModule()->name();
+  
+  stream << "<choice type=\"end\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
+  fifo_actor_last = "";
+}
+void  TraceLogStream::traceStartTransact(const smoc_root_node *foo) {
+  const char *actor = foo->myModule()->name();
+  
+  stream << "<transact type=\"begin\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
+  actors.insert(actor);
+  actor_activation_count[actor]++;
+  lastactor = actor;
+  fifo_actor_last = actor;
+}
+void TraceLogStream::traceEndTransact(const smoc_root_node *foo) {
+  const char *actor = foo->myModule()->name();
+  
+  stream << "<transact type=\"end\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
+  fifo_actor_last = "";
+}
+
 /*
+void TraceLogStream::traceStartTryExecute(const char * actor){
+  stream << "<e n=\""<< namePool.getID(actor) << "\" t=\"" <<
+    sc_time_stamp() << "\">" << std::endl;
+}
+void TraceLogStream::traceEndTryExecute(const char * actor){
+  stream << "</e>" << std::endl;
+}
+
 void TraceLogStream::traceStartDeferredCommunication(const char * actor){
   stream << "<d a=\""<< namePool.getID(actor) << "\" t=\"" << sc_time_stamp()
          << "\">" << std::endl;

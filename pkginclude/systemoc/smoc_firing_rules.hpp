@@ -313,9 +313,7 @@ public:
   
   resolved_state_ty &getResolvedState() const;
   
-  resolved_state_ty *finalise( smoc_root_node *actor ) const;
-//bool tryExecute();
-//void findBlocked(smoc_event_or_list &l);
+//resolved_state_ty *finalise( smoc_root_node *actor ) const;
   void dump( std::ostream &o ) const;
   const smoc_firing_rules &getFiringRules() const
     { return *fr; }
@@ -349,6 +347,8 @@ public:
   
   void addTransition( const smoc_transition_list &tl );
   void clearTransition();
+
+  resolved_state_ty *finalise( smoc_root_node *actor ) const;
 
   ~smoc_firing_state();
 private:
