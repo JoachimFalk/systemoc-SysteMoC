@@ -43,8 +43,34 @@
 
 #include <systemoc/smoc_root_node.hpp>
 #include <systemoc/smoc_chan_if.hpp>
+#include <systemoc/smoc_pggen.hpp>
 
 #ifdef SYSTEMOC_TRACE
+
+using std::string;
+
+using namespace smoc_modes;
+
+// class for generating caption indices for fifos
+class Sequence
+{
+public:
+  // constructs object for generating "count" indices,
+  // with each place ranging from "start" to "end"
+  Sequence(unsigned int count, char start, char end);
+  // returns current sequence
+  const string& current() const;
+  // resets to starting sequence
+  void reset();
+  // advances to next sequence, returns true if successful
+  bool next();
+private:
+  unsigned int cnt;
+  unsigned int gen;
+  char start;
+  char end;
+  string seq;         
+};
 
 /**
  * Sequence definitions
@@ -97,11 +123,25 @@ bool Sequence::next() {
   return ok;
 }
 
-TraceLogStream TraceLog("test.trace");
+TraceLogStream::TraceLogStream()
+  :stream(std::cerr){}
+
+TraceLogStream::TraceLogStream(const char *filename)
+  : stream(file) {
+  string fstring = filename;
+  
+  char *prefix = getenv("VPCTRACEFILEPREFIX");
+  if (prefix != NULL)
+    fstring.insert(0, prefix);
+  file.open(fstring.c_str());
+  stream << "<?xml version=\"1.0\"?>\n<systemoc_trace>" << std::endl;
+}
+
+
 
 void TraceLogStream::traceStartActor(const smoc_root_node *actor, const char *mode) {
   lastactor=actor->myModule()->name();
-  size_t id = namePool.getID(lastactor);
+  size_t id = namePool.registerId(lastactor, PGWriter::getId(actor));
   stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
          << std::endl;
   actors.insert(lastactor);
@@ -113,7 +153,7 @@ void TraceLogStream::traceEndActor(const smoc_root_node *actor){
 
 void TraceLogStream::traceStartActor(const smoc_root_chan *chan, const char *mode) {
   lastactor=chan->name();
-  size_t id = namePool.getID(lastactor);
+  size_t id = namePool.registerId(lastactor, PGWriter::getId(chan));
   stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
          << std::endl;
   actors.insert(lastactor);
@@ -124,7 +164,7 @@ void TraceLogStream::traceEndActor(const smoc_root_chan *chan){
 }
 
 void TraceLogStream::traceStartFunction(const char * func){
-  size_t id = namePool.getID(func);
+  size_t id = namePool.registerId(func, PGWriter::getId(func));
   stream << "<f n=\""<< id << "\" t=\"" << sc_time_stamp() << "\">"
          << std::endl;
   function_call_count[string(lastactor)+" -> "+string(func)]++;
@@ -138,7 +178,9 @@ void TraceLogStream::traceEndFunction(const char * func){
 void TraceLogStream::traceCommExecIn(const smoc_root_chan *chan, size_t size) {
   const char *actor = chan->name();
   
-  stream << "<i s=\"" << size << "\" c=\"" << namePool.getID(actor)
+  size_t id = namePool.registerId(actor, PGWriter::getId(chan));
+  
+  stream << "<i s=\"" << size << "\" c=\"" << id
          << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_info[actor].size -= size;
   if(fifo_actor_last != "") {
@@ -149,7 +191,8 @@ void TraceLogStream::traceCommExecIn(const smoc_root_chan *chan, size_t size) {
 void TraceLogStream::traceCommExecOut(const smoc_root_chan *chan, size_t size) {
   const char *actor = chan->name();
   
-  stream << "<o s=\"" << size << "\" c=\"" << namePool.getID(actor)
+  size_t id = namePool.registerId(actor, PGWriter::getId(chan));
+  stream << "<o s=\"" << size << "\" c=\"" << id
          << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_info[actor].size += size;
   if(fifo_actor_last != "") {
@@ -160,7 +203,7 @@ void TraceLogStream::traceCommExecOut(const smoc_root_chan *chan, size_t size) {
 void TraceLogStream::traceCommSetup(const smoc_root_chan *chan, size_t req) {
   const char *fifo = chan->name();
   
-  size_t id = namePool.getID(fifo);
+  size_t id = namePool.registerId(fifo, PGWriter::getId(fifo));
   stream << "<r c=\"" << id << "\" s=\"" << req << "\"/>" << std::endl;
 }
 
@@ -222,9 +265,9 @@ void TraceLogStream::traceEndDeferredCommunication(const char * actor){
 */
 
 TraceLogStream::~TraceLogStream(){
-  const NameMap &names = namePool.getMap();
+  const NamePool::NameMap &names = namePool.getMap();
 
-  for(NameMap::const_iterator iter = names.begin();
+  for(NamePool::NameMap::const_iterator iter = names.begin();
       iter != names.end();
       ++iter){
     stream << "<name id=\"" << iter->second << "\" name=\"" << iter->first
@@ -489,5 +532,7 @@ void TraceLogStream::createFifoGraph()
     std::cerr << "Found cycle(s) and/or unknown actors. Dumped FIFO info to " << fstring << std::endl;
   }
 }
+
+TraceLogStream TraceLog("test.trace");
 
 #endif

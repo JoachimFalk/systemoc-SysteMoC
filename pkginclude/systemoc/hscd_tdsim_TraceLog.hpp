@@ -49,14 +49,38 @@
 #   error "SYSTEMOC_TRACE and NDEBUG are incompatible !!!"
 # endif
 
-typedef std::map<std::string, size_t> NameMap;
+//using std::string;
 
-using std::string;
+class smoc_root_node;
+class smoc_root_chan;
+
+class NamePool{
+public:
+  typedef std::map<std::string, size_t> NameMap;
+
+  /**
+   *
+   */
+  size_t registerId(std::string name, size_t id) {
+    names[name] = id;
+    return id;
+  }
+  
+  /**
+   *
+   */
+  const NameMap& getMap(){
+    return names;
+  }
+
+private:
+  NameMap names;
+};
 
 // dynamically obtained actor infos
 struct s_actor_info {
   // actor's name
-  string name;
+  std::string name;
   // if name could be dynamically resolved
   bool unknown;
   // constructs unknown actor
@@ -78,71 +102,19 @@ struct s_fifo_info {
   {}
 };
 
-// class for generating caption indices for fifos
-class Sequence
-{
-public:
-  // constructs object for generating "count" indices,
-  // with each place ranging from "start" to "end"
-  Sequence(unsigned int count, char start, char end);
-  // returns current sequence
-  const string& current() const;
-  // resets to starting sequence
-  void reset();
-  // advances to next sequence, returns true if successful
-  bool next();
-private:
-  unsigned int cnt;
-  unsigned int gen;
-  char start;
-  char end;
-  string seq;         
-};
-
-class NamePool{
-public:
-
-  /**
-   *
-   */
-  size_t getID(string name){
-    NameMap::iterator iter = names.find(name);
-    if(iter != names.end()){
-      return iter->second;
-    }
-    size_t id = names.size();
-    names[name] = id;
-    return id;
-  }
-  
-  /**
-   *
-   */
-  const NameMap& getMap(){
-    return names;
-  }
-
-private:
-  NameMap names;
-};
-
-class smoc_root_node;
-class smoc_root_chan;
-
 class TraceLogStream {
 private:
   std::ostream &stream;
   std::ofstream file;
-  std::set<string> actors;
-  std::map<string,std::set<string> > functions;
-  std::map<string, int> function_call_count;
-  std::map<string, int> actor_activation_count;
-  std::map<string, string> last_actor_function;
+  std::set<std::string> actors;
+  std::map<std::string,std::set<std::string> > functions;
+  std::map<std::string, int> function_call_count;
+  std::map<std::string, int> actor_activation_count;
+  std::map<std::string, std::string> last_actor_function;
   std::string lastactor; 
   std::string fifo_actor_last;
-  std::map<string, s_fifo_info> fifo_info;
+  std::map<std::string, s_fifo_info> fifo_info;
   NamePool namePool;
-  
 public:
   template <typename T>
   inline
@@ -151,7 +123,7 @@ public:
     stream << t << std::flush;
     return *this;
   }
-  
+
   inline
   const TraceLogStream &operator << (std::ostream& (*manip)(std::ostream&)) const {
     stream << manip;
@@ -164,19 +136,9 @@ public:
     return *this;
   }
 
+  TraceLogStream();
+  TraceLogStream(const char * filename);
 
-  TraceLogStream():stream(std::cerr){}
-
-  TraceLogStream(const char * filename):stream(file){
-    string fstring=filename;
-    char *prefix=getenv("VPCTRACEFILEPREFIX");
-    if( 0 != prefix ) fstring.insert(0,prefix);
-    file.open(fstring.c_str());
-    stream << "<?xml version=\"1.0\"?>\n<systemoc_trace>" << std::endl;
-  }
-
-  ~TraceLogStream();
-  
   void traceStartActor(const smoc_root_node *actor, const char *mode = "???");
   void traceEndActor(const smoc_root_node *actor);
   void traceStartActor(const smoc_root_chan *chan, const char *mode = "???");
@@ -196,8 +158,10 @@ public:
   void traceEndChoice(const smoc_root_node *actor);
   void traceStartTransact(const smoc_root_node *actor);
   void traceEndTransact(const smoc_root_node *actor);
-  
+
   void createFifoGraph();
+
+  ~TraceLogStream();
 };
 
 extern TraceLogStream TraceLog; 

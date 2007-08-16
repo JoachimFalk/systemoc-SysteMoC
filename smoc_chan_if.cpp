@@ -116,9 +116,9 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   assert(getInputPorts().size() == 1);
   assert(getOutputPorts().size() == 1);
   
-  std::string idChannel        = pgw.getId(this);
-  std::string idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
-  std::string idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
+  smoc_modes::NgId idChannel        = pgw.getId(this);
+  smoc_modes::NgId idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
+  smoc_modes::NgId idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
   
   // search highest interface port (multiple hierachie layers)
   smoc_root_port  *ifPort = getOutputPorts().front();
@@ -168,9 +168,9 @@ void smoc_multicast_chan::assemble(smoc_modes::PGWriter &pgw) const {
   
   // FIXME: BIG HACK !!!
   const_cast<this_type *>(this)->finalise();
-  std::string idChannel        = pgw.getId(this);
-  std::string idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
-  std::string idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
+  smoc_modes::NgId idChannel        = pgw.getId(this);
+  smoc_modes::NgId idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
+  smoc_modes::NgId idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
  
   /* 
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "

@@ -51,6 +51,25 @@ namespace smoc_modes {
 
   extern bool dumpProblemgraph;
 
+  class NgId {
+    friend class PGWriter;
+  private:
+    size_t id;
+  protected:
+    NgId(size_t id)
+      : id(id) {}
+  public:
+    operator size_t() const
+      { return id; }
+    operator std::string() const;
+
+    void dump(std::ostream &) const;
+  };
+
+  inline
+  std::ostream &operator << (std::ostream &out, const NgId &id)
+    { id.dump(out); return out; }
+
   class eNoChannel : public std::exception {};
   class eNoInterface : public std::exception {};
   class eNoPort : public std::exception {};
@@ -65,8 +84,6 @@ namespace smoc_modes {
 
     static int                  idmap_last;
     static idmap_ty             idmap;
-    
-    static std::string toId(int id);
   public:
     PGWriter(std::ostream &_out)
       : out(_out) { out.insert(indenter); }
@@ -79,8 +96,8 @@ namespace smoc_modes {
     template <typename T>
     std::ostream &operator << (T t) { return out << t; }
 
-    static std::string getId( const void *p );
-    static std::string getId();
+    static NgId getId( const void *p );
+    static NgId getId();
     
     ~PGWriter( void ) {
       out.flush();

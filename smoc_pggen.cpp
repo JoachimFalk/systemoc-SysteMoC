@@ -39,29 +39,34 @@
 
 namespace smoc_modes {
 
+  NgId::operator std::string() const {
+    std::ostringstream o;
+    o << "id" << id;
+    return o.str();
+//  return o.rdbuf()->str();
+  }
+
+  void NgId::dump(std::ostream &out) const {
+    out << "id" << id;
+  }
+
   bool dumpProblemgraph = false;
 
   int                 PGWriter::idmap_last = 0;
   PGWriter::idmap_ty  PGWriter::idmap;
 
-  std::string PGWriter::toId(int id) {
-    std::ostringstream o;
-    o << "id" << id;
-    return o.rdbuf()->str();
+  NgId PGWriter::getId() {
+    return idmap_last++;
   }
 
-  std::string PGWriter::getId() {
-    return toId(idmap_last++);
-  }
-
-  std::string PGWriter::getId( const void *p ) {
+  NgId PGWriter::getId(const void *p) {
     idmap_ty::iterator find_iter = idmap.find(p);
     
     if ( find_iter == idmap.end() ) {
       idmap[p] = idmap_last;
       return getId();
     } else
-      return toId(find_iter->second);
+      return find_iter->second;
   }
 
   void dump( std::ostream &out, smoc_root_node &top ) {
