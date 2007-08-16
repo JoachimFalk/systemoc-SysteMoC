@@ -99,7 +99,7 @@ bool smoc_firing_state_ref::tryExecute() {
   bool retval;
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "<tryExecute for "
-            << fr->getActor()->myModule()->name() << ">" << std::endl;
+            << fr->getActor()->name() << ">" << std::endl;
 #endif
   retval = rs->tryExecute(&rs, fr->getActor());
 #ifdef SYSTEMOC_DEBUG
@@ -303,7 +303,7 @@ smoc_firing_types::resolved_state_ty::addTransition(
 
 void smoc_firing_types::transition_ty::execute(
     resolved_state_ty **rs, smoc_root_node *actor, int mode) {
-  const char *name = actor->myModule()->name();
+  const char *name = actor->name();
   
   enum {
     MODE_DIISTART,
@@ -482,7 +482,7 @@ void smoc_firing_types::transition_ty::finalise(smoc_root_node *a) {
 
 #ifdef SYSTEMOC_ENABLE_VPC
   if (dynamic_cast<smoc_actor *>(actor) != NULL) {
-    const char *name = actor->myModule()->name();
+    const char *name = actor->name();
     if (isType<smoc_func_call>(f)) {
       smoc_func_call &fc = f;
       vpcLink = new SystemC_VPC::FastLink(SystemC_VPC::Director::getInstance().

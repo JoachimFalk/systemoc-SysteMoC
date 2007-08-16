@@ -44,8 +44,8 @@
 #include <systemoc/smoc_pggen.hpp>
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
-smoc_root_node::smoc_root_node(smoc_firing_state &s)
-  :
+smoc_root_node::smoc_root_node(sc_module_name name, smoc_firing_state &s)
+  : sc_module(name),
 #ifndef NDEBUG
 //  _finalizeCalled(false),
 #endif
@@ -60,23 +60,22 @@ smoc_root_node::smoc_root_node(smoc_firing_state &s)
         smoc_activation_pattern(Expr::till(vpc_event_dii)),
         smoc_func_diverge(this,&smoc_root_node::_communicate))),
 #endif // SYSTEMOC_ENABLE_VPC
-    _guard(NULL)
-  {
+    _guard(NULL) {
 #ifdef SYSTEMOC_ENABLE_VPC
-    commstate.finalise(this);
+  commstate.finalise(this);
 #endif // SYSTEMOC_ENABLE_VPC
-    local_constr_args.insert(
-        local_constr_args.end(),
-        global_constr_args.begin(),
-        global_constr_args.end());
-    global_constr_args.clear();
-    current_actor = this;
-    /*
-    while(!smoc_root_node::global_constr_args.empty()){
-      local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
-      smoc_root_node::global_arg_stack.pop();
-    }*/
-  }
+  local_constr_args.insert(
+      local_constr_args.end(),
+      global_constr_args.begin(),
+      global_constr_args.end());
+  global_constr_args.clear();
+  current_actor = this;
+  /*
+  while(!smoc_root_node::global_constr_args.empty()){
+    local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
+    smoc_root_node::global_arg_stack.pop();
+  }*/
+}
  
   
 smoc_root_node *smoc_root_node::current_actor = NULL;
@@ -95,7 +94,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
       
       void signaled(smoc_event_waiter *_e) {
 # ifdef SYSTEMOC_TRACE
-//      const char *name = actor->myModule()->name();
+//      const char *name = actor->name();
         
         TraceLog.traceStartActor(actor, "l");
 # endif
@@ -125,7 +124,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
     latEvent->addListener(new _(latEvent, this));
   } else {
 # ifdef SYSTEMOC_TRACE
-//  const char *name = this->myModule()->name();
+//  const char *name = this->name();
     
     TraceLog.traceStartActor(this, "l");
     TraceLog.traceEndActor(this);
@@ -142,7 +141,7 @@ const smoc_firing_state &smoc_root_node::_communicate() {
 
 void smoc_root_node::finalise() {
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_root_node::finalise() begin, name == " << myModule()->name() << std::endl;
+  std::cerr << "smoc_root_node::finalise() begin, name == " << this->name() << std::endl;
 #endif
   // Preallocate ID
   smoc_modes::PGWriter::getId(this);
@@ -174,7 +173,7 @@ void smoc_root_node::finalise() {
       if ( cToNState.size() == 1 ) {
         if (CoSupport::isType<smoc_sr_func_pair>(titer->f)) {
 #ifdef SYSTEMOC_DEBUG
-          cout << "found non strict SR block: " << myModule()->name() << endl;
+          cout << "found non strict SR block: " << this->name() << endl;
 #endif
           _non_strict = true;
         }
@@ -182,23 +181,23 @@ void smoc_root_node::finalise() {
     }
   }
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_root_node::finalise() end, name == " << myModule()->name() << std::endl;
+  std::cerr << "smoc_root_node::finalise() end, name == " << this->name() << std::endl;
 #endif
 }
 
 const smoc_port_list smoc_root_node::getPorts() const {
   smoc_port_list   ports;
-  const sc_module *m = myModule();
   
   // std::cerr << "=== getPorts ===" << this << std::endl;
   for ( 
 #if SYSTEMC_VERSION < 20050714
-        sc_pvector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+       sc_pvector<sc_object*>::const_iterator iter =
 #else
-        std::vector<sc_object*>::const_iterator iter = m->get_child_objects().begin();
+       std::vector<sc_object*>::const_iterator iter =
 #endif
-        iter != m->get_child_objects().end();
-        ++iter ) {
+         get_child_objects().begin();
+       iter != get_child_objects().end();
+       ++iter ) {
     smoc_root_port *port = dynamic_cast<smoc_root_port *>(*iter);
     
     if ( port != NULL )
@@ -209,36 +208,33 @@ const smoc_port_list smoc_root_node::getPorts() const {
 
 const smoc_firing_states smoc_root_node::getFiringStates() const { 
   smoc_firing_states states;
-  const sc_module *m = myModule();
-    for ( 
+
+  for ( 
 #if SYSTEMC_VERSION < 20050714
-      sc_pvector<sc_object*>::const_iterator iter =
-          m->get_child_objects().begin();
+       sc_pvector<sc_object*>::const_iterator iter =
 #else
-      std::vector<sc_object*>::const_iterator iter =
-          m->get_child_objects().begin();
+       std::vector<sc_object*>::const_iterator iter =
 #endif
-      iter != m->get_child_objects().end();
-      ++iter ) {
+         get_child_objects().begin();
+       iter != get_child_objects().end();
+       ++iter ) {
     smoc_firing_state *state = dynamic_cast<smoc_firing_state*>(*iter);
     
     if ( state != NULL )
       states.push_back(state);
   }
   return states;
-
 }
 
 void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
   {}
 
 void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
-  const sc_module          *m  = myModule();
   //const smoc_firing_states  fs = getFiringStates();
   const smoc_port_list      ps = getPorts();
   
   if ( !ps.empty() ) {
-    pgw << "<process name=\"" << m->name() << "\" "
+    pgw << "<process name=\"" << name() << "\" "
                     "type=\"actor\" "
                     "id=\"" << pgw.getId(this) << "\">" << std::endl;
     {
@@ -267,7 +263,6 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   So it reimplements this virtual function.*/
 void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
   const smoc_firing_states  fs = getFiringStates();
-  const sc_module          *m  = myModule();
   //*********************************FSM-STATES********************************
   for ( smoc_firing_states::const_iterator iter = fs.begin();
           iter != fs.end();
@@ -275,7 +270,7 @@ void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
         pgw << "<stateDeclaration state=\"" << pgw.getId(&(*iter)->getResolvedState())
             << "\"/>" << std::endl;
         //*******************************ACTOR CLASS*********************************
-        pgw << "<actor actorClass=\"" << typeid(*m).name() << "\">" << std::endl;
+        pgw << "<actor actorClass=\"" << typeid(*this).name() << "\">" << std::endl;
         {
           pgw.indentUp();
           //***************************CONSTRUCTORPARAMETERS***************************
@@ -453,7 +448,7 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
 }
  
 std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
-  o << "actor: " << myModule()->name() << std::endl;
+  o << "actor: " << this->name() << std::endl;
   smoc_port_list ps = getPorts();
   o << "  ports:" << std::endl;
   for ( smoc_port_list::const_iterator iter = ps.begin();

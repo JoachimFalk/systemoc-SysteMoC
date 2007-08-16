@@ -68,7 +68,7 @@ public:
   
   template <class E> friend class Expr::Value;
   friend class smoc_root_node;
-  friend class hscd_choice_node;
+  friend class hscd_choice_active_node;
 protected:
   smoc_root_port *parent, *child;
   

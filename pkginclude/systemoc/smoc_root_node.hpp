@@ -95,7 +95,8 @@ protected:
 // is derived. This requirement comes from the reinterpret_cast in
 // smoc_func_xxx classes in smoc_firing_rules.hpp
 class smoc_root_node
-: public smoc_opbase_node {
+: public smoc_opbase_node,
+  public sc_module {
 private:
 #ifndef NDEBUG
   // bool _finalizeCalled;
@@ -118,7 +119,7 @@ private:
 
 protected:
   //smoc_root_node(const smoc_firing_state &s);
-  smoc_root_node(smoc_firing_state &s);
+  smoc_root_node(sc_module_name, smoc_firing_state &s);
   
   friend void Expr::Detail::registerParam(const ArgInfo &argInfo);
   friend void Expr::Detail::registerParamOnCurrentActor(const ArgInfo &argInfo);
@@ -139,11 +140,12 @@ public:
   
   virtual void finalise();
 #ifndef __SCFE__
-  virtual sc_module *myModule() = 0;
-  const sc_module *myModule() const {
-    return const_cast<smoc_root_node *>(this)->myModule();
-  }
-  
+//sc_module *myModule() { return this; }
+//const sc_module *myModule() const { return this; }
+//virtual sc_module *myModule() = 0;
+//const sc_module *myModule() const {
+//  return const_cast<smoc_root_node *>(this)->myModule();
+//}
   virtual void pgAssemble( smoc_modes::PGWriter &, const smoc_root_node * ) const;
   virtual void assembleActor( smoc_modes::PGWriter &pgw ) const;
   void assemble( smoc_modes::PGWriter &pgw ) const;

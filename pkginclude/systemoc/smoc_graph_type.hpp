@@ -61,14 +61,13 @@ class smoc_scheduler_top;
 
 #define T_chan_init_default smoc_fifo
 class smoc_graph
-  : public sc_module,
-    public smoc_root_node {
+: public smoc_root_node {
   friend class smoc_top;
   friend class smoc_scheduler_top;
   friend class smoc_graph_sr;
-
-  typedef smoc_graph    this_type;
 private:
+  typedef smoc_graph    this_type;
+
   typedef CoSupport::SystemC::EventOrList
     <smoc_firing_types::transition_ty> smoc_transition_ready_list;
 
@@ -359,7 +358,7 @@ public:
   const smoc_chan_list getChans() const;
   
 #ifndef __SCFE__
-  sc_module *myModule();
+//sc_module *myModule();
 
   void pgAssemble(smoc_modes::PGWriter &, const smoc_root_node *) const;
   void assembleActor( smoc_modes::PGWriter &pgw ) const;

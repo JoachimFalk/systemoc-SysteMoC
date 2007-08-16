@@ -234,7 +234,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
       inCommState.remove(*titer);
     }
 
-    DEBUG_CODE( std::cerr << "<actor type=\"commstate\" name=\"" << n.myModule()->name() << "\">" << std::endl; )
+    DEBUG_CODE( std::cerr << "<actor type=\"commstate\" name=\"" << n.name() << "\">" << std::endl; )
           transition.execute(&n._currentState, &n);
           DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
     
@@ -297,7 +297,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
       defined.remove(*titer);
       bottom.remove(*titer);
     }
-    DEBUG_CODE( std::cerr << "<actor type=\"bottom\" name=\"" << n.myModule()->name() << "\">" << std::endl; )
+    DEBUG_CODE( std::cerr << "<actor type=\"bottom\" name=\"" << n.name() << "\">" << std::endl; )
     transition.execute(&n._currentState, &n);
     DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
 
@@ -350,7 +350,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 #ifdef SYSTEMOC_ENABLE_VPC
     n.lastTransition = &transition;
 #endif
-    DEBUG_CODE( std::cerr << "<actor type=\"non strict\" name=\"" << n.myModule()->name() << "\">" << std::endl; )
+    DEBUG_CODE( std::cerr << "<actor type=\"non strict\" name=\"" << n.name() << "\">" << std::endl; )
           transition.execute(&n._currentState, &n, smoc_firing_types::transition_ty::GO);
           DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
 
@@ -587,14 +587,14 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
       switch (status.toSymbol()) {
         case Expr::Detail::_DISABLED: {
           smoc_root_node &n = transition.getActor();
-    cerr << ">>>> >>>> remove: " <<  n.myModule()->name()  << endl;
+    cerr << ">>>> >>>> remove: " <<  n.name()  << endl;
           fromList.remove(transition);
           break;
         }
         case Expr::Detail::_ENABLED: {                                                
           smoc_root_node &n = transition.getActor();
 #ifdef SYSTEMOC_DEBUG
-          std::cerr << "<actor name=\"" << n.myModule()->name() << "\">" << std::endl;
+          std::cerr << "<actor name=\"" << n.name() << "\">" << std::endl;
 #endif
           for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
                 titer != n._currentState->tl.end();
@@ -602,7 +602,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
       fromList.remove(*titer);
     }
     if(n.isNonStrict()){
-      std::cerr << "<nonstrict name=\"" << n.myModule()->name() << "\"\\>" << std::endl;
+      std::cerr << "<nonstrict name=\"" << n.name() << "\"\\>" << std::endl;
       //enable multiple writes (sr_signal will check that nothing changes)
       smoc_port_list ps  = n.getPorts();
       for(smoc_port_list::iterator iter = ps.begin();
@@ -616,7 +616,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
         }
       }
     }else{
-      std::cerr << "<strict name=\"" << n.myModule()->name() << "\"\\>" << std::endl;
+      std::cerr << "<strict name=\"" << n.name() << "\"\\>" << std::endl;
    
           transition.execute(&n._currentState, &n);
     fromList.remove(transition);
@@ -746,7 +746,7 @@ size_t smoc_scheduler_top::countDefinedOutports(smoc_root_node &n){
             ++iter ) {
         if ( !(*iter)->is_v1_actor ) {
 #ifdef SYSTEMOC_DEBUG
-          std::cerr << "<findBlocked for " << (*iter)->myModule()->name() << ">" << std::endl;
+          std::cerr << "<findBlocked for " << (*iter)->name() << ">" << std::endl;
 #endif
           (*iter)->_currentState->findBlocked(ol);
 #ifdef SYSTEMOC_DEBUG

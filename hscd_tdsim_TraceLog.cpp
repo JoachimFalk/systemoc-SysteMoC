@@ -140,7 +140,7 @@ TraceLogStream::TraceLogStream(const char *filename)
 
 
 void TraceLogStream::traceStartActor(const smoc_root_node *actor, const char *mode) {
-  lastactor=actor->myModule()->name();
+  lastactor=actor->name();
   size_t id = namePool.registerId(lastactor, PGWriter::getId(actor));
   stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
          << std::endl;
@@ -214,7 +214,7 @@ void  TraceLogStream::traceBlockingWaitEnd(){
   stream << "<waiting type=\"wake up\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
 }
 void  TraceLogStream::traceStartChoice(const smoc_root_node *foo) {
-  const char *actor = foo->myModule()->name();
+  const char *actor = foo->name();
   
   stream << "<choice type=\"begin\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
   actors.insert(actor);
@@ -223,13 +223,13 @@ void  TraceLogStream::traceStartChoice(const smoc_root_node *foo) {
   fifo_actor_last = actor;
 }
 void  TraceLogStream::traceEndChoice(const smoc_root_node *foo) {
-  const char *actor = foo->myModule()->name();
+  const char *actor = foo->name();
   
   stream << "<choice type=\"end\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_actor_last = "";
 }
 void  TraceLogStream::traceStartTransact(const smoc_root_node *foo) {
-  const char *actor = foo->myModule()->name();
+  const char *actor = foo->name();
   
   stream << "<transact type=\"begin\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
   actors.insert(actor);
@@ -238,7 +238,7 @@ void  TraceLogStream::traceStartTransact(const smoc_root_node *foo) {
   fifo_actor_last = actor;
 }
 void TraceLogStream::traceEndTransact(const smoc_root_node *foo) {
-  const char *actor = foo->myModule()->name();
+  const char *actor = foo->name();
   
   stream << "<transact type=\"end\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_actor_last = "";

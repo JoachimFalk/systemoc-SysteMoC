@@ -75,7 +75,7 @@ void smoc_root_chan::finalise() {
           ++iter ) {
       genName
         << (iter == out.begin() ? "" : "|")
-        << (*iter)->getActor()->myModule()->name();
+        << (*iter)->getActor()->name();
     }
   }
   genName << "_";
@@ -87,7 +87,7 @@ void smoc_root_chan::finalise() {
           ++iter ) {
       genName
         << (iter == in.begin() ? "" : "|")
-        << (*iter)->getActor()->myModule()->name();
+        << (*iter)->getActor()->name();
     }
   }
   genName << "_";

@@ -106,8 +106,8 @@ void smoc_graph::finalise() {
 #endif
 }
 
-sc_module *smoc_graph::myModule()
-  { return this; }
+//sc_module *smoc_graph::myModule()
+//  { return this; }
 
 void smoc_graph::pgAssemble(
     smoc_modes::PGWriter &pgw,
@@ -181,8 +181,7 @@ void smoc_graph::scheduleDataFlow(){
           smoc_firing_types::resolved_state_ty *oldState = n._currentState;
           
 #ifdef SYSTEMOC_DEBUG
-          std::cerr << "<actor name=\"" << n.myModule()->name()
-                    << "\">" << std::endl;
+          std::cerr << "<actor name=\"" << n.name() << "\">" << std::endl;
 #endif
           transition.execute(&n._currentState, &n);
 //        if (oldState != n._currentState) {
@@ -227,7 +226,7 @@ void smoc_graph::initDataFlow(){
         ++iter ) {
     smoc_root_node *node = *iter;
     // Is this a SysteMoV v2 actor?
-    if (dynamic_cast<hscd_choice_node *>(node) == NULL) {
+    if (dynamic_cast<hscd_choice_active_node *>(node) == NULL) {
       // yes
       smoc_firing_types::resolved_state_ty *rs = node->_currentState;
       assert(rs != NULL);
@@ -243,8 +242,7 @@ void smoc_graph::initDataFlow(){
 
 //
 smoc_graph::smoc_graph(sc_module_name name)
-  : sc_module(name),
-    smoc_root_node(init),
+  : smoc_root_node(name, init),
     top(NULL)
 {
   this->constructor();
@@ -252,8 +250,7 @@ smoc_graph::smoc_graph(sc_module_name name)
 
 //
 smoc_graph::smoc_graph()
-  : sc_module(sc_gen_unique_name("smoc_graph")),
-    smoc_root_node(init),
+  : smoc_root_node(sc_gen_unique_name("smoc_graph"), init),
     top(NULL)
 {
   this->constructor();

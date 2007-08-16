@@ -51,7 +51,7 @@
 template <typename T>
 class hscd_op {
 public:
-  friend class hscd_choice_node;
+  friend class hscd_choice_active_node;
   
   typedef T        running_op_type;
   typedef typename T::op_list_type  op_list_type;
