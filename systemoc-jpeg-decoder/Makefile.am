@@ -101,7 +101,6 @@ sgx:  	 $(SGX_SUBDIR)/specgraph.dtd \
 
 
 $(SYNTHESIS_SUBDIR)/jpeg.ast.xml: $(simulation_jpeg_SOURCES)
-$(HWSYNTH_SUBDIR)/jpeg.ast.xml:   $(simulation_jpeg_SOURCES)
 
 $(SYNTHESIS_SUBDIR)/smoc-synth-jpeg: BitSplitter.cpp
 
