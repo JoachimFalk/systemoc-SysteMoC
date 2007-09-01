@@ -542,7 +542,7 @@ private:
 
 public:
   /// This function multiplies the given iteration vector with the
-  /// border condition matrix. However, the window iteration ARE NOT
+  /// border condition matrix. However, the window iteration IS NOT
   /// TAKEN into account.
   const border_condition_vector_type& get_base_border_condition_vector() const{
     return base_border_condition_vector;
