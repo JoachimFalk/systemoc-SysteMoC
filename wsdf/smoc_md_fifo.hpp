@@ -324,7 +324,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
   smoc_snk_md_loop_iterator_kind::data_element_id_type 
     src_data_element_id((*this).snk_loop_iterator.token_dimensions());
   if (!(*this).snk_loop_iterator.get_req_src_data_element(src_data_element_id)){
-    /// Source does not need to produce anythouth for 
+    /// Source does not need to produce anything for 
     /// this sink iteration
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
     CoSupport::dout << "Source actor does not need to produce anything" << std::endl;
