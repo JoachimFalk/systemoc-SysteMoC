@@ -213,28 +213,11 @@ public:
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101)
       CoSupport::dout << buffer->name() << ": Enter smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::is_ext_border" << std::endl;
       CoSupport::dout << CoSupport::Indent::Up;
-      CoSupport::dout << "snk_loop_iterator->iteration_vector() = " << snk_loop_iterator->iteration_vector();
-      CoSupport::dout << std::endl;
-      CoSupport::dout << "window_iteration = " << window_iteration;
-      CoSupport::dout << std::endl;
 #endif
 
-      border_condition_vector_type border_condition_vector = 
-	snk_loop_iterator->get_base_border_condition_vector();
-#if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101)
-      CoSupport::dout << "base_border_condition_vector = " << border_condition_vector;
-      CoSupport::dout << std::endl;
-#endif
-      border_condition_vector += 
-	snk_loop_iterator->calc_border_condition_offset(window_iteration);                      
-
-#if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101)
-      CoSupport::dout << "border_condition_vector = " << border_condition_vector;
-      CoSupport::dout << std::endl;
-#endif
-                        
-      border_type_vector_type
-	return_vector(snk_loop_iterator->is_border_pixel(border_condition_vector, is_border));
+      border_type_vector_type 
+        return_vector(snk_loop_iterator->is_ext_border(window_iteration,
+                                                       is_border));
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101)
       CoSupport::dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::is_ext_border" << std::endl;

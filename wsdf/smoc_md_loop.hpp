@@ -68,6 +68,10 @@ public:
   /// The function returns true, if a new schedule period is started.
   virtual bool inc() = 0;
 
+  /// Move to next window iteration
+  /// Returns true, if we restart from the window beginning
+  virtual bool inc_window();
+
   /// Access iteration vector
   data_type operator[](size_type idx) const{
     return current_iteration[idx];
@@ -77,6 +81,11 @@ public:
   const iter_domain_vector_type& iteration_vector() const {
     return current_iteration;
   }
+
+  /// Set the window operator elements
+  /// The input iterator only defines the window iterator.
+  /// The order must be the same than for the iterator itself.
+  void set_window_iterator(const iter_domain_vector_type& window_iter);
 
   /// check, whether current iteration is the first
   /// of a new schedule period
@@ -106,6 +115,20 @@ public:
 
   /// Same as above, but returns a vector whose components are increased by one
   virtual const iter_domain_vector_type iteration_size() const;
+
+
+  /* Determination of the iteration ID */
+  /// The iteration vectors can be enumerated in increasing order.
+  /// The following function calculates this ID (which by the way corresponds
+  /// to the address in the linearized buffer model when applied to
+  /// a source iterator).
+  virtual long 
+  calc_iteration_id(const iter_domain_vector_type& iter) const = 0;
+
+  /// The same for the current iteration vector
+  long calc_iteration_id() const {
+    return calc_iteration_id(current_iteration);
+  }
 
 protected:
 
@@ -540,24 +563,27 @@ private:
   /// function verifies, that the assumed conditions are fullfilled.
   bool check_border_condition_matrix(const border_condition_matrix_type& border_matrix) const;
 
-public:
+protected:
   /// This function multiplies the given iteration vector with the
   /// border condition matrix. However, the window iteration IS NOT
   /// TAKEN into account.
-  const border_condition_vector_type& get_base_border_condition_vector() const{
+  const border_condition_vector_type& 
+  get_base_border_condition_vector() const{
     return base_border_condition_vector;
   }
 
   /// This function takes the border condition calculated by the above
   /// function and adds the part for the window iteration given by
   /// the iteration vector.
-  border_condition_vector_type calc_window_border_condition_vector(const border_condition_vector_type& base_border_condition_vector,
-								   const iter_domain_vector_type& iteration) const;
-
+  border_condition_vector_type 
+  calc_window_border_condition_vector(const border_condition_vector_type& base_border_condition_vector,
+                                      const iter_domain_vector_type& iteration) const;
+  
   ///Same as above, but this time window_iteration ONLY specifies the window
   ///iteration. Furthermore, the resulting offset is returned instead
   ///of adding it to the base vector.
-  border_condition_vector_type calc_border_condition_offset(const iter_domain_vector_type& window_iteration) const;
+  border_condition_vector_type 
+  calc_border_condition_offset(const iter_domain_vector_type& window_iteration) const;
         
   /// Same as above, but only for specified dimension
   id_type calc_window_border_condition(id_type base_border_condition,
@@ -572,6 +598,14 @@ public:
   /// Otherwise is_border is false
   border_type_vector_type is_border_pixel(const border_condition_vector_type& border_condition_vector,
 					  bool& is_border) const;
+
+public:
+
+  /// This function determines, whether the data element accessed
+  /// by the given window iteration is situated on an extended
+  /// border.
+  border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration,
+                                        bool& is_border) const;
 
 protected:
   void update_base_data_element_id();
@@ -626,6 +660,9 @@ public:
   virtual const iter_domain_vector_type iteration_max() const{
     return _iteration_max;
   }
+
+  /// Calculation of the iteration ID
+  virtual long calc_iteration_id(const iter_domain_vector_type& iter) const;
 
 protected:  
 
@@ -707,6 +744,11 @@ public:
   virtual const iter_domain_vector_type& max_window_iteration() const{
     return smoc_md_static_loop_iterator::max_window_iteration();
   }
+
+  virtual long 
+  calc_iteration_id(const iter_domain_vector_type& iter) const{
+    return smoc_md_static_loop_iterator::calc_iteration_id(iter);
+  };
         
   
 };
@@ -764,6 +806,11 @@ public:
   virtual const iter_domain_vector_type& max_window_iteration() const{
     return smoc_md_static_loop_iterator::max_window_iteration();
   }
+
+  virtual long 
+  calc_iteration_id(const iter_domain_vector_type& iter) const{
+    return smoc_md_static_loop_iterator::calc_iteration_id(iter);
+  };
 
 };
 
