@@ -18,7 +18,12 @@
 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
 # include <systemoc/smoc_md_ba_linearized_buffer_schedule.hpp>
+# include <systemoc/smoc_md_ba_linearized_buffer_size.hpp>
 #endif
+
+#define BUFFER_ANALYSIS_TYPE 0
+//0 : buffer size
+//1 : schedule
 
 using namespace std;
 using namespace ns_smoc_vector_init;
@@ -84,7 +89,13 @@ int main(){
 #endif
 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+# if BUFFER_ANALYSIS_TYPE == 0
+  smoc_md_ba_ui_lin_buffer_size buffer_schedule_analysis_obj;
+# elif BUFFER_ANALYSIS_TYPE == 1
   smoc_md_ba_ui_schedule buffer_schedule_analysis_obj;
+# else
+# error "wrong mode"
+# endif
 #endif
         
   smoc_md_fifo<void> my_fifo(edge_e1,
@@ -126,6 +137,10 @@ int main(){
   }
 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+
+# if BUFFER_ANALYSIS_TYPE == 0
+  std::cout << "buffer size: " << buffer_schedule_analysis_obj.get_buffer_size() << std::endl;
+# elif BUFFER_ANALYSIS_TYPE == 1
   
   {
     stringstream temp;
@@ -143,6 +158,7 @@ int main(){
     outfile.close();
   }
   
+# endif
 #endif
 
   delete my_channel;

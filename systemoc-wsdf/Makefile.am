@@ -35,7 +35,7 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
 LIBS= @LIBS@ -lsystemoc
 
-noinst_PROGRAMS= simulation-wsdf simulation-wsdf-no-border simulation-fifo
+noinst_PROGRAMS= simulation-wsdf simulation-wsdf-no-border simulation-fifo wsdf-addr-analysis
 
 simulation_wsdf_SOURCES= design-wsdf.cpp
 simulation_wsdf_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
@@ -45,6 +45,9 @@ simulation_wsdf_no_border_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 simulation_fifo_SOURCES = fifo-sim.cpp
 simulation_fifo_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+wsdf_addr_analysis_SOURCES = addr_analysis_data_struct.cpp addr_analysis.cpp
+wsdf_addr_analysis_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 all: ref_data.dat
 
