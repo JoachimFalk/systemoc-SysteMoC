@@ -8,12 +8,16 @@
 
 // Structure in order to store results
 struct src_addr_info_struct {
+  
   //Absolute address
   long abs_addr;
+  
+  //calculated relative address offset
+  long rel_addr;
+  
   //Whether address is valid or not
   bool valid;
   
-
 };
 
 
