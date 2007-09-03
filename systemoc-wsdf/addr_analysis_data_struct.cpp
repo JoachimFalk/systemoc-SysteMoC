@@ -3,6 +3,7 @@
 
 #include "addr_analysis_data_struct.hpp"
 
+#if 0
 // Corresponding stream operators required for input and output.
 std::istream& 
 operator>>(std::istream& stream, 
@@ -21,18 +22,24 @@ operator>>(std::istream& stream,
 
   return stream;
 }
+#endif
 
 std::ostream& 
 operator<<(std::ostream& stream, 
            const struct src_addr_info_struct& element){
-  if (element.valid){
+  if (element.curr_addr_valid){
     stream << "1 ";
   }else{
     stream << "0 ";
   }
-
-  stream << element.abs_addr << " ";
-  stream << element.rel_addr << " ";
+  stream << element.curr_abs_addr << " ";
+  
+  if (element.next_addr_valid){
+    stream << "1 ";
+  }else{
+    stream << "0 ";
+  }
+  stream << element.rel_next_addr << " ";
 
   return stream;
 }

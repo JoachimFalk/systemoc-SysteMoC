@@ -22,13 +22,18 @@ using namespace ns_smoc_vector_init;
 
 
 
-struct src_addr_info_struct
+// This function returns the absolute address for the
+// the given window iteration.
+// By help of the valid flag it signals, whether this
+// is a valid address not situated on the extended border.
+long
 calc_lin_addr(const smoc_snk_md_static_loop_iterator::iter_domain_vector_type& window_iterator,
               const smoc_src_md_static_loop_iterator& src_iter,
               const smoc_snk_md_static_loop_iterator& snk_iter,
+              bool& valid,
               long schedule_period = 0){
 
-  struct src_addr_info_struct return_value;
+  long return_value;
 
   const smoc_snk_md_static_loop_iterator::data_element_id_type&
     base_data_element_id(snk_iter.get_base_data_element_id());
@@ -74,14 +79,12 @@ calc_lin_addr(const smoc_snk_md_static_loop_iterator::iter_domain_vector_type& w
     CoSupport::dout << "src_iteration = " << src_iteration << std::endl;
 
     //calculate linearized address
-    long lin_addr = 
+    return_value = 
       src_iter.calc_iteration_id(src_iteration,
                                  schedule_period);
 
-    CoSupport::dout << "lin_addr = " << lin_addr << std::endl;
-
-    return_value.abs_addr = lin_addr;
-    return_value.valid = true;
+    CoSupport::dout << "lin_addr = " << return_value << std::endl;
+    valid = true;
         
           
   }else{
@@ -96,10 +99,10 @@ calc_lin_addr(const smoc_snk_md_static_loop_iterator::iter_domain_vector_type& w
     smoc_src_md_static_loop_iterator::iter_domain_vector_type 
       src_iteration(src_iter.iterator_depth(),
                     (smoc_src_md_static_loop_iterator::iter_item_type)0);
-    return_value.abs_addr = 
+    return_value = 
       src_iter.calc_iteration_id(src_iteration,
                                  schedule_period);
-    return_value.valid = false;
+    valid = false;
     
   }
 
@@ -220,10 +223,12 @@ int main(){
   //      the data element produced by the source
   //      iteration zero.
   long schedule_period = 0;
-  struct src_addr_info_struct prev_win_addr_info = 
+  ref_point_addr_offset_table[snk_iter.iteration_vector()].curr_abs_addr =
     calc_lin_addr(ref_window_iterator,
                   src_iter,
-                  snk_iter);
+                  snk_iter,
+                  ref_point_addr_offset_table[snk_iter.iteration_vector()].curr_addr_valid);
+
   bool finished = false;
   while(!finished){
     const smoc_snk_md_static_loop_iterator::iter_domain_vector_type
@@ -235,37 +240,38 @@ int main(){
       schedule_period++;
     }
 
-    //Attention: For iteration (0,0,0...) we store the
-    //           address offset in order to reach the NEXT
-    //           iteration. We also store the absolute
-    //           value of the NEXT iteration!!!
-    ref_point_addr_offset_table[prev_snk_iter_vector] =
+    
+    // Get the absolute address for the iteration snk_iter
+    bool valid_addr;
+    long lin_addr = 
       calc_lin_addr(ref_window_iterator,
                     src_iter,
                     snk_iter,
+                    valid_addr,
                     schedule_period);
 
-    //Calculate relative address
-    ref_point_addr_offset_table[prev_snk_iter_vector].rel_addr =
-      ref_point_addr_offset_table[prev_snk_iter_vector].abs_addr-
-      prev_win_addr_info.abs_addr;
-    
-    prev_win_addr_info = 
-      ref_point_addr_offset_table[prev_snk_iter_vector];
-  }
+    // From this information, we derive the relative
+    // difference to the previous iteration
+    ref_point_addr_offset_table[prev_snk_iter_vector].rel_next_addr =
+      lin_addr -
+      ref_point_addr_offset_table[prev_snk_iter_vector].curr_abs_addr;
+    ref_point_addr_offset_table[prev_snk_iter_vector].next_addr_valid = 
+      valid_addr;
 
+    if (!finished){
+      //Store absolute address
+      ref_point_addr_offset_table[snk_iter.iteration_vector()].curr_abs_addr =
+        lin_addr;
+      ref_point_addr_offset_table[snk_iter.iteration_vector()].curr_addr_valid =
+        valid_addr;
+    }
+
+  }
 
 
   /* Process all window pixels */ 
   //Note: here snk_iter = (0,0,0,...) again!!
   do {
-
-    //First, get reference address
-    struct src_addr_info_struct ref_addr_info =
-      calc_lin_addr(ref_window_iterator,
-                    src_iter,
-                    snk_iter);
-    
     smoc_snk_md_static_loop_iterator::iter_domain_vector_type
       window_iterator(snk_iter.token_dimensions(),
                       (smoc_snk_md_static_loop_iterator::iter_item_type)0);
@@ -278,21 +284,39 @@ int main(){
       // iteration vector as array index
       snk_iter.set_window_iterator(window_iterator);
 
-      CoSupport::dout << "Iteration: " << snk_iter.iteration_vector() << std::endl;
+      CoSupport::dout << "Iteration: " 
+                      << snk_iter.iteration_vector() 
+                      << std::endl;
       CoSupport::dout << CoSupport::Indent::Up;
 
 
-      window_addr_offset_table[snk_iter.iteration_vector()] = 
+      bool addr_valid;
+      long lin_addr = 
         calc_lin_addr(window_iterator,
                       src_iter,
-                      snk_iter);
+                      snk_iter,
+                      addr_valid);
 
-      // Transform into relative address (relative to
-      // reference window pixel.
-      window_addr_offset_table[snk_iter.iteration_vector()].rel_addr =
-        window_addr_offset_table[snk_iter.iteration_vector()].abs_addr -
-        ref_addr_info.abs_addr;
-        
+      //Note, that here the structure names are not very nice.
+      //Perhaps it would be better to introduce a new structure.
+      //Store absolute address
+      window_addr_offset_table[snk_iter.iteration_vector()].curr_abs_addr =
+        lin_addr;
+      //Calculate relative address to reference pixel
+      window_addr_offset_table[snk_iter.iteration_vector()].rel_next_addr =
+        lin_addr - 
+        ref_point_addr_offset_table[snk_iter.iteration_vector()].curr_abs_addr;
+      
+      window_addr_offset_table[snk_iter.iteration_vector()].curr_addr_valid =
+        window_addr_offset_table[snk_iter.iteration_vector()].next_addr_valid =
+        addr_valid;
+
+      CoSupport::dout << "Absolute address: " << lin_addr << std::endl;
+      CoSupport::dout << "Relative address: " 
+                      << window_addr_offset_table[snk_iter.iteration_vector()].rel_next_addr 
+                      << std::endl;
+      CoSupport::dout << (addr_valid ? "address valid" : "address not valid")
+                      << std::endl;
 
       CoSupport::dout << "Move to next window ..." << std::endl;
 
@@ -315,7 +339,7 @@ int main(){
     } //iteration of window
 
     
-  }while (!snk_iter.inc());
+  }while(!snk_iter.inc());
 
 
   //store table

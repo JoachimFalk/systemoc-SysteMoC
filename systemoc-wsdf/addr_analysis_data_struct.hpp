@@ -8,22 +8,27 @@
 
 // Structure in order to store results
 struct src_addr_info_struct {
+
+  //Absolute iteration of this iteration
+  long curr_abs_addr;
+
+  bool curr_addr_valid;
   
-  //Absolute address
-  long abs_addr;
+  //Difference to address of next
+  //iteration
+  long rel_next_addr;
   
-  //calculated relative address offset
-  long rel_addr;
-  
-  //Whether address is valid or not
-  bool valid;
+  //Whether address of next iteration
+  //is valid or not
+  bool next_addr_valid;
   
 };
 
-
+#if 0
 std::istream& 
 operator>>(std::istream& stream, 
            struct src_addr_info_struct& element);
+#endif
 
 std::ostream& 
 operator<<(std::ostream& stream, 
