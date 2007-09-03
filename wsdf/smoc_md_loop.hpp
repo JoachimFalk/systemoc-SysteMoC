@@ -54,7 +54,8 @@ public:
   /// Copy constructor
   smoc_md_loop_iterator_kind(const smoc_md_loop_iterator_kind& src_iterator)
     : current_iteration(src_iterator.current_iteration),
-      _token_dimensions(src_iterator._token_dimensions){};
+      _token_dimensions(src_iterator._token_dimensions)
+  {};
 
   /// Destructor
   virtual ~smoc_md_loop_iterator_kind(){};
@@ -110,7 +111,7 @@ public:
   virtual data_type iteration_max(const size_type dimension,
 				  const iter_domain_vector_type& fixed_iteration) const = 0;
 
-  /// This function returns the overall iteration maxumum
+  /// This function returns the overall iteration maximum
   virtual const iter_domain_vector_type iteration_max() const = 0;
 
   /// Same as above, but returns a vector whose components are increased by one
@@ -123,9 +124,11 @@ public:
   /// to the address in the linearized buffer model when applied to
   /// a source iterator).
   virtual long 
-  calc_iteration_id(const iter_domain_vector_type& iter) const = 0;
-
+  calc_iteration_id(const iter_domain_vector_type& iter,
+                    long schedule_period = 0) const = 0;
+  
   /// The same for the current iteration vector
+  /// (without taking schedule period into account)
   long calc_iteration_id() const {
     return calc_iteration_id(current_iteration);
   }
@@ -141,7 +144,9 @@ protected:
 
 
   /// Number of dimensions of window
-  const size_type _token_dimensions;  
+  const size_type _token_dimensions;
+
+
 };
 
 
@@ -662,7 +667,8 @@ public:
   }
 
   /// Calculation of the iteration ID
-  virtual long calc_iteration_id(const iter_domain_vector_type& iter) const;
+  virtual long calc_iteration_id(const iter_domain_vector_type& iter,
+                                 long schedule_period = 0) const;
 
 protected:  
 
@@ -675,6 +681,17 @@ protected:
 private:
   const iter_domain_vector_type calc_max_window_iteration(unsigned int token_dimensions,
 							  const iter_domain_vector_type& iteration_max);
+
+
+  /// This function calculates the number of invocations
+  /// per schedule period and corresponds more or less to
+  /// the function calc_iteration_id
+  long calc_schedule_period_invocations() const;
+
+private:
+
+  // Number of invocations per schedule period.
+  const long num_invocations_per_period;
 };
 
 
@@ -746,8 +763,11 @@ public:
   }
 
   virtual long 
-  calc_iteration_id(const iter_domain_vector_type& iter) const{
-    return smoc_md_static_loop_iterator::calc_iteration_id(iter);
+  calc_iteration_id(const iter_domain_vector_type& iter,
+                    long schedule_period = 0) const{
+    return 
+      smoc_md_static_loop_iterator::calc_iteration_id(iter,
+                                                      schedule_period);
   };
         
   
@@ -808,8 +828,11 @@ public:
   }
 
   virtual long 
-  calc_iteration_id(const iter_domain_vector_type& iter) const{
-    return smoc_md_static_loop_iterator::calc_iteration_id(iter);
+  calc_iteration_id(const iter_domain_vector_type& iter,
+                    long schedule_period = 0) const{
+    return 
+      smoc_md_static_loop_iterator::calc_iteration_id(iter,
+                                                      schedule_period);
   };
 
 };

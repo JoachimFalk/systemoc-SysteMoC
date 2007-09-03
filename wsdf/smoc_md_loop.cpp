@@ -1144,12 +1144,14 @@ void smoc_snk_md_loop_iterator_kind::update_base_border_condition_vector(){
 smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(const iter_domain_vector_type& iteration_max,
 							   unsigned int token_dimensions)
   : _iteration_max(iteration_max),
-    _max_window_iteration(calc_max_window_iteration(token_dimensions,iteration_max))
+    _max_window_iteration(calc_max_window_iteration(token_dimensions,iteration_max)),
+    num_invocations_per_period(calc_schedule_period_invocations())
 {}
 
 smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(const smoc_md_static_loop_iterator& src_iterator)
   : _iteration_max(src_iterator._iteration_max),
-    _max_window_iteration(src_iterator._max_window_iteration)
+    _max_window_iteration(src_iterator._max_window_iteration),
+    num_invocations_per_period(src_iterator.num_invocations_per_period)
 {}
 
 
@@ -1172,13 +1174,13 @@ smoc_md_static_loop_iterator::calc_max_window_iteration(unsigned int token_dimen
 }
 
 long 
-smoc_md_static_loop_iterator::calc_iteration_id(const iter_domain_vector_type& iter) const {
+smoc_md_static_loop_iterator::calc_iteration_id(const iter_domain_vector_type& iter,
+                                                long schedule_period) const {
   long factor = 1;
   long return_value = 0;
 
   // As the loop boundaries are static, calculation
   // of the iteration ID is quite simple.
-
   for(int i = iter.size()-1;
       i >= 0;
       i--){
@@ -1186,6 +1188,18 @@ smoc_md_static_loop_iterator::calc_iteration_id(const iter_domain_vector_type& i
     factor *= _iteration_max[i]+1;
   }
 
+  return_value += 
+    schedule_period * num_invocations_per_period;
+
+  return return_value;
+}
+
+long 
+smoc_md_static_loop_iterator::calc_schedule_period_invocations() const {
+  long return_value = 1;
+  for(unsigned int i = 0; i < _iteration_max.size(); i++){
+    return_value *= _iteration_max[i]+1;
+  }
   return return_value;
 }
 
