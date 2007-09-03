@@ -159,7 +159,7 @@ int main(){
 
         CoSupport::dout << "lin_addr = " << lin_addr << std::endl;
         
-        result_array[snk_iter.iteration_vector()].addr = 
+        result_array[snk_iter.iteration_vector()].abs_addr = 
           lin_addr;
         result_array[snk_iter.iteration_vector()].valid = 
           true;
@@ -170,7 +170,7 @@ int main(){
 
         CoSupport::dout << "Situated on extended border" << std::endl;
 
-        result_array[snk_iter.iteration_vector()].addr = 0;
+        result_array[snk_iter.iteration_vector()].abs_addr = 0;
         result_array[snk_iter.iteration_vector()].valid = 
           false;
       }

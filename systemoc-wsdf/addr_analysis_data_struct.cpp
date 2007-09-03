@@ -16,7 +16,7 @@ operator>>(std::istream& stream,
   else
     element.valid = false;
 
-  stream >> element.addr;
+  stream >> element.abs_addr;
 
   return stream;
 }
@@ -30,7 +30,7 @@ operator<<(std::ostream& stream,
     stream << "0 ";
   }
 
-  stream << element.addr << " ";
+  stream << element.abs_addr << " ";
 
   return stream;
 }
