@@ -6,8 +6,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "addr_analysis_data_struct.hpp"
-
 #include <systemoc/smoc_wsdf_edge.hpp>
 #include <systemoc/smoc_md_loop.hpp>
 #include <systemoc/smoc_md_port.hpp>  // for vector init
@@ -15,100 +13,12 @@
 
 #include <cosupport/smoc_debug_out.hpp>
 
+#include "snk2addr_table_ref_point.hpp"
+
 using namespace std;
 using namespace ns_smoc_vector_init;
 
 #define WSDF_EXAMPLE_NBR 2
-
-
-
-// This function returns the absolute address for the
-// the given window iteration.
-// By help of the valid flag it signals, whether this
-// is a valid address not situated on the extended border.
-long
-calc_lin_addr(const smoc_snk_md_static_loop_iterator::iter_domain_vector_type& window_iterator,
-              const smoc_src_md_static_loop_iterator& src_iter,
-              const smoc_snk_md_static_loop_iterator& snk_iter,
-              bool& valid,
-              long schedule_period = 0){
-
-  long return_value;
-
-  const smoc_snk_md_static_loop_iterator::data_element_id_type&
-    base_data_element_id(snk_iter.get_base_data_element_id());
-
-  //check, whether pixel is situated on extended border
-  bool is_ext_border;
-  snk_iter.is_ext_border(window_iterator,
-                         is_ext_border);      
-
-  if (!is_ext_border){
-    // pixel must be produced by source actor
-    
-    smoc_src_md_static_loop_iterator::iter_domain_vector_type 
-      src_iteration(src_iter.iterator_depth());
-    smoc_src_md_static_loop_iterator::id_type
-      schedule_period_offset;
-
-    //Get required data element
-    smoc_snk_md_static_loop_iterator::data_element_id_type
-      data_element_id(snk_iter.token_dimensions());
-
-    snk_iter.get_window_data_element_offset(window_iterator,
-                                            data_element_id);
-    data_element_id += base_data_element_id;
-
-      
-    CoSupport::dout << "Required data element: " << data_element_id << std::endl;
-
-
-    // Get required source iteration
-    bool temp =
-      src_iter.get_src_loop_iteration(data_element_id,
-                                      src_iteration,
-                                      schedule_period_offset
-                                      );
-    assert(temp);
-
-    //Eliminate schedule period offset
-    src_iteration[src_iteration.size()-1] +=
-      schedule_period_offset*
-      src_iter.iteration_size()[src_iteration.size()-1];
-
-    CoSupport::dout << "src_iteration = " << src_iteration << std::endl;
-
-    //calculate linearized address
-    return_value = 
-      src_iter.calc_iteration_id(src_iteration,
-                                 schedule_period);
-
-    CoSupport::dout << "lin_addr = " << return_value << std::endl;
-    valid = true;
-        
-          
-  }else{
-    // data element is not produced by source actor
-    // Insert a don't care into the table
-
-    CoSupport::dout << "Situated on extended border" << std::endl;
-
-    // By default, we set the address to zero.
-    // However, we have to take the schedule period into account.
-
-    smoc_src_md_static_loop_iterator::iter_domain_vector_type 
-      src_iteration(src_iter.iterator_depth(),
-                    (smoc_src_md_static_loop_iterator::iter_item_type)0);
-    return_value = 
-      src_iter.calc_iteration_id(src_iteration,
-                                 schedule_period);
-    valid = false;
-    
-  }
-
-  return return_value;
-
-}
 
 
 
@@ -190,85 +100,19 @@ int main(){
   // of all sliding windows pixels relative to the 
   // reference pixel.
 
-  //window iterator for reference point
-  smoc_snk_md_static_loop_iterator::iter_domain_vector_type
-    ref_window_iterator(snk_iter.max_window_iteration()/2);
-  //smoc_snk_md_static_loop_iterator::iter_domain_vector_type
-  //  ref_window_iterator(snk_iter.token_dimensions(),
-  //                      (smoc_snk_md_static_loop_iterator::iter_item_type)0);
-
-  CoSupport::dout << "Referenz Window Iterator = "
-                  << ref_window_iterator
-                  << std::endl;
-
-  //default step size applied when
-  //the reference address is not valid
-  const long default_addr_step = 1;
-
   //result tables
-  smoc_md_array<struct src_addr_info_struct> 
-    ref_point_addr_offset_table(snk_iter.iterator_depth()-
-                                snk_iter.token_dimensions(),
-                                snk_iter.iteration_size());
-  
   smoc_md_array<struct src_addr_info_struct> 
     window_addr_offset_table(snk_iter.iterator_depth(),
                              snk_iter.iteration_size());
 
 
   /* Start to process reference points */ 
-  
-  //Note: if the first reference iterator does not access
-  //      a valid address, we assume, that it uses
-  //      the data element produced by the source
-  //      iteration zero.
-  long schedule_period = 0;
-  ref_point_addr_offset_table[snk_iter.iteration_vector()].curr_abs_addr =
-    calc_lin_addr(ref_window_iterator,
-                  src_iter,
-                  snk_iter,
-                  ref_point_addr_offset_table[snk_iter.iteration_vector()].curr_addr_valid);
+  snk2addr_table_ref_point ref_point_analyser(src_iter,
+                                              snk_iter);
+  const smoc_md_array<struct src_addr_info_struct> &
+    ref_point_addr_offset_table(ref_point_analyser.get_ref_point_addr_offet_table());  
 
-  bool finished = false;
-  while(!finished){
-    const smoc_snk_md_static_loop_iterator::iter_domain_vector_type
-      prev_snk_iter_vector(snk_iter.iteration_vector());
-
-    finished = snk_iter.inc();
-    if (finished){
-      // we have started a new schedule period.
-      schedule_period++;
-    }
-
-    
-    // Get the absolute address for the iteration snk_iter
-    bool valid_addr;
-    long lin_addr = 
-      calc_lin_addr(ref_window_iterator,
-                    src_iter,
-                    snk_iter,
-                    valid_addr,
-                    schedule_period);
-
-    // From this information, we derive the relative
-    // difference to the previous iteration
-    ref_point_addr_offset_table[prev_snk_iter_vector].rel_next_addr =
-      lin_addr -
-      ref_point_addr_offset_table[prev_snk_iter_vector].curr_abs_addr;
-    ref_point_addr_offset_table[prev_snk_iter_vector].next_addr_valid = 
-      valid_addr;
-
-    if (!finished){
-      //Store absolute address
-      ref_point_addr_offset_table[snk_iter.iteration_vector()].curr_abs_addr =
-        lin_addr;
-      ref_point_addr_offset_table[snk_iter.iteration_vector()].curr_addr_valid =
-        valid_addr;
-    }
-
-  }
-
-
+#if 0
   /* Process all window pixels */ 
   //Note: here snk_iter = (0,0,0,...) again!!
   do {
@@ -341,6 +185,7 @@ int main(){
     
   }while(!snk_iter.inc());
 
+#endif
 
   //store table
   {

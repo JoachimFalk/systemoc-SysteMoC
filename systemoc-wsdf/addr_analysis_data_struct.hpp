@@ -21,6 +21,9 @@ struct src_addr_info_struct {
   //Whether address of next iteration
   //is valid or not
   bool next_addr_valid;
+
+  // Pointer to item for next iteration
+  struct src_addr_info_struct* next_iter_item;
   
 };
 
