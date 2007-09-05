@@ -598,7 +598,6 @@ void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(s2vector_type& iteration_le
 
                                                 
       if (!found[token_dimension]){
-	//if (snk_has_iteration_level(firing_level, token_dimension)){
 	if (iteration_level_table[firing_level][token_dimension] >= 0){
 	  if (snk_firing_blocks[firing_level][token_dimension] == 
 	      snk_r_vtu[token_dimension]){
@@ -740,7 +739,6 @@ smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_
     for(unsigned firing_level = 0; 
 	firing_level < snk_num_firing_levels; 
 	firing_level++){
-      //if (snk_has_iteration_level(firing_level, token_dimension)){
       if(snk_iteration_level_table[firing_level][token_dimension] >= 0){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
 	std::cout << "firing_level = " << firing_level << std::endl;
@@ -853,7 +851,6 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
     for(unsigned firing_level = 0; 
 	firing_level < snk_num_firing_levels; 
 	firing_level++){                        
-      //if (snk_has_iteration_level(firing_level, token_dimension)){
       if(snk_iteration_level_table[firing_level][token_dimension] >= 0){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
 	std::cout << "firing_level = " << firing_level << std::endl;
@@ -994,3 +991,4 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_m
 #endif
 
 }
+
