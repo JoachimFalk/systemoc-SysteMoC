@@ -28,6 +28,8 @@ public:
 		unsigned int nbr_dimensions,           //number of dimensions
 		const T2& buffer_extensions        //extension in each dimension
 		);
+  /// Copy constructor
+  smoc_md_array(const smoc_md_array<DATA_TYPE>& a);
   ~smoc_md_array();
 
 
@@ -71,6 +73,24 @@ smoc_md_array<DATA_TYPE>::smoc_md_array(
   bool temp = allocate_memory(nbr_dimensions, buffer_extensions);
   assert(temp);
 }
+
+
+template <typename DATA_TYPE>
+smoc_md_array<DATA_TYPE>::smoc_md_array(const smoc_md_array<DATA_TYPE>& a) 
+  : data_buffer(NULL)
+{
+  bool temp = allocate_memory(a.nbr_dimensions, a.buffer_extensions);
+  assert(temp);
+
+  //Copy data values
+  for (unsigned long i = 0;
+       i < buffer_size;
+       i++){
+    data_buffer[i] = a.data_buffer[i];
+  }
+  
+}
+
 
 template <typename DATA_TYPE>
 smoc_md_array<DATA_TYPE>::~smoc_md_array(){
