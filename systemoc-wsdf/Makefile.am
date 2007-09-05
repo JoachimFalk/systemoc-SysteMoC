@@ -46,7 +46,12 @@ simulation_wsdf_no_border_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 simulation_fifo_SOURCES = fifo-sim.cpp
 simulation_fifo_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-wsdf_addr_analysis_SOURCES = addr_analysis_data_struct.cpp snk2addr_table.cpp snk2addr_table_ref_point.cpp addr_analysis.cpp
+wsdf_addr_analysis_SOURCES = \
+addr_analysis_data_struct.cpp  \
+snk2addr_table.cpp \
+snk2addr_table_ref_point.cpp \
+snk2addr_table_win_iter.cpp \
+addr_analysis.cpp
 wsdf_addr_analysis_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 all: ref_data.dat
