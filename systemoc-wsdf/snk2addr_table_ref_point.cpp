@@ -5,9 +5,9 @@
 snk2addr_table_ref_point::snk2addr_table_ref_point(const smoc_src_md_static_loop_iterator& src_iter,
                                                    const smoc_snk_md_static_loop_iterator& snk_iter)
   : snk2addr_table(src_iter, snk_iter),
-    //ref_window_iterator(snk_iter.max_window_iteration()/2),
-    ref_window_iterator(snk_iter.token_dimensions(),
-                        (smoc_snk_md_static_loop_iterator::iter_item_type)0),
+    ref_window_iterator(snk_iter.max_window_iteration()/2),
+    //ref_window_iterator(snk_iter.token_dimensions(),
+    //                    (smoc_snk_md_static_loop_iterator::iter_item_type)0),
     ref_point_addr_offset_table(snk_iter.iterator_depth()-
                                 snk_iter.token_dimensions(),
                                 snk_iter.iteration_size())
@@ -186,9 +186,9 @@ snk2addr_table_ref_point::make_subtable_equal_forward(unsigned int coord1[],
       //try to propagate in cur_dimension
       //from coord2 to coord1
       status = 
-        propagate_addr(cur_dimension,
-                       coord2,
-                       coord1);
+        propagate_addr_forward(cur_dimension,
+                               coord2,
+                               coord1);
     }
 
     if (status < 1){
@@ -204,9 +204,9 @@ snk2addr_table_ref_point::make_subtable_equal_forward(unsigned int coord1[],
   }
 }
 
-int snk2addr_table_ref_point::propagate_addr(unsigned int fixed_dimension,
-                                             unsigned int coord1[],
-                                             unsigned int coord2[]){
+int snk2addr_table_ref_point::propagate_addr_forward(unsigned int fixed_dimension,
+                                                     unsigned int coord1[],
+                                                     unsigned int coord2[]){
 
   int return_value = 1;
   
@@ -266,9 +266,9 @@ int snk2addr_table_ref_point::propagate_addr(unsigned int fixed_dimension,
       coord2[fixed_dimension] = i;
 
       int temp = 
-        propagate_addr(fixed_dimension,
-                       coord1,
-                       coord2);
+        propagate_addr_forward(fixed_dimension,
+                               coord1,
+                               coord2);
 
       return_value =
         (temp < return_value) ? temp : return_value;
@@ -309,10 +309,17 @@ snk2addr_table_ref_point::make_subtable_equal_backward(unsigned int coord1[],
 
       //try to propagate in cur_dimension
       //from coord2 to coord1
+#if 0
       status = 
-        propagate_addr(cur_dimension,
-                       coord2,
-                       coord1);
+        propagate_addr_backward(cur_dimension,
+                                coord2,
+                                coord1);
+#else
+      status = 
+        propagate_addr_forward(cur_dimension,
+                               coord2,
+                               coord1);
+#endif
     }
 
     if (status < 1){
@@ -329,4 +336,82 @@ snk2addr_table_ref_point::make_subtable_equal_backward(unsigned int coord1[],
 }
 
 
+int snk2addr_table_ref_point::propagate_addr_backward(unsigned int fixed_dimension,
+                                                      unsigned int coord1[],
+                                                      unsigned int coord2[]){
+
+  int return_value = 1;
+  
+  //move to next dimension
+  fixed_dimension++;
+
+  if (fixed_dimension >= ref_point_addr_offset_table.dimensions()){
+    //try to propagate data from coord1 to coord2
+
+    if (ref_point_addr_offset_table[coord1].next_addr_valid){
+      if (ref_point_addr_offset_table[coord2].next_addr_valid){
+        //Both data items are valid. Hence we cannot change anything
+        if (ref_point_addr_offset_table[coord1].rel_next_addr !=
+            ref_point_addr_offset_table[coord2].rel_next_addr){
+          //Impossible to make items identical
+          return -1;
+        }else{
+          //Items are already identical
+          return 1;
+        }
+      }else{
+        //propagate data from coord1 to coord2
+        
+        //Attention: be aware, that the element for the last
+        //           iteration points to iteration (0,0,0,....)
+        
+        long rel_addr_difference = 
+          ref_point_addr_offset_table[coord1].rel_next_addr -
+          ref_point_addr_offset_table[coord2].rel_next_addr;
+
+        ref_point_addr_offset_table[coord2].rel_next_addr +=
+          rel_addr_difference;
+        
+        ref_point_addr_offset_table[coord2].next_iter_item->curr_abs_addr +=
+          rel_addr_difference;
+
+        ref_point_addr_offset_table[coord2].next_iter_item->rel_next_addr -=
+          rel_addr_difference;
+
+        // Items are now identical
+        return 1;
+      }
+    }else{
+      if (ref_point_addr_offset_table[coord2].next_addr_valid){
+        //nothing to do for forward propagation
+        return 1;
+      }else{
+        //coord 2 stays invalid
+        return 0;
+      }
+    }
+  }else{
+    for(int i = ref_point_addr_offset_table.size(fixed_dimension)-1;
+        i >= 0;
+        i--){
+      coord1[fixed_dimension] = i;
+      coord2[fixed_dimension] = i;
+
+      int temp = 
+        propagate_addr_backward(fixed_dimension,
+                                coord1,
+                                coord2);
+
+      return_value =
+        (temp < return_value) ? temp : return_value;
+
+      if (return_value < 0)
+        //cannot make it equal
+        break;
+
+    }
+  }
+
+  return return_value;
+}
 

@@ -62,9 +62,16 @@ private:
                                unsigned int cur_dimension = 0);
 
   /// This function performs the propagation
-  int propagate_addr(unsigned int fixed_dimension,
-                     unsigned int coord1[],
-                     unsigned int coord2[]);
+  int propagate_addr_forward(unsigned int fixed_dimension,
+                             unsigned int coord1[],
+                             unsigned int coord2[]);
+
+  /// Exactly the same function, however with backward
+  /// propagation. However, in principle the code is
+  /// copy and paste.
+  int propagate_addr_backward(unsigned int fixed_dimension,
+                              unsigned int coord1[],
+                              unsigned int coord2[]);
 
 
 };
