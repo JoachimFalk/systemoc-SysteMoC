@@ -19,7 +19,7 @@
 using namespace std;
 using namespace ns_smoc_vector_init;
 
-#define WSDF_EXAMPLE_NBR 2
+#define WSDF_EXAMPLE_NBR 3
 
 
 
@@ -118,14 +118,24 @@ int main(){
 
   CoSupport::dout << "Store tables ..." << std::endl;
 
-  //store table
+  //store address offset table for window reference pixel
   {
     stringstream temp;
-    temp << "snk2addr_" << WSDF_EXAMPLE_NBR << ".txt";  
+    temp << "snk2addr_ref_point_" << WSDF_EXAMPLE_NBR << ".txt";  
     ofstream outfile(temp.str().c_str());
     
     CoSupport::dout << "Store reference point table ..." << std::endl;
     outfile << ref_point_addr_offset_table;
+    CoSupport::dout << "Close file ..." << std::endl;
+    outfile.close();
+  }
+
+  //store address offset table for window iterator.
+  {
+    stringstream temp;
+    temp << "snk2addr_win_iter_" << WSDF_EXAMPLE_NBR << ".txt";  
+    ofstream outfile(temp.str().c_str());
+    
     CoSupport::dout << "Store window iterator table ..." << std::endl;
     outfile << window_addr_offset_table;
     CoSupport::dout << "Close file ..." << std::endl;
