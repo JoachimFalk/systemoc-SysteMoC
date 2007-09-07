@@ -34,6 +34,11 @@ protected:
   // the given window iteration.
   // By help of the valid flag it signals, whether this
   // is a valid address not situated on the extended border.
+  //
+  // Currently, the absolute address is derived from the
+  // iteration ID of the corresponding source iteration.
+  // If for example the effective tokens shall be rounded
+  // up to powers of two, this has to be changed.
   long
   calc_lin_addr(const iter_domain_vector_type& window_iterator,
                 bool& valid,
