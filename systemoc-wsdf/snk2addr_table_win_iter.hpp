@@ -32,6 +32,29 @@ private:
   //Attention: modifies sink iterator!
   void build_win_iter_addr_offset_table();
 
+  //This function tries to optimize invalid
+  //addresses in order to get a more compact representation
+  void optimize_invalid_addresses();
+
+  //Tries to propagates address values from coord1 to coord2 in forward direction
+  void optimize_invalid_addresses_forward(unsigned int fixed_dimensions,
+                                          unsigned int coord1[],
+                                          unsigned int coord2[]);
+  //Tries to propagates address values from coord1 to coord2 in backward direction
+  void optimize_invalid_addresses_backward(unsigned int fixed_dimensions,
+                                           unsigned int coord1[],
+                                           unsigned int coord2[]);
+
+  // Performs the data propagation
+  // from coord1 to coord2
+  // returns false, if there stay invalid entries in coord2
+  bool propagate_forward(unsigned int fixed_dimension,
+                         unsigned int coord1[],
+                         unsigned int coord2[]);
+  bool propagate_backward(unsigned int fixed_dimension,
+                          unsigned int coord1[],
+                          unsigned int coord2[]);
+
 };
 
 #endif

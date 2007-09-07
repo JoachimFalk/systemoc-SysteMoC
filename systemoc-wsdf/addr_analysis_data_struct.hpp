@@ -27,15 +27,18 @@ struct src_addr_info_struct {
   
 };
 
-#if 0
+
 std::istream& 
 operator>>(std::istream& stream, 
            struct src_addr_info_struct& element);
-#endif
+
 
 std::ostream& 
 operator<<(std::ostream& stream, 
            const struct src_addr_info_struct& element);
+
+bool operator==(const struct src_addr_info_struct& e1,
+                const struct src_addr_info_struct& e2);
 
 
 #endif //ADDR_ANALYSIS_DATA_STRUCT_HPP
