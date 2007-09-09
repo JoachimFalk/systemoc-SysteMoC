@@ -1,7 +1,7 @@
 
 #include "snk2addr_table_win_iter.hpp"
 
-#define SNK2ADDR_TABLE_WIN_ITER_VERBOSE_LEVEL 100
+#define SNK2ADDR_TABLE_WIN_ITER_VERBOSE_LEVEL 0
 
 
 snk2addr_table_win_iter::snk2addr_table_win_iter(const smoc_src_md_static_loop_iterator& src_iter,
