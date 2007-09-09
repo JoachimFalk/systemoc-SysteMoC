@@ -59,6 +59,10 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
       CoSupport::dout << " token_dimension = " << token_dimension << std::endl;
 #endif
       if (src_has_iteration_level(firing_level, token_dimension)){
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+        CoSupport::dout << "Is associated to iteration level " 
+                        << iter_level << std::endl;
+#endif
 	assert(src_firing_blocks[firing_level][token_dimension] %
 	       current_firing_block_size[token_dimension] == 0);
 	return_vector[iter_level] = 
@@ -71,6 +75,12 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
       }
     }
   }
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Source iteration max: " 
+                  << return_vector << std::endl;
+#endif
+
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
@@ -124,7 +134,9 @@ smoc_wsdf_edge_descr::smatrix_type
 smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  std::cout << "Enter smoc_wsdf_edge_descr::calc_border_condition_matrix()" << std::endl;
+  CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_border_condition_matrix()" 
+                  << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
   s2vector_type snk_iteration_level_table = 
@@ -139,7 +151,8 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 						    snk_vtu_iteration_level));
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  std::cout << "Iteration-Max (without window iteration): " << iteration_max << std::endl;
+  CoSupport::dout << "Iteration-Max (without window iteration): " 
+                  << iteration_max << std::endl;
 #endif
 
   umatrix_type mapping_matrix(calc_snk_data_element_mapping_matrix(snk_iteration_level_table,
@@ -147,7 +160,7 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 								   iteration_max));
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  std::cout << "Mapping-matrix: " << mapping_matrix << std::endl;
+  CoSupport::dout << "Mapping-matrix: " << mapping_matrix << std::endl;
 #endif
 
   smatrix_type return_matrix(mapping_matrix.size1(),mapping_matrix.size2());
@@ -162,7 +175,8 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 #endif  
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  std::cout << "Leave smoc_wsdf_edge_descr::calc_border_condition_matrix()" << std::endl;
+  CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_border_condition_matrix()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
 
@@ -202,6 +216,12 @@ smoc_wsdf_edge_descr::max_data_element_id() const{
 smoc_wsdf_edge_descr::umatrix_type 
 smoc_wsdf_edge_descr::src_data_element_mapping_matrix() const {
 
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Enter smoc_wsdf_edge_descr::src_data_element_mapping_matrix()" 
+                  << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+#endif
+
   uvector_type prev_mapping_factor(token_dimensions);
   for(unsigned int i = 0; i < token_dimensions; i++)
     prev_mapping_factor[i] = 1;
@@ -237,6 +257,13 @@ smoc_wsdf_edge_descr::src_data_element_mapping_matrix() const {
 
   //error checking
   assert(iter_level == -1); //otherwise not all iteration levels covered
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Mapping matrix: " << return_matrix << std::endl;
+  CoSupport::dout << "Leave smoc_wsdf_edge_descr::src_data_element_mapping_matrix()" 
+                  << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
 
   return return_matrix;
 }
@@ -440,9 +467,14 @@ bool smoc_wsdf_edge_descr::snk_has_iteration_level(unsigned firing_level,
 
 bool smoc_wsdf_edge_descr::src_has_iteration_level(unsigned firing_level,
 						   unsigned token_dimension) const {
-  if (firing_level <= 1){
+  if (firing_level <= 0){
     //Always include firing_level 0 (effective token)
-    //+next firing level
+    return true;
+  }else if ((firing_level == 1) && 
+            (src_firing_blocks[firing_level][token_dimension] ==
+             src_firing_blocks[src_num_firing_levels-1][token_dimension])){
+    //All firing levels have the same size.
+    //Return at least one not belong to the effective token.
     return true;
   }else if (src_firing_blocks[firing_level][token_dimension] == 
 	    src_firing_blocks[firing_level-1][token_dimension]){
