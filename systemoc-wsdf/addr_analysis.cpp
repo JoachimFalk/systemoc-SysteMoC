@@ -72,10 +72,14 @@ int main(){
       );
 #elif WSDF_EXAMPLE_NBR == 4
   //Block builder with embedded source
-  const unsigned int image_width = 27;
-  const unsigned int image_height = 9;
-  const unsigned int block_width = 3;
-  const unsigned int block_height = 3;
+  // const unsigned int image_width = 27;
+//   const unsigned int image_height = 9;
+//   const unsigned int block_width = 3;
+//   const unsigned int block_height = 3;
+  const unsigned int image_width = 4096;
+  const unsigned int image_height = 2140;
+  const unsigned int block_width = 128;
+  const unsigned int block_height = 5;
   smoc_wsdf_edge_descr 
     edge_e1(token_dimensions,
             ul_vector_init[1][1] << 
