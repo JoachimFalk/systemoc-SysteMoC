@@ -21,7 +21,7 @@
 # include <systemoc/smoc_md_ba_linearized_buffer_size.hpp>
 #endif
 
-#define BUFFER_ANALYSIS_TYPE 0
+#define BUFFER_ANALYSIS_TYPE 1
 //0 : buffer size
 //1 : schedule
 
@@ -32,7 +32,7 @@ using namespace ns_smoc_vector_init;
 using namespace smoc_md_ba;
 #endif
 
-#define WSDF_EXAMPLE_NBR 3
+#define WSDF_EXAMPLE_NBR 4
 
 int main(){
 
@@ -78,6 +78,27 @@ int main(){
             (ul_vector_init[3][3] <<
 	     ul_vector_init[9][9]),   // snk firing-blocks
             ul_vector_init[9][9],   // u0
+            ul_vector_init[1][1],   // c
+            ul_vector_init[1][1],   // delta_c
+            ul_vector_init[0][0],   // d
+            sl_vector_init[0][0],   // bs
+            sl_vector_init[0][0]    // bt
+      );
+#elif WSDF_EXAMPLE_NBR == 4
+  //Block builder with embedded source
+  const unsigned int image_width = 27;
+  const unsigned int image_height = 9;
+  const unsigned int block_width = 3;
+  const unsigned int block_height = 3;
+  smoc_wsdf_edge_descr 
+    edge_e1(token_dimensions,
+            ul_vector_init[1][1] << 
+            ul_vector_init[block_width][1] << 
+            ul_vector_init[image_width][block_height] << 
+            ul_vector_init[image_width][image_height],   // src firing-blocks
+            (ul_vector_init[block_width][block_height] <<
+	     ul_vector_init[image_width][image_height]),   // snk firing-blocks
+            ul_vector_init[image_width][image_height],   // u0
             ul_vector_init[1][1],   // c
             ul_vector_init[1][1],   // delta_c
             ul_vector_init[0][0],   // d
