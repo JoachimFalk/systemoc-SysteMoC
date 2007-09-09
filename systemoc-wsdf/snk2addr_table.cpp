@@ -3,6 +3,7 @@
 
 #include "snk2addr_table.hpp"
 
+#define VERBOSE_LEVEL_SNK2ADDR_TABLE 0
 
 long
 snk2addr_table::calc_lin_addr(const iter_domain_vector_type& window_iterator,
@@ -35,10 +36,11 @@ snk2addr_table::calc_lin_addr(const iter_domain_vector_type& window_iterator,
                                             data_element_id);
     data_element_id += base_data_element_id;
 
-      
+#if VERBOSE_LEVEL_SNK2ADDR_TABLE == 100
     CoSupport::dout << "Required data element: " 
                     << data_element_id 
                     << std::endl;
+#endif
 
 
     // Get required source iteration
@@ -54,18 +56,22 @@ snk2addr_table::calc_lin_addr(const iter_domain_vector_type& window_iterator,
       schedule_period_offset*
       src_iter.iteration_size()[src_iteration.size()-1];
 
+#if VERBOSE_LEVEL_SNK2ADDR_TABLE == 100
     CoSupport::dout << "src_iteration = " 
                     << src_iteration 
                     << std::endl;
+#endif
 
     //calculate linearized address
     return_value = 
       src_iter.calc_iteration_id(src_iteration,
                                  schedule_period);
 
+#if VERBOSE_LEVEL_SNK2ADDR_TABLE == 100
     CoSupport::dout << "lin_addr = " 
                     << return_value 
                     << std::endl;
+#endif
     valid = true;
         
           
@@ -73,7 +79,9 @@ snk2addr_table::calc_lin_addr(const iter_domain_vector_type& window_iterator,
     // data element is not produced by source actor
     // Insert a don't care into the table
 
+#if VERBOSE_LEVEL_SNK2ADDR_TABLE == 100
     CoSupport::dout << "Situated on extended border" << std::endl;
+#endif
 
     // By default, we set the address to zero.
     // However, we have to take the schedule period into account.
