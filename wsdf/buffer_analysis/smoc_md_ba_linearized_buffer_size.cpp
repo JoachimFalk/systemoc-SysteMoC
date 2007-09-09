@@ -4,7 +4,7 @@
 #include "smoc_md_ba_linearized_buffer_size.hpp"
 
 #ifndef SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL
-# define SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL 105
+# define SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL 0
 #endif
 
 

@@ -4,7 +4,7 @@
 #include "smoc_md_ba_linearized_buffer.hpp"
 
 #ifndef SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF
-# define SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF 105
+# define SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF 0
 #endif
 
 namespace smoc_md_ba {

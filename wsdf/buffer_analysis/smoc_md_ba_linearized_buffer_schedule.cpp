@@ -5,7 +5,7 @@
 #include <cosupport/smoc_debug_out.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE
-#define VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE 101
+#define VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE 0
 // 101: general debug
 #endif
 

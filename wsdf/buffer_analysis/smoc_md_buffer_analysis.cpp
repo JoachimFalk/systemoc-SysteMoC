@@ -6,7 +6,7 @@
 #include <cosupport/smoc_debug_out.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BA
-#define VERBOSE_LEVEL_SMOC_MD_BA 101
+#define VERBOSE_LEVEL_SMOC_MD_BA 0
 #endif
 
 
