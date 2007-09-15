@@ -57,13 +57,17 @@ int main(){
             sl_vector_init[1][1]    // bt
       );
 #elif WSDF_EXAMPLE_NBR == 3
+  const unsigned int image_width = 9;
+  const unsigned int image_height = 4;
+  const unsigned int block_width = 3;
+  const unsigned int block_height = 2;
   smoc_wsdf_edge_descr 
     edge_e1(token_dimensions,
             ul_vector_init[1][1] << 
-            ul_vector_init[9][9],   // src firing-blocks
-            (ul_vector_init[3][3] <<
-	     ul_vector_init[9][9]),   // snk firing-blocks
-            ul_vector_init[9][9],   // u0
+            ul_vector_init[image_width][image_height],   // src firing-blocks
+            (ul_vector_init[block_width][block_height] <<
+	     ul_vector_init[image_width][image_height]),   // snk firing-blocks
+            ul_vector_init[image_width][image_height],   // u0
             ul_vector_init[1][1],   // c
             ul_vector_init[1][1],   // delta_c
             ul_vector_init[0][0],   // d
@@ -78,8 +82,10 @@ int main(){
 //   const unsigned int block_height = 3;
   const unsigned int image_width = 4096;
   const unsigned int image_height = 2140;
-  const unsigned int block_width = 128;
-  const unsigned int block_height = 5;
+  //  const unsigned int block_width = 128;
+  //  const unsigned int block_height = 5;
+  const unsigned int block_width = 1024;
+  const unsigned int block_height = 1070;
   smoc_wsdf_edge_descr 
     edge_e1(token_dimensions,
             ul_vector_init[1][1] << 
