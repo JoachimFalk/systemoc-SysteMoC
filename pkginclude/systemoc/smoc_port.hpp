@@ -493,6 +493,9 @@ public:
 protected:
   typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R >, PARAM_TYPE > base_type;
 
+  // FIXME: SystemC 2.2 HACK
+  virtual int interface_count() {return 1;}
+
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
     if (this->child == NULL)
@@ -587,6 +590,8 @@ protected:
   typedef smoc_port_base<smoc_root_port_out, 
                          smoc_chan_out_if<T,R,STORAGE_TYPE>, 
                          PARAM_TYPE > base_type;
+  // FIXME: SystemC 2.2 HACK
+  virtual int interface_count() {return 1;}
 
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
