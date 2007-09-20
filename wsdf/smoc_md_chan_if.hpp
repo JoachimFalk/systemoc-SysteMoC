@@ -32,6 +32,8 @@ public:
 
   /// Returns the value of the loop iterator for the given iteration level
   virtual iteration_type iteration(size_t iteration_level) const = 0;
+
+  virtual ~smoc_md_src_channel_access() {}
 };
 
 template<class T>
@@ -61,10 +63,12 @@ public:
 
   /// Returns the value of the loop iterator for the given iteration level
   virtual iteration_type iteration(size_t iteration_level) const = 0;
-                
+
   /// Check, whether data element is situated on extended border
   virtual border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration,
-						bool& is_border) const = 0;                
+						bool& is_border) const = 0;
+
+  virtual ~smoc_md_snk_channel_access() {}
 };
 
 

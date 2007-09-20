@@ -303,8 +303,6 @@ smoc_firing_types::resolved_state_ty::addTransition(
 
 void smoc_firing_types::transition_ty::execute(
     resolved_state_ty **rs, smoc_root_node *actor, int mode) {
-  const char *name = actor->name();
-  
   enum {
     MODE_DIISTART,
     MODE_DIIEND,
@@ -331,7 +329,7 @@ void smoc_firing_types::transition_ty::execute(
   static const char *execModeName[] = { "diiStart", "diiEnd", "graph" };
   
   std::cerr << "  <transition "
-      "actor=\"" << name << "\" "
+      "actor=\"" << actor->name() << "\" "
       "mode=\"" << execModeName[execMode] << "\""
     ">" << std::endl;
 #endif

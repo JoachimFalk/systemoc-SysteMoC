@@ -124,10 +124,11 @@ public:
 
 class smoc_fifo_kind;
 
-namespace smoc_detail {
 #ifdef SYSTEMOC_ENABLE_VPC
+namespace smoc_detail {
+
   class LatencyQueue {
-    friend class smoc_fifo_kind;
+    friend class ::smoc_fifo_kind;
   public:
     typedef LatencyQueue this_type;
   protected:
@@ -247,8 +248,9 @@ namespace smoc_detail {
     void addEntry(size_t n, const smoc_ref_event_p &le)
       { requestQueue.addEntry(n, le); }
   };
+
+} // namespace smoc_detail
 #endif // SYSTEMOC_ENABLE_VPC
-};
 
 /// Base class of the FIFO implementation.
 /// The FIFO consists of a ring buffer of size fsize.

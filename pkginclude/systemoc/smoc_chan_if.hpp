@@ -68,6 +68,8 @@ public:
   // Access methods
   virtual return_type operator[](size_t)              = 0;
   virtual const return_type operator[](size_t) const  = 0;
+
+  virtual ~smoc_channel_access() {}
 };
 
 template<>
@@ -82,6 +84,8 @@ public:
   virtual bool   tokenIsValid(size_t) const           = 0;
 
   // return_type == void => No access methods needed
+
+  virtual ~smoc_channel_access() {}
 };
 
 template<>
@@ -96,6 +100,8 @@ public:
   virtual bool   tokenIsValid(size_t) const          = 0;
 
   // return_type == const void => No access methods needed
+
+  virtual ~smoc_channel_access() {}
 };
 
 // forward
