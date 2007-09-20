@@ -360,22 +360,22 @@ private:
   //bool isTable(const HuffTableType type) const;
 
   //
-  bool HuffTblDecoder::isTableAC0() const {
+  bool isTableAC0() const {
     return (IS_TABLE_CLASS_AC(m_tcth)) && (IS_TABLE_DEST_ZERO(m_tcth));
   }
 
   //
-  bool HuffTblDecoder::isTableAC1() const {
+  bool isTableAC1() const {
     return (IS_TABLE_CLASS_AC(m_tcth)) && (IS_TABLE_DEST_ONE(m_tcth));
   }
 
   //
-  bool HuffTblDecoder::isTableDC0() const {
+  bool isTableDC0() const {
     return (IS_TABLE_CLASS_DC(m_tcth)) && (IS_TABLE_DEST_ZERO(m_tcth));
   }
 
   //
-  bool HuffTblDecoder::isTableDC1() const {
+  bool isTableDC1() const {
     return (IS_TABLE_CLASS_DC(m_tcth)) && (IS_TABLE_DEST_ONE(m_tcth));
   }
 
@@ -410,20 +410,20 @@ private:
 #endif
 
   //
-  void HuffTblDecoder::writeTableToChannel(const HuffTableType tableType,
+  void writeTableToChannel(const HuffTableType tableType,
                                            const ExpHuffTbl &table);
 
   //
-  void HuffTblDecoder::writeTableAC0();
+  void writeTableAC0();
 
   //
-  void HuffTblDecoder::writeTableAC1();
+  void writeTableAC1();
 
   //
-  void HuffTblDecoder::writeTableDC0();
+  void writeTableDC0();
 
   //
-  void HuffTblDecoder::writeTableDC1();
+  void writeTableDC1();
   
 
   uint16_t m_symbolsLeft;
