@@ -386,6 +386,6 @@ int sc_main (int argc, char **argv) {
   aggregationConProd.slavePort(channelSlaveConProd.slave_export);
   aggregationCalc.slavePort(channelSlaveCalc.slave_export);
 
-  sc_start(-1);
+  sc_start();
   return 0;
 }

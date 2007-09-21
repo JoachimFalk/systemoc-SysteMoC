@@ -194,7 +194,7 @@ int sc_main (int argc, char **argv) {
     std::cout << "Was here !" << std::endl;
     smoc_modes::dump( std::cout, *top );
     
-    sc_start(-1);
+    sc_start();
   } catch (...) {
     std::cout << "exception !" << std::endl;
     throw;

@@ -79,7 +79,7 @@ int sc_main (int argc, char **argv) {
   if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
     smoc_modes::dump(std::cout, top);
   } else {
-    sc_start(-1);
+    sc_start();
   }
 #undef GENERATE
 #endif

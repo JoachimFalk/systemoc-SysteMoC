@@ -175,6 +175,6 @@ public:
 
 int sc_main (int argc, char **argv) {
   smoc_top_moc<m_h_top> top("top");
-  sc_start(-1);
+  sc_start();
   return 0;
 }

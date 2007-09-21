@@ -250,6 +250,6 @@ int sc_main (int argc, char **argv) {
     from = NUM_MAX_ITERATIONS - iterations;
   }
   smoc_top_moc<SqrRoot> sqrroot("sqrroot", from);
-  sc_start(-1);
+  sc_start();
   return 0;
 }

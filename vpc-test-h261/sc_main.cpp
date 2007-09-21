@@ -193,6 +193,6 @@ C_LF_REC_ID106021.port_c_lf_rec2rec_id106544(signal_c_lf_rec2rec_id106222);
 REC_ID106009.port_c_lf_rec2rec_id106522(signal_c_lf_rec2rec_id106222);
 C_DCT_Q_ID106014.port_c_dct_q2q_id106530(signal_c_dct_q2q_id106215);
 Q_ID106008.port_c_dct_q2q_id106518(signal_c_dct_q2q_id106215);
-sc_start(-1);
+sc_start();
 return 0;
 }

@@ -162,6 +162,6 @@ public:
 
 int sc_main (int argc, char **argv) {
   smoc_top_moc<PARSER_TEST> top("top");
-  sc_start(-1);
+  sc_start();
   return 0;
 }

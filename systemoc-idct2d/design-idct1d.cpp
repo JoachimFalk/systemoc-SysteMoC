@@ -271,7 +271,7 @@ int sc_main (int argc, char **argv) {
   size_t periods = argc >= 2 ? atoi(argv[1]) : 100;
   
   smoc_top_moc<IDCT1D_TEST> top("top", periods);
-  sc_start(-1);
+  sc_start();
   return 0;
 }
 #endif

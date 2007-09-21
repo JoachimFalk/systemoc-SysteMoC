@@ -111,6 +111,6 @@ int sc_main (int argc, char **argv) {
     iter = atol(argv[1]);
   
   smoc_top_moc<m_h_top> top("top", iter);
-  sc_start(-1);
+  sc_start();
   return 0;
 }

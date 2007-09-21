@@ -262,7 +262,7 @@ int sc_main (int argc, char **argv) {
   
   smoc_top_moc<Testbench> testbench("testbench", width, height, scanVector);
   
-  sc_start(-1);
+  sc_start();
   
   return 0;
 }

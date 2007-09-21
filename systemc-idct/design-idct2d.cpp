@@ -156,6 +156,6 @@ int sc_main (int argc, char **argv) {
   
   IDCT2D_TEST top("top", periods);
   
-  sc_start(-1);
+  sc_start();
   return 0;
 }
