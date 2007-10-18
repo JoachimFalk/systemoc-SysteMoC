@@ -970,7 +970,6 @@ DOP(LOr,||)
 
 #undef DOP
 #undef DOPBIN
-#undef DBINOPEXECUTE
 
 template <_OpBinT op>
 struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
@@ -1120,32 +1119,9 @@ struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,DOpBinLAnd,Value> {
   }
 };
 
-/* DOpBinField Operator
+/* DOpBinField Operator */
 
-template<class A, typename V>
-class DBinOp<A,DLiteral<V Value<A>::result_type::*>,DOpBinField> {
-public:
-  typedef DBinOp<A,DLiteral<V Value<A>::result_type::*>,DOpBinField>  this_type;
-  
-  friend class AST<this_type>;
-  friend class CommExec<this_type>;
-#ifndef NDEBUG
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif
-  friend class Sensitivity<this_type>;
-  friend class Value<this_type>;
-private:
-  A                                    a;
-  DLiteral<V Value<A>::result_type::*> b;
-  
-  V value() const {
-    return Value<A>::apply(a) .*
-           Value<DLiteral<V A::value_type::*> >::apply(b);
-  }
-public:
-  DBinOp(const A& a, const DLiteral<V A::value_type::*> &b): a(a), b(b) {}
-};
+DBINOPEXECUTE(DOpBinField,.*)
 
 // Make a convenient typedef for the field op.
 template <class A, typename V>
@@ -1156,7 +1132,6 @@ typename Field<A,V>::type
 field(const D<A> &a, V A::value_type::* b) {
   return typename Field<A,V>::type(a.getExpr(), DLiteral<V A::value_type::*>(b));
 }
-*/
 
 /****************************************************************************
  * DUnOp represents a unary operation in an expressions.
@@ -1269,7 +1244,6 @@ DOP(DeRef,*)
 
 #undef DOP
 #undef DOPUN
-#undef DUNOPEXECUTE
 
 /* DOpUnType Operator */
 
@@ -1293,6 +1267,9 @@ isType(const D<A> &a) {
 }
 
 using CoSupport::isType;
+
+#undef DBINOPEXECUTE
+#undef DUNOPEXECUTE
 
 } // namespace Expr
 
