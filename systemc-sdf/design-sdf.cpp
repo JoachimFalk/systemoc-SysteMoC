@@ -65,11 +65,11 @@ class m_top2
       m_adder<int>    &adder = registerNode(new m_adder<int>("adder"));
       m_multiply<int> &mult  = registerNode(new m_multiply<int>("multiply"));
       
-      connectInterfacePorts( in1, adder.in1 ); // adder.in(in1);
-      connectInterfacePorts( in2, mult.in1 );  // mult.in1(in2);
+      adder.in1(in1); // adder.in(in1);
+      mult.in1(in2);  // mult.in1(in2);
       connectNodePorts( adder.out, mult.in2 );
       connectNodePorts( mult.out2, adder.in2, hscd_fifo<int>() << 13 );
-      connectInterfacePorts( out, mult.out1 ); // mult.out(out);
+      mult.out1(out); // mult.out(out);
     }
 };
 
