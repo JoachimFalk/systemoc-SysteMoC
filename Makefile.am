@@ -73,7 +73,6 @@ pkginclude_HEADERS =					\
 	pkginclude/systemoc/smoc_firing_rules.hpp	\
 	pkginclude/systemoc/smoc_guard.hpp		\
 	pkginclude/systemoc/smoc_node_types.hpp		\
-	pkginclude/systemoc/smoc_rendezvous.hpp		\
 	pkginclude/systemoc/smoc_root_port.hpp		\
 	pkginclude/systemoc/smoc_graph_type.hpp		\
 	pkginclude/systemoc/smoc_pggen.hpp		\
@@ -134,7 +133,6 @@ libsystemoc_la_SOURCES =		\
 	smoc_fifo.cpp			\
 	smoc_multicast_sr_signal.cpp	\
 	smoc_graph_type.cpp		\
-	smoc_rendezvous.cpp		\
 	smoc_root_node.cpp		\
 	smoc_root_port.cpp		\
 	smoc_firing_rules.cpp		\
