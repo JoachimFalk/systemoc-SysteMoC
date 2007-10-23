@@ -44,7 +44,6 @@
 #endif
 #include "smoc_fifo.hpp"
 #include "smoc_multicast_sr_signal.hpp"
-#include "smoc_rendezvous.hpp"
 #include "smoc_node_types.hpp"
 #include "smoc_moc.hpp"
 #ifndef __SCFE__
