@@ -73,16 +73,16 @@ class m_clip
       m_MIN_duplex &dup = registerNode(new m_MIN_duplex("dup"));
 
 #ifndef KASCPAR_PARSING
-      connectInterfacePorts(i0, clip0.I); 
-      connectInterfacePorts(i1, clip1.I);  
-      connectInterfacePorts(i2, clip2.I);
-      connectInterfacePorts(i3, clip3.I);
-      connectInterfacePorts(i4, clip4.I);
-      connectInterfacePorts(i5, clip5.I);
-      connectInterfacePorts(i6, clip6.I);
-      connectInterfacePorts(i7, clip7.I);
+      clip0.I(i0); 
+      clip1.I(i1);  
+      clip2.I(i2);
+      clip3.I(i3);
+      clip4.I(i4);
+      clip5.I(i5);
+      clip6.I(i6);
+      clip7.I(i7);
       
-      connectInterfacePorts(min, dup.I);
+      dup.I(min);
       
       connectNodePorts(dup.O0, clip0.MIN, smoc_fifo<int>(2));
       connectNodePorts(dup.O1, clip1.MIN, smoc_fifo<int>(2));
@@ -93,14 +93,14 @@ class m_clip
       connectNodePorts(dup.O6, clip6.MIN, smoc_fifo<int>(2));
       connectNodePorts(dup.O7, clip7.MIN, smoc_fifo<int>(2));
       
-      connectInterfacePorts(o0, clip0.O);
-      connectInterfacePorts(o1, clip1.O);
-      connectInterfacePorts(o2, clip2.O);
-      connectInterfacePorts(o3, clip3.O);
-      connectInterfacePorts(o4, clip4.O);
-      connectInterfacePorts(o5, clip5.O);
-      connectInterfacePorts(o6, clip6.O);
-      connectInterfacePorts(o7, clip7.O);
+      clip0.O(o0);
+      clip1.O(o1);
+      clip2.O(o2);
+      clip3.O(o3);
+      clip4.O(o4);
+      clip5.O(o5);
+      clip6.O(o6);
+      clip7.O(o7);
 #endif
 
     }

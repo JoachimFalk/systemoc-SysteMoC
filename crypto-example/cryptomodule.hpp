@@ -75,8 +75,8 @@ class CryptoModule : public smoc_graph{
         {
 
           // establish connection to interface ports
-          connectInterfacePorts(in, dispatcher.in);
-          connectInterfacePorts(out, merger.out);
+          dispatcher.in(in);
+          merger.out(out);
 
           // establish connection btw actor in subgraph
           connectNodePorts<FIFO_SIZE>(dispatcher.out_des3, des.in);

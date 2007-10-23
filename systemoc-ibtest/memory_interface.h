@@ -400,13 +400,13 @@ class memory_access_read
     
     chunks_to_buffer<chunksize> &m_chunk2buf = registerNode( new chunks_to_buffer<chunksize>( "chunk2buf")); 
     
-    connectInterfacePorts( in,  m_delay_request.in );
+    m_delay_request.in(in);
     
     connectNodePorts( m_delay_request.out, m_memory_chunker.in );
     connectNodePorts( m_memory_chunker.out, m_delay_response.in);
     connectNodePorts( m_delay_response.out, m_chunk2buf.in);
     
-    connectInterfacePorts( out, m_chunk2buf.out ); 
+    m_chunk2buf.out(out);
   }
 };
 
@@ -433,11 +433,11 @@ class memory_access_write
 
     chunks_to_memory<chunksize>   &m_chunks_to_memory = registerNode(new chunks_to_memory<chunksize>("write_to_memory",buffer));
     
-    connectInterfacePorts( in,  m_buffer_chunker.in );  
+    m_buffer_chunker.in(in);
     
     connectNodePorts( m_buffer_chunker.out, m_delay_request.in, smoc_fifo<data_chunk<chunksize> >(4) );
     connectNodePorts( m_delay_request.out, m_chunks_to_memory.in, smoc_fifo<data_chunk<chunksize> >(4) );
 
-    connectInterfacePorts( out, m_chunks_to_memory.out);
+    m_chunks_to_memory.out(out);
   }
 };

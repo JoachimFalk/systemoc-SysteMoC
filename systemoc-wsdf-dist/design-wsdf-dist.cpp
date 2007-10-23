@@ -52,14 +52,14 @@ public:
 		m_wsdf_2D_dup3<T> &dup =
 			registerNode(new m_wsdf_2D_dup3<T>("dup",size_x,size_y));
 
-		connectInterfacePorts( in, dist_operator.orig_in );
+		dist_operator.orig_in(in);
 
 		indConnectNodePorts( dist_operator.out, dup.in, smoc_wsdf_edge<T>(1));
 		
 		indConnectNodePorts( dup.out1, dist_operator.prev_line_in, smoc_wsdf_edge<T>(2));
 		indConnectNodePorts( dup.out2, dist_operator.prev_pixel_in, smoc_wsdf_edge<T>(1));
 
-		connectInterfacePorts(out, dup.out3 );	
+		dup.out3(out);	
 	}
 
 	
@@ -106,7 +106,7 @@ public:
 #endif
 
 		
-		connectInterfacePorts( in, forward_dist.in );
+		forward_dist.in(in);
 
 		indConnectNodePorts( forward_dist.out, rot1.in, smoc_wsdf_edge<T>(size_y));
 #ifdef BLOCK_ROTATION
@@ -118,9 +118,9 @@ public:
 #ifndef OMMIT_FINAL_ROT
 		indConnectNodePorts( backward_dist.out, rot2.in, smoc_wsdf_edge<T>(size_y));
 		
-		connectInterfacePorts(out, rot2.out);
+		rot2.out(out);
 #else
-		connectInterfacePorts(out, backward_dist.out);
+		backward_dist.out(out);
 #endif
 
 	}

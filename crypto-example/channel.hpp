@@ -60,11 +60,10 @@ class Channel : public smoc_graph{
       {
 
           // establish connection to interface ports
-          connectInterfacePorts(in1, io1.in);
-          connectInterfacePorts(out1, io1.out);
-          connectInterfacePorts(in2, io2.in);
-          connectInterfacePorts(out2, io2.out);
-        
+          io1.in(in1);
+          io1.out(out1);
+          io2.in(in2);
+          io2.out(out2);
         }
 
 };

@@ -71,13 +71,13 @@ class m_block_parser
 	m_byte2bit &byte2bit1 = registerNode(new m_byte2bit("byte2bit1"));
 	m_parser &parser1 = registerNode(new m_parser("parser1", 28, 0x012, 32, 0x1B6, 2, 1, 0, 5, 9, 1, 0,/*(MAX_WIDTH / MB_WIDTH + 2)*/45 ));
         
-	connectInterfacePorts(I, byte2bit1.in8);
+	byte2bit1.in8(I);
         
   	connectNodePorts( byte2bit1.out, parser1.bits, smoc_fifo<int>(256) );
 	
-        connectInterfacePorts(O0, parser1.param);
-	connectInterfacePorts(O1, parser1.b);
-	connectInterfacePorts(O2, parser1.flags);
-	connectInterfacePorts(O3, parser1.mv);
+        parser1.param(O0);
+	parser1.b(O1);
+	parser1.flags(O2);
+	parser1.mv(O3);
       }
   };

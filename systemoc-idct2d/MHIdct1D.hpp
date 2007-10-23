@@ -126,14 +126,14 @@ public:
       mAddSub10("mAddSub10", as10Gain, as10Off, as10Atten)
   {
 #ifndef KASCPAR_PARSING
-    connectInterfacePorts(i0, mScale1.I); 
-    connectInterfacePorts(i1, mFly2.I1);  
-    connectInterfacePorts(i2, mFly3.I2);
-    connectInterfacePorts(i3, mFly1.I2);
-    connectInterfacePorts(i4, mScale2.I);
-    connectInterfacePorts(i5, mFly1.I1);
-    connectInterfacePorts(i6, mFly3.I1);
-    connectInterfacePorts(i7, mFly2.I2);
+    mScale1.I(i0); 
+    mFly2.I1(i1);  
+    mFly3.I2(i2);
+    mFly1.I2(i3);
+    mScale2.I(i4);
+    mFly1.I1(i5);
+    mFly3.I1(i6);
+    mFly2.I2(i7);
    
     connectNodePorts(mScale1.O, mAddSub1.I1, smoc_fifo<int>(2));
     connectNodePorts(mScale2.O, mAddSub1.I2, smoc_fifo<int>(2)); 
@@ -157,14 +157,14 @@ public:
     connectNodePorts(mAddSub6.O1, mAddSub10.I2, smoc_fifo<int>(2));
     connectNodePorts(mAddSub6.O2, mAddSub8.I2,  smoc_fifo<int>(2));
     
-    connectInterfacePorts(o0, mAddSub9.O1);
-    connectInterfacePorts(o1, mAddSub10.O1);
-    connectInterfacePorts(o2, mAddSub8.O1);
-    connectInterfacePorts(o3, mAddSub7.O1);
-    connectInterfacePorts(o4, mAddSub7.O2);
-    connectInterfacePorts(o5, mAddSub8.O2);
-    connectInterfacePorts(o6, mAddSub10.O2);
-    connectInterfacePorts(o7, mAddSub9.O2);
+    mAddSub9.O1(o0);
+    mAddSub10.O1(o1);
+    mAddSub8.O1(o2);
+    mAddSub7.O1(o3);
+    mAddSub7.O2(o4);
+    mAddSub8.O2(o5);
+    mAddSub10.O2(o6);
+    mAddSub9.O2(o7);
 #endif
   }
 };

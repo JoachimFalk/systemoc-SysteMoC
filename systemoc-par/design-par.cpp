@@ -312,14 +312,14 @@ public:
     mod(m_mod::factory("mod")),
     disp("disp", mod.count())
   {
-    connectInterfacePorts(in_src2mod, disp.in_src2mod);
+    disp.in_src2mod(in_src2mod);
      
     for(size_t i=0; i<mod.count(); ++i) {
       connectNodePorts<3>(disp.out_src2mod(i), mod(i).in_src2mod);
       connectNodePorts<1>(mod(i).out_mod2sink, disp.in_mod2sink(i));
     }
 
-    connectInterfacePorts(out_mod2sink, disp.out_mod2sink);
+    disp.out_mod2sink(out_mod2sink);
   }
 };
 

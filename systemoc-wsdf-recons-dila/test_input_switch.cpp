@@ -51,13 +51,13 @@ public:
 
 		/* Connect all node outputs */
 		
-		connectInterfacePorts( image_in, input_switch.orig_in );
-		connectInterfacePorts( ctrl_in, input_switch.max_in);
+		input_switch.orig_in(image_in);
+		input_switch.max_in(ctrl_in);
 		
 		indConnectNodePorts( input_switch.out, input_dup.in, smoc_wsdf_edge<T>(1));
 
 		indConnectNodePorts(input_dup.out2, input_switch.buffered_in, smoc_wsdf_edge<T>(size_y,ns_smoc_vector_init::ul_vector_init[0][size_y]));		
-		connectInterfacePorts(out , input_dup.out1 );	
+		input_dup.out1(out);	
 		
 	}
 	

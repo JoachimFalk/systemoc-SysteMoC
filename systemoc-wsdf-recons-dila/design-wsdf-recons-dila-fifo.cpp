@@ -38,12 +38,12 @@ public:
 		m_wsdf_recons_fifo<T> &recons = registerNode(new m_wsdf_recons_fifo<T>("recons_fifo", size_x, size_y));
 
 
-		connectInterfacePorts( seed_in, recons.seed_in );
-		connectInterfacePorts( image_in, recons.mask_in );
+		recons.seed_in(seed_in);
+		recons.mask_in(image_in);
 
 		connectNodePorts(recons.coord_out, recons.coord_in, smoc_fifo<unsigned int>(10*size_x*size_y));
 
-		connectInterfacePorts(out,  recons.out);
+		recons.out(out);
 		
 	}
 	

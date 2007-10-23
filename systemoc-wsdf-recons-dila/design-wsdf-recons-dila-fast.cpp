@@ -111,8 +111,8 @@ public:
 
 		/* Connect all node outputs */
 		
-		connectInterfacePorts( seed_in, seed_switch.orig_in );
-		connectInterfacePorts( image_in, input_switch.orig_in );
+		seed_switch.orig_in(seed_in);
+		input_switch.orig_in(image_in);
 		
 #ifdef LARGE_BUFFER_SIZE
 		indConnectNodePorts( seed_switch.out, seed_dup.in, smoc_wsdf_edge<T>(size_y));
@@ -236,7 +236,7 @@ public:
 #else
 		indConnectNodePorts(output_switch.intermediate_out,seed_switch.intermediate_in, smoc_wsdf_edge<T>(1));
 #endif
-		connectInterfacePorts(out , output_switch.final_out );		
+		output_switch.final_out(out);		
 		
 
 		

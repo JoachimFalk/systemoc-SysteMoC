@@ -136,8 +136,8 @@ public:
 	{
 		m_filter      &filter = registerNode(new m_filter("filter"));
       
-		connectInterfacePorts( in, filter.in );
-		connectInterfacePorts( out, filter.out );
+		filter.in(in);
+		filter.out(out);
 	}
 };
 
