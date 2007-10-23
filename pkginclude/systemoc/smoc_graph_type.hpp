@@ -216,47 +216,6 @@ protected:
   }
 #endif
 
-  template <typename T_value_type>
-  void connectInterfacePorts(
-                             smoc_port_out<T_value_type> &a,
-                             smoc_port_out<T_value_type> &b )
-    { b(a); }
-  template <typename T_value_type>
-  void connectInterfacePorts(
-                             smoc_port_in<T_value_type> &a,
-                             smoc_port_in<T_value_type> &b )
-  { b(a); }
-
-#ifdef SYSTEMOC_ENABLE_WSDF 
-  /// Connect multi-dimensional interface output port with actor output port
-  template <typename T_value_type, unsigned N, template <typename> class STORAGE_OUT_TYPE>
-  void connectInterfacePorts(
-                             smoc_md_iport_out<T_value_type,N,STORAGE_OUT_TYPE> &a,
-                             smoc_md_port_out<T_value_type,N,STORAGE_OUT_TYPE> &b )
-    { b(a); }
-
-  /// Connect multi-dimensional interface input port with actor input port
-  template <typename T_value_type, unsigned N, template <typename,typename> class R>
-  void connectInterfacePorts(
-                             smoc_md_iport_in<T_value_type,N> &a,
-                             smoc_md_port_in<T_value_type,N,R> &b )
-  { b(a); }
-
-  /// Connect multi-dimensional interface output ports
-  template <typename T_value_type, unsigned N, template <typename> class STORAGE_OUT_TYPE>
-  void connectInterfacePorts(
-                             smoc_md_iport_out<T_value_type,N, STORAGE_OUT_TYPE> &a,
-                             smoc_md_iport_out<T_value_type,N, STORAGE_OUT_TYPE> &b )
-    { b(a); }
-
-  /// Connect multi-dimensional interface output ports
-  template <typename T_value_type, unsigned N>
-  void connectInterfacePorts(
-                             smoc_md_iport_in<T_value_type,N> &a,
-                             smoc_md_iport_in<T_value_type,N> &b )
-  { b(a); }
-#endif
-
   void finalise();
 
 private:
