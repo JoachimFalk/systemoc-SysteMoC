@@ -143,27 +143,6 @@ private:
   this_type &operator =(const this_type &);
 };
 
-template <typename T, template <typename> class R>
-class smoc_chan_in_if
-  : virtual public sc_interface,
-    virtual public smoc_chan_in_base_if {
-public:
-  // typedefs
-  typedef smoc_chan_in_if<T,R>                  this_type;
-  typedef T                                     data_type;
-  typedef R<
-    typename smoc_storage_in<T>::return_type>   access_in_type;
-  typedef access_in_type                        access_type;
-protected:
-  // constructor
-  smoc_chan_in_if() {}
-public:
-  virtual access_in_type *getReadChannelAccess() = 0;
-private:
-  // disabled
-  const sc_event& default_event() const = 0;
-};
-
 // forward
 template <
   typename T, 
@@ -205,6 +184,106 @@ private:
   this_type &operator =(const this_type &);
 };
 
+class smoc_root_chan
+: public sc_prim_channel {
+  typedef smoc_root_chan this_type;
+private:
+  friend class smoc_graph;
+
+  smoc_port_list portsIn;
+  smoc_port_list portsOut;
+
+  std::string myName; // patched in finalise
+protected:
+  // new FastLink interface
+#ifdef SYSTEMOC_ENABLE_VPC
+  SystemC_VPC::FastLink *vpcLink; // patched in finalise
+#endif //SYSTEMOC_ENABLE_VPC
+protected:
+  // constructor
+  smoc_root_chan(const char *name)
+    : sc_prim_channel(name) {}
+
+  void registerPort(smoc_root_port_in *portIn)
+    { portsIn.push_front(portIn); }
+  void registerPort(smoc_root_port_out *portOut)
+    { portsOut.push_front(portOut); }
+
+  virtual void finalise();
+
+  virtual void assemble(smoc_modes::PGWriter &pgw)          const = 0;
+  virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
+  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
+public:
+  const char *name() const { return myName.c_str(); }
+
+  const smoc_port_list &getInputPorts()  const
+    { return portsIn;  }
+  const smoc_port_list &getOutputPorts() const
+    { return portsOut; }
+};
+
+class smoc_nonconflicting_chan
+: public smoc_root_chan,
+  virtual public smoc_chan_in_base_if,
+  virtual public smoc_chan_out_base_if {
+  typedef smoc_nonconflicting_chan this_type;
+protected:
+  // constructor
+  smoc_nonconflicting_chan(const char *name)
+    : smoc_root_chan(name) {}
+
+  // this is needed to overwrite the virtual registerPort
+  // methods in smoc_chan_in_base_if and smoc_chan_out_base_if.
+  void registerPort(smoc_root_port_in *portIn)
+    { return smoc_root_chan::registerPort(portIn); }
+  void registerPort(smoc_root_port_out *portOut)
+    { return smoc_root_chan::registerPort(portOut); }
+
+  virtual void finalise();
+
+  void assemble(smoc_modes::PGWriter &pgw) const;
+public:
+  // this is needed to overwrite the virtual name
+  // methods in smoc_chan_in_base_if and smoc_chan_out_base_if.
+  const char *name() const
+    { return smoc_root_chan::name(); }
+};
+
+class smoc_multicast_chan
+: public smoc_root_chan {
+  typedef smoc_multicast_chan this_type;
+protected:
+  // constructor
+  smoc_multicast_chan(const char *name)
+    : smoc_root_chan(name) {}
+
+  virtual void finalise();
+
+  void assemble(smoc_modes::PGWriter &pgw) const;
+};
+
+template <typename T, template <typename> class R>
+class smoc_chan_in_if
+  : virtual public sc_interface,
+    virtual public smoc_chan_in_base_if {
+public:
+  // typedefs
+  typedef smoc_chan_in_if<T,R>                  this_type;
+  typedef T                                     data_type;
+  typedef R<
+    typename smoc_storage_in<T>::return_type>   access_in_type;
+  typedef access_in_type                        access_type;
+protected:
+  // constructor
+  smoc_chan_in_if() {}
+public:
+  virtual access_in_type *getReadChannelAccess() = 0;
+private:
+  // disabled
+  const sc_event& default_event() const = 0;
+};
+
 template <
   typename T,                                     // data type
   template <typename> class R,                    // ring access type
@@ -229,93 +308,7 @@ private:
   const sc_event& default_event() const = 0;
 };
 
-class smoc_root_chan
-  : public sc_prim_channel {
-public:
-  // typedefs
-  typedef smoc_root_chan              this_type;
-  
-  friend class smoc_graph;
-  // new FastLink interface
-#ifdef SYSTEMOC_ENABLE_VPC
-  SystemC_VPC::FastLink *vpcLink; // patched in finalise
-#endif //SYSTEMOC_ENABLE_VPC
-protected:
-  std::string myName; // patched in finalise
-
-  void addPort(smoc_root_port_in *portIn)
-    { portsIn.push_front(portIn); }
-
-  virtual void addPort(smoc_root_port_out *portOut)
-    { portsOut.push_front(portOut); }
-public:
-  const char *name() const { return myName.c_str(); }
-  virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
-  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
-  
-  virtual void finalise();
-
-  const smoc_port_list &getInputPorts()  const
-    { return portsIn;  }
-
-  const smoc_port_list &getOutputPorts() const
-    { return portsOut; }
-protected:
-  // constructor
-  smoc_root_chan(const char *name)
-    : sc_prim_channel(name) {}
-
-  virtual void assemble(smoc_modes::PGWriter &pgw) const = 0;
-private:
-  smoc_port_list portsIn;
-
-  smoc_port_list portsOut;
-};
-
-class smoc_nonconflicting_chan
-  : public smoc_root_chan,
-    virtual public smoc_chan_in_base_if,
-    virtual public smoc_chan_out_base_if {
-public:
-  // typedefs
-  typedef smoc_nonconflicting_chan this_type;
-protected:
-  // constructor
-  smoc_nonconflicting_chan(const char *name)
-    : smoc_root_chan(name) {}
-
-  void assemble(smoc_modes::PGWriter &pgw) const;
-
-  virtual void finalise();
-
-  void registerPort(smoc_root_port_in *portIn) {
-    this->addPort(portIn);
-  }
-
-  void registerPort(smoc_root_port_out *portOut) {
-    this->addPort(portOut);
-  }
-public:
-  const char *name() const
-    { return smoc_root_chan::name(); }
-};
-
-class smoc_multicast_chan
-  : public smoc_root_chan {
-public:
-  // typedefs
-  typedef smoc_multicast_chan this_type;
-protected:
-  // constructor
-  smoc_multicast_chan(const char *name)
-    : smoc_root_chan(name) {}
-
-  void assemble(smoc_modes::PGWriter &pgw) const;
-
-  virtual void finalise();
-};
-
-extern const sc_event& smoc_default_event_abort();
+const sc_event& smoc_default_event_abort();
 
 template <typename T_chan_kind, 
           typename T_data_type, 
@@ -324,9 +317,9 @@ template <typename T_chan_kind,
           template <typename> class S = smoc_storage_out
           >
 class smoc_chan_if
-  : public smoc_chan_in_if<T_data_type, R_IN>,
-    public smoc_chan_out_if<T_data_type, R_OUT, S>,
-    public T_chan_kind {
+: public smoc_chan_in_if<T_data_type, R_IN>,
+  public smoc_chan_out_if<T_data_type, R_OUT, S>,
+  public T_chan_kind {
 public:
   // typedefs
   typedef smoc_chan_if<T_chan_kind,T_data_type,R_IN,R_OUT,S> this_type;

@@ -267,6 +267,7 @@ class smoc_fifo_kind
 : public smoc_nonconflicting_chan {
 #ifdef SYSTEMOC_ENABLE_VPC
   friend class smoc_detail::LatencyQueue::VisibleQueue;
+  friend class smoc_detail::LatencyQueue::RequestQueue;
 #endif // SYSTEMOC_ENABLE_VPC
 public:
   typedef smoc_fifo_kind  this_type;

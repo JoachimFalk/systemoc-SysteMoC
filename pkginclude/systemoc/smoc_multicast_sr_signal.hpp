@@ -42,10 +42,11 @@ class smoc_multicast_sr_signal_type;
 /// Base class of the MULTICAST_SR_SIGNAL implementation.
 class smoc_multicast_sr_signal_kind
 : public smoc_multicast_chan {
-  friend class smoc_scheduler_top;
-
-public:
   typedef smoc_multicast_sr_signal_kind  this_type;
+public:
+  friend class smoc_scheduler_top;
+  friend class smoc_outlet_kind;
+  friend class smoc_entry_kind;
 
   class chan_init {
     friend class smoc_multicast_sr_signal_kind;
@@ -72,13 +73,6 @@ public:
 
   bool isDefined() const;
 
-  void registerPort(smoc_root_port_in *inPort){
-    this->addPort(inPort);
-  }
-
-  void registerPort(smoc_root_port_out *outPort){
-    this->addPort(outPort);
-  }
   size_t inTokenId() const
     { return tokenId; }
 
@@ -112,7 +106,8 @@ private:
 
 
 class smoc_outlet_kind
-  : public sc_interface {
+: virtual public sc_interface,
+  virtual public smoc_chan_in_base_if {
   friend class smoc_scheduler_top;
 public:
   smoc_outlet_kind(smoc_multicast_sr_signal_kind* base);
@@ -140,6 +135,9 @@ protected:
 
   bool isDefined() const;
 
+  void registerPort(smoc_root_port_in  *portIn){
+    this->_base->registerPort(portIn);
+  }
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;
 
@@ -150,7 +148,8 @@ private:
 };
 
 class smoc_entry_kind
-  : public sc_interface {
+: virtual public sc_interface,
+  virtual public smoc_chan_out_base_if {
   friend class smoc_scheduler_top;
 public:
   smoc_entry_kind(smoc_multicast_sr_signal_kind* base);
@@ -172,6 +171,10 @@ protected:
   smoc_event &getEventFree(size_t n);
 
   bool isDefined() const;
+
+  void registerPort(smoc_root_port_out  *portOut){
+    this->_base->registerPort(portOut);
+  }
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;
 
@@ -255,10 +258,6 @@ public:
     return this->isDefined();
   }
 
-protected:
-  virtual void registerPort(smoc_root_port_in  *portIn){
-    this->_base->registerPort(portIn);
-  }
 private:
   size_t         limit;
   storage_type &actualValue;
@@ -334,10 +333,6 @@ public:
     return this->isDefined();
   }
 
-protected:
-  virtual void registerPort(smoc_root_port_out  *portOut){
-    this->_base->registerPort(portOut);
-  }
 private:
   size_t         limit;
   storage_type &actualValue;
