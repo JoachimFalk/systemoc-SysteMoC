@@ -27,7 +27,7 @@
   name CDATA #IMPLIED
 >
 
-<!ELEMENT process (port|stateDeclaration|actor|fifo|attribute|problemgraph)*>
+<!ELEMENT process (port|stateDeclaration|actor|fifo|attribute|problemgraph|fsm)*>
 <!ATTLIST process
   name CDATA #REQUIRED
   id ID #REQUIRED
@@ -91,7 +91,7 @@
 
 <!ELEMENT edge EMPTY>
 <!ATTLIST edge
-  name CDATA #REQUIRED
+  name CDATA #IMPLIED
   id ID #REQUIRED
   source IDREF #REQUIRED
   target IDREF #REQUIRED
@@ -103,7 +103,7 @@
   value CDATA #REQUIRED
 >
 
-<!ELEMENT fsm (state)*>
+<!ELEMENT fsm (state|classification)*>
 <!ATTLIST fsm
   startstate IDREF #REQUIRED
   startstatename CDATA #IMPLIED
@@ -121,19 +121,31 @@
   name  CDATA #IMPLIED
 >
 
+<!ELEMENT classification (sdf|csdf)>
+
+<!ELEMENT sdf (portRef)*>
+
+<!ELEMENT csdf (csdfPhase)*>
+
+<!ELEMENT csdfPhase (portRef)*>
+
+<!ELEMENT portRef (attribute)*>
+<!ATTLIST portRef 
+  ref IDREF #REQUIRED
+>
 
 <!ENTITY % OPS "(ASTNodeBinOp|ASTNodeUnOp|PortTokens|Literal|Var|Proc|MemGuard|MemProc|Token|Comm)" >
 
-<!ELEMENT transition %OPS;>
+<!ELEMENT transition (%OPS;,action?)>
 <!ATTLIST transition
   nextstate IDREF #REQUIRED
   nextstatename CDATA #IMPLIED
-  action CDATA #REQUIRED
+  action CDATA #IMPLIED
 >
 
 <!ELEMENT ASTNodeBinOp (lhs,rhs)>
 <!ATTLIST ASTNodeBinOp 
-  valueType CDATA #REQUIRED
+  valueType CDATA #IMPLIED
   opType    CDATA #REQUIRED
 >
 
@@ -143,7 +155,7 @@
 
 <!ELEMENT ASTNodeUnOp (ChildNode)>
 <!ATTLIST ASTNodeUnOp
-  valueType CDATA #REQUIRED
+  valueType CDATA #IMPLIED
   opType    CDATA #REQUIRED
 >
 
@@ -151,19 +163,19 @@
 
 <!ELEMENT PortTokens EMPTY>
 <!ATTLIST PortTokens
-  valueType CDATA #REQUIRED
+  valueType CDATA #IMPLIED
   portid    IDREF #REQUIRED
 >
 
 <!ELEMENT Comm (ChildNode)>
 <!ATTLIST Comm
-  valueType CDATA #REQUIRED
+  valueType CDATA #IMPLIED
   portid    IDREF #REQUIRED
 >
 
 <!ELEMENT Literal EMPTY>
 <!ATTLIST Literal
-  valueType CDATA #REQUIRED
+  valueType CDATA #IMPLIED
   value     CDATA #REQUIRED
 >
 
@@ -199,4 +211,20 @@
   valueType CDATA #REQUIRED
   portid    IDREF #REQUIRED
   pos       CDATA #REQUIRED
+>
+
+<!ELEMENT action (loopedSchedule)>
+
+<!ELEMENT loopedSchedule (item)*>
+
+<!ELEMENT item (scheduleLoop|actorRef)>
+
+<!ELEMENT actorRef EMPTY>
+<!ATTLIST actorRef
+  ref IDREF #REQUIRED
+>
+
+<!ELEMENT scheduleLoop (item)*>
+<!ATTLIST scheduleLoop
+  count CDATA #REQUIRED
 >
