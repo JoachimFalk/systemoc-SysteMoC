@@ -261,7 +261,7 @@ struct smoc_firing_types {
 #endif
   };
   
-  class resolved_state_ty {
+  class resolved_state_ty : public sc_object {
   public:
     // outgoing transitions from this state
     transitionlist_ty       tl;
@@ -269,7 +269,7 @@ struct smoc_firing_types {
     // all ports in the outgoing transitions
     // ports_ty             ps;
   public:
-    resolved_state_ty() {}
+    resolved_state_ty();
     
     void clearTransitions();
     void addTransition(smoc_firing_state_ref *r, const smoc_transition_list &tl );
@@ -279,11 +279,7 @@ struct smoc_firing_types {
 
     void finalise(smoc_root_node *a);
 
-#ifdef SYSTEMOC_DEBUG
-    ~resolved_state_ty() {
-      std::cerr << "~resolved_state_ty() this == " << this << std::endl;
-    }
-#endif
+    ~resolved_state_ty();
   };
 };
 
@@ -326,8 +322,8 @@ std::ostream &operator <<( std::ostream &out, const smoc_firing_state_ref &s )
   { s.dump(out); return out; }
 
 class smoc_firing_state
-  :public smoc_firing_state_ref,
-   public sc_object {
+  :public smoc_firing_state_ref/*,
+   public sc_object*/ {
 public:
   friend class smoc_opbase_node;
   friend class transition_ty;

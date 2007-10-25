@@ -164,6 +164,7 @@ public:
   //determines non-strict actors (non-strict blocks in synchronous-reactive domains)
   bool isNonStrict() const;
 
+  virtual ~smoc_root_node();
 };
 
 typedef std::list<smoc_root_node *> smoc_node_list;

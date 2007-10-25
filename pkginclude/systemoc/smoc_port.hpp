@@ -507,7 +507,7 @@ protected:
     std::cerr << "smoc_port_in_base::finalise(), name == " << this->name() << std::endl;
 #endif
     // Preallocate ID
-    smoc_modes::PGWriter::getId(this);
+    //smoc_modes::PGWriter::getId(this);
     this->channelAccess = (*this)->getChannelAccess();
   }
 
@@ -601,7 +601,7 @@ protected:
 
   void finalise(smoc_root_node *node) {
     // Preallocate ID
-    smoc_modes::PGWriter::getId(this);
+    //smoc_modes::PGWriter::getId(this);
     this->channelAccess = (*this)->getChannelAccess();
   }
 

@@ -201,8 +201,7 @@ protected:
 #endif //SYSTEMOC_ENABLE_VPC
 protected:
   // constructor
-  smoc_root_chan(const char *name)
-    : sc_prim_channel(name) {}
+  smoc_root_chan(const char *name);
 
   void registerPort(smoc_root_port_in *portIn)
     { portsIn.push_front(portIn); }
@@ -221,6 +220,8 @@ public:
     { return portsIn;  }
   const smoc_port_list &getOutputPorts() const
     { return portsOut; }
+
+  virtual ~smoc_root_chan();
 };
 
 class smoc_nonconflicting_chan

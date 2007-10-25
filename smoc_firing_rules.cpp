@@ -59,7 +59,7 @@
 #include <algorithm>
 
 using namespace CoSupport;
-
+  
 smoc_firing_state_ref::smoc_firing_state_ref(
     const smoc_firing_state_ref &rhs)
   : rs(&rhs.getResolvedState()), fr(NULL) {
@@ -124,27 +124,27 @@ smoc_firing_state_ref::~smoc_firing_state_ref() {
 }
 
 smoc_firing_state::smoc_firing_state(const smoc_transition_list &tl)
-  :sc_object(sc_gen_unique_name("smoc_firing_state")) {
+  /*:sc_object(sc_gen_unique_name("smoc_firing_state"))*/ {
   this->operator = (tl);
 //#ifdef SYSTEMOC_DEBUG
 //  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
 //#endif
 }
 smoc_firing_state::smoc_firing_state(const smoc_transition &t)
-  :sc_object(sc_gen_unique_name("smoc_firing_state")) {
+  /*:sc_object(sc_gen_unique_name("smoc_firing_state"))*/ {
   this->operator = (t);
 //#ifdef SYSTEMOC_DEBUG
 //  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
 //#endif
 }
 smoc_firing_state::smoc_firing_state()
-  :sc_object(sc_gen_unique_name("smoc_firing_state")) {
+  /*:sc_object(sc_gen_unique_name("smoc_firing_state"))*/ {
 //#ifdef SYSTEMOC_DEBUG
 //  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
 //#endif
 }
 smoc_firing_state::smoc_firing_state(const this_type &x)
-  :sc_object(sc_gen_unique_name("smoc_firing_state")) {
+  /*:sc_object(sc_gen_unique_name("smoc_firing_state"))*/ {
   *this = x;
 //#ifdef SYSTEMOC_DEBUG
 //  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
@@ -288,17 +288,27 @@ smoc_firing_types::transition_ty::transition_ty(
   }
 }
 
-void
-smoc_firing_types::resolved_state_ty::clearTransitions()
-  { tl.clear(); }
+smoc_firing_types::resolved_state_ty::resolved_state_ty() :
+  sc_object(sc_gen_unique_name("smoc_firing_state")) {
+  smoc_modes::idPool.regObj(this);
+}
 
-void
-smoc_firing_types::resolved_state_ty::addTransition(
+void smoc_firing_types::resolved_state_ty::clearTransitions()
+{ tl.clear(); }
+
+void smoc_firing_types::resolved_state_ty::addTransition(
     smoc_firing_state_ref *r, const smoc_transition_list &tl_ ) {
   for ( smoc_transition_list::const_iterator titer = tl_.begin();
         titer != tl_.end();
         ++titer )
     tl.push_back(transition_ty(r, *titer));
+}
+
+smoc_firing_types::resolved_state_ty::~resolved_state_ty() {
+#ifdef SYSTEMOC_DEBUG
+      std::cerr << "~resolved_state_ty() this == " << this << std::endl;
+#endif
+  smoc_modes::idPool.unregObj(this);
 }
 
 void smoc_firing_types::transition_ty::execute(

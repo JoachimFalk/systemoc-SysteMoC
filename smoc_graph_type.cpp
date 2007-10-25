@@ -117,7 +117,9 @@ void smoc_graph::pgAssemble(
   const smoc_chan_list cs  = getChans();
   const smoc_port_list ps  = n->getPorts();
   
-  pgw << "<problemgraph name=\"" << m->name() << "_pg\" id=\"" << pgw.getId() << "\">" << std::endl;
+  // FIXME: different id for the same object (-> process!)
+  pgw << "<problemgraph name=\"" << m->name() << "_pg\" id=\""
+      << smoc_modes::idPool.getId(this, 1) << "\">" << std::endl;
   {
     pgw.indentUp();
     for ( smoc_node_list::const_iterator iter = ns.begin();
@@ -138,9 +140,9 @@ void smoc_graph::pgAssemble(
             ++ps_iter ) {
         if ( (*ps_iter)->getParentPort() != NULL ) {
           pgw << "<portmapping "
-              << "from=\"" << pgw.getId(*ps_iter) << "\" "
-              << "to=\"" << pgw.getId((*ps_iter)->getParentPort()) << "\" "
-              << "id=\"" << pgw.getId() << "\"/>" << std::endl;
+              << "from=\"" << smoc_modes::idPool.getId(*ps_iter) << "\" "
+              << "to=\"" << smoc_modes::idPool.getId((*ps_iter)->getParentPort()) << "\" "
+              << "id=\"" << smoc_modes::idPool.getId() << "\"/>" << std::endl;
         }
       }
     }
@@ -258,6 +260,9 @@ smoc_graph::smoc_graph()
 
 //
 void smoc_graph::constructor() {
+
+  // FIXME (different ids for the same object!!)
+  smoc_modes::idPool.regObj(this, 1);
 
   // this is the scheduler realised as an FSM
   // either a parent graph or the top_moc executes this FSM

@@ -52,31 +52,16 @@ namespace smoc_modes {
 
   bool dumpProblemgraph = false;
 
-  int                 PGWriter::idmap_last = 0;
-  PGWriter::idmap_ty  PGWriter::idmap;
-
-  NgId PGWriter::getId() {
-    return idmap_last++;
-  }
-
-  NgId PGWriter::getId(const void *p) {
-    idmap_ty::iterator find_iter = idmap.find(p);
-    
-    if ( find_iter == idmap.end() ) {
-      idmap[p] = idmap_last;
-      return getId();
-    } else
-      return find_iter->second;
-  }
+  IdPool<FNV16> idPool;
 
   void dump( std::ostream &out, smoc_root_node &top ) {
     PGWriter pgw( out );
     pgw << "<?xml version=\"1.0\"?>" << std::endl;
-  pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
-  pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;
+    pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
+    pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;
     pgw.indentUp();
     top.assemble( pgw );
-    pgw << "<architecturegraph name=\"architecture graph\" id=\""<< pgw.getId() << "\">" << std::endl;
+    pgw << "<architecturegraph name=\"architecture graph\" id=\""<< idPool.getId() << "\">" << std::endl;
     pgw << "</architecturegraph>" << std::endl;
     pgw <<  "<mappings>" << std::endl;
     pgw <<  "</mappings>" << std::endl;

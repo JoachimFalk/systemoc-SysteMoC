@@ -73,9 +73,7 @@ protected:
   smoc_root_port *parent, *child;
   
   //FIXME(MS): allow more than one "IN-Port" per Signal
-  smoc_root_port( const char* name_ )
-    : sc_port_base( name_, 1 ),
-      parent(NULL), child(NULL) {}
+  smoc_root_port( const char* name_ );
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void commExec(size_t, const smoc_ref_event_p &) = 0;
@@ -115,6 +113,7 @@ public:
   }
   
   void dump( std::ostream &out ) const;
+  virtual ~smoc_root_port();
 protected:
   /// Finalise port called by smoc_root_node::finalise
   virtual void finalise(smoc_root_node *node) = 0;

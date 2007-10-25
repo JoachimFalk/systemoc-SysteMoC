@@ -123,7 +123,7 @@ protected:
 #endif
     
     // Preallocate ID
-    smoc_modes::PGWriter::getId(this);
+    // smoc_modes::PGWriter::getId(this);
     
     smoc_port_list ports = getPorts();
     

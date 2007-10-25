@@ -42,6 +42,17 @@ using namespace CoSupport;
 
 // smoc_ctx _ctx;
 
+smoc_root_port::smoc_root_port( const char* name_ ) :
+  sc_port_base( name_, 1 ),
+  parent(NULL), child(NULL) {
+  smoc_modes::idPool.regObj(this);
+  smoc_modes::idPool.regObj(this, 1);
+}
+  
+smoc_root_port::~smoc_root_port() {
+  smoc_modes::idPool.unregObj(this);
+}
+
 void smoc_root_port::dump( std::ostream &out ) const {
   out << "port(" << this
       <<      ",name=" << name()
