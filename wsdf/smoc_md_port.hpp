@@ -221,7 +221,7 @@ public:
 						const iter_domain_vector_type& window_iteration,
 						bool& is_border) const
   {
-    return this->channel_access->is_ext_border(window_iteration, is_border);
+    return this->channelAccess->is_ext_border(window_iteration, is_border);
   }
   
   virtual void setFiringLevelMap(const s2vector_type& firing_level_map) = 0;      
@@ -242,7 +242,7 @@ public:
   typedef typename base_type::ChannelAccess::return_type             return_type;
 
   virtual return_type operator[](const iter_domain_vector_type& id){
-    return (*(this->channel_access))[id];
+    return (*(this->channelAccess))[id];
   }
 
   typedef smoc_wsdf_edge_descr::s2vector_type s2vector_type;
@@ -307,7 +307,7 @@ public:
 #endif
     
     
-    return_type return_value(is_border ? border_value : (*(this->channel_access))[window_iteration]);
+    return_type return_value(is_border ? border_value : (*(this->channelAccess))[window_iteration]);
     
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
     CoSupport::dout << "Leave smoc_cst_border_ext::operator[]" << std::endl;
@@ -500,7 +500,7 @@ public:
       //Firing level is not covered by an iteration level
       return 0;
     }else{
-      return this->channel_access->iteration(firing_level_map[firing_level][dimension]);
+      return this->channelAccess->iteration(firing_level_map[firing_level][dimension]);
     }
   }
 
@@ -690,7 +690,7 @@ public:
       //Firing level is not covered by an iteration level
       return 0;
     }else{
-      return this->channel_access->iteration(firing_level_map[firing_level][dimension]);
+      return this->channelAccess->iteration(firing_level_map[firing_level][dimension]);
     }
   }
 

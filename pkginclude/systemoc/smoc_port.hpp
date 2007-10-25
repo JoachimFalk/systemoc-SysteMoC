@@ -434,12 +434,12 @@ private:
       return 0;
   }
 protected:
-  ChannelAccess *channel_access;
+  ChannelAccess *channelAccess;
 
 #ifndef NDEBUG
   virtual void   setLimit(size_t l)
-    {channel_access->setLimit(l);}
-  //virtual size_t getLimit() const {return channel_access->getLimit();}
+    {channelAccess->setLimit(l);}
+  //virtual size_t getLimit() const {return channelAccess->getLimit();}
 #endif
 
   smoc_port_base( const char* name_ )
@@ -508,7 +508,7 @@ protected:
 #endif
     // Preallocate ID
     smoc_modes::PGWriter::getId(this);
-    this->channel_access = (*this)->getReadChannelAccess();
+    this->channelAccess = (*this)->getChannelAccess();
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -525,7 +525,7 @@ public:
   bool isInput() const { return true; }
 
   bool tokenIsValid(size_t i=0) const
-    { return this->channel_access->tokenIsValid(i); }
+    { return this->channelAccess->tokenIsValid(i); }
   size_t tokenId(size_t i=0) const
     { return (*this)->inTokenId() + i; }
   size_t availableCount() const
@@ -602,7 +602,7 @@ protected:
   void finalise(smoc_root_node *node) {
     // Preallocate ID
     smoc_modes::PGWriter::getId(this);
-    this->channel_access = (*this)->getWriteChannelAccess();
+    this->channelAccess = (*this)->getChannelAccess();
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -668,7 +668,7 @@ public:
   smoc_port_in(): base_type() {}
 
   const return_type operator[](size_t n) const {
-    return (*(this->channel_access))[n];
+    return (*(this->channelAccess))[n];
   }
 
   typename Expr::Token<T>::type getValueAt(size_t n)
@@ -700,7 +700,7 @@ public:
   smoc_port_out(): base_type() {}
 
   return_type operator[](size_t n)  {
-    return (*(this->channel_access))[n];
+    return (*(this->channelAccess))[n];
   }
 
 public:

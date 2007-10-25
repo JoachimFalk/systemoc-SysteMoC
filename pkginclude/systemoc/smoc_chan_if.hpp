@@ -56,9 +56,9 @@ namespace SystemC_VPC {
 
 template<class T>
 class smoc_channel_access {
+  typedef smoc_channel_access<T> this_type;
 public:
-  typedef T                                return_type;
-  typedef smoc_channel_access<return_type> this_type;
+  typedef T return_type;
 
 #ifndef NDEBUG
   virtual void   setLimit(size_t)                     = 0;
@@ -74,9 +74,9 @@ public:
 
 template<>
 class smoc_channel_access<void> {
+  typedef smoc_channel_access<void> this_type;
 public:
-  typedef void                             return_type;
-  typedef smoc_channel_access<return_type> this_type;
+  typedef void return_type;
 
 #ifndef NDEBUG
   virtual void   setLimit(size_t)                     = 0;
@@ -90,9 +90,9 @@ public:
 
 template<>
 class smoc_channel_access<const void> {
+  typedef smoc_channel_access<const void> this_type;
 public:
-  typedef const void                       return_type;
-  typedef smoc_channel_access<return_type> this_type;
+  typedef const void return_type;
 
 #ifndef NDEBUG
   virtual void   setLimit(size_t)                    = 0;
@@ -277,8 +277,11 @@ public:
 protected:
   // constructor
   smoc_chan_in_if() {}
+
+  virtual access_type *getReadChannelAccess() = 0;
 public:
-  virtual access_in_type *getReadChannelAccess() = 0;
+  access_type *getChannelAccess()
+    { return getReadChannelAccess(); }
 private:
   // disabled
   const sc_event& default_event() const = 0;
@@ -301,8 +304,11 @@ public:
 protected:
   // constructor
   smoc_chan_out_if() {}
+
+  virtual access_type *getWriteChannelAccess() = 0;
 public:
-  virtual access_out_type *getWriteChannelAccess() = 0;
+  access_type *getChannelAccess()
+    { return getWriteChannelAccess(); }
 private:
   // disabled
   const sc_event& default_event() const = 0;
