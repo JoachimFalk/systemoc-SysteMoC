@@ -159,13 +159,14 @@ namespace smoc_modes {
       }
       // delete references from maps
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << "unregistered " << obj->name() << ": " << i->second << std::endl;
+      std::cerr << "unregistered " << obj->name() << std::endl;
 #endif
       for(IndexMap::iterator idx = i->second.begin();
           idx != i->second.end();
-          ++i)
+          ++idx)
       {
         idToObj.erase(objById(idx->second));
+        // FIXME: remove id from namedIds?
       }
       objToId.erase(i);
     }
@@ -174,8 +175,8 @@ namespace smoc_modes {
     bool hasId(const sc_core::sc_object* o) const
     { return idByObj(o) != objToId.end(); }
 
-    // lookup id for a named object (FIXME: more than one id
-    // for the same object via index parameter)
+    // lookup id for a named object (FIXME: multiple ids for the
+    // same object via index parameter)
     NgId getId(const sc_core::sc_object* obj, size_t index = 0) const {
       ObjToId::const_iterator i = idByObj(obj);
       if(i == objToId.end()) {
