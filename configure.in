@@ -23,7 +23,7 @@ AC_INIT([ActorLibrary], 0.1, [joachim.falk@gmx.de])
 AC_PREREQ(2.57)
 ACJF_INIT
 
-AC_CONFIG_SRCDIR([missing.txt])
+AC_CONFIG_SRCDIR([pkginclude/actorlibrary/sources/generic/PeriodicTask.hpp])
 
 AC_CONFIG_AUX_DIR([../BuildSystem])
 AC_CANONICAL_BUILD
