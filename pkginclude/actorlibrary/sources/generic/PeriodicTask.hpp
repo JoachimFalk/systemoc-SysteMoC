@@ -37,7 +37,7 @@ private:
 
     smoc_reset( event );
 
-    std::cout << this->name() << "> released @ " << sc_simulation_time()
+    std::cout << this->name() << "> released @ " << sc_time_stamp()
               << std::endl;
     
   }
