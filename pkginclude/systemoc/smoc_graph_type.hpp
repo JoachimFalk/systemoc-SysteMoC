@@ -79,11 +79,10 @@ private:
 protected:
   template <typename T_chan_init, 
             //template <typename, typename> class R,
-            template <typename> class R,
-            class P>
+            template <typename> class R>
   void connectNodePorts(
-                        smoc_port_out_base<typename T_chan_init::data_type, R, P> &b,
-                        smoc_port_in_base<typename T_chan_init::data_type, R, P>  &a,
+                        smoc_port_out_base<typename T_chan_init::data_type, R> &b,
+                        smoc_port_in_base<typename T_chan_init::data_type, R>  &a,
                         const T_chan_init i ) {
     typename T_chan_init::chan_type &chan =
       registerChan<T_chan_init>(i);
@@ -92,11 +91,10 @@ protected:
   }  
   template <int i, typename T_data_type, 
             //template <typename, typename> class R,
-            template <typename> class R,
-            class P>
+            template <typename> class R>
   void connectNodePorts(
-                        smoc_port_out_base<T_data_type,R,P> &b,
-                        smoc_port_in_base<T_data_type,R,P>  &a ) {
+                        smoc_port_out_base<T_data_type,R> &b,
+                        smoc_port_in_base<T_data_type,R>  &a ) {
     typename T_chan_init_default<T_data_type>::chan_type &chan =
       registerChan( T_chan_init_default<T_data_type>(i) );
     connectChanPort(chan,a);
@@ -104,11 +102,10 @@ protected:
   }
   template <typename T_data_type, 
             //template <typename, typename> class R,
-            template <typename> class R,
-            class P>
+            template <typename> class R>
   void connectNodePorts(
-                        smoc_port_out_base<T_data_type,R,P> &b,
-                        smoc_port_in_base<T_data_type,R,P>  &a ) {
+                        smoc_port_out_base<T_data_type,R> &b,
+                        smoc_port_in_base<T_data_type,R>  &a ) {
     typename T_chan_init_default<T_data_type>::chan_type &chan =
       registerChan( T_chan_init_default<T_data_type>() );
     connectChanPort(chan,a);
@@ -266,27 +263,23 @@ public:
     return *chan;
   }
   //template <typename T_chan_type, template <typename, typename> class R, class P, template <typename> class STORAGE_OUT_TYPE>
-  template <typename T_chan_type, template <typename> class R, class P, template <typename> class STORAGE_OUT_TYPE>
+  template <typename T_chan_type, template <typename> class R, template <typename> class STORAGE_OUT_TYPE>
   void connectChanPort( T_chan_type &chan,
-                        smoc_port_out_base<typename T_chan_type::data_type, R, P, STORAGE_OUT_TYPE> &p ) {
+                        smoc_port_out_base<typename T_chan_type::data_type, R, STORAGE_OUT_TYPE> &p ) {
     p(chan);
   }
   //template <typename T_chan_type, template <typename, typename> class R, class P>
-  template <typename T_chan_type, template <typename> class R, class P>
+  template <typename T_chan_type, template <typename> class R>
   void connectChanPort( T_chan_type &chan,
-                        smoc_port_in_base<typename T_chan_type::data_type, R, P> &p ) {
+                        smoc_port_in_base<typename T_chan_type::data_type, R> &p ) {
     p(chan);
   }
   template <typename T,
       //template <typename, typename> class R,
-      template <typename> class R,
-      class P>
+      template <typename> class R>
   void connectChanPort(
     smoc_multicast_sr_signal_type<T> &chan,
-    smoc_port_in_base<
-      typename smoc_multicast_sr_signal_type<T>::data_type,
-      R,
-      P> &p )
+    smoc_port_in_base<typename smoc_multicast_sr_signal_type<T>::data_type,R> &p )
   {
 //    assert( port2chan.find(&p) ==  port2chan.end() );
 //    port2chan[&p] = &chan;
@@ -296,14 +289,12 @@ public:
   template <typename T,
       //template <typename, typename> class R,
       template <typename> class R,
-      class P,
       template <typename> class STORAGE_OUT_TYPE>
   void connectChanPort(
     smoc_multicast_sr_signal_type<T> &chan,
     smoc_port_out_base<
       typename smoc_multicast_sr_signal<T>::data_type,
       R,
-      P,
       STORAGE_OUT_TYPE> &p )
   {
 //    assert( port2chan.find(&p) ==  port2chan.end() );

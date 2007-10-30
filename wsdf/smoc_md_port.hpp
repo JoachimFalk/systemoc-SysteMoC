@@ -206,25 +206,26 @@ template <typename T,
 	  template <typename> class R,
 	  class PARAM_TYPE>
 class smoc_md_port_in_base
-  : public smoc_port_in_base<T,R,PARAM_TYPE>
+  : public smoc_port_in_base<T,R>
 {
-  
 public:
   typedef smoc_wsdf_edge_descr::s2vector_type s2vector_type;
   
 public:
-  typedef smoc_port_in_base<T,R,PARAM_TYPE> base_type;
-  typedef typename base_type::ChannelAccess::iter_domain_vector_type iter_domain_vector_type;
+  typedef smoc_port_in_base<T,R> base_type;
+  typedef typename base_type::access_type::iter_domain_vector_type iter_domain_vector_type;
   typedef smoc_snk_md_loop_iterator_kind::border_type_vector_type border_type_vector_type;
   
   virtual border_type_vector_type is_ext_border(
 						const iter_domain_vector_type& window_iteration,
 						bool& is_border) const
   {
-    return this->channelAccess->is_ext_border(window_iteration, is_border);
+    return this->get_chanaccess()->is_ext_border(window_iteration, is_border);
   }
   
   virtual void setFiringLevelMap(const s2vector_type& firing_level_map) = 0;      
+
+  virtual PARAM_TYPE params() const = 0;
 };
 
 
@@ -233,16 +234,16 @@ template <typename T,
 	  class PARAM_TYPE,
 	  template <typename> class STORAGE_TYPE = smoc_storage_out> 
 class smoc_md_port_out_base
-  : public smoc_port_out_base<T,R,PARAM_TYPE, STORAGE_TYPE>
+  : public smoc_port_out_base<T,R,STORAGE_TYPE>
 {
 
 public:
-  typedef smoc_port_out_base<T,R,PARAM_TYPE, STORAGE_TYPE> base_type;
-  typedef typename base_type::ChannelAccess::iter_domain_vector_type iter_domain_vector_type;
-  typedef typename base_type::ChannelAccess::return_type             return_type;
+  typedef smoc_port_out_base<T,R,STORAGE_TYPE> base_type;
+  typedef typename base_type::access_type::iter_domain_vector_type iter_domain_vector_type;
+  typedef typename base_type::access_type::return_type             return_type;
 
   virtual return_type operator[](const iter_domain_vector_type& id){
-    return (*(this->channelAccess))[id];
+    return (*(this->get_chanaccess()))[id];
   }
 
   typedef smoc_wsdf_edge_descr::s2vector_type s2vector_type;
@@ -250,6 +251,7 @@ public:
 public:
   virtual void setFiringLevelMap(const s2vector_type& firing_level_map) = 0;      
 
+  virtual PARAM_TYPE params() const = 0;
 };
 
 
@@ -307,7 +309,7 @@ public:
 #endif
     
     
-    return_type return_value(is_border ? border_value : (*(this->channelAccess))[window_iteration]);
+    return_type return_value(is_border ? border_value : (*(this->get_chanaccess()))[window_iteration]);
     
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
     CoSupport::dout << "Leave smoc_cst_border_ext::operator[]" << std::endl;
@@ -500,7 +502,7 @@ public:
       //Firing level is not covered by an iteration level
       return 0;
     }else{
-      return this->channelAccess->iteration(firing_level_map[firing_level][dimension]);
+      return this->get_chanaccess()->iteration(firing_level_map[firing_level][dimension]);
     }
   }
 
@@ -690,7 +692,7 @@ public:
       //Firing level is not covered by an iteration level
       return 0;
     }else{
-      return this->channelAccess->iteration(firing_level_map[firing_level][dimension]);
+      return this->get_chanaccess()->iteration(firing_level_map[firing_level][dimension]);
     }
   }
 

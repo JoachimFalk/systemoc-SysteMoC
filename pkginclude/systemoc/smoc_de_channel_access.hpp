@@ -58,6 +58,9 @@ private:
     interface = dynamic_cast<iface_type *>(i);
     assert(interface != NULL); // type must match
     channelAccess = interface->getChannelAccess();
+#ifndef NDEBUG
+    channelAccess->setLimit(0);
+#endif
   }
 
   int interface_count() {
@@ -89,9 +92,11 @@ private:
   }
 protected:
   smoc_de_channel_access()
-    : sc_port_base(sc_gen_unique_name("smoc_de_channel_access"), 1) {}
+    : sc_port_base(sc_gen_unique_name("smoc_de_channel_access"), 1),
+      interface(NULL),
+      channelAccess(NULL) {}
 
-  iface_type       *operator -> () {
+/*iface_type       *operator -> () {
     if (interface == NULL)
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return interface;
@@ -100,13 +105,24 @@ protected:
     if (interface == NULL)
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return interface;
-  }
+  }*/
 
   // get the first interface without checking for nil
-  sc_interface* get_interface()
+  sc_interface *get_interface()
     { return interface; }
-  const sc_interface* get_interface() const
+  const sc_interface *get_interface() const
     { return interface; }
+
+  // get the channel access
+  access_type *get_chanaccess()
+    { return channelAccess; }
+  const access_type *get_chanaccess() const
+    { return channelAccess; }
+public:
+  void operator () (iface_type& interface_)
+    { bind(interface_); }
+  void operator () (this_type& parent_)
+    { bind(parent_); }
 };
 
 template <typename T>
@@ -118,14 +134,36 @@ protected:
   typedef typename this_type::iface_type   iface_type;
   typedef typename this_type::access_type  access_type;
   typedef typename this_type::return_type  return_type;
+private:
+#ifndef NDEBUG
+  size_t limit;
+#endif
 public:
-  void operator () (iface_type& interface_)
-    { bind(interface_); }
-  void operator () (this_type& parent_)
-    { bind(parent_); }
+  smoc_de_channel_in_access()
+#ifndef NDEBUG
+    : limit(0)
+#endif
+  {
+  }
+
+  size_t availableCount() const {
+#ifndef NDEBUG
+    limit = this->get_interface()->numAvailable();
+    this->get_chanaccess()->setLimit(limit);
+    return limit;
+#else
+    return this->get_interface()->numAvailable();
+#endif
+  }
+  void commExec(size_t n) {
+#ifndef NDEBUG
+    assert(n <= limit);
+#endif
+    this->get_interface()->commitWrite(n);
+  }
 
   const return_type operator[](size_t n) const {
-    return (*(this->channelAccess))[n];
+    return (*(this->get_chanaccess()))[n];
   }
 };
 
@@ -138,14 +176,36 @@ protected:
   typedef typename this_type::iface_type   iface_type;
   typedef typename this_type::access_type  access_type;
   typedef typename this_type::return_type  return_type;
+private:
+#ifndef NDEBUG
+  size_t limit;
+#endif
 public:
-  void operator () (iface_type& interface_)
-    { bind(interface_); }
-  void operator () (this_type& parent_)
-    { bind(parent_); }
+  smoc_de_channel_out_access()
+#ifndef NDEBUG
+    : limit(0)
+#endif
+  {
+  }
+
+  size_t availableCount() const {
+#ifndef NDEBUG
+    limit = this->get_interface()->numAvailable();
+    this->get_chanaccess()->setLimit(limit);
+    return limit;
+#else
+    return this->get_interface()->numAvailable();
+#endif
+  }
+  void commExec(size_t n) {
+#ifndef NDEBUG
+    assert(n <= limit);
+#endif
+    this->get_interface()->commitWrite(n);
+  }
 
   return_type operator[](size_t n)  {
-    return (*(this->channelAccess))[n];
+    return (*(this->get_chanaccess()))[n];
   }
 };
 

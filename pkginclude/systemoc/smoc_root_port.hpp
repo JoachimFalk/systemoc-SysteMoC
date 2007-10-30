@@ -61,8 +61,8 @@ class smoc_root_node;
 namespace Expr { template <class E> class Value; }
 
 class smoc_root_port
-  // must be public inheritance for dynamic_cast in smoc_root_node to work
-  : public sc_port_base {
+// must be public inheritance for dynamic_cast in smoc_root_node to work
+: public sc_port_base {
 public:
   typedef smoc_root_port  this_type;
   
@@ -103,15 +103,17 @@ public:
   smoc_root_node *getActor() const;
  
   // bind interface to this port
-  void bind( sc_interface& interface_ ) { sc_port_base::bind(interface_); }
+  void bind(sc_interface &interface_ ) {
+    sc_port_base::bind(interface_);
+  }
   // bind parent port to this port
-  void bind( this_type &parent_ ) {
+  void bind(this_type &parent_) {
     assert( parent == NULL && parent_.child == NULL );
     parent        = &parent_;
     parent->child = this;
     sc_port_base::bind(parent_);
   }
-  
+
   void dump( std::ostream &out ) const;
   virtual ~smoc_root_port();
 protected:

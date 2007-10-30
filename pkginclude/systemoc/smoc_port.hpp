@@ -395,24 +395,28 @@ SMOCEvent::type till(smoc_event_waiter &e)
 
 /****************************************************************************/
 
-template <class P,          //parent class
-	  typename T,       //interface type
-	  class PARAM_TYPE  //port parameters
-					>
+template <class PARENT,          //parent class
+	  typename IFACE>       //interface type
 class smoc_port_base
-  : public P {
+: public PARENT {
+  typedef smoc_port_base<PARENT,IFACE>  this_type;
+  typedef PARENT                        base_type;
 public:
-  typedef T                   iface_type;
-  typedef smoc_port_base<P,T,PARAM_TYPE> this_type;
+  typedef IFACE                         iface_type;
 
-  typedef typename T::access_type        ChannelAccess;
+  typedef typename IFACE::access_type   access_type;
+
   template <class E> friend class Expr::Sensitivity;
 private:
-  typedef P                   base_type;
-  
   iface_type  *interface;
+  access_type *channelAccess;
   
   const char *if_typename() const { return typeid(iface_type).name(); }
+
+  // SystemC 2.2 requires this method
+  int interface_count() {
+    return 1;
+  }
 
   // called by pbind (for internal use only)
   int vbind( sc_interface& interface_ ) {
@@ -434,13 +438,25 @@ private:
       return 0;
   }
 protected:
-  ChannelAccess *channelAccess;
 
 #ifndef NDEBUG
   virtual void   setLimit(size_t l)
     {channelAccess->setLimit(l);}
   //virtual size_t getLimit() const {return channelAccess->getLimit();}
 #endif
+
+  void finalise(smoc_root_node *node) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "smoc_port_base::finalise(), name == " << this->name() << std::endl;
+#endif
+    channelAccess = interface->getChannelAccess();
+  }
+
+  // get the channel access
+  access_type* get_chanaccess()
+    { return channelAccess; }
+  const access_type *get_chanaccess() const
+    { return channelAccess; }
 
   smoc_port_base( const char* name_ )
     : base_type( name_ ), interface( NULL ) {}
@@ -466,20 +482,15 @@ protected:
       this->report_error( SC_ID_GET_IF_, "port is not bound" );
     return interface;
   }
-
-public:
-  virtual PARAM_TYPE params() const = 0;
-
 };
 
 template <typename T,
-          template <typename> class R,
-          class PARAM_TYPE>
+          template <typename> class R>
 class smoc_port_in_base
-  : public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R>, PARAM_TYPE > {
+  : public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R> > {
 public:
   typedef T            data_type;
-  typedef smoc_port_in_base<data_type,R,PARAM_TYPE>      this_type;
+  typedef smoc_port_in_base<data_type,R>      this_type;
   typedef typename this_type::iface_type    iface_type;
 
   typedef typename iface_type::access_type::return_type return_type;
@@ -491,24 +502,12 @@ public:
 #endif
   template <class E> friend class Expr::Value;
 protected:
-  typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R >, PARAM_TYPE > base_type;
-
-  // FIXME: SystemC 2.2 HACK
-  virtual int interface_count() {return 1;}
+  typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R > > base_type;
 
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
     if (this->child == NULL)
       (*this)->registerPort(this);
-  }
-
-  void finalise(smoc_root_node *node) {
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "smoc_port_in_base::finalise(), name == " << this->name() << std::endl;
-#endif
-    // Preallocate ID
-    //smoc_modes::PGWriter::getId(this);
-    this->channelAccess = (*this)->getChannelAccess();
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -525,7 +524,7 @@ public:
   bool isInput() const { return true; }
 
   bool tokenIsValid(size_t i=0) const
-    { return this->channelAccess->tokenIsValid(i); }
+    { return this->get_chanaccess()->tokenIsValid(i); }
   size_t tokenId(size_t i=0) const
     { return (*this)->inTokenId() + i; }
   size_t availableCount() const
@@ -564,16 +563,14 @@ public:
 template <typename T,                            //data type
           //template <typename, typename> class R, //ring access type
           template <typename> class R, //ring access type
-          class PARAM_TYPE,                      //parameter type
           template <typename> class STORAGE_TYPE = smoc_storage_out
           >
 class smoc_port_out_base
   : public smoc_port_base<smoc_root_port_out, 
-                          smoc_chan_out_if<T,R,STORAGE_TYPE>, 
-                          PARAM_TYPE > {
+                          smoc_chan_out_if<T,R,STORAGE_TYPE> > {
 public:
   typedef T            data_type;
-  typedef smoc_port_out_base<data_type,R, PARAM_TYPE, STORAGE_TYPE>      this_type;
+  typedef smoc_port_out_base<data_type,R, STORAGE_TYPE>      this_type;
   typedef typename this_type::iface_type    iface_type;
   
   template <class E> friend class Expr::CommExec;
@@ -588,21 +585,11 @@ public:
 
 protected:
   typedef smoc_port_base<smoc_root_port_out, 
-                         smoc_chan_out_if<T,R,STORAGE_TYPE>, 
-                         PARAM_TYPE > base_type;
-  // FIXME: SystemC 2.2 HACK
-  virtual int interface_count() {return 1;}
-
+                         smoc_chan_out_if<T,R,STORAGE_TYPE> > base_type;
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
     if (this->child == NULL)
       (*this)->registerPort(this);
-  }
-
-  void finalise(smoc_root_node *node) {
-    // Preallocate ID
-    //smoc_modes::PGWriter::getId(this);
-    this->channelAccess = (*this)->getChannelAccess();
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -654,7 +641,7 @@ public:
 
 template <typename T>
 class smoc_port_in
-  : public smoc_port_in_base<T, smoc_channel_access, void > {
+  : public smoc_port_in_base<T, smoc_channel_access> {
 public:
   typedef T            data_type;
   typedef smoc_port_in<data_type>      this_type;
@@ -662,31 +649,23 @@ public:
   typedef typename this_type::return_type   return_type;
 
 protected:
-  typedef smoc_port_in_base<T, smoc_channel_access, void > base_type;
+  typedef smoc_port_in_base<T, smoc_channel_access> base_type;
   
 public:
   smoc_port_in(): base_type() {}
 
   const return_type operator[](size_t n) const {
-    return (*(this->channelAccess))[n];
+    return (*(this->get_chanaccess()))[n];
   }
 
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token<T>(*this,n); }
-
-public:
-
-  ///dummy function
-  void params() const {
-    assert(false);
-  }
-  
 };
 
 
 template <typename T>
 class smoc_port_out
-  : public smoc_port_out_base<T, smoc_channel_access, void > {
+  : public smoc_port_out_base<T, smoc_channel_access> {
 public:
   typedef T            data_type;
   typedef smoc_port_out<data_type>      this_type;
@@ -694,19 +673,13 @@ public:
   typedef typename this_type::return_type   return_type;
 
 protected:
-  typedef smoc_port_out_base<T, smoc_channel_access, void > base_type;
+  typedef smoc_port_out_base<T, smoc_channel_access> base_type;
   
 public:
   smoc_port_out(): base_type() {}
 
   return_type operator[](size_t n)  {
-    return (*(this->channelAccess))[n];
-  }
-
-public:
-  ///dummy function
-  void params() const {
-    assert(false);
+    return (*(this->get_chanaccess()))[n];
   }
 };
 

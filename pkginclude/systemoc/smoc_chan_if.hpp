@@ -107,8 +107,7 @@ public:
 // forward
 template <
   typename T,
-  template <typename> class R,
-  class PARAM_TYPE>
+  template <typename> class R>
 class smoc_port_in_base;
 
 class smoc_chan_in_base_if {
@@ -116,8 +115,7 @@ class smoc_chan_in_base_if {
 public:
   template <
     typename T,
-    template <typename> class R,
-    class PARAM_TYPE>
+    template <typename> class R>
   friend class smoc_port_in_base;
 protected:
   // constructor
@@ -147,7 +145,6 @@ private:
 template <
   typename T, 
   template <typename> class R, 
-  class PARAM_TYPE, 
   template <typename> class STORAGE_TYPE>
 class smoc_port_out_base;
 
@@ -157,7 +154,6 @@ public:
   template <
     typename T, 
     template <typename> class R, 
-    class PARAM_TYPE, 
     template <typename> class STORAGE_TYPE>
   friend class smoc_port_out_base;
 protected:

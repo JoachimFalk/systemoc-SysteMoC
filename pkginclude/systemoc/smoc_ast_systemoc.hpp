@@ -52,14 +52,12 @@ class smoc_root_port;
 
 template <typename T,
           //template <typename, typename> class R,
-          template <typename> class R,
-          class PARAM_TYPE> 
+          template <typename> class R>
 class smoc_port_in_base;
 
 template <typename T, 
           //template <typename, typename> class R, 
           template <typename> class R, 
-          class PARAM_TYPE, 
           template <typename> class STORAGE_TYPE> 
 class smoc_port_out_base;
 
@@ -150,8 +148,8 @@ class TypePortIdentifier
 , public PortIdentifier {
 public:
   //template <typename T, template <typename, typename> class R, class PARAM_TYPE>
-  template <typename T, template <typename> class R, class PARAM_TYPE>
-  TypePortIdentifier(const smoc_port_in_base<T,R,PARAM_TYPE> &port)
+  template <typename T, template <typename> class R>
+  TypePortIdentifier(const smoc_port_in_base<T,R> &port)
     : TypeIdentifier(Type<T>()),
       PortIdentifier(port) {}
 };
