@@ -1,5 +1,3 @@
-// -*- tab-width:8; intent-tabs-mode:nil; c-basic-offset:2; -*-
-// vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
@@ -34,39 +32,18 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_MCOUNTERSOURCE_HPP
-#define _INCLUDED_MCOUNTERSOURCE_HPP
+#ifndef _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+#define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
 
-#include <systemoc/smoc_port.hpp>
-#include <systemoc/smoc_node_types.hpp>
+#include <cstdlib>
+#ifndef XILINX_EDK_RUNTIME
+#include <iostream>
+#include <fstream>
+#endif
 
-#include "smoc_synth_std_includes.hpp"
+#ifndef SMOC_REGISTER_CPARAM
+# define SMOC_REGISTER_CPARAM(name) do {} while(0)
+#endif
 
-# define IMAGE_WIDTH  8
-# define IMAGE_HEIGHT 8
 
-class MCounterSource: public smoc_actor {
-public:
-  smoc_port_out<int> out;
-private:
-  size_t counter;
-
-  void process() {
-    out[0] = (counter & 63);
-    ++counter;
-  }
- 
-  smoc_firing_state start;
-public:
-  MCounterSource(sc_module_name name, size_t periods)
-    : smoc_actor(name, start), counter(0)
-  {
-    SMOC_REGISTER_CPARAM(periods);
-    start
-      = (out(1) && VAR(counter) < periods * 64) >>
-        CALL(MCounterSource::process)           >> start
-      ;
-  }
-};
-
-#endif // _INCLUDED_MCOUNTERSOURCE_HPP
+#endif // _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP

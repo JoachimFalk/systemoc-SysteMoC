@@ -50,13 +50,18 @@
 
 #ifdef REAL_BLOCK_DATA
 # include "MIdctImageSource.hpp"
-# include "MImageSink.hpp"
 # define DEFAULT_BLOCK_COUNT ((IMAGE_WIDTH)/8*(IMAGE_HEIGHT)/8)
 #else
-# include "IDCTsource.hpp"
-# include "IDCTsink.hpp"
-# define DEFAULT_BLOCK_COUNT 25
+# include "MCounterSource.hpp"
+# define DEFAULT_BLOCK_COUNT 1
 #endif
+
+#ifdef IDCT_NULL_OUTPUT
+# include "MNullSink.hpp"
+#else
+# include "MImageSink.hpp"
+#endif
+
 
 class MTopIdct2D
 : public smoc_graph {
@@ -64,20 +69,23 @@ private:
 #ifdef REAL_BLOCK_DATA
   MIdctImageSource  mSrc;
 #else
-
+  MCounterSource    mSrc;
 #endif
   MIdct2D           mIdct2D;
-#ifdef REAL_BLOCK_DATA
-  MImageSink        mSnk;
-#else
 
+#ifdef IDCT_NULL_OUTPUT
+  MNullSink         mSnk;
+#else
+  MImageSink        mSnk;
 #endif
+
+
 public:
   MTopIdct2D(sc_module_name name, size_t periods)
     : smoc_graph(name),
       mSrc("mSrc", periods),
       mIdct2D("mIdct2D", 128, 0, 255),
-#ifdef REAL_BLOCK_DATA
+#ifndef IDCT_NULL_OUTPUT
       mSnk("mSnk", IMAGE_WIDTH, IMAGE_HEIGHT)
 #else
       mSnk("mSnk")

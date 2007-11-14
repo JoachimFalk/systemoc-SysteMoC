@@ -49,14 +49,15 @@ using namespace std;
 #define IDCT2D_COARSEGRAINED  2
 #define IDCT2D_MONOLITHIC     3
 
-#define REAL_BLOCK_DATA
+//#define REAL_BLOCK_DATA
+//#define IDCT_NULL_OUTPUT
 
 #ifdef REAL_BLOCK_DATA
 // Only significant in case of REAL_BLOCK_DATA
 # define SINK_BINARY_OUTPUT 
 #else
 // Only significant in case of !REAL_BLOCK_DATA
-//# define USE_COUNTER_INPUT
+# define USE_COUNTER_INPUT
 # ifdef EDK_XILINX_RUNTIME
     // No std::fstream in xilinx EDK !!!
 #   define USE_COUNTER_INPUT

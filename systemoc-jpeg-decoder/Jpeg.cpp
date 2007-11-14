@@ -189,6 +189,7 @@ public:
 int sc_main (int argc, char **argv) {
   char *filename = "institut_qcif.jpeg";
   unsigned int width = 176, height = 144, compCount = 3;
+  //unsigned int width = 256, height = 256, compCount = 3;
   
 #ifndef JPEG_SRC
   if (argc < 5) {
