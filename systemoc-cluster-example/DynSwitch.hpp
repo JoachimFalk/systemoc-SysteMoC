@@ -199,12 +199,17 @@ private:
   smoc_firing_state fsm_path2_q2;
   smoc_firing_state fsm_path2_q3;
 
+  smoc_firing_state stuck;
+
 public:
-  DynSwitch(sc_module_name name)
+  DynSwitch(sc_module_name name,
+            unsigned long num_iterations)
     : smoc_actor(name,fsm_start),
       path_selector(0),
       invocation_id(0)
   {
+
+    SMOC_REGISTER_CPARAM(num_iterations);
 
     /* Initial state in order to avoid initial tokens */
     fsm_start = 
@@ -220,14 +225,19 @@ public:
 
     fsm_path1_q3 =
       (in2(1) && out2(1)) >>
-      (VAR(path_selector) <= (unsigned long)0) >>
+      ((VAR(path_selector) <= (unsigned long)0) && (VAR(invocation_id) < num_iterations)) >>
       CALL(DynSwitch::action_t5_path1) >>
       fsm_path1_q0
 
       |(in2(1) && out2(1)) >>
-      (VAR(path_selector) > (unsigned long)0) >>
+      ((VAR(path_selector) > (unsigned long)0) && (VAR(invocation_id) < num_iterations)) >>
       CALL(DynSwitch::action_t5_path1) >>
-      fsm_path2_q0;
+      fsm_path2_q0
+
+      |(in2(1) && out2(1)) >>
+      (VAR(invocation_id) >= num_iterations) >>
+      CALL(DynSwitch::action_t5_path1) >>
+      stuck;
 
     fsm_path1_q0 =
       (in2(1) && out1(2)) >>
@@ -247,14 +257,19 @@ public:
 
     fsm_path2_q3 =
       (in1(2) && out2(1)) >>
-      (VAR(path_selector) <= (unsigned long)0) >>
+      ((VAR(path_selector) <= (unsigned long)0) && (VAR(invocation_id) < num_iterations)) >>
       CALL(DynSwitch::action_t5_path2) >>
       fsm_path1_q0
 
       |(in1(2) && out2(1)) >>
-      (VAR(path_selector) > (unsigned long)0) >>
+      ((VAR(path_selector) > (unsigned long)0) && (VAR(invocation_id) < num_iterations))>>
       CALL(DynSwitch::action_t5_path2) >>
-      fsm_path2_q0;     
+      fsm_path2_q0
+
+      |(in1(2) && out2(1)) >>
+      (VAR(invocation_id) < num_iterations)>>
+      CALL(DynSwitch::action_t5_path2) >>
+      stuck;
 
   }
 

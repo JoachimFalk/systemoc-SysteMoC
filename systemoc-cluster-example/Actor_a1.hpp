@@ -19,10 +19,11 @@ public:
 
 private:
 
+  const unsigned long heat_time;
+
   //waste some CPU memory
   void heat(){
-    for(unsigned int i = 0; i < 5000; i++){
-    }
+    usleep(heat_time);
 
     out1[0] = in1[0];
     out2[0] = in1[0];
@@ -31,9 +32,13 @@ private:
   smoc_firing_state fsm_main;
 
 public:
-  Actor_a1(sc_module_name name)
-    : smoc_actor(name, fsm_main)
+  Actor_a1(sc_module_name name,
+           unsigned long heat_time)
+    : smoc_actor(name, fsm_main),
+      heat_time(heat_time)
   {
+
+    SMOC_REGISTER_CPARAM(heat_time);
 
     fsm_main = 
       (in1(1) && out1(1) && out2(1)) >>

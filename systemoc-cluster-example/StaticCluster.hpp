@@ -61,11 +61,12 @@ private:
 
 public:
   StaticCluster<upsample_factor>( sc_module_name name,
-                                  unsigned int num_dummy_actors)
+                                  unsigned int num_dummy_actors,
+                                  unsigned long heat_time)
     : smoc_graph(name),
-      actor_a1("a1"),
-      actor_a2("a2"),
-      actor_a3("a3"),
+      actor_a1("a1",heat_time),
+      actor_a2("a2",heat_time),
+      actor_a3("a3",heat_time),
       upsample1("upsample1",upsample_factor),
       downsample1("downsample1",upsample_factor),
       upsample2("upsample2",upsample_factor),
@@ -84,7 +85,8 @@ public:
       std::stringstream actor_name;
       actor_name << "forward1_";
       actor_name << i;
-      forward1[i] = new Forward(actor_name.str().c_str());
+      forward1[i] = new Forward(actor_name.str().c_str(),
+                                heat_time);
     }
 
     forward2 = new Forward*[num_dummy_actors];
@@ -92,7 +94,8 @@ public:
       std::stringstream actor_name;
       actor_name << "forward2_";
       actor_name << i;
-      forward2[i] = new Forward(actor_name.str().c_str());
+      forward2[i] = new Forward(actor_name.str().c_str(),
+                                heat_time);
     }
 
     forward3 = new Forward*[num_dummy_actors];
@@ -100,7 +103,8 @@ public:
       std::stringstream actor_name;
       actor_name << "forward3_";
       actor_name << i;
-      forward3[i] = new Forward(actor_name.str().c_str());
+      forward3[i] = new Forward(actor_name.str().c_str(),
+                                heat_time);
     }
 
 

@@ -39,6 +39,8 @@
 #ifndef XILINX_EDK_RUNTIME
 #include <iostream>
 #include <fstream>
+#else
+#include "sleep.h"
 #endif
 
 #ifndef SMOC_REGISTER_CPARAM
