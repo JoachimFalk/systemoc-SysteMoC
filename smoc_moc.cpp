@@ -118,543 +118,460 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 
   { // initialize transition lists
     for ( smoc_node_list::const_iterator iter = nodes.begin();
-    iter != nodes.end();
-      ++iter ) {
+          iter != nodes.end();
+          ++iter ) {
       smoc_root_node &n = **iter;
       if( n.isNonStrict() ){
-  definedInputs[&n]  = countDefinedInports(n);
-  //  definedOutputs[&n] = countDefinedOutports(n);
+        definedInputs[&n]  = countDefinedInports(n);
+        //  definedOutputs[&n] = countDefinedOutports(n);
       
-  smoc_port_list ps  = (*iter)->getPorts();
-  for(smoc_port_list::iterator iter = ps.begin();
-      iter != ps.end(); iter++){
-    sc_interface *iface = (*iter)->get_interface();
-    if( dynamic_cast<class smoc_root_port_out * >(*iter) ) {
+        smoc_port_list ps  = (*iter)->getPorts();
+        for(smoc_port_list::iterator iter = ps.begin();
+            iter != ps.end(); iter++){
+          sc_interface *iface = (*iter)->get_interface();
+          if( dynamic_cast<class smoc_root_port_out * >(*iter) ) {
 
-      smoc_entry_kind* mc_sig = dynamic_cast<
-        class smoc_entry_kind* >(&(*iface));
+            smoc_entry_kind* mc_sig = dynamic_cast<
+              class smoc_entry_kind* >(&(*iface));
 
-      if(NULL != mc_sig){
-        mc_sig->multipleWriteSameValue(true);
-      }
+            if(NULL != mc_sig){
+              mc_sig->multipleWriteSameValue(true);
+            }
 
-      assert( NULL != mc_sig );
-      //      cerr << " (out port) " << iface << endl;;
-    }else if( dynamic_cast<class smoc_root_port_in * >(*iter) ){
-      smoc_outlet_kind* mc_sig =
-        dynamic_cast<class smoc_outlet_kind* >(&(*iface));
+            assert( NULL != mc_sig );
+            //      cerr << " (out port) " << iface << endl;;
+          }else if( dynamic_cast<class smoc_root_port_in * >(*iter) ){
+            smoc_outlet_kind* mc_sig =
+              dynamic_cast<class smoc_outlet_kind* >(&(*iface));
 
-      if(NULL != mc_sig){
-        mc_sig->allowUndefinedRead(true);
-      }
+            if(NULL != mc_sig){
+              mc_sig->allowUndefinedRead(true);
+            }
 
-      assert( NULL != mc_sig );
-      //      cerr << " (in port) " << iface << endl;;
-    }
-  }
+            assert( NULL != mc_sig );
+            //      cerr << " (in port) " << iface << endl;;
+          }
+        }
 
-  smoc_firing_types::resolved_state_ty *rs = n._currentState;
-  for ( transitionlist_ty::iterator titer = rs->tl.begin();
-        titer != rs->tl.end();
-        ++titer ){
-    nonStrict |= *titer;
-  }
+        smoc_firing_types::resolved_state_ty *rs = n._currentState;
+        for ( transitionlist_ty::iterator titer = rs->tl.begin();
+              titer != rs->tl.end();
+              ++titer ){
+          nonStrict |= *titer;
+        }
       }else{
-  smoc_firing_types::resolved_state_ty *rs = n._currentState;
-  for ( transitionlist_ty::iterator titer = rs->tl.begin();
-        titer != rs->tl.end();
-        ++titer ){
-    bottom |= *titer;
-  }
+        smoc_firing_types::resolved_state_ty *rs = n._currentState;
+        for ( transitionlist_ty::iterator titer = rs->tl.begin();
+              titer != rs->tl.end();
+              ++titer ){
+          bottom |= *titer;
+        }
       }
     }
   }
   
   do {
-    /*
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "<smoc_scheduler_top::scheduleSR>" << std::endl;
-#endif
-    while(nonStrict
-    || bottom
-    || nonStrictReleased
-#ifdef SYSTEMOC_ENABLE_VPC
-    || inCommState
-#endif // SYSTEMOC_ENABLE_VPC
-    ){
-    */
     do{
 #ifdef SYSTEMOC_ENABLE_VPC
       DEBUG_CODE(
-     if(inCommState) cerr << " inCommState "  << inCommState.size();
-     else if(inCommState.size()) cerr << " (inCommState) " << inCommState.size();
-     else            cerr << " ------------- " ;
-     )
+        if(inCommState) cerr << " inCommState " << inCommState.size();
+        else if(inCommState.size()) cerr << " (inCommState) "
+                                         << inCommState.size();
+        else            cerr << " ------------- " ;
+      )
 #endif // SYSTEMOC_ENABLE_VPC
-  DEBUG_CODE(
-     if(bottom)     cerr << " bottom " << bottom.size();
-     else if(bottom.size()) cerr << " (bottom) " << bottom.size();
-     else           cerr << " -------- " ;
+      DEBUG_CODE(
+        if(bottom)     cerr << " bottom " << bottom.size();
+        else if(bottom.size()) cerr << " (bottom) " << bottom.size();
+        else           cerr << " -------- " ;
 
-     if(nonStrict)  cerr << " nonStrict " << nonStrict.size();
-     else if(nonStrict.size()) cerr << " (nonStrict) " << nonStrict.size();
-     else           cerr << " ----------- " ;
+        if(nonStrict)  cerr << " nonStrict " << nonStrict.size();
+        else if(nonStrict.size()) cerr << " (nonStrict) " << nonStrict.size();
+        else           cerr << " ----------- " ;
 
-     if(nonStrictReleased) cerr << " nonStrictReleased " << nonStrictReleased.size();
-     else if(nonStrictReleased.size()) cerr << " (nonStrictReleased) " << nonStrictReleased.size();
-     else                  cerr << " ------------------- " ;
+        if(nonStrictReleased) cerr << " nonStrictReleased "
+                                  << nonStrictReleased.size();
+        else if(nonStrictReleased.size()) cerr << " (nonStrictReleased) "
+                                              << nonStrictReleased.size();
+        else                  cerr << " ------------------- " ;
 
-     if(defined)             cerr << "  defined: " << defined.size();
-     else if(defined.size()) cerr << " (defined) " << defined.size();
-     else                    cerr << " ------------ " ;
+        if(defined)             cerr << "  defined: " << defined.size();
+        else if(defined.size()) cerr << " (defined) " << defined.size();
+        else                    cerr << " ------------ " ;
 
-     cerr << endl;
-     )
-      //Select one of the transition lists by priority (inCommState, bottom, nonStrict)
+        cerr << endl;
+      )
+      //Select one of the transition lists by priority
+      // (inCommState, bottom, nonStrict)
 #ifdef SYSTEMOC_ENABLE_VPC
       if( inCommState ){
-  // release all ready actors in commstate: data production hopefully making signals become "more defined"
+        // release all ready actors in commstate:
+        // data production hopefully making signals become "more defined"
 
-  transition_ty           &transition = inCommState.getEventTrigger();
-  Expr::Detail::ActivationStatus      status = transition.getStatus();
-  smoc_root_node                   &n = transition.getActor(); //FIXME(MS): rename n -> node, block..
+        transition_ty           &transition = inCommState.getEventTrigger();
+        Expr::Detail::ActivationStatus      status = transition.getStatus();
+        smoc_root_node                   &n = transition.getActor();
+        //FIXME(MS): rename n -> node, block..
 
-  assert( status.toSymbol() == Expr::Detail::_ENABLED
-    /*|| status.toSymbol() == Expr::Detail::_DISABLED */);
-  //  if( status.toSymbol() == Expr::Detail::_DISABLED ){
-  // do not treat disabled transitions
-  //    inCommState.remove(transition);
-  //  }else{
+        assert( status.toSymbol() == Expr::Detail::_ENABLED
+                /*|| status.toSymbol() == Expr::Detail::_DISABLED */);
 
-    // remove nodes transitions from list
-          for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-                titer != n._currentState->tl.end();
-                ++titer ){
-      defined.remove(*titer);
-      inCommState.remove(*titer);
-    }
-
-    DEBUG_CODE( std::cerr << "<actor type=\"commstate\" name=\"" << n.name() << "\">" << std::endl; )
-          transition.execute(&n._currentState, &n);
-          DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
-    
-    // move transition to next list
-    if(n.isNonStrict()){
-      n._currentState = n.lastState; // reset state (state changes on "tick" only)
-
-      if( 0 == countDefinedInports(n) ){
-        //nothing changed: allow concurrent transitions to be executed
-        for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-        titer != n._currentState->tl.end();
-        ++titer ){
-    if( !nonStrictReleased.contains(*titer) // allready tested and deactivated
-        &&  (*titer != *n.lastTransition) )  // actually tested
-      nonStrict |= *titer;
-        }
-      } else { // some output became defined -> remove all concurent transitions
         // remove nodes transitions from list
         for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-        titer != n._currentState->tl.end();
-        ++titer ){
-    nonStrict.remove(*titer);
-    defined.remove(*titer);
-    //paranoia:
-    nonStrictReleased.remove(*titer);
+              titer != n._currentState->tl.end();
+              ++titer ){
+          defined.remove(*titer);
+          inCommState.remove(*titer);
         }
-      }
-      nonStrictReleased |= *(n.lastTransition); // deactivate transition, until input changes
-      assert( definedInputs.find(&n) != definedInputs.end() ); //if(!...) definedInputs[&n] = countDefinedInports(n);
-    }else{ // all those strict actors can only be executed once per instant
-      for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-      titer != n._currentState->tl.end();
-      ++titer ){
-        defined           |= *titer;
-      }
-    }
-    //  }
+
+        DEBUG_CODE( std::cerr << "<actor type=\"commstate\" name=\""
+                              << n.name() << "\">" << std::endl; )
+        transition.execute(&n._currentState, &n);
+        DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
+    
+        // move transition to next list
+        if(n.isNonStrict()){
+          // reset state (state changes on "tick" only)
+          n._currentState = n.lastState;
+
+          if( 0 == countDefinedInports(n) ){
+            //nothing changed: allow concurrent transitions to be executed
+            for ( transitionlist_ty::iterator titer
+                    = n._currentState->tl.begin();
+                  titer != n._currentState->tl.end();
+                  ++titer ){
+              if( !nonStrictReleased.contains(*titer) // allready tested and deactivated
+                  &&  (*titer != *n.lastTransition) )  // actually tested
+                nonStrict |= *titer;
+            }
+          } else { // some output became defined -> remove all concurent transitions
+            // remove nodes transitions from list
+            for ( transitionlist_ty::iterator titer
+                    = n._currentState->tl.begin();
+                  titer != n._currentState->tl.end();
+                  ++titer ){
+              nonStrict.remove(*titer);
+              defined.remove(*titer);
+              //paranoia:
+              nonStrictReleased.remove(*titer);
+            }
+          }
+          nonStrictReleased |= *(n.lastTransition); // deactivate transition, until input changes
+          assert( definedInputs.find(&n) != definedInputs.end() ); //if(!...) definedInputs[&n] = countDefinedInports(n);
+        }else{ // all those strict actors can only be executed once per instant
+          for ( transitionlist_ty::iterator titer
+                  = n._currentState->tl.begin();
+                titer != n._currentState->tl.end();
+                ++titer ){
+            defined           |= *titer;
+          }
+        }
 
       }else  // yet another spooky ifdef: "else if"
 #endif // SYSTEMOC_ENABLE_VPC
-      if( bottom ){
-  // bottom contains strict blocks, releasing them hopefully causes data production
+        if( bottom ){
+          // bottom contains strict blocks, releasing them hopefully causes data production
 
-  transition_ty           &transition = bottom.getEventTrigger();
-  Expr::Detail::ActivationStatus      status = transition.getStatus();
-  smoc_root_node                   &n = transition.getActor(); //FIXME(MS): rename n -> node, block..
-  assert( (status.toSymbol() == Expr::Detail::_ENABLED)
-    || (status.toSymbol() == Expr::Detail::_DISABLED) );
-  if( status.toSymbol() == Expr::Detail::_DISABLED ){ // do not treat disabled transitions
-    bottom.remove(transition);
-    defined |= transition;
-  }else{
+          transition_ty              &transition = bottom.getEventTrigger();
+          Expr::Detail::ActivationStatus  status = transition.getStatus();
+          smoc_root_node                      &n = transition.getActor();
+          //FIXME(MS): rename n -> node, block..
+          assert( (status.toSymbol() == Expr::Detail::_ENABLED)
+                  || (status.toSymbol() == Expr::Detail::_DISABLED) );
+          if( status.toSymbol() == Expr::Detail::_DISABLED ){
+            // do not treat disabled transitions
+            bottom.remove(transition);
+            defined |= transition;
+          }else{
 
-    assert( !n.isNonStrict() );
-    assert( !n.inCommState() );
-    // remove nodes transitions from list
-    for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-    titer != n._currentState->tl.end();
-    ++titer ){
-      defined.remove(*titer);
-      bottom.remove(*titer);
-    }
-    DEBUG_CODE( std::cerr << "<actor type=\"bottom\" name=\"" << n.name() << "\">" << std::endl; )
-    transition.execute(&n._currentState, &n);
-    DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
+            assert( !n.isNonStrict() );
+            assert( !n.inCommState() );
+            // remove nodes transitions from list
+            for ( transitionlist_ty::iterator titer
+                    = n._currentState->tl.begin();
+                  titer != n._currentState->tl.end();
+                  ++titer ){
+              defined.remove(*titer);
+              bottom.remove(*titer);
+            }
+            DEBUG_CODE( std::cerr << "<actor type=\"bottom\" name=\""
+                                  << n.name() << "\">" << std::endl; )
+            transition.execute(&n._currentState, &n);
+            DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
 
-      // move transition to next list
+            // move transition to next list
 #ifdef SYSTEMOC_ENABLE_VPC
-    assert(n.inCommState());
-    n.lastTransition=&transition;
-    for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-    titer != n._currentState->tl.end();
-    ++titer ){
-      inCommState |= *titer; // treat communication delay
-    }
+            assert(n.inCommState());
+            n.lastTransition=&transition;
+            for ( transitionlist_ty::iterator titer
+                    = n._currentState->tl.begin();
+                  titer != n._currentState->tl.end();
+                  ++titer ){
+              inCommState |= *titer; // treat communication delay
+            }
 #else
-    assert( !n.isNonStrict() );
-    assert( !n.inCommState() );
-    for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-    titer != n._currentState->tl.end();
-    ++titer ){
-      defined           |= *titer; 
-    }
+            assert( !n.isNonStrict() );
+            assert( !n.inCommState() );
+            for ( transitionlist_ty::iterator titer
+                    = n._currentState->tl.begin();
+                  titer != n._currentState->tl.end();
+                  ++titer ){
+              defined           |= *titer; 
+            }
 #endif  // SYSTEMOC_ENABLE_VPC
-  }
+          }
   
-      }else if( nonStrict ){
+        }else if( nonStrict ){
   // repeated releasing non strict blocks until no more signals became "more defined"
   // to allow caotic iteration all released blocks are moved into another list "nonStrictReleased"
   // if their inputs became "more defined" they will be moved back to list "nonStrict"
 
-  transition_ty           &transition = nonStrict.getEventTrigger();
-  Expr::Detail::ActivationStatus      status = transition.getStatus();
-  smoc_root_node                   &n = transition.getActor(); //FIXME(MS): rename n -> node, block..
+          transition_ty             &transition = nonStrict.getEventTrigger();
+          Expr::Detail::ActivationStatus status = transition.getStatus();
+          smoc_root_node                     &n = transition.getActor();
+          //FIXME(MS): rename n -> node, block..
 
-  assert( status.toSymbol() == Expr::Detail::_ENABLED
-    || status.toSymbol() == Expr::Detail::_DISABLED );
-  // do not execute disabled transitions
-  if( status.toSymbol() == Expr::Detail::_DISABLED ){
-    nonStrict.remove(transition);
-    nonStrictReleased |= transition;
-  }else{
-    // remove transitions from list
-    for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-    titer != n._currentState->tl.end();
-    ++titer ){
-      defined.remove(*titer);
-      nonStrict.remove(*titer);
-    }
+          assert( status.toSymbol() == Expr::Detail::_ENABLED
+                  || status.toSymbol() == Expr::Detail::_DISABLED );
+          // do not execute disabled transitions
+          if( status.toSymbol() == Expr::Detail::_DISABLED ){
+            nonStrict.remove(transition);
+            nonStrictReleased |= transition;
+          }else{
+            // remove transitions from list
+            for ( transitionlist_ty::iterator titer
+                    = n._currentState->tl.begin();
+                  titer != n._currentState->tl.end();
+                  ++titer ){
+              defined.remove(*titer);
+              nonStrict.remove(*titer);
+            }
     
-    // test transition by execution
-    n.lastState      = n._currentState;
+            // test transition by execution
+            n.lastState      = n._currentState;
 #ifdef SYSTEMOC_ENABLE_VPC
-    n.lastTransition = &transition;
+            n.lastTransition = &transition;
 #endif
-    DEBUG_CODE( std::cerr << "<actor type=\"non strict\" name=\"" << n.name() << "\">" << std::endl; )
-          transition.execute(&n._currentState, &n, smoc_firing_types::transition_ty::GO);
-          DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
+            DEBUG_CODE( std::cerr << "<actor type=\"non strict\" name=\""
+                                  << n.name() << "\">" << std::endl; )
+            transition.execute(&n._currentState, &n, smoc_firing_types::transition_ty::GO);
+            DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
 
     // move transition to next list
 #ifdef SYSTEMOC_ENABLE_VPC
-    assert(n.inCommState());
-    for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-    titer != n._currentState->tl.end();
-    ++titer ){
-      inCommState |= *titer; // treat communication delay
-    }
+            assert(n.inCommState());
+            for ( transitionlist_ty::iterator titer
+                    = n._currentState->tl.begin();
+                  titer != n._currentState->tl.end();
+                  ++titer ){
+              inCommState |= *titer; // treat communication delay
+            }
 #else
-    assert( n.isNonStrict() );
-    n._currentState = n.lastState; // reset state (state changes on "tick" only)
+            assert( n.isNonStrict() );
+            n._currentState = n.lastState; // reset state (state changes on "tick" only)
     
-    if( 0 == countDefinedInports(n) ){
-      //nothing changed: allow concurrent transitions to be executed
-      for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-      titer != n._currentState->tl.end();
-      ++titer ){
-        if( !nonStrictReleased.contains(*titer) ) // allready tested and deactivated
-    nonStrict |= *titer;
-      }
-    } else { // some output became defined -> remove all concurent transitions
-      // remove nodes transitions from list
-      for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-      titer != n._currentState->tl.end();
-      ++titer ){
-        nonStrict.remove(*titer);
-        defined.remove(*titer);
-        //paranoia:
-        nonStrictReleased.remove(*titer);
-      }
-    }
+            if( 0 == countDefinedInports(n) ){
+              //nothing changed: allow concurrent transitions to be executed
+              for ( transitionlist_ty::iterator titer
+                      = n._currentState->tl.begin();
+                    titer != n._currentState->tl.end();
+                    ++titer ){
+                if( !nonStrictReleased.contains(*titer) ) // allready tested and deactivated
+                  nonStrict |= *titer;
+              }
+            } else {
+              // some output became defined -> remove all concurent transitions
+              // remove nodes transitions from list
+              for ( transitionlist_ty::iterator titer
+                      = n._currentState->tl.begin();
+                    titer != n._currentState->tl.end();
+                    ++titer ){
+                nonStrict.remove(*titer);
+                defined.remove(*titer);
+                //paranoia:
+                nonStrictReleased.remove(*titer);
+              }
+            }
 
-    nonStrictReleased |= transition; // deactivate transition, until input changes
-    assert( definedInputs.find(&n) != definedInputs.end() ); // definedInputs[n] = countDefinedInports(n);
+            // deactivate transition, until input changes
+            nonStrictReleased |= transition;
+            // definedInputs[n] = countDefinedInports(n);
+            assert( definedInputs.find(&n) != definedInputs.end() );
 #endif  // SYSTEMOC_ENABLE_VPC
 
-  }
-
-      }else if(nonStrictReleased/* && inCommState.empty() && nonStrict.empty()*/){
+          }
+          
+        }else if(nonStrictReleased/* && inCommState.empty() && nonStrict.empty()*/){
   // all commstates treated and no other block is ready
 
   // lazy iterating all ready blocks in nonStrictReleased
   // if any has "more defined" inputs than reexecute it by moving into nonStrict list
-  smoc_transition_ready_list temp;
-  nonStrictStable = true; // also stable if nonStrictReleased.empty()
-  while(nonStrictReleased){
-    // identify ready blocks
-    transition_ty           &transition = nonStrictReleased.getEventTrigger();
-    smoc_root_node                   &n = transition.getActor(); //FIXME(MS): rename n -> node, block..
-    assert(n.isNonStrict());
-    if( Expr::Detail::_ENABLED == transition.getStatus().toSymbol()){
+          smoc_transition_ready_list temp;
+          nonStrictStable = true; // also stable if nonStrictReleased.empty()
+          while(nonStrictReleased){
+            // identify ready blocks
+            transition_ty    &transition = nonStrictReleased.getEventTrigger();
+            smoc_root_node            &n = transition.getActor();
+            //FIXME(MS): rename n -> node, block..
+            assert(n.isNonStrict());
+            if( Expr::Detail::_ENABLED == transition.getStatus().toSymbol()){
     
-      size_t actualDefined = countDefinedInports(n);
+              size_t actualDefined = countDefinedInports(n);
 
-      //compare number of defined input signals with previous run
-      assert( definedInputs.find(&n) != definedInputs.end() );
-      if(actualDefined > definedInputs[&n]){ // "more defined" inputs
-        definedInputs[&n] = actualDefined;
-        // again evaluate non strict blocks
-        nonStrict |=  transition;
-        nonStrictStable = false;
-      }else{
-        temp      |=  transition;
-      }
-    }else{
-      assert( Expr::Detail::_DISABLED == transition.getStatus().toSymbol());
-      temp      |=  transition;
-    }
-    nonStrictReleased.remove(transition);
-  }
+              //compare number of defined input signals with previous run
+              assert( definedInputs.find(&n) != definedInputs.end() );
+              if(actualDefined > definedInputs[&n]){ // "more defined" inputs
+                definedInputs[&n] = actualDefined;
+                // again evaluate non strict blocks
+                nonStrict |=  transition;
+                nonStrictStable = false;
+              }else{
+                temp      |=  transition;
+              }
+            }else{
+              assert( Expr::Detail::_DISABLED
+                      == transition.getStatus().toSymbol());
+              temp      |=  transition;
+            }
+            nonStrictReleased.remove(transition);
+          }
 
-  //redo temporary modifications from lazy iteration
-  while(temp){
-    transition_ty           &transition = temp.getEventTrigger();
-    nonStrictReleased |= transition;
-    temp.remove(transition);
-  }
-  assert(temp.empty());
-      
+          //redo temporary modifications from lazy iteration
+          while(temp){
+            transition_ty           &transition = temp.getEventTrigger();
+            nonStrictReleased |= transition;
+            temp.remove(transition);
+          }
+          assert(temp.empty());
 
-  // test if fixpoint is reached
+          // test if fixpoint is reached
 #ifdef SYSTEMOC_ENABLE_VPC
-  if( nonStrictStable && inCommState.empty() ){
-    //paranoia:
-    assert(inCommState.empty());
+          if( nonStrictStable && inCommState.empty() ){
+            //paranoia:
+            assert(inCommState.empty());
 #else
-  if( nonStrictStable ){
+          if( nonStrictStable ){
 #endif
-    assert(!bottom);
-    assert(nonStrict.empty());
+            assert(!bottom);
+            assert(nonStrict.empty());
 
-    //cerr << "FIXED POINT" << endl;
-    //fixpoint reached
+            //cerr << "FIXED POINT" << endl;
+            //fixpoint reached
 
-    //tick all ns transitions
-    while(nonStrictReleased){
-      // identify ready blocks
-      transition_ty           &transition = nonStrictReleased.getEventTrigger();
-      smoc_root_node                   &n = transition.getActor(); //FIXME(MS): rename n -> node, block..
-      assert(n.isNonStrict());
-      if( Expr::Detail::_ENABLED == transition.getStatus().toSymbol()){
+            //tick all ns transitions
+            while(nonStrictReleased){
+              // identify ready blocks
+              transition_ty &transition
+                = nonStrictReleased.getEventTrigger();
+              smoc_root_node         &n = transition.getActor();
+              //FIXME(MS): rename n -> node, block..
+              assert(n.isNonStrict());
+              if( Expr::Detail::_ENABLED
+                  == transition.getStatus().toSymbol()){
     
-        size_t actualDefined  = countDefinedInports(n);
-        actualDefined        += countDefinedOutports(n);
-        if(actualDefined > 0){ // some outputs or inputs are defined
+                size_t actualDefined  = countDefinedInports(n);
+                actualDefined        += countDefinedOutports(n);
+                if(actualDefined > 0){ // some outputs or inputs are defined
 
-    //FIXME(MS): assume not to call compute (no commState)
-    transition.execute(&n._currentState, &n, smoc_firing_types::transition_ty::TICK);
-// #ifdef SYSTEMOC_ENABLE_VPC
-//     assert( n.inCommState() );
-//     smoc_transition_ready_list comm;
-  
-//     for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-//           titer != n._currentState->tl.end();
-//           ++titer ){
-//       comm |= *titer;
-//     }
-//     assert(comm); //TICK does not call compute
-//     transition_ty           &t = nonStrictReleased.getEventTrigger();
-//     t.execute(&n._currentState, &n, smoc_firing_types::transition_ty::TICK);
-// #endif 
-    for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-          titer != n._currentState->tl.end();
-          ++titer ){
-      nonStrict |= *titer;
-    }
-        }else{
-    nonStrict |= transition;
-        }
-      }else{
-        assert( Expr::Detail::_DISABLED == transition.getStatus().toSymbol());
-        nonStrict |= transition;
-      }
-      nonStrictReleased.remove(transition);
-    }
-    assert(nonStrictReleased.empty());
+                  //FIXME(MS): assume not to call compute (no commState)
+                  transition.execute(&n._currentState,
+                                     &n,
+                                     smoc_firing_types::transition_ty::TICK);
+                  for ( transitionlist_ty::iterator titer
+                          = n._currentState->tl.begin();
+                        titer != n._currentState->tl.end();
+                        ++titer ){
+                    nonStrict |= *titer;
+                  }
+                }else{
+                  nonStrict |= transition;
+                }
+              }else{
+                assert( Expr::Detail::_DISABLED
+                        == transition.getStatus().toSymbol());
+                nonStrict |= transition;
+              }
+              nonStrictReleased.remove(transition);
+            }
+            assert(nonStrictReleased.empty());
 
-    //tick all signals
-    for ( smoc_chan_list::const_iterator iter = cs.begin();
-    iter != cs.end();
-    ++iter ){
-      // "tick()" each block
-      smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
-        class smoc_multicast_sr_signal_kind* >((*iter));
+            //tick all signals
+            for ( smoc_chan_list::const_iterator iter = cs.begin();
+                  iter != cs.end();
+                  ++iter ){
+              // "tick()" each block
+              smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
+                class smoc_multicast_sr_signal_kind* >((*iter));
 
-      if(NULL != mc_sig){
-        mc_sig->tick();
-      }
+              if(NULL != mc_sig){
+                mc_sig->tick();
+              }
 
-      assert( NULL != mc_sig );
-    }
+              assert( NULL != mc_sig );
+            }
 
-    //??move strict transitions back to bottom??
-    bottom |= defined;
-    defined.clear();
-  }
+            //??move strict transitions back to bottom??
+            bottom |= defined;
+            defined.clear();
+          }
 
-      }else if(
+        }else if(
 #ifdef SYSTEMOC_ENABLE_VPC
-                inCommState.empty() &&
+                 inCommState.empty() &&
 #endif // SYSTEMOC_ENABLE_VPC
-                nonStrictReleased.empty() &&
-                nonStrict.empty() &&
-                !bottom ){
+                 nonStrictReleased.empty() &&
+                 nonStrict.empty() &&
+                 !bottom ){
         // another way reaching the fixed point is:
         // having no non strict blocks, no commstate blocks,
         // and bottom may not be ready
         // that means only defined list is not empty
 
         //move strict transitions back to bottom
-        bottom |= defined;
-        defined.clear();
-        //tick all signals
-        for ( smoc_chan_list::const_iterator iter = cs.begin();
-              iter != cs.end();
-              ++iter ){
-          // "tick()" each block
-          smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
-            class smoc_multicast_sr_signal_kind* >((*iter));
+          bottom |= defined;
+          defined.clear();
+          //tick all signals
+          for ( smoc_chan_list::const_iterator iter = cs.begin();
+                iter != cs.end();
+                ++iter ){
+            // "tick()" each block
+            smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
+              class smoc_multicast_sr_signal_kind* >((*iter));
           
-          if(NULL != mc_sig){
-            mc_sig->tick();
+            if(NULL != mc_sig){
+              mc_sig->tick();
+            }
+          
+            assert( NULL != mc_sig );
           }
-          
-          assert( NULL != mc_sig );
-        }
   
-      }else{
+        }else{
 #ifdef SYSTEMOC_ENABLE_VPC
-  assert(inCommState.empty());
+          assert(inCommState.empty());
 #endif
-  assert(nonStrict.empty());
-  assert(!bottom);
-  assert(nonStrictStable);
-  assert(!nonStrictReleased.empty());
-  assert(0); 
-  //wait(...);
-      }
+          assert(nonStrict.empty());
+          assert(!bottom);
+          assert(nonStrictStable);
+          assert(!nonStrictReleased.empty());
+          assert(0); 
+          //wait(...);
+        }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-      if( !bottom && !inCommState && nonStrictStable && !inCommState.empty() ){
+        if( !bottom && !inCommState && nonStrictStable && !inCommState.empty() ){
 #else
-      if( !bottom && nonStrictStable ){
+        if( !bottom && nonStrictStable ){
 #endif
-  cerr << "WAIT" << endl;
-  smoc_transition_ready_list all;
-  all |= bottom;
-  all |= defined;
-  all |= nonStrict;
-  smoc_wait(all);
-      }
+          cerr << "WAIT" << endl;
+          smoc_transition_ready_list all;
+          all |= bottom;
+          all |= defined;
+          all |= nonStrict;
+          smoc_wait(all);
+        }
   
-    }while(1);
+      }while(1);
     assert(0);
-    /*    //////////////======================================================================================
-#ifdef SYSTEMOC_ENABLE_VPC
-    while (nonStrict || bottom || inCommState) {
-      smoc_transition_ready_list  &fromList = (inCommState)?inCommState:((bottom)?bottom:nonStrict); //select by priority
-      //      transition_ty           &transition =
-      //    (inCommState)?inCommState.getEventTrigger():((bottom)?bottom.getEventTrigger():nonStrict.getEventTrigger());
-#else
-    while (nonStrict || bottom) {
-      smoc_transition_ready_list  &fromList = (bottom)?bottom:nonStrict; //select by priority
-      //      transition_ty           &transition = (bottom)?bottom.getEventTrigger():nonStrict.getEventTrigger();
-#endif // SYSTEMOC_ENABLE_VPC
-      transition_ty                  &transition = fromList.getEventTrigger();
-      Expr::Detail::ActivationStatus  status     = transition.getStatus();
-      std::cerr << "<smoc_scheduler_top::scheduleSR>" << std::endl;
-      if(bottom) cerr << "=============== bottom ===================" << endl;      
-      switch (status.toSymbol()) {
-        case Expr::Detail::_DISABLED: {
-          smoc_root_node &n = transition.getActor();
-    cerr << ">>>> >>>> remove: " <<  n.name()  << endl;
-          fromList.remove(transition);
-          break;
-        }
-        case Expr::Detail::_ENABLED: {                                                
-          smoc_root_node &n = transition.getActor();
-#ifdef SYSTEMOC_DEBUG
-          std::cerr << "<actor name=\"" << n.name() << "\">" << std::endl;
-#endif
-          for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-                titer != n._currentState->tl.end();
-                ++titer ){
-      fromList.remove(*titer);
-    }
-    if(n.isNonStrict()){
-      std::cerr << "<nonstrict name=\"" << n.name() << "\"\\>" << std::endl;
-      //enable multiple writes (sr_signal will check that nothing changes)
-      smoc_port_list ps  = n.getPorts();
-      for(smoc_port_list::iterator iter = ps.begin();
-    iter != ps.end(); iter++){
-        sc_interface *iface = (*iter)->get_interface();
-        if( dynamic_cast<class smoc_root_port_out * >(*iter)) {
-    smoc_sr_signal_kind* sig = dynamic_cast<class smoc_sr_signal_kind* >(&(*iface));
-    assert(NULL != sig);
-    if(sig) sig->multipleWriteSameValue(true); //SYSTEMOC_ENABLE_VPC
-    cerr << " (out port) " << iface << endl;;
-        }
-      }
-    }else{
-      std::cerr << "<strict name=\"" << n.name() << "\"\\>" << std::endl;
-   
-          transition.execute(&n._currentState, &n);
-    fromList.remove(transition);
-    if(n.isNonStrict()){//FIXME(MS): not only test actors, but test each transition if possible
-      nonStrict   |= transition; 
-    }else{
-      for ( transitionlist_ty::iterator titer = n._currentState->tl.begin();
-      titer != n._currentState->tl.end();
-      ++titer ){
-#ifdef SYSTEMOC_ENABLE_VPC
-        if(n.inCommState()){
-    inCommState |= *titer; // still in communication delay state
-        }else
-#endif  // SYSTEMOC_ENABLE_VPC
-    {
-      // all those strict actors can only be executed once per instant
-      defined     |= *titer; // add to defined list 
-    }
-      }
-    }
-#ifdef SYSTEMOC_DEBUG
-          std::cerr << "</actor>" << std::endl;
-#endif
-          break;
-        }
-        default: {
-          assert(status == Expr::Detail::_ENABLED ||
-                 status == Expr::Detail::_DISABLED   );
-        }
-      }
-      {
-  smoc_transition_ready_list instant = bottom | nonStrict;
-#ifdef SYSTEMOC_ENABLE_VPC
-  instant |= inCommState;
-#endif  // SYSTEMOC_ENABLE_VPC
-  if(instant) smoc_wait(instant); // if no more change instant break loop
-      }
-    }
-*/
       
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "</smoc_scheduler_top::scheduleSR>" << std::endl;
