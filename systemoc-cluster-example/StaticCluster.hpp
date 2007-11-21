@@ -25,6 +25,8 @@
 #include "Actor_a3.hpp"
 #include "Forward.hpp"
 
+#define CLUSTERED_FIFO_SIZES
+
 
 template <int upsample_factor>
 class StaticCluster 
@@ -126,13 +128,29 @@ public:
     
     /* Connection of A2 with I1 via several dummy actors */
     upsample1.in1(in1);
+#ifndef CLUSTERED_FIFO_SIZES
     connectNodePorts<upsample_factor>(upsample1.out1,
                                       (forward1[0])->in1);
-    for(unsigned int i = 0; i < num_dummy_actors-1; i++)
+#else
+    connectNodePorts<2*upsample_factor>(upsample1.out1,
+                                        (forward1[0])->in1);
+#endif
+    for(unsigned int i = 0; i < num_dummy_actors-1; i++){
+#ifndef CLUSTERED_FIFO_SIZES
       connectNodePorts<1>((forward1[i])->out1,
                           (forward1[i+1])->in1);
+#else
+      connectNodePorts<2*upsample_factor>((forward1[i])->out1,
+                                          (forward1[i+1])->in1);
+#endif
+    }
+#ifndef CLUSTERED_FIFO_SIZES
     connectNodePorts<upsample_factor>((forward1[num_dummy_actors-1])->out1,
                                       downsample1.in1);
+#else
+    connectNodePorts<2*upsample_factor>((forward1[num_dummy_actors-1])->out1,
+                                        downsample1.in1);
+#endif
     connectNodePorts<2>(downsample1.out1,
                         actor_a2.in1);
 
@@ -140,13 +158,29 @@ public:
     /* Connection of A2 with O1 via several dummy actors */
     connectNodePorts<2>(actor_a2.out1,
                         upsample2.in1);
+#ifndef CLUSTERED_FIFO_SIZES
     connectNodePorts<upsample_factor>(upsample2.out1,
                                       (forward2[0])->in1);
-    for(unsigned int i = 0; i < num_dummy_actors-1; i++)
+#else
+    connectNodePorts<2*upsample_factor>(upsample2.out1,
+                                        (forward2[0])->in1);
+#endif
+    for(unsigned int i = 0; i < num_dummy_actors-1; i++){
+#ifndef CLUSTERED_FIFO_SIZES
       connectNodePorts<1>((forward2[i])->out1,
                           (forward2[i+1])->in1);
+#else
+      connectNodePorts<2*upsample_factor>((forward2[i])->out1,
+                                          (forward2[i+1])->in1);
+#endif
+    }
+#ifndef CLUSTERED_FIFO_SIZES
     connectNodePorts<upsample_factor>((forward2[num_dummy_actors-1])->out1,
                                       downsample2.in1);
+#else
+    connectNodePorts<2*upsample_factor>((forward2[num_dummy_actors-1])->out1,
+                                      downsample2.in1);
+#endif
     downsample2.out1(out1);
 
     
@@ -155,9 +189,15 @@ public:
                         upsample3.in1);
     connectNodePorts<upsample_factor>(upsample3.out1,
                                       (forward3[0])->in1);
-    for(unsigned int i = 0; i < num_dummy_actors-1; i++)
+    for(unsigned int i = 0; i < num_dummy_actors-1; i++){
+#ifndef CLUSTERED_FIFO_SIZES
       connectNodePorts<1>((forward3[i])->out1,
                           (forward3[i+1])->in1);
+#else
+      connectNodePorts<upsample_factor>((forward3[i])->out1,
+                                        (forward3[i+1])->in1);
+#endif
+    }
     connectNodePorts<upsample_factor>((forward3[num_dummy_actors-1])->out1,
                                       downsample3.in1);
     connectNodePorts<1>(downsample3.out1,actor_a3.in1);

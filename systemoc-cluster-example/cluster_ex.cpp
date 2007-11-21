@@ -25,8 +25,8 @@ private:
 public:
   m_top<upsample_factor>(sc_module_name name)
     : smoc_graph(name),
-      static_cluster("static_cluster",10,10),
-      dyn_switch("dyn_switch",10)
+      static_cluster("static_cluster",5,10),
+      dyn_switch("dyn_switch",1000)
   {
     
     connectNodePorts<2>(dyn_switch.out1,static_cluster.in1);
