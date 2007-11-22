@@ -62,8 +62,10 @@ public:
     : token_dimensions(token_dimensions),
       src_firing_blocks(src_firing_blocks),
       src_num_firing_levels(src_firing_blocks.size()),
+      src_num_eff_token_firing_levels(1),
       snk_firing_blocks(snk_firing_blocks),
       snk_num_firing_levels(snk_firing_blocks.size()),
+      snk_window_firing_blocks(c),
       p(this->src_firing_blocks[0]),
       v(u0),u0(u0),
       c(c),
@@ -86,9 +88,11 @@ public:
 		       const svector_type& bt)
     : token_dimensions(token_dimensions),
       src_firing_blocks(src_firing_blocks),
-      src_num_firing_levels(src_firing_blocks.size()),      
+      src_num_firing_levels(src_firing_blocks.size()),
+      src_num_eff_token_firing_levels(1),
       snk_firing_blocks(u2vector_type(snk_firing_block)),
       snk_num_firing_levels(snk_firing_blocks.size()),
+      snk_window_firing_blocks(c),
       p(this->src_firing_blocks[0]),
       v(u0),u0(u0),
       c(c),
@@ -101,6 +105,45 @@ public:
   }
 
 public:
+  
+  /* Transformations on the firing blocks */
+  /// This function checks, whether there exists a firing block size
+  /// being the multiple of block_size.
+  /// If not, the zero is returned.
+  /// If yes, it returns the quotient of this firing block size
+  /// and block_size.
+  udata_type get_scm_src_firing_block(udata_type block_size,
+                                      unsigned token_dimension) const;
+
+  /// Same for the sink. However, as the windows might overlap,
+  /// we assume a fixed window pixel. Furthermore, we take the window
+  /// propagation into account. In other words, if the sink fires ten
+  /// times for instance, but the window moves by two, the assumed
+  /// firing block size is twenty.
+  udata_type get_scm_snk_firing_block(udata_type block_size,
+                                      unsigned token_dimension) const;
+
+
+  /// This function inserts a firing level with the given block size
+  /// for token_dimension. Note, that this function does NOT check,
+  /// whether this leads to incomplete blocks
+  void insert_src_firing_level(udata_type block_size,
+                               unsigned token_dimension);
+
+  /// Same for sink
+  /// Similar to get_scm_snk_firing_block, we assume that the
+  /// number of firings is given by block_size / delta_c
+  /// Currently we require, that block_size % delta_c == 0
+  ///
+  /// Returns true if success, false if it fails.
+  /// The latter one occurs, if block size does not exist
+  /// because not all pixels are read.
+  bool insert_snk_firing_level(udata_type block_size,
+                               unsigned token_dimension);
+
+public:
+
+  /* Get information about WSDF edge */
 
   uvector_type snk_iteration_max() const;
   uvector_type src_iteration_max() const;
@@ -136,21 +179,32 @@ public:
 
 
   ///Print edge parameters
-  void print_edge_parameters(std::ostream &os) const;                                                                                     
+  void print_edge_parameters(std::ostream &os) const;
+
 
 public:
 
   /* WSDF edge parameters */
   const unsigned token_dimensions;
 
+
 protected:
 
   /// Actor invocation order (firing blocks)
-  const u2vector_type src_firing_blocks;
-  const unsigned src_num_firing_levels;
+  u2vector_type src_firing_blocks;
+  unsigned src_num_firing_levels;
+  /// Number of firing blocks describing effective token.
+  /// In general, this value amounts one. However, firing block
+  /// transformations can lead to a different value.
+  unsigned src_num_eff_token_firing_levels;
         
-  const u2vector_type snk_firing_blocks;
-  const unsigned snk_num_firing_levels;
+  u2vector_type snk_firing_blocks;
+  unsigned snk_num_firing_levels;
+  
+  /// The following vector describes the firing blocks
+  /// in the inner of a sliding window.
+  u2vector_type snk_window_firing_blocks;
+
 
   /* Source */
   /// Size of effective token
@@ -200,7 +254,8 @@ private:
   /// an iteration level
   /// The smallest firing block has the smallest firing level
   bool snk_has_iteration_level(unsigned firing_level, 
-			       unsigned token_dimension) const;
+			       unsigned token_dimension,
+                               u2vector_type snk_firing_blocks) const;
   bool src_has_iteration_level(unsigned firing_level, 
 			       unsigned token_dimension) const;
         
@@ -235,6 +290,9 @@ private:
 				    const uvector_type& snk_vtu_iteration_level
 				    ) const;
   unsigned calc_src_iteration_levels() const;
+  /// Calculates the number of iteration levels required to describe the 
+  /// sliding window
+  unsigned calc_window_iteration_levels() const;
 
 
   /// Calculates the maximum for each iteration level
@@ -255,7 +313,8 @@ private:
 						    ) const;
 
   /// Inserts the data element mapping for the snk window
-  void insert_snk_window_mapping(umatrix_type& data_element_mapping_matrix) const;
+  void insert_snk_window_mapping(umatrix_type& data_element_mapping_matrix,
+                                 const uvector_type& snk_iter_max) const;
 
         
   /// This function returns the condition matrix for the lower extended
