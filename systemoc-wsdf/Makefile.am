@@ -35,7 +35,7 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
 LIBS= @LIBS@ -lsystemoc
 
-noinst_PROGRAMS= simulation-wsdf simulation-wsdf-no-border simulation-fifo wsdf-addr-analysis
+noinst_PROGRAMS= simulation-wsdf simulation-wsdf-no-border simulation-fifo wsdf-addr-analysis sim-wsdf-edge-test
 
 simulation_wsdf_SOURCES= design-wsdf.cpp
 simulation_wsdf_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
@@ -53,6 +53,9 @@ snk2addr_table_ref_point.cpp \
 snk2addr_table_win_iter.cpp \
 addr_analysis.cpp
 wsdf_addr_analysis_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+sim_wsdf_edge_test_SOURCES = wsdf_edge_test.cpp
+sim_wsdf_edge_test_DEPENDENCIES  = @SYSTEMOC_DEPENDENCIES@
 
 all: ref_data.dat
 
