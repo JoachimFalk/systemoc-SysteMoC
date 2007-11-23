@@ -141,6 +141,20 @@ public:
   bool insert_snk_firing_level(udata_type block_size,
                                unsigned token_dimension);
 
+  
+  
+  /// This function tries to transfer the sink firing block sizes
+  /// to the source.
+  void firing_levels_snk2src();
+  
+  /// Same the other way round
+  void firing_levels_src2snk();
+
+private:
+  udata_type get_scm_firing_block(u2vector_type firing_blocks,
+                                  udata_type block_size,
+                                  unsigned token_dimension) const;
+
 public:
 
   /* Get information about WSDF edge */
@@ -208,7 +222,7 @@ protected:
 
   /* Source */
   /// Size of effective token
-  const uvector_type& p;  
+  const uvector_type p;  
 
   /// Size of virtual token
   const uvector_type v;

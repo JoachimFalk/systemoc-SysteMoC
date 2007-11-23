@@ -2,6 +2,7 @@
 // vim: set sw=2 ts=8 sts=2 et:
 
 #include <cosupport/smoc_debug_out.hpp>
+#include <cosupport/smoc_math.hpp>
 
 #include <systemoc/smoc_wsdf_edge.hpp>
 
@@ -18,19 +19,9 @@ smoc_wsdf_edge_descr::udata_type
 smoc_wsdf_edge_descr::get_scm_src_firing_block(udata_type block_size,
                                                unsigned token_dimension) const {
 
-  udata_type return_value = 0;
-
-  for(unsigned int firing_level = 0;
-      firing_level < src_num_firing_levels;
-      firing_level++){
-    // start with smallest block
-    if (src_firing_blocks[firing_level][token_dimension] % block_size == 0){
-      return_value = src_firing_blocks[firing_level][token_dimension] / block_size;
-      break;
-    }
-  }
-
-  return return_value;
+  return get_scm_firing_block(src_firing_blocks,
+                              block_size,
+                              token_dimension);
   
 }
 
@@ -39,23 +30,39 @@ smoc_wsdf_edge_descr::udata_type
 smoc_wsdf_edge_descr::get_scm_snk_firing_block(udata_type block_size,
                                                unsigned token_dimension) const {
 
-  udata_type return_value = 0;
-
-  for(unsigned int firing_level = 0;
-      firing_level < snk_num_firing_levels;
-      firing_level++){
-    // start with smallest block
-
-    udata_type eff_block_size = 
-      (snk_firing_blocks[firing_level][token_dimension]) * 
-      delta_c[token_dimension];
-    if (eff_block_size % block_size == 0){
-      return_value = eff_block_size / block_size;
-      break;
+  if (block_size < delta_c(token_dimension)){
+    // We have to split sliding window
+    if (block_size <= 1)
+      //always possible
+      return 1;
+    else if (c[token_dimension] <= block_size){
+      //not possible to insert iteration level
+      return 0;
     }
-  }
 
-  return return_value;
+    return get_scm_firing_block(snk_window_firing_blocks,
+                                block_size,
+                                token_dimension);
+    
+  }else{
+    
+    if (block_size % delta_c(token_dimension)){
+      //block size must be a multiple of delta_c
+      return 0;
+    }
+    block_size /= delta_c(token_dimension);
+
+
+    if (block_size <= 1)
+      //block size does not require an own iterator level
+      return true;
+
+    
+    return get_scm_firing_block(snk_firing_blocks,
+                                block_size,
+                                token_dimension);
+    
+  }
   
 }
 
@@ -82,19 +89,25 @@ smoc_wsdf_edge_descr::insert_src_firing_level(udata_type block_size,
     }
   }
 
-  
-  //insert firing block
-  if (firing_level > 0){
-    uvector_type new_block(src_firing_blocks[firing_level - 1]);
-    new_block[token_dimension] = block_size;
-    src_firing_blocks.insert_item(firing_level, new_block);
-  }else{
-    uvector_type new_block(token_dimensions,1);
-    new_block[token_dimension] = block_size;
-    src_firing_blocks.insert_item(firing_level, new_block);
+  //create new firing block
+  uvector_type new_block(token_dimensions);
+  for(unsigned int i = 0; i < token_dimension; i++){
+    if (firing_level == src_num_firing_levels)
+      new_block[i] = src_firing_blocks[firing_level-1][i];
+    else
+      new_block[i] = src_firing_blocks[firing_level][i];
   }
-  
-  if (firing_level < src_num_firing_levels){
+  new_block[token_dimension] = block_size;
+  for(unsigned int i = token_dimension+1; i < token_dimensions; i++){    
+    if (firing_level == 0)
+      new_block[i] = 1;
+    else
+      new_block[i] = src_firing_blocks[firing_level-1][i];
+  }
+
+  //insert firing block
+  src_firing_blocks.insert_item(firing_level, new_block);
+  if (firing_level < src_num_eff_token_firing_levels){
     //we have split effetive token
     src_num_eff_token_firing_levels++;
   }
@@ -135,19 +148,25 @@ smoc_wsdf_edge_descr::insert_snk_firing_level(udata_type block_size,
       return true;
     }
 
-    //Insert firing block
-    if (firing_level > 0){
-      uvector_type 
-        new_block(snk_window_firing_blocks[firing_level - 1]);
-      new_block[token_dimension] = block_size;
-      snk_window_firing_blocks.insert_item(firing_level, new_block);
-    }else{
-      uvector_type 
-        new_block(token_dimensions,1);
-      new_block[token_dimension] = block_size;
-      snk_window_firing_blocks.insert_item(firing_level, new_block);
+
+    //create new firing block
+    uvector_type new_block(token_dimensions);
+    for(unsigned int i = 0; i < token_dimension; i++){      
+      if (firing_level == snk_window_firing_blocks.size())
+        new_block[i] = snk_window_firing_blocks[firing_level-1][i];
+      else
+        new_block[i] = snk_window_firing_blocks[firing_level][i];
+    }
+    new_block[token_dimension] = block_size;
+    for(unsigned int i = token_dimension+1; i < token_dimensions; i++){
+      if (firing_level == 0)
+        new_block[i] = 1;
+      else
+        new_block[i] = snk_window_firing_blocks[firing_level-1][i];
     }
     
+    //insert new firing block
+    snk_window_firing_blocks.insert_item(firing_level, new_block);
 
     return true;
     
@@ -173,24 +192,228 @@ smoc_wsdf_edge_descr::insert_snk_firing_level(udata_type block_size,
       }
     }
 
-
-    //Insert firing block
-    if(firing_level > 0){
-      uvector_type new_block(snk_firing_blocks[firing_level - 1]);
-      new_block[token_dimension] = block_size;
-      snk_firing_blocks.insert_item(firing_level, new_block);
-    }else{
-      uvector_type new_block(token_dimensions,1);
-      new_block[token_dimension] = block_size;
-      snk_firing_blocks.insert_item(firing_level, new_block);
+    //create new firing block
+    uvector_type new_block(token_dimensions);
+    for(unsigned int i = 0; i < token_dimension; i++){
+      if (firing_level == snk_num_firing_levels)
+        new_block[i] = snk_firing_blocks[firing_level-1][i];
+      else
+        new_block[i] = snk_firing_blocks[firing_level][i];
+    }
+    new_block[token_dimension] = block_size;
+    for(unsigned int i = token_dimension+1; i < token_dimensions; i++){
+      if (firing_level == 0)
+        new_block[i] = 1;
+      else
+        new_block[i] = snk_firing_blocks[firing_level-1][i];
     }
 
+
+    //Insert firing block
+    snk_firing_blocks.insert_item(firing_level, new_block);
     snk_num_firing_levels++;
 
     return true;
 
   }
   
+}
+
+
+void 
+smoc_wsdf_edge_descr::firing_levels_snk2src() {
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Enter smoc_wsdf_edge_descr::firing_levels_snk2src()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+#endif
+
+  for(unsigned int firing_level = 0; 
+      firing_level < snk_num_firing_levels; 
+      firing_level++){
+    for(unsigned int token_dimension = 0;
+        token_dimension < token_dimensions;
+        token_dimension++){
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << "firing_level = " << firing_level 
+                      << ", token_dimension = " << token_dimension 
+                      << std::endl;
+      CoSupport::dout << CoSupport::Indent::Up;
+      CoSupport::dout << "snk_firing_blocks[firing_level][token_dimension] = "
+                      << snk_firing_blocks[firing_level][token_dimension]
+                      << std::endl;
+#endif
+      
+      // Determine, whether sink block can
+      // be represented by source.
+      // If yes, determine the resulting block
+      // size.
+      udata_type res_block_size = 
+        get_scm_src_firing_block(snk_firing_blocks[firing_level][token_dimension]*
+                                 delta_c[token_dimension],
+                                 token_dimension);
+      res_block_size *= 
+        snk_firing_blocks[firing_level][token_dimension]*
+        delta_c[token_dimension];
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << "res_block_size = " << res_block_size << std::endl;
+#endif
+
+      if (get_scm_snk_firing_block(res_block_size,token_dimension) == 1){       
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+        CoSupport::dout << "Insert firing level" << std::endl;
+#endif
+        insert_src_firing_level(res_block_size,
+                                token_dimension);
+        insert_snk_firing_level(res_block_size,
+                                token_dimension);
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+        CoSupport::dout << "src_firing_blocks = " 
+                        << src_firing_blocks << std::endl;
+        CoSupport::dout << "snk_firing_blocks = " 
+                        << snk_firing_blocks << std::endl;
+#endif
+
+      }else{
+        //Either resulting block size cannot be integrated at all
+        //or it belongs to next source firing block
+      }
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << CoSupport::Indent::Down;
+#endif
+      
+    }
+  }
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Leave smoc_wsdf_edge_descr::firing_levels_snk2src()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
+  
+}
+  
+
+void
+smoc_wsdf_edge_descr::firing_levels_src2snk() {
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Enter smoc_wsdf_edge_descr::firing_levels_src2snk()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+#endif
+  for(unsigned int firing_level = 0; 
+      firing_level < src_num_firing_levels; 
+      firing_level++){
+    for(unsigned int token_dimension = 0;
+        token_dimension < token_dimensions;
+        token_dimension++){
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << "firing_level = " << firing_level 
+                      << ", token_dimension = " << token_dimension 
+                      << std::endl;
+      CoSupport::dout << CoSupport::Indent::Up;
+      CoSupport::dout << "src_firing_blocks[firing_level][token_dimension] = "
+                      << src_firing_blocks[firing_level][token_dimension]
+                      << std::endl;
+#endif
+      
+      // Determine, whether source block can
+      // be represented by sink.
+      // If yes, determine the resulting block
+      // size.
+      udata_type res_block_size = 
+        get_scm_snk_firing_block(src_firing_blocks[firing_level][token_dimension],
+                                 token_dimension);
+      res_block_size *= src_firing_blocks[firing_level][token_dimension];
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << "res_block_size = " << res_block_size << std::endl;
+#endif
+
+      if (get_scm_src_firing_block(res_block_size,token_dimension) == 1){       
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+        CoSupport::dout << "Insert firing level" << std::endl;
+#endif
+        insert_src_firing_level(res_block_size,
+                                token_dimension);
+        insert_snk_firing_level(res_block_size,
+                                token_dimension);
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+        CoSupport::dout << "src_firing_blocks = " 
+                        << src_firing_blocks << std::endl;
+        CoSupport::dout << "snk_firing_blocks = " 
+                        << snk_firing_blocks << std::endl;
+#endif
+
+      }else{
+        //Either resulting block size cannot be integrated at all
+        //or it belongs to next source firing block
+      }
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << CoSupport::Indent::Down;
+#endif
+      
+    }
+  }
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Leave smoc_wsdf_edge_descr::firing_levels_src2snk()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
+}
+
+
+smoc_wsdf_edge_descr::udata_type 
+smoc_wsdf_edge_descr::get_scm_firing_block(u2vector_type firing_blocks,
+                                           udata_type block_size,
+                                           unsigned token_dimension) const {
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Enter smoc_wsdf_edge_descr::get_scm_firing_block()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+#endif
+
+  udata_type return_value;
+
+  if (block_size <= 1){
+    //always possible
+    return_value = 1;
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+    CoSupport::dout << "return_value = " << return_value << std::endl;
+    CoSupport::dout << "Leave smoc_wsdf_edge_descr::get_scm_firing_block()" << std::endl;
+    CoSupport::dout << CoSupport::Indent::Down;
+#endif
+    return return_value;
+  }
+
+  //look for block size which is dividable by block_size
+  unsigned int firing_level = 0;
+  udata_type prev_block_size = 1;
+  while(firing_level < firing_blocks.size()){
+    if (firing_blocks[firing_level][token_dimension] % block_size == 0){
+      //found
+      return_value = CoSupport::scm(prev_block_size, block_size);
+      return_value /= block_size;
+      break;
+    }
+    
+    firing_level++;
+    if (firing_level < firing_blocks.size()){
+      if (firing_blocks[firing_level][token_dimension] != 
+          firing_blocks[firing_level-1][token_dimension]){
+        prev_block_size = 
+          firing_blocks[firing_level-1][token_dimension];
+      }
+    }
+  }  
+
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "return_value = " << return_value << std::endl;
+  CoSupport::dout << "Leave smoc_wsdf_edge_descr::get_scm_firing_block()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
+
+  return return_value;
 }
 
 
@@ -636,11 +859,23 @@ void smoc_wsdf_edge_descr::check_parameters() const {
 bool smoc_wsdf_edge_descr::snk_has_iteration_level(unsigned firing_level,
 						   unsigned token_dimension,
                                                    u2vector_type snk_firing_blocks) const {
+
   if (firing_level == 0){
-    //Always include firing_level 0
-    return true;
+    if (snk_firing_blocks[firing_level][token_dimension] == 1){
+      //ingore firing blocks of size one except if all firing blocks
+      //have the size one
+      if (snk_firing_blocks[snk_firing_blocks.size()-1][token_dimension] == 1){
+        return true;
+      }else{
+        return false;
+      }
+    }else{
+      return true;
+    }
   }else if (snk_firing_blocks[firing_level][token_dimension] == 
 	    snk_firing_blocks[firing_level-1][token_dimension]){
+    return false;
+  }else if (snk_firing_blocks[firing_level][token_dimension] == 1){
     return false;
   }else{
     return true;
@@ -668,6 +903,9 @@ bool smoc_wsdf_edge_descr::src_has_iteration_level(unsigned firing_level,
     //All firing levels have the same size.
     //Return at least one not belong to the effective token.
     return_value =  true;
+  }else if (src_firing_blocks[firing_level][token_dimension] == 1){
+    //firing blocks of size 1 need not to be considered
+    return_value = false;
   }else if (src_firing_blocks[firing_level][token_dimension] == 
 	    src_firing_blocks[firing_level-1][token_dimension]){
     return_value = false;
@@ -691,6 +929,7 @@ smoc_wsdf_edge_descr::calc_src_iteration_level_table() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Enter  smoc_wsdf_edge_descr::calc_src_iteration_level_table()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
   unsigned iteration_level = 0;
@@ -726,6 +965,7 @@ smoc_wsdf_edge_descr::calc_src_iteration_level_table() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave  smoc_wsdf_edge_descr::calc_src_iteration_level_table()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
   return return_table;
@@ -752,6 +992,7 @@ smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Enter  smoc_wsdf_edge_descr::calc_snk_iteration_level_table()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
   unsigned iteration_level = 0;
@@ -790,6 +1031,7 @@ smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave  smoc_wsdf_edge_descr::calc_snk_iteration_level_table()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
   return return_table;
@@ -803,6 +1045,7 @@ void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(s2vector_type& iteration_le
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Enter smoc_wsdf_edge_descr::insert_snk_vtu_iterations" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
 #endif
   unsigned level_inc = 0;
   bool found[token_dimensions];
@@ -879,6 +1122,7 @@ void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(s2vector_type& iteration_le
   CoSupport::dout << "iteration_level_table = " << iteration_level_table << std::endl;
   CoSupport::dout << "vtu_iteration_level = " << vtu_iteration_level << std::endl;
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::insert_snk_vtu_iterations" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
 }
@@ -901,16 +1145,18 @@ smoc_wsdf_edge_descr::get_num_iteration_levels(const s2vector_type& snk_iteratio
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Enter smoc_wsdf_edge_descr::get_num_iteration_levels" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
-  if(snk_iteration_level_table[0][0] > (sdata_type)snk_vtu_iteration_level[0])
-    return_value = snk_iteration_level_table[0][0]+1;
+  if(snk_iteration_level_table.max_value() > (sdata_type)snk_vtu_iteration_level[0])
+    return_value = snk_iteration_level_table.max_value()+1;
   else
     return_value = snk_vtu_iteration_level[0] + 1;
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "return_value = " << return_value << std::endl;
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::get_num_iteration_levels" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
   return return_value;
@@ -964,6 +1210,9 @@ smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_snk_iteration_max()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::dout << "snk_iteration_level_table.size() = " 
+                  << snk_iteration_level_table.size();
 #endif
 
   unsigned num_iteration_levels = get_num_iteration_levels(snk_iteration_level_table,
@@ -1054,6 +1303,7 @@ smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_snk_iteration_max()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
   return return_vector;
@@ -1103,6 +1353,7 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
   uvector_type prev_mapping_factor(token_dimensions);
@@ -1199,6 +1450,7 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
   return return_matrix;
@@ -1270,6 +1522,7 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_m
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_border_condition_matrix" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
 #endif
         
   const unsigned num_rows = mapping_matrix.size1();
@@ -1301,6 +1554,7 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_m
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_border_condition_matrix" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
 #endif
 
 }
