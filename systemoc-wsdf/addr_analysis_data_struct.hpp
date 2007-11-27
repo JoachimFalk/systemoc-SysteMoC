@@ -9,7 +9,7 @@
 // Structure in order to store results
 struct src_addr_info_struct {
 
-  //Absolute iteration of this iteration
+  //Absolute address of this iteration
   long curr_abs_addr;
 
   bool curr_addr_valid;
