@@ -92,6 +92,10 @@ ACJF_NEED_PKG([Support])
 SUPPORT_DEPENDENCIES="$pkg_support_builddir/libcosupport.la"
 AC_SUBST([SUPPORT_DEPENDENCIES])
 
+ACJF_NEED_PKG([AC-PG-Access])
+ACPGACC_DEPENDENCIES="$pkg_ac_pg_access_builddir/libacpgacc.la"
+AC_SUBST([ACPGACC_DEPENDENCIES])
+
 SYSTEMC_VPC_DEPENDENCIES=""
 if test x"$enable_vpc" != x"no"; then
   ACJF_CHECK_PKG([SystemC-VPC], [],

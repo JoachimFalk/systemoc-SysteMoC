@@ -35,22 +35,24 @@
 
 #include <systemoc/smoc_root_port.hpp>
 #include <systemoc/smoc_root_node.hpp>
+#include <systemoc/smoc_ngx_sync.hpp>
 
 #include <cosupport/oneof.hpp>
 
 using namespace CoSupport;
+using namespace SysteMoC::NGXSync;
 
 // smoc_ctx _ctx;
 
-smoc_root_port::smoc_root_port( const char* name_ ) :
+smoc_root_port::smoc_root_port(const char* name_) :
   sc_port_base( name_, 1 ),
   parent(NULL), child(NULL) {
-  smoc_modes::idPool.regObj(this);
-  smoc_modes::idPool.regObj(this, 1);
+  idPool.regObj(this);
+  idPool.regObj(this, 1);
 }
   
 smoc_root_port::~smoc_root_port() {
-  smoc_modes::idPool.unregObj(this);
+  idPool.unregObj(this);
 }
 
 void smoc_root_port::dump( std::ostream &out ) const {

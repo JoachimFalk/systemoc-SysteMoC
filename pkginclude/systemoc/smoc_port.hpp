@@ -46,7 +46,6 @@
 #include "smoc_chan_if.hpp"
 #include "smoc_event.hpp"
 #include "smoc_storage.hpp"
-#include "smoc_pggen.hpp"
 
 #include <systemc.h>
 #include <vector>

@@ -59,23 +59,18 @@ class smoc_top;
 class smoc_scheduler_top;
 
 #define T_chan_init_default smoc_fifo
-class smoc_graph
+
+/**
+ * base class for all graph classes; no scheduling of childen (->
+ * derive from this class and build FSM!)
+ */
+class smoc_graph_base
 : public smoc_root_node {
   friend class smoc_top;
   friend class smoc_scheduler_top;
-  friend class smoc_graph_sr;
-private:
-  typedef smoc_graph    this_type;
+  
+  typedef smoc_graph_base this_type;
 
-  typedef CoSupport::SystemC::EventOrList
-    <smoc_firing_types::transition_ty> smoc_transition_ready_list;
-
-  smoc_scheduler_top *top;
-
-  virtual void smocCallTop();
-
-  // called by elaboration_done (does nothing by default)
-  void end_of_elaboration();
 protected:
   template <typename T_chan_init, 
             //template <typename, typename> class R,
@@ -212,44 +207,7 @@ protected:
     a.setFiringLevelMap(chan_init.wsdf_edge_param.calc_snk_iteration_level_table());
   }
 #endif
-
-  void finalise();
-
-private:
-  /**
-   * schedule this graph
-   */
-  void scheduleDataFlow();
-
-  /**
-   * initialize graph scheduler
-   */
-  void initDataFlow();
-
-  /**
-   * common constructor code
-   */
-  void constructor();
-
-  bool test;
-
-  /**
-   * graph scheduler FSM states
-   */
-  smoc_firing_state schedule, init;
-
-  /**
-   * a list containing the transitions (inside this graph) that may be executed
-   */
-  smoc_transition_ready_list ol;
-
-  SC_HAS_PROCESS(this_type);
-
-
 public:
-  explicit smoc_graph(sc_module_name name);
-
-  smoc_graph();
 
   template <typename T>
   T &registerNode( T *node ) {
@@ -302,33 +260,92 @@ public:
 //    chan2ports[&chan].push_back(&p);
     p(chan.getEntry());
   }
-  
-  const smoc_node_list getNodes() const;
-  const smoc_chan_list getChans() const;
-  
-#ifndef __SCFE__
-//sc_module *myModule();
 
-  void pgAssemble(smoc_modes::PGWriter &, const smoc_root_node *) const;
-  void assembleActor( smoc_modes::PGWriter &pgw ) const;
+  const smoc_node_list& getNodes() const;
+  const smoc_chan_list& getChans() const;
+  
+
+protected:
+  smoc_graph_base(sc_module_name name, smoc_firing_state& init, bool regObj);
+
+  void finalise();
+
+  // top graph scheduler
+  // FIXME: make private when all graph types have FSM
+  smoc_scheduler_top *top;
+  
+  // calls top graph scheduler (if available) 
+  // FIXME: make private and non virtual  when all graph types
+  // have FSM
+  virtual void smocCallTop();
+
+private:
+  // process for top moc
+  SC_HAS_PROCESS(this_type);
+  
+  // called by elaboration_done (does nothing by default)
+  void end_of_elaboration();
+ 
+  // actor and graph child objects
+  smoc_node_list nodes;
+
+  // channel child objects
+  smoc_chan_list channels;
+
+#ifndef __SCFE__
+  void pgAssemble(smoc_modes::PGWriter &pgw, const smoc_root_node *n) const;
+  void assembleActor(smoc_modes::PGWriter &pgw) const;
 #endif
 };
 
-/******************************************************************************
- *
+#undef T_chan_init_default
+
+/**
+ * graph with FSM which schedules children by selecting
+ * any executable transition
  */
-class smoc_graph_sr : public smoc_graph{
+class smoc_graph : public smoc_graph_base {
 public:
-  //
-  explicit smoc_graph_sr(sc_module_name name)
-    : smoc_graph(name) {}
-  //
-  smoc_graph_sr()
-    : smoc_graph() {}
+  // construct graph with name
+  explicit smoc_graph(sc_module_name name);
+
+  // construct graph with generated name
+  smoc_graph();
 
 private:
+  // graph scheduler FSM states
+  smoc_firing_state init, run;
+  
+  // common constructor code
+  void constructor();
+  
+  // initialize children scheduling
+  void initScheduling();
+
+  // schedule children of this graph
+  void schedule();
+
+  // a list containing the transitions of the graph's children
+  // that may be executed
+  smoc_transition_ready_list ol;
+};
+
+
+/**
+ * FIXME: derive from smoc_graph_base -> write FSM -> delete smocCallTop
+ */
+class smoc_graph_sr : public smoc_graph {
+public:
+  // construct graph with name
+  explicit smoc_graph_sr(sc_module_name name);
+  
+  // construct graph with generated name
+  smoc_graph_sr();
+
+protected:
+  // call non-default schedule method of top scheduler
+  // FIXME: remove when scheduling is done by FSM
   void smocCallTop();
 };
-#undef T_chan_init_default
 
 #endif // _INCLUDED_SMOC_GRAPH_TYPE_HPP

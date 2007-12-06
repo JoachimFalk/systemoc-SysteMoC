@@ -66,6 +66,10 @@
 
 #define SMOC_ACTOR_CPARAM(type, name) Expr::Detail::ParamWrapper<type> name
 
+namespace SysteMoC {
+  class smoc_graph_synth;
+}
+
 class smoc_opbase_node {
 public:
   typedef smoc_opbase_node this_type;
@@ -114,15 +118,17 @@ private:
 
   friend class smoc_scheduler_top;
   friend class smoc_graph;
+  friend class SysteMoC::smoc_graph_synth;
 
   bool _non_strict;
 
 protected:
   //smoc_root_node(const smoc_firing_state &s);
-  smoc_root_node(sc_module_name, smoc_firing_state &s);
+  smoc_root_node(sc_module_name, smoc_firing_state &s, bool regObj = true);
   
   friend void Expr::Detail::registerParam(const ArgInfo &argInfo);
   friend void Expr::Detail::registerParamOnCurrentActor(const ArgInfo &argInfo);
+
 public:
 #ifdef SYSTEMOC_ENABLE_VPC  
   // vpc_event_xxx must be constructed before commstate
@@ -163,6 +169,13 @@ public:
 
   //determines non-strict actors (non-strict blocks in synchronous-reactive domains)
   bool isNonStrict() const;
+  
+  // typedef for transition ready list
+  typedef CoSupport::SystemC::EventOrList<smoc_firing_types::transition_ty>
+          smoc_transition_ready_list;
+
+  void addCurOutTransitions(smoc_transition_ready_list& ol) const;
+  void delCurOutTransitions(smoc_transition_ready_list& ol) const;
 
   virtual ~smoc_root_node();
 };

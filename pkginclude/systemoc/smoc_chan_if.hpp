@@ -117,6 +117,7 @@ public:
     typename T,
     template <typename> class R>
   friend class smoc_port_in_base;
+  friend class smoc_graph_synth;
 protected:
   // constructor
   smoc_chan_in_base_if() {}
@@ -156,6 +157,7 @@ public:
     template <typename> class R, 
     template <typename> class STORAGE_TYPE>
   friend class smoc_port_out_base;
+  friend class smoc_graph_synth;
 protected:
   // constructor
   smoc_chan_out_base_if() {}
@@ -184,7 +186,7 @@ class smoc_root_chan
 : public sc_prim_channel {
   typedef smoc_root_chan this_type;
 private:
-  friend class smoc_graph;
+  friend class smoc_graph_base;
 
   smoc_port_list portsIn;
   smoc_port_list portsOut;

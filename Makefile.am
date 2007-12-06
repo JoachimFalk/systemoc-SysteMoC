@@ -79,6 +79,8 @@ pkginclude_HEADERS =					\
 	pkginclude/systemoc/smoc_chan_if.hpp		\
 	pkginclude/systemoc/smoc_event.hpp		\
 	pkginclude/systemoc/smoc_storage.hpp		\
+	pkginclude/systemoc/smoc_ngx_sync.hpp		\
+	pkginclude/systemoc/smoc_graph_synth.hpp	\
 							\
 	pkginclude/systemoc/hscd_tdsim_TraceLog.hpp	\
 							\
@@ -123,9 +125,22 @@ if SYSTEMOC_ENABLE_VPC
 SYSTEMC_VPC_LIB = -lsystemcvpc
 endif
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined $(SYSTEMC_VPC_LIB) -lcosupport -lsystemc -lstdc++
-libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
-libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp @SUPPORT_DEPENDENCIES@ @SYSTEMC_VPC_DEPENDENCIES@
+libsystemoc_la_LDFLAGS =				\
+	-version-info 0:0:0 				\
+	-no-undefined 					\
+	$(SYSTEMC_VPC_LIB) 				\
+	-lcosupport 					\
+	-lsystemc 					\
+	-lstdc++					\
+	-lboost_program_options@BOOST_LIBPOSTFIX@	\
+	-lacpgacc
+libsystemoc_la_LIBADD = 				\
+	$(libsystemoc_CH_LTOBJS)
+libsystemoc_la_DEPENDENCIES = 				\
+	compileheader-libsystemoc.stamp 		\
+	@SUPPORT_DEPENDENCIES@ 				\
+	@SYSTEMC_VPC_DEPENDENCIES@			\
+	@ACPGACC_DEPENDENCIES@
 
 libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\
@@ -140,6 +155,8 @@ libsystemoc_la_SOURCES =		\
 	smoc_chan_if.cpp		\
 	smoc_guard.cpp			\
 	smoc_moc.cpp			\
+	smoc_ngx_sync.cpp		\
+	smoc_graph_synth.cpp		\
 					\
 	hscd_tdsim_TraceLog.cpp
 

@@ -44,11 +44,11 @@
 #include "smoc_firing_rules.hpp"
 #include "smoc_root_node.hpp"
 
-class smoc_graph;
+class smoc_graph_base;
 
 class smoc_scheduler_top
   : public smoc_firing_types {
-  friend class smoc_graph;
+  friend class smoc_graph_base;
   friend class smoc_graph_sr;
 public:
   typedef smoc_scheduler_top      this_type;
@@ -59,13 +59,13 @@ protected:
   typedef CoSupport::SystemC::EventOrList
     <transition_ty> smoc_transition_ready_list;
   
-  void getLeafNodes(smoc_node_list &nodes, smoc_graph *node);
+  void getLeafNodes(smoc_node_list &nodes, smoc_graph_base *node);
 
-  void elabEnd(smoc_graph *c);
+  void elabEnd(smoc_graph_base *c);
   
-  void schedule(smoc_graph *c);
+  void schedule(smoc_graph_base *c);
 
-  void scheduleSR(smoc_graph *c);
+  void scheduleSR(smoc_graph_base *c);
 
   /**
    * count number of defined inputs
@@ -82,7 +82,7 @@ protected:
 class smoc_top
   : public smoc_scheduler_top {
 public:
-  smoc_top(smoc_graph *c);
+  smoc_top(smoc_graph_base *c);
 };
 
 template <typename T_top>
@@ -95,7 +95,7 @@ public:
   
   // -jens-
   // FIXME: this copies given parameter and makes it impossible to use
-  //   references in constructor of smoc_graph! Copying is evil anyway (much
+  //   references in constructor of smoc_graph_base! Copying is evil anyway (much
   //   data, pointers, references, copy constructor has to exist, ...)
 
 

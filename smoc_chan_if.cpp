@@ -36,6 +36,7 @@
 #include <systemoc/smoc_chan_if.hpp>
 #include <systemoc/smoc_root_node.hpp>
 #include <systemoc/smoc_pggen.hpp>
+#include <systemoc/smoc_ngx_sync.hpp>
 
 #include <map>
 #include <sstream>
@@ -44,6 +45,7 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
+using namespace SysteMoC::NGXSync;
 
 class IntDefaultZero {
 public:
@@ -63,14 +65,17 @@ static std::map<std::string, IntDefaultZero> _smoc_channel_name_map;
 
 smoc_root_chan::smoc_root_chan(const char *name) :
   sc_prim_channel(name) {
-  smoc_modes::idPool.regObj(this);  
+  idPool.regObj(this);
 }
   
 smoc_root_chan::~smoc_root_chan() {
-  smoc_modes::idPool.unregObj(this);
+  idPool.unregObj(this);
 }
 
 void smoc_root_chan::finalise() {
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_root_chan::finalise() begin, name == " << name() << std::endl;
+#endif
   assert(myName == "");
   
   std::ostringstream genName;
@@ -113,6 +118,9 @@ void smoc_root_chan::finalise() {
   vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
     getFastLink(myName, "1") );
 #endif //SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_root_chan::finalise() end, name == " << name() << std::endl;
+#endif
 }
 
 void smoc_nonconflicting_chan::finalise() {
@@ -125,21 +133,21 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   assert(getInputPorts().size() == 1);
   assert(getOutputPorts().size() == 1);
   
-  smoc_modes::NgId idChannel        = smoc_modes::idPool.getId(this);
-  smoc_modes::NgId idChannelPortIn  = smoc_modes::idPool.getId(getInputPorts().front(), 1);
-  smoc_modes::NgId idChannelPortOut = smoc_modes::idPool.getId(getOutputPorts().front(), 1);
+  IdAttr idChannel        = idPool.printId(this);
+  IdAttr idChannelPortIn  = idPool.printId(getInputPorts().front(), 1);
+  IdAttr idChannelPortOut = idPool.printId(getOutputPorts().front(), 1);
   
   // search highest interface port (multiple hierachie layers)
   smoc_root_port  *ifPort = getOutputPorts().front();
   while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
 
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "
-               "source=\"" << smoc_modes::idPool.getId(ifPort)  << "\" "
-               "target=\"" << idChannelPortIn    << "\" "
-               "id=\""     << smoc_modes::idPool.getId()        << "\"/>" << std::endl;
+               "source=\"" << idPool.printId(ifPort) << "\" "
+               "target=\"" << idChannelPortIn << "\" "
+               "id=\""     << idPool.printId() << "\"/>" << std::endl;
   pgw << "<process name=\"" << this->name() << "\" "
                   "type=\"fifo\" "
-                  "id=\"" << idChannel      << "\">" << std::endl;
+                  "id=\"" << idChannel << "\">" << std::endl;
   {
     pgw.indentUp();
     pgw << "<port name=\"" << this->name() << ".in\" "
@@ -160,9 +168,9 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
 
   pgw << "</process>" << std::endl;
   pgw << "<edge name=\""   << this->name() << ".from-edge\" "
-               "source=\"" << idChannelPortOut       << "\" "
-               "target=\"" << smoc_modes::idPool.getId(ifPort)      << "\" "
-               "id=\""     << smoc_modes::idPool.getId()            << "\"/>" << std::endl;
+               "source=\"" << idChannelPortOut << "\" "
+               "target=\"" << idPool.printId(ifPort) << "\" "
+               "id=\""     << idPool.printId() << "\"/>" << std::endl;
 }
 
 void smoc_multicast_chan::finalise() {
@@ -177,9 +185,9 @@ void smoc_multicast_chan::assemble(smoc_modes::PGWriter &pgw) const {
   
   // FIXME: BIG HACK !!!
   const_cast<this_type *>(this)->finalise();
-  //smoc_modes::NgId idChannel        = pgw.getId(this);
-  //smoc_modes::NgId idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
-  //smoc_modes::NgId idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
+  //NgId idChannel        = pgw.getId(this);
+  //NgId idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
+  //NgId idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
  
   /* 
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "

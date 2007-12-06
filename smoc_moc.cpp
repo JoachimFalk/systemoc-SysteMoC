@@ -51,10 +51,10 @@
 
 using namespace CoSupport;
 
-void smoc_scheduler_top::elabEnd(smoc_graph *c) {
-  c->finalise();
+void smoc_scheduler_top::elabEnd(smoc_graph_base *g) {
+  g->finalise();
   if (smoc_modes::dumpProblemgraph) {
-    smoc_modes::dump(std::cout, *c);
+    smoc_modes::dump(std::cout, *g);
     exit(0);
   }
 }
@@ -62,36 +62,64 @@ void smoc_scheduler_top::elabEnd(smoc_graph *c) {
 // FIXME: only needed in scheduleSR
 // remove after redesign of SR scheduler
 void smoc_scheduler_top::getLeafNodes(
-    smoc_node_list &nodes, smoc_graph *node) {
-  smoc_node_list n = node->getNodes();
+    smoc_node_list &nodes, smoc_graph_base *node)
+{
+  const smoc_node_list& n = node->getNodes();
   
-  for ( smoc_node_list::iterator iter = n.begin();
+  for ( smoc_node_list::const_iterator iter = n.begin();
         iter != n.end();
         ++iter ) {
     if ( dynamic_cast<smoc_actor *>(*iter) != NULL ) {
       nodes.push_back(*iter);
     }
-    if ( dynamic_cast<smoc_graph *>(*iter) != NULL ) {
-      getLeafNodes(nodes, dynamic_cast<smoc_graph *>(*iter));
+    if ( dynamic_cast<smoc_graph_base *>(*iter) != NULL ) {
+      getLeafNodes(nodes, dynamic_cast<smoc_graph_base *>(*iter));
     }
   }
 }
 
-void smoc_scheduler_top::schedule(smoc_graph *c) {
-  //int guard_success = 0;
-  //int guard_fail    = 0;
-  c->initDataFlow();
-
-  do {
-    while(c->ol){
-      c->scheduleDataFlow();
+void smoc_scheduler_top::schedule(smoc_graph_base *g) {
+  smoc_transition_ready_list ol;
+  
+  // add outgoing transitions to list
+  g->addCurOutTransitions(ol);
+  
+  while(true) {
+    smoc_wait(ol);
+    while(ol) {
+      smoc_firing_types::transition_ty &transition = ol.getEventTrigger();
+      Expr::Detail::ActivationStatus status = transition.getStatus();
+    
+      switch(status.toSymbol()) {
+        case Expr::Detail::_DISABLED:
+          // remove disabled transition
+          assert(&transition.getActor() == g);
+          ol.remove(transition);
+          break;
+        case Expr::Detail::_ENABLED:
+          // execute enabled transition
+          assert(&transition.getActor() == g);
+#ifdef SYSTEMOC_DEBUG
+          std::cerr << "<node name=\"" << g->name() << "\">" << std::endl;
+#endif
+          // remove transitions from list
+          g->delCurOutTransitions(ol);
+          // execute transition
+          transition.execute(&g->_currentState, g);
+          // add transitions to list
+          g->addCurOutTransitions(ol);
+#ifdef SYSTEMOC_DEBUG
+          std::cerr << "</node>" << std::endl;
+#endif
+          break;
+        default:
+          assert(0);
+      }
     }
-
-    smoc_wait(c->ol);
-  } while ( 1 );
+  }
 }
 
-void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
+void smoc_scheduler_top::scheduleSR(smoc_graph_base *c) {
   std::map<smoc_root_node*, size_t> definedInputs;
   //  std::map<smoc_root_node*, size_t> definedOutputs;
 
@@ -756,5 +784,5 @@ size_t smoc_scheduler_top::countDefinedOutports(smoc_root_node &n){
       }
  */
 
-smoc_top::smoc_top(smoc_graph *c)
-  { assert(c->top == NULL); c->top = this; }
+smoc_top::smoc_top(smoc_graph_base *g)
+  { assert(g->top == NULL); g->top = this; }

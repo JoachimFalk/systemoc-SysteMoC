@@ -35,24 +35,13 @@
 
 #include <systemoc/smoc_pggen.hpp>
 #include <systemoc/smoc_root_node.hpp>
-#include <sstream>
+#include <systemoc/smoc_ngx_sync.hpp>
+
+using namespace SysteMoC::NGXSync;
 
 namespace smoc_modes {
 
-  NgId::operator std::string() const {
-    std::ostringstream o;
-    o << "id" << id;
-    return o.str();
-//  return o.rdbuf()->str();
-  }
-
-  void NgId::dump(std::ostream &out) const {
-    out << "id" << id;
-  }
-
   bool dumpProblemgraph = false;
-
-  IdPool<FNV16> idPool;
 
   void dump( std::ostream &out, smoc_root_node &top ) {
     PGWriter pgw( out );
@@ -61,7 +50,7 @@ namespace smoc_modes {
     pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;
     pgw.indentUp();
     top.assemble( pgw );
-    pgw << "<architecturegraph name=\"architecture graph\" id=\""<< idPool.getId() << "\">" << std::endl;
+    pgw << "<architecturegraph name=\"architecture graph\" id=\""<< idPool.printId() << "\">" << std::endl;
     pgw << "</architecturegraph>" << std::endl;
     pgw <<  "<mappings>" << std::endl;
     pgw <<  "</mappings>" << std::endl;

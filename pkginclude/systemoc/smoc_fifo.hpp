@@ -141,14 +141,10 @@ namespace smoc_detail {
       Queue queue;
 
       smoc_event dummy;
+      LatencyQueue* top;
     protected:
-      LatencyQueue &getTop() {
-        // MAGIC BEGINS HERE
-        return *reinterpret_cast<LatencyQueue *>
-          (reinterpret_cast<char *>(this) + 4711 -
-           reinterpret_cast<char *>
-            (&reinterpret_cast<LatencyQueue *>(4711)->requestQueue));
-      }
+      LatencyQueue &getTop()
+        { return *top; }
 
       void doSomething(size_t n);
 
@@ -172,6 +168,7 @@ namespace smoc_detail {
       void eventDestroyed(smoc_event_waiter *_e)
         { assert(!"eventDestroyed must never be called !!!"); }
     public:
+      RequestQueue(LatencyQueue* top) : top(top) {}
       void addEntry(size_t n, const smoc_ref_event_p &le) {
         bool queueEmpty = queue.empty();
         
@@ -194,14 +191,10 @@ namespace smoc_detail {
       typedef std::queue<Entry>                   Queue;
     protected:
       Queue queue;
+      LatencyQueue* top;
     protected:
-      LatencyQueue &getTop() {
-        // MAGIC BEGINS HERE
-        return *reinterpret_cast<LatencyQueue *>
-          (reinterpret_cast<char *>(this) + 411 -
-           reinterpret_cast<char *>
-            (&reinterpret_cast<LatencyQueue *>(411)->visibleQueue));
-      }
+      LatencyQueue &getTop()
+        { return *top; }
 
       void doSomething(size_t n);
 
@@ -225,6 +218,7 @@ namespace smoc_detail {
       void eventDestroyed(smoc_event_waiter *_e)
         { assert(!"eventDestroyed must never be called !!!"); }
     public:
+      VisibleQueue(LatencyQueue* top) : top(top) {}
       void addEntry(size_t n, const smoc_ref_event_p &le) {
         bool queueEmpty = queue.empty();
         
@@ -243,7 +237,7 @@ namespace smoc_detail {
     smoc_fifo_kind *fifo;
   protected:
     LatencyQueue(smoc_fifo_kind *fifo)
-      : fifo(fifo) {}
+      : requestQueue(this), visibleQueue(this), fifo(fifo) {}
 
     void addEntry(size_t n, const smoc_ref_event_p &le)
       { requestQueue.addEntry(n, le); }
@@ -288,7 +282,7 @@ protected:
   smoc_detail::LatencyQueue   latencyQueue;
 #endif
 
-  size_t const fsize;   ///< Ring buffer size == FIFO size + 1
+  size_t       fsize;   ///< Ring buffer size == FIFO size + 1
   size_t       rindex;  ///< The FIFO read    ptr
 #ifdef SYSTEMOC_ENABLE_VPC
   size_t       vindex;  ///< The FIFO visible ptr
@@ -464,24 +458,7 @@ protected:
   void channelContents(smoc_modes::PGWriter &pgw) const = 0;
 
   // constructors
-  smoc_fifo_kind( const chan_init &i )
-    : smoc_nonconflicting_chan(
-        i.name != NULL ? i.name : sc_gen_unique_name( "smoc_fifo" ) ),
-#ifdef SYSTEMOC_ENABLE_VPC
-      latencyQueue(this), 
-#endif
-      fsize(i.n+1),
-      rindex(0),
-#ifdef SYSTEMOC_ENABLE_VPC
-      vindex(0), 
-#endif
-      windex(0),
-      tokenId(0)
-  {
-    // for lazy % overflow protection fsize must be less than half the datatype
-    //  size
-    assert(fsize < (MAX_TYPE(size_t) >> 1));
-  }
+  smoc_fifo_kind(const chan_init &i);
 private:
   static const char* const kind_string;
   

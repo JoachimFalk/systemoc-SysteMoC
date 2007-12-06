@@ -73,7 +73,7 @@ protected:
   smoc_root_port *parent, *child;
   
   //FIXME(MS): allow more than one "IN-Port" per Signal
-  smoc_root_port( const char* name_ );
+  smoc_root_port(const char* name_);
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void commExec(size_t, const smoc_ref_event_p &) = 0;
@@ -84,7 +84,8 @@ public:
   static const char* const kind_string;
   virtual const char* kind() const
     { return kind_string; }
-  
+ 
+  virtual void setLimit(size_t) = 0;
   virtual size_t      availableCount() const = 0;
   virtual smoc_event &blockEvent(size_t n = MAX_TYPE(size_t)) = 0;
   virtual bool        isInput() const = 0;

@@ -36,19 +36,63 @@
 #include "sysc/kernel/sc_cmnhdr.h"
 #include "sysc/kernel/sc_externs.h"
 
-#include <systemoc/smoc_pggen.hpp>
+#include <cstring>
 
-int main(int argc, char* argv[]) {
-  int i, j;
+#include <systemoc/smoc_pggen.hpp>
+#include <systemoc/smoc_ngx_sync.hpp>
+
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/positional_options.hpp>
+
+using namespace boost::program_options;
+
+int main(int _argc, char* _argv[]) {
+  options_description od;
+  od.add_options()
+    ("generate-networkgraph", "dump networkgraph")
+    ("generate-problemgraph", "dump networkgraph")
+    ("networkgraph", value<std::string>(), "synchronize with specified networkgraph");
   
-  for (i = j = 0; argv[i] != NULL; i++) {
-    if(!strcmp(argv[i], "--generate-problemgraph") ||
-       !strcmp(argv[i], "--generate-networkgraph")) {
+  parsed_options parsed =
+    command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
+
+  int argc = 1;
+  char **argv = _argv;
+
+  for(std::vector< basic_option<char> >::const_iterator i = parsed.options.begin();
+      i != parsed.options.end();
+      ++i)
+  {
+    if(i->string_key == "generate-problemgraph" ||
+       i->string_key == "generate-networkgraph") {
       smoc_modes::dumpProblemgraph = true;
-      --argc;
-      continue;
     }
-    argv[j++] = argv[i];
+    if(i->string_key == "networkgraph") {
+      assert(!i->value.empty());
+      std::cerr << "sync. with " << i->value.front() << std::endl;
+      SysteMoC::NGXSync::NGXConfig::getInstance().loadNGX(i->value.front());
+    }
+    if(i->unregistered || i->position_key != -1) {
+      for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
+          j != i->original_tokens.end();
+          ++j)
+      {
+        argv[argc] = new char[j->size() + 1];
+        std::strcpy(argv[argc], j->c_str());
+        argc++;
+      }
+    }
   }
-  return sc_core::sc_elab_and_sim(argc, argv);
+
+  argv[argc] = 0;
+  assert(argc <= _argc);
+
+  int ret = sc_core::sc_elab_and_sim(argc, argv);
+
+  for(char** i = argv; *i; ++i) {
+    delete[] *i;
+  }
+
+  return ret;
 }

@@ -35,12 +35,16 @@
 
 #include <systemoc/smoc_config.h>
 #include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_ngx_sync.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
 const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
+
+using namespace SysteMoC::NGX;
+using namespace SysteMoC::NGXSync;
 
 namespace smoc_detail {
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -127,3 +131,35 @@ namespace smoc_detail {
 #endif // SYSTEMOC_ENABLE_VPC
 };
 
+smoc_fifo_kind::smoc_fifo_kind( const chan_init &i )
+  : smoc_nonconflicting_chan(
+    i.name != NULL ? i.name : sc_gen_unique_name( "smoc_fifo" ) ),
+#ifdef SYSTEMOC_ENABLE_VPC
+    latencyQueue(this), 
+#endif
+    fsize(i.n+1),
+    rindex(0),
+#ifdef SYSTEMOC_ENABLE_VPC
+    vindex(0), 
+#endif
+    windex(0),
+    tokenId(0)
+{
+  // NGX --> SystemC
+  if(NGXConfig::getInstance().hasNGX()) {
+
+    Fifo::ConstPtr fifo =
+      objAs<Fifo>(NGXCache::getInstance().get(this));
+
+    if(fifo) {
+      fsize = fifo->size().get() + 1;
+    }
+    else {
+      // XML node missing or no Fifo
+    }
+  }
+
+  // for lazy % overflow protection fsize must be less than half the datatype
+  //  size
+  assert(fsize < (MAX_TYPE(size_t) >> 1));
+}

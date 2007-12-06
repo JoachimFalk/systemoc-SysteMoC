@@ -42,9 +42,12 @@
 // #include <systemc/kernel/sc_object_manager.h>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/smoc_pggen.hpp>
+#include <systemoc/smoc_ngx_sync.hpp>
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
-smoc_root_node::smoc_root_node(sc_module_name name, smoc_firing_state &s)
+using namespace SysteMoC::NGXSync;
+
+smoc_root_node::smoc_root_node(sc_module_name name, smoc_firing_state &s, bool regObj)
   : sc_module(name),
 #ifndef NDEBUG
 //  _finalizeCalled(false),
@@ -75,7 +78,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_firing_state &s)
     local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
     smoc_root_node::global_arg_stack.pop();
   }*/
-  smoc_modes::idPool.regObj(this);
+  if(regObj) idPool.regObj(this);
 }
  
   
@@ -237,7 +240,7 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   if ( !ps.empty() ) {
     pgw << "<process name=\"" << name() << "\" "
                     "type=\"actor\" "
-                    "id=\"" << smoc_modes::idPool.getId(this) << "\">" << std::endl;
+                    "id=\"" << idPool.printId(this) << "\">" << std::endl;
     {
       pgw.indentUp();
       //**********************************PORTS************************************
@@ -246,7 +249,7 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
             ++iter )
         pgw << "<port name=\"" << (*iter)->name() << "\" "
                      "type=\"" << ((*iter)->isInput() ? "in" : "out") << "\" "
-                     "id=\"" << smoc_modes::idPool.getId(*iter) << "\"/>" << std::endl;
+                     "id=\"" << idPool.printId(*iter) << "\"/>" << std::endl;
       //**************************FSM-STATES  && ACTOR-TAG*************************
       assembleActor(pgw);
       //***************************CONTAINED PROBLEMGRAPH**************************
@@ -268,7 +271,7 @@ void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
   for ( smoc_firing_states::const_iterator iter = fs.begin();
           iter != fs.end();
           ++iter )
-        pgw << "<stateDeclaration state=\"" << smoc_modes::idPool.getId(&(*iter)->getResolvedState())
+        pgw << "<stateDeclaration state=\"" << idPool.printId(&(*iter)->getResolvedState())
             << "\"/>" << std::endl;
         //*******************************ACTOR CLASS*********************************
         pgw << "<actor actorClass=\"" << typeid(*this).name() << "\">" << std::endl;
@@ -363,13 +366,13 @@ namespace {
     }
     result_type operator ()(ASTNodeToken &astNode) {
       openNodeTag(astNode);
-      pgw << " portid=\"" << smoc_modes::idPool.getId(astNode.getPortId().getPortPtr()) << "\"";
+      pgw << " portid=\"" << idPool.printId(astNode.getPortId().getPortPtr()) << "\"";
       pgw << " pos=\"" << astNode.getPos() << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodePortTokens &astNode) {
       openNodeTag(astNode);
-      pgw << " portid=\"" << smoc_modes::idPool.getId(astNode.getPortId().getPortPtr()) << "\">";
+      pgw << " portid=\"" << idPool.printId(astNode.getPortId().getPortPtr()) << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeSMOCEvent &astNode) {
@@ -392,7 +395,7 @@ namespace {
     }
     result_type operator ()(ASTNodeComm &astNode) {
       openNodeTag(astNode);
-      pgw << " portid=\"" << smoc_modes::idPool.getId(astNode.getPortId().getPortPtr()) << "\">" << std::endl;
+      pgw << " portid=\"" << idPool.printId(astNode.getPortId().getPortPtr()) << "\">" << std::endl;
       dumpASTUnNode(astNode);
       closeNodeTag(astNode);
     }
@@ -400,7 +403,7 @@ namespace {
 }
 
 void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
-  pgw << "<fsm startstate=\"" << smoc_modes::idPool.getId(&_initialState.getResolvedState())
+  pgw << "<fsm startstate=\"" << idPool.printId(&_initialState.getResolvedState())
       << "\">" << std::endl;
   {
     pgw.indentUp();
@@ -411,7 +414,7 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
     for (smoc_firing_rules::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
          fsmiter != fsmStates.end(); 
          ++fsmiter) {
-      pgw << "<state id=\"" << smoc_modes::idPool.getId(*fsmiter)<< "\">" << std::endl;
+      pgw << "<state id=\"" << idPool.printId(*fsmiter) << "\">" << std::endl;
       {
         pgw.indentUp();
         //**************TRANTIONS********************
@@ -424,7 +427,7 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
           
           assert( cToNState.size() <= 1 );
           if ( cToNState.size() == 1 ) {
-            pgw << "<transition nextstate=\"" << smoc_modes::idPool.getId(*cToNState.begin()) << "\" " << std::flush;
+            pgw << "<transition nextstate=\"" << idPool.printId(*cToNState.begin()) << "\" " << std::flush;
             if (CoSupport::isType<smoc_func_call>(titer->f)) {
               pgw << "action=\"" << static_cast<const smoc_func_call &>(titer->f).getFuncName() << "\">" << std::endl;
             } else {
@@ -481,6 +484,28 @@ void Expr::Detail::registerParamOnCurrentActor(const ArgInfo &argInfo) {
   smoc_root_node::current_actor->local_constr_args.push_back(argInfo);
 }
 
+void smoc_root_node::addCurOutTransitions(smoc_transition_ready_list& ol) const {
+  assert(_currentState);
+  for(smoc_firing_types::transitionlist_ty::iterator tIter =
+        _currentState->tl.begin();
+      tIter != _currentState->tl.end();
+      ++tIter)
+  {
+    ol |= *tIter;
+  }
+}
+
+void smoc_root_node::delCurOutTransitions(smoc_transition_ready_list& ol) const {
+  assert(_currentState);
+  for(smoc_firing_types::transitionlist_ty::iterator tIter =
+        _currentState->tl.begin();
+      tIter != _currentState->tl.end();
+      ++tIter)
+  {
+    ol.remove(*tIter);
+  }
+}
+
 smoc_root_node::~smoc_root_node() {
-  smoc_modes::idPool.unregObj(this);
+  idPool.unregObj(this);
 }

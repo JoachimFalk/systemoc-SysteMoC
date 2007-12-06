@@ -44,6 +44,7 @@
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/smoc_ngx_sync.hpp>
 
 #include <map>
 #include <set>
@@ -59,6 +60,7 @@
 #include <algorithm>
 
 using namespace CoSupport;
+using namespace SysteMoC::NGXSync;
   
 smoc_firing_state_ref::smoc_firing_state_ref(
     const smoc_firing_state_ref &rhs)
@@ -290,7 +292,7 @@ smoc_firing_types::transition_ty::transition_ty(
 
 smoc_firing_types::resolved_state_ty::resolved_state_ty() :
   sc_object(sc_gen_unique_name("smoc_firing_state")) {
-  smoc_modes::idPool.regObj(this);
+  idPool.regObj(this);
 }
 
 void smoc_firing_types::resolved_state_ty::clearTransitions()
@@ -308,7 +310,7 @@ smoc_firing_types::resolved_state_ty::~resolved_state_ty() {
 #ifdef SYSTEMOC_DEBUG
       std::cerr << "~resolved_state_ty() this == " << this << std::endl;
 #endif
-  smoc_modes::idPool.unregObj(this);
+  idPool.unregObj(this);
 }
 
 void smoc_firing_types::transition_ty::execute(
@@ -319,7 +321,7 @@ void smoc_firing_types::transition_ty::execute(
     MODE_GRAPH
   } execMode;
   
-  if (dynamic_cast<smoc_graph *>(actor) == NULL) {
+  if (dynamic_cast<smoc_graph_base*>(actor) == NULL) {
     execMode =
 #ifdef SYSTEMOC_ENABLE_VPC  
       *rs != actor->commstate.rs
