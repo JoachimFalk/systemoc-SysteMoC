@@ -264,6 +264,29 @@ public:
     return false;
   }
 
+  /*
+    The boost operation insert_element and erase_element do not really
+    insert or delete an element, but rather overwrite it.
+    The following functions provide "true" insertion and deletion
+  */
+
+  /// removes item i
+  void remove_item(size_type i){
+    for(size_type j = i; j < (*this).size()-1; j++)
+      (*this)[j] = (*this)[j+1];
+    this->resize(this->size()-1);
+  }
+
+  ///insert value at position i
+  void insert_item(size_type i, const T& value){
+    this->resize(this->size()+1);
+    for(size_type j = this->size()-1; j >= i+1; j--){
+      (*this)[j] = (*this)[j-1];
+    }
+    (*this)[i] = value;
+  }
+  
+
 };
 
 
@@ -328,6 +351,33 @@ public:
     CoSupport::dout << CoSupport::Indent::Down;
 #endif
   }
+
+
+public:
+
+  /*
+    The boost operation insert_element and erase_element do not really
+    insert or delete an element, but rather overwrite it.
+    The following functions provide "true" insertion and deletion
+  */
+
+  /// removes item i
+  void remove_item(size_type i){
+    for(size_type j = i; j < (*this).size()-1; j++)
+      (*this)[j] = (*this)[j+1];
+    this->resize(this->size()-1);
+  }
+
+  ///insert value at position i
+  void insert_item(size_type i, const smoc_vector<T2>& value){
+    this->resize(this->size()+1);
+    for(size_type j = this->size()-1; j >= i+1; j--){
+      (*this)[j] = (*this)[j-1];
+    }
+    (*this)[i] = value;
+  }
+  
+
 };
 
 
