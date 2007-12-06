@@ -56,10 +56,10 @@ int main(int _argc, char* _argv[]) {
   
   parsed_options parsed =
     command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
-
+  
   int argc = 1;
   char **argv = _argv;
-
+  
   for(std::vector< basic_option<char> >::const_iterator i = parsed.options.begin();
       i != parsed.options.end();
       ++i)
@@ -77,22 +77,19 @@ int main(int _argc, char* _argv[]) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
           j != i->original_tokens.end();
           ++j)
-      {
-        argv[argc] = new char[j->size() + 1];
-        std::strcpy(argv[argc], j->c_str());
-        argc++;
-      }
+        if ((argv[argc++] = strdup(j->c_str())) == NULL)
+          throw std::bad_alloc();
     }
   }
-
+  
   argv[argc] = 0;
   assert(argc <= _argc);
-
+  
   int ret = sc_core::sc_elab_and_sim(argc, argv);
-
-  for(char** i = argv; *i; ++i) {
-    delete[] *i;
-  }
-
+  
+  // Do not free argv[0] it was not strdupped
+  for(--argc; argc >= 1; --argc)
+    free(argv[argc]);
+  
   return ret;
 }
