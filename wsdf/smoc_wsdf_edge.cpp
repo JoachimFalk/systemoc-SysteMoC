@@ -83,17 +83,21 @@ smoc_wsdf_edge_descr::insert_src_firing_level(udata_type block_size,
   }
 
   
-  //create firing block
-  uvector_type new_block(src_firing_blocks[firing_level > 0 ? firing_level - 1 : 0]);
-
-  new_block[token_dimension] = block_size;
-
   //insert firing block
+  if (firing_level > 0){
+    uvector_type new_block(src_firing_blocks[firing_level - 1]);
+    new_block[token_dimension] = block_size;
+    src_firing_blocks.insert_item(firing_level, new_block);
+  }else{
+    uvector_type new_block(token_dimensions,1);
+    new_block[token_dimension] = block_size;
+    src_firing_blocks.insert_item(firing_level, new_block);
+  }
+  
   if (firing_level < src_num_firing_levels){
     //we have split effetive token
     src_num_eff_token_firing_levels++;
   }
-  src_firing_blocks.insert_item(firing_level, new_block);
   src_num_firing_levels++;
   
 }
@@ -131,13 +135,19 @@ smoc_wsdf_edge_descr::insert_snk_firing_level(udata_type block_size,
       return true;
     }
 
-    //Create firing block
-    uvector_type 
-      new_block(snk_window_firing_blocks[firing_level > 0 ? firing_level - 1 : 0]);
-    new_block[token_dimension] = block_size;
-
-    //insert firing block  
-    snk_window_firing_blocks.insert_item(firing_level, new_block);
+    //Insert firing block
+    if (firing_level > 0){
+      uvector_type 
+        new_block(snk_window_firing_blocks[firing_level - 1]);
+      new_block[token_dimension] = block_size;
+      snk_window_firing_blocks.insert_item(firing_level, new_block);
+    }else{
+      uvector_type 
+        new_block(token_dimensions,1);
+      new_block[token_dimension] = block_size;
+      snk_window_firing_blocks.insert_item(firing_level, new_block);
+    }
+    
 
     return true;
     
@@ -164,12 +174,17 @@ smoc_wsdf_edge_descr::insert_snk_firing_level(udata_type block_size,
     }
 
 
-    //Create firing block
-    uvector_type new_block(snk_firing_blocks[firing_level > 0 ? firing_level - 1 : 0]);
-    new_block[token_dimension] = block_size;
+    //Insert firing block
+    if(firing_level > 0){
+      uvector_type new_block(snk_firing_blocks[firing_level - 1]);
+      new_block[token_dimension] = block_size;
+      snk_firing_blocks.insert_item(firing_level, new_block);
+    }else{
+      uvector_type new_block(token_dimensions,1);
+      new_block[token_dimension] = block_size;
+      snk_firing_blocks.insert_item(firing_level, new_block);
+    }
 
-    //insert firing block  
-    snk_firing_blocks.insert_item(firing_level, new_block);
     snk_num_firing_levels++;
 
     return true;
