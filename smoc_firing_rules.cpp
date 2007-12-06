@@ -450,7 +450,7 @@ void smoc_firing_types::transition_ty::execute(
 #endif
   
 #ifdef SYSTEMOC_ENABLE_VPC
-  if (execMode == MODE_DIISTART) {
+  if (execMode == MODE_DIISTART && (mode&GO)) {
     actor->vpc_event_dii.reset();
     
     actor->vpc_event_lat = new smoc_ref_event();
