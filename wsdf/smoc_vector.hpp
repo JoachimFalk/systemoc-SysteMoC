@@ -285,6 +285,28 @@ public:
     }
     (*this)[i] = value;
   }
+
+  ///Returns the maximum value stored in the vector
+  const T max_value() const {
+    T return_value = (*this)[0];
+    for(size_type i = 0; i < this->size(); i++){
+      if ((*this)[i] > return_value)
+        return_value = (*this)[i];
+    }
+
+    return return_value;
+  }
+
+  ///Returns the minimum value stored in the vector
+  const T min_value() const {
+    T return_value = (*this)[0];
+    for(size_type i = 0; i < this->size(); i++){
+      if ((*this)[i] < return_value)
+        return_value = (*this)[i];
+    }
+
+    return return_value;
+  }
   
 
 };
@@ -375,6 +397,30 @@ public:
       (*this)[j] = (*this)[j-1];
     }
     (*this)[i] = value;
+  }
+
+  ///Returns the maximum value stored in the vector
+  const T2 max_value() const {
+    T2 return_value = ((*this)[0]).max_value();
+    for(size_type i = 0; i < this->size(); i++){
+      T2 temp = ((*this)[i]).max_value();
+      if (temp > return_value)
+        return_value = temp;
+    }
+
+    return return_value;
+  }
+
+  ///Returns the minimum value stored in the vector
+  const T2 min_value() const {
+    T2 return_value = ((*this)[0]).min_value();
+    for(size_type i = 0; i < this->size(); i++){
+      T2 temp = ((*this)[i]).min_value();
+      if (temp < return_value)
+        return_value = temp;
+    }
+
+    return return_value;
   }
   
 
