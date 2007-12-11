@@ -32,10 +32,6 @@ private:
   //Attention: modifies sink iterator!
   void build_ref_point_addr_offset_table();
 
-  //This function tries to optimize invalid
-  //addresses in order to get a more compact representation
-  void optimize_invalid_addresses();
-
   //This function checks, whether the table contains
   //invalid items
   bool has_invalid_items(unsigned int fixed_dimension,

@@ -83,24 +83,6 @@ snk2addr_table_ref_point::build_ref_point_addr_offset_table(){
   
 }
 
-void 
-snk2addr_table_ref_point::optimize_invalid_addresses(){
-  
-  const unsigned int num_dimensions = 
-    ref_point_addr_offset_table.dimensions();
-
-  unsigned int coord1[num_dimensions];
-  unsigned int coord2[num_dimensions];
-
-  for(unsigned int i = 0;
-      i < num_dimensions;
-      i++){
-    coord1[i] = coord2[i] = 0;
-  }
-
-  
-}
-
 
 bool 
 snk2addr_table_ref_point::has_invalid_items(unsigned int fixed_dimension,
