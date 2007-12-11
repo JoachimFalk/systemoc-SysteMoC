@@ -43,6 +43,7 @@
 
 #include <cosupport/oneof.hpp>
 
+#define SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_DEBUG
 # define DEBUG_CODE(code) code
 #else
@@ -370,7 +371,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
             assert( n.isNonStrict() );
             n._currentState = n.lastState; // reset state (state changes on "tick" only)
     
-            if( 0 == countDefinedInports(n) ){
+            if( 0 == countDefinedOutports(n) ){ //QUICK-FIX
               //nothing changed: allow concurrent transitions to be executed
               for ( transitionlist_ty::iterator titer
                       = n._currentState->tl.begin();
@@ -505,6 +506,15 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 
               if(NULL != mc_sig){
                 mc_sig->tick();
+              }
+
+              //QUICK-FIX
+              // reset "sensitivity list"
+              for(std::map<smoc_root_node*, size_t>::iterator i =
+                    definedInputs.begin();
+                  i != definedInputs.end();
+                  ++i){
+                i->second = 0;
               }
 
               assert( NULL != mc_sig );
