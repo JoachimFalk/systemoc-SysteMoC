@@ -43,7 +43,6 @@
 
 #include <cosupport/oneof.hpp>
 
-#define SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_DEBUG
 # define DEBUG_CODE(code) code
 #else
