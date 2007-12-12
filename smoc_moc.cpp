@@ -481,7 +481,11 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
                           = n._currentState->tl.begin();
                         titer != n._currentState->tl.end();
                         ++titer ){
+#ifdef SYSTEMOC_ENABLE_VPC
+                    inCommState |= *titer;
+#else
                     nonStrict |= *titer;
+#endif
                   }
                 }else{
                   nonStrict |= transition;
@@ -493,6 +497,38 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
               }
               nonStrictReleased.remove(transition);
             }
+
+#ifdef SYSTEMOC_ENABLE_VPC
+            while( !inCommState.empty() ){
+              smoc_wait( inCommState );
+              transition_ty        &transition = inCommState.getEventTrigger();
+              Expr::Detail::ActivationStatus   status = transition.getStatus();
+              smoc_root_node                   &n = transition.getActor();
+              assert( status.toSymbol() == Expr::Detail::_ENABLED );
+                      
+              // remove nodes transitions from list
+              for ( transitionlist_ty::iterator titer
+                      = n._currentState->tl.begin();
+                    titer != n._currentState->tl.end();
+                    ++titer ){
+                inCommState.remove(*titer);
+              }
+
+              DEBUG_CODE( std::cerr << "<actor type=\"commstate\" name=\""
+                          << n.name() << "\">" << std::endl; )
+              transition.execute(&n._currentState, &n); //
+              DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
+              for ( transitionlist_ty::iterator titer
+                      = n._currentState->tl.begin();
+                    titer != n._currentState->tl.end();
+                    ++titer ){
+                nonStrict |= *titer;
+              }
+            }
+            assert(inCommState.empty());
+#endif
+            //cout << "FIXED POINT END " << sc_time_stamp() << endl;
+
             assert(nonStrictReleased.empty());
 
             //tick all signals

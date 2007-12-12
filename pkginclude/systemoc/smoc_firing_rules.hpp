@@ -198,6 +198,9 @@ public:
   //private:
   smoc_func_call             go;
   smoc_func_call             tick;
+
+  SystemC_VPC::FastLink* tickLink;
+
 public:
   smoc_sr_func_pair(
       const smoc_func_call &go,
