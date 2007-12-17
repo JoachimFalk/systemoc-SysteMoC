@@ -82,26 +82,26 @@ void smoc_root_chan::finalise() {
   
   genName << "cf_";
   {
-    const smoc_port_list &out = getOutputPorts();
+    const smoc_port_hixhax_list &out = getOutputPorts();
     
-    for ( smoc_port_list::const_iterator iter = out.begin();
+    for ( smoc_port_hixhax_list::const_iterator iter = out.begin();
           iter != out.end();
           ++iter ) {
       genName
         << (iter == out.begin() ? "" : "|")
-        << (*iter)->getActor()->name();
+        << (*iter)->owner()->name();
     }
   }
   genName << "_";
   {
-    const smoc_port_list &in = getInputPorts();
+    const smoc_port_hixhax_list &in = getInputPorts();
     
-    for ( smoc_port_list::const_iterator iter = in.begin();
+    for ( smoc_port_hixhax_list::const_iterator iter = in.begin();
           iter != in.end();
           ++iter ) {
       genName
         << (iter == in.begin() ? "" : "|")
-        << (*iter)->getActor()->name();
+        << (*iter)->owner()->name();
     }
   }
   genName << "_";
@@ -138,8 +138,9 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   IdAttr idChannelPortOut = idPool.printId(getOutputPorts().front(), 1);
   
   // search highest interface port (multiple hierachie layers)
-  smoc_root_port  *ifPort = getOutputPorts().front();
-  while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
+  const smoc_port_hixhax  *ifPort = getOutputPorts().front();
+  while (ifPort->outerConnectedPort())
+    ifPort = ifPort->outerConnectedPort();
 
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "
                "source=\"" << idPool.printId(ifPort) << "\" "
@@ -164,7 +165,8 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
 
   // search highest interface port (multiple hierachie layers)
   ifPort = getInputPorts().front();
-  while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
+  while (ifPort->outerConnectedPort())
+    ifPort = ifPort->outerConnectedPort();
 
   pgw << "</process>" << std::endl;
   pgw << "<edge name=\""   << this->name() << ".from-edge\" "

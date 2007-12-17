@@ -188,8 +188,8 @@ class smoc_root_chan
 private:
   friend class smoc_graph_base;
 
-  smoc_port_list portsIn;
-  smoc_port_list portsOut;
+  smoc_port_hixhax_list portsIn;
+  smoc_port_hixhax_list portsOut;
 
   std::string myName; // patched in finalise
 protected:
@@ -214,9 +214,9 @@ protected:
 public:
   const char *name() const { return myName.c_str(); }
 
-  const smoc_port_list &getInputPorts()  const
+  const smoc_port_hixhax_list &getInputPorts()  const
     { return portsIn;  }
-  const smoc_port_list &getOutputPorts() const
+  const smoc_port_hixhax_list &getOutputPorts() const
     { return portsOut; }
 
   virtual ~smoc_root_chan();

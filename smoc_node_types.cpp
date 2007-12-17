@@ -33,68 +33,45 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_root_port.hpp>
-#include <systemoc/smoc_root_node.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
+#include <systemoc/smoc_node_types.hpp>
 
-#include <cosupport/oneof.hpp>
-
-using namespace CoSupport;
-using namespace SysteMoC::NGXSync;
-
-
-smoc_port_hixhax::smoc_port_hixhax(const char *name)
-  : sc_port_base(name, 1),
-    outer(NULL), inner(NULL) {
-  idPool.regObj(this);
-  idPool.regObj(this, 1);
-}
-
-smoc_port_hixhax::~smoc_port_hixhax() {
-  idPool.unregObj(this);
-}
-
-smoc_root_port::smoc_root_port() {
-}
+void smoc_actor::finalise() {
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_actor::finalise() begin, name == " << this->name() << std::endl;
+#endif
+  // Preallocate ID
+  //smoc_modes::PGWriter::getId(this);
   
-smoc_root_port::~smoc_root_port() {
-}
+  _currentState = _initialState.finalise(this);
 
-void smoc_root_port::dump(std::ostream &out) const {
-  out << "port(" << this
-//    <<      ",name=" << static_cast<const sc_object *>(this)->name()
-//    <<      ",hierarchy=" << getHierarchy()->name()
-      <<      ",available=" << availableCount() << ")";
+  smoc_root_node::finalise();
+  
+  //check for non strict transitions
+  const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
+  const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
+  
+  for (smoc_firing_rules::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
+       fsmiter != fsmStates.end(); 
+       ++fsmiter) {
+    const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
+    
+    for (smoc_firing_types::transitionlist_ty::const_iterator titer = cTraSt.begin(); 
+         titer != cTraSt.end(); 
+         ++titer ) {
+      const smoc_firing_types::statelist_ty &cToNState = titer->sl;
+      
+      assert( cToNState.size() <= 1 );
+      if ( cToNState.size() == 1 ) {
+        if (CoSupport::isType<smoc_sr_func_pair>(titer->f)) {
+#ifdef SYSTEMOC_DEBUG
+          cout << "found non strict SR block: " << this->name() << endl;
+#endif
+          _non_strict = true;
+        }
+      }
+    }
+  }
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_root_node::finalise() end, name == " << this->name() << std::endl;
+#endif
 }
-
-const char* const smoc_port_hixhax::kind_string = "smoc_port_hixhax";
-
-const sc_module *smoc_port_hixhax::owner() const {
-  const sc_module *retval =
-    dynamic_cast<const sc_module *>(this->get_parent());
-  assert(retval != NULL);
-  return retval;
-}
-
-// Bind interface to this port. This must be here because
-// otherwise the bind definition below would hide all other
-// bind methods with different type signatures.
-void smoc_port_hixhax::bind(sc_interface &interface_) {
-  sc_port_base::bind(interface_);
-}
-// Bind parent port to this port and track hierarchy relations.
-void smoc_port_hixhax::bind(this_type &outer_) {
-  assert(outer == NULL && outer_.inner == NULL);
-  outer         = &outer_;
-  outer_.inner  = this;
-  sc_port_base::bind(outer_);
-}
-
-/*
-smoc_root_node *smoc_root_port::getActor() const {
-  smoc_root_node *retval =
-    dynamic_cast<smoc_root_node *>(this->get_parent());
-  assert(retval != NULL);
-  return retval;
-}
- */

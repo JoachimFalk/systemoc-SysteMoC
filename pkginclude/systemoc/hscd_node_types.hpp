@@ -114,25 +114,6 @@ protected:
 #endif
   }
 
-  // overloads finalise in smoc_root_node
-  // don't calls finalise on _initialState
-  // but "finalising" smoc_v1 ports
-  void finalise() {
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "hscd_choice_active_node::finalise(), name == " << name() << std::endl;
-#endif
-    
-    // Preallocate ID
-    // smoc_modes::PGWriter::getId(this);
-    
-    smoc_port_list ports = getPorts();
-    
-    for (smoc_port_list::iterator iter = ports.begin();
-         iter != ports.end();
-         ++iter)
-      (*iter)->finalise(this);
-  }
-
   virtual void init()
     { return process(); }
 

@@ -60,20 +60,89 @@ class smoc_root_node;
 // forward declaration
 namespace Expr { template <class E> class Value; }
 
-class smoc_root_port
-// must be public inheritance for dynamic_cast in smoc_root_node to work
+class smoc_port_hixhax
 : public sc_port_base {
+  typedef smoc_port_hixhax this_type;
+
+  // this is needed for the finalise call
+  friend class smoc_root_node;
+private:
+  // port one hierarchy level up
+  smoc_port_hixhax *outer;
+  // port one hierarchy level down
+  smoc_port_hixhax *inner;
+
+  static const char* const kind_string;
 public:
-  typedef smoc_root_port  this_type;
+  smoc_port_hixhax(const char *name);
+
+  virtual bool isInput()  const = 0;
+  virtual bool isOutput() const = 0;
+
+  const smoc_port_hixhax *outerConnectedPort() const
+    { return outer; }
+  const smoc_port_hixhax *innerConnectedPort() const
+    { return inner; }
+  smoc_port_hixhax *outerConnectedPort()
+    { return outer; }
+  smoc_port_hixhax *innerConnectedPort()
+    { return inner; }
+
+  const sc_module *owner() const;
+//const smoc_root_node *getActor() const;
+
+  // Bind interface to this port. This must be here because
+  // otherwise the bind definition below would hide all other
+  // bind methods with different type signatures.
+  void bind(sc_interface &interface_);
+  // Bind parent port to this port and track hierarchy relations.
+  void bind(this_type &outer_);
+
+  virtual void dump(std::ostream &out) const = 0;
+
+  virtual const char* kind() const
+    { return kind_string; }
+
+  virtual ~smoc_port_hixhax();
+protected:
+  /// Finalise port called by smoc_root_node::finalise
+  virtual void finalise(smoc_root_node *node) = 0;
+private:
+  // disable => non-copyable non-assignable
+  smoc_port_hixhax(const this_type &);
+  this_type& operator = (const this_type &);
+};
+
+static inline
+std::ostream &operator <<(std::ostream &out, const smoc_port_hixhax &p)
+  { p.dump(out); return out; }
+
+typedef std::list<smoc_port_hixhax *> smoc_port_hixhax_list;
+
+/*
+class smoc_port_hixhax_in
+: public smoc_port_hixhax {
+public:
+  smoc_port_hixhax_in(const char *name)
+    : smoc_port_hixhax(name) {}
+};
+
+class smoc_port_hixhax_out
+: public smoc_port_hixhax {
+public:
+  smoc_port_hixhax_out(const char *name)
+    : smoc_port_hixhax(name) {}
+};
+ */
+
+class smoc_root_port {
+  typedef smoc_root_port this_type;
   
   template <class E> friend class Expr::Value;
   friend class smoc_root_node;
   friend class hscd_choice_active_node;
 protected:
-  smoc_root_port *parent, *child;
-  
-  //FIXME(MS): allow more than one "IN-Port" per Signal
-  smoc_root_port(const char* name_);
+  smoc_root_port();
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void commExec(size_t, const smoc_ref_event_p &) = 0;
@@ -81,69 +150,72 @@ public:
   virtual void commExec(size_t)                           = 0;
 #endif
 public:
-  static const char* const kind_string;
-  virtual const char* kind() const
-    { return kind_string; }
- 
-  virtual void setLimit(size_t) = 0;
+  virtual void        setLimit(size_t) = 0;
   virtual size_t      availableCount() const = 0;
   virtual smoc_event &blockEvent(size_t n = MAX_TYPE(size_t)) = 0;
-  virtual bool        isInput() const = 0;
-  bool                isOutput() const
-    { return !isInput(); }
   
   virtual void clearReady()
     { assert( !"SHOULD NEVER BE CALLED !!!" ); }
   virtual void communicate( size_t n )
     { assert( !"SHOULD NEVER BE CALLED !!!" ); }
 
-  smoc_root_port *getParentPort() const
-    { return parent; }
-  smoc_root_port *getChildPort() const
-    { return child; }
-  smoc_root_node *getActor() const;
- 
-  // bind interface to this port
-  void bind(sc_interface &interface_ ) {
-    sc_port_base::bind(interface_);
-  }
-  // bind parent port to this port
-  void bind(this_type &parent_) {
-    assert( parent == NULL && parent_.child == NULL );
-    parent        = &parent_;
-    parent->child = this;
-    sc_port_base::bind(parent_);
+  virtual bool isInput()  const = 0;
+  virtual bool isOutput() const = 0;
+
+/*
+  operator sc_object *() {
+    sc_object *retval = dynamic_cast<sc_object *>(this);
+    assert(retval != NULL);
+    return retval;
   }
 
-  void dump( std::ostream &out ) const;
+  operator const sc_object *() const {
+    const sc_object *retval = dynamic_cast<const sc_object *>(this);
+    assert(retval != NULL);
+    return retval;
+  }
+ */
+
+  void dump(std::ostream &out) const;
   virtual ~smoc_root_port();
-protected:
-  /// Finalise port called by smoc_root_node::finalise
-  virtual void finalise(smoc_root_node *node) = 0;
-private:
-  // disabled
-  smoc_root_port( const this_type & );
-  this_type& operator = ( const this_type & );
 };
 
+/*
 static inline
-std::ostream &operator <<( std::ostream &out, const smoc_root_port &p )
+std::ostream &operator <<(std::ostream &out, const smoc_root_port &p)
   { p.dump(out); return out; }
+*/
 
 typedef std::list<smoc_root_port *> smoc_port_list;
 
 class smoc_root_port_in
-: public smoc_root_port {
+: public smoc_root_port,
+  public smoc_port_hixhax {
 public:
-  smoc_root_port_in( const char* name_ )
-    : smoc_root_port(name_) {}
+  smoc_root_port_in(const char* name_)
+    : smoc_port_hixhax(name_) {}
+
+  bool isInput()  const { return true; }
+  bool isOutput() const { return false; }
+
+  // overload pure virtual dump from smoc_port_hixhax
+  virtual void dump(std::ostream &out) const
+    { return smoc_root_port::dump(out); }
 };
 
 class smoc_root_port_out
-: public smoc_root_port {
+: public smoc_root_port,
+  public smoc_port_hixhax {
 public:
-  smoc_root_port_out( const char* name_ )
-    : smoc_root_port(name_) {}
-};
+  smoc_root_port_out(const char* name_)
+    : smoc_port_hixhax(name_) {}
 
+  bool isInput()  const { return false; }
+  bool isOutput() const { return true; }
+
+  // overload pure virtual dump from smoc_port_hixhax
+  virtual void dump(std::ostream &out) const
+    { return smoc_root_port::dump(out); }
+};
+  
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP

@@ -41,14 +41,11 @@
 
 #include "smoc_firing_rules.hpp"
 #include "smoc_port.hpp"
-//#include <smoc_op.hpp>
 #ifndef __SCFE__
 # include "smoc_pggen.hpp"
 #endif
 
 #include "smoc_expr.hpp"
-
-//#include <oneof.hpp>
 
 #include <systemc.h>
 
@@ -102,9 +99,7 @@ class smoc_root_node
 : public smoc_opbase_node,
   public sc_module {
 private:
-#ifndef NDEBUG
-  // bool _finalizeCalled;
-#endif
+protected:
   smoc_firing_types::resolved_state_ty
                           *_currentState;
   const smoc_firing_state &_initialState;
@@ -146,19 +141,13 @@ public:
   
   virtual void finalise();
 #ifndef __SCFE__
-//sc_module *myModule() { return this; }
-//const sc_module *myModule() const { return this; }
-//virtual sc_module *myModule() = 0;
-//const sc_module *myModule() const {
-//  return const_cast<smoc_root_node *>(this)->myModule();
-//}
   virtual void pgAssemble( smoc_modes::PGWriter &, const smoc_root_node * ) const;
   virtual void assembleActor( smoc_modes::PGWriter &pgw ) const;
   void assemble( smoc_modes::PGWriter &pgw ) const;
   void assembleFSM( smoc_modes::PGWriter &pgw ) const;
 #endif
   
-  const smoc_port_list getPorts() const;
+  const smoc_port_hixhax_list getPorts() const;
   
   const smoc_firing_states getFiringStates() const;
   

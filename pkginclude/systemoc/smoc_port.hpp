@@ -505,7 +505,8 @@ protected:
 
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
-    if (this->child == NULL)
+    // only register the leaf port of the hierarchy
+    if (this->innerConnectedPort() == NULL)
       (*this)->registerPort(this);
   }
 
@@ -520,8 +521,6 @@ public:
   smoc_port_in_base()
     : base_type(sc_gen_unique_name("smoc_port_in")) {}
  
-  bool isInput() const { return true; }
-
   bool tokenIsValid(size_t i=0) const
     { return this->get_chanaccess()->tokenIsValid(i); }
   size_t tokenId(size_t i=0) const
@@ -587,7 +586,8 @@ protected:
                          smoc_chan_out_if<T,R,STORAGE_TYPE> > base_type;
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
-    if (this->child == NULL)
+    // only register the leaf port of the hierarchy
+    if (this->innerConnectedPort() == NULL)
       (*this)->registerPort(this);
   }
 
@@ -601,8 +601,6 @@ protected:
 public:  
   smoc_port_out_base()
     : base_type(sc_gen_unique_name("smoc_port_out")) {}
- 
-  bool isInput() const { return false; }
  
   size_t tokenId(size_t i=0) const
     { return (*this)->outTokenId() + i; }

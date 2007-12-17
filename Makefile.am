@@ -149,6 +149,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_multicast_sr_signal.cpp	\
 	smoc_graph_type.cpp		\
 	smoc_root_node.cpp		\
+	smoc_node_types.cpp		\
 	smoc_root_port.cpp		\
 	smoc_firing_rules.cpp		\
 	smoc_pggen.cpp			\

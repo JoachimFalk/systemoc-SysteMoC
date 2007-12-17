@@ -252,7 +252,8 @@ void smoc_graph_synth::nextActorActivation() {
           if(j == chanInMap.end()) {
             // cross cast to obtain interface base class
             smoc_chan_in_base_if* in =
-              dynamic_cast<smoc_chan_in_base_if*>(i->first->get_interface());
+              dynamic_cast<smoc_chan_in_base_if*>(
+                  dynamic_cast<smoc_port_hixhax *>(i->first)->get_interface());
             assert(in);
             j = CoSupport::pac_insert(chanInMap, i->first, in);
           }

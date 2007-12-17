@@ -153,8 +153,8 @@ void smoc_scheduler_top::scheduleSR(smoc_graph_base *c) {
         definedInputs[&n]  = countDefinedInports(n);
         //  definedOutputs[&n] = countDefinedOutports(n);
       
-        smoc_port_list ps  = (*iter)->getPorts();
-        for(smoc_port_list::iterator iter = ps.begin();
+        smoc_port_hixhax_list ps  = (*iter)->getPorts();
+        for(smoc_port_hixhax_list::iterator iter = ps.begin();
             iter != ps.end(); iter++){
           sc_interface *iface = (*iter)->get_interface();
           if( dynamic_cast<class smoc_root_port_out * >(*iter) ) {
@@ -618,8 +618,8 @@ void smoc_scheduler_top::scheduleSR(smoc_graph_base *c) {
 
 size_t smoc_scheduler_top::countDefinedInports(smoc_root_node &n){
   size_t definedInPorts = 0;
-  smoc_port_list ps  = n.getPorts();
-  for(smoc_port_list::iterator iter = ps.begin();
+  smoc_port_hixhax_list ps  = n.getPorts();
+  for(smoc_port_hixhax_list::iterator iter = ps.begin();
       iter != ps.end(); iter++){
     sc_interface *iface = (*iter)->get_interface();
     if( dynamic_cast<class smoc_root_port_in * >(*iter)) {
@@ -638,8 +638,8 @@ size_t smoc_scheduler_top::countDefinedInports(smoc_root_node &n){
 
 size_t smoc_scheduler_top::countDefinedOutports(smoc_root_node &n){
   size_t definedOutPorts = 0;
-  smoc_port_list ps  = n.getPorts();
-  for(smoc_port_list::iterator iter = ps.begin();
+  smoc_port_hixhax_list ps  = n.getPorts();
+  for(smoc_port_hixhax_list::iterator iter = ps.begin();
       iter != ps.end(); iter++){
     sc_interface *iface = (*iter)->get_interface();
     if( dynamic_cast<class smoc_root_port_out * >(*iter)) {

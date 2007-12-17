@@ -147,50 +147,19 @@ void smoc_root_node::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_node::finalise() begin, name == " << this->name() << std::endl;
 #endif
-  // Preallocate ID
-  //smoc_modes::PGWriter::getId(this);
+  smoc_port_hixhax_list ports = getPorts();
   
-  _currentState = _initialState.finalise(this);
-  
-  smoc_port_list ports = getPorts();
-  
-  for (smoc_port_list::iterator iter = ports.begin();
+  for (smoc_port_hixhax_list::iterator iter = ports.begin();
        iter != ports.end();
        ++iter)
     (*iter)->finalise(this);
-  
-  //check for non strict transitions
-  const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
-  const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
-  
-  for (smoc_firing_rules::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
-       fsmiter != fsmStates.end(); 
-       ++fsmiter) {
-    const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
-    
-    for ( smoc_firing_types::transitionlist_ty::const_iterator titer = cTraSt.begin(); 
-    titer != cTraSt.end(); 
-    ++titer ) {
-      const smoc_firing_types::statelist_ty &cToNState = titer->sl;
-      
-      assert( cToNState.size() <= 1 );
-      if ( cToNState.size() == 1 ) {
-        if (CoSupport::isType<smoc_sr_func_pair>(titer->f)) {
-#ifdef SYSTEMOC_DEBUG
-          cout << "found non strict SR block: " << this->name() << endl;
-#endif
-          _non_strict = true;
-        }
-      }
-    }
-  }
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_node::finalise() end, name == " << this->name() << std::endl;
 #endif
 }
 
-const smoc_port_list smoc_root_node::getPorts() const {
-  smoc_port_list   ports;
+const smoc_port_hixhax_list smoc_root_node::getPorts() const {
+  smoc_port_hixhax_list   ports;
   
   // std::cerr << "=== getPorts ===" << this << std::endl;
   for ( 
@@ -202,7 +171,7 @@ const smoc_port_list smoc_root_node::getPorts() const {
          get_child_objects().begin();
        iter != get_child_objects().end();
        ++iter ) {
-    smoc_root_port *port = dynamic_cast<smoc_root_port *>(*iter);
+    smoc_port_hixhax *port = dynamic_cast<smoc_port_hixhax *>(*iter);
     
     if ( port != NULL )
       ports.push_back(port);
@@ -235,7 +204,7 @@ void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node
 
 void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   //const smoc_firing_states  fs = getFiringStates();
-  const smoc_port_list      ps = getPorts();
+  const smoc_port_hixhax_list      ps = getPorts();
   
   if ( !ps.empty() ) {
     pgw << "<process name=\"" << name() << "\" "
@@ -244,7 +213,7 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
     {
       pgw.indentUp();
       //**********************************PORTS************************************
-      for ( smoc_port_list::const_iterator iter = ps.begin();
+      for ( smoc_port_hixhax_list::const_iterator iter = ps.begin();
             iter != ps.end();
             ++iter )
         pgw << "<port name=\"" << (*iter)->name() << "\" "
@@ -365,14 +334,22 @@ namespace {
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeToken &astNode) {
+      const sc_object *port =
+        dynamic_cast<const sc_object *>(astNode.getPortId().getPortPtr());
+      assert(port != NULL);
+      
       openNodeTag(astNode);
-      pgw << " portid=\"" << idPool.printId(astNode.getPortId().getPortPtr()) << "\"";
+      pgw << " portid=\"" << idPool.printId(port) << "\"";
       pgw << " pos=\"" << astNode.getPos() << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodePortTokens &astNode) {
+      const sc_object *port =
+        dynamic_cast<const sc_object *>(astNode.getPortId().getPortPtr());
+      assert(port != NULL);
+      
       openNodeTag(astNode);
-      pgw << " portid=\"" << idPool.printId(astNode.getPortId().getPortPtr()) << "\">";
+      pgw << " portid=\"" << idPool.printId(port) << "\"";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeSMOCEvent &astNode) {
@@ -394,8 +371,12 @@ namespace {
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeComm &astNode) {
+      const sc_object *port =
+        dynamic_cast<const sc_object *>(astNode.getPortId().getPortPtr());
+      assert(port != NULL);
+      
       openNodeTag(astNode);
-      pgw << " portid=\"" << idPool.printId(astNode.getPortId().getPortPtr()) << "\">" << std::endl;
+      pgw << " portid=\"" << idPool.printId(port) << "\">" << std::endl;
       dumpASTUnNode(astNode);
       closeNodeTag(astNode);
     }
@@ -454,9 +435,9 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
  
 std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
   o << "actor: " << this->name() << std::endl;
-  smoc_port_list ps = getPorts();
+  smoc_port_hixhax_list ps = getPorts();
   o << "  ports:" << std::endl;
-  for ( smoc_port_list::const_iterator iter = ps.begin();
+  for ( smoc_port_hixhax_list::const_iterator iter = ps.begin();
         iter != ps.end();
         ++iter ) {
     o << "  " << *iter << std::endl;

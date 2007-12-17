@@ -574,13 +574,15 @@ public:
 
 public:
   param_type params() const{
-    const parent_type *parent_port = dynamic_cast<const parent_type*> ((*this).getChildPort());
+    const parent_type *parent_port =
+      dynamic_cast<const parent_type*>(this->innerConnectedPort());
     assert(parent_port != NULL);
     return parent_port->params();
   }
 
   void setFiringLevelMap(const s2vector_type& firing_level_map){
-    parent_type *parent_port = dynamic_cast<parent_type*> (this->getChildPort());
+    parent_type *parent_port =
+      dynamic_cast<parent_type*>(this->innerConnectedPort());
     assert(parent_port != NULL);
     parent_port->setFiringLevelMap(firing_level_map);               
   }
@@ -766,14 +768,16 @@ public:
 
 public:
 
-  param_type params() const{
-    const port_parent_type *parent_port = dynamic_cast<const port_parent_type*> (this->getChildPort());
+  param_type params() const {
+    const port_parent_type *parent_port =
+      dynamic_cast<const port_parent_type*> (this->innerConnectedPort());
     assert(parent_port != NULL);
     return parent_port->params();
   }
 
   void setFiringLevelMap(const s2vector_type& firing_level_map){
-    port_parent_type *parent_port = dynamic_cast<port_parent_type*> (this->getChildPort());
+    port_parent_type *parent_port =
+      dynamic_cast<port_parent_type*> (this->innerConnectedPort());
     assert(parent_port != NULL);
     parent_port->setFiringLevelMap(firing_level_map);               
   }

@@ -210,11 +210,11 @@ namespace SysteMoC { namespace NGXSync {
       // cache lookup (if object exists it should be a port)
       obj = get(*test);
       if(obj) {
-        smoc_root_port* rp = dynamic_cast<smoc_root_port*>(obj);
+        smoc_root_port *rp = dynamic_cast<smoc_root_port *>(obj);
         assert(rp);
 
         // sync. with idPool (FIXME: index?)
-        idPool.regObj(rp, port->id(), 99);
+        idPool.regObj(dynamic_cast<smoc_port_hixhax *>(obj), port->id(), 99);
 
         return rp;
       }
@@ -232,11 +232,11 @@ namespace SysteMoC { namespace NGXSync {
       // cache lookup (if object exists it should be a port)
       obj = get(*test);
       if(obj) {
-        smoc_root_port* rp = dynamic_cast<smoc_root_port*>(obj);
+        smoc_root_port *rp = dynamic_cast<smoc_root_port *>(obj);
         assert(rp);
 
         // sync. with idPool (FIXME: index?)
-        idPool.regObj(rp, port->id(), 99);
+        idPool.regObj(dynamic_cast<smoc_port_hixhax *>(obj), port->id(), 99);
 
         return rp;
       }

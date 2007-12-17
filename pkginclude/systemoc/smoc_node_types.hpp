@@ -56,6 +56,8 @@ protected:
     std::cerr << "~smoc_actor() name = \"" << name() << "\"" << std::endl;
   }
 #endif
+
+  void finalise();
 public:
 #ifndef __SCFE__
 //sc_module *myModule() { return this; }
