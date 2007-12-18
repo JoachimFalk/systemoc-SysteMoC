@@ -117,7 +117,7 @@ namespace Expr {
   //FIXME
   class ASTNodeToken: public ASTLeafNode {
   private:
-    const smoc_root_port &port;
+    const smoc_port_ast_iface &port;
     size_t                pos;
   public:
     template <typename T, template <typename, typename> class R, class PARAM_TYPE>
@@ -125,7 +125,7 @@ namespace Expr {
       : ASTLeafNode(static_cast<T*>(NULL)),
 	port(port), pos(pos) {}
                 
-    const smoc_root_port *getPort() const;
+    const smoc_port_ast_iface *getPort() const;
     size_t                getPos() const;
     std::string           getNodeType() const;
     std::string           getNodeParam() const;

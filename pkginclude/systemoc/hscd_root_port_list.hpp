@@ -57,10 +57,10 @@ public:
   
   typedef hscd_op_port  this_type;
 private:
-  smoc_root_port       *port;
+  smoc_port_ast_iface       *port;
   size_t    tokens;
   
-  hscd_op_port( smoc_root_port *port, size_t tokens )
+  hscd_op_port( smoc_port_ast_iface *port, size_t tokens )
     : port(port), tokens(tokens) {}
 public:
   bool isInput() const

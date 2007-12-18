@@ -224,9 +224,9 @@ void smoc_graph_base::pgAssemble(
     for ( smoc_node_list::const_iterator iter = nodes.begin();
           iter != nodes.end();
           ++iter ) {
-      const smoc_port_hixhax_list& nsps = (*iter)->getPorts();
+      const smoc_port_sysc_iface_list& nsps = (*iter)->getPorts();
       
-      for ( smoc_port_hixhax_list::const_iterator ps_iter = nsps.begin();
+      for ( smoc_port_sysc_iface_list::const_iterator ps_iter = nsps.begin();
             ps_iter != nsps.end();
             ++ps_iter ) {
         if ( (*ps_iter)->outerConnectedPort() != NULL ) {

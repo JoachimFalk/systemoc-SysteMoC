@@ -253,7 +253,7 @@ namespace SysteMoC { namespace NGXSync {
     // find / cache a port which is compiled into the model and has the
     // same interface as the specified port (returns 0 if none exists)
     // (this makes only sense if all compiled ports are registered)
-    smoc_root_port* getCompiledPort(NGX::Port::ConstPtr p);
+    smoc_port_ast_iface* getCompiledPort(NGX::Port::ConstPtr p);
 
   private:
     // NGX -> SystemC lookup map

@@ -82,9 +82,9 @@ void smoc_root_chan::finalise() {
   
   genName << "cf_";
   {
-    const smoc_port_hixhax_list &out = getOutputPorts();
+    const smoc_port_sysc_iface_list &out = getOutputPorts();
     
-    for ( smoc_port_hixhax_list::const_iterator iter = out.begin();
+    for ( smoc_port_sysc_iface_list::const_iterator iter = out.begin();
           iter != out.end();
           ++iter ) {
       genName
@@ -94,9 +94,9 @@ void smoc_root_chan::finalise() {
   }
   genName << "_";
   {
-    const smoc_port_hixhax_list &in = getInputPorts();
+    const smoc_port_sysc_iface_list &in = getInputPorts();
     
-    for ( smoc_port_hixhax_list::const_iterator iter = in.begin();
+    for ( smoc_port_sysc_iface_list::const_iterator iter = in.begin();
           iter != in.end();
           ++iter ) {
       genName
@@ -138,7 +138,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   IdAttr idChannelPortOut = idPool.printId(getOutputPorts().front(), 1);
   
   // search highest interface port (multiple hierachie layers)
-  const smoc_port_hixhax  *ifPort = getOutputPorts().front();
+  const smoc_port_sysc_iface  *ifPort = getOutputPorts().front();
   while (ifPort->outerConnectedPort())
     ifPort = ifPort->outerConnectedPort();
 

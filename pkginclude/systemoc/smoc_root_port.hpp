@@ -60,32 +60,32 @@ class smoc_root_node;
 // forward declaration
 namespace Expr { template <class E> class Value; }
 
-class smoc_port_hixhax
+class smoc_port_sysc_iface
 : public sc_port_base {
-  typedef smoc_port_hixhax this_type;
+  typedef smoc_port_sysc_iface this_type;
 
   // this is needed for the finalise call
   friend class smoc_root_node;
 private:
   // port one hierarchy level up
-  smoc_port_hixhax *outer;
+  smoc_port_sysc_iface *outer;
   // port one hierarchy level down
-  smoc_port_hixhax *inner;
+  smoc_port_sysc_iface *inner;
 
   static const char* const kind_string;
 public:
-  smoc_port_hixhax(const char *name);
+  smoc_port_sysc_iface(const char *name);
 
   virtual bool isInput()  const = 0;
   virtual bool isOutput() const = 0;
 
-  const smoc_port_hixhax *outerConnectedPort() const
+  const smoc_port_sysc_iface *outerConnectedPort() const
     { return outer; }
-  const smoc_port_hixhax *innerConnectedPort() const
+  const smoc_port_sysc_iface *innerConnectedPort() const
     { return inner; }
-  smoc_port_hixhax *outerConnectedPort()
+  smoc_port_sysc_iface *outerConnectedPort()
     { return outer; }
-  smoc_port_hixhax *innerConnectedPort()
+  smoc_port_sysc_iface *innerConnectedPort()
     { return inner; }
 
   const sc_module *owner() const;
@@ -103,46 +103,30 @@ public:
   virtual const char* kind() const
     { return kind_string; }
 
-  virtual ~smoc_port_hixhax();
+  virtual ~smoc_port_sysc_iface();
 protected:
   /// Finalise port called by smoc_root_node::finalise
   virtual void finalise(smoc_root_node *node) = 0;
 private:
   // disable => non-copyable non-assignable
-  smoc_port_hixhax(const this_type &);
+  smoc_port_sysc_iface(const this_type &);
   this_type& operator = (const this_type &);
 };
 
 static inline
-std::ostream &operator <<(std::ostream &out, const smoc_port_hixhax &p)
+std::ostream &operator <<(std::ostream &out, const smoc_port_sysc_iface &p)
   { p.dump(out); return out; }
 
-typedef std::list<smoc_port_hixhax *> smoc_port_hixhax_list;
+typedef std::list<smoc_port_sysc_iface *> smoc_port_sysc_iface_list;
 
-/*
-class smoc_port_hixhax_in
-: public smoc_port_hixhax {
-public:
-  smoc_port_hixhax_in(const char *name)
-    : smoc_port_hixhax(name) {}
-};
-
-class smoc_port_hixhax_out
-: public smoc_port_hixhax {
-public:
-  smoc_port_hixhax_out(const char *name)
-    : smoc_port_hixhax(name) {}
-};
- */
-
-class smoc_root_port {
-  typedef smoc_root_port this_type;
+class smoc_port_ast_iface {
+  typedef smoc_port_ast_iface this_type;
   
   template <class E> friend class Expr::Value;
   friend class smoc_root_node;
   friend class hscd_choice_active_node;
 protected:
-  smoc_root_port();
+  smoc_port_ast_iface();
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void commExec(size_t, const smoc_ref_event_p &) = 0;
@@ -177,45 +161,45 @@ public:
  */
 
   void dump(std::ostream &out) const;
-  virtual ~smoc_root_port();
+  virtual ~smoc_port_ast_iface();
 };
 
 /*
 static inline
-std::ostream &operator <<(std::ostream &out, const smoc_root_port &p)
+std::ostream &operator <<(std::ostream &out, const smoc_port_ast_iface &p)
   { p.dump(out); return out; }
 */
 
-typedef std::list<smoc_root_port *> smoc_port_list;
+typedef std::list<smoc_port_ast_iface *> smoc_port_list;
 
 class smoc_root_port_in
-: public smoc_root_port,
-  public smoc_port_hixhax {
+: public smoc_port_ast_iface,
+  public smoc_port_sysc_iface {
 public:
   smoc_root_port_in(const char* name_)
-    : smoc_port_hixhax(name_) {}
+    : smoc_port_sysc_iface(name_) {}
 
   bool isInput()  const { return true; }
   bool isOutput() const { return false; }
 
-  // overload pure virtual dump from smoc_port_hixhax
+  // overload pure virtual dump from smoc_port_sysc_iface
   virtual void dump(std::ostream &out) const
-    { return smoc_root_port::dump(out); }
+    { return smoc_port_ast_iface::dump(out); }
 };
 
 class smoc_root_port_out
-: public smoc_root_port,
-  public smoc_port_hixhax {
+: public smoc_port_ast_iface,
+  public smoc_port_sysc_iface {
 public:
   smoc_root_port_out(const char* name_)
-    : smoc_port_hixhax(name_) {}
+    : smoc_port_sysc_iface(name_) {}
 
   bool isInput()  const { return false; }
   bool isOutput() const { return true; }
 
-  // overload pure virtual dump from smoc_port_hixhax
+  // overload pure virtual dump from smoc_port_sysc_iface
   virtual void dump(std::ostream &out) const
-    { return smoc_root_port::dump(out); }
+    { return smoc_port_ast_iface::dump(out); }
 };
   
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP

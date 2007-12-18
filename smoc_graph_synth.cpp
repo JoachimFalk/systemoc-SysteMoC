@@ -143,8 +143,8 @@ void smoc_graph_synth::cachePhase(PortRefList::ConstRef ports, Phase& phase) {
       ++pIter)
   {
     Port::ConstPtr port = pIter->instance();
-    smoc_root_port* rp =
-      dynamic_cast<smoc_root_port*>(NGXCache::getInstance().get(*port));
+    smoc_port_ast_iface* rp =
+      dynamic_cast<smoc_port_ast_iface*>(NGXCache::getInstance().get(*port));
     assert(rp);
     phase[rp] = pIter->attrValueAsSizeT("count").get();
   }
@@ -177,10 +177,10 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
     PortReqMap::const_iterator i, PortReqMap::const_iterator e)
 {
   assert(i != e);
-  smoc_root_port* p = NGXCache::getInstance().getCompiledPort(i->first);
+  smoc_port_ast_iface* p = NGXCache::getInstance().getCompiledPort(i->first);
   assert(p);
   EPortGuard pg =
-    Expr::portTokens<smoc_root_port>(*p) >= i->second.second;
+    Expr::portTokens<smoc_port_ast_iface>(*p) >= i->second.second;
   if(++i != e)
     return pg && portGuard(i, e);
   else
@@ -253,7 +253,7 @@ void smoc_graph_synth::nextActorActivation() {
             // cross cast to obtain interface base class
             smoc_chan_in_base_if* in =
               dynamic_cast<smoc_chan_in_base_if*>(
-                  dynamic_cast<smoc_port_hixhax *>(i->first)->get_interface());
+                  dynamic_cast<smoc_port_sysc_iface *>(i->first)->get_interface());
             assert(in);
             j = CoSupport::pac_insert(chanInMap, i->first, in);
           }

@@ -147,9 +147,9 @@ void smoc_root_node::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_node::finalise() begin, name == " << this->name() << std::endl;
 #endif
-  smoc_port_hixhax_list ports = getPorts();
+  smoc_port_sysc_iface_list ports = getPorts();
   
-  for (smoc_port_hixhax_list::iterator iter = ports.begin();
+  for (smoc_port_sysc_iface_list::iterator iter = ports.begin();
        iter != ports.end();
        ++iter)
     (*iter)->finalise(this);
@@ -158,8 +158,8 @@ void smoc_root_node::finalise() {
 #endif
 }
 
-const smoc_port_hixhax_list smoc_root_node::getPorts() const {
-  smoc_port_hixhax_list   ports;
+const smoc_port_sysc_iface_list smoc_root_node::getPorts() const {
+  smoc_port_sysc_iface_list   ports;
   
   // std::cerr << "=== getPorts ===" << this << std::endl;
   for ( 
@@ -171,7 +171,7 @@ const smoc_port_hixhax_list smoc_root_node::getPorts() const {
          get_child_objects().begin();
        iter != get_child_objects().end();
        ++iter ) {
-    smoc_port_hixhax *port = dynamic_cast<smoc_port_hixhax *>(*iter);
+    smoc_port_sysc_iface *port = dynamic_cast<smoc_port_sysc_iface *>(*iter);
     
     if ( port != NULL )
       ports.push_back(port);
@@ -204,7 +204,7 @@ void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node
 
 void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   //const smoc_firing_states  fs = getFiringStates();
-  const smoc_port_hixhax_list      ps = getPorts();
+  const smoc_port_sysc_iface_list      ps = getPorts();
   
   if ( !ps.empty() ) {
     pgw << "<process name=\"" << name() << "\" "
@@ -213,7 +213,7 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
     {
       pgw.indentUp();
       //**********************************PORTS************************************
-      for ( smoc_port_hixhax_list::const_iterator iter = ps.begin();
+      for ( smoc_port_sysc_iface_list::const_iterator iter = ps.begin();
             iter != ps.end();
             ++iter )
         pgw << "<port name=\"" << (*iter)->name() << "\" "
@@ -435,9 +435,9 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
  
 std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
   o << "actor: " << this->name() << std::endl;
-  smoc_port_hixhax_list ps = getPorts();
+  smoc_port_sysc_iface_list ps = getPorts();
   o << "  ports:" << std::endl;
-  for ( smoc_port_hixhax_list::const_iterator iter = ps.begin();
+  for ( smoc_port_sysc_iface_list::const_iterator iter = ps.begin();
         iter != ps.end();
         ++iter ) {
     o << "  " << *iter << std::endl;

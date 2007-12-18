@@ -43,33 +43,33 @@ using namespace CoSupport;
 using namespace SysteMoC::NGXSync;
 
 
-smoc_port_hixhax::smoc_port_hixhax(const char *name)
+smoc_port_sysc_iface::smoc_port_sysc_iface(const char *name)
   : sc_port_base(name, 1),
     outer(NULL), inner(NULL) {
   idPool.regObj(this);
   idPool.regObj(this, 1);
 }
 
-smoc_port_hixhax::~smoc_port_hixhax() {
+smoc_port_sysc_iface::~smoc_port_sysc_iface() {
   idPool.unregObj(this);
 }
 
-smoc_root_port::smoc_root_port() {
+smoc_port_ast_iface::smoc_port_ast_iface() {
 }
   
-smoc_root_port::~smoc_root_port() {
+smoc_port_ast_iface::~smoc_port_ast_iface() {
 }
 
-void smoc_root_port::dump(std::ostream &out) const {
+void smoc_port_ast_iface::dump(std::ostream &out) const {
   out << "port(" << this
 //    <<      ",name=" << static_cast<const sc_object *>(this)->name()
 //    <<      ",hierarchy=" << getHierarchy()->name()
       <<      ",available=" << availableCount() << ")";
 }
 
-const char* const smoc_port_hixhax::kind_string = "smoc_port_hixhax";
+const char* const smoc_port_sysc_iface::kind_string = "smoc_port_sysc_iface";
 
-const sc_module *smoc_port_hixhax::owner() const {
+const sc_module *smoc_port_sysc_iface::owner() const {
   const sc_module *retval =
     dynamic_cast<const sc_module *>(this->get_parent());
   assert(retval != NULL);
@@ -79,11 +79,11 @@ const sc_module *smoc_port_hixhax::owner() const {
 // Bind interface to this port. This must be here because
 // otherwise the bind definition below would hide all other
 // bind methods with different type signatures.
-void smoc_port_hixhax::bind(sc_interface &interface_) {
+void smoc_port_sysc_iface::bind(sc_interface &interface_) {
   sc_port_base::bind(interface_);
 }
 // Bind parent port to this port and track hierarchy relations.
-void smoc_port_hixhax::bind(this_type &outer_) {
+void smoc_port_sysc_iface::bind(this_type &outer_) {
   assert(outer == NULL && outer_.inner == NULL);
   outer         = &outer_;
   outer_.inner  = this;
@@ -91,7 +91,7 @@ void smoc_port_hixhax::bind(this_type &outer_) {
 }
 
 /*
-smoc_root_node *smoc_root_port::getActor() const {
+smoc_root_node *smoc_port_ast_iface::getActor() const {
   smoc_root_node *retval =
     dynamic_cast<smoc_root_node *>(this->get_parent());
   assert(retval != NULL);

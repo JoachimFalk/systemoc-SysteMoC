@@ -66,7 +66,7 @@ private:
   // commit (can't steal tokens from fifo -> actor needs
   // them!)
   typedef Expr::BinOp<
-    Expr::DPortTokens<smoc_root_port>,
+    Expr::DPortTokens<smoc_port_ast_iface>,
     ESizeT,
     Expr::DOpBinGe>::type EPortGuard;
 
@@ -84,7 +84,7 @@ private:
   EVariant portGuard(const PortReqMap& pr);
 
   // port requirements of single actor for single phase
-  typedef std::map<smoc_root_port*, size_t> Phase;
+  typedef std::map<smoc_port_ast_iface*, size_t> Phase;
   
   // port requirements of single actor for all phases
   typedef std::vector<Phase> Phases;
@@ -128,7 +128,7 @@ private:
   
   // FIXME: interface cache (can't use smoc_port_base where 
   // exact type would be already available)
-  typedef std::map<smoc_root_port*, smoc_chan_in_base_if*> ChanInMap;
+  typedef std::map<smoc_port_ast_iface*, smoc_chan_in_base_if*> ChanInMap;
   ChanInMap chanInMap;
   
   // limit token ids for interface

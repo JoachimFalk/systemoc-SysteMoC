@@ -147,7 +147,7 @@ public:
   void assembleFSM( smoc_modes::PGWriter &pgw ) const;
 #endif
   
-  const smoc_port_hixhax_list getPorts() const;
+  const smoc_port_sysc_iface_list getPorts() const;
   
   const smoc_firing_states getFiringStates() const;
   
