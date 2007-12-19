@@ -79,6 +79,11 @@ public:
   virtual bool isInput()  const = 0;
   virtual bool isOutput() const = 0;
 
+  // SystemC 2.2 requires this method
+  int interface_count() {
+    return 1;
+  }
+
   const smoc_port_sysc_iface *outerConnectedPort() const
     { return outer; }
   const smoc_port_sysc_iface *innerConnectedPort() const
@@ -134,7 +139,9 @@ public:
   virtual void commExec(size_t)                           = 0;
 #endif
 public:
+#ifndef NDEBUG
   virtual void        setLimit(size_t) = 0;
+#endif
   virtual size_t      availableCount() const = 0;
   virtual smoc_event &blockEvent(size_t n = MAX_TYPE(size_t)) = 0;
   
@@ -170,7 +177,7 @@ std::ostream &operator <<(std::ostream &out, const smoc_port_ast_iface &p)
   { p.dump(out); return out; }
 */
 
-typedef std::list<smoc_port_ast_iface *> smoc_port_list;
+//typedef std::list<smoc_port_ast_iface *> smoc_port_list;
 
 class smoc_root_port_in
 : public smoc_port_ast_iface,

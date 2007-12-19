@@ -663,9 +663,9 @@ public:
   size_t numFree() const
     { return this->freeCount(); }
   size_t inTokenId() const
-    { return this->smoc_fifo_storage<T>::inTokenId(); }
+    { return this->smoc_fifo_kind::inTokenId(); }
   size_t outTokenId() const
-    { return this->smoc_fifo_storage<T>::outTokenId(); }
+    { return this->smoc_fifo_kind::outTokenId(); }
   smoc_event &dataAvailableEvent(size_t n)
     { return this->getEventAvailable(n); }
   smoc_event &spaceAvailableEvent(size_t n)

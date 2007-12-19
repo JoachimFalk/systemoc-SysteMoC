@@ -104,84 +104,6 @@ public:
   virtual ~smoc_channel_access() {}
 };
 
-// forward
-template <
-  typename T,
-  template <typename> class R>
-class smoc_port_in_base;
-
-class smoc_chan_in_base_if {
-  typedef smoc_chan_in_base_if this_type;
-public:
-  template <
-    typename T,
-    template <typename> class R>
-  friend class smoc_port_in_base;
-  friend class smoc_graph_synth;
-protected:
-  // constructor
-  smoc_chan_in_base_if() {}
-
-  virtual void registerPort(smoc_root_port_in *portIn) = 0;
-public:
-#ifdef SYSTEMOC_ENABLE_VPC
-  virtual void        commitRead(size_t consume, const smoc_ref_event_p &) = 0;
-#else
-  virtual void        commitRead(size_t consume) = 0;
-#endif
-  virtual smoc_event &dataAvailableEvent(size_t n) = 0;
-  virtual size_t      numAvailable() const = 0;
-  virtual size_t      inTokenId() const = 0;
-
-  virtual const char *name() const = 0;
-
-  virtual ~smoc_chan_in_base_if() {}
-private:
-  // disabled
-  smoc_chan_in_base_if(const this_type &);
-  this_type &operator =(const this_type &);
-};
-
-// forward
-template <
-  typename T, 
-  template <typename> class R, 
-  template <typename> class STORAGE_TYPE>
-class smoc_port_out_base;
-
-class smoc_chan_out_base_if {
-  typedef smoc_chan_out_base_if this_type;
-public:
-  template <
-    typename T, 
-    template <typename> class R, 
-    template <typename> class STORAGE_TYPE>
-  friend class smoc_port_out_base;
-  friend class smoc_graph_synth;
-protected:
-  // constructor
-  smoc_chan_out_base_if() {}
-
-  virtual void registerPort(smoc_root_port_out *portOut) = 0;
-public:
-#ifdef SYSTEMOC_ENABLE_VPC
-  virtual void        commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
-#else
-  virtual void        commitWrite(size_t produce) = 0;
-#endif
-  virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
-  virtual size_t      numFree() const = 0;
-  virtual size_t      outTokenId() const = 0;
-
-  virtual const char *name() const = 0;
-
-  virtual ~smoc_chan_out_base_if() {}
-private:
-  // disabled
-  smoc_chan_out_base_if(const this_type &);
-  this_type &operator =(const this_type &);
-};
-
 class smoc_root_chan
 : public sc_prim_channel {
   typedef smoc_root_chan this_type;
@@ -223,21 +145,23 @@ public:
 };
 
 class smoc_nonconflicting_chan
-: public smoc_root_chan,
-  virtual public smoc_chan_in_base_if,
-  virtual public smoc_chan_out_base_if {
+: public smoc_root_chan {
+//public smoc_chan_in_base_if,
+//public smoc_chan_out_base_if {
   typedef smoc_nonconflicting_chan this_type;
 protected:
   // constructor
   smoc_nonconflicting_chan(const char *name)
     : smoc_root_chan(name) {}
 
-  // this is needed to overwrite the virtual registerPort
-  // methods in smoc_chan_in_base_if and smoc_chan_out_base_if.
-  void registerPort(smoc_root_port_in *portIn)
-    { return smoc_root_chan::registerPort(portIn); }
-  void registerPort(smoc_root_port_out *portOut)
-    { return smoc_root_chan::registerPort(portOut); }
+  void registerPort(smoc_root_port_in *portIn) {
+    assert(getInputPorts().empty());
+    return smoc_root_chan::registerPort(portIn);
+  }
+  void registerPort(smoc_root_port_out *portOut) {
+    assert(getOutputPorts().empty());
+    return smoc_root_chan::registerPort(portOut);
+  }
 
   virtual void finalise();
 
@@ -262,10 +186,89 @@ protected:
   void assemble(smoc_modes::PGWriter &pgw) const;
 };
 
+// forward
+template <
+  typename T,
+  template <typename> class R>
+class smoc_port_in_base;
+
+class smoc_chan_in_base_if
+: virtual public sc_interface {
+  typedef smoc_chan_in_base_if this_type;
+public:
+  template <
+    typename T,
+    template <typename> class R>
+  friend class smoc_port_in_base;
+  friend class smoc_graph_synth;
+protected:
+  // constructor
+  smoc_chan_in_base_if() {}
+
+  virtual void registerPort(smoc_root_port_in *portIn) = 0;
+public:
+#ifdef SYSTEMOC_ENABLE_VPC
+  virtual void        commitRead(size_t consume, const smoc_ref_event_p &) = 0;
+#else
+  virtual void        commitRead(size_t consume) = 0;
+#endif
+  virtual smoc_event &dataAvailableEvent(size_t n) = 0;
+  virtual size_t      numAvailable() const = 0;
+  virtual size_t      inTokenId() const = 0;
+
+  virtual const char *name() const = 0;
+
+  virtual ~smoc_chan_in_base_if() {}
+private:
+  // disabled
+  smoc_chan_in_base_if(const this_type &);
+  this_type &operator =(const this_type &);
+};
+
+// forward
+template <
+  typename T, 
+  template <typename> class R, 
+  template <typename> class STORAGE_TYPE>
+class smoc_port_out_base;
+
+class smoc_chan_out_base_if
+: virtual public sc_interface {
+  typedef smoc_chan_out_base_if this_type;
+public:
+  template <
+    typename T, 
+    template <typename> class R, 
+    template <typename> class STORAGE_TYPE>
+  friend class smoc_port_out_base;
+  friend class smoc_graph_synth;
+protected:
+  // constructor
+  smoc_chan_out_base_if() {}
+
+  virtual void registerPort(smoc_root_port_out *portOut) = 0;
+public:
+#ifdef SYSTEMOC_ENABLE_VPC
+  virtual void        commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
+#else
+  virtual void        commitWrite(size_t produce) = 0;
+#endif
+  virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
+  virtual size_t      numFree() const = 0;
+  virtual size_t      outTokenId() const = 0;
+
+  virtual const char *name() const = 0;
+
+  virtual ~smoc_chan_out_base_if() {}
+private:
+  // disabled
+  smoc_chan_out_base_if(const this_type &);
+  this_type &operator =(const this_type &);
+};
+
 template <typename T, template <typename> class R>
 class smoc_chan_in_if
-  : virtual public sc_interface,
-    virtual public smoc_chan_in_base_if {
+  : virtual public smoc_chan_in_base_if {
 public:
   // typedefs
   typedef smoc_chan_in_if<T,R>                  this_type;
@@ -291,8 +294,7 @@ template <
   template <typename> class R,                    // ring access type
   template <typename> class S = smoc_storage_out> // smoc_storage
 class smoc_chan_out_if
-  : virtual public sc_interface,
-    virtual public smoc_chan_out_base_if {
+  : virtual public smoc_chan_out_base_if {
 public:
   // typedefs
   typedef smoc_chan_out_if<T,R,S> this_type;
@@ -335,6 +337,13 @@ protected:
   // constructor
   smoc_chan_if(const typename chan_kind::chan_init &i)
     : chan_kind(i) {}
+
+  // this is needed to overwrite the virtual registerPort
+  // methods in smoc_chan_in_base_if and smoc_chan_out_base_if.
+  void registerPort(smoc_root_port_in *portIn)
+    { return chan_kind::registerPort(portIn); }
+  void registerPort(smoc_root_port_out *portOut)
+    { return chan_kind::registerPort(portOut); }
 
   const char *name() const
     { return this->T_chan_kind::name(); }

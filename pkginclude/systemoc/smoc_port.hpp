@@ -412,29 +412,24 @@ private:
   
   const char *if_typename() const { return typeid(iface_type).name(); }
 
-  // SystemC 2.2 requires this method
-  int interface_count() {
-    return 1;
-  }
-
   // called by pbind (for internal use only)
-  int vbind( sc_interface& interface_ ) {
-      iface_type *iface = dynamic_cast<iface_type *>( &interface_ );
-      if( iface == 0 ) {
-          // type mismatch
-          return 2;
-      }
-      base_type::bind( *iface );
-      return 0;
+  int vbind(sc_interface& interface_) {
+    iface_type *iface = dynamic_cast<iface_type *>(&interface_);
+    if (iface == 0) {
+      // type mismatch
+      return 2;
+    }
+    base_type::bind(*iface);
+    return 0;
   }
-  int vbind( sc_port_base& parent_ ) {
-      this_type* parent = dynamic_cast<this_type*>( &parent_ );
-      if( parent == 0 ) {
-          // type mismatch
-          return 2;
-      }
-      base_type::bind( *parent );
-      return 0;
+  int vbind(sc_port_base& parent_) {
+    this_type* parent = dynamic_cast<this_type*>(&parent_);
+    if (parent == 0) {
+      // type mismatch
+      return 2;
+    }
+    base_type::bind(*parent);
+    return 0;
   }
 protected:
 
