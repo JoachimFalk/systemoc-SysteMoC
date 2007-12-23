@@ -1202,6 +1202,27 @@ unsigned smoc_wsdf_edge_descr::calc_window_iteration_levels() const {
   return return_value;
 }
 
+unsigned smoc_wsdf_edge_descr::calc_eff_token_iteration_levels() const{
+
+  unsigned return_value = 0;
+
+
+  for(unsigned firing_level = 0; 
+      firing_level < src_num_eff_token_firing_levels; 
+      firing_level++){
+    for(unsigned token_dimension = 0; 
+	token_dimension < token_dimensions;
+	token_dimension++){
+      if (src_has_iteration_level(firing_level,
+                                  token_dimension)){
+	return_value++;
+      }
+    }
+  }
+  return return_value;
+
+}
+
 
 smoc_wsdf_edge_descr::uvector_type 
 smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_level_table,
