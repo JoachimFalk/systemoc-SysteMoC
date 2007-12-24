@@ -286,6 +286,28 @@ public:
     (*this)[i] = value;
   }
 
+  /* Append an element or a complete vector */
+  void append_vector(const this_type& vec) {
+    size_type old_size = this->size();
+    const size_type new_size = old_size + vec.size();
+    this->resize(new_size);
+    for(size_type i = 0; i < vec.size(); i++){
+      (*this)[old_size] = vec[i];
+      old_size++;
+    }
+  }
+
+  void append_item(const T& value){
+    const size_type old_size = this->size();
+    const size_type new_size = old_size + 1;
+    this->resize(new_size);
+    (*this)[old_size] = value;
+  }
+
+  void prepend_item(const T& value){
+    this->insert_item(0,value);
+  }
+
   ///Returns the maximum value stored in the vector
   const T max_value() const {
     T return_value = (*this)[0];
