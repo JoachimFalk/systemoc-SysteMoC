@@ -11,7 +11,7 @@
 //0: No output
 ///100: debug
 #ifndef VERBOSE_LEVEL_SMOC_WSDF_EDGE
-#define VERBOSE_LEVEL_SMOC_WSDF_EDGE 100
+#define VERBOSE_LEVEL_SMOC_WSDF_EDGE 0
 #endif
 
 
