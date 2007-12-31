@@ -227,7 +227,53 @@ smoc_wsdf_edge_descr::firing_levels_snk2src() {
   CoSupport::dout << "Enter smoc_wsdf_edge_descr::firing_levels_snk2src()" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
+  
+  /*
+    Process sink window propagation
+  */
+  for(unsigned int token_dimension = 0;
+      token_dimension < token_dimensions;
+      token_dimension++){
+    
+    // Determine, whether sink block can
+    // be represented by source.
+    // If yes, determine the resulting block
+    // size.
+    udata_type res_block_size = 
+      get_scm_src_firing_block(delta_c[token_dimension],
+                               token_dimension);
+    res_block_size *= 
+      delta_c[token_dimension];
+    
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+    CoSupport::dout << "res_block_size = " << res_block_size << std::endl;
+#endif
+    
+    if (get_scm_snk_firing_block(res_block_size,token_dimension) == 1){       
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << "Insert firing level" << std::endl;
+#endif
+      insert_src_firing_level(res_block_size,
+                              token_dimension);
+      insert_snk_firing_level(res_block_size,
+                              token_dimension);
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << "src_firing_blocks = " 
+                      << src_firing_blocks << std::endl;
+      CoSupport::dout << "snk_firing_blocks = " 
+                      << snk_firing_blocks << std::endl;
+#endif
+      
+    }else{
+      //Either resulting block size cannot be integrated at all
+      //or it belongs to next source firing block
+    }    
+  }
+  
 
+  /*
+    Process sink firing blocks
+   */
   for(unsigned int firing_level = 0; 
       firing_level < snk_num_firing_levels; 
       firing_level++){
