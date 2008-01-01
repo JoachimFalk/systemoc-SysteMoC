@@ -75,6 +75,7 @@ public:
       bs(bs),
       bt(bt)                  
   {
+    set_change_indicator();
     check_parameters();
   }
 
@@ -102,6 +103,7 @@ public:
       bs(bs),
       bt(bt)                  
   {
+    set_change_indicator();
     check_parameters();
   }
 
@@ -372,6 +374,22 @@ private:
       }
     }
   }
+
+private:
+
+  /// This function must be called,
+  /// when an edge parameter is changed
+  void set_change_indicator(){
+    cache_src_iter_max_valid = false;
+    cache_snk_iter_max_valid = false;
+  }
+
+  // Here we realize a sort of change in order to
+  // improve calculation speed
+  mutable bool cache_src_iter_max_valid;
+  mutable bool cache_snk_iter_max_valid;
+  mutable uvector_type snk_iteration_max_cached;
+  mutable uvector_type src_iteration_max_cached;
 
 };
 
