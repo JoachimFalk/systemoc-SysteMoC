@@ -562,6 +562,33 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
   return src_iteration_max_cached;
 }
 
+
+smoc_wsdf_edge_descr::uvector_type 
+smoc_wsdf_edge_descr::snk_num_iterations() const {
+  uvector_type return_vector(snk_iteration_max());
+  
+  for(unsigned int i = 0;
+      i < return_vector.size();
+      i++){
+    return_vector[i]++;
+  }
+
+  return return_vector;
+}
+ 
+smoc_wsdf_edge_descr::uvector_type 
+smoc_wsdf_edge_descr::src_num_iterations() const {
+  uvector_type return_vector(src_iteration_max());
+  
+  for(unsigned int i = 0;
+      i < return_vector.size();
+      i++){
+    return_vector[i]++;
+  }
+
+  return return_vector;
+}
+
 smoc_wsdf_edge_descr::svector_type 
 smoc_wsdf_edge_descr::snk_data_element_mapping_vector() const {
   return -(bs);
@@ -1234,6 +1261,8 @@ smoc_wsdf_edge_descr::get_num_iteration_levels(const s2vector_type& snk_iteratio
 unsigned smoc_wsdf_edge_descr::calc_src_iteration_levels() const {
   unsigned return_value = 0;
 
+  if (cache_src_iteration_levels_valid)
+    return src_iteration_levels_cached;
 
   for(unsigned firing_level = 0; 
       firing_level < src_num_firing_levels; 
@@ -1246,12 +1275,19 @@ unsigned smoc_wsdf_edge_descr::calc_src_iteration_levels() const {
       }
     }
   }
+
+  src_iteration_levels_cached = return_value;
+  cache_src_iteration_levels_valid = true;
+
   return return_value;
 }
 
 
 unsigned smoc_wsdf_edge_descr::calc_window_iteration_levels() const {
   unsigned return_value = 0;
+
+  if (cache_num_window_iteration_levels_valid)
+    return num_window_iteration_levels_cached;
 
 
   for(unsigned firing_level = 0; 
@@ -1267,6 +1303,10 @@ unsigned smoc_wsdf_edge_descr::calc_window_iteration_levels() const {
       }
     }
   }
+
+  cache_num_window_iteration_levels_valid = true;
+  num_window_iteration_levels_cached = return_value;
+
   return return_value;
 }
 
@@ -1274,6 +1314,8 @@ unsigned smoc_wsdf_edge_descr::calc_eff_token_iteration_levels() const{
 
   unsigned return_value = 0;
 
+  if (cache_eff_token_iteration_levels_valid)
+    return eff_token_iteration_levels_cached;
 
   for(unsigned firing_level = 0; 
       firing_level < src_num_eff_token_firing_levels; 
@@ -1287,6 +1329,10 @@ unsigned smoc_wsdf_edge_descr::calc_eff_token_iteration_levels() const{
       }
     }
   }
+
+  cache_eff_token_iteration_levels_valid = true;
+  eff_token_iteration_levels_cached = return_value;
+
   return return_value;
 
 }

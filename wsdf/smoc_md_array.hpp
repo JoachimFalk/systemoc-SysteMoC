@@ -45,8 +45,12 @@ private:
 private:
   //converts a given coordinate into the memory position
   //where we can find the data element in the buffer
+  //idx_offset indicates the first element of
+  //the vector which shall be taken into account
   template <typename T2>
-  unsigned long get_mem_position(const T2& idx) const;
+  unsigned long get_mem_position(const T2& idx,
+                                 unsigned int idx_offset = 0
+                                 ) const;
 
   template <typename T2>
   bool allocate_memory(unsigned int nbr_dimensions,           //number of dimensions
@@ -61,6 +65,14 @@ public:
   DATA_TYPE& operator[](const T2& idx);
   template <typename T2>
   const DATA_TYPE& operator[](const T2& idx) const;
+
+  //Data element access with index offset
+  template <typename T2>
+  DATA_TYPE& get_item(const T2& idx,
+                      unsigned int idx_offset);
+  template <typename T2>
+  const DATA_TYPE& get_item(const T2& idx,
+                            unsigned int idx_offset) const;
 };
 
 template <typename DATA_TYPE> template <typename T2>
@@ -142,17 +154,18 @@ unsigned long smoc_md_array<DATA_TYPE>::size(unsigned int dimension) const {
 }
 
 template <typename DATA_TYPE> template <typename T2>
-unsigned long smoc_md_array<DATA_TYPE>::get_mem_position(const T2& idx) const{
+unsigned long smoc_md_array<DATA_TYPE>::get_mem_position(const T2& idx,
+                                                         unsigned int idx_offset) const{
   unsigned long mem_pos = 0;
   unsigned long mul_factor = 1;  
 
   for (unsigned int i = 0; i < nbr_dimensions; i++){
-    assert(idx[i] >= 0);
+    assert(idx[i+idx_offset] >= 0);
     //std::cout << "i = " << i << ": ";
-    //std::cout << "idx[i] = " << idx[i] << " ";
+    //std::cout << "idx[i+idx_offset] = " << idx[i+idx_offset] << " ";
     //std::cout << "buffer_extensions[i] = " << buffer_extensions[i] << std::endl;
-    assert((unsigned long)idx[i] < buffer_extensions[i]);
-    mem_pos += idx[i] * mul_factor;
+    assert((unsigned long)idx[i+idx_offset] < buffer_extensions[i]);
+    mem_pos += idx[i+idx_offset] * mul_factor;
     mul_factor *= buffer_extensions[i];
   }
 
@@ -167,6 +180,20 @@ DATA_TYPE& smoc_md_array<DATA_TYPE>::operator[](const T2& idx){
 template <typename DATA_TYPE>   template <typename T2>
 const DATA_TYPE& smoc_md_array<DATA_TYPE>::operator[](const T2& idx) const {
   return data_buffer[get_mem_position(idx)];
+}
+
+template <typename DATA_TYPE> template <typename T2>
+DATA_TYPE& 
+smoc_md_array<DATA_TYPE>::get_item(const T2& idx,
+                                   unsigned int idx_offset) {
+  return data_buffer[get_mem_position(idx,idx_offset)];
+}
+
+template <typename DATA_TYPE> template <typename T2>
+const DATA_TYPE& 
+smoc_md_array<DATA_TYPE>::get_item(const T2& idx,
+                                   unsigned int idx_offset) const{
+  return data_buffer[get_mem_position(idx,idx_offset)];
 }
 
 template <typename DATA_TYPE>
