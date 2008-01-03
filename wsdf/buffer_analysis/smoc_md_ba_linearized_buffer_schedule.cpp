@@ -19,11 +19,13 @@ namespace smoc_md_ba {
          snk_md_loop_iterator,
          buffer_height),
       snk2src_invocation_table(*(new smoc_md_array<unsigned long>
-        (snk_md_loop_iterator.iterator_depth(),
-         snk_md_loop_iterator.iteration_size()))),
+                                 (snk_md_loop_iterator.iterator_depth()-
+                                  snk_md_loop_iterator.token_dimensions(),
+                                  snk_md_loop_iterator.iteration_size()))),
       src2snk_invocation_table(*(new smoc_md_array<unsigned long>
-        (src_md_loop_iterator.iterator_depth(),
-         src_md_loop_iterator.iteration_size()))),
+                                 (src_md_loop_iterator.iterator_depth()-
+                                  src_md_loop_iterator.token_dimensions(),
+                                  src_md_loop_iterator.iteration_size()))),
       current_src_iteration(src_md_loop_iterator.iterator_depth())
   {
     init_src_order_vector();
