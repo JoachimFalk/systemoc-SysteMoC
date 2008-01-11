@@ -397,6 +397,108 @@ int main() {
 
 
 
+  cout << " ************************** Example 6 ************************** " << endl;
+
+  smoc_wsdf_edge_descr edge6(2,
+                             //src firing blocks
+                             ul_vector_init[1][1] <<
+                             ul_vector_init[64][64] << 
+                             ul_vector_init[2048][1080],
+                             //snk firing blocks
+                             ul_vector_init[2048][1080],
+                             //u0
+                             ul_vector_init[2048][1080],
+                             //c
+                             ul_vector_init[1][1],
+                             //delta_c
+                             ul_vector_init[1][1],
+                             //d
+                             ul_vector_init[0][0],
+                             //bs
+                             sl_vector_init[0][0],
+                             //bt
+                             sl_vector_init[0][0]);
+
+  edge6.print_edge_parameters(cout);
+  cout << endl;
+  smoc_wsdf_iter_max* iter_max(&(edge6.ext_src_iteration_max()));
+  cout << *iter_max << endl;
+
+  delete iter_max;
+
+  cout << endl << endl << endl;
+
+  
+  cout << " ************************** Example 7 ************************** " << endl;
+
+  smoc_wsdf_edge_descr edge7(2,
+                             //src firing blocks
+                             ul_vector_init[1][1] <<
+                             ul_vector_init[3][3] << 
+                             ul_vector_init[10][5] <<
+                             ul_vector_init[25][6],
+                             //snk firing blocks
+                             ul_vector_init[25][6],
+                             //u0
+                             ul_vector_init[25][6],
+                             //c
+                             ul_vector_init[1][1],
+                             //delta_c
+                             ul_vector_init[1][1],
+                             //d
+                             ul_vector_init[0][0],
+                             //bs
+                             sl_vector_init[0][0],
+                             //bt
+                             sl_vector_init[0][0]);
+
+  edge7.print_edge_parameters(cout);
+  cout << endl;
+  iter_max = &(edge7.ext_src_iteration_max());
+  cout << *iter_max << endl;
+
+  delete iter_max;
+
+  cout << endl << endl << endl;
+
+
+   cout << " ************************** Example 8 ************************** " << endl;
+
+  smoc_wsdf_edge_descr edge8(1,
+                             //src firing blocks
+                             ul_vector_init[1] <<
+                             ul_vector_init[3] << 
+                             ul_vector_init[4] <<
+                             ul_vector_init[10] << 
+                             ul_vector_init[15],
+                             //snk firing blocks
+                             ul_vector_init[15],
+                             //u0
+                             ul_vector_init[15],
+                             //c
+                             ul_vector_init[1],
+                             //delta_c
+                             ul_vector_init[1],
+                             //d
+                             ul_vector_init[0],
+                             //bs
+                             sl_vector_init[0],
+                             //bt
+                             sl_vector_init[0]);
+
+  edge8.print_edge_parameters(cout);
+  cout << endl;
+  iter_max = &(edge8.ext_src_iteration_max());
+  cout << *iter_max << endl;
+
+  delete iter_max;
+
+  cout << endl << endl << endl;
+
+  
+
+
+
   exit(0);
                              
 }
