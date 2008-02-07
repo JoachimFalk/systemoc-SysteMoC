@@ -2,15 +2,18 @@
 #include <cstdlib>
 #include <iostream>
 
-template<typename Data, int INPUTS=1, int OUTPUTS=1, int ReadTokenAtOnce=1, int WriteTokenAtOnce=ReadTokenAtOnce>
-class NtoM
+template<typename Data, int ReadTokenAtOnce=1, int WriteTokenAtOnce=ReadTokenAtOnce>
+class NtoMVec
   : public smoc_actor {
 public:
-  smoc_port_in<Data> inPuts[INPUTS];
-  smoc_port_out<Data> outPuts[OUTPUTS];
+  smoc_port_in<Data> *inPuts;
+  smoc_port_out<Data> *outPuts;
 
 
 private:
+  int INPUTS;
+  int OUTPUTS;
+
   void process()  {
     // outPuts[0][0] = 14;//inPuts[0][0];
     cout << name() << ".src("<< inPuts[0] <<")(1)" << endl;
@@ -24,11 +27,14 @@ private:
 
   smoc_firing_state main;
 public:
-  NtoM(sc_module_name name)
+  NtoMVec(sc_module_name name, int inp, int outp)
     : smoc_actor( name, main ) {
+    INPUTS=inp;
+    OUTPUTS=outp;
+    inPuts = new smoc_port_in<Data>[INPUTS];
+    outPuts = new smoc_port_out<Data>[OUTPUTS];
 
     Expr::Ex<bool >::type eIn(inPuts[0](ReadTokenAtOnce) );
-    cout<<"test eIN"<<endl;
     for(int allInputs = 1; allInputs < INPUTS; allInputs++){
       eIn = eIn && inPuts[allInputs](ReadTokenAtOnce);
     }
@@ -41,7 +47,7 @@ public:
     main =
         eIn                  >>
         eOut                 >>
-        CALL(NtoM::process)  >> main
+        CALL(NtoMVec::process)  >> main
       ;
   }
 };
