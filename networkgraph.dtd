@@ -78,6 +78,9 @@
   name CDATA #REQUIRED
   id ID #REQUIRED
   type (in|out) #REQUIRED
+  commit_width CDATA #IMPLIED
+  offset_width CDATA #IMPLIED
+  tokens_width CDATA #IMPLIED
 >
 
 <!ELEMENT portmapping EMPTY>
