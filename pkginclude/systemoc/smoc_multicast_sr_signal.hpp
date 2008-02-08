@@ -251,6 +251,12 @@ public:
     return limit;
   }
 
+  virtual void   registerChannelAccessListener(ChannelAccessListener * l){
+#ifdef SYSTEMOC_ENABLE_VPC
+    this->actualValue.registerChannelAccessListener(l);
+#endif // SYSTEMOC_ENABLE_VPC
+  }
+
   virtual bool tokenIsValid(size_t i) const {
     return this->isDefined();
   }
@@ -330,6 +336,11 @@ public:
     return limit;
   }
 
+  virtual void   registerChannelAccessListener(ChannelAccessListener * l){
+#ifdef SYSTEMOC_ENABLE_VPC
+    this->actualValue.registerChannelAccessListener(l);
+#endif // SYSTEMOC_ENABLE_VPC
+  }
   virtual bool tokenIsValid(size_t i) const {
     return this->isDefined();
   }

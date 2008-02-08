@@ -65,6 +65,8 @@ public:
 #endif
   virtual bool   tokenIsValid(size_t) const           = 0;
 
+  virtual void   registerChannelAccessListener(ChannelAccessListener * l) = 0;
+
   // Access methods
   virtual return_type operator[](size_t)              = 0;
   virtual const return_type operator[](size_t) const  = 0;
@@ -83,6 +85,8 @@ public:
 #endif
   virtual bool   tokenIsValid(size_t) const           = 0;
 
+  virtual void   registerChannelAccessListener(ChannelAccessListener * l) = 0;
+
   // return_type == void => No access methods needed
 
   virtual ~smoc_channel_access() {}
@@ -98,6 +102,8 @@ public:
   virtual void   setLimit(size_t)                    = 0;
 #endif
   virtual bool   tokenIsValid(size_t) const          = 0;
+
+  virtual void   registerChannelAccessListener(ChannelAccessListener * l) = 0;
 
   // return_type == const void => No access methods needed
 

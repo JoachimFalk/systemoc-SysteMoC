@@ -5,7 +5,7 @@
 #define _INCLUDED_SMOC_MD_CHAN_IF_HPP
 
 #include "smoc_md_loop.hpp"
-
+#include <systemoc/ChannelAccessListener.hpp>
 
 /// Interface for multi-dimensional channel access
 /// This interface is used by the multi-dimensional ports
@@ -25,6 +25,8 @@ public:
 #ifndef NDEBUG          
   virtual void setLimit(size_t limit) = 0;
 #endif
+
+  virtual void   registerChannelAccessListener(ChannelAccessListener * l) {};
     
   /* Data Element Access */
   virtual return_type operator[](const iter_domain_vector_type& window_iteration) = 0;
@@ -56,6 +58,8 @@ public:
 #ifndef NDEBUG          
   virtual void setLimit(size_t limit) = 0;
 #endif
+
+  virtual void   registerChannelAccessListener(ChannelAccessListener * l) {}
     
   /* Data Element Access */
   virtual return_type operator[](const iter_domain_vector_type& window_iteration) = 0;

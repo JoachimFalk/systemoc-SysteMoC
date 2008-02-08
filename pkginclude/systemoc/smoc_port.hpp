@@ -422,6 +422,10 @@ public:
 
   typedef typename T::access_type        ChannelAccess;
   template <class E> friend class Expr::Sensitivity;
+
+  virtual void registerChannelAccessListener(ChannelAccessListener * l){
+    this->channel_access->registerChannelAccessListener(l);
+  }
 private:
   typedef P                   base_type;
   

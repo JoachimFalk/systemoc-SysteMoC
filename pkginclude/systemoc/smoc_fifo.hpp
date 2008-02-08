@@ -84,6 +84,14 @@ public:
     return true;
   }
 
+  virtual void   registerChannelAccessListener(ChannelAccessListener * l){
+#ifdef SYSTEMOC_ENABLE_VPC
+    for(size_t i = 0; i<storageSize; ++i){
+      storage[i].registerChannelAccessListener(l);
+    }
+#endif // SYSTEMOC_ENABLE_VPC
+  }
+
   return_type operator[](size_t n) {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
     assert(n < limit);
@@ -119,6 +127,10 @@ public:
     // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
     // then it is an design failure
     return true;
+  }
+
+  virtual void   registerChannelAccessListener(ChannelAccessListener * l){
+    return; // no storage, no listener ??
   }
 };
 

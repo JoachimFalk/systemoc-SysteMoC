@@ -39,12 +39,19 @@
 #include <cassert>
 #include <new>
 
+#include <systemoc/ChannelAccessListener.hpp>
+
 template<class T>
 class smoc_storage
 {
 private:
   char mem[sizeof(T)];
   bool valid;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  typedef std::list<ChannelAccessListener *> ListenerList ;
+  ListenerList channelAccessListener;
+#endif // SYSTEMOC_ENABLE_VPC
 private:
   T* ptr()
   { return reinterpret_cast<T*>(mem); }
@@ -57,6 +64,9 @@ public:
   smoc_storage(const T& t) : valid(true) { new(mem) T(t); }
 
   const T& get() const {
+#ifdef SYSTEMOC_ENABLE_VPC
+    this->fireRead();
+#endif // SYSTEMOC_ENABLE_VPC
     assert(valid);
     return *ptr();
   }
@@ -65,6 +75,9 @@ public:
     { return get(); }
 
   void put(const T &t) {
+#ifdef SYSTEMOC_ENABLE_VPC
+    this->fireWrite();
+#endif // SYSTEMOC_ENABLE_VPC
     if(valid) {
       *ptr() = t;
     } else {
@@ -105,6 +118,34 @@ public:
       valid = false;
     }
   }
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  // 
+  void registerChannelAccessListener(ChannelAccessListener *l){
+    this->channelAccessListener.push_back(l);
+  }
+
+private:
+
+  // notify listeners
+  void fireRead() const{
+    for(ListenerList::const_iterator i = channelAccessListener.begin();
+        i != channelAccessListener.end();
+        ++i){
+      (*i)->readToken();
+    }
+  }
+
+  // notify listeners
+  void fireWrite() const{
+    for(ListenerList::const_iterator i = channelAccessListener.begin();
+        i != channelAccessListener.end();
+        ++i){
+      (*i)->writeToken();
+    }
+  }
+#endif // SYSTEMOC_ENABLE_VPC
+
 };
 
 /// smoc storage with read only memory interface
