@@ -560,7 +560,8 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
             defined.clear();
           }
 
-        }else if(
+        }
+        if(
 #ifdef SYSTEMOC_ENABLE_VPC
                  inCommState.empty() &&
 #endif // SYSTEMOC_ENABLE_VPC
@@ -592,19 +593,20 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
   
         }
 
+        if(
 #ifdef SYSTEMOC_ENABLE_VPC
-        if( !bottom && !inCommState && !nonStrict && !inCommState.empty() ){
-#else
-        if( !bottom && !nonStrict ){
+           !inCommState &&
 #endif
+           !bottom && !nonStrict ){
           //cerr << "WAIT" << endl;
           smoc_transition_ready_list all;
 #ifdef SYSTEMOC_ENABLE_VPC
-          all |= inCommState;
+          if( !inCommState.empty()       ) all |= inCommState;
 #endif
-          all |= bottom;
-          all |= nonStrict;
-          smoc_wait(all);
+          if( !bottom.empty()            ) all |= bottom;
+          if( !nonStrict.empty()         ) all |= nonStrict;
+          if( !nonStrictReleased.empty() ) all |= nonStrictReleased;
+          if( !all.empty()               ) smoc_wait(all);
         }
   
       }while(1);
