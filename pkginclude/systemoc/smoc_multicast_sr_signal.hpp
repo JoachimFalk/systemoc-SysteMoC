@@ -514,15 +514,26 @@ public:
   }
 
   chan_type &connect(smoc_port_out<data_type> &outPort){
-    chan_type *chan = new chan_type(*this);
+    assert( !chan ); // only one outport support for multi-cast
+    chan = new chan_type(*this);
     outPort(chan->getEntry());
     return *chan;
   }
   
+  chan_type &connect(smoc_port_in<data_type> &inPort){
+    assert( chan ); // we need to connect an outport first
+    return chan->connect(inPort);
+  }
+
   smoc_multicast_sr_signal( )
-    : smoc_multicast_sr_signal_type<T>::chan_init( NULL, 1 ) {}
+    : smoc_multicast_sr_signal_type<T>::chan_init( NULL, 1 ),
+      chan( NULL ) {}
+
   explicit smoc_multicast_sr_signal( const char *name )
-    : smoc_multicast_sr_signal_type<T>::chan_init( name, 1 ) {}
+    : smoc_multicast_sr_signal_type<T>::chan_init( name, 1 ),
+      chan( NULL ) {}
+private:
+  chan_type *chan;
 };
 
 #endif // _INCLUDED_SMOC_MULTICAST_SR_SIGNAL_HPP
