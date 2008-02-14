@@ -27,12 +27,20 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 if SYNTH
+  SYNTHESIS_SUBDIR = synthesis
+  HWSYNTH_SUBDIR   = hwsynth
+  HWSYNTHC_SUBDIR  = hwsynth-concurrent
+  TESTLIB_SUBDIR   = testlib
+  SGX_SUBDIR       = specs
+
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
   include $(root_builddir)/Synthesis-Actor-Cynthesizer/Rules-Synth.mk
+  include $(root_builddir)/Synthesis-Actor-Concurrent/Rules-Synth.mk
+  include $(root_builddir)/Simulation-HW-Actor/Rules-Testlib.mk
   include $(root_builddir)/specGen/Rules-Synth.mk
 endif
 
-AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
+AM_LDFLAGS = @AM_LDFLAGS@  @BOOST_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -I$(srcdir)/../systemoc-idct2d -Wno-deprecated
 
 LIBS= @LIBS@ -lsystemoc
@@ -83,14 +91,13 @@ check: autotest.sh
 	./autotest.sh
 
 if SYNTH
-SYNTHESIS_SUBDIR = synthesis
-HWSYNTH_SUBDIR   = hwsynth
-SGX_SUBDIR     = specs
 
 USR_DEF_SKELETONS = $(srcdir)/../systemoc-idct2d
 
 synth:   $(SYNTHESIS_SUBDIR)/smoc-synth-jpeg
 hwsynth: $(HWSYNTH_SUBDIR)/smoc-hwsynth-all-jpeg.stamp
+hwsynthc: $(HWSYNTHC_SUBDIR)/smoc-hwsynthc-all-jpeg.stamp
+testlib : $(TESTLIB_SUBDIR)/all-dummies-jpeg.log
 sgx:  	 $(SGX_SUBDIR)/specgraph.dtd \
 	 $(SGX_SUBDIR)/jpeg.pgx \
 	 $(root_builddir)/specGen/specGenDir.sh
@@ -103,11 +110,12 @@ sgx:  	 $(SGX_SUBDIR)/specgraph.dtd \
 $(SYNTHESIS_SUBDIR)/jpeg.ast.xml: $(simulation_jpeg_SOURCES)
 
 $(SYNTHESIS_SUBDIR)/smoc-synth-jpeg: BitSplitter.cpp
+$(SYNTHESIS_SUBDIR)/smoc-testgen-jpeg: BitSplitter.cpp
 
 $(SGX_SUBDIR)/%.pgx: $(SYNTHESIS_SUBDIR)/%.pg.xml
 	sed -e 's/networkgraph\.dtd/specgraph\.dtd/g'\
 	    -e 's/networkgraph/specificationgraph/g'\
 	    $^ > $@
 
-.PHONY: synth hwsynth sgx
+.PHONY: synth hwsynth hwsynthc testlib sgx
 endif
