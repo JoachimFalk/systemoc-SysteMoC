@@ -499,6 +499,7 @@ InvHuffman::InvHuffman(sc_module_name name)
     | // store data
       ( in(1)                                                  &&
         !JS_ISCTRL(in.getValueAt(0))                           &&
+        !GUARD(InvHuffman::isEnoughDcBits)                     &&
         GUARD(InvHuffman::canStore) )                          >>
       CALL(InvHuffman::storeData)                              >> discoverDC
     ;
@@ -545,6 +546,7 @@ InvHuffman::InvHuffman(sc_module_name name)
     | // store data
       ( in(1)                                                  &&
         !JS_ISCTRL(in.getValueAt(0))                           &&
+        !GUARD(InvHuffman::isEnoughAcBits)                     &&
         GUARD(InvHuffman::canStore) )                          >>
       CALL(InvHuffman::storeData)                              >> writeAC
     ;
