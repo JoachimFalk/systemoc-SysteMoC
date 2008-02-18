@@ -26,7 +26,7 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-if SYNTH
+if SYNTH_SW
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 endif
 
@@ -57,7 +57,7 @@ autotest.sh: simulation-sqr $(srcdir)/autotest-sh
 check: autotest.sh
 	./autotest.sh
   
-if SYNTH
+if SYNTH_SW
 SYNTHESIS_SUBDIR = synthesis
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-sqr

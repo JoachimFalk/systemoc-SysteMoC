@@ -26,18 +26,25 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-if SYNTH
+if SYNTH_SW
   SYNTHESIS_SUBDIR = synthesis
-  HWSYNTH_SUBDIR   = hwsynth
-  HWSYNTHC_SUBDIR  = hwsynth-concurrent
-  TESTLIB_SUBDIR   = testlib
-  SGX_SUBDIR       = specs
-
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
+endif
+if SYNTH_HW
+  HWSYNTH_SUBDIR   = hwsynth
   include $(root_builddir)/Synthesis-Actor-Cynthesizer/Rules-Synth.mk
+endif
+if SYNTH_HWC
+  HWSYNTHC_SUBDIR  = hwsynth-concurrent
   include $(root_builddir)/Synthesis-Actor-Concurrent/Rules-Synth.mk
-  include $(root_builddir)/Simulation-HW-Actor/Rules-Testlib.mk
+endif
+if SYNTH_SGX
+  SGX_SUBDIR       = specs
   include $(root_builddir)/specGen/Rules-Synth.mk
+endif
+if SYNTH_TESTLIB
+  TESTLIB_SUBDIR   = testlib
+  include $(root_builddir)/Simulation-HW-Actor/Rules-Testlib.mk
 endif
 
 AM_LDFLAGS = @AM_LDFLAGS@  @BOOST_LDFLAGS@ @SYSTEMOC_LDFLAGS@
@@ -90,14 +97,29 @@ autotest.sh: simulation-jpeg $(srcdir)/autotest-sh
 check: autotest.sh
 	./autotest.sh
 
-if SYNTH
-
 USR_DEF_SKELETONS = $(srcdir)/../systemoc-idct2d
 
+if SYNTH_SW
 synth:   $(SYNTHESIS_SUBDIR)/smoc-synth-jpeg
+
+$(SYNTHESIS_SUBDIR)/smoc-synth-jpeg: BitSplitter.cpp
+$(SYNTHESIS_SUBDIR)/smoc-testgen-jpeg: BitSplitter.cpp
+$(SYNTHESIS_SUBDIR)/jpeg.ast.xml: $(simulation_jpeg_SOURCES)
+.PHONY: synth
+endif
+if SYNTH_HW
 hwsynth: $(HWSYNTH_SUBDIR)/smoc-hwsynth-all-jpeg.stamp
+.PHONY: hwsynth
+endif
+if SYNTH_HWC
 hwsynthc: $(HWSYNTHC_SUBDIR)/smoc-hwsynthc-all-jpeg.stamp
+.PHONY: hwsynthc
+endif
+if SYNTH_TESTLIB
 testlib : $(TESTLIB_SUBDIR)/all-dummies-jpeg.log
+.PHONY: testlib
+endif
+if SYNTH_SGX
 sgx:  	 $(SGX_SUBDIR)/specgraph.dtd \
 	 $(SGX_SUBDIR)/jpeg.pgx \
 	 $(root_builddir)/specGen/specGenDir.sh
@@ -106,16 +128,10 @@ sgx:  	 $(SGX_SUBDIR)/specgraph.dtd \
 	$(srcdir)/specGen-mapping/ \
 	${SGX_SUBDIR}
 
-
-$(SYNTHESIS_SUBDIR)/jpeg.ast.xml: $(simulation_jpeg_SOURCES)
-
-$(SYNTHESIS_SUBDIR)/smoc-synth-jpeg: BitSplitter.cpp
-$(SYNTHESIS_SUBDIR)/smoc-testgen-jpeg: BitSplitter.cpp
-
 $(SGX_SUBDIR)/%.pgx: $(SYNTHESIS_SUBDIR)/%.pg.xml
 	sed -e 's/networkgraph\.dtd/specgraph\.dtd/g'\
 	    -e 's/networkgraph/specificationgraph/g'\
 	    $^ > $@
 
-.PHONY: synth hwsynth hwsynthc testlib sgx
+.PHONY: sgx
 endif

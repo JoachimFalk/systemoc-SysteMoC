@@ -40,7 +40,7 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-if SYNTH
+if SYNTH_SW
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 endif
 
@@ -72,7 +72,7 @@ all: test_in.dat
 %.dat: %-dat
 	cp $^ $@
 
-if SYNTH
+if SYNTH_SW
 SYNTHESIS_SUBDIR = synthesis
 
 $(SYNTHESIS_SUBDIR)/%.dat: %-dat

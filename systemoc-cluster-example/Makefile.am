@@ -26,7 +26,7 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-if SYNTH
+if SYNTH_SW
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 endif
 
@@ -47,7 +47,7 @@ simulation_cluster_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 CLEANFILES=$(noinst_SCRIPTS)
 
-if SYNTH
+if SYNTH_SW
 SYNTHESIS_SUBDIR = synthesis
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-cluster

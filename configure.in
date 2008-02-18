@@ -39,12 +39,117 @@ ACJF_ARG_DEBUG([yes], [], [-DNDEBUG])
 AC_ARG_ENABLE(synthesis-support,
   [  --enable-synthesis-support     Turn on Support for synth target in selected examples],
   [case "${enableval}" in
-    yes) synth=true ;;
-    no)  synth=false ;;
-    *) AC_MSG_ERROR(bad value ${enableval} for --enable-synthesis-support) ;;
+    yes)  synth=auto
+      ;;
+    no)   synth=false
+      ;;
+    *)
+      synth=""
+      while test x"${enableval}" != x; do
+        optval="${enableval%%,*}";
+        case "${optval}" in
+          sw|SW)    synth="${synth}:sw:";;
+          hw|HW)    synth="${synth}:hw:";;
+          hwc|HWC)  synth="${synth}:hwc:";;
+          testlib)  synth="${synth}:testlib:";;
+          sgx|SGX)  synth="${synth}:sgx:";;
+          *)        AC_MSG_ERROR([bad value ${optval} for --enable-synthesis-support]);;
+        esac
+        enableval="${enableval#*,}"
+      done
+      ;;
    esac],
-  [synth=false])
-AM_CONDITIONAL(SYNTH, test x$synth = xtrue)
+  [synth=auto])
+
+case "$synth" in
+  *:sw:*)
+    synth_sw=true
+    ;;
+  auto)
+    if test -d $srcdir/../Synthesis-SW/; then
+      synth_sw=true
+    else
+      synth_sw=false
+    fi
+    ;;
+  *)
+    synth_sw=false
+    ;;
+esac
+
+AM_CONDITIONAL(SYNTH_SW,      test x$synth_sw      = xtrue)
+
+case "$synth" in
+  *:hw:*)
+    synth_hw=true
+    ;;
+  auto)
+    if test -d $srcdir/../Synthesis-Actor-Cynthesizer/; then
+      synth_hw=true
+    else
+      synth_hw=false
+    fi
+    ;;
+  *)
+    synth_hw=false
+    ;;
+esac
+
+AM_CONDITIONAL(SYNTH_HW,      test x$synth_hw      = xtrue)
+
+case "$synth" in
+  *:hwc:*)
+    synth_hwc=true
+    ;;
+  auto)
+    if test -d $srcdir/../Synthesis-Actor-Concurrent/; then
+      synth_hwc=true
+    else
+      synth_hwc=false
+    fi
+    ;;
+  *)
+    synth_hwc=false
+    ;;
+esac
+
+AM_CONDITIONAL(SYNTH_HWC,     test x$synth_hwc     = xtrue)
+
+case "$synth" in
+  *:sgx:*)
+    synth_sgx=true
+    ;;
+  auto)
+    if test -d $srcdir/../specGen/; then
+      synth_sgx=true
+    else
+      synth_sgx=false
+    fi
+    ;;
+  *)
+    synth_sgx=false
+    ;;
+esac
+
+AM_CONDITIONAL(SYNTH_SGX,     test x$synth_sgx     = xtrue)
+
+case "$synth" in
+  *:testlib:*)
+    synth_testlib=true
+    ;;
+  auto)
+    if test -d $srcdir/../Simulation-HW-Actor/; then
+      synth_testlib=true
+    else
+      synth_testlib=false
+    fi
+    ;;
+  *)
+    synth_testlib=false
+    ;;
+esac
+
+AM_CONDITIONAL(SYNTH_TESTLIB, test x$synth_testlib = xtrue)
 
 ### SystemC-VPC ###
 # --enable-vpc option

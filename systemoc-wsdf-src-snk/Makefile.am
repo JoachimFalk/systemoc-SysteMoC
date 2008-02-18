@@ -26,7 +26,7 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-if SYNTH
+if SYNTH_SW
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 endif
 
@@ -54,7 +54,7 @@ simulation_wsdf_src_snk_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 simulation_1D_src_snk_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 plain_cpp_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-if SYNTH
+if SYNTH_SW
 SYNTHESIS_SUBDIR = synthesis
 
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-wsdf
