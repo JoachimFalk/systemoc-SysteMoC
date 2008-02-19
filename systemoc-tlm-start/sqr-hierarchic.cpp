@@ -1,21 +1,21 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2007 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
- *   This program is free software; you can redistribute it and/or modify it under
- *   the terms of the GNU General Public License as published by the Free Software
- *   Foundation; either version 2 of the License, or (at your option) any later
- *   version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  * 
- *   This program is distributed in the hope that it will be useful, but WITHOUT
- *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- *   FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
- *   details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+   details.
  * 
- *   You should have received a copy of the GNU General Public License along with
- *   this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- *   Place, Suite 330, Boston, MA 02111-1307 USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place, Suite 330, Boston, MA 02111-1307 USA.
  * 
  * --- This software and any associated documentation is provided "as is" 
  * 
@@ -71,7 +71,8 @@ private:
   smoc_firing_state start;
 public:
   Src(sc_module_name name, SMOC_ACTOR_CPARAM(int,from))
-    : smoc_actor(name, start), i(from) {
+    : smoc_actor(name, start), i(from)
+  {
     start =
         (VAR(i) <= NUM_MAX_ITERATIONS) >>
         out(1)                         >>
@@ -85,26 +86,23 @@ public:
  * Definition of the SqrLoop actor class
  */
 class SqrLoop
-  // All actor classes must be derived
-  // from the smoc_actor base class
-  : public smoc_actor {
+  // All actor classes must be derived from the smoc_actor base class
+  : public smoc_actor
+{
 public:
   // Declaration of input and output ports
   smoc_port_in<double>  i1, i2;
   smoc_port_out<double> o1, o2;
 private:
-  // Declaration of the actor functionality
-  // via member variables and methods
+  // Declaration of the actor functionality via member variables and methods
   double tmp_i1;
   
-  // action functions triggered by the
-  // FSM declared in the constructor
+  // action functions triggered by the FSM declared in the constructor
   void copyStore()  { o1[0] = tmp_i1 = i1[0];  }
   void copyInput()  { o1[0] = tmp_i1;          }
   void copyApprox() { o2[0] = i2[0];           }
   
-  // guard  functions used by the
-  // FSM declared in the constructor
+  // guard  functions used by the FSM declared in the constructor
   bool check() const {
 #ifndef NDEBUG
     cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
@@ -116,16 +114,19 @@ private:
   smoc_firing_state start;
   smoc_firing_state loop;
 public:
-  // Constructor responsible for declaring the
-  // communication FSM and initializing the actor
+  // Constructor responsible for declaring the communication FSM and
+  //  initializing the actor
   SqrLoop(sc_module_name name)
-    : smoc_actor( name, start ) {
+    : smoc_actor( name, start )
+  {
     start =
         i1(1)                               >>
         o1(1)                               >>
         CALL(SqrLoop::copyStore)            >> loop
       ;
     loop  =
+      // NOTE: this is counterintuitive, but you must bracket input pattern
+      //  and guards!
         (i2(1) &&  GUARD(SqrLoop::check))   >>
         o2(1)                               >>
         CALL(SqrLoop::copyApprox)           >> start
@@ -217,6 +218,7 @@ public:
 
 /******************************************************************************
  *
+ * Hierarchic actor containing consumer and producer
  */
 class SqrConProd :
   public smoc_graph
@@ -241,6 +243,7 @@ public:
 
 /******************************************************************************
  *
+ * Hierarchic actor containing the square root calculation loop.
  */
 class SqrCalc :
   public smoc_graph
@@ -263,12 +266,9 @@ public:
     out(sqrloop.o2)
   {
     connectNodePorts(sqrloop.o1, approx.i1);
-#ifndef KASCPAR_PARSING
-    connectNodePorts(approx.o1,  dup.i1,
-                     smoc_fifo<double>(1));
-    connectNodePorts(dup.o1,     approx.i2,
-                     smoc_fifo<double>() << 2 );
-#endif
+    connectNodePorts(approx.o1,  dup.i1, smoc_fifo<double>(1));
+    // insert single default token of value '2' into channel
+    connectNodePorts(dup.o1,     approx.i2, smoc_fifo<double>() << 2 );
     connectNodePorts(dup.o2,     sqrloop.i2);
   }
 }; 
@@ -276,6 +276,7 @@ public:
 
 /******************************************************************************
  *
+ * Put both hierarchic actors together
  */
 class SqrRoot :
   public smoc_graph
@@ -301,6 +302,8 @@ private:
  */
 int sc_main (int argc, char **argv) {
   int from = 1;
+  // you can give number of iterations as command line argument - default is
+  //  from 1 to NUM_MAX_ITERATIONS
   if (argc == 2) {
     const int iterations = atoi(argv[1]);
     assert(iterations < NUM_MAX_ITERATIONS);

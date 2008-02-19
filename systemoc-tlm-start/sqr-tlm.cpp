@@ -301,8 +301,9 @@ class SqrRoot :
 {
 public:
   SqrRoot(sc_module_name name,
-          SqrAdapterAggregation *aggregationConProd, //no ref possible
-          SqrAdapterAggregation *aggregationCalc,    // ...
+          SqrAdapterAggregation *aggregationConProd, //no ref possible (bug in
+                                                     // systemoc results in
+          SqrAdapterAggregation *aggregationCalc,    // copying)
           const int from = 1) :
     smoc_graph(name),
     sqrConProd("SqrConProd", from),
