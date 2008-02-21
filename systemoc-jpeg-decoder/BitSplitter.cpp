@@ -1,14 +1,21 @@
 
 #include "BitSplitter.hpp"
 
-#undef UDEMASK
-#define UDEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
+//#undef UDEMASK
+//#define UDEMASK(x,off,width) (((x) >> (off)) & ((1 << (width)) - 1))
 
 //
 void BitSplitter::addByte(const uint8_t b) {
   assert(!isFull());
-  m_byteBuffer[m_writePos] = b;
-  m_writePos = (m_writePos + 1) % m_bufferSize;
+
+  //m_byteBuffer[m_writePos] = b;
+  switch(m_writePos) {
+    case 0: m_byteBuffer_0 = b; break;
+    case 1: m_byteBuffer_1 = b; break;
+    case 2: m_byteBuffer_2 = b; break;
+  }
+  
+  m_writePos = (m_writePos + 1) % BIT_SPLITTER_BUFFER_SIZE;
   ++m_bufferNum;
   if (m_firstByteBitsLeft == 0)
     m_firstByteBitsLeft = 8;
@@ -120,9 +127,9 @@ void BitSplitter::dumpBuffer(std::ostream &out) const
       << "  m_firstByteBitsLeft: " << m_firstByteBitsLeft << std::endl;
 
   out << "  ";
-  for (unsigned int j = 0; j < m_bufferSize; ++j) {
+  for (unsigned int j = 0; j < BIT_SPLITTER_BUFFER_SIZE; ++j) {
     for (int i = size-1; i >= 0; --i) {
-      out << UDEMASK(m_byteBuffer[j], i, 1);
+      //out << UDEMASK(m_byteBuffer[j], i, 1);
       if (i % 8 == 0)
         out << " ";
     }
@@ -132,8 +139,8 @@ void BitSplitter::dumpBuffer(std::ostream &out) const
 
   std::_Ios_Fmtflags old_flags = out.flags();
   out.flags(std::ios::hex | std::ios_base::showbase);
-  for (unsigned int i = 0; i < m_bufferSize; ++i)
-    out << m_byteBuffer[i] << " ";
+  //for (unsigned int i = 0; i < BIT_SPLITTER_BUFFER_SIZE; ++i)
+  //  out << m_byteBuffer[i] << " ";
   out.flags(old_flags);
 
   out << std::endl;
@@ -146,7 +153,7 @@ void BitSplitter::skipByte(const int num) {
   //std::cerr << " skipByte()" << std::endl;
   assert((int)m_bufferNum >= num);
   m_bufferNum -= num;
-  m_readPos = (m_readPos + num) % m_bufferSize;
+  m_readPos = (m_readPos + num) % BIT_SPLITTER_BUFFER_SIZE;
  
   if (!isEmpty())
     m_firstByteBitsLeft = 8;
