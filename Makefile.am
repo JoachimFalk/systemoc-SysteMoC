@@ -81,6 +81,7 @@ pkginclude_HEADERS =					\
 	pkginclude/systemoc/smoc_storage.hpp		\
 	pkginclude/systemoc/smoc_ngx_sync.hpp		\
 	pkginclude/systemoc/smoc_graph_synth.hpp	\
+	pkginclude/systemoc/smoc_chan_adapter.hpp	\
 							\
 	pkginclude/systemoc/hscd_tdsim_TraceLog.hpp	\
 							\

@@ -89,7 +89,7 @@ void smoc_root_chan::finalise() {
           ++iter ) {
       genName
         << (iter == out.begin() ? "" : "|")
-        << (*iter)->getActor()->name();
+        << (*iter)->get_parent()->name();
     }
   }
   genName << "_";
@@ -101,7 +101,7 @@ void smoc_root_chan::finalise() {
           ++iter ) {
       genName
         << (iter == in.begin() ? "" : "|")
-        << (*iter)->getActor()->name();
+        << (*iter)->get_parent()->name();
     }
   }
   genName << "_";
@@ -125,21 +125,29 @@ void smoc_root_chan::finalise() {
 
 void smoc_nonconflicting_chan::finalise() {
   smoc_root_chan::finalise();
-  assert(getInputPorts().size() == 1);
-  assert(getOutputPorts().size() == 1);
+  assert(getInputPorts().size() <= 1);
+  assert(getOutputPorts().size() <= 1);
 }
 
 void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
-  assert(getInputPorts().size() == 1);
-  assert(getOutputPorts().size() == 1);
+  assert(getInputPorts().size() <= 1);
+  assert(getOutputPorts().size() <= 1);
   
-  IdAttr idChannel        = idPool.printId(this);
-  IdAttr idChannelPortIn  = idPool.printId(getInputPorts().front(), 1);
-  IdAttr idChannelPortOut = idPool.printId(getOutputPorts().front(), 1);
-  
+  IdAttr idChannel = idPool.printId(this);
+
+  IdAttr idChannelPortIn = getInputPorts().empty() ?
+    idPool.printIdInvalid() : idPool.printId(getInputPorts().front(), 1);
+
+  IdAttr idChannelPortOut = getOutputPorts().empty() ?
+    idPool.printIdInvalid() : idPool.printId(getOutputPorts().front(), 1);
+
+  smoc_root_port *ifPort = getOutputPorts().empty() ?
+    0 : getOutputPorts().front();
+
   // search highest interface port (multiple hierachie layers)
-  smoc_root_port  *ifPort = getOutputPorts().front();
-  while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
+  while(ifPort && ifPort->getParentPort()) {
+    ifPort = ifPort->getParentPort();
+  }
 
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "
                "source=\"" << idPool.printId(ifPort) << "\" "
@@ -162,9 +170,12 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
     pgw.indentDown();
   }
 
+  ifPort = getInputPorts().empty() ? 0 : getInputPorts().front();
+
   // search highest interface port (multiple hierachie layers)
-  ifPort = getInputPorts().front();
-  while(ifPort->getParentPort()) ifPort = ifPort->getParentPort();
+  while(ifPort && ifPort->getParentPort()) {
+    ifPort = ifPort->getParentPort();
+  }
 
   pgw << "</process>" << std::endl;
   pgw << "<edge name=\""   << this->name() << ".from-edge\" "
@@ -175,7 +186,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
 
 void smoc_multicast_chan::finalise() {
   smoc_root_chan::finalise();
-  assert(getOutputPorts().size() == 1);
+  //assert(getOutputPorts().size() == 1);
   // supporting dangling signals (no inPort at channel egress)
   //assert(getInputPorts().size() >= 1);
 }

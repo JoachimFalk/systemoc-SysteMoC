@@ -473,10 +473,11 @@ private:
 
 template <typename T>
 class smoc_fifo_storage
-: public smoc_chan_if<smoc_fifo_kind,
+: public smoc_chan_if</*smoc_fifo_kind,*/
           T,
           smoc_channel_access,
-          smoc_channel_access> {
+          smoc_channel_access>,
+  public smoc_fifo_kind {
 public:
   typedef T                                   data_type;
   typedef smoc_fifo_storage<data_type>        this_type;
@@ -490,6 +491,11 @@ public:
     storage_type,
     typename ring_out_type::return_type>      ring_access_out_type;
   
+  typedef smoc_chan_if<
+            /*smoc_fifo_kind,*/ T,
+            smoc_channel_access,
+            smoc_channel_access> iface_type;
+
   class chan_init
     : public smoc_fifo_kind::chan_init {
     friend class smoc_fifo_storage<T>;
@@ -508,11 +514,12 @@ public:
 private:
   storage_type *storage;
 protected:
-  smoc_fifo_storage( const chan_init &i )
-    : smoc_chan_if<smoc_fifo_kind,
-       T,
-       smoc_channel_access,
-       smoc_channel_access>(i),
+  smoc_fifo_storage( const chan_init &i ) :
+    smoc_fifo_kind(i),
+//    : smoc_chan_if</*smoc_fifo_kind,*/
+//       T,
+//       smoc_channel_access,
+//       smoc_channel_access>(i),
       storage(new storage_type[this->fsize])
   {
     assert(this->fsize > i.marking.size());
@@ -524,6 +531,9 @@ protected:
     this->vindex = this->windex;
 #endif
   }
+  
+  const char *name() const
+  { return smoc_fifo_kind::name(); }
 
   ring_in_type *getReadChannelAccess() {
     return new ring_access_in_type
@@ -551,10 +561,11 @@ protected:
 
 template <>
 class smoc_fifo_storage<void>
-: public smoc_chan_if<smoc_fifo_kind,
+: public smoc_chan_if</*smoc_fifo_kind,*/
           void,
           smoc_channel_access,
-          smoc_channel_access> {
+          smoc_channel_access>,
+  public smoc_fifo_kind {
 public:
   typedef void                          data_type;
   typedef smoc_fifo_storage<data_type>  this_type;
@@ -562,6 +573,11 @@ public:
   typedef this_type::access_in_type     ring_in_type;
   typedef smoc_ring_access<void,void>   ring_access_in_type;
   typedef smoc_ring_access<void,void>   ring_access_out_type;
+
+  typedef smoc_chan_if<
+            /*smoc_fifo_kind,*/ void,
+            smoc_channel_access,
+            smoc_channel_access> iface_type;
 
   class chan_init
     : public smoc_fifo_kind::chan_init {
@@ -580,19 +596,23 @@ public:
         marking(0) {}
   };
 protected:
-  smoc_fifo_storage( const chan_init &i )
+  smoc_fifo_storage( const chan_init &i ) :
+    smoc_fifo_kind(i)
 //  : smoc_chan_nonconflicting_if<smoc_fifo_kind, void>(i) {
-    : smoc_chan_if<smoc_fifo_kind,
+/*    : smoc_chan_if<smoc_fifo_kind,
        void,
        smoc_channel_access,
-       smoc_channel_access>(i) {
+       smoc_channel_access>(i)*/ {
     assert( fsize > i.marking );
     windex = i.marking;
 #ifdef SYSTEMOC_ENABLE_VPC
     vindex = windex;
 #endif
   }
- 
+
+  const char *name() const
+  { return smoc_fifo_kind::name(); }
+
   ring_in_type  *getReadChannelAccess()
     { return new ring_access_in_type(); }
   ring_out_type *getWriteChannelAccess()
@@ -623,6 +643,8 @@ public:
   
   typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
   typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
+
+  typedef typename this_type::iface_type iface_type;
 protected:
   
 #ifdef SYSTEMOC_ENABLE_VPC

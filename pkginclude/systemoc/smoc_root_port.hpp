@@ -101,7 +101,6 @@ public:
     { return parent; }
   smoc_root_port *getChildPort() const
     { return child; }
-  smoc_root_node *getActor() const;
  
   // bind interface to this port
   void bind(sc_interface &interface_ ) {

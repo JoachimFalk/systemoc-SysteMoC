@@ -135,8 +135,8 @@ protected:
 
   bool isDefined() const;
 
-  void registerPort(smoc_root_port_in  *portIn){
-    this->_base->registerPort(portIn);
+  void registerPort(smoc_root_port_in *port){
+    this->_base->registerPort(port);
   }
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;
@@ -172,8 +172,8 @@ protected:
 
   bool isDefined() const;
 
-  void registerPort(smoc_root_port_out  *portOut){
-    this->_base->registerPort(portOut);
+  void registerPort(smoc_root_port_out *port){
+    this->_base->registerPort(port);
   }
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;

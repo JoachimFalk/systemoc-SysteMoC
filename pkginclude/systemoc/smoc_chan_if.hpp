@@ -315,7 +315,7 @@ private:
 
 const sc_event& smoc_default_event_abort();
 
-template <typename T_chan_kind, 
+template </*typename T_chan_kind,*/
           typename T_data_type, 
           template <typename> class R_IN, //ring access in
           template <typename> class R_OUT,//ring access out
@@ -323,21 +323,21 @@ template <typename T_chan_kind,
           >
 class smoc_chan_if
 : public smoc_chan_in_if<T_data_type, R_IN>,
-  public smoc_chan_out_if<T_data_type, R_OUT, S>,
-  public T_chan_kind {
+  public smoc_chan_out_if<T_data_type, R_OUT, S>/*,
+  public T_chan_kind */{
 public:
   // typedefs
-  typedef smoc_chan_if<T_chan_kind,T_data_type,R_IN,R_OUT,S> this_type;
+  typedef smoc_chan_if</*T_chan_kind,*/T_data_type,R_IN,R_OUT,S> this_type;
   typedef T_data_type                             data_type;
-  typedef T_chan_kind                             chan_kind;
+  //typedef T_chan_kind                             chan_kind;
 
 protected:
   // constructor
-  smoc_chan_if(const typename chan_kind::chan_init &i)
-    : chan_kind(i) {}
+//  smoc_chan_if(const typename chan_kind::chan_init &i)
+//    : chan_kind(i) {}
 
-  const char *name() const
-    { return this->T_chan_kind::name(); }
+  virtual const char *name() const = 0;
+//    { return this->T_chan_kind::name(); }
 private:
   // disabled
   const sc_event& default_event() const { return smoc_default_event_abort(); }

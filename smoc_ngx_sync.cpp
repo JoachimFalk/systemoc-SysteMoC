@@ -20,6 +20,7 @@ namespace SysteMoC { namespace NGXSync {
   {}
 
   NgId IdPool::regObj(sc_core::sc_object* obj, size_t index) {
+    if(!obj) return -1;
     // determine free id
     Id id = hash(obj->name());
     while(!namedIds.insert(id).second) {
@@ -34,6 +35,7 @@ namespace SysteMoC { namespace NGXSync {
   NgId IdPool::regObj(
       sc_core::sc_object* obj, const NgId& id, size_t index)
   {
+    if(!obj) return -1;
     ObjToId::iterator i = idByObj(obj);
     if(i == objToId.end())
       i = CoSupport::pac_insert(objToId, obj);
@@ -47,6 +49,7 @@ namespace SysteMoC { namespace NGXSync {
   }
   
   void IdPool::unregObj(const sc_core::sc_object* obj) {
+    if(!obj) return;
     ObjToId::iterator i = idByObj(obj);
     if(i == objToId.end())
       return;
@@ -65,6 +68,7 @@ namespace SysteMoC { namespace NGXSync {
   }
   
   NgId IdPool::getId(const sc_core::sc_object* obj, size_t index) const {
+    if(!obj) return -1;
     ObjToId::const_iterator i = idByObj(obj);
     if(i == objToId.end()) {
       std::cerr << "'" << obj->name() << "' not registered!"
@@ -90,6 +94,9 @@ namespace SysteMoC { namespace NGXSync {
   
   IdAttr IdPool::printId()
   { return IdAttr(getId()); }
+
+  IdAttr IdPool::printIdInvalid() const
+  { return IdAttr(-1); }
   
   sc_core::sc_object* IdPool::getObj(const NgId& id) const {
     IdToObj::const_iterator i = objById(id);

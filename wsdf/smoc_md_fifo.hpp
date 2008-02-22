@@ -640,12 +640,13 @@ template <typename T_DATA_TYPE,
          >
 class smoc_md_fifo_storage
 #ifndef NO_SMOC
-  : public smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
+  : public smoc_chan_if</*smoc_md_fifo_kind<BUFFER_CLASS>,*/
                         T_DATA_TYPE,
                         smoc_md_snk_channel_access,
                         smoc_md_src_channel_access,
                         STORAGE_OUT_TYPE
-                       >  
+                       >,
+      public smoc_md_fifo_kind<BUFFER_CLASS> 
 #else
     : public smoc_md_fifo_kind<BUFFER_CLASS>
     //: public smoc_dummy_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
@@ -658,15 +659,15 @@ class smoc_md_fifo_storage
 public:
 
   typedef T_DATA_TYPE                                              data_type;
-#ifndef NO_SMOC
+/*#ifndef NO_SMOC
   typedef smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
                        T_DATA_TYPE,
                        smoc_md_snk_channel_access,
                        smoc_md_src_channel_access,
                        STORAGE_OUT_TYPE >  parent_type;
-#else
+#else*/
   typedef smoc_md_fifo_kind<BUFFER_CLASS> parent_type;
-#endif
+//#endif
   typedef smoc_md_fifo_storage<data_type, 
                                BUFFER_CLASS, 
                                STORAGE_OUT_TYPE>       this_type;
@@ -725,6 +726,9 @@ protected:
     destroyStorage(storage);
   }
 
+  const char *name() const
+  { return parent_type::name(); }
+
 #ifndef NO_SMOC
   ring_in_type * getReadChannelAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
@@ -771,12 +775,13 @@ template <class BUFFER_CLASS,
           template <typename> class STORAGE_OUT_TYPE>
 class smoc_md_fifo_storage<void,BUFFER_CLASS,STORAGE_OUT_TYPE>
 #ifndef NO_SMOC
-  : public smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
+  : public smoc_chan_if</*smoc_md_fifo_kind<BUFFER_CLASS>,*/
                         void,
                         smoc_md_snk_channel_access,
                         smoc_md_src_channel_access,
                         STORAGE_OUT_TYPE
-                       >  
+                       >,
+      public smoc_md_fifo_kind<BUFFER_CLASS>
 #else
     : public smoc_md_fifo_kind<BUFFER_CLASS>
     //: public smoc_dummy_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
@@ -789,15 +794,15 @@ class smoc_md_fifo_storage<void,BUFFER_CLASS,STORAGE_OUT_TYPE>
 public:
 
   typedef void data_type;
-#ifndef NO_SMOC
+/*#ifndef NO_SMOC
   typedef smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
                        void,
                        smoc_md_snk_channel_access,
                        smoc_md_src_channel_access,
                        STORAGE_OUT_TYPE >  parent_type;
-#else
+#else*/
   typedef smoc_md_fifo_kind<BUFFER_CLASS> parent_type;
-#endif
+//#endif
   typedef smoc_md_fifo_storage<data_type, 
                                void, 
                                STORAGE_OUT_TYPE>       this_type;
@@ -847,6 +852,9 @@ protected:
   smoc_md_fifo_storage( const chan_init &i)
     : parent_type(i)
   { }
+  
+  const char *name() const
+  { return parent_type::name(); }
 
 #ifndef NO_SMOC
   ring_in_type * getReadChannelAccess() {

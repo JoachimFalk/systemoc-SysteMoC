@@ -64,13 +64,6 @@ void smoc_root_port::dump( std::ostream &out ) const {
 
 const char* const smoc_root_port::kind_string = "smoc_root_port";
 
-smoc_root_node *smoc_root_port::getActor() const {
-  smoc_root_node *retval =
-    dynamic_cast<smoc_root_node *>(this->get_parent());
-  assert(retval != NULL);
-  return retval;
-}
-
 /*
 
 smoc_root_port_bool::smoc_root_port_bool( bool v )

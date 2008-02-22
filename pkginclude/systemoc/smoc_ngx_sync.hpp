@@ -156,7 +156,10 @@ namespace SysteMoC { namespace NGXSync {
     
     // convenience method for printing the id of an unnamed object
     IdAttr printId();
-    
+
+    // convenience method for printing the magic invalid id
+    IdAttr printIdInvalid() const;
+
     // lookup named object for an id (returns 0 if not found)
     sc_core::sc_object* getObj(const NgId& id) const;
 
@@ -167,7 +170,8 @@ namespace SysteMoC { namespace NGXSync {
     //       00...: generated
     //       01...: named
     //       10...: unnamed
-    //       11:..: reserved 
+    //       11:..: reserved
+    //       11..1: invalid 
     static const Id GENERATED = 0 << (BITS-2);
     static const Id NAMED     = 1 << (BITS-2);
     static const Id UNNAMED   = 2 << (BITS-2);

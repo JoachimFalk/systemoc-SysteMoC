@@ -50,6 +50,8 @@
 # include "smoc_pggen.hpp"
 #endif
 
+#include "smoc_chan_adapter.hpp"
+
 #include <systemc.h>
 
 #include <list>
@@ -60,6 +62,89 @@ class smoc_scheduler_top;
 
 #define T_chan_init_default smoc_fifo
 
+/**
+ * use this class to connect arbitrary ports (-> provide adapters)
+ */
+template<class ChanInit>
+class smoc_port_connector {
+private:
+  typedef typename ChanInit::chan_type  ChanType;
+  typedef typename ChanType::iface_type IFaceImpl;
+public:
+
+  smoc_port_connector(const ChanInit& init) :
+    chan(new ChanType(init))
+    {}
+
+  template<class IFace>
+  smoc_port_connector& operator<<(sc_port<IFace>& port) {
+    bind<IFace>(port);
+    return *this;
+  }
+
+  template<class T>
+  smoc_port_connector& operator<<(smoc_port_in<T>& port) {
+    typedef typename smoc_port_in<T>::iface_type IFace;
+    bind<IFace>(port);
+    return *this;
+  }
+
+  template<class T>
+  smoc_port_connector& operator<<(smoc_port_out<T>& port) {
+    typedef typename smoc_port_out<T>::iface_type IFace;
+    bind<IFace>(port);
+    return *this;
+  }
+
+private:
+  ChanType* chan;
+
+  // select type A or B based on predicate P
+  template<bool P, class A, class B>
+  struct Select;
+
+  // specialization: select type A
+  template<class A,class B>
+  struct Select<true,A,B>
+    { typedef A result_type; };
+
+  // specialization: select type B
+  template<class A,class B>
+  struct Select<false,A,B>
+    { typedef B result_type; };
+
+  // construct new instance
+  template<class T, class R = T>
+  struct Alloc {
+    static R& apply(T& t)
+      { return *(new R(t)); }
+  };
+
+  // copy instance
+  template<class T, class R = T>
+  struct Copy {
+    static R& apply(T& t)
+      { return t; }
+  };
+
+  // this does all the work...
+  template<class IFace, class Port>
+  void bind(Port& port) {
+    typedef smoc_chan_adapter<IFace,IFaceImpl> Adapter;
+
+    // test if adapter available: if a specialization exists,
+    // we will use the adapter, otherwise, we plug the channel
+    // into the port
+    typedef typename Select<
+              Adapter::isAdapter,
+              Alloc<IFaceImpl,Adapter>,
+              Copy<IFace> >::result_type Op;
+
+    port(Op::apply(*chan));
+  }
+};
+
+   
 /**
  * base class for all graph classes; no scheduling of childen (->
  * derive from this class and build FSM!)
@@ -72,40 +157,58 @@ class smoc_graph_base
   typedef smoc_graph_base this_type;
 
 protected:
-  template <typename T_chan_init, 
-            //template <typename, typename> class R,
-            template <typename> class R>
-  void connectNodePorts(
-                        smoc_port_out_base<typename T_chan_init::data_type, R> &b,
-                        smoc_port_in_base<typename T_chan_init::data_type, R>  &a,
-                        const T_chan_init i ) {
-    typename T_chan_init::chan_type &chan =
-      registerChan<T_chan_init>(i);
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
-  }  
-  template <int i, typename T_data_type, 
-            //template <typename, typename> class R,
-            template <typename> class R>
-  void connectNodePorts(
-                        smoc_port_out_base<T_data_type,R> &b,
-                        smoc_port_in_base<T_data_type,R>  &a ) {
-    typename T_chan_init_default<T_data_type>::chan_type &chan =
-      registerChan( T_chan_init_default<T_data_type>(i) );
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
-  }
-  template <typename T_data_type, 
-            //template <typename, typename> class R,
-            template <typename> class R>
-  void connectNodePorts(
-                        smoc_port_out_base<T_data_type,R> &b,
-                        smoc_port_in_base<T_data_type,R>  &a ) {
-    typename T_chan_init_default<T_data_type>::chan_type &chan =
-      registerChan( T_chan_init_default<T_data_type>() );
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
-  }
+
+  /// helper function for easier connector creation
+  template<class ChanInit>
+  smoc_port_connector<ChanInit> connector(ChanInit init)
+    { return smoc_port_connector<ChanInit>(init); }
+
+  /// connect ports using the specified channel initializer
+  template<class ChanInit, class PortA, class PortB>
+  void connectNodePorts(PortA &a, PortB &b, const ChanInit& i)
+    { connector(i) << a << b; }
+
+  /// The functions below are convenience functions which
+  /// deduce the data type automatically from smoc_ports
+  /// FIXME: automate this procedure and remove functions
+
+  /// connect ports using the default channel initializer
+  /// (specify both size and data type)
+  template<int i, class T>
+  void connectNodePorts(smoc_port_out<T>& a, smoc_port_in<T>& b)
+    { connectNodePorts(a, b, T_chan_init_default<T>(i)); }
+
+  template<int i, class T, class PortB>
+  void connectNodePorts(smoc_port_out<T>& a, PortB& b)
+    { connectNodePorts(a, b, T_chan_init_default<T>(i)); }
+
+  template<int i, class T, class PortA>
+  void connectNodePorts(PortA& a, smoc_port_in<T>& b)
+    { connectNodePorts(a, b, T_chan_init_default<T>(i)); }
+  
+  template<int i, class T, class PortA, class PortB>
+  void connectNodePorts(PortA& a, PortB& b)
+    { connectNodePorts(a, b, T_chan_init_default<T>(i)); }
+
+  /// connect ports using the default channel initializer
+  /// (specify only data type)
+  template<class T>
+  void connectNodePorts(smoc_port_out<T>& a, smoc_port_in<T>& b)
+    { connectNodePorts(a, b, T_chan_init_default<T>()); }
+
+  template<class T, class PortB>
+  void connectNodePorts(smoc_port_out<T>& a, PortB& b)
+    { connectNodePorts(a, b, T_chan_init_default<T>()); }
+
+  template<class T, class PortA>
+  void connectNodePorts(PortA& a, smoc_port_in<T>& b)
+    { connectNodePorts(a, b, T_chan_init_default<T>()); }
+
+  template<class T, class PortA, class PortB>
+  void connectNodePorts(PortA& a, PortB& b)
+    { connectNodePorts(a, b, T_chan_init_default<T>()); }
+
+  // FIXME: adopt functions below to the connector class
 
 #ifdef SYSTEMOC_ENABLE_WSDF 
   /// Connect multi-dimensional actor output port with multi-dimensional actor input port
