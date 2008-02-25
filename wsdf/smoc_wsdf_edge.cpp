@@ -70,6 +70,8 @@ smoc_wsdf_edge_descr::get_scm_snk_firing_block(udata_type block_size,
 void 
 smoc_wsdf_edge_descr::insert_src_firing_level(udata_type block_size,
                                               unsigned token_dimension){
+  set_change_indicator();
+  
   //start at smallest firing level
   unsigned firing_level = 0;
 
@@ -121,6 +123,8 @@ smoc_wsdf_edge_descr::insert_snk_firing_level(udata_type block_size,
                                               unsigned token_dimension){
 
   
+  set_change_indicator();
+
   //start with smallest firing block
   unsigned firing_level = 0;
 
@@ -469,6 +473,9 @@ smoc_wsdf_edge_descr::get_scm_firing_block(u2vector_type firing_blocks,
 smoc_wsdf_edge_descr::uvector_type 
 smoc_wsdf_edge_descr::snk_iteration_max() const {
 
+  if (cache_snk_iter_max_valid)
+    return snk_iteration_max_cached;
+
   s2vector_type snk_iteration_level_table = 
     calc_snk_iteration_level_table();
         
@@ -482,6 +489,9 @@ smoc_wsdf_edge_descr::snk_iteration_max() const {
 
   append_snk_window_iteration(iteration_max);
 
+  snk_iteration_max_cached = iteration_max;
+  cache_snk_iter_max_valid = true;
+
   return iteration_max;
 }
 
@@ -489,11 +499,17 @@ smoc_wsdf_edge_descr::snk_iteration_max() const {
 smoc_wsdf_edge_descr::uvector_type 
 smoc_wsdf_edge_descr::src_iteration_max() const {
 
+
+  // return cached value, if valid.
+  if (cache_src_iter_max_valid)
+    return src_iteration_max_cached;
+
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Enter  smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
+  
   uvector_type return_vector(calc_src_iteration_levels());
   unsigned iter_level = calc_src_iteration_levels()-1;
 
@@ -539,6 +555,9 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
   CoSupport::dout << CoSupport::Indent::Down;
 #endif
+
+  cache_src_iter_max_valid = true;
+  src_iteration_max_cached = return_vector;
 
   return return_vector;
 }
