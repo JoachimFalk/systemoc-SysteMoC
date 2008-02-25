@@ -483,7 +483,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph_base *c) {
             assert(!bottom);
             assert(nonStrict.empty());
 
-            //cerr << "FIXED POINT" << endl;
+            //cout << "FIXED POINT " << sc_time_stamp() << endl;
             //fixpoint reached
 
             //tick all ns transitions
@@ -573,27 +573,19 @@ void smoc_scheduler_top::scheduleSR(smoc_graph_base *c) {
             assert( NULL != mc_sig );
           }
   
-        }else{
-#ifdef SYSTEMOC_ENABLE_VPC
-          assert(inCommState.empty());
-#endif
-          assert(nonStrict.empty());
-          assert(!bottom);
-          assert(nonStrictStable);
-          assert(!nonStrictReleased.empty());
-          assert(0); 
-          //wait(...);
         }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-        if( !bottom && !inCommState && nonStrictStable && !inCommState.empty() ){
+        if( !bottom && !inCommState && !nonStrict && !inCommState.empty() ){
 #else
-        if( !bottom && nonStrictStable ){
+        if( !bottom && !nonStrict ){
 #endif
-          cerr << "WAIT" << endl;
+          //cerr << "WAIT" << endl;
           smoc_transition_ready_list all;
+#ifdef SYSTEMOC_ENABLE_VPC
+          all |= inCommState;
+#endif
           all |= bottom;
-          all |= defined;
           all |= nonStrict;
           smoc_wait(all);
         }
