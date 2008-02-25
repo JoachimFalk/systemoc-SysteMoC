@@ -470,7 +470,7 @@ smoc_wsdf_edge_descr::get_scm_firing_block(u2vector_type firing_blocks,
 }
 
 
-smoc_wsdf_edge_descr::uvector_type 
+const smoc_wsdf_edge_descr::uvector_type& 
 smoc_wsdf_edge_descr::snk_iteration_max() const {
 
   if (cache_snk_iter_max_valid)
@@ -492,11 +492,11 @@ smoc_wsdf_edge_descr::snk_iteration_max() const {
   snk_iteration_max_cached = iteration_max;
   cache_snk_iter_max_valid = true;
 
-  return iteration_max;
+  return snk_iteration_max_cached;
 }
 
 
-smoc_wsdf_edge_descr::uvector_type 
+const smoc_wsdf_edge_descr::uvector_type& 
 smoc_wsdf_edge_descr::src_iteration_max() const {
 
 
@@ -559,7 +559,7 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
   cache_src_iter_max_valid = true;
   src_iteration_max_cached = return_vector;
 
-  return return_vector;
+  return src_iteration_max_cached;
 }
 
 smoc_wsdf_edge_descr::svector_type 

@@ -163,9 +163,9 @@ public:
   /* Get information about WSDF edge */
 
   //Get iteration maximum (including effective token)
-  uvector_type snk_iteration_max() const;
+  const uvector_type& snk_iteration_max() const;
   //Get iteration maximum (including sliding window)
-  uvector_type src_iteration_max() const;
+  const uvector_type& src_iteration_max() const;
 
   svector_type snk_data_element_mapping_vector() const;
   umatrix_type snk_data_element_mapping_matrix() const;
