@@ -6,6 +6,7 @@
 
 #include "smoc_vector.hpp"
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
 
 
 /// Descriptor of a WSDF edge
@@ -159,7 +160,9 @@ public:
 
   /* Get information about WSDF edge */
 
+  //Get iteration maximum (including effective token)
   uvector_type snk_iteration_max() const;
+  //Get iteration maximum (including sliding window)
   uvector_type src_iteration_max() const;
 
   svector_type snk_data_element_mapping_vector() const;
@@ -306,10 +309,10 @@ private:
   unsigned get_num_iteration_levels(const s2vector_type& snk_iteration_level_table,
 				    const uvector_type& snk_vtu_iteration_level
 				    ) const;
+public:
   /// Same for the source. However here we include the iterations
   /// describing the effective token.
   unsigned calc_src_iteration_levels() const;
-protected:
   /// Calculates the number of iteration levels required to describe the 
   /// sliding window
   unsigned calc_window_iteration_levels() const;
