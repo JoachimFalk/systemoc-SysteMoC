@@ -263,6 +263,7 @@ private:
   /// Check WSDF parameters
   void check_parameters() const;
 
+protected:
 
   /// check for a firing level, whether it must be covered by
   /// an iteration level
@@ -272,6 +273,8 @@ private:
                                u2vector_type snk_firing_blocks) const;
   bool src_has_iteration_level(unsigned firing_level, 
 			       unsigned token_dimension) const;
+
+private:
         
   /// This function inserts into a given iteration level table
   /// the iteration for the virtual token union if necessary
@@ -303,10 +306,17 @@ private:
   unsigned get_num_iteration_levels(const s2vector_type& snk_iteration_level_table,
 				    const uvector_type& snk_vtu_iteration_level
 				    ) const;
+  /// Same for the source. However here we include the iterations
+  /// describing the effective token.
   unsigned calc_src_iteration_levels() const;
+protected:
   /// Calculates the number of iteration levels required to describe the 
   /// sliding window
   unsigned calc_window_iteration_levels() const;
+  /// Same for the effective token
+  unsigned calc_eff_token_iteration_levels() const;
+
+private:
 
 
   /// Calculates the maximum for each iteration level
