@@ -10,9 +10,124 @@
 
 //0: No output
 ///100: debug
+///101: src_has_iteration_level
 #ifndef VERBOSE_LEVEL_SMOC_WSDF_EDGE
-#define VERBOSE_LEVEL_SMOC_WSDF_EDGE 0
+#define VERBOSE_LEVEL_SMOC_WSDF_EDGE 100
 #endif
+
+
+/* *****************************************************************************
+ *                           smoc_wsdf_iter_max                                *
+ ******************************************************************************* */
+
+
+
+smoc_wsdf_iter_max::smoc_wsdf_iter_max(const smoc_wsdf_iter_max& a)
+  : next_level_iter_max(a.next_level_iter_max == NULL ? 
+                        NULL :
+                        &(a.next_level_iter_max->duplicate())),
+    previous_level_iter_max(a.previous_level_iter_max == NULL ?
+                            NULL :
+                            &(a.previous_level_iter_max->duplicate()))
+{}
+
+void smoc_wsdf_iter_max::print_node(std::ostream& os) const{
+  if (next_level_iter_max != NULL){
+    os << "; ";
+    next_level_iter_max->print_node(os);
+  }
+}
+
+smoc_wsdf_iter_max* 
+smoc_wsdf_iter_max::set_next_level(smoc_wsdf_iter_max* next_level_iter_max){
+  this->next_level_iter_max = next_level_iter_max;
+
+  if (next_level_iter_max != NULL)
+    next_level_iter_max->previous_level_iter_max = this;
+
+  return next_level_iter_max;
+}
+ 
+smoc_wsdf_iter_max*  
+smoc_wsdf_iter_max::set_previous_level(smoc_wsdf_iter_max* previous_level_iter_max){
+  this->previous_level_iter_max = previous_level_iter_max;
+
+  if (previous_level_iter_max != NULL)
+    previous_level_iter_max->next_level_iter_max = this;
+
+  return previous_level_iter_max;
+}
+
+
+/* *****************************************************************************
+ *                           smoc_wsdf_iter_value                              *
+ ******************************************************************************* */
+
+smoc_wsdf_iter_max_value::udata_type 
+smoc_wsdf_iter_max_value::get_iter_max(const bvector_type& parent_iter_max) const{
+  return iter_max;
+}
+
+void smoc_wsdf_iter_max_value::print_node(std::ostream& os) const{
+  os << iter_max;
+  parent_type::print_node(os);
+}
+
+
+/* *****************************************************************************
+ *                           smoc_wsdf_iter_cond                               *
+ ******************************************************************************* */
+
+smoc_wsdf_iter_max_cond::smoc_wsdf_iter_max_cond(const smoc_wsdf_iter_max_cond& a)
+  : smoc_wsdf_iter_max(a),
+    parent_iter_level(a.parent_iter_level),
+    parent_max(a.parent_max == NULL ? NULL : &(a.parent_max->duplicate())),
+    parent_not_max(a.parent_not_max == NULL ? NULL : &(a.parent_not_max->duplicate()))
+{}
+
+smoc_wsdf_iter_max_cond::udata_type 
+smoc_wsdf_iter_max_cond::get_iter_max(const bvector_type& parent_iter_max) const{
+  if (parent_iter_max[parent_iter_level]){
+    assert(parent_max != NULL);
+    return parent_max->get_iter_max(parent_iter_max);
+  }else{
+    assert(parent_not_max != NULL);
+    return parent_not_max->get_iter_max(parent_iter_max);
+  }
+}
+
+smoc_wsdf_iter_max_cond* 
+smoc_wsdf_iter_max_cond::insert_cond_node(smoc_wsdf_iter_max_cond* new_cond_node){
+
+  //Move current value node to new condition node
+  new_cond_node->parent_not_max = 
+    dynamic_cast<smoc_wsdf_iter_max_value*>(parent_max);
+  assert(new_cond_node->parent_not_max != NULL);
+
+  parent_max = new_cond_node;
+  return new_cond_node;
+  
+}
+
+void smoc_wsdf_iter_max_cond::print_node(std::ostream& os) const{
+
+  assert(parent_max != NULL);
+  assert(parent_not_max != NULL);
+
+  parent_not_max->print_node(os);
+  os << ", ";
+  os << parent_iter_level << " -> ";
+  parent_max->print_node(os);
+
+  parent_type::print_node(os);
+  
+  
+}
+
+
+/* *****************************************************************************
+ *                    smoc_wsdf_edge                                           *
+ ******************************************************************************* */
 
 
 smoc_wsdf_edge_descr::udata_type 
@@ -563,6 +678,174 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
 }
 
 
+smoc_wsdf_iter_max& 
+smoc_wsdf_edge_descr::ext_src_iteration_max(unsigned int firing_level,
+                                            unsigned int token_dimension
+                                            ) const {
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Enter smoc_wsdf_edge_descr::ext_src_iteration_max(..,..)" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::dout << "firing_level = " << firing_level << std::endl;
+  CoSupport::dout << "token_dimension = " << token_dimension << std::endl;
+  CoSupport::dout << "src_firing_blocks[firing_level][token_dimension] = " 
+                  << src_firing_blocks[firing_level][token_dimension]
+                  << std::endl;
+#endif
+
+  smoc_wsdf_iter_max* return_node = NULL;
+
+  smoc_wsdf_iter_max_cond* current_condition_node = NULL;
+
+  udata_type iter_max;
+
+  //start with default case
+  if (firing_level == 0){
+    iter_max = 
+      src_firing_blocks[firing_level][token_dimension]-1;
+  }else{
+    //divide and round up
+    iter_max = 
+      (src_firing_blocks[firing_level][token_dimension]+
+       src_firing_blocks[firing_level-1][token_dimension]-1)/
+      src_firing_blocks[firing_level-1][token_dimension];
+    iter_max--;      
+  }
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Default iteration max: " << iter_max << std::endl;
+#endif
+
+  //create node
+  return_node = 
+    new smoc_wsdf_iter_max_value(iter_max);  
+      
+  //Check whether we have incomplete firing blocks
+  for(unsigned parent_level = firing_level+1;
+      parent_level < src_num_firing_levels;
+      parent_level++){
+    if (src_has_iteration_level(parent_level, 
+                                token_dimension)){
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "parent_level = " << parent_level << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::dout << "src_firing_blocks[parent_level][token_dimension] = "
+                  << src_firing_blocks[parent_level][token_dimension]
+                  << std::endl;
+#endif
+
+      //Calculate effective firing block size      
+      udata_type current_firing_block_size = 
+        src_firing_blocks[parent_level][token_dimension];
+
+      for(int j = parent_level-1;
+          j >= (int)firing_level;
+          j--){
+        current_firing_block_size =
+          current_firing_block_size % 
+          src_firing_blocks[j][token_dimension];
+      }
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << "current_firing_block_size = " 
+                      << current_firing_block_size
+                      << std::endl;
+#endif
+
+      if (current_firing_block_size != 0){
+        //We require condition
+        
+        const sdata_type cond_iter_level =
+          calc_src_iteration_level_table(true)[parent_level][token_dimension];
+        assert(cond_iter_level >= 0);
+
+        if (current_condition_node == NULL){
+          //we do not already have started a condition node
+          current_condition_node = 
+            new smoc_wsdf_iter_max_cond(cond_iter_level,
+                                        dynamic_cast<smoc_wsdf_iter_max_value*>(return_node));
+          return_node = current_condition_node;
+        }else{
+          //we have already started a condition node.
+          //Insert new condition.
+          current_condition_node = 
+            current_condition_node->insert_cond_node(new smoc_wsdf_iter_max_cond(cond_iter_level));
+        }
+
+        //Now append new iteration max
+        if (firing_level == 0){
+          iter_max = current_firing_block_size;
+        }else {
+          iter_max = 
+            (current_firing_block_size + 
+             src_firing_blocks[firing_level-1][token_dimension]-1) /
+            src_firing_blocks[firing_level-1][token_dimension];
+        }
+        iter_max--;
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+        CoSupport::dout << "current_firing_block_size = "
+                        << current_firing_block_size
+                        << std::endl;
+        if (firing_level != 0)
+          CoSupport::dout << "src_firing_blocks[firing_level-1][token_dimension] = " 
+                          << src_firing_blocks[firing_level-1][token_dimension]
+                          << std::endl;
+        CoSupport::dout << "iter_max = " 
+                        << iter_max
+                        << std::endl;
+#endif
+
+        current_condition_node->set_parent_max(new smoc_wsdf_iter_max_value(iter_max));
+
+      }
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << CoSupport::Indent::Down;
+#endif
+    }
+  }
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Leave smoc_wsdf_edge_descr::ext_src_iteration_max(..,..)" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
+
+  return *return_node;
+}
+
+
+smoc_wsdf_iter_max& 
+smoc_wsdf_edge_descr::ext_src_iteration_max() const {
+
+  smoc_wsdf_iter_max *return_value = NULL;
+  smoc_wsdf_iter_max *current_node = NULL;
+
+  for(int firing_level = src_num_firing_levels-1;
+      firing_level >= 0;
+      firing_level--){
+    for(int token_dimension = token_dimensions-1;
+        token_dimension >= 0;
+        token_dimension--){
+      if (src_has_iteration_level(firing_level,token_dimension)){
+        if (current_node == NULL){
+          return_value = 
+            &(ext_src_iteration_max(firing_level,
+                                    token_dimension));
+          current_node = return_value;
+        }else{
+          current_node = 
+            current_node->set_next_level(&(ext_src_iteration_max(firing_level,
+                                                                 token_dimension)));
+        }
+      }
+    }
+  }
+
+  assert(return_value != NULL);
+  return *return_value;
+
+}
+
+
 smoc_wsdf_edge_descr::uvector_type 
 smoc_wsdf_edge_descr::snk_num_iterations() const {
   uvector_type return_vector(snk_iteration_max());
@@ -924,23 +1207,7 @@ void smoc_wsdf_edge_descr::check_parameters() const {
   assert(delta_c.size() == token_dimensions);
   assert(d.size() == token_dimensions);
   assert(bs.size() == token_dimensions);
-  assert(bt.size() == token_dimensions);
-
-
-  /* Check, that we only have complete firing blocks */
-  //source
-  for(unsigned int i = 0; i < token_dimensions; i++){             
-    for(unsigned int j = 0; j < src_num_firing_levels-1; j++){
-      assert(src_firing_blocks[j+1][i] % src_firing_blocks[j][i] == 0);
-    }
-  }
-
-  //sink
-  for(unsigned int i = 0; i < token_dimensions; i++){             
-    for(unsigned int j = 0; j < snk_num_firing_levels-1; j++){
-      assert(snk_firing_blocks[j+1][i] % snk_firing_blocks[j][i] == 0);
-    }               
-  }
+  assert(bt.size() == token_dimensions);  
 
   check_local_balance();
 
@@ -950,6 +1217,25 @@ void smoc_wsdf_edge_descr::check_parameters() const {
 #endif
 }
 
+
+void smoc_wsdf_edge_descr::check_fireblocks(bool incomplete_blocks) const {
+  if (!incomplete_blocks){
+    /* Check, that we only have complete firing blocks */
+    //source
+    for(unsigned int i = 0; i < token_dimensions; i++){             
+      for(unsigned int j = 0; j < src_num_firing_levels-1; j++){
+        assert(src_firing_blocks[j+1][i] % src_firing_blocks[j][i] == 0);
+      }
+    }
+    
+    //sink
+    for(unsigned int i = 0; i < token_dimensions; i++){             
+      for(unsigned int j = 0; j < snk_num_firing_levels-1; j++){
+        assert(snk_firing_blocks[j+1][i] % snk_firing_blocks[j][i] == 0);
+      }               
+    }
+  }
+}
 
 bool smoc_wsdf_edge_descr::snk_has_iteration_level(unsigned firing_level,
 						   unsigned token_dimension,
@@ -979,7 +1265,7 @@ bool smoc_wsdf_edge_descr::snk_has_iteration_level(unsigned firing_level,
 
 bool smoc_wsdf_edge_descr::src_has_iteration_level(unsigned firing_level,
 						   unsigned token_dimension) const {
-#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
   CoSupport::dout << "Enter smoc_wsdf_edge_descr::src_has_iteration_level" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
   CoSupport::dout << "firing_level = " << firing_level << std::endl;
@@ -1008,7 +1294,7 @@ bool smoc_wsdf_edge_descr::src_has_iteration_level(unsigned firing_level,
     return_value =  true;
   }
 
-#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::src_has_iteration_level" << std::endl;
   CoSupport::dout << CoSupport::Indent::Down;
 #endif
@@ -1020,45 +1306,50 @@ bool smoc_wsdf_edge_descr::src_has_iteration_level(unsigned firing_level,
 
 
 smoc_wsdf_edge_descr::s2vector_type 
-smoc_wsdf_edge_descr::calc_src_iteration_level_table() const {
+smoc_wsdf_edge_descr::calc_src_iteration_level_table(bool include_eff_token) const {
 
-#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
   CoSupport::dout << "Enter  smoc_wsdf_edge_descr::calc_src_iteration_level_table()" << std::endl;
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
   unsigned iteration_level = 0;
 
-  s2vector_type return_table(src_firing_blocks.size()-1,svector_type(token_dimensions));
+  s2vector_type return_table(include_eff_token ? 
+                             src_firing_blocks.size() :
+                             src_firing_blocks.size() - 
+                             src_num_eff_token_firing_levels,
+                             svector_type(token_dimensions));
         
 
-#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
   CoSupport::dout << "Size of return-table: " << return_table.size() << std::endl;
 #endif
 
   for(int firing_level = src_num_firing_levels-1; 
-      firing_level >= 1; //exclude effective token
+      firing_level >= (include_eff_token ? 0 : 1); //exclude effective token
       firing_level--){
     for(int token_dimension = token_dimensions-1; 
 	token_dimension >= 0; 
 	token_dimension--){
 
-#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
       CoSupport::dout << "firing_level = " << firing_level << std::endl;
       CoSupport::dout << "token_dimension = " << token_dimension << std::endl;
       CoSupport::dout << "iteration_level = " << iteration_level << std::endl;
 #endif
                         
       if (src_has_iteration_level(firing_level, token_dimension)){
-	return_table[firing_level-1][token_dimension] = iteration_level;
+	return_table[firing_level-(include_eff_token ? 0 : 1)][token_dimension] = 
+          iteration_level;
 	iteration_level++;
       }else{
-	return_table[firing_level-1][token_dimension] = -1;
+	return_table[firing_level-(include_eff_token ? 0 : 1)][token_dimension] = -1;
       }
     }
   }
 
-#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
   CoSupport::dout << "Leave  smoc_wsdf_edge_descr::calc_src_iteration_level_table()" << std::endl;
   CoSupport::dout << CoSupport::Indent::Down;
 #endif
