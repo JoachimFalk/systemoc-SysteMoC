@@ -44,6 +44,7 @@
 #include <typeinfo>
 
 #include <list>
+#include <map>
 
 #include <systemoc/smoc_config.h>
 
@@ -63,6 +64,8 @@
 namespace Expr {
 
 using namespace SysteMoC::ActivationPattern;
+
+  typedef std::map<smoc_root_port*, size_t> port_commit_map;
 
 namespace Detail {
   typedef std::pair<std::string, std::string> ArgInfo;
@@ -216,6 +219,18 @@ struct Sensitivity {
   }
 };
 
+// Default do nothing
+template <class E>
+struct CommitCount {
+  typedef Detail::Ignore       match_type;
+
+  typedef void                 result_type;
+  typedef port_commit_map     &param1_type;
+
+  static inline
+  result_type apply(const E &e, param1_type pcm) {}
+};
+
 // Default is invalid
 template <class E>
 struct Value {};
@@ -276,6 +291,7 @@ public:
   friend class CommReset<this_type>;
 #endif
   friend class Sensitivity<this_type>;
+  friend class CommitCount<this_type>;
   friend class Value<this_type>;
 private:
   struct virt_ty: public CoSupport::RefCountObject {
@@ -292,6 +308,8 @@ private:
 #endif
     virtual void       evalToSensitivity
                  (smoc_event_and_list &al) const = 0;
+    virtual void       evalToCommitCount
+                 (port_commit_map &)  const = 0;
     virtual T          evalToValue()       const = 0;
   };
 
@@ -323,6 +341,9 @@ private:
     void       evalToSensitivity
          (smoc_event_and_list &al) const
       { return Sensitivity<E>::apply(e, al); }
+    void       evalToCommitCount
+         (port_commit_map &pcm)  const
+      { return CommitCount<E>::apply(e, pcm); }
     T          evalToValue() const
       { return Value<E>::apply(e); }
   };
@@ -414,6 +435,19 @@ struct Sensitivity<DVirtual<T> > {
 };
 
 template <typename T>
+struct CommitCount<DVirtual<T> > {
+  typedef Detail::Process      match_type;
+ 
+  typedef void                 result_type;
+  typedef port_commit_map     &param1_type;
+
+  static inline
+  result_type apply(const DVirtual <T> &e, param1_type pcm) {
+    return e.v->evalToCommitCount(pcm);
+  }
+};
+
+template <typename T>
 struct Value<DVirtual<T> > {
   typedef T result_type;
   
@@ -447,6 +481,7 @@ public:
   friend class CommReset<this_type>;
 #endif
   friend class Sensitivity<this_type>;
+  friend class CommitCount<this_type>;
   friend class Value<this_type>;
 private:
   const T    &x;
@@ -506,6 +541,7 @@ public:
   friend class CommReset<this_type>;
 #endif
   friend class Sensitivity<this_type>;
+  friend class CommitCount<this_type>;
   friend class Value<this_type>;
 private:
   const T v;
@@ -527,6 +563,7 @@ public:
   friend class CommReset<this_type>;
 #endif
   friend class Sensitivity<this_type>;
+  friend class CommitCount<this_type>;
   friend class Value<this_type>;
 private:
   const T v;
@@ -586,6 +623,7 @@ public:
   friend class CommReset<this_type>;
 #endif
   friend class Sensitivity<this_type>;
+  friend class CommitCount<this_type>;
   friend class Value<this_type>;
 private:
   T (*f)();
@@ -640,6 +678,7 @@ public:
   friend class CommReset<this_type>;
 #endif
   friend class Sensitivity<this_type>;
+  friend class CommitCount<this_type>;
   friend class Value<this_type>;
 private:
   X     *o;
@@ -695,6 +734,7 @@ public:
   friend class CommReset<this_type>;
 #endif
   friend class Sensitivity<this_type>;
+  friend class CommitCount<this_type>;
   friend class Value<this_type>;
 private:
   F  f;
@@ -765,6 +805,7 @@ public:
   friend class CommReset<this_type>;
 #endif
   friend class Sensitivity<this_type>;
+  friend class CommitCount<this_type>;
   friend class Value<this_type>;
 private:
   A a;
@@ -894,6 +935,23 @@ struct Sensitivity<DBinOp<A,B,Op> > {
 //#ifdef SYSTEMOC_DEBUG
 //    std::cerr << "Sensitivity<DBinOp<A,B,Op>>::apply(...) al == " << al << std::endl;
 //#endif
+  }
+};
+
+template <class A, class B, _OpBinT Op>
+struct CommitCount<DBinOp<A,B,Op> > {
+  typedef DBinOpExecute<
+    typename CommitCount<A>::match_type,
+    typename CommitCount<B>::match_type,
+    Op, Expr::CommitCount>                OpT;
+  typedef typename OpT::match_type        match_type;
+  
+  typedef void                            result_type;
+  typedef port_commit_map                &param1_type;
+  
+  static inline
+  void apply(const DBinOp<A,B,Op> &e, param1_type pcm) {
+    OpT::apply(e.a, e.b, pcm);
   }
 };
 
@@ -1075,6 +1133,46 @@ struct DBinOpExecute<Detail::Process,Detail::Process,DOpBinLAnd,Sensitivity> {
     { Sensitivity<A>::apply(a, al); Sensitivity<B>::apply(b, al); }
 };
 
+template <_OpBinT op>
+struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommitCount> {
+  typedef Detail::Ignore match_type;
+
+  template <class A, class B>
+  static inline
+  void apply(const A &a, const B &b, port_commit_map &pcm)
+    {}
+};
+
+template <>
+struct DBinOpExecute<Detail::Process,Detail::Ignore,DOpBinLAnd,CommitCount> {
+  typedef Detail::Process match_type;
+
+  template <class A, class B>
+  static inline
+  void apply(const A &a, const B &b, port_commit_map &pcm)
+    { CommitCount<A>::apply(a, pcm); }
+};
+
+template <>
+struct DBinOpExecute<Detail::Ignore,Detail::Process,DOpBinLAnd,CommitCount> {
+  typedef Detail::Process match_type;
+
+  template <class A, class B>
+  static inline
+  void apply(const A &a, const B &b, port_commit_map &pcm)
+    { CommitCount<B>::apply(b, pcm); }
+};
+
+template <>
+struct DBinOpExecute<Detail::Process,Detail::Process,DOpBinLAnd,CommitCount> {
+  typedef Detail::Process match_type;
+
+  template <class A, class B>
+  static inline
+  void apply(const A &a, const B &b, port_commit_map &pcm)
+    { CommitCount<A>::apply(a, pcm); CommitCount<B>::apply(b, pcm); }
+};
+
 template <>
 struct DBinOpExecute<Detail::ENABLED,bool,DOpBinLAnd,Value> {
   typedef bool result_type;
@@ -1151,6 +1249,7 @@ public:
   friend class CommReset<this_type>;
 #endif
   friend class Sensitivity<this_type>;
+  friend class CommitCount<this_type>;
   friend class Value<this_type>;
 private:
   E e;
