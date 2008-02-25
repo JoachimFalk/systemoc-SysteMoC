@@ -38,6 +38,11 @@ void smoc_wsdf_iter_max::print_node(std::ostream& os) const{
   }
 }
 
+void smoc_wsdf_iter_max::delete_next_level_tree() {
+  if (next_level_iter_max != NULL)
+    delete next_level_iter_max;
+}
+
 smoc_wsdf_iter_max* 
 smoc_wsdf_iter_max::set_next_level(smoc_wsdf_iter_max* next_level_iter_max){
   this->next_level_iter_max = next_level_iter_max;
@@ -57,6 +62,7 @@ smoc_wsdf_iter_max::set_previous_level(smoc_wsdf_iter_max* previous_level_iter_m
 
   return previous_level_iter_max;
 }
+
 
 
 /* *****************************************************************************
@@ -96,6 +102,53 @@ smoc_wsdf_iter_max_cond::get_iter_max(const bvector_type& parent_iter_max) const
   }
 }
 
+void smoc_wsdf_iter_max_cond::clean_children(){
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Enter smoc_wsdf_iter_max_cond::clean_children" 
+                  << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+#endif
+
+  assert(parent_max != NULL);
+
+  smoc_wsdf_iter_max* relevant_subtree = 
+    parent_max->get_relevant_subtree();
+
+  if (relevant_subtree != parent_max){
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+    CoSupport::dout << "Replace subtree" << std::endl;
+    CoSupport::dout << "parent_max : " << *parent_max << std::endl;
+    CoSupport::dout << "relevant_subtree : " << *relevant_subtree << std::endl;
+#endif
+    //copy new relevant subtree
+    relevant_subtree = &(relevant_subtree->duplicate());
+
+    //delete previous subtree
+    delete parent_max;
+    parent_max = relevant_subtree;
+  }else{
+    //try next level
+    parent_max->clean_children();
+  }
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Leave smoc_wsdf_iter_max_cond::clean_children" 
+                  << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
+}
+
+void smoc_wsdf_iter_max_cond::delete_children() {
+  if(parent_max != NULL)
+    delete parent_max;
+  parent_max = NULL;
+
+  if(parent_not_max != NULL)
+    delete parent_not_max;
+  parent_not_max = NULL;
+}
+
 smoc_wsdf_iter_max_cond* 
 smoc_wsdf_iter_max_cond::insert_cond_node(smoc_wsdf_iter_max_cond* new_cond_node){
 
@@ -108,6 +161,58 @@ smoc_wsdf_iter_max_cond::insert_cond_node(smoc_wsdf_iter_max_cond* new_cond_node
   return new_cond_node;
   
 }
+
+
+smoc_wsdf_iter_max*
+smoc_wsdf_iter_max_cond::get_relevant_subtree() {
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Enter smoc_wsdf_iter_max_cond::get_relevant_subtree" 
+                  << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+#endif
+
+  smoc_wsdf_iter_max* return_value = NULL;
+
+  assert(parent_max != NULL);
+
+  //Try to get relevant value node
+  smoc_wsdf_iter_max_value* temp_node = 
+    dynamic_cast<smoc_wsdf_iter_max_value*>(parent_max->get_relevant_subtree());
+
+  if (temp_node != NULL){
+    if (temp_node->get_iter_max() == parent_not_max->get_iter_max()){
+      //condition node is not necessary
+      return_value = parent_not_max;      
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << "Condition node not required" 
+                      << std::endl; 
+#endif
+    }else{
+      //condition node is necessary
+      return_value = this;
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      CoSupport::dout << "Children are different. Cannot eliminate node." 
+                      << std::endl; 
+#endif
+    }
+  }else{
+    //condition node is necessary
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+    CoSupport::dout << "Child is a condition node. Cannot eliminate" 
+                    << std::endl; 
+#endif
+    return_value = this;
+  }
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  CoSupport::dout << "Leave smoc_wsdf_iter_max_cond::get_relevant_subtree" 
+                  << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
+
+  return return_value;
+}
+
 
 void smoc_wsdf_iter_max_cond::print_node(std::ostream& os) const{
 
@@ -123,6 +228,7 @@ void smoc_wsdf_iter_max_cond::print_node(std::ostream& os) const{
   
   
 }
+
 
 
 /* *****************************************************************************
@@ -804,6 +910,9 @@ smoc_wsdf_edge_descr::ext_src_iteration_max(unsigned int firing_level,
     }
   }
 
+  //Simplify result
+  return_node->clean_children();
+
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "Leave smoc_wsdf_edge_descr::ext_src_iteration_max(..,..)" << std::endl;
   CoSupport::dout << CoSupport::Indent::Down;
@@ -811,6 +920,7 @@ smoc_wsdf_edge_descr::ext_src_iteration_max(unsigned int firing_level,
 
   return *return_node;
 }
+
 
 
 smoc_wsdf_iter_max& 

@@ -17,6 +17,11 @@ virtual class_name& duplicate() const {\
 }
 
 
+/* *****************************************************************************
+ *                           smoc_wsdf_iter_max                                *
+ ******************************************************************************* */
+
+
 /// Data structure for description of iteration maxima
 class smoc_wsdf_iter_max {
 public:
@@ -44,12 +49,26 @@ public:
   ///Copy constructor
   smoc_wsdf_iter_max(const smoc_wsdf_iter_max& a);
 
-
   virtual smoc_wsdf_iter_max& duplicate() const = 0;
+
+  virtual ~smoc_wsdf_iter_max(){
+    delete_next_level_tree();
+  }
 
 public:
   virtual
   udata_type get_iter_max(const bvector_type& parent_iter_max) const = 0;
+
+  ///This function removes all non-necessary children
+  virtual void clean_children(){}
+
+public:
+  /// This function is used for tree simplification.
+  /// If possible, it does not return the complete sub-
+  /// tree, but only a value node representing a whole
+  /// tree.
+  virtual smoc_wsdf_iter_max*
+  get_relevant_subtree() {return this;}
 
 public:
   virtual void print_node(std::ostream& os) const;
@@ -62,11 +81,14 @@ protected:
   //Same, as above, but for the previous iteration level
   smoc_wsdf_iter_max* previous_level_iter_max;
 
+  void delete_next_level_tree();
+
 public:
   smoc_wsdf_iter_max* 
   set_next_level(smoc_wsdf_iter_max* next_level_iter_max);
   smoc_wsdf_iter_max*  
   set_previous_level(smoc_wsdf_iter_max* previous_level_iter_max);
+
 
 };
 
@@ -75,6 +97,11 @@ inline std::ostream& operator<<(std::ostream& os,
   iter_max_node.print_node(os);
   return os;
 }
+
+
+/* *****************************************************************************
+ *                           smoc_wsdf_iter_value                              *
+ ******************************************************************************* */
 
 /// Node to store the iteration maximum
 class smoc_wsdf_iter_max_value
@@ -95,6 +122,8 @@ public:
       iter_max(iter_max)
   {}
 
+  virtual ~smoc_wsdf_iter_max_value(){}
+
 public:
   WSDF_ITER_MAX_DUPLICATE_FUNCTION(this_type)
 
@@ -106,6 +135,10 @@ public:
   virtual
   udata_type get_iter_max(const bvector_type& parent_iter_max) const;
 
+  udata_type get_iter_max() const{
+    return iter_max;
+  }
+
 protected:
 
   udata_type iter_max;
@@ -115,6 +148,10 @@ public:
   
 };
 
+
+/* *****************************************************************************
+ *                           smoc_wsdf_iter_cond                               *
+ ******************************************************************************* */
 
 
 /// Node to express a condition on a parent iteration
@@ -145,6 +182,10 @@ public:
   ///Copy constructor
   smoc_wsdf_iter_max_cond(const smoc_wsdf_iter_max_cond& a);
 
+  virtual ~smoc_wsdf_iter_max_cond(){
+    delete_children();
+  }
+
 public:
   WSDF_ITER_MAX_DUPLICATE_FUNCTION(this_type)
 
@@ -152,6 +193,11 @@ public:
   
   virtual
   udata_type get_iter_max(const bvector_type& parent_iter_max) const;
+
+  virtual void clean_children();
+
+  virtual void delete_children();
+
 
 public:
   void set_parent_max(smoc_wsdf_iter_max* parent_max){
@@ -178,13 +224,19 @@ protected:
   smoc_wsdf_iter_max_value* parent_not_max;
 
 public:
+  virtual smoc_wsdf_iter_max*
+  get_relevant_subtree();
+
+public:
   virtual void print_node(std::ostream& os) const;
 
 
 };
 
 
-
+/* *****************************************************************************
+ *                    smoc_wsdf_edge                                           *
+ ******************************************************************************* */
 
 /// Descriptor of a WSDF edge
 class smoc_wsdf_edge_descr {
