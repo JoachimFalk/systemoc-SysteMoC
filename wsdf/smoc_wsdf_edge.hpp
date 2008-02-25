@@ -107,6 +107,8 @@ public:
     check_parameters();
   }
 
+  virtual ~smoc_wsdf_edge_descr(){}
+
 public:
   
   /* Transformations on the firing blocks */
@@ -166,6 +168,10 @@ public:
   const uvector_type& snk_iteration_max() const;
   //Get iteration maximum (including sliding window)
   const uvector_type& src_iteration_max() const;
+
+  //Get the number of iterations in each dimension
+  uvector_type snk_num_iterations() const;
+  uvector_type src_num_iterations() const;
 
   svector_type snk_data_element_mapping_vector() const;
   umatrix_type snk_data_element_mapping_matrix() const;
@@ -375,21 +381,32 @@ private:
     }
   }
 
-private:
+protected:
 
   /// This function must be called,
   /// when an edge parameter is changed
-  void set_change_indicator(){
+  virtual void set_change_indicator(){
     cache_src_iter_max_valid = false;
     cache_snk_iter_max_valid = false;
+    cache_src_iteration_levels_valid = false;
+    cache_eff_token_iteration_levels_valid = false;
+    cache_num_window_iteration_levels_valid = false;
   }
+
+private:
 
   // Here we realize a sort of change in order to
   // improve calculation speed
   mutable bool cache_src_iter_max_valid;
   mutable bool cache_snk_iter_max_valid;
+  mutable bool cache_src_iteration_levels_valid;
+  mutable bool cache_eff_token_iteration_levels_valid;
+  mutable bool cache_num_window_iteration_levels_valid;
   mutable uvector_type snk_iteration_max_cached;
   mutable uvector_type src_iteration_max_cached;
+  mutable unsigned src_iteration_levels_cached;
+  mutable unsigned eff_token_iteration_levels_cached;
+  mutable unsigned num_window_iteration_levels_cached;
 
 };
 
