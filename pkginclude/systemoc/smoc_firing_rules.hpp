@@ -199,7 +199,9 @@ public:
   smoc_func_call             go;
   smoc_func_call             tick;
 
+#ifdef SYSTEMOC_ENABLE_VPC
   SystemC_VPC::FastLink* tickLink;
+#endif // SYSTEMOC_ENABLE_VPC
 
 public:
   smoc_sr_func_pair(
