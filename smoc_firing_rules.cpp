@@ -450,14 +450,19 @@ void smoc_firing_types::transition_ty::execute(
 #endif
   
 #ifdef SYSTEMOC_ENABLE_VPC
-  if (execMode == MODE_DIISTART && (mode&GO)) {
+  if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
     actor->vpc_event_dii.reset();
     
     actor->vpc_event_lat = new smoc_ref_event();
     SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
     
     // new FastLink interface
-    vpcLink->compute(p);
+    if(mode & GO) vpcLink->compute(p);
+    else if(mode & TICK){
+      assert( isType<smoc_sr_func_pair>(f) );
+      smoc_sr_func_pair &fp = f;
+      fp.tickLink->compute(p);
+    }
     // save guard and nextState to later execute communication
     actor->_guard       =  &guard;
     actor->nextState.rs = nextState;
@@ -497,6 +502,13 @@ void smoc_firing_types::transition_ty::finalise(smoc_root_node *a) {
       smoc_func_call &fc = f;
       vpcLink = new SystemC_VPC::FastLink(SystemC_VPC::Director::getInstance().
         getFastLink(name, fc.getFuncName()));
+    } else if (isType<smoc_sr_func_pair>(f)) {
+      smoc_sr_func_pair &fp = f;
+      vpcLink = new SystemC_VPC::FastLink(SystemC_VPC::Director::getInstance().
+        getFastLink(name, fp.go.getFuncName()));
+      fp.tickLink = new SystemC_VPC::FastLink(
+        SystemC_VPC::Director::getInstance().
+        getFastLink(name, fp.tick.getFuncName()));
     } else {
       vpcLink = new SystemC_VPC::FastLink(SystemC_VPC::Director::getInstance().
         getFastLink(name, "???"));
