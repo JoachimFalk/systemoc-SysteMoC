@@ -372,7 +372,9 @@ smoc_wsdf_edge_descr::get_scm_firing_block(u2vector_type firing_blocks,
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
-  udata_type return_value;
+  //default value, if no block_size does does not match
+  //any firing block
+  udata_type return_value = 0;
 
   if (block_size <= 1){
     //always possible
@@ -396,6 +398,7 @@ smoc_wsdf_edge_descr::get_scm_firing_block(u2vector_type firing_blocks,
       break;
     }
     
+    //Memorize previous block size
     firing_level++;
     if (firing_level < firing_blocks.size()){
       if (firing_blocks[firing_level][token_dimension] != 
