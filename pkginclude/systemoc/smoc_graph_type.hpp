@@ -63,88 +63,34 @@ class smoc_scheduler_top;
 #define T_chan_init_default smoc_fifo
 
 /**
- * use this class to connect arbitrary ports (-> provide adapters)
+ * use this class to connect arbitrary ports
  */
 template<class ChanInit>
 class smoc_port_connector {
 private:
   typedef typename ChanInit::chan_type  ChanType;
-  typedef typename ChanType::iface_type IFaceImpl;
 public:
-
+  
   smoc_port_connector(const ChanInit& init) :
+    init(init),
     chan(new ChanType(init))
-    {}
+  {}
 
-  template<class IFace>
-  smoc_port_connector& operator<<(sc_port<IFace>& port) {
-    bind<IFace>(port);
-    return *this;
-  }
-
-  template<class T>
-  smoc_port_connector& operator<<(smoc_port_in<T>& port) {
-    typedef typename smoc_port_in<T>::iface_type IFace;
-    bind<IFace>(port);
-    return *this;
-  }
-
-  template<class T>
-  smoc_port_connector& operator<<(smoc_port_out<T>& port) {
-    typedef typename smoc_port_out<T>::iface_type IFace;
-    bind<IFace>(port);
-    return *this;
-  }
+  template<class Port>
+  smoc_port_connector& operator<<(Port& port)
+  { chan->connect(port, init); return *this; }
 
 private:
+  // keep reference to channel initializer
+  const ChanInit& init;
+
+  // this may not implement any interface usable for ports
+  // (e.g. sr-multicast: Entry/Outlet classes provide port
+  // interfaces) so we call connect until there is a better
+  // solution
   ChanType* chan;
-
-  // select type A or B based on predicate P
-  template<bool P, class A, class B>
-  struct Select;
-
-  // specialization: select type A
-  template<class A,class B>
-  struct Select<true,A,B>
-    { typedef A result_type; };
-
-  // specialization: select type B
-  template<class A,class B>
-  struct Select<false,A,B>
-    { typedef B result_type; };
-
-  // construct new instance
-  template<class T, class R = T>
-  struct Alloc {
-    static R& apply(T& t)
-      { return *(new R(t)); }
-  };
-
-  // copy instance
-  template<class T, class R = T>
-  struct Copy {
-    static R& apply(T& t)
-      { return t; }
-  };
-
-  // this does all the work...
-  template<class IFace, class Port>
-  void bind(Port& port) {
-    typedef smoc_chan_adapter<IFace,IFaceImpl> Adapter;
-
-    // test if adapter available: if a specialization exists,
-    // we will use the adapter, otherwise, we plug the channel
-    // into the port
-    typedef typename Select<
-              Adapter::isAdapter,
-              Alloc<IFaceImpl,Adapter>,
-              Copy<IFace> >::result_type Op;
-
-    port(Op::apply(*chan));
-  }
 };
 
-   
 /**
  * base class for all graph classes; no scheduling of childen (->
  * derive from this class and build FSM!)
@@ -167,6 +113,7 @@ protected:
   template<class ChanInit, class PortA, class PortB>
   void connectNodePorts(PortA &a, PortB &b, const ChanInit& i)
     { connector(i) << a << b; }
+
 
   /// The functions below are convenience functions which
   /// deduce the data type automatically from smoc_ports
@@ -208,165 +155,25 @@ protected:
   void connectNodePorts(PortA& a, PortB& b)
     { connectNodePorts(a, b, T_chan_init_default<T>()); }
 
-  // FIXME: adopt functions below to the connector class
-
 #ifdef SYSTEMOC_ENABLE_WSDF 
-  /// Connect multi-dimensional actor output port with multi-dimensional actor input port
-  template <typename T_chan_init, 
-            unsigned N,
-            template <typename,typename> class R,
-            template <typename> class STORAGE_OUT_TYPE
-            >
-  void connectNodePorts(
-                        smoc_md_port_out<typename T_chan_init::data_type, N, STORAGE_OUT_TYPE> &b,
-                        smoc_md_port_in<typename T_chan_init::data_type, N, R>  &a,
-                        const T_chan_init i ) {
-    typename T_chan_init::chan_type &chan =
-      registerChan<T_chan_init>(i);
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
-    b.setFiringLevelMap(i.wsdf_edge_param.calc_src_iteration_level_table());
-    a.setFiringLevelMap(i.wsdf_edge_param.calc_snk_iteration_level_table());
-  }
-  /// Connect multi-dimensional actor output port with multi-dimensional interface input port
-  template <typename T_chan_init, 
-            unsigned N,
-            template <typename> class STORAGE_OUT_TYPE>
-  void connectNodePorts(
-                        smoc_md_port_out<typename T_chan_init::data_type, N, STORAGE_OUT_TYPE> &b,
-                        smoc_md_iport_in<typename T_chan_init::data_type, N> &a,
-                        const T_chan_init i ) {
-    typename T_chan_init::chan_type &chan =
-      registerChan<T_chan_init>(i);
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
-    b.setFiringLevelMap(i.wsdf_edge_param.calc_src_iteration_level_table());
-    a.setFiringLevelMap(i.wsdf_edge_param.calc_snk_iteration_level_table());
-  }
-  /// Connect multi-dimensional interface output port with multi-dimensional actor input port
-  template <typename T_chan_init, 
-            unsigned N,
-            template <typename, typename> class R,
-            template <typename> class STORAGE_OUT_TYPE>
-  void connectNodePorts(
-                        smoc_md_iport_out<typename T_chan_init::data_type, N, STORAGE_OUT_TYPE> &b,
-                        smoc_md_port_in<typename T_chan_init::data_type, N, R>  &a,
-                        const T_chan_init i ) {
-    typename T_chan_init::chan_type &chan =
-      registerChan<T_chan_init>(i);
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
-    b.setFiringLevelMap(i.wsdf_edge_param.calc_src_iteration_level_table());
-    a.setFiringLevelMap(i.wsdf_edge_param.calc_snk_iteration_level_table());
+
+  /// FIXME: this should probably be generalized as well
+  template<class EdgeInit, class PortA, class PortB>
+  void indConnectNodePorts(PortA& a, PortB& b, const EdgeInit& e) {
+    typedef typename EdgeInit::chan_init_type ChanInit;
+    connectNodePorts(a, b, ChanInit(e, a.params(), b.params()));
   }
 
-  
-  /* Indirect channel setup */
-  template <unsigned N,
-            template <typename,typename> class R,
-            typename T_edge_init,
-            template <typename> class STORAGE_OUT_TYPE>
-  void indConnectNodePorts(smoc_md_port_out<typename T_edge_init::data_type, N, STORAGE_OUT_TYPE> &b,
-                           smoc_md_port_in<typename T_edge_init::data_type, N, R>  &a,
-                           const T_edge_init i ) {
-    typedef typename T_edge_init::chan_init_type T_chan_init;
-    T_chan_init chan_init(i,b.params(),a.params());
-    typename T_chan_init::chan_type &chan =
-      registerChan<T_chan_init>(chan_init);
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
-    b.setFiringLevelMap(chan_init.wsdf_edge_param.calc_src_iteration_level_table());
-    a.setFiringLevelMap(chan_init.wsdf_edge_param.calc_snk_iteration_level_table());
-  }
-  template <unsigned N,
-            typename T_edge_init,
-            template <typename> class STORAGE_OUT_TYPE>
-  void indConnectNodePorts(smoc_md_port_out<typename T_edge_init::data_type, N, STORAGE_OUT_TYPE> &b,
-                           smoc_md_iport_in<typename T_edge_init::data_type, N>  &a,
-                           const T_edge_init i ) {
-    typedef typename T_edge_init::chan_init_type T_chan_init;
-    T_chan_init chan_init(i,b.params(),a.params());
-    typename T_chan_init::chan_type &chan =
-      registerChan<T_chan_init>(chan_init);
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
-    b.setFiringLevelMap(chan_init.wsdf_edge_param.calc_src_iteration_level_table());
-    a.setFiringLevelMap(chan_init.wsdf_edge_param.calc_snk_iteration_level_table());
-  }
-  template <unsigned N,
-            template <typename,typename> class R,
-            typename T_edge_init,
-            template <typename> class STORAGE_OUT_TYPE>
-  void indConnectNodePorts(smoc_md_iport_out<typename T_edge_init::data_type, N, STORAGE_OUT_TYPE> &b,
-                           smoc_md_port_in<typename T_edge_init::data_type, N, R>  &a,
-                           const T_edge_init i ) {
-    typedef typename T_edge_init::chan_init_type T_chan_init;
-    T_chan_init chan_init(i,b.params(),a.params());
-    typename T_chan_init::chan_type &chan =
-      registerChan<T_chan_init>(chan_init);
-    connectChanPort(chan,a);
-    connectChanPort(chan,b);
-    b.setFiringLevelMap(chan_init.wsdf_edge_param.calc_src_iteration_level_table());
-    a.setFiringLevelMap(chan_init.wsdf_edge_param.calc_snk_iteration_level_table());
-  }
 #endif
+
 public:
 
-  template <typename T>
-  T &registerNode( T *node ) {
-    return *node;
-  }
-  
-  template <typename T_chan_init>
-  typename T_chan_init::chan_type &registerChan( const T_chan_init i ) {
-    typename T_chan_init::chan_type *chan =
-      new typename T_chan_init::chan_type(i);
-    return *chan;
-  }
-  //template <typename T_chan_type, template <typename, typename> class R, class P, template <typename> class STORAGE_OUT_TYPE>
-  template <typename T_chan_type, template <typename> class R, template <typename> class STORAGE_OUT_TYPE>
-  void connectChanPort( T_chan_type &chan,
-                        smoc_port_out_base<typename T_chan_type::data_type, R, STORAGE_OUT_TYPE> &p ) {
-    p(chan);
-  }
-  //template <typename T_chan_type, template <typename, typename> class R, class P>
-  template <typename T_chan_type, template <typename> class R>
-  void connectChanPort( T_chan_type &chan,
-                        smoc_port_in_base<typename T_chan_type::data_type, R> &p ) {
-    p(chan);
-  }
-  template <typename T,
-      //template <typename, typename> class R,
-      template <typename> class R>
-  void connectChanPort(
-    smoc_multicast_sr_signal_type<T> &chan,
-    smoc_port_in_base<typename smoc_multicast_sr_signal_type<T>::data_type,R> &p )
-  {
-//    assert( port2chan.find(&p) ==  port2chan.end() );
-//    port2chan[&p] = &chan;
-//    chan2ports[&chan].push_back(&p);
-    p(chan.getOutlet(p));
-  }
-  template <typename T,
-      //template <typename, typename> class R,
-      template <typename> class R,
-      template <typename> class STORAGE_OUT_TYPE>
-  void connectChanPort(
-    smoc_multicast_sr_signal_type<T> &chan,
-    smoc_port_out_base<
-      typename smoc_multicast_sr_signal<T>::data_type,
-      R,
-      STORAGE_OUT_TYPE> &p )
-  {
-//    assert( port2chan.find(&p) ==  port2chan.end() );
-//    port2chan[&p] = &chan;
-//    chan2ports[&chan].push_back(&p);
-    p(chan.getEntry());
-  }
+  template<typename T>
+  T& registerNode(T* node)
+    { return *node; }
 
   const smoc_node_list& getNodes() const;
   const smoc_chan_list& getChans() const;
-  
 
 protected:
   smoc_graph_base(sc_module_name name, smoc_firing_state& init, bool regObj);

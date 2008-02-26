@@ -43,6 +43,7 @@
 
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
+#include "smoc_chan_adapter.hpp"
 
 #include <systemc.h>
 #include <vector>
@@ -490,11 +491,6 @@ public:
   typedef smoc_ring_access<
     storage_type,
     typename ring_out_type::return_type>      ring_access_out_type;
-  
-  typedef smoc_chan_if<
-            /*smoc_fifo_kind,*/ T,
-            smoc_channel_access,
-            smoc_channel_access> iface_type;
 
   class chan_init
     : public smoc_fifo_kind::chan_init {
@@ -574,11 +570,6 @@ public:
   typedef smoc_ring_access<void,void>   ring_access_in_type;
   typedef smoc_ring_access<void,void>   ring_access_out_type;
 
-  typedef smoc_chan_if<
-            /*smoc_fifo_kind,*/ void,
-            smoc_channel_access,
-            smoc_channel_access> iface_type;
-
   class chan_init
     : public smoc_fifo_kind::chan_init {
     friend class smoc_fifo_storage<void>;
@@ -644,7 +635,6 @@ public:
   typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
   typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
 
-  typedef typename this_type::iface_type iface_type;
 protected:
   
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -678,6 +668,45 @@ public:
   // constructors
   smoc_fifo_type( const typename smoc_fifo_storage<T>::chan_init &i )
     : smoc_fifo_storage<T>(i) {}
+
+  template<class IFace,class Init>
+  void connect(sc_port<IFace> &port, const Init&) {
+
+    using namespace SysteMoC::Detail;
+
+    // we can provide smoc_chan_out_if and smoc_chan_in_if
+    // interfaces
+    typedef typename smoc_port_out<T>::iface_type IFaceImplOut;
+    typedef typename smoc_port_in<T>::iface_type  IFaceImplIn;
+
+    // corresponding adapters
+    typedef smoc_chan_adapter<IFaceImplOut,IFace> AdapterOut;
+    typedef smoc_chan_adapter<IFaceImplIn,IFace>  AdapterIn;
+
+    typedef
+      // 1st possible adapter
+      typename Select<
+        AdapterOut::isAdapter,
+        Alloc<IFaceImplOut, AdapterOut>,
+      // 2nd possible adapter
+      typename Select<
+        AdapterIn::isAdapter,
+        Alloc<IFaceImplIn, AdapterIn>,
+      // otherwise -> error
+      void
+    >::result_type
+    >::result_type Op;
+
+    port(Op::apply(*this));
+  }
+
+  template<class Init>
+  void connect(smoc_port_out<T> &outPort, const Init&)
+  { outPort(*this); }
+
+  template<class Init>
+  void connect(smoc_port_in<T> &inPort, const Init&)
+  { inPort(*this); }
 
   // bounce functions
   size_t numAvailable() const

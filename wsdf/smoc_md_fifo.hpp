@@ -1001,6 +1001,34 @@ public:
     : parent_type(i) {
   }
 
+  template<unsigned N,template<class> class S, class Init>
+  void connect(smoc_md_port_out<data_type,N,S>& port, const Init& i) {
+    port(*this);
+    port.setFiringLevelMap(
+        i.wsdf_edge_param.calc_src_iteration_level_table());
+  }
+
+  template<unsigned N,template<class> class S, class Init>
+  void connect(smoc_md_iport_out<data_type,N,S>& port, const Init& i) {
+    port(*this);
+    port.setFiringLevelMap(
+        i.wsdf_edge_param.calc_src_iteration_level_table());
+  }
+
+  template<unsigned N,template<class,class> class B, class Init>
+  void connect(smoc_md_port_in<data_type,N,B>& port, const Init& i) {
+    port(*this);
+    port.setFiringLevelMap(
+        i.wsdf_edge_param.calc_snk_iteration_level_table());
+  }
+
+  template<unsigned N, class Init>
+  void connect(smoc_md_iport_in<data_type,N>& port, const Init& i) {
+    port(*this);
+    port.setFiringLevelMap(
+        i.wsdf_edge_param.calc_snk_iteration_level_table());
+  }
+
   // bounce functions
   size_t numAvailable() const { 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2

@@ -212,7 +212,7 @@ public:
   }
 
   const return_type operator[](size_t n) const{
-    assert(0); //should never be called on an input port
+    //assert(0); //should never be called on an input port
     return actualValue;
   }
 
@@ -392,12 +392,21 @@ public:
       this->signalState = defined;
     }
   }
-
-  this_type & connect(smoc_port_in<data_type> &inPort){
-    inPort(this->getOutlet(inPort));
-    return *this;
-
+  
+  template<class IFace, class Init>
+  void connect(sc_port<IFace> &port, const Init&) {
+    // FIXME: must probably be redesigned (*this is not the
+    // interface; must call getEntry / getOutlet)
+    assert(0);  
   }
+
+  template<class Init>
+  void connect(smoc_port_out<T> &outPort, const Init&)
+  { outPort(getEntry()); }
+
+  template<class Init>
+  void connect(smoc_port_in<T> &inPort, const Init&)
+  { inPort(getOutlet(inPort)); }
 
   Entry& getEntry(){
     return entry;
@@ -486,7 +495,7 @@ template <typename T>
 class smoc_multicast_sr_signal
   : public smoc_multicast_sr_signal_type<T>::chan_init {
 public:
-  typedef T                        data_type;
+  typedef T                                  data_type;
   typedef smoc_multicast_sr_signal<T>        this_type;
   typedef smoc_multicast_sr_signal_type<T>   chan_type;
   
@@ -494,28 +503,14 @@ public:
     (typename smoc_multicast_sr_signal_type<T>::chan_init::add_param_ty x){
     add(x); return *this;
   }
-
-  chan_type &connect(smoc_port_out<data_type> &outPort){
-    assert( !chan ); // only one outport support for multi-cast
-    chan = new chan_type(*this);
-    outPort(chan->getEntry());
-    return *chan;
-  }
   
-  chan_type &connect(smoc_port_in<data_type> &inPort){
-    assert( chan ); // we need to connect an outport first
-    return chan->connect(inPort);
-  }
-
   smoc_multicast_sr_signal( )
-    : smoc_multicast_sr_signal_type<T>::chan_init( NULL, 1 ),
-      chan( NULL ) {}
+    : smoc_multicast_sr_signal_type<T>::chan_init( NULL, 1 )
+  {}
 
   explicit smoc_multicast_sr_signal( const char *name )
-    : smoc_multicast_sr_signal_type<T>::chan_init( name, 1 ),
-      chan( NULL ) {}
-private:
-  chan_type *chan;
+    : smoc_multicast_sr_signal_type<T>::chan_init( name, 1 )
+  {}
 };
 
 #endif // _INCLUDED_SMOC_MULTICAST_SR_SIGNAL_HPP

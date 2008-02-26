@@ -39,6 +39,40 @@
 #include <systemoc/smoc_chan_if.hpp>
 #include <tlm.h>
 
+#include <boost/type_traits/is_base_of.hpp>
+
+namespace SysteMoC { namespace Detail {
+
+/// select type A or B based on predicate P
+template<bool P, class A, class B>
+struct Select;
+
+/// specialization: select type A
+template<class A,class B>
+struct Select<true,A,B>
+{ typedef A result_type; };
+
+/// specialization: select type B
+template<class A,class B>
+struct Select<false,A,B>
+{ typedef B result_type; };
+
+/// construct new instance
+template<class T, class R = T>
+struct Alloc {
+  static R& apply(T& t)
+  { return *(new R(t)); }
+};
+
+/// copy instance
+template<class T, class R = T>
+struct Copy {
+  static R& apply(T& t)
+  { return t; }
+};
+
+}} // namespace SysteMoC::Detail
+
 /**
  * specialize this class to obtain an adapter from IFace to IFaceImpl
  * - derived class implements IFace
@@ -46,33 +80,32 @@
  *   implement IFaceImpl)
  * - set isAdapter to true
  */
-template<class IFace, class IFaceImpl>
+template<class IFaceImpl, class IFace>
 class smoc_chan_adapter {
 public:
+  /// typedefs
+  typedef IFaceImpl iface_impl_type;
+  typedef IFace     iface_type;
+
   /// flag if this class is a specialization
   static const bool isAdapter = false;
-
-private:
-  /// disable constructor
-  smoc_chan_adapter();
 };
+
 
 /**
  * adapter specialization for blocking tlm get -> smoc channel read
- * (FIXME: this uses smoc_chan_if instead of smoc_chan_in_if)
  */
 template<class T>
 class smoc_chan_adapter<
-    tlm::tlm_blocking_get_if<T>,
-    smoc_chan_if<T,smoc_channel_access,smoc_channel_access>
+    smoc_chan_in_if<T,smoc_channel_access>,
+    tlm::tlm_blocking_get_if<T>
   > :
   public virtual tlm::tlm_blocking_get_if<T>
 {
 public:
   /// typedefs
-  typedef T data_type;
-  typedef tlm::tlm_blocking_get_if<T> iface_type;
   typedef smoc_chan_in_if<T,smoc_channel_access> iface_impl_type;
+  typedef tlm::tlm_blocking_get_if<T>            iface_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -86,14 +119,13 @@ public:
   {}
 
   /// see tlm::tlm_blocking_get_if<T>
-  data_type get(tlm::tlm_tag<data_type>* = 0) {
+  T get(tlm::tlm_tag<T>* = 0) {
     wait(in_if.dataAvailableEvent(1));
     typename iface_impl_type::access_type* ca =
       in_if.getChannelAccess();
 
     // why must we set the limit? 
-    ca->setLimit(1);
-    const data_type& t = ca->operator[](0);
+    ca->setLimit(1); const T& t = (*ca)[0];
 
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
@@ -113,20 +145,18 @@ private:
 
 /**
  * adapter specialization for blocking tlm put -> smoc channel write
- * (FIXME: this uses smoc_chan_if instead of smoc_chan_out_if)
  */
 template<class T>
 class smoc_chan_adapter<
-    tlm::tlm_blocking_put_if<T>,
-    smoc_chan_if<T,smoc_channel_access,smoc_channel_access>
+    smoc_chan_out_if<T,smoc_channel_access>,
+    tlm::tlm_blocking_put_if<T>
   > :
   public virtual tlm::tlm_blocking_put_if<T>
 {
 public:
   /// typedefs
-  typedef T data_type;
-  typedef tlm::tlm_blocking_put_if<T> iface_type;
   typedef smoc_chan_out_if<T,smoc_channel_access> iface_impl_type;
+  typedef tlm::tlm_blocking_put_if<T>             iface_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -140,14 +170,13 @@ public:
   {}
 
   /// see tlm::tlm_blocking_put_if<T>
-  void put(const data_type& t) {
+  void put(const T& t) {
     wait(out_if.spaceAvailableEvent(1));
     typename iface_impl_type::access_type* ca =
       out_if.getChannelAccess();
 
     // why must we set the limit? 
-    ca->setLimit(1);
-    ca->operator[](0) = t;
+    ca->setLimit(1); (*ca)[0] = t;
 
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
