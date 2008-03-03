@@ -671,7 +671,6 @@ struct ExpHuffTbl {
   }
 };
 
-#if 0
 #ifndef XILINX_EDK_RUNTIME
 inline
 std::ostream &operator<<(std::ostream &out, const ExpHuffTbl &eht) {
@@ -702,7 +701,6 @@ std::ostream &operator<<(std::ostream &out, const ExpHuffTbl &eht) {
 #endif
   return out;
 }
-#endif
 
 #if defined(SYSTEMC_VERSION) && (SYSTEMC_VERSION <= 20020405)
 inline
