@@ -76,6 +76,29 @@ const smoc_chan_list smoc_graph::getChans() const {
   return channels;
 }
 
+void smoc_graph::getChansRecursive( smoc_chan_list & channels) const {
+
+  for (
+#if SYSTEMC_VERSION < 20050714
+        sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+#else
+        std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
+#endif
+        iter != get_child_objects().end();
+        ++iter ) {
+    smoc_root_chan *chan = dynamic_cast<smoc_root_chan *>(*iter);
+    
+    if (chan != NULL )
+      channels.push_back(chan);
+
+    smoc_graph *graph = dynamic_cast<smoc_graph *>(*iter);
+    if (graph != NULL ){
+      cerr << "got graph" << endl;
+      graph->getChansRecursive( channels );
+    }
+  }
+}
+
 void smoc_graph::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_graph::finalise() begin, name == " << name() << std::endl;
