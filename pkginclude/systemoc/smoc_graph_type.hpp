@@ -356,6 +356,7 @@ public:
   
   const smoc_node_list getNodes() const;
   const smoc_chan_list getChans() const;
+  void getChansRecursive( smoc_chan_list & channels) const;
   
 #ifndef __SCFE__
 //sc_module *myModule();

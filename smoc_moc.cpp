@@ -109,7 +109,8 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 
   smoc_node_list nodes;
   getLeafNodes(nodes, c);  
-  const smoc_chan_list cs  = c->getChans();
+  smoc_chan_list cs;
+  c->getChansRecursive( cs );
 
   //paranoia
   bottom.clear();
