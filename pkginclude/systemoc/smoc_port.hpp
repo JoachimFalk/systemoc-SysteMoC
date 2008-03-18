@@ -428,8 +428,9 @@ private:
   const char *if_typename() const { return typeid(iface_type).name(); }
 
   // SystemC 2.2 requires this method
+  // (must also return the correct number!!!)
   int interface_count() {
-    return 1;
+    return interface ? 1 : 0;
   }
 
   // called by pbind (for internal use only)
