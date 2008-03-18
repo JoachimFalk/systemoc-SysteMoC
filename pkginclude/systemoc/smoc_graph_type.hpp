@@ -174,6 +174,7 @@ public:
 
   const smoc_node_list& getNodes() const;
   const smoc_chan_list& getChans() const;
+  void getChansRecursive( smoc_chan_list & channels) const;
 
 protected:
   smoc_graph_base(sc_module_name name, smoc_firing_state& init, bool regObj);
