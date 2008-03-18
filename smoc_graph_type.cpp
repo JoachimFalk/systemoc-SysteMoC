@@ -85,7 +85,6 @@ void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
 
     smoc_graph *graph = dynamic_cast<smoc_graph *>(*iter);
     if (graph != NULL ){
-      cerr << "got graph" << endl;
       graph->getChansRecursive( channels );
     }
   }
