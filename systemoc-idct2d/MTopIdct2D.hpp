@@ -50,10 +50,13 @@
 
 #ifdef REAL_BLOCK_DATA
 # include "MIdctImageSource.hpp"
+# undef  DEFAULT_BLOCK_COUNT
 # define DEFAULT_BLOCK_COUNT ((IMAGE_WIDTH)/8*(IMAGE_HEIGHT)/8)
 #else
 # include "MCounterSource.hpp"
-# define DEFAULT_BLOCK_COUNT 1
+# ifndef DEFAULT_BLOCK_COUNT
+#   define DEFAULT_BLOCK_COUNT 1
+# endif
 #endif
 
 #ifdef IDCT_NULL_OUTPUT
