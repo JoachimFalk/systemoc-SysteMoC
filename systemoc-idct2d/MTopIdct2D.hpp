@@ -113,7 +113,7 @@ int sc_main (int argc, char **argv) {
   
   smoc_top mTop(&mTopIdct2D);
   
-  sc_start(-1);
+  sc_start();
   
   return 0;
 }
