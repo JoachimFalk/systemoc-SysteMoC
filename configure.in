@@ -239,18 +239,18 @@ fi
 
 AC_CONFIG_FILES([Makefile])
 
-if test -d $srcdir/jpeg-encoder; then
-  AC_CONFIG_FILES([jpeg-encoder/Makefile])
-  subdirs="$subdirs jpeg-encoder"
-fi
-if test x"$pkg_systemc_vpc_srcdir" != "x"; then
-  AC_CONFIG_FILES([vpc-test-h261/Makefile])
-# subdirs="$subdirs vpc-test-h261"
-fi
-if test -d $srcdir/systemoc-sr; then
-  AC_CONFIG_FILES([systemoc-sr/Makefile])
-  subdirs="$subdirs systemoc-sr"
-fi
+#if test -d $srcdir/jpeg-encoder; then
+#  AC_CONFIG_FILES([jpeg-encoder/Makefile])
+#  subdirs="$subdirs jpeg-encoder"
+#fi
+#if test x"$pkg_systemc_vpc_srcdir" != "x"; then
+#  AC_CONFIG_FILES([vpc-test-h261/Makefile])
+## subdirs="$subdirs vpc-test-h261"
+#fi
+#if test -d $srcdir/systemoc-sr; then
+#  AC_CONFIG_FILES([systemoc-sr/Makefile])
+#  subdirs="$subdirs systemoc-sr"
+#fi
 if test -d $srcdir/idct2d-ref; then
   AC_CONFIG_FILES([idct2d-ref/Makefile])
   subdirs="$subdirs idct2d-ref"
@@ -259,10 +259,10 @@ if test -d $srcdir/systemc-idct; then
   AC_CONFIG_FILES([systemc-idct/Makefile])
 # subdirs="$subdirs systemc-idct"
 fi
-if test -d $srcdir/mpeg4-ref; then
-  AC_CONFIG_FILES([mpeg4-ref/Makefile])
-  subdirs="$subdirs mpeg4-ref"
-fi
+#if test -d $srcdir/mpeg4-ref; then
+#  AC_CONFIG_FILES([mpeg4-ref/Makefile])
+#  subdirs="$subdirs mpeg4-ref"
+#fi
 if test -d $srcdir/systemoc-idct2d; then
   AC_CONFIG_FILES([systemoc-idct2d/Makefile])
   subdirs="$subdirs systemoc-idct2d"
@@ -272,103 +272,103 @@ if test -d $srcdir/systemoc-jpeg-decoder; then
   AC_OUTPUT([systemoc-jpeg-decoder/autovars.sh])
   subdirs="$subdirs systemoc-jpeg-decoder"
 fi
-if test -d $srcdir/systemoc-mpeg4; then
-  AC_CONFIG_FILES([systemoc-mpeg4/Makefile])
-# subdirs="$subdirs systemoc-mpeg4"
-fi
-if test -d $srcdir/systemoc-csp; then
-  AC_CONFIG_FILES([systemoc-csp/Makefile])
-# subdirs="$subdirs systemoc-csp"
-fi
-if test -d $srcdir/systemoc-sdf; then
-  AC_CONFIG_FILES([systemoc-sdf/Makefile])
-  subdirs="$subdirs systemoc-sdf"
-fi
-if test -d $srcdir/systemoc-getValueAt; then
-  AC_CONFIG_FILES([systemoc-getValueAt/Makefile])
-  subdirs="$subdirs systemoc-getValueAt"
-fi
-if test -d $srcdir/systemoc-sdf-clustering; then
-  AC_CONFIG_FILES([systemoc-sdf-clustering/Makefile])
-  subdirs="$subdirs systemoc-sdf-clustering"
-fi
-if test -d $srcdir/systemoc-sqr; then
-  AC_CONFIG_FILES([systemoc-sqr/Makefile])
-  AC_OUTPUT([systemoc-sqr/autovars.sh])
-  subdirs="$subdirs systemoc-sqr"
-fi
-if test -d $srcdir/systemoc-cluster-example; then
-  AC_CONFIG_FILES([systemoc-cluster-example/Makefile])
-  subdirs="$subdirs systemoc-cluster-example"
-fi
-if test -d $srcdir/systemoc-par; then
-  AC_CONFIG_FILES([systemoc-par/Makefile])
-  subdirs="$subdirs systemoc-par"
-fi    
-if test -d $srcdir/systemoc-sqr-double; then
-  AC_CONFIG_FILES([systemoc-sqr-double/Makefile])
-  subdirs="$subdirs systemoc-sqr-double"
-fi
-if test -d $srcdir/systemoc-fir; then
-  AC_CONFIG_FILES([systemoc-fir/Makefile])
-  subdirs="$subdirs systemoc-fir"
-fi
-if test -d $srcdir/systemoc-src-snk; then
-  AC_CONFIG_FILES([systemoc-src-snk/Makefile])
-  subdirs="$subdirs systemoc-src-snk"
-fi
-if test -d $srcdir/systemoc-src-snk-noconsume; then
-  AC_CONFIG_FILES([systemoc-src-snk-noconsume/Makefile])
-  subdirs="$subdirs systemoc-src-snk-noconsume"
-fi
-if test -d $srcdir/systemoc-select; then
-  AC_CONFIG_FILES([systemoc-select/Makefile])
-  subdirs="$subdirs systemoc-select"
-fi
-if test -d $srcdir/systemoc-ibtest; then
-  AC_CONFIG_FILES([systemoc-ibtest/Makefile])
-# subdirs="$subdirs systemoc-ibtest"
-fi
-if test -d $srcdir/systemoc-td-sim-test; then
-  AC_CONFIG_FILES([systemoc-td-sim-test/Makefile])
-# subdirs="$subdirs systemoc-td-sim-test"
-fi
-if test -d $srcdir/systemoc-mpeg4-teich-v2; then
-  AC_CONFIG_FILES([systemoc-mpeg4-teich-v2/Makefile])
-# subdirs="$subdirs systemoc-mpeg4-teich-v2"
-fi
-if test -d $srcdir/crypto-example; then
-  AC_CONFIG_FILES([crypto-example/Makefile])
-  subdirs="$subdirs crypto-example"
-fi
-if test -d $srcdir/systemoc-tlm-start; then
-  AC_CONFIG_FILES([systemoc-tlm-start/Makefile])
-#  subdirs="$subdirs systemoc-tlm-start"
-fi
-if test x"$acjf_cv_systemoc_wsdf_support" = x"yes"; then
-  if test -d $srcdir/systemoc-wsdf; then
-    AC_CONFIG_FILES([systemoc-wsdf/Makefile])
-	  AC_OUTPUT([systemoc-wsdf/autovars.sh])
-    subdirs="$subdirs systemoc-wsdf"
-  fi
-  if test -d $srcdir/systemoc-wsdf-expr; then
-    AC_CONFIG_FILES([systemoc-wsdf-expr/Makefile])
-    subdirs="$subdirs systemoc-wsdf-expr"
-  fi
-  if test -d $srcdir/systemoc-wsdf-recons-dila; then
-    AC_CONFIG_FILES([systemoc-wsdf-recons-dila/Makefile])
-		AC_OUTPUT([systemoc-wsdf-recons-dila/autovars.sh])
-    subdirs="$subdirs systemoc-wsdf-recons-dila"	
-  fi
-  if test -d $srcdir/systemoc-wsdf-src-snk; then
-    AC_CONFIG_FILES([systemoc-wsdf-src-snk/Makefile])
-    subdirs="$subdirs systemoc-wsdf-src-snk"
-  fi
-  if test -d $srcdir/systemoc-wsdf-dist; then
-    AC_CONFIG_FILES([systemoc-wsdf-dist/Makefile])
-    subdirs="$subdirs systemoc-wsdf-dist"
-  fi
-fi
+#if test -d $srcdir/systemoc-mpeg4; then
+#  AC_CONFIG_FILES([systemoc-mpeg4/Makefile])
+## subdirs="$subdirs systemoc-mpeg4"
+#fi
+#if test -d $srcdir/systemoc-csp; then
+#  AC_CONFIG_FILES([systemoc-csp/Makefile])
+## subdirs="$subdirs systemoc-csp"
+#fi
+#if test -d $srcdir/systemoc-sdf; then
+#  AC_CONFIG_FILES([systemoc-sdf/Makefile])
+#  subdirs="$subdirs systemoc-sdf"
+#fi
+#if test -d $srcdir/systemoc-getValueAt; then
+#  AC_CONFIG_FILES([systemoc-getValueAt/Makefile])
+#  subdirs="$subdirs systemoc-getValueAt"
+#fi
+#if test -d $srcdir/systemoc-sdf-clustering; then
+#  AC_CONFIG_FILES([systemoc-sdf-clustering/Makefile])
+#  subdirs="$subdirs systemoc-sdf-clustering"
+#fi
+#if test -d $srcdir/systemoc-sqr; then
+#  AC_CONFIG_FILES([systemoc-sqr/Makefile])
+#  AC_OUTPUT([systemoc-sqr/autovars.sh])
+#  subdirs="$subdirs systemoc-sqr"
+#fi
+#if test -d $srcdir/systemoc-cluster-example; then
+#  AC_CONFIG_FILES([systemoc-cluster-example/Makefile])
+#  subdirs="$subdirs systemoc-cluster-example"
+#fi
+#if test -d $srcdir/systemoc-par; then
+#  AC_CONFIG_FILES([systemoc-par/Makefile])
+#  subdirs="$subdirs systemoc-par"
+#fi    
+#if test -d $srcdir/systemoc-sqr-double; then
+#  AC_CONFIG_FILES([systemoc-sqr-double/Makefile])
+#  subdirs="$subdirs systemoc-sqr-double"
+#fi
+#if test -d $srcdir/systemoc-fir; then
+#  AC_CONFIG_FILES([systemoc-fir/Makefile])
+#  subdirs="$subdirs systemoc-fir"
+#fi
+#if test -d $srcdir/systemoc-src-snk; then
+#  AC_CONFIG_FILES([systemoc-src-snk/Makefile])
+#  subdirs="$subdirs systemoc-src-snk"
+#fi
+#if test -d $srcdir/systemoc-src-snk-noconsume; then
+#  AC_CONFIG_FILES([systemoc-src-snk-noconsume/Makefile])
+#  subdirs="$subdirs systemoc-src-snk-noconsume"
+#fi
+#if test -d $srcdir/systemoc-select; then
+#  AC_CONFIG_FILES([systemoc-select/Makefile])
+#  subdirs="$subdirs systemoc-select"
+#fi
+#if test -d $srcdir/systemoc-ibtest; then
+#  AC_CONFIG_FILES([systemoc-ibtest/Makefile])
+## subdirs="$subdirs systemoc-ibtest"
+#fi
+#if test -d $srcdir/systemoc-td-sim-test; then
+#  AC_CONFIG_FILES([systemoc-td-sim-test/Makefile])
+## subdirs="$subdirs systemoc-td-sim-test"
+#fi
+#if test -d $srcdir/systemoc-mpeg4-teich-v2; then
+#  AC_CONFIG_FILES([systemoc-mpeg4-teich-v2/Makefile])
+## subdirs="$subdirs systemoc-mpeg4-teich-v2"
+#fi
+#if test -d $srcdir/crypto-example; then
+#  AC_CONFIG_FILES([crypto-example/Makefile])
+#  subdirs="$subdirs crypto-example"
+#fi
+#if test -d $srcdir/systemoc-tlm-start; then
+#  AC_CONFIG_FILES([systemoc-tlm-start/Makefile])
+##  subdirs="$subdirs systemoc-tlm-start"
+#fi
+#if test x"$acjf_cv_systemoc_wsdf_support" = x"yes"; then
+#  if test -d $srcdir/systemoc-wsdf; then
+#    AC_CONFIG_FILES([systemoc-wsdf/Makefile])
+#	  AC_OUTPUT([systemoc-wsdf/autovars.sh])
+#    subdirs="$subdirs systemoc-wsdf"
+#  fi
+#  if test -d $srcdir/systemoc-wsdf-expr; then
+#    AC_CONFIG_FILES([systemoc-wsdf-expr/Makefile])
+#    subdirs="$subdirs systemoc-wsdf-expr"
+#  fi
+#  if test -d $srcdir/systemoc-wsdf-recons-dila; then
+#    AC_CONFIG_FILES([systemoc-wsdf-recons-dila/Makefile])
+#		AC_OUTPUT([systemoc-wsdf-recons-dila/autovars.sh])
+#    subdirs="$subdirs systemoc-wsdf-recons-dila"	
+#  fi
+#  if test -d $srcdir/systemoc-wsdf-src-snk; then
+#    AC_CONFIG_FILES([systemoc-wsdf-src-snk/Makefile])
+#    subdirs="$subdirs systemoc-wsdf-src-snk"
+#  fi
+#  if test -d $srcdir/systemoc-wsdf-dist; then
+#    AC_CONFIG_FILES([systemoc-wsdf-dist/Makefile])
+#    subdirs="$subdirs systemoc-wsdf-dist"
+#  fi
+#fi
 
 SUBDIRS=$subdirs
 AC_SUBST(SUBDIRS)
