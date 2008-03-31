@@ -56,6 +56,10 @@
 # endif
 #endif // PERFORMANCE_EVALUATION
 
+#ifndef JPEGSRC_IMAGECOUNT
+# define JPEGSRC_IMAGECOUNT 4
+#endif
+
 class JpegSrc: public smoc_actor {
 public:
   smoc_port_out<codeword_t> out;
@@ -116,7 +120,7 @@ private:
   smoc_firing_state start;
 public:
   JpegSrc(sc_module_name name)
-    : smoc_actor(name, start),  coeffs(0), count(4)
+    : smoc_actor(name, start),  coeffs(0), count(JPEGSRC_IMAGECOUNT)
   {
     block_data_size = ~size_t(0);
     start
