@@ -63,6 +63,7 @@ simulation_jpeg_CPPFLAGS= -DJPEG_SRC $(AM_CPPFLAGS)
 
 simulation_jpeg_file_SOURCES= Jpeg.cpp $(PROJECT_CPPS)
 simulation_jpeg_file_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_jpeg_file_CPPFLAGS= -DFILE_SRC $(AM_CPPFLAGS)
 
 parser_test_SOURCES = ParserTestbench.cpp $(PROJECT_CPPS)
 parser_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
