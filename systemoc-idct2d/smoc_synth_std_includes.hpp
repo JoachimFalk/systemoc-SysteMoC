@@ -49,6 +49,13 @@ using namespace std;
 #define IDCT2D_COARSEGRAINED  2
 #define IDCT2D_MONOLITHIC     3
 
+// Constants for IDCT2D FIFO sizes
+#define IDCT2D_FIFO_MIN_SIZE             0
+#define IDCT2D_FIFO_DOUBLE_SIZE          1
+#define IDCT2D_FIFO_CLUSTERING4PART_SIZE 2
+
+#define IDCT2D_FIFO_SIZE  IDCT2D_FIFO_DOUBLE_SIZE
+
 //#define REAL_BLOCK_DATA
 #define IDCT_NULL_OUTPUT
 #define DEFAULT_BLOCK_COUNT 100000

@@ -126,6 +126,7 @@ public:
       mAddSub10("mAddSub10", as10Gain, as10Off, as10Atten)
   {
 #ifndef KASCPAR_PARSING
+# if IDCT2D_FIFO_SIZE == IDCT2D_FIFO_DOUBLE_SIZE
     mScale1.I(i0); 
     mFly2.I1(i1);  
     mFly3.I2(i2);
@@ -165,6 +166,49 @@ public:
     mAddSub8.O2(o5);
     mAddSub10.O2(o6);
     mAddSub9.O2(o7);
+# elif IDCT2D_FIFO_SIZE == IDCT2D_FIFO_MIN_SIZE
+    mScale1.I(i0); 
+    mFly2.I1(i1);  
+    mFly3.I2(i2);
+    mFly1.I2(i3);
+    mScale2.I(i4);
+    mFly1.I1(i5);
+    mFly3.I1(i6);
+    mFly2.I2(i7);
+   
+    connectNodePorts(mScale1.O, mAddSub1.I1, smoc_fifo<int>(1));
+    connectNodePorts(mScale2.O, mAddSub1.I2, smoc_fifo<int>(1)); 
+    connectNodePorts(mFly2.O1,  mAddSub2.I1, smoc_fifo<int>(1)); 
+    connectNodePorts(mFly2.O2,  mAddSub3.I1, smoc_fifo<int>(1)); 
+    connectNodePorts(mFly3.O1,  mAddSub5.I2, smoc_fifo<int>(1)); 
+    connectNodePorts(mFly3.O2,  mAddSub4.I2, smoc_fifo<int>(1));
+    connectNodePorts(mFly1.O1,  mAddSub2.I2, smoc_fifo<int>(1));
+    connectNodePorts(mFly1.O2,  mAddSub3.I2, smoc_fifo<int>(1));
+    
+    connectNodePorts(mAddSub1.O1, mAddSub4.I1,  smoc_fifo<int>(1));
+    connectNodePorts(mAddSub1.O2, mAddSub5.I1,  smoc_fifo<int>(1));
+    connectNodePorts(mAddSub2.O1, mAddSub9.I2,  smoc_fifo<int>(1));
+    connectNodePorts(mAddSub2.O2, mAddSub6.I1,  smoc_fifo<int>(1));
+    connectNodePorts(mAddSub3.O1, mAddSub7.I2,  smoc_fifo<int>(1));
+    connectNodePorts(mAddSub3.O2, mAddSub6.I2,  smoc_fifo<int>(1));
+    connectNodePorts(mAddSub4.O1, mAddSub9.I1,  smoc_fifo<int>(1));
+    connectNodePorts(mAddSub4.O2, mAddSub7.I1,  smoc_fifo<int>(1));
+    connectNodePorts(mAddSub5.O1, mAddSub10.I1, smoc_fifo<int>(1));
+    connectNodePorts(mAddSub5.O2, mAddSub8.I1,  smoc_fifo<int>(1));
+    connectNodePorts(mAddSub6.O1, mAddSub10.I2, smoc_fifo<int>(1));
+    connectNodePorts(mAddSub6.O2, mAddSub8.I2,  smoc_fifo<int>(1));
+    
+    mAddSub9.O1(o0);
+    mAddSub10.O1(o1);
+    mAddSub8.O1(o2);
+    mAddSub7.O1(o3);
+    mAddSub7.O2(o4);
+    mAddSub8.O2(o5);
+    mAddSub10.O2(o6);
+    mAddSub9.O2(o7);
+# elif IDCT2D_FIFO_SIZE == IDCT2D_FIFO_CLUSTERING4PART_SIZE
+#   error IDCT2D_FIFO_CLUSTERING4PART_SIZE Not Implemented
+# endif
 #endif
   }
 };

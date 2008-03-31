@@ -99,6 +99,7 @@ public:
       mCol2Block("mCol2Block")
   {
 #ifndef KASCPAR_PARSING
+# if IDCT2D_FIFO_SIZE == IDCT2D_FIFO_DOUBLE_SIZE
     mBlock2Row.b(in);
     connectNodePorts(mBlock2Row.C0, mIdctRow.i0,   smoc_fifo<int>(16));
     connectNodePorts(mBlock2Row.C1, mIdctRow.i1,   smoc_fifo<int>(16));
@@ -134,6 +135,45 @@ public:
     connectNodePorts(mIdctCol.o7,   mCol2Block.R7, smoc_fifo<int>(16));
     connectNodePorts(mCol2Block.b,  mRangeAdj.in,  smoc_fifo<int>(128));
     mRangeAdj.out(out);
+# elif IDCT2D_FIFO_SIZE == IDCT2D_FIFO_MIN_SIZE
+    mBlock2Row.b(in);
+    connectNodePorts(mBlock2Row.C0, mIdctRow.i0,   smoc_fifo<int>(8));
+    connectNodePorts(mBlock2Row.C1, mIdctRow.i1,   smoc_fifo<int>(8));
+    connectNodePorts(mBlock2Row.C2, mIdctRow.i2,   smoc_fifo<int>(8));
+    connectNodePorts(mBlock2Row.C3, mIdctRow.i3,   smoc_fifo<int>(8));
+    connectNodePorts(mBlock2Row.C4, mIdctRow.i4,   smoc_fifo<int>(8));
+    connectNodePorts(mBlock2Row.C5, mIdctRow.i5,   smoc_fifo<int>(8));
+    connectNodePorts(mBlock2Row.C6, mIdctRow.i6,   smoc_fifo<int>(8));
+    connectNodePorts(mBlock2Row.C7, mIdctRow.i7,   smoc_fifo<int>(8));
+    connectNodePorts(mIdctRow.o0,   mTranspose.I0, smoc_fifo<int>(1));
+    connectNodePorts(mIdctRow.o1,   mTranspose.I1, smoc_fifo<int>(1));
+    connectNodePorts(mIdctRow.o2,   mTranspose.I2, smoc_fifo<int>(1));
+    connectNodePorts(mIdctRow.o3,   mTranspose.I3, smoc_fifo<int>(1));
+    connectNodePorts(mIdctRow.o4,   mTranspose.I4, smoc_fifo<int>(1));
+    connectNodePorts(mIdctRow.o5,   mTranspose.I5, smoc_fifo<int>(1));
+    connectNodePorts(mIdctRow.o6,   mTranspose.I6, smoc_fifo<int>(1));
+    connectNodePorts(mIdctRow.o7,   mTranspose.I7, smoc_fifo<int>(1));
+    connectNodePorts(mTranspose.O0, mIdctCol.i0,   smoc_fifo<int>(8));
+    connectNodePorts(mTranspose.O1, mIdctCol.i1,   smoc_fifo<int>(8));
+    connectNodePorts(mTranspose.O2, mIdctCol.i2,   smoc_fifo<int>(8));
+    connectNodePorts(mTranspose.O3, mIdctCol.i3,   smoc_fifo<int>(8));
+    connectNodePorts(mTranspose.O4, mIdctCol.i4,   smoc_fifo<int>(8));
+    connectNodePorts(mTranspose.O5, mIdctCol.i5,   smoc_fifo<int>(8));
+    connectNodePorts(mTranspose.O6, mIdctCol.i6,   smoc_fifo<int>(8));
+    connectNodePorts(mTranspose.O7, mIdctCol.i7,   smoc_fifo<int>(8));
+    connectNodePorts(mIdctCol.o0,   mCol2Block.R0, smoc_fifo<int>(8));
+    connectNodePorts(mIdctCol.o1,   mCol2Block.R1, smoc_fifo<int>(8));
+    connectNodePorts(mIdctCol.o2,   mCol2Block.R2, smoc_fifo<int>(8));
+    connectNodePorts(mIdctCol.o3,   mCol2Block.R3, smoc_fifo<int>(8));
+    connectNodePorts(mIdctCol.o4,   mCol2Block.R4, smoc_fifo<int>(8));
+    connectNodePorts(mIdctCol.o5,   mCol2Block.R5, smoc_fifo<int>(8));
+    connectNodePorts(mIdctCol.o6,   mCol2Block.R6, smoc_fifo<int>(8));
+    connectNodePorts(mIdctCol.o7,   mCol2Block.R7, smoc_fifo<int>(8));
+    connectNodePorts(mCol2Block.b,  mRangeAdj.in,  smoc_fifo<int>(64));
+    mRangeAdj.out(out);
+# elif IDCT2D_FIFO_SIZE == IDCT2D_FIFO_CLUSTERING4PART_SIZE
+#  error IDCT2D_FIFO_CLUSTERING4PART_SIZE Not Implemented
+# endif
 #endif
   }
 };
