@@ -26,7 +26,7 @@ static void idctcol(short *blk, short negM);
 
 int main(int argc, char *argv[])
 {
-  int   i;
+  int   i, j;
   char  dc_scaler = 0;
   short dequant_block[B_SIZE];
   short texture_block[B_SIZE];
@@ -34,29 +34,33 @@ int main(int argc, char *argv[])
   #define INAMEblk "test_in.dat"
   #define ONAMEblk "test_out.dat"
   
-  std::ifstream fi (INAMEblk);
-  
   size_t periods = argc > 1
     ? atoi(argv[1])
-    : 100;
+    : 100000;
+  
+#if 0
+  std::ifstream fi (INAMEblk);
 
   std::cout<<"Hier ist Eingaben:\n";
-  for(i=0; i<B_SIZE; i++)
-  {
-    fi >> dequant_block[i];  
-    std::cout<< dequant_block[i]<<"\n";
+  for(i=0; i<B_SIZE; i++) {
+    fi >> dequant_block[i];
+    std::cout << dequant_block[i] << "\n";
   }
-  
   fi.close();
+#endif
   
   if (dc_scaler)
           negMaxval = 0;
   else
           negMaxval = -MAXVAL_PIXEL - 1;
-	
-
-  for ( int y = 0; y < periods; ++y )
+  
+  for ( int y = 0; y < periods; ++y ) {
+#if 1
+    for(i=0; i<B_SIZE; i++)
+      dequant_block[i] = j++;
+#endif
     BlockIDCT(dequant_block, negMaxval, texture_block);
+  }
   
   std::ofstream fo (ONAMEblk);
   
