@@ -50,8 +50,8 @@ using namespace std;
 #define IDCT2D_MONOLITHIC     3
 
 //#define REAL_BLOCK_DATA
-//#define IDCT_NULL_OUTPUT
-#define DEFAULT_BLOCK_COUNT 100
+#define IDCT_NULL_OUTPUT
+#define DEFAULT_BLOCK_COUNT 100000
 
 #ifdef REAL_BLOCK_DATA
 // Only significant in case of REAL_BLOCK_DATA
