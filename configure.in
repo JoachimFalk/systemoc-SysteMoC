@@ -239,6 +239,10 @@ fi
 
 AC_CONFIG_FILES([Makefile])
 
+if test -d $srcdir/systemoc-voter; then
+  AC_CONFIG_FILES([systemoc-voter/Makefile])
+  subdirs="$subdirs systemoc-voter"
+fi
 if test -d $srcdir/jpeg-encoder; then
   AC_CONFIG_FILES([jpeg-encoder/Makefile])
   subdirs="$subdirs jpeg-encoder"
