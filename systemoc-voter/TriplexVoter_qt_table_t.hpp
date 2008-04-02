@@ -32,19 +32,10 @@ public:
 private:
   void forward_in1(); 
   void forward_in2(); 
-  void read_in1(); 
-  void read_in2(); 
-  void read_in3(); 
   void failed_action();
 
   smoc_firing_state start;
   smoc_firing_state timeOut;
-  smoc_firing_state failed_in1;
-  smoc_firing_state failed_in2;
-  smoc_firing_state failed_in3;
-  smoc_firing_state failed_in1_or_in2;
-  smoc_firing_state failed_in1_or_in3;
-  smoc_firing_state failed_in2_or_in3;
   smoc_firing_state failed;
   
 };

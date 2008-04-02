@@ -6,124 +6,61 @@
 
 void TriplexVoter::forward_in1() {
     out[0] = in1[0];
-    outTimeOut[0] = true;
+    outTimeOut[0] = 1;
 }
 
 void TriplexVoter::forward_in2() {
     out[0] = in2[0];
-    outTimeOut[0] = true;
-}
-
-void TriplexVoter::read_in1() {
-  int i = in1[0];
-}
-
-void TriplexVoter::read_in2() {
-  int i = in2[0];
-}
-
-void TriplexVoter::read_in3() {
-  int i = in3[0];
+    outTimeOut[0] = 1;
 }
 
 void TriplexVoter::failed_action() {
   int i = inTimeOut[0];
+  outTimeOut[0] = 1;
 }
 
 TriplexVoter::TriplexVoter( sc_module_name name )
      : smoc_actor(name,start)
   {
-    start = (in1(1) && in2(1) && in3(1) && (in1.getValueAt(0) == in2.getValueAt(0)) 
-              && (in1.getValueAt(0) == in3.getValueAt(0))) 
+    start = (in1(1) && in2(1) && in3(1) && (in1.getValueAt(0) == in2.getValueAt(0))) 
          >> (out(1) && outTimeOut(1)) 
          >> CALL(TriplexVoter::forward_in1) 
          >> start
-       | (in1(1) && in2(1) && in3(1) && (in1.getValueAt(0) == in2.getValueAt(0)) 
-              && (in1.getValueAt(0) != in3.getValueAt(0)))
+       |    (in1(1) && in2(1) && in3(1) && (in1.getValueAt(0) == in3.getValueAt(0)))
          >> (out(1) && outTimeOut(1)) 
          >> CALL(TriplexVoter::forward_in1) 
-         >> failed_in3
-       | (in1(1) && in2(1) && in3(1) && (in1.getValueAt(0) != in2.getValueAt(0)) 
-              && (in1.getValueAt(0) == in3.getValueAt(0)))
-         >> (out(1) && outTimeOut(1)) 
-         >> CALL(TriplexVoter::forward_in1) 
-         >> failed_in2
-       | (in1(1) && in2(1) && in3(1) && (in1.getValueAt(0) != in2.getValueAt(0)) 
-              && (in2.getValueAt(0) == in3.getValueAt(0)))
+         >> start
+       |    (in1(1) && in2(1) && in3(1) && (in2.getValueAt(0) == in3.getValueAt(0)))
          >> (out(1) && outTimeOut(1)) 
          >> CALL(TriplexVoter::forward_in2) 
-         >> failed_in1
-       | (in1(1) && in2(1) && in3(1) && (in1.getValueAt(0) != in2.getValueAt(0)) 
-              && (in2.getValueAt(0) != in3.getValueAt(0)))
+         >> start
+       |    (in1(1) && in2(1) && in3(1) && (in1.getValueAt(0) != in2.getValueAt(0)) && 
+            (in1.getValueAt(0) != in3.getValueAt(0)) && (in2.getValueAt(0) != in3.getValueAt(0)))
          >> failed
-       | inTimeOut(1) >> CALL(TriplexVoter::failed_action)
+       |    inTimeOut(1)
+         >> outTimeOut(1)
+         >> CALL(TriplexVoter::failed_action)
          >> timeOut;
-    timeOut = (in1(0, 1)) >> CALL(TriplexVoter::read_in1)
-           >> failed_in2_or_in3
-         | (in2(0, 1)) >> CALL(TriplexVoter::read_in2)
-           >> failed_in1_or_in3
-         | (in3(0, 1)) >> CALL(TriplexVoter::read_in3)
-           >> failed_in1_or_in2;
-    failed_in2_or_in3 = (in1(1) && in2(1) && (in1.getValueAt(0) == in2.getValueAt(0)))
-                     >> (out(1) && outTimeOut(1))
-                     >> CALL(TriplexVoter::forward_in1) 
-                     >> failed_in3
-                   | (in1(1) && in2(1) && (in1.getValueAt(0) != in2.getValueAt(0)))
-                     >> failed
-                   | (in1(1) && in3(1) && (in1.getValueAt(0) == in3.getValueAt(0)))
-                     >> (out(1) && outTimeOut(1))
-                     >> CALL(TriplexVoter::forward_in1) 
-                     >> failed_in2
-                   | (in1(1) && in3(1) && (in1.getValueAt(0) != in3.getValueAt(0)))
-                     >> failed;
-    failed_in1_or_in3 = (in1(1) && in2(1) && (in1.getValueAt(0) == in2.getValueAt(0)))
-                     >> (out(1) && outTimeOut(1))
-                     >> CALL(TriplexVoter::forward_in1) 
-                     >> failed_in3
-                   | (in1(1) && in2(1) && (in1.getValueAt(0) != in2.getValueAt(0)))
-                     >> failed
-                   | (in2(1) && in3(1) && (in2.getValueAt(0) == in3.getValueAt(0)))
-                     >> (out(1) && outTimeOut(1))
-                     >> CALL(TriplexVoter::forward_in2) 
-                     >> failed_in1
-                   | (in2(1) && in3(1) && (in2.getValueAt(0) != in3.getValueAt(0)))
-                     >> failed;
-    failed_in1_or_in2 = (in1(1) && in3(1) && (in1.getValueAt(0) == in3.getValueAt(0)))
-                     >> (out(1) && outTimeOut(1))
-                     >> CALL(TriplexVoter::forward_in1) 
-                     >> failed_in2
-                   | (in1(1) && in3(1) && (in1.getValueAt(0) != in3.getValueAt(0)))
-                     >> failed
-                   | (in2(1) && in3(1) && (in2.getValueAt(0) == in3.getValueAt(0)))
-                     >> (out(1) && outTimeOut(1))
-                     >> CALL(TriplexVoter::forward_in2) 
-                     >> failed_in1
-                   | (in2(1) && in3(1) && (in2.getValueAt(0) != in3.getValueAt(0)))
-                     >> failed;
-    failed_in1 = (in2(1) && in3(1) && (in2.getValueAt(0) == in3.getValueAt(0)))
-               >> (out(1) && outTimeOut(1))
-               >> CALL(TriplexVoter::forward_in2) 
-               >> failed_in1
-             | (in2(1) && in3(1) && (in2.getValueAt(0) != in3.getValueAt(0)))
-               >> failed
-             | inTimeOut(1) >> CALL(TriplexVoter::failed_action)
-               >> failed;
-     failed_in2 = (in1(1) && in3(1) && (in1.getValueAt(0) == in3.getValueAt(0)))
-               >> (out(1) && outTimeOut(1))
-               >> CALL(TriplexVoter::forward_in1) 
-               >> failed_in2
-             | (in1(1) && in3(1) && (in1.getValueAt(0) != in3.getValueAt(0)))
-               >> failed
-             | inTimeOut(1) >> CALL(TriplexVoter::failed_action)
-               >> failed;
-     failed_in3 = (in1(1) && in2(1) && (in1.getValueAt(0) == in2.getValueAt(0)))
-               >> (out(1) && outTimeOut(1))
-               >> CALL(TriplexVoter::forward_in1) 
-               >> failed_in3
-             | (in1(1) && in2(1) && (in1.getValueAt(0) != in2.getValueAt(0)))
-               >> failed
-             | inTimeOut(1) >> CALL(TriplexVoter::failed_action)
-               >> failed;
+     timeOut = (in1(1) && in2(1) && (in1.getValueAt(0) == in2.getValueAt(0)))
+            >> (out(1) && outTimeOut(1))
+            >> CALL(TriplexVoter::forward_in1)
+            >> start
+          |    (in1(1) && in2(1) && (in1.getValueAt(0) != in2.getValueAt(0))) 
+            >> failed
+          |    (in1(1) && in3(1) && (in1.getValueAt(0) == in3.getValueAt(0)))
+            >> (out(1) && outTimeOut(1))
+            >> CALL(TriplexVoter::forward_in1)
+            >> start
+          |    (in1(1) && in3(1) && (in1.getValueAt(0) != in3.getValueAt(0))) 
+            >> failed
+          |    (in2(1) && in3(1) && (in2.getValueAt(0) == in3.getValueAt(0)))
+            >> (out(1) && outTimeOut(1))
+            >> CALL(TriplexVoter::forward_in2)
+            >> start
+          |    (in2(1) && in3(1) && (in2.getValueAt(0) != in3.getValueAt(0))) 
+            >> failed
+          |    inTimeOut(1)
+            >> 	failed;
 
   }
 
