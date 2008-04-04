@@ -52,21 +52,21 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -I$(srcdir)/../systemoc-idct2d -Wn
 
 LIBS= @LIBS@ -lsystemoc
 
-PROJECT_CPPS=HuffDecoder.cpp BitSplitter.cpp
+PROJECT_CPPS=HuffDecoder.cpp BitSplitter.cpp DuplexVoter_IDCTCoeff_t.cpp TriplexVoter_JpegChannel_t.cpp
 
 
-noinst_PROGRAMS= simulation-jpeg simulation-jpeg-file parser-test huffman-test idct-fbw-test invzrl-test triplexvoter-test # idct-fsh-test
+noinst_PROGRAMS= simulation-jpeg simulation-jpeg-file parser-test huffman-test idct-fbw-test invzrl-test# triplexvoter-test # idct-fsh-test
 
-simulation_jpeg_SOURCES= Jpeg.cpp $(PROJECT_CPPS)
+simulation_jpeg_SOURCES= JpegVoter.cpp $(PROJECT_CPPS)
 simulation_jpeg_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 simulation_jpeg_CPPFLAGS= -DJPEG_SRC $(AM_CPPFLAGS)
 
-simulation_jpeg_file_SOURCES= Jpeg.cpp $(PROJECT_CPPS)
+simulation_jpeg_file_SOURCES= JpegVoter.cpp $(PROJECT_CPPS)
 simulation_jpeg_file_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 simulation_jpeg_file_CPPFLAGS= -DFILE_SRC $(AM_CPPFLAGS)
 
-triplexvoter_test_SOURCES = TriplexVoter_codeword_t.cpp $(PROJECT_CPPS)
-triplexvoter_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+#triplexvoter_test_SOURCES = TriplexVoter_codeword_t.cpp $(PROJECT_CPPS)
+#triplexvoter_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 parser_test_SOURCES = ParserTestbench.cpp $(PROJECT_CPPS)
 parser_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@

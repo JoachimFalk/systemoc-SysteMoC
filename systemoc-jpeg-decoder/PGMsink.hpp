@@ -49,6 +49,7 @@
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
 // if compiled with DBG_PGMSINK create stream and include debug macros
+#define DBG_PGMSINK
 #ifdef DBG_PGMSINK
   // debug macros presume some stream behind DBGOUT_STREAM. so make sure stream
   //  with this name exists when DBG.. is used. here every actor creates its
