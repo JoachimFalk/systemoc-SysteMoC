@@ -21,6 +21,45 @@
 
 
 /* ************************************************************* */
+/*                      Some general vector functions            */
+/* ************************************************************* */
+
+/// Lexicographic comparison
+/// Returns if vec1 < vec2
+template<typename vector_type>
+bool is_lex_smaller_than(const vector_type& vec1,
+                         const vector_type& vec2
+                         ) {
+  for(unsigned long i = 0; i < vec1.size(); i++){
+    if (vec1[i] < vec2[i]){
+      return true;
+    }else if(vec1[i] > vec2[i]){
+      return false;
+    }
+  }
+
+  return false;
+}
+
+/// Returns if vec1 > vec2
+template<typename vector_type>
+bool is_lex_larger_than(const vector_type& vec1,
+                        const vector_type& vec2) {
+  for(unsigned long i = 0; i < vec1.size(); i++){
+    if (vec1[i] > vec2[i]){
+        return true;
+    }else if(vec1[i] < vec2[i]){
+      return false;
+    }
+  }
+
+  return false;
+}
+
+
+
+
+/* ************************************************************* */
 /*                      Assembling of a vector                   */
 /* ************************************************************* */
 
@@ -241,27 +280,11 @@ public:
 public:
   /// Lexicographic comparison
   bool is_lex_smaller_than(const this_type& vec) const {
-    for(size_type i = 0; i < (*this).size(); i++){
-      if ((*this)[i] < vec[i]){
-        return true;
-      }else if((*this)[i] > vec[i]){
-        return false;
-      }
-    }
-
-    return false;
+    return is_lex_smaller_than(*this,vec);
   }
 
   bool is_lex_larger_than(const this_type& vec) const {
-    for(size_type i = 0; i < (*this).size(); i++){
-      if ((*this)[i] > vec[i]){
-        return true;
-      }else if((*this)[i] < vec[i]){
-        return false;
-      }
-    }
-
-    return false;
+    return is_lex_larger_than(*this,vec);
   }
 
   /*
@@ -334,14 +357,120 @@ public:
 };
 
 
-/* Specialization for vectors of vectors */
-template <class T2, class A >
-class smoc_vector<smoc_vector<T2>, A>
-  : public boost::numeric::ublas::vector<smoc_vector<T2>,A>
+/* ************************************************************* */
+/*                     vector with constant size                 */
+/* ************************************************************* */
+template<class T, int N >
+class smoc_vector_cs
+  : public smoc_vector<T,boost::numeric::ublas::bounded_array<T,N> >
+{
+
+public:
+
+  typedef smoc_vector_cs<T,N> this_type;
+  typedef smoc_vector<T,boost::numeric::ublas::bounded_array<T,N> > parent_type;
+  typedef typename parent_type::size_type size_type;
+        
+public:
+
+  BOOST_UBLAS_INLINE
+  smoc_vector_cs()
+    : parent_type(N)
+  {}    
+        
+  BOOST_UBLAS_INLINE
+  smoc_vector_cs(const smoc_vector_init<unsigned long,N>& 
+                 vector_init)
+    : parent_type(N)
+  {
+    for(size_type i = 0; i < N; i++){
+      (*this)[i] = vector_init(i);
+    }
+  }     
+
+};
+
+
+/* ************************************************************* */
+/*                    smoc_numeric_vector                        */
+/* ************************************************************* */
+template<class T, class A = boost::numeric::ublas::unbounded_array<T> >
+class smoc_numeric_vector 
+  : public smoc_vector<T,A>
 {
 public:
-  typedef smoc_vector<smoc_vector<T2>, A> this_type;
-  typedef typename boost::numeric::ublas::vector<smoc_vector<T2>,A> parent_type;
+  typedef smoc_numeric_vector<T,A> this_type;
+  typedef smoc_vector<T,A> parent_type;
+  typedef typename parent_type::size_type size_type;
+  typedef typename parent_type::array_type array_type;
+public:
+  BOOST_UBLAS_INLINE
+  smoc_numeric_vector (): parent_type() {};
+
+  explicit BOOST_UBLAS_INLINE
+  smoc_numeric_vector (size_type size): parent_type(size){};
+
+  BOOST_UBLAS_INLINE
+  smoc_numeric_vector (size_type size, const array_type &data):parent_type(size,data){};
+
+  BOOST_UBLAS_INLINE
+  smoc_numeric_vector (const smoc_vector<T,A> &v):parent_type(v){};
+
+  template<class AE>
+  BOOST_UBLAS_INLINE
+  smoc_numeric_vector (const boost::numeric::ublas::vector_expression<AE> &ae):parent_type(ae){};
+
+  /// Generates a vector with size elements and fills them with
+  /// with the values of v
+  BOOST_UBLAS_INLINE
+  smoc_numeric_vector (const size_type size, const smoc_vector<T,A> &v)
+    : parent_type(size,v)
+  {}
+
+  /// Generates a vector with size elements and fills them with
+  /// with the values of v
+  BOOST_UBLAS_INLINE
+  smoc_numeric_vector (const size_type size, const T v[])
+    : parent_type(size,v)
+  {}
+
+  /// Generates a vector with size elements and fills them with
+  /// with the constant value v
+  BOOST_UBLAS_INLINE
+  smoc_numeric_vector (const size_type size, const T& v)
+    : parent_type(size,v)
+  {}
+
+        
+  template <int N>
+  BOOST_UBLAS_INLINE
+  smoc_numeric_vector(const smoc_vector_init<T,N>& vector_init)
+    : parent_type(vector_init)
+  {}
+
+
+  /* Mathematical operations */
+  T component_product() const {
+    T return_value = 1;
+    for(unsigned int i = 0; 
+	i < this->size(); 
+	i++){
+      return_value *= (*this)[i];
+    }
+    return return_value;
+  }  
+
+};
+
+
+/* Specialization for vectors of vectors */
+template <class T2, class A >
+class smoc_vector<smoc_numeric_vector<T2>, A>
+  : public boost::numeric::ublas::vector<smoc_numeric_vector<T2>,A>
+{
+public:
+  typedef smoc_vector<smoc_numeric_vector<T2>, A> this_type;
+  typedef typename boost::numeric::ublas::vector<smoc_numeric_vector<T2>,A> parent_type;
   typedef typename parent_type::size_type size_type;
   typedef typename parent_type::array_type array_type;
 public:
@@ -350,13 +479,13 @@ public:
   smoc_vector (): parent_type() {};
 
   BOOST_UBLAS_INLINE
-  smoc_vector (const smoc_vector<smoc_vector<T2>, A> &v):parent_type(v){};
+  smoc_vector (const smoc_vector<smoc_numeric_vector<T2>, A> &v):parent_type(v){};
 
   explicit BOOST_UBLAS_INLINE
   smoc_vector (size_type size): parent_type(size){};
 
   explicit BOOST_UBLAS_INLINE
-  smoc_vector (const size_type size, const smoc_vector<T2>& a)
+  smoc_vector (const size_type size, const smoc_numeric_vector<T2>& a)
     : parent_type(size)
   {
     for (unsigned int i = 0; i < size; i++){
@@ -365,7 +494,7 @@ public:
   };
 
   explicit BOOST_UBLAS_INLINE
-  smoc_vector (const smoc_vector<T2>& a): 
+  smoc_vector (const smoc_numeric_vector<T2>& a): 
     parent_type(1)
   {
     (*this)[0] = a;
@@ -387,7 +516,7 @@ public:
       CoSupport::dout << ": " << vector_vector_init[i];
       CoSupport::dout << std::endl;
 #endif      
-      (*this)[i] = smoc_vector<T2>(vector_vector_init[i]);
+      (*this)[i] = smoc_numeric_vector<T2>(vector_vector_init[i]);
     }
 #if SMOC_VECTOR_VERBOSE_LEVEL == 100
     CoSupport::dout << "Leave smoc_vector(const std::vector<smoc_vector_init<T2,N>,A2> &vector_vector_init)";
@@ -447,41 +576,6 @@ public:
   
 
 };
-
-
-/* ************************************************************* */
-/*                     vector with constant size                 */
-/* ************************************************************* */
-template<class T, int N >
-class smoc_vector_cs
-  : public smoc_vector<T,boost::numeric::ublas::bounded_array<T,N> >
-{
-
-public:
-
-  typedef smoc_vector_cs<T,N> this_type;
-  typedef smoc_vector<T,boost::numeric::ublas::bounded_array<T,N> > parent_type;
-  typedef typename parent_type::size_type size_type;
-        
-public:
-
-  BOOST_UBLAS_INLINE
-  smoc_vector_cs()
-    : parent_type(N)
-  {}    
-        
-  BOOST_UBLAS_INLINE
-  smoc_vector_cs(const smoc_vector_init<unsigned long,N>& 
-                 vector_init)
-    : parent_type(N)
-  {
-    for(size_type i = 0; i < N; i++){
-      (*this)[i] = vector_init(i);
-    }
-  }     
-
-};
-
 
 
 /* ****************************************************************** */
