@@ -77,6 +77,7 @@ class m_source_int: public smoc_actor {
   public:
     smoc_port_out<int> out;
   private:
+    int x;
     void process() {
       out[0] = 1;
     }
@@ -85,8 +86,10 @@ class m_source_int: public smoc_actor {
     smoc_firing_state end;
   public:
     m_source_int( sc_module_name name )
-      :smoc_actor( name, start ) {
+      :smoc_actor( name, start ),x(0) {
+
       start = out(0,1) >> CALL(m_source_int::process) >> end;
+      end = (VAR(x) == 1) >> out(1) >> CALL(m_source_int::process) >> end;
     }
 };
 
@@ -95,6 +98,7 @@ class m_sink_int: public smoc_actor {
     smoc_port_in<int> in;
   private:
     void process() {
+      int dummy = in[0];
     }
     
     smoc_firing_state start;
