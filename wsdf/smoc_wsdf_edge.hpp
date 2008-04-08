@@ -35,7 +35,7 @@ public:
   typedef smoc_vector<bool> bvector_type;
 
   //Specification of iteration domain
-  typedef smoc_vector<udata_type> iter_domain_vector_type;
+  typedef smoc_numeric_vector<udata_type> iter_domain_vector_type;
 
 public:
 
@@ -248,13 +248,13 @@ public:
   typedef unsigned long udata_type;
 
   /// signed vector
-  typedef smoc_vector<sdata_type> svector_type;
+  typedef smoc_numeric_vector<sdata_type> svector_type;
 
   ///vector of svector_type
   typedef smoc_vector<svector_type> s2vector_type;
 
   /// unsigned vector
-  typedef smoc_vector<udata_type> uvector_type;
+  typedef smoc_numeric_vector<udata_type> uvector_type;
 
   ///vector of uvector_type
   typedef smoc_vector<uvector_type> u2vector_type;
