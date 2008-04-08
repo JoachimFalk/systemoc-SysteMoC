@@ -280,11 +280,11 @@ public:
 public:
   /// Lexicographic comparison
   bool is_lex_smaller_than(const this_type& vec) const {
-    return is_lex_smaller_than(*this,vec);
+    return ::is_lex_smaller_than(*this,vec);
   }
 
   bool is_lex_larger_than(const this_type& vec) const {
-    return is_lex_larger_than(*this,vec);
+    return ::is_lex_larger_than(*this,vec);
   }
 
   /*
