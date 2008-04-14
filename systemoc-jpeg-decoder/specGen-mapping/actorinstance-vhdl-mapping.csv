@@ -3,8 +3,8 @@ jpeg.mParser                     ;     jpeg_mParser
 jpeg.mHuffDecoder.mInvHuffman    ;     jpeg_mHuffDecoder_mInvHuffman         
 jpeg.mHuffDecoder.mHuffTblDecoder;     jpeg_mHuffDecoder_mHuffTblDecoder     
 jpeg.mInvZrl                     ;     jpeg_mInvZrl                          
-jpeg.mDupTriplex1                ;     jpeg_mDupTriplex1
-jpeg.mDupTriplex2                ;     jpeg_mDupTriplex2
+jpeg.mDupTriplex1                ;     jpeg_mDup
+jpeg.mDupTriplex2                ;     jpeg_mDup
 jpeg.mDcDecoding1                ;     jpeg_mDcDecoding                      
 jpeg.mDcDecoding2                ;     jpeg_mDcDecoding                      
 jpeg.mDcDecoding3                ;     jpeg_mDcDecoding                      
@@ -13,11 +13,11 @@ jpeg.mTriplexVoter               ;     jpeg_mTriplexVoter
 jpeg.mTriplexTOSnk               ;     jpeg_mTriplexTOSnk
 jpeg.InvQuant                    ;     jpeg_InvQuant                         
 jpeg.CtrlSieve                   ;     jpeg_CtrlSieve                        
-jpeg.mDupDuplex                  ;     jpeg_mDupDuplex
-jpeg.mDuplexTOSrc                ;     jpeg_mDuplexTOSrc
+jpeg.mDupDuplex                  ;     jpeg_mDup
+jpeg.mDuplexTOSrc                ;     jpeg_mTriplexTOSrc
 jpeg.InvZigZag1                  ;     jpeg_InvZigZag                        
 jpeg.InvZigZag2                  ;     jpeg_InvZigZag                        
-jpeg.mDuplexTOSnk                ;     jpeg_mDuplexTOSnk 
+jpeg.mDuplexTOSnk                ;     jpeg_mTriplexTOSnk
 jpeg.DuplexVoter                 ;     jpeg_DuplexVoter
 jpeg.mIdct2D.mBlock2Row          ;     jpeg_mIdct2D_mBlock2Row
 jpeg.mIdct2D.mCol2Block          ;     jpeg_mIdct2D_mCol2Block
