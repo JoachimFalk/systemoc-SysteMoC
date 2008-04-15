@@ -107,7 +107,7 @@ namespace smoc_md_ba
   basic_tree_node<data_type>::~basic_tree_node(){
     //free memory for children array
     if (child_node != NULL)
-      delete child_node;
+      delete[] child_node;
   }
 
   template <typename data_type>
