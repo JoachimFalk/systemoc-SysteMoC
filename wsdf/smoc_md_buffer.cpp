@@ -161,6 +161,16 @@ void smoc_simple_md_buffer_kind::free_buffer() {
     }
   }
 
+  if (!snk_loop_iterator.is_virt_iteration_max()){
+    //we cannot free complete line
+#if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
+    CoSupport::dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << std::endl;
+    CoSupport::dout << CoSupport::Indent::Down;
+#endif
+    return;
+  }
+    
+
   //If we arrived here, we can free a complete line
   smoc_snk_md_loop_iterator_kind::mapping_type window_displacement;
   if(!snk_loop_iterator.calc_eff_window_displacement(_token_dimensions-1,
