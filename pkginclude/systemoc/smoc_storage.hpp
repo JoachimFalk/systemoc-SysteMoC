@@ -38,9 +38,47 @@
 
 #include <cassert>
 #include <new>
+#include <boost/type_traits.hpp> 
+#include <cosupport/ChannelModificationListener.hpp> 
+
+template<class T,
+         bool is_subclass =
+         boost::is_base_of<ChannelModificationListener, T>::value>
+class smoc_modification_listener{
+public:
+  void setChannelID( std::string sourceActor,
+                     ChannelId id,
+                     std::string name ){}
+protected:
+  void fireModified( const T &t ){}
+};
+
+template<class T>
+class smoc_modification_listener <T, true>{
+public:
+  void setChannelID( std::string sourceActor,
+                     ChannelId id,
+                     std::string name ){
+    //FIXME:
+    T t; t.registerChannel(sourceActor, id, name);
+
+    channelId = id;
+    //cerr << "2  setChannelID " << sourceActor << " " << name << " "
+    //     << id << endl;
+    
+  }
+protected:
+  void fireModified( const T &t ){
+    //cerr << "2 fireModified(...) " << endl;
+    t.modified(channelId);
+  }
+private:
+  ChannelId channelId;
+};
 
 template<class T>
 class smoc_storage
+  : public smoc_modification_listener<T>
 {
 private:
   char mem[sizeof(T)];
@@ -65,6 +103,7 @@ public:
     { return get(); }
 
   void put(const T &t) {
+    this->fireModified( t );
     if(valid) {
       *ptr() = t;
     } else {

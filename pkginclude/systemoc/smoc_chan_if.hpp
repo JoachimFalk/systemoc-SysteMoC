@@ -37,6 +37,8 @@
 #ifndef _INCLUDED_SMOC_CHAN_IF_HPP
 #define _INCLUDED_SMOC_CHAN_IF_HPP
 
+#include <cosupport/ChannelModificationListener.hpp> 
+
 #include <systemoc/smoc_config.h>
 
 #include "smoc_root_port.hpp"
@@ -205,6 +207,10 @@ protected:
     { portsIn.push_front(portIn); }
   void registerPort(smoc_root_port_out *portOut)
     { portsOut.push_front(portOut); }
+
+  virtual void setChannelID( std::string sourceActor,
+                             ChannelId id,
+                             std::string name ) {};
 
   virtual void finalise();
 

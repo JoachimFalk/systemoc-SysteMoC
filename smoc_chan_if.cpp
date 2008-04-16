@@ -117,6 +117,11 @@ void smoc_root_chan::finalise() {
 #ifdef SYSTEMOC_ENABLE_VPC
   vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
     getFastLink(myName, "1") );
+
+  //FIXME: QUICKHACK:
+  this->setChannelID( (*getOutputPorts().begin())->getActor()->name(),
+                      vpcLink->process,
+                      myName );
 #endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_chan::finalise() end, name == " << name() << std::endl;

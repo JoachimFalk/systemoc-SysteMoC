@@ -451,6 +451,12 @@ public:
 protected:
   storage_type   actualValue;
 
+
+  void setChannelID( std::string sourceActor,
+                             ChannelId id,
+                             std::string name ){
+    this->actualValue.setChannelID(sourceActor, id, name);
+  }
 private:
   Entry  entry;
   OutletMap outlets;
