@@ -119,7 +119,7 @@ void smoc_root_chan::finalise() {
     getFastLink(myName, "1") );
 
   //FIXME: QUICKHACK:
-  this->setChannelID( (*getOutputPorts().begin())->getActor()->name(),
+  this->setChannelID( (*getOutputPorts().begin())->get_parent()->name(),
                       vpcLink->process,
                       myName );
 #endif //SYSTEMOC_ENABLE_VPC
