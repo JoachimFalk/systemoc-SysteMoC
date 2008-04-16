@@ -50,7 +50,7 @@ public:
                      ChannelId id,
                      std::string name ){}
 protected:
-  void fireModified( const T &t ){}
+  void fireModified( const T &t ) const {}
 };
 
 template<class T>
