@@ -68,7 +68,7 @@ public:
     
   }
 protected:
-  void fireModified( const T &t ){
+  void fireModified( const T &t ) const {
     //cerr << "2 fireModified(...) " << endl;
     t.modified(channelId);
   }
@@ -96,7 +96,10 @@ public:
 
   const T& get() const {
     assert(valid);
-    return *ptr();
+    const T &t = *ptr();
+    // delayed read access (VPC) may conflict with channel (in-)validation
+    this->fireModified( t );
+    return t;
   }
 
   operator const T&() const
