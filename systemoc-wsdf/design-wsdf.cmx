@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "cmx.dtd">
+<vpcconfiguration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+  <component name="Source" type="threaded" scheduler="FCFS">
+  </component>
+
+  <component name="FifoSrc2Filter" type="threaded" scheduler="FCFS">
+  </component>
+
+  <component name="Filter" type="threaded" scheduler="FCFS">
+  </component>
+
+  <component name="FifoFilter2Src" type="threaded" scheduler="FCFS">
+  </component>
+
+  <component name="Sink" type="threaded" scheduler="FCFS">
+  </component>
+ </resources>
+
+ <mappings>
+  <mapping source="top.src" target="Source">
+    <attribute type="delay" value="100"/>
+  </mapping>
+
+  <mapping source="cf_top.src_top.m_top2.filter_1" target="FifoSrc2Filter">
+    <attribute type="delay" value="100"/>
+  </mapping>
+
+  <mapping source="top.m_top2.filter" target="Filter">
+    <attribute type="delay" value="100"/>
+  </mapping>
+
+  <mapping source="cf_top.m_top2.filter_top.sink_1" target="FifoFilter2Src">
+    <attribute type="delay" value="100"/>
+  </mapping>
+
+  <mapping source="top.sink" target="Sink">
+    <attribute type="delay" value="100"/>
+  </mapping>
+
+ </mappings>
+</vpcconfiguration>
