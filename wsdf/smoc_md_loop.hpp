@@ -632,11 +632,11 @@ protected:
 
 
 /* ******************************************************************************* */
-/*                          smoc_md_static_loop_iterator                           */
+/*                          smoc_md_static_loop_iterator_base                           */
 /* ******************************************************************************* */
 
 
-class smoc_md_static_loop_iterator 
+class smoc_md_static_loop_iterator_base 
 {
 public:
 
@@ -650,12 +650,12 @@ public:
 
   /// base_data_element_id points to the corresponding entry in the data
   /// element mapper.
-  smoc_md_static_loop_iterator(const iter_domain_vector_type& iteration_max,
-			       unsigned int token_dimensions);
+  smoc_md_static_loop_iterator_base(const iter_domain_vector_type& iteration_max,
+                                    unsigned int token_dimensions);
 
-  smoc_md_static_loop_iterator(const smoc_md_static_loop_iterator& src_iterator);
+  smoc_md_static_loop_iterator_base(const smoc_md_static_loop_iterator_base& src_iterator);
 
-  virtual ~smoc_md_static_loop_iterator() {}
+  virtual ~smoc_md_static_loop_iterator_base() {}
 
 public:
 
@@ -701,6 +701,70 @@ private:
 
 
 
+/* ******************************************************************************* */
+/*                             smoc_md_static_loop_iterator                        */
+/* ******************************************************************************* */
+
+
+/// Description of a static nested loop
+/// The iteration bounds are independent on dimension i are
+/// independent of the other dimensions.
+/// Data element mapping functionality is not included
+class smoc_md_static_loop_iterator 
+  : public smoc_md_loop_iterator_kind, 
+    public smoc_md_static_loop_iterator_base
+{
+public:
+  // Typedefs
+  typedef smoc_md_loop_iterator_kind parent_type;
+
+        
+
+  //Specification of iteration domain
+  typedef parent_type::data_type iter_item_type;
+  typedef parent_type::iter_domain_vector_type iter_domain_vector_type;
+
+  typedef parent_type::size_type size_type;
+
+public:
+  /* Constructors */
+
+  /// This constructor allows to declare a so called
+  /// window-iteration domain. The window iteration domain
+  /// Is supposed to be executed externally.
+  smoc_md_static_loop_iterator(const iter_domain_vector_type& iteration_max,
+                               unsigned int token_dimensions);
+
+  smoc_md_static_loop_iterator(const smoc_md_static_loop_iterator& src_iterator);
+
+public:
+
+  bool inc();
+
+  virtual iter_item_type iteration_max(const size_type dimension,
+				       const iter_domain_vector_type& fixed_iteration) const {
+    return smoc_md_static_loop_iterator_base::iteration_max(dimension,fixed_iteration);
+  }
+
+  virtual const iter_domain_vector_type iteration_max() const{
+    return smoc_md_static_loop_iterator_base::iteration_max();
+  }
+
+  virtual const iter_domain_vector_type& max_window_iteration() const{
+    return smoc_md_static_loop_iterator_base::max_window_iteration();
+  }
+
+  virtual long 
+  calc_iteration_id(const iter_domain_vector_type& iter,
+                    long schedule_period = 0) const{
+    return 
+      smoc_md_static_loop_iterator_base::calc_iteration_id(iter,
+                                                      schedule_period);
+  };        
+  
+};
+
+
 
 
 
@@ -716,7 +780,7 @@ private:
 /// The iteration bounds are independent on dimension i are
 /// independent of the other dimensions.
 class smoc_src_md_static_loop_iterator 
-  : public smoc_src_md_loop_iterator_kind, public smoc_md_static_loop_iterator
+  : public smoc_src_md_loop_iterator_kind, public smoc_md_static_loop_iterator_base
 {
 public:
   // Typedefs
@@ -756,23 +820,26 @@ public:
 
   virtual iter_item_type iteration_max(const size_type dimension,
 				       const iter_domain_vector_type& fixed_iteration) const {
-    return smoc_md_static_loop_iterator::iteration_max(dimension,fixed_iteration);
+    return 
+      smoc_md_static_loop_iterator_base::iteration_max(dimension,fixed_iteration);
   }
 
   virtual const iter_domain_vector_type iteration_max() const{
-    return smoc_md_static_loop_iterator::iteration_max();
+    return 
+      smoc_md_static_loop_iterator_base::iteration_max();
   }
 
   virtual const iter_domain_vector_type& max_window_iteration() const{
-    return smoc_md_static_loop_iterator::max_window_iteration();
+    return 
+      smoc_md_static_loop_iterator_base::max_window_iteration();
   }
 
   virtual long 
   calc_iteration_id(const iter_domain_vector_type& iter,
                     long schedule_period = 0) const{
     return 
-      smoc_md_static_loop_iterator::calc_iteration_id(iter,
-                                                      schedule_period);
+      smoc_md_static_loop_iterator_base::calc_iteration_id(iter,
+                                                           schedule_period);
   };
         
   
@@ -785,7 +852,7 @@ public:
 /* ******************************************************************************* */
 
 class smoc_snk_md_static_loop_iterator 
-  : public smoc_snk_md_loop_iterator_kind, public smoc_md_static_loop_iterator
+  : public smoc_snk_md_loop_iterator_kind, public smoc_md_static_loop_iterator_base
 {
 public:
   // Typedefs
@@ -821,23 +888,27 @@ public:
 
   virtual iter_item_type iteration_max(const size_type dimension,
 				       const iter_domain_vector_type& fixed_iteration) const {
-    return smoc_md_static_loop_iterator::iteration_max(dimension,fixed_iteration);
+    return 
+      smoc_md_static_loop_iterator_base::iteration_max(dimension,
+                                                       fixed_iteration);
   }
 
   virtual const iter_domain_vector_type iteration_max() const{
-    return smoc_md_static_loop_iterator::iteration_max();
+    return 
+      smoc_md_static_loop_iterator_base::iteration_max();
   }
 
   virtual const iter_domain_vector_type& max_window_iteration() const{
-    return smoc_md_static_loop_iterator::max_window_iteration();
+    return 
+      smoc_md_static_loop_iterator_base::max_window_iteration();
   }
 
   virtual long 
   calc_iteration_id(const iter_domain_vector_type& iter,
                     long schedule_period = 0) const{
     return 
-      smoc_md_static_loop_iterator::calc_iteration_id(iter,
-                                                      schedule_period);
+      smoc_md_static_loop_iterator_base::calc_iteration_id(iter,
+                                                           schedule_period);
   };
 
 };

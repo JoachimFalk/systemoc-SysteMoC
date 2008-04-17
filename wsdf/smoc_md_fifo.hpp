@@ -13,6 +13,7 @@
 
 #ifndef NO_SMOC
 #include "smoc_chan_if.hpp"
+#include "smoc_fifo.hpp"
 #endif
 #include "smoc_storage.hpp"
 
@@ -69,6 +70,11 @@ class smoc_md_fifo_kind
 #endif
 {
 
+#ifdef SYSTEMOC_ENABLE_VPC
+  friend class smoc_detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >::VisibleQueue;
+  friend class smoc_detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >::RequestQueue;
+#endif // SYSTEMOC_ENABLE_VPC
+
 public:
   typedef smoc_md_fifo_kind  this_type;
   typedef size_t size_type;
@@ -114,10 +120,15 @@ public:
     : smoc_nonconflicting_chan(i.name != NULL ? i.name : sc_gen_unique_name( "smoc_md_fifo" ) ),
       BUFFER_CLASS(i.b),
 #else
-      : BUFFER_CLASS(i.b),
-        _name(i.name != NULL ? i.name : "smoc_md_fifo"),
+    : BUFFER_CLASS(i.b),
+      _name(i.name != NULL ? i.name : "smoc_md_fifo"),
 #endif
-      schedule_period_difference(0),
+      visible_schedule_period_difference(0),
+#ifdef SYSTEMOC_ENABLE_VPC
+      latencyQueue(this),
+      src_iterator_visible(this->src_loop_iterator.iteration_max(),
+                           this->src_loop_iterator.token_dimensions()),
+#endif
       _usedStorage(0),
       _usedStorageValid(false)
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
@@ -181,6 +192,13 @@ protected:
 #endif
 
 
+#ifdef SYSTEMOC_ENABLE_VPC
+  /// This function will be called if a new source invocation
+  /// shall become visible to the sink
+  void latencyExpired(size_t n = 1);
+#endif
+
+
   /* *****************************************
      Event Handling
      ***************************************** */
@@ -237,8 +255,8 @@ protected:
   /// The source and the sink iterator can be in different schedule
   /// periods. The next variable specifies the difference between
   /// the sink and the source schedule period:
-  /// schedule_period_difference = src_period - snk_period;
-  long schedule_period_difference;
+  /// visible_schedule_period_difference = src_period - snk_period;
+  long visible_schedule_period_difference;
 
 #ifndef NO_SMOC
   /// Events
@@ -247,6 +265,16 @@ protected:
   
   smoc_event eventWindowAvailable; // There is a new window available
   smoc_event eventEffTokenFree;    // A new effective token can be written
+#endif
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  smoc_detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >   latencyQueue;
+
+  /// If SystemVPC is enabled we have to distinguish between the current
+  /// source invocation (given by src_loop_iterator)
+  /// and the source invocation which is visible by the sink
+  smoc_md_static_loop_iterator src_iterator_visible;
+
 #endif
 
 
@@ -340,7 +368,8 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
   
     // Required source iteration for production of this data
     // element
-    iter_domain_vector_type req_src_iteration((*this).src_loop_iterator.iterator_depth()); 
+    iter_domain_vector_type 
+      req_src_iteration((*this).src_loop_iterator.iterator_depth()); 
     smoc_src_md_loop_iterator_kind::id_type schedule_period_offset;
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 102
     CoSupport::dout << "(*this).src_loop_iterator.iterator_depth() = " << (*this).src_loop_iterator.iterator_depth() << std::endl;
@@ -372,22 +401,26 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
     // (schedule_period(source) == schedule_period(sink) + schedule_period_offset
     //  and source_vector < required_source_vector
 
-    if (schedule_period_difference <  schedule_period_offset){
+    if (visible_schedule_period_difference <  schedule_period_offset){
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
       CoSupport::dout << "Sink is blocked due to difference of schedule periods." << std::endl;
 #endif
       _usedStorage = 0;
-    }else if (schedule_period_difference > schedule_period_offset){
+    }else if (visible_schedule_period_difference > schedule_period_offset){
       //Sink actor can fire
       _usedStorage = 1;
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
       CoSupport::dout << "Sink can fire due to schedule period difference" << std::endl;
       CoSupport::dout << CoSupport::Indent::Up;
-      CoSupport::dout << "schedule_period_difference = " << schedule_period_difference << std::endl;
+      CoSupport::dout << "visible_schedule_period_difference = " << visible_schedule_period_difference << std::endl;
       CoSupport::dout << "schedule_period_offset = " << schedule_period_offset << std::endl;
       CoSupport::dout << CoSupport::Indent::Down;
 #endif
+#ifdef SYSTEMOC_ENABLE_VPC
+    }else if (req_src_iteration.is_lex_smaller_than((*this).src_iterator_visible.iteration_vector())){
+#else
     }else if (req_src_iteration.is_lex_smaller_than((*this).src_loop_iterator.iteration_vector())){
+#endif
       //Sink actor can fire
       _usedStorage = 1;
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
@@ -465,7 +498,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
   // Move to next loop iteration
   if((*this).snk_loop_iterator.inc()){
     //new schedule period has been started
-    schedule_period_difference--;
+    visible_schedule_period_difference--;
   }
   
   generate_read_events();
@@ -497,7 +530,12 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
   //allocate memory, if not already done by user
   this->allocate_buffer();
 
+#ifdef SYSTEMOC_ENABLE_VPC
+  latencyQueue.addEntry(n, le);
+#else
+  //make directly visible
   incUsedStorage();
+#endif
 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
   if (buffer_analysis != NULL)
@@ -507,7 +545,9 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
   // Move to next loop iteration
   if((*this).src_loop_iterator.inc()){
     //new schedule period has been started
-    schedule_period_difference++;
+#ifndef SYSTEMOC_ENABLE_VPC
+    visible_schedule_period_difference++;
+#endif
   }
   
   /// Memory will not be written anymore
@@ -523,14 +563,38 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
     
 }
 
+#ifdef SYSTEMOC_ENABLE_VPC
+template <class BUFFER_CLASS>
+void smoc_md_fifo_kind<BUFFER_CLASS>::latencyExpired(size_t n){
+  assert(n == 1);
+
+  //Make next token visible
+  incUsedStorage();
+
+  // Move to next loop iteration
+  if((*this).src_iterator_visible.inc()){
+    //new schedule period has been started
+    visible_schedule_period_difference++;
+  }
+
+  // check, if a new window has been generated
+  if (usedStorage() != 0){
+    eventWindowAvailable.notify();    
+  }
+  
+}
+#endif
+
 template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::generate_write_events() {
   // check, if a new window has been generated
+#ifndef SYSTEMOC_ENABLE_VPC
   if (usedStorage() != 0){
-#ifndef NO_SMOC
+# ifndef NO_SMOC
     eventWindowAvailable.notify();
-#endif
+# endif
   }
+#endif //SYSTEMOC_ENABLE_VPC
   
   //Check, if a new effective token be accepted
   if (unusedStorage() != 0){

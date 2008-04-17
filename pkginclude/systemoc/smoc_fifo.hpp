@@ -52,6 +52,10 @@
 
 #include "hscd_tdsim_TraceLog.hpp"
 
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
+#endif //SYSTEMOC_ENABLE_VPC
+
 // FIXME
 // -jens- this seems not be an access but an access + storage. This violates
 //  'is a' relationship of inheritance :-(
@@ -128,11 +132,11 @@ class smoc_fifo_kind;
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace smoc_detail {
 
-  class LatencyQueue {
-    friend class ::smoc_fifo_kind;
+  template<class FIFO_TYPE>
+  class LatencyQueue {    
   public:
-    typedef LatencyQueue this_type;
-  protected:
+    typedef LatencyQueue<FIFO_TYPE> this_type;
+  public:
     class RequestQueue
     : public smoc_event_listener {
     protected:
@@ -142,9 +146,9 @@ namespace smoc_detail {
       Queue queue;
 
       smoc_event dummy;
-      LatencyQueue* top;
+      this_type* top;
     protected:
-      LatencyQueue &getTop()
+      LatencyQueue<FIFO_TYPE> &getTop()
         { return *top; }
 
       void doSomething(size_t n);
@@ -169,7 +173,7 @@ namespace smoc_detail {
       void eventDestroyed(smoc_event_waiter *_e)
         { assert(!"eventDestroyed must never be called !!!"); }
     public:
-      RequestQueue(LatencyQueue* top) : top(top) {}
+      RequestQueue(LatencyQueue<FIFO_TYPE>* top) : top(top) {}
       void addEntry(size_t n, const smoc_ref_event_p &le) {
         bool queueEmpty = queue.empty();
         
@@ -192,9 +196,9 @@ namespace smoc_detail {
       typedef std::queue<Entry>                   Queue;
     protected:
       Queue queue;
-      LatencyQueue* top;
+      LatencyQueue<FIFO_TYPE>* top;
     protected:
-      LatencyQueue &getTop()
+       LatencyQueue<FIFO_TYPE> &getTop()
         { return *top; }
 
       void doSomething(size_t n);
@@ -219,7 +223,7 @@ namespace smoc_detail {
       void eventDestroyed(smoc_event_waiter *_e)
         { assert(!"eventDestroyed must never be called !!!"); }
     public:
-      VisibleQueue(LatencyQueue* top) : top(top) {}
+      VisibleQueue(LatencyQueue<FIFO_TYPE>* top) : top(top) {}
       void addEntry(size_t n, const smoc_ref_event_p &le) {
         bool queueEmpty = queue.empty();
         
@@ -235,14 +239,62 @@ namespace smoc_detail {
       virtual ~VisibleQueue() {}
     } visibleQueue;
 
-    smoc_fifo_kind *fifo;
   protected:
-    LatencyQueue(smoc_fifo_kind *fifo)
-      : requestQueue(this), visibleQueue(this), fifo(fifo) {}
 
+    FIFO_TYPE *fifo;
+  public:
+     LatencyQueue<FIFO_TYPE>(FIFO_TYPE *fifo)
+      : requestQueue(this), visibleQueue(this), fifo(fifo) {}
     void addEntry(size_t n, const smoc_ref_event_p &le)
       { requestQueue.addEntry(n, le); }
   };
+
+  template<typename FIFO_TYPE>
+  void LatencyQueue<FIFO_TYPE>::RequestQueue::doSomething(size_t n) {
+//# ifdef SYSTEMOC_TRACE
+//    const char *name = getTop().fifo->name();
+//# endif
+    
+    for (;n > 0; --n) {
+      smoc_ref_event_p latEvent(new smoc_ref_event());
+# ifdef SYSTEMOC_TRACE
+      smoc_ref_event_p diiEvent(new smoc_ref_event());
+      
+      TraceLog.traceStartActor(getTop().fifo, "s");
+//    TraceLog.traceStartFunction("transmit");
+//    TraceLog.traceEndFunction("transmit");
+      TraceLog.traceEndActor(getTop().fifo);
+      
+      SystemC_VPC::EventPair p(diiEvent.get(), latEvent.get());
+# else
+      SystemC_VPC::EventPair p(&dummy, latEvent.get());
+# endif
+      // new FastLink interface
+      getTop().fifo->vpcLink->compute(p);
+# ifdef SYSTEMOC_TRACE
+      if (!*diiEvent) {
+        // dii event not signaled
+        diiEvent->addListener(new DeferedTraceLogDumper(diiEvent, getTop().fifo, "e"));
+      } else {
+        TraceLog.traceStartActor(getTop().fifo, "e");
+        TraceLog.traceEndActor(getTop().fifo);
+      }
+      if (!*latEvent) {
+        // latency event not signaled
+        latEvent->addListener(new DeferedTraceLogDumper(latEvent, getTop().fifo, "l"));
+      } else {
+        TraceLog.traceStartActor(getTop().fifo, "l");
+        TraceLog.traceEndActor(getTop().fifo);
+      }
+# endif
+      getTop().visibleQueue.addEntry(1, latEvent);
+    }
+  }
+
+  template<typename FIFO_TYPE>
+  void LatencyQueue<FIFO_TYPE>::VisibleQueue::doSomething(size_t n) {
+    getTop().fifo->latencyExpired(n);
+  }
 
 } // namespace smoc_detail
 #endif // SYSTEMOC_ENABLE_VPC
@@ -261,8 +313,8 @@ namespace smoc_detail {
 class smoc_fifo_kind
 : public smoc_nonconflicting_chan {
 #ifdef SYSTEMOC_ENABLE_VPC
-  friend class smoc_detail::LatencyQueue::VisibleQueue;
-  friend class smoc_detail::LatencyQueue::RequestQueue;
+  friend class smoc_detail::LatencyQueue<smoc_fifo_kind>::VisibleQueue;
+  friend class smoc_detail::LatencyQueue<smoc_fifo_kind>::RequestQueue;
 #endif // SYSTEMOC_ENABLE_VPC
 public:
   typedef smoc_fifo_kind  this_type;
@@ -280,7 +332,7 @@ protected:
   typedef std::map<size_t, smoc_event *>      EventMap;
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  smoc_detail::LatencyQueue   latencyQueue;
+  smoc_detail::LatencyQueue<smoc_fifo_kind>   latencyQueue;
 #endif
 
   size_t       fsize;   ///< Ring buffer size == FIFO size + 1

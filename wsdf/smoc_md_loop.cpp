@@ -1155,32 +1155,32 @@ void smoc_snk_md_loop_iterator_kind::update_base_border_condition_vector(){
 
 
 /* ******************************************************************************* */
-/*                          smoc_md_static_loop_iterator                           */
+/*                          smoc_md_static_loop_iterator_base                           */
 /* ******************************************************************************* */
 
 
-smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(const iter_domain_vector_type& iteration_max,
-							   unsigned int token_dimensions)
+smoc_md_static_loop_iterator_base::smoc_md_static_loop_iterator_base(const iter_domain_vector_type& iteration_max,
+                                                                     unsigned int token_dimensions)
   : _iteration_max(iteration_max),
     _max_window_iteration(calc_max_window_iteration(token_dimensions,iteration_max)),
     num_invocations_per_period(calc_schedule_period_invocations())
 {}
 
-smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(const smoc_md_static_loop_iterator& src_iterator)
+smoc_md_static_loop_iterator_base::smoc_md_static_loop_iterator_base(const smoc_md_static_loop_iterator_base& src_iterator)
   : _iteration_max(src_iterator._iteration_max),
     _max_window_iteration(src_iterator._max_window_iteration),
     num_invocations_per_period(src_iterator.num_invocations_per_period)
 {}
 
 
-const smoc_md_static_loop_iterator::iter_domain_vector_type&
-smoc_md_static_loop_iterator::max_window_iteration() const{
+const smoc_md_static_loop_iterator_base::iter_domain_vector_type&
+smoc_md_static_loop_iterator_base::max_window_iteration() const{
   return _max_window_iteration;
 }
 
-const smoc_md_static_loop_iterator::iter_domain_vector_type 
-smoc_md_static_loop_iterator::calc_max_window_iteration(unsigned int token_dimensions,
-							const iter_domain_vector_type& iteration_max) {
+const smoc_md_static_loop_iterator_base::iter_domain_vector_type 
+smoc_md_static_loop_iterator_base::calc_max_window_iteration(unsigned int token_dimensions,
+                                                             const iter_domain_vector_type& iteration_max) {
   iter_domain_vector_type return_vector(token_dimensions);
   for(unsigned int i = 0, j = iteration_max.size() - token_dimensions; 
       i < token_dimensions; 
@@ -1192,8 +1192,8 @@ smoc_md_static_loop_iterator::calc_max_window_iteration(unsigned int token_dimen
 }
 
 long 
-smoc_md_static_loop_iterator::calc_iteration_id(const iter_domain_vector_type& iter,
-                                                long schedule_period) const {
+smoc_md_static_loop_iterator_base::calc_iteration_id(const iter_domain_vector_type& iter,
+                                                     long schedule_period) const {
   long factor = 1;
   long return_value = 0;
 
@@ -1213,13 +1213,70 @@ smoc_md_static_loop_iterator::calc_iteration_id(const iter_domain_vector_type& i
 }
 
 long 
-smoc_md_static_loop_iterator::calc_schedule_period_invocations() const {
+smoc_md_static_loop_iterator_base::calc_schedule_period_invocations() const {
   long return_value = 1;
   for(unsigned int i = 0; i < _iteration_max.size(); i++){
     return_value *= _iteration_max[i]+1;
   }
   return return_value;
 }
+
+/* ******************************************************************************* */
+/*                             smoc_md_static_loop_iterator                        */
+/* ******************************************************************************* */
+
+smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(const iter_domain_vector_type& iteration_max,
+                                                           unsigned int token_dimensions)
+  : smoc_md_loop_iterator_kind(token_dimensions,
+                               iter_domain_vector_type(iteration_max.size(),
+                                                       (smoc_md_loop_iterator_kind::data_type)0)),
+    smoc_md_static_loop_iterator_base(iteration_max, 
+                                      token_dimensions)
+{
+}
+
+smoc_md_static_loop_iterator::smoc_md_static_loop_iterator(const smoc_md_static_loop_iterator& src_iterator)
+  : smoc_md_loop_iterator_kind(src_iterator),
+    smoc_md_static_loop_iterator_base(src_iterator)
+{
+}
+
+
+bool smoc_md_static_loop_iterator::inc(){
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
+  CoSupport::dout << "Enter smoc_md_static_loop_iterator::inc()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Up;
+#endif
+
+  //default initialization
+  _new_schedule_period = true;
+  
+  for(int i = current_iteration.size() - _token_dimensions - 1;
+      i >= 0;
+      i--){
+    current_iteration[i]++;
+    if (current_iteration[i] > _iteration_max[i]){
+      current_iteration[i] = 0;
+    }else{
+      _new_schedule_period = false;
+      break;
+    }
+  }
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
+  CoSupport::dout << "New loop iteration: " << current_iteration;
+  CoSupport::dout << std::endl;
+#endif
+
+#if VERBOSE_LEVEL_SMOC_MD_LOOP >= 101
+  CoSupport::dout << "Leave smoc_md_static_loop_iterator::inc()" << std::endl;
+  CoSupport::dout << CoSupport::Indent::Down;
+#endif
+
+  return _new_schedule_period;
+}
+
 
 
 /* ******************************************************************************* */
@@ -1236,13 +1293,13 @@ smoc_src_md_static_loop_iterator::smoc_src_md_static_loop_iterator(
 				   mapping_offset                                                                                                                          ,
 				   calc_max_data_element_id(iteration_max,mapping_matrix)
 				   ),
-    smoc_md_static_loop_iterator(iteration_max, mapping_offset.size())
+    smoc_md_static_loop_iterator_base(iteration_max, mapping_offset.size())
 {
 }
 
 smoc_src_md_static_loop_iterator::smoc_src_md_static_loop_iterator(const smoc_src_md_static_loop_iterator& src_iterator)
   : smoc_src_md_loop_iterator_kind(src_iterator),
-    smoc_md_static_loop_iterator(src_iterator)
+    smoc_md_static_loop_iterator_base(src_iterator)
 {
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
   CoSupport::dout << "Enter smoc_src_md_static_loop_iterator::smoc_src_md_static_loop_iterator" << std::endl;
@@ -1340,7 +1397,7 @@ smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator(
 				   low_border_vector,
 				   high_border_vector
 				   ),
-    smoc_md_static_loop_iterator(iteration_max, mapping_offset.size())
+    smoc_md_static_loop_iterator_base(iteration_max, mapping_offset.size())
 {
 #if VERBOSE_LEVEL_SMOC_MD_LOOP == 102
   CoSupport::dout << "Enter smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator" << std::endl;
@@ -1350,7 +1407,7 @@ smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator(
 
 smoc_snk_md_static_loop_iterator::smoc_snk_md_static_loop_iterator(const smoc_snk_md_static_loop_iterator& snk_iterator)
   : smoc_snk_md_loop_iterator_kind(snk_iterator),
-    smoc_md_static_loop_iterator(snk_iterator)
+    smoc_md_static_loop_iterator_base(snk_iterator)
 {
 }
 
