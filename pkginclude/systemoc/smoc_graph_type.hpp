@@ -103,57 +103,93 @@ class smoc_graph_base
   typedef smoc_graph_base this_type;
 
 protected:
+ 
+  /**
+   * Helper class for determining the data type from ports
+   * (Not needed if adapter classes exist)
+   */ 
+  template<class P>
+  struct PortTraits {
+    static const bool isSpecialized = false;
+    typedef void data_type;
+  };
 
+  /**
+   * Specialization of PortTraits for smoc_port_in
+   */
+  template<class T>
+  struct PortTraits< smoc_port_in<T> > { 
+    static const bool isSpecialized = true;
+    typedef T data_type;
+  };
+
+  /**
+   * Specialization of PortTraits for smoc_port_out
+   */
+  template<class T>
+  struct PortTraits< smoc_port_out<T> > {
+    static const bool isSpecialized = true;
+    typedef T data_type;
+  };
+
+#ifdef SYSTEMOC_ENABLE_WSDF 
+  /**
+   * Specialization of PortTraits for smoc_md_port_in
+   */
+  template<class T,unsigned N,template <typename, typename> class B>
+  struct PortTraits< smoc_md_port_in<T,N,B> > { 
+    static const bool isSpecialized = true;
+    typedef T data_type;
+  };
+
+  /**
+   * Specialization of PortTraits for smoc_md_port_out
+   */
+  template<class T,unsigned N,template <typename> class S>
+  struct PortTraits< smoc_md_port_out<T,N,S> > {
+    static const bool isSpecialized = true;
+    typedef T data_type;
+  };
+#endif
+  
   /// helper function for easier connector creation
   template<class ChanInit>
   smoc_port_connector<ChanInit> connector(ChanInit init)
     { return smoc_port_connector<ChanInit>(init); }
 
   /// connect ports using the specified channel initializer
-  template<class ChanInit, class PortA, class PortB>
+  template<class PortA, class PortB, class ChanInit>
   void connectNodePorts(PortA &a, PortB &b, const ChanInit& i)
     { connector(i) << a << b; }
-
-
-  /// The functions below are convenience functions which
-  /// deduce the data type automatically from smoc_ports
-  /// FIXME: automate this procedure and remove functions
-
+ 
   /// connect ports using the default channel initializer
-  /// (specify both size and data type)
-  template<int i, class T>
-  void connectNodePorts(smoc_port_out<T>& a, smoc_port_in<T>& b)
-    { connectNodePorts(a, b, T_chan_init_default<T>(i)); }
-
-  template<int i, class T, class PortB>
-  void connectNodePorts(smoc_port_out<T>& a, PortB& b)
-    { connectNodePorts(a, b, T_chan_init_default<T>(i)); }
-
-  template<int i, class T, class PortA>
-  void connectNodePorts(PortA& a, smoc_port_in<T>& b)
-    { connectNodePorts(a, b, T_chan_init_default<T>(i)); }
+  template<class PortA, class PortB>
+  void connectNodePorts(PortA &a, PortB &b) {
+    connectNodePorts(a, b, T_chan_init_default<
+      typename SysteMoC::Detail::Select<
+        PortTraits<PortA>::isSpecialized,
+        typename PortTraits<PortA>::data_type,
+        typename PortTraits<PortB>::data_type
+      >::result_type
+    >());
+  }
   
-  template<int i, class T, class PortA, class PortB>
-  void connectNodePorts(PortA& a, PortB& b)
-    { connectNodePorts(a, b, T_chan_init_default<T>(i)); }
-
+  /// connect ports using the specified channel initializer
+  template<int s, class PortA, class PortB, class ChanInit>
+  void connectNodePorts(PortA &a, PortB &b, const ChanInit& i)
+    { connector(i) << a << b; }
+  
   /// connect ports using the default channel initializer
-  /// (specify only data type)
-  template<class T>
-  void connectNodePorts(smoc_port_out<T>& a, smoc_port_in<T>& b)
-    { connectNodePorts(a, b, T_chan_init_default<T>()); }
-
-  template<class T, class PortB>
-  void connectNodePorts(smoc_port_out<T>& a, PortB& b)
-    { connectNodePorts(a, b, T_chan_init_default<T>()); }
-
-  template<class T, class PortA>
-  void connectNodePorts(PortA& a, smoc_port_in<T>& b)
-    { connectNodePorts(a, b, T_chan_init_default<T>()); }
-
-  template<class T, class PortA, class PortB>
-  void connectNodePorts(PortA& a, PortB& b)
-    { connectNodePorts(a, b, T_chan_init_default<T>()); }
+  template<int s, class PortA, class PortB>
+  void connectNodePorts(PortA &a, PortB &b) {
+    connectNodePorts(a, b, T_chan_init_default<
+      typename SysteMoC::Detail::Select<
+        PortTraits<PortA>::isSpecialized,
+        typename PortTraits<PortA>::data_type,
+        typename PortTraits<PortB>::data_type
+      >::result_type
+    >(s));
+  }
 
 #ifdef SYSTEMOC_ENABLE_WSDF 
 
@@ -208,7 +244,7 @@ private:
   void assembleActor(smoc_modes::PGWriter &pgw) const;
 #endif
 };
-
+  
 #undef T_chan_init_default
 
 /**

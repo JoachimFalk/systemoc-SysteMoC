@@ -118,10 +118,15 @@ void smoc_root_chan::finalise() {
   vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
     getFastLink(myName, "1") );
 
-  //FIXME: QUICKHACK:
-  this->setChannelID( (*getOutputPorts().begin())->get_parent()->name(),
-                      vpcLink->process,
-                      myName );
+  //FIXME: Workaround for quickhack (see getParentPort below)
+  if(!getOutputPorts().empty()) {
+
+    //FIXME: QUICKHACK:
+    this->setChannelID(
+        (*getOutputPorts().begin())->get_parent()->name(),
+        vpcLink->process,
+        myName);
+  }
 #endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_chan::finalise() end, name == " << name() << std::endl;
@@ -150,6 +155,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
     0 : getOutputPorts().front();
 
   // search highest interface port (multiple hierachie layers)
+  // FIXME: should be supported by SYSTEMC!!!!! (breaks everything)
   while(ifPort && ifPort->getParentPort()) {
     ifPort = ifPort->getParentPort();
   }
@@ -178,6 +184,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   ifPort = getInputPorts().empty() ? 0 : getInputPorts().front();
 
   // search highest interface port (multiple hierachie layers)
+  // FIXME: should be supported by SYSTEMC!!!!! (breaks everything)
   while(ifPort && ifPort->getParentPort()) {
     ifPort = ifPort->getParentPort();
   }
