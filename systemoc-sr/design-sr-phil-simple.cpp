@@ -249,87 +249,100 @@ public:
      d10("d10"),
      d11("d11")
   {
-    PhilSignal psig;
+    PhilSignal().connect(phil5.phil).connect(d5.in);
+    PhilSignal().connect(d5.out)
+      .connect(phil4.right_phil)
+      .connect(phil1.left_phil)
+      .connect(timer5.phil);
+    PhilSignal().connect(d5.history)
+      .connect(phil4.right_phil_hist)
+      .connect(phil1.left_phil_hist)
+      .connect(timer5.phil_hist);
 
-    connector(psig)
-      << phil5.phil << d5.in;
-    connector(psig)
-      << d5.out << phil4.right_phil
-      << phil1.left_phil << timer5.phil;
-    connector(psig)
-      << d5.history << phil4.right_phil_hist
-      << phil1.left_phil_hist << timer5.phil_hist;
-    
-    connector(psig)
-      << phil4.phil << d4.in;
-    connector(psig)
-      << d4.out << phil3.right_phil
-      << phil5.left_phil << timer4.phil;
-    connector(psig)
-      << d4.history << phil3.right_phil_hist
-      << phil5.left_phil_hist << timer4.phil_hist;
 
-    connector(psig)
-      << phil3.phil << d3.in;
-    connector(psig)
-      << d3.out << phil2.right_phil
-      << phil4.left_phil << timer3.phil;
-    connector(psig)
-      << d3.history << phil2.right_phil_hist
-      << phil4.left_phil_hist << timer3.phil_hist;
+    PhilSignal().connect(phil4.phil).connect(d4.in);
+    PhilSignal().connect(d4.out)
+      .connect(phil3.right_phil)
+      .connect(phil5.left_phil)
+      .connect(timer4.phil);
+    PhilSignal().connect(d4.history)
+      .connect(phil3.right_phil_hist)
+      .connect(phil5.left_phil_hist)
+      .connect(timer4.phil_hist);
 
-    connector(psig)
-      << phil2.phil << d2.in;
-    connector(psig)
-      << d2.out << phil1.right_phil
-      << phil3.left_phil << timer2.phil;
-    connector(psig)
-      << d2.history << phil1.right_phil_hist
-      << phil3.left_phil_hist << timer2.phil_hist;
-   
-    connector(psig)
-      << phil1.phil << d1.in;
-    connector(psig)
-      << d1.out << phil5.right_phil
-      << phil2.left_phil << timer1.phil;
-    connector(psig)
-      << d1.history << phil5.right_phil_hist
-      << phil2.left_phil_hist << timer1.phil_hist;
+    PhilSignal().connect(phil3.phil).connect(d3.in);
+    PhilSignal().connect(d3.out)
+      .connect(phil2.right_phil)
+      .connect(phil4.left_phil)
+      .connect(timer3.phil);
+    PhilSignal().connect(d3.history)
+      .connect(phil2.right_phil_hist)
+      .connect(phil4.left_phil_hist)
+      .connect(timer3.phil_hist);
 
-    TimerSignal tsig;
+    PhilSignal().connect(phil2.phil).connect(d2.in);
+    PhilSignal().connect(d2.out)
+      .connect(phil1.right_phil)
+      .connect(phil3.left_phil)
+      .connect(timer2.phil);
+    PhilSignal().connect(d2.history)
+      .connect(phil1.right_phil_hist)
+      .connect(phil3.left_phil_hist)
+      .connect(timer2.phil_hist);
 
-    connector(tsig) << timer5.timer << d6.in;
-    connector(tsig) << d6.out << phil5.timer; 
-    connector(tsig) << d6.history << phil5.timer_hist;
-    
-    connector(tsig) << timer4.timer << d7.in;
-    connector(tsig) << d7.out << phil4.timer; 
-    connector(tsig) << d7.history << phil4.timer_hist;
-    
-    connector(tsig) << timer3.timer << d8.in;
-    connector(tsig) << d8.out << phil3.timer; 
-    connector(tsig) << d8.history << phil3.timer_hist;
+    PhilSignal().connect(phil1.phil).connect(d1.in);
+    PhilSignal().connect(d1.out)
+      .connect(phil5.right_phil)
+      .connect(phil2.left_phil)
+      .connect(timer1.phil);
+    PhilSignal().connect(d1.history)
+      .connect(phil5.right_phil_hist)
+      .connect(phil2.left_phil_hist)
+      .connect(timer1.phil_hist);
 
-    connector(tsig) << timer2.timer << d9.in;
-    connector(tsig) << d9.out << phil2.timer; 
-    connector(tsig) << d9.history << phil2.timer_hist;
+    TimerSignal().connect(timer5.timer).connect(d6.in);
+    TimerSignal().connect(d6.out).connect(phil5.timer);
+    TimerSignal().connect(d6.history).connect(phil5.timer_hist);
 
-    connector(tsig) << timer1.timer << d10.in;
-    connector(tsig) << d10.out << phil1.timer; 
-    connector(tsig) << d10.history << phil1.timer_hist;
+    TimerSignal().connect(timer4.timer).connect(d7.in);
+    TimerSignal().connect(d7.out).connect(phil4.timer);
+    TimerSignal().connect(d7.history).connect(phil4.timer_hist);
 
-    BoolSignal  bsig;
+    TimerSignal().connect(timer3.timer).connect(d8.in);
+    TimerSignal().connect(d8.out).connect(phil3.timer);
+    TimerSignal().connect(d8.history).connect(phil3.timer_hist);
 
-    connector(bsig)
-      << clk.out << d11.in;
-    connector(bsig)
-      << d11.out << timer5.clk << timer4.clk << timer3.clk << timer2.clk
-      << timer1.clk << phil5.clk << phil4.clk << phil3.clk << phil2.clk
-      << phil1.clk; 
-    connector(bsig)
-      << d11.history << timer5.clk_hist << timer4.clk_hist << timer3.clk_hist
-      << timer2.clk_hist << timer1.clk_hist << phil5.clk_hist << phil4.clk_hist
-      << phil3.clk_hist << phil2.clk_hist << phil1.clk_hist;
+    TimerSignal().connect(timer2.timer).connect(d9.in);
+    TimerSignal().connect(d9.out).connect(phil2.timer);
+    TimerSignal().connect(d9.history).connect(phil2.timer_hist);
+
+    TimerSignal().connect(timer1.timer).connect(d10.in);
+    TimerSignal().connect(d10.out).connect(phil1.timer);
+    TimerSignal().connect(d10.history).connect(phil1.timer_hist);
+
+    BoolSignal().connect(clk.out).connect(d11.in);
+    BoolSignal().connect(d11.out)
+      .connect(timer5.clk)
+      .connect(timer4.clk)
+      .connect(timer3.clk)
+      .connect(timer2.clk)
+      .connect(timer1.clk)
+      .connect(phil5.clk)
+      .connect(phil4.clk)
+      .connect(phil3.clk)
+      .connect(phil2.clk)
+      .connect(phil1.clk);
+    BoolSignal().connect(d11.history)
+      .connect(timer5.clk_hist)
+      .connect(timer4.clk_hist)
+      .connect(timer3.clk_hist)
+      .connect(timer2.clk_hist)
+      .connect(timer1.clk_hist)
+      .connect(phil5.clk_hist)
+      .connect(phil4.clk_hist)
+      .connect(phil3.clk_hist)
+      .connect(phil2.clk_hist)
+      .connect(phil1.clk_hist);
   }
 };
  

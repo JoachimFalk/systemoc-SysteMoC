@@ -288,10 +288,6 @@ if test -d $srcdir/systemoc-sdf; then
   AC_CONFIG_FILES([systemoc-sdf/Makefile])
   subdirs="$subdirs systemoc-sdf"
 fi
-if test -d $srcdir/systemoc-systemc; then
-  AC_CONFIG_FILES([systemoc-systemc/Makefile])
-  subdirs="$subdirs systemoc-systemc"
-fi
 if test -d $srcdir/systemoc-getValueAt; then
   AC_CONFIG_FILES([systemoc-getValueAt/Makefile])
   subdirs="$subdirs systemoc-getValueAt"
