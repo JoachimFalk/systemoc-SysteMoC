@@ -46,6 +46,8 @@
 #include <set>
 
 #include <cosupport/container_insert.hpp>
+#include <cosupport/string_hash.hpp>
+#include <cosupport/SMXIdManager.hpp>
 
 #include <sysc/kernel/sc_object.h>
 
@@ -57,10 +59,7 @@ namespace SysteMoC { namespace NGXSync {
 
   using NGX::NgId;
 
-  struct IdAttr {
-    explicit IdAttr(const NGX::NgId& id);
-    NGX::NgId id;
-  };
+  typedef CoSupport::SMXIdSer IdAttr;
 
   std::ostream& operator<<(std::ostream& out, const IdAttr& id);
 
@@ -68,68 +67,6 @@ namespace SysteMoC { namespace NGXSync {
     AlreadyInitialized();
   };
  
-  // calculates smallest x = 2^k; x > N  (e.g. 29 -> 32, 32 -> 64)
-  template<uint64_t N, uint64_t S = 1>
-  struct NextPower2
-  { static const size_t value = NextPower2<N >> 1, S << 1>::value; };
-
-  template<uint64_t S>
-  struct NextPower2<0, S>
-  { static const uint64_t value = S; };
-
-  // http://isthe.com/chongo/tech/comp/fnv/ 
-  // (BITS <= 64)
-  template<size_t BITS>
-  class FNV {
-  public:
-    typedef const char* argument_type;
-    typedef uint64_t    result_type;
-    
-    result_type operator()(argument_type n)
-    { return xorFold(fnv(n)); }
-
-  private:
-    static const result_type MASK = (1ull << BITS) - 1ull;
-    
-    FNV<NextPower2<BITS>::value> fnv;
-
-    result_type xorFold(result_type h)
-    { return (h >> BITS) ^ (h & MASK); }
-  };
-  
-  // http://isthe.com/chongo/tech/comp/fnv/ 
-  template<class T, T INIT, T PRIME>
-  class FNVBase {
-  public:
-    typedef const char* argument_type;
-    typedef T           result_type;
-
-    result_type operator()(argument_type n) {
-      result_type h = INIT;
-      while(*n) {
-        h *= PRIME;
-        h ^= *n++;
-      }
-      return h;
-    }
-  };
-
-  // http://isthe.com/chongo/tech/comp/fnv/ 
-  template<>
-  class FNV<32> : public FNVBase<
-    uint32_t,
-    0x811C9DC5ul,
-    0x01000193ul>
-  {};
-  
-  // http://isthe.com/chongo/tech/comp/fnv/ 
-  template<>
-  class FNV<64> : public FNVBase<
-    uint64_t,
-    0xCBF29CE484222325ull,
-    0x00000100000001B3ull>
-  {};
-
   class IdPool {
     typedef uint32_t Id;
     static const size_t BITS = std::numeric_limits<Id>::digits;
@@ -170,7 +107,7 @@ namespace SysteMoC { namespace NGXSync {
     //       00...: generated
     //       01...: named
     //       10...: unnamed
-    //       11:..: reserved
+    //       11...: reserved
     //       11..1: invalid 
     static const Id GENERATED = 0 << (BITS-2);
     static const Id NAMED     = 1 << (BITS-2);
@@ -193,7 +130,7 @@ namespace SysteMoC { namespace NGXSync {
     IdToObj idToObj;
 
     // hash function used for generating ids for named objects
-    FNV<BITS-2> hash;
+    CoSupport::FNV<BITS-2> hash;
 
     // lookup id by object pointer (find needs key_type)
     ObjToId::iterator idByObj(const sc_core::sc_object* obj);

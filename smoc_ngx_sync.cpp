@@ -4,10 +4,6 @@ using namespace SysteMoC::NGX;
 
 namespace SysteMoC { namespace NGXSync {
   
-  IdAttr::IdAttr(const NGX::NgId& id) :
-    id(id)
-  {}
-
   std::ostream& operator<<(std::ostream& out, const IdAttr& id)
   { return out << "id" << id.id; }
   

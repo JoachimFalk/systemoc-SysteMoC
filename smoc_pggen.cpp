@@ -37,6 +37,8 @@
 #include <systemoc/smoc_root_node.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
 
+#include <acpgacc/smoc_synth_netgraph_access.hpp>
+
 using namespace SysteMoC::NGXSync;
 
 namespace smoc_modes {
