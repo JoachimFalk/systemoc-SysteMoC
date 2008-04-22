@@ -61,6 +61,8 @@ namespace SysteMoC { namespace NGXSync {
 
   typedef CoSupport::SMXIdSer IdAttr;
 
+  typedef sc_core::sc_object SCObj;
+
   std::ostream& operator<<(std::ostream& out, const IdAttr& id);
 
   struct AlreadyInitialized : public std::runtime_error {
@@ -68,28 +70,24 @@ namespace SysteMoC { namespace NGXSync {
   };
  
   class IdPool {
-    typedef uint32_t Id;
-    static const size_t BITS = std::numeric_limits<Id>::digits;
   public:
-    IdPool();
-
     // generate id for the specified named object and index
-    NgId regObj(sc_core::sc_object* obj, size_t index = 0);
+    NgId regObj(SCObj* obj, size_t index = 0);
 
     // register object with specified id and index
-    NgId regObj(sc_core::sc_object* obj, const NgId& id, size_t index);
+    NgId regObj(SCObj* obj, const NgId& id, size_t index);
     
     // delete all ids for the specified named object
-    void unregObj(const sc_core::sc_object* obj);
+    void unregObj(const SCObj* obj);
     
     // lookup id for the specified named object and index
-    NgId getId(const sc_core::sc_object* obj, size_t index = 0) const;
+    NgId getId(const SCObj* obj, size_t index = 0) const;
     
     // return a new id for an unnamed object
     NgId getId();
 
     // convenience method for printing the id of a named object
-    IdAttr printId(const sc_core::sc_object* obj, size_t index = 0) const;
+    IdAttr printId(const SCObj* obj, size_t index = 0) const;
     
     // convenience method for printing the id of an unnamed object
     IdAttr printId();
@@ -98,51 +96,8 @@ namespace SysteMoC { namespace NGXSync {
     IdAttr printIdInvalid() const;
 
     // lookup named object for an id (returns 0 if not found)
-    sc_core::sc_object* getObj(const NgId& id) const;
+    SCObj* getObj(const NgId& id) const;
 
-    void dump(std::ostream& out) const;
-
-  private:
-    // NgId: 2 bits region; (BITS-2) bits id
-    //       00...: generated
-    //       01...: named
-    //       10...: unnamed
-    //       11...: reserved
-    //       11..1: invalid 
-    static const Id GENERATED = 0 << (BITS-2);
-    static const Id NAMED     = 1 << (BITS-2);
-    static const Id UNNAMED   = 2 << (BITS-2);
-    static const Id RESERVED  = 3 << (BITS-2);
-
-    // ids for unnamed objects are reserved in sequence
-    Id unnamedIds;
-
-    // ids for named objects are calculated by the hash function
-    std::set<Id> namedIds;
-
-    // object -> id lookup map
-    typedef std::map<size_t, NgId> IndexMap;
-    typedef std::map<sc_core::sc_object*, IndexMap> ObjToId;
-    ObjToId objToId;
-    
-    // id -> object lookup map
-    typedef std::map<NgId, sc_core::sc_object*> IdToObj;
-    IdToObj idToObj;
-
-    // hash function used for generating ids for named objects
-    CoSupport::FNV<BITS-2> hash;
-
-    // lookup id by object pointer (find needs key_type)
-    ObjToId::iterator idByObj(const sc_core::sc_object* obj);
-    
-    // lookup id by object pointer (find needs key_type)
-    ObjToId::const_iterator idByObj(const sc_core::sc_object* obj) const;
-
-    // lookup object pointer by id
-    IdToObj::iterator objById(const NgId& id);
-    
-    // lookup object pointer by id
-    IdToObj::const_iterator objById(const NgId& id) const;
   };
 
   extern IdPool idPool;
@@ -183,13 +138,13 @@ namespace SysteMoC { namespace NGXSync {
     static NGXCache& getInstance();
 
     // lookup NGX object by SystemC object (returns 0 if none exists)
-    NGX::IdedObj::ConstPtr get(sc_core::sc_object* obj, size_t index = 0);
+    NGX::IdedObj::ConstPtr get(SCObj* obj, size_t index = 0);
 
     // lookup SystemC object by NGX object (returns 0 if none exists)
-    sc_core::sc_object* get(NGX::IdedObj::ConstPtr obj);
+    SCObj* get(NGX::IdedObj::ConstPtr obj);
     
     // lookup SystemC object by NGX object (returns 0 if none exists)
-    sc_core::sc_object* get(NGX::IdedObj::ConstRef obj);
+    SCObj* get(NGX::IdedObj::ConstRef obj);
 
     // find / cache a port which is compiled into the model and has the
     // same interface as the specified port (returns 0 if none exists)
@@ -198,12 +153,12 @@ namespace SysteMoC { namespace NGXSync {
 
   private:
     // NGX -> SystemC lookup map
-    typedef std::map<NGX::IdedObj::ConstPtr, sc_core::sc_object*> NGX2SC;
+    typedef std::map<NGX::IdedObj::ConstPtr, SCObj*> NGX2SC;
     NGX2SC ngx2sc;
 
     // SystemC -> NGX lookup map
     typedef std::map<size_t, NGX::IdedObj::ConstPtr> IndexMap;
-    typedef std::map<sc_core::sc_object*, IndexMap> SC2NGX;
+    typedef std::map<SCObj*, IndexMap> SC2NGX;
     SC2NGX sc2ngx;
 
     // invisible constructor for singleton-pattern
