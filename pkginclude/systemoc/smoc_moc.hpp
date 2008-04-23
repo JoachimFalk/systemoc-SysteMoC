@@ -79,17 +79,29 @@ protected:
 
 };
 
-class smoc_top
-  : public smoc_scheduler_top {
-public:
-  smoc_top(smoc_graph_base *c);
-};
-
 template <typename T_top>
 class smoc_top_moc
-  : public T_top, public smoc_top {
+  : public T_top, public smoc_scheduler_top {
 public:
   typedef smoc_top_moc<T_top> this_type;
+
+  bool simulation_running;
+
+  void start_of_simulation(){
+    simulation_running = true;
+  }
+
+
+  void end_of_simulation(){
+    simulation_running = false;
+    if ((smoc_modes::dumpFileSMX != NULL) && 
+        (smoc_modes::dumpSMXWithSim))
+      smoc_modes::dump(*this);
+  }
+
+  void end_of_elaboration(){
+    this->elabEnd(this);
+  }
 
   
   
@@ -101,24 +113,30 @@ public:
 
 
   smoc_top_moc()
-    : T_top(), smoc_top(this) {}
+    : T_top(), simulation_running(false) {assert(this->top == NULL); this->top = this;}
   explicit smoc_top_moc(sc_module_name name)
-    : T_top(name), smoc_top(this) {}
+    : T_top(name), simulation_running(false) {assert(this->top == NULL); this->top = this;}
   template <typename T1>
   explicit smoc_top_moc(sc_module_name name, T1 p1)
-    : T_top(name, p1), smoc_top(this) {}
+    : T_top(name, p1), simulation_running(false) {assert(this->top == NULL); this->top = this;}
   template <typename T1, typename T2>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2)
-    : T_top(name, p1, p2), smoc_top(this) {}
+    : T_top(name, p1, p2), simulation_running(false) {assert(this->top == NULL); this->top = this;}
   template <typename T1, typename T2, typename T3>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3)
-    : T_top(name, p1, p2, p3), smoc_top(this) {}
+    : T_top(name, p1, p2, p3), simulation_running(false) {assert(this->top == NULL); this->top = this;}
   template <typename T1, typename T2, typename T3, typename T4>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4)
-    : T_top(name, p1, p2, p3, p4), smoc_top(this) {}
+    : T_top(name, p1, p2, p3, p4), simulation_running(false) {assert(this->top == NULL); this->top = this;}
   template <typename T1, typename T2, typename T3, typename T4, typename T5>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
-    : T_top(name, p1, p2, p3, p4, p5), smoc_top(this) {}
+    : T_top(name, p1, p2, p3, p4, p5), simulation_running(false) {assert(this->top == NULL); this->top = this;}
+
+  
+  ~smoc_top_moc(){
+    if (simulation_running)
+      sc_core::sc_stop();
+  }
 };
 
 #endif // _INCLUDED_SMOC_MOC_HPP

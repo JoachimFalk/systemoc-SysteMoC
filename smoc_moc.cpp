@@ -53,9 +53,10 @@ using namespace CoSupport;
 
 void smoc_scheduler_top::elabEnd(smoc_graph_base *g) {
   g->finalise();
-  if (smoc_modes::dumpProblemgraph) {
-    smoc_modes::dump(std::cout, *g);
-    exit(0);
+  if ((smoc_modes::dumpFileSMX != NULL) && 
+      (!smoc_modes::dumpSMXWithSim)) {
+    smoc_modes::dump(*g);
+    sc_core::sc_stop();
   }
 }
 
@@ -740,5 +741,3 @@ size_t smoc_scheduler_top::countDefinedOutports(smoc_root_node &n){
       }
  */
 
-smoc_top::smoc_top(smoc_graph_base *g)
-  { assert(g->top == NULL); g->top = this; }

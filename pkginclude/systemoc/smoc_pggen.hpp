@@ -45,7 +45,8 @@ class smoc_root_node;
 
 namespace smoc_modes {
 
-  extern bool dumpProblemgraph;
+  extern bool dumpSMXWithSim;
+  extern std::ostream* dumpFileSMX;
 
   class eNoChannel : public std::exception {};
   class eNoInterface : public std::exception {};
@@ -73,7 +74,7 @@ namespace smoc_modes {
     }
   };
 
-  void dump(std::ostream &out, smoc_root_node &top);
+  void dump(smoc_root_node &top);
 };
 
 #endif // _INCLUDED_SMOC_PGGEN_HPP

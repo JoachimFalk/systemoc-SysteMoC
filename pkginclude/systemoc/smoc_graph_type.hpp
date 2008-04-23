@@ -230,9 +230,6 @@ private:
   // process for top moc
   SC_HAS_PROCESS(this_type);
   
-  // called by elaboration_done (does nothing by default)
-  void end_of_elaboration();
- 
   // actor and graph child objects
   smoc_node_list nodes;
 

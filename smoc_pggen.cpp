@@ -43,10 +43,12 @@ using namespace SysteMoC::NGXSync;
 
 namespace smoc_modes {
 
-  bool dumpProblemgraph = false;
+  bool dumpSMXWithSim = false;
+  std::ostream* dumpFileSMX = NULL;
 
-  void dump( std::ostream &out, smoc_root_node &top ) {
-    PGWriter pgw( out );
+  void dump( smoc_root_node &top ) {
+    assert(dumpFileSMX != NULL);
+    PGWriter pgw( *dumpFileSMX );
     pgw << "<?xml version=\"1.0\"?>" << std::endl;
     pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
     pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;

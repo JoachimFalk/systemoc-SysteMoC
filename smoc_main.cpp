@@ -50,9 +50,9 @@ using namespace boost::program_options;
 int main(int _argc, char* _argv[]) {
   options_description od;
   od.add_options()
-    ("generate-networkgraph", "dump networkgraph")
-    ("generate-problemgraph", "dump networkgraph")
-    ("networkgraph", value<std::string>(), "synchronize with specified networkgraph");
+    ("generate-smx", value<std::string>(), "dump SysteMoC-XML after elaboration (std::cout -> \"-\")")
+    ("networkgraph", value<std::string>(), "synchronize with specified networkgraph")
+    ("generate-sim-smx", value<std::string>(), "dump SysteMoC-XML after simulation") ;
   
   parsed_options parsed =
     command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
@@ -64,9 +64,26 @@ int main(int _argc, char* _argv[]) {
       i != parsed.options.end();
       ++i)
   {
-    if(i->string_key == "generate-problemgraph" ||
-       i->string_key == "generate-networkgraph") {
-      smoc_modes::dumpProblemgraph = true;
+    if(i->string_key == "generate-smx") {
+      //std::cerr << "Dump SMX" << std::endl;
+      assert(smoc_modes::dumpFileSMX == NULL);      
+      assert(!i->value.empty());
+      if (i->value.front() == "-"){
+        //std::cerr << !i->value.front() << std::endl;
+        smoc_modes::dumpFileSMX = &(std::cout);
+        //std::cerr << "Use std::cout" << std::endl;
+      }else{
+        smoc_modes::dumpFileSMX = new std::ofstream(i->value.front().c_str());
+        assert(smoc_modes::dumpFileSMX->good());
+        //std::cerr << "Use file" << std::endl;
+      }
+    }
+    if(i->string_key == "generate-sim-smx") {
+      assert(smoc_modes::dumpFileSMX == NULL);
+      assert(!i->value.empty());
+      smoc_modes::dumpSMXWithSim = true;
+      smoc_modes::dumpFileSMX = new ofstream(i->value.front().c_str());
+      assert(smoc_modes::dumpFileSMX->good());
     }
     if(i->string_key == "networkgraph") {
       assert(!i->value.empty());
@@ -85,11 +102,18 @@ int main(int _argc, char* _argv[]) {
   argv[argc] = 0;
   assert(argc <= _argc);
   
-  int ret = sc_core::sc_elab_and_sim(argc, argv);
+  int ret = sc_core::sc_elab_and_sim(argc, argv);  
   
   // Do not free argv[0] it was not strdupped
   for(--argc; argc >= 1; --argc)
     free(argv[argc]);
+
+  std::ofstream* temp = dynamic_cast<std::ofstream*>(smoc_modes::dumpFileSMX);
+  if (temp != NULL){
+    //std::cerr << "Close file" << std::endl;
+    temp->close();
+    delete temp;
+  }
   
   return ret;
 }
