@@ -67,6 +67,21 @@ struct Scan {
 
 typedef std::list<Scan> ScanVector;
 
+static
+int componentCount(const ScanVector &scanVector) {
+  std::set<IntCompID_t> componentSet;
+  
+  for (ScanVector::const_iterator iter = scanVector.begin();
+       iter != scanVector.end();
+       ++iter) {
+    const Scan &scan = *iter;
+    
+    for (unsigned int i = 0; i < SCANPATTERN_LENGTH; ++i)
+      componentSet.insert(scan.scanPattern[i]);
+  }
+  return componentSet.size();
+}
+
 class TuppleScanSource: public smoc_actor {
 public:
   smoc_port_out<JpegChannel_t>    out;

@@ -79,6 +79,7 @@ private:
     block_data_size =   
       sizeof(block_data)/sizeof(block_data[0]);
 #endif
+    CYN_NO_FLATTEN(block_data);
 
     short val = block_data[coeffs];
     

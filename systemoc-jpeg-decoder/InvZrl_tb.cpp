@@ -43,7 +43,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_moc.hpp>
 
-#include "channels.hpp"
+#include "smoc_synth_std_includes.hpp"
 
 #ifdef DUMP_INTERMEDIATE
 # include "1D_dup2.hpp"
@@ -54,7 +54,6 @@
 #include "TuppleScanSrc.hpp"
 #include "InvZrl.hpp"
 #include "DcDecoding.hpp"
-#define INV_QUANT_STATE_MACHINE_VERSION 2
 #include "InvQuant.hpp"
 #include "InvZigZag.hpp"
 #include "CtrlSieve.hpp"

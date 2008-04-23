@@ -52,6 +52,10 @@ protected:
   smoc_firing_state start;
 
   void idct() {
+#if FAST
+    CYN_LATENCY(0, 20, "jpeg_mIdct2D_mIdctCol::idct");
+#endif
+
     // IDCT constants
     static const int W1 = 2841; /* 2048*sqrt(2)*cos(1*pi/16) */
     static const int W2 = 2676; /* 2048*sqrt(2)*cos(2*pi/16) */
