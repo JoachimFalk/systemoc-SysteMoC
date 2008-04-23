@@ -57,11 +57,6 @@ void smoc_graph_base::smocCallTop() {
     top->schedule(this);
 }
 
-void smoc_graph_base::end_of_elaboration() {
-  if (top != NULL)
-    top->elabEnd(this);
-}
-
 const smoc_node_list& smoc_graph_base::getNodes() const
   { return nodes; } 
  
