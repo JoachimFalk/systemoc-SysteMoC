@@ -46,8 +46,6 @@
 
 #include "smoc_synth_std_includes.hpp"
 
-#include "channels.hpp"
-
 #ifdef PERFORMANCE_EVALUATION
 # ifdef XILINX_EDK_RUNTIME
 #  include "x_perf_eval.h"
@@ -55,10 +53,6 @@
 #  include <cosupport/PerformanceEvaluation.hpp>
 # endif
 #endif // PERFORMANCE_EVALUATION
-
-#ifndef JPEGSRC_IMAGECOUNT
-# define JPEGSRC_IMAGECOUNT 4
-#endif
 
 class JpegSrc: public smoc_actor {
 public:

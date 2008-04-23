@@ -44,8 +44,6 @@
 
 #include <systemoc/smoc_port.hpp>
 
-//#include "smoc_synth_std_includes.hpp"
-
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
 // if compiled with DBG_PGMSINK create stream and include debug macros
@@ -58,9 +56,6 @@
 #else
   #include "debug_off.h"
 #endif
-
-
-//#define PGM_SINK_SILENT_MODE
 
 #ifdef PERFORMANCE_EVALUATION
 # ifdef XILINX_EDK_RUNTIME
