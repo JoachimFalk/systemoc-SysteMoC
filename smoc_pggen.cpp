@@ -34,31 +34,16 @@
  */
 
 #include <systemoc/smoc_pggen.hpp>
-#include <systemoc/smoc_root_node.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
-
-#include <acpgacc/smoc_synth_netgraph_access.hpp>
-
-using namespace SysteMoC::NGXSync;
+#include <systemc.h>
 
 namespace smoc_modes {
-
+  
   bool dumpSMXWithSim = false;
   std::ostream* dumpFileSMX = NULL;
-
-  void dump( smoc_root_node *top ) {
-    assert(dumpFileSMX != NULL);
-    PGWriter pgw( *dumpFileSMX );
-    pgw << "<?xml version=\"1.0\"?>" << std::endl;
-    pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
-    pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;
-    pgw.indentUp();
-    top->assemble( pgw );
-    pgw << "<architecturegraph name=\"architecture graph\" id=\""<< idPool.printId() << "\">" << std::endl;
-    pgw << "</architecturegraph>" << std::endl;
-    pgw <<  "<mappings>" << std::endl;
-    pgw <<  "</mappings>" << std::endl;
-    pgw.indentDown();
-    pgw << "</networkgraph>" << std::endl;
+  
+  void dump(std::ostream& out, smoc_root_node&) {
+    dumpFileSMX = &out;
+    sc_core::sc_start();
+    // seems not to work with FIFOs.
   }
 };

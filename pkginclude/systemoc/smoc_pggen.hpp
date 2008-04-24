@@ -36,7 +36,7 @@
 #ifndef _INCLUDED_SMOC_PGGEN_HPP
 #define _INCLUDED_SMOC_PGGEN_HPP
 
-#include <iostream>
+#include <ostream>
 #include <exception>
 
 #include <cosupport/filter_ostream.hpp>
@@ -74,7 +74,8 @@ namespace smoc_modes {
     }
   };
 
-  void dump(smoc_root_node *top);
+  // compatibility methods
+  void dump(std::ostream& out, smoc_root_node&);
 };
 
 #endif // _INCLUDED_SMOC_PGGEN_HPP

@@ -46,23 +46,41 @@
 
 class smoc_graph_base;
 
-class smoc_scheduler_top
-  : private smoc_firing_types {
-  friend class smoc_graph_base;
+class smoc_scheduler_top : public sc_module {
 public:
-  typedef smoc_scheduler_top      this_type;
+  smoc_scheduler_top(smoc_graph_base* g);
+  smoc_scheduler_top(smoc_graph_base& g);
+  ~smoc_scheduler_top();
+
 protected:
+  void start_of_simulation();
+  void end_of_simulation();
+  void end_of_elaboration();
+
+private:
   typedef CoSupport::SystemC::EventOrList
-    <transition_ty> smoc_transition_ready_list;
-  
-  
-  void schedule(smoc_graph_base *c);
+    <smoc_firing_types::transition_ty> smoc_transition_ready_list;
+
+  smoc_graph_base* g;
+  bool simulation_running;
+  SC_HAS_PROCESS(smoc_scheduler_top);
+  void schedule();
 
   // FIXME: move into smoc_graph_sr
   //size_t countDefinedInports(smoc_root_node & n);
   // void getLeafNodes(smoc_node_list &nodes, smoc_graph_base *node);
   //size_t countDefinedOutports(smoc_root_node & n);
+
+  void dump();
 };
+
+// for compatibility...
+typedef smoc_scheduler_top smoc_top;
+
+// for the bold ones...
+namespace SysteMoC {
+  typedef smoc_scheduler_top Scheduler;
+}
 
 template <typename Graph>
 class smoc_top_moc : public Graph {
@@ -74,42 +92,26 @@ public:
   //   data, pointers, references, copy constructor has to exist, ...)
 
   smoc_top_moc()
-    : Graph() { this->setTopScheduler(&s); }
+    : Graph(), s(this) {}
   explicit smoc_top_moc(sc_module_name name)
-    : Graph(name) { this->setTopScheduler(&s); }
+    : Graph(name), s(this) {}
   template <typename T1>
   explicit smoc_top_moc(sc_module_name name, T1 p1)
-    : Graph(name, p1) { this->setTopScheduler(&s); }
+    : Graph(name, p1), s(this) {}
   template <typename T1, typename T2>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2)
-    : Graph(name, p1, p2) { this->setTopScheduler(&s); }
+    : Graph(name, p1, p2), s(this) {}
   template <typename T1, typename T2, typename T3>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3)
-    : Graph(name, p1, p2, p3) { this->setTopScheduler(&s); }
+    : Graph(name, p1, p2, p3), s(this) {}
   template <typename T1, typename T2, typename T3, typename T4>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4)
-    : Graph(name, p1, p2, p3, p4) { this->setTopScheduler(&s); }
+    : Graph(name, p1, p2, p3, p4), s(this) {}
   template <typename T1, typename T2, typename T3, typename T4, typename T5>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
-    : Graph(name, p1, p2, p3, p4, p5) { this->setTopScheduler(&s); }
+    : Graph(name, p1, p2, p3, p4, p5), s(this) {}
 
 private:
-  smoc_scheduler_top s;
-};
-
-/**
- * This is class is not deprecated! In fact, the smoc_top_moc
- * is the older one (says Joachim F.) and should be removed.
- * Projects use smoc_top!!
- */
-class smoc_top {
-public:
-  smoc_top(smoc_graph_base* graph);
-  
-  smoc_top(smoc_graph_base& graph);
-
-private:
-  smoc_graph_base* graph;
   smoc_scheduler_top s;
 };
 

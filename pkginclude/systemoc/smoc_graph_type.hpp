@@ -57,9 +57,6 @@
 #include <list>
 #include <map>
 
-class smoc_top;
-class smoc_scheduler_top;
-
 #define T_chan_init_default smoc_fifo
 
 /**
@@ -95,11 +92,9 @@ private:
  * base class for all graph classes; no scheduling of childen (->
  * derive from this class and build FSM!)
  */
-class smoc_graph_base
-: public smoc_root_node {
-  friend class smoc_top;
-  friend class smoc_scheduler_top;
-  
+class smoc_graph_base : public smoc_root_node {
+public:  
+  friend class smoc_scheduler_top; // finalise
   typedef smoc_graph_base this_type;
 
 protected:
@@ -212,33 +207,12 @@ public:
   const smoc_chan_list& getChans() const;
   void getChansRecursive( smoc_chan_list & channels) const;
 
-  void setTopScheduler(smoc_scheduler_top* top);
-
-  ~smoc_graph_base();
-
 protected:
   smoc_graph_base(sc_module_name name, smoc_firing_state& init, bool regObj);
 
   void finalise();
 
-  void start_of_simulation();
-
-  void end_of_simulation();
-
-  void end_of_elaboration();
-
 private:
-  // top graph scheduler
-  smoc_scheduler_top* top;
-
-  bool simulation_running;
-
-  // calls top scheduler
-  void invokeTopScheduler();
-
-  // process for top moc
-  SC_HAS_PROCESS(this_type);
-  
   // actor and graph child objects
   smoc_node_list nodes;
 
@@ -283,22 +257,26 @@ private:
   smoc_transition_ready_list ol;
 };
 
-
 /**
- * FIXME: derive from smoc_graph_base -> write FSM -> delete smocCallTop
+ * SR graph. TODO: write FSM
  */
-/*class smoc_graph_sr : public smoc_graph {
+class smoc_graph_sr : public smoc_graph_base {
 public:
   // construct graph with name
   explicit smoc_graph_sr(sc_module_name name);
-  
+
   // construct graph with generated name
   smoc_graph_sr();
 
-protected:
-  // call non-default schedule method of top scheduler
-  // FIXME: remove when scheduling is done by FSM
-  void smocCallTop();
-};*/
+private:
+  // graph scheduler FSM states
+  smoc_firing_state init, stop;
+
+  // common constructor code
+  void constructor();
+
+  // TODO: remove / implement
+  void action();
+};
 
 #endif // _INCLUDED_SMOC_GRAPH_TYPE_HPP

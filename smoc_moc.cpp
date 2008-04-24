@@ -40,6 +40,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_sr_signal.hpp>
 #include <systemoc/smoc_multicast_sr_signal.hpp>
+#include <systemoc/smoc_ngx_sync.hpp>
 
 #include <cosupport/oneof.hpp>
 
@@ -51,16 +52,61 @@
 
 using namespace CoSupport;
 
-smoc_top::smoc_top(smoc_graph_base* graph) :
-  graph(graph)
+smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
+  sc_module(sc_module_name("smoc_scheduler_top")),
+  g(g),
+  simulation_running(false)
 {
-  graph->setTopScheduler(&s);
+  SC_THREAD(schedule);
 }
 
-smoc_top::smoc_top(smoc_graph_base& graph) :
-  graph(&graph)
+smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base& g) :
+  sc_module(sc_module_name("smoc_scheduler_top")),
+  g(&g),
+  simulation_running(false)
 {
-  graph.setTopScheduler(&s);
+  SC_THREAD(schedule);
+}
+
+smoc_scheduler_top::~smoc_scheduler_top() {
+  if(simulation_running)
+    sc_core::sc_stop();
+}
+
+void smoc_scheduler_top::start_of_simulation()
+{ simulation_running = true; }
+
+void smoc_scheduler_top::end_of_simulation() {
+  simulation_running = false;
+  if(smoc_modes::dumpFileSMX && smoc_modes::dumpSMXWithSim)
+    dump();
+}
+
+void smoc_scheduler_top::end_of_elaboration() {
+  g->finalise();
+  if(smoc_modes::dumpFileSMX && !smoc_modes::dumpSMXWithSim) {
+    dump();
+    sc_core::sc_stop();
+  }
+}
+  
+void smoc_scheduler_top::dump() {
+
+  // FIXME
+
+  smoc_modes::PGWriter pgw(*smoc_modes::dumpFileSMX);
+    
+  pgw << "<?xml version=\"1.0\"?>" << std::endl;
+  pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
+  pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;
+  pgw.indentUp();
+  g->assemble( pgw );
+  pgw << "<architecturegraph name=\"architecture graph\" id=\""<< SysteMoC::NGXSync::idPool.printId() << "\">" << std::endl;
+  pgw << "</architecturegraph>" << std::endl;
+  pgw <<  "<mappings>" << std::endl;
+  pgw <<  "</mappings>" << std::endl;
+  pgw.indentDown();
+  pgw << "</networkgraph>" << std::endl;
 }
 
 // FIXME: only needed in scheduleSR
@@ -82,7 +128,7 @@ smoc_top::smoc_top(smoc_graph_base& graph) :
   }
 }*/
 
-void smoc_scheduler_top::schedule(smoc_graph_base *g) {
+void smoc_scheduler_top::schedule() {
   smoc_transition_ready_list ol;
   
   // add outgoing transitions to list
