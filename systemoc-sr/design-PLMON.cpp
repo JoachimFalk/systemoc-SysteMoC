@@ -158,12 +158,7 @@ int sc_main (int argc, char **argv) {
   size_t count = (argc>1?atoi(argv[1]):0);
   smoc_top_moc<PLMONTestBench> nsa_tb("top", count);
   
-#define GENERATE "--generate-problemgraph"
-  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
-    smoc_modes::dump(std::cout, nsa_tb);
-  } else {
-    sc_start();
-  }
-#undef GENERATE
+  sc_start();
+
   return 0;
 }

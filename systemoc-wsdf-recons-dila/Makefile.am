@@ -64,7 +64,7 @@ autotest.sh: simulation-wsdf-recons-dila simulation-wsdf-recons-dila-fast simula
 	chmod +x $@
 
 # to check we just call the 'autotest.sh' script
-check: autotest.sh
+check: autotest.sh all
 	./autotest.sh  
 
 
