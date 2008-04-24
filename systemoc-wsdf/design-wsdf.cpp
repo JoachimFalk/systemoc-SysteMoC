@@ -15,6 +15,10 @@
 
 #define REF_FILENAME "ref_data.dat"
 
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+# include <systemoc/smoc_md_ba_linearized_buffer_size.hpp>
+#endif
+
 using namespace std;
 using namespace ns_smoc_vector_init;
 
@@ -161,8 +165,13 @@ public:
     m_sink        &sink = registerNode(new m_sink("sink"));
 
 #ifndef KASCPAR_PARSING
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+    indConnectNodePorts( src.out, top2.in, smoc_wsdf_edge<int>(3,new smoc_md_ba::smoc_md_ba_ui_lin_buffer_size()));
+    indConnectNodePorts( top2.out, sink.in,smoc_wsdf_edge<int>(1,new smoc_md_ba::smoc_md_ba_ui_lin_buffer_size()));
+#else
     indConnectNodePorts( src.out, top2.in, smoc_wsdf_edge<int>(3));
     indConnectNodePorts( top2.out, sink.in,smoc_wsdf_edge<int>(1));
+#endif
 #endif
   }
 };
@@ -170,14 +179,7 @@ public:
 int sc_main (int argc, char **argv) {
   smoc_top_moc<m_top> top("top");
   
-#ifndef KASCPAR_PARSING  
-#define GENERATE "--generate-problemgraph"
-  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
-    smoc_modes::dump(std::cout, top);
-  } else {
-    sc_start();
-  }
-#undef GENERATE
-#endif
+  sc_start();
+
   return 0;
 }
