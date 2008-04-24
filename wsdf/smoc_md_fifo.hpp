@@ -64,7 +64,8 @@ class smoc_wsdf_edge;
 template <class BUFFER_CLASS>
 class smoc_md_fifo_kind
 #ifndef NO_SMOC
-  : public smoc_nonconflicting_chan, public BUFFER_CLASS
+  : public smoc_nonconflicting_chan, 
+    public BUFFER_CLASS
 #else
   : public BUFFER_CLASS
 #endif
@@ -228,12 +229,12 @@ protected:
 #endif
 
   /* Functions for generation of problem graph */
-#ifndef NO_SMOC
-  void channelAttributes(smoc_modes::PGWriter &pgw) const {};
-#endif
+
+  /// This function returns a string indentifying the channel type
+  virtual const char* getChannelTypeString() const;
 
 #ifndef NO_SMOC
-  virtual void channelContents(smoc_modes::PGWriter &pgw) const {};
+  void channelAttributes(smoc_modes::PGWriter &pgw) const;
 #endif
 
   const char *name() const { return smoc_nonconflicting_chan::name(); }
@@ -695,23 +696,37 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n) {
 };
 #endif
 
+template <class BUFFER_CLASS>
+const char* 
+smoc_md_fifo_kind<BUFFER_CLASS>::getChannelTypeString() const {
+  const char* my_type = "md_fifo";
+  return my_type;
+}
 
 
+template <class BUFFER_CLASS>
+void 
+smoc_md_fifo_kind<BUFFER_CLASS>::channelAttributes(smoc_modes::PGWriter &pgw) const {
+  
+  BUFFER_CLASS::channelAttributes(pgw);
 
-
-
-
-
-/*
-template <typename T_chan_kind, typename T_data_type, 
-          template <typename, typename> class R_IN,
-          template <typename, typename> class R_OUT
-          >
-class smoc_dummy_chan_if{
-public:
-            smoc_dummy_chan_if(){};
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+  /* Simulated buffer size */
+  if (buffer_analysis != NULL){
+    std::stringstream temp;    
+    buffer_analysis->dump_results(temp);
+    pgw << "<attribute type=\"sim_size\" value=\""
+        << temp.str()
+        << "\">"
+        << std::endl;  
+  }
+#endif    
 };
-*/
+
+
+
+
+
 
 
 
@@ -846,7 +861,9 @@ protected:
   return r;
   }
 
-  void channelContents(smoc_modes::PGWriter &pgw) const {};  
+  virtual void channelContents(smoc_modes::PGWriter &pgw) const {
+    pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
+  };  
 #endif
 
 };
@@ -971,7 +988,9 @@ protected:
   return r;
   }
 
-  void channelContents(smoc_modes::PGWriter &pgw) const {};  
+  void channelContents(smoc_modes::PGWriter &pgw) const {
+    pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
+  };  
 #endif
 
   ~smoc_md_fifo_storage() { 
@@ -1204,7 +1223,7 @@ public:
                                                         edge_param.name,
                                                         assemble_buffer_init(assemble_wsdf_edge(edge_param, src_param, snk_param), edge_param.n)
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
-							, NULL
+							, edge_param.ba_ui
 #endif
                                                         ),
     wsdf_edge_param(assemble_wsdf_edge(edge_param, src_param, snk_param))
@@ -1347,12 +1366,22 @@ public:
       n(n), 
       d(d), 
       d_valid(true)
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+    , ba_ui(NULL)
+#endif
   {}
 
-  smoc_wsdf_edge(size_t n)
+  smoc_wsdf_edge(size_t n
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+		, smoc_md_ba::smoc_md_ba_user_interface* ba_ui = NULL
+#endif
+                 )
     : name(NULL),
       n(n), 
       d_valid(false)
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+    , ba_ui(ba_ui)
+#endif
   {}
 
 
@@ -1364,6 +1393,9 @@ public:
       n(n), 
       d(d), 
       d_valid(true)
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+    , ba_ui(NULL)
+#endif
   {}
 
   explicit smoc_wsdf_edge(const char *name, 
@@ -1371,6 +1403,9 @@ public:
     : name(name),
       n(n), 
       d_valid(false)
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+    , ba_ui(NULL)
+#endif
   {}
 
 public:
@@ -1379,6 +1414,10 @@ public:
 
   const uvector_type d;
   const bool d_valid;
+
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+  smoc_md_ba::smoc_md_ba_user_interface* ba_ui;
+#endif
 };
 
 

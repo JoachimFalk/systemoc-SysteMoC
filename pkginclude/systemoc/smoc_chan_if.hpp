@@ -217,6 +217,7 @@ protected:
   virtual void assemble(smoc_modes::PGWriter &pgw)          const = 0;
   virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
   virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
+  
 public:
   const char *name() const { return myName.c_str(); }
 
@@ -248,6 +249,9 @@ protected:
   virtual void finalise();
 
   void assemble(smoc_modes::PGWriter &pgw) const;
+
+  /// This function returns a string indentifying the channel type
+  virtual const char* getChannelTypeString() const;
 public:
   // this is needed to overwrite the virtual name
   // methods in smoc_chan_in_base_if and smoc_chan_out_base_if.

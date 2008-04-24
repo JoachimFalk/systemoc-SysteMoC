@@ -11,6 +11,7 @@
 #include "smoc_md_loop.hpp"
 #include "smoc_md_array.hpp"
 #include "smoc_md_chan_if.hpp"
+#include "smoc_pggen.hpp"
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BUFFER
 #define VERBOSE_LEVEL_SMOC_MD_BUFFER 0
@@ -388,6 +389,10 @@ public:
   inline bool snk_new_schedule_period() const {
     return snk_loop_iterator.is_new_schedule_period();
   }
+
+public:
+  /* Functions for problem graph generation */
+  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
 protected:
   /// Current source and sink iteration vectors.
@@ -847,6 +852,9 @@ public:
     delete ptr;
     ptr = NULL;
   }
+
+  /* Functions for problem graph generation */
+  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
 
 protected:

@@ -198,7 +198,7 @@ public:
 #endif
   }
 
-protected:
+public:
   const mapping_matrix_type mapping_matrix;
 
 protected:
@@ -560,7 +560,7 @@ public:
   iter_item_type get_window_iteration(unsigned int token_dimension, id_type coord) const;
 
 
-protected:
+public:
   const mapping_offset_type mapping_offset;
 
   const border_condition_matrix_type border_condition_matrix;

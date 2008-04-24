@@ -32,6 +32,10 @@ namespace smoc_md_ba {
     const smoc_md_array<unsigned long>& get_src2snk_invocation_table() const {
       return src2snk_invocation_table;
     }
+
+
+    void dump_results(std::ostream& os) const{};
+
   protected:
     /// Implementation of interface, inhereted from smoc_md_buffer_analysis
     void consumption_update(

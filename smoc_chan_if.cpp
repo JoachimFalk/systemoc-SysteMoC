@@ -165,7 +165,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
                "target=\"" << idChannelPortIn << "\" "
                "id=\""     << idPool.printId() << "\"/>" << std::endl;
   pgw << "<process name=\"" << this->name() << "\" "
-                  "type=\"fifo\" "
+                  "type=\"" << this->getChannelTypeString() << "\" "
                   "id=\"" << idChannel << "\">" << std::endl;
   {
     pgw.indentUp();
@@ -194,6 +194,12 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
                "source=\"" << idChannelPortOut << "\" "
                "target=\"" << idPool.printId(ifPort) << "\" "
                "id=\""     << idPool.printId() << "\"/>" << std::endl;
+}
+
+const char* 
+smoc_nonconflicting_chan::getChannelTypeString() const {
+  const char* my_type = "fifo";
+  return my_type;
 }
 
 void smoc_multicast_chan::finalise() {

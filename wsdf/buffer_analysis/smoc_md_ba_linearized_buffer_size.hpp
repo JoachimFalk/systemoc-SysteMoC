@@ -37,6 +37,10 @@ namespace smoc_md_ba
       return number_buffer_elements;
     }
 
+    void dump_results(std::ostream& os) const{
+      os << number_buffer_elements;
+    }
+
   private:
     // number of buffer elements
     long number_buffer_elements;

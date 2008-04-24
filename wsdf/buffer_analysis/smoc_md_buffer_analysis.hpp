@@ -56,6 +56,9 @@ namespace smoc_md_ba
     void consumption_update();
     void production_update();
 
+    /// The next function dumps the results of the buffer analysis
+    virtual void dump_results(std::ostream& os) const = 0;
+
   protected:
 
     /// This function is called whenever a data element is read the last time
