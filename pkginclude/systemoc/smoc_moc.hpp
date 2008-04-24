@@ -47,96 +47,70 @@
 class smoc_graph_base;
 
 class smoc_scheduler_top
-  : public smoc_firing_types {
+  : private smoc_firing_types {
   friend class smoc_graph_base;
-  friend class smoc_graph_sr;
 public:
   typedef smoc_scheduler_top      this_type;
 protected:
-  typedef std::pair<transition_ty *, smoc_root_node *>  transition_node_ty;
-  typedef std::list<transition_node_ty>                 transition_node_list_ty;
-
   typedef CoSupport::SystemC::EventOrList
     <transition_ty> smoc_transition_ready_list;
   
-  void getLeafNodes(smoc_node_list &nodes, smoc_graph_base *node);
-
-  void elabEnd(smoc_graph_base *c);
   
   void schedule(smoc_graph_base *c);
 
-  void scheduleSR(smoc_graph_base *c);
-
-  /**
-   * count number of defined inputs
-   */
-  size_t countDefinedInports(smoc_root_node & n);
-
-  /**
-   * count number of defined outputs
-   */
-  size_t countDefinedOutports(smoc_root_node & n);
-
+  // FIXME: move into smoc_graph_sr
+  //size_t countDefinedInports(smoc_root_node & n);
+  // void getLeafNodes(smoc_node_list &nodes, smoc_graph_base *node);
+  //size_t countDefinedOutports(smoc_root_node & n);
 };
 
-template <typename T_top>
-class smoc_top_moc
-  : public T_top, public smoc_scheduler_top {
+template <typename Graph>
+class smoc_top_moc : public Graph {
 public:
-  typedef smoc_top_moc<T_top> this_type;
 
-  bool simulation_running;
-
-  void start_of_simulation(){
-    simulation_running = true;
-  }
-
-
-  void end_of_simulation(){
-    simulation_running = false;
-    if ((smoc_modes::dumpFileSMX != NULL) && 
-        (smoc_modes::dumpSMXWithSim))
-      smoc_modes::dump(*this);
-  }
-
-  void end_of_elaboration(){
-    this->elabEnd(this);
-  }
-
-  
-  
   // -jens-
   // FIXME: this copies given parameter and makes it impossible to use
   //   references in constructor of smoc_graph_base! Copying is evil anyway (much
   //   data, pointers, references, copy constructor has to exist, ...)
 
-
-
   smoc_top_moc()
-    : T_top(), simulation_running(false) {assert(this->top == NULL); this->top = this;}
+    : Graph() { this->setTopScheduler(&s); }
   explicit smoc_top_moc(sc_module_name name)
-    : T_top(name), simulation_running(false) {assert(this->top == NULL); this->top = this;}
+    : Graph(name) { this->setTopScheduler(&s); }
   template <typename T1>
   explicit smoc_top_moc(sc_module_name name, T1 p1)
-    : T_top(name, p1), simulation_running(false) {assert(this->top == NULL); this->top = this;}
+    : Graph(name, p1) { this->setTopScheduler(&s); }
   template <typename T1, typename T2>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2)
-    : T_top(name, p1, p2), simulation_running(false) {assert(this->top == NULL); this->top = this;}
+    : Graph(name, p1, p2) { this->setTopScheduler(&s); }
   template <typename T1, typename T2, typename T3>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3)
-    : T_top(name, p1, p2, p3), simulation_running(false) {assert(this->top == NULL); this->top = this;}
+    : Graph(name, p1, p2, p3) { this->setTopScheduler(&s); }
   template <typename T1, typename T2, typename T3, typename T4>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4)
-    : T_top(name, p1, p2, p3, p4), simulation_running(false) {assert(this->top == NULL); this->top = this;}
+    : Graph(name, p1, p2, p3, p4) { this->setTopScheduler(&s); }
   template <typename T1, typename T2, typename T3, typename T4, typename T5>
   explicit smoc_top_moc(sc_module_name name, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
-    : T_top(name, p1, p2, p3, p4, p5), simulation_running(false) {assert(this->top == NULL); this->top = this;}
+    : Graph(name, p1, p2, p3, p4, p5) { this->setTopScheduler(&s); }
 
+private:
+  smoc_scheduler_top s;
+};
+
+/**
+ * This is class is not deprecated! In fact, the smoc_top_moc
+ * is the older one (says Joachim F.) and should be removed.
+ * Projects use smoc_top!!
+ */
+class smoc_top {
+public:
+  smoc_top(smoc_graph_base* graph);
   
-  ~smoc_top_moc(){
-    if (simulation_running)
-      sc_core::sc_stop();
-  }
+  smoc_top(smoc_graph_base& graph);
+
+private:
+  smoc_graph_base* graph;
+  smoc_scheduler_top s;
 };
 
 #endif // _INCLUDED_SMOC_MOC_HPP

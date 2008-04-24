@@ -54,6 +54,12 @@ namespace SysteMoC { namespace NGXSync {
       throw AlreadyInitialized();
     _ngx = new NetworkGraphAccess(ngx.c_str());
   }
+  
+  void NGXConfig::loadNGX(std::istream& ngx) {
+    if(_ngx)
+      throw AlreadyInitialized();
+    _ngx = new NetworkGraphAccess(ngx);
+  }
 
   bool NGXConfig::hasNGX() const
   { return _ngx; }

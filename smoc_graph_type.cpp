@@ -45,16 +45,46 @@ using namespace SysteMoC::NGXSync;
 smoc_graph_base::smoc_graph_base(
     sc_module_name name, smoc_firing_state& init, bool regObj) :
   smoc_root_node(name, init, regObj),
-  top(NULL)
+  top(NULL),
+  simulation_running(false)
 {
   // FIXME (multiple ids for the same object!!)
   if(regObj) idPool.regObj(this, 1);
-  SC_THREAD(smocCallTop);
+  SC_THREAD(invokeTopScheduler);
 }
 
-void smoc_graph_base::smocCallTop() {
-  if (top != NULL)
-    top->schedule(this);
+smoc_graph_base::~smoc_graph_base() {
+  if(!top) return;
+  if(simulation_running)
+    sc_core::sc_stop();
+}
+
+void smoc_graph_base::invokeTopScheduler()
+{ if(top) top->schedule(this); }
+  
+void smoc_graph_base::setTopScheduler(smoc_scheduler_top* s)
+{ assert(!top); top = s; }
+
+void smoc_graph_base::start_of_simulation() {
+  if(!top) return;
+  simulation_running = true;
+}
+
+void smoc_graph_base::end_of_simulation() {
+  if(!top) return;
+  simulation_running = false;
+  if(smoc_modes::dumpFileSMX && smoc_modes::dumpSMXWithSim)
+    smoc_modes::dump(this);
+}
+
+void smoc_graph_base::end_of_elaboration() {
+  if(!top) return;
+  finalise();
+  if ((smoc_modes::dumpFileSMX != NULL) && 
+      (!smoc_modes::dumpSMXWithSim)) {
+    smoc_modes::dump(this);
+    sc_core::sc_stop();
+  }
 }
 
 const smoc_node_list& smoc_graph_base::getNodes() const
@@ -345,15 +375,10 @@ void smoc_graph::schedule() {
 #endif
 }
 
-smoc_graph_sr::smoc_graph_sr(sc_module_name name) :
+/*smoc_graph_sr::smoc_graph_sr(sc_module_name name) :
   smoc_graph(name)
 {}
   
 smoc_graph_sr::smoc_graph_sr() :
   smoc_graph()
-{}
-
-void smoc_graph_sr::smocCallTop() {
-  if (top != NULL)
-    top->scheduleSR(this);
-}
+{}*/

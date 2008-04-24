@@ -44,6 +44,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <istream>
 
 #include <cosupport/container_insert.hpp>
 #include <cosupport/string_hash.hpp>
@@ -109,6 +110,9 @@ namespace SysteMoC { namespace NGXSync {
     
     // loads the specified NGX file
     void loadNGX(const std::string& ngx);
+    
+    // loads the specified NGX file
+    void loadNGX(std::istream& ngx);
     
     // determines if a valid NGX file is loaded
     bool hasNGX() const;

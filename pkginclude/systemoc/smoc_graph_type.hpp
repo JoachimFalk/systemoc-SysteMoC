@@ -212,21 +212,30 @@ public:
   const smoc_chan_list& getChans() const;
   void getChansRecursive( smoc_chan_list & channels) const;
 
+  void setTopScheduler(smoc_scheduler_top* top);
+
+  ~smoc_graph_base();
+
 protected:
   smoc_graph_base(sc_module_name name, smoc_firing_state& init, bool regObj);
 
   void finalise();
 
-  // top graph scheduler
-  // FIXME: make private when all graph types have FSM
-  smoc_scheduler_top *top;
-  
-  // calls top graph scheduler (if available) 
-  // FIXME: make private and non virtual  when all graph types
-  // have FSM
-  virtual void smocCallTop();
+  void start_of_simulation();
+
+  void end_of_simulation();
+
+  void end_of_elaboration();
 
 private:
+  // top graph scheduler
+  smoc_scheduler_top* top;
+
+  bool simulation_running;
+
+  // calls top scheduler
+  void invokeTopScheduler();
+
   // process for top moc
   SC_HAS_PROCESS(this_type);
   
@@ -278,7 +287,7 @@ private:
 /**
  * FIXME: derive from smoc_graph_base -> write FSM -> delete smocCallTop
  */
-class smoc_graph_sr : public smoc_graph {
+/*class smoc_graph_sr : public smoc_graph {
 public:
   // construct graph with name
   explicit smoc_graph_sr(sc_module_name name);
@@ -290,6 +299,6 @@ protected:
   // call non-default schedule method of top scheduler
   // FIXME: remove when scheduling is done by FSM
   void smocCallTop();
-};
+};*/
 
 #endif // _INCLUDED_SMOC_GRAPH_TYPE_HPP

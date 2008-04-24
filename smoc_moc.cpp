@@ -51,18 +51,21 @@
 
 using namespace CoSupport;
 
-void smoc_scheduler_top::elabEnd(smoc_graph_base *g) {
-  g->finalise();
-  if ((smoc_modes::dumpFileSMX != NULL) && 
-      (!smoc_modes::dumpSMXWithSim)) {
-    smoc_modes::dump(*g);
-    sc_core::sc_stop();
-  }
+smoc_top::smoc_top(smoc_graph_base* graph) :
+  graph(graph)
+{
+  graph->setTopScheduler(&s);
+}
+
+smoc_top::smoc_top(smoc_graph_base& graph) :
+  graph(&graph)
+{
+  graph.setTopScheduler(&s);
 }
 
 // FIXME: only needed in scheduleSR
 // remove after redesign of SR scheduler
-void smoc_scheduler_top::getLeafNodes(
+/*void smoc_scheduler_top::getLeafNodes(
     smoc_node_list &nodes, smoc_graph_base *node)
 {
   const smoc_node_list& n = node->getNodes();
@@ -77,7 +80,7 @@ void smoc_scheduler_top::getLeafNodes(
       getLeafNodes(nodes, dynamic_cast<smoc_graph_base *>(*iter));
     }
   }
-}
+}*/
 
 void smoc_scheduler_top::schedule(smoc_graph_base *g) {
   smoc_transition_ready_list ol;
@@ -120,6 +123,7 @@ void smoc_scheduler_top::schedule(smoc_graph_base *g) {
   }
 }
 
+#if 0
 void smoc_scheduler_top::scheduleSR(smoc_graph_base *c) {
   std::map<smoc_root_node*, size_t> definedInputs;
   //  std::map<smoc_root_node*, size_t> definedOutputs;
@@ -740,4 +744,5 @@ size_t smoc_scheduler_top::countDefinedOutports(smoc_root_node &n){
         }
       }
  */
+#endif
 

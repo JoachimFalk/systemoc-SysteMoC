@@ -38,6 +38,8 @@
 
 #include <cstring>
 
+#include <cosupport/AlternateStream.hpp>
+
 #include <systemoc/smoc_pggen.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
 
@@ -50,9 +52,15 @@ using namespace boost::program_options;
 int main(int _argc, char* _argv[]) {
   options_description od;
   od.add_options()
-    ("generate-smx", value<std::string>(), "dump SysteMoC-XML after elaboration (std::cout -> \"-\")")
-    ("networkgraph", value<std::string>(), "synchronize with specified networkgraph")
-    ("generate-sim-smx", value<std::string>(), "dump SysteMoC-XML after simulation") ;
+    ("export-smx",
+     value<std::string>(),
+     "dump SysteMoC-XML after elaboration")
+    ("export-sim-smx",
+     value<std::string>(),
+     "dump SysteMoC-XML after simulation")
+    ("import-smx",
+     value<std::string>(),
+     "synchronize with specified SysteMoC-XML");
   
   parsed_options parsed =
     command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
@@ -64,31 +72,26 @@ int main(int _argc, char* _argv[]) {
       i != parsed.options.end();
       ++i)
   {
-    if(i->string_key == "generate-smx") {
-      //std::cerr << "Dump SMX" << std::endl;
+    if(i->string_key == "export-smx") {
       assert(smoc_modes::dumpFileSMX == NULL);      
       assert(!i->value.empty());
-      if (i->value.front() == "-"){
-        //std::cerr << !i->value.front() << std::endl;
-        smoc_modes::dumpFileSMX = &(std::cout);
-        //std::cerr << "Use std::cout" << std::endl;
-      }else{
-        smoc_modes::dumpFileSMX = new std::ofstream(i->value.front().c_str());
-        assert(smoc_modes::dumpFileSMX->good());
-        //std::cerr << "Use file" << std::endl;
-      }
+      
+      smoc_modes::dumpFileSMX =
+        new CoSupport::AOStream(std::cout, i->value.front(), "-");
     }
-    if(i->string_key == "generate-sim-smx") {
+    if(i->string_key == "export-sim-smx") {
       assert(smoc_modes::dumpFileSMX == NULL);
       assert(!i->value.empty());
       smoc_modes::dumpSMXWithSim = true;
-      smoc_modes::dumpFileSMX = new ofstream(i->value.front().c_str());
-      assert(smoc_modes::dumpFileSMX->good());
+      
+      smoc_modes::dumpFileSMX =
+        new CoSupport::AOStream(std::cout, i->value.front(), "-");
     }
-    if(i->string_key == "networkgraph") {
+    if(i->string_key == "import-smx") {
       assert(!i->value.empty());
-      std::cerr << "sync. with " << i->value.front() << std::endl;
-      SysteMoC::NGXSync::NGXConfig::getInstance().loadNGX(i->value.front());
+      
+      CoSupport::AIStream in(std::cin, i->value.front(), "-");
+      SysteMoC::NGXSync::NGXConfig::getInstance().loadNGX(in);
     }
     if(i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
@@ -108,12 +111,8 @@ int main(int _argc, char* _argv[]) {
   for(--argc; argc >= 1; --argc)
     free(argv[argc]);
 
-  std::ofstream* temp = dynamic_cast<std::ofstream*>(smoc_modes::dumpFileSMX);
-  if (temp != NULL){
-    //std::cerr << "Close file" << std::endl;
-    temp->close();
-    delete temp;
-  }
-  
+  // delete null pointer is allowed...
+  delete smoc_modes::dumpFileSMX;
+
   return ret;
 }
