@@ -16,7 +16,7 @@ logoutfile=autotest.log
 test_bin=$builddir/simulation-sqr
 
 # call binary
-$test_bin 100 > $logoutfile 2> /dev/null
+$test_bin 100 2> /dev/null | grep -v "SystemC: simulation stopped by user." > $logoutfile
 
 # make sure 'golden' logfile exist! i leave checks for clarity
 diff $logoutfile $golden_logs_dir/100iter.log > /dev/null

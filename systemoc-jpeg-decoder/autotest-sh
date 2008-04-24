@@ -43,7 +43,7 @@ do
   gold=$golden_logs_dir/$data.log
 
   # call binary
-  $test_bin $stimuli_dir/$data $w $h $c > $logoutfile 2> $err_log
+  $test_bin $stimuli_dir/$data $w $h $c 2> $err_log | grep -v "SystemC: simulation stopped by user." > $logoutfile
 
   if [ $? -gt 0 ]; then # if binary crashes
       echo " $data: systemoc-jpeg-decoder autotest failed: test crashed.";
