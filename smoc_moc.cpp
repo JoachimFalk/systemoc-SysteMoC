@@ -604,7 +604,10 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 #endif
           if( !bottom.empty()            ) all |= bottom;
           if( !nonStrict.empty()         ) all |= nonStrict;
-          if( inCommState.empty() &&
+          if(
+#ifdef SYSTEMOC_ENABLE_VPC
+              inCommState.empty() &&
+#endif
               !nonStrictReleased.empty() ) all |= nonStrictReleased;
           if( !all.empty() && !all       ) {
             DEBUG_CODE(cerr << "WAIT " << sc_time_stamp() << endl;)
