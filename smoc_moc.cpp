@@ -53,9 +53,9 @@ using namespace CoSupport;
 
 void smoc_scheduler_top::elabEnd(smoc_graph *c) {
   c->finalise();
-  if (smoc_modes::dumpProblemgraph) {
-    smoc_modes::dump(std::cout, *c);
-    exit(0);
+  if (smoc_modes::dumpFileSMX != NULL) {
+    smoc_modes::dump(c);
+    sc_core::sc_stop();
   }
 }
 

@@ -36,6 +36,7 @@
 #ifndef _INCLUDED_SMOC_PGGEN_HPP
 #define _INCLUDED_SMOC_PGGEN_HPP
 
+#include <fstream>
 #include <iostream>
 #include <exception>
 
@@ -49,7 +50,7 @@ class smoc_root_node;
 
 namespace smoc_modes {
 
-  extern bool dumpProblemgraph;
+  extern std::ostream *dumpFileSMX;
 
   class NgId {
     friend class PGWriter;
@@ -104,7 +105,7 @@ namespace smoc_modes {
     }
   };
 
-  void dump(std::ostream &out, smoc_root_node &top);
+  void dump(smoc_root_node *top);
 };
 
 #endif // _INCLUDED_SMOC_PGGEN_HPP

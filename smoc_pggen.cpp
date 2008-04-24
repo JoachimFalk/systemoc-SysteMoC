@@ -50,7 +50,7 @@ namespace smoc_modes {
     out << "id" << id;
   }
 
-  bool dumpProblemgraph = false;
+  std::ostream* dumpFileSMX = NULL;
 
   int                 PGWriter::idmap_last = 0;
   PGWriter::idmap_ty  PGWriter::idmap;
@@ -69,13 +69,14 @@ namespace smoc_modes {
       return find_iter->second;
   }
 
-  void dump( std::ostream &out, smoc_root_node &top ) {
-    PGWriter pgw( out );
+  void dump( smoc_root_node *top ) {
+    assert(dumpFileSMX != NULL);
+    PGWriter pgw( *dumpFileSMX );
     pgw << "<?xml version=\"1.0\"?>" << std::endl;
-  pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
-  pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;
+    pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
+    pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;
     pgw.indentUp();
-    top.assemble( pgw );
+    top->assemble( pgw );
     pgw << "<architecturegraph name=\"architecture graph\" id=\""<< pgw.getId() << "\">" << std::endl;
     pgw << "</architecturegraph>" << std::endl;
     pgw <<  "<mappings>" << std::endl;
