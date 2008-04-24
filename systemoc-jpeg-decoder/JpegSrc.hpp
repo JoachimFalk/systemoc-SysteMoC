@@ -46,8 +46,6 @@
 
 #include "smoc_synth_std_includes.hpp"
 
-#include "channels.hpp"
-
 #ifdef PERFORMANCE_EVALUATION
 # ifdef XILINX_EDK_RUNTIME
 #  include "x_perf_eval.h"
@@ -55,10 +53,6 @@
 #  include <cosupport/PerformanceEvaluation.hpp>
 # endif
 #endif // PERFORMANCE_EVALUATION
-
-#ifndef JPEGSRC_IMAGECOUNT
-# define JPEGSRC_IMAGECOUNT 4
-#endif
 
 class JpegSrc: public smoc_actor {
 public:
@@ -85,6 +79,7 @@ private:
     block_data_size =   
       sizeof(block_data)/sizeof(block_data[0]);
 #endif
+    CYN_NO_FLATTEN(block_data);
 
     short val = block_data[coeffs];
     

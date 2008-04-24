@@ -44,7 +44,7 @@
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_node_types.hpp>
 
-#include "channels.hpp"
+#include "smoc_synth_std_includes.hpp"
 
 #include "debug_config.h"
 #include <cosupport/smoc_debug_out.hpp>
@@ -68,6 +68,10 @@ public:
 private:
 
   void transform_color(){
+#if FAST
+    CYN_LATENCY(0, 3, "jpeg_mYCbCr::transform_color");
+#endif
+
     const unsigned int nbr_fractional_digits = 5;
 
     int pixel_in[3];
@@ -109,6 +113,7 @@ private:
     int pixel_out[3] = {0,0,0}; 
 
     for(unsigned int i = 0; i < 3; i++){
+      CYN_UNROLL(ALL, "matrix multiplication");
       for(unsigned int j = 0; j < 3; j++){
 	pixel_out[i] += matrix[i][j] * pixel_in[j];
       }

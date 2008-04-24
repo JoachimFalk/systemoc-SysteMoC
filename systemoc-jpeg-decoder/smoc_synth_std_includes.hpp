@@ -37,10 +37,9 @@
 
 #include <cstdlib>
 #ifndef XILINX_EDK_RUNTIME
-#include <iostream>
-#include <fstream>
+# include <iostream>
+# include <fstream>
 #endif
-
 
 #include "debug_off.h"
 
@@ -49,24 +48,25 @@
 #define IDCT2D_COARSEGRAINED  2
 #define IDCT2D_MONOLITHIC     3
 
-#define PGM_SINK_SILENT_MODE
+//#define IDCT2D_ARCH IDCT2D_FINEGRAINED
+#define IDCT2D_ARCH IDCT2D_COARSEGRAINED
+//#define IDCT2D_ARCH IDCT2D_MONOLITHIC
+
+// Constants for JPEG_SRC
 #if !defined(JPEG_SRC) && !defined(FILE_SRC)
 # define JPEG_SRC
 #endif
 
 #ifdef JPEG_SRC
-# define JPEGSRC_IMAGECOUNT   100
+# define JPEGSRC_IMAGECOUNT 4
 #endif
-
-//#define IDCT2D_ARCH IDCT2D_FINEGRAINED
-//#define IDCT2D_ARCH IDCT2D_COARSEGRAINED
-#define IDCT2D_ARCH IDCT2D_MONOLITHIC
 
 // Constants for INV-Quant
 #define INV_QUANT_STATE_MACHINE_VERSION 2
 
 //Constants for PGM sink
 //#define SINK_BINARY_OUTPUT
+//#define PGM_SINK_SILENT_MODE
 
 #define STATIC_IMAGE_SIZE
 //#define DUMP_INTERMEDIATE
@@ -81,6 +81,12 @@
 
 #ifndef SMOC_REGISTER_CPARAM
 # define SMOC_REGISTER_CPARAM(name) do {} while(0)
+#endif
+
+#ifndef cynthhl_h_INCLUDED
+# define CYN_UNROLL(what, str) do {} while(0)
+# define CYN_NO_FLATTEN(var) do {} while(0)
+# define CYN_LATENCY(min, max, str) do {} while(0)
 #endif
 
 #define IS_TABLE_CLASS_DC(v) (((v) & 0xF0) == 0x00)

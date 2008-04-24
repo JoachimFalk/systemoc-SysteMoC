@@ -34,13 +34,11 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "smoc_synth_std_includes.hpp"
-
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_moc.hpp>
 
-#include "channels.hpp"
+#include "smoc_synth_std_includes.hpp"
 
 #ifdef DUMP_INTERMEDIATE
 # include "1D_dup2.hpp"

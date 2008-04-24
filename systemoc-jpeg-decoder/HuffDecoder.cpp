@@ -171,6 +171,7 @@ void HuffTblDecoder::finishTable() {
   // HUFFSIZE table (huffmann code sizes) - p.51 C.1
   // FIXME: omit table and calculate this ad hoc to save mem
   uint4_t HUFFSIZE[256];
+  CYN_NO_FLATTEN(HUFFSIZE);
 
   int tablePos = 0;
   for (int i = 0; i < 16; ++i) {
@@ -185,6 +186,7 @@ void HuffTblDecoder::finishTable() {
   // HUFFCODE table (huffmann codes table) - p.52 C.2
   // NOTE: I think it's possible to avoid HUFFCODE table for calculation below
   uint16_t HUFFCODE[256];
+  CYN_NO_FLATTEN(HUFFCODE);
   {
     uint16_t code = 0;
     uint4_t size = HUFFSIZE[0];
@@ -594,6 +596,7 @@ HuffTableChannel_t InvHuffman::huffTableValue(
 
 //
 bool InvHuffman::currentDcIsDc0() const {
+//  CYN_LATENCY(0, 110, "jpeg_mHuffDecoder_mInvHuffman::currentDcIsDc0");
   switch (m_currentComp) {
     case 0:
       return m_useHuffTableDc_0 == 0;
@@ -610,6 +613,7 @@ bool InvHuffman::currentDcIsDc0() const {
 
 //
 bool InvHuffman::currentDcIsDc1() const {
+//  CYN_LATENCY(0, 110, "jpeg_mHuffDecoder_mInvHuffman::currentDcIsDc1");
   switch (m_currentComp) {
     case 0:
       return m_useHuffTableDc_0 == 1;
@@ -626,6 +630,7 @@ bool InvHuffman::currentDcIsDc1() const {
 
 //
 bool InvHuffman::currentAcIsAc0() const {
+//  CYN_LATENCY(0, 110, "jpeg_mHuffDecoder_mInvHuffman::currentAcIsAc0");
   switch (m_currentComp) {
     case 0:
       return m_useHuffTableAc_0 == 0;
@@ -642,6 +647,7 @@ bool InvHuffman::currentAcIsAc0() const {
 
 //
 bool InvHuffman::currentAcIsAc1() const {
+//  CYN_LATENCY(0, 110, "jpeg_mHuffDecoder_mInvHuffman::currentAcIsAc1");
   switch (m_currentComp) {
     case 0:
       return m_useHuffTableAc_0 == 1;

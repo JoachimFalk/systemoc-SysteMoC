@@ -41,7 +41,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_moc.hpp>
 
-#include "channels.hpp"
+#include "smoc_synth_std_includes.hpp"
 
 #include "FileSource.hpp"
 #include "MIdct2D.hpp"
