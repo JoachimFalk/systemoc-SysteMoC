@@ -85,14 +85,7 @@ int sc_main (int argc, char **argv) {
 
   smoc_top_moc<m_top<unsigned char> > top("top", argv[1],argv[2],argv[3]);
   
-#ifndef KASCPAR_PARSING  
-#define GENERATE "--generate-problemgraph"
-  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
-    smoc_modes::dump(std::cout, top);
-  } else {
-    sc_start();
-  }
-#undef GENERATE
-#endif
+  sc_start();
+
   return 0;
 }
