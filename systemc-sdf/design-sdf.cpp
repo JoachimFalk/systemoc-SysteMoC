@@ -130,8 +130,6 @@ int sc_main (int argc, char **argv) {
 #ifndef __SCFE__
     hscd_top x(top);
 
-    hscd_modes::dump( std::cout, *top );
-  
     sc_start(-1);
   } catch (...) {
     std::cout << "exception !" << std::endl;
