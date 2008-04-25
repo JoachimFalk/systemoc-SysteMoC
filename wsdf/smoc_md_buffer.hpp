@@ -208,6 +208,11 @@ public:
       return (*snk_loop_iterator)[iteration_level];
     }
 
+    /// Returns the maximum window iteration
+    const iter_domain_vector_type& max_window_iteration() const {
+      return snk_loop_iterator->max_window_iteration();
+    }
+
     /// Check, whether data element is situated on extended border
     virtual border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration,
 						  bool& is_border) const { 

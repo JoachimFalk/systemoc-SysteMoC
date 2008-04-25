@@ -125,7 +125,10 @@ public:
       in_if.getChannelAccess();
 
     // why must we set the limit? 
-    ca->setLimit(1); const T& t = (*ca)[0];
+#ifndef NDEBUG
+    ca->setLimit(1); 
+#endif
+    const T& t = (*ca)[0];
 
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
@@ -176,7 +179,10 @@ public:
       out_if.getChannelAccess();
 
     // why must we set the limit? 
-    ca->setLimit(1); (*ca)[0] = t;
+#ifndef NDEBUG
+    ca->setLimit(1); 
+#endif
+    (*ca)[0] = t;
 
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified

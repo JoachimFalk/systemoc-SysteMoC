@@ -85,7 +85,9 @@ public:
   virtual const char* kind() const
     { return kind_string; }
  
+#ifndef NDEBUG
   virtual void setLimit(size_t) = 0;
+#endif
   virtual size_t      availableCount() const = 0;
   virtual smoc_event &blockEvent(size_t n = MAX_TYPE(size_t)) = 0;
   virtual bool        isInput() const = 0;

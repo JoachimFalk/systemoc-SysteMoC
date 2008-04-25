@@ -323,6 +323,85 @@ private:
   const T border_value;
 };
 
+
+/// This class perfoms a port access with
+/// symmetric border extension
+template<typename T, class PARAM_TYPE>
+class smoc_sym_border_ext
+  : public smoc_md_port_in_base<T,smoc_md_snk_channel_access, PARAM_TYPE>
+{
+public: 
+  typedef smoc_md_port_in_base<T,smoc_md_snk_channel_access, PARAM_TYPE> base_type;
+  typedef T                                   data_type;
+  typedef smoc_sym_border_ext<T,PARAM_TYPE> this_type;
+  typedef typename this_type::iface_type    iface_type;
+  typedef typename iface_type::access_type  access_type;
+  
+  typedef typename access_type::iter_domain_vector_type iter_domain_vector_type;
+  typedef typename access_type::return_type return_type;
+  typedef typename access_type::border_type border_type;
+  typedef typename access_type::border_type_vector_type border_type_vector_type;
+  
+public:
+  class border_init
+  {
+    friend class smoc_sym_border_ext<T,PARAM_TYPE>;
+  public:
+  protected:
+  };
+  
+public:
+  return_type operator[](const iter_domain_vector_type& window_iteration) const{
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 101
+    CoSupport::dout << "Enter smoc_sym_border_ext::operator[]" << std::endl;
+    CoSupport::dout << CoSupport::Indent::Up;
+#endif
+    bool is_border;
+    border_type_vector_type 
+      my_border_type(is_ext_border(window_iteration,is_border));
+    
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 101
+    CoSupport::dout << "window_iteration = " << window_iteration;
+    if (is_border)
+      CoSupport::dout << " is situated on extended border.";
+    CoSupport::dout << std::endl;
+#endif
+
+    
+    if(!is_border){
+      return_type return_value = (*(this->get_chanaccess()))[window_iteration];     
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 101
+      CoSupport::dout << "Leave smoc_sym_border_ext::operator[]" << std::endl;
+      CoSupport::dout << CoSupport::Indent::Down;
+#endif 
+      return return_value;
+    }else{
+      iter_domain_vector_type 
+        temp_win_iteration(window_iteration);
+      for(unsigned int i = 0; i < window_iteration.size(); i++){
+        if (my_border_type[i] != smoc_snk_md_loop_iterator_kind::NO_BORDER){
+          temp_win_iteration[i] = 
+            this->get_chanaccess()->max_window_iteration()[i]-
+            window_iteration[i];
+        }
+      }
+      
+#ifndef NDEBUG
+      is_ext_border(temp_win_iteration,is_border);
+      assert(!is_border);
+#endif
+      return_type 
+        return_value = (*(this->get_chanaccess()))[temp_win_iteration];
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 101
+      CoSupport::dout << "Leave smoc_sym_border_ext::operator[]" << std::endl;
+      CoSupport::dout << CoSupport::Indent::Down;
+#endif
+
+      return return_value;
+    }
+  }  
+};
+
 namespace ns_smoc_vector_init {
   extern smoc_vector_init<unsigned long> ul_vector_init;
   extern smoc_vector_init<long> sl_vector_init;
