@@ -10,7 +10,7 @@
 #include <cosupport/smoc_debug_out.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_LOOP
-#define VERBOSE_LEVEL_SMOC_MD_LOOP 106
+#define VERBOSE_LEVEL_SMOC_MD_LOOP 0
 // 100: verbose execution
 // 101: general debug
 // 102: memory access error

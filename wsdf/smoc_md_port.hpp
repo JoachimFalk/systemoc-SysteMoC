@@ -17,7 +17,7 @@
 ///101: border processing
 ///102: parameter propagation
 #ifndef VERBOSE_LEVEL_SMOC_MD_PORT
-#define VERBOSE_LEVEL_SMOC_MD_PORT 101
+#define VERBOSE_LEVEL_SMOC_MD_PORT 0
 #endif
 
 

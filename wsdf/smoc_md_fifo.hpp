@@ -46,7 +46,7 @@
 /// 102: Memory access error
 /// 103: Parameter propagation
 #ifndef VERBOSE_LEVEL_SMOC_MD_FIFO
-#define VERBOSE_LEVEL_SMOC_MD_FIFO 102
+#define VERBOSE_LEVEL_SMOC_MD_FIFO 0
 #endif
 
 
