@@ -16,8 +16,8 @@
 
 ///101: border processing
 ///102: parameter propagation
-#ifdef VERBOSE_LEVEL_SMOC_MD_PORT
-#define VERBOSE_LEVEL_SMOC_MD_PORT 0
+#ifndef VERBOSE_LEVEL_SMOC_MD_PORT
+#define VERBOSE_LEVEL_SMOC_MD_PORT 101
 #endif
 
 
@@ -378,8 +378,11 @@ public:
     }else{
       iter_domain_vector_type 
         temp_win_iteration(window_iteration);
-      for(unsigned int i = 0; i < window_iteration.size(); i++){
-        if (my_border_type[i] != smoc_snk_md_loop_iterator_kind::NO_BORDER){
+      for(unsigned int i = 0, j = window_iteration.size()-1; 
+          i < window_iteration.size(); 
+          i++,j--){
+        //my_border_type uses geometric interpretation!
+        if (my_border_type[j] != smoc_snk_md_loop_iterator_kind::NO_BORDER){
           temp_win_iteration[i] = 
             this->get_chanaccess()->max_window_iteration()[i]-
             window_iteration[i];
@@ -387,6 +390,10 @@ public:
       }
       
 #ifndef NDEBUG
+#if VERBOSE_LEVEL_SMOC_MD_PORT == 101
+      CoSupport::dout << "replacing window_iteration = " << temp_win_iteration << std::endl;
+      CoSupport::dout << "max_window_iteration = " << this->get_chanaccess()->max_window_iteration() << std::endl;
+#endif
       is_ext_border(temp_win_iteration,is_border);
       assert(!is_border);
 #endif

@@ -10,7 +10,7 @@
 #include <cosupport/smoc_debug_out.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_LOOP
-#define VERBOSE_LEVEL_SMOC_MD_LOOP 0
+#define VERBOSE_LEVEL_SMOC_MD_LOOP 106
 // 100: verbose execution
 // 101: general debug
 // 102: memory access error
@@ -614,6 +614,8 @@ public:
   /// This function determines, whether the data element accessed
   /// by the given window iteration is situated on an extended
   /// border.
+  /// border_type_vector_type uses geometric interpretation!!
+  /// (first element points to e1)
   border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration,
                                         bool& is_border) const;
 

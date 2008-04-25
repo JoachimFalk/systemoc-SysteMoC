@@ -14,7 +14,7 @@
 #include "smoc_pggen.hpp"
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BUFFER
-#define VERBOSE_LEVEL_SMOC_MD_BUFFER 0
+#define VERBOSE_LEVEL_SMOC_MD_BUFFER 102
 ///101: operator[]
 ///102: border processing
 ///103: memory access error

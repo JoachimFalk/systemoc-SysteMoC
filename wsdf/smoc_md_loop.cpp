@@ -1043,9 +1043,15 @@ smoc_snk_md_loop_iterator_kind::is_border_pixel(const border_condition_vector_ty
 
   for(unsigned int i = 0; i < _token_dimensions; i++){
     if (border_condition_vector[i] < low_border_condition_vector[i]){
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
+      CoSupport::dout << "i = " << i << " is situated at left-border" << std::endl;
+#endif
       return_vector[i] = LEFT_BORDER;
       is_border = true;
     }else if(border_condition_vector[i] > high_border_condition_vector[i]){
+#if VERBOSE_LEVEL_SMOC_MD_LOOP == 106
+      CoSupport::dout << "i = " << i << " is situated at right-border" << std::endl;
+#endif
       return_vector[i] = RIGHT_BORDER;
       is_border = true;
     }else{
