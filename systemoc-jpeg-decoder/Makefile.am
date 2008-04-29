@@ -125,14 +125,14 @@ testlib : $(TESTLIB_SUBDIR)/all-dummies-jpeg.log
 endif
 if SYNTH_SGX
 sgx:  	 $(SGX_SUBDIR)/specgraph.dtd \
-	 $(SGX_SUBDIR)/jpeg.pgx \
+	 $(SGX_SUBDIR)/jpeg.dummy.sgx \
 	 $(root_builddir)/specGen/specGenDir.sh
 	$(root_builddir)/specGen/specGenDir.sh \
-	$(SGX_SUBDIR)/jpeg.pgx \
+	$(SGX_SUBDIR)/jpeg.dummy.sgx \
 	$(srcdir)/specGen-mapping/ \
 	${SGX_SUBDIR}
 
-$(SGX_SUBDIR)/%.pgx: $(SYNTHESIS_SUBDIR)/%.pg.xml
+$(SGX_SUBDIR)/%.dummy.sgx: $(SYNTHESIS_SUBDIR)/%.ngx
 	sed -e 's/networkgraph\.dtd/specgraph\.dtd/g'\
 	    -e 's/networkgraph/specificationgraph/g'\
 	    $^ > $@
