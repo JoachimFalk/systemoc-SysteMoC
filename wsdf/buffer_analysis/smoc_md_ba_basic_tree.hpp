@@ -60,7 +60,7 @@ namespace smoc_md_ba
 
 
     /*
-      The next function returns the right neighbour on the same leve of a given node
+      The next function returns the right neighbour on the same leaf of a given node
       If this right neighbour does not exist, we restart our search on the left side.
       In this case, the overflow flag is set.
       Note, that the function does not jump over zero-pointers. In other words,
