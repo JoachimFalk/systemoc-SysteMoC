@@ -101,7 +101,7 @@ void smoc_scheduler_top::dump() {
   pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;
   pgw.indentUp();
   g->assemble( pgw );
-  pgw << "<architecturegraph name=\"architecture graph\" id=\""<< SysteMoC::NGXSync::idPool.printId() << "\">" << std::endl;
+  pgw << "<architecturegraph name=\"architecture graph\" id=\"id" << SysteMoC::NGXSync::idPool.printId() << "\">" << std::endl;
   pgw << "</architecturegraph>" << std::endl;
   pgw <<  "<mappings>" << std::endl;
   pgw <<  "</mappings>" << std::endl;
