@@ -42,9 +42,7 @@
 
 #include <systemoc/smoc_pggen.hpp>
 
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/program_options/positional_options.hpp>
+#include <boost/program_options.hpp>
 
 using namespace boost::program_options;
 
