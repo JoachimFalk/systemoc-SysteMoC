@@ -19,7 +19,7 @@
 
 using namespace Magick;
 
-namespace po { using namespace boost::program_options; }
+namespace po = boost::program_options;
 
 typedef unsigned int uint_ty;
 static const uint_ty dctX = 8;
