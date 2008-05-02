@@ -64,7 +64,7 @@ namespace SysteMoC { namespace NGXSync {
 
   typedef sc_core::sc_object SCObj;
 
-  std::ostream& operator<<(std::ostream& out, const IdAttr& id);
+//  std::ostream& operator<<(std::ostream& out, const IdAttr& id);
 
   struct AlreadyInitialized : public std::runtime_error {
     AlreadyInitialized();
