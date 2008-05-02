@@ -1,9 +1,0 @@
-actor IDCTclip (int MAX) int I, int MIN ==> int O:
-
-  function bound(a, x, b) : 
-      if x < a then a else if x > b then b else x end end 
-  end
-
-  action I: [i], MIN: [min] ==> 
-         O: [bound(min, i, MAX)] end
-end
