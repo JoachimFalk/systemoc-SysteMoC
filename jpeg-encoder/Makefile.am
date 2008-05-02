@@ -32,4 +32,5 @@ LIBS= @LIBS@
 noinst_PROGRAMS= simple-jpeg-encoder
 
 simple_jpeg_encoder_SOURCES= jpeg.cpp PixelFormats.cpp HuffmanTable.cpp BigEndianData.cpp
-simple_jpeg_encoder_LDFLAGS= -lMagick++ -lboost_program_options@BOOST_LIBPOSTFIX@
+#FIXME: Hack -L/usr/local/$(CXXABI)/lib is neccessary due to -lMagick++ which pulls in -L/usr/lib containing the SuSE boost libs
+simple_jpeg_encoder_LDFLAGS= -L/usr/local/$(CXXABI)/lib -lboost_program_options@BOOST_LIBPOSTFIX@ -lMagick++ 
