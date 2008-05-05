@@ -48,12 +48,13 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_event.hpp"
+#include "detail/smoc_event_decls.hpp"
 #include "smoc_ast_systemoc.hpp"
 
 #include <cosupport/refcount_object.hpp>
 #include <cosupport/oneof.hpp>
 #include <cosupport/functor.hpp>
+#include <cosupport/commondefs.h>
 /****************************************************************************
  * dexpr.h
  *
@@ -89,13 +90,7 @@ namespace Detail {
   private:
     T v;
   public:
-		ParamWrapper(const T &v)
-#if __GNUC__ > 3 ||														 \
-	(__GNUC__ == 3 && (__GNUC_MINOR__ > 3 ||				\
-										 (__GNUC_MINOR__ == 3 &&			\
-											__GNUC_PATCHLEVEL__ > 5)))
-			__attribute__ ((deprecated))
-#endif
+    ParamWrapper(const T &v) COSUPPORT_ATTRIBUTE_DEPRECATED
       : v(v) {
       std::stringstream allToString; allToString << v;
       registerParam(ArgInfo(typeid(T).name(), allToString.str()));

@@ -33,10 +33,43 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_EVENT_HPP
-#define _INCLUDED_SMOC_EVENT_HPP
+#ifndef _INCLUDED_SMOC_EVENT_DECLS_HPP
+#define _INCLUDED_SMOC_EVENT_DECLS_HPP
 
-#include "detail/smoc_event_decls.hpp"
-#include "detail/smoc_event_expr.hpp"
+#include <boost/intrusive_ptr.hpp>
 
-#endif // _INCLUDED_SMOC_EVENT_HPP
+#include <cosupport/systemc_support.hpp>
+#include <cosupport/refcount_object.hpp>
+
+typedef CoSupport::SystemC::Event         smoc_event;
+typedef CoSupport::SystemC::EventWaiter   smoc_event_waiter;
+typedef CoSupport::SystemC::EventListener smoc_event_listener;
+typedef CoSupport::SystemC::EventOrList
+  <CoSupport::SystemC::EventWaiter>       smoc_event_or_list;
+typedef CoSupport::SystemC::EventAndList
+  <CoSupport::SystemC::EventWaiter>       smoc_event_and_list;
+
+static inline
+void smoc_notify(smoc_event &e)
+  { return e.notify(); }
+
+static inline
+smoc_event_waiter *smoc_reset(smoc_event_waiter &e)
+  { return e.reset(); }
+
+static inline
+void smoc_wait(smoc_event_waiter &e)
+  { return CoSupport::SystemC::wait(e); }
+
+class smoc_ref_event
+: public CoSupport::RefCountObject, public smoc_event {
+public:
+  typedef smoc_ref_event this_type;
+public:
+  smoc_ref_event(bool startNotified = false)
+    : smoc_event(startNotified) {}
+};
+
+typedef boost::intrusive_ptr<smoc_ref_event> smoc_ref_event_p;
+
+#endif // _INCLUDED_SMOC_EVENT_DECLS_HPP
