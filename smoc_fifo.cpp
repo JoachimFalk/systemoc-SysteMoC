@@ -46,10 +46,9 @@ const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
 using namespace SysteMoC::NGX;
 using namespace SysteMoC::NGXSync;
 
+#if defined(SYSTEMOC_ENABLE_VPC) && defined(SYSTEMOC_TRACE)
 namespace smoc_detail {
-#ifdef SYSTEMOC_ENABLE_VPC
 
-# ifdef SYSTEMOC_TRACE
   struct DeferedTraceLogDumper
   : public smoc_event_listener {
     smoc_ref_event_p  event;
@@ -62,7 +61,7 @@ namespace smoc_detail {
       TraceLog.traceStartActor(fifo, mode);
 #   ifdef SYSTEMOC_DEBUG
       std::cerr << "smoc_detail::DeferedTraceLogDumper::signaled(...)" << std::endl;
-#   endif
+#   endif // SYSTEMOC_DEBUG
       assert(_e == event.get());
       assert(*_e);
       event = NULL;
@@ -72,7 +71,7 @@ namespace smoc_detail {
     void eventDestroyed(smoc_event_waiter *_e) {
 #   ifdef SYSTEMOC_DEBUG
       std::cerr << "smoc_detail::DeferedTraceLogDumper:: eventDestroyed(...)" << std::endl;
-#   endif
+#   endif // SYSTEMOC_DEBUG
       delete this;
     }
 
@@ -82,11 +81,9 @@ namespace smoc_detail {
  
     virtual ~DeferedTraceLogDumper() {}
   };
-# endif
-  
-};
 
-#endif
+} // namespace smoc_detail
+#endif // defined(SYSTEMOC_ENABLE_VPC) && defined(SYSTEMOC_TRACE)
 
 smoc_fifo_kind::smoc_fifo_kind( const chan_init &i )
   : smoc_nonconflicting_chan(
