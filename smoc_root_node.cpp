@@ -156,8 +156,10 @@ void smoc_root_node::finalise() {
   
   for (smoc_port_list::iterator iter = ports.begin();
        iter != ports.end();
-       ++iter)
+       ++iter) {
+    assert(*iter != NULL);
     (*iter)->finalise(this);
+  }
   
   //check for non strict transitions
   const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 

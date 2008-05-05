@@ -287,8 +287,11 @@ void smoc_graph::initScheduling() {
   for(smoc_node_list::const_iterator nIter = nodes.begin();
       nIter != nodes.end();
       ++nIter) {
+    smoc_root_node *node = *nIter;
+    assert(dynamic_cast<smoc_actor *>(node) != NULL);
     // add transitions to list
-    (*nIter)->addCurOutTransitions(ol);
+    node->addCurOutTransitions(ol);
+//  (*nIter)->addCurOutTransitions(ol);
   }
 #ifdef SYSTEMOC_DEBUG
     std::cerr << ol << std::endl;
