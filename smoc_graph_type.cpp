@@ -35,7 +35,6 @@
  */
 
 #include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/hscd_node_types.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_graph_synth.hpp>
 
@@ -287,14 +286,9 @@ void smoc_graph::initScheduling() {
 #endif
   for(smoc_node_list::const_iterator nIter = nodes.begin();
       nIter != nodes.end();
-      ++nIter)
-  {
-    smoc_root_node *node = *nIter;
-    // only SysteMoC v2 actors will be scheduled
-    if(dynamic_cast<hscd_choice_active_node *>(node))
-      continue;
+      ++nIter) {
     // add transitions to list
-    node->addCurOutTransitions(ol);
+    (*nIter)->addCurOutTransitions(ol);
   }
 #ifdef SYSTEMOC_DEBUG
     std::cerr << ol << std::endl;

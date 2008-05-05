@@ -94,11 +94,6 @@ public:
   bool                isOutput() const
     { return !isInput(); }
   
-  virtual void clearReady()
-    { assert( !"SHOULD NEVER BE CALLED !!!" ); }
-  virtual void communicate( size_t n )
-    { assert( !"SHOULD NEVER BE CALLED !!!" ); }
-
   smoc_root_port *getParentPort() const
     { return parent; }
   smoc_root_port *getChildPort() const

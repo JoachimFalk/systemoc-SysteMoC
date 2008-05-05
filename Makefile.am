@@ -83,18 +83,7 @@ pkginclude_HEADERS =					\
 	pkginclude/systemoc/smoc_graph_synth.hpp	\
 	pkginclude/systemoc/smoc_chan_adapter.hpp	\
 							\
-	pkginclude/systemoc/hscd_tdsim_TraceLog.hpp	\
-							\
-	pkginclude/systemoc/hscd_op.hpp			\
-	pkginclude/systemoc/hscd_port.hpp		\
-	pkginclude/systemoc/hscd_root_port_list.hpp	\
-	pkginclude/systemoc/hscd_node_types.hpp		\
-	pkginclude/systemoc/hscd_fifo.hpp		\
-	pkginclude/systemoc/hscd_structure.hpp		\
-	pkginclude/systemoc/hscd_graph_type.hpp		\
-	pkginclude/systemoc/hscd_scheduler.hpp		\
-	pkginclude/systemoc/hscd_pggen.hpp		\
-	pkginclude/systemoc/hscd_moc.hpp
+	pkginclude/systemoc/hscd_tdsim_TraceLog.hpp
 
 if SYSTEMOC_ENABLE_WSDF
 pkginclude_HEADERS +=					\
