@@ -1,0 +1,84 @@
+<!ELEMENT vpcconfiguration (resultfile?,measurefile?,templates?, director?,resources,mappings)>
+
+<!ELEMENT resultfile EMPTY>
+<!ATTLIST resultfile
+name CDATA #REQUIRED>
+
+<!ELEMENT measurefile EMPTY>
+<!ATTLIST measurefile
+name CDATA #REQUIRED>
+
+<!ELEMENT templates (template+)>
+
+<!ELEMENT template ((attribute|timing)*)>
+<!ATTLIST template
+name ID #REQUIRED>
+
+<!ELEMENT reftemplate EMPTY>
+<!ATTLIST reftemplate
+name IDREF #REQUIRED>
+
+<!ELEMENT director (binder)>
+ 
+<!ELEMENT resources (component|recomponent)*>
+
+<!ELEMENT component (attribute|reftemplate)*>
+<!ATTLIST component
+name ID #REQUIRED
+type CDATA #REQUIRED
+scheduler CDATA #REQUIRED>
+
+<!ELEMENT recomponent (controller, configuration*, defaultconfiguration?, (attribute|reftemplate)*)>
+<!ATTLIST recomponent
+name ID #REQUIRED
+type CDATA #REQUIRED>
+
+<!ELEMENT controller (binder, mapper, allocator)>
+<!ATTLIST controller
+name  CDATA "controller">
+
+<!ELEMENT binder (attribute)*>
+<!ATTLIST binder
+name  CDATA #REQUIRED>
+
+<!ELEMENT mapper (attribute)*>
+<!ATTLIST mapper
+name  CDATA #REQUIRED>
+
+<!ELEMENT allocator (attribute)*>
+<!ATTLIST allocator
+name  CDATA #REQUIRED>
+
+<!ELEMENT scheduler (attribute)*>
+<!ATTLIST scheduler
+name  CDATA #REQUIRED>
+
+<!ELEMENT configuration (component|recomponent)*>
+<!ATTLIST configuration
+name ID #REQUIRED
+loadtime CDATA "0 ns"
+storetime CDATA "0 ns">
+
+<!ELEMENT defaultconfiguration EMPTY>
+<!ATTLIST defaultconfiguration
+name CDATA #REQUIRED>
+
+<!ELEMENT attribute EMPTY>
+<!ATTLIST attribute 
+type CDATA #REQUIRED
+value CDATA #REQUIRED>
+
+<!ELEMENT mappings (mapping)*>
+
+<!ELEMENT mapping (attribute|reftemplate|timing)*>
+<!ATTLIST mapping
+source CDATA #REQUIRED
+target IDREF #REQUIRED>
+
+<!ELEMENT timing EMPTY>
+<!ATTLIST timing
+delay   CDATA #IMPLIED
+dii     CDATA #IMPLIED
+latency CDATA #IMPLIED
+fname   CDATA #IMPLIED>
+
