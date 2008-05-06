@@ -81,6 +81,7 @@ pkginclude_HEADERS =					\
 	pkginclude/systemoc/smoc_event.hpp		\
 	pkginclude/systemoc/smoc_storage.hpp		\
 							\
+	pkginclude/systemoc/MultiHopEvent.hpp		\
 	pkginclude/systemoc/hscd_tdsim_TraceLog.hpp	\
 							\
 	pkginclude/systemoc/hscd_op.hpp			\
@@ -143,6 +144,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_guard.cpp			\
 	smoc_moc.cpp			\
 					\
+	MultiHopEvent.cpp		\
 	hscd_tdsim_TraceLog.cpp
 
 if SYSTEMOC_ENABLE_WSDF

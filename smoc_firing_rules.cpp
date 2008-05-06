@@ -45,12 +45,15 @@
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
+#include <typeinfo>
+
 #include <map>
 #include <set>
 
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
+# include <systemoc/MultiHopEvent.hpp>
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
@@ -393,6 +396,7 @@ void smoc_firing_types::transition_ty::execute(
     std::cerr << "    <smoc_func_call func=\"" << fc.getFuncName() << "\">" << std::endl;
 #endif
     fc();
+
 #if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
     std::cerr << "    </smoc_func_call>" << std::endl;
 #endif
@@ -444,12 +448,34 @@ void smoc_firing_types::transition_ty::execute(
     actor->vpc_event_lat = new smoc_ref_event();
     SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
     
+
+    // FIXME: We schould do that (collecting input channels) in finalise()
+    MultiHopEvent * hopEvent = new MultiHopEvent;
+    Expr::port_commit_map pm;
+    Expr::evalTo<Expr::CommitCount>(guard, pm);
+    for(Expr::port_commit_map::const_iterator i = pm.begin();
+        i != pm.end();
+        ++i){
+
+      smoc_root_port * port = i->first;
+      smoc_root_chan * chan =
+        dynamic_cast<smoc_root_chan *>( port->get_interface());
+      assert(chan != NULL);
+
+      if( port->isInput() ){
+        hopEvent->addInputChannel(chan, i->second);
+        //std::cerr << "port: " << port->name() <<" commitCount: " << i->second
+        //          << " chan=" << chan->name() << std::endl;
+      }
+    }
+    hopEvent->setTaskEvents(p);
+
     // new FastLink interface
-    if(mode & GO) vpcLink->compute(p);
+    if(mode & GO) hopEvent->compute( vpcLink );
     else if(mode & TICK){
       assert( isType<smoc_sr_func_pair>(f) );
       smoc_sr_func_pair &fp = f;
-      fp.tickLink->compute(p);
+      hopEvent->compute( fp.tickLink );
     }
     // save guard and nextState to later execute communication
     actor->_guard       =  &guard;

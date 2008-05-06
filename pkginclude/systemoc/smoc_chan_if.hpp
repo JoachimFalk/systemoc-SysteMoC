@@ -244,7 +244,8 @@ public:
   friend class smoc_graph;
   // new FastLink interface
 #ifdef SYSTEMOC_ENABLE_VPC
-  SystemC_VPC::FastLink *vpcLink; // patched in finalise
+  SystemC_VPC::FastLink *vpcLinkWriteHop; // patched in finalise
+  SystemC_VPC::FastLink *vpcLinkReadHop; // patched in finalise
 #endif //SYSTEMOC_ENABLE_VPC
 protected:
   std::string myName; // patched in finalise

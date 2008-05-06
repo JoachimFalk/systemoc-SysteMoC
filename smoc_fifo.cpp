@@ -100,7 +100,7 @@ namespace smoc_detail {
       SystemC_VPC::EventPair p(&dummy, latEvent.get());
 # endif
       // new FastLink interface
-      getTop().fifo->vpcLink->compute(p);
+      getTop().fifo->vpcLinkWriteHop->write( 1, p );
 # ifdef SYSTEMOC_TRACE
       if (!*diiEvent) {
         // dii event not signaled
