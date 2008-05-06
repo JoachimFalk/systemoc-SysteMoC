@@ -107,20 +107,15 @@ public:
 };
 
 // forward
-template <
-  typename T,
-  template <typename> class R>
-class smoc_port_in_base;
+template <class IFACE> class smoc_port_base;
+template <class IFACE> class smoc_port_in_base;
+template <class IFACE> class smoc_port_out_base;
 
 class smoc_chan_in_base_if {
   typedef smoc_chan_in_base_if this_type;
 public:
-  template <class IFACE>
-  friend class smoc_port_base;
-  template <
-    typename T,
-    template <typename> class R>
-  friend class smoc_port_in_base;
+  template <class IFACE> friend class smoc_port_base;
+  template <class IFACE> friend class smoc_port_in_base;
   friend class smoc_graph_synth;
 protected:
   // constructor
@@ -148,23 +143,11 @@ private:
   this_type &operator =(const this_type &);
 };
 
-// forward
-template <
-  typename T, 
-  template <typename> class R, 
-  template <typename> class STORAGE_TYPE>
-class smoc_port_out_base;
-
 class smoc_chan_out_base_if {
   typedef smoc_chan_out_base_if this_type;
 public:
-  template <class IFACE>
-  friend class smoc_port_base;
-  template <
-    typename T, 
-    template <typename> class R, 
-    template <typename> class STORAGE_TYPE>
-  friend class smoc_port_out_base;
+  template <class IFACE> friend class smoc_port_base;
+  template <class IFACE> friend class smoc_port_out_base;
   friend class smoc_graph_synth;
 protected:
   // constructor

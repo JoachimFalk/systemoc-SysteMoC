@@ -378,7 +378,7 @@ public:
   typedef T                                  data_type;
   typedef smoc_multicast_sr_signal_type<data_type>  this_type;
   typedef smoc_storage<data_type>       storage_type;
-  typedef smoc_port_in_base<data_type,smoc_channel_access> Port;
+  typedef smoc_port_in_base<smoc_chan_in_if<data_type,smoc_channel_access> > Port;
   typedef smoc_multicast_outlet<data_type>   Outlet;
   typedef smoc_multicast_entry<data_type>    Entry;
   typedef std::map< const Port* , Outlet* >  OutletMap;
