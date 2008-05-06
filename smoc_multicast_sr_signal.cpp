@@ -179,9 +179,7 @@ void smoc_multicast_sr_signal_kind::channelAttributes(
 
 smoc_multicast_sr_signal_kind::smoc_multicast_sr_signal_kind(
     const chan_init &i)
-  : smoc_multicast_chan(
-    i.name != NULL ? i.name
-    : sc_gen_unique_name( "smoc_multicast_sr_signal" ) ),
+  : smoc_multicast_chan(i.name),
     signalState(undefined),
     tokenId(0){
 }

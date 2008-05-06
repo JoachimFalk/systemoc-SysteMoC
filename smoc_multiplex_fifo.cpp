@@ -47,8 +47,7 @@ using namespace SysteMoC::NGX;
 using namespace SysteMoC::NGXSync;
 
 smoc_multiplex_fifo_kind::smoc_multiplex_fifo_kind( const chan_init &i )
-  : smoc_nonconflicting_chan(
-    i.name != NULL ? i.name : sc_gen_unique_name( "smoc_multiplex_fifo" ) ),
+  : smoc_nonconflicting_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue(this), 
 #endif

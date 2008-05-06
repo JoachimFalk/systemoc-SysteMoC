@@ -385,7 +385,7 @@ namespace {
       assert(!"Unimplemented");
     }
     result_type operator ()(ASTNodePortIteration &astNode) {
-      assert(!"Unimplemented");
+      //assert(!"Unimplemented");
     }
     result_type operator ()(ASTNodeBinOp &astNode) {
       openNodeTag(astNode);

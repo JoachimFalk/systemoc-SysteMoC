@@ -64,8 +64,11 @@ public:
 static std::map<std::string, IntDefaultZero> _smoc_channel_name_map;
 
 smoc_root_chan::smoc_root_chan(const char *name) :
-  sc_prim_channel(name) {
+  sc_prim_channel(name != NULL ? name : sc_gen_unique_name( "smoc_unnamed_channel" )) {
   idPool.regObj(this);
+  
+  if (name != NULL)
+    myName = name;
 }
   
 smoc_root_chan::~smoc_root_chan() {
@@ -76,37 +79,39 @@ void smoc_root_chan::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_chan::finalise() begin, name == " << name() << std::endl;
 #endif
-  assert(myName == "");
+  if (myName == "") {
+    //Only overwrite if not specified by user
   
-  std::ostringstream genName;
+    std::ostringstream genName;
   
-  genName << "cf_";
-  {
-    const smoc_sysc_port_list &out = getOutputPorts();
-    
-    for (smoc_sysc_port_list::const_iterator iter = out.begin();
-         iter != out.end();
-         ++iter ) {
-      genName
-        << (iter == out.begin() ? "" : "|")
-        << (*iter)->get_parent()->name();
+    genName << "cf_";
+    {
+      const smoc_sysc_port_list &out = getOutputPorts();
+      
+      for (smoc_sysc_port_list::const_iterator iter = out.begin();
+           iter != out.end();
+           ++iter ) {
+        genName
+          << (iter == out.begin() ? "" : "|")
+          << (*iter)->get_parent()->name();
+      }
     }
-  }
-  genName << "_";
-  {
-    const smoc_sysc_port_list &in = getInputPorts();
-    
-    for (smoc_sysc_port_list::const_iterator iter = in.begin();
-         iter != in.end();
-         ++iter ) {
-      genName
-        << (iter == in.begin() ? "" : "|")
-        << (*iter)->get_parent()->name();
+    genName << "_";
+    {
+      const smoc_sysc_port_list &in = getInputPorts();
+      
+      for (smoc_sysc_port_list::const_iterator iter = in.begin();
+           iter != in.end();
+           ++iter ) {
+        genName
+          << (iter == in.begin() ? "" : "|")
+          << (*iter)->get_parent()->name();
+      }
     }
+    genName << "_";
+    genName << (_smoc_channel_name_map[genName.str()] += 1);
+    myName = genName.str();
   }
-  genName << "_";
-  genName << (_smoc_channel_name_map[genName.str()] += 1);
-  myName = genName.str();
   
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_port_in_base::finalise(), name == " << name() << ", myName == " << myName << std::endl;
