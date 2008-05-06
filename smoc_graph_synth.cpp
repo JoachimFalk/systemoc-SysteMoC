@@ -143,8 +143,8 @@ void smoc_graph_synth::cachePhase(PortRefList::ConstRef ports, Phase& phase) {
       ++pIter)
   {
     Port::ConstPtr port = pIter->instance();
-    smoc_root_port* rp =
-      dynamic_cast<smoc_root_port*>(NGXCache::getInstance().get(*port));
+    smoc_sysc_port* rp =
+      dynamic_cast<smoc_sysc_port*>(NGXCache::getInstance().get(*port));
     assert(rp);
     phase[rp] = pIter->attrValueAsSizeT("count").get();
   }
@@ -177,7 +177,7 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
     PortReqMap::const_iterator i, PortReqMap::const_iterator e)
 {
   assert(i != e);
-  smoc_root_port* p = NGXCache::getInstance().getCompiledPort(i->first);
+  smoc_sysc_port* p = NGXCache::getInstance().getCompiledPort(i->first);
   assert(p);
   EPortGuard pg =
     Expr::portTokens<smoc_root_port>(*p) >= i->second.second;

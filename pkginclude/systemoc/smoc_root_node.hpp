@@ -40,15 +40,12 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_firing_rules.hpp"
-#include "smoc_port.hpp"
-//#include <smoc_op.hpp>
+#include "detail/smoc_sysc_port.hpp"
 #ifndef __SCFE__
 # include "smoc_pggen.hpp"
 #endif
 
 #include "smoc_expr.hpp"
-
-//#include <oneof.hpp>
 
 #include <systemc.h>
 
@@ -158,7 +155,7 @@ public:
   void assembleFSM( smoc_modes::PGWriter &pgw ) const;
 #endif
   
-  const smoc_port_list getPorts() const;
+  const smoc_sysc_port_list getPorts() const;
   
   const smoc_firing_states getFiringStates() const;
   

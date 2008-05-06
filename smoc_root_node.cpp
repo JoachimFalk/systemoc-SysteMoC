@@ -37,9 +37,8 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_root_port.hpp>
+#include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/smoc_root_node.hpp>
-// #include <systemc/kernel/sc_object_manager.h>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/smoc_pggen.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
@@ -81,7 +80,6 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_firing_state &s, bool r
   if(regObj) idPool.regObj(this);
 }
  
-  
 smoc_root_node *smoc_root_node::current_actor = NULL;
 std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_args; 
  
@@ -152,9 +150,9 @@ void smoc_root_node::finalise() {
   
   _currentState = _initialState.finalise(this);
   
-  smoc_port_list ports = getPorts();
+  smoc_sysc_port_list ports = getPorts();
   
-  for (smoc_port_list::iterator iter = ports.begin();
+  for (smoc_sysc_port_list::iterator iter = ports.begin();
        iter != ports.end();
        ++iter) {
     assert(*iter != NULL);
@@ -191,8 +189,8 @@ void smoc_root_node::finalise() {
 #endif
 }
 
-const smoc_port_list smoc_root_node::getPorts() const {
-  smoc_port_list   ports;
+const smoc_sysc_port_list smoc_root_node::getPorts() const {
+  smoc_sysc_port_list   ports;
   
   // std::cerr << "=== getPorts ===" << this << std::endl;
   for ( 
@@ -204,7 +202,7 @@ const smoc_port_list smoc_root_node::getPorts() const {
          get_child_objects().begin();
        iter != get_child_objects().end();
        ++iter ) {
-    smoc_root_port *port = dynamic_cast<smoc_root_port *>(*iter);
+    smoc_sysc_port *port = dynamic_cast<smoc_sysc_port *>(*iter);
     
     if ( port != NULL )
       ports.push_back(port);
@@ -237,7 +235,7 @@ void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node
 
 void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   //const smoc_firing_states  fs = getFiringStates();
-  const smoc_port_list      ps = getPorts();
+  const smoc_sysc_port_list      ps = getPorts();
   
   if ( !ps.empty() ) {
     pgw << "<process name=\"" << name() << "\" "
@@ -246,7 +244,7 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
     {
       pgw.indentUp();
       //**********************************PORTS************************************
-      for ( smoc_port_list::const_iterator iter = ps.begin();
+      for ( smoc_sysc_port_list::const_iterator iter = ps.begin();
             iter != ps.end();
             ++iter )
         pgw << "<port name=\"" << (*iter)->name() << "\" "
@@ -367,14 +365,20 @@ namespace {
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeToken &astNode) {
+      assert(astNode.getPortId().getPortPtr() != NULL);
+      const smoc_sysc_port *port = dynamic_cast<const smoc_sysc_port *>(astNode.getPortId().getPortPtr());
+      assert(port != NULL);
       openNodeTag(astNode);
-      pgw << " portid=\"" << idPool.printId(astNode.getPortId().getPortPtr()) << "\"";
+      pgw << " portid=\"" << idPool.printId(port) << "\"";
       pgw << " pos=\"" << astNode.getPos() << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodePortTokens &astNode) {
+      assert(astNode.getPortId().getPortPtr() != NULL);
+      const smoc_sysc_port *port = dynamic_cast<const smoc_sysc_port *>(astNode.getPortId().getPortPtr());
+      assert(port != NULL);
       openNodeTag(astNode);
-      pgw << " portid=\"" << idPool.printId(astNode.getPortId().getPortPtr()) << "\">";
+      pgw << " portid=\"" << idPool.printId(port) << "\">";
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeSMOCEvent &astNode) {
@@ -396,8 +400,11 @@ namespace {
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeComm &astNode) {
+      assert(astNode.getPortId().getPortPtr() != NULL);
+      const smoc_sysc_port *port = dynamic_cast<const smoc_sysc_port *>(astNode.getPortId().getPortPtr());
+      assert(port != NULL);
       openNodeTag(astNode);
-      pgw << " portid=\"" << idPool.printId(astNode.getPortId().getPortPtr()) << "\">" << std::endl;
+      pgw << " portid=\"" << idPool.printId(port) << "\">" << std::endl;
       dumpASTUnNode(astNode);
       closeNodeTag(astNode);
     }
@@ -456,9 +463,9 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
  
 std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
   o << "actor: " << this->name() << std::endl;
-  smoc_port_list ps = getPorts();
+  smoc_sysc_port_list ps = getPorts();
   o << "  ports:" << std::endl;
-  for ( smoc_port_list::const_iterator iter = ps.begin();
+  for ( smoc_sysc_port_list::const_iterator iter = ps.begin();
         iter != ps.end();
         ++iter ) {
     o << "  " << *iter << std::endl;

@@ -33,7 +33,7 @@ namespace SysteMoC { namespace NGXSync {
   { return IdAttr(getId()); }
 
   IdAttr IdPool::printIdInvalid() const
-  { return IdAttr(-1); }
+  { return IdAttr(~static_cast<CoSupport::SMXId>(0)); }
   
   SCObj* IdPool::getObj(const NgId& id) const
   { return CoSupport::SMXIdManager::getInstance().getObj(id); }
@@ -111,11 +111,11 @@ namespace SysteMoC { namespace NGXSync {
   SCObj* NGXCache::get(NGX::IdedObj::ConstRef iop)
   { return get(&iop); }
 
-  smoc_root_port* NGXCache::getCompiledPort(Port::ConstPtr port) {
+  smoc_sysc_port* NGXCache::getCompiledPort(Port::ConstPtr port) {
     // cache lookup (if object exists it should be a port)
     SCObj* obj = get(*port);
     if(obj) {
-      smoc_root_port* rp = dynamic_cast<smoc_root_port*>(obj);
+      smoc_sysc_port* rp = dynamic_cast<smoc_sysc_port*>(obj);
       assert(rp);
       return rp;
     }
@@ -130,7 +130,7 @@ namespace SysteMoC { namespace NGXSync {
       // cache lookup (if object exists it should be a port)
       obj = get(*test);
       if(obj) {
-        smoc_root_port* rp = dynamic_cast<smoc_root_port*>(obj);
+        smoc_sysc_port* rp = dynamic_cast<smoc_sysc_port*>(obj);
         assert(rp);
 
         // sync. with idPool (FIXME: index?)
@@ -152,7 +152,7 @@ namespace SysteMoC { namespace NGXSync {
       // cache lookup (if object exists it should be a port)
       obj = get(*test);
       if(obj) {
-        smoc_root_port* rp = dynamic_cast<smoc_root_port*>(obj);
+        smoc_sysc_port* rp = dynamic_cast<smoc_sysc_port*>(obj);
         assert(rp);
 
         // sync. with idPool (FIXME: index?)

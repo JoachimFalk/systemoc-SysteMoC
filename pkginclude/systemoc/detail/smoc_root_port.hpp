@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2008 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -48,12 +48,12 @@
 #include <cosupport/stl_output_for_pair.hpp>
 #include <cosupport/oneof.hpp>
 
-#include <systemc.h>
-
 #include <systemoc/smoc_config.h>
 
-#include "smoc_expr.hpp"
-#include "smoc_event.hpp"
+#include "../smoc_expr.hpp"
+#include "../smoc_event.hpp"
+
+#include <boost/noncopyable.hpp>
 
 class smoc_root_node;
 
@@ -72,7 +72,7 @@ template<class P>
 class DPortTokens {
 public:
   typedef DPortTokens<P>  this_type;
-  
+
   friend class AST<this_type>;
   template <class E> friend class Value;
   template <class E> friend class CommExec;
@@ -97,7 +97,7 @@ struct D<DPortTokens<P> >: public DBase<DPortTokens<P> > {
 template<class P>
 struct AST<DPortTokens<P> > {
   typedef PASTNode result_type;
-  
+
   static inline
   result_type apply(const DPortTokens<P> &e)
     { return PASTNode(new ASTNodePortTokens(e.p)); }
@@ -123,7 +123,7 @@ typename PortTokens<P>::type portTokens(P &p)
 template <class P, class E>
 struct CommReset<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   typedef void result_type;
-  
+
   static inline
   result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
 # ifdef SYSTEMOC_DEBUG
@@ -137,7 +137,7 @@ struct CommReset<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
 template <class P, class E>
 struct CommSetup<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   typedef void result_type;
-  
+
   static inline
   result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
 # ifdef SYSTEMOC_DEBUG
@@ -157,7 +157,7 @@ struct CommSetup<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
 template <class P, typename T>
 struct Sensitivity<DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> > {
   typedef Detail::Process      match_type;
-  
+
   typedef void                 result_type;
   typedef smoc_event_and_list &param1_type;
 
@@ -174,7 +174,7 @@ struct Sensitivity<DBinOp<DPortTokens<P>,DLiteral<T>,DOpBinGe> > {
 template <class P, class E>
 struct Value<DBinOp<DPortTokens<P>,E,DOpBinGe> > {
   typedef Expr::Detail::ENABLED result_type;
-  
+
   static inline
   result_type apply(const DBinOp<DPortTokens<P>,E,DOpBinGe> &e) {
 #ifndef NDEBUG
@@ -236,7 +236,7 @@ struct CommExec<DComm<P, E> > {
   typedef void                    result_type;
 #ifdef SYSTEMOC_ENABLE_VPC
   typedef const smoc_ref_event_p &param1_type;
-  
+
   static inline
   result_type apply(const DComm<P, E> &e, const smoc_ref_event_p &le) {
 # ifdef SYSTEMOC_DEBUG
@@ -283,9 +283,9 @@ struct CommitCount<DComm<P, E> > {
 
 } // namespace Expr
 
-class smoc_root_port
+class smoc_root_port: public boost::noncopyable {
 // must be public inheritance for dynamic_cast in smoc_root_node to work
-: public sc_port_base {
+//: public sc_port_base {
 public:
   typedef smoc_root_port  this_type;
 
@@ -293,15 +293,11 @@ public:
   friend class smoc_root_node;
   friend class hscd_choice_active_node;
 protected:
-  smoc_root_port *parent, *child;
-
   typedef Expr::BinOp<
     Expr::DComm<this_type,Expr::DLiteral<size_t> >,
     Expr::DBinOp<Expr::DPortTokens<smoc_root_port>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
     Expr::DOpBinLAnd>::type   TokenGuard;
 
-  //FIXME(MS): allow more than one "IN-Port" per Signal
-  smoc_root_port(const char* name_);
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void commExec(size_t, const smoc_ref_event_p &) = 0;
@@ -309,10 +305,6 @@ public:
   virtual void commExec(size_t)                           = 0;
 #endif
 public:
-  static const char* const kind_string;
-  virtual const char* kind() const
-    { return kind_string; }
- 
 #ifndef NDEBUG
   virtual void setLimit(size_t) = 0;
 #endif
@@ -321,23 +313,6 @@ public:
   virtual bool        isInput() const = 0;
   bool                isOutput() const
     { return !isInput(); }
-
-  smoc_root_port *getParentPort() const
-    { return parent; }
-  smoc_root_port *getChildPort() const
-    { return child; }
- 
-  // bind interface to this port
-  void bind(sc_interface &interface_ ) {
-    sc_port_base::bind(interface_);
-  }
-  // bind parent port to this port
-  void bind(this_type &parent_) {
-    assert( parent == NULL && parent_.child == NULL );
-    parent        = &parent_;
-    parent->child = this;
-    sc_port_base::bind(parent_);
-  }
 
   // operator(n,m) n: How much to consume/produce, m: How many tokens/space must be available
   TokenGuard operator ()(size_t n, size_t m) {
@@ -348,40 +323,40 @@ public:
   }
 
   void dump( std::ostream &out ) const;
+  
   virtual ~smoc_root_port();
 protected:
   /// Finalise port called by smoc_root_node::finalise
   virtual void finalise(smoc_root_node *node) = 0;
-private:
-  // disabled
-  smoc_root_port( const this_type & );
-  this_type& operator = ( const this_type & );
 };
 
 static inline
 std::ostream &operator <<( std::ostream &out, const smoc_root_port &p )
   { p.dump(out); return out; }
 
-typedef std::list<smoc_root_port *> smoc_port_list;
+typedef std::list<smoc_root_port *> smoc_root_port_list;
 
-class smoc_root_port_in
-: public smoc_root_port {
+template <class Derived>
+class smoc_root_port_in {
+  smoc_root_port       *getImpl()
+    { return static_cast<smoc_root_port *>(this); }
+  smoc_root_port const *getImpl() const
+    { return static_cast<smoc_root_port const *>(this); }
 public:
-  smoc_root_port_in( const char* name_ )
-    : smoc_root_port(name_) {}
-
   Expr::PortTokens<smoc_root_port>::type getConsumableTokens()
-    { return Expr::portTokens<smoc_root_port>(*this); }
+    { return Expr::portTokens<smoc_root_port>(*getImpl()); }
 };
 
-class smoc_root_port_out
-: public smoc_root_port {
+template <class Derived>
+class smoc_root_port_out {
+private:
+  smoc_root_port       *getImpl()
+    { return static_cast<smoc_root_port *>(this); }
+  smoc_root_port const *getImpl() const
+    { return static_cast<smoc_root_port const *>(this); }
 public:
-  smoc_root_port_out( const char* name_ )
-    : smoc_root_port(name_) {}
-
   Expr::PortTokens<smoc_root_port>::type getFreeSpace()
-    { return Expr::portTokens<smoc_root_port>(*this); }
+    { return Expr::portTokens<smoc_root_port>(*getImpl()); }
 };
 
 #endif // _INCLUDED_SMOC_ROOT_PORT_HPP

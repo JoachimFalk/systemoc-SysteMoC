@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2008 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -34,15 +34,15 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_POPT_HPP
-#define _INCLUDED_SMOC_POPT_HPP
+#ifndef _INCLUDED_SMOC_PORT_HPP
+#define _INCLUDED_SMOC_PORT_HPP
 
 #include <cosupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
 
 #include "smoc_expr.hpp"
-#include "smoc_root_port.hpp"
+#include "detail/smoc_sysc_port.hpp"
 #include "smoc_chan_if.hpp"
 #include "smoc_event.hpp"
 #include "smoc_storage.hpp"
@@ -51,6 +51,192 @@
 #include <vector>
 
 #include "hscd_tdsim_TraceLog.hpp"
+
+/// IFACE: interface type
+template <typename IFACE>
+class smoc_port_base
+: public smoc_sysc_port {
+  typedef smoc_port_base<IFACE>         this_type;
+public:
+  typedef IFACE                         iface_type;
+
+  typedef typename IFACE::access_type   access_type;
+private:
+  access_type *channelAccess;
+
+  const char *if_typename() const { return typeid(iface_type).name(); }
+
+  // called by pbind (for internal use only)
+  int vbind(sc_interface &interface_) {
+    iface_type *iface = dynamic_cast<iface_type *>(&interface_);
+    if (iface == 0) {
+      // type mismatch
+      return 2;
+    }
+    this_type::bind(*iface);
+    return 0;
+  }
+  int vbind(sc_port_base &parent_) {
+    this_type* parent = dynamic_cast<this_type *>(&parent_);
+    if (parent == 0) {
+      // type mismatch
+      return 2;
+    }
+    this_type::bind(*parent);
+    return 0;
+  }
+  void add_interface( sc_interface *i ) {
+    this->push_interface(i);
+    if (this->getChildPort() == NULL)
+      (*this)->registerPort(this);
+  }
+protected:
+  smoc_port_base(const char *name_)
+    : smoc_sysc_port(name_) {}
+
+#ifndef NDEBUG
+  virtual void   setLimit(size_t l)
+    { channelAccess->setLimit(l); }
+#endif
+
+  void finalise(smoc_root_node *node) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "smoc_port_base::finalise(), name == " << this->name() << std::endl;
+#endif
+    channelAccess = (*this)->getChannelAccess();
+  }
+
+  // get the channel access
+  access_type* get_chanaccess()
+    { return channelAccess; }
+  const access_type *get_chanaccess() const
+    { return channelAccess; }
+
+  iface_type       *operator -> () {
+    sc_interface *iface = this->get_interface();
+    if (iface == NULL)
+      this->report_error(SC_ID_GET_IF_, "port is not bound");
+    return dynamic_cast<iface_type *>(iface);
+  }
+
+  iface_type const *operator -> () const {
+    const sc_interface *iface = this->get_interface();
+    if (iface == NULL)
+      this->report_error(SC_ID_GET_IF_, "port is not bound");
+    return dynamic_cast<iface_type const *>(iface);
+  }
+};
+
+template <typename T,
+          template <typename> class R>
+class smoc_port_in_base
+: public smoc_port_base<smoc_chan_in_if<T,R> >,
+  public smoc_root_port_in<smoc_port_in_base<T,R> > {
+public:
+  typedef T            data_type;
+  typedef smoc_port_in_base<data_type,R>    this_type;
+  typedef typename this_type::iface_type    iface_type;
+
+  typedef typename iface_type::access_type::return_type return_type;
+
+  template <class E> friend class Expr::CommExec;
+#ifndef NDEBUG
+  template <class E> friend class Expr::CommReset;
+  template <class E> friend class Expr::CommSetup;
+#endif
+  template <class E> friend class Expr::Value;
+protected:
+  typedef smoc_port_base<smoc_chan_in_if<T,R > > base_type;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commExec(size_t n, const smoc_ref_event_p &le)
+    { return (*this)->commitRead(n, le); }
+#else
+  void commExec(size_t n)
+    { return (*this)->commitRead(n); }
+#endif
+public: 
+  smoc_port_in_base()
+    : base_type(sc_gen_unique_name("smoc_port_in")) {}
+ 
+  bool isInput() const { return true; }
+
+  bool tokenIsValid(size_t i=0) const
+    { return this->get_chanaccess()->tokenIsValid(i); }
+  size_t tokenId(size_t i=0) const
+    { return (*this)->inTokenId() + i; }
+  size_t availableCount() const
+    { return (*this)->numAvailable(); }
+  smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
+    { return (*this)->dataAvailableEvent(n); }  
+
+  // reflect operator () to smoc_root_port
+  typename this_type::TokenGuard operator ()(size_t n, size_t m)
+    { return this->smoc_root_port::operator()(n,n); }
+  typename this_type::TokenGuard operator ()(size_t n)
+    { return this->operator()(n,n); }
+ 
+  void operator () ( iface_type& interface_ )
+    { bind(interface_); }
+  void operator () ( this_type& parent_ )
+    { bind(parent_); }
+};
+
+template <typename T,                            //data type
+          //template <typename, typename> class R, //ring access type
+          template <typename> class R, //ring access type
+          template <typename> class STORAGE_TYPE = smoc_storage_out
+          >
+class smoc_port_out_base
+: public smoc_port_base<smoc_chan_out_if<T,R,STORAGE_TYPE> >,
+  public smoc_root_port_out<smoc_port_out_base<T,R,STORAGE_TYPE> > {
+public:
+  typedef T                                             data_type;
+  typedef smoc_port_out_base<data_type,R, STORAGE_TYPE> this_type;
+  typedef typename this_type::iface_type                iface_type;
+
+  template <class E> friend class Expr::CommExec;
+#ifndef NDEBUG
+  template <class E> friend class Expr::CommReset;
+  template <class E> friend class Expr::CommSetup;
+#endif
+  template <class E> friend class Expr::Value;
+
+  typedef typename iface_type::access_type::return_type return_type;
+protected:
+  typedef smoc_port_base<smoc_chan_out_if<T,R,STORAGE_TYPE> > base_type;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commExec(size_t n, const smoc_ref_event_p &le)
+    { return (*this)->commitWrite(n, le); }
+#else
+  void commExec(size_t n)
+    { return (*this)->commitWrite(n); }
+#endif
+public:  
+  smoc_port_out_base()
+    : base_type(sc_gen_unique_name("smoc_port_out")) {}
+ 
+  bool isInput() const { return false; }
+ 
+  size_t tokenId(size_t i=0) const
+    { return (*this)->outTokenId() + i; }
+  size_t availableCount() const
+    { return (*this)->numFree(); }
+  smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
+    { return (*this)->spaceAvailableEvent(n); }
+
+  // reflect operator () to smoc_root_port
+  typename this_type::TokenGuard operator ()(size_t n, size_t m)
+    { return this->smoc_root_port::operator()(n,n); }
+  typename this_type::TokenGuard operator ()(size_t n)
+    { return this->operator()(n,n); }
+ 
+  void operator () ( iface_type& interface_ )
+    { bind(interface_); }
+  void operator () ( this_type& parent_ )
+    { bind(parent_); }
+};
 
 //forward declaration
 template <typename T>
@@ -114,221 +300,6 @@ typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
 
 } // namespace Expr
 
-/****************************************************************************/
-
-template <class PARENT,          //parent class
-	  typename IFACE>       //interface type
-class smoc_port_base
-: public PARENT {
-  typedef smoc_port_base<PARENT,IFACE>  this_type;
-  typedef PARENT                        base_type;
-public:
-  typedef IFACE                         iface_type;
-
-  typedef typename IFACE::access_type   access_type;
-
-  template <class E> friend class Expr::Sensitivity;
-private:
-  iface_type  *interface;
-  access_type *channelAccess;
-  
-  const char *if_typename() const { return typeid(iface_type).name(); }
-
-  // SystemC 2.2 requires this method
-  // (must also return the correct number!!!)
-  int interface_count() {
-    return interface ? 1 : 0;
-  }
-
-  // called by pbind (for internal use only)
-  int vbind( sc_interface& interface_ ) {
-      iface_type *iface = dynamic_cast<iface_type *>( &interface_ );
-      if( iface == 0 ) {
-          // type mismatch
-          return 2;
-      }
-      base_type::bind( *iface );
-      return 0;
-  }
-  int vbind( sc_port_base& parent_ ) {
-      this_type* parent = dynamic_cast<this_type*>( &parent_ );
-      if( parent == 0 ) {
-          // type mismatch
-          return 2;
-      }
-      base_type::bind( *parent );
-      return 0;
-  }
-protected:
-
-#ifndef NDEBUG
-  virtual void   setLimit(size_t l)
-    {channelAccess->setLimit(l);}
-  //virtual size_t getLimit() const {return channelAccess->getLimit();}
-#endif
-
-  void finalise(smoc_root_node *node) {
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "smoc_port_base::finalise(), name == " << this->name() << std::endl;
-#endif
-    channelAccess = interface->getChannelAccess();
-  }
-
-  // get the channel access
-  access_type* get_chanaccess()
-    { return channelAccess; }
-  const access_type *get_chanaccess() const
-    { return channelAccess; }
-
-  smoc_port_base( const char* name_ )
-    : base_type( name_ ), interface( NULL ) {}
-
-  void push_interface( sc_interface *_i ) {
-    assert( interface == NULL );
-    interface = dynamic_cast<iface_type *>(_i);
-    assert( interface != NULL );
-  }
-
-  // get the first interface without checking for nil
-  sc_interface       *get_interface()       { return interface; }
-  sc_interface const *get_interface() const { return interface; }
-
-  iface_type       *operator -> () {
-    if ( interface == NULL )
-      this->report_error( SC_ID_GET_IF_, "port is not bound" );
-    return interface;
-  }
-  
-  iface_type const *operator -> () const {
-    if ( interface == NULL )
-      this->report_error( SC_ID_GET_IF_, "port is not bound" );
-    return interface;
-  }
-};
-
-template <typename T,
-          template <typename> class R>
-class smoc_port_in_base
-  : public smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R> > {
-public:
-  typedef T            data_type;
-  typedef smoc_port_in_base<data_type,R>    this_type;
-  typedef typename this_type::iface_type    iface_type;
-
-  typedef typename iface_type::access_type::return_type return_type;
-  
-  template <class E> friend class Expr::CommExec;
-#ifndef NDEBUG
-  template <class E> friend class Expr::CommReset;
-  template <class E> friend class Expr::CommSetup;
-#endif
-  template <class E> friend class Expr::Value;
-protected:
-  typedef smoc_port_base<smoc_root_port_in, smoc_chan_in_if<T,R > > base_type;
-
-  void add_interface( sc_interface *i ) {
-    this->push_interface(i);
-    if (this->child == NULL)
-      (*this)->registerPort(this);
-  }
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commExec(size_t n, const smoc_ref_event_p &le)
-    { return (*this)->commitRead(n, le); }
-#else
-  void commExec(size_t n)
-    { return (*this)->commitRead(n); }
-#endif
-public: 
-  smoc_port_in_base()
-    : base_type(sc_gen_unique_name("smoc_port_in")) {}
- 
-  bool isInput() const { return true; }
-
-  bool tokenIsValid(size_t i=0) const
-    { return this->get_chanaccess()->tokenIsValid(i); }
-  size_t tokenId(size_t i=0) const
-    { return (*this)->inTokenId() + i; }
-  size_t availableCount() const
-    { return (*this)->numAvailable(); }
-  smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
-    { return (*this)->dataAvailableEvent(n); }  
-
-  // reflect operator () to smoc_root_port
-  typename this_type::TokenGuard operator ()(size_t n, size_t m)
-    { return this->smoc_root_port_in::operator()(n,n); }
-  typename this_type::TokenGuard operator ()(size_t n)
-    { return this->operator()(n,n); }
- 
-  void operator () ( iface_type& interface_ )
-    { bind(interface_); }
-  void operator () ( this_type& parent_ )
-    { bind(parent_); }
-};
-
-
-template <typename T,                            //data type
-          //template <typename, typename> class R, //ring access type
-          template <typename> class R, //ring access type
-          template <typename> class STORAGE_TYPE = smoc_storage_out
-          >
-class smoc_port_out_base
-  : public smoc_port_base<smoc_root_port_out, 
-                          smoc_chan_out_if<T,R,STORAGE_TYPE> > {
-public:
-  typedef T            data_type;
-  typedef smoc_port_out_base<data_type,R, STORAGE_TYPE>      this_type;
-  typedef typename this_type::iface_type    iface_type;
-  
-  template <class E> friend class Expr::CommExec;
-#ifndef NDEBUG
-  template <class E> friend class Expr::CommReset;
-  template <class E> friend class Expr::CommSetup;
-#endif
-  template <class E> friend class Expr::Value;
-
-  typedef typename iface_type::access_type::return_type return_type;
-protected:
-  typedef smoc_port_base<smoc_root_port_out, 
-                         smoc_chan_out_if<T,R,STORAGE_TYPE> > base_type;
-  void add_interface( sc_interface *i ) {
-    this->push_interface(i);
-    if (this->child == NULL)
-      (*this)->registerPort(this);
-  }
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commExec(size_t n, const smoc_ref_event_p &le)
-    { return (*this)->commitWrite(n, le); }
-#else
-  void commExec(size_t n)
-    { return (*this)->commitWrite(n); }
-#endif
-public:  
-  smoc_port_out_base()
-    : base_type(sc_gen_unique_name("smoc_port_out")) {}
- 
-  bool isInput() const { return false; }
- 
-  size_t tokenId(size_t i=0) const
-    { return (*this)->outTokenId() + i; }
-  size_t availableCount() const
-    { return (*this)->numFree(); }
-  smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
-    { return (*this)->spaceAvailableEvent(n); }
-
-  // reflect operator () to smoc_root_port
-  typename this_type::TokenGuard operator ()(size_t n, size_t m)
-    { return this->smoc_root_port_out::operator()(n,n); }
-  typename this_type::TokenGuard operator ()(size_t n)
-    { return this->operator()(n,n); }
- 
-  void operator () ( iface_type& interface_ )
-    { bind(interface_); }
-  void operator () ( this_type& parent_ )
-    { bind(parent_); }
-};
-
 template <typename T>
 class smoc_port_in
   : public smoc_port_in_base<T, smoc_channel_access> {
@@ -368,4 +339,4 @@ public:
   }
 };
 
-#endif // _INCLUDED_SMOC_POPT_HPP
+#endif // _INCLUDED_SMOC_PORT_HPP

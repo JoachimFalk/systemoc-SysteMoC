@@ -25,6 +25,7 @@
 
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
+#include "detail/smoc_sysc_port.hpp"
 
 #include <systemc.h>
 #include <vector>
@@ -135,8 +136,8 @@ protected:
 
   bool isDefined() const;
 
-  void registerPort(smoc_root_port_in *port){
-    this->_base->registerPort(port);
+  void registerPortIn(smoc_sysc_port *port){
+    this->_base->registerPortIn(port);
   }
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;
@@ -172,8 +173,8 @@ protected:
 
   bool isDefined() const;
 
-  void registerPort(smoc_root_port_out *port){
-    this->_base->registerPort(port);
+  void registerPortOut(smoc_sysc_port *port){
+    this->_base->registerPortOut(port);
   }
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;

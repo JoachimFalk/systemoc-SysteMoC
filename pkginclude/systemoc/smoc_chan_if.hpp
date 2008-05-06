@@ -41,7 +41,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_root_port.hpp"
+#include "detail/smoc_sysc_port.hpp"
 #include "smoc_event.hpp"
 #include "smoc_pggen.hpp"
 #include "smoc_storage.hpp"
@@ -115,6 +115,8 @@ class smoc_port_in_base;
 class smoc_chan_in_base_if {
   typedef smoc_chan_in_base_if this_type;
 public:
+  template <class IFACE>
+  friend class smoc_port_base;
   template <
     typename T,
     template <typename> class R>
@@ -124,7 +126,9 @@ protected:
   // constructor
   smoc_chan_in_base_if() {}
 
-  virtual void registerPort(smoc_root_port_in *portIn) = 0;
+  virtual void registerPortIn(smoc_sysc_port *port) = 0;
+  void registerPort(smoc_sysc_port *port)
+    { return registerPortIn(port); }
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitRead(size_t consume, const smoc_ref_event_p &) = 0;
@@ -154,6 +158,8 @@ class smoc_port_out_base;
 class smoc_chan_out_base_if {
   typedef smoc_chan_out_base_if this_type;
 public:
+  template <class IFACE>
+  friend class smoc_port_base;
   template <
     typename T, 
     template <typename> class R, 
@@ -164,7 +170,9 @@ protected:
   // constructor
   smoc_chan_out_base_if() {}
 
-  virtual void registerPort(smoc_root_port_out *portOut) = 0;
+  virtual void registerPortOut(smoc_sysc_port *port) = 0;
+  void registerPort(smoc_sysc_port *port)
+    { return registerPortOut(port); }
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
@@ -190,8 +198,8 @@ class smoc_root_chan
 private:
   friend class smoc_graph_base;
 
-  smoc_port_list portsIn;
-  smoc_port_list portsOut;
+  smoc_sysc_port_list portsIn;
+  smoc_sysc_port_list portsOut;
 
   std::string myName; // patched in finalise
 protected:
@@ -203,9 +211,9 @@ protected:
   // constructor
   smoc_root_chan(const char *name);
 
-  void registerPort(smoc_root_port_in *portIn)
+  void registerPortIn(smoc_sysc_port *portIn)
     { portsIn.push_front(portIn); }
-  void registerPort(smoc_root_port_out *portOut)
+  void registerPortOut(smoc_sysc_port *portOut)
     { portsOut.push_front(portOut); }
 
   virtual void setChannelID( std::string sourceActor,
@@ -221,9 +229,9 @@ protected:
 public:
   const char *name() const { return myName.c_str(); }
 
-  const smoc_port_list &getInputPorts()  const
+  const smoc_sysc_port_list &getInputPorts()  const
     { return portsIn;  }
-  const smoc_port_list &getOutputPorts() const
+  const smoc_sysc_port_list &getOutputPorts() const
     { return portsOut; }
 
   virtual ~smoc_root_chan();
@@ -241,10 +249,10 @@ protected:
 
   // this is needed to overwrite the virtual registerPort
   // methods in smoc_chan_in_base_if and smoc_chan_out_base_if.
-  void registerPort(smoc_root_port_in *portIn)
-    { return smoc_root_chan::registerPort(portIn); }
-  void registerPort(smoc_root_port_out *portOut)
-    { return smoc_root_chan::registerPort(portOut); }
+  void registerPortIn(smoc_sysc_port *portIn)
+    { return smoc_root_chan::registerPortIn(portIn); }
+  void registerPortOut(smoc_sysc_port *portOut)
+    { return smoc_root_chan::registerPortOut(portOut); }
 
   virtual void finalise();
 

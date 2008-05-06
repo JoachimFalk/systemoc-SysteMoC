@@ -82,11 +82,11 @@ void smoc_root_chan::finalise() {
   
   genName << "cf_";
   {
-    const smoc_port_list &out = getOutputPorts();
+    const smoc_sysc_port_list &out = getOutputPorts();
     
-    for ( smoc_port_list::const_iterator iter = out.begin();
-          iter != out.end();
-          ++iter ) {
+    for (smoc_sysc_port_list::const_iterator iter = out.begin();
+         iter != out.end();
+         ++iter ) {
       genName
         << (iter == out.begin() ? "" : "|")
         << (*iter)->get_parent()->name();
@@ -94,11 +94,11 @@ void smoc_root_chan::finalise() {
   }
   genName << "_";
   {
-    const smoc_port_list &in = getInputPorts();
+    const smoc_sysc_port_list &in = getInputPorts();
     
-    for ( smoc_port_list::const_iterator iter = in.begin();
-          iter != in.end();
-          ++iter ) {
+    for (smoc_sysc_port_list::const_iterator iter = in.begin();
+         iter != in.end();
+         ++iter ) {
       genName
         << (iter == in.begin() ? "" : "|")
         << (*iter)->get_parent()->name();
@@ -151,7 +151,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   IdAttr idChannelPortOut = getOutputPorts().empty() ?
     idPool.printIdInvalid() : idPool.printId(getOutputPorts().front(), 1);
 
-  smoc_root_port *ifPort = getOutputPorts().empty() ?
+  smoc_sysc_port *ifPort = getOutputPorts().empty() ?
     0 : getOutputPorts().front();
 
   // search highest interface port (multiple hierachie layers)

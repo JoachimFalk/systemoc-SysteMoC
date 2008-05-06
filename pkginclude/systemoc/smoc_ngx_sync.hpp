@@ -38,7 +38,7 @@
 #define _INCLUDED_SMOC_NGX_SYNC_HPP
 
 #include "smoc_pggen.hpp"
-#include "smoc_root_port.hpp"
+#include "detail/smoc_sysc_port.hpp"
 
 #include <stdexcept>
 #include <string>
@@ -153,7 +153,7 @@ namespace SysteMoC { namespace NGXSync {
     // find / cache a port which is compiled into the model and has the
     // same interface as the specified port (returns 0 if none exists)
     // (this makes only sense if all compiled ports are registered)
-    smoc_root_port* getCompiledPort(NGX::Port::ConstPtr p);
+    smoc_sysc_port *getCompiledPort(NGX::Port::ConstPtr p);
 
   private:
     // NGX -> SystemC lookup map

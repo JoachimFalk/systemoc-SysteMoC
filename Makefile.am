@@ -58,32 +58,49 @@ EXTRA_DIST	=
 PROGLDFLAGS=
 
 lib_LTLIBRARIES = libsystemoc.la
-pkginclude_HEADERS =					\
-	pkginclude/systemoc/smoc_config.h		\
-							\
-	pkginclude/systemoc/smoc_expr.hpp		\
-	pkginclude/systemoc/smoc_ast_common.hpp		\
-	pkginclude/systemoc/smoc_ast_systemoc.hpp	\
-	pkginclude/systemoc/smoc_fifo.hpp		\
-	pkginclude/systemoc/smoc_sr_signal.hpp		\
-	pkginclude/systemoc/smoc_multicast_sr_signal.hpp\
-	pkginclude/systemoc/smoc_moc.hpp		\
-	pkginclude/systemoc/smoc_port.hpp		\
-	pkginclude/systemoc/smoc_root_node.hpp		\
-	pkginclude/systemoc/smoc_firing_rules.hpp	\
-	pkginclude/systemoc/smoc_guard.hpp		\
-	pkginclude/systemoc/smoc_node_types.hpp		\
-	pkginclude/systemoc/smoc_root_port.hpp		\
-	pkginclude/systemoc/smoc_graph_type.hpp		\
-	pkginclude/systemoc/smoc_pggen.hpp		\
-	pkginclude/systemoc/smoc_chan_if.hpp		\
-	pkginclude/systemoc/smoc_event.hpp		\
-	pkginclude/systemoc/smoc_storage.hpp		\
-	pkginclude/systemoc/smoc_ngx_sync.hpp		\
-	pkginclude/systemoc/smoc_graph_synth.hpp	\
-	pkginclude/systemoc/smoc_chan_adapter.hpp	\
-							\
-	pkginclude/systemoc/hscd_tdsim_TraceLog.hpp
+pkginclude_HEADERS = \
+	pkginclude/systemoc/smoc_config.h \
+	\
+	pkginclude/systemoc/detail/smoc_event_decls.hpp \
+	pkginclude/systemoc/detail/smoc_event_expr.hpp \
+	pkginclude/systemoc/detail/smoc_sysc_port.hpp \
+	pkginclude/systemoc/detail/smoc_root_port.hpp \
+	pkginclude/systemoc/smoc_event.hpp \
+	pkginclude/systemoc/smoc_port.hpp \
+	pkginclude/systemoc/smoc_expr.hpp \
+	pkginclude/systemoc/smoc_ast_common.hpp \
+	pkginclude/systemoc/hscd_tdsim_TraceLog.hpp \
+	pkginclude/systemoc/smoc_ast_systemoc.hpp \
+	pkginclude/systemoc/smoc_chan_adapter.hpp \
+	pkginclude/systemoc/smoc_chan_if.hpp \
+	pkginclude/systemoc/smoc_de_channel_access.hpp \
+	pkginclude/systemoc/smoc_fifo.hpp \
+	pkginclude/systemoc/smoc_firing_rules.hpp \
+	pkginclude/systemoc/smoc_graph_synth.hpp \
+	pkginclude/systemoc/smoc_graph_type.hpp \
+	pkginclude/systemoc/smoc_guard.hpp \
+	pkginclude/systemoc/smoc_md_array.hpp \
+	pkginclude/systemoc/smoc_md_array_access.hpp \
+	pkginclude/systemoc/smoc_md_ba_basic_tree.hpp \
+	pkginclude/systemoc/smoc_md_ba_linearized_buffer.hpp \
+	pkginclude/systemoc/smoc_md_ba_linearized_buffer_schedule.hpp \
+	pkginclude/systemoc/smoc_md_ba_linearized_buffer_size.hpp \
+	pkginclude/systemoc/smoc_md_buffer.hpp \
+	pkginclude/systemoc/smoc_md_buffer_analysis.hpp \
+	pkginclude/systemoc/smoc_md_chan_if.hpp \
+	pkginclude/systemoc/smoc_md_fifo.hpp \
+	pkginclude/systemoc/smoc_md_loop.hpp \
+	pkginclude/systemoc/smoc_md_port.hpp \
+	pkginclude/systemoc/smoc_moc.hpp \
+	pkginclude/systemoc/smoc_multicast_sr_signal.hpp \
+	pkginclude/systemoc/smoc_node_types.hpp \
+	pkginclude/systemoc/smoc_pggen.hpp \
+	pkginclude/systemoc/smoc_root_node.hpp \
+	pkginclude/systemoc/smoc_sr_signal.hpp \
+	pkginclude/systemoc/smoc_storage.hpp \
+	pkginclude/systemoc/smoc_vector.hpp \
+	pkginclude/systemoc/smoc_wsdf_edge.hpp \
+	pkginclude/systemoc/smoc_ngx_sync.hpp
 
 if SYSTEMOC_ENABLE_WSDF
 pkginclude_HEADERS +=					\
@@ -140,6 +157,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_graph_type.cpp		\
 	smoc_root_node.cpp		\
 	smoc_root_port.cpp		\
+	smoc_sysc_port.cpp		\
 	smoc_firing_rules.cpp		\
 	smoc_pggen.cpp			\
 	smoc_chan_if.cpp		\

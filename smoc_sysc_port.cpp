@@ -33,14 +33,19 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/detail/smoc_root_port.hpp>
+#include <systemoc/detail/smoc_sysc_port.hpp>
+#include <systemoc/smoc_ngx_sync.hpp>
 
-smoc_root_port::~smoc_root_port() {
+using namespace CoSupport;
+using namespace SysteMoC::NGXSync;
+
+smoc_sysc_port::smoc_sysc_port(const char* name_)
+  : sc_port_base(name_, 1), interface(NULL),
+    parent(NULL), child(NULL) {
+  idPool.regObj(this);
+  idPool.regObj(this, 1);
 }
 
-void smoc_root_port::dump( std::ostream &out ) const {
-  out << "port(" << this
-//    <<      ",name=" << name()
-//    <<      ",hierarchy=" << getHierarchy()->name()
-      <<      ",available=" << availableCount() << ")";
+smoc_sysc_port::~smoc_sysc_port() {
+  idPool.unregObj(this);
 }

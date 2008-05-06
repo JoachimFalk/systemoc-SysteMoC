@@ -49,7 +49,6 @@
 
 #include <systemc.h>
 #include "smoc_guard.hpp"
-#include "smoc_root_port.hpp"
 
 #include <boost/shared_ptr.hpp>
 
@@ -218,7 +217,6 @@ struct smoc_firing_types {
   typedef std::list<resolved_state_ty *>  statelist_ty;
   typedef std::list<transition_ty>        transitionlist_ty;
   typedef std::pair<bool,transition_ty *> maybe_transition_ty;
-//  typedef std::set<smoc_root_port *>  ports_ty;
   typedef CoSupport::oneof<smoc_func_call, smoc_func_branch, smoc_func_diverge, smoc_sr_func_pair>
                                           func_ty;
   
