@@ -66,7 +66,7 @@ public:
       i(1), iter(_iter) {
     start =
          (out(1) && VAR(iter) > 0U)
-      >> call(&m_h_src::src)       >> start;
+      >> CALL(m_h_src::src)       >> start;
   }
 };
 
@@ -88,7 +88,7 @@ private:
 public:
   m_h_sink(sc_module_name name)
     : smoc_actor(name, start) {
-    start = in(1) >> call(&m_h_sink::sink) >> start;
+    start = in(1) >> CALL(m_h_sink::sink) >> start;
   }
 };
 
