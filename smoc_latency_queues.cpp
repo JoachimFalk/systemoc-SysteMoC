@@ -33,48 +33,48 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
-#include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
+#include <systemoc/detail/smoc_latency_queues.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
+#if defined(SYSTEMOC_ENABLE_VPC) && defined(SYSTEMOC_TRACE)
+namespace Detail {
 
-using namespace SysteMoC::NGX;
-using namespace SysteMoC::NGXSync;
+  struct DeferedTraceLogDumper
+  : public smoc_event_listener {
+    smoc_ref_event_p  event;
+    smoc_fifo_kind   *fifo;
+    const char       *mode;
 
-smoc_fifo_kind::smoc_fifo_kind( const chan_init &i )
-  : smoc_nonconflicting_chan(
-    i.name != NULL ? i.name : sc_gen_unique_name( "smoc_fifo" ) ),
-#ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue(this), 
-#endif
-    fsize(i.n+1),
-    rindex(0),
-#ifdef SYSTEMOC_ENABLE_VPC
-    vindex(0), 
-#endif
-    windex(0),
-    tokenId(0)
-{
-  // NGX --> SystemC
-  if(NGXConfig::getInstance().hasNGX()) {
-
-    Fifo::ConstPtr fifo =
-      objAs<Fifo>(NGXCache::getInstance().get(this));
-
-    if(fifo) {
-      fsize = fifo->size().get() + 1;
+    void signaled(smoc_event_waiter *_e) {
+//    const char *name = fifo->name();
+      
+      TraceLog.traceStartActor(fifo, mode);
+#   ifdef SYSTEMOC_DEBUG
+      std::cerr << "smoc_detail::DeferedTraceLogDumper::signaled(...)" << std::endl;
+#   endif // SYSTEMOC_DEBUG
+      assert(_e == event.get());
+      assert(*_e);
+      event = NULL;
+      TraceLog.traceEndActor(fifo);
+      return;
     }
-    else {
-      // XML node missing or no Fifo
+    void eventDestroyed(smoc_event_waiter *_e) {
+#   ifdef SYSTEMOC_DEBUG
+      std::cerr << "smoc_detail::DeferedTraceLogDumper:: eventDestroyed(...)" << std::endl;
+#   endif // SYSTEMOC_DEBUG
+      delete this;
     }
-  }
 
-  // for lazy % overflow protection fsize must be less than half the datatype
-  //  size
-  assert(fsize < (MAX_TYPE(size_t) >> 1));
-}
+    DeferedTraceLogDumper
+      (const smoc_ref_event_p &event, smoc_fifo_kind *fifo, const char *mode)
+      : event(event), fifo(fifo), mode(mode) {};
+ 
+    virtual ~DeferedTraceLogDumper() {}
+  };
+
+} // namespace Detail
+
+#endif // defined(SYSTEMOC_ENABLE_VPC) && defined(SYSTEMOC_TRACE)
