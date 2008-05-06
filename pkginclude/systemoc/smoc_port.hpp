@@ -174,7 +174,7 @@ public:
 
   // reflect operator () to smoc_root_port
   typename this_type::TokenGuard operator ()(size_t n, size_t m)
-    { return this->smoc_root_port::operator()(n,n); }
+    { return this->smoc_root_port::operator()(n,m); }
   typename this_type::TokenGuard operator ()(size_t n)
     { return this->operator()(n,n); }
  
@@ -226,7 +226,7 @@ public:
 
   // reflect operator () to smoc_root_port
   typename this_type::TokenGuard operator ()(size_t n, size_t m)
-    { return this->smoc_root_port::operator()(n,n); }
+    { return this->smoc_root_port::operator()(n,m); }
   typename this_type::TokenGuard operator ()(size_t n)
     { return this->operator()(n,n); }
  
