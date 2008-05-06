@@ -73,7 +73,6 @@ pkginclude_HEADERS = \
 	pkginclude/systemoc/smoc_ast_systemoc.hpp \
 	pkginclude/systemoc/smoc_chan_adapter.hpp \
 	pkginclude/systemoc/smoc_chan_if.hpp \
-	pkginclude/systemoc/smoc_de_channel_access.hpp \
 	pkginclude/systemoc/smoc_fifo.hpp \
 	pkginclude/systemoc/smoc_firing_rules.hpp \
 	pkginclude/systemoc/smoc_graph_synth.hpp \
