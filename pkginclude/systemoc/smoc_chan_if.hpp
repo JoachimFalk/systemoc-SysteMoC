@@ -263,7 +263,9 @@ protected:
   void assemble(smoc_modes::PGWriter &pgw) const;
 };
 
-template <typename T, template <typename> class R>
+template <
+  typename T,                                     // data type
+  template <typename> class R>                    // ring access type
 class smoc_chan_in_if
   : virtual public sc_interface,
     virtual public smoc_chan_in_base_if {
@@ -316,11 +318,11 @@ private:
 
 const sc_event& smoc_default_event_abort();
 
-template <typename T_data_type, 
-          template <typename> class R_IN, //ring access in
-          template <typename> class R_OUT,//ring access out
-          template <typename> class S = smoc_storage_out
-          >
+template <
+  typename T_data_type,                           // data type
+  template <typename> class R_IN,                 // ring access type for input
+  template <typename> class R_OUT,                // ring access type for output
+  template <typename> class S = smoc_storage_out> // smoc_storage for output
 class smoc_chan_if
 : public smoc_chan_in_if<T_data_type, R_IN>,
   public smoc_chan_out_if<T_data_type, R_OUT, S>
