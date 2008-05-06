@@ -34,13 +34,27 @@ public:
     //    dummySrc.out( dummy );
     //    dummySnk.in( dummy );
   }
-protected:
+private:
   TerminalSink<bool, std::string > snk;
   NonStrictAnd<int> nsAnd;
   NonStrictAnd<bool> nsAnd2;
   ConstSource<int>  src0;
   ConstSource<int>  src1;
   ConstSource<bool>  src2;
+};
+
+class DataFlowGraph
+  : public smoc_graph{
+public:
+  DataFlowGraph(sc_module_name name, int times)
+    : smoc_graph(name),
+      sr_graph("SR", times)
+  {
+    SMOC_REGISTER_CPARAM(times);
+  }
+
+private:
+  NonStrictAndTestBench sr_graph;
 };
  
 
