@@ -191,8 +191,8 @@ public:
 //reinterpret_cast<const fun   *>(&f.func)
 };
 
-#include "smoc_ast_common.hpp"
-
 } } // namespace SysteMoC::ActivationPattern
+
+#include "smoc_ast_common.hpp"
 
 #endif // _INCLUDED_SMOC_AST_SYSTEMOC_HPP

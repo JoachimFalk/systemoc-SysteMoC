@@ -32,10 +32,14 @@
  * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
+#ifndef _INCLUDED_SMOC_AST_COMMON_HPP
+#define _INCLUDED_SMOC_AST_COMMON_HPP
 
 #include <boost/intrusive_ptr.hpp>
 #include <cosupport/refcount_object.hpp>
 //#include <cosupport/intrusive_refcount_ptr.hpp>
+
+namespace SysteMoC { namespace ActivationPattern {
 
 // WARNING: Always sync this with DASTNodeType[] in smoc_ast_common.cpp
 //          and apply_visitor at the end of this file !!!
@@ -471,3 +475,7 @@ typename V::result_type apply_visitor(V &v, PASTNode pASTNode) {
       assert(!"Never Reached");
   }
 }
+
+} } // namespace SysteMoC::ActivationPattern
+
+#endif // _INCLUDED_SMOC_AST_COMMON_HPP
