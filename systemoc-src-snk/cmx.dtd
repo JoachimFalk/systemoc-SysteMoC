@@ -1,4 +1,4 @@
-<!ELEMENT vpcconfiguration (resultfile?,measurefile?,templates?, resources,mappings)>
+<!ELEMENT vpcconfiguration (resultfile?,measurefile?,templates?, resources,mappings, topology?)>
 
 <!ELEMENT resultfile EMPTY>
 <!ATTLIST resultfile
@@ -56,3 +56,13 @@ dii     CDATA #IMPLIED
 latency CDATA #IMPLIED
 fname   CDATA #IMPLIED>
 
+<!ELEMENT topology (route)*>
+
+<!ELEMENT route (hop)*>
+<!ATTLIST route
+source      CDATA #IMPLIED
+destination CDATA #IMPLIED>
+
+<!ELEMENT hop (timing)*>
+<!ATTLIST hop
+name    CDATA #IMPLIED>
