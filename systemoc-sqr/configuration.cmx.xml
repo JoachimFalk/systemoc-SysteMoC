@@ -14,30 +14,30 @@
 
  <mappings>
   <mapping source="sqrroot.a1" target="Component1">
-    <attribute type="delay" value="100"/>
-    <attribute type="Src::src" value="100"/>
+    <timing delay="100"/>
+    <timing fname="Src::src" delay="100"/>
   </mapping>
 
   <mapping source="sqrroot.a2" target="Component1">
-    <attribute type="delay" value="100"/>
-    <attribute type="SqrLoop::copyStore"  value="100"/>
-    <attribute type="SqrLoop::copyInput"  value="100"/>
-    <attribute type="SqrLoop::copyApprox" value="100"/>
+    <timing delay="100"/>
+    <timing fname="SqrLoop::copyStore"  delay="100"/>
+    <timing fname="SqrLoop::copyInput"  delay="100"/>
+    <timing fname="SqrLoop::copyApprox" delay="100"/>
   </mapping>
 
   <mapping source="sqrroot.a3" target="Component1">
-    <attribute type="delay" value="100"/>
-    <attribute type="Approx::approx" value="100"/>
+    <timing delay="100"/>
+    <timing fname="Approx::approx" delay="100"/>
   </mapping>
 
   <mapping source="sqrroot.a4" target="Component1">
-    <attribute type="delay" value="100"/>
-    <attribute type="Dup::dup" value="100"/>
+    <timing delay="100"/>
+    <timing fname="Dup::dup" delay="100"/>
   </mapping>
 
   <mapping source="sqrroot.a5" target="Component1">
-    <attribute type="delay" value="100"/>
-    <attribute type="Sink::sink" value="100"/>
+    <timing delay="100"/>
+    <timing fname="Sink::sink" delay="100"/>
   </mapping>
 
   <mapping source="cf_sqrroot.a1_sqrroot.a2_1" target="ZeroCom">
