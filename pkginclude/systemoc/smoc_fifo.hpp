@@ -104,7 +104,6 @@ protected:
   size_t       vindex;  ///< The FIFO visible ptr
 #endif
   size_t       windex;  ///< The FIFO write   ptr
-  size_t       tokenId; ///< The tokenId of the next commit token
 
   size_t usedCount() const {
     size_t used =
@@ -137,11 +136,6 @@ protected:
     return unused;
   }
 
-  size_t inTokenId() const
-    { return tokenId - usedCount(); }
-  size_t outTokenId() const
-    { return tokenId; }
-
   void rpp(size_t n) {
     /*if ( rindex + n >= fsize )
       rindex = rindex + n - fsize;
@@ -159,7 +153,6 @@ protected:
   void wpp(size_t n)
 #endif
   {
-    tokenId += n;
     /*if ( windex + n >= fsize )
       windex = windex + n - fsize;
     else
@@ -196,11 +189,18 @@ protected:
   }
 #endif
 
-  smoc_event &getEventAvailable(size_t n)
+  smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(visibleCount(), n); }
 
-  smoc_event &getEventFree(size_t n)
+  smoc_event &spaceAvailableEvent(size_t n)
     { return emmFree.getEvent(freeCount(), n); }
+
+  size_t tokenId; ///< The tokenId of the next commit token
+
+  size_t inTokenId() const
+    { return tokenId - usedCount(); }
+  size_t outTokenId() const
+    { return tokenId; }
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &le)
@@ -223,6 +223,7 @@ protected:
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(this, produce);
 #endif
+    tokenId += produce;
 #ifdef SYSTEMOC_ENABLE_VPC
     this->wpp(produce, le);
 #else
@@ -235,10 +236,6 @@ protected:
     { return this->visibleCount(); }
   size_t numFree() const
     { return this->freeCount(); }
-  smoc_event &dataAvailableEvent(size_t n)
-    { return this->getEventAvailable(n); }
-  smoc_event &spaceAvailableEvent(size_t n)
-    { return this->getEventFree(n); }
 
   void channelAttributes(smoc_modes::PGWriter &pgw) const {
     pgw << "<attribute type=\"size\" value=\"" << (fsize - 1) << "\"/>" << std::endl;

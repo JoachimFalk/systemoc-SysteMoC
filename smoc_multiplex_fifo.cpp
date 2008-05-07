@@ -41,17 +41,17 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-const char* const smoc_multiplex_fifo_kind::kind_string = "smoc_multiplex_fifo";
-
 using namespace SysteMoC::NGX;
 using namespace SysteMoC::NGXSync;
 
-smoc_multiplex_fifo_kind::smoc_multiplex_fifo_kind( const chan_init &i )
+smoc_multiplex_vfifo_kind::smoc_multiplex_vfifo_kind( const chan_init &i )
   : smoc_nonconflicting_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue(this), 
 #endif
-    fsize(i.n+1),
+    fifoId(i.fifoId),
+    pSharedFifoMem(i.pSharedFifoMem),
+    fsize(pSharedFifoMem->fifoDepth+1),
     rindex(0),
 #ifdef SYSTEMOC_ENABLE_VPC
     vindex(0), 

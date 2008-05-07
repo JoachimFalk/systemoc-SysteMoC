@@ -53,83 +53,115 @@
 #include <queue>
 #include <map>
 
+#include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include "hscd_tdsim_TraceLog.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-class smoc_multiplex_fifo_kind;
-
-namespace Detail {
-
-  class MultiplexFifoMem {
-  private:
-//  EventMapManager emmWrite;
-  protected:
-/*  smoc_event &spaceAvailableEvent(size_t n)
-      { return emmWrite.getEvent(n); }
-    size_t numFree() const {
-
-
-
-    }
- */
-
-
-
-
-  };
-
-
-
-
-} // namespace Detail
-
-/// Base class of the FIFO implementation.
-/// The FIFO consists of a ring buffer of size fsize.
-/// However due to the ambiguity of rindex == windex
-/// indicating either an empty or a full FIFO, which
-/// is resolved to rindex == windex indicating an empty
-/// FIFO, one ring buffer entry is lost. Therefore the
-/// ringe buffer must be one entry greater than the
-/// actual FIFO size.
-/// Furthermore the storage of the ring buffer is allocated
-/// in a derived class the base class only manages the
-/// read, write, and visible pointers.
-class smoc_multiplex_fifo_kind
-: public smoc_nonconflicting_chan {
+class smoc_multiplex_fifo_kind: public boost::noncopyable {
 #ifdef SYSTEMOC_ENABLE_VPC
   friend class Detail::LatencyQueue<smoc_multiplex_fifo_kind>::VisibleQueue;
   friend class Detail::LatencyQueue<smoc_multiplex_fifo_kind>::RequestQueue;
 #endif // SYSTEMOC_ENABLE_VPC
+  friend class smoc_multiplex_vfifo_kind;
 public:
   typedef smoc_multiplex_fifo_kind  this_type;
+  
+  typedef size_t FifoId;
+private:
+  typedef std::list<FifoId> FifoSequence;
+//private:
+public://FIXME
+  FifoId  fifoIdCount;  // For virtual fifo enumeration
+  FifoSequence            fifoSequence;
+  size_t                  fifoDepth;
+  size_t                  fifoFill;
+  Detail::EventMapManager emmFree;
+#ifdef SYSTEMOC_ENABLE_VPC
+  Detail::LatencyQueue<smoc_multiplex_fifo_kind> latencyQueue;
+#endif
 
+  size_t freeCount() const
+    { return fifoDepth - fifoFill; }
+
+  smoc_event &spaceAvailableEvent(size_t n)
+    { return emmFree.getEvent(freeCount(), n); }
+
+  void consume(FifoId from, size_t n) {
+    assert(fifoFill >= n);
+    fifoFill -= n;
+    emmFree.increasedCount(freeCount());
+    
+    for (FifoSequence::iterator iter = fifoSequence.begin();
+         n > 0;
+         ) {
+      assert(iter !=  fifoSequence.end());
+      if (*iter == from) {
+        iter = fifoSequence.erase(iter); --n;
+      } else {
+        ++iter;
+      }
+    }
+  }
+
+  void produce(FifoId to, size_t n) {
+    assert(freeCount() >= n);
+    fifoFill += n;
+    emmFree.decreasedCount(freeCount());
+    
+    for (;
+         n > 0;
+         --n) {
+      fifoSequence.push_back(to);
+    }
+  }
+
+public:
+  smoc_multiplex_fifo_kind(size_t n)
+    : fifoDepth(n), fifoFill(0) {}
+};
+
+typedef boost::shared_ptr<smoc_multiplex_fifo_kind>  p_smoc_multiplex_fifo_kind;
+
+class smoc_multiplex_vfifo_kind
+: public smoc_nonconflicting_chan, public boost::noncopyable {
+#ifdef SYSTEMOC_ENABLE_VPC
+  friend class Detail::LatencyQueue<smoc_multiplex_vfifo_kind>::VisibleQueue;
+  friend class Detail::LatencyQueue<smoc_multiplex_vfifo_kind>::RequestQueue;
+#endif // SYSTEMOC_ENABLE_VPC
+public:
+  typedef smoc_multiplex_vfifo_kind  this_type;
+
+  typedef size_t FifoId;
+  
   class chan_init {
-    friend class smoc_multiplex_fifo_kind;
+    friend class smoc_multiplex_vfifo_kind;
   private:
-    const char *name;
-    size_t      n;
+    const char                 *name;
+    p_smoc_multiplex_fifo_kind  pSharedFifoMem;
+    FifoId                      fifoId;
+    size_t                      m;
   protected:
-    chan_init( const char *name, size_t n )
-      : name(name), n(n) {}
+    chan_init(const char *name, const p_smoc_multiplex_fifo_kind &pSharedFifoMem, size_t m)
+      : name(name), pSharedFifoMem(pSharedFifoMem),
+        fifoId(pSharedFifoMem->fifoIdCount++), m(m) {}
   };
 private:
   Detail::EventMapManager emmAvailable;
-  Detail::EventMapManager emmFree;
+
+  FifoId fifoId;
+
+  p_smoc_multiplex_fifo_kind pSharedFifoMem;
 protected:
-#ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue<smoc_multiplex_fifo_kind>   latencyQueue;
-#endif
 
   size_t       fsize;   ///< Ring buffer size == FIFO size + 1
   size_t       rindex;  ///< The FIFO read    ptr
-#ifdef SYSTEMOC_ENABLE_VPC
   size_t       vindex;  ///< The FIFO visible ptr
-#endif
   size_t       windex;  ///< The FIFO write   ptr
-  size_t       tokenId; ///< The tokenId of the next commit token
 
   size_t usedCount() const {
     size_t used =
@@ -141,41 +173,28 @@ protected:
   }
 
   size_t visibleCount() const {
-#ifdef SYSTEMOC_ENABLE_VPC
     size_t used =
       vindex - rindex;
     
     if (used > fsize)
       used += fsize;
     return used;
-#else // !SYSTEMOC_ENABLE_VPC
-    return usedCount();
-#endif
   }
 
   size_t freeCount() const {
     size_t unused =
       rindex - windex - 1;
-
+    
     if (unused > fsize)
       unused += fsize;
     return unused;
   }
 
-  size_t inTokenId() const
-    { return tokenId - usedCount(); }
-  size_t outTokenId() const
-    { return tokenId; }
-
   void rpp(size_t n) {
-    /*if ( rindex + n >= fsize )
-      rindex = rindex + n - fsize;
-    else
-      rindex = rindex + n;*/
     rindex = (rindex + n) % fsize;
-
+    
     emmAvailable.decreasedCount(visibleCount());
-    emmFree.increasedCount(freeCount());
+    pSharedFifoMem->consume(fifoId, n);
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -184,23 +203,12 @@ protected:
   void wpp(size_t n)
 #endif
   {
-    tokenId += n;
-    /*if ( windex + n >= fsize )
-      windex = windex + n - fsize;
-    else
-      windex = windex + n;*/
     windex = (windex + n) % fsize;
     
-    emmFree.decreasedCount(freeCount());
-#ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue.addEntry(n, le);
-#else
-    emmAvailable.increasedCount(visibleCount());
-#endif
+    pSharedFifoMem->produce(fifoId, n);
   }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  void latencyExpired(size_t n) {
+  void vpp(size_t n) {
 # ifndef NDEBUG
     size_t oldUsed = visibleCount();
 # endif
@@ -219,13 +227,19 @@ protected:
 # endif
     emmAvailable.increasedCount(visibleCount());
   }
-#endif
 
-  smoc_event &getEventAvailable(size_t n)
+  smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(visibleCount(), n); }
 
-  smoc_event &getEventFree(size_t n)
-    { return emmFree.getEvent(freeCount(), n); }
+  smoc_event &spaceAvailableEvent(size_t n)
+    { return pSharedFifoMem->spaceAvailableEvent(n); }
+
+  size_t tokenId; ///< The tokenId of the next commit token
+
+  size_t inTokenId() const
+    { return tokenId - usedCount(); }
+  size_t outTokenId() const
+    { return tokenId; }
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &le)
@@ -248,6 +262,7 @@ protected:
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(this, produce);
 #endif
+    tokenId += produce;
 #ifdef SYSTEMOC_ENABLE_VPC
     this->wpp(produce, le);
 #else
@@ -260,10 +275,6 @@ protected:
     { return this->visibleCount(); }
   size_t numFree() const
     { return this->freeCount(); }
-  smoc_event &dataAvailableEvent(size_t n)
-    { return this->getEventAvailable(n); }
-  smoc_event &spaceAvailableEvent(size_t n)
-    { return this->getEventFree(n); }
 
   void channelAttributes(smoc_modes::PGWriter &pgw) const {
     pgw << "<attribute type=\"size\" value=\"" << (fsize - 1) << "\"/>" << std::endl;
@@ -273,29 +284,22 @@ protected:
   void channelContents(smoc_modes::PGWriter &pgw) const = 0;
 
   // constructors
-  smoc_multiplex_fifo_kind(const chan_init &i);
+  smoc_multiplex_vfifo_kind(const chan_init &i);
 private:
-  static const char* const kind_string;
-  
-  virtual const char* kind() const {
-    return kind_string;
-  }
-  
-  // disabled
-  smoc_multiplex_fifo_kind( const this_type & );
-  this_type& operator = ( const this_type & );
+  virtual const char* kind() const
+    { return "smoc_multiplex_vfifo_kind"; }
 };
 
 template <typename T>
-class smoc_multiplex_fifo_storage
+class smoc_multiplex_vfifo_storage
 : public smoc_chan_if<
     T,
     smoc_channel_access,
     smoc_channel_access>,
-  public smoc_multiplex_fifo_kind {
+  public smoc_multiplex_vfifo_kind {
 public:
   typedef T                                   data_type;
-  typedef smoc_multiplex_fifo_storage<data_type>        this_type;
+  typedef smoc_multiplex_vfifo_storage<data_type>        this_type;
   typedef typename this_type::access_out_type ring_out_type;
   typedef typename this_type::access_in_type  ring_in_type;
   typedef smoc_storage<data_type>             storage_type;
@@ -307,8 +311,8 @@ public:
     typename ring_out_type::return_type>      ring_access_out_type;
 
   class chan_init
-    : public smoc_multiplex_fifo_kind::chan_init {
-    friend class smoc_multiplex_fifo_storage<T>;
+    : public smoc_multiplex_vfifo_kind::chan_init {
+    friend class smoc_multiplex_vfifo_storage<T>;
   private:
     std::vector<T>  marking;
   protected:
@@ -318,14 +322,14 @@ public:
       marking.push_back(x);
     }
   protected:
-    chan_init( const char *name, size_t n )
-      : smoc_multiplex_fifo_kind::chan_init(name, n) {}
+    chan_init(const char *name, const p_smoc_multiplex_fifo_kind &pSharedFifoMem, size_t m)
+      : smoc_multiplex_vfifo_kind::chan_init(name, pSharedFifoMem, m) {}
   };
 private:
   storage_type *storage;
 protected:
-  smoc_multiplex_fifo_storage( const chan_init &i )
-    : smoc_multiplex_fifo_kind(i),
+  smoc_multiplex_vfifo_storage( const chan_init &i )
+    : smoc_multiplex_vfifo_kind(i),
       storage(new storage_type[this->fsize])
   {
     assert(this->fsize > i.marking.size());
@@ -339,7 +343,7 @@ protected:
   }
   
   const char *name() const
-  { return smoc_multiplex_fifo_kind::name(); }
+    { return smoc_multiplex_vfifo_kind::name(); }
 
   ring_in_type *getReadChannelAccess() {
     return new ring_access_in_type
@@ -362,27 +366,27 @@ protected:
     pgw << "</fifo>" << std::endl;
   }
 
-  ~smoc_multiplex_fifo_storage() { delete[] storage; }
+  ~smoc_multiplex_vfifo_storage() { delete[] storage; }
 };
 
 template <>
-class smoc_multiplex_fifo_storage<void>
+class smoc_multiplex_vfifo_storage<void>
 : public smoc_chan_if<
     void,
     smoc_channel_access,
     smoc_channel_access>,
-  public smoc_multiplex_fifo_kind {
+  public smoc_multiplex_vfifo_kind {
 public:
   typedef void                          data_type;
-  typedef smoc_multiplex_fifo_storage<data_type>  this_type;
+  typedef smoc_multiplex_vfifo_storage<data_type>  this_type;
   typedef this_type::access_out_type    ring_out_type;
   typedef this_type::access_in_type     ring_in_type;
   typedef smoc_ring_access<void,void>   ring_access_in_type;
   typedef smoc_ring_access<void,void>   ring_access_out_type;
 
   class chan_init
-    : public smoc_multiplex_fifo_kind::chan_init {
-    friend class smoc_multiplex_fifo_storage<void>;
+    : public smoc_multiplex_vfifo_kind::chan_init {
+    friend class smoc_multiplex_vfifo_storage<void>;
   private:
     size_t          marking;
   protected:
@@ -392,13 +396,13 @@ public:
       marking += x;
     }
   protected:
-    chan_init( const char *name, size_t n )
-      : smoc_multiplex_fifo_kind::chan_init(name, n),
+    chan_init(const char *name, const p_smoc_multiplex_fifo_kind &pSharedFifoMem, size_t m)
+      : smoc_multiplex_vfifo_kind::chan_init(name, pSharedFifoMem, m),
         marking(0) {}
   };
 protected:
-  smoc_multiplex_fifo_storage( const chan_init &i ) :
-    smoc_multiplex_fifo_kind(i) {
+  smoc_multiplex_vfifo_storage( const chan_init &i ) :
+    smoc_multiplex_vfifo_kind(i) {
     assert( fsize > i.marking );
     windex = i.marking;
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -407,7 +411,7 @@ protected:
   }
 
   const char *name() const
-  { return smoc_multiplex_fifo_kind::name(); }
+  { return smoc_multiplex_vfifo_kind::name(); }
 
   ring_in_type  *getReadChannelAccess()
     { return new ring_access_in_type(); }
@@ -428,11 +432,11 @@ protected:
 };
 
 template <typename T>
-class smoc_multiplex_fifo_type
-  : public smoc_multiplex_fifo_storage<T> {
+class smoc_multiplex_vfifo_type
+  : public smoc_multiplex_vfifo_storage<T> {
 public:
   typedef T                  data_type;
-  typedef smoc_multiplex_fifo_type<data_type>            this_type;
+  typedef smoc_multiplex_vfifo_type<data_type>            this_type;
   
   typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
   typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
@@ -441,8 +445,8 @@ public:
   typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
 public:
   // constructors
-  smoc_multiplex_fifo_type( const typename smoc_multiplex_fifo_storage<T>::chan_init &i )
-    : smoc_multiplex_fifo_storage<T>(i) {}
+  smoc_multiplex_vfifo_type( const typename smoc_multiplex_vfifo_storage<T>::chan_init &i )
+    : smoc_multiplex_vfifo_storage<T>(i) {}
 
   template<class IFace,class Init>
   void connect(sc_port<IFace> &port, const Init&) {
@@ -487,45 +491,44 @@ private:
 };
 
 template <typename T>
-class smoc_multiplex_fifo
-: public smoc_multiplex_fifo_storage<T>::chan_init {
+class smoc_multiplex_fifo {
 private:
   typedef smoc_multiplex_fifo<T>        this_type;
 private:
   typedef size_t FifoId;
 public:
-  class VirtFifo {
+
+  class VirtFifo: public smoc_multiplex_vfifo_type<T>::chan_init {
     friend class smoc_multiplex_fifo<T>;
   public:
     typedef T                             data_type;
-    typedef smoc_multiplex_fifo_type<T>   chan_type;
+    typedef smoc_multiplex_vfifo_type<T>  chan_type;
   private:
-    FifoId                  fifoId;
-    smoc_multiplex_fifo<T> &owner;
-  private:
-    VirtFifo(smoc_multiplex_fifo<T> &owner)
-      : owner(owner), fifoId(fifoIdCount++) {}
+    VirtFifo(const p_smoc_multiplex_fifo_kind &pSharedFifoMem, size_t m)
+      : smoc_multiplex_vfifo_type<T>::chan_init("", pSharedFifoMem, m) {}
   public:
     this_type &operator <<(const T &x) {
-      memContents.push_back(std::pair<FifoId, T>(fifoId, x)); return *this;
+      add(x);
+      pSharedFifoMem->produce(this->fifoId, 1);
+      return *this;
     }
   };
 
   friend class VirtFifo;
 private:
-  FifoId  fifoIdCount;  // For virtual fifo enumeration
   size_t  n;  // size of the shared fifo memory
   size_t  m;  // out of order access, zero is no out of order
 
-  std::vector<std::pair<FifoId, T> >  memContents;
+  p_smoc_multiplex_fifo_kind pSharedFifoMem;
+
 public:
   /// @PARAM n size of the shared fifo memory
   /// @PARAM m out of order access, zero is no out of order
   smoc_multiplex_fifo(size_t n = 1, size_t m = 0)
-    : fifoIdCount(0), n(n), m(m) {}
+    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_kind(n)) {}
 
   VirtFifo getVirtFifo()
-    { return VirtFifo(*this); }
+    { return VirtFifo(pSharedFifoMem, m); }
 };
 
 #endif // _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP
