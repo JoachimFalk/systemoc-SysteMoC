@@ -22,9 +22,9 @@ public:
     : smoc_graph_sr( name ),
       nsa ("BAnd")
   {
-    connectInterfacePorts(op0, nsa.op0);
-    connectInterfacePorts(op1, nsa.op1);
-    connectInterfacePorts(out, nsa.out);
+    op0(nsa.op0);
+    op1(nsa.op1);
+    out(nsa.out);
   }
 private:
   NonStrictAnd<bool> nsa;
