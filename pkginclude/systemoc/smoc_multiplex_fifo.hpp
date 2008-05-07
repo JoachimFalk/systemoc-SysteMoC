@@ -60,6 +60,31 @@
 
 class smoc_multiplex_fifo_kind;
 
+namespace Detail {
+
+  class MultiplexFifoMem {
+
+  protected:
+    smoc_event &spaceAvailableEvent(size_t n) {
+
+
+    }
+    size_t      numFree() const {
+
+
+
+    }
+
+
+
+
+  };
+
+
+
+
+} // namespace Detail
+
 /// Base class of the FIFO implementation.
 /// The FIFO consists of a ring buffer of size fsize.
 /// However due to the ambiguity of rindex == windex
@@ -104,11 +129,6 @@ protected:
   size_t       windex;  ///< The FIFO write   ptr
   size_t       tokenId; ///< The tokenId of the next commit token
 
-  smoc_event   eventWrite;
-  EventMap     eventMapAvailable;
-  smoc_event   eventRead;
-  EventMap     eventMapFree;
-
   size_t usedCount() const {
     size_t used =
       windex - rindex;
@@ -145,8 +165,25 @@ protected:
   size_t outTokenId() const
     { return tokenId; }
 
-  void incrVisible() {
-    size_t used = visibleCount();
+  smoc_event   eventWrite;
+  EventMap     eventMapAvailable;
+
+  smoc_event &getEventAvailable(size_t n) {
+    if (n != MAX_TYPE(size_t)) {
+      EventMap::iterator iter = eventMapAvailable.find(n);
+      if (iter == eventMapAvailable.end()) {
+        iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
+        if (visibleCount() >= n)
+          iter->second->notify();
+      }
+      return *iter->second;
+    } else {
+      return eventWrite;
+    }
+  }
+
+  void incrVisible(size_t used) {
+//  size_t used = visibleCount();
     // notify all disabled events for less/equal visibleCount() available tokens
     for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
          iter != eventMapAvailable.begin() && !*(--iter)->second;
@@ -155,8 +192,8 @@ protected:
     eventWrite.notify();
   }
 
-  void decrVisible() {
-    size_t used = visibleCount();
+  void decrVisible(size_t used) {
+//  size_t used = visibleCount();
     // reset all enabled events for more then visibleCount() available tokens
     for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
          iter != eventMapAvailable.end() && *iter->second;
@@ -164,8 +201,25 @@ protected:
       iter->second->reset();
   }
 
-  void incrFree() {
-    size_t unused = freeCount();
+  smoc_event   eventRead;
+  EventMap     eventMapFree;
+
+  smoc_event &getEventFree(size_t n) {
+    if (n != MAX_TYPE(size_t)) {
+      EventMap::iterator iter = eventMapFree.find(n);
+      if (iter == eventMapFree.end()) {
+        iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
+        if (freeCount() >= n)
+          iter->second->notify();
+      }
+      return *iter->second;
+    } else {
+      return eventRead;
+    }
+  }
+
+  void incrFree(size_t unused) {
+//  size_t unused = freeCount();
     // notify all disabled events for less/equal freeCount() free space
     for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
          iter != eventMapFree.begin() && !*(--iter)->second;
@@ -174,8 +228,8 @@ protected:
     eventRead.notify();
   }
 
-  void decrFree() {
-    size_t unused = freeCount();
+  void decrFree(size_t unused) {
+//  size_t unused = freeCount();
     // reset all enabled events for more then freeCount() free space
     for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
          iter != eventMapFree.end() && *iter->second;
@@ -190,7 +244,7 @@ protected:
       rindex = rindex + n;*/
     rindex = (rindex + n) % fsize;
     
-    decrVisible(); incrFree();
+    decrVisible(visibleCount()); incrFree(freeCount());
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -206,11 +260,11 @@ protected:
       windex = windex + n;*/
     windex = (windex + n) % fsize;
     
-    decrFree();
+    decrFree(freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue.addEntry(n, le);
 #else
-    incrVisible();
+    incrVisible(visibleCount());
 #endif
   }
 
@@ -232,37 +286,9 @@ protected:
     // PARANOIA: visibleCount() must increase
     assert(visibleCount() >= oldUsed);
 # endif
-    incrVisible();
+    incrVisible(visibleCount());
   }
 #endif
-
-  smoc_event &getEventAvailable(size_t n) {
-    if (n != MAX_TYPE(size_t)) {
-      EventMap::iterator iter = eventMapAvailable.find(n);
-      if (iter == eventMapAvailable.end()) {
-        iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
-        if (visibleCount() >= n)
-          iter->second->notify();
-      }
-      return *iter->second;
-    } else {
-      return eventWrite;
-    }
-  }
-
-  smoc_event &getEventFree(size_t n) {
-    if (n != MAX_TYPE(size_t)) {
-      EventMap::iterator iter = eventMapFree.find(n);
-      if (iter == eventMapFree.end()) {
-        iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
-        if (freeCount() >= n)
-          iter->second->notify();
-      }
-      return *iter->second;
-    } else {
-      return eventRead;
-    }
-  }
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &le)
@@ -325,10 +351,10 @@ private:
 
 template <typename T>
 class smoc_multiplex_fifo_storage
-: public smoc_chan_if</*smoc_multiplex_fifo_kind,*/
-          T,
-          smoc_channel_access,
-          smoc_channel_access>,
+: public smoc_chan_if<
+    T,
+    smoc_channel_access,
+    smoc_channel_access>,
   public smoc_multiplex_fifo_kind {
 public:
   typedef T                                   data_type;
@@ -361,12 +387,8 @@ public:
 private:
   storage_type *storage;
 protected:
-  smoc_multiplex_fifo_storage( const chan_init &i ) :
-    smoc_multiplex_fifo_kind(i),
-//    : smoc_chan_if</*smoc_multiplex_fifo_kind,*/
-//       T,
-//       smoc_channel_access,
-//       smoc_channel_access>(i),
+  smoc_multiplex_fifo_storage( const chan_init &i )
+    : smoc_multiplex_fifo_kind(i),
       storage(new storage_type[this->fsize])
   {
     assert(this->fsize > i.marking.size());
@@ -408,10 +430,10 @@ protected:
 
 template <>
 class smoc_multiplex_fifo_storage<void>
-: public smoc_chan_if</*smoc_multiplex_fifo_kind,*/
-          void,
-          smoc_channel_access,
-          smoc_channel_access>,
+: public smoc_chan_if<
+    void,
+    smoc_channel_access,
+    smoc_channel_access>,
   public smoc_multiplex_fifo_kind {
 public:
   typedef void                          data_type;
@@ -439,12 +461,7 @@ public:
   };
 protected:
   smoc_multiplex_fifo_storage( const chan_init &i ) :
-    smoc_multiplex_fifo_kind(i)
-//  : smoc_chan_nonconflicting_if<smoc_multiplex_fifo_kind, void>(i) {
-/*    : smoc_chan_if<smoc_multiplex_fifo_kind,
-       void,
-       smoc_channel_access,
-       smoc_channel_access>(i)*/ {
+    smoc_multiplex_fifo_kind(i) {
     assert( fsize > i.marking );
     windex = i.marking;
 #ifdef SYSTEMOC_ENABLE_VPC
