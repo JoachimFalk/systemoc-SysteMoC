@@ -334,6 +334,44 @@ protected:
     }
   }
 
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitRead(size_t consume, const smoc_ref_event_p &le)
+#else
+  void commitRead(size_t consume)
+#endif
+  {
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommExecIn(this, consume);
+#endif
+    this->rpp(consume);
+  }
+  
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitWrite(size_t produce, const smoc_ref_event_p &le)
+#else
+  void commitWrite(size_t produce)
+#endif
+  {
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommExecOut(this, produce);
+#endif
+#ifdef SYSTEMOC_ENABLE_VPC
+    this->wpp(produce, le);
+#else
+    this->wpp(produce);
+#endif
+  }
+
+  // bounce functions
+  size_t numAvailable() const
+    { return this->visibleCount(); }
+  size_t numFree() const
+    { return this->freeCount(); }
+  smoc_event &dataAvailableEvent(size_t n)
+    { return this->getEventAvailable(n); }
+  smoc_event &spaceAvailableEvent(size_t n)
+    { return this->getEventFree(n); }
+
   void channelAttributes(smoc_modes::PGWriter &pgw) const {
     pgw << "<attribute type=\"size\" value=\"" << (fsize - 1) << "\"/>" << std::endl;
   }
@@ -517,36 +555,6 @@ public:
   
   typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
   typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
-
-protected:
-  
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, const smoc_ref_event_p &le)
-#else
-  void commitRead(size_t consume)
-#endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(this, consume);
-#endif
-    this->rpp(consume);
-  }
-  
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p &le)
-#else
-  void commitWrite(size_t produce)
-#endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(this, produce);
-#endif
-#ifdef SYSTEMOC_ENABLE_VPC
-    this->wpp(produce, le);
-#else
-    this->wpp(produce);
-#endif
-  }
 public:
   // constructors
   smoc_multiplex_fifo_type( const typename smoc_multiplex_fifo_storage<T>::chan_init &i )
@@ -590,20 +598,6 @@ public:
   template<class Init>
   void connect(smoc_port_in<T> &inPort, const Init&)
   { inPort(*this); }
-
-  // bounce functions
-  size_t numAvailable() const
-    { return this->visibleCount(); }
-  size_t numFree() const
-    { return this->freeCount(); }
-  size_t inTokenId() const
-    { return this->smoc_multiplex_fifo_storage<T>::inTokenId(); }
-  size_t outTokenId() const
-    { return this->smoc_multiplex_fifo_storage<T>::outTokenId(); }
-  smoc_event &dataAvailableEvent(size_t n)
-    { return this->getEventAvailable(n); }
-  smoc_event &spaceAvailableEvent(size_t n)
-    { return this->getEventFree(n); }
 private:
     void reset(){};
 };
@@ -613,20 +607,41 @@ class smoc_multiplex_fifo
 : public smoc_multiplex_fifo_storage<T>::chan_init {
 private:
   typedef smoc_multiplex_fifo<T>        this_type;
+private:
+  typedef size_t FifoId;
 public:
-  typedef T                             data_type;
-  typedef smoc_multiplex_fifo_type<T>   chan_type;
+  class VirtFifo {
+    friend class smoc_multiplex_fifo<T>;
+  public:
+    typedef T                             data_type;
+    typedef smoc_multiplex_fifo_type<T>   chan_type;
+  private:
+    FifoId                  fifoId;
+    smoc_multiplex_fifo<T> &owner;
+  private:
+    VirtFifo(smoc_multiplex_fifo<T> &owner)
+      : owner(owner), fifoId(fifoIdCount++) {}
+  public:
+    this_type &operator <<(const T &x) {
+      memContents.push_back(std::pair<FifoId, T>(fifoId, x)); return *this;
+    }
+  };
 
-  this_type &operator <<( typename smoc_multiplex_fifo_storage<T>::chan_init::add_param_ty x ) {
-    add(x); return *this;
-  }
+  friend class VirtFifo;
+private:
+  FifoId  fifoIdCount;  // For virtual fifo enumeration
+  size_t  n;  // size of the shared fifo memory
+  size_t  m;  // out of order access, zero is no out of order
 
+  std::vector<std::pair<FifoId, T> >  memContents;
+public:
   /// @PARAM n size of the shared fifo memory
   /// @PARAM m out of order access, zero is no out of order
   smoc_multiplex_fifo(size_t n = 1, size_t m = 0)
-    : smoc_multiplex_fifo_storage<T>::chan_init(NULL,n) {}
-private:
-    void reset(){};
+    : fifoIdCount(0), n(n), m(m) {}
+
+  VirtFifo getVirtFifo()
+    { return VirtFifo(*this); }
 };
 
 #endif // _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP

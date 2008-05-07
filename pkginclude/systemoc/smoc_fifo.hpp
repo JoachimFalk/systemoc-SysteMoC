@@ -334,6 +334,44 @@ protected:
     }
   }
 
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitRead(size_t consume, const smoc_ref_event_p &le)
+#else
+  void commitRead(size_t consume)
+#endif
+  {
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommExecIn(this, consume);
+#endif
+    this->rpp(consume);
+  }
+  
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitWrite(size_t produce, const smoc_ref_event_p &le)
+#else
+  void commitWrite(size_t produce)
+#endif
+  {
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommExecOut(this, produce);
+#endif
+#ifdef SYSTEMOC_ENABLE_VPC
+    this->wpp(produce, le);
+#else
+    this->wpp(produce);
+#endif
+  }
+
+  // bounce functions
+  size_t numAvailable() const
+    { return this->visibleCount(); }
+  size_t numFree() const
+    { return this->freeCount(); }
+  smoc_event &dataAvailableEvent(size_t n)
+    { return this->getEventAvailable(n); }
+  smoc_event &spaceAvailableEvent(size_t n)
+    { return this->getEventFree(n); }
+
   void channelAttributes(smoc_modes::PGWriter &pgw) const {
     pgw << "<attribute type=\"size\" value=\"" << (fsize - 1) << "\"/>" << std::endl;
   }
@@ -357,10 +395,10 @@ private:
 
 template <typename T>
 class smoc_fifo_storage
-: public smoc_chan_if</*smoc_fifo_kind,*/
-          T,
-          smoc_channel_access,
-          smoc_channel_access>,
+: public smoc_chan_if<
+    T,
+    smoc_channel_access,
+    smoc_channel_access>,
   public smoc_fifo_kind {
 public:
   typedef T                                   data_type;
@@ -393,12 +431,8 @@ public:
 private:
   storage_type *storage;
 protected:
-  smoc_fifo_storage( const chan_init &i ) :
-    smoc_fifo_kind(i),
-//    : smoc_chan_if</*smoc_fifo_kind,*/
-//       T,
-//       smoc_channel_access,
-//       smoc_channel_access>(i),
+  smoc_fifo_storage( const chan_init &i )
+    : smoc_fifo_kind(i),
       storage(new storage_type[this->fsize])
   {
     assert(this->fsize > i.marking.size());
@@ -410,9 +444,9 @@ protected:
     this->vindex = this->windex;
 #endif
   }
-  
+
   const char *name() const
-  { return smoc_fifo_kind::name(); }
+    { return smoc_fifo_kind::name(); }
 
   ring_in_type *getReadChannelAccess() {
     return new ring_access_in_type
@@ -440,10 +474,10 @@ protected:
 
 template <>
 class smoc_fifo_storage<void>
-: public smoc_chan_if</*smoc_fifo_kind,*/
-          void,
-          smoc_channel_access,
-          smoc_channel_access>,
+: public smoc_chan_if<
+    void,
+    smoc_channel_access,
+    smoc_channel_access>,
   public smoc_fifo_kind {
 public:
   typedef void                          data_type;
@@ -454,7 +488,7 @@ public:
   typedef smoc_ring_access<void,void>   ring_access_out_type;
 
   class chan_init
-    : public smoc_fifo_kind::chan_init {
+  : public smoc_fifo_kind::chan_init {
     friend class smoc_fifo_storage<void>;
   private:
     size_t          marking;
@@ -470,13 +504,8 @@ public:
         marking(0) {}
   };
 protected:
-  smoc_fifo_storage( const chan_init &i ) :
-    smoc_fifo_kind(i)
-//  : smoc_chan_nonconflicting_if<smoc_fifo_kind, void>(i) {
-/*    : smoc_chan_if<smoc_fifo_kind,
-       void,
-       smoc_channel_access,
-       smoc_channel_access>(i)*/ {
+  smoc_fifo_storage(const chan_init &i)
+    : smoc_fifo_kind(i) {
     assert( fsize > i.marking );
     windex = i.marking;
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -485,7 +514,7 @@ protected:
   }
 
   const char *name() const
-  { return smoc_fifo_kind::name(); }
+    { return smoc_fifo_kind::name(); }
 
   ring_in_type  *getReadChannelAccess()
     { return new ring_access_in_type(); }
@@ -520,33 +549,6 @@ public:
 
 protected:
   
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, const smoc_ref_event_p &le)
-#else
-  void commitRead(size_t consume)
-#endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(this, consume);
-#endif
-    this->rpp(consume);
-  }
-  
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p &le)
-#else
-  void commitWrite(size_t produce)
-#endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(this, produce);
-#endif
-#ifdef SYSTEMOC_ENABLE_VPC
-    this->wpp(produce, le);
-#else
-    this->wpp(produce);
-#endif
-  }
 public:
   // constructors
   smoc_fifo_type( const typename smoc_fifo_storage<T>::chan_init &i )
@@ -585,25 +587,12 @@ public:
 
   template<class Init>
   void connect(smoc_port_out<T> &outPort, const Init&)
-  { outPort(*this); }
+    { outPort(*this); }
 
   template<class Init>
   void connect(smoc_port_in<T> &inPort, const Init&)
-  { inPort(*this); }
+    { inPort(*this); }
 
-  // bounce functions
-  size_t numAvailable() const
-    { return this->visibleCount(); }
-  size_t numFree() const
-    { return this->freeCount(); }
-  size_t inTokenId() const
-    { return this->smoc_fifo_storage<T>::inTokenId(); }
-  size_t outTokenId() const
-    { return this->smoc_fifo_storage<T>::outTokenId(); }
-  smoc_event &dataAvailableEvent(size_t n)
-    { return this->getEventAvailable(n); }
-  smoc_event &spaceAvailableEvent(size_t n)
-    { return this->getEventFree(n); }
 private:
     void reset(){};
 };
