@@ -38,6 +38,11 @@
 #define _INCLUDED_SMOC_LATENCY_QUEUES_HPP
 
 #include "smoc_event_decls.hpp"
+#include <queue>
+
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
+#endif //SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace Detail {
