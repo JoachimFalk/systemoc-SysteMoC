@@ -11,4 +11,4 @@ AC_CONFIG_FILES([
   systemoc-sr/SimpleParityCheck/Makefile
 ])
 
-subdirs="$subdirs systemoc-sr/SimpleParityCheck"
+#subdirs="$subdirs systemoc-sr/SimpleParityCheck"

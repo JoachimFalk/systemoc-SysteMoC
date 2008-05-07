@@ -9,4 +9,4 @@ AC_CONFIG_FILES([
   systemoc-sr/matlab/Makefile
 ])
 
-subdirs="$subdirs systemoc-sr/matlab"
+#subdirs="$subdirs systemoc-sr/matlab"
