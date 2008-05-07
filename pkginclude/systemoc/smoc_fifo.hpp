@@ -104,9 +104,9 @@ protected:
   size_t       windex;  ///< The FIFO write   ptr
   size_t       tokenId; ///< The tokenId of the next commit token
 
-  smoc_event   eventWrite;
+//smoc_event   eventWrite;
   EventMap     eventMapAvailable;
-  smoc_event   eventRead;
+//smoc_event   eventRead;
   EventMap     eventMapFree;
 
   size_t usedCount() const {
@@ -152,7 +152,7 @@ protected:
          iter != eventMapAvailable.begin() && !*(--iter)->second;
          )
       iter->second->notify();
-    eventWrite.notify();
+//  eventWrite.notify();
   }
 
   void decrVisible() {
@@ -171,7 +171,7 @@ protected:
          iter != eventMapFree.begin() && !*(--iter)->second;
          )
       iter->second->notify();
-    eventRead.notify();
+//  eventRead.notify();
   }
 
   void decrFree() {
@@ -237,7 +237,8 @@ protected:
 #endif
 
   smoc_event &getEventAvailable(size_t n) {
-    if (n != MAX_TYPE(size_t)) {
+//  if (n != MAX_TYPE(size_t)) {
+      assert(n != MAX_TYPE(size_t));
       EventMap::iterator iter = eventMapAvailable.find(n);
       if (iter == eventMapAvailable.end()) {
         iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
@@ -245,13 +246,14 @@ protected:
           iter->second->notify();
       }
       return *iter->second;
-    } else {
-      return eventWrite;
-    }
+//  } else {
+//    return eventWrite;
+//  }
   }
 
   smoc_event &getEventFree(size_t n) {
-    if (n != MAX_TYPE(size_t)) {
+//  if (n != MAX_TYPE(size_t)) {
+      assert(n != MAX_TYPE(size_t));
       EventMap::iterator iter = eventMapFree.find(n);
       if (iter == eventMapFree.end()) {
         iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
@@ -259,9 +261,9 @@ protected:
           iter->second->notify();
       }
       return *iter->second;
-    } else {
-      return eventRead;
-    }
+//  } else {
+//    return eventRead;
+//  }
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
