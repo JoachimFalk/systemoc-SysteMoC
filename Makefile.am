@@ -65,6 +65,7 @@ pkginclude_HEADERS = \
 	pkginclude/systemoc/detail/smoc_event_expr.hpp \
 	pkginclude/systemoc/detail/smoc_sysc_port.hpp \
 	pkginclude/systemoc/detail/smoc_root_port.hpp \
+	pkginclude/systemoc/detail/EventMapManager.hpp \
 	pkginclude/systemoc/detail/smoc_latency_queues.hpp \
 	pkginclude/systemoc/detail/smoc_ring_access.hpp \
 	pkginclude/systemoc/smoc_event.hpp \

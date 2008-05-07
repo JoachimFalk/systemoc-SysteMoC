@@ -46,6 +46,7 @@
 #include "smoc_chan_adapter.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_ring_access.hpp"
+#include "detail/EventMapManager.hpp"
 
 #include <systemc.h>
 #include <vector>
@@ -63,17 +64,17 @@ class smoc_multiplex_fifo_kind;
 namespace Detail {
 
   class MultiplexFifoMem {
-
+  private:
+//  EventMapManager emmWrite;
   protected:
-    smoc_event &spaceAvailableEvent(size_t n) {
-
-
-    }
-    size_t      numFree() const {
+/*  smoc_event &spaceAvailableEvent(size_t n)
+      { return emmWrite.getEvent(n); }
+    size_t numFree() const {
 
 
 
     }
+ */
 
 
 
@@ -114,9 +115,10 @@ public:
     chan_init( const char *name, size_t n )
       : name(name), n(n) {}
   };
+private:
+  Detail::EventMapManager emmAvailable;
+  Detail::EventMapManager emmFree;
 protected:
-  typedef std::map<size_t, smoc_event *>      EventMap;
-
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue<smoc_multiplex_fifo_kind>   latencyQueue;
 #endif
@@ -165,88 +167,15 @@ protected:
   size_t outTokenId() const
     { return tokenId; }
 
-//smoc_event   eventWrite;
-  EventMap     eventMapAvailable;
-
-  smoc_event &getEventAvailable(size_t n) {
-//  if (n != MAX_TYPE(size_t)) {
-      assert(n != MAX_TYPE(size_t));
-      EventMap::iterator iter = eventMapAvailable.find(n);
-      if (iter == eventMapAvailable.end()) {
-        iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
-        if (visibleCount() >= n)
-          iter->second->notify();
-      }
-      return *iter->second;
-//  } else {
-//    return eventWrite;
-//  }
-  }
-
-  void incrVisible(size_t used) {
-//  size_t used = visibleCount();
-    // notify all disabled events for less/equal visibleCount() available tokens
-    for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
-         iter != eventMapAvailable.begin() && !*(--iter)->second;
-         )
-      iter->second->notify();
-//  eventWrite.notify();
-  }
-
-  void decrVisible(size_t used) {
-//  size_t used = visibleCount();
-    // reset all enabled events for more then visibleCount() available tokens
-    for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
-         iter != eventMapAvailable.end() && *iter->second;
-         ++iter)
-      iter->second->reset();
-  }
-
-//smoc_event   eventRead;
-  EventMap     eventMapFree;
-
-  smoc_event &getEventFree(size_t n) {
-//  if (n != MAX_TYPE(size_t)) {
-      assert(n != MAX_TYPE(size_t));
-      EventMap::iterator iter = eventMapFree.find(n);
-      if (iter == eventMapFree.end()) {
-        iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
-        if (freeCount() >= n)
-          iter->second->notify();
-      }
-      return *iter->second;
-//  } else {
-//    return eventRead;
-//  }
-  }
-
-  void incrFree(size_t unused) {
-//  size_t unused = freeCount();
-    // notify all disabled events for less/equal freeCount() free space
-    for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
-         iter != eventMapFree.begin() && !*(--iter)->second;
-         )
-      iter->second->notify();
-//  eventRead.notify();
-  }
-
-  void decrFree(size_t unused) {
-//  size_t unused = freeCount();
-    // reset all enabled events for more then freeCount() free space
-    for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
-         iter != eventMapFree.end() && *iter->second;
-         ++iter)
-      iter->second->reset();
-  }
-
   void rpp(size_t n) {
     /*if ( rindex + n >= fsize )
       rindex = rindex + n - fsize;
     else
       rindex = rindex + n;*/
     rindex = (rindex + n) % fsize;
-    
-    decrVisible(visibleCount()); incrFree(freeCount());
+
+    emmAvailable.decreasedCount(visibleCount());
+    emmFree.increasedCount(freeCount());
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -262,11 +191,11 @@ protected:
       windex = windex + n;*/
     windex = (windex + n) % fsize;
     
-    decrFree(freeCount());
+    emmFree.decreasedCount(freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue.addEntry(n, le);
 #else
-    incrVisible(visibleCount());
+    emmAvailable.increasedCount(visibleCount());
 #endif
   }
 
@@ -288,9 +217,15 @@ protected:
     // PARANOIA: visibleCount() must increase
     assert(visibleCount() >= oldUsed);
 # endif
-    incrVisible(visibleCount());
+    emmAvailable.increasedCount(visibleCount());
   }
 #endif
+
+  smoc_event &getEventAvailable(size_t n)
+    { return emmAvailable.getEvent(visibleCount(), n); }
+
+  smoc_event &getEventFree(size_t n)
+    { return emmFree.getEvent(freeCount(), n); }
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &le)
