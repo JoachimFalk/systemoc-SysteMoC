@@ -65,14 +65,17 @@ pkginclude_HEADERS = \
 	pkginclude/systemoc/detail/smoc_event_expr.hpp \
 	pkginclude/systemoc/detail/smoc_sysc_port.hpp \
 	pkginclude/systemoc/detail/smoc_root_port.hpp \
+	pkginclude/systemoc/detail/smoc_latency_queues.hpp \
+	pkginclude/systemoc/detail/smoc_ring_access.hpp \
 	pkginclude/systemoc/smoc_event.hpp \
-	pkginclude/systemoc/smoc_port.hpp \
 	pkginclude/systemoc/smoc_expr.hpp \
 	pkginclude/systemoc/smoc_ast_common.hpp \
 	pkginclude/systemoc/hscd_tdsim_TraceLog.hpp \
 	pkginclude/systemoc/smoc_ast_systemoc.hpp \
-	pkginclude/systemoc/smoc_chan_adapter.hpp \
 	pkginclude/systemoc/smoc_chan_if.hpp \
+	pkginclude/systemoc/smoc_chan_adapter.hpp \
+	pkginclude/systemoc/smoc_port.hpp \
+	pkginclude/systemoc/smoc_multiplex_fifo.hpp \
 	pkginclude/systemoc/smoc_fifo.hpp \
 	pkginclude/systemoc/smoc_firing_rules.hpp \
 	pkginclude/systemoc/smoc_graph_synth.hpp \

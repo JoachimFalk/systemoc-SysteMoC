@@ -45,6 +45,7 @@
 #include "smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "detail/smoc_latency_queues.hpp"
+#include "detail/smoc_ring_access.hpp"
 
 #include <systemc.h>
 #include <vector>
@@ -56,77 +57,6 @@
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
-
-// FIXME
-// -jens- this seems not be an access but an access + storage. This violates
-//  'is a' relationship of inheritance :-(
-template<class S, class T>
-class smoc_ring_access
-: public smoc_channel_access<T> {
-public:
-  typedef T                     return_type;
-  typedef S                     storage_type;
-  typedef smoc_ring_access<S,T> this_type;
-private:
-#ifndef NDEBUG
-  size_t        limit;
-#endif
-  storage_type *storage;
-  size_t        storageSize;
-  size_t       *offset;
-public:
-  smoc_ring_access(storage_type *storage, size_t storageSize, size_t *offset):
-#ifndef NDEBUG
-      limit(0),
-#endif
-      storage(storage), storageSize(storageSize), offset(offset) {}
-
-#ifndef NDEBUG
-  void setLimit(size_t l) { limit = l; }
-#endif
-  bool tokenIsValid(size_t n) const {
-    // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
-    // then it is an design failure
-    return true;
-  }
-
-  return_type operator[](size_t n) {
-    // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
-    assert(n < limit);
-    return *offset + n < storageSize
-      ? storage[*offset + n]
-      : storage[*offset + n - storageSize];
-  }
-  const return_type operator[](size_t n) const {
-    // std::cerr << "((smoc_ring_access)" << this << ")->operator[](" << n << ") const" << std::endl;
-    assert(n < limit);
-    return *offset + n < storageSize
-      ? storage[*offset + n]
-      : storage[*offset + n - storageSize];
-  }
-};
-
-template <>
-class smoc_ring_access<void, void>
-: public smoc_channel_access<void> {
-public:
-  typedef void                        return_type;
-  typedef void                        storage_type;
-  typedef smoc_ring_access<void,void> this_type;
-private:
-public:
-  smoc_ring_access()
-    {}
-
-#ifndef NDEBUG
-  void setLimit(size_t) {}
-#endif
-  bool tokenIsValid(size_t n) const {
-    // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
-    // then it is an design failure
-    return true;
-  }
-};
 
 class smoc_fifo_kind;
 
