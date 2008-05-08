@@ -72,8 +72,8 @@ class smoc_md_fifo_kind
 {
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  friend class smoc_detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >::VisibleQueue;
-  friend class smoc_detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >::RequestQueue;
+  friend class Detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >::VisibleQueue;
+  friend class Detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >::RequestQueue;
 #endif // SYSTEMOC_ENABLE_VPC
 
 public:
@@ -269,7 +269,7 @@ protected:
 #endif
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  smoc_detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >   latencyQueue;
+  Detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >   latencyQueue;
 
   /// If SystemVPC is enabled we have to distinguish between the current
   /// source invocation (given by src_loop_iterator)

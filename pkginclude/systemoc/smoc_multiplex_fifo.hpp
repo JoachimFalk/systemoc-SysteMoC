@@ -77,6 +77,10 @@ public:
 private:
   typedef std::list<FifoId> FifoSequence;
 //private:
+protected:
+#ifdef SYSTEMOC_ENABLE_VPC
+  SystemC_VPC::FastLink *vpcLink; // FIXME: patch this in!!!
+#endif //SYSTEMOC_ENABLE_VPC
 public://FIXME
   FifoId                                        fifoIdCount;  // For virtual fifo enumeration
   std::map<FifoId, smoc_multiplex_vfifo_kind *> vFifos;
@@ -113,6 +117,10 @@ public://FIXME
         ++iter;
       }
     }
+  }
+
+  void latencyExpired(size_t n) {
+    //FIXME: implement it!
   }
 
   void produce(FifoId to, size_t n) {
