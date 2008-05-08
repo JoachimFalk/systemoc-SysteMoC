@@ -46,12 +46,9 @@ using namespace SysteMoC::NGXSync;
 
 smoc_multiplex_vfifo_kind::smoc_multiplex_vfifo_kind( const chan_init &i )
   : smoc_nonconflicting_chan(i.name),
+    Queue3Ptr(pSharedFifoMem->fifoDepth),
     fifoId(i.fifoId),
     pSharedFifoMem(i.pSharedFifoMem),
-    fsize(pSharedFifoMem->fifoDepth+1),
-    rindex(0),
-    vindex(0), 
-    windex(0),
     tokenId(0)
 {
   pSharedFifoMem->registerVFifo(this);

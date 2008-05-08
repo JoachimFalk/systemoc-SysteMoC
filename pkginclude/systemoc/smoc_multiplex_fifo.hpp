@@ -47,6 +47,7 @@
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_ring_access.hpp"
 #include "detail/EventMapManager.hpp"
+#include "detail/Queue3Ptr.hpp"
 
 #include <systemc.h>
 #include <vector>
@@ -148,7 +149,11 @@ public:
 typedef boost::shared_ptr<smoc_multiplex_fifo_kind>  p_smoc_multiplex_fifo_kind;
 
 class smoc_multiplex_vfifo_kind
-: public smoc_nonconflicting_chan, public boost::noncopyable {
+: public smoc_nonconflicting_chan,
+  public boost::noncopyable,
+  // due to out of order access we always need a visible area management
+  public Detail::Queue3Ptr 
+{
   friend class smoc_multiplex_fifo_kind;
 public:
   typedef smoc_multiplex_vfifo_kind  this_type;
@@ -172,80 +177,10 @@ private:
   FifoId fifoId;
   p_smoc_multiplex_fifo_kind pSharedFifoMem;
 protected:
-  size_t       fsize;   ///< Ring buffer size == FIFO size + 1
-  size_t       rindex;  ///< The FIFO read    ptr
-  size_t       vindex;  ///< The FIFO visible ptr
-  size_t       windex;  ///< The FIFO write   ptr
-protected:
   // constructors
   smoc_multiplex_vfifo_kind(const chan_init &i);
 
   ~smoc_multiplex_vfifo_kind();
-
-  size_t usedCount() const {
-    size_t used =
-      windex - rindex;
-    
-    if (used > fsize)
-      used += fsize;
-    return used;
-  }
-
-  size_t visibleCount() const {
-    size_t used =
-      vindex - rindex;
-    
-    if (used > fsize)
-      used += fsize;
-    return used;
-  }
-
-  size_t freeCount() const {
-    size_t unused =
-      rindex - windex - 1;
-    
-    if (unused > fsize)
-      unused += fsize;
-    return unused;
-  }
-
-  void rpp(size_t n) {
-    rindex = (rindex + n) % fsize;
-    
-    emmAvailable.decreasedCount(visibleCount());
-    pSharedFifoMem->consume(fifoId, n);
-  }
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  void wpp(size_t n, const smoc_ref_event_p &le)
-#else
-  void wpp(size_t n)
-#endif
-  {
-    windex = (windex + n) % fsize;
-    
-    pSharedFifoMem->produce(fifoId, n);
-  }
-
-  void vpp(size_t n) {
-# ifndef NDEBUG
-    size_t oldUsed = visibleCount();
-# endif
-    /*if ( vindex + n >= fsize )
-      vindex = vindex + n - fsize;
-    else
-      vindex = vindex + n;*/
-    vindex = (vindex + n) % fsize;
-    // PARANOIA: rindex <= visible <= windex in modulo fsize arith
-    assert(vindex < fsize &&
-      (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
-       windex <  rindex && (vindex >= rindex || vindex <= windex)));
-# ifndef NDEBUG
-    // PARANOIA: visibleCount() must increase
-    assert(visibleCount() >= oldUsed);
-# endif
-    emmAvailable.increasedCount(visibleCount());
-  }
 
   smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(visibleCount(), n); }
@@ -269,7 +204,9 @@ protected:
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecIn(this, consume);
 #endif
-    this->rpp(consume);
+    rpp(consume);
+    emmAvailable.decreasedCount(visibleCount());
+    pSharedFifoMem->consume(fifoId, consume);
   }
   
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -282,18 +219,20 @@ protected:
     TraceLog.traceCommExecOut(this, produce);
 #endif
     tokenId += produce;
-#ifdef SYSTEMOC_ENABLE_VPC
-    this->wpp(produce, le);
-#else
-    this->wpp(produce);
-#endif
+    wpp(produce);
+    pSharedFifoMem->produce(fifoId, produce);
+  }
+
+  void latencyExpired(size_t n) {
+    vpp(n);
+    emmAvailable.increasedCount(visibleCount());
   }
 
   // bounce functions
   size_t numAvailable() const
-    { return this->visibleCount(); }
+    { return visibleCount(); }
   size_t numFree() const
-    { return this->freeCount(); }
+    { return freeCount(); }
 
   void channelAttributes(smoc_modes::PGWriter &pgw) const {
     pgw << "<attribute type=\"size\" value=\"" << (fsize - 1) << "\"/>" << std::endl;

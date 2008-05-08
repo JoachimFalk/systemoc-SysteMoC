@@ -79,6 +79,7 @@ class smoc_fifo_kind;
 /// read, write, and visible pointers.
 class smoc_fifo_kind
 : public smoc_nonconflicting_chan,
+  public boost::noncopyable,
 #ifdef SYSTEMOC_ENABLE_VPC
   public Detail::Queue3Ptr
 #else
@@ -104,10 +105,13 @@ public:
 private:
   Detail::EventMapManager emmAvailable;
   Detail::EventMapManager emmFree;
-protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue<smoc_fifo_kind>   latencyQueue;
 #endif
+protected:
+  // constructors
+  smoc_fifo_kind(const chan_init &i);
+
 
   smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(visibleCount(), n); }
@@ -162,9 +166,9 @@ protected:
 
   // bounce functions
   size_t numAvailable() const
-    { return this->visibleCount(); }
+    { return visibleCount(); }
   size_t numFree() const
-    { return this->freeCount(); }
+    { return freeCount(); }
 
   void channelAttributes(smoc_modes::PGWriter &pgw) const {
     pgw << "<attribute type=\"size\" value=\"" << (fsize - 1) << "\"/>" << std::endl;
@@ -173,18 +177,12 @@ protected:
   virtual
   void channelContents(smoc_modes::PGWriter &pgw) const = 0;
 
-  // constructors
-  smoc_fifo_kind(const chan_init &i);
 private:
   static const char* const kind_string;
   
   virtual const char* kind() const {
     return kind_string;
   }
-  
-  // disabled
-  smoc_fifo_kind( const this_type & );
-  this_type& operator = ( const this_type & );
 };
 
 template <typename T>
