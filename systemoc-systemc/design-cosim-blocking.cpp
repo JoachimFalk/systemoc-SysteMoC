@@ -58,6 +58,7 @@ SC_MODULE(A) {
       int x = in->get();
       std::cout << "A: got " << x << std::endl;
       out->put(x);
+      std::cout << "A: put " << x << std::endl;
     }
   }
 };
@@ -77,6 +78,7 @@ public:
     int x = in[0];
     std::cout << "B: got " << x << std::endl;
     out[0] = x;
+    std::cout << "B: put " << x << std::endl;
   }
 
 private:

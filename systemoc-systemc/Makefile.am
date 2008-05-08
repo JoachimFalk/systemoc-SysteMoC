@@ -26,28 +26,16 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-if SYNTH_SW
-  include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
-endif
-
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
 LIBS= @LIBS@ -lsystemoc
 
-noinst_PROGRAMS= cosim
+noinst_PROGRAMS= cosim-blocking cosim-nonblocking
 
-cosim_SOURCES= design-cosim.cpp
-cosim_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+cosim_blocking_SOURCES= design-cosim-blocking.cpp
+cosim_blocking_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-CLEANFILES=$(noinst_SCRIPTS)
+cosim_nonblocking_SOURCES= design-cosim-nonblocking.cpp
+cosim_nonblocking_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-if SYNTH_SW
-SYNTHESIS_SUBDIR = synthesis
-
-synth: $(SYNTHESIS_SUBDIR)/smoc-synth-cosim
-
-$(SYNTHESIS_SUBDIR)/sqr.ast.xml: design-cosim.cpp
-
-.PHONY: synth
-endif
