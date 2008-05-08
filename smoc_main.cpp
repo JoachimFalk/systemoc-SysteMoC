@@ -60,8 +60,11 @@ int main(int _argc, char* _argv[]) {
      "dump SysteMoC-XML after simulation")
     ("import-smx",
      value<std::string>(),
-     "synchronize with specified SysteMoC-XML");
-  
+     "synchronize with specified SysteMoC-XML")
+    ("vpc-config",
+     value<std::string>(),
+     "use specified SystemC-VPC configuration file");
+
   parsed_options parsed =
     command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
   
@@ -79,7 +82,7 @@ int main(int _argc, char* _argv[]) {
       smoc_modes::dumpFileSMX =
         new CoSupport::AOStream(std::cout, i->value.front(), "-");
     }
-    if(i->string_key == "export-sim-smx") {
+    else if(i->string_key == "export-sim-smx") {
       assert(smoc_modes::dumpFileSMX == NULL);
       assert(!i->value.empty());
       smoc_modes::dumpSMXWithSim = true;
@@ -87,13 +90,18 @@ int main(int _argc, char* _argv[]) {
       smoc_modes::dumpFileSMX =
         new CoSupport::AOStream(std::cout, i->value.front(), "-");
     }
-    if(i->string_key == "import-smx") {
+    else if(i->string_key == "import-smx") {
       assert(!i->value.empty());
       
       CoSupport::AIStream in(std::cin, i->value.front(), "-");
       SysteMoC::NGXSync::NGXConfig::getInstance().loadNGX(in);
     }
-    if(i->unregistered || i->position_key != -1) {
+    else if(i->string_key == "vpc-config") {
+      assert(!i->value.empty());
+      
+      setenv("VPCCONFIGURATION", i->value.front().c_str(), 1);
+    }
+    else if(i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
           j != i->original_tokens.end();
           ++j)

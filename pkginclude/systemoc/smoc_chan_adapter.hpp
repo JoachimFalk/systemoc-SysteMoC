@@ -95,17 +95,17 @@ public:
 /**
  * adapter specialization for blocking tlm get -> smoc channel read
  */
-template<class T>
+template<class T, template<class> class R>
 class smoc_chan_adapter<
-    smoc_chan_in_if<T,smoc_channel_access>,
+    smoc_chan_in_if<T,R>,
     tlm::tlm_blocking_get_if<T>
   > :
   public virtual tlm::tlm_blocking_get_if<T>
 {
 public:
   /// typedefs
-  typedef smoc_chan_in_if<T,smoc_channel_access> iface_impl_type;
-  typedef tlm::tlm_blocking_get_if<T>            iface_type;
+  typedef smoc_chan_in_if<T,R>        iface_impl_type;
+  typedef tlm::tlm_blocking_get_if<T> iface_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -115,17 +115,20 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(iface_impl_type& in_if) :
-    in_if(in_if)
+    in_if(in_if),
+    dataAvailable(in_if.dataAvailableEvent(1))
   {}
 
   /// see tlm::tlm_blocking_get_if<T>
   T get(tlm::tlm_tag<T>* = 0) {
-    wait(in_if.dataAvailableEvent(1));
+    
+    wait(dataAvailable);
+    
     typename iface_impl_type::access_type* ca =
       in_if.getChannelAccess();
 
-    // why must we set the limit? 
 #ifndef NDEBUG
+    // why must we set the limit? 
     ca->setLimit(1); 
 #endif
     const T& t = (*ca)[0];
@@ -143,23 +146,24 @@ public:
 
 private:
   iface_impl_type& in_if;
+  smoc_event& dataAvailable;
 };
 
 
 /**
  * adapter specialization for blocking tlm put -> smoc channel write
  */
-template<class T>
+template<class T, template<class> class R, template<class> class S>
 class smoc_chan_adapter<
-    smoc_chan_out_if<T,smoc_channel_access>,
+    smoc_chan_out_if<T,R,S>,
     tlm::tlm_blocking_put_if<T>
   > :
   public virtual tlm::tlm_blocking_put_if<T>
 {
 public:
   /// typedefs
-  typedef smoc_chan_out_if<T,smoc_channel_access> iface_impl_type;
-  typedef tlm::tlm_blocking_put_if<T>             iface_type;
+  typedef smoc_chan_out_if<T,R,S>     iface_impl_type;
+  typedef tlm::tlm_blocking_put_if<T> iface_type;
 
   /// flag if this class is a specialization
   static const bool isAdapter = true;
@@ -169,17 +173,20 @@ public:
   /// - stores reference to wrapped interface
   /// - needs write channel access
   smoc_chan_adapter(iface_impl_type& out_if) :
-    out_if(out_if)
+    out_if(out_if),
+    spaceAvailable(out_if.spaceAvailableEvent(1))
   {}
 
   /// see tlm::tlm_blocking_put_if<T>
   void put(const T& t) {
-    wait(out_if.spaceAvailableEvent(1));
+
+    wait(spaceAvailable);
+    
     typename iface_impl_type::access_type* ca =
       out_if.getChannelAccess();
 
-    // why must we set the limit? 
 #ifndef NDEBUG
+    // why must we set the limit? 
     ca->setLimit(1); 
 #endif
     (*ca)[0] = t;
@@ -195,6 +202,141 @@ public:
 
 private:
   iface_impl_type& out_if;
+  smoc_event& spaceAvailable;
+};
+
+/**
+ * adapter specialization for nonblocking tlm get -> smoc channel read
+ */
+template<class T, template<class> class R>
+class smoc_chan_adapter<
+    smoc_chan_in_if<T,R>,
+    tlm::tlm_nonblocking_get_if<T>
+  > :
+  public virtual tlm::tlm_nonblocking_get_if<T>
+{
+public:
+  /// typedefs
+  typedef smoc_chan_in_if<T,R>           iface_impl_type;
+  typedef tlm::tlm_nonblocking_get_if<T> iface_type;
+
+  /// flag if this class is a specialization
+  static const bool isAdapter = true;
+
+public:
+  /// constructor
+  /// - stores reference to wrapped interface
+  /// - needs read channel access
+  smoc_chan_adapter(iface_impl_type& in_if) :
+    in_if(in_if),
+    dataAvailable(in_if.dataAvailableEvent(1)),
+    scev(dataAvailable)
+  {}
+
+  /// see tlm_nonblocking_get_if<T>
+  bool nb_get(T& t) {
+
+    if(!dataAvailable) return false;
+
+    typename iface_impl_type::access_type* ca =
+      in_if.getChannelAccess();
+
+#ifndef NDEBUG
+    // why must we set the limit? 
+    ca->setLimit(1); 
+#endif
+    t = (*ca)[0];
+
+#ifdef SYSTEMOC_ENABLE_VPC
+    // start notified
+    smoc_ref_event_p lat = new smoc_ref_event(true);
+    in_if.commitRead(1u,lat);
+#else
+    in_if.commitRead(1u);
+#endif
+
+    return true;
+  }
+  
+  /// see tlm_nonblocking_get_if<T>
+  bool nb_can_get(tlm::tlm_tag<T>* = 0) const
+  { return dataAvailable; }
+
+  /// see tlm_nonblocking_get_if<T>
+  const sc_core::sc_event& ok_to_get(tlm::tlm_tag<T>* = 0) const
+  { return scev.getSCEvent(); }
+
+private:
+  iface_impl_type& in_if;
+  smoc_event& dataAvailable;
+  CoSupport::SystemC::SCEventWrapper scev;
+};
+
+/**
+ * adapter specialization for nonblocking tlm put -> smoc channel write
+ */
+template<class T, template<class> class R, template<class> class S>
+class smoc_chan_adapter<
+    smoc_chan_out_if<T,R,S>,
+    tlm::tlm_nonblocking_put_if<T>
+  > :
+  public virtual tlm::tlm_nonblocking_put_if<T>
+{
+public:
+  /// typedefs
+  typedef smoc_chan_out_if<T,R,S>         iface_impl_type;
+  typedef tlm::tlm_nonblocking_put_if<T>  iface_type;
+
+  /// flag if this class is a specialization
+  static const bool isAdapter = true;
+
+public:
+  /// constructor
+  /// - stores reference to wrapped interface
+  /// - needs write channel access
+  smoc_chan_adapter(iface_impl_type& out_if) :
+    out_if(out_if),
+    spaceAvailable(out_if.spaceAvailableEvent(1)),
+    scev(spaceAvailable)
+  {}
+
+  /// see tlm::tlm_nonblocking_put_if<T>
+  bool nb_put(const T& t) {
+
+    if(!spaceAvailable) return false;
+    
+    typename iface_impl_type::access_type* ca =
+      out_if.getChannelAccess();
+
+#ifndef NDEBUG
+    // why must we set the limit? 
+    ca->setLimit(1); 
+#endif
+    (*ca)[0] = t;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+    // start notified
+    smoc_ref_event_p lat = new smoc_ref_event(true);
+    out_if.commitWrite(1u,lat);
+#else
+    out_if.commitWrite(1u);
+#endif
+
+    return true;
+  }
+
+  /// see tlm::tlm_nonblocking_put_if<T>
+  bool nb_can_put(tlm::tlm_tag<T>* = 0) const
+  { return spaceAvailable; }
+
+  /// see tlm::tlm_nonblocking_put_if<T>
+  const sc_core::sc_event& ok_to_put(tlm::tlm_tag<T>* = 0) const
+  { return scev.getSCEvent(); }
+
+private:
+  iface_impl_type& out_if;
+  smoc_event& spaceAvailable;
+  CoSupport::SystemC::SCEventWrapper scev;
 };
 
 #endif // _INCLUDED_SMOC_CHAN_ADAPTER_HPP
