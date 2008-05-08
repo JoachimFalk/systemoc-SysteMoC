@@ -62,6 +62,8 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
+class smoc_multiplex_vfifo_kind;
+
 class smoc_multiplex_fifo_kind: public boost::noncopyable {
 #ifdef SYSTEMOC_ENABLE_VPC
   friend class Detail::LatencyQueue<smoc_multiplex_fifo_kind>::VisibleQueue;
@@ -76,7 +78,12 @@ private:
   typedef std::list<FifoId> FifoSequence;
 //private:
 public://FIXME
-  FifoId  fifoIdCount;  // For virtual fifo enumeration
+  FifoId                                        fifoIdCount;  // For virtual fifo enumeration
+  std::map<FifoId, smoc_multiplex_vfifo_kind *> vFifos;
+
+  void registerVFifo(smoc_multiplex_vfifo_kind *vfifo);
+  void deregisterVFifo(smoc_multiplex_vfifo_kind *vfifo);
+
   FifoSequence            fifoSequence;
   size_t                  fifoDepth;
   size_t                  fifoFill;
@@ -122,22 +129,24 @@ public://FIXME
 
 public:
   smoc_multiplex_fifo_kind(size_t n)
-    : fifoDepth(n), fifoFill(0) {}
+    : fifoDepth(n), fifoFill(0)
+#ifdef SYSTEMOC_ENABLE_VPC
+      ,latencyQueue(this)
+#endif
+  {
+  }
 };
 
 typedef boost::shared_ptr<smoc_multiplex_fifo_kind>  p_smoc_multiplex_fifo_kind;
 
 class smoc_multiplex_vfifo_kind
 : public smoc_nonconflicting_chan, public boost::noncopyable {
-#ifdef SYSTEMOC_ENABLE_VPC
-  friend class Detail::LatencyQueue<smoc_multiplex_vfifo_kind>::VisibleQueue;
-  friend class Detail::LatencyQueue<smoc_multiplex_vfifo_kind>::RequestQueue;
-#endif // SYSTEMOC_ENABLE_VPC
+  friend class smoc_multiplex_fifo_kind;
 public:
   typedef smoc_multiplex_vfifo_kind  this_type;
 
   typedef size_t FifoId;
-  
+
   class chan_init {
     friend class smoc_multiplex_vfifo_kind;
   private:
@@ -152,16 +161,18 @@ public:
   };
 private:
   Detail::EventMapManager emmAvailable;
-
   FifoId fifoId;
-
   p_smoc_multiplex_fifo_kind pSharedFifoMem;
 protected:
-
   size_t       fsize;   ///< Ring buffer size == FIFO size + 1
   size_t       rindex;  ///< The FIFO read    ptr
   size_t       vindex;  ///< The FIFO visible ptr
   size_t       windex;  ///< The FIFO write   ptr
+protected:
+  // constructors
+  smoc_multiplex_vfifo_kind(const chan_init &i);
+
+  ~smoc_multiplex_vfifo_kind();
 
   size_t usedCount() const {
     size_t used =
@@ -283,12 +294,30 @@ protected:
   virtual
   void channelContents(smoc_modes::PGWriter &pgw) const = 0;
 
-  // constructors
-  smoc_multiplex_vfifo_kind(const chan_init &i);
-private:
+public:
   virtual const char* kind() const
     { return "smoc_multiplex_vfifo_kind"; }
 };
+
+inline
+void smoc_multiplex_fifo_kind::registerVFifo(smoc_multiplex_vfifo_kind *vfifo) {
+  vFifos[vfifo->fifoId] = vfifo;
+}
+
+inline
+void smoc_multiplex_fifo_kind::deregisterVFifo(smoc_multiplex_vfifo_kind *vfifo) {
+  vFifos.erase(vfifo->fifoId);
+  for (FifoSequence::iterator iter = fifoSequence.begin();
+       iter !=  fifoSequence.end();
+       ) {
+    if (*iter == vfifo->fifoId) {
+      iter = fifoSequence.erase(iter);
+    } else {
+      ++iter;
+    }
+  }
+}
+
 
 template <typename T>
 class smoc_multiplex_vfifo_storage

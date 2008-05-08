@@ -49,14 +49,11 @@ using namespace SysteMoC::NGXSync;
 smoc_fifo_kind::smoc_fifo_kind( const chan_init &i )
   : smoc_nonconflicting_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
+    Queue3Ptr(i.n),
     latencyQueue(this), 
+#else
+    Queue2Ptr(i.n),
 #endif
-    fsize(i.n+1),
-    rindex(0),
-#ifdef SYSTEMOC_ENABLE_VPC
-    vindex(0), 
-#endif
-    windex(0),
     tokenId(0)
 {
   // NGX --> SystemC

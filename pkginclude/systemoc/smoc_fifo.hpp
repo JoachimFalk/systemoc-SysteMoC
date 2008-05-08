@@ -47,6 +47,11 @@
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_ring_access.hpp"
 #include "detail/EventMapManager.hpp"
+#ifdef SYSTEMOC_ENABLE_VPC
+# include "detail/Queue3Ptr.hpp"
+#else
+# include "detail/Queue2Ptr.hpp"
+#endif
 
 #include <systemc.h>
 #include <vector>
@@ -73,7 +78,13 @@ class smoc_fifo_kind;
 /// in a derived class the base class only manages the
 /// read, write, and visible pointers.
 class smoc_fifo_kind
-: public smoc_nonconflicting_chan {
+: public smoc_nonconflicting_chan,
+#ifdef SYSTEMOC_ENABLE_VPC
+  public Detail::Queue3Ptr
+#else
+  public Detail::Queue2Ptr
+#endif // SYSTEMOC_ENABLE_VPC
+{
 #ifdef SYSTEMOC_ENABLE_VPC
   friend class Detail::LatencyQueue<smoc_fifo_kind>::VisibleQueue;
   friend class Detail::LatencyQueue<smoc_fifo_kind>::RequestQueue;
@@ -98,97 +109,6 @@ protected:
   Detail::LatencyQueue<smoc_fifo_kind>   latencyQueue;
 #endif
 
-  size_t       fsize;   ///< Ring buffer size == FIFO size + 1
-  size_t       rindex;  ///< The FIFO read    ptr
-#ifdef SYSTEMOC_ENABLE_VPC
-  size_t       vindex;  ///< The FIFO visible ptr
-#endif
-  size_t       windex;  ///< The FIFO write   ptr
-
-  size_t usedCount() const {
-    size_t used =
-      windex - rindex;
-    
-    if (used > fsize)
-      used += fsize;
-    return used;
-  }
-
-  size_t visibleCount() const {
-#ifdef SYSTEMOC_ENABLE_VPC
-    size_t used =
-      vindex - rindex;
-    
-    if (used > fsize)
-      used += fsize;
-    return used;
-#else // !SYSTEMOC_ENABLE_VPC
-    return usedCount();
-#endif
-  }
-
-  size_t freeCount() const {
-    size_t unused =
-      rindex - windex - 1;
-
-    if (unused > fsize)
-      unused += fsize;
-    return unused;
-  }
-
-  void rpp(size_t n) {
-    /*if ( rindex + n >= fsize )
-      rindex = rindex + n - fsize;
-    else
-      rindex = rindex + n;*/
-    rindex = (rindex + n) % fsize;
-
-    emmAvailable.decreasedCount(visibleCount());
-    emmFree.increasedCount(freeCount());
-  }
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  void wpp(size_t n, const smoc_ref_event_p &le)
-#else
-  void wpp(size_t n)
-#endif
-  {
-    /*if ( windex + n >= fsize )
-      windex = windex + n - fsize;
-    else
-      windex = windex + n;*/
-    windex = (windex + n) % fsize;
-    
-    emmFree.decreasedCount(freeCount());
-#ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue.addEntry(n, le);
-#else
-    emmAvailable.increasedCount(visibleCount());
-#endif
-  }
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  void latencyExpired(size_t n) {
-# ifndef NDEBUG
-    size_t oldUsed = visibleCount();
-# endif
-    /*if ( vindex + n >= fsize )
-      vindex = vindex + n - fsize;
-    else
-      vindex = vindex + n;*/
-    vindex = (vindex + n) % fsize;
-    // PARANOIA: rindex <= visible <= windex in modulo fsize arith
-    assert(vindex < fsize &&
-      (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
-       windex <  rindex && (vindex >= rindex || vindex <= windex)));
-# ifndef NDEBUG
-    // PARANOIA: visibleCount() must increase
-    assert(visibleCount() >= oldUsed);
-# endif
-    emmAvailable.increasedCount(visibleCount());
-  }
-#endif
-
   smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(visibleCount(), n); }
 
@@ -211,7 +131,9 @@ protected:
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecIn(this, consume);
 #endif
-    this->rpp(consume);
+    rpp(consume);
+    emmAvailable.decreasedCount(visibleCount());
+    emmFree.increasedCount(freeCount());
   }
   
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -224,11 +146,18 @@ protected:
     TraceLog.traceCommExecOut(this, produce);
 #endif
     tokenId += produce;
+    wpp(produce);
+    emmFree.decreasedCount(freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->wpp(produce, le);
+    latencyQueue.addEntry(produce, le); // Delayed call of latencyExpired(produce);
 #else
-    this->wpp(produce);
+    latencyExpired(produce);
 #endif
+  }
+
+  void latencyExpired(size_t n) {
+    vpp(n);
+    emmAvailable.increasedCount(visibleCount());
   }
 
   // bounce functions

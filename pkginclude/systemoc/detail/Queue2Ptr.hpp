@@ -1,6 +1,7 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2008 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -33,48 +34,59 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
-#include <systemoc/smoc_multiplex_fifo.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
+#ifndef _INCLUDED_SMOC_DETAIL_QUEUE2PTR_HPP
+#define _INCLUDED_SMOC_DETAIL_QUEUE2PTR_HPP
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
-#endif //SYSTEMOC_ENABLE_VPC
+namespace Detail {
 
-using namespace SysteMoC::NGX;
-using namespace SysteMoC::NGXSync;
+  class Queue2Ptr {
+  protected:
+    size_t       fsize;   ///< Ring buffer size == FIFO size + 1
+    size_t       rindex;  ///< The FIFO read    ptr
+    size_t       windex;  ///< The FIFO write   ptr
+  public:
+    Queue2Ptr(size_t n)
+      : fsize(n + 1), rindex(0), windex(0) {}
 
-smoc_multiplex_vfifo_kind::smoc_multiplex_vfifo_kind( const chan_init &i )
-  : smoc_nonconflicting_chan(i.name),
-    fifoId(i.fifoId),
-    pSharedFifoMem(i.pSharedFifoMem),
-    fsize(pSharedFifoMem->fifoDepth+1),
-    rindex(0),
-    vindex(0), 
-    windex(0),
-    tokenId(0)
-{
-  pSharedFifoMem->registerVFifo(this);
-
-  // NGX --> SystemC
-  if(NGXConfig::getInstance().hasNGX()) {
-
-    Fifo::ConstPtr fifo =
-      objAs<Fifo>(NGXCache::getInstance().get(this));
-
-    if(fifo) {
-      fsize = fifo->size().get() + 1;
+    size_t usedCount() const {
+      size_t used =
+        windex - rindex;
+      
+      if (used > fsize)
+        used += fsize;
+      return used;
     }
-    else {
-      // XML node missing or no Fifo
+
+    // For two ptr queues the visible and the used
+    // token sets are equal.
+    size_t visibleCount() const {
+      return usedCount();
     }
-  }
 
-  // for lazy % overflow protection fsize must be less than half the datatype
-  //  size
-  assert(fsize < (MAX_TYPE(size_t) >> 1));
-}
+    size_t freeCount() const {
+      size_t unused =
+        rindex - windex - 1;
 
-smoc_multiplex_vfifo_kind::~smoc_multiplex_vfifo_kind() {
-  pSharedFifoMem->deregisterVFifo(this);
-}
+      if (unused > fsize)
+        unused += fsize;
+      return unused;
+    }
+
+    void wpp(size_t n) {
+      assert(n < fsize);
+      windex = (windex + n) % fsize;
+    }
+
+    void vpp(size_t n) {
+      // Dummy does nothing
+    }
+
+    void rpp(size_t n) {
+      assert(n < fsize);
+      rindex = (rindex + n) % fsize;
+    }
+  };
+
+} // namespace Detail
+
+#endif // _INCLUDED_SMOC_DETAIL_QUEUE2PTR_HPP
