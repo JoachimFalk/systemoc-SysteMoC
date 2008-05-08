@@ -48,7 +48,6 @@
 
 #include "smoc_synth_std_includes.hpp"
 
-
 using namespace std;
 
 //template <class T>
@@ -66,10 +65,10 @@ private:
   }
   smoc_firing_state start;
 public:
-  m_h_src(sc_module_name name)
+  m_h_src(sc_module_name name, size_t iterations)
     : smoc_actor(name, start),
       i(1) {
-    start = out(1) >> (VAR(i) < 10000000) >> call(&m_h_src::src) >> start;
+    start = out(1) >> (VAR(i) < iterations) >> call(&m_h_src::src) >> start;
   }
 };
 
@@ -157,9 +156,9 @@ public:
     return retval;
   }*/
   
-  m_h_top( sc_module_name name )
+  m_h_top(sc_module_name name, size_t iterations)
     : smoc_graph(name),
-      src("src"),
+      src("src", iterations),
       fir("fir"/*, gentaps()*/),
       sink("sink") {
     connectNodePorts(src.out   , fir.input);
@@ -168,7 +167,10 @@ public:
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<m_h_top> top("top");
+  size_t iterations = 10000000; // ten million
+  if (argc >= 2)
+    iterations = atoi(argv[1]);
+  smoc_top_moc<m_h_top> top("top", iterations);
   sc_start();
   return 0;
 }
