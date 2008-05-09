@@ -10,6 +10,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <iostream>
+#include <sstream>
 
 #ifndef NO_SMOC
 #include "smoc_chan_if.hpp"
@@ -36,10 +37,13 @@
 
 
 //#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
+//#define SYSTEMOC_TRACE_BUFFER_SIZE
+
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
 // Buffer analysis classes
 # include "smoc_md_buffer_analysis.hpp"
-# include "smoc_md_ba_linearized_buffer_schedule.hpp"
+# include "smoc_md_ba_linearized_buffer_size.hpp"
+//# include "smoc_md_ba_linearized_buffer_schedule.hpp"
 #endif
 
 /// 101: SysteMoC Interface
@@ -116,41 +120,8 @@ public:
 
     
 public:
-  smoc_md_fifo_kind(const chan_init &i)
-#ifndef NO_SMOC
-    : smoc_nonconflicting_chan(i.name != NULL ? i.name : sc_gen_unique_name( "smoc_md_fifo" ) ),
-      BUFFER_CLASS(i.b),
-#else
-    : BUFFER_CLASS(i.b),
-      _name(i.name != NULL ? i.name : "smoc_md_fifo"),
-#endif
-      visible_schedule_period_difference(0),
-#ifdef SYSTEMOC_ENABLE_VPC
-      latencyQueue(this),
-      src_iterator_visible(this->src_loop_iterator.iteration_max(),
-                           this->src_loop_iterator.token_dimensions()),
-#endif
-      _usedStorage(0),
-      _usedStorageValid(false)
-#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
-      , buffer_analysis(i.ba_ui != NULL ? 
-			i.ba_ui->create_buffer_analysis_object(this->src_loop_iterator,
-							       this->snk_loop_iterator) :
-			NULL)
-#endif
-  {
-#if VERBOSE_LEVEL_SMOC_MD_FIFO == 102
-    CoSupport::dout << "Enter smoc_md_fifo_kind::smoc_md_fifo_kind(const chan_init &i)" << std::endl;
-    CoSupport::dout << "Leave smoc_md_fifo_kind::smoc_md_fifo_kind(const chan_init &i)" << std::endl;
-#endif
-  }
-
-  virtual ~smoc_md_fifo_kind(){
-#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
-    if (buffer_analysis != NULL)
-      delete buffer_analysis;
-#endif
-  }
+  smoc_md_fifo_kind(const chan_init &i);
+  virtual ~smoc_md_fifo_kind();
 
 protected:
 
@@ -299,9 +270,131 @@ private:
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
   //Object for buffer analysis
   smoc_md_ba::smoc_md_buffer_analysis* buffer_analysis;
+
+# ifdef SYSTEMOC_ENABLE_VPC
+#  ifdef SYSTEMOC_TRACE_BUFFER_SIZE
+  sc_trace_file *buffer_size_trace_file;
+
+  /// The following function is called by the SystemC-Kernel.
+  /// We use it to generate the buffer size trace file as only
+  /// here the correct module name is available.
+  virtual void start_of_simulation();
+#  endif
+# endif
+
 #endif
 
 };
+
+
+template <class BUFFER_CLASS>
+smoc_md_fifo_kind<BUFFER_CLASS>::smoc_md_fifo_kind(const chan_init &i)
+#ifndef NO_SMOC
+  : smoc_nonconflicting_chan(i.name),
+    BUFFER_CLASS(i.b),
+#else
+  : BUFFER_CLASS(i.b),
+    _name(i.name != NULL ? i.name : "smoc_md_fifo"),
+#endif
+    visible_schedule_period_difference(0),
+#ifdef SYSTEMOC_ENABLE_VPC
+    latencyQueue(this),
+    src_iterator_visible(this->src_loop_iterator.iteration_max(),
+                         this->src_loop_iterator.token_dimensions()),
+#endif
+    _usedStorage(0),
+    _usedStorageValid(false)
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+  , buffer_analysis(i.ba_ui != NULL ? 
+                    i.ba_ui->create_buffer_analysis_object(this->src_loop_iterator,
+							       this->snk_loop_iterator) :
+                    smoc_modes::dumpSMXWithSim ?
+                    //use buffer analysis by default in order
+                    //to get size of FIFO
+                    new smoc_md_ba::smoc_mb_ba_lin_buffer_size(this->src_loop_iterator,
+                                                               this->snk_loop_iterator,
+                                                               this->src_loop_iterator.iteration_max()[0]
+                                                               ) :
+                    NULL)
+# ifdef SYSTEMOC_ENABLE_VPC
+#  ifdef SYSTEMOC_TRACE_BUFFER_SIZE
+  , buffer_size_trace_file(NULL)
+#  endif
+# endif
+#endif
+{
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 102
+  CoSupport::dout << "Enter smoc_md_fifo_kind::smoc_md_fifo_kind(const chan_init &i)" << std::endl;
+#endif
+    
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 102
+  CoSupport::dout << "Leave smoc_md_fifo_kind::smoc_md_fifo_kind(const chan_init &i)" << std::endl;
+#endif
+
+}
+
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+# ifdef SYSTEMOC_ENABLE_VPC
+#  ifdef SYSTEMOC_TRACE_BUFFER_SIZE
+
+template <typename T>
+void sc_trace(sc_trace_file *scf, 
+              const smoc_vector<T>& vec,
+              const std::string& name){
+  for(unsigned int i = 0; i < vec.size(); i++){
+    std::stringstream temp;
+    temp << name << "[" << i << "]";
+    sc_trace(scf,vec[i],temp.str());
+  }
+}
+
+template <class BUFFER_CLASS>
+void smoc_md_fifo_kind<BUFFER_CLASS>::start_of_simulation(){
+  const smoc_md_ba::smoc_mb_ba_lin_buffer_size* temp =
+    dynamic_cast<const smoc_md_ba::smoc_mb_ba_lin_buffer_size*>(buffer_analysis);
+  if (temp != NULL){
+    std::stringstream filename;
+    filename << "bfs_" << this->name();
+    buffer_size_trace_file = 
+      sc_create_vcd_trace_file(filename.str().c_str());
+    assert(buffer_size_trace_file != NULL);
+    static_cast<vcd_trace_file*>(buffer_size_trace_file)->sc_set_vcd_time_unit(-9);
+    
+    sc_trace(buffer_size_trace_file,
+             temp->get_buffer_size(),
+             filename.str());
+
+    //Trace iterators
+    sc_trace(buffer_size_trace_file,
+             this->src_loop_iterator.iteration_vector(),
+             filename.str() + "_src");
+    sc_trace(buffer_size_trace_file,
+             this->snk_loop_iterator.iteration_vector(),
+             filename.str() + "_snk");
+    
+  }  
+}
+
+#  endif
+# endif
+#endif
+
+
+
+template <class BUFFER_CLASS>
+smoc_md_fifo_kind<BUFFER_CLASS>::~smoc_md_fifo_kind(){
+#ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
+  if (buffer_analysis != NULL)
+    delete buffer_analysis;
+  
+# ifdef SYSTEMOC_ENABLE_VPC
+#  ifdef SYSTEMOC_TRACE_BUFFER_SIZE
+  if (buffer_size_trace_file != NULL)
+    sc_close_vcd_trace_file(buffer_size_trace_file);
+#  endif
+# endif
+#endif
+}
 
 
 template <class BUFFER_CLASS>
@@ -649,6 +742,7 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n) {
   CoSupport::dout << CoSupport::Indent::Up;
 #endif
 
+  //std::cerr << "My name: " << this->name() << std::endl;
   assert((n == 1) || (n == MAX_TYPE(size_t)));
   
   if (n == 1){
@@ -717,7 +811,7 @@ smoc_md_fifo_kind<BUFFER_CLASS>::channelAttributes(smoc_modes::PGWriter &pgw) co
     buffer_analysis->dump_results(temp);
     pgw << "<attribute type=\"sim_size\" value=\""
         << temp.str()
-        << "\">"
+        << "\"/>"
         << std::endl;  
   }
 #endif    
@@ -862,7 +956,7 @@ protected:
   }
 
   virtual void channelContents(smoc_modes::PGWriter &pgw) const {
-    pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
+    pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\"/>" << std::endl;
   };  
 #endif
 
@@ -989,7 +1083,7 @@ protected:
   }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
-    pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
+    pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\"/>" << std::endl;
   };  
 #endif
 

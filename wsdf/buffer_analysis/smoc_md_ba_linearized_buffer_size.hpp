@@ -32,9 +32,9 @@ namespace smoc_md_ba
                             bool new_schedule_period
                             ){};
 
-    unsigned long get_buffer_size() const{
+    const unsigned long& get_buffer_size() const{
       assert(number_buffer_elements > 0);
-      return number_buffer_elements;
+      return (unsigned long&)number_buffer_elements;
     }
 
     void dump_results(std::ostream& os) const{

@@ -18,48 +18,48 @@ void
 smoc_md_buffer_mgmt_base::channelAttributes(smoc_modes::PGWriter &pgw) const{
   pgw << "<attribute type=\"token_dimensions\" value=\""
       << this->_token_dimensions 
-      << "\">"
+      << "\"/>"
       << std::endl;
 
   /* Source iterator */
   pgw << "<attribute type=\"src_iter_max\" value=\""
       << this->src_loop_iterator.iteration_max()
-      << "\">"
+      << "\"/>"
       << std::endl;
   pgw << "<attribute type=\"src_mapping_matrix\" value=\""
       << this->src_loop_iterator.mapping_matrix
-      << "\">"
+      << "\"/>"
       << std::endl;
   pgw << "<attribute type=\"src_mapping_offset\" value=\""
       << this->src_loop_iterator.mapping_offset
-      << "\">"
+      << "\"/>"
       << std::endl;
   
 
   /* Sink iterator */
   pgw << "<attribute type=\"snk_iter_max\" value=\""
       << this->snk_loop_iterator.iteration_max()
-      << "\">"
+      << "\"/>"
       << std::endl;
   pgw << "<attribute type=\"snk_mapping_matrix\" value=\""
       << this->snk_loop_iterator.mapping_matrix
-      << "\">"
+      << "\"/>"
       << std::endl;
   pgw << "<attribute type=\"snk_mapping_offset\" value=\""
       << this->snk_loop_iterator.mapping_offset
-      << "\">"
+      << "\"/>"
       << std::endl;
   pgw << "<attribute type=\"snk_border_condition_matrix\" value=\""
       << this->snk_loop_iterator.border_condition_matrix
-      << "\">"
+      << "\"/>"
       << std::endl;
   pgw << "<attribute type=\"snk_low_border_condition_vector\" value=\""
       << this->snk_loop_iterator.low_border_condition_vector
-      << "\">"
+      << "\"/>"
       << std::endl;
   pgw << "<attribute type=\"snk_high_border_condition_vector\" value=\""
       << this->snk_loop_iterator.high_border_condition_vector
-      << "\">"
+      << "\"/>"
       << std::endl;  
 }
 
@@ -260,7 +260,7 @@ smoc_simple_md_buffer_kind::channelAttributes(smoc_modes::PGWriter &pgw) const{
   parent_type::channelAttributes(pgw);
   pgw << "<attribute type=\"buffer_lines\" value=\""
       << buffer_lines
-      << "\">"
+      << "\"/>"
       << std::endl;
 }
 
