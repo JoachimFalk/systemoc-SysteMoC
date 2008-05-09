@@ -58,13 +58,22 @@ namespace Detail {
     }
 
     void vpp(size_t n) {
-      assert(n < fsize);
+      assert(n <= usedCount() - visibleCount());
       vindex = (vindex + n) % fsize;
-      // PARANOIA: rindex <= visible <= windex in modulo fsize arith
+      // PARANOIA: rindex <= vindex <= windex in modulo fsize arith
       assert(vindex < fsize &&
         (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
          windex <  rindex && (vindex >= rindex || vindex <= windex)));
     }
+
+#ifndef NDEBUG
+    // This differs from Queue2Ptr::rpp due to the different definition of
+    // visibleCount. Therefore, the assertion is more paranoid.
+    void rpp(size_t n) {
+      assert(n <= visibleCount());
+      rindex = (rindex + n) % fsize;
+    }
+#endif
   };
 
 } // namespace Detail

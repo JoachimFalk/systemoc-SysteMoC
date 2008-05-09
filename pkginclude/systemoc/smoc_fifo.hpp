@@ -112,7 +112,6 @@ protected:
   // constructors
   smoc_fifo_kind(const chan_init &i);
 
-
   smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(visibleCount(), n); }
 
@@ -171,7 +170,7 @@ protected:
     { return freeCount(); }
 
   void channelAttributes(smoc_modes::PGWriter &pgw) const {
-    pgw << "<attribute type=\"size\" value=\"" << (fsize - 1) << "\"/>" << std::endl;
+    pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
   }
 
   virtual
@@ -225,16 +224,13 @@ private:
 protected:
   smoc_fifo_storage( const chan_init &i )
     : smoc_fifo_kind(i),
-      storage(new storage_type[this->fsize])
+      storage(new storage_type[this->fSize()])
   {
-    assert(this->fsize > i.marking.size());
+    assert(this->depthCount() >= i.marking.size());
     for(size_t j = 0; j < i.marking.size(); ++j) {
       storage[j].put(i.marking[j]);
     }
-    this->windex = i.marking.size();
-#ifdef SYSTEMOC_ENABLE_VPC
-    this->vindex = this->windex;
-#endif
+    wpp(i.marking.size()); vpp(i.marking.size());
   }
 
   const char *name() const
@@ -242,11 +238,11 @@ protected:
 
   ring_in_type *getReadChannelAccess() {
     return new ring_access_in_type
-      (storage, this->fsize, &this->rindex);
+      (storage, this->fSize(), &this->rIndex());
   }
   ring_out_type *getWriteChannelAccess() {
     return new ring_access_out_type
-      (storage, this->fsize,  &this->windex);
+      (storage, this->fSize(), &this->wIndex());
   }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
@@ -298,11 +294,7 @@ public:
 protected:
   smoc_fifo_storage(const chan_init &i)
     : smoc_fifo_kind(i) {
-    assert( fsize > i.marking );
-    windex = i.marking;
-#ifdef SYSTEMOC_ENABLE_VPC
-    vindex = windex;
-#endif
+    wpp(i.marking); vpp(i.marking);
   }
 
   const char *name() const

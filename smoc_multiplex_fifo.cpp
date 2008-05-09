@@ -41,23 +41,38 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-using namespace SysteMoC::NGX;
-using namespace SysteMoC::NGXSync;
+//using namespace SysteMoC::NGX;
+//using namespace SysteMoC::NGXSync;
+
+smoc_multiplex_fifo_kind::smoc_multiplex_fifo_kind(const char *name, size_t n, size_t m)
+  : //smoc_nonconflicting_chan(name),
+#ifdef SYSTEMOC_ENABLE_VPC
+    Detail::Queue3Ptr(n),
+#else
+    Detail::Queue2Ptr(n),
+#endif
+    fifoOutOfOrder(m)
+#ifdef SYSTEMOC_ENABLE_VPC
+    ,latencyQueue(this)
+#endif
+{
+}
+
 
 smoc_multiplex_vfifo_kind::smoc_multiplex_vfifo_kind( const chan_init &i )
   : smoc_nonconflicting_chan(i.name),
-    Queue3Ptr(pSharedFifoMem->fifoDepth),
+    Queue3Ptr(pSharedFifoMem->depthCount()),
     fifoId(i.fifoId),
     pSharedFifoMem(i.pSharedFifoMem),
     tokenId(0)
 {
   pSharedFifoMem->registerVFifo(this);
-
+/*
   // NGX --> SystemC
-  if(NGXConfig::getInstance().hasNGX()) {
+  if(SysteMoC::NGXSync::NGXConfig::getInstance().hasNGX()) {
 
-    Fifo::ConstPtr fifo =
-      objAs<Fifo>(NGXCache::getInstance().get(this));
+    SysteMoC::NGX::Fifo::ConstPtr fifo =
+      objAs<SysteMoC::NGX::Fifo>(SysteMoC::NGXSync::NGXCache::getInstance().get(this));
 
     if(fifo) {
       fsize = fifo->size().get() + 1;
@@ -70,6 +85,7 @@ smoc_multiplex_vfifo_kind::smoc_multiplex_vfifo_kind( const chan_init &i )
   // for lazy % overflow protection fsize must be less than half the datatype
   //  size
   assert(fsize < (MAX_TYPE(size_t) >> 1));
+ */
 }
 
 smoc_multiplex_vfifo_kind::~smoc_multiplex_vfifo_kind() {

@@ -65,7 +65,15 @@
 
 class smoc_multiplex_vfifo_kind;
 
-class smoc_multiplex_fifo_kind: public boost::noncopyable {
+class smoc_multiplex_fifo_kind
+//: public smoc_nonconflicting_chan,
+: public boost::noncopyable,
+#ifdef SYSTEMOC_ENABLE_VPC
+  public Detail::Queue3Ptr
+#else
+  public Detail::Queue2Ptr
+#endif // SYSTEMOC_ENABLE_VPC
+{
 #ifdef SYSTEMOC_ENABLE_VPC
   friend class Detail::LatencyQueue<smoc_multiplex_fifo_kind>::VisibleQueue;
   friend class Detail::LatencyQueue<smoc_multiplex_fifo_kind>::RequestQueue;
@@ -90,22 +98,17 @@ public://FIXME
   void deregisterVFifo(smoc_multiplex_vfifo_kind *vfifo);
 
   FifoSequence            fifoSequence;
-  size_t                  fifoDepth;
-  size_t                  fifoFill;
+  size_t                  fifoOutOfOrder;
   Detail::EventMapManager emmFree;
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue<smoc_multiplex_fifo_kind> latencyQueue;
 #endif
 
-  size_t freeCount() const
-    { return fifoDepth - fifoFill; }
-
   smoc_event &spaceAvailableEvent(size_t n)
     { return emmFree.getEvent(freeCount(), n); }
 
   void consume(FifoId from, size_t n) {
-    assert(fifoFill >= n);
-    fifoFill -= n;
+    rpp(n);
     emmFree.increasedCount(freeCount());
     
     for (FifoSequence::iterator iter = fifoSequence.begin();
@@ -120,30 +123,38 @@ public://FIXME
     }
   }
 
+#ifdef SYSTEMOC_ENABLE_VPC
+  void produce(FifoId to, size_t n, const smoc_ref_event_p &le)
+#else
+  void produce(FifoId to, size_t n)
+#endif
+  {
+    wpp(n);
+    for (; n > 0; --n)
+      fifoSequence.push_back(to);
+    emmFree.decreasedCount(freeCount());
+#ifdef SYSTEMOC_ENABLE_VPC
+    latencyQueue.addEntry(n, le); // Delayed call of latencyExpired(n);
+#else
+    latencyExpired(n);
+#endif
+  }
+
   void latencyExpired(size_t n) {
+    vpp(n);
+    if (visibleCount() - n < fifoOutOfOrder) {
+      for ( ; ; ) {
+
+
+
+      }
+    }
+
     //FIXME: implement it!
   }
 
-  void produce(FifoId to, size_t n) {
-    assert(freeCount() >= n);
-    fifoFill += n;
-    emmFree.decreasedCount(freeCount());
-    
-    for (;
-         n > 0;
-         --n) {
-      fifoSequence.push_back(to);
-    }
-  }
-
 public:
-  smoc_multiplex_fifo_kind(size_t n)
-    : fifoDepth(n), fifoFill(0)
-#ifdef SYSTEMOC_ENABLE_VPC
-      ,latencyQueue(this)
-#endif
-  {
-  }
+  smoc_multiplex_fifo_kind(const char *name, size_t n, size_t m);
 };
 
 typedef boost::shared_ptr<smoc_multiplex_fifo_kind>  p_smoc_multiplex_fifo_kind;
@@ -208,7 +219,7 @@ protected:
     emmAvailable.decreasedCount(visibleCount());
     pSharedFifoMem->consume(fifoId, consume);
   }
-  
+
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &le)
 #else
@@ -220,7 +231,12 @@ protected:
 #endif
     tokenId += produce;
     wpp(produce);
-    pSharedFifoMem->produce(fifoId, produce);
+    // This will do a callback to latencyExpired(produce) at the appropriate time
+#ifdef SYSTEMOC_ENABLE_VPC
+    pSharedFifoMem->produce(fifoId, produce, le); 
+#else
+    pSharedFifoMem->produce(fifoId, produce); 
+#endif
   }
 
   void latencyExpired(size_t n) {
@@ -235,7 +251,7 @@ protected:
     { return freeCount(); }
 
   void channelAttributes(smoc_modes::PGWriter &pgw) const {
-    pgw << "<attribute type=\"size\" value=\"" << (fsize - 1) << "\"/>" << std::endl;
+    pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
   }
 
   virtual
@@ -306,16 +322,15 @@ private:
 protected:
   smoc_multiplex_vfifo_storage( const chan_init &i )
     : smoc_multiplex_vfifo_kind(i),
-      storage(new storage_type[this->fsize])
+      storage(new storage_type[this->fSize()])
   {
-    assert(this->fsize > i.marking.size());
+    assert(this->depthCount() >= i.marking.size());
     for(size_t j = 0; j < i.marking.size(); ++j) {
       storage[j].put(i.marking[j]);
     }
-    this->windex = i.marking.size();
-#ifdef SYSTEMOC_ENABLE_VPC
-    this->vindex = this->windex;
-#endif
+    wpp(i.marking.size());
+    // FIXME: What about vpp does smoc_multiplex_fifo_kind trigger this
+    // for initial tokens?
   }
   
   const char *name() const
@@ -323,11 +338,11 @@ protected:
 
   ring_in_type *getReadChannelAccess() {
     return new ring_access_in_type
-      (storage, this->fsize, &this->rindex);
+      (storage, this->fSize(), &this->rIndex());
   }
   ring_out_type *getWriteChannelAccess() {
     return new ring_access_out_type
-      (storage, this->fsize,  &this->windex);
+      (storage, this->fSize(), &this->wIndex());
   }
 
   void channelContents(smoc_modes::PGWriter &pgw) const {
@@ -379,15 +394,13 @@ public:
 protected:
   smoc_multiplex_vfifo_storage( const chan_init &i ) :
     smoc_multiplex_vfifo_kind(i) {
-    assert( fsize > i.marking );
-    windex = i.marking;
-#ifdef SYSTEMOC_ENABLE_VPC
-    vindex = windex;
-#endif
+    wpp(i.marking);
+    // FIXME: What about vpp does smoc_multiplex_fifo_kind trigger this
+    // for initial tokens?
   }
 
   const char *name() const
-  { return smoc_multiplex_vfifo_kind::name(); }
+    { return smoc_multiplex_vfifo_kind::name(); }
 
   ring_in_type  *getReadChannelAccess()
     { return new ring_access_in_type(); }
@@ -501,7 +514,9 @@ public:
   /// @PARAM n size of the shared fifo memory
   /// @PARAM m out of order access, zero is no out of order
   smoc_multiplex_fifo(size_t n = 1, size_t m = 0)
-    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_kind(n)) {}
+    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_kind(NULL, n, m)) {}
+  smoc_multiplex_fifo(const char *name, size_t n = 1, size_t m = 0)
+    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_kind(name, n, m)) {}
 
   VirtFifo getVirtFifo()
     { return VirtFifo(pSharedFifoMem, m); }

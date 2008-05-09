@@ -50,9 +50,9 @@ private:
 #endif
   storage_type *storage;
   size_t        storageSize;
-  size_t       *offset;
+  const size_t *offset;
 public:
-  smoc_ring_access(storage_type *storage, size_t storageSize, size_t *offset):
+  smoc_ring_access(storage_type *storage, size_t storageSize, const size_t *offset):
 #ifndef NDEBUG
       limit(0),
 #endif

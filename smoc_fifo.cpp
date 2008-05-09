@@ -43,34 +43,32 @@
 
 const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
 
-using namespace SysteMoC::NGX;
-using namespace SysteMoC::NGXSync;
+static
+size_t fsizeMapper(smoc_fifo_kind *instance, size_t n) {
+  // NGX --> SystemC
+  if (SysteMoC::NGXSync::NGXConfig::getInstance().hasNGX()) {
+    SysteMoC::NGX::Fifo::ConstPtr fifo =
+      objAs<SysteMoC::NGX::Fifo>(SysteMoC::NGXSync::NGXCache::getInstance().get(instance));
+    if (fifo) {
+      n = fifo->size().get();
+    } else {
+      // XML node missing or no Fifo
+    }
+  }
+  return n;
+}
 
 smoc_fifo_kind::smoc_fifo_kind( const chan_init &i )
   : smoc_nonconflicting_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
-    Queue3Ptr(i.n),
+    Queue3Ptr(fsizeMapper(this, i.n)),
     latencyQueue(this), 
 #else
-    Queue2Ptr(i.n),
+    Queue2Ptr(fsizeMapper(this, i.n)),
 #endif
     tokenId(0)
 {
-  // NGX --> SystemC
-  if(NGXConfig::getInstance().hasNGX()) {
-
-    Fifo::ConstPtr fifo =
-      objAs<Fifo>(NGXCache::getInstance().get(this));
-
-    if(fifo) {
-      fsize = fifo->size().get() + 1;
-    }
-    else {
-      // XML node missing or no Fifo
-    }
-  }
-
-  // for lazy % overflow protection fsize must be less than half the datatype
-  //  size
-  assert(fsize < (MAX_TYPE(size_t) >> 1));
+  // for lazy % overflow protection fsize must be less than half the datatype size
+  // JoachimFalk: WTF? is  lazy % overflow protection and where is it used?
+  assert(depthCount() < (MAX_TYPE(size_t) >> 1)); 
 }

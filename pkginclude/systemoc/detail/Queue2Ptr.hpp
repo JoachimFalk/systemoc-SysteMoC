@@ -39,8 +39,11 @@
 
 namespace Detail {
 
+  class Queue3Ptr;
+
   class Queue2Ptr {
-  protected:
+    friend class Queue3Ptr;
+  private:
     size_t       fsize;   ///< Ring buffer size == FIFO size + 1
     size_t       rindex;  ///< The FIFO read    ptr
     size_t       windex;  ///< The FIFO write   ptr
@@ -63,6 +66,10 @@ namespace Detail {
       return usedCount();
     }
 
+    size_t depthCount() const {
+      return fsize - 1;
+    }
+
     size_t freeCount() const {
       size_t unused =
         rindex - windex - 1;
@@ -72,8 +79,18 @@ namespace Detail {
       return unused;
     }
 
+    size_t fSize() const {
+      return fsize;
+    }
+    const size_t &rIndex() const {
+      return rindex;
+    }
+    const size_t &wIndex() const {
+      return windex;
+    }
+
     void wpp(size_t n) {
-      assert(n < fsize);
+      assert(n <= freeCount());
       windex = (windex + n) % fsize;
     }
 
@@ -82,7 +99,7 @@ namespace Detail {
     }
 
     void rpp(size_t n) {
-      assert(n < fsize);
+      assert(n <= visibleCount());
       rindex = (rindex + n) % fsize;
     }
   };
