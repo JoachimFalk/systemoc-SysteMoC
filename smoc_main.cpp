@@ -47,6 +47,10 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/positional_options.hpp>
 
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
+#endif //SYSTEMOC_ENABLE_VPC
+
 using namespace boost::program_options;
 
 int main(int _argc, char* _argv[]) {
@@ -112,7 +116,11 @@ int main(int _argc, char* _argv[]) {
   
   argv[argc] = 0;
   assert(argc <= _argc);
-  
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  SystemC_VPC::Director::getInstance();
+#endif
+
   int ret = sc_core::sc_elab_and_sim(argc, argv);  
   
   // Do not free argv[0] it was not strdupped

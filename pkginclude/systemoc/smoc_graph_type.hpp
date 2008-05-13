@@ -74,8 +74,18 @@ public:
   {}
 
   template<class Port>
-  smoc_port_connector& operator<<(Port& port)
+  smoc_port_connector& connect(Port& port)
   { chan->connect(port, init); return *this; }
+  
+  template<class Port>
+  smoc_port_connector& operator<<(Port& port)
+  { return connect(port); }
+
+  ChanType& getChannel()
+  { return *chan; }
+
+  const ChanType& getChannel() const
+  { return *chan; }
 
 private:
   // keep reference to channel initializer
@@ -149,7 +159,7 @@ protected:
   
   /// helper function for easier connector creation
   template<class ChanInit>
-  smoc_port_connector<ChanInit> connector(ChanInit init)
+  smoc_port_connector<ChanInit> connector(const ChanInit& init)
     { return smoc_port_connector<ChanInit>(init); }
 
   /// connect ports using the specified channel initializer
