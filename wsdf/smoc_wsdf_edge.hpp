@@ -329,7 +329,7 @@ public:
 		       const svector_type& bs,
 		       const svector_type& bt)
     : token_dimensions(token_dimensions),
-      snk_firing_block_dimensions(snk_firing_blocks[0].size()),
+      snk_firing_block_dimensions(snk_firing_block.size()),
       src_firing_blocks(src_firing_blocks),
       src_num_firing_levels(src_firing_blocks.size()),
       src_num_eff_token_firing_levels(1),

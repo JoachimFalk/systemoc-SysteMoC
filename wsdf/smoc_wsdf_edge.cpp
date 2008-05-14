@@ -1308,6 +1308,7 @@ void smoc_wsdf_edge_descr::check_parameters() const {
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::dout << "token_dimensions = " << token_dimensions << std::endl;
   CoSupport::dout << "v.size() = " << v.size() << std::endl;
+  CoSupport::dout << "snk_firing_block_dimensions = " << snk_firing_block_dimensions << std::endl;
 #endif
 
   /* Check number of dimensions */
