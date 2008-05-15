@@ -25,12 +25,10 @@ root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 include $(auxdir)/jfrules.mk
 include ../BuildSystem/doxygen.am
 
-SUBDIRS=
+SUBDIRS = pkginclude
 
 # This is only needed if there is a configure.in in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
-
-pkgincludedir=$(includedir)/systemoc
 
 compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 	@date > $@
@@ -58,70 +56,6 @@ EXTRA_DIST	=
 PROGLDFLAGS=
 
 lib_LTLIBRARIES = libsystemoc.la
-pkginclude_HEADERS = \
-	pkginclude/systemoc/smoc_config.h \
-	\
-	pkginclude/systemoc/detail/smoc_event_decls.hpp \
-	pkginclude/systemoc/detail/smoc_event_expr.hpp \
-	pkginclude/systemoc/detail/smoc_sysc_port.hpp \
-	pkginclude/systemoc/detail/smoc_root_port.hpp \
-	pkginclude/systemoc/detail/EventMapManager.hpp \
-	pkginclude/systemoc/detail/smoc_latency_queues.hpp \
-	pkginclude/systemoc/detail/smoc_ring_access.hpp \
-	pkginclude/systemoc/smoc_event.hpp \
-	pkginclude/systemoc/smoc_expr.hpp \
-	pkginclude/systemoc/smoc_ast_common.hpp \
-	pkginclude/systemoc/hscd_tdsim_TraceLog.hpp \
-	pkginclude/systemoc/smoc_ast_systemoc.hpp \
-	pkginclude/systemoc/smoc_chan_if.hpp \
-	pkginclude/systemoc/smoc_chan_adapter.hpp \
-	pkginclude/systemoc/smoc_port.hpp \
-	pkginclude/systemoc/smoc_multiplex_fifo.hpp \
-	pkginclude/systemoc/smoc_fifo.hpp \
-	pkginclude/systemoc/smoc_firing_rules.hpp \
-	pkginclude/systemoc/smoc_graph_synth.hpp \
-	pkginclude/systemoc/smoc_graph_type.hpp \
-	pkginclude/systemoc/smoc_guard.hpp \
-	pkginclude/systemoc/smoc_md_array.hpp \
-	pkginclude/systemoc/smoc_md_array_access.hpp \
-	pkginclude/systemoc/smoc_md_ba_basic_tree.hpp \
-	pkginclude/systemoc/smoc_md_ba_linearized_buffer.hpp \
-	pkginclude/systemoc/smoc_md_ba_linearized_buffer_schedule.hpp \
-	pkginclude/systemoc/smoc_md_ba_linearized_buffer_size.hpp \
-	pkginclude/systemoc/smoc_md_buffer.hpp \
-	pkginclude/systemoc/smoc_md_buffer_analysis.hpp \
-	pkginclude/systemoc/smoc_md_chan_if.hpp \
-	pkginclude/systemoc/smoc_md_fifo.hpp \
-	pkginclude/systemoc/smoc_md_loop.hpp \
-	pkginclude/systemoc/smoc_md_port.hpp \
-	pkginclude/systemoc/smoc_moc.hpp \
-	pkginclude/systemoc/smoc_multicast_sr_signal.hpp \
-	pkginclude/systemoc/smoc_node_types.hpp \
-	pkginclude/systemoc/smoc_pggen.hpp \
-	pkginclude/systemoc/smoc_root_node.hpp \
-	pkginclude/systemoc/smoc_sr_signal.hpp \
-	pkginclude/systemoc/smoc_storage.hpp \
-	pkginclude/systemoc/smoc_vector.hpp \
-	pkginclude/systemoc/smoc_wsdf_edge.hpp \
-	pkginclude/systemoc/smoc_ngx_sync.hpp
-
-if SYSTEMOC_ENABLE_WSDF
-pkginclude_HEADERS +=					\
-	pkginclude/systemoc/smoc_md_array_access.hpp	\
-	pkginclude/systemoc/smoc_md_array.hpp		\
-	pkginclude/systemoc/smoc_md_chan_if.hpp \
-	pkginclude/systemoc/smoc_md_buffer.hpp		\
-	pkginclude/systemoc/smoc_md_fifo.hpp		\
-	pkginclude/systemoc/smoc_md_loop.hpp		\
-	pkginclude/systemoc/smoc_md_port.hpp		\
-	pkginclude/systemoc/smoc_vector.hpp		\
-	pkginclude/systemoc/smoc_wsdf_edge.hpp \
-	pkginclude/systemoc/smoc_md_ba_basic_tree.hpp \
-	pkginclude/systemoc/smoc_md_buffer_analysis.hpp \
-	pkginclude/systemoc/smoc_md_ba_linearized_buffer.hpp \
-	pkginclude/systemoc/smoc_md_ba_linearized_buffer_size.hpp \
-	pkginclude/systemoc/smoc_md_ba_linearized_buffer_schedule.hpp
-endif
 
 libsystemoc_CH_LTOBJS=				\
 	$(smoc_firing_rules_hpp_CH_LTOBJS)	\

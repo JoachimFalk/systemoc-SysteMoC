@@ -116,7 +116,10 @@ if test x"$enable_wsdf" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_WSDF], [yes], [Define if you want WSDF Support])
 fi
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([
+  Makefile
+  pkginclude/Makefile
+])
 
 ACJF_DONE
 
