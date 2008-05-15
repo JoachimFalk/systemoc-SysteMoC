@@ -29,9 +29,9 @@ SUBDIRS=
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-LIBS= @LIBS@ -lsystemoc -lcosupport
-
 noinst_PROGRAMS= simulation-par
 
 simulation_par_SOURCES= design-par.cpp
-simulation_par_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_par_LDADD= \
+	$(pkg_systemoc_builddir)/libsystemoc.la \
+	$(pkg_support_builddir)/libcosupport-systemc.la

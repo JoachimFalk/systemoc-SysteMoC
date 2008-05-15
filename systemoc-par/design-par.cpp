@@ -47,17 +47,19 @@
 # include <systemoc/smoc_pggen.hpp>
 #endif
 
-#include <cosupport/par_port.hpp>
-#include <cosupport/par_actor.hpp>
-#include <cosupport/par_actor_factory.hpp>
-
-#include <cosupport/oneof.hpp>
-
-using CoSupport::par_port_out;
-using CoSupport::par_port_in;
-using CoSupport::par_actor;
-using CoSupport::par_actor_factory;
 using Expr::isType;
+
+#include <CoSupport/SystemC/par_port.hpp>
+#include <CoSupport/SystemC/par_actor.hpp>
+#include <CoSupport/SystemC/par_actor_factory.hpp>
+
+#include <CoSupport/DataTypes/oneof.hpp>
+
+using CoSupport::SystemC::par_port_out;
+using CoSupport::SystemC::par_port_in;
+using CoSupport::SystemC::par_actor;
+using CoSupport::SystemC::par_actor_factory;
+using CoSupport::DataTypes::oneof;
 
 struct msg_add {};
 struct msg_neg {};
@@ -70,7 +72,7 @@ ostream& operator<<(ostream& os, const msg_neg& msg) {
   return os << "msg_neg" << std::endl;
 }
 
-typedef CoSupport::oneof<msg_add, msg_neg, double> ct_src2mod;
+typedef oneof<msg_add, msg_neg, double> ct_src2mod;
 
 /**
  * m_mod performs arithmetic operations based on input tokens
