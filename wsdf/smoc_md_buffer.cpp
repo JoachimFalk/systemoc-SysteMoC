@@ -2,7 +2,7 @@
 // vim: set sw=2 ts=8 sts=2 et:
 
 #include <systemoc/smoc_md_buffer.hpp>
-#include <cosupport/smoc_debug_out.hpp>
+#include <CoSupport/Streams/DebugOStream.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BUFFER
 #define VERBOSE_LEVEL_SMOC_MD_BUFFER 0
@@ -95,8 +95,8 @@ bool smoc_simple_md_buffer_kind::hasUnusedStorage() const {
   bool return_value = cache_unusedStorage;
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-  CoSupport::dout << "Enter smoc_simple_md_buffer_kind::hasUnusedStorage" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_simple_md_buffer_kind::hasUnusedStorage" << std::endl;
+  CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 
   if (!return_value){
@@ -105,7 +105,7 @@ bool smoc_simple_md_buffer_kind::hasUnusedStorage() const {
     //check, whether source iterator has started a new schedule period
     if (new_schedule_period){
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
-      CoSupport::dout << "New schedule period" << std::endl;
+      CoSupport::Streams::dout << "New schedule period" << std::endl;
 #endif
       cache_wr_schedule_period_start = 
 	wr_schedule_period_start +
@@ -124,15 +124,15 @@ bool smoc_simple_md_buffer_kind::hasUnusedStorage() const {
     max_src_data_element_id[_token_dimensions-1] +=
       schedule_period_offset * size_token_space[_token_dimensions-1];
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
-    CoSupport::dout << "max_src_data_element_id = " << max_src_data_element_id;
-    CoSupport::dout << std::endl;
+    CoSupport::Streams::dout << "max_src_data_element_id = " << max_src_data_element_id;
+    CoSupport::Streams::dout << std::endl;
 #endif
                 
     // Calculate number of new lines
     unsigned long new_lines = calc_req_new_lines(max_src_data_element_id,
 						 new_schedule_period);
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
-    CoSupport::dout << "Required " << new_lines << " new lines" << std::endl;
+    CoSupport::Streams::dout << "Required " << new_lines << " new lines" << std::endl;
 #endif
                 
     if(free_lines < new_lines){
@@ -150,21 +150,21 @@ bool smoc_simple_md_buffer_kind::hasUnusedStorage() const {
     }                       
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
     if (return_value){
-      CoSupport::dout << "Allocation succeeded" << std::endl;
+      CoSupport::Streams::dout << "Allocation succeeded" << std::endl;
     }else{
-      CoSupport::dout << "Allocation failed" << std::endl;
+      CoSupport::Streams::dout << "Allocation failed" << std::endl;
     }
 #endif
   }else{
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 102
-    CoSupport::dout << "Buffer already allocated" << std::endl;
+    CoSupport::Streams::dout << "Buffer already allocated" << std::endl;
 #endif
   }
                 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-  CoSupport::dout << "Leave smoc_simple_md_buffer_kind::hasUnusedStorage" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::hasUnusedStorage" << std::endl;
+  CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
   return return_value;
@@ -194,18 +194,18 @@ void smoc_simple_md_buffer_kind::free_buffer() {
   }
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-  CoSupport::dout << "Enter smoc_simple_md_buffer_kind::free_buffer" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
-  CoSupport::dout << "free_lines = " << free_lines << std::endl;
-  CoSupport::dout << "buffer_lines = " << buffer_lines << std::endl;
+  CoSupport::Streams::dout << "Enter smoc_simple_md_buffer_kind::free_buffer" << std::endl;
+  CoSupport::Streams::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "free_lines = " << free_lines << std::endl;
+  CoSupport::Streams::dout << "buffer_lines = " << buffer_lines << std::endl;
 #endif
 
   for(unsigned i = 0; i < _token_dimensions-1; i++){
     if (!snk_loop_iterator.is_iteration_max(i)){
       //we cannot free complete line
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-      CoSupport::dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << std::endl;
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
       return;
     }
@@ -214,8 +214,8 @@ void smoc_simple_md_buffer_kind::free_buffer() {
   if (!snk_loop_iterator.is_virt_iteration_max()){
     //we cannot free complete line
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-    CoSupport::dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
     return;
   }
@@ -227,7 +227,7 @@ void smoc_simple_md_buffer_kind::free_buffer() {
 						     window_displacement)){
     //We are at the end of a schedule period.
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-    CoSupport::dout << "End of schedule period" << std::endl;
+    CoSupport::Streams::dout << "End of schedule period" << std::endl;
 #endif
     free_lines += 
       size_token_space[_token_dimensions-1] - rd_min_data_element_offset;
@@ -239,8 +239,8 @@ void smoc_simple_md_buffer_kind::free_buffer() {
     rd_schedule_period_start %= buffer_lines;
   }else{
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-    CoSupport::dout << "free " << window_displacement << " lines" << std::endl;
-    CoSupport::dout << std::endl;
+    CoSupport::Streams::dout << "free " << window_displacement << " lines" << std::endl;
+    CoSupport::Streams::dout << std::endl;
 #endif
     free_lines += window_displacement;
     cache_free_lines += window_displacement;
@@ -249,8 +249,8 @@ void smoc_simple_md_buffer_kind::free_buffer() {
   }       
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102)
-  CoSupport::dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::free_buffer" << std::endl;
+  CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 }
 

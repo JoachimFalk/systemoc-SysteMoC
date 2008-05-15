@@ -46,15 +46,15 @@
 #include <set>
 #include <istream>
 
-#include <cosupport/container_insert.hpp>
-#include <cosupport/string_hash.hpp>
-#include <cosupport/SMXIdManager.hpp>
+#include <CoSupport/DataTypes/container_insert.hpp>
+#include <CoSupport/Math/string_hash.hpp>
+#include <CoSupport/SMXIdManager.hpp>
 
 #include <sysc/kernel/sc_object.h>
 
 #include <acpgacc/smoc_synth_netgraph_access.hpp>
 
-#define objAs CoSupport::dynamic_pointer_cast
+#define objAs CoSupport::DataTypes::dynamic_pointer_cast
 
 namespace SysteMoC { namespace NGXSync {
 

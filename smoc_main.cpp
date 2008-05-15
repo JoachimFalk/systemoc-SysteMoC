@@ -38,7 +38,7 @@
 
 #include <cstring>
 
-#include <cosupport/AlternateStream.hpp>
+#include <CoSupport/Streams/AlternateStream.hpp>
 
 #include <systemoc/smoc_pggen.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
@@ -84,7 +84,7 @@ int main(int _argc, char* _argv[]) {
       assert(!i->value.empty());
       
       smoc_modes::dumpFileSMX =
-        new CoSupport::AOStream(std::cout, i->value.front(), "-");
+        new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
     }
     else if(i->string_key == "export-sim-smx") {
       assert(smoc_modes::dumpFileSMX == NULL);
@@ -92,12 +92,12 @@ int main(int _argc, char* _argv[]) {
       smoc_modes::dumpSMXWithSim = true;
       
       smoc_modes::dumpFileSMX =
-        new CoSupport::AOStream(std::cout, i->value.front(), "-");
+        new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
     }
     else if(i->string_key == "import-smx") {
       assert(!i->value.empty());
       
-      CoSupport::AIStream in(std::cin, i->value.front(), "-");
+      CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
       SysteMoC::NGXSync::NGXConfig::getInstance().loadNGX(in);
     }
     else if(i->string_key == "vpc-config") {

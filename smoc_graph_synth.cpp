@@ -71,7 +71,7 @@ protected:
 
   // see ASTNodeVisitor
   PortReqVar operator()(ASTNodeLiteral& n)
-  { return CoSupport::string_cast<size_t>(n.value().get()); }
+  { return CoSupport::String::strAs<size_t>(n.value().get()); }
 
   // see ASTNodeVisitor
   PortReqVar operator()(ASTNodeBinOp& n) {
@@ -226,7 +226,7 @@ void smoc_graph_synth::nextActorActivation() {
 
       if(curNode == nodeInfos.end()) {
         // actor was never activated until now
-        curNode = CoSupport::pac_insert(nodeInfos, rn);
+        curNode = CoSupport::DataTypes::pac_insert(nodeInfos, rn);
         NodeInfo& ni = curNode->second;
         cachePhases(actor, ni.phases);
         ni.count = 0;
@@ -254,7 +254,7 @@ void smoc_graph_synth::nextActorActivation() {
             smoc_chan_in_base_if* in =
               dynamic_cast<smoc_chan_in_base_if*>(i->first->get_interface());
             assert(in);
-            j = CoSupport::pac_insert(chanInMap, i->first, in);
+            j = CoSupport::DataTypes::pac_insert(chanInMap, i->first, in);
           }
 
           // calculate limit id for channel

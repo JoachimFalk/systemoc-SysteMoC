@@ -2,7 +2,7 @@
 // vim: set sw=2 ts=8 sts=2 et:
 
 #include "smoc_md_ba_linearized_buffer_schedule.hpp"
-#include <cosupport/smoc_debug_out.hpp>
+#include <CoSupport/Streams/DebugOStream.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE
 #define VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE 0
@@ -45,8 +45,8 @@ namespace smoc_md_ba {
     const iter_domain_vector_type& consumed_window_end)
   {
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
-    CoSupport::dout << "Enter smoc_mb_ba_lin_buffer_schedule::consumption_update" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_mb_ba_lin_buffer_schedule::consumption_update" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
     
     /*   ***************  Update src2snk table ****************** */
@@ -68,13 +68,13 @@ namespace smoc_md_ba {
       consumed_window_end);
     
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
-    CoSupport::dout << "previous lexorder smallest life data element: ";
-    CoSupport::dout << lexorder_smallest_life_data_element_old;
-    CoSupport::dout << std::endl;
+    CoSupport::Streams::dout << "previous lexorder smallest life data element: ";
+    CoSupport::Streams::dout << lexorder_smallest_life_data_element_old;
+    CoSupport::Streams::dout << std::endl;
     
-    CoSupport::dout << "current lexorder smallest life data element: ";
-    CoSupport::dout << lexorder_smallest_life_data_element;
-    CoSupport::dout << std::endl;
+    CoSupport::Streams::dout << "current lexorder smallest life data element: ";
+    CoSupport::Streams::dout << lexorder_smallest_life_data_element;
+    CoSupport::Streams::dout << std::endl;
 #endif
     
     //calculate number of invocations
@@ -83,15 +83,15 @@ namespace smoc_md_ba {
                                lexorder_smallest_life_data_element);
     
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
-    CoSupport::dout << "num_invocations = " << num_invocations << std::endl;
+    CoSupport::Streams::dout << "num_invocations = " << num_invocations << std::endl;
 #endif
     if (snk_schedule_period < 1)
       //only consider first schedule period
       snk2src_invocation_table[current_iteration] = num_invocations;
     
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
-    CoSupport::dout << "Leave smoc_mb_ba_lin_buffer_schedule::consumption_update" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_mb_ba_lin_buffer_schedule::consumption_update" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
   }
 
@@ -118,8 +118,8 @@ namespace smoc_md_ba {
     bool new_schedule_period)
   {
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
-    CoSupport::dout << "Enter smoc_mb_ba_lin_buffer_schedule::production_update" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_mb_ba_lin_buffer_schedule::production_update" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
     
     if (src_schedule_period < 1) {
@@ -128,8 +128,8 @@ namespace smoc_md_ba {
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
       static bool init = true;
       if (!init) {
-        CoSupport::dout << "previous source iteration: " << current_src_iteration << std::endl;
-        CoSupport::dout << "src2snk_invocation_table[current_src_iteration] = " 
+        CoSupport::Streams::dout << "previous source iteration: " << current_src_iteration << std::endl;
+        CoSupport::Streams::dout << "src2snk_invocation_table[current_src_iteration] = " 
                         << src2snk_invocation_table[current_src_iteration] << std::endl;
       }
       init = false;
@@ -143,8 +143,8 @@ namespace smoc_md_ba {
     }
     
 #if VERBOSE_LEVEL_SMOC_MD_BA_LIN_BUF_SCHEDULE == 101
-    CoSupport::dout << "Leave smoc_mb_ba_lin_buffer_schedule::production_update" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_mb_ba_lin_buffer_schedule::production_update" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
   }
 

@@ -4,7 +4,7 @@
 #ifndef _INCLUDED_MD_SMOC_PORT_HPP
 #define _INCLUDED_MD_SMOC_PORT_HPP
 
-#include <cosupport/smoc_debug_out.hpp>
+#include <CoSupport/Streams/DebugOStream.hpp>
 
 #include "smoc_port.hpp"
 #include "smoc_wsdf_edge.hpp"
@@ -294,26 +294,26 @@ public:
 public:
   return_type operator[](const iter_domain_vector_type& window_iteration) const{
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-    CoSupport::dout << "Enter smoc_cst_border_ext::operator[]" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_cst_border_ext::operator[]" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
     bool is_border;
     border_type_vector_type 
       border_type(is_ext_border(window_iteration,is_border));
     
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-    CoSupport::dout << "window_iteration = " << window_iteration;
+    CoSupport::Streams::dout << "window_iteration = " << window_iteration;
     if (is_border)
-      CoSupport::dout << " is situated on extended border.";
-    CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << " is situated on extended border.";
+    CoSupport::Streams::dout << std::endl;
 #endif
     
     
     return_type return_value(is_border ? border_value : (*(this->get_chanaccess()))[window_iteration]);
     
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-    CoSupport::dout << "Leave smoc_cst_border_ext::operator[]" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_cst_border_ext::operator[]" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
     
     return return_value;
@@ -353,26 +353,26 @@ public:
 public:
   return_type operator[](const iter_domain_vector_type& window_iteration) const{
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-    CoSupport::dout << "Enter smoc_sym_border_ext::operator[]" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_sym_border_ext::operator[]" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
     bool is_border;
     border_type_vector_type 
       my_border_type(is_ext_border(window_iteration,is_border));
     
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-    CoSupport::dout << "window_iteration = " << window_iteration;
+    CoSupport::Streams::dout << "window_iteration = " << window_iteration;
     if (is_border)
-      CoSupport::dout << " is situated on extended border.";
-    CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << " is situated on extended border.";
+    CoSupport::Streams::dout << std::endl;
 #endif
 
     
     if(!is_border){
       return_type return_value = (*(this->get_chanaccess()))[window_iteration];     
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-      CoSupport::dout << "Leave smoc_sym_border_ext::operator[]" << std::endl;
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << "Leave smoc_sym_border_ext::operator[]" << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif 
       return return_value;
     }else{
@@ -391,8 +391,8 @@ public:
       
 #ifndef NDEBUG
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-      CoSupport::dout << "replacing window_iteration = " << temp_win_iteration << std::endl;
-      CoSupport::dout << "max_window_iteration = " << this->get_chanaccess()->max_window_iteration() << std::endl;
+      CoSupport::Streams::dout << "replacing window_iteration = " << temp_win_iteration << std::endl;
+      CoSupport::Streams::dout << "max_window_iteration = " << this->get_chanaccess()->max_window_iteration() << std::endl;
 #endif
       is_ext_border(temp_win_iteration,is_border);
       assert(!is_border);
@@ -400,8 +400,8 @@ public:
       return_type 
         return_value = (*(this->get_chanaccess()))[temp_win_iteration];
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
-      CoSupport::dout << "Leave smoc_sym_border_ext::operator[]" << std::endl;
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << "Leave smoc_sym_border_ext::operator[]" << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
       return return_value;
@@ -600,18 +600,18 @@ public:
 
   void setFiringLevelMap(const s2vector_type& firing_level_map){
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
-    CoSupport::dout << "Enter smoc_md_port_in::setFiringLevelMap" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_md_port_in::setFiringLevelMap" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
     this->firing_level_map = firing_level_map;
 
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
 
-    CoSupport::dout << "firing_level_map = " << firing_level_map;
-    CoSupport::dout << std::endl;
+    CoSupport::Streams::dout << "firing_level_map = " << firing_level_map;
+    CoSupport::Streams::dout << std::endl;
 
-    CoSupport::dout << "Leave smoc_md_port_in::setFiringLevelMap" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_md_port_in::setFiringLevelMap" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
   }
 
@@ -790,19 +790,19 @@ public:
 
   void setFiringLevelMap(const s2vector_type& firing_level_map){
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
-    CoSupport::dout << "Enter smoc_md_port_out::setFiringLevelMap" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_md_port_out::setFiringLevelMap" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 
     this->firing_level_map = firing_level_map;
 
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
 
-    CoSupport::dout << "firing_level_map = " << firing_level_map;
-    CoSupport::dout << std::endl;
+    CoSupport::Streams::dout << "firing_level_map = " << firing_level_map;
+    CoSupport::Streams::dout << std::endl;
 
-    CoSupport::dout << "Leave smoc_md_port_out::setFiringLevelMap" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_md_port_out::setFiringLevelMap" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
   }
 

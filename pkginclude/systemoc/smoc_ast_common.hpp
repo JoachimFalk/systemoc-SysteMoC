@@ -36,8 +36,8 @@
 #define _INCLUDED_SMOC_AST_COMMON_HPP
 
 #include <boost/intrusive_ptr.hpp>
-#include <cosupport/refcount_object.hpp>
-//#include <cosupport/intrusive_refcount_ptr.hpp>
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
+//systemc_support.hpp>/intrusive_refcount_ptr.hpp>
 
 namespace SysteMoC { namespace ActivationPattern {
 
@@ -81,7 +81,7 @@ public:
 std::ostream &operator << (std::ostream &o, const ASTNodeType &nodeType);
 std::ostream &operator << (std::ostream &o, _ASTNodeType nodeType);
 
-class ASTNode: public CoSupport::RefCountObject {
+class ASTNode: public CoSupport::SmartPtr::RefCountObject {
 private:
   ASTNodeType     nodeType;
   TypeIdentifier  valueType;

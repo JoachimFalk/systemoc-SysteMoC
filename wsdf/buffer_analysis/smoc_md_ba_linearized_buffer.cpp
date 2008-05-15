@@ -22,8 +22,8 @@ namespace smoc_md_ba {
     abstract_position_id_type intial_node_value;
 
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF >= 1
-    CoSupport::dout << "Enter smoc_mb_ba_lin_buffer::smoc_mb_ba_lin_buffer" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_mb_ba_lin_buffer::smoc_mb_ba_lin_buffer" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 	
 
@@ -31,7 +31,7 @@ namespace smoc_md_ba {
     
   //Create root node
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << "Create LOT root node" << std::endl;
+    CoSupport::Streams::dout << "Create LOT root node" << std::endl;
 #endif
 
     //calculate the initial root value (divide and round up)
@@ -46,7 +46,7 @@ namespace smoc_md_ba {
       buffer_height = num_initial_schedule_periods; 
     }
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << "Initial buffer height: " << buffer_height << std::endl;
+    CoSupport::Streams::dout << "Initial buffer height: " << buffer_height << std::endl;
 #endif
 
 
@@ -68,8 +68,8 @@ namespace smoc_md_ba {
       tree_levels--;
     }
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << "Create tree with " << tree_levels << " levels" << std::endl;
-    CoSupport::dout << "create children" << std::endl;
+    CoSupport::Streams::dout << "Create tree with " << tree_levels << " levels" << std::endl;
+    CoSupport::Streams::dout << "create children" << std::endl;
 #endif
     
     //create children
@@ -81,7 +81,7 @@ namespace smoc_md_ba {
     if (src_mapping_offset[token_dimensions-1] > 0){
       //init tree
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-      CoSupport::dout << "init tree due initial data elements" << std::endl;
+      CoSupport::Streams::dout << "init tree due initial data elements" << std::endl;
 #endif
       lot_set_root_initial_tokens(lexicographic_order_tree);
     }
@@ -92,8 +92,8 @@ namespace smoc_md_ba {
 
 	
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF >= 1
-    CoSupport::dout << "Leave smoc_mb_ba_lin_buffer::smoc_mb_ba_lin_buffer" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_mb_ba_lin_buffer::smoc_mb_ba_lin_buffer" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
   }
@@ -128,12 +128,12 @@ namespace smoc_md_ba {
 						 ){
 
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << "Enter smoc_mb_ba_lin_buffer::consumption_tree_update" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_mb_ba_lin_buffer::consumption_tree_update" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 
-    CoSupport::dout << "consumed_window_start = " 
+    CoSupport::Streams::dout << "consumed_window_start = " 
 		    << consumed_window_start << std::endl;
-    CoSupport::dout << "consumed_window_end = " 
+    CoSupport::Streams::dout << "consumed_window_end = " 
 		    << consumed_window_end << std::endl;
 #endif    
     
@@ -183,10 +183,10 @@ namespace smoc_md_ba {
       
 
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-      CoSupport::dout << "Process data element :";
-      CoSupport::dout << current_src_window_element;
-      CoSupport::dout << std::endl;
-      CoSupport::dout << CoSupport::Indent::Up;
+      CoSupport::Streams::dout << "Process data element :";
+      CoSupport::Streams::dout << current_src_window_element;
+      CoSupport::Streams::dout << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 
     
@@ -195,13 +195,13 @@ namespace smoc_md_ba {
 	  > lexicographic_order_tree->nbr_children){
 	//LOT size not sufficient!
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF >= 2
-	CoSupport::dout << "LOT size not sufficient. Increase size." << std::endl;
+	CoSupport::Streams::dout << "LOT size not sufficient. Increase size." << std::endl;
 #endif
 	change_LOT_size(2*lexicographic_order_tree->nbr_children);
       }
   
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-      CoSupport::dout << "Get lot node of data element" << std::endl;
+      CoSupport::Streams::dout << "Get lot node of data element" << std::endl;
 #endif
       if (tree_levels > 0){
 	//get LOT node of currently processed data element
@@ -223,13 +223,13 @@ namespace smoc_md_ba {
 
 	  //we can free one (or more) LOT nodes of level 1	  
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-	  CoSupport::dout << "Update LOT node value. Old value: ";
-	  CoSupport::dout << lot_node2->getNodeValue();
+	  CoSupport::Streams::dout << "Update LOT node value. Old value: ";
+	  CoSupport::Streams::dout << lot_node2->getNodeValue();
 #endif
 	  lot_node2->setNodeValue(current_src_window_element[lot_level]+1);
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-	  CoSupport::dout << "; new value: ";
-	  CoSupport::dout << lot_node2->getNodeValue() << std::endl;
+	  CoSupport::Streams::dout << "; new value: ";
+	  CoSupport::Streams::dout << lot_node2->getNodeValue() << std::endl;
 #endif
 	  
 	}else{
@@ -238,18 +238,18 @@ namespace smoc_md_ba {
 	    //re-initialise for next usage
 	    lot_node2->setNodeValue(0);
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-	    CoSupport::dout << "node of level " << lot_level << " has been terminated." << std::endl;
+	    CoSupport::Streams::dout << "node of level " << lot_level << " has been terminated." << std::endl;
 #endif
 	  }else{
 	    //set node value to next life data elememt
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-	    CoSupport::dout << "Update LOT node value for level " << lot_level << ". Old value: ";
-	    CoSupport::dout << lot_node2->getNodeValue();
+	    CoSupport::Streams::dout << "Update LOT node value for level " << lot_level << ". Old value: ";
+	    CoSupport::Streams::dout << lot_node2->getNodeValue();
 #endif
 	    lot_node2->setNodeValue(current_src_window_element[lot_level]+1);
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-	    CoSupport::dout << "; new value: ";
-	    CoSupport::dout << lot_node2->getNodeValue() << std::endl;
+	    CoSupport::Streams::dout << "; new value: ";
+	    CoSupport::Streams::dout << lot_node2->getNodeValue() << std::endl;
 #endif
 	    break;
 	  }
@@ -258,13 +258,13 @@ namespace smoc_md_ba {
 	//get parent
 	lot_node2 = lot_node2->getParentNode();
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-	CoSupport::dout << "move to parent node" << std::endl;
+	CoSupport::Streams::dout << "move to parent node" << std::endl;
 #endif
       }//for lot_level
 
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-      CoSupport::dout << CoSupport::Indent::Down;
-      CoSupport::dout << "Determine next data element to process" << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << "Determine next data element to process" << std::endl;
 #endif
 
       finished = true;
@@ -287,8 +287,8 @@ namespace smoc_md_ba {
     }
   consumption_update_buffer_pointers_end:
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << "Leave smoc_mb_ba_lin_buffer::consumption_tree_update" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_mb_ba_lin_buffer::consumption_tree_update" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
     return;
   }
@@ -372,8 +372,8 @@ namespace smoc_md_ba {
     bool return_value = true;
 
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << "Initialization of LOT tree due to initial value" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Initialization of LOT tree due to initial value" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 	
     //convert the initial token with the largest coordinate into
@@ -398,19 +398,19 @@ namespace smoc_md_ba {
       schedule_period_offset * src_iteration_max[0];
     
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << "Last initial data element: ";
-    CoSupport::dout << last_initial_data_element;
-    CoSupport::dout << std::endl;
+    CoSupport::Streams::dout << "Last initial data element: ";
+    CoSupport::Streams::dout << last_initial_data_element;
+    CoSupport::Streams::dout << std::endl;
 
-    CoSupport::dout << "Abstract last initial data element: ";
-    CoSupport::dout << abstract_last_initial_data_element << std::endl;      
+    CoSupport::Streams::dout << "Abstract last initial data element: ";
+    CoSupport::Streams::dout << abstract_last_initial_data_element << std::endl;      
 #endif
 
     ASSERT(root_node->nbr_children >= unsigned(-abstract_last_initial_data_element[0]),
 	   "Tree size insufficient for initial tokens");
     root_node->setNodeValue(abstract_last_initial_data_element[0]);
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << "Setting root node value to " 
+    CoSupport::Streams::dout << "Setting root node value to " 
 	 << root_node->getNodeValue() << std::endl;
 #endif
 
@@ -429,7 +429,7 @@ namespace smoc_md_ba {
     }
 
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
     return return_value;
@@ -451,8 +451,8 @@ namespace smoc_md_ba {
     bool return_value = true;
 
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << "Initialization of level " << level << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Initialization of level " << level << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 	
 
@@ -464,7 +464,7 @@ namespace smoc_md_ba {
       initial_node_value = abstract_last_initial_data_element[level];
       lot_node->setNodeValue(initial_node_value);
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-      CoSupport::dout << "Set node of level to " << initial_node_value << std::endl;		
+      CoSupport::Streams::dout << "Set node of level to " << initial_node_value << std::endl;		
 #endif
 		
       //get child, which might be only partially filled
@@ -489,7 +489,7 @@ namespace smoc_md_ba {
     }	
 
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 	
     return return_value;
@@ -523,8 +523,8 @@ namespace smoc_md_ba {
     char debug_buffer[100];
 
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << "Determine lexicographically smallest data element" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Determine lexicographically smallest data element" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
   
     for(unsigned int i=0; i <= tree_levels; i++){
@@ -534,9 +534,9 @@ namespace smoc_md_ba {
       ASSERT(lot_node != NULL,debug_buffer);
       abstract_id[i] = lot_node->getNodeValue();
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-      CoSupport::dout << "node value level: " << i << ": " << abstract_id[i] << std::endl;
-      //CoSupport::dout << "Corresponding child ID: " << get_lexorder_smallest_child_id(lot_node,i) << std::endl;
-      //CoSupport::dout << "Number of children: " << lot_node->nbr_children << std::endl;
+      CoSupport::Streams::dout << "node value level: " << i << ": " << abstract_id[i] << std::endl;
+      //CoSupport::Streams::dout << "Corresponding child ID: " << get_lexorder_smallest_child_id(lot_node,i) << std::endl;
+      //CoSupport::Streams::dout << "Number of children: " << lot_node->nbr_children << std::endl;
 #endif
       lot_node = lot_node->getChildNode(get_lexorder_smallest_child_id(lot_node,i));
     }
@@ -547,7 +547,7 @@ namespace smoc_md_ba {
     }
 
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
     return true;

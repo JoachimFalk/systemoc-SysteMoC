@@ -39,15 +39,15 @@
 #include <cassert>
 #include <new>
 #include <boost/type_traits.hpp> 
-#include <cosupport/ChannelModificationListener.hpp> 
+#include <CoSupport/SystemC/ChannelModificationListener.hpp> 
 
 template<class T,
          bool is_subclass =
-         boost::is_base_of<ChannelModificationListener, T>::value>
+         boost::is_base_of<CoSupport::SystemC::ChannelModificationListener, T>::value>
 class smoc_modification_listener{
 public:
   void setChannelID( std::string sourceActor,
-                     ChannelId id,
+                     CoSupport::SystemC::ChannelId id,
                      std::string name ){}
 protected:
   void fireModified( const T &t ) const {}
@@ -57,7 +57,7 @@ template<class T>
 class smoc_modification_listener <T, true>{
 public:
   void setChannelID( std::string sourceActor,
-                     ChannelId id,
+                     CoSupport::SystemC::ChannelId id,
                      std::string name ){
     //FIXME:
     T t; t.registerChannel(sourceActor, id, name);
@@ -73,7 +73,7 @@ protected:
     t.modified(channelId);
   }
 private:
-  ChannelId channelId;
+  CoSupport::SystemC::ChannelId channelId;
 };
 
 template<class T>

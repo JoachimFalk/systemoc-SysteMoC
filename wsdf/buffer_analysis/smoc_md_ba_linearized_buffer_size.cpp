@@ -22,12 +22,12 @@ namespace smoc_md_ba
   {
 
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL >= 1
-    CoSupport::dout << "Initialize data structures ..." << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;;
+    CoSupport::Streams::dout << "Initialize data structures ..." << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;;
 #endif
 
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-    CoSupport::dout << "init address factor table" << std::endl;
+    CoSupport::Streams::dout << "init address factor table" << std::endl;
 #endif
 
     //init table for address calculation
@@ -43,11 +43,11 @@ namespace smoc_md_ba
     number_buffer_elements--;
 	
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-    CoSupport::dout << "Initial buffer size: " << number_buffer_elements << std::endl;
+    CoSupport::Streams::dout << "Initial buffer size: " << number_buffer_elements << std::endl;
 #endif
 
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL >= 1
-    CoSupport::dout << CoSupport::Indent::Down;;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;;
 #endif
 
     
@@ -69,17 +69,17 @@ namespace smoc_md_ba
     long current_buffer_size;
 
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-    CoSupport::dout << "Update of buffer size due to production" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;;    
+    CoSupport::Streams::dout << "Update of buffer size due to production" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;;    
 #endif
 
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-    CoSupport::dout << "Current iteration: " << current_iteration << std::endl;
-    CoSupport::dout << "Current src-schedule period: " 
+    CoSupport::Streams::dout << "Current iteration: " << current_iteration << std::endl;
+    CoSupport::Streams::dout << "Current src-schedule period: " 
                     << src_schedule_period 
                     << std::endl;
-    CoSupport::dout << "Lexicographically smallest data element: ";
-    CoSupport::dout << lexorder_smallest_life_data_element << std::endl;
+    CoSupport::Streams::dout << "Lexicographically smallest data element: ";
+    CoSupport::Streams::dout << lexorder_smallest_life_data_element << std::endl;
 #endif
 
     current_buffer_size = 
@@ -87,27 +87,27 @@ namespace smoc_md_ba
       - calc_linear_buffer_address(lexorder_smallest_life_data_element)+1;
 
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-    CoSupport::dout << "calc_src_linear_buffer_address(current_iteration,max_window_iteration) = "
+    CoSupport::Streams::dout << "calc_src_linear_buffer_address(current_iteration,max_window_iteration) = "
                     << calc_src_linear_buffer_address(current_iteration,max_window_iteration)
                     << std::endl;
-    CoSupport::dout << "calc_linear_buffer_address(lexorder_smallest_life_data_element) = "
+    CoSupport::Streams::dout << "calc_linear_buffer_address(lexorder_smallest_life_data_element) = "
                     << calc_linear_buffer_address(lexorder_smallest_life_data_element)
                     << std::endl;
-    CoSupport::dout << "Current buffer size: ";
-    CoSupport::dout << current_buffer_size << std::endl;
+    CoSupport::Streams::dout << "Current buffer size: ";
+    CoSupport::Streams::dout << current_buffer_size << std::endl;
 #endif
 
 
   //calculate minimal required buffer size
     if (current_buffer_size > number_buffer_elements){
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-      CoSupport::dout << "update buffer size from " << number_buffer_elements;
-      CoSupport::dout << " to " << current_buffer_size << std::endl;
+      CoSupport::Streams::dout << "update buffer size from " << number_buffer_elements;
+      CoSupport::Streams::dout << " to " << current_buffer_size << std::endl;
 #endif
       number_buffer_elements = current_buffer_size;
     }
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-    CoSupport::dout << CoSupport::Indent::Down;;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;;
 #endif
   }
 
@@ -115,33 +115,33 @@ namespace smoc_md_ba
   void
   smoc_mb_ba_lin_buffer_size::init_address_factors_table(){
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-    CoSupport::dout << "Initialisation of address factor table" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;;
+    CoSupport::Streams::dout << "Initialisation of address factor table" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;;
 #endif
     address_factors = new long[src_iterator_depth];
     
     for(unsigned int i = 1; i <= src_iterator_depth; i++){
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-      CoSupport::dout << "i = " << i << std::endl;
-      CoSupport::dout << CoSupport::Indent::Up;
+      CoSupport::Streams::dout << "i = " << i << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
       address_factors[i-1] = 1;
       for(unsigned int j = i+1; j <= src_iterator_depth; j++){
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-      CoSupport::dout << "j = " << j << std::endl;
-      CoSupport::dout << "src_iteration_max[j-1] = " 
+      CoSupport::Streams::dout << "j = " << j << std::endl;
+      CoSupport::Streams::dout << "src_iteration_max[j-1] = " 
                       << src_iteration_max[j-1]
                       << std::endl;
 #endif
       address_factors[i-1] *= (src_iteration_max[j-1]+1);
       }
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-      CoSupport::dout << "i=" << i << " : " << address_factors[i-1] << std::endl;
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << "i=" << i << " : " << address_factors[i-1] << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
     }
 #if SMOC_MD_BA_LIN_BUFFER_SIZE_VERBOSE_LEVEL == 105
-    CoSupport::dout << CoSupport::Indent::Down;;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;;
 #endif
   }
   

@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vector>
 
-#include <cosupport/smoc_debug_out.hpp>
+#include <CoSupport/Streams/DebugOStream.hpp>
 
 #ifndef SMOC_VECTOR_VERBOSE_LEVEL
 #define SMOC_VECTOR_VERBOSE_LEVEL 0
@@ -222,20 +222,20 @@ public:
     : parent_type(N)
   {
 #if SMOC_VECTOR_VERBOSE_LEVEL == 100
-    CoSupport::dout << "Enter smoc_vector(const smoc_vector_init<T,N>& vector_init)";
-    CoSupport::dout << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_vector(const smoc_vector_init<T,N>& vector_init)";
+    CoSupport::Streams::dout << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 
-    CoSupport::dout << "vector_init = " 
+    CoSupport::Streams::dout << "vector_init = " 
 		    << vector_init << std::endl;
 #endif
     for(size_type i = 0; i < N; i++){
       (*this)[i] = vector_init(i);
     }
 #if SMOC_VECTOR_VERBOSE_LEVEL == 100
-    CoSupport::dout << "Leave smoc_vector(const smoc_vector_init<T,N>& vector_init)";
-    CoSupport::dout << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_vector(const smoc_vector_init<T,N>& vector_init)";
+    CoSupport::Streams::dout << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
   }
 
@@ -258,11 +258,11 @@ public:
   template <int N>
   this_type& operator=(const smoc_vector_init<size_type,N> &rhs) {
 #if SMOC_VECTOR_VERBOSE_LEVEL == 100
-    CoSupport::dout << "Enter this_type& operator=(const smoc_vector_init<size_type,N> &rhs)";
-    CoSupport::dout << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter this_type& operator=(const smoc_vector_init<size_type,N> &rhs)";
+    CoSupport::Streams::dout << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 
-    CoSupport::dout << "rhs = " << rhs << std::endl;
+    CoSupport::Streams::dout << "rhs = " << rhs << std::endl;
 #endif
     if(N != (*this).size())
       (*this).resize(N);
@@ -270,9 +270,9 @@ public:
       (*this)[i] = rhs(i);
     }
 #if SMOC_VECTOR_VERBOSE_LEVEL == 100
-    CoSupport::dout << "Leave this_type& operator=(const smoc_vector_init<size_type,N> &rhs)";
-    CoSupport::dout << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave this_type& operator=(const smoc_vector_init<size_type,N> &rhs)";
+    CoSupport::Streams::dout << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
     return (*this);
   }
@@ -506,22 +506,22 @@ public:
     : parent_type(vector_vector_init.size())
   {
 #if SMOC_VECTOR_VERBOSE_LEVEL == 100
-    CoSupport::dout << "Enter smoc_vector(const std::vector<smoc_vector_init<T2,N>,A2> &vector_vector_init)";
-    CoSupport::dout << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_vector(const std::vector<smoc_vector_init<T2,N>,A2> &vector_vector_init)";
+    CoSupport::Streams::dout << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
     for(size_type i = 0; i < vector_vector_init.size(); i++){
 #if SMOC_VECTOR_VERBOSE_LEVEL == 100
-      CoSupport::dout << "i = " << i;
-      CoSupport::dout << ": " << vector_vector_init[i];
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "i = " << i;
+      CoSupport::Streams::dout << ": " << vector_vector_init[i];
+      CoSupport::Streams::dout << std::endl;
 #endif      
       (*this)[i] = smoc_numeric_vector<T2>(vector_vector_init[i]);
     }
 #if SMOC_VECTOR_VERBOSE_LEVEL == 100
-    CoSupport::dout << "Leave smoc_vector(const std::vector<smoc_vector_init<T2,N>,A2> &vector_vector_init)";
-    CoSupport::dout << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_vector(const std::vector<smoc_vector_init<T2,N>,A2> &vector_vector_init)";
+    CoSupport::Streams::dout << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
   }
 

@@ -3,7 +3,7 @@
 
 #include "smoc_md_buffer_analysis.hpp"
 
-#include <cosupport/smoc_debug_out.hpp>
+#include <CoSupport/Streams/DebugOStream.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BA
 #define VERBOSE_LEVEL_SMOC_MD_BA 0
@@ -16,8 +16,8 @@ namespace smoc_md_ba {
   void smoc_md_buffer_analysis::consumption_update(){
 
 #if VERBOSE_LEVEL_SMOC_MD_BA == 101
-    CoSupport::dout << "Enter smoc_md_buffer_analysis::consumption_update" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_md_buffer_analysis::consumption_update" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 
     if (snk_md_loop_iterator.is_new_schedule_period()){
@@ -46,8 +46,8 @@ namespace smoc_md_ba {
 			 snk_md_loop_iterator.is_new_schedule_period()
 			 );
 #if VERBOSE_LEVEL_SMOC_MD_BA == 101
-    CoSupport::dout << "Leave smoc_md_buffer_analysis::consumption_update" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_md_buffer_analysis::consumption_update" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif		       
 		       
   }
@@ -70,12 +70,12 @@ namespace smoc_md_ba {
 						  iter_domain_vector_type& iteration_vector
 						  ) const {
 #if VERBOSE_LEVEL_SMOC_MD_BA == 101
-    CoSupport::dout << "Enter smoc_md_buffer_analysis::get_src_loop_iteration" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_md_buffer_analysis::get_src_loop_iteration" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 
-    CoSupport::dout << "window_iteration = " << window_iteration << std::endl;
+    CoSupport::Streams::dout << "window_iteration = " << window_iteration << std::endl;
 
-    CoSupport::dout << "snk_schedule_period = " << snk_schedule_period << std::endl;
+    CoSupport::Streams::dout << "snk_schedule_period = " << snk_schedule_period << std::endl;
 #endif
 
     bool return_value;
@@ -103,9 +103,9 @@ namespace smoc_md_ba {
     
 
 #if VERBOSE_LEVEL_SMOC_MD_BA == 101
-    CoSupport::dout << "iteration_vector = " << iteration_vector << std::endl;
-    CoSupport::dout << "Leave smoc_md_buffer_analysis::get_src_loop_iteration" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "iteration_vector = " << iteration_vector << std::endl;
+    CoSupport::Streams::dout << "Leave smoc_md_buffer_analysis::get_src_loop_iteration" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
     
     return return_value;

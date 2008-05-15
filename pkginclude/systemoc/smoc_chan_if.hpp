@@ -37,7 +37,7 @@
 #ifndef _INCLUDED_SMOC_CHAN_IF_HPP
 #define _INCLUDED_SMOC_CHAN_IF_HPP
 
-#include <cosupport/ChannelModificationListener.hpp> 
+#include <CoSupport/SystemC/ChannelModificationListener.hpp> 
 
 #include <systemoc/smoc_config.h>
 
@@ -200,7 +200,7 @@ protected:
     { portsOut.push_front(portOut); }
 
   virtual void setChannelID( std::string sourceActor,
-                             ChannelId id,
+                             CoSupport::SystemC::ChannelId id,
                              std::string name ) {};
 
   virtual void finalise();

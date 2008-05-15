@@ -81,7 +81,7 @@ namespace SysteMoC { namespace NGXSync {
   NGX::IdedObj::ConstPtr NGXCache::get(SCObj* obj, size_t index) {
     // lookup / create IndexMap
     SC2NGX::iterator i = sc2ngx.find(obj);
-    if(i == sc2ngx.end()) i = CoSupport::pac_insert(sc2ngx, obj);
+    if(i == sc2ngx.end()) i = CoSupport::DataTypes::pac_insert(sc2ngx, obj);
 
     // cache lookup
     IndexMap::const_iterator j = i->second.find(index);
@@ -90,7 +90,7 @@ namespace SysteMoC { namespace NGXSync {
     // idPool lookup (NGX is read only, so cache always)
     NgId id = idPool.getId(obj, index);
     NGX::IdedObj::ConstPtr iop = NGXConfig::getInstance().getNGX().objById(id);
-    CoSupport::pac_insert(i->second, index, iop);
+    CoSupport::DataTypes::pac_insert(i->second, index, iop);
     
     return iop;
   }
@@ -103,7 +103,7 @@ namespace SysteMoC { namespace NGXSync {
     // idPool lookup (cache only if defined, may not
     // be registered yet)
     SCObj* obj = idPool.getObj(iop->id());
-    if(obj) CoSupport::pac_insert(ngx2sc, iop, obj);
+    if(obj) CoSupport::DataTypes::pac_insert(ngx2sc, iop, obj);
 
     return obj;
   }

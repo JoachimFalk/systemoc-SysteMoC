@@ -123,34 +123,25 @@ pkginclude_HEADERS +=					\
 	pkginclude/systemoc/smoc_md_ba_linearized_buffer_schedule.hpp
 endif
 
-
-# noinst_HEADERS=	oneof.hpp
-
 libsystemoc_CH_LTOBJS=				\
 	$(smoc_firing_rules_hpp_CH_LTOBJS)	\
 	$(smoc_pggen_hpp_CH_LTOBJS)
-#	$(smoc_op_hpp_CH_LTOBJS)
-
-if SYSTEMOC_ENABLE_VPC
-SYSTEMC_VPC_LIB = -lsystemcvpc
-endif
 
 libsystemoc_la_LDFLAGS =				\
 	-version-info 0:0:0 				\
 	-no-undefined 					\
-	$(SYSTEMC_VPC_LIB) 				\
-	-lcosupport 					\
 	-lsystemc 					\
-	-lstdc++					\
-	-lboost_program_options@BOOST_LIBPOSTFIX@	\
-	-lacpgacc
-libsystemoc_la_LIBADD = 				\
-	$(libsystemoc_CH_LTOBJS)
+	-lboost_program_options@BOOST_LIBPOSTFIX@
 libsystemoc_la_DEPENDENCIES = 				\
-	compileheader-libsystemoc.stamp 		\
-	@SUPPORT_DEPENDENCIES@ 				\
-	@SYSTEMC_VPC_DEPENDENCIES@			\
-	@ACPGACC_DEPENDENCIES@
+	compileheader-libsystemoc.stamp
+libsystemoc_la_LIBADD = 				\
+	$(libsystemoc_CH_LTOBJS)			\
+	$(pkg_support_builddir)/libcosupport-systemc.la	\
+	$(pkg_support_builddir)/libcosupport.la		\
+	$(pkg_ac_pg_access_builddir)/libacpgacc.la
+if SYSTEMOC_ENABLE_VPC
+libsystemoc_la_LIBADD += $(pkg_systemc_vpc_builddir)/libsystemcvpc.la
+endif
 
 libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\

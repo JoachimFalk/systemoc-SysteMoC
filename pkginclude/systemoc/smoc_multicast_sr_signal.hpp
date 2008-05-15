@@ -19,7 +19,7 @@
 #ifndef _INCLUDED_SMOC_MULTICAST_SR_SIGNAL_HPP
 #define _INCLUDED_SMOC_MULTICAST_SR_SIGNAL_HPP
 
-#include <cosupport/commondefs.h>
+#include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
 
@@ -454,7 +454,7 @@ protected:
 
 
   void setChannelID( std::string sourceActor,
-                             ChannelId id,
+                             CoSupport::SystemC::ChannelId id,
                              std::string name ){
     this->actualValue.setChannelID(sourceActor, id, name);
   }

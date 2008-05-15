@@ -175,7 +175,7 @@ void smoc_root_node::finalise() {
       
       assert( cToNState.size() <= 1 );
       if ( cToNState.size() == 1 ) {
-        if (CoSupport::isType<smoc_sr_func_pair>(titer->f)) {
+        if (CoSupport::DataTypes::isType<smoc_sr_func_pair>(titer->f)) {
 #ifdef SYSTEMOC_DEBUG
           cout << "found non strict SR block: " << this->name() << endl;
 #endif
@@ -437,7 +437,7 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
           assert( cToNState.size() <= 1 );
           if ( cToNState.size() == 1 ) {
             pgw << "<transition nextstate=\"" << idPool.printId(*cToNState.begin()) << "\" " << std::flush;
-            if (CoSupport::isType<smoc_func_call>(titer->f)) {
+            if (CoSupport::DataTypes::isType<smoc_func_call>(titer->f)) {
               pgw << "action=\"" << static_cast<const smoc_func_call &>(titer->f).getFuncName() << "\">" << std::endl;
             } else {
               pgw << "action=\"\">" << std::endl;

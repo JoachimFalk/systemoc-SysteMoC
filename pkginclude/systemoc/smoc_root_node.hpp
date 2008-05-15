@@ -50,7 +50,7 @@
 #include <systemc.h>
 
 #include <list>
-#include <cosupport/functor.hpp>
+#include <CoSupport/Lambda/functor.hpp>
 
 #include <typeinfo>
 #include <stack>
@@ -73,10 +73,10 @@ public:
 protected:
   
   template<typename F>
-  typename CoSupport::ParamAccumulator<smoc_member_func, CoSupport::Functor<void, F> >::accumulated_type
+  typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
   call(const F &f, const char *name = "") {
-    return typename CoSupport::ParamAccumulator<smoc_member_func, CoSupport::Functor<void, F> >::accumulated_type
-      (CoSupport::Functor<void, F>(this, f, name));
+    return typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
+      (CoSupport::Lambda::Functor<void, F>(this, f, name));
   }
   
   template<typename F>

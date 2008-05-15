@@ -51,10 +51,10 @@
 #include "detail/smoc_event_decls.hpp"
 #include "smoc_ast_systemoc.hpp"
 
-#include <cosupport/refcount_object.hpp>
-#include <cosupport/oneof.hpp>
-#include <cosupport/functor.hpp>
-#include <cosupport/commondefs.h>
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
+#include <CoSupport/DataTypes/oneof.hpp>
+#include <CoSupport/Lambda/functor.hpp>
+#include <CoSupport/commondefs.h>
 /****************************************************************************
  * dexpr.h
  *
@@ -289,7 +289,7 @@ public:
   friend class CommitCount<this_type>;
   friend class Value<this_type>;
 private:
-  struct virt_ty: public CoSupport::RefCountObject {
+  struct virt_ty: public CoSupport::SmartPtr::RefCountObject {
     virtual PASTNode   evalToAST()         const = 0;
 #ifdef SYSTEMOC_ENABLE_VPC
     virtual void       evalToCommExec
@@ -772,14 +772,14 @@ struct MemGuardHelper { typedef D<DMemGuard<F,PL> > type; };
 // Make a convenient typedef for the placeholder type.
 template<class F>
 struct MemGuard {
-  typedef typename CoSupport::ParamAccumulator<
-    MemGuardHelper, CoSupport::ConstFunctor<bool, F> >::accumulated_type type;
+  typedef typename CoSupport::Lambda::ParamAccumulator<
+    MemGuardHelper, CoSupport::Lambda::ConstFunctor<bool, F> >::accumulated_type type;
 };
 
 template<class X, typename F>
 typename MemGuard<F>::type guard(const X *o, const F &f, const char *name = "") {
   return typename MemGuard<F>::type(
-    CoSupport::ConstFunctor<bool, F>(o, f, name));
+    CoSupport::Lambda::ConstFunctor<bool, F>(o, f, name));
 }
 
 /****************************************************************************
@@ -1356,11 +1356,11 @@ D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<unsigned int>,DOpBinEq> >
 isType(const D<A> &a) {
   return D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<unsigned int>,DOpBinEq> >(
     DUnOp<A,DOpUnType>(a.getExpr()),
-    DLiteral<unsigned int>(CoSupport::oneofTypeid<typename A::value_type,TO>::type)
+    DLiteral<unsigned int>(CoSupport::DataTypes::oneofTypeid<typename A::value_type,TO>::type)
   );
 }
 
-using CoSupport::isType;
+using CoSupport::DataTypes::isType;
 
 #undef DBINOPEXECUTE
 #undef DUNOPEXECUTE

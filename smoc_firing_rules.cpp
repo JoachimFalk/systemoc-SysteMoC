@@ -55,11 +55,13 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#include <cosupport/oneof.hpp>
+#include <CoSupport/DataTypes/oneof.hpp>
 
 #include <algorithm>
 
-using namespace CoSupport;
+//using CoSupport::DataTypes::isType;
+
+using namespace CoSupport::DataTypes;
 using namespace SysteMoC::NGXSync;
   
 smoc_firing_state_ref::smoc_firing_state_ref(

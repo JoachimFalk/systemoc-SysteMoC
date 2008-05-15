@@ -19,7 +19,7 @@
 #ifndef _INCLUDED_SMOC_SR_SIGNAL_HPP
 #define _INCLUDED_SMOC_SR_SIGNAL_HPP
 
-#include <cosupport/commondefs.h>
+#include <CoSupport/commondefs.h>
 
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"

@@ -39,7 +39,8 @@
 #include <ostream>
 #include <exception>
 
-#include <cosupport/filter_ostream.hpp>
+#include <CoSupport/Streams/FilterOStream.hpp>
+#include <CoSupport/Streams/IndentStreambuf.hpp>
 
 class smoc_root_node;
 
@@ -55,8 +56,8 @@ namespace smoc_modes {
   class PGWriter {
     friend class Node;
   protected:
-    CoSupport::FilterOstream    out;
-    CoSupport::IndentStreambuf  indenter;
+    CoSupport::Streams::FilterOStream    out;
+    CoSupport::Streams::IndentStreambuf  indenter;
   public:
     PGWriter(std::ostream &_out)
       : out(_out) { out.insert(indenter); }

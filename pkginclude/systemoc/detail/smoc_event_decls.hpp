@@ -38,8 +38,8 @@
 
 #include <boost/intrusive_ptr.hpp>
 
-#include <cosupport/systemc_support.hpp>
-#include <cosupport/refcount_object.hpp>
+#include <CoSupport/SystemC/systemc_support.hpp>
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
 
 typedef CoSupport::SystemC::Event         smoc_event;
 typedef CoSupport::SystemC::EventWaiter   smoc_event_waiter;
@@ -62,7 +62,7 @@ void smoc_wait(smoc_event_waiter &e)
   { return CoSupport::SystemC::wait(e); }
 
 class smoc_ref_event
-: public CoSupport::RefCountObject, public smoc_event {
+: public CoSupport::SmartPtr::RefCountObject, public smoc_event {
 public:
   typedef smoc_ref_event this_type;
 public:

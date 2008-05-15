@@ -5,7 +5,7 @@
 #define _INCLUDED_SMOC_MD_BUFFER_ANALYSIS_HPP
 
 #include "smoc_md_loop.hpp"
-#include <cosupport/commondefs.h>
+#include <CoSupport/commondefs.h>
 
 namespace smoc_md_ba 
 {
