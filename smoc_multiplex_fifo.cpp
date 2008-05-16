@@ -58,10 +58,51 @@ smoc_multiplex_fifo_kind::smoc_multiplex_fifo_kind(const char *name, size_t n, s
 {
 }
 
+void smoc_multiplex_fifo_kind::consume(FifoId from, size_t n) {
+  rpp(n);
+  emmFree.increasedCount(freeCount());
+  
+  for (FifoSequence::iterator iter = fifoSequenceOOO.begin();
+       n > 0;
+       ) {
+    assert(iter !=  fifoSequenceOOO.end());
+    if (*iter == from) {
+      if (visibleCount() >= fifoOutOfOrder + n) {
+        FifoId fId = fifoSequence.front();
+        std::map<FifoId, smoc_multiplex_vfifo_kind *>::iterator fIter =
+          vFifos.find(fId);
+        fifoSequence.pop_front();
+        fifoSequenceOOO.push_back(fId);
+        fIter->second->latencyExpired(1);
+      }
+      iter = fifoSequenceOOO.erase(iter); --n;
+    } else {
+      ++iter;
+    }
+  }
+}
+
+void smoc_multiplex_fifo_kind::latencyExpired(size_t n) {
+  vpp(n);
+//std::cerr << "smoc_multiplex_fifo_kind::latencyExpired(" << n << ")" << std::endl;
+//std::cerr << "visibleCount() == " << visibleCount() << std::endl;
+//std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
+  for (;
+       visibleCount() - n <= fifoOutOfOrder && n > 0;
+       --n) {
+//  std::cerr << "n == " << n << std::endl;
+    FifoId fId = fifoSequence.front();
+    std::map<FifoId, smoc_multiplex_vfifo_kind *>::iterator fIter =
+      vFifos.find(fId);
+    fifoSequence.pop_front();
+    fifoSequenceOOO.push_back(fId);
+    fIter->second->latencyExpired(1);
+  }
+}
 
 smoc_multiplex_vfifo_kind::smoc_multiplex_vfifo_kind( const chan_init &i )
   : smoc_nonconflicting_chan(i.name),
-    Queue3Ptr(pSharedFifoMem->depthCount()),
+    Queue3Ptr(i.pSharedFifoMem->depthCount()),
     fifoId(i.fifoId),
     pSharedFifoMem(i.pSharedFifoMem),
     tokenId(0)

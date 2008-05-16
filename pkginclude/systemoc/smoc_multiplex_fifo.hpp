@@ -98,7 +98,8 @@ public://FIXME
   void deregisterVFifo(smoc_multiplex_vfifo_kind *vfifo);
 
   FifoSequence            fifoSequence;
-  size_t                  fifoOutOfOrder;
+  FifoSequence            fifoSequenceOOO;
+  const size_t            fifoOutOfOrder; // == 0 => no out of order access only one element visible
   Detail::EventMapManager emmFree;
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue<smoc_multiplex_fifo_kind> latencyQueue;
@@ -107,21 +108,7 @@ public://FIXME
   smoc_event &spaceAvailableEvent(size_t n)
     { return emmFree.getEvent(freeCount(), n); }
 
-  void consume(FifoId from, size_t n) {
-    rpp(n);
-    emmFree.increasedCount(freeCount());
-    
-    for (FifoSequence::iterator iter = fifoSequence.begin();
-         n > 0;
-         ) {
-      assert(iter !=  fifoSequence.end());
-      if (*iter == from) {
-        iter = fifoSequence.erase(iter); --n;
-      } else {
-        ++iter;
-      }
-    }
-  }
+  void consume(FifoId from, size_t n);
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void produce(FifoId to, size_t n, const smoc_ref_event_p &le)
@@ -130,7 +117,7 @@ public://FIXME
 #endif
   {
     wpp(n);
-    for (; n > 0; --n)
+    for (size_t j = n; j > 0; --j)
       fifoSequence.push_back(to);
     emmFree.decreasedCount(freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -140,18 +127,7 @@ public://FIXME
 #endif
   }
 
-  void latencyExpired(size_t n) {
-    vpp(n);
-    if (visibleCount() - n < fifoOutOfOrder) {
-      for ( ; ; ) {
-
-
-
-      }
-    }
-
-    //FIXME: implement it!
-  }
+  void latencyExpired(size_t n);
 
 public:
   smoc_multiplex_fifo_kind(const char *name, size_t n, size_t m);
