@@ -348,6 +348,39 @@ public:
     check_parameters();
   }
 
+
+  /*
+    The basic WSDF model assumes that all data elements read
+    by a possibly overlapping window are contained in the same buffer.
+    This however causes access conflicts making this solution rather slow.
+    
+    The following constructor derives a new WSDF description by assuming
+    that data reusage is partially handled externally. 
+    For each token dimension, the number of lines is indicated which shall be
+    stored in a separate buffer handling data reusage.
+   */
+  smoc_wsdf_edge_descr(const smoc_wsdf_edge_descr& e1,
+                       const uvector_type& ext_reusage)
+    : token_dimensions(e1.token_dimensions),
+      snk_firing_block_dimensions(e1.snk_firing_block_dimensions),
+      src_firing_blocks(e1.src_firing_blocks),
+      src_num_firing_levels(src_firing_blocks.size()),
+      src_num_eff_token_firing_levels(e1.src_num_eff_token_firing_levels),
+      snk_firing_blocks(e1.snk_firing_blocks),
+      snk_num_firing_levels(e1.snk_num_firing_levels),
+      snk_window_firing_blocks(calc_c(e1.c,e1.delta_c,ext_reusage)),
+      p(this->src_firing_blocks[0]),
+      v(e1.u0),u0(e1.u0),
+      c(calc_c(e1.c,e1.delta_c,ext_reusage)),
+      delta_c(e1.delta_c),
+      d(e1.d),
+      bs(calc_bs(e1.bs,e1.c,c)),
+      bt(e1.bt)                  
+  {
+    set_change_indicator();
+    check_parameters();
+  }
+
   virtual ~smoc_wsdf_edge_descr(){}
 
 public:
@@ -642,6 +675,21 @@ private:
       }
     }
   }
+
+private:
+  /* Functions for handling external reusage */
+
+  /// This function derives the new window size when assuming
+  /// external reusage as given by ext_reusage
+  const uvector_type 
+  calc_c(const uvector_type& orig_c,
+         const uvector_type& orig_delta_c,
+         const uvector_type& ext_reusage) const;
+
+  const svector_type 
+  calc_bs(const svector_type& orig_bs,
+          const uvector_type& orig_c,
+          const uvector_type& new_c) const;
 
 protected:
 

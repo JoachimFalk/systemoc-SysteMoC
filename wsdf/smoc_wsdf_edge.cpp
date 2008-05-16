@@ -2131,3 +2131,47 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_m
 
 }
 
+
+const smoc_wsdf_edge_descr::uvector_type 
+smoc_wsdf_edge_descr::calc_c(const uvector_type& orig_c,
+                             const uvector_type& orig_delta_c,
+                             const uvector_type& ext_reusage) const{
+  uvector_type return_c(orig_c.size());
+  
+  for(unsigned int i = 0; i < return_c.size(); i++){
+    if (orig_c[i] > orig_delta_c[i]){
+      //check, whether remaining window is larger than zero,
+      //otherwise illegal transformation
+      assert(ext_reusage[i] < orig_c[i]);
+
+      //ext_reusage[i] lines are buffered externally
+      return_c[i] = orig_c[i] - ext_reusage[i];
+
+      //Check for valid transformation
+      assert(return_c[i] >= orig_delta_c[i]);
+    }else{
+      //No data element is read twice. Hence, now reusage possible
+      assert(ext_reusage[i] == 0);
+      return_c[i] = orig_c[i];
+    }
+  }
+
+  return return_c;
+}
+
+const smoc_wsdf_edge_descr::svector_type 
+smoc_wsdf_edge_descr::calc_bs(const svector_type& orig_bs,
+                              const uvector_type& orig_c,
+                              const uvector_type& new_c) const{
+  svector_type return_bs(orig_bs.size());
+  
+  for(unsigned int i = 0; i < orig_bs.size(); i++){
+    assert(new_c[i] <= orig_c[i]);
+    //Note, that bs might become negative!!
+    return_bs[i] = orig_bs[i] - 
+      (orig_c[i] - new_c[i]);
+  }
+
+  return return_bs;
+}
+

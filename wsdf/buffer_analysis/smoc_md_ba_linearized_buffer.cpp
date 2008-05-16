@@ -285,7 +285,7 @@ namespace smoc_md_ba {
       }
       
     }
-  consumption_update_buffer_pointers_end:
+    //  consumption_update_buffer_pointers_end:
 #if SMOC_VERBOSE_LEVEL_MD_BA_LIN_BUF == 105
     CoSupport::Streams::dout << "Leave smoc_mb_ba_lin_buffer::consumption_tree_update" << std::endl;
     CoSupport::Streams::dout << CoSupport::Indent::Down;
