@@ -38,6 +38,7 @@ nobase_include_HEADERS = \
 	systemoc/detail/Queue3Ptr.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
+	systemoc/smoc_elab_and_sim.hpp \
 	systemoc/smoc_ast_common.hpp \
 	systemoc/hscd_tdsim_TraceLog.hpp \
 	systemoc/smoc_ast_systemoc.hpp \

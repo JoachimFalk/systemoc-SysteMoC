@@ -1,6 +1,7 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2008 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -33,8 +34,9 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_elab_and_sim.hpp>
+#ifndef _INCLUDED_SMOC_SMOC_ELAB_AND_SIM_HPP
+#define _INCLUDED_SMOC_SMOC_ELAB_AND_SIM_HPP
 
-int main(int _argc, char* _argv[]) {
-  return smoc_elab_and_sim(_argc, _argv);
-}
+int smoc_elab_and_sim(int argc, char *argv[]);
+
+#endif // _INCLUDED_SMOC_SMOC_ELAB_AND_SIM_HPP
