@@ -34,6 +34,8 @@ nobase_include_HEADERS = \
 	systemoc/detail/EventMapManager.hpp \
 	systemoc/detail/smoc_latency_queues.hpp \
 	systemoc/detail/smoc_ring_access.hpp \
+	systemoc/detail/Queue2Ptr.hpp \
+	systemoc/detail/Queue3Ptr.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_ast_common.hpp \
