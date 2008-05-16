@@ -89,6 +89,16 @@ int main() {
   
   cout << endl; cout << endl;
 
+
+  /* Perform translation for external reusage */
+  cout << "Transform for external reusage" << endl;
+  smoc_wsdf_edge_descr::uvector_type ext_reusage(2);
+  ext_reusage[0] = 1;
+  ext_reusage[1] = 0;
+  
+  smoc_wsdf_edge_descr edge1b(edge1,ext_reusage);
+  edge1b.print_edge_parameters(cout);
+  cout << endl; cout << endl;
   
   
 
