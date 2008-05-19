@@ -33,14 +33,17 @@ public:
 
     OUT("OUT", std::string("OUT:\t"))
   {
-    smoc_sr_signal<PARITY>().connect(SPC.WORDPARITY_outPort)
-      .connect(OUT.inPuts[0]);
+    connector(smoc_sr_signal<PARITY>())
+      << SPC.WORDPARITY_outPort
+      << OUT.inPuts[0];
 
-    smoc_sr_signal<bool>().connect(CLK.out)
-      .connect(SPC.CLK_inPort);
+    connector(smoc_sr_signal<bool>())
+      << CLK.out
+      << SPC.CLK_inPort;
 
-    smoc_sr_signal<bool>().connect(SRC.out)
-      .connect(SPC.BITINPUT_inPort);
+    connector(smoc_sr_signal<bool>())
+      << SRC.out
+      << SPC.BITINPUT_inPort;
   }
 };
 
@@ -68,34 +71,43 @@ public:
     sig_CLK( "sig_CLK" )
   {
     /*
-    smoc_sr_signal<bool>().connect(sig_BITINPUT.out)
-      .connect(m_BITPARITY.BITINPUT_inPort);
-    smoc_sr_signal<bool>().connect(sig_BITINPUT.history);
+    connector(smoc_sr_signal<bool>())
+      << sig_BITINPUT.out)
+      << m_BITPARITY.BITINPUT_inPort);
+    connector(smoc_sr_signal<bool>())
+      << sig_BITINPUT.history);
     */
 
 
-    smoc_sr_signal<bool>().connect(sig_CLK.out)
-      //      .connect(m_BITPARITY.CLK_inPort)
-      .connect(BC.CLK_inPort);
+    connector(smoc_sr_signal<bool>())
+      << sig_CLK.out
+      //      << m_BITPARITY.CLK_inPort)
+      << BC.CLK_inPort;
 
-    smoc_sr_signal<bool>().connect(sig_CLK.history)
-      //      .connect(m_BITPARITY.CLK_hist_inPort)
-      .connect(BC.CLK_hist_inPort);
+    connector(smoc_sr_signal<bool>())
+      << sig_CLK.history
+      //      << m_BITPARITY.CLK_hist_inPort)
+      << BC.CLK_hist_inPort;
 
-    smoc_sr_signal<int>().connect(BC.BITCOUNT_outPort)
-      .connect(sig_BITCOUNT.in);
+    connector(smoc_sr_signal<int>())
+      << BC.BITCOUNT_outPort
+      << sig_BITCOUNT.in;
 
-    smoc_sr_signal<int>().connect(sig_BITCOUNT.out)
-      .connect(BC.BITCOUNT_inPort)
-      .connect(OUT.inPuts[0]);
-    smoc_sr_signal<int>().connect(sig_BITCOUNT.history);
+    connector(smoc_sr_signal<int>())
+      << sig_BITCOUNT.out
+      << BC.BITCOUNT_inPort
+      << OUT.inPuts[0];
+    connector(smoc_sr_signal<int>())
+      << sig_BITCOUNT.history;
       
 
-    smoc_sr_signal<bool>().connect(CLK.out)
-      .connect(sig_CLK.in);
+    connector(smoc_sr_signal<bool>())
+      << CLK.out
+      << sig_CLK.in;
 
-    smoc_sr_signal<bool>().connect(SRC.out)
-      ;//      .connect(sig_BITINPUT.in);
+    connector(smoc_sr_signal<bool>())
+      << SRC.out
+      ;//      << sig_BITINPUT.in);
   }
 };
 
@@ -134,42 +146,58 @@ public:
 
     OUT("OUT", std::string("OUT:\t"))
   {
-    smoc_sr_signal<bool>().connect(CLK.out)
-      .connect(sig_CLK.in);
+    connector(smoc_sr_signal<bool>())
+      << CLK.out
+      << sig_CLK.in;
 
-    smoc_sr_signal<bool>().connect(SRC.out)
-      .connect(sig_BITINPUT.in);
+    connector(smoc_sr_signal<bool>())
+      << SRC.out
+      << sig_BITINPUT.in;
 
-    smoc_sr_signal<PARITY>().connect(m_WORDPARITY_OutPin.out)
-      .connect(OUT.inPuts[0]);
+    connector(smoc_sr_signal<PARITY>())
+      << m_WORDPARITY_OutPin.out
+      << OUT.inPuts[0];
 
-    smoc_sr_signal<PARITY>().connect(m_BITPARITY.BITPARITY_outPort)
-      .connect(sig_BITPARITY.in);
-    smoc_sr_signal<PARITY>().connect(sig_BITPARITY.out)
-      .connect(m_WORDPARITY.BITPARITY_inPort);
-    smoc_sr_signal<PARITY>().connect(sig_BITPARITY.history);
-    smoc_sr_signal<PARITY>().connect(m_WORDPARITY.WORDPARITY_outPort)
-      .connect(sig_WORDPARITY.in);
-    smoc_sr_signal<PARITY>().connect(sig_WORDPARITY.out)
-      .connect(m_WORDPARITY_OutPin.in)
-      .connect(m_WORDPARITY.WORDPARITY_inPort);
-    smoc_sr_signal<PARITY>().connect(sig_WORDPARITY.history);
-    smoc_sr_signal<int>().connect(m_BITCOUNT.BITCOUNT_outPort)
-      .connect(sig_BITCOUNT.in);
-    smoc_sr_signal<int>().connect(sig_BITCOUNT.out)
-      .connect(m_BITPARITY.BITCOUNT_inPort)
-      .connect(m_WORDPARITY.BITCOUNT_inPort)
-      .connect(m_BITCOUNT.BITCOUNT_inPort);
-    smoc_sr_signal<int>().connect(sig_BITCOUNT.history);
-    smoc_sr_signal<bool>().connect(sig_BITINPUT.out)
-      .connect(m_BITPARITY.BITINPUT_inPort);
-    smoc_sr_signal<bool>().connect(sig_BITINPUT.history);
-    smoc_sr_signal<bool>().connect(sig_CLK.out)
-      .connect(m_BITPARITY.CLK_inPort)
-      .connect(m_BITCOUNT.CLK_inPort);
-    smoc_sr_signal<bool>().connect(sig_CLK.history)
-      .connect(m_BITPARITY.CLK_hist_inPort)
-      .connect(m_BITCOUNT.CLK_hist_inPort);
+    connector(smoc_sr_signal<PARITY>())
+      << m_BITPARITY.BITPARITY_outPort
+      << sig_BITPARITY.in;
+    connector(smoc_sr_signal<PARITY>())
+      << sig_BITPARITY.out
+      << m_WORDPARITY.BITPARITY_inPort;
+    connector(smoc_sr_signal<PARITY>())
+      << sig_BITPARITY.history;
+    connector(smoc_sr_signal<PARITY>())
+      << m_WORDPARITY.WORDPARITY_outPort
+      << sig_WORDPARITY.in;
+    connector(smoc_sr_signal<PARITY>())
+      << sig_WORDPARITY.out
+      << m_WORDPARITY_OutPin.in
+      << m_WORDPARITY.WORDPARITY_inPort;
+    connector(smoc_sr_signal<PARITY>())
+      << sig_WORDPARITY.history;
+    connector(smoc_sr_signal<int>())
+      << m_BITCOUNT.BITCOUNT_outPort
+      << sig_BITCOUNT.in;
+    connector(smoc_sr_signal<int>())
+      << sig_BITCOUNT.out
+      << m_BITPARITY.BITCOUNT_inPort
+      << m_WORDPARITY.BITCOUNT_inPort
+      << m_BITCOUNT.BITCOUNT_inPort;
+    connector(smoc_sr_signal<int>())
+      << sig_BITCOUNT.history;
+    connector(smoc_sr_signal<bool>())
+      << sig_BITINPUT.out
+      << m_BITPARITY.BITINPUT_inPort;
+    connector(smoc_sr_signal<bool>())
+      << sig_BITINPUT.history;
+    connector(smoc_sr_signal<bool>())
+      << sig_CLK.out
+      << m_BITPARITY.CLK_inPort
+      << m_BITCOUNT.CLK_inPort;
+    connector(smoc_sr_signal<bool>())
+      << sig_CLK.history
+      << m_BITPARITY.CLK_hist_inPort
+      << m_BITCOUNT.CLK_hist_inPort;
 
   }
 };

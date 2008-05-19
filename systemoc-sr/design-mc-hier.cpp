@@ -53,18 +53,18 @@ public:
     smoc_multicast_sr_signal<bool> sig2;
     smoc_multicast_sr_signal<bool> sig3;
     
-    sig1.connect(zero.out)
-      .connect(nsAndZero.op0)
-      .connect(directSnk.in);
+    connector(sig1)
+      << zero.out
+      << nsAndZero.op0
+      << directSnk.in;
     
-    sig2.connect(oneTime.out)
-      .connect(nsAndZero.op1);
+    connector(sig2)
+      << oneTime.out
+      << nsAndZero.op1;
 
-    sig3.connect(nsAndZero.out)
-      .connect(andSnk.in);
-    // alternative anonymous style:
-    //smoc_multicast_sr_signal<bool>().connect(nsAndZero.out)
-    //  .connect(andSnk.in);
+    connector(sig3)
+      << nsAndZero.out
+      << andSnk.in;
   }
 };
  

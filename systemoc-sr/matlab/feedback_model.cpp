@@ -42,39 +42,45 @@
     
               
       smoc_multicast_sr_signal<real_T> DiscreteTimeIntegratorOpaqueSig0;
-      DiscreteTimeIntegratorOpaqueSig0.connect(DiscreteTimeIntegratorOpaqueActor.o0)
-          .connect(ScopeActor.i0)
-          .connect(SineWaveOpaqueActor.i0);
+      connector(DiscreteTimeIntegratorOpaqueSig0)
+        << DiscreteTimeIntegratorOpaqueActor.o0
+        << ScopeActor.i0
+        << SineWaveOpaqueActor.i0;
     
 
               
       smoc_multicast_sr_signal<real_T> SineWaveOpaqueSig0;
-      SineWaveOpaqueSig0.connect(SineWaveOpaqueActor.o0)
-          .connect(AddOpaqueActor.i0);
+      connector(SineWaveOpaqueSig0)
+        << SineWaveOpaqueActor.o0
+        << AddOpaqueActor.i0;
     
 
               
       smoc_multicast_sr_signal<real_T> SineWaveOpaqueSig1;
-      SineWaveOpaqueSig1.connect(SineWaveOpaqueActor.o1)
-          .connect(AddOpaqueActor.i1);
+      connector(SineWaveOpaqueSig1)
+        << SineWaveOpaqueActor.o1
+        << AddOpaqueActor.i1;
     
 
               
       smoc_multicast_sr_signal<real_T> AddOpaqueSig0;
-      AddOpaqueSig0.connect(AddOpaqueActor.o0)
-          .connect(UnitDelayOpaqueActor.i0);
+      connector(AddOpaqueSig0)
+        << AddOpaqueActor.o0
+        << UnitDelayOpaqueActor.i0;
     
 
               
       smoc_multicast_sr_signal<real_T> DiscreteTransferFcnSig0;
-      DiscreteTransferFcnSig0.connect(DiscreteTransferFcnActor.o0)
-          .connect(DiscreteTimeIntegratorOpaqueActor.i0);
+      connector(DiscreteTransferFcnSig0)
+        << DiscreteTransferFcnActor.o0
+        << DiscreteTimeIntegratorOpaqueActor.i0;
     
 
               
       smoc_multicast_sr_signal<real_T> UnitDelayOpaqueSig0;
-      UnitDelayOpaqueSig0.connect(UnitDelayOpaqueActor.o0)
-          .connect(DiscreteTransferFcnActor.i0);
+      connector(UnitDelayOpaqueSig0)
+        << UnitDelayOpaqueActor.o0
+        << DiscreteTransferFcnActor.i0;
     
 
       
