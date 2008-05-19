@@ -23,7 +23,7 @@ protected:
 
   smoc_firing_state start;
 public:
-  TerminalSink(sc_module_name name, SMOC_ACTOR_CPARAM( S, message ))
+  TerminalSink(sc_module_name name, S message )
     : smoc_actor(name, start), message(message) {
 
     Expr::Ex<bool >::type eIn(inPuts[0](ReadTokenAtOnce) );
