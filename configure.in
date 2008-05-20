@@ -235,6 +235,7 @@ m4_sinclude([systemoc-sr/configure.in.frag])
 m4_sinclude([systemoc-src-snk/configure.in.frag])
 m4_sinclude([systemoc-src-snk-multiplex/configure.in.frag])
 m4_sinclude([systemoc-src-snk-noconsume/configure.in.frag])
+m4_sinclude([systemoc-src-snk-void/configure.in.frag])
 m4_sinclude([systemoc-systemc/configure.in.frag])
 
 if test "$acjf_cv_systemoc_wsdf_support" = "yes"; then
