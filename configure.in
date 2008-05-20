@@ -191,8 +191,10 @@ AC_SUBST([SYSTEMOC_DEPENDENCIES])
 
 SYSTEMC_VPC_DEPENDENCIES=""
 if test x"$enable_vpc" != x"no"; then
-  ACJF_NEED_PKG([SystemC-VPC],
-   [SYSTEMC_VPC_DEPENDENCIES="$pkg_systemc_vpc_builddir/libsystemcvpc.la";],
+  ACJF_CHECK_PKG([SystemC-VPC],
+   [SYSTEMC_VPC_DEPENDENCIES="$pkg_systemc_vpc_builddir/libsystemcvpc.la"
+    AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_VPC_INCLUDE"
+    AM_LDFLAGS="$AM_LDFLAGS   $SYSTEMC_VPC_LDFLAGS"],
    [test x"$enable_vpc" = x"yes" && {
      AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out]) } ])
 fi
