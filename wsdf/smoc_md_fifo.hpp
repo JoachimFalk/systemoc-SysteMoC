@@ -36,7 +36,7 @@
 #include "smoc_wsdf_edge.hpp"
 
 
-//#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
+#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
 //#define SYSTEMOC_TRACE_BUFFER_SIZE
 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS

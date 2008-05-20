@@ -298,26 +298,7 @@ public:
 		       const uvector_type& delta_c,
 		       const uvector_type& d,
 		       const svector_type& bs,
-		       const svector_type& bt)
-    : token_dimensions(token_dimensions),
-      snk_firing_block_dimensions(snk_firing_blocks[0].size()),
-      src_firing_blocks(src_firing_blocks),
-      src_num_firing_levels(src_firing_blocks.size()),
-      src_num_eff_token_firing_levels(1),
-      snk_firing_blocks(snk_firing_blocks),
-      snk_num_firing_levels(snk_firing_blocks.size()),
-      snk_window_firing_blocks(c),
-      p(this->src_firing_blocks[0]),
-      v(u0),u0(u0),
-      c(c),
-      delta_c(delta_c),
-      d(d),
-      bs(bs),
-      bt(bt)                  
-  {
-    set_change_indicator();
-    check_parameters();
-  }
+		       const svector_type& bt);
 
   smoc_wsdf_edge_descr(unsigned token_dimensions,
 		       const u2vector_type& src_firing_blocks,
@@ -327,27 +308,7 @@ public:
 		       const uvector_type& delta_c,
 		       const uvector_type& d,
 		       const svector_type& bs,
-		       const svector_type& bt)
-    : token_dimensions(token_dimensions),
-      snk_firing_block_dimensions(snk_firing_block.size()),
-      src_firing_blocks(src_firing_blocks),
-      src_num_firing_levels(src_firing_blocks.size()),
-      src_num_eff_token_firing_levels(1),
-      snk_firing_blocks(u2vector_type(snk_firing_block)),
-      snk_num_firing_levels(snk_firing_blocks.size()),
-      snk_window_firing_blocks(c),
-      p(this->src_firing_blocks[0]),
-      v(u0),u0(u0),
-      c(c),
-      delta_c(delta_c),
-      d(d),
-      bs(bs),
-      bt(bt)                  
-  {
-    set_change_indicator();
-    check_parameters();
-  }
-
+		       const svector_type& bt);
 
   /*
     The basic WSDF model assumes that all data elements read
@@ -358,30 +319,15 @@ public:
     that data reusage is partially handled externally. 
     For each token dimension, the number of lines is indicated which shall be
     stored in a separate buffer handling data reusage.
+
+    For further informations and restrictions, see description of function
+    "calc_snk_firing_block".
    */
   smoc_wsdf_edge_descr(const smoc_wsdf_edge_descr& e1,
-                       const uvector_type& ext_reusage)
-    : token_dimensions(e1.token_dimensions),
-      snk_firing_block_dimensions(e1.snk_firing_block_dimensions),
-      src_firing_blocks(e1.src_firing_blocks),
-      src_num_firing_levels(src_firing_blocks.size()),
-      src_num_eff_token_firing_levels(e1.src_num_eff_token_firing_levels),
-      snk_firing_blocks(e1.snk_firing_blocks),
-      snk_num_firing_levels(e1.snk_num_firing_levels),
-      snk_window_firing_blocks(calc_c(e1.c,e1.delta_c,ext_reusage)),
-      p(this->src_firing_blocks[0]),
-      v(e1.u0),u0(e1.u0),
-      c(calc_c(e1.c,e1.delta_c,ext_reusage)),
-      delta_c(e1.delta_c),
-      d(e1.d),
-      bs(calc_bs(e1.bs,e1.c,c)),
-      bt(e1.bt)                  
-  {
-    set_change_indicator();
-    check_parameters();
-  }
+                       const uvector_type& ext_reusage,
+                       bool optimize_borders = false);
 
-  virtual ~smoc_wsdf_edge_descr(){}
+  virtual ~smoc_wsdf_edge_descr();
 
 public:
   
@@ -582,36 +528,20 @@ protected:
 
 private:
         
-  /// This function inserts into a given iteration level table
-  /// the iteration for the virtual token union if necessary
-  ///
-  /// Input parameters: 
-  /// - snk_iteration_level_table: Describes the iteration 
-  ///   level for each firing block
-  /// Output parameters:
-  /// - snk_iteration_level_table: modified iteration_level_table
-  /// - snk_vtu_iteration_level:   specifies the iteration levels
-  ///                              which cover the firing block corresponding
-  ///                              to a virtual token union.
-  /// - new_vtu_iteration          is true, if an additional iteration
-  ///                              for the virtual token union 
-  ///                              has been inserted
-  void insert_snk_vtu_iterations(s2vector_type& snk_iteration_level_table,
-				 uvector_type& snk_vtu_iteration_level,
-				 bvector_type& new_vtu_iteration
-				 ) const;
-  void insert_snk_vtu_iterations(s2vector_type& snk_iteration_level_table,
-				 uvector_type& snk_vtu_iteration_level
-				 ) const;
-        
 
-        
+  /// This function inserts a sink firing block
+  /// for the virtual token union if necessary
+  void insert_snk_vtu_firing_block();
+
+
   /// The function returns, how many iteration levels are described by the
   /// iteration level table
   /// NOTE: The iteration over the sliding window is not included
-  unsigned get_num_iteration_levels(const s2vector_type& snk_iteration_level_table,
-				    const uvector_type& snk_vtu_iteration_level
-				    ) const;
+  unsigned 
+  get_num_iteration_levels(const s2vector_type& snk_iteration_level_table) const;
+
+  uvector_type 
+  get_vtu_iteration_level(const s2vector_type& snk_iteration_level_table) const;
 public:
   /// Same for the source. However here we include the iterations
   /// describing the effective token.
@@ -626,8 +556,8 @@ private:
 
 
   /// Calculates the maximum for each iteration level
-  uvector_type calc_snk_iteration_max(const s2vector_type& snk_iteration_level_table,
-				      const uvector_type& snk_vtu_iteration_level) const;
+  uvector_type 
+  calc_snk_iteration_max(const s2vector_type& snk_iteration_level_table) const;
 
 
   /// Appends the iteration over the sliding window
@@ -637,10 +567,10 @@ private:
 
   /// Calculate the sink data element mapping matrix
   /// Includes the iterations over the window
-  umatrix_type calc_snk_data_element_mapping_matrix(const s2vector_type& snk_iteration_level_table,
-						    const uvector_type& snk_vtu_iteration_level,
-						    const uvector_type& snk_iter_max
-						    ) const;
+  umatrix_type 
+  calc_snk_data_element_mapping_matrix(const s2vector_type& snk_iteration_level_table,
+                                       const uvector_type& snk_iter_max
+                                       ) const;
 
   /// Inserts the data element mapping for the snk window
   void insert_snk_window_mapping(umatrix_type& data_element_mapping_matrix,
@@ -676,20 +606,73 @@ private:
     }
   }
 
+
 private:
   /* Functions for handling external reusage */
 
   /// This function derives the new window size when assuming
   /// external reusage as given by ext_reusage
   const uvector_type 
-  calc_c(const uvector_type& orig_c,
-         const uvector_type& orig_delta_c,
-         const uvector_type& ext_reusage) const;
+  calc_c(const uvector_type& ext_reusage) const;
+
+
+  /// This function generates new sink-firing blocks for external
+  /// data reusage management when overlapping windows have to be
+  /// processed.
+  ///
+  /// Warning: This function does deliver different results
+  ///          before and after insertion of additional firing
+  ///          blocks.
+  ///
+  /// Input parameters:
+  ///  - new_c : New window size
+  ///  - optimize_borders:
+  ///    When the window size reduces, it might happen
+  ///    that some new windows only sample the extended border.
+  ///    This however requires execution time which could be avoided.
+  ///    If optimize_borders is set to true, these "useless" invocations
+  ///    are suppressed.
+  ///    Note however that this is not possible in all cases as 
+  ///    it can result in very complex read patterns when the
+  ///    sink invocation order is more complex than simple raster
+  ///    scan order. In this case the function will return false and
+  ///    must be executed with optimize_borders = false.
+  /// Return values:
+  ///  - new_snk_firing_blocks: 
+  ///     Describes the new sink invocations
+  ///  - new_snk_block_overlap:
+  ///     If overlapping windows occur together with non-raster scan
+  ///     order, than it might happen that several data elements
+  ///     have to be read multiple times.
+  ///     This is expressed by new_snk_block_overlap indicating
+  ///     how many invocations of the current firing block
+  ///     overlap with the next one.
+  ///     
+  ///
+  ///  return_value : true, if transformation successful,
+  ///                 otherwise false.
+  bool
+  calc_snk_firing_block(const uvector_type& new_c,
+                        u2vector_type& new_snk_firing_blocks,
+                        s2vector_type& new_snk_block_overlap,
+                        bool optimize_borders) const;
+
+  ///Wrapper function for the above function
+  u2vector_type
+  calc_snk_firing_block(const uvector_type& new_c,
+                        bool optimize_borders) const;
+
 
   const svector_type 
-  calc_bs(const svector_type& orig_bs,
-          const uvector_type& orig_c,
-          const uvector_type& new_c) const;
+  calc_bs(const uvector_type& new_c,
+          bool optimize_borders
+          ) const;
+
+  const svector_type 
+  calc_bt(const uvector_type& new_c,
+          bool optimize_borders
+          ) const;
+
 
 protected:
 
