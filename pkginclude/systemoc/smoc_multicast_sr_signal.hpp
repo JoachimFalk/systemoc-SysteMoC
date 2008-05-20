@@ -45,7 +45,7 @@ class smoc_multicast_sr_signal_kind
 : public smoc_multicast_chan {
   typedef smoc_multicast_sr_signal_kind  this_type;
 public:
-  friend class smoc_scheduler_top;
+  friend class smoc_graph_sr;
   friend class smoc_outlet_kind;
   friend class smoc_entry_kind;
 
@@ -109,7 +109,7 @@ private:
 class smoc_outlet_kind
 : virtual public sc_interface,
   virtual public smoc_chan_in_base_if {
-  friend class smoc_scheduler_top;
+  friend class smoc_graph_sr;
 public:
   smoc_outlet_kind(smoc_multicast_sr_signal_kind* base);
 
@@ -151,7 +151,7 @@ private:
 class smoc_entry_kind
 : virtual public sc_interface,
   virtual public smoc_chan_out_base_if {
-  friend class smoc_scheduler_top;
+  friend class smoc_graph_sr;
 public:
   smoc_entry_kind(smoc_multicast_sr_signal_kind* base);
 

@@ -285,8 +285,11 @@ private:
   // common constructor code
   void constructor();
 
-  // TODO: remove / implement
   void action();
+
+  void scheduleSR(smoc_graph_base *c);
+  size_t countDefinedInports(smoc_root_node &n);
+  size_t countDefinedOutports(smoc_root_node &n);
 };
 
 #endif // _INCLUDED_SMOC_GRAPH_TYPE_HPP

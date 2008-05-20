@@ -113,6 +113,7 @@ private:
   static  std::vector<Expr::Detail::ArgInfo>  global_constr_args;
   std::vector<Expr::Detail::ArgInfo>          local_constr_args;
 
+  friend class smoc_graph_sr;
   friend class smoc_scheduler_top;
   friend class smoc_graph;
   friend class SysteMoC::smoc_graph_synth;
