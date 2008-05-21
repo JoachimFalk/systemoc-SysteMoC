@@ -40,7 +40,7 @@
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 
-using namespace SysteMoC::NGX;
+using namespace SysteMoC::SGX;
 using namespace SysteMoC::NGXSync;
 
 smoc_graph_base::smoc_graph_base(
@@ -85,7 +85,7 @@ void smoc_graph_base::finalise() {
 #endif
   NgId idGraph = idPool.getId(this, 1);
 
-  // SystemC --> NGX
+  // SystemC --> SGX
   for(std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
       iter != get_child_objects().end();
       ++iter)
@@ -118,7 +118,7 @@ void smoc_graph_base::finalise() {
     channels.push_back(channel);
   }
 
-  // NGX --> SystemC
+  // SGX --> SystemC
   if(NGXConfig::getInstance().hasNGX()) {
   
     ProblemGraph::ConstPtr pg =

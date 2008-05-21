@@ -41,7 +41,7 @@
 
 namespace SysteMoC {
 
-using namespace NGX;
+using namespace SGX;
 using namespace NGXSync;
 
 // find non-hierarchical name

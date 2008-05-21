@@ -52,13 +52,13 @@
 
 #include <sysc/kernel/sc_object.h>
 
-#include <acpgacc/smoc_synth_netgraph_access.hpp>
+#include <sgx.hpp>
 
 #define objAs CoSupport::DataTypes::dynamic_pointer_cast
 
 namespace SysteMoC { namespace NGXSync {
 
-  using NGX::NgId;
+  using SGX::NgId;
 
   typedef CoSupport::SMXIdSer IdAttr;
 
@@ -108,17 +108,17 @@ namespace SysteMoC { namespace NGXSync {
     // returns single NGXConfig instance 
     static NGXConfig& getInstance();
     
-    // loads the specified NGX file
+    // loads the specified SGX file
     void loadNGX(const std::string& ngx);
     
-    // loads the specified NGX file
+    // loads the specified SGX file
     void loadNGX(std::istream& ngx);
     
-    // determines if a valid NGX file is loaded
+    // determines if a valid SGX file is loaded
     bool hasNGX() const;
 
-    // returns the currently loaded NGX file
-    const NGX::NetworkGraphAccess& getNGX() const;
+    // returns the currently loaded SGX file
+    const SGX::NetworkGraphAccess& getNGX() const;
 
     // destructor
     ~NGXConfig();
@@ -132,8 +132,8 @@ namespace SysteMoC { namespace NGXSync {
     // disabled assigment operator
     NGXConfig& operator=(const NGXConfig&);
 
-    // the currently loaded NGX file
-    NGX::NetworkGraphAccess* _ngx;
+    // the currently loaded SGX file
+    SGX::NetworkGraphAccess* _ngx;
   };
 
   class NGXCache {
@@ -141,27 +141,27 @@ namespace SysteMoC { namespace NGXSync {
     // returns single NGXConfig instance 
     static NGXCache& getInstance();
 
-    // lookup NGX object by SystemC object (returns 0 if none exists)
-    NGX::IdedObj::ConstPtr get(SCObj* obj, size_t index = 0);
+    // lookup SGX object by SystemC object (returns 0 if none exists)
+    SGX::IdedObj::ConstPtr get(SCObj* obj, size_t index = 0);
 
-    // lookup SystemC object by NGX object (returns 0 if none exists)
-    SCObj* get(NGX::IdedObj::ConstPtr obj);
+    // lookup SystemC object by SGX object (returns 0 if none exists)
+    SCObj* get(SGX::IdedObj::ConstPtr obj);
     
-    // lookup SystemC object by NGX object (returns 0 if none exists)
-    SCObj* get(NGX::IdedObj::ConstRef obj);
+    // lookup SystemC object by SGX object (returns 0 if none exists)
+    SCObj* get(SGX::IdedObj::ConstRef obj);
 
     // find / cache a port which is compiled into the model and has the
     // same interface as the specified port (returns 0 if none exists)
     // (this makes only sense if all compiled ports are registered)
-    smoc_sysc_port *getCompiledPort(NGX::Port::ConstPtr p);
+    smoc_sysc_port *getCompiledPort(SGX::Port::ConstPtr p);
 
   private:
-    // NGX -> SystemC lookup map
-    typedef std::map<NGX::IdedObj::ConstPtr, SCObj*> NGX2SC;
+    // SGX -> SystemC lookup map
+    typedef std::map<SGX::IdedObj::ConstPtr, SCObj*> NGX2SC;
     NGX2SC ngx2sc;
 
-    // SystemC -> NGX lookup map
-    typedef std::map<size_t, NGX::IdedObj::ConstPtr> IndexMap;
+    // SystemC -> SGX lookup map
+    typedef std::map<size_t, SGX::IdedObj::ConstPtr> IndexMap;
     typedef std::map<SCObj*, IndexMap> SC2NGX;
     SC2NGX sc2ngx;
 

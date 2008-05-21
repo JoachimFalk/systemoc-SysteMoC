@@ -36,6 +36,8 @@ compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 AM_CPPFLAGS =					\
 	@AM_CPPFLAGS@				\
 	@SYSTEMC_INCLUDE@			\
+	@SUPPORT_INCLUDE@			\
+	@LIBSGX_INCLUDE@			\
 	@BOOST_INCLUDE@				\
 	@SYSTEMC_VPC_INCLUDE@			\
 	-Ipkginclude				\
@@ -44,6 +46,8 @@ AM_CPPFLAGS =					\
 AM_LDFLAGS=				\
 	@AM_LDFLAGS@			\
 	@SYSTEMC_LDFLAGS@		\
+	@SUPPORT_LDFLAGS@		\
+	@LIBSGX_LDFLAGS@		\
 	@BOOST_LDFLAGS@			\
 	@SYSTEMC_VPC_LDFLAGS@
 
@@ -68,13 +72,16 @@ libsystemoc_la_LDFLAGS =				\
 	-lboost_program_options@BOOST_LIBPOSTFIX@
 libsystemoc_la_DEPENDENCIES = 				\
 	compileheader-libsystemoc.stamp
+libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libsystemoc_la_LIBADD = 				\
 	$(libsystemoc_CH_LTOBJS)			\
 	$(pkg_support_builddir)/libcosupport-systemc.la	\
-	$(pkg_support_builddir)/libcosupport.la		\
-	$(pkg_ac_pg_access_builddir)/libacpgacc.la
+	$(pkg_support_builddir)/libcosupport-streams.la	\
+	$(pkg_support_builddir)/libcosupport-smartptr.la\
+	$(pkg_libsgx_builddir)/libsgx.la
 if SYSTEMOC_ENABLE_VPC
 libsystemoc_la_LIBADD += $(pkg_systemc_vpc_builddir)/libsystemcvpc.la
+libsystemoc_la_CPPFLAGS += -DSYSTEMOC_ENABLE_VPC
 endif
 
 libsystemoc_la_SOURCES =		\
@@ -109,4 +116,5 @@ libsystemoc_la_SOURCES +=		\
 	wsdf/smoc_md_ba_linearized_buffer.cpp \
 	wsdf/smoc_md_ba_linearized_buffer_size.cpp \
 	wsdf/smoc_md_ba_linearized_buffer_schedule.cpp
+libsystemoc_la_CPPFLAGS += -DSYSTEMOC_ENABLE_WSDF
 endif

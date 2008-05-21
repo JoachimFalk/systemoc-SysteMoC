@@ -45,10 +45,10 @@ const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
 
 static
 size_t fsizeMapper(smoc_fifo_kind *instance, size_t n) {
-  // NGX --> SystemC
+  // SGX --> SystemC
   if (SysteMoC::NGXSync::NGXConfig::getInstance().hasNGX()) {
-    SysteMoC::NGX::Fifo::ConstPtr fifo =
-      objAs<SysteMoC::NGX::Fifo>(SysteMoC::NGXSync::NGXCache::getInstance().get(instance));
+    SysteMoC::SGX::Fifo::ConstPtr fifo =
+      objAs<SysteMoC::SGX::Fifo>(SysteMoC::NGXSync::NGXCache::getInstance().get(instance));
     if (fifo) {
       n = fifo->size().get();
     } else {
