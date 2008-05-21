@@ -47,8 +47,8 @@ static
 size_t fsizeMapper(smoc_fifo_kind *instance, size_t n) {
   // SGX --> SystemC
   if (SysteMoC::NGXSync::NGXConfig::getInstance().hasNGX()) {
-    SysteMoC::SGX::Fifo::ConstPtr fifo =
-      objAs<SysteMoC::SGX::Fifo>(SysteMoC::NGXSync::NGXCache::getInstance().get(instance));
+    SystemCoDesigner::SGX::Fifo::ConstPtr fifo =
+      objAs<SystemCoDesigner::SGX::Fifo>(SysteMoC::NGXSync::NGXCache::getInstance().get(instance));
     if (fifo) {
       n = fifo->size().get();
     } else {

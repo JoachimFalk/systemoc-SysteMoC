@@ -56,9 +56,13 @@
 
 #define objAs CoSupport::DataTypes::dynamic_pointer_cast
 
-namespace SysteMoC { namespace NGXSync {
+namespace SysteMoC {
 
-  using SGX::NgId;
+namespace SGX = SystemCoDesigner::SGX;
+  
+namespace NGXSync {
+
+  using SystemCoDesigner::SGX::NgId;
 
   typedef CoSupport::SMXIdSer IdAttr;
 

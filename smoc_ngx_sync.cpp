@@ -1,6 +1,6 @@
 #include <systemoc/smoc_ngx_sync.hpp>
 
-using namespace SysteMoC::SGX;
+using namespace SystemCoDesigner::SGX;
 
 namespace SysteMoC { namespace NGXSync {
   
