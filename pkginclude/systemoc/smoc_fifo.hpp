@@ -42,6 +42,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_chan_if.hpp"
+#include "smoc_root_chan.hpp"
 #include "smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "detail/smoc_latency_queues.hpp"
@@ -64,98 +65,57 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-class smoc_fifo_kind;
+size_t fsizeMapper(sc_object* instance, size_t n);
 
-/// Base class of the FIFO implementation.
-/// The FIFO consists of a ring buffer of size fsize.
-/// However due to the ambiguity of rindex == windex
-/// indicating either an empty or a full FIFO, which
-/// is resolved to rindex == windex indicating an empty
-/// FIFO, one ring buffer entry is lost. Therefore the
-/// ringe buffer must be one entry greater than the
-/// actual FIFO size.
-/// Furthermore the storage of the ring buffer is allocated
-/// in a derived class the base class only manages the
-/// read, write, and visible pointers.
-class smoc_fifo_kind
+/**
+ * The base channel implementation
+ */
+class smoc_fifo_chan_base
 : public smoc_nonconflicting_chan,
-  public boost::noncopyable,
 #ifdef SYSTEMOC_ENABLE_VPC
   public Detail::Queue3Ptr
 #else
   public Detail::Queue2Ptr
 #endif // SYSTEMOC_ENABLE_VPC
 {
-#ifdef SYSTEMOC_ENABLE_VPC
-  friend class Detail::LatencyQueue<smoc_fifo_kind>::VisibleQueue;
-  friend class Detail::LatencyQueue<smoc_fifo_kind>::RequestQueue;
-#endif // SYSTEMOC_ENABLE_VPC
 public:
-  typedef smoc_fifo_kind  this_type;
-
+  friend class smoc_fifo_entry_base;
+  friend class smoc_fifo_outlet_base;
+#ifdef SYSTEMOC_ENABLE_VPC
+  friend class Detail::LatencyQueue<smoc_fifo_chan_base>::VisibleQueue;
+  friend class Detail::LatencyQueue<smoc_fifo_chan_base>::RequestQueue;
+#endif // SYSTEMOC_ENABLE_VPC
+  
+  /// @brief Channel initializer
   class chan_init {
-    friend class smoc_fifo_kind;
+  public:
+    friend class smoc_fifo_chan_base;
+  protected:
+    chan_init(const char *name, size_t n)
+      : name(name), n(n)
+    {}
   private:
     const char *name;
-    size_t      n;
-  protected:
-    chan_init( const char *name, size_t n )
-      : name(name), n(n) {}
+    size_t n;
   };
-private:
-  Detail::EventMapManager emmAvailable;
-  Detail::EventMapManager emmFree;
-#ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue<smoc_fifo_kind>   latencyQueue;
-#endif
+
 protected:
-  // constructors
-  smoc_fifo_kind(const chan_init &i);
-
-  smoc_event &dataAvailableEvent(size_t n)
-    { return emmAvailable.getEvent(visibleCount(), n); }
-
-  smoc_event &spaceAvailableEvent(size_t n)
-    { return emmFree.getEvent(freeCount(), n); }
-
-  size_t tokenId; ///< The tokenId of the next commit token
-
-  size_t inTokenId() const
-    { return tokenId - usedCount(); }
-  size_t outTokenId() const
-    { return tokenId; }
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, const smoc_ref_event_p &le)
-#else
-  void commitRead(size_t consume)
-#endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(this, consume);
-#endif
-    rpp(consume);
-    emmAvailable.decreasedCount(visibleCount());
-    emmFree.increasedCount(freeCount());
-  }
   
+  /// @brief Constructor
+  smoc_fifo_chan_base(const chan_init& i)
+    : smoc_nonconflicting_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p &le)
+    Queue3Ptr(fsizeMapper(this, i.n)),
+    latencyQueue(this),
 #else
-  void commitWrite(size_t produce)
+    Queue2Ptr(fsizeMapper(this, i.n)),
 #endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(this, produce);
-#endif
-    tokenId += produce;
-    wpp(produce);
-    emmFree.decreasedCount(freeCount());
-#ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue.addEntry(produce, le); // Delayed call of latencyExpired(produce);
-#else
-    latencyExpired(produce);
-#endif
+    tokenId(0)
+  {}
+
+  /// @brief See smoc_root_chan
+  void channelAttributes(smoc_modes::PGWriter& pgw) const {
+    pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
   }
 
   void latencyExpired(size_t n) {
@@ -163,67 +123,229 @@ protected:
     emmAvailable.increasedCount(visibleCount());
   }
 
-  // bounce functions
-  size_t numAvailable() const
-    { return visibleCount(); }
-  size_t numFree() const
-    { return freeCount(); }
-
-  void channelAttributes(smoc_modes::PGWriter &pgw) const {
-    pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
-  }
-
-  virtual
-  void channelContents(smoc_modes::PGWriter &pgw) const = 0;
-
 private:
-  static const char* const kind_string;
-  
-  virtual const char* kind() const {
-    return kind_string;
-  }
+  Detail::EventMapManager emmAvailable;
+  Detail::EventMapManager emmFree;
+#ifdef SYSTEMOC_ENABLE_VPC
+  Detail::LatencyQueue<smoc_fifo_chan_base> latencyQueue;
+#endif
+
+  /// @brief The token id of the next commit token
+  size_t tokenId;
 };
 
-template <typename T>
-class smoc_fifo_storage
-: public smoc_chan_if<
-    T,
-    smoc_channel_access,
-    smoc_channel_access>,
-  public smoc_fifo_kind {
+/**
+ * This class implements the base channel in interface
+ */
+class smoc_fifo_entry_base
+: public virtual smoc_chan_in_base_if
+{
 public:
-  typedef T                                   data_type;
-  typedef smoc_fifo_storage<data_type>        this_type;
-  typedef typename this_type::access_out_type ring_out_type;
-  typedef typename this_type::access_in_type  ring_in_type;
-  typedef smoc_storage<data_type>             storage_type;
-  typedef smoc_ring_access<
-    storage_type,
-    typename ring_in_type::return_type>       ring_access_in_type;
-  typedef smoc_ring_access<
-    storage_type,
-    typename ring_out_type::return_type>      ring_access_out_type;
-
-  class chan_init
-    : public smoc_fifo_kind::chan_init {
-    friend class smoc_fifo_storage<T>;
-  private:
-    std::vector<T>  marking;
-  protected:
-    typedef const T add_param_ty;
-  public:
-    void add( add_param_ty x ) {
-      marking.push_back(x);
-    }
-  protected:
-    chan_init( const char *name, size_t n )
-      : smoc_fifo_kind::chan_init(name, n) {}
-  };
-private:
-  storage_type *storage;
 protected:
-  smoc_fifo_storage( const chan_init &i )
-    : smoc_fifo_kind(i),
+  /// @brief Constructor
+  smoc_fifo_entry_base(smoc_fifo_chan_base& chan)
+    : chan(chan)
+  {}
+
+  /// @brief See smoc_chan_in_base_if
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitRead(size_t consume, const smoc_ref_event_p&)
+#else
+  void commitRead(size_t consume)
+#endif
+  {
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommExecIn(this, consume);
+#endif
+    chan.rpp(consume);
+    chan.emmAvailable.decreasedCount(chan.visibleCount());
+    chan.emmFree.increasedCount(chan.freeCount());
+  }
+  
+  /// @brief See smoc_chan_in_base_if
+  smoc_event &dataAvailableEvent(size_t n)
+    { return chan.emmAvailable.getEvent(chan.visibleCount(), n); }
+
+  /// @brief See smoc_chan_in_base_if
+  size_t numAvailable() const
+    { return chan.visibleCount(); }
+  
+  /// @brief See smoc_chan_in_base_if
+  size_t inTokenId() const
+    { return chan.tokenId - chan.usedCount(); }
+
+private:
+  /// @brief The channel base implementation
+  smoc_fifo_chan_base& chan;
+};
+
+
+
+/**
+ * This class implements the base channel out interface
+ */
+class smoc_fifo_outlet_base
+: public virtual smoc_chan_out_base_if
+{
+public:
+protected:
+  /// @brief Constructor
+  smoc_fifo_outlet_base(smoc_fifo_chan_base& chan)
+    : chan(chan)
+  {}
+
+  /// @brief See smoc_chan_out_base_if
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitWrite(size_t produce, const smoc_ref_event_p& le)
+#else
+  void commitWrite(size_t produce)
+#endif
+  {
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommExecOut(this, produce);
+#endif
+    chan.tokenId += produce;
+    chan.wpp(produce);
+    chan.emmFree.decreasedCount(chan.freeCount());
+#ifdef SYSTEMOC_ENABLE_VPC
+    // Delayed call of latencyExpired(produce);
+    chan.latencyQueue.addEntry(produce, le);
+#else
+    chan.latencyExpired(produce);
+#endif
+  }
+  
+  /// @brief See smoc_chan_out_base_if
+  smoc_event &spaceAvailableEvent(size_t n)
+    { return chan.emmFree.getEvent(chan.freeCount(), n); }
+  
+  /// @brief See smoc_chan_out_base_if
+  size_t numFree() const
+    { return chan.freeCount(); }
+  
+  /// @brief See smoc_chan_out_base_if
+  size_t outTokenId() const
+    { return chan.tokenId; }
+
+private:
+  /// @brief The channel base implementation
+  smoc_fifo_chan_base& chan;
+};
+
+template<class> class smoc_fifo_chan;
+
+/**
+ * This class implements the channel in interface
+ */
+template<class T>
+class smoc_fifo_entry
+: public smoc_fifo_entry_base,
+  public smoc_chan_in_if<T,smoc_channel_access>
+{
+public:
+  typedef smoc_fifo_entry<T> this_type;
+  typedef typename this_type::access_type access_type; 
+  typedef smoc_chan_in_if<T,smoc_channel_access> iface_type;
+
+  /// @brief Constructor
+  smoc_fifo_entry(smoc_fifo_chan<T>& chan)
+    : smoc_fifo_entry_base(chan),
+      chan(chan)
+  {}
+
+protected:
+  /// @brief See smoc_chan_in_if
+  access_type* getReadChannelAccess()
+    { return chan.getReadChannelAccess(); }
+
+private:
+  /// @brief The channel implementation
+  smoc_fifo_chan<T>& chan;
+};
+
+/**
+ * This class implements the channel out interface
+ */
+template<class T>
+class smoc_fifo_outlet
+: public smoc_fifo_outlet_base,
+  public smoc_chan_out_if<T,smoc_channel_access>
+{
+public:
+  typedef smoc_fifo_outlet<T> this_type;
+  typedef typename this_type::access_type access_type; 
+  typedef smoc_chan_out_if<T,smoc_channel_access> iface_type;
+
+  /// @brief Constructor
+  smoc_fifo_outlet(smoc_fifo_chan<T>& chan)
+    : smoc_fifo_outlet_base(chan),
+      chan(chan)
+  {}
+
+protected:
+  /// @brief See smoc_chan_out_if
+  access_type* getWriteChannelAccess()
+    { return chan.getWriteChannelAccess(); }
+
+private:
+  /// @brief The channel implementation
+  smoc_fifo_chan<T>& chan;
+};
+
+/**
+ * This class implements the data type specific
+ * channel storage operations
+ *
+ * This is not merged with smoc_fifo_chan because
+ * we need a void specialization (only for _some_
+ * methods)
+ */
+template<class T>
+class smoc_fifo_storage
+: public smoc_fifo_chan_base
+{
+public:
+  typedef T                           data_type;
+  typedef smoc_fifo_entry<data_type>  entry_type;
+  typedef smoc_fifo_outlet<data_type> outlet_type;
+  typedef smoc_storage<data_type>     storage_type;
+
+  typedef typename entry_type::access_type  access_in_type;
+  typedef typename outlet_type::access_type access_out_type;
+
+  typedef smoc_ring_access<
+    storage_type,
+    typename access_in_type::return_type> access_in_type_impl;
+  typedef smoc_ring_access<
+    storage_type,
+    typename access_out_type::return_type> access_out_type_impl;
+
+  friend class smoc_fifo_entry<data_type>;
+  friend class smoc_fifo_outlet<data_type>;
+
+  /// @brief Channel initializer
+  class chan_init
+    : public smoc_fifo_chan_base::chan_init
+  {
+  public:
+    friend class smoc_fifo_storage;
+    typedef T add_param_ty;
+
+    void add(const add_param_ty& t)
+      { marking.push_back(t); }
+  protected:
+    chan_init(const char* name, size_t n)
+      : smoc_fifo_chan_base::chan_init(name, n)
+    {}
+  private:
+    std::vector<T> marking;
+  };
+
+protected:
+
+  /// @brief Constructor
+  smoc_fifo_storage(const chan_init& i)
+    : smoc_fifo_chan_base(i),
       storage(new storage_type[this->fSize()])
   {
     assert(this->depthCount() >= i.marking.size());
@@ -233,79 +355,90 @@ protected:
     wpp(i.marking.size()); vpp(i.marking.size());
   }
 
-  const char *name() const
-    { return smoc_fifo_kind::name(); }
-
-  ring_in_type *getReadChannelAccess() {
-    return new ring_access_in_type
-      (storage, this->fSize(), &this->rIndex());
-  }
-  ring_out_type *getWriteChannelAccess() {
-    return new ring_access_out_type
-      (storage, this->fSize(), &this->wIndex());
-  }
-
-  void channelContents(smoc_modes::PGWriter &pgw) const {
+  /// @brief Destructor
+  ~smoc_fifo_storage()
+    { delete[] storage; }
+  
+  /// @brief See smoc_root_chan
+  void channelContents(smoc_modes::PGWriter& pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
     {
       //*************************INITIAL TOKENS, ETC...***************************
       pgw.indentUp();
-      for ( size_t n = 0; n < this->visibleCount(); ++n )
+      for(size_t n = 0; n < this->visibleCount(); ++n)
         pgw << "<token value=\"" << storage[n].get() << "\"/>" << std::endl;
       pgw.indentDown();
     }
     pgw << "</fifo>" << std::endl;
   }
 
-  ~smoc_fifo_storage() { delete[] storage; }
-};
-
-template <>
-class smoc_fifo_storage<void>
-: public smoc_chan_if<
-    void,
-    smoc_channel_access,
-    smoc_channel_access>,
-  public smoc_fifo_kind {
-public:
-  typedef void                          data_type;
-  typedef smoc_fifo_storage<data_type>  this_type;
-  typedef this_type::access_out_type    ring_out_type;
-  typedef this_type::access_in_type     ring_in_type;
-  typedef smoc_ring_access<void,void>   ring_access_in_type;
-  typedef smoc_ring_access<void,void>   ring_access_out_type;
-
-  class chan_init
-  : public smoc_fifo_kind::chan_init {
-    friend class smoc_fifo_storage<void>;
-  private:
-    size_t          marking;
-  protected:
-    typedef size_t  add_param_ty;
-  public:
-    void add( add_param_ty x ) {
-      marking += x;
-    }
-  protected:
-    chan_init( const char *name, size_t n )
-      : smoc_fifo_kind::chan_init(name, n),
-        marking(0) {}
-  };
-protected:
-  smoc_fifo_storage(const chan_init &i)
-    : smoc_fifo_kind(i) {
-    wpp(i.marking); vpp(i.marking);
+  access_in_type* getReadChannelAccess() {
+    return new access_in_type_impl(
+        storage, this->fSize(), &this->rIndex());
+  }
+  
+  access_out_type* getWriteChannelAccess() {
+    return new access_out_type_impl(
+        storage, this->fSize(), &this->wIndex());
   }
 
-  const char *name() const
-    { return smoc_fifo_kind::name(); }
+private:
+  storage_type* storage;
+};
 
-  ring_in_type  *getReadChannelAccess()
-    { return new ring_access_in_type(); }
-  ring_out_type *getWriteChannelAccess()
-    { return new ring_access_out_type(); }
+/**
+ * This class implements the data type specific
+ * channel storage operations (void specialization)
+ */
+template<>
+class smoc_fifo_storage<void>
+: public smoc_fifo_chan_base
+{
+public:
+  typedef void                        data_type;
+  typedef smoc_fifo_entry<data_type>  entry_type;
+  typedef smoc_fifo_outlet<data_type> outlet_type;
+  typedef smoc_storage<data_type>     storage_type;
 
-  void channelContents(smoc_modes::PGWriter &pgw) const {
+  typedef entry_type::access_type  access_in_type;
+  typedef outlet_type::access_type access_out_type;
+
+  typedef smoc_ring_access<void,void> access_in_type_impl;
+  typedef smoc_ring_access<void,void> access_out_type_impl;
+
+  friend class smoc_fifo_entry<data_type>;
+  friend class smoc_fifo_outlet<data_type>;
+  
+  /// @brief Channel initializer
+  class chan_init
+  : public smoc_fifo_chan_base::chan_init
+  {
+  public:
+    friend class smoc_fifo_storage;
+    typedef size_t add_param_ty;
+
+    void add(const add_param_ty& t)
+      { marking += t; }
+  protected:
+    chan_init(const char* name, size_t n)
+      : smoc_fifo_chan_base::chan_init(name, n)
+    {}
+  private:
+    size_t marking;
+  };
+
+protected:
+
+  /// @brief Constructor
+  smoc_fifo_storage(const chan_init& i)
+    : smoc_fifo_chan_base(i)
+  {
+    assert(this->depthCount() >= i.marking);
+    wpp(i.marking); vpp(i.marking);
+  }
+  
+  /// @brief See smoc_root_chan
+  void channelContents(smoc_modes::PGWriter& pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
     {
       //*************************INITIAL TOKENS, ETC...***************************
@@ -316,89 +449,131 @@ protected:
     }
     pgw << "</fifo>" << std::endl;
   }
+
+  access_in_type* getReadChannelAccess()
+    { return new access_in_type_impl(); }
+  
+  access_out_type* getWriteChannelAccess()
+    { return new access_out_type_impl(); }
 };
 
-template <typename T>
-class smoc_fifo_type
-  : public smoc_fifo_storage<T> {
+/**
+ * This class provides interfaces and connect methods
+ */
+template<class T>
+class smoc_fifo_chan
+: public smoc_fifo_storage<T>
+{
 public:
-  typedef T                  data_type;
-  typedef smoc_fifo_type<data_type>            this_type;
-  
-  typedef typename smoc_storage_in<data_type>::storage_type   storage_in_type;
-  typedef typename smoc_storage_in<data_type>::return_type    return_in_type;
-  
-  typedef typename smoc_storage_out<data_type>::storage_type  storage_out_type;
-  typedef typename smoc_storage_out<data_type>::return_type   return_out_type;
+  typedef T                           data_type;
+  typedef smoc_fifo_entry<data_type>  entry_type;
+  typedef smoc_fifo_outlet<data_type> outlet_type;
 
-protected:
-  
-public:
-  // constructors
-  smoc_fifo_type( const typename smoc_fifo_storage<T>::chan_init &i )
-    : smoc_fifo_storage<T>(i) {}
+  /// @brief Channel initializer
+  typedef typename smoc_fifo_storage<T>::chan_init chan_init;
+
+  /// @brief Constructor
+  smoc_fifo_chan(const chan_init& i)
+    : smoc_fifo_storage<T>(i),
+      entry(*this),
+      outlet(*this)
+  {}
+
+  /// @brief See smoc_root_chan
+  sc_port_list getInputPorts() const
+    { return entry.getPorts(); }
+
+  /// @brief See smoc_root_chan
+  sc_port_list getOutputPorts() const
+    { return outlet.getPorts(); }
+
+  /// @brief Nicer compile time error
+  struct No_Channel_Adapter_Found__Please_Use_Other_Interface {};
 
   template<class IFace,class Init>
-  void connect(sc_port<IFace> &port, const Init&) {
-
+  void connect(sc_port<IFace>& p, const Init&) {
+  
     using namespace SysteMoC::Detail;
 
-    // we can provide smoc_chan_out_if and smoc_chan_in_if
-    // interfaces
-    typedef typename smoc_port_out<T>::iface_type IFaceImplOut;
-    typedef typename smoc_port_in<T>::iface_type  IFaceImplIn;
+    // we can provide smoc_chan_in_if and smoc_chan_out_if
+    // interfaces (via entry and outlet)
+    typedef typename entry_type::iface_type   IFaceImpl1;
+    typedef typename outlet_type::iface_type  IFaceImpl2;
 
     // corresponding adapters
-    typedef smoc_chan_adapter<IFaceImplOut,IFace> AdapterOut;
-    typedef smoc_chan_adapter<IFaceImplIn,IFace>  AdapterIn;
+    typedef smoc_chan_adapter<IFaceImpl1,IFace> Adapter1;
+    typedef smoc_chan_adapter<IFaceImpl2,IFace> Adapter2;
 
+    // constructor objects
+    typedef ConstructPMParam<
+      Adapter1,
+      smoc_fifo_chan<T>,
+      entry_type,
+      &smoc_fifo_chan<T>::entry> Cons1;
+
+    typedef ConstructPMParam<
+      Adapter2,
+      smoc_fifo_chan<T>,
+      outlet_type,
+      &smoc_fifo_chan<T>::outlet> Cons2;
+
+    // try to get adapter
     typedef
-      // 1st possible adapter
       typename Select<
-        AdapterOut::isAdapter,
-        Alloc<IFaceImplOut, AdapterOut>,
-      // 2nd possible adapter
+        Adapter1::isAdapter,
+        Cons1,
       typename Select<
-        AdapterIn::isAdapter,
-        Alloc<IFaceImplIn, AdapterIn>,
-      // otherwise -> error
-      void
-    >::result_type
-    >::result_type Op;
+        Adapter2::isAdapter,
+        Cons2,
+      No_Channel_Adapter_Found__Please_Use_Other_Interface
+      >::result_type
+      >::result_type Op;
 
-    port(Op::apply(*this));
+    // create adapter and pass it to port
+    p(Op::apply(*this));
   }
 
   template<class Init>
-  void connect(smoc_port_out<T> &outPort, const Init&)
-    { outPort(*this); }
+  void connect(smoc_port_out<data_type>& p, const Init&)
+    { p(outlet); }
 
   template<class Init>
-  void connect(smoc_port_in<T> &inPort, const Init&)
-    { inPort(*this); }
+  void connect(smoc_port_in<data_type>& p, const Init&)
+    { p(entry); }
 
+protected:
 private:
-    void reset(){};
+  entry_type entry;
+  outlet_type outlet;
 };
 
+/**
+ * This class is the channel initializer for smoc_fifo_chan
+ */
 template <typename T>
 class smoc_fifo
-  : public smoc_fifo_storage<T>::chan_init {
+: public smoc_fifo_chan<T>::chan_init 
+{
 public:
-  typedef T                   data_type;
-  typedef smoc_fifo<T>        this_type;
-  typedef smoc_fifo_type<T>   chan_type;
+  typedef T                 data_type;
+  typedef smoc_fifo<T>      this_type;
+  typedef smoc_fifo_chan<T> chan_type;
 
-  this_type &operator <<( typename smoc_fifo_storage<T>::chan_init::add_param_ty x ) {
-    add(x); return *this;
-  }
- 
-  smoc_fifo( size_t n = 1 )
-    : smoc_fifo_storage<T>::chan_init(NULL,n) {}
-  explicit smoc_fifo( const char *name, size_t n = 1)
-    : smoc_fifo_storage<T>::chan_init(name,n) {}
+  this_type& operator<<(const typename chan_type::chan_init::add_param_ty& x)
+    { add(x); return *this; }
+
+  /// @brief Constructor
+  smoc_fifo(size_t n = 1)
+    : smoc_fifo_chan<T>::chan_init(0, n)
+  {}
+
+  /// @brief Constructor
+  explicit smoc_fifo(const char* name, size_t n = 1)
+    : smoc_fifo_chan<T>::chan_init(name, n)
+  {}
+
 private:
-    void reset(){};
+  void reset() {};
 };
 
 #endif // _INCLUDED_SMOC_FIFO_HPP

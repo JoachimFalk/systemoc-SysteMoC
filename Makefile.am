@@ -99,6 +99,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_firing_rules.cpp		\
 	smoc_pggen.cpp			\
 	smoc_chan_if.cpp		\
+	smoc_root_chan.cpp		\
 	smoc_guard.cpp			\
 	smoc_moc.cpp			\
 	smoc_ngx_sync.cpp		\

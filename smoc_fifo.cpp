@@ -33,18 +33,9 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
-#include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
-#endif //SYSTEMOC_ENABLE_VPC
-
-const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
-
-static
-size_t fsizeMapper(smoc_fifo_kind *instance, size_t n) {
+size_t fsizeMapper(sc_object* instance, size_t n) {
   // SGX --> SystemC
   if (SysteMoC::NGXSync::NGXConfig::getInstance().hasNGX()) {
     SystemCoDesigner::SGX::Fifo::ConstPtr fifo =
@@ -58,17 +49,3 @@ size_t fsizeMapper(smoc_fifo_kind *instance, size_t n) {
   return n;
 }
 
-smoc_fifo_kind::smoc_fifo_kind( const chan_init &i )
-  : smoc_nonconflicting_chan(i.name),
-#ifdef SYSTEMOC_ENABLE_VPC
-    Queue3Ptr(fsizeMapper(this, i.n)),
-    latencyQueue(this), 
-#else
-    Queue2Ptr(fsizeMapper(this, i.n)),
-#endif
-    tokenId(0)
-{
-  // for lazy % overflow protection fsize must be less than half the datatype size
-  // JoachimFalk: WTF? is  lazy % overflow protection and where is it used?
-  assert(depthCount() < (MAX_TYPE(size_t) >> 1)); 
-}
