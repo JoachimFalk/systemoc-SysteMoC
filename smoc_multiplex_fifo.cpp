@@ -41,7 +41,7 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-//using namespace SysteMoC::NGX;
+//using namespace SysteMoC::SGX;
 //using namespace SysteMoC::NGXSync;
 
 smoc_multiplex_fifo_kind::smoc_multiplex_fifo_kind(const char *name, size_t n, size_t m)
@@ -109,11 +109,11 @@ smoc_multiplex_vfifo_kind::smoc_multiplex_vfifo_kind( const chan_init &i )
 {
   pSharedFifoMem->registerVFifo(this);
 /*
-  // NGX --> SystemC
+  // SGX --> SystemC
   if(SysteMoC::NGXSync::NGXConfig::getInstance().hasNGX()) {
 
-    SysteMoC::NGX::Fifo::ConstPtr fifo =
-      objAs<SysteMoC::NGX::Fifo>(SysteMoC::NGXSync::NGXCache::getInstance().get(this));
+    SysteMoC::SGX::Fifo::ConstPtr fifo =
+      objAs<SysteMoC::SGX::Fifo>(SysteMoC::NGXSync::NGXCache::getInstance().get(this));
 
     if(fifo) {
       fsize = fifo->size().get() + 1;

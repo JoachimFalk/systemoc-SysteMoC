@@ -46,15 +46,15 @@ namespace SysteMoC {
 typedef std::pair<size_t, size_t> PortReq;
 
 // map port -> comm/available
-typedef std::map<NGX::Port::ConstPtr, PortReq> PortReqMap;
+typedef std::map<SGX::Port::ConstPtr, PortReq> PortReqMap;
 
 class smoc_graph_synth : public smoc_graph_base
 {
 public:
-  smoc_graph_synth(NGX::ProblemGraph::ConstRef pg);
+  smoc_graph_synth(SGX::ProblemGraph::ConstRef pg);
 private:  
   // associated problemgraph
-  NGX::ProblemGraph::ConstRef pg;
+  SGX::ProblemGraph::ConstRef pg;
   
   // start state of FSM (other states are temporaries)
   smoc_firing_state init;
@@ -90,10 +90,10 @@ private:
   typedef std::vector<Phase> Phases;
 
   // cache single phase for single actor
-  void cachePhase(NGX::PortRefList::ConstRef ports, Phase& phase);
+  void cachePhase(SGX::PortRefList::ConstRef ports, Phase& phase);
 
   // cache all phases for single actor
-  void cachePhases(NGX::Actor::ConstPtr actor, Phases& phases);
+  void cachePhases(SGX::Actor::ConstPtr actor, Phases& phases);
 
   struct NodeInfo {
     // cached port requirements for phases
@@ -116,10 +116,10 @@ private:
 
   // schedule loop stack entry
   struct SLStackEntry {
-    NGX::ScheduleLoopItemList::ConstRef sl;
-    NGX::ScheduleLoopItemList::const_iterator iter;
+    SGX::ScheduleLoopItemList::ConstRef sl;
+    SGX::ScheduleLoopItemList::const_iterator iter;
     size_t count;
-    SLStackEntry(NGX::ScheduleLoopItemList::ConstRef sl, size_t count);
+    SLStackEntry(SGX::ScheduleLoopItemList::ConstRef sl, size_t count);
   };
 
   // schedule loop stack
@@ -139,7 +139,7 @@ private:
   void nextActorActivation();
 
   // prepares LoopedSchedule for execution
-  void prepareExecute(NGX::Action::ConstPtr a);
+  void prepareExecute(SGX::Action::ConstPtr a);
 
   // determines if actor activation left in schedule
   bool activationsLeft() const;
