@@ -23,6 +23,7 @@
 
 #include <systemoc/smoc_config.h>
 
+#include "smoc_root_chan.hpp"
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
 #include "detail/smoc_sysc_port.hpp"
@@ -92,10 +93,6 @@ protected:
   // constructors
   smoc_multicast_sr_signal_kind( const chan_init &i );
 private:
-  static const char* const kind_string;
-  
-  virtual const char* kind() const;
-  
   virtual void reset()=0;
 
   virtual void tick() = 0;
@@ -107,8 +104,7 @@ private:
 
 
 class smoc_outlet_kind
-: virtual public sc_interface,
-  virtual public smoc_chan_in_base_if {
+: virtual public smoc_chan_in_base_if {
   friend class smoc_graph_sr;
 public:
   smoc_outlet_kind(smoc_multicast_sr_signal_kind* base);
@@ -136,9 +132,6 @@ protected:
 
   bool isDefined() const;
 
-  void registerPortIn(smoc_sysc_port *port){
-    this->_base->registerPortIn(port);
-  }
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;
 
@@ -149,8 +142,7 @@ private:
 };
 
 class smoc_entry_kind
-: virtual public sc_interface,
-  virtual public smoc_chan_out_base_if {
+: virtual public smoc_chan_out_base_if {
   friend class smoc_graph_sr;
 public:
   smoc_entry_kind(smoc_multicast_sr_signal_kind* base);
@@ -173,9 +165,6 @@ protected:
 
   bool isDefined() const;
 
-  void registerPortOut(smoc_sysc_port *port){
-    this->_base->registerPortOut(port);
-  }
 private:
   typedef std::map<size_t, smoc_event *>      EventMap;
 
@@ -262,9 +251,6 @@ public:
 private:
   size_t         limit;
   storage_type &actualValue;
-
-  // disabled
-  const sc_event& default_event() const { return smoc_default_event_abort(); }
 };
 
 template <typename T>
@@ -337,9 +323,6 @@ public:
 private:
   size_t         limit;
   storage_type &actualValue;
-
-  // disabled
-  const sc_event& default_event() const { return smoc_default_event_abort(); }
 };
 
 template <typename T>
@@ -394,11 +377,30 @@ public:
     }
   }
   
+  /// @brief See smoc_root_chan
+  sc_port_list getInputPorts() const
+    { return entry.getPorts(); }
+
+  /// @brief See smoc_root_chan
+  sc_port_list getOutputPorts() const {
+    sc_port_list ports;
+    for(typename OutletMap::const_iterator i = outlets.begin();
+        i != outlets.end();
+        ++i)
+    {
+      ports.insert(
+          ports.end(),
+          i->second->getPorts().begin(),
+          i->second->getPorts().end());
+    }
+    return ports;
+  }
+
   template<class IFace, class Init>
   void connect(sc_port<IFace> &port, const Init&) {
-    // FIXME: must probably be redesigned (*this is not the
-    // interface; must call getEntry / getOutlet)
-    assert(0);  
+    // TODO: implement like in smoc_fifo_chan
+    // (it's even more complicated due to multiple outlets)
+    assert(!"Unimplemented");  
   }
 
   template<class Init>

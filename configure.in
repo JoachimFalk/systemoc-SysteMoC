@@ -96,15 +96,20 @@ if test x"$enable_vpc" != x"no"; then
    [test x"$enable_vpc" = x"yes" && {
      AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out]) } ])
 fi
+
 AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$pkg_systemc_vpc_srcdir" != "x"])
-dnl if test x"$pkg_systemc_vpc_srcdir" != "x"; then
-dnl   AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Define if you want SystemC-VPC Support])
-dnl fi
+# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# consistency for Examples and Testcases
+if test x"$pkg_systemc_vpc_srcdir" != "x"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Define if you want SystemC-VPC Support])
+fi
 
 AM_CONDITIONAL([SYSTEMOC_ENABLE_WSDF], [test x"$enable_wsdf" = x"yes"])
-dnl if test x"$enable_wsdf" = x"yes"; then
-dnl   AC_DEFINE([SYSTEMOC_ENABLE_WSDF], [yes], [Define if you want WSDF Support])
-dnl fi
+# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# consistency for Examples and Testcases
+if test x"$enable_wsdf" = x"yes"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_WSDF], [yes], [Define if you want WSDF Support])
+fi
 
 AC_CONFIG_FILES([
   Makefile

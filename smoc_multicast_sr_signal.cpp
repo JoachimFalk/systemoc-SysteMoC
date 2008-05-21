@@ -24,7 +24,6 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-const char* const smoc_multicast_sr_signal_kind::kind_string = "smoc_multicast_sr_signal";
 smoc_outlet_kind::smoc_outlet_kind(smoc_multicast_sr_signal_kind* base)
   : undefinedRead(false),
     _base(base) {
@@ -182,10 +181,6 @@ smoc_multicast_sr_signal_kind::smoc_multicast_sr_signal_kind(
   : smoc_multicast_chan(i.name),
     signalState(undefined),
     tokenId(0){
-}
-
-const char* smoc_multicast_sr_signal_kind::kind() const {
-  return kind_string;
 }
   
 bool smoc_multicast_sr_signal_kind::isDefined() const {

@@ -44,8 +44,8 @@
 //using namespace SystemCoDesigner::SGX;
 //using namespace SysteMoC::NGXSync;
 
-smoc_multiplex_fifo_kind::smoc_multiplex_fifo_kind(const char *name, size_t n, size_t m)
-  : //smoc_nonconflicting_chan(name),
+smoc_multiplex_fifo_chan::smoc_multiplex_fifo_chan(const char *name, size_t n, size_t m)
+  : smoc_root_chan(name),
 #ifdef SYSTEMOC_ENABLE_VPC
     Detail::Queue3Ptr(n),
 #else
@@ -58,7 +58,24 @@ smoc_multiplex_fifo_kind::smoc_multiplex_fifo_kind(const char *name, size_t n, s
 {
 }
 
-void smoc_multiplex_fifo_kind::consume(FifoId from, size_t n) {
+void smoc_multiplex_fifo_chan::registerVFifo(smoc_multiplex_vfifo_chan_base *vfifo) {
+  vFifos[vfifo->fifoId] = vfifo;
+}
+
+void smoc_multiplex_fifo_chan::deregisterVFifo(smoc_multiplex_vfifo_chan_base *vfifo) {
+  vFifos.erase(vfifo->fifoId);
+  for (FifoSequence::iterator iter = fifoSequence.begin();
+       iter !=  fifoSequence.end();
+       ) {
+    if (*iter == vfifo->fifoId) {
+      iter = fifoSequence.erase(iter);
+    } else {
+      ++iter;
+    }
+  }
+}
+
+void smoc_multiplex_fifo_chan::consume(FifoId from, size_t n) {
   rpp(n);
   emmFree.increasedCount(freeCount());
   
@@ -69,7 +86,7 @@ void smoc_multiplex_fifo_kind::consume(FifoId from, size_t n) {
     if (*iter == from) {
       if (visibleCount() >= fifoOutOfOrder + n) {
         FifoId fId = fifoSequence.front();
-        std::map<FifoId, smoc_multiplex_vfifo_kind *>::iterator fIter =
+        std::map<FifoId, smoc_multiplex_vfifo_chan_base *>::iterator fIter =
           vFifos.find(fId);
         fifoSequence.pop_front();
         fifoSequenceOOO.push_back(fId);
@@ -82,9 +99,27 @@ void smoc_multiplex_fifo_kind::consume(FifoId from, size_t n) {
   }
 }
 
-void smoc_multiplex_fifo_kind::latencyExpired(size_t n) {
+#ifdef SYSTEMOC_ENABLE_VPC
+void smoc_multiplex_fifo_chan::produce(FifoId to, size_t n, const smoc_ref_event_p &le)
+#else
+void smoc_multiplex_fifo_chan::produce(FifoId to, size_t n)
+#endif
+{
+    wpp(n);
+    for (size_t j = n; j > 0; --j)
+      fifoSequence.push_back(to);
+    emmFree.decreasedCount(freeCount());
+#ifdef SYSTEMOC_ENABLE_VPC
+    // Delayed call of latencyExpired(n)
+    latencyQueue.addEntry(n, le);
+#else
+    latencyExpired(n);
+#endif
+}
+
+void smoc_multiplex_fifo_chan::latencyExpired(size_t n) {
   vpp(n);
-//std::cerr << "smoc_multiplex_fifo_kind::latencyExpired(" << n << ")" << std::endl;
+//std::cerr << "smoc_multiplex_fifo_chan::latencyExpired(" << n << ")" << std::endl;
 //std::cerr << "visibleCount() == " << visibleCount() << std::endl;
 //std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
   for (;
@@ -92,7 +127,7 @@ void smoc_multiplex_fifo_kind::latencyExpired(size_t n) {
        --n) {
 //  std::cerr << "n == " << n << std::endl;
     FifoId fId = fifoSequence.front();
-    std::map<FifoId, smoc_multiplex_vfifo_kind *>::iterator fIter =
+    std::map<FifoId, smoc_multiplex_vfifo_chan_base *>::iterator fIter =
       vFifos.find(fId);
     fifoSequence.pop_front();
     fifoSequenceOOO.push_back(fId);
@@ -100,7 +135,37 @@ void smoc_multiplex_fifo_kind::latencyExpired(size_t n) {
   }
 }
 
-smoc_multiplex_vfifo_kind::smoc_multiplex_vfifo_kind( const chan_init &i )
+sc_port_list smoc_multiplex_fifo_chan::getInputPorts() const {
+  sc_port_list ports;
+  for(FifoMap::const_iterator i = vFifos.begin();
+      i != vFifos.end();
+      ++i)
+  {
+    const sc_port_list& vFifoPorts = i->second->getInputPorts();
+    ports.insert(
+        ports.end(),
+        vFifoPorts.begin(),
+        vFifoPorts.end());
+  }
+  return ports;
+}
+
+sc_port_list smoc_multiplex_fifo_chan::getOutputPorts() const {
+  sc_port_list ports;
+  for(FifoMap::const_iterator i = vFifos.begin();
+      i != vFifos.end();
+      ++i)
+  {
+    const sc_port_list& vFifoPorts = i->second->getOutputPorts();
+    ports.insert(
+        ports.end(),
+        vFifoPorts.begin(),
+        vFifoPorts.end());
+  }
+  return ports;
+}
+
+smoc_multiplex_vfifo_chan_base::smoc_multiplex_vfifo_chan_base( const chan_init &i )
   : smoc_nonconflicting_chan(i.name),
     Queue3Ptr(i.pSharedFifoMem->depthCount()),
     fifoId(i.fifoId),
@@ -129,6 +194,6 @@ smoc_multiplex_vfifo_kind::smoc_multiplex_vfifo_kind( const chan_init &i )
  */
 }
 
-smoc_multiplex_vfifo_kind::~smoc_multiplex_vfifo_kind() {
+smoc_multiplex_vfifo_chan_base::~smoc_multiplex_vfifo_chan_base() {
   pSharedFifoMem->deregisterVFifo(this);
 }

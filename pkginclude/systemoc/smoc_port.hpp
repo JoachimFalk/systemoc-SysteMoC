@@ -90,8 +90,6 @@ private:
   }
   void add_interface( sc_interface *i ) {
     this->push_interface(i);
-    if (this->getChildPort() == NULL)
-      (*this)->registerPort(this);
   }
 protected:
   smoc_port_base(const char *name_)

@@ -69,9 +69,6 @@ protected:
 
   virtual ~smoc_sysc_port();
 public:
-  virtual const char* kind() const
-    { return "smoc_sysc_port"; }
-
   // bind interface to this port
   void bind(sc_interface &interface_ ) {
     sc_port_base::bind(interface_);
@@ -96,5 +93,6 @@ public:
 };
 
 typedef std::list<smoc_sysc_port *> smoc_sysc_port_list;
+typedef std::list<sc_port_base*> sc_port_list;
 
 #endif // _INCLUDED_SMOC_SYSC_PORT_HPP

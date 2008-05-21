@@ -1101,6 +1101,14 @@ public:
   smoc_md_fifo_type( const chan_init &i )
     : parent_type(i) {
   }
+  
+  /// @brief See smoc_root_chan
+  sc_port_list getInputPorts() const
+    { return smoc_chan_in_base_if::getPorts(); }
+
+  /// @brief See smoc_root_chan
+  sc_port_list getOutputPorts() const
+    { return smoc_chan_out_base_if::getPorts(); }
 
   template<unsigned N,template<class> class S, class Init>
   void connect(smoc_md_port_out<data_type,N,S>& port, const Init& i) {
