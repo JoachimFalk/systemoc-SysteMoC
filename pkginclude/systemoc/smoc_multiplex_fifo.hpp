@@ -118,6 +118,11 @@ protected:
   sc_port_list getInputPorts() const;
   sc_port_list getOutputPorts() const;
 
+public:
+  ///gcc3.4.6: Inner classes are not friends when outer class is declared as friend
+  FifoId getNewFifoId()
+    { return fifoIdCount++; }
+
 private:
   FifoId        fifoIdCount;  // For virtual fifo enumeration
   FifoMap       vFifos;
@@ -154,7 +159,7 @@ public:
   protected:
     chan_init(const char *name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
       : name(name), pSharedFifoMem(pSharedFifoMem),
-        fifoId(pSharedFifoMem->fifoIdCount++), m(m)
+        fifoId(pSharedFifoMem->getNewFifoId()), m(m)
     {}
   private:
     const char                 *name;
