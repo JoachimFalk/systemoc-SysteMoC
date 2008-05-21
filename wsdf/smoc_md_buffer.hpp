@@ -607,7 +607,8 @@ public:
       CoSupport::Streams::dout << std::endl;
 #endif
 
-      unsigned token_dimensions = (*this).snk_loop_iterator->token_dimensions();
+      const unsigned token_dimensions = 
+        (*this).snk_loop_iterator->token_dimensions();
 
       const data_element_id_type& base_data_element_id = 
 	(*this).snk_loop_iterator->get_base_data_element_id();
@@ -637,11 +638,12 @@ public:
       CoSupport::Streams::dout << std::endl;
 #endif
 
-      return_type return_value = (*storage)[data_element_id];
+      const return_type return_value = 
+        (*storage)[data_element_id];
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
       CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
-		      << std::endl;
+                               << std::endl;
       CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
@@ -662,7 +664,8 @@ public:
       CoSupport::Streams::dout << std::endl;
 #endif
 
-      unsigned token_dimensions = (*this).snk_loop_iterator->token_dimensions();
+      const unsigned token_dimensions = 
+        (*this).snk_loop_iterator->token_dimensions();
 
       const data_element_id_type& base_data_element_id = 
 	(*this).snk_loop_iterator->get_base_data_element_id();
@@ -693,7 +696,8 @@ public:
       CoSupport::Streams::dout << std::endl;
 #endif
 
-      return_type return_value = (*storage)[data_element_id];
+      const return_type return_value = 
+        (*storage)[data_element_id];
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
       CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
