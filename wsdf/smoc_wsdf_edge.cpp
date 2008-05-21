@@ -7,6 +7,8 @@
 #include <systemoc/smoc_wsdf_edge.hpp>
 
 using CoSupport::Streams::Indent;
+using CoSupport::Streams::dout;
+using namespace std;
 
 #define FAST_CALC_MODE
 
@@ -236,6 +238,96 @@ void smoc_wsdf_iter_max_cond::print_node(std::ostream& os) const{
 /* *****************************************************************************
  *                    smoc_wsdf_edge                                           *
  ******************************************************************************* */
+
+
+smoc_wsdf_edge_descr::smoc_wsdf_edge_descr(unsigned token_dimensions,
+                                           const u2vector_type& src_firing_blocks,
+                                           const u2vector_type& snk_firing_blocks,
+                                           const uvector_type& u0,
+                                           const uvector_type& c,
+                                           const uvector_type& delta_c,
+                                           const uvector_type& d,
+                                           const svector_type& bs,
+                                           const svector_type& bt)
+  : token_dimensions(token_dimensions),
+    snk_firing_block_dimensions(snk_firing_blocks[0].size()),
+    src_firing_blocks(src_firing_blocks),
+    src_num_firing_levels(src_firing_blocks.size()),
+    src_num_eff_token_firing_levels(1),
+    snk_firing_blocks(snk_firing_blocks),
+    snk_num_firing_levels(snk_firing_blocks.size()),
+    snk_window_firing_blocks(c),
+    p(this->src_firing_blocks[0]),
+    v(u0),u0(u0),
+    c(c),
+    delta_c(delta_c),
+    d(d),
+    bs(bs),
+    bt(bt)                  
+{
+  set_change_indicator();
+  check_parameters();
+  insert_snk_vtu_firing_block();
+}
+
+smoc_wsdf_edge_descr::smoc_wsdf_edge_descr(unsigned token_dimensions,
+                                           const u2vector_type& src_firing_blocks,
+                                           const uvector_type& snk_firing_block,
+                                           const uvector_type& u0,
+                                           const uvector_type& c,
+                                           const uvector_type& delta_c,
+                                           const uvector_type& d,
+                                           const svector_type& bs,
+                                           const svector_type& bt)
+  : token_dimensions(token_dimensions),
+    snk_firing_block_dimensions(snk_firing_block.size()),
+    src_firing_blocks(src_firing_blocks),
+    src_num_firing_levels(src_firing_blocks.size()),
+    src_num_eff_token_firing_levels(1),
+    snk_firing_blocks(u2vector_type(snk_firing_block)),
+    snk_num_firing_levels(snk_firing_blocks.size()),
+    snk_window_firing_blocks(c),
+    p(this->src_firing_blocks[0]),
+    v(u0),u0(u0),
+    c(c),
+    delta_c(delta_c),
+    d(d),
+    bs(bs),
+    bt(bt)                  
+{
+  set_change_indicator();
+  check_parameters();
+  insert_snk_vtu_firing_block();
+}
+
+
+smoc_wsdf_edge_descr::smoc_wsdf_edge_descr(const smoc_wsdf_edge_descr& e1,
+                                           const uvector_type& ext_reusage,
+                                           bool optimize_borders)
+  : token_dimensions(e1.token_dimensions),
+    snk_firing_block_dimensions(e1.snk_firing_block_dimensions),
+    src_firing_blocks(e1.src_firing_blocks),
+    src_num_firing_levels(src_firing_blocks.size()),
+    src_num_eff_token_firing_levels(e1.src_num_eff_token_firing_levels),
+    snk_firing_blocks(e1.calc_snk_firing_block(e1.calc_c(ext_reusage),
+                                               optimize_borders)),
+    snk_num_firing_levels(e1.snk_num_firing_levels),
+    snk_window_firing_blocks(e1.calc_c(ext_reusage)),
+    p(this->src_firing_blocks[0]),
+    v(e1.u0),u0(e1.u0),
+    c(e1.calc_c(ext_reusage)),
+    delta_c(e1.delta_c),
+    d(e1.d),
+    bs(e1.calc_bs(c,optimize_borders)),
+    bt(e1.calc_bt(c,optimize_borders))                  
+{
+  set_change_indicator();
+  check_parameters();
+}
+
+smoc_wsdf_edge_descr::~smoc_wsdf_edge_descr(){}
+
+
 
 
 smoc_wsdf_edge_descr::udata_type 
@@ -702,13 +794,8 @@ smoc_wsdf_edge_descr::snk_iteration_max() const {
   s2vector_type snk_iteration_level_table = 
     calc_snk_iteration_level_table();
         
-  uvector_type snk_vtu_iteration_level(snk_firing_block_dimensions);
-  insert_snk_vtu_iterations(snk_iteration_level_table,
-			    snk_vtu_iteration_level
-			    );
-
-  uvector_type iteration_max(calc_snk_iteration_max(snk_iteration_level_table,
-						    snk_vtu_iteration_level));
+  uvector_type 
+    iteration_max(calc_snk_iteration_max(snk_iteration_level_table));
 
   append_snk_window_iteration(iteration_max);
 
@@ -995,19 +1082,14 @@ smoc_wsdf_edge_descr::snk_data_element_mapping_matrix() const {
 
   s2vector_type snk_iteration_level_table = 
     calc_snk_iteration_level_table();
-        
-  uvector_type snk_vtu_iteration_level(snk_firing_block_dimensions);
-  insert_snk_vtu_iterations(snk_iteration_level_table,
-			    snk_vtu_iteration_level
-			    );
 
-  uvector_type iteration_max(calc_snk_iteration_max(snk_iteration_level_table,
-						    snk_vtu_iteration_level));
+  uvector_type 
+    iteration_max(calc_snk_iteration_max(snk_iteration_level_table));
 
   append_snk_window_iteration(iteration_max);
-  umatrix_type return_matrix(calc_snk_data_element_mapping_matrix(snk_iteration_level_table,
-								  snk_vtu_iteration_level,
-								  iteration_max));
+  umatrix_type 
+    return_matrix(calc_snk_data_element_mapping_matrix(snk_iteration_level_table,
+                                                       iteration_max));
 
 #ifdef FAST_CALC_MODE  
   matrix_thin_out(return_matrix, iteration_max);
@@ -1036,32 +1118,31 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
   s2vector_type snk_iteration_level_table = 
     calc_snk_iteration_level_table();
         
-  uvector_type snk_vtu_iteration_level(snk_firing_block_dimensions);
-  insert_snk_vtu_iterations(snk_iteration_level_table,
-			    snk_vtu_iteration_level
-			    );
-
-  uvector_type iteration_max(calc_snk_iteration_max(snk_iteration_level_table,
-						    snk_vtu_iteration_level));
+  uvector_type 
+    iteration_max(calc_snk_iteration_max(snk_iteration_level_table));
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::Streams::dout << "Iteration-Max (without window iteration): " 
-                  << iteration_max << std::endl;
+                           << iteration_max << std::endl;
 #endif
 
   append_snk_window_iteration(iteration_max);
-  umatrix_type mapping_matrix(calc_snk_data_element_mapping_matrix(snk_iteration_level_table,
-								   snk_vtu_iteration_level,
-								   iteration_max));
+  umatrix_type 
+    mapping_matrix(calc_snk_data_element_mapping_matrix(snk_iteration_level_table,
+                                                        iteration_max));
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::Streams::dout << "Mapping-matrix: " << mapping_matrix << std::endl;
 #endif
 
-  smatrix_type return_matrix(mapping_matrix.size1(),mapping_matrix.size2());
+  smatrix_type 
+    return_matrix(mapping_matrix.size1(),mapping_matrix.size2());
+
+  uvector_type 
+    vtu_iteration_levels(get_vtu_iteration_level(snk_iteration_level_table));
 
   calc_border_condition_matrix(mapping_matrix,
-			       snk_vtu_iteration_level,
+                               vtu_iteration_levels,
 			       return_matrix);
 
 #ifdef FAST_CALC_MODE  
@@ -1540,113 +1621,49 @@ smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
 }
 
 
-void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(s2vector_type& iteration_level_table,
-						     uvector_type& vtu_iteration_level,
-						     bvector_type& new_vtu_iteration) const {
+void smoc_wsdf_edge_descr::insert_snk_vtu_firing_block() {
 
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::insert_snk_vtu_iterations" << std::endl;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::insert_snk_vtu_firing_block" << std::endl;
   CoSupport::Streams::dout << Indent::Up;
 #endif
-  unsigned level_inc = 0;
-  bool found[snk_firing_block_dimensions];
 
+  //Calculate the number of sink invocations per virtual token
+  //union
   uvector_type snk_r_vtu(calc_snk_r_vtu());
 
-  //init found table
-  for(unsigned i = 0; i < token_dimensions; i++){
-    found[i] = false;
-  }
-  //for virtual dimension we do not need to insert anything
-  if (snk_firing_block_dimensions > token_dimensions){
-    found[token_dimensions] = true;
-    vtu_iteration_level[token_dimensions] = 0;
-  }
-
-  for(int firing_level = snk_num_firing_levels-1;
-      firing_level >= 0;
-      firing_level--){
-    for(int token_dimension = snk_firing_block_dimensions-1;
-	token_dimension >= 0;
-	token_dimension--){
+  for(int token_dimension = snk_firing_block_dimensions-1;
+      token_dimension >= 0;
+      token_dimension--){
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::Streams::dout << "firing_level = " << firing_level << std::endl;
       CoSupport::Streams::dout << "token_dimension = " << token_dimension << std::endl;
 #endif
+      
+      //calculate block_size
+      snk_r_vtu(token_dimension) *= delta_c[token_dimension];
+      if (get_scm_snk_firing_block(snk_r_vtu(token_dimension),
+                                   token_dimension) != 1)
+        //Cannot insert firing level for virtual token union
+        assert(false);
+  
+      if (!insert_snk_firing_level(snk_r_vtu(token_dimension),
+                                   token_dimension))
+        //Cannot insert firing level
+        assert(false);
 
-      //update iteration level table in order to take
-      //previous modifications into account
-      if (iteration_level_table[firing_level][token_dimension] >= 0)
-	iteration_level_table[firing_level][token_dimension] += level_inc;
-
-                                                
-      if (!found[token_dimension]){
-	if (iteration_level_table[firing_level][token_dimension] >= 0){
-	  if (snk_firing_blocks[firing_level][token_dimension] == 
-	      snk_r_vtu[token_dimension]){
-                                                
-	    //we have found a block which corresponds to the
-	    //virtual token union
-	    vtu_iteration_level[token_dimension] = 
-	      iteration_level_table[firing_level][token_dimension];
-
-	    found[token_dimension] = true;
-	    new_vtu_iteration[token_dimension] = false;
-	  }else if (snk_firing_blocks[firing_level][token_dimension] <
-		    snk_r_vtu[token_dimension]){
-                                                
-	    // we have not found a block matching the vtu
-	    // However, we the firing blocks are already getting to
-	    // small. Hence, we have to add an iteration level
-
-	    vtu_iteration_level[token_dimension] = 
-	      iteration_level_table[firing_level][token_dimension];
-	    iteration_level_table[firing_level][token_dimension]++;
-	    level_inc++;
-	    found[token_dimension] = true;
-	    new_vtu_iteration[token_dimension] = true;
-	  }else if (firing_level == 0){
-	    //the vtu is smaller than the smallest firing block
-	    vtu_iteration_level[token_dimension] = 
-	      iteration_level_table[firing_level][token_dimension]+1;
-	    level_inc++;
-	    found[token_dimension] = true;
-	    new_vtu_iteration[token_dimension] = true;
-	  }
-	}
-      }
-    }
-  }
-
-  //error checking
-  for(unsigned i = 0; i < token_dimensions; i++){
-    assert(found[i]);
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::Streams::dout << "iteration_level_table = " << iteration_level_table << std::endl;
-  CoSupport::Streams::dout << "vtu_iteration_level = " << vtu_iteration_level << std::endl;
-  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::insert_snk_vtu_iterations" << std::endl;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::insert_snk_vtu_firing_block" << std::endl;
   CoSupport::Streams::dout << Indent::Down;
 #endif
 
 }
 
-void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(s2vector_type& snk_iteration_level_table,
-						     uvector_type& snk_vtu_iteration_level
-						     ) const {
-  bvector_type dummy(snk_vtu_iteration_level.size());
-        
-  insert_snk_vtu_iterations(snk_iteration_level_table,
-			    snk_vtu_iteration_level,
-			    dummy);
-}
-
 unsigned 
-smoc_wsdf_edge_descr::get_num_iteration_levels(const s2vector_type& snk_iteration_level_table,
-					       const uvector_type& snk_vtu_iteration_level) const {
+smoc_wsdf_edge_descr::get_num_iteration_levels(const s2vector_type& snk_iteration_level_table) const {
 
   unsigned return_value;
 
@@ -1655,11 +1672,8 @@ smoc_wsdf_edge_descr::get_num_iteration_levels(const s2vector_type& snk_iteratio
   CoSupport::Streams::dout << Indent::Up;
 #endif
 
-  if(snk_iteration_level_table.max_value() > (sdata_type)snk_vtu_iteration_level[0])
-    return_value = snk_iteration_level_table.max_value()+1;
-  else
-    return_value = snk_vtu_iteration_level[0] + 1;
-
+  return_value = snk_iteration_level_table.max_value()+1;
+  
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::Streams::dout << "return_value = " << return_value << std::endl;
   CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::get_num_iteration_levels" << std::endl;
@@ -1667,6 +1681,38 @@ smoc_wsdf_edge_descr::get_num_iteration_levels(const s2vector_type& snk_iteratio
 #endif
 
   return return_value;
+}
+
+
+smoc_wsdf_edge_descr::uvector_type 
+smoc_wsdf_edge_descr::get_vtu_iteration_level(const s2vector_type& snk_iteration_level_table) const{
+  uvector_type snk_r_vtu(calc_snk_r_vtu());
+  bvector_type found_vtu(token_dimensions,false);
+  uvector_type return_vector(token_dimensions);
+  for(unsigned int token_dimension = 0;
+      token_dimension < token_dimensions;
+      token_dimension++){
+    for(unsigned int firing_level = 0;
+        firing_level < snk_iteration_level_table.size();
+        firing_level++){
+      if (snk_firing_blocks[firing_level][token_dimension] ==
+          snk_r_vtu[token_dimension]){
+        return_vector[token_dimension] = 
+          snk_iteration_level_table[firing_level][token_dimension];
+        found_vtu[token_dimension] = true;
+        break;
+      }
+    }
+  }
+
+  //error check
+  for(unsigned int token_dimension = 0;
+      token_dimension < token_dimensions;
+      token_dimension++){
+    assert(found_vtu[token_dimension]);
+  }
+
+  return return_vector;
 }
 
 
@@ -1751,39 +1797,27 @@ unsigned smoc_wsdf_edge_descr::calc_eff_token_iteration_levels() const{
 
 
 smoc_wsdf_edge_descr::uvector_type 
-smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_level_table,
-					     const uvector_type& snk_vtu_iteration_level
-					     ) const {
+smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_level_table) const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::calc_snk_iteration_max()" << std::endl;
   CoSupport::Streams::dout << Indent::Up;
   CoSupport::Streams::dout << "snk_iteration_level_table.size() = " 
-                  << snk_iteration_level_table.size();
+                           << snk_iteration_level_table.size();
 #endif
 
-  unsigned num_iteration_levels = get_num_iteration_levels(snk_iteration_level_table,
-							   snk_vtu_iteration_level
-							   );
+  unsigned num_iteration_levels = 
+    get_num_iteration_levels(snk_iteration_level_table);
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
   CoSupport::Streams::dout << "num_iteration_levels = " << num_iteration_levels << std::endl;
 #endif
 
 
-  uvector_type return_vector(num_iteration_levels);
-  bool found_vtu[snk_firing_block_dimensions];
-
-  uvector_type snk_r_vtu(calc_snk_r_vtu());
-
-  uvector_type current_firing_block_size(snk_firing_block_dimensions);
-
-  for(unsigned int i = 0; i < token_dimensions; i++)
-    found_vtu[i] = false;
-  //There is no need to find vtu in virtual dimension
-  //as now overlapping windows in this dimension are supported.
-  if (snk_firing_block_dimensions > token_dimensions)
-    found_vtu[token_dimensions] = true;
+  uvector_type 
+    return_vector(num_iteration_levels);
+  uvector_type 
+    current_firing_block_size(snk_firing_block_dimensions);
 
   for(unsigned int i = 0; i < snk_firing_block_dimensions; i++)
     current_firing_block_size[i] = 1;
@@ -1809,42 +1843,6 @@ smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_
 	  snk_firing_blocks[firing_level][token_dimension] /
 	  current_firing_block_size[token_dimension]
 	  -1;                             
-
-	// Check, if vtu is covered
-	if ((sdata_type)snk_vtu_iteration_level[token_dimension] ==
-	    snk_iteration_level_table[firing_level][token_dimension]){
-                                        
-	  found_vtu[token_dimension] = true;                                      
-	}
-
-        if (!found_vtu[token_dimension]){
-          if (snk_firing_blocks[firing_level][token_dimension] >
-              snk_r_vtu[token_dimension]){	  
-	    //Firing blocks are already larger as vtu,
-	    //but vtu is not already covered
-
-	    //Calculate the number of vtu insight the vtu
-	    unsigned num_vtu = 
-	      snk_firing_blocks[firing_level][token_dimension] / 
-	      snk_r_vtu[token_dimension];
-
-	    //Check, that firing block is a multiple of the vtu
-	    assert(snk_firing_blocks[firing_level][token_dimension] % 
-		   snk_r_vtu[token_dimension] == 0);
-	    return_vector[snk_iteration_level_table[firing_level][token_dimension]] = 
-	      num_vtu - 1;
-
-	    //Assign loop borders for vtu
-	    assert(snk_r_vtu[token_dimension] %     current_firing_block_size[token_dimension] == 0);
-	    return_vector[snk_vtu_iteration_level[token_dimension]] = 
-	      snk_r_vtu[token_dimension] /
-	      current_firing_block_size[token_dimension]
-	      -1;
-
-	    found_vtu[token_dimension] = true;
-                                                
-	  }
-	}
 
 	// Update firing block size
 	current_firing_block_size[token_dimension] = snk_firing_blocks[firing_level][token_dimension];
@@ -1898,7 +1896,6 @@ void smoc_wsdf_edge_descr::append_snk_window_iteration(uvector_type& iteration_m
 
 smoc_wsdf_edge_descr::umatrix_type 
 smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& snk_iteration_level_table,
-							   const uvector_type& snk_vtu_iteration_level,
 							   const uvector_type& snk_iter_max
 							   ) const {
 
@@ -1906,6 +1903,8 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
   CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix()" << std::endl;
   CoSupport::Streams::dout << Indent::Up;
 #endif
+
+  uvector_type snk_r_vtu(calc_snk_r_vtu());
 
   uvector_type prev_mapping_factor(token_dimensions);
   for(unsigned int i = 0; i < token_dimensions; i++)
@@ -1917,7 +1916,7 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
 
   const unsigned matrix_rows = token_dimensions;
   const unsigned matrix_cols = 
-    get_num_iteration_levels(snk_iteration_level_table,snk_vtu_iteration_level) +
+    get_num_iteration_levels(snk_iteration_level_table) +
     calc_window_iteration_levels();
         
   umatrix_type return_matrix(matrix_rows, matrix_cols);
@@ -1936,56 +1935,20 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
 
 	//default assignment
 	for(unsigned row = 0; row < matrix_rows; row++){
-	  return_matrix(row, snk_iteration_level_table[firing_level][token_dimension]) = 0;
+	  return_matrix(row, 
+                        snk_iteration_level_table[firing_level][token_dimension]) = 0;
 	}
 
 	return_matrix(token_dimension,snk_iteration_level_table[firing_level][token_dimension]) =
 	  prev_mapping_factor[token_dimension];
                                 
 	//check, whether iteration level represents vtu
-	if ((sdata_type)snk_vtu_iteration_level[token_dimension] == 
-	    snk_iteration_level_table[firing_level][token_dimension]){
+	if (snk_r_vtu[token_dimension] == 
+            snk_firing_blocks[firing_level][token_dimension]){
 	  //vtu requires special attention
 	  prev_mapping_factor[token_dimension] =
 	    u0[token_dimension];
-	  found_vtu[token_dimension] = true;
-	}else if(((sdata_type)snk_vtu_iteration_level[token_dimension] > 
-		  snk_iteration_level_table[firing_level][token_dimension]) &&
-		 (!found_vtu[token_dimension])){
-	  //Firing block is already larger than vtu. However, vtu has not already
-	  //been covered
-
-#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	  CoSupport::Streams::dout << "Insert vtu" << std::endl;
-#endif
-
-	  //Insert data element mapping for vtu
-	  for(unsigned row = 0; row < matrix_rows; row++){
-	    return_matrix(row, snk_vtu_iteration_level[token_dimension]) = 0;
-	  }
-	  return_matrix(token_dimension,snk_vtu_iteration_level[token_dimension]) =
-	    prev_mapping_factor[token_dimension];
-
-#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	  CoSupport::Streams::dout << "prev_mapping_factor[token_dimension] = " 
-		    << prev_mapping_factor[token_dimension] << std::endl;
-#endif
-                                        
-	  //Correct data mapping weighths
-	  return_matrix(token_dimension,snk_iteration_level_table[firing_level][token_dimension]) =
-	    u0[token_dimension];
-
-	  //Calculate new data element mapping factor
-	  prev_mapping_factor[token_dimension] = u0[token_dimension] * 
-	    (snk_iter_max[snk_iteration_level_table[firing_level][token_dimension]] + 1);
-
-#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	  CoSupport::Streams::dout << "snk_iter_max[snk_iteration_level_table[firing_level][token_dimension]] = " 
-		    << snk_iter_max[snk_iteration_level_table[firing_level][token_dimension]] << std::endl;
-#endif
-
-	  found_vtu[token_dimension] = true;
-                                        
+	  found_vtu[token_dimension] = true;                                        
 	}else{
 	  prev_mapping_factor[token_dimension] *= 
 	    (snk_iter_max[snk_iteration_level_table[firing_level][token_dimension]] + 1);
@@ -2089,7 +2052,7 @@ smoc_wsdf_edge_descr::insert_snk_window_mapping(umatrix_type& data_element_mappi
 
 void
 smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_matrix,
-						   const uvector_type& snk_vtu_iteration_level,
+                                                   const uvector_type& snk_vtu_iteration_level,
 						   smatrix_type& border_cond_matrix) const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
@@ -2104,8 +2067,9 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_m
   for(unsigned row = 0; row < num_rows; row++){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
     CoSupport::Streams::dout << "row = " << row 
-	      << ", vtu-iteration level = " 
-	      << snk_vtu_iteration_level[row] << std::endl;
+                             << ", vtu-iteration level = " 
+                             << snk_vtu_iteration_level
+                             << std::endl;
 #endif
     for(unsigned col = 0; 
 	col < snk_vtu_iteration_level[row];
@@ -2131,47 +2095,371 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_m
 
 }
 
-
 const smoc_wsdf_edge_descr::uvector_type 
-smoc_wsdf_edge_descr::calc_c(const uvector_type& orig_c,
-                             const uvector_type& orig_delta_c,
-                             const uvector_type& ext_reusage) const{
-  uvector_type return_c(orig_c.size());
+smoc_wsdf_edge_descr::calc_c(const uvector_type& ext_reusage) const{
+  uvector_type return_c(c.size());
   
   for(unsigned int i = 0; i < return_c.size(); i++){
-    if (orig_c[i] > orig_delta_c[i]){
+    if (c[i] > delta_c[i]){
       //check, whether remaining window is larger than zero,
       //otherwise illegal transformation
-      assert(ext_reusage[i] < orig_c[i]);
+      assert(ext_reusage[i] < c[i]);
 
       //ext_reusage[i] lines are buffered externally
-      return_c[i] = orig_c[i] - ext_reusage[i];
+      return_c[i] = c[i] - ext_reusage[i];
 
       //Check for valid transformation
-      assert(return_c[i] >= orig_delta_c[i]);
+      assert(return_c[i] >= delta_c[i]);
     }else{
       //No data element is read twice. Hence, now reusage possible
       assert(ext_reusage[i] == 0);
-      return_c[i] = orig_c[i];
+      //Return enlarged window size as it simplifies analysis.
+      return_c[i] = delta_c[i];
     }
   }
 
   return return_c;
 }
 
-const smoc_wsdf_edge_descr::svector_type 
-smoc_wsdf_edge_descr::calc_bs(const svector_type& orig_bs,
-                              const uvector_type& orig_c,
-                              const uvector_type& new_c) const{
-  svector_type return_bs(orig_bs.size());
+bool
+smoc_wsdf_edge_descr::calc_snk_firing_block(const uvector_type& new_c,
+                                            u2vector_type& new_snk_firing_blocks,
+                                            s2vector_type& new_snk_block_overlap,
+                                            bool optimize_borders) const {
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  dout << "Enter smoc_wsdf_edge_descr::calc_snk_firing_block" << std::endl;
+  dout << Indent::Up;
+  dout << "snk_firing_blocks = " << snk_firing_blocks << std::endl;
+#endif
+  bool return_value = true;
+  new_snk_firing_blocks = snk_firing_blocks;
   
-  for(unsigned int i = 0; i < orig_bs.size(); i++){
-    assert(new_c[i] <= orig_c[i]);
-    //Note, that bs might become negative!!
-    return_bs[i] = orig_bs[i] - 
-      (orig_c[i] - new_c[i]);
+  //initialize new_snk_block_overlap
+  new_snk_block_overlap = s2vector_type(snk_firing_blocks.size());
+  for(unsigned int i = 0;
+      i < new_snk_block_overlap.size();
+      i++){
+    new_snk_block_overlap[i] = 
+      svector_type(token_dimensions,(sdata_type)0);
+  }
+  //dout << new_snk_block_overlap << std::endl;
+
+  const uvector_type snk_r_vtu(calc_snk_r_vtu());
+
+  //Some intermediate data
+  sdata_type add_invocations[token_dimensions];
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  dout << "Calculate number of additional invocations" << std::endl;
+  dout << Indent::Up;
+#endif
+
+  for(unsigned int token_dimension = 0;
+      token_dimension < token_dimensions;
+      token_dimension++){      
+
+    if(c[token_dimension] <= new_c[token_dimension]){
+      //no external reusage.
+      add_invocations[token_dimension] = 0;
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      dout << "Skip dimension " << token_dimension << endl;
+#endif
+      continue;
+    }
+
+    /*
+      Calculate the number of additional invocations
+      due to window begin.
+    */    
+    //Number of additional data elements which must be read
+    udata_type add_data_elements =
+      c[token_dimension] - new_c[token_dimension];
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+    dout << "add_data_elements = " << add_data_elements << endl;
+#endif
+    //Some of them might be situated on extended border
+    if (optimize_borders && (bs[token_dimension] >= 0)){
+      if (bs[token_dimension] <= (sdata_type)add_data_elements)
+        add_data_elements -= bs[token_dimension];
+      else
+        add_data_elements = 0;
+    }
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+    dout << "After border-optimization: add_data_elements = " 
+         << add_data_elements 
+         << endl;
+#endif
+
+    //divide and round up in order to get number of invocations
+    //Only the last delta_c[token_dimension] data elements are used
+    //for reusage.
+    add_invocations[token_dimension] =
+      (add_data_elements + delta_c[token_dimension]-1)/
+      delta_c[token_dimension];
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+    dout << "add_invocations[token_dimension] = " 
+         << add_invocations[token_dimension] << endl;
+#endif
+
+
+    /*
+      Calculate the number of missing invocations due to
+      window end
+    */
+    //What we are doing here is somehow a question of definition.
+    //Only for common applications, it should match with the PARO 
+    //system.
+    //Hence we opt for the following (see also calc_bt):
+    if (optimize_borders && 
+        (bt[token_dimension] >= (sdata_type)new_c[token_dimension]) &&
+        (c[token_dimension] > new_c[token_dimension])){
+      add_invocations[token_dimension]--;
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+      dout << "Perform border optimization. add_invocations[token_dimension] = " 
+           << add_invocations[token_dimension] << endl;
+#endif
+    }
+#if 0
+    udata_type missing_data_elements = 0;
+    if (optimize_borders && (bt[token_dimension] >= 0))
+      //Note: this could also be defined differently.
+      missing_data_elements = bt[token_dimension];
+
+    //divide and round down
+    udata_type missing_invocations =
+      missing_data_elements/new_c[token_dimension];
+
+
+    //Overall number of additional invocations
+    //Note: only valid if reading in the inner of a virtual token
+    //      union is performed in raster scan order!
+    add_invocations[token_dimension] -= missing_invocations;   
+#endif
+
+  }
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  dout << Indent::Down;
+#endif
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  for(unsigned int i = 0; i < token_dimensions; i++){
+    dout << "add_invocations[" << i << "]" << " = " 
+         << add_invocations[i] << std::endl;
+  }
+#endif
+
+
+
+
+  /*
+    Modify firing blocks
+   */
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  dout << "Modify firing blocks" << std::endl;
+  dout << Indent::Up;
+#endif
+  for(unsigned int token_dimension = 0;
+      token_dimension < token_dimensions;
+      token_dimension++){
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+    dout << "token_dimension = " << token_dimension << std::endl;
+#endif
+
+    //In order to make the following steps easier
+    //Note, that this does not cause a sever restriction
+    //as a virtual token union of only one window is not
+    //very useful.
+    //In this case, we do not have any overlapping window
+    //and we can just reformulate the problem.
+    assert(snk_r_vtu[token_dimension] > 1);
+
+    unsigned int firing_level = 0;
+    //In the following we look for the first firing block
+    //whose extension is larger than one.
+    //Note, that this is not necessary, but somehow an
+    //optimization process
+    for(;firing_level < new_snk_firing_blocks.size();
+        firing_level++){
+
+      if (new_snk_firing_blocks[firing_level][token_dimension] > 1){
+        break;
+      }else{
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+        dout << "Skip firing level " << firing_level << std::endl;
+#endif
+      }
+    }
+    if (firing_level == new_snk_firing_blocks.size()){
+      firing_level--;
+    }
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+    dout << "Old firing blocks: " << new_snk_firing_blocks << std::endl;
+    dout << "Extend firing_level " << firing_level 
+         << " by " << add_invocations[token_dimension] << " invocations" 
+         << std::endl;
+#endif
+    //Now extend size of firing block
+    new_snk_firing_blocks[firing_level][token_dimension] +=
+      add_invocations[token_dimension];    
+
+    if (snk_firing_blocks[firing_level][token_dimension] !=
+        snk_r_vtu[token_dimension]){
+      //The new firing block consists of new_snk_firing_block invocations
+      //from which the following ones are overlapping with the next
+      //firing block in dimension token_dimension
+      new_snk_block_overlap[firing_level][token_dimension] =
+        add_invocations[token_dimension];
+    }else{
+      //Firing blocks do not overlap
+    }
+
+    //When we perform border optimization communication in non-raster
+    //scan order can lead to firing blocks with different sizes.
+    //This however is not supported by our WSDF fifo.
+    if (optimize_borders){
+      //worst case assumption: Doe only allow for border
+      //optimization if virtual token union is read in raster scan
+      //order.
+      if (snk_firing_blocks[firing_level][token_dimension] !=
+          snk_r_vtu[token_dimension])
+        //transform failed
+        return_value = false;
+    }
+
+    firing_level++;    
+
+    //Propagate extension to all following firing blocks
+    for(; firing_level < new_snk_firing_blocks.size();
+        firing_level++){
+      new_snk_firing_blocks[firing_level][token_dimension] =
+        new_snk_firing_blocks[firing_level-1][token_dimension]*
+        (snk_firing_blocks[firing_level][token_dimension]/
+         snk_firing_blocks[firing_level-1][token_dimension]);     
+    }
+  }
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  dout << Indent::Down;
+#endif
+
+#if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
+  dout << "Leave smoc_wsdf_edge_descr::calc_snk_firing_block" << std::endl;
+  dout << Indent::Down;
+#endif
+
+  return return_value;
+}
+
+
+smoc_wsdf_edge_descr::u2vector_type
+smoc_wsdf_edge_descr::calc_snk_firing_block(const uvector_type& new_c,
+                                            bool optimize_borders) const{
+  u2vector_type return_vector;
+  s2vector_type temp_vector;
+  bool temp = 
+    calc_snk_firing_block(new_c,
+                          return_vector,
+                          temp_vector,
+                          optimize_borders);
+  assert(temp);
+
+  for(unsigned int i = 0; i < temp_vector.size(); i++){
+    for(unsigned int j = 0; j < token_dimensions; j++){
+      //Currently overlapping firing blocks are not allowed
+      assert(temp_vector[i][j] == 0);
+    }
+  }
+
+  return return_vector;
+                          
+}
+
+const smoc_wsdf_edge_descr::svector_type 
+smoc_wsdf_edge_descr::calc_bs(const uvector_type& new_c,
+                              bool optimize_borders
+                              ) const{
+  svector_type return_bs(bs.size());
+  
+  for(unsigned int i = 0; i < bs.size(); i++){
+    
+    if(new_c[i] >= c[i]){
+      //no external reusage
+      return_bs[i] = bs[i];
+      continue;
+    }    
+
+    if (optimize_borders){
+      //Number of additional data elements which must be read
+      //see calc_snk_firing_block
+      udata_type add_data_elements =
+        c[i] - new_c[i];
+      //Some of them might be situated on extended border
+      if (bs[i] >= 0){
+        if ((sdata_type)add_data_elements > bs[i]){
+          add_data_elements -= bs[i];
+        
+          if (add_data_elements % delta_c[i] == 0)
+            return_bs[i] = 0;
+          else
+            return_bs[i] = 
+              delta_c[i] - (add_data_elements % delta_c[i]);
+        }else{
+          return_bs[i] = bs[i] - add_data_elements;
+        }
+      }else{
+        if (add_data_elements % delta_c[i] == 0)
+          return_bs[i] = bs[i];
+        else
+          return_bs[i] = bs[i] +
+            delta_c[i] - (add_data_elements % delta_c[i]);
+      }
+    }else{
+      //When no border optimization is performed
+      //the extended border principally stays unchanged.
+      //However, when the additional invocations do not
+      //fit the image, the extended border has to be enlarged
+      const udata_type missing_data_elements = 
+        (c[i] - new_c[i]);
+      if (missing_data_elements % delta_c[i] != 0)
+        return_bs[i] = bs[i] + 
+          delta_c[i] - (missing_data_elements % delta_c[i]);
+      else
+        return_bs[i] = bs[i];
+    }
   }
 
   return return_bs;
+}
+
+
+const smoc_wsdf_edge_descr::svector_type 
+smoc_wsdf_edge_descr::calc_bt(const uvector_type& new_c,
+                              bool optimize_borders
+                              ) const{
+  svector_type return_bt(bt.size());
+  
+  for(unsigned int i = 0; i < bt.size(); i++){
+    
+    if(new_c[i] >= c[i]){
+      //no external reusage
+      return_bt[i] = bt[i];
+      continue;
+    }    
+
+    if (optimize_borders){
+      if ((bt[i] >= (sdata_type)new_c[i]))
+        return_bt[i] = 
+          bt[i] - delta_c[i];
+      else
+        return_bt[i] = bt[i];
+    }else{
+      return_bt[i] = bt[i];
+    }
+  }
+
+  return return_bt;
 }
 

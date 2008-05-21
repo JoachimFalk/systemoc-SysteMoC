@@ -12,10 +12,8 @@
 #include <iostream>
 #include <sstream>
 
-#ifndef NO_SMOC
 #include "smoc_chan_if.hpp"
 #include "smoc_fifo.hpp"
-#endif
 #include "smoc_storage.hpp"
 
 //#include <systemc.h>
@@ -23,11 +21,7 @@
 //#include <queue>
 //#include <map>
 
-#ifndef NO_SMOC
 #include "hscd_tdsim_TraceLog.hpp"
-#else
-#include <string>
-#endif
 
 #include "smoc_md_loop.hpp"
 #include "smoc_md_buffer.hpp"
@@ -67,12 +61,8 @@ class smoc_wsdf_edge;
 /// of type smoc_md_buffer_class or a derivative.
 template <class BUFFER_CLASS>
 class smoc_md_fifo_kind
-#ifndef NO_SMOC
   : public smoc_nonconflicting_chan, 
     public BUFFER_CLASS
-#else
-  : public BUFFER_CLASS
-#endif
 {
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -186,27 +176,21 @@ protected:
   /// If n == MAX_TYPE(size_t), then an event is returned
   /// which is notified whenever a write operation has taken place.
   /// Currently, only n = 1 or n = MAX_TYPE(size_t) is supported.
-#ifndef NO_SMOC
   smoc_event& getEventAvailable(size_t n = 1);
-#endif
 
   /// Returns an event which is notified when n complete effective
   /// tokens can be written into the FIFO.
   /// If n == MAX_TYPE(size_t), then an event is returned
   /// which is notified whenever a read operation has taken place.
   /// Currently, only n = 1 or n = MAX_TYPE(size_t) is supported.
-#ifndef NO_SMOC
   smoc_event& getEventFree(size_t n = 1);  
-#endif
 
   /* Functions for generation of problem graph */
 
   /// This function returns a string indentifying the channel type
   virtual const char* getChannelTypeString() const;
 
-#ifndef NO_SMOC
   void channelAttributes(smoc_modes::PGWriter &pgw) const;
-#endif
 
   const char *name() const { return smoc_nonconflicting_chan::name(); }
 
@@ -216,13 +200,6 @@ private:
   smoc_md_fifo_kind( const this_type&);
   this_type& operator = (const this_type &);
   
-#ifdef NO_SMOC
-private:
-  std::string _name;
-protected:
-  std::string name() const {return _name;}
-#endif
-
 protected:
   /// The source and the sink iterator can be in different schedule
   /// periods. The next variable specifies the difference between
@@ -230,14 +207,12 @@ protected:
   /// visible_schedule_period_difference = src_period - snk_period;
   long visible_schedule_period_difference;
 
-#ifndef NO_SMOC
   /// Events
   smoc_event eventWrite; // write of effective token occured
   smoc_event eventRead;  // read of effective token occured
   
   smoc_event eventWindowAvailable; // There is a new window available
   smoc_event eventEffTokenFree;    // A new effective token can be written
-#endif
 
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >   latencyQueue;
@@ -289,13 +264,8 @@ private:
 
 template <class BUFFER_CLASS>
 smoc_md_fifo_kind<BUFFER_CLASS>::smoc_md_fifo_kind(const chan_init &i)
-#ifndef NO_SMOC
   : smoc_nonconflicting_chan(i.name),
     BUFFER_CLASS(i.b),
-#else
-  : BUFFER_CLASS(i.b),
-    _name(i.name != NULL ? i.name : "smoc_md_fifo"),
-#endif
     visible_schedule_period_difference(0),
 #ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue(this),
@@ -684,56 +654,39 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::generate_write_events() {
   // check, if a new window has been generated
 #ifndef SYSTEMOC_ENABLE_VPC
   if (usedStorage() != 0){
-# ifndef NO_SMOC
     eventWindowAvailable.notify();
-# endif
   }
 #endif //SYSTEMOC_ENABLE_VPC
   
   //Check, if a new effective token be accepted
   if (unusedStorage() != 0){
-#ifndef NO_SMOC
     eventEffTokenFree.notify();
-#endif
   }else{
-#ifndef NO_SMOC
     eventEffTokenFree.reset();
-#endif
   }
 
   //indicate write operation
-#ifndef NO_SMOC
   eventWrite.notify();
-#endif
 }
 
 template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::generate_read_events() {
   // check, if there is still a window available
   if(usedStorage() != 0){
-#ifndef NO_SMOC
     eventWindowAvailable.notify();
-#endif
   }else{
-#ifndef NO_SMOC
     eventWindowAvailable.reset();
-#endif
   }
   
   //Check, if we can accept a new effective token
   if(unusedStorage() != 0){
-#ifndef NO_SMOC
     eventEffTokenFree.notify();
-#endif
   }
   
   //indicate read operation
-#ifndef NO_SMOC
   eventRead.notify();
-#endif
 }
 
-#ifndef NO_SMOC
 template <class BUFFER_CLASS>
 smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n) {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
@@ -761,9 +714,7 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n) {
   }
 
 }
-#endif
 
-#ifndef NO_SMOC
 template <class BUFFER_CLASS>
 smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n) {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
@@ -788,7 +739,6 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n) {
     return eventRead;
   }
 };
-#endif
 
 template <class BUFFER_CLASS>
 const char* 
@@ -830,7 +780,6 @@ template <typename T_DATA_TYPE,
           template <typename> class STORAGE_OUT_TYPE
          >
 class smoc_md_fifo_storage
-#ifndef NO_SMOC
   : public smoc_chan_if</*smoc_md_fifo_kind<BUFFER_CLASS>,*/
                         T_DATA_TYPE,
                         smoc_md_snk_channel_access,
@@ -838,27 +787,12 @@ class smoc_md_fifo_storage
                         STORAGE_OUT_TYPE
                        >,
       public smoc_md_fifo_kind<BUFFER_CLASS> 
-#else
-    : public smoc_md_fifo_kind<BUFFER_CLASS>
-    //: public smoc_dummy_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
-    //                            T_DATA_TYPE,
-    //                            R_IN,
-    //                            R_OUT >   
-#endif
 {
   
 public:
 
   typedef T_DATA_TYPE                                              data_type;
-/*#ifndef NO_SMOC
-  typedef smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
-                       T_DATA_TYPE,
-                       smoc_md_snk_channel_access,
-                       smoc_md_src_channel_access,
-                       STORAGE_OUT_TYPE >  parent_type;
-#else*/
   typedef smoc_md_fifo_kind<BUFFER_CLASS> parent_type;
-//#endif
   typedef smoc_md_fifo_storage<data_type, 
                                BUFFER_CLASS, 
                                STORAGE_OUT_TYPE>       this_type;
@@ -869,12 +803,11 @@ public:
   typedef typename STORAGE_OUT_TYPE<data_type>::storage_type  storage_out_type;
   typedef typename STORAGE_OUT_TYPE<data_type>::return_type   return_out_type;
 
-#ifndef NO_SMOC
   typedef typename BUFFER_CLASS::template smoc_md_storage_access_src<storage_out_type,return_out_type>  
   ring_out_type;
   typedef typename BUFFER_CLASS::template smoc_md_storage_access_snk<storage_in_type,return_in_type>  
   ring_in_type;
-#endif
+
   typedef smoc_storage<data_type>       storage_type;
 
   /// Make buffer_init visible
@@ -920,7 +853,6 @@ protected:
   const char *name() const
   { return parent_type::name(); }
 
-#ifndef NO_SMOC
   ring_in_type * getReadChannelAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
     CoSupport::Streams::dout << this->name() << ": ";
@@ -936,9 +868,8 @@ protected:
 #endif
     return r;
   }
-#endif
 
-#ifndef NO_SMOC
+
   ring_out_type * getWriteChannelAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << this->name() << ": ";
@@ -958,7 +889,6 @@ protected:
   virtual void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\"/>" << std::endl;
   };  
-#endif
 
 };
 
@@ -967,7 +897,6 @@ protected:
 template <class BUFFER_CLASS, 
           template <typename> class STORAGE_OUT_TYPE>
 class smoc_md_fifo_storage<void,BUFFER_CLASS,STORAGE_OUT_TYPE>
-#ifndef NO_SMOC
   : public smoc_chan_if</*smoc_md_fifo_kind<BUFFER_CLASS>,*/
                         void,
                         smoc_md_snk_channel_access,
@@ -975,27 +904,12 @@ class smoc_md_fifo_storage<void,BUFFER_CLASS,STORAGE_OUT_TYPE>
                         STORAGE_OUT_TYPE
                        >,
       public smoc_md_fifo_kind<BUFFER_CLASS>
-#else
-    : public smoc_md_fifo_kind<BUFFER_CLASS>
-    //: public smoc_dummy_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
-    //                            T_DATA_TYPE,
-    //                            R_IN,
-    //                            R_OUT >   
-#endif
 {
   
 public:
 
   typedef void data_type;
-/*#ifndef NO_SMOC
-  typedef smoc_chan_if<smoc_md_fifo_kind<BUFFER_CLASS>,
-                       void,
-                       smoc_md_snk_channel_access,
-                       smoc_md_src_channel_access,
-                       STORAGE_OUT_TYPE >  parent_type;
-#else*/
   typedef smoc_md_fifo_kind<BUFFER_CLASS> parent_type;
-//#endif
   typedef smoc_md_fifo_storage<data_type, 
                                void, 
                                STORAGE_OUT_TYPE>       this_type;
@@ -1006,12 +920,11 @@ public:
   typedef typename STORAGE_OUT_TYPE<data_type>::storage_type  storage_out_type;
   typedef typename STORAGE_OUT_TYPE<data_type>::return_type   return_out_type;
 
-#ifndef NO_SMOC
   typedef typename BUFFER_CLASS::template smoc_md_storage_access_src<storage_out_type,return_out_type>  
   ring_out_type;
   typedef typename BUFFER_CLASS::template smoc_md_storage_access_snk<storage_in_type,return_in_type>  
   ring_in_type;
-#endif
+
   typedef smoc_storage<data_type>       storage_type;
 
   /// Make buffer_init visible
@@ -1049,7 +962,6 @@ protected:
   const char *name() const
   { return parent_type::name(); }
 
-#ifndef NO_SMOC
   ring_in_type * getReadChannelAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
     CoSupport::Streams::dout << this->name() << ": ";
@@ -1064,9 +976,8 @@ protected:
 #endif
     return r;
   }
-#endif
 
-#ifndef NO_SMOC
+
   ring_out_type * getWriteChannelAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << this->name() << ": ";
@@ -1085,7 +996,7 @@ protected:
   void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\"/>" << std::endl;
   };  
-#endif
+
 
   ~smoc_md_fifo_storage() { 
   }
@@ -1118,12 +1029,7 @@ public:
   typedef typename parent_type::chan_init chan_init;
   typedef typename parent_type::buffer_init buffer_init;
 
-#ifdef NO_SMOC
 public:
-#else
-public:
-  //protected:
-#endif
   
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &le)
@@ -1252,7 +1158,7 @@ public:
 #endif
     return return_value;
   }
-#ifndef NO_SMOC
+
   smoc_event &dataAvailableEvent(size_t n)
     { return this->getEventAvailable(n); }
   smoc_event &spaceAvailableEvent(size_t n)
@@ -1261,7 +1167,7 @@ public:
     { assert(!"FIXME: Not implemented !!!"); return 0; }
   size_t outTokenId() const
     { assert(!"FIXME: Not implemented !!!"); return 0; }
-#endif
+
 };
 
 /// Channel initialization class
