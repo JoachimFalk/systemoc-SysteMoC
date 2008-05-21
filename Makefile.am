@@ -81,7 +81,6 @@ libsystemoc_la_LIBADD = 				\
 	$(pkg_libsgx_builddir)/libsgx.la
 if SYSTEMOC_ENABLE_VPC
 libsystemoc_la_LIBADD += $(pkg_systemc_vpc_builddir)/libsystemcvpc.la
-libsystemoc_la_CPPFLAGS += -DSYSTEMOC_ENABLE_VPC
 endif
 
 libsystemoc_la_SOURCES =		\
@@ -117,5 +116,4 @@ libsystemoc_la_SOURCES +=		\
 	wsdf/smoc_md_ba_linearized_buffer.cpp \
 	wsdf/smoc_md_ba_linearized_buffer_size.cpp \
 	wsdf/smoc_md_ba_linearized_buffer_schedule.cpp
-libsystemoc_la_CPPFLAGS += -DSYSTEMOC_ENABLE_WSDF
 endif
