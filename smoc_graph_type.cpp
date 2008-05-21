@@ -40,7 +40,7 @@
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 
-using namespace SysteMoC::SGX;
+using namespace SystemCoDesigner::SGX;
 using namespace SysteMoC::NGXSync;
 
 smoc_graph_base::smoc_graph_base(
