@@ -39,10 +39,10 @@
 
 namespace Detail {
 
-  class Queue3Ptr;
+  class Queue4Ptr;
 
   class Queue2Ptr {
-    friend class Queue3Ptr;
+    friend class Queue4Ptr;
   private:
     size_t       fsize;   ///< Ring buffer size == FIFO size + 1
     size_t       rindex;  ///< The FIFO read    ptr

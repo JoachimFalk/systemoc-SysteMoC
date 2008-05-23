@@ -49,7 +49,7 @@
 #include "detail/smoc_ring_access.hpp"
 #include "detail/EventMapManager.hpp"
 #ifdef SYSTEMOC_ENABLE_VPC
-# include "detail/Queue3Ptr.hpp"
+# include "detail/Queue4Ptr.hpp"
 #else
 # include "detail/Queue2Ptr.hpp"
 #endif
@@ -73,7 +73,8 @@ size_t fsizeMapper(sc_object* instance, size_t n);
 class smoc_fifo_chan_base
 : public smoc_nonconflicting_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
-  public Detail::Queue3Ptr
+  public Detail::LatencyQueue::ILatencyExpired,
+  public Detail::Queue4Ptr
 #else
   public Detail::Queue2Ptr
 #endif // SYSTEMOC_ENABLE_VPC
@@ -81,10 +82,6 @@ class smoc_fifo_chan_base
 public:
   friend class smoc_fifo_entry_base;
   friend class smoc_fifo_outlet_base;
-#ifdef SYSTEMOC_ENABLE_VPC
-  friend class Detail::LatencyQueue<smoc_fifo_chan_base>::VisibleQueue;
-  friend class Detail::LatencyQueue<smoc_fifo_chan_base>::RequestQueue;
-#endif // SYSTEMOC_ENABLE_VPC
   
   /// @brief Channel initializer
   class chan_init {
@@ -105,7 +102,7 @@ protected:
   smoc_fifo_chan_base(const chan_init& i)
     : smoc_nonconflicting_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
-    Queue3Ptr(fsizeMapper(this, i.n)),
+    Queue4Ptr(fsizeMapper(this, i.n)),
     latencyQueue(this),
 #else
     Queue2Ptr(fsizeMapper(this, i.n)),
@@ -118,6 +115,7 @@ protected:
     pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
   }
 
+  /// @brief Detail::LatencyQueue::ILatencyExpired
   void latencyExpired(size_t n) {
     vpp(n);
     emmAvailable.increasedCount(visibleCount());
@@ -127,7 +125,7 @@ private:
   Detail::EventMapManager emmAvailable;
   Detail::EventMapManager emmFree;
 #ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue<smoc_fifo_chan_base> latencyQueue;
+  Detail::LatencyQueue latencyQueue;
 #endif
 
   /// @brief The token id of the next commit token
@@ -155,7 +153,7 @@ protected:
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(this, consume);
+    TraceLog.traceCommExecIn(&chan, consume);
 #endif
     chan.rpp(consume);
     chan.emmAvailable.decreasedCount(chan.visibleCount());
@@ -202,7 +200,7 @@ protected:
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(this, produce);
+    TraceLog.traceCommExecOut(&chan, produce);
 #endif
     chan.tokenId += produce;
     chan.wpp(produce);

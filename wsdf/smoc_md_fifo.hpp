@@ -63,13 +63,10 @@ template <class BUFFER_CLASS>
 class smoc_md_fifo_kind
   : public smoc_nonconflicting_chan, 
     public BUFFER_CLASS
-{
-
 #ifdef SYSTEMOC_ENABLE_VPC
-  friend class Detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >::VisibleQueue;
-  friend class Detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >::RequestQueue;
-#endif // SYSTEMOC_ENABLE_VPC
-
+    , public Detail::LatencyQueue::ILatencyExpired
+#endif
+{
 public:
   typedef smoc_md_fifo_kind  this_type;
   typedef size_t size_type;
@@ -215,7 +212,7 @@ protected:
   smoc_event eventEffTokenFree;    // A new effective token can be written
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue<smoc_md_fifo_kind<BUFFER_CLASS> >   latencyQueue;
+  Detail::LatencyQueue latencyQueue;
 
   /// If SystemVPC is enabled we have to distinguish between the current
   /// source invocation (given by src_loop_iterator)
