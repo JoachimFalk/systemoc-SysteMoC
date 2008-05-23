@@ -419,6 +419,11 @@ public:
   const sc_core::sc_event& ok_to_get(tlm::tlm_tag<T>* = 0) const
   { return scev.getSCEvent(); }
 
+protected:
+  /// @brief See sc_interface
+  void register_port(sc_port_base& p, const char* if_ty)
+  { in_if.register_port(p, typeid(iface_impl_type).name()); }
+
 private:
   iface_impl_type& in_if;
   smoc_event& dataAvailable;
@@ -485,6 +490,11 @@ public:
   /// see tlm_nonblocking_get_if<T>
   const sc_core::sc_event& ok_to_get(tlm::tlm_tag<T>* = 0) const
   { return scev.getSCEvent(); }
+
+protected:
+  /// @brief See sc_interface
+  void register_port(sc_port_base& p, const char* if_ty)
+  { in_if.register_port(p, typeid(iface_impl_type).name()); }
 
 private:
   iface_impl_type& in_if;
@@ -553,6 +563,11 @@ public:
   const sc_core::sc_event& ok_to_put(tlm::tlm_tag<T>* = 0) const
   { return scev.getSCEvent(); }
 
+protected:
+  /// @brief See sc_interface
+  void register_port(sc_port_base& p, const char* if_ty)
+  { out_if.register_port(p, typeid(iface_impl_type).name()); }
+
 private:
   iface_impl_type& out_if;
   smoc_event& spaceAvailable;
@@ -619,6 +634,11 @@ public:
   /// see tlm::tlm_nonblocking_put_if<T>
   const sc_core::sc_event& ok_to_put(tlm::tlm_tag<T>* = 0) const
   { return scev.getSCEvent(); }
+
+protected:
+  /// @brief See sc_interface
+  void register_port(sc_port_base& p, const char* if_ty)
+  { out_if.register_port(p, typeid(iface_impl_type).name()); }
 
 private:
   iface_impl_type& out_if;
