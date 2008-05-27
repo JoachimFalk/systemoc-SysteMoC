@@ -70,6 +70,7 @@ class smoc_multiplex_fifo_chan
 : private boost::noncopyable,
   public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
+  public Detail::LatencyQueue::ILatencyExpired,
   public Detail::Queue4Ptr
 #else
   public Detail::Queue2Ptr
@@ -79,10 +80,6 @@ public:
   friend class smoc_multiplex_vfifo_chan_base;
   friend class smoc_multiplex_vfifo_entry_base;
   friend class smoc_multiplex_vfifo_outlet_base;
-#ifdef SYSTEMOC_ENABLE_VPC
-  friend class Detail::LatencyQueue<smoc_multiplex_fifo_chan>::VisibleQueue;
-  friend class Detail::LatencyQueue<smoc_multiplex_fifo_chan>::RequestQueue;
-#endif // SYSTEMOC_ENABLE_VPC
   
   typedef smoc_multiplex_fifo_chan this_type;
   typedef size_t FifoId;
@@ -106,6 +103,7 @@ protected:
   void produce(FifoId to, size_t n);
 #endif
 
+  /// @brief Detail::LatencyQueue::ILatencyExpired
   void latencyExpired(size_t n);
 
   virtual void assemble(smoc_modes::PGWriter &pgw) const
@@ -132,7 +130,7 @@ private:
 
   Detail::EventMapManager emmFree;
 #ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue<smoc_multiplex_fifo_chan> latencyQueue;
+  Detail::LatencyQueue latencyQueue;
 #endif
 };
 
