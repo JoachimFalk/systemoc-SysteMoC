@@ -74,6 +74,7 @@ size_t fsizeMapper(sc_object* instance, size_t n);
 class smoc_multireader_fifo_chan_base
 : public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
+  public Detail::LatencyQueue::ILatencyExpired,
   public Detail::Queue4Ptr
 #else
   public Detail::Queue2Ptr
@@ -82,10 +83,6 @@ class smoc_multireader_fifo_chan_base
 public:
   friend class smoc_multireader_fifo_entry_base;
   friend class smoc_multireader_fifo_outlet_base;
-#ifdef SYSTEMOC_ENABLE_VPC
-  friend class Detail::LatencyQueue<smoc_multireader_fifo_chan_base>::VisibleQueue;
-  friend class Detail::LatencyQueue<smoc_multireader_fifo_chan_base>::RequestQueue;
-#endif // SYSTEMOC_ENABLE_VPC
   
   /// @brief Channel initializer
   class chan_init {
@@ -123,6 +120,7 @@ protected:
     pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
   }
 
+  /// @brief Detail::LatencyQueue::ILatencyExpired
   void latencyExpired(size_t n) {
     vpp(n);
     emmAvailable.increasedCount(visibleCount());
@@ -132,7 +130,7 @@ private:
   Detail::EventMapManager emmAvailable;
   Detail::EventMapManager emmFree;
 #ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue<smoc_multireader_fifo_chan_base> latencyQueue;
+  Detail::LatencyQueue latencyQueue;
 #endif
 
   /// @brief The token id of the next commit token
