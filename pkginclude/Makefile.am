@@ -35,7 +35,7 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_latency_queues.hpp \
 	systemoc/detail/smoc_ring_access.hpp \
 	systemoc/detail/Queue2Ptr.hpp \
-	systemoc/detail/Queue3Ptr.hpp \
+	systemoc/detail/Queue4Ptr.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_elab_and_sim.hpp \
@@ -47,6 +47,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_root_chan.hpp \
 	systemoc/smoc_port.hpp \
 	systemoc/smoc_multiplex_fifo.hpp \
+	systemoc/smoc_multireader_fifo.hpp \
 	systemoc/smoc_fifo.hpp \
 	systemoc/smoc_firing_rules.hpp \
 	systemoc/smoc_graph_synth.hpp \

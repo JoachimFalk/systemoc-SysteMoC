@@ -54,6 +54,9 @@
 namespace SystemC_VPC {
   class FastLink;
 }
+namespace Detail {
+  class ChanLatencyQueue;
+}
 #endif // SYSTEMOC_ENABLE_VPC
 
 class smoc_root_chan
@@ -64,10 +67,13 @@ private:
 
   std::string myName; // patched in finalise
 protected:
-  // new FastLink interface
+
 #ifdef SYSTEMOC_ENABLE_VPC
-  SystemC_VPC::FastLink *vpcLink; // patched in finalise
+  friend class Detail::ChanLatencyQueue;
+  // new FastLink interface (patched in finalise)
+  SystemC_VPC::FastLink *vpcLink;
 #endif //SYSTEMOC_ENABLE_VPC
+
 protected:
   // constructor
   smoc_root_chan(const char *name);

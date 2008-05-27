@@ -34,29 +34,31 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP
-#define _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP
+#ifndef _INCLUDED_SMOC_MULTIREADER_FIFO_HPP
+#define _INCLUDED_SMOC_MULTIREADER_FIFO_HPP
 
 #include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_root_chan.hpp"
 #include "smoc_chan_if.hpp"
+#include "smoc_root_chan.hpp"
 #include "smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
+#include "smoc_fifo.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_ring_access.hpp"
 #include "detail/EventMapManager.hpp"
-#include "detail/Queue4Ptr.hpp"
+#ifdef SYSTEMOC_ENABLE_VPC
+# include "detail/Queue4Ptr.hpp"
+#else
+# include "detail/Queue2Ptr.hpp"
+#endif
 
 #include <systemc.h>
 #include <vector>
 #include <queue>
 #include <map>
-
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include "hscd_tdsim_TraceLog.hpp"
 
@@ -64,11 +66,13 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-class smoc_multiplex_vfifo_chan_base;
+size_t fsizeMapper(sc_object* instance, size_t n);
 
-class smoc_multiplex_fifo_chan
-: private boost::noncopyable,
-  public smoc_root_chan,
+/**
+ * The base channel implementation
+ */
+class smoc_multireader_fifo_chan_base
+: public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
   public Detail::Queue4Ptr
 #else
@@ -76,129 +80,75 @@ class smoc_multiplex_fifo_chan
 #endif // SYSTEMOC_ENABLE_VPC
 {
 public:
-  friend class smoc_multiplex_vfifo_chan_base;
-  friend class smoc_multiplex_vfifo_entry_base;
-  friend class smoc_multiplex_vfifo_outlet_base;
+  friend class smoc_multireader_fifo_entry_base;
+  friend class smoc_multireader_fifo_outlet_base;
 #ifdef SYSTEMOC_ENABLE_VPC
-  friend class Detail::LatencyQueue<smoc_multiplex_fifo_chan>::VisibleQueue;
-  friend class Detail::LatencyQueue<smoc_multiplex_fifo_chan>::RequestQueue;
+  friend class Detail::LatencyQueue<smoc_multireader_fifo_chan_base>::VisibleQueue;
+  friend class Detail::LatencyQueue<smoc_multireader_fifo_chan_base>::RequestQueue;
 #endif // SYSTEMOC_ENABLE_VPC
   
-  typedef smoc_multiplex_fifo_chan this_type;
-  typedef size_t FifoId;
-  typedef std::list<FifoId> FifoSequence;
-  typedef std::map<FifoId, smoc_multiplex_vfifo_chan_base *> FifoMap;
-
-  smoc_multiplex_fifo_chan(const char *name, size_t n, size_t m);
-
-protected:
-  void registerVFifo(smoc_multiplex_vfifo_chan_base *vfifo);
-  void deregisterVFifo(smoc_multiplex_vfifo_chan_base *vfifo);
-
-  smoc_event& spaceAvailableEvent(size_t n)
-    { return emmFree.getEvent(freeCount(), n); }
-
-  void consume(FifoId from, size_t n);
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  void produce(FifoId to, size_t n, const smoc_ref_event_p &le);
-#else
-  void produce(FifoId to, size_t n);
-#endif
-
-  void latencyExpired(size_t n);
-
-  virtual void assemble(smoc_modes::PGWriter &pgw) const
-    {assert(0);}
-  virtual void channelContents(smoc_modes::PGWriter &pgw) const
-    {assert(0);}
-  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const
-    {assert(0);}
-
-  sc_port_list getInputPorts() const;
-  sc_port_list getOutputPorts() const;
-
-public:
-  ///gcc3.4.6: Inner classes are not friends when outer class is declared as friend
-  FifoId getNewFifoId()
-    { return fifoIdCount++; }
-
-private:
-  FifoId        fifoIdCount;  // For virtual fifo enumeration
-  FifoMap       vFifos;
-  FifoSequence  fifoSequence;
-  FifoSequence  fifoSequenceOOO;
-  const size_t  fifoOutOfOrder; // == 0 => no out of order access only one element visible
-
-  Detail::EventMapManager emmFree;
-#ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue<smoc_multiplex_fifo_chan> latencyQueue;
-#endif
-};
-
-typedef boost::shared_ptr<smoc_multiplex_fifo_chan>  p_smoc_multiplex_fifo_chan;
-
-class smoc_multiplex_vfifo_chan_base
-: private boost::noncopyable,
-  public smoc_nonconflicting_chan,
-  // due to out of order access we always need a visible area management
-  public Detail::Queue4Ptr 
-{
-public:
-  friend class smoc_multiplex_fifo_chan;
-  friend class smoc_multiplex_vfifo_entry_base;
-  friend class smoc_multiplex_vfifo_outlet_base;
-
-  typedef smoc_multiplex_vfifo_chan_base  this_type;
-  typedef size_t FifoId;
-
   /// @brief Channel initializer
   class chan_init {
   public:
-    friend class smoc_multiplex_vfifo_chan_base;
+    friend class smoc_multireader_fifo_chan_base;
   protected:
-    chan_init(const char *name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
-      : name(name), pSharedFifoMem(pSharedFifoMem),
-        fifoId(pSharedFifoMem->getNewFifoId()), m(m)
+    chan_init(const char *name, size_t n)
+      : name(name), n(n)
     {}
   private:
-    const char                 *name;
-    p_smoc_multiplex_fifo_chan  pSharedFifoMem;
-    FifoId                      fifoId;
-    size_t                      m;
+    const char *name;
+    size_t n;
   };
 
-private:
-  Detail::EventMapManager emmAvailable;
-  FifoId fifoId;
-  p_smoc_multiplex_fifo_chan pSharedFifoMem;
 protected:
-  // constructors
-  smoc_multiplex_vfifo_chan_base(const chan_init &i);
+  
+  /// @brief Constructor
+  smoc_multireader_fifo_chan_base(const chan_init& i)
+    : smoc_root_chan(i.name),
+#ifdef SYSTEMOC_ENABLE_VPC
+    Queue4Ptr(fsizeMapper(this, i.n)),
+    latencyQueue(this),
+#else
+    Queue2Ptr(fsizeMapper(this, i.n)),
+#endif
+    tokenId(0)
+  {}
 
-  ~smoc_multiplex_vfifo_chan_base();
+  /// @brief See smoc_root_chan
+  virtual void assemble(smoc_modes::PGWriter &pgw) const
+  {}
 
-  /// @brief The tokenId of the next commit token
-  size_t tokenId;
+  /// @brief See smoc_root_chan
+  void channelAttributes(smoc_modes::PGWriter& pgw) const {
+    pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
+  }
 
   void latencyExpired(size_t n) {
     vpp(n);
     emmAvailable.increasedCount(visibleCount());
   }
 
-  /// @brief See smoc_root_chan
-  void channelAttributes(smoc_modes::PGWriter &pgw) const {
-    pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
-  }
+private:
+  Detail::EventMapManager emmAvailable;
+  Detail::EventMapManager emmFree;
+#ifdef SYSTEMOC_ENABLE_VPC
+  Detail::LatencyQueue<smoc_multireader_fifo_chan_base> latencyQueue;
+#endif
+
+  /// @brief The token id of the next commit token
+  size_t tokenId;
 };
 
-class smoc_multiplex_vfifo_entry_base
+/**
+ * This class implements the base channel in interface
+ */
+class smoc_multireader_fifo_entry_base
 : public virtual smoc_chan_in_base_if
 {
 public:
 protected:
   /// @brief Constructor
-  smoc_multiplex_vfifo_entry_base(smoc_multiplex_vfifo_chan_base& chan)
+  smoc_multireader_fifo_entry_base(smoc_multireader_fifo_chan_base& chan)
     : chan(chan)
   {}
 
@@ -210,13 +160,13 @@ protected:
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(&chan, consume);
+    TraceLog.traceCommExecIn(this, consume);
 #endif
     chan.rpp(consume);
     chan.emmAvailable.decreasedCount(chan.visibleCount());
-    chan.pSharedFifoMem->consume(chan.fifoId, consume);
+    chan.emmFree.increasedCount(chan.freeCount());
   }
-
+  
   /// @brief See smoc_chan_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
     { return chan.emmAvailable.getEvent(chan.visibleCount(), n); }
@@ -224,23 +174,28 @@ protected:
   /// @brief See smoc_chan_in_base_if
   size_t numAvailable() const
     { return chan.visibleCount(); }
-
+  
   /// @brief See smoc_chan_in_base_if
   size_t inTokenId() const
     { return chan.tokenId - chan.usedCount(); }
 
 private:
   /// @brief The channel base implementation
-  smoc_multiplex_vfifo_chan_base& chan;
+  smoc_multireader_fifo_chan_base& chan;
 };
 
-class smoc_multiplex_vfifo_outlet_base
+
+
+/**
+ * This class implements the base channel out interface
+ */
+class smoc_multireader_fifo_outlet_base
 : public virtual smoc_chan_out_base_if
 {
 public:
 protected:
   /// @brief Constructor
-  smoc_multiplex_vfifo_outlet_base(smoc_multiplex_vfifo_chan_base& chan)
+  smoc_multireader_fifo_outlet_base(smoc_multireader_fifo_chan_base& chan)
     : chan(chan)
   {}
 
@@ -252,101 +207,113 @@ protected:
 #endif
   {
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(&chan, produce);
+    TraceLog.traceCommExecOut(this, produce);
 #endif
     chan.tokenId += produce;
     chan.wpp(produce);
-    // This will do a callback to latencyExpired(produce) at the appropriate time
+    chan.emmFree.decreasedCount(chan.freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
-    chan.pSharedFifoMem->produce(chan.fifoId, produce, le); 
+    // Delayed call of latencyExpired(produce);
+    chan.latencyQueue.addEntry(produce, le);
 #else
-    chan.pSharedFifoMem->produce(chan.fifoId, produce); 
+    chan.latencyExpired(produce);
 #endif
   }
-
+  
   /// @brief See smoc_chan_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
-    { return chan.pSharedFifoMem->spaceAvailableEvent(n); }
-
+    { return chan.emmFree.getEvent(chan.freeCount(), n); }
+  
   /// @brief See smoc_chan_out_base_if
   size_t numFree() const
     { return chan.freeCount(); }
-
+  
   /// @brief See smoc_chan_out_base_if
   size_t outTokenId() const
     { return chan.tokenId; }
 
 private:
   /// @brief The channel base implementation
-  smoc_multiplex_vfifo_chan_base& chan;
+  smoc_multireader_fifo_chan_base& chan;
 };
 
-template<class> class smoc_multiplex_vfifo_chan;
+template<class> class smoc_multireader_fifo_chan;
 
+/**
+ * This class implements the channel in interface
+ */
 template<class T>
-class smoc_multiplex_vfifo_entry
-: public smoc_multiplex_vfifo_entry_base,
+class smoc_multireader_fifo_entry
+: public smoc_multireader_fifo_entry_base,
   public smoc_chan_in_if<T,smoc_channel_access>
 {
 public:
-  typedef smoc_multiplex_vfifo_entry<T> this_type;
-  typedef typename this_type::access_type access_type;
+  typedef smoc_multireader_fifo_entry<T> this_type;
+  typedef typename this_type::access_type access_type; 
   typedef smoc_chan_in_if<T,smoc_channel_access> iface_type;
 
   /// @brief Constructor
-  smoc_multiplex_vfifo_entry(smoc_multiplex_vfifo_chan<T>& chan)
-    : smoc_multiplex_vfifo_entry_base(chan),
+  smoc_multireader_fifo_entry(smoc_multireader_fifo_chan<T>& chan)
+    : smoc_multireader_fifo_entry_base(chan),
       chan(chan)
   {}
 
 protected:
-
   /// @brief See smoc_chan_in_if
   access_type* getReadChannelAccess()
     { return chan.getReadChannelAccess(); }
 
 private:
   /// @brief The channel implementation
-  smoc_multiplex_vfifo_chan<T>& chan;
+  smoc_multireader_fifo_chan<T>& chan;
 };
 
+/**
+ * This class implements the channel out interface
+ */
 template<class T>
-class smoc_multiplex_vfifo_outlet
-: public smoc_multiplex_vfifo_outlet_base,
+class smoc_multireader_fifo_outlet
+: public smoc_multireader_fifo_outlet_base,
   public smoc_chan_out_if<T,smoc_channel_access>
 {
 public:
-  typedef smoc_multiplex_vfifo_outlet<T> this_type;
-  typedef typename this_type::access_type access_type;
+  typedef smoc_multireader_fifo_outlet<T> this_type;
+  typedef typename this_type::access_type access_type; 
   typedef smoc_chan_out_if<T,smoc_channel_access> iface_type;
 
   /// @brief Constructor
-  smoc_multiplex_vfifo_outlet(smoc_multiplex_vfifo_chan<T>& chan)
-    : smoc_multiplex_vfifo_outlet_base(chan),
+  smoc_multireader_fifo_outlet(smoc_multireader_fifo_chan<T>& chan)
+    : smoc_multireader_fifo_outlet_base(chan),
       chan(chan)
   {}
 
 protected:
-
   /// @brief See smoc_chan_out_if
   access_type* getWriteChannelAccess()
     { return chan.getWriteChannelAccess(); }
 
 private:
   /// @brief The channel implementation
-  smoc_multiplex_vfifo_chan<T>& chan;
+  smoc_multireader_fifo_chan<T>& chan;
 };
 
-
-template <typename T>
-class smoc_multiplex_vfifo_storage
-: public smoc_multiplex_vfifo_chan_base
+/**
+ * This class implements the data type specific
+ * channel storage operations
+ *
+ * This is not merged with smoc_multireader_fifo_chan because
+ * we need a void specialization (only for _some_
+ * methods)
+ */
+template<class T>
+class smoc_multireader_fifo_storage
+: public smoc_multireader_fifo_chan_base
 {
 public:
-  typedef T                                       data_type;
-  typedef smoc_multiplex_vfifo_entry<data_type>   entry_type;
-  typedef smoc_multiplex_vfifo_outlet<data_type>  outlet_type;
-  typedef smoc_storage<data_type>                 storage_type;
+  typedef T                           data_type;
+  typedef smoc_multireader_fifo_entry<data_type>  entry_type;
+  typedef smoc_multireader_fifo_outlet<data_type> outlet_type;
+  typedef smoc_storage<data_type>     storage_type;
 
   typedef typename entry_type::access_type  access_in_type;
   typedef typename outlet_type::access_type access_out_type;
@@ -358,49 +325,52 @@ public:
     storage_type,
     typename access_out_type::return_type> access_out_type_impl;
 
-  friend class smoc_multiplex_vfifo_entry<data_type>;
-  friend class smoc_multiplex_vfifo_outlet<data_type>;
+  friend class smoc_multireader_fifo_entry<data_type>;
+  friend class smoc_multireader_fifo_outlet<data_type>;
 
+  /// @brief Channel initializer
   class chan_init
-  : public smoc_multiplex_vfifo_chan_base::chan_init
+    : public smoc_multireader_fifo_chan_base::chan_init
   {
   public:
-    friend class smoc_multiplex_vfifo_storage<T>;
-    typedef const T add_param_ty;
-    
-    void add(const add_param_ty& x)
-      { marking.push_back(x); }
+    friend class smoc_multireader_fifo_storage;
+    typedef T add_param_ty;
+
+    void add(const add_param_ty& t)
+      { marking.push_back(t); }
   protected:
-    chan_init(const char *name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
-      : smoc_multiplex_vfifo_chan_base::chan_init(name, pSharedFifoMem, m)
+    chan_init(const char* name, size_t n)
+      : smoc_multireader_fifo_chan_base::chan_init(name, n)
     {}
   private:
     std::vector<T> marking;
   };
 
 protected:
-  smoc_multiplex_vfifo_storage( const chan_init &i )
-    : smoc_multiplex_vfifo_chan_base(i),
+
+  /// @brief Constructor
+  smoc_multireader_fifo_storage(const chan_init& i)
+    : smoc_multireader_fifo_chan_base(i),
       storage(new storage_type[this->fSize()])
   {
     assert(this->depthCount() >= i.marking.size());
     for(size_t j = 0; j < i.marking.size(); ++j) {
       storage[j].put(i.marking[j]);
     }
-    wpp(i.marking.size());
-    // FIXME: What about vpp does smoc_multiplex_fifo_chan trigger this
-    // for initial tokens?
+    wpp(i.marking.size()); vpp(i.marking.size());
   }
-  
-  ~smoc_multiplex_vfifo_storage()
-    { delete[] storage; }
 
-  void channelContents(smoc_modes::PGWriter &pgw) const {
+  /// @brief Destructor
+  ~smoc_multireader_fifo_storage()
+    { delete[] storage; }
+  
+  /// @brief See smoc_root_chan
+  void channelContents(smoc_modes::PGWriter& pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
     {
       //*************************INITIAL TOKENS, ETC...***************************
       pgw.indentUp();
-      for ( size_t n = 0; n < this->visibleCount(); ++n )
+      for(size_t n = 0; n < this->visibleCount(); ++n)
         pgw << "<token value=\"" << storage[n].get() << "\"/>" << std::endl;
       pgw.indentDown();
     }
@@ -418,18 +388,22 @@ protected:
   }
 
 private:
-  storage_type *storage;
+  storage_type* storage;
 };
 
+/**
+ * This class implements the data type specific
+ * channel storage operations (void specialization)
+ */
 template<>
-class smoc_multiplex_vfifo_storage<void>
-: public smoc_multiplex_vfifo_chan_base
+class smoc_multireader_fifo_storage<void>
+: public smoc_multireader_fifo_chan_base
 {
 public:
-  typedef void                                    data_type;
-  typedef smoc_multiplex_vfifo_entry<data_type>   entry_type;
-  typedef smoc_multiplex_vfifo_outlet<data_type>  outlet_type;
-  typedef smoc_storage<data_type>                 storage_type;
+  typedef void                        data_type;
+  typedef smoc_multireader_fifo_entry<data_type>  entry_type;
+  typedef smoc_multireader_fifo_outlet<data_type> outlet_type;
+  typedef smoc_storage<data_type>     storage_type;
 
   typedef entry_type::access_type  access_in_type;
   typedef outlet_type::access_type access_out_type;
@@ -437,23 +411,22 @@ public:
   typedef smoc_ring_access<void,void> access_in_type_impl;
   typedef smoc_ring_access<void,void> access_out_type_impl;
 
-  friend class smoc_multiplex_vfifo_entry<data_type>;
-  friend class smoc_multiplex_vfifo_outlet<data_type>;
-
+  friend class smoc_multireader_fifo_entry<data_type>;
+  friend class smoc_multireader_fifo_outlet<data_type>;
+  
   /// @brief Channel initializer
   class chan_init
-  : public smoc_multiplex_vfifo_chan_base::chan_init
+  : public smoc_multireader_fifo_chan_base::chan_init
   {
   public:
-    friend class smoc_multiplex_vfifo_storage;
+    friend class smoc_multireader_fifo_storage;
     typedef size_t add_param_ty;
 
-    void add(const add_param_ty& t) {
-      marking += t;
-    }
+    void add(const add_param_ty& t)
+      { marking += t; }
   protected:
-    chan_init(const char *name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
-      : smoc_multiplex_vfifo_chan_base::chan_init(name, pSharedFifoMem, m)
+    chan_init(const char* name, size_t n)
+      : smoc_multireader_fifo_chan_base::chan_init(name, n)
     {}
   private:
     size_t marking;
@@ -462,15 +435,13 @@ public:
 protected:
 
   /// @brief Constructor
-  smoc_multiplex_vfifo_storage(const chan_init& i)
-    : smoc_multiplex_vfifo_chan_base(i)
+  smoc_multireader_fifo_storage(const chan_init& i)
+    : smoc_multireader_fifo_chan_base(i)
   {
     assert(this->depthCount() >= i.marking);
-    wpp(i.marking);
-    // FIXME: What about vpp does smoc_multiplex_fifo_chan trigger this
-    // for initial tokens?
+    wpp(i.marking); vpp(i.marking);
   }
-
+  
   /// @brief See smoc_root_chan
   void channelContents(smoc_modes::PGWriter& pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
@@ -486,26 +457,29 @@ protected:
 
   access_in_type* getReadChannelAccess()
     { return new access_in_type_impl(); }
-
+  
   access_out_type* getWriteChannelAccess()
     { return new access_out_type_impl(); }
 };
 
+/**
+ * This class provides interfaces and connect methods
+ */
 template<class T>
-class smoc_multiplex_vfifo_chan
-: public smoc_multiplex_vfifo_storage<T>
+class smoc_multireader_fifo_chan
+: public smoc_multireader_fifo_storage<T>
 {
 public:
-  typedef T                                      data_type;
-  typedef smoc_multiplex_vfifo_entry<data_type>  entry_type;
-  typedef smoc_multiplex_vfifo_outlet<data_type> outlet_type;
+  typedef T                           data_type;
+  typedef smoc_multireader_fifo_entry<data_type>  entry_type;
+  typedef smoc_multireader_fifo_outlet<data_type> outlet_type;
 
   /// @brief Channel initializer
-  typedef typename smoc_multiplex_vfifo_storage<T>::chan_init chan_init;
+  typedef typename smoc_multireader_fifo_storage<T>::chan_init chan_init;
 
   /// @brief Constructor
-  smoc_multiplex_vfifo_chan(const chan_init& i)
-    : smoc_multiplex_vfifo_storage<T>(i),
+  smoc_multireader_fifo_chan(const chan_init& i)
+    : smoc_multireader_fifo_storage<T>(i),
       entry(*this),
       outlet(*this)
   {}
@@ -523,7 +497,7 @@ public:
 
   template<class IFace,class Init>
   void connect(sc_port<IFace>& p, const Init&) {
-
+  
     using namespace SysteMoC::Detail;
 
     // we can provide smoc_chan_in_if and smoc_chan_out_if
@@ -538,15 +512,15 @@ public:
     // constructor objects
     typedef ConstructPMParam<
       Adapter1,
-      smoc_multiplex_vfifo_chan<T>,
+      smoc_multireader_fifo_chan<T>,
       entry_type,
-      &smoc_multiplex_vfifo_chan<T>::entry> Cons1;
+      &smoc_multireader_fifo_chan<T>::entry> Cons1;
 
     typedef ConstructPMParam<
       Adapter2,
-      smoc_multiplex_vfifo_chan<T>,
+      smoc_multireader_fifo_chan<T>,
       outlet_type,
-      &smoc_multiplex_vfifo_chan<T>::outlet> Cons2;
+      &smoc_multireader_fifo_chan<T>::outlet> Cons2;
 
     // try to get adapter
     typedef
@@ -578,47 +552,33 @@ private:
   outlet_type outlet;
 };
 
+/**
+ * This class is the channel initializer for smoc_multireader_fifo_chan
+ */
 template <typename T>
-class smoc_multiplex_fifo {
+class smoc_multireader_fifo
+: public smoc_multireader_fifo_chan<T>::chan_init 
+{
 public:
-  typedef smoc_multiplex_fifo<T>  this_type;
-  typedef size_t FifoId;
+  typedef T                 data_type;
+  typedef smoc_multireader_fifo<T>      this_type;
+  typedef smoc_multireader_fifo_chan<T> chan_type;
 
-  class VirtFifo: public smoc_multiplex_vfifo_chan<T>::chan_init {
-  public:
-    typedef T                             data_type;
-    typedef smoc_multiplex_vfifo_chan<T>  chan_type;
-    
-    friend class smoc_multiplex_fifo<T>;
-  
-  private:
-    VirtFifo(const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
-      : smoc_multiplex_vfifo_chan<T>::chan_init(NULL, pSharedFifoMem, m)
-    {}
-  public:
-    this_type& operator<<(const T &x) {
-      add(x);
-      pSharedFifoMem->produce(this->fifoId, 1);
-      return *this;
-    }
-  };
+  this_type& operator<<(const typename chan_type::chan_init::add_param_ty& x)
+    { add(x); return *this; }
+
+  /// @brief Constructor
+  smoc_multireader_fifo(size_t n = 1)
+    : smoc_multireader_fifo_chan<T>::chan_init(0, n)
+  {}
+
+  /// @brief Constructor
+  explicit smoc_multireader_fifo(const char* name, size_t n = 1)
+    : smoc_multireader_fifo_chan<T>::chan_init(name, n)
+  {}
 
 private:
-  size_t  n;  // size of the shared fifo memory
-  size_t  m;  // out of order access, zero is no out of order
-
-  p_smoc_multiplex_fifo_chan pSharedFifoMem;
-
-public:
-  /// @param n size of the shared fifo memory
-  /// @param m out of order access, zero is no out of order
-  smoc_multiplex_fifo(size_t n = 1, size_t m = 0)
-    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_chan(NULL, n, m)) {}
-  smoc_multiplex_fifo(const char *name, size_t n = 1, size_t m = 0)
-    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_chan(name, n, m)) {}
-
-  VirtFifo getVirtFifo()
-    { return VirtFifo(pSharedFifoMem, m); }
+  void reset() {};
 };
 
-#endif // _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP
+#endif // _INCLUDED_SMOC_MULTIREADER_FIFO_HPP

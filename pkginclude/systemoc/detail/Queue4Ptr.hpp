@@ -41,11 +41,11 @@
 
 namespace Detail {
 
-  class Queue3Ptr: public Queue2Ptr {
+  class Queue4Ptr: public Queue2Ptr {
   protected:
     size_t       vindex;  ///< The FIFO visible ptr
   public:
-    Queue3Ptr(size_t n)
+    Queue4Ptr(size_t n)
       : Queue2Ptr(n), vindex(0) {}
 
     size_t visibleCount() const {

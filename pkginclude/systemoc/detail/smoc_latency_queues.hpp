@@ -38,7 +38,7 @@
 #define _INCLUDED_SMOC_LATENCY_QUEUES_HPP
 
 #include "smoc_event_decls.hpp"
-#include <queue>
+#include <list>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
@@ -47,173 +47,202 @@
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace Detail {
 
-# ifdef SYSTEMOC_TRACE
-  struct DeferedTraceLogDumper;
-# endif
+#ifdef SYSTEMOC_TRACE
+struct DeferedTraceLogDumper;
+#endif
 
-  template<class FIFO_TYPE>
-  class LatencyQueue {    
+class EventQueue : protected smoc_event_listener {
+public:
+  /// @brief Queue event  
+  void addEntry(size_t n, const smoc_ref_event_p& le) {
+    bool queueEmpty = queue.empty();
+
+    if(queueEmpty && (!le || *le)) {
+      // shortcut processing
+      process(n);
+    }
+    else {
+      queue.push_back(Entry(n, le));
+      if(queueEmpty)
+        le->addListener(this);
+    }
+  }
+
+protected:
+
+  virtual void process(size_t n) = 0;
+
+  /// @brief See smoc_event_listener
+  void signaled(smoc_event_waiter *e) {
+    size_t n = 0;
+
+    assert(*e);
+    assert(!queue.empty());
+    assert(e == queue.front().second.get());
+
+    e->delListener(this);
+        
+    do {
+      n += queue.front().first;
+      queue.pop_front();
+    }
+    while(!queue.empty() && *queue.front().second);
+
+    process(n);
+
+    if(!queue.empty())
+      queue.front().second->addListener(this);    
+  }
+      
+  void eventDestroyed(smoc_event_waiter *_e)
+    { assert(!"eventDestroyed must never be called!"); }
+
+private:
+  typedef std::pair<size_t, smoc_ref_event_p> Entry;
+  typedef std::list<Entry>                    Queue;
+  Queue queue;
+};
+
+class CallbackEventQueue : public EventQueue {
+public:
+  /// @brief Process interface
+  class IProcess {
   public:
-    typedef LatencyQueue<FIFO_TYPE> this_type;
-  public:
-    class RequestQueue
-    : public smoc_event_listener {
-    protected:
-      typedef std::pair<size_t, smoc_ref_event_p> Entry;
-      typedef std::queue<Entry>                   Queue;
-    protected:
-      Queue queue;
-
-      smoc_event dummy;
-      this_type* top;
-    protected:
-      LatencyQueue<FIFO_TYPE> &getTop()
-        { return *top; }
-
-      void doSomething(size_t n);
-
-      void signaled(smoc_event_waiter *_e) {
-        size_t n = 0;
-        
-        assert(*_e);
-        assert(!queue.empty());
-        assert(_e == &*queue.front().second);
-        _e->delListener(this);
-        do {
-          n += queue.front().first;
-          queue.pop(); // pop from front of queue
-        } while (!queue.empty() && *queue.front().second);
-        doSomething(n);
-        if (!queue.empty())
-          queue.front().second->addListener(this);
-        return;// false;
-      }
-
-      void eventDestroyed(smoc_event_waiter *_e)
-        { assert(!"eventDestroyed must never be called !!!"); }
-    public:
-      RequestQueue(LatencyQueue<FIFO_TYPE>* top) : top(top) {}
-      void addEntry(size_t n, const smoc_ref_event_p &le) {
-        bool queueEmpty = queue.empty();
-        
-        if (queueEmpty && (!le || *le)) {
-          doSomething(n);
-        } else {
-          queue.push(Entry(n, le)); // insert at back of queue
-          if (queueEmpty)
-            le->addListener(this);
-        }
-      }
-
-      virtual ~RequestQueue() {}
-    } requestQueue;
-
-    class VisibleQueue
-    : public smoc_event_listener {
-    protected:
-      typedef std::pair<size_t, smoc_ref_event_p> Entry;
-      typedef std::queue<Entry>                   Queue;
-    protected:
-      Queue queue;
-      LatencyQueue<FIFO_TYPE>* top;
-    protected:
-       LatencyQueue<FIFO_TYPE> &getTop()
-        { return *top; }
-
-      void doSomething(size_t n);
-
-      void signaled(smoc_event_waiter *_e) {
-        size_t n = 0;
-        
-        assert(*_e);
-        assert(!queue.empty());
-        assert(_e == &*queue.front().second);
-        _e->delListener(this);
-        do {
-          n += queue.front().first;
-          queue.pop(); // pop from front of queue
-        } while (!queue.empty() && *queue.front().second);
-        doSomething(n);
-        if (!queue.empty())
-          queue.front().second->addListener(this);
-        return;// false;
-      }
-
-      void eventDestroyed(smoc_event_waiter *_e)
-        { assert(!"eventDestroyed must never be called !!!"); }
-    public:
-      VisibleQueue(LatencyQueue<FIFO_TYPE>* top) : top(top) {}
-      void addEntry(size_t n, const smoc_ref_event_p &le) {
-        bool queueEmpty = queue.empty();
-        
-        if (queueEmpty && (!le || *le)) {
-          doSomething(n);
-        } else {
-          queue.push(Entry(n, le)); // insert at back of queue
-          if (queueEmpty)
-            le->addListener(this);
-        }
-      }
-
-      virtual ~VisibleQueue() {}
-    } visibleQueue;
-
+    /// @brief Must call process
+    friend class CallbackEventQueue;
+    virtual ~IProcess() {}
   protected:
-
-    FIFO_TYPE *fifo;
-  public:
-     LatencyQueue<FIFO_TYPE>(FIFO_TYPE *fifo)
-      : requestQueue(this), visibleQueue(this), fifo(fifo) {}
-    void addEntry(size_t n, const smoc_ref_event_p &le)
-      { requestQueue.addEntry(n, le); }
+    virtual void process(size_t n) = 0;
   };
 
-  template<typename FIFO_TYPE>
-  void LatencyQueue<FIFO_TYPE>::RequestQueue::doSomething(size_t n) {
-//# ifdef SYSTEMOC_TRACE
-//    const char *name = getTop().fifo->name();
-//# endif
-    
-    for (;n > 0; --n) {
+  /// @brief Constructor
+  CallbackEventQueue(IProcess* proc) :
+    proc(proc)
+  {}
+
+protected:
+  /// @brief See EventQueue
+  void process(size_t n)
+    { proc->process(n); }
+
+private:
+  IProcess* proc;
+};
+
+class ChanLatencyQueue : public EventQueue {
+public:
+  /// @brief Constructor
+  ChanLatencyQueue(smoc_root_chan* chan, EventQueue& next) :
+    chan(chan),
+    next(next)
+  {}
+
+protected:
+  /// @brief See EventQueue
+  void process(size_t n) {
+    for(; n > 0; --n) {
       smoc_ref_event_p latEvent(new smoc_ref_event());
 # ifdef SYSTEMOC_TRACE
       smoc_ref_event_p diiEvent(new smoc_ref_event());
       
-      TraceLog.traceStartActor(getTop().fifo, "s");
+      TraceLog.traceStartActor(chan, "s");
 //    TraceLog.traceStartFunction("transmit");
 //    TraceLog.traceEndFunction("transmit");
-      TraceLog.traceEndActor(getTop().fifo);
+      TraceLog.traceEndActor(chan);
       
       SystemC_VPC::EventPair p(diiEvent.get(), latEvent.get());
 # else
       SystemC_VPC::EventPair p(&dummy, latEvent.get());
 # endif
       // new FastLink interface
-      getTop().fifo->vpcLink->compute(p);
+      chan->vpcLink->compute(p);
 # ifdef SYSTEMOC_TRACE
       if (!*diiEvent) {
         // dii event not signaled
-        diiEvent->addListener(new DeferedTraceLogDumper(diiEvent, getTop().fifo, "e"));
+        diiEvent->addListener(new DeferedTraceLogDumper(diiEvent, chan, "e"));
       } else {
-        TraceLog.traceStartActor(getTop().fifo, "e");
-        TraceLog.traceEndActor(getTop().fifo);
+        TraceLog.traceStartActor(chan, "e");
+        TraceLog.traceEndActor(chan);
       }
       if (!*latEvent) {
         // latency event not signaled
-        latEvent->addListener(new DeferedTraceLogDumper(latEvent, getTop().fifo, "l"));
+        latEvent->addListener(new DeferedTraceLogDumper(latEvent, chan, "l"));
       } else {
-        TraceLog.traceStartActor(getTop().fifo, "l");
-        TraceLog.traceEndActor(getTop().fifo);
+        TraceLog.traceStartActor(chan, "l");
+        TraceLog.traceEndActor(chan);
       }
 # endif
-      getTop().visibleQueue.addEntry(1, latEvent);
+      next.addEntry(1, latEvent);
     }
   }
+private:
+  smoc_root_chan* chan;
+  EventQueue& next;
+  smoc_event dummy;
+};
 
-  template<typename FIFO_TYPE>
-  void LatencyQueue<FIFO_TYPE>::VisibleQueue::doSomething(size_t n) {
-    getTop().fifo->latencyExpired(n);
-  }
+class LatencyQueue : public CallbackEventQueue::IProcess {    
+public:
+
+  class ILatencyExpired {
+  public:
+    /// @brief Must call latencyExpired
+    friend class LatencyQueue;
+    /// @brief Virtual destructor
+    virtual ~ILatencyExpired() {}
+  protected:
+    /// @brief Called when latency expired
+    virtual void latencyExpired(size_t n) = 0;
+  };
+    
+  template<class T>
+  LatencyQueue(T* t)
+    : latIf(t),
+      visibleQueue(this),
+      requestQueue(t, visibleQueue)
+  {}
+
+  void addEntry(size_t n, const smoc_ref_event_p &le)
+  { requestQueue.addEntry(n, le); }
+  
+protected:
+  void process(size_t n)
+    { latIf->latencyExpired(n); }
+
+private:
+  ILatencyExpired* latIf;
+  
+  CallbackEventQueue visibleQueue;
+  ChanLatencyQueue requestQueue;
+};
+
+class DIIQueue : public EventQueue {
+public:
+
+  class IDIIExpired {
+  public:
+    /// @brief Must call diiExpired
+    friend class DIIQueue;
+    /// @brief Virtual destructor
+    virtual ~IDIIExpired() {}
+  protected:
+    /// @brief Called when DII expired
+    virtual void diiExpired(size_t n) = 0;
+  };
+
+  /// @brief Constructor
+  DIIQueue(IDIIExpired* t)
+    : diiIf(t)
+  {}
+
+protected:
+  /// @brief See EventQueue
+  void process(size_t n)
+    { diiIf->diiExpired(n); }
+
+private:
+  IDIIExpired* diiIf;
+};
 
 } // namespace Detail
 #endif // SYSTEMOC_ENABLE_VPC
