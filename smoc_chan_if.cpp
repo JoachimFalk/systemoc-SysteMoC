@@ -113,6 +113,11 @@ void smoc_root_chan::finalise() {
     new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
                                getFastLink( fifo, destination, "1" ) );
 
+
+  //FIXME: QUICKHACK:
+  this->setChannelID( source,
+                      vpcLinkWriteHop->process,
+                      myName );
 #endif //SYSTEMOC_ENABLE_VPC
 }
 

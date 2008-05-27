@@ -41,8 +41,47 @@
 
 #include <systemoc/ChannelAccessListener.hpp>
 
+#include <boost/type_traits.hpp> 
+#include <cosupport/ChannelModificationListener.hpp> 
+
+template<class T,
+         bool is_subclass =
+         boost::is_base_of<ChannelModificationListener, T>::value>
+class smoc_modification_listener{
+public:
+  void setChannelID( std::string sourceActor,
+                     ChannelId id,
+                     std::string name ){}
+protected:
+  void fireModified( const T &t ) const {}
+};
+
+template<class T>
+class smoc_modification_listener <T, true>{
+public:
+  void setChannelID( std::string sourceActor,
+                     ChannelId id,
+                     std::string name ){
+    //FIXME:
+    T t; t.registerChannel(sourceActor, id, name);
+
+    channelId = id;
+    //cerr << "2  setChannelID " << sourceActor << " " << name << " "
+    //     << id << endl;
+    
+  }
+protected:
+  void fireModified( const T &t ) const {
+    //cerr << "2 fireModified(...) " << endl;
+    t.modified(channelId);
+  }
+private:
+  ChannelId channelId;
+};
+
 template<class T>
 class smoc_storage
+  : public smoc_modification_listener<T>
 {
 private:
   char mem[sizeof(T)];
@@ -68,13 +107,17 @@ public:
     this->fireRead();
 #endif // SYSTEMOC_ENABLE_VPC
     assert(valid);
-    return *ptr();
+    const T &t = *ptr();
+    // delayed read access (VPC) may conflict with channel (in-)validation
+    this->fireModified( t );
+    return t;
   }
 
   operator const T&() const
     { return get(); }
 
   void put(const T &t) {
+    this->fireModified( t );
 #ifdef SYSTEMOC_ENABLE_VPC
     this->fireWrite();
 #endif // SYSTEMOC_ENABLE_VPC

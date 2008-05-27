@@ -516,6 +516,11 @@ public:
 			bool ignore_window_iteration = true
 			) const;
 
+  /// This function determines whether the current loop iterator
+  /// has its maximum position for all iteration levels not contributing
+  /// to any token dimension
+  bool is_virt_iteration_max() const;
+
   /// This function calculates the window displacement from the SOURCE 
   /// POINT of view. Due to border processing this is not identical
   /// with the displacement from the sink point of view.

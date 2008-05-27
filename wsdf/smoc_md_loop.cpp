@@ -613,7 +613,7 @@ bool smoc_snk_md_loop_iterator_kind::is_iteration_max(
 						      bool ignore_window_iteration
 						      ) const {
         
-  unsigned loop_bound = 
+  const unsigned loop_bound = 
     ignore_window_iteration ? mapping_matrix.size2() - _token_dimensions : mapping_matrix.size2();
 
   for(unsigned col = 0; col < loop_bound; col++){
@@ -626,6 +626,19 @@ bool smoc_snk_md_loop_iterator_kind::is_iteration_max(
 
   return true;
 
+}
+
+bool smoc_snk_md_loop_iterator_kind::is_virt_iteration_max() const {
+  const unsigned loop_bound = 
+    mapping_matrix.size2() - _token_dimensions;
+  
+  for(unsigned col = 0; col < loop_bound; col++){
+    if ((mapping_table[col] < 0) && 
+        (current_iteration[col] != iteration_max()[col]))
+      return false;
+  }
+
+  return true;
 }
 
 bool
@@ -775,6 +788,11 @@ smoc_snk_md_loop_iterator_kind::calc_consumed_window_iterations(
 								iter_domain_vector_type& consumed_window_start,
 								iter_domain_vector_type& consumed_window_end
 								) const {
+
+  if (!is_virt_iteration_max())
+    //No data element is read the last time.
+    return false;
+
   for(unsigned int i = 0; i < _token_dimensions; i++){
 
     //in order to make things simpler

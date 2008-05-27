@@ -104,6 +104,11 @@ namespace smoc_md_ba {
     //has been consumed the last time
     
     snk2src_invocation_table[current_iteration] = 0;    
+
+    /*   ***************  Update src2snk table ****************** */
+    if (snk_schedule_period < 1){
+      src2snk_invocation_table[current_src_iteration]++;
+    }
   }
 
   void 

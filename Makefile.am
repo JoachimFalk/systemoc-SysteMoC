@@ -125,7 +125,15 @@ if SYSTEMOC_ENABLE_VPC
 SYSTEMC_VPC_LIB = -lsystemcvpc
 endif
 
-libsystemoc_la_LDFLAGS = -version-info 0:0:0 -no-undefined $(SYSTEMC_VPC_LIB) -lcosupport -lsystemc -lstdc++
+libsystemoc_la_LDFLAGS =				\
+	-version-info 0:0:0 				\
+	-no-undefined 					\
+	$(SYSTEMC_VPC_LIB) 				\
+	-lcosupport 					\
+	-lsystemc 					\
+	-lstdc++					\
+	-lboost_program_options@BOOST_LIBPOSTFIX@
+
 libsystemoc_la_LIBADD = $(libsystemoc_CH_LTOBJS)
 libsystemoc_la_DEPENDENCIES = compileheader-libsystemoc.stamp @SUPPORT_DEPENDENCIES@ @SYSTEMC_VPC_DEPENDENCIES@
 

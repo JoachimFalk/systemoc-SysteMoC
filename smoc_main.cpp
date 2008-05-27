@@ -36,19 +36,60 @@
 #include "sysc/kernel/sc_cmnhdr.h"
 #include "sysc/kernel/sc_externs.h"
 
+#include <cstring>
+
+#include <cosupport/AlternateStream.hpp>
+
 #include <systemoc/smoc_pggen.hpp>
 
-int main(int argc, char* argv[]) {
-  int i, j;
+#include <boost/program_options.hpp>
+
+using namespace boost::program_options;
+
+int main(int _argc, char* _argv[]) {
+  options_description od;
+  od.add_options()
+    ("export-smx",
+     value<std::string>(),
+     "dump SysteMoC-XML after elaboration");
   
-  for (i = j = 0; argv[i] != NULL; i++) {
-    if(!strcmp(argv[i], "--generate-problemgraph") ||
-       !strcmp(argv[i], "--generate-networkgraph")) {
-      smoc_modes::dumpProblemgraph = true;
-      --argc;
-      continue;
+  parsed_options parsed =
+    command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
+
+  int argc = 1;
+  char **argv = _argv;
+
+  for(std::vector< basic_option<char> >::const_iterator i = parsed.options.begin();
+      i != parsed.options.end();
+      ++i)
+  {
+    if(i->string_key == "export-smx") {
+      assert(smoc_modes::dumpFileSMX == NULL);      
+      assert(!i->value.empty());
+      
+      smoc_modes::dumpFileSMX =
+        new CoSupport::AOStream(std::cout, i->value.front(), "-");
     }
-    argv[j++] = argv[i];
+    if(i->unregistered || i->position_key != -1) {
+      for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
+          j != i->original_tokens.end();
+          ++j)
+        if ((argv[argc++] = strdup(j->c_str())) == NULL)
+          throw std::bad_alloc();
+    }
   }
-  return sc_core::sc_elab_and_sim(argc, argv);
+
+  argv[argc] = 0;
+  assert(argc <= _argc);
+
+  int ret = sc_core::sc_elab_and_sim(argc, argv);
+
+  // Do not free argv[0] it was not strdupped
+  for(--argc; argc >= 1; --argc)
+    free(argv[argc]);
+
+  // delete null pointer is allowed...
+  delete smoc_modes::dumpFileSMX;
+  
+  return ret;
 }

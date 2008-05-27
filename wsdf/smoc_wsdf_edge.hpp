@@ -35,7 +35,7 @@ public:
   typedef smoc_vector<bool> bvector_type;
 
   //Specification of iteration domain
-  typedef smoc_vector<udata_type> iter_domain_vector_type;
+  typedef smoc_numeric_vector<udata_type> iter_domain_vector_type;
 
 public:
 
@@ -248,13 +248,13 @@ public:
   typedef unsigned long udata_type;
 
   /// signed vector
-  typedef smoc_vector<sdata_type> svector_type;
+  typedef smoc_numeric_vector<sdata_type> svector_type;
 
   ///vector of svector_type
   typedef smoc_vector<svector_type> s2vector_type;
 
   /// unsigned vector
-  typedef smoc_vector<udata_type> uvector_type;
+  typedef smoc_numeric_vector<udata_type> uvector_type;
 
   ///vector of uvector_type
   typedef smoc_vector<uvector_type> u2vector_type;
@@ -278,6 +278,12 @@ public:
   ///                       The first vector describes the smallest block
   ///                       and describes the effective token size.
   /// snk_firing_blocks   : Describes the size of the firing blocks.
+  ///                       Ordinarily the firing blocks must have the same dimension
+  ///                       as token_dimensions.
+  ///                       However, it is possible to introduce a virtual dimension.
+  ///                       Then the firing blocks must have token_dimensions+1
+  ///                       dimensions and the last element belongs to the virtual
+  ///                       dimension.
   /// u0                  : Size of the virtual token union (in number of data elements)
   ///                       WITHOUT extended border!
   /// c                   : Size of sliding window
@@ -294,6 +300,7 @@ public:
 		       const svector_type& bs,
 		       const svector_type& bt)
     : token_dimensions(token_dimensions),
+      snk_firing_block_dimensions(snk_firing_blocks[0].size()),
       src_firing_blocks(src_firing_blocks),
       src_num_firing_levels(src_firing_blocks.size()),
       src_num_eff_token_firing_levels(1),
@@ -322,6 +329,7 @@ public:
 		       const svector_type& bs,
 		       const svector_type& bt)
     : token_dimensions(token_dimensions),
+      snk_firing_block_dimensions(snk_firing_blocks[0].size()),
       src_firing_blocks(src_firing_blocks),
       src_num_firing_levels(src_firing_blocks.size()),
       src_num_eff_token_firing_levels(1),
@@ -456,6 +464,13 @@ public:
   /* WSDF edge parameters */
   const unsigned token_dimensions;
 
+protected:
+  /* In case of a virtual dimension, the dimension
+     of the sink firing block might be one larger
+     than token_dimensions;
+  */
+  const unsigned snk_firing_block_dimensions;
+     
 
 protected:
 

@@ -53,9 +53,9 @@ using namespace CoSupport;
 
 void smoc_scheduler_top::elabEnd(smoc_graph *c) {
   c->finalise();
-  if (smoc_modes::dumpProblemgraph) {
-    smoc_modes::dump(std::cout, *c);
-    exit(0);
+  if (smoc_modes::dumpFileSMX != NULL) {
+    smoc_modes::dump(c);
+    sc_core::sc_stop();
   }
 }
 
@@ -200,7 +200,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
         else if(defined.size()) cerr << " (defined) " << defined.size();
         else                    cerr << " ------------ " ;
 
-        cerr << endl;
+        cerr <<" @ " << sc_time_stamp() << endl;
       )
       //Select one of the transition lists by priority
       // (inCommState, bottom, nonStrict)
@@ -474,7 +474,6 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
                 actualDefined        += countDefinedOutports(n);
                 if(actualDefined > 0){ // some outputs or inputs are defined
 
-                  //FIXME(MS): assume not to call compute (no commState)
                   transition.execute(&n._currentState,
                                      &n,
                                      smoc_firing_types::transition_ty::TICK);
@@ -599,15 +598,21 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
            !inCommState &&
 #endif
            !bottom && !nonStrict ){
-          //cerr << "WAIT" << endl;
           smoc_transition_ready_list all;
 #ifdef SYSTEMOC_ENABLE_VPC
           if( !inCommState.empty()       ) all |= inCommState;
 #endif
           if( !bottom.empty()            ) all |= bottom;
           if( !nonStrict.empty()         ) all |= nonStrict;
-          if( !nonStrictReleased.empty() ) all |= nonStrictReleased;
-          if( !all.empty()               ) smoc_wait(all);
+          if(
+#ifdef SYSTEMOC_ENABLE_VPC
+              inCommState.empty() &&
+#endif
+              !nonStrictReleased.empty() ) all |= nonStrictReleased;
+          if( !all.empty() && !all       ) {
+            DEBUG_CODE(cerr << "WAIT " << sc_time_stamp() << endl;)
+            smoc_wait(all);
+          }
         }
   
       }while(1);
