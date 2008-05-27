@@ -127,24 +127,28 @@ void smoc_root_chan::finalise() {
 
 void smoc_nonconflicting_chan::finalise() {
   smoc_root_chan::finalise();
-  assert(getInputPorts().size() <= 1);
-  assert(getOutputPorts().size() <= 1);
+  assert(getInputPorts().size() == 1);
+  assert(getOutputPorts().size() == 1);
 }
 
 void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
-  assert(getInputPorts().size() <= 1);
-  assert(getOutputPorts().size() <= 1);
+  
+  const sc_port_list& inPorts = getInputPorts();
+  const sc_port_list& outPorts = getOutputPorts();
+
+  assert(inPorts.size() == 1);
+  assert(outPorts.size() == 1);
   
   IdAttr idChannel = idPool.printId(this);
 
-  IdAttr idChannelPortIn = getInputPorts().empty() ?
-    idPool.printIdInvalid() : idPool.printId(getInputPorts().front(), 1);
+  IdAttr idChannelPortIn = inPorts.empty() ?
+    idPool.printIdInvalid() : idPool.printId(inPorts.front(), 1);
 
-  IdAttr idChannelPortOut = getOutputPorts().empty() ?
-    idPool.printIdInvalid() : idPool.printId(getOutputPorts().front(), 1);
+  IdAttr idChannelPortOut = outPorts.empty() ?
+    idPool.printIdInvalid() : idPool.printId(outPorts.front(), 1);
 
-  smoc_sysc_port *ifPort = getOutputPorts().empty() ?
-    0 : dynamic_cast<smoc_sysc_port*>(getOutputPorts().front());
+  smoc_sysc_port *ifPort = outPorts.empty() ?
+    0 : dynamic_cast<smoc_sysc_port*>(outPorts.front());
 
   // search highest interface port (multiple hierachie layers)
   // FIXME: should be supported by SYSTEMC!!!!! (breaks everything)
@@ -173,8 +177,8 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
     pgw.indentDown();
   }
 
-  ifPort = getInputPorts().empty() ?
-    0 : dynamic_cast<smoc_sysc_port*>(getInputPorts().front());
+  ifPort = inPorts.empty() ?
+    0 : dynamic_cast<smoc_sysc_port*>(inPorts.front());
 
   // search highest interface port (multiple hierachie layers)
   // FIXME: should be supported by SYSTEMC!!!!! (breaks everything)
@@ -197,13 +201,17 @@ smoc_nonconflicting_chan::getChannelTypeString() const {
 
 void smoc_multicast_chan::finalise() {
   smoc_root_chan::finalise();
-  //assert(getOutputPorts().size() == 1);
-  // supporting dangling signals (no inPort at channel egress)
-  //assert(getInputPorts().size() >= 1);
+  //assert(!getInputPorts().empty());
+  //assert(!getOutputPorts().empty());
 }
 
 void smoc_multicast_chan::assemble(smoc_modes::PGWriter &pgw) const {
-  assert(!getInputPorts().empty() && !getOutputPorts().empty());
+  
+  const sc_port_list& inPorts = getInputPorts();
+  const sc_port_list& outPorts = getOutputPorts();
+
+  assert(!inPorts.empty());
+  assert(!outPorts.empty());
   
   // FIXME: BIG HACK !!!
   const_cast<this_type *>(this)->finalise();
