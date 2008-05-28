@@ -149,8 +149,11 @@ public:
 protected:
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commExec(size_t n, const smoc_ref_event_p &le)
-    { return (*this)->commitRead(n, le); }
+  void commExec(
+      size_t n,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent)
+    { return (*this)->commitRead(n, diiEvent); }
 #else
   void commExec(size_t n)
     { return (*this)->commitRead(n); }
@@ -203,8 +206,11 @@ public:
 protected:
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commExec(size_t n, const smoc_ref_event_p &le)
-    { return (*this)->commitWrite(n, le); }
+  void commExec(
+      size_t n,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent)
+    { return (*this)->commitWrite(n, latEvent); }
 #else
   void commExec(size_t n)
     { return (*this)->commitWrite(n); }

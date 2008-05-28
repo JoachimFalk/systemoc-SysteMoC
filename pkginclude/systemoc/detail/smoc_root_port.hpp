@@ -236,14 +236,17 @@ struct CommExec<DComm<P, E> > {
   typedef void                    result_type;
 #ifdef SYSTEMOC_ENABLE_VPC
   typedef const smoc_ref_event_p &param1_type;
+  typedef const smoc_ref_event_p &param2_type;
 
   static inline
-  result_type apply(const DComm<P, E> &e, const smoc_ref_event_p &le) {
+  result_type apply(const DComm<P, E> &e,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DComm<P, E> >"
                  "::apply(" << e.p << ", ... )" << std::endl;
 # endif
-    return e.p.commExec(Value<E>::apply(e.e), le);
+    return e.p.commExec(Value<E>::apply(e.e), diiEvent, latEvent);
   }
 #else
   static inline
@@ -300,9 +303,12 @@ protected:
 
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
-  virtual void commExec(size_t, const smoc_ref_event_p &) = 0;
+  virtual void commExec(
+      size_t n,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent) = 0;
 #else
-  virtual void commExec(size_t)                           = 0;
+  virtual void commExec(size_t)         = 0;
 #endif
 public:
 #ifndef NDEBUG

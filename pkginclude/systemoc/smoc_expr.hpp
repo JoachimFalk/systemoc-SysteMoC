@@ -169,9 +169,10 @@ struct CommExec {
   typedef void                    result_type;
 #ifdef SYSTEMOC_ENABLE_VPC
   typedef const smoc_ref_event_p &param1_type;
+  typedef const smoc_ref_event_p &param2_type;
   
   static inline
-  result_type apply(const E &e, const smoc_ref_event_p &le) {}
+  result_type apply(const E &e, const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent) {}
 #else
   static inline
   result_type apply(const E &e) {}
@@ -242,8 +243,17 @@ typename Z<E>::result_type evalTo(const D<E> &e) {
 
 template<template <class> class Z, class E>
 static inline
-typename Z<E>::result_type evalTo(const D<E> &e, typename Z<E>::param1_type p) {
-  return Z<E>::apply(e.getExpr(), p);
+typename Z<E>::result_type evalTo(const D<E> &e,
+    typename Z<E>::param1_type p1) {
+  return Z<E>::apply(e.getExpr(), p1);
+}
+
+template<template <class> class Z, class E>
+static inline
+typename Z<E>::result_type evalTo(const D<E> &e,
+    typename Z<E>::param1_type p1,
+    typename Z<E>::param2_type p2) {
+  return Z<E>::apply(e.getExpr(), p1, p2);
 }
 
 /****************************************************************************
@@ -292,8 +302,9 @@ private:
   struct virt_ty: public CoSupport::SmartPtr::RefCountObject {
     virtual PASTNode   evalToAST()         const = 0;
 #ifdef SYSTEMOC_ENABLE_VPC
-    virtual void       evalToCommExec
-              (const smoc_ref_event_p &le) const = 0;
+    virtual void       evalToCommExec(
+        const smoc_ref_event_p &diiEvent,
+        const smoc_ref_event_p &latEvent)  const = 0;
 #else
     virtual void       evalToCommExec()    const = 0;
 #endif
@@ -301,10 +312,10 @@ private:
     virtual void       evalToCommReset()   const = 0;
     virtual void       evalToCommSetup()   const = 0;
 #endif
-    virtual void       evalToSensitivity
-                 (smoc_event_and_list &al) const = 0;
-    virtual void       evalToCommitCount
-                 (port_commit_map &)  const = 0;
+    virtual void       evalToSensitivity(
+       smoc_event_and_list &al)            const = 0;
+    virtual void       evalToCommitCount(
+       port_commit_map &)                  const = 0;
     virtual T          evalToValue()       const = 0;
   };
 
@@ -321,8 +332,10 @@ private:
     PASTNode   evalToAST() const
       { return AST<E>::apply(e); }
 #ifdef SYSTEMOC_ENABLE_VPC
-    void       evalToCommExec(const smoc_ref_event_p &le) const
-      { return CommExec<E>::apply(e, le); }
+    void       evalToCommExec(
+        const smoc_ref_event_p &diiEvent,
+        const smoc_ref_event_p &latEvent) const
+      { return CommExec<E>::apply(e, diiEvent, latEvent); }
 #else
     void       evalToCommExec() const
       { return CommExec<E>::apply(e); }
@@ -333,11 +346,11 @@ private:
     void       evalToCommSetup() const
       { return CommSetup<E>::apply(e); }
 #endif
-    void       evalToSensitivity
-         (smoc_event_and_list &al) const
+    void       evalToSensitivity(
+         smoc_event_and_list &al) const
       { return Sensitivity<E>::apply(e, al); }
-    void       evalToCommitCount
-         (port_commit_map &pcm)  const
+    void       evalToCommitCount(
+         port_commit_map &pcm)  const
       { return CommitCount<E>::apply(e, pcm); }
     T          evalToValue() const
       { return Value<E>::apply(e); }
@@ -366,13 +379,14 @@ struct CommExec<DVirtual<T> > {
   typedef void                    result_type;
 #ifdef SYSTEMOC_ENABLE_VPC
   typedef const smoc_ref_event_p &param1_type;
+  typedef const smoc_ref_event_p &param2_type;
 
   static inline
-  result_type apply(const DVirtual <T> &e, const smoc_ref_event_p &le) {
+  result_type apply(const DVirtual <T> &e, const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DVirtual<T> >::apply(e)" << std::endl;
 # endif
-    return e.v->evalToCommExec(le);
+    return e.v->evalToCommExec(diiEvent, latEvent);
   }
 #else
   static inline
@@ -863,14 +877,15 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
 
   typedef void                            result_type;
 #ifdef SYSTEMOC_ENABLE_VPC
-  typedef const smoc_ref_event_p         &param1_type;
+  typedef const smoc_ref_event_p &param1_type;
+  typedef const smoc_ref_event_p &param2_type;
 
   static inline
-  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e, const smoc_ref_event_p &le) {
+  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e, const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
 # endif
-    OpT::apply(e.a, e.b, le);
+    OpT::apply(e.a, e.b, diiEvent, latEvent);
   }
 #else // !SYSTEMOC_ENABLE_VPC
   static inline
@@ -1031,7 +1046,9 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
   template <class A, class B>
   static inline
 #ifdef SYSTEMOC_ENABLE_VPC
-  void apply(const A &a, const B &b, const smoc_ref_event_p &le)
+  void apply(const A &a, const B &b,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent)
     {}
 #else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b)
@@ -1046,8 +1063,10 @@ struct DBinOpExecute<Detail::Process,Detail::Ignore,DOpBinLAnd,CommExec> {
   template <class A, class B>
   static inline
 #ifdef SYSTEMOC_ENABLE_VPC
-  void apply(const A &a, const B &b, const smoc_ref_event_p &le)
-    { CommExec<A>::apply(a, le); }
+  void apply(const A &a, const B &b,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent)
+    { CommExec<A>::apply(a, diiEvent, latEvent); }
 #else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b)
     { CommExec<A>::apply(a); }
@@ -1061,8 +1080,10 @@ struct DBinOpExecute<Detail::Ignore,Detail::Process,DOpBinLAnd,CommExec> {
   template <class A, class B>
   static inline
 #ifdef SYSTEMOC_ENABLE_VPC
-  void apply(const A &a, const B &b, const smoc_ref_event_p &le)
-    { CommExec<B>::apply(b, le); }
+  void apply(const A &a, const B &b,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent)
+    { CommExec<B>::apply(b, diiEvent, latEvent); }
 #else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b)
     { CommExec<B>::apply(b); }
@@ -1076,9 +1097,12 @@ struct DBinOpExecute<Detail::Process,Detail::Process,DOpBinLAnd,CommExec> {
   template <class A, class B>
   static inline
 #ifdef SYSTEMOC_ENABLE_VPC
-  void apply(const A &a, const B &b, const smoc_ref_event_p &le) {
-    CommExec<A>::apply(a, le);
-    CommExec<B>::apply(b, le);
+  void apply(const A &a, const B &b,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent)
+  {
+    CommExec<A>::apply(a, diiEvent, latEvent);
+    CommExec<B>::apply(b, diiEvent, latEvent);
   }
 #else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b) {
