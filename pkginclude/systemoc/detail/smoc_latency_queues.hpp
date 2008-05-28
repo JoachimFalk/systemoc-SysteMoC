@@ -67,26 +67,7 @@ protected:
   const boost::function<void (size_t)>  process;
 protected:
   /// @brief See smoc_event_listener
-  void signaled(smoc_event_waiter *e) {
-    size_t n = 0;
-    
-    assert(*e);
-    assert(!queue.empty());
-    assert(e == queue.front().second.get());
-    
-    e->delListener(this);
-        
-    do {
-      n += queue.front().first;
-      queue.pop_front();
-    }
-    while(!queue.empty() && *queue.front().second);
-    
-    process(n);
-    
-    if(!queue.empty())
-      queue.front().second->addListener(this);    
-  }
+  void signaled(smoc_event_waiter *e);
 
   void eventDestroyed(smoc_event_waiter *_e)
     { assert(!"eventDestroyed must never be called!"); }
@@ -95,18 +76,7 @@ public:
     : process(proc) {}
 
   /// @brief Queue event  
-  void addEntry(size_t n, const smoc_ref_event_p& le) {
-    bool queueEmpty = queue.empty();
-    
-    if(queueEmpty && (!le || *le)) {
-      // shortcut processing
-      process(n);
-    } else {
-      queue.push_back(Entry(n, le));
-      if(queueEmpty)
-        le->addListener(this);
-    }
-  }
+  void addEntry(size_t n, const smoc_ref_event_p& le);
 
 };
 

@@ -78,6 +78,40 @@ namespace Detail {
 
 # endif // SYSTEMOC_TRACE
 
+  void EventQueue::signaled(smoc_event_waiter *e) {
+    size_t n = 0;
+    
+    assert(*e);
+    assert(!queue.empty());
+    assert(e == queue.front().second.get());
+    
+    e->delListener(this);
+        
+    do {
+      n += queue.front().first;
+      queue.pop_front();
+    }
+    while(!queue.empty() && *queue.front().second);
+    
+    process(n);
+    
+    if(!queue.empty())
+      queue.front().second->addListener(this);    
+  }
+
+  void EventQueue::addEntry(size_t n, const smoc_ref_event_p& le) {
+    bool queueEmpty = queue.empty();
+    
+    if(queueEmpty && (!le || *le)) {
+      // shortcut processing
+      process(n);
+    } else {
+      queue.push_back(Entry(n, le));
+      if(queueEmpty)
+        le->addListener(this);
+    }
+  }
+
   void LatencyQueue::actorTokenLatencyExpired(size_t n) {
     for(; n > 0; --n) {
       smoc_ref_event_p latEvent(new smoc_ref_event());
