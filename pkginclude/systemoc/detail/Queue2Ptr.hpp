@@ -73,7 +73,7 @@ namespace Detail {
     size_t freeCount() const {
       size_t unused =
         rindex - windex - 1;
-
+      
       if (unused > fsize)
         unused += fsize;
       return unused;
@@ -101,6 +101,10 @@ namespace Detail {
     void rpp(size_t n) {
       assert(n <= visibleCount());
       rindex = (rindex + n) % fsize;
+    }
+
+    void fpp(size_t n) {
+      // Dummy does nothing
     }
   };
 

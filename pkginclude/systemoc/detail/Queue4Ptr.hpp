@@ -43,10 +43,23 @@ namespace Detail {
 
   class Queue4Ptr: public Queue2Ptr {
   protected:
+    /*             fsize
+     *   ____________^___________
+     *  /                        \
+     * |FFCCCCCCCVVVVVVVPPPPPPPFFF|
+     *    ^      ^      ^      ^
+     *  findex rindex vindex windex
+     *
+     *  F: The free space area of size (findex - windex - 1) % fsize
+     *  V: The visible token area of size (vindex - rindex) % fsize
+     *  P: The token which are still in the pipeline (latency not expired)
+     *  C: The token which are in the process of being consumed (actor dii not expired)
+     */
+    size_t       findex;  ///< The FIFO free    ptr
     size_t       vindex;  ///< The FIFO visible ptr
   public:
     Queue4Ptr(size_t n)
-      : Queue2Ptr(n), vindex(0) {}
+      : Queue2Ptr(n), findex(0), vindex(0) {}
 
     size_t visibleCount() const {
       size_t used =
@@ -57,8 +70,32 @@ namespace Detail {
       return used;
     }
 
+    size_t freeCount() const {
+      size_t unused =
+        findex - windex - 1;
+      
+      if (unused > fsize)
+        unused += fsize;
+      return unused;
+    }
+
+#ifndef NDEBUG
+    // This differs from Queue2Ptr::wpp due to the different definition of
+    // freeCount. Therefore, the assertion is more paranoid.
+    void wpp(size_t n) {
+      assert(n <= freeCount());
+      windex = (windex + n) % fsize;
+    }
+#endif
+
     void vpp(size_t n) {
-      assert(n <= usedCount() - visibleCount());
+#ifndef NDEBUG
+      size_t invisible =
+        windex - vindex;
+      if (invisible > fsize)
+        invisible += fsize;
+      assert(n <= invisible);
+#endif
       vindex = (vindex + n) % fsize;
       // PARANOIA: rindex <= vindex <= windex in modulo fsize arith
       assert(vindex < fsize &&
@@ -74,6 +111,22 @@ namespace Detail {
       rindex = (rindex + n) % fsize;
     }
 #endif
+
+    void fpp(size_t n) {
+#ifndef NDEBUG
+      size_t inconsume =
+        rindex - findex;
+      if (inconsume > fsize)
+        inconsume += fsize;
+      assert(n <= inconsume);
+#endif
+      assert(n <= depthCount() - usedCount());
+      findex = (findex + n) % fsize;
+      // PARANOIA: windex <= findex <= rindex in modulo fsize arith
+      assert(findex < fsize &&
+        (rindex >= windex && (findex >= windex && findex <= rindex) ||
+         rindex <  windex && (findex >= windex || findex <= rindex)));
+    }
   };
 
 } // namespace Detail
