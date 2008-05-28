@@ -37,12 +37,16 @@
 #ifndef _INCLUDED_SMOC_LATENCY_QUEUES_HPP
 #define _INCLUDED_SMOC_LATENCY_QUEUES_HPP
 
-#include "smoc_event_decls.hpp"
 #include <list>
+#include <systemoc/smoc_config.h>
+#include "smoc_event_decls.hpp"
+#include "smoc_root_chan.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
+
+#include <boost/function.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace Detail {
@@ -51,35 +55,25 @@ namespace Detail {
 struct DeferedTraceLogDumper;
 #endif
 
-class EventQueue : protected smoc_event_listener {
-public:
-  /// @brief Queue event  
-  void addEntry(size_t n, const smoc_ref_event_p& le) {
-    bool queueEmpty = queue.empty();
-
-    if(queueEmpty && (!le || *le)) {
-      // shortcut processing
-      process(n);
-    }
-    else {
-      queue.push_back(Entry(n, le));
-      if(queueEmpty)
-        le->addListener(this);
-    }
-  }
-
+class EventQueue
+: protected smoc_event_listener {
+private:
+  typedef EventQueue this_type;
 protected:
-
-  virtual void process(size_t n) = 0;
-
+  typedef std::pair<size_t, smoc_ref_event_p> Entry;
+  typedef std::list<Entry>                    Queue;
+protected:
+  Queue                                 queue;
+  const boost::function<void (size_t)>  process;
+protected:
   /// @brief See smoc_event_listener
   void signaled(smoc_event_waiter *e) {
     size_t n = 0;
-
+    
     assert(*e);
     assert(!queue.empty());
     assert(e == queue.front().second.get());
-
+    
     e->delListener(this);
         
     do {
@@ -87,101 +81,38 @@ protected:
       queue.pop_front();
     }
     while(!queue.empty() && *queue.front().second);
-
+    
     process(n);
-
+    
     if(!queue.empty())
       queue.front().second->addListener(this);    
   }
-      
+
   void eventDestroyed(smoc_event_waiter *_e)
     { assert(!"eventDestroyed must never be called!"); }
-
-private:
-  typedef std::pair<size_t, smoc_ref_event_p> Entry;
-  typedef std::list<Entry>                    Queue;
-  Queue queue;
-};
-
-class CallbackEventQueue : public EventQueue {
 public:
-  /// @brief Process interface
-  class IProcess {
-  public:
-    /// @brief Must call process
-    friend class CallbackEventQueue;
-    virtual ~IProcess() {}
-  protected:
-    virtual void process(size_t n) = 0;
-  };
+  EventQueue(const boost::function<void (size_t)> &proc)
+    : process(proc) {}
 
-  /// @brief Constructor
-  CallbackEventQueue(IProcess* proc) :
-    proc(proc)
-  {}
-
-protected:
-  /// @brief See EventQueue
-  void process(size_t n)
-    { proc->process(n); }
-
-private:
-  IProcess* proc;
-};
-
-class ChanLatencyQueue : public EventQueue {
-public:
-  /// @brief Constructor
-  ChanLatencyQueue(smoc_root_chan* chan, EventQueue& next) :
-    chan(chan),
-    next(next)
-  {}
-
-protected:
-  /// @brief See EventQueue
-  void process(size_t n) {
-    for(; n > 0; --n) {
-      smoc_ref_event_p latEvent(new smoc_ref_event());
-# ifdef SYSTEMOC_TRACE
-      smoc_ref_event_p diiEvent(new smoc_ref_event());
-      
-      TraceLog.traceStartActor(chan, "s");
-//    TraceLog.traceStartFunction("transmit");
-//    TraceLog.traceEndFunction("transmit");
-      TraceLog.traceEndActor(chan);
-      
-      SystemC_VPC::EventPair p(diiEvent.get(), latEvent.get());
-# else
-      SystemC_VPC::EventPair p(&dummy, latEvent.get());
-# endif
-      // new FastLink interface
-      chan->vpcLink->compute(p);
-# ifdef SYSTEMOC_TRACE
-      if (!*diiEvent) {
-        // dii event not signaled
-        diiEvent->addListener(new DeferedTraceLogDumper(diiEvent, chan, "e"));
-      } else {
-        TraceLog.traceStartActor(chan, "e");
-        TraceLog.traceEndActor(chan);
-      }
-      if (!*latEvent) {
-        // latency event not signaled
-        latEvent->addListener(new DeferedTraceLogDumper(latEvent, chan, "l"));
-      } else {
-        TraceLog.traceStartActor(chan, "l");
-        TraceLog.traceEndActor(chan);
-      }
-# endif
-      next.addEntry(1, latEvent);
+  /// @brief Queue event  
+  void addEntry(size_t n, const smoc_ref_event_p& le) {
+    bool queueEmpty = queue.empty();
+    
+    if(queueEmpty && (!le || *le)) {
+      // shortcut processing
+      process(n);
+    } else {
+      queue.push_back(Entry(n, le));
+      if(queueEmpty)
+        le->addListener(this);
     }
   }
-private:
-  smoc_root_chan* chan;
-  EventQueue& next;
-  smoc_event dummy;
+
 };
 
-class LatencyQueue : public CallbackEventQueue::IProcess {    
+class LatencyQueue {
+private:
+  typedef LatencyQueue this_type;
 public:
 
   class ILatencyExpired {
@@ -194,28 +125,37 @@ public:
     /// @brief Called when latency expired
     virtual void latencyExpired(size_t n) = 0;
   };
-    
-  template<class T>
-  LatencyQueue(T* t)
-    : latIf(t),
-      visibleQueue(this),
-      requestQueue(t, visibleQueue)
-  {}
+
+protected:
+  EventQueue       requestQueue;
+  EventQueue       visibleQueue;
+  smoc_event       dummy;
+  smoc_root_chan  *chan;
+protected:
+  /// @brief See EventQueue
+  void actorTokenLatencyExpired(size_t n);
+public:
+  LatencyQueue(
+      const boost::function<void (size_t)> &latencyExpired,
+      smoc_root_chan *chan)
+    : requestQueue(std::bind1st(
+        std::mem_fun(&this_type::actorTokenLatencyExpired), this)),
+      visibleQueue(latencyExpired),
+      chan(chan) {}
+
+  template <class T>
+  LatencyQueue(T *chan)
+    : requestQueue(std::bind1st(
+        std::mem_fun(&this_type::actorTokenLatencyExpired), this)),
+      visibleQueue(std::bind1st(
+        std::mem_fun(&ILatencyExpired::latencyExpired), chan)),
+      chan(chan) {}
 
   void addEntry(size_t n, const smoc_ref_event_p &le)
-  { requestQueue.addEntry(n, le); }
-  
-protected:
-  void process(size_t n)
-    { latIf->latencyExpired(n); }
-
-private:
-  ILatencyExpired* latIf;
-  
-  CallbackEventQueue visibleQueue;
-  ChanLatencyQueue requestQueue;
+    { requestQueue.addEntry(n, le); }
 };
 
+/*
 class DIIQueue : public EventQueue {
 public:
 
@@ -242,7 +182,7 @@ protected:
 
 private:
   IDIIExpired* diiIf;
-};
+};*/
 
 } // namespace Detail
 #endif // SYSTEMOC_ENABLE_VPC

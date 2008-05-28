@@ -44,7 +44,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_ast_systemoc.hpp \
 	systemoc/smoc_chan_if.hpp \
 	systemoc/smoc_chan_adapter.hpp \
-	systemoc/smoc_root_chan.hpp \
+	systemoc/detail/smoc_root_chan.hpp \
 	systemoc/smoc_port.hpp \
 	systemoc/smoc_multiplex_fifo.hpp \
 	systemoc/smoc_multireader_fifo.hpp \

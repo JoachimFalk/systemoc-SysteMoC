@@ -41,10 +41,10 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "detail/smoc_sysc_port.hpp"
-#include "smoc_event.hpp"
-#include "smoc_pggen.hpp"
-#include "smoc_storage.hpp"
+#include "smoc_sysc_port.hpp"
+#include "../smoc_event.hpp"
+#include "../smoc_pggen.hpp"
+#include "../smoc_storage.hpp"
 
 #include <systemc.h>
 
@@ -55,7 +55,7 @@ namespace SystemC_VPC {
   class FastLink;
 }
 namespace Detail {
-  class ChanLatencyQueue;
+  class LatencyQueue;
 }
 #endif // SYSTEMOC_ENABLE_VPC
 
@@ -69,7 +69,7 @@ private:
 protected:
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  friend class Detail::ChanLatencyQueue;
+  friend class Detail::LatencyQueue;
   // new FastLink interface (patched in finalise)
   SystemC_VPC::FastLink *vpcLink;
 #endif //SYSTEMOC_ENABLE_VPC

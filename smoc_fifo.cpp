@@ -35,6 +35,20 @@
 
 #include <systemoc/smoc_ngx_sync.hpp>
 
+#include <systemoc/smoc_fifo.hpp>
+
+smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
+  : smoc_nonconflicting_chan(i.name),
+#ifdef SYSTEMOC_ENABLE_VPC
+  Queue4Ptr(fsizeMapper(this, i.n)),
+  latencyQueue(this),
+#else
+  Queue2Ptr(fsizeMapper(this, i.n)),
+#endif
+  tokenId(0)
+{}
+
+
 size_t fsizeMapper(sc_object* instance, size_t n) {
   // SGX --> SystemC
   if (SysteMoC::NGXSync::NGXConfig::getInstance().hasNGX()) {

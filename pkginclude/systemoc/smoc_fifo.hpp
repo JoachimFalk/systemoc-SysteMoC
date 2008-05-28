@@ -42,7 +42,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_chan_if.hpp"
-#include "smoc_root_chan.hpp"
+#include "detail/smoc_root_chan.hpp"
 #include "smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "detail/smoc_latency_queues.hpp"
@@ -79,10 +79,11 @@ class smoc_fifo_chan_base
   public Detail::Queue2Ptr
 #endif // SYSTEMOC_ENABLE_VPC
 {
-public:
+  typedef smoc_fifo_chan_base this_type;
+
   friend class smoc_fifo_entry_base;
   friend class smoc_fifo_outlet_base;
-  
+public:
   /// @brief Channel initializer
   class chan_init {
   public:
@@ -99,16 +100,7 @@ public:
 protected:
   
   /// @brief Constructor
-  smoc_fifo_chan_base(const chan_init& i)
-    : smoc_nonconflicting_chan(i.name),
-#ifdef SYSTEMOC_ENABLE_VPC
-    Queue4Ptr(fsizeMapper(this, i.n)),
-    latencyQueue(this),
-#else
-    Queue2Ptr(fsizeMapper(this, i.n)),
-#endif
-    tokenId(0)
-  {}
+  smoc_fifo_chan_base(const chan_init& i);
 
   /// @brief See smoc_root_chan
   void channelAttributes(smoc_modes::PGWriter& pgw) const {

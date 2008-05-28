@@ -39,9 +39,10 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#if defined(SYSTEMOC_ENABLE_VPC) && defined(SYSTEMOC_TRACE)
+#ifdef SYSTEMOC_ENABLE_VPC
 namespace Detail {
 
+# ifdef SYSTEMOC_TRACE
   struct DeferedTraceLogDumper
   : public smoc_event_listener {
     smoc_ref_event_p  event;
@@ -75,6 +76,45 @@ namespace Detail {
     virtual ~DeferedTraceLogDumper() {}
   };
 
+# endif // SYSTEMOC_TRACE
+
+  void LatencyQueue::actorTokenLatencyExpired(size_t n) {
+    for(; n > 0; --n) {
+      smoc_ref_event_p latEvent(new smoc_ref_event());
+# ifdef SYSTEMOC_TRACE
+      smoc_ref_event_p diiEvent(new smoc_ref_event());
+      
+      TraceLog.traceStartActor(chan, "s");
+//    TraceLog.traceStartFunction("transmit");
+//    TraceLog.traceEndFunction("transmit");
+      TraceLog.traceEndActor(chan);
+      
+      SystemC_VPC::EventPair p(diiEvent.get(), latEvent.get());
+# else
+      SystemC_VPC::EventPair p(&dummy, latEvent.get());
+# endif
+      // new FastLink interface
+      chan->vpcLink->compute(p);
+# ifdef SYSTEMOC_TRACE
+      if (!*diiEvent) {
+        // dii event not signaled
+        diiEvent->addListener(new DeferedTraceLogDumper(diiEvent, chan, "e"));
+      } else {
+        TraceLog.traceStartActor(chan, "e");
+        TraceLog.traceEndActor(chan);
+      }
+      if (!*latEvent) {
+        // latency event not signaled
+        latEvent->addListener(new DeferedTraceLogDumper(latEvent, chan, "l"));
+      } else {
+        TraceLog.traceStartActor(chan, "l");
+        TraceLog.traceEndActor(chan);
+      }
+# endif
+      visibleQueue.addEntry(1, latEvent);
+    }
+  }
+
 } // namespace Detail
 
-#endif // defined(SYSTEMOC_ENABLE_VPC) && defined(SYSTEMOC_TRACE)
+#endif // SYSTEMOC_ENABLE_VPC
