@@ -34,6 +34,8 @@ using namespace smoc_md_ba;
 
 #define WSDF_EXAMPLE_NBR 4
 
+int sc_main(int argc, char *argv[]) {} // dummy SystemC requires it!
+
 int main(){
 
   /* Number of schedule periods to simulate */

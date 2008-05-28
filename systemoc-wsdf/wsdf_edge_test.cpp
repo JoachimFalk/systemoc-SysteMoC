@@ -8,6 +8,8 @@
 using namespace std;
 using namespace ns_smoc_vector_init;
 
+int sc_main(int argc, char *argv[]) {} // dummy SystemC requires it!
+
 int main() {
 
   cout << " ************************** Example 1 ************************** " << endl;
