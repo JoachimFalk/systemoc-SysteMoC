@@ -49,9 +49,9 @@
 #include "detail/smoc_ring_access.hpp"
 #include "detail/EventMapManager.hpp"
 #ifdef SYSTEMOC_ENABLE_VPC
-# include "detail/Queue4Ptr.hpp"
+# include "detail/QueueFRVWPtr.hpp"
 #else
-# include "detail/Queue2Ptr.hpp"
+# include "detail/QueueRWPtr.hpp"
 #endif
 
 #include <systemc.h>
@@ -75,9 +75,9 @@ class smoc_fifo_chan_base
 #ifdef SYSTEMOC_ENABLE_VPC
   public Detail::LatencyQueue::ILatencyExpired,
   public Detail::DIIQueue::IDIIExpired,
-  public Detail::Queue4Ptr
+  public Detail::QueueFRVWPtr
 #else
-  public Detail::Queue2Ptr
+  public Detail::QueueRWPtr
 #endif // SYSTEMOC_ENABLE_VPC
 {
   typedef smoc_fifo_chan_base this_type;

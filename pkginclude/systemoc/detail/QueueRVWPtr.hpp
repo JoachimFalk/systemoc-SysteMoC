@@ -34,80 +34,66 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_QUEUE2PTR_HPP
-#define _INCLUDED_SMOC_DETAIL_QUEUE2PTR_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP
+#define _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP
+
+#include "QueueRWPtr.hpp"
 
 namespace Detail {
 
-  class Queue4Ptr;
-
-  class Queue2Ptr {
-    friend class Queue4Ptr;
-  private:
-    size_t       fsize;   ///< Ring buffer size == FIFO size + 1
-    size_t       rindex;  ///< The FIFO read    ptr
-    size_t       windex;  ///< The FIFO write   ptr
+  class QueueRVWPtr: public QueueRWPtr {
+    friend class QueueFRVWPtr;
+  protected:
+    /*             fsize
+     *   ____________^___________
+     *  /                        \
+     * |FFFFFFFFFVVVVVVVPPPPPPPFFF|
+     *           ^      ^      ^
+     *         rindex vindex windex
+     *
+     *  F: The free space area of size (findex - windex - 1) % fsize
+     *  V: The visible token area of size (vindex - rindex) % fsize
+     *  P: The token which are still in the pipeline (latency not expired)
+     */
+    size_t vindex;  ///< The FIFO visible ptr
   public:
-    Queue2Ptr(size_t n)
-      : fsize(n + 1), rindex(0), windex(0) {}
+    QueueRVWPtr(size_t n)
+      : QueueRWPtr(n), vindex(0) {}
 
-    size_t usedCount() const {
+    size_t visibleCount() const {
       size_t used =
-        windex - rindex;
+        vindex - rindex;
       
       if (used > fsize)
         used += fsize;
       return used;
     }
 
-    // For two ptr queues the visible and the used
-    // token sets are equal.
-    size_t visibleCount() const {
-      return usedCount();
-    }
-
-    size_t depthCount() const {
-      return fsize - 1;
-    }
-
-    size_t freeCount() const {
-      size_t unused =
-        rindex - windex - 1;
-      
-      if (unused > fsize)
-        unused += fsize;
-      return unused;
-    }
-
-    size_t fSize() const {
-      return fsize;
-    }
-    const size_t &rIndex() const {
-      return rindex;
-    }
-    const size_t &wIndex() const {
-      return windex;
-    }
-
-    void wpp(size_t n) {
-      assert(n <= freeCount());
-      windex = (windex + n) % fsize;
-    }
-
-    void vpp(size_t n) {
-      // Dummy does nothing
-    }
-
+#ifndef NDEBUG
+    // This differs from QueueRWPtr::rpp due to the different definition of
+    // visibleCount. Therefore, the assertion is more paranoid.
     void rpp(size_t n) {
       assert(n <= visibleCount());
       rindex = (rindex + n) % fsize;
     }
+#endif
 
-    void fpp(size_t n) {
-      // Dummy does nothing
+    void vpp(size_t n) {
+#ifndef NDEBUG
+      size_t invisible =
+        windex - vindex;
+      if (invisible > fsize)
+        invisible += fsize;
+      assert(n <= invisible);
+#endif
+      vindex = (vindex + n) % fsize;
+      // PARANOIA: rindex <= vindex <= windex in modulo fsize arith
+      assert(vindex < fsize &&
+        (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
+         windex <  rindex && (vindex >= rindex || vindex <= windex)));
     }
   };
 
 } // namespace Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_QUEUE2PTR_HPP
+#endif // _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP

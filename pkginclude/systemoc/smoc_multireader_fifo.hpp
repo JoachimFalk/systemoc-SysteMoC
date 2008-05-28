@@ -50,9 +50,9 @@
 #include "detail/smoc_ring_access.hpp"
 #include "detail/EventMapManager.hpp"
 #ifdef SYSTEMOC_ENABLE_VPC
-# include "detail/Queue4Ptr.hpp"
+# include "detail/QueueFRVWPtr.hpp"
 #else
-# include "detail/Queue2Ptr.hpp"
+# include "detail/QueueRWPtr.hpp"
 #endif
 
 #include <systemc.h>
@@ -75,9 +75,9 @@ class smoc_multireader_fifo_chan_base
 : public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
   public Detail::LatencyQueue::ILatencyExpired,
-  public Detail::Queue4Ptr
+  public Detail::QueueFRVWPtr
 #else
-  public Detail::Queue2Ptr
+  public Detail::QueueRWPtr
 #endif // SYSTEMOC_ENABLE_VPC
 {
 public:
@@ -103,10 +103,10 @@ protected:
   smoc_multireader_fifo_chan_base(const chan_init& i)
     : smoc_root_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
-    Queue4Ptr(fsizeMapper(this, i.n)),
+    QueueFRVWPtr(fsizeMapper(this, i.n)),
     latencyQueue(this),
 #else
-    Queue2Ptr(fsizeMapper(this, i.n)),
+    QueueRWPtr(fsizeMapper(this, i.n)),
 #endif
     tokenId(0)
   {}

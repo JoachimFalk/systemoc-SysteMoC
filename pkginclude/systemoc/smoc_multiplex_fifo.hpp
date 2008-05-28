@@ -48,7 +48,8 @@
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_ring_access.hpp"
 #include "detail/EventMapManager.hpp"
-#include "detail/Queue4Ptr.hpp"
+#include "detail/QueueRVWPtr.hpp"
+#include "detail/QueueFRVWPtr.hpp"
 
 #include <systemc.h>
 #include <vector>
@@ -72,9 +73,9 @@ class smoc_multiplex_fifo_chan
 #ifdef SYSTEMOC_ENABLE_VPC
   public Detail::LatencyQueue::ILatencyExpired,
   public Detail::DIIQueue::IDIIExpired,
-  public Detail::Queue4Ptr
+  public Detail::QueueFRVWPtr
 #else
-  public Detail::Queue2Ptr
+  public Detail::QueueRWPtr
 #endif // SYSTEMOC_ENABLE_VPC
 {
 public:
@@ -148,7 +149,7 @@ class smoc_multiplex_vfifo_chan_base
 : private boost::noncopyable,
   public smoc_nonconflicting_chan,
   // due to out of order access we always need a visible area management
-  public Detail::Queue4Ptr 
+  public Detail::QueueRVWPtr 
 {
 public:
   friend class smoc_multiplex_fifo_chan;

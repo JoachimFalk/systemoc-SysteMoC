@@ -40,11 +40,11 @@
 smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
   : smoc_nonconflicting_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
-  Queue4Ptr(fsizeMapper(this, i.n)),
+  QueueFRVWPtr(fsizeMapper(this, i.n)),
   latencyQueue(this),
   diiQueue(this),
 #else
-  Queue2Ptr(fsizeMapper(this, i.n)),
+  QueueRWPtr(fsizeMapper(this, i.n)),
 #endif
   tokenId(0)
 {}

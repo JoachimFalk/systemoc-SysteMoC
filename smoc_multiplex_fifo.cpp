@@ -47,9 +47,9 @@
 smoc_multiplex_fifo_chan::smoc_multiplex_fifo_chan(const char *name, size_t n, size_t m)
   : smoc_root_chan(name),
 #ifdef SYSTEMOC_ENABLE_VPC
-    Detail::Queue4Ptr(n),
+    Detail::QueueFRVWPtr(n),
 #else
-    Detail::Queue2Ptr(n),
+    Detail::QueueRWPtr(n),
 #endif
     fifoOutOfOrder(m)
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -223,7 +223,7 @@ sc_port_list smoc_multiplex_fifo_chan::getOutputPorts() const {
 
 smoc_multiplex_vfifo_chan_base::smoc_multiplex_vfifo_chan_base( const chan_init &i )
   : smoc_nonconflicting_chan(i.name),
-    Queue4Ptr(i.pSharedFifoMem->depthCount()),
+    QueueRVWPtr(i.pSharedFifoMem->depthCount()),
     fifoId(i.fifoId),
     pSharedFifoMem(i.pSharedFifoMem),
     tokenId(0)

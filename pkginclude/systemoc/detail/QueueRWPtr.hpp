@@ -34,101 +34,82 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_QUEUE3PTR_HPP
-#define _INCLUDED_SMOC_DETAIL_QUEUE3PTR_HPP
-
-#include "Queue2Ptr.hpp"
+#ifndef _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
+#define _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
 
 namespace Detail {
 
-  class Queue4Ptr: public Queue2Ptr {
-  protected:
-    /*             fsize
-     *   ____________^___________
-     *  /                        \
-     * |FFCCCCCCCVVVVVVVPPPPPPPFFF|
-     *    ^      ^      ^      ^
-     *  findex rindex vindex windex
-     *
-     *  F: The free space area of size (findex - windex - 1) % fsize
-     *  V: The visible token area of size (vindex - rindex) % fsize
-     *  P: The token which are still in the pipeline (latency not expired)
-     *  C: The token which are in the process of being consumed (actor dii not expired)
-     */
-    size_t       findex;  ///< The FIFO free    ptr
-    size_t       vindex;  ///< The FIFO visible ptr
-  public:
-    Queue4Ptr(size_t n)
-      : Queue2Ptr(n), findex(0), vindex(0) {}
+  class QueueRVWPtr;
+  class QueueFRVWPtr;
 
-    size_t visibleCount() const {
+  class QueueRWPtr {
+    friend class QueueRVWPtr;
+    friend class QueueFRVWPtr;
+  private:
+    size_t       fsize;   ///< Ring buffer size == FIFO size + 1
+    size_t       rindex;  ///< The FIFO read    ptr
+    size_t       windex;  ///< The FIFO write   ptr
+  public:
+    QueueRWPtr(size_t n)
+      : fsize(n + 1), rindex(0), windex(0) {}
+
+    size_t usedCount() const {
       size_t used =
-        vindex - rindex;
+        windex - rindex;
       
       if (used > fsize)
         used += fsize;
       return used;
     }
 
+    // For two ptr queues the visible and the used
+    // token sets are equal.
+    size_t visibleCount() const {
+      return usedCount();
+    }
+
+    size_t depthCount() const {
+      return fsize - 1;
+    }
+
     size_t freeCount() const {
       size_t unused =
-        findex - windex - 1;
+        rindex - windex - 1;
       
       if (unused > fsize)
         unused += fsize;
       return unused;
     }
 
-#ifndef NDEBUG
-    // This differs from Queue2Ptr::wpp due to the different definition of
-    // freeCount. Therefore, the assertion is more paranoid.
+    size_t fSize() const {
+      return fsize;
+    }
+    const size_t &rIndex() const {
+      return rindex;
+    }
+    const size_t &wIndex() const {
+      return windex;
+    }
+
     void wpp(size_t n) {
       assert(n <= freeCount());
       windex = (windex + n) % fsize;
     }
-#endif
 
     void vpp(size_t n) {
-#ifndef NDEBUG
-      size_t invisible =
-        windex - vindex;
-      if (invisible > fsize)
-        invisible += fsize;
-      assert(n <= invisible);
-#endif
-      vindex = (vindex + n) % fsize;
-      // PARANOIA: rindex <= vindex <= windex in modulo fsize arith
-      assert(vindex < fsize &&
-        (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
-         windex <  rindex && (vindex >= rindex || vindex <= windex)));
+      // Dummy does nothing
     }
 
-#ifndef NDEBUG
-    // This differs from Queue2Ptr::rpp due to the different definition of
-    // visibleCount. Therefore, the assertion is more paranoid.
     void rpp(size_t n) {
       assert(n <= visibleCount());
       rindex = (rindex + n) % fsize;
     }
-#endif
 
     void fpp(size_t n) {
-#ifndef NDEBUG
-      size_t inconsume =
-        rindex - findex;
-      if (inconsume > fsize)
-        inconsume += fsize;
-      assert(n <= inconsume);
-#endif
-      assert(n <= depthCount() - usedCount());
-      findex = (findex + n) % fsize;
-      // PARANOIA: windex <= findex <= rindex in modulo fsize arith
-      assert(findex < fsize &&
-        (rindex >= windex && (findex >= windex && findex <= rindex) ||
-         rindex <  windex && (findex >= windex || findex <= rindex)));
+      // Dummy does nothing
     }
   };
 
 } // namespace Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_QUEUE3PTR_HPP
+#endif // _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
