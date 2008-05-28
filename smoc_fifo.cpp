@@ -42,6 +42,7 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 #ifdef SYSTEMOC_ENABLE_VPC
   Queue4Ptr(fsizeMapper(this, i.n)),
   latencyQueue(this),
+  diiQueue(this),
 #else
   Queue2Ptr(fsizeMapper(this, i.n)),
 #endif
