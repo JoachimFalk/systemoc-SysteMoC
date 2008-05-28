@@ -36,3 +36,12 @@ noinst_PROGRAMS= simulation-src-snk-noconsume
 simulation_src_snk_noconsume_SOURCES= design-src-snk-noconsume.cpp
 simulation_src_snk_noconsume_DEPENDENCIES= @SYSTEMOC_DEPENDENCIES@
 
+autotest.sh: simulation-src-snk-noconsume $(srcdir)/autotest-sh
+	rm -f $@
+	echo "#!" $(BASH) > $@
+	cat autovars.sh $(srcdir)/autotest-sh >> $@
+	chmod +x $@
+
+# to check we just call the 'autotest.sh' script
+check: autotest.sh
+	./autotest.sh
