@@ -121,12 +121,13 @@ public:
         std::mem_fun(&ILatencyExpired::latencyExpired), chan)),
       chan(chan) {}
 
-  void addEntry(size_t n, const smoc_ref_event_p &le)
-    { requestQueue.addEntry(n, le); }
+  void addEntry(size_t n, const smoc_ref_event_p &latEvent)
+    { requestQueue.addEntry(n, latEvent); }
 };
 
-/*
-class DIIQueue : public EventQueue {
+class DIIQueue {
+private:
+  typedef DIIQueue this_type;
 public:
 
   class IDIIExpired {
@@ -136,23 +137,29 @@ public:
     /// @brief Virtual destructor
     virtual ~IDIIExpired() {}
   protected:
-    /// @brief Called when DII expired
+    /// @brief Called when dii expired
     virtual void diiExpired(size_t n) = 0;
   };
 
-  /// @brief Constructor
-  DIIQueue(IDIIExpired* t)
-    : diiIf(t)
-  {}
-
 protected:
-  /// @brief See EventQueue
-  void process(size_t n)
-    { diiIf->diiExpired(n); }
+  EventQueue       eventQueue;
+  smoc_root_chan  *chan;
+public:
+  DIIQueue(
+      const boost::function<void (size_t)> &diiExpired,
+      smoc_root_chan *chan)
+    : eventQueue(diiExpired),
+      chan(chan) {}
 
-private:
-  IDIIExpired* diiIf;
-};*/
+  template <class T>
+  DIIQueue(T *chan)
+    : eventQueue(std::bind1st(
+        std::mem_fun(&IDIIExpired::diiExpired), chan)),
+      chan(chan) {}
+
+  void addEntry(size_t n, const smoc_ref_event_p &diiEvent)
+    { eventQueue.addEntry(n, diiEvent); }
+};
 
 } // namespace Detail
 #endif // SYSTEMOC_ENABLE_VPC
