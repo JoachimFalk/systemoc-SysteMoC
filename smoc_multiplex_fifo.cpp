@@ -82,11 +82,11 @@ void smoc_multiplex_fifo_chan::deregisterVFifo(smoc_multiplex_vfifo_chan_base *v
   void smoc_multiplex_fifo_chan::consume(FifoId from, size_t n)
 #endif
 {
-  std::cerr << "smoc_multiplex_fifo_chan::consume(" << from << ", " << n << ") [BEGIN]" << std::endl;
-  std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
-  std::cerr << "freeCount():    " << freeCount() << std::endl;
-  std::cerr << "usedCount():    " << usedCount() << std::endl;
-  std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+//std::cerr << "smoc_multiplex_fifo_chan::consume(" << from << ", " << n << ") [BEGIN]" << std::endl;
+//std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
+//std::cerr << "freeCount():    " << freeCount() << std::endl;
+//std::cerr << "usedCount():    " << usedCount() << std::endl;
+//std::cerr << "visibleCount(): " << visibleCount() << std::endl;
 
   rpp(n);
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -115,26 +115,26 @@ void smoc_multiplex_fifo_chan::deregisterVFifo(smoc_multiplex_vfifo_chan_base *v
     }
   }
 
-  std::cerr << "smoc_multiplex_fifo_chan::consume(" << from << ", " << n << ") [END]" << std::endl;
-  std::cerr << "freeCount():    " << freeCount() << std::endl;
-  std::cerr << "usedCount():    " << usedCount() << std::endl;
-  std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+//std::cerr << "smoc_multiplex_fifo_chan::consume(" << from << ", " << n << ") [END]" << std::endl;
+//std::cerr << "freeCount():    " << freeCount() << std::endl;
+//std::cerr << "usedCount():    " << usedCount() << std::endl;
+//std::cerr << "visibleCount(): " << visibleCount() << std::endl;
 }
 
 void smoc_multiplex_fifo_chan::diiExpired(size_t n) {
-  std::cerr << "smoc_multiplex_fifo_chan::diiExpired(" << n << ") [BEGIN]" << std::endl;
-  std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
-  std::cerr << "freeCount():    " << freeCount() << std::endl;
-  std::cerr << "usedCount():    " << usedCount() << std::endl;
-  std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+//std::cerr << "smoc_multiplex_fifo_chan::diiExpired(" << n << ") [BEGIN]" << std::endl;
+//std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
+//std::cerr << "freeCount():    " << freeCount() << std::endl;
+//std::cerr << "usedCount():    " << usedCount() << std::endl;
+//std::cerr << "visibleCount(): " << visibleCount() << std::endl;
 
   fpp(n);
   emmFree.increasedCount(freeCount());
 
-  std::cerr << "smoc_multiplex_fifo_chan::diiExpired(" << n << ") [END]" << std::endl;
-  std::cerr << "freeCount():    " << freeCount() << std::endl;
-  std::cerr << "usedCount():    " << usedCount() << std::endl;
-  std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+//std::cerr << "smoc_multiplex_fifo_chan::diiExpired(" << n << ") [END]" << std::endl;
+//std::cerr << "freeCount():    " << freeCount() << std::endl;
+//std::cerr << "usedCount():    " << usedCount() << std::endl;
+//std::cerr << "visibleCount(): " << visibleCount() << std::endl;
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -143,11 +143,11 @@ void smoc_multiplex_fifo_chan::produce(FifoId to, size_t n, const smoc_ref_event
 void smoc_multiplex_fifo_chan::produce(FifoId to, size_t n)
 #endif
 {
-  std::cerr << "smoc_multiplex_fifo_chan::produce(" << to << ", " << n << ") [BEGIN]" << std::endl;
-  std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
-  std::cerr << "freeCount():    " << freeCount() << std::endl;
-  std::cerr << "usedCount():    " << usedCount() << std::endl;
-  std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+//std::cerr << "smoc_multiplex_fifo_chan::produce(" << to << ", " << n << ") [BEGIN]" << std::endl;
+//std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
+//std::cerr << "freeCount():    " << freeCount() << std::endl;
+//std::cerr << "usedCount():    " << usedCount() << std::endl;
+//std::cerr << "visibleCount(): " << visibleCount() << std::endl;
 
   wpp(n);
   for (size_t j = n; j > 0; --j)
@@ -160,18 +160,18 @@ void smoc_multiplex_fifo_chan::produce(FifoId to, size_t n)
   latencyExpired(n);
 #endif
 
-  std::cerr << "smoc_multiplex_fifo_chan::produce(" << to << ", " << n << ") [END]" << std::endl;
-  std::cerr << "freeCount():    " << freeCount() << std::endl;
-  std::cerr << "usedCount():    " << usedCount() << std::endl;
-  std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+//std::cerr << "smoc_multiplex_fifo_chan::produce(" << to << ", " << n << ") [END]" << std::endl;
+//std::cerr << "freeCount():    " << freeCount() << std::endl;
+//std::cerr << "usedCount():    " << usedCount() << std::endl;
+//std::cerr << "visibleCount(): " << visibleCount() << std::endl;
 }
 
 void smoc_multiplex_fifo_chan::latencyExpired(size_t n) {
-  std::cerr << "smoc_multiplex_fifo_chan::latencyExpired(" << n << ") [BEGIN]" << std::endl;
-  std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
-  std::cerr << "freeCount():    " << freeCount() << std::endl;
-  std::cerr << "usedCount():    " << usedCount() << std::endl;
-  std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+//std::cerr << "smoc_multiplex_fifo_chan::latencyExpired(" << n << ") [BEGIN]" << std::endl;
+//std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
+//std::cerr << "freeCount():    " << freeCount() << std::endl;
+//std::cerr << "usedCount():    " << usedCount() << std::endl;
+//std::cerr << "visibleCount(): " << visibleCount() << std::endl;
   vpp(n);
   for (;
        visibleCount() - n <= fifoOutOfOrder && n > 0;
@@ -185,10 +185,10 @@ void smoc_multiplex_fifo_chan::latencyExpired(size_t n) {
     fIter->second->latencyExpired(1);
   }
 
-  std::cerr << "smoc_multiplex_fifo_chan::latencyExpired(" << n << ") [END]" << std::endl;
-  std::cerr << "freeCount():    " << freeCount() << std::endl;
-  std::cerr << "usedCount():    " << usedCount() << std::endl;
-  std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+//std::cerr << "smoc_multiplex_fifo_chan::latencyExpired(" << n << ") [END]" << std::endl;
+//std::cerr << "freeCount():    " << freeCount() << std::endl;
+//std::cerr << "usedCount():    " << usedCount() << std::endl;
+//std::cerr << "visibleCount(): " << visibleCount() << std::endl;
 }
 
 sc_port_list smoc_multiplex_fifo_chan::getInputPorts() const {
