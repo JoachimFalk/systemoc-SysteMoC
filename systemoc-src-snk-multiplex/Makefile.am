@@ -35,3 +35,13 @@ noinst_PROGRAMS= simulation-src-snk-multiplex
 
 simulation_src_snk_multiplex_SOURCES= design-src-snk-multiplex.cpp
 simulation_src_snk_multiplex_DEPENDENCIES= @SYSTEMOC_DEPENDENCIES@
+
+autotest.sh: simulation-src-snk-multiplex $(srcdir)/autotest-sh
+	rm -f $@
+	echo "#!" $(BASH) > $@
+	cat autovars.sh $(srcdir)/autotest-sh >> $@
+	chmod +x $@
+
+# to check we just call the 'autotest.sh' script
+check: autotest.sh
+	./autotest.sh

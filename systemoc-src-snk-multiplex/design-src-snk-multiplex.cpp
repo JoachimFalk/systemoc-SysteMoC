@@ -61,9 +61,9 @@ private:
   }
   smoc_firing_state start;
 public:
-  m_h_src(sc_module_name name, size_t _iter)
+  m_h_src(sc_module_name name, size_t _iter, size_t _start)
     : smoc_actor(name, start),
-      i(1), iter(_iter) {
+      i(_start), iter(_iter) {
     start =
          (out(1) && VAR(iter) > 0U)
       >> CALL(m_h_src::src)       >> start;
@@ -103,9 +103,9 @@ protected:
 public:
   m_h_top(sc_module_name name, size_t iter)
     : smoc_graph(name),
-      src1("src1", iter), snk1("snk1"),
-      src2("src2", iter), snk2("snk2"),
-      src3("src3", iter), snk3("snk3") {
+      src1("src1", iter, 1000), snk1("snk1"),
+      src2("src2", iter, 2000), snk2("snk2"),
+      src3("src3", iter, 3000), snk3("snk3") {
     // multiplex fifo of depth 17 and 3 out of order
     smoc_multiplex_fifo<int> f(17,3);
     connectNodePorts(src1.out, snk1.in, f.getVirtFifo());
