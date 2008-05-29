@@ -42,16 +42,16 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_chan_if.hpp"
-#include "smoc_root_chan.hpp"
+#include "detail/smoc_root_chan.hpp"
 #include "smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_ring_access.hpp"
 #include "detail/EventMapManager.hpp"
 #ifdef SYSTEMOC_ENABLE_VPC
-# include "detail/Queue4Ptr.hpp"
+# include "detail/QueueFRVWPtr.hpp"
 #else
-# include "detail/Queue2Ptr.hpp"
+# include "detail/QueueRWPtr.hpp"
 #endif
 
 #include <systemc.h>
@@ -74,15 +74,17 @@ class smoc_fifo_chan_base
 : public smoc_nonconflicting_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
   public Detail::LatencyQueue::ILatencyExpired,
-  public Detail::Queue4Ptr
+  public Detail::DIIQueue::IDIIExpired,
+  public Detail::QueueFRVWPtr
 #else
-  public Detail::Queue2Ptr
+  public Detail::QueueRWPtr
 #endif // SYSTEMOC_ENABLE_VPC
 {
-public:
+  typedef smoc_fifo_chan_base this_type;
+
   friend class smoc_fifo_entry_base;
   friend class smoc_fifo_outlet_base;
-  
+public:
   /// @brief Channel initializer
   class chan_init {
   public:
@@ -99,19 +101,10 @@ public:
 protected:
   
   /// @brief Constructor
-  smoc_fifo_chan_base(const chan_init& i)
-    : smoc_nonconflicting_chan(i.name),
-#ifdef SYSTEMOC_ENABLE_VPC
-    Queue4Ptr(fsizeMapper(this, i.n)),
-    latencyQueue(this),
-#else
-    Queue2Ptr(fsizeMapper(this, i.n)),
-#endif
-    tokenId(0)
-  {}
+  smoc_fifo_chan_base(const chan_init &i);
 
   /// @brief See smoc_root_chan
-  void channelAttributes(smoc_modes::PGWriter& pgw) const {
+  void channelAttributes(smoc_modes::PGWriter &pgw) const {
     pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
   }
 
@@ -121,11 +114,18 @@ protected:
     emmAvailable.increasedCount(visibleCount());
   }
 
+  /// @brief Detail::LatencyQueue::ILatencyExpired
+  void diiExpired(size_t n) {
+    fpp(n);
+    emmFree.increasedCount(freeCount());
+  }
+
 private:
   Detail::EventMapManager emmAvailable;
   Detail::EventMapManager emmFree;
 #ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue latencyQueue;
+  Detail::LatencyQueue  latencyQueue;
+  Detail::DIIQueue      diiQueue;
 #endif
 
   /// @brief The token id of the next commit token
@@ -141,13 +141,13 @@ class smoc_fifo_entry_base
 public:
 protected:
   /// @brief Constructor
-  smoc_fifo_entry_base(smoc_fifo_chan_base& chan)
+  smoc_fifo_entry_base(smoc_fifo_chan_base &chan)
     : chan(chan)
   {}
 
   /// @brief See smoc_chan_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, const smoc_ref_event_p&)
+  void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
 #else
   void commitRead(size_t consume)
 #endif
@@ -157,7 +157,12 @@ protected:
 #endif
     chan.rpp(consume);
     chan.emmAvailable.decreasedCount(chan.visibleCount());
-    chan.emmFree.increasedCount(chan.freeCount());
+#ifdef SYSTEMOC_ENABLE_VPC
+    // Delayed call of diiExpired(consume);
+    chan.diiQueue.addEntry(consume, diiEvent);
+#else
+    chan.diiExpired(consume);
+#endif
   }
   
   /// @brief See smoc_chan_in_base_if
@@ -174,7 +179,7 @@ protected:
 
 private:
   /// @brief The channel base implementation
-  smoc_fifo_chan_base& chan;
+  smoc_fifo_chan_base &chan;
 };
 
 
@@ -188,13 +193,13 @@ class smoc_fifo_outlet_base
 public:
 protected:
   /// @brief Constructor
-  smoc_fifo_outlet_base(smoc_fifo_chan_base& chan)
+  smoc_fifo_outlet_base(smoc_fifo_chan_base &chan)
     : chan(chan)
   {}
 
   /// @brief See smoc_chan_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p& le)
+  void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
 #else
   void commitWrite(size_t produce)
 #endif
@@ -207,7 +212,7 @@ protected:
     chan.emmFree.decreasedCount(chan.freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of latencyExpired(produce);
-    chan.latencyQueue.addEntry(produce, le);
+    chan.latencyQueue.addEntry(produce, latEvent);
 #else
     chan.latencyExpired(produce);
 #endif
@@ -227,7 +232,7 @@ protected:
 
 private:
   /// @brief The channel base implementation
-  smoc_fifo_chan_base& chan;
+  smoc_fifo_chan_base &chan;
 };
 
 template<class> class smoc_fifo_chan;
@@ -329,7 +334,7 @@ public:
     friend class smoc_fifo_storage;
     typedef T add_param_ty;
 
-    void add(const add_param_ty& t)
+    void add(const add_param_ty &t)
       { marking.push_back(t); }
   protected:
     chan_init(const char* name, size_t n)
@@ -342,7 +347,7 @@ public:
 protected:
 
   /// @brief Constructor
-  smoc_fifo_storage(const chan_init& i)
+  smoc_fifo_storage(const chan_init &i)
     : smoc_fifo_chan_base(i),
       storage(new storage_type[this->fSize()])
   {
@@ -358,7 +363,7 @@ protected:
     { delete[] storage; }
   
   /// @brief See smoc_root_chan
-  void channelContents(smoc_modes::PGWriter& pgw) const {
+  void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
     {
       //*************************INITIAL TOKENS, ETC...***************************
@@ -415,7 +420,7 @@ public:
     friend class smoc_fifo_storage;
     typedef size_t add_param_ty;
 
-    void add(const add_param_ty& t)
+    void add(const add_param_ty &t)
       { marking += t; }
   protected:
     chan_init(const char* name, size_t n)
@@ -428,7 +433,7 @@ public:
 protected:
 
   /// @brief Constructor
-  smoc_fifo_storage(const chan_init& i)
+  smoc_fifo_storage(const chan_init &i)
     : smoc_fifo_chan_base(i)
   {
     assert(this->depthCount() >= i.marking);
@@ -436,7 +441,7 @@ protected:
   }
   
   /// @brief See smoc_root_chan
-  void channelContents(smoc_modes::PGWriter& pgw) const {
+  void channelContents(smoc_modes::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
     {
       //*************************INITIAL TOKENS, ETC...***************************
@@ -471,7 +476,7 @@ public:
   typedef typename smoc_fifo_storage<T>::chan_init chan_init;
 
   /// @brief Constructor
-  smoc_fifo_chan(const chan_init& i)
+  smoc_fifo_chan(const chan_init &i)
     : smoc_fifo_storage<T>(i),
       entry(*this),
       outlet(*this)
@@ -557,7 +562,7 @@ public:
   typedef smoc_fifo<T>      this_type;
   typedef smoc_fifo_chan<T> chan_type;
 
-  this_type& operator<<(const typename chan_type::chan_init::add_param_ty& x)
+  this_type &operator<<(const typename chan_type::chan_init::add_param_ty &x)
     { add(x); return *this; }
 
   /// @brief Constructor

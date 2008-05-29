@@ -34,19 +34,31 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_QUEUE3PTR_HPP
-#define _INCLUDED_SMOC_DETAIL_QUEUE3PTR_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP
+#define _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP
 
-#include "Queue2Ptr.hpp"
+#include "QueueRWPtr.hpp"
 
 namespace Detail {
 
-  class Queue4Ptr: public Queue2Ptr {
+  class QueueRVWPtr: public QueueRWPtr {
+    friend class QueueFRVWPtr;
   protected:
-    size_t       vindex;  ///< The FIFO visible ptr
+    /*             fsize
+     *   ____________^___________
+     *  /                        \
+     * |FFFFFFFFFVVVVVVVPPPPPPPFFF|
+     *           ^      ^      ^
+     *         rindex vindex windex
+     *
+     *  F: The free space area of size (findex - windex - 1) % fsize
+     *  V: The visible token area of size (vindex - rindex) % fsize
+     *  P: The token which are still in the pipeline (latency not expired)
+     */
+    size_t vindex;  ///< The FIFO visible ptr
   public:
-    Queue4Ptr(size_t n)
-      : Queue2Ptr(n), vindex(0) {}
+    QueueRVWPtr(size_t n)
+      : QueueRWPtr(n), vindex(0) {}
 
     size_t visibleCount() const {
       size_t used =
@@ -57,25 +69,31 @@ namespace Detail {
       return used;
     }
 
-    void vpp(size_t n) {
-      assert(n <= usedCount() - visibleCount());
-      vindex = (vindex + n) % fsize;
-      // PARANOIA: rindex <= vindex <= windex in modulo fsize arith
-      assert(vindex < fsize &&
-        (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
-         windex <  rindex && (vindex >= rindex || vindex <= windex)));
-    }
-
 #ifndef NDEBUG
-    // This differs from Queue2Ptr::rpp due to the different definition of
+    // This differs from QueueRWPtr::rpp due to the different definition of
     // visibleCount. Therefore, the assertion is more paranoid.
     void rpp(size_t n) {
       assert(n <= visibleCount());
       rindex = (rindex + n) % fsize;
     }
 #endif
+
+    void vpp(size_t n) {
+#ifndef NDEBUG
+      size_t invisible =
+        windex - vindex;
+      if (invisible > fsize)
+        invisible += fsize;
+      assert(n <= invisible);
+#endif
+      vindex = (vindex + n) % fsize;
+      // PARANOIA: rindex <= vindex <= windex in modulo fsize arith
+      assert(vindex < fsize &&
+        (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
+         windex <  rindex && (vindex >= rindex || vindex <= windex)));
+    }
   };
 
 } // namespace Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_QUEUE3PTR_HPP
+#endif // _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP

@@ -37,7 +37,7 @@
 #include <systemoc/smoc_root_node.hpp>
 #include <systemoc/smoc_pggen.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
-#include <systemoc/smoc_root_chan.hpp>
+#include <systemoc/detail/smoc_root_chan.hpp>
 
 #include <map>
 #include <sstream>

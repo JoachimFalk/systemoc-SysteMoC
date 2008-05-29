@@ -453,10 +453,10 @@ void smoc_firing_types::transition_ty::execute(
   
 #ifdef SYSTEMOC_ENABLE_VPC
   if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
-    actor->vpc_event_dii.reset();
+    actor->diiEvent->reset();
+    smoc_ref_event_p latEvent(new smoc_ref_event());
     
-    actor->vpc_event_lat = new smoc_ref_event();
-    SystemC_VPC::EventPair p(&actor->vpc_event_dii, actor->vpc_event_lat);
+    SystemC_VPC::EventPair p(actor->diiEvent.get(), latEvent.get());
     
     // new FastLink interface
     if(mode & GO) vpcLink->compute(p);
@@ -466,12 +466,13 @@ void smoc_firing_types::transition_ty::execute(
       fp.tickLink->compute(p);
     }
     // save guard and nextState to later execute communication
-    actor->_guard       =  &guard;
+//  actor->_guard       =  &guard;
     actor->nextState.rs = nextState;
     // Insert magic commstate
     nextState           = actor->commstate.rs;
+    Expr::evalTo<Expr::CommExec>(guard, actor->diiEvent, latEvent);
   } else {
-    Expr::evalTo<Expr::CommExec>(guard, NULL);
+    Expr::evalTo<Expr::CommExec>(guard, NULL, NULL);
   }
 #else // !SYSTEMOC_ENABLE_VPC
   Expr::evalTo<Expr::CommExec>(guard);

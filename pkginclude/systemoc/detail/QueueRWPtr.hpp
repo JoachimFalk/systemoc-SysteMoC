@@ -34,21 +34,23 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_QUEUE2PTR_HPP
-#define _INCLUDED_SMOC_DETAIL_QUEUE2PTR_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
+#define _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
 
 namespace Detail {
 
-  class Queue4Ptr;
+  class QueueRVWPtr;
+  class QueueFRVWPtr;
 
-  class Queue2Ptr {
-    friend class Queue4Ptr;
+  class QueueRWPtr {
+    friend class QueueRVWPtr;
+    friend class QueueFRVWPtr;
   private:
     size_t       fsize;   ///< Ring buffer size == FIFO size + 1
     size_t       rindex;  ///< The FIFO read    ptr
     size_t       windex;  ///< The FIFO write   ptr
   public:
-    Queue2Ptr(size_t n)
+    QueueRWPtr(size_t n)
       : fsize(n + 1), rindex(0), windex(0) {}
 
     size_t usedCount() const {
@@ -73,7 +75,7 @@ namespace Detail {
     size_t freeCount() const {
       size_t unused =
         rindex - windex - 1;
-
+      
       if (unused > fsize)
         unused += fsize;
       return unused;
@@ -102,8 +104,12 @@ namespace Detail {
       assert(n <= visibleCount());
       rindex = (rindex + n) % fsize;
     }
+
+    void fpp(size_t n) {
+      // Dummy does nothing
+    }
   };
 
 } // namespace Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_QUEUE2PTR_HPP
+#endif // _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP

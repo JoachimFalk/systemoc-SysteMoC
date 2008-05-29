@@ -52,17 +52,19 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_firing_state &s, bool r
 //  _finalizeCalled(false),
 #endif
     _initialState(s),
-    _non_strict(false),
+    _non_strict(false)
 #ifdef SYSTEMOC_ENABLE_VPC
-# ifndef NDEBUG
-    vpc_event_lat(NULL),
-# endif
+    ,diiEvent(new smoc_ref_event()),
+//# ifndef NDEBUG
+//    vpc_event_lat(NULL),
+//# endif
     commstate(
       smoc_transition(
-        smoc_activation_pattern(Expr::till(vpc_event_dii)),
-        smoc_func_diverge(this,&smoc_root_node::_communicate))),
+        smoc_activation_pattern(Expr::till(*diiEvent)),
+        smoc_func_diverge(this,&smoc_root_node::_communicate)))
 #endif // SYSTEMOC_ENABLE_VPC
-    _guard(NULL) {
+//  _guard(NULL)
+{
 #ifdef SYSTEMOC_ENABLE_VPC
   commstate.finalise(this);
 #endif // SYSTEMOC_ENABLE_VPC
@@ -85,8 +87,8 @@ std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_a
  
 #ifdef SYSTEMOC_ENABLE_VPC
 const smoc_firing_state &smoc_root_node::_communicate() {
-  assert(vpc_event_dii && vpc_event_lat != NULL);
-  
+  assert(diiEvent != NULL && *diiEvent); // && vpc_event_lat != NULL
+/*
   smoc_ref_event_p latEvent(vpc_event_lat);
   if (!*latEvent) {
     // latency event not signaled
@@ -132,11 +134,12 @@ const smoc_firing_state &smoc_root_node::_communicate() {
     TraceLog.traceEndActor(this);
 # endif
   }
-  Expr::evalTo<Expr::CommExec>(*_guard, latEvent);
+//Expr::evalTo<Expr::CommExec>(*_guard, diiEvent, latEvent);
   
 #ifndef NDEBUG
   vpc_event_lat = NULL;
 #endif
+*/
   return nextState;
 }
 #endif // SYSTEMOC_ENABLE_VPC
