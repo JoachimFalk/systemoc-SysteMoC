@@ -424,7 +424,8 @@ public:
       { marking += t; }
   protected:
     chan_init(const char* name, size_t n)
-      : smoc_fifo_chan_base::chan_init(name, n)
+      : smoc_fifo_chan_base::chan_init(name, n),
+        marking(0)
     {}
   private:
     size_t marking;

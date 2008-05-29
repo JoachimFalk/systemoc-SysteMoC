@@ -166,6 +166,10 @@ protected:
   void commitRead(size_t consume)
 #endif
   {
+//  std::cerr << "smoc_multireader_fifo_chan::commitRead(" << consume << ") [BEGIN] " << chan.name() << std::endl;
+//  std::cerr << "freeCount():    " << chan.freeCount() << std::endl;
+//  std::cerr << "usedCount():    " << chan.usedCount() << std::endl;
+//  std::cerr << "visibleCount(): " << chan.visibleCount() << std::endl;
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecIn(this, consume);
 #endif
@@ -177,6 +181,10 @@ protected:
 #else
     chan.diiExpired(consume);
 #endif
+//  std::cerr << "smoc_multireader_fifo_chan::commitRead(" << consume << ") [END] " << chan.name() << std::endl;
+//  std::cerr << "freeCount():    " << chan.freeCount() << std::endl;
+//  std::cerr << "usedCount():    " << chan.usedCount() << std::endl;
+//  std::cerr << "visibleCount(): " << chan.visibleCount() << std::endl;
   }
   
   /// @brief See smoc_chan_in_base_if
@@ -218,6 +226,10 @@ protected:
   void commitWrite(size_t produce)
 #endif
   {
+//  std::cerr << "smoc_multireader_fifo_chan::commitWrite(" << produce << ") [BEGIN] " << chan.name() << std::endl;
+//  std::cerr << "freeCount():    " << chan.freeCount() << std::endl;
+//  std::cerr << "usedCount():    " << chan.usedCount() << std::endl;
+//  std::cerr << "visibleCount(): " << chan.visibleCount() << std::endl;
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(this, produce);
 #endif
@@ -230,6 +242,10 @@ protected:
 #else
     chan.latencyExpired(produce);
 #endif
+//  std::cerr << "smoc_multireader_fifo_chan::commitWrite(" << produce << ") [END] " << chan.name() << std::endl;
+//  std::cerr << "freeCount():    " << chan.freeCount() << std::endl;
+//  std::cerr << "usedCount():    " << chan.usedCount() << std::endl;
+//  std::cerr << "visibleCount(): " << chan.visibleCount() << std::endl;
   }
   
   /// @brief See smoc_chan_out_base_if
@@ -438,7 +454,8 @@ public:
       { marking += t; }
   protected:
     chan_init(const char* name, size_t n)
-      : smoc_multireader_fifo_chan_base::chan_init(name, n)
+      : smoc_multireader_fifo_chan_base::chan_init(name, n),
+        marking(0)
     {}
   private:
     size_t marking;
