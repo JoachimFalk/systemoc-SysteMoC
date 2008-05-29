@@ -101,10 +101,14 @@ void smoc_root_chan::finalise() {
   smoc_modes::PGWriter::getId(this);
   
 #ifdef SYSTEMOC_ENABLE_VPC
+  std::string destination = "nirvana";
   assert( this->getOutputPorts().begin() != this->getOutputPorts().end() );
-  assert( this->getInputPorts().begin()  != this->getInputPorts().end() );
   std::string source = (*(this->getOutputPorts().begin()))->getActor()->name();
-  std::string destination = (*(this->getInputPorts().begin()))->getActor()->name();
+
+  if( this->getInputPorts().begin()  != this->getInputPorts().end() ){
+    destination = (*(this->getInputPorts().begin()))->getActor()->name();
+  }
+
   std::string fifo = myName;
   vpcLinkWriteHop =
     new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
