@@ -68,7 +68,7 @@ private:
   typedef typename ChanInit::chan_type  ChanType;
 public:
   
-  smoc_port_connector(const ChanInit& init) :
+  smoc_port_connector(const ChanInit& init = ChanInit()) :
     init(init),
     chan(new ChanType(init))
   {}
