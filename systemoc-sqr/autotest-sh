@@ -16,7 +16,9 @@ logoutfile=autotest.log
 test_bin=$builddir/simulation-sqr
 
 # call binary
-$test_bin 100 2> /dev/null | grep -v "SystemC: simulation stopped by user." > $logoutfile
+VPCCONFIGURATION="$srcdir/configuration.cmx.xml" $test_bin 100 2> /dev/null |\
+  sed -e '/^SystemC: simulation stopped by user./d' \
+      -e '/^Note: VCD trace timescale unit is set by/d' > $logoutfile
 
 # make sure 'golden' logfile exist! i leave checks for clarity
 diff $logoutfile $golden_logs_dir/100iter.log > /dev/null

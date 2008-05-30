@@ -198,8 +198,14 @@ if test x"$enable_vpc" != x"no"; then
    [test x"$enable_vpc" = x"yes" && {
      AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out]) } ])
 fi
-AM_CONDITIONAL([VPC_PRESENT], [test x"$pkg_systemc_vpc_srcdir" != "x"])
 AC_SUBST([SYSTEMC_VPC_DEPENDENCIES])
+if test x"$pkg_systemc_vpc_srcdir" != "x"; then
+  VPC_PRESENT="yes"
+else
+  VPC_PRESENT="no"
+fi
+AC_SUBST([VPC_PRESENT])
+AM_CONDITIONAL([VPC_PRESENT], [test x"$pkg_systemc_vpc_srcdir" != "x"])
 
 # Check for WSDF Support in SysteMoC
 AC_MSG_CHECKING([for WSDF support in SysteMoC])

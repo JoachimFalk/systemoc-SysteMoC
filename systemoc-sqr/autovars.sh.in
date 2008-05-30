@@ -1,6 +1,8 @@
 # -BEGIN- autovars
 version=@VERSION@
 
+VPC_PRESENT=@VPC_PRESENT@
+
 builddir=`dirname $0`;
 builddir=`cd $builddir; pwd`
 
