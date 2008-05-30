@@ -198,7 +198,6 @@ public:
   friend class AST<this_type>;
   friend class CommExec<this_type>;
   friend class Value<this_type>;
-  friend class CommitCount<this_type>;
 private:
   P &p;
   E  e;
@@ -267,20 +266,6 @@ struct Value<DComm<P, E> > {
   static inline
   result_type apply(const DComm<P, E> &e) {
     return result_type();
-  }
-};
-
-template <class P, class E>
-struct CommitCount<DComm<P, E> > {
-  typedef Detail::Process      match_type;
-
-  typedef void                 result_type;
-  typedef port_commit_map     &param1_type;
-
-  static
-  void apply(const DComm<P, E> &e, param1_type pcm) {
-    size_t commitCount = Value<E>::apply(e.e);
-    pcm[&(e.p)] = commitCount;
   }
 };
 
