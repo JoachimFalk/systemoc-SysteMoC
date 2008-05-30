@@ -39,8 +39,9 @@ public:
   public:
     typedef const void type;
   };
-        
-        
+
+public:
+  typedef smoc_src_md_loop_iterator_kind::data_element_id_type data_element_id_type;        
 public:
         
   /// This class represents the common base class for access of
@@ -106,7 +107,7 @@ public:
     }
 
     /// Returns the value of the loop iterator for the given iteration level
-    iteration_type iteration(size_t iteration_level) const {
+    virtual iteration_type iteration(size_t iteration_level) const {
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 104
       CoSupport::Streams::dout << buffer->name() << ": Enter smoc_md_storage_access_src::iteration" << std::endl;
       CoSupport::Streams::dout << CoSupport::Indent::Up;
@@ -204,12 +205,12 @@ public:
     virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const { assert(false); }
 
     /// Returns the value of the loop iterator for the given iteration level
-    iteration_type iteration(size_t iteration_level) const {
+    virtual iteration_type iteration(size_t iteration_level) const {
       return (*snk_loop_iterator)[iteration_level];
     }
 
     /// Returns the maximum window iteration
-    const iter_domain_vector_type& max_window_iteration() const {
+    virtual const iter_domain_vector_type& max_window_iteration() const {
       return snk_loop_iterator->max_window_iteration();
     }
 
@@ -240,7 +241,7 @@ public:
                 
     const smoc_snk_md_loop_iterator_kind* snk_loop_iterator;
 
-    void checkLimit(const iter_domain_vector_type& window_iteration) const{
+    virtual void checkLimit(const iter_domain_vector_type& window_iteration) const{
 #ifndef NDEBUG
       const iter_domain_vector_type& max_window_iteration(snk_loop_iterator->max_window_iteration());
       for(unsigned i = 0; i < window_iteration.size(); i++){
@@ -249,6 +250,14 @@ public:
       }
 #endif
     }
+
+    virtual void 
+    get_window_data_element_offset(const iter_domain_vector_type& window_iteration,
+                                   data_element_id_type& data_element_id) const {
+      this->snk_loop_iterator->get_window_data_element_offset(window_iteration,
+							      data_element_id);
+    };
+
   };
                 
         
@@ -461,9 +470,9 @@ public:
     typedef const smoc_md_array<DATA_TYPE> type;
   };
 
-public:
-  typedef smoc_src_md_loop_iterator_kind::data_element_id_type data_element_id_type;
+public:  
   typedef smoc_md_buffer_mgmt_base parent_type;
+  typedef parent_type::data_element_id_type data_element_id_type;
 
 public:
 
@@ -619,8 +628,8 @@ public:
 #endif
 
       data_element_id_type data_element_id(token_dimensions);                 
-      this->snk_loop_iterator->get_window_data_element_offset(window_iteration,
-							      data_element_id);                       
+      this->get_window_data_element_offset(window_iteration,
+                                           data_element_id);
       data_element_id += base_data_element_id;
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
@@ -676,9 +685,9 @@ public:
 #endif
 
 
-      data_element_id_type data_element_id(token_dimensions);                 
-      this->snk_loop_iterator->get_window_data_element_offset(window_iteration,
-							      data_element_id);                       
+      data_element_id_type data_element_id(token_dimensions);
+      this->get_window_data_element_offset(window_iteration,
+                                           data_element_id);
       data_element_id += base_data_element_id;
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
@@ -701,7 +710,7 @@ public:
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
       CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
-		      << std::endl;
+                               << std::endl;
       CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
