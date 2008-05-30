@@ -139,6 +139,17 @@ public:
   /// port to public (See smoc_sysc_port::bind).
   void bind(this_type &parent_)
     { return base_type::bind(parent_); }
+
+  // reflect operator () to smoc_root_port
+  typename this_type::TokenGuard operator ()(size_t n, size_t m)
+    { return this->smoc_root_port::operator()(n,m); }
+  typename this_type::TokenGuard operator ()(size_t n)
+    { return this->operator()(n,n); }
+ 
+  void operator () ( iface_type& interface_ )
+    { bind(interface_); }
+  void operator () ( this_type& parent_ )
+    { bind(parent_); }
 };
 
 template <typename IFACE>
@@ -185,17 +196,6 @@ public:
     { return (*this)->numAvailable(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->dataAvailableEvent(n); }  
-
-  // reflect operator () to smoc_root_port
-  typename this_type::TokenGuard operator ()(size_t n, size_t m)
-    { return this->smoc_root_port::operator()(n,m); }
-  typename this_type::TokenGuard operator ()(size_t n)
-    { return this->operator()(n,n); }
- 
-  void operator () ( iface_type& interface_ )
-    { bind(interface_); }
-  void operator () ( this_type& parent_ )
-    { bind(parent_); }
 };
 
 template <typename IFACE>
@@ -240,17 +240,6 @@ public:
     { return (*this)->numFree(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->spaceAvailableEvent(n); }
-
-  // reflect operator () to smoc_root_port
-  typename this_type::TokenGuard operator ()(size_t n, size_t m)
-    { return this->smoc_root_port::operator()(n,m); }
-  typename this_type::TokenGuard operator ()(size_t n)
-    { return this->operator()(n,n); }
- 
-  void operator () ( iface_type& interface_ )
-    { bind(interface_); }
-  void operator () ( this_type& parent_ )
-    { bind(parent_); }
 };
 
 //forward declaration
