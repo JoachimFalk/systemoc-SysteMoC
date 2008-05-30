@@ -116,7 +116,7 @@ protected:
 
   /// @brief See smoc_root_chan
   void assemble(smoc_modes::PGWriter &pgw) const
-    { /* why is this channel not in the parent graph?? */ assert(0); }
+    {}
   
   /// @brief See smoc_root_chan
   void channelContents(smoc_modes::PGWriter &pgw) const
