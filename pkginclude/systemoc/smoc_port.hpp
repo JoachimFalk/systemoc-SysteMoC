@@ -188,8 +188,6 @@ public:
  
   bool isInput() const { return true; }
 
-  bool tokenIsValid(size_t i=0) const
-    { return this->get_chanaccess()->tokenIsValid(i); }
   size_t tokenId(size_t i=0) const
     { return (*this)->inTokenId() + i; }
   size_t availableCount() const
@@ -321,8 +319,11 @@ public:
     return (*(this->get_chanaccess()))[n];
   }
 
+  // This methods depend on the channel access type
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token<T>(*this,n); }
+  bool tokenIsValid(size_t i=0) const
+    { return this->get_chanaccess()->tokenIsValid(i); }
 };
 
 template <typename T>
