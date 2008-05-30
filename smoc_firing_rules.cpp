@@ -472,7 +472,10 @@ void smoc_firing_types::transition_ty::execute(
     nextState           = actor->commstate.rs;
     Expr::evalTo<Expr::CommExec>(guard, actor->diiEvent, latEvent);
 
-    // FIXME: WHY IS THIS NEEDED!!!!
+    // This covers the case that the executed transition does not
+    // contain an output port. Therefore, the latEvent is not added
+    // to a LatencyQueue and would be deleted immediately after
+    // the latEvent smartptr is destroyed when this scope is left.
     if (!*latEvent) {
       // latency event not signaled
       struct _: public smoc_event_listener {
