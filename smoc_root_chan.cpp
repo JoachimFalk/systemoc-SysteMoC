@@ -51,16 +51,14 @@ using namespace SysteMoC::NGXSync;
 // value_type will be constructed as T(), which initializes primite types to 0!
 static std::map<std::string, size_t> _smoc_channel_name_map;
 
-smoc_root_chan::smoc_root_chan(const char *name)
-  : sc_prim_channel(name != NULL ? name : sc_gen_unique_name( "smoc_unnamed_channel" ))
+smoc_root_chan::smoc_root_chan(const std::string& name)
+  : sc_prim_channel(name.empty() ? sc_gen_unique_name( "smoc_unnamed_channel" ) : name.c_str()),
+    myName(name)
 #ifdef SYSTEMOC_ENABLE_VPC  
     , vpcLink(0)
 #endif
 {
   idPool.regObj(this);
-  
-  if (name != NULL)
-    myName = name;
 }
   
 smoc_root_chan::~smoc_root_chan() {

@@ -84,7 +84,7 @@ public:
   class chan_init {
     friend class smoc_md_fifo_kind;
   private:
-    const char *name;
+    std::string name;
     const buffer_init b;
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
     //buffer analysis user inter
@@ -92,7 +92,7 @@ public:
 #endif
     
   protected:
-    chan_init(const char *name,
+    chan_init(const std::string& name,
               const buffer_init& b
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
 	      , smoc_md_ba::smoc_md_ba_user_interface* ba_ui
@@ -853,7 +853,7 @@ public:
     : public parent_type::chan_init {
     friend class smoc_md_fifo_storage<T_DATA_TYPE, BUFFER_CLASS, STORAGE_OUT_TYPE>;
   protected:
-    chan_init( const char *name, 
+    chan_init( const std::string& name, 
                const buffer_init &b 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
 	       , smoc_md_ba::smoc_md_ba_user_interface* ba_ui
@@ -970,7 +970,7 @@ public:
     : public parent_type::chan_init {
     friend class smoc_md_fifo_storage<void, BUFFER_CLASS, STORAGE_OUT_TYPE>;
   protected:
-    chan_init( const char *name, 
+    chan_init( const std::string& name, 
                const buffer_init &b 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
 	      , smoc_md_ba::smoc_md_ba_user_interface* ba_ui
@@ -1233,7 +1233,7 @@ public:
 		, smoc_md_ba::smoc_md_ba_user_interface* ba_ui = NULL
 #endif
 		)
-    : smoc_md_fifo_type<T,STORAGE_OUT_TYPE>::chan_init(NULL,
+    : smoc_md_fifo_type<T,STORAGE_OUT_TYPE>::chan_init("",
                                                        assemble_buffer_init(wsdf_edge_param, n)
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
 						       , ba_ui
@@ -1242,7 +1242,7 @@ public:
     wsdf_edge_param(wsdf_edge_param)
   {}
 
-  explicit smoc_md_fifo( const char *name, 
+  explicit smoc_md_fifo( const std::string& name, 
                          const smoc_wsdf_edge_descr& wsdf_edge_param, 
                          size_t n)
     : smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::chan_init(name,
@@ -1401,7 +1401,7 @@ public:
   smoc_wsdf_edge(size_t n,
                  const uvector_type& d
                  )
-    : name(NULL),
+    : name(""),
       n(n), 
       d(d), 
       d_valid(true)
@@ -1415,7 +1415,7 @@ public:
 		, smoc_md_ba::smoc_md_ba_user_interface* ba_ui = NULL
 #endif
                  )
-    : name(NULL),
+    : name(""),
       n(n), 
       d_valid(false)
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
@@ -1424,7 +1424,7 @@ public:
   {}
 
 
-  explicit smoc_wsdf_edge(const char *name, 
+  explicit smoc_wsdf_edge(const std::string& name, 
                           size_t n,
                           const uvector_type& d
                           )
@@ -1437,7 +1437,7 @@ public:
 #endif
   {}
 
-  explicit smoc_wsdf_edge(const char *name, 
+  explicit smoc_wsdf_edge(const std::string& name, 
                           size_t n)
     : name(name),
       n(n), 
@@ -1448,7 +1448,7 @@ public:
   {}
 
 public:
-  const char* name;
+  std::string name;
   const size_t n;
 
   const uvector_type d;

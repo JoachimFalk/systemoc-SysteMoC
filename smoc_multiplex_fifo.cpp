@@ -44,7 +44,7 @@
 //using namespace SystemCoDesigner::SGX;
 //using namespace SysteMoC::NGXSync;
 
-smoc_multiplex_fifo_chan::smoc_multiplex_fifo_chan(const char *name, size_t n, size_t m)
+smoc_multiplex_fifo_chan::smoc_multiplex_fifo_chan(const std::string& name, size_t n, size_t m)
   : smoc_root_chan(name),
 #ifdef SYSTEMOC_ENABLE_VPC
     Detail::QueueFRVWPtr(n),
