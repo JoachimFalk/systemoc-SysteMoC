@@ -89,6 +89,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_ast_systemoc.cpp		\
 	smoc_fifo.cpp			\
 	smoc_multiplex_fifo.cpp		\
+	smoc_multireader_fifo.cpp	\
 	smoc_latency_queues.cpp		\
 	smoc_multicast_sr_signal.cpp	\
 	smoc_graph_type.cpp		\

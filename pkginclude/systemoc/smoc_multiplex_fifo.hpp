@@ -114,14 +114,22 @@ protected:
 
   void diiExpired(size_t n);
 
-  virtual void assemble(smoc_modes::PGWriter &pgw) const
-    {assert(0);}
-  virtual void channelContents(smoc_modes::PGWriter &pgw) const
-    {assert(0);}
+  /// @brief See smoc_root_chan
+  void assemble(smoc_modes::PGWriter &pgw) const
+    { /* why is this channel not in the parent graph?? */ assert(0); }
+  
+  /// @brief See smoc_root_chan
+  void channelContents(smoc_modes::PGWriter &pgw) const
+    { assert(0); }
+  
+  /// @brief See smoc_root_chan
   virtual void channelAttributes(smoc_modes::PGWriter &pgw) const
-    {assert(0);}
+    { assert(0); }
 
+  /// @brief See smoc_root_chan
   sc_port_list getInputPorts() const;
+  
+  /// @brief See smoc_root_chan
   sc_port_list getOutputPorts() const;
 
 public:
