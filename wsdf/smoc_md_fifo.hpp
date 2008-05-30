@@ -51,6 +51,8 @@
 
 template <typename T, template <typename> class STORAGE_OUT_TYPE>
 class smoc_wsdf_edge;
+//template <class BUFFER_CLASS>
+//class smoc_md_hw_fifo_kind;
 
 
 
@@ -164,9 +166,13 @@ protected:
 
   /// Generate the events originated by a write operation
   void generate_write_events();
+  void generate_write2Src_events();
+  void generate_write2Snk_events();
 
   /// Generate the events originated by a read operation
   void generate_read_events();  
+  void generate_read2Snk_events();
+  void generate_read2Src_events();
   
   /// Returns an event, which is notified when n complete windows
   /// are available in the FIFO.
@@ -229,10 +235,15 @@ private:
   mutable bool _usedStorageValid;
 
   //updates _usedStorage
-  virtual void calcUsedStorage() const;
+  //virtual void calcUsedStorage() const;
+  //DO NOT make virtual
+  void calcUsedStorage() const;
 
   //called, when one window is consumed
-  virtual void decUsedStorage();
+  //DO NOT make virtual
+  void decUsedStorage();
+
+protected:
   
   //called, when one effective token is produced
   virtual void incUsedStorage();
@@ -303,17 +314,6 @@ smoc_md_fifo_kind<BUFFER_CLASS>::smoc_md_fifo_kind(const chan_init &i)
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
 # ifdef SYSTEMOC_ENABLE_VPC
 #  ifdef SYSTEMOC_TRACE_BUFFER_SIZE
-
-template <typename T>
-void sc_trace(sc_trace_file *scf, 
-              const smoc_vector<T>& vec,
-              const std::string& name){
-  for(unsigned int i = 0; i < vec.size(); i++){
-    std::stringstream temp;
-    temp << name << "[" << i << "]";
-    sc_trace(scf,vec[i],temp.str());
-  }
-}
 
 template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::start_of_simulation(){
@@ -396,7 +396,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
   CoSupport::Streams::dout << this->name() << ": ";
   CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage()" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
 
   // In this function we assume, that the data element
@@ -472,10 +472,10 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
       _usedStorage = 1;
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
       CoSupport::Streams::dout << "Sink can fire due to schedule period difference" << std::endl;
-      CoSupport::Streams::dout << CoSupport::Indent::Up;
+      CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
       CoSupport::Streams::dout << "visible_schedule_period_difference = " << visible_schedule_period_difference << std::endl;
       CoSupport::Streams::dout << "schedule_period_offset = " << schedule_period_offset << std::endl;
-      CoSupport::Streams::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
 #ifdef SYSTEMOC_ENABLE_VPC
     }else if (req_src_iteration.is_lex_smaller_than((*this).src_iterator_visible.iteration_vector())){
@@ -500,7 +500,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage() const{
 
 #if (VERBOSE_LEVEL_SMOC_MD_FIFO == 101) || (VERBOSE_LEVEL_SMOC_MD_FIFO == 102)
   CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::calcUsedStorage()" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     
 }
@@ -510,7 +510,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage() const {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << this->name() << ": ";
   CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
   CoSupport::Streams::dout << "src_loop_iterator = " << (*this).src_loop_iterator.iteration_vector();
   CoSupport::Streams::dout << std::endl;
 #endif
@@ -531,7 +531,7 @@ size_t smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage() const {
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::unusedStorage()" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
 
   return return_value;
@@ -542,7 +542,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << this->name() << ": ";
   CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::rpp" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
   assert(n == 1);
 
@@ -566,7 +566,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::rpp(size_t n){
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::rpp" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
   
 }
@@ -582,7 +582,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << this->name() << ": ";
   CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::wpp" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
 
   assert(n == 1);
@@ -590,13 +590,6 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
   //be paranoiac
   //allocate memory, if not already done by user
   this->allocate_buffer();
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  latencyQueue.addEntry(n, le);
-#else
-  //make directly visible
-  incUsedStorage();
-#endif
 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
   if (buffer_analysis != NULL)
@@ -610,6 +603,13 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
     visible_schedule_period_difference++;
 #endif
   }
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  latencyQueue.addEntry(n, le);
+#else
+  //make directly visible
+  incUsedStorage();
+#endif
   
   /// Memory will not be written anymore
   (*this).release_buffer();
@@ -618,7 +618,7 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::wpp" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
 
     
@@ -627,10 +627,13 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::wpp(size_t n){
 #ifdef SYSTEMOC_ENABLE_VPC
 template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::latencyExpired(size_t n){
-  assert(n == 1);
 
-  //Make next token visible
-  incUsedStorage();
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
+  CoSupport::Streams::dout << this->name() << ": ";
+  CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::latencyExpired(size_t n)" << std::endl;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
+#endif
+  assert(n == 1);
 
   // Move to next loop iteration
   if((*this).src_iterator_visible.inc()){
@@ -638,48 +641,73 @@ void smoc_md_fifo_kind<BUFFER_CLASS>::latencyExpired(size_t n){
     visible_schedule_period_difference++;
   }
 
-  // check, if a new window has been generated
-  if (usedStorage() != 0){
-    eventWindowAvailable.notify();    
-  }
+  //Make next token visible
+  incUsedStorage();
   
+  generate_write2Snk_events();
+
+#if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
+  CoSupport::Streams::dout << this->name() << ": ";
+  CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::latencyExpired(size_t n)" << std::endl;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
+#endif
+
 }
 #endif
 
 template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::generate_write_events() {
-  // check, if a new window has been generated
+  generate_write2Src_events();
 #ifndef SYSTEMOC_ENABLE_VPC
-  if (usedStorage() != 0){
-    eventWindowAvailable.notify();
-  }
-#endif //SYSTEMOC_ENABLE_VPC
-  
+  generate_write2Snk_events();  
+#endif
+}
+
+template <class BUFFER_CLASS>
+void smoc_md_fifo_kind<BUFFER_CLASS>::generate_write2Src_events(){
   //Check, if a new effective token be accepted
   if (unusedStorage() != 0){
     eventEffTokenFree.notify();
   }else{
     eventEffTokenFree.reset();
   }
+}
+
+template <class BUFFER_CLASS>
+void smoc_md_fifo_kind<BUFFER_CLASS>::generate_write2Snk_events(){
+  // check, if a new window has been generated
+  if (usedStorage() != 0){
+    eventWindowAvailable.notify();
+  }
 
   //indicate write operation
   eventWrite.notify();
 }
 
+
 template <class BUFFER_CLASS>
 void smoc_md_fifo_kind<BUFFER_CLASS>::generate_read_events() {
+  generate_read2Snk_events();
+  generate_read2Src_events();  
+}
+
+template <class BUFFER_CLASS>
+void smoc_md_fifo_kind<BUFFER_CLASS>::generate_read2Snk_events(){
   // check, if there is still a window available
   if(usedStorage() != 0){
     eventWindowAvailable.notify();
   }else{
     eventWindowAvailable.reset();
   }
-  
+}
+
+template <class BUFFER_CLASS>
+void smoc_md_fifo_kind<BUFFER_CLASS>::generate_read2Src_events(){
   //Check, if we can accept a new effective token
   if(unusedStorage() != 0){
     eventEffTokenFree.notify();
   }
-  
+
   //indicate read operation
   eventRead.notify();
 }
@@ -689,7 +717,7 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n) {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << this->name() << ": ";
   CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
 
   //std::cerr << "My name: " << this->name() << std::endl;
@@ -700,12 +728,12 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventAvailable(size_t n) {
       eventWindowAvailable.notify();
     }
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     return eventWindowAvailable;
   }else{
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     return eventWrite;
   }
@@ -717,7 +745,7 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n) {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << (*this).name() << ": ";
   CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
   assert((n == 1) || (n == MAX_TYPE(size_t)));
   
@@ -726,12 +754,12 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n) {
       eventEffTokenFree.notify();
     }
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     return eventEffTokenFree;
   }else{
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     return eventRead;
   }
@@ -812,6 +840,13 @@ public:
 
   typedef typename parent_type::iter_domain_vector_type iter_domain_vector_type;  
 
+#if 0
+  //The HW-FIFO requires access to _usedStorage;
+  //and to _usedStorageValid.
+  //As these elements are private, declare it as friend.
+  friend class smoc_md_hw_fifo_kind<BUFFER_CLASS>;
+#endif
+
 public:
 
   class chan_init
@@ -854,14 +889,14 @@ protected:
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
     CoSupport::Streams::dout << this->name() << ": ";
     CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
     ring_in_type *r = new ring_in_type();
     initStorageAccess(*r);
     r->SetBuffer(storage);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
     CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     return r;
   }
@@ -871,14 +906,14 @@ protected:
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << this->name() << ": ";
   CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
   ring_out_type *r = new ring_out_type();
     initStorageAccess(*r);
     r->SetBuffer(storage);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
   return r;
   }
@@ -963,13 +998,13 @@ protected:
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
     CoSupport::Streams::dout << this->name() << ": ";
     CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
     ring_in_type *r = new ring_in_type();
     initStorageAccess(*r);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
     CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     return r;
   }
@@ -979,13 +1014,13 @@ protected:
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << this->name() << ": ";
   CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
   ring_out_type *r = new ring_out_type();
   initStorageAccess(*r);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
-  CoSupport::Streams::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
   return r;
   }
@@ -1036,7 +1071,7 @@ public:
   {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
     CoSupport::Streams::dout << this->name() << ": Enter commitRead" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
     CoSupport::Streams::dout << "Iteration : " << (*this).snk_loop_iterator.iteration_vector();
     CoSupport::Streams::dout << std::endl;
     CoSupport::Streams::dout << "Consume " << consume << " windows" << std::endl;
@@ -1052,7 +1087,7 @@ public:
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
     CoSupport::Streams::dout << "Leave commitRead" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
 
   }
@@ -1066,7 +1101,7 @@ public:
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
     CoSupport::Streams::dout << this->name() << ": Enter commitWrite" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
     CoSupport::Streams::dout << "Iteration : " << (*this).src_loop_iterator.iteration_vector();
     CoSupport::Streams::dout << std::endl;
     CoSupport::Streams::dout << "Write " << produce << " effective tokens" << std::endl;
@@ -1089,7 +1124,7 @@ public:
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
     CoSupport::Streams::dout << "Leave commitWrite" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
 
   }
@@ -1139,27 +1174,27 @@ public:
   size_t numAvailable() const { 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
     CoSupport::Streams::dout << this->name() << ": Enter numAvailable()" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
     size_t return_value = this->usedStorage();
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
     CoSupport::Streams::dout << "Fifo contains at least " << return_value << " windows" << std::endl;
     CoSupport::Streams::dout << "Leave numAvailable()" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     return return_value;
   }
   size_t numFree() const { 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
     CoSupport::Streams::dout << this->name() << ": Enter numFree()" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
     size_t return_value = this->unusedStorage(); 
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
     CoSupport::Streams::dout << "Fifo accepts at least " << return_value << " effective tokens" << std::endl;
     CoSupport::Streams::dout << "Leave numFree()" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     return return_value;
   }
@@ -1248,7 +1283,7 @@ private:
                                           const smoc_wsdf_snk_param& snk_param) const {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
     CoSupport::Streams::dout << "Enter smoc_md_fifo::assemble_wsdf_edge" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
 
     typedef smoc_wsdf_edge_descr::udata_type     udata_type;
@@ -1309,12 +1344,11 @@ private:
 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 103
     CoSupport::Streams::dout << "Leave smoc_md_fifo::assemble_wsdf_edge" << std::endl;
-    CoSupport::Streams::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
 
     return wsdf_edge_param;
   }
-  
 
   buffer_init assemble_buffer_init(const smoc_wsdf_edge_descr& wsdf_edge_param, 
                                    size_t n) const{

@@ -614,7 +614,9 @@ bool smoc_snk_md_loop_iterator_kind::is_iteration_max(
 						      ) const {
         
   const unsigned loop_bound = 
-    ignore_window_iteration ? mapping_matrix.size2() - _token_dimensions : mapping_matrix.size2();
+    ignore_window_iteration ? 
+    mapping_matrix.size2() - _token_dimensions : 
+    mapping_matrix.size2();
 
   for(unsigned col = 0; col < loop_bound; col++){
     if (mapping_matrix(token_dimension,col) != 0){

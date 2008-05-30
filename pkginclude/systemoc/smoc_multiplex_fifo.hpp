@@ -464,7 +464,8 @@ public:
     }
   protected:
     chan_init(const char *name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
-      : smoc_multiplex_vfifo_chan_base::chan_init(name, pSharedFifoMem, m)
+      : smoc_multiplex_vfifo_chan_base::chan_init(name, pSharedFifoMem, m),
+        marking(0)
     {}
   private:
     size_t marking;

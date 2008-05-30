@@ -503,7 +503,7 @@ public:
 				      data_element_id_type& data_element_offset) const;
         
   /// This function determines the data element which is required for execution of
-  /// the current sink iteration and and which is produced latest by the source actor.
+  /// the current sink iteration and which is produced latest by the source actor.
   /// The function returns 'false' when no data element produced by the source actor
   /// is required. Otherwise 'true' is returned.
   bool get_req_src_data_element(data_element_id_type& data_element_id) const;
@@ -551,7 +551,7 @@ public:
   /// This function calculates the number of border pixels which are situated
   /// on the lower extended border
   /// ATTENTION: If the extended border is larger than the sliding window,
-  /// the returned value might be larger than the sliding window extendion.
+  /// the returned value might be larger than the sliding window extension.
   id_type calc_num_low_border_pixels(unsigned int token_dimension) const;
 
 
@@ -618,6 +618,50 @@ public:
   /// (first element points to e1)
   border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration,
                                         bool& is_border) const;
+
+#if 0
+public:
+
+  /*
+   * Functions required when performing explicit reusage for
+   * overlapping windows.
+   */
+
+  /// When the sink performs sampling with overlapping windows,
+  /// the latter one can (but need not to) be split into a non-overlapping part
+  /// and the pixels which only re-read some data.
+  /// If doing so, the sink iterator can be transformed describing the 
+  /// hardware behavior.
+  /// This however also means that the value of the iteration vector can 
+  /// be different than what is expected by the actor.
+  /// The following function returns the translated iteration vector value
+  virtual const iter_item_type 
+  get_user_iteration(size_type iteration_level) const = 0; //fixme
+
+  /// Returns the maximum window iteration seen by the user
+  virtual const iter_domain_vector_type& 
+  max_user_window_iteration() const = 0; //fixme
+
+  /// Returns whether the user pixel is situated on the extended border
+  border_type_vector_type 
+  is_user_ext_border(const iter_domain_vector_type& window_iteration,
+                     bool& is_border) const = 0; //fixme
+
+  /// This function returns the size by which the user window exceeds the
+  /// actual window size
+  const data_element_id_type& 
+  user_window_overlap() const = 0; //fixme
+  
+  /// In general when reading an overlapping window,
+  /// we also consume some new data elements and put them
+  /// into the reusage buffer. However, for some cases, border
+  /// optimization can be performed such that some overlapping
+  /// windows do not need to read any new data elements.
+  /// The following function returns, whether for the given window
+  /// new data elements are read or not.
+  bool consumes_new_data_elements() const = 0; //fixme
+
+#endif
 
 protected:
   void update_base_data_element_id();

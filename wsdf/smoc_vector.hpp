@@ -13,6 +13,7 @@
 #include <vector>
 
 #include <CoSupport/Streams/DebugOStream.hpp>
+#include <systemc.h>
 
 #ifndef SMOC_VECTOR_VERBOSE_LEVEL
 #define SMOC_VECTOR_VERBOSE_LEVEL 0
@@ -355,6 +356,18 @@ public:
   
 
 };
+
+
+template <typename T>
+void sc_trace(sc_trace_file *scf, 
+              const smoc_vector<T>& vec,
+              const std::string& name){
+  for(unsigned int i = 0; i < vec.size(); i++){
+    std::stringstream temp;
+    temp << name << "[" << i << "]";
+    sc_trace(scf,vec[i],temp.str());
+  }
+}
 
 
 /* ************************************************************* */
