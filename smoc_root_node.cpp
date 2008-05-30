@@ -88,58 +88,6 @@ std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_a
 #ifdef SYSTEMOC_ENABLE_VPC
 const smoc_firing_state &smoc_root_node::_communicate() {
   assert(diiEvent != NULL && *diiEvent); // && vpc_event_lat != NULL
-/*
-  smoc_ref_event_p latEvent(vpc_event_lat);
-  if (!*latEvent) {
-    // latency event not signaled
-    struct _: public smoc_event_listener {
-      smoc_ref_event_p  latEvent;
-      smoc_root_node   *actor;
-      
-      void signaled(smoc_event_waiter *_e) {
-# ifdef SYSTEMOC_TRACE
-//      const char *name = actor->name();
-        
-        TraceLog.traceStartActor(actor, "l");
-# endif
-# ifdef SYSTEMOC_DEBUG
-        std::cerr << "smoc_root_node::_communicate::_::signaled(...)" << std::endl;
-# endif
-        assert(_e == &*latEvent);
-        assert(*_e);
-        latEvent = NULL;
-# ifdef SYSTEMOC_TRACE
-        TraceLog.traceEndActor(actor);
-# endif
-        return;
-      }
-      void eventDestroyed(smoc_event_waiter *_e) {
-# ifdef SYSTEMOC_DEBUG
-        std::cerr << "smoc_root_node::_communicate::_:: eventDestroyed(...)" << std::endl;
-# endif
-        delete this;
-      }
-      
-      _(const smoc_ref_event_p &latEvent, smoc_root_node *actor)
-        : latEvent(latEvent), actor(actor) {};
-      
-      virtual ~_() {}
-    };
-    latEvent->addListener(new _(latEvent, this));
-  } else {
-# ifdef SYSTEMOC_TRACE
-//  const char *name = this->name();
-    
-    TraceLog.traceStartActor(this, "l");
-    TraceLog.traceEndActor(this);
-# endif
-  }
-//Expr::evalTo<Expr::CommExec>(*_guard, diiEvent, latEvent);
-  
-#ifndef NDEBUG
-  vpc_event_lat = NULL;
-#endif
-*/
   return nextState;
 }
 #endif // SYSTEMOC_ENABLE_VPC
