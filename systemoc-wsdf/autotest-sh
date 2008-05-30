@@ -16,5 +16,5 @@ logoutfile=autotest.log
 test_bin=$builddir/simulation-wsdf
 
 # call binary
-$test_bin 
+VPCCONFIGURATION=design-wsdf.cmx $test_bin 
 
