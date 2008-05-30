@@ -101,38 +101,19 @@ public:
 protected:
   
   /// @brief Constructor
-  smoc_multireader_fifo_chan_base(const chan_init &i)
-    : smoc_root_chan(i.name),
-#ifdef SYSTEMOC_ENABLE_VPC
-    QueueFRVWPtr(fsizeMapper(this, i.n)),
-    latencyQueue(this),
-    diiQueue(this),
-#else
-    QueueRWPtr(fsizeMapper(this, i.n)),
-#endif
-    tokenId(0)
-  {}
+  smoc_multireader_fifo_chan_base(const chan_init &i);
 
   /// @brief See smoc_root_chan
-  virtual void assemble(smoc_modes::PGWriter &pgw) const
-  {}
+  void assemble(smoc_modes::PGWriter &pgw) const;
 
   /// @brief See smoc_root_chan
-  void channelAttributes(smoc_modes::PGWriter &pgw) const {
-    pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
-  }
+  void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
   /// @brief Detail::LatencyQueue::ILatencyExpired
-  void latencyExpired(size_t n) {
-    vpp(n);
-    emmAvailable.increasedCount(visibleCount());
-  }
+  void latencyExpired(size_t n);
 
   /// @brief Detail::LatencyQueue::ILatencyExpired
-  void diiExpired(size_t n) {
-    fpp(n);
-    emmFree.increasedCount(freeCount());
-  }
+  void diiExpired(size_t n);
 
 private:
   Detail::EventMapManager emmAvailable;

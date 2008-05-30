@@ -471,6 +471,55 @@ void smoc_firing_types::transition_ty::execute(
     // Insert magic commstate
     nextState           = actor->commstate.rs;
     Expr::evalTo<Expr::CommExec>(guard, actor->diiEvent, latEvent);
+
+    // This covers the case that the executed transition does not
+    // contain an output port. Therefore, the latEvent is not added
+    // to a LatencyQueue and would be deleted immediately after
+    // the latEvent smartptr is destroyed when this scope is left.
+    if (!*latEvent) {
+      // latency event not signaled
+      struct _: public smoc_event_listener {
+        smoc_ref_event_p  latEvent;
+        smoc_root_node   *actor;
+        
+        void signaled(smoc_event_waiter *_e) {
+# ifdef SYSTEMOC_TRACE
+  //      const char *name = actor->name();
+          
+          TraceLog.traceStartActor(actor, "l");
+# endif
+# ifdef SYSTEMOC_DEBUG
+          std::cerr << "smoc_root_node::_communicate::_::signaled(...)" << std::endl;
+# endif
+          assert(_e == &*latEvent);
+          assert(*_e);
+          latEvent = NULL;
+# ifdef SYSTEMOC_TRACE
+          TraceLog.traceEndActor(actor);
+# endif
+          return;
+        }
+        void eventDestroyed(smoc_event_waiter *_e) {
+# ifdef SYSTEMOC_DEBUG
+          std::cerr << "smoc_root_node::_communicate::_:: eventDestroyed(...)" << std::endl;
+# endif
+          delete this;
+        }
+        
+        _(const smoc_ref_event_p &latEvent, smoc_root_node *actor)
+          : latEvent(latEvent), actor(actor) {};
+        
+        virtual ~_() {}
+      };
+      latEvent->addListener(new _(latEvent, actor));
+    } else {
+# ifdef SYSTEMOC_TRACE
+  //  const char *name = this->name();
+      
+      TraceLog.traceStartActor(this, "l");
+      TraceLog.traceEndActor(this);
+# endif
+    }
   } else {
     Expr::evalTo<Expr::CommExec>(guard, NULL, NULL);
   }
