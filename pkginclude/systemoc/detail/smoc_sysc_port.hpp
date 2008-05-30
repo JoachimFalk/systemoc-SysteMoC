@@ -55,20 +55,18 @@ private:
   sc_interface *interface;
   //FIXME(MS): allow more than one "IN-Port" per Signal
   smoc_sysc_port *parent, *child;
-protected:
-  smoc_sysc_port(const char* name_);
-
+private:
   // SystemC 2.2 requires this method
   // (must also return the correct number!!!)
   int interface_count() { return interface ? 1 : 0; }
 
-  void push_interface(sc_interface *_i) {
+  void add_interface(sc_interface *_i) {
     assert(interface == NULL && _i != NULL);
     interface = _i;
   }
+protected:
+  smoc_sysc_port(const char* name_);
 
-  virtual ~smoc_sysc_port();
-public:
   // bind interface to this port
   void bind(sc_interface &interface_ ) {
     sc_port_base::bind(interface_);
@@ -82,6 +80,8 @@ public:
     sc_port_base::bind(parent_);
   }
 
+  virtual ~smoc_sysc_port();
+public:
   // get the first interface without checking for nil
   sc_interface       *get_interface()       { return interface; }
   sc_interface const *get_interface() const { return interface; }

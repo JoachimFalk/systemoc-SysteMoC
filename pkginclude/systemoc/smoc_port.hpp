@@ -79,6 +79,7 @@ private:
     this_type::bind(*iface);
     return 0;
   }
+
   int vbind(sc_port_base &parent_) {
     this_type* parent = dynamic_cast<this_type *>(&parent_);
     if (parent == 0) {
@@ -87,9 +88,6 @@ private:
     }
     this_type::bind(*parent);
     return 0;
-  }
-  void add_interface( sc_interface *i ) {
-    this->push_interface(i);
   }
 protected:
   smoc_port_base(const char *name_)
@@ -126,6 +124,21 @@ protected:
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return dynamic_cast<iface_type const *>(iface);
   }
+
+public:
+  /// @brief bind interface to this port
+  /// This bounce function changes the visibility
+  /// level of the bind method with a concrete
+  /// interface to public (See smoc_sysc_port::bind).
+  void bind(iface_type &interface_)
+    { return base_type::bind(interface_); }
+
+  /// @brief bind parent port to this port
+  /// This bounce function changes the visibility
+  /// level of the bind method with a concrete
+  /// port to public (See smoc_sysc_port::bind).
+  void bind(this_type &parent_)
+    { return base_type::bind(parent_); }
 };
 
 template <typename IFACE>
