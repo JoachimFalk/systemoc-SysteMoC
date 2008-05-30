@@ -32,7 +32,7 @@ using namespace ns_smoc_vector_init;
 using namespace smoc_md_ba;
 #endif
 
-#define WSDF_EXAMPLE_NBR 4
+#define WSDF_EXAMPLE_NBR 2
 
 int sc_main(int argc, char *argv[]) {} // dummy SystemC requires it!
 
@@ -137,7 +137,9 @@ int main(){
 
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  smoc_ref_event_p dummy_event;
+  std::cout << "Cannot be executed with VPC enabled" << std::endl;
+  exit(-1);
+  smoc_ref_event_p dummy_event(new smoc_ref_event(true));
 #endif  
 
   unsigned long current_src_schedule_period = 0;

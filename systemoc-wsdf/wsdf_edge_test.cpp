@@ -32,6 +32,7 @@ int main() {
                              sl_vector_init[1][1],
                              //bt
                              sl_vector_init[1][1]);
+  smoc_wsdf_edge_descr edge1b(edge1);
 
   edge1.print_edge_parameters(cout);
   
@@ -91,17 +92,34 @@ int main() {
   
   cout << endl; cout << endl;
 
-
   /* Perform translation for external reusage */
   cout << "Transform for external reusage" << endl;
   smoc_wsdf_edge_descr::uvector_type ext_reusage(2);
   ext_reusage[0] = 1;
   ext_reusage[1] = 0;
   
-  smoc_wsdf_edge_descr edge1b(edge1,ext_reusage);
-  edge1b.print_edge_parameters(cout);
+  smoc_wsdf_edge_descr edge1c(edge1b,ext_reusage);
+  edge1c.print_edge_parameters(cout);
   cout << endl; cout << endl;
+
   
+  cout << "Another transform for external reusage" << endl;
+  //smoc_wsdf_edge_descr::uvector_type ext_reusage(2);
+  ext_reusage[0] = 2;
+  ext_reusage[1] = 0;
+  
+  smoc_wsdf_edge_descr edge1d(edge1b,ext_reusage);
+  edge1d.print_edge_parameters(cout);
+  cout << endl; cout << endl;
+
+  cout << "Transform with border optimization" << endl;
+  //smoc_wsdf_edge_descr::uvector_type ext_reusage(2);
+  ext_reusage[0] = 2;
+  ext_reusage[1] = 0;
+  
+  smoc_wsdf_edge_descr edge1e(edge1b,ext_reusage,true);
+  edge1e.print_edge_parameters(cout);
+  cout << endl; cout << endl; 
   
 
   /* Second example */
@@ -507,7 +525,34 @@ int main() {
 
   cout << endl << endl << endl;
 
-  
+
+  cout << " ************************** Example 9 ************************** " << endl;
+
+  smoc_wsdf_edge_descr edge9(2,
+                             //src firing blocks
+                             ul_vector_init[1][1] <<
+                             ul_vector_init[32][16],
+                             //snk firing blocks
+                             ul_vector_init[32][16],
+                             //u0
+                             ul_vector_init[16][8],
+                             //c
+                             ul_vector_init[3][3],
+                             //delta_c
+                             ul_vector_init[1][1],
+                             //d
+                             ul_vector_init[0][0],
+                             //bs
+                             sl_vector_init[1][1],
+                             //bt
+                             sl_vector_init[1][1]);
+
+  edge9.print_edge_parameters(cout);
+  cout << endl;
+  cout << "Sink-iter-max: " << edge9.snk_iteration_max() << endl;
+  cout << "Sink mapping matrix: " << edge9.snk_data_element_mapping_matrix() << endl;
+  cout << "Sink border condition matrix" << edge9.calc_border_condition_matrix() << endl;
+  cout << endl << endl << endl;
 
 
 
