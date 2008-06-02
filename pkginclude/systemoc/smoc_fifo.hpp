@@ -90,11 +90,11 @@ public:
   public:
     friend class smoc_fifo_chan_base;
   protected:
-    chan_init(const char *name, size_t n)
+    chan_init(const std::string& name, size_t n)
       : name(name), n(n)
     {}
   private:
-    const char *name;
+    std::string name;
     size_t n;
   };
 
@@ -337,7 +337,7 @@ public:
     void add(const add_param_ty &t)
       { marking.push_back(t); }
   protected:
-    chan_init(const char* name, size_t n)
+    chan_init(const std::string& name, size_t n)
       : smoc_fifo_chan_base::chan_init(name, n)
     {}
   private:
@@ -423,7 +423,7 @@ public:
     void add(const add_param_ty &t)
       { marking += t; }
   protected:
-    chan_init(const char* name, size_t n)
+    chan_init(const std::string& name, size_t n)
       : smoc_fifo_chan_base::chan_init(name, n),
         marking(0)
     {}
@@ -568,11 +568,11 @@ public:
 
   /// @brief Constructor
   smoc_fifo(size_t n = 1)
-    : smoc_fifo_chan<T>::chan_init(0, n)
+    : smoc_fifo_chan<T>::chan_init("", n)
   {}
 
   /// @brief Constructor
-  explicit smoc_fifo(const char* name, size_t n = 1)
+  explicit smoc_fifo(const std::string& name, size_t n = 1)
     : smoc_fifo_chan<T>::chan_init(name, n)
   {}
 

@@ -88,7 +88,7 @@ public:
   typedef std::list<FifoId> FifoSequence;
   typedef std::map<FifoId, smoc_multiplex_vfifo_chan_base *> FifoMap;
 
-  smoc_multiplex_fifo_chan(const char *name, size_t n, size_t m);
+  smoc_multiplex_fifo_chan(const std::string& name, size_t n, size_t m);
 
 protected:
   void registerVFifo(smoc_multiplex_vfifo_chan_base *vfifo);
@@ -172,12 +172,12 @@ public:
   public:
     friend class smoc_multiplex_vfifo_chan_base;
   protected:
-    chan_init(const char *name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
+    chan_init(const std::string& name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
       : name(name), pSharedFifoMem(pSharedFifoMem),
         fifoId(pSharedFifoMem->getNewFifoId()), m(m)
     {}
   private:
-    const char                 *name;
+    std::string                 name;
     p_smoc_multiplex_fifo_chan  pSharedFifoMem;
     FifoId                      fifoId;
     size_t                      m;
@@ -390,7 +390,7 @@ public:
     void add(const add_param_ty &x)
       { marking.push_back(x); }
   protected:
-    chan_init(const char *name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
+    chan_init(const std::string& name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
       : smoc_multiplex_vfifo_chan_base::chan_init(name, pSharedFifoMem, m)
     {}
   private:
@@ -471,7 +471,7 @@ public:
       marking += t;
     }
   protected:
-    chan_init(const char *name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
+    chan_init(const std::string& name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
       : smoc_multiplex_vfifo_chan_base::chan_init(name, pSharedFifoMem, m),
         marking(0)
     {}
@@ -613,7 +613,10 @@ public:
   
   private:
     VirtFifo(const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
-      : smoc_multiplex_vfifo_chan<T>::chan_init(NULL, pSharedFifoMem, m)
+      : smoc_multiplex_vfifo_chan<T>::chan_init("", pSharedFifoMem, m)
+    {}
+    VirtFifo(const std::string& name, const p_smoc_multiplex_fifo_chan &pSharedFifoMem, size_t m)
+      : smoc_multiplex_vfifo_chan<T>::chan_init(name, pSharedFifoMem, m)
     {}
   public:
     this_type &operator<<(const T &x) {
@@ -633,12 +636,15 @@ public:
   /// @param n size of the shared fifo memory
   /// @param m out of order access, zero is no out of order
   smoc_multiplex_fifo(size_t n = 1, size_t m = 0)
-    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_chan(NULL, n, m)) {}
-  smoc_multiplex_fifo(const char *name, size_t n = 1, size_t m = 0)
+    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_chan("", n, m)) {}
+  smoc_multiplex_fifo(const std::string& name, size_t n = 1, size_t m = 0)
     : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_chan(name, n, m)) {}
 
   VirtFifo getVirtFifo()
     { return VirtFifo(pSharedFifoMem, m); }
+  
+  VirtFifo getVirtFifo(const std::string& name)
+    { return VirtFifo(name, pSharedFifoMem, m); }
 };
 
 #endif // _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP

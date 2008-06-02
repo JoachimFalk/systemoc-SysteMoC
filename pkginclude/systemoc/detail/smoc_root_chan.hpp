@@ -76,7 +76,7 @@ protected:
 
 protected:
   // constructor
-  smoc_root_chan(const char *name);
+  smoc_root_chan(const std::string& name);
 
   virtual void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
@@ -106,7 +106,7 @@ public:
   typedef smoc_nonconflicting_chan this_type;
 protected:
   // constructor
-  smoc_nonconflicting_chan(const char *name)
+  smoc_nonconflicting_chan(const std::string& name)
     : smoc_root_chan(name) {}
 
   virtual void finalise();
@@ -122,7 +122,7 @@ public:
   typedef smoc_multicast_chan this_type;
 protected:
   // constructor
-  smoc_multicast_chan(const char *name)
+  smoc_multicast_chan(const std::string& name)
     : smoc_root_chan(name) {}
 
   virtual void finalise();
