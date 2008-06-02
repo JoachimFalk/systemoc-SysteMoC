@@ -90,8 +90,8 @@ namespace Detail {
       findex = (findex + n) % fsize;
       // PARANOIA: windex <= findex <= rindex in modulo fsize arith
       assert(findex < fsize &&
-        (rindex >= windex && (findex >= windex && findex <= rindex) ||
-         rindex <  windex && (findex >= windex || findex <= rindex)));
+        (windex >= rindex && (findex >  windex || findex <= rindex) ||
+         windex <  rindex && (findex >  windex && findex <= rindex)));
     }
   };
 
