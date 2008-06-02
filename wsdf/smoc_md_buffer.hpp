@@ -417,9 +417,9 @@ protected:
   const unsigned _token_dimensions;
 
   typedef smoc_src_md_static_loop_iterator::id_type id_type;
-  
-  // Conflicts with typedef in line 44 (GCC 4.1.2)
-  //typedef smoc_src_md_static_loop_iterator::data_element_id_type data_element_id_type;
+
+// Conflicts with typedef in line 44 (GCC 4.1.2)
+//typedef smoc_src_md_static_loop_iterator::data_element_id_type data_element_id_type;
 
   const data_element_id_type size_token_space;
 

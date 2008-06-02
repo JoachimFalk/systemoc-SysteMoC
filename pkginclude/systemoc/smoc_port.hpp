@@ -79,6 +79,7 @@ private:
     this_type::bind(*iface);
     return 0;
   }
+
   int vbind(sc_port_base &parent_) {
     this_type* parent = dynamic_cast<this_type *>(&parent_);
     if (parent == 0) {
@@ -87,9 +88,6 @@ private:
     }
     this_type::bind(*parent);
     return 0;
-  }
-  void add_interface( sc_interface *i ) {
-    this->push_interface(i);
   }
 protected:
   smoc_port_base(const char *name_)
@@ -126,6 +124,32 @@ protected:
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return dynamic_cast<iface_type const *>(iface);
   }
+
+public:
+  /// @brief bind interface to this port
+  /// This bounce function changes the visibility
+  /// level of the bind method with a concrete
+  /// interface to public (See smoc_sysc_port::bind).
+  void bind(iface_type &interface_)
+    { return base_type::bind(interface_); }
+
+  /// @brief bind parent port to this port
+  /// This bounce function changes the visibility
+  /// level of the bind method with a concrete
+  /// port to public (See smoc_sysc_port::bind).
+  void bind(this_type &parent_)
+    { return base_type::bind(parent_); }
+
+  // reflect operator () to smoc_root_port
+  typename this_type::TokenGuard operator ()(size_t n, size_t m)
+    { return this->smoc_root_port::operator()(n,m); }
+  typename this_type::TokenGuard operator ()(size_t n)
+    { return this->operator()(n,n); }
+ 
+  void operator () ( iface_type& interface_ )
+    { bind(interface_); }
+  void operator () ( this_type& parent_ )
+    { bind(parent_); }
 };
 
 template <typename IFACE>
@@ -164,25 +188,12 @@ public:
  
   bool isInput() const { return true; }
 
-  bool tokenIsValid(size_t i=0) const
-    { return this->get_chanaccess()->tokenIsValid(i); }
   size_t tokenId(size_t i=0) const
     { return (*this)->inTokenId() + i; }
   size_t availableCount() const
     { return (*this)->numAvailable(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->dataAvailableEvent(n); }  
-
-  // reflect operator () to smoc_root_port
-  typename this_type::TokenGuard operator ()(size_t n, size_t m)
-    { return this->smoc_root_port::operator()(n,m); }
-  typename this_type::TokenGuard operator ()(size_t n)
-    { return this->operator()(n,n); }
- 
-  void operator () ( iface_type& interface_ )
-    { bind(interface_); }
-  void operator () ( this_type& parent_ )
-    { bind(parent_); }
 };
 
 template <typename IFACE>
@@ -227,17 +238,6 @@ public:
     { return (*this)->numFree(); }
   smoc_event &blockEvent(size_t n = MAX_TYPE(size_t))
     { return (*this)->spaceAvailableEvent(n); }
-
-  // reflect operator () to smoc_root_port
-  typename this_type::TokenGuard operator ()(size_t n, size_t m)
-    { return this->smoc_root_port::operator()(n,m); }
-  typename this_type::TokenGuard operator ()(size_t n)
-    { return this->operator()(n,n); }
- 
-  void operator () ( iface_type& interface_ )
-    { bind(interface_); }
-  void operator () ( this_type& parent_ )
-    { bind(parent_); }
 };
 
 //forward declaration
@@ -319,8 +319,11 @@ public:
     return (*(this->get_chanaccess()))[n];
   }
 
+  // This methods depend on the channel access type
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token<T>(*this,n); }
+  bool tokenIsValid(size_t i=0) const
+    { return this->get_chanaccess()->tokenIsValid(i); }
 };
 
 template <typename T>
