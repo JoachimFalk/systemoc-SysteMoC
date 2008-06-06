@@ -154,20 +154,6 @@ esac
 
 AM_CONDITIONAL(SYNTH_TESTLIB, test x$synth_testlib = xtrue)
 
-### SystemC-VPC ###
-# --enable-vpc option
-AC_ARG_ENABLE(
- [vpc],
- [[  --enable-vpc            enable vpc support for SysteMoC [default=auto]]],
- [case "$enableval" in
-    yes)  enable_vpc=yes  ;;
-    no)   enable_vpc=no   ;;
-    auto) enable_vpc=auto ;;
-    *)    AC_MSG_ERROR(bad value ${enableval} for --enable-vpc) ;;
-  esac],
- [enable_vpc=auto #default]
-)
-
 AC_CONFIG_HEADER([config.h])
 
 dnl check for exe extension
@@ -188,24 +174,6 @@ AC_SUBST([SUPPORT_DEPENDENCIES])
 ACJF_NEED_PKG([SysteMoC])
 SYSTEMOC_DEPENDENCIES="$pkg_systemoc_builddir/libsystemoc.la"
 AC_SUBST([SYSTEMOC_DEPENDENCIES])
-
-SYSTEMC_VPC_DEPENDENCIES=""
-if test x"$enable_vpc" != x"no"; then
-  ACJF_CHECK_PKG([SystemC-VPC],
-   [SYSTEMC_VPC_DEPENDENCIES="$pkg_systemc_vpc_builddir/libsystemcvpc.la"
-    AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_VPC_INCLUDE"
-    AM_LDFLAGS="$AM_LDFLAGS   $SYSTEMC_VPC_LDFLAGS"],
-   [test x"$enable_vpc" = x"yes" && {
-     AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out]) } ])
-fi
-AC_SUBST([SYSTEMC_VPC_DEPENDENCIES])
-if test x"$pkg_systemc_vpc_srcdir" != "x"; then
-  VPC_PRESENT="yes"
-else
-  VPC_PRESENT="no"
-fi
-AC_SUBST([VPC_PRESENT])
-AM_CONDITIONAL([VPC_PRESENT], [test x"$pkg_systemc_vpc_srcdir" != "x"])
 
 # Check for WSDF Support in SysteMoC
 AC_MSG_CHECKING([for WSDF support in SysteMoC])
@@ -229,6 +197,47 @@ if test x"$acjf_cv_systemoc_wsdf_support" = x"yes"; then
 else
   AC_MSG_RESULT([no])
 fi
+
+# Check for VPC Support in SysteMoC
+AC_MSG_CHECKING([for VPC support in SysteMoC])
+AC_CACHE_VAL([acjf_cv_systemoc_vpc_support], 
+ [acjf_CPPFLAGS="$CPPFLAGS"; CPPFLAGS="$CPPFLAGS $SUPPORT_INCLUDE $SYSTEMOC_INCLUDE"
+  # Checks for header files.
+  AC_TRY_COMPILE(
+   [#include <systemoc/smoc_config.h>
+   ],
+   [#ifndef SYSTEMOC_ENABLE_VPC
+    # error "No VPC Support in SysteMoC"
+    #endif
+   ],
+   [acjf_cv_systemoc_vpc_support=yes;],
+   [acjf_cv_systemoc_vpc_support=no;]
+  )
+  CPPFLAGS="$acjf_CPPFLAGS"
+  unset acjf_CPPFLAGS])
+if test x"$acjf_cv_systemoc_vpc_support" = x"yes"; then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+fi
+
+SYSTEMC_VPC_DEPENDENCIES=""
+if test x"$acjf_cv_systemoc_vpc_support" != x"no"; then
+  ACJF_CHECK_PKG([SystemC-VPC],
+   [SYSTEMC_VPC_DEPENDENCIES="$pkg_systemc_vpc_builddir/libsystemcvpc.la"
+    AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_VPC_INCLUDE"
+    AM_LDFLAGS="$AM_LDFLAGS   $SYSTEMC_VPC_LDFLAGS"])
+dnl[test x"$enable_vpc" = x"yes" && {
+dnl  AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out]) } ])
+fi
+AC_SUBST([SYSTEMC_VPC_DEPENDENCIES])
+if test x"$pkg_systemc_vpc_srcdir" != "x"; then
+  VPC_PRESENT="yes"
+else
+  VPC_PRESENT="no"
+fi
+AC_SUBST([VPC_PRESENT])
+AM_CONDITIONAL([VPC_PRESENT], [test x"$pkg_systemc_vpc_srcdir" != "x"])
 
 AC_CONFIG_FILES([Makefile])
 
