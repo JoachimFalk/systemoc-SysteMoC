@@ -26,11 +26,10 @@ ACJF_CHECK_CROSSTOOL(RANLIB, ranlib)
 ACJF_CHECK_CROSSTOOL(NM, nm)
 AC_PROG_CXXCPP
 AC_PROG_CPP
-# Checks for programs.
-#AC_PROG_LIBTOOL
-#AC_PROG_INSTALL
-#AC_PROG_LN_S
-#AC_PROG_MAKE_SET
+dnl AC_PROG_LIBTOOL
+dnl AC_PROG_INSTALL
+dnl AC_PROG_LN_S
+dnl AC_PROG_MAKE_SET
 
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
@@ -159,6 +158,16 @@ AC_CONFIG_HEADER([config.h])
 dnl check for exe extension
 AC_EXEEXT
 
+ACJF_CHECK_LIB_COSUPPORT
+dnl ACJF_NEED_PKG([Support])
+dnl SUPPORT_DEPENDENCIES="$pkg_support_builddir/libcosupport.la"
+dnl AC_SUBST([SUPPORT_DEPENDENCIES])
+
+ACJF_CHECK_LIB_SYSTEMOC
+dnl ACJF_NEED_PKG([SysteMoC])
+dnl SYSTEMOC_DEPENDENCIES="$pkg_systemoc_builddir/libsystemoc.la"
+dnl AC_SUBST([SYSTEMOC_DEPENDENCIES])
+
 ACJF_CHECK_LIB_SYSTEMC
 AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_INCLUDE"
 AM_LDFLAGS="$AM_LDFLAGS   $SYSTEMC_LDFLAGS"
@@ -166,78 +175,6 @@ AM_LDFLAGS="$AM_LDFLAGS   $SYSTEMC_LDFLAGS"
 ACJF_CHECK_LIB_BOOST
 AM_CPPFLAGS="$AM_CPPFLAGS $BOOST_INCLUDE"
 AM_LDFLAGS="$AM_LDFLAGS   $BOOST_LDFLAGS"
-
-ACJF_NEED_PKG([Support])
-SUPPORT_DEPENDENCIES="$pkg_support_builddir/libcosupport.la"
-AC_SUBST([SUPPORT_DEPENDENCIES])
-
-ACJF_NEED_PKG([SysteMoC])
-SYSTEMOC_DEPENDENCIES="$pkg_systemoc_builddir/libsystemoc.la"
-AC_SUBST([SYSTEMOC_DEPENDENCIES])
-
-# Check for WSDF Support in SysteMoC
-AC_MSG_CHECKING([for WSDF support in SysteMoC])
-AC_CACHE_VAL([acjf_cv_systemoc_wsdf_support], 
- [acjf_CPPFLAGS="$CPPFLAGS"; CPPFLAGS="$CPPFLAGS $SUPPORT_INCLUDE $SYSTEMOC_INCLUDE"
-  # Checks for header files.
-  AC_TRY_COMPILE(
-   [#include <systemoc/smoc_config.h>
-   ],
-   [#ifndef SYSTEMOC_ENABLE_WSDF
-    # error "No WSDF Support in SysteMoC"
-    #endif
-   ],
-   [acjf_cv_systemoc_wsdf_support=yes;],
-   [acjf_cv_systemoc_wsdf_support=no;]
-  )
-  CPPFLAGS="$acjf_CPPFLAGS"
-  unset acjf_CPPFLAGS])
-if test x"$acjf_cv_systemoc_wsdf_support" = x"yes"; then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
-fi
-
-# Check for VPC Support in SysteMoC
-AC_MSG_CHECKING([for VPC support in SysteMoC])
-AC_CACHE_VAL([acjf_cv_systemoc_vpc_support], 
- [acjf_CPPFLAGS="$CPPFLAGS"; CPPFLAGS="$CPPFLAGS $SUPPORT_INCLUDE $SYSTEMOC_INCLUDE"
-  # Checks for header files.
-  AC_TRY_COMPILE(
-   [#include <systemoc/smoc_config.h>
-   ],
-   [#ifndef SYSTEMOC_ENABLE_VPC
-    # error "No VPC Support in SysteMoC"
-    #endif
-   ],
-   [acjf_cv_systemoc_vpc_support=yes;],
-   [acjf_cv_systemoc_vpc_support=no;]
-  )
-  CPPFLAGS="$acjf_CPPFLAGS"
-  unset acjf_CPPFLAGS])
-if test x"$acjf_cv_systemoc_vpc_support" = x"yes"; then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
-fi
-
-SYSTEMC_VPC_DEPENDENCIES=""
-if test x"$acjf_cv_systemoc_vpc_support" != x"no"; then
-  ACJF_CHECK_PKG([SystemC-VPC],
-   [SYSTEMC_VPC_DEPENDENCIES="$pkg_systemc_vpc_builddir/libsystemcvpc.la"
-    AM_CPPFLAGS="$AM_CPPFLAGS $SYSTEMC_VPC_INCLUDE"
-    AM_LDFLAGS="$AM_LDFLAGS   $SYSTEMC_VPC_LDFLAGS"])
-dnl[test x"$enable_vpc" = x"yes" && {
-dnl  AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out]) } ])
-fi
-AC_SUBST([SYSTEMC_VPC_DEPENDENCIES])
-if test x"$pkg_systemc_vpc_srcdir" != "x"; then
-  VPC_PRESENT="yes"
-else
-  VPC_PRESENT="no"
-fi
-AC_SUBST([VPC_PRESENT])
-AM_CONDITIONAL([VPC_PRESENT], [test x"$pkg_systemc_vpc_srcdir" != "x"])
 
 AC_CONFIG_FILES([Makefile])
 
