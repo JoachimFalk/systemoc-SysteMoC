@@ -41,7 +41,7 @@
 
 #include <systemc.h>
 
-#include <cosupport/systemc_support.hpp>
+#include <CoSupport/SystemC/systemc_support.hpp>
 
 #include <systemoc/smoc_chan_if.hpp>
 

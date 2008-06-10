@@ -43,7 +43,7 @@
 #include <cmath>
 
 #include <list>
-#include <cosupport/stl_output_for_list.hpp>
+#include <CoSupport/Streams/stl_output_for_list.hpp>
 
 #include <systemc.h>
 

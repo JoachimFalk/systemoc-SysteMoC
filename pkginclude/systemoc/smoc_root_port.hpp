@@ -36,7 +36,7 @@
 #ifndef _INCLUDED_SMOC_ROOT_PORT_HPP
 #define _INCLUDED_SMOC_ROOT_PORT_HPP
 
-#include <cosupport/commondefs.h>
+#include <CoSupport/commondefs.h>
 
 #include <iostream>
 #include <cassert>
@@ -44,9 +44,9 @@
 #include <list>
 #include <utility>
 
-#include <cosupport/stl_output_for_list.hpp>
-#include <cosupport/stl_output_for_pair.hpp>
-#include <cosupport/oneof.hpp>
+#include <CoSupport/Streams/stl_output_for_list.hpp>
+#include <CoSupport/Streams/stl_output_for_pair.hpp>
+#include <CoSupport/DataTypes/oneof.hpp>
 
 #include <systemc.h>
 

@@ -1,10 +1,12 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 sts=2 et:
 
-#include <cosupport/smoc_debug_out.hpp>
-#include <cosupport/smoc_math.hpp>
+#include <CoSupport/Streams/DebugOStream.hpp>
+#include <CoSupport/Math/smoc_math.hpp>
 
 #include <systemoc/smoc_wsdf_edge.hpp>
+
+using CoSupport::Streams::Indent;
 
 #define FAST_CALC_MODE
 
@@ -105,9 +107,9 @@ smoc_wsdf_iter_max_cond::get_iter_max(const bvector_type& parent_iter_max) const
 void smoc_wsdf_iter_max_cond::clean_children(){
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_iter_max_cond::clean_children" 
+  CoSupport::Streams::dout << "Enter smoc_wsdf_iter_max_cond::clean_children" 
                   << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   assert(parent_max != NULL);
@@ -117,9 +119,9 @@ void smoc_wsdf_iter_max_cond::clean_children(){
 
   if (relevant_subtree != parent_max){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-    CoSupport::dout << "Replace subtree" << std::endl;
-    CoSupport::dout << "parent_max : " << *parent_max << std::endl;
-    CoSupport::dout << "relevant_subtree : " << *relevant_subtree << std::endl;
+    CoSupport::Streams::dout << "Replace subtree" << std::endl;
+    CoSupport::Streams::dout << "parent_max : " << *parent_max << std::endl;
+    CoSupport::Streams::dout << "relevant_subtree : " << *relevant_subtree << std::endl;
 #endif
     //copy new relevant subtree
     relevant_subtree = &(relevant_subtree->duplicate());
@@ -133,9 +135,9 @@ void smoc_wsdf_iter_max_cond::clean_children(){
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_iter_max_cond::clean_children" 
+  CoSupport::Streams::dout << "Leave smoc_wsdf_iter_max_cond::clean_children" 
                   << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 }
 
@@ -167,9 +169,9 @@ smoc_wsdf_iter_max*
 smoc_wsdf_iter_max_cond::get_relevant_subtree() {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_iter_max_cond::get_relevant_subtree" 
+  CoSupport::Streams::dout << "Enter smoc_wsdf_iter_max_cond::get_relevant_subtree" 
                   << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   smoc_wsdf_iter_max* return_value = NULL;
@@ -185,29 +187,29 @@ smoc_wsdf_iter_max_cond::get_relevant_subtree() {
       //condition node is not necessary
       return_value = parent_not_max;      
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "Condition node not required" 
+      CoSupport::Streams::dout << "Condition node not required" 
                       << std::endl; 
 #endif
     }else{
       //condition node is necessary
       return_value = this;
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "Children are different. Cannot eliminate node." 
+      CoSupport::Streams::dout << "Children are different. Cannot eliminate node." 
                       << std::endl; 
 #endif
     }
   }else{
     //condition node is necessary
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-    CoSupport::dout << "Child is a condition node. Cannot eliminate" 
+    CoSupport::Streams::dout << "Child is a condition node. Cannot eliminate" 
                     << std::endl; 
 #endif
     return_value = this;
   }
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_iter_max_cond::get_relevant_subtree" 
+  CoSupport::Streams::dout << "Leave smoc_wsdf_iter_max_cond::get_relevant_subtree" 
                   << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_value;
@@ -449,8 +451,8 @@ void
 smoc_wsdf_edge_descr::firing_levels_snk2src() {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::firing_levels_snk2src()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::firing_levels_snk2src()" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
   
   /*
@@ -471,21 +473,21 @@ smoc_wsdf_edge_descr::firing_levels_snk2src() {
       delta_c[token_dimension];
     
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-    CoSupport::dout << "res_block_size = " << res_block_size << std::endl;
+    CoSupport::Streams::dout << "res_block_size = " << res_block_size << std::endl;
 #endif
     
     if (get_scm_snk_firing_block(res_block_size,token_dimension) == 1){       
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "Insert firing level" << std::endl;
+      CoSupport::Streams::dout << "Insert firing level" << std::endl;
 #endif
       insert_src_firing_level(res_block_size,
                               token_dimension);
       insert_snk_firing_level(res_block_size,
                               token_dimension);
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "src_firing_blocks = " 
+      CoSupport::Streams::dout << "src_firing_blocks = " 
                       << src_firing_blocks << std::endl;
-      CoSupport::dout << "snk_firing_blocks = " 
+      CoSupport::Streams::dout << "snk_firing_blocks = " 
                       << snk_firing_blocks << std::endl;
 #endif
       
@@ -506,11 +508,11 @@ smoc_wsdf_edge_descr::firing_levels_snk2src() {
         token_dimension < token_dimensions;
         token_dimension++){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "firing_level = " << firing_level 
+      CoSupport::Streams::dout << "firing_level = " << firing_level 
                       << ", token_dimension = " << token_dimension 
                       << std::endl;
-      CoSupport::dout << CoSupport::Indent::Up;
-      CoSupport::dout << "snk_firing_blocks[firing_level][token_dimension] = "
+      CoSupport::Streams::dout << Indent::Up;
+      CoSupport::Streams::dout << "snk_firing_blocks[firing_level][token_dimension] = "
                       << snk_firing_blocks[firing_level][token_dimension]
                       << std::endl;
 #endif
@@ -528,21 +530,21 @@ smoc_wsdf_edge_descr::firing_levels_snk2src() {
         delta_c[token_dimension];
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "res_block_size = " << res_block_size << std::endl;
+      CoSupport::Streams::dout << "res_block_size = " << res_block_size << std::endl;
 #endif
 
       if (get_scm_snk_firing_block(res_block_size,token_dimension) == 1){       
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-        CoSupport::dout << "Insert firing level" << std::endl;
+        CoSupport::Streams::dout << "Insert firing level" << std::endl;
 #endif
         insert_src_firing_level(res_block_size,
                                 token_dimension);
         insert_snk_firing_level(res_block_size,
                                 token_dimension);
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-        CoSupport::dout << "src_firing_blocks = " 
+        CoSupport::Streams::dout << "src_firing_blocks = " 
                         << src_firing_blocks << std::endl;
-        CoSupport::dout << "snk_firing_blocks = " 
+        CoSupport::Streams::dout << "snk_firing_blocks = " 
                         << snk_firing_blocks << std::endl;
 #endif
 
@@ -552,14 +554,14 @@ smoc_wsdf_edge_descr::firing_levels_snk2src() {
       }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << Indent::Down;
 #endif
       
     }
   }
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::firing_levels_snk2src()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::firing_levels_snk2src()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
   
 }
@@ -568,8 +570,8 @@ smoc_wsdf_edge_descr::firing_levels_snk2src() {
 void
 smoc_wsdf_edge_descr::firing_levels_src2snk() {
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::firing_levels_src2snk()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::firing_levels_src2snk()" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
   for(unsigned int firing_level = 0; 
       firing_level < src_num_firing_levels; 
@@ -578,11 +580,11 @@ smoc_wsdf_edge_descr::firing_levels_src2snk() {
         token_dimension < token_dimensions;
         token_dimension++){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "firing_level = " << firing_level 
+      CoSupport::Streams::dout << "firing_level = " << firing_level 
                       << ", token_dimension = " << token_dimension 
                       << std::endl;
-      CoSupport::dout << CoSupport::Indent::Up;
-      CoSupport::dout << "src_firing_blocks[firing_level][token_dimension] = "
+      CoSupport::Streams::dout << Indent::Up;
+      CoSupport::Streams::dout << "src_firing_blocks[firing_level][token_dimension] = "
                       << src_firing_blocks[firing_level][token_dimension]
                       << std::endl;
 #endif
@@ -597,21 +599,21 @@ smoc_wsdf_edge_descr::firing_levels_src2snk() {
       res_block_size *= src_firing_blocks[firing_level][token_dimension];
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "res_block_size = " << res_block_size << std::endl;
+      CoSupport::Streams::dout << "res_block_size = " << res_block_size << std::endl;
 #endif
 
       if (get_scm_src_firing_block(res_block_size,token_dimension) == 1){       
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-        CoSupport::dout << "Insert firing level" << std::endl;
+        CoSupport::Streams::dout << "Insert firing level" << std::endl;
 #endif
         insert_src_firing_level(res_block_size,
                                 token_dimension);
         insert_snk_firing_level(res_block_size,
                                 token_dimension);
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-        CoSupport::dout << "src_firing_blocks = " 
+        CoSupport::Streams::dout << "src_firing_blocks = " 
                         << src_firing_blocks << std::endl;
-        CoSupport::dout << "snk_firing_blocks = " 
+        CoSupport::Streams::dout << "snk_firing_blocks = " 
                         << snk_firing_blocks << std::endl;
 #endif
 
@@ -621,14 +623,14 @@ smoc_wsdf_edge_descr::firing_levels_src2snk() {
       }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << Indent::Down;
 #endif
       
     }
   }
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::firing_levels_src2snk()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::firing_levels_src2snk()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 }
 
@@ -639,8 +641,8 @@ smoc_wsdf_edge_descr::get_scm_firing_block(u2vector_type firing_blocks,
                                            unsigned token_dimension) const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::get_scm_firing_block()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::get_scm_firing_block()" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   //default value, if no block_size does does not match
@@ -651,9 +653,9 @@ smoc_wsdf_edge_descr::get_scm_firing_block(u2vector_type firing_blocks,
     //always possible
     return_value = 1;
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-    CoSupport::dout << "return_value = " << return_value << std::endl;
-    CoSupport::dout << "Leave smoc_wsdf_edge_descr::get_scm_firing_block()" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "return_value = " << return_value << std::endl;
+    CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::get_scm_firing_block()" << std::endl;
+    CoSupport::Streams::dout << Indent::Down;
 #endif
     return return_value;
   }
@@ -682,9 +684,9 @@ smoc_wsdf_edge_descr::get_scm_firing_block(u2vector_type firing_blocks,
 
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "return_value = " << return_value << std::endl;
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::get_scm_firing_block()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "return_value = " << return_value << std::endl;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::get_scm_firing_block()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_value;
@@ -726,8 +728,8 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
     return src_iteration_max_cached;
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter  smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter  smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   
@@ -745,12 +747,12 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
 	token_dimension < token_dimensions;
 	token_dimension++){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "firing_level = " << firing_level;
-      CoSupport::dout << " token_dimension = " << token_dimension << std::endl;
+      CoSupport::Streams::dout << "firing_level = " << firing_level;
+      CoSupport::Streams::dout << " token_dimension = " << token_dimension << std::endl;
 #endif
       if (src_has_iteration_level(firing_level, token_dimension)){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-        CoSupport::dout << "Is associated to iteration level " 
+        CoSupport::Streams::dout << "Is associated to iteration level " 
                         << iter_level << std::endl;
 #endif
 	assert(src_firing_blocks[firing_level][token_dimension] %
@@ -767,14 +769,14 @@ smoc_wsdf_edge_descr::src_iteration_max() const {
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Source iteration max: " 
+  CoSupport::Streams::dout << "Source iteration max: " 
                   << return_vector << std::endl;
 #endif
 
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::src_iteration_max()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   cache_src_iter_max_valid = true;
@@ -790,11 +792,11 @@ smoc_wsdf_edge_descr::ext_src_iteration_max(unsigned int firing_level,
                                             ) const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::ext_src_iteration_max(..,..)" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
-  CoSupport::dout << "firing_level = " << firing_level << std::endl;
-  CoSupport::dout << "token_dimension = " << token_dimension << std::endl;
-  CoSupport::dout << "src_firing_blocks[firing_level][token_dimension] = " 
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::ext_src_iteration_max(..,..)" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
+  CoSupport::Streams::dout << "firing_level = " << firing_level << std::endl;
+  CoSupport::Streams::dout << "token_dimension = " << token_dimension << std::endl;
+  CoSupport::Streams::dout << "src_firing_blocks[firing_level][token_dimension] = " 
                   << src_firing_blocks[firing_level][token_dimension]
                   << std::endl;
 #endif
@@ -819,7 +821,7 @@ smoc_wsdf_edge_descr::ext_src_iteration_max(unsigned int firing_level,
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Default iteration max: " << iter_max << std::endl;
+  CoSupport::Streams::dout << "Default iteration max: " << iter_max << std::endl;
 #endif
 
   //create node
@@ -833,9 +835,9 @@ smoc_wsdf_edge_descr::ext_src_iteration_max(unsigned int firing_level,
     if (src_has_iteration_level(parent_level, 
                                 token_dimension)){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "parent_level = " << parent_level << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
-  CoSupport::dout << "src_firing_blocks[parent_level][token_dimension] = "
+  CoSupport::Streams::dout << "parent_level = " << parent_level << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
+  CoSupport::Streams::dout << "src_firing_blocks[parent_level][token_dimension] = "
                   << src_firing_blocks[parent_level][token_dimension]
                   << std::endl;
 #endif
@@ -853,7 +855,7 @@ smoc_wsdf_edge_descr::ext_src_iteration_max(unsigned int firing_level,
       }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "current_firing_block_size = " 
+      CoSupport::Streams::dout << "current_firing_block_size = " 
                       << current_firing_block_size
                       << std::endl;
 #endif
@@ -889,14 +891,14 @@ smoc_wsdf_edge_descr::ext_src_iteration_max(unsigned int firing_level,
         }
         iter_max--;
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-        CoSupport::dout << "current_firing_block_size = "
+        CoSupport::Streams::dout << "current_firing_block_size = "
                         << current_firing_block_size
                         << std::endl;
         if (firing_level != 0)
-          CoSupport::dout << "src_firing_blocks[firing_level-1][token_dimension] = " 
+          CoSupport::Streams::dout << "src_firing_blocks[firing_level-1][token_dimension] = " 
                           << src_firing_blocks[firing_level-1][token_dimension]
                           << std::endl;
-        CoSupport::dout << "iter_max = " 
+        CoSupport::Streams::dout << "iter_max = " 
                         << iter_max
                         << std::endl;
 #endif
@@ -905,7 +907,7 @@ smoc_wsdf_edge_descr::ext_src_iteration_max(unsigned int firing_level,
 
       }
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << Indent::Down;
 #endif
     }
   }
@@ -914,8 +916,8 @@ smoc_wsdf_edge_descr::ext_src_iteration_max(unsigned int firing_level,
   return_node->clean_children();
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::ext_src_iteration_max(..,..)" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::ext_src_iteration_max(..,..)" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return *return_node;
@@ -1026,9 +1028,9 @@ smoc_wsdf_edge_descr::smatrix_type
 smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_border_condition_matrix()" 
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::calc_border_condition_matrix()" 
                   << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   s2vector_type snk_iteration_level_table = 
@@ -1043,7 +1045,7 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 						    snk_vtu_iteration_level));
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Iteration-Max (without window iteration): " 
+  CoSupport::Streams::dout << "Iteration-Max (without window iteration): " 
                   << iteration_max << std::endl;
 #endif
 
@@ -1053,7 +1055,7 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 								   iteration_max));
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Mapping-matrix: " << mapping_matrix << std::endl;
+  CoSupport::Streams::dout << "Mapping-matrix: " << mapping_matrix << std::endl;
 #endif
 
   smatrix_type return_matrix(mapping_matrix.size1(),mapping_matrix.size2());
@@ -1067,8 +1069,8 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix() const {
 #endif  
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_border_condition_matrix()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::calc_border_condition_matrix()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
 
@@ -1109,9 +1111,9 @@ smoc_wsdf_edge_descr::umatrix_type
 smoc_wsdf_edge_descr::src_data_element_mapping_matrix() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::src_data_element_mapping_matrix()" 
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::src_data_element_mapping_matrix()" 
                   << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   uvector_type prev_mapping_factor(token_dimensions);
@@ -1151,10 +1153,10 @@ smoc_wsdf_edge_descr::src_data_element_mapping_matrix() const {
   assert(iter_level == -1); //otherwise not all iteration levels covered
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Mapping matrix: " << return_matrix << std::endl;
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::src_data_element_mapping_matrix()" 
+  CoSupport::Streams::dout << "Mapping matrix: " << return_matrix << std::endl;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::src_data_element_mapping_matrix()" 
                   << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_matrix;
@@ -1165,8 +1167,8 @@ smoc_wsdf_edge_descr::uvector_type
 smoc_wsdf_edge_descr::calc_snk_r_vtu() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_snk_r_vtu()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::calc_snk_r_vtu()" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   uvector_type return_vector(u0+bs+bt-c);
@@ -1179,13 +1181,13 @@ smoc_wsdf_edge_descr::calc_snk_r_vtu() const {
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "snk_r_vtu = " << return_vector;
-  CoSupport::dout << std::endl;
+  CoSupport::Streams::dout << "snk_r_vtu = " << return_vector;
+  CoSupport::Streams::dout << std::endl;
 #endif
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_snk_r_vtu()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::calc_snk_r_vtu()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_vector;
@@ -1195,8 +1197,8 @@ smoc_wsdf_edge_descr::uvector_type
 smoc_wsdf_edge_descr::calc_src_r_vtu() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_src_r_vtu()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::calc_src_r_vtu()" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   uvector_type return_vector(token_dimensions);
@@ -1210,13 +1212,13 @@ smoc_wsdf_edge_descr::calc_src_r_vtu() const {
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "src_r_vtu = " << return_vector;
-  CoSupport::dout << std::endl;
+  CoSupport::Streams::dout << "src_r_vtu = " << return_vector;
+  CoSupport::Streams::dout << std::endl;
 #endif
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_src_r_vtu()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::calc_src_r_vtu()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_vector;
@@ -1227,16 +1229,16 @@ smoc_wsdf_edge_descr::calc_src_r_vtu() const {
 void smoc_wsdf_edge_descr::check_local_balance() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::check_local_balance" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::check_local_balance" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 
-  CoSupport::dout << "snk_firing_blocks = " << snk_firing_blocks;
-  CoSupport::dout << std::endl;
-  CoSupport::dout << "c = " << c;
-  CoSupport::dout << std::endl;
+  CoSupport::Streams::dout << "snk_firing_blocks = " << snk_firing_blocks;
+  CoSupport::Streams::dout << std::endl;
+  CoSupport::Streams::dout << "c = " << c;
+  CoSupport::Streams::dout << std::endl;
 
-  CoSupport::dout << "src_firing_blocks = " << src_firing_blocks;
-  CoSupport::dout << std::endl;
+  CoSupport::Streams::dout << "src_firing_blocks = " << src_firing_blocks;
+  CoSupport::Streams::dout << std::endl;
 #endif
 
   //Calculate number of invocations per virtual token union
@@ -1249,8 +1251,8 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 
   for(unsigned int i = 0; i < token_dimensions; i++){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-    CoSupport::dout << "Token dimension " << i << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Token dimension " << i << std::endl;
+    CoSupport::Streams::dout << Indent::Up;
 #endif
     //Check for incomplete virtual token union
     if (snk_firing_blocks[snk_num_firing_levels-1][i] % snk_r_vtu[i] != 0){
@@ -1269,7 +1271,7 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
       snk_firing_blocks[snk_num_firing_levels-1][i] / snk_r_vtu[i];
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-    CoSupport::dout << "snk_num_vtu =  " << snk_num_vtu  << std::endl;
+    CoSupport::Streams::dout << "snk_num_vtu =  " << snk_num_vtu  << std::endl;
 #endif
 
     //Check for incomplete virtual token unions
@@ -1279,11 +1281,11 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
       src_firing_blocks[src_num_firing_levels-1][i] / p[i] / src_r_vtu[i];
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-    CoSupport::dout << "src_num_vtu =  " << src_num_vtu  << std::endl;
+    CoSupport::Streams::dout << "src_num_vtu =  " << src_num_vtu  << std::endl;
 #endif
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << Indent::Down;
 #endif
 
                 
@@ -1292,8 +1294,8 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
   }       
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::check_local_balance" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::check_local_balance" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 }
 
@@ -1301,13 +1303,13 @@ void smoc_wsdf_edge_descr::check_local_balance() const {
 void smoc_wsdf_edge_descr::check_parameters() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::check_parameters" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::check_parameters" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "token_dimensions = " << token_dimensions << std::endl;
-  CoSupport::dout << "v.size() = " << v.size() << std::endl;
+  CoSupport::Streams::dout << "token_dimensions = " << token_dimensions << std::endl;
+  CoSupport::Streams::dout << "v.size() = " << v.size() << std::endl;
 #endif
 
   /* Check number of dimensions */
@@ -1324,8 +1326,8 @@ void smoc_wsdf_edge_descr::check_parameters() const {
   check_local_balance();
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::check_parameters" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::check_parameters" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 }
 
@@ -1378,11 +1380,11 @@ bool smoc_wsdf_edge_descr::snk_has_iteration_level(unsigned firing_level,
 bool smoc_wsdf_edge_descr::src_has_iteration_level(unsigned firing_level,
 						   unsigned token_dimension) const {
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::src_has_iteration_level" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
-  CoSupport::dout << "firing_level = " << firing_level << std::endl;
-  CoSupport::dout << "token_dimension = " << token_dimension << std::endl;
-  CoSupport::dout << "src_num_firing_levels = " << src_num_firing_levels << std::endl;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::src_has_iteration_level" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
+  CoSupport::Streams::dout << "firing_level = " << firing_level << std::endl;
+  CoSupport::Streams::dout << "token_dimension = " << token_dimension << std::endl;
+  CoSupport::Streams::dout << "src_num_firing_levels = " << src_num_firing_levels << std::endl;
 #endif
 
   bool return_value = false;
@@ -1407,8 +1409,8 @@ bool smoc_wsdf_edge_descr::src_has_iteration_level(unsigned firing_level,
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::src_has_iteration_level" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::src_has_iteration_level" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_value;
@@ -1421,8 +1423,8 @@ smoc_wsdf_edge_descr::s2vector_type
 smoc_wsdf_edge_descr::calc_src_iteration_level_table(bool include_eff_token) const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
-  CoSupport::dout << "Enter  smoc_wsdf_edge_descr::calc_src_iteration_level_table()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter  smoc_wsdf_edge_descr::calc_src_iteration_level_table()" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   unsigned iteration_level = 0;
@@ -1435,7 +1437,7 @@ smoc_wsdf_edge_descr::calc_src_iteration_level_table(bool include_eff_token) con
         
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
-  CoSupport::dout << "Size of return-table: " << return_table.size() << std::endl;
+  CoSupport::Streams::dout << "Size of return-table: " << return_table.size() << std::endl;
 #endif
 
   for(int firing_level = src_num_firing_levels-1; 
@@ -1446,9 +1448,9 @@ smoc_wsdf_edge_descr::calc_src_iteration_level_table(bool include_eff_token) con
 	token_dimension--){
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
-      CoSupport::dout << "firing_level = " << firing_level << std::endl;
-      CoSupport::dout << "token_dimension = " << token_dimension << std::endl;
-      CoSupport::dout << "iteration_level = " << iteration_level << std::endl;
+      CoSupport::Streams::dout << "firing_level = " << firing_level << std::endl;
+      CoSupport::Streams::dout << "token_dimension = " << token_dimension << std::endl;
+      CoSupport::Streams::dout << "iteration_level = " << iteration_level << std::endl;
 #endif
                         
       if (src_has_iteration_level(firing_level, token_dimension)){
@@ -1462,8 +1464,8 @@ smoc_wsdf_edge_descr::calc_src_iteration_level_table(bool include_eff_token) con
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 101
-  CoSupport::dout << "Leave  smoc_wsdf_edge_descr::calc_src_iteration_level_table()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave  smoc_wsdf_edge_descr::calc_src_iteration_level_table()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_table;
@@ -1489,8 +1491,8 @@ smoc_wsdf_edge_descr::s2vector_type
 smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter  smoc_wsdf_edge_descr::calc_snk_iteration_level_table()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter  smoc_wsdf_edge_descr::calc_snk_iteration_level_table()" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   unsigned iteration_level = 0;
@@ -1501,7 +1503,7 @@ smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
                              svector_type(snk_firing_block_dimensions));
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Size of return-table: " << return_table.size() << std::endl;
+  CoSupport::Streams::dout << "Size of return-table: " << return_table.size() << std::endl;
 #endif
 
   for(int firing_level = snk_num_firing_levels-1; 
@@ -1512,9 +1514,9 @@ smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
 	token_dimension--){
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "firing_level = " << firing_level << std::endl;
-      CoSupport::dout << "token_dimension = " << token_dimension << std::endl;
-      CoSupport::dout << "iteration_level = " << iteration_level << std::endl;
+      CoSupport::Streams::dout << "firing_level = " << firing_level << std::endl;
+      CoSupport::Streams::dout << "token_dimension = " << token_dimension << std::endl;
+      CoSupport::Streams::dout << "iteration_level = " << iteration_level << std::endl;
 #endif
                         
       if (snk_has_iteration_level(firing_level, 
@@ -1529,8 +1531,8 @@ smoc_wsdf_edge_descr::calc_snk_iteration_level_table() const {
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave  smoc_wsdf_edge_descr::calc_snk_iteration_level_table()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave  smoc_wsdf_edge_descr::calc_snk_iteration_level_table()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_table;
@@ -1543,8 +1545,8 @@ void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(s2vector_type& iteration_le
 
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::insert_snk_vtu_iterations" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::insert_snk_vtu_iterations" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
   unsigned level_inc = 0;
   bool found[snk_firing_block_dimensions];
@@ -1569,8 +1571,8 @@ void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(s2vector_type& iteration_le
 	token_dimension--){
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "firing_level = " << firing_level << std::endl;
-      CoSupport::dout << "token_dimension = " << token_dimension << std::endl;
+      CoSupport::Streams::dout << "firing_level = " << firing_level << std::endl;
+      CoSupport::Streams::dout << "token_dimension = " << token_dimension << std::endl;
 #endif
 
       //update iteration level table in order to take
@@ -1623,10 +1625,10 @@ void smoc_wsdf_edge_descr::insert_snk_vtu_iterations(s2vector_type& iteration_le
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "iteration_level_table = " << iteration_level_table << std::endl;
-  CoSupport::dout << "vtu_iteration_level = " << vtu_iteration_level << std::endl;
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::insert_snk_vtu_iterations" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "iteration_level_table = " << iteration_level_table << std::endl;
+  CoSupport::Streams::dout << "vtu_iteration_level = " << vtu_iteration_level << std::endl;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::insert_snk_vtu_iterations" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
 }
@@ -1648,8 +1650,8 @@ smoc_wsdf_edge_descr::get_num_iteration_levels(const s2vector_type& snk_iteratio
   unsigned return_value;
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::get_num_iteration_levels" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::get_num_iteration_levels" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   if(snk_iteration_level_table.max_value() > (sdata_type)snk_vtu_iteration_level[0])
@@ -1658,9 +1660,9 @@ smoc_wsdf_edge_descr::get_num_iteration_levels(const s2vector_type& snk_iteratio
     return_value = snk_vtu_iteration_level[0] + 1;
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "return_value = " << return_value << std::endl;
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::get_num_iteration_levels" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "return_value = " << return_value << std::endl;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::get_num_iteration_levels" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_value;
@@ -1753,9 +1755,9 @@ smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_
 					     ) const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_snk_iteration_max()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
-  CoSupport::dout << "snk_iteration_level_table.size() = " 
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::calc_snk_iteration_max()" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
+  CoSupport::Streams::dout << "snk_iteration_level_table.size() = " 
                   << snk_iteration_level_table.size();
 #endif
 
@@ -1764,7 +1766,7 @@ smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_
 							   );
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "num_iteration_levels = " << num_iteration_levels << std::endl;
+  CoSupport::Streams::dout << "num_iteration_levels = " << num_iteration_levels << std::endl;
 #endif
 
 
@@ -1794,8 +1796,8 @@ smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_
 	firing_level++){
       if(snk_iteration_level_table[firing_level][token_dimension] >= 0){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	CoSupport::dout << "firing_level = " << firing_level << std::endl;
-	CoSupport::dout << "token_dimension = " << token_dimension << std::endl;
+	CoSupport::Streams::dout << "firing_level = " << firing_level << std::endl;
+	CoSupport::Streams::dout << "token_dimension = " << token_dimension << std::endl;
 #endif
 
 	// check for complete blocks
@@ -1850,8 +1852,8 @@ smoc_wsdf_edge_descr::calc_snk_iteration_max(const s2vector_type& snk_iteration_
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_snk_iteration_max()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::calc_snk_iteration_max()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_vector;
@@ -1900,8 +1902,8 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
 							   ) const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix()" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
 
   uvector_type prev_mapping_factor(token_dimensions);
@@ -1927,8 +1929,8 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
 	firing_level++){                        
       if(snk_iteration_level_table[firing_level][token_dimension] >= 0){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	CoSupport::dout << "firing_level = " << firing_level << std::endl;
-	CoSupport::dout << "token_dimension = " << token_dimension << std::endl;
+	CoSupport::Streams::dout << "firing_level = " << firing_level << std::endl;
+	CoSupport::Streams::dout << "token_dimension = " << token_dimension << std::endl;
 #endif
 
 	//default assignment
@@ -1953,7 +1955,7 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
 	  //been covered
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	  CoSupport::dout << "Insert vtu" << std::endl;
+	  CoSupport::Streams::dout << "Insert vtu" << std::endl;
 #endif
 
 	  //Insert data element mapping for vtu
@@ -1964,7 +1966,7 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
 	    prev_mapping_factor[token_dimension];
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	  CoSupport::dout << "prev_mapping_factor[token_dimension] = " 
+	  CoSupport::Streams::dout << "prev_mapping_factor[token_dimension] = " 
 		    << prev_mapping_factor[token_dimension] << std::endl;
 #endif
                                         
@@ -1977,7 +1979,7 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
 	    (snk_iter_max[snk_iteration_level_table[firing_level][token_dimension]] + 1);
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	  CoSupport::dout << "snk_iter_max[snk_iteration_level_table[firing_level][token_dimension]] = " 
+	  CoSupport::Streams::dout << "snk_iter_max[snk_iteration_level_table[firing_level][token_dimension]] = " 
 		    << snk_iter_max[snk_iteration_level_table[firing_level][token_dimension]] << std::endl;
 #endif
 
@@ -2000,7 +2002,7 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
 	firing_level++){                        
       if(snk_iteration_level_table[firing_level][token_dimensions] >= 0){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-	CoSupport::dout << "firing_level = " << firing_level << std::endl;
+	CoSupport::Streams::dout << "firing_level = " << firing_level << std::endl;
 #endif
 
 	//default assignment
@@ -2018,8 +2020,8 @@ smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix(const s2vector_type& 
                             snk_iter_max);
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix()" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::calc_snk_data_element_mapping_matrix()" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
   return return_matrix;
@@ -2032,13 +2034,13 @@ smoc_wsdf_edge_descr::insert_snk_window_mapping(umatrix_type& data_element_mappi
                                                 const uvector_type& snk_iter_max) const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::insert_snk_window_mapping" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
-  CoSupport::dout << "Matrix-Cols: " << data_element_mapping_matrix.size2() << std::endl;
-  CoSupport::dout << "snk_window_firing_blocks.size() = " 
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::insert_snk_window_mapping" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
+  CoSupport::Streams::dout << "Matrix-Cols: " << data_element_mapping_matrix.size2() << std::endl;
+  CoSupport::Streams::dout << "snk_window_firing_blocks.size() = " 
                   << snk_window_firing_blocks.size() << std::endl;
-  CoSupport::dout << "snk_iter_max.size() = " << snk_iter_max.size() << std::endl;
-  CoSupport::dout.flush();
+  CoSupport::Streams::dout << "snk_iter_max.size() = " << snk_iter_max.size() << std::endl;
+  CoSupport::Streams::dout.flush();
 #endif
 
 
@@ -2076,9 +2078,9 @@ smoc_wsdf_edge_descr::insert_snk_window_mapping(umatrix_type& data_element_mappi
   }
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::insert_snk_window_mapping" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
-  CoSupport::dout.flush();
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::insert_snk_window_mapping" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
+  CoSupport::Streams::dout.flush();
 #endif
 }
 
@@ -2090,8 +2092,8 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_m
 						   smatrix_type& border_cond_matrix) const {
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Enter smoc_wsdf_edge_descr::calc_border_condition_matrix" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Up;
+  CoSupport::Streams::dout << "Enter smoc_wsdf_edge_descr::calc_border_condition_matrix" << std::endl;
+  CoSupport::Streams::dout << Indent::Up;
 #endif
         
   const unsigned num_rows = mapping_matrix.size1();
@@ -2100,7 +2102,7 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_m
 
   for(unsigned row = 0; row < num_rows; row++){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-    CoSupport::dout << "row = " << row 
+    CoSupport::Streams::dout << "row = " << row 
 	      << ", vtu-iteration level = " 
 	      << snk_vtu_iteration_level[row] << std::endl;
 #endif
@@ -2113,8 +2115,8 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_m
 	col < num_cols;
 	col++){
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-      CoSupport::dout << "col = " << col << std::endl; 
-      CoSupport::dout << "mapping_matrix(row, col) = " 
+      CoSupport::Streams::dout << "col = " << col << std::endl; 
+      CoSupport::Streams::dout << "mapping_matrix(row, col) = " 
 		<< mapping_matrix(row, col) << std::endl;
 #endif
       border_cond_matrix(row, col) = mapping_matrix(row, col);
@@ -2122,8 +2124,8 @@ smoc_wsdf_edge_descr::calc_border_condition_matrix(const umatrix_type& mapping_m
   }       
 
 #if VERBOSE_LEVEL_SMOC_WSDF_EDGE == 100
-  CoSupport::dout << "Leave smoc_wsdf_edge_descr::calc_border_condition_matrix" << std::endl;
-  CoSupport::dout << CoSupport::Indent::Down;
+  CoSupport::Streams::dout << "Leave smoc_wsdf_edge_descr::calc_border_condition_matrix" << std::endl;
+  CoSupport::Streams::dout << Indent::Down;
 #endif
 
 }

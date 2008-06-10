@@ -44,7 +44,8 @@
 
 #include <map>
 
-#include <cosupport/filter_ostream.hpp>
+#include <CoSupport/Streams/FilterOStream.hpp>
+#include <CoSupport/Streams/IndentStreambuf.hpp>
 
 class smoc_root_node;
 
@@ -80,8 +81,8 @@ namespace smoc_modes {
   protected:
     typedef  std::map<const void *,int> idmap_ty;
 
-    CoSupport::FilterOstream    out;
-    CoSupport::IndentStreambuf  indenter;
+    CoSupport::Streams::FilterOStream    out;
+    CoSupport::Streams::IndentStreambuf  indenter;
 
     static int                  idmap_last;
     static idmap_ty             idmap;
@@ -90,9 +91,9 @@ namespace smoc_modes {
       : out(_out) { out.insert(indenter); }
     
     void indentUp() 
-      { out << CoSupport::Indent::Up; }
+      { out << CoSupport::Streams::Indent::Up; }
     void indentDown()
-      { out << CoSupport::Indent::Down; }
+      { out << CoSupport::Streams::Indent::Down; }
 
     template <typename T>
     std::ostream &operator << (T t) { return out << t; }

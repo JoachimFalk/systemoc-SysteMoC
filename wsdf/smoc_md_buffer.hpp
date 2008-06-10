@@ -4,8 +4,8 @@
 #ifndef _INCLUDED_SMOC_MD_BUFFER_HPP
 #define _INCLUDED_SMOC_MD_BUFFER_HPP
 
-#include <cosupport/commondefs.h>
-#include <cosupport/smoc_debug_out.hpp>
+#include <CoSupport/commondefs.h>
+#include <CoSupport/Streams/DebugOStream.hpp>
 
 #include "smoc_vector.hpp"
 #include "smoc_md_loop.hpp"
@@ -79,16 +79,16 @@ public:
     /// Dummy function
    void setLimit(size_t limit) {
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-     CoSupport::dout << buffer->name() << ": Enter smoc_md_buffer_mgmt_base::smoc_md_storage_access_src::setLimit"
+     CoSupport::Streams::dout << buffer->name() << ": Enter smoc_md_buffer_mgmt_base::smoc_md_storage_access_src::setLimit"
 		     << std::endl;
-     CoSupport::dout << CoSupport::Indent::Up;
-     CoSupport::dout << "limit = " << limit << std::endl;
+     CoSupport::Streams::dout << CoSupport::Indent::Up;
+     CoSupport::Streams::dout << "limit = " << limit << std::endl;
 #endif
      assert(limit <= 1);
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-     CoSupport::dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_storage_access_src::setLimit"
+     CoSupport::Streams::dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_storage_access_src::setLimit"
 		     << std::endl;
-     CoSupport::dout << CoSupport::Indent::Down;
+     CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
    };
 #endif
@@ -107,20 +107,20 @@ public:
     /// Returns the value of the loop iterator for the given iteration level
     iteration_type iteration(size_t iteration_level) const {
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 104
-      CoSupport::dout << buffer->name() << ": Enter smoc_md_storage_access_src::iteration" << std::endl;
-      CoSupport::dout << CoSupport::Indent::Up;
-      CoSupport::dout << "iteration-level = " << iteration_level << std::endl;
+      CoSupport::Streams::dout << buffer->name() << ": Enter smoc_md_storage_access_src::iteration" << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Up;
+      CoSupport::Streams::dout << "iteration-level = " << iteration_level << std::endl;
 #endif
 
       iteration_type return_value = (*src_loop_iterator)[iteration_level];
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 104
-      CoSupport::dout << "return_value = " << return_value << std::endl;
+      CoSupport::Streams::dout << "return_value = " << return_value << std::endl;
 #endif
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 104
-      CoSupport::dout << "Leave smoc_md_storage_access_src::iteration" << std::endl;
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << "Leave smoc_md_storage_access_src::iteration" << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
       return return_value;
     }
@@ -181,16 +181,16 @@ public:
     /// dummy function
     void setLimit(size_t limit) {
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << buffer->name() << ": Enter smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::setLimit"
+      CoSupport::Streams::dout << buffer->name() << ": Enter smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::setLimit"
 		      << std::endl;
-      CoSupport::dout << CoSupport::Indent::Up;
-      CoSupport::dout << "limit = " << limit << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Up;
+      CoSupport::Streams::dout << "limit = " << limit << std::endl;
 #endif
       assert(limit <= 1);
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::setLimit"
+      CoSupport::Streams::dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::setLimit"
 		      << std::endl;
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
     };
 #endif
@@ -211,8 +211,8 @@ public:
     virtual border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration,
 						  bool& is_border) const { 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101)
-      CoSupport::dout << buffer->name() << ": Enter smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::is_ext_border" << std::endl;
-      CoSupport::dout << CoSupport::Indent::Up;
+      CoSupport::Streams::dout << buffer->name() << ": Enter smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::is_ext_border" << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 
       border_type_vector_type 
@@ -220,8 +220,8 @@ public:
                                                        is_border));
 
 #if (VERBOSE_LEVEL_SMOC_MD_BUFFER == 102) || (VERBOSE_LEVEL_SMOC_MD_BUFFER == 101)
-      CoSupport::dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::is_ext_border" << std::endl;
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_storage_access_snk::is_ext_border" << std::endl;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
       return return_vector;
@@ -319,12 +319,12 @@ public:
       size_token_space(src_loop_iterator.size_token_space())
   {
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 103
-    CoSupport::dout << "Enter smoc_md_buffer_mgmt_base::smoc_md_buffer_mgmt_base(const buffer_init& i)" << std::endl;
+    CoSupport::Streams::dout << "Enter smoc_md_buffer_mgmt_base::smoc_md_buffer_mgmt_base(const buffer_init& i)" << std::endl;
 #endif
     assert(src_loop_iterator.token_dimensions() == 
 	   snk_loop_iterator.token_dimensions());
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 103
-    CoSupport::dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_buffer_mgmt_base(const buffer_init& i)" << std::endl;
+    CoSupport::Streams::dout << "Leave smoc_md_buffer_mgmt_base::smoc_md_buffer_mgmt_base(const buffer_init& i)" << std::endl;
 #endif
   };
 
@@ -487,16 +487,16 @@ public:
     /* Data Element Access */
     virtual return_type operator[](const iter_domain_vector_type& window_iteration){
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << simple_md_buffer->name() << ": Enter smoc_simple_md_buffer_kind::smoc_md_storage_access_src::operator[]"
+      CoSupport::Streams::dout << simple_md_buffer->name() << ": Enter smoc_simple_md_buffer_kind::smoc_md_storage_access_src::operator[]"
 		      << std::endl;
-      CoSupport::dout << CoSupport::Indent::Up;
+      CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 
       checkLimit(window_iteration);
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "window_iteration = " << window_iteration;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "window_iteration = " << window_iteration;
+      CoSupport::Streams::dout << std::endl;
 #endif
       //Allocate the memory for the current source iteration.
       simple_md_buffer->allocate_buffer();
@@ -506,8 +506,8 @@ public:
       const data_element_id_type& base_data_element_id = 
 	(*this).src_loop_iterator->get_base_data_element_id();
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "base_data_element_id = " << base_data_element_id;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "base_data_element_id = " << base_data_element_id;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
       data_element_id_type data_element_id(token_dimensions);                 
@@ -517,8 +517,8 @@ public:
       data_element_id += base_data_element_id;
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "data_element_id = " << data_element_id;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "data_element_id = " << data_element_id;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
       data_element_id[token_dimensions-1] += 
@@ -527,16 +527,16 @@ public:
 	data_element_id[token_dimensions-1] % (*simple_md_buffer).buffer_lines;
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "Array element = " << data_element_id;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "Array element = " << data_element_id;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
       return_type return_value((*storage)[data_element_id]);
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_src::operator[]"
+      CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_src::operator[]"
 		      << std::endl;
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
       return return_value;
@@ -585,16 +585,16 @@ public:
     /* Data Element Access */
     virtual return_type operator[](const iter_domain_vector_type& window_iteration){
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << simple_md_buffer->name() << ": Enter smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
+      CoSupport::Streams::dout << simple_md_buffer->name() << ": Enter smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
 		      << std::endl;
-      CoSupport::dout << CoSupport::Indent::Up;
+      CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 
       checkLimit(window_iteration);
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "window_iteration = " << window_iteration;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "window_iteration = " << window_iteration;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
       unsigned token_dimensions = (*this).snk_loop_iterator->token_dimensions();
@@ -603,8 +603,8 @@ public:
 	(*this).snk_loop_iterator->get_base_data_element_id();
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "base_data_element_id = " << base_data_element_id;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "base_data_element_id = " << base_data_element_id;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
       data_element_id_type data_element_id(token_dimensions);                 
@@ -613,8 +613,8 @@ public:
       data_element_id += base_data_element_id;
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "data_element_id = " << data_element_id;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "data_element_id = " << data_element_id;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
       data_element_id[token_dimensions-1] += 
@@ -623,16 +623,16 @@ public:
 	data_element_id[token_dimensions-1] % (*simple_md_buffer).buffer_lines;
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "Array element = " << data_element_id;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "Array element = " << data_element_id;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
       return_type return_value = (*storage)[data_element_id];
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
+      CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
 		      << std::endl;
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
       return return_value;
@@ -640,16 +640,16 @@ public:
                 
     virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const{
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << simple_md_buffer->name() << ": Enter smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
+      CoSupport::Streams::dout << simple_md_buffer->name() << ": Enter smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
 		      << std::endl;
-      CoSupport::dout << CoSupport::Indent::Up;
+      CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 
       checkLimit(window_iteration);
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "window_iteration = " << window_iteration;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "window_iteration = " << window_iteration;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
       unsigned token_dimensions = (*this).snk_loop_iterator->token_dimensions();
@@ -658,8 +658,8 @@ public:
 	(*this).snk_loop_iterator->get_base_data_element_id();
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "base_data_element_id = " << base_data_element_id;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "base_data_element_id = " << base_data_element_id;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
 
@@ -669,8 +669,8 @@ public:
       data_element_id += base_data_element_id;
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "data_element_id = " << data_element_id;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "data_element_id = " << data_element_id;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
       data_element_id[token_dimensions-1] += 
@@ -679,16 +679,16 @@ public:
 	data_element_id[token_dimensions-1] % (*simple_md_buffer).buffer_lines;
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "Array element = " << data_element_id;
-      CoSupport::dout << std::endl;
+      CoSupport::Streams::dout << "Array element = " << data_element_id;
+      CoSupport::Streams::dout << std::endl;
 #endif
 
       return_type return_value = (*storage)[data_element_id];
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 101
-      CoSupport::dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
+      CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::smoc_md_storage_access_snk::operator[]"
 		      << std::endl;
-      CoSupport::dout << CoSupport::Indent::Down;
+      CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
       return return_value;
@@ -762,12 +762,12 @@ public:
                         
   {
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 103
-    CoSupport::dout << "Enter smoc_simple_md_buffer_kind::smoc_simple_md_buffer_kind" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_simple_md_buffer_kind::smoc_simple_md_buffer_kind" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 103
-    CoSupport::dout << "Check initial data elements" << std::endl;
+    CoSupport::Streams::dout << "Check initial data elements" << std::endl;
 #endif
     //currently, we only support initial data elements in
     //the highest token dimension
@@ -776,7 +776,7 @@ public:
     }
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 103
-    CoSupport::dout << "Calculate initial schedule period start" << std::endl;
+    CoSupport::Streams::dout << "Calculate initial schedule period start" << std::endl;
 #endif
     // wr_schedule_period_start = k* buffer_lines - size_token_space[_token_dimensions-1]
     // whereas k the smallest possible integer, such that wr_schedule_period_start > 0
@@ -784,7 +784,7 @@ public:
       (size_token_space[_token_dimensions-1] % buffer_lines);
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 103
-    CoSupport::dout << "Calculate initial wr_max_data_element_offset" << std::endl;
+    CoSupport::Streams::dout << "Calculate initial wr_max_data_element_offset" << std::endl;
 #endif
     wr_max_data_element_offset = 
       size_token_space[_token_dimensions-1] + 
@@ -792,7 +792,7 @@ public:
 
                 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 103
-    CoSupport::dout << "Check mapping offset" << std::endl;
+    CoSupport::Streams::dout << "Check mapping offset" << std::endl;
 #endif
     assert(src_loop_iterator.mapping_offset[_token_dimensions - 1] >= 0);
     assert(src_loop_iterator.mapping_offset[_token_dimensions - 1] <= buffer_lines);
@@ -800,8 +800,8 @@ public:
       src_loop_iterator.mapping_offset[_token_dimensions - 1];
 
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 103
-    CoSupport::dout << "Leave smoc_simple_md_buffer_kind::smoc_simple_md_buffer_kind" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_simple_md_buffer_kind::smoc_simple_md_buffer_kind" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
 
 

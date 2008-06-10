@@ -4,7 +4,7 @@
 #ifndef _INCLUDED_MD_SMOC_PORT_HPP
 #define _INCLUDED_MD_SMOC_PORT_HPP
 
-#include <cosupport/smoc_debug_out.hpp>
+#include <CoSupport/Streams/DebugOStream.hpp>
 
 #include "smoc_port.hpp"
 #include "smoc_wsdf_edge.hpp"
@@ -512,18 +512,18 @@ public:
 
   void setFiringLevelMap(const s2vector_type& firing_level_map){
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
-    CoSupport::dout << "Enter smoc_md_port_in::setFiringLevelMap" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_md_port_in::setFiringLevelMap" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
     this->firing_level_map = firing_level_map;
 
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
 
-    CoSupport::dout << "firing_level_map = " << firing_level_map;
-    CoSupport::dout << std::endl;
+    CoSupport::Streams::dout << "firing_level_map = " << firing_level_map;
+    CoSupport::Streams::dout << std::endl;
 
-    CoSupport::dout << "Leave smoc_md_port_in::setFiringLevelMap" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_md_port_in::setFiringLevelMap" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
   }
 
@@ -702,19 +702,19 @@ public:
 
   void setFiringLevelMap(const s2vector_type& firing_level_map){
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
-    CoSupport::dout << "Enter smoc_md_port_out::setFiringLevelMap" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Up;
+    CoSupport::Streams::dout << "Enter smoc_md_port_out::setFiringLevelMap" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Up;
 #endif
 
     this->firing_level_map = firing_level_map;
 
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 102
 
-    CoSupport::dout << "firing_level_map = " << firing_level_map;
-    CoSupport::dout << std::endl;
+    CoSupport::Streams::dout << "firing_level_map = " << firing_level_map;
+    CoSupport::Streams::dout << std::endl;
 
-    CoSupport::dout << "Leave smoc_md_port_out::setFiringLevelMap" << std::endl;
-    CoSupport::dout << CoSupport::Indent::Down;
+    CoSupport::Streams::dout << "Leave smoc_md_port_out::setFiringLevelMap" << std::endl;
+    CoSupport::Streams::dout << CoSupport::Indent::Down;
 #endif
   }
 

@@ -34,8 +34,8 @@
  */
 
 #include <boost/intrusive_ptr.hpp>
-#include <cosupport/refcount_object.hpp>
-//#include <cosupport/intrusive_refcount_ptr.hpp>
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
+//systemc_support.hpp>/intrusive_refcount_ptr.hpp>
 
 // WARNING: Always sync this with DASTNodeType[] in smoc_ast_common.cpp
 //          and apply_visitor at the end of this file !!!
@@ -77,7 +77,7 @@ public:
 std::ostream &operator << (std::ostream &o, const ASTNodeType &nodeType);
 std::ostream &operator << (std::ostream &o, _ASTNodeType nodeType);
 
-class ASTNode: public CoSupport::RefCountObject {
+class ASTNode: public CoSupport::SmartPtr::RefCountObject {
 private:
   ASTNodeType     nodeType;
   TypeIdentifier  valueType;

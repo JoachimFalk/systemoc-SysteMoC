@@ -37,7 +37,7 @@
 #ifndef _INCLUDED_SMOC_POPT_HPP
 #define _INCLUDED_SMOC_POPT_HPP
 
-#include <cosupport/commondefs.h>
+#include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
 

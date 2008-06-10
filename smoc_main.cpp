@@ -38,7 +38,7 @@
 
 #include <cstring>
 
-#include <cosupport/AlternateStream.hpp>
+#include <CoSupport/Streams/AlternateStream.hpp>
 
 #include <systemoc/smoc_pggen.hpp>
 
@@ -68,7 +68,7 @@ int main(int _argc, char* _argv[]) {
       assert(!i->value.empty());
       
       smoc_modes::dumpFileSMX =
-        new CoSupport::AOStream(std::cout, i->value.front(), "-");
+        new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
     }
     if(i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();

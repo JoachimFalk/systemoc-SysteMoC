@@ -41,7 +41,7 @@
 #include <systemoc/smoc_sr_signal.hpp>
 #include <systemoc/smoc_multicast_sr_signal.hpp>
 
-#include <cosupport/oneof.hpp>
+#include <CoSupport/DataTypes/oneof.hpp>
 
 #ifdef SYSTEMOC_DEBUG
 # define DEBUG_CODE(code) code
