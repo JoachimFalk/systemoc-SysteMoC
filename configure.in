@@ -229,6 +229,8 @@ else
   AC_MSG_RESULT([no])
 fi
 
+PKG_CHECK_MODULES([IMAGEMAGICKPP], [ImageMagick++])
+
 # AC_FUNC_ALLOCA
 # AC_HEADER_STDC
 # AC_CHECK_HEADERS([OS.h fcntl.h limits.h mach/mach.h malloc.h stddef.h stdint.h stdlib.h string.h sys/time.h unistd.h])
