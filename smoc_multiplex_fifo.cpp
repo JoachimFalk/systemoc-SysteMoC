@@ -191,36 +191,6 @@ void smoc_multiplex_fifo_chan::latencyExpired(size_t n) {
 //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
 }
 
-sc_port_list smoc_multiplex_fifo_chan::getInputPorts() const {
-  sc_port_list ports;
-  for(FifoMap::const_iterator i = vFifos.begin();
-      i != vFifos.end();
-      ++i)
-  {
-    const sc_port_list& vFifoPorts = i->second->getInputPorts();
-    ports.insert(
-        ports.end(),
-        vFifoPorts.begin(),
-        vFifoPorts.end());
-  }
-  return ports;
-}
-
-sc_port_list smoc_multiplex_fifo_chan::getOutputPorts() const {
-  sc_port_list ports;
-  for(FifoMap::const_iterator i = vFifos.begin();
-      i != vFifos.end();
-      ++i)
-  {
-    const sc_port_list& vFifoPorts = i->second->getOutputPorts();
-    ports.insert(
-        ports.end(),
-        vFifoPorts.begin(),
-        vFifoPorts.end());
-  }
-  return ports;
-}
-
 smoc_multiplex_vfifo_chan_base::smoc_multiplex_vfifo_chan_base( const chan_init &i )
   : smoc_nonconflicting_chan(i.name),
     QueueRVWPtr(i.pSharedFifoMem->depthCount()),

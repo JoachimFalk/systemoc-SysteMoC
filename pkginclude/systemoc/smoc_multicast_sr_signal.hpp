@@ -452,8 +452,15 @@ public:
   }
 
 protected:
-  storage_type   actualValue;
+  storage_type actualValue;
 
+  /// @brief See smoc_port_registry
+  smoc_chan_out_base_if* createEntry()
+    { return new Entry(this, actualValue); }
+
+  /// @brief See smoc_port_registry
+  smoc_chan_in_base_if* createOutlet()
+    { return new Outlet(this, actualValue); }
 
   void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,

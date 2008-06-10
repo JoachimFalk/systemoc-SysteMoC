@@ -173,7 +173,7 @@ const smoc_firing_states smoc_root_node::getFiringStates() const {
          get_child_objects().begin();
        iter != get_child_objects().end();
        ++iter ) {
-    smoc_firing_state *state = dynamic_cast<smoc_firing_state*>(*iter);
+    smoc_firing_state* state = dynamic_cast<smoc_firing_state*>(*iter);
     
     if ( state != NULL )
       states.push_back(state);

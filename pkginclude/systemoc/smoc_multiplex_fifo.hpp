@@ -80,8 +80,8 @@ class smoc_multiplex_fifo_chan
 {
 public:
   friend class smoc_multiplex_vfifo_chan_base;
-  friend class smoc_multiplex_vfifo_entry_base;
   friend class smoc_multiplex_vfifo_outlet_base;
+  friend class smoc_multiplex_vfifo_entry_base;
   
   typedef smoc_multiplex_fifo_chan this_type;
   typedef size_t FifoId;
@@ -126,11 +126,13 @@ protected:
   virtual void channelAttributes(smoc_modes::PGWriter &pgw) const
     { assert(0); }
 
-  /// @brief See smoc_root_chan
-  sc_port_list getInputPorts() const;
-  
-  /// @brief See smoc_root_chan
-  sc_port_list getOutputPorts() const;
+  /// @brief See smoc_port_registry
+  smoc_chan_in_base_if* createOutlet()
+    { assert(!"Use virtual FIFOs!"); }
+
+  /// @brief See smoc_port_registry
+  smoc_chan_out_base_if* createEntry()
+    { assert(!"Use virtual FIFOs!"); }
 
 public:
   ///gcc3.4.6: Inner classes are not friends when outer class is declared as friend
@@ -161,8 +163,8 @@ class smoc_multiplex_vfifo_chan_base
 {
 public:
   friend class smoc_multiplex_fifo_chan;
-  friend class smoc_multiplex_vfifo_entry_base;
   friend class smoc_multiplex_vfifo_outlet_base;
+  friend class smoc_multiplex_vfifo_entry_base;
 
   typedef smoc_multiplex_vfifo_chan_base  this_type;
   typedef size_t FifoId;
@@ -207,13 +209,13 @@ protected:
   }
 };
 
-class smoc_multiplex_vfifo_entry_base
+class smoc_multiplex_vfifo_outlet_base
 : public virtual smoc_chan_in_base_if
 {
 public:
 protected:
   /// @brief Constructor
-  smoc_multiplex_vfifo_entry_base(smoc_multiplex_vfifo_chan_base &chan)
+  smoc_multiplex_vfifo_outlet_base(smoc_multiplex_vfifo_chan_base &chan)
     : chan(chan)
   {}
 
@@ -253,13 +255,13 @@ private:
   smoc_multiplex_vfifo_chan_base &chan;
 };
 
-class smoc_multiplex_vfifo_outlet_base
+class smoc_multiplex_vfifo_entry_base
 : public virtual smoc_chan_out_base_if
 {
 public:
 protected:
   /// @brief Constructor
-  smoc_multiplex_vfifo_outlet_base(smoc_multiplex_vfifo_chan_base &chan)
+  smoc_multiplex_vfifo_entry_base(smoc_multiplex_vfifo_chan_base &chan)
     : chan(chan)
   {}
 
@@ -303,18 +305,18 @@ private:
 template<class> class smoc_multiplex_vfifo_chan;
 
 template<class T>
-class smoc_multiplex_vfifo_entry
-: public smoc_multiplex_vfifo_entry_base,
+class smoc_multiplex_vfifo_outlet
+: public smoc_multiplex_vfifo_outlet_base,
   public smoc_chan_in_if<T,smoc_channel_access>
 {
 public:
-  typedef smoc_multiplex_vfifo_entry<T> this_type;
+  typedef smoc_multiplex_vfifo_outlet<T> this_type;
   typedef typename this_type::access_type access_type;
   typedef smoc_chan_in_if<T,smoc_channel_access> iface_type;
 
   /// @brief Constructor
-  smoc_multiplex_vfifo_entry(smoc_multiplex_vfifo_chan<T>& chan)
-    : smoc_multiplex_vfifo_entry_base(chan),
+  smoc_multiplex_vfifo_outlet(smoc_multiplex_vfifo_chan<T>& chan)
+    : smoc_multiplex_vfifo_outlet_base(chan),
       chan(chan)
   {}
 
@@ -330,18 +332,18 @@ private:
 };
 
 template<class T>
-class smoc_multiplex_vfifo_outlet
-: public smoc_multiplex_vfifo_outlet_base,
+class smoc_multiplex_vfifo_entry
+: public smoc_multiplex_vfifo_entry_base,
   public smoc_chan_out_if<T,smoc_channel_access>
 {
 public:
-  typedef smoc_multiplex_vfifo_outlet<T> this_type;
+  typedef smoc_multiplex_vfifo_entry<T> this_type;
   typedef typename this_type::access_type access_type;
   typedef smoc_chan_out_if<T,smoc_channel_access> iface_type;
 
   /// @brief Constructor
-  smoc_multiplex_vfifo_outlet(smoc_multiplex_vfifo_chan<T>& chan)
-    : smoc_multiplex_vfifo_outlet_base(chan),
+  smoc_multiplex_vfifo_entry(smoc_multiplex_vfifo_chan<T>& chan)
+    : smoc_multiplex_vfifo_entry_base(chan),
       chan(chan)
   {}
 
@@ -363,12 +365,12 @@ class smoc_multiplex_vfifo_storage
 {
 public:
   typedef T                                       data_type;
-  typedef smoc_multiplex_vfifo_entry<data_type>   entry_type;
-  typedef smoc_multiplex_vfifo_outlet<data_type>  outlet_type;
+  typedef smoc_multiplex_vfifo_outlet<data_type>   outlet_type;
+  typedef smoc_multiplex_vfifo_entry<data_type>  entry_type;
   typedef smoc_storage<data_type>                 storage_type;
 
-  typedef typename entry_type::access_type  access_in_type;
-  typedef typename outlet_type::access_type access_out_type;
+  typedef typename outlet_type::access_type  access_in_type;
+  typedef typename entry_type::access_type access_out_type;
 
   typedef smoc_ring_access<
     storage_type,
@@ -377,8 +379,8 @@ public:
     storage_type,
     typename access_out_type::return_type> access_out_type_impl;
 
-  friend class smoc_multiplex_vfifo_entry<data_type>;
   friend class smoc_multiplex_vfifo_outlet<data_type>;
+  friend class smoc_multiplex_vfifo_entry<data_type>;
 
   class chan_init
   : public smoc_multiplex_vfifo_chan_base::chan_init
@@ -446,18 +448,18 @@ class smoc_multiplex_vfifo_storage<void>
 {
 public:
   typedef void                                    data_type;
-  typedef smoc_multiplex_vfifo_entry<data_type>   entry_type;
-  typedef smoc_multiplex_vfifo_outlet<data_type>  outlet_type;
+  typedef smoc_multiplex_vfifo_outlet<data_type>   outlet_type;
+  typedef smoc_multiplex_vfifo_entry<data_type>  entry_type;
   typedef smoc_storage<data_type>                 storage_type;
 
-  typedef entry_type::access_type  access_in_type;
-  typedef outlet_type::access_type access_out_type;
+  typedef outlet_type::access_type  access_in_type;
+  typedef entry_type::access_type access_out_type;
 
   typedef smoc_ring_access<void,void> access_in_type_impl;
   typedef smoc_ring_access<void,void> access_out_type_impl;
 
-  friend class smoc_multiplex_vfifo_entry<data_type>;
   friend class smoc_multiplex_vfifo_outlet<data_type>;
+  friend class smoc_multiplex_vfifo_entry<data_type>;
 
   /// @brief Channel initializer
   class chan_init
@@ -516,86 +518,83 @@ class smoc_multiplex_vfifo_chan
 : public smoc_multiplex_vfifo_storage<T>
 {
 public:
-  typedef T                                      data_type;
-  typedef smoc_multiplex_vfifo_entry<data_type>  entry_type;
-  typedef smoc_multiplex_vfifo_outlet<data_type> outlet_type;
+  typedef T                                       data_type;
+  typedef smoc_multiplex_vfifo_chan<data_type>    this_type;
+  typedef smoc_multiplex_vfifo_entry<data_type>   entry_type;
+  typedef smoc_multiplex_vfifo_outlet<data_type>  outlet_type;
+  
+  typedef typename entry_type::iface_type   entry_iface_type;
+  typedef typename outlet_type::iface_type  outlet_iface_type;
 
   /// @brief Channel initializer
   typedef typename smoc_multiplex_vfifo_storage<T>::chan_init chan_init;
 
   /// @brief Constructor
   smoc_multiplex_vfifo_chan(const chan_init &i)
-    : smoc_multiplex_vfifo_storage<T>(i),
-      entry(*this),
-      outlet(*this)
+    : smoc_multiplex_vfifo_storage<T>(i)
   {}
-
-  /// @brief See smoc_root_chan
-  sc_port_list getInputPorts() const
-    { return entry.getPorts(); }
-
-  /// @brief See smoc_root_chan
-  sc_port_list getOutputPorts() const
-    { return outlet.getPorts(); }
 
   /// @brief Nicer compile time error
   struct No_Channel_Adapter_Found__Please_Use_Other_Interface {};
-
+  
+  /// @brief Connect sc_port
   template<class IFace,class Init>
   void connect(sc_port<IFace>& p, const Init&) {
-
+  
     using namespace SysteMoC::Detail;
 
-    // we can provide smoc_chan_in_if and smoc_chan_out_if
-    // interfaces (via entry and outlet)
-    typedef typename entry_type::iface_type   IFaceImpl1;
-    typedef typename outlet_type::iface_type  IFaceImpl2;
+    // available adapters
+    typedef smoc_chan_adapter<entry_iface_type,IFace>   EntryAdapter;
+    typedef smoc_chan_adapter<outlet_iface_type,IFace>  OutletAdapter;
 
-    // corresponding adapters
-    typedef smoc_chan_adapter<IFaceImpl1,IFace> Adapter1;
-    typedef smoc_chan_adapter<IFaceImpl2,IFace> Adapter2;
-
-    // constructor objects
-    typedef ConstructPMParam<
-      Adapter1,
-      smoc_multiplex_vfifo_chan<T>,
-      entry_type,
-      &smoc_multiplex_vfifo_chan<T>::entry> Cons1;
-
-    typedef ConstructPMParam<
-      Adapter2,
-      smoc_multiplex_vfifo_chan<T>,
-      outlet_type,
-      &smoc_multiplex_vfifo_chan<T>::outlet> Cons2;
-
-    // try to get adapter
+    // try to get adapter (utilize Tags for simpler implementation)
     typedef
       typename Select<
-        Adapter1::isAdapter,
-        Cons1,
+        EntryAdapter::isAdapter,
+        std::pair<EntryAdapter,smoc_port_registry::EntryTag>,
       typename Select<
-        Adapter2::isAdapter,
-        Cons2,
+        OutletAdapter::isAdapter,
+        std::pair<OutletAdapter,smoc_port_registry::OutletTag>,
       No_Channel_Adapter_Found__Please_Use_Other_Interface
       >::result_type
-      >::result_type Op;
+      >::result_type P;
 
-    // create adapter and pass it to port
-    p(Op::apply(*this));
+    // corresponding types
+    typedef typename P::first_type Adapter;
+    typedef typename P::second_type Tag;
+
+    typename Adapter::iface_impl_type* iface =
+      dynamic_cast<typename Adapter::iface_impl_type*>(
+          smoc_port_registry::getIF<Tag>(&p));
+    assert(iface); p(*(new Adapter(*iface)));
+  }
+  
+  /// @brief Connect smoc_port_out
+  template<class Init>
+  void connect(smoc_port_out<data_type>& p, const Init&) {
+    entry_type* e =
+      dynamic_cast<entry_type*>(getEntry(&p));
+    assert(e); p(*e);
   }
 
+  /// @brief Connect smoc_port_in
   template<class Init>
-  void connect(smoc_port_out<data_type>& p, const Init&)
-    { p(outlet); }
-
-  template<class Init>
-  void connect(smoc_port_in<data_type>& p, const Init&)
-    { p(entry); }
+  void connect(smoc_port_in<data_type>& p, const Init&) {
+    outlet_type* o =
+      dynamic_cast<outlet_type*>(getOutlet(&p));
+    assert(o); p(*o);
+  }
 
 protected:
+  /// @brief See smoc_port_registry
+  smoc_chan_out_base_if* createEntry()
+    { return new entry_type(*this); }
+
+  /// @brief See smoc_port_registry
+  smoc_chan_in_base_if* createOutlet()
+    { return new outlet_type(*this); }
+
 private:
-  entry_type entry;
-  outlet_type outlet;
 };
 
 template <typename T>

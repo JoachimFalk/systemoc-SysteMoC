@@ -51,6 +51,26 @@ using namespace SysteMoC::NGXSync;
 // value_type will be constructed as T(), which initializes primite types to 0!
 static std::map<std::string, size_t> _smoc_channel_name_map;
 
+// FIXME: Introduce hacks or whatever means neccessary to get
+// rid of getParentPort()
+sc_port_base* getRootPort(sc_port_base* p) {
+  smoc_sysc_port* sp = dynamic_cast<smoc_sysc_port*>(p);
+  if(!sp) return p;
+  while(sp->getParentPort())
+    sp = sp->getParentPort();
+  return sp;
+}
+
+// FIXME: Introduce hacks or whatever means neccessary to get
+// rid of getChildPort()
+sc_port_base* getLeafPort(sc_port_base* p) {
+  smoc_sysc_port* sp = dynamic_cast<smoc_sysc_port*>(p);
+  if(!sp) return p;
+  while(sp->getChildPort())
+    sp = sp->getChildPort();
+  return sp;
+}
+
 smoc_root_chan::smoc_root_chan(const std::string& name)
   : sc_prim_channel(name.empty() ? sc_gen_unique_name( "smoc_unnamed_channel" ) : name.c_str()),
     myName(name)
@@ -76,26 +96,26 @@ void smoc_root_chan::finalise() {
   
     genName << "cf_";
     {
-      const sc_port_list &out = getOutputPorts();
+      const EntryMap& entries = getEntries();
       
-      for (sc_port_list::const_iterator iter = out.begin();
-           iter != out.end();
+      for (EntryMap::const_iterator iter = entries.begin();
+           iter != entries.end();
            ++iter ) {
         genName
-          << (iter == out.begin() ? "" : "|")
-          << (*iter)->get_parent()->name();
+          << (iter == entries.begin() ? "" : "|")
+          << getLeafPort(iter->first)->get_parent()->name();
       }
     }
     genName << "_";
     {
-      const sc_port_list &in = getInputPorts();
+      const OutletMap& outlets = getOutlets();
       
-      for (sc_port_list::const_iterator iter = in.begin();
-           iter != in.end();
+      for (OutletMap::const_iterator iter = outlets.begin();
+           iter != outlets.end();
            ++iter ) {
         genName
-          << (iter == in.begin() ? "" : "|")
-          << (*iter)->get_parent()->name();
+          << (iter == outlets.begin() ? "" : "|")
+          << getLeafPort(iter->first)->get_parent()->name();
       }
     }
     genName << "_";
@@ -109,11 +129,11 @@ void smoc_root_chan::finalise() {
   assert(vpcLink);
 
   //FIXME: Workaround for quickhack (see getParentPort below)
-  if(!getOutputPorts().empty()) {
+  if(!getOutlets().empty()) {
 
     //FIXME: QUICKHACK:
     this->setChannelID(
-        (*getOutputPorts().begin())->get_parent()->name(),
+        getOutlets().begin()->first->get_parent()->name(),
         vpcLink->process,
         myName);
   }
@@ -125,35 +145,29 @@ void smoc_root_chan::finalise() {
 
 void smoc_nonconflicting_chan::finalise() {
   smoc_root_chan::finalise();
-  assert(getInputPorts().size() == 1);
-  assert(getOutputPorts().size() == 1);
+  assert(getEntries().size() == 1);
+  assert(getOutlets().size() == 1);
 }
 
 void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   
-  const sc_port_list& inPorts = getInputPorts();
-  const sc_port_list& outPorts = getOutputPorts();
+  const EntryMap& entries = getEntries();
+  const OutletMap& outlets = getOutlets();
 
-  assert(inPorts.size() == 1);
-  assert(outPorts.size() == 1);
+  assert(entries.size() == 1);
+  assert(outlets.size() == 1);
   
   IdAttr idChannel = idPool.printId(this);
 
-  IdAttr idChannelPortIn = inPorts.empty() ?
-    idPool.printIdInvalid() : idPool.printId(inPorts.front(), 1);
+  IdAttr idChannelPortIn = entries.empty() ?
+    idPool.printIdInvalid() : idPool.printId(entries.begin()->first, 1);
 
-  IdAttr idChannelPortOut = outPorts.empty() ?
-    idPool.printIdInvalid() : idPool.printId(outPorts.front(), 1);
+  IdAttr idChannelPortOut = outlets.empty() ?
+    idPool.printIdInvalid() : idPool.printId(outlets.begin()->first, 1);
 
-  smoc_sysc_port *ifPort = outPorts.empty() ?
-    0 : dynamic_cast<smoc_sysc_port*>(outPorts.front());
-
-  // search highest interface port (multiple hierachie layers)
-  // FIXME: should be supported by SYSTEMC!!!!! (breaks everything)
-  while(ifPort && ifPort->getParentPort()) {
-    ifPort = ifPort->getParentPort();
-  }
-
+  sc_port_base* ifPort = outlets.empty() ?
+    0 : getLeafPort(outlets.begin()->first);
+  
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "
                "source=\"" << idPool.printId(ifPort) << "\" "
                "target=\"" << idChannelPortIn << "\" "
@@ -175,14 +189,8 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
     pgw.indentDown();
   }
 
-  ifPort = inPorts.empty() ?
-    0 : dynamic_cast<smoc_sysc_port*>(inPorts.front());
-
-  // search highest interface port (multiple hierachie layers)
-  // FIXME: should be supported by SYSTEMC!!!!! (breaks everything)
-  while(ifPort && ifPort->getParentPort()) {
-    ifPort = ifPort->getParentPort();
-  }
+  ifPort = entries.empty() ?
+    0 : getLeafPort(entries.begin()->first);
 
   pgw << "</process>" << std::endl;
   pgw << "<edge name=\""   << this->name() << ".from-edge\" "
@@ -199,17 +207,14 @@ smoc_nonconflicting_chan::getChannelTypeString() const {
 
 void smoc_multicast_chan::finalise() {
   smoc_root_chan::finalise();
-  //assert(!getInputPorts().empty());
-  //assert(!getOutputPorts().empty());
+  //assert(!getEntries().empty());
+  //assert(!getOutlets().empty());
 }
 
 void smoc_multicast_chan::assemble(smoc_modes::PGWriter &pgw) const {
   
-  const sc_port_list& inPorts = getInputPorts();
-  const sc_port_list& outPorts = getOutputPorts();
-
-  assert(!inPorts.empty());
-  assert(!outPorts.empty());
+  assert(!getEntries().empty());
+  assert(!getOutlets().empty());
   
   // FIXME: BIG HACK !!!
   const_cast<this_type *>(this)->finalise();

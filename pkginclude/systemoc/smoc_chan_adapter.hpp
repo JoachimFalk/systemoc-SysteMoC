@@ -93,27 +93,6 @@ template<class A,class B>
 struct Select<false,A,B>
 { typedef B result_type; };
 
-/// construct new instance (parameter is object)
-template<class R, class T>
-struct ConstructObjParam {
-  static R& apply(T& t)
-  { return *(new R(t)); }
-};
-
-/// construct new instance (parameter is pointer-to-member)
-template<class R, class T, class M, M T::*PM>
-struct ConstructPMParam {
-  static R& apply(T& t)
-    { return *(new R(t.*PM)); }
-};
-
-/// copy instance
-template<class T>
-struct Copy {
-  static T& apply(T& t)
-    { return t; }
-};
-
 }} // namespace SysteMoC::Detail
 
 /**
