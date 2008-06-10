@@ -85,6 +85,7 @@ public:
         ),				
      ref_data_file(REF_FILENAME)
   {
+    assert(ref_data_file.good());
     start = in(1) >> CALL(m_sink::process) >> start;
   }
 };
