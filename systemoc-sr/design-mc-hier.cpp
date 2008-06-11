@@ -22,9 +22,9 @@ public:
     : smoc_graph_sr( name ),
       nsa ("BAnd")
   {
-    op0(nsa.op0);
-    op1(nsa.op1);
-    out(nsa.out);
+    nsa.op0(op0);
+    nsa.op1(op1);
+    nsa.out(out);
   }
 private:
   NonStrictAnd<bool> nsa;
