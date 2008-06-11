@@ -177,14 +177,24 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
     PortReqMap::const_iterator i, PortReqMap::const_iterator e)
 {
   assert(i != e);
-  smoc_sysc_port* p = NGXCache::getInstance().getCompiledPort(i->first);
+  smoc_sysc_port *p = NGXCache::getInstance().getCompiledPort(i->first);
   assert(p);
-  EPortGuard pg =
-    Expr::portTokens<smoc_root_port>(*p) >= i->second.second;
-  if(++i != e)
-    return pg && portGuard(i, e);
-  else
-    return pg;
+  if (dynamic_cast<smoc_chan_in_base_if *>(p->get_interface()) != NULL) {
+    EPortInGuard pg =
+      Expr::PortTokens<smoc_chan_in_base_if>::type(*p) >= i->second.second;
+    if (++i != e)
+      return pg && portGuard(i, e);
+    else
+      return pg;
+  } else {
+    assert(dynamic_cast<smoc_chan_out_base_if *>(p->get_interface()) != NULL);
+    EPortOutGuard pg =
+      Expr::PortTokens<smoc_chan_out_base_if>::type(*p) >= i->second.second;
+    if (++i != e)
+      return pg && portGuard(i, e);
+    else
+      return pg;
+  }
 }
 
 smoc_graph_synth::EVariant smoc_graph_synth::portGuard(

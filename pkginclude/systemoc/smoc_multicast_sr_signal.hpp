@@ -178,11 +178,11 @@ private:
 
 template <typename T>
 class smoc_multicast_outlet
-  : public smoc_chan_in_if<T, smoc_channel_access>,
+  : public smoc_chan_in_if<T, smoc_channel_access_if>,
     public smoc_outlet_kind,
-    public smoc_channel_access<
-//  typename smoc_chan_in_if<T, smoc_channel_access>::access_type::storage_type,
-  typename smoc_chan_in_if<T, smoc_channel_access>::access_type::return_type>
+    public smoc_channel_access_if<
+//  typename smoc_chan_in_if<T, smoc_channel_access_if>::access_type::storage_type,
+  typename smoc_chan_in_if<T, smoc_channel_access_if>::access_type::return_type>
 {
   typedef T                                  data_type;
   typedef smoc_storage<data_type>       storage_type;
@@ -235,7 +235,7 @@ public:
     this->_base->rpp(consume);
   }
   
-  // smoc_channel_access interface
+  // smoc_channel_access_if interface
   void   setLimit(size_t l){
     limit=l;
   }
@@ -255,11 +255,11 @@ private:
 
 template <typename T>
 class smoc_multicast_entry
-  : public smoc_chan_out_if<T, smoc_channel_access>,
+  : public smoc_chan_out_if<T, smoc_channel_access_if>,
     public smoc_entry_kind,
-    public smoc_channel_access<
-  //typename smoc_chan_out_if<T, smoc_channel_access>::access_type::storage_type,
-  typename smoc_chan_out_if<T, smoc_channel_access>::access_type::return_type>
+    public smoc_channel_access_if<
+  //typename smoc_chan_out_if<T, smoc_channel_access_if>::access_type::storage_type,
+  typename smoc_chan_out_if<T, smoc_channel_access_if>::access_type::return_type>
 {
   typedef T                                  data_type;
   typedef smoc_multicast_entry<data_type>   this_type;
@@ -307,7 +307,7 @@ public:
 #endif
   }
 
-  // smoc_channel_access interface
+  // smoc_channel_access_if interface
   void   setLimit(size_t l){
     limit=l;
   }
@@ -361,7 +361,7 @@ public:
   typedef T                                  data_type;
   typedef smoc_multicast_sr_signal_type<data_type>  this_type;
   typedef smoc_storage<data_type>       storage_type;
-  typedef smoc_port_in_base<smoc_chan_in_if<data_type,smoc_channel_access> > Port;
+  typedef smoc_port_in_base<smoc_chan_in_if<data_type,smoc_channel_access_if> > Port;
   typedef smoc_multicast_outlet<data_type>   Outlet;
   typedef smoc_multicast_entry<data_type>    Entry;
   typedef std::map< const Port* , Outlet* >  OutletMap;

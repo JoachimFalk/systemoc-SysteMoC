@@ -41,10 +41,13 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <boost/noncopyable.hpp>
+
 #include "detail/smoc_sysc_port.hpp"
 #include "smoc_event.hpp"
 #include "smoc_pggen.hpp"
 #include "smoc_storage.hpp"
+#include "smoc_expr.hpp"
 
 #include <systemc.h>
 
@@ -56,77 +59,327 @@ namespace SystemC_VPC {
 }
 #endif // SYSTEMOC_ENABLE_VPC
 
+class smoc_channel_access_base_if {
+public:
+#ifndef NDEBUG
+  virtual void setLimit(size_t) = 0;
+#endif
+  virtual ~smoc_channel_access_base_if() {}
+};
+
 template<class T>
-class smoc_channel_access {
-  typedef smoc_channel_access<T> this_type;
+class smoc_channel_access_if
+: public smoc_channel_access_base_if {
+  typedef smoc_channel_access_if<T> this_type;
 public:
   typedef T return_type;
 
-#ifndef NDEBUG
-  virtual void   setLimit(size_t)                     = 0;
-#endif
   virtual bool   tokenIsValid(size_t) const           = 0;
 
   // Access methods
   virtual return_type operator[](size_t)              = 0;
   virtual const return_type operator[](size_t) const  = 0;
-
-  virtual ~smoc_channel_access() {}
 };
 
 template<>
-class smoc_channel_access<void> {
-  typedef smoc_channel_access<void> this_type;
+class smoc_channel_access_if<void>
+: public smoc_channel_access_base_if {
+  typedef smoc_channel_access_if<void> this_type;
 public:
   typedef void return_type;
 
-#ifndef NDEBUG
-  virtual void   setLimit(size_t)                     = 0;
-#endif
   virtual bool   tokenIsValid(size_t) const           = 0;
 
   // return_type == void => No access methods needed
-
-  virtual ~smoc_channel_access() {}
 };
 
 template<>
-class smoc_channel_access<const void> {
-  typedef smoc_channel_access<const void> this_type;
+class smoc_channel_access_if<const void>
+: public smoc_channel_access_base_if {
+  typedef smoc_channel_access_if<const void> this_type;
 public:
   typedef const void return_type;
 
-#ifndef NDEBUG
-  virtual void   setLimit(size_t)                    = 0;
-#endif
   virtual bool   tokenIsValid(size_t) const          = 0;
 
   // return_type == const void => No access methods needed
-
-  virtual ~smoc_channel_access() {}
 };
 
-// forward
-template <class IFACE> class smoc_port_base;
-template <class IFACE> class smoc_port_in_base;
-template <class IFACE> class smoc_port_out_base;
 
-class smoc_chan_in_base_if : public sc_interface {
-  typedef smoc_chan_in_base_if this_type;
+// forward declaration
+namespace Expr { template <class E> class Value; }
+
+namespace Expr {
+
+/****************************************************************************
+ * DPortTokens represents a count of available tokens or free space in
+ * the port p
+ */
+
+//CI: Port class
+template<class CI>
+class DPortTokens {
 public:
-  template<class> friend class smoc_port_base;
-  template<class> friend class smoc_port_in_base;
-  template<class,class> friend class smoc_chan_adapter;
+  typedef DPortTokens<CI>  this_type;
+
+  friend class AST<this_type>;
+  template <class E> friend class Value;
+  template <class E> friend class CommExec;
+#ifndef NDEBUG
+  template <class E> friend class CommSetup;
+  template <class E> friend class CommReset;
+#endif
+  template <class E> friend class Sensitivity;
+private:
+  smoc_sysc_port &p;
+
+  CI &getCI() const {
+    return *static_cast<CI *>(
+      const_cast<sc_interface *>(p.get_interface()));
+  }
+public:
+  explicit DPortTokens(smoc_sysc_port &p)
+    : p(p) {}
+};
+
+template<class CI>
+struct D<DPortTokens<CI> >: public DBase<DPortTokens<CI> > {
+  D(smoc_sysc_port &p)
+    : DBase<DPortTokens<CI> >(DPortTokens<CI>(p)) {}
+};
+
+template<class CI>
+struct AST<DPortTokens<CI> > {
+  typedef PASTNode result_type;
+
+  static inline
+  result_type apply(const DPortTokens<CI> &e)
+    { return PASTNode(new ASTNodePortTokens(e.p)); }
+};
+
+// Make a convenient typedef for the token type.
+// CI: port class
+template<class CI>
+struct PortTokens {
+  typedef D<DPortTokens<CI> > type;
+};
+
+template <class P>
+typename PortTokens<typename P::chan_base_type>::type portTokens(P &p)
+  { return typename PortTokens<typename P::chan_base_type>::type(p); }
+
+/****************************************************************************
+ * DBinOp<DPortTokens<CI>,E,DOpBinGe> represents a request for available/free
+ * number of tokens on actor ports
+ */
+
+#ifndef NDEBUG
+template <class CI, class E>
+struct CommReset<DBinOp<DPortTokens<CI>,E,DOpBinGe> > {
+  typedef void result_type;
+
+  static inline
+  result_type apply(const DBinOp<DPortTokens<CI>,E,DOpBinGe> &e) {
+# ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommReset<DBinOp<DPortTokens<CI>,E,DOpBinGe> >"
+                 "::apply(" << e.a.p << ", ... )" << std::endl;
+# endif
+    return e.a.p.channelAccess->setLimit(0);
+  }
+};
+
+template <class CI, class E>
+struct CommSetup<DBinOp<DPortTokens<CI>,E,DOpBinGe> > {
+  typedef void result_type;
+
+  static inline
+  result_type apply(const DBinOp<DPortTokens<CI>,E,DOpBinGe> &e) {
+# ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommSetup<DBinOp<DPortTokens<CI>,E,DOpBinGe> >"
+                 "::apply(" << e.a.p << ", ... )" << std::endl;
+# endif
+    size_t req = Value<E>::apply(e.b);
+# ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommSetup
+      (dynamic_cast<smoc_root_chan *>(e.a.p.operator ->()), req);
+# endif
+    return e.a.p.channelAccess->setLimit(req);
+  }
+};
+#endif
+
+template <class CI, typename T>
+struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,DOpBinGe> > {
+  typedef Detail::Process      match_type;
+
+  typedef void                 result_type;
+  typedef smoc_event_and_list &param1_type;
+
+  static
+  void apply(const DBinOp<DPortTokens<CI>,DLiteral<T>,DOpBinGe> &e,
+             smoc_event_and_list &al) {
+    al &= e.a.getCI().blockEvent(Value<DLiteral<T> >::apply(e.b));
+//#ifdef SYSTEMOC_DEBUG
+//  std::cerr << "Sensitivity<DBinOp<DPortTokens<CI>,E,DOpBinGe> >::apply al == " << al << std::endl;
+//#endif
+  }
+};
+
+template <class CI, class E>
+struct Value<DBinOp<DPortTokens<CI>,E,DOpBinGe> > {
+  typedef Expr::Detail::ENABLED result_type;
+
+  static inline
+  result_type apply(const DBinOp<DPortTokens<CI>,E,DOpBinGe> &e) {
+#ifndef NDEBUG
+    size_t req = Value<E>::apply(e.b);
+    assert(e.a.getCI().availableCount() >= req);
+    // WHY is this needed? This should already be done by CommSetup!
+    e.a.p.channelAccess->setLimit(req); 
+#endif
+    return result_type();
+  }
+};
+
+/****************************************************************************
+ * DComm represents request to consume/produce tokens
+ */
+
+template<class CI, class E>
+class DComm {
+public:
+  typedef DComm<CI,E> this_type;
+
+  friend class AST<this_type>;
+  friend class CommExec<this_type>;
+  friend class Value<this_type>;
+private:
+  smoc_sysc_port &p;
+  E               e;
+
+  CI &getCI() const {
+    return *static_cast<CI *>(
+      const_cast<sc_interface *>(p.get_interface()));
+  }
+public:
+  explicit DComm(smoc_sysc_port &p, const E &e): p(p), e(e) {}
+};
+
+template<class CI, class E>
+struct D<DComm<CI,E> >: public DBase<DComm<CI,E> > {
+  D(smoc_sysc_port &p, const E &e): DBase<DComm<CI,E> >(DComm<CI,E>(p,e)) {}
+};
+
+// Make a convenient typedef for the token type.
+template<class CI, class E>
+struct Comm {
+  typedef D<DComm<CI,E> > type;
+};
+
+template <class P, class E>
+typename Comm<typename P::chan_base_type,E>::type comm(P &p, const E &e)
+  { return typename Comm<typename P::chan_base_type,E>::type(p,e); }
+
+template<class CI, class E>
+struct AST<DComm<CI,E> > {
+  typedef PASTNode result_type;
+
+  static inline
+  result_type apply(const DComm<CI,E> &e)
+    { return PASTNode(new ASTNodeComm(e.p, AST<E>::apply(e.e))); }
+};
+
+template <class CI, class E>
+struct CommExec<DComm<CI, E> > {
+  typedef Detail::Process         match_type;
+  typedef void                    result_type;
+#ifdef SYSTEMOC_ENABLE_VPC
+  typedef const smoc_ref_event_p &param1_type;
+  typedef const smoc_ref_event_p &param2_type;
+
+  static inline
+  result_type apply(const DComm<CI, E> &e,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent) {
+# ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommExec<DComm<CI, E> >"
+                 "::apply(" << e.p << ", ... )" << std::endl;
+# endif
+    return e.getCI().commExec(Value<E>::apply(e.e), diiEvent, latEvent);
+  }
+#else
+  static inline
+  result_type apply(const DComm<CI, E> &e) {
+# ifdef SYSTEMOC_DEBUG
+    std::cerr << "CommExec<DComm<CI, E> >"
+                 "::apply(" << e.p << ", ... )" << std::endl;
+# endif
+    return e.getCI().commExec(Value<E>::apply(e.e));
+  }
+#endif
+};
+
+template <class CI, class E>
+struct Value<DComm<CI, E> > {
+  typedef Expr::Detail::ENABLED result_type;
+
+  static inline
+  result_type apply(const DComm<CI, E> &e) {
+    return result_type();
+  }
+};
+
+} // namespace Expr
+
+class smoc_chan_in_base_if
+: public sc_interface,
+  private boost::noncopyable {
+  typedef smoc_chan_in_base_if this_type;
+
   friend class smoc_graph_synth;
+
+  template<class,class> friend class smoc_chan_adapter;
+
+  // Friends needed for guard evaluation
+  template <class E> friend class Expr::Sensitivity;
+  template <class E> friend class Expr::CommExec;
+#ifndef NDEBUG
+  template <class E> friend class Expr::CommReset;
+  template <class E> friend class Expr::CommSetup;
+#endif
+  template <class E> friend class Expr::Value;
+public:
+  template <class PORT>
+  class PortMixin {
+  private:
+    PORT       *getImpl()
+      { return static_cast<PORT       *>(this); }
+    PORT const *getImpl() const
+      { return static_cast<PORT const *>(this); }
+  public:
+    typedef this_type chan_base_type;
+
+    typedef Expr::BinOp<
+      Expr::DComm<this_type,Expr::DLiteral<size_t> >,
+      Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
+      Expr::DOpBinLAnd>::type                 CommAndPortTokensGuard;
+    typedef Expr::PortTokens<this_type>::type PortTokensGuard;
+  public:
+    // operator(n,m) n: How many tokens to consume, m: How many tokens must be available
+    CommAndPortTokensGuard communicate(size_t n, size_t m) {
+      assert(m >= n);
+      return
+        Expr::comm(*getImpl(), Expr::DLiteral<size_t>(n)) &&
+        Expr::portTokens(*getImpl()) >= m;
+    }
+
+    PortTokensGuard getConsumableTokens()
+      { return Expr::portTokens(*getImpl()); }
+  };
 protected:
   // constructor
   smoc_chan_in_base_if() {}
   
-  /// @brief See sc_interface
-//  void register_port(sc_port_base& p, const char* _if_ty)
-//    { ports.push_back(&p); }
-
-public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitRead(size_t consume, const smoc_ref_event_p &) = 0;
 #else
@@ -134,39 +387,76 @@ public:
 #endif
   virtual smoc_event &dataAvailableEvent(size_t n) = 0;
   virtual size_t      numAvailable() const = 0;
+
+  smoc_event &blockEvent(size_t n)
+    { return this->dataAvailableEvent(n); }  
+  size_t availableCount() const
+    { return this->numAvailable(); }
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commExec(
+      size_t n,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent)
+    { return this->commitRead(n, diiEvent); }
+#else
+  void commExec(size_t n)
+    { return this->commitRead(n); }
+#endif
+public:
   virtual size_t      inTokenId() const = 0;
 
-//  virtual const char *name() const = 0;
-
   virtual ~smoc_chan_in_base_if() {}
-
-//  const sc_port_list& getPorts() const
-//    { return ports; }
-
-private:
-  // disabled
-  smoc_chan_in_base_if(const this_type &);
-  this_type &operator =(const this_type &);
-
-//  sc_port_list ports;
 };
 
-class smoc_chan_out_base_if : public sc_interface {
+class smoc_chan_out_base_if
+: public sc_interface,
+  private boost::noncopyable {
   typedef smoc_chan_out_base_if this_type;
-public:
-  template<class> friend class smoc_port_base;
-  template<class> friend class smoc_port_out_base;
-  template<class,class> friend class smoc_chan_adapter;
+
   friend class smoc_graph_synth;
+
+  template<class,class> friend class smoc_chan_adapter;
+
+  // Friends needed for guard evaluation
+  template <class E> friend class Expr::Sensitivity;
+  template <class E> friend class Expr::CommExec;
+#ifndef NDEBUG
+  template <class E> friend class Expr::CommReset;
+  template <class E> friend class Expr::CommSetup;
+#endif
+  template <class E> friend class Expr::Value;
+public:
+  template <class PORT>
+  class PortMixin {
+  private:
+    PORT       *getImpl()
+      { return static_cast<PORT       *>(this); }
+    PORT const *getImpl() const
+      { return static_cast<PORT const *>(this); }
+  public:
+    typedef this_type chan_base_type;
+
+    typedef Expr::BinOp<
+      Expr::DComm<this_type,Expr::DLiteral<size_t> >,
+      Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
+      Expr::DOpBinLAnd>::type                 CommAndPortTokensGuard;
+    typedef Expr::PortTokens<this_type>::type PortTokensGuard;
+  public:
+    // operator(n,m) n: How many tokens to produce, m: How much space must be available
+    CommAndPortTokensGuard communicate(size_t n, size_t m) {
+      assert(m >= n);
+      return
+        Expr::comm(*getImpl(), Expr::DLiteral<size_t>(n)) &&
+        Expr::portTokens(*getImpl()) >= m;
+    }
+
+    PortTokensGuard getFreeSpace()
+      { return Expr::portTokens(*getImpl()); }
+  };
 protected:
   // constructor
   smoc_chan_out_base_if() {}
 
-  /// @brief See sc_interface
-//  void register_port(sc_port_base& p, const char* _if_ty)
-//    { ports.push_back(&p); }
-
-public:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
 #else
@@ -174,21 +464,25 @@ public:
 #endif
   virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
   virtual size_t      numFree() const = 0;
+
+  smoc_event &blockEvent(size_t n)
+    { return this->spaceAvailableEvent(n); }  
+  size_t availableCount() const
+    { return this->numFree(); }
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commExec(
+      size_t n,
+      const smoc_ref_event_p &diiEvent,
+      const smoc_ref_event_p &latEvent)
+    { return this->commitWrite(n, latEvent); }
+#else
+  void commExec(size_t n)
+    { return this->commitWrite(n); }
+#endif
+public:
   virtual size_t      outTokenId() const = 0;
-  
-//  virtual const char *name() const = 0;
 
   virtual ~smoc_chan_out_base_if() {}
-  
-//  const sc_port_list& getPorts() const
-//    { return ports; }
-
-private:
-  // disabled
-  smoc_chan_out_base_if(const this_type &);
-  this_type &operator =(const this_type &);
-  
-//  sc_port_list ports;
 };
 
 const sc_event& smoc_default_event_abort();
@@ -270,19 +564,6 @@ public:
   typedef smoc_chan_out_if<T_data_type, R_OUT, S> if_2_type;
   typedef smoc_chan_if<T_data_type,R_IN,R_OUT,S>  this_type;
   typedef T_data_type                             data_type;
-
-protected:
-  /*void register_port(sc_port_base& p, const char* _if_ty) {
-    std::string if_ty(_if_ty);
-
-    if(if_ty == typeid(if_1_type).name())
-      if_1_type::register_port(p, _if_ty);
-    else if(if_ty == typeid(if_2_type).name())
-      if_2_type::register_port(p, _if_ty);
-    else
-      assert(!"Unknown interface!");
-  }*/
-
 private:
   // disabled
   const sc_event& default_event() const

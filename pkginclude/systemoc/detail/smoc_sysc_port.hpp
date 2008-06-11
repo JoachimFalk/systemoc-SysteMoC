@@ -45,14 +45,18 @@
 
 /****************************************************************************/
 
+class smoc_channel_access_base_if;
+
 /// Class representing the integration of the SysteMoC smoc_root_port and
 /// the sc_port_base interface.
 class smoc_sysc_port
 : public smoc_root_port,
   public sc_port_base {
   typedef smoc_sysc_port this_type;
-private:
-  sc_interface *interface;
+//FIXME: HACK make protected or private
+public:
+  sc_interface                *interface;
+  smoc_channel_access_base_if *channelAccess;
   //FIXME(MS): allow more than one "IN-Port" per Signal
   smoc_sysc_port *parent, *child;
 private:

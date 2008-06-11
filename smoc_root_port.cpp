@@ -37,10 +37,10 @@
 
 smoc_root_port::~smoc_root_port() {
 }
-
+/*
 void smoc_root_port::dump( std::ostream &out ) const {
   out << "port(" << this
 //    <<      ",name=" << name()
 //    <<      ",hierarchy=" << getHierarchy()->name()
       <<      ",available=" << availableCount() << ")";
-}
+}*/

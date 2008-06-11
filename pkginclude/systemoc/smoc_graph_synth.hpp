@@ -66,9 +66,13 @@ private:
   // commit (can't steal tokens from fifo -> actor needs
   // them!)
   typedef Expr::BinOp<
-    Expr::DPortTokens<smoc_root_port>,
+    Expr::DPortTokens<smoc_chan_in_base_if>,
     ESizeT,
-    Expr::DOpBinGe>::type EPortGuard;
+    Expr::DOpBinGe>::type EPortInGuard;
+  typedef Expr::BinOp<
+    Expr::DPortTokens<smoc_chan_out_base_if>,
+    ESizeT,
+    Expr::DOpBinGe>::type EPortOutGuard;
 
   // Expression representing any other expression
   typedef Expr::Ex<bool>::type EVariant;
