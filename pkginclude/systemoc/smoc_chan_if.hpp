@@ -111,7 +111,7 @@ template <class IFACE> class smoc_port_base;
 template <class IFACE> class smoc_port_in_base;
 template <class IFACE> class smoc_port_out_base;
 
-class smoc_chan_in_base_if : public virtual sc_interface {
+class smoc_chan_in_base_if : public sc_interface {
   typedef smoc_chan_in_base_if this_type;
 public:
   template<class> friend class smoc_port_base;
@@ -151,7 +151,7 @@ private:
 //  sc_port_list ports;
 };
 
-class smoc_chan_out_base_if : public virtual sc_interface {
+class smoc_chan_out_base_if : public sc_interface {
   typedef smoc_chan_out_base_if this_type;
 public:
   template<class> friend class smoc_port_base;
