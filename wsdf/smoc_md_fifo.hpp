@@ -1134,39 +1134,47 @@ public:
     : parent_type(i) {
   }
   
-  /// @brief See smoc_root_chan
-  sc_port_list getInputPorts() const
-    { return smoc_chan_in_base_if::getPorts(); }
+  /// @brief See smoc_port_registry
+  smoc_chan_out_base_if* createEntry()
+    { /*FIXME*/return this; }
 
-  /// @brief See smoc_root_chan
-  sc_port_list getOutputPorts() const
-    { return smoc_chan_out_base_if::getPorts(); }
-
+  /// @brief See smoc_port_registry
+  smoc_chan_in_base_if* createOutlet()
+    { /*FIXME*/return this; }
+  
   template<unsigned N,template<class> class S, class Init>
-  void connect(smoc_md_port_out<data_type,N,S>& port, const Init& i) {
-    port(*this);
-    port.setFiringLevelMap(
+  void connect(smoc_md_port_out<data_type,N,S>& p, const Init& i) {
+    this_type* e =
+      dynamic_cast<this_type*>(getEntry(&p));
+    assert(e); p(*e);
+    p.setFiringLevelMap(
         i.wsdf_edge_param.calc_src_iteration_level_table());
   }
 
   template<unsigned N,template<class> class S, class Init>
-  void connect(smoc_md_iport_out<data_type,N,S>& port, const Init& i) {
-    port(*this);
-    port.setFiringLevelMap(
+  void connect(smoc_md_iport_out<data_type,N,S>& p, const Init& i) {
+    this_type* e =
+      dynamic_cast<this_type*>(getEntry(&p));
+    assert(e); p(*e);
+    p.setFiringLevelMap(
         i.wsdf_edge_param.calc_src_iteration_level_table());
   }
 
   template<unsigned N,template<class,class> class B, class Init>
-  void connect(smoc_md_port_in<data_type,N,B>& port, const Init& i) {
-    port(*this);
-    port.setFiringLevelMap(
+  void connect(smoc_md_port_in<data_type,N,B>& p, const Init& i) {
+    this_type* o =
+      dynamic_cast<this_type*>(getOutlet(&p));
+    assert(o); p(*o);
+    p.setFiringLevelMap(
         i.wsdf_edge_param.calc_snk_iteration_level_table());
   }
 
   template<unsigned N, class Init>
-  void connect(smoc_md_iport_in<data_type,N>& port, const Init& i) {
-    port(*this);
-    port.setFiringLevelMap(
+  void connect(smoc_md_iport_in<data_type,N>& p, const Init& i) {
+    this_type* o =
+      dynamic_cast<this_type*>(getOutlet(&p));
+    assert(o); p(*o);
+    p.setFiringLevelMap(
         i.wsdf_edge_param.calc_snk_iteration_level_table());
   }
 

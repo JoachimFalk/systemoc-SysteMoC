@@ -45,6 +45,8 @@
 #include "../smoc_event.hpp"
 #include "../smoc_pggen.hpp"
 #include "../smoc_storage.hpp"
+#include "../smoc_chan_if.hpp"
+#include "smoc_port_registry.hpp"
 
 #include <systemc.h>
 
@@ -60,7 +62,9 @@ namespace Detail {
 #endif // SYSTEMOC_ENABLE_VPC
 
 class smoc_root_chan
-: public sc_prim_channel {
+: public sc_prim_channel,
+  public smoc_port_registry
+{
   typedef smoc_root_chan this_type;
 private:
   friend class smoc_graph_base;
@@ -91,11 +95,6 @@ protected:
 public:
   const char *name() const { return myName.c_str(); }
  
-  // FIXME: these methods should really be interface
-  // methods ONLY, but we want to call them in finalise
-  virtual sc_port_list getInputPorts() const = 0;
-  virtual sc_port_list getOutputPorts() const = 0;
-
   virtual ~smoc_root_chan();
 };
 

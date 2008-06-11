@@ -123,8 +123,8 @@ protected:
   smoc_chan_in_base_if() {}
   
   /// @brief See sc_interface
-  void register_port(sc_port_base& p, const char* _if_ty)
-    { ports.push_back(&p); }
+//  void register_port(sc_port_base& p, const char* _if_ty)
+//    { ports.push_back(&p); }
 
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -140,15 +140,15 @@ public:
 
   virtual ~smoc_chan_in_base_if() {}
 
-  const sc_port_list& getPorts() const
-    { return ports; }
+//  const sc_port_list& getPorts() const
+//    { return ports; }
 
 private:
   // disabled
   smoc_chan_in_base_if(const this_type &);
   this_type &operator =(const this_type &);
 
-  sc_port_list ports;
+//  sc_port_list ports;
 };
 
 class smoc_chan_out_base_if : public virtual sc_interface {
@@ -163,8 +163,8 @@ protected:
   smoc_chan_out_base_if() {}
 
   /// @brief See sc_interface
-  void register_port(sc_port_base& p, const char* _if_ty)
-    { ports.push_back(&p); }
+//  void register_port(sc_port_base& p, const char* _if_ty)
+//    { ports.push_back(&p); }
 
 public:
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -180,15 +180,15 @@ public:
 
   virtual ~smoc_chan_out_base_if() {}
   
-  const sc_port_list& getPorts() const
-    { return ports; }
+//  const sc_port_list& getPorts() const
+//    { return ports; }
 
 private:
   // disabled
   smoc_chan_out_base_if(const this_type &);
   this_type &operator =(const this_type &);
   
-  sc_port_list ports;
+//  sc_port_list ports;
 };
 
 const sc_event& smoc_default_event_abort();
@@ -272,7 +272,7 @@ public:
   typedef T_data_type                             data_type;
 
 protected:
-  void register_port(sc_port_base& p, const char* _if_ty) {
+  /*void register_port(sc_port_base& p, const char* _if_ty) {
     std::string if_ty(_if_ty);
 
     if(if_ty == typeid(if_1_type).name())
@@ -281,7 +281,7 @@ protected:
       if_2_type::register_port(p, _if_ty);
     else
       assert(!"Unknown interface!");
-  }
+  }*/
 
 private:
   // disabled
