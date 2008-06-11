@@ -29,14 +29,17 @@
 #include "wsdf_rot180.hpp"
 #include "wsdf_rot180_ex.hpp"
 
+#include <CoSupport/DataTypes/SerializeHelper.hpp>
+
 #define CAPTURE_DILATATION
 //#define LARGE_BUFFER_SIZE
 //#define BLOCK_ROTATION
 
 
 using namespace std;
+using CoSupport::DataTypes::Byte;
 
-template <typename T = unsigned char>
+template <typename T = Byte>
 class m_recons 
 	: public smoc_graph {
 

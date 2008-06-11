@@ -23,14 +23,16 @@
 #include "wsdf_2D_dup2.hpp"
 #include "wsdf_1dil.hpp"
 #include "wsdf_output_switch.hpp"
+#include <CoSupport/DataTypes/SerializeHelper.hpp>
 
 #define CAPTURE_DILATATION
 #define LARGE_BUFFER_SIZE
 
 
 using namespace std;
+using CoSupport::DataTypes::Byte;
 
-template <typename T = unsigned char>
+template <typename T = Byte>
 class m_recons 
 	: public smoc_graph {
 
