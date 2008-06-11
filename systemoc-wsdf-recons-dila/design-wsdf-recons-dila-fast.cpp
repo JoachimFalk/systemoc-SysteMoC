@@ -247,7 +247,7 @@ public:
 	
 };
 
-template <typename T = unsigned char>
+template <typename T = Byte>
 class m_top
 	: public smoc_graph 
 {
@@ -287,7 +287,7 @@ int sc_main (int argc, char **argv) {
 		return -1;
 	}
 
-  smoc_top_moc<m_top<unsigned char> > top("top", argv[1],argv[2],argv[3]);
+  smoc_top_moc<m_top<Byte> > top("top", argv[1],argv[2],argv[3]);
   
   sc_start();
 

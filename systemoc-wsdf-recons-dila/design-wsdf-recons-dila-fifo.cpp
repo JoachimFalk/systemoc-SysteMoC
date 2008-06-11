@@ -52,7 +52,7 @@ public:
 	
 };
 
-template <typename T = unsigned char>
+template <typename T = Byte>
 class m_top
 	: public smoc_graph 
 {
