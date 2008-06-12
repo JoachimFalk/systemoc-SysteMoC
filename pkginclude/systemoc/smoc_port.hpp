@@ -110,14 +110,14 @@ protected:
     sc_interface *iface = this->get_interface();
     if (iface == NULL)
       this->report_error(SC_ID_GET_IF_, "port is not bound");
-    return dynamic_cast<iface_type *>(iface);
+    return static_cast<iface_type *>(iface);
   }
 
   iface_type const *operator -> () const {
     const sc_interface *iface = this->get_interface();
     if (iface == NULL)
       this->report_error(SC_ID_GET_IF_, "port is not bound");
-    return dynamic_cast<iface_type const *>(iface);
+    return static_cast<iface_type const *>(iface);
   }
 public:
   /// @brief bind interface to this port

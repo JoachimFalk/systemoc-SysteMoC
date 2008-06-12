@@ -408,6 +408,32 @@ public:
   virtual ~smoc_chan_in_base_if() {}
 };
 
+template <class INTERFACE, class DERIVED, class IMPL>
+class smoc_chan_in_base_redirector
+: public INTERFACE {
+private:
+  // This does a static cross cast
+  IMPL        *getImpl()
+    { return static_cast<DERIVED *>(this); }
+  IMPL const *getImpl() const
+    { return static_cast<DERIVED const *>(this); }
+protected:
+#ifdef SYSTEMOC_ENABLE_VPC
+  void        commitRead(size_t consume, const smoc_ref_event_p &e)
+    { return getImpl()->commitRead(consume, e); }
+#else
+  void        commitRead(size_t consume)
+    { return getImpl()->commitRead(consume); }
+#endif
+  smoc_event &dataAvailableEvent(size_t n)
+    { return getImpl()->dataAvailableEvent(n); }
+  size_t      numAvailable() const
+    { return getImpl()->numAvailable(); }
+
+  size_t      inTokenId() const
+    { return getImpl()->inTokenId(); }
+};
+
 class smoc_chan_out_base_if
 : public sc_interface,
   private boost::noncopyable {
@@ -485,13 +511,39 @@ public:
   virtual ~smoc_chan_out_base_if() {}
 };
 
+template <class INTERFACE, class DERIVED, class IMPL>
+class smoc_chan_out_base_redirector
+: public INTERFACE {
+private:
+  // This does a static cross cast
+  IMPL       *getImpl()
+    { return static_cast<DERIVED *>(this); }
+  IMPL const *getImpl() const
+    { return static_cast<DERIVED const *>(this); }
+protected:
+#ifdef SYSTEMOC_ENABLE_VPC
+  void        commitWrite(size_t produce, const smoc_ref_event_p &e)
+    { return getImpl()->commitWrite(produce, e); }
+#else
+  void        commitWrite(size_t produce)
+    { return getImpl()->commitWrite(produce); }
+#endif
+  smoc_event &spaceAvailableEvent(size_t n)
+    { return getImpl()->spaceAvailableEvent(n); }
+  size_t      numFree() const
+    { return getImpl()->numFree(); }
+
+  size_t      outTokenId() const
+    { return getImpl()->outTokenId(); }
+};
+
 const sc_event& smoc_default_event_abort();
 
 template <
   typename T,                                     // data type
   template <typename> class R>                    // ring access type
 class smoc_chan_in_if
-: virtual public smoc_chan_in_base_if {
+: public smoc_chan_in_base_if {
 public:
   // typedefs
   typedef smoc_chan_in_if<T,R>                  this_type;
@@ -520,7 +572,7 @@ template <
   template <typename> class R,                    // ring access type
   template <typename> class S = smoc_storage_out> // smoc_storage
 class smoc_chan_out_if
-: virtual public smoc_chan_out_base_if {
+: public smoc_chan_out_base_if {
 public:
   // typedefs
   typedef smoc_chan_out_if<T,R,S> this_type;

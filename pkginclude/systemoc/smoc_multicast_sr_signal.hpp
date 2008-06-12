@@ -110,8 +110,7 @@ private:
 };
 
 
-class smoc_multicast_outlet_base
-: virtual public smoc_chan_in_base_if {
+class smoc_multicast_outlet_base {
   friend class smoc_graph_sr;
 public:
   /// @brief Constructor
@@ -156,8 +155,7 @@ private:
   Detail::EventMapManager emm;
 };
 
-class smoc_multicast_entry_base
-: virtual public smoc_chan_out_base_if {
+class smoc_multicast_entry_base {
   friend class smoc_graph_sr;
 public:
   /// @brief Constructor

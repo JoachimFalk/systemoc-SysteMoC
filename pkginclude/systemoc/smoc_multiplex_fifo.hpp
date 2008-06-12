@@ -209,10 +209,8 @@ protected:
   }
 };
 
-class smoc_multiplex_vfifo_outlet_base
-: public virtual smoc_chan_in_base_if
-{
-public:
+class smoc_multiplex_vfifo_outlet_base {
+  template <class X, class Y, class Z> friend class smoc_chan_in_base_redirector;
 protected:
   /// @brief Constructor
   smoc_multiplex_vfifo_outlet_base(smoc_multiplex_vfifo_chan_base &chan)
@@ -255,10 +253,8 @@ private:
   smoc_multiplex_vfifo_chan_base &chan;
 };
 
-class smoc_multiplex_vfifo_entry_base
-: public virtual smoc_chan_out_base_if
-{
-public:
+class smoc_multiplex_vfifo_entry_base {
+  template <class X, class Y, class Z> friend class smoc_chan_out_base_redirector;
 protected:
   /// @brief Constructor
   smoc_multiplex_vfifo_entry_base(smoc_multiplex_vfifo_chan_base &chan)
@@ -307,7 +303,11 @@ template<class> class smoc_multiplex_vfifo_chan;
 template<class T>
 class smoc_multiplex_vfifo_outlet
 : public smoc_multiplex_vfifo_outlet_base,
-  public smoc_chan_in_if<T,smoc_channel_access_if>
+  public smoc_chan_in_base_redirector<
+    smoc_chan_in_if<T,smoc_channel_access_if>,
+    smoc_multiplex_vfifo_outlet<T>,
+    smoc_multiplex_vfifo_outlet_base
+  >
 {
 public:
   typedef smoc_multiplex_vfifo_outlet<T> this_type;
@@ -334,7 +334,11 @@ private:
 template<class T>
 class smoc_multiplex_vfifo_entry
 : public smoc_multiplex_vfifo_entry_base,
-  public smoc_chan_out_if<T,smoc_channel_access_if>
+  public smoc_chan_out_base_redirector<
+    smoc_chan_out_if<T,smoc_channel_access_if>,
+    smoc_multiplex_vfifo_entry<T>,
+    smoc_multiplex_vfifo_entry_base
+  >
 {
 public:
   typedef smoc_multiplex_vfifo_entry<T> this_type;
