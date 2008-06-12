@@ -128,7 +128,8 @@ void smoc_root_chan::finalise() {
     getFastLink(myName, "1") );
   assert(vpcLink);
 
-  //FIXME: Workaround for quickhack (see getParentPort below)
+  // FIXME: root channel does not know how many outlets a channel should have
+  // (move this to smoc_nonconflicting_chan?)
   if(!getOutlets().empty()) {
 
     //FIXME: QUICKHACK:
