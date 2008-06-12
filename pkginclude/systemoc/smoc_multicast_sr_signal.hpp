@@ -207,10 +207,10 @@ class smoc_multicast_sr_signal_chan;
 
 template <typename T>
 class smoc_multicast_outlet
-  : public smoc_chan_in_if<T,smoc_channel_access>,
+  : public smoc_chan_in_if<T,smoc_channel_access_if>,
     public smoc_multicast_outlet_base,
-    public smoc_channel_access<
-      typename smoc_chan_in_if<T,smoc_channel_access>::access_type::return_type>
+    public smoc_channel_access_if<
+      typename smoc_chan_in_if<T,smoc_channel_access_if>::access_type::return_type>
 {
 public:
   typedef T                                       data_type;
@@ -218,7 +218,7 @@ public:
   typedef smoc_multicast_outlet<data_type>        this_type;
   typedef typename this_type::access_in_type      ring_in_type;
   typedef typename this_type::return_type         return_type;
-  typedef smoc_chan_in_if<T,smoc_channel_access>  iface_type;
+  typedef smoc_chan_in_if<T,smoc_channel_access_if>  iface_type;
   
   /// @brief Constructor
   smoc_multicast_outlet(smoc_multicast_sr_signal_chan<T>* chan)
@@ -230,19 +230,19 @@ public:
   ring_in_type* getReadChannelAccess()
     { return this; }
   
-  /// @brief See smoc_channel_access
+  /// @brief See smoc_channel_access_if
   return_type operator[](size_t n)
     { return chan->actualValue; }
 
-  /// @brief See smoc_channel_access
+  /// @brief See smoc_channel_access_if
   const return_type operator[](size_t n) const
     { return chan->actualValue; }
   
-  /// @brief See smoc_channel_access
+  /// @brief See smoc_channel_access_if
   bool tokenIsValid(size_t i) const
     { return chan->isDefined(); }
 
-  /// @brief See smoc_channel_access
+  /// @brief See smoc_channel_access_if
   void setLimit(size_t l)
     { limit = l; }
 
@@ -256,10 +256,10 @@ private:
 
 template <typename T>
 class smoc_multicast_entry
-  : public smoc_chan_out_if<T,smoc_channel_access>,
+  : public smoc_chan_out_if<T,smoc_channel_access_if>,
     public smoc_multicast_entry_base,
-    public smoc_channel_access<
-      typename smoc_chan_out_if<T,smoc_channel_access>::access_type::return_type>
+    public smoc_channel_access_if<
+      typename smoc_chan_out_if<T,smoc_channel_access_if>::access_type::return_type>
 {
 public:
   typedef T                                       data_type;
@@ -267,7 +267,7 @@ public:
   typedef smoc_storage<data_type>                 storage_type;
   typedef typename this_type::access_out_type     ring_out_type;
   typedef typename this_type::return_type         return_type;
-  typedef smoc_chan_out_if<T,smoc_channel_access> iface_type;
+  typedef smoc_chan_out_if<T,smoc_channel_access_if> iface_type;
   
   /// @brief Constructor
   smoc_multicast_entry(smoc_multicast_sr_signal_chan<T>* chan)
@@ -279,19 +279,19 @@ public:
   ring_out_type* getWriteChannelAccess()
     { return this; }
 
-  /// @brief See smoc_channel_access
+  /// @brief See smoc_channel_access_if
   return_type operator[](size_t n)
     { return chan->actualValue; }
 
-  /// @brief See smoc_channel_access
+  /// @brief See smoc_channel_access_if
   const return_type operator[](size_t n) const
     { return chan->actualValue; }
   
-  /// @brief See smoc_channel_access
+  /// @brief See smoc_channel_access_if
   bool tokenIsValid(size_t i) const
     { return chan->isDefined(); }
 
-  /// @brief See smoc_channel_access
+  /// @brief See smoc_channel_access_if
   void setLimit(size_t l)
     { limit = l; }
 

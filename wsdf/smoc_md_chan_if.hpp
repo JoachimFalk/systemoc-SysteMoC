@@ -6,40 +6,37 @@
 
 #include "smoc_md_loop.hpp"
 
+#include "smoc_chan_if.hpp"
+
 
 /// Interface for multi-dimensional channel access
 /// This interface is used by the multi-dimensional ports
 /// in order to access the data stored in the FIFO
 template<class T>
-class smoc_md_src_channel_access {
+class smoc_md_src_channel_access_if
+: public smoc_channel_access_base_if {
 public:
-                
+
   typedef T  return_type; 
 
   //Iteration vector
   typedef smoc_md_loop_iterator_kind::data_type iteration_type;
   typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
-                
+
 public:
-  
-#ifndef NDEBUG          
-  virtual void setLimit(size_t limit) = 0;
-#endif
-    
   /* Data Element Access */
   virtual return_type operator[](const iter_domain_vector_type& window_iteration) = 0;
   virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const = 0;
 
   /// Returns the value of the loop iterator for the given iteration level
   virtual iteration_type iteration(size_t iteration_level) const = 0;
-
-  virtual ~smoc_md_src_channel_access() {}
 };
 
 template<class T>
-class smoc_md_snk_channel_access {
+class smoc_md_snk_channel_access_if
+: public smoc_channel_access_base_if {
 public:
-                
+
   typedef T  return_type; 
 
   //Iteration vector
@@ -52,11 +49,6 @@ public:
   typedef smoc_snk_md_loop_iterator_kind::border_type_vector_type border_type_vector_type;
                 
 public:
-  
-#ifndef NDEBUG          
-  virtual void setLimit(size_t limit) = 0;
-#endif
-    
   /* Data Element Access */
   virtual return_type operator[](const iter_domain_vector_type& window_iteration) = 0;
   virtual const return_type operator[](const iter_domain_vector_type& window_iteration) const = 0;
@@ -70,9 +62,6 @@ public:
   /// Check, whether data element is situated on extended border
   virtual border_type_vector_type is_ext_border(const iter_domain_vector_type& window_iteration,
 						bool& is_border) const = 0;
-
-  virtual ~smoc_md_snk_channel_access() {}
 };
-
 
 #endif

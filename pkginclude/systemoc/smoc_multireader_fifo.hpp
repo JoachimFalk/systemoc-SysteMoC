@@ -256,12 +256,12 @@ template<class> class smoc_multireader_fifo_chan;
 template<class T>
 class smoc_multireader_fifo_outlet
 : public smoc_multireader_fifo_outlet_base,
-  public smoc_chan_in_if<T,smoc_channel_access>
+  public smoc_chan_in_if<T,smoc_channel_access_if>
 {
 public:
   typedef smoc_multireader_fifo_outlet<T> this_type;
   typedef typename this_type::access_type access_type; 
-  typedef smoc_chan_in_if<T,smoc_channel_access> iface_type;
+  typedef smoc_chan_in_if<T,smoc_channel_access_if> iface_type;
 
   /// @brief Constructor
   smoc_multireader_fifo_outlet(smoc_multireader_fifo_chan<T>& chan)
@@ -285,12 +285,12 @@ private:
 template<class T>
 class smoc_multireader_fifo_entry
 : public smoc_multireader_fifo_entry_base,
-  public smoc_chan_out_if<T,smoc_channel_access>
+  public smoc_chan_out_if<T,smoc_channel_access_if>
 {
 public:
   typedef smoc_multireader_fifo_entry<T> this_type;
   typedef typename this_type::access_type access_type; 
-  typedef smoc_chan_out_if<T,smoc_channel_access> iface_type;
+  typedef smoc_chan_out_if<T,smoc_channel_access_if> iface_type;
 
   /// @brief Constructor
   smoc_multireader_fifo_entry(smoc_multireader_fifo_chan<T>& chan)

@@ -45,16 +45,29 @@
 
 /****************************************************************************/
 
+class smoc_channel_access_base_if;
+
 /// Class representing the integration of the SysteMoC smoc_root_port and
 /// the sc_port_base interface.
 class smoc_sysc_port
 : public smoc_root_port,
   public sc_port_base {
   typedef smoc_sysc_port this_type;
-private:
-  //sc_interface *interface;
+//FIXME: HACK make protected or private
+public:
+  sc_interface                *interface;
+  smoc_channel_access_base_if *channelAccess;
   //FIXME(MS): allow more than one "IN-Port" per Signal
   smoc_sysc_port *parent, *child;
+private:
+  // SystemC 2.2 requires this method
+  // (must also return the correct number!!!)
+  int interface_count() { return interface ? 1 : 0; }
+
+  void add_interface(sc_interface *_i) {
+    assert(interface == NULL && _i != NULL);
+    interface = _i;
+  }
 protected:
   smoc_sysc_port(const char* name_);
 
@@ -73,6 +86,10 @@ protected:
 
   virtual ~smoc_sysc_port();
 public:
+  // get the first interface without checking for nil
+  sc_interface       *get_interface()       { return interface; }
+  sc_interface const *get_interface() const { return interface; }
+
   smoc_sysc_port *getParentPort() const
     { return parent; }
   smoc_sysc_port *getChildPort() const
