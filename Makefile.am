@@ -70,8 +70,6 @@ libsystemoc_la_LDFLAGS =				\
 	-no-undefined 					\
 	-lsystemc 					\
 	-lboost_program_options@BOOST_LIBPOSTFIX@
-libsystemoc_la_DEPENDENCIES = 				\
-	compileheader-libsystemoc.stamp
 libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libsystemoc_la_LIBADD = 				\
 	$(libsystemoc_CH_LTOBJS)			\
@@ -82,6 +80,9 @@ libsystemoc_la_LIBADD = 				\
 if SYSTEMOC_ENABLE_VPC
 libsystemoc_la_LIBADD += $(pkg_systemc_vpc_builddir)/libsystemcvpc.la
 endif
+libsystemoc_la_DEPENDENCIES = 				\
+	compileheader-libsystemoc.stamp			\
+	$(libsystemoc_la_LIBADD)
 
 libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\
