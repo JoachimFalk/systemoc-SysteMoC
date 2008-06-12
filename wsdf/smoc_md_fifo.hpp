@@ -807,8 +807,8 @@ template <typename T_DATA_TYPE,
 class smoc_md_fifo_storage
   : public smoc_chan_if</*smoc_md_fifo_kind<BUFFER_CLASS>,*/
                         T_DATA_TYPE,
-                        smoc_md_snk_channel_access,
-                        smoc_md_src_channel_access,
+                        smoc_md_snk_channel_access_if,
+                        smoc_md_src_channel_access_if,
                         STORAGE_OUT_TYPE
                        >,
       public smoc_md_fifo_kind<BUFFER_CLASS> 
@@ -931,8 +931,8 @@ template <class BUFFER_CLASS,
 class smoc_md_fifo_storage<void,BUFFER_CLASS,STORAGE_OUT_TYPE>
   : public smoc_chan_if</*smoc_md_fifo_kind<BUFFER_CLASS>,*/
                         void,
-                        smoc_md_snk_channel_access,
-                        smoc_md_src_channel_access,
+                        smoc_md_snk_channel_access_if,
+                        smoc_md_src_channel_access_if,
                         STORAGE_OUT_TYPE
                        >,
       public smoc_md_fifo_kind<BUFFER_CLASS>
