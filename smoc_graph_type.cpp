@@ -405,8 +405,8 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
           sc_interface *iface = (*iter)->get_interface();
           if( !(*iter)->isInput() ) {
 
-            smoc_entry_kind* mc_sig = dynamic_cast<
-              class smoc_entry_kind* >(&(*iface));
+            smoc_multicast_entry_base* mc_sig = dynamic_cast<
+              smoc_multicast_entry_base*>(iface);
 
             if(NULL != mc_sig){
               mc_sig->multipleWriteSameValue(true);
@@ -415,8 +415,8 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
             assert( NULL != mc_sig );
             //      cerr << " (out port) " << iface << endl;;
           }else if( (*iter)->isInput() ){
-            smoc_outlet_kind* mc_sig =
-              dynamic_cast<class smoc_outlet_kind* >(&(*iface));
+            smoc_multicast_outlet_base* mc_sig =
+              dynamic_cast<smoc_multicast_outlet_base*>(iface);
 
             if(NULL != mc_sig){
               mc_sig->allowUndefinedRead(true);
@@ -819,8 +819,8 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
                   iter != cs.end();
                   ++iter ){
               // "tick()" each block
-              smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
-                class smoc_multicast_sr_signal_kind* >((*iter));
+              smoc_multicast_sr_signal_chan_base* mc_sig = dynamic_cast<
+                smoc_multicast_sr_signal_chan_base* >(*iter);
 
               if(NULL != mc_sig){
                 mc_sig->tick();
@@ -864,8 +864,8 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
                 iter != cs.end();
                 ++iter ){
             // "tick()" each block
-            smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
-              class smoc_multicast_sr_signal_kind* >((*iter));
+            smoc_multicast_sr_signal_chan_base* mc_sig = dynamic_cast<
+              smoc_multicast_sr_signal_chan_base* >(*iter);
           
             if(NULL != mc_sig){
               mc_sig->tick();
@@ -917,8 +917,8 @@ size_t smoc_graph_sr::countDefinedInports(smoc_root_node &n){
       iter != ps.end(); iter++){
     sc_interface *iface = (*iter)->get_interface();
     if( (*iter)->isInput() ) {
-      smoc_outlet_kind* mc_sig = dynamic_cast<
-  class smoc_outlet_kind* >(&(*iface));
+      smoc_multicast_outlet_base* mc_sig = dynamic_cast<
+        smoc_multicast_outlet_base*>(iface);
 
       if(NULL != mc_sig){
   if(mc_sig->isDefined()) definedInPorts++;
@@ -937,8 +937,8 @@ size_t smoc_graph_sr::countDefinedOutports(smoc_root_node &n){
       iter != ps.end(); iter++){
     sc_interface *iface = (*iter)->get_interface();
    if( !(*iter)->isInput() ) {
-      smoc_entry_kind* mc_sig = dynamic_cast<
-  class smoc_entry_kind* >(&(*iface));
+      smoc_multicast_entry_base* mc_sig = dynamic_cast<
+        smoc_multicast_entry_base*>(iface);
 
       if(NULL != mc_sig){
   if(mc_sig->isDefined()) definedOutPorts++;

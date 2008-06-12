@@ -24,165 +24,183 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-smoc_outlet_kind::smoc_outlet_kind(smoc_multicast_sr_signal_kind* base)
-  : undefinedRead(false),
-    _base(base) {
-  assert(this->_base);
-}
+smoc_multicast_outlet_base::smoc_multicast_outlet_base(smoc_multicast_sr_signal_chan_base* chan)
+  : chan(chan),
+    undefinedRead(false)
+{}
 
-void smoc_outlet_kind::allowUndefinedRead(bool allow){
+void smoc_multicast_outlet_base::allowUndefinedRead(bool allow) {
   undefinedRead = allow;
-  this->_base->unusedDecr();
+  chan->unusedDecr();
   usedIncr();
 }
 
-size_t smoc_outlet_kind::usedStorage() const {
-  size_t ret;
-  if(undefinedRead) ret = 1;
-  else              ret = (this->_base->getSignalState() == undefined)?0:1;
-  return ret;
+size_t smoc_multicast_outlet_base::numAvailable() const {
+  if(undefinedRead || chan->getSignalState() != undefined)
+    return 1;
+  else
+    return 0;
 }
 
-void smoc_outlet_kind::usedIncr() {
-  size_t used = usedStorage();
-  // notify all disabled events for less/equal usedStorage() available tokens
-  for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
-       iter != eventMapAvailable.begin() && !*(--iter)->second;
-       ){
-    iter->second->notify();
-  }
-  eventWrite.notify();
+void smoc_multicast_outlet_base::usedIncr() {
+  emm.increasedCount(numAvailable());
 }
 
-smoc_event &smoc_outlet_kind::getEventAvailable(size_t n) {
+void smoc_multicast_outlet_base::usedDecr() {
+  emm.decreasedCount(numAvailable());
+}
+
+smoc_event &smoc_multicast_outlet_base::dataAvailableEvent(size_t n) {
   assert(n <= 1);
-  if (n != MAX_TYPE(size_t)) {
-    EventMap::iterator iter = eventMapAvailable.find(n);
-    if (iter == eventMapAvailable.end()) {
-      iter = eventMapAvailable.insert(EventMap::value_type(n, new smoc_event())).first;
-      if (usedStorage() >= n)
-  iter->second->notify();
-    }
-    return *iter->second;
-  } else {
-    return eventWrite;
-  }
+  return emm.getEvent(numAvailable(), n);
 }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-void smoc_outlet_kind::wpp(size_t n, const smoc_ref_event_p &le)
-#else
-  void smoc_outlet_kind::wpp(size_t n)
-#endif
-{
+/*void smoc_multicast_outlet_base::wpp(size_t n) {
   assert(n <= 1);
-    
-  this->_base->setSignalState(defined);
-  this->_base->unusedDecr();
+  chan->setSignalState(defined);
+  chan->unusedDecr();
   usedIncr();
-}
+}*/
 
-void smoc_outlet_kind::usedDecr() {
-  size_t used = usedStorage();
-  // reset all enabled events for more then usedStorage() available tokens
-  for (EventMap::const_iterator iter = eventMapAvailable.upper_bound(used);
-       iter != eventMapAvailable.end() && *iter->second;
-       ++iter)
-    iter->second->reset();
-}
-
-bool smoc_outlet_kind::isDefined() const {
-  return this->_base->isDefined();
+bool smoc_multicast_outlet_base::isDefined() const {
+  return chan->isDefined();
 }
 
 
+smoc_multicast_entry_base::smoc_multicast_entry_base(smoc_multicast_sr_signal_chan_base* chan)
+  : chan(chan),
+    multipleWrite(false)
+{}
 
-
-
-
-smoc_entry_kind::smoc_entry_kind(smoc_multicast_sr_signal_kind* base)
-  : multipleWrite(false),
-    _base(base) {
-  assert(this->_base);
-}
-
-void smoc_entry_kind::multipleWriteSameValue(bool allow){
+void smoc_multicast_entry_base::multipleWriteSameValue(bool allow) {
   multipleWrite = allow;
 }
-void smoc_entry_kind::unusedIncr() {
-  size_t unused = unusedStorage();
-  // notify all disabled events for less/equal unusedStorage() free space
-  for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
-       iter != eventMapFree.begin() && !*(--iter)->second;
-       )
-    iter->second->notify();
-  eventRead.notify();
+
+size_t smoc_multicast_entry_base::numFree() const {
+  if(multipleWrite || chan->getSignalState() == undefined)
+    return 1;
+  else
+    return 0;
 }
 
-size_t smoc_entry_kind::unusedStorage() const {
-  if(multipleWrite) return 1;
-  else              return (this->_base->getSignalState() == undefined)?1:0;
+void smoc_multicast_entry_base::unusedIncr() {
+  emm.increasedCount(numFree());
 }
 
-void smoc_entry_kind::unusedDecr() {
-  size_t unused = unusedStorage();
-  // reset all enabled events for more then unusedStorage() free space
-  for (EventMap::const_iterator iter = eventMapFree.upper_bound(unused);
-       iter != eventMapFree.end() && *iter->second;
-       ++iter)
-    iter->second->reset();
+
+void smoc_multicast_entry_base::unusedDecr() {
+  emm.decreasedCount(numFree());
 }
 
-void smoc_entry_kind::rpp(size_t n) {
+smoc_event &smoc_multicast_entry_base::spaceAvailableEvent(size_t n) {
+  assert(n <= 1);
+  return emm.getEvent(numFree(), n);
+}
+
+/*void smoc_multicast_entry_base::rpp(size_t n) {
   assert(n <= 1);
   // non-destructive read -> suppress "usedDecr(); unusedIncr();" 
+}*/
+
+bool smoc_multicast_entry_base::isDefined() const {
+  return chan->isDefined();
 }
 
-smoc_event &smoc_entry_kind::getEventFree(size_t n) {
-  assert(n <= 1);
-  if (n != MAX_TYPE(size_t)) {
-    EventMap::iterator iter = eventMapFree.find(n);
-    if (iter == eventMapFree.end()) {
-      iter = eventMapFree.insert(EventMap::value_type(n, new smoc_event())).first;
-      if (unusedStorage() >= n)
-  iter->second->notify();
-    }
-    return *iter->second;
-  } else {
-    return eventRead;
-  }
-}
+smoc_multicast_sr_signal_chan_base::chan_init::chan_init(
+    const std::string& name, size_t n)
+  : name(name), n(n)
+{}
 
-bool smoc_entry_kind::isDefined() const {
-  return this->_base->isDefined();
-}
-
-
-
-smoc_multicast_sr_signal_kind::chan_init::chan_init(const char *name,
-                size_t n )
-  : name(name), n(n) {}
-SignalState smoc_multicast_sr_signal_kind::getSignalState() const {
+SignalState smoc_multicast_sr_signal_chan_base::getSignalState() const {
   return signalState;
 }
 
-void smoc_multicast_sr_signal_kind::setSignalState(SignalState s) {
+void smoc_multicast_sr_signal_chan_base::setSignalState(SignalState s) {
   signalState = s;
 }
 
-void smoc_multicast_sr_signal_kind::channelAttributes(
+void smoc_multicast_sr_signal_chan_base::channelAttributes(
     smoc_modes::PGWriter &pgw) const {
   // Signal has no size!!
   // pgw << "<attribute type=\"size\" value=\"1\"/>" << std::endl;
 }
 
-smoc_multicast_sr_signal_kind::smoc_multicast_sr_signal_kind(
+smoc_multicast_sr_signal_chan_base::smoc_multicast_sr_signal_chan_base(
     const chan_init &i)
   : smoc_multicast_chan(i.name),
     signalState(undefined),
     tokenId(0){
 }
+
+void smoc_multicast_sr_signal_chan_base::wpp(size_t n) {
+  // factored out from smoc_multicast_entry_base::commitWrite 
+  if(!isValid()) return;
+
+  // factored out from smoc_multicast_entry_base::rpp
+  assert(n <= 1);
+  signalState = defined;
+
+  unusedDecr(); usedIncr();
+}
+
+void smoc_multicast_sr_signal_chan_base::rpp(size_t n) {
+  // factored out from smoc_multicast_outlet_base::wpp
+  assert(n <= 1);
   
-bool smoc_multicast_sr_signal_kind::isDefined() const {
+  // non-destructive read -> suppress "usedDecr(); unusedIncr();" 
+}
+  
+bool smoc_multicast_sr_signal_chan_base::isDefined() const {
   return (signalState == defined);
+}
+  
+void smoc_multicast_sr_signal_chan_base::tick() {
+  bool needUpdate = (signalState != undefined);
+  signalState = undefined;
+  reset();
+  tokenId++;
+  if(needUpdate) {
+    // update events (storage state changed)
+    usedDecr(); unusedIncr();
+  }
+}
+  
+void smoc_multicast_sr_signal_chan_base::usedDecr() {
+  for(OutletMap::const_iterator iter = getOutlets().begin();
+      iter != getOutlets().end();
+      ++iter)
+  {
+    dynamic_cast<smoc_multicast_outlet_base*>
+      (iter->second)->usedDecr();
+  }
+}
+
+void smoc_multicast_sr_signal_chan_base::usedIncr() {
+  for(OutletMap::const_iterator iter = getOutlets().begin();
+      iter != getOutlets().end();
+      ++iter)
+  {
+    dynamic_cast<smoc_multicast_outlet_base*>
+      (iter->second)->usedIncr();
+  }
+}
+
+void smoc_multicast_sr_signal_chan_base::unusedDecr() {
+  for(EntryMap::const_iterator iter = getEntries().begin();
+      iter != getEntries().end();
+      ++iter)
+  {
+    dynamic_cast<smoc_multicast_entry_base*>
+      (iter->second)->unusedIncr();
+  }
+}
+
+void smoc_multicast_sr_signal_chan_base::unusedIncr() {
+  for(EntryMap::const_iterator iter = getEntries().begin();
+      iter != getEntries().end();
+      ++iter)
+  {
+    dynamic_cast<smoc_multicast_entry_base*>
+      (iter->second)->unusedDecr();
+  }
 }

@@ -52,7 +52,7 @@
 
 #include "hscd_tdsim_TraceLog.hpp"
 
-/// IFACE: interface type
+/// IFACE: interface type (this is basically sc_port_b<IFACE>)
 template <typename IFACE>
 class smoc_port_base
 : public smoc_sysc_port,
@@ -66,7 +66,8 @@ public:
   typedef typename iface_type::data_type    data_type;
   typedef typename access_type::return_type return_type;
 private:
-  const char *if_typename() const { return typeid(iface_type).name(); }
+  const char *if_typename() const
+    { return typeid(iface_type).name(); }
 
   // called by pbind (for internal use only)
   int vbind(sc_interface &interface_) {
@@ -118,21 +119,20 @@ protected:
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return dynamic_cast<iface_type const *>(iface);
   }
-
 public:
   /// @brief bind interface to this port
   /// This bounce function changes the visibility
   /// level of the bind method with a concrete
   /// interface to public (See smoc_sysc_port::bind).
   void bind(iface_type &interface_)
-    { return base_type::bind(interface_); }
+    { base_type::bind(interface_); }
 
   /// @brief bind parent port to this port
   /// This bounce function changes the visibility
   /// level of the bind method with a concrete
   /// port to public (See smoc_sysc_port::bind).
   void bind(this_type &parent_)
-    { return base_type::bind(parent_); }
+    { base_type::bind(parent_); }
 
   // reflect operator () to channel interface
   typename this_type::CommAndPortTokensGuard operator ()(size_t n, size_t m)
