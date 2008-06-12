@@ -45,6 +45,7 @@
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
+#include "smoc_fifo.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_ring_access.hpp"
 #include "detail/EventMapManager.hpp"
@@ -67,7 +68,7 @@
 
 class smoc_multiplex_vfifo_chan_base;
 
-class smoc_multiplex_fifo_chan
+class smoc_multiplex_fifo_chan_base
 : private boost::noncopyable,
   public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -83,12 +84,12 @@ public:
   friend class smoc_multiplex_vfifo_outlet_base;
   friend class smoc_multiplex_vfifo_entry_base;
   
-  typedef smoc_multiplex_fifo_chan this_type;
+  typedef smoc_multiplex_fifo_chan_base this_type;
   typedef size_t FifoId;
   typedef std::list<FifoId> FifoSequence;
   typedef std::map<FifoId, smoc_multiplex_vfifo_chan_base *> FifoMap;
 
-  smoc_multiplex_fifo_chan(const std::string& name, size_t n, size_t m);
+  smoc_multiplex_fifo_chan_base(const std::string& name, size_t n, size_t m);
 
 protected:
   void registerVFifo(smoc_multiplex_vfifo_chan_base *vfifo);
@@ -153,7 +154,7 @@ private:
 #endif
 };
 
-typedef boost::shared_ptr<smoc_multiplex_fifo_chan>  p_smoc_multiplex_fifo_chan;
+typedef boost::shared_ptr<smoc_multiplex_fifo_chan_base>  p_smoc_multiplex_fifo_chan;
 
 class smoc_multiplex_vfifo_chan_base
 : private boost::noncopyable,
@@ -162,7 +163,7 @@ class smoc_multiplex_vfifo_chan_base
   public Detail::QueueRVWPtr 
 {
 public:
-  friend class smoc_multiplex_fifo_chan;
+  friend class smoc_multiplex_fifo_chan_base;
   friend class smoc_multiplex_vfifo_outlet_base;
   friend class smoc_multiplex_vfifo_entry_base;
 
@@ -413,7 +414,7 @@ protected:
       storage[j].put(i.marking[j]);
     }
     wpp(i.marking.size());
-    // FIXME: What about vpp does smoc_multiplex_fifo_chan trigger this
+    // FIXME: What about vpp does smoc_multiplex_fifo_chan_base trigger this
     // for initial tokens?
   }
   
@@ -493,7 +494,7 @@ protected:
   {
     assert(this->depthCount() >= i.marking);
     wpp(i.marking);
-    // FIXME: What about vpp does smoc_multiplex_fifo_chan trigger this
+    // FIXME: What about vpp does smoc_multiplex_fifo_chan_base trigger this
     // for initial tokens?
   }
 
@@ -639,9 +640,9 @@ public:
   /// @param n size of the shared fifo memory
   /// @param m out of order access, zero is no out of order
   smoc_multiplex_fifo(size_t n = 1, size_t m = 0)
-    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_chan("", n, m)) {}
+    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_chan_base("", n, m)) {}
   smoc_multiplex_fifo(const std::string& name, size_t n = 1, size_t m = 0)
-    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_chan(name, n, m)) {}
+    : n(n), m(m), pSharedFifoMem(new smoc_multiplex_fifo_chan_base(name, n, m)) {}
 
   VirtFifo getVirtFifo()
     { return VirtFifo(pSharedFifoMem, m); }
