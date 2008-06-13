@@ -145,25 +145,9 @@ protected:
   void deregisterVFifo(FifoId fifoId);
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
+  void commitRead(size_t n, const smoc_ref_event_p &diiEvent);
 #else
-  void commitRead(size_t n)
-#endif
-  {
-    rpp(n);
-    emmAvailable.decreasedCount(visibleCount());
-#ifdef SYSTEMOC_ENABLE_VPC
-    // Delayed call of diiExpired(n);
-    diiQueue.addEntry(n, diiEvent);
-#else
-    diiExpired(n);
-#endif
-  }
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  void consume(FifoId from, size_t n, const smoc_ref_event_p &diiEvent);
-#else
-  void consume(FifoId from, size_t n);
+  void commitRead(size_t n);
 #endif
 
   void diiExpired(size_t n);
@@ -235,6 +219,8 @@ public:
   typedef typename outlet_type::iface_type  outlet_iface_type;
 
   typedef typename this_type::FifoId        FifoId;
+  typedef typename this_type::FifoSequence  FifoSequence;
+  typedef typename this_type::FifoMap       FifoMap;
 
   /// @brief Channel initializer
   typedef typename smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>::chan_init chan_init;
@@ -245,7 +231,7 @@ public:
   {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &le)
+  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
 #else
   void commitWrite(size_t n)
 #endif
@@ -261,14 +247,14 @@ public:
     }
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    base_type::commitWrite(n, le);
+    base_type::commitWrite(n, latEvent);
 #else
     base_type::commitWrite(n);
 #endif
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void produce(FifoId to, size_t n, const smoc_ref_event_p &le)
+  void produce(FifoId to, size_t n, const smoc_ref_event_p &latEvent)
 #else
   void produce(FifoId to, size_t n)
 #endif
@@ -284,10 +270,73 @@ public:
     }
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    base_type::commitWrite(n, le);
+    base_type::commitWrite(n, latEvent);
 #else
     base_type::commitWrite(n);
 #endif
+  }
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  void consume(FifoId from, size_t n, const smoc_ref_event_p &diiEvent)
+#else
+  void consume(FifoId from, size_t n)
+#endif
+  {
+  //std::cerr << "smoc_multiplex_fifo_chan_base::consume(" << from << ", " << n << ") [BEGIN]" << std::endl;
+  //std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
+  //std::cerr << "freeCount():    " << freeCount() << std::endl;
+  //std::cerr << "usedCount():    " << usedCount() << std::endl;
+  //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+  
+    size_t dindex;
+    
+    // Find n'th fifoId == from element in storage
+    for (dindex = this->rIndex();
+         n > 1 || A::get(this->storage[dindex].get()) != from;
+         dindex = dindex < this->fSize() - 1 ? dindex + 1 : 0)
+      if (A::get(this->storage[dindex].get()) == from)
+        --n;
+    // The found fifoId == from element and all previous elements must be
+    // consumed
+    
+    for (size_t sindex = dindex; sindex != this->rIndex();) {
+      sindex = (sindex == 0 ? this->fSize() : sindex) - 1;
+      if (A::get(this->storage[sindex].get()) != from) {
+        this->storage[dindex].put(this->storage[sindex].get());
+        do {
+          dindex = (dindex == 0 ? this->fSize() : dindex) - 1;
+        } while (A::get(this->storage[dindex].get()) != from);
+      }
+    }
+    
+#ifdef SYSTEMOC_ENABLE_VPC
+    base_type::commitRead(n, diiEvent);
+#else
+    base_type::commitRead(n);
+#endif
+    
+    for (typename FifoSequence::iterator iter = this->fifoSequenceOOO.begin();
+         n > 0;
+         ) {
+      assert(iter !=  this->fifoSequenceOOO.end());
+      if (*iter == from) {
+        if (this->visibleCount() >= this->fifoOutOfOrder + n) {
+          FifoId fId = this->fifoSequence.front();
+          typename FifoMap::iterator fIter = this->vFifos.find(fId);
+          this->fifoSequence.pop_front();
+          this->fifoSequenceOOO.push_back(fId);
+          fIter->second(1);
+        }
+        iter = this->fifoSequenceOOO.erase(iter); --n;
+      } else {
+        ++iter;
+      }
+    }
+    
+  //std::cerr << "smoc_multiplex_fifo_chan_base::consume(" << from << ", " << n << ") [END]" << std::endl;
+  //std::cerr << "freeCount():    " << freeCount() << std::endl;
+  //std::cerr << "usedCount():    " << usedCount() << std::endl;
+  //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
   }
 
   /// @brief Nicer compile time error
