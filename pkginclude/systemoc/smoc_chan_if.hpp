@@ -331,6 +331,10 @@ struct Value<DComm<CI, E> > {
 
 } // namespace Expr
 
+// FIXME:
+// SystemC Standard says: If directly derived from class sc_interface, shall
+// use the virtual specifier - And - The word shall is used to indicate a
+// mandatory requirement.
 class smoc_chan_in_base_if
 : public sc_interface,
   private boost::noncopyable {
@@ -434,6 +438,10 @@ protected:
     { return getImpl()->inTokenId(); }
 };
 
+// FIXME:
+// SystemC Standard says: If directly derived from class sc_interface, shall
+// use the virtual specifier - And - The word shall is used to indicate a
+// mandatory requirement.
 class smoc_chan_out_base_if
 : public sc_interface,
   private boost::noncopyable {
@@ -600,6 +608,9 @@ private:
  * This interface is obsolete and only used by WSDF.
  * Do not create new implementations based on this
  * interface!
+ *
+ * FIXME: Could now be also broken due to implementation
+ * which adheres not to the standard!!!
  */
 template <
   typename T_data_type,                           // data type
