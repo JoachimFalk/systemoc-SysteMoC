@@ -38,6 +38,7 @@
 #define _INCLUDED_SMOC_DETAIL_EVENTMAPMANAGER_HPP
 
 #include "smoc_event_decls.hpp"
+#include <ostream>
 
 namespace Detail {
 
@@ -78,6 +79,15 @@ namespace Detail {
            ++iter)
       {
         delete iter->second;
+      }
+    }
+
+    void dump(std::ostream& out) const {
+      for (EventMap::const_iterator iter = eventMap.begin();
+           iter != eventMap.end();
+           ++iter)
+      {
+        out << iter->first << ": " << *iter->second << std::endl;
       }
     }
   };

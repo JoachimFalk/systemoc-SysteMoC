@@ -44,8 +44,8 @@
 
 class smoc_port_registry {
 public:
-  typedef std::map<sc_port_base*,smoc_chan_out_base_if*>  EntryMap;
-  typedef std::map<sc_port_base*,smoc_chan_in_base_if*>   OutletMap;
+  typedef std::map<smoc_chan_out_base_if*,sc_port_base*>  EntryMap;
+  typedef std::map<smoc_chan_in_base_if*,sc_port_base*>   OutletMap;
 
   /// @brief Returns entries
   const EntryMap& getEntries() const
@@ -70,38 +70,20 @@ protected:
   virtual smoc_chan_in_base_if* createOutlet() = 0;
 
   /// @brief Find / create entry for port
-  smoc_chan_out_base_if* getEntry(sc_port_base* p) {
-    assert(p);
-    EntryMap::const_iterator i = entries.find(p);
-
-    if(i == entries.end()) {
-      smoc_chan_out_base_if* iface = createEntry();
-      assert(iface);
-      bool inserted;
-      boost::tie(i, inserted) = entries.insert(
-          EntryMap::value_type(p, iface));
-      assert(inserted);
-    }
-
-    return i->second; 
-  }
+  smoc_chan_out_base_if* getEntry(sc_port_base* p)
+    { assert(p); return getByVal(entries, p); }
 
   /// @brief Find / create outlet for port
-  smoc_chan_in_base_if* getOutlet(sc_port_base* p) {  
-    assert(p);
-    OutletMap::const_iterator i = outlets.find(p);
+  smoc_chan_in_base_if* getOutlet(sc_port_base* p)
+    { assert(p); return getByVal(outlets, p); }
 
-    if(i == outlets.end()) {
-      smoc_chan_in_base_if* iface = createOutlet();
-      assert(iface);
-      bool inserted;
-      boost::tie(i, inserted) = outlets.insert(
-          OutletMap::value_type(p, iface));
-      assert(inserted);
-    }
+  /// @brief Find port for entry
+  sc_port_base* getPort(smoc_chan_out_base_if* e) const
+    { assert(e); return getByKey(entries, e); }
 
-    return i->second; 
-  }
+  /// @brief Find port for outlet
+  sc_port_base* getPort(smoc_chan_in_base_if* o) const
+    { assert(o); return getByKey(outlets, o); }
 
   /// @brief Select entry / outlet based on tag
   template<class Tag>
@@ -117,19 +99,49 @@ protected:
         i != entries.end();
         ++i)
     {
-      delete i->second;
+      delete i->first;
     }
     for(PortMap::const_iterator i = outlets.begin();
         i != outlets.end();
         ++i)
     {
-      delete i->second;
+      delete i->first;
     }*/
   }
 
 private:
   EntryMap entries;
   OutletMap outlets;
+
+  template<class Map>
+  typename Map::key_type getByVal(Map& m, const typename Map::mapped_type& d) {
+
+    for(typename Map::const_iterator i = m.begin();
+        i != m.end();
+        ++i)
+    {
+      if(i->second == d) return i->first;
+    }
+
+    bool inserted;
+    typename Map::iterator i;
+
+    boost::tie(i, inserted) = m.insert(
+        typename Map::value_type(
+          create<typename Map::key_type>(), d));
+    assert(inserted);
+
+    return i->first;
+  }
+
+  template<class Map>
+  typename Map::mapped_type getByKey(const Map& m, const typename Map::key_type& k) const {
+    typename Map::const_iterator i = m.find(k);
+    assert(i != m.end());
+    return i->second;
+  }
+
+  template<class T> T create();
 };
   
 template<> inline
@@ -139,5 +151,19 @@ sc_interface* smoc_port_registry::getIF<smoc_port_registry::EntryTag>(sc_port_ba
 template<> inline
 sc_interface* smoc_port_registry::getIF<smoc_port_registry::OutletTag>(sc_port_base* p)
 { return getOutlet(p); }
+  
+template<> inline
+smoc_chan_out_base_if* smoc_port_registry::create() {
+  smoc_chan_out_base_if* iface = createEntry();
+  assert(iface);
+  return iface;
+}
+
+template<> inline
+smoc_chan_in_base_if* smoc_port_registry::create() {
+  smoc_chan_in_base_if* iface = createOutlet();
+  assert(iface);
+  return iface;
+}
 
 #endif // _INCLUDED_SMOC_PORT_REGISTRY_HPP

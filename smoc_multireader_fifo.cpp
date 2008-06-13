@@ -53,7 +53,8 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
 #else
   QueueRWPtr(fsizeMapper(this, i.n)),
 #endif
-  tokenId(0)
+  tokenId(0),
+  schedOutlets(i.so ? i.so : &schedDefault)
 {}
 
 void smoc_multireader_fifo_chan_base::assemble(smoc_modes::PGWriter &pgw) const {
@@ -75,11 +76,70 @@ void smoc_multireader_fifo_chan_base::channelAttributes(smoc_modes::PGWriter &pg
 
 void smoc_multireader_fifo_chan_base::latencyExpired(size_t n) {
   vpp(n);
-  emmAvailable.increasedCount(visibleCount());
+  //emmAvailable.increasedCount(visibleCount());
+  moreData();
 }
 
 void smoc_multireader_fifo_chan_base::diiExpired(size_t n) {
   fpp(n);
+  //emmFree.increasedCount(freeCount());
+  moreSpace();
+}
+
+void smoc_multireader_fifo_chan_base::moreData() {
+  //std::cout << "more data available: " << visibleCount() << std::endl;
+
+  for(OutletEventMapManager::iterator i = emmAvailable.begin();
+      i != emmAvailable.end(); ++i)
+  {
+    // currently ugly because outlet_base is no sc_interface...
+    if(schedOutlets->canNotify(
+          getPort(dynamic_cast<smoc_chan_in_base_if*>(i->first)))) {
+      i->second.increasedCount(visibleCount());
+      //std::cout << i->first << ":" << std::endl;
+      //i->second.dump(std::cout);
+    }
+  }
+}
+
+void smoc_multireader_fifo_chan_base::lessData() {
+  //std::cout << "less data available: " << visibleCount() << std::endl;
+
+  for(OutletEventMapManager::iterator i = emmAvailable.begin();
+      i != emmAvailable.end(); ++i)
+  {
+    i->second.decreasedCount(visibleCount());
+    //std::cout << i->first << ":" << std::endl;
+    //i->second.dump(std::cout);
+  }
+}
+
+void smoc_multireader_fifo_chan_base::moreSpace() {
+  //std::cout << "more space available: " << freeCount() << std::endl;
   emmFree.increasedCount(freeCount());
+}
+
+void smoc_multireader_fifo_chan_base::lessSpace() {
+  //std::cout << "less space available: " << freeCount() << std::endl;
+  emmFree.decreasedCount(freeCount());
+}
+
+smoc_event& smoc_multireader_fifo_chan_base::queueOutlet(
+    smoc_multireader_fifo_outlet_base* o, size_t n) {
+  assert(n);
+  return emmAvailable[o].getEvent(0, n);
+}
+
+smoc_event& smoc_multireader_fifo_chan_base::queueEntry(
+    smoc_multireader_fifo_entry_base* o, size_t n) {
+  assert(n);
+  return emmFree.getEvent(0, n);
+}
+
+void smoc_multireader_fifo_chan_base::start_of_simulation() {
+  // this should account for initial tokens / space so our events
+  // can always be created unnotified (and the scheduler needs not
+  // to know about initial tokens?)
+  moreSpace(); moreData();
 }
 

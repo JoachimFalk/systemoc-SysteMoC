@@ -171,7 +171,7 @@ void smoc_multicast_sr_signal_chan_base::usedDecr() {
       ++iter)
   {
     dynamic_cast<smoc_multicast_outlet_base*>
-      (iter->second)->usedDecr();
+      (iter->first)->usedDecr();
   }
 }
 
@@ -181,7 +181,7 @@ void smoc_multicast_sr_signal_chan_base::usedIncr() {
       ++iter)
   {
     dynamic_cast<smoc_multicast_outlet_base*>
-      (iter->second)->usedIncr();
+      (iter->first)->usedIncr();
   }
 }
 
@@ -191,7 +191,7 @@ void smoc_multicast_sr_signal_chan_base::unusedDecr() {
       ++iter)
   {
     dynamic_cast<smoc_multicast_entry_base*>
-      (iter->second)->unusedIncr();
+      (iter->first)->unusedIncr();
   }
 }
 
@@ -201,6 +201,6 @@ void smoc_multicast_sr_signal_chan_base::unusedIncr() {
       ++iter)
   {
     dynamic_cast<smoc_multicast_entry_base*>
-      (iter->second)->unusedDecr();
+      (iter->first)->unusedDecr();
   }
 }

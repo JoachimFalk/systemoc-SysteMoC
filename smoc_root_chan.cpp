@@ -103,7 +103,7 @@ void smoc_root_chan::finalise() {
            ++iter ) {
         genName
           << (iter == entries.begin() ? "" : "|")
-          << getLeafPort(iter->first)->get_parent()->name();
+          << getLeafPort(iter->second)->get_parent()->name();
       }
     }
     genName << "_";
@@ -115,7 +115,7 @@ void smoc_root_chan::finalise() {
            ++iter ) {
         genName
           << (iter == outlets.begin() ? "" : "|")
-          << getLeafPort(iter->first)->get_parent()->name();
+          << getLeafPort(iter->second)->get_parent()->name();
       }
     }
     genName << "_";
@@ -134,7 +134,7 @@ void smoc_root_chan::finalise() {
 
     //FIXME: QUICKHACK:
     this->setChannelID(
-        getOutlets().begin()->first->get_parent()->name(),
+        getOutlets().begin()->second->get_parent()->name(),
         vpcLink->process,
         myName);
   }
@@ -161,13 +161,13 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   IdAttr idChannel = idPool.printId(this);
 
   IdAttr idChannelPortIn = entries.empty() ?
-    idPool.printIdInvalid() : idPool.printId(entries.begin()->first, 1);
+    idPool.printIdInvalid() : idPool.printId(entries.begin()->second, 1);
 
   IdAttr idChannelPortOut = outlets.empty() ?
-    idPool.printIdInvalid() : idPool.printId(outlets.begin()->first, 1);
+    idPool.printIdInvalid() : idPool.printId(outlets.begin()->second, 1);
 
   sc_port_base* ifPort = outlets.empty() ?
-    0 : getLeafPort(outlets.begin()->first);
+    0 : getLeafPort(outlets.begin()->second);
   
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "
                "source=\"" << idPool.printId(ifPort) << "\" "
@@ -191,7 +191,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   }
 
   ifPort = entries.empty() ?
-    0 : getLeafPort(entries.begin()->first);
+    0 : getLeafPort(entries.begin()->second);
 
   pgw << "</process>" << std::endl;
   pgw << "<edge name=\""   << this->name() << ".from-edge\" "
