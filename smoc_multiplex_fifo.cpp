@@ -48,30 +48,29 @@ smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)
 #else
     Detail::QueueRWPtr(i.n),
 #endif
-    fifoOutOfOrder(i.m),
+    fifoOutOfOrder(i.m)
 #ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue(this),
-    diiQueue(this),
+    ,latencyQueue(this)
+    ,diiQueue(this)
 #endif
-    tokenId(0)
 {
 }
 
-void smoc_multiplex_fifo_chan_base::registerVFifo(smoc_multiplex_vfifo_chan_base *vfifo) {
-  vFifos[vfifo->fifoId] = vfifo;
+void smoc_multiplex_fifo_chan_base::registerVFifo(const FifoMap::value_type &entry) {
+  sassert(vFifos.insert(entry).second);
 }
 
-void smoc_multiplex_fifo_chan_base::deregisterVFifo(smoc_multiplex_vfifo_chan_base *vfifo) {
-  vFifos.erase(vfifo->fifoId);
-  for (FifoSequence::iterator iter = fifoSequence.begin();
+void smoc_multiplex_fifo_chan_base::deregisterVFifo(FifoId fifoId) {
+  vFifos.erase(fifoId);
+/*for (FifoSequence::iterator iter = fifoSequence.begin();
        iter !=  fifoSequence.end();
        ) {
-    if (*iter == vfifo->fifoId) {
+    if (*iter == fifoId) {
       iter = fifoSequence.erase(iter);
     } else {
       ++iter;
     }
-  }
+  }*/
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -101,11 +100,10 @@ void smoc_multiplex_fifo_chan_base::deregisterVFifo(smoc_multiplex_vfifo_chan_ba
     if (*iter == from) {
       if (visibleCount() >= fifoOutOfOrder + n) {
         FifoId fId = fifoSequence.front();
-        std::map<FifoId, smoc_multiplex_vfifo_chan_base *>::iterator fIter =
-          vFifos.find(fId);
+        FifoMap::iterator fIter = vFifos.find(fId);
         fifoSequence.pop_front();
         fifoSequenceOOO.push_back(fId);
-        fIter->second->latencyExpired(1);
+        fIter->second(1);
       }
       iter = fifoSequenceOOO.erase(iter); --n;
     } else {
@@ -136,32 +134,22 @@ void smoc_multiplex_fifo_chan_base::diiExpired(size_t n) {
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multiplex_fifo_chan_base::produce(FifoId to, size_t n, const smoc_ref_event_p &le)
+void smoc_multiplex_fifo_chan_base::commitWrite(size_t n, const smoc_ref_event_p &latEvent)
 #else
-void smoc_multiplex_fifo_chan_base::produce(FifoId to, size_t n)
+void smoc_multiplex_fifo_chan_base::commitWrite(size_t n)
 #endif
 {
-//std::cerr << "smoc_multiplex_fifo_chan_base::produce(" << to << ", " << n << ") [BEGIN]" << std::endl;
-//std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
-//std::cerr << "freeCount():    " << freeCount() << std::endl;
-//std::cerr << "usedCount():    " << usedCount() << std::endl;
-//std::cerr << "visibleCount(): " << visibleCount() << std::endl;
-
+#ifdef SYSTEMOC_TRACE
+  TraceLog.traceCommExecOut(this, n);
+#endif
   wpp(n);
-  for (size_t j = n; j > 0; --j)
-    fifoSequence.push_back(to);
   emmFree.decreasedCount(freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
-  // Delayed call of latencyExpired(n)
-  latencyQueue.addEntry(n, le);
+  // Delayed call of latencyExpired(n);
+  latencyQueue.addEntry(n, latEvent);
 #else
   latencyExpired(n);
 #endif
-
-//std::cerr << "smoc_multiplex_fifo_chan_base::produce(" << to << ", " << n << ") [END]" << std::endl;
-//std::cerr << "freeCount():    " << freeCount() << std::endl;
-//std::cerr << "usedCount():    " << usedCount() << std::endl;
-//std::cerr << "visibleCount(): " << visibleCount() << std::endl;
 }
 
 void smoc_multiplex_fifo_chan_base::latencyExpired(size_t n) {
@@ -176,29 +164,14 @@ void smoc_multiplex_fifo_chan_base::latencyExpired(size_t n) {
        --n) {
 //  std::cerr << "n == " << n << std::endl;
     FifoId fId = fifoSequence.front();
-    std::map<FifoId, smoc_multiplex_vfifo_chan_base *>::iterator fIter =
-      vFifos.find(fId);
+    FifoMap::iterator fIter = vFifos.find(fId);
     fifoSequence.pop_front();
     fifoSequenceOOO.push_back(fId);
-    fIter->second->latencyExpired(1);
+    fIter->second(1);
   }
 
 //std::cerr << "smoc_multiplex_fifo_chan_base::latencyExpired(" << n << ") [END]" << std::endl;
 //std::cerr << "freeCount():    " << freeCount() << std::endl;
 //std::cerr << "usedCount():    " << usedCount() << std::endl;
 //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
-}
-
-smoc_multiplex_vfifo_chan_base::smoc_multiplex_vfifo_chan_base( const chan_init &i )
-  : //smoc_nonconflicting_chan(i.name),
-    QueueRVWPtr(i.pChanImpl->depthCount()),
-    fifoId(i.fifoId),
-    pChanImpl(i.pChanImpl),
-    tokenId(0)
-{
-  pChanImpl->registerVFifo(this);
-}
-
-smoc_multiplex_vfifo_chan_base::~smoc_multiplex_vfifo_chan_base() {
-  pChanImpl->deregisterVFifo(this);
 }

@@ -61,6 +61,7 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
 #include "hscd_tdsim_TraceLog.hpp"
 
@@ -123,9 +124,8 @@ public:
 
   typedef size_t FifoId;
   typedef std::list<FifoId> FifoSequence;
-  typedef std::map<FifoId, smoc_multiplex_vfifo_chan_base *> FifoMap;
-private:
-  FifoId        fifoIdCount;  // For virtual fifo enumeration
+  typedef std::map<FifoId, const boost::function<void (size_t)> > FifoMap;
+protected:
   FifoMap       vFifos;
   FifoSequence  fifoSequence;
   FifoSequence  fifoSequenceOOO;
@@ -138,14 +138,11 @@ private:
   Detail::LatencyQueue  latencyQueue;
   Detail::DIIQueue      diiQueue;
 #endif
-
-  /// @brief The tokenId of the next commit token
-  size_t tokenId;
 protected:
   smoc_multiplex_fifo_chan_base(const chan_init &i);
 
-  void registerVFifo(smoc_multiplex_vfifo_chan_base *vfifo);
-  void deregisterVFifo(smoc_multiplex_vfifo_chan_base *vfifo);
+  void registerVFifo(const FifoMap::value_type &entry);
+  void deregisterVFifo(FifoId fifoId);
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
@@ -153,9 +150,6 @@ protected:
   void commitRead(size_t n)
 #endif
   {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(this, n);
-#endif
     rpp(n);
     emmAvailable.decreasedCount(visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -179,44 +173,20 @@ protected:
     { return emmAvailable.getEvent(visibleCount(), n); }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
+  void commitWrite(size_t n, const smoc_ref_event_p &latEvent);
 #else
-  void commitWrite(size_t n)
+  void commitWrite(size_t n);
 #endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(this, n);
-#endif
-    tokenId += n;
-    wpp(n);
-    emmFree.decreasedCount(freeCount());
-#ifdef SYSTEMOC_ENABLE_VPC
-    // Delayed call of latencyExpired(n);
-    latencyQueue.addEntry(n, latEvent);
-#else
-    latencyExpired(n);
-#endif
-  }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  void produce(FifoId to, size_t n, const smoc_ref_event_p &latEvent);
-#else
-  void produce(FifoId to, size_t n);
-#endif
-  
   /// @brief Detail::LatencyQueue::ILatencyExpired
   void latencyExpired(size_t n);
 
   smoc_event &spaceAvailableEvent(size_t n)
     { return emmFree.getEvent(freeCount(), n); }
 
-  /// @brief See smoc_chan_out_base_if
-  size_t outTokenId() const
-    { return tokenId; }
-
   /// @brief See smoc_chan_in_base_if
   size_t inTokenId() const
-    { return tokenId - usedCount(); }
+    { return -1; }
 
   /// @brief See smoc_root_chan
   void assemble(smoc_modes::PGWriter &pgw) const
@@ -238,10 +208,6 @@ protected:
   smoc_chan_out_base_if* createEntry()
     { assert(!"Use virtual FIFOs!"); }
 
-public:
-  ///gcc3.4.6: Inner classes are not friends when outer class is declared as friend
-  FifoId getNewFifoId()
-    { return fifoIdCount++; }
 };
 
 /**
@@ -251,7 +217,8 @@ template<class T, class A>
 class smoc_multiplex_fifo_chan
 : public smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>
 {
-  typedef smoc_multiplex_fifo_chan<T,A> this_type;
+  typedef smoc_multiplex_fifo_chan<T,A>                       this_type;
+  typedef smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base> base_type;
 
   friend class smoc_multiplex_fifo_outlet<T,A>;
   friend class smoc_multiplex_fifo_entry<T,A>;
@@ -267,6 +234,8 @@ public:
   typedef typename entry_type::iface_type   entry_iface_type;
   typedef typename outlet_type::iface_type  outlet_iface_type;
 
+  typedef typename this_type::FifoId        FifoId;
+
   /// @brief Channel initializer
   typedef typename smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>::chan_init chan_init;
 
@@ -274,6 +243,52 @@ public:
   smoc_multiplex_fifo_chan(const chan_init &i)
     : smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>(i)
   {}
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
+#else
+  void commitWrite(size_t n)
+#endif
+  {
+    size_t windex = this->wIndex();
+    size_t fsize  = this->fSize();
+    
+    for (size_t i = 0; i < n; ++i) {
+      FifoId to = A::get(this->storage[windex].get());
+      this->fifoSequence.push_back(to);
+      if (++windex >= fsize)
+        windex -= fsize;
+    }
+    
+#ifdef SYSTEMOC_ENABLE_VPC
+    base_type::commitWrite(n, le);
+#else
+    base_type::commitWrite(n);
+#endif
+  }
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  void produce(FifoId to, size_t n, const smoc_ref_event_p &le)
+#else
+  void produce(FifoId to, size_t n)
+#endif
+  {
+    size_t windex = this->wIndex();
+    size_t fsize  = this->fSize();
+    
+    for (size_t i = 0; i < n; ++i) {
+      A::put(this->storage[windex].get(), to);
+      this->fifoSequence.push_back(to);
+      if (++windex >= fsize)
+        windex -= fsize;
+    }
+    
+#ifdef SYSTEMOC_ENABLE_VPC
+    base_type::commitWrite(n, le);
+#else
+    base_type::commitWrite(n);
+#endif
+  }
 
   /// @brief Nicer compile time error
   struct No_Channel_Adapter_Found__Please_Use_Other_Interface {};
@@ -370,7 +385,7 @@ protected:
  
   /// @brief See smoc_chan_out_base_if
   size_t outTokenId() const
-    { return chan.outTokenId(); }
+    { return -1; }
 
   /// @brief See smoc_chan_out_if
   typename this_type::access_type *getWriteChannelAccess()
@@ -411,73 +426,262 @@ protected:
 
   /// @brief See smoc_chan_in_base_if
   size_t inTokenId() const
-    { return chan.inTokenId(); }
+    { return -1; }
 
   /// @brief See smoc_chan_in_if
   typename this_type::access_type *getReadChannelAccess()
     { return chan.getReadChannelAccess(); }
 };
 
-typedef boost::shared_ptr<smoc_multiplex_fifo_chan_base>  p_smoc_multiplex_fifo_chan;
-
-template <class T, class A> class smoc_multiplex_vfifo_entry;
-template <class T, class A> class smoc_multiplex_vfifo_outlet;
-
-class smoc_multiplex_vfifo_chan_base
-: private boost::noncopyable,
-  // due to out of order access we always need a visible area management
-  public Detail::QueueRVWPtr 
-{
-  typedef smoc_multiplex_vfifo_chan_base  this_type;
-
-  friend class smoc_multiplex_fifo_chan_base;
-  template <class T, class A> friend class smoc_multiplex_vfifo_entry;
-  template <class T, class A> friend class smoc_multiplex_vfifo_outlet;
+template<class T, class A>
+class smoc_multiplex_vfifo_outlet
+: public smoc_chan_in_if<T,smoc_channel_access_if> {
+  typedef smoc_multiplex_vfifo_outlet<T,A> this_type;
+  // Ugh need this friend decl for the AccessImpl friend decl in
+  // smoc_multiplex_fifo_chan
+  friend class smoc_multiplex_fifo_chan<T,A>;
 public:
-  typedef size_t FifoId;
+  typedef smoc_multiplex_fifo_chan<T,A>       MultiplexChannel;
+  typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
+  typedef typename MultiplexChannel::FifoId   FifoId;
 
-  /// @brief Channel initializer
-  class chan_init {
+  template<class TT>
+  class AccessImpl: public this_type::access_type {
+    typedef AccessImpl<TT> this_type;
   public:
-    friend class smoc_multiplex_vfifo_chan_base;
-  protected:
-    chan_init(const std::string& name, const p_smoc_multiplex_fifo_chan &pChanImpl, size_t m)
-      : name(name), pChanImpl(pChanImpl),
-        fifoId(pChanImpl->getNewFifoId()), m(m)
-    {}
+    typedef smoc_multiplex_vfifo_outlet<T,A>  ChanIfImpl;
+    typedef typename this_type::return_type   return_type;
   private:
-    std::string                 name;
-    p_smoc_multiplex_fifo_chan  pChanImpl;
-    FifoId                      fifoId;
-    size_t                      m;
+#ifndef NDEBUG
+    size_t limit;
+#endif
+  private:
+    ChanIfImpl &getChanIfImpl() {
+      std::cerr << "offsetof(ChanIfImpl, accessImpl): " <<  offsetof(ChanIfImpl, accessImpl) << std::endl;
+
+      ChanIfImpl *retval =
+        reinterpret_cast<ChanIfImpl *>(
+          reinterpret_cast<char *>(this) -
+          offsetof(ChanIfImpl, accessImpl));
+      std::cerr << "this: " << this << ", retval: " << retval << std::endl;
+      return *retval;
+    }
+    MultiplexChannel &getChan()
+      { return *getChanIfImpl().chan.get(); }
+  public:
+    AccessImpl()
+#ifndef NDEBUG
+      : limit(0)
+#endif
+      {}
+
+#ifndef NDEBUG
+    void setLimit(size_t n)
+      { limit = n; }
+#endif
+
+    bool tokenIsValid(size_t n) const {
+      assert(n < limit);
+      return true;
+    }
+
+    // Access methods
+    return_type operator[](size_t n) {
+      assert(n < limit);
+      std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
+      assert(n < limit);
+      MultiplexChannel &chan = getChan();
+      
+      size_t rindex;
+      
+      std::cerr << "XXX " << getChanIfImpl().fifoId << std::endl;
+      
+      for (rindex = chan.rIndex();
+           n >= 1 && A::get(chan.storage[rindex].get()) != getChanIfImpl().fifoId;
+           rindex = rindex < chan.fSize() - 1 ? rindex + 1 : 0)
+        if (A::get(chan.storage[rindex].get()) == getChanIfImpl().fifoId)
+          --n;
+      std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
+      return chan.storage[rindex];
+    }
+    const return_type operator[](size_t n) const
+      { return const_cast<this_type *>(this)->operator[](n); }
   };
-
 private:
+  /// @brief The channel implementation
+  PMultiplexChannel       chan;
+  FifoId                  fifoId;
+  size_t                  countAvailable;
   Detail::EventMapManager emmAvailable;
-  FifoId fifoId;
-  p_smoc_multiplex_fifo_chan pChanImpl;
+  AccessImpl<T>           accessImpl;
+public:
+  /// @brief Constructor
+  smoc_multiplex_vfifo_outlet(const PMultiplexChannel &chan, FifoId fifoId)
+    : chan(chan), fifoId(fifoId), countAvailable(0) {
+    chan->registerVFifo(std::make_pair(
+      fifoId,
+      std::bind1st(std::mem_fun(&this_type::latencyExpired), this)
+    ));
+  }
+
+  ~smoc_multiplex_vfifo_outlet() {
+    chan->deregisterVFifo(fifoId);
+  }
 protected:
-  // constructors
-  smoc_multiplex_vfifo_chan_base(const chan_init &i);
+  /// @brief See smoc_chan_in_base_if
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
+#else
+  void commitRead(size_t n)
+#endif
+  {
+    assert(countAvailable >= n);
+    countAvailable -= n;
+    emmAvailable.decreasedCount(countAvailable);
+#ifdef SYSTEMOC_ENABLE_VPC
+    chan->consume(fifoId, n, diiEvent);
+#else
+    chan->consume(fifoId, n);
+#endif
+  }
 
-  ~smoc_multiplex_vfifo_chan_base();
+  /// @brief See smoc_chan_in_base_if
+  smoc_event &dataAvailableEvent(size_t n)
+    { return emmAvailable.getEvent(countAvailable, n); }
 
-  /// @brief The tokenId of the next commit token
-  size_t tokenId;
+  /// @brief See smoc_chan_in_base_if
+  size_t numAvailable() const
+    { return countAvailable; }
+
+  /// @brief See smoc_chan_in_base_if
+  size_t inTokenId() const
+    { return -1; }
+
+  /// @brief See smoc_chan_in_if
+  AccessImpl<T> *getReadChannelAccess()
+    { return &accessImpl; }
 
   void latencyExpired(size_t n) {
-    vpp(n);
-    emmAvailable.increasedCount(visibleCount());
+    countAvailable += n;
+    emmAvailable.increasedCount(countAvailable);
   }
 };
 
 template<class T, class A>
+class smoc_multiplex_vfifo_entry
+: public smoc_chan_out_if<T,smoc_channel_access_if> {
+  typedef smoc_multiplex_vfifo_entry<T,A> this_type;
+  // Ugh need this friend decl for the AccessImpl friend decl in
+  // smoc_multiplex_fifo_chan
+  friend class smoc_multiplex_fifo_chan<T,A>;
+private:
+  typedef smoc_multiplex_fifo_chan<T,A>       MultiplexChannel;
+  typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
+  typedef typename MultiplexChannel::FifoId   FifoId;
+
+  template<class TT>
+  class AccessImpl: public this_type::access_type {
+    typedef AccessImpl<TT>  this_type;
+  public:
+    typedef smoc_multiplex_vfifo_entry<T,A> ChanIfImpl;
+    typedef typename this_type::return_type return_type;
+  private:
+#ifndef NDEBUG
+    size_t limit;
+#endif
+  private:
+    ChanIfImpl &getChanIfImpl() {
+      std::cerr << "offsetof(ChanIfImpl, accessImpl): " <<  offsetof(ChanIfImpl, accessImpl) << std::endl;
+
+      ChanIfImpl *retval =
+        reinterpret_cast<ChanIfImpl *>(
+          reinterpret_cast<char *>(this) -
+          offsetof(ChanIfImpl, accessImpl));
+      std::cerr << "this: " << this << ", retval: " << retval << std::endl;
+      return *retval;
+    }
+    MultiplexChannel &getChan()
+      { return *getChanIfImpl().chan.get(); }
+  public:
+    AccessImpl()
+#ifndef NDEBUG
+      : limit(0)
+#endif
+      {}
+
+#ifndef NDEBUG
+    void setLimit(size_t n)
+      { limit = n; }
+#endif
+
+    bool tokenIsValid(size_t n) const {
+      assert(n < limit);
+      return true;
+    }
+
+    // Access methods
+    return_type operator[](size_t n) {
+      std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
+      assert(n < limit);
+      MultiplexChannel &chan = getChan();
+      size_t windex = chan.wIndex() + n;
+      if (windex >= chan.fSize())
+        windex -= chan.fSize();
+      std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
+      return chan.storage[chan.wIndex() + n];
+    }
+
+    const return_type operator[](size_t n) const
+      { return const_cast<this_type *>(this)->operator[](n); }
+  };
+private:
+  /// @brief The channel implementation
+  PMultiplexChannel chan;
+  FifoId            fifoId;
+  AccessImpl<T>     accessImpl;
+public:
+  /// @brief Constructor
+  smoc_multiplex_vfifo_entry(const PMultiplexChannel &chan, FifoId fifoId)
+    : chan(chan), fifoId(fifoId) {}
+protected:
+  /// @brief See smoc_chan_out_base_if
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
+#else
+  void commitWrite(size_t n)
+#endif
+  {
+    // This will do a callback to latencyExpired(produce) at the appropriate time
+#ifdef SYSTEMOC_ENABLE_VPC
+    chan->produce(fifoId, n, latEvent); 
+#else
+    chan->produce(fifoId, n); 
+#endif
+  }
+
+  /// @brief See smoc_chan_out_base_if
+  smoc_event &spaceAvailableEvent(size_t n)
+    { return chan->spaceAvailableEvent(n); }
+
+  /// @brief See smoc_chan_out_base_if
+  size_t numFree() const
+    { return chan->freeCount(); }
+
+  /// @brief See smoc_chan_out_base_if
+  size_t outTokenId() const
+    { return -1; }
+
+  /// @brief See smoc_chan_out_if
+  AccessImpl<T> *getWriteChannelAccess()
+    { return &accessImpl; }
+};
+
+template<class T, class A>
 class smoc_multiplex_vfifo_chan
-: public smoc_multiplex_vfifo_chan_base,
+: private boost::noncopyable,
   public smoc_port_registry
 {
   typedef smoc_multiplex_vfifo_chan<T,A>  this_type;
-  typedef smoc_multiplex_vfifo_chan_base  base_type;
 
   friend class smoc_multiplex_vfifo_outlet<T,A>;
   friend class smoc_multiplex_vfifo_entry<T,A>;
@@ -491,37 +695,35 @@ public:
 
   typedef smoc_multiplex_fifo_chan<T,A>       MultiplexChannel;
   typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
+  typedef typename MultiplexChannel::FifoId   FifoId;
 
   /// @brief Channel initializer
-  class chan_init: public base_type::chan_init {
+  class chan_init {
     friend class smoc_multiplex_vfifo_chan<T,A>;
   public:
     typedef T                               data_type;
     typedef smoc_multiplex_vfifo_chan<T,A>  chan_type;
   private:
+    FifoId            fifoId;
     PMultiplexChannel pMultiplexChan;
   public:
-    chan_init(const PMultiplexChannel &pMultiplexChan, size_t m)
-      : base_type::chan_init("", pMultiplexChan, m),
-        pMultiplexChan(pMultiplexChan)
-      {}
-    chan_init(const std::string& name, const PMultiplexChannel &pMultiplexChan, size_t m)
-      : base_type::chan_init(name, pMultiplexChan, m),
-        pMultiplexChan(pMultiplexChan)
+    chan_init(FifoId fifoId, const PMultiplexChannel &pMultiplexChan)
+      : fifoId(fifoId), pMultiplexChan(pMultiplexChan)
       {}
 
     this_type &operator<<(const T &x) {
-      pMultiplexChan->storage[pMultiplexChan->windex] = std::make_pair(this->fifoId, x);
+      pMultiplexChan->storage[pMultiplexChan->wIndex()] = x;
       pMultiplexChan->produce(this->fifoId, 1);
       return *this;
     }
   };
 private:
+  FifoId            fifoId;
   PMultiplexChannel pMultiplexChan;
 public:
   /// @brief Constructor
   smoc_multiplex_vfifo_chan(const chan_init &i)
-    : base_type(i), pMultiplexChan(i.pMultiplexChan)
+    : fifoId(i.fifoId), pMultiplexChan(i.pMultiplexChan)
     {}
 
   /// @brief Nicer compile time error
@@ -578,241 +780,13 @@ public:
 protected:
   /// @brief See smoc_port_registry
   smoc_chan_out_base_if* createEntry()
-    { return new entry_type(*this); }
+    { return new entry_type(pMultiplexChan, fifoId); }
 
   /// @brief See smoc_port_registry
   smoc_chan_in_base_if* createOutlet()
-    { return new outlet_type(*this); }
+    { return new outlet_type(pMultiplexChan, fifoId); }
 
 private:
-};
-
-template<class T, class A>
-class smoc_multiplex_vfifo_outlet
-: public smoc_chan_in_if<T,smoc_channel_access_if> {
-  typedef smoc_multiplex_vfifo_outlet<T,A> this_type;
-  // Ugh need this friend decl for the AccessImpl friend decl in
-  // smoc_multiplex_fifo_chan
-  friend class smoc_multiplex_fifo_chan<T,A>;
-public:
-  typedef smoc_multiplex_fifo_chan<T,A> MultiplexChannel;
-
-  template<class TT>
-  class AccessImpl: public this_type::access_type {
-    typedef AccessImpl<TT> this_type;
-  public:
-    typedef smoc_multiplex_vfifo_outlet<T,A>  ChanIfImpl;
-    typedef typename this_type::return_type   return_type;
-  private:
-#ifndef NDEBUG
-    size_t limit;
-#endif
-  private:
-    ChanIfImpl &getChanIfImpl() {
-      std::cerr << "offsetof(ChanIfImpl, accessImpl): " <<  offsetof(ChanIfImpl, accessImpl) << std::endl;
-
-      ChanIfImpl *retval =
-        reinterpret_cast<ChanIfImpl *>(
-          reinterpret_cast<char *>(this) -
-          offsetof(ChanIfImpl, accessImpl));
-      std::cerr << "this: " << this << ", retval: " << retval << std::endl;
-      return *retval;
-    }
-    MultiplexChannel &getChan()
-      { return *getChanIfImpl().chan.pMultiplexChan.get(); }
-  public:
-    AccessImpl()
-#ifndef NDEBUG
-      : limit(0)
-#endif
-      {}
-
-#ifndef NDEBUG
-    void setLimit(size_t n)
-      { limit = n; }
-#endif
-
-    bool tokenIsValid(size_t n) const {
-      assert(n < limit);
-      return true;
-    }
-
-    // Access methods
-    return_type operator[](size_t n) {
-      assert(n < limit);
-      std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
-      assert(n < limit);
-      MultiplexChannel &chan = getChan();
-      
-      size_t rindex;
-      
-      std::cerr << "XXX " << getChanIfImpl().chan.fifoId << std::endl;
-      
-      for (rindex = chan.rIndex();
-           n >= 1 && A::get(chan.storage[rindex].get()) != getChanIfImpl().chan.fifoId;
-           rindex = rindex < chan.fSize() - 1 ? rindex + 1 : 0)
-        if (A::get(chan.storage[rindex].get()) == getChanIfImpl().chan.fifoId)
-          --n;
-      std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
-      return chan.storage[rindex];
-    }
-    const return_type operator[](size_t n) const
-      { return const_cast<this_type *>(this)->operator[](n); }
-  };
-private:
-  /// @brief The channel implementation
-  smoc_multiplex_vfifo_chan<T,A> &chan;
-  AccessImpl<T>                   accessImpl;
-public:
-  /// @brief Constructor
-  smoc_multiplex_vfifo_outlet(smoc_multiplex_vfifo_chan<T,A> &chan)
-    : chan(chan) {}
-protected:
-  /// @brief See smoc_chan_in_base_if
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
-#else
-  void commitRead(size_t consume)
-#endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(&chan, consume);
-#endif
-    chan.rpp(consume);
-    chan.emmAvailable.decreasedCount(chan.visibleCount());
-#ifdef SYSTEMOC_ENABLE_VPC
-    chan.pChanImpl->consume(chan.fifoId, consume, diiEvent);
-#else
-    chan.pChanImpl->consume(chan.fifoId, consume);
-#endif
-  }
-
-  /// @brief See smoc_chan_in_base_if
-  smoc_event &dataAvailableEvent(size_t n)
-    { return chan.emmAvailable.getEvent(chan.visibleCount(), n); }
-
-  /// @brief See smoc_chan_in_base_if
-  size_t numAvailable() const
-    { return chan.visibleCount(); }
-
-  /// @brief See smoc_chan_in_base_if
-  size_t inTokenId() const
-    { return chan.tokenId - chan.usedCount(); }
-
-  /// @brief See smoc_chan_in_if
-  AccessImpl<T> *getReadChannelAccess()
-    { return &accessImpl; }
-};
-
-template<class T, class A>
-class smoc_multiplex_vfifo_entry
-: public smoc_chan_out_if<T,smoc_channel_access_if> {
-  typedef smoc_multiplex_vfifo_entry<T,A> this_type;
-  // Ugh need this friend decl for the AccessImpl friend decl in
-  // smoc_multiplex_fifo_chan
-  friend class smoc_multiplex_fifo_chan<T,A>;
-private:
-  typedef smoc_multiplex_fifo_chan<T,A> MultiplexChannel;
-
-  template<class TT>
-  class AccessImpl: public this_type::access_type {
-    typedef AccessImpl<TT>  this_type;
-  public:
-    typedef smoc_multiplex_vfifo_entry<T,A> ChanIfImpl;
-    typedef typename this_type::return_type return_type;
-  private:
-#ifndef NDEBUG
-    size_t limit;
-#endif
-  private:
-    ChanIfImpl &getChanIfImpl() {
-      std::cerr << "offsetof(ChanIfImpl, accessImpl): " <<  offsetof(ChanIfImpl, accessImpl) << std::endl;
-
-      ChanIfImpl *retval =
-        reinterpret_cast<ChanIfImpl *>(
-          reinterpret_cast<char *>(this) -
-          offsetof(ChanIfImpl, accessImpl));
-      std::cerr << "this: " << this << ", retval: " << retval << std::endl;
-      return *retval;
-    }
-    MultiplexChannel &getChan()
-      { return *getChanIfImpl().chan.pMultiplexChan.get(); }
-  public:
-    AccessImpl()
-#ifndef NDEBUG
-      : limit(0)
-#endif
-      {}
-
-#ifndef NDEBUG
-    void setLimit(size_t n)
-      { limit = n; }
-#endif
-
-    bool tokenIsValid(size_t n) const {
-      assert(n < limit);
-      return true;
-    }
-
-    // Access methods
-    return_type operator[](size_t n) {
-      std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
-      assert(n < limit);
-      MultiplexChannel &chan = getChan();
-      size_t windex = chan.wIndex() + n;
-      if (windex >= chan.fSize())
-        windex -= chan.fSize();
-      std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
-      return chan.storage[chan.wIndex() + n];
-    }
-
-    const return_type operator[](size_t n) const
-      { return const_cast<this_type *>(this)->operator[](n); }
-  };
-private:
-  /// @brief The channel implementation
-  smoc_multiplex_vfifo_chan<T,A> &chan;
-  AccessImpl<T>                   accessImpl;
-public:
-  /// @brief Constructor
-  smoc_multiplex_vfifo_entry(smoc_multiplex_vfifo_chan<T,A> &chan)
-    : chan(chan) {}
-protected:
-  /// @brief See smoc_chan_out_base_if
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
-#else
-  void commitWrite(size_t produce)
-#endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(&chan, produce);
-#endif
-    chan.tokenId += produce;
-    chan.wpp(produce);
-    // This will do a callback to latencyExpired(produce) at the appropriate time
-#ifdef SYSTEMOC_ENABLE_VPC
-    chan.pChanImpl->produce(chan.fifoId, produce, latEvent); 
-#else
-    chan.pChanImpl->produce(chan.fifoId, produce); 
-#endif
-  }
-
-  /// @brief See smoc_chan_out_base_if
-  smoc_event &spaceAvailableEvent(size_t n)
-    { return chan.pChanImpl->spaceAvailableEvent(n); }
-
-  /// @brief See smoc_chan_out_base_if
-  size_t numFree() const
-    { return chan.freeCount(); }
-
-  /// @brief See smoc_chan_out_base_if
-  size_t outTokenId() const
-    { return chan.tokenId; }
-
-  /// @brief See smoc_chan_out_if
-  AccessImpl<T> *getWriteChannelAccess()
-    { return &accessImpl; }
 };
 
 template <typename T, typename A>
@@ -829,24 +803,22 @@ public:
   typedef boost::shared_ptr<chan_type> PChannel;
 
 private:
-  PChannel pChanImpl;
+  FifoId   fifoIdCount;  // For virtual fifo enumeration
+  PChannel pMultiplexChan;
 public:
   /// @param n size of the shared fifo memory
   /// @param m out of order access, zero is no out of order
   smoc_multiplex_fifo(size_t n = 1, size_t m = 0)
-    : base_type("", n, m),
-      pChanImpl(new chan_type(*this))
+    : base_type("", n, m), fifoIdCount(0),
+      pMultiplexChan(new chan_type(*this))
     {}
   smoc_multiplex_fifo(const std::string &name, size_t n = 1, size_t m = 0)
-    : base_type(name, n, m),
-      pChanImpl(new chan_type(*this))
+    : base_type(name, n, m), fifoIdCount(0),
+      pMultiplexChan(new chan_type(*this))
     {}
 
   typename smoc_multiplex_vfifo_chan<T,A>::chan_init getVirtFifo()
-    { return typename smoc_multiplex_vfifo_chan<T,A>::chan_init(pChanImpl, this->m); }
-  
-  typename smoc_multiplex_vfifo_chan<T,A>::chan_init getVirtFifo(const std::string& name)
-    { return typename smoc_multiplex_vfifo_chan<T,A>::chan_init(this->name, pChanImpl, this->m); }
+    { return typename smoc_multiplex_vfifo_chan<T,A>::chan_init(fifoIdCount++, pMultiplexChan); }
 };
 
 #endif // _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP
