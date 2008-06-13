@@ -41,21 +41,19 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-//using namespace SystemCoDesigner::SGX;
-//using namespace SysteMoC::NGXSync;
-
-smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const std::string& name, size_t n, size_t m)
-  : smoc_root_chan(name),
+smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)
+  : smoc_root_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
-    Detail::QueueFRVWPtr(n),
+    Detail::QueueFRVWPtr(i.n),
 #else
-    Detail::QueueRWPtr(n),
+    Detail::QueueRWPtr(i.n),
 #endif
-    fifoOutOfOrder(m)
+    fifoOutOfOrder(i.m),
 #ifdef SYSTEMOC_ENABLE_VPC
-    ,latencyQueue(this)
-    ,diiQueue(this)
+    latencyQueue(this),
+    diiQueue(this),
 #endif
+    tokenId(0)
 {
 }
 
@@ -192,34 +190,15 @@ void smoc_multiplex_fifo_chan_base::latencyExpired(size_t n) {
 }
 
 smoc_multiplex_vfifo_chan_base::smoc_multiplex_vfifo_chan_base( const chan_init &i )
-  : smoc_nonconflicting_chan(i.name),
-    QueueRVWPtr(i.pSharedFifoMem->depthCount()),
+  : //smoc_nonconflicting_chan(i.name),
+    QueueRVWPtr(i.pChanImpl->depthCount()),
     fifoId(i.fifoId),
-    pSharedFifoMem(i.pSharedFifoMem),
+    pChanImpl(i.pChanImpl),
     tokenId(0)
 {
-  pSharedFifoMem->registerVFifo(this);
-/*
-  // SGX --> SystemC
-  if(SysteMoC::NGXSync::NGXConfig::getInstance().hasNGX()) {
-
-    SystemCoDesigner::SGX::Fifo::ConstPtr fifo =
-      objAs<SystemCoDesigner::SGX::Fifo>(SysteMoC::NGXSync::NGXCache::getInstance().get(this));
-
-    if(fifo) {
-      fsize = fifo->size().get() + 1;
-    }
-    else {
-      // XML node missing or no Fifo
-    }
-  }
-
-  // for lazy % overflow protection fsize must be less than half the datatype
-  //  size
-  assert(fsize < (MAX_TYPE(size_t) >> 1));
- */
+  pChanImpl->registerVFifo(this);
 }
 
 smoc_multiplex_vfifo_chan_base::~smoc_multiplex_vfifo_chan_base() {
-  pSharedFifoMem->deregisterVFifo(this);
+  pChanImpl->deregisterVFifo(this);
 }

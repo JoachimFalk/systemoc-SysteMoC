@@ -64,9 +64,7 @@ public:
   > access_out_type_impl;
 
   /// @brief Channel initializer
-  class chan_init
-    : public BASE::chan_init
-  {
+  class chan_init: public BASE::chan_init {
   public:
     friend class smoc_fifo_storage;
     typedef T add_param_ty;
@@ -74,13 +72,17 @@ public:
     void add(const add_param_ty &t)
       { marking.push_back(t); }
   protected:
-    chan_init(const std::string& name, size_t n)
-      : BASE::chan_init(name, n)
-    {}
+    template <class P1, class P2>
+    chan_init(const P1 &p1, const P2 &p2)
+      : BASE::chan_init(p1, p2) {}
+    template <class P1, class P2, class P3>
+    chan_init(const P1 &p1, const P2 &p2, const P3 &p3)
+      : BASE::chan_init(p1, p2, p3) {}
   private:
     std::vector<T> marking;
   };
-
+protected:
+  storage_type *storage;
 protected:
 
   /// @brief Constructor
@@ -121,9 +123,6 @@ protected:
     return new access_out_type_impl(
         storage, this->fSize(), &this->wIndex());
   }
-
-private:
-  storage_type* storage;
 };
 
 /**
@@ -146,9 +145,7 @@ public:
   > access_out_type_impl;
 
   /// @brief Channel initializer
-  class chan_init
-  : public BASE::chan_init
-  {
+  class chan_init: public BASE::chan_init {
   public:
     friend class smoc_fifo_storage;
     typedef size_t add_param_ty;
@@ -156,16 +153,16 @@ public:
     void add(const add_param_ty &t)
       { marking += t; }
   protected:
-    chan_init(const std::string& name, size_t n)
-      : BASE::chan_init(name, n),
-        marking(0)
-    {}
+    template <class P1, class P2>
+    chan_init(const P1 &p1, const P2 &p2)
+      : BASE::chan_init(p1, p2), marking(0) {}
+    template <class P1, class P2, class P3>
+    chan_init(const P1 &p1, const P2 &p2, const P3 &p3)
+      : BASE::chan_init(p1, p2, p3), marking(0) {}
   private:
     size_t marking;
   };
-
 protected:
-
   /// @brief Constructor
   smoc_fifo_storage(const chan_init &i)
     : BASE(i)
