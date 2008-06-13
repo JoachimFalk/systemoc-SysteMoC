@@ -17,13 +17,10 @@
 #include "wsdf_img_snk.hpp"
 #include "wsdf_recons_fifo.hpp"
 
-#include <CoSupport/DataTypes/SerializeHelper.hpp>
-
 
 using namespace std;
-using CoSupport::DataTypes::Byte;
 
-template <typename T = Byte>
+template <typename T = unsigned char>
 class m_recons 
 	: public smoc_graph {
 
@@ -52,7 +49,7 @@ public:
 	
 };
 
-template <typename T = Byte>
+template <typename T = unsigned char>
 class m_top
 	: public smoc_graph 
 {

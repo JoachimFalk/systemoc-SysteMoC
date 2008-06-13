@@ -13,30 +13,14 @@
 # include <systemoc/smoc_pggen.hpp>
 #endif
 
-#include <CoSupport/DataTypes/SerializeHelper.hpp>
-
 #include "CImg.h"
-
-namespace ns_wsdf_img_src {
-
-  template<typename T2>
-  struct m_wsdf_img_src_type_map {
-    typedef T2 type;
-  };
-  
-  template<>
-  struct m_wsdf_img_src_type_map<CoSupport::DataTypes::Byte>{
-    typedef unsigned char type;
-  };
-}
-    
 
 template <typename T = unsigned char>
 class m_wsdf_img_src: public smoc_actor {
 
 private:
 
-	cimg_library::CImg<typename ns_wsdf_img_src::m_wsdf_img_src_type_map<T>::type> input_image; 
+	cimg_library::CImg<T> input_image; 
 
 public:
 	

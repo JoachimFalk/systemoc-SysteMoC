@@ -161,7 +161,7 @@ private:
 			//out of image
 			return false;
 
-		if (!(out[cur_x][cur_y] == 0))
+		if (out[cur_x][cur_y] != 0)
 			return false;
 
 		if (mask_in[cur_x][cur_y] == 0)

@@ -8,7 +8,7 @@
 using namespace std;
 using namespace ns_smoc_vector_init;
 
-int sc_main(int argc, char *argv[]) { return 0; } // dummy SystemC requires it!
+int sc_main(int argc, char *argv[]) {} // dummy SystemC requires it!
 
 int main() {
 
@@ -90,7 +90,7 @@ int main() {
   cout << "Source data element mapping matrix: " 
        << edge1.src_data_element_mapping_matrix() << endl;
   
-  cout << endl; cout << endl;  
+  cout << endl; cout << endl;
 
   /* Perform translation for external reusage */
   cout << "Transform for external reusage" << endl;
@@ -119,20 +119,7 @@ int main() {
   
   smoc_wsdf_edge_descr edge1e(edge1b,ext_reusage,true);
   edge1e.print_edge_parameters(cout);
-  cout << endl; cout << endl;
-
-  /* Store edge parameters in stream stream */
-  {
-    std::cout << "Store edge parameters in stream" << std::endl;
-    std::stringstream temp;
-    edge1.print_edge_parameters(temp,false);
-    std::cout << temp.str() << std::endl;
-    
-    //Read back edge
-    smoc_wsdf_edge_descr edge1d(temp);
-    edge1e.print_edge_parameters(cout);
-    cout << endl; cout << endl;
-  }
+  cout << endl; cout << endl; 
   
 
   /* Second example */
