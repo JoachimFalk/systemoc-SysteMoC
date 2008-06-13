@@ -245,7 +245,7 @@ public:
   {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
+  void commitWrite(size_t n, const smoc_ref_event_p &le)
 #else
   void commitWrite(size_t n)
 #endif
