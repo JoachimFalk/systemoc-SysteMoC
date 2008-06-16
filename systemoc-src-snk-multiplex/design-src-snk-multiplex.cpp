@@ -45,19 +45,29 @@
 # include <systemoc/smoc_pggen.hpp>
 #endif
 
-template <typename T>
+typedef std::pair<size_t, int> Token;
+
+struct ColorAccessor {
+  static
+  size_t get(const Token &t)
+    { return t.first; }
+  static
+  void   put(Token &t, size_t c)
+    { t.first = c; }
+};
+
 class m_h_src: public smoc_actor {
 public:
-  smoc_port_out<T> out;
+  smoc_port_out<Token> out;
 private:
-  T       i;
+  int     i;
   size_t  iter;
   
   void src() {
     std::cout
       << name() << ": generate token with id "
       << out.tokenId(0) << " with value " << i << std::endl;
-    out[0] = i++; --iter;
+    out[0] = std::make_pair(-1, i++); --iter;
   }
   smoc_firing_state start;
 public:
@@ -70,14 +80,10 @@ public:
   }
 };
 
-
-template <typename T>
 class m_h_sink: public smoc_actor {
 public:
-  smoc_port_in<T> in;
+  smoc_port_in<Token> in;
 private:
-  int i;
-  
   void sink(void) {
     std::cout
       << name() << ": received token with id "
@@ -94,12 +100,12 @@ public:
 
 class m_h_top: public smoc_graph {
 protected:
-  m_h_src<int>     src1;
-  m_h_sink<int>    snk1;
-  m_h_src<int>     src2;
-  m_h_sink<int>    snk2;
-  m_h_src<int>     src3;
-  m_h_sink<int>    snk3;
+  m_h_src     src1;
+  m_h_sink    snk1;
+  m_h_src     src2;
+  m_h_sink    snk2;
+  m_h_src     src3;
+  m_h_sink    snk3;
 public:
   m_h_top(sc_module_name name, size_t iter)
     : smoc_graph(name),
@@ -107,7 +113,7 @@ public:
       src2("src2", iter, 2000), snk2("snk2"),
       src3("src3", iter, 3000), snk3("snk3") {
     // multiplex fifo of depth 17 and 3 out of order
-    smoc_multiplex_fifo<int> f(17,3);
+    smoc_multiplex_fifo<Token, ColorAccessor> f(17,3);
     connectNodePorts(src1.out, snk1.in, f.getVirtFifo());
     connectNodePorts(src2.out, snk2.in, f.getVirtFifo());
     connectNodePorts(src3.out, snk3.in, f.getVirtFifo());
