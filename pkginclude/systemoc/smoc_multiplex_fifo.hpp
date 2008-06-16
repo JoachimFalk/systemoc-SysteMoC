@@ -183,15 +183,6 @@ protected:
   /// @brief See smoc_root_chan
   virtual void channelAttributes(smoc_modes::PGWriter &pgw) const
     { assert(0); }
-
-  /// @brief See smoc_port_registry
-  smoc_chan_in_base_if* createOutlet()
-    { assert(!"Use virtual FIFOs!"); }
-
-  /// @brief See smoc_port_registry
-  smoc_chan_out_base_if* createEntry()
-    { assert(!"Use virtual FIFOs!"); }
-
 };
 
 /**
