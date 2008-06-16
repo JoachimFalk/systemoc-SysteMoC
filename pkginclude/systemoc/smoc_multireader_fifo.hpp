@@ -48,6 +48,7 @@
 #include "smoc_fifo.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_fifo_storage.hpp"
+#include "detail/smoc_connect_provider.hpp"
 #include "detail/EventMapManager.hpp"
 #ifdef SYSTEMOC_ENABLE_VPC
 # include "detail/QueueFRVWPtr.hpp"
@@ -55,7 +56,8 @@
 # include "detail/QueueRWPtr.hpp"
 #endif
 
-#include <boost/tuple/tuple.hpp>
+//#include <boost/tuple/tuple.hpp>
+#include <boost/noncopyable.hpp>
 
 #include <systemc.h>
 #include <vector>
@@ -371,9 +373,6 @@ public:
   typedef smoc_multireader_fifo_entry<data_type>  entry_type;
   typedef smoc_multireader_fifo_outlet<data_type> outlet_type;
 
-  typedef typename entry_type::iface_type   entry_iface_type;
-  typedef typename outlet_type::iface_type  outlet_iface_type;
-
   /// @brief Channel initializer
   typedef typename smoc_fifo_storage<T, smoc_multireader_fifo_chan_base>::chan_init chan_init;
 
@@ -381,58 +380,6 @@ public:
   smoc_multireader_fifo_chan(const chan_init &i)
     : smoc_fifo_storage<T, smoc_multireader_fifo_chan_base>(i)
   {}
-
-  /// @brief Nicer compile time error
-  struct No_Channel_Adapter_Found__Please_Use_Other_Interface {};
-  
-  /// @brief Connect sc_port
-  template<class IFace,class Init>
-  void connect(sc_port<IFace>& p, const Init&) {
-  
-    using namespace SysteMoC::Detail;
-
-    // available adapters
-    typedef smoc_chan_adapter<entry_iface_type,IFace>   EntryAdapter;
-    typedef smoc_chan_adapter<outlet_iface_type,IFace>  OutletAdapter;
-
-    // try to get adapter (utilize Tags for simpler implementation)
-    typedef
-      typename Select<
-        EntryAdapter::isAdapter,
-        std::pair<EntryAdapter,smoc_port_registry::EntryTag>,
-      typename Select<
-        OutletAdapter::isAdapter,
-        std::pair<OutletAdapter,smoc_port_registry::OutletTag>,
-      No_Channel_Adapter_Found__Please_Use_Other_Interface
-      >::result_type
-      >::result_type P;
-
-    // corresponding types
-    typedef typename P::first_type Adapter;
-    typedef typename P::second_type Tag;
-
-    typename Adapter::iface_impl_type* iface =
-      dynamic_cast<typename Adapter::iface_impl_type*>(
-          smoc_port_registry::getIF<Tag>(&p));
-    assert(iface); p(*(new Adapter(*iface)));
-  }
-  
-  /// @brief Connect smoc_port_out
-  template<class Init>
-  void connect(smoc_port_out<data_type>& p, const Init&) {
-    entry_type* e =
-      dynamic_cast<entry_type*>(getEntry(&p));
-    assert(e); p(*e);
-  }
-
-  /// @brief Connect smoc_port_in
-  template<class Init>
-  void connect(smoc_port_in<data_type>& p, const Init&) {
-    outlet_type* o =
-      dynamic_cast<outlet_type*>(getOutlet(&p));
-    assert(o); p(*o);
-  }
-
 protected:
   /// @brief See smoc_port_registry
   smoc_chan_out_base_if* createEntry()
@@ -450,29 +397,39 @@ private:
  */
 template <typename T>
 class smoc_multireader_fifo
-: public smoc_multireader_fifo_chan<T>::chan_init 
-{
+: public smoc_multireader_fifo_chan<T>::chan_init,
+  public smoc_connect_provider<
+    smoc_multireader_fifo<T>,
+    smoc_multireader_fifo_chan<T> >,
+  private boost::noncopyable {
+  typedef smoc_multireader_fifo<T> this_type;
+
+  friend class smoc_connect_provider<this_type, typename this_type::chan_type>;
 public:
   typedef T                             data_type;
-  typedef smoc_multireader_fifo<T>      this_type;
-  typedef smoc_multireader_fifo_chan<T> chan_type;
-
-  this_type &operator<<(const typename chan_type::chan_init::add_param_ty &x)
-    { add(x); return *this; }
-
+  typedef typename this_type::chan_type chan_type;
+private:
+  chan_type *chan;
+public:
   /// @brief Constructor
   smoc_multireader_fifo(size_t n = 1, smoc_multireader_scheduler* so = 0)
-    : smoc_multireader_fifo_chan<T>::chan_init("", n, so)
+    : smoc_multireader_fifo_chan<T>::chan_init("", n, so), chan(NULL)
   {}
 
   /// @brief Constructor
   explicit smoc_multireader_fifo(
       const std::string& name, size_t n = 1, smoc_multireader_scheduler* so = 0)
-    : smoc_multireader_fifo_chan<T>::chan_init(name, n, so)
+    : smoc_multireader_fifo_chan<T>::chan_init(name, n, so), chan(NULL)
   {}
 
+  this_type &operator<<(const typename chan_type::chan_init::add_param_ty &x)
+    { add(x); return *this; }
 private:
-  void reset() {};
+  chan_type *getChan() {
+    if (chan == NULL)
+      chan = new chan_type(*this);
+    return chan;
+  }
 };
 
 #endif // _INCLUDED_SMOC_MULTIREADER_FIFO_HPP
