@@ -41,8 +41,10 @@
 #include <systemc.h>
 #include <boost/tuple/tuple.hpp>
 #include <map>
+#include "../smoc_chan_adapter.hpp"
 
 class smoc_port_registry {
+  template <typename, typename> friend class smoc_connect_provider;
 public:
   typedef std::map<smoc_chan_out_base_if*,sc_port_base*>  EntryMap;
   typedef std::map<smoc_chan_in_base_if*,sc_port_base*>   OutletMap;

@@ -50,6 +50,7 @@
 #include "smoc_fifo.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_ring_access.hpp"
+#include "detail/smoc_connect_provider.hpp"
 #include "detail/EventMapManager.hpp"
 #include "detail/QueueRVWPtr.hpp"
 #include "detail/QueueFRVWPtr.hpp"
@@ -738,17 +739,25 @@ public:
   typedef typename MultiplexChannel::FifoId   FifoId;
 
   /// @brief Channel initializer
-  class chan_init {
+  class chan_init
+  : public smoc_connect_provider<
+      chan_init,
+      smoc_multiplex_vfifo_chan<T,A> > {
+    typedef chan_init this_type;
+
+    friend class smoc_connect_provider<this_type, typename this_type::chan_type>;
     friend class smoc_multiplex_vfifo_chan<T,A>;
   public:
     typedef T                               data_type;
     typedef smoc_multiplex_vfifo_chan<T,A>  chan_type;
   private:
-    FifoId            fifoId;
-    PMultiplexChannel pMultiplexChan;
+    FifoId                      fifoId;
+    PMultiplexChannel           pMultiplexChan;
+    smoc_multiplex_vfifo_chan  *dummy;
   public:
     chan_init(FifoId fifoId, const PMultiplexChannel &pMultiplexChan)
-      : fifoId(fifoId), pMultiplexChan(pMultiplexChan)
+      : fifoId(fifoId), pMultiplexChan(pMultiplexChan),
+        dummy(new chan_type(*this))
       {}
 
     this_type &operator<<(const T &x) {
@@ -756,6 +765,9 @@ public:
       pMultiplexChan->produce(this->fifoId, 1);
       return *this;
     }
+  private:
+    chan_type *getChan()
+      { return dummy; }
   };
 private:
   FifoId            fifoId;
@@ -765,57 +777,6 @@ public:
   smoc_multiplex_vfifo_chan(const chan_init &i)
     : fifoId(i.fifoId), pMultiplexChan(i.pMultiplexChan)
     {}
-
-  /// @brief Nicer compile time error
-  struct No_Channel_Adapter_Found__Please_Use_Other_Interface {};
-  
-  /// @brief Connect sc_port
-  template<class IFace,class Init>
-  void connect(sc_port<IFace>& p, const Init&) {
-  
-    using namespace SysteMoC::Detail;
-
-    // available adapters
-    typedef smoc_chan_adapter<entry_iface_type,IFace>   EntryAdapter;
-    typedef smoc_chan_adapter<outlet_iface_type,IFace>  OutletAdapter;
-
-    // try to get adapter (utilize Tags for simpler implementation)
-    typedef
-      typename Select<
-        EntryAdapter::isAdapter,
-        std::pair<EntryAdapter,smoc_port_registry::EntryTag>,
-      typename Select<
-        OutletAdapter::isAdapter,
-        std::pair<OutletAdapter,smoc_port_registry::OutletTag>,
-      No_Channel_Adapter_Found__Please_Use_Other_Interface
-      >::result_type
-      >::result_type P;
-
-    // corresponding types
-    typedef typename P::first_type Adapter;
-    typedef typename P::second_type Tag;
-
-    typename Adapter::iface_impl_type* iface =
-      dynamic_cast<typename Adapter::iface_impl_type*>(
-          smoc_port_registry::getIF<Tag>(&p));
-    assert(iface); p(*(new Adapter(*iface)));
-  }
-  
-  /// @brief Connect smoc_port_out
-  template<class Init>
-  void connect(smoc_port_out<data_type>& p, const Init&) {
-    entry_type* e =
-      dynamic_cast<entry_type*>(getEntry(&p));
-    assert(e); p(*e);
-  }
-
-  /// @brief Connect smoc_port_in
-  template<class Init>
-  void connect(smoc_port_in<data_type>& p, const Init&) {
-    outlet_type* o =
-      dynamic_cast<outlet_type*>(getOutlet(&p));
-    assert(o); p(*o);
-  }
 
 protected:
   /// @brief See smoc_port_registry
@@ -831,12 +792,17 @@ private:
 
 template <typename T, typename A>
 class smoc_multiplex_fifo
-: public smoc_multiplex_fifo_chan<T,A>::chan_init {
+: public smoc_multiplex_fifo_chan<T,A>::chan_init,
+  public smoc_connect_provider<
+    smoc_multiplex_fifo<T,A>,
+    smoc_multiplex_fifo_chan<T,A> > {
   typedef smoc_multiplex_fifo<T,A> this_type;
+
+  friend class smoc_connect_provider<this_type, typename this_type::chan_type>;
 private:
   typedef typename smoc_multiplex_fifo_chan<T,A>::chan_init base_type;
 public:
-  typedef smoc_multiplex_fifo_chan<T,A> chan_type;
+  typedef typename this_type::chan_type chan_type;
 
   typedef size_t FifoId;
 
@@ -859,6 +825,9 @@ public:
 
   typename smoc_multiplex_vfifo_chan<T,A>::chan_init getVirtFifo()
     { return typename smoc_multiplex_vfifo_chan<T,A>::chan_init(fifoIdCount++, pMultiplexChan); }
+private:
+  chan_type *getChan()
+    { return pMultiplexChan.get(); }
 };
 
 #endif // _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP

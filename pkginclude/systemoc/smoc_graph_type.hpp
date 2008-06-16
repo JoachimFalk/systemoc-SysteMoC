@@ -60,45 +60,6 @@
 #define T_chan_init_default smoc_fifo
 
 /**
- * use this class to connect arbitrary ports
- */
-template<class ChanInit>
-class smoc_port_connector {
-private:
-  typedef typename ChanInit::chan_type  ChanType;
-public:
-  
-  smoc_port_connector(const ChanInit& init = ChanInit()) :
-    init(init),
-    chan(new ChanType(init))
-  {}
-
-  template<class Port>
-  smoc_port_connector& connect(Port& port)
-  { chan->connect(port, init); return *this; }
-  
-  template<class Port>
-  smoc_port_connector& operator<<(Port& port)
-  { return connect(port); }
-
-  ChanType& getChannel()
-  { return *chan; }
-
-  const ChanType& getChannel() const
-  { return *chan; }
-
-private:
-  // keep reference to channel initializer
-  const ChanInit& init;
-
-  // this may not implement any interface usable for ports
-  // (e.g. sr-multicast: Entry/Outlet classes provide port
-  // interfaces) so we call connect until there is a better
-  // solution
-  ChanType* chan;
-};
-
-/**
  * base class for all graph classes; no scheduling of childen (->
  * derive from this class and build FSM!)
  */
@@ -157,16 +118,11 @@ protected:
   };
 #endif
   
-  /// helper function for easier connector creation
-  template<class ChanInit>
-  smoc_port_connector<ChanInit> connector(const ChanInit& init)
-    { return smoc_port_connector<ChanInit>(init); }
-
   /// connect ports using the specified channel initializer
   template<class PortA, class PortB, class ChanInit>
-  void connectNodePorts(PortA &a, PortB &b, const ChanInit& i)
-    { connector(i) << a << b; }
- 
+  void connectNodePorts(PortA &a, PortB &b, ChanInit i)
+    { i.connect(a).connect(b); }
+
   /// connect ports using the default channel initializer
   template<class PortA, class PortB>
   void connectNodePorts(PortA &a, PortB &b) {
@@ -178,12 +134,12 @@ protected:
       >::result_type
     >());
   }
-  
+
   /// connect ports using the specified channel initializer
   template<int s, class PortA, class PortB, class ChanInit>
-  void connectNodePorts(PortA &a, PortB &b, const ChanInit& i)
-    { connector(i) << a << b; }
-  
+  void connectNodePorts(PortA &a, PortB &b, ChanInit i)
+    { i.connect(a).connect(b); }
+
   /// connect ports using the default channel initializer
   template<int s, class PortA, class PortB>
   void connectNodePorts(PortA &a, PortB &b) {
