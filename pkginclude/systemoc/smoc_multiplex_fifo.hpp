@@ -699,16 +699,17 @@ public:
     FifoId                      fifoId;
     PMultiplexChannel           pMultiplexChan;
     smoc_multiplex_vfifo_chan  *dummy;
+  protected:
+    typedef const T &add_param_ty;
   public:
     chan_init(FifoId fifoId, const PMultiplexChannel &pMultiplexChan)
       : fifoId(fifoId), pMultiplexChan(pMultiplexChan),
         dummy(new chan_type(*this))
       {}
 
-    this_type &operator<<(const T &x) {
+    void add(const add_param_ty x) {
       pMultiplexChan->storage[pMultiplexChan->wIndex()] = x;
       pMultiplexChan->produce(this->fifoId, 1);
-      return *this;
     }
   private:
     chan_type *getChan()
@@ -770,6 +771,18 @@ public:
 
   typename smoc_multiplex_vfifo_chan<T,A>::chan_init getVirtFifo()
     { return typename smoc_multiplex_vfifo_chan<T,A>::chan_init(fifoIdCount++, pMultiplexChan); }
+
+  this_type &operator <<(typename this_type::add_param_ty x)
+    { add(x); return *this; }
+
+  /// Backward compatibility cruft
+  this_type &operator <<(smoc_port_out<T> &p)
+    { return this->connect(p); }
+  this_type &operator <<(smoc_port_in<T> &p)
+    { return this->connect(p); }
+  template<class IFACE>
+  this_type &operator <<(sc_port<IFACE> &p)
+    { return this->connect(p); }
 private:
   chan_type *getChan()
     { return pMultiplexChan.get(); }

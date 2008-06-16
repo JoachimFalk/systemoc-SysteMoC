@@ -369,6 +369,15 @@ public:
 
   this_type &operator<<(const typename chan_type::chan_init::add_param_ty &x)
     { add(x); return *this; }
+
+  /// Backward compatibility cruft
+  this_type &operator <<(smoc_port_out<T> &p)
+    { return this->connect(p); }
+  this_type &operator <<(smoc_port_in<T> &p)
+    { return this->connect(p); }
+  template<class IFACE>
+  this_type &operator <<(sc_port<IFACE> &p)
+    { return this->connect(p); }
 private:
   chan_type *getChan() {
     if (chan == NULL)
