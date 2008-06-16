@@ -29,7 +29,6 @@
 #include "smoc_md_port.hpp"
 #include "smoc_wsdf_edge.hpp"
 
-
 //#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
 //#define SYSTEMOC_TRACE_BUFFER_SIZE
 
@@ -1035,6 +1034,10 @@ protected:
 
 };
 
+template <typename T_DATA_TYPE,
+          template <typename> class STORAGE_OUT_TYPE
+         >
+class smoc_md_fifo;
 
 template <typename T_DATA_TYPE,
           template <typename> class STORAGE_OUT_TYPE = smoc_storage_out
@@ -1043,6 +1046,7 @@ class smoc_md_fifo_type
   : public smoc_md_fifo_storage<T_DATA_TYPE, 
                                 smoc_simple_md_buffer_kind, 
                                 STORAGE_OUT_TYPE> {
+  friend class smoc_md_fifo<T_DATA_TYPE, STORAGE_OUT_TYPE>;
 public:
   typedef T_DATA_TYPE                  data_type;
   typedef smoc_md_fifo_storage<T_DATA_TYPE, 
@@ -1133,7 +1137,7 @@ public:
   smoc_md_fifo_type( const chan_init &i )
     : parent_type(i) {
   }
-  
+
   /// @brief See smoc_port_registry
   smoc_chan_out_base_if* createEntry()
     { /*FIXME*/return this; }
@@ -1142,42 +1146,6 @@ public:
   smoc_chan_in_base_if* createOutlet()
     { /*FIXME*/return this; }
   
-  template<unsigned N,template<class> class S, class Init>
-  void connect(smoc_md_port_out<data_type,N,S>& p, const Init& i) {
-    this_type* e =
-      dynamic_cast<this_type*>(getEntry(&p));
-    assert(e); p(*e);
-    p.setFiringLevelMap(
-        i.wsdf_edge_param.calc_src_iteration_level_table());
-  }
-
-  template<unsigned N,template<class> class S, class Init>
-  void connect(smoc_md_iport_out<data_type,N,S>& p, const Init& i) {
-    this_type* e =
-      dynamic_cast<this_type*>(getEntry(&p));
-    assert(e); p(*e);
-    p.setFiringLevelMap(
-        i.wsdf_edge_param.calc_src_iteration_level_table());
-  }
-
-  template<unsigned N,template<class,class> class B, class Init>
-  void connect(smoc_md_port_in<data_type,N,B>& p, const Init& i) {
-    this_type* o =
-      dynamic_cast<this_type*>(getOutlet(&p));
-    assert(o); p(*o);
-    p.setFiringLevelMap(
-        i.wsdf_edge_param.calc_snk_iteration_level_table());
-  }
-
-  template<unsigned N, class Init>
-  void connect(smoc_md_iport_in<data_type,N>& p, const Init& i) {
-    this_type* o =
-      dynamic_cast<this_type*>(getOutlet(&p));
-    assert(o); p(*o);
-    p.setFiringLevelMap(
-        i.wsdf_edge_param.calc_snk_iteration_level_table());
-  }
-
   // bounce functions
   size_t numAvailable() const { 
 #if VERBOSE_LEVEL_SMOC_MD_FIFO >= 2
@@ -1222,19 +1190,15 @@ public:
 template <typename T, 
           template <typename> class STORAGE_OUT_TYPE = smoc_storage_out>
 class smoc_md_fifo
-  : public smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::chan_init {
+: public smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::chan_init {
+  typedef smoc_md_fifo<T, STORAGE_OUT_TYPE> this_type;
 public:
-  typedef T                   data_type;
-  typedef smoc_md_fifo<T>        this_type;
-
+  typedef T                                       data_type;
   //Identification of corresponding channel class
-  typedef smoc_md_fifo_type<T, STORAGE_OUT_TYPE>   chan_type;
-
+  typedef smoc_md_fifo_type<T, STORAGE_OUT_TYPE>  chan_type;
   //Make buffer_init visible
   typedef typename smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::buffer_init buffer_init;
-
 public:
-  
   smoc_md_fifo( const smoc_wsdf_edge_descr& wsdf_edge_param, 
                 size_t n
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
@@ -1247,7 +1211,8 @@ public:
 						       , ba_ui
 #endif
                                                        ),
-    wsdf_edge_param(wsdf_edge_param)
+    wsdf_edge_param(wsdf_edge_param),
+    chan(NULL)
   {}
 
   explicit smoc_md_fifo( const std::string& name, 
@@ -1260,8 +1225,8 @@ public:
 #endif
 							
                                                         ),
-    wsdf_edge_param(wsdf_edge_param)
-
+      wsdf_edge_param(wsdf_edge_param),
+      chan(NULL)
   {}
 
   smoc_md_fifo(const smoc_wsdf_edge<T,STORAGE_OUT_TYPE>& edge_param,
@@ -1274,17 +1239,54 @@ public:
 							, edge_param.ba_ui
 #endif
                                                         ),
-    wsdf_edge_param(assemble_wsdf_edge(edge_param, src_param, snk_param))
-  {
+      wsdf_edge_param(assemble_wsdf_edge(edge_param, src_param, snk_param)),
+      chan(NULL)
+  {}
+
+  /// @brief Copy constructor
+  smoc_md_fifo(const this_type &x)
+    : smoc_md_fifo_type<T, STORAGE_OUT_TYPE>::chan_init(x),
+      wsdf_edge_param(x.wsdf_edge_param),
+      chan(NULL)
+  {}
+
+  template<unsigned N,template<class> class S>
+  this_type &connect(smoc_md_port_out<data_type,N,S>& p) {
+    p(*dynamic_cast<chan_type *>(getChan()->getEntry(&p)));
+    p.setFiringLevelMap(
+      wsdf_edge_param.calc_src_iteration_level_table());
+    return *this;
   }
-  
+
+  template<unsigned N,template<class> class S>
+  this_type &connect(smoc_md_iport_out<data_type,N,S>& p) {
+    p(*dynamic_cast<chan_type *>(getChan()->getEntry(&p)));
+    p.setFiringLevelMap(
+      wsdf_edge_param.calc_src_iteration_level_table());
+    return *this;
+  }
+
+  template<unsigned N,template<class,class> class B>
+  this_type &connect(smoc_md_port_in<data_type,N,B>& p) {
+    p(*dynamic_cast<chan_type *>(getChan()->getOutlet(&p)));
+    p.setFiringLevelMap(
+      wsdf_edge_param.calc_snk_iteration_level_table());
+    return *this;
+  }
+
+  template<unsigned N>
+  this_type &connect(smoc_md_iport_in<data_type,N>& p) {
+    p(*dynamic_cast<chan_type *>(getChan()->getOutlet(&p)));
+    p.setFiringLevelMap(
+      wsdf_edge_param.calc_snk_iteration_level_table());
+    return *this;
+  }
 
   const smoc_wsdf_edge_descr wsdf_edge_param;
 
 private:
-  
-
-
+  chan_type *chan;
+private:
 
   smoc_wsdf_edge_descr assemble_wsdf_edge(const smoc_wsdf_edge<T, STORAGE_OUT_TYPE>& edge_param,
                                           const smoc_wsdf_src_param& src_param,
@@ -1376,11 +1378,16 @@ private:
 
     return return_value;
   }
+
+  chan_type *getChan() {
+    if (chan == NULL)
+      chan = new chan_type(*this);
+    return chan;
+  }
+
+  // disable
+  this_type &operator =(const this_type &);
 };
-
-
-
-
 
 /// If we want to annotate the parameters at the ports instead of
 /// associating them all with the FIFO, we can use this class

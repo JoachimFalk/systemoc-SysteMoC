@@ -207,9 +207,6 @@ public:
   typedef smoc_multiplex_fifo_entry<T,A>  entry_type;
   typedef smoc_multiplex_fifo_outlet<T,A> outlet_type;
   
-  typedef typename entry_type::iface_type   entry_iface_type;
-  typedef typename outlet_type::iface_type  outlet_iface_type;
-
   typedef typename this_type::FifoId        FifoId;
   typedef typename this_type::FifoSequence  FifoSequence;
   typedef typename this_type::FifoMap       FifoMap;
@@ -330,58 +327,6 @@ public:
   //std::cerr << "usedCount():    " << usedCount() << std::endl;
   //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
   }
-
-  /// @brief Nicer compile time error
-  struct No_Channel_Adapter_Found__Please_Use_Other_Interface {};
-  
-  /// @brief Connect sc_port
-  template<class IFace,class Init>
-  void connect(sc_port<IFace>& p, const Init&) {
-  
-    using namespace SysteMoC::Detail;
-
-    // available adapters
-    typedef smoc_chan_adapter<entry_iface_type,IFace>   EntryAdapter;
-    typedef smoc_chan_adapter<outlet_iface_type,IFace>  OutletAdapter;
-
-    // try to get adapter (utilize Tags for simpler implementation)
-    typedef
-      typename Select<
-        EntryAdapter::isAdapter,
-        std::pair<EntryAdapter,smoc_port_registry::EntryTag>,
-      typename Select<
-        OutletAdapter::isAdapter,
-        std::pair<OutletAdapter,smoc_port_registry::OutletTag>,
-      No_Channel_Adapter_Found__Please_Use_Other_Interface
-      >::result_type
-      >::result_type P;
-
-    // corresponding types
-    typedef typename P::first_type Adapter;
-    typedef typename P::second_type Tag;
-
-    typename Adapter::iface_impl_type* iface =
-      dynamic_cast<typename Adapter::iface_impl_type*>(
-          smoc_port_registry::getIF<Tag>(&p));
-    assert(iface); p(*(new Adapter(*iface)));
-  }
-  
-  /// @brief Connect smoc_port_out
-  template<class Init>
-  void connect(smoc_port_out<data_type>& p, const Init&) {
-    entry_type* e =
-      dynamic_cast<entry_type*>(getEntry(&p));
-    assert(e); p(*e);
-  }
-
-  /// @brief Connect smoc_port_in
-  template<class Init>
-  void connect(smoc_port_in<data_type>& p, const Init&) {
-    outlet_type* o =
-      dynamic_cast<outlet_type*>(getOutlet(&p));
-    assert(o); p(*o);
-  }
-
 protected:
   /// @brief See smoc_port_registry
   smoc_chan_out_base_if *createEntry()

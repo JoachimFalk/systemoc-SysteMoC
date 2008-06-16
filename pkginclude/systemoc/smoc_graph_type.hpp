@@ -117,7 +117,12 @@ protected:
     typedef T data_type;
   };
 #endif
-  
+
+  /// connect ports using the specified channel initializer
+  template<class Init>
+  Init connector(const Init &i)
+    { return i; }
+
   /// connect ports using the specified channel initializer
   template<class PortA, class PortB, class ChanInit>
   void connectNodePorts(PortA &a, PortB &b, ChanInit i)

@@ -373,9 +373,6 @@ public:
   typedef smoc_multireader_fifo_entry<data_type>  entry_type;
   typedef smoc_multireader_fifo_outlet<data_type> outlet_type;
 
-  typedef typename entry_type::iface_type   entry_iface_type;
-  typedef typename outlet_type::iface_type  outlet_iface_type;
-
   /// @brief Channel initializer
   typedef typename smoc_fifo_storage<T, smoc_multireader_fifo_chan_base>::chan_init chan_init;
 

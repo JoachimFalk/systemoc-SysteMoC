@@ -315,9 +315,6 @@ public:
   typedef smoc_fifo_entry<data_type>  entry_type;
   typedef smoc_fifo_outlet<data_type> outlet_type;
   
-  typedef typename entry_type::iface_type   entry_iface_type;
-  typedef typename outlet_type::iface_type  outlet_iface_type;
-
   /// @brief Channel initializer
   typedef typename smoc_fifo_storage<T, smoc_fifo_chan_base>::chan_init chan_init;
 
@@ -350,8 +347,8 @@ class smoc_fifo
 
   friend class smoc_connect_provider<this_type, typename this_type::chan_type>;
 public:
-  typedef T                 data_type;
-  typedef smoc_fifo_chan<T> chan_type;
+  typedef T                             data_type;
+  typedef typename this_type::chan_type chan_type;
 private:
   chan_type *chan;
 public:

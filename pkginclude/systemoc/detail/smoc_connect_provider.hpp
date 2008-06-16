@@ -108,10 +108,6 @@ public:
     assert(iface); p(*(new Adapter(*iface)));
     return *getDerived();
   }
-
-  template<class Port>
-  DERIVED &operator << (Port &port)
-    { return this->connect(port); }
 };
 
 #endif // _INCLUDED_SMOC_DETAIL_SMOC_CONNECT_PROVIDER_HPP

@@ -112,6 +112,7 @@ private:
 
 class smoc_multicast_outlet_base {
   friend class smoc_graph_sr;
+  template <class,class,class> friend class smoc_chan_in_base_redirector;
 public:
   /// @brief Constructor
   smoc_multicast_outlet_base(smoc_multicast_sr_signal_chan_base* chan);
@@ -157,6 +158,7 @@ private:
 
 class smoc_multicast_entry_base {
   friend class smoc_graph_sr;
+  template <class,class,class> friend class smoc_chan_out_base_redirector;
 public:
   /// @brief Constructor
   smoc_multicast_entry_base(smoc_multicast_sr_signal_chan_base* chan);
@@ -205,10 +207,13 @@ class smoc_multicast_sr_signal_chan;
 
 template <typename T>
 class smoc_multicast_outlet
-  : public smoc_chan_in_if<T,smoc_channel_access_if>,
-    public smoc_multicast_outlet_base,
-    public smoc_channel_access_if<
-      typename smoc_chan_in_if<T,smoc_channel_access_if>::access_type::return_type>
+  : public smoc_multicast_outlet_base,
+    public smoc_chan_in_base_redirector<
+      smoc_chan_in_if<T,smoc_channel_access_if>,
+      smoc_multicast_outlet<T>,
+      smoc_multicast_outlet_base
+    >,
+    public smoc_channel_access_if<typename smoc_storage_in<T>::return_type>
 {
 public:
   typedef T                                       data_type;
@@ -254,10 +259,13 @@ private:
 
 template <typename T>
 class smoc_multicast_entry
-  : public smoc_chan_out_if<T,smoc_channel_access_if>,
-    public smoc_multicast_entry_base,
-    public smoc_channel_access_if<
-      typename smoc_chan_out_if<T,smoc_channel_access_if>::access_type::return_type>
+: public smoc_multicast_entry_base,
+  public smoc_chan_out_base_redirector<
+    smoc_chan_out_if<T,smoc_channel_access_if>,
+    smoc_multicast_entry<T>,
+    smoc_multicast_entry_base
+  >,
+  public smoc_channel_access_if<typename smoc_storage_out<T>::return_type>
 {
 public:
   typedef T                                       data_type;
@@ -308,12 +316,9 @@ public:
   typedef T                                         data_type;
   typedef smoc_multicast_sr_signal_chan<data_type>  this_type;
   typedef smoc_storage<data_type>                   storage_type;
-  typedef smoc_multicast_outlet<data_type>          Outlet;
-  typedef smoc_multicast_entry<data_type>           Entry;
+  typedef smoc_multicast_outlet<data_type>          outlet_type;
+  typedef smoc_multicast_entry<data_type>           entry_type;
   
-  typedef typename Entry::iface_type  entry_iface_type;
-  typedef typename Outlet::iface_type outlet_iface_type;
-
   friend class smoc_multicast_entry<T>;
   friend class smoc_multicast_outlet<T>;
 
@@ -353,66 +358,16 @@ public:
       this->setSignalState(defined);
     }
   }
-  
-  /// @brief Nicer compile time error
-  struct No_Channel_Adapter_Found__Please_Use_Other_Interface {};
-  
-  /// @brief Connect sc_port
-  template<class IFace,class Init>
-  void connect(sc_port<IFace>& p, const Init&) {
-  
-    using namespace SysteMoC::Detail;
-
-    // available adapters
-    typedef smoc_chan_adapter<entry_iface_type,IFace>   EntryAdapter;
-    typedef smoc_chan_adapter<outlet_iface_type,IFace>  OutletAdapter;
-
-    // try to get adapter (utilize Tags for simpler implementation)
-    typedef
-      typename Select<
-        EntryAdapter::isAdapter,
-        std::pair<EntryAdapter,smoc_port_registry::EntryTag>,
-      typename Select<
-        OutletAdapter::isAdapter,
-        std::pair<OutletAdapter,smoc_port_registry::OutletTag>,
-      No_Channel_Adapter_Found__Please_Use_Other_Interface
-      >::result_type
-      >::result_type P;
-
-    // corresponding types
-    typedef typename P::first_type Adapter;
-    typedef typename P::second_type Tag;
-
-    typename Adapter::iface_impl_type* iface =
-      dynamic_cast<typename Adapter::iface_impl_type*>(
-          smoc_port_registry::getIF<Tag>(&p));
-    assert(iface); p(*(new Adapter(*iface)));
-  }
-
-  /// @brief Connect smoc_port_out
-  template<class Init>
-  void connect(smoc_port_out<data_type>& p, const Init&) {
-    Entry* e = dynamic_cast<Entry*>(getEntry(&p));
-    assert(e); p(*e);
-  }
-
-  /// @brief Connect smoc_port_in
-  template<class Init>
-  void connect(smoc_port_in<data_type>& p, const Init&) {
-    Outlet* o = dynamic_cast<Outlet*>(getOutlet(&p));
-    assert(o); p(*o);
-  }
-
 protected:
   storage_type actualValue;
 
   /// @brief See smoc_port_registry
   smoc_chan_out_base_if* createEntry()
-    { return new Entry(this); }
+    { return new entry_type(this); }
 
   /// @brief See smoc_port_registry
   smoc_chan_in_base_if* createOutlet()
-    { return new Outlet(this); }
+    { return new outlet_type(this); }
 
   void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
@@ -444,24 +399,54 @@ protected:
 
 template <typename T>
 class smoc_multicast_sr_signal
-  : public smoc_multicast_sr_signal_chan<T>::chan_init {
+: public smoc_multicast_sr_signal_chan<T>::chan_init,
+  public smoc_connect_provider<
+    smoc_multicast_sr_signal<T>,
+    smoc_multicast_sr_signal_chan<T> > {
+  typedef smoc_multicast_sr_signal<T> this_type;
+
+  friend class smoc_connect_provider<this_type, typename this_type::chan_type>;
 public:
-  typedef T                                  data_type;
-  typedef smoc_multicast_sr_signal<T>        this_type;
-  typedef smoc_multicast_sr_signal_chan<T>   chan_type;
-  
+  typedef T                             data_type;
+  typedef typename this_type::chan_type chan_type;
+private:
+  chan_type *chan;
+public:
+  smoc_multicast_sr_signal( )
+    : smoc_multicast_sr_signal_chan<T>::chan_init("", 1), chan(NULL)
+  {}
+
+  explicit smoc_multicast_sr_signal( const std::string& name )
+    : smoc_multicast_sr_signal_chan<T>::chan_init(name, 1), chan(NULL)
+  {}
+
+  /// @brief Constructor
+  smoc_multicast_sr_signal(const this_type &x)
+    : smoc_multicast_sr_signal<T>::chan_init(x), chan(NULL)
+  {}
+
   this_type &operator <<
     (typename smoc_multicast_sr_signal_chan<T>::chan_init::add_param_ty x){
     add(x); return *this;
   }
-  
-  smoc_multicast_sr_signal( )
-    : smoc_multicast_sr_signal_chan<T>::chan_init( "", 1 )
-  {}
 
-  explicit smoc_multicast_sr_signal( const std::string& name )
-    : smoc_multicast_sr_signal_chan<T>::chan_init( name, 1 )
-  {}
+  /// Backward compatibility cruft for martin
+  this_type &operator <<(smoc_port_out<T> &p)
+    { return this->connect(p); }
+  this_type &operator <<(smoc_port_in<T> &p)
+    { return this->connect(p); }
+  template<class IFACE>
+  this_type &operator <<(sc_port<IFACE> &p)
+    { return this->connect(p); }
+private:
+  chan_type *getChan() {
+    if (chan == NULL)
+      chan = new chan_type(*this);
+    return chan;
+  }
+
+  // disable
+  this_type &operator =(const this_type &);
 };
 
 #endif // _INCLUDED_SMOC_MULTICAST_SR_SIGNAL_HPP
