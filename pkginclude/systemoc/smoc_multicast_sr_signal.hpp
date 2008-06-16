@@ -331,9 +331,9 @@ public:
     //FIXME(MS): replace with signal value wrapper
     std::vector<T>  marking;
   protected:
-    typedef const T add_param_ty;
+    typedef const T &add_param_ty;
   public:
-    void add( add_param_ty x ) {
+    void add(add_param_ty x) {
       //FIXME(MS): Signal initialization should be disabled in future!
       std::cerr << "Warning: Signals in synchronous-reactive systems should"
              " not be initialized!\n"
@@ -426,12 +426,10 @@ public:
     : smoc_multicast_sr_signal<T>::chan_init(x), chan(NULL)
   {}
 
-  this_type &operator <<
-    (typename smoc_multicast_sr_signal_chan<T>::chan_init::add_param_ty x){
-    add(x); return *this;
-  }
+  this_type &operator <<(typename this_type::add_param_ty x)
+    { add(x); return *this; }
 
-  /// Backward compatibility cruft for martin
+  /// Backward compatibility cruft
   this_type &operator <<(smoc_port_out<T> &p)
     { return this->connect(p); }
   this_type &operator <<(smoc_port_in<T> &p)

@@ -400,8 +400,7 @@ class smoc_multireader_fifo
 : public smoc_multireader_fifo_chan<T>::chan_init,
   public smoc_connect_provider<
     smoc_multireader_fifo<T>,
-    smoc_multireader_fifo_chan<T> >,
-  private boost::noncopyable {
+    smoc_multireader_fifo_chan<T> > {
   typedef smoc_multireader_fifo<T> this_type;
 
   friend class smoc_connect_provider<this_type, typename this_type::chan_type>;
@@ -422,14 +421,31 @@ public:
     : smoc_multireader_fifo_chan<T>::chan_init(name, n, so), chan(NULL)
   {}
 
-  this_type &operator<<(const typename chan_type::chan_init::add_param_ty &x)
+  /// @brief Constructor
+  smoc_multireader_fifo(const this_type &x)
+    : smoc_multireader_fifo_chan<T>::chan_init(x), chan(NULL)
+  {}
+
+  this_type &operator <<(typename this_type::add_param_ty x)
     { add(x); return *this; }
+
+  /// Backward compatibility cruft
+  this_type &operator <<(smoc_port_out<T> &p)
+    { return this->connect(p); }
+  this_type &operator <<(smoc_port_in<T> &p)
+    { return this->connect(p); }
+  template<class IFACE>
+  this_type &operator <<(sc_port<IFACE> &p)
+    { return this->connect(p); }
 private:
   chan_type *getChan() {
     if (chan == NULL)
       chan = new chan_type(*this);
     return chan;
   }
+
+  // disable
+  this_type &operator =(const this_type &);
 };
 
 #endif // _INCLUDED_SMOC_MULTIREADER_FIFO_HPP
