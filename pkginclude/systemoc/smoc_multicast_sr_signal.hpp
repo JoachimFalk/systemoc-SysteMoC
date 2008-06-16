@@ -27,6 +27,7 @@
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
 #include "detail/smoc_sysc_port.hpp"
+#include "detail/smoc_connect_provider.hpp"
 #include "detail/EventMapManager.hpp"
 #include "smoc_chan_adapter.hpp"
 
