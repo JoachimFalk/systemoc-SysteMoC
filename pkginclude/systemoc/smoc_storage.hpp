@@ -94,6 +94,17 @@ public:
 
   smoc_storage(const T& t) : valid(true) { new(mem) T(t); }
 
+  T &get() {
+    assert(valid);
+    T &t = *ptr();
+    // delayed read access (VPC) may conflict with channel (in-)validation
+    this->fireModified( t );
+    return t;
+  }
+
+  operator T &()
+    { return get(); }
+
   const T& get() const {
     assert(valid);
     const T &t = *ptr();

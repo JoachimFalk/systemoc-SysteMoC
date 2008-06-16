@@ -552,13 +552,13 @@ template <
   template <typename> class R>                    // ring access type
 class smoc_chan_in_if
 : public smoc_chan_in_base_if {
-public:
-  // typedefs
   typedef smoc_chan_in_if<T,R>                  this_type;
+public:
   typedef T                                     data_type;
   typedef R<
     typename smoc_storage_in<T>::return_type>   access_in_type;
   typedef access_in_type                        access_type;
+  typedef this_type                             iface_type;
 protected:
   // constructor
   smoc_chan_in_if() {}
@@ -581,13 +581,13 @@ template <
   template <typename> class S = smoc_storage_out> // smoc_storage
 class smoc_chan_out_if
 : public smoc_chan_out_base_if {
-public:
-  // typedefs
   typedef smoc_chan_out_if<T,R,S> this_type;
+public:
   typedef T                       data_type;
   typedef R<
     typename S<T>::return_type>   access_out_type;
   typedef access_out_type         access_type;
+  typedef this_type               iface_type;
 protected:
   // constructor
   smoc_chan_out_if() {}
