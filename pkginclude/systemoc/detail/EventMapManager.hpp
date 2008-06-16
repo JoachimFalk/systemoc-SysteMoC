@@ -38,12 +38,13 @@
 #define _INCLUDED_SMOC_DETAIL_EVENTMAPMANAGER_HPP
 
 #include "smoc_event_decls.hpp"
+#include <ostream>
 
 namespace Detail {
 
   class EventMapManager {
   public:
-    typedef std::map<size_t, smoc_event *> EventMap;
+    typedef std::map<size_t, smoc_event*> EventMap;
   private:
     EventMap eventMap;
   public:
@@ -67,16 +68,27 @@ namespace Detail {
       // n ==  MAX_TYPE(size_t) was used to denote a magical
       // readEvent writeEvent request which is no longer supported.
       assert(n != MAX_TYPE(size_t)); 
-      EventMap::iterator iter = eventMap.find(n);
-      // Maybe we already have this event?
-      if (iter == eventMap.end()) {
-        // Not found => insert it
-        std::pair<EventMap::iterator, bool> inserted =
-          eventMap.insert(EventMap::value_type(n, new smoc_event(count >= n)));
-        assert(inserted.second /* Check if we have realy inserted the event! */);
-        iter = inserted.first;
+      smoc_event*& evt = eventMap[n];
+      if(!evt) evt = new smoc_event(count >= n);
+      return *evt;
+    }
+
+    ~EventMapManager() {
+      for (EventMap::const_iterator iter = eventMap.begin();
+           iter != eventMap.end();
+           ++iter)
+      {
+        delete iter->second;
       }
-      return *iter->second;
+    }
+
+    void dump(std::ostream& out) const {
+      for (EventMap::const_iterator iter = eventMap.begin();
+           iter != eventMap.end();
+           ++iter)
+      {
+        out << iter->first << ": " << *iter->second << std::endl;
+      }
     }
   };
 

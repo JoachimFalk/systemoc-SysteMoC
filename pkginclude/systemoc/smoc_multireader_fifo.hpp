@@ -70,6 +70,21 @@
 
 size_t fsizeMapper(sc_object* instance, size_t n);
 
+class smoc_multireader_fifo_outlet_base;
+class smoc_multireader_fifo_entry_base;
+
+class smoc_multireader_scheduler {
+public:
+  friend class smoc_multireader_fifo_chan_base;
+
+  virtual ~smoc_multireader_scheduler()
+    {}
+
+protected:
+  virtual bool canNotify(const sc_port_base*)
+    { return true; }
+};
+
 /**
  * The base channel implementation
  */
@@ -92,12 +107,13 @@ public:
   public:
     friend class smoc_multireader_fifo_chan_base;
   protected:
-    chan_init(const std::string& name, size_t n)
-      : name(name), n(n)
+    chan_init(const std::string& name, size_t n, smoc_multireader_scheduler* so)
+      : name(name), n(n), so(so)
     {}
   private:
     std::string name;
     size_t n;
+    smoc_multireader_scheduler* so;
   };
 
 protected:
@@ -117,8 +133,27 @@ protected:
   /// @brief Detail::LatencyQueue::ILatencyExpired
   void diiExpired(size_t n);
 
+  
+  typedef std::map<
+    smoc_multireader_fifo_outlet_base*,Detail::EventMapManager> OutletEventMapManager;
+  
+  OutletEventMapManager emmAvailable;
+
+  //typedef std::map<smoc_multireader_fifo_entry_base*,EventMap> EntryEventMap;
+  //EntryEventMap eem;
+
+  void moreData();
+  void lessData();
+  void moreSpace();
+  void lessSpace();
+
+  smoc_event& queueOutlet(smoc_multireader_fifo_outlet_base* o, size_t n);
+  smoc_event& queueEntry(smoc_multireader_fifo_entry_base* o, size_t n);
+
+  void start_of_simulation();
+
 private:
-  Detail::EventMapManager emmAvailable;
+  //Detail::EventMapManager emmAvailable;
   Detail::EventMapManager emmFree;
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue  latencyQueue;
@@ -127,6 +162,9 @@ private:
 
   /// @brief The token id of the next commit token
   size_t tokenId;
+
+  smoc_multireader_scheduler  schedDefault;
+  smoc_multireader_scheduler* schedOutlets;
 };
 
 /**
@@ -134,6 +172,8 @@ private:
  */
 class smoc_multireader_fifo_outlet_base {
   template <class X, class Y, class Z> friend class smoc_chan_in_base_redirector;
+public:
+  virtual ~smoc_multireader_fifo_outlet_base() {}
 protected:
   /// @brief Constructor
   smoc_multireader_fifo_outlet_base(smoc_multireader_fifo_chan_base &chan)
@@ -155,7 +195,8 @@ protected:
     TraceLog.traceCommExecIn(this, consume);
 #endif
     chan.rpp(consume);
-    chan.emmAvailable.decreasedCount(chan.visibleCount());
+    //chan.emmAvailable.decreasedCount(chan.visibleCount());
+    chan.lessData();
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of diiExpired(consume);
     chan.diiQueue.addEntry(consume, diiEvent);
@@ -167,10 +208,11 @@ protected:
 //  std::cerr << "usedCount():    " << chan.usedCount() << std::endl;
 //  std::cerr << "visibleCount(): " << chan.visibleCount() << std::endl;
   }
-  
+ 
   /// @brief See smoc_chan_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
-    { return chan.emmAvailable.getEvent(chan.visibleCount(), n); }
+    //{ return chan.emmAvailable.getEvent(chan.visibleCount(), n); }
+  { return chan.queueOutlet(this, n); }
 
   /// @brief See smoc_chan_in_base_if
   size_t numAvailable() const
@@ -214,7 +256,8 @@ protected:
 #endif
     chan.tokenId += produce;
     chan.wpp(produce);
-    chan.emmFree.decreasedCount(chan.freeCount());
+    //chan.emmFree.decreasedCount(chan.freeCount());
+    chan.lessSpace();
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of latencyExpired(produce);
     chan.latencyQueue.addEntry(produce, le);
@@ -229,7 +272,8 @@ protected:
   
   /// @brief See smoc_chan_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
-    { return chan.emmFree.getEvent(chan.freeCount(), n); }
+   // { return chan.emmFree.getEvent(chan.freeCount(), n); }
+    { return chan.queueEntry(this, n); }
   
   /// @brief See smoc_chan_out_base_if
   size_t numFree() const
@@ -417,13 +461,14 @@ public:
     { add(x); return *this; }
 
   /// @brief Constructor
-  smoc_multireader_fifo(size_t n = 1)
-    : smoc_multireader_fifo_chan<T>::chan_init("", n)
+  smoc_multireader_fifo(size_t n = 1, smoc_multireader_scheduler* so = 0)
+    : smoc_multireader_fifo_chan<T>::chan_init("", n, so)
   {}
 
   /// @brief Constructor
-  explicit smoc_multireader_fifo(const std::string& name, size_t n = 1)
-    : smoc_multireader_fifo_chan<T>::chan_init(name, n)
+  explicit smoc_multireader_fifo(
+      const std::string& name, size_t n = 1, smoc_multireader_scheduler* so = 0)
+    : smoc_multireader_fifo_chan<T>::chan_init(name, n, so)
   {}
 
 private:
