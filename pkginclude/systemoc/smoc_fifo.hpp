@@ -83,8 +83,8 @@ class smoc_fifo_chan_base
 {
   typedef smoc_fifo_chan_base this_type;
 
-  friend class smoc_fifo_outlet_base;
-  friend class smoc_fifo_entry_base;
+  template<class> friend class smoc_fifo_outlet;
+  template<class> friend class smoc_fifo_entry;
 public:
   /// @brief Channel initializer
   class chan_init {
@@ -133,17 +133,26 @@ private:
   size_t tokenId;
 };
 
+template<class> class smoc_fifo_chan;
+
 /**
- * This class implements the base channel in interface
+ * This class implements the channel in interface
  */
-class smoc_fifo_outlet_base {
-  template <class X, class Y, class Z> friend class smoc_chan_in_base_redirector;
-protected:
+template<class T>
+class smoc_fifo_outlet
+: public smoc_chan_in_if<T,smoc_channel_access_if>
+{
+public:
+  typedef smoc_fifo_outlet<T> this_type;
+  typedef typename this_type::access_type access_type; 
+  typedef smoc_chan_in_if<T,smoc_channel_access_if> iface_type;
+
   /// @brief Constructor
-  smoc_fifo_outlet_base(smoc_fifo_chan_base &chan)
+  smoc_fifo_outlet(smoc_fifo_chan<T>& chan)
     : chan(chan)
   {}
 
+protected:
   /// @brief See smoc_chan_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
@@ -175,25 +184,34 @@ protected:
   /// @brief See smoc_chan_in_base_if
   size_t inTokenId() const
     { return chan.tokenId - chan.usedCount(); }
+  
+  /// @brief See smoc_chan_in_if
+  access_type* getReadChannelAccess()
+    { return chan.getReadChannelAccess(); }
 
 private:
-  /// @brief The channel base implementation
-  smoc_fifo_chan_base &chan;
+  /// @brief The channel implementation
+  smoc_fifo_chan<T>& chan;
 };
 
-
-
 /**
- * This class implements the base channel out interface
+ * This class implements the channel out interface
  */
-class smoc_fifo_entry_base {
-  template <class X, class Y, class Z> friend class smoc_chan_out_base_redirector;
-protected:
+template<class T>
+class smoc_fifo_entry
+: public smoc_chan_out_if<T,smoc_channel_access_if>
+{
+public:
+  typedef smoc_fifo_entry<T> this_type;
+  typedef typename this_type::access_type access_type; 
+  typedef smoc_chan_out_if<T,smoc_channel_access_if> iface_type;
+
   /// @brief Constructor
-  smoc_fifo_entry_base(smoc_fifo_chan_base &chan)
+  smoc_fifo_entry(smoc_fifo_chan<T>& chan)
     : chan(chan)
   {}
 
+protected:
   /// @brief See smoc_chan_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
@@ -226,71 +244,7 @@ protected:
   /// @brief See smoc_chan_out_base_if
   size_t outTokenId() const
     { return chan.tokenId; }
-
-private:
-  /// @brief The channel base implementation
-  smoc_fifo_chan_base &chan;
-};
-
-template<class> class smoc_fifo_chan;
-
-/**
- * This class implements the channel in interface
- */
-template<class T>
-class smoc_fifo_outlet
-: public smoc_fifo_outlet_base,
-  public smoc_chan_in_base_redirector<
-    smoc_chan_in_if<T,smoc_channel_access_if>,
-    smoc_fifo_outlet<T>,
-    smoc_fifo_outlet_base
-  >
-{
-public:
-  typedef smoc_fifo_outlet<T> this_type;
-  typedef typename this_type::access_type access_type; 
-  typedef smoc_chan_in_if<T,smoc_channel_access_if> iface_type;
-
-  /// @brief Constructor
-  smoc_fifo_outlet(smoc_fifo_chan<T>& chan)
-    : smoc_fifo_outlet_base(chan),
-      chan(chan)
-  {}
-
-protected:
-  /// @brief See smoc_chan_in_if
-  access_type* getReadChannelAccess()
-    { return chan.getReadChannelAccess(); }
-
-private:
-  /// @brief The channel implementation
-  smoc_fifo_chan<T>& chan;
-};
-
-/**
- * This class implements the channel out interface
- */
-template<class T>
-class smoc_fifo_entry
-: public smoc_fifo_entry_base,
-  public smoc_chan_out_base_redirector<
-    smoc_chan_out_if<T,smoc_channel_access_if>,
-    smoc_fifo_entry<T>,
-    smoc_fifo_entry_base
-  >
-{
-public:
-  typedef smoc_fifo_entry<T> this_type;
-  typedef typename this_type::access_type access_type; 
-  typedef smoc_chan_out_if<T,smoc_channel_access_if> iface_type;
-
-  /// @brief Constructor
-  smoc_fifo_entry(smoc_fifo_chan<T>& chan)
-    : smoc_fifo_entry_base(chan),
-      chan(chan)
-  {}
-
-protected:
+  
   /// @brief See smoc_chan_out_if
   access_type* getWriteChannelAccess()
     { return chan.getWriteChannelAccess(); }
