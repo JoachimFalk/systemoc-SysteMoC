@@ -443,13 +443,13 @@ public:
 #endif
   private:
     ChanIfImpl &getChanIfImpl() {
-      std::cerr << "offsetof(ChanIfImpl, accessImpl): " <<  offsetof(ChanIfImpl, accessImpl) << std::endl;
+      //std::cerr << "offsetof(ChanIfImpl, accessImpl): " <<  offsetof(ChanIfImpl, accessImpl) << std::endl;
 
       ChanIfImpl *retval =
         reinterpret_cast<ChanIfImpl *>(
           reinterpret_cast<char *>(this) -
           offsetof(ChanIfImpl, accessImpl));
-      std::cerr << "this: " << this << ", retval: " << retval << std::endl;
+      //std::cerr << "this: " << this << ", retval: " << retval << std::endl;
       return *retval;
     }
     MultiplexChannel &getChan()
@@ -474,20 +474,20 @@ public:
     // Access methods
     return_type operator[](size_t n) {
       assert(n < limit);
-      std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
+      //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
       assert(n < limit);
       MultiplexChannel &chan = getChan();
       
       size_t rindex;
       
-      std::cerr << "XXX " << getChanIfImpl().fifoId << std::endl;
+      //std::cerr << "XXX " << getChanIfImpl().fifoId << std::endl;
       
       for (rindex = chan.rIndex();
            n >= 1 && A::get(chan.storage[rindex].get()) != getChanIfImpl().fifoId;
            rindex = rindex < chan.fSize() - 1 ? rindex + 1 : 0)
         if (A::get(chan.storage[rindex].get()) == getChanIfImpl().fifoId)
           --n;
-      std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
+      //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
       return chan.storage[rindex];
     }
     const return_type operator[](size_t n) const
@@ -577,13 +577,13 @@ private:
 #endif
   private:
     ChanIfImpl &getChanIfImpl() {
-      std::cerr << "offsetof(ChanIfImpl, accessImpl): " <<  offsetof(ChanIfImpl, accessImpl) << std::endl;
+      //std::cerr << "offsetof(ChanIfImpl, accessImpl): " <<  offsetof(ChanIfImpl, accessImpl) << std::endl;
 
       ChanIfImpl *retval =
         reinterpret_cast<ChanIfImpl *>(
           reinterpret_cast<char *>(this) -
           offsetof(ChanIfImpl, accessImpl));
-      std::cerr << "this: " << this << ", retval: " << retval << std::endl;
+      //std::cerr << "this: " << this << ", retval: " << retval << std::endl;
       return *retval;
     }
     MultiplexChannel &getChan()
@@ -607,13 +607,13 @@ private:
 
     // Access methods
     return_type operator[](size_t n) {
-      std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
+      //std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
       assert(n < limit);
       MultiplexChannel &chan = getChan();
       size_t windex = chan.wIndex() + n;
       if (windex >= chan.fSize())
         windex -= chan.fSize();
-      std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
+      //std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
       return chan.storage[chan.wIndex() + n];
     }
 
