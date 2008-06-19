@@ -9,7 +9,7 @@
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_md_fifo.hpp>
 #include <systemoc/smoc_md_port.hpp>
-#include <systemoc/smoc_wsdf_edge.hpp>
+#include <wsdf/smoc_wsdf_edge.hpp>
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #ifndef __SCFE__
@@ -37,6 +37,9 @@ using namespace smoc_md_ba;
 int sc_main(int argc, char *argv[]) {} // dummy SystemC requires it!
 
 int main(){
+
+  std::cout << "Start program" << std::endl;
+  std::cout.flush();
 
   /* Number of schedule periods to simulate */
   const unsigned long max_src_schedule_periods = 1;
@@ -124,6 +127,7 @@ int main(){
 # error "wrong mode"
 # endif
 #endif
+
         
   smoc_md_fifo<void> my_fifo(edge_e1,
 			     MAX_TYPE(size_t)
@@ -134,6 +138,8 @@ int main(){
 
   smoc_md_fifo<void>::chan_type *my_channel = 
     new smoc_md_fifo<void>::chan_type(my_fifo);
+
+#if 0
 
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -192,5 +198,6 @@ int main(){
 
   delete my_channel;
         
+#endif
 
 }

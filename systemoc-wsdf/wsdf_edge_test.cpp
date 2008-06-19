@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <systemoc/smoc_wsdf_edge.hpp>
+#include <wsdf/smoc_wsdf_edge.hpp>
 #include <systemoc/smoc_md_port.hpp>
 
 using namespace std;
