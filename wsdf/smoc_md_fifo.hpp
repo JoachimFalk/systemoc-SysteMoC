@@ -27,7 +27,7 @@
 #include "smoc_md_buffer.hpp"
 #include "smoc_md_chan_if.hpp"
 #include "smoc_md_port.hpp"
-#include "smoc_wsdf_edge.hpp"
+#include <wsdf/smoc_wsdf_edge.hpp>
 
 //#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
 //#define SYSTEMOC_TRACE_BUFFER_SIZE
@@ -1359,18 +1359,7 @@ private:
 
   buffer_init assemble_buffer_init(const smoc_wsdf_edge_descr& wsdf_edge_param, 
                                    size_t n) const{
-    buffer_init return_value(wsdf_edge_param.src_iteration_max(),
-                             wsdf_edge_param.src_data_element_mapping_matrix(),
-                             wsdf_edge_param.src_data_element_mapping_vector(),
-                             
-                             wsdf_edge_param.snk_iteration_max(),
-                             wsdf_edge_param.snk_data_element_mapping_matrix(),
-                             wsdf_edge_param.snk_data_element_mapping_vector(),
-
-                             wsdf_edge_param.calc_border_condition_matrix(),
-                             wsdf_edge_param.calc_low_border_condition_vector(),
-                             wsdf_edge_param.calc_high_border_condition_vector(),
-                             
+    buffer_init return_value(wsdf_edge_param,                             
                              n);
 
     return return_value;

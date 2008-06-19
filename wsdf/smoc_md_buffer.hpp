@@ -7,11 +7,12 @@
 #include <CoSupport/commondefs.h>
 #include <CoSupport/Streams/DebugOStream.hpp>
 
-#include "smoc_vector.hpp"
+#include <wsdf/smoc_vector.hpp>
 #include "smoc_md_loop.hpp"
-#include "smoc_md_array.hpp"
+#include <wsdf/smoc_md_array.hpp>
 #include "smoc_md_chan_if.hpp"
 #include "smoc_pggen.hpp"
+#include <wsdf/smoc_wsdf_edge.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BUFFER
 #define VERBOSE_LEVEL_SMOC_MD_BUFFER 0
@@ -265,7 +266,7 @@ public:
         
   /// buffer init
   class buffer_init {
-    friend class smoc_md_buffer_mgmt_base;
+    //friend class smoc_md_buffer_mgmt_base;
   public:
     typedef smoc_md_loop_data_element_mapper::mapping_matrix_type mapping_matrix_type;
     typedef smoc_md_loop_iterator_kind::iter_domain_vector_type iter_domain_vector_type;
@@ -274,43 +275,48 @@ public:
     typedef smoc_snk_md_loop_iterator_kind::border_condition_matrix_type border_condition_matrix_type;
     typedef smoc_snk_md_loop_iterator_kind::border_condition_vector_type  border_condition_vector_type;
                 
+  public:
+    const iter_domain_vector_type& src_iteration_max() const {
+      return _wsdf_edge_descr.src_iteration_max();
+    }
+    const mapping_matrix_type      src_mapping_matrix() const {
+      return _wsdf_edge_descr.src_data_element_mapping_matrix();
+    }
+    const src_mapping_offset_type src_mapping_offset() const {
+      return _wsdf_edge_descr.src_data_element_mapping_vector();
+    }
+    
+    const iter_domain_vector_type& snk_iteration_max() const {
+      return _wsdf_edge_descr.snk_iteration_max();
+    }
+    const mapping_matrix_type     snk_mapping_matrix() const {
+      return _wsdf_edge_descr.snk_data_element_mapping_matrix();
+    }
+    const snk_mapping_offset_type snk_mapping_offset() const {
+      return _wsdf_edge_descr.snk_data_element_mapping_vector();
+    }
+    
+    const border_condition_matrix_type snk_border_matrix() const {
+      return _wsdf_edge_descr.calc_border_condition_matrix();
+    }
+    const border_condition_vector_type snk_low_border_vector() const{
+      return _wsdf_edge_descr.calc_low_border_condition_vector();
+    }
+    const border_condition_vector_type snk_high_border_vector() const{
+      return _wsdf_edge_descr.calc_high_border_condition_vector();
+    }
+
+    const smoc_wsdf_edge_descr& wsdf_edge_params() const{
+      return _wsdf_edge_descr;
+    }
+
   private:
-    const iter_domain_vector_type src_iteration_max;
-    const mapping_matrix_type     src_mapping_matrix;
-    const src_mapping_offset_type src_mapping_offset;
 
-    const iter_domain_vector_type snk_iteration_max;
-    const mapping_matrix_type     snk_mapping_matrix;
-    const snk_mapping_offset_type snk_mapping_offset;
-
-    const border_condition_matrix_type snk_border_matrix;
-    const border_condition_vector_type snk_low_border_vector;
-    const border_condition_vector_type snk_high_border_vector;
+    const smoc_wsdf_edge_descr _wsdf_edge_descr;
 
   public:
-    buffer_init(const iter_domain_vector_type& src_iteration_max,
-		const mapping_matrix_type&     src_mapping_matrix,
-		const src_mapping_offset_type& src_mapping_offset,
-
-		const iter_domain_vector_type& snk_iteration_max,
-		const mapping_matrix_type&     snk_mapping_matrix,
-		const snk_mapping_offset_type& snk_mapping_offset,
-                                                                
-		const border_condition_matrix_type& snk_border_matrix,
-		const border_condition_vector_type& snk_low_border_vector,
-		const border_condition_vector_type& snk_high_border_vector
-		)
-      : src_iteration_max  (src_iteration_max ),
-	src_mapping_matrix (src_mapping_matrix),
-	src_mapping_offset (src_mapping_offset),
-                                                                     
-	snk_iteration_max        (snk_iteration_max ),
-	snk_mapping_matrix (snk_mapping_matrix),
-	snk_mapping_offset (snk_mapping_offset),
-
-	snk_border_matrix      (snk_border_matrix),    
-	snk_low_border_vector  (snk_low_border_vector),
-	snk_high_border_vector (snk_high_border_vector)
+    buffer_init(const smoc_wsdf_edge_descr wsdf_edge_descr)
+      : _wsdf_edge_descr(wsdf_edge_descr)
     {}
   };
 
@@ -318,20 +324,21 @@ public:
 public:
   smoc_md_buffer_mgmt_base(const buffer_init& i)
     : src_loop_iterator(
-			i.src_iteration_max,
-			i.src_mapping_matrix,
-			i.src_mapping_offset
+			i.src_iteration_max(),
+			i.src_mapping_matrix(),
+			i.src_mapping_offset()
 			),
       snk_loop_iterator(
-			i.snk_iteration_max,
-			i.snk_mapping_matrix,
-			i.snk_mapping_offset,
-			i.snk_border_matrix,
-			i.snk_low_border_vector,
-			i.snk_high_border_vector
+			i.snk_iteration_max(),
+			i.snk_mapping_matrix(),
+			i.snk_mapping_offset(),
+			i.snk_border_matrix(),
+			i.snk_low_border_vector(),
+			i.snk_high_border_vector()
 			),                      
       _token_dimensions(src_loop_iterator.token_dimensions()),
-      size_token_space(src_loop_iterator.size_token_space())
+      size_token_space(src_loop_iterator.size_token_space()),
+      wsdf_edge_params(i.wsdf_edge_params())
   {
 #if VERBOSE_LEVEL_SMOC_MD_BUFFER == 103
     CoSupport::Streams::dout << "Enter smoc_md_buffer_mgmt_base::smoc_md_buffer_mgmt_base(const buffer_init& i)" << std::endl;
@@ -422,6 +429,10 @@ protected:
 //typedef smoc_src_md_static_loop_iterator::data_element_id_type data_element_id_type;
 
   const data_element_id_type size_token_space;
+
+private:
+  // Original WSDF data. Only for SGX graph dumper (formerly problem graph dumper)
+  const smoc_wsdf_edge_descr wsdf_edge_params;
 
   
 };
@@ -747,32 +758,10 @@ public:
   private:
     const size_t buffer_lines;
   public:
-    buffer_init(const iter_domain_vector_type& src_iteration_max,
-		const mapping_matrix_type&     src_mapping_matrix,
-		const src_mapping_offset_type& src_mapping_offset,
-
-		const iter_domain_vector_type& snk_iteration_max,
-		const mapping_matrix_type&     snk_mapping_matrix,
-		const snk_mapping_offset_type& snk_mapping_offset,
-
-		const border_condition_matrix_type& border_matrix,
-		const border_condition_vector_type& low_border_vector,
-		const border_condition_vector_type& high_border_vector,
-                                                                
+    buffer_init(const smoc_wsdf_edge_descr wsdf_edge_descr,                                                                
 		const size_t buffer_lines = MAX_TYPE(size_t)
 		)
-      : parent_type(src_iteration_max,
-		    src_mapping_matrix,
-		    src_mapping_offset,
-                                                                                                  
-		    snk_iteration_max,
-		    snk_mapping_matrix,
-		    snk_mapping_offset,
-
-		    border_matrix,    
-		    low_border_vector,
-		    high_border_vector                                                                              
-		    ),
+      : parent_type(wsdf_edge_descr),
 	buffer_lines(buffer_lines)
     {};
   };

@@ -89,6 +89,13 @@ ACJF_CHECK_LIB_SYSTEMC
 ACJF_CHECK_LIB_BOOST
 
 ACJF_CHECK_PKG([Support])
+
+if test x"$enable_wsdf" != x"no"; then
+  ACJF_CHECK_PKG([LibWSDF], [],
+   [test x"$enable_wsdf" = x"yes" && {
+     AC_MSG_ERROR([cannot find LibWSDF package in source tree, bailing out]) } ])
+fi
+
 ACJF_CHECK_PKG([LibSGX])
 
 if test x"$enable_vpc" != x"no"; then

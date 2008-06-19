@@ -61,6 +61,16 @@ smoc_md_buffer_mgmt_base::channelAttributes(smoc_modes::PGWriter &pgw) const{
       << this->snk_loop_iterator.high_border_condition_vector
       << "\"/>"
       << std::endl;  
+
+  /* WSDF edge parameters */
+  {
+    std::stringstream temp;
+    wsdf_edge_params.print_edge_parameters(temp,false);
+    pgw << "<attribute type=\"wsdf_params\" value=\""
+        << temp.str()
+        << "\"/>"
+        << std::endl;  
+  }
 }
 
 
