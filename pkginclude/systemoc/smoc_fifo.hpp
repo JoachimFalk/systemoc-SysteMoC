@@ -74,8 +74,6 @@ size_t fsizeMapper(sc_object* instance, size_t n);
 class smoc_fifo_chan_base
 : public smoc_nonconflicting_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
-  public Detail::LatencyQueue::ILatencyExpired,
-  public Detail::DIIQueue::IDIIExpired,
   public Detail::QueueFRVWPtr
 #else
   public Detail::QueueRWPtr
@@ -109,13 +107,13 @@ protected:
     pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
   }
 
-  /// @brief Detail::LatencyQueue::ILatencyExpired
+  /// @brief Detail::LatencyQueue callback
   void latencyExpired(size_t n) {
     vpp(n);
     emmAvailable.increasedCount(visibleCount());
   }
 
-  /// @brief Detail::LatencyQueue::ILatencyExpired
+  /// @brief Detail::DIIQueue callback
   void diiExpired(size_t n) {
     fpp(n);
     emmFree.increasedCount(freeCount());

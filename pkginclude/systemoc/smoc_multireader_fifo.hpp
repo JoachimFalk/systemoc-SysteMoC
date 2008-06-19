@@ -90,13 +90,12 @@ protected:
 class smoc_multireader_fifo_chan_base
 : public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
-  public Detail::LatencyQueue::ILatencyExpired,
-  public Detail::DIIQueue::IDIIExpired,
   public Detail::QueueFRVWPtr
 #else
   public Detail::QueueRWPtr
 #endif // SYSTEMOC_ENABLE_VPC
 {
+  typedef smoc_multireader_fifo_chan_base this_type;
 public:
   template<class> friend class smoc_multireader_fifo_outlet;
   template<class> friend class smoc_multireader_fifo_entry;
@@ -126,10 +125,10 @@ protected:
   /// @brief See smoc_root_chan
   void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
-  /// @brief Detail::LatencyQueue::ILatencyExpired
+  /// @brief Detail::LatencyQueue callback
   void latencyExpired(size_t n);
 
-  /// @brief Detail::LatencyQueue::ILatencyExpired
+  /// @brief Detail::DIIQueue callback
   void diiExpired(size_t n);
   
   /// @brief Called by outlets when more data is available

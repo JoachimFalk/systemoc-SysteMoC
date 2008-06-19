@@ -64,9 +64,6 @@ template <class BUFFER_CLASS>
 class smoc_md_fifo_kind
   : public smoc_nonconflicting_chan, 
     public BUFFER_CLASS
-#ifdef SYSTEMOC_ENABLE_VPC
-    , public Detail::LatencyQueue::ILatencyExpired
-#endif
 {
 public:
   typedef smoc_md_fifo_kind  this_type;
@@ -275,7 +272,7 @@ smoc_md_fifo_kind<BUFFER_CLASS>::smoc_md_fifo_kind(const chan_init &i)
     BUFFER_CLASS(i.b),
     visible_schedule_period_difference(0),
 #ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue(this),
+    latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this),
     src_iterator_visible(this->src_loop_iterator.iteration_max(),
                          this->src_loop_iterator.token_dimensions()),
 #endif

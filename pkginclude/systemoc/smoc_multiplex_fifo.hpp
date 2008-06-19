@@ -96,8 +96,6 @@ class smoc_multiplex_fifo_chan_base
 : private boost::noncopyable,
   public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
-  public Detail::LatencyQueue::ILatencyExpired,
-  public Detail::DIIQueue::IDIIExpired,
   public Detail::QueueFRVWPtr
 #else
   public Detail::QueueRWPtr
@@ -124,47 +122,23 @@ public:
   };
 
   typedef size_t FifoId;
-  typedef std::list<FifoId> FifoSequence;
-  typedef std::map<FifoId, const boost::function<void (size_t)> > FifoMap;
+  typedef std::map<FifoId, const boost::function<void (size_t)> > VOutletMap;
 protected:
-  FifoMap       vFifos;
-  FifoSequence  fifoSequence;
-  FifoSequence  fifoSequenceOOO;
+  VOutletMap    vOutlets;
   const size_t  fifoOutOfOrder; // == 0 => no out of order access only one element visible
 
   // This are the EventMapManager for the plain fifo access operations
   Detail::EventMapManager emmFree;      // for smoc_multiplex_fifo_entry
   Detail::EventMapManager emmAvailable; // for smoc_multiplex_fifo_outlet
-#ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue  latencyQueue;
-  Detail::DIIQueue      diiQueue;
-#endif
 protected:
   smoc_multiplex_fifo_chan_base(const chan_init &i);
 
-  void registerVFifo(const FifoMap::value_type &entry);
-  void deregisterVFifo(FifoId fifoId);
+  void registerVOutlet(const VOutletMap::value_type &entry);
+  void deregisterVOutlet(FifoId fifoId);
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, const smoc_ref_event_p &diiEvent);
-#else
-  void commitRead(size_t n);
-#endif
-
-  void diiExpired(size_t n);
- 
   /// @brief See smoc_chan_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(visibleCount(), n); }
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &latEvent);
-#else
-  void commitWrite(size_t n);
-#endif
-
-  /// @brief Detail::LatencyQueue::ILatencyExpired
-  void latencyExpired(size_t n);
 
   smoc_event &spaceAvailableEvent(size_t n)
     { return emmFree.getEvent(freeCount(), n); }
@@ -186,6 +160,9 @@ protected:
     { assert(0); }
 };
 
+template<class T, class A>
+class smoc_multiplex_fifo;
+
 /**
  * This class provides interfaces and connect methods
  */
@@ -196,6 +173,7 @@ class smoc_multiplex_fifo_chan
   typedef smoc_multiplex_fifo_chan<T,A>                       this_type;
   typedef smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base> base_type;
 
+  friend class smoc_multiplex_fifo<T,A>;
   friend class smoc_multiplex_fifo_outlet<T,A>;
   friend class smoc_multiplex_fifo_entry<T,A>;
   friend class smoc_multiplex_vfifo_entry<T,A>;
@@ -207,40 +185,25 @@ public:
   typedef smoc_multiplex_fifo_entry<T,A>  entry_type;
   typedef smoc_multiplex_fifo_outlet<T,A> outlet_type;
   
-  typedef typename this_type::FifoId        FifoId;
-  typedef typename this_type::FifoSequence  FifoSequence;
-  typedef typename this_type::FifoMap       FifoMap;
+  typedef typename this_type::FifoId      FifoId;
+  typedef typename this_type::VOutletMap  VOutletMap;
 
   /// @brief Channel initializer
   typedef typename smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>::chan_init chan_init;
-
+private:
+#ifdef SYSTEMOC_ENABLE_VPC
+  Detail::LatencyQueue  latencyQueue;
+  Detail::DIIQueue      diiQueue;
+#endif
+protected:
   /// @brief Constructor
   smoc_multiplex_fifo_chan(const chan_init &i)
     : smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>(i)
+#ifdef SYSTEMOC_ENABLE_VPC
+      ,latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this)
+      ,diiQueue(std::bind1st(std::mem_fun(&this_type::diiExpired), this))
+#endif
   {}
-
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
-#else
-  void commitWrite(size_t n)
-#endif
-  {
-    size_t windex = this->wIndex();
-    size_t fsize  = this->fSize();
-    
-    for (size_t i = 0; i < n; ++i) {
-      FifoId to = A::get(this->storage[windex].get());
-      this->fifoSequence.push_back(to);
-      if (++windex >= fsize)
-        windex -= fsize;
-    }
-    
-#ifdef SYSTEMOC_ENABLE_VPC
-    base_type::commitWrite(n, latEvent);
-#else
-    base_type::commitWrite(n);
-#endif
-  }
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void produce(FifoId to, size_t n, const smoc_ref_event_p &latEvent)
@@ -253,16 +216,111 @@ public:
     
     for (size_t i = 0; i < n; ++i) {
       A::put(this->storage[windex].get(), to);
-      this->fifoSequence.push_back(to);
       if (++windex >= fsize)
         windex -= fsize;
     }
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    base_type::commitWrite(n, latEvent);
+    commitWrite(n, latEvent);
 #else
-    base_type::commitWrite(n);
+    commitWrite(n);
 #endif
+  }
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
+#else
+  void commitWrite(size_t n)
+#endif
+  {
+    this->wpp(n);
+    this->emmFree.decreasedCount(this->freeCount());
+#ifdef SYSTEMOC_ENABLE_VPC
+    // Delayed call of latencyExpired(n);
+    latencyQueue.addEntry(n, latEvent);
+#else
+    latencyExpired(n);
+#endif
+  }
+
+  void latencyExpired(size_t n) {
+  //std::cerr << "smoc_multiplex_fifo_chan_base::latencyExpired(" << n << ") [BEGIN]" << std::endl;
+  //std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
+  //std::cerr << "freeCount():    " << freeCount() << std::endl;
+  //std::cerr << "usedCount():    " << usedCount() << std::endl;
+  //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+    // This may be a dummy function then visibleCount has been increased by
+    // wpp(n) in commitWrite
+    this->vpp(n); 
+    
+    size_t vcount = this->visibleCount();
+    
+    assert(vcount >= n);
+    
+    if (!this->vOutlets.empty()) {
+      /*
+       * Example: Nothing todo
+       *  
+       *             fsize
+       *   ____________^___________
+       *  /     OOOOOO             \   
+       * |FFFFFFVVVVVVXXXPPPPPPPFFFF|
+       *        ^     ^  ^      ^
+       *      rindex  |vindex windex
+       *            xindex
+       *            oindex
+       *
+       * Example: Have to call latencyExpired on vfifo outlet
+       *          for the new tokens inside the OOO area
+       *
+       *             fsize
+       *   ____________^___________
+       *  /     OOOOOO             \   
+       * |FFFFFFVVVVXXXXXPPPPPPPFFFF|
+       *        ^   ^ ^  ^      ^
+       *      rindex| |vindex windex
+       *        xindex|
+       *            oindex
+       *
+       *             fsize
+       *   ____________^___________
+       *  /     OOOOOOOOOOOOOO     \   
+       * |FFFFFFVVVVXXXXXPPPPPPPFFFF|
+       *        ^   ^    ^      ^
+       *      rindex|  vindex windex
+       *        xindex oindex
+       *
+       *  F:  The free space area of size (findex - windex - 1) % fsize
+       *  VX: The visible token area of size (vindex - rindex) % fsize
+       *  P:  The token which are still in the pipeline (latency not expired)
+       *
+       *  O:  The OOO area of size fifoOutOfOrder + 1
+       *  X:  The tokens for which the latency has expired
+       *
+       */
+      
+      size_t fsize  = this->fSize();
+      size_t rindex = this->rIndex();
+      // Calculate xindex to point to the first token for which the latency
+      // has expired.
+      size_t xindex = (rindex + vcount - n) % fsize;
+      // Calculate oindex to point to the first token either outside
+      // the OOO area or outside the visible area.
+      size_t oindex = (rindex + std::min(this->fifoOutOfOrder + 1, vcount)) % fsize;
+      
+      for (; xindex != oindex; xindex = (xindex + 1) % fsize) {
+        FifoId fId = A::get(this->storage[xindex].get());
+        typename this_type::VOutletMap::iterator fIter = this->vOutlets.find(fId);
+        assert(fIter != this->vOutlets.end());
+        fIter->second(1);
+      }
+    } else {
+      this->emmAvailable.increasedCount(vcount);
+    }
+  //std::cerr << "smoc_multiplex_fifo_chan_base::latencyExpired(" << n << ") [END]" << std::endl;
+  //std::cerr << "freeCount():    " << freeCount() << std::endl;
+  //std::cerr << "usedCount():    " << usedCount() << std::endl;
+  //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -276,7 +334,7 @@ public:
   //std::cerr << "freeCount():    " << freeCount() << std::endl;
   //std::cerr << "usedCount():    " << usedCount() << std::endl;
   //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
-  
+    
     size_t dindex;
     
     // Find n'th fifoId == from element in storage
@@ -299,30 +357,103 @@ public:
     }
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    base_type::commitRead(n, diiEvent);
+    this->commitRead(n, diiEvent);
 #else
-    base_type::commitRead(n);
+    this->commitRead(n);
 #endif
     
-    for (typename FifoSequence::iterator iter = this->fifoSequenceOOO.begin();
-         n > 0;
-         ) {
-      assert(iter !=  this->fifoSequenceOOO.end());
-      if (*iter == from) {
-        if (this->visibleCount() >= this->fifoOutOfOrder + n) {
-          FifoId fId = this->fifoSequence.front();
-          typename FifoMap::iterator fIter = this->vFifos.find(fId);
-          this->fifoSequence.pop_front();
-          this->fifoSequenceOOO.push_back(fId);
-          fIter->second(1);
-        }
-        iter = this->fifoSequenceOOO.erase(iter); --n;
-      } else {
-        ++iter;
-      }
+    /*
+     * Example: Nothing todo
+     *  
+     *             fsize
+     *   ____________^___________
+     *  /     OOOOOOOOO          \   
+     * |FFFFYYVVVVPPPPPPPPPPPPFFFF|
+     *        ^   ^           ^
+     *     rindex vindex    windex
+     *            oindex
+     *            xindex
+     *
+     * Example: Have to call latencyExpired on vfifo outlet
+     *          for the new tokens inside the OOO area
+     *
+     *             fsize
+     *   ____________^___________
+     *  /     OOOOOO             \   
+     * |FFFFYYVVVVXXVVVPPPPPPPFFFF|
+     *        ^   ^ ^  ^      ^
+     *     rindex | |vindex windex
+     *        xindex|
+     *            oindex
+     *
+     *             fsize
+     *   ____________^___________
+     *  /     OOOOOO             \   
+     * |FFFFYYVVVVXPPPPPPPPPPPFFFF|
+     *        ^   ^^          ^
+     *     rindex |vindex   windex
+     *            |oindex
+     *          xindex
+     *
+     *  FY: The free space area of size (findex - windex - 1) % fsize
+     *  V:  The visible token area of size (vindex - rindex) % fsize
+     *  P:  The token which are still in the pipeline (latency not expired)
+     *
+     *  O:  The OOO area of size fifoOutOfOrder + 1
+     *  Y:  The tokens which have just been consumed
+     *  X:  The tokens which have just entered the OOO area
+     *
+     */
+    
+    size_t vcount = this->visibleCount();
+    size_t fsize  = this->fSize();
+    size_t rindex = this->rIndex();
+    // Calculate xindex to point to the first token for entering the OOO area.
+    size_t xindex = (rindex + std::min(this->fifoOutOfOrder + 1 - n, vcount)) % fsize;
+    // Calculate oindex to point to the first token either outside
+    // the OOO area or outside the visible area.
+    size_t oindex = (rindex + std::min(this->fifoOutOfOrder + 1, vcount)) % fsize;
+    
+    for (; xindex != oindex; xindex = (xindex + 1) % fsize) {
+      FifoId fId = A::get(this->storage[xindex].get());
+      typename this_type::VOutletMap::iterator fIter = this->vOutlets.find(fId);
+      assert(fIter != this->vOutlets.end());
+      fIter->second(1);
     }
     
   //std::cerr << "smoc_multiplex_fifo_chan_base::consume(" << from << ", " << n << ") [END]" << std::endl;
+  //std::cerr << "freeCount():    " << freeCount() << std::endl;
+  //std::cerr << "usedCount():    " << usedCount() << std::endl;
+  //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+  }
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
+#else
+  void commitRead(size_t n)
+#endif
+  {
+    this->rpp(n);
+    this->emmAvailable.decreasedCount(this->visibleCount());
+#ifdef SYSTEMOC_ENABLE_VPC
+    // Delayed call of diiExpired(n);
+    diiQueue.addEntry(n, diiEvent);
+#else
+    diiExpired(n);
+#endif
+  }
+
+  void diiExpired(size_t n) {
+  //std::cerr << "smoc_multiplex_fifo_chan_base::diiExpired(" << n << ") [BEGIN]" << std::endl;
+  //std::cerr << "fifoOutOfOrder == " << fifoOutOfOrder << std::endl;
+  //std::cerr << "freeCount():    " << freeCount() << std::endl;
+  //std::cerr << "usedCount():    " << usedCount() << std::endl;
+  //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
+
+    this->fpp(n);
+    this->emmFree.increasedCount(this->freeCount());
+
+  //std::cerr << "smoc_multiplex_fifo_chan_base::diiExpired(" << n << ") [END]" << std::endl;
   //std::cerr << "freeCount():    " << freeCount() << std::endl;
   //std::cerr << "usedCount():    " << usedCount() << std::endl;
   //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
@@ -504,14 +635,14 @@ public:
   /// @brief Constructor
   smoc_multiplex_vfifo_outlet(const PMultiplexChannel &chan, FifoId fifoId)
     : chan(chan), fifoId(fifoId), countAvailable(0) {
-    chan->registerVFifo(std::make_pair(
+    chan->registerVOutlet(std::make_pair(
       fifoId,
       std::bind1st(std::mem_fun(&this_type::latencyExpired), this)
     ));
   }
 
   ~smoc_multiplex_vfifo_outlet() {
-    chan->deregisterVFifo(fifoId);
+    chan->deregisterVOutlet(fifoId);
   }
 protected:
   /// @brief See smoc_chan_in_base_if
