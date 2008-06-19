@@ -1462,3 +1462,4 @@ public:
 
 
 #endif // _INCLUDED_SMOC_FIFO_HPP
+
