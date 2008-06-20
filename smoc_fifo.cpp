@@ -41,8 +41,8 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
   : smoc_nonconflicting_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
   QueueFRVWPtr(fsizeMapper(this, i.n)),
-  latencyQueue(this),
-  diiQueue(this),
+  latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this),
+  diiQueue(std::bind1st(std::mem_fun(&this_type::diiExpired), this)),
 #else
   QueueRWPtr(fsizeMapper(this, i.n)),
 #endif

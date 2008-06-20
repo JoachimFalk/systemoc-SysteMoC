@@ -4,7 +4,7 @@
 #ifndef _INCLUDED_SMOC_MD_LOOP_HPP
 #define _INCLUDED_SMOC_MD_LOOP_HPP
 
-#include "smoc_vector.hpp"
+#include <wsdf/smoc_vector.hpp>
 
 #include <boost/numeric/ublas/matrix.hpp>
 #include <CoSupport/Streams/DebugOStream.hpp>

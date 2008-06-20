@@ -7,10 +7,10 @@
 #include <CoSupport/Streams/DebugOStream.hpp>
 
 #include "smoc_port.hpp"
-#include "smoc_wsdf_edge.hpp"
+#include <wsdf/smoc_wsdf_edge.hpp>
 
 #include "smoc_md_chan_if.hpp"
-#include "smoc_vector.hpp"
+#include <wsdf/smoc_vector.hpp>
 #include "smoc_md_array_access.hpp"
 
 

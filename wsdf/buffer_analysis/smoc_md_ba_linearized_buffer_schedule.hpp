@@ -7,7 +7,7 @@
 #include <fstream>
 
 #include "smoc_md_ba_linearized_buffer.hpp"
-#include "smoc_md_array.hpp"
+#include <wsdf/smoc_md_array.hpp>
 
 namespace smoc_md_ba {
 

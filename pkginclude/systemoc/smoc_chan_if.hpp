@@ -341,6 +341,8 @@ class smoc_chan_in_base_if
   typedef smoc_chan_in_base_if this_type;
 
   friend class smoc_graph_synth;
+  friend class smoc_multicast_sr_signal_chan_base;
+  friend class smoc_multireader_fifo_chan_base;
 
   template<class,class> friend class smoc_chan_adapter;
 
@@ -406,36 +408,16 @@ protected:
   void commExec(size_t n)
     { return this->commitRead(n); }
 #endif
+
+  /// @brief More tokens available
+  virtual void moreData() {}
+  /// @brief Less tokens available
+  virtual void lessData() {}
+
 public:
   virtual size_t      inTokenId() const = 0;
 
   virtual ~smoc_chan_in_base_if() {}
-};
-
-template <class INTERFACE, class DERIVED, class IMPL>
-class smoc_chan_in_base_redirector
-: public INTERFACE {
-private:
-  // This does a static cross cast
-  IMPL        *getImpl()
-    { return static_cast<DERIVED *>(this); }
-  IMPL const *getImpl() const
-    { return static_cast<DERIVED const *>(this); }
-protected:
-#ifdef SYSTEMOC_ENABLE_VPC
-  void        commitRead(size_t consume, const smoc_ref_event_p &e)
-    { return getImpl()->commitRead(consume, e); }
-#else
-  void        commitRead(size_t consume)
-    { return getImpl()->commitRead(consume); }
-#endif
-  smoc_event &dataAvailableEvent(size_t n)
-    { return getImpl()->dataAvailableEvent(n); }
-  size_t      numAvailable() const
-    { return getImpl()->numAvailable(); }
-
-  size_t      inTokenId() const
-    { return getImpl()->inTokenId(); }
 };
 
 // FIXME:
@@ -448,6 +430,8 @@ class smoc_chan_out_base_if
   typedef smoc_chan_out_base_if this_type;
 
   friend class smoc_graph_synth;
+  friend class smoc_multicast_sr_signal_chan_base;
+  friend class smoc_multireader_fifo_chan_base;
 
   template<class,class> friend class smoc_chan_adapter;
 
@@ -513,36 +497,16 @@ protected:
   void commExec(size_t n)
     { return this->commitWrite(n); }
 #endif
+  
+  /// @brief More free space available
+  virtual void moreSpace() {}
+  /// @brief Less free space available
+  virtual void lessSpace() {}
+
 public:
   virtual size_t      outTokenId() const = 0;
 
   virtual ~smoc_chan_out_base_if() {}
-};
-
-template <class INTERFACE, class DERIVED, class IMPL>
-class smoc_chan_out_base_redirector
-: public INTERFACE {
-private:
-  // This does a static cross cast
-  IMPL       *getImpl()
-    { return static_cast<DERIVED *>(this); }
-  IMPL const *getImpl() const
-    { return static_cast<DERIVED const *>(this); }
-protected:
-#ifdef SYSTEMOC_ENABLE_VPC
-  void        commitWrite(size_t produce, const smoc_ref_event_p &e)
-    { return getImpl()->commitWrite(produce, e); }
-#else
-  void        commitWrite(size_t produce)
-    { return getImpl()->commitWrite(produce); }
-#endif
-  smoc_event &spaceAvailableEvent(size_t n)
-    { return getImpl()->spaceAvailableEvent(n); }
-  size_t      numFree() const
-    { return getImpl()->numFree(); }
-
-  size_t      outTokenId() const
-    { return getImpl()->outTokenId(); }
 };
 
 const sc_event& smoc_default_event_abort();

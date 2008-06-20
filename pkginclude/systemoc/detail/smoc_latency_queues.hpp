@@ -83,19 +83,6 @@ public:
 class LatencyQueue {
 private:
   typedef LatencyQueue this_type;
-public:
-
-  class ILatencyExpired {
-  public:
-    /// @brief Must call latencyExpired
-    friend class LatencyQueue;
-    /// @brief Virtual destructor
-    virtual ~ILatencyExpired() {}
-  protected:
-    /// @brief Called when latency expired
-    virtual void latencyExpired(size_t n) = 0;
-  };
-
 protected:
   EventQueue       requestQueue;
   EventQueue       visibleQueue;
@@ -110,16 +97,7 @@ public:
       smoc_root_chan *chan)
     : requestQueue(std::bind1st(
         std::mem_fun(&this_type::actorTokenLatencyExpired), this)),
-      visibleQueue(latencyExpired),
-      chan(chan) {}
-
-  template <class T>
-  LatencyQueue(T *chan)
-    : requestQueue(std::bind1st(
-        std::mem_fun(&this_type::actorTokenLatencyExpired), this)),
-      visibleQueue(std::bind1st(
-        std::mem_fun(&ILatencyExpired::latencyExpired), chan)),
-      chan(chan) {}
+      visibleQueue(latencyExpired), chan(chan) {}
 
   void addEntry(size_t n, const smoc_ref_event_p &latEvent)
     { requestQueue.addEntry(n, latEvent); }
@@ -128,34 +106,12 @@ public:
 class DIIQueue {
 private:
   typedef DIIQueue this_type;
-public:
-
-  class IDIIExpired {
-  public:
-    /// @brief Must call diiExpired
-    friend class DIIQueue;
-    /// @brief Virtual destructor
-    virtual ~IDIIExpired() {}
-  protected:
-    /// @brief Called when dii expired
-    virtual void diiExpired(size_t n) = 0;
-  };
-
 protected:
   EventQueue       eventQueue;
-  smoc_root_chan  *chan;
 public:
   DIIQueue(
-      const boost::function<void (size_t)> &diiExpired,
-      smoc_root_chan *chan)
-    : eventQueue(diiExpired),
-      chan(chan) {}
-
-  template <class T>
-  DIIQueue(T *chan)
-    : eventQueue(std::bind1st(
-        std::mem_fun(&IDIIExpired::diiExpired), chan)),
-      chan(chan) {}
+      const boost::function<void (size_t)> &diiExpired)
+    : eventQueue(diiExpired) {}
 
   void addEntry(size_t n, const smoc_ref_event_p &diiEvent)
     { eventQueue.addEntry(n, diiEvent); }

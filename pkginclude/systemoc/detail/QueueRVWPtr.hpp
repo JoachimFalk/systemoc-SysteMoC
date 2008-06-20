@@ -55,6 +55,7 @@ namespace Detail {
      *  V: The visible token area of size (vindex - rindex) % fsize
      *  P: The token which are still in the pipeline (latency not expired)
      */
+  private:
     size_t vindex;  ///< The FIFO visible ptr
   public:
     QueueRVWPtr(size_t n)

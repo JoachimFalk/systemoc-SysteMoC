@@ -37,6 +37,7 @@ AM_CPPFLAGS =					\
 	@AM_CPPFLAGS@				\
 	@SYSTEMC_INCLUDE@			\
 	@SUPPORT_INCLUDE@			\
+	@LIBWSDF_INCLUDE@			\
 	@LIBSGX_INCLUDE@			\
 	@BOOST_INCLUDE@				\
 	@SYSTEMC_VPC_INCLUDE@			\
@@ -47,6 +48,7 @@ AM_LDFLAGS=				\
 	@AM_LDFLAGS@			\
 	@SYSTEMC_LDFLAGS@		\
 	@SUPPORT_LDFLAGS@		\
+	@LIBWSDF_LDFLAGS@		\
 	@LIBSGX_LDFLAGS@		\
 	@BOOST_LDFLAGS@			\
 	@SYSTEMC_VPC_LDFLAGS@
@@ -73,13 +75,20 @@ libsystemoc_la_LDFLAGS =				\
 libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libsystemoc_la_LIBADD = 				\
 	$(libsystemoc_CH_LTOBJS)			\
+	$(pkg_libsgx_builddir)/libsgx.la
+if SYSTEMOC_ENABLE_WSDF
+libsystemoc_la_LIBADD +=	$(pkg_libwsdf_builddir)/libwsdf.la
+endif
+
+libsystemoc_la_LIBADD +=				\
 	$(pkg_support_builddir)/libcosupport-systemc.la	\
 	$(pkg_support_builddir)/libcosupport-streams.la	\
-	$(pkg_support_builddir)/libcosupport-smartptr.la\
-	$(pkg_libsgx_builddir)/libsgx.la
+	$(pkg_support_builddir)/libcosupport-smartptr.la
+
 if SYSTEMOC_ENABLE_VPC
 libsystemoc_la_LIBADD += $(pkg_systemc_vpc_builddir)/libsystemcvpc.la
 endif
+
 libsystemoc_la_DEPENDENCIES = 				\
 	compileheader-libsystemoc.stamp			\
 	$(libsystemoc_la_LIBADD)
@@ -112,7 +121,6 @@ if SYSTEMOC_ENABLE_WSDF
 libsystemoc_la_SOURCES +=		\
 	wsdf/smoc_md_buffer.cpp		\
 	wsdf/smoc_md_loop.cpp		\
-	wsdf/smoc_wsdf_edge.cpp		\
 	wsdf/smoc_md_port.cpp \
 	wsdf/smoc_md_buffer_analysis.cpp \
 	wsdf/smoc_md_ba_linearized_buffer.cpp \

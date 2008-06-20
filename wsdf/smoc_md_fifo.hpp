@@ -27,7 +27,7 @@
 #include "smoc_md_buffer.hpp"
 #include "smoc_md_chan_if.hpp"
 #include "smoc_md_port.hpp"
-#include "smoc_wsdf_edge.hpp"
+#include <wsdf/smoc_wsdf_edge.hpp>
 
 //#define ENABLE_SMOC_MD_BUFFER_ANALYSIS
 //#define SYSTEMOC_TRACE_BUFFER_SIZE
@@ -64,9 +64,6 @@ template <class BUFFER_CLASS>
 class smoc_md_fifo_kind
   : public smoc_nonconflicting_chan, 
     public BUFFER_CLASS
-#ifdef SYSTEMOC_ENABLE_VPC
-    , public Detail::LatencyQueue::ILatencyExpired
-#endif
 {
 public:
   typedef smoc_md_fifo_kind  this_type;
@@ -275,7 +272,7 @@ smoc_md_fifo_kind<BUFFER_CLASS>::smoc_md_fifo_kind(const chan_init &i)
     BUFFER_CLASS(i.b),
     visible_schedule_period_difference(0),
 #ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue(this),
+    latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this),
     src_iterator_visible(this->src_loop_iterator.iteration_max(),
                          this->src_loop_iterator.token_dimensions()),
 #endif
@@ -1362,18 +1359,7 @@ private:
 
   buffer_init assemble_buffer_init(const smoc_wsdf_edge_descr& wsdf_edge_param, 
                                    size_t n) const{
-    buffer_init return_value(wsdf_edge_param.src_iteration_max(),
-                             wsdf_edge_param.src_data_element_mapping_matrix(),
-                             wsdf_edge_param.src_data_element_mapping_vector(),
-                             
-                             wsdf_edge_param.snk_iteration_max(),
-                             wsdf_edge_param.snk_data_element_mapping_matrix(),
-                             wsdf_edge_param.snk_data_element_mapping_vector(),
-
-                             wsdf_edge_param.calc_border_condition_matrix(),
-                             wsdf_edge_param.calc_low_border_condition_vector(),
-                             wsdf_edge_param.calc_high_border_condition_vector(),
-                             
+    buffer_init return_value(wsdf_edge_param,                             
                              n);
 
     return return_value;
@@ -1476,3 +1462,4 @@ public:
 
 
 #endif // _INCLUDED_SMOC_FIFO_HPP
+

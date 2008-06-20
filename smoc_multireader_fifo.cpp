@@ -48,8 +48,8 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
   : smoc_root_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
   QueueFRVWPtr(fsizeMapper(this, i.n)),
-  latencyQueue(this),
-  diiQueue(this),
+  latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this),
+  diiQueue(std::bind1st(std::mem_fun(&this_type::diiExpired), this)),
 #else
   QueueRWPtr(fsizeMapper(this, i.n)),
 #endif
@@ -76,41 +76,32 @@ void smoc_multireader_fifo_chan_base::channelAttributes(smoc_modes::PGWriter &pg
 
 void smoc_multireader_fifo_chan_base::latencyExpired(size_t n) {
   vpp(n);
-  //emmAvailable.increasedCount(visibleCount());
   moreData();
 }
 
 void smoc_multireader_fifo_chan_base::diiExpired(size_t n) {
   fpp(n);
-  //emmFree.increasedCount(freeCount());
   moreSpace();
 }
 
 void smoc_multireader_fifo_chan_base::moreData() {
   //std::cout << "more data available: " << visibleCount() << std::endl;
 
-  for(OutletEventMapManager::iterator i = emmAvailable.begin();
-      i != emmAvailable.end(); ++i)
+  for(OutletMap::const_iterator i = getOutlets().begin();
+      i != getOutlets().end(); ++i)
   {
-    // currently ugly because outlet_base is no sc_interface...
-    if(schedOutlets->canNotify(
-          getPort(dynamic_cast<smoc_chan_in_base_if*>(i->first)))) {
-      i->second.increasedCount(visibleCount());
-      //std::cout << i->first << ":" << std::endl;
-      //i->second.dump(std::cout);
-    }
+    if(schedOutlets->canNotify(i->second))
+      i->first->moreData();
   }
 }
 
 void smoc_multireader_fifo_chan_base::lessData() {
   //std::cout << "less data available: " << visibleCount() << std::endl;
 
-  for(OutletEventMapManager::iterator i = emmAvailable.begin();
-      i != emmAvailable.end(); ++i)
+  for(OutletMap::const_iterator i = getOutlets().begin();
+      i != getOutlets().end(); ++i)
   {
-    i->second.decreasedCount(visibleCount());
-    //std::cout << i->first << ":" << std::endl;
-    //i->second.dump(std::cout);
+    i->first->lessData();
   }
 }
 
@@ -124,14 +115,7 @@ void smoc_multireader_fifo_chan_base::lessSpace() {
   emmFree.decreasedCount(freeCount());
 }
 
-smoc_event& smoc_multireader_fifo_chan_base::queueOutlet(
-    smoc_multireader_fifo_outlet_base* o, size_t n) {
-  assert(n);
-  return emmAvailable[o].getEvent(0, n);
-}
-
-smoc_event& smoc_multireader_fifo_chan_base::queueEntry(
-    smoc_multireader_fifo_entry_base* o, size_t n) {
+smoc_event& smoc_multireader_fifo_chan_base::spaceAvailableEvent(size_t n) {
   assert(n);
   return emmFree.getEvent(0, n);
 }

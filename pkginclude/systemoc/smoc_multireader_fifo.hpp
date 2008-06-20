@@ -72,9 +72,6 @@
 
 size_t fsizeMapper(sc_object* instance, size_t n);
 
-class smoc_multireader_fifo_outlet_base;
-class smoc_multireader_fifo_entry_base;
-
 class smoc_multireader_scheduler {
 public:
   friend class smoc_multireader_fifo_chan_base;
@@ -93,16 +90,15 @@ protected:
 class smoc_multireader_fifo_chan_base
 : public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
-  public Detail::LatencyQueue::ILatencyExpired,
-  public Detail::DIIQueue::IDIIExpired,
   public Detail::QueueFRVWPtr
 #else
   public Detail::QueueRWPtr
 #endif // SYSTEMOC_ENABLE_VPC
 {
+  typedef smoc_multireader_fifo_chan_base this_type;
 public:
-  friend class smoc_multireader_fifo_outlet_base;
-  friend class smoc_multireader_fifo_entry_base;
+  template<class> friend class smoc_multireader_fifo_outlet;
+  template<class> friend class smoc_multireader_fifo_entry;
   
   /// @brief Channel initializer
   class chan_init {
@@ -129,33 +125,30 @@ protected:
   /// @brief See smoc_root_chan
   void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
-  /// @brief Detail::LatencyQueue::ILatencyExpired
+  /// @brief Detail::LatencyQueue callback
   void latencyExpired(size_t n);
 
-  /// @brief Detail::LatencyQueue::ILatencyExpired
+  /// @brief Detail::DIIQueue callback
   void diiExpired(size_t n);
-
   
-  typedef std::map<
-    smoc_multireader_fifo_outlet_base*,Detail::EventMapManager> OutletEventMapManager;
-  
-  OutletEventMapManager emmAvailable;
-
-  //typedef std::map<smoc_multireader_fifo_entry_base*,EventMap> EntryEventMap;
-  //EntryEventMap eem;
-
+  /// @brief Called by outlets when more data is available
   void moreData();
+  
+  /// @brief Called by outlets when less data is available
   void lessData();
+  
+  /// @brief Called by entries when more space is available
   void moreSpace();
+  
+  /// @brief Called by entries when less space is available
   void lessSpace();
 
-  smoc_event& queueOutlet(smoc_multireader_fifo_outlet_base* o, size_t n);
-  smoc_event& queueEntry(smoc_multireader_fifo_entry_base* o, size_t n);
+  /// @brief Returns event for n places available
+  smoc_event& spaceAvailableEvent(size_t n);
 
   void start_of_simulation();
 
 private:
-  //Detail::EventMapManager emmAvailable;
   Detail::EventMapManager emmFree;
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue  latencyQueue;
@@ -165,23 +158,33 @@ private:
   /// @brief The token id of the next commit token
   size_t tokenId;
 
-  smoc_multireader_scheduler  schedDefault;
+  /// @brief The default scheduler
+  smoc_multireader_scheduler schedDefault;
+
+  /// @brief The scheduler used for outlets
   smoc_multireader_scheduler* schedOutlets;
 };
 
+template<class> class smoc_multireader_fifo_chan;
+
 /**
- * This class implements the base channel in interface
+ * This class implements the channel in interface
  */
-class smoc_multireader_fifo_outlet_base {
-  template <class X, class Y, class Z> friend class smoc_chan_in_base_redirector;
+template<class T>
+class smoc_multireader_fifo_outlet
+: public smoc_chan_in_if<T,smoc_channel_access_if>
+{
 public:
-  virtual ~smoc_multireader_fifo_outlet_base() {}
-protected:
+  typedef smoc_multireader_fifo_outlet<T> this_type;
+  typedef typename this_type::access_type access_type; 
+  typedef smoc_chan_in_if<T,smoc_channel_access_if> iface_type;
+
   /// @brief Constructor
-  smoc_multireader_fifo_outlet_base(smoc_multireader_fifo_chan_base &chan)
+  smoc_multireader_fifo_outlet(smoc_multireader_fifo_chan<T>& chan)
     : chan(chan)
   {}
 
+protected:
   /// @brief See smoc_chan_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
@@ -197,7 +200,6 @@ protected:
     TraceLog.traceCommExecIn(this, consume);
 #endif
     chan.rpp(consume);
-    //chan.emmAvailable.decreasedCount(chan.visibleCount());
     chan.lessData();
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of diiExpired(consume);
@@ -213,8 +215,7 @@ protected:
  
   /// @brief See smoc_chan_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
-    //{ return chan.emmAvailable.getEvent(chan.visibleCount(), n); }
-  { return chan.queueOutlet(this, n); }
+    { return emm.getEvent(0, n); }
 
   /// @brief See smoc_chan_in_base_if
   size_t numAvailable() const
@@ -223,25 +224,43 @@ protected:
   /// @brief See smoc_chan_in_base_if
   size_t inTokenId() const
     { return chan.tokenId - chan.usedCount(); }
+  
+  /// @brief See smoc_chan_in_base_if
+  void moreData()
+    { emm.increasedCount(numAvailable()); }
+
+  /// @brief See smoc_chan_in_base_if
+  void lessData()
+    { emm.decreasedCount(numAvailable()); }
+
+  /// @brief See smoc_chan_in_if
+  access_type* getReadChannelAccess()
+    { return chan.getReadChannelAccess(); }
 
 private:
-  /// @brief The channel base implementation
-  smoc_multireader_fifo_chan_base &chan;
+  /// @brief The channel implementation
+  smoc_multireader_fifo_chan<T>& chan;
+  Detail::EventMapManager emm;
 };
 
-
-
 /**
- * This class implements the base channel out interface
+ * This class implements the channel out interface
  */
-class smoc_multireader_fifo_entry_base {
-  template <class X, class Y, class Z> friend class smoc_chan_out_base_redirector;
-protected:
+template<class T>
+class smoc_multireader_fifo_entry
+: public smoc_chan_out_if<T,smoc_channel_access_if>
+{
+public:
+  typedef smoc_multireader_fifo_entry<T> this_type;
+  typedef typename this_type::access_type access_type; 
+  typedef smoc_chan_out_if<T,smoc_channel_access_if> iface_type;
+
   /// @brief Constructor
-  smoc_multireader_fifo_entry_base(smoc_multireader_fifo_chan_base &chan)
+  smoc_multireader_fifo_entry(smoc_multireader_fifo_chan<T>& chan)
     : chan(chan)
   {}
 
+protected:
   /// @brief See smoc_chan_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &le)
@@ -258,7 +277,6 @@ protected:
 #endif
     chan.tokenId += produce;
     chan.wpp(produce);
-    //chan.emmFree.decreasedCount(chan.freeCount());
     chan.lessSpace();
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of latencyExpired(produce);
@@ -274,8 +292,7 @@ protected:
   
   /// @brief See smoc_chan_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
-   // { return chan.emmFree.getEvent(chan.freeCount(), n); }
-    { return chan.queueEntry(this, n); }
+    { return chan.spaceAvailableEvent(n); }
   
   /// @brief See smoc_chan_out_base_if
   size_t numFree() const
@@ -285,70 +302,6 @@ protected:
   size_t outTokenId() const
     { return chan.tokenId; }
 
-private:
-  /// @brief The channel base implementation
-  smoc_multireader_fifo_chan_base &chan;
-};
-
-template<class> class smoc_multireader_fifo_chan;
-
-/**
- * This class implements the channel in interface
- */
-template<class T>
-class smoc_multireader_fifo_outlet
-: public smoc_multireader_fifo_outlet_base,
-  public smoc_chan_in_base_redirector<
-    smoc_chan_in_if<T,smoc_channel_access_if>,
-    smoc_multireader_fifo_outlet<T>,
-    smoc_multireader_fifo_outlet_base
-  >
-{
-public:
-  typedef smoc_multireader_fifo_outlet<T> this_type;
-  typedef typename this_type::access_type access_type; 
-  typedef smoc_chan_in_if<T,smoc_channel_access_if> iface_type;
-
-  /// @brief Constructor
-  smoc_multireader_fifo_outlet(smoc_multireader_fifo_chan<T>& chan)
-    : smoc_multireader_fifo_outlet_base(chan),
-      chan(chan)
-  {}
-
-protected:
-  /// @brief See smoc_chan_in_if
-  access_type* getReadChannelAccess()
-    { return chan.getReadChannelAccess(); }
-
-private:
-  /// @brief The channel implementation
-  smoc_multireader_fifo_chan<T>& chan;
-};
-
-/**
- * This class implements the channel out interface
- */
-template<class T>
-class smoc_multireader_fifo_entry
-: public smoc_multireader_fifo_entry_base,
-  public smoc_chan_out_base_redirector<
-    smoc_chan_out_if<T,smoc_channel_access_if>,
-    smoc_multireader_fifo_entry<T>,
-    smoc_multireader_fifo_entry_base
-  >
-{
-public:
-  typedef smoc_multireader_fifo_entry<T> this_type;
-  typedef typename this_type::access_type access_type; 
-  typedef smoc_chan_out_if<T,smoc_channel_access_if> iface_type;
-
-  /// @brief Constructor
-  smoc_multireader_fifo_entry(smoc_multireader_fifo_chan<T>& chan)
-    : smoc_multireader_fifo_entry_base(chan),
-      chan(chan)
-  {}
-
-protected:
   /// @brief See smoc_chan_out_if
   access_type* getWriteChannelAccess()
     { return chan.getWriteChannelAccess(); }

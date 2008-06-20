@@ -57,7 +57,6 @@ nobase_include_HEADERS = \
 	systemoc/smoc_graph_synth.hpp \
 	systemoc/smoc_graph_type.hpp \
 	systemoc/smoc_guard.hpp \
-	systemoc/smoc_md_array.hpp \
 	systemoc/smoc_md_array_access.hpp \
 	systemoc/smoc_md_ba_basic_tree.hpp \
 	systemoc/smoc_md_ba_linearized_buffer.hpp \
@@ -76,21 +75,16 @@ nobase_include_HEADERS = \
 	systemoc/smoc_root_node.hpp \
 	systemoc/smoc_sr_signal.hpp \
 	systemoc/smoc_storage.hpp \
-	systemoc/smoc_vector.hpp \
-	systemoc/smoc_wsdf_edge.hpp \
 	systemoc/smoc_ngx_sync.hpp
 
 if SYSTEMOC_ENABLE_WSDF
 nobase_include_HEADERS += \
 	systemoc/smoc_md_array_access.hpp \
-	systemoc/smoc_md_array.hpp \
 	systemoc/smoc_md_chan_if.hpp \
 	systemoc/smoc_md_buffer.hpp \
 	systemoc/smoc_md_fifo.hpp \
 	systemoc/smoc_md_loop.hpp \
 	systemoc/smoc_md_port.hpp \
-	systemoc/smoc_vector.hpp \
-	systemoc/smoc_wsdf_edge.hpp \
 	systemoc/smoc_md_ba_basic_tree.hpp \
 	systemoc/smoc_md_buffer_analysis.hpp \
 	systemoc/smoc_md_ba_linearized_buffer.hpp \

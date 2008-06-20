@@ -69,13 +69,17 @@ protected:
 
   void rpp(size_t n);
   
-  void usedDecr();
+  /// @brief Called by outlets when more data is available
+  void moreData();
   
-  void usedIncr();
-
-  void unusedDecr();
+  /// @brief Called by outlets when less data is available
+  void lessData();
   
-  void unusedIncr();
+  /// @brief Called by entries when more space is available
+  void moreSpace();
+  
+  /// @brief Called by entries when less space is available
+  void lessSpace();
 
   bool isDefined() const;
 
@@ -113,11 +117,45 @@ private:
 
 class smoc_multicast_outlet_base {
   friend class smoc_graph_sr;
-  template <class,class,class> friend class smoc_chan_in_base_redirector;
 public:
-  /// @brief Constructor
-  smoc_multicast_outlet_base(smoc_multicast_sr_signal_chan_base* chan);
+  virtual ~smoc_multicast_outlet_base() {}
+protected:
+  virtual void allowUndefinedRead(bool allow) = 0;
+  virtual bool isDefined() const = 0;
+};
 
+class smoc_multicast_entry_base {
+  friend class smoc_graph_sr;  
+public:
+  virtual ~smoc_multicast_entry_base() {}
+protected:
+  virtual void multipleWriteSameValue(bool allow) = 0;
+  virtual bool isDefined() const = 0;
+};
+
+template <typename T>
+class smoc_multicast_sr_signal_chan;
+
+template <typename T>
+class smoc_multicast_outlet
+  : public smoc_multicast_outlet_base,
+    public smoc_chan_in_if<T,smoc_channel_access_if>,
+    public smoc_channel_access_if<typename smoc_storage_in<T>::return_type>
+{
+public:
+  typedef T                                       data_type;
+  typedef smoc_storage<data_type>                 storage_type;
+  typedef smoc_multicast_outlet<data_type>        this_type;
+  typedef typename this_type::access_in_type      ring_in_type;
+  typedef typename this_type::return_type         return_type;
+  typedef smoc_chan_in_if<T,smoc_channel_access_if>  iface_type;
+  
+  /// @brief Constructor
+  smoc_multicast_outlet(smoc_multicast_sr_signal_chan<T>* chan)
+    : chan(chan),
+      undefinedRead(false)
+  {}
+  
   /// @brief See smoc_chan_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
@@ -132,103 +170,37 @@ public:
   }
   
   /// @brief See smoc_chan_in_base_if
-  smoc_event &dataAvailableEvent(size_t n);
+  smoc_event &dataAvailableEvent(size_t n) {
+    assert(n <= 1);
+    return emm.getEvent(numAvailable(), n);
+  }
 
   /// @brief See smoc_chan_in_base_if
-  size_t numAvailable() const;
+  size_t numAvailable() const
+    { return (undefinedRead || chan->getSignalState() != undefined) ? 1 : 0; }
   
   /// @brief See smoc_chan_in_base_if
   size_t inTokenId() const
     { return chan->inTokenId(); }
-
-  void allowUndefinedRead(bool allow);
   
-  void usedIncr();
-  
-  void usedDecr();
-  
-  //void wpp(size_t n);
-  
-  bool isDefined() const;
+  /// @brief See smoc_chan_in_base_if
+  void moreData()
+    { emm.increasedCount(numAvailable()); }
 
-private:
-  smoc_multicast_sr_signal_chan_base* chan;
-  bool undefinedRead;
-  Detail::EventMapManager emm;
-};
+  /// @brief See smoc_chan_in_base_if
+  void lessData()
+    { emm.decreasedCount(numAvailable()); }
 
-class smoc_multicast_entry_base {
-  friend class smoc_graph_sr;
-  template <class,class,class> friend class smoc_chan_out_base_redirector;
-public:
-  /// @brief Constructor
-  smoc_multicast_entry_base(smoc_multicast_sr_signal_chan_base* chan);
-
-  /// @brief See smoc_chan_out_base_if
-#ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
-#else
-  void commitWrite(size_t produce)
-#endif
-  {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(chan, produce);
-#endif
-    chan->wpp(produce);
+  /// @brief See smoc_multicast_outlet_base
+  void allowUndefinedRead(bool allow) {
+    undefinedRead = allow;
+    chan->lessSpace();
+    moreData();
   }
-
-  /// @brief See smoc_chan_out_base_if
-  smoc_event &spaceAvailableEvent(size_t n);
-
-  /// @brief See smoc_chan_out_base_if
-  size_t numFree() const;
-
-  /// @brief See smoc_chan_out_base_if
-  size_t outTokenId() const
-    { return chan->outTokenId(); }
   
-  void multipleWriteSameValue(bool allow);
-
-  void unusedIncr();
-  
-  void unusedDecr();
-
-  //void rpp(size_t n);
-  
-  bool isDefined() const;
-
-private:
-  smoc_multicast_sr_signal_chan_base* chan;
-  bool multipleWrite;
-  Detail::EventMapManager emm;
-};
-
-template <typename T>
-class smoc_multicast_sr_signal_chan;
-
-template <typename T>
-class smoc_multicast_outlet
-  : public smoc_multicast_outlet_base,
-    public smoc_chan_in_base_redirector<
-      smoc_chan_in_if<T,smoc_channel_access_if>,
-      smoc_multicast_outlet<T>,
-      smoc_multicast_outlet_base
-    >,
-    public smoc_channel_access_if<typename smoc_storage_in<T>::return_type>
-{
-public:
-  typedef T                                       data_type;
-  typedef smoc_storage<data_type>                 storage_type;
-  typedef smoc_multicast_outlet<data_type>        this_type;
-  typedef typename this_type::access_in_type      ring_in_type;
-  typedef typename this_type::return_type         return_type;
-  typedef smoc_chan_in_if<T,smoc_channel_access_if>  iface_type;
-  
-  /// @brief Constructor
-  smoc_multicast_outlet(smoc_multicast_sr_signal_chan<T>* chan)
-    : smoc_multicast_outlet_base(chan),
-      chan(chan)
-  {}
+  /// @brief See smoc_multicast_outlet_base
+  bool isDefined() const
+    { return chan->isDefined(); }
   
   /// @brief See smoc_chan_in_if
   ring_in_type* getReadChannelAccess()
@@ -255,17 +227,15 @@ public:
 
 private:
   smoc_multicast_sr_signal_chan<T>* chan;
+  bool undefinedRead;
+  Detail::EventMapManager emm;
   size_t limit;
 };
 
 template <typename T>
 class smoc_multicast_entry
 : public smoc_multicast_entry_base,
-  public smoc_chan_out_base_redirector<
-    smoc_chan_out_if<T,smoc_channel_access_if>,
-    smoc_multicast_entry<T>,
-    smoc_multicast_entry_base
-  >,
+  public smoc_chan_out_if<T,smoc_channel_access_if>,
   public smoc_channel_access_if<typename smoc_storage_out<T>::return_type>
 {
 public:
@@ -278,9 +248,52 @@ public:
   
   /// @brief Constructor
   smoc_multicast_entry(smoc_multicast_sr_signal_chan<T>* chan)
-    : smoc_multicast_entry_base(chan),
-      chan(chan)
+    : chan(chan),
+      multipleWrite(false)
   {}
+  
+  /// @brief See smoc_chan_out_base_if
+#ifdef SYSTEMOC_ENABLE_VPC
+  void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
+#else
+  void commitWrite(size_t produce)
+#endif
+  {
+#ifdef SYSTEMOC_TRACE
+    TraceLog.traceCommExecOut(chan, produce);
+#endif
+    chan->wpp(produce);
+  }
+
+  /// @brief See smoc_chan_out_base_if
+  smoc_event &spaceAvailableEvent(size_t n) {
+    assert(n <= 1);
+    return emm.getEvent(numFree(), n);
+  }
+
+  /// @brief See smoc_chan_out_base_if
+  size_t numFree() const
+    { return (multipleWrite || chan->getSignalState() == undefined) ? 1 : 0; }
+  
+  /// @brief See smoc_chan_out_base_if
+  size_t outTokenId() const
+    { return chan->outTokenId(); }
+  
+  /// @brief See smoc_chan_out_base_if
+  void moreSpace()
+    { emm.increasedCount(numFree()); }
+  
+  /// @brief See smoc_chan_out_base_if
+  void lessSpace()
+    { emm.decreasedCount(numFree()); }
+  
+  /// @brief See smoc_multicast_entry_base
+  void multipleWriteSameValue(bool allow)
+    { multipleWrite = allow; }
+
+  /// @brief See smoc_multicast_entry_base
+  bool isDefined() const
+    { return chan->isDefined(); }
   
   /// @brief See smoc_chan_out_if
   ring_out_type* getWriteChannelAccess()
@@ -307,6 +320,8 @@ public:
 
 private:
   smoc_multicast_sr_signal_chan<T>* chan;
+  bool multipleWrite;
+  Detail::EventMapManager emm;
   size_t limit;
 };
 
