@@ -263,12 +263,12 @@ protected:
        *  
        *             fsize
        *   ____________^___________
-       *  /     OOOOOO             \   
+       *  /     OOOO               \   
        * |FFFFFFVVVVVVXXXPPPPPPPFFFF|
-       *        ^     ^  ^      ^
-       *      rindex  |vindex windex
-       *            xindex
-       *            oindex
+       *        ^   ^    ^      ^
+       *      rindex|  vindex windex
+       *          xindex
+       *          oindex
        *
        * Example: Have to call latencyExpired on vfifo outlet
        *          for the new tokens inside the OOO area
@@ -301,9 +301,9 @@ protected:
       
       size_t fsize  = this->fSize();
       size_t rindex = this->rIndex();
-      // Calculate xindex to point to the first token for which the latency
-      // has expired.
-      size_t xindex = (rindex + vcount - n) % fsize;
+      // Calculate xindex to point to the first token inside or one outside the
+      // OOO area for which the latency has expired.
+      size_t xindex = (rindex + std::min(this->fifoOutOfOrder + 1, vcount - n)) % fsize;
       // Calculate oindex to point to the first token either outside
       // the OOO area or outside the visible area.
       size_t oindex = (rindex + std::min(this->fifoOutOfOrder + 1, vcount)) % fsize;
