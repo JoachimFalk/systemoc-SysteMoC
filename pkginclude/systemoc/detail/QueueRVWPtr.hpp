@@ -42,6 +42,9 @@
 namespace Detail {
 
   class QueueRVWPtr: public QueueRWPtr {
+    typedef QueueRVWPtr this_type;
+    typedef QueueRWPtr  base_type;
+
     friend class QueueFRVWPtr;
   protected:
     /*             fsize
@@ -50,7 +53,7 @@ namespace Detail {
      * |FFFFFFFFFVVVVVVVPPPPPPPFFF|
      *           ^      ^      ^
      *         rindex vindex windex
-     *
+     *         findex
      *  F: The free space area of size (findex - windex - 1) % fsize
      *  V: The visible token area of size (vindex - rindex) % fsize
      *  P: The token which are still in the pipeline (latency not expired)
@@ -62,12 +65,12 @@ namespace Detail {
       : QueueRWPtr(n), vindex(0) {}
 
     size_t visibleCount() const {
-      size_t used =
-        vindex - rindex;
-      
-      if (used > fsize)
-        used += fsize;
-      return used;
+      // vindex - rindex in modulo fsize arith
+      return (MG(vindex, fsize) - rindex).getValue();
+    }
+
+    const size_t &vIndex() const {
+      return vindex;
     }
 
 #ifndef NDEBUG
@@ -75,23 +78,23 @@ namespace Detail {
     // visibleCount. Therefore, the assertion is more paranoid.
     void rpp(size_t n) {
       assert(n <= visibleCount());
-      rindex = (rindex + n) % fsize;
+      base_type::rpp(n);
     }
 #endif
 
     void vpp(size_t n) {
-#ifndef NDEBUG
-      size_t invisible =
-        windex - vindex;
-      if (invisible > fsize)
-        invisible += fsize;
-      assert(n <= invisible);
-#endif
-      vindex = (vindex + n) % fsize;
-      // PARANOIA: rindex <= vindex <= windex in modulo fsize arith
-      assert(vindex < fsize &&
+      // PRECONDITION PARANOIA: rindex <= vindex <= windex in modulo fsize arith
+      //   rindex == windex   implies rindex == windex == vindex
+      //   rindex-windex == 1 implies true
+      assert(MG(vindex, fsize).between(rindex, windex));
+/*    assert(vindex < fsize &&
         (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
          windex <  rindex && (vindex >= rindex || vindex <= windex)));
+ */
+      // invisible = windex - vindex in modulo fsize arith
+      assert(n <= (MG(windex, fsize) - vindex).getValue());
+      // vindex = vindex + n in modulo fsize arith
+      vindex = (MG(vindex, fsize) + n).getValue();
     }
   };
 

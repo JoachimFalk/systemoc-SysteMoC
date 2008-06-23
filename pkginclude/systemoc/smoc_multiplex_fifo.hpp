@@ -335,27 +335,57 @@ protected:
   //std::cerr << "usedCount():    " << usedCount() << std::endl;
   //std::cerr << "visibleCount(): " << visibleCount() << std::endl;
     
-    size_t dindex;
+    typedef typename this_type::MG MG;
     
-    // Find n'th fifoId == from element in storage
-    for (dindex = this->rIndex();
-         n > 1 || A::get(this->storage[dindex].get()) != from;
-         dindex = dindex < this->fSize() - 1 ? dindex + 1 : 0)
-      if (A::get(this->storage[dindex].get()) == from)
-        --n;
-    // The found fifoId == from element and all previous elements must be
-    // consumed
+    /*
+     *  
+     *             fsize
+     *   ____________^___________
+     *  /     OOOOO              \   
+     * |FFFFFFVCVCIVIIVPIPPIIPFFFF|
+     *        ^  ^     ^      ^
+     *     rindex|   vindex windex
+     *        dindex
+     *
+     *  F: The free space area of size (findex - windex - 1) % fsize
+     *  V: The visible token area of size (vindex - rindex) % fsize
+     *  P: The token which are still in the pipeline (latency not expired)
+     *
+     *  O: The OOO area of size fifoOutOfOrder + 1
+     *  C: The tokens which have to be consumed.
+     *     These tokens have color <from>.
+     *  I: The tokens in the fifo which have
+     *     color <from> but are not C.
+     */
     
-    for (size_t sindex = dindex; sindex != this->rIndex();) {
-      sindex = (sindex == 0 ? this->fSize() : sindex) - 1;
-      if (A::get(this->storage[sindex].get()) != from) {
-        this->storage[dindex].put(this->storage[sindex].get());
-        do {
-          dindex = (dindex == 0 ? this->fSize() : dindex) - 1;
-        } while (A::get(this->storage[dindex].get()) != from);
+    if (n > 0) {
+      MG dindex(this->rIndex(), typename MG::M(this->fSize()));
+      
+      // Find n'th fifoId == from element in storage
+      for (size_t mc = n; mc > 1; ++dindex) {
+        // rindex <= dindex < vindex in modulo fsize arith
+        assert(dindex.between(this->rIndex(), MG(this->vIndex(), typename MG::M(this->fSize())) - 1));
+        if (A::get(this->storage[dindex.getValue()].get()) == from)
+          --mc;
+      }
+      for (; A::get(this->storage[dindex.getValue()].get()) != from; ++dindex) {
+        // rindex <= dindex < vindex in modulo fsize arith
+        assert(dindex.between(this->rIndex(), MG(this->vIndex(), typename MG::M(this->fSize())) - 1));
+      }
+      // The found fifoId == from element and all previous elements must be
+      // consumed
+      for (MG sindex(dindex); sindex != this->rIndex(); ) {
+        --sindex;
+        // rindex <= sindex < dindex in modulo fsize arith
+        assert(sindex.between(this->rIndex(), dindex - 1));
+        if (A::get(this->storage[sindex.getValue()].get()) != from) {
+          this->storage[dindex.getValue()].put(this->storage[sindex.getValue()].get());
+          --dindex;
+        }
       }
     }
     
+    //
 #ifdef SYSTEMOC_ENABLE_VPC
     this->commitRead(n, diiEvent);
 #else
@@ -368,7 +398,7 @@ protected:
      *             fsize
      *   ____________^___________
      *  /     OOOOOOOOO          \   
-     * |FFFFYYVVVVPPPPPPPPPPPPFFFF|
+     * |FFFFCCVVVVPPPPPPPPPPPPFFFF|
      *        ^   ^           ^
      *     rindex vindex    windex
      *            oindex
@@ -380,7 +410,7 @@ protected:
      *             fsize
      *   ____________^___________
      *  /     OOOOOO             \   
-     * |FFFFYYVVVVXXVVVPPPPPPPFFFF|
+     * |FFFFCCVVVVXXVVVPPPPPPPFFFF|
      *        ^   ^ ^  ^      ^
      *     rindex | |vindex windex
      *        xindex|
@@ -389,7 +419,7 @@ protected:
      *             fsize
      *   ____________^___________
      *  /     OOOOOO             \   
-     * |FFFFYYVVVVXPPPPPPPPPPPFFFF|
+     * |FFFFCCVVVVXPPPPPPPPPPPFFFF|
      *        ^   ^^          ^
      *     rindex |vindex   windex
      *            |oindex
@@ -400,7 +430,7 @@ protected:
      *  P:  The token which are still in the pipeline (latency not expired)
      *
      *  O:  The OOO area of size fifoOutOfOrder + 1
-     *  Y:  The tokens which have just been consumed
+     *  C:  The tokens which have just been consumed
      *  X:  The tokens which have just entered the OOO area
      *
      */
@@ -604,7 +634,6 @@ public:
 
     // Access methods
     return_type operator[](size_t n) {
-      assert(n < limit);
       //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
       assert(n < limit);
       MultiplexChannel &chan = getChan();
@@ -614,10 +643,11 @@ public:
       //std::cerr << "XXX " << getChanIfImpl().fifoId << std::endl;
       
       for (rindex = chan.rIndex();
-           n >= 1 && A::get(chan.storage[rindex].get()) != getChanIfImpl().fifoId;
+           n >= 1 || A::get(chan.storage[rindex].get()) != getChanIfImpl().fifoId;
            rindex = rindex < chan.fSize() - 1 ? rindex + 1 : 0)
         if (A::get(chan.storage[rindex].get()) == getChanIfImpl().fifoId)
           --n;
+      assert(A::get(chan.storage[rindex].get()) == getChanIfImpl().fifoId);
       //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
       return chan.storage[rindex];
     }
