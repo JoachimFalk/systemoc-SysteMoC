@@ -16,10 +16,10 @@ logoutfile=autotest.log
 test_bin=$builddir/simulation-src-snk-multiplex
 
 # call binary
-$test_bin 100 2> /dev/null | grep -v "SystemC: simulation stopped by user." > $logoutfile
+$test_bin 1000 10 20 5 0 2> /dev/null | grep -v "SystemC: simulation stopped by user." > $logoutfile
 
 # make sure 'golden' logfile exist! i leave checks for clarity
-diff $logoutfile $golden_logs_dir/100iter.log > /dev/null
+diff $logoutfile $golden_logs_dir/1000-10-20-5-0.log > /dev/null
 
 if [ $? -gt 0 ]; then
   echo "src-snk-multiplex autotest: logfiles differ."
