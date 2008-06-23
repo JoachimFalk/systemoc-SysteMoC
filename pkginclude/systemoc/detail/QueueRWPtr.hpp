@@ -37,6 +37,8 @@
 #ifndef _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
 #define _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
 
+#include <CoSupport/Math/ModuloGroup.hpp>
+
 namespace Detail {
 
   class QueueRVWPtr;
@@ -45,21 +47,31 @@ namespace Detail {
   class QueueRWPtr {
     friend class QueueRVWPtr;
     friend class QueueFRVWPtr;
+  public:
+    typedef CoSupport::Math::ModuloGroup<CoSupport::Math::Modulus<size_t> > MG;
   private:
-    size_t       fsize;   ///< Ring buffer size == FIFO size + 1
-    size_t       rindex;  ///< The FIFO read    ptr
-    size_t       windex;  ///< The FIFO write   ptr
+    /*             fsize
+     *   ____________^___________
+     *  /                        \
+     * |FFVVVVVVVVVVVVVVVVVVVVVFFF|
+     *    ^                    ^
+     *  rindex               windex
+     *  findex               vindex
+     *
+     *  F: The free space area of size (findex - windex - 1) % fsize
+     *  V: The visible token area of size (vindex - rindex) % fsize
+     */
+
+    MG::M   fsize;   ///< Ring buffer size == FIFO size + 1
+    size_t  rindex;  ///< The FIFO read    ptr
+    size_t  windex;  ///< The FIFO write   ptr
   public:
     QueueRWPtr(size_t n)
       : fsize(n + 1), rindex(0), windex(0) {}
 
     size_t usedCount() const {
-      size_t used =
-        windex - rindex;
-      
-      if (used > fsize)
-        used += fsize;
-      return used;
+      // windex - rindex in modulo fsize arith
+      return (MG(windex, fsize) - rindex).getValue();
     }
 
     // For two ptr queues the visible and the used
@@ -69,31 +81,34 @@ namespace Detail {
     }
 
     size_t depthCount() const {
-      return fsize - 1;
+      return fsize.m() - 1;
     }
 
     size_t freeCount() const {
-      size_t unused =
-        rindex - windex - 1;
-      
-      if (unused > fsize)
-        unused += fsize;
-      return unused;
+      // rindex - windex - 1 in modulo fsize arith
+      return (MG(rindex, fsize) - windex - 1).getValue();
     }
 
     size_t fSize() const {
-      return fsize;
+      return fsize.m();
     }
     const size_t &rIndex() const {
+      return rindex;
+    }
+    const size_t &fIndex() const {
       return rindex;
     }
     const size_t &wIndex() const {
       return windex;
     }
+    const size_t &vIndex() const {
+      return windex;
+    }
 
     void wpp(size_t n) {
       assert(n <= freeCount());
-      windex = (windex + n) % fsize;
+      // windex = windex + n in modulo fsize arith
+      windex = (MG(windex, fsize) + n).getValue();
     }
 
     void vpp(size_t n) {
@@ -102,7 +117,8 @@ namespace Detail {
 
     void rpp(size_t n) {
       assert(n <= visibleCount());
-      rindex = (rindex + n) % fsize;
+      // rindex = rindex + n in modulo fsize arith
+      rindex = (MG(rindex, fsize) + n).getValue();
     }
 
     void fpp(size_t n) {

@@ -42,6 +42,8 @@
 namespace Detail {
 
   class QueueFRVWPtr: public QueueRVWPtr {
+    typedef QueueFRVWPtr  this_type;
+    typedef QueueRVWPtr   base_type;
   protected:
     /*             fsize
      *   ____________^___________
@@ -61,12 +63,12 @@ namespace Detail {
       : QueueRVWPtr(n), findex(0) {}
 
     size_t freeCount() const {
-      size_t unused =
-        findex - windex - 1;
-      
-      if (unused > fsize)
-        unused += fsize;
-      return unused;
+      // findex - windex - 1 in modulo fsize arith
+      return (MG(findex, fsize) - windex - 1).getValue();
+    }
+
+    const size_t &fIndex() const {
+      return findex;
     }
 
 #ifndef NDEBUG
@@ -74,24 +76,23 @@ namespace Detail {
     // freeCount. Therefore, the assertion is more paranoid.
     void wpp(size_t n) {
       assert(n <= freeCount());
-      windex = (windex + n) % fsize;
+      base_type::wpp(n);
     }
 #endif
 
     void fpp(size_t n) {
-#ifndef NDEBUG
-      size_t inconsume =
-        rindex - findex;
-      if (inconsume > fsize)
-        inconsume += fsize;
-      assert(n <= inconsume);
-#endif
-      assert(n <= depthCount() - usedCount());
-      findex = (findex + n) % fsize;
-      // PARANOIA: windex <= findex <= rindex in modulo fsize arith
-      assert(findex < fsize &&
+      // PRECONDITION PARANOIA: windex < findex <= rindex in modulo fsize arith
+      //   windex == rindex   implies true
+      //   rindex-windex == 1 implies findex == rindex
+      assert(MG(findex, fsize).between(MG(windex, fsize) + 1, rindex));
+/*    assert(findex < fsize &&
         (windex >= rindex && (findex >  windex || findex <= rindex) ||
          windex <  rindex && (findex >  windex && findex <= rindex)));
+ */
+      // inconsume = rindex - finex in modulo fsize arith
+      assert(n <= (MG(rindex, fsize) - findex).getValue());
+      // findex = findex + n in modulo fsize arith
+      findex = (MG(findex, fsize) + n).getValue();
     }
   };
 
