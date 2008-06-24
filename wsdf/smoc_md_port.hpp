@@ -8,6 +8,7 @@
 
 #include "smoc_port.hpp"
 #include <wsdf/smoc_wsdf_edge.hpp>
+#include <wsdf/smoc_vector_init.hpp>
 
 #include "smoc_md_chan_if.hpp"
 #include <wsdf/smoc_vector.hpp>
@@ -407,11 +408,6 @@ public:
       return return_value;
     }
   }  
-};
-
-namespace ns_smoc_vector_init {
-  extern smoc_vector_init<unsigned long> ul_vector_init;
-  extern smoc_vector_init<long> sl_vector_init;
 };
 
 /// class collecting the parameters which can be
