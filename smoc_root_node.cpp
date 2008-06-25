@@ -114,7 +114,7 @@ void smoc_root_node::finalise() {
   const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
   const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
   
-  for (smoc_firing_rules::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
+  for (smoc_firing_types::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
        fsmiter != fsmStates.end(); 
        ++fsmiter) {
     const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
@@ -161,8 +161,8 @@ const smoc_sysc_port_list smoc_root_node::getPorts() const {
   return ports;
 }
 
-const smoc_firing_states smoc_root_node::getFiringStates() const { 
-  smoc_firing_states states;
+const smoc_firing_types::statelist_ty smoc_root_node::getFiringStates() const { 
+  smoc_firing_types::statelist_ty states;
 
   for ( 
 #if SYSTEMC_VERSION < 20050714
@@ -173,7 +173,7 @@ const smoc_firing_states smoc_root_node::getFiringStates() const {
          get_child_objects().begin();
        iter != get_child_objects().end();
        ++iter ) {
-    smoc_firing_state* state = dynamic_cast<smoc_firing_state*>(*iter);
+    smoc_firing_types::resolved_state_ty* state = dynamic_cast<smoc_firing_types::resolved_state_ty*>(*iter);
     
     if ( state != NULL )
       states.push_back(state);
@@ -185,8 +185,7 @@ void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node
   {}
 
 void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
-  //const smoc_firing_states  fs = getFiringStates();
-  const smoc_sysc_port_list      ps = getPorts();
+  const smoc_sysc_port_list ps = getPorts();
   
   if ( !ps.empty() ) {
     pgw << "<process name=\"" << name() << "\" "
@@ -217,12 +216,13 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   smoc_graph (inherits from smoc_root_node) must not construct this output.
   So it reimplements this virtual function.*/
 void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
-  const smoc_firing_states  fs = getFiringStates();
+  const smoc_firing_types::statelist_ty fs = getFiringStates();
   //*********************************FSM-STATES********************************
-  for ( smoc_firing_states::const_iterator iter = fs.begin();
+  for ( smoc_firing_types::statelist_ty::const_iterator iter = fs.begin();
           iter != fs.end();
           ++iter )
-        pgw << "<stateDeclaration state=\"" << idPool.printId(&(*iter)->getResolvedState())
+        pgw << "<stateDeclaration state=\"" << idPool.printId(*iter)
+            << "\" name=\"" << (*iter)->name()
             << "\"/>" << std::endl;
         //*******************************ACTOR CLASS*********************************
         pgw << "<actor actorClass=\"" << typeid(*this).name() << "\">" << std::endl;
@@ -371,10 +371,12 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
     const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
     const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
     
-    for (smoc_firing_rules::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
+    for (smoc_firing_types::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
          fsmiter != fsmStates.end(); 
          ++fsmiter) {
-      pgw << "<state id=\"" << idPool.printId(*fsmiter) << "\">" << std::endl;
+      pgw << "<state id=\"" << idPool.printId(*fsmiter)
+          << "\" name=\"" << (*fsmiter)->name()
+          << "\">" << std::endl;
       {
         pgw.indentUp();
         //**************TRANTIONS********************
