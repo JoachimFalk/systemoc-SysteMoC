@@ -158,7 +158,7 @@ public:
   
   const smoc_sysc_port_list getPorts() const;
   
-  const smoc_firing_types::statelist_ty smoc_root_node::getFiringStates() const;
+  const smoc_firing_types::statelist_ty getFiringStates() const;
   
   std::ostream &dumpActor( std::ostream &o );
     
