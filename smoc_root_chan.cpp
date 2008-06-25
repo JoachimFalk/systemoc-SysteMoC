@@ -167,7 +167,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
     idPool.printIdInvalid() : idPool.printId(outlets.begin()->second, 1);
 
   sc_port_base* ifPort = outlets.empty() ?
-    0 : getLeafPort(outlets.begin()->second);
+    0 : getRootPort(outlets.begin()->second);
   
   pgw << "<edge name=\""   << this->name() << ".to-edge\" "
                "source=\"" << idPool.printId(ifPort) << "\" "
@@ -191,7 +191,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
   }
 
   ifPort = entries.empty() ?
-    0 : getLeafPort(entries.begin()->second);
+    0 : getRootPort(entries.begin()->second);
 
   pgw << "</process>" << std::endl;
   pgw << "<edge name=\""   << this->name() << ".from-edge\" "
