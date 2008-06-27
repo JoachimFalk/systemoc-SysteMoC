@@ -36,7 +36,7 @@ compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 AM_CPPFLAGS =					\
 	@AM_CPPFLAGS@				\
 	@SYSTEMC_INCLUDE@			\
-	@SUPPORT_INCLUDE@			\
+	@COSUPPORT_INCLUDE@			\
 	@LIBWSDF_INCLUDE@			\
 	@LIBSGX_INCLUDE@			\
 	@BOOST_INCLUDE@				\
@@ -47,7 +47,7 @@ AM_CPPFLAGS =					\
 AM_LDFLAGS=				\
 	@AM_LDFLAGS@			\
 	@SYSTEMC_LDFLAGS@		\
-	@SUPPORT_LDFLAGS@		\
+	@COSUPPORT_LDFLAGS@		\
 	@LIBWSDF_LDFLAGS@		\
 	@LIBSGX_LDFLAGS@		\
 	@BOOST_LDFLAGS@			\
@@ -67,31 +67,49 @@ libsystemoc_CH_LTOBJS=				\
 	$(smoc_firing_rules_hpp_CH_LTOBJS)	\
 	$(smoc_pggen_hpp_CH_LTOBJS)
 
-libsystemoc_la_LDFLAGS =				\
-	-version-info 0:0:0 				\
-	-no-undefined 					\
-	-lsystemc 					\
-	-lboost_program_options@BOOST_LIBPOSTFIX@
 libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS)
-libsystemoc_la_LIBADD = 				\
-	$(libsystemoc_CH_LTOBJS)			\
+libsystemoc_la_LDFLAGS =					\
+	-version-info 0:0:0 					\
+	-no-undefined 						\
+	-lsystemc 						\
+	-lboost_program_options@BOOST_LIBPOSTFIX@		\
+	-lsgx							\
+	-lcosupport-systemc					\
+	-lcosupport-streams					\
+	-lcosupport-smartptr
+libsystemoc_la_LIBADD = 					\
+	$(libsystemoc_CH_LTOBJS)
+libsystemoc_la_DEPENDENCIES =					\
+	compileheader-libsystemoc.stamp				\
+	$(libsystemoc_CH_LTOBJS)
+if PKG_COSUPPORT_USE_SRCDIR_VERSION
+libsystemoc_la_DEPENDENCIES +=					\
+	$(pkg_cosupport_builddir)/libcosupport-systemc.la	\
+	$(pkg_cosupport_builddir)/libcosupport-streams.la	\
+	$(pkg_cosupport_builddir)/libcosupport-smartptr.la
+endif
+if PKG_LIBSGX_USE_SRCDIR_VERSION
+libsystemoc_la_DEPENDENCIES +=					\
 	$(pkg_libsgx_builddir)/libsgx.la
-if SYSTEMOC_ENABLE_WSDF
-libsystemoc_la_LIBADD +=	$(pkg_libwsdf_builddir)/libwsdf.la
 endif
 
-libsystemoc_la_LIBADD +=				\
-	$(pkg_support_builddir)/libcosupport-systemc.la	\
-	$(pkg_support_builddir)/libcosupport-streams.la	\
-	$(pkg_support_builddir)/libcosupport-smartptr.la
+if SYSTEMOC_ENABLE_WSDF
+libsystemoc_la_LDFLAGS +=					\
+	-lwsdf
+if PKG_LIBWSDF_USE_SRCDIR_VERSION
+libsystemoc_la_DEPENDENCIES +=					\
+	$(pkg_libwsdf_builddir)/libwsdf.la
+endif
+endif
 
 if SYSTEMOC_ENABLE_VPC
-libsystemoc_la_LIBADD += $(pkg_systemc_vpc_builddir)/libsystemcvpc.la
+libsystemoc_la_LDFLAGS +=					\
+	-lsystemcvpc
+if PKG_SYSTEMC_VPC_USE_SRCDIR_VERSION
+libsystemoc_la_DEPENDENCIES +=					\
+	$(pkg_systemc_vpc_builddir)/libsystemcvpc.la
 endif
-
-libsystemoc_la_DEPENDENCIES = 				\
-	compileheader-libsystemoc.stamp			\
-	$(libsystemoc_la_LIBADD)
+endif
 
 libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\

@@ -32,35 +32,6 @@ AM_INIT_AUTOMAKE
 
 ACJF_ARG_DEBUG([yes], [], [-DNDEBUG])
 
-### SystemC-VPC ###
-# --enable-vpc option
-AC_ARG_ENABLE(
- [vpc],
- [[  --enable-vpc            enable vpc support for SysteMoC [default=auto]]],
- [case "$enableval" in
-    yes)  enable_vpc=yes  ;;
-    no)   enable_vpc=no   ;;
-    auto) enable_vpc=auto ;;
-    *)    AC_MSG_ERROR(bad value ${enableval} for --enable-vpc) ;;
-  esac],
- [enable_vpc=auto #default]
-)
-
-if test -d $srcdir/wsdf; then
-  AC_ARG_ENABLE(
-   [wsdf],
-   [[  --enable-wsdf           Turn on SysteMoC WSDF support [default=yes]]],
-   [case "${enableval}" in
-      yes)  enable_wsdf=yes ;;
-      no)   enable_wsdf=no  ;;
-      *)    AC_MSG_ERROR(bad value ${enableval} for --enable-wsdf) ;;
-    esac],
-   [enable_wsdf=yes #default]
-  )
-else
-  enable_wsdf=no
-fi
-
 AC_CONFIG_HEADER([config.h pkginclude/systemoc/smoc_config.h])
 
 DX_HTML_FEATURE(ON)
@@ -87,19 +58,45 @@ AC_EXEEXT
 
 ACJF_CHECK_LIB_SYSTEMC
 ACJF_CHECK_LIB_BOOST
+ACJF_CHECK_LIB_SGX
+ACJF_CHECK_LIB_COSUPPORT
 
-ACJF_CHECK_PKG([Support])
+### WSDF ###
+# --enable-wsdf option
+AC_ARG_ENABLE(
+ [wsdf],
+ [[  --enable-wsdf           Turn on SysteMoC WSDF support [default=yes]]],
+ [case "${enableval}" in
+    yes)  enable_wsdf=yes  ;;
+    no)   enable_wsdf=no   ;;
+    auto) enable_wsdf=auto ;;
+    *)    AC_MSG_ERROR(bad value ${enableval} for --enable-wsdf) ;;
+  esac],
+ [enable_wsdf=auto #default]
+)
 
 if test x"$enable_wsdf" != x"no"; then
-  ACJF_CHECK_PKG([LibWSDF], [],
+  ACJF_CHECK_LIB_WSDF([],
    [test x"$enable_wsdf" = x"yes" && {
      AC_MSG_ERROR([cannot find LibWSDF package in source tree, bailing out]) } ])
 fi
 
-ACJF_CHECK_PKG([LibSGX])
+### SystemC-VPC ###
+# --enable-vpc option
+AC_ARG_ENABLE(
+ [vpc],
+ [[  --enable-vpc            enable vpc support for SysteMoC [default=auto]]],
+ [case "$enableval" in
+    yes)  enable_vpc=yes  ;;
+    no)   enable_vpc=no   ;;
+    auto) enable_vpc=auto ;;
+    *)    AC_MSG_ERROR(bad value ${enableval} for --enable-vpc) ;;
+  esac],
+ [enable_vpc=auto #default]
+)
 
 if test x"$enable_vpc" != x"no"; then
-  ACJF_CHECK_PKG([SystemC-VPC], [],
+  ACJF_CHECK_LIB_SYSTEMC_VPC([],
    [test x"$enable_vpc" = x"yes" && {
      AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out]) } ])
 fi
