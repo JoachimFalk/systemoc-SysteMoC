@@ -73,31 +73,69 @@ void smoc_multireader_fifo_chan_base::assemble(smoc_modes::PGWriter &pgw) const 
 void smoc_multireader_fifo_chan_base::channelAttributes(smoc_modes::PGWriter &pgw) const {
   pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
 }
+  
+#ifdef SYSTEMOC_ENABLE_VPC
+void smoc_multireader_fifo_chan_base::consume(size_t n, const smoc_ref_event_p &diiEvent)
+#else
+void smoc_multireader_fifo_chan_base::consume(size_t n)
+#endif
+{
+#ifdef SYSTEMOC_TRACE
+  TraceLog.traceCommExecIn(this, n);
+#endif
+  rpp(n);
+  lessData(n);
+#ifdef SYSTEMOC_ENABLE_VPC
+  // Delayed call of diiExpired
+  diiQueue.addEntry(n, diiEvent);
+#else
+  // Immediate call of diiExpired
+  diiExpired(n);
+#endif
+}
+
+#ifdef SYSTEMOC_ENABLE_VPC
+void smoc_multireader_fifo_chan_base::produce(size_t n, const smoc_ref_event_p &latEvent)
+#else
+void smoc_multireader_fifo_chan_base::produce(size_t n)
+#endif
+{
+#ifdef SYSTEMOC_TRACE
+  TraceLog.traceCommExecOut(this, n);
+#endif
+  tokenId += n;
+  wpp(n);
+  lessSpace(n);
+#ifdef SYSTEMOC_ENABLE_VPC
+  // Delayed call of latencyExpired
+  latencyQueue.addEntry(n, latEvent);
+#else
+  // Immediate call of latencyExpired
+  latencyExpired(n);
+#endif
+}
 
 void smoc_multireader_fifo_chan_base::latencyExpired(size_t n) {
   vpp(n);
-  moreData();
+  moreData(n);
 }
 
 void smoc_multireader_fifo_chan_base::diiExpired(size_t n) {
   fpp(n);
-  moreSpace();
+  moreSpace(n);
 }
 
-void smoc_multireader_fifo_chan_base::moreData() {
+void smoc_multireader_fifo_chan_base::moreData(size_t n) {
   //std::cout << "more data available: " << visibleCount() << std::endl;
-
   for(OutletMap::const_iterator i = getOutlets().begin();
       i != getOutlets().end(); ++i)
   {
-    if(schedOutlets->canNotify(i->second))
-      i->first->moreData();
+    i->first->moreData();
   }
 }
 
-void smoc_multireader_fifo_chan_base::lessData() {
+void smoc_multireader_fifo_chan_base::lessData(size_t n) {
   //std::cout << "less data available: " << visibleCount() << std::endl;
-
   for(OutletMap::const_iterator i = getOutlets().begin();
       i != getOutlets().end(); ++i)
   {
@@ -105,25 +143,43 @@ void smoc_multireader_fifo_chan_base::lessData() {
   }
 }
 
-void smoc_multireader_fifo_chan_base::moreSpace() {
+void smoc_multireader_fifo_chan_base::moreSpace(size_t n) {
   //std::cout << "more space available: " << freeCount() << std::endl;
-  emmFree.increasedCount(freeCount());
+  for(EntryMap::const_iterator i = getEntries().begin();
+      i != getEntries().end(); ++i)
+  {
+    i->first->moreSpace();
+  }
 }
 
-void smoc_multireader_fifo_chan_base::lessSpace() {
+void smoc_multireader_fifo_chan_base::lessSpace(size_t n) {
   //std::cout << "less space available: " << freeCount() << std::endl;
-  emmFree.decreasedCount(freeCount());
-}
-
-smoc_event& smoc_multireader_fifo_chan_base::spaceAvailableEvent(size_t n) {
-  assert(n);
-  return emmFree.getEvent(0, n);
+  for(EntryMap::const_iterator i = getEntries().begin();
+      i != getEntries().end(); ++i)
+  {
+    i->first->lessSpace();
+  }
 }
 
 void smoc_multireader_fifo_chan_base::start_of_simulation() {
   // this should account for initial tokens / space so our events
   // can always be created unnotified (and the scheduler needs not
   // to know about initial tokens?)
-  moreSpace(); moreData();
+  moreSpace(freeCount()); moreData(visibleCount());
 }
 
+size_t smoc_multireader_fifo_chan_base::inTokenId() const {
+  return tokenId - usedCount();
+}
+
+size_t smoc_multireader_fifo_chan_base::outTokenId() const {
+  return tokenId;
+}
+  
+size_t smoc_multireader_fifo_chan_base::numAvailable() const {
+  return visibleCount();
+}
+
+size_t smoc_multireader_fifo_chan_base::numFree() const {
+  return freeCount();
+}

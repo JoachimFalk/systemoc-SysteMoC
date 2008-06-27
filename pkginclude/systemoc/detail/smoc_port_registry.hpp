@@ -72,20 +72,32 @@ protected:
   virtual smoc_chan_in_base_if* createOutlet() = 0;
 
   /// @brief Find / create entry for port
-  smoc_chan_out_base_if* getEntry(sc_port_base* p)
-    { assert(p); return getByVal(entries, p); }
+  smoc_chan_out_base_if* getEntry(sc_port_base* p) {
+    assert(p);
+    return getByVal(entries, p);
+  }
 
   /// @brief Find / create outlet for port
-  smoc_chan_in_base_if* getOutlet(sc_port_base* p)
-    { assert(p); return getByVal(outlets, p); }
+  smoc_chan_in_base_if* getOutlet(sc_port_base* p) {
+    assert(p);
+    return getByVal(outlets, p);
+  }
 
   /// @brief Find port for entry
-  sc_port_base* getPort(smoc_chan_out_base_if* e) const
-    { assert(e); return getByKey(entries, e); }
+  sc_port_base* getPort(const smoc_chan_out_base_if* e) const {
+    assert(e);
+    // this is allowed: we are only comparing pointers,
+    // we do not modify e!!!
+    return getByKey(entries, const_cast<smoc_chan_out_base_if*>(e));
+  }
 
   /// @brief Find port for outlet
-  sc_port_base* getPort(smoc_chan_in_base_if* o) const
-    { assert(o); return getByKey(outlets, o); }
+  sc_port_base* getPort(const smoc_chan_in_base_if* o) const {
+    assert(o);
+    // this is allowed: we are only comparing pointers,
+    // we do not modify o!!!
+    return getByKey(outlets, const_cast<smoc_chan_in_base_if*>(o));
+  }
 
   /// @brief Select entry / outlet based on tag
   template<class Tag>

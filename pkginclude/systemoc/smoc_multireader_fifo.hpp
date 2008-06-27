@@ -80,8 +80,6 @@ public:
     {}
 
 protected:
-  virtual bool canNotify(const sc_port_base*)
-    { return true; }
 };
 
 /**
@@ -115,7 +113,6 @@ public:
   };
 
 protected:
-  
   /// @brief Constructor
   smoc_multireader_fifo_chan_base(const chan_init &i);
 
@@ -125,37 +122,42 @@ protected:
   /// @brief See smoc_root_chan
   void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
-  /// @brief Detail::LatencyQueue callback
-  void latencyExpired(size_t n);
-
-  /// @brief Detail::DIIQueue callback
-  void diiExpired(size_t n);
-  
-  /// @brief Called by outlets when more data is available
-  void moreData();
-  
-  /// @brief Called by outlets when less data is available
-  void lessData();
-  
-  /// @brief Called by entries when more space is available
-  void moreSpace();
-  
-  /// @brief Called by entries when less space is available
-  void lessSpace();
-
-  /// @brief Returns event for n places available
-  smoc_event& spaceAvailableEvent(size_t n);
-
+  /// @brief SystemC callback
   void start_of_simulation();
 
+  /// @brief Called by outlet if it did consume tokens
+#ifdef SYSTEMOC_ENABLE_VPC
+  void consume(size_t n, const smoc_ref_event_p &diiEvent);
+#else
+  void consume(size_t n);
+#endif
+  
+  /// @brief Called by entry if it did produce tokens
+#ifdef SYSTEMOC_ENABLE_VPC
+  void produce(size_t n, const smoc_ref_event_p &latEvent);
+#else
+  void produce(size_t n);
+#endif
+  
+  /// @brief Calculate token id for next consumed token
+  size_t inTokenId() const;
+
+  /// @brief Calculate token id for next produced token
+  size_t outTokenId() const;
+
+  /// @brief Available token count
+  size_t numAvailable() const;
+
+  /// @brief Available free space
+  size_t numFree() const;
+
 private:
-  Detail::EventMapManager emmFree;
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue  latencyQueue;
   Detail::DIIQueue      diiQueue;
 #endif
 
-  /// @brief The token id of the next commit token
+  /// @brief The token id of the next produced token
   size_t tokenId;
 
   /// @brief The default scheduler
@@ -163,6 +165,24 @@ private:
 
   /// @brief The scheduler used for outlets
   smoc_multireader_scheduler* schedOutlets;
+  
+  /// @brief Detail::LatencyQueue callback
+  void latencyExpired(size_t n);
+
+  /// @brief Detail::DIIQueue callback
+  void diiExpired(size_t n);
+  
+  /// @brief Called by outlets when more data is available
+  void moreData(size_t n);
+  
+  /// @brief Called by outlets when less data is available
+  void lessData(size_t n);
+  
+  /// @brief Called by entries when more space is available
+  void moreSpace(size_t n);
+  
+  /// @brief Called by entries when less space is available
+  void lessSpace(size_t n);
 };
 
 template<class> class smoc_multireader_fifo_chan;
@@ -175,55 +195,36 @@ class smoc_multireader_fifo_outlet
 : public smoc_chan_in_if<T,smoc_channel_access_if>
 {
 public:
-  typedef smoc_multireader_fifo_outlet<T> this_type;
-  typedef typename this_type::access_type access_type; 
+  typedef smoc_multireader_fifo_outlet<T>           this_type;
+  typedef typename this_type::access_type           access_type; 
   typedef smoc_chan_in_if<T,smoc_channel_access_if> iface_type;
 
   /// @brief Constructor
   smoc_multireader_fifo_outlet(smoc_multireader_fifo_chan<T>& chan)
     : chan(chan)
-  {}
+    {}
 
 protected:
   /// @brief See smoc_chan_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
+    { chan.consume(consume, diiEvent); }
 #else
   void commitRead(size_t consume)
+    { chan.consume(consume); }
 #endif
-  {
-//  std::cerr << "smoc_multireader_fifo_chan::commitRead(" << consume << ") [BEGIN] " << chan.name() << std::endl;
-//  std::cerr << "freeCount():    " << chan.freeCount() << std::endl;
-//  std::cerr << "usedCount():    " << chan.usedCount() << std::endl;
-//  std::cerr << "visibleCount(): " << chan.visibleCount() << std::endl;
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(this, consume);
-#endif
-    chan.rpp(consume);
-    chan.lessData();
-#ifdef SYSTEMOC_ENABLE_VPC
-    // Delayed call of diiExpired(consume);
-    chan.diiQueue.addEntry(consume, diiEvent);
-#else
-    chan.diiExpired(consume);
-#endif
-//  std::cerr << "smoc_multireader_fifo_chan::commitRead(" << consume << ") [END] " << chan.name() << std::endl;
-//  std::cerr << "freeCount():    " << chan.freeCount() << std::endl;
-//  std::cerr << "usedCount():    " << chan.usedCount() << std::endl;
-//  std::cerr << "visibleCount(): " << chan.visibleCount() << std::endl;
-  }
- 
+
   /// @brief See smoc_chan_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
-    { return emm.getEvent(0, n); }
+    { assert(n); return emm.getEvent(0, n); }
 
   /// @brief See smoc_chan_in_base_if
   size_t numAvailable() const
-    { return chan.visibleCount(); }
+    { return chan.numAvailable(); }
   
   /// @brief See smoc_chan_in_base_if
   size_t inTokenId() const
-    { return chan.tokenId - chan.usedCount(); }
+    { return chan.inTokenId(); }
   
   /// @brief See smoc_chan_in_base_if
   void moreData()
@@ -240,6 +241,8 @@ protected:
 private:
   /// @brief The channel implementation
   smoc_multireader_fifo_chan<T>& chan;
+  
+  /// @brief Private event manager
   Detail::EventMapManager emm;
 };
 
@@ -251,56 +254,44 @@ class smoc_multireader_fifo_entry
 : public smoc_chan_out_if<T,smoc_channel_access_if>
 {
 public:
-  typedef smoc_multireader_fifo_entry<T> this_type;
-  typedef typename this_type::access_type access_type; 
-  typedef smoc_chan_out_if<T,smoc_channel_access_if> iface_type;
+  typedef smoc_multireader_fifo_entry<T>              this_type;
+  typedef typename this_type::access_type             access_type; 
+  typedef smoc_chan_out_if<T,smoc_channel_access_if>  iface_type;
 
   /// @brief Constructor
   smoc_multireader_fifo_entry(smoc_multireader_fifo_chan<T>& chan)
     : chan(chan)
-  {}
+    {}
 
 protected:
   /// @brief See smoc_chan_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p &le)
+  void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
+    { chan.produce(produce, latEvent); }
 #else
   void commitWrite(size_t produce)
+    { chan.produce(produce); }
 #endif
-  {
-//  std::cerr << "smoc_multireader_fifo_chan::commitWrite(" << produce << ") [BEGIN] " << chan.name() << std::endl;
-//  std::cerr << "freeCount():    " << chan.freeCount() << std::endl;
-//  std::cerr << "usedCount():    " << chan.usedCount() << std::endl;
-//  std::cerr << "visibleCount(): " << chan.visibleCount() << std::endl;
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(this, produce);
-#endif
-    chan.tokenId += produce;
-    chan.wpp(produce);
-    chan.lessSpace();
-#ifdef SYSTEMOC_ENABLE_VPC
-    // Delayed call of latencyExpired(produce);
-    chan.latencyQueue.addEntry(produce, le);
-#else
-    chan.latencyExpired(produce);
-#endif
-//  std::cerr << "smoc_multireader_fifo_chan::commitWrite(" << produce << ") [END] " << chan.name() << std::endl;
-//  std::cerr << "freeCount():    " << chan.freeCount() << std::endl;
-//  std::cerr << "usedCount():    " << chan.usedCount() << std::endl;
-//  std::cerr << "visibleCount(): " << chan.visibleCount() << std::endl;
-  }
-  
+
   /// @brief See smoc_chan_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
-    { return chan.spaceAvailableEvent(n); }
+    { assert(n); return emm.getEvent(0, n); }
   
   /// @brief See smoc_chan_out_base_if
   size_t numFree() const
-    { return chan.freeCount(); }
+    { return chan.numFree(); }
   
   /// @brief See smoc_chan_out_base_if
   size_t outTokenId() const
-    { return chan.tokenId; }
+    { return chan.outTokenId(); }
+  
+  /// @brief See smoc_chan_in_base_if
+  void moreSpace()
+    { emm.increasedCount(numFree()); }
+
+  /// @brief See smoc_chan_in_base_if
+  void lessSpace()
+    { emm.decreasedCount(numFree()); }
 
   /// @brief See smoc_chan_out_if
   access_type* getWriteChannelAccess()
@@ -309,6 +300,9 @@ protected:
 private:
   /// @brief The channel implementation
   smoc_multireader_fifo_chan<T>& chan;
+  
+  /// @brief Private event manager
+  Detail::EventMapManager emm;
 };
 
 /**
