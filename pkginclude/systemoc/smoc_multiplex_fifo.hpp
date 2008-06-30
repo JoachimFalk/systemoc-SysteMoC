@@ -178,8 +178,8 @@ class smoc_multiplex_fifo_chan
   friend class smoc_multiplex_fifo_entry<T,A>;
   friend class smoc_multiplex_vfifo_entry<T,A>;
   friend class smoc_multiplex_vfifo_outlet<T,A>;
-  template <class TT> friend class smoc_multiplex_vfifo_entry<T,A>::AccessImpl;
-  template <class TT> friend class smoc_multiplex_vfifo_outlet<T,A>::AccessImpl;
+  friend class smoc_multiplex_vfifo_entry<T,A>::AccessImpl;
+  friend class smoc_multiplex_vfifo_outlet<T,A>::AccessImpl;
 public:
   typedef T                               data_type;
   typedef smoc_multiplex_fifo_entry<T,A>  entry_type;
@@ -592,9 +592,8 @@ public:
   typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
   typedef typename MultiplexChannel::FifoId   FifoId;
 
-  template<class TT>
   class AccessImpl: public this_type::access_type {
-    typedef AccessImpl<TT> this_type;
+    typedef AccessImpl this_type;
   public:
     typedef smoc_multiplex_vfifo_outlet<T,A>  ChanIfImpl;
     typedef typename this_type::return_type   return_type;
@@ -634,7 +633,7 @@ public:
 
     // Access methods
     return_type operator[](size_t n) {
-      //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
+      //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl::operator[](size_t) BEGIN" << std::endl;
       assert(n < limit);
       MultiplexChannel &chan = getChan();
       
@@ -648,7 +647,7 @@ public:
         if (A::get(chan.storage[rindex].get()) == getChanIfImpl().fifoId)
           --n;
       assert(A::get(chan.storage[rindex].get()) == getChanIfImpl().fifoId);
-      //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
+      //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl::operator[](size_t) END" << std::endl;
       return chan.storage[rindex];
     }
     const return_type operator[](size_t n) const
@@ -660,7 +659,7 @@ private:
   FifoId                  fifoId;
   size_t                  countAvailable;
   Detail::EventMapManager emmAvailable;
-  AccessImpl<T>           accessImpl;
+  AccessImpl              accessImpl;
 public:
   /// @brief Constructor
   smoc_multiplex_vfifo_outlet(const PMultiplexChannel &chan, FifoId fifoId)
@@ -705,7 +704,7 @@ protected:
     { return -1; }
 
   /// @brief See smoc_chan_in_if
-  AccessImpl<T> *getReadChannelAccess()
+  AccessImpl *getReadChannelAccess()
     { return &accessImpl; }
 
   void latencyExpired(size_t n) {
@@ -726,9 +725,8 @@ private:
   typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
   typedef typename MultiplexChannel::FifoId   FifoId;
 
-  template<class TT>
   class AccessImpl: public this_type::access_type {
-    typedef AccessImpl<TT>  this_type;
+    typedef AccessImpl  this_type;
   public:
     typedef smoc_multiplex_vfifo_entry<T,A> ChanIfImpl;
     typedef typename this_type::return_type return_type;
@@ -768,13 +766,13 @@ private:
 
     // Access methods
     return_type operator[](size_t n) {
-      //std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl<TT>::operator[](size_t) BEGIN" << std::endl;
+      //std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl::operator[](size_t) BEGIN" << std::endl;
       assert(n < limit);
       MultiplexChannel &chan = getChan();
       size_t windex = chan.wIndex() + n;
       if (windex >= chan.fSize())
         windex -= chan.fSize();
-      //std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl<TT>::operator[](size_t) END" << std::endl;
+      //std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl::operator[](size_t) END" << std::endl;
       return chan.storage[chan.wIndex() + n];
     }
 
@@ -785,7 +783,7 @@ private:
   /// @brief The channel implementation
   PMultiplexChannel chan;
   FifoId            fifoId;
-  AccessImpl<T>     accessImpl;
+  AccessImpl        accessImpl;
 public:
   /// @brief Constructor
   smoc_multiplex_vfifo_entry(const PMultiplexChannel &chan, FifoId fifoId)
@@ -819,7 +817,7 @@ protected:
     { return -1; }
 
   /// @brief See smoc_chan_out_if
-  AccessImpl<T> *getWriteChannelAccess()
+  AccessImpl *getWriteChannelAccess()
     { return &accessImpl; }
 };
 
