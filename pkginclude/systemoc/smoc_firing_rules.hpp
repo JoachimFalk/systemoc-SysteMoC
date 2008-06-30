@@ -50,6 +50,7 @@
 #include <systemc.h>
 #include "smoc_guard.hpp"
 
+#include <boost/variant.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <CoSupport/commondefs.h>
@@ -573,5 +574,61 @@ smoc_sr_func_pair operator && (const smoc_func_call        &g,
              const smoc_func_call        &t) {
   return smoc_sr_func_pair(g, t);
 }
+
+class smoc_refined_state {
+public:
+  smoc_refined_state(smoc_firing_state& init) : init(&init)
+    { add(init); }
+  smoc_refined_state(smoc_refined_state& init) : init(&init)
+    { add(init); }
+
+  void add(smoc_firing_state& state)
+    { states.insert(&state); }
+  void add(smoc_refined_state& state)
+    { states.insert(&state); }
+
+  struct InitialFSVisitor {
+    typedef smoc_firing_state& result_type;
+
+    result_type operator()(smoc_firing_state* s) const
+      { return *s; }
+    result_type operator()(smoc_refined_state* s) const
+      { return static_cast<smoc_firing_state&>(*s); }
+  };
+
+  operator smoc_firing_state& () const
+    { return boost::apply_visitor(InitialFSVisitor(), init); }
+
+  struct AddTransitionVisitor {
+    typedef void result_type;
+    const smoc_transition_list& tl;
+
+    AddTransitionVisitor(const smoc_transition_list& tl)
+      : tl(tl) {}
+    result_type operator()(smoc_firing_state* s) const
+      { s->addTransition(tl); }
+    result_type operator()(smoc_refined_state* s) const
+      { *s = tl; }
+  };
+
+  smoc_refined_state& operator=(const smoc_transition_list& tl) {
+    AddTransitionVisitor atv(tl);
+
+    for(StateSet::const_iterator i = states.begin();
+        i != states.end();
+        ++i)
+    {
+      boost::apply_visitor(atv, *i);
+    }
+
+    return *this;
+  }
+
+private:
+  typedef boost::variant<smoc_firing_state*,smoc_refined_state*> State;
+  typedef std::set<State> StateSet;
+  StateSet states;
+  State init;
+};
 
 #endif // _INCLUDED_SMOC_OP_PORT_LIST_HPP
