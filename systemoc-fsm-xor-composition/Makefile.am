@@ -35,3 +35,13 @@ noinst_PROGRAMS= simulation-xor-comp
 
 simulation_xor_comp_SOURCES= design-xor-comp.cpp
 simulation_xor_comp_DEPENDENCIES= @SYSTEMOC_DEPENDENCIES@
+
+autotest.sh: simulation-xor-comp $(srcdir)/autotest-sh
+	rm -f $@
+	echo "#!" $(BASH) > $@
+	cat autovars.sh $(srcdir)/autotest-sh >> $@
+	chmod +x $@
+
+# to check we just call the 'autotest.sh' script
+check: autotest.sh
+	./autotest.sh

@@ -34,16 +34,202 @@
  */
 
 #include <iostream>
+#include <cstdlib>
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
 
-using namespace std;
+template<class T>
+class Src : public smoc_actor {
+public:
+  smoc_port_out<T> out;
+
+  Src(sc_module_name name, size_t _iter)
+    : smoc_actor(name, start),
+      iter(_iter), i(0)
+  {
+    start =
+         (out(1) && VAR(iter) > 0U)
+      >> CALL(Src::src)
+      >> start;
+  }
+
+private:
+  smoc_firing_state start;
+  size_t iter;
+  T i;
+
+  void src() {
+    std::cout << name() << ": generate token with value "
+              << i << std::endl;
+    out[0] = i; ++i; --iter;
+  }
+};
+
+template<class T>
+class Snk : public smoc_actor {
+public:
+  smoc_port_in<T> in;
+
+  Snk(sc_module_name name)
+    : smoc_actor(name, start)
+  {
+    start =
+         in(1)
+      >> CALL(Snk::snk)
+      >> start;
+  }
+
+private:
+  smoc_firing_state start;
+  
+  void snk() {
+    std::cout << name() << ": received token with value "
+              << in[0] << std::endl;
+  }
+};
+
+template<class T>
+class Transform : public smoc_actor {
+public:
+  smoc_port_in<T> in;
+  smoc_port_out<T> out;
+
+  Transform(sc_module_name name)
+    : smoc_actor(name, a),
+      s_a(s_s_a),
+      c(s_a)
+  {
+    /*
+     * Add sub-states (non-initial states only)
+     */
+    
+    s_a.add(s_s_b);
+    c.add(s_b);
+
+    /*
+     * Top FSM
+     */
+
+    a =
+         in(1)
+      >> CALL(Transform::store)("a -> b")
+      >> b;
+    
+    d =
+         out(1)
+      >> CALL(Transform::write)("d -> a")
+      >> a;
+
+    e =
+         out(1)
+      >> CALL(Transform::write)("e -> a")
+      >> a;
+    
+    /*
+     * Transitions into sub FSM(s)
+     */
+    
+    b =
+         GUARD(Transform::odd)
+      >> CALL(Transform::process)("b -> s_s_b")
+      >> s_s_b
+    |    !GUARD(Transform::odd)
+      >> CALL(Transform::process)("b -> c")
+      >> c;
+
+    /*
+     * Sub FSM(s)
+     */
+
+    s_a =
+         CALL(Transform::process)("s_a -> s_b")
+      >> s_b;
+
+    /*
+     * Transitions from sub FSM(s)
+     */
+
+    s_b =
+         GUARD(Transform::odd)
+      >> CALL(Transform::process)("s_b -> e")
+      >> e;
+
+    c =
+         !GUARD(Transform::odd)
+      >> CALL(Transform::process)("c -> d")
+      >> d;
+  }
+
+private:
+  smoc_firing_state   s_s_a;
+  smoc_firing_state   s_s_b;
+
+  smoc_refined_state  s_a;
+  smoc_firing_state   s_b;
+
+  smoc_firing_state   a;
+  smoc_firing_state   b;
+  smoc_refined_state  c;
+  smoc_firing_state   d;
+  smoc_firing_state   e;
+
+  T t;
+
+  bool odd() const {
+    return t & 1;
+  }
+
+  void process(const char* tname) {
+    std::cout << name() << ": transition " << tname
+              << std::endl;
+  }
+
+  void store(const char* tname) {
+    std::cout << name() << ": transition " << tname
+              << std::endl;
+    std::cout << name() << ": store token with value "
+              << in[0] << std::endl;
+    t = in[0];
+  }
+  
+  void write(const char* tname) {
+    std::cout << name() << ": transition " << tname
+              << std::endl;
+    std::cout << name() << ": write token with value "
+              << t << std::endl;
+    out[0] = t;
+  }
+};
+
+class Top : public smoc_graph {
+public:
+  Top(sc_module_name name, size_t iter)
+    : smoc_graph(name),
+      src("src", iter),
+      snk("snk"),
+      trans("transform")
+  {
+    connectNodePorts(src.out, trans.in);
+    connectNodePorts(trans.out, snk.in);
+  }
+
+private:
+  Src<int> src;
+  Snk<int> snk;
+  Transform<int> trans;
+};
 
 int sc_main (int argc, char **argv) {
-  
+  size_t iter = static_cast<size_t>(-1);
+
+  if (argc >= 2)
+    iter = std::atol(argv[1]);
+
+  smoc_top_moc<Top> top("top", iter);
+
   sc_start();
   return 0;
 }
