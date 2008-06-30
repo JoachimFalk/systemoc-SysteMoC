@@ -75,6 +75,7 @@ AC_ARG_ENABLE(
  [enable_wsdf=auto #default]
 )
 
+AM_CONDITIONAL([PKG_LIBWSDF_USE_SRCDIR_VERSION], false)
 if test x"$enable_wsdf" != x"no"; then
   ACJF_CHECK_LIB_WSDF([],
    [test x"$enable_wsdf" = x"yes" && {
@@ -95,6 +96,7 @@ AC_ARG_ENABLE(
  [enable_vpc=auto #default]
 )
 
+AM_CONDITIONAL([PKG_SYSTEMC_VPC_USE_SRCDIR_VERSION], false)
 if test x"$enable_vpc" != x"no"; then
   ACJF_CHECK_LIB_SYSTEMC_VPC([],
    [test x"$enable_vpc" = x"yes" && {
