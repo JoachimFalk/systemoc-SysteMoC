@@ -13,7 +13,10 @@ public:
   smoc_firing_state             init;
 public:
   AIS(sc_module_name name)
-    : smoc_actor(name, init){}
+    : smoc_actor(name, init){
+    init = out(1) >>
+      init;
+  }
 };
 
 //the PLMON MTT as SysteMoC actor

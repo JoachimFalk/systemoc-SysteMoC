@@ -32,18 +32,15 @@ public:
     smoc_multicast_sr_signal<bool> sig2;
     smoc_multicast_sr_signal<bool> sig3;
    
-    connector(sig1)
-      << zero.out
-      << nsAndZero.op0
-      << directSnk.in;
+    sig1.connect(zero.out)
+      .connect(nsAndZero.op0)
+      .connect(directSnk.in);
     
-    connector(sig2)
-      << oneTime.out
-      << nsAndZero.op1;
+    sig2.connect(oneTime.out)
+      .connect(nsAndZero.op1);
     
-    connector(sig3)
-      << nsAndZero.out
-      << andSnk.in;
+    sig3.connect(nsAndZero.out)
+      .connect(andSnk.in);
   }
 };
  

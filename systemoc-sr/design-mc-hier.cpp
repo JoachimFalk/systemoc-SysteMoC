@@ -53,18 +53,15 @@ public:
     smoc_multicast_sr_signal<bool> sig2;
     smoc_multicast_sr_signal<bool> sig3;
     
-    connector(sig1)
-      << zero.out
-      << nsAndZero.op0
-      << directSnk.in;
+    sig1.connect(zero.out)
+      .connect(nsAndZero.op0)
+      .connect(directSnk.in);
     
-    connector(sig2)
-      << oneTime.out
-      << nsAndZero.op1;
+    sig2.connect(oneTime.out)
+      .connect(nsAndZero.op1);
 
-    connector(sig3)
-      << nsAndZero.out
-      << andSnk.in;
+    sig3.connect(nsAndZero.out)
+      .connect(andSnk.in);
   }
 };
  
@@ -73,12 +70,6 @@ int sc_main (int argc, char **argv) {
   size_t count = (argc>1?atoi(argv[1]):0);
   smoc_top_moc<MulticastTestBench> nsa_tb("top", count);
   
-#define GENERATE "--generate-problemgraph"
-  if (argc > 1 && 0 == strncmp(argv[1], GENERATE, sizeof(GENERATE))) {
-    smoc_modes::dump(std::cout, nsa_tb);
-  } else {
-    sc_start();
-  }
-#undef GENERATE
+  sc_start();
   return 0;
 }
