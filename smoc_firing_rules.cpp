@@ -64,6 +64,14 @@
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::NGXSync;
   
+smoc_firing_state_ref::smoc_firing_state_ref()
+{
+  fr                   = NULL;
+  rs                   = new resolved_state_ty();
+  smoc_firing_rules *x = new smoc_firing_rules(this);
+  assert(fr == x);
+}
+
 smoc_firing_state_ref::smoc_firing_state_ref(
     const smoc_firing_state_ref &rhs)
   : rs(&rhs.getResolvedState()), fr(NULL) {
@@ -73,12 +81,7 @@ smoc_firing_state_ref::smoc_firing_state_ref(
 
 smoc_firing_state_ref::resolved_state_ty &
 smoc_firing_state_ref::getResolvedState() const {
-  if (rs == NULL) {
-    assert(fr == NULL);
-    rs                   = new resolved_state_ty();
-    smoc_firing_rules *x = new smoc_firing_rules(this);
-    assert(fr == x);
-  }
+  assert(rs != NULL);
   return *rs;
 }
 

@@ -305,8 +305,7 @@ protected:
   mutable smoc_firing_rules *fr;
 protected:
   // create new empty state with new firing_rules
-  smoc_firing_state_ref()
-    : rs(NULL), fr(NULL) {}
+  smoc_firing_state_ref();
 public:
   // create alias firing state
   smoc_firing_state_ref(const smoc_firing_state_ref &rhs);
