@@ -36,6 +36,8 @@
 #include <systemoc/smoc_ast_systemoc.hpp>
 #include <systemoc/smoc_pggen.hpp>
 
+#include <string.h> // for smoc_ast_common.cpp
+
 namespace SysteMoC { namespace ActivationPattern {
 
 // Common code between SysteMoC and AC-PG-Access. But compiled
