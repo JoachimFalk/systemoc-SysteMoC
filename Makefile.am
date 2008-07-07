@@ -67,6 +67,7 @@ pkginclude_HEADERS =					\
 	pkginclude/systemoc/smoc_fifo.hpp		\
 	pkginclude/systemoc/smoc_sr_signal.hpp		\
 	pkginclude/systemoc/smoc_multicast_sr_signal.hpp\
+	pkginclude/systemoc/smoc_register.hpp		\
 	pkginclude/systemoc/smoc_moc.hpp		\
 	pkginclude/systemoc/smoc_port.hpp		\
 	pkginclude/systemoc/smoc_root_node.hpp		\
@@ -141,6 +142,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_ast_systemoc.cpp		\
 	smoc_fifo.cpp			\
 	smoc_multicast_sr_signal.cpp	\
+	smoc_register			\
 	smoc_graph_type.cpp		\
 	smoc_rendezvous.cpp		\
 	smoc_root_node.cpp		\

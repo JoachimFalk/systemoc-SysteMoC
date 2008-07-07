@@ -163,6 +163,8 @@ public:
 
   const char *name() const { return _base->name(); }
 
+  void multipleWriteSameValue(bool allow);
+
 protected:
   bool multipleWrite;
   smoc_multicast_sr_signal_kind* _base;
@@ -177,8 +179,6 @@ private:
 
   smoc_event   eventRead;
   EventMap     eventMapFree;
-
-  void multipleWriteSameValue(bool allow);
 };
 
 
