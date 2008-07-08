@@ -205,7 +205,7 @@ public:
 
 int sc_main (int argc, char **argv) {
   size_t count = (argc>1?atoi(argv[1]):1);
-  smoc_top_moc<TestBench3> tb("top", count);
+  smoc_top_moc<TestBench> tb("top", count);
   sc_start();
   return 0;
 }
