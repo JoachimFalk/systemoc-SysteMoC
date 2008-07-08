@@ -53,6 +53,31 @@ smoc_graph_base::smoc_graph_base(
 
 const smoc_node_list& smoc_graph_base::getNodes() const
   { return nodes; } 
+
+void smoc_graph_base::getNodesRecursive( smoc_node_list & subnodes) const {
+  for (
+#if SYSTEMC_VERSION < 20050714
+        sc_pvector<sc_object*>::const_iterator iter = get_child_objects().begin();
+#else
+        std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
+#endif
+        iter != get_child_objects().end();
+        ++iter ) {
+    //std::cerr << (*iter)->name() << std::endl;
+    
+    smoc_root_node *node = dynamic_cast<smoc_actor *>(*iter);
+    if (node != NULL){
+      //std::cerr << "add: " <<  node->name() << std::endl;
+      subnodes.push_back(node);
+    }
+    smoc_graph_base *graph = dynamic_cast<smoc_graph_base *>(*iter);
+    if (graph != NULL){
+      //std::cerr << "sub_graph: " <<  graph->name() << std::endl;
+      graph->getNodesRecursive(subnodes);
+    }
+  }
+  //  return subnodes;
+}
  
 const smoc_chan_list& smoc_graph_base::getChans() const
   { return channels; }
@@ -72,7 +97,7 @@ void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
     if (chan != NULL )
       channels.push_back(chan);
 
-    smoc_graph *graph = dynamic_cast<smoc_graph *>(*iter);
+    smoc_graph_base *graph = dynamic_cast<smoc_graph_base *>(*iter);
     if (graph != NULL ){
       graph->getChansRecursive( channels );
     }
@@ -380,7 +405,8 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
   smoc_transition_ready_list inCommState; 
 #endif // SYSTEMOC_ENABLE_VPC
 
-  smoc_node_list nodes = this->getNodes();
+  smoc_node_list nodes;
+  this->getNodesRecursive(nodes);
 
   smoc_chan_list cs;
   c->getChansRecursive( cs );
@@ -818,7 +844,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
             for ( smoc_chan_list::const_iterator iter = cs.begin();
                   iter != cs.end();
                   ++iter ){
-              // "tick()" each block
+              // "tick()" each signal
               smoc_multicast_sr_signal_chan_base* mc_sig = dynamic_cast<
                 smoc_multicast_sr_signal_chan_base* >(*iter);
 
@@ -863,7 +889,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
           for ( smoc_chan_list::const_iterator iter = cs.begin();
                 iter != cs.end();
                 ++iter ){
-            // "tick()" each block
+            // "tick()" each signal
             smoc_multicast_sr_signal_chan_base* mc_sig = dynamic_cast<
               smoc_multicast_sr_signal_chan_base* >(*iter);
           

@@ -175,6 +175,7 @@ public:
     { return *node; }
 
   const smoc_node_list& getNodes() const;
+  void getNodesRecursive( smoc_node_list & nodes) const;
   const smoc_chan_list& getChans() const;
   void getChansRecursive( smoc_chan_list & channels) const;
 
