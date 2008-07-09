@@ -98,10 +98,19 @@ public:
   smoc_port_out<T> out;
 
   Transform(sc_module_name name)
-    : smoc_actor(name, a),
-      s_a(s_s_a),
-      c(s_a)
+    : smoc_actor(name, a)
   {
+    smoc_firing_state   s_s_a;
+    smoc_firing_state   s_s_b;
+
+    smoc_refined_state  s_a(s_s_a);
+    smoc_firing_state   s_b;
+
+    smoc_firing_state   b;
+    smoc_refined_state  c(s_a);
+    smoc_firing_state   d;
+    smoc_firing_state   e;
+    
     /*
      * Add sub-states (non-initial states only)
      */
@@ -117,7 +126,7 @@ public:
          in(1)
       >> CALL(Transform::store)("a -> b")
       >> b;
-    
+  
     d =
          out(1)
       >> CALL(Transform::write)("d -> a")
@@ -164,18 +173,7 @@ public:
   }
 
 private:
-  smoc_firing_state   s_s_a;
-  smoc_firing_state   s_s_b;
-
-  smoc_refined_state  s_a;
-  smoc_firing_state   s_b;
-
-  smoc_firing_state   a;
-  smoc_firing_state   b;
-  smoc_refined_state  c;
-  smoc_firing_state   d;
-  smoc_firing_state   e;
-
+  smoc_firing_state a;
   T t;
 
   bool odd() const {
