@@ -137,7 +137,7 @@ void smoc_scheduler_top::schedule() {
   while(true) {
     smoc_wait(ol);
     while(ol) {
-      smoc_firing_types::transition_ty &transition = ol.getEventTrigger();
+      ExpandedTransition &transition = ol.getEventTrigger();
       Expr::Detail::ActivationStatus status = transition.getStatus();
     
       switch(status.toSymbol()) {
@@ -155,7 +155,7 @@ void smoc_scheduler_top::schedule() {
           // remove transitions from list
           g->delCurOutTransitions(ol);
           // execute transition
-          transition.execute(&g->_currentState, g);
+          transition.execute();
           // add transitions to list
           g->addCurOutTransitions(ol);
 #ifdef SYSTEMOC_DEBUG

@@ -67,6 +67,8 @@ public:
   void finalise();
  
   Expr::Detail::ActivationStatus getStatus() const;
+
+  const Expr::Ex<bool>::type getExpr() const;
 };
 
 namespace Expr {

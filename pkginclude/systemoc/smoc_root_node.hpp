@@ -40,6 +40,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_firing_rules.hpp"
+#include "detail/smoc_firing_rules_impl.hpp"
 #include "detail/smoc_sysc_port.hpp"
 #ifndef __SCFE__
 # include "smoc_pggen.hpp"
@@ -98,27 +99,48 @@ protected:
 class smoc_root_node
 : public smoc_opbase_node,
   public sc_module {
+public:
+  /*friend class smoc_graph_sr;
+  friend class smoc_scheduler_top;
+  friend class smoc_graph;
+  friend class SysteMoC::smoc_graph_synth;*/
+  friend class ExpandedTransition;
+    
 private:
-#ifndef NDEBUG
-  // bool _finalizeCalled;
-#endif
-  smoc_firing_types::resolved_state_ty
-                          *_currentState;
-  const smoc_firing_state &_initialState;
+  /// @brief Initial firing state
+  smoc_firing_state& initialState;
+
+  /// @brief Current firing state
+  FiringStateImpl *currentState;
+
+  /// @brief For non strict scheduling
+  FiringStateImpl* lastState;
   
-  const smoc_firing_state &_communicate();
+  /// @brief For non strict scheduling
+  bool _non_strict;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  smoc_firing_state commstate;
+  FiringStateImpl *nextState;
+  
+  /// @brief For non strict scheduling
+  ExpandedTransition* lastTransition;
+  
+  // vpc_event_xxx must be constructed before commstate
+  /// @brief VPC data introduction interval event
+  smoc_ref_event_p diiEvent;
+
+  /// @brief VPC latency event
+  //smoc_ref_event *vpc_event_lat;
+
+  FiringStateImpl* _communicate();
+
+#endif // SYSTEMOC_ENABLE_VPC
 
   static smoc_root_node *current_actor;
 
   static  std::vector<Expr::Detail::ArgInfo>  global_constr_args;
   std::vector<Expr::Detail::ArgInfo>          local_constr_args;
-
-  friend class smoc_graph_sr;
-  friend class smoc_scheduler_top;
-  friend class smoc_graph;
-  friend class SysteMoC::smoc_graph_synth;
-
-  bool _non_strict;
 
 protected:
   //smoc_root_node(const smoc_firing_state &s);
@@ -126,39 +148,53 @@ protected:
   
   friend void Expr::Detail::registerParam(const ArgInfo &argInfo);
   friend void Expr::Detail::registerParamOnCurrentActor(const ArgInfo &argInfo);
+  friend class smoc_graph_base;
+
+  virtual void finalise();
 
 public:
-#ifdef SYSTEMOC_ENABLE_VPC  
-  // vpc_event_xxx must be constructed before commstate
-  smoc_ref_event_p   diiEvent; // VPC data introduction interval event
-//smoc_ref_event    *vpc_event_lat; // VPC latency event
-  smoc_firing_state  commstate;
-  smoc_firing_state  nextState;
-  smoc_firing_types::transition_ty* 
-                     lastTransition;//non strict scheduling
-#endif //SYSTEMOC_ENABLE_VPC  
-  smoc_firing_types::resolved_state_ty*
-                     lastState;     //non strict scheduling
+  const smoc_firing_state& getInitialState() const
+    { return initialState; }
+
+  FiringStateImpl* getCurrentState() const
+    { return currentState; }
+
+  void setCurrentState(FiringStateImpl* s)
+    { currentState = s; }
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  FiringStateImpl* getCommState() const
+    { return commstate.getImpl(); }
+
+  FiringStateImpl* getNextState() const
+    { return nextState; }
+ 
+  void setNextState(FiringStateImpl* s)
+    { nextState = s; }
+
+  ExpandedTransition* getLastTransition() const
+    { return lastTransition; }
+
+  void setLastTransition(ExpandedTransition* t)
+    { lastTransition = t; }
+#endif // SYSTEMOC_ENABLE_VPC
   
-//Expr::Ex<bool>::type *_guard;
-  
-  virtual void finalise();
+  FiringStateImpl* getLastState() const
+    { return lastState; }
+
+  void setLastState(FiringStateImpl* s)
+    { lastState = s; }
+
 #ifndef __SCFE__
-//sc_module *myModule() { return this; }
-//const sc_module *myModule() const { return this; }
-//virtual sc_module *myModule() = 0;
-//const sc_module *myModule() const {
-//  return const_cast<smoc_root_node *>(this)->myModule();
-//}
   virtual void pgAssemble( smoc_modes::PGWriter &, const smoc_root_node * ) const;
   virtual void assembleActor( smoc_modes::PGWriter &pgw ) const;
   void assemble( smoc_modes::PGWriter &pgw ) const;
   void assembleFSM( smoc_modes::PGWriter &pgw ) const;
 #endif
   
-  const smoc_sysc_port_list getPorts() const;
-  
-  const smoc_firing_types::statelist_ty getFiringStates() const;
+  smoc_sysc_port_list getPorts() const;
+
+  ExpandedTransitionList getFiringStates() const;
   
   std::ostream &dumpActor( std::ostream &o );
     
@@ -169,7 +205,7 @@ public:
   bool isNonStrict() const;
   
   // typedef for transition ready list
-  typedef CoSupport::SystemC::EventOrList<smoc_firing_types::transition_ty>
+  typedef CoSupport::SystemC::EventOrList<ExpandedTransition>
           smoc_transition_ready_list;
 
   void addCurOutTransitions(smoc_transition_ready_list& ol) const;

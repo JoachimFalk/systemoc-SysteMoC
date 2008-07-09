@@ -51,23 +51,26 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_firing_state &s, bool r
 #ifndef NDEBUG
 //  _finalizeCalled(false),
 #endif
-    _initialState(s),
+    initialState(s),
     _non_strict(false)
 #ifdef SYSTEMOC_ENABLE_VPC
-    ,diiEvent(new smoc_ref_event()),
+    ,diiEvent(new smoc_ref_event())
 //# ifndef NDEBUG
 //    vpc_event_lat(NULL),
 //# endif
-    commstate(
-      smoc_transition(
-        smoc_activation_pattern(Expr::till(*diiEvent)),
-        smoc_func_diverge(this,&smoc_root_node::_communicate)))
 #endif // SYSTEMOC_ENABLE_VPC
 //  _guard(NULL)
 {
+
 #ifdef SYSTEMOC_ENABLE_VPC
-  commstate.finalise(this);
+  getCommState()->addTransition(
+    PartialTransition(
+      smoc_activation_pattern(Expr::till(*diiEvent)),
+      smoc_func_diverge(this, &smoc_root_node::_communicate)));
+
+  getCommState()->finalise(this);
 #endif // SYSTEMOC_ENABLE_VPC
+
   local_constr_args.insert(
       local_constr_args.end(),
       global_constr_args.begin(),
@@ -86,7 +89,7 @@ smoc_root_node *smoc_root_node::current_actor = NULL;
 std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_args; 
  
 #ifdef SYSTEMOC_ENABLE_VPC
-const smoc_firing_state &smoc_root_node::_communicate() {
+FiringStateImpl* smoc_root_node::_communicate() {
   assert(diiEvent != NULL && *diiEvent); // && vpc_event_lat != NULL
   return nextState;
 }
@@ -98,9 +101,15 @@ void smoc_root_node::finalise() {
 #endif
   // Preallocate ID
   //smoc_modes::PGWriter::getId(this);
-  
-  _currentState = _initialState.finalise(this);
-  
+ 
+  currentState = initialState.getImpl();
+  currentState->getFiringFSM()->finalise(this);
+
+  //std::cerr << "smoc_root_node::finalise() name == " << this->name() << std::endl
+  //          << "  FiringFSM: " << currentState->getFiringFSM()
+  //          << "; #leafStates: " << currentState->getFiringFSM()->getLeafStates().size()
+  //          << std::endl;
+
   smoc_sysc_port_list ports = getPorts();
   
   for (smoc_sysc_port_list::iterator iter = ports.begin();
@@ -111,27 +120,24 @@ void smoc_root_node::finalise() {
   }
   
   //check for non strict transitions
-  const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
-  const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
-  
-  for (smoc_firing_types::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
-       fsmiter != fsmStates.end(); 
-       ++fsmiter) {
-    const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
+  const FiringStateImplSet& states =
+    currentState->getFiringFSM()->getLeafStates(); 
+
+  for(FiringStateImplSet::const_iterator sIter = states.begin(); 
+      sIter != states.end();
+      ++sIter)
+  {
+    const ExpandedTransitionList& tl = (*sIter)->getTransitions();
     
-    for ( smoc_firing_types::transitionlist_ty::const_iterator titer = cTraSt.begin(); 
-    titer != cTraSt.end(); 
-    ++titer ) {
-      const smoc_firing_types::statelist_ty &cToNState = titer->sl;
-      
-      assert( cToNState.size() <= 1 );
-      if ( cToNState.size() == 1 ) {
-        if (CoSupport::DataTypes::isType<smoc_sr_func_pair>(titer->f)) {
+    for(ExpandedTransitionList::const_iterator tIter = tl.begin();
+        tIter != tl.end();
+        ++tIter)
+    {
+      if(boost::get<smoc_sr_func_pair>(&tIter->getAction())) {
 #ifdef SYSTEMOC_DEBUG
           cout << "found non strict SR block: " << this->name() << endl;
 #endif
           _non_strict = true;
-        }
       }
     }
   }
@@ -140,7 +146,7 @@ void smoc_root_node::finalise() {
 #endif
 }
 
-const smoc_sysc_port_list smoc_root_node::getPorts() const {
+smoc_sysc_port_list smoc_root_node::getPorts() const {
   smoc_sysc_port_list   ports;
   
   // std::cerr << "=== getPorts ===" << this << std::endl;
@@ -161,7 +167,7 @@ const smoc_sysc_port_list smoc_root_node::getPorts() const {
   return ports;
 }
 
-const smoc_firing_types::statelist_ty smoc_root_node::getFiringStates() const { 
+/*const smoc_firing_types::statelist_ty smoc_root_node::getFiringStates() const { 
   smoc_firing_types::statelist_ty states;
 
   for ( 
@@ -179,7 +185,7 @@ const smoc_firing_types::statelist_ty smoc_root_node::getFiringStates() const {
       states.push_back(state);
   }
   return states;
-}
+}*/
 
 void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
   {}
@@ -216,30 +222,33 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   smoc_graph (inherits from smoc_root_node) must not construct this output.
   So it reimplements this virtual function.*/
 void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
-  const smoc_firing_types::statelist_ty fs = getFiringStates();
+
+  const FiringStateImplSet& states =
+    initialState.getImpl()->getFiringFSM()->getLeafStates();
+
   //*********************************FSM-STATES********************************
-  for ( smoc_firing_types::statelist_ty::const_iterator iter = fs.begin();
-          iter != fs.end();
-          ++iter )
-        pgw << "<stateDeclaration state=\"" << idPool.printId(*iter)
-            << "\" name=\"" << (*iter)->name()
-            << "\"/>" << std::endl;
-        //*******************************ACTOR CLASS*********************************
-        pgw << "<actor actorClass=\"" << typeid(*this).name() << "\">" << std::endl;
-        {
-          pgw.indentUp();
-          //***************************CONSTRUCTORPARAMETERS***************************
-          for (unsigned int i = 0; i < local_constr_args.size(); i++) {
-            std::pair<std::string, std::string> parameterpair = local_constr_args[i];
-            pgw << "<constructorParameter "
-                   "type=\""  << parameterpair.first  << "\" "
-                   "value=\"" << parameterpair.second << "\"/>" << std::endl;
-          }
-        //************************************FSM************************************
-        assembleFSM(pgw);
-        pgw.indentDown();
-      }
-      pgw << "</actor>" << std::endl;
+  for(FiringStateImplSet::const_iterator iter = states.begin();
+      iter != states.end();
+      ++iter)
+  {
+    pgw << "<stateDeclaration state=\"" << idPool.printId(*iter)
+        << "\" name=\"" << (*iter)->name()
+        << "\"/>" << std::endl;
+  }
+  //*******************************ACTOR CLASS*********************************
+  pgw << "<actor actorClass=\"" << typeid(*this).name() << "\">" << std::endl;
+  pgw.indentUp();
+    //***************************CONSTRUCTORPARAMETERS***************************
+    for (unsigned int i = 0; i < local_constr_args.size(); i++) {
+      std::pair<std::string, std::string> parameterpair = local_constr_args[i];
+      pgw << "<constructorParameter type=\"" << parameterpair.first
+          << "\" value=\"" << parameterpair.second << "\"/>"
+          << std::endl;
+    }
+    //************************************FSM************************************
+    assembleFSM(pgw);
+  pgw.indentDown();
+  pgw << "</actor>" << std::endl;
 }
 
 namespace {
@@ -363,45 +372,43 @@ namespace {
 }
 
 void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
-  pgw << "<fsm startstate=\"" << idPool.printId(&_initialState.getResolvedState())
+  
+  const FiringStateImplSet& states =
+    initialState.getImpl()->getFiringFSM()->getLeafStates();
+  
+  pgw << "<fsm startstate=\"" << idPool.printId(initialState.getImpl())
       << "\">" << std::endl;
   {
     pgw.indentUp();
     //******************************FSMSTATES************************************ 
-    const smoc_firing_rules               &fsmRules  = _initialState.getFiringRules(); 
-    const smoc_firing_types::statelist_ty &fsmStates = fsmRules.getFSMStates(); 
-    
-    for (smoc_firing_types::statelist_ty::const_iterator fsmiter =fsmStates.begin(); 
-         fsmiter != fsmStates.end(); 
-         ++fsmiter) {
-      pgw << "<state id=\"" << idPool.printId(*fsmiter)
-          << "\" name=\"" << (*fsmiter)->name()
+    for(FiringStateImplSet::const_iterator sIter = states.begin(); 
+        sIter != states.end(); 
+        ++sIter)
+    {
+      pgw << "<state id=\"" << idPool.printId(*sIter)
+          << "\" name=\"" << (*sIter)->name()
           << "\">" << std::endl;
       {
         pgw.indentUp();
         //**************TRANTIONS********************
-        const smoc_firing_types::transitionlist_ty &cTraSt = (*fsmiter)->tl;
-        
-        for ( smoc_firing_types::transitionlist_ty::const_iterator titer = cTraSt.begin(); 
-              titer != cTraSt.end(); 
-              ++titer ) {
-          const smoc_firing_types::statelist_ty &cToNState = titer->sl;
+        const ExpandedTransitionList& tl = (*sIter)->getTransitions();
+    
+        for(ExpandedTransitionList::const_iterator tIter = tl.begin();
+            tIter != tl.end();
+            ++tIter)
+        {
+          const FiringStateImpl* dest = tIter->getDestState();
           
-          assert( cToNState.size() <= 1 );
-          if ( cToNState.size() == 1 ) {
-            pgw << "<transition nextstate=\"" << idPool.printId(*cToNState.begin()) << "\" " << std::flush;
-            if (CoSupport::DataTypes::isType<smoc_func_call>(titer->f)) {
-              pgw << "action=\"" << static_cast<const smoc_func_call &>(titer->f).getFuncName() << "\">" << std::endl;
-            } else {
-              pgw << "action=\"\">" << std::endl;
-            }
-            ASTXMLDumperVisitor astDumper(pgw);
-            apply_visitor(astDumper, Expr::evalTo<Expr::AST>(titer->guard));
-            //titer->guardAssemble(pgw);
-            pgw << "</transition>" << std::endl;
-          } else {
-            pgw << "<transition nextState=\"FIXME!!!\"/>" << std::endl;
+          pgw << "<transition nextstate=\"" << idPool.printId(dest) << "\" " << std::flush;
+          if(const smoc_func_call* fc = boost::get<smoc_func_call>(&tIter->getAction())) {
+              pgw << "action=\"" << fc->getFuncName() << "\">" << std::endl;
           }
+          else {
+            pgw << "action=\"\">" << std::endl;
+          }
+          ASTXMLDumperVisitor astDumper(pgw);
+          apply_visitor(astDumper, Expr::evalTo<Expr::AST>(tIter->getExpr()));
+          pgw << "</transition>" << std::endl;
         }
         //***************/TRANTIONS*****************
         pgw.indentDown();
@@ -428,8 +435,8 @@ std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
 
 bool smoc_root_node::inCommState() const{
 #ifdef SYSTEMOC_ENABLE_VPC
-    return (_currentState == &commstate.getResolvedState());
-#else
+    return currentState == getCommState();
+#else // SYSTEMOC_ENABLE_VPC
     return false;
 #endif // SYSTEMOC_ENABLE_VPC
 }
@@ -447,10 +454,10 @@ void Expr::Detail::registerParamOnCurrentActor(const ArgInfo &argInfo) {
 }
 
 void smoc_root_node::addCurOutTransitions(smoc_transition_ready_list& ol) const {
-  assert(_currentState);
-  for(smoc_firing_types::transitionlist_ty::iterator tIter =
-        _currentState->tl.begin();
-      tIter != _currentState->tl.end();
+  assert(currentState);
+  for(ExpandedTransitionList::iterator tIter =
+        currentState->getTransitions().begin();
+      tIter != currentState->getTransitions().end();
       ++tIter)
   {
     ol |= *tIter;
@@ -458,10 +465,10 @@ void smoc_root_node::addCurOutTransitions(smoc_transition_ready_list& ol) const 
 }
 
 void smoc_root_node::delCurOutTransitions(smoc_transition_ready_list& ol) const {
-  assert(_currentState);
-  for(smoc_firing_types::transitionlist_ty::iterator tIter =
-        _currentState->tl.begin();
-      tIter != _currentState->tl.end();
+  assert(currentState);
+  for(ExpandedTransitionList::iterator tIter =
+        currentState->getTransitions().begin();
+      tIter != currentState->getTransitions().end();
       ++tIter)
   {
     ol.remove(*tIter);

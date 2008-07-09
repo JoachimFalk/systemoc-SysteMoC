@@ -1,485 +1,209 @@
-//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
-// vim: set sw=2 ts=8:
-/*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
- * Erlangen-Nuremberg. All rights reserved.
- * 
- *   This library is free software; you can redistribute it and/or modify it under
- *   the terms of the GNU Lesser General Public License as published by the Free
- *   Software Foundation; either version 2 of the License, or (at your option) any
- *   later version.
- * 
- *   This library is distributed in the hope that it will be useful, but WITHOUT
- *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
- *   details.
- * 
- *   You should have received a copy of the GNU Lesser General Public License
- *   along with this library; if not, write to the Free Software Foundation, Inc.,
- *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- * 
- * --- This software and any associated documentation is provided "as is" 
- * 
- * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
- * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
- * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
- * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
- * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
- * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
- * HEREUNDER IS ON AN "AS IS" BASIS, AND HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF
- * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
- * ENHANCEMENTS, OR MODIFICATIONS.
- */
-
-#ifndef VERBOSE_LEVEL_SMOC_FIRING_RULES
-#define VERBOSE_LEVEL_SMOC_FIRING_RULES 0
-///100: Actor invocation
-#endif
-
 #include <systemoc/smoc_config.h>
-
-#include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
-
-#include <map>
-#include <set>
-
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
+#include <systemoc/smoc_ngx_sync.hpp>
+#include <systemoc/smoc_firing_rules.hpp>
+#include <systemoc/detail/smoc_firing_rules_impl.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
 
 #include <algorithm>
-
-//using CoSupport::DataTypes::isType;
+#include <map>
+#include <set>
+#include <list>
 
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::NGXSync;
-  
-smoc_firing_state_ref::smoc_firing_state_ref()
-{
-  fr                   = NULL;
-  rs                   = new resolved_state_ty();
-  smoc_firing_rules *x = new smoc_firing_rules(this);
-  assert(fr == x);
-}
 
-smoc_firing_state_ref::smoc_firing_state_ref(
-    const smoc_firing_state_ref &rhs)
-  : rs(&rhs.getResolvedState()), fr(NULL) {
-  rhs.fr->addRef(this);
-  assert(rhs.rs == rs && rhs.fr == fr);
-}
+PartialTransition::PartialTransition(const smoc_transition &t)
+  : ap(t.getActivationPattern()),
+    f(t.getInterfaceAction().getAction()),
+    dest(t.getInterfaceAction().getDestState().getImpl())
+  {}
 
-smoc_firing_state_ref::resolved_state_ty &
-smoc_firing_state_ref::getResolvedState() const {
-  assert(rs != NULL);
-  return *rs;
-}
+PartialTransition::PartialTransition(
+    const smoc_activation_pattern& ap,
+    const smoc_func_diverge& f)
+  : ap(ap),
+    f(f),
+    dest(0) // dynamically determined by f()
+{}
 
-//smoc_firing_types::resolved_state_ty *smoc_firing_state_ref::finalise(smoc_root_node *actor) const {
-smoc_firing_types::resolved_state_ty *smoc_firing_state::finalise(smoc_root_node *actor) const {
-#ifdef SYSTEMOC_DEBUG
-//std::cerr << "smoc_firing_state_ref::finalise() begin, this == " << this << std::endl;
-  std::cerr << "smoc_firing_state::finalise() begin, name == " << this->name() << std::endl;
-#endif
-  assert( rs != NULL && fr != NULL );
-  fr->finalise(actor);
-#ifdef SYSTEMOC_DEBUG
-//std::cerr << "smoc_firing_state_ref::finalise() end, this == " << this << std::endl;
-  std::cerr << "smoc_firing_state::finalise() end, name == " << this->name() << std::endl;
-#endif
-  return rs;
-}
+const smoc_activation_pattern &PartialTransition::getActivationPattern() const
+  { return ap; }
 
-/*
+const smoc_action& PartialTransition::getAction() const
+  { return f; }
 
-bool smoc_firing_state_ref::tryExecute() {
-  bool retval;
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "<tryExecute for "
-            << fr->getActor()->name() << ">" << std::endl;
-#endif
-  retval = rs->tryExecute(&rs, fr->getActor());
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "</tryExecute>" << std::endl;
-#endif
-  return retval;
-}
-
-*/
-
-void smoc_firing_state_ref::dump( std::ostream &o ) const {
-  o << "state (" << this << "): ";
-  for ( transitionlist_ty::const_iterator titer = rs->tl.begin();
-        titer != rs->tl.end();
-        ++titer )
-    o << *titer << std::endl;
-}
-
-smoc_firing_state_ref::~smoc_firing_state_ref() {
-  if ( fr )
-    fr->delRef(this);
-}
-
-smoc_firing_state::smoc_firing_state(const smoc_transition_list &tl)
-  /*:sc_object(sc_gen_unique_name("smoc_firing_state"))*/ {
-  this->operator = (tl);
-//#ifdef SYSTEMOC_DEBUG
-//  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
-//#endif
-}
-smoc_firing_state::smoc_firing_state(const smoc_transition &t)
-  /*:sc_object(sc_gen_unique_name("smoc_firing_state"))*/ {
-  this->operator = (t);
-//#ifdef SYSTEMOC_DEBUG
-//  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
-//#endif
-}
-smoc_firing_state::smoc_firing_state()
-  /*:sc_object(sc_gen_unique_name("smoc_firing_state"))*/ {
-//#ifdef SYSTEMOC_DEBUG
-//  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
-//#endif
-}
-smoc_firing_state::smoc_firing_state(const this_type &x)
-  /*:sc_object(sc_gen_unique_name("smoc_firing_state"))*/ {
-  *this = x;
-//#ifdef SYSTEMOC_DEBUG
-//  std::cerr << "smoc_firing_state::smoc_firing_state(...) this == " << this << std::endl;
-//#endif
-}
-
-smoc_firing_state &smoc_firing_state::operator = (const this_type &rhs) {
-  assert(rhs.rs != NULL && rhs.fr != NULL ||
-         rhs.rs == NULL && rhs.fr == NULL);
-//#ifdef SYSTEMOC_DEBUG
-//  std::cerr << "smoc_firing_state::mkCopy(" << &rhs << ") this == " << this << std::endl;
-//#endif
-  if (&rhs != this) {
-    // remove old transition of state
-    clearTransition();
-    if (rhs.rs != NULL) {
-      if (rs != NULL) {
-        *rs = *rhs.rs;
-        rhs.fr->unify(fr);
-      } else {
-        rs = new resolved_state_ty(*rhs.rs);
-        rhs.fr->addState(this);
-      }
-    }
-  }
-  return *this;
-}
-
-smoc_firing_state &smoc_firing_state::operator = (const smoc_transition_list &tl) {
-  // remove old transition of state
-  clearTransition();
-  // add transitions
-  addTransition(tl);
-  return *this;
-}
-
-smoc_firing_state &smoc_firing_state::operator = (const smoc_transition &t)
-  { return *this = static_cast<smoc_transition_list>(t); }
-
-void smoc_firing_state::addTransition(
-    const smoc_transition_list &tl) {
-  getResolvedState().addTransition(this, tl);
-}
-
-void smoc_firing_state::clearTransition() {
-  if (rs != NULL)
-    // remove old transition of state
-    rs->clearTransitions();
-}
-
-smoc_firing_state::~smoc_firing_state() {
-//#ifdef SYSTEMOC_DEBUG
-//  std::cerr << "smoc_firing_state::~smoc_firing_state() this == " << this << std::endl;
-//#endif
-}
-
-void smoc_firing_rules::_addRef(
-    const smoc_firing_state_ref *s,
-    const smoc_firing_rules     *p) {
-  assert(s != NULL && s->rs != NULL);
-  // Resolved state must be included in state list
-  assert(std::find(states.begin(), states.end(), s->rs) != states.end());
-  sassert(references.insert(s).second && s->fr == p);
-  s->fr = this;
-}
-
-void smoc_firing_rules::delRef(
-    const smoc_firing_state_ref *s) {
-  sassert(references.erase(s) == 1 && s->fr == this);
-  s->fr = NULL; s->rs = NULL;
-  if ( references.empty() )
-    delete this;
-}
-
-void smoc_firing_rules::addState(
-    const smoc_firing_state_ref *s) {
-  assert(s != NULL && s->rs != NULL);
-  // Must not be included previously
-  assert(std::find(states.begin(), states.end(), s->rs) == states.end());
-  states.push_back(s->rs);
-  addRef(s);
-}
-
-void smoc_firing_rules::unify( smoc_firing_rules *fr ) {
-  if ( this != fr ) {
-    smoc_firing_rules *src, *dest;
-    
-    if ( fr->references.size() < references.size() ) {
-      dest = fr; src = this;
-    } else {
-      dest = this; src = fr;
-    }
-    dest->states.splice(
-      dest->states.begin(), src->states );
-    for ( references_ty::iterator iter = src->references.begin();
-          iter != src->references.end();
-          ++iter )
-      dest->_addRef(*iter, src);
-    src->references.clear();
-    delete src;
-  }
-}
-
-void smoc_firing_rules::finalise( smoc_root_node *actor_ ) {
-  // assert( unresolved_states.empty() );
-  assert( actor == NULL );
-  actor = actor_;
-
-  for (statelist_ty::iterator iter = states.begin();
-       iter != states.end();
-       ++iter)
-    (*iter)->finalise(actor_);
-}
-
-smoc_firing_rules::~smoc_firing_rules() {
-//#ifdef SYSTEMOC_DEBUG
-//  std::cerr << "~smoc_firing_rules() this == " << this << std::endl;
-//#endif
-  for ( statelist_ty::iterator iter = states.begin();
-        iter != states.end();
-        ++iter )
-    delete *iter;
-}
+FiringStateBaseImpl* PartialTransition::getDestState() const
+  { return dest; }
 
 
-smoc_firing_types::transition_ty::transition_ty(
-    smoc_firing_state_ref *s, const smoc_transition &t)
+ExpandedTransition::ExpandedTransition(
+    const PartialTransition &t, FiringStateImpl *dest)
   : smoc_activation_pattern(t.getActivationPattern()),
-    f (t.getInterfaceAction().f),
-    actor(NULL) {
-  assert(s->fr != NULL && s->rs != NULL);
-  assert((isType<smoc_func_call>(t.ia.f)    && t.ia.sl.size() == 1) ||
-         (isType<smoc_sr_func_pair>(t.ia.f) && t.ia.sl.size() == 1) ||
-         (isType<smoc_func_diverge>(t.ia.f) && t.ia.sl.size() == 0) ||
-   (isType<NILTYPE>(t.ia.f)           && t.ia.sl.size() == 1));
-  for ( smoc_firing_state_list::const_iterator siter = t.ia.sl.begin();
-        siter != t.ia.sl.end();
-        ++siter ) {
-    sl.push_front(&siter->getResolvedState());
-    s->fr->unify(siter->fr);
-  }
-}
+    f(t.getAction()),
+    dest(dest),
+    actor(0)
+  {}
 
-smoc_firing_types::resolved_state_ty::resolved_state_ty() :
-  sc_object(sc_gen_unique_name("smoc_firing_state")) {
-  idPool.regObj(this);
-}
-
-void smoc_firing_types::resolved_state_ty::clearTransitions()
-{ tl.clear(); }
-
-void smoc_firing_types::resolved_state_ty::addTransition(
-    smoc_firing_state_ref *r, const smoc_transition_list &tl_ ) {
-  for ( smoc_transition_list::const_iterator titer = tl_.begin();
-        titer != tl_.end();
-        ++titer )
-    tl.push_back(transition_ty(r, *titer));
-}
-
-smoc_firing_types::resolved_state_ty::~resolved_state_ty() {
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << "~resolved_state_ty() this == " << this << std::endl;
-#endif
-  idPool.unregObj(this);
+Expr::Detail::ActivationStatus ExpandedTransition::getStatus() const {
+  std::cerr << "ExpandedTransition::getStatus: " << *this << std::endl;
+  return smoc_activation_pattern::getStatus();
 }
+#endif
 
-void smoc_firing_types::transition_ty::execute(
-    resolved_state_ty **rs, smoc_root_node *actor, int mode) {
+bool ExpandedTransition::isEnabled() const
+  { return getStatus() == Expr::Detail::ENABLED(); }
+
+smoc_root_node &ExpandedTransition::getActor()
+  { assert(actor != NULL); return *actor; }
+
+void ExpandedTransition::execute(int mode) {
   enum {
     MODE_DIISTART,
     MODE_DIIEND,
     MODE_GRAPH
   } execMode;
   
-  if (dynamic_cast<smoc_graph_base*>(actor) == NULL) {
+  if(dynamic_cast<smoc_graph_base*>(actor) == NULL) {
     execMode =
-#ifdef SYSTEMOC_ENABLE_VPC  
-      *rs != actor->commstate.rs
+#ifdef SYSTEMOC_ENABLE_VPC
+      actor->getCurrentState() != actor->getCommState()
         ? MODE_DIISTART
         : MODE_DIIEND;
 #else
-      MODE_DIISTART;
+    MODE_DIISTART;
 #endif
-  } else {
-#ifdef SYSTEMOC_ENABLE_VPC  
-    assert(*rs != actor->commstate.rs);
+  }
+  else {
+#ifdef SYSTEMOC_ENABLE_VPC
+    assert(actor->getCurrentState() != actor->getCommState());
 #endif
     execMode = MODE_GRAPH;
   }
-  
+
 #ifdef SYSTEMOC_DEBUG
   static const char *execModeName[] = { "diiStart", "diiEnd", "graph" };
-  
-  std::cerr << "  <transition "
-      "actor=\"" << actor->name() << "\" "
-      "mode=\"" << execModeName[execMode] << "\""
-    ">" << std::endl;
+
+  std::cerr << "  <transition actor=\"" << actor->name()
+            << "\" mode=\"" << execModeName[execMode]
+            << "\">" << std::endl;
 #endif
-//#ifdef SYSTEMOC_TRACE
-//  TraceLog.traceStartTryExecute(name);
-//#endif
-  
-  assert(isType<NILTYPE>(f) ||
-         isType<smoc_func_diverge>(f) ||
-         isType<smoc_func_branch>(f) ||
-         isType<smoc_func_call>(f) ||
-         isType<smoc_sr_func_pair>(f));
-  
+
 #ifdef SYSTEMOC_TRACE
-  if (execMode != MODE_GRAPH)
-    // leaf actor
+  if(execMode != MODE_GRAPH)
     TraceLog.traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
 #endif
-  
+
 #if !defined(NDEBUG) || defined(SYSTEMOC_TRACE)
   Expr::evalTo<Expr::CommSetup>(guard);
 #endif
-  
-  resolved_state_ty *nextState;
-  
-  if (isType<smoc_func_diverge>(f)) {
-    // FIXME: this must only be used internally
-#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
-    std::cerr << "    <smoc_func_diverge func=\"???\">" << std::endl;
-#endif
-    const smoc_firing_state &ns = static_cast<smoc_func_diverge &>(f)();
-#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
-    std::cerr << "    </smoc_func_diverge>" << std::endl;
-#endif
-    nextState = ns.rs;
-  } else if (isType<smoc_func_branch>(f)) {
-    // FIXME: this must only be used internally
-#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
-    std::cerr << "    <smoc_func_branch func=\"???\">" << std::endl;
-#endif
-    const smoc_firing_state &ns = static_cast<smoc_func_branch &>(f)();
-#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
-    std::cerr << "    </smoc_func_branch>" << std::endl;
-#endif
-    statelist_ty::const_iterator iter = sl.begin();
-    
-#ifndef NDEBUG
-    // check that ns is in sl
-    while (iter != sl.end() && (*iter) != ns.rs)
-      ++iter;
-    assert(iter != sl.end());
-#endif
-    nextState = ns.rs;
-  } else if (isType<smoc_func_call>(f)) {
-    smoc_func_call &fc = f;
-    
+
+  FiringStateImpl *nextState;
+
+  if(smoc_func_call *fc = boost::get<smoc_func_call>(&f)) {
+    // Function call
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceStartFunction(fc.getFuncName()); //
+    TraceLog.traceStartFunction(fc->getFuncName());
 #endif
-#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
-    std::cerr << "    <smoc_func_call func=\"" << fc.getFuncName() << "\">" << std::endl;
+#if defined(SYSTEMOC_DEBUG) || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
+    std::cerr << "    <smoc_func_call func=\"" << fc->getFuncName()
+              << "\">" << std::endl;
 #endif
-    fc();
-#if defined(SYSTEMOC_DEBUG)  || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
+    (*fc)();
+#if defined(SYSTEMOC_DEBUG) || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
     std::cerr << "    </smoc_func_call>" << std::endl;
 #endif
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceEndFunction(fc.getFuncName());  //
+    TraceLog.traceEndFunction(fc->getFuncName());
 #endif
-    
-    assert(sl.size() == 1);
-    nextState = sl.front();
-  } else if (isType<smoc_sr_func_pair>(f)) {
-    // SR GO & TICK calls:
-    smoc_sr_func_pair &fc = f;
-    
+    assert(dest); nextState = dest;
+  }
+  else if(smoc_func_diverge *fd = boost::get<smoc_func_diverge>(&f)) {
+  // Function call determines next state (Internal use only)
+#if defined(SYSTEMOC_DEBUG) || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
+    std::cerr << "    <smoc_func_diverge func=\"???\">" << std::endl;
+#endif
+    nextState = (*fd)();
+#if defined(SYSTEMOC_DEBUG) || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
+    std::cerr << "    </smoc_func_diverge>" << std::endl;
+#endif
+    assert(!dest); // nextState already assigned
+  }
+  else if(smoc_sr_func_pair* fp = boost::get<smoc_sr_func_pair>(&f)) {
+    // SR GO & TICK calls
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceStartFunction(fc.go.getFuncName());
+    TraceLog.traceStartFunction(fp->go.getFuncName());
 #endif
+    if(mode & GO) {
 #ifdef SYSTEMOC_DEBUG
-    if(mode & GO)
-      std::cerr << "    <smoc_sr_func_pair go=\"" << fc.go.getFuncName() << "\">" << std::endl;
-    if(mode & TICK)
-      std::cerr << "    <smoc_sr_func_pair tick=\"" << fc.tick.getFuncName() << "\">" << std::endl;
+      std::cerr << "    <smoc_sr_func_pair go=\"" << fp->go.getFuncName()
+                << "\">" << std::endl;
 #endif
-    if(mode & GO)   fc.go();
-    if(mode & TICK) fc.tick();
+      fp->go();
+    }
+    if(mode & TICK) {
+#ifdef SYSTEMOC_DEBUG
+      std::cerr << "    <smoc_sr_func_pair tick=\"" << fp->tick.getFuncName()
+                << "\">" << std::endl;
+#endif
+      fp->tick();
+    }
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "    </smoc_sr_func_pair>" << std::endl;
 #endif
 #ifdef SYSTEMOC_TRACE
-    TraceLog.traceEndFunction(fc.go.getFuncName());
+    TraceLog.traceEndFunction(fp->go.getFuncName());
 #endif
-    
-    assert(sl.size() == 1);
-    nextState = sl.front();
-  } else {
-    // a transition without action (no CALL statement)
-    assert(isType<NILTYPE>(f));
-    assert(sl.size() == 1);
-    nextState = sl.front();
+    assert(dest); nextState = dest;
   }
-  
+  else {
+    // No action
+    assert(boost::get<boost::blank>(&f));
+    assert(dest); nextState = dest;
+  }
+
 #if !defined(NDEBUG)
   Expr::evalTo<Expr::CommReset>(guard);
 #endif
-  
+
 #ifdef SYSTEMOC_ENABLE_VPC
-  if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
+  if(execMode == MODE_DIISTART /*&& (mode&GO)*/) {
     actor->diiEvent->reset();
     smoc_ref_event_p latEvent(new smoc_ref_event());
     
     SystemC_VPC::EventPair p(actor->diiEvent.get(), latEvent.get());
-    
+
     // new FastLink interface
-    if(mode & GO) vpcLink->compute(p);
-    else if(mode & TICK){
-      assert( isType<smoc_sr_func_pair>(f) );
-      smoc_sr_func_pair &fp = f;
-      fp.tickLink->compute(p);
+    if(mode & GO) {
+      vpcLink->compute(p);
     }
-    // save guard and nextState to later execute communication
-//  actor->_guard       =  &guard;
-    actor->nextState.rs = nextState;
-    // Insert magic commstate
-    nextState           = actor->commstate.rs;
+    else if(mode & TICK) {
+      smoc_sr_func_pair* fp = boost::get<smoc_sr_func_pair>(&f);
+      assert(fp);
+      fp->tickLink->compute(p);
+    }
+
+    // save nextState to later execute communication
+    actor->setNextState(nextState);
+
+    // insert magic commstate
+    nextState = actor->getCommState();
     Expr::evalTo<Expr::CommExec>(guard, actor->diiEvent, latEvent);
 
     // This covers the case that the executed transition does not
     // contain an output port. Therefore, the latEvent is not added
     // to a LatencyQueue and would be deleted immediately after
     // the latEvent smartptr is destroyed when this scope is left.
-    if (!*latEvent) {
+    if(!*latEvent) {
       // latency event not signaled
       struct _: public smoc_event_listener {
         smoc_ref_event_p  latEvent;
@@ -492,7 +216,8 @@ void smoc_firing_types::transition_ty::execute(
           TraceLog.traceStartActor(actor, "l");
 # endif
 # ifdef SYSTEMOC_DEBUG
-          std::cerr << "smoc_root_node::_communicate::_::signaled(...)" << std::endl;
+          std::cerr << "smoc_root_node::_communicate::_::signaled(...)"
+                    << std::endl;
 # endif
           assert(_e == &*latEvent);
           assert(*_e);
@@ -504,7 +229,8 @@ void smoc_firing_types::transition_ty::execute(
         }
         void eventDestroyed(smoc_event_waiter *_e) {
 # ifdef SYSTEMOC_DEBUG
-          std::cerr << "smoc_root_node::_communicate::_:: eventDestroyed(...)" << std::endl;
+          std::cerr << "smoc_root_node::_communicate::_:: eventDestroyed(...)"
+                    << std::endl;
 # endif
           delete this;
         }
@@ -515,75 +241,438 @@ void smoc_firing_types::transition_ty::execute(
         virtual ~_() {}
       };
       latEvent->addListener(new _(latEvent, actor));
-    } else {
+    }
+    else {
 # ifdef SYSTEMOC_TRACE
-  //  const char *name = this->name();
-      
       TraceLog.traceStartActor(this, "l");
-      TraceLog.traceEndActor(this);
+      TaceLog.traceEndActor(this);
 # endif
     }
-  } else {
+  }
+  else {
     Expr::evalTo<Expr::CommExec>(guard, NULL, NULL);
   }
-#else // !SYSTEMOC_ENABLE_VPC
+#else // SYSTEMOC_ENABLE_VPC
   Expr::evalTo<Expr::CommExec>(guard);
-#endif // !SYSTEMOC_ENABLE_VPC
-  
+#endif // SYSTEMOC_ENABLE_VPC
+
 #ifdef SYSTEMOC_TRACE
-  if (execMode != MODE_GRAPH)
+  if(execMode != MODE_GRAPH)
     TraceLog.traceEndActor(actor);
 #endif
- 
-  *rs = nextState;
- 
-//#ifdef SYSTEMOC_TRACE
-//  TraceLog.traceEndTryExecute(name);
-//#endif
+
+  actor->setCurrentState(nextState);
+
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "  </transition>"<< std::endl;
 #endif
 }
 
-void smoc_firing_types::transition_ty::finalise(smoc_root_node *a) {
-  assert(actor == NULL && a != NULL);
+void ExpandedTransition::finalise(smoc_root_node *a) {
+  assert(actor == NULL);
+  assert(a != NULL);
+
   actor = a;
-  smoc_activation_pattern::finalise();
+  smoc_activation_pattern::finalise();    
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  if (dynamic_cast<smoc_actor *>(actor) != NULL) {
+  if(dynamic_cast<smoc_actor *>(actor) != NULL) {
     const char *name = actor->name();
-    if (isType<smoc_func_call>(f)) {
-      smoc_func_call &fc = f;
-      vpcLink = new SystemC_VPC::FastLink(SystemC_VPC::Director::getInstance().
-        getFastLink(name, fc.getFuncName()));
-    } else if (isType<smoc_sr_func_pair>(f)) {
-      smoc_sr_func_pair &fp = f;
-      vpcLink = new SystemC_VPC::FastLink(SystemC_VPC::Director::getInstance().
-        getFastLink(name, fp.go.getFuncName()));
-      fp.tickLink = new SystemC_VPC::FastLink(
-        SystemC_VPC::Director::getInstance().
-        getFastLink(name, fp.tick.getFuncName()));
-    } else {
-      vpcLink = new SystemC_VPC::FastLink(SystemC_VPC::Director::getInstance().
-        getFastLink(name, "???"));
+    
+    if(smoc_func_call* fc = boost::get<smoc_func_call>(&f)) {
+      vpcLink =
+        new SystemC_VPC::FastLink(
+          SystemC_VPC::Director::getInstance().getFastLink(
+            name, fc->getFuncName()));
+
+    }
+    else if(smoc_sr_func_pair* fp = boost::get<smoc_sr_func_pair>(&f)) {
+      vpcLink =
+        new SystemC_VPC::FastLink(
+          SystemC_VPC::Director::getInstance().getFastLink(
+            name, fp->go.getFuncName()));
+      fp->tickLink =
+        new SystemC_VPC::FastLink(
+          SystemC_VPC::Director::getInstance().getFastLink(
+            name, fp->tick.getFuncName()));
+    }
+    else {
+      // diverge or empty -> no name
+      vpcLink =
+        new SystemC_VPC::FastLink(
+          SystemC_VPC::Director::getInstance().getFastLink(
+            name, "???"));
     }
   }
 #endif //SYSTEMOC_ENABLE_VPC
 }
 
-void smoc_firing_types::resolved_state_ty::finalise(smoc_root_node *a) {
-  for ( transitionlist_ty::iterator titer = tl.begin();
-        titer != tl.end();
-        ++titer )
-    titer->finalise(a);
+FiringStateImpl* ExpandedTransition::getDestState() const
+  { return dest; }
+
+const smoc_action& ExpandedTransition::getAction() const
+  { return f; }
+
+
+FiringFSMImpl::FiringFSMImpl()
+  : use_count_(0), actor(0) {
+  //std::cerr << "FiringFSMImpl::FiringFSMImpl() this == " << this << std::endl;
 }
 
-#ifdef SYSTEMOC_DEBUG
-void smoc_firing_types::transition_ty::dump(std::ostream &out) const {
-  out << "transition(" << this << ", ap == ";
-  smoc_event_and_list::dump(out);
-  out   << ", status == " << smoc_activation_pattern::getStatus().toSymbol()
-        << ")";
+FiringFSMImpl::~FiringFSMImpl() {
+  //std::cerr << "FiringFSMImpl::~FiringFSMImpl() this == " << this << std::endl;
+  assert(use_count_ == 0);  
+  
+  for(FiringStateBaseImplSet::iterator iter = states.begin();
+      iter != states.end();
+      ++iter)
+  {
+    assert((*iter)->getFiringFSM() == this);
+    delete *iter;
+  }
 }
-#endif
+
+smoc_root_node* FiringFSMImpl::getActor() const
+  { assert(actor != NULL); return actor; }
+
+const FiringStateImplSet& FiringFSMImpl::getLeafStates() const
+  { return leafStates; }
+
+void FiringFSMImpl::finalise(smoc_root_node *_actor) {
+  assert(actor == NULL);
+  actor = _actor;
+
+  for(FiringStateBaseImplSet::iterator iter = states.begin();
+      iter != states.end();
+      ++iter)
+  {
+    (*iter)->finalise(actor);
+  }
+}
+
+void FiringFSMImpl::addState(FiringStateBaseImpl *state) {
+  assert(state->getFiringFSM() == this);
+  sassert(states.insert(state).second);
+}
+
+void FiringFSMImpl::delState(FiringStateBaseImpl *state) {
+  assert(state->getFiringFSM() == this);
+  sassert(states.erase(state) == 1);
+}
+
+void FiringFSMImpl::addRef() {
+  ++use_count_;
+  //std::cerr << "FiringFSMImpl::add_ref() this == " << this
+  //          << "; use_count: " << use_count_ << std::endl;
+}
+
+bool FiringFSMImpl::delRef() {
+  assert(use_count_); --use_count_;
+  //std::cerr << "FiringFSMImpl::delRef() this == " << this
+  //          << "; use_count: " << use_count_ << std::endl;
+  return use_count_ == 0;
+}
+
+void FiringFSMImpl::unify(this_type *fr) {
+  if(this != fr) {
+    //std::cerr << "FiringFSMImpl::unify() this == " << this
+    //          << "; other: " << fr << std::endl;
+    
+    // patch firingFSM of all states owned by fr
+    for(FiringStateBaseImplSet::iterator iter = fr->states.begin();
+        iter != fr->states.end();
+        ++iter)
+    {
+      sassert(states.insert(*iter).second);
+      assert((*iter)->getFiringFSM() == fr);
+      (*iter)->setFiringFSM(this);
+    }
+    
+    //std::cerr << " own use_count: " << use_count_
+    //          << "; other use_count: " << fr->use_count_
+    //          << "; # merged states: " << states.size()
+    //          << std::endl;
+
+    use_count_ += fr->use_count_;
+    fr->use_count_ = 0;
+    fr->states.clear();    
+    
+    delete fr;
+  }
+}
+
+void FiringFSMImpl::addLeafState(FiringStateImpl *state) {
+  assert(state->getFiringFSM() == this);
+  sassert(leafStates.insert(state).second);
+}
+
+FiringStateBaseImpl::FiringStateBaseImpl()
+  : firingFSM(new FiringFSMImpl()) {
+  //std::cerr << "FiringStateBaseImpl::FiringStateBaseImpl() this == "
+  //          << this << std::endl;
+  firingFSM->addState(this);
+}
+
+FiringStateBaseImpl::FiringStateBaseImpl(const PFiringStateBaseImpl &s)
+  : firingFSM(s->firingFSM) {
+  //std::cerr << "FiringStateBaseImpl::FiringStateBaseImpl(" << s.get() << ") this == "
+  //          << this << std::endl;
+  firingFSM->addState(this);
+}
+
+FiringStateBaseImpl::~FiringStateBaseImpl() {
+  //std::cerr << "FiringStateBaseImpl::~FiringStateBaseImpl() this == "
+  //          << this << std::endl;
+}
+
+FiringFSMImpl *FiringStateBaseImpl::getFiringFSM() const
+  { return firingFSM; }
+
+void FiringStateBaseImpl::setFiringFSM(FiringFSMImpl *fsm)
+  { firingFSM = fsm; }
+
+void FiringStateBaseImpl::addTransition(const smoc_transition_list &tl_) {
+  for(smoc_transition_list::const_iterator iter = tl_.begin();
+      iter != tl_.end();
+      ++iter)
+  {
+    addTransition(PartialTransition(*iter));
+  }
+}
+  
+void FiringStateBaseImpl::addTransition(const PartialTransitionList& pl) {
+  for(PartialTransitionList::const_iterator iter = pl.begin();
+      iter != pl.end();
+      ++iter)
+  {
+    addTransition(*iter);
+  }
+}
+
+void FiringStateBaseImpl::addTransition(const PartialTransition& t) {
+  tl.push_back(t);
+  if(t.getDestState())
+    firingFSM->unify(t.getDestState()->firingFSM);
+}
+
+void FiringStateBaseImpl::clearTransition()
+  { tl.clear(); }
+
+FiringStateBaseImpl& FiringStateBaseImpl::operator=(const this_type& s) {
+  if(&s != this) {
+    clearTransition();
+    tl = s.tl;
+    s.firingFSM->unify(firingFSM);
+  }
+  return *this;
+}
+
+FiringStateBaseImpl& FiringStateBaseImpl::operator=(const smoc_transition_list& tl) {
+  clearTransition();
+  addTransition(tl);
+  return *this;
+}
+
+void intrusive_ptr_add_ref(FiringStateBaseImpl *p)
+  { p->getFiringFSM()->addRef(); }
+
+void intrusive_ptr_release(FiringStateBaseImpl *p)
+  { if(p->getFiringFSM()->delRef()) delete p->getFiringFSM(); }
+
+
+
+
+
+FiringStateImpl::FiringStateImpl()
+  : FiringStateBaseImpl(),
+    sc_object(sc_gen_unique_name("smoc_firing_state")) {
+  idPool.regObj(this);
+}
+
+FiringStateImpl::FiringStateImpl(const PFiringStateImpl &s)
+  : FiringStateBaseImpl(s),
+    sc_object(sc_gen_unique_name("smoc_firing_state")) {
+  idPool.regObj(this);
+}
+
+FiringStateImpl::~FiringStateImpl() {
+  idPool.unregObj(this);
+}
+
+void FiringStateImpl::finalise(smoc_root_node *actor) {
+  for(PartialTransitionList::const_iterator plIter = tl.begin();
+      plIter != tl.end(); ++plIter)
+  {
+    if(plIter->getDestState()) {
+      // may be unefficient if more than one partial state
+      // exists with the same target state...
+      PartialTransitionList pl;
+      pl.push_back(*plIter);
+      
+      ExpandedTransitionList tmp =
+        plIter->getDestState()->expandTransitions(pl);
+
+      el.splice(el.end(), tmp);
+    }
+    else {
+      // smoc_func_diverge has no dest state
+      el.push_back(ExpandedTransition(*plIter, 0));
+    }
+  }
+  
+  for(ExpandedTransitionList::iterator elIter = el.begin();
+      elIter != el.end(); ++elIter)
+  {
+    elIter->finalise(actor);
+  }
+
+  firingFSM->addLeafState(this);
+}
+
+ExpandedTransitionList FiringStateImpl::expandTransitions(
+    const PartialTransitionList &pl)
+{
+  // Task: determine the target state of the partial transitions
+  // (This instance is the target state of all partial
+  // transitions which are given as an argument [stops recursion])
+  ExpandedTransitionList retval;
+  for(PartialTransitionList::const_iterator iter = pl.begin();
+      iter != pl.end();
+      ++iter)
+  {
+    retval.push_back(ExpandedTransition(*iter, this));
+  }
+  return retval;
+}
+
+FiringStateImpl& FiringStateImpl::operator=(const smoc_transition_list &tl)
+  { FiringStateBaseImpl::operator=(tl); return *this; }
+
+void intrusive_ptr_add_ref(FiringStateImpl *p)
+  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+
+void intrusive_ptr_release(FiringStateImpl *p)
+  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+
+
+
+
+RefinedStateImpl::RefinedStateImpl(FiringStateBaseImpl *init)
+  : FiringStateBaseImpl(), init(init) {
+  add(init);
+}
+
+RefinedStateImpl::RefinedStateImpl(const PRefinedStateImpl &s)
+  : FiringStateBaseImpl(s)
+{}
+
+RefinedStateImpl::~RefinedStateImpl() {
+  for(FiringStateBaseImplSet::iterator iter = states.begin();
+      iter != states.end();
+      ++iter)
+  {
+    assert((*iter)->getFiringFSM() == firingFSM);
+    delete *iter;
+  }
+}
+
+void RefinedStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
+  for(FiringStateBaseImplSet::iterator iter = states.begin();
+      iter != states.end();
+      ++iter)
+  {
+    (*iter)->setFiringFSM(fsm);
+  }
+  FiringStateBaseImpl::setFiringFSM(fsm);
+}
+
+void RefinedStateImpl::add(FiringStateBaseImpl *state) {
+  firingFSM->unify(state->getFiringFSM());
+  firingFSM->delState(state);
+  sassert(states.insert(state).second);
+}
+
+void RefinedStateImpl::finalise(smoc_root_node *actor) {
+  // Add my transitions to each state's outgoing transition
+  // list, then finalise it (recursive)
+  for(FiringStateBaseImplSet::iterator iter = states.begin();
+      iter != states.end();
+      ++iter)
+  {
+    (*iter)->addTransition(tl);
+    (*iter)->finalise(actor);
+  }
+}
+
+ExpandedTransitionList
+RefinedStateImpl::expandTransitions(const PartialTransitionList &pl) {
+  // Task: determine the target state of the partial transitions
+  // (The target state of all partial transitions which are given
+  // as an argument is my inital state [may be recursive])
+  return init->expandTransitions(pl);
+}
+
+RefinedStateImpl& RefinedStateImpl::operator=(const smoc_transition_list &tl)
+  { FiringStateBaseImpl::operator=(tl); return *this; }
+
+void intrusive_ptr_add_ref(RefinedStateImpl *p)
+  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+
+void intrusive_ptr_release(RefinedStateImpl *p)
+  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+
+
+
+
+
+smoc_firing_state_base::smoc_firing_state_base(const SmartPtr &p)
+  : FFType(p) {}
+
+void smoc_firing_state_base::addTransition(const smoc_transition_list &tl)
+  { getImpl()->addTransition(tl); }
+
+void smoc_firing_state_base::clearTransition()
+  { getImpl()->clearTransition(); }
+
+
+
+smoc_firing_state::smoc_firing_state(const SmartPtr &p)
+  : FFType(p) {}
+
+smoc_firing_state::smoc_firing_state()
+  : FFType(new FiringStateImpl()) {}
+
+smoc_firing_state::smoc_firing_state(const this_type &s)
+  : FFType(new FiringStateImpl(s.getImpl())) {}
+
+smoc_firing_state::ImplType *smoc_firing_state::getImpl() const
+  { return static_cast<ImplType *>(this->pImpl.get()); }
+
+smoc_firing_state& smoc_firing_state::operator = (const this_type &t)
+  { *getImpl() = *t.getImpl(); return *this; }
+
+smoc_firing_state& smoc_firing_state::operator = (const smoc_transition_list &tl)
+  { *getImpl() = tl; return *this; }
+
+
+
+smoc_refined_state::smoc_refined_state(const SmartPtr &p)
+  : FFType(p) {}
+
+smoc_refined_state::smoc_refined_state(const smoc_firing_state_base &init)
+  : FFType(new RefinedStateImpl(init.getImpl())) {}
+
+smoc_refined_state::smoc_refined_state(const this_type &s)
+  : FFType(new RefinedStateImpl(s.getImpl())) {}
+
+smoc_refined_state::ImplType *smoc_refined_state::getImpl() const
+  { return static_cast<ImplType *>(this->pImpl.get()); }
+
+void smoc_refined_state::add(const smoc_firing_state_base &state)
+  { getImpl()->add(state.getImpl()); }
+
+smoc_refined_state& smoc_refined_state::operator = (const this_type &t)
+  { *getImpl() = *t.getImpl(); return *this; }
+
+smoc_refined_state& smoc_refined_state::operator = (const smoc_transition_list &tl)
+  { *getImpl() = tl; return *this; }

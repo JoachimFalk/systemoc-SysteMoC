@@ -62,3 +62,7 @@ Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
   } else
     return Expr::Detail::BLOCKED();
 }
+
+const Expr::Ex<bool>::type smoc_activation_pattern::getExpr() const
+  { return guard; }
+

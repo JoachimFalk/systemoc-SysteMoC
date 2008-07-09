@@ -40,6 +40,7 @@ nobase_include_HEADERS = \
 	systemoc/detail/QueueRWPtr.hpp \
 	systemoc/detail/QueueRVWPtr.hpp \
 	systemoc/detail/QueueFRVWPtr.hpp \
+	systemoc/detail/smoc_firing_rules_impl.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_elab_and_sim.hpp \
@@ -75,7 +76,8 @@ nobase_include_HEADERS = \
 	systemoc/smoc_root_node.hpp \
 	systemoc/smoc_sr_signal.hpp \
 	systemoc/smoc_storage.hpp \
-	systemoc/smoc_ngx_sync.hpp
+	systemoc/smoc_ngx_sync.hpp \
+	systemoc/smoc_func_call.hpp
 
 if SYSTEMOC_ENABLE_WSDF
 nobase_include_HEADERS += \

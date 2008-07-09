@@ -336,7 +336,7 @@ void smoc_graph_synth::executeTransitionList() {
   smoc_root_node* rn = curNode->first;
   NodeInfo& ni = curNode->second;
 
-  smoc_firing_types::transition_ty &trans = ni.trans.getEventTrigger();
+  ExpandedTransition &trans = ni.trans.getEventTrigger();
   Expr::Detail::ActivationStatus status = trans.getStatus();
 
   switch(status.toSymbol()) {
@@ -352,7 +352,7 @@ void smoc_graph_synth::executeTransitionList() {
       // remove transitions from list
       rn->delCurOutTransitions(ni.trans);
       // execute transition
-      trans.execute(&rn->_currentState, rn);
+      trans.execute();
       // add transitions to list
       rn->addCurOutTransitions(ni.trans);
 #ifdef SYSTEMOC_DEBUG
