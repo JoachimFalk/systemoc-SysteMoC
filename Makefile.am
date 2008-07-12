@@ -48,10 +48,8 @@ AM_LDFLAGS=				\
 	@AM_LDFLAGS@			\
 	@SYSTEMC_LDFLAGS@		\
 	@COSUPPORT_LDFLAGS@		\
-	@LIBWSDF_LDFLAGS@		\
 	@LIBSGX_LDFLAGS@		\
-	@BOOST_LDFLAGS@			\
-	@SYSTEMC_VPC_LDFLAGS@
+	@BOOST_LDFLAGS@
 
 #noinst_SCRIPTS  = test_pathstuff.sh
 
@@ -68,7 +66,7 @@ libsystemoc_CH_LTOBJS=				\
 	$(smoc_pggen_hpp_CH_LTOBJS)
 
 libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS)
-libsystemoc_la_LDFLAGS =					\
+libsystemoc_la_LDFLAGS = $(AM_LDFLAGS)				\
 	-version-info 0:0:0 					\
 	-no-undefined 						\
 	-lsystemc 						\
@@ -95,6 +93,7 @@ endif
 
 if SYSTEMOC_ENABLE_WSDF
 libsystemoc_la_LDFLAGS +=					\
+	@LIBWSDF_LDFLAGS@					\
 	-lwsdf
 if PKG_LIBWSDF_USE_SRCDIR_VERSION
 libsystemoc_la_DEPENDENCIES +=					\
@@ -104,6 +103,7 @@ endif
 
 if SYSTEMOC_ENABLE_VPC
 libsystemoc_la_LDFLAGS +=					\
+	@SYSTEMC_VPC_LDFLAGS@					\
 	-lsystemcvpc
 if PKG_SYSTEMC_VPC_USE_SRCDIR_VERSION
 libsystemoc_la_DEPENDENCIES +=					\
