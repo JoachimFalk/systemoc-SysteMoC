@@ -41,12 +41,12 @@ noinst_PROGRAMS= simulation-wsdf-src-snk \
 simulation_wsdf_src_snk_SOURCES= \
 	design-wsdf-src-snk.cpp
 simulation_wsdf_src_snk_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-simulation_wsdf_src_snk_LDFLAGS = @AM_LDFLAGS@ -lsystemoc
+simulation_wsdf_src_snk_LDFLAGS = $(AM_LDFLAGS) -lsystemoc
 
 simulation_1D_src_snk_SOURCES= \
 	design1D-src-snk.cpp
 simulation_1D_src_snk_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-simulation_1D_src_snk_LDFLAGS = @AM_LDFLAGS@ -lsystemoc
+simulation_1D_src_snk_LDFLAGS = $(AM_LDFLAGS) -lsystemoc
 
 plain_cpp_SOURCES= \
 	plain_cpp.cpp
