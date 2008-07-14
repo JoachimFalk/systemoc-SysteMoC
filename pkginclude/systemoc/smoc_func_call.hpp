@@ -37,9 +37,9 @@
 #define _INCLUDED_SMOC_FUNC_CALL_HPP
 
 #include <CoSupport/Lambda/functor.hpp>
-//#include <CoSupport/DataTypes/oneof.hpp>
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 #define CALL(func)    call(&func, #func)
 #define GUARD(func)   guard(&func, #func)
@@ -218,16 +218,62 @@ public:
     : go(go), tick(tick) {}
 };
 
-/*typedef CoSupport::DataTypes::oneof<
-  smoc_func_call,
-  smoc_func_branch,
-  smoc_func_diverge,
-  smoc_sr_func_pair> func_ty;*/
+class smoc_connector_action_pair;
 
 typedef boost::variant<
   boost::blank,
   smoc_func_call,
   smoc_func_diverge,
-  smoc_sr_func_pair> smoc_action;
+  smoc_sr_func_pair,
+  smoc_connector_action_pair> smoc_action;
+  
+
+/**
+ * smoc_connector_action_pair
+ */
+
+class smoc_connector_action_pair {
+public:
+  /*smoc_action a;
+  smoc_action b;
+
+  smoc_connector_action_pair(
+      const smoc_action& a,
+      const smoc_action& b)
+    : a(a), b(b)
+  {}*/
+  
+  smoc_func_call a;
+  smoc_func_call b;
+
+  smoc_connector_action_pair(
+      const smoc_func_call& a,
+      const smoc_func_call& b)
+    : a(a), b(b)
+  {}
+};
+
+
+/**
+ * ActionVisitor
+ */
+
+class ActionVisitor {
+public:
+  typedef FiringStateImpl* result_type;
+
+public:
+  ActionVisitor(FiringStateImpl* dest, int mode);
+
+  result_type operator()(smoc_func_call& f) const;
+  result_type operator()(smoc_func_diverge& f) const;
+  result_type operator()(smoc_sr_func_pair& f) const;
+  result_type operator()(smoc_connector_action_pair& f) const;
+  result_type operator()(boost::blank& f) const;
+
+private:
+  FiringStateImpl* dest;
+  int mode;
+};
 
 #endif // _INCLUDED_SMOC_FUNC_CALL_HPP

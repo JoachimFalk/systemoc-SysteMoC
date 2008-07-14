@@ -74,13 +74,14 @@ private:
   FiringStateBaseImpl *dest;
 
 public:
-  /// @brief Constructor
+  /// @brief Constructor (Public interface)
   PartialTransition(const smoc_transition &t);
 
   /// @brief Constructor (Internal use only)
   PartialTransition(
-      const smoc_activation_pattern& ap,
-      const smoc_func_diverge& f);
+    const smoc_activation_pattern& ap,
+    const smoc_action& f,
+    FiringStateBaseImpl* dest = 0);
 
   /// @brief Returns the activation pattern
   const smoc_activation_pattern &getActivationPattern() const;
@@ -283,9 +284,6 @@ public:
   ExpandedTransitionList expandTransitions(const PartialTransitionList &pl);
 
   /// @brief Assignment operator
-  //this_type& operator=(const this_type& s);
-  
-  /// @brief Assignment operator
   this_type& operator=(const smoc_transition_list &tl);
 
   /// @brief Returns transitions
@@ -328,7 +326,28 @@ public:
   ExpandedTransitionList expandTransitions(const PartialTransitionList &pl);
   
   /// @brief Assignment operator
-  //this_type& operator=(const this_type& s);
+  this_type& operator=(const smoc_transition_list &tl);
+};
+
+class ConnectorStateImpl: public FiringStateBaseImpl {
+public:
+  typedef ConnectorStateImpl this_type;
+
+public:
+  /// @brief Constructor
+  ConnectorStateImpl();
+
+  /// @brief Constructor
+  ConnectorStateImpl(const PConnectorStateImpl &s);
+
+  /// @brief Destructor
+  ~ConnectorStateImpl();
+
+  /// @brief See FiringStateBaseImpl
+  void finalise(smoc_root_node *actor);
+
+  /// @brief See FiringStateBaseImpl
+  ExpandedTransitionList expandTransitions(const PartialTransitionList &pl);
   
   /// @brief Assignment operator
   this_type& operator=(const smoc_transition_list &tl);

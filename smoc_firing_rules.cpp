@@ -1,3 +1,38 @@
+// vim: set sw=2 ts=8:
+/*
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Erlangen-Nuremberg. All rights reserved.
+ * 
+ *   This library is free software; you can redistribute it and/or modify it under
+ *   the terms of the GNU Lesser General Public License as published by the Free
+ *   Software Foundation; either version 2 of the License, or (at your option) any
+ *   later version.
+ * 
+ *   This library is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *   FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ *   details.
+ * 
+ *   You should have received a copy of the GNU Lesser General Public License
+ *   along with this library; if not, write to the Free Software Foundation, Inc.,
+ *   59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * 
+ * --- This software and any associated documentation is provided "as is" 
+ * 
+ * IN NO EVENT SHALL HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG
+ * BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+ * CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
+ * DOCUMENTATION, EVEN IF HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN
+ * NUREMBERG HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF ERLANGEN NUREMBERG, SPECIFICALLY
+ * DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED
+ * HEREUNDER IS ON AN "AS IS" BASIS, AND HARDWARE-SOFTWARE-CODESIGN, UNIVERSITY OF
+ * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ * ENHANCEMENTS, OR MODIFICATIONS.
+ */
+
 #include <systemoc/smoc_config.h>
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
@@ -29,10 +64,11 @@ PartialTransition::PartialTransition(const smoc_transition &t)
 
 PartialTransition::PartialTransition(
     const smoc_activation_pattern& ap,
-    const smoc_func_diverge& f)
+    const smoc_action& f,
+    FiringStateBaseImpl* dest)
   : ap(ap),
     f(f),
-    dest(0) // dynamically determined by f()
+    dest(dest)
 {}
 
 const smoc_activation_pattern &PartialTransition::getActivationPattern() const
@@ -107,69 +143,8 @@ void ExpandedTransition::execute(int mode) {
   Expr::evalTo<Expr::CommSetup>(guard);
 #endif
 
-  FiringStateImpl *nextState;
-
-  if(smoc_func_call *fc = boost::get<smoc_func_call>(&f)) {
-    // Function call
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceStartFunction(fc->getFuncName());
-#endif
-#if defined(SYSTEMOC_DEBUG) || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
-    std::cerr << "    <smoc_func_call func=\"" << fc->getFuncName()
-              << "\">" << std::endl;
-#endif
-    (*fc)();
-#if defined(SYSTEMOC_DEBUG) || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
-    std::cerr << "    </smoc_func_call>" << std::endl;
-#endif
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceEndFunction(fc->getFuncName());
-#endif
-    assert(dest); nextState = dest;
-  }
-  else if(smoc_func_diverge *fd = boost::get<smoc_func_diverge>(&f)) {
-  // Function call determines next state (Internal use only)
-#if defined(SYSTEMOC_DEBUG) || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
-    std::cerr << "    <smoc_func_diverge func=\"???\">" << std::endl;
-#endif
-    nextState = (*fd)();
-#if defined(SYSTEMOC_DEBUG) || (VERBOSE_LEVEL_SMOC_FIRING_RULES >= 100)
-    std::cerr << "    </smoc_func_diverge>" << std::endl;
-#endif
-    assert(!dest); // nextState already assigned
-  }
-  else if(smoc_sr_func_pair* fp = boost::get<smoc_sr_func_pair>(&f)) {
-    // SR GO & TICK calls
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceStartFunction(fp->go.getFuncName());
-#endif
-    if(mode & GO) {
-#ifdef SYSTEMOC_DEBUG
-      std::cerr << "    <smoc_sr_func_pair go=\"" << fp->go.getFuncName()
-                << "\">" << std::endl;
-#endif
-      fp->go();
-    }
-    if(mode & TICK) {
-#ifdef SYSTEMOC_DEBUG
-      std::cerr << "    <smoc_sr_func_pair tick=\"" << fp->tick.getFuncName()
-                << "\">" << std::endl;
-#endif
-      fp->tick();
-    }
-#ifdef SYSTEMOC_DEBUG
-    std::cerr << "    </smoc_sr_func_pair>" << std::endl;
-#endif
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceEndFunction(fp->go.getFuncName());
-#endif
-    assert(dest); nextState = dest;
-  }
-  else {
-    // No action
-    assert(boost::get<boost::blank>(&f));
-    assert(dest); nextState = dest;
-  }
+  FiringStateImpl* nextState =
+    boost::apply_visitor(ActionVisitor(dest, mode), f);
 
 #if !defined(NDEBUG)
   Expr::evalTo<Expr::CommReset>(guard);
@@ -535,14 +510,14 @@ ExpandedTransitionList FiringStateImpl::expandTransitions(
   // Task: determine the target state of the partial transitions
   // (This instance is the target state of all partial
   // transitions which are given as an argument [stops recursion])
-  ExpandedTransitionList retval;
+  ExpandedTransitionList ret;
   for(PartialTransitionList::const_iterator iter = pl.begin();
       iter != pl.end();
       ++iter)
   {
-    retval.push_back(ExpandedTransition(*iter, this));
+    ret.push_back(ExpandedTransition(*iter, this));
   }
-  return retval;
+  return ret;
 }
 
 FiringStateImpl& FiringStateImpl::operator=(const smoc_transition_list &tl)
@@ -622,6 +597,71 @@ void intrusive_ptr_release(RefinedStateImpl *p)
   { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
 
 
+ConnectorStateImpl::ConnectorStateImpl()
+  : FiringStateBaseImpl() {
+}
+
+ConnectorStateImpl::ConnectorStateImpl(const PConnectorStateImpl &s)
+  : FiringStateBaseImpl(s) {
+}
+
+ConnectorStateImpl::~ConnectorStateImpl() {
+}
+
+void ConnectorStateImpl::finalise(smoc_root_node *actor) {
+
+}
+
+ExpandedTransitionList
+ConnectorStateImpl::expandTransitions(const PartialTransitionList &pl) {
+  // Task: determine the target state of the partial transitions
+
+  ExpandedTransitionList ret;
+
+  for(PartialTransitionList::const_iterator i = pl.begin();
+      i != pl.end(); ++i)
+  {
+    for(PartialTransitionList::const_iterator j = tl.begin();
+        j != tl.end(); ++j)
+    {
+      // FIXME: Currently, we assume that input/output requirements of both
+      // transitions are disjoint, so we can just AND them together. In the
+      // general case, however, we must accumulate the requirements for same
+      // ports and add some kind of offset to the requests in the second
+      // action.
+
+      // FIXME: Problems with recursive_wrapper<T> (see smoc_func_call.hpp)      
+      const smoc_func_call& a = boost::get<smoc_func_call>(i->getAction());
+      const smoc_func_call& b = boost::get<smoc_func_call>(j->getAction());
+
+      // create a new partial transition (i,j) and ask j.destState to
+      // expand it...
+      PartialTransition p(
+          i->getActivationPattern().getExpr() && j->getActivationPattern().getExpr(),
+          smoc_connector_action_pair(a,b),
+          j->getDestState());
+
+      PartialTransitionList pl;
+      pl.push_back(p);
+
+      ExpandedTransitionList tmp =
+        j->getDestState()->expandTransitions(pl);
+
+      ret.splice(ret.end(), tmp);
+    }
+  }
+
+  return ret;
+}
+
+ConnectorStateImpl& ConnectorStateImpl::operator=(const smoc_transition_list &tl)
+  { FiringStateBaseImpl::operator=(tl); return *this; }
+
+void intrusive_ptr_add_ref(ConnectorStateImpl *p)
+  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+
+void intrusive_ptr_release(ConnectorStateImpl *p)
+  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
 
 
 
@@ -675,4 +715,24 @@ smoc_refined_state& smoc_refined_state::operator = (const this_type &t)
   { *getImpl() = *t.getImpl(); return *this; }
 
 smoc_refined_state& smoc_refined_state::operator = (const smoc_transition_list &tl)
+  { *getImpl() = tl; return *this; }
+
+
+
+smoc_connector_state::smoc_connector_state(const SmartPtr &p)
+  : FFType(p) {}
+
+smoc_connector_state::smoc_connector_state()
+  : FFType(new ConnectorStateImpl()) {}
+
+smoc_connector_state::smoc_connector_state(const this_type &s)
+  : FFType(new ConnectorStateImpl(s.getImpl())) {}
+
+smoc_connector_state::ImplType *smoc_connector_state::getImpl() const
+  { return static_cast<ImplType *>(this->pImpl.get()); }
+
+smoc_connector_state& smoc_connector_state::operator = (const this_type &t)
+  { *getImpl() = *t.getImpl(); return *this; }
+
+smoc_connector_state& smoc_connector_state::operator = (const smoc_transition_list &tl)
   { *getImpl() = tl; return *this; }

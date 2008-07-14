@@ -132,6 +132,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_moc.cpp			\
 	smoc_ngx_sync.cpp		\
 	smoc_graph_synth.cpp		\
+	smoc_func_call.cpp		\
 					\
 	hscd_tdsim_TraceLog.cpp
 

@@ -36,6 +36,8 @@ DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateImpl, PFiringStateImpl);
 class RefinedStateImpl;
 DECL_INTRUSIVE_REFCOUNT_PTR(RefinedStateImpl, PRefinedStateImpl);
 
+class ConnectorStateImpl;
+DECL_INTRUSIVE_REFCOUNT_PTR(ConnectorStateImpl, PConnectorStateImpl);
 
 class smoc_transition_list;
 
@@ -104,6 +106,29 @@ public:
   smoc_refined_state(const this_type &);
   
   void add(const smoc_firing_state_base &state);
+
+  this_type &operator = (const this_type &s);
+  this_type &operator = (const smoc_transition_list &tl);
+};
+
+class smoc_connector_state
+: public CoSupport::DataTypes::FacadeFoundation<
+    smoc_connector_state,
+    ConnectorStateImpl,
+    smoc_firing_state_base
+  >
+{
+public:
+  typedef smoc_connector_state this_type;
+
+protected:
+  smoc_connector_state(const SmartPtr &p);
+
+  ImplType *getImpl() const;
+
+public:
+  smoc_connector_state();
+  smoc_connector_state(const this_type &);
 
   this_type &operator = (const this_type &s);
   this_type &operator = (const smoc_transition_list &tl);
