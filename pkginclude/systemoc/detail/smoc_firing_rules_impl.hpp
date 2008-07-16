@@ -56,6 +56,7 @@ typedef std::set<FiringStateBaseImpl*> FiringStateBaseImplSet;
 class FiringStateImpl;
 DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateImpl, PFiringStateImpl);
 typedef std::set<FiringStateImpl*> FiringStateImplSet;
+typedef std::list<FiringStateImpl*> FiringStateImplList;
 
 class RefinedStateImpl;
 DECL_INTRUSIVE_REFCOUNT_PTR(RefinedStateImpl, PRefinedStateImpl);

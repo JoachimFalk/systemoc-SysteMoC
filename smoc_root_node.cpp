@@ -102,8 +102,8 @@ void smoc_root_node::finalise() {
   // Preallocate ID
   //smoc_modes::PGWriter::getId(this);
  
+  getFiringFSM()->finalise(this);
   currentState = initialState.getImpl();
-  currentState->getFiringFSM()->finalise(this);
 
   //std::cerr << "smoc_root_node::finalise() name == " << this->name() << std::endl
   //          << "  FiringFSM: " << currentState->getFiringFSM()
@@ -120,8 +120,7 @@ void smoc_root_node::finalise() {
   }
   
   //check for non strict transitions
-  const FiringStateImplSet& states =
-    currentState->getFiringFSM()->getLeafStates(); 
+  const FiringStateImplSet& states = getFiringFSM()->getLeafStates(); 
 
   for(FiringStateImplSet::const_iterator sIter = states.begin(); 
       sIter != states.end();
@@ -147,45 +146,40 @@ void smoc_root_node::finalise() {
 }
 
 smoc_sysc_port_list smoc_root_node::getPorts() const {
-  smoc_sysc_port_list   ports;
+  smoc_sysc_port_list ret;
   
-  // std::cerr << "=== getPorts ===" << this << std::endl;
-  for ( 
+  for( 
 #if SYSTEMC_VERSION < 20050714
-       sc_pvector<sc_object*>::const_iterator iter =
+    sc_pvector<sc_object*>::const_iterator iter =
 #else
-       std::vector<sc_object*>::const_iterator iter =
+    std::vector<sc_object*>::const_iterator iter =
 #endif
-         get_child_objects().begin();
-       iter != get_child_objects().end();
-       ++iter ) {
-    smoc_sysc_port *port = dynamic_cast<smoc_sysc_port *>(*iter);
-    
-    if ( port != NULL )
-      ports.push_back(port);
+      get_child_objects().begin();
+    iter != get_child_objects().end(); ++iter)
+  {
+    if(smoc_sysc_port* p = dynamic_cast<smoc_sysc_port*>(*iter))
+      ret.push_back(p);
   }
-  return ports;
+  return ret;
 }
 
-/*const smoc_firing_types::statelist_ty smoc_root_node::getFiringStates() const { 
-  smoc_firing_types::statelist_ty states;
+FiringStateImplList smoc_root_node::getStates() const { 
+  FiringStateImplList ret;
 
-  for ( 
+  for( 
 #if SYSTEMC_VERSION < 20050714
-       sc_pvector<sc_object*>::const_iterator iter =
+    sc_pvector<sc_object*>::const_iterator iter =
 #else
-       std::vector<sc_object*>::const_iterator iter =
+    std::vector<sc_object*>::const_iterator iter =
 #endif
-         get_child_objects().begin();
-       iter != get_child_objects().end();
-       ++iter ) {
-    smoc_firing_types::resolved_state_ty* state = dynamic_cast<smoc_firing_types::resolved_state_ty*>(*iter);
-    
-    if ( state != NULL )
-      states.push_back(state);
+      get_child_objects().begin();
+    iter != get_child_objects().end(); ++iter)
+  {
+    if(FiringStateImpl* s = dynamic_cast<FiringStateImpl*>(*iter))
+      ret.push_back(s);
   }
-  return states;
-}*/
+  return ret;
+}
 
 void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
   {}
@@ -223,11 +217,11 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
   So it reimplements this virtual function.*/
 void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
 
-  const FiringStateImplSet& states =
-    initialState.getImpl()->getFiringFSM()->getLeafStates();
-
   //*********************************FSM-STATES********************************
-  for(FiringStateImplSet::const_iterator iter = states.begin();
+  // this assumes that SystemC will iterate objects sorted by name.
+  // Otherwise, this will also NOT result in the correct dump order!!!
+  const FiringStateImplList& states = getStates();
+  for(FiringStateImplList::const_iterator iter = states.begin();
       iter != states.end();
       ++iter)
   {
@@ -235,6 +229,7 @@ void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
         << "\" name=\"" << (*iter)->name()
         << "\"/>" << std::endl;
   }
+  
   //*******************************ACTOR CLASS*********************************
   pgw << "<actor actorClass=\"" << typeid(*this).name() << "\">" << std::endl;
   pgw.indentUp();
@@ -373,8 +368,7 @@ namespace {
 
 void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
   
-  const FiringStateImplSet& states =
-    initialState.getImpl()->getFiringFSM()->getLeafStates();
+  const FiringStateImplSet& states = getFiringFSM()->getLeafStates();
   
   pgw << "<fsm startstate=\"" << idPool.printId(initialState.getImpl())
       << "\">" << std::endl;

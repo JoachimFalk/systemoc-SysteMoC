@@ -153,6 +153,9 @@ protected:
   virtual void finalise();
 
 public:
+  FiringFSMImpl* getFiringFSM() const
+    { return initialState.getImpl()->getFiringFSM(); }
+
   const smoc_firing_state& getInitialState() const
     { return initialState; }
 
@@ -191,11 +194,15 @@ public:
   void assemble( smoc_modes::PGWriter &pgw ) const;
   void assembleFSM( smoc_modes::PGWriter &pgw ) const;
 #endif
-  
+
+  /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
 
-  ExpandedTransitionList getFiringStates() const;
-  
+  /// @brief Collect firing states from child object
+  /// (Sorted by construction order; better use
+  /// getFiringFSM()->getLeafStates() if order does not matter!)
+  FiringStateImplList getStates() const;
+
   std::ostream &dumpActor( std::ostream &o );
     
   //true if actual state is a communication state
