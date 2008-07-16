@@ -218,13 +218,20 @@ void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
 void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
 
   //*********************************FSM-STATES********************************
-  // this assumes that SystemC will iterate objects sorted by name.
-  // Otherwise, this will also NOT result in the correct dump order!!!
+  // FIXME: this assumes that SystemC will iterate objects sorted by construction
+  // order (but seems to be sorted by name, wich is also correct _UNLESS_ user
+  // specifies own name for a firing state!!!)
   const FiringStateImplList& states = getStates();
+  
   for(FiringStateImplList::const_iterator iter = states.begin();
       iter != states.end();
       ++iter)
   {
+#ifdef SYSTEMOC_ENABLE_VPC
+    // do not dump comm state
+    if(*iter == getCommState())
+      continue;
+#endif
     pgw << "<stateDeclaration state=\"" << idPool.printId(*iter)
         << "\" name=\"" << (*iter)->name()
         << "\"/>" << std::endl;
@@ -314,7 +321,16 @@ namespace {
     }
     result_type operator ()(ASTNodeMemGuard &astNode) {
       openNodeTag(astNode);
-      pgw << " name=\"" << astNode.getName() << "\">";
+      pgw << " name=\"" << astNode.getName() << "\">" << std::endl;
+      pgw.indentUp();
+      for(ParamInfoList::const_iterator i = astNode.getParams().begin();
+          i != astNode.getParams().end(); ++i)
+      {
+        pgw << "<Param name=\"" << i->name << "\""
+            <<       " type=\"" << i->type << "\""
+            <<       " value=\"" << i->value << "\"/>" << std::endl;
+      }
+      pgw.indentDown();
 //    pgw << " addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrObj()) << std::dec << "\"";
 //    pgw << " addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrFun()) << std::dec << "\">";
       closeNodeTag(astNode);
@@ -402,6 +418,9 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
           }
           ASTXMLDumperVisitor astDumper(pgw);
           apply_visitor(astDumper, Expr::evalTo<Expr::AST>(tIter->getExpr()));
+          
+          // TODO: Dump ComplexAction
+          
           pgw << "</transition>" << std::endl;
         }
         //***************/TRANTIONS*****************

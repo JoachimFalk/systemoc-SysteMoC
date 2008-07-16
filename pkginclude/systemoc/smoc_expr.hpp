@@ -716,14 +716,19 @@ public:
     : f(_f), pl(_pl) {}
 };
 
+
+
 template<class F, class PL>
 struct AST<DMemGuard<F,PL> > {
   typedef PASTNode result_type;
   
   static inline
   PASTNode apply(const DMemGuard <F,PL> &e) {
+    ParamInfoVisitor piv;
+    e.f.paramListVisit(e.pl, piv);
     return PASTNode(new ASTNodeMemGuard(
-      SysteMoC::ActivationPattern::TypeSymbolIdentifier(e.f)));
+      SysteMoC::ActivationPattern::TypeSymbolIdentifier(e.f),
+      piv.pil));
   }
 };
 

@@ -37,7 +37,11 @@
 
 #include <boost/intrusive_ptr.hpp>
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
+#include <CoSupport/String/convert.hpp>
 //systemc_support.hpp>/intrusive_refcount_ptr.hpp>
+
+#include <string>
+#include <list>
 
 namespace SysteMoC { namespace ActivationPattern {
 
@@ -230,11 +234,33 @@ public:
  * const member function returing a bool,
  */
 
+struct ParamInfo {
+  std::string name;
+  std::string type;
+  std::string value;
+};
+typedef std::list<ParamInfo> ParamInfoList;
+
+struct ParamInfoVisitor {
+  ParamInfoList pil;
+
+  template<class P>
+  void operator()(const P& p) {
+    ParamInfo pi;
+    //pi.name = FIXME;
+    pi.type = typeid(P).name();
+    pi.value = CoSupport::String::asStr(p);
+    pil.push_back(pi);
+  }
+};
+
+
 class ASTNodeMemGuard: public ASTLeafNode {
 public:
   static const _ASTNodeType nodeType = ASTNodeTypeMemGuard;
 private:
   SymbolIdentifier symbol;
+  ParamInfoList pil;
 
 //struct dummy;
 //typedef void (dummy::*fun)() const;
@@ -242,10 +268,11 @@ private:
 //const dummy *o;
 //fun          m;
 public:
-  ASTNodeMemGuard(const TypeSymbolIdentifier &typeSymbol)
-    : ASTLeafNode(nodeType, typeSymbol), symbol(typeSymbol) {}
+  ASTNodeMemGuard(const TypeSymbolIdentifier &typeSymbol, ParamInfoList pil)
+    : ASTLeafNode(nodeType, typeSymbol), symbol(typeSymbol), pil(pil) {}
 
   const SymbolIdentifier &getName() const;
+  const ParamInfoList& getParams() const;
 //const void *getAddrObj() const;
 //const void *getAddrFun() const;
 //std::string getNodeParam() const;

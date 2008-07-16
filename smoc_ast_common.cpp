@@ -218,6 +218,8 @@ const ValueContainer &ASTNodeLiteral::getValue() const
 
 const SymbolIdentifier &ASTNodeMemGuard::getName() const
   { return symbol; }
+const ParamInfoList& ASTNodeMemGuard::getParams() const
+  { return pil; }
 //const void *ASTNodeMemGuard::getAddrObj() const
 //  { return o; }
 //const void *ASTNodeMemGuard::getAddrFun() const
