@@ -373,7 +373,7 @@ void smoc_graph_synth::generateFSM() {
   }
 
   // create state lookup table
-  typedef std::map<FiringState::ConstPtr, smoc_firing_state*> StateMap;
+  typedef std::map<FiringState::ConstPtr, smoc_firing_state::Ptr> StateMap;
   StateMap sm;
 
   // initialize state lut
@@ -408,7 +408,7 @@ void smoc_graph_synth::generateFSM() {
       al.dump(std::cerr); std::cerr << std::endl;
 #endif
 
-      if(!sm[sDst]) sm[sDst] = new smoc_firing_state();
+      if(!sm[sDst]) sm[sDst] = smoc_firing_state().toPtr();
       smoc_firing_state setup, run, check;
 
       tl |=
@@ -444,15 +444,15 @@ void smoc_graph_synth::generateFSM() {
     }
 
     // assign transition list to state
-    if(!sm[sSrc]) sm[sSrc] = new smoc_firing_state();
+    if(!sm[sSrc]) sm[sSrc] = smoc_firing_state().toPtr();
     *sm[sSrc] = tl;
   }
 
-  // delete temporary firing states
-  for(StateMap::const_iterator i = sm.begin(); i != sm.end(); ++i) {
-    if(i->second != &init)
-      delete i->second;
-  }
+//// delete temporary firing states
+//for(StateMap::const_iterator i = sm.begin(); i != sm.end(); ++i) {
+//  if(i->second != &init)
+//    delete i->second;
+//}
 }
 
 } // namespace SysteMoC

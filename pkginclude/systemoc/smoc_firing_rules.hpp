@@ -68,11 +68,14 @@ class smoc_firing_state
     smoc_firing_state_base
   >
 {
-public:
   typedef smoc_firing_state this_type;
-  
-  friend class smoc_root_node;
 
+  friend class CoSupport::DataTypes::FacadeFoundation<
+      smoc_firing_state,
+      FiringStateImpl,
+      smoc_firing_state_base
+    >;
+  friend class smoc_root_node;
 protected:
   smoc_firing_state(const SmartPtr &p);
 
