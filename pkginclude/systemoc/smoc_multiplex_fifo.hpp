@@ -895,7 +895,7 @@ protected:
 private:
 };
 
-template <typename T, typename A>
+template <typename T, typename A = typename T::ColorAccessor>
 class smoc_multiplex_fifo
 : public smoc_multiplex_fifo_chan<T,A>::chan_init,
   public smoc_connect_provider<
