@@ -326,9 +326,9 @@ namespace {
       for(ParamInfoList::const_iterator i = astNode.getParams().begin();
           i != astNode.getParams().end(); ++i)
       {
-        pgw << "<Param name=\"" << i->name << "\""
-            <<       " type=\"" << i->type << "\""
-            <<       " value=\"" << i->value << "\"/>" << std::endl;
+        pgw << "<parameter name=\"" << i->name << "\""
+            <<           " valueType=\"" << i->type << "\""
+            <<           " value=\"" << i->value << "\"/>" << std::endl;
       }
       pgw.indentDown();
 //    pgw << " addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrObj()) << std::dec << "\"";
@@ -388,8 +388,8 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
   
   pgw << "<fsm startstate=\"" << idPool.printId(initialState.getImpl())
       << "\">" << std::endl;
+  pgw.indentUp();
   {
-    pgw.indentUp();
     //******************************FSMSTATES************************************ 
     for(FiringStateImplSet::const_iterator sIter = states.begin(); 
         sIter != states.end(); 
@@ -398,8 +398,8 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
       pgw << "<state id=\"" << idPool.printId(*sIter)
           << "\" name=\"" << (*sIter)->name()
           << "\">" << std::endl;
+      pgw.indentUp();
       {
-        pgw.indentUp();
         //**************TRANTIONS********************
         const ExpandedTransitionList& tl = (*sIter)->getTransitions();
     
@@ -409,28 +409,51 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
         {
           const FiringStateImpl* dest = tIter->getDestState();
           
-          pgw << "<transition nextstate=\"" << idPool.printId(dest) << "\" " << std::flush;
-          if(const smoc_func_call* fc = boost::get<smoc_func_call>(&tIter->getAction())) {
-              pgw << "action=\"" << fc->getFuncName() << "\">" << std::endl;
-          }
-          else {
-            pgw << "action=\"\">" << std::endl;
+          pgw << "<transition nextstate=\"" << idPool.printId(dest) << "\">" << std::endl;
+          pgw.indentUp();
+          {
+            //**************ACTION********************
+            pgw << "<action>" << std::endl;
+            pgw.indentUp();
+            {
+              //**************FUNCTION********************
+              if(const smoc_func_call* fc = boost::get<smoc_func_call>(&tIter->getAction())) {
+                pgw << "<function name=\"" << fc->getFuncName() << "\">" << std::endl;
+                pgw.indentUp();
+                {
+                  //**************PARAMETER********************
+                  for(ParamInfoList::const_iterator iter = fc->getParams().begin();
+                      iter != fc->getParams().end(); ++iter)
+                  {
+                    pgw << "<parameter name=\"" << iter->name << "\""
+                        <<           " valueType=\"" << iter->type << "\""
+                        <<           " value=\"" << iter->value << "\"/>" << std::endl;
+                  }
+                  //**************/PARAMETER********************
+                }
+                pgw.indentDown();
+                pgw << "</function>" << std::endl;
+              }
+              //**************/FUNCTION********************
+            }
+            pgw.indentDown();
+            pgw << "</action>" << std::endl;
+            //**************/ACTION********************
           }
           ASTXMLDumperVisitor astDumper(pgw);
           apply_visitor(astDumper, Expr::evalTo<Expr::AST>(tIter->getExpr()));
-          
-          // TODO: Dump ComplexAction
-          
+
+          pgw.indentDown();
           pgw << "</transition>" << std::endl;
         }
         //***************/TRANTIONS*****************
-        pgw.indentDown();
       }
+      pgw.indentDown();
       pgw << "</state>" << std::endl;
     }
     //*********************************/FSMSTATES*************************************
-    pgw.indentDown();
   }
+  pgw.indentDown();
   pgw << "</fsm>" << std::endl;
 }
  

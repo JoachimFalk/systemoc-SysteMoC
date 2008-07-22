@@ -39,10 +39,12 @@
 #include <string>
 #include <typeinfo>
 #include <sstream>
+#include <vector>
 
 #include <boost/intrusive_ptr.hpp>
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/Lambda/functor.hpp>
+#include <CoSupport/String/convert.hpp>
 
 namespace smoc_modes {
   class PGWriter;
@@ -180,6 +182,26 @@ public:
 
 //reinterpret_cast<const dummy *>(f.obj)
 //reinterpret_cast<const fun   *>(&f.func)
+};
+
+struct ParamInfo {
+  std::string name;
+  std::string type;
+  std::string value;
+};
+typedef std::vector<ParamInfo> ParamInfoList;
+
+struct ParamInfoVisitor {
+  ParamInfoList pil;
+
+  template<class P>
+  void operator()(const P& p) {
+    ParamInfo pi;
+    //pi.name = FIXME;
+    pi.type = typeid(P).name();
+    pi.value = CoSupport::String::asStr(p);
+    pil.push_back(pi);
+  }
 };
 
 } } // namespace SysteMoC::ActivationPattern

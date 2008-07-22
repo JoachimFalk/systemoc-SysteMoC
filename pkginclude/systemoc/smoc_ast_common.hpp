@@ -37,11 +37,9 @@
 
 #include <boost/intrusive_ptr.hpp>
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
-#include <CoSupport/String/convert.hpp>
 //systemc_support.hpp>/intrusive_refcount_ptr.hpp>
 
 #include <string>
-#include <list>
 
 namespace SysteMoC { namespace ActivationPattern {
 
@@ -233,27 +231,6 @@ public:
  * ASTNodeMemGuard represents a guard in the expression. A guard is a
  * const member function returing a bool,
  */
-
-struct ParamInfo {
-  std::string name;
-  std::string type;
-  std::string value;
-};
-typedef std::list<ParamInfo> ParamInfoList;
-
-struct ParamInfoVisitor {
-  ParamInfoList pil;
-
-  template<class P>
-  void operator()(const P& p) {
-    ParamInfo pi;
-    //pi.name = FIXME;
-    pi.type = typeid(P).name();
-    pi.value = CoSupport::String::asStr(p);
-    pil.push_back(pi);
-  }
-};
-
 
 class ASTNodeMemGuard: public ASTLeafNode {
 public:

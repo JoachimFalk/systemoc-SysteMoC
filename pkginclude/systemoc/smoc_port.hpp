@@ -147,6 +147,13 @@ public:
 };
 
 template <typename IFACE>
+std::ostream& operator<<(std::ostream &os, const smoc_port_base<IFACE> &port)
+{
+  os << port.name();
+  return os;
+}
+
+template <typename IFACE>
 class smoc_port_in_base
 : public smoc_port_base<IFACE> {
 private:

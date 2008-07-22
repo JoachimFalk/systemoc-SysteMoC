@@ -139,11 +139,10 @@
 
 <!ENTITY % OPS "(ASTNodeBinOp|ASTNodeUnOp|PortTokens|Literal|Var|Proc|MemGuard|MemProc|Token|Comm)" >
 
-<!ELEMENT transition (%OPS;,action?)>
+<!ELEMENT transition (action,%OPS;)>
 <!ATTLIST transition
   nextstate IDREF #REQUIRED
   nextstatename CDATA #IMPLIED
-  action CDATA #IMPLIED
 >
 
 <!ELEMENT ASTNodeBinOp (lhs,rhs)>
@@ -196,10 +195,17 @@
 >
 
 
-<!ELEMENT MemGuard EMPTY>
+<!ELEMENT MemGuard (parameter)*>
 <!ATTLIST MemGuard
   valueType CDATA #REQUIRED
   name      CDATA #REQUIRED
+>
+
+<!ELEMENT parameter EMPTY>
+<!ATTLIST parameter
+  name      CDATA #REQUIRED
+  valueType CDATA #REQUIRED
+  value     CDATA #REQUIRED
 >
 
 <!ELEMENT MemProc EMPTY>
@@ -216,7 +222,12 @@
   pos       CDATA #REQUIRED
 >
 
-<!ELEMENT action (loopedSchedule)>
+<!ELEMENT action (function|loopedSchedule)?>
+
+<!ELEMENT function (parameter)*>
+<!ATTLIST function
+  name CDATA #REQUIRED
+>
 
 <!ELEMENT loopedSchedule (item)*>
 

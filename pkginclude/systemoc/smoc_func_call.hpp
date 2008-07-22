@@ -41,6 +41,8 @@
 #include <boost/blank.hpp>
 #include <boost/intrusive_ptr.hpp>
 
+#include <systemoc/smoc_ast_systemoc.hpp>
+
 #define CALL(func)    call(&func, #func)
 #define GUARD(func)   guard(&func, #func)
 #define VAR(variable) var(variable, #variable)
@@ -84,6 +86,8 @@ public:
   R call() const = 0;
   virtual
   const char *getFuncName() const = 0;
+  virtual
+  SysteMoC::ActivationPattern::ParamInfoList getParams() const = 0;
   
   virtual
   ~smoc_member_func_interface() {}
@@ -120,6 +124,12 @@ public:
     { return f.call(pl); }
   const char *getFuncName() const
     { return f.name; }
+  SysteMoC::ActivationPattern::ParamInfoList getParams() const
+  { 
+    SysteMoC::ActivationPattern::ParamInfoVisitor piv;
+    f.paramListVisit(pl, piv);
+    return piv.pil;
+  }
 };
 
 
@@ -134,11 +144,16 @@ private:
   
   boost::intrusive_ptr<
     smoc_member_func_interface<return_type> >   k;
+
+  SysteMoC::ActivationPattern::ParamInfoList pil;
 public:
   
   template <class F, class PL>
   smoc_func_call( const smoc_member_func<F, PL> &_k )
-    : k(new smoc_member_func<F, PL>(_k)) {}
+    : k(new smoc_member_func<F, PL>(_k))
+  {
+    pil = k->getParams();
+  }
   
   void operator()() const {
     return k->call();
@@ -146,6 +161,10 @@ public:
   
   const char* getFuncName() const {
     return k->getFuncName();
+  }
+  
+  const SysteMoC::ActivationPattern::ParamInfoList& getParams() const {
+    return pil;
   }
 };
 
