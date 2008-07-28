@@ -46,9 +46,9 @@ void MultiHopEvent::compute( FastLink * task ){
 
 //
 void MultiHopEvent::signaled( EventWaiter *e ) {
-  cerr << e << " signaled @ " << sc_time_stamp() << endl;
+  //cerr << e << " signaled @ " << sc_time_stamp() << endl;
   if(e->isActive()){
-    cerr << " isActive()" << endl;
+    //cerr << " isActive()" << endl;
     //this->reset();
     this->task->compute(this->taskEvents);
   }
@@ -56,9 +56,9 @@ void MultiHopEvent::signaled( EventWaiter *e ) {
 
 //
 void MultiHopEvent::eventDestroyed( EventWaiter *e ){
-  cerr << e << " eventDestroyed @ " << sc_time_stamp() << endl;
+  //cerr << e << " eventDestroyed @ " << sc_time_stamp() << endl;
   if(e == &readList){
-    cerr << "readList = " << &readList << endl;
+    //cerr << "readList = " << &readList << endl;
     readList.delListener(this);
     readList.addListener(this);
     
@@ -68,7 +68,7 @@ void MultiHopEvent::eventDestroyed( EventWaiter *e ){
 //
 void MultiHopEvent::addInputChannel( smoc_root_chan * chan,
                                      unsigned int quantum ){
-  cerr << "addInputChannel( " << chan->name() << " );" << endl;
+  //cerr << "addInputChannel( " << chan->name() << " );" << endl;
   FastLink *read = chan->vpcLinkReadHop;
   Event * chanEvent = new Event();
   readList &= *chanEvent;
