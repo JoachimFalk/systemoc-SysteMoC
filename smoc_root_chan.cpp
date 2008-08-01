@@ -157,31 +157,31 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
 
   assert(entries.size() == 1);
   assert(outlets.size() == 1);
-  
+
+  // Get the Id for the channel
   IdAttr idChannel = idPool.printId(this);
 
-  IdAttr idChannelPortIn = entries.empty() ?
-    idPool.printIdInvalid() : idPool.printId(entries.begin()->second, 1);
+  // Get the Ids for the actor ports
+  IdAttr idNodePortOut = idPool.printId(entries.begin()->second, 0);
+  IdAttr idNodePortIn  = idPool.printId(outlets.begin()->second, 0);
 
-  IdAttr idChannelPortOut = outlets.empty() ?
-    idPool.printIdInvalid() : idPool.printId(outlets.begin()->second, 1);
-
-  sc_port_base* ifPort = outlets.empty() ?
-    0 : getRootPort(outlets.begin()->second);
+  // Get the Ids for the channel ports
+  IdAttr idChannelPortIn  = idPool.printId(entries.begin()->second, 1);
+  IdAttr idChannelPortOut = idPool.printId(outlets.begin()->second, 1);
   
-  pgw << "<edge name=\""   << this->name() << ".to-edge\" "
-               "source=\"" << idPool.printId(ifPort) << "\" "
+  pgw << "<edge name=\""   << name() << ".to-edge\" "
+               "source=\"" << idNodePortOut << "\" "
                "target=\"" << idChannelPortIn << "\" "
                "id=\""     << idPool.printId() << "\"/>" << std::endl;
-  pgw << "<process name=\"" << this->name() << "\" "
-                  "type=\"" << this->getChannelTypeString() << "\" "
+  pgw << "<process name=\"" << name() << "\" "
+                  "type=\"" << getChannelTypeString() << "\" "
                   "id=\"" << idChannel << "\">" << std::endl;
   {
     pgw.indentUp();
-    pgw << "<port name=\"" << this->name() << ".in\" "
+    pgw << "<port name=\"" << name() << ".in\" "
                  "type=\"in\" "
                  "id=\"" << idChannelPortIn << "\"/>" << std::endl;
-    pgw << "<port name=\"" << this->name() << ".out\" "
+    pgw << "<port name=\"" << name() << ".out\" "
                  "type=\"out\" "
                  "id=\"" << idChannelPortOut << "\"/>" << std::endl;
     //*******************************ACTOR CLASS********************************
@@ -190,13 +190,10 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
     pgw.indentDown();
   }
 
-  ifPort = entries.empty() ?
-    0 : getRootPort(entries.begin()->second);
-
   pgw << "</process>" << std::endl;
-  pgw << "<edge name=\""   << this->name() << ".from-edge\" "
+  pgw << "<edge name=\""   << name() << ".from-edge\" "
                "source=\"" << idChannelPortOut << "\" "
-               "target=\"" << idPool.printId(ifPort) << "\" "
+               "target=\"" << idNodePortIn << "\" "
                "id=\""     << idPool.printId() << "\"/>" << std::endl;
 }
 
