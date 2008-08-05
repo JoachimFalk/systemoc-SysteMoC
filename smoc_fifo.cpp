@@ -81,47 +81,6 @@ namespace smoc_detail {
 # endif
 
   void LatencyQueue::RequestQueue::doSomething(size_t n) {
-//# ifdef SYSTEMOC_TRACE
-//    const char *name = getTop().fifo->name();
-//# endif
-    
-    for (;n > 0; --n) {
-      smoc_ref_event_p latEvent(new smoc_ref_event());
-# ifdef SYSTEMOC_TRACE
-      smoc_ref_event_p diiEvent(new smoc_ref_event());
-      
-      TraceLog.traceStartActor(getTop().fifo, "s");
-//    TraceLog.traceStartFunction("transmit");
-//    TraceLog.traceEndFunction("transmit");
-      TraceLog.traceEndActor(getTop().fifo);
-      
-      SystemC_VPC::EventPair p(diiEvent.get(), latEvent.get());
-# else
-      SystemC_VPC::EventPair p(&dummy, latEvent.get());
-# endif
-      // new FastLink interface
-      getTop().fifo->vpcLinkWriteHop->write( 1, p );
-# ifdef SYSTEMOC_TRACE
-      if (!*diiEvent) {
-        // dii event not signaled
-        diiEvent->addListener(new DeferedTraceLogDumper(diiEvent, getTop().fifo, "e"));
-      } else {
-        TraceLog.traceStartActor(getTop().fifo, "e");
-        TraceLog.traceEndActor(getTop().fifo);
-      }
-      if (!*latEvent) {
-        // latency event not signaled
-        latEvent->addListener(new DeferedTraceLogDumper(latEvent, getTop().fifo, "l"));
-      } else {
-        TraceLog.traceStartActor(getTop().fifo, "l");
-        TraceLog.traceEndActor(getTop().fifo);
-      }
-# endif
-      getTop().visibleQueue.addEntry(1, latEvent);
-    }
-  }
-
-  void LatencyQueue::VisibleQueue::doSomething(size_t n) {
     getTop().fifo->latencyExpired(n);
   }
 #endif // SYSTEMOC_ENABLE_VPC

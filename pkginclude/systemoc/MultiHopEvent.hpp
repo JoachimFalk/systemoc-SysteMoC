@@ -74,6 +74,8 @@ public:
   
   void addInputChannel( smoc_root_chan * chan, unsigned int quantum );
 
+  void addOutputChannel( smoc_root_chan * chan, unsigned int quantum );
+
   MultiHopEvent();
 
   void setTaskEvents( EventPair taskEvents ) {
@@ -85,11 +87,17 @@ public:
   }
 
 private:
+  typedef std::list<std::pair<unsigned int, Event*> > Events;
+
   EventPair                              taskEvents;
   Event                                  dummy;
+  Event                                  computeLatency;
   std::string                            name;
   EventAndList<EventWaiter>              readList;
+  EventAndList<EventWaiter>              writeList;
+  Events                                 writeEvents;
   FastLink                              *task;
+  FastLink                              *writeLink;
 };
 
 # endif // SYSTEMOC_ENABLE_VPC

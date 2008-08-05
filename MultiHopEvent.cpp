@@ -47,11 +47,33 @@ void MultiHopEvent::compute( FastLink * task ){
 //
 void MultiHopEvent::signaled( EventWaiter *e ) {
   //cerr << e << " signaled @ " << sc_time_stamp() << endl;
-  if(e->isActive()){
-    //cerr << " isActive()" << endl;
+  if(e->isActive()  && e == &readList){
+    //cerr << "readList isActive()" << endl;
     //this->reset();
-    this->task->compute(this->taskEvents);
+    if(writeList.empty()) {
+      this->task->compute(this->taskEvents);
+    } else {
+      this->task->compute(EventPair( this->taskEvents.dii, &computeLatency ));
+    }
+  } else if(e->isActive()  && e == &computeLatency) {
+    //cerr << "computeLatency isActive()" << endl;
+    /* */
+    for(Events::iterator iter = writeEvents.begin();
+        iter != writeEvents.end();
+        ++iter){
+      unsigned int quantum = iter->first;
+      Event* chanEvent     = iter->second;
+      chanEvent->reset();
+      writeLink->write( quantum, EventPair( &dummy, chanEvent ) );
+    }
+    
+  }else if(e->isActive()  && e == &writeList){
+    //cerr << "writeList isActive() @ " << sc_time_stamp() << endl;
+    this->taskEvents.latency->notify();
   }
+
+  /*
+  */
 }
 
 //
@@ -61,7 +83,14 @@ void MultiHopEvent::eventDestroyed( EventWaiter *e ){
     //cerr << "readList = " << &readList << endl;
     readList.delListener(this);
     readList.addListener(this);
-    
+  } else
+  if(e == &writeList){
+    writeList.delListener(this);
+    writeList.addListener(this);
+  } else
+  if(e == &computeLatency){
+    computeLatency.delListener(this);
+    computeLatency.addListener(this);
   }
 }
 
@@ -76,7 +105,20 @@ void MultiHopEvent::addInputChannel( smoc_root_chan * chan,
 }
 
 //
+void MultiHopEvent::addOutputChannel( smoc_root_chan * chan,
+                                      unsigned int quantum ){
+  //cerr << "addOutputChannel( " << chan->name() << " );" << endl;
+  writeLink = chan->vpcLinkWriteHop;
+  Event * chanEvent = new Event();
+  writeList &= *chanEvent;
+  writeEvents.push_back(std::make_pair(quantum, chanEvent));
+
+}
+
+//
 MultiHopEvent::MultiHopEvent() {
+  computeLatency.addListener(this);
+  writeList.addListener(this);
   readList.addListener(this);
 }
 

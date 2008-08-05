@@ -199,59 +199,6 @@ namespace smoc_detail {
       virtual ~RequestQueue() {}
     } requestQueue;
 
-    class VisibleQueue
-    : public smoc_event_listener {
-    protected:
-      typedef std::pair<size_t, smoc_ref_event_p> Entry;
-      typedef std::queue<Entry>                   Queue;
-    protected:
-      Queue queue;
-    protected:
-      LatencyQueue &getTop() {
-        // MAGIC BEGINS HERE
-        return *reinterpret_cast<LatencyQueue *>
-          (reinterpret_cast<char *>(this) + 411 -
-           reinterpret_cast<char *>
-            (&reinterpret_cast<LatencyQueue *>(411)->visibleQueue));
-      }
-
-      void doSomething(size_t n);
-
-      void signaled(smoc_event_waiter *_e) {
-        size_t n = 0;
-        
-        assert(*_e);
-        assert(!queue.empty());
-        assert(_e == &*queue.front().second);
-        _e->delListener(this);
-        do {
-          n += queue.front().first;
-          queue.pop(); // pop from front of queue
-        } while (!queue.empty() && *queue.front().second);
-        doSomething(n);
-        if (!queue.empty())
-          queue.front().second->addListener(this);
-        return;// false;
-      }
-
-      void eventDestroyed(smoc_event_waiter *_e)
-        { assert(!"eventDestroyed must never be called !!!"); }
-    public:
-      void addEntry(size_t n, const smoc_ref_event_p &le) {
-        bool queueEmpty = queue.empty();
-        
-        if (queueEmpty && (!le || *le)) {
-          doSomething(n);
-        } else {
-          queue.push(Entry(n, le)); // insert at back of queue
-          if (queueEmpty)
-            le->addListener(this);
-        }
-      }
-
-      virtual ~VisibleQueue() {}
-    } visibleQueue;
-
     smoc_fifo_kind *fifo;
   protected:
     LatencyQueue(smoc_fifo_kind *fifo)
@@ -278,7 +225,7 @@ namespace smoc_detail {
 class smoc_fifo_kind
 : public smoc_nonconflicting_chan {
 #ifdef SYSTEMOC_ENABLE_VPC
-  friend class smoc_detail::LatencyQueue::VisibleQueue;
+  friend class smoc_detail::LatencyQueue::RequestQueue;
 #endif // SYSTEMOC_ENABLE_VPC
 public:
   typedef smoc_fifo_kind  this_type;
