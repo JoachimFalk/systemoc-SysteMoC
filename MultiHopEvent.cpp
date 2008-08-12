@@ -41,7 +41,19 @@
 //
 void MultiHopEvent::compute( FastLink * task ){
   this->task = task;
-  if(readList.empty()) task->compute(this->taskEvents);
+  assert(task);
+  if(readList.empty()){
+    task->compute(this->taskEvents);
+  } else {
+    for(Transactions::iterator iter = readTransactions.begin();
+        iter != readTransactions.end();
+        ++iter){
+      unsigned int quantum = iter->quantum;
+      Event* chanEvent     = iter->event;
+      FastLink* readLink   = iter->link;
+      readLink->read( quantum, EventPair( &dummy, chanEvent ) );
+    }
+  }
 }
 
 //
@@ -58,11 +70,12 @@ void MultiHopEvent::signaled( EventWaiter *e ) {
   } else if(e->isActive()  && e == &computeLatency) {
     //cerr << "computeLatency isActive()" << endl;
     /* */
-    for(Events::iterator iter = writeEvents.begin();
-        iter != writeEvents.end();
+    for(Transactions::iterator iter = writeTransactions.begin();
+        iter != writeTransactions.end();
         ++iter){
-      unsigned int quantum = iter->first;
-      Event* chanEvent     = iter->second;
+      unsigned int quantum = iter->quantum;
+      Event* chanEvent     = iter->event;
+      FastLink* writeLink   = iter->link;
       chanEvent->reset();
       writeLink->write( quantum, EventPair( &dummy, chanEvent ) );
     }
@@ -98,20 +111,20 @@ void MultiHopEvent::eventDestroyed( EventWaiter *e ){
 void MultiHopEvent::addInputChannel( smoc_root_chan * chan,
                                      unsigned int quantum ){
   //cerr << "addInputChannel( " << chan->name() << " );" << endl;
-  FastLink *read = chan->vpcLinkReadHop;
+  FastLink *readLink = chan->vpcLinkReadHop;
   Event * chanEvent = new Event();
   readList &= *chanEvent;
-  read->read( quantum, EventPair( &dummy, chanEvent ) );
+  readTransactions.push_back(Transaction(chanEvent, quantum, readLink));
 }
 
 //
 void MultiHopEvent::addOutputChannel( smoc_root_chan * chan,
                                       unsigned int quantum ){
   //cerr << "addOutputChannel( " << chan->name() << " );" << endl;
-  writeLink = chan->vpcLinkWriteHop;
+  FastLink *writeLink = chan->vpcLinkWriteHop;
   Event * chanEvent = new Event();
   writeList &= *chanEvent;
-  writeEvents.push_back(std::make_pair(quantum, chanEvent));
+  writeTransactions.push_back(Transaction(chanEvent, quantum, writeLink));
 
 }
 

@@ -55,6 +55,24 @@ using SystemC_VPC::EventPair;
 using SystemC_VPC::FastLink;
 using CoSupport::SystemC::Event;
 using CoSupport::SystemC::EventAndList;
+
+class Transaction{
+public:
+
+  //convenience CTOR 
+  Transaction( Event *event,
+               unsigned int quantum,
+               FastLink * link )
+    : event(event),
+      quantum(quantum),
+      link(link) {}
+
+  Event *event;
+  unsigned int quantum;
+  FastLink * link;
+
+};
+
 /**
  *
  */
@@ -87,7 +105,7 @@ public:
   }
 
 private:
-  typedef std::list<std::pair<unsigned int, Event*> > Events;
+  typedef std::list< Transaction > Transactions;
 
   EventPair                              taskEvents;
   Event                                  dummy;
@@ -95,9 +113,9 @@ private:
   std::string                            name;
   EventAndList<EventWaiter>              readList;
   EventAndList<EventWaiter>              writeList;
-  Events                                 writeEvents;
+  Transactions                           writeTransactions;
+  Transactions                           readTransactions;
   FastLink                              *task;
-  FastLink                              *writeLink;
 };
 
 # endif // SYSTEMOC_ENABLE_VPC
