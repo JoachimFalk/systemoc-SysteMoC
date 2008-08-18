@@ -294,13 +294,13 @@ class smoc_fifo
 : public smoc_fifo_chan<T>::chan_init,
   public smoc_connect_provider<
     smoc_fifo<T>,
-    smoc_fifo_chan<T> > {
-  typedef smoc_fifo<T> this_type;
-
-  friend class smoc_connect_provider<this_type, typename this_type::chan_type>;
+    smoc_fifo_chan<T> >
+{
+  friend class smoc_connect_provider<smoc_fifo<T>, smoc_fifo_chan<T> >;
 public:
-  typedef T                             data_type;
-  typedef typename this_type::chan_type chan_type;
+  typedef T                 data_type;
+  typedef smoc_fifo<T>      this_type;
+  typedef smoc_fifo_chan<T> chan_type;
 private:
   chan_type *chan;
 public:

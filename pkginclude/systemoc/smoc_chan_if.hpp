@@ -154,7 +154,7 @@ struct AST<DPortTokens<CI> > {
 
   static inline
   result_type apply(const DPortTokens<CI> &e)
-    { return PASTNode(new ASTNodePortTokens(e.p)); }
+    { return PASTNode(new Expr::ASTNodePortTokens(e.p)); }
 };
 
 // Make a convenient typedef for the token type.
@@ -175,11 +175,13 @@ typename PortTokens<typename P::chan_base_type>::type portTokens(P &p)
 
 #ifndef NDEBUG
 template <class CI, class E>
-struct CommReset<DBinOp<DPortTokens<CI>,E,DOpBinGe> > {
+struct CommReset<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
+{
   typedef void result_type;
 
   static inline
-  result_type apply(const DBinOp<DPortTokens<CI>,E,DOpBinGe> &e) {
+  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> &e)
+  {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommReset<DBinOp<DPortTokens<CI>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
@@ -189,11 +191,13 @@ struct CommReset<DBinOp<DPortTokens<CI>,E,DOpBinGe> > {
 };
 
 template <class CI, class E>
-struct CommSetup<DBinOp<DPortTokens<CI>,E,DOpBinGe> > {
+struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
+{
   typedef void result_type;
 
   static inline
-  result_type apply(const DBinOp<DPortTokens<CI>,E,DOpBinGe> &e) {
+  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> &e)
+  {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommSetup<DBinOp<DPortTokens<CI>,E,DOpBinGe> >"
                  "::apply(" << e.a.p << ", ... )" << std::endl;
@@ -209,15 +213,17 @@ struct CommSetup<DBinOp<DPortTokens<CI>,E,DOpBinGe> > {
 #endif
 
 template <class CI, typename T>
-struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,DOpBinGe> > {
+struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::DOpBinGe> >
+{
   typedef Detail::Process      match_type;
 
   typedef void                 result_type;
   typedef smoc_event_and_list &param1_type;
 
   static
-  void apply(const DBinOp<DPortTokens<CI>,DLiteral<T>,DOpBinGe> &e,
-             smoc_event_and_list &al) {
+  void apply(const DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::DOpBinGe> &e,
+             smoc_event_and_list &al)
+  {
     al &= e.a.getCI().blockEvent(Value<DLiteral<T> >::apply(e.b));
 //#ifdef SYSTEMOC_DEBUG
 //  std::cerr << "Sensitivity<DBinOp<DPortTokens<CI>,E,DOpBinGe> >::apply al == " << al << std::endl;
@@ -226,11 +232,13 @@ struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,DOpBinGe> > {
 };
 
 template <class CI, class E>
-struct Value<DBinOp<DPortTokens<CI>,E,DOpBinGe> > {
+struct Value<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
+{
   typedef Expr::Detail::ENABLED result_type;
 
   static inline
-  result_type apply(const DBinOp<DPortTokens<CI>,E,DOpBinGe> &e) {
+  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> &e)
+  {
 #ifndef NDEBUG
     size_t req = Value<E>::apply(e.b);
     assert(e.a.getCI().availableCount() >= req);
@@ -286,7 +294,7 @@ struct AST<DComm<CI,E> > {
 
   static inline
   result_type apply(const DComm<CI,E> &e)
-    { return PASTNode(new ASTNodeComm(e.p, AST<E>::apply(e.e))); }
+    { return PASTNode(new Expr::ASTNodeComm(e.p, AST<E>::apply(e.e))); }
 };
 
 template <class CI, class E>

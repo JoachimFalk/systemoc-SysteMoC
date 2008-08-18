@@ -55,6 +55,9 @@
 #include <CoSupport/DataTypes/oneof.hpp>
 #include <CoSupport/Lambda/functor.hpp>
 #include <CoSupport/commondefs.h>
+
+#include <boost/typeof/typeof.hpp>
+
 /****************************************************************************
  * dexpr.h
  *
@@ -159,11 +162,13 @@ class D;
  */
 
 template <class E>
-struct AST {};
+class AST {};
 
 // Default do nothing
 template <class E>
-struct CommExec {
+class CommExec
+{
+public:
   typedef Detail::Ignore          match_type;
 
   typedef void                    result_type;
@@ -182,7 +187,9 @@ struct CommExec {
 #ifndef NDEBUG
 // Default do nothing
 template <class E>
-struct CommReset {
+class CommReset
+{
+public:
   typedef void result_type;
 
   static inline
@@ -191,7 +198,9 @@ struct CommReset {
 
 // Default do nothing
 template <class E>
-struct CommSetup {
+class CommSetup
+{
+public:
   typedef void result_type;
 
   static inline
@@ -201,7 +210,9 @@ struct CommSetup {
 
 // Default do nothing
 template <class E>
-struct Sensitivity {
+class Sensitivity
+{
+public:
   typedef Detail::Ignore       match_type;
 
   typedef void                 result_type;
@@ -217,7 +228,7 @@ struct Sensitivity {
 
 // Default is invalid
 template <class E>
-struct Value {};
+class Value {};
 
 /****************************************************************************
  * Expr evalTo helper functions
@@ -250,7 +261,8 @@ typename Z<E>::result_type evalTo(const D<E> &e,
  */
 
 template<class E>
-class DBase {
+class DBase
+{
 public:
   typedef E             expr_type;
   typedef D<expr_type>  this_type;
@@ -264,7 +276,9 @@ public:
 };
 
 template<class E>
-struct D: public DBase<E> {
+class D: public DBase<E>
+{
+public:
   D(const E& e): DBase<E>(e) {}
 };
 
@@ -273,7 +287,8 @@ struct D: public DBase<E> {
  */
 
 template <typename T>
-class DVirtual {
+class DVirtual
+{
 public:
   typedef DVirtual<T>  this_type;
 
@@ -346,7 +361,9 @@ public:
 };
 
 template <typename T>
-struct AST<DVirtual<T> > {
+class AST<DVirtual<T> >
+{
+public:
   typedef PASTNode result_type;
   
   static inline
@@ -355,7 +372,9 @@ struct AST<DVirtual<T> > {
 };
 
 template <typename T>
-struct CommExec<DVirtual<T> > {
+class CommExec<DVirtual<T> >
+{
+public:
   typedef Detail::Process         match_type;
 
   typedef void                    result_type;
@@ -383,7 +402,9 @@ struct CommExec<DVirtual<T> > {
 
 #ifndef NDEBUG
 template <typename T>
-struct CommReset<DVirtual<T> > {
+class CommReset<DVirtual<T> >
+{
+public:
   typedef void result_type;
   
   static inline
@@ -396,7 +417,9 @@ struct CommReset<DVirtual<T> > {
 };
 
 template <typename T>
-struct CommSetup<DVirtual<T> > {
+class CommSetup<DVirtual<T> >
+{
+public:
   typedef void result_type;
   
   static inline
@@ -410,7 +433,9 @@ struct CommSetup<DVirtual<T> > {
 #endif
 
 template <typename T>
-struct Sensitivity<DVirtual<T> > {
+class Sensitivity<DVirtual<T> >
+{
+public:
   typedef Detail::Process      match_type;
  
   typedef void                 result_type;
@@ -426,7 +451,9 @@ struct Sensitivity<DVirtual<T> > {
 };
 
 template <typename T>
-struct Value<DVirtual<T> > {
+class Value<DVirtual<T> >
+{
+public:
   typedef T result_type;
   
   static inline
@@ -448,7 +475,8 @@ struct Ex { typedef D<DVirtual<T> > type; };
  */
 
 template<typename T>
-class DVar {
+class DVar
+{
 public:
   typedef DVar<T> this_type;
 
@@ -469,18 +497,22 @@ public:
 };
 
 template <typename T>
-struct AST<DVar<T> > {
+class AST<DVar<T> >
+{
+public:
   typedef PASTNode result_type;
   
   static inline
   PASTNode apply(const DVar <T> &e) {
     //std::cerr << "AST<DVar<T> >: Was here !!!" << std::endl;
-    return PASTNode(new ASTNodeVar(TypeSymbolIdentifier(e.x,e.name)));
+    return PASTNode(new Expr::ASTNodeVar(TypeSymbolIdentifier(e.x,e.name)));
   }
 };
 
 template <typename T>
-struct Value<DVar<T> > {
+class Value<DVar<T> >
+{
+public:
   typedef T result_type;
   
   static inline
@@ -507,7 +539,8 @@ typename Var<T>::type var(T &x, const char *name = NULL)
  */
 
 template<typename T>
-class DLiteral {
+class DLiteral
+{
 public:
   typedef DLiteral<T> this_type;
 
@@ -528,7 +561,8 @@ public:
 };
 
 template<typename T>
-class DLiteral<Detail::ParamWrapper<T> > {
+class DLiteral<Detail::ParamWrapper<T> >
+{
 public:
   typedef DLiteral<Detail::ParamWrapper<T> >  this_type;
   
@@ -549,18 +583,21 @@ public:
 };
 
 template <typename T>
-struct AST<DLiteral<T> > {
+class AST<DLiteral<T> >
+{
+public:
   typedef PASTNode result_type;
   
   static inline
   PASTNode apply(const DLiteral <T> &e) {
-    return PASTNode(new ASTNodeLiteral(
-      SysteMoC::ActivationPattern::ValueTypeContainer(e.v)));
+    return PASTNode(new Expr::ASTNodeLiteral(Expr::ValueTypeContainer(e.v)));
   }
 };
 
 template <typename T>
-struct Value<DLiteral<T> > {
+class Value<DLiteral<T> >
+{
+public:
   typedef T result_type;
   
   static inline
@@ -587,7 +624,8 @@ typename Literal<T>::type literal(const T &v)
  */
 
 template<typename T>
-class DProc {
+class DProc
+{
 public:
   typedef DProc<T>  this_type;
 
@@ -606,16 +644,20 @@ public:
 };
 
 template <typename T>
-struct AST<DProc<T> > {
+class AST<DProc<T> >
+{
+public:
   typedef PASTNode result_type;
   
   static inline
   PASTNode apply(const DProc <T> &e)
-    { return PASTNode(new ASTNodeProc(e.f)); }
+    { return PASTNode(new Expr::ASTNodeProc(e.f)); }
 };
 
 template <typename T>
-struct Value<DProc<T> > {
+class Value<DProc<T> >
+{
+public:
   typedef T result_type;
   
   static inline
@@ -641,7 +683,8 @@ typename Proc<T>::type call(T (*f)())
  */
 
 template<typename T, class X>
-class DMemProc {
+class DMemProc
+{
 public:
   typedef DMemProc<T,X> this_type;
   
@@ -661,16 +704,20 @@ public:
 };
 
 template <typename T, class X>
-struct AST<DMemProc<T,X> > {
+class AST<DMemProc<T,X> >
+{
+public:
   typedef PASTNode result_type;
   
   static inline
   PASTNode apply(const DMemProc <T,X> &e)
-    { return PASTNode(new ASTNodeMemProc(e.o,e.m)); }
+    { return PASTNode(new Expr::ASTNodeMemProc(e.o,e.m)); }
 };
 
 template <typename T, class X>
-struct Value<DMemProc<T,X> > {
+class Value<DMemProc<T,X> >
+{
+public:
   typedef T result_type;
   
   static inline
@@ -696,7 +743,8 @@ typename MemProc<T,X>::type call(X *o, T (X::*m)())
  */
 
 template<class F, class PL>
-class DMemGuard {
+class DMemGuard
+{
 public:
   typedef DMemGuard<F,PL> this_type;
   
@@ -719,21 +767,23 @@ public:
 
 
 template<class F, class PL>
-struct AST<DMemGuard<F,PL> > {
+class AST<DMemGuard<F,PL> >
+{
+public:
   typedef PASTNode result_type;
   
   static inline
   PASTNode apply(const DMemGuard <F,PL> &e) {
     ParamInfoVisitor piv;
     e.f.paramListVisit(e.pl, piv);
-    return PASTNode(new ASTNodeMemGuard(
-      SysteMoC::ActivationPattern::TypeSymbolIdentifier(e.f),
-      piv.pil));
+    return PASTNode(new Expr::ASTNodeMemGuard(Expr::TypeSymbolIdentifier(e.f), piv.pil));
   }
 };
 
 template<class F, class PL>
-struct Value<DMemGuard<F,PL> > {
+class Value<DMemGuard<F,PL> >
+{
+public:
   typedef typename F::return_type result_type;
   
   static inline
@@ -771,7 +821,8 @@ typename MemGuard<F>::type guard(const X *o, const F &f, const char *name = "") 
  */
 
 template<class A, class B, _OpBinT Op>
-class DBinOp {
+class DBinOp
+{
 public:
   typedef DBinOp<A,B,Op> this_type;
 
@@ -810,7 +861,8 @@ class DBinOpExecute;
 template<typename TA, typename TB>                                    \
 struct DBinOpExecute<TA,TB,Op,Value> {                                \
   typedef DBinOpExecute<TA,TB,Op,Value>                 this_type;    \
-  typedef typeof((*(TA*)(NULL)) op (*(TB*)(NULL)))      result_type;  \
+  BOOST_TYPEOF_NESTED_TYPEDEF_TPL(nested, (*(TA*)(NULL)) op (*(TB*)(NULL))) \
+  typedef typename nested::type result_type;                          \
                                                                       \
   template <class A, class B>                                         \
   static inline                                                       \
@@ -819,7 +871,9 @@ struct DBinOpExecute<TA,TB,Op,Value> {                                \
 };
 
 template <class A, class B, _OpBinT Op>
-struct AST<DBinOp<A,B,Op> > {
+class AST<DBinOp<A,B,Op> >
+{
+public:
   typedef PASTNode result_type;
   
   static inline
@@ -828,18 +882,20 @@ struct AST<DBinOp<A,B,Op> > {
                 << typeid(A).name() << ","
                 << typeid(B).name() << ","
                 << Op << "> >: Was here !!!" << std::endl;*/
-    return PASTNode(new ASTNodeBinOp(
+    return PASTNode(new Expr::ASTNodeBinOp(
         Type<typename Value<DBinOp<A,B,Op> >::result_type>(), Op,
         AST<A>::apply(e.a), AST<B>::apply(e.b)));
   }
 };
 
 template <class A, class B>
-struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
+class CommExec<DBinOp<A,B,Expr::DOpBinLAnd> >
+{
+public:
   typedef DBinOpExecute<
     typename CommExec<A>::match_type,
     typename CommExec<B>::match_type,
-    DOpBinLAnd, Expr::CommExec>           OpT;
+    Expr::DOpBinLAnd,Expr::CommExec>      OpT;
   typedef typename OpT::match_type        match_type;
 
   typedef void                            result_type;
@@ -848,7 +904,9 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
   typedef const smoc_ref_event_p &param2_type;
 
   static inline
-  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e, const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent) {
+  result_type apply(const DBinOp<A,B,Expr::DOpBinLAnd> &e,
+    const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent)
+  {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
 # endif
@@ -856,7 +914,8 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
   }
 #else // !SYSTEMOC_ENABLE_VPC
   static inline
-  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
+  result_type apply(const DBinOp<A,B,Expr::DOpBinLAnd> &e)
+  {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
 # endif
@@ -867,11 +926,14 @@ struct CommExec<DBinOp<A,B,DOpBinLAnd> > {
 
 #ifndef NDEBUG
 template <class A, class B>
-struct CommReset<DBinOp<A,B,DOpBinLAnd> > {
+class CommReset<DBinOp<A,B,Expr::DOpBinLAnd> >
+{
+public:
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
+  result_type apply(const DBinOp<A,B,Expr::DOpBinLAnd> &e)
+  {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommReset<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
 # endif
@@ -881,11 +943,14 @@ struct CommReset<DBinOp<A,B,DOpBinLAnd> > {
 };
 
 template <class A, class B>
-struct CommSetup<DBinOp<A,B,DOpBinLAnd> > {
+class CommSetup<DBinOp<A,B,Expr::DOpBinLAnd> >
+{
+public:
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,DOpBinLAnd> &e) {
+  result_type apply(const DBinOp<A,B,Expr::DOpBinLAnd> &e)
+  {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommSetup<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
 # endif
@@ -896,7 +961,9 @@ struct CommSetup<DBinOp<A,B,DOpBinLAnd> > {
 #endif
 
 template <class A, class B, _OpBinT Op>
-struct Sensitivity<DBinOp<A,B,Op> > {
+class Sensitivity<DBinOp<A,B,Op> >
+{
+public:
   typedef DBinOpExecute<
     typename Sensitivity<A>::match_type,
     typename Sensitivity<B>::match_type,
@@ -916,7 +983,9 @@ struct Sensitivity<DBinOp<A,B,Op> > {
 };
 
 template <class A, class B, _OpBinT Op>
-struct Value<DBinOp<A,B,Op> > {
+class Value<DBinOp<A,B,Op> >
+{
+public:
   typedef DBinOpExecute<
     typename Value<A>::result_type,
     typename Value<B>::result_type,
@@ -933,7 +1002,8 @@ struct Value<DBinOp<A,B,Op> > {
  */
 
 template <class A, class B, _OpBinT Op>
-class DOpBinConstruct {
+class DOpBinConstruct
+{
 public:
   typedef D<DBinOp<A,B,Op> >  result_type;
   
@@ -965,7 +1035,7 @@ operator op (const TA &a, const D<B> &b) {                      \
     apply(DLiteral<TA>(a),b.getExpr());                         \
 }
 
-#define DOP(name,op) DBINOPEXECUTE(DOpBin##name,op) DOPBIN(DOpBin##name,op)
+#define DOP(name,op) DBINOPEXECUTE(Expr::DOpBin##name,op) DOPBIN(Expr::DOpBin##name,op)
 
 DOP(Add,+)
 DOP(Sub,-)
@@ -1007,7 +1077,8 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Process,Detail::Ignore,DOpBinLAnd,CommExec> {
+struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::DOpBinLAnd,CommExec>
+{
   typedef Detail::Process match_type;
 
   template <class A, class B>
@@ -1024,7 +1095,8 @@ struct DBinOpExecute<Detail::Process,Detail::Ignore,DOpBinLAnd,CommExec> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Ignore,Detail::Process,DOpBinLAnd,CommExec> {
+struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::DOpBinLAnd,CommExec>
+{
   typedef Detail::Process match_type;
 
   template <class A, class B>
@@ -1041,7 +1113,8 @@ struct DBinOpExecute<Detail::Ignore,Detail::Process,DOpBinLAnd,CommExec> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Process,Detail::Process,DOpBinLAnd,CommExec> {
+struct DBinOpExecute<Detail::Process,Detail::Process,Expr::DOpBinLAnd,CommExec>
+{
   typedef Detail::Process match_type;
 
   template <class A, class B>
@@ -1073,7 +1146,8 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,Sensitivity> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Process,Detail::Ignore,DOpBinLAnd,Sensitivity> {
+struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::DOpBinLAnd,Sensitivity>
+{
   typedef Detail::Process match_type;
 
   template <class A, class B>
@@ -1083,7 +1157,8 @@ struct DBinOpExecute<Detail::Process,Detail::Ignore,DOpBinLAnd,Sensitivity> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Ignore,Detail::Process,DOpBinLAnd,Sensitivity> {
+struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::DOpBinLAnd,Sensitivity>
+{
   typedef Detail::Process match_type;
 
   template <class A, class B>
@@ -1093,7 +1168,8 @@ struct DBinOpExecute<Detail::Ignore,Detail::Process,DOpBinLAnd,Sensitivity> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Process,Detail::Process,DOpBinLAnd,Sensitivity> {
+struct DBinOpExecute<Detail::Process,Detail::Process,Expr::DOpBinLAnd,Sensitivity>
+{
   typedef Detail::Process match_type;
 
   template <class A, class B>
@@ -1103,7 +1179,8 @@ struct DBinOpExecute<Detail::Process,Detail::Process,DOpBinLAnd,Sensitivity> {
 };
 
 template <>
-struct DBinOpExecute<Detail::ENABLED,bool,DOpBinLAnd,Value> {
+struct DBinOpExecute<Detail::ENABLED,bool,Expr::DOpBinLAnd,Value>
+{
   typedef bool result_type;
 
   template <class A, class B>
@@ -1117,7 +1194,8 @@ struct DBinOpExecute<Detail::ENABLED,bool,DOpBinLAnd,Value> {
 };
 
 template <>
-struct DBinOpExecute<bool,Detail::ENABLED,DOpBinLAnd,Value> {
+struct DBinOpExecute<bool,Detail::ENABLED,Expr::DOpBinLAnd,Value>
+{
   typedef bool result_type;
 
   template <class A, class B>
@@ -1132,7 +1210,8 @@ struct DBinOpExecute<bool,Detail::ENABLED,DOpBinLAnd,Value> {
 };
 
 template <>
-struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,DOpBinLAnd,Value> {
+struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,Expr::DOpBinLAnd,Value>
+{
   typedef Detail::ENABLED result_type;
 
   template <class A, class B>
@@ -1148,11 +1227,13 @@ struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,DOpBinLAnd,Value> {
 
 /* DOpBinField Operator */
 
-DBINOPEXECUTE(DOpBinField,.*)
+DBINOPEXECUTE(Expr::DOpBinField,.*)
 
 // Make a convenient typedef for the field op.
 template <class A, typename V>
-struct Field { typedef D<DBinOp<A,DLiteral<V A::value_type::*>,DOpBinField> > type; };
+struct Field {
+  typedef D<DBinOp<A,DLiteral<V A::value_type::*>,Expr::DOpBinField> > type;
+};
 
 template <class A, typename V>
 typename Field<A,V>::type
@@ -1167,7 +1248,8 @@ field(const D<A> &a, V A::value_type::* b) {
  */
 
 template<class E, _OpUnT Op>
-class DUnOp {
+class DUnOp
+{
 public:
   typedef DUnOp<E,Op> this_type;
 
@@ -1205,7 +1287,8 @@ class DUnOpExecute;
 template<typename TE>                                                 \
 struct DUnOpExecute<TE,Op,Value> {                                    \
   typedef DUnOpExecute<TE,Op,Value>   this_type;                      \
-  typedef typeof(op (*(TE*)(NULL)))   result_type;                    \
+  BOOST_TYPEOF_NESTED_TYPEDEF_TPL(nested, op (*(TE*)(NULL)))          \
+  typedef typename nested::type result_type;                          \
                                                                       \
   template <class E>                                                  \
   static inline                                                       \
@@ -1214,7 +1297,9 @@ struct DUnOpExecute<TE,Op,Value> {                                    \
 };
 
 template <class E, _OpUnT Op>
-struct AST<DUnOp<E,Op> > {
+class AST<DUnOp<E,Op> >
+{
+public:
   typedef PASTNode result_type;
 
   static inline
@@ -1222,14 +1307,16 @@ struct AST<DUnOp<E,Op> > {
    /* std::cerr << "AST<DUnOp<"
                 << typeid(E).name() << ","
                 << Op << "> >: Was here !!!" << std::endl;*/
-    return PASTNode(new ASTNodeUnOp(
+    return PASTNode(new Expr::ASTNodeUnOp(
         Type<typename Value<DUnOp<E,Op> >::result_type>(), Op,
         AST<E>::apply(e.e)));
   }
 };
 
 template <class E, _OpUnT Op>
-struct Value<DUnOp<E,Op> > {
+class Value<DUnOp<E,Op> >
+{
+public:
   typedef DUnOpExecute<
     typename Value<E>::result_type,
     Op, Expr::Value>                      OpT;
@@ -1245,7 +1332,8 @@ struct Value<DUnOp<E,Op> > {
  */
 
 template <class E, _OpUnT Op>
-class DOpUnConstruct {
+class DOpUnConstruct
+{
 public:
   typedef D<DUnOp<E,Op> > result_type;
   
@@ -1262,7 +1350,7 @@ operator op (const D<E> &e) {                                   \
   return DOpUnConstruct<E,name>::apply(e.getExpr());            \
 }
 
-#define DOP(name,op) DUNOPEXECUTE(DOpUn##name,op) DOPUN(DOpUn##name,op)
+#define DOP(name,op) DUNOPEXECUTE(Expr::DOpUn##name,op) DOPUN(Expr::DOpUn##name,op)
 
 DOP(LNot,!)
 DOP(BNot,~)
@@ -1275,7 +1363,8 @@ DOP(DeRef,*)
 /* DOpUnType Operator */
 
 template<class TE>
-struct DUnOpExecute<TE,DOpUnType,Value> {
+struct DUnOpExecute<TE,Expr::DOpUnType,Value>
+{
   typedef unsigned int result_type;
 
   template <class E>
@@ -1285,10 +1374,10 @@ struct DUnOpExecute<TE,DOpUnType,Value> {
 };
 
 template <class TO, class A>
-D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<unsigned int>,DOpBinEq> >
+D<DBinOp<DUnOp<A,Expr::DOpUnType>,DLiteral<unsigned int>,Expr::DOpBinEq> >
 isType(const D<A> &a) {
-  return D<DBinOp<DUnOp<A,DOpUnType>,DLiteral<unsigned int>,DOpBinEq> >(
-    DUnOp<A,DOpUnType>(a.getExpr()),
+  return D<DBinOp<DUnOp<A,Expr::DOpUnType>,DLiteral<unsigned int>,Expr::DOpBinEq> >(
+    DUnOp<A,Expr::DOpUnType>(a.getExpr()),
     DLiteral<unsigned int>(CoSupport::DataTypes::oneofTypeid<typename A::value_type,TO>::type)
   );
 }

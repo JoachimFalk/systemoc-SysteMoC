@@ -139,7 +139,7 @@ class smoc_multicast_sr_signal_chan;
 template <typename T>
 class smoc_multicast_outlet
   : public smoc_multicast_outlet_base,
-    public smoc_chan_in_if<T,smoc_channel_access_if>,
+    public smoc_chan_in_if<T,::smoc_channel_access_if>,
     public smoc_channel_access_if<typename smoc_storage_in<T>::return_type>
 {
 public:
@@ -148,7 +148,7 @@ public:
   typedef smoc_multicast_outlet<data_type>        this_type;
   typedef typename this_type::access_in_type      ring_in_type;
   typedef typename this_type::return_type         return_type;
-  typedef smoc_chan_in_if<T,smoc_channel_access_if>  iface_type;
+  typedef smoc_chan_in_if<T,::smoc_channel_access_if>  iface_type;
   
   /// @brief Constructor
   smoc_multicast_outlet(smoc_multicast_sr_signal_chan<T>* chan)
@@ -235,7 +235,7 @@ private:
 template <typename T>
 class smoc_multicast_entry
 : public smoc_multicast_entry_base,
-  public smoc_chan_out_if<T,smoc_channel_access_if>,
+  public smoc_chan_out_if<T,::smoc_channel_access_if>,
   public smoc_channel_access_if<typename smoc_storage_out<T>::return_type>
 {
 public:
@@ -244,7 +244,7 @@ public:
   typedef smoc_storage<data_type>                 storage_type;
   typedef typename this_type::access_out_type     ring_out_type;
   typedef typename this_type::return_type         return_type;
-  typedef smoc_chan_out_if<T,smoc_channel_access_if> iface_type;
+  typedef smoc_chan_out_if<T,::smoc_channel_access_if> iface_type;
   
   /// @brief Constructor
   smoc_multicast_entry(smoc_multicast_sr_signal_chan<T>* chan)
