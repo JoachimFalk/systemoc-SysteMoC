@@ -102,11 +102,13 @@ int smoc_elab_and_sim(int _argc, char* _argv[]) {
       CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
       SysteMoC::NGXSync::NGXConfig::getInstance().loadNGX(in);
     }
+#ifdef SYSTEMOC_ENABLE_VPC
     else if(i->string_key == "vpc-config") {
       assert(!i->value.empty());
       
       setenv("VPCCONFIGURATION", i->value.front().c_str(), 1);
     }
+#endif
     else if(i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
           j != i->original_tokens.end();
