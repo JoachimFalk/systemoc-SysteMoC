@@ -40,4 +40,7 @@ __attribute__((noreturn))
 #endif
 const sc_event& smoc_default_event_abort() {
   assert(!"smoc_default_event_abort");
+#ifdef _MSC_VER
+  return *((sc_event*)(NULL));
+#endif
 }
