@@ -41,7 +41,7 @@ using namespace SysteMoC::NGXSync;
 
 smoc_sysc_port::smoc_sysc_port(const char* name_)
   : sc_port_base(name_, 1),
-    interface(NULL),
+    interfacePtr(NULL),
     channelAccess(NULL),
     parent(NULL), child(NULL) {
   idPool.regObj(this);
