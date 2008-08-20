@@ -36,6 +36,7 @@ compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
 AM_CPPFLAGS =					\
 	@AM_CPPFLAGS@				\
 	@SYSTEMC_INCLUDE@			\
+	@XERCES_INCLUDE@			\
 	@COSUPPORT_INCLUDE@			\
 	@LIBWSDF_INCLUDE@			\
 	@LIBSGX_INCLUDE@			\
@@ -47,6 +48,7 @@ AM_CPPFLAGS =					\
 AM_LDFLAGS=				\
 	@AM_LDFLAGS@			\
 	@SYSTEMC_LDFLAGS@		\
+	@XERCES_LDFLAGS@		\
 	@COSUPPORT_LDFLAGS@		\
 	@LIBSGX_LDFLAGS@		\
 	@BOOST_LDFLAGS@
