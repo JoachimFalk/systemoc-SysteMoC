@@ -43,7 +43,11 @@ void MultiHopEvent::compute( FastLink * task ){
   this->task = task;
   assert(task);
   if(readList.empty()){
-    task->compute(this->taskEvents);
+    if(writeList.empty()) {
+      this->task->compute(this->taskEvents);
+    } else {
+      this->task->compute(EventPair( this->taskEvents.dii, &computeLatency ));
+    }
   } else {
     for(Transactions::iterator iter = readTransactions.begin();
         iter != readTransactions.end();
