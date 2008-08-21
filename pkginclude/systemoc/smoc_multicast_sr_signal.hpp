@@ -165,6 +165,10 @@ public:
 
   void multipleWriteSameValue(bool allow);
 
+  smoc_root_chan * getRootChan(){
+    return this->_base;
+  }
+
 protected:
   bool multipleWrite;
   smoc_multicast_sr_signal_kind* _base;

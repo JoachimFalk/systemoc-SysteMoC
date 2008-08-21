@@ -469,6 +469,13 @@ void smoc_firing_types::transition_ty::execute(
         //          << " chan=" << chan->name() << std::endl;
       } else if( chan != NULL && !port->isInput() ){
         hopEvent->addOutputChannel(chan, i->second);
+      } else if(  NULL != dynamic_cast<smoc_entry_kind *>( port->get_interface() ) ) {
+         smoc_root_chan * chan = dynamic_cast<smoc_entry_kind *>( port->get_interface() )->getRootChan();
+         assert(!port->isInput());
+         hopEvent->addOutputChannel(chan, i->second);
+         //std::cerr << "entry: " << port->name() <<" commitCount: " << i->second
+         //         << " chan=" << chan->name() << std::endl;
+
       }
     }
     hopEvent->setTaskEvents(p);
