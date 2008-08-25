@@ -81,7 +81,7 @@ if test x"$enable_wsdf" != x"no"; then
   ACJF_CHECK_LIB_WSDF(
    [enable_wsdf="yes"],
    [if test x"$enable_wsdf" = x"yes"; then
-      AC_MSG_ERROR([cannot find LibWSDF package in source tree, bailing out])
+      AC_MSG_ERROR([cannot find LibWSDF package, bailing out])
     fi
     enable_wsdf="no"])
 fi
@@ -105,15 +105,15 @@ if test x"$enable_vpc" != x"no"; then
   ACJF_CHECK_LIB_SYSTEMC_VPC(
    [enable_vpc="yes";],
    [if test x"$enable_vpc" = x"yes"; then
-      AC_MSG_ERROR([cannot find SystemC-VPC package in source tree, bailing out])
+      AC_MSG_ERROR([cannot find SystemC-VPC package, bailing out])
     fi
     enable_vpc="no"])
 fi
 
-AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$pkg_systemc_vpc_srcdir" != "x"])
+AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$enable_vpc" = x"yes"])
 # This is a define for pkginclude/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
-if test x"$pkg_systemc_vpc_srcdir" != "x"; then
+if test x"$enable_vpc" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Define if you want SystemC-VPC Support])
 fi
 
