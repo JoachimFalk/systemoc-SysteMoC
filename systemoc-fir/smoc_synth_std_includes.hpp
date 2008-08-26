@@ -36,10 +36,9 @@
 #define INCLUDED_SMOC_SYNTH_STD_INCLUDES
 
 #include <vector>
+#include <iostream>
 
 using namespace std;
-
-
 
 namespace initializer{
 
