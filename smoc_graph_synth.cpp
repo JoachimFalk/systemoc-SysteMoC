@@ -58,23 +58,27 @@ typedef boost::variant<boost::blank, Port::ConstPtr, size_t> PortReqVar;
 /**
  * collect port token requirements from AST
  */
-class PortReqVisitor : public ASTNodeVisitor<PortReqVar> {
+class PortReqVisitor {
 public:
+  typedef PortReqVar result_type;
+  
   // return collected port requirements
   const PortReqMap& getResult() const
   { return portReq; }
 
-protected:
+  PortReqVar apply(const ASTNode::Ptr& n)
+  { return apply_visitor(*this, n); }
+
   // see ASTNodeVisitor
-  PortReqVar operator()(ASTNodePortTokens& n)
+  PortReqVar operator()(const ASTNodePortTokens& n)
   { return n.port(); }
 
   // see ASTNodeVisitor
-  PortReqVar operator()(ASTNodeLiteral& n)
+  PortReqVar operator()(const ASTNodeLiteral& n)
   { return CoSupport::String::strAs<size_t>(n.value().get()); }
 
   // see ASTNodeVisitor
-  PortReqVar operator()(ASTNodeBinOp& n) {
+  PortReqVar operator()(const ASTNodeBinOp& n) {
     analyzeBinOpNode(
         apply(n.leftNode()),
         apply(n.rightNode()));
@@ -82,18 +86,26 @@ protected:
   }
 
   // see ASTNodeVisitor
-  PortReqVar operator()(ASTNodeUnOp& n) {
+  PortReqVar operator()(const ASTNodeUnOp& n) {
     apply(n.childNode());
     return boost::blank();
   }
 
   // see ASTNodeVisitor
-  PortReqVar operator()(ASTNodeComm& n) {
+  PortReqVar operator()(const ASTNodeComm& n) {
     analyzeCommNode(
         n.port(),
         apply(n.childNode()));
     return boost::blank();
   }
+
+  template<_OpBinT op>
+  PortReqVar operator()(const ASTNodeBinOpXXX<op> &obj)
+  { return (*this)(static_cast<const ASTNodeBinOp&>(obj)); }
+
+  template<class T>
+  PortReqVar operator()(const T& t)
+  { return boost::blank(); }
 
 private:
   // collected port requirements
@@ -415,7 +427,7 @@ void smoc_graph_synth::generateFSM() {
            // cluster i/o-port requirements (no commit)
            apClusterIO
            //prepare action for execution
-        >> CALL(smoc_graph_synth::prepareExecute)(t.complexAction())
+        >> CALL(smoc_graph_synth::prepareExecute)(t.action())
         >> setup;
 
       setup =
