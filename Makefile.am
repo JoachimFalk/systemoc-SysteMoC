@@ -53,65 +53,11 @@ AM_LDFLAGS=				\
 	@LIBSGX_LDFLAGS@		\
 	@BOOST_LDFLAGS@
 
-#noinst_SCRIPTS  = test_pathstuff.sh
-
-EXTRA_DIST	=
-
-#noinst_PROGRAMS = test_pathstuff
-
-PROGLDFLAGS=
-
 lib_LTLIBRARIES = libsystemoc.la
 
 libsystemoc_CH_LTOBJS=				\
 	$(smoc_firing_rules_hpp_CH_LTOBJS)	\
 	$(smoc_pggen_hpp_CH_LTOBJS)
-
-libsystemoc_la_CPPFLAGS = $(AM_CPPFLAGS)
-libsystemoc_la_LDFLAGS = $(AM_LDFLAGS)				\
-	-version-info 0:0:0 					\
-	-no-undefined 						\
-	-lsystemc 						\
-	-lboost_program_options@BOOST_LIBPOSTFIX@		\
-	-lsgx							\
-	-lcosupport-systemc					\
-	-lcosupport-streams					\
-	-lcosupport-smartptr
-libsystemoc_la_LIBADD = 					\
-	$(libsystemoc_CH_LTOBJS)
-libsystemoc_la_DEPENDENCIES =					\
-	compileheader-libsystemoc.stamp				\
-	$(libsystemoc_CH_LTOBJS)
-if PKG_COSUPPORT_USE_SRCDIR_VERSION
-libsystemoc_la_DEPENDENCIES +=					\
-	$(pkg_cosupport_builddir)/libcosupport-systemc.la	\
-	$(pkg_cosupport_builddir)/libcosupport-streams.la	\
-	$(pkg_cosupport_builddir)/libcosupport-smartptr.la
-endif
-if PKG_LIBSGX_USE_SRCDIR_VERSION
-libsystemoc_la_DEPENDENCIES +=					\
-	$(pkg_libsgx_builddir)/libsgx.la
-endif
-
-if SYSTEMOC_ENABLE_WSDF
-libsystemoc_la_LDFLAGS +=					\
-	@LIBWSDF_LDFLAGS@					\
-	-lwsdf
-if PKG_LIBWSDF_USE_SRCDIR_VERSION
-libsystemoc_la_DEPENDENCIES +=					\
-	$(pkg_libwsdf_builddir)/libwsdf.la
-endif
-endif
-
-if SYSTEMOC_ENABLE_VPC
-libsystemoc_la_LDFLAGS +=					\
-	@SYSTEMC_VPC_LDFLAGS@					\
-	-lsystemcvpc
-if PKG_SYSTEMC_VPC_USE_SRCDIR_VERSION
-libsystemoc_la_DEPENDENCIES +=					\
-	$(pkg_systemc_vpc_builddir)/libsystemcvpc.la
-endif
-endif
 
 libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\
@@ -139,12 +85,39 @@ libsystemoc_la_SOURCES =		\
 	hscd_tdsim_TraceLog.cpp
 
 if SYSTEMOC_ENABLE_WSDF
-libsystemoc_la_SOURCES +=		\
-	wsdf/smoc_md_buffer.cpp		\
-	wsdf/smoc_md_loop.cpp		\
-	wsdf/smoc_md_port.cpp \
-	wsdf/smoc_md_buffer_analysis.cpp \
-	wsdf/smoc_md_ba_linearized_buffer.cpp \
-	wsdf/smoc_md_ba_linearized_buffer_size.cpp \
+libsystemoc_la_SOURCES +=				\
+	wsdf/smoc_md_buffer.cpp				\
+	wsdf/smoc_md_loop.cpp				\
+	wsdf/smoc_md_port.cpp 				\
+	wsdf/smoc_md_buffer_analysis.cpp 		\
+	wsdf/smoc_md_ba_linearized_buffer.cpp	 	\
+	wsdf/smoc_md_ba_linearized_buffer_size.cpp 	\
 	wsdf/smoc_md_ba_linearized_buffer_schedule.cpp
 endif
+
+libsystemoc_la_LDFLAGS =					\
+	-version-info 0:0:0 					\
+	-no-undefined
+libsystemoc_la_LIBADD = 					\
+	$(libsystemoc_CH_LTOBJS)				\
+	-lsystemc 						\
+	-lboost_program_options@BOOST_LIBPOSTFIX@		\
+	@LIBSGX_LIBPATH@/libsgx.la				\
+	@COSUPPORT_LIBPATH@/libcosupport-systemc.la		\
+	@COSUPPORT_LIBPATH@/libcosupport-streams.la		\
+	@COSUPPORT_LIBPATH@/libcosupport-smartptr.la
+libsystemoc_la_DEPENDENCIES =					\
+	compileheader-libsystemoc.stamp
+
+if SYSTEMOC_ENABLE_WSDF
+libsystemoc_la_LIBADD +=					\
+	@LIBWSDF_LDFLAGS@					\
+	@LIBWSDF_LIBPATH@/libwsdf.la
+endif
+
+if SYSTEMOC_ENABLE_VPC
+libsystemoc_la_LIBADD +=					\
+	@SYSTEMC_VPC_LDFLAGS@					\
+	@SYSTEMC_VPC_LIBPATH@/libsystemcvpc.la
+endif
+
