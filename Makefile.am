@@ -30,9 +30,6 @@ SUBDIRS = pkginclude
 # This is only needed if there is a configure.in in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
-compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
-	@date > $@
-
 AM_CPPFLAGS =					\
 	@AM_CPPFLAGS@				\
 	@SYSTEMC_INCLUDE@			\
@@ -54,10 +51,6 @@ AM_LDFLAGS=				\
 	@BOOST_LDFLAGS@
 
 lib_LTLIBRARIES = libsystemoc.la
-
-libsystemoc_CH_LTOBJS=				\
-	$(smoc_firing_rules_hpp_CH_LTOBJS)	\
-	$(smoc_pggen_hpp_CH_LTOBJS)
 
 libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\
@@ -99,15 +92,12 @@ libsystemoc_la_LDFLAGS =					\
 	-version-info 0:0:0 					\
 	-no-undefined
 libsystemoc_la_LIBADD = 					\
-	$(libsystemoc_CH_LTOBJS)				\
 	-lsystemc 						\
 	-lboost_program_options@BOOST_LIBPOSTFIX@		\
 	@LIBSGX_LIBPATH@/libsgx.la				\
 	@COSUPPORT_LIBPATH@/libcosupport-systemc.la		\
 	@COSUPPORT_LIBPATH@/libcosupport-streams.la		\
 	@COSUPPORT_LIBPATH@/libcosupport-smartptr.la
-libsystemoc_la_DEPENDENCIES =					\
-	compileheader-libsystemoc.stamp
 
 if SYSTEMOC_ENABLE_WSDF
 libsystemoc_la_LIBADD +=					\
