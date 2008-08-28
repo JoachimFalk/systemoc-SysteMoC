@@ -32,9 +32,6 @@ ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
 pkgincludedir=$(includedir)/systemoc
 
-compileheader-libsystemoc.stamp: $(libsystemoc_CH_LTOBJS)
-	@date > $@
-
 AM_CPPFLAGS =					\
 	@AM_CPPFLAGS@				\
 	@SYSTEMC_INCLUDE@			\
@@ -115,27 +112,18 @@ pkginclude_HEADERS +=					\
 	pkginclude/systemoc/smoc_md_ba_linearized_buffer_schedule.hpp
 endif
 
-libsystemoc_CH_LTOBJS=				\
-	$(smoc_firing_rules_hpp_CH_LTOBJS)	\
-	$(smoc_pggen_hpp_CH_LTOBJS)
-
 libsystemoc_la_LDFLAGS =				\
 	-version-info 0:0:0 				\
 	-no-undefined 					\
 	-lsystemc 					\
 	-lboost_program_options@BOOST_LIBPOSTFIX@
 libsystemoc_la_LIBADD = 				\
-	$(libsystemoc_CH_LTOBJS)			\
 	$(pkg_support_builddir)/libcosupport-systemc.la	\
 	$(pkg_support_builddir)/libcosupport.la
 
 if SYSTEMOC_ENABLE_VPC
 libsystemoc_la_LIBADD += $(pkg_systemc_vpc_builddir)/libsystemcvpc.la
 endif
-
-libsystemoc_la_DEPENDENCIES =		\
-	$(libsystemoc_la_LIBADD)	\
-	compileheader-libsystemoc.stamp
 
 libsystemoc_la_SOURCES =		\
 	smoc_main.cpp			\
