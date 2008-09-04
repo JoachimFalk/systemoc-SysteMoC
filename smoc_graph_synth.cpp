@@ -101,7 +101,7 @@ public:
 
   template<_OpBinT op>
   PortReqVar operator()(const ASTNodeBinOpXXX<op> &obj)
-  { return (*this)(static_cast<const ASTNodeBinOp&>(obj)); }
+  { return (*this)(static_cast<const SGX::ASTNodeBinOp&>(obj)); }
 
   template<class T>
   PortReqVar operator()(const T& t)
