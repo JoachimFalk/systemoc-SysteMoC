@@ -353,7 +353,10 @@ namespace {
       closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodeSMOCEvent &astNode) {
-      assert(!"Unimplemented");
+      openNodeTag(astNode);
+      //assert(!"Unimplemented");
+      pgw << ">";
+      closeNodeTag(astNode);
     }
     result_type operator ()(ASTNodePortIteration &astNode) {
       //assert(!"Unimplemented");
