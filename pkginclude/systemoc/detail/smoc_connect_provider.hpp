@@ -39,6 +39,7 @@
 
 #include "../smoc_chan_if.hpp"
 #include "../smoc_chan_adapter.hpp"
+#include "../smoc_ngx_sync.hpp"
 
 template <typename DERIVED, typename CHANTYPE>
 class smoc_connect_provider {
@@ -91,20 +92,22 @@ public:
       typename Select<
         EntryAdapter::isAdapter,
         std::pair<EntryAdapter,smoc_port_registry::EntryTag>,
-      typename Select<
-        OutletAdapter::isAdapter,
-        std::pair<OutletAdapter,smoc_port_registry::OutletTag>,
-      No_Channel_Adapter_Found__Please_Use_Other_Interface
-      >::result_type
+        typename Select<
+          OutletAdapter::isAdapter,
+          std::pair<OutletAdapter,smoc_port_registry::OutletTag>,
+          No_Channel_Adapter_Found__Please_Use_Other_Interface
+        >::result_type
       >::result_type P;
 
     // corresponding types
     typedef typename P::first_type  Adapter;
     typedef typename P::second_type Tag;
-
+    
     typename Adapter::iface_impl_type *iface =
       dynamic_cast<typename Adapter::iface_impl_type*>(
           getDerived()->getChan()->smoc_port_registry::getIF<Tag>(&p));
+    SysteMoC::NGXSync::idPool.regObj(&p);
+    SysteMoC::NGXSync::idPool.regObj(&p, 1);
     assert(iface); p(*(new Adapter(*iface)));
     return *getDerived();
   }
