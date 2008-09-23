@@ -151,23 +151,28 @@ void smoc_nonconflicting_chan::finalise() {
 }
 
 void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
-  
   const EntryMap& entries = getEntries();
   const OutletMap& outlets = getOutlets();
-
+  
   assert(entries.size() == 1);
   assert(outlets.size() == 1);
-
+  
   // Get the Id for the channel
   IdAttr idChannel = idPool.printId(this);
-
+  
   // Get the Ids for the actor ports
   IdAttr idNodePortOut = idPool.printId(entries.begin()->second, 0);
   IdAttr idNodePortIn  = idPool.printId(outlets.begin()->second, 0);
-
+  
+  assert(idNodePortOut != 0);
+  assert(idNodePortIn  != 0);
+  
   // Get the Ids for the channel ports
   IdAttr idChannelPortIn  = idPool.printId(entries.begin()->second, 1);
   IdAttr idChannelPortOut = idPool.printId(outlets.begin()->second, 1);
+  
+  assert(idChannelPortIn  != 0);
+  assert(idChannelPortOut != 0);
   
   pgw << "<edge name=\""   << name() << ".to-edge\" "
                "source=\"" << idNodePortOut << "\" "
@@ -189,7 +194,7 @@ void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
     channelAttributes(pgw); // fifo size, etc...
     pgw.indentDown();
   }
-
+  
   pgw << "</process>" << std::endl;
   pgw << "<edge name=\""   << name() << ".from-edge\" "
                "source=\"" << idChannelPortOut << "\" "
