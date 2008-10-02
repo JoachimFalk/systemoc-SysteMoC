@@ -43,10 +43,10 @@
 
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
+#include "LatencyQueue.hpp"
 
 #include <systemc.h>
 #include <vector>
-#include <queue>
 #include <map>
 
 #include "hscd_tdsim_TraceLog.hpp"
@@ -134,83 +134,6 @@ public:
   }
 };
 
-class smoc_fifo_kind;
-
-#ifdef SYSTEMOC_ENABLE_VPC
-namespace smoc_detail {
-
-  class LatencyQueue {
-    friend class ::smoc_fifo_kind;
-  public:
-    typedef LatencyQueue this_type;
-  protected:
-    class RequestQueue
-    : public smoc_event_listener {
-    protected:
-      typedef std::pair<size_t, smoc_ref_event_p> Entry;
-      typedef std::queue<Entry>                   Queue;
-    protected:
-      Queue queue;
-
-      smoc_event dummy;
-    protected:
-      LatencyQueue &getTop() {
-        // MAGIC BEGINS HERE
-        return *reinterpret_cast<LatencyQueue *>
-          (reinterpret_cast<char *>(this) + 4711 -
-           reinterpret_cast<char *>
-            (&reinterpret_cast<LatencyQueue *>(4711)->requestQueue));
-      }
-
-      void doSomething(size_t n);
-
-      void signaled(smoc_event_waiter *_e) {
-        size_t n = 0;
-        
-        assert(*_e);
-        assert(!queue.empty());
-        assert(_e == &*queue.front().second);
-        _e->delListener(this);
-        do {
-          n += queue.front().first;
-          queue.pop(); // pop from front of queue
-        } while (!queue.empty() && *queue.front().second);
-        doSomething(n);
-        if (!queue.empty())
-          queue.front().second->addListener(this);
-        return;// false;
-      }
-
-      void eventDestroyed(smoc_event_waiter *_e)
-        { assert(!"eventDestroyed must never be called !!!"); }
-    public:
-      void addEntry(size_t n, const smoc_ref_event_p &le) {
-        bool queueEmpty = queue.empty();
-        
-        if (queueEmpty && (!le || *le)) {
-          doSomething(n);
-        } else {
-          queue.push(Entry(n, le)); // insert at back of queue
-          if (queueEmpty)
-            le->addListener(this);
-        }
-      }
-
-      virtual ~RequestQueue() {}
-    } requestQueue;
-
-    smoc_fifo_kind *fifo;
-  protected:
-    LatencyQueue(smoc_fifo_kind *fifo)
-      : fifo(fifo) {}
-
-    void addEntry(size_t n, const smoc_ref_event_p &le)
-      { requestQueue.addEntry(n, le); }
-  };
-
-} // namespace smoc_detail
-#endif // SYSTEMOC_ENABLE_VPC
-
 /// Base class of the FIFO implementation.
 /// The FIFO consists of a ring buffer of size fsize.
 /// However due to the ambiguity of rindex == windex
@@ -224,9 +147,6 @@ namespace smoc_detail {
 /// read, write, and visible pointers.
 class smoc_fifo_kind
 : public smoc_nonconflicting_chan {
-#ifdef SYSTEMOC_ENABLE_VPC
-  friend class smoc_detail::LatencyQueue::RequestQueue;
-#endif // SYSTEMOC_ENABLE_VPC
 public:
   typedef smoc_fifo_kind  this_type;
 

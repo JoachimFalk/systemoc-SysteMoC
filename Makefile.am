@@ -79,6 +79,7 @@ pkginclude_HEADERS =					\
 	pkginclude/systemoc/smoc_event.hpp		\
 	pkginclude/systemoc/smoc_storage.hpp		\
 							\
+	pkginclude/systemoc/LatencyQueue.hpp		\
 	pkginclude/systemoc/MultiHopEvent.hpp		\
 	pkginclude/systemoc/ChannelAccessListener.hpp   \
 	pkginclude/systemoc/hscd_tdsim_TraceLog.hpp	\
@@ -141,6 +142,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_guard.cpp			\
 	smoc_moc.cpp			\
 					\
+	LatencyQueue.cpp		\
 	MultiHopEvent.cpp		\
 	hscd_tdsim_TraceLog.cpp
 

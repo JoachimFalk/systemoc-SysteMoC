@@ -70,12 +70,7 @@ smoc_event &smoc_outlet_kind::getEventAvailable(size_t n) {
   }
 }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-void smoc_outlet_kind::wpp(size_t n, const smoc_ref_event_p &le)
-#else
-  void smoc_outlet_kind::wpp(size_t n)
-#endif
-{
+void smoc_outlet_kind::wpp(size_t n) {
   assert(n <= 1);
     
   this->_base->setSignalState(defined);
@@ -183,6 +178,9 @@ smoc_multicast_sr_signal_kind::smoc_multicast_sr_signal_kind(
     i.name != NULL ? i.name
     : sc_gen_unique_name( "smoc_multicast_sr_signal" ) ),
     signalState(undefined),
+#ifdef SYSTEMOC_ENABLE_VPC
+      latencyQueue(this), 
+#endif
     tokenId(0){
 }
 

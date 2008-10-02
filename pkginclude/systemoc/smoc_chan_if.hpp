@@ -265,6 +265,7 @@ public:
   const char *name() const { return myName.c_str(); }
   virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
   virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
+  virtual void latencyExpired(size_t n) {}
   
   virtual void finalise();
 

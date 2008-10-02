@@ -33,53 +33,13 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
-#include <systemoc/smoc_fifo.hpp>
-
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
-#endif //SYSTEMOC_ENABLE_VPC
-
-const char* const smoc_fifo_kind::kind_string = "smoc_fifo";
+#include <systemoc/LatencyQueue.hpp>
 
 namespace smoc_detail {
 #ifdef SYSTEMOC_ENABLE_VPC
 
-# ifdef SYSTEMOC_TRACE
-  struct DeferedTraceLogDumper
-  : public smoc_event_listener {
-    smoc_ref_event_p  event;
-    smoc_fifo_kind   *fifo;
-    const char       *mode;
-
-    void signaled(smoc_event_waiter *_e) {
-//    const char *name = fifo->name();
-      
-      TraceLog.traceStartActor(fifo, mode);
-#   ifdef SYSTEMOC_DEBUG
-      std::cerr << "smoc_detail::DeferedTraceLogDumper::signaled(...)" << std::endl;
-#   endif
-      assert(_e == event.get());
-      assert(*_e);
-      event = NULL;
-      TraceLog.traceEndActor(fifo);
-      return;
-    }
-    void eventDestroyed(smoc_event_waiter *_e) {
-#   ifdef SYSTEMOC_DEBUG
-      std::cerr << "smoc_detail::DeferedTraceLogDumper:: eventDestroyed(...)" << std::endl;
-#   endif
-      delete this;
-    }
-
-    DeferedTraceLogDumper
-      (const smoc_ref_event_p &event, smoc_fifo_kind *fifo, const char *mode)
-      : event(event), fifo(fifo), mode(mode) {};
- 
-    virtual ~DeferedTraceLogDumper() {}
-  };
-# endif
-
+  void LatencyQueue::RequestQueue::doSomething(size_t n) {
+    getTop().channel->latencyExpired(n);
+  }
 #endif // SYSTEMOC_ENABLE_VPC
 };
-

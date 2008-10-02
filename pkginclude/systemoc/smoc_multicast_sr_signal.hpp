@@ -25,10 +25,12 @@
 
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
+#include "LatencyQueue.hpp"
 
 #include <systemc.h>
 #include <vector>
 #include <queue>
+#include <list>
 #include <map>
 
 #include "hscd_tdsim_TraceLog.hpp"
@@ -96,6 +98,10 @@ protected:
 
   // constructors
   smoc_multicast_sr_signal_kind( const chan_init &i );
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  smoc_detail::LatencyQueue   latencyQueue;
+#endif
 private:
   static const char* const kind_string;
   
@@ -121,11 +127,7 @@ public:
 
   const char *name() const { return _base->name(); }
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  void wpp(size_t n, const smoc_ref_event_p &le);
-#else
   void wpp(size_t n);
-#endif
 
 protected:
   bool undefinedRead;
@@ -202,19 +204,19 @@ class smoc_multicast_outlet
   typedef typename this_type::return_type    return_type;
 public:
   smoc_multicast_outlet(smoc_multicast_sr_signal_kind* base,
-      storage_type &actualValue)
+      storage_type &outletValue)
     : smoc_outlet_kind(base),
-      actualValue(actualValue) {
+      outletValue(outletValue) {
     assert(this->_base);
   }
 
   return_type operator[](size_t n){
-    return actualValue;
+    return outletValue;
   }
 
   const return_type operator[](size_t n) const{
     assert(0); //should never be called on an input port
-    return actualValue;
+    return outletValue;
   }
 
   const char* name() const {
@@ -257,7 +259,7 @@ public:
 
   virtual void   registerChannelAccessListener(ChannelAccessListener * l){
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->actualValue.registerChannelAccessListener(l);
+    this->outletValue.registerChannelAccessListener(l);
 #endif // SYSTEMOC_ENABLE_VPC
   }
 
@@ -271,7 +273,7 @@ protected:
   }
 private:
   size_t         limit;
-  storage_type &actualValue;
+  storage_type &outletValue;
 
   // disabled
   const sc_event& default_event() const { return smoc_default_event_abort(); }
@@ -292,17 +294,17 @@ class smoc_multicast_entry
   typedef typename this_type::return_type      return_type;
 public:
   smoc_multicast_entry(smoc_multicast_sr_signal_kind* base,
-      storage_type &actualValue)
+      storage_type &entryValue)
     : smoc_entry_kind(base),
-      actualValue(actualValue) {}
+      entryValue(entryValue) {}
 
   return_type operator[](size_t n){
-    return actualValue;
+    return entryValue;
   }
 
 
   const return_type operator[](size_t n) const{
-    return actualValue;
+    return entryValue;
   }
 
   const char* name() const {
@@ -321,10 +323,10 @@ public:
   }
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &le) {
-    if( this->actualValue.isValid() ) this->_base->wpp(produce, le);
+    if( this->entryValue.isValid() ) this->_base->wpp(produce, le);
 #else
   void commitWrite(size_t produce) {
-    if( this->actualValue.isValid() ) this->_base->wpp(produce);
+    if( this->entryValue.isValid() ) this->_base->wpp(produce);
 #endif
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceCommExecOut(this->_base, produce);
@@ -342,7 +344,7 @@ public:
 
   virtual void   registerChannelAccessListener(ChannelAccessListener * l){
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->actualValue.registerChannelAccessListener(l);
+    this->entryValue.registerChannelAccessListener(l);
 #endif // SYSTEMOC_ENABLE_VPC
   }
   virtual bool tokenIsValid(size_t i) const {
@@ -355,7 +357,7 @@ protected:
   }
 private:
   size_t         limit;
-  storage_type &actualValue;
+  storage_type &entryValue;
 
   // disabled
   const sc_event& default_event() const { return smoc_default_event_abort(); }
@@ -406,12 +408,14 @@ public:
 
   smoc_multicast_sr_signal_type( const chan_init &i )
     : smoc_multicast_sr_signal_kind(i),
-      entry(this, actualValue)
+      signalDelay(),
+      entry(this, entryValue)
   {
     assert(1 >= i.marking.size());
     if(1 == i.marking.size()){
-      actualValue.put(i.marking[0]);
-      this->signalState = defined;
+      entryValue.put(i.marking[0]);
+      outletValue.put(i.marking[0]);
+       this->signalState = defined;
     }
   }
 
@@ -428,7 +432,7 @@ public:
   Outlet& getOutlet(const Port &port){
     if(outlets.find(&port) == outlets.end()){
       //cout << "Create new Outlet!!" << endl;
-      Outlet* out = new Outlet(this, actualValue);
+      Outlet* out = new Outlet(this, outletValue);
       assert(out);
       outlets[&port] = out;
     }
@@ -438,18 +442,31 @@ public:
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void wpp(size_t n, const smoc_ref_event_p &le)
+  {
+    signalDelay.push_back(entryValue.get());
+    latencyQueue.addEntry(n, le);
+  }
 #else
   void wpp(size_t n)
+  {
+    signalDelay.push_back(entryValue.get());
+    latencyExpired(n);
+  }
 #endif
-  { 
+
+  void latencyExpired(size_t n) {
+    //cerr << "latencyExpired(" << n <<") " << signalDelay.size() << endl;
+    for(size_t i = 1; i<n; ++i){
+      signalDelay.pop_front();
+    }
+
+    outletValue.put(signalDelay.front());
+    signalDelay.pop_front();
+
     for(typename OutletMap::iterator iter = outlets.begin();
-  iter != outlets.end();
-  iter++){
-#ifdef SYSTEMOC_ENABLE_VPC
-      iter->second->wpp(n,le);
-#else
+        iter != outlets.end();
+        iter++){
       iter->second->wpp(n);
-#endif
     }
   }
 
@@ -462,20 +479,25 @@ public:
   }
 
 protected:
-  storage_type   actualValue;
+  storage_type   entryValue;
+  storage_type   outletValue;
+  std::list<storage_type> signalDelay;
 
 
   void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
                              std::string name ){
-    this->actualValue.setChannelID(sourceActor, id, name);
+    this->entryValue.setChannelID(sourceActor, id, name);
+    this->outletValue.setChannelID(sourceActor, id, name);
   }
 private:
   Entry  entry;
   OutletMap outlets;
 
   void reset(){
-    actualValue.reset();
+    entryValue.reset();
+    outletValue.reset();
+    signalDelay.clear();
   }
 
   void tick(){
@@ -503,7 +525,7 @@ protected:
       pgw.indentUp();
       //      for ( size_t n = 0; n < this->usedStorage(); ++n )
       if(this->getSignalState())
-        pgw << "<token value=\"" << actualValue.get() << "\"/>" << std::endl;
+        pgw << "<token value=\"" << outletValue.get() << "\"/>" << std::endl;
       pgw.indentDown();
     }
     pgw << "</sr_signal>" << std::endl;
