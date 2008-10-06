@@ -89,8 +89,6 @@ public:
 protected:
   SignalState signalState;
 
-  size_t      tokenId; ///< The tokenId of the next commit token
-
   void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
   virtual
@@ -102,6 +100,8 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   smoc_detail::LatencyQueue   latencyQueue;
 #endif
+
+  size_t      tokenId; ///< The tokenId of the next commit token
 private:
   static const char* const kind_string;
   
@@ -409,6 +409,7 @@ public:
   smoc_multicast_sr_signal_type( const chan_init &i )
     : smoc_multicast_sr_signal_kind(i),
       signalDelay(),
+      latEvent(new smoc_ref_event()),
       entry(this, entryValue)
   {
     assert(1 >= i.marking.size());
@@ -444,7 +445,7 @@ public:
   void wpp(size_t n, const smoc_ref_event_p &le)
   {
     signalDelay.push_back(entryValue.get());
-    latencyQueue.addEntry(n, le);
+    latencyQueue.addEntry(n, latEvent);
   }
 #else
   void wpp(size_t n)
@@ -466,8 +467,12 @@ public:
     for(typename OutletMap::iterator iter = outlets.begin();
         iter != outlets.end();
         iter++){
-      iter->second->wpp(n);
+      iter->second->wpp(1); // the rest 1-n tokens are discarded
     }
+  }
+
+  CoSupport::SystemC::Event* getLatencyEvent() {
+    return latEvent.get();
   }
 
   void rpp(size_t n){
@@ -491,6 +496,7 @@ protected:
     this->outletValue.setChannelID(sourceActor, id, name);
   }
 private:
+  smoc_ref_event_p latEvent;
   Entry  entry;
   OutletMap outlets;
 

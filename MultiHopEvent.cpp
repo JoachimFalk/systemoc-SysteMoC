@@ -73,6 +73,7 @@ void MultiHopEvent::signaled( EventWaiter *e ) {
     }
   } else if(e->isActive()  && e == &computeLatency) {
     //cerr << "computeLatency isActive()" << endl;
+    this->taskEvents.latency->notify();
     /* */
     for(Transactions::iterator iter = writeTransactions.begin();
         iter != writeTransactions.end();
@@ -86,7 +87,6 @@ void MultiHopEvent::signaled( EventWaiter *e ) {
     
   }else if(e->isActive()  && e == &writeList){
     //cerr << "writeList isActive() @ " << sc_time_stamp() << endl;
-    this->taskEvents.latency->notify();
   }
 
   /*
@@ -126,7 +126,7 @@ void MultiHopEvent::addOutputChannel( smoc_root_chan * chan,
                                       unsigned int quantum ){
   //cerr << "addOutputChannel( " << chan->name() << " );" << endl;
   FastLink *writeLink = chan->vpcLinkWriteHop;
-  Event * chanEvent = new Event();
+  Event * chanEvent   = chan->getLatencyEvent();
   writeList &= *chanEvent;
   writeTransactions.push_back(Transaction(chanEvent, quantum, writeLink));
 
