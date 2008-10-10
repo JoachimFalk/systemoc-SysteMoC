@@ -445,6 +445,8 @@ public:
   void wpp(size_t n, const smoc_ref_event_p &le)
   {
     signalDelay.push_back(entryValue.get());
+    //cerr << this->name() << ": entry write:" << entryValue.get() << " (" << n <<") " << signalDelay.size()
+    //     << " @ " << sc_time_stamp() << endl;
     latencyQueue.addEntry(n, latEvent);
   }
 #else
@@ -456,11 +458,14 @@ public:
 #endif
 
   void latencyExpired(size_t n) {
-    //cerr << "latencyExpired(" << n <<") " << signalDelay.size() << endl;
     for(size_t i = 1; i<n; ++i){
-      signalDelay.pop_front();
+      //FIXME: use individual event for correct "pipelining" support
+      //signalDelay.pop_front();
+      smoc_reset(*latEvent.get());
     }
 
+    //cerr << this->name() << ": latencyExpired: " << signalDelay.front() << "(" << n <<") " << signalDelay.size()
+    //     << " @ " << sc_time_stamp() << endl;
     outletValue.put(signalDelay.front());
     signalDelay.pop_front();
 
