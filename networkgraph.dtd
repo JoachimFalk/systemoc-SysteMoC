@@ -132,6 +132,11 @@
 
 <!ELEMENT csdfPhase (portRef)*>
 
+<!ELEMENT actorRef (attribute)*>
+<!ATTLIST actorRef
+  ref IDREF #REQUIRED
+>
+
 <!ELEMENT portRef (attribute)*>
 <!ATTLIST portRef 
   ref IDREF #REQUIRED
@@ -222,23 +227,20 @@
   pos       CDATA #REQUIRED
 >
 
-<!ELEMENT action (function|loopedSchedule)?>
+<!ELEMENT action (function|actorFiring|repetitionVector|compoundAction)?>
+<!ATTLIST action
+  repeat CDATA #IMPLIED
+>
 
 <!ELEMENT function (parameter)*>
 <!ATTLIST function
   name CDATA #REQUIRED
 >
 
-<!ELEMENT loopedSchedule (item)*>
-
-<!ELEMENT item (scheduleLoop|actorRef)>
-
-<!ELEMENT actorRef EMPTY>
-<!ATTLIST actorRef
-  ref IDREF #REQUIRED
+<!ELEMENT actorFiring EMPTY>
+<!ATTLIST actorFiring
+  actor IDREF #REQUIRED
 >
 
-<!ELEMENT scheduleLoop (item)*>
-<!ATTLIST scheduleLoop
-  count CDATA #REQUIRED
->
+<!ELEMENT repetitionVector (action)*>
+<!ELEMENT compoundAction (action)*>

@@ -142,13 +142,6 @@ smoc_graph_synth::smoc_graph_synth(ProblemGraph::ConstRef pg) :
   generateFSM();
 }
 
-smoc_graph_synth::SLStackEntry::SLStackEntry(
-    ScheduleLoopItemList::ConstRef sl, size_t count) :
-  sl(sl),
-  iter(sl.begin()),
-  count(count)
-{}
-
 void smoc_graph_synth::cachePhase(PortRefList::ConstRef ports, Phase& phase) {
   for(PortRefList::const_iterator pIter = ports.begin();
       pIter != ports.end();
@@ -216,120 +209,131 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
   return portGuard(pr.begin(), pr.end());
 }
 
-void smoc_graph_synth::nextActorActivation() {
-  while(!slStack.empty()) {
-    SLStackEntry& c = slStack.back();
+void smoc_graph_synth::prepareActorFiring() {
+  
+  ActorFiring::ConstPtr af = objAs<ActorFiring>(ca);
+  assert(af);
+  assert(arm[af]);
+  
+  Actor::ConstPtr actor = af->actor();
+  assert(actor);
 
-    // loop complete?
-    if(c.iter == c.sl.end()) {
-      // loop executions left?
-      if(--c.count) {
-        c.iter = c.sl.begin();
+  // get SystemC object
+  smoc_root_node* rn =
+    dynamic_cast<smoc_root_node*>(NGXCache::getInstance().get(*actor));
+  assert(rn);
+
+  // context switch to node
+  curNode = nodeInfos.find(rn);
+
+  if(curNode == nodeInfos.end()) {
+    // actor was never activated until now
+    curNode = CoSupport::DataTypes::pac_insert(nodeInfos, rn);
+    NodeInfo& ni = curNode->second;
+    cachePhases(actor, ni.phases);
+    ni.count = 0;
+    rn->addCurOutTransitions(ni.trans);
+  }
+
+  NodeInfo& ni = curNode->second;
+  //std::cerr << " (phase: " << ni.count << ")" << std::endl;
+
+  // exchange current EventWaiter
+  transList.set(&ni.trans);
+
+  // initialize limit token id map
+  chanInLimit.clear();
+  for(Phase::const_iterator i = ni.phases[ni.count].begin();
+      i != ni.phases[ni.count].end();
+      ++i)
+  {
+    if(i->first->isInput()) {
+      // lookup chached interface
+      ChanInMap::const_iterator j = chanInMap.find(i->first);
+
+      if(j == chanInMap.end()) {
+        // cross cast to obtain interface base class
+        smoc_chan_in_base_if* in =
+          dynamic_cast<smoc_chan_in_base_if*>(i->first->get_interface());
+        assert(in);
+        j = CoSupport::DataTypes::pac_insert(chanInMap, i->first, in);
       }
-      else {
-        slStack.pop_back();
-        continue;
-      }
+
+      // calculate limit id for channel
+      chanInLimit[j->second] = j->second->inTokenId() + i->second;
     }
+  }
+  
+  ni.count = (ni.count + 1) % ni.phases.size();
     
-    // current item is actor?
-    ActorRef::ConstPtr aRef = c.iter->actor();
-    if(aRef) {
-      Actor::ConstPtr actor = aRef->instance();
-      //std::cerr << "fire " << actor->name();
+  --arm[af];
+}
 
-      // get SystemC object
-      smoc_root_node* rn =
-        dynamic_cast<smoc_root_node*>(NGXCache::getInstance().get(*actor));
-      assert(rn);
+void smoc_graph_synth::prepareCompoundAction() {
 
-      // context switch to node
-      curNode = nodeInfos.find(rn);
+  CompoundAction::ConstPtr cpa = objAs<CompoundAction>(ca);
+  assert(cpa);
+  assert(arm[cpa]);
 
-      if(curNode == nodeInfos.end()) {
-        // actor was never activated until now
-        curNode = CoSupport::DataTypes::pac_insert(nodeInfos, rn);
-        NodeInfo& ni = curNode->second;
-        cachePhases(actor, ni.phases);
-        ni.count = 0;
-        rn->addCurOutTransitions(ni.trans);
-      }
+  if(cpa->actions().begin() == cpa->actions().end()) {
+    // empty compound action -> skip iterations...
+    arm[cpa] = 0;
+    return;
+  }
 
-      NodeInfo& ni = curNode->second;
-      //std::cerr << " (phase: " << ni.count << ")" << std::endl;
+  CompoundActionIterMap::iterator i = cpaim.find(cpa);
+  if(i == cpaim.end()) {
+    i = CoSupport::DataTypes::pac_insert(cpaim, cpa, cpa->actions().begin());
+  }
 
-      // exchange current EventWaiter
-      transList.set(&ni.trans);
-
-      // initialize limit token id map
-      chanInLimit.clear();
-      for(Phase::const_iterator i = ni.phases[ni.count].begin();
-          i != ni.phases[ni.count].end();
-          ++i)
-      {
-        if(i->first->isInput()) {
-          // lookup chached interface
-          ChanInMap::const_iterator j = chanInMap.find(i->first);
-
-          if(j == chanInMap.end()) {
-            // cross cast to obtain interface base class
-            smoc_chan_in_base_if* in =
-              dynamic_cast<smoc_chan_in_base_if*>(i->first->get_interface());
-            assert(in);
-            j = CoSupport::DataTypes::pac_insert(chanInMap, i->first, in);
-          }
-
-          // calculate limit id for channel
-          chanInLimit[j->second] = j->second->inTokenId() + i->second;
-        }
-      }
-
-      ni.count = (ni.count + 1) % ni.phases.size();
-
-      // switch to next item  
-      ++c.iter;
-      break;
+  if(i->second == cpa->actions().end()) {
+    if(--arm[cpa]) {
+      i->second = cpa->actions().begin();
+      setCurrentAction(i->second->toPtr());
     }
-      
-    ScheduleLoop::ConstPtr sl = c.iter->scheduleLoop();
-    assert(sl);
-    slStack.push_back(SLStackEntry(sl->sequence(), sl->count().get()));
-
-    // switch to next item  
-    ++c.iter;
+    else {
+      // cleanup own structures
+      cpaim.erase(i);
+    }
+  }
+  else {
+    setCurrentAction(i->second->toPtr());
+    ++i->second;
   }
 }
 
-void smoc_graph_synth::prepareExecute(Action::ConstPtr a) {
-  if(a) {
-    LoopedSchedule::ConstPtr ls = objAs<LoopedSchedule>(a);
-    if(ls) {
-      //std::cerr << "looped schedule" << std::endl;
-      
-      assert(slStack.empty());
-      slStack.push_back(SLStackEntry(ls->sequence(), 1));
-
-      nextActorActivation();
-      
-      return;
-    }
-    RepetitionVector::ConstPtr rv = objAs<RepetitionVector>(a);
-    if(rv) {
-      //std::cerr << "repetition vector" << std::endl;
-      // TODO: implement online scheduling?
-      return;
-    }
-    Function::ConstPtr fn = objAs<Function>(a);
-    if(fn) {
-      //std::cerr << "function" << std::endl;
-      // TODO: implement function call?
-      return;
-    }
-  }
+void smoc_graph_synth::prepareOtherAction() {
+  assert(!"Unsupported action!");
 }
 
-bool smoc_graph_synth::activationsLeft() const
-{ return !slStack.empty(); }
+bool smoc_graph_synth::isActorFiring() const {
+  return objAs<ActorFiring>(ca);
+}
+
+bool smoc_graph_synth::isCompoundAction() const {
+  return objAs<CompoundAction>(ca);
+}
+
+void smoc_graph_synth::setCurrentAction(Action::ConstPtr a) {
+  ca = a;
+  if(ca)
+    arm[ca] =
+      ca->repeat().isDefined() ? ca->repeat().get() : 1;
+}
+
+void smoc_graph_synth::parentAction() {
+  ca = ca->parent();
+}
+
+bool smoc_graph_synth::haveAction() const {
+  return ca;
+}
+
+bool smoc_graph_synth::iterationsLeft() const {
+  ActionRepeatMap::const_iterator i = arm.find(ca);
+  assert(i != arm.end());
+  return i->second;
+}
 
 bool smoc_graph_synth::activationComplete() const {
   for(ChanInLimit::const_iterator i = chanInLimit.begin();
@@ -426,16 +430,33 @@ void smoc_graph_synth::generateFSM() {
       tl |=
            // cluster i/o-port requirements (no commit)
            apClusterIO
-           //prepare action for execution
-        >> CALL(smoc_graph_synth::prepareExecute)(t.action())
+           // prepare action for execution
+        >> CALL(smoc_graph_synth::setCurrentAction)(t.action())
         >> setup;
 
       setup =
-           // another actor activation in schedule
-           GUARD(smoc_graph_synth::activationsLeft)
+           (GUARD(smoc_graph_synth::haveAction) &&
+            GUARD(smoc_graph_synth::iterationsLeft) &&
+            GUARD(smoc_graph_synth::isActorFiring))
+        >> CALL(smoc_graph_synth::prepareActorFiring)
         >> run
-           // no other actor activation in schedule
-      |    !GUARD(smoc_graph_synth::activationsLeft)
+      |    (GUARD(smoc_graph_synth::haveAction) &&
+            GUARD(smoc_graph_synth::iterationsLeft) &&
+            GUARD(smoc_graph_synth::isCompoundAction))
+        >> CALL(smoc_graph_synth::prepareCompoundAction)
+        >> setup
+      |    (GUARD(smoc_graph_synth::haveAction) &&
+            GUARD(smoc_graph_synth::iterationsLeft) &&
+            !GUARD(smoc_graph_synth::isActorFiring) &&
+            !GUARD(smoc_graph_synth::isCompoundAction))
+        >> CALL(smoc_graph_synth::prepareOtherAction)
+        >> setup
+      |    (GUARD(smoc_graph_synth::haveAction) &&
+            !GUARD(smoc_graph_synth::iterationsLeft))
+        >> CALL(smoc_graph_synth::parentAction)
+        >> setup
+           // no other executable action in schedule
+      |    !GUARD(smoc_graph_synth::haveAction)
         >> *sm[sDst];
 
       run =
@@ -451,7 +472,6 @@ void smoc_graph_synth::generateFSM() {
         >> run
            // actor has no reserved tokens / space left
       |    GUARD(smoc_graph_synth::activationComplete)
-        >> CALL(smoc_graph_synth::nextActorActivation)
         >> setup;
     }
 

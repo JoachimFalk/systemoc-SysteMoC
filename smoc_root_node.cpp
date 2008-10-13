@@ -416,11 +416,24 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
           pgw.indentUp();
           {
             //**************ACTION********************
-            pgw << "<action>" << std::endl;
-            pgw.indentUp();
-            {
-              //**************FUNCTION********************
-              if(const smoc_func_call* fc = boost::get<smoc_func_call>(&tIter->getAction())) {
+            const smoc_func_call_list* fcl;
+              
+            if((fcl = boost::get<smoc_func_call_list>(&tIter->getAction())) &&
+                  !fcl->empty()) {
+               
+              bool single = (fcl->end() == ++fcl->begin());
+              if(!single) {
+                pgw << "<action>" << std::endl;
+                pgw.indentUp();
+                pgw << "<compoundAction>" << std::endl;
+                pgw.indentUp();
+              }
+
+              for(smoc_func_call_list::const_iterator fc = fcl->begin();
+                  fc != fcl->end(); ++fc)
+              {
+                pgw << "<action>" << std::endl;
+                pgw.indentUp();
                 pgw << "<function name=\"" << fc->getFuncName() << "\">" << std::endl;
                 pgw.indentUp();
                 {
@@ -430,17 +443,30 @@ void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
                   {
                     pgw << "<parameter name=\"" << iter->name << "\""
                         <<           " valueType=\"" << iter->type << "\""
-                        <<           " value=\"" << iter->value << "\"/>" << std::endl;
+                        <<           " value=\""
+                        << CoSupport::Streams::TranslationMap::XMLAttr()
+                        << iter->value
+                        << CoSupport::Streams::TranslationMap::None()
+                        << "\"/>" << std::endl;
                   }
                   //**************/PARAMETER********************
                 }
                 pgw.indentDown();
                 pgw << "</function>" << std::endl;
+                pgw.indentDown();
+                pgw << "</action>" << std::endl;
               }
-              //**************/FUNCTION********************
+
+              if(!single) {
+                pgw.indentDown();
+                pgw << "</compoundAction>" << std::endl;
+                pgw.indentDown();
+                pgw << "</action>" << std::endl;
+              }
             }
-            pgw.indentDown();
-            pgw << "</action>" << std::endl;
+            else {
+              pgw << "<action />" << std::endl;
+            }
             //**************/ACTION********************
           }
           ASTXMLDumperVisitor astDumper(pgw);

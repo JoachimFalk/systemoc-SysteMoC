@@ -152,7 +152,7 @@ public:
   /// @brief Constructor
   explicit smoc_interface_action(
       smoc_firing_state_base::ConstRef &t)
-    : dest(t.toPtr()), f() {}
+    : dest(t.toPtr()) {}
 
   /// @brief Constructor
   explicit smoc_interface_action(
@@ -180,11 +180,15 @@ private:
 
 public:
   /// @brief Constructor
-  smoc_transition_part(
+  explicit smoc_transition_part(
+      const smoc_activation_pattern &ap)
+    : ap(ap) {}
+
+  /// @brief Constructor
+  explicit smoc_transition_part(
       const smoc_activation_pattern &ap,
-      const smoc_action &f)
-    : ap(ap),
-      f(f) {}
+      const smoc_action& f)
+    : ap(ap), f(f) {}
 
   const smoc_activation_pattern& getActivationPattern() const
     { return ap; }
@@ -204,19 +208,19 @@ private:
 
 public:
   /// @brief Constructor
-  smoc_transition(
+  explicit smoc_transition(
       const smoc_action &f,
       smoc_firing_state_base::ConstRef &t)
     : ap(Expr::literal(true)), ia(t,f) {}
   
   /// @brief Constructor
-  smoc_transition(
+  explicit smoc_transition(
       const smoc_activation_pattern &ap,
       smoc_firing_state_base::ConstRef &t)
     : ap(ap), ia(t) {}
   
   /// @brief Constructor
-  smoc_transition(
+  explicit smoc_transition(
       const smoc_transition_part &tp,
       smoc_firing_state_base::ConstRef &t)
     : ap(tp.getActivationPattern()),
@@ -263,7 +267,16 @@ inline
 smoc_transition_part operator >> (
     const smoc_activation_pattern &ap,
     const smoc_func_call &f)
-  { return smoc_transition_part(ap,f); }
+  { return smoc_transition_part(ap, f); }
+
+inline
+smoc_transition_part operator >> (
+    const smoc_transition_part &tp,
+    const smoc_func_call &f) {
+  return smoc_transition_part(
+      tp.getActivationPattern(),
+      merge(tp.getAction(), f));
+}
 
 inline
 smoc_transition operator >> (

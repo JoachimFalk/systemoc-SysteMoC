@@ -41,6 +41,7 @@
 
 #include <CoSupport/Streams/FilterOStream.hpp>
 #include <CoSupport/Streams/IndentStreambuf.hpp>
+#include <CoSupport/Streams/TranslationStreambuf.hpp>
 
 class smoc_root_node;
 
@@ -56,11 +57,13 @@ namespace smoc_modes {
   class PGWriter {
     friend class Node;
   protected:
-    CoSupport::Streams::FilterOStream    out;
-    CoSupport::Streams::IndentStreambuf  indenter;
+    CoSupport::Streams::FilterOStream out;
+    CoSupport::Streams::IndentStreambuf indenter;
+    CoSupport::Streams::TranslationStreambuf trans;
   public:
     PGWriter(std::ostream &_out)
-      : out(_out) { out.insert(indenter); }
+      : out(_out)
+      { out.insert(indenter); out.insert(trans); }
     
     void indentUp() 
       { indenter.setDeltaLevel(1); }

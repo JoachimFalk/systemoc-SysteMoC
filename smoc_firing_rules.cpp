@@ -41,10 +41,6 @@
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
-#endif //SYSTEMOC_ENABLE_VPC
-
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
 
@@ -143,6 +139,8 @@ void ExpandedTransition::execute(int mode) {
   Expr::evalTo<Expr::CommSetup>(guard);
 #endif
 
+  // only smoc_func_diverge may set nextState to something
+  // different than dest here...
   FiringStateImpl* nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), f);
 
@@ -250,34 +248,14 @@ void ExpandedTransition::finalise(smoc_root_node *a) {
   actor = a;
   smoc_activation_pattern::finalise();    
 
+  //ActionUnifier au;
+  //boost::apply_visitor(au, f);
+  //f = au.getAction();
+
 #ifdef SYSTEMOC_ENABLE_VPC
   if(dynamic_cast<smoc_actor *>(actor) != NULL) {
-    const char *name = actor->name();
-    
-    if(smoc_func_call* fc = boost::get<smoc_func_call>(&f)) {
-      vpcLink =
-        new SystemC_VPC::FastLink(
-          SystemC_VPC::Director::getInstance().getFastLink(
-            name, fc->getFuncName()));
-
-    }
-    else if(smoc_sr_func_pair* fp = boost::get<smoc_sr_func_pair>(&f)) {
-      vpcLink =
-        new SystemC_VPC::FastLink(
-          SystemC_VPC::Director::getInstance().getFastLink(
-            name, fp->go.getFuncName()));
-      fp->tickLink =
-        new SystemC_VPC::FastLink(
-          SystemC_VPC::Director::getInstance().getFastLink(
-            name, fp->tick.getFuncName()));
-    }
-    else {
-      // diverge or empty -> no name
-      vpcLink =
-        new SystemC_VPC::FastLink(
-          SystemC_VPC::Director::getInstance().getFastLink(
-            name, "???"));
-    }
+    vpcLink = boost::apply_visitor(
+        VPCLinkVisitor(actor->name()), f);
   }
 #endif //SYSTEMOC_ENABLE_VPC
 }
@@ -630,15 +608,11 @@ ConnectorStateImpl::expandTransitions(const PartialTransitionList &pl) {
       // ports and add some kind of offset to the requests in the second
       // action.
 
-      // FIXME: Problems with recursive_wrapper<T> (see smoc_func_call.hpp)      
-      const smoc_func_call& a = boost::get<smoc_func_call>(i->getAction());
-      const smoc_func_call& b = boost::get<smoc_func_call>(j->getAction());
-
       // create a new partial transition (i,j) and ask j.destState to
       // expand it...
       PartialTransition p(
           i->getActivationPattern().getExpr() && j->getActivationPattern().getExpr(),
-          smoc_connector_action_pair(a,b),
+          merge(i->getAction(), j->getAction()),
           j->getDestState());
 
       PartialTransitionList pl;

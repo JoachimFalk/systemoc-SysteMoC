@@ -42,6 +42,13 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include <systemoc/smoc_ast_systemoc.hpp>
+#include <systemoc/smoc_config.h>
+
+#include <list>
+
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
+#endif //SYSTEMOC_ENABLE_VPC
 
 #define CALL(func)    call(&func, #func)
 #define GUARD(func)   guard(&func, #func)
@@ -199,21 +206,6 @@ public:
   }
 };
 
-
-
-/**
- * smoc_func_branch
- */
-
-class smoc_func_branch: public smoc_func_diverge {
-public:
-  template <class F, class PL>
-  smoc_func_branch( const smoc_member_func<F, PL> &_k )
-    : smoc_func_diverge(_k) {}
-};
-
-
-
 /**
  * smoc_sr_func_pair
  */
@@ -237,41 +229,38 @@ public:
     : go(go), tick(tick) {}
 };
 
-class smoc_connector_action_pair;
+//class smoc_action_list;
 
-typedef boost::variant<
-  boost::blank,
-  smoc_func_call,
-  smoc_func_diverge,
-  smoc_sr_func_pair,
-  smoc_connector_action_pair> smoc_action;
-  
-
-/**
- * smoc_connector_action_pair
- */
-
-class smoc_connector_action_pair {
+class smoc_func_call_list
+: public std::list<smoc_func_call> {
 public:
-  /*smoc_action a;
-  smoc_action b;
+  typedef smoc_func_call_list this_type;
+public:
+  smoc_func_call_list() {}
 
-  smoc_connector_action_pair(
-      const smoc_action& a,
-      const smoc_action& b)
-    : a(a), b(b)
-  {}*/
-  
-  smoc_func_call a;
-  smoc_func_call b;
-
-  smoc_connector_action_pair(
-      const smoc_func_call& a,
-      const smoc_func_call& b)
-    : a(a), b(b)
-  {}
+  smoc_func_call_list(const smoc_func_call& a)
+    { push_back(a); }
 };
 
+typedef boost::variant<
+  //boost::blank,
+  smoc_func_call_list,
+  smoc_func_diverge,
+  smoc_sr_func_pair/*,
+  smoc_action_list*/> smoc_action;
+
+smoc_action merge(const smoc_action& a, const smoc_action& b);
+
+/*class smoc_action_list
+: public std::list<smoc_action> {
+public:
+  typedef smoc_action_list this_type;
+public:
+  smoc_action_list() {}
+
+  smoc_action_list(const smoc_action& a)
+    { push_back(a); }
+};*/
 
 /**
  * ActionVisitor
@@ -284,15 +273,34 @@ public:
 public:
   ActionVisitor(FiringStateImpl* dest, int mode);
 
-  result_type operator()(smoc_func_call& f) const;
+  result_type operator()(smoc_func_call_list& f) const;
   result_type operator()(smoc_func_diverge& f) const;
   result_type operator()(smoc_sr_func_pair& f) const;
-  result_type operator()(smoc_connector_action_pair& f) const;
-  result_type operator()(boost::blank& f) const;
+  //result_type operator()(smoc_action_list& f) const;
+  //result_type operator()(boost::blank& f) const;
 
 private:
   FiringStateImpl* dest;
   int mode;
 };
+
+#ifdef SYSTEMOC_ENABLE_VPC
+class VPCLinkVisitor {
+public:
+  typedef SystemC_VPC::FastLink* result_type;
+
+public:
+  VPCLinkVisitor(const char* name);
+
+  result_type operator()(smoc_func_call_list& f) const;
+  result_type operator()(smoc_sr_func_pair& f) const;
+  result_type operator()(smoc_func_diverge& f) const;
+  //result_type operator()(smoc_action_list& f) const;
+  //result_type operator()(boost::blank& f) const;
+
+private:
+  const char* name;
+};
+#endif // SYSTEMOC_ENABLE_VPC
 
 #endif // _INCLUDED_SMOC_FUNC_CALL_HPP

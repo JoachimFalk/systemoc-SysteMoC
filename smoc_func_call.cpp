@@ -36,28 +36,49 @@
 #include <systemoc/smoc_func_call.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 
+smoc_action merge(const smoc_action& a, const smoc_action& b) {
+  if(const smoc_func_call_list* _a = boost::get<smoc_func_call_list>(&a)) {
+    if(_a->empty()) return b;
+    
+    if(const smoc_func_call_list* _b = boost::get<smoc_func_call_list>(&b)) {
+      smoc_func_call_list ret = *_a;
+      for(smoc_func_call_list::const_iterator i = _b->begin();
+          i != _b->end(); ++i)
+      {
+        ret.push_back(*i);
+      }
+      return ret;
+    }
+  }
+  if(const smoc_func_call_list* _b = boost::get<smoc_func_call_list>(&b)) {
+    if(_b->empty()) return a;
+  }  
+  assert(0);
+}
+
 ActionVisitor::ActionVisitor(FiringStateImpl* dest, int mode)
   : dest(dest), mode(mode) {}
 
-FiringStateImpl* ActionVisitor::operator()(smoc_func_call& f) const {
+FiringStateImpl* ActionVisitor::operator()(smoc_func_call_list& f) const {
   // Function call
+  for(smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
 #ifdef SYSTEMOC_TRACE
-  TraceLog.traceStartFunction(f.getFuncName());
+    TraceLog.traceStartFunction(i->getFuncName());
 #endif // SYSTEMOC_TRACE
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "    <action type=\"smoc_func_call\" func=\""
-            << f.getFuncName() << "\">" << std::endl;
+    std::cerr << "    <action type=\"smoc_func_call\" func=\""
+              << i->getFuncName() << "\">" << std::endl;
 #endif // SYSTEMOC_DEBUG
   
-  f();
+    (*i)();
 
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "    </action>" << std::endl;
+    std::cerr << "    </action>" << std::endl;
 #endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_TRACE
-  TraceLog.traceEndFunction(f.getFuncName());
+    TraceLog.traceEndFunction(i->getFuncName());
 #endif // SYSTEMOC_TRACE
-  assert(dest);
+  }
   return dest;
 }
 
@@ -73,7 +94,6 @@ FiringStateImpl* ActionVisitor::operator()(smoc_func_diverge& f) const {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "    </action>" << std::endl;
 #endif
-  assert(!dest);
   return ret;
 }
 
@@ -88,6 +108,9 @@ FiringStateImpl* ActionVisitor::operator()(smoc_sr_func_pair& f) const {
               << f.go.getFuncName() << "\">" << std::endl;
 #endif
     f.go();
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "    </action>" << std::endl;
+#endif
   }
   if(mode & ExpandedTransition::TICK) {
 #ifdef SYSTEMOC_DEBUG
@@ -95,48 +118,49 @@ FiringStateImpl* ActionVisitor::operator()(smoc_sr_func_pair& f) const {
               << f.tick.getFuncName() << "\">" << std::endl;
 #endif
     f.tick();
-  }
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "    </action>" << std::endl;
+    std::cerr << "    </action>" << std::endl;
 #endif
+  }
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceEndFunction(f.go.getFuncName());
 #endif
-  assert(dest);
   return dest;
 }
 
-FiringStateImpl* ActionVisitor::operator()(smoc_connector_action_pair& f) const {
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "    <action type=\"smoc_connector_action_pair\">"
-            << std::endl;
-#endif
+#ifdef SYSTEMOC_ENABLE_VPC
+VPCLinkVisitor::VPCLinkVisitor(const char* name)
+  : name(name) {}
 
-  //FiringStateImpl* aNext =
-  //  boost::apply_visitor(ActionVisitor(dest, mode), f.a);
-  //assert(aNext == dest);
+SystemC_VPC::FastLink* VPCLinkVisitor::operator()(smoc_func_call_list& f) const {
+  std::ostringstream os;
 
-  f.a();
+  if(f.begin() == f.end())
+    os << "???";
 
-  //FiringStateImpl* bNext =
-  //  boost::apply_visitor(ActionVisitor(dest, mode), f.b);
-  //assert(bNext == dest);
+  for(smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
+    if(i != f.begin())
+      os << "_";
+    os << i->getFuncName();
+  }
 
-  f.b();
-
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "    </action>" << std::endl;
-#endif
-  assert(dest);
-  return dest;
+  return new SystemC_VPC::FastLink(
+      SystemC_VPC::Director::getInstance().getFastLink(
+        name, os.str()));
 }
 
-FiringStateImpl* ActionVisitor::operator()(boost::blank& f) const {
-  // No action
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "    <action type=\"none\">" << std::endl
-            << "    </action>" << std::endl;
-#endif
-  assert(dest);
-  return dest;
+SystemC_VPC::FastLink* VPCLinkVisitor::operator()(smoc_sr_func_pair& f) const {
+  f.tickLink = new SystemC_VPC::FastLink(
+      SystemC_VPC::Director::getInstance().getFastLink(
+        name, f.tick.getFuncName()));
+  return new SystemC_VPC::FastLink(
+      SystemC_VPC::Director::getInstance().getFastLink(
+        name, f.go.getFuncName()));
 }
+
+SystemC_VPC::FastLink* VPCLinkVisitor::operator()(smoc_func_diverge& f) const {
+  return new SystemC_VPC::FastLink(
+      SystemC_VPC::Director::getInstance().getFastLink(
+        name, "smoc_func_diverge"));
+}
+#endif // SYSTEMOC_ENABLE_VPC

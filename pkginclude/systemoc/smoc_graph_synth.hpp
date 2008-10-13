@@ -118,18 +118,30 @@ private:
   // faster switching of active node
   CoSupport::SystemC::VariantEventWaiter transList;
 
-  // schedule loop stack entry
-  struct SLStackEntry {
-    SGX::ScheduleLoopItemList::ConstRef sl;
-    SGX::ScheduleLoopItemList::const_iterator iter;
-    size_t count;
-    SLStackEntry(SGX::ScheduleLoopItemList::ConstRef sl, size_t count);
-  };
+  /// @brief Maps actions to remaining iterations
+  typedef std::map<SGX::Action::ConstPtr, size_t> ActionRepeatMap;
+  ActionRepeatMap arm;
 
-  // schedule loop stack
-  typedef std::list<SLStackEntry> SLStack;
-  SLStack slStack;
-  
+  /// @brief Current action under examination
+  SGX::Action::ConstPtr ca;
+
+  typedef std::map<
+    SGX::CompoundAction::ConstPtr,
+    SGX::ActionList::const_iterator> CompoundActionIterMap;
+  CompoundActionIterMap cpaim;
+
+  bool haveAction() const;
+  bool isActorFiring() const;
+  bool isCompoundAction() const;
+  bool iterationsLeft() const;
+
+  void prepareActorFiring();
+  void prepareCompoundAction();
+  void prepareOtherAction();
+
+  void setCurrentAction(SGX::Action::ConstPtr a);
+  void parentAction();
+
   // FIXME: interface cache (can't use smoc_port_base where 
   // exact type would be already available)
   typedef std::map<smoc_sysc_port*, smoc_chan_in_base_if*> ChanInMap;
@@ -138,16 +150,7 @@ private:
   // limit token ids for interface
   typedef std::map<smoc_chan_in_base_if*, size_t> ChanInLimit;
   ChanInLimit chanInLimit;
-
-  // determines next actor to be activated
-  void nextActorActivation();
-
-  // prepares LoopedSchedule for execution
-  void prepareExecute(SGX::Action::ConstPtr a);
-
-  // determines if actor activation left in schedule
-  bool activationsLeft() const;
-
+  
   // checks if actor has reserved tokens / space left
   bool activationComplete() const;
 

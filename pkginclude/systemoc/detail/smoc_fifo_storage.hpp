@@ -107,8 +107,13 @@ protected:
     {
       //*************************INITIAL TOKENS, ETC...***************************
       pgw.indentUp();
-      for(size_t n = 0; n < this->visibleCount(); ++n)
-        pgw << "<token value=\"" << storage[n].get() << "\"/>" << std::endl;
+      for(size_t n = 0; n < this->visibleCount(); ++n) {
+        pgw << "<token value=\""
+            << CoSupport::Streams::TranslationMap::XMLAttr()
+            << storage[n].get()
+            << CoSupport::Streams::TranslationMap::None() 
+            << "\"/>" << std::endl;
+      }
       pgw.indentDown();
     }
     pgw << "</fifo>" << std::endl;
