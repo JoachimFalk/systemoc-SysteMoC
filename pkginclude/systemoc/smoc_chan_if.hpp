@@ -266,8 +266,8 @@ public:
   virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
   virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
   virtual void latencyExpired(size_t n) {}
-  virtual CoSupport::SystemC::Event* getLatencyEvent()
-    { return new CoSupport::SystemC::Event(); }
+  virtual smoc_ref_event_p getLatencyEvent()
+    { return new smoc_ref_event(); }
   
   virtual void finalise();
 

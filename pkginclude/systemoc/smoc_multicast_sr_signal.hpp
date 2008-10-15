@@ -409,7 +409,6 @@ public:
   smoc_multicast_sr_signal_type( const chan_init &i )
     : smoc_multicast_sr_signal_kind(i),
       signalDelay(),
-      latEvent(new smoc_ref_event()),
       entry(this, entryValue)
   {
     assert(1 >= i.marking.size());
@@ -447,7 +446,6 @@ public:
     signalDelay.push_back(entryValue.get());
     //cerr << this->name() << ": entry write:" << entryValue.get() << " (" << n <<") " << signalDelay.size()
     //     << " @ " << sc_time_stamp() << endl;
-    latencyQueue.addEntry(n, latEvent);
   }
 #else
   void wpp(size_t n)
@@ -461,7 +459,7 @@ public:
     for(size_t i = 1; i<n; ++i){
       //FIXME: use individual event for correct "pipelining" support
       //signalDelay.pop_front();
-      smoc_reset(*latEvent.get());
+      //smoc_reset(*latEvent.get());
     }
 
     //cerr << this->name() << ": latencyExpired: " << signalDelay.front() << "(" << n <<") " << signalDelay.size()
@@ -476,8 +474,11 @@ public:
     }
   }
 
-  CoSupport::SystemC::Event* getLatencyEvent() {
-    return latEvent.get();
+  smoc_ref_event_p getLatencyEvent() {
+    smoc_ref_event_p latEvent(new smoc_ref_event());
+    // FIXME: do we need n instead of "1" here?
+    latencyQueue.addEntry(1, latEvent);
+    return latEvent;
   }
 
   void rpp(size_t n){
@@ -501,7 +502,6 @@ protected:
     this->outletValue.setChannelID(sourceActor, id, name);
   }
 private:
-  smoc_ref_event_p latEvent;
   Entry  entry;
   OutletMap outlets;
 

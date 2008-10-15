@@ -60,14 +60,14 @@ class Transaction{
 public:
 
   //convenience CTOR 
-  Transaction( Event *event,
+  Transaction( smoc_ref_event_p event,
                unsigned int quantum,
                FastLink * link )
     : event(event),
       quantum(quantum),
       link(link) {}
 
-  Event *event;
+  smoc_ref_event_p event;
   unsigned int quantum;
   FastLink * link;
 

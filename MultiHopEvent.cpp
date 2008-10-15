@@ -53,7 +53,7 @@ void MultiHopEvent::compute( FastLink * task ){
         iter != readTransactions.end();
         ++iter){
       unsigned int quantum = iter->quantum;
-      Event* chanEvent     = iter->event;
+      Event* chanEvent     = iter->event.get();
       FastLink* readLink   = iter->link;
       readLink->read( quantum, EventPair( &dummy, chanEvent ) );
     }
@@ -79,7 +79,7 @@ void MultiHopEvent::signaled( EventWaiter *e ) {
         iter != writeTransactions.end();
         ++iter){
       unsigned int quantum = iter->quantum;
-      Event* chanEvent     = iter->event;
+      Event* chanEvent     = iter->event.get();
       FastLink* writeLink   = iter->link;
       chanEvent->reset();
       writeLink->write( quantum, EventPair( &dummy, chanEvent ) );
@@ -87,6 +87,9 @@ void MultiHopEvent::signaled( EventWaiter *e ) {
     
   }else if(e->isActive()  && e == &writeList){
     //cerr << "writeList isActive() @ " << sc_time_stamp() << endl;
+    writeTransactions.clear();
+    readTransactions.clear();
+    //delete this;
   }
 
   /*
@@ -116,7 +119,7 @@ void MultiHopEvent::addInputChannel( smoc_root_chan * chan,
                                      unsigned int quantum ){
   //cerr << "addInputChannel( " << chan->name() << " );" << endl;
   FastLink *readLink = chan->vpcLinkReadHop;
-  Event * chanEvent = new Event();
+  smoc_ref_event_p chanEvent = smoc_ref_event_p(new smoc_ref_event());
   readList &= *chanEvent;
   readTransactions.push_back(Transaction(chanEvent, quantum, readLink));
 }
@@ -126,7 +129,7 @@ void MultiHopEvent::addOutputChannel( smoc_root_chan * chan,
                                       unsigned int quantum ){
   //cerr << "addOutputChannel( " << chan->name() << " );" << endl;
   FastLink *writeLink = chan->vpcLinkWriteHop;
-  Event * chanEvent   = chan->getLatencyEvent();
+  smoc_ref_event_p chanEvent   = chan->getLatencyEvent();
   writeList &= *chanEvent;
   writeTransactions.push_back(Transaction(chanEvent, quantum, writeLink));
 
