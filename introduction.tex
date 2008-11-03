@@ -1,0 +1,70 @@
+
+\chapter{Introduction}
+
+\section{Overview of actor-based design}
+% FIXME: not reviewed
+Actor-based design is based on composing a system of communicating processes called \emph{actors}, which can only communicate with each other via channels.
+However, \emph{actor-based design} does not constrain the communication behavior of its actors therefore making analyses of the system in general impossible.
+In a \emph{model-based design} methodology the underlying \emph{Model of Computation} (MoC) is known additionally which is given by a predefined type of communication behavior and a scheduling strategy for the actors.
+We present a library based on the design language SystemC called \SysteMoC{} which provides a simulation environment for model-based designs.
+The library-based approach unites the advantage of executability with analyzability of many expressive MoCs.
+
+\section{Basic component: Actor}
+
+\begin{figure}[h]
+%\resizebox{\columnwidth}{!}{\input{actor-scheme-fig.tex}}
+\centering
+\input{actor-scheme-fig.tex}
+\caption {.
+}
+\label{fig:actor-scheme}
+\end{figure}
+
+A SysteMoC actor contains three basic elements:
+\begin{itemize}
+\item {\em Variables}:
+\item {\em Functions}:
+\item {\em Actor finite state machine (FSM)}:
+% FIXME: not reviewed
+The behavior of each actor is ruled 
+by an explicit finite state machine that checks conditions on the input ports, 
+output ports and internal state. If a certain firing rule is satisfied, 
+a state transition will be taken. During the state transition, an {\em action}
+is called. Once this action has finished execution, the new state is 
+taken. The complete state of an actor is described by this explicit 
+state of the actor and the state as given by its (local) member variables.
+Depending on the model of computation, 
+the actor ports may be connected to different types of so-called {\em channels} such 
+as channels with FIFO semantics, or rendez-vous channels.
+\end{itemize}
+
+\section{Advantages of using SysteMoC}
+% FIXME: not reviewed
+The consumption and production of tokens is locally triggered by transitions 
+of an explicit \emph{firing FSM} required in each actor.
+The purpose and advantage of this clear separation of that part 
+that does computation on token values (in 
+actions and guards) from the control of the behavior of an actor in particular 
+to our \SysteMoC{} approach and inspired by the following advantages: 
+\begin{itemize}
+\item {\em recognizability}: recognize important data-flow models of computation such 
+as SDF, and CSDF just from the complexity of the firing FSM.
+\item {\em analyzability}: As a consequence of being able to detect important 
+well-known models of computation within \SysteMoC{} actors and actor network 
+graphs, many important and well-known analysis algorithms such as 
+boundedness of memory, liveness and periodicity properties may be applied
+immediately.
+\item {\em optimizability}: As an immediate consequence, buffer minimization 
+and scheduling algorithms may be applied on individual or subgraphs of actors.
+\item {\em simulatability}: Finally, even most complex actor networks may be 
+handled for which no formal analysis techniques are known by simply simulating the 
+network of actors. As \SysteMoC{} is built on top of SystemC, an event-driven 
+simulation of the exact timing and concurrency among actors is immediately possible.
+\item {\em refinement}: We expect to show another important 
+feature of \SysteMoC{} in the future, namely a transformative refinement of actor code:
+We intend to apply important refinement transformations towards a final 
+target implementation by providing transformations on the specification, 
+and finally, also automatic platform-based automatic code synthesis is envisioned.
+This will be, however, a topic of future work. 
+\end{itemize} 
+

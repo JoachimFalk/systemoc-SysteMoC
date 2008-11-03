@@ -2,13 +2,13 @@
 
 RESDIR=$(shell while [ ! -d HscdTeXRes -a x`pwd` != x'/' ]; do cd ..; done; cd HscdTeXRes; pwd)
 
-.PHONY: smoc-docu
+.PHONY: docu
 
-docu: smoc-docu.pdf
+docu: docu.pdf
 
-TEX_SOURCES=smoc-docu.tex
+TEX_SOURCES=docu.tex
 
-TEXINPUTS:=figs:$(TEXINPUTS)
-TEXCLEANDIRS:=figs .
+TEXINPUTS:=figs:$(RESDIR):$(TEXINPUTS)
+TEXCLEANDIRS:=figs $(RESDIR) .
 
 include $(RESDIR)/Rules-TeX.mk
