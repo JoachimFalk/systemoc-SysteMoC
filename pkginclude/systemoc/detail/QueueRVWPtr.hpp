@@ -73,7 +73,7 @@ namespace Detail {
       return vindex;
     }
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     // This differs from QueueRWPtr::rpp due to the different definition of
     // visibleCount. Therefore, the assertion is more paranoid.
     void rpp(size_t n) {

@@ -135,7 +135,7 @@ void ExpandedTransition::execute(int mode) {
     TraceLog.traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
 #endif
 
-#if !defined(NDEBUG) || defined(SYSTEMOC_TRACE)
+#if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_TRACE)
   Expr::evalTo<Expr::CommSetup>(guard);
 #endif
 
@@ -144,7 +144,7 @@ void ExpandedTransition::execute(int mode) {
   FiringStateImpl* nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), f);
 
-#if !defined(NDEBUG)
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   Expr::evalTo<Expr::CommReset>(guard);
 #endif
 

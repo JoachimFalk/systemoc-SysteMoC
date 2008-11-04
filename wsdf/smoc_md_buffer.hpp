@@ -77,7 +77,7 @@ public:
   public:
                 
     /* Buffer Access Setup Routines */
-#ifndef NDEBUG          
+#if defined(SYSTEMOC_ENABLE_DEBUG)          
     /// Set limit
     /// Dummy function
    void setLimit(size_t limit) {
@@ -136,7 +136,7 @@ public:
     const smoc_src_md_loop_iterator_kind* src_loop_iterator;
 
     void checkLimit(const iter_domain_vector_type& window_iteration) const{
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
       const iter_domain_vector_type& max_window_iteration(src_loop_iterator->max_window_iteration());
       for(unsigned i = 0; i < window_iteration.size(); i++){
 	assert(window_iteration[i] <= 
@@ -179,7 +179,7 @@ public:
   public:
                 
     /* Buffer Access Setup Routines */
-#ifndef NDEBUG          
+#if defined(SYSTEMOC_ENABLE_DEBUG)          
     /// Set limit, how many windows can be accessed
     /// dummy function
     void setLimit(size_t limit) {
@@ -243,7 +243,7 @@ public:
     const smoc_snk_md_loop_iterator_kind* snk_loop_iterator;
 
     virtual void checkLimit(const iter_domain_vector_type& window_iteration) const{
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
       const iter_domain_vector_type& max_window_iteration(snk_loop_iterator->max_window_iteration());
       for(unsigned i = 0; i < window_iteration.size(); i++){
 	assert(window_iteration[i] <= 

@@ -390,7 +390,7 @@ public:
         }
       }
       
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
 #if VERBOSE_LEVEL_SMOC_MD_PORT == 101
       CoSupport::Streams::dout << "replacing window_iteration = " << temp_win_iteration << std::endl;
       CoSupport::Streams::dout << "max_window_iteration = " << this->get_chanaccess()->max_window_iteration() << std::endl;

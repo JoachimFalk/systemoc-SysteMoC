@@ -45,8 +45,8 @@
 
 #ifdef SYSTEMOC_TRACE
 
-# ifdef NDEBUG
-#   error "SYSTEMOC_TRACE and NDEBUG are incompatible !!!"
+# if !defined(SYSTEMOC_ENABLE_DEBUG)
+#   error "SYSTEMOC_TRACE and !SYSTEMOC_ENABLE_DEBUG are incompatible !!!"
 # endif
 
 //using std::string;

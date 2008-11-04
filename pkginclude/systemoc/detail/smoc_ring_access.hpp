@@ -45,7 +45,7 @@ public:
   typedef S                     storage_type;
   typedef smoc_ring_access<S,T> this_type;
 private:
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   size_t        limit;
 #endif
   storage_type *storage;
@@ -53,12 +53,12 @@ private:
   const size_t *offset;
 public:
   smoc_ring_access(storage_type *storage, size_t storageSize, const size_t *offset):
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
       limit(0),
 #endif
       storage(storage), storageSize(storageSize), offset(offset) {}
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   void setLimit(size_t l) { limit = l; }
 #endif
   bool tokenIsValid(size_t n) const {
@@ -69,14 +69,18 @@ public:
 
   return_type operator[](size_t n) {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     assert(n < limit);
+#endif
     return *offset + n < storageSize
       ? storage[*offset + n]
       : storage[*offset + n - storageSize];
   }
   const return_type operator[](size_t n) const {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[](" << n << ") const" << std::endl;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     assert(n < limit);
+#endif
     return *offset + n < storageSize
       ? storage[*offset + n]
       : storage[*offset + n - storageSize];
@@ -95,7 +99,7 @@ public:
   smoc_ring_access()
     {}
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   void setLimit(size_t) {}
 #endif
   bool tokenIsValid(size_t n) const {

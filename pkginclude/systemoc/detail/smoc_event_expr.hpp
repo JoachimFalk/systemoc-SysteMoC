@@ -67,7 +67,7 @@ struct Value<DSMOCEvent> {
 
   static inline
   result_type apply(const DSMOCEvent &e) {
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     assert(e.v);
 #endif
     return result_type();

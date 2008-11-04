@@ -31,6 +31,9 @@ AC_PROG_LIBTOOL
 AM_INIT_AUTOMAKE
 
 ACJF_ARG_DEBUG([yes], [], [-DNDEBUG])
+if test x"$enable_debug" = x"yes"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_DEBUG], [yes], [Defined if debug support is enabled])
+fi
 
 AC_CONFIG_HEADER([config.h pkginclude/systemoc/smoc_config.h])
 
@@ -114,14 +117,14 @@ AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$enable_vpc" = x"yes"])
 # This is a define for pkginclude/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_vpc" = x"yes"; then
-  AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Define if you want SystemC-VPC Support])
+  AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Defined if SystemC-VPC support is enabled])
 fi
 
 AM_CONDITIONAL([SYSTEMOC_ENABLE_WSDF], [test x"$enable_wsdf" = x"yes"])
 # This is a define for pkginclude/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
 if test x"$enable_wsdf" = x"yes"; then
-  AC_DEFINE([SYSTEMOC_ENABLE_WSDF], [yes], [Define if you want WSDF Support])
+  AC_DEFINE([SYSTEMOC_ENABLE_WSDF], [yes], [Defined if WSDF support is enabled])
 fi
 
 AC_CONFIG_FILES([

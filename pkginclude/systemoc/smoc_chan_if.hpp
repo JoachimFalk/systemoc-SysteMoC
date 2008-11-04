@@ -61,7 +61,7 @@ namespace SystemC_VPC {
 
 class smoc_channel_access_base_if {
 public:
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   virtual void setLimit(size_t) = 0;
 #endif
   virtual ~smoc_channel_access_base_if() {}
@@ -125,7 +125,7 @@ public:
   friend class AST<this_type>;
   template <class E> friend class Value;
   template <class E> friend class CommExec;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class CommSetup;
   template <class E> friend class CommReset;
 #endif
@@ -173,7 +173,7 @@ typename PortTokens<typename P::chan_base_type>::type portTokens(P &p)
  * number of tokens on actor ports
  */
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
 template <class CI, class E>
 struct CommReset<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
 {
@@ -239,7 +239,7 @@ struct Value<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
   static inline
   result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> &e)
   {
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     size_t req = Value<E>::apply(e.b);
     assert(e.a.getCI().availableCount() >= req);
     // WHY is this needed? This should already be done by CommSetup!
@@ -357,7 +357,7 @@ class smoc_chan_in_base_if
   // Friends needed for guard evaluation
   template <class E> friend class Expr::Sensitivity;
   template <class E> friend class Expr::CommExec;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class Expr::CommReset;
   template <class E> friend class Expr::CommSetup;
 #endif
@@ -446,7 +446,7 @@ class smoc_chan_out_base_if
   // Friends needed for guard evaluation
   template <class E> friend class Expr::Sensitivity;
   template <class E> friend class Expr::CommExec;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class Expr::CommReset;
   template <class E> friend class Expr::CommSetup;
 #endif

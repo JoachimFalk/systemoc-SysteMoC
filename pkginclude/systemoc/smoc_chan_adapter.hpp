@@ -149,7 +149,7 @@ public:
     typename iface_impl_type::access_type* ca =
       in_if.getChannelAccess();
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
     ca->setLimit(1); 
 #endif
@@ -207,7 +207,7 @@ public:
     typename iface_impl_type::access_type* ca =
       in_if.getChannelAccess();
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
     ca->setLimit(1); 
 #endif
@@ -262,7 +262,7 @@ public:
     typename iface_impl_type::access_type* ca =
       out_if.getChannelAccess();
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
     ca->setLimit(1); 
 #endif
@@ -318,7 +318,7 @@ public:
     typename iface_impl_type::access_type* ca =
       out_if.getChannelAccess();
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
     ca->setLimit(1); 
 #endif
@@ -373,7 +373,7 @@ public:
     typename iface_impl_type::access_type* ca =
       in_if.getChannelAccess();
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
     ca->setLimit(1); 
 #endif
@@ -446,7 +446,7 @@ public:
     typename iface_impl_type::access_type* ca =
       in_if.getChannelAccess();
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
     ca->setLimit(1); 
 #endif
@@ -517,7 +517,7 @@ public:
     typename iface_impl_type::access_type* ca =
       out_if.getChannelAccess();
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
     ca->setLimit(1); 
 #endif
@@ -590,7 +590,7 @@ public:
     typename iface_impl_type::access_type* ca =
       out_if.getChannelAccess();
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     // why must we set the limit? 
     ca->setLimit(1); 
 #endif

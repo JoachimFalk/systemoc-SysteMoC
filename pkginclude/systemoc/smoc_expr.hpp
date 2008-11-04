@@ -184,7 +184,7 @@ public:
 #endif
 };
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
 // Default do nothing
 template <class E>
 class CommReset
@@ -294,7 +294,7 @@ public:
 
   friend class AST<this_type>;
   friend class CommExec<this_type>;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif
@@ -310,7 +310,7 @@ private:
 #else
     virtual void       evalToCommExec()    const = 0;
 #endif
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     virtual void       evalToCommReset()   const = 0;
     virtual void       evalToCommSetup()   const = 0;
 #endif
@@ -340,7 +340,7 @@ private:
     void       evalToCommExec() const
       { return CommExec<E>::apply(e); }
 #endif
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     void       evalToCommReset() const
       { return CommReset<E>::apply(e); }
     void       evalToCommSetup() const
@@ -400,7 +400,7 @@ public:
 #endif
 };
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
 template <typename T>
 class CommReset<DVirtual<T> >
 {
@@ -482,7 +482,7 @@ public:
 
   friend class AST<this_type>;
   friend class CommExec<this_type>;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif
@@ -546,7 +546,7 @@ public:
 
   friend class AST<this_type>;
   friend class CommExec<this_type>;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif
@@ -568,7 +568,7 @@ public:
   
   friend class AST<this_type>;
   friend class CommExec<this_type>;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif
@@ -631,7 +631,7 @@ public:
 
   friend class AST<this_type>;
   friend class CommExec<this_type>;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif
@@ -690,7 +690,7 @@ public:
   
   friend class AST<this_type>;
   friend class CommExec<this_type>;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif
@@ -750,7 +750,7 @@ public:
   
   friend class AST<this_type>;
   friend class CommExec<this_type>;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif
@@ -828,7 +828,7 @@ public:
 
   friend class AST<this_type>;
   friend class CommExec<this_type>;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif
@@ -924,7 +924,7 @@ public:
 #endif // SYSTEMOC_ENABLE_VPC
 };
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
 template <class A, class B>
 class CommReset<DBinOp<A,B,Expr::DOpBinLAnd> >
 {
@@ -1186,7 +1186,7 @@ struct DBinOpExecute<Detail::ENABLED,bool,Expr::DOpBinLAnd,Value>
   template <class A, class B>
   static inline
   result_type apply(const A &a, const B &b) {
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     Value<A>::apply(a);
 #endif
     return Value<B>::apply(b);
@@ -1202,7 +1202,7 @@ struct DBinOpExecute<bool,Detail::ENABLED,Expr::DOpBinLAnd,Value>
   static inline
   result_type apply(const A &a, const B &b) {
     result_type r = Value<A>::apply(a);
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     Value<B>::apply(b);
 #endif
     return r;
@@ -1217,7 +1217,7 @@ struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,Expr::DOpBinLAnd,Value>
   template <class A, class B>
   static inline
   result_type apply(const A &a, const B &b) {
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     Value<A>::apply(a);
     Value<B>::apply(b);
 #endif
@@ -1255,7 +1255,7 @@ public:
 
   friend class AST<this_type>;
   friend class CommExec<this_type>;
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
   friend class CommReset<this_type>;
 #endif

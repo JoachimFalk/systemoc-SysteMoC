@@ -598,7 +598,7 @@ public:
     typedef smoc_multiplex_vfifo_outlet<T,A>  ChanIfImpl;
     typedef typename this_type::return_type   return_type;
   private:
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     size_t limit;
 #endif
   private:
@@ -616,12 +616,12 @@ public:
       { return *getChanIfImpl().chan.get(); }
   public:
     AccessImpl()
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
       : limit(0)
 #endif
       {}
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     void setLimit(size_t n)
       { limit = n; }
 #endif
@@ -731,7 +731,7 @@ private:
     typedef smoc_multiplex_vfifo_entry<T,A> ChanIfImpl;
     typedef typename this_type::return_type return_type;
   private:
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     size_t limit;
 #endif
   private:
@@ -749,12 +749,12 @@ private:
       { return *getChanIfImpl().chan.get(); }
   public:
     AccessImpl()
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
       : limit(0)
 #endif
       {}
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     void setLimit(size_t n)
       { limit = n; }
 #endif

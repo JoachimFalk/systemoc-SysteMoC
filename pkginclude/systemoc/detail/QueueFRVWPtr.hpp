@@ -71,7 +71,7 @@ namespace Detail {
       return findex;
     }
 
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     // This differs from QueueRWPtr::wpp due to the different definition of
     // freeCount. Therefore, the assertion is more paranoid.
     void wpp(size_t n) {

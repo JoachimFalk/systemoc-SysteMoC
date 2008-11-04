@@ -55,7 +55,7 @@ Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
   if (*this) {
     Expr::Detail::ActivationStatus retval =
       Expr::evalTo<Expr::Value>(guard);
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
     Expr::evalTo<Expr::CommReset>(guard);
 #endif
     return retval;

@@ -48,14 +48,14 @@ using namespace SysteMoC::NGXSync;
 
 smoc_root_node::smoc_root_node(sc_module_name name, smoc_firing_state &s, bool regObj)
   : sc_module(name),
-#ifndef NDEBUG
+#if defined(SYSTEMOC_ENABLE_DEBUG)
 //  _finalizeCalled(false),
 #endif
     initialState(s),
     _non_strict(false)
 #ifdef SYSTEMOC_ENABLE_VPC
     ,diiEvent(new smoc_ref_event())
-//# ifndef NDEBUG
+//# if defined(SYSTEMOC_ENABLE_DEBUG)
 //    vpc_event_lat(NULL),
 //# endif
 #endif // SYSTEMOC_ENABLE_VPC
