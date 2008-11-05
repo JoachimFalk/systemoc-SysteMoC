@@ -33,6 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/smoc_config.h>
+
 #include <systemoc/detail/smoc_root_port.hpp>
 
 smoc_root_port::~smoc_root_port() {

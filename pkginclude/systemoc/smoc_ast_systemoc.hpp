@@ -42,9 +42,12 @@
 #include <vector>
 
 #include <boost/intrusive_ptr.hpp>
+
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/Lambda/functor.hpp>
 #include <CoSupport/String/convert.hpp>
+
+#include <systemoc/smoc_config.h>
 
 namespace smoc_modes {
   class PGWriter;

@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef __TRACELOG_H
-#define __TRACELOG_H
+#ifndef _INCLUDED_HSCD_TDSIM_TRACELOG_HPP
+#define _INCLUDED_HSCD_TDSIM_TRACELOG_HPP
 
 #include <iostream>
 #include <fstream>
@@ -42,6 +42,8 @@
 #include <string>
 #include <map>
 #include <set>
+
+#include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_TRACE
 
@@ -168,7 +170,4 @@ extern TraceLogStream TraceLog;
 
 #endif
 
-
-
-
-#endif //__TRACELOG_H
+#endif // _INCLUDED_HSCD_TDSIM_TRACELOG_HPP

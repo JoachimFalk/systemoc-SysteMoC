@@ -37,8 +37,11 @@
 #ifndef _INCLUDED_SMOC_DETAIL_EVENTMAPMANAGER_HPP
 #define _INCLUDED_SMOC_DETAIL_EVENTMAPMANAGER_HPP
 
-#include "smoc_event_decls.hpp"
 #include <ostream>
+
+#include <systemoc/smoc_config.h>
+
+#include "smoc_event_decls.hpp"
 
 namespace Detail {
 

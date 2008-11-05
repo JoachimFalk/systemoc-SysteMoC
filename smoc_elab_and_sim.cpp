@@ -33,25 +33,26 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_elab_and_sim.hpp>
-
-#include "sysc/kernel/sc_cmnhdr.h"
-#include "sysc/kernel/sc_externs.h"
-
 #include <cstring>
-
-#include <CoSupport/Streams/AlternateStream.hpp>
-
-#include <systemoc/smoc_pggen.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/positional_options.hpp>
 
+#include <sysc/kernel/sc_cmnhdr.h>
+#include <sysc/kernel/sc_externs.h>
+
+#include <CoSupport/Streams/AlternateStream.hpp>
+
+#include <systemoc/smoc_config.h>
+
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
+
+#include <systemoc/smoc_elab_and_sim.hpp>
+#include <systemoc/smoc_pggen.hpp>
+#include <systemoc/smoc_ngx_sync.hpp>
 
 using namespace boost::program_options;
 

@@ -1,6 +1,14 @@
 #ifndef _INCLUDED_SMOC_FIRING_STATE_HPP
 #define _INCLUDED_SMOC_FIRING_STATE_HPP
 
+#include <vector>
+#include <iostream>
+#include <list>
+#include <set>
+
+#include <boost/variant.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include <CoSupport/SmartPtr/intrusive_refcount_ptr.hpp>
 #include <CoSupport/Streams/stl_output_for_list.hpp>
 #include <CoSupport/DataTypes/Facade.hpp>
@@ -8,16 +16,10 @@
 
 #include <systemc.h>
 
+#include <systemoc/smoc_config.h>
+
 #include "smoc_guard.hpp"
 #include "smoc_func_call.hpp"
-
-#include <boost/variant.hpp>
-#include <boost/shared_ptr.hpp>
-
-#include <vector>
-#include <iostream>
-#include <list>
-#include <set>
 
 // FIXME: this should be in Detail but conflicts with other
 // Detail namespaces...

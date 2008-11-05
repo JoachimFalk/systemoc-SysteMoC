@@ -41,6 +41,8 @@
 #include <CoSupport/SystemC/systemc_support.hpp>
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 
+#include <systemoc/smoc_config.h>
+
 typedef CoSupport::SystemC::Event         smoc_event;
 typedef CoSupport::SystemC::EventWaiter   smoc_event_waiter;
 typedef CoSupport::SystemC::EventListener smoc_event_listener;

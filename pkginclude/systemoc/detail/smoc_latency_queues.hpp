@@ -38,15 +38,17 @@
 #define _INCLUDED_SMOC_LATENCY_QUEUES_HPP
 
 #include <list>
+
+#include <boost/function.hpp>
+
 #include <systemoc/smoc_config.h>
+
 #include "smoc_event_decls.hpp"
 #include "smoc_root_chan.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
-
-#include <boost/function.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace Detail {

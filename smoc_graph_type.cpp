@@ -34,6 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/smoc_config.h>
+
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_graph_synth.hpp>

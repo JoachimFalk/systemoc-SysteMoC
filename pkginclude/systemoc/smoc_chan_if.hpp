@@ -37,21 +37,21 @@
 #ifndef _INCLUDED_SMOC_CHAN_IF_HPP
 #define _INCLUDED_SMOC_CHAN_IF_HPP
 
+#include <list>
+
+#include <systemc.h>
+
+#include <boost/noncopyable.hpp>
+
 #include <CoSupport/SystemC/ChannelModificationListener.hpp> 
 
 #include <systemoc/smoc_config.h>
-
-#include <boost/noncopyable.hpp>
 
 #include "detail/smoc_sysc_port.hpp"
 #include "smoc_event.hpp"
 #include "smoc_pggen.hpp"
 #include "smoc_storage.hpp"
 #include "smoc_expr.hpp"
-
-#include <systemc.h>
-
-#include <list>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {

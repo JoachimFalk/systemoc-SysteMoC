@@ -21,11 +21,13 @@
 
 #include <CoSupport/commondefs.h>
 
+#include <systemc.h>
+
+#include <systemoc/smoc_config.h>
+
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
 #include "smoc_multicast_sr_signal.hpp"
-
-#include <systemc.h>
 
 template <typename T>
 class smoc_sr_signal

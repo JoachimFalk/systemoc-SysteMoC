@@ -39,6 +39,8 @@
 #include <cmath>
 #include <systemc.h>
 
+#include <systemoc/smoc_config.h>
+
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 #include <systemoc/smoc_root_node.hpp>

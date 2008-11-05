@@ -38,8 +38,12 @@
 
 #include <cassert>
 #include <new>
+
 #include <boost/type_traits.hpp> 
+
 #include <CoSupport/SystemC/ChannelModificationListener.hpp> 
+
+#include <systemoc/smoc_config.h>
 
 template<class T,
          bool is_subclass =

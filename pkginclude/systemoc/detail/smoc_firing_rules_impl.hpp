@@ -37,6 +37,8 @@
 #ifndef _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP
 #define _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP
 
+#include <systemoc/smoc_config.h>
+
 #include "../smoc_func_call.hpp"
 #include "../smoc_firing_rules.hpp"
 

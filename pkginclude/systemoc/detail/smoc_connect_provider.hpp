@@ -37,6 +37,8 @@
 #ifndef _INCLUDED_SMOC_DETAIL_SMOC_CONNECT_PROVIDER_HPP
 #define _INCLUDED_SMOC_DETAIL_SMOC_CONNECT_PROVIDER_HPP
 
+#include <systemoc/smoc_config.h>
+
 #include "../smoc_chan_if.hpp"
 #include "../smoc_chan_adapter.hpp"
 #include "../smoc_ngx_sync.hpp"

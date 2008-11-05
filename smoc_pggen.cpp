@@ -33,8 +33,11 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_pggen.hpp>
 #include <systemc.h>
+
+#include <systemoc/smoc_config.h>
+
+#include <systemoc/smoc_pggen.hpp>
 
 namespace smoc_modes {
   

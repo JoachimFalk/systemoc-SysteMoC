@@ -1,3 +1,5 @@
+#include <systemoc/smoc_config.h>
+
 #include <systemoc/smoc_ngx_sync.hpp>
 
 using namespace SystemCoDesigner::SGX;

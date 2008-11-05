@@ -37,10 +37,15 @@
 #ifndef _INCLUDED_SMOC_PORT_REGISTRY_HPP
 #define _INCLUDED_SMOC_PORT_REGISTRY_HPP
 
-#include "../smoc_chan_if.hpp"
-#include <systemc.h>
-#include <boost/tuple/tuple.hpp>
 #include <map>
+
+#include <boost/tuple/tuple.hpp>
+
+#include <systemc.h>
+
+#include <systemoc/smoc_config.h>
+
+#include "../smoc_chan_if.hpp"
 #include "../smoc_chan_adapter.hpp"
 
 class smoc_port_registry {

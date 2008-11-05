@@ -37,6 +37,17 @@
 #ifndef _INCLUDED_SMOC_ROOT_NODE_HPP
 #define _INCLUDED_SMOC_ROOT_NODE_HPP
 
+#include <list>
+#include <typeinfo>
+#include <stack>
+#include <utility>
+#include <string>
+#include <sstream>
+
+#include <systemc.h>
+
+#include <CoSupport/Lambda/functor.hpp>
+
 #include <systemoc/smoc_config.h>
 
 #include "smoc_firing_rules.hpp"
@@ -45,19 +56,7 @@
 #ifndef __SCFE__
 # include "smoc_pggen.hpp"
 #endif
-
 #include "smoc_expr.hpp"
-
-#include <systemc.h>
-
-#include <list>
-#include <CoSupport/Lambda/functor.hpp>
-
-#include <typeinfo>
-#include <stack>
-#include <utility>
-#include <string>
-#include <sstream>
 
 #undef  SMOC_REGISTER_CPARAM
 #define SMOC_REGISTER_CPARAM(name) Expr::Detail::doRegisterParam(name)

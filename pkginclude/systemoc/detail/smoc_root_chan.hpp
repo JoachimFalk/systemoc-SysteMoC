@@ -37,6 +37,10 @@
 #ifndef _INCLUDED_SMOC_ROOT_CHAN_HPP
 #define _INCLUDED_SMOC_ROOT_CHAN_HPP
 
+#include <list>
+
+#include <systemc.h>
+
 #include <CoSupport/SystemC/ChannelModificationListener.hpp> 
 
 #include <systemoc/smoc_config.h>
@@ -47,10 +51,6 @@
 #include "../smoc_storage.hpp"
 #include "../smoc_chan_if.hpp"
 #include "smoc_port_registry.hpp"
-
-#include <systemc.h>
-
-#include <list>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {

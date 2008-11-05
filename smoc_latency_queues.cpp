@@ -33,6 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/smoc_config.h>
+
 #include <systemoc/detail/smoc_latency_queues.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC

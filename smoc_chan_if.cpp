@@ -33,6 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/smoc_config.h>
+
 #include <systemoc/smoc_chan_if.hpp>
 
 #ifdef __GNUC__

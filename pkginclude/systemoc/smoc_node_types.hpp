@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_SMOC_NODE_TYPES_HPP
 #define _INCLUDED_SMOC_NODE_TYPES_HPP
 
+#include <systemoc/smoc_config.h>
+
 #include "smoc_root_node.hpp"
 
 class smoc_actor

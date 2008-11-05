@@ -33,6 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/smoc_config.h>
+
 #include <systemoc/smoc_ast_systemoc.hpp>
 #include <systemoc/smoc_pggen.hpp>
 

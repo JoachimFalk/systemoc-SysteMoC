@@ -46,17 +46,17 @@
 #include <list>
 #include <map>
 
-#include <systemoc/smoc_config.h>
-
-#include "detail/smoc_event_decls.hpp"
-#include "smoc_ast_systemoc.hpp"
-
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
 #include <CoSupport/Lambda/functor.hpp>
 #include <CoSupport/commondefs.h>
 
 #include <boost/typeof/typeof.hpp>
+
+#include <systemoc/smoc_config.h>
+
+#include "detail/smoc_event_decls.hpp"
+#include "smoc_ast_systemoc.hpp"
 
 /****************************************************************************
  * dexpr.h

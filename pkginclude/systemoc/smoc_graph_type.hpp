@@ -37,6 +37,13 @@
 #ifndef _INCLUDED_SMOC_GRAPH_TYPE_HPP
 #define _INCLUDED_SMOC_GRAPH_TYPE_HPP
 
+#include <list>
+#include <map>
+
+#include <systemc.h>
+
+#include <systemoc/smoc_config.h>
+
 #include "smoc_port.hpp"
 #ifdef SYSTEMOC_ENABLE_WSDF 
 # include "smoc_md_port.hpp"
@@ -51,11 +58,6 @@
 #endif
 
 #include "smoc_chan_adapter.hpp"
-
-#include <systemc.h>
-
-#include <list>
-#include <map>
 
 #define T_chan_init_default smoc_fifo
 

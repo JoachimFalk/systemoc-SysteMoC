@@ -35,11 +35,13 @@
 #ifndef _INCLUDED_SMOC_AST_COMMON_HPP
 #define _INCLUDED_SMOC_AST_COMMON_HPP
 
-#include <boost/intrusive_ptr.hpp>
-#include <CoSupport/SmartPtr/RefCountObject.hpp>
-//systemc_support.hpp>/intrusive_refcount_ptr.hpp>
-
 #include <string>
+
+#include <boost/intrusive_ptr.hpp>
+
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
+
+#include <systemoc/smoc_config.h>
 
 namespace SysteMoC { namespace ActivationPattern {
 

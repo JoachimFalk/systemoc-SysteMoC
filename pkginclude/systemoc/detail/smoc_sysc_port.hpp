@@ -37,11 +37,13 @@
 #ifndef _INCLUDED_SMOC_SYSC_PORT_HPP
 #define _INCLUDED_SMOC_SYSC_PORT_HPP
 
-#include <systemoc/smoc_config.h>
-#include "smoc_root_port.hpp"
+#include <list>
 
 #include <systemc.h>
-#include <list>
+
+#include <systemoc/smoc_config.h>
+
+#include "smoc_root_port.hpp"
 
 /****************************************************************************/
 

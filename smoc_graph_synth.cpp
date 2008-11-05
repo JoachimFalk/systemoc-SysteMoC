@@ -34,10 +34,12 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_graph_synth.hpp>
-
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
+
+#include <systemoc/smoc_config.h>
+
+#include <systemoc/smoc_graph_synth.hpp>
 
 namespace SysteMoC {
 

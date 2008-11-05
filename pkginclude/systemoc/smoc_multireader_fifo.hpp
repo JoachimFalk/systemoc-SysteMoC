@@ -37,9 +37,21 @@
 #ifndef _INCLUDED_SMOC_MULTIREADER_FIFO_HPP
 #define _INCLUDED_SMOC_MULTIREADER_FIFO_HPP
 
+#include <vector>
+#include <queue>
+#include <map>
+
 #include <CoSupport/commondefs.h>
 
+#include <boost/noncopyable.hpp>
+
+#include <systemc.h>
+
 #include <systemoc/smoc_config.h>
+
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
+#endif //SYSTEMOC_ENABLE_VPC
 
 #include "smoc_chan_if.hpp"
 #include "detail/smoc_root_chan.hpp"
@@ -55,20 +67,7 @@
 #else
 # include "detail/QueueRWPtr.hpp"
 #endif
-
-//#include <boost/tuple/tuple.hpp>
-#include <boost/noncopyable.hpp>
-
-#include <systemc.h>
-#include <vector>
-#include <queue>
-#include <map>
-
 #include "hscd_tdsim_TraceLog.hpp"
-
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
-#endif //SYSTEMOC_ENABLE_VPC
 
 size_t fsizeMapper(sc_object* instance, size_t n);
 

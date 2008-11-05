@@ -33,6 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/smoc_config.h>
+
 #include <systemoc/smoc_elab_and_sim.hpp>
 
 int main(int _argc, char* _argv[]) {

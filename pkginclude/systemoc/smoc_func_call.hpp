@@ -36,15 +36,17 @@
 #ifndef _INCLUDED_SMOC_FUNC_CALL_HPP
 #define _INCLUDED_SMOC_FUNC_CALL_HPP
 
+#include <list>
+
 #include <CoSupport/Lambda/functor.hpp>
+
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
 #include <boost/intrusive_ptr.hpp>
 
-#include <systemoc/smoc_ast_systemoc.hpp>
 #include <systemoc/smoc_config.h>
 
-#include <list>
+#include "smoc_ast_systemoc.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>

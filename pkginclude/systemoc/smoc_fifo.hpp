@@ -37,9 +37,20 @@
 #ifndef _INCLUDED_SMOC_FIFO_HPP
 #define _INCLUDED_SMOC_FIFO_HPP
 
+#include <systemc.h>
+#include <vector>
+#include <queue>
+#include <map>
+
 #include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
+
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
+#endif //SYSTEMOC_ENABLE_VPC
+
+#include "hscd_tdsim_TraceLog.hpp"
 
 #include "smoc_chan_if.hpp"
 #include "detail/smoc_root_chan.hpp"
@@ -54,17 +65,6 @@
 #else
 # include "detail/QueueRWPtr.hpp"
 #endif
-
-#include <systemc.h>
-#include <vector>
-#include <queue>
-#include <map>
-
-#include "hscd_tdsim_TraceLog.hpp"
-
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
-#endif //SYSTEMOC_ENABLE_VPC
 
 size_t fsizeMapper(sc_object* instance, size_t n);
 

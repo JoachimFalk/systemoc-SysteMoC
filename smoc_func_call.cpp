@@ -33,6 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/smoc_config.h>
+
 #include <systemoc/smoc_func_call.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 

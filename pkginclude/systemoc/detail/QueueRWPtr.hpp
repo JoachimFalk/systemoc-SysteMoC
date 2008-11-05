@@ -39,6 +39,8 @@
 
 #include <CoSupport/Math/ModuloGroup.hpp>
 
+#include <systemoc/smoc_config.h>
+
 namespace Detail {
 
   class QueueRVWPtr;

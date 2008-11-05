@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_SMOC_EVENT_HPP
 #define _INCLUDED_SMOC_EVENT_HPP
 
+#include <systemoc/smoc_config.h>
+
 #include "detail/smoc_event_decls.hpp"
 #include "detail/smoc_event_expr.hpp"
 

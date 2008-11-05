@@ -36,14 +36,14 @@
 #ifndef _INCLUDED_SMOC_ROOT_PORT_HPP
 #define _INCLUDED_SMOC_ROOT_PORT_HPP
 
-#include <CoSupport/commondefs.h>
-
 #include <iostream>
 #include <cassert>
-
 #include <list>
 #include <utility>
 
+#include <boost/noncopyable.hpp>
+
+#include <CoSupport/commondefs.h>
 #include <CoSupport/Streams/stl_output_for_list.hpp>
 #include <CoSupport/Streams/stl_output_for_pair.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
@@ -52,8 +52,6 @@
 
 #include "../smoc_expr.hpp"
 #include "../smoc_event.hpp"
-
-#include <boost/noncopyable.hpp>
 
 class smoc_root_node;
 

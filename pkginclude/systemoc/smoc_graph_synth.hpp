@@ -37,8 +37,10 @@
 #ifndef _INCLUDED_SMOC_GRAPH_SYNTH_HPP
 #define _INCLUDED_SMOC_GRAPH_SYNTH_HPP
 
-#include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
+#include <systemoc/smoc_config.h>
+
+#include "smoc_graph_type.hpp"
+#include "smoc_ngx_sync.hpp"
 
 namespace SysteMoC {
 

@@ -36,10 +36,13 @@
 #ifndef _INCLUDED_SMOC_CHAN_ADAPTER_HPP
 #define _INCLUDED_SMOC_CHAN_ADAPTER_HPP
 
-#include <systemoc/smoc_chan_if.hpp>
 #include <tlm.h>
 
 #include <boost/type_traits/is_base_of.hpp>
+
+#include <systemoc/smoc_config.h>
+
+#include "smoc_chan_if.hpp"
 
 namespace tlm {
 

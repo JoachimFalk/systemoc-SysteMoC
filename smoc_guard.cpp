@@ -33,9 +33,12 @@
  * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
-#include <systemoc/smoc_guard.hpp>
+
+#include <systemoc/smoc_config.h>
 
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
+
+#include <systemoc/smoc_guard.hpp>
 #include <systemoc/smoc_pggen.hpp>
 
 void smoc_activation_pattern::finalise() {

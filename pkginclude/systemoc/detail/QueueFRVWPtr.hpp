@@ -37,6 +37,8 @@
 #ifndef _INCLUDED_SMOC_DETAIL_QUEUEVRVWPTR_HPP
 #define _INCLUDED_SMOC_DETAIL_QUEUEVRVWPTR_HPP
 
+#include <systemoc/smoc_config.h>
+
 #include "QueueRVWPtr.hpp"
 
 namespace Detail {

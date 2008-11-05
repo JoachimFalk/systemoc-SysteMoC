@@ -37,6 +37,8 @@
 #ifndef _INCLUDED_SMOC_SMOC_ELAB_AND_SIM_HPP
 #define _INCLUDED_SMOC_SMOC_ELAB_AND_SIM_HPP
 
+#include <systemoc/smoc_config.h>
+
 int smoc_elab_and_sim(int argc, char *argv[]);
 
 #endif // _INCLUDED_SMOC_SMOC_ELAB_AND_SIM_HPP

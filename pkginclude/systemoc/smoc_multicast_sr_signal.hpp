@@ -19,6 +19,12 @@
 #ifndef _INCLUDED_SMOC_MULTICAST_SR_SIGNAL_HPP
 #define _INCLUDED_SMOC_MULTICAST_SR_SIGNAL_HPP
 
+#include <vector>
+#include <queue>
+#include <map>
+
+#include <systemc.h>
+
 #include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
@@ -30,12 +36,6 @@
 #include "detail/smoc_connect_provider.hpp"
 #include "detail/EventMapManager.hpp"
 #include "smoc_chan_adapter.hpp"
-
-#include <systemc.h>
-#include <vector>
-#include <queue>
-#include <map>
-
 #include "hscd_tdsim_TraceLog.hpp"
 
 enum SignalState {undefined, defined, absent};

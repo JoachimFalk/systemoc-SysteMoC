@@ -37,6 +37,8 @@
 #ifndef _INCLUDED_SMOC_RING_ACCESS_HPP
 #define _INCLUDED_SMOC_RING_ACCESS_HPP
 
+#include <systemoc/smoc_config.h>
+
 template<class S, class T>
 class smoc_ring_access
 : public smoc_channel_access_if<T> {

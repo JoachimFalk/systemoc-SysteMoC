@@ -33,6 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/smoc_config.h>
+
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
 

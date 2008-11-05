@@ -38,10 +38,23 @@
 #define _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP
 
 #include <utility>
+#include <vector>
+#include <queue>
+#include <map>
 
 #include <CoSupport/commondefs.h>
 
+#include <systemc.h>
+
+#include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
+
 #include <systemoc/smoc_config.h>
+
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
+#endif //SYSTEMOC_ENABLE_VPC
 
 #include "detail/smoc_root_chan.hpp"
 #include "smoc_chan_if.hpp"
@@ -54,21 +67,7 @@
 #include "detail/EventMapManager.hpp"
 #include "detail/QueueRVWPtr.hpp"
 #include "detail/QueueFRVWPtr.hpp"
-
-#include <systemc.h>
-#include <vector>
-#include <queue>
-#include <map>
-
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
-
 #include "hscd_tdsim_TraceLog.hpp"
-
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
-#endif //SYSTEMOC_ENABLE_VPC
 
 // FIX possibly broken offsetof from stddef.h
 #undef offsetof

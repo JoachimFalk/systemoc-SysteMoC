@@ -37,6 +37,8 @@
 #ifndef _INCLUDED_DETAIL_SMOC_FIFO_STORAGE_HPP
 #define _INCLUDED_DETAIL_SMOC_FIFO_STORAGE_HPP
 
+#include <systemoc/smoc_config.h>
+
 #include "smoc_ring_access.hpp"
 
 /**

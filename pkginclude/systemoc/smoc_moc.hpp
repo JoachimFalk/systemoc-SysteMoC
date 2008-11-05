@@ -37,9 +37,11 @@
 #ifndef _INCLUDED_SMOC_MOC_HPP
 #define _INCLUDED_SMOC_MOC_HPP
 
+#include <list>
+
 #include <systemc.h>
 
-#include <list>
+#include <systemoc/smoc_config.h>
 
 #include "smoc_firing_rules.hpp"
 #include "smoc_root_node.hpp"
@@ -117,4 +119,4 @@ private:
 
 #endif // _INCLUDED_SMOC_MOC_HPP
 
-#include <systemoc/smoc_graph_type.hpp>
+#include "smoc_graph_type.hpp"

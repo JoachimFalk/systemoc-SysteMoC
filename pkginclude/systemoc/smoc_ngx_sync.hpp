@@ -37,22 +37,25 @@
 #ifndef _INCLUDED_SMOC_NGX_SYNC_HPP
 #define _INCLUDED_SMOC_NGX_SYNC_HPP
 
-#include "smoc_pggen.hpp"
-#include "detail/smoc_sysc_port.hpp"
-
 #include <stdexcept>
 #include <string>
 #include <map>
 #include <set>
 #include <istream>
 
+#include <systemc.h>
+#include <sysc/kernel/sc_object.h>
+
 #include <CoSupport/DataTypes/container_insert.hpp>
 #include <CoSupport/Math/string_hash.hpp>
 #include <CoSupport/SMXIdManager.hpp>
 
-#include <sysc/kernel/sc_object.h>
-
 #include <sgx.hpp>
+
+#include <systemoc/smoc_config.h>
+
+#include "smoc_pggen.hpp"
+#include "detail/smoc_sysc_port.hpp"
 
 #define objAs CoSupport::DataTypes::dynamic_pointer_cast
 

@@ -33,21 +33,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <algorithm>
+#include <map>
+#include <set>
+#include <list>
+
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
+#include <CoSupport/DataTypes/oneof.hpp>
+
 #include <systemoc/smoc_config.h>
+
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
-
-#include <CoSupport/SmartPtr/RefCountObject.hpp>
-#include <CoSupport/DataTypes/oneof.hpp>
-
-#include <algorithm>
-#include <map>
-#include <set>
-#include <list>
 
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::NGXSync;

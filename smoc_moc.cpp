@@ -138,8 +138,12 @@ void smoc_scheduler_top::schedule() {
     smoc_wait(ol);
     while(ol) {
       ExpandedTransition &transition = ol.getEventTrigger();
+      // We have waited on a transition so it should no longer be blocked
+      assert(transition);
+      // It should either be enabled so we can execute it or its functionallity
+      // condition could disable it.
       Expr::Detail::ActivationStatus status = transition.getStatus();
-    
+      
       switch(status.toSymbol()) {
         case Expr::Detail::_DISABLED:
           // remove disabled transition
@@ -163,7 +167,7 @@ void smoc_scheduler_top::schedule() {
 #endif
           break;
         default:
-          assert(0);
+          assert(!"WTF?! transition not either enabled or disabled!");
       }
     }
   }

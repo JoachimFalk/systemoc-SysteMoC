@@ -37,15 +37,16 @@
 #define _INCLUDED_SMOC_GUARD_HPP
 
 #include <iostream>
-
 #include <cassert>
 #include <climits>
 #include <cmath>
-
 #include <list>
+
 #include <CoSupport/Streams/stl_output_for_list.hpp>
 
 #include <systemc.h>
+
+#include <systemoc/smoc_config.h>
 
 #include "smoc_expr.hpp"
 #include "smoc_port.hpp"

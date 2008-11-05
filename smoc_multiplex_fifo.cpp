@@ -34,6 +34,7 @@
  */
 
 #include <systemoc/smoc_config.h>
+
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
 

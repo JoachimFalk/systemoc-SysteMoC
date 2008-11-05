@@ -43,6 +43,8 @@
 #include <CoSupport/Streams/IndentStreambuf.hpp>
 #include <CoSupport/Streams/TranslationStreambuf.hpp>
 
+#include <systemoc/smoc_config.h>
+
 class smoc_root_node;
 
 namespace smoc_modes {

@@ -37,7 +37,11 @@
 #ifndef _INCLUDED_SMOC_PORT_HPP
 #define _INCLUDED_SMOC_PORT_HPP
 
+#include <vector>
+
 #include <CoSupport/commondefs.h>
+
+#include <systemc.h>
 
 #include <systemoc/smoc_config.h>
 
@@ -46,10 +50,6 @@
 #include "smoc_chan_if.hpp"
 #include "smoc_event.hpp"
 #include "smoc_storage.hpp"
-
-#include <systemc.h>
-#include <vector>
-
 #include "hscd_tdsim_TraceLog.hpp"
 
 /// IFACE: interface type (this is basically sc_port_b<IFACE>)
