@@ -19,8 +19,6 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
-root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
-root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
 include $(auxdir)/jfrules.mk
 include ../BuildSystem/doxygen.am
@@ -30,25 +28,25 @@ SUBDIRS = pkginclude
 # This is only needed if there is a configure.in in this directory
 ACLOCAL_AMFLAGS=-I ../BuildSystem/m4
 
-AM_CPPFLAGS =					\
-	@AM_CPPFLAGS@				\
-	@SYSTEMC_INCLUDE@			\
-	@XERCES_INCLUDE@			\
-	@COSUPPORT_INCLUDE@			\
-	@LIBWSDF_INCLUDE@			\
-	@LIBSGX_INCLUDE@			\
-	@BOOST_INCLUDE@				\
-	@SYSTEMC_VPC_INCLUDE@			\
-	-Ipkginclude				\
+AM_CPPFLAGS =				\
+	@AM_CPPFLAGS@			\
+	$(SYSTEMC_INCLUDE)		\
+	$(XERCES_INCLUDE)		\
+	$(COSUPPORT_INCLUDE)		\
+	$(LIBWSDF_INCLUDE)		\
+	$(LIBSGX_INCLUDE)		\
+	$(BOOST_INCLUDE)		\
+	$(SYSTEMC_VPC_INCLUDE)		\
+	-Ipkginclude			\
 	-I$(srcdir)/pkginclude
 
 AM_LDFLAGS=				\
 	@AM_LDFLAGS@			\
-	@SYSTEMC_LDFLAGS@		\
-	@XERCES_LDFLAGS@		\
-	@COSUPPORT_LDFLAGS@		\
-	@LIBSGX_LDFLAGS@		\
-	@BOOST_LDFLAGS@
+	$(SYSTEMC_LDFLAGS)		\
+	$(XERCES_LDFLAGS)		\
+	$(COSUPPORT_LDFLAGS)		\
+	$(LIBSGX_LDFLAGS)		\
+	$(BOOST_LDFLAGS)
 
 lib_LTLIBRARIES = libsystemoc.la
 
@@ -93,7 +91,7 @@ libsystemoc_la_LDFLAGS =					\
 	-no-undefined
 libsystemoc_la_LIBADD = 					\
 	-lsystemc 						\
-	-lboost_program_options@BOOST_LIBPOSTFIX@		\
+	-lboost_program_options$(BOOST_LIBPOSTFIX)		\
 	@LIBSGX_LIBPATH@/libsgx.la				\
 	@COSUPPORT_LIBPATH@/libcosupport-systemc.la		\
 	@COSUPPORT_LIBPATH@/libcosupport-streams.la		\
