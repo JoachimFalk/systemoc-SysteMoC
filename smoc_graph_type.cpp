@@ -329,9 +329,10 @@ void smoc_graph::schedule() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "<smoc_graph::schedule>" << std::endl;
 #endif
+  assert(ol || !"WTF?! smoc_graph::schedule() called but no enabled transition!");
   ExpandedTransition &transition = ol.getEventTrigger();
   Expr::Detail::ActivationStatus status = transition.getStatus();
-      
+  
   switch(status.toSymbol()) {
     case Expr::Detail::_DISABLED:
       ol.remove(transition);
