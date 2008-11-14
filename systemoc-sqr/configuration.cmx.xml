@@ -9,7 +9,9 @@
    <attribute type="timeslice" value="20ns"/>
   </component>
 
-  <component name="ZeroCom" type="threaded" scheduler="FCFS"></component>
+  <component name="ZeroCom" type="threaded" scheduler="FCFS">
+   <attribute type="transaction_delay" value="0 ns" />
+  </component>
  </resources>
 
  <mappings>
@@ -65,4 +67,42 @@
   </mapping>
 
  </mappings>
+ <topology>
+  <route source="sqrroot.a1" destination="cf_sqrroot.a1_sqrroot.a2_1">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="cf_sqrroot.a1_sqrroot.a2_1" destination="sqrroot.a2">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="sqrroot.a2" destination="cf_sqrroot.a2_sqrroot.a3_1">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="cf_sqrroot.a2_sqrroot.a3_1" destination="sqrroot.a3">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="cf_sqrroot.a4_sqrroot.a3_1" destination="sqrroot.a3">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="sqrroot.a3" destination="cf_sqrroot.a3_sqrroot.a4_1">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="cf_sqrroot.a3_sqrroot.a4_1" destination="sqrroot.a4">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="sqrroot.a4" destination="cf_sqrroot.a4_sqrroot.a3_1">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="sqrroot.a4" destination="cf_sqrroot.a4_sqrroot.a2_1">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="cf_sqrroot.a4_sqrroot.a2_1" destination="sqrroot.a2">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="sqrroot.a2" destination="cf_sqrroot.a2_sqrroot.a5_1">
+    <hop name="ZeroCom" />
+  </route>
+  <route source="cf_sqrroot.a2_sqrroot.a5_1" destination="sqrroot.a5">
+    <hop name="ZeroCom" />
+  </route>
+ </topology>
 </vpcconfiguration>
