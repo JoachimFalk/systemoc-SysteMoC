@@ -5,8 +5,7 @@
  <measurefile name=""/>
 
  <resources>
-  <component name="Component1" type="threaded" scheduler="RoundRobin">
-   <attribute type="timeslice" value="20ns"/>
+  <component name="Component1" type="threaded" scheduler="FCFS">
   </component>
 
   <component name="ZeroCom" type="threaded" scheduler="FCFS">
