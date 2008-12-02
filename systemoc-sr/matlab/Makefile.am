@@ -19,8 +19,6 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
-root_srcdir=$(top_srcdir)/..
-root_builddir=$(top_builddir)/..
 
 include $(auxdir)/jfrules.mk
 
