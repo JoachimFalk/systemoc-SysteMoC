@@ -43,7 +43,8 @@ namespace smoc_modes {
   
   bool dumpSMXWithSim = false;
   std::ostream* dumpFileSMX = NULL;
-  
+  bool dumpFSMs = false;
+
   void dump(std::ostream& out, smoc_root_node&) {
     dumpFileSMX = &out;
     sc_core::sc_start();

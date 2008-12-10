@@ -44,6 +44,7 @@
 
 #include <list>
 #include <set>
+#include <vector>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {
@@ -51,21 +52,30 @@ namespace SystemC_VPC {
 } // namespace SystemC_VPC
 #endif //SYSTEMOC_ENABLE_VPC
 
-class FiringStateBaseImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateBaseImpl, PFiringStateBaseImpl);
+//class FiringStateBaseImpl;
+//DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateBaseImpl, PFiringStateBaseImpl);
 typedef std::set<FiringStateBaseImpl*> FiringStateBaseImplSet;
 
-class FiringStateImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateImpl, PFiringStateImpl);
-typedef std::set<FiringStateImpl*> FiringStateImplSet;
-typedef std::list<FiringStateImpl*> FiringStateImplList;
+//class FiringStateImpl;
+//DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateImpl, PFiringStateImpl);
+typedef std::set<const FiringStateImpl*> ProdState;
+//typedef std::list<FiringStateImpl*> FiringStateImplList;
 
-class RefinedStateImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(RefinedStateImpl, PRefinedStateImpl);
-typedef std::set<RefinedStateImpl*> RefinedStateImplSet;
+//class XORStateImpl;
+//DECL_INTRUSIVE_REFCOUNT_PTR(XORStateImpl, PXORStateImpl);
+//typedef std::set<XORStateImpl*> XORStateImplSet;
 
+//class ANDStateImpl;
+//DECL_INTRUSIVE_REFCOUNT_PTR(ANDStateImpl, PANDStateImpl);
+//typedef std::set<ANDStateImpl*> ANDStateImplSet;
 
-class PartialTransition {
+//class ConnectorStateImpl;
+//DECL_INTRUSIVE_REFCOUNT_PTR(ConnectorStateImpl, PConnectorStateImpl);
+
+typedef std::set<HierarchicalStateImpl*> HierarchicalStateImplSet;
+typedef std::set<const HierarchicalStateImpl*> MultiState;
+
+class TransitionBase {
 private:
   /// @brief Activation pattern
   smoc_activation_pattern ap;
@@ -73,24 +83,31 @@ private:
   /// @brief Action
   smoc_action f;
 
-  /// @brief Target state
-  FiringStateBaseImpl *dest;
+protected:
+  TransitionBase(
+      const smoc_activation_pattern& ap,
+      const smoc_action& f);
 
 public:
-  /// @brief Constructor (Public interface)
-  PartialTransition(const smoc_transition &t);
-
-  /// @brief Constructor (Internal use only)
-  PartialTransition(
-    const smoc_activation_pattern& ap,
-    const smoc_action& f,
-    FiringStateBaseImpl* dest = 0);
-
   /// @brief Returns the activation pattern
   const smoc_activation_pattern &getActivationPattern() const;
 
   /// @brief Returns the action
   const smoc_action& getAction() const;
+};
+
+class PartialTransition : public TransitionBase {
+private:
+
+  /// @brief Target state
+  FiringStateBaseImpl* dest;
+
+public:
+  /// @brief Constructor
+  PartialTransition(
+    const smoc_activation_pattern& ap,
+    const smoc_action& f,
+    FiringStateBaseImpl* dest = 0);
 
   /// @brief Returns the target state
   FiringStateBaseImpl* getDestState() const;
@@ -98,29 +115,83 @@ public:
 
 typedef std::list<PartialTransition> PartialTransitionList;
 
-class ExpandedTransition : public smoc_activation_pattern {
+class ExpandedTransition : public TransitionBase {
 private:
-  /// @brief Action
-  smoc_action f;
+  /// @brief Source state
+  const HierarchicalStateImpl* src;
 
-  /// @brief Target state
-  FiringStateImpl *dest;
+  /// @brief IN conditions
+  MultiState in;
+  
+  /// @brief Target state(s)
+  MultiState dest;
 
+public:
+  /// @brief Constructor
+  ExpandedTransition(
+      const HierarchicalStateImpl* src,
+      const MultiState& in,
+      const smoc_activation_pattern& ap,
+      const smoc_action& f,
+      const MultiState& dest);
+
+  /// @brief Constructor
+  ExpandedTransition(
+      const HierarchicalStateImpl* src,
+      const MultiState& in,
+      const smoc_activation_pattern& ap,
+      const smoc_action& f);
+
+  /// @brief Constructor
+  ExpandedTransition(
+      const HierarchicalStateImpl* src,
+      const smoc_activation_pattern& ap,
+      const smoc_action& f);
+
+  /// @brief Returns the source state
+  const HierarchicalStateImpl* getSrcState() const;
+
+  /// @brief Returns the IN conditions
+  const MultiState& getInCond() const;
+
+  /// @brief Returns the target state(s)
+  const MultiState& getDestStates() const;
+};
+
+typedef std::list<ExpandedTransition> ExpandedTransitionList;
+
+class RuntimeState;
+
+class RuntimeTransition : public smoc_activation_pattern {
+private:
   /// @brief Parent node
   smoc_root_node *actor;
+
+  /// @brief Action
+  smoc_action f;
+  
+  /// @brief Target state
+  RuntimeState *dest;
 
 #ifdef SYSTEMOC_ENABLE_VPC
   /// @brief FastLink to VPC
   SystemC_VPC::FastLink *vpcLink;
 #endif //SYSTEMOC_ENABLE_VPC
+  
+  /// @brief Hierarchical end-of-elaboration callback
+  void finalise();
 
 public:
   /// @brief Execution masks used for SR Scheduling
   static const int GO   = 1;
   static const int TICK = 2;
-  
+
   /// @brief Constructor
-  ExpandedTransition(const PartialTransition &t, FiringStateImpl *dest);
+  RuntimeTransition(
+      smoc_root_node* actor,
+      const smoc_activation_pattern& ap,
+      const smoc_action& f,
+      RuntimeState* dest = 0);
 
 #ifdef SYSTEMOC_DEBUG
   /// @brief Determines status of transition
@@ -136,11 +207,8 @@ public:
   /// @brief Execute transitions
   void execute(int mode = GO | TICK);
 
-  /// @brief Hierarchical end-of-elaboration callback
-  void finalise(smoc_root_node *a);
-
   /// @brief Returns the target state
-  FiringStateImpl* getDestState() const;
+  RuntimeState* getDestState() const;
 
   /// @brief Returns the action
   const smoc_action& getAction() const;
@@ -151,7 +219,22 @@ public:
 //#endif
 };
 
-typedef std::list<ExpandedTransition> ExpandedTransitionList;
+typedef std::list<RuntimeTransition> RuntimeTransitionList;
+
+class RuntimeState : public sc_object {
+private:
+  RuntimeTransitionList t;
+public:
+  RuntimeState();
+
+  ~RuntimeState();
+
+  const RuntimeTransitionList& getTransitions() const;
+  RuntimeTransitionList& getTransitions();
+};
+
+typedef std::set<RuntimeState*> RuntimeStateSet;
+typedef std::list<RuntimeState*> RuntimeStateList;
 
 class FiringFSMImpl {
 public:
@@ -161,14 +244,16 @@ private:
   /// @brief Top states
   FiringStateBaseImplSet states;
 
-  // @brief Leaf states (filled in finalise)
-  FiringStateImplSet leafStates;
-  
   /// @brief Refcount
   size_t use_count_;
 
   /// @brief Parent node
-  smoc_root_node *actor;
+  //smoc_root_node *actor;
+
+  XORStateImpl* top;
+
+  RuntimeState* init;
+  RuntimeStateSet rts;
 
 public:
   /// @brief Constructor
@@ -178,21 +263,20 @@ public:
   ~FiringFSMImpl();
 
   /// @brief Returns the parent node
-  smoc_root_node* getActor() const;
-
-  /// @brief Returns all leaf states of the FSM
-  const FiringStateImplSet& getLeafStates() const;
+  //smoc_root_node* getActor() const;
 
   /// @brief Hierarchical end-of-elaboration callback
-  void finalise(smoc_root_node *actor);
+  void finalise(
+      smoc_root_node* actor,
+      HierarchicalStateImpl* init);
 
   /// @brief Merge firing FSMs
   void unify(this_type *fr);
 
-  /// @brief Add reference to firing state
+  /// @brief Add state
   void addState(FiringStateBaseImpl *state);
-  
-  /// @brief Delete reference to firing state
+
+  /// @brief Delete state
   void delState(FiringStateBaseImpl *state);
 
   /// @brief Increment ref count
@@ -201,8 +285,11 @@ public:
   /// @brief Decrement ref count
   bool delRef();
 
-  /// @brief Add leaf state
-  void addLeafState(FiringStateImpl *state);
+  //void dumpDot(FiringStateImpl* init);
+  
+  const RuntimeStateSet& getStates() const;
+
+  RuntimeState* getInitialState() const;
 };
 
 class FiringStateBaseImpl {
@@ -211,21 +298,15 @@ public:
 
 protected:
   /// @brief Parent firing FSM
-  FiringFSMImpl *firingFSM;
+  FiringFSMImpl *fsm;
 
-  /// @brief Partial transitions (finished by finalise)
-  PartialTransitionList tl;
-  
-  /// @brief Assignment operator
-  this_type& operator=(const this_type& s);
+  /// @brief Partial transitions (as added by user)
+  PartialTransitionList ptl;
 
-public:
   /// @brief Constructor
   FiringStateBaseImpl();
 
-  /// @brief Constructor
-  FiringStateBaseImpl(const PFiringStateBaseImpl &s);
-
+public:
   /// @brief Destructor
   virtual ~FiringStateBaseImpl();
 
@@ -236,100 +317,166 @@ public:
   virtual void setFiringFSM(FiringFSMImpl *fsm);
 
   /// @brief Hierarchical end-of-elaboration callback
-  virtual void finalise(smoc_root_node *actor) = 0;
-
-  /// @brief Determine the target state of the partial transitions
-  //  To simplify the implementation, this method may be called multiple
-  //  times
-  virtual
-  ExpandedTransitionList expandTransitions(const PartialTransitionList &) = 0;
+  virtual void finalise(ExpandedTransitionList& etl) {};
 
   /// @brief Add transition list to transitions
-  void addTransition(const smoc_transition_list &tl_);
-  
-  /// @bried Add pre-built partial transitions
-  void addTransition(const PartialTransitionList& pl);
+  void addTransition(const smoc_transition_list& stl);
 
-  /// @bried Add pre-built partial transition
-  void addTransition(const PartialTransition& t);
+  /// @bried Add transitions
+  void addTransition(const PartialTransitionList& ptl);
+
+  /// @bried Add transition
+  void addTransition(const PartialTransition& pt);
 
   /// @brief Clear transition list
   void clearTransition();
 
-  /// @brief Assignment operator
-  this_type& operator=(const smoc_transition_list &tl);
-};
+  //const PartialTransitionList& getPTL() const;
   
+  virtual void expandTransition(
+      ExpandedTransitionList& etl,
+      const ExpandedTransition& t) const = 0;
+};
 
-class FiringStateImpl: public FiringStateBaseImpl, public sc_object {
+//class HierarchicalStateImpl;
+typedef std::map<const HierarchicalStateImpl*,bool> Marking;
+
+
+class HierarchicalStateImpl : public FiringStateBaseImpl {
+public:
+  typedef HierarchicalStateImpl this_type;
+  
+protected:
+  /// @brief Constructor
+  HierarchicalStateImpl();
+  
+  HierarchicalStateImpl* parent;
+
+public:
+  
+  /// @brief Destructor
+  virtual ~HierarchicalStateImpl();
+  
+  /// @brief See FiringStateBaseImpl
+  void finalise(ExpandedTransitionList& etl);
+
+  /// @brief See FiringStateBaseImpl
+  void expandTransition(
+      ExpandedTransitionList& etl,
+      const ExpandedTransition& t) const;
+
+  void setParent(HierarchicalStateImpl* v);
+
+  bool isAncestor(const HierarchicalStateImpl* s) const;
+
+  void mark(Marking& m) const;
+
+  bool isMarked(const Marking& m) const;
+  
+  virtual void getInitialState(
+      ProdState& p, const Marking& m) const = 0;
+
+  virtual const HierarchicalStateImpl* getTopState(
+      const MultiState& d,
+      bool isSrcState) const = 0;
+};
+
+class FiringStateImpl: public HierarchicalStateImpl {
 public:
   typedef FiringStateImpl this_type;
 
 private:
-  /// @brief Final transition list
-  ExpandedTransitionList el;
+  /// @brief User-defined name
+  std::string name;
 
 public:
   /// @brief Constructor
-  FiringStateImpl();
-
-  /// @brief Constructor
-  FiringStateImpl(const PFiringStateImpl &s);
-
-  /// @brief Destructor
-  ~FiringStateImpl();
-
-  /// @brief See FiringStateBaseImpl
-  void finalise(smoc_root_node *actor);
-
-  /// @brief See FiringStateBaseImpl
-  virtual
-  ExpandedTransitionList expandTransitions(const PartialTransitionList &pl);
-
-  /// @brief Assignment operator
-  this_type& operator=(const smoc_transition_list &tl);
-
-  /// @brief Returns transitions
-  const ExpandedTransitionList& getTransitions() const
-    { return el; }
+  FiringStateImpl(const std::string& name = "");
   
-  /// @brief Returns transitions
-  ExpandedTransitionList& getTransitions()
-    { return el; }
+  /// @brief Returns the user-defined name
+  const std::string& getName() const;
+  
+  /// @brief See HierarchicalStateImpl
+  void getInitialState(
+      ProdState& p, const Marking& m) const;
+  
+  /// @brief See HierarchicalStateImpl
+  const HierarchicalStateImpl* getTopState(
+      const MultiState& d,
+      bool isSrcState) const;
 };
 
-class RefinedStateImpl: public FiringStateBaseImpl {
+class XORStateImpl: public HierarchicalStateImpl {
 public:
-  typedef RefinedStateImpl this_type;
+  typedef XORStateImpl this_type;
 
 private:
-  FiringStateBaseImpl *init;
-  FiringStateBaseImplSet states;
+  /// @brief Initial state
+  HierarchicalStateImpl* init;
+
+  /// @brief Child states
+  typedef HierarchicalStateImplSet C;
+  C c;
 
 public:
   /// @brief Constructor
-  RefinedStateImpl(FiringStateBaseImpl *init);
-
-  /// @brief Constructor
-  RefinedStateImpl(const PRefinedStateImpl &s);
+  XORStateImpl();
 
   /// @brief Destructor
-  ~RefinedStateImpl();
+  ~XORStateImpl();
+  
+  /// @brief See FiringStateBaseImpl
+  void finalise(ExpandedTransitionList& etl);
+  
+  /// @brief See FiringStateBaseImpl
+  void setFiringFSM(FiringFSMImpl *fsm);
+
+  /// @brief Add state to this xor state
+  void add(HierarchicalStateImpl* state, bool init);
+
+  /// @brief See HierarchicalStateImpl
+  void getInitialState(
+      ProdState& p, const Marking& m) const;
+  
+  /// @brief See HierarchicalStateImpl
+  const HierarchicalStateImpl* getTopState(
+      const MultiState& d,
+      bool isSrcState) const;
+};
+
+class ANDStateImpl: public HierarchicalStateImpl {
+public:
+  typedef ANDStateImpl this_type;
+
+private:
+  /// @brief Child states
+  typedef std::vector<XORStateImpl*> C;
+  C c;
+
+public:
+  /// @brief Constructor
+  ANDStateImpl(size_t part);
+
+  /// @brief Destructor
+  ~ANDStateImpl();
+  
+  /// @brief See FiringStateBaseImpl
+  void finalise(ExpandedTransitionList& etl);
 
   /// @brief See FiringStateBaseImpl
   void setFiringFSM(FiringFSMImpl *fsm);
-  
-  /// @brief Add state to this refined state
-  void add(FiringStateBaseImpl *state);
 
-  /// @brief See FiringStateBaseImpl
-  void finalise(smoc_root_node *actor);
-
-  /// @brief See FiringStateBaseImpl
-  ExpandedTransitionList expandTransitions(const PartialTransitionList &pl);
+  // @brief Returns partition p
+  XORStateImpl* getPart(size_t p) const;
   
-  /// @brief Assignment operator
-  this_type& operator=(const smoc_transition_list &tl);
+  /// @brief See HierarchicalStateImpl
+  void getInitialState(
+      ProdState& p, const Marking& m) const;
+  
+  /// @brief See HierarchicalStateImpl
+  const HierarchicalStateImpl* getTopState(
+      const MultiState& d,
+      bool isSrcState) const;
 };
 
 class ConnectorStateImpl: public FiringStateBaseImpl {
@@ -339,21 +486,36 @@ public:
 public:
   /// @brief Constructor
   ConnectorStateImpl();
-
-  /// @brief Constructor
-  ConnectorStateImpl(const PConnectorStateImpl &s);
-
-  /// @brief Destructor
-  ~ConnectorStateImpl();
-
-  /// @brief See FiringStateBaseImpl
-  void finalise(smoc_root_node *actor);
-
-  /// @brief See FiringStateBaseImpl
-  ExpandedTransitionList expandTransitions(const PartialTransitionList &pl);
   
-  /// @brief Assignment operator
-  this_type& operator=(const smoc_transition_list &tl);
+  /// @brief See FiringStateBaseImpl
+  void expandTransition(
+      ExpandedTransitionList& etl,
+      const ExpandedTransition& t) const;
+};
+
+class MultiStateImpl: public FiringStateBaseImpl {
+public:
+  typedef MultiStateImpl this_type;
+
+private:
+  MultiState states;
+  MultiState condIn;
+
+public:
+  /// @brief Constructor
+  MultiStateImpl();
+  
+  /// @brief See FiringStateBaseImpl
+  void finalise(ExpandedTransitionList& etl);
+  
+  /// @brief See FiringStateBaseImpl
+  void expandTransition(
+      ExpandedTransitionList& etl,
+      const ExpandedTransition& t) const;
+
+  void addState(HierarchicalStateImpl* s);
+
+  void addInCond(HierarchicalStateImpl* s);
 };
 
 #endif // _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP

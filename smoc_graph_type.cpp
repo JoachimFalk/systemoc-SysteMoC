@@ -330,7 +330,7 @@ void smoc_graph::schedule() {
   std::cerr << "<smoc_graph::schedule>" << std::endl;
 #endif
   assert(ol || !"WTF?! smoc_graph::schedule() called but no enabled transition!");
-  ExpandedTransition &transition = ol.getEventTrigger();
+  RuntimeTransition &transition = ol.getEventTrigger();
   Expr::Detail::ActivationStatus status = transition.getStatus();
   
   switch(status.toSymbol()) {
@@ -456,15 +456,15 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
           }
         }
 
-        FiringStateImpl *rs = n.getCurrentState();
-        for ( ExpandedTransitionList::iterator titer = rs->getTransitions().begin();
+        RuntimeState *rs = n.getCurrentState();
+        for ( RuntimeTransitionList::iterator titer = rs->getTransitions().begin();
               titer != rs->getTransitions().end();
               ++titer ){
           nonStrict |= *titer;
         }
       }else{
-        FiringStateImpl *rs = n.getCurrentState();
-        for ( ExpandedTransitionList::iterator titer = rs->getTransitions().begin();
+        RuntimeState *rs = n.getCurrentState();
+        for ( RuntimeTransitionList::iterator titer = rs->getTransitions().begin();
               titer != rs->getTransitions().end();
               ++titer ){
           bottom |= *titer;
@@ -511,7 +511,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
         // release all ready actors in commstate:
         // data production hopefully making signals become "more defined"
 
-        ExpandedTransition 
+        RuntimeTransition 
           &transition = inCommState.getEventTrigger();
 
         Expr::Detail::ActivationStatus      status = transition.getStatus();
@@ -522,7 +522,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
                 /*|| status.toSymbol() == Expr::Detail::_DISABLED */);
 
         // remove nodes transitions from list
-        for ( ExpandedTransitionList::iterator titer = n.getCurrentState()->getTransitions().begin();
+        for ( RuntimeTransitionList::iterator titer = n.getCurrentState()->getTransitions().begin();
               titer != n.getCurrentState()->getTransitions().end();
               ++titer ){
           defined.remove(*titer);
@@ -541,7 +541,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
 
           if( 0 == countDefinedInports(n) ){
             //nothing changed: allow concurrent transitions to be executed
-            for ( ExpandedTransitionList::iterator titer
+            for ( RuntimeTransitionList::iterator titer
                     = n.getCurrentState()->getTransitions().begin();
                   titer != n.getCurrentState()->getTransitions().end();
                   ++titer ){
@@ -551,7 +551,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
             }
           } else { // some output became defined -> remove all concurent transitions
             // remove nodes transitions from list
-            for ( ExpandedTransitionList::iterator titer
+            for ( RuntimeTransitionList::iterator titer
                     = n.getCurrentState()->getTransitions().begin();
                   titer != n.getCurrentState()->getTransitions().end();
                   ++titer ){
@@ -564,7 +564,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
           nonStrictReleased |= *(n.getLastTransition()); // deactivate transition, until input changes
           assert( definedInputs.find(&n) != definedInputs.end() ); //if(!...) definedInputs[&n] = countDefinedInports(n);
         }else{ // all those strict actors can only be executed once per instant
-          for ( ExpandedTransitionList::iterator titer
+          for ( RuntimeTransitionList::iterator titer
                   = n.getCurrentState()->getTransitions().begin();
                 titer != n.getCurrentState()->getTransitions().end();
                 ++titer ){
@@ -577,7 +577,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
         if( bottom ){
           // bottom contains strict blocks, releasing them hopefully causes data production
 
-          ExpandedTransition
+          RuntimeTransition
             &transition = bottom.getEventTrigger();
           Expr::Detail::ActivationStatus  status = transition.getStatus();
           smoc_root_node                      &n = transition.getActor();
@@ -593,7 +593,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
             assert( !n.isNonStrict() );
             assert( !n.inCommState() );
             // remove nodes transitions from list
-            for ( ExpandedTransitionList::iterator titer
+            for ( RuntimeTransitionList::iterator titer
                     = n.getCurrentState()->getTransitions().begin();
                   titer != n.getCurrentState()->getTransitions().end();
                   ++titer ){
@@ -609,7 +609,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
 #ifdef SYSTEMOC_ENABLE_VPC
             assert(n.inCommState());
             n.setLastTransition(&transition);
-            for ( ExpandedTransitionList::iterator titer
+            for ( RuntimeTransitionList::iterator titer
                     = n.getCurrentState()->getTransitions().begin();
                   titer != n.getCurrentState()->getTransitions().end();
                   ++titer ){
@@ -618,7 +618,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
 #else
             assert( !n.isNonStrict() );
             assert( !n.inCommState() );
-            for ( ExpandedTransitionList::iterator titer
+            for ( RuntimeTransitionList::iterator titer
                     = n.getCurrentState()->getTransitions().begin();
                   titer != n.getCurrentState()->getTransitions().end();
                   ++titer ){
@@ -632,7 +632,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
   // to allow caotic iteration all released blocks are moved into another list "nonStrictReleased"
   // if their inputs became "more defined" they will be moved back to list "nonStrict"
 
-         ExpandedTransition
+         RuntimeTransition
            &transition = nonStrict.getEventTrigger();
           Expr::Detail::ActivationStatus status = transition.getStatus();
           smoc_root_node                     &n = transition.getActor();
@@ -646,7 +646,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
             nonStrictReleased |= transition;
           }else{
             // remove transitions from list
-            for ( ExpandedTransitionList::iterator titer
+            for ( RuntimeTransitionList::iterator titer
                     = n.getCurrentState()->getTransitions().begin();
                   titer != n.getCurrentState()->getTransitions().end();
                   ++titer ){
@@ -661,13 +661,13 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
 #endif
             DEBUG_CODE( std::cerr << "<actor type=\"non strict\" name=\""
                                   << n.name() << "\">" << std::endl; )
-            transition.execute(ExpandedTransition::GO);
+            transition.execute(RuntimeTransition::GO);
             DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
 
     // move transition to next list
 #ifdef SYSTEMOC_ENABLE_VPC
             assert(n.inCommState());
-            for ( ExpandedTransitionList::iterator titer
+            for ( RuntimeTransitionList::iterator titer
                     = n.getCurrentState()->getTransitions().begin();
                   titer != n.getCurrentState()->getTransitions().end();
                   ++titer ){
@@ -679,7 +679,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
     
             if( 0 == countDefinedOutports(n) ){ //QUICK-FIX
               //nothing changed: allow concurrent transitions to be executed
-              for ( ExpandedTransitionList::iterator titer
+              for ( RuntimeTransitionList::iterator titer
                       = n.getCurrentState()->getTransitions().begin();
                     titer != n.getCurrentState()->getTransitions().end();
                     ++titer ){
@@ -689,7 +689,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
             } else {
               // some output became defined -> remove all concurent transitions
               // remove nodes transitions from list
-              for ( ExpandedTransitionList::iterator titer
+              for ( RuntimeTransitionList::iterator titer
                       = n.getCurrentState()->getTransitions().begin();
                     titer != n.getCurrentState()->getTransitions().end();
                     ++titer ){
@@ -717,7 +717,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
           nonStrictStable = true; // also stable if nonStrictReleased.empty()
           while(nonStrictReleased){
             // identify ready blocks
-            ExpandedTransition
+            RuntimeTransition
               &transition = nonStrictReleased.getEventTrigger();
             smoc_root_node            &n = transition.getActor();
             //FIXME(MS): rename n -> node, block..
@@ -746,7 +746,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
 
           //redo temporary modifications from lazy iteration
           while(temp){
-            ExpandedTransition
+            RuntimeTransition
               &transition = temp.getEventTrigger();
             nonStrictReleased |= transition;
             temp.remove(transition);
@@ -770,7 +770,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
             //tick all ns transitions
             while(nonStrictReleased){
               // identify ready blocks
-              ExpandedTransition &transition
+              RuntimeTransition &transition
                 = nonStrictReleased.getEventTrigger();
               smoc_root_node         &n = transition.getActor();
               //FIXME(MS): rename n -> node, block..
@@ -783,8 +783,8 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
                 if(actualDefined > 0){ // some outputs or inputs are defined
 
                   //FIXME(MS): assume not to call compute (no commState)
-                  transition.execute(ExpandedTransition::TICK);
-                  for ( ExpandedTransitionList::iterator titer
+                  transition.execute(RuntimeTransition::TICK);
+                  for ( RuntimeTransitionList::iterator titer
                           = n.getCurrentState()->getTransitions().begin();
                         titer != n.getCurrentState()->getTransitions().end();
                         ++titer ){
@@ -808,14 +808,14 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
 #ifdef SYSTEMOC_ENABLE_VPC
             while( !inCommState.empty() ){
               smoc_wait( inCommState );
-              ExpandedTransition
+              RuntimeTransition
                 &transition = inCommState.getEventTrigger();
               Expr::Detail::ActivationStatus   status = transition.getStatus();
               smoc_root_node                   &n = transition.getActor();
               assert( status.toSymbol() == Expr::Detail::_ENABLED );
                       
               // remove nodes transitions from list
-              for ( ExpandedTransitionList::iterator titer
+              for ( RuntimeTransitionList::iterator titer
                       = n.getCurrentState()->getTransitions().begin();
                     titer != n.getCurrentState()->getTransitions().end();
                     ++titer ){
@@ -826,7 +826,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
                           << n.name() << "\">" << std::endl; )
               transition.execute(); //
               DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
-              for ( ExpandedTransitionList::iterator titer
+              for ( RuntimeTransitionList::iterator titer
                       = n.getCurrentState()->getTransitions().begin();
                     titer != n.getCurrentState()->getTransitions().end();
                     ++titer ){

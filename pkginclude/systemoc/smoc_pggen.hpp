@@ -51,6 +51,7 @@ namespace smoc_modes {
 
   extern bool dumpSMXWithSim;
   extern std::ostream* dumpFileSMX;
+  extern bool dumpFSMs;
 
   class eNoChannel : public std::exception {};
   class eNoInterface : public std::exception {};

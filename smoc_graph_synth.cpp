@@ -354,7 +354,7 @@ void smoc_graph_synth::executeTransitionList() {
   smoc_root_node* rn = curNode->first;
   NodeInfo& ni = curNode->second;
 
-  ExpandedTransition &trans = ni.trans.getEventTrigger();
+  RuntimeTransition &trans = ni.trans.getEventTrigger();
   Expr::Detail::ActivationStatus status = trans.getStatus();
 
   switch(status.toSymbol()) {
@@ -396,7 +396,7 @@ void smoc_graph_synth::generateFSM() {
 
   // initialize state lut
   assert(fsm->startState());
-  sm[fsm->startState()] = &init;
+  sm[fsm->startState()] = init.toPtr();
 
   FiringStateList::ConstRef states = fsm->states();
   for(FiringStateList::const_iterator sIter = states.begin();

@@ -177,7 +177,7 @@ public:
   }
 };
 
-class FiringStateImpl;
+class RuntimeState;
 
 /**
  * smoc_func_diverge
@@ -185,7 +185,7 @@ class FiringStateImpl;
 
 class smoc_func_diverge {
 private:
-  typedef FiringStateImpl* return_type;
+  typedef RuntimeState* return_type;
 
   boost::intrusive_ptr<
     smoc_member_func_interface<return_type> > k;
@@ -270,10 +270,10 @@ public:
 
 class ActionVisitor {
 public:
-  typedef FiringStateImpl* result_type;
+  typedef RuntimeState* result_type;
 
 public:
-  ActionVisitor(FiringStateImpl* dest, int mode);
+  ActionVisitor(RuntimeState* dest, int mode);
 
   result_type operator()(smoc_func_call_list& f) const;
   result_type operator()(smoc_func_diverge& f) const;
@@ -282,7 +282,7 @@ public:
   //result_type operator()(boost::blank& f) const;
 
 private:
-  FiringStateImpl* dest;
+  RuntimeState* dest;
   int mode;
 };
 

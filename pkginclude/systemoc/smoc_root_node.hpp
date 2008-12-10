@@ -103,27 +103,27 @@ public:
   friend class smoc_scheduler_top;
   friend class smoc_graph;
   friend class SysteMoC::smoc_graph_synth;*/
-  friend class ExpandedTransition;
+  friend class RuntimeTransition;
     
 private:
   /// @brief Initial firing state
-  smoc_firing_state& initialState;
+  smoc_hierarchical_state& initialState;
 
   /// @brief Current firing state
-  FiringStateImpl *currentState;
+  RuntimeState *currentState;
 
   /// @brief For non strict scheduling
-  FiringStateImpl* lastState;
-  
+  RuntimeState* lastState;
+
   /// @brief For non strict scheduling
   bool _non_strict;
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  smoc_firing_state commstate;
-  FiringStateImpl *nextState;
-  
+  RuntimeState *commstate;
+  RuntimeState *nextState;
+
   /// @brief For non strict scheduling
-  ExpandedTransition* lastTransition;
+  RuntimeTransition* lastTransition;
   
   // vpc_event_xxx must be constructed before commstate
   /// @brief VPC data introduction interval event
@@ -132,7 +132,7 @@ private:
   /// @brief VPC latency event
   //smoc_ref_event *vpc_event_lat;
 
-  FiringStateImpl* _communicate();
+  RuntimeState* _communicate();
 
 #endif // SYSTEMOC_ENABLE_VPC
 
@@ -143,7 +143,7 @@ private:
 
 protected:
   //smoc_root_node(const smoc_firing_state &s);
-  smoc_root_node(sc_module_name, smoc_firing_state &s, bool regObj = true);
+  smoc_root_node(sc_module_name, smoc_hierarchical_state &s, bool regObj = true);
   
   friend void Expr::Detail::registerParam(const ArgInfo &argInfo);
   friend void Expr::Detail::registerParamOnCurrentActor(const ArgInfo &argInfo);
@@ -155,36 +155,33 @@ public:
   FiringFSMImpl* getFiringFSM() const
     { return initialState.getImpl()->getFiringFSM(); }
 
-  const smoc_firing_state& getInitialState() const
-    { return initialState; }
-
-  FiringStateImpl* getCurrentState() const
+  RuntimeState* getCurrentState() const
     { return currentState; }
 
-  void setCurrentState(FiringStateImpl* s)
+  void setCurrentState(RuntimeState* s)
     { currentState = s; }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  FiringStateImpl* getCommState() const
-    { return commstate.getImpl(); }
+  RuntimeState* getCommState() const
+    { return commstate; }
 
-  FiringStateImpl* getNextState() const
+  RuntimeState* getNextState() const
     { return nextState; }
  
-  void setNextState(FiringStateImpl* s)
+  void setNextState(RuntimeState* s)
     { nextState = s; }
 
-  ExpandedTransition* getLastTransition() const
+  RuntimeTransition* getLastTransition() const
     { return lastTransition; }
 
-  void setLastTransition(ExpandedTransition* t)
+  void setLastTransition(RuntimeTransition* t)
     { lastTransition = t; }
 #endif // SYSTEMOC_ENABLE_VPC
   
-  FiringStateImpl* getLastState() const
+  RuntimeState* getLastState() const
     { return lastState; }
 
-  void setLastState(FiringStateImpl* s)
+  void setLastState(RuntimeState* s)
     { lastState = s; }
 
 #ifndef __SCFE__
@@ -199,8 +196,8 @@ public:
 
   /// @brief Collect firing states from child object
   /// (Sorted by construction order; better use
-  /// getFiringFSM()->getLeafStates() if order does not matter!)
-  FiringStateImplList getStates() const;
+  /// getFiringFSM()->getStates() if order does not matter!)
+  RuntimeStateList getStates() const;
 
   std::ostream &dumpActor( std::ostream &o );
     
@@ -211,7 +208,7 @@ public:
   bool isNonStrict() const;
   
   // typedef for transition ready list
-  typedef CoSupport::SystemC::EventOrList<ExpandedTransition>
+  typedef CoSupport::SystemC::EventOrList<RuntimeTransition>
           smoc_transition_ready_list;
 
   void addCurOutTransitions(smoc_transition_ready_list& ol) const;

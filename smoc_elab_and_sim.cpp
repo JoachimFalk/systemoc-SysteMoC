@@ -70,7 +70,9 @@ int smoc_elab_and_sim(int _argc, char* _argv[]) {
      "synchronize with specified SysteMoC-XML")
     ("vpc-config",
      value<std::string>(),
-     "use specified SystemC-VPC configuration file");
+     "use specified SystemC-VPC configuration file")
+    ("dump-fsm",
+     "dump flattened FSMs as DOT graph");
 
   parsed_options parsed =
     command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
@@ -110,6 +112,9 @@ int smoc_elab_and_sim(int _argc, char* _argv[]) {
       setenv("VPCCONFIGURATION", i->value.front().c_str(), 1);
     }
 #endif
+    else if(i->string_key == "dump-fsm") {
+      smoc_modes::dumpFSMs = true;
+    }
     else if(i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
           j != i->original_tokens.end();

@@ -37,9 +37,11 @@
 #include <map>
 #include <set>
 #include <list>
+#include <stdexcept>
 
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
+#include <CoSupport/String/Concat.hpp>
 
 #include <systemoc/smoc_config.h>
 
@@ -53,53 +55,163 @@
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::NGXSync;
 
-PartialTransition::PartialTransition(const smoc_transition &t)
-  : ap(t.getActivationPattern()),
-    f(t.getInterfaceAction().getAction()),
-    dest(t.getInterfaceAction().getDestState().getImpl())
+#include <CoSupport/Streams/FilterOStream.hpp>
+#include <CoSupport/Streams/IndentStreambuf.hpp>
+using namespace CoSupport::Streams;
+struct MyDebugOstream : public FilterOStream {
+  IndentStreambuf i;
+  MyDebugOstream()
+    : FilterOStream(std::cerr) { insert(i); }
+};
+MyDebugOstream outDbg;
+
+
+
+
+template<class C> inline bool single(const C& c) {
+  if(c.empty()) return false;
+  return ++c.begin() == c.end();
+}
+
+template<class T>
+void markStates(const T& t, Marking& m)  {
+  for(typename T::const_iterator tIter = t.begin();
+      tIter != t.end(); ++tIter)
+  {
+    (*tIter)->mark(m);
+  }
+}
+
+
+template<class T>
+bool areMarked(const T& t, const Marking& m) {
+  // check if all specified states are marked
+  for(typename T::const_iterator tIter = t.begin();
+      tIter != t.end(); ++tIter)
+  {
+    if(!(*tIter)->isMarked(m))
+      return false;
+  }
+  return true;
+}
+
+
+
+  
+  
+  
+struct ModelingError : public std::runtime_error {
+  ModelingError(const char* desc)
+    : std::runtime_error(desc)
   {}
+};
+
+
+
+
+
+TransitionBase::TransitionBase(
+    const smoc_activation_pattern& ap,
+    const smoc_action& f)
+  : ap(ap),
+    f(f)
+{}
+
+const smoc_activation_pattern& TransitionBase::getActivationPattern() const
+  { return ap; }
+
+const smoc_action& TransitionBase::getAction() const
+  { return f; }
+
+
+
+
 
 PartialTransition::PartialTransition(
     const smoc_activation_pattern& ap,
     const smoc_action& f,
     FiringStateBaseImpl* dest)
-  : ap(ap),
-    f(f),
+  : TransitionBase(ap, f),
     dest(dest)
 {}
-
-const smoc_activation_pattern &PartialTransition::getActivationPattern() const
-  { return ap; }
-
-const smoc_action& PartialTransition::getAction() const
-  { return f; }
 
 FiringStateBaseImpl* PartialTransition::getDestState() const
   { return dest; }
 
 
+  
+
 ExpandedTransition::ExpandedTransition(
-    const PartialTransition &t, FiringStateImpl *dest)
-  : smoc_activation_pattern(t.getActivationPattern()),
-    f(t.getAction()),
-    dest(dest),
-    actor(0)
-  {}
+    const HierarchicalStateImpl* src,
+    const MultiState& in,
+    const smoc_activation_pattern& ap,
+    const smoc_action& f,
+    const MultiState& dest)
+  : TransitionBase(ap, f),
+    src(src),
+    in(in),
+    dest(dest)
+{}
+
+ExpandedTransition::ExpandedTransition(
+    const HierarchicalStateImpl* src,
+    const MultiState& in,
+    const smoc_activation_pattern& ap,
+    const smoc_action& f)
+  : TransitionBase(ap, f),
+    src(src),
+    in(in)
+{}
+
+ExpandedTransition::ExpandedTransition(
+    const HierarchicalStateImpl* src,
+    const smoc_activation_pattern& ap,
+    const smoc_action& f)
+  : TransitionBase(ap, f),
+    src(src)
+{}
+
+const HierarchicalStateImpl* ExpandedTransition::getSrcState() const
+  { return src; }
+
+const MultiState& ExpandedTransition::getInCond() const
+  { return in; }
+
+const MultiState& ExpandedTransition::getDestStates() const
+  { return dest; }
+
+
+
+
+
+RuntimeTransition::RuntimeTransition(
+    smoc_root_node* actor,
+    const smoc_activation_pattern& ap,
+    const smoc_action& f,
+    RuntimeState* dest)
+  : smoc_activation_pattern(ap),
+    actor(actor),
+    f(f),
+    dest(dest)
+{
+  // if this breaks everything, remove it
+  finalise();
+}
 
 #ifdef SYSTEMOC_DEBUG
-Expr::Detail::ActivationStatus ExpandedTransition::getStatus() const {
-  std::cerr << "ExpandedTransition::getStatus: " << *this << std::endl;
+Expr::Detail::ActivationStatus RuntimeTransition::getStatus() const {
+  std::cerr << "RuntimeTransition::getStatus: " << *this << std::endl;
   return smoc_activation_pattern::getStatus();
 }
 #endif
 
-bool ExpandedTransition::isEnabled() const
+bool RuntimeTransition::isEnabled() const
   { return getStatus() == Expr::Detail::ENABLED(); }
 
-smoc_root_node &ExpandedTransition::getActor()
+smoc_root_node &RuntimeTransition::getActor()
   { assert(actor != NULL); return *actor; }
 
-void ExpandedTransition::execute(int mode) {
+void RuntimeTransition::execute(int mode) {
   enum {
     MODE_DIISTART,
     MODE_DIIEND,
@@ -142,7 +254,7 @@ void ExpandedTransition::execute(int mode) {
 
   // only smoc_func_diverge may set nextState to something
   // different than dest here...
-  FiringStateImpl* nextState =
+  RuntimeState* nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), f);
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
@@ -242,16 +354,10 @@ void ExpandedTransition::execute(int mode) {
 #endif
 }
 
-void ExpandedTransition::finalise(smoc_root_node *a) {
-  assert(actor == NULL);
-  assert(a != NULL);
+void RuntimeTransition::finalise() {
+  assert(actor != NULL);
 
-  actor = a;
-  smoc_activation_pattern::finalise();    
-
-  //ActionUnifier au;
-  //boost::apply_visitor(au, f);
-  //f = au.getAction();
+  smoc_activation_pattern::finalise();
 
 #ifdef SYSTEMOC_ENABLE_VPC
   if(dynamic_cast<smoc_actor *>(actor) != NULL) {
@@ -261,46 +367,252 @@ void ExpandedTransition::finalise(smoc_root_node *a) {
 #endif //SYSTEMOC_ENABLE_VPC
 }
 
-FiringStateImpl* ExpandedTransition::getDestState() const
+RuntimeState* RuntimeTransition::getDestState() const
   { return dest; }
 
-const smoc_action& ExpandedTransition::getAction() const
+const smoc_action& RuntimeTransition::getAction() const
   { return f; }
 
 
+
+RuntimeState::RuntimeState()
+  : sc_object(sc_gen_unique_name("smoc_firing_state"))
+{
+  idPool.regObj(this);
+}
+
+RuntimeState::~RuntimeState()
+  { idPool.unregObj(this); }
+
+const RuntimeTransitionList& RuntimeState::getTransitions() const
+  { return t; }
+
+RuntimeTransitionList& RuntimeState::getTransitions()
+  { return t; }
+
+
+
+
 FiringFSMImpl::FiringFSMImpl()
-  : use_count_(0), actor(0) {
-  //std::cerr << "FiringFSMImpl::FiringFSMImpl() this == " << this << std::endl;
+  : use_count_(0),
+    //actor(0),
+    top(0)
+{
+//  std::cerr << "FiringFSMImpl::FiringFSMImpl() this == " << this << std::endl;
 }
 
 FiringFSMImpl::~FiringFSMImpl() {
-  //std::cerr << "FiringFSMImpl::~FiringFSMImpl() this == " << this << std::endl;
+//  std::cerr << "FiringFSMImpl::~FiringFSMImpl() this == " << this << std::endl;
   assert(use_count_ == 0);  
-  
-  for(FiringStateBaseImplSet::iterator iter = states.begin();
-      iter != states.end();
-      ++iter)
+
+  delete top;
+
+  for(FiringStateBaseImplSet::const_iterator s = states.begin();
+      s != states.end(); ++s)
   {
-    assert((*iter)->getFiringFSM() == this);
-    delete *iter;
+    assert((*s)->getFiringFSM() == this);
+    delete *s;
+  }
+
+  for(RuntimeStateSet::const_iterator s = rts.begin();
+      s != rts.end(); ++s)
+  {
+    delete *s;
   }
 }
 
-smoc_root_node* FiringFSMImpl::getActor() const
-  { assert(actor != NULL); return actor; }
+//smoc_root_node* FiringFSMImpl::getActor() const
+//  { assert(actor != NULL); return actor; }
 
-const FiringStateImplSet& FiringFSMImpl::getLeafStates() const
-  { return leafStates; }
+const RuntimeStateSet& FiringFSMImpl::getStates() const
+  { return rts; }
 
-void FiringFSMImpl::finalise(smoc_root_node *_actor) {
-  assert(actor == NULL);
-  actor = _actor;
+RuntimeState* FiringFSMImpl::getInitialState() const
+  { return init; }
 
-  for(FiringStateBaseImplSet::iterator iter = states.begin();
-      iter != states.end();
-      ++iter)
+std::ostream& operator<<(std::ostream& os, const ProdState& p) {
+  os << "(";
+  for(ProdState::const_iterator s = p.begin();
+      s != p.end(); ++s)
   {
-    (*iter)->finalise(actor);
+    if(s != p.begin()) os << ",";
+    
+    if((*s)->getName().empty())
+      os << *s;
+    else
+      os << (*s)->getName();
+  }
+  return os << ")";
+}
+
+void FiringFSMImpl::finalise(
+    smoc_root_node* actor,
+    HierarchicalStateImpl* hsinit)
+{
+//  outDbg << "FiringFSMImpl::finalise(...) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+
+  assert(actor);
+  //actor = _actor;
+
+//  outDbg << "Actor: " << actor->name() << std::endl;
+
+  try {
+
+    // create top state (do not try this in the constructor...)
+    top = new XORStateImpl();
+    unify(top->getFiringFSM());
+    delState(top);
+
+//    outDbg << "#states: " << states.size() << std::endl;
+
+    // move remaining hierarchical states into top state
+//    {outDbg << "moving HS to top state" << std::endl;
+//    ScopedIndent s1(outDbg);
+    
+    FiringStateBaseImplSet::iterator sIter, sNext;
+
+    for(sIter = states.begin();
+        sIter != states.end(); sIter = sNext)
+    {
+      ++(sNext = sIter);
+
+      if(HierarchicalStateImpl* hs =
+          dynamic_cast<HierarchicalStateImpl*>(*sIter))
+      {
+        top->add(hs, hs->isAncestor(hsinit));
+      }
+    }
+
+ //   }
+    
+    ExpandedTransitionList etl;
+
+    // finalise states -> expanded transitions
+//    {outDbg << "finalising states" << std::endl;
+//    ScopedIndent s1(outDbg);
+
+    top->finalise(etl);
+
+    for(FiringStateBaseImplSet::iterator sIter = states.begin();
+        sIter != states.end(); ++sIter)
+    {
+      (*sIter)->finalise(etl);
+    }
+
+//    }
+
+    // calculate runtime states and transitions
+//    {outDbg << "calculating runtime states / transitions" << std::endl;
+//    ScopedIndent s1(outDbg);
+
+    assert(rts.empty());
+
+    typedef std::map<ProdState,RuntimeState*> StateTable;
+    typedef StateTable::value_type STEntry;
+    StateTable st;
+
+    typedef std::list<StateTable::const_iterator> NewStates;
+    NewStates ns;
+
+    // determine initial state
+    ProdState psinit;
+    top->getInitialState(psinit, Marking());
+
+    init = *rts.insert(new RuntimeState()).first;
+    ns.push_back(
+        st.insert(STEntry(psinit, init)).first);
+
+    std::ofstream* fsmDump = 0;
+
+    if(smoc_modes::dumpFSMs) {
+
+      std::string f =
+        CoSupport::String::Concat("FSM_")(actor->name())(".dot");
+      fsmDump = new std::ofstream(f.c_str());
+
+      *fsmDump << "digraph G {" << std::endl;
+    }     
+
+    while(!ns.empty()) {
+      const ProdState& s = ns.front()->first;
+      RuntimeState* rs = ns.front()->second;
+
+      ns.pop_front();
+
+      Marking mk;
+      markStates(s, mk);
+
+      for(ExpandedTransitionList::const_iterator t = etl.begin();
+          t != etl.end(); ++t)
+      {
+        if(t->getSrcState()->isMarked(mk) &&
+           areMarked(t->getInCond(), mk))
+        {
+          const HierarchicalStateImpl* x =
+            t->getSrcState()->getTopState(t->getDestStates(), true);
+
+          Marking mknew;
+
+          // mark remaining states in prod. state
+          for(ProdState::const_iterator i = s.begin();
+              i != s.end(); ++i)
+          {
+            if(!x->isAncestor(*i)) (*i)->mark(mknew);
+          }
+
+          // mark user-defined states
+          markStates(t->getDestStates(), mknew);
+
+          // get the target prod. state
+          ProdState d;
+          top->getInitialState(d, mknew);
+
+          std::pair<StateTable::iterator,bool> ins =
+            st.insert(STEntry(d, 0));
+                
+          if(ins.second) {
+            ins.first->second =
+              *rts.insert(new RuntimeState()).first;  
+            ns.push_back(ins.first);
+          }
+
+          RuntimeState* rd = ins.first->second;
+          assert(rd);
+
+          if(smoc_modes::dumpFSMs) {
+            *fsmDump << '"' << s << '"' << " -> "
+                     << '"' << d << '"' << std::endl;
+          }
+
+          // create runtime transition
+//          outDbg << "creating runtime transition " << rs << " -> " << rd << std::endl;
+
+          rs->getTransitions().push_back(
+              RuntimeTransition(
+                actor,
+                t->getActivationPattern(),
+                t->getAction(),
+                rd));
+        }
+      }
+    }
+
+    if(smoc_modes::dumpFSMs) {
+      *fsmDump << "}" << std::endl;
+      fsmDump->close();
+      delete fsmDump;
+    }     
+
+
+//    }
+  }
+  catch(const ModelingError& e) {
+    std::cerr << "A modeling error occurred:" << std::endl
+              << "  \"" << e.what() << "\"" << std::endl
+              << "Please check the model and try again!" << std::endl;
+    // give up
+    exit(1);
   }
 }
 
@@ -315,31 +627,30 @@ void FiringFSMImpl::delState(FiringStateBaseImpl *state) {
 }
 
 void FiringFSMImpl::addRef() {
+//  std::cerr << "FiringFSMImpl::add_ref() this == " << this
+//            << "; use_count: " << use_count_ << std::endl;
   ++use_count_;
-  //std::cerr << "FiringFSMImpl::add_ref() this == " << this
-  //          << "; use_count: " << use_count_ << std::endl;
 }
 
 bool FiringFSMImpl::delRef() {
+//  std::cerr << "FiringFSMImpl::delRef() this == " << this
+//            << "; use_count: " << use_count_ << std::endl;
   assert(use_count_); --use_count_;
-  //std::cerr << "FiringFSMImpl::delRef() this == " << this
-  //          << "; use_count: " << use_count_ << std::endl;
   return use_count_ == 0;
 }
 
 void FiringFSMImpl::unify(this_type *fr) {
   if(this != fr) {
-    //std::cerr << "FiringFSMImpl::unify() this == " << this
-    //          << "; other: " << fr << std::endl;
+//    std::cerr << "FiringFSMImpl::unify() this == " << this
+//              << "; other: " << fr << std::endl;
     
-    // patch firingFSM of all states owned by fr
-    for(FiringStateBaseImplSet::iterator iter = fr->states.begin();
-        iter != fr->states.end();
-        ++iter)
+    // patch fsm of all states owned by fr
+    for(FiringStateBaseImplSet::iterator sIter = fr->states.begin();
+        sIter != fr->states.end(); ++sIter)
     {
-      sassert(states.insert(*iter).second);
-      assert((*iter)->getFiringFSM() == fr);
-      (*iter)->setFiringFSM(this);
+      assert((*sIter)->getFiringFSM() == fr);
+      (*sIter)->setFiringFSM(this);
+      sassert(states.insert(*sIter).second);
     }
     
     //std::cerr << " own use_count: " << use_count_
@@ -355,77 +666,57 @@ void FiringFSMImpl::unify(this_type *fr) {
   }
 }
 
-void FiringFSMImpl::addLeafState(FiringStateImpl *state) {
-  assert(state->getFiringFSM() == this);
-  sassert(leafStates.insert(state).second);
-}
-
 FiringStateBaseImpl::FiringStateBaseImpl()
-  : firingFSM(new FiringFSMImpl()) {
-  //std::cerr << "FiringStateBaseImpl::FiringStateBaseImpl() this == "
-  //          << this << std::endl;
-  firingFSM->addState(this);
-}
-
-FiringStateBaseImpl::FiringStateBaseImpl(const PFiringStateBaseImpl &s)
-  : firingFSM(s->firingFSM) {
-  //std::cerr << "FiringStateBaseImpl::FiringStateBaseImpl(" << s.get() << ") this == "
-  //          << this << std::endl;
-  firingFSM->addState(this);
+  : fsm(new FiringFSMImpl()) {
+//  std::cerr << "FiringStateBaseImpl::FiringStateBaseImpl() this == "
+//            << this << std::endl;
+  fsm->addState(this);
 }
 
 FiringStateBaseImpl::~FiringStateBaseImpl() {
-  //std::cerr << "FiringStateBaseImpl::~FiringStateBaseImpl() this == "
-  //          << this << std::endl;
+//  std::cerr << "FiringStateBaseImpl::~FiringStateBaseImpl() this == "
+//            << this << std::endl;
 }
 
 FiringFSMImpl *FiringStateBaseImpl::getFiringFSM() const
-  { return firingFSM; }
+  { return fsm; }
 
-void FiringStateBaseImpl::setFiringFSM(FiringFSMImpl *fsm)
-  { firingFSM = fsm; }
+void FiringStateBaseImpl::setFiringFSM(FiringFSMImpl *f)
+  { fsm = f; }
 
-void FiringStateBaseImpl::addTransition(const smoc_transition_list &tl_) {
-  for(smoc_transition_list::const_iterator iter = tl_.begin();
-      iter != tl_.end();
-      ++iter)
+//const PartialTransitionList& FiringStateBaseImpl::getPTL() const
+//  { return ptl; }
+
+void FiringStateBaseImpl::addTransition(const smoc_transition_list& stl) {
+  for(smoc_transition_list::const_iterator st = stl.begin();
+      st != stl.end(); ++st)
   {
-    addTransition(PartialTransition(*iter));
+    addTransition(
+        PartialTransition(
+          st->getActivationPattern(),
+          st->getInterfaceAction().getAction(),
+          st->getInterfaceAction().getDestState().getImpl()));
   }
 }
   
-void FiringStateBaseImpl::addTransition(const PartialTransitionList& pl) {
-  for(PartialTransitionList::const_iterator iter = pl.begin();
-      iter != pl.end();
-      ++iter)
+void FiringStateBaseImpl::addTransition(const PartialTransitionList& ptl) {
+  for(PartialTransitionList::const_iterator pt = ptl.begin();
+      pt != ptl.end(); ++pt)
   {
-    addTransition(*iter);
+    addTransition(*pt);
   }
 }
 
-void FiringStateBaseImpl::addTransition(const PartialTransition& t) {
-  tl.push_back(t);
-  if(t.getDestState())
-    firingFSM->unify(t.getDestState()->firingFSM);
+void FiringStateBaseImpl::addTransition(const PartialTransition& pt) {
+  ptl.push_back(pt);
+
+  FiringStateBaseImpl* s = pt.getDestState();
+  if(s) fsm->unify(s->getFiringFSM());
 }
 
 void FiringStateBaseImpl::clearTransition()
-  { tl.clear(); }
+  { ptl.clear(); }
 
-FiringStateBaseImpl& FiringStateBaseImpl::operator=(const this_type& s) {
-  if(&s != this) {
-    clearTransition();
-    tl = s.tl;
-    s.firingFSM->unify(firingFSM);
-  }
-  return *this;
-}
-
-FiringStateBaseImpl& FiringStateBaseImpl::operator=(const smoc_transition_list& tl) {
-  clearTransition();
-  addTransition(tl);
-  return *this;
-}
 
 void intrusive_ptr_add_ref(FiringStateBaseImpl *p)
   { p->getFiringFSM()->addRef(); }
@@ -437,70 +728,119 @@ void intrusive_ptr_release(FiringStateBaseImpl *p)
 
 
 
-FiringStateImpl::FiringStateImpl()
-  : FiringStateBaseImpl(),
-    sc_object(sc_gen_unique_name("smoc_firing_state")) {
-  idPool.regObj(this);
-}
+HierarchicalStateImpl::HierarchicalStateImpl()
+  : FiringStateBaseImpl(), parent(0) {}
 
-FiringStateImpl::FiringStateImpl(const PFiringStateImpl &s)
-  : FiringStateBaseImpl(s),
-    sc_object(sc_gen_unique_name("smoc_firing_state")) {
-  idPool.regObj(this);
-}
+HierarchicalStateImpl::~HierarchicalStateImpl()
+  {}
 
-FiringStateImpl::~FiringStateImpl() {
-  idPool.unregObj(this);
-}
-
-void FiringStateImpl::finalise(smoc_root_node *actor) {
-  for(PartialTransitionList::const_iterator plIter = tl.begin();
-      plIter != tl.end(); ++plIter)
-  {
-    if(plIter->getDestState()) {
-      // may be unefficient if more than one partial state
-      // exists with the same target state...
-      PartialTransitionList pl;
-      pl.push_back(*plIter);
-      
-      ExpandedTransitionList tmp =
-        plIter->getDestState()->expandTransitions(pl);
-
-      el.splice(el.end(), tmp);
-    }
-    else {
-      // smoc_func_diverge has no dest state
-      el.push_back(ExpandedTransition(*plIter, 0));
-    }
+void HierarchicalStateImpl::setParent(HierarchicalStateImpl* v) {
+  assert(v);
+  if(parent && v != parent) {
+    assert(!"smoc_hierarchical_state: Parent already set");
   }
-  
-  for(ExpandedTransitionList::iterator elIter = el.begin();
-      elIter != el.end(); ++elIter)
-  {
-    elIter->finalise(actor);
-  }
-
-  firingFSM->addLeafState(this);
+  parent = v;
 }
 
-ExpandedTransitionList FiringStateImpl::expandTransitions(
-    const PartialTransitionList &pl)
+bool HierarchicalStateImpl::isAncestor(const HierarchicalStateImpl* s) const {
+  assert(s);
+  do {
+    if(s == this)
+      return true;
+    s = s->parent;
+  } while(s);
+  return false;
+}
+
+void HierarchicalStateImpl::mark(Marking& m) const {
+  bool& mm = m[this];
+  if(!mm) {
+    mm = true;
+    if(parent) parent->mark(m);
+  }
+}
+
+bool HierarchicalStateImpl::isMarked(const Marking& m) const {
+  Marking::const_iterator iter = m.find(this);
+  return (iter == m.end()) ? false : iter->second;
+}
+
+void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
+//  outDbg << "HierarchicalStateImpl::finalise(etl) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+
+  for(PartialTransitionList::const_iterator pt = ptl.begin();
+      pt != ptl.end(); ++pt)
+  {
+    assert(pt->getDestState());
+    pt->getDestState()->expandTransition(
+        etl,
+        ExpandedTransition(
+          this, pt->getActivationPattern(), pt->getAction()));
+  }
+}
+
+void HierarchicalStateImpl::expandTransition(
+    ExpandedTransitionList& etl,
+    const ExpandedTransition& t) const
 {
-  // Task: determine the target state of the partial transitions
-  // (This instance is the target state of all partial
-  // transitions which are given as an argument [stops recursion])
-  ExpandedTransitionList ret;
-  for(PartialTransitionList::const_iterator iter = pl.begin();
-      iter != pl.end();
-      ++iter)
-  {
-    ret.push_back(ExpandedTransition(*iter, this));
-  }
-  return ret;
+//  outDbg << "HierarchicalStateImpl::expandTransition(etl,t) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+  
+  assert(t.getDestStates().empty());
+
+  MultiState dest;
+  dest.insert(this);
+
+  etl.push_back(
+      ExpandedTransition(
+        t.getSrcState(),
+        t.getInCond(),
+        t.getActivationPattern(),
+        t.getAction(),
+        dest));
 }
 
-FiringStateImpl& FiringStateImpl::operator=(const smoc_transition_list &tl)
-  { FiringStateBaseImpl::operator=(tl); return *this; }
+void intrusive_ptr_add_ref(HierarchicalStateImpl *p)
+  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+
+void intrusive_ptr_release(HierarchicalStateImpl *p)
+  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+
+
+
+FiringStateImpl::FiringStateImpl(const std::string& name)
+  : HierarchicalStateImpl(),
+    name(name)
+{}
+
+const std::string& FiringStateImpl::getName() const
+  { return name; }
+
+void FiringStateImpl::getInitialState(
+    ProdState& p, const Marking& m) const
+{
+//  outDbg << "FiringStateImpl::getInitialState(p,m) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+
+  p.insert(this);
+}
+
+const HierarchicalStateImpl* FiringStateImpl::getTopState(
+    const MultiState& d,
+    bool isSrcState) const
+{
+  for(MultiState::const_iterator s = d.begin();
+      s != d.end(); ++s)
+  {
+    if(*s != this) {
+      assert(parent);
+      return parent->getTopState(d, false);
+    }
+  }
+
+  return this;
+}
 
 void intrusive_ptr_add_ref(FiringStateImpl *p)
   { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
@@ -510,132 +850,302 @@ void intrusive_ptr_release(FiringStateImpl *p)
 
 
 
+XORStateImpl::XORStateImpl()
+  : HierarchicalStateImpl(), init(0) {}
 
-RefinedStateImpl::RefinedStateImpl(FiringStateBaseImpl *init)
-  : FiringStateBaseImpl(), init(init) {
-  add(init);
-}
-
-RefinedStateImpl::RefinedStateImpl(const PRefinedStateImpl &s)
-  : FiringStateBaseImpl(s)
-{}
-
-RefinedStateImpl::~RefinedStateImpl() {
-  for(FiringStateBaseImplSet::iterator iter = states.begin();
-      iter != states.end();
-      ++iter)
-  {
-    assert((*iter)->getFiringFSM() == firingFSM);
-    delete *iter;
+XORStateImpl::~XORStateImpl() {
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    assert((*s)->getFiringFSM() == fsm);
+    delete *s;
   }
 }
 
-void RefinedStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
-  for(FiringStateBaseImplSet::iterator iter = states.begin();
-      iter != states.end();
-      ++iter)
-  {
-    (*iter)->setFiringFSM(fsm);
-  }
+void XORStateImpl::add(HierarchicalStateImpl* state, bool i) {
+//  outDbg << "XORStateImpl::add(...) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+  
+//  outDbg << "state: " << state << "; init: " << i << std::endl;
+  
+  fsm->unify(state->getFiringFSM());
+  fsm->delState(state);
+  
+  c.insert(state);
+  state->setParent(this);
+  
+  if(i) init = state;
+}
+
+void XORStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
   FiringStateBaseImpl::setFiringFSM(fsm);
-}
-
-void RefinedStateImpl::add(FiringStateBaseImpl *state) {
-  firingFSM->unify(state->getFiringFSM());
-  firingFSM->delState(state);
-  sassert(states.insert(state).second);
-}
-
-void RefinedStateImpl::finalise(smoc_root_node *actor) {
-  // Add my transitions to each state's outgoing transition
-  // list, then finalise it (recursive)
-  for(FiringStateBaseImplSet::iterator iter = states.begin();
-      iter != states.end();
-      ++iter)
-  {
-    (*iter)->addTransition(tl);
-    (*iter)->finalise(actor);
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    (*s)->setFiringFSM(fsm);
   }
 }
 
-ExpandedTransitionList
-RefinedStateImpl::expandTransitions(const PartialTransitionList &pl) {
-  // Task: determine the target state of the partial transitions
-  // (The target state of all partial transitions which are given
-  // as an argument is my inital state [may be recursive])
-  return init->expandTransitions(pl);
+void XORStateImpl::finalise(ExpandedTransitionList& etl) {
+//  outDbg << "XORStateImpl::finalise(etl) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+  
+  HierarchicalStateImpl::finalise(etl);
+  
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    (*s)->finalise(etl);
+  }
 }
 
-RefinedStateImpl& RefinedStateImpl::operator=(const smoc_transition_list &tl)
-  { FiringStateBaseImpl::operator=(tl); return *this; }
+void XORStateImpl::getInitialState(
+    ProdState& p, const Marking& m) const
+{
+//  outDbg << "XORStateImpl::getInitialState(p,m) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
 
-void intrusive_ptr_add_ref(RefinedStateImpl *p)
-  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+  HierarchicalStateImpl* t = 0;
 
-void intrusive_ptr_release(RefinedStateImpl *p)
-  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
-
-
-ConnectorStateImpl::ConnectorStateImpl()
-  : FiringStateBaseImpl() {
-}
-
-ConnectorStateImpl::ConnectorStateImpl(const PConnectorStateImpl &s)
-  : FiringStateBaseImpl(s) {
-}
-
-ConnectorStateImpl::~ConnectorStateImpl() {
-}
-
-void ConnectorStateImpl::finalise(smoc_root_node *actor) {
-
-}
-
-ExpandedTransitionList
-ConnectorStateImpl::expandTransitions(const PartialTransitionList &pl) {
-  // Task: determine the target state of the partial transitions
-
-  ExpandedTransitionList ret;
-
-  for(PartialTransitionList::const_iterator i = pl.begin();
-      i != pl.end(); ++i)
-  {
-    for(PartialTransitionList::const_iterator j = tl.begin();
-        j != tl.end(); ++j)
-    {
-      // FIXME: Currently, we assume that input/output requirements of both
-      // transitions are disjoint, so we can just AND them together. In the
-      // general case, however, we must accumulate the requirements for same
-      // ports and add some kind of offset to the requests in the second
-      // action.
-
-      // create a new partial transition (i,j) and ask j.destState to
-      // expand it...
-      PartialTransition p(
-          i->getActivationPattern().getExpr() && j->getActivationPattern().getExpr(),
-          merge(i->getAction(), j->getAction()),
-          j->getDestState());
-
-      PartialTransitionList pl;
-      pl.push_back(p);
-
-      ExpandedTransitionList tmp =
-        j->getDestState()->expandTransitions(pl);
-
-      ret.splice(ret.end(), tmp);
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    if((*s)->isMarked(m)) {
+      if(t)
+        throw ModelingError("smoc_xor_state: Must specify single initial state");
+      t = *s;
     }
   }
 
-  return ret;
+  if(!t) t = init;
+  assert(t);
+  t->getInitialState(p, m);
 }
 
-ConnectorStateImpl& ConnectorStateImpl::operator=(const smoc_transition_list &tl)
-  { FiringStateBaseImpl::operator=(tl); return *this; }
+const HierarchicalStateImpl* XORStateImpl::getTopState(
+    const MultiState& d,
+    bool isSrcState) const
+{
+  for(MultiState::const_iterator s = d.begin();
+      s != d.end(); ++s)
+  {
+    if(!isAncestor(*s)) {
+      assert(parent);
+      return parent->getTopState(d, false);
+    }
+  }
+  
+  return this;
+}
+
+void intrusive_ptr_add_ref(XORStateImpl *p)
+  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+
+void intrusive_ptr_release(XORStateImpl *p)
+  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+
+
+
+ANDStateImpl::ANDStateImpl(size_t part)
+  : HierarchicalStateImpl(),
+    c(part)
+{
+  if(part < 2)
+    throw ModelingError("smoc_and_state: Must contain at least two partitions");
+  for(C::iterator s = c.begin(); s != c.end(); ++s) {
+    *s = new XORStateImpl();
+
+    fsm->unify((*s)->getFiringFSM());
+    fsm->delState(*s);
+
+    (*s)->setParent(this);
+  }
+}
+
+ANDStateImpl::~ANDStateImpl() {
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    assert((*s)->getFiringFSM() == fsm);
+    delete *s;
+  }
+}
+
+void ANDStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
+  FiringStateBaseImpl::setFiringFSM(fsm);
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    (*s)->setFiringFSM(fsm);
+  }
+}
+
+void ANDStateImpl::finalise(ExpandedTransitionList& etl) {
+//  outDbg << "ANDStateImpl::finalise(etl) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+
+  HierarchicalStateImpl::finalise(etl);
+
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    (*s)->finalise(etl);
+  }
+}
+
+void ANDStateImpl::getInitialState(
+    ProdState& p, const Marking& m) const
+{
+//  outDbg << "ANDStateImpl::getInitialState(p,m) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+  
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    (*s)->getInitialState(p, m);
+  }
+}
+
+const HierarchicalStateImpl* ANDStateImpl::getTopState(
+    const MultiState& d,
+    bool isSrcState) const
+{
+  for(MultiState::const_iterator s = d.begin();
+      s != d.end(); ++s)
+  {
+    if(!isAncestor(*s)) {
+      assert(parent);
+      return parent->getTopState(d, false);
+    }
+    else if(*s == this) {
+      isSrcState = true;
+    }
+  }
+
+  if(isSrcState)
+    return this;
+
+  // if we come here, user tried to cross a partition
+  // boundary without leaving the AND state
+
+  throw ModelingError("smoc_and_state: Can't create inter-partition transitions");
+}
+
+XORStateImpl* ANDStateImpl::getPart(size_t p) const {
+  if(p >= c.size())
+    throw ModelingError("smoc_and_state: Invalid partition");
+  return c[p];
+}
+
+void intrusive_ptr_add_ref(ANDStateImpl *p)
+  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+
+void intrusive_ptr_release(ANDStateImpl *p)
+  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+
+
+
+
+ConnectorStateImpl::ConnectorStateImpl()
+  : FiringStateBaseImpl() {}
+
+void ConnectorStateImpl::expandTransition(
+    ExpandedTransitionList& etl,
+    const ExpandedTransition& t) const
+{
+//  outDbg << "ConnectorStateImpl::expandTransition(etl,t) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+
+  assert(t.getDestStates().empty());
+
+  if(ptl.empty()) {
+    throw ModelingError("smoc_connector_state: Must specify at least one transition");
+  }
+
+  for(PartialTransitionList::const_iterator pt = ptl.begin();
+      pt != ptl.end(); ++pt)
+  {
+    assert(pt->getDestState());
+    pt->getDestState()->expandTransition(
+        etl,
+        ExpandedTransition(
+          t.getSrcState(),
+          t.getInCond(),
+          t.getActivationPattern().getExpr() && pt->getActivationPattern().getExpr(),
+          merge(t.getAction(), pt->getAction())));
+  }
+}
 
 void intrusive_ptr_add_ref(ConnectorStateImpl *p)
   { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
 
 void intrusive_ptr_release(ConnectorStateImpl *p)
+  { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
+
+
+
+MultiStateImpl::MultiStateImpl()
+  : FiringStateBaseImpl() {}
+
+void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
+//  outDbg << "MultiStateImpl::finalise(etl) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+ 
+  // target state if no transitions
+  if(ptl.empty())
+    return;
+
+  // at least one outgoing transition --> single src state
+  if(!single(states)) {
+    throw ModelingError("smoc_multi_state: Must specify single source state");
+  }
+
+  for(PartialTransitionList::const_iterator pt = ptl.begin();
+      pt != ptl.end(); ++pt)
+  {
+    assert(pt->getDestState());
+    pt->getDestState()->expandTransition(
+        etl,
+        ExpandedTransition(
+          *states.begin(),
+          condIn,
+          pt->getActivationPattern(), pt->getAction()));
+  }
+}
+
+void MultiStateImpl::expandTransition(
+    ExpandedTransitionList& etl,
+    const ExpandedTransition& t) const
+{
+//  outDbg << "MultiStateImpl::expandTransition(etl,t) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+  
+  assert(t.getDestStates().empty());
+
+  if(states.empty()) {
+    throw ModelingError("smoc_multi_state: Must specify at least one target state");
+  }
+
+  etl.push_back(
+      ExpandedTransition(
+        t.getSrcState(),
+        t.getInCond(),
+        t.getActivationPattern(),
+        t.getAction(),
+        states));
+}
+
+
+void MultiStateImpl::addState(HierarchicalStateImpl* s) {
+//  outDbg << "MultiStateImpl::addState(s) this == " << this << std::endl; 
+//  ScopedIndent s0(outDbg);
+
+//  outDbg << "state: " << s << std::endl;
+  
+  fsm->unify(s->getFiringFSM());
+
+  sassert(states.insert(s).second);
+}
+
+void MultiStateImpl::addInCond(HierarchicalStateImpl* s) {
+//  outDbg << "MultiStateImpl::addInCond(s) this == " << this << std::endl;
+//  ScopedIndent s0(outDbg);
+
+//  outDbg << "state: " << s << std::endl;
+  
+  fsm->unify(s->getFiringFSM());
+
+  sassert(condIn.insert(s).second);  
+}
+
+void intrusive_ptr_add_ref(MultiStateImpl *p)
+  { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
+
+void intrusive_ptr_release(MultiStateImpl *p)
   { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
 
 
@@ -649,48 +1159,71 @@ void smoc_firing_state_base::addTransition(const smoc_transition_list &tl)
 void smoc_firing_state_base::clearTransition()
   { getImpl()->clearTransition(); }
 
+smoc_firing_state_base& smoc_firing_state_base::operator = (const smoc_transition_list &tl) {
+  getImpl()->clearTransition();
+  getImpl()->addTransition(tl);
+  return *this;
+}
+
+
+
+
+
+smoc_hierarchical_state::smoc_hierarchical_state(const SmartPtr &p)
+  : FFType(p) {}
+
+smoc_hierarchical_state::ImplType *smoc_hierarchical_state::getImpl() const
+  { return static_cast<ImplType *>(this->pImpl.get()); }
+
+
 
 
 smoc_firing_state::smoc_firing_state(const SmartPtr &p)
   : FFType(p) {}
 
-smoc_firing_state::smoc_firing_state()
-  : FFType(new FiringStateImpl()) {}
-
-smoc_firing_state::smoc_firing_state(const this_type &s)
-  : FFType(new FiringStateImpl(s.getImpl())) {}
+smoc_firing_state::smoc_firing_state(const char* name)
+  : FFType(new FiringStateImpl(name ? name : "")) {}
 
 smoc_firing_state::ImplType *smoc_firing_state::getImpl() const
   { return static_cast<ImplType *>(this->pImpl.get()); }
 
-smoc_firing_state& smoc_firing_state::operator = (const this_type &t)
-  { *getImpl() = *t.getImpl(); return *this; }
-
-smoc_firing_state& smoc_firing_state::operator = (const smoc_transition_list &tl)
-  { *getImpl() = tl; return *this; }
 
 
 
-smoc_refined_state::smoc_refined_state(const SmartPtr &p)
+smoc_xor_state::smoc_xor_state(const SmartPtr &p)
   : FFType(p) {}
 
-smoc_refined_state::smoc_refined_state(const smoc_firing_state_base &init)
-  : FFType(new RefinedStateImpl(init.getImpl())) {}
+smoc_xor_state::smoc_xor_state()
+  : FFType(new XORStateImpl()) {}
 
-smoc_refined_state::smoc_refined_state(const this_type &s)
-  : FFType(new RefinedStateImpl(s.getImpl())) {}
+smoc_xor_state::smoc_xor_state(const smoc_hierarchical_state& i)
+  : FFType(new XORStateImpl()) { init(i); }
 
-smoc_refined_state::ImplType *smoc_refined_state::getImpl() const
+smoc_xor_state::ImplType *smoc_xor_state::getImpl() const
   { return static_cast<ImplType *>(this->pImpl.get()); }
 
-void smoc_refined_state::add(const smoc_firing_state_base &state)
-  { getImpl()->add(state.getImpl()); }
+smoc_xor_state& smoc_xor_state::init(const smoc_hierarchical_state& state)
+  { getImpl()->add(state.getImpl(), true); return *this; }
 
-smoc_refined_state& smoc_refined_state::operator = (const this_type &t)
-  { *getImpl() = *t.getImpl(); return *this; }
+smoc_xor_state& smoc_xor_state::add(const smoc_hierarchical_state& state)
+  { getImpl()->add(state.getImpl(), false); return *this; }
 
-smoc_refined_state& smoc_refined_state::operator = (const smoc_transition_list &tl)
-  { *getImpl() = tl; return *this; }
+
+
+
+
+smoc_and_state::smoc_and_state(const SmartPtr &p)
+  : FFType(p) {}
+
+smoc_and_state::smoc_and_state(size_t part)
+  : FFType(new ANDStateImpl(part)) {}
+
+smoc_and_state::ImplType *smoc_and_state::getImpl() const
+  { return static_cast<ImplType *>(this->pImpl.get()); }
+
+smoc_xor_state::Ref smoc_and_state::operator[](size_t p)
+  { return smoc_xor_state(getImpl()->getPart(p)); }
+
 
 
 
@@ -700,14 +1233,28 @@ smoc_connector_state::smoc_connector_state(const SmartPtr &p)
 smoc_connector_state::smoc_connector_state()
   : FFType(new ConnectorStateImpl()) {}
 
-smoc_connector_state::smoc_connector_state(const this_type &s)
-  : FFType(new ConnectorStateImpl(s.getImpl())) {}
-
 smoc_connector_state::ImplType *smoc_connector_state::getImpl() const
   { return static_cast<ImplType *>(this->pImpl.get()); }
 
-smoc_connector_state& smoc_connector_state::operator = (const this_type &t)
-  { *getImpl() = *t.getImpl(); return *this; }
 
-smoc_connector_state& smoc_connector_state::operator = (const smoc_transition_list &tl)
-  { *getImpl() = tl; return *this; }
+
+
+
+smoc_multi_state::smoc_multi_state(const SmartPtr &p)
+  : FFType(p) {}
+
+smoc_multi_state::smoc_multi_state(const smoc_hierarchical_state& s)
+  : FFType(new MultiStateImpl()) { getImpl()->addState(s.getImpl()); }
+
+smoc_multi_state::smoc_multi_state(const IN& s)
+  : FFType(new MultiStateImpl()) { getImpl()->addInCond(s.s.getImpl()); }
+
+smoc_multi_state::ImplType *smoc_multi_state::getImpl() const
+  { return static_cast<ImplType *>(this->pImpl.get()); }
+
+smoc_multi_state& smoc_multi_state::operator,(const smoc_hierarchical_state& s)
+  { getImpl()->addState(s.getImpl()); return *this; }
+
+smoc_multi_state& smoc_multi_state::operator,(const IN& s)
+  { getImpl()->addInCond(s.s.getImpl()); return *this; }
+

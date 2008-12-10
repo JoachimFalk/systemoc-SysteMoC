@@ -61,7 +61,7 @@ protected:
 
 private:
   typedef CoSupport::SystemC::EventOrList
-    <ExpandedTransition> smoc_transition_ready_list;
+    <RuntimeTransition> smoc_transition_ready_list;
 
   smoc_graph_base* g;
   bool simulation_running;

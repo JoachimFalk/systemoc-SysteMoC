@@ -58,10 +58,10 @@ smoc_action merge(const smoc_action& a, const smoc_action& b) {
   assert(0);
 }
 
-ActionVisitor::ActionVisitor(FiringStateImpl* dest, int mode)
+ActionVisitor::ActionVisitor(RuntimeState* dest, int mode)
   : dest(dest), mode(mode) {}
 
-FiringStateImpl* ActionVisitor::operator()(smoc_func_call_list& f) const {
+RuntimeState* ActionVisitor::operator()(smoc_func_call_list& f) const {
   // Function call
   for(smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
 #ifdef SYSTEMOC_TRACE
@@ -84,14 +84,14 @@ FiringStateImpl* ActionVisitor::operator()(smoc_func_call_list& f) const {
   return dest;
 }
 
-FiringStateImpl* ActionVisitor::operator()(smoc_func_diverge& f) const {
+RuntimeState* ActionVisitor::operator()(smoc_func_diverge& f) const {
   // Function call determines next state (Internal use only)
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "    <action type=\"smoc_func_diverge\" func=\"???\">"
             << std::endl;
 #endif
 
-  FiringStateImpl* ret = f();
+  RuntimeState* ret = f();
 
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "    </action>" << std::endl;
@@ -99,12 +99,12 @@ FiringStateImpl* ActionVisitor::operator()(smoc_func_diverge& f) const {
   return ret;
 }
 
-FiringStateImpl* ActionVisitor::operator()(smoc_sr_func_pair& f) const {
+RuntimeState* ActionVisitor::operator()(smoc_sr_func_pair& f) const {
   // SR GO & TICK calls
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceStartFunction(f.go.getFuncName());
 #endif
-  if(mode & ExpandedTransition::GO) {
+  if(mode & RuntimeTransition::GO) {
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "    <action type=\"smoc_sr_func_pair\" go=\""
               << f.go.getFuncName() << "\">" << std::endl;
@@ -114,7 +114,7 @@ FiringStateImpl* ActionVisitor::operator()(smoc_sr_func_pair& f) const {
     std::cerr << "    </action>" << std::endl;
 #endif
   }
-  if(mode & ExpandedTransition::TICK) {
+  if(mode & RuntimeTransition::TICK) {
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "    <action type=\"smoc_sr_func_pair\" tick=\""
               << f.tick.getFuncName() << "\">" << std::endl;

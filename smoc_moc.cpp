@@ -140,7 +140,7 @@ void smoc_scheduler_top::schedule() {
 #ifdef SYSTEMOC_DEBUG
       std::cerr << ol << std::endl;
 #endif
-      ExpandedTransition &transition = ol.getEventTrigger();
+      RuntimeTransition &transition = ol.getEventTrigger();
       // We have waited on a transition so it should no longer be blocked
       assert(transition);
       // It should either be enabled so we can execute it or its functionallity
