@@ -98,25 +98,27 @@ public:
   smoc_port_out<T> out;
 
   Transform(sc_module_name name)
-    : smoc_actor(name, a)
+    : smoc_actor(name, a), a("a")
   {
-    smoc_firing_state   s_s_a;
-    smoc_firing_state   s_s_b;
+    smoc_firing_state   s_s_a("s_s_a");
+    smoc_firing_state   s_s_b("s_s_b");
 
-    smoc_refined_state  s_a(s_s_a);
-    smoc_firing_state   s_b;
+    smoc_xor_state  s_a;
+    s_a.init(s_s_a).add(s_s_b);
 
-    smoc_firing_state   b;
-    smoc_refined_state  c(s_a);
-    smoc_firing_state   d;
-    smoc_firing_state   e;
+    smoc_firing_state   s_b("s_b");
+
+    smoc_firing_state   b("b");
+    smoc_xor_state  c;
+    c.init(s_a).add(s_b);
+
+    smoc_firing_state   d("d");
+    smoc_firing_state   e("e");
     
     /*
      * Add sub-states (non-initial states only)
      */
     
-    s_a.add(s_s_b);
-    c.add(s_b);
 
     /*
      * Top FSM

@@ -3,7 +3,6 @@ top.transform: transition a -> b
 top.transform: store token with value 0
 top.src: generate token with value 1
 top.transform: transition b -> c
-top.transform: transition s_a -> s_b
 top.transform: transition c -> d
 top.transform: transition d -> a
 top.transform: write token with value 0
