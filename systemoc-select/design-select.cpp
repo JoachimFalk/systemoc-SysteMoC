@@ -99,11 +99,10 @@ private:
     std::cout << "action1" << std::endl;
     Output[0] = Data1[0];
   }
-  smoc_firing_state start;
   smoc_firing_state atChannel0, atChannel1;
 public:
   Select(sc_module_name name, int initialChannel = 0)
-    : smoc_actor(name, start) {
+    : smoc_actor(name, initialChannel ? atChannel1 : atChannel0) {
     atChannel0
       = (Control(1) && Data0(1) &&
          Control.getValueAt(0) == 0)  >>
@@ -129,10 +128,6 @@ public:
       | Data0(1)                      >>
         Output(1)                     >>
         call(&Select::action1)        >> atChannel1;
-    
-    start = initialChannel == 0
-      ? atChannel0
-      : atChannel1;
   }
 };
 
