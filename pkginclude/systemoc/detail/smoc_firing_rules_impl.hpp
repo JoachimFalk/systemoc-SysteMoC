@@ -74,6 +74,7 @@ typedef std::set<const FiringStateImpl*> ProdState;
 
 typedef std::set<HierarchicalStateImpl*> HierarchicalStateImplSet;
 typedef std::set<const HierarchicalStateImpl*> MultiState;
+typedef std::map<const HierarchicalStateImpl*,bool> CondMultiState;
 
 class TransitionBase {
 private:
@@ -121,8 +122,8 @@ private:
   const HierarchicalStateImpl* src;
 
   /// @brief IN conditions
-  MultiState in;
-  
+  CondMultiState in;
+
   /// @brief Target state(s)
   MultiState dest;
 
@@ -130,7 +131,7 @@ public:
   /// @brief Constructor
   ExpandedTransition(
       const HierarchicalStateImpl* src,
-      const MultiState& in,
+      const CondMultiState& in,
       const smoc_activation_pattern& ap,
       const smoc_action& f,
       const MultiState& dest);
@@ -138,7 +139,7 @@ public:
   /// @brief Constructor
   ExpandedTransition(
       const HierarchicalStateImpl* src,
-      const MultiState& in,
+      const CondMultiState& in,
       const smoc_activation_pattern& ap,
       const smoc_action& f);
 
@@ -152,7 +153,7 @@ public:
   const HierarchicalStateImpl* getSrcState() const;
 
   /// @brief Returns the IN conditions
-  const MultiState& getInCond() const;
+  const CondMultiState& getCondStates() const;
 
   /// @brief Returns the target state(s)
   const MultiState& getDestStates() const;
@@ -499,7 +500,7 @@ public:
 
 private:
   MultiState states;
-  MultiState condIn;
+  CondMultiState condStates;
 
 public:
   /// @brief Constructor
@@ -515,7 +516,7 @@ public:
 
   void addState(HierarchicalStateImpl* s);
 
-  void addInCond(HierarchicalStateImpl* s);
+  void addCondState(HierarchicalStateImpl* s, bool neg);
 };
 
 #endif // _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP

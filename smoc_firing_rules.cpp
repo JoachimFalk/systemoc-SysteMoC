@@ -82,15 +82,17 @@ void markStates(const T& t, Marking& m)  {
   }
 }
 
-
-template<class T>
-bool areMarked(const T& t, const Marking& m) {
+bool areMarked(const CondMultiState& c, const Marking& m) {
   // check if all specified states are marked
-  for(typename T::const_iterator tIter = t.begin();
-      tIter != t.end(); ++tIter)
+  for(CondMultiState::const_iterator s = c.begin();
+      s != c.end(); ++s)
   {
-    if(!(*tIter)->isMarked(m))
-      return false;
+    if(s->first->isMarked(m)) {
+      if(s->second) return false;
+    }
+    else {
+      if(!s->second) return false;
+    }
   }
   return true;
 }
@@ -143,7 +145,7 @@ FiringStateBaseImpl* PartialTransition::getDestState() const
 
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
-    const MultiState& in,
+    const CondMultiState& in,
     const smoc_activation_pattern& ap,
     const smoc_action& f,
     const MultiState& dest)
@@ -155,7 +157,7 @@ ExpandedTransition::ExpandedTransition(
 
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
-    const MultiState& in,
+    const CondMultiState& in,
     const smoc_activation_pattern& ap,
     const smoc_action& f)
   : TransitionBase(ap, f),
@@ -174,7 +176,7 @@ ExpandedTransition::ExpandedTransition(
 const HierarchicalStateImpl* ExpandedTransition::getSrcState() const
   { return src; }
 
-const MultiState& ExpandedTransition::getInCond() const
+const CondMultiState& ExpandedTransition::getCondStates() const
   { return in; }
 
 const MultiState& ExpandedTransition::getDestStates() const
@@ -547,7 +549,7 @@ void FiringFSMImpl::finalise(
           t != etl.end(); ++t)
       {
         if(t->getSrcState()->isMarked(mk) &&
-           areMarked(t->getInCond(), mk))
+           areMarked(t->getCondStates(), mk))
         {
           const HierarchicalStateImpl* x =
             t->getSrcState()->getTopState(t->getDestStates(), true);
@@ -795,7 +797,7 @@ void HierarchicalStateImpl::expandTransition(
   etl.push_back(
       ExpandedTransition(
         t.getSrcState(),
-        t.getInCond(),
+        t.getCondStates(),
         t.getActivationPattern(),
         t.getAction(),
         dest));
@@ -1054,7 +1056,7 @@ void ConnectorStateImpl::expandTransition(
         etl,
         ExpandedTransition(
           t.getSrcState(),
-          t.getInCond(),
+          t.getCondStates(),
           t.getActivationPattern().getExpr() && pt->getActivationPattern().getExpr(),
           merge(t.getAction(), pt->getAction())));
   }
@@ -1092,7 +1094,7 @@ void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
         etl,
         ExpandedTransition(
           *states.begin(),
-          condIn,
+          condStates,
           pt->getActivationPattern(), pt->getAction()));
   }
 }
@@ -1113,7 +1115,7 @@ void MultiStateImpl::expandTransition(
   etl.push_back(
       ExpandedTransition(
         t.getSrcState(),
-        t.getInCond(),
+        t.getCondStates(),
         t.getActivationPattern(),
         t.getAction(),
         states));
@@ -1131,15 +1133,15 @@ void MultiStateImpl::addState(HierarchicalStateImpl* s) {
   sassert(states.insert(s).second);
 }
 
-void MultiStateImpl::addInCond(HierarchicalStateImpl* s) {
-//  outDbg << "MultiStateImpl::addInCond(s) this == " << this << std::endl;
+void MultiStateImpl::addCondState(HierarchicalStateImpl* s, bool neg) {
+//  outDbg << "MultiStateImpl::addCondState(s) this == " << this << std::endl;
 //  ScopedIndent s0(outDbg);
 
 //  outDbg << "state: " << s << std::endl;
   
   fsm->unify(s->getFiringFSM());
 
-  sassert(condIn.insert(s).second);  
+  sassert(condStates.insert(std::make_pair(s, neg)).second);
 }
 
 void intrusive_ptr_add_ref(MultiStateImpl *p)
@@ -1247,7 +1249,7 @@ smoc_multi_state::smoc_multi_state(const smoc_hierarchical_state& s)
   : FFType(new MultiStateImpl()) { getImpl()->addState(s.getImpl()); }
 
 smoc_multi_state::smoc_multi_state(const IN& s)
-  : FFType(new MultiStateImpl()) { getImpl()->addInCond(s.s.getImpl()); }
+  : FFType(new MultiStateImpl()) { getImpl()->addCondState(s.s.getImpl(), s.neg); }
 
 smoc_multi_state::ImplType *smoc_multi_state::getImpl() const
   { return static_cast<ImplType *>(this->pImpl.get()); }
@@ -1256,5 +1258,5 @@ smoc_multi_state& smoc_multi_state::operator,(const smoc_hierarchical_state& s)
   { getImpl()->addState(s.getImpl()); return *this; }
 
 smoc_multi_state& smoc_multi_state::operator,(const IN& s)
-  { getImpl()->addInCond(s.s.getImpl()); return *this; }
+  { getImpl()->addCondState(s.s.getImpl(), s.neg); return *this; }
 

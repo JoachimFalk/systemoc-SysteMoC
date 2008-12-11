@@ -196,9 +196,11 @@ public:
 
 struct IN {
   smoc_hierarchical_state::ConstRef s;
+  bool neg;
   IN(const smoc_hierarchical_state& s)
-    : s(s)
-  {}
+    : s(s), neg(false) {}
+  IN& operator!()
+    { neg = !neg; return *this; }
 };
 
 class smoc_multi_state
