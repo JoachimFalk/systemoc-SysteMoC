@@ -13,7 +13,7 @@ golden_logs_dir=$srcdir/testlogs
 logoutfile=autotest.log
 
 #
-test_bin=$builddir/simulation-xor-comp
+test_bin=$builddir/simulation-and-comp
 
 # call binary
 $test_bin 0 --dump-fsm 2> /dev/null
@@ -24,7 +24,7 @@ cp -f FSM_top.transform.dot $logoutfile
 diff $logoutfile $golden_logs_dir/fsm.log > /dev/null
 
 if [ $? -gt 0 ]; then
-  echo "simulation-xor-comp autotest: logfiles differ."
+  echo "simulation-and-comp autotest: logfiles differ."
   test_failed=1
 fi
 
