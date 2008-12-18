@@ -543,5 +543,7 @@ void smoc_root_node::delCurOutTransitions(smoc_transition_ready_list& ol) const 
 
 smoc_root_node::~smoc_root_node() {
   idPool.unregObj(this);
+#ifdef SYSTEMOC_ENABLE_VPC
   delete commstate;
+#endif // SYSTEMOC_ENABLE_VPC
 }
