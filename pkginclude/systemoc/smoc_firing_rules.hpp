@@ -136,7 +136,7 @@ protected:
   this_type& operator=(const this_type &);
 
 public:
-  smoc_xor_state();
+  smoc_xor_state(const char* name = 0);
   smoc_xor_state(const smoc_hierarchical_state &init);
 
   this_type& add(const smoc_hierarchical_state &state);

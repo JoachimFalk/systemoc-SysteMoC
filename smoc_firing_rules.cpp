@@ -852,8 +852,11 @@ void intrusive_ptr_release(FiringStateImpl *p)
 
 
 
-XORStateImpl::XORStateImpl()
-  : HierarchicalStateImpl(), init(0) {}
+XORStateImpl::XORStateImpl(const std::string& name)
+  : HierarchicalStateImpl(),
+    init(0),
+    name(name)
+{}
 
 XORStateImpl::~XORStateImpl() {
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
@@ -861,6 +864,9 @@ XORStateImpl::~XORStateImpl() {
     delete *s;
   }
 }
+
+const std::string& XORStateImpl::getName() const
+  { return name; }
 
 void XORStateImpl::add(HierarchicalStateImpl* state, bool i) {
 //  outDbg << "XORStateImpl::add(...) this == " << this << std::endl;
@@ -887,7 +893,9 @@ void XORStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
 void XORStateImpl::finalise(ExpandedTransitionList& etl) {
 //  outDbg << "XORStateImpl::finalise(etl) this == " << this << std::endl;
 //  ScopedIndent s0(outDbg);
-  
+
+//  outDbg << "name: " << name << std::endl;
+
   if(!init)
     throw ModelingError("smoc_xor_state: Must specify initial state");
 
@@ -950,7 +958,9 @@ ANDStateImpl::ANDStateImpl(size_t part)
   if(part < 2)
     throw ModelingError("smoc_and_state: Must contain at least two partitions");
   for(C::iterator s = c.begin(); s != c.end(); ++s) {
-    *s = new XORStateImpl();
+    *s = new XORStateImpl(
+        CoSupport::String::Concat("P")(s - c.begin())
+        );
 
     fsm->unify((*s)->getFiringFSM());
     fsm->delState(*s);
@@ -1198,8 +1208,8 @@ smoc_firing_state::ImplType *smoc_firing_state::getImpl() const
 smoc_xor_state::smoc_xor_state(const SmartPtr &p)
   : FFType(p) {}
 
-smoc_xor_state::smoc_xor_state()
-  : FFType(new XORStateImpl()) {}
+smoc_xor_state::smoc_xor_state(const char* name)
+  : FFType(new XORStateImpl(name ? name : "")) {}
 
 smoc_xor_state::smoc_xor_state(const smoc_hierarchical_state& i)
   : FFType(new XORStateImpl()) { init(i); }

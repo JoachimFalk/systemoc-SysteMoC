@@ -418,13 +418,19 @@ private:
   /// @brief Child states
   typedef HierarchicalStateImplSet C;
   C c;
+  
+  /// @brief User-defined name
+  std::string name;
 
 public:
   /// @brief Constructor
-  XORStateImpl();
+  XORStateImpl(const std::string& name = "");
 
   /// @brief Destructor
   ~XORStateImpl();
+  
+  /// @brief Returns the user-defined name
+  const std::string& getName() const;
   
   /// @brief See FiringStateBaseImpl
   void finalise(ExpandedTransitionList& etl);
