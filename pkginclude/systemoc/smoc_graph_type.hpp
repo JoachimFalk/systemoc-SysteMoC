@@ -185,6 +185,7 @@ protected:
   smoc_graph_base(sc_module_name name, smoc_firing_state& init, bool regObj);
 
   void finalise();
+  void reset();
 
 private:
   // actor and graph child objects

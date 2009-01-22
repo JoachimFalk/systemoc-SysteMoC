@@ -87,6 +87,7 @@ protected:
                              std::string name ) {};
 
   virtual void finalise();
+  virtual void reset() {}
 
   virtual void assemble(smoc_modes::PGWriter &pgw)          const = 0;
   virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
