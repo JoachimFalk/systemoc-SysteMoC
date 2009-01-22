@@ -135,14 +135,14 @@ protected:
   void registerVOutlet(const VOutletMap::value_type &entry);
   void deregisterVOutlet(FifoId fifoId);
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(visibleCount(), n); }
 
   smoc_event &spaceAvailableEvent(size_t n)
     { return emmFree.getEvent(freeCount(), n); }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
     { return -1; }
 
@@ -493,7 +493,7 @@ protected:
     { return new entry_type(*this); }
 
   /// @brief See smoc_port_registry
-  smoc_chan_in_base_if *createOutlet()
+  smoc_port_in_base_if *createOutlet()
     { return new outlet_type(*this); }
 };
 
@@ -502,7 +502,7 @@ protected:
  */
 template<class T, class A>
 class smoc_multiplex_fifo_entry
-: public smoc_chan_out_if<T,smoc_channel_access_if> {
+: public smoc_chan_out_if<T,smoc_1d_port_access_if> {
   typedef smoc_multiplex_fifo_entry<T,A> this_type;
 private:
   /// @brief The channel implementation
@@ -534,8 +534,8 @@ protected:
     { return -1; }
 
   /// @brief See smoc_chan_out_if
-  typename this_type::access_type *getWriteChannelAccess()
-    { return chan.getWriteChannelAccess(); }
+  typename this_type::access_type *getWritePortAccess()
+    { return chan.getWritePortAccess(); }
 };
 
 /**
@@ -543,7 +543,7 @@ protected:
  */
 template<class T, class A>
 class smoc_multiplex_fifo_outlet
-: public smoc_chan_in_if<T,smoc_channel_access_if> {
+: public smoc_chan_in_if<T,smoc_1d_port_access_if> {
   typedef smoc_multiplex_fifo_outlet<T,A> this_type;
 private:
   /// @brief The channel implementation
@@ -553,7 +553,7 @@ public:
   smoc_multiplex_fifo_outlet(smoc_multiplex_fifo_chan<T,A> &chan)
     : chan(chan) {}
 protected:
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
     { return chan.commitRead(n, diiEvent); }
@@ -562,26 +562,26 @@ protected:
     { return chan.commitRead(n); }
 #endif
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
     { return chan.dataAvailableEvent(n); }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
     { return chan.visibleCount(); }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
     { return -1; }
 
   /// @brief See smoc_chan_in_if
-  typename this_type::access_type *getReadChannelAccess()
-    { return chan.getReadChannelAccess(); }
+  typename this_type::access_type *getReadPortAccess()
+    { return chan.getReadPortAccess(); }
 };
 
 template<class T, class A>
 class smoc_multiplex_vfifo_outlet
-: public smoc_chan_in_if<T,smoc_channel_access_if> {
+: public smoc_chan_in_if<T,smoc_1d_port_access_if> {
   typedef smoc_multiplex_vfifo_outlet<T,A> this_type;
   // Ugh need this friend decl for the AccessImpl friend decl in
   // smoc_multiplex_fifo_chan
@@ -673,7 +673,7 @@ public:
     chan->deregisterVOutlet(fifoId);
   }
 protected:
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
 #else
@@ -690,20 +690,20 @@ protected:
 #endif
   }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(countAvailable, n); }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
     { return countAvailable; }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
     { return -1; }
 
   /// @brief See smoc_chan_in_if
-  AccessImpl *getReadChannelAccess()
+  AccessImpl *getReadPortAccess()
     { return &accessImpl; }
 
   void latencyExpired(size_t n) {
@@ -714,7 +714,7 @@ protected:
 
 template<class T, class A>
 class smoc_multiplex_vfifo_entry
-: public smoc_chan_out_if<T,smoc_channel_access_if> {
+: public smoc_chan_out_if<T,smoc_1d_port_access_if> {
   typedef smoc_multiplex_vfifo_entry<T,A> this_type;
   // Ugh need this friend decl for the AccessImpl friend decl in
   // smoc_multiplex_fifo_chan
@@ -816,7 +816,7 @@ protected:
     { return -1; }
 
   /// @brief See smoc_chan_out_if
-  AccessImpl *getWriteChannelAccess()
+  AccessImpl *getWritePortAccess()
     { return &accessImpl; }
 };
 
@@ -888,7 +888,7 @@ protected:
     { return new entry_type(pMultiplexChan, fifoId); }
 
   /// @brief See smoc_port_registry
-  smoc_chan_in_base_if* createOutlet()
+  smoc_port_in_base_if* createOutlet()
     { return new outlet_type(pMultiplexChan, fifoId); }
 
 private:

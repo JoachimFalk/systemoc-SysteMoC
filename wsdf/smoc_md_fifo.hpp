@@ -803,8 +803,8 @@ template <typename T_DATA_TYPE,
 class smoc_md_fifo_storage
   : public smoc_chan_if</*smoc_md_fifo_kind<BUFFER_CLASS>,*/
                         T_DATA_TYPE,
-                        smoc_md_snk_channel_access_if,
-                        smoc_md_src_channel_access_if,
+                        smoc_md_snk_port_access_if,
+                        smoc_md_src_port_access_if,
                         STORAGE_OUT_TYPE
                        >,
       public smoc_md_fifo_kind<BUFFER_CLASS> 
@@ -881,34 +881,34 @@ protected:
   const char *name() const
   { return parent_type::name(); }
 
-  ring_in_type * getReadChannelAccess() {
+  ring_in_type * getReadPortAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
     CoSupport::Streams::dout << this->name() << ": ";
-    CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
+    CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getReadPortAccess" << std::endl;
     CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
     ring_in_type *r = new ring_in_type();
     initStorageAccess(*r);
     r->SetBuffer(storage);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-    CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
+    CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getReadPortAccess" << std::endl;
     CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     return r;
   }
 
 
-  ring_out_type * getWriteChannelAccess() {
+  ring_out_type * getWritePortAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << this->name() << ": ";
-  CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
+  CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getWritePortAccess" << std::endl;
   CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
   ring_out_type *r = new ring_out_type();
     initStorageAccess(*r);
     r->SetBuffer(storage);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-  CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
+  CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getWritePortAccess" << std::endl;
   CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
   return r;
@@ -927,8 +927,8 @@ template <class BUFFER_CLASS,
 class smoc_md_fifo_storage<void,BUFFER_CLASS,STORAGE_OUT_TYPE>
   : public smoc_chan_if</*smoc_md_fifo_kind<BUFFER_CLASS>,*/
                         void,
-                        smoc_md_snk_channel_access_if,
-                        smoc_md_src_channel_access_if,
+                        smoc_md_snk_port_access_if,
+                        smoc_md_src_port_access_if,
                         STORAGE_OUT_TYPE
                        >,
       public smoc_md_fifo_kind<BUFFER_CLASS>
@@ -990,32 +990,32 @@ protected:
   const char *name() const
   { return parent_type::name(); }
 
-  ring_in_type * getReadChannelAccess() {
+  ring_in_type * getReadPortAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
     CoSupport::Streams::dout << this->name() << ": ";
-    CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
+    CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getReadPortAccess" << std::endl;
     CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
     ring_in_type *r = new ring_in_type();
     initStorageAccess(*r);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-    CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getReadChannelAccess" << std::endl;
+    CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getReadPortAccess" << std::endl;
     CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
     return r;
   }
 
 
-  ring_out_type * getWriteChannelAccess() {
+  ring_out_type * getWritePortAccess() {
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
   CoSupport::Streams::dout << this->name() << ": ";
-  CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
+  CoSupport::Streams::dout << "Enter smoc_md_fifo_kind<BUFFER_CLASS>::getWritePortAccess" << std::endl;
   CoSupport::Streams::dout << CoSupport::Streams::Indent::Up;
 #endif
   ring_out_type *r = new ring_out_type();
   initStorageAccess(*r);
 #if VERBOSE_LEVEL_SMOC_MD_FIFO == 101
-  CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getWriteChannelAccess" << std::endl;
+  CoSupport::Streams::dout << "Leave smoc_md_fifo_kind<BUFFER_CLASS>::getWritePortAccess" << std::endl;
   CoSupport::Streams::dout << CoSupport::Streams::Indent::Down;
 #endif
   return r;
@@ -1140,7 +1140,7 @@ public:
     { /*FIXME*/return this; }
 
   /// @brief See smoc_port_registry
-  smoc_chan_in_base_if* createOutlet()
+  smoc_port_in_base_if* createOutlet()
     { /*FIXME*/return this; }
   
   // bounce functions

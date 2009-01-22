@@ -194,12 +194,12 @@ template<class> class smoc_multireader_fifo_chan;
  */
 template<class T>
 class smoc_multireader_fifo_outlet
-: public smoc_chan_in_if<T,smoc_channel_access_if>
+: public smoc_chan_in_if<T,smoc_1d_port_access_if>
 {
 public:
   typedef smoc_multireader_fifo_outlet<T>           this_type;
   typedef typename this_type::access_type           access_type; 
-  typedef smoc_chan_in_if<T,smoc_channel_access_if> iface_type;
+  typedef smoc_chan_in_if<T,smoc_1d_port_access_if> iface_type;
 
   /// @brief Constructor
   smoc_multireader_fifo_outlet(smoc_multireader_fifo_chan<T>& chan)
@@ -207,7 +207,7 @@ public:
     {}
 
 protected:
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
     { chan.consume(consume, diiEvent); }
@@ -216,29 +216,29 @@ protected:
     { chan.consume(consume); }
 #endif
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
     { assert(n); return emm.getEvent(0, n); }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
     { return chan.numAvailable(); }
   
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
     { return chan.inTokenId(); }
   
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   void moreData()
     { emm.increasedCount(numAvailable()); }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   void lessData()
     { emm.decreasedCount(numAvailable()); }
 
   /// @brief See smoc_chan_in_if
-  access_type* getReadChannelAccess()
-    { return chan.getReadChannelAccess(); }
+  access_type* getReadPortAccess()
+    { return chan.getReadPortAccess(); }
 
 private:
   /// @brief The channel implementation
@@ -256,12 +256,12 @@ private:
  */
 template<class T>
 class smoc_multireader_fifo_entry
-: public smoc_chan_out_if<T,smoc_channel_access_if>
+: public smoc_chan_out_if<T,smoc_1d_port_access_if>
 {
 public:
   typedef smoc_multireader_fifo_entry<T>              this_type;
   typedef typename this_type::access_type             access_type; 
-  typedef smoc_chan_out_if<T,smoc_channel_access_if>  iface_type;
+  typedef smoc_chan_out_if<T,smoc_1d_port_access_if>  iface_type;
 
   /// @brief Constructor
   smoc_multireader_fifo_entry(smoc_multireader_fifo_chan<T>& chan)
@@ -290,17 +290,17 @@ protected:
   size_t outTokenId() const
     { return chan.outTokenId(); }
   
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   void moreSpace()
     { emm.increasedCount(numFree()); }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   void lessSpace()
     { emm.decreasedCount(numFree()); }
 
   /// @brief See smoc_chan_out_if
-  access_type* getWriteChannelAccess()
-    { return chan.getWriteChannelAccess(); }
+  access_type* getWritePortAccess()
+    { return chan.getWritePortAccess(); }
 
 private:
   /// @brief The channel implementation
@@ -338,7 +338,7 @@ protected:
     { return new entry_type(*this); }
 
   /// @brief See smoc_port_registry
-  smoc_chan_in_base_if* createOutlet()
+  smoc_port_in_base_if* createOutlet()
     { return new outlet_type(*this); }
 
 private:

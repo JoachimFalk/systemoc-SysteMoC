@@ -13,8 +13,8 @@
 /// This interface is used by the multi-dimensional ports
 /// in order to access the data stored in the FIFO
 template<class T>
-class smoc_md_src_channel_access_if
-: public smoc_channel_access_base_if {
+class smoc_md_src_port_access_if
+: public smoc_port_access_base_if {
 public:
 
   typedef T  return_type; 
@@ -33,8 +33,8 @@ public:
 };
 
 template<class T>
-class smoc_md_snk_channel_access_if
-: public smoc_channel_access_base_if {
+class smoc_md_snk_port_access_if
+: public smoc_port_access_base_if {
 public:
 
   typedef T  return_type; 
