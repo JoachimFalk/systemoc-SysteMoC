@@ -194,12 +194,12 @@ template<class> class smoc_multireader_fifo_chan;
  */
 template<class T>
 class smoc_multireader_fifo_outlet
-: public smoc_chan_in_if<T,smoc_1d_port_access_if>
+: public smoc_port_in_if<T,smoc_1d_port_access_if>
 {
 public:
   typedef smoc_multireader_fifo_outlet<T>           this_type;
   typedef typename this_type::access_type           access_type; 
-  typedef smoc_chan_in_if<T,smoc_1d_port_access_if> iface_type;
+  typedef smoc_port_in_if<T,smoc_1d_port_access_if> iface_type;
 
   /// @brief Constructor
   smoc_multireader_fifo_outlet(smoc_multireader_fifo_chan<T>& chan)
@@ -236,7 +236,7 @@ protected:
   void lessData()
     { emm.decreasedCount(numAvailable()); }
 
-  /// @brief See smoc_chan_in_if
+  /// @brief See smoc_port_in_if
   access_type* getReadPortAccess()
     { return chan.getReadPortAccess(); }
 
@@ -256,12 +256,12 @@ private:
  */
 template<class T>
 class smoc_multireader_fifo_entry
-: public smoc_chan_out_if<T,smoc_1d_port_access_if>
+: public smoc_port_out_if<T,smoc_1d_port_access_if>
 {
 public:
   typedef smoc_multireader_fifo_entry<T>              this_type;
   typedef typename this_type::access_type             access_type; 
-  typedef smoc_chan_out_if<T,smoc_1d_port_access_if>  iface_type;
+  typedef smoc_port_out_if<T,smoc_1d_port_access_if>  iface_type;
 
   /// @brief Constructor
   smoc_multireader_fifo_entry(smoc_multireader_fifo_chan<T>& chan)
@@ -269,7 +269,7 @@ public:
     {}
 
 protected:
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
     { chan.produce(produce, latEvent); }
@@ -278,15 +278,15 @@ protected:
     { chan.produce(produce); }
 #endif
 
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
     { assert(n); return emm.getEvent(0, n); }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t numFree() const
     { return chan.numFree(); }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t outTokenId() const
     { return chan.outTokenId(); }
   
@@ -298,7 +298,7 @@ protected:
   void lessSpace()
     { emm.decreasedCount(numFree()); }
 
-  /// @brief See smoc_chan_out_if
+  /// @brief See smoc_port_out_if
   access_type* getWritePortAccess()
     { return chan.getWritePortAccess(); }
 
@@ -334,7 +334,7 @@ public:
   {}
 protected:
   /// @brief See smoc_port_registry
-  smoc_chan_out_base_if* createEntry()
+  smoc_port_out_base_if* createEntry()
     { return new entry_type(*this); }
 
   /// @brief See smoc_port_registry

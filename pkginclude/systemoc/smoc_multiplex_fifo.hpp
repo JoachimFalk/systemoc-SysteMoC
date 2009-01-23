@@ -489,7 +489,7 @@ protected:
   }
 protected:
   /// @brief See smoc_port_registry
-  smoc_chan_out_base_if *createEntry()
+  smoc_port_out_base_if *createEntry()
     { return new entry_type(*this); }
 
   /// @brief See smoc_port_registry
@@ -502,7 +502,7 @@ protected:
  */
 template<class T, class A>
 class smoc_multiplex_fifo_entry
-: public smoc_chan_out_if<T,smoc_1d_port_access_if> {
+: public smoc_port_out_if<T,smoc_1d_port_access_if> {
   typedef smoc_multiplex_fifo_entry<T,A> this_type;
 private:
   /// @brief The channel implementation
@@ -512,7 +512,7 @@ public:
   smoc_multiplex_fifo_entry(smoc_multiplex_fifo_chan<T,A> &chan)
     : chan(chan) {}
 protected:
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
     { return chan.commitWrite(n, latEvent); }
@@ -521,19 +521,19 @@ protected:
     { return chan.commitWrite(n); }
 #endif
 
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
     { return chan.spaceAvailableEvent(n); }
  
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t numFree() const
     { return chan.freeCount(); }
  
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t outTokenId() const
     { return -1; }
 
-  /// @brief See smoc_chan_out_if
+  /// @brief See smoc_port_out_if
   typename this_type::access_type *getWritePortAccess()
     { return chan.getWritePortAccess(); }
 };
@@ -543,7 +543,7 @@ protected:
  */
 template<class T, class A>
 class smoc_multiplex_fifo_outlet
-: public smoc_chan_in_if<T,smoc_1d_port_access_if> {
+: public smoc_port_in_if<T,smoc_1d_port_access_if> {
   typedef smoc_multiplex_fifo_outlet<T,A> this_type;
 private:
   /// @brief The channel implementation
@@ -574,14 +574,14 @@ protected:
   size_t inTokenId() const
     { return -1; }
 
-  /// @brief See smoc_chan_in_if
+  /// @brief See smoc_port_in_if
   typename this_type::access_type *getReadPortAccess()
     { return chan.getReadPortAccess(); }
 };
 
 template<class T, class A>
 class smoc_multiplex_vfifo_outlet
-: public smoc_chan_in_if<T,smoc_1d_port_access_if> {
+: public smoc_port_in_if<T,smoc_1d_port_access_if> {
   typedef smoc_multiplex_vfifo_outlet<T,A> this_type;
   // Ugh need this friend decl for the AccessImpl friend decl in
   // smoc_multiplex_fifo_chan
@@ -702,7 +702,7 @@ protected:
   size_t inTokenId() const
     { return -1; }
 
-  /// @brief See smoc_chan_in_if
+  /// @brief See smoc_port_in_if
   AccessImpl *getReadPortAccess()
     { return &accessImpl; }
 
@@ -714,7 +714,7 @@ protected:
 
 template<class T, class A>
 class smoc_multiplex_vfifo_entry
-: public smoc_chan_out_if<T,smoc_1d_port_access_if> {
+: public smoc_port_out_if<T,smoc_1d_port_access_if> {
   typedef smoc_multiplex_vfifo_entry<T,A> this_type;
   // Ugh need this friend decl for the AccessImpl friend decl in
   // smoc_multiplex_fifo_chan
@@ -788,7 +788,7 @@ public:
   smoc_multiplex_vfifo_entry(const PMultiplexChannel &chan, FifoId fifoId)
     : chan(chan), fifoId(fifoId) {}
 protected:
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
 #else
@@ -803,19 +803,19 @@ protected:
 #endif
   }
 
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
     { return chan->spaceAvailableEvent(n); }
 
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t numFree() const
     { return chan->freeCount(); }
 
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t outTokenId() const
     { return -1; }
 
-  /// @brief See smoc_chan_out_if
+  /// @brief See smoc_port_out_if
   AccessImpl *getWritePortAccess()
     { return &accessImpl; }
 };
@@ -884,7 +884,7 @@ public:
 
 protected:
   /// @brief See smoc_port_registry
-  smoc_chan_out_base_if* createEntry()
+  smoc_port_out_base_if* createEntry()
     { return new entry_type(pMultiplexChan, fifoId); }
 
   /// @brief See smoc_port_registry

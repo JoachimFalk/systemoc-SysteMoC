@@ -139,7 +139,7 @@ class smoc_multicast_sr_signal_chan;
 template <typename T>
 class smoc_multicast_outlet
   : public smoc_multicast_outlet_base,
-    public smoc_chan_in_if<T,::smoc_1d_port_access_if>,
+    public smoc_port_in_if<T,::smoc_1d_port_access_if>,
     public smoc_1d_port_access_if<typename smoc_storage_in<T>::return_type>
 {
 public:
@@ -148,7 +148,7 @@ public:
   typedef smoc_multicast_outlet<data_type>        this_type;
   typedef typename this_type::access_in_type      ring_in_type;
   typedef typename this_type::return_type         return_type;
-  typedef smoc_chan_in_if<T,::smoc_1d_port_access_if>  iface_type;
+  typedef smoc_port_in_if<T,::smoc_1d_port_access_if>  iface_type;
   
   /// @brief Constructor
   smoc_multicast_outlet(smoc_multicast_sr_signal_chan<T>* chan)
@@ -202,7 +202,7 @@ public:
   bool isDefined() const
     { return chan->isDefined(); }
   
-  /// @brief See smoc_chan_in_if
+  /// @brief See smoc_port_in_if
   ring_in_type* getReadPortAccess()
     { return this; }
   
@@ -235,7 +235,7 @@ private:
 template <typename T>
 class smoc_multicast_entry
 : public smoc_multicast_entry_base,
-  public smoc_chan_out_if<T,::smoc_1d_port_access_if>,
+  public smoc_port_out_if<T,::smoc_1d_port_access_if>,
   public smoc_1d_port_access_if<typename smoc_storage_out<T>::return_type>
 {
 public:
@@ -244,7 +244,7 @@ public:
   typedef smoc_storage<data_type>                 storage_type;
   typedef typename this_type::access_out_type     ring_out_type;
   typedef typename this_type::return_type         return_type;
-  typedef smoc_chan_out_if<T,::smoc_1d_port_access_if> iface_type;
+  typedef smoc_port_out_if<T,::smoc_1d_port_access_if> iface_type;
   
   /// @brief Constructor
   smoc_multicast_entry(smoc_multicast_sr_signal_chan<T>* chan)
@@ -252,7 +252,7 @@ public:
       multipleWrite(false)
   {}
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
 #else
@@ -265,25 +265,25 @@ public:
     chan->wpp(produce);
   }
 
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   smoc_event &spaceAvailableEvent(size_t n) {
     assert(n <= 1);
     return emm.getEvent(numFree(), n);
   }
 
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t numFree() const
     { return (multipleWrite || chan->getSignalState() == undefined) ? 1 : 0; }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t outTokenId() const
     { return chan->outTokenId(); }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   void moreSpace()
     { emm.increasedCount(numFree()); }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   void lessSpace()
     { emm.decreasedCount(numFree()); }
   
@@ -295,7 +295,7 @@ public:
   bool isDefined() const
     { return chan->isDefined(); }
   
-  /// @brief See smoc_chan_out_if
+  /// @brief See smoc_port_out_if
   ring_out_type* getWritePortAccess()
     { return this; }
 
@@ -378,7 +378,7 @@ protected:
   storage_type actualValue;
 
   /// @brief See smoc_port_registry
-  smoc_chan_out_base_if* createEntry()
+  smoc_port_out_base_if* createEntry()
     { return new entry_type(this); }
 
   /// @brief See smoc_port_registry

@@ -194,9 +194,9 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
     else
       return pg;
   } else {
-    assert(dynamic_cast<smoc_chan_out_base_if *>(p->get_interface()) != NULL);
+    assert(dynamic_cast<smoc_port_out_base_if *>(p->get_interface()) != NULL);
     EPortOutGuard pg =
-      Expr::PortTokens<smoc_chan_out_base_if>::type(*p) >= i->second.second;
+      Expr::PortTokens<smoc_port_out_base_if>::type(*p) >= i->second.second;
     if (++i != e)
       return pg && portGuard(i, e);
     else

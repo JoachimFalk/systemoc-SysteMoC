@@ -207,9 +207,9 @@ template <typename T,
 	  template <typename> class R,
 	  class PARAM_TYPE>
 class smoc_md_port_in_base
-: public smoc_port_in_base<smoc_chan_in_if<T,R> > {
+: public smoc_port_in_base<smoc_port_in_if<T,R> > {
 private:
-  typedef smoc_port_in_base<smoc_chan_in_if<T,R> > base_type;
+  typedef smoc_port_in_base<smoc_port_in_if<T,R> > base_type;
 public:
   typedef smoc_wsdf_edge_descr::s2vector_type s2vector_type;
   
@@ -235,9 +235,9 @@ template <typename T,
 	  class PARAM_TYPE,
 	  template <typename> class STORAGE_TYPE = smoc_storage_out> 
 class smoc_md_port_out_base
-: public smoc_port_out_base<smoc_chan_out_if<T,R,STORAGE_TYPE> > {
+: public smoc_port_out_base<smoc_port_out_if<T,R,STORAGE_TYPE> > {
 private:
-  typedef smoc_port_out_base<smoc_chan_out_if<T,R,STORAGE_TYPE> > base_type;
+  typedef smoc_port_out_base<smoc_port_out_if<T,R,STORAGE_TYPE> > base_type;
 
 public:
   typedef typename base_type::access_type::iter_domain_vector_type iter_domain_vector_type;

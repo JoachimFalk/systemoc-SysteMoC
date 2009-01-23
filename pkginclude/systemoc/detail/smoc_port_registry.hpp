@@ -51,7 +51,7 @@
 class smoc_port_registry {
   template <typename, typename> friend class smoc_connect_provider;
 public:
-  typedef std::map<smoc_chan_out_base_if*,sc_port_base*>  EntryMap;
+  typedef std::map<smoc_port_out_base_if*,sc_port_base*>  EntryMap;
   typedef std::map<smoc_port_in_base_if*,sc_port_base*>   OutletMap;
 
   /// @brief Returns entries
@@ -71,13 +71,13 @@ protected:
   struct OutletTag {};
   
   /// @brief Create new entry
-  virtual smoc_chan_out_base_if* createEntry() = 0;
+  virtual smoc_port_out_base_if* createEntry() = 0;
 
   /// @brief Create new outlet
   virtual smoc_port_in_base_if* createOutlet() = 0;
 
   /// @brief Find / create entry for port
-  smoc_chan_out_base_if* getEntry(sc_port_base* p) {
+  smoc_port_out_base_if* getEntry(sc_port_base* p) {
     assert(p);
     return getByVal(entries, p);
   }
@@ -89,11 +89,11 @@ protected:
   }
 
   /// @brief Find port for entry
-  sc_port_base* getPort(const smoc_chan_out_base_if* e) const {
+  sc_port_base* getPort(const smoc_port_out_base_if* e) const {
     assert(e);
     // this is allowed: we are only comparing pointers,
     // we do not modify e!!!
-    return getByKey(entries, const_cast<smoc_chan_out_base_if*>(e));
+    return getByKey(entries, const_cast<smoc_port_out_base_if*>(e));
   }
 
   /// @brief Find port for outlet
@@ -172,8 +172,8 @@ sc_interface* smoc_port_registry::getIF<smoc_port_registry::OutletTag>(sc_port_b
 { return getOutlet(p); }
   
 template<> inline
-smoc_chan_out_base_if* smoc_port_registry::create() {
-  smoc_chan_out_base_if* iface = createEntry();
+smoc_port_out_base_if* smoc_port_registry::create() {
+  smoc_port_out_base_if* iface = createEntry();
   assert(iface);
   return iface;
 }

@@ -72,7 +72,7 @@ private:
     ESizeT,
     Expr::DOpBinGe>::type EPortInGuard;
   typedef Expr::BinOp<
-    Expr::DPortTokens<smoc_chan_out_base_if>,
+    Expr::DPortTokens<smoc_port_out_base_if>,
     ESizeT,
     Expr::DOpBinGe>::type EPortOutGuard;
 

@@ -1136,7 +1136,7 @@ public:
   }
 
   /// @brief See smoc_port_registry
-  smoc_chan_out_base_if* createEntry()
+  smoc_port_out_base_if* createEntry()
     { /*FIXME*/return this; }
 
   /// @brief See smoc_port_registry
