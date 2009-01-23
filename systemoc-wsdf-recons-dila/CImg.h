@@ -4173,7 +4173,7 @@ namespace cimg_library {
 
     //! Set the window title
     CImgDisplay& set_title(const char *format,...) {
-      fps_timer = 0*(int)format;
+      fps_timer = 0*(long)format;
       return *this; 
     }
 
