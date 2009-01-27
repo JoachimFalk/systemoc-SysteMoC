@@ -240,6 +240,30 @@ void smoc_graph_base::finalise() {
 #endif
 }
 
+void smoc_graph_base::reset() {
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_graph_base::reset() begin, name == " << name() << std::endl;
+#endif
+
+  for(smoc_node_list::iterator iter = nodes.begin();
+      iter != nodes.end();
+      ++iter)
+  {
+    (*iter)->reset();
+  }
+
+  for(smoc_chan_list::iterator iter = channels.begin();
+      iter != channels.end();
+      ++iter)
+  {
+    (*iter)->reset();
+  }
+
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_graph_base::reset() end, name == " << name() << std::endl;
+#endif
+}
+
 #ifndef __SCFE__
 
 void smoc_graph_base::pgAssemble(

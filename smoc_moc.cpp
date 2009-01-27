@@ -84,6 +84,7 @@ void smoc_scheduler_top::end_of_simulation() {
 
 void smoc_scheduler_top::end_of_elaboration() {
   g->finalise();
+  g->reset();
   if(smoc_modes::dumpFileSMX && !smoc_modes::dumpSMXWithSim) {
     dump();
     sc_core::sc_stop();

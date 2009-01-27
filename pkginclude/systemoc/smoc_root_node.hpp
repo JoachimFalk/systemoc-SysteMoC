@@ -150,6 +150,7 @@ protected:
   friend class smoc_graph_base;
 
   virtual void finalise();
+  virtual void reset() {}
 
 public:
   FiringFSMImpl* getFiringFSM() const
