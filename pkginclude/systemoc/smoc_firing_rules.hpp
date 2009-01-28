@@ -74,6 +74,7 @@ public:
   void clearTransition();
   
   this_type& operator=(const smoc_transition_list &tl);
+  this_type& operator|=(const smoc_transition_list &tl);
 };
 
 class smoc_hierarchical_state

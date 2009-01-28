@@ -1180,6 +1180,11 @@ smoc_firing_state_base& smoc_firing_state_base::operator = (const smoc_transitio
   return *this;
 }
 
+smoc_firing_state_base& smoc_firing_state_base::operator |= (const smoc_transition_list &tl) {
+  getImpl()->addTransition(tl);
+  return *this;
+}
+
 
 
 
