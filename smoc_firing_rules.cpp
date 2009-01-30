@@ -899,11 +899,11 @@ void XORStateImpl::finalise(ExpandedTransitionList& etl) {
   if(!init)
     throw ModelingError("smoc_xor_state: Must specify initial state");
 
-  HierarchicalStateImpl::finalise(etl);
-  
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     (*s)->finalise(etl);
   }
+
+  HierarchicalStateImpl::finalise(etl);
 }
 
 void XORStateImpl::getInitialState(
@@ -987,11 +987,11 @@ void ANDStateImpl::finalise(ExpandedTransitionList& etl) {
 //  outDbg << "ANDStateImpl::finalise(etl) this == " << this << std::endl;
 //  ScopedIndent s0(outDbg);
 
-  HierarchicalStateImpl::finalise(etl);
-
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     (*s)->finalise(etl);
   }
+
+  HierarchicalStateImpl::finalise(etl);
 }
 
 void ANDStateImpl::getInitialState(
