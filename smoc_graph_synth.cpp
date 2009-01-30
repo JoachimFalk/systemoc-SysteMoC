@@ -422,7 +422,7 @@ void smoc_graph_synth::generateFSM() {
 
 #ifdef SYSTEMOC_DEBUG
       smoc_event_and_list al;
-      Expr::evalTo<Expr::Sensitivity>(ap.guard, al);
+      Expr::evalTo<Expr::Sensitivity>(apClusterIO.guard, al);
       al.dump(std::cerr); std::cerr << std::endl;
 #endif
 
