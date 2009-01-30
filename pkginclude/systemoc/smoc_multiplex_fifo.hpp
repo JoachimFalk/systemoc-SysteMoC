@@ -144,7 +144,7 @@ protected:
 
   /// @brief See smoc_chan_in_base_if
   size_t inTokenId() const
-    { return -1; }
+    { return static_cast<size_t>(-1); }
 
   /// @brief See smoc_root_chan
   void assemble(smoc_modes::PGWriter &pgw) const
@@ -531,7 +531,7 @@ protected:
  
   /// @brief See smoc_chan_out_base_if
   size_t outTokenId() const
-    { return -1; }
+    { return static_cast<size_t>(-1); }
 
   /// @brief See smoc_chan_out_if
   typename this_type::access_type *getWriteChannelAccess()
