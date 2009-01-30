@@ -57,7 +57,7 @@ class smoc_sysc_port
   typedef smoc_sysc_port this_type;
 //FIXME: HACK make protected or private
 public:
-  sc_interface                *interfacePtr;
+  sc_interface             *interfacePtr;
   smoc_port_access_base_if *portAccess;
   //FIXME(MS): allow more than one "IN-Port" per Signal
   smoc_sysc_port *parent, *child;
