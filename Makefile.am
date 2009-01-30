@@ -36,8 +36,8 @@ AM_CPPFLAGS =				\
 	$(COSUPPORT_INCLUDE)		\
 	$(LIBWSDF_INCLUDE)		\
 	$(LIBSGX_INCLUDE)		\
-	$(BOOST_INCLUDE)		\
 	$(SYSTEMC_VPC_INCLUDE)		\
+	$(BOOST_INCLUDE)		\
 	-Ipkginclude			\
 	-I$(srcdir)/pkginclude
 
@@ -47,7 +47,9 @@ AM_LDFLAGS=				\
 	$(TLM1_LDFLAGS)			\
 	$(XERCES_LDFLAGS)		\
 	$(COSUPPORT_LDFLAGS)		\
+	$(LIBWSDF_LDFLAGS)		\
 	$(LIBSGX_LDFLAGS)		\
+	$(SYSTEMC_VPC_INCLUDE)		\
 	$(BOOST_LDFLAGS)
 
 lib_LTLIBRARIES = libsystemoc.la
@@ -89,25 +91,47 @@ libsystemoc_la_SOURCES +=				\
 endif
 
 libsystemoc_la_LDFLAGS =					\
+	$(AM_LDFLAGS)						\
 	-version-info 0:0:0 					\
 	-no-undefined
 libsystemoc_la_LIBADD = 					\
 	-lsystemc 						\
-	-lboost_program_options$(BOOST_LIBPOSTFIX)		\
-	@LIBSGX_LIBPATH@/libsgx.la				\
-	@COSUPPORT_LIBPATH@/libcosupport-systemc.la		\
-	@COSUPPORT_LIBPATH@/libcosupport-streams.la		\
-	@COSUPPORT_LIBPATH@/libcosupport-smartptr.la
-
+	-lboost_program_options$(BOOST_LIBPOSTFIX)
+if PKG_COSUPPORT_USE_SRCDIR_VERSION
+libsystemoc_la_LIBADD += 					\
+	$(COSUPPORT_LIBPATH)/libcosupport-systemc.la		\
+	$(COSUPPORT_LIBPATH)/libcosupport-streams.la		\
+	$(COSUPPORT_LIBPATH)/libcosupport-smartptr.la
+else
+# It may not be possible to find COSUPPORT_LIBPATH for
+# cosupport installed in the wild and not in the source dir.
+libsystemoc_la_LIBADD += 					\
+	-lcosupport-systemc					\
+	-lcosupport-streams					\
+	-lcosupport-smartptr
+endif
+if PKG_LIBSGX_USE_SRCDIR_VERSION
+libsystemoc_la_LIBADD += $(LIBSGX_LIBPATH)/libsgx.la
+else
+# It may not be possible to find LIBSGX_LIBPATH for
+# libsgx installed in the wild and not in the source dir.
+libsystemoc_la_LIBADD += -lsgx
+endif
 if SYSTEMOC_ENABLE_WSDF
-libsystemoc_la_LIBADD +=					\
-	@LIBWSDF_LDFLAGS@					\
-	@LIBWSDF_LIBPATH@/libwsdf.la
+  if PKG_LIBWSDF_USE_SRCDIR_VERSION
+libsystemoc_la_LIBADD += $(LIBWSDF_LIBPATH)/libwsdf.la
+  else
+# It may not be possible to find LIBWSDF_LIBPATH for
+# libwsdf installed in the wild and not in the source dir.
+libsystemoc_la_LIBADD += -lwsdf
+  endif
 endif
-
 if SYSTEMOC_ENABLE_VPC
-libsystemoc_la_LIBADD +=					\
-	@SYSTEMC_VPC_LDFLAGS@					\
-	@SYSTEMC_VPC_LIBPATH@/libsystemcvpc.la
+  if PKG_SYSTEMC_VPC_USE_SRCDIR_VERSION
+libsystemoc_la_LIBADD += $(SYSTEMC_VPC_LIBPATH)/libsystemcvpc.la
+  else
+# It may not be possible to find SYSTEMC_VPC_LIBPATH for
+# libsystemcvpc installed in the wild and not in the source dir.
+libsystemoc_la_LIBADD += -lsystemcvpc
+  endif
 endif
-
