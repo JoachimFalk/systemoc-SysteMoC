@@ -184,7 +184,7 @@ struct CommReset<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
   {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommReset<DBinOp<DPortTokens<CI>,E,DOpBinGe> >"
-                 "::apply(" << e.a.p << ", ... )" << std::endl;
+                 "::apply(" << e.a.p.name() << ", ... )" << std::endl;
 # endif
     return e.a.p.portAccess->setLimit(0);
   }
@@ -200,7 +200,7 @@ struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
   {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommSetup<DBinOp<DPortTokens<CI>,E,DOpBinGe> >"
-                 "::apply(" << e.a.p << ", ... )" << std::endl;
+                 "::apply(" << e.a.p.name() << ", ... )" << std::endl;
 # endif
     size_t req = Value<E>::apply(e.b);
 # ifdef SYSTEMOC_TRACE
