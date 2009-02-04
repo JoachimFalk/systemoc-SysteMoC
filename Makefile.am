@@ -118,20 +118,20 @@ else
 libsystemoc_la_LIBADD += -lsgx
 endif
 if SYSTEMOC_ENABLE_WSDF
-  if PKG_LIBWSDF_USE_SRCDIR_VERSION
+if PKG_LIBWSDF_USE_SRCDIR_VERSION
 libsystemoc_la_LIBADD += $(LIBWSDF_LIBPATH)/libwsdf.la
-  else
+else
 # It may not be possible to find LIBWSDF_LIBPATH for
 # libwsdf installed in the wild and not in the source dir.
 libsystemoc_la_LIBADD += -lwsdf
-  endif
+endif
 endif
 if SYSTEMOC_ENABLE_VPC
-  if PKG_SYSTEMC_VPC_USE_SRCDIR_VERSION
+if PKG_SYSTEMC_VPC_USE_SRCDIR_VERSION
 libsystemoc_la_LIBADD += $(SYSTEMC_VPC_LIBPATH)/libsystemcvpc.la
-  else
+else
 # It may not be possible to find SYSTEMC_VPC_LIBPATH for
 # libsystemcvpc installed in the wild and not in the source dir.
 libsystemoc_la_LIBADD += -lsystemcvpc
-  endif
+endif
 endif
