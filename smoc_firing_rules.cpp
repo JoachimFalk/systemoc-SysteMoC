@@ -493,14 +493,14 @@ void FiringFSMImpl::finalise(
     // finalise states -> expanded transitions
 //    {outDbg << "finalising states" << std::endl;
 //    ScopedIndent s1(outDbg);
-
-    top->finalise(etl);
-
+    
     for(FiringStateBaseImplSet::iterator sIter = states.begin();
         sIter != states.end(); ++sIter)
     {
       (*sIter)->finalise(etl);
     }
+
+    top->finalise(etl);
 
 //    }
 
