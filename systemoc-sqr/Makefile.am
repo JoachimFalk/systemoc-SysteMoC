@@ -25,7 +25,20 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 if SYNTH_SW
+  SYNTHESIS_SUBDIR = synthesis
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
+endif
+if SYNTH_HW
+  HWSYNTH_SUBDIR   = hwsynth
+  include $(root_builddir)/Synthesis-Actor-Cynthesizer/Rules-Synth.mk
+endif
+if SYNTH_HWC
+  HWSYNTHC_SUBDIR  = hwsynth-concurrent
+  include $(root_builddir)/Synthesis-Actor-Concurrent/Rules-Synth.mk
+endif
+if SYNTH_TLM
+  TLMSYNTH_SUBDIR  = tlmsynth
+  include $(root_builddir)/Synthesis-Actor-TLM/Rules-Synth.mk
 endif
 
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
@@ -56,11 +69,22 @@ check: autotest.sh
 	./autotest.sh
   
 if SYNTH_SW
-SYNTHESIS_SUBDIR = synthesis
-
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-sqr
-
 $(SYNTHESIS_SUBDIR)/sqr.ast.xml: design-sqr.cpp
-
 .PHONY: synth
+endif
+
+if SYNTH_HW
+hwsynth: $(HWSYNTH_SUBDIR)/smoc-hwsynth-all-sqr.stamp
+.PHONY: hwsynth
+endif
+
+if SYNTH_HWC
+hwsynthc: $(HWSYNTHC_SUBDIR)/smoc-hwsynthc-all-sqr.stamp
+.PHONY: hwsynthc
+endif
+
+if SYNTH_TLM
+tlmsynth: $(TLMSYNTH_SUBDIR)/smoc-tlmsynth-all-sqr.stamp
+.PHONY: tlmsynth
 endif
