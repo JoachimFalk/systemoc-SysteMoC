@@ -443,14 +443,14 @@ public:
 #ifdef SYSTEMOC_ENABLE_VPC
   void wpp(size_t n, const smoc_ref_event_p &le)
   {
-    signalDelay.push_back(entryValue.get());
+    signalDelay.push_back(entryValue);
     //cerr << this->name() << ": entry write:" << entryValue.get() << " (" << n <<") " << signalDelay.size()
     //     << " @ " << sc_time_stamp() << endl;
   }
 #else
   void wpp(size_t n)
   {
-    signalDelay.push_back(entryValue.get());
+    signalDelay.push_back(entryValue);
     latencyExpired(n);
   }
 #endif
