@@ -86,6 +86,9 @@ public:
 
   size_t outTokenId() const
     { return tokenId; }
+
+  smoc_ref_event &getEventNoCommunication();
+
 protected:
   SignalState signalState;
 
@@ -102,6 +105,8 @@ protected:
 #endif
 
   size_t      tokenId; ///< The tokenId of the next commit token
+
+  smoc_ref_event   eventNoCommunication;
 private:
   static const char* const kind_string;
   
@@ -443,6 +448,8 @@ public:
 #ifdef SYSTEMOC_ENABLE_VPC
   void wpp(size_t n, const smoc_ref_event_p &le)
   {
+
+    this->eventNoCommunication.reset();
     signalDelay.push_back(entryValue);
     //cerr << this->name() << ": entry write:" << entryValue.get() << " (" << n <<") " << signalDelay.size()
     //     << " @ " << sc_time_stamp() << endl;
@@ -464,13 +471,20 @@ public:
 
     //cerr << this->name() << ": latencyExpired: " << signalDelay.front() << "(" << n <<") " << signalDelay.size()
     //     << " @ " << sc_time_stamp() << endl;
-    outletValue.put(signalDelay.front());
-    signalDelay.pop_front();
+    if(signalDelay.begin() != signalDelay.end()){
+      outletValue.put(signalDelay.front());
+      signalDelay.pop_front();
+      this->eventNoCommunication.notify();
 
-    for(typename OutletMap::iterator iter = outlets.begin();
-        iter != outlets.end();
-        iter++){
-      iter->second->wpp(1); // the rest 1-n tokens are discarded
+      for(typename OutletMap::iterator iter = outlets.begin();
+          iter != outlets.end();
+          iter++){
+        iter->second->wpp(1); // the rest 1-n tokens are discarded
+      }
+    }else{
+      //std::cerr << "this is an undefined channel due to non strict semantics: "
+      //          << this->name() << "(" << n <<") " << signalDelay.size()
+      //          << " @ " << sc_time_stamp() << endl;
     }
   }
 

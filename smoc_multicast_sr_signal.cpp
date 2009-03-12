@@ -181,7 +181,8 @@ smoc_multicast_sr_signal_kind::smoc_multicast_sr_signal_kind(
 #ifdef SYSTEMOC_ENABLE_VPC
       latencyQueue(this), 
 #endif
-    tokenId(0){
+    tokenId(0),
+    eventNoCommunication(true) {
 }
 
 const char* smoc_multicast_sr_signal_kind::kind() const {
@@ -190,4 +191,8 @@ const char* smoc_multicast_sr_signal_kind::kind() const {
   
 bool smoc_multicast_sr_signal_kind::isDefined() const {
   return (signalState == defined);
+}
+
+smoc_ref_event &smoc_multicast_sr_signal_kind::getEventNoCommunication() {
+  return eventNoCommunication;
 }

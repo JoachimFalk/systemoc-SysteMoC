@@ -37,6 +37,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_event.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_sr_signal.hpp>
 #include <systemoc/smoc_multicast_sr_signal.hpp>
@@ -94,6 +95,8 @@ void smoc_scheduler_top::schedule(smoc_graph *c) {
 void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
   std::map<smoc_root_node*, size_t> definedInputs;
   //  std::map<smoc_root_node*, size_t> definedOutputs;
+
+  smoc_event_and_list noCommunicationProgress;
 
   smoc_transition_ready_list bottom;    // starting point for each instant
   smoc_transition_ready_list nonStrict; // only partial known non-strict actor, possibly must be executed several times
@@ -170,6 +173,21 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
       }
     }
   }
+
+  {// initialize communication or_list
+
+    for ( smoc_chan_list::const_iterator iter = cs.begin();
+          iter != cs.end();
+          ++iter ){
+      DEBUG_CODE(std::cerr << "comm: " << (*iter)->name() << std::endl);
+      smoc_multicast_sr_signal_kind* mc_sig = dynamic_cast<
+        class smoc_multicast_sr_signal_kind* >((*iter));
+
+      if(NULL != mc_sig){
+        noCommunicationProgress &= mc_sig->getEventNoCommunication();
+      }
+    }
+  }
   
   do {
     do{
@@ -200,6 +218,10 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
         else if(defined.size()) cerr << " (defined) " << defined.size();
         else                    cerr << " ------------ " ;
 
+        if(noCommunicationProgress) cerr << "  no communication: " << noCommunicationProgress.size();
+        else if(noCommunicationProgress.size()) cerr << " (no communication) " << defined.size();
+        else                    cerr << " ------------ " ;
+
         cerr <<" @ " << sc_time_stamp() << endl;
       )
       //Select one of the transition lists by priority
@@ -226,7 +248,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
         }
 
         DEBUG_CODE( std::cerr << "<actor type=\"commstate\" name=\""
-                              << n.name() << "\">" << std::endl; )
+                    << n.name() << " ins=" << n.isNonStrict() << "\">" << std::endl; )
         transition.execute(&n._currentState, &n);
         DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
     
@@ -444,10 +466,12 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
             temp.remove(transition);
           }
           assert(temp.empty());
-
+          DEBUG_CODE(std::cerr << "test if fixpoint is reached "
+                     << nonStrictStable << std::endl);
           // test if fixpoint is reached
 #ifdef SYSTEMOC_ENABLE_VPC
-          if( nonStrictStable && inCommState.empty() ){
+          if( nonStrictStable && inCommState.empty()
+              && noCommunicationProgress){
             //paranoia:
             assert(inCommState.empty());
 #else
@@ -456,7 +480,7 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
             assert(!bottom);
             assert(nonStrict.empty());
 
-            //cout << "FIXED POINT " << sc_time_stamp() << endl;
+            DEBUG_CODE(cout << "FIXED POINT " << sc_time_stamp() << endl);
             //fixpoint reached
 
             //tick all ns transitions
@@ -525,9 +549,14 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
                 nonStrict |= *titer;
               }
             }
+
+            while(!noCommunicationProgress){
+              smoc_wait(noCommunicationProgress);
+            }
+
             assert(inCommState.empty());
 #endif
-            //cout << "FIXED POINT END " << sc_time_stamp() << endl;
+            DEBUG_CODE(cout << "FIXED POINT END " << sc_time_stamp() << endl);
 
             assert(nonStrictReleased.empty());
 
@@ -564,10 +593,14 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
         if(
 #ifdef SYSTEMOC_ENABLE_VPC
                  inCommState.empty() &&
+                 noCommunicationProgress &&
 #endif // SYSTEMOC_ENABLE_VPC
                  nonStrictReleased.empty() &&
                  nonStrict.empty() &&
                  !bottom ){
+
+          DEBUG_CODE(std::cerr << "alt FIXED POINT " << sc_time_stamp()
+                     << std::endl);
         // another way reaching the fixed point is:
         // having no non strict blocks, no commstate blocks,
         // and bottom may not be ready
@@ -591,6 +624,8 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
             assert( NULL != mc_sig );
           }
   
+          DEBUG_CODE(std::cerr << "alt FIXED POINT END " << sc_time_stamp()
+                     << std::endl);
         }
 
         if(
@@ -608,10 +643,15 @@ void smoc_scheduler_top::scheduleSR(smoc_graph *c) {
 #ifdef SYSTEMOC_ENABLE_VPC
               inCommState.empty() &&
 #endif
-              !nonStrictReleased.empty() ) all |= nonStrictReleased;
-          if( !all.empty() && !all       ) {
-            DEBUG_CODE(cerr << "WAIT " << sc_time_stamp() << endl;)
-            smoc_wait(all);
+              !nonStrictReleased && !nonStrictReleased.empty() ) all |= nonStrictReleased;
+          DEBUG_CODE(std::cerr << "Try to wait!" << std::endl);
+          if( (!all.empty() && !all) || !noCommunicationProgress ) {
+            DEBUG_CODE(cerr << "WAIT " << sc_time_stamp() << endl);
+            smoc_event_or_list x = all;
+            if(!noCommunicationProgress){
+              x |= noCommunicationProgress;
+            }
+            smoc_wait(x);
           }
         }
   
