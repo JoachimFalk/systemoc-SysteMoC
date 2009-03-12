@@ -49,6 +49,8 @@ template<class T,
          boost::is_base_of<CoSupport::SystemC::ChannelModificationListener, T>::value>
 class smoc_modification_listener{
 public:
+  smoc_modification_listener() {}
+
   void setChannelID( std::string sourceActor,
                      CoSupport::SystemC::ChannelId id,
                      std::string name ){}
@@ -59,10 +61,19 @@ protected:
 template<class T>
 class smoc_modification_listener <T, true>{
 public:
+  smoc_modification_listener() : channelId(-1) {}
+
+  smoc_modification_listener(const smoc_modification_listener<T> &sml)
+  {
+    this->channelId = sml.channelId;
+  }
+
   void setChannelID( std::string sourceActor,
                      CoSupport::SystemC::ChannelId id,
                      std::string name ){
-    //FIXME:
+    //FIXME: this call is passed to some instance of the data type
+    // and registered in a global context
+    // maybe we should pass this call to the right instance of the data type
     T t; t.registerChannel(sourceActor, id, name);
 
     channelId = id;
@@ -101,6 +112,12 @@ public:
   smoc_storage() : valid(false) {}
 
   smoc_storage(const T& t) : valid(true) { new(mem) T(t); }
+
+  smoc_storage(const smoc_storage<T>& s) : smoc_modification_listener<T> (s),
+                                           valid(false)
+  {
+    this->put(s.get());
+  }
 
   const T& get() const {
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -152,14 +169,11 @@ public:
   //
   // (FIXME: may also be used for destructive reading)
   void reset(){
-    valid = false;
+    invalidate();
   }
   
   ~smoc_storage() {
-    if(valid) {
-      ptr()->~T();
-      valid = false;
-    }
+    invalidate();
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
