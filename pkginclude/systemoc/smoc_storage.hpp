@@ -100,7 +100,7 @@ private:
 
 #ifdef SYSTEMOC_ENABLE_VPC
   typedef std::list<ChannelAccessListener *> ListenerList ;
-  ListenerList channelAccessListener;
+  //ListenerList channelAccessListener;
 #endif // SYSTEMOC_ENABLE_VPC
 private:
   T* ptr()
@@ -121,7 +121,7 @@ public:
 
   const T& get() const {
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->fireRead();
+    //this->fireRead();
 #endif // SYSTEMOC_ENABLE_VPC
     assert(valid);
     const T &t = *ptr();
@@ -136,7 +136,7 @@ public:
   void put(const T &t) {
     this->fireModified( t );
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->fireWrite();
+    //this->fireWrite();
 #endif // SYSTEMOC_ENABLE_VPC
     if(valid) {
       *ptr() = t;
@@ -179,12 +179,17 @@ public:
 #ifdef SYSTEMOC_ENABLE_VPC
   // 
   void registerChannelAccessListener(ChannelAccessListener *l){
-    this->channelAccessListener.push_back(l);
+    /*
+    if( l != NULL ){
+      this->channelAccessListener.push_back(l);
+    }
+    */
   }
 
 private:
 
   // notify listeners
+  /*
   void fireRead() const{
     for(ListenerList::const_iterator i = channelAccessListener.begin();
         i != channelAccessListener.end();
@@ -201,6 +206,7 @@ private:
       (*i)->writeToken();
     }
   }
+*/
 #endif // SYSTEMOC_ENABLE_VPC
 
 };
