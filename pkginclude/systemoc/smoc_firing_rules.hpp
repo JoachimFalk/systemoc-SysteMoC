@@ -95,6 +95,14 @@ protected:
 public:
   ImplType *getImpl() const;
   using smoc_firing_state_base::operator=;
+
+  smoc_hierarchical_state::Ref select(
+      const std::string& name);
+  smoc_hierarchical_state::ConstRef select(
+      const std::string& name) const;
+
+  const std::string& getName() const;
+  std::string getHierarchicalName() const;
 };
 
 class smoc_firing_state
@@ -113,7 +121,7 @@ protected:
   this_type& operator=(const this_type &);
 
 public:
-  smoc_firing_state(const char* name = 0);
+  smoc_firing_state(const std::string& name = "");
 
   ImplType *getImpl() const;
   using smoc_firing_state_base::operator=;
@@ -137,7 +145,7 @@ protected:
   this_type& operator=(const this_type &);
 
 public:
-  smoc_xor_state(const char* name = 0);
+  smoc_xor_state(const std::string& name = "");
   smoc_xor_state(const smoc_hierarchical_state &init);
 
   this_type& add(const smoc_hierarchical_state &state);
@@ -164,7 +172,7 @@ protected:
   this_type& operator=(const this_type &);
 
 public:
-  smoc_and_state(size_t part);
+  smoc_and_state(size_t part, const std::string& name = "");
 
   smoc_xor_state::Ref operator[](size_t p);
 

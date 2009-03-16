@@ -251,6 +251,8 @@ private:
   /// @brief Parent node
   //smoc_root_node *actor;
 
+  // ugh
+  friend class HierarchicalStateImpl;
   XORStateImpl* top;
 
   RuntimeState* init;
@@ -346,18 +348,28 @@ typedef std::map<const HierarchicalStateImpl*,bool> Marking;
 class HierarchicalStateImpl : public FiringStateBaseImpl {
 public:
   typedef HierarchicalStateImpl this_type;
-  
+
+private:
+  /// @brief User-defined name
+  std::string name;
+
 protected:
   /// @brief Constructor
-  HierarchicalStateImpl();
-  
-  HierarchicalStateImpl* parent;
+  HierarchicalStateImpl(const std::string& name);
 
+  HierarchicalStateImpl* parent;
+  
 public:
   
   /// @brief Destructor
   virtual ~HierarchicalStateImpl();
   
+  /// @brief Returns the user-defined name
+  const std::string& getName() const;
+
+  /// @brief Returns the hierarchical name
+  std::string getHierarchicalName() const;
+
   /// @brief See FiringStateBaseImpl
   void finalise(ExpandedTransitionList& etl);
 
@@ -380,22 +392,18 @@ public:
   virtual const HierarchicalStateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const = 0;
+
+  virtual HierarchicalStateImpl* select(
+      const std::string& name) = 0;
 };
 
 class FiringStateImpl: public HierarchicalStateImpl {
 public:
   typedef FiringStateImpl this_type;
 
-private:
-  /// @brief User-defined name
-  std::string name;
-
 public:
   /// @brief Constructor
   FiringStateImpl(const std::string& name = "");
-  
-  /// @brief Returns the user-defined name
-  const std::string& getName() const;
   
   /// @brief See HierarchicalStateImpl
   void getInitialState(
@@ -405,6 +413,10 @@ public:
   const HierarchicalStateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const;
+  
+  /// @brief See HierarchicalStateImpl
+  HierarchicalStateImpl* select(
+      const std::string& name);
 };
 
 class XORStateImpl: public HierarchicalStateImpl {
@@ -419,18 +431,12 @@ private:
   typedef HierarchicalStateImplSet C;
   C c;
   
-  /// @brief User-defined name
-  std::string name;
-
 public:
   /// @brief Constructor
   XORStateImpl(const std::string& name = "");
 
   /// @brief Destructor
   ~XORStateImpl();
-  
-  /// @brief Returns the user-defined name
-  const std::string& getName() const;
   
   /// @brief See FiringStateBaseImpl
   void finalise(ExpandedTransitionList& etl);
@@ -449,6 +455,10 @@ public:
   const HierarchicalStateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const;
+  
+  /// @brief See HierarchicalStateImpl
+  HierarchicalStateImpl* select(
+      const std::string& name);
 };
 
 class ANDStateImpl: public HierarchicalStateImpl {
@@ -462,7 +472,7 @@ private:
 
 public:
   /// @brief Constructor
-  ANDStateImpl(size_t part);
+  ANDStateImpl(size_t part, const std::string& name = "");
 
   /// @brief Destructor
   ~ANDStateImpl();
@@ -484,6 +494,10 @@ public:
   const HierarchicalStateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const;
+  
+  /// @brief See HierarchicalStateImpl
+  HierarchicalStateImpl* select(
+      const std::string& name);
 };
 
 class ConnectorStateImpl: public FiringStateBaseImpl {
