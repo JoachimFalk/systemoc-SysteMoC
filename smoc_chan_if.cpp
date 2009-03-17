@@ -102,6 +102,10 @@ void smoc_root_chan::finalise() {
   
 #ifdef SYSTEMOC_ENABLE_VPC
   std::string destination = "nirvana";
+  if(this->getOutputPorts().begin() == this->getOutputPorts().end()) {
+    std::cerr << "Invalid port binding (channel has no entry): "
+              << name() << std::endl;
+  }
   assert( this->getOutputPorts().begin() != this->getOutputPorts().end() );
   std::string source = (*(this->getOutputPorts().begin()))->getActor()->name();
 
