@@ -116,7 +116,7 @@ endif
 libsystemoc_la_LDFLAGS =				\
 	-version-info 0:0:0 				\
 	-no-undefined 					\
-	-lsystemc 					\
+	-lsystemc-pthread -lpthread 					\
 	-lboost_program_options@BOOST_LIBPOSTFIX@
 libsystemoc_la_LIBADD = 				\
 	$(pkg_support_builddir)/libcosupport-systemc.la	\

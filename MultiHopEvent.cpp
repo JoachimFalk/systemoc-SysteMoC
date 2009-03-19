@@ -62,6 +62,10 @@ void MultiHopEvent::compute( FastLink * task ){
 
 //
 void MultiHopEvent::signaled( EventWaiter *e ) {
+  //NOTE: a compute() call or a write() may immediately call signaled
+  //we must not modify the lists during such recursions -> count a semaphore
+  ++signaledSemaphore;
+
   //cerr << e << " signaled @ " << sc_time_stamp() << endl;
   if(e->isActive()  && e == &readList){
     //cerr << "readList isActive()" << endl;
@@ -87,13 +91,15 @@ void MultiHopEvent::signaled( EventWaiter *e ) {
     
   }else if(e->isActive()  && e == &writeList){
     //cerr << "writeList isActive() @ " << sc_time_stamp() << endl;
-    writeTransactions.clear();
-    readTransactions.clear();
-    //delete this;
+    if(signaledSemaphore == 1){
+      writeTransactions.clear();
+      readTransactions.clear();
+      delete this;
+      return;
+    }
   }
 
-  /*
-  */
+  --signaledSemaphore;
 }
 
 //
@@ -136,7 +142,11 @@ void MultiHopEvent::addOutputChannel( smoc_root_chan * chan,
 }
 
 //
-MultiHopEvent::MultiHopEvent() {
+MultiHopEvent::MultiHopEvent()
+  : writeTransactions(),
+    readTransactions(),
+    signaledSemaphore(0)
+{
   computeLatency.addListener(this);
   writeList.addListener(this);
   readList.addListener(this);

@@ -71,6 +71,11 @@ public:
   unsigned int quantum;
   FastLink * link;
 
+  //copy CTOR
+  Transaction(const Transaction &t)
+    : event(t.event),
+      quantum(t.quantum),
+      link(t.link) {}
 };
 
 /**
@@ -100,22 +105,19 @@ public:
     this->taskEvents = taskEvents;
   }
 
-  const char* getName() const {
-    return this->name.c_str();
-  }
-
 private:
   typedef std::list< Transaction > Transactions;
 
   EventPair                              taskEvents;
   Event                                  dummy;
   Event                                  computeLatency;
-  std::string                            name;
   EventAndList<EventWaiter>              readList;
   EventAndList<EventWaiter>              writeList;
   Transactions                           writeTransactions;
   Transactions                           readTransactions;
   FastLink                              *task;
+
+  size_t                                 signaledSemaphore;
 };
 
 # endif // SYSTEMOC_ENABLE_VPC

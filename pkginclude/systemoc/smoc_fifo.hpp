@@ -164,6 +164,8 @@ protected:
 
 #ifdef SYSTEMOC_ENABLE_VPC
   smoc_detail::LatencyQueue   latencyQueue;
+
+  std::list<smoc_ref_event_p> commLatEvents;
 #endif
 
   size_t const fsize;   ///< Ring buffer size == FIFO size + 1
@@ -278,7 +280,9 @@ protected:
     
     decrFree();
 #ifdef SYSTEMOC_ENABLE_VPC
-    latencyQueue.addEntry(n, le);
+    assert(commLatEvents.begin()!=commLatEvents.end());
+    latencyQueue.addEntry(n, commLatEvents.front());
+    commLatEvents.pop_front();
 #else
     incrVisible();
 #endif
@@ -305,6 +309,12 @@ protected:
     incrVisible();
   }
 #endif
+
+  smoc_ref_event_p getLatencyEvent() {
+    smoc_ref_event_p commLatEvent(new smoc_ref_event());
+    commLatEvents.push_back(commLatEvent);
+    return commLatEvent;
+  }
 
   smoc_event &getEventAvailable(size_t n) {
     if (n != MAX_TYPE(size_t)) {
@@ -347,6 +357,7 @@ protected:
         i.name != NULL ? i.name : sc_gen_unique_name( "smoc_fifo" ) ),
 #ifdef SYSTEMOC_ENABLE_VPC
       latencyQueue(this), 
+      commLatEvents(),
 #endif
       fsize(i.n+1),
       rindex(0),
