@@ -41,12 +41,16 @@
 
 #include <systemoc/ChannelAccessListener.hpp>
 
-#include <boost/type_traits.hpp> 
+//is_base_of is not included in boost 1.33
+//#include <boost/type_traits/is_base_of.hpp> 
+#include <boost/type_traits/is_base_and_derived.hpp>
 #include <CoSupport/SystemC/ChannelModificationListener.hpp> 
 
 template<class T,
          bool is_subclass =
-         boost::is_base_of<CoSupport::SystemC::ChannelModificationListener, T>::value>
+         boost::is_base_and_derived<CoSupport::SystemC::ChannelModificationListener, T>::value>
+//is_base_of is not included in boost 1.33
+//         boost::is_base_of<CoSupport::SystemC::ChannelModificationListener, T>::value>
 class smoc_modification_listener{
 public:
   smoc_modification_listener() {}
