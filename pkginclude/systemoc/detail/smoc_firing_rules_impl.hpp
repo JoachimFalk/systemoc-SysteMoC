@@ -352,14 +352,21 @@ public:
 private:
   /// @brief User-defined name
   std::string name;
-
+  
 protected:
   /// @brief Constructor
   HierarchicalStateImpl(const std::string& name);
 
   HierarchicalStateImpl* parent;
   
+  uint64_t code;
+  size_t bits;
+
+  size_t getChildCodeAndBits(size_t cs, uint64_t& cc) const;
+
 public:
+  
+  void setCodeAndBits(uint64_t c, size_t b);
   
   /// @brief Destructor
   virtual ~HierarchicalStateImpl();

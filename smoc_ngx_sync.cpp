@@ -13,11 +13,19 @@ namespace SysteMoC { namespace NGXSync {
     std::runtime_error("NGXConfig was already initialized")
   {}
   
-  NgId IdPool::regObj(SCObj* obj, size_t index)
-  { return CoSupport::SMXIdManager::getInstance().addObj(obj, index);}
+  NgId IdPool::regObj(SCObj* obj, size_t index) { 
+    if(smoc_modes::dumpFileSMX)
+      return CoSupport::SMXIdManager::getInstance().addObj(obj, index);
+    else
+      return -1;
+  }
   
-  NgId IdPool::regObj(SCObj* obj, const NgId& id, size_t index)
-  { return CoSupport::SMXIdManager::getInstance().addObj(obj, index); }
+  NgId IdPool::regObj(SCObj* obj, const NgId& id, size_t index) {
+    if(smoc_modes::dumpFileSMX)
+      return CoSupport::SMXIdManager::getInstance().addObj(obj, index);
+    else
+      return -1;
+  }
   
   void IdPool::unregObj(const SCObj* obj)
   { CoSupport::SMXIdManager::getInstance().delObj(obj); }
