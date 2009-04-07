@@ -1,14 +1,14 @@
 digraph G {
 "(init)" -> "(b,d,g,i)"
 "(init)" -> "(g,j,l)"
-"(b,d,g,i)" -> "(c,d,g,i)"
 "(b,d,g,i)" -> "(init)"
 "(b,d,g,i)" -> "(c,e,g,i)"
+"(b,d,g,i)" -> "(c,d,g,i)"
 "(g,j,l)" -> "(b,d,m)"
 "(g,j,l)" -> "(c,e,g,j)"
-"(c,d,g,i)" -> "(init)"
 "(c,e,g,i)" -> "(init)"
-"(b,d,m)" -> "(c,d,m)"
+"(c,d,g,i)" -> "(init)"
 "(b,d,m)" -> "(b,d,m)"
 "(b,d,m)" -> "(c,e,m)"
+"(b,d,m)" -> "(c,d,m)"
 }
