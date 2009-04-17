@@ -40,6 +40,7 @@
 
 //
 void MultiHopEvent::compute( FastLink * task ){
+  this->transactionEnd = false;
   this->task = task;
   assert(task);
   if(readList.empty()){
@@ -91,12 +92,13 @@ void MultiHopEvent::signaled( EventWaiter *e ) {
     
   }else if(e->isActive()  && e == &writeList){
     //cerr << "writeList isActive() @ " << sc_time_stamp() << endl;
-    if(signaledSemaphore == 1){
-      writeTransactions.clear();
-      readTransactions.clear();
-      delete this;
-      return;
-    }
+
+    this->transactionEnd = true;
+  }
+
+  if( (transactionEnd == true) &&  (signaledSemaphore == 1) ){
+    delete this;
+    return;
   }
 
   --signaledSemaphore;
@@ -145,11 +147,22 @@ void MultiHopEvent::addOutputChannel( smoc_root_chan * chan,
 MultiHopEvent::MultiHopEvent()
   : writeTransactions(),
     readTransactions(),
-    signaledSemaphore(0)
+    signaledSemaphore(0),
+    transactionEnd(false)
 {
   computeLatency.addListener(this);
   writeList.addListener(this);
   readList.addListener(this);
+}
+
+MultiHopEvent::~MultiHopEvent()
+{
+  computeLatency.delListener(this);
+  writeList.delListener(this);
+  readList.delListener(this);
+
+  writeTransactions.clear();
+  readTransactions.clear();
 }
 
 #endif // SYSTEMOC_ENABLE_VPC

@@ -101,6 +101,8 @@ public:
 
   MultiHopEvent();
 
+  ~MultiHopEvent();
+
   void setTaskEvents( EventPair taskEvents ) {
     this->taskEvents = taskEvents;
   }
@@ -118,6 +120,7 @@ private:
   FastLink                              *task;
 
   size_t                                 signaledSemaphore;
+  bool                                   transactionEnd;
 };
 
 # endif // SYSTEMOC_ENABLE_VPC
