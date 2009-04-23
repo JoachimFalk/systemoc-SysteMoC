@@ -495,17 +495,22 @@ void FiringFSMImpl::finalise(
     
     FiringStateBaseImplSet::iterator sIter, sNext;
 
-    for(sIter = states.begin();
-        sIter != states.end(); sIter = sNext)
-    {
-      ++(sNext = sIter);
+    bool initStateFound = false;
 
-      if(HierarchicalStateImpl* hs =
+    for(sIter = states.begin();
+        sIter != states.end(); sIter = sNext) {
+      ++(sNext = sIter);
+      if (HierarchicalStateImpl* hs =
           dynamic_cast<HierarchicalStateImpl*>(*sIter))
       {
-        top->add(hs, hs->isAncestor(hsinit));
+        top->add(hs, hsinit == hs); // hs->isAncestor(hsinit));
+        if (hsinit == hs)
+          initStateFound = true;
       }
     }
+
+    if (!initStateFound)
+      throw ModelingError("smoc_firing_fsm: Initial state must be on top hierarchy level");
 
  //   }
     
