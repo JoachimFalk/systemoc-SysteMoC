@@ -58,7 +58,7 @@
 #include "smoc_chan_adapter.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_fifo_storage.hpp"
-#include "detail/smoc_connect_provider.hpp"
+#include "detail/ConnectProvider.hpp"
 #include "detail/EventMapManager.hpp"
 #ifdef SYSTEMOC_ENABLE_VPC
 # include "detail/QueueFRVWPtr.hpp"
@@ -292,11 +292,11 @@ private:
 template <typename T>
 class smoc_fifo
 : public smoc_fifo_chan<T>::chan_init,
-  public smoc_connect_provider<
+  public SysteMoC::Detail::ConnectProvider<
     smoc_fifo<T>,
     smoc_fifo_chan<T> >
 {
-  friend class smoc_connect_provider<smoc_fifo<T>, smoc_fifo_chan<T> >;
+  friend class SysteMoC::Detail::ConnectProvider<smoc_fifo<T>, smoc_fifo_chan<T> >;
 public:
   typedef T                 data_type;
   typedef smoc_fifo<T>      this_type;

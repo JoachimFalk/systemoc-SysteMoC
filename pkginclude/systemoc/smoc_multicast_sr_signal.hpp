@@ -33,7 +33,7 @@
 #include "detail/smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
 #include "detail/smoc_sysc_port.hpp"
-#include "detail/smoc_connect_provider.hpp"
+#include "detail/ConnectProvider.hpp"
 #include "detail/EventMapManager.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "hscd_tdsim_TraceLog.hpp"
@@ -416,12 +416,12 @@ protected:
 template <typename T>
 class smoc_multicast_sr_signal
 : public smoc_multicast_sr_signal_chan<T>::chan_init,
-  public smoc_connect_provider<
+  public SysteMoC::Detail::ConnectProvider<
     smoc_multicast_sr_signal<T>,
     smoc_multicast_sr_signal_chan<T> > {
   typedef smoc_multicast_sr_signal<T> this_type;
 
-  friend class smoc_connect_provider<this_type, typename this_type::chan_type>;
+  friend class SysteMoC::Detail::ConnectProvider<this_type, typename this_type::chan_type>;
 public:
   typedef T                             data_type;
   typedef typename this_type::chan_type chan_type;

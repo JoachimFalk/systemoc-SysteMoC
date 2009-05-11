@@ -48,8 +48,13 @@
 #include "smoc_chan_if.hpp"
 #include "../smoc_chan_adapter.hpp"
 
+namespace SysteMoC { namespace Detail {
+  // Forward declaration to resolve cyclic dependency!
+  template <typename, typename> class ConnectProvider;
+} } // namespace SysteMoC::Detail
+
 class smoc_port_registry {
-  template <typename, typename> friend class smoc_connect_provider;
+  template <typename, typename> friend class SysteMoC::Detail::ConnectProvider;
 public:
   typedef std::map<smoc_port_out_base_if*,sc_port_base*>  EntryMap;
   typedef std::map<smoc_port_in_base_if*,sc_port_base*>   OutletMap;
