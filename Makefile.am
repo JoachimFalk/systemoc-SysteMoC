@@ -101,7 +101,8 @@ if PKG_COSUPPORT_USE_SRCDIR_VERSION
 libsystemoc_la_LIBADD += 					\
 	$(COSUPPORT_LIBPATH)/libcosupport-systemc.la		\
 	$(COSUPPORT_LIBPATH)/libcosupport-streams.la		\
-	$(COSUPPORT_LIBPATH)/libcosupport-smartptr.la
+	$(COSUPPORT_LIBPATH)/libcosupport-smartptr.la		\
+	$(COSUPPORT_LIBPATH)/libcosupport-math.la
 else
 # It may not be possible to find COSUPPORT_LIBPATH for
 # cosupport installed in the wild and not in the source dir.

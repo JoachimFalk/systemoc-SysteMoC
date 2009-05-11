@@ -42,6 +42,7 @@
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
 #include <CoSupport/String/Concat.hpp>
+#include <CoSupport/Math/flog2.hpp>
 
 #include <systemoc/smoc_config.h>
 
@@ -65,6 +66,9 @@ struct MyDebugOstream : public FilterOStream {
 };
 MyDebugOstream outDbg;
 
+// Prints duration of FiringFSMImpl::finalise() in secs.
+//#define FSM_FINALIZE_BENCHMARK
+
 static const char HIERARCHY_SEPARATOR = '.';
 
 
@@ -81,22 +85,6 @@ void markStates(const T& t, Marking& m)  {
     (*tIter)->mark(m);
   }
 }
-
-bool areMarked(const CondMultiState& c, const Marking& m) {
-  // check if all specified states are marked
-  for(CondMultiState::const_iterator s = c.begin();
-      s != c.end(); ++s)
-  {
-    if(s->first->isMarked(m)) {
-      if(s->second) return false;
-    }
-    else {
-      if(!s->second) return false;
-    }
-  }
-  return true;
-}
-
 
 
   
@@ -375,10 +363,12 @@ RuntimeState* RuntimeTransition::getDestState() const
 const smoc_action& RuntimeTransition::getAction() const
   { return f; }
 
-
+//static int RuntimeStateCount = 0;
 
 RuntimeState::RuntimeState()
   : sc_object(sc_gen_unique_name("smoc_firing_state"))
+  //: sc_object(CoSupport::String::Concat
+  //    ("smoc_firing_state_")(RuntimeStateCount++).get().c_str())
 {
   idPool.regObj(this);
 }
@@ -447,6 +437,33 @@ std::ostream& operator<<(std::ostream& os, const ProdState& p) {
   return os << ")";
 }
 
+/*
+ * isImplied(s,p) == true <=> exists p_i in p: isAncestor(s, p_i) == true
+ */
+bool isImplied(const HierarchicalStateImpl* s, const ProdState& p) {
+  for(ProdState::const_iterator pIter = p.begin();
+      pIter != p.end(); ++pIter)
+  {
+    if(s->isAncestor(*pIter))
+      return true;
+  }
+  return false;
+}
+
+bool isImplied(const CondMultiState& c, const ProdState& p) {
+  for(CondMultiState::const_iterator cIter = c.begin();
+      cIter != c.end(); ++cIter)
+  {
+    if(isImplied(cIter->first, p)) {
+      if(cIter->second) return false;
+    }
+    else {
+      if(!cIter->second) return false;
+    }
+  }
+  return true;
+}
+
 void FiringFSMImpl::finalise(
     smoc_root_node* actor,
     HierarchicalStateImpl* hsinit)
@@ -458,6 +475,10 @@ void FiringFSMImpl::finalise(
   //actor = _actor;
 
 //  outDbg << "Actor: " << actor->name() << std::endl;
+
+#ifdef FSM_FINALIZE_BENCHMARK  
+  clock_t finStart;
+#endif // FSM_FINALIZE_BENCHMARK
 
   try {
 
@@ -500,6 +521,7 @@ void FiringFSMImpl::finalise(
       (*sIter)->finalise(etl);
     }
 
+    top->setCodeAndBits(0,1);
     top->finalise(etl);
 
 //    }
@@ -507,6 +529,10 @@ void FiringFSMImpl::finalise(
     // calculate runtime states and transitions
 //    {outDbg << "calculating runtime states / transitions" << std::endl;
 //    ScopedIndent s1(outDbg);
+
+#ifdef FSM_FINALIZE_BENCHMARK  
+   finStart = clock();
+#endif // FSM_FINALIZE_BENCHMARK
 
     assert(rts.empty());
 
@@ -534,7 +560,7 @@ void FiringFSMImpl::finalise(
       fsmDump = new std::ofstream(f.c_str());
 
       *fsmDump << "digraph G {" << std::endl;
-    }     
+    }
 
     while(!ns.empty()) {
       const ProdState& s = ns.front()->first;
@@ -542,33 +568,38 @@ void FiringFSMImpl::finalise(
 
       ns.pop_front();
 
-      Marking mk;
-      markStates(s, mk);
+      //Marking mk;
+      //markStates(s, mk);
 
       for(ExpandedTransitionList::const_iterator t = etl.begin();
           t != etl.end(); ++t)
       {
-        if(t->getSrcState()->isMarked(mk) &&
-           areMarked(t->getCondStates(), mk))
+        if(isImplied(t->getSrcState(), s) &&
+           isImplied(t->getCondStates(), s))
+        //if(t->getSrcState()->isMarked(mk) &&
+        //(areMarked(t->getCondStates(), mk))
         {
           const HierarchicalStateImpl* x =
             t->getSrcState()->getTopState(t->getDestStates(), true);
 
           Marking mknew;
 
-          // mark remaining states in prod. state
-          for(ProdState::const_iterator i = s.begin();
-              i != s.end(); ++i)
-          {
-            if(!x->isAncestor(*i)) (*i)->mark(mknew);
-          }
 
           // mark user-defined states
           markStates(t->getDestStates(), mknew);
 
           // get the target prod. state
           ProdState d;
-          top->getInitialState(d, mknew);
+          x->getInitialState(d, mknew);
+          
+          // mark remaining states in prod. state
+          for(ProdState::const_iterator i = s.begin();
+              i != s.end(); ++i)
+          {
+            if(!x->isAncestor(*i)) {
+              sassert(d.insert(*i).second);
+            }// (*i)->mark(mknew);
+          }
 
           std::pair<StateTable::iterator,bool> ins =
             st.insert(STEntry(d, 0));
@@ -616,6 +647,12 @@ void FiringFSMImpl::finalise(
     // give up
     exit(1);
   }
+
+#ifdef FSM_FINALIZE_BENCHMARK  
+  outDbg << "Finalised FSM of actor '" << actor->name() << "' in "
+         << ((clock() - finStart) / (double)CLOCKS_PER_SEC) << " secs."
+         << std::endl;
+#endif // FSM_FINALIZE_BENCHMARK
 }
 
 void FiringFSMImpl::addState(FiringStateBaseImpl *state) {
@@ -765,12 +802,33 @@ void HierarchicalStateImpl::setParent(HierarchicalStateImpl* v) {
 
 bool HierarchicalStateImpl::isAncestor(const HierarchicalStateImpl* s) const {
   assert(s);
-  do {
-    if(s == this)
-      return true;
-    s = s->parent;
-  } while(s);
+
+  if(s == this)
+    return true;
+
+  if(s->bits > bits)
+    return (code == (s->code >> (s->bits - bits)));
+  
   return false;
+}
+  
+void HierarchicalStateImpl::setCodeAndBits(uint64_t c, size_t b) {
+  assert(b < 64);
+  code = c;
+  //mask = (~0ull)<<b;
+  bits = b;
+}
+
+size_t HierarchicalStateImpl::getChildCodeAndBits(size_t cs, uint64_t& cc) const {
+  assert(cs);
+
+  size_t cb = (cs == 1) ? 1 : CoSupport::flog2(static_cast<uint32_t>(cs) - 1);
+  assert(bits + cb <= 64);
+
+  //outDbg << "#C: " << cs << " -> CB: " << cb << std::endl;
+            
+  cc = code << cb;
+  return cb + bits;
 }
 
 void HierarchicalStateImpl::mark(Marking& m) const {
@@ -789,6 +847,8 @@ bool HierarchicalStateImpl::isMarked(const Marking& m) const {
 void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
 //  outDbg << "HierarchicalStateImpl::finalise(etl) this == " << this << std::endl;
 //  ScopedIndent s0(outDbg);
+  
+//  outDbg << "State: " << getName() << "; Code: " << code << "; Bits: " << bits << std::endl;
 
   for(PartialTransitionList::const_iterator pt = ptl.begin();
       pt != ptl.end(); ++pt)
@@ -909,18 +969,27 @@ void XORStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
     (*s)->setFiringFSM(fsm);
   }
 }
-
+  
 void XORStateImpl::finalise(ExpandedTransitionList& etl) {
-//  outDbg << "XORStateImpl::finalise(etl) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
+//  ioutDbg << "XORStateImpl::finalise(etl) this == " << this << std::endl;
+  ScopedIndent s0(outDbg);
 
 //  outDbg << "name: " << name << std::endl;
 
   if(!init)
     throw ModelingError("smoc_xor_state: Must specify initial state");
 
-  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
-    (*s)->finalise(etl);
+//  std::cout << "State: " << getName() << "; Code: " << code << "; Bits: " << bits << std::endl;
+
+  if(!c.empty()) {
+    uint64_t cc; 
+    size_t cb = getChildCodeAndBits(c.size(), cc);
+
+    for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+      (*s)->setCodeAndBits(cc, cb);
+      (*s)->finalise(etl);
+      ++cc;
+    }
   }
 
   HierarchicalStateImpl::finalise(etl);
@@ -1028,10 +1097,19 @@ void ANDStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
 
 void ANDStateImpl::finalise(ExpandedTransitionList& etl) {
 //  outDbg << "ANDStateImpl::finalise(etl) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
+  ScopedIndent s0(outDbg);
+  
+//  std::cout << "State: " << getName() << "; Code: " << code << "; Bits: " << bits << std::endl;
 
-  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
-    (*s)->finalise(etl);
+  if(!c.empty()) {
+    uint64_t cc; 
+    size_t cb = getChildCodeAndBits(c.size(), cc);
+
+    for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+      (*s)->setCodeAndBits(cc, cb);
+      (*s)->finalise(etl);
+      ++cc;
+    }
   }
 
   HierarchicalStateImpl::finalise(etl);
