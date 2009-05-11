@@ -329,7 +329,11 @@ namespace {
       {
         pgw << "<parameter name=\"" << i->name << "\""
             <<           " valueType=\"" << i->type << "\""
-            <<           " value=\"" << i->value << "\"/>" << std::endl;
+            <<           " value=\""
+            << CoSupport::Streams::TranslationMap::XMLAttr()
+            << i->value
+            << CoSupport::Streams::TranslationMap::None()
+            << "\"/>" << std::endl;
       }
       pgw.indentDown();
 //    pgw << " addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrObj()) << std::dec << "\"";
