@@ -151,7 +151,7 @@ public:
     (k, IN(i)) =
       // leaving AND states leaves each partition
          out(1)
-      >> CALL(Transform::print)("(k,IN(i) -> init")
+      >> CALL(Transform::print)("(k,IN(i)) -> init")
       >> CALL(Transform::write)
       >> init;
 
