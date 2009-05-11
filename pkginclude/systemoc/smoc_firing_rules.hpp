@@ -300,6 +300,21 @@ public:
     { return f; }
 };
 
+class smoc_accum_action {
+private:
+  /// @brief Action
+  smoc_action f;
+
+public:
+  /// @brief Constructor
+  explicit smoc_accum_action(
+      const smoc_action& f)
+    : f(f) {}
+
+  const smoc_action& getAction() const
+    { return f; }
+};
+
 class smoc_transition {
 public:
   typedef smoc_transition this_type;
@@ -373,6 +388,24 @@ smoc_transition_part operator >> (
 
 inline
 smoc_transition_part operator >> (
+    const smoc_activation_pattern &ap,
+    const smoc_accum_action &b)
+  { return smoc_transition_part(ap, b.getAction()); }
+
+inline
+smoc_accum_action operator >> (
+    const smoc_func_call &a,
+    const smoc_func_call &b)
+  { return smoc_accum_action(merge(a, b)); }
+
+inline
+smoc_accum_action operator >> (
+    const smoc_accum_action &a,
+    const smoc_func_call &b)
+  { return smoc_accum_action(merge(a.getAction(), b)); }
+
+inline
+smoc_transition_part operator >> (
     const smoc_transition_part &tp,
     const smoc_func_call &f) {
   return smoc_transition_part(
@@ -384,7 +417,13 @@ inline
 smoc_transition operator >> (
     const smoc_func_call &f,
     smoc_firing_state_base::ConstRef &s)
-  { return smoc_transition(f,s); }
+  { return smoc_transition(f, s); }
+
+inline
+smoc_transition operator >> (
+    const smoc_accum_action &f,
+    smoc_firing_state_base::ConstRef &s)
+  { return smoc_transition(f.getAction(), s); }
 
 inline
 smoc_transition operator >> (
