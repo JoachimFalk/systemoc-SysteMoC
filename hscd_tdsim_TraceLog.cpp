@@ -44,7 +44,7 @@
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 #include <systemoc/smoc_root_node.hpp>
-#include <systemoc/smoc_chan_if.hpp>
+#include <systemoc/detail/smoc_chan_if.hpp>
 #include <systemoc/smoc_pggen.hpp>
 
 #ifdef SYSTEMOC_TRACE

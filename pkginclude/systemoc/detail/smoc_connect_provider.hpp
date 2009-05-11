@@ -39,7 +39,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "../smoc_chan_if.hpp"
+#include "smoc_chan_if.hpp"
 #include "../smoc_chan_adapter.hpp"
 #include "../smoc_ngx_sync.hpp"
 

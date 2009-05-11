@@ -45,7 +45,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "../smoc_chan_if.hpp"
+#include "smoc_chan_if.hpp"
 #include "../smoc_chan_adapter.hpp"
 
 class smoc_port_registry {

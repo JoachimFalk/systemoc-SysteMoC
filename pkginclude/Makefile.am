@@ -41,15 +41,15 @@ nobase_include_HEADERS = \
 	systemoc/detail/QueueRVWPtr.hpp \
 	systemoc/detail/QueueFRVWPtr.hpp \
 	systemoc/detail/smoc_firing_rules_impl.hpp \
+	systemoc/detail/smoc_chan_if.hpp \
+	systemoc/detail/smoc_root_chan.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_elab_and_sim.hpp \
 	systemoc/smoc_ast_common.hpp \
 	systemoc/hscd_tdsim_TraceLog.hpp \
 	systemoc/smoc_ast_systemoc.hpp \
-	systemoc/smoc_chan_if.hpp \
 	systemoc/smoc_chan_adapter.hpp \
-	systemoc/detail/smoc_root_chan.hpp \
 	systemoc/smoc_port.hpp \
 	systemoc/smoc_multiplex_fifo.hpp \
 	systemoc/smoc_multireader_fifo.hpp \
@@ -58,17 +58,6 @@ nobase_include_HEADERS = \
 	systemoc/smoc_graph_synth.hpp \
 	systemoc/smoc_graph_type.hpp \
 	systemoc/smoc_guard.hpp \
-	systemoc/smoc_md_array_access.hpp \
-	systemoc/smoc_md_ba_basic_tree.hpp \
-	systemoc/smoc_md_ba_linearized_buffer.hpp \
-	systemoc/smoc_md_ba_linearized_buffer_schedule.hpp \
-	systemoc/smoc_md_ba_linearized_buffer_size.hpp \
-	systemoc/smoc_md_buffer.hpp \
-	systemoc/smoc_md_buffer_analysis.hpp \
-	systemoc/smoc_md_chan_if.hpp \
-	systemoc/smoc_md_fifo.hpp \
-	systemoc/smoc_md_loop.hpp \
-	systemoc/smoc_md_port.hpp \
 	systemoc/smoc_moc.hpp \
 	systemoc/smoc_multicast_sr_signal.hpp \
 	systemoc/smoc_node_types.hpp \
@@ -81,8 +70,8 @@ nobase_include_HEADERS = \
 
 if SYSTEMOC_ENABLE_WSDF
 nobase_include_HEADERS += \
+	systemoc/detail/smoc_md_chan_if.hpp \
 	systemoc/smoc_md_array_access.hpp \
-	systemoc/smoc_md_chan_if.hpp \
 	systemoc/smoc_md_buffer.hpp \
 	systemoc/smoc_md_fifo.hpp \
 	systemoc/smoc_md_loop.hpp \

@@ -30,7 +30,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "detail/smoc_root_chan.hpp"
-#include "smoc_chan_if.hpp"
+#include "detail/smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/smoc_connect_provider.hpp"

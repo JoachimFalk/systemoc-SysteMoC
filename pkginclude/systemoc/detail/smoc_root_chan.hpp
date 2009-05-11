@@ -49,7 +49,7 @@
 #include "../smoc_event.hpp"
 #include "../smoc_pggen.hpp"
 #include "../smoc_storage.hpp"
-#include "../smoc_chan_if.hpp"
+#include "smoc_chan_if.hpp"
 #include "smoc_port_registry.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
