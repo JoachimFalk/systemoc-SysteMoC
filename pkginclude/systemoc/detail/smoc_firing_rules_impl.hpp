@@ -387,6 +387,7 @@ public:
 
   void setParent(HierarchicalStateImpl* v);
 
+  /// @brief return true if I am an ancestor of s
   bool isAncestor(const HierarchicalStateImpl* s) const;
 
   void mark(Marking& m) const;
