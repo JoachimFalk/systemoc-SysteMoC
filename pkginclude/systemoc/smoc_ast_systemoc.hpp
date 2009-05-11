@@ -49,11 +49,11 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <systemc.h>
+
 namespace smoc_modes {
   class PGWriter;
 }
-
-class sc_port_base;
 
 template <class IFACE> class smoc_port_base;
 
