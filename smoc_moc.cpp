@@ -44,12 +44,15 @@
 
 #include <CoSupport/DataTypes/oneof.hpp>
 
+# include <sgx.hpp>
+
 #ifdef SYSTEMOC_DEBUG
 # define DEBUG_CODE(code) code
 #else
 # define DEBUG_CODE(code) do {} while(0);
 #endif
 
+using namespace SystemCoDesigner::SGX;
 using namespace CoSupport;
 
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
@@ -108,6 +111,15 @@ void smoc_scheduler_top::dump() {
   pgw <<  "</mappings>" << std::endl;
   pgw.indentDown();
   pgw << "</networkgraph>" << std::endl;
+
+#ifndef __SCFE__
+  std::ofstream f("test.smx");
+
+  ArchitectureGraph ag("architecture graph");
+  ngx.architectureGraphPtr() = &ag;
+
+  ngx.save(f);
+#endif
 }
 
 // FIXME: only needed in scheduleSR

@@ -182,6 +182,11 @@ RuntimeStateList smoc_root_node::getStates() const {
   return ret;
 }
 
+void smoc_root_node::addPort(SystemCoDesigner::SGX::Port& p) {
+  assert(proc);
+  proc->ports().push_back(p);
+}
+
 void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
   {}
 

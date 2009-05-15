@@ -33,40 +33,39 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_SMOC_ACTOR_HPP
+#define _INCLUDED_SMOC_ACTOR_HPP
+
 #include <systemoc/smoc_config.h>
-
-#include <systemoc/detail/smoc_sysc_port.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
-#include <systemoc/smoc_root_node.hpp>
-
 #include <sgx.hpp>
 
-using namespace CoSupport;
-using namespace SysteMoC::NGXSync;
-using namespace SystemCoDesigner::SGX;
+#include "smoc_root_node.hpp"
 
-smoc_sysc_port::smoc_sysc_port(const char* name_)
-  : sc_port_base(name_, 1),
-    interfacePtr(NULL),
-    portAccess(NULL),
-    parent(NULL), child(NULL)
-{
-  idPool.regObj(this);
-  idPool.regObj(this, 1);
+class smoc_actor
+: public smoc_root_node {
+protected:
+//explicit smoc_actor(sc_module_name name, const smoc_firing_state &s)
+//  : smoc_root_node(s), sc_module(name) {}
+//smoc_actor(const smoc_firing_state &s)
+//  : smoc_root_node(s),
+//    sc_module(sc_gen_unique_name("smoc_actor")) {}
+  explicit smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
+  smoc_actor(smoc_firing_state &s);
 
-#ifndef __SCFE__
-  Port p(this->name());
-
-  smoc_root_node* parent =
-    dynamic_cast<smoc_root_node*>(get_parent_object());
-
-  if(parent)
-    parent->addPort(p);
-  else
-    assert(!"Port has no parent!");
+#ifdef SYSTEMOC_DEBUG
+  ~smoc_actor();
 #endif
-}
+public:
+#ifndef __SCFE__
+  
+  void assemble( smoc_modes::PGWriter &pgw ) const;
+  void finalise();
 
-smoc_sysc_port::~smoc_sysc_port() {
-  idPool.unregObj(this);
-}
+private:
+  SystemCoDesigner::SGX::Actor ac;
+
+  void init();
+#endif
+};
+
+#endif // _INCLUDED_SMOC_ACTOR_HPP

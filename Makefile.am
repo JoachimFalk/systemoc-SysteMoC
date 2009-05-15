@@ -64,6 +64,7 @@ libsystemoc_la_SOURCES =		\
 	smoc_latency_queues.cpp		\
 	smoc_multicast_sr_signal.cpp	\
 	smoc_graph_type.cpp		\
+	smoc_actor.cpp			\
 	smoc_root_node.cpp		\
 	smoc_root_port.cpp		\
 	smoc_sysc_port.cpp		\

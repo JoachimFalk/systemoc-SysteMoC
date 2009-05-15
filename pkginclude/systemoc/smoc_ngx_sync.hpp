@@ -59,6 +59,8 @@
 
 #define objAs CoSupport::DataTypes::dynamic_pointer_cast
 
+extern SystemCoDesigner::SGX::NetworkGraphAccess ngx;
+
 namespace SysteMoC {
 
 namespace SGX = SystemCoDesigner::SGX;

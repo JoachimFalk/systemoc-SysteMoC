@@ -49,6 +49,7 @@
 #include <CoSupport/Lambda/functor.hpp>
 
 #include <systemoc/smoc_config.h>
+#include <sgx.hpp>
 
 #include "smoc_firing_rules.hpp"
 #include "detail/smoc_firing_rules_impl.hpp"
@@ -137,6 +138,10 @@ protected:
   typename Expr::Var<T>::type var(T &x, const char *name = NULL)
     { return Expr::var(x,name); }
 
+#ifndef __SCFE__
+  SystemCoDesigner::SGX::Process::Ptr proc;
+#endif
+
 public:
   FiringFSMImpl* getFiringFSM() const
     { return initialState.getImpl()->getFiringFSM(); }
@@ -175,6 +180,8 @@ public:
   virtual void assembleActor( smoc_modes::PGWriter &pgw ) const;
   void assemble( smoc_modes::PGWriter &pgw ) const;
   void assembleFSM( smoc_modes::PGWriter &pgw ) const;
+
+  void addPort(SystemCoDesigner::SGX::Port& p);
 #endif
 
   /// @brief Collect ports from child objects

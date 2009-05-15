@@ -53,9 +53,9 @@
 #include "smoc_multicast_sr_signal.hpp"
 #include "smoc_node_types.hpp"
 #include "smoc_moc.hpp"
-#ifndef __SCFE__
-# include "smoc_pggen.hpp"
-#endif
+#include "sgx.hpp"
+//#include "smoc_module_name.hpp"
+#include "smoc_pggen.hpp"
 
 #include "smoc_chan_adapter.hpp"
 
@@ -181,8 +181,14 @@ public:
   const smoc_chan_list& getChans() const;
   void getChansRecursive( smoc_chan_list & channels) const;
 
+#ifndef __SCFE__
+  void addProcess(SystemCoDesigner::SGX::Process& p);
+#endif
+
 protected:
-  smoc_graph_base(sc_module_name name, smoc_firing_state& init, bool regObj);
+  //typedef smoc_module_name sc_module_name;
+
+  smoc_graph_base(const sc_module_name& name, smoc_firing_state& init, bool regObj);
 
   void finalise();
   void reset();
@@ -197,6 +203,8 @@ private:
 #ifndef __SCFE__
   void pgAssemble(smoc_modes::PGWriter &pgw, const smoc_root_node *n) const;
   void assembleActor(smoc_modes::PGWriter &pgw) const;
+
+  SystemCoDesigner::SGX::ProblemGraph pg;
 #endif
 };
   
@@ -209,7 +217,7 @@ private:
 class smoc_graph : public smoc_graph_base {
 public:
   // construct graph with name
-  explicit smoc_graph(sc_module_name name);
+  explicit smoc_graph(const sc_module_name& name);
 
   // construct graph with generated name
   smoc_graph();
@@ -238,7 +246,7 @@ private:
 class smoc_graph_sr : public smoc_graph_base {
 public:
   // construct graph with name
-  explicit smoc_graph_sr(sc_module_name name);
+  explicit smoc_graph_sr(const sc_module_name& name);
 
   // construct graph with generated name
   smoc_graph_sr();

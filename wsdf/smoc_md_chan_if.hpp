@@ -4,7 +4,7 @@
 #ifndef _INCLUDED_SMOC_MD_CHAN_IF_HPP
 #define _INCLUDED_SMOC_MD_CHAN_IF_HPP
 
-#include "smoc_md_loop.hpp"
+#include "../smoc_md_loop.hpp"
 
 #include "smoc_chan_if.hpp"
 

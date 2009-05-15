@@ -4,8 +4,11 @@
 
 using namespace SystemCoDesigner::SGX;
 
+
+NetworkGraphAccess ngx;
+
 namespace SysteMoC { namespace NGXSync {
-  
+
   std::ostream& operator<<(std::ostream& out, const IdAttr& id)
   { return out << "id" << id.id; }
   

@@ -45,6 +45,7 @@
 
 #include "smoc_firing_rules.hpp"
 #include "smoc_root_node.hpp"
+//#include "smoc_module_name.hpp"
 
 class smoc_graph_base;
 
@@ -92,6 +93,8 @@ public:
   // FIXME: this copies given parameter and makes it impossible to use
   //   references in constructor of smoc_graph_base! Copying is evil anyway (much
   //   data, pointers, references, copy constructor has to exist, ...)
+
+  //typedef smoc_module_name sc_module_name;
 
   smoc_top_moc()
     : Graph(), s(this) {}

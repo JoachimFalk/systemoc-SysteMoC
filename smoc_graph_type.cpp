@@ -42,16 +42,48 @@
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 
+#include <CoSupport/String/Concat.hpp>
+
 using namespace SystemCoDesigner::SGX;
 using namespace SysteMoC::NGXSync;
+using CoSupport::String::Concat;
 
 smoc_graph_base::smoc_graph_base(
-    sc_module_name name, smoc_firing_state& init, bool regObj) :
+    const sc_module_name& name, smoc_firing_state& init, bool regObj) :
   smoc_root_node(name, init, regObj)
+#ifndef __SCFE__
+  , pg(this->name())
+#endif
 {
   // FIXME (multiple ids for the same object!!)
   if(regObj) idPool.regObj(this, 1);
+
+#ifndef __SCFE__
+
+  smoc_graph_base* parent =
+    dynamic_cast<smoc_graph_base*>(get_parent_object());
+
+  if(parent) {
+    // Generate refined process
+    // (probably pass on to smoc_root_node)
+    RefinedProcess rp(Concat(this->name())("_rp"));
+    rp.refinements().push_back(pg);
+    parent->pg.refinedProcesses().push_back(rp);
+
+    proc = &rp;
+  }
+  else {
+    // Set as top problemgraph (has no process)
+    ngx.problemGraphPtr() = &pg;
+  }
+#endif
 }
+  
+#ifndef __SCFE__
+void smoc_graph_base::addProcess(Process& p) {
+  pg.processes().push_back(p);
+}
+#endif
 
 const smoc_node_list& smoc_graph_base::getNodes() const
   { return nodes; } 
@@ -309,7 +341,7 @@ void smoc_graph_base::assembleActor(smoc_modes::PGWriter &pgw) const
 
 #endif // __SCFE__
 
-smoc_graph::smoc_graph(sc_module_name name) :
+smoc_graph::smoc_graph(const sc_module_name& name) :
   smoc_graph_base(name, init, true)
 {
   this->constructor();
@@ -386,7 +418,7 @@ void smoc_graph::schedule() {
 #endif
 }
 
-smoc_graph_sr::smoc_graph_sr(sc_module_name name) :
+smoc_graph_sr::smoc_graph_sr(const sc_module_name& name) :
   smoc_graph_base(name, init, true)
 {
   this->constructor();

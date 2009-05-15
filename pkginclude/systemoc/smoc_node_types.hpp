@@ -36,35 +36,7 @@
 #ifndef _INCLUDED_SMOC_NODE_TYPES_HPP
 #define _INCLUDED_SMOC_NODE_TYPES_HPP
 
-#include <systemoc/smoc_config.h>
-
-#include "smoc_root_node.hpp"
-
-class smoc_actor
-: public smoc_root_node {
-protected:
-//explicit smoc_actor(sc_module_name name, const smoc_firing_state &s)
-//  : smoc_root_node(s), sc_module(name) {}
-//smoc_actor(const smoc_firing_state &s)
-//  : smoc_root_node(s),
-//    sc_module(sc_gen_unique_name("smoc_actor")) {}
-  explicit smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
-    : smoc_root_node(name, s) {}
-  smoc_actor(smoc_firing_state &s)
-    : smoc_root_node(sc_gen_unique_name("smoc_actor"), s) {}
-
-#ifdef SYSTEMOC_DEBUG
-  ~smoc_actor() {
-    std::cerr << "~smoc_actor() name = \"" << name() << "\"" << std::endl;
-  }
-#endif
-public:
-#ifndef __SCFE__
-//sc_module *myModule() { return this; }
-  
-  void assemble( smoc_modes::PGWriter &pgw ) const {
-    return smoc_root_node::assemble(pgw); }
-#endif
-};
+#include "smoc_graph_type.hpp"
+#include "smoc_actor.hpp"
 
 #endif // _INCLUDED_SMOC_NODE_TYPES_HPP
