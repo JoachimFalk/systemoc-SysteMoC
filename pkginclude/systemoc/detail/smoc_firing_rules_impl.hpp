@@ -249,8 +249,8 @@ public:
   SystemCoDesigner::SGX::FiringState::Ptr getState() const;
 #endif
 
-  std::string name() const
-    { return _name; }
+  const char *name() const
+    { return _name.c_str(); }
 
   ~RuntimeState();
 };

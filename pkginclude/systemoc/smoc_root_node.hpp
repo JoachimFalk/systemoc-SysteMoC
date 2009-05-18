@@ -145,7 +145,7 @@ protected:
 #endif
 
 public:
-  std::string name() const
+  const char *name() const
     { return this->sc_module::name(); }
 
   FiringFSMImpl *getFiringFSM() const

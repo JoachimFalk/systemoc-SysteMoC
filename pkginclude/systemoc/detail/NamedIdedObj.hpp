@@ -43,7 +43,7 @@ namespace SysteMoC { namespace Detail {
 
 class NamedIdedObj: public IdedObj {
 public:
-  virtual std::string name() const = 0;
+  virtual const char *name() const = 0;
 };
 
 } } // namespace SysteMoC::Detail
