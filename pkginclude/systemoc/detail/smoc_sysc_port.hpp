@@ -85,7 +85,7 @@ protected:
 
   virtual void finalise();
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   friend class smoc_root_chan;
   SystemCoDesigner::SGX::Port::Ptr port;
   void assembleXML();

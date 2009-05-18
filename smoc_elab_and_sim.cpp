@@ -34,6 +34,7 @@
  */
 
 #include <cstring>
+#include <iostream>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
@@ -51,8 +52,8 @@
 #endif //SYSTEMOC_ENABLE_VPC
 
 #include <systemoc/smoc_elab_and_sim.hpp>
-#include <systemoc/smoc_pggen.hpp>
-#include <systemoc/detail/smoc_ngx_sync.hpp>
+#include <systemoc/detail/smoc_pggen.hpp>
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
 
 using namespace boost::program_options;
 
@@ -85,18 +86,18 @@ int smoc_elab_and_sim(int _argc, char* _argv[]) {
       ++i)
   {
     if(i->string_key == "export-smx") {
-      assert(smoc_modes::dumpFileSMX == NULL);      
+      assert(SysteMoC::Detail::dumpFileSMX == NULL);      
       assert(!i->value.empty());
       
-      smoc_modes::dumpFileSMX =
+      SysteMoC::Detail::dumpFileSMX =
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
     }
     else if(i->string_key == "export-sim-smx") {
-      assert(smoc_modes::dumpFileSMX == NULL);
+      assert(SysteMoC::Detail::dumpFileSMX == NULL);
       assert(!i->value.empty());
-      smoc_modes::dumpSMXWithSim = true;
+      SysteMoC::Detail::dumpSMXWithSim = true;
       
-      smoc_modes::dumpFileSMX =
+      SysteMoC::Detail::dumpFileSMX =
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
     }
 //  else if(i->string_key == "import-smx") {
@@ -113,7 +114,7 @@ int smoc_elab_and_sim(int _argc, char* _argv[]) {
     }
 #endif
     else if(i->string_key == "dump-fsm") {
-      smoc_modes::dumpFSMs = true;
+      SysteMoC::Detail::dumpFSMs = true;
     }
     else if(i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
@@ -138,7 +139,7 @@ int smoc_elab_and_sim(int _argc, char* _argv[]) {
     free(argv[argc]);
 
   // delete null pointer is allowed...
-  delete smoc_modes::dumpFileSMX;
+  delete SysteMoC::Detail::dumpFileSMX;
 
   return ret;
 }

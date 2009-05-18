@@ -37,24 +37,25 @@
 #ifndef _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP
 #define _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP
 
+#include <list>
+#include <set>
+#include <vector>
+
 #include <systemoc/smoc_config.h>
 
 #include "../smoc_func_call.hpp"
 #include "../smoc_firing_rules.hpp"
 
+#include "smoc_pggen.hpp"
 #include "NamedIdedObj.hpp"
-
-#include <list>
-#include <set>
-#include <vector>
-
-#include <sgx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {
   class FastLink;
 } // namespace SystemC_VPC
 #endif //SYSTEMOC_ENABLE_VPC
+
+class smoc_root_node;
 
 //class FiringStateBaseImpl;
 //DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateBaseImpl, PFiringStateBaseImpl);
@@ -234,7 +235,7 @@ private:
   std::string           _name;
   RuntimeTransitionList t;
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::FiringState::Ptr state;
   void assembleXML();
 #endif
@@ -245,7 +246,7 @@ public:
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::FiringState::Ptr getState() const;
 #endif
 
@@ -279,7 +280,7 @@ private:
   RuntimeState* init;
   RuntimeStateSet rts;
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::FiringFSM::Ptr fsm;
   void assembleXML();
 #endif
@@ -320,7 +321,7 @@ public:
 
   RuntimeState* getInitialState() const;
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::FiringFSM::Ptr getFSM() const;
 #endif
 };

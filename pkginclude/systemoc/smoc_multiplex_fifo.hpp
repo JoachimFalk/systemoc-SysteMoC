@@ -148,13 +148,13 @@ protected:
   size_t inTokenId() const
     { return static_cast<size_t>(-1); }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::Fifo::Ptr fifo;
   void finalise();
 #endif
 
 private:
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   void assembleXML();
 #endif
 };

@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -37,24 +37,27 @@
 #define _INCLUDED_SMOC_PGGEN_HPP
 
 #include <ostream>
-#include <exception>
-
-#include <CoSupport/Streams/FilterOStream.hpp>
-#include <CoSupport/Streams/IndentStreambuf.hpp>
-#include <CoSupport/Streams/TranslationStreambuf.hpp>
 
 #include <systemoc/smoc_config.h>
 
-class smoc_root_node;
+#ifdef SYSTEMOC_ENABLE_SGX
+#include <sgx.hpp>
+#endif // SYSTEMOC_ENABLE_SGX
 
-namespace smoc_modes {
+namespace SysteMoC { namespace Detail {
 
-  extern bool dumpSMXWithSim;
-  extern std::ostream* dumpFileSMX;
-  extern bool dumpFSMs;
+#ifdef SYSTEMOC_ENABLE_SGX
+namespace SGX = SystemCoDesigner::SGX;
+#endif // SYSTEMOC_ENABLE_SGX
+ 
+#ifdef SYSTEMOC_ENABLE_SGX
+extern SystemCoDesigner::SGX::NetworkGraphAccess ngx;
+#endif // SYSTEMOC_ENABLE_SGX
 
-//// compatibility methods
-//void dump(std::ostream& out, smoc_root_node&);
-};
+extern bool          dumpSMXWithSim;
+extern std::ostream* dumpFileSMX;
+extern bool          dumpFSMs;
+
+} } // namespace SysteMoC::Detail
 
 #endif // _INCLUDED_SMOC_PGGEN_HPP

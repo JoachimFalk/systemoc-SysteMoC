@@ -40,11 +40,9 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_sr_signal.hpp>
 #include <systemoc/smoc_multicast_sr_signal.hpp>
-#include <systemoc/detail/smoc_ngx_sync.hpp>
+#include <systemoc/detail/smoc_pggen.hpp>
 
 #include <CoSupport/DataTypes/oneof.hpp>
-
-# include <sgx.hpp>
 
 #ifdef SYSTEMOC_DEBUG
 # define DEBUG_CODE(code) code
@@ -81,24 +79,24 @@ void smoc_scheduler_top::start_of_simulation()
 
 void smoc_scheduler_top::end_of_simulation() {
   simulation_running = false;
-  if(smoc_modes::dumpFileSMX && smoc_modes::dumpSMXWithSim)
+  if(SysteMoC::Detail::dumpFileSMX && SysteMoC::Detail::dumpSMXWithSim)
     dump();
 }
 
 void smoc_scheduler_top::end_of_elaboration() {
   g->finalise();
   g->reset();
-  if(smoc_modes::dumpFileSMX && !smoc_modes::dumpSMXWithSim) {
+  if(SysteMoC::Detail::dumpFileSMX && !SysteMoC::Detail::dumpSMXWithSim) {
     dump();
     sc_core::sc_stop();
   }
 }
   
 void smoc_scheduler_top::dump() {
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   ArchitectureGraph ag("architecture graph");
-  ngx.architectureGraphPtr() = &ag;
-  ngx.save(*smoc_modes::dumpFileSMX);
+  SysteMoC::Detail::ngx.architectureGraphPtr() = &ag;
+  SysteMoC::Detail::ngx.save(*SysteMoC::Detail::dumpFileSMX);
 #endif
 }
 

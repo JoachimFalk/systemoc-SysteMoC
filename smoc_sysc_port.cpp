@@ -36,7 +36,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
-#include <systemoc/detail/smoc_ngx_sync.hpp>
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_root_node.hpp>
 
 #include <sgx.hpp>
@@ -70,12 +70,12 @@ void smoc_sysc_port::bind(this_type &parent_) {
 }
 
 void smoc_sysc_port::finalise() {
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   assembleXML();
 #endif
 }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
 void smoc_sysc_port::assembleXML() {
   using namespace SystemCoDesigner::SGX;
 

@@ -37,10 +37,10 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/smoc_graph_synth.hpp>
-#include <systemoc/detail/smoc_sysc_port.hpp>
-#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
+#include <systemoc/detail/smoc_graph_synth.hpp>
+#include <systemoc/detail/smoc_sysc_port.hpp>
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
 
 #include <CoSupport/String/Concat.hpp>
 
@@ -56,7 +56,7 @@ smoc_graph_base::smoc_graph_base(
 //if(regObj) idPool.regObj(this, 1);
 }
   
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
 void smoc_graph_base::addProcess(Process& p) {
   assert(pg);
   pg->processes().push_back(p);
@@ -121,7 +121,7 @@ void smoc_graph_base::finalise() {
   std::cerr << "smoc_graph_base::finalise() begin, name == " << name() << std::endl;
 #endif
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   assembleXML();
 #endif
 
@@ -253,7 +253,7 @@ void smoc_graph_base::finalise() {
   
   smoc_root_node::finalise();
   
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: FSM is attribute of Actor, not of Process
   pg->firingFSM() = getFiringFSM()->getFSM();
 #endif
@@ -287,7 +287,7 @@ void smoc_graph_base::reset() {
 #endif
 }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   
 void smoc_graph_base::assembleXML() {
   assert(!pg);
@@ -312,7 +312,7 @@ void smoc_graph_base::assembleXML() {
   }
 }
 
-#endif // __SCFE__
+#endif // SYSTEMOC_ENABLE_SGX
 
 smoc_graph::smoc_graph(const sc_module_name& name) :
   smoc_graph_base(name, init/*, true*/)

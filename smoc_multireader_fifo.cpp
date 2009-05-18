@@ -55,7 +55,7 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
   schedOutlets(i.so ? i.so : &schedDefault)
 {}
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
 void smoc_multireader_fifo_chan_base::finalise() {
   // FIXME: need name before XML can be constructed
   generateName();

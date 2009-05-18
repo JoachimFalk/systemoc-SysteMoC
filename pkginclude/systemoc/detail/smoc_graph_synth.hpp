@@ -39,10 +39,11 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_graph_type.hpp"
-#include "detail/smoc_ngx_sync.hpp"
+#include "../smoc_graph_type.hpp"
+#include "smoc_pggen.hpp"
+//#include "smoc_ngx_sync.hpp"
 
-namespace SysteMoC {
+namespace SysteMoC { namespace Detail {
 
 // pair Commit.Available
 typedef std::pair<size_t, size_t> PortReq;
@@ -163,6 +164,6 @@ private:
   void generateFSM();
 };
 
-} // namespace SysteMoC
+} } // namespace SysteMoC::Detail
 
 #endif // _INCLUDED_SMOC_GRAPH_SYNTH_HPP

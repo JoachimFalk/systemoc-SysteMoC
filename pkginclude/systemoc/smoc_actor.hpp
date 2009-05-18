@@ -56,7 +56,7 @@ protected:
   ~smoc_actor();
 #endif
 public:
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   
   void finalise();
 

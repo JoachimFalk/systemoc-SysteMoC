@@ -146,7 +146,7 @@ protected:
   /// @brief Available free space
   size_t numFree() const;
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::Fifo::Ptr fifo;
   void finalise();
 #endif
@@ -184,7 +184,7 @@ private:
   /// @brief Called by entries when less space is available
   void lessSpace(size_t n);
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   void assembleXML();
 #endif
 };

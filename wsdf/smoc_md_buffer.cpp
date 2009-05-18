@@ -16,7 +16,7 @@
 
 #if 0
 void 
-smoc_md_buffer_mgmt_base::channelAttributes(smoc_modes::PGWriter &pgw) const{
+smoc_md_buffer_mgmt_base::channelAttributes(SysteMoC::Detail::PGWriter &pgw) const{
   pgw << "<attribute type=\"token_dimensions\" value=\""
       << this->_token_dimensions 
       << "\"/>"
@@ -268,7 +268,7 @@ void smoc_simple_md_buffer_kind::free_buffer() {
 
 #if 0
 void 
-smoc_simple_md_buffer_kind::channelAttributes(smoc_modes::PGWriter &pgw) const{
+smoc_simple_md_buffer_kind::channelAttributes(SysteMoC::Detail::PGWriter &pgw) const{
   parent_type::channelAttributes(pgw);
   pgw << "<attribute type=\"buffer_lines\" value=\""
       << buffer_lines

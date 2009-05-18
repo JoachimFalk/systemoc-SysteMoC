@@ -37,9 +37,9 @@
 
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
-#include <systemoc/detail/smoc_ngx_sync.hpp>
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_root_node.hpp>
-#include <systemoc/smoc_pggen.hpp>
+#include <systemoc/detail/smoc_pggen.hpp>
 
 #include <map>
 #include <sstream>
@@ -98,7 +98,7 @@ void smoc_root_chan::finalise() {
   // will do no harm if already generated
   generateName();
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   assembleXML();
 #endif
 
@@ -159,7 +159,7 @@ void smoc_root_chan::generateName() {
   }
 }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
 void smoc_root_chan::assembleXML() {
   using namespace SystemCoDesigner::SGX;
 

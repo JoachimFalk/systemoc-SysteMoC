@@ -38,10 +38,10 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
-#include <systemoc/detail/smoc_ngx_sync.hpp>
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_root_node.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
-#include <systemoc/smoc_pggen.hpp>
+#include <systemoc/detail/smoc_pggen.hpp>
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 using namespace SysteMoC::Detail;

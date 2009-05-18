@@ -35,7 +35,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/detail/smoc_ngx_sync.hpp>
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
@@ -51,7 +51,7 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
   tokenId(0)
 {}
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
 void smoc_fifo_chan_base::finalise() {
   // FIXME: need name before XML can be constructed
   generateName();

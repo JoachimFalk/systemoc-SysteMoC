@@ -51,7 +51,7 @@
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
-#include <systemoc/detail/smoc_ngx_sync.hpp>
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
 
 #include <sgx.hpp>
 
@@ -381,7 +381,7 @@ RuntimeState::RuntimeState(const std::string name)
   //: sc_object(CoSupport::String::Concat
   //    ("smoc_firing_state_")(RuntimeStateCount++).get().c_str())
 //idPool.regObj(this);
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   assembleXML();
 #endif
 }
@@ -390,7 +390,7 @@ RuntimeState::~RuntimeState() {
 //idPool.unregObj(this);
 }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
 void RuntimeState::assembleXML() {
   assert(!state);
 
@@ -586,7 +586,7 @@ void FiringFSMImpl::finalise(
 
     std::ofstream* fsmDump = 0;
 
-    if(smoc_modes::dumpFSMs) {
+    if(SysteMoC::Detail::dumpFSMs) {
 
       std::string f =
         CoSupport::String::Concat("FSM_")(actor->name())(".dot");
@@ -647,7 +647,7 @@ void FiringFSMImpl::finalise(
           RuntimeState* rd = ins.first->second;
           assert(rd);
 
-          if(smoc_modes::dumpFSMs) {
+          if(SysteMoC::Detail::dumpFSMs) {
             *fsmDump << '"' << s << '"' << " -> "
                      << '"' << d << '"' << std::endl;
           }
@@ -665,7 +665,7 @@ void FiringFSMImpl::finalise(
       }
     }
 
-    if(smoc_modes::dumpFSMs) {
+    if(SysteMoC::Detail::dumpFSMs) {
       *fsmDump << "}" << std::endl;
       fsmDump->close();
       delete fsmDump;
@@ -688,12 +688,12 @@ void FiringFSMImpl::finalise(
          << std::endl;
 #endif // FSM_FINALIZE_BENCHMARK
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   assembleXML();
 #endif
 }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
 void FiringFSMImpl::assembleXML() {
   assert(!fsm);
 

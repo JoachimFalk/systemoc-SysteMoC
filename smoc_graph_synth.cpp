@@ -39,14 +39,17 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_graph_synth.hpp>
+#include <systemoc/detail/smoc_graph_synth.hpp>
 
-#include <systemoc/detail/smoc_ngx_sync.hpp>
+#include <CoSupport/DataTypes/container_insert.hpp>
 
-namespace SysteMoC {
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
+
+#define objAs CoSupport::DataTypes::dynamic_pointer_cast
+
+namespace SysteMoC { namespace Detail {
 
 using namespace SGX;
-using namespace Detail;
 
 // find non-hierarchical name
 // ("a.b.c" -> "c"; "a.b." -> "" ; "a" -> "a")
@@ -147,7 +150,7 @@ smoc_graph_synth::smoc_graph_synth(ProblemGraph::ConstRef pg) :
 }
 
 void smoc_graph_synth::cachePhase(PortRefList::ConstRef ports, Phase& phase) {
-  for(PortRefList::const_iterator pIter = ports.begin();
+/*for(PortRefList::const_iterator pIter = ports.begin();
       pIter != ports.end();
       ++pIter)
   {
@@ -157,6 +160,7 @@ void smoc_graph_synth::cachePhase(PortRefList::ConstRef ports, Phase& phase) {
     assert(rp);
     phase[rp] = pIter->attrValueAsSizeT("count").get();
   }
+ */
 }
 
 void smoc_graph_synth::cachePhases(Actor::ConstPtr actor, Phases& phases) {
@@ -185,6 +189,7 @@ void smoc_graph_synth::cachePhases(Actor::ConstPtr actor, Phases& phases) {
 smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
     PortReqMap::const_iterator i, PortReqMap::const_iterator e)
 {
+  /*
   assert(i != e);
   smoc_sysc_port *p = NGXCache::getInstance().getCompiledPort(i->first);
   assert(p);
@@ -204,6 +209,7 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
     else
       return pg;
   }
+   */
 }
 
 smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
@@ -214,7 +220,7 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
 }
 
 void smoc_graph_synth::prepareActorFiring() {
-  
+/*
   ActorFiring::ConstPtr af = objAs<ActorFiring>(ca);
   assert(af);
   assert(arm[af]);
@@ -271,6 +277,7 @@ void smoc_graph_synth::prepareActorFiring() {
   ni.count = (ni.count + 1) % ni.phases.size();
     
   --arm[af];
+ */
 }
 
 void smoc_graph_synth::prepareCompoundAction() {
@@ -491,4 +498,4 @@ void smoc_graph_synth::generateFSM() {
 //}
 }
 
-} // namespace SysteMoC
+} } // namespace SysteMoC::Detail

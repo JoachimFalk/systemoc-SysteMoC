@@ -413,7 +413,7 @@ public:
 
 public:
 ///* Functions for problem graph generation */
-//virtual void channelAttributes(smoc_modes::PGWriter &pgw) const;
+//virtual void channelAttributes(SysteMoC::Detail::PGWriter &pgw) const;
 
 protected:
   /// Current source and sink iteration vectors.
@@ -863,7 +863,7 @@ public:
   }
 
 ///* Functions for problem graph generation */
-//virtual void channelAttributes(smoc_modes::PGWriter &pgw) const;
+//virtual void channelAttributes(SysteMoC::Detail::PGWriter &pgw) const;
 
 
 protected:

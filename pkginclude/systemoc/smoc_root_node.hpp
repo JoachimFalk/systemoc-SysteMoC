@@ -55,9 +55,7 @@
 #include "detail/smoc_firing_rules_impl.hpp"
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/NamedIdedObj.hpp"
-#ifndef __SCFE__
-# include "smoc_pggen.hpp"
-#endif
+#include "detail/smoc_pggen.hpp"
 #include "smoc_expr.hpp"
 
 #undef  SMOC_REGISTER_CPARAM
@@ -140,7 +138,7 @@ protected:
   typename Expr::Var<T>::type var(T &x, const char *name = NULL)
     { return Expr::var(x,name); }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::Process::Ptr proc;
 #endif
 
@@ -180,7 +178,7 @@ public:
   void setLastState(RuntimeState* s)
     { lastState = s; }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   void addPort(SystemCoDesigner::SGX::Port &p);
 #endif
 

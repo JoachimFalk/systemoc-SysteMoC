@@ -53,9 +53,7 @@
 #include "smoc_multicast_sr_signal.hpp"
 #include "smoc_node_types.hpp"
 #include "smoc_moc.hpp"
-#include "sgx.hpp"
-//#include "smoc_module_name.hpp"
-#include "smoc_pggen.hpp"
+#include "detail/smoc_pggen.hpp"
 
 #include "smoc_chan_adapter.hpp"
 
@@ -181,7 +179,7 @@ public:
   const smoc_chan_list& getChans() const;
   void getChansRecursive( smoc_chan_list & channels) const;
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   void addProcess(SystemCoDesigner::SGX::Process& p);
 #endif
 
@@ -200,7 +198,7 @@ private:
   // channel child objects
   smoc_chan_list channels;
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::ProblemGraph::Ptr pg;
   void assembleXML();
 #endif

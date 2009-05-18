@@ -44,7 +44,8 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_root_chan.hpp \
 	systemoc/detail/IdedObj.hpp \
 	systemoc/detail/NamedIdedObj.hpp \
-	systemoc/detail/smoc_ngx_sync.hpp \
+	systemoc/detail/smoc_pggen.hpp \
+	systemoc/detail/smoc_graph_synth.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_elab_and_sim.hpp \
@@ -57,13 +58,11 @@ nobase_include_HEADERS = \
 	systemoc/smoc_multireader_fifo.hpp \
 	systemoc/smoc_fifo.hpp \
 	systemoc/smoc_firing_rules.hpp \
-	systemoc/smoc_graph_synth.hpp \
 	systemoc/smoc_graph_type.hpp \
 	systemoc/smoc_guard.hpp \
 	systemoc/smoc_moc.hpp \
 	systemoc/smoc_multicast_sr_signal.hpp \
 	systemoc/smoc_node_types.hpp \
-	systemoc/smoc_pggen.hpp \
 	systemoc/smoc_root_node.hpp \
 	systemoc/smoc_sr_signal.hpp \
 	systemoc/smoc_storage.hpp \

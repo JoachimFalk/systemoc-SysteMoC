@@ -15,7 +15,7 @@ smoc_actor::~smoc_actor() {
 }
 #endif
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   
 void smoc_actor::finalise() {
   assembleXML();

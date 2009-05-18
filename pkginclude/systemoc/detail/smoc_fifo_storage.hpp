@@ -103,7 +103,7 @@ protected:
   ~smoc_fifo_storage()
     { delete[] storage; }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   void finalise() {
     BASE::finalise();
     assembleXML();

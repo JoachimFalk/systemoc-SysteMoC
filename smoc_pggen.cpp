@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -33,30 +33,16 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemc.h>
+#include <systemoc/detail/smoc_pggen.hpp>
 
-#include <systemoc/smoc_config.h>
-
-#include <systemoc/smoc_pggen.hpp>
-
-#ifdef SYSTEMOC_ENABLE_SGX
-# include <sgx.hpp>
-#endif // SYSTEMOC_ENABLE_SGX
+namespace SysteMoC { namespace Detail {
 
 #ifdef SYSTEMOC_ENABLE_SGX
 SystemCoDesigner::SGX::NetworkGraphAccess ngx;
 #endif // SYSTEMOC_ENABLE_SGX
 
-namespace smoc_modes {
-  
-  bool          dumpSMXWithSim = false;
-  std::ostream *dumpFileSMX    = NULL;
-  bool          dumpFSMs       = false;
+bool          dumpSMXWithSim = false;
+std::ostream *dumpFileSMX    = NULL;
+bool          dumpFSMs       = false;
 
-/*void dump(std::ostream& out, smoc_root_node&) {
-    dumpFileSMX = &out;
-    sc_core::sc_start();
-    // seems not to work with FIFOs.
-  }
- */
-};
+} } // namespace SysteMoC::Detail

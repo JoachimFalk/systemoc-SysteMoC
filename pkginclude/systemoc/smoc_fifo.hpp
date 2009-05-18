@@ -115,7 +115,7 @@ protected:
     emmFree.increasedCount(freeCount());
   }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::Fifo::Ptr fifo;
   void finalise();
 #endif
@@ -131,7 +131,7 @@ private:
   /// @brief The token id of the next commit token
   size_t tokenId;
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
   void assembleXML();
 #endif
 };

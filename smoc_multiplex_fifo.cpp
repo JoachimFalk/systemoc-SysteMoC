@@ -62,7 +62,7 @@ void smoc_multiplex_fifo_chan_base::deregisterVOutlet(FifoId fifoId) {
   vOutlets.erase(fifoId);
 }
 
-#ifndef __SCFE__
+#ifdef SYSTEMOC_ENABLE_SGX
 void smoc_multiplex_fifo_chan_base::finalise() {
   // FIXME: need name before XML can be constructed
   generateName();
