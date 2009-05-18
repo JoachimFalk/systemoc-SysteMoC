@@ -46,59 +46,60 @@
 #include <systemc.h>
 #include <sysc/kernel/sc_object.h>
 
+#include <systemoc/smoc_config.h>
+
 #include <CoSupport/DataTypes/container_insert.hpp>
 #include <CoSupport/Math/string_hash.hpp>
 #include <CoSupport/SMXIdManager.hpp>
 
+#ifdef SYSTEMOC_ENABLE_SGX
 #include <sgx.hpp>
+#endif // SYSTEMOC_ENABLE_SGX
 
-#include <systemoc/smoc_config.h>
-
-#include "smoc_pggen.hpp"
-#include "detail/smoc_sysc_port.hpp"
+#include "../smoc_pggen.hpp"
+#include "smoc_sysc_port.hpp"
+#include "NamedIdedObj.hpp"
 
 #define objAs CoSupport::DataTypes::dynamic_pointer_cast
 
+#ifdef SYSTEMOC_ENABLE_SGX
 extern SystemCoDesigner::SGX::NetworkGraphAccess ngx;
+#endif // SYSTEMOC_ENABLE_SGX
 
 namespace SysteMoC {
 
+#ifdef SYSTEMOC_ENABLE_SGX
 namespace SGX = SystemCoDesigner::SGX;
+#endif // SYSTEMOC_ENABLE_SGX
   
-namespace NGXSync {
-
-  using SystemCoDesigner::SGX::NgId;
+namespace Detail {
 
   typedef CoSupport::SMXIdSer IdAttr;
 
-  typedef sc_core::sc_object SCObj;
-
-//  std::ostream& operator<<(std::ostream& out, const IdAttr& id);
-
-  struct AlreadyInitialized : public std::runtime_error {
+  struct AlreadyInitialized: public std::runtime_error {
     AlreadyInitialized();
   };
  
   class IdPool {
   public:
     // generate id for the specified named object and index
-    NgId regObj(SCObj* obj, size_t index = 0);
+    NgId regObj(NamedIdedObj *obj, size_t index = 0);
 
     // register object with specified id and index
-    NgId regObj(SCObj* obj, const NgId& id, size_t index);
-    
+    NgId regObj(NamedIdedObj *obj, NgId id, size_t index);
+
     // delete all ids for the specified named object
-    void unregObj(const SCObj* obj);
-    
+    void unregObj(NamedIdedObj *obj);
+
     // lookup id for the specified named object and index
-    NgId getId(const SCObj* obj, size_t index = 0) const;
-    
+    NgId getId(NamedIdedObj *obj, size_t index = 0) const;
+
     // return a new id for an unnamed object
     NgId getId();
 
     // convenience method for printing the id of a named object
-    IdAttr printId(const SCObj* obj, size_t index = 0) const;
-    
+    IdAttr printId(NamedIdedObj *obj, size_t index = 0) const;
+
     // convenience method for printing the id of an unnamed object
     IdAttr printId();
 
@@ -106,8 +107,7 @@ namespace NGXSync {
     IdAttr printIdInvalid() const;
 
     // lookup named object for an id (returns 0 if not found)
-    SCObj* getObj(const NgId& id) const;
-
+    NamedIdedObj *getObj(NgId id) const;
   };
 
   extern IdPool idPool;
@@ -151,13 +151,13 @@ namespace NGXSync {
     static NGXCache& getInstance();
 
     // lookup SGX object by SystemC object (returns 0 if none exists)
-    SGX::IdedObj::ConstPtr get(SCObj* obj, size_t index = 0);
+    SGX::IdedObj::ConstPtr get(NamedIdedObj *obj, size_t index = 0);
 
     // lookup SystemC object by SGX object (returns 0 if none exists)
-    SCObj* get(SGX::IdedObj::ConstPtr obj);
+    NamedIdedObj *get(SGX::IdedObj::ConstPtr obj);
     
     // lookup SystemC object by SGX object (returns 0 if none exists)
-    SCObj* get(SGX::IdedObj::ConstRef obj);
+    NamedIdedObj *get(SGX::IdedObj::ConstRef obj);
 
     // find / cache a port which is compiled into the model and has the
     // same interface as the specified port (returns 0 if none exists)
@@ -166,24 +166,24 @@ namespace NGXSync {
 
   private:
     // SGX -> SystemC lookup map
-    typedef std::map<SGX::IdedObj::ConstPtr, SCObj*> NGX2SC;
+    typedef std::map<SGX::IdedObj::ConstPtr, NamedIdedObj *> NGX2SC;
     NGX2SC ngx2sc;
 
     // SystemC -> SGX lookup map
     typedef std::map<size_t, SGX::IdedObj::ConstPtr> IndexMap;
-    typedef std::map<SCObj*, IndexMap> SC2NGX;
+    typedef std::map<NamedIdedObj *, IndexMap> SC2NGX;
     SC2NGX sc2ngx;
 
     // invisible constructor for singleton-pattern
     NGXCache();
 
     // disabled copy-constructor
-    NGXCache(const NGXCache&);
+    NGXCache(const NGXCache &);
 
     // disabled assigment operator
     NGXCache& operator=(const NGXCache&);
   };
 
-} } // SysteMoC::NGXSync
+} } // SysteMoC::Detail
 
 #endif // _INCLUDED_SMOC_NGX_SYNC_HPP

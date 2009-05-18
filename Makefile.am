@@ -73,11 +73,11 @@ libsystemoc_la_SOURCES =		\
 	smoc_root_chan.cpp		\
 	smoc_guard.cpp			\
 	smoc_moc.cpp			\
-	smoc_ngx_sync.cpp		\
 	smoc_graph_synth.cpp		\
 	smoc_func_call.cpp		\
 					\
 	hscd_tdsim_TraceLog.cpp
+#	smoc_ngx_sync.cpp
 
 if SYSTEMOC_ENABLE_WSDF
 libsystemoc_la_SOURCES +=				\
@@ -111,12 +111,14 @@ libsystemoc_la_LIBADD += 					\
 	-lcosupport-streams					\
 	-lcosupport-smartptr
 endif
+if SYSTEMOC_ENABLE_SGX
 if PKG_LIBSGX_USE_SRCDIR_VERSION
 libsystemoc_la_LIBADD += $(LIBSGX_LIBPATH)/libsgx.la
 else
 # It may not be possible to find LIBSGX_LIBPATH for
 # libsgx installed in the wild and not in the source dir.
 libsystemoc_la_LIBADD += -lsgx
+endif
 endif
 if SYSTEMOC_ENABLE_WSDF
 if PKG_LIBWSDF_USE_SRCDIR_VERSION

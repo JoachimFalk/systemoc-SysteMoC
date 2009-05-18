@@ -412,8 +412,8 @@ public:
   }
 
 public:
-  /* Functions for problem graph generation */
-  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const;
+///* Functions for problem graph generation */
+//virtual void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
 protected:
   /// Current source and sink iteration vectors.
@@ -862,8 +862,8 @@ public:
     ptr = NULL;
   }
 
-  /* Functions for problem graph generation */
-  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const;
+///* Functions for problem graph generation */
+//virtual void channelAttributes(smoc_modes::PGWriter &pgw) const;
 
 
 protected:

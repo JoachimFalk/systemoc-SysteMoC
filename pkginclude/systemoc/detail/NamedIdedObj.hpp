@@ -1,6 +1,7 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -33,37 +34,18 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_ACTOR_HPP
-#define _INCLUDED_SMOC_ACTOR_HPP
+#include "IdedObj.hpp"
 
-#include <systemoc/smoc_config.h>
-#include <sgx.hpp>
+#ifndef _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
+#define _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
 
-#include "smoc_root_node.hpp"
+namespace SysteMoC { namespace Detail {
 
-class smoc_actor
-: public smoc_root_node {
-protected:
-//explicit smoc_actor(sc_module_name name, const smoc_firing_state &s)
-//  : smoc_root_node(s), sc_module(name) {}
-//smoc_actor(const smoc_firing_state &s)
-//  : smoc_root_node(s),
-//    sc_module(sc_gen_unique_name("smoc_actor")) {}
-  explicit smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
-  smoc_actor(smoc_firing_state &s);
-
-#ifdef SYSTEMOC_DEBUG
-  ~smoc_actor();
-#endif
+class NamedIdedObj: public IdedObj {
 public:
-#ifndef __SCFE__
-  
-  void finalise();
-
-private:
-  SystemCoDesigner::SGX::Actor::Ptr ac;
-  void assembleXML();
-#endif
+  virtual std::string name() const = 0;
 };
 
-#endif // _INCLUDED_SMOC_ACTOR_HPP
+} } // namespace SysteMoC::Detail
+
+#endif // _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP

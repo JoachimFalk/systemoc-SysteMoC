@@ -52,7 +52,7 @@
 
 #include <systemoc/smoc_elab_and_sim.hpp>
 #include <systemoc/smoc_pggen.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
+#include <systemoc/detail/smoc_ngx_sync.hpp>
 
 using namespace boost::program_options;
 
@@ -99,12 +99,12 @@ int smoc_elab_and_sim(int _argc, char* _argv[]) {
       smoc_modes::dumpFileSMX =
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
     }
-    else if(i->string_key == "import-smx") {
-      assert(!i->value.empty());
-      
-      CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
-      SysteMoC::NGXSync::NGXConfig::getInstance().loadNGX(in);
-    }
+//  else if(i->string_key == "import-smx") {
+//    assert(!i->value.empty());
+//    
+//    CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
+//    SysteMoC::Detail::NGXConfig::getInstance().loadNGX(in);
+//  }
 #ifdef SYSTEMOC_ENABLE_VPC
     else if(i->string_key == "vpc-config") {
       assert(!i->value.empty());

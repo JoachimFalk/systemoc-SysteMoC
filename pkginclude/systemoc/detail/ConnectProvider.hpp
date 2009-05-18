@@ -40,8 +40,8 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_chan_if.hpp"
+#include "smoc_ngx_sync.hpp"
 #include "../smoc_chan_adapter.hpp"
-#include "../smoc_ngx_sync.hpp"
 
 namespace SysteMoC { namespace Detail {
 
@@ -110,8 +110,8 @@ public:
     typename Adapter::iface_impl_type *iface =
       dynamic_cast<typename Adapter::iface_impl_type*>(
           getDerived()->getChan()->smoc_port_registry::getIF<Tag>(&p));
-    SysteMoC::NGXSync::idPool.regObj(&p);
-    SysteMoC::NGXSync::idPool.regObj(&p, 1);
+//  SysteMoC::Detail::idPool.regObj(&p);
+//  SysteMoC::Detail::idPool.regObj(&p, 1);
     assert(iface); p(*(new Adapter(*iface)));
     return *getDerived();
   }

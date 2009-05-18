@@ -41,10 +41,12 @@
 
 #include <systemoc/smoc_graph_synth.hpp>
 
+#include <systemoc/detail/smoc_ngx_sync.hpp>
+
 namespace SysteMoC {
 
 using namespace SGX;
-using namespace NGXSync;
+using namespace Detail;
 
 // find non-hierarchical name
 // ("a.b.c" -> "c"; "a.b." -> "" ; "a" -> "a")
@@ -133,13 +135,13 @@ private:
 };
 
 smoc_graph_synth::smoc_graph_synth(ProblemGraph::ConstRef pg) :
-  smoc_graph_base(nameNH(pg.name().get()).c_str(), init, false),
+  smoc_graph_base(nameNH(pg.name().get()).c_str(), init/*, false*/),
   pg(pg),
   curNode(nodeInfos.end())
 {
   // register process and graph
-  idPool.regObj(this, pg.owner()->id(), 0);
-  idPool.regObj(this, pg.id(), 1);
+//idPool.regObj(this, pg.owner()->id(), 0);
+//idPool.regObj(this, pg.id(), 1);
   
   generateFSM();
 }

@@ -35,7 +35,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_ngx_sync.hpp>
+#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
@@ -82,16 +82,17 @@ void smoc_fifo_chan_base::assembleXML() {
 #endif
 
 size_t fsizeMapper(sc_object* instance, size_t n) {
-  // SGX --> SystemC
-  if (SysteMoC::NGXSync::NGXConfig::getInstance().hasNGX()) {
+//FIXME: Reimplememt this!
+/*// SGX --> SystemC
+  if (SysteMoC::Detail::NGXConfig::getInstance().hasNGX()) {
     SystemCoDesigner::SGX::Fifo::ConstPtr fifo =
-      objAs<SystemCoDesigner::SGX::Fifo>(SysteMoC::NGXSync::NGXCache::getInstance().get(instance));
+      objAs<SystemCoDesigner::SGX::Fifo>(SysteMoC::Detail::NGXCache::getInstance().get(instance));
     if (fifo) {
       n = fifo->size().get();
     } else {
       // XML node missing or no Fifo
     }
-  }
+  }*/
   return n;
 }
 

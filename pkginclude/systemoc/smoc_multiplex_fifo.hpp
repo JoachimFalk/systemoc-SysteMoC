@@ -148,18 +148,6 @@ protected:
   size_t inTokenId() const
     { return static_cast<size_t>(-1); }
 
-  /// @brief See smoc_root_chan
-  void assemble(smoc_modes::PGWriter &pgw) const
-    {}
-  
-  /// @brief See smoc_root_chan
-  void channelContents(smoc_modes::PGWriter &pgw) const
-    { assert(0); }
-  
-  /// @brief See smoc_root_chan
-  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const
-    { assert(0); }
-
 #ifndef __SCFE__
   SystemCoDesigner::SGX::Fifo::Ptr fifo;
   void finalise();

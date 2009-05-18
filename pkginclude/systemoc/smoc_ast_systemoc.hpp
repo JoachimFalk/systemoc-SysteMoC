@@ -51,10 +51,6 @@
 
 #include <systemc.h>
 
-namespace smoc_modes {
-  class PGWriter;
-}
-
 template <class IFACE> class smoc_port_base;
 
 namespace SysteMoC { namespace ActivationPattern {

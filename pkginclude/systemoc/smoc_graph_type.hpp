@@ -188,7 +188,7 @@ public:
 protected:
   //typedef smoc_module_name sc_module_name;
 
-  smoc_graph_base(const sc_module_name& name, smoc_firing_state& init, bool regObj);
+  smoc_graph_base(const sc_module_name& name, smoc_firing_state& init/*, bool regObj*/);
 
   void finalise();
   void reset();
@@ -201,9 +201,6 @@ private:
   smoc_chan_list channels;
 
 #ifndef __SCFE__
-  void pgAssemble(smoc_modes::PGWriter &pgw, const smoc_root_node *n) const;
-  void assembleActor(smoc_modes::PGWriter &pgw) const;
-
   SystemCoDesigner::SGX::ProblemGraph::Ptr pg;
   void assembleXML();
 #endif

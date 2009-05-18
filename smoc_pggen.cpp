@@ -39,15 +39,24 @@
 
 #include <systemoc/smoc_pggen.hpp>
 
+#ifdef SYSTEMOC_ENABLE_SGX
+# include <sgx.hpp>
+#endif // SYSTEMOC_ENABLE_SGX
+
+#ifdef SYSTEMOC_ENABLE_SGX
+SystemCoDesigner::SGX::NetworkGraphAccess ngx;
+#endif // SYSTEMOC_ENABLE_SGX
+
 namespace smoc_modes {
   
-  bool dumpSMXWithSim = false;
-  std::ostream* dumpFileSMX = NULL;
-  bool dumpFSMs = false;
+  bool          dumpSMXWithSim = false;
+  std::ostream *dumpFileSMX    = NULL;
+  bool          dumpFSMs       = false;
 
-  void dump(std::ostream& out, smoc_root_node&) {
+/*void dump(std::ostream& out, smoc_root_node&) {
     dumpFileSMX = &out;
     sc_core::sc_start();
     // seems not to work with FIFOs.
   }
+ */
 };

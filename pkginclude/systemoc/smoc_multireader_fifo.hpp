@@ -117,12 +117,6 @@ protected:
   /// @brief Constructor
   smoc_multireader_fifo_chan_base(const chan_init &i);
 
-  /// @brief See smoc_root_chan
-  void assemble(smoc_modes::PGWriter &pgw) const;
-
-  /// @brief See smoc_root_chan
-  void channelAttributes(smoc_modes::PGWriter &pgw) const;
-
   /// @brief SystemC callback
   void start_of_simulation();
 

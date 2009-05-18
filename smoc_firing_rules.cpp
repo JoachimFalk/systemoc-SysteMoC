@@ -49,14 +49,14 @@
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
+#include <systemoc/detail/smoc_ngx_sync.hpp>
 
 #include <sgx.hpp>
 
 using namespace CoSupport::DataTypes;
-using namespace SysteMoC::NGXSync;
+using namespace SysteMoC::Detail;
 using namespace SystemCoDesigner::SGX;
 
 #include <CoSupport/Streams/FilterOStream.hpp>
@@ -247,20 +247,27 @@ void RuntimeTransition::execute(int mode) {
 
   // only smoc_func_diverge may set nextState to something
   // different than dest here...
-  RuntimeState* nextState =
+  RuntimeState *nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), f);
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   Expr::evalTo<Expr::CommReset>(guard);
 #endif
-
+  
+  if (execMode == MODE_DIISTART) {
+    std::cerr << "<transition "
+      "actor=\"" << actor->name() << "\" "
+      "from=\"" << actor->getCurrentState()->name() << "\" "
+      "to=\"" << nextState->name() << "\"/>" << std::endl;
+  }
+  
 #ifdef SYSTEMOC_ENABLE_VPC
-  if(execMode == MODE_DIISTART /*&& (mode&GO)*/) {
+  if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
     actor->diiEvent->reset();
     smoc_ref_event_p latEvent(new smoc_ref_event());
     
     SystemC_VPC::EventPair p(actor->diiEvent.get(), latEvent.get());
-
+    
     // new FastLink interface
     if(mode & GO) {
       vpcLink->compute(p);
@@ -270,14 +277,14 @@ void RuntimeTransition::execute(int mode) {
       assert(fp);
       fp->tickLink->compute(p);
     }
-
+    
     // save nextState to later execute communication
     actor->setNextState(nextState);
-
+    
     // insert magic commstate
     nextState = actor->getCommState();
     Expr::evalTo<Expr::CommExec>(guard, actor->diiEvent, latEvent);
-
+    
     // This covers the case that the executed transition does not
     // contain an output port. Therefore, the latEvent is not added
     // to a LatencyQueue and would be deleted immediately after
@@ -368,19 +375,20 @@ const smoc_action& RuntimeTransition::getAction() const
 
 //static int RuntimeStateCount = 0;
 
-RuntimeState::RuntimeState()
-  : sc_object(sc_gen_unique_name("smoc_firing_state"))
+RuntimeState::RuntimeState(const std::string name)
+  : _name(name) {
+//: sc_object(sc_gen_unique_name("smoc_firing_state"))
   //: sc_object(CoSupport::String::Concat
   //    ("smoc_firing_state_")(RuntimeStateCount++).get().c_str())
-{
-  idPool.regObj(this);
+//idPool.regObj(this);
 #ifndef __SCFE__
   assembleXML();
 #endif
 }
 
-RuntimeState::~RuntimeState()
-  { idPool.unregObj(this); }
+RuntimeState::~RuntimeState() {
+//idPool.unregObj(this);
+}
 
 #ifndef __SCFE__
 void RuntimeState::assembleXML() {
@@ -572,7 +580,7 @@ void FiringFSMImpl::finalise(
     ProdState psinit;
     top->getInitialState(psinit, Marking());
 
-    init = *rts.insert(new RuntimeState()).first;
+    init = *rts.insert(new RuntimeState(asStr(psinit))).first;
     ns.push_back(
         st.insert(STEntry(psinit, init)).first);
 
@@ -632,7 +640,7 @@ void FiringFSMImpl::finalise(
           if(ins.second) {
             // FIXME: construct state name and pass to RuntimeState
             ins.first->second =
-              *rts.insert(new RuntimeState()).first;  
+              *rts.insert(new RuntimeState(asStr(ins.first->first))).first;  
             ns.push_back(ins.first);
           }
 

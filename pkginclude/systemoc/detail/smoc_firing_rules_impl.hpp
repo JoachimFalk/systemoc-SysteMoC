@@ -42,6 +42,8 @@
 #include "../smoc_func_call.hpp"
 #include "../smoc_firing_rules.hpp"
 
+#include "NamedIdedObj.hpp"
+
 #include <list>
 #include <set>
 #include <vector>
@@ -224,19 +226,21 @@ public:
 
 typedef std::list<RuntimeTransition> RuntimeTransitionList;
 
-class RuntimeState : public sc_object {
+class RuntimeState
+: public SysteMoC::Detail::NamedIdedObj {
+  typedef RuntimeState                    this_type;
+  typedef SysteMoC::Detail::NamedIdedObj  base_type;
 private:
+  std::string           _name;
   RuntimeTransitionList t;
-  
+
 #ifndef __SCFE__
   SystemCoDesigner::SGX::FiringState::Ptr state;
   void assembleXML();
 #endif
 
 public:
-  RuntimeState();
-
-  ~RuntimeState();
+  RuntimeState(const std::string name);
 
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();
@@ -244,6 +248,11 @@ public:
 #ifndef __SCFE__
   SystemCoDesigner::SGX::FiringState::Ptr getState() const;
 #endif
+
+  std::string name() const
+    { return _name; }
+
+  ~RuntimeState();
 };
 
 typedef std::set<RuntimeState*> RuntimeStateSet;

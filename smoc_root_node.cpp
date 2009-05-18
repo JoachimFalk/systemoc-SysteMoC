@@ -38,15 +38,15 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
+#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_root_node.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/smoc_pggen.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
-using namespace SysteMoC::NGXSync;
+using namespace SysteMoC::Detail;
 
-smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s, bool regObj)
+smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s/*, bool regObj*/)
   : sc_module(name),
 #if defined(SYSTEMOC_ENABLE_DEBUG)
 //  _finalizeCalled(false),
@@ -81,7 +81,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s, 
     local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
     smoc_root_node::global_arg_stack.pop();
   }*/
-  if(regObj) idPool.regObj(this);
+//if(regObj) idPool.regObj(this);
 }
  
 smoc_root_node *smoc_root_node::current_actor = NULL;
@@ -98,8 +98,6 @@ void smoc_root_node::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_node::finalise() begin, name == " << this->name() << std::endl;
 #endif
-  // Preallocate ID
-  //smoc_modes::PGWriter::getId(this);
  
   getFiringFSM()->finalise(this, initialState.getImpl());
   currentState = getFiringFSM()->getInitialState();
@@ -162,6 +160,7 @@ smoc_sysc_port_list smoc_root_node::getPorts() const {
   return ret;
 }
 
+/*
 RuntimeStateList smoc_root_node::getStates() const { 
   RuntimeStateList ret;
 
@@ -179,321 +178,13 @@ RuntimeStateList smoc_root_node::getStates() const {
   }
   return ret;
 }
+*/
 
 void smoc_root_node::addPort(SystemCoDesigner::SGX::Port& p) {
   assert(proc);
   proc->ports().push_back(p);
 }
 
-void smoc_root_node::pgAssemble( smoc_modes::PGWriter &pgw, const smoc_root_node *n ) const
-  {}
-
-void smoc_root_node::assemble( smoc_modes::PGWriter &pgw ) const {
-  const smoc_sysc_port_list ps = getPorts();
-  
-  if ( !ps.empty() ) {
-    pgw << "<process name=\"" << name() << "\" "
-                    "type=\"actor\" "
-                    "id=\"" << idPool.printId(this) << "\">" << std::endl;
-    {
-      pgw.indentUp();
-      //**********************************PORTS************************************
-      for ( smoc_sysc_port_list::const_iterator iter = ps.begin();
-            iter != ps.end();
-            ++iter )
-        pgw << "<port name=\"" << (*iter)->name() << "\" "
-                     "type=\"" << ((*iter)->isInput() ? "in" : "out") << "\" "
-                     "id=\"" << idPool.printId(*iter) << "\"/>" << std::endl;
-      //**************************FSM-STATES  && ACTOR-TAG*************************
-      assembleActor(pgw);
-      //***************************CONTAINED PROBLEMGRAPH**************************
-      pgAssemble(pgw, this);
-      pgw.indentDown();
-    }
-    pgw << "</process>" << std::endl;
-  } else {
-    pgAssemble(pgw, this);
-  }
-}
-
-/*FIXME: function constructs dump of different tag-levels. necessary, because
-  smoc_graph (inherits from smoc_root_node) must not construct this output.
-  So it reimplements this virtual function.*/
-void smoc_root_node::assembleActor(smoc_modes::PGWriter &pgw ) const {
-
-  //*********************************FSM-STATES********************************
-  // FIXME: this assumes that SystemC will iterate objects sorted by construction
-  // order (but seems to be sorted by name, wich is also correct _UNLESS_ user
-  // specifies own name for a firing state!!!)
-  const RuntimeStateList& states = getStates();
-  
-  for(RuntimeStateList::const_iterator iter = states.begin();
-      iter != states.end();
-      ++iter)
-  {
-#ifdef SYSTEMOC_ENABLE_VPC
-    // do not dump comm state
-    if(*iter == getCommState())
-      continue;
-#endif
-    pgw << "<stateDeclaration state=\"" << idPool.printId(*iter)
-        << "\" name=\"" << (*iter)->name()
-        << "\"/>" << std::endl;
-  }
-  
-  //*******************************ACTOR CLASS*********************************
-  pgw << "<actor actorClass=\"" << typeid(*this).name() << "\">" << std::endl;
-  pgw.indentUp();
-    //***************************CONSTRUCTORPARAMETERS***************************
-    for (unsigned int i = 0; i < local_constr_args.size(); i++) {
-      std::pair<std::string, std::string> parameterpair = local_constr_args[i];
-      pgw << "<constructorParameter type=\"" << parameterpair.first
-          << "\" value=\"" << parameterpair.second << "\"/>"
-          << std::endl;
-    }
-    //************************************FSM************************************
-    assembleFSM(pgw);
-  pgw.indentDown();
-  pgw << "</actor>" << std::endl;
-}
-
-namespace {
-  using namespace SysteMoC::ActivationPattern;
-
-  class ASTXMLDumperVisitor {
-  public:
-    typedef void result_type;
-  private:
-    smoc_modes::PGWriter &pgw;
-  protected:
-    void openNodeTag(const ASTNode &astNode) {
-      pgw << "<" << astNode.getNodeType() 
-                 << " valueType=\"" << astNode.getValueType() << "\"";
-    }
-    void closeNodeTag(const ASTNode &astNode) {
-      pgw << "</" << astNode.getNodeType() << ">" << std::endl;
-    }
-    void dumpASTUnNode(const ASTInternalUnNode &astNode) {
-      pgw.indentUp();
-      pgw << "<ChildNode>" << std::endl;
-      {
-        pgw.indentUp();
-        apply_visitor(*this, astNode.getChildNode());
-        pgw.indentDown();
-      }
-      pgw << "</ChildNode>" << std::endl;
-      pgw.indentDown();
-    }
-    void dumpASTBinNode(const ASTInternalBinNode &astNode) {
-      pgw.indentUp();
-      pgw << "<lhs>" << std::endl;
-      {
-        pgw.indentUp();
-        apply_visitor(*this, astNode.getLeftNode());
-        pgw.indentDown();
-      }
-      pgw << "</lhs>" << std::endl;
-      pgw << "<rhs>" << std::endl;
-      {
-        pgw.indentUp();
-        apply_visitor(*this, astNode.getRightNode());
-        pgw.indentDown();
-      }
-      pgw << "</rhs>" << std::endl;
-      pgw.indentDown();
-    }
-  public:
-    ASTXMLDumperVisitor(smoc_modes::PGWriter &pgw)
-      : pgw(pgw) {}
-
-    result_type operator ()(ASTNodeVar &astNode) {
-      openNodeTag(astNode);
-      pgw << " name=\"" << astNode.getName() << "\">";
-//    pgw << " addr=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddr()) << "\">";
-      closeNodeTag(astNode);
-    }
-    result_type operator ()(ASTNodeLiteral &astNode) {
-      openNodeTag(astNode);
-      pgw << " value=\"" << astNode.getValue() << "\">";
-      closeNodeTag(astNode);
-    }
-    result_type operator ()(ASTNodeProc &astNode) {
-      assert(!"Unimplemented");
-    }
-    result_type operator ()(ASTNodeMemProc &astNode) {
-      assert(!"Unimplemented");
-    }
-    result_type operator ()(ASTNodeMemGuard &astNode) {
-      openNodeTag(astNode);
-      pgw << " name=\"" << astNode.getName() << "\">" << std::endl;
-      pgw.indentUp();
-      for(ParamInfoList::const_iterator i = astNode.getParams().begin();
-          i != astNode.getParams().end(); ++i)
-      {
-        pgw << "<parameter name=\"" << i->name << "\""
-            <<           " valueType=\"" << i->type << "\""
-            <<           " value=\""
-            << CoSupport::Streams::TranslationMap::XMLAttr()
-            << i->value
-            << CoSupport::Streams::TranslationMap::None()
-            << "\"/>" << std::endl;
-      }
-      pgw.indentDown();
-//    pgw << " addrObj=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrObj()) << std::dec << "\"";
-//    pgw << " addrFun=\"0x" << std::hex << reinterpret_cast<unsigned long>(astNode.getAddrFun()) << std::dec << "\">";
-      closeNodeTag(astNode);
-    }
-    result_type operator ()(ASTNodeToken &astNode) {
-      assert(astNode.getPortId().getPortPtr() != NULL);
-      const smoc_sysc_port *port = dynamic_cast<const smoc_sysc_port *>(astNode.getPortId().getPortPtr());
-      assert(port != NULL);
-      openNodeTag(astNode);
-      pgw << " portid=\"" << idPool.printId(port) << "\"";
-      pgw << " pos=\"" << astNode.getPos() << "\">";
-      closeNodeTag(astNode);
-    }
-    result_type operator ()(ASTNodePortTokens &astNode) {
-      assert(astNode.getPortId().getPortPtr() != NULL);
-      const smoc_sysc_port *port = dynamic_cast<const smoc_sysc_port *>(astNode.getPortId().getPortPtr());
-      assert(port != NULL);
-      openNodeTag(astNode);
-      pgw << " portid=\"" << idPool.printId(port) << "\">";
-      closeNodeTag(astNode);
-    }
-    result_type operator ()(ASTNodeSMOCEvent &astNode) {
-      openNodeTag(astNode);
-      //assert(!"Unimplemented");
-      pgw << ">";
-      closeNodeTag(astNode);
-    }
-    result_type operator ()(ASTNodePortIteration &astNode) {
-      //assert(!"Unimplemented");
-    }
-    result_type operator ()(ASTNodeBinOp &astNode) {
-      openNodeTag(astNode);
-      pgw << " opType=\"" << astNode.getOpType() << "\">" << std::endl;
-      dumpASTBinNode(astNode);
-      closeNodeTag(astNode);
-    }
-    result_type operator ()(ASTNodeUnOp &astNode) {
-      openNodeTag(astNode);
-      pgw << " opType=\"" << astNode.getOpType() << "\">" << std::endl;
-      dumpASTUnNode(astNode);
-      closeNodeTag(astNode);
-    }
-    result_type operator ()(ASTNodeComm &astNode) {
-      assert(astNode.getPortId().getPortPtr() != NULL);
-      const smoc_sysc_port *port = dynamic_cast<const smoc_sysc_port *>(astNode.getPortId().getPortPtr());
-      assert(port != NULL);
-      openNodeTag(astNode);
-      pgw << " portid=\"" << idPool.printId(port) << "\">" << std::endl;
-      dumpASTUnNode(astNode);
-      closeNodeTag(astNode);
-    }
-  };
-}
-
-void smoc_root_node::assembleFSM( smoc_modes::PGWriter &pgw ) const {
-  
-  const RuntimeStateSet& states = getFiringFSM()->getStates();
-  
-  pgw << "<fsm startstate=\"" << idPool.printId(getFiringFSM()->getInitialState())
-      << "\">" << std::endl;
-  pgw.indentUp();
-  {
-    //******************************FSMSTATES************************************ 
-    for(RuntimeStateSet::const_iterator sIter = states.begin(); 
-        sIter != states.end(); 
-        ++sIter)
-    {
-      pgw << "<state id=\"" << idPool.printId(*sIter)
-          << "\" name=\"" << (*sIter)->name()
-          << "\">" << std::endl;
-      pgw.indentUp();
-      {
-        //**************TRANTIONS********************
-        const RuntimeTransitionList& tl = (*sIter)->getTransitions();
-    
-        for(RuntimeTransitionList::const_iterator tIter = tl.begin();
-            tIter != tl.end();
-            ++tIter)
-        {
-          const RuntimeState* dest = tIter->getDestState();
-          
-          pgw << "<transition nextstate=\"" << idPool.printId(dest) << "\">" << std::endl;
-          pgw.indentUp();
-          {
-            //**************ACTION********************
-            const smoc_func_call_list* fcl;
-              
-            if((fcl = boost::get<smoc_func_call_list>(&tIter->getAction())) &&
-                  !fcl->empty()) {
-               
-              bool single = (fcl->end() == ++fcl->begin());
-              if(!single) {
-                pgw << "<action>" << std::endl;
-                pgw.indentUp();
-                pgw << "<compoundAction>" << std::endl;
-                pgw.indentUp();
-              }
-
-              for(smoc_func_call_list::const_iterator fc = fcl->begin();
-                  fc != fcl->end(); ++fc)
-              {
-                pgw << "<action>" << std::endl;
-                pgw.indentUp();
-                pgw << "<function name=\"" << fc->getFuncName() << "\">" << std::endl;
-                pgw.indentUp();
-                {
-                  //**************PARAMETER********************
-                  for(ParamInfoList::const_iterator iter = fc->getParams().begin();
-                      iter != fc->getParams().end(); ++iter)
-                  {
-                    pgw << "<parameter name=\"" << iter->name << "\""
-                        <<           " valueType=\"" << iter->type << "\""
-                        <<           " value=\""
-                        << CoSupport::Streams::TranslationMap::XMLAttr()
-                        << iter->value
-                        << CoSupport::Streams::TranslationMap::None()
-                        << "\"/>" << std::endl;
-                  }
-                  //**************/PARAMETER********************
-                }
-                pgw.indentDown();
-                pgw << "</function>" << std::endl;
-                pgw.indentDown();
-                pgw << "</action>" << std::endl;
-              }
-
-              if(!single) {
-                pgw.indentDown();
-                pgw << "</compoundAction>" << std::endl;
-                pgw.indentDown();
-                pgw << "</action>" << std::endl;
-              }
-            }
-            else {
-              pgw << "<action />" << std::endl;
-            }
-            //**************/ACTION********************
-          }
-          ASTXMLDumperVisitor astDumper(pgw);
-          apply_visitor(astDumper, Expr::evalTo<Expr::AST>(tIter->getExpr()));
-
-          pgw.indentDown();
-          pgw << "</transition>" << std::endl;
-        }
-        //***************/TRANTIONS*****************
-      }
-      pgw.indentDown();
-      pgw << "</state>" << std::endl;
-    }
-    //*********************************/FSMSTATES*************************************
-  }
-  pgw.indentDown();
-  pgw << "</fsm>" << std::endl;
-}
- 
 std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
   o << "actor: " << this->name() << std::endl;
   smoc_sysc_port_list ps = getPorts();
@@ -549,7 +240,7 @@ void smoc_root_node::delCurOutTransitions(smoc_transition_ready_list& ol) const 
 }
 
 smoc_root_node::~smoc_root_node() {
-  idPool.unregObj(this);
+//idPool.unregObj(this);
 #ifdef SYSTEMOC_ENABLE_VPC
   delete commstate;
 #endif // SYSTEMOC_ENABLE_VPC

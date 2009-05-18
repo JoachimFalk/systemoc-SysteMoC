@@ -37,23 +37,23 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_graph_synth.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
+#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 
 #include <CoSupport/String/Concat.hpp>
 
 using namespace SystemCoDesigner::SGX;
-using namespace SysteMoC::NGXSync;
+using namespace SysteMoC::Detail;
 using CoSupport::String::Concat;
 
 smoc_graph_base::smoc_graph_base(
-    const sc_module_name& name, smoc_firing_state& init, bool regObj) :
-  smoc_root_node(name, init, regObj)
+    const sc_module_name& name, smoc_firing_state& init/*, bool regObj*/) :
+  smoc_root_node(name, init/*, regObj*/)
 {
-  // FIXME (multiple ids for the same object!!)
-  if(regObj) idPool.regObj(this, 1);
+//// FIXME (multiple ids for the same object!!)
+//if(regObj) idPool.regObj(this, 1);
 }
   
 #ifndef __SCFE__
@@ -125,7 +125,7 @@ void smoc_graph_base::finalise() {
   assembleXML();
 #endif
 
-  NgId idGraph = idPool.getId(this, 1);
+//NgId idGraph = idPool.getId(this, 1);
 
   // FIXME: Sync. WILL have to be different than now
 
@@ -138,7 +138,7 @@ void smoc_graph_base::finalise() {
     smoc_root_node* node = dynamic_cast<smoc_root_node*>(*iter);
     if(!node) continue;
     
-    // determine if node is in XML; otherwise it will be "hidden"
+/*  // determine if node is in XML; otherwise it will be "hidden"
     if(NGXConfig::getInstance().hasNGX()) {  
       
       Process::ConstPtr proc =
@@ -146,7 +146,7 @@ void smoc_graph_base::finalise() {
 
       if(!proc || proc->owner()->id() != idGraph)
         continue;
-    }
+    }*/
 
     nodes.push_back(node);
   }
@@ -162,7 +162,7 @@ void smoc_graph_base::finalise() {
     channels.push_back(channel);
   }
 
-  // SGX --> SystemC
+/*// SGX --> SystemC
   if(NGXConfig::getInstance().hasNGX()) {
   
     ProblemGraph::ConstPtr pg =
@@ -230,7 +230,7 @@ void smoc_graph_base::finalise() {
         }
       }
     }
-  }
+  } */
 
   // finalise for actors must precede finalise for channels,
   // because finalise for channels needs the patched in actor
@@ -312,57 +312,16 @@ void smoc_graph_base::assembleXML() {
   }
 }
 
-void smoc_graph_base::pgAssemble(
-    smoc_modes::PGWriter &pgw,
-    const smoc_root_node *n) const
-{
-  // FIXME: multiple ids for the same object (-> process!)
-  pgw << "<problemgraph name=\"" << name() << "_pg\" id=\""
-      << idPool.printId(this, 1) << "\">" << std::endl;
-  {
-    pgw.indentUp();
-    for ( smoc_node_list::const_iterator iter = nodes.begin();
-          iter != nodes.end();
-          ++iter )
-      (*iter)->assemble(pgw);
-    for ( smoc_chan_list::const_iterator iter = channels.begin();
-          iter != channels.end();
-          ++iter )
-      (*iter)->assemble(pgw);
-    for ( smoc_node_list::const_iterator iter = nodes.begin();
-          iter != nodes.end();
-          ++iter ) {
-      const smoc_sysc_port_list& nsps = (*iter)->getPorts();
-      
-      for ( smoc_sysc_port_list::const_iterator ps_iter = nsps.begin();
-            ps_iter != nsps.end();
-            ++ps_iter ) {
-        if ( (*ps_iter)->getParentPort() != NULL ) {
-          pgw << "<portmapping "
-              << "from=\"" << idPool.printId(*ps_iter) << "\" "
-              << "to=\"" << idPool.printId((*ps_iter)->getParentPort()) << "\" "
-              << "id=\"" << idPool.printId() << "\"/>" << std::endl;
-        }
-      }
-    }
-    pgw.indentDown();
-  }
-  pgw << "</problemgraph>" << std::endl;
-}
-
-void smoc_graph_base::assembleActor(smoc_modes::PGWriter &pgw) const
-{}
-
 #endif // __SCFE__
 
 smoc_graph::smoc_graph(const sc_module_name& name) :
-  smoc_graph_base(name, init, true)
+  smoc_graph_base(name, init/*, true*/)
 {
   this->constructor();
 }
 
 smoc_graph::smoc_graph() :
-  smoc_graph_base(sc_gen_unique_name("smoc_graph"), init, true)
+  smoc_graph_base(sc_gen_unique_name("smoc_graph"), init/*, true*/)
 {
   this->constructor();
 }
@@ -433,13 +392,13 @@ void smoc_graph::schedule() {
 }
 
 smoc_graph_sr::smoc_graph_sr(const sc_module_name& name) :
-  smoc_graph_base(name, init, true)
+  smoc_graph_base(name, init/*, true*/)
 {
   this->constructor();
 }
 
 smoc_graph_sr::smoc_graph_sr() :
-  smoc_graph_base(sc_gen_unique_name("smoc_graph_sr"), init, true)
+  smoc_graph_base(sc_gen_unique_name("smoc_graph_sr"), init/*, true*/)
 {
   this->constructor();
 }

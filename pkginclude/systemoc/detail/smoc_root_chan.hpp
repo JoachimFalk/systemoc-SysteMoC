@@ -91,10 +91,6 @@ protected:
   virtual void finalise();
   virtual void reset() {}
 
-  virtual void assemble(smoc_modes::PGWriter &pgw)          const = 0;
-  virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
-  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
-
 #ifndef __SCFE__
   SystemCoDesigner::SGX::Process::Ptr proc;
   void assembleXML();
@@ -118,10 +114,8 @@ protected:
 
   virtual void finalise();
 
-  void assemble(smoc_modes::PGWriter &pgw) const;
-
-  /// This function returns a string indentifying the channel type
-  virtual const char* getChannelTypeString() const;
+///// This function returns a string indentifying the channel type
+//virtual const char* getChannelTypeString() const;
 };
 
 class smoc_multicast_chan : public smoc_root_chan {
@@ -133,8 +127,6 @@ protected:
     : smoc_root_chan(name) {}
 
   virtual void finalise();
-
-  void assemble(smoc_modes::PGWriter &pgw) const;
 };
 
 #endif // _INCLUDED_SMOC_ROOT_CHAN_HPP

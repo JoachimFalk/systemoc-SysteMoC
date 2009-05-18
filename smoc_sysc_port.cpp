@@ -36,13 +36,13 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
+#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_root_node.hpp>
 
 #include <sgx.hpp>
 
 using namespace CoSupport;
-using namespace SysteMoC::NGXSync;
+using namespace SysteMoC::Detail;
 
 smoc_sysc_port::smoc_sysc_port(const char* name_)
   : sc_port_base(name_, 1),
@@ -50,12 +50,12 @@ smoc_sysc_port::smoc_sysc_port(const char* name_)
     portAccess(NULL),
     parent(NULL), child(NULL)
 {
-  idPool.regObj(this);
-  idPool.regObj(this, 1);
+//idPool.regObj(this);
+//idPool.regObj(this, 1);
 }
 
 smoc_sysc_port::~smoc_sysc_port() {
-  idPool.unregObj(this);
+//idPool.unregObj(this);
 }
   
 void smoc_sysc_port::bind(sc_interface &interface_ ) {

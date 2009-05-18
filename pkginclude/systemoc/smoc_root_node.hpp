@@ -54,6 +54,7 @@
 #include "smoc_firing_rules.hpp"
 #include "detail/smoc_firing_rules_impl.hpp"
 #include "detail/smoc_sysc_port.hpp"
+#include "detail/NamedIdedObj.hpp"
 #ifndef __SCFE__
 # include "smoc_pggen.hpp"
 #endif
@@ -71,18 +72,19 @@ namespace SysteMoC {
 // smoc_root_node is the base class of all systemoc nodes be it
 // actors or graphs!
 class smoc_root_node
-: public sc_module {
+: public sc_module,
+  public SysteMoC::Detail::NamedIdedObj {
 public:
   friend class RuntimeTransition;
 private:
   /// @brief Initial firing state
-  smoc_hierarchical_state& initialState;
+  smoc_hierarchical_state &initialState;
 
   /// @brief Current firing state
   RuntimeState *currentState;
 
   /// @brief For non strict scheduling
-  RuntimeState* lastState;
+  RuntimeState *lastState;
 
   /// @brief For non strict scheduling
   bool _non_strict;
@@ -101,7 +103,7 @@ private:
   /// @brief VPC latency event
   //smoc_ref_event *vpc_event_lat;
 
-  RuntimeState* _communicate();
+  RuntimeState *_communicate();
 
 #endif // SYSTEMOC_ENABLE_VPC
 
@@ -112,7 +114,7 @@ private:
 
 protected:
   //smoc_root_node(const smoc_firing_state &s);
-  smoc_root_node(sc_module_name, smoc_hierarchical_state &s, bool regObj = true);
+  smoc_root_node(sc_module_name, smoc_hierarchical_state &s/*, bool regObj = true*/);
   
   friend void Expr::Detail::registerParam(const ArgInfo &argInfo);
   friend void Expr::Detail::registerParamOnCurrentActor(const ArgInfo &argInfo);
@@ -143,20 +145,23 @@ protected:
 #endif
 
 public:
-  FiringFSMImpl* getFiringFSM() const
+  std::string name() const
+    { return this->sc_module::name(); }
+
+  FiringFSMImpl *getFiringFSM() const
     { return initialState.getImpl()->getFiringFSM(); }
 
-  RuntimeState* getCurrentState() const
+  RuntimeState *getCurrentState() const
     { return currentState; }
 
-  void setCurrentState(RuntimeState* s)
+  void setCurrentState(RuntimeState *s)
     { currentState = s; }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  RuntimeState* getCommState() const
+  RuntimeState *getCommState() const
     { return commstate; }
 
-  RuntimeState* getNextState() const
+  RuntimeState *getNextState() const
     { return nextState; }
  
   void setNextState(RuntimeState* s)
@@ -169,30 +174,25 @@ public:
     { lastTransition = t; }
 #endif // SYSTEMOC_ENABLE_VPC
   
-  RuntimeState* getLastState() const
+  RuntimeState *getLastState() const
     { return lastState; }
 
   void setLastState(RuntimeState* s)
     { lastState = s; }
 
 #ifndef __SCFE__
-  virtual void pgAssemble( smoc_modes::PGWriter &, const smoc_root_node * ) const;
-  virtual void assembleActor( smoc_modes::PGWriter &pgw ) const;
-  void assemble( smoc_modes::PGWriter &pgw ) const;
-  void assembleFSM( smoc_modes::PGWriter &pgw ) const;
-
-  void addPort(SystemCoDesigner::SGX::Port& p);
+  void addPort(SystemCoDesigner::SGX::Port &p);
 #endif
 
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;
 
-  /// @brief Collect firing states from child object
-  /// (Sorted by construction order; better use
-  /// getFiringFSM()->getStates() if order does not matter!)
-  RuntimeStateList getStates() const;
+///// @brief Collect firing states from child object
+///// (Sorted by construction order; better use
+///// getFiringFSM()->getStates() if order does not matter!)
+//RuntimeStateList getStates() const;
 
-  std::ostream &dumpActor( std::ostream &o );
+  std::ostream &dumpActor(std::ostream &o);
     
   //true if actual state is a communication state
   bool inCommState() const;
@@ -204,8 +204,8 @@ public:
   typedef CoSupport::SystemC::EventOrList<RuntimeTransition>
           smoc_transition_ready_list;
 
-  void addCurOutTransitions(smoc_transition_ready_list& ol) const;
-  void delCurOutTransitions(smoc_transition_ready_list& ol) const;
+  void addCurOutTransitions(smoc_transition_ready_list &ol) const;
+  void delCurOutTransitions(smoc_transition_ready_list &ol) const;
 
   virtual ~smoc_root_node();
 };

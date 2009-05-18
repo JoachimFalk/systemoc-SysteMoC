@@ -62,15 +62,45 @@ AC_EXEEXT
 ACJF_CHECK_LIB_SYSTEMC
 ACJF_CHECK_LIB_TLM1
 ACJF_CHECK_LIB_BOOST
-ACJF_CHECK_LIB_XERCES
 ACJF_CHECK_LIB_SGX
 ACJF_CHECK_LIB_COSUPPORT
+
+### SGX ###
+# --enable-sgx option
+AC_ARG_ENABLE(
+ [sgx],
+ [[  --enable-sgx            Turn on LibSGX support [default=auto]]],
+ [case "${enableval}" in
+    yes)  enable_sgx=yes  ;;
+    no)   enable_sgx=no   ;;
+    auto) enable_sgx=auto ;;
+    *)    AC_MSG_ERROR(bad value ${enableval} for --enable-sgx) ;;
+  esac],
+ [enable_sgx=auto #default]
+)
+
+AM_CONDITIONAL([PKG_LIBSGX_USE_SRCDIR_VERSION], false)
+if test x"$enable_sgx" != x"no"; then
+  ACJF_CHECK_LIB_SGX(
+   [enable_sgx="yes"],
+   [if test x"$enable_sgx" = x"yes"; then
+      AC_MSG_ERROR([cannot find LibSGX package, bailing out])
+    fi
+    enable_sgx="no"])
+fi
+
+AM_CONDITIONAL([SYSTEMOC_ENABLE_SGX], [test x"$enable_sgx" = x"yes"])
+# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# consistency for Examples and Testcases
+if test x"$enable_sgx" = x"yes"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_SGX], [yes], [Defined if SGX support is enabled])
+fi
 
 ### WSDF ###
 # --enable-wsdf option
 AC_ARG_ENABLE(
  [wsdf],
- [[  --enable-wsdf           Turn on SysteMoC WSDF support [default=yes]]],
+ [[  --enable-wsdf           Turn on SysteMoC WSDF support [default=auto]]],
  [case "${enableval}" in
     yes)  enable_wsdf=yes  ;;
     no)   enable_wsdf=no   ;;
@@ -88,6 +118,13 @@ if test x"$enable_wsdf" != x"no"; then
       AC_MSG_ERROR([cannot find LibWSDF package, bailing out])
     fi
     enable_wsdf="no"])
+fi
+
+AM_CONDITIONAL([SYSTEMOC_ENABLE_WSDF], [test x"$enable_wsdf" = x"yes"])
+# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# consistency for Examples and Testcases
+if test x"$enable_wsdf" = x"yes"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_WSDF], [yes], [Defined if WSDF support is enabled])
 fi
 
 ### SystemC-VPC ###
@@ -119,13 +156,6 @@ AM_CONDITIONAL([SYSTEMOC_ENABLE_VPC], [test x"$enable_vpc" = x"yes"])
 # consistency for Examples and Testcases
 if test x"$enable_vpc" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_VPC], [yes], [Defined if SystemC-VPC support is enabled])
-fi
-
-AM_CONDITIONAL([SYSTEMOC_ENABLE_WSDF], [test x"$enable_wsdf" = x"yes"])
-# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
-# consistency for Examples and Testcases
-if test x"$enable_wsdf" = x"yes"; then
-  AC_DEFINE([SYSTEMOC_ENABLE_WSDF], [yes], [Defined if WSDF support is enabled])
 fi
 
 AC_CONFIG_FILES([

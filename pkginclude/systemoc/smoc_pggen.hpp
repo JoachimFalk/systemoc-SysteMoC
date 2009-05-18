@@ -53,36 +53,8 @@ namespace smoc_modes {
   extern std::ostream* dumpFileSMX;
   extern bool dumpFSMs;
 
-  class eNoChannel : public std::exception {};
-  class eNoInterface : public std::exception {};
-  class eNoPort : public std::exception {};
-
-  class PGWriter {
-    friend class Node;
-  protected:
-    CoSupport::Streams::FilterOStream out;
-    CoSupport::Streams::IndentStreambuf indenter;
-    CoSupport::Streams::TranslationStreambuf trans;
-  public:
-    PGWriter(std::ostream &_out)
-      : out(_out)
-      { out.insert(indenter); out.insert(trans); }
-    
-    void indentUp() 
-      { indenter.setDeltaLevel(1); }
-    void indentDown()
-      { indenter.setDeltaLevel(-1); }
-
-    template <typename T>
-    std::ostream &operator << (T t) { return out << t; }
-
-    ~PGWriter() {
-      out.flush();
-    }
-  };
-
-  // compatibility methods
-  void dump(std::ostream& out, smoc_root_node&);
+//// compatibility methods
+//void dump(std::ostream& out, smoc_root_node&);
 };
 
 #endif // _INCLUDED_SMOC_PGGEN_HPP

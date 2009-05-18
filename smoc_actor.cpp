@@ -4,7 +4,7 @@
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
   : smoc_root_node(name, s)
 {}
-  
+
 smoc_actor::smoc_actor(smoc_firing_state &s)
   : smoc_root_node(sc_gen_unique_name("smoc_actor"), s)
 {}
@@ -17,10 +17,6 @@ smoc_actor::~smoc_actor() {
 
 #ifndef __SCFE__
   
-void smoc_actor::assemble( smoc_modes::PGWriter &pgw ) const {
-  return smoc_root_node::assemble(pgw);
-}
-  
 void smoc_actor::finalise() {
   assembleXML();
   smoc_root_node::finalise();
@@ -30,19 +26,19 @@ void smoc_actor::finalise() {
 
 void smoc_actor::assembleXML() {
   using namespace SystemCoDesigner::SGX;
-
+  
   assert(!ac);
   
   Actor _actor(name());
   ac = &_actor;
   proc = ac;
-
+  
   // set some attributes
   ac->cxxClass() = typeid(*this).name();
-
+  
   smoc_graph_base* parent =
     dynamic_cast<smoc_graph_base*>(get_parent_object());
-
+  
   if(parent)
     parent->addProcess(_actor);
   else

@@ -14,6 +14,7 @@
 /*                      smoc_md_buffer_mgmt_base                         */
 /* ********************************************************************* */
 
+#if 0
 void 
 smoc_md_buffer_mgmt_base::channelAttributes(smoc_modes::PGWriter &pgw) const{
   pgw << "<attribute type=\"token_dimensions\" value=\""
@@ -72,6 +73,7 @@ smoc_md_buffer_mgmt_base::channelAttributes(smoc_modes::PGWriter &pgw) const{
         << std::endl;  
   }
 }
+#endif
 
 
 /* ********************************************************************* */
@@ -264,7 +266,7 @@ void smoc_simple_md_buffer_kind::free_buffer() {
 #endif
 }
 
-
+#if 0
 void 
 smoc_simple_md_buffer_kind::channelAttributes(smoc_modes::PGWriter &pgw) const{
   parent_type::channelAttributes(pgw);
@@ -273,7 +275,7 @@ smoc_simple_md_buffer_kind::channelAttributes(smoc_modes::PGWriter &pgw) const{
       << "\"/>"
       << std::endl;
 }
-
+#endif
 
 template<>
 void smoc_simple_md_buffer_kind::initStorageAccess(smoc_md_storage_access_snk<void,void> &storage_access){

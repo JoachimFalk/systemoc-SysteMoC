@@ -36,16 +36,12 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_multireader_fifo.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-//using namespace SystemCoDesigner::SGX;
-using namespace SysteMoC::NGXSync;
-  
 smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init &i)
   : smoc_root_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -89,23 +85,6 @@ void smoc_multireader_fifo_chan_base::assembleXML() {
 }
 #endif
 
-void smoc_multireader_fifo_chan_base::assemble(smoc_modes::PGWriter &pgw) const {
- 
-  // TODO: Implement
-
-  IdAttr idChannel = idPool.printId(this);
-  
-  pgw << "<process name=\"" << name() << "\" "
-                  "type=\"multireader_fifo\" "
-                  "id=\"" << idChannel << "\">" << std::endl;
-
-  pgw << "</process>" << std::endl;
-}
-
-void smoc_multireader_fifo_chan_base::channelAttributes(smoc_modes::PGWriter &pgw) const {
-  pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
-}
-  
 #ifdef SYSTEMOC_ENABLE_VPC
 void smoc_multireader_fifo_chan_base::consume(size_t n, const smoc_ref_event_p &diiEvent)
 #else
