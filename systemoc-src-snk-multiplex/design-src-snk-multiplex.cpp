@@ -49,6 +49,7 @@
 #endif
 
 #include <CoSupport/DataTypes/CheckedVector.hpp>
+#include <CoSupport/Streams/stl_output_for_pair.hpp>
 #include <CoSupport/String/Concat.hpp>
 
 using CoSupport::DataTypes::CheckedVector;
