@@ -39,29 +39,33 @@
 
 #include <list>
 
+#include <boost/noncopyable.hpp>
+
 #include <systemc.h>
-#include <sgx.hpp>
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_root_port.hpp"
+#include <sgx.hpp>
 
 /****************************************************************************/
 
 class smoc_port_access_base_if;
 
-/// Class representing the integration of the SysteMoC smoc_root_port and
-/// the sc_port_base interface.
+/// Class representing the base class of all SysteMoC ports.
 class smoc_sysc_port
-: public smoc_root_port,
-  public sc_port_base {
+: public sc_core::sc_port_base,
+  private boost::noncopyable
+{
+  friend class smoc_root_node;
+
   typedef smoc_sysc_port this_type;
 //FIXME: HACK make protected or private
 public:
   sc_interface             *interfacePtr;
   smoc_port_access_base_if *portAccess;
   //FIXME(MS): allow more than one "IN-Port" per Signal
-  smoc_sysc_port *parent, *child;
+  smoc_sysc_port           *parent;
+  smoc_sysc_port           *child;
 private:
   // SystemC 2.2 requires this method
   // (must also return the correct number!!!)
@@ -79,7 +83,7 @@ protected:
   // bind parent port to this port
   void bind(this_type &parent_);
 
-  void finalise();
+  virtual void finalise();
 
 #ifndef __SCFE__
   friend class smoc_root_chan;
@@ -97,9 +101,13 @@ public:
     { return parent; }
   smoc_sysc_port *getChildPort() const
     { return child; }
+
+  virtual bool isInput()  const = 0;
+  bool         isOutput() const
+    { return !isInput(); }
 };
 
 typedef std::list<smoc_sysc_port *> smoc_sysc_port_list;
-typedef std::list<sc_port_base*> sc_port_list;
+typedef std::list<sc_port_base*>    sc_port_list;
 
 #endif // _INCLUDED_SMOC_SYSC_PORT_HPP

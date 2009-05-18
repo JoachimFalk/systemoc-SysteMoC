@@ -115,13 +115,8 @@ void smoc_root_node::finalise() {
   
   for (smoc_sysc_port_list::iterator iter = ports.begin();
        iter != ports.end();
-       ++iter) {
-    // if calling finalise on *iter, C++ complains (why?? should call
-    // the virtual method where smoc_root_node is friend!)
-    smoc_root_port* p = *iter;
-    assert(p != NULL);
-    p->finalise();
-  }
+       ++iter)
+    (*iter)->finalise();
   
   //check for non strict transitions
   const RuntimeStateSet& states = getFiringFSM()->getStates(); 

@@ -66,7 +66,6 @@ libsystemoc_la_SOURCES =		\
 	smoc_graph_type.cpp		\
 	smoc_actor.cpp			\
 	smoc_root_node.cpp		\
-	smoc_root_port.cpp		\
 	smoc_sysc_port.cpp		\
 	smoc_firing_rules.cpp		\
 	smoc_pggen.cpp			\
