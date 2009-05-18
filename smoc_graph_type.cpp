@@ -127,6 +127,8 @@ void smoc_graph_base::finalise() {
 
   NgId idGraph = idPool.getId(this, 1);
 
+  // FIXME: Sync. WILL have to be different than now
+
   // SystemC --> SGX
   for(std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
       iter != get_child_objects().end();
@@ -234,6 +236,7 @@ void smoc_graph_base::finalise() {
   // because finalise for channels needs the patched in actor
   // references in the ports which are updated by the finalise
   // methods of their respective actors
+  // FIXME: seems no longer to be done this way
   for(smoc_node_list::iterator iter = nodes.begin();
       iter != nodes.end();
       ++iter)

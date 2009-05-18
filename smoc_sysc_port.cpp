@@ -57,6 +57,17 @@ smoc_sysc_port::smoc_sysc_port(const char* name_)
 smoc_sysc_port::~smoc_sysc_port() {
   idPool.unregObj(this);
 }
+  
+void smoc_sysc_port::bind(sc_interface &interface_ ) {
+  sc_port_base::bind(interface_);
+}
+
+void smoc_sysc_port::bind(this_type &parent_) {
+  assert(parent == NULL && parent_.child == NULL);
+  parent        = &parent_;
+  parent->child = this;
+  sc_port_base::bind(parent_);
+}
 
 void smoc_sysc_port::finalise() {
 #ifndef __SCFE__
@@ -76,12 +87,18 @@ void smoc_sysc_port::assembleXML() {
   // set some attributes
   port->direction().set(isInput() ? Port::IN : Port::OUT);
 
-  smoc_root_node* parent =
+  smoc_root_node* pn =
     dynamic_cast<smoc_root_node*>(get_parent_object());
 
-  if(parent)
-    parent->addPort(_p);
+  if(pn)
+    pn->addPort(_p);
   else
-    assert(!"Port has no parent!");
+    assert(!"Port has no parent node!");
+
+  if(child) {
+    // ports are finalised from bottom to top
+    assert(child->port);
+    child->port->outerConnectedPort() = port;
+  }
 }
 #endif

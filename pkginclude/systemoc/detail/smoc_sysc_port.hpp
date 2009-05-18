@@ -75,17 +75,9 @@ protected:
   smoc_sysc_port(const char* name_);
 
   // bind interface to this port
-  void bind(sc_interface &interface_ ) {
-    sc_port_base::bind(interface_);
-  }
-
+  void bind(sc_interface &interface_ );
   // bind parent port to this port
-  void bind(this_type &parent_) {
-    assert(parent == NULL && parent_.child == NULL);
-    parent        = &parent_;
-    parent->child = this;
-    sc_port_base::bind(parent_);
-  }
+  void bind(this_type &parent_);
 
   void finalise();
 
