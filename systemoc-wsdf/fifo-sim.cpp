@@ -12,9 +12,6 @@
 #include <wsdf/smoc_wsdf_edge.hpp>
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
-#ifndef __SCFE__
-# include <systemoc/smoc_pggen.hpp>
-#endif
 
 #ifdef ENABLE_SMOC_MD_BUFFER_ANALYSIS
 # include <systemoc/smoc_md_ba_linearized_buffer_schedule.hpp>

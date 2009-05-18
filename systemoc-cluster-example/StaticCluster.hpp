@@ -12,10 +12,6 @@
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-//# include <smoc_scheduler.hpp>
-# include <systemoc/smoc_pggen.hpp>
-#endif
 #include <systemoc/smoc_graph_type.hpp>
 
 #include "Upsample.hpp"

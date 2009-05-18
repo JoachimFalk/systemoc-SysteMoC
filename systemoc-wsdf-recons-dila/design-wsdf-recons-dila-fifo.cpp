@@ -9,9 +9,6 @@
 #include <systemoc/smoc_fifo.hpp>
 #include <wsdf/smoc_wsdf_edge.hpp>
 #include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-# include <systemoc/smoc_pggen.hpp>
-#endif
 
 #include "wsdf_img_src.hpp"
 #include "wsdf_img_snk.hpp"

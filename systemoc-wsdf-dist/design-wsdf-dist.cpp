@@ -10,9 +10,6 @@
 #include <systemoc/smoc_node_types.hpp>
 
 
-#ifndef __SCFE__
-# include <systemoc/smoc_pggen.hpp>
-#endif
 
 
 #include "wsdf_2D_dup3.hpp"

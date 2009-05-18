@@ -5,9 +5,6 @@
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-# include <systemoc/smoc_pggen.hpp>
-#endif
 
 #include <img_src_1d.hpp>
 #include <img_snk_1d.hpp>

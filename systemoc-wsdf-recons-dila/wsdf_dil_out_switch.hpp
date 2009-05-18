@@ -10,9 +10,6 @@
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_md_port.hpp>
 #include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-# include <systemoc/smoc_pggen.hpp>
-#endif
 
 template <typename T>
 class m_wsdf_dil_out_switch: public smoc_actor {

@@ -8,9 +8,6 @@
 #include <systemoc/smoc_md_fifo.hpp>
 #include <wsdf/smoc_wsdf_edge.hpp>
 #include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-# include <systemoc/smoc_pggen.hpp>
-#endif
 
 #include "wsdf_input_switch.hpp"
 #include "wsdf_seed_switch.hpp"

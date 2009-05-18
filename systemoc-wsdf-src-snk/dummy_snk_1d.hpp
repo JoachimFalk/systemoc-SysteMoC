@@ -10,9 +10,6 @@
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-# include <systemoc/smoc_pggen.hpp>
-#endif
 
 template <typename T = unsigned char>
 class m_dummy_snk_1d: public smoc_actor {

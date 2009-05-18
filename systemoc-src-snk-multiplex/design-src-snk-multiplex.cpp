@@ -43,10 +43,6 @@
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
-#ifndef __SCFE__
-//# include <smoc_scheduler.hpp>
-# include <systemoc/smoc_pggen.hpp>
-#endif
 
 #include <CoSupport/DataTypes/CheckedVector.hpp>
 #include <CoSupport/Streams/stl_output_for_pair.hpp>
