@@ -43,7 +43,6 @@
 
 using namespace CoSupport;
 using namespace SysteMoC::NGXSync;
-using namespace SystemCoDesigner::SGX;
 
 smoc_sysc_port::smoc_sysc_port(const char* name_)
   : sc_port_base(name_, 1),
@@ -53,20 +52,33 @@ smoc_sysc_port::smoc_sysc_port(const char* name_)
 {
   idPool.regObj(this);
   idPool.regObj(this, 1);
-
-#ifndef __SCFE__
-  Port p(this->name());
-
-  smoc_root_node* parent =
-    dynamic_cast<smoc_root_node*>(get_parent_object());
-
-  if(parent)
-    parent->addPort(p);
-  else
-    assert(!"Port has no parent!");
-#endif
 }
 
 smoc_sysc_port::~smoc_sysc_port() {
   idPool.unregObj(this);
 }
+
+void smoc_sysc_port::finalise() {
+#ifndef __SCFE__
+  assembleXML();
+#endif
+}
+
+#ifndef __SCFE__
+void smoc_sysc_port::assembleXML() {
+  using namespace SystemCoDesigner::SGX;
+
+  assert(!port);
+
+  Port _p(name());
+  port = &_p;
+
+  smoc_root_node* parent =
+    dynamic_cast<smoc_root_node*>(get_parent_object());
+
+  if(parent)
+    parent->addPort(_p);
+  else
+    assert(!"Port has no parent!");
+}
+#endif

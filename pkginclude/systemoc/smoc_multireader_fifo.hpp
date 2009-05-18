@@ -49,6 +49,8 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <sgx.hpp>
+
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
@@ -150,6 +152,11 @@ protected:
   /// @brief Available free space
   size_t numFree() const;
 
+#ifndef __SCFE__
+  SystemCoDesigner::SGX::Fifo::Ptr fifo;
+  void finalise();
+#endif
+
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue  latencyQueue;
@@ -182,6 +189,10 @@ private:
   
   /// @brief Called by entries when less space is available
   void lessSpace(size_t n);
+
+#ifndef __SCFE__
+  void assembleXML();
+#endif
 };
 
 template<class> class smoc_multireader_fifo_chan;

@@ -82,6 +82,8 @@ protected:
   // constructor
   smoc_root_chan(const std::string& name);
 
+  void generateName();
+
   virtual void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
                              std::string name ) {};
@@ -92,6 +94,10 @@ protected:
   virtual void assemble(smoc_modes::PGWriter &pgw)          const = 0;
   virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
   virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
+
+#ifndef __SCFE__
+  SystemCoDesigner::SGX::Process::Ptr proc;
+#endif
   
 public:
   const char *name() const { return myName.c_str(); }

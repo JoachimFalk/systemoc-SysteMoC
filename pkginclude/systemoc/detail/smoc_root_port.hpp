@@ -70,7 +70,7 @@ public:
   virtual ~smoc_root_port();
 protected:
   /// Finalise port called by smoc_root_node::finalise
-  virtual void finalise(smoc_root_node *node) = 0;
+  virtual void finalise() = 0;
 };
 
 typedef std::list<smoc_root_port *> smoc_root_port_list;

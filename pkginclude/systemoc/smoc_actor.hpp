@@ -62,9 +62,8 @@ public:
   void finalise();
 
 private:
-  SystemCoDesigner::SGX::Actor ac;
-
-  void init();
+  SystemCoDesigner::SGX::Actor::Ptr ac;
+  void assembleXML();
 #endif
 };
 

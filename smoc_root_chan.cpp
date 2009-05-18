@@ -91,6 +91,32 @@ void smoc_root_chan::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_chan::finalise() begin, name == " << name() << std::endl;
 #endif
+
+  // will do no harm if already generated
+  generateName();
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
+    getFastLink(myName, "1") );
+  assert(vpcLink);
+
+  // FIXME: root channel does not know how many outlets a channel should have
+  // (move this to smoc_nonconflicting_chan?)
+  if(!getOutlets().empty()) {
+
+    //FIXME: QUICKHACK:
+    this->setChannelID(
+        getOutlets().begin()->second->get_parent()->name(),
+        vpcLink->process,
+        myName);
+  }
+#endif //SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_root_chan::finalise() end, name == " << name() << std::endl;
+#endif
+}
+
+void smoc_root_chan::generateName() {
   if (myName == "") {
     //Only overwrite if not specified by user
   
@@ -124,26 +150,6 @@ void smoc_root_chan::finalise() {
     genName << (_smoc_channel_name_map[genName.str()] += 1);
     myName = genName.str();
   }
-  
-#ifdef SYSTEMOC_ENABLE_VPC
-  vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
-    getFastLink(myName, "1") );
-  assert(vpcLink);
-
-  // FIXME: root channel does not know how many outlets a channel should have
-  // (move this to smoc_nonconflicting_chan?)
-  if(!getOutlets().empty()) {
-
-    //FIXME: QUICKHACK:
-    this->setChannelID(
-        getOutlets().begin()->second->get_parent()->name(),
-        vpcLink->process,
-        myName);
-  }
-#endif //SYSTEMOC_ENABLE_VPC
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_root_chan::finalise() end, name == " << name() << std::endl;
-#endif
 }
 
 void smoc_nonconflicting_chan::finalise() {

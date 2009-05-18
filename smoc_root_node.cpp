@@ -116,8 +116,11 @@ void smoc_root_node::finalise() {
   for (smoc_sysc_port_list::iterator iter = ports.begin();
        iter != ports.end();
        ++iter) {
-    assert(*iter != NULL);
-    (*iter)->finalise(this);
+    // if calling finalise on *iter, C++ complains (why?? should call
+    // the virtual method where smoc_root_node is friend!)
+    smoc_root_port* p = *iter;
+    assert(p != NULL);
+    p->finalise();
   }
   
   //check for non strict transitions

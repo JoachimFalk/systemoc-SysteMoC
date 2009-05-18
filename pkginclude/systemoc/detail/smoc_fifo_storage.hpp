@@ -121,6 +121,28 @@ protected:
     pgw << "</fifo>" << std::endl;
   }
 
+#ifndef __SCFE__
+  void finalise() {
+    BASE::finalise();
+    assembleXML();
+  }
+
+  void assembleXML() {
+    using namespace SystemCoDesigner::SGX;
+
+    // ugly (BASE class must have channel variable)
+    assert(BASE::fifo);
+
+    BASE::fifo->type().set(typeid(data_type).name());
+
+    for(size_t n = 0; n < this->visibleCount(); ++n) {
+      Token t; 
+      t.value().set(asStr(storage[n].get()));
+      BASE::fifo->initialTokens().push_back(t);
+    }
+  }
+#endif
+
   access_in_type_impl  *getReadPortAccess() {
     return new access_in_type_impl(
         storage, this->fSize(), &this->rIndex());

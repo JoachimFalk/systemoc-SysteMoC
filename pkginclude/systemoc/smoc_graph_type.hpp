@@ -204,7 +204,8 @@ private:
   void pgAssemble(smoc_modes::PGWriter &pgw, const smoc_root_node *n) const;
   void assembleActor(smoc_modes::PGWriter &pgw) const;
 
-  SystemCoDesigner::SGX::ProblemGraph pg;
+  SystemCoDesigner::SGX::ProblemGraph::Ptr pg;
+  void assembleXML();
 #endif
 };
   

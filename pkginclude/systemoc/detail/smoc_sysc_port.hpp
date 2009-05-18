@@ -40,6 +40,7 @@
 #include <list>
 
 #include <systemc.h>
+#include <sgx.hpp>
 
 #include <systemoc/smoc_config.h>
 
@@ -85,6 +86,13 @@ protected:
     parent->child = this;
     sc_port_base::bind(parent_);
   }
+
+  void finalise();
+
+#ifndef __SCFE__
+  SystemCoDesigner::SGX::Port::Ptr port;
+  void assembleXML();
+#endif
 
   virtual ~smoc_sysc_port();
 public:

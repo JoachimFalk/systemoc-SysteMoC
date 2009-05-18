@@ -37,6 +37,7 @@
 
 #include <systemoc/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_graph_type.hpp>
 
 smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
   : smoc_nonconflicting_chan(i.name),
@@ -50,6 +51,35 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
   tokenId(0)
 {}
 
+#ifndef __SCFE__
+void smoc_fifo_chan_base::finalise() {
+  // FIXME: need name before XML can be constructed
+  generateName();
+  assembleXML();
+  smoc_nonconflicting_chan::finalise();
+}
+
+void smoc_fifo_chan_base::assembleXML() {
+  using namespace SystemCoDesigner::SGX;
+
+  assert(!fifo);
+
+  Fifo _fifo(name());
+  fifo = &_fifo;
+  proc = fifo;
+
+  // set some attributes
+  fifo->size().set(depthCount());
+
+  smoc_graph_base* parent =
+    dynamic_cast<smoc_graph_base*>(get_parent_object());
+
+  if(parent)
+    parent->addProcess(_fifo);
+  else
+    assert(!"FIFO has no parent!");
+}
+#endif
 
 size_t fsizeMapper(sc_object* instance, size_t n) {
   // SGX --> SystemC

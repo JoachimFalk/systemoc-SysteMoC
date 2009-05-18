@@ -51,37 +51,15 @@ using CoSupport::String::Concat;
 smoc_graph_base::smoc_graph_base(
     const sc_module_name& name, smoc_firing_state& init, bool regObj) :
   smoc_root_node(name, init, regObj)
-#ifndef __SCFE__
-  , pg(this->name())
-#endif
 {
   // FIXME (multiple ids for the same object!!)
   if(regObj) idPool.regObj(this, 1);
-
-#ifndef __SCFE__
-
-  smoc_graph_base* parent =
-    dynamic_cast<smoc_graph_base*>(get_parent_object());
-
-  if(parent) {
-    // Generate refined process
-    // (probably pass on to smoc_root_node)
-    RefinedProcess rp(Concat(this->name())("_rp"));
-    rp.refinements().push_back(pg);
-    parent->pg.refinedProcesses().push_back(rp);
-
-    proc = &rp;
-  }
-  else {
-    // Set as top problemgraph (has no process)
-    ngx.problemGraphPtr() = &pg;
-  }
-#endif
 }
   
 #ifndef __SCFE__
 void smoc_graph_base::addProcess(Process& p) {
-  pg.processes().push_back(p);
+  assert(pg);
+  pg->processes().push_back(p);
 }
 #endif
 
@@ -142,6 +120,11 @@ void smoc_graph_base::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_graph_base::finalise() begin, name == " << name() << std::endl;
 #endif
+
+#ifndef __SCFE__
+  assembleXML();
+#endif
+
   NgId idGraph = idPool.getId(this, 1);
 
   // SystemC --> SGX
@@ -297,6 +280,30 @@ void smoc_graph_base::reset() {
 }
 
 #ifndef __SCFE__
+  
+void smoc_graph_base::assembleXML() {
+  assert(!pg);
+  
+  ProblemGraph _pg(this->name());
+  pg = &_pg;
+
+  smoc_graph_base* parent =
+    dynamic_cast<smoc_graph_base*>(get_parent_object());
+
+  if(parent) {
+    // Generate refined process
+    // (probably pass on to smoc_root_node)
+    RefinedProcess rp(Concat(this->name())("_rp"));
+    rp.refinements().push_back(_pg);
+
+    proc = &rp;
+    parent->addProcess(rp);
+  }
+  else {
+    // Set as top problemgraph (has no process)
+    ngx.problemGraphPtr() = pg;
+  }
+}
 
 void smoc_graph_base::pgAssemble(
     smoc_modes::PGWriter &pgw,
