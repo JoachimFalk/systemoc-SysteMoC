@@ -48,7 +48,10 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
+#include <CoSupport/String/Concat.hpp>
+
 using namespace SysteMoC::NGXSync;
+using CoSupport::String::Concat;
 
 // value_type will be constructed as T(), which initializes primite types to 0!
 static std::map<std::string, size_t> _smoc_channel_name_map;
@@ -94,6 +97,10 @@ void smoc_root_chan::finalise() {
 
   // will do no harm if already generated
   generateName();
+
+#ifndef __SCFE__
+  assembleXML();
+#endif
 
 #ifdef SYSTEMOC_ENABLE_VPC
   vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
@@ -151,6 +158,61 @@ void smoc_root_chan::generateName() {
     myName = genName.str();
   }
 }
+
+#ifndef __SCFE__
+void smoc_root_chan::assembleXML() {
+  using namespace SystemCoDesigner::SGX;
+
+  assert(proc);
+
+  const EntryMap& entries = getEntries();
+  
+  // Portmappings are done in ProblemGraph
+
+  for(EntryMap::const_iterator iter = entries.begin();
+      iter != entries.end(); ++iter)
+  {
+    Port p(Concat(name())(".in"));
+    p.direction().set(Port::IN);
+    proc->ports().push_back(p);
+
+    // this is the channel input port and the node
+    // output port
+
+    // FIXME: better store the XML node as attribute
+    // in the sc_object?
+    smoc_sysc_port* np =
+      dynamic_cast<smoc_sysc_port*>(iter->second);
+    assert(np);
+
+    assert(np->port);
+    p.peerPort() = np->port;
+  }
+      
+  const OutletMap& outlets = getOutlets();
+
+  for(OutletMap::const_iterator iter = outlets.begin();
+      iter != outlets.end(); ++iter)
+  {
+    Port p(Concat(name())(".out"));
+    p.direction().set(Port::OUT);
+    proc->ports().push_back(p);
+    
+    // this is the channel output port and the node
+    // input port
+    
+    // FIXME: better store the XML node as attribute
+    // in the sc_object?
+    smoc_sysc_port* np =
+      dynamic_cast<smoc_sysc_port*>(iter->second);
+    assert(np);
+    
+    assert(np->port);
+    p.peerPort() = np->port;
+  }
+}
+#endif
+
 
 void smoc_nonconflicting_chan::finalise() {
   smoc_root_chan::finalise();

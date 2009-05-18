@@ -90,6 +90,7 @@ protected:
   void finalise();
 
 #ifndef __SCFE__
+  friend class smoc_root_chan;
   SystemCoDesigner::SGX::Port::Ptr port;
   void assembleXML();
 #endif

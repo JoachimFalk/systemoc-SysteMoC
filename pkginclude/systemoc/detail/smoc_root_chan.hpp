@@ -97,6 +97,7 @@ protected:
 
 #ifndef __SCFE__
   SystemCoDesigner::SGX::Process::Ptr proc;
+  void assembleXML();
 #endif
   
 public:
