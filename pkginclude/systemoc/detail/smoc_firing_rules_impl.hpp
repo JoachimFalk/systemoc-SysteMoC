@@ -46,6 +46,8 @@
 #include <set>
 #include <vector>
 
+#include <sgx.hpp>
+
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {
   class FastLink;
@@ -225,6 +227,12 @@ typedef std::list<RuntimeTransition> RuntimeTransitionList;
 class RuntimeState : public sc_object {
 private:
   RuntimeTransitionList t;
+  
+#ifndef __SCFE__
+  SystemCoDesigner::SGX::FiringState::Ptr state;
+  void assembleXML();
+#endif
+
 public:
   RuntimeState();
 
@@ -232,6 +240,10 @@ public:
 
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();
+
+#ifndef __SCFE__
+  SystemCoDesigner::SGX::FiringState::Ptr getState() const;
+#endif
 };
 
 typedef std::set<RuntimeState*> RuntimeStateSet;
@@ -257,6 +269,11 @@ private:
 
   RuntimeState* init;
   RuntimeStateSet rts;
+
+#ifndef __SCFE__
+  SystemCoDesigner::SGX::FiringFSM::Ptr fsm;
+  void assembleXML();
+#endif
 
 public:
   /// @brief Constructor
@@ -293,6 +310,10 @@ public:
   const RuntimeStateSet& getStates() const;
 
   RuntimeState* getInitialState() const;
+
+#ifndef __SCFE__
+  SystemCoDesigner::SGX::FiringFSM::Ptr getFSM() const;
+#endif
 };
 
 class FiringStateBaseImpl {

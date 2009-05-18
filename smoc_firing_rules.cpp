@@ -53,8 +53,11 @@
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 
+#include <sgx.hpp>
+
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::NGXSync;
+using namespace SystemCoDesigner::SGX;
 
 #include <CoSupport/Streams/FilterOStream.hpp>
 #include <CoSupport/Streams/IndentStreambuf.hpp>
@@ -371,10 +374,22 @@ RuntimeState::RuntimeState()
   //    ("smoc_firing_state_")(RuntimeStateCount++).get().c_str())
 {
   idPool.regObj(this);
+#ifndef __SCFE__
+  assembleXML();
+#endif
 }
 
 RuntimeState::~RuntimeState()
   { idPool.unregObj(this); }
+
+#ifndef __SCFE__
+void RuntimeState::assembleXML() {
+  assert(!state);
+
+  FiringState _state(name());
+  state = &_state;
+}
+#endif
 
 const RuntimeTransitionList& RuntimeState::getTransitions() const
   { return t; }
@@ -382,6 +397,8 @@ const RuntimeTransitionList& RuntimeState::getTransitions() const
 RuntimeTransitionList& RuntimeState::getTransitions()
   { return t; }
 
+FiringState::Ptr RuntimeState::getState() const
+  { return state; }
 
 
 
@@ -421,6 +438,9 @@ const RuntimeStateSet& FiringFSMImpl::getStates() const
 
 RuntimeState* FiringFSMImpl::getInitialState() const
   { return init; }
+  
+FiringFSM::Ptr FiringFSMImpl::getFSM() const
+  { return fsm; }
 
 std::ostream& operator<<(std::ostream& os, const ProdState& p) {
   os << "(";
@@ -610,6 +630,7 @@ void FiringFSMImpl::finalise(
             st.insert(STEntry(d, 0));
                 
           if(ins.second) {
+            // FIXME: construct state name and pass to RuntimeState
             ins.first->second =
               *rts.insert(new RuntimeState()).first;  
             ns.push_back(ins.first);
@@ -658,7 +679,40 @@ void FiringFSMImpl::finalise(
          << ((clock() - finStart) / (double)CLOCKS_PER_SEC) << " secs."
          << std::endl;
 #endif // FSM_FINALIZE_BENCHMARK
+
+#ifndef __SCFE__
+  assembleXML();
+#endif
 }
+
+#ifndef __SCFE__
+void FiringFSMImpl::assembleXML() {
+  assert(!fsm);
+
+  FiringFSM _fsm;
+  fsm = &_fsm;
+
+  for(RuntimeStateSet::const_iterator sIter = rts.begin();
+      sIter != rts.end(); ++sIter)
+  {
+    FiringState::Ptr src = (*sIter)->getState();
+    fsm->states().push_back(*src);
+
+    if(*sIter == init)
+      fsm->startState() = src;
+
+    const RuntimeTransitionList& tList = (*sIter)->getTransitions();
+
+    for(RuntimeTransitionList::const_iterator tIter = tList.begin();
+        tIter != tList.end(); ++tIter)
+    {
+      FiringTransition t;
+      t.dstState() = tIter->getDestState()->getState();
+      src->outTransitions().push_back(t);
+    }
+  }
+}
+#endif
 
 void FiringFSMImpl::addState(FiringStateBaseImpl *state) {
   assert(state->getFiringFSM() == this);

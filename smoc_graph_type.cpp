@@ -252,6 +252,11 @@ void smoc_graph_base::finalise() {
   }
   
   smoc_root_node::finalise();
+  
+#ifndef __SCFE__
+  // FIXME: FSM is attribute of Actor, not of Process
+  pg->firingFSM() = getFiringFSM()->getFSM();
+#endif
 
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_graph_base::finalise() end, name == " << name() << std::endl;
@@ -287,7 +292,7 @@ void smoc_graph_base::reset() {
 void smoc_graph_base::assembleXML() {
   assert(!pg);
   
-  ProblemGraph _pg(this->name());
+  ProblemGraph _pg(name());
   pg = &_pg;
 
   smoc_graph_base* parent =
@@ -295,8 +300,7 @@ void smoc_graph_base::assembleXML() {
 
   if(parent) {
     // Generate refined process
-    // (probably pass on to smoc_root_node)
-    RefinedProcess rp(Concat(this->name())("_rp"));
+    RefinedProcess rp(Concat(name())("_rp"));
     rp.refinements().push_back(_pg);
 
     proc = &rp;

@@ -24,6 +24,8 @@ void smoc_actor::assemble( smoc_modes::PGWriter &pgw ) const {
 void smoc_actor::finalise() {
   assembleXML();
   smoc_root_node::finalise();
+  // FIXME: FSM is attribute of Actor, not of Process
+  ac->firingFSM() = getFiringFSM()->getFSM();
 }
 
 void smoc_actor::assembleXML() {

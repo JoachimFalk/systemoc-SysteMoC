@@ -186,7 +186,7 @@ void smoc_root_chan::assembleXML() {
     assert(np);
 
     assert(np->port);
-    p.peerPort() = np->port;
+    p.outerConnectedPort() = np->port;
   }
       
   const OutletMap& outlets = getOutlets();
@@ -208,7 +208,7 @@ void smoc_root_chan::assembleXML() {
     assert(np);
     
     assert(np->port);
-    p.peerPort() = np->port;
+    p.outerConnectedPort() = np->port;
   }
 }
 #endif
