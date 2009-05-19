@@ -71,9 +71,12 @@ private:
   
   smoc_firing_state start;
 public:
-  Src(sc_module_name name, SMOC_ACTOR_CPARAM(int,from))
+  Src(sc_module_name name, int from)
     : smoc_actor(name, start), i(from) {
-    start =
+    
+      SMOC_REGISTER_CPARAM(from);
+      
+      start =
         (VAR(i) <= NUM_MAX_ITERATIONS) >>
         out(1)                         >>
         CALL(Src::src)                 >> start
