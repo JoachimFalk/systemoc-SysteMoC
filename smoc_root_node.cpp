@@ -62,7 +62,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s/*
 //  _guard(NULL)
 {
 #ifdef SYSTEMOC_ENABLE_VPC
-  commstate = new RuntimeState();
+  commstate = new RuntimeState("commstate");
   commstate->getTransitions().push_back(
       RuntimeTransition(
         this,
