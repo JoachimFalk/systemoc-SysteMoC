@@ -46,6 +46,7 @@ nobase_include_HEADERS = \
 	systemoc/detail/NamedIdedObj.hpp \
 	systemoc/detail/smoc_pggen.hpp \
 	systemoc/detail/smoc_graph_synth.hpp \
+	systemoc/smoc_pggen.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_elab_and_sim.hpp \
