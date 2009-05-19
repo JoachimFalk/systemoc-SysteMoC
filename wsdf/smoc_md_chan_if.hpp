@@ -1,8 +1,8 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8 sts=2 et:
 
-#ifndef _INCLUDED_SMOC_MD_CHAN_IF_HPP
-#define _INCLUDED_SMOC_MD_CHAN_IF_HPP
+#ifndef _INCLUDED_DETAIL_SMOC_MD_CHAN_IF_HPP
+#define _INCLUDED_DETAIL_SMOC_MD_CHAN_IF_HPP
 
 #include "../smoc_md_loop.hpp"
 

@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_EVENT_DECLS_HPP
-#define _INCLUDED_SMOC_EVENT_DECLS_HPP
+#ifndef _INCLUDED_DETAIL_SMOC_EVENT_DECLS_HPP
+#define _INCLUDED_DETAIL_SMOC_EVENT_DECLS_HPP
 
 #include <boost/intrusive_ptr.hpp>
 
@@ -74,4 +74,4 @@ public:
 
 typedef boost::intrusive_ptr<smoc_ref_event> smoc_ref_event_p;
 
-#endif // _INCLUDED_SMOC_EVENT_DECLS_HPP
+#endif // _INCLUDED_DETAIL_SMOC_EVENT_DECLS_HPP

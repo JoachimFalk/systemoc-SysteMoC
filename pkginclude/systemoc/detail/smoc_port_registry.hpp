@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_PORT_REGISTRY_HPP
-#define _INCLUDED_SMOC_PORT_REGISTRY_HPP
+#ifndef _INCLUDED_DETAIL_SMOC_PORT_REGISTRY_HPP
+#define _INCLUDED_DETAIL_SMOC_PORT_REGISTRY_HPP
 
 #include <map>
 
@@ -190,4 +190,4 @@ smoc_port_in_base_if* smoc_port_registry::create() {
   return iface;
 }
 
-#endif // _INCLUDED_SMOC_PORT_REGISTRY_HPP
+#endif // _INCLUDED_DETAIL_SMOC_PORT_REGISTRY_HPP

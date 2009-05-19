@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_CHAN_IF_HPP
-#define _INCLUDED_SMOC_CHAN_IF_HPP
+#ifndef _INCLUDED_DETAIL_SMOC_CHAN_IF_HPP
+#define _INCLUDED_DETAIL_SMOC_CHAN_IF_HPP
 
 #include <list>
 
@@ -607,4 +607,4 @@ private:
 
 #include "../smoc_port.hpp"
 
-#endif // _INCLUDED_SMOC_CHAN_IF_HPP
+#endif // _INCLUDED_DETAIL_SMOC_CHAN_IF_HPP

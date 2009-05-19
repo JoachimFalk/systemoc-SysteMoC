@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SYSC_PORT_HPP
-#define _INCLUDED_SMOC_SYSC_PORT_HPP
+#ifndef _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP
+#define _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP
 
 #include <list>
 
@@ -110,4 +110,4 @@ public:
 typedef std::list<smoc_sysc_port *> smoc_sysc_port_list;
 typedef std::list<sc_port_base*>    sc_port_list;
 
-#endif // _INCLUDED_SMOC_SYSC_PORT_HPP
+#endif // _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP

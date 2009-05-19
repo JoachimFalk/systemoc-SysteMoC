@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_ROOT_CHAN_HPP
-#define _INCLUDED_SMOC_ROOT_CHAN_HPP
+#ifndef _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP
+#define _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP
 
 #include <list>
 
@@ -129,4 +129,4 @@ protected:
   virtual void finalise();
 };
 
-#endif // _INCLUDED_SMOC_ROOT_CHAN_HPP
+#endif // _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP

@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_GRAPH_SYNTH_HPP
-#define _INCLUDED_SMOC_GRAPH_SYNTH_HPP
+#ifndef _INCLUDED_DETAIL_SMOC_GRAPH_SYNTH_HPP
+#define _INCLUDED_DETAIL_SMOC_GRAPH_SYNTH_HPP
 
 #include <systemoc/smoc_config.h>
 
@@ -166,4 +166,4 @@ private:
 
 } } // namespace SysteMoC::Detail
 
-#endif // _INCLUDED_SMOC_GRAPH_SYNTH_HPP
+#endif // _INCLUDED_DETAIL_SMOC_GRAPH_SYNTH_HPP
