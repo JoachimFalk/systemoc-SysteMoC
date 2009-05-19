@@ -57,11 +57,9 @@
 #include "detail/NamedIdedObj.hpp"
 #include "detail/smoc_pggen.hpp"
 #include "smoc_expr.hpp"
+#include "smoc_ast_systemoc.hpp"
 
-#undef  SMOC_REGISTER_CPARAM
-#define SMOC_REGISTER_CPARAM(name) Expr::Detail::doRegisterParam(name)
-
-#define SMOC_ACTOR_CPARAM(type, name) Expr::Detail::ParamWrapper<type> name
+#define SMOC_REGISTER_CPARAM(name) registerParam(#name,name)
 
 namespace SysteMoC {
   class smoc_graph_synth;
@@ -105,17 +103,10 @@ private:
 
 #endif // SYSTEMOC_ENABLE_VPC
 
-  static smoc_root_node *current_actor;
-
-  static  std::vector<Expr::Detail::ArgInfo>  global_constr_args;
-  std::vector<Expr::Detail::ArgInfo>          local_constr_args;
-
 protected:
   //smoc_root_node(const smoc_firing_state &s);
   smoc_root_node(sc_module_name, smoc_hierarchical_state &s/*, bool regObj = true*/);
   
-  friend void Expr::Detail::registerParam(const ArgInfo &argInfo);
-  friend void Expr::Detail::registerParamOnCurrentActor(const ArgInfo &argInfo);
   friend class smoc_graph_base;
 
   virtual void finalise();
@@ -138,13 +129,20 @@ protected:
   typename Expr::Var<T>::type var(T &x, const char *name = NULL)
     { return Expr::var(x,name); }
 
+  // possible FIXME: only actors have this info
+  SysteMoC::ActivationPattern::ParamInfoVisitor constrArgs;
+  template<class T>
+  void registerParam(const std::string& name, const T& t) {
+    constrArgs(name, t);
+  }
+
 #ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::Process::Ptr proc;
 #endif
 
 public:
   const char *name() const
-    { return this->sc_module::name(); }
+    { return sc_module::name(); }
 
   FiringFSMImpl *getFiringFSM() const
     { return initialState.getImpl()->getFiringFSM(); }

@@ -70,12 +70,12 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s/*
         smoc_func_diverge(this, &smoc_root_node::_communicate)));
 #endif // SYSTEMOC_ENABLE_VPC
 
-  local_constr_args.insert(
+  /*local_constr_args.insert(
       local_constr_args.end(),
       global_constr_args.begin(),
       global_constr_args.end());
   global_constr_args.clear();
-  current_actor = this;
+  current_actor = this;*/
   /*
   while(!smoc_root_node::global_constr_args.empty()){
     local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
@@ -84,8 +84,8 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s/*
 //if(regObj) idPool.regObj(this);
 }
  
-smoc_root_node *smoc_root_node::current_actor = NULL;
-std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_args; 
+//smoc_root_node *smoc_root_node::current_actor = NULL;
+//std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_args; 
  
 #ifdef SYSTEMOC_ENABLE_VPC
 RuntimeState* smoc_root_node::_communicate() {
@@ -207,14 +207,6 @@ bool smoc_root_node::inCommState() const{
 
 bool smoc_root_node::isNonStrict() const{
   return _non_strict;
-}
-
-void Expr::Detail::registerParam(const ArgInfo &argInfo) {
-  smoc_root_node::global_constr_args.push_back(argInfo);
-}
-
-void Expr::Detail::registerParamOnCurrentActor(const ArgInfo &argInfo) {
-  smoc_root_node::current_actor->local_constr_args.push_back(argInfo);
 }
 
 void smoc_root_node::addCurOutTransitions(smoc_transition_ready_list& ol) const {

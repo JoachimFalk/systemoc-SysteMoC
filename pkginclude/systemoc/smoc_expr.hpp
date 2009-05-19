@@ -70,23 +70,12 @@ namespace Expr {
 using namespace SysteMoC::ActivationPattern;
 
 namespace Detail {
-  typedef std::pair<std::string, std::string> ArgInfo;
 
   using namespace SysteMoC::ActivationPattern::Detail;
 
-  void registerParam(const ArgInfo &);
-  void registerParamOnCurrentActor(const ArgInfo &);
-
-  //register constructor parameter
-  template <typename T>
-  void doRegisterParam(const T&v)
-  {
-    std::stringstream allToString; allToString << v;
-    registerParamOnCurrentActor(ArgInfo(typeid(T).name(), allToString.str()));
-  }
 
   //wrapper for constructor parameters (deprecated! use SMOC_REGISTER_CPARAM() macro instead)
-  template <typename T>
+/*  template <typename T>
   class ParamWrapper {
   private:
     T v;
@@ -99,7 +88,7 @@ namespace Detail {
 
     operator       T()       { return v; }
     operator const T() const { return v; }
-  };
+  };*/
 
 //struct True  { operator bool() const { return true;  } };
 //struct False { operator bool() const { return false; } };
@@ -558,7 +547,7 @@ public:
   DLiteral(const DLiteral<X> &l): v(l.v) {}
 };
 
-template<typename T>
+/*template<typename T>
 class DLiteral<Detail::ParamWrapper<T> >
 {
 public:
@@ -578,7 +567,7 @@ public:
   explicit DLiteral(const Detail::ParamWrapper<T> &v): v(v) {}
   template <typename X>
   DLiteral(const DLiteral<X> &l): v(l.v) {}
-};
+};*/
 
 template <typename T>
 class AST<DLiteral<T> >
