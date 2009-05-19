@@ -69,52 +69,79 @@ int smoc_elab_and_sim(int _argc, char* _argv[]) {
     ("import-smx",
      value<std::string>(),
      "synchronize with specified SysteMoC-XML")
+    ("export-trace",
+     value<std::string>(),
+     "dump execution trace")
     ("vpc-config",
      value<std::string>(),
      "use specified SystemC-VPC configuration file")
     ("dump-fsm",
      "dump flattened FSMs as DOT graph");
-
+  
   parsed_options parsed =
     command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
   
   int argc = 1;
   char **argv = _argv;
   
-  for(std::vector< basic_option<char> >::const_iterator i = parsed.options.begin();
-      i != parsed.options.end();
-      ++i)
+  for (std::vector< basic_option<char> >::const_iterator i = parsed.options.begin();
+       i != parsed.options.end();
+       ++i)
   {
-    if(i->string_key == "export-smx") {
-      assert(SysteMoC::Detail::dumpFileSMX == NULL);      
+    if (i->string_key == "dump-fsm") {
+      SysteMoC::Detail::dumpFSMs = true;
+    }
+    else if(i->string_key == "export-smx") {
       assert(!i->value.empty());
+#ifdef SYSTEMOC_ENABLE_SGX
+      // delete null pointer is allowed...
+      delete SysteMoC::Detail::dumpFileSMX;
       
       SysteMoC::Detail::dumpFileSMX =
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
+#else  // !SYSTEMOC_ENABLE_SGX
+      throw std::runtime_error("SysteMoC configured without sgx support --export-smx option not provided!");
+#endif // !SYSTEMOC_ENABLE_SGX
     }
     else if(i->string_key == "export-sim-smx") {
-      assert(SysteMoC::Detail::dumpFileSMX == NULL);
       assert(!i->value.empty());
+#ifdef SYSTEMOC_ENABLE_SGX
+      assert(SysteMoC::Detail::dumpFileSMX == NULL);
       SysteMoC::Detail::dumpSMXWithSim = true;
       
       SysteMoC::Detail::dumpFileSMX =
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
+#else  // !SYSTEMOC_ENABLE_SGX
+      throw std::runtime_error("SysteMoC configured without sgx support --export-sim-smx option not provided!");
+#endif // !SYSTEMOC_ENABLE_SGX
     }
-//  else if(i->string_key == "import-smx") {
-//    assert(!i->value.empty());
+    else if(i->string_key == "import-smx") {
+      assert(!i->value.empty());
+//#ifdef SYSTEMOC_ENABLE_SGX
 //    
 //    CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
 //    SysteMoC::Detail::NGXConfig::getInstance().loadNGX(in);
-//  }
-#ifdef SYSTEMOC_ENABLE_VPC
+//#else  // !SYSTEMOC_ENABLE_SGX
+      throw std::runtime_error("SysteMoC configured without sgx support --import-smx option not provided!");
+//#endif // !SYSTEMOC_ENABLE_SGX
+    }
+    else if(i->string_key == "export-trace") {
+      assert(!i->value.empty());
+#ifdef SYSTEMOC_ENABLE_TRACE
+      assert(SysteMoC::Detail::dumpTrace == NULL);
+      SysteMoC::Detail::dumpTrace =
+        new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
+#else  // !SYSTEMOC_ENABLE_TRACE
+      throw std::runtime_error("SysteMoC configured without trace support --export-trace option not provided!");
+#endif // !SYSTEMOC_ENABLE_TRACE
+    }
     else if(i->string_key == "vpc-config") {
       assert(!i->value.empty());
-      
+#ifdef SYSTEMOC_ENABLE_VPC
       setenv("VPCCONFIGURATION", i->value.front().c_str(), 1);
-    }
-#endif
-    else if(i->string_key == "dump-fsm") {
-      SysteMoC::Detail::dumpFSMs = true;
+#else  // !SYSTEMOC_ENABLE_VPC
+      throw std::runtime_error("SysteMoC configured without vpc support --vpc-config option not provided!");
+#endif // !SYSTEMOC_ENABLE_VPC
     }
     else if(i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
@@ -123,23 +150,29 @@ int smoc_elab_and_sim(int _argc, char* _argv[]) {
         if ((argv[argc++] = strdup(j->c_str())) == NULL)
           throw std::bad_alloc();
     }
+    else {
+      assert(!"WTF?! UNHANDLED OPTION!");
+    }
   }
   
   argv[argc] = 0;
   assert(argc <= _argc);
-
+  
 #ifdef SYSTEMOC_ENABLE_VPC
   SystemC_VPC::Director::getInstance();
 #endif
-
+  
   int ret = sc_core::sc_elab_and_sim(argc, argv);  
   
   // Do not free argv[0] it was not strdupped
   for(--argc; argc >= 1; --argc)
     free(argv[argc]);
-
+  
   // delete null pointer is allowed...
   delete SysteMoC::Detail::dumpFileSMX;
-
+  SysteMoC::Detail::dumpFileSMX = NULL;
+  delete SysteMoC::Detail::dumpTrace;
+  SysteMoC::Detail::dumpTrace = NULL;
+  
   return ret;
 }

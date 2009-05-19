@@ -3,16 +3,19 @@
 #ifndef _INCLUDED_SMOC_CONFIG_H
 #define _INCLUDED_SMOC_CONFIG_H
 
-/* Define if you compile with LibSGX */
+/* Defined if debug support is enabled */
+#undef SYSTEMOC_ENABLE_DEBUG
+
+/* Defined if SGX support is enabled */
 #undef SYSTEMOC_ENABLE_SGX
+
+/* Defined if tracing support is enabled */
+#undef SYSTEMOC_ENABLE_TRACE
 
 /* Defined if SystemC-VPC support is enabled */
 #undef SYSTEMOC_ENABLE_VPC
 
 /* Defined if WSDF support is enabled */
 #undef SYSTEMOC_ENABLE_WSDF
-
-/* Defined if debug support is enabled */
-#undef SYSTEMOC_ENABLE_DEBUG
 
 #endif /* _INCLUDED_SMOC_CONFIG_H */

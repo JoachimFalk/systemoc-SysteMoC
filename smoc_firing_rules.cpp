@@ -250,16 +250,20 @@ void RuntimeTransition::execute(int mode) {
   RuntimeState *nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), f);
 
-#if defined(SYSTEMOC_ENABLE_DEBUG)
+#ifdef SYSTEMOC_ENABLE_DEBUG
   Expr::evalTo<Expr::CommReset>(guard);
 #endif
   
+#ifdef SYSTEMOC_ENABLE_TRACE
   if (execMode == MODE_DIISTART) {
-    std::cerr << "<transition "
-      "actor=\"" << actor->name() << "\" "
-      "from=\"" << actor->getCurrentState()->name() << "\" "
-      "to=\"" << nextState->name() << "\"/>" << std::endl;
+    if (SysteMoC::Detail::dumpTrace != NULL) {
+      *SysteMoC::Detail::dumpTrace << "<transition "
+        "actor=\"" << actor->name() << "\" "
+        "from=\"" << actor->getCurrentState()->name() << "\" "
+        "to=\"" << nextState->name() << "\"/>" << std::endl;
+    }
   }
+#endif // defined(SYSTEMOC_ENABLE_TRACE)
   
 #ifdef SYSTEMOC_ENABLE_VPC
   if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
