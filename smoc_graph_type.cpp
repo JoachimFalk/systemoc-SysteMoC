@@ -255,7 +255,7 @@ void smoc_graph_base::finalise() {
   
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: FSM is attribute of Actor, not of Process
-  pg->firingFSM() = getFiringFSM()->getFSM();
+  pg->firingFSM() = getFiringFSM()->getNGXObj();
 #endif
 
 #ifdef SYSTEMOC_DEBUG

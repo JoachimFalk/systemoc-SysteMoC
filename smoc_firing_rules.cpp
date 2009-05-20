@@ -371,13 +371,35 @@ void RuntimeTransition::finalise() {
         VPCLinkVisitor(actor->name()), f);
   }
 #endif //SYSTEMOC_ENABLE_VPC
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  assembleXML();
+#endif //SYSTEMOC_ENABLE_SGX
 }
+
+#ifdef SYSTEMOC_ENABLE_SGX
+void RuntimeTransition::assembleXML() {
+  assert(!trans);
+
+  FiringTransition _trans;
+  trans = &_trans;
+
+  // set some attributes
+  if(dest)
+    trans->dstState() = dest->getNGXObj();
+}
+#endif //SYSTEMOC_ENABLE_SGX
 
 RuntimeState* RuntimeTransition::getDestState() const
   { return dest; }
 
 const smoc_action& RuntimeTransition::getAction() const
   { return f; }
+  
+#ifdef SYSTEMOC_ENABLE_SGX
+FiringTransition::Ptr RuntimeTransition::getNGXObj() const
+  { return trans; }
+#endif
 
 static int UnnamedStateCount = 0;
 
@@ -388,13 +410,17 @@ RuntimeState::RuntimeState(const std::string name)
   if(name.find(PRODSTATE_SEPARATOR) != std::string::npos)
     assert(!"RuntimeState: Invalid state name");
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  assembleXML();
-#endif
+  finalise();
 }
 
 RuntimeState::~RuntimeState() {
 //idPool.unregObj(this);
+}
+
+void RuntimeState::finalise() {
+#ifdef SYSTEMOC_ENABLE_SGX
+  assembleXML();
+#endif
 }
 
 #ifdef SYSTEMOC_ENABLE_SGX
@@ -403,6 +429,8 @@ void RuntimeState::assembleXML() {
 
   FiringState _state(name());
   state = &_state;
+
+  // FIXME transitions are added later
 }
 #endif
 
@@ -412,9 +440,10 @@ const RuntimeTransitionList& RuntimeState::getTransitions() const
 RuntimeTransitionList& RuntimeState::getTransitions()
   { return t; }
 
-FiringState::Ptr RuntimeState::getState() const
+#ifdef SYSTEMOC_ENABLE_SGX
+FiringState::Ptr RuntimeState::getNGXObj() const
   { return state; }
-
+#endif
 
 
 FiringFSMImpl::FiringFSMImpl()
@@ -453,9 +482,11 @@ const RuntimeStateSet& FiringFSMImpl::getStates() const
 
 RuntimeState* FiringFSMImpl::getInitialState() const
   { return init; }
-  
-FiringFSM::Ptr FiringFSMImpl::getFSM() const
+
+#ifdef SYSTEMOC_ENABLE_SGX  
+FiringFSM::Ptr FiringFSMImpl::getNGXObj() const
   { return fsm; }
+#endif
 
 std::ostream& operator<<(std::ostream& os, const ProdState& p) {
   //os << "(";
@@ -708,7 +739,7 @@ void FiringFSMImpl::assembleXML() {
   for(RuntimeStateSet::const_iterator sIter = rts.begin();
       sIter != rts.end(); ++sIter)
   {
-    FiringState::Ptr src = (*sIter)->getState();
+    FiringState::Ptr src = (*sIter)->getNGXObj();
     fsm->states().push_back(*src);
 
     if(*sIter == init)
@@ -719,9 +750,8 @@ void FiringFSMImpl::assembleXML() {
     for(RuntimeTransitionList::const_iterator tIter = tList.begin();
         tIter != tList.end(); ++tIter)
     {
-      FiringTransition t;
-      t.dstState() = tIter->getDestState()->getState();
-      src->outTransitions().push_back(t);
+      FiringTransition::Ptr t = tIter->getNGXObj();
+      src->outTransitions().push_back(*t);
     }
   }
 }
