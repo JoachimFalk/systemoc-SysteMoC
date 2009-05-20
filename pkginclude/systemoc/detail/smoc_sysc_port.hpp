@@ -105,6 +105,10 @@ public:
   virtual bool isInput()  const = 0;
   bool         isOutput() const
     { return !isInput(); }
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  SystemCoDesigner::SGX::Port::Ptr getNGXObj() const;
+#endif
 };
 
 typedef std::list<smoc_sysc_port *> smoc_sysc_port_list;

@@ -807,7 +807,7 @@ typename MemGuard<F>::type guard(const X *o, const F &f, const char *name = "") 
  * an enum which represents the operation.
  */
 
-template<class A, class B, _OpBinT Op>
+template<class A, class B, OpBinT::Op Op>
 class DBinOp
 {
 public:
@@ -828,20 +828,20 @@ public:
   DBinOp(const A& a, const B& b): a(a), b(b) {}
 };
 
-template<class A, class B, _OpBinT Op>
+template<class A, class B, OpBinT::Op Op>
 struct D<DBinOp<A,B,Op> >: public DBase<DBinOp<A,B,Op> > {
   D(const A &a, const B &b): DBase<DBinOp<A,B,Op> >(DBinOp<A,B,Op>(a,b)) {}
 };
 
 // Make a convenient typedef for the op type.
-template <class A, class B, _OpBinT Op>
+template <class A, class B, OpBinT::Op Op>
 struct BinOp { typedef D<DBinOp<A,B,Op> > type; };
 
 /****************************************************************************
  * APPLICATIVE TEMPLATE CLASSES
  */
 
-template<typename TA, typename TB, _OpBinT Op, template <class> class K>
+template<typename TA, typename TB, OpBinT::Op Op, template <class> class K>
 class DBinOpExecute;
 
 #define DBINOPEXECUTE(Op,op)                                          \
@@ -857,7 +857,7 @@ struct DBinOpExecute<TA,TB,Op,Value> {                                \
     { return Value<A>::apply(a) op Value<B>::apply(b); }              \
 };
 
-template <class A, class B, _OpBinT Op>
+template <class A, class B, OpBinT::Op Op>
 class AST<DBinOp<A,B,Op> >
 {
 public:
@@ -876,13 +876,13 @@ public:
 };
 
 template <class A, class B>
-class CommExec<DBinOp<A,B,Expr::DOpBinLAnd> >
+class CommExec<DBinOp<A,B,Expr::OpBinT::LAnd> >
 {
 public:
   typedef DBinOpExecute<
     typename CommExec<A>::match_type,
     typename CommExec<B>::match_type,
-    Expr::DOpBinLAnd,Expr::CommExec>      OpT;
+    Expr::OpBinT::LAnd,Expr::CommExec>      OpT;
   typedef typename OpT::match_type        match_type;
 
   typedef void                            result_type;
@@ -891,20 +891,20 @@ public:
   typedef const smoc_ref_event_p &param2_type;
 
   static inline
-  result_type apply(const DBinOp<A,B,Expr::DOpBinLAnd> &e,
+  result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e,
     const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+    std::cerr << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
 # endif
     OpT::apply(e.a, e.b, diiEvent, latEvent);
   }
 #else // !SYSTEMOC_ENABLE_VPC
   static inline
-  result_type apply(const DBinOp<A,B,Expr::DOpBinLAnd> &e)
+  result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommExec<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+    std::cerr << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
 # endif
     OpT::apply(e.a, e.b);
   }
@@ -913,16 +913,16 @@ public:
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
 template <class A, class B>
-class CommReset<DBinOp<A,B,Expr::DOpBinLAnd> >
+class CommReset<DBinOp<A,B,Expr::OpBinT::LAnd> >
 {
 public:
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,Expr::DOpBinLAnd> &e)
+  result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommReset<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+    std::cerr << "CommReset<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
 # endif
     CommReset<A>::apply(e.a);
     CommReset<B>::apply(e.b);
@@ -930,16 +930,16 @@ public:
 };
 
 template <class A, class B>
-class CommSetup<DBinOp<A,B,Expr::DOpBinLAnd> >
+class CommSetup<DBinOp<A,B,Expr::OpBinT::LAnd> >
 {
 public:
   typedef void result_type;
   
   static inline
-  result_type apply(const DBinOp<A,B,Expr::DOpBinLAnd> &e)
+  result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommSetup<DBinOp<A,B,DOpBinLAnd> >::apply(e)" << std::endl;
+    std::cerr << "CommSetup<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
 # endif
     CommSetup<A>::apply(e.a);
     CommSetup<B>::apply(e.b);
@@ -947,7 +947,7 @@ public:
 };
 #endif
 
-template <class A, class B, _OpBinT Op>
+template <class A, class B, OpBinT::Op Op>
 class Sensitivity<DBinOp<A,B,Op> >
 {
 public:
@@ -969,7 +969,7 @@ public:
   }
 };
 
-template <class A, class B, _OpBinT Op>
+template <class A, class B, OpBinT::Op Op>
 class Value<DBinOp<A,B,Op> >
 {
 public:
@@ -988,7 +988,7 @@ public:
  * OPERATORS for APPLICATIVE TEMPLATE CLASSES
  */
 
-template <class A, class B, _OpBinT Op>
+template <class A, class B, OpBinT::Op Op>
 class DOpBinConstruct
 {
 public:
@@ -1022,7 +1022,7 @@ operator op (const TA &a, const D<B> &b) {                      \
     apply(DLiteral<TA>(a),b.getExpr());                         \
 }
 
-#define DOP(name,op) DBINOPEXECUTE(Expr::DOpBin##name,op) DOPBIN(Expr::DOpBin##name,op)
+#define DOP(name,op) DBINOPEXECUTE(Expr::OpBinT::name,op) DOPBIN(Expr::OpBinT::name,op)
 
 DOP(Add,+)
 DOP(Sub,-)
@@ -1046,7 +1046,7 @@ DOP(LOr,||)
 #undef DOP
 #undef DOPBIN
 
-template <_OpBinT op>
+template <OpBinT::Op op>
 struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
   typedef Detail::Ignore match_type;
 
@@ -1064,7 +1064,7 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::DOpBinLAnd,CommExec>
+struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::OpBinT::LAnd,CommExec>
 {
   typedef Detail::Process match_type;
 
@@ -1082,7 +1082,7 @@ struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::DOpBinLAnd,CommExec>
 };
 
 template <>
-struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::DOpBinLAnd,CommExec>
+struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::OpBinT::LAnd,CommExec>
 {
   typedef Detail::Process match_type;
 
@@ -1100,7 +1100,7 @@ struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::DOpBinLAnd,CommExec>
 };
 
 template <>
-struct DBinOpExecute<Detail::Process,Detail::Process,Expr::DOpBinLAnd,CommExec>
+struct DBinOpExecute<Detail::Process,Detail::Process,Expr::OpBinT::LAnd,CommExec>
 {
   typedef Detail::Process match_type;
 
@@ -1122,7 +1122,7 @@ struct DBinOpExecute<Detail::Process,Detail::Process,Expr::DOpBinLAnd,CommExec>
 #endif // SYSTEMOC_ENABLE_VPC
 };
 
-template <_OpBinT op>
+template <OpBinT::Op op>
 struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,Sensitivity> {
   typedef Detail::Ignore match_type;
 
@@ -1133,7 +1133,7 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,Sensitivity> {
 };
 
 template <>
-struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::DOpBinLAnd,Sensitivity>
+struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::OpBinT::LAnd,Sensitivity>
 {
   typedef Detail::Process match_type;
 
@@ -1144,7 +1144,7 @@ struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::DOpBinLAnd,Sensitivity
 };
 
 template <>
-struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::DOpBinLAnd,Sensitivity>
+struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::OpBinT::LAnd,Sensitivity>
 {
   typedef Detail::Process match_type;
 
@@ -1155,7 +1155,7 @@ struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::DOpBinLAnd,Sensitivity
 };
 
 template <>
-struct DBinOpExecute<Detail::Process,Detail::Process,Expr::DOpBinLAnd,Sensitivity>
+struct DBinOpExecute<Detail::Process,Detail::Process,Expr::OpBinT::LAnd,Sensitivity>
 {
   typedef Detail::Process match_type;
 
@@ -1166,7 +1166,7 @@ struct DBinOpExecute<Detail::Process,Detail::Process,Expr::DOpBinLAnd,Sensitivit
 };
 
 template <>
-struct DBinOpExecute<Detail::ENABLED,bool,Expr::DOpBinLAnd,Value>
+struct DBinOpExecute<Detail::ENABLED,bool,Expr::OpBinT::LAnd,Value>
 {
   typedef bool result_type;
 
@@ -1181,7 +1181,7 @@ struct DBinOpExecute<Detail::ENABLED,bool,Expr::DOpBinLAnd,Value>
 };
 
 template <>
-struct DBinOpExecute<bool,Detail::ENABLED,Expr::DOpBinLAnd,Value>
+struct DBinOpExecute<bool,Detail::ENABLED,Expr::OpBinT::LAnd,Value>
 {
   typedef bool result_type;
 
@@ -1197,7 +1197,7 @@ struct DBinOpExecute<bool,Detail::ENABLED,Expr::DOpBinLAnd,Value>
 };
 
 template <>
-struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,Expr::DOpBinLAnd,Value>
+struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,Expr::OpBinT::LAnd,Value>
 {
   typedef Detail::ENABLED result_type;
 
@@ -1212,14 +1212,14 @@ struct DBinOpExecute<Detail::ENABLED,Detail::ENABLED,Expr::DOpBinLAnd,Value>
   }
 };
 
-/* DOpBinField Operator */
+/* OpBinT::Field Operator */
 
-DBINOPEXECUTE(Expr::DOpBinField,.*)
+DBINOPEXECUTE(Expr::OpBinT::Field,.*)
 
 // Make a convenient typedef for the field op.
 template <class A, typename V>
 struct Field {
-  typedef D<DBinOp<A,DLiteral<V A::value_type::*>,Expr::DOpBinField> > type;
+  typedef D<DBinOp<A,DLiteral<V A::value_type::*>,Expr::OpBinT::Field> > type;
 };
 
 template <class A, typename V>
@@ -1234,7 +1234,7 @@ field(const D<A> &a, V A::value_type::* b) {
  * an enum which represents the operation.
  */
 
-template<class E, _OpUnT Op>
+template<class E, OpUnT::Op Op>
 class DUnOp
 {
 public:
@@ -1254,20 +1254,20 @@ public:
   DUnOp(const E &e): e(e) {}
 };
 
-template<class E, _OpUnT Op>
+template<class E, OpUnT::Op Op>
 struct D<DUnOp<E,Op> >: public DBase<DUnOp<E,Op> > {
   D(const E &e): DBase<DUnOp<E,Op> >(DUnOp<E,Op>(e)) {}
 };
 
 // Make a convenient typedef for the op type.
-template <class E, _OpUnT Op>
+template <class E, OpUnT::Op Op>
 struct UnOp { typedef D<DUnOp<E,Op> > type; };
 
 /****************************************************************************
  * APPLICATIVE TEMPLATE CLASSES
  */
 
-template<typename TE, _OpUnT Op, template <class> class K>
+template<typename TE, OpUnT::Op Op, template <class> class K>
 class DUnOpExecute;
 
 #define DUNOPEXECUTE(Op,op)                                           \
@@ -1283,7 +1283,7 @@ struct DUnOpExecute<TE,Op,Value> {                                    \
     { return op Value<E>::apply(e); }                                 \
 };
 
-template <class E, _OpUnT Op>
+template <class E, OpUnT::Op Op>
 class AST<DUnOp<E,Op> >
 {
 public:
@@ -1300,7 +1300,7 @@ public:
   }
 };
 
-template <class E, _OpUnT Op>
+template <class E, OpUnT::Op Op>
 class Value<DUnOp<E,Op> >
 {
 public:
@@ -1318,7 +1318,7 @@ public:
  * OPERATORS for APPLICATIVE TEMPLATE CLASSES
  */
 
-template <class E, _OpUnT Op>
+template <class E, OpUnT::Op Op>
 class DOpUnConstruct
 {
 public:
@@ -1337,7 +1337,7 @@ operator op (const D<E> &e) {                                   \
   return DOpUnConstruct<E,name>::apply(e.getExpr());            \
 }
 
-#define DOP(name,op) DUNOPEXECUTE(Expr::DOpUn##name,op) DOPUN(Expr::DOpUn##name,op)
+#define DOP(name,op) DUNOPEXECUTE(Expr::OpUnT::name,op) DOPUN(Expr::OpUnT::name,op)
 
 DOP(LNot,!)
 DOP(BNot,~)
@@ -1347,10 +1347,10 @@ DOP(DeRef,*)
 #undef DOP
 #undef DOPUN
 
-/* DOpUnType Operator */
+/* OpUnT::Type Operator */
 
 template<class TE>
-struct DUnOpExecute<TE,Expr::DOpUnType,Value>
+struct DUnOpExecute<TE,Expr::OpUnT::Type,Value>
 {
   typedef unsigned int result_type;
 
@@ -1361,10 +1361,10 @@ struct DUnOpExecute<TE,Expr::DOpUnType,Value>
 };
 
 template <class TO, class A>
-D<DBinOp<DUnOp<A,Expr::DOpUnType>,DLiteral<unsigned int>,Expr::DOpBinEq> >
+D<DBinOp<DUnOp<A,Expr::OpUnT::Type>,DLiteral<unsigned int>,Expr::OpBinT::Eq> >
 isType(const D<A> &a) {
-  return D<DBinOp<DUnOp<A,Expr::DOpUnType>,DLiteral<unsigned int>,Expr::DOpBinEq> >(
-    DUnOp<A,Expr::DOpUnType>(a.getExpr()),
+  return D<DBinOp<DUnOp<A,Expr::OpUnT::Type>,DLiteral<unsigned int>,Expr::OpBinT::Eq> >(
+    DUnOp<A,Expr::OpUnT::Type>(a.getExpr()),
     DLiteral<unsigned int>(CoSupport::DataTypes::oneofTypeid<typename A::value_type,TO>::type)
   );
 }

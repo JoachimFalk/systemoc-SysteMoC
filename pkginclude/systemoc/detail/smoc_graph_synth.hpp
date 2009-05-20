@@ -71,11 +71,11 @@ private:
   typedef Expr::BinOp<
     Expr::DPortTokens<smoc_port_in_base_if>,
     ESizeT,
-    Expr::DOpBinGe>::type EPortInGuard;
+    Expr::OpBinT::Ge>::type EPortInGuard;
   typedef Expr::BinOp<
     Expr::DPortTokens<smoc_port_out_base_if>,
     ESizeT,
-    Expr::DOpBinGe>::type EPortOutGuard;
+    Expr::OpBinT::Ge>::type EPortOutGuard;
 
   // Expression representing any other expression
   typedef Expr::Ex<bool>::type EVariant;

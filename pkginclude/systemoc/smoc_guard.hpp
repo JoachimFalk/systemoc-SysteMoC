@@ -76,9 +76,9 @@ namespace Expr {
 
   template <class A, class B>
   static inline
-  typename DOpBinConstruct<A,B,DOpBinLAnd>::result_type
+  typename DOpBinConstruct<A,B,OpBinT::LAnd>::result_type
   operator >> (const D<A> &a, const D<B> &b) {
-    return DOpBinConstruct<A,B,DOpBinLAnd>::
+    return DOpBinConstruct<A,B,OpBinT::LAnd>::
       apply(a.getExpr(),b.getExpr());
   }
 

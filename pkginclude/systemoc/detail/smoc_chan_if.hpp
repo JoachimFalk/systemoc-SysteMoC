@@ -169,21 +169,21 @@ typename PortTokens<typename P::chan_base_type>::type portTokens(P &p)
   { return typename PortTokens<typename P::chan_base_type>::type(p); }
 
 /****************************************************************************
- * DBinOp<DPortTokens<CI>,E,DOpBinGe> represents a request for available/free
+ * DBinOp<DPortTokens<CI>,E,OpBinT::Ge> represents a request for available/free
  * number of tokens on actor ports
  */
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
 template <class CI, class E>
-struct CommReset<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
+struct CommReset<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
 {
   typedef void result_type;
 
   static inline
-  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> &e)
+  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommReset<DBinOp<DPortTokens<CI>,E,DOpBinGe> >"
+    std::cerr << "CommReset<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >"
                  "::apply(" << e.a.p.name() << ", ... )" << std::endl;
 # endif
     return e.a.p.portAccess->setLimit(0);
@@ -191,15 +191,15 @@ struct CommReset<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
 };
 
 template <class CI, class E>
-struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
+struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
 {
   typedef void result_type;
 
   static inline
-  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> &e)
+  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommSetup<DBinOp<DPortTokens<CI>,E,DOpBinGe> >"
+    std::cerr << "CommSetup<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >"
                  "::apply(" << e.a.p.name() << ", ... )" << std::endl;
 # endif
     size_t req = Value<E>::apply(e.b);
@@ -213,7 +213,7 @@ struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
 #endif
 
 template <class CI, typename T>
-struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::DOpBinGe> >
+struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::OpBinT::Ge> >
 {
   typedef Detail::Process      match_type;
 
@@ -221,23 +221,23 @@ struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::DOpBinGe> >
   typedef smoc_event_and_list &param1_type;
 
   static
-  void apply(const DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::DOpBinGe> &e,
+  void apply(const DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::OpBinT::Ge> &e,
              smoc_event_and_list &al)
   {
     al &= e.a.getCI().blockEvent(Value<DLiteral<T> >::apply(e.b));
 //#ifdef SYSTEMOC_DEBUG
-//  std::cerr << "Sensitivity<DBinOp<DPortTokens<CI>,E,DOpBinGe> >::apply al == " << al << std::endl;
+//  std::cerr << "Sensitivity<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >::apply al == " << al << std::endl;
 //#endif
   }
 };
 
 template <class CI, class E>
-struct Value<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
+struct Value<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
 {
   typedef Expr::Detail::ENABLED result_type;
 
   static inline
-  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> &e)
+  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
   {
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     size_t req = Value<E>::apply(e.b);
@@ -375,8 +375,8 @@ public:
 
     typedef Expr::BinOp<
       Expr::DComm<this_type,Expr::DLiteral<size_t> >,
-      Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
-      Expr::DOpBinLAnd>::type                 CommAndPortTokensGuard;
+      Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
+      Expr::OpBinT::LAnd>::type                 CommAndPortTokensGuard;
     typedef Expr::PortTokens<this_type>::type PortTokensGuard;
   public:
     // operator(n,m) n: How many tokens to consume, m: How many tokens must be available
@@ -464,8 +464,8 @@ public:
 
     typedef Expr::BinOp<
       Expr::DComm<this_type,Expr::DLiteral<size_t> >,
-      Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::DOpBinGe>,
-      Expr::DOpBinLAnd>::type                 CommAndPortTokensGuard;
+      Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
+      Expr::OpBinT::LAnd>::type                 CommAndPortTokensGuard;
     typedef Expr::PortTokens<this_type>::type PortTokensGuard;
   public:
     // operator(n,m) n: How many tokens to produce, m: How much space must be available

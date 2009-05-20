@@ -106,7 +106,7 @@ public:
     return boost::blank();
   }
 
-  template<_OpBinT op>
+  template<OpBinT::Op op>
   PortReqVar operator()(const ASTNodeBinOpXXX<op> &obj)
   { return (*this)(static_cast<const SGX::ASTNodeBinOp&>(obj)); }
 

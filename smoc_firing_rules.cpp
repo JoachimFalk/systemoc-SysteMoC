@@ -53,11 +53,16 @@
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 //#include <systemoc/detail/smoc_ngx_sync.hpp>
 
-#include <sgx.hpp>
+#ifdef SYSTEMOC_ENABLE_SGX
+# include <systemoc/detail/smoc_ast_ngx_visitor.hpp>
+# include <sgx.hpp>
+using namespace SystemCoDesigner::SGX;
+namespace AP = SysteMoC::ActivationPattern;
+//using SysteMoC::Detail::ASTNGXVisitor;
+#endif // SYSTEMOC_ENABLE_SGX
 
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::Detail;
-using namespace SystemCoDesigner::SGX;
 using CoSupport::String::Concat;
 
 #include <CoSupport/Streams/FilterOStream.hpp>
@@ -390,6 +395,10 @@ void RuntimeTransition::assembleXML() {
 
   trans->action() =
     boost::apply_visitor(ActionNGXVisitor(), f);
+
+  ASTNGXVisitor v;
+  trans->activationPattern() =
+    AP::apply_visitor(v, Expr::evalTo<Expr::AST>(getExpr()));
 }
 #endif //SYSTEMOC_ENABLE_SGX
 
