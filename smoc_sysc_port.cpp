@@ -85,7 +85,7 @@ void smoc_sysc_port::assembleXML() {
   port = &_p;
 
   // set some attributes
-  port->direction().set(isInput() ? Port::IN : Port::OUT);
+  port->direction() = isInput() ? Port::IN : Port::OUT;
 
   smoc_root_node* pn =
     dynamic_cast<smoc_root_node*>(get_parent_object());

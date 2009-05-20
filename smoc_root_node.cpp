@@ -84,6 +84,14 @@ void smoc_root_node::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_node::finalise() begin, name == " << this->name() << std::endl;
 #endif
+  
+  // finalise ports before FSM (ActivationPattern needs port nodes)
+  smoc_sysc_port_list ports = getPorts();
+  for(smoc_sysc_port_list::iterator iter = ports.begin();
+      iter != ports.end(); ++iter)
+  {
+    (*iter)->finalise();
+  }
  
   getFiringFSM()->finalise(this, initialState.getImpl());
   currentState = getFiringFSM()->getInitialState();
@@ -95,12 +103,6 @@ void smoc_root_node::finalise() {
   //          << "; #leafStates: " << currentState->getFiringFSM()->getLeafStates().size()
   //          << std::endl;
 
-  smoc_sysc_port_list ports = getPorts();
-  
-  for (smoc_sysc_port_list::iterator iter = ports.begin();
-       iter != ports.end();
-       ++iter)
-    (*iter)->finalise();
   
   //check for non strict transitions
   const RuntimeStateSet& states = getFiringFSM()->getStates(); 

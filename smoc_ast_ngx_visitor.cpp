@@ -69,7 +69,13 @@ result_type ASTNGXVisitor::operator()(AP::ASTNodeMemGuard &a) {
   SGX::ASTNodeMemGuard s;
   s.name().set(a.getName());
 
-  // Parameters
+  for(AP::ParamInfoList::const_iterator pIter = a.getParams().begin();
+      pIter != a.getParams().end(); ++pIter)
+  {
+    SGX::Parameter p(pIter->type, pIter->value);
+    //p.name() = pIter->name;
+    s.parameters().push_back(p);
+  }
 
   return &s;
 }
@@ -106,7 +112,7 @@ result_type ASTNGXVisitor::operator()(AP::ASTNodePortIteration &a) {
 
 result_type ASTNGXVisitor::operator()(AP::ASTNodeBinOp &a) {
   SGX::ASTNodeBinOp s;
-  s.opType().set(a.getOpType());
+  s.opType() = a.getOpType();
   s.leftNode() = apply_visitor(*this, a.getLeftNode());
   s.rightNode() = apply_visitor(*this, a.getRightNode());
   return &s;
@@ -114,7 +120,7 @@ result_type ASTNGXVisitor::operator()(AP::ASTNodeBinOp &a) {
 
 result_type ASTNGXVisitor::operator()(AP::ASTNodeUnOp &a) {
   SGX::ASTNodeUnOp s;
-  s.opType().set(a.getOpType());
+  s.opType() = a.getOpType();
   s.childNode() = apply_visitor(*this, a.getChildNode());
   return &s;
 }
