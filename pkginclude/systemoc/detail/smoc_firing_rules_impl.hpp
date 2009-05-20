@@ -241,7 +241,7 @@ private:
 #endif
 
 public:
-  RuntimeState(const std::string name);
+  RuntimeState(const std::string name = "");
 
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();

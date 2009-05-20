@@ -58,6 +58,7 @@
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::Detail;
 using namespace SystemCoDesigner::SGX;
+using CoSupport::String::Concat;
 
 #include <CoSupport/Streams/FilterOStream.hpp>
 #include <CoSupport/Streams/IndentStreambuf.hpp>
@@ -73,6 +74,7 @@ MyDebugOstream outDbg;
 //#define FSM_FINALIZE_BENCHMARK
 
 static const char HIERARCHY_SEPARATOR = '.';
+static const char PRODSTATE_SEPARATOR = ',';
 
 
 template<class C> inline bool single(const C& c) {
@@ -377,14 +379,15 @@ RuntimeState* RuntimeTransition::getDestState() const
 const smoc_action& RuntimeTransition::getAction() const
   { return f; }
 
-//static int RuntimeStateCount = 0;
+static int UnnamedStateCount = 0;
 
 RuntimeState::RuntimeState(const std::string name)
-  : _name(name) {
-//: sc_object(sc_gen_unique_name("smoc_firing_state"))
-  //: sc_object(CoSupport::String::Concat
-  //    ("smoc_firing_state_")(RuntimeStateCount++).get().c_str())
+  : _name(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name) {
 //idPool.regObj(this);
+
+  if(name.find(PRODSTATE_SEPARATOR) != std::string::npos)
+    assert(!"RuntimeState: Invalid state name");
+
 #ifdef SYSTEMOC_ENABLE_SGX
   assembleXML();
 #endif
@@ -455,18 +458,17 @@ FiringFSM::Ptr FiringFSMImpl::getFSM() const
   { return fsm; }
 
 std::ostream& operator<<(std::ostream& os, const ProdState& p) {
-  os << "(";
+  //os << "(";
   for(ProdState::const_iterator s = p.begin();
       s != p.end(); ++s)
   {
-    if(s != p.begin()) os << ",";
-    
-    if((*s)->getName().empty())
-      os << *s;
-    else
-      os << (*s)->getName();
+    if(s != p.begin())
+      os << PRODSTATE_SEPARATOR;
+    assert(!(*s)->getName().empty());
+    os << (*s)->getName();
   }
-  return os << ")";
+  //os << ")";
+  return os;
 }
 
 /*
@@ -592,8 +594,7 @@ void FiringFSMImpl::finalise(
 
     if(SysteMoC::Detail::dumpFSMs) {
 
-      std::string f =
-        CoSupport::String::Concat("FSM_")(actor->name())(".dot");
+      std::string f = Concat("FSM_")(actor->name())(".dot");
       fsmDump = new std::ofstream(f.c_str());
 
       *fsmDump << "digraph G {" << std::endl;
@@ -840,10 +841,12 @@ void intrusive_ptr_release(FiringStateBaseImpl *p)
 
 HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
   : FiringStateBaseImpl(),
-    name(name),
+    name(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name),
     parent(0)
 {
   if(name.find(HIERARCHY_SEPARATOR) != std::string::npos)
+    assert(!"smoc_hierarchical_state: Invalid state name");
+  if(name.find(PRODSTATE_SEPARATOR) != std::string::npos)
     assert(!"smoc_hierarchical_state: Invalid state name");
 }
 
@@ -857,10 +860,11 @@ std::string HierarchicalStateImpl::getHierarchicalName() const {
   if(!parent || parent == fsm->top) {
     return name;
   }
+  assert(!name.empty());
   return
     parent->getHierarchicalName() +
     HIERARCHY_SEPARATOR +
-    (name.empty() ? "???" : name) ;
+    name;
 }
 
 void HierarchicalStateImpl::setParent(HierarchicalStateImpl* v) {
@@ -1143,7 +1147,7 @@ ANDStateImpl::ANDStateImpl(size_t part, const std::string& name)
   if(part < 2)
     assert(!"smoc_and_state: Must contain at least two partitions");
   for(size_t i = 0; i < part; ++i) {
-    c[i] = new XORStateImpl(CoSupport::String::Concat(i));
+    c[i] = new XORStateImpl(Concat(i));
 
     fsm->unify(c[i]->getFiringFSM());
     fsm->delState(c[i]);
