@@ -387,6 +387,9 @@ void RuntimeTransition::assembleXML() {
   // set some attributes
   if(dest)
     trans->dstState() = dest->getNGXObj();
+
+  trans->action() =
+    boost::apply_visitor(ActionNGXVisitor(), f);
 }
 #endif //SYSTEMOC_ENABLE_SGX
 
