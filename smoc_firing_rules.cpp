@@ -420,10 +420,6 @@ static int UnnamedStateCount = 0;
 RuntimeState::RuntimeState(const std::string name)
   : _name(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name) {
 //idPool.regObj(this);
-
-  if(name.find(PRODSTATE_SEPARATOR) != std::string::npos)
-    assert(!"RuntimeState: Invalid state name");
-
   finalise();
 }
 
