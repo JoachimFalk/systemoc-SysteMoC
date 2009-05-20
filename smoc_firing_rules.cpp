@@ -43,6 +43,7 @@
 #include <CoSupport/DataTypes/oneof.hpp>
 #include <CoSupport/String/Concat.hpp>
 #include <CoSupport/Math/flog2.hpp>
+#include <CoSupport/String/convert.hpp>
 
 #include <systemoc/smoc_config.h>
 
@@ -64,6 +65,7 @@ namespace AP = SysteMoC::ActivationPattern;
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::Detail;
 using CoSupport::String::Concat;
+using CoSupport::String::asStr;
 
 #include <CoSupport/Streams/FilterOStream.hpp>
 #include <CoSupport/Streams/IndentStreambuf.hpp>
@@ -1189,7 +1191,7 @@ ANDStateImpl::ANDStateImpl(size_t part, const std::string& name)
   if(part < 2)
     assert(!"smoc_and_state: Must contain at least two partitions");
   for(size_t i = 0; i < part; ++i) {
-    c[i] = new XORStateImpl(Concat(i));
+    c[i] = new XORStateImpl(asStr(i));
 
     fsm->unify(c[i]->getFiringFSM());
     fsm->delState(c[i]);

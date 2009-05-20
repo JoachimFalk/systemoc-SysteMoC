@@ -34,12 +34,14 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/detail/smoc_graph_synth.hpp>
+
+#ifdef SYSTEMOC_ENABLE_SGX
+
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
 
 #include <systemoc/smoc_config.h>
-
-#include <systemoc/detail/smoc_graph_synth.hpp>
 
 #include <CoSupport/DataTypes/container_insert.hpp>
 
@@ -499,3 +501,5 @@ void smoc_graph_synth::generateFSM() {
 }
 
 } } // namespace SysteMoC::Detail
+
+#endif // SYSTEMOC_ENABLE_SGX

@@ -39,6 +39,8 @@
 
 #include <systemoc/smoc_config.h>
 
+#ifdef SYSTEMOC_ENABLE_SGX
+
 #include "../smoc_graph_type.hpp"
 #include "smoc_pggen.hpp"
 //#include "smoc_ngx_sync.hpp"
@@ -165,5 +167,7 @@ private:
 };
 
 } } // namespace SysteMoC::Detail
+
+#endif // SYSTEMOC_ENABLE_SGX
 
 #endif // _INCLUDED_DETAIL_SMOC_GRAPH_SYNTH_HPP
