@@ -39,7 +39,7 @@
 #include <systemoc/detail/smoc_chan_if.hpp>
 //#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_root_node.hpp>
-#include <systemoc/detail/smoc_pggen.hpp>
+#include <smoc/SimulationCTX.hpp>
 
 #include <map>
 #include <sstream>

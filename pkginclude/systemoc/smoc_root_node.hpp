@@ -55,7 +55,7 @@
 #include "detail/smoc_firing_rules_impl.hpp"
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/NamedIdedObj.hpp"
-#include "detail/smoc_pggen.hpp"
+#include <smoc/SimulationCTX.hpp>
 #include "smoc_expr.hpp"
 #include "smoc_ast_systemoc.hpp"
 

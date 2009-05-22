@@ -38,6 +38,13 @@
 
 #warning "The systemoc/smoc_pggen.hpp header is obsolete do not include it!"
 
-#include "detail/smoc_pggen.hpp"
+#include <smoc/SimulationCTX.hpp>
+
+// Backward compatibility cruft
+namespace smoc_modes {
+  using SysteMoC::Detail::dumpSMXWithSim;
+  using SysteMoC::Detail::dumpFileSMX;
+  using SysteMoC::Detail::dumpFSMs;
+} // namespace smoc_modes
 
 #endif // _INCLUDED_SMOC_PGGEN_HPP

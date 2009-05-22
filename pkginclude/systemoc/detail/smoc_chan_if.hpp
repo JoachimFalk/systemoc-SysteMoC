@@ -49,7 +49,7 @@
 
 #include "smoc_sysc_port.hpp"
 #include "../smoc_event.hpp"
-#include "smoc_pggen.hpp"
+#include <smoc/SimulationCTX.hpp>
 #include "../smoc_storage.hpp"
 #include "../smoc_expr.hpp"
 

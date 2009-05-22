@@ -55,6 +55,7 @@ AM_LDFLAGS=				\
 lib_LTLIBRARIES = libsystemoc.la
 
 libsystemoc_la_SOURCES =		\
+	SimulationCTX.cpp		\
 	smoc_main.cpp			\
 	smoc_elab_and_sim.cpp		\
 	smoc_ast_systemoc.cpp		\
@@ -69,7 +70,6 @@ libsystemoc_la_SOURCES =		\
 	smoc_root_node.cpp		\
 	smoc_sysc_port.cpp		\
 	smoc_firing_rules.cpp		\
-	smoc_pggen.cpp			\
 	smoc_chan_if.cpp		\
 	smoc_root_chan.cpp		\
 	smoc_guard.cpp			\

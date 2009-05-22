@@ -41,7 +41,7 @@
 //#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_root_node.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
-#include <systemoc/detail/smoc_pggen.hpp>
+#include <smoc/SimulationCTX.hpp>
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 using namespace SysteMoC::Detail;

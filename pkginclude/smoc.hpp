@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -33,39 +33,9 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_DETAIL_SMOC_PGGEN_HPP
-#define _INCLUDED_DETAIL_SMOC_PGGEN_HPP
+#ifndef _INCLUDED_SMOC_HPP
+#define _INCLUDED_SMOC_HPP
 
-#include <ostream>
+#include "smoc/SimulationCTX.hpp"
 
-#include <systemoc/smoc_config.h>
-
-#ifdef SYSTEMOC_ENABLE_SGX
-#include <sgx.hpp>
-#endif // SYSTEMOC_ENABLE_SGX
-
-namespace SysteMoC { namespace Detail {
-
-#ifdef SYSTEMOC_ENABLE_SGX
-namespace SGX = SystemCoDesigner::SGX;
-#endif // SYSTEMOC_ENABLE_SGX
- 
-#ifdef SYSTEMOC_ENABLE_SGX
-extern SystemCoDesigner::SGX::NetworkGraphAccess ngx;
-#endif // SYSTEMOC_ENABLE_SGX
-
-extern bool          dumpSMXWithSim;
-extern std::ostream *dumpFileSMX;
-extern std::ostream *dumpTrace;
-extern bool          dumpFSMs;
-
-} } // namespace SysteMoC::Detail
-
-// Backward compatibility cruft
-namespace smoc_modes {
-  using SysteMoC::Detail::dumpSMXWithSim;
-  using SysteMoC::Detail::dumpFileSMX;
-  using SysteMoC::Detail::dumpFSMs;
-} // namespace smoc_modes
-
-#endif // _INCLUDED_DETAIL_SMOC_PGGEN_HPP
+#endif // _INCLUDED_SMOC_HPP

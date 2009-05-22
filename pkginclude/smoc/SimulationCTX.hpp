@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -33,17 +33,47 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/detail/smoc_pggen.hpp>
+#ifndef _INCLUDED_SMOC_SIMULATIONCTX_HPP
+#define _INCLUDED_SMOC_SIMULATIONCTX_HPP
 
-namespace SysteMoC { namespace Detail {
+#include <ostream>
+
+#include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_SGX
-SystemCoDesigner::SGX::NetworkGraphAccess ngx;
+#include <sgx.hpp>
 #endif // SYSTEMOC_ENABLE_SGX
 
-bool          dumpSMXWithSim = false;
-std::ostream *dumpFileSMX    = NULL;
-std::ostream *dumpTrace      = NULL;
-bool          dumpFSMs       = false;
+namespace SysteMoC {
 
-} } // namespace SysteMoC::Detail
+namespace Detail {
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  namespace SGX = SystemCoDesigner::SGX;
+
+  extern SGX::NetworkGraphAccess ngx;
+#endif // SYSTEMOC_ENABLE_SGX
+
+  extern bool          dumpSMXWithSim;
+  extern std::ostream *dumpFileSMX;
+  extern std::ostream *dumpTrace;
+  extern bool          dumpFSMs;
+
+} // namespace Detail
+
+class SimulationCTX {
+protected:
+  int    argc;
+  char **argv;
+public:
+  SimulationCTX(int _argc, char *_argv[]);
+
+  int    getArgc();
+  char **getArgv();
+
+  ~SimulationCTX();
+};
+
+} // namespace SysteMoC
+
+#endif // _INCLUDED_SMOC_SIMULATIONCTX_HPP
