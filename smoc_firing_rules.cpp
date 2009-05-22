@@ -266,10 +266,10 @@ void RuntimeTransition::execute(int mode) {
 #ifdef SYSTEMOC_ENABLE_TRACE
   if (execMode == MODE_DIISTART) {
     if (SysteMoC::Detail::dumpTrace != NULL) {
-      *SysteMoC::Detail::dumpTrace << "<transition "
-        "actor=\"" << actor->name() << "\" "
-        "from=\"" << actor->getCurrentState()->name() << "\" "
-        "to=\"" << nextState->name() << "\"/>" << std::endl;
+      *SysteMoC::Detail::dumpTrace << "<t id=\"" << getNGXObj()->id() << "\"/>\n";
+//      "actor=\"" << actor->name() << "\" "
+//      "from=\"" << actor->getCurrentState()->name() << "\" "
+//      "to=\"" << nextState->name() << "\"/>" << std::endl;
     }
   }
 #endif // defined(SYSTEMOC_ENABLE_TRACE)
