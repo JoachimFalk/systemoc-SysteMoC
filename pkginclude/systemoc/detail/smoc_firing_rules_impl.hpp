@@ -47,7 +47,7 @@
 #include "../smoc_firing_rules.hpp"
 
 #include <smoc/SimulationCTX.hpp>
-#include "NamedIdedObj.hpp"
+#include <smoc/detail/NamedIdedObj.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {

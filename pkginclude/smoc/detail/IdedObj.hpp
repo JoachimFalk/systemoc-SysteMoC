@@ -34,18 +34,38 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include "IdedObj.hpp"
+#include <systemoc/smoc_config.h>
 
-#ifndef _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
-#define _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
+#ifdef SYSTEMOC_ENABLE_SGX
+# include <sgx.hpp>
+#endif // SYSTEMOC_ENABLE_SGX
+
+#ifndef _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
+#define _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
 
 namespace SysteMoC { namespace Detail {
 
-class NamedIdedObj: public IdedObj {
+#if defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
+
+# ifdef SYSTEMOC_ENABLE_SGX
+using SystemCoDesigner::SGX::NgId;
+# else // !SYSTEMOC_ENABLE_SGX
+typedef uint32_t NgId;
+# endif // !SYSTEMOC_ENABLE_SGX
+
+class IdedObj {
+  NgId _id;
 public:
-  virtual const char *name() const = 0;
+  IdedObj()
+    : _id(-1) {}
+
+  NgId getId() const
+    { return _id; }
+  void setId(NgId id)
+    { _id = id; }
 };
+#endif // defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
 
 } } // namespace SysteMoC::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
+#endif // _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP

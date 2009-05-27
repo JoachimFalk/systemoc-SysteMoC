@@ -33,45 +33,17 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SIMULATIONCTX_HPP
-#define _INCLUDED_SMOC_SIMULATIONCTX_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_IDTALLOCREQUEST_HPP
+#define _INCLUDED_SMOC_DETAIL_IDTALLOCREQUEST_HPP
 
-#include <ostream>
+#include <CoSupport/Allocators/IdAllocRequest.hpp>
 
-#include <systemoc/smoc_config.h>
+#include "IdedObj.hpp"
 
-#include "detail/IdPool.hpp"
+namespace SysteMoC { namespace Detail {
 
-namespace SysteMoC {
+typedef CoSupport::Allocators::IdAllocRequest<NgId> IdTAllocRequest;
 
-namespace Detail {
+} } // namespace SysteMoC::Detail
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  namespace SGX = SystemCoDesigner::SGX;
-
-  extern SGX::NetworkGraphAccess ngx;
-#endif // SYSTEMOC_ENABLE_SGX
-
-  extern bool          dumpSMXWithSim;
-  extern std::ostream *dumpFileSMX;
-  extern std::ostream *dumpTrace;
-  extern bool          dumpFSMs;
-
-} // namespace Detail
-
-class SimulationCTX {
-protected:
-  int    argc;
-  char **argv;
-public:
-  SimulationCTX(int _argc, char *_argv[]);
-
-  int    getArgc();
-  char **getArgv();
-
-  ~SimulationCTX();
-};
-
-} // namespace SysteMoC
-
-#endif // _INCLUDED_SMOC_SIMULATIONCTX_HPP
+#endif // _INCLUDED_SMOC_DETAIL_IDTALLOCREQUEST_HPP

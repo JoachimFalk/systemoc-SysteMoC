@@ -26,6 +26,8 @@ SUBDIRS=
 
 nobase_include_HEADERS = \
 	smoc/SimulationCTX.hpp \
+	smoc/detail/IdedObj.hpp \
+	smoc/detail/NamedIdedObj.hpp \
 	\
 	systemoc/smoc_config.h \
 	\
@@ -44,8 +46,6 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_firing_rules_impl.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_root_chan.hpp \
-	systemoc/detail/IdedObj.hpp \
-	systemoc/detail/NamedIdedObj.hpp \
 	systemoc/detail/smoc_graph_synth.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
