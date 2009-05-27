@@ -40,7 +40,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_sr_signal.hpp>
 #include <systemoc/smoc_multicast_sr_signal.hpp>
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #include <CoSupport/DataTypes/oneof.hpp>
 

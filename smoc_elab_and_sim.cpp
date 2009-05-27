@@ -33,12 +33,12 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #include <sysc/kernel/sc_cmnhdr.h>
 #include <sysc/kernel/sc_externs.h>
 
 int smoc_elab_and_sim(int _argc, char *_argv[]) {
-  SysteMoC::SimulationCTX ctx(_argc, _argv);
+  SysteMoC::smoc_simulation_ctx ctx(_argc, _argv);
   return sc_core::sc_elab_and_sim(ctx.getArgc(), ctx.getArgv());  
 }

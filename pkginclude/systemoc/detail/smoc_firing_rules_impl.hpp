@@ -46,7 +46,7 @@
 #include "../smoc_func_call.hpp"
 #include "../smoc_firing_rules.hpp"
 
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 #include <smoc/detail/NamedIdedObj.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC

@@ -45,7 +45,7 @@
 
 #include <systemoc/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_TRACE
 

@@ -25,7 +25,7 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 nobase_include_HEADERS = \
-	smoc/SimulationCTX.hpp \
+	smoc/smoc_simulation_ctx.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/NamedIdedObj.hpp \
 	\

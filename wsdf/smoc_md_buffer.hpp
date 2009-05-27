@@ -11,7 +11,7 @@
 #include "smoc_md_loop.hpp"
 #include <wsdf/smoc_md_array.hpp>
 #include "detail/smoc_md_chan_if.hpp"
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 #include <wsdf/smoc_wsdf_edge.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BUFFER

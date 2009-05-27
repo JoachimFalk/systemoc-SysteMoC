@@ -59,17 +59,17 @@ namespace Detail {
 
 } // namespace Detail
 
-class SimulationCTX {
+class smoc_simulation_ctx {
 protected:
   int    argc;
   char **argv;
 public:
-  SimulationCTX(int _argc, char *_argv[]);
+  smoc_simulation_ctx(int _argc, char *_argv[]);
 
   int    getArgc();
   char **getArgv();
 
-  ~SimulationCTX();
+  ~smoc_simulation_ctx();
 };
 
 } // namespace SysteMoC

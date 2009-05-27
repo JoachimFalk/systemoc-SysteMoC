@@ -39,7 +39,7 @@
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 #include <systemoc/smoc_guard.hpp>
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 void smoc_activation_pattern::finalise() {
 #ifdef SYSTEMOC_DEBUG

@@ -44,13 +44,13 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 using namespace boost::program_options;
 
@@ -69,7 +69,7 @@ namespace Detail {
 
 } // namespace Detail
 
-SimulationCTX::SimulationCTX(int _argc, char *_argv[])
+smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
   : argc(1), argv(_argv) {
   options_description od;
   od.add_options()
@@ -173,7 +173,7 @@ SimulationCTX::SimulationCTX(int _argc, char *_argv[])
 #endif
 }
 
-SimulationCTX::~SimulationCTX() {
+smoc_simulation_ctx::~smoc_simulation_ctx() {
   // Do not free argv[0] it was not strdupped
   for(--argc; argc >= 1; --argc)
     free(argv[argc]);
@@ -185,11 +185,11 @@ SimulationCTX::~SimulationCTX() {
   SysteMoC::Detail::dumpTrace = NULL;
 }
 
-int SimulationCTX::getArgc() {
+int smoc_simulation_ctx::getArgc() {
   return argc;
 }
 
-char **SimulationCTX::getArgv() {
+char **smoc_simulation_ctx::getArgv() {
   return argv;
 }
 

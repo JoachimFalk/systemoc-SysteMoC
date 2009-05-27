@@ -38,7 +38,7 @@
 
 #warning "The systemoc/smoc_pggen.hpp header is obsolete do not include it!"
 
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 // Backward compatibility cruft
 namespace smoc_modes {

@@ -53,7 +53,7 @@
 #include "smoc_multicast_sr_signal.hpp"
 #include "smoc_node_types.hpp"
 #include "smoc_moc.hpp"
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #include "smoc_chan_adapter.hpp"
 

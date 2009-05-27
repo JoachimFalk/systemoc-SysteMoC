@@ -42,7 +42,7 @@
 #ifdef SYSTEMOC_ENABLE_SGX
 
 #include "../smoc_graph_type.hpp"
-#include <smoc/SimulationCTX.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 //#include "smoc_ngx_sync.hpp"
 
 namespace SysteMoC { namespace Detail {
