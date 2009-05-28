@@ -42,9 +42,9 @@
 
 // Backward compatibility cruft
 namespace smoc_modes {
-  using SysteMoC::Detail::dumpSMXWithSim;
-  using SysteMoC::Detail::dumpFileSMX;
-  using SysteMoC::Detail::dumpFSMs;
+  extern bool          dumpSMXWithSim;
+  extern std::ostream *dumpFileSMX;
+  extern bool          dumpFSMs;
 } // namespace smoc_modes
 
 #endif // _INCLUDED_SMOC_PGGEN_HPP

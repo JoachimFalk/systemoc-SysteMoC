@@ -44,18 +44,20 @@
 
 namespace SysteMoC {
 
+class smoc_simulation_ctx;
+
 namespace Detail {
 
 #ifdef SYSTEMOC_ENABLE_SGX
   namespace SGX = SystemCoDesigner::SGX;
-
-  extern SGX::NetworkGraphAccess ngx;
 #endif // SYSTEMOC_ENABLE_SGX
 
-  extern bool          dumpSMXWithSim;
-  extern std::ostream *dumpFileSMX;
-  extern std::ostream *dumpTrace;
-  extern bool          dumpFSMs;
+  extern smoc_simulation_ctx *currentSimCTX;
+
+  struct SimCTXBase {
+    smoc_simulation_ctx *getSimCTX()
+      { return currentSimCTX; }
+  };
 
 } // namespace Detail
 
@@ -63,11 +65,50 @@ class smoc_simulation_ctx {
 protected:
   int    argc;
   char **argv;
+
+  bool          dumpSMXWithSim;
+  std::ostream *dumpFileSMX;
+  std::ostream *dumpFileTrace;
+  bool          dumpFSMs;
+#ifdef SYSTEMOC_ENABLE_SGX
+  Detail::SGX::NetworkGraphAccess ngx;
+#endif // SYSTEMOC_ENABLE_SGX
+#ifdef SYSTEMOC_NEED_IDS
+  Detail::IdPool                  idPool;
+#endif // SYSTEMOC_NEED_IDS
 public:
   smoc_simulation_ctx(int _argc, char *_argv[]);
 
   int    getArgc();
   char **getArgv();
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  Detail::SGX::NetworkGraphAccess &getExportNGX()
+    { return ngx; }
+  bool isSMXDumpingPreSimEnabled()
+    { return dumpFileSMX && !dumpSMXWithSim; }
+  std::ostream &getSMXPreSimFile()
+    { return *dumpFileSMX; }
+  bool isSMXDumpingPostSimEnabled()
+    { return dumpFileSMX && dumpSMXWithSim; }
+  std::ostream &getSMXPostSimFile()
+    { return *dumpFileSMX; }
+#endif // SYSTEMOC_ENABLE_SGX
+#ifdef SYSTEMOC_NEED_IDS
+  Detail::IdPool &getIdPool()
+    { return idPool; }
+#endif // SYSTEMOC_NEED_IDS
+#ifdef SYSTEMOC_ENABLE_TRACE
+  bool isTraceDumpingEnabled() const
+    { return dumpFileTrace != NULL; }
+  std::ostream &getTraceFile()
+    { return *dumpFileTrace; }
+#endif // SYSTEMOC_ENABLE_TRACE
+  bool isFSMDumpingEnabled() const
+    { return dumpFSMs; }
+
+  void defCurrentCTX();
+  void undefCurrentCTX();
 
   ~smoc_simulation_ctx();
 };

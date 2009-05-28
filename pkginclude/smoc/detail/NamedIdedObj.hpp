@@ -43,12 +43,12 @@
 
 namespace SysteMoC { namespace Detail {
 
-#if defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
+#ifdef SYSTEMOC_NEED_IDS
 class NamedIdedObj: public IdedObj {
 public:
   virtual const char *name() const = 0;
 };
-#endif // defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
+#endif // SYSTEMOC_NEED_IDS
 
 } } // namespace SysteMoC::Detail
 

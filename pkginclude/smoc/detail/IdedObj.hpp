@@ -45,7 +45,7 @@
 
 namespace SysteMoC { namespace Detail {
 
-#if defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
+#ifdef SYSTEMOC_NEED_IDS
 
 # ifdef SYSTEMOC_ENABLE_SGX
 using SystemCoDesigner::SGX::NgId;
@@ -64,7 +64,7 @@ public:
   void setId(NgId id)
     { _id = id; }
 };
-#endif // defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
+#endif // SYSTEMOC_NEED_IDS
 
 } } // namespace SysteMoC::Detail
 

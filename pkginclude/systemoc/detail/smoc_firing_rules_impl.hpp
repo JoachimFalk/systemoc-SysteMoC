@@ -168,7 +168,10 @@ typedef std::list<ExpandedTransition> ExpandedTransitionList;
 
 class RuntimeState;
 
-class RuntimeTransition : public smoc_activation_pattern {
+class RuntimeTransition
+: public smoc_activation_pattern,
+  public SysteMoC::Detail::IdedObj,
+  public SysteMoC::Detail::SimCTXBase {
 private:
   /// @brief Parent node
   smoc_root_node *actor;
@@ -270,7 +273,8 @@ public:
 typedef std::set<RuntimeState*> RuntimeStateSet;
 typedef std::list<RuntimeState*> RuntimeStateList;
 
-class FiringFSMImpl {
+class FiringFSMImpl
+: public SysteMoC::Detail::SimCTXBase {
 public:
   typedef FiringFSMImpl this_type;
 

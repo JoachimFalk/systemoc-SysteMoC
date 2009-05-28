@@ -79,27 +79,26 @@ void smoc_scheduler_top::start_of_simulation()
 
 void smoc_scheduler_top::end_of_simulation() {
   simulation_running = false;
-  if(SysteMoC::Detail::dumpFileSMX && SysteMoC::Detail::dumpSMXWithSim)
-    dump();
+#ifdef SYSTEMOC_ENABLE_SGX
+  if (getSimCTX()->isSMXDumpingPostSimEnabled()) {
+    assert(!"At the moment unsupported!");
+  }
+#endif // SYSTEMOC_ENABLE_SGX
 }
 
 void smoc_scheduler_top::end_of_elaboration() {
   g->finalise();
   g->reset();
-  if(SysteMoC::Detail::dumpFileSMX && !SysteMoC::Detail::dumpSMXWithSim) {
-    dump();
+#ifdef SYSTEMOC_ENABLE_SGX
+  if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
+    ArchitectureGraph ag("architecture graph");
+    getSimCTX()->getExportNGX().architectureGraphPtr() = &ag;
+    getSimCTX()->getExportNGX().save(getSimCTX()->getSMXPreSimFile());
     sc_core::sc_stop();
   }
+#endif // SYSTEMOC_ENABLE_SGX
 }
   
-void smoc_scheduler_top::dump() {
-#ifdef SYSTEMOC_ENABLE_SGX
-  ArchitectureGraph ag("architecture graph");
-  SysteMoC::Detail::ngx.architectureGraphPtr() = &ag;
-  SysteMoC::Detail::ngx.save(*SysteMoC::Detail::dumpFileSMX);
-#endif
-}
-
 void smoc_scheduler_top::schedule() {
   smoc_transition_ready_list ol;
   

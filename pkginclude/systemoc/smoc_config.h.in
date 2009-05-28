@@ -18,4 +18,8 @@
 /* Defined if WSDF support is enabled */
 #undef SYSTEMOC_ENABLE_WSDF
 
+#if defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
+# define SYSTEMOC_NEED_IDS
+#endif /* defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX) */
+
 #endif /* _INCLUDED_SMOC_CONFIG_H */

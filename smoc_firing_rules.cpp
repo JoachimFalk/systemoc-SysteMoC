@@ -265,14 +265,12 @@ void RuntimeTransition::execute(int mode) {
   
 #ifdef SYSTEMOC_ENABLE_TRACE
   if (execMode == MODE_DIISTART) {
-    if (SysteMoC::Detail::dumpTrace != NULL) {
-      *SysteMoC::Detail::dumpTrace << "<t id=\"" << getNGXObj()->id() << "\"/>\n";
-//      "actor=\"" << actor->name() << "\" "
-//      "from=\"" << actor->getCurrentState()->name() << "\" "
-//      "to=\"" << nextState->name() << "\"/>" << std::endl;
+    if (getSimCTX()->isTraceDumpingEnabled()) {
+//    getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
+      getSimCTX()->getTraceFile() << "<t id=\"" << getNGXObj()->id() << "\"/>\n";
     }
   }
-#endif // defined(SYSTEMOC_ENABLE_TRACE)
+#endif // SYSTEMOC_ENABLE_TRACE
   
 #ifdef SYSTEMOC_ENABLE_VPC
   if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
@@ -633,7 +631,7 @@ void FiringFSMImpl::finalise(
 
     std::ofstream* fsmDump = 0;
 
-    if(SysteMoC::Detail::dumpFSMs) {
+    if (getSimCTX()->isFSMDumpingEnabled()) {
 
       std::string f = Concat("FSM_")(actor->name())(".dot");
       fsmDump = new std::ofstream(f.c_str());
@@ -693,7 +691,7 @@ void FiringFSMImpl::finalise(
           RuntimeState* rd = ins.first->second;
           assert(rd);
 
-          if(SysteMoC::Detail::dumpFSMs) {
+          if (getSimCTX()->isFSMDumpingEnabled()) {
             *fsmDump << '"' << s << '"' << " -> "
                      << '"' << d << '"' << std::endl;
           }
@@ -711,7 +709,7 @@ void FiringFSMImpl::finalise(
       }
     }
 
-    if(SysteMoC::Detail::dumpFSMs) {
+    if (getSimCTX()->isFSMDumpingEnabled()) {
       *fsmDump << "}" << std::endl;
       fsmDump->close();
       delete fsmDump;

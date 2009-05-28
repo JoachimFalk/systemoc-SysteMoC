@@ -38,15 +38,15 @@
 
 #include <systemoc/smoc_config.h>
 
-#if defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
+#ifdef SYSTEMOC_NEED_IDS
 
 #include <map>
 #include <limits>
 
 #include <CoSupport/Allocators/IdPool.hpp>
 
-#include "IdedObj.hpp"
-#include "IdTAllocRequest.hpp"
+#include "NamedIdedObj.hpp"
+//#include "IdTAllocRequest.hpp"
 
 namespace SysteMoC { namespace Detail {
 
@@ -107,14 +107,11 @@ public:
   void addIdedObj(IdedObj *n);
 
   // set "id"-attribute to id
-  void addIdedObj(IdedObj *n, const NgId id);
-
-  // add object; uses ID as proposed by IdTAllocRequest
-  void addIdedObj(IdedObj *n, const IdTAllocRequest a);
+  void addIdedObj(NamedIdedObj *n);
 };
 
 } } // namespace SysteMoC::Detail
 
-#endif // defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
+#endif // SYSTEMOC_NEED_IDS
 
 #endif // _INCLUDED_SMOC_DETAIL_IDPOOL_HPP

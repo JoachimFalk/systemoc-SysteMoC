@@ -69,7 +69,8 @@ namespace SysteMoC {
 // actors or graphs!
 class smoc_root_node
 : public sc_module,
-  public SysteMoC::Detail::NamedIdedObj {
+  public SysteMoC::Detail::NamedIdedObj,
+  public SysteMoC::Detail::SimCTXBase {
 public:
   friend class RuntimeTransition;
 private:
