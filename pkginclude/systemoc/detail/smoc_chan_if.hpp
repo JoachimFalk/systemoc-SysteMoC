@@ -311,7 +311,7 @@ struct CommExec<DComm<CI, E> > {
       const smoc_ref_event_p &latEvent) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DComm<CI, E> >"
-                 "::apply(" << e.p << ", ... )" << std::endl;
+                 "::apply(" << e.p.name() << ", ... )" << std::endl;
 # endif
     return e.getCI().commExec(Value<E>::apply(e.e), diiEvent, latEvent);
   }
@@ -320,7 +320,7 @@ struct CommExec<DComm<CI, E> > {
   result_type apply(const DComm<CI, E> &e) {
 # ifdef SYSTEMOC_DEBUG
     std::cerr << "CommExec<DComm<CI, E> >"
-                 "::apply(" << e.p << ", ... )" << std::endl;
+                 "::apply(" << e.p.name() << ", ... )" << std::endl;
 # endif
     return e.getCI().commExec(Value<E>::apply(e.e));
   }
