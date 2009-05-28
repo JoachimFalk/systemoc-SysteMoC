@@ -367,16 +367,19 @@ void RuntimeTransition::execute(int mode) {
 
 void RuntimeTransition::finalise() {
   assert(actor != NULL);
-
+  
   smoc_activation_pattern::finalise();
-
+#ifdef SYSTEMOC_NEED_IDS  
+  // Allocate Id for myself.
+  getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS  
 #ifdef SYSTEMOC_ENABLE_VPC
-  if(dynamic_cast<smoc_actor *>(actor) != NULL) {
+  if (dynamic_cast<smoc_actor *>(actor) != NULL) {
     vpcLink = boost::apply_visitor(
         VPCLinkVisitor(actor->name()), f);
   }
 #endif //SYSTEMOC_ENABLE_VPC
-
+  
 #ifdef SYSTEMOC_ENABLE_SGX
   assembleXML();
 #endif //SYSTEMOC_ENABLE_SGX
@@ -426,6 +429,10 @@ RuntimeState::~RuntimeState() {
 }
 
 void RuntimeState::finalise() {
+#ifdef SYSTEMOC_NEED_IDS  
+  // Allocate Id for myself.
+  getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS  
 #ifdef SYSTEMOC_ENABLE_SGX
   assembleXML();
 #endif

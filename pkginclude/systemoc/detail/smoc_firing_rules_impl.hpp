@@ -178,7 +178,7 @@ private:
 
   /// @brief Action
   smoc_action f;
-  
+
   /// @brief Target state
   RuntimeState *dest;
 
@@ -186,7 +186,7 @@ private:
   /// @brief FastLink to VPC
   SystemC_VPC::FastLink *vpcLink;
 #endif //SYSTEMOC_ENABLE_VPC
-  
+
   /// @brief Hierarchical end-of-elaboration callback
   void finalise();
 
@@ -240,7 +240,8 @@ public:
 typedef std::list<RuntimeTransition> RuntimeTransitionList;
 
 class RuntimeState
-: public SysteMoC::Detail::NamedIdedObj {
+: public SysteMoC::Detail::NamedIdedObj,
+  public SysteMoC::Detail::SimCTXBase {
   typedef RuntimeState                    this_type;
   typedef SysteMoC::Detail::NamedIdedObj  base_type;
 private:

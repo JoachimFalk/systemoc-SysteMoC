@@ -120,10 +120,9 @@ void smoc_graph_base::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_graph_base::finalise() begin, name == " << name() << std::endl;
 #endif
-
-#ifdef SYSTEMOC_NEED_IDS
-
-#endif // SYSTEMOC_NEED_IDS
+  
+  smoc_root_node::finalise();
+  
 #ifdef SYSTEMOC_ENABLE_SGX
   assembleXML();
 #endif
@@ -253,8 +252,6 @@ void smoc_graph_base::finalise() {
   {
     (*iter)->finalise();
   }
-  
-  smoc_root_node::finalise();
   
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: FSM is attribute of Actor, not of Process

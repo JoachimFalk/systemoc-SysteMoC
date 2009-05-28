@@ -55,6 +55,7 @@ AM_LDFLAGS=				\
 lib_LTLIBRARIES = libsystemoc.la
 
 libsystemoc_la_SOURCES =		\
+	IdPool.cpp			\
 	smoc_simulation_ctx.cpp		\
 	smoc_main.cpp			\
 	smoc_elab_and_sim.cpp		\
