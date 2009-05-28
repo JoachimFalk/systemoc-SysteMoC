@@ -70,9 +70,9 @@ void smoc_sysc_port::bind(this_type &parent_) {
 }
 
 void smoc_sysc_port::finalise() {
-#ifdef SYSTEMOC_ENABLE_SGX
-  assembleXML();
-#endif
+///#ifdef SYSTEMOC_ENABLE_SGX
+//  assembleXML();
+//#endif
 }
 
 #ifdef SYSTEMOC_ENABLE_SGX

@@ -98,9 +98,9 @@ void smoc_root_chan::finalise() {
   // will do no harm if already generated
   generateName();
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  assembleXML();
-#endif
+//#ifdef SYSTEMOC_ENABLE_SGX
+//  assembleXML();
+//#endif
 
 #ifdef SYSTEMOC_ENABLE_VPC
   vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().

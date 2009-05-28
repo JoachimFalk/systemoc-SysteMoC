@@ -18,10 +18,10 @@ smoc_actor::~smoc_actor() {
 #ifdef SYSTEMOC_ENABLE_SGX
   
 void smoc_actor::finalise() {
-  assembleXML();
+  //assembleXML();
   smoc_root_node::finalise();
-  // FIXME: FSM is attribute of Actor, not of Process
-  ac->firingFSM() = getFiringFSM()->getNGXObj();
+  //// FIXME: FSM is attribute of Actor, not of Process
+  //ac->firingFSM() = getFiringFSM()->getNGXObj();
 }
 
 void smoc_actor::assembleXML() {

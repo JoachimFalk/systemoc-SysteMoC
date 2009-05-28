@@ -66,7 +66,7 @@ void smoc_multiplex_fifo_chan_base::deregisterVOutlet(FifoId fifoId) {
 void smoc_multiplex_fifo_chan_base::finalise() {
   // FIXME: need name before XML can be constructed
   generateName();
-  assembleXML();
+//assembleXML();
   smoc_root_chan::finalise();
 }
 

@@ -65,8 +65,11 @@ namespace SysteMoC {
   class smoc_graph_synth;
 }
 
-// smoc_root_node is the base class of all systemoc nodes be it
-// actors or graphs!
+/**
+ * smoc_root_node is the base class of all systemoc nodes be it
+ * actors or graphs! If you derive more stuff from this class
+ * you have to change apply_visitor.hpp accordingly.
+ */
 class smoc_root_node
 : public sc_module,
   public SysteMoC::Detail::NamedIdedObj,

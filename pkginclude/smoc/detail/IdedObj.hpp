@@ -53,7 +53,11 @@ using SystemCoDesigner::SGX::NgId;
 typedef uint32_t NgId;
 # endif // !SYSTEMOC_ENABLE_SGX
 
+class IdPool;
+
 class IdedObj {
+  friend class IdPool;
+private:
   NgId _id;
 public:
   IdedObj()
@@ -61,6 +65,7 @@ public:
 
   NgId getId() const
     { return _id; }
+private:
   void setId(NgId id)
     { _id = id; }
 };

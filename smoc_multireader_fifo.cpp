@@ -59,7 +59,7 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
 void smoc_multireader_fifo_chan_base::finalise() {
   // FIXME: need name before XML can be constructed
   generateName();
-  assembleXML();
+//assembleXML();
   smoc_root_chan::finalise();
 }
 

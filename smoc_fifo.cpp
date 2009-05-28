@@ -55,7 +55,7 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 void smoc_fifo_chan_base::finalise() {
   // FIXME: need name before XML can be constructed
   generateName();
-  assembleXML();
+  //assembleXML();
   smoc_nonconflicting_chan::finalise();
 }
 

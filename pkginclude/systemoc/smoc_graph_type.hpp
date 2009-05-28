@@ -61,7 +61,8 @@
 
 /**
  * base class for all graph classes; no scheduling of childen (->
- * derive from this class and build FSM!)
+ * derive from this class and build FSM!). If you derive more stuff
+ * from this class you have to change apply_visitor.hpp accordingly.
  */
 class smoc_graph_base : public smoc_root_node {
 public:  

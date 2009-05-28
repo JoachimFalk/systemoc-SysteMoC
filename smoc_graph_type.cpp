@@ -123,9 +123,9 @@ void smoc_graph_base::finalise() {
   
   smoc_root_node::finalise();
   
-#ifdef SYSTEMOC_ENABLE_SGX
-  assembleXML();
-#endif
+//#ifdef SYSTEMOC_ENABLE_SGX
+//  assembleXML();
+//#endif
 
 //NgId idGraph = idPool.getId(this, 1);
 
@@ -253,10 +253,10 @@ void smoc_graph_base::finalise() {
     (*iter)->finalise();
   }
   
-#ifdef SYSTEMOC_ENABLE_SGX
-  // FIXME: FSM is attribute of Actor, not of Process
-  pg->firingFSM() = getFiringFSM()->getNGXObj();
-#endif
+//#ifdef SYSTEMOC_ENABLE_SGX
+//  // FIXME: FSM is attribute of Actor, not of Process
+//  pg->firingFSM() = getFiringFSM()->getNGXObj();
+//#endif
 
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_graph_base::finalise() end, name == " << name() << std::endl;
@@ -349,8 +349,8 @@ void smoc_graph::initScheduling() {
     (*nIter)->addCurOutTransitions(ol);
   }
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << ol << std::endl;
-    std::cerr << "</smoc_graph::initScheduling>" << std::endl;
+  std::cerr << ol << std::endl;
+  std::cerr << "</smoc_graph::initScheduling>" << std::endl;
 #endif
 }
 

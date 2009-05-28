@@ -106,7 +106,7 @@ protected:
 #ifdef SYSTEMOC_ENABLE_SGX
   void finalise() {
     BASE::finalise();
-    assembleXML();
+//  assembleXML();
   }
 
   void assembleXML() {

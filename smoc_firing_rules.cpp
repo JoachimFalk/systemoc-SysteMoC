@@ -265,10 +265,8 @@ void RuntimeTransition::execute(int mode) {
   
 #ifdef SYSTEMOC_ENABLE_TRACE
   if (execMode == MODE_DIISTART) {
-    if (getSimCTX()->isTraceDumpingEnabled()) {
-//    getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
-      getSimCTX()->getTraceFile() << "<t id=\"" << getNGXObj()->id() << "\"/>\n";
-    }
+    if (getSimCTX()->isTraceDumpingEnabled())
+      getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
   }
 #endif // SYSTEMOC_ENABLE_TRACE
   
@@ -380,16 +378,16 @@ void RuntimeTransition::finalise() {
   }
 #endif //SYSTEMOC_ENABLE_VPC
   
-#ifdef SYSTEMOC_ENABLE_SGX
-  assembleXML();
-#endif //SYSTEMOC_ENABLE_SGX
+//#ifdef SYSTEMOC_ENABLE_SGX
+//  assembleXML();
+//#endif //SYSTEMOC_ENABLE_SGX
 }
 
 #ifdef SYSTEMOC_ENABLE_SGX
 void RuntimeTransition::assembleXML() {
   assert(!trans);
 
-  FiringTransition _trans;
+  FiringTransition _trans(getId());
   trans = &_trans;
 
   // set some attributes
@@ -433,9 +431,9 @@ void RuntimeState::finalise() {
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS  
-#ifdef SYSTEMOC_ENABLE_SGX
-  assembleXML();
-#endif
+//#ifdef SYSTEMOC_ENABLE_SGX
+//  assembleXML();
+//#endif
 }
 
 #ifdef SYSTEMOC_ENABLE_SGX
@@ -739,9 +737,9 @@ void FiringFSMImpl::finalise(
          << std::endl;
 #endif // FSM_FINALIZE_BENCHMARK
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  assembleXML();
-#endif
+//#ifdef SYSTEMOC_ENABLE_SGX
+//  assembleXML();
+//#endif
 }
 
 #ifdef SYSTEMOC_ENABLE_SGX
