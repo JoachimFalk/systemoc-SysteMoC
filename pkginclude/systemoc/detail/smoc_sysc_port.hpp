@@ -44,6 +44,8 @@
 #include <systemc.h>
 
 #include <systemoc/smoc_config.h>
+#include <smoc/detail/NamedIdedObj.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #include <sgx.hpp>
 
@@ -54,6 +56,8 @@ class smoc_port_access_base_if;
 /// Class representing the base class of all SysteMoC ports.
 class smoc_sysc_port
 : public sc_core::sc_port_base,
+  public SysteMoC::Detail::NamedIdedObj,
+  public SysteMoC::Detail::SimCTXBase,
   private boost::noncopyable
 {
   friend class smoc_root_node;
@@ -105,6 +109,9 @@ public:
   virtual bool isInput()  const = 0;
   bool         isOutput() const
     { return !isInput(); }
+
+  const char *name() const
+    { return sc_core::sc_object::name(); }
 
 #ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::Port::Ptr getNGXObj() const;

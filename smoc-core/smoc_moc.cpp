@@ -41,18 +41,10 @@
 #include <systemoc/smoc_sr_signal.hpp>
 #include <systemoc/smoc_multicast_sr_signal.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
-#include <smoc/detail/apply_visitor.hpp>
 
-#include <CoSupport/DataTypes/oneof.hpp>
+#include "SMXDumper.hpp"
 
-#ifdef SYSTEMOC_DEBUG
-# define DEBUG_CODE(code) code
-#else
-# define DEBUG_CODE(code) do {} while(0);
-#endif
-
-using namespace SystemCoDesigner::SGX;
-using namespace CoSupport;
+namespace SGX = SystemCoDesigner::SGX;
 
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
   sc_module(sc_module_name("smoc_scheduler_top")),
@@ -87,60 +79,15 @@ void smoc_scheduler_top::end_of_simulation() {
 #endif // SYSTEMOC_ENABLE_SGX
 }
 
-template <class DERIVED>
-class RecurseVisitorBase {
-  typedef RecurseVisitorBase<DERIVED> this_type;
-protected:
-  DERIVED       *derived()
-    { return static_cast<DERIVED       *>(this); }
-  DERIVED const *derived() const
-    { return static_cast<DERIVED const *>(this); }
-protected:
-
-  void recurse(sc_object &obj) {
-#if SYSTEMC_VERSION < 20050714
-    typedef sc_pvector<sc_object*> sc_object_list;
-#else
-    typedef std::vector<sc_object*>  sc_object_list;
-#endif
-    for (sc_object_list::const_iterator iter = obj.get_child_objects().begin();
-         iter != obj.get_child_objects().end();
-         ++iter ) {
-//    if (dynamic_cast<smoc_root_node *>(*iter))
-//      apply_visitor(*this, *static_cast<smoc_root_node *>(*iter));
-      apply_visitor(*derived(), **iter);
-    }
-  }
-};
-
-class Dumping
-: public RecurseVisitorBase<Dumping> {
-  typedef Dumping this_type;
-public:
-  typedef void result_type;
-
-  template <typename T>
-  result_type process(T &obj, sc_object &) {
-    std::cerr << typeid(T).name() << ": " << obj.name() << std::endl;
-    recurse(obj);
-  }
-
-  template <typename T>
-  result_type operator ()(T &obj)
-    { this->process(obj, obj); }
-};
-
 void smoc_scheduler_top::end_of_elaboration() {
   g->finalise();
   g->reset();
 #ifdef SYSTEMOC_ENABLE_SGX
-  Dumping d;
-
-  apply_visitor(d, *static_cast<smoc_root_node *>(g));
-
   if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
-    ArchitectureGraph ag("architecture graph");
-    getSimCTX()->getExportNGX().architectureGraphPtr() = &ag;
+    getSimCTX()->getExportNGX().problemGraphPtr() =
+      SysteMoC::Detail::dumpSMX(*g)->refinements().front().toPtr();
+//  getSimCTX()->getExportNGX().architectureGraphPtr() =
+//    ArchitectureGraph("architecture graph").toPtr(); 
     getSimCTX()->getExportNGX().save(getSimCTX()->getSMXPreSimFile());
     sc_core::sc_stop();
   }

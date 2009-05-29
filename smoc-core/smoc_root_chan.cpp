@@ -98,9 +98,10 @@ void smoc_root_chan::finalise() {
   // will do no harm if already generated
   generateName();
 
-//#ifdef SYSTEMOC_ENABLE_SGX
-//  assembleXML();
-//#endif
+#ifdef SYSTEMOC_NEED_IDS  
+  // Allocate Id for myself.
+  getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS  
 
 #ifdef SYSTEMOC_ENABLE_VPC
   vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().

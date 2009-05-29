@@ -73,8 +73,9 @@ namespace SysteMoC {
 class smoc_root_node
 : public sc_module,
   public SysteMoC::Detail::NamedIdedObj,
-  public SysteMoC::Detail::SimCTXBase {
-public:
+  public SysteMoC::Detail::SimCTXBase
+{
+  typedef smoc_root_node this_type;
   friend class RuntimeTransition;
 private:
   /// @brief Initial firing state
