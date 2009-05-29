@@ -89,44 +89,51 @@ void recurse(Visitor &visitor, sc_object &obj) {
 
 class GraphSubVisitor;
 
-class ProcessSubVisitor {
-public:
-  typedef void result_type;
-public:
-  GraphSubVisitor *gsv;
-  SGX::Process    &proc;
-
+struct ExpectedPortConnections {
   // map from outer port to inner port
   SCPortBase2Port    expectedOuterPorts;
   // map from channel entry/outlet to inner port
   SCInterface2Port   expectedChannelConnections;
+
+  ~ExpectedPortConnections() {
+    assert(expectedOuterPorts.empty());
+    assert(expectedChannelConnections.empty());
+  }
+};
+
+class ProcessSubVisitor: public ExpectedPortConnections {
+public:
+  typedef void result_type;
+public:
+  SMXDumpCTX              &ctx;
+  // one hierarchy up
+  ExpectedPortConnections &epc;
+  SGX::Process            &proc;
 public:
   SGX::Process &getProcess()
     { return proc; }
 public:
-  ProcessSubVisitor(GraphSubVisitor *gsv, SGX::Process &proc)
-    : gsv(gsv), proc(proc) {}
+  ProcessSubVisitor(SMXDumpCTX &ctx, ExpectedPortConnections &epc, SGX::Process &proc)
+    : ctx(ctx), epc(epc), proc(proc) {}
 
   void operator ()(smoc_sysc_port &obj);
 
   void operator ()(sc_object &obj)
     { /* ignore */ }
 
-  ~ProcessSubVisitor() {
-    assert(expectedOuterPorts.empty());
-    assert(expectedChannelConnections.empty());
-  }
 };
 
 class GraphSubVisitor: public ProcessSubVisitor {
 public:
   typedef void result_type;
 public:
-  SMXDumpCTX        &ctx;
   SGX::ProblemGraph &pg;
 public:
-  GraphSubVisitor(SMXDumpCTX &ctx, SGX::Process &proc, SGX::ProblemGraph &pg, GraphSubVisitor *gsv)
-    : ProcessSubVisitor(gsv, proc), ctx(ctx), pg(pg) {}
+  SGX::RefinedProcess &getRefinedProcess()
+    { return static_cast<SGX::RefinedProcess &>(proc); }
+public:
+  GraphSubVisitor(SMXDumpCTX &ctx, ExpectedPortConnections &epc, SGX::RefinedProcess &proc, SGX::ProblemGraph &pg)
+    : ProcessSubVisitor(ctx, epc, proc), pg(pg) {}
 
 //  void operator ()(smoc_sysc_port &obj) {
 //    proc.ports().push_back(*DumpPort()(obj));
@@ -156,8 +163,8 @@ protected:
   SGX::Actor &getActor()
     { return static_cast<SGX::Actor &>(proc); }
 public:
-  ActorSubVisitor(GraphSubVisitor *gsv, SGX::Actor &actor)
-    : ProcessSubVisitor(gsv, actor) {}
+  ActorSubVisitor(SMXDumpCTX &ctx, ExpectedPortConnections &epc, SGX::Actor &actor)
+    : ProcessSubVisitor(ctx, epc, actor) {}
 
   using ProcessSubVisitor::operator();
 };
@@ -182,13 +189,13 @@ public:
 #ifdef SYSTEMOC_DEBUG
       std::cerr << p.name() << " => expectedOuterPorts " << p.getParentPort()->name() << std::endl;
 #endif
-      sassert(psv.gsv->expectedOuterPorts.insert(
+      sassert(psv.epc.expectedOuterPorts.insert(
         std::make_pair(p.getParentPort(), &port)).second);
     } else {
 #ifdef SYSTEMOC_DEBUG
       std::cerr << p.name() << " => expectedChannelConnections" << std::endl;
 #endif
-      sassert(psv.gsv->expectedChannelConnections.insert(
+      sassert(psv.epc.expectedChannelConnections.insert(
         std::make_pair(p.get_interface(), &port)).second);
     }
     SCPortBase2Port::iterator iter = psv.expectedOuterPorts.find(&p);
@@ -266,7 +273,7 @@ public:
 #endif
     SGX::Actor actor(a.name(), a.getId());
     gsv.pg.processes().push_back(actor);
-    ActorSubVisitor sv(&gsv, actor);
+    ActorSubVisitor sv(gsv.ctx, gsv, actor);
     recurse(sv, a);
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "DumpActor::operator ()(...) [END]" << std::endl;
@@ -291,7 +298,7 @@ public:
     gsv.pg.processes().push_back(rp);
     SGX::ProblemGraph   pg(g.name(), g.getId());
     rp.refinements().push_back(pg);
-    GraphSubVisitor sv(gsv.ctx,rp,pg,&gsv);
+    GraphSubVisitor sv(gsv.ctx, gsv, rp, pg);
     recurse(sv, g);
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "DumpGraph::operator ()(...) [END]" << std::endl;
@@ -318,14 +325,18 @@ void GraphSubVisitor::operator ()(smoc_fifo_chan_base &obj) {
 void dumpSMX(std::ostream &file, smoc_graph_base &g) {
   SGX::NetworkGraphAccess ngx;
   SMXDumpCTX              ctx;
+  ExpectedPortConnections epc;
   SGX::RefinedProcess     rp;
   SGX::ProblemGraph       pg(g.name(), g.getId());
   
   rp.refinements().push_back(pg);
-  GraphSubVisitor sv(ctx,rp,pg,NULL);
+  GraphSubVisitor sv(ctx,epc,rp,pg);
   recurse(sv, g);
   ngx.problemGraphPtr() = &pg;
   ngx.architectureGraphPtr() = SGX::ArchitectureGraph("dummy architecture graph").toPtr(); 
+  // There may be dangling ports => erase them or we get an assertion!
+  epc.expectedOuterPorts.clear();
+  epc.expectedChannelConnections.clear();
   ngx.save(file);
 }
 
