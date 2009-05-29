@@ -49,8 +49,8 @@
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/smoc_chan_if.hpp"
 #include "smoc_event.hpp"
-#include "smoc_storage.hpp"
-#include "hscd_tdsim_TraceLog.hpp"
+#include "detail/smoc_storage.hpp"
+#include "detail/hscd_tdsim_TraceLog.hpp"
 
 /// IFACE: interface type (this is basically sc_port_b<IFACE>)
 template <typename IFACE>

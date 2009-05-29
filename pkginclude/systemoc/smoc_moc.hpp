@@ -46,7 +46,7 @@
 #include <smoc/smoc_simulation_ctx.hpp>
 
 #include "smoc_firing_rules.hpp"
-#include "smoc_root_node.hpp"
+#include "detail/smoc_root_node.hpp"
 
 class smoc_graph_base;
 

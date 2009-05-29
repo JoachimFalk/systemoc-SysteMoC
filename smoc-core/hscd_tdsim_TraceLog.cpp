@@ -41,9 +41,9 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/hscd_tdsim_TraceLog.hpp>
+#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 
-#include <systemoc/smoc_root_node.hpp>
+#include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 

@@ -39,6 +39,10 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <smoc/detail/DumpingInterfaces.hpp>
+
+#include <CoSupport/String/convert.hpp>
+
 #include "smoc_ring_access.hpp"
 
 /**
@@ -103,28 +107,6 @@ protected:
   ~smoc_fifo_storage()
     { delete[] storage; }
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  void finalise() {
-    BASE::finalise();
-//  assembleXML();
-  }
-
-  void assembleXML() {
-    using namespace SystemCoDesigner::SGX;
-
-    // ugly (BASE class must have channel variable)
-    assert(BASE::fifo);
-
-    BASE::fifo->type().set(typeid(data_type).name());
-
-    for(size_t n = 0; n < this->visibleCount(); ++n) {
-      Token t; 
-      t.value().set(asStr(storage[n].get()));
-      BASE::fifo->initialTokens().push_back(t);
-    }
-  }
-#endif
-
   access_in_type_impl  *getReadPortAccess() {
     return new access_in_type_impl(
         storage, this->fSize(), &this->rIndex());
@@ -134,6 +116,16 @@ protected:
     return new access_out_type_impl(
         storage, this->fSize(), &this->wIndex());
   }
+public:
+#ifdef SYSTEMOC_ENABLE_SGX
+  // FIXME: This should be protected for the SysteMoC user but accessible
+  // for SysteMoC visitors
+  void dumpInitalTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) {
+    it->setType(typeid(data_type).name());
+    for (size_t n = 0; n < this->visibleCount(); ++n)
+      it->addToken(CoSupport::String::asStr(storage[n].get()));
+  }
+#endif // SYSTEMOC_ENABLE_SGX
 };
 
 /**
@@ -187,6 +179,14 @@ protected:
   
   access_out_type_impl *getWritePortAccess()
     { return new access_out_type_impl(); }
+public:
+#ifdef SYSTEMOC_ENABLE_SGX
+  // FIXME: This should be protected for the SysteMoC user but accessible
+  // for SysteMoC visitors
+  void dumpInitalTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) {
+    it->setType(typeid(data_type).name());
+  }
+#endif // SYSTEMOC_ENABLE_SGX
 };
 
 #endif // _INCLUDED_DETAIL_SMOC_FIFO_STORAGE_HPP

@@ -51,13 +51,13 @@
 #include <systemoc/smoc_config.h>
 #include <sgx.hpp>
 
-#include "smoc_firing_rules.hpp"
-#include "detail/smoc_firing_rules_impl.hpp"
-#include "detail/smoc_sysc_port.hpp"
+#include "../smoc_firing_rules.hpp"
+#include "smoc_firing_rules_impl.hpp"
+#include "smoc_sysc_port.hpp"
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
-#include "smoc_expr.hpp"
-#include "smoc_ast_systemoc.hpp"
+#include "../smoc_expr.hpp"
+#include "../smoc_ast_systemoc.hpp"
 
 #define SMOC_REGISTER_CPARAM(name) registerParam(#name,name)
 

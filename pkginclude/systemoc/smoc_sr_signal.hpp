@@ -26,7 +26,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "detail/smoc_chan_if.hpp"
-#include "smoc_storage.hpp"
+#include "detail/smoc_storage.hpp"
 #include "smoc_multicast_sr_signal.hpp"
 
 template <typename T>

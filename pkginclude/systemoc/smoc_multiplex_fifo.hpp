@@ -60,7 +60,7 @@
 
 #include "detail/smoc_root_chan.hpp"
 #include "detail/smoc_chan_if.hpp"
-#include "smoc_storage.hpp"
+#include "detail/smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "smoc_fifo.hpp"
 #include "detail/smoc_latency_queues.hpp"
@@ -69,7 +69,9 @@
 #include "detail/EventMapManager.hpp"
 #include "detail/QueueRVWPtr.hpp"
 #include "detail/QueueFRVWPtr.hpp"
-#include "hscd_tdsim_TraceLog.hpp"
+#include "detail/hscd_tdsim_TraceLog.hpp"
+
+#include <smoc/detail/DumpingInterfaces.hpp>
 
 // FIX possibly broken offsetof from stddef.h
 #undef offsetof
@@ -147,15 +149,12 @@ protected:
   /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
     { return static_cast<size_t>(-1); }
-
+public:
 #ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::Fifo::Ptr fifo;
-#endif
-
-private:
-#ifdef SYSTEMOC_ENABLE_SGX
-  void assembleXML();
-#endif
+  // FIXME: This should be protected for the SysteMoC user but accessible
+  // for SysteMoC visitors
+  virtual void dumpInitalTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) = 0;
+#endif // SYSTEMOC_ENABLE_SGX
 };
 
 template<class T, class A>

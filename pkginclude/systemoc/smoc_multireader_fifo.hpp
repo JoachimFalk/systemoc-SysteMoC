@@ -57,7 +57,7 @@
 
 #include "detail/smoc_chan_if.hpp"
 #include "detail/smoc_root_chan.hpp"
-#include "smoc_storage.hpp"
+#include "detail/smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "smoc_fifo.hpp"
 #include "detail/smoc_latency_queues.hpp"
@@ -69,7 +69,9 @@
 #else
 # include "detail/QueueRWPtr.hpp"
 #endif
-#include "hscd_tdsim_TraceLog.hpp"
+#include "detail/hscd_tdsim_TraceLog.hpp"
+
+#include <smoc/detail/DumpingInterfaces.hpp>
 
 size_t fsizeMapper(sc_object* instance, size_t n);
 
@@ -146,10 +148,12 @@ protected:
   /// @brief Available free space
   size_t numFree() const;
 
+public:
 #ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::Fifo::Ptr fifo;
-#endif
-
+  // FIXME: This should be protected for the SysteMoC user but accessible
+  // for SysteMoC visitors
+  virtual void dumpInitalTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) = 0;
+#endif // SYSTEMOC_ENABLE_SGX
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue  latencyQueue;
@@ -182,10 +186,6 @@ private:
   
   /// @brief Called by entries when less space is available
   void lessSpace(size_t n);
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  void assembleXML();
-#endif
 };
 
 template<class> class smoc_multireader_fifo_chan;

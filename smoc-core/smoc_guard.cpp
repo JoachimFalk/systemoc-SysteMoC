@@ -36,7 +36,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/hscd_tdsim_TraceLog.hpp>
+#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 
 #include <systemoc/smoc_guard.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>

@@ -51,11 +51,11 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#include "hscd_tdsim_TraceLog.hpp"
+#include "detail/hscd_tdsim_TraceLog.hpp"
 
 #include "detail/smoc_chan_if.hpp"
 #include "detail/smoc_root_chan.hpp"
-#include "smoc_storage.hpp"
+#include "detail/smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_fifo_storage.hpp"
@@ -66,6 +66,8 @@
 #else
 # include "detail/QueueRWPtr.hpp"
 #endif
+
+#include <smoc/detail/DumpingInterfaces.hpp>
 
 size_t fsizeMapper(sc_object* instance, size_t n);
 
@@ -115,10 +117,12 @@ protected:
     emmFree.increasedCount(freeCount());
   }
 
+public:
 #ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::Fifo::Ptr fifo;
-#endif
-
+  // FIXME: This should be protected for the SysteMoC user but accessible
+  // for SysteMoC visitors
+  virtual void dumpInitalTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) = 0;
+#endif // SYSTEMOC_ENABLE_SGX
 private:
   Detail::EventMapManager emmAvailable;
   Detail::EventMapManager emmFree;
@@ -129,10 +133,6 @@ private:
 
   /// @brief The token id of the next commit token
   size_t tokenId;
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  void assembleXML();
-#endif
 };
 
 template<class> class smoc_fifo_chan;

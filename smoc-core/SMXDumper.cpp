@@ -41,7 +41,17 @@
 #include <sgx.hpp>
 #include <CoSupport/String/Concat.hpp>
 
+#include <smoc/detail/DumpingInterfaces.hpp>
+
 #include "apply_visitor.hpp"
+
+#include <systemoc/detail/smoc_root_node.hpp>
+#include <systemoc/detail/smoc_root_chan.hpp>
+#include <systemoc/detail/smoc_sysc_port.hpp>
+#include <systemoc/smoc_actor.hpp>
+#include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_multiplex_fifo.hpp>
+#include <systemoc/smoc_multireader_fifo.hpp>
 
 #include <map>
 #include <utility>
@@ -250,8 +260,29 @@ public:
     std::cerr << "DumpFifo::operator ()(...) [BEGIN]" << std::endl;
 #endif
     SGX::Fifo fifo(p.name(), p.getId());
+    // set some attributes
+    fifo.size() = p.depthCount();
     gsv.pg.processes().push_back(fifo);
     foo(fifo, p);
+    
+    class ImplDumpingInitialTokens
+    : public IfDumpingInitialTokens {
+       SGX::Fifo &fifo;
+    public:
+      ImplDumpingInitialTokens(SGX::Fifo &fifo)
+        : fifo(fifo) {}
+      
+      void setType(const std::string &str) {
+        fifo.type() = str;
+      }
+      
+      void addToken(const std::string &str) {
+        SGX::Token t; t.value() = str;
+        fifo.initialTokens().push_back(t);
+      }
+    } itf(fifo);
+    p.dumpInitalTokens(&itf);
+    
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "DumpFifo::operator ()(...) [END]" << std::endl;
 #endif

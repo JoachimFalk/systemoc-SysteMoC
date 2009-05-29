@@ -61,26 +61,3 @@ void smoc_multiplex_fifo_chan_base::registerVOutlet(const VOutletMap::value_type
 void smoc_multiplex_fifo_chan_base::deregisterVOutlet(FifoId fifoId) {
   vOutlets.erase(fifoId);
 }
-
-#ifdef SYSTEMOC_ENABLE_SGX
-void smoc_multiplex_fifo_chan_base::assembleXML() {
-  using namespace SystemCoDesigner::SGX;
-
-  assert(!fifo);
-
-  Fifo _fifo(name());
-  fifo = &_fifo;
-  proc = fifo;
-
-  // set some attributes
-  fifo->size() = depthCount();
-
-  smoc_graph_base* parent =
-    dynamic_cast<smoc_graph_base*>(get_parent_object());
-
-  if(parent)
-    parent->addProcess(_fifo);
-  else
-    assert(!"FIFO has no parent!");
-}
-#endif

@@ -39,7 +39,7 @@
 #include <systemoc/smoc_config.h>
 #include <sgx.hpp>
 
-#include "smoc_root_node.hpp"
+#include "detail/smoc_root_node.hpp"
 
 class smoc_actor
 : public smoc_root_node {

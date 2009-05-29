@@ -51,29 +51,6 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
   tokenId(0)
 {}
 
-#ifdef SYSTEMOC_ENABLE_SGX
-void smoc_fifo_chan_base::assembleXML() {
-  using namespace SystemCoDesigner::SGX;
-
-  assert(!fifo);
-
-  Fifo _fifo(name());
-  fifo = &_fifo;
-  proc = fifo;
-
-  // set some attributes
-  fifo->size() = depthCount();
-
-  smoc_graph_base* parent =
-    dynamic_cast<smoc_graph_base*>(get_parent_object());
-
-  if(parent)
-    parent->addProcess(_fifo);
-  else
-    assert(!"FIFO has no parent!");
-}
-#endif
-
 size_t fsizeMapper(sc_object* instance, size_t n) {
 //FIXME: Reimplememt this!
 /*// SGX --> SystemC

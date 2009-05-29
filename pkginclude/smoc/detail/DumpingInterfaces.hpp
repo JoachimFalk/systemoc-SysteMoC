@@ -1,6 +1,7 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -35,47 +36,19 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/detail/smoc_sysc_port.hpp>
-#include <systemoc/detail/smoc_root_node.hpp>
+#ifndef _INCLUDED_SMOC_DETAIL_DUMPINGINTERFACES_HPP
+#define _INCLUDED_SMOC_DETAIL_DUMPINGINTERFACES_HPP
 
-#include <sgx.hpp>
+#include <string>
 
-using namespace CoSupport;
-using namespace SysteMoC::Detail;
+namespace SysteMoC { namespace Detail {
 
-smoc_sysc_port::smoc_sysc_port(const char* name_)
-  : sc_port_base(name_, 1),
-    interfacePtr(NULL),
-    portAccess(NULL),
-    parent(NULL), child(NULL)
-{
-//idPool.regObj(this);
-//idPool.regObj(this, 1);
-}
+// Interface for initial token dumping
+struct IfDumpingInitialTokens {
+  virtual void setType(const std::string &) = 0;
+  virtual void addToken(const std::string &) = 0;
+};
 
-smoc_sysc_port::~smoc_sysc_port() {
-//idPool.unregObj(this);
-}
-  
-void smoc_sysc_port::bind(sc_interface &interface_ ) {
-  sc_port_base::bind(interface_);
-}
+} } // namespace SysteMoC::Detail
 
-void smoc_sysc_port::bind(this_type &parent_) {
-  assert(parent == NULL && parent_.child == NULL);
-  parent        = &parent_;
-  parent->child = this;
-  sc_port_base::bind(parent_);
-}
-
-void smoc_sysc_port::finalise() {
-#ifdef SYSTEMOC_NEED_IDS  
-  // Allocate Id for myself.
-  getSimCTX()->getIdPool().addIdedObj(this);
-#endif // SYSTEMOC_NEED_IDS  
-}
-
-#ifdef SYSTEMOC_ENABLE_SGX
-SystemCoDesigner::SGX::Port::Ptr smoc_sysc_port::getNGXObj() const
-  { return port; }
-#endif
+#endif // _INCLUDED_SMOC_DETAIL_DUMPINGINTERFACES_HPP

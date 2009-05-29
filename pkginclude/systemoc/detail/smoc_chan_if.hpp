@@ -50,7 +50,7 @@
 #include "smoc_sysc_port.hpp"
 #include "../smoc_event.hpp"
 #include <smoc/smoc_simulation_ctx.hpp>
-#include "../smoc_storage.hpp"
+#include "smoc_storage.hpp"
 #include "../smoc_expr.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
