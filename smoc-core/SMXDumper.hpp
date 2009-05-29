@@ -42,7 +42,7 @@
 
 namespace SysteMoC { namespace Detail {
 
-SGX::RefinedProcess::Ptr dumpSMX(smoc_graph_base &g);
+void dumpSMX(std::ostream &file, smoc_graph_base &g);
 
 } } // namespace SysteMoC::Detail
 

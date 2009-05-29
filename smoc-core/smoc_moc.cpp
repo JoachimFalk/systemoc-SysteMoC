@@ -84,11 +84,7 @@ void smoc_scheduler_top::end_of_elaboration() {
   g->reset();
 #ifdef SYSTEMOC_ENABLE_SGX
   if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
-    getSimCTX()->getExportNGX().problemGraphPtr() =
-      SysteMoC::Detail::dumpSMX(*g)->refinements().front().toPtr();
-//  getSimCTX()->getExportNGX().architectureGraphPtr() =
-//    ArchitectureGraph("architecture graph").toPtr(); 
-    getSimCTX()->getExportNGX().save(getSimCTX()->getSMXPreSimFile());
+    SysteMoC::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), *g);
     sc_core::sc_stop();
   }
 #endif // SYSTEMOC_ENABLE_SGX

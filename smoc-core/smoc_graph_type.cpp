@@ -287,33 +287,6 @@ void smoc_graph_base::reset() {
 #endif
 }
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  
-void smoc_graph_base::assembleXML() {
-  assert(!pg);
-  
-  ProblemGraph _pg(name());
-  pg = &_pg;
-
-  smoc_graph_base* parent =
-    dynamic_cast<smoc_graph_base*>(get_parent_object());
-
-  if(parent) {
-    // Generate refined process
-    RefinedProcess rp(Concat(name())("_rp"));
-    rp.refinements().push_back(_pg);
-
-    proc = &rp;
-    parent->addProcess(rp);
-  }
-  else {
-    // Set as top problemgraph (has no process)
-    getSimCTX()->getExportNGX().problemGraphPtr() = pg;
-  }
-}
-
-#endif // SYSTEMOC_ENABLE_SGX
-
 smoc_graph::smoc_graph(const sc_module_name& name) :
   smoc_graph_base(name, init/*, true*/)
 {

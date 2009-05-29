@@ -63,13 +63,6 @@ void smoc_multiplex_fifo_chan_base::deregisterVOutlet(FifoId fifoId) {
 }
 
 #ifdef SYSTEMOC_ENABLE_SGX
-void smoc_multiplex_fifo_chan_base::finalise() {
-  // FIXME: need name before XML can be constructed
-  generateName();
-//assembleXML();
-  smoc_root_chan::finalise();
-}
-
 void smoc_multiplex_fifo_chan_base::assembleXML() {
   using namespace SystemCoDesigner::SGX;
 

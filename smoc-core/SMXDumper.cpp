@@ -41,9 +41,18 @@
 #include <sgx.hpp>
 #include <CoSupport/String/Concat.hpp>
 
-#include <smoc/detail/apply_visitor.hpp>
+#include "apply_visitor.hpp"
+
+#include <map>
+#include <utility>
 
 namespace SysteMoC { namespace Detail {
+
+typedef std::map<sc_port_base *, SGX::Port::Ptr>  SCPortBase2ActorPort;
+
+struct SMXDumpCTX {
+  SCPortBase2ActorPort scPortBase2ActorPort;
+};
 
 using CoSupport::String::Concat;
 
@@ -67,13 +76,14 @@ class ProcessSubVisitor {
 public:
   typedef void result_type;
 protected:
+  SMXDumpCTX   &ctx;
   SGX::Process &proc;
 protected:
   SGX::Process &getProcess()
     { return proc; }
 public:
-  ProcessSubVisitor(SGX::Process &proc)
-    : proc(proc) {}
+  ProcessSubVisitor(SMXDumpCTX &ctx, SGX::Process &proc)
+    : ctx(ctx), proc(proc) {}
 
   void operator ()(smoc_sysc_port &obj);
 
@@ -85,10 +95,11 @@ class GraphSubVisitor {
 public:
   typedef void result_type;
 protected:
+  SMXDumpCTX        &ctx;
   SGX::ProblemGraph &pg;
 public:
-  GraphSubVisitor(SGX::ProblemGraph &pg)
-    : pg(pg) {}
+  GraphSubVisitor(SMXDumpCTX &ctx, SGX::ProblemGraph &pg)
+    : ctx(ctx), pg(pg) {}
 
 //  void operator ()(smoc_sysc_port &obj) {
 //    proc.ports().push_back(*DumpPort()(obj));
@@ -119,97 +130,151 @@ protected:
   SGX::Actor &getActor()
     { return static_cast<SGX::Actor &>(proc); }
 public:
-  ActorSubVisitor(SGX::Actor &actor)
-    : ProcessSubVisitor(actor) {}
+  ActorSubVisitor(SMXDumpCTX &ctx, SGX::Actor &actor)
+    : ProcessSubVisitor(ctx, actor) {}
 
   using ProcessSubVisitor::operator();
 };
 
 class DumpPort {
 public:
-  typedef SGX::Port::Ptr result_type;
+  typedef void result_type;
+protected:
+  SMXDumpCTX   &ctx;
+  SGX::Process &proc;
 public:
+  DumpPort(SMXDumpCTX &ctx, SGX::Process &proc)
+    : ctx(ctx), proc(proc) {}
+
   result_type operator ()(smoc_sysc_port &p) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpPort::operator ()(...) [BEGIN]" << std::endl;
+#endif
     SGX::Port port(p.name(), p.getId());
-    return &port;
+    sassert(ctx.scPortBase2ActorPort.insert(std::make_pair(&p, &port)).second);
+    proc.ports().push_back(port);
+    port.direction() = p.isInput() ? SGX::Port::In : SGX::Port::Out;
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpPort::operator ()(...) [END]" << std::endl;
+#endif
   }
 };
 
 class DumpFifo {
 public:
-  typedef SGX::Fifo::Ptr result_type;
+  typedef void result_type;
+protected:
+  SMXDumpCTX        &ctx;
+  SGX::ProblemGraph &pg;
 public:
+  DumpFifo(SMXDumpCTX &ctx, SGX::ProblemGraph &pg)
+    : ctx(ctx), pg(pg) {}
+
+  void connectPort(SGX::Port &pChan, sc_port_base *pActor) {
+    SCPortBase2ActorPort::iterator iter =
+      ctx.scPortBase2ActorPort.find(pActor);
+    if (iter != ctx.scPortBase2ActorPort.end())
+      pChan.peerPort() = iter->second;
+    else
+      std::cerr << "oops!!!" << std::endl;
+  }
 
   void foo(SGX::Channel &channel, smoc_root_chan &rc) {
     for (smoc_root_chan::EntryMap::const_iterator iter = rc.getEntries().begin();
          iter != rc.getEntries().end();
          ++iter) {
       SGX::Port p(Concat(rc.name())(".in"));
-      p.direction() = SGX::Port::IN;
+      p.direction() = SGX::Port::In;
       channel.ports().push_back(p);
+      connectPort(p, iter->second);
     }
     for (smoc_root_chan::OutletMap::const_iterator iter = rc.getOutlets().begin();
          iter != rc.getOutlets().end();
          ++iter) {
       SGX::Port p(Concat(rc.name())(".out"));
-      p.direction() = SGX::Port::OUT;
+      p.direction() = SGX::Port::Out;
       channel.ports().push_back(p);
+      connectPort(p, iter->second);
     }
   }
 
   result_type operator ()(smoc_fifo_chan_base &p) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpFifo::operator ()(...) [BEGIN]" << std::endl;
+#endif
     SGX::Fifo fifo(p.name(), p.getId());
+    pg.processes().push_back(fifo);
     foo(fifo, p);
-    return &fifo;
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpFifo::operator ()(...) [END]" << std::endl;
+#endif
   }
 };
 
 class DumpActor {
 public:
-  typedef SGX::Actor::Ptr result_type;
+  typedef void result_type;
 protected:
-
+  SMXDumpCTX        &ctx;
+  SGX::ProblemGraph &pg;
 public:
+  DumpActor(SMXDumpCTX &ctx, SGX::ProblemGraph &pg)
+    : ctx(ctx), pg(pg) {}
+
   result_type operator ()(smoc_actor &a) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpActor::operator ()(...) [BEGIN]" << std::endl;
+#endif
     SGX::Actor actor(a.name(), a.getId());
-    ActorSubVisitor sv(actor);
+    pg.processes().push_back(actor);
+    ActorSubVisitor sv(ctx, actor);
     recurse(sv, a);
-    return &actor;
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpActor::operator ()(...) [END]" << std::endl;
+#endif
   }
 };
 
 class DumpGraph {
 public:
-  typedef SGX::RefinedProcess::Ptr result_type;
+  typedef void result_type;
 protected:
-
+  SMXDumpCTX        &ctx;
+  SGX::ProblemGraph &pg;
 public:
+  DumpGraph(SMXDumpCTX &ctx, SGX::ProblemGraph &pg)
+    : ctx(ctx), pg(pg) {}
+
   result_type operator ()(smoc_graph_base &g) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpGraph::operator ()(...) [BEGIN]" << std::endl;
+#endif
     SGX::RefinedProcess rp(Concat(g.name())("_rp"));
+    pg.processes().push_back(rp);
     SGX::ProblemGraph   pg(g.name(), g.getId());
     rp.refinements().push_back(pg);
-    GraphSubVisitor sv(pg);
+    GraphSubVisitor sv(ctx,pg);
     recurse(sv, g);
-    return &rp;
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpGraph::operator ()(...) [END]" << std::endl;
+#endif
   }
-
-
 };
 
 void ProcessSubVisitor::operator ()(smoc_sysc_port &obj) {
-  proc.ports().push_back(*DumpPort()(obj));
+  DumpPort(ctx, proc)(obj);
 }
 
 void GraphSubVisitor::operator ()(smoc_graph_base &obj) {
-  pg.processes().push_back(*DumpGraph()(obj));
+  DumpGraph(ctx, pg)(obj);
 }
 
 void GraphSubVisitor::operator ()(smoc_actor &obj) {
-  pg.processes().push_back(*DumpActor()(obj));
+  DumpActor(ctx, pg)(obj);
 }
 
 void GraphSubVisitor::operator ()(smoc_fifo_chan_base &obj) {
-  pg.processes().push_back(*DumpFifo()(obj));
+  DumpFifo(ctx, pg)(obj);
 }
 
 /*
@@ -224,8 +289,16 @@ void GraphSubVisitor::operator ()(smoc_fifo_chan_base &obj) {
     { this->process(obj, obj); }
  */
 
-SGX::RefinedProcess::Ptr dumpSMX(smoc_graph_base &g) {
-  return DumpGraph()(g);
+void dumpSMX(std::ostream &file, smoc_graph_base &g) {
+  SGX::NetworkGraphAccess ngx;
+  SMXDumpCTX              ctx;
+  SGX::ProblemGraph       pg(g.name(), g.getId());
+  GraphSubVisitor         sv(ctx,pg);
+  
+  recurse(sv, g);
+  ngx.problemGraphPtr() = &pg;
+  ngx.architectureGraphPtr() = SGX::ArchitectureGraph("dummy architecture graph").toPtr(); 
+  ngx.save(file);
 }
 
 } } // namespace SysteMoC::Detail

@@ -85,6 +85,11 @@ void smoc_root_node::finalise() {
   std::cerr << "smoc_root_node::finalise() begin, name == " << this->name() << std::endl;
 #endif
   
+#ifdef SYSTEMOC_NEED_IDS  
+  // Allocate Id for myself.
+  getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS  
+  
   // finalise ports before FSM (ActivationPattern needs port nodes)
   smoc_sysc_port_list ports = getPorts();
   for (smoc_sysc_port_list::iterator iter = ports.begin();
@@ -118,10 +123,6 @@ void smoc_root_node::finalise() {
       }
     }
   }
-#ifdef SYSTEMOC_NEED_IDS  
-  // Allocate Id for myself.
-  getSimCTX()->getIdPool().addIdedObj(this);
-#endif // SYSTEMOC_NEED_IDS  
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_node::finalise() end, name == " << this->name() << std::endl;
 #endif

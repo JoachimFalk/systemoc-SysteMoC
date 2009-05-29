@@ -150,7 +150,6 @@ protected:
 
 #ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::Fifo::Ptr fifo;
-  void finalise();
 #endif
 
 private:

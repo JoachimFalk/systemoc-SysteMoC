@@ -56,13 +56,6 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
 {}
 
 #ifdef SYSTEMOC_ENABLE_SGX
-void smoc_multireader_fifo_chan_base::finalise() {
-  // FIXME: need name before XML can be constructed
-  generateName();
-//assembleXML();
-  smoc_root_chan::finalise();
-}
-
 void smoc_multireader_fifo_chan_base::assembleXML() {
   using namespace SystemCoDesigner::SGX;
 

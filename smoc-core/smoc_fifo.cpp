@@ -52,13 +52,6 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 {}
 
 #ifdef SYSTEMOC_ENABLE_SGX
-void smoc_fifo_chan_base::finalise() {
-  // FIXME: need name before XML can be constructed
-  generateName();
-  //assembleXML();
-  smoc_nonconflicting_chan::finalise();
-}
-
 void smoc_fifo_chan_base::assembleXML() {
   using namespace SystemCoDesigner::SGX;
 

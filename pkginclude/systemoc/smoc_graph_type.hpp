@@ -201,7 +201,6 @@ private:
 
 #ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::ProblemGraph::Ptr pg;
-  void assembleXML();
 #endif
 };
   

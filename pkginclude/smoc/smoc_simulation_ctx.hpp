@@ -70,9 +70,6 @@ protected:
   std::ostream *dumpFileSMX;
   std::ostream *dumpFileTrace;
   bool          dumpFSMs;
-#ifdef SYSTEMOC_ENABLE_SGX
-  Detail::SGX::NetworkGraphAccess ngx;
-#endif // SYSTEMOC_ENABLE_SGX
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool                  idPool;
 #endif // SYSTEMOC_NEED_IDS
@@ -83,8 +80,6 @@ public:
   char **getArgv();
 
 #ifdef SYSTEMOC_ENABLE_SGX
-  Detail::SGX::NetworkGraphAccess &getExportNGX()
-    { return ngx; }
   bool isSMXDumpingPreSimEnabled()
     { return dumpFileSMX && !dumpSMXWithSim; }
   std::ostream &getSMXPreSimFile()
