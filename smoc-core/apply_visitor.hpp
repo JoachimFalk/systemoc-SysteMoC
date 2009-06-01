@@ -199,20 +199,46 @@ namespace Detail {
 
 _SMOC_GENERATE_APPLY_VISITOR(smoc_sysc_port)
 
-/* sc_object */
+/* sc_port_base */
 
 namespace Detail {
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
-  apply_visitor_helper(Visitor &visitor, typename M<sc_object>::type *ptr) {
-    _SMOC_HANDLE_DERIVED_CLASS(smoc_root_node);
-    _SMOC_HANDLE_DERIVED_CLASS(smoc_root_chan);
+  apply_visitor_helper(Visitor &visitor, typename M<sc_core::sc_port_base>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_sysc_port);
     return visitor(*ptr); // fallback
   }
 } // namespace Detail
 
-_SMOC_GENERATE_APPLY_VISITOR(sc_object)
+_SMOC_GENERATE_APPLY_VISITOR(sc_core::sc_port_base)
+
+/* sc_module */
+
+namespace Detail {
+  template<template <class> class M, class Visitor>
+  typename Visitor::result_type
+  apply_visitor_helper(Visitor &visitor, typename M<sc_core::sc_module>::type *ptr) {
+    _SMOC_HANDLE_DERIVED_CLASS(smoc_root_node);
+    return visitor(*ptr); // fallback
+  }
+} // namespace Detail
+
+_SMOC_GENERATE_APPLY_VISITOR(sc_core::sc_module)
+
+/* sc_object */
+
+namespace Detail {
+  template<template <class> class M, class Visitor>
+  typename Visitor::result_type
+  apply_visitor_helper(Visitor &visitor, typename M<sc_core::sc_object>::type *ptr) {
+    _SMOC_HANDLE_DERIVED_CLASS(sc_core::sc_module);
+    _SMOC_HANDLE_DERIVED_CLASS(sc_core::sc_port_base);
+    _SMOC_HANDLE_DERIVED_CLASS(smoc_root_chan);
+    return visitor(*ptr); // fallback
+  }
+} // namespace Detail
+
+_SMOC_GENERATE_APPLY_VISITOR(sc_core::sc_object)
 
 #undef _SMOC_GENERATE_APPLY_VISITOR
 #undef _SMOC_HANDLE_DERIVED_CLASS
