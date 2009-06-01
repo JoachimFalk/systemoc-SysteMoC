@@ -47,64 +47,18 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_sysc_port.hpp"
 #include "../smoc_event.hpp"
 #include <smoc/smoc_simulation_ctx.hpp>
 #include "smoc_storage.hpp"
+#include "smoc_sysc_port.hpp"
 #include "../smoc_expr.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
+// forward declaration
 namespace SystemC_VPC {
   class FastLink;
 }
 #endif // SYSTEMOC_ENABLE_VPC
-
-class smoc_port_access_base_if {
-public:
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  virtual void setLimit(size_t) = 0;
-#endif
-  virtual ~smoc_port_access_base_if() {}
-};
-
-template<class T>
-class smoc_1d_port_access_if
-: public smoc_port_access_base_if {
-  typedef smoc_1d_port_access_if<T> this_type;
-public:
-  typedef T return_type;
-
-  virtual bool   tokenIsValid(size_t) const           = 0;
-
-  // Access methods
-  virtual return_type operator[](size_t)              = 0;
-  virtual const return_type operator[](size_t) const  = 0;
-};
-
-template<>
-class smoc_1d_port_access_if<void>
-: public smoc_port_access_base_if {
-  typedef smoc_1d_port_access_if<void> this_type;
-public:
-  typedef void return_type;
-
-  virtual bool   tokenIsValid(size_t) const           = 0;
-
-  // return_type == void => No access methods needed
-};
-
-template<>
-class smoc_1d_port_access_if<const void>
-: public smoc_port_access_base_if {
-  typedef smoc_1d_port_access_if<const void> this_type;
-public:
-  typedef const void return_type;
-
-  virtual bool   tokenIsValid(size_t) const          = 0;
-
-  // return_type == const void => No access methods needed
-};
-
 
 // forward declaration
 namespace Expr { template <class E> class Value; }
@@ -135,7 +89,7 @@ private:
 
   CI &getCI() const {
     return *static_cast<CI *>(
-      const_cast<sc_interface *>(p.get_interface()));
+      const_cast<smoc_port_base_if *>(p.get_interface()));
   }
 public:
   explicit DPortTokens(smoc_sysc_port &p)
@@ -267,7 +221,7 @@ private:
 
   CI &getCI() const {
     return *static_cast<CI *>(
-      const_cast<sc_interface *>(p.get_interface()));
+      const_cast<smoc_port_base_if *>(p.get_interface()));
   }
 public:
   explicit DComm(smoc_sysc_port &p, const E &e): p(p), e(e) {}
@@ -339,13 +293,9 @@ struct Value<DComm<CI, E> > {
 
 } // namespace Expr
 
-// FIXME:
-// SystemC Standard says: If directly derived from class sc_interface, shall
-// use the virtual specifier - And - The word shall is used to indicate a
-// mandatory requirement.
+
 class smoc_port_in_base_if
-: public sc_interface,
-  private boost::noncopyable {
+: public smoc_port_base_if {
   typedef smoc_port_in_base_if this_type;
 
   friend class smoc_graph_synth;
@@ -428,13 +378,8 @@ public:
   virtual ~smoc_port_in_base_if() {}
 };
 
-// FIXME:
-// SystemC Standard says: If directly derived from class sc_interface, shall
-// use the virtual specifier - And - The word shall is used to indicate a
-// mandatory requirement.
 class smoc_port_out_base_if
-: public sc_interface,
-  private boost::noncopyable {
+: public smoc_port_base_if {
   typedef smoc_port_out_base_if this_type;
 
   friend class smoc_graph_synth;
@@ -604,7 +549,5 @@ private:
   const sc_event& default_event() const
     { return smoc_default_event_abort(); }
 };
-
-#include "../smoc_port.hpp"
 
 #endif // _INCLUDED_DETAIL_SMOC_CHAN_IF_HPP

@@ -47,20 +47,12 @@ smoc_sysc_port::smoc_sysc_port(const char* name_)
   : sc_port_base(name_, 1),
     interfacePtr(NULL),
     portAccess(NULL),
-    parent(NULL), child(NULL)
-{
-//idPool.regObj(this);
-//idPool.regObj(this, 1);
+    parent(NULL), child(NULL) {
 }
 
 smoc_sysc_port::~smoc_sysc_port() {
-//idPool.unregObj(this);
 }
   
-void smoc_sysc_port::bind(sc_interface &interface_ ) {
-  sc_port_base::bind(interface_);
-}
-
 void smoc_sysc_port::bind(this_type &parent_) {
   assert(parent == NULL && parent_.child == NULL);
   parent        = &parent_;

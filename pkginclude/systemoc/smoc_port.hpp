@@ -108,14 +108,14 @@ protected:
     { return static_cast<const access_type *>(portAccess); }
 
   iface_type       *operator -> () {
-    sc_interface *iface = this->get_interface();
+    smoc_port_base_if *iface = this->get_interface();
     if (iface == NULL)
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return static_cast<iface_type *>(iface);
   }
 
   iface_type const *operator -> () const {
-    const sc_interface *iface = this->get_interface();
+    const smoc_port_base_if *iface = this->get_interface();
     if (iface == NULL)
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return static_cast<iface_type const *>(iface);
