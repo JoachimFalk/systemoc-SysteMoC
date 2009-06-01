@@ -44,23 +44,14 @@
 class smoc_actor
 : public smoc_root_node {
 protected:
-//explicit smoc_actor(sc_module_name name, const smoc_firing_state &s)
-//  : smoc_root_node(s), sc_module(name) {}
-//smoc_actor(const smoc_firing_state &s)
-//  : smoc_root_node(s),
-//    sc_module(sc_gen_unique_name("smoc_actor")) {}
-  explicit smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
+  smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
   smoc_actor(smoc_firing_state &s);
 
 #ifdef SYSTEMOC_DEBUG
   ~smoc_actor();
 #endif
-public:
-#ifdef SYSTEMOC_ENABLE_SGX
-  
-  void finalise();
-
 private:
+#ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::Actor::Ptr ac;
   void assembleXML();
 #endif
