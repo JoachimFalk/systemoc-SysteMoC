@@ -70,7 +70,7 @@ private:
     { return typeid(iface_type).name(); }
 
   // called by pbind (for internal use only)
-  int vbind(sc_interface &interface_) {
+  int vbind(sc_core::sc_interface &interface_) {
     iface_type *iface = dynamic_cast<iface_type *>(&interface_);
     if (iface == 0) {
       // type mismatch
@@ -80,7 +80,7 @@ private:
     return 0;
   }
 
-  int vbind(sc_port_base &parent_) {
+  int vbind(sc_core::sc_port_base &parent_) {
     this_type* parent = dynamic_cast<this_type *>(&parent_);
     if (parent == 0) {
       // type mismatch

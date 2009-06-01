@@ -102,8 +102,11 @@ public:
 // use the virtual specifier - And - The word shall is used to indicate a
 // mandatory requirement.
 class smoc_port_base_if
-: public virtual sc_interface,
+: public virtual sc_core::sc_interface,
   private boost::noncopyable {
+
+  virtual void foo() {
+  }
 };
 
 /****************************************************************************/
@@ -128,13 +131,8 @@ public:
 private:
   // SystemC 2.2 requires this method
   // (must also return the correct number!!!)
-  int interface_count() { return interfacePtr ? 1 : 0; }
-
-  void add_interface(sc_interface *_i) {
-    assert(interfacePtr == NULL);
-    interfacePtr = dynamic_cast<smoc_port_base_if *>(_i);
-    assert(interfacePtr != NULL);
-  }
+  int  interface_count();
+  void add_interface(sc_core::sc_interface *);
 protected:
   smoc_sysc_port(const char* name_);
 
@@ -174,8 +172,8 @@ public:
 #endif
 };
 
-typedef std::list<smoc_sysc_port *> smoc_sysc_port_list;
-typedef std::list<sc_port_base*>    sc_port_list;
+typedef std::list<smoc_sysc_port *>       smoc_sysc_port_list;
+typedef std::list<sc_core::sc_port_base*> sc_port_list;
 
 
 #endif // _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP
