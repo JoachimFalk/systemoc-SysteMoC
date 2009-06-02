@@ -309,18 +309,4 @@ private:
 };
 #endif // SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_SGX
-class ActionNGXVisitor {
-public:
-  typedef SystemCoDesigner::SGX::Action::Ptr result_type;
-
-public:
-  result_type operator()(smoc_func_call_list& f) const;
-  result_type operator()(smoc_func_diverge& f) const;
-  result_type operator()(smoc_sr_func_pair& f) const;
-  //result_type operator()(smoc_action_list& f) const;
-  //result_type operator()(boost::blank& f) const;
-};
-#endif // SYSTEMOC_ENABLE_SGX
-
 #endif // _INCLUDED_SMOC_FUNC_CALL_HPP

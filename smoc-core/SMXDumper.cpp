@@ -60,14 +60,52 @@
 
 namespace SysteMoC { namespace Detail {
 
-#ifdef SYSTEMOC_ENABLE_SGX
 namespace SGX = SystemCoDesigner::SGX;
-#endif // SYSTEMOC_ENABLE_SGX
 
 typedef std::map<sc_port_base *, SGX::Port::Ptr>  SCPortBase2Port;
 typedef std::map<sc_interface *, SGX::Port::Ptr>  SCInterface2Port;
 
 using CoSupport::String::Concat;
+
+class ActionNGXVisitor {
+public:
+  typedef SGX::Action::Ptr result_type;
+public:
+  result_type operator()(smoc_func_call_list &f) const {
+    if (f.empty())
+      return NULL;
+    
+    bool single = (++f.begin() == f.end());
+    SGX::CompoundAction top;
+    
+    for (smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
+      SGX::Function func;
+      func.name() = i->getFuncName();
+      
+      for (ParamInfoList::const_iterator pIter = i->getParams().begin();
+           pIter != i->getParams().end();
+           ++pIter) {
+        SGX::Parameter p(pIter->type, pIter->value);
+        //p.name() = pIter->name;
+        func.parameters().push_back(p);
+      }
+      if (single)
+        return &func;
+      else
+        top.actions().push_back(func);
+    }
+    
+    return &top;
+  }
+
+  result_type operator()(smoc_func_diverge &f) const {
+    return NULL;
+  }
+
+  result_type operator()(smoc_sr_func_pair &f) const {
+    return NULL;
+  }
+};
 
 struct SMXDumpCTX {
 };
