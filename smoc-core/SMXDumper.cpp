@@ -50,6 +50,7 @@
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
+#include <systemoc/detail/smoc_ast_ngx_visitor.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
@@ -468,9 +469,10 @@ public:
           sgxTran.action() =
             boost::apply_visitor(ActionNGXVisitor(),
               const_cast<smoc_action &>(tIter->getAction()));
-/*        ASTNGXVisitor v;
-          sgxTrans.activationPattern() =
-            SysteMoC::Detail::apply_visitor(v, Expr::evalTo<Expr::AST>(getExpr())); */
+          ASTNGXVisitor v;
+          sgxTran.activationPattern() =
+            SysteMoC::Detail::apply_visitor(v,
+              Expr::evalTo<Expr::AST>(tIter->getExpr()));
           sgxTrans.push_back(sgxTran);
         }
       }
