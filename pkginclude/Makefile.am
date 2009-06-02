@@ -28,6 +28,7 @@ nobase_include_HEADERS = \
 	smoc/smoc_simulation_ctx.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/NamedIdedObj.hpp \
+	smoc/detail/astnodes.hpp \
 	\
 	systemoc/smoc_config.h \
 	\
@@ -53,8 +54,6 @@ nobase_include_HEADERS = \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_elab_and_sim.hpp \
-	systemoc/smoc_ast_common.hpp \
-	systemoc/smoc_ast_systemoc.hpp \
 	systemoc/smoc_chan_adapter.hpp \
 	systemoc/smoc_port.hpp \
 	systemoc/smoc_multiplex_fifo.hpp \

@@ -104,11 +104,11 @@ struct D<DPortTokens<CI> >: public DBase<DPortTokens<CI> > {
 
 template<class CI>
 struct AST<DPortTokens<CI> > {
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
 
   static inline
   result_type apply(const DPortTokens<CI> &e)
-    { return PASTNode(new Expr::ASTNodePortTokens(e.p)); }
+    { return Detail::PASTNode(new Detail::ASTNodePortTokens(e.p)); }
 };
 
 // Make a convenient typedef for the token type.
@@ -244,11 +244,11 @@ typename Comm<typename P::chan_base_type,E>::type comm(P &p, const E &e)
 
 template<class CI, class E>
 struct AST<DComm<CI,E> > {
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
 
   static inline
   result_type apply(const DComm<CI,E> &e)
-    { return PASTNode(new Expr::ASTNodeComm(e.p, AST<E>::apply(e.e))); }
+    { return Detail::PASTNode(new Detail::ASTNodeComm(e.p, AST<E>::apply(e.e))); }
 };
 
 template <class CI, class E>

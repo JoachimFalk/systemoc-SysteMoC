@@ -40,7 +40,7 @@
 
 #ifdef SYSTEMOC_ENABLE_SGX
 
-#include "../smoc_ast_systemoc.hpp"
+#include <smoc/detail/astnodes.hpp>
 #include <sgx.hpp>
 
 namespace SysteMoC { namespace Detail {
@@ -49,18 +49,18 @@ class ASTNGXVisitor {
 public:
   typedef SystemCoDesigner::SGX::ASTNode::Ptr result_type;
   
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodeVar &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodeLiteral &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodeProc &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodeMemProc &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodeMemGuard &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodeToken &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodePortTokens &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodeSMOCEvent &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodePortIteration &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodeBinOp &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodeUnOp &);
-  result_type operator()(SysteMoC::ActivationPattern::ASTNodeComm &);
+  result_type operator()(ASTNodeVar &);
+  result_type operator()(ASTNodeLiteral &);
+  result_type operator()(ASTNodeProc &);
+  result_type operator()(ASTNodeMemProc &);
+  result_type operator()(ASTNodeMemGuard &);
+  result_type operator()(ASTNodeToken &);
+  result_type operator()(ASTNodePortTokens &);
+  result_type operator()(ASTNodeSMOCEvent &);
+  result_type operator()(ASTNodePortIteration &);
+  result_type operator()(ASTNodeBinOp &);
+  result_type operator()(ASTNodeUnOp &);
+  result_type operator()(ASTNodeComm &);
 };
 
 }} // namespace SysteMoC::Detail

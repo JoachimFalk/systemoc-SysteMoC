@@ -32,22 +32,187 @@
  * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
-#ifndef _INCLUDED_SMOC_AST_COMMON_HPP
-#define _INCLUDED_SMOC_AST_COMMON_HPP
+
+#ifndef _INCLUDED_SMOC_ASTNODES_HPP
+#define _INCLUDED_SMOC_ASTNODES_HPP
+
+#include <systemoc/smoc_config.h>
 
 #include <string>
+#include <typeinfo>
+#include <sstream>
+#include <vector>
 
 #include <boost/intrusive_ptr.hpp>
 
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
+#include <CoSupport/Lambda/functor.hpp>
+#include <CoSupport/String/convert.hpp>
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
 
-#include <systemoc/smoc_config.h>
+#include <systemc.h>
 
 #ifdef SYSTEMOC_ENABLE_SGX
 # include <sgx.hpp>
 #endif // SYSTEMOC_ENABLE_SGX
 
-namespace SysteMoC { namespace ActivationPattern {
+// Forward declaration.
+template <class IFACE> class smoc_port_base;
+
+namespace SysteMoC { namespace Detail {
+
+struct DISABLED { operator bool() const { return false; } };
+struct BLOCKED  {};
+struct ENABLED  { operator bool() const { return true; } };
+
+template <typename T> struct TypeFilter { typedef T type; };
+template <> struct TypeFilter<DISABLED> { typedef bool type; };
+template <> struct TypeFilter<ENABLED>  { typedef bool type; };
+
+class ValueTypeContainer;
+
+class ValueContainer {
+protected:
+  std::string value;
+public:
+  template <typename T >
+  explicit
+  ValueContainer(const T &v) {
+    std::ostringstream o;
+    o << v; value = o.str();
+  }
+
+  ValueContainer(const ValueContainer &v)
+    : value(v.value) {}
+
+  ValueContainer(const ValueTypeContainer &vt);
+  
+  operator const std::string &() const
+    { return value; }
+};
+
+std::ostream &operator << (std::ostream &o, const ValueContainer &value);
+
+class TypeIdentifier {
+protected:
+  std::string type;
+
+  TypeIdentifier(const std::string &type):
+    type(type) {}
+public:
+  operator const std::string &() const
+    { return type; }
+};
+
+template <typename T>
+class Type: public TypeIdentifier {
+protected:
+  std::string type;
+public:
+  Type():
+    TypeIdentifier(typeid(typename TypeFilter<T>::type).name()) {}
+};
+
+std::ostream &operator << (std::ostream &o, const TypeIdentifier &type);
+
+class ValueTypeContainer
+: public ValueContainer
+, public TypeIdentifier {
+public:
+  template <typename T >
+  explicit
+  ValueTypeContainer(const T &v)
+    : ValueContainer(v),
+      TypeIdentifier(Type<T>()) {}
+};
+
+class PortIdentifier {
+protected:
+  const sc_port_base &port;
+public:
+  PortIdentifier(const sc_port_base &port)
+    : port(port) {}
+
+  const sc_port_base *getPortPtr() const
+    { return &port; }
+};
+
+class TypePortIdentifier
+: public TypeIdentifier
+, public PortIdentifier {
+public:
+  //template <typename T, template <typename, typename> class R, class PARAM_TYPE>
+  template <class IFACE>
+  TypePortIdentifier(const smoc_port_base<IFACE> &port)
+    : TypeIdentifier(Type<typename IFACE::data_type>()),
+      PortIdentifier(port) {}
+};
+
+class SymbolIdentifier {
+protected:
+  std::string name;
+public:
+  SymbolIdentifier(const std::string &name)
+    : name(name) {}
+
+  operator const std::string &() const
+    { return name; }
+};
+
+std::ostream &operator << (std::ostream &o, const SymbolIdentifier &symbol);
+
+class TypeSymbolIdentifier
+: public TypeIdentifier
+, public SymbolIdentifier {
+public:
+  template<class R, class F>
+  explicit
+  TypeSymbolIdentifier(const CoSupport::Lambda::Functor<R,F> &functor)
+    : TypeIdentifier(Type<typename CoSupport::Lambda::Functor<R,F>::return_type>()),
+      SymbolIdentifier(functor.name) {}
+  template<class R, class F>
+  explicit
+  TypeSymbolIdentifier(const CoSupport::Lambda::ConstFunctor<R,F> &functor)
+    : TypeIdentifier(Type<typename CoSupport::Lambda::Functor<R,F>::return_type>()),
+      SymbolIdentifier(functor.name) {}
+  template<typename T>
+  explicit
+  TypeSymbolIdentifier(const T &var, const std::string &name)
+    : TypeIdentifier(Type<T>()),
+      SymbolIdentifier(name) {}
+
+//reinterpret_cast<const dummy *>(f.obj)
+//reinterpret_cast<const fun   *>(&f.func)
+};
+
+struct ParamInfo {
+  std::string name;
+  std::string type;
+  std::string value;
+};
+typedef std::vector<ParamInfo> ParamInfoList;
+
+struct ParamInfoVisitor {
+  ParamInfoList pil;
+
+  template<class P>
+  void operator()(const P& p) {
+    ParamInfo pi;
+    //pi.name = FIXME;
+    pi.type = typeid(P).name();
+    pi.value = CoSupport::String::asStr(p);
+    pil.push_back(pi);
+  }
+  
+  template<class P>
+  void operator()(const std::string& name, const P& p) {
+    ParamInfo pi;
+    pi.name = name;
+    pi.type = typeid(P).name();
+    pi.value = CoSupport::String::asStr(p);
+    pil.push_back(pi);
+  }
+};
 
 // WARNING: Always sync this with DASTNodeType[] in smoc_ast_common.cpp
 //          and apply_visitor at the end of this file !!!
@@ -496,6 +661,6 @@ typename V::result_type apply_visitor(V &v, PASTNode pASTNode) {
   }
 }
 
-} } // namespace SysteMoC::ActivationPattern
+} } // namespace SysteMoC::Detail
 
-#endif // _INCLUDED_SMOC_AST_COMMON_HPP
+#endif // _INCLUDED_SMOC_ASTNODES_HPP

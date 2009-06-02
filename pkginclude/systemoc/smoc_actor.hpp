@@ -53,7 +53,6 @@ protected:
 private:
 #ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::Actor::Ptr ac;
-  void assembleXML();
 #endif
 };
 

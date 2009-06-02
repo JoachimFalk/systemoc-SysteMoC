@@ -48,6 +48,7 @@
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
+#include <smoc/detail/astnodes.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
@@ -61,11 +62,10 @@ namespace SysteMoC { namespace Detail {
 typedef std::map<sc_port_base *, SGX::Port::Ptr>  SCPortBase2Port;
 typedef std::map<sc_interface *, SGX::Port::Ptr>  SCInterface2Port;
 
-struct SMXDumpCTX {
-//SCPortBase2ActorPort scPortBase2ActorPort;
-};
-
 using CoSupport::String::Concat;
+
+struct SMXDumpCTX {
+};
 
 template <class Visitor>
 void recurse(Visitor &visitor, sc_core::sc_object &obj) {
@@ -369,6 +369,18 @@ public:
 #endif
     SGX::Actor actor(a.name(), a.getId());
     actor.cxxClass() = typeid(a).name();
+    // Dump constructor parameters
+    {
+      SGX::ParameterList::Ref pl = actor.constructorParameters();
+      
+      for (ParamInfoList::const_iterator pIter = a.constrArgs.pil.begin();
+           pIter != a.constrArgs.pil.end();
+           ++pIter) {
+        SGX::Parameter parm(pIter->type, pIter->value);
+        parm.name() = pIter->name;
+        pl.push_back(parm);
+      }
+    }
     gsv.pg.processes().push_back(actor);
     ActorSubVisitor sv(gsv.ctx, gsv, actor);
     recurse(sv, a);
@@ -418,6 +430,7 @@ public:
     SGX::RefinedProcess rp(Concat(g.name())("_rp"));
     gsv.pg.processes().push_back(rp);
     SGX::ProblemGraph   pg(g.name(), g.getId());
+    pg.cxxClass() = typeid(g).name();
     rp.refinements().push_back(pg);
     GraphSubVisitor sv(gsv.ctx, gsv, rp, pg);
     recurse(sv, g);

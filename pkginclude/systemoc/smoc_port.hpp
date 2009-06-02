@@ -231,11 +231,11 @@ struct Value<DToken<T> > {
 
 template<typename T>
 struct AST<DToken<T> > {
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
   
   static inline
   result_type apply(const DToken<T> &e)
-    { return PASTNode(new ASTNodeToken(e.p, e.pos)); }
+    { return Detail::PASTNode(new Detail::ASTNodeToken(e.p, e.pos)); }
 };
 
 template<typename T>

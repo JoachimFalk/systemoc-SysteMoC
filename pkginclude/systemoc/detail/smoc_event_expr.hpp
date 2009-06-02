@@ -40,7 +40,7 @@
 
 #include "smoc_event_decls.hpp"
 #include "../smoc_expr.hpp"
-#include "../smoc_ast_systemoc.hpp"
+#include <smoc/detail/astnodes.hpp>
 
 namespace Expr {
 
@@ -94,11 +94,11 @@ struct Sensitivity<DSMOCEvent> {
 
 template <>
 struct AST<DSMOCEvent> {
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
 
   static inline
   result_type apply(const DSMOCEvent &e)
-    { return PASTNode(new ASTNodeSMOCEvent()); }
+    { return Detail::PASTNode(new Detail::ASTNodeSMOCEvent()); }
 };
 
 template <>

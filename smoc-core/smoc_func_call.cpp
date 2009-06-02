@@ -37,7 +37,7 @@
 
 #include <systemoc/smoc_func_call.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
-#include <systemoc/smoc_ast_systemoc.hpp>
+#include <smoc/detail/astnodes.hpp>
 
 smoc_action merge(const smoc_action& a, const smoc_action& b) {
   if(const smoc_func_call_list* _a = boost::get<smoc_func_call_list>(&a)) {
@@ -170,7 +170,7 @@ SystemC_VPC::FastLink* VPCLinkVisitor::operator()(smoc_func_diverge& f) const {
 
 #ifdef SYSTEMOC_ENABLE_SGX
 using namespace SystemCoDesigner::SGX;  
-using namespace SysteMoC::ActivationPattern;
+using namespace SysteMoC::Detail;
 
 Action::Ptr ActionNGXVisitor::operator()(smoc_func_call_list& f) const {
   if(f.empty()) return NULL;

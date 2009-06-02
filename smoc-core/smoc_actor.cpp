@@ -14,35 +14,3 @@ smoc_actor::~smoc_actor() {
   std::cerr << "~smoc_actor() name = \"" << name() << "\"" << std::endl;
 }
 #endif
-
-#ifdef SYSTEMOC_ENABLE_SGX
-void smoc_actor::assembleXML() {
-  using namespace SystemCoDesigner::SGX;
-  using namespace SysteMoC::ActivationPattern;
-
-  assert(!ac);
-  
-  Actor _actor(name());
-  ac = &_actor;
-  proc = ac;
-  
-  // set some attributes
-  ac->cxxClass() = typeid(*this).name();
- 
-  for(ParamInfoList::const_iterator pIter = constrArgs.pil.begin();
-      pIter != constrArgs.pil.end(); ++pIter)
-  {
-    Parameter p(pIter->type, pIter->value);
-    p.name() = pIter->name;
-    ac->constructorParameters().push_back(p);
-  }
-
-  smoc_graph_base* parent =
-    dynamic_cast<smoc_graph_base*>(get_parent_object());
-  
-  if(parent)
-    parent->addProcess(_actor);
-  else
-    assert(!"Actor has no parent!");
-}
-#endif

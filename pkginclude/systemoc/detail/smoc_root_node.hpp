@@ -57,7 +57,7 @@
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 #include "../smoc_expr.hpp"
-#include "../smoc_ast_systemoc.hpp"
+#include <smoc/detail/astnodes.hpp>
 
 #define SMOC_REGISTER_CPARAM(name) registerParam(#name,name)
 
@@ -134,8 +134,12 @@ protected:
   typename Expr::Var<T>::type var(T &x, const char *name = NULL)
     { return Expr::var(x,name); }
 
-  // possible FIXME: only actors have this info
-  SysteMoC::ActivationPattern::ParamInfoVisitor constrArgs;
+public:
+  // FIXME: (Maybe) Only actors have this info => move to smoc_actor?
+  // FIXME: This should be protected for the SysteMoC user but accessible
+  // for SysteMoC visitors
+  SysteMoC::Detail::ParamInfoVisitor constrArgs;
+protected:
   template<class T>
   void registerParam(const std::string& name, const T& t) {
     constrArgs(name, t);

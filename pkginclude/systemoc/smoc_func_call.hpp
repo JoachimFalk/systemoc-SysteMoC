@@ -46,7 +46,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_ast_systemoc.hpp"
+#include <smoc/detail/astnodes.hpp>
 
 #ifdef SYSTEMOC_ENABLE_SGX
 # include <sgx.hpp>
@@ -100,7 +100,7 @@ public:
   virtual
   const char *getFuncName() const = 0;
   virtual
-  SysteMoC::ActivationPattern::ParamInfoList getParams() const = 0;
+  SysteMoC::Detail::ParamInfoList getParams() const = 0;
   
   virtual
   ~smoc_member_func_interface() {}
@@ -137,9 +137,9 @@ public:
     { return f.call(pl); }
   const char *getFuncName() const
     { return f.name; }
-  SysteMoC::ActivationPattern::ParamInfoList getParams() const
+  SysteMoC::Detail::ParamInfoList getParams() const
   { 
-    SysteMoC::ActivationPattern::ParamInfoVisitor piv;
+    SysteMoC::Detail::ParamInfoVisitor piv;
     f.paramListVisit(pl, piv);
     return piv.pil;
   }
@@ -158,7 +158,7 @@ private:
   boost::intrusive_ptr<
     smoc_member_func_interface<return_type> >   k;
 
-  SysteMoC::ActivationPattern::ParamInfoList pil;
+  SysteMoC::Detail::ParamInfoList pil;
 public:
   
   template <class F, class PL>
@@ -176,7 +176,7 @@ public:
     return k->getFuncName();
   }
   
-  const SysteMoC::ActivationPattern::ParamInfoList& getParams() const {
+  const SysteMoC::Detail::ParamInfoList& getParams() const {
     return pil;
   }
 };

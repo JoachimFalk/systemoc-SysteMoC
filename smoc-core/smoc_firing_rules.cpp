@@ -58,7 +58,6 @@
 # include <systemoc/detail/smoc_ast_ngx_visitor.hpp>
 # include <sgx.hpp>
 using namespace SystemCoDesigner::SGX;
-namespace AP = SysteMoC::ActivationPattern;
 //using SysteMoC::Detail::ASTNGXVisitor;
 #endif // SYSTEMOC_ENABLE_SGX
 
@@ -399,7 +398,7 @@ void RuntimeTransition::assembleXML() {
 
   ASTNGXVisitor v;
   trans->activationPattern() =
-    AP::apply_visitor(v, Expr::evalTo<Expr::AST>(getExpr()));
+    SysteMoC::Detail::apply_visitor(v, Expr::evalTo<Expr::AST>(getExpr()));
 }
 #endif //SYSTEMOC_ENABLE_SGX
 
