@@ -54,13 +54,6 @@
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 //#include <systemoc/detail/smoc_ngx_sync.hpp>
 
-#ifdef SYSTEMOC_ENABLE_SGX
-# include <systemoc/detail/smoc_ast_ngx_visitor.hpp>
-# include <sgx.hpp>
-using namespace SystemCoDesigner::SGX;
-//using SysteMoC::Detail::ASTNGXVisitor;
-#endif // SYSTEMOC_ENABLE_SGX
-
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::Detail;
 using CoSupport::String::Concat;

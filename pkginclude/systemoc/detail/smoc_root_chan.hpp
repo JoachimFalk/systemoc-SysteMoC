@@ -92,11 +92,6 @@ protected:
 
   virtual void finalise();
   virtual void reset() {}
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::Process::Ptr proc;
-#endif
-  
 public:
   const char *name() const
     { return myName.c_str(); }

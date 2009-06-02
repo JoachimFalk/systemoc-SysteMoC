@@ -194,10 +194,6 @@ private:
 
   // channel child objects
   smoc_chan_list channels;
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::ProblemGraph::Ptr pg;
-#endif
 };
   
 #undef T_chan_init_default

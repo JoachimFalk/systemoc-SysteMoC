@@ -44,13 +44,13 @@
 #include <smoc/detail/DumpingInterfaces.hpp>
 
 #include "apply_visitor.hpp"
+#include "smoc_ast_ngx_visitor.hpp"
 
 #include <smoc/detail/astnodes.hpp>
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
-#include <systemoc/detail/smoc_ast_ngx_visitor.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>

@@ -50,10 +50,6 @@ protected:
 #ifdef SYSTEMOC_DEBUG
   ~smoc_actor();
 #endif
-private:
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::Actor::Ptr ac;
-#endif
 };
 
 #endif // _INCLUDED_SMOC_ACTOR_HPP

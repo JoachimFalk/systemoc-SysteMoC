@@ -33,10 +33,13 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/detail/smoc_ast_ngx_visitor.hpp>
-#include <systemoc/detail/smoc_sysc_port.hpp>
+#include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_SGX
+
+#include "smoc_ast_ngx_visitor.hpp"
+
+#include <systemoc/detail/smoc_sysc_port.hpp>
 
 namespace SysteMoC { namespace Detail {
 
