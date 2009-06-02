@@ -55,13 +55,16 @@ namespace SysteMoC {
 #define _SMOC_GENERATE_APPLY_VISITOR(TYPE)                                      \
 template<typename Visitor>                                                      \
 typename Visitor::result_type                                                   \
-apply_visitor(Visitor &visitor, typename boost::remove_const<TYPE>::type &obj)  \
-  { return Detail::apply_visitor_helper<boost::remove_const>(visitor,&obj); }   \
+apply_visitor(Visitor &visitor, typename boost::remove_const<TYPE>::type &obj) {\
+  return SysteMoC::Detail::apply_visitor_helper                                 \
+    <boost::remove_const>(visitor,&obj);                                        \
+}                                                                               \
 template <typename Visitor>                                                     \
 typename Visitor::result_type                                                   \
-apply_visitor(Visitor &visitor, typename boost::add_const<TYPE>::type &obj)     \
-  { return Detail::apply_visitor_helper<boost::add_const>(visitor,&obj); }
-
+apply_visitor(Visitor &visitor, typename boost::add_const<TYPE>::type &obj) {   \
+  return SysteMoC::Detail::apply_visitor_helper                                 \
+    <boost::add_const>(visitor,&obj);                                           \
+}
 #define _SMOC_HANDLE_DERIVED_CLASS(TYPE)                                        \
   if (dynamic_cast<typename M<TYPE>::type *>(ptr))                              \
     return apply_visitor_helper<M>                                              \
@@ -199,35 +202,27 @@ namespace Detail {
 
 _SMOC_GENERATE_APPLY_VISITOR(smoc_sysc_port)
 
-/* sc_port_base */
+} // namespace SysteMoC
 
-namespace Detail {
+namespace SysteMoC { namespace Detail {
+
+  /* sc_port_base */
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
   apply_visitor_helper(Visitor &visitor, typename M<sc_core::sc_port_base>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_sysc_port);
     return visitor(*ptr); // fallback
   }
-} // namespace Detail
 
-_SMOC_GENERATE_APPLY_VISITOR(sc_core::sc_port_base)
-
-/* sc_module */
-
-namespace Detail {
+  /* sc_module */
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
   apply_visitor_helper(Visitor &visitor, typename M<sc_core::sc_module>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_root_node);
     return visitor(*ptr); // fallback
   }
-} // namespace Detail
 
-_SMOC_GENERATE_APPLY_VISITOR(sc_core::sc_module)
-
-/* sc_object */
-
-namespace Detail {
+  /* sc_object */
   template<template <class> class M, class Visitor>
   typename Visitor::result_type
   apply_visitor_helper(Visitor &visitor, typename M<sc_core::sc_object>::type *ptr) {
@@ -236,15 +231,23 @@ namespace Detail {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_root_chan);
     return visitor(*ptr); // fallback
   }
-} // namespace Detail
 
-_SMOC_GENERATE_APPLY_VISITOR(sc_core::sc_object)
+} } // namespace SysteMoC::Detail
+
+namespace sc_core { // We need this for correct Koenig lookup of apply_visitor
+
+_SMOC_GENERATE_APPLY_VISITOR(sc_port_base)
+
+_SMOC_GENERATE_APPLY_VISITOR(sc_module)
+
+_SMOC_GENERATE_APPLY_VISITOR(sc_object)
+
+} // namespace sc_core
 
 #undef _SMOC_GENERATE_APPLY_VISITOR
 #undef _SMOC_HANDLE_DERIVED_CLASS
 
-} // namespace SysteMoC
-
+//FIXME: This is a hack as some smoc_xxx classes are still in the global namespace!
 using SysteMoC::apply_visitor;
 
 #endif // _INCLUDED_SMOC_APPLY_VISITOR_HPP
