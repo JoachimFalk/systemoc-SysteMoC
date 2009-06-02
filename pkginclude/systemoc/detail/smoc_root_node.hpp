@@ -49,7 +49,6 @@
 #include <CoSupport/Lambda/functor.hpp>
 
 #include <systemoc/smoc_config.h>
-#include <sgx.hpp>
 
 #include "../smoc_firing_rules.hpp"
 #include "smoc_firing_rules_impl.hpp"

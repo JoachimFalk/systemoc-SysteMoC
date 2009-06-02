@@ -48,10 +48,6 @@
 
 #include <smoc/detail/astnodes.hpp>
 
-#ifdef SYSTEMOC_ENABLE_SGX
-# include <sgx.hpp>
-#endif // SYSTEMOC_ENABLE_SGX
-
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC

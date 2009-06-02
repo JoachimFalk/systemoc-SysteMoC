@@ -43,7 +43,6 @@
 #include <map>
 
 #include <CoSupport/commondefs.h>
-#include <sgx.hpp>
 
 #include <systemoc/smoc_config.h>
 

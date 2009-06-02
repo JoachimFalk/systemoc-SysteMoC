@@ -37,7 +37,6 @@
 #define _INCLUDED_SMOC_ACTOR_HPP
 
 #include <systemoc/smoc_config.h>
-#include <sgx.hpp>
 
 #include "detail/smoc_root_node.hpp"
 
