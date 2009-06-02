@@ -376,31 +376,7 @@ void RuntimeTransition::finalise() {
         VPCLinkVisitor(actor->name()), f);
   }
 #endif //SYSTEMOC_ENABLE_VPC
-  
-//#ifdef SYSTEMOC_ENABLE_SGX
-//  assembleXML();
-//#endif //SYSTEMOC_ENABLE_SGX
 }
-
-#ifdef SYSTEMOC_ENABLE_SGX
-void RuntimeTransition::assembleXML() {
-  assert(!trans);
-
-  FiringTransition _trans(getId());
-  trans = &_trans;
-
-  // set some attributes
-  if(dest)
-    trans->dstState() = dest->getNGXObj();
-
-  trans->action() =
-    boost::apply_visitor(ActionNGXVisitor(), f);
-
-  ASTNGXVisitor v;
-  trans->activationPattern() =
-    SysteMoC::Detail::apply_visitor(v, Expr::evalTo<Expr::AST>(getExpr()));
-}
-#endif //SYSTEMOC_ENABLE_SGX
 
 RuntimeState* RuntimeTransition::getDestState() const
   { return dest; }
@@ -408,11 +384,6 @@ RuntimeState* RuntimeTransition::getDestState() const
 const smoc_action& RuntimeTransition::getAction() const
   { return f; }
   
-#ifdef SYSTEMOC_ENABLE_SGX
-FiringTransition::Ptr RuntimeTransition::getNGXObj() const
-  { return trans; }
-#endif
-
 static int UnnamedStateCount = 0;
 
 RuntimeState::RuntimeState(const std::string name)
@@ -430,33 +401,13 @@ void RuntimeState::finalise() {
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS  
-//#ifdef SYSTEMOC_ENABLE_SGX
-//  assembleXML();
-//#endif
 }
-
-#ifdef SYSTEMOC_ENABLE_SGX
-void RuntimeState::assembleXML() {
-  assert(!state);
-
-  FiringState _state(name());
-  state = &_state;
-
-  // FIXME transitions are added later
-}
-#endif
 
 const RuntimeTransitionList& RuntimeState::getTransitions() const
   { return t; }
 
 RuntimeTransitionList& RuntimeState::getTransitions()
   { return t; }
-
-#ifdef SYSTEMOC_ENABLE_SGX
-FiringState::Ptr RuntimeState::getNGXObj() const
-  { return state; }
-#endif
-
 
 FiringFSMImpl::FiringFSMImpl()
   : use_count_(0),
@@ -494,11 +445,6 @@ const RuntimeStateSet& FiringFSMImpl::getStates() const
 
 RuntimeState* FiringFSMImpl::getInitialState() const
   { return init; }
-
-#ifdef SYSTEMOC_ENABLE_SGX  
-FiringFSM::Ptr FiringFSMImpl::getNGXObj() const
-  { return fsm; }
-#endif
 
 std::ostream& operator<<(std::ostream& os, const ProdState& p) {
   //os << "(";
@@ -736,39 +682,7 @@ void FiringFSMImpl::finalise(
          << ((clock() - finStart) / (double)CLOCKS_PER_SEC) << " secs."
          << std::endl;
 #endif // FSM_FINALIZE_BENCHMARK
-
-//#ifdef SYSTEMOC_ENABLE_SGX
-//  assembleXML();
-//#endif
 }
-
-#ifdef SYSTEMOC_ENABLE_SGX
-void FiringFSMImpl::assembleXML() {
-  assert(!fsm);
-
-  FiringFSM _fsm;
-  fsm = &_fsm;
-
-  for(RuntimeStateSet::const_iterator sIter = rts.begin();
-      sIter != rts.end(); ++sIter)
-  {
-    FiringState::Ptr src = (*sIter)->getNGXObj();
-    fsm->states().push_back(*src);
-
-    if(*sIter == init)
-      fsm->startState() = src;
-
-    const RuntimeTransitionList& tList = (*sIter)->getTransitions();
-
-    for(RuntimeTransitionList::const_iterator tIter = tList.begin();
-        tIter != tList.end(); ++tIter)
-    {
-      FiringTransition::Ptr t = tIter->getNGXObj();
-      src->outTransitions().push_back(*t);
-    }
-  }
-}
-#endif
 
 void FiringFSMImpl::addState(FiringStateBaseImpl *state) {
   assert(state->getFiringFSM() == this);

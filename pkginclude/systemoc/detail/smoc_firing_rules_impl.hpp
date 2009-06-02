@@ -189,12 +189,6 @@ private:
 
   /// @brief Hierarchical end-of-elaboration callback
   void finalise();
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringTransition::Ptr trans;
-  void assembleXML();
-#endif
-
 public:
   /// @brief Execution masks used for SR Scheduling
   static const int GO   = 1;
@@ -227,10 +221,6 @@ public:
   /// @brief Returns the action
   const smoc_action& getAction() const;
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringTransition::Ptr getNGXObj() const;
-#endif
-
 //#ifdef SYSTEMOC_DEBUG
   /// @brief Debug output for this transitions
 //  void dump(std::ostream &out) const;
@@ -249,21 +239,11 @@ private:
   RuntimeTransitionList t;
 
   void  finalise();
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringState::Ptr state;
-  void assembleXML();
-#endif
-
 public:
   RuntimeState(const std::string name = "");
 
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringState::Ptr getNGXObj() const;
-#endif
 
   const char *name() const
     { return _name.c_str(); }
@@ -295,12 +275,6 @@ private:
 
   RuntimeState* init;
   RuntimeStateSet rts;
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringFSM::Ptr fsm;
-  void assembleXML();
-#endif
-
 public:
   /// @brief Constructor
   FiringFSMImpl();
@@ -336,10 +310,6 @@ public:
   const RuntimeStateSet& getStates() const;
 
   RuntimeState* getInitialState() const;
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringFSM::Ptr getNGXObj() const;
-#endif
 };
 
 class FiringStateBaseImpl {

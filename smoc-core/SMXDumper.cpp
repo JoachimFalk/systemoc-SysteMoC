@@ -45,10 +45,11 @@
 
 #include "apply_visitor.hpp"
 
+#include <smoc/detail/astnodes.hpp>
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
-#include <smoc/detail/astnodes.hpp>
+#include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
@@ -373,6 +374,8 @@ public:
 #endif
     SGX::Actor actor(a.name(), a.getId());
     actor.cxxClass() = typeid(a).name();
+    ActorSubVisitor sv(gsv.ctx, gsv, actor);
+    recurse(sv, a);
     // Dump constructor parameters
     {
       SGX::ParameterList::Ref pl = actor.constructorParameters();
@@ -385,9 +388,57 @@ public:
         pl.push_back(parm);
       }
     }
+    // Dump firingFSM
+    {
+      typedef std::map<const RuntimeState *, SGX::FiringState::Ptr> StateMap;
+      
+      SGX::FiringFSM              sgxFSM;
+      FiringFSMImpl              *smocFSM       = a.getFiringFSM();
+      SGX::FiringStateList::Ref   sgxStateList  = sgxFSM.states();
+      StateMap                    stateMap;
+      const RuntimeStateSet      &smocStates    = smocFSM->getStates();
+      // Create states
+      for (RuntimeStateSet::const_iterator sIter = smocStates.begin();
+           sIter != smocStates.end();
+           ++sIter) {
+        SGX::FiringState sgxState((*sIter)->name(), (*sIter)->getId());
+        sassert(stateMap.insert(std::make_pair(*sIter, &sgxState)).second);
+        sgxStateList.push_back(sgxState);
+      }
+      // Setup initial state
+      {
+        StateMap::const_iterator iIter = stateMap.find(smocFSM->getInitialState());
+        assert(iIter != stateMap.end());
+        sgxFSM.startState() = iIter->second;
+      }
+      // Insert transitions
+      for (StateMap::iterator sIter = stateMap.begin();
+           sIter != stateMap.end();
+           ++sIter) {
+        const RuntimeState             &smocState = *sIter->first;
+        SGX::FiringState::Ref           sgxState  = *sIter->second;
+        const RuntimeTransitionList    &smocTrans = smocState.getTransitions();
+        SGX::FiringTransitionList::Ref  sgxTrans  = sgxState.outTransitions();
+        
+        for (RuntimeTransitionList::const_iterator tIter = smocTrans.begin();
+             tIter != smocTrans.end();
+             ++tIter) {
+          SGX::FiringTransition sgxTran(tIter->getId());
+          StateMap::const_iterator dIter = stateMap.find(tIter->getDestState());
+          assert(dIter != stateMap.end());
+          sgxTran.dstState() = dIter->second;
+          sgxTran.action() =
+            boost::apply_visitor(ActionNGXVisitor(),
+              const_cast<smoc_action &>(tIter->getAction()));
+/*        ASTNGXVisitor v;
+          sgxTrans.activationPattern() =
+            SysteMoC::Detail::apply_visitor(v, Expr::evalTo<Expr::AST>(getExpr())); */
+          sgxTrans.push_back(sgxTran);
+        }
+      }
+      actor.firingFSM() = &sgxFSM;
+    }
     gsv.pg.processes().push_back(actor);
-    ActorSubVisitor sv(gsv.ctx, gsv, actor);
-    recurse(sv, a);
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "DumpActor::operator ()(...) [END]" << std::endl;
 #endif
