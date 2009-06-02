@@ -34,18 +34,16 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/detail/smoc_graph_synth.hpp>
+#include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_SGX
 
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
 
-#include <systemoc/smoc_config.h>
-
 #include <CoSupport/DataTypes/container_insert.hpp>
 
-//#include <systemoc/detail/smoc_ngx_sync.hpp>
+#include "smoc_graph_synth.hpp"
 
 #include <sgx.hpp>
 

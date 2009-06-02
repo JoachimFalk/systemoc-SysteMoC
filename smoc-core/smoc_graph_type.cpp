@@ -38,9 +38,9 @@
 
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
-#include <systemoc/detail/smoc_graph_synth.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
-//#include <systemoc/detail/smoc_ngx_sync.hpp>
+
+#include "smoc_graph_synth.hpp"
 
 #include <CoSupport/String/Concat.hpp>
 
@@ -49,20 +49,9 @@ using namespace SysteMoC::Detail;
 using CoSupport::String::Concat;
 
 smoc_graph_base::smoc_graph_base(
-    const sc_module_name& name, smoc_firing_state& init/*, bool regObj*/) :
-  smoc_root_node(name, init/*, regObj*/)
-{
-//// FIXME (multiple ids for the same object!!)
-//if(regObj) idPool.regObj(this, 1);
-}
+    const sc_module_name &name, smoc_firing_state &init)
+  : smoc_root_node(name, init) {}
   
-#ifdef SYSTEMOC_ENABLE_SGX
-void smoc_graph_base::addProcess(Process& p) {
-  assert(pg);
-  pg->processes().push_back(p);
-}
-#endif
-
 const smoc_node_list& smoc_graph_base::getNodes() const
   { return nodes; } 
 
@@ -123,18 +112,12 @@ void smoc_graph_base::finalise() {
   
   smoc_root_node::finalise();
   
-//#ifdef SYSTEMOC_ENABLE_SGX
-//  assembleXML();
-//#endif
-
-//NgId idGraph = idPool.getId(this, 1);
-
   // FIXME: Sync. WILL have to be different than now
-
+  
   // SystemC --> SGX
-  for(std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
-      iter != get_child_objects().end();
-      ++iter)
+  for (std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
+       iter != get_child_objects().end();
+       ++iter)
   {
     // only processing children which are nodes
     smoc_root_node* node = dynamic_cast<smoc_root_node*>(*iter);

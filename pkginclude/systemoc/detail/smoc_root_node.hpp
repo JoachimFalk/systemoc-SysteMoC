@@ -145,10 +145,6 @@ protected:
     constrArgs(name, t);
   }
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::Process::Ptr proc;
-#endif
-
 public:
   const char *name() const
     { return sc_module::name(); }
@@ -184,10 +180,6 @@ public:
 
   void setLastState(RuntimeState* s)
     { lastState = s; }
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  void addPort(SystemCoDesigner::SGX::Port &p);
-#endif
 
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;

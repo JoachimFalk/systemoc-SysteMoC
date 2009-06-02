@@ -165,13 +165,6 @@ RuntimeStateList smoc_root_node::getStates() const {
 }
 */
 
-#ifdef SYSTEMOC_ENABLE_SGX
-void smoc_root_node::addPort(SystemCoDesigner::SGX::Port& p) {
-  assert(proc);
-  proc->ports().push_back(p);
-}
-#endif // SYSTEMOC_ENABLE_SGX
-
 std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
   o << "actor: " << this->name() << std::endl;
   smoc_sysc_port_list ps = getPorts();

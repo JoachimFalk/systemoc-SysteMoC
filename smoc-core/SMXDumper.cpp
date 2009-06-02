@@ -59,6 +59,10 @@
 
 namespace SysteMoC { namespace Detail {
 
+#ifdef SYSTEMOC_ENABLE_SGX
+namespace SGX = SystemCoDesigner::SGX;
+#endif // SYSTEMOC_ENABLE_SGX
+
 typedef std::map<sc_port_base *, SGX::Port::Ptr>  SCPortBase2Port;
 typedef std::map<sc_interface *, SGX::Port::Ptr>  SCInterface2Port;
 

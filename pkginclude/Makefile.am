@@ -49,7 +49,6 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_root_chan.hpp \
 	systemoc/detail/smoc_root_node.hpp \
-	systemoc/detail/smoc_graph_synth.hpp \
 	systemoc/detail/hscd_tdsim_TraceLog.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \

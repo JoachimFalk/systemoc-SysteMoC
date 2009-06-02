@@ -43,17 +43,10 @@
 
 #include <limits>
 
-#ifdef SYSTEMOC_ENABLE_SGX
-# include <sgx.hpp>
-#endif // SYSTEMOC_ENABLE_SGX
-
 namespace SysteMoC { namespace Detail {
 
-# ifdef SYSTEMOC_ENABLE_SGX
-using SystemCoDesigner::SGX::NgId;
-# else // !SYSTEMOC_ENABLE_SGX
+// This must be synced with SystemCoDesigner::SGX::NgId
 typedef uint32_t NgId;
-# endif // !SYSTEMOC_ENABLE_SGX
 
 class IdPool;
 

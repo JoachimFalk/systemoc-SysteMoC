@@ -48,10 +48,6 @@ class smoc_simulation_ctx;
 
 namespace Detail {
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  namespace SGX = SystemCoDesigner::SGX;
-#endif // SYSTEMOC_ENABLE_SGX
-
   extern smoc_simulation_ctx *currentSimCTX;
 
   struct SimCTXBase {

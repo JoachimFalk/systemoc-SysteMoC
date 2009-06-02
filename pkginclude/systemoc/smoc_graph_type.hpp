@@ -180,10 +180,6 @@ public:
   const smoc_chan_list& getChans() const;
   void getChansRecursive( smoc_chan_list & channels) const;
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  void addProcess(SystemCoDesigner::SGX::Process& p);
-#endif
-
 protected:
   //typedef smoc_module_name sc_module_name;
 
