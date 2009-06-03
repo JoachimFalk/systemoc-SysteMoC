@@ -62,9 +62,14 @@ protected:
   int    argc;
   char **argv;
 
-  bool          dumpSMXWithSim;
-  std::ostream *dumpFileSMX;
-  std::ostream *dumpFileTrace;
+#ifdef SYSTEMOC_ENABLE_SGX
+  bool          dumpPreSimSMXKeepGoing;
+  std::ostream *dumpPreSimSMXFile;
+  std::ostream *dumpPostSimSMXFile;
+#endif // SYSTEMOC_ENABLE_SGX
+#ifdef SYSTEMOC_ENABLE_TRACE
+  std::ostream *dumpTraceFile;
+#endif // SYSTEMOC_ENABLE_TRACE
   bool          dumpFSMs;
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool                  idPool;
@@ -77,13 +82,15 @@ public:
 
 #ifdef SYSTEMOC_ENABLE_SGX
   bool isSMXDumpingPreSimEnabled()
-    { return dumpFileSMX && !dumpSMXWithSim; }
+    { return dumpPreSimSMXFile; }
   std::ostream &getSMXPreSimFile()
-    { return *dumpFileSMX; }
+    { return *dumpPreSimSMXFile; }
+  bool isSMXDumpingPreSimKeepGoing()
+    { return dumpPreSimSMXKeepGoing; }
   bool isSMXDumpingPostSimEnabled()
-    { return dumpFileSMX && dumpSMXWithSim; }
+    { return dumpPostSimSMXFile; }
   std::ostream &getSMXPostSimFile()
-    { return *dumpFileSMX; }
+    { return *dumpPostSimSMXFile; }
 #endif // SYSTEMOC_ENABLE_SGX
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool &getIdPool()
@@ -91,9 +98,9 @@ public:
 #endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_TRACE
   bool isTraceDumpingEnabled() const
-    { return dumpFileTrace != NULL; }
+    { return dumpTraceFile != NULL; }
   std::ostream &getTraceFile()
-    { return *dumpFileTrace; }
+    { return *dumpTraceFile; }
 #endif // SYSTEMOC_ENABLE_TRACE
   bool isFSMDumpingEnabled() const
     { return dumpFSMs; }

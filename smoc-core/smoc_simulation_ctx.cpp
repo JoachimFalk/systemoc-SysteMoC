@@ -35,6 +35,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <strstream>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
@@ -52,11 +53,10 @@
 
 #include <smoc/smoc_simulation_ctx.hpp>
 
-using namespace boost::program_options;
+namespace po = boost::program_options;
 
 // Backward compatibility cruft
 namespace smoc_modes {
-  bool          dumpSMXWithSim = false;
   std::ostream *dumpFileSMX    = NULL;
   bool          dumpFSMs       = false;
 } // namespace smoc_modes
@@ -71,90 +71,143 @@ namespace Detail {
 
 smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
   : argc(1), argv(_argv),
-    dumpSMXWithSim(false),
-    dumpFileSMX(NULL),
-    dumpFileTrace(NULL),
+#ifdef SYSTEMOC_ENABLE_SGX
+    dumpPreSimSMXKeepGoing(false),
+    dumpPreSimSMXFile(NULL),
+    dumpPostSimSMXFile(NULL),
+#endif // SYSTEMOC_ENABLE_SGX
+#ifdef SYSTEMOC_ENABLE_TRACE
+    dumpTraceFile(NULL),
+#endif // SYSTEMOC_ENABLE_TRACE
     dumpFSMs(false)
 {
-  options_description od;
-  od.add_options()
-    ("export-smx",
-     value<std::string>(),
-     "dump SysteMoC-XML after elaboration")
-    ("export-sim-smx",
-     value<std::string>(),
-     "dump SysteMoC-XML after simulation")
-    ("import-smx",
-     value<std::string>(),
-     "synchronize with specified SysteMoC-XML")
-    ("export-trace",
-     value<std::string>(),
-     "dump execution trace")
-    ("vpc-config",
-     value<std::string>(),
+  po::options_description systemocOptions("SysteMoC options");
+  systemocOptions.add_options()
+    ("systemoc-help",
+     "This help message")
+    ("systemoc-export-smx",
+     po::value<std::string>(),
+     "Dump SysteMoC-XML after elaboration (and stop)")
+    ("systemoc-export-smx-keep-going",
+     po::value<std::string>(),
+     "Dump SysteMoC-XML after elaboration (then start simulation)")
+    ("systemoc-export-sim-smx",
+     po::value<std::string>(),
+     "Dump SysteMoC-XML after simulation")
+    ("systemoc-import-smx",
+     po::value<std::string>(),
+     "Synchronize with specified SysteMoC-XML")
+    ("systemoc-export-trace",
+     po::value<std::string>(),
+     "Dump execution trace")
+    ("systemoc-vpc-config",
+     po::value<std::string>(),
      "use specified SystemC-VPC configuration file")
-    ("dump-fsm",
-     "dump flattened FSMs as DOT graph");
+    ("systemoc-dump-fsm",
+     "Dump flattened FSMs as DOT graph");
+  // Backward compatibility cruft
+  po::options_description backwardCompatibilityCruftOptions;
+  backwardCompatibilityCruftOptions.add_options()
+    ("export-smx",
+     po::value<std::string>())
+    ("export-smx-keep-going",
+     po::value<std::string>())
+    ("export-sim-smx",
+     po::value<std::string>())
+    ("import-smx",
+     po::value<std::string>())
+    ("export-trace",
+     po::value<std::string>())
+    ("vpc-config",
+     po::value<std::string>())
+    ("dump-fsm", "");
+  // All options
+  po::options_description od;
+  od.add(systemocOptions).add(backwardCompatibilityCruftOptions);
+  po::parsed_options parsed =
+    po::command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
   
-  parsed_options parsed =
-    command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
-  
-  for (std::vector< basic_option<char> >::const_iterator i = parsed.options.begin();
+  for (std::vector<po::basic_option<char> >::const_iterator i = parsed.options.begin();
        i != parsed.options.end();
        ++i) {
-    if (i->string_key == "dump-fsm") {
+    if (i->string_key == "systemoc-help") {
+      std::cerr << systemocOptions << std::endl;
+      exit(0);
+    } else if (i->string_key == "systemoc-dump-fsm" ||
+        i->string_key == "dump-fsm") {
       dumpFSMs = true;
-    } else if(i->string_key == "export-smx") {
+    } else if (i->string_key == "systemoc-export-smx" ||
+               i->string_key == "systemoc-export-smx-keep-going" ||
+               i->string_key == "export-smx" ||
+               i->string_key == "export-smx-keep-going") {
+      assert(!i->value.empty());
+#ifdef SYSTEMOC_ENABLE_SGX
+      if (dumpPreSimSMXFile != NULL)
+        dumpPreSimSMXKeepGoing = false;
+      
+      // delete null pointer is allowed...
+      delete dumpPreSimSMXFile;
+      
+      dumpPreSimSMXFile =
+        new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
+#else  // !SYSTEMOC_ENABLE_SGX
+      std::ostringstream str;
+      str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
+      throw std::runtime_error(str.str().c_str());
+#endif // !SYSTEMOC_ENABLE_SGX
+    } else if (i->string_key == "systemoc-export-sim-smx" ||
+               i->string_key == "export-sim-smx") {
       assert(!i->value.empty());
 #ifdef SYSTEMOC_ENABLE_SGX
       // delete null pointer is allowed...
-      delete dumpFileSMX;
+      delete dumpPostSimSMXFile;
       
-      dumpFileSMX =
+      dumpPreSimSMXKeepGoing = true;
+      dumpPostSimSMXFile =
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
 #else  // !SYSTEMOC_ENABLE_SGX
-      throw std::runtime_error("SysteMoC configured without sgx support --export-smx option not provided!");
+      std::ostringstream str;
+      str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
+      throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_SGX
-    } else if(i->string_key == "export-sim-smx") {
-      assert(!i->value.empty());
-#ifdef SYSTEMOC_ENABLE_SGX
-      // delete null pointer is allowed...
-      delete dumpFileSMX;
-      
-      dumpSMXWithSim = true;
-      dumpFileSMX =
-        new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
-#else  // !SYSTEMOC_ENABLE_SGX
-      throw std::runtime_error("SysteMoC configured without sgx support --export-sim-smx option not provided!");
-#endif // !SYSTEMOC_ENABLE_SGX
-    } else if(i->string_key == "import-smx") {
+    } else if (i->string_key == "systemoc-import-smx" ||
+               i->string_key == "import-smx") {
       assert(!i->value.empty());
 //#ifdef SYSTEMOC_ENABLE_SGX
 //    
 //    CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
 //    SysteMoC::Detail::NGXConfig::getInstance().loadNGX(in);
 //#else  // !SYSTEMOC_ENABLE_SGX
-      throw std::runtime_error("SysteMoC configured without sgx support --import-smx option not provided!");
+      std::ostringstream str;
+      str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
+      throw std::runtime_error(str.str().c_str());
 //#endif // !SYSTEMOC_ENABLE_SGX
-    } else if(i->string_key == "export-trace") {
+    } else if (i->string_key == "systemoc-export-trace" ||
+               i->string_key == "export-trace") {
       assert(!i->value.empty());
 #ifdef SYSTEMOC_ENABLE_TRACE
       // delete null pointer is allowed...
-      delete dumpFileTrace;
+      delete dumpTraceFile;
       
-      dumpFileTrace =
+      dumpPreSimSMXKeepGoing = true;
+      dumpTraceFile =
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
 #else  // !SYSTEMOC_ENABLE_TRACE
-      throw std::runtime_error("SysteMoC configured without trace support --export-trace option not provided!");
+      std::ostringstream str;
+      str << "SysteMoC configured without trace support --" << i->string_key << " option not provided!";
+      throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_TRACE
-    } else if(i->string_key == "vpc-config") {
+    } else if (i->string_key == "systemoc-vpc-config" ||
+               i->string_key == "vpc-config") {
       assert(!i->value.empty());
 #ifdef SYSTEMOC_ENABLE_VPC
       setenv("VPCCONFIGURATION", i->value.front().c_str(), 1);
 #else  // !SYSTEMOC_ENABLE_VPC
-      throw std::runtime_error("SysteMoC configured without vpc support --vpc-config option not provided!");
+      std::ostringstream str;
+      str << "SysteMoC configured without vpc support --" << i->string_key << " option not provided!";
+      throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_VPC
-    } else if(i->unregistered || i->position_key != -1) {
+    } else if (i->unregistered || i->position_key != -1) {
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
           j != i->original_tokens.end();
           ++j)
@@ -180,8 +233,9 @@ void smoc_simulation_ctx::defCurrentCTX() {
   assert(Detail::currentSimCTX == NULL);
   Detail::currentSimCTX = this;
   // Backward compatibility cruft
-  smoc_modes::dumpSMXWithSim = dumpSMXWithSim;
-  smoc_modes::dumpFileSMX    = dumpFileSMX;
+#ifdef SYSTEMOC_ENABLE_SGX
+  smoc_modes::dumpFileSMX    = dumpPreSimSMXFile;
+#endif // SYSTEMOC_ENABLE_SGX
   smoc_modes::dumpFSMs       = dumpFSMs;
 }
 
@@ -189,9 +243,10 @@ void smoc_simulation_ctx::undefCurrentCTX() {
   assert(Detail::currentSimCTX == this);
   Detail::currentSimCTX = NULL;
   // Backward compatibility cruft
-  dumpSMXWithSim = smoc_modes::dumpSMXWithSim;
-  dumpFileSMX    = smoc_modes::dumpFileSMX;
-  dumpFSMs       = smoc_modes::dumpFSMs;
+#ifdef SYSTEMOC_ENABLE_SGX
+  dumpPreSimSMXFile = smoc_modes::dumpFileSMX;
+#endif // SYSTEMOC_ENABLE_SGX
+  dumpFSMs          = smoc_modes::dumpFSMs;
 }
 
 smoc_simulation_ctx::~smoc_simulation_ctx() {
@@ -203,8 +258,13 @@ smoc_simulation_ctx::~smoc_simulation_ctx() {
     undefCurrentCTX();
   
   // delete null pointer is allowed...
-  delete dumpFileSMX;
-  delete dumpFileTrace;
+#ifdef SYSTEMOC_ENABLE_SGX
+  delete dumpPreSimSMXFile;
+  delete dumpPostSimSMXFile;
+#endif // SYSTEMOC_ENABLE_SGX
+#ifdef SYSTEMOC_ENABLE_TRACE
+  delete dumpTraceFile;
+#endif // SYSTEMOC_ENABLE_TRACE
 }
 
 int smoc_simulation_ctx::getArgc() {

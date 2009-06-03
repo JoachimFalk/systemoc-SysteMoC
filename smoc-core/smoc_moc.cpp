@@ -74,7 +74,7 @@ void smoc_scheduler_top::end_of_simulation() {
   simulation_running = false;
 #ifdef SYSTEMOC_ENABLE_SGX
   if (getSimCTX()->isSMXDumpingPostSimEnabled()) {
-    assert(!"At the moment unsupported!");
+    SysteMoC::Detail::dumpSMX(getSimCTX()->getSMXPostSimFile(), *g);
   }
 #endif // SYSTEMOC_ENABLE_SGX
 }
@@ -85,7 +85,8 @@ void smoc_scheduler_top::end_of_elaboration() {
 #ifdef SYSTEMOC_ENABLE_SGX
   if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
     SysteMoC::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), *g);
-    sc_core::sc_stop();
+    if (!getSimCTX()->isSMXDumpingPreSimKeepGoing())
+      sc_core::sc_stop();
   }
 #endif // SYSTEMOC_ENABLE_SGX
 }
