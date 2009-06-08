@@ -46,7 +46,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_sysc_port.hpp"
-#include "../smoc_event.hpp"
+#include "smoc_event_decls.hpp"
 #include "smoc_storage.hpp"
 #include "smoc_chan_if.hpp"
 #include "smoc_port_registry.hpp"

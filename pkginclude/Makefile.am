@@ -32,8 +32,6 @@ nobase_include_HEADERS = \
 	\
 	systemoc/smoc_config.h \
 	\
-	systemoc/detail/smoc_event_decls.hpp \
-	systemoc/detail/smoc_event_expr.hpp \
 	systemoc/detail/smoc_sysc_port.hpp \
 	systemoc/detail/ConnectProvider.hpp \
 	systemoc/detail/EventMapManager.hpp \
@@ -50,6 +48,7 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_root_chan.hpp \
 	systemoc/detail/smoc_root_node.hpp \
 	systemoc/detail/hscd_tdsim_TraceLog.hpp \
+	systemoc/detail/smoc_event_decls.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_elab_and_sim.hpp \
