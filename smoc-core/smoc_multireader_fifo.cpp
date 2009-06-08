@@ -73,6 +73,20 @@ void smoc_multireader_fifo_chan_base::consume(size_t n)
   // Immediate call of diiExpired
   diiExpired(n);
 #endif
+  // FIXME: This is an incredible hack to fix the GAU bug!!!
+  for(OutletMap::const_iterator i = getOutlets().begin();
+      i != getOutlets().end(); ++i)
+  {
+    smoc_actor *actor = dynamic_cast<smoc_actor *>
+      (i->second->get_parent());
+    if (actor == NULL)
+      continue;
+    smoc_graph *graph = dynamic_cast<smoc_graph *>
+      (actor->get_parent());
+    if (graph == NULL)
+      continue;
+    actor->addCurOutTransitions(graph->ol);
+  }
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
