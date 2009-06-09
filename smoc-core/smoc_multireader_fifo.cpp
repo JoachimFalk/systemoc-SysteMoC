@@ -56,9 +56,9 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
 {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multireader_fifo_chan_base::consume(size_t n, const smoc_ref_event_p &diiEvent)
+void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n, const smoc_ref_event_p &diiEvent)
 #else
-void smoc_multireader_fifo_chan_base::consume(size_t n)
+void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n)
 #endif
 {
 #ifdef SYSTEMOC_TRACE
@@ -77,6 +77,8 @@ void smoc_multireader_fifo_chan_base::consume(size_t n)
   for(OutletMap::const_iterator i = getOutlets().begin();
       i != getOutlets().end(); ++i)
   {
+    if (i->first == who)
+      continue;
     smoc_actor *actor = dynamic_cast<smoc_actor *>
       (i->second->get_parent());
     if (actor == NULL)
@@ -85,6 +87,7 @@ void smoc_multireader_fifo_chan_base::consume(size_t n)
       (actor->get_parent());
     if (graph == NULL)
       continue;
+    actor->delCurOutTransitions(graph->ol);
     actor->addCurOutTransitions(graph->ol);
   }
 }

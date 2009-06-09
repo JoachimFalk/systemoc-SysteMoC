@@ -122,9 +122,9 @@ protected:
 
   /// @brief Called by outlet if it did consume tokens
 #ifdef SYSTEMOC_ENABLE_VPC
-  void consume(size_t n, const smoc_ref_event_p &diiEvent);
+  void consume(smoc_port_in_base_if *who, size_t n, const smoc_ref_event_p &diiEvent);
 #else
-  void consume(size_t n);
+  void consume(smoc_port_in_base_if *who, size_t n);
 #endif
   
   /// @brief Called by entry if it did produce tokens
@@ -212,10 +212,10 @@ protected:
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
-    { chan.consume(consume, diiEvent); }
+    { chan.consume(this, consume, diiEvent); }
 #else
   void commitRead(size_t consume)
-    { chan.consume(consume); }
+    { chan.consume(this, consume); }
 #endif
 
   /// @brief See smoc_port_in_base_if
