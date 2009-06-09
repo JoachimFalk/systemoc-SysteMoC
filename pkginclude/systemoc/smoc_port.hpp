@@ -210,8 +210,15 @@ public:
   typedef const T    value_type;
   typedef DToken<T>  this_type;
   
-  friend class Value<this_type>;
+  friend class VisitorApplication<this_type>;
   friend class AST<this_type>;
+  friend class CommExec<this_type>;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
 private:
   smoc_port_in<T> &p;
   size_t           pos;
@@ -220,13 +227,15 @@ public:
     : p(p), pos(pos) {}
 };
 
-template<typename T>
-struct Value<DToken<T> > {
-  typedef const T result_type;
-  
+template <typename T>
+class VisitorApplication<DToken<T> > {
+public:
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
   static inline
-  result_type apply(const DToken<T> &e)
-  { return e.p[e.pos]; }
+  result_type apply(const DToken <T> &e, param1_type p)
+    { return p.visitToken(e.p, e.pos); }
 };
 
 template<typename T>
@@ -236,6 +245,15 @@ struct AST<DToken<T> > {
   static inline
   result_type apply(const DToken<T> &e)
     { return Detail::PASTNode(new Detail::ASTNodeToken(e.p, e.pos)); }
+};
+
+template<typename T>
+struct Value<DToken<T> > {
+  typedef const T result_type;
+  
+  static inline
+  result_type apply(const DToken<T> &e)
+  { return e.p[e.pos]; }
 };
 
 template<typename T>

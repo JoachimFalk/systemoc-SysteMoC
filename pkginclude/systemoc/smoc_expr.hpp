@@ -52,12 +52,15 @@
 #include <CoSupport/commondefs.h>
 
 #include <boost/typeof/typeof.hpp>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 #include <systemoc/smoc_config.h>
 
 #include <smoc/detail/astnodes.hpp>
 
 #include "detail/smoc_event_decls.hpp"
+#include "detail/smoc_sysc_port.hpp"
 
 /****************************************************************************
  * dexpr.h
@@ -143,16 +146,18 @@ namespace SysteMoC { namespace Detail {
     template <class E> friend class Expr::VisitorApplication;
   protected:
     typedef T *result_type;
-    
+
     virtual result_type visitVar(const std::string &name, const std::string &type, const std::string &value) = 0;
     virtual result_type visitLiteral(const std::string &type, const std::string &value) = 0;
 //  virtual result_type visitProc(const std::string &name, const std::string &retType, const std::string &addr) = 0;
 //  virtual result_type visitMemProc(const std::string &name, const std::string &retType, const std::string &obj, const std::string &addr) = 0;
     virtual result_type visitMemGuard(const std::string &name, const std::string &reType, const ParamInfoList &params) = 0;
     virtual result_type visitSMOCEvent() = 0;
-
-    virtual void free(result_type);
-
+    virtual result_type visitBinOp(OpBinT op, boost::function<result_type (this_type &)> a, boost::function<result_type (this_type &)> b) = 0;
+    virtual result_type visitUnOp(OpUnT op, boost::function<result_type (this_type &)> e) = 0;
+    virtual result_type visitComm(smoc_sysc_port &p, boost::function<result_type (this_type &)> e) = 0;
+    virtual result_type visitPortTokens(smoc_sysc_port &p) = 0;
+    virtual result_type visitToken(smoc_sysc_port &p, size_t n) = 0;
   };
 
 } } // namespace SysteMoC::Detail
@@ -400,7 +405,7 @@ public:
 
   static inline
   result_type apply(const DVirtual <T> &e, param1_type p)
-    { return e.v->evalToVisitorApplication(e, p); }
+    { return e.v->evalToVisitorApplication(p); }
 };
 
 template <typename T>
@@ -1084,8 +1089,9 @@ public:
 
   static inline
   result_type apply(const DBinOp<A,B,Op> &e, param1_type p) {
-    return NULL;
-//  return p.visitBinOp(Op, e.a, e.b);
+    return p.visitBinOp(Op,
+      boost::bind(VisitorApplication<A>::apply, e.a, _1),
+      boost::bind(VisitorApplication<B>::apply, e.b, _1));
   }
 };
 
@@ -1525,8 +1531,8 @@ public:
 
   static inline
   result_type apply(const DUnOp<E,Op> &e, param1_type p) {
-    return NULL;
-//  return p.visitUnOp(Op, e.e);
+    return p.visitUnOp(Op,
+      boost::bind(VisitorApplication<E>::apply, e.e, _1));
   }
 };
 

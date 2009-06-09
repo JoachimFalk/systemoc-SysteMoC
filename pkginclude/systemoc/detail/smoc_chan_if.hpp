@@ -76,14 +76,15 @@ class DPortTokens {
 public:
   typedef DPortTokens<CI>  this_type;
 
-  friend class AST<this_type>;
-  template <class E> friend class Value;
+  template <class E> friend class VisitorApplication;
+  template <class E> friend class AST;
   template <class E> friend class CommExec;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class CommSetup;
   template <class E> friend class CommReset;
 #endif
   template <class E> friend class Sensitivity;
+  template <class E> friend class Value;
 private:
   smoc_sysc_port &p;
 
@@ -100,6 +101,17 @@ template<class CI>
 struct D<DPortTokens<CI> >: public DBase<DPortTokens<CI> > {
   D(smoc_sysc_port &p)
     : DBase<DPortTokens<CI> >(DPortTokens<CI>(p)) {}
+};
+
+template<class CI>
+class VisitorApplication<DPortTokens<CI> > {
+public:
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
+  static inline
+  result_type apply(const DPortTokens<CI> &e, param1_type p)
+    { return p.visitPortTokens(e.p); }
 };
 
 template<class CI>
@@ -212,8 +224,14 @@ class DComm {
 public:
   typedef DComm<CI,E> this_type;
 
+  friend class VisitorApplication<this_type>;
   friend class AST<this_type>;
   friend class CommExec<this_type>;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   smoc_sysc_port &p;
@@ -241,6 +259,17 @@ struct Comm {
 template <class P, class E>
 typename Comm<typename P::chan_base_type,E>::type comm(P &p, const E &e)
   { return typename Comm<typename P::chan_base_type,E>::type(p,e); }
+
+template<class CI, class E>
+class VisitorApplication<DComm<CI,E> > {
+public:
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
+  static inline
+  result_type apply(const DComm<CI,E> &e, param1_type p)
+    { return p.visitComm(e.p, boost::bind(VisitorApplication<E>::apply, e.e, _1)); }
+};
 
 template<class CI, class E>
 struct AST<DComm<CI,E> > {
