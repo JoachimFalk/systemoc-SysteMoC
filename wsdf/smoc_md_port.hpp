@@ -41,7 +41,6 @@ namespace Expr {
     typedef size_t          value_type;
     typedef DPortIteration<P>  this_type;
   
-    friend class AST<this_type>;
     template <class E> friend class Value;
   private:
     P      &p;
@@ -64,16 +63,6 @@ namespace Expr {
       size_t dimension)
       : DBase<DPortIteration<P> >(DPortIteration<P>(p, firing_level, dimension)) {}
   };
-
-  template<class P>
-  struct AST<DPortIteration<P> > {
-    typedef PASTNode result_type;
-  
-    static inline
-    result_type apply(const DPortIteration<P> &e)
-    { return PASTNode(new ASTNodePortIteration(e.p)); }
-  };
-
 
   template<class P>
   struct Value<DPortIteration<P> > {
@@ -115,7 +104,6 @@ namespace Expr {
     typedef DMDToken<PORT_TYPE>                                this_type;
   
     friend class Value<this_type>;
-    friend class AST<this_type>;
   private:
     const PORT_TYPE               &p;
     iter_domain_vector_type  pos;

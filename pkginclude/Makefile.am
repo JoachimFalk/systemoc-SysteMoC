@@ -28,7 +28,6 @@ nobase_include_HEADERS = \
 	smoc/smoc_simulation_ctx.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/NamedIdedObj.hpp \
-	smoc/detail/astnodes.hpp \
 	\
 	systemoc/smoc_config.h \
 	\

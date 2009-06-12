@@ -56,7 +56,6 @@
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 #include "../smoc_expr.hpp"
-#include <smoc/detail/astnodes.hpp>
 
 #define SMOC_REGISTER_CPARAM(name) registerParam(#name,name)
 

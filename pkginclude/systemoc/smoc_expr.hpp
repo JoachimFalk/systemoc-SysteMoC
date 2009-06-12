@@ -57,8 +57,6 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <smoc/detail/astnodes.hpp>
-
 #include "detail/smoc_event_decls.hpp"
 #include "detail/smoc_sysc_port.hpp"
 
@@ -106,6 +104,68 @@ namespace SysteMoC { namespace Detail {
     _ENABLED  =  1
   };
 
+  struct DISABLED { operator bool() const { return false; } };
+  struct BLOCKED  {};
+  struct ENABLED  { operator bool() const { return true; } };
+
+  struct ParamInfo {
+    std::string name;
+    std::string type;
+    std::string value;
+  };
+  typedef std::vector<ParamInfo> ParamInfoList;
+
+  struct ParamInfoVisitor {
+    ParamInfoList pil;
+
+    template<class P>
+    void operator()(const P& p) {
+      ParamInfo pi;
+      //pi.name = FIXME;
+      pi.type = typeid(P).name();
+      pi.value = CoSupport::String::asStr(p);
+      pil.push_back(pi);
+    }
+
+    template<class P>
+    void operator()(const std::string& name, const P& p) {
+      ParamInfo pi;
+      pi.name = name;
+      pi.type = typeid(P).name();
+      pi.value = CoSupport::String::asStr(p);
+      pil.push_back(pi);
+    }
+  };
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  using SystemCoDesigner::SGX::OpUnT;
+#else // SYSTEMOC_ENABLE_SGX
+  // WARNING: always sync this with LibSGX!!!
+  struct OpUnT {
+    typedef enum {
+      LNot,
+      BNot,
+      Ref,
+      DeRef,
+      Type
+    } Op;
+  };
+#endif // SYSTEMOC_ENABLE_SGX
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  using SystemCoDesigner::SGX::OpBinT;
+#else // SYSTEMOC_ENABLE_SGX
+  // WARNING: always sync this with LibSGX!!!
+  struct OpBinT {
+    typedef enum {
+      Add, Sub, Multiply, Divide,
+      Eq, Ne, Lt, Le, Gt, Ge,
+      BAnd, BOr, BXor, LAnd, LOr, LXor,
+      Field
+    } Op;
+  };
+#endif // SYSTEMOC_ENABLE_SGX
+
   class ActivationStatus {
   public:
     typedef ActivationStatus this_type;
@@ -122,7 +182,7 @@ namespace SysteMoC { namespace Detail {
 
     ActivationStatus(const DISABLED _)
       :value(_DISABLED) {}
-    ActivationStatus(const BLOCKED  _)
+    ActivationStatus(const BLOCKED _)
       :value(_BLOCKED) {}
     ActivationStatus(const ENABLED _)
       :value(_ENABLED) {}
@@ -181,10 +241,6 @@ class D;
 // Default is invalid
 template <class E>
 class VisitorApplication {};
-
-// Default is invalid
-template <class E>
-class AST {};
 
 // Default is invalid
 template <class E>
@@ -323,7 +379,6 @@ private:
   typedef DVirtual<T> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -334,7 +389,6 @@ private:
 private:
   struct virt_ty: public CoSupport::SmartPtr::RefCountObject {
     virtual void              *evalToVisitorApplication(Detail::ExprVisitor<void> &) const = 0;
-    virtual Detail::PASTNode   evalToAST() const = 0;
 #ifdef SYSTEMOC_ENABLE_VPC
     virtual void       evalToCommExec(
         const smoc_ref_event_p &diiEvent,
@@ -363,8 +417,6 @@ private:
 
     void              *evalToVisitorApplication(Detail::ExprVisitor<void> &v) const 
       { return VisitorApplication<E>::apply(e, v); }
-    Detail::PASTNode   evalToAST() const
-      { return AST<E>::apply(e); }
 #ifdef SYSTEMOC_ENABLE_VPC
     void       evalToCommExec(
         const smoc_ref_event_p &diiEvent,
@@ -404,17 +456,6 @@ public:
   static inline
   result_type apply(const DVirtual <T> &e, param1_type p)
     { return e.v->evalToVisitorApplication(p); }
-};
-
-template <typename T>
-class AST<DVirtual<T> >
-{
-public:
-  typedef Detail::PASTNode        result_type;
-  
-  static inline
-  result_type apply(const DVirtual <T> &e)
-    { return e.v->evalToAST(); }
 };
 
 template <typename T>
@@ -527,7 +568,6 @@ private:
   typedef DVar<T> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -553,19 +593,6 @@ public:
   static inline
   result_type apply(const DVar <T> &e, param1_type p)
     { return p.visitVar(e.name, typeid(T).name()); }
-};
-
-template <typename T>
-class AST<DVar<T> >
-{
-public:
-  typedef Detail::PASTNode result_type;
-  
-  static inline
-  Detail::PASTNode apply(const DVar <T> &e) {
-    //std::cerr << "AST<DVar<T> >: Was here !!!" << std::endl;
-    return Detail::PASTNode(new Detail::ASTNodeVar(Detail::TypeSymbolIdentifier(e.x,e.name)));
-  }
 };
 
 template <typename T>
@@ -604,7 +631,6 @@ private:
   typedef DLiteral<T> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -627,7 +653,6 @@ private:
   typedef DLiteral<Detail::ParamWrapper<T> >  this_type;
   
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -653,18 +678,6 @@ public:
   static inline
   result_type apply(const DLiteral <T> &e, param1_type p)
     { return p.visitLiteral(typeid(T).name(), CoSupport::String::asStr(e.v)); }
-};
-
-template <typename T>
-class AST<DLiteral<T> >
-{
-public:
-  typedef Detail::PASTNode result_type;
-  
-  static inline
-  Detail::PASTNode apply(const DLiteral <T> &e) {
-    return Detail::PASTNode(new Detail::ASTNodeLiteral(Detail::ValueTypeContainer(e.v)));
-  }
 };
 
 template <typename T>
@@ -702,7 +715,6 @@ private:
   typedef DProc<T>  this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -726,17 +738,6 @@ public:
   static inline
   result_type apply(const DProc <T> &e, param1_type p)
     { return p.visitProc("dummy", typeid(T).name(), CoSupport::String::asStr(reinterpret_cast<unsigned long>(e.f))); }
-};
-
-template <typename T>
-class AST<DProc<T> >
-{
-public:
-  typedef Detail::PASTNode result_type;
-  
-  static inline
-  Detail::PASTNode apply(const DProc <T> &e)
-    { return Detail::PASTNode(new Detail::ASTNodeProc(e.f)); }
 };
 
 template <typename T>
@@ -775,7 +776,6 @@ private:
   typedef DMemProc<T,X> this_type;
   
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -803,17 +803,6 @@ public:
       CoSupport::String::asStr(reinterpret_cast<unsigned long>(e.o)),
       CoSupport::String::asStr(reinterpret_cast<unsigned long>(e.m)));
   }
-};
-
-template <typename T, class X>
-class AST<DMemProc<T,X> >
-{
-public:
-  typedef Detail::PASTNode result_type;
-  
-  static inline
-  Detail::PASTNode apply(const DMemProc <T,X> &e)
-    { return Detail::PASTNode(new Detail::ASTNodeMemProc(e.o,e.m)); }
 };
 
 template <typename T, class X>
@@ -853,7 +842,6 @@ private:
   typedef DMemGuard<F,PL> this_type;
   
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -881,20 +869,6 @@ public:
     Detail::ParamInfoVisitor piv;
     e.f.paramListVisit(e.pl, piv);
     return p.visitMemGuard(e.f.name, typeid(typename F::return_type).name(), piv.pil);
-  }
-};
-
-template<class F, class PL>
-class AST<DMemGuard<F,PL> >
-{
-public:
-  typedef Detail::PASTNode result_type;
-  
-  static inline
-  Detail::PASTNode apply(const DMemGuard <F,PL> &e) {
-    Detail::ParamInfoVisitor piv;
-    e.f.paramListVisit(e.pl, piv);
-    return Detail::PASTNode(new Detail::ASTNodeMemGuard(Detail::TypeSymbolIdentifier(e.f), piv.pil));
   }
 };
 
@@ -943,7 +917,6 @@ private:
   typedef DSMOCEvent this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -969,15 +942,6 @@ public:
   static inline
   result_type apply(const DSMOCEvent &e, param1_type p)
     { return p.visitEvent(e.name); }
-};
-
-template <>
-struct AST<DSMOCEvent> {
-  typedef Detail::PASTNode result_type;
-
-  static inline
-  result_type apply(const DSMOCEvent &e)
-    { return Detail::PASTNode(new Detail::ASTNodeSMOCEvent()); }
 };
 
 template <>
@@ -1037,7 +1001,6 @@ private:
   typedef DBinOp<A,B,Op> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -1093,24 +1056,6 @@ public:
     return p.visitBinOp(Op,
       boost::bind(VisitorApplication<A>::apply, e.a, _1),
       boost::bind(VisitorApplication<B>::apply, e.b, _1));
-  }
-};
-
-template <class A, class B, OpBinT::Op Op>
-class AST<DBinOp<A,B,Op> >
-{
-public:
-  typedef Detail::PASTNode result_type;
-  
-  static inline
-  result_type apply(const DBinOp<A,B,Op> &e) {
-   /* std::cerr << "AST<DBinOp<"
-                << typeid(A).name() << ","
-                << typeid(B).name() << ","
-                << Op << "> >: Was here !!!" << std::endl;*/
-    return Detail::PASTNode(new Detail::ASTNodeBinOp(
-        Detail::Type<typename Value<DBinOp<A,B,Op> >::result_type>(), Op,
-        AST<A>::apply(e.a), AST<B>::apply(e.b)));
   }
 };
 
@@ -1480,7 +1425,6 @@ private:
   typedef DUnOp<E,Op> this_type;
 
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -1534,23 +1478,6 @@ public:
   result_type apply(const DUnOp<E,Op> &e, param1_type p) {
     return p.visitUnOp(Op,
       boost::bind(VisitorApplication<E>::apply, e.e, _1));
-  }
-};
-
-template <class E, OpUnT::Op Op>
-class AST<DUnOp<E,Op> >
-{
-public:
-  typedef Detail::PASTNode result_type;
-
-  static inline
-  result_type apply(const DUnOp<E,Op> &e) {
-   /* std::cerr << "AST<DUnOp<"
-                << typeid(E).name() << ","
-                << Op << "> >: Was here !!!" << std::endl;*/
-    return Detail::PASTNode(new Detail::ASTNodeUnOp(
-        Detail::Type<typename Value<DUnOp<E,Op> >::result_type>(), Op,
-        AST<E>::apply(e.e)));
   }
 };
 

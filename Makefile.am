@@ -59,8 +59,6 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/smoc_simulation_ctx.cpp	\
 	smoc-core/smoc_main.cpp			\
 	smoc-core/smoc_elab_and_sim.cpp		\
-	smoc-core/astnodes.cpp			\
-	smoc-core/smoc_ast_ngx_visitor.cpp	\
 	smoc-core/smoc_fifo.cpp			\
 	smoc-core/smoc_multiplex_fifo.cpp	\
 	smoc-core/smoc_multireader_fifo.cpp	\

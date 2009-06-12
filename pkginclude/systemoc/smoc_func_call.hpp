@@ -46,7 +46,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <smoc/detail/astnodes.hpp>
+#include "smoc_expr.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>

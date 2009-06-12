@@ -211,7 +211,6 @@ public:
   typedef DToken<T>  this_type;
   
   friend class VisitorApplication<this_type>;
-  friend class AST<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -236,15 +235,6 @@ public:
   static inline
   result_type apply(const DToken <T> &e, param1_type p)
     { return p.visitToken(e.p, e.pos); }
-};
-
-template<typename T>
-struct AST<DToken<T> > {
-  typedef Detail::PASTNode result_type;
-  
-  static inline
-  result_type apply(const DToken<T> &e)
-    { return Detail::PASTNode(new Detail::ASTNodeToken(e.p, e.pos)); }
 };
 
 template<typename T>
