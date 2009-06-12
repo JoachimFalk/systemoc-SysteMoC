@@ -76,33 +76,8 @@ class VisitorApplication;
 
 namespace SysteMoC { namespace Detail {
 
-  //wrapper for constructor parameters (deprecated! use SMOC_REGISTER_CPARAM() macro instead)
-/*  template <typename T>
-  class ParamWrapper {
-  private:
-    T v;
-  public:
-    ParamWrapper(const T &v) COSUPPORT_ATTRIBUTE_DEPRECATED
-      : v(v) {
-      std::stringstream allToString; allToString << v;
-      registerParam(ArgInfo(typeid(T).name(), allToString.str()));
-    }
-
-    operator       T()       { return v; }
-    operator const T() const { return v; }
-  };*/
-
-//struct True  { operator bool() const { return true;  } };
-//struct False { operator bool() const { return false; } };
-
   struct Process;   // Process type marker for evalTo<{Sensitivity|CommExec}>( ... )
   struct Ignore;    // Ignore type marker for evalTo<{Sensitivity|CommExec}>( ... )
-
-  enum _XXX {
-    _DISABLED = -1,
-    _BLOCKED  =  0,
-    _ENABLED  =  1
-  };
 
   struct DISABLED { operator bool() const { return false; } };
   struct BLOCKED  {};
@@ -166,11 +141,15 @@ namespace SysteMoC { namespace Detail {
   };
 #endif // SYSTEMOC_ENABLE_SGX
 
+  enum _XXX {
+    _DISABLED = -1,
+    _BLOCKED  =  0,
+    _ENABLED  =  1
+  };
+
   class ActivationStatus {
   public:
     typedef ActivationStatus this_type;
-//  typedef _XXX (this_type::*unspecified_bool_type)() const;
- 
 #ifdef SYSTEMOC_DEBUG
     friend std::ostream &operator <<(std::ostream &, this_type);
 #endif
@@ -194,9 +173,6 @@ namespace SysteMoC { namespace Detail {
 
     _XXX toSymbol() const
       { return value; }
-
-//  operator unspecified_bool_type() const
-//    { return value == ENABLED ? &this_type::toSymbol : NULL; }
   };
 
   template <typename T>
@@ -646,28 +622,6 @@ public:
   DLiteral(const DLiteral<X> &l): v(l.v) {}
 };
 
-/*template<typename T>
-class DLiteral<Detail::ParamWrapper<T> >
-{
-private:
-  typedef DLiteral<Detail::ParamWrapper<T> >  this_type;
-  
-  friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif
-  friend class Sensitivity<this_type>;
-  friend class Value<this_type>;
-private:
-  const T v;
-public:
-  explicit DLiteral(const Detail::ParamWrapper<T> &v): v(v) {}
-  template <typename X>
-  DLiteral(const DLiteral<X> &l): v(l.v) {}
-};*/
-
 template <typename T>
 class VisitorApplication<DLiteral<T> >
 {
@@ -704,132 +658,6 @@ template <typename T>
 static inline
 typename Literal<T>::type literal(const T &v)
   { return typename Literal<T>::type(v); }
-
-/****************************************************************************
- * DProc represents a function call in the expression
-
-template<typename T>
-class DProc
-{
-private:
-  typedef DProc<T>  this_type;
-
-  friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif
-  friend class Sensitivity<this_type>;
-  friend class Value<this_type>;
-private:
-  T (*f)();
-public:
-  explicit DProc(T (*f)()): f(f) {}
-};
-
-template <typename T>
-class VisitorApplication<DProc<T> >
-{
-public:
-  typedef void                      *result_type;
-  typedef Detail::ExprVisitor<void> &param1_type;
-
-  static inline
-  result_type apply(const DProc <T> &e, param1_type p)
-    { return p.visitProc("dummy", typeid(T).name(), CoSupport::String::asStr(reinterpret_cast<unsigned long>(e.f))); }
-};
-
-template <typename T>
-class Value<DProc<T> >
-{
-public:
-  typedef T result_type;
-  
-  static inline
-  T apply(const DProc <T> &e)
-    { return e.f(); }
-};
-
-template<class T>
-struct D<DProc<T> >: public DBase<DProc<T> > {
-  D(T (*f)()): DBase<DProc<T> >(DProc<T>(f)) {}
-};
-
-// Make a convenient typedef for the placeholder type.
-template <typename T>
-struct Proc { typedef D<DProc<T> > type; };
-
-template <typename T>
-typename Proc<T>::type call(T (*f)())
-  { return Proc<T>::type(f); }
-
- */
-
-/****************************************************************************
- * DMemProc represents a member function call in the expression
-
-template<typename T, class X>
-class DMemProc
-{
-private:
-  typedef DMemProc<T,X> this_type;
-  
-  friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif
-  friend class Sensitivity<this_type>;
-  friend class Value<this_type>;
-private:
-  X     *o;
-  T (X::*m)();
-public:
-  explicit DMemProc(X *o, T (X::*m)()): o(o), m(m) {}
-};
-
-template <typename T>
-class VisitorApplication<DMemProc<T> >
-{
-public:
-  typedef void                      *result_type;
-  typedef Detail::ExprVisitor<void> &param1_type;
-
-  static inline
-  result_type apply(const DMemProc <T> &e, param1_type p) {
-    return p.visitMemProc("dummy", typeid(T).name(),
-      CoSupport::String::asStr(reinterpret_cast<unsigned long>(e.o)),
-      CoSupport::String::asStr(reinterpret_cast<unsigned long>(e.m)));
-  }
-};
-
-template <typename T, class X>
-class Value<DMemProc<T,X> >
-{
-public:
-  typedef T result_type;
-  
-  static inline
-  T apply(const DMemProc<T,X> &e)
-    { return (e.o->*e.m)(); }
-};
-
-template<typename T, class X>
-struct D<DMemProc<T,X> >: public DBase<DMemProc<T,X> > {
-  D(X *o, T (X::*m)()): DBase<DMemProc<T,X> >(DMemProc<T,X>(o,m)) {}
-};
-
-// Make a convenient typedef for the placeholder type.
-template <typename T, class X>
-struct MemProc { typedef D<DMemProc<T,X> > type; };
-
-template <typename T, class X>
-typename MemProc<T,X>::type call(X *o, T (X::*m)())
-  { return MemProc<T,X>::type(o,m); }
-
- */
 
 /****************************************************************************
  * DMemGuard
