@@ -52,12 +52,6 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#define CALL(func)    call(&func, #func)
-#define GUARD(func)   guard(&func, #func)
-#define VAR(variable) var(variable, #variable)
-#define SR_TICK(func) call(&func, #func)
-#define SR_GO(func)   call(&func, #func)
-
 /**
  * TODO: deprecate smoc_func_diverge and smoc_func_branch
  * TODO: replace smoc_member_func_interface, smoc_member_func,

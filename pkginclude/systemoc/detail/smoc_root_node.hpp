@@ -60,6 +60,20 @@
 
 #define SMOC_REGISTER_CPARAM(name) registerParam(#name,name)
 
+#define CALL(func)    call(&func, #func)
+#define GUARD(func)   guard(&func, #func)
+#define VAR(variable) var(variable, #variable)
+#define TILL(event)   till(event, #event)
+#define SR_TICK(func) call(&func, #func)
+#define SR_GO(func)   call(&func, #func)
+
+#define SMOC_CALL(func)    call(&func, #func)
+#define SMOC_GUARD(func)   guard(&func, #func)
+#define SMOC_VAR(variable) var(variable, #variable)
+#define SMOC_TILL(event)   till(event, #event)
+#define SMOC_SR_TICK(func) call(&func, #func)
+#define SMOC_SR_GO(func)   call(&func, #func)
+
 namespace SysteMoC {
   class smoc_graph_synth;
 }
@@ -132,6 +146,11 @@ protected:
   static
   typename Expr::Var<T>::type var(T &x, const char *name = NULL)
     { return Expr::var(x,name); }
+
+  // FIXME: change this to work on plain SystemC events!
+  static
+  Expr::SMOCEvent::type till(smoc_event_waiter &e, const char *name = NULL)
+    { return Expr::till(e,name); }
 
 public:
   // FIXME: (Maybe) Only actors have this info => move to smoc_actor?

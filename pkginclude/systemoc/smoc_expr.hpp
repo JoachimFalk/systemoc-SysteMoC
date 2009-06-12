@@ -142,22 +142,20 @@ namespace SysteMoC { namespace Detail {
   template <typename T>
   class ExprVisitor {
     typedef ExprVisitor<T> this_type;
-
-    template <class E> friend class Expr::VisitorApplication;
-  protected:
+  public:
     typedef T *result_type;
-
-    virtual result_type visitVar(const std::string &name, const std::string &type, const std::string &value) = 0;
+  public:
+    virtual result_type visitVar(const std::string &name, const std::string &type) = 0;
     virtual result_type visitLiteral(const std::string &type, const std::string &value) = 0;
 //  virtual result_type visitProc(const std::string &name, const std::string &retType, const std::string &addr) = 0;
 //  virtual result_type visitMemProc(const std::string &name, const std::string &retType, const std::string &obj, const std::string &addr) = 0;
     virtual result_type visitMemGuard(const std::string &name, const std::string &reType, const ParamInfoList &params) = 0;
-    virtual result_type visitSMOCEvent() = 0;
-    virtual result_type visitBinOp(OpBinT op, boost::function<result_type (this_type &)> a, boost::function<result_type (this_type &)> b) = 0;
-    virtual result_type visitUnOp(OpUnT op, boost::function<result_type (this_type &)> e) = 0;
-    virtual result_type visitComm(smoc_sysc_port &p, boost::function<result_type (this_type &)> e) = 0;
+    virtual result_type visitEvent(const std::string &name) = 0;
     virtual result_type visitPortTokens(smoc_sysc_port &p) = 0;
     virtual result_type visitToken(smoc_sysc_port &p, size_t n) = 0;
+    virtual result_type visitComm(smoc_sysc_port &p, boost::function<result_type (this_type &)> e) = 0;
+    virtual result_type visitUnOp(OpUnT op, boost::function<result_type (this_type &)> e) = 0;
+    virtual result_type visitBinOp(OpBinT op, boost::function<result_type (this_type &)> a, boost::function<result_type (this_type &)> b) = 0;
   };
 
 } } // namespace SysteMoC::Detail
@@ -554,7 +552,7 @@ public:
 
   static inline
   result_type apply(const DVar <T> &e, param1_type p)
-    { return p.visitVar(e.name, typeid(T).name(), CoSupport::String::asStr(e.x)); }
+    { return p.visitVar(e.name, typeid(T).name()); }
 };
 
 template <typename T>
@@ -955,8 +953,10 @@ private:
   friend class Value<this_type>;
 private:
   smoc_event_waiter &v;
+  const char        *name;
 public:
-  explicit DSMOCEvent(smoc_event_waiter &v): v(v) {}
+  explicit DSMOCEvent(smoc_event_waiter &v, const char *name_ = NULL)
+    : v(v), name(name_ != NULL ? name_ : "") {}
 };
 
 template <>
@@ -968,7 +968,7 @@ public:
   
   static inline
   result_type apply(const DSMOCEvent &e, param1_type p)
-    { return p.visitSMOCEvent(); }
+    { return p.visitEvent(e.name); }
 };
 
 template <>
@@ -1011,7 +1011,8 @@ struct Sensitivity<DSMOCEvent> {
 
 template <>
 struct D<DSMOCEvent>: public DBase<DSMOCEvent> {
-  D(smoc_event_waiter &v): DBase<DSMOCEvent>(DSMOCEvent(v)) {}
+  D(smoc_event_waiter &v, const char *name = NULL)
+    : DBase<DSMOCEvent>(DSMOCEvent(v, name)) {}
 };
 
 // Make a convenient typedef for the placeholder type.
@@ -1020,8 +1021,8 @@ struct SMOCEvent { typedef D<DSMOCEvent> type; };
 // smoc_event_waiter may be an event or a event list
 // till-waiting for events allows for hierarchical graph scheduling
 static inline
-SMOCEvent::type till(smoc_event_waiter &e)
-  { return SMOCEvent::type(e); }
+SMOCEvent::type till(smoc_event_waiter &e, const char *name = NULL)
+  { return SMOCEvent::type(e, name); }
 
 /****************************************************************************
  * DBinOp represents a binary operation on two expressions.
