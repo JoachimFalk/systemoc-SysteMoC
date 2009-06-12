@@ -47,19 +47,17 @@ AC_ARG_ENABLE(synthesis-support,
       ;;
     *)
       synth=""
-      while test x"${enableval}" != x; do
-        optval="${enableval%%,*}";
+      for optval in `echo "${enableval}" | tr ',' ' '`; do
         case "${optval}" in
           sw|SW)    synth="${synth}:sw:";;
           hw|HW)    synth="${synth}:hw:";;
           hwc|HWC)  synth="${synth}:hwc:";;
           hwgs|HWGS)synth="${synth}:hwgs:";;
+          testlib)  synth="${synth}:testlib:";;
           tlm|TLM)  synth="${synth}:tlm:";;
           sgx|SGX)  synth="${synth}:sgx:";;
-          testlib)  synth="${synth}:testlib:";;
           *)        AC_MSG_ERROR([bad value ${optval} for --enable-synthesis-support]);;
         esac
-        enableval="${enableval#*,}"
       done
       ;;
    esac],
