@@ -497,7 +497,7 @@ public:
 
   result_type operator ()(smoc_fifo_chan_base &p) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpFifo::operator ()(...) [BEGIN]" << std::endl;
+    std::cerr << "DumpFifo::operator ()(...) [BEGIN] for " << p.name() << std::endl;
 #endif
     SGX::Fifo fifo(p.name(), p.getId());
     // set some attributes
@@ -540,7 +540,7 @@ public:
 
   result_type operator ()(smoc_actor &a) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpActor::operator ()(...) [BEGIN]" << std::endl;
+    std::cerr << "DumpActor::operator ()(...) [BEGIN] for " << a.name() << std::endl;
 #endif
     SGX::Actor actor(a.name(), a.getId());
     actor.cxxClass() = typeid(a).name();
@@ -608,12 +608,6 @@ public:
               Expr::evalTo(ev, tIter->getExpr()));
             sgxTran.activationPattern() = astNode->toPtr();
           }
-/*        {
-            ASTNGXVisitor v;
-            sgxTran.activationPattern() =
-              SysteMoC::Detail::apply_visitor(v,
-                Expr::evalTo<Expr::AST>(tIter->getExpr()));
-          } */
           sgxTrans.push_back(sgxTran);
         }
       }
@@ -637,7 +631,7 @@ public:
 
   result_type operator ()(sc_core::sc_module &a) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpSCModule::operator ()(...) [BEGIN]" << std::endl;
+    std::cerr << "DumpSCModule::operator ()(...) [BEGIN] for " << a.name() << std::endl;
 #endif
     SGX::SCModule scModule(a.name());
     scModule.cxxClass() = typeid(a).name();
@@ -661,7 +655,7 @@ public:
 
   result_type operator ()(smoc_graph_base &g) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "DumpGraph::operator ()(...) [BEGIN]" << std::endl;
+    std::cerr << "DumpGraph::operator ()(...) [BEGIN] for " << g.name() << std::endl;
 #endif
     SGX::RefinedProcess rp(Concat(g.name())("_rp"));
     gsv.pg.processes().push_back(rp);
