@@ -62,16 +62,17 @@ protected:
   char **argv;
 
 #ifdef SYSTEMOC_ENABLE_SGX
-  bool          dumpPreSimSMXKeepGoing;
-  std::ostream *dumpPreSimSMXFile;
-  std::ostream *dumpPostSimSMXFile;
+  bool            dumpPreSimSMXKeepGoing;
+  bool            dumpSMXAST;
+  std::ostream   *dumpPreSimSMXFile;
+  std::ostream   *dumpPostSimSMXFile;
 #endif // SYSTEMOC_ENABLE_SGX
 #ifdef SYSTEMOC_ENABLE_TRACE
-  std::ostream *dumpTraceFile;
+  std::ostream   *dumpTraceFile;
 #endif // SYSTEMOC_ENABLE_TRACE
-  bool          dumpFSMs;
+  bool            dumpFSMs;
 #ifdef SYSTEMOC_NEED_IDS
-  Detail::IdPool                  idPool;
+  Detail::IdPool  idPool;
 #endif // SYSTEMOC_NEED_IDS
 public:
   smoc_simulation_ctx(int _argc, char *_argv[]);
@@ -80,6 +81,8 @@ public:
   char **getArgv();
 
 #ifdef SYSTEMOC_ENABLE_SGX
+  bool isSMXDumpingASTEnabled()
+    { return dumpSMXAST; }
   bool isSMXDumpingPreSimEnabled()
     { return dumpPreSimSMXFile; }
   std::ostream &getSMXPreSimFile()
