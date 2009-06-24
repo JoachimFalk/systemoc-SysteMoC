@@ -443,10 +443,10 @@ std::ostream& operator<<(std::ostream& os, const ProdState& p) {
   for(ProdState::const_iterator s = p.begin();
       s != p.end(); ++s)
   {
-    if(s != p.begin())
+    if (s != p.begin())
       os << PRODSTATE_SEPARATOR;
     assert(!(*s)->getName().empty());
-    os << (*s)->getName();
+    os << (*s)->getHierarchicalName();
   }
   //os << ")";
   return os;
