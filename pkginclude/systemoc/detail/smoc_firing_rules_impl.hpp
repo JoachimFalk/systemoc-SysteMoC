@@ -76,7 +76,6 @@ typedef std::set<const FiringStateImpl*> ProdState;
 //class ConnectorStateImpl;
 //DECL_INTRUSIVE_REFCOUNT_PTR(ConnectorStateImpl, PConnectorStateImpl);
 
-typedef std::set<HierarchicalStateImpl*> HierarchicalStateImplSet;
 typedef std::set<const HierarchicalStateImpl*> MultiState;
 typedef std::map<const HierarchicalStateImpl*,bool> CondMultiState;
 
@@ -324,6 +323,10 @@ protected:
 
   /// @brief Constructor
   FiringStateBaseImpl();
+  
+  /// @brief Set the FSM (only set the pointer, do not transfer the state!)
+  virtual void setFiringFSM(FiringFSMImpl *fsm);
+  friend class FiringFSMImpl;
 
 public:
   /// @brief Destructor
@@ -331,9 +334,6 @@ public:
 
   /// @brief Returns the FSM
   FiringFSMImpl *getFiringFSM() const;
-
-  /// @brief Set the FSM (only set the pointer, do not transfer the state!)
-  virtual void setFiringFSM(FiringFSMImpl *fsm);
 
   /// @brief Hierarchical end-of-elaboration callback
   virtual void finalise(ExpandedTransitionList& etl) {};
@@ -369,24 +369,31 @@ private:
   /// @brief User-defined name
   std::string name;
   
+  HierarchicalStateImpl* parent;
+
+  uint64_t code;
+  size_t bits;
+
+  void setParent(HierarchicalStateImpl* v);
+
 protected:
   /// @brief Constructor
   HierarchicalStateImpl(const std::string& name);
 
-  HierarchicalStateImpl* parent;
-  
-  uint64_t code;
-  size_t bits;
+  /// @brief Child states
+  typedef std::vector<HierarchicalStateImpl*> C;
+  C c;
 
-  size_t getChildCodeAndBits(size_t cs, uint64_t& cc) const;
+  void add(HierarchicalStateImpl* state);
+  
+  void setFiringFSM(FiringFSMImpl *fsm);
 
 public:
-  
-  void setCodeAndBits(uint64_t c, size_t b);
-  
   /// @brief Destructor
   virtual ~HierarchicalStateImpl();
-  
+
+  HierarchicalStateImpl* getParent() const;
+
   /// @brief Returns the user-defined name
   const std::string& getName() const;
 
@@ -400,8 +407,6 @@ public:
   void expandTransition(
       ExpandedTransitionList& etl,
       const ExpandedTransition& t) const;
-
-  void setParent(HierarchicalStateImpl* v);
 
   /// @brief return true if I am an ancestor of s
   bool isAncestor(const HierarchicalStateImpl* s) const;
@@ -417,8 +422,7 @@ public:
       const MultiState& d,
       bool isSrcState) const = 0;
 
-  virtual HierarchicalStateImpl* select(
-      const std::string& name) = 0;
+  HierarchicalStateImpl* select(const std::string& name);
 };
 
 class FiringStateImpl: public HierarchicalStateImpl {
@@ -437,10 +441,6 @@ public:
   const HierarchicalStateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const;
-  
-  /// @brief See HierarchicalStateImpl
-  HierarchicalStateImpl* select(
-      const std::string& name);
 };
 
 class XORStateImpl: public HierarchicalStateImpl {
@@ -450,24 +450,14 @@ public:
 private:
   /// @brief Initial state
   HierarchicalStateImpl* init;
-
-  /// @brief Child states
-  typedef HierarchicalStateImplSet C;
-  C c;
   
 public:
   /// @brief Constructor
   XORStateImpl(const std::string& name = "");
 
-  /// @brief Destructor
-  ~XORStateImpl();
-  
   /// @brief See FiringStateBaseImpl
   void finalise(ExpandedTransitionList& etl);
   
-  /// @brief See FiringStateBaseImpl
-  void setFiringFSM(FiringFSMImpl *fsm);
-
   /// @brief Add state to this xor state
   void add(HierarchicalStateImpl* state, bool init);
 
@@ -479,37 +469,19 @@ public:
   const HierarchicalStateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const;
-  
-  /// @brief See HierarchicalStateImpl
-  HierarchicalStateImpl* select(
-      const std::string& name);
 };
 
 class ANDStateImpl: public HierarchicalStateImpl {
 public:
   typedef ANDStateImpl this_type;
 
-private:
-  /// @brief Child states
-  typedef std::vector<XORStateImpl*> C;
-  C c;
-
 public:
   /// @brief Constructor
-  ANDStateImpl(size_t part, const std::string& name = "");
+  ANDStateImpl(const std::string& name = "");
 
-  /// @brief Destructor
-  ~ANDStateImpl();
-  
-  /// @brief See FiringStateBaseImpl
-  void finalise(ExpandedTransitionList& etl);
+  /// @brief Add partition to this AND state
+  void add(HierarchicalStateImpl* part);
 
-  /// @brief See FiringStateBaseImpl
-  void setFiringFSM(FiringFSMImpl *fsm);
-
-  // @brief Returns partition p
-  XORStateImpl* getPart(size_t p) const;
-  
   /// @brief See HierarchicalStateImpl
   void getInitialState(
       ProdState& p, const Marking& m) const;
@@ -518,10 +490,6 @@ public:
   const HierarchicalStateImpl* getTopState(
       const MultiState& d,
       bool isSrcState) const;
-  
-  /// @brief See HierarchicalStateImpl
-  HierarchicalStateImpl* select(
-      const std::string& name);
 };
 
 class ConnectorStateImpl: public FiringStateBaseImpl {

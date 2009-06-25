@@ -205,9 +205,9 @@ protected:
   this_type& operator=(const this_type &);
 
 public:
-  smoc_and_state(size_t part, const std::string& name = "");
+  smoc_and_state(const std::string& name = "");
 
-  smoc_xor_state::Ref operator[](size_t p);
+  this_type& add(const smoc_hierarchical_state &state);
 
   ImplType *getImpl() const;
   using smoc_firing_state_base::operator=;
