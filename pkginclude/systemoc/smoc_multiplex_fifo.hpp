@@ -205,28 +205,6 @@ protected:
   {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void produce(FifoId to, size_t n, const smoc_ref_event_p &latEvent)
-#else
-  void produce(FifoId to, size_t n)
-#endif
-  {
-    size_t windex = this->wIndex();
-    size_t fsize  = this->fSize();
-    
-    for (size_t i = 0; i < n; ++i) {
-      A::put(this->storage[windex].get(), to);
-      if (++windex >= fsize)
-        windex -= fsize;
-    }
-    
-#ifdef SYSTEMOC_ENABLE_VPC
-    commitWrite(n, latEvent);
-#else
-    commitWrite(n);
-#endif
-  }
-
-#ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
 #else
   void commitWrite(size_t n)
@@ -795,11 +773,20 @@ protected:
   void commitWrite(size_t n)
 #endif
   {
+    size_t windex = chan->wIndex();
+    size_t fsize  = chan->fSize();
+    
+    for (size_t i = 0; i < n; ++i) {
+      A::put(chan->storage[windex].get(), fifoId);
+      if (++windex >= fsize)
+        windex -= fsize;
+    }
+    
     // This will do a callback to latencyExpired(produce) at the appropriate time
 #ifdef SYSTEMOC_ENABLE_VPC
-    chan->produce(fifoId, n, latEvent); 
+    chan->commitWrite(n, latEvent); 
 #else
-    chan->produce(fifoId, n); 
+    chan->commitWrite(n); 
 #endif
   }
 
@@ -866,8 +853,9 @@ public:
       {}
 
     void add(const add_param_ty x) {
+      A::put(x, this->fifoId);
       pMultiplexChan->storage[pMultiplexChan->wIndex()] = x;
-      pMultiplexChan->produce(this->fifoId, 1);
+      pMultiplexChan->commitWrite(1);
     }
   private:
     chan_type *getChan()
