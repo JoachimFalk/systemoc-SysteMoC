@@ -188,6 +188,9 @@ template<class> class smoc_multireader_fifo_chan;
 
 /**
  * This class implements the channel in interface
+ * to be connected to a smoc_port_in<T>. From
+ * the fifo perspective this is a class provides
+ * data to an input port, therefore is an outlet.
  */
 template<class T>
 class smoc_multireader_fifo_outlet
@@ -247,6 +250,9 @@ private:
 
 /**
  * This class implements the channel out interface
+ * to be connected to a smoc_port_out<T>. From
+ * the fifo perspective this is a class receives
+ * data from an output port, therefore is an entry.
  */
 template<class T>
 class smoc_multireader_fifo_entry
