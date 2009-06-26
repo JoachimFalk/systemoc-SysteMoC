@@ -98,15 +98,13 @@ public:
   // return_type == const void => No access methods needed
 };
 
+// FIXME: This has been disabled due to RTX dynamic_cast problems!!! Urgs!!!
 // SystemC Standard says: If directly derived from class sc_interface, shall
 // use the virtual specifier - And - The word shall is used to indicate a
 // mandatory requirement.
 class smoc_port_base_if
-: public virtual sc_core::sc_interface,
+: public sc_core::sc_interface,
   private boost::noncopyable {
-
-  virtual void foo() {
-  }
 };
 
 /****************************************************************************/

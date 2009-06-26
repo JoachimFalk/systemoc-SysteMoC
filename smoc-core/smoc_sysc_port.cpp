@@ -61,8 +61,8 @@ int smoc_sysc_port::interface_count() {
 
 void smoc_sysc_port::add_interface(sc_core::sc_interface *i) {
   assert(interfacePtr == NULL);
-//std::cerr << "smoc_sysc_port::add_interface(...) " << typeid(*i).name() << std::endl;
-  interfacePtr = dynamic_cast<smoc_port_base_if *>(i);
+//interfacePtr = dynamic_cast<smoc_port_base_if *>(i);
+  interfacePtr = static_cast<smoc_port_base_if *>(i); // FIXME: RTX hack!!!
   assert(interfacePtr != NULL);
 }
 

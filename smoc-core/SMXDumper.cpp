@@ -168,7 +168,10 @@ struct ExpectedPortConnections {
         std::cerr << "Unhandled outlet type " << typeid(*outlet).name()
                   << " => dangling port " << iter->second->name() << std::endl;
       } else {
-        assert(!"WTF?! Neither smoc_port_out_base_if nor smoc_port_in_base_if!");
+        //FIXME: RTX hack dynamic_cast<...>(...) problem strikes again!!!
+        //assert(!"WTF?! Neither smoc_port_out_base_if nor smoc_port_in_base_if!");
+        std::cerr << "Unhandled entry/outlet type " << typeid(iter->first).name()
+                  << " => dangling port " << iter->second->name() << std::endl;
       }
     }
   }
