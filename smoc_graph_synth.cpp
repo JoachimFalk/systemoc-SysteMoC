@@ -186,17 +186,17 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
   assert(i != e);
   smoc_sysc_port *p = NGXCache::getInstance().getCompiledPort(i->first);
   assert(p);
-  if (dynamic_cast<smoc_chan_in_base_if *>(p->get_interface()) != NULL) {
+  if (dynamic_cast<smoc_port_in_base_if *>(p->get_interface()) != NULL) {
     EPortInGuard pg =
-      Expr::PortTokens<smoc_chan_in_base_if>::type(*p) >= i->second.second;
+      Expr::PortTokens<smoc_port_in_base_if>::type(*p) >= i->second.second;
     if (++i != e)
       return pg && portGuard(i, e);
     else
       return pg;
   } else {
-    assert(dynamic_cast<smoc_chan_out_base_if *>(p->get_interface()) != NULL);
+    assert(dynamic_cast<smoc_port_out_base_if *>(p->get_interface()) != NULL);
     EPortOutGuard pg =
-      Expr::PortTokens<smoc_chan_out_base_if>::type(*p) >= i->second.second;
+      Expr::PortTokens<smoc_port_out_base_if>::type(*p) >= i->second.second;
     if (++i != e)
       return pg && portGuard(i, e);
     else
@@ -255,8 +255,8 @@ void smoc_graph_synth::prepareActorFiring() {
 
       if(j == chanInMap.end()) {
         // cross cast to obtain interface base class
-        smoc_chan_in_base_if* in =
-          dynamic_cast<smoc_chan_in_base_if*>(i->first->get_interface());
+        smoc_port_in_base_if* in =
+          dynamic_cast<smoc_port_in_base_if*>(i->first->get_interface());
         assert(in);
         j = CoSupport::DataTypes::pac_insert(chanInMap, i->first, in);
       }

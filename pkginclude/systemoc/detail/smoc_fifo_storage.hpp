@@ -121,12 +121,12 @@ protected:
     pgw << "</fifo>" << std::endl;
   }
 
-  access_in_type_impl  *getReadChannelAccess() {
+  access_in_type_impl  *getReadPortAccess() {
     return new access_in_type_impl(
         storage, this->fSize(), &this->rIndex());
   }
   
-  access_out_type_impl *getWriteChannelAccess() {
+  access_out_type_impl *getWritePortAccess() {
     return new access_out_type_impl(
         storage, this->fSize(), &this->wIndex());
   }
@@ -191,10 +191,10 @@ protected:
     pgw << "</fifo>" << std::endl;
   }
 
-  access_in_type_impl  *getReadChannelAccess()
+  access_in_type_impl  *getReadPortAccess()
     { return new access_in_type_impl(); }
   
-  access_out_type_impl *getWriteChannelAccess()
+  access_out_type_impl *getWritePortAccess()
     { return new access_out_type_impl(); }
 };
 

@@ -41,7 +41,7 @@
 
 template<class S, class T>
 class smoc_ring_access
-: public smoc_channel_access_if<T> {
+: public smoc_1d_port_access_if<T> {
 public:
   typedef T                     return_type;
   typedef S                     storage_type;
@@ -91,7 +91,7 @@ public:
 
 template <>
 class smoc_ring_access<void, void>
-: public smoc_channel_access_if<void> {
+: public smoc_1d_port_access_if<void> {
 public:
   typedef void                        return_type;
   typedef void                        storage_type;

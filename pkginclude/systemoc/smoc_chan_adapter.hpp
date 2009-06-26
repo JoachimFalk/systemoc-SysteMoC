@@ -122,14 +122,14 @@ public:
  */
 template<class T, template<class> class R>
 class smoc_chan_adapter<
-    smoc_chan_in_if<T,R>,
+    smoc_port_in_if<T,R>,
     tlm::tlm_blocking_get_if<T>
   > :
   public virtual tlm::tlm_blocking_get_if<T>
 {
 public:
   /// typedefs
-  typedef smoc_chan_in_if<T,R>        iface_impl_type;
+  typedef smoc_port_in_if<T,R>        iface_impl_type;
   typedef tlm::tlm_blocking_get_if<T> iface_type;
 
   /// flag if this class is a specialization
@@ -179,7 +179,7 @@ private:
  */
 template<template<class> class R>
 class smoc_chan_adapter<
-    smoc_chan_in_if<void,R>,
+    smoc_port_in_if<void,R>,
     tlm::tlm_blocking_get_if<void>
   > :
   public virtual tlm::tlm_blocking_get_if<void>
@@ -187,7 +187,7 @@ class smoc_chan_adapter<
 public:
   /// typedefs
   typedef void T;
-  typedef smoc_chan_in_if<T,R>        iface_impl_type;
+  typedef smoc_port_in_if<T,R>        iface_impl_type;
   typedef tlm::tlm_blocking_get_if<T> iface_type;
 
   /// flag if this class is a specialization
@@ -235,14 +235,14 @@ private:
  */
 template<class T, template<class> class R, template<class> class S>
 class smoc_chan_adapter<
-    smoc_chan_out_if<T,R,S>,
+    smoc_port_out_if<T,R,S>,
     tlm::tlm_blocking_put_if<T>
   > :
   public virtual tlm::tlm_blocking_put_if<T>
 {
 public:
   /// typedefs
-  typedef smoc_chan_out_if<T,R,S>     iface_impl_type;
+  typedef smoc_port_out_if<T,R,S>     iface_impl_type;
   typedef tlm::tlm_blocking_put_if<T> iface_type;
 
   /// flag if this class is a specialization
@@ -290,7 +290,7 @@ private:
  */
 template<template<class> class R, template<class> class S>
 class smoc_chan_adapter<
-    smoc_chan_out_if<void,R,S>,
+    smoc_port_out_if<void,R,S>,
     tlm::tlm_blocking_put_if<void>
   > :
   public virtual tlm::tlm_blocking_put_if<void>
@@ -298,7 +298,7 @@ class smoc_chan_adapter<
 public:
   /// typedefs
   typedef void T;
-  typedef smoc_chan_out_if<T,R,S>     iface_impl_type;
+  typedef smoc_port_out_if<T,R,S>     iface_impl_type;
   typedef tlm::tlm_blocking_put_if<T> iface_type;
 
   /// flag if this class is a specialization
@@ -345,14 +345,14 @@ private:
  */
 template<class T, template<class> class R>
 class smoc_chan_adapter<
-    smoc_chan_in_if<T,R>,
+    smoc_port_in_if<T,R>,
     tlm::tlm_nonblocking_get_if<T>
   > :
   public virtual tlm::tlm_nonblocking_get_if<T>
 {
 public:
   /// typedefs
-  typedef smoc_chan_in_if<T,R>           iface_impl_type;
+  typedef smoc_port_in_if<T,R>           iface_impl_type;
   typedef tlm::tlm_nonblocking_get_if<T> iface_type;
 
   /// flag if this class is a specialization
@@ -417,7 +417,7 @@ private:
  */
 template<template<class> class R>
 class smoc_chan_adapter<
-    smoc_chan_in_if<void,R>,
+    smoc_port_in_if<void,R>,
     tlm::tlm_nonblocking_get_if<void>
   > :
   public virtual tlm::tlm_nonblocking_get_if<void>
@@ -425,7 +425,7 @@ class smoc_chan_adapter<
 public:
   /// typedefs
   typedef void T;
-  typedef smoc_chan_in_if<T,R>           iface_impl_type;
+  typedef smoc_port_in_if<T,R>           iface_impl_type;
   typedef tlm::tlm_nonblocking_get_if<T> iface_type;
 
   /// flag if this class is a specialization
@@ -489,14 +489,14 @@ private:
  */
 template<class T, template<class> class R, template<class> class S>
 class smoc_chan_adapter<
-    smoc_chan_out_if<T,R,S>,
+    smoc_port_out_if<T,R,S>,
     tlm::tlm_nonblocking_put_if<T>
   > :
   public virtual tlm::tlm_nonblocking_put_if<T>
 {
 public:
   /// typedefs
-  typedef smoc_chan_out_if<T,R,S>         iface_impl_type;
+  typedef smoc_port_out_if<T,R,S>         iface_impl_type;
   typedef tlm::tlm_nonblocking_put_if<T>  iface_type;
 
   /// flag if this class is a specialization
@@ -561,7 +561,7 @@ private:
  */
 template<template<class> class R, template<class> class S>
 class smoc_chan_adapter<
-    smoc_chan_out_if<void,R,S>,
+    smoc_port_out_if<void,R,S>,
     tlm::tlm_nonblocking_put_if<void>
   > :
   public virtual tlm::tlm_nonblocking_put_if<void>
@@ -569,7 +569,7 @@ class smoc_chan_adapter<
 public:
   /// typedefs
   typedef void T;
-  typedef smoc_chan_out_if<T,R,S>        iface_impl_type;
+  typedef smoc_port_out_if<T,R,S>        iface_impl_type;
   typedef tlm::tlm_nonblocking_put_if<T> iface_type;
 
   /// flag if this class is a specialization

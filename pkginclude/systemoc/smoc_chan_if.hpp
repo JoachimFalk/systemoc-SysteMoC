@@ -59,18 +59,18 @@ namespace SystemC_VPC {
 }
 #endif // SYSTEMOC_ENABLE_VPC
 
-class smoc_channel_access_base_if {
+class smoc_port_access_base_if {
 public:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   virtual void setLimit(size_t) = 0;
 #endif
-  virtual ~smoc_channel_access_base_if() {}
+  virtual ~smoc_port_access_base_if() {}
 };
 
 template<class T>
-class smoc_channel_access_if
-: public smoc_channel_access_base_if {
-  typedef smoc_channel_access_if<T> this_type;
+class smoc_1d_port_access_if
+: public smoc_port_access_base_if {
+  typedef smoc_1d_port_access_if<T> this_type;
 public:
   typedef T return_type;
 
@@ -82,9 +82,9 @@ public:
 };
 
 template<>
-class smoc_channel_access_if<void>
-: public smoc_channel_access_base_if {
-  typedef smoc_channel_access_if<void> this_type;
+class smoc_1d_port_access_if<void>
+: public smoc_port_access_base_if {
+  typedef smoc_1d_port_access_if<void> this_type;
 public:
   typedef void return_type;
 
@@ -94,9 +94,9 @@ public:
 };
 
 template<>
-class smoc_channel_access_if<const void>
-: public smoc_channel_access_base_if {
-  typedef smoc_channel_access_if<const void> this_type;
+class smoc_1d_port_access_if<const void>
+: public smoc_port_access_base_if {
+  typedef smoc_1d_port_access_if<const void> this_type;
 public:
   typedef const void return_type;
 
@@ -186,7 +186,7 @@ struct CommReset<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
     std::cerr << "CommReset<DBinOp<DPortTokens<CI>,E,DOpBinGe> >"
                  "::apply(" << e.a.p.name() << ", ... )" << std::endl;
 # endif
-    return e.a.p.channelAccess->setLimit(0);
+    return e.a.p.portAccess->setLimit(0);
   }
 };
 
@@ -207,7 +207,7 @@ struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
     TraceLog.traceCommSetup
       (dynamic_cast<smoc_root_chan *>(e.a.p.operator ->()), req);
 # endif
-    return e.a.p.channelAccess->setLimit(req);
+    return e.a.p.portAccess->setLimit(req);
   }
 };
 #endif
@@ -243,7 +243,7 @@ struct Value<DBinOp<DPortTokens<CI>,E,Expr::DOpBinGe> >
     size_t req = Value<E>::apply(e.b);
     assert(e.a.getCI().availableCount() >= req);
     // WHY is this needed? This should already be done by CommSetup!
-    e.a.p.channelAccess->setLimit(req); 
+    e.a.p.portAccess->setLimit(req); 
 #endif
     return result_type();
   }
@@ -343,10 +343,10 @@ struct Value<DComm<CI, E> > {
 // SystemC Standard says: If directly derived from class sc_interface, shall
 // use the virtual specifier - And - The word shall is used to indicate a
 // mandatory requirement.
-class smoc_chan_in_base_if
+class smoc_port_in_base_if
 : public sc_interface,
   private boost::noncopyable {
-  typedef smoc_chan_in_base_if this_type;
+  typedef smoc_port_in_base_if this_type;
 
   friend class smoc_graph_synth;
   friend class smoc_multicast_sr_signal_chan_base;
@@ -392,7 +392,7 @@ public:
   };
 protected:
   // constructor
-  smoc_chan_in_base_if() {}
+  smoc_port_in_base_if() {}
   
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitRead(size_t consume, const smoc_ref_event_p &) = 0;
@@ -425,17 +425,17 @@ protected:
 public:
   virtual size_t      inTokenId() const = 0;
 
-  virtual ~smoc_chan_in_base_if() {}
+  virtual ~smoc_port_in_base_if() {}
 };
 
 // FIXME:
 // SystemC Standard says: If directly derived from class sc_interface, shall
 // use the virtual specifier - And - The word shall is used to indicate a
 // mandatory requirement.
-class smoc_chan_out_base_if
+class smoc_port_out_base_if
 : public sc_interface,
   private boost::noncopyable {
-  typedef smoc_chan_out_base_if this_type;
+  typedef smoc_port_out_base_if this_type;
 
   friend class smoc_graph_synth;
   friend class smoc_multicast_sr_signal_chan_base;
@@ -481,7 +481,7 @@ public:
   };
 protected:
   // constructor
-  smoc_chan_out_base_if() {}
+  smoc_port_out_base_if() {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
@@ -514,7 +514,7 @@ protected:
 public:
   virtual size_t      outTokenId() const = 0;
 
-  virtual ~smoc_chan_out_base_if() {}
+  virtual ~smoc_port_out_base_if() {}
 };
 
 const sc_event& smoc_default_event_abort();
@@ -522,9 +522,9 @@ const sc_event& smoc_default_event_abort();
 template <
   typename T,                                     // data type
   template <typename> class R>                    // ring access type
-class smoc_chan_in_if
-: public smoc_chan_in_base_if {
-  typedef smoc_chan_in_if<T,R>                  this_type;
+class smoc_port_in_if
+: public smoc_port_in_base_if {
+  typedef smoc_port_in_if<T,R>                  this_type;
 public:
   typedef T                                     data_type;
   typedef R<
@@ -533,13 +533,13 @@ public:
   typedef this_type                             iface_type;
 protected:
   // constructor
-  smoc_chan_in_if() {}
+  smoc_port_in_if() {}
 
-  virtual access_type *getReadChannelAccess() = 0;
+  virtual access_type *getReadPortAccess() = 0;
   
 public:
   access_type *getChannelAccess()
-    { return getReadChannelAccess(); }
+    { return getReadPortAccess(); }
 
 private:
   // disabled
@@ -551,9 +551,9 @@ template <
   typename T,                                     // data type
   template <typename> class R,                    // ring access type
   template <typename> class S = smoc_storage_out> // smoc_storage
-class smoc_chan_out_if
-: public smoc_chan_out_base_if {
-  typedef smoc_chan_out_if<T,R,S> this_type;
+class smoc_port_out_if
+: public smoc_port_out_base_if {
+  typedef smoc_port_out_if<T,R,S> this_type;
 public:
   typedef T                       data_type;
   typedef R<
@@ -562,13 +562,13 @@ public:
   typedef this_type               iface_type;
 protected:
   // constructor
-  smoc_chan_out_if() {}
+  smoc_port_out_if() {}
 
-  virtual access_type *getWriteChannelAccess() = 0;
+  virtual access_type *getWritePortAccess() = 0;
 
 public:
   access_type *getChannelAccess()
-    { return getWriteChannelAccess(); }
+    { return getWritePortAccess(); }
 
 private:
   // disabled
@@ -590,13 +590,13 @@ template <
   template <typename> class R_OUT,                // ring access type for output
   template <typename> class S = smoc_storage_out> // smoc_storage for output
 class smoc_chan_if
-: public smoc_chan_in_if<T_data_type, R_IN>,
-  public smoc_chan_out_if<T_data_type, R_OUT, S>
+: public smoc_port_in_if<T_data_type, R_IN>,
+  public smoc_port_out_if<T_data_type, R_OUT, S>
 {
 public:
   /// typedefs
-  typedef smoc_chan_in_if<T_data_type, R_IN>      if_1_type;
-  typedef smoc_chan_out_if<T_data_type, R_OUT, S> if_2_type;
+  typedef smoc_port_in_if<T_data_type, R_IN>      if_1_type;
+  typedef smoc_port_out_if<T_data_type, R_OUT, S> if_2_type;
   typedef smoc_chan_if<T_data_type,R_IN,R_OUT,S>  this_type;
   typedef T_data_type                             data_type;
 private:

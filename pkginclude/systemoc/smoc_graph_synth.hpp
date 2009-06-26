@@ -68,11 +68,11 @@ private:
   // commit (can't steal tokens from fifo -> actor needs
   // them!)
   typedef Expr::BinOp<
-    Expr::DPortTokens<smoc_chan_in_base_if>,
+    Expr::DPortTokens<smoc_port_in_base_if>,
     ESizeT,
     Expr::DOpBinGe>::type EPortInGuard;
   typedef Expr::BinOp<
-    Expr::DPortTokens<smoc_chan_out_base_if>,
+    Expr::DPortTokens<smoc_port_out_base_if>,
     ESizeT,
     Expr::DOpBinGe>::type EPortOutGuard;
 
@@ -146,11 +146,11 @@ private:
 
   // FIXME: interface cache (can't use smoc_port_base where 
   // exact type would be already available)
-  typedef std::map<smoc_sysc_port*, smoc_chan_in_base_if*> ChanInMap;
+  typedef std::map<smoc_sysc_port*, smoc_port_in_base_if*> ChanInMap;
   ChanInMap chanInMap;
   
   // limit token ids for interface
-  typedef std::map<smoc_chan_in_base_if*, size_t> ChanInLimit;
+  typedef std::map<smoc_port_in_base_if*, size_t> ChanInLimit;
   ChanInLimit chanInLimit;
   
   // checks if actor has reserved tokens / space left

@@ -97,14 +97,14 @@ protected:
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "smoc_port_base::finalise(), name == " << this->name() << std::endl;
 #endif
-    channelAccess = (*this)->getChannelAccess();
+    portAccess = (*this)->getChannelAccess();
   }
 
   // get the channel access
   access_type       *get_chanaccess()
-    { return static_cast<access_type       *>(channelAccess); }
+    { return static_cast<access_type       *>(portAccess); }
   const access_type *get_chanaccess() const
-    { return static_cast<const access_type *>(channelAccess); }
+    { return static_cast<const access_type *>(portAccess); }
 
   iface_type       *operator -> () {
     sc_interface *iface = this->get_interface();
@@ -257,10 +257,10 @@ typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
 
 template <typename T>
 class smoc_port_in
-: public smoc_port_in_base<smoc_chan_in_if<T,smoc_channel_access_if> > {
+: public smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> > {
 private:
   typedef smoc_port_in<T>                                             this_type;
-  typedef smoc_port_in_base<smoc_chan_in_if<T,smoc_channel_access_if> >  base_type;
+  typedef smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> >  base_type;
 public:
   typedef typename this_type::data_type     data_type; // Should be T
   typedef typename this_type::iface_type    iface_type;
@@ -281,10 +281,10 @@ public:
 
 template <typename T>
 class smoc_port_out
-: public smoc_port_out_base<smoc_chan_out_if<T,smoc_channel_access_if> > {
+: public smoc_port_out_base<smoc_port_out_if<T,smoc_1d_port_access_if> > {
 private:
   typedef smoc_port_out<T>                                              this_type;
-  typedef smoc_port_out_base<smoc_chan_out_if<T,smoc_channel_access_if> >  base_type;
+  typedef smoc_port_out_base<smoc_port_out_if<T,smoc_1d_port_access_if> >  base_type;
 public:
   typedef typename this_type::data_type     data_type; // Should be T
   typedef typename this_type::iface_type    iface_type;

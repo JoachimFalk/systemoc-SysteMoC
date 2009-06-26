@@ -139,8 +139,8 @@ class smoc_multicast_sr_signal_chan;
 template <typename T>
 class smoc_multicast_outlet
   : public smoc_multicast_outlet_base,
-    public smoc_chan_in_if<T,::smoc_channel_access_if>,
-    public smoc_channel_access_if<typename smoc_storage_in<T>::return_type>
+    public smoc_port_in_if<T,::smoc_1d_port_access_if>,
+    public smoc_1d_port_access_if<typename smoc_storage_in<T>::return_type>
 {
 public:
   typedef T                                       data_type;
@@ -148,7 +148,7 @@ public:
   typedef smoc_multicast_outlet<data_type>        this_type;
   typedef typename this_type::access_in_type      ring_in_type;
   typedef typename this_type::return_type         return_type;
-  typedef smoc_chan_in_if<T,::smoc_channel_access_if>  iface_type;
+  typedef smoc_port_in_if<T,::smoc_1d_port_access_if>  iface_type;
   
   /// @brief Constructor
   smoc_multicast_outlet(smoc_multicast_sr_signal_chan<T>* chan)
@@ -156,7 +156,7 @@ public:
       undefinedRead(false)
   {}
   
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
 #else
@@ -169,25 +169,25 @@ public:
     chan->rpp(consume);
   }
   
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n) {
     assert(n <= 1);
     return emm.getEvent(numAvailable(), n);
   }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
     { return (undefinedRead || chan->getSignalState() != undefined) ? 1 : 0; }
   
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
     { return chan->inTokenId(); }
   
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   void moreData()
     { emm.increasedCount(numAvailable()); }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   void lessData()
     { emm.decreasedCount(numAvailable()); }
 
@@ -202,23 +202,23 @@ public:
   bool isDefined() const
     { return chan->isDefined(); }
   
-  /// @brief See smoc_chan_in_if
-  ring_in_type* getReadChannelAccess()
+  /// @brief See smoc_port_in_if
+  ring_in_type* getReadPortAccess()
     { return this; }
   
-  /// @brief See smoc_channel_access_if
+  /// @brief See smoc_1d_port_access_if
   return_type operator[](size_t n)
     { return chan->actualValue; }
 
-  /// @brief See smoc_channel_access_if
+  /// @brief See smoc_1d_port_access_if
   const return_type operator[](size_t n) const
     { return chan->actualValue; }
   
-  /// @brief See smoc_channel_access_if
+  /// @brief See smoc_1d_port_access_if
   bool tokenIsValid(size_t i) const
     { return chan->isDefined(); }
 
-  /// @brief See smoc_channel_access_if
+  /// @brief See smoc_1d_port_access_if
   void setLimit(size_t l)
     { limit = l; }
 
@@ -235,8 +235,8 @@ private:
 template <typename T>
 class smoc_multicast_entry
 : public smoc_multicast_entry_base,
-  public smoc_chan_out_if<T,::smoc_channel_access_if>,
-  public smoc_channel_access_if<typename smoc_storage_out<T>::return_type>
+  public smoc_port_out_if<T,::smoc_1d_port_access_if>,
+  public smoc_1d_port_access_if<typename smoc_storage_out<T>::return_type>
 {
 public:
   typedef T                                       data_type;
@@ -244,7 +244,7 @@ public:
   typedef smoc_storage<data_type>                 storage_type;
   typedef typename this_type::access_out_type     ring_out_type;
   typedef typename this_type::return_type         return_type;
-  typedef smoc_chan_out_if<T,::smoc_channel_access_if> iface_type;
+  typedef smoc_port_out_if<T,::smoc_1d_port_access_if> iface_type;
   
   /// @brief Constructor
   smoc_multicast_entry(smoc_multicast_sr_signal_chan<T>* chan)
@@ -252,7 +252,7 @@ public:
       multipleWrite(false)
   {}
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
 #else
@@ -265,25 +265,25 @@ public:
     chan->wpp(produce);
   }
 
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   smoc_event &spaceAvailableEvent(size_t n) {
     assert(n <= 1);
     return emm.getEvent(numFree(), n);
   }
 
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t numFree() const
     { return (multipleWrite || chan->getSignalState() == undefined) ? 1 : 0; }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t outTokenId() const
     { return chan->outTokenId(); }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   void moreSpace()
     { emm.increasedCount(numFree()); }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   void lessSpace()
     { emm.decreasedCount(numFree()); }
   
@@ -295,23 +295,23 @@ public:
   bool isDefined() const
     { return chan->isDefined(); }
   
-  /// @brief See smoc_chan_out_if
-  ring_out_type* getWriteChannelAccess()
+  /// @brief See smoc_port_out_if
+  ring_out_type* getWritePortAccess()
     { return this; }
 
-  /// @brief See smoc_channel_access_if
+  /// @brief See smoc_1d_port_access_if
   return_type operator[](size_t n)
     { return chan->actualValue; }
 
-  /// @brief See smoc_channel_access_if
+  /// @brief See smoc_1d_port_access_if
   const return_type operator[](size_t n) const
     { return chan->actualValue; }
   
-  /// @brief See smoc_channel_access_if
+  /// @brief See smoc_1d_port_access_if
   bool tokenIsValid(size_t i) const
     { return chan->isDefined(); }
 
-  /// @brief See smoc_channel_access_if
+  /// @brief See smoc_1d_port_access_if
   void setLimit(size_t l)
     { limit = l; }
 
@@ -378,11 +378,11 @@ protected:
   storage_type actualValue;
 
   /// @brief See smoc_port_registry
-  smoc_chan_out_base_if* createEntry()
+  smoc_port_out_base_if* createEntry()
     { return new entry_type(this); }
 
   /// @brief See smoc_port_registry
-  smoc_chan_in_base_if* createOutlet()
+  smoc_port_in_base_if* createOutlet()
     { return new outlet_type(this); }
 
   void setChannelID( std::string sourceActor,

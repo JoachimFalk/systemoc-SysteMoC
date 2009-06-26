@@ -138,12 +138,12 @@ template<class> class smoc_fifo_chan;
  */
 template<class T>
 class smoc_fifo_outlet
-: public smoc_chan_in_if<T,smoc_channel_access_if>
+: public smoc_port_in_if<T,smoc_1d_port_access_if>
 {
 public:
   typedef smoc_fifo_outlet<T> this_type;
   typedef typename this_type::access_type access_type; 
-  typedef smoc_chan_in_if<T,smoc_channel_access_if> iface_type;
+  typedef smoc_port_in_if<T,smoc_1d_port_access_if> iface_type;
 
   /// @brief Constructor
   smoc_fifo_outlet(smoc_fifo_chan<T>& chan)
@@ -151,7 +151,7 @@ public:
   {}
 
 protected:
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
 #else
@@ -171,21 +171,21 @@ protected:
 #endif
   }
   
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
     { return chan.emmAvailable.getEvent(chan.visibleCount(), n); }
 
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
     { return chan.visibleCount(); }
   
-  /// @brief See smoc_chan_in_base_if
+  /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
     { return chan.tokenId - chan.usedCount(); }
   
-  /// @brief See smoc_chan_in_if
-  access_type* getReadChannelAccess()
-    { return chan.getReadChannelAccess(); }
+  /// @brief See smoc_port_in_if
+  access_type* getReadPortAccess()
+    { return chan.getReadPortAccess(); }
 
 private:
   /// @brief The channel implementation
@@ -197,12 +197,12 @@ private:
  */
 template<class T>
 class smoc_fifo_entry
-: public smoc_chan_out_if<T,smoc_channel_access_if>
+: public smoc_port_out_if<T,smoc_1d_port_access_if>
 {
 public:
   typedef smoc_fifo_entry<T> this_type;
   typedef typename this_type::access_type access_type; 
-  typedef smoc_chan_out_if<T,smoc_channel_access_if> iface_type;
+  typedef smoc_port_out_if<T,smoc_1d_port_access_if> iface_type;
 
   /// @brief Constructor
   smoc_fifo_entry(smoc_fifo_chan<T>& chan)
@@ -210,7 +210,7 @@ public:
   {}
 
 protected:
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
 #else
@@ -231,21 +231,21 @@ protected:
 #endif
   }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
     { return chan.emmFree.getEvent(chan.freeCount(), n); }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t numFree() const
     { return chan.freeCount(); }
   
-  /// @brief See smoc_chan_out_base_if
+  /// @brief See smoc_port_out_base_if
   size_t outTokenId() const
     { return chan.tokenId; }
   
-  /// @brief See smoc_chan_out_if
-  access_type* getWriteChannelAccess()
-    { return chan.getWriteChannelAccess(); }
+  /// @brief See smoc_port_out_if
+  access_type* getWritePortAccess()
+    { return chan.getWritePortAccess(); }
 
 private:
   /// @brief The channel implementation
@@ -276,11 +276,11 @@ public:
   {}
 protected:
   /// @brief See smoc_port_registry
-  smoc_chan_out_base_if* createEntry()
+  smoc_port_out_base_if* createEntry()
     { return new entry_type(*this); }
 
   /// @brief See smoc_port_registry
-  smoc_chan_in_base_if* createOutlet()
+  smoc_port_in_base_if* createOutlet()
     { return new outlet_type(*this); }
 
 private:
