@@ -541,7 +541,7 @@ void FiringFSMImpl::finalise(
       (*sIter)->finalise(etl);
     }
 
-    top->setCodeAndBits(0,1);
+    //top->setCodeAndBits(0,1);
     top->finalise(etl);
 
 //    }
@@ -792,7 +792,9 @@ void intrusive_ptr_release(FiringStateBaseImpl *p)
 HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
   : FiringStateBaseImpl(),
     name(name.empty() ? Concat("smoc_firing_state_")(UnnamedStateCount++) : name),
-    parent(0)
+    parent(0),
+    code(0),
+    bits(1)
 {
   if(name.find(HIERARCHY_SEPARATOR) != std::string::npos)
     assert(!"smoc_hierarchical_state: Invalid state name");
@@ -800,8 +802,26 @@ HierarchicalStateImpl::HierarchicalStateImpl(const std::string& name)
     assert(!"smoc_hierarchical_state: Invalid state name");
 }
 
-HierarchicalStateImpl::~HierarchicalStateImpl()
-  {}
+HierarchicalStateImpl::~HierarchicalStateImpl() {
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    assert((*s)->getFiringFSM() == fsm);
+    delete *s;
+  }
+}
+
+void HierarchicalStateImpl::add(HierarchicalStateImpl* state) {
+  fsm->unify(state->getFiringFSM());
+  fsm->delState(state);
+  c.push_back(state);
+  state->setParent(this);
+}
+
+void HierarchicalStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
+  FiringStateBaseImpl::setFiringFSM(fsm);
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    (*s)->setFiringFSM(fsm);
+  }
+}
 
 const std::string& HierarchicalStateImpl::getName() const
   { return name; }
@@ -817,6 +837,32 @@ std::string HierarchicalStateImpl::getHierarchicalName() const {
     name;
 }
 
+HierarchicalStateImpl* HierarchicalStateImpl::select(
+    const std::string& name)
+{
+  size_t pos = name.find(HIERARCHY_SEPARATOR);
+  std::string top = name.substr(0, pos);
+
+  if(top.empty()) {
+    if(pos == std::string::npos)
+      return this;
+    else
+      assert(!"smoc_hierarchical_state: Invalid hierarchical name");
+  }
+ 
+  for(C::iterator s = c.begin(); s != c.end(); ++s) {
+    if((*s)->getName() == top) {
+      if(pos == std::string::npos)
+        return (*s);
+      else
+        return (*s)->select(name.substr(pos + 1));
+    }
+  }
+
+  assert(!"smoc_hierarchical_state:: Invalid hierarchical name");
+}
+
+
 void HierarchicalStateImpl::setParent(HierarchicalStateImpl* v) {
   assert(v);
   if(parent && v != parent) {
@@ -825,11 +871,16 @@ void HierarchicalStateImpl::setParent(HierarchicalStateImpl* v) {
   parent = v;
 }
 
+HierarchicalStateImpl* HierarchicalStateImpl::getParent() const {
+  return parent;
+}
+
 bool HierarchicalStateImpl::isAncestor(const HierarchicalStateImpl* s) const {
   assert(s);
 
   if(s == this)
     return true;
+
 
   if(s->bits > bits)
     return (code == (s->code >> (s->bits - bits)));
@@ -837,25 +888,6 @@ bool HierarchicalStateImpl::isAncestor(const HierarchicalStateImpl* s) const {
   return false;
 }
   
-void HierarchicalStateImpl::setCodeAndBits(uint64_t c, size_t b) {
-  assert(b < 64);
-  code = c;
-  //mask = (~0ull)<<b;
-  bits = b;
-}
-
-size_t HierarchicalStateImpl::getChildCodeAndBits(size_t cs, uint64_t& cc) const {
-  assert(cs);
-
-  size_t cb = (cs == 1) ? 1 : CoSupport::flog2(static_cast<uint32_t>(cs) - 1);
-  assert(bits + cb <= 64);
-
-  //outDbg << "#C: " << cs << " -> CB: " << cb << std::endl;
-            
-  cc = code << cb;
-  return cb + bits;
-}
-
 void HierarchicalStateImpl::mark(Marking& m) const {
   bool& mm = m[this];
   if(!mm) {
@@ -874,6 +906,25 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
 //  ScopedIndent s0(outDbg);
   
 //  outDbg << "State: " << getName() << "; Code: " << code << "; Bits: " << bits << std::endl;
+  
+  if(!c.empty()) {
+    size_t cs = c.size();
+    size_t cb = (cs == 1) ? 1 : CoSupport::flog2(static_cast<uint32_t>(cs) - 1);
+    
+//    outDbg << "#C: " << cs << " -> CB: " << cb << std::endl;
+
+    uint64_t cc = code << cb;
+    
+    cb += bits;
+    assert(cb < 64);
+
+    for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+      (*s)->code = cc;
+      (*s)->bits = cb;
+      (*s)->finalise(etl);
+      ++cc;
+    }
+  }
 
   for(PartialTransitionList::const_iterator pt = ptl.begin();
       pt != ptl.end(); ++pt)
@@ -936,19 +987,10 @@ const HierarchicalStateImpl* FiringStateImpl::getTopState(
       s != d.end(); ++s)
   {
     if(*s != this) {
-      assert(parent);
-      return parent->getTopState(d, false);
+      assert(getParent());
+      return getParent()->getTopState(d, false);
     }
   }
-
-  return this;
-}
-
-HierarchicalStateImpl* FiringStateImpl::select(
-    const std::string& name)
-{
-  if(!name.empty())
-    assert(!"smoc_firing_state: No child states");
 
   return this;
 }
@@ -966,57 +1008,14 @@ XORStateImpl::XORStateImpl(const std::string& name)
     init(0)
 {}
 
-XORStateImpl::~XORStateImpl() {
-  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
-    assert((*s)->getFiringFSM() == fsm);
-    delete *s;
-  }
-}
-
 void XORStateImpl::add(HierarchicalStateImpl* state, bool i) {
-//  outDbg << "XORStateImpl::add(...) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
-  
-//  outDbg << "state: " << state << "; init: " << i << std::endl;
-  
-  fsm->unify(state->getFiringFSM());
-  fsm->delState(state);
-  
-  c.insert(state);
-  state->setParent(this);
-  
+  HierarchicalStateImpl::add(state); 
   if(i) init = state;
 }
 
-void XORStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
-  FiringStateBaseImpl::setFiringFSM(fsm);
-  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
-    (*s)->setFiringFSM(fsm);
-  }
-}
-  
 void XORStateImpl::finalise(ExpandedTransitionList& etl) {
-//  ioutDbg << "XORStateImpl::finalise(etl) this == " << this << std::endl;
-  ScopedIndent s0(outDbg);
-
-//  outDbg << "name: " << name << std::endl;
-
   if(!init)
     throw ModelingError("smoc_xor_state: Must specify initial state");
-
-//  std::cout << "State: " << getName() << "; Code: " << code << "; Bits: " << bits << std::endl;
-
-  if(!c.empty()) {
-    uint64_t cc; 
-    size_t cb = getChildCodeAndBits(c.size(), cc);
-
-    for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
-      (*s)->setCodeAndBits(cc, cb);
-      (*s)->finalise(etl);
-      ++cc;
-    }
-  }
-
   HierarchicalStateImpl::finalise(etl);
 }
 
@@ -1049,37 +1048,12 @@ const HierarchicalStateImpl* XORStateImpl::getTopState(
       s != d.end(); ++s)
   {
     if(!isAncestor(*s)) {
-      assert(parent);
-      return parent->getTopState(d, false);
+      assert(getParent());
+      return getParent()->getTopState(d, false);
     }
   }
   
   return this;
-}
-
-HierarchicalStateImpl* XORStateImpl::select(
-    const std::string& name)
-{
-  size_t pos = name.find(HIERARCHY_SEPARATOR);
-  std::string top = name.substr(0, pos);
-
-  if(top.empty()) {
-    if(pos == std::string::npos)
-      return this;
-    else
-      assert(!"smoc_xor_state: Invalid hierarchical name");
-  }
- 
-  for(C::iterator s = c.begin(); s != c.end(); ++s) {
-    if((*s)->getName() == top) {
-      if(pos == std::string::npos)
-        return (*s);
-      else
-        return (*s)->select(name.substr(pos + 1));
-    }
-  }
-  
-  assert(!"smoc_xor_state: Invalid hierarchical name");
 }
 
 void intrusive_ptr_add_ref(XORStateImpl *p)
@@ -1090,62 +1064,17 @@ void intrusive_ptr_release(XORStateImpl *p)
 
 
 
-ANDStateImpl::ANDStateImpl(size_t part, const std::string& name)
-  : HierarchicalStateImpl(name),
-    c(part)
-{
-  if(part < 2)
-    assert(!"smoc_and_state: Must contain at least two partitions");
-  for(size_t i = 0; i < part; ++i) {
-    c[i] = new XORStateImpl(asStr(i));
+ANDStateImpl::ANDStateImpl(const std::string& name)
+  : HierarchicalStateImpl(name)
+{}
 
-    fsm->unify(c[i]->getFiringFSM());
-    fsm->delState(c[i]);
-
-    c[i]->setParent(this);
-  }
-}
-
-ANDStateImpl::~ANDStateImpl() {
-  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
-    assert((*s)->getFiringFSM() == fsm);
-    delete *s;
-  }
-}
-
-void ANDStateImpl::setFiringFSM(FiringFSMImpl *fsm) {
-  FiringStateBaseImpl::setFiringFSM(fsm);
-  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
-    (*s)->setFiringFSM(fsm);
-  }
-}
-
-void ANDStateImpl::finalise(ExpandedTransitionList& etl) {
-//  outDbg << "ANDStateImpl::finalise(etl) this == " << this << std::endl;
-  ScopedIndent s0(outDbg);
-  
-//  std::cout << "State: " << getName() << "; Code: " << code << "; Bits: " << bits << std::endl;
-
-  if(!c.empty()) {
-    uint64_t cc; 
-    size_t cb = getChildCodeAndBits(c.size(), cc);
-
-    for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
-      (*s)->setCodeAndBits(cc, cb);
-      (*s)->finalise(etl);
-      ++cc;
-    }
-  }
-
-  HierarchicalStateImpl::finalise(etl);
+void ANDStateImpl::add(HierarchicalStateImpl* part) {
+  HierarchicalStateImpl::add(part);
 }
 
 void ANDStateImpl::getInitialState(
     ProdState& p, const Marking& m) const
 {
-//  outDbg << "ANDStateImpl::getInitialState(p,m) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
-  
   for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
     (*s)->getInitialState(p, m);
   }
@@ -1159,8 +1088,8 @@ const HierarchicalStateImpl* ANDStateImpl::getTopState(
       s != d.end(); ++s)
   {
     if(!isAncestor(*s)) {
-      assert(parent);
-      return parent->getTopState(d, false);
+      assert(getParent());
+      return getParent()->getTopState(d, false);
     }
     else if(*s == this) {
       isSrcState = true;
@@ -1174,37 +1103,6 @@ const HierarchicalStateImpl* ANDStateImpl::getTopState(
   // boundary without leaving the AND state
 
   throw ModelingError("smoc_and_state: Can't create inter-partition transitions");
-}
-
-XORStateImpl* ANDStateImpl::getPart(size_t p) const {
-  if(p >= c.size())
-    assert(!"smoc_and_state: Invalid partition");
-  return c[p];
-}
-
-HierarchicalStateImpl* ANDStateImpl::select(
-    const std::string& name)
-{
-  size_t pos = name.find(HIERARCHY_SEPARATOR);
-  std::string top = name.substr(0, pos);
-
-  if(top.empty()) {
-    if(pos == std::string::npos)
-      return this;
-    else
-      assert(!"smoc_and_state: Invalid hierarchical name");
-  }
- 
-  for(C::iterator s = c.begin(); s != c.end(); ++s) {
-    if((*s)->getName() == top) {
-      if(pos == std::string::npos)
-        return (*s);
-      else
-        return (*s)->select(name.substr(pos + 1));
-    }
-  }
-  
-  assert(!"smoc_and_state: Invalid hierarchical name");
 }
 
 void intrusive_ptr_add_ref(ANDStateImpl *p)
@@ -1420,14 +1318,14 @@ smoc_xor_state& smoc_xor_state::add(const smoc_hierarchical_state& state)
 smoc_and_state::smoc_and_state(const SmartPtr &p)
   : FFType(p) {}
 
-smoc_and_state::smoc_and_state(size_t part, const std::string& name)
-  : FFType(new ANDStateImpl(part, name)) {}
+smoc_and_state::smoc_and_state(const std::string& name)
+  : FFType(new ANDStateImpl(name)) {}
 
 smoc_and_state::ImplType *smoc_and_state::getImpl() const
   { return static_cast<ImplType *>(this->pImpl.get()); }
 
-smoc_xor_state::Ref smoc_and_state::operator[](size_t p)
-  { return smoc_xor_state(getImpl()->getPart(p)); }
+smoc_and_state& smoc_and_state::add(const smoc_hierarchical_state& state)
+  { getImpl()->add(state.getImpl()); return *this; }
 
 
 
