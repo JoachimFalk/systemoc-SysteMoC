@@ -67,37 +67,10 @@ namespace SysteMoC {
   class smoc_graph_synth;
 }
 
-class smoc_opbase_node {
-public:
-  typedef smoc_opbase_node this_type;
-protected:
-  
-  template<typename F>
-  typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
-  call(const F &f, const char *name = "") {
-    return typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
-      (CoSupport::Lambda::Functor<void, F>(this, f, name));
-  }
-  
-  template<typename F>
-  typename Expr::MemGuard<F>::type guard(const F &f, const char *name = "") const {
-    return Expr::guard(this, f, name);
-  }
-  
-  template <typename T>
-  static
-  typename Expr::Var<T>::type var(T &x, const char *name = NULL)
-    { return Expr::var(x,name); }
-  
-  virtual ~smoc_opbase_node() {}
-};
-
-// smoc_opbase_node must be the first class from which smoc_root_node
-// is derived. This requirement comes from the reinterpret_cast in
-// smoc_func_xxx classes in smoc_firing_rules.hpp
+// smoc_root_node is the base class of all systemoc nodes be it
+// actors or graphs!
 class smoc_root_node
-: public smoc_opbase_node,
-  public sc_module {
+: public sc_module {
 public:
   /*friend class smoc_graph_sr;
   friend class smoc_scheduler_top;
@@ -151,6 +124,23 @@ protected:
 
   virtual void finalise();
   virtual void reset() {}
+
+  template<typename F>
+  typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
+  call(const F &f, const char *name = "") {
+    return typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type
+      (CoSupport::Lambda::Functor<void, F>(this, f, name));
+  }
+
+  template<typename F>
+  typename Expr::MemGuard<F>::type guard(const F &f, const char *name = "") const {
+    return Expr::guard(this, f, name);
+  }
+
+  template <typename T>
+  static
+  typename Expr::Var<T>::type var(T &x, const char *name = NULL)
+    { return Expr::var(x,name); }
 
 public:
   FiringFSMImpl* getFiringFSM() const
