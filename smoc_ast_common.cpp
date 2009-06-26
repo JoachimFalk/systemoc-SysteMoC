@@ -101,6 +101,7 @@ std::ostream &operator << (std::ostream &o, const ASTNodeType &nodeType)
 std::ostream &operator << (std::ostream &o, _ASTNodeType nodeType)
   { return o << ASTNodeType(nodeType); }
 
+#ifndef SYSTEMOC_ENABLE_SGX
 static const char *DOpBin[] = {
   "DOpBinAdd", "DOpBinSub", "DOpBinMultiply", "DOpBinDivide",
   "DOpBinEq", "DOpBinNe", "DOpBinLt", "DOpBinLe", "DOpBinGt", "DOpBinGe",
@@ -112,7 +113,7 @@ OpBinT::OpBinT(const std::string &op)
   { *this = op; }
 OpBinT::OpBinT(const char *op)
   { *this = op; }
-OpBinT::OpBinT(_OpBinT op)
+OpBinT::OpBinT(OpBinT::Op op)
   { *this = op; }
 
 OpBinT &OpBinT::operator =(const std::string &op) {
@@ -127,15 +128,15 @@ OpBinT &OpBinT::operator =(const char *str) {
        ++_op)
     ;
   assert(_op < sizeof(DOpBin)/sizeof(DOpBin[0]));
-  *this = static_cast<_OpBinT>(_op);
+  *this = static_cast<OpBinT::Op>(_op);
   return *this;
 }
-OpBinT &OpBinT::operator =(_OpBinT _op) {
+OpBinT &OpBinT::operator =(OpBinT::Op _op) {
   op = _op;
   return *this;
 }
 
-OpBinT::operator _OpBinT() const {
+OpBinT::operator OpBinT::Op() const {
   return op;
 }
 OpBinT::operator const char *() const {
@@ -148,7 +149,7 @@ OpBinT::operator std::string() const {
 
 std::ostream &operator << (std::ostream &o, const OpBinT &op)
   { o << static_cast<const char *>(op); return o; }
-std::ostream &operator << (std::ostream &o, _OpBinT op)
+std::ostream &operator << (std::ostream &o, OpBinT::Op op)
   { return o << OpBinT(op); }
 
 static const char *DOpUn[] = {
@@ -163,7 +164,7 @@ OpUnT::OpUnT(const std::string &op)
   { *this = op; }
 OpUnT::OpUnT(const char *op)
   { *this = op; }
-OpUnT::OpUnT(_OpUnT op)
+OpUnT::OpUnT(OpUnT::Op op)
   { *this = op; }
 
 OpUnT &OpUnT::operator =(const std::string &op) {
@@ -178,15 +179,15 @@ OpUnT &OpUnT::operator =(const char *str) {
        ++_op)
     ;
   assert(_op < sizeof(DOpUn)/sizeof(DOpUn[0]));
-  *this = static_cast<_OpUnT>(_op);
+  *this = static_cast<OpUnT::Op>(_op);
   return *this;
 }
-OpUnT &OpUnT::operator =(_OpUnT _op) {
+OpUnT &OpUnT::operator =(OpUnT::Op _op) {
   op = _op;
   return *this;
 }
 
-OpUnT::operator _OpUnT() const {
+OpUnT::operator OpUnT::Op() const {
   return op;
 }
 OpUnT::operator const char *() const {
@@ -199,8 +200,9 @@ OpUnT::operator std::string() const {
 
 std::ostream &operator << (std::ostream &o, const OpUnT &op)
   { o << static_cast<const char *>(op); return o; }
-std::ostream &operator << (std::ostream &o, _OpUnT op)
+std::ostream &operator << (std::ostream &o, OpUnT::Op op)
   { return o << OpUnT(op); }
+#endif // SYSTEMOC_ENABLE_SGX 
 
 OpBinT      ASTNodeBinOp::getOpType() const
   { return op; }

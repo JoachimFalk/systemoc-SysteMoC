@@ -43,6 +43,7 @@
 #include <CoSupport/DataTypes/oneof.hpp>
 #include <CoSupport/String/Concat.hpp>
 #include <CoSupport/Math/flog2.hpp>
+#include <CoSupport/String/convert.hpp>
 
 #include <systemoc/smoc_config.h>
 
@@ -53,12 +54,18 @@
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 //#include <systemoc/detail/smoc_ngx_sync.hpp>
 
-#include <sgx.hpp>
+#ifdef SYSTEMOC_ENABLE_SGX
+# include <systemoc/detail/smoc_ast_ngx_visitor.hpp>
+# include <sgx.hpp>
+using namespace SystemCoDesigner::SGX;
+namespace AP = SysteMoC::ActivationPattern;
+//using SysteMoC::Detail::ASTNGXVisitor;
+#endif // SYSTEMOC_ENABLE_SGX
 
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::Detail;
-using namespace SystemCoDesigner::SGX;
 using CoSupport::String::Concat;
+using CoSupport::String::asStr;
 
 #include <CoSupport/Streams/FilterOStream.hpp>
 #include <CoSupport/Streams/IndentStreambuf.hpp>
@@ -390,6 +397,10 @@ void RuntimeTransition::assembleXML() {
 
   trans->action() =
     boost::apply_visitor(ActionNGXVisitor(), f);
+
+  ASTNGXVisitor v;
+  trans->activationPattern() =
+    AP::apply_visitor(v, Expr::evalTo<Expr::AST>(getExpr()));
 }
 #endif //SYSTEMOC_ENABLE_SGX
 
@@ -1180,7 +1191,7 @@ ANDStateImpl::ANDStateImpl(size_t part, const std::string& name)
   if(part < 2)
     assert(!"smoc_and_state: Must contain at least two partitions");
   for(size_t i = 0; i < part; ++i) {
-    c[i] = new XORStateImpl(Concat(i));
+    c[i] = new XORStateImpl(asStr(i));
 
     fsm->unify(c[i]->getFiringFSM());
     fsm->delState(c[i]);

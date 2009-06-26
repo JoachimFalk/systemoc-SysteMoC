@@ -173,7 +173,7 @@ void smoc_root_chan::assembleXML() {
       iter != entries.end(); ++iter)
   {
     Port p(Concat(name())(".in"));
-    p.direction().set(Port::IN);
+    p.direction() = Port::IN;
     proc->ports().push_back(p);
 
     // this is the channel input port and the node
@@ -195,7 +195,7 @@ void smoc_root_chan::assembleXML() {
       iter != outlets.end(); ++iter)
   {
     Port p(Concat(name())(".out"));
-    p.direction().set(Port::OUT);
+    p.direction() = Port::OUT;
     proc->ports().push_back(p);
     
     // this is the channel output port and the node

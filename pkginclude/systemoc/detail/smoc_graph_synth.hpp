@@ -39,6 +39,8 @@
 
 #include <systemoc/smoc_config.h>
 
+#ifdef SYSTEMOC_ENABLE_SGX
+
 #include "../smoc_graph_type.hpp"
 #include "smoc_pggen.hpp"
 //#include "smoc_ngx_sync.hpp"
@@ -71,11 +73,11 @@ private:
   typedef Expr::BinOp<
     Expr::DPortTokens<smoc_port_in_base_if>,
     ESizeT,
-    Expr::DOpBinGe>::type EPortInGuard;
+    Expr::OpBinT::Ge>::type EPortInGuard;
   typedef Expr::BinOp<
     Expr::DPortTokens<smoc_port_out_base_if>,
     ESizeT,
-    Expr::DOpBinGe>::type EPortOutGuard;
+    Expr::OpBinT::Ge>::type EPortOutGuard;
 
   // Expression representing any other expression
   typedef Expr::Ex<bool>::type EVariant;
@@ -165,5 +167,7 @@ private:
 };
 
 } } // namespace SysteMoC::Detail
+
+#endif // SYSTEMOC_ENABLE_SGX
 
 #endif // _INCLUDED_DETAIL_SMOC_GRAPH_SYNTH_HPP

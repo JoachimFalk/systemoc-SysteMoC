@@ -41,7 +41,7 @@ void smoc_actor::assembleXML() {
       pIter != constrArgs.pil.end(); ++pIter)
   {
     Parameter p(pIter->type, pIter->value);
-    p.name().set(pIter->name);
+    p.name() = pIter->name;
     ac->constructorParameters().push_back(p);
   }
 

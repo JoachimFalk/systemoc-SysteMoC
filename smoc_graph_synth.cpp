@@ -34,12 +34,14 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/detail/smoc_graph_synth.hpp>
+
+#ifdef SYSTEMOC_ENABLE_SGX
+
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
 
 #include <systemoc/smoc_config.h>
-
-#include <systemoc/detail/smoc_graph_synth.hpp>
 
 #include <CoSupport/DataTypes/container_insert.hpp>
 
@@ -106,7 +108,7 @@ public:
     return boost::blank();
   }
 
-  template<_OpBinT op>
+  template<OpBinT::Op op>
   PortReqVar operator()(const ASTNodeBinOpXXX<op> &obj)
   { return (*this)(static_cast<const SGX::ASTNodeBinOp&>(obj)); }
 
@@ -499,3 +501,5 @@ void smoc_graph_synth::generateFSM() {
 }
 
 } } // namespace SysteMoC::Detail
+
+#endif // SYSTEMOC_ENABLE_SGX

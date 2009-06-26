@@ -69,7 +69,7 @@ void smoc_fifo_chan_base::assembleXML() {
   proc = fifo;
 
   // set some attributes
-  fifo->size().set(depthCount());
+  fifo->size() = depthCount();
 
   smoc_graph_base* parent =
     dynamic_cast<smoc_graph_base*>(get_parent_object());

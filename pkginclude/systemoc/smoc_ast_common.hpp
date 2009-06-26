@@ -43,6 +43,10 @@
 
 #include <systemoc/smoc_config.h>
 
+#ifdef SYSTEMOC_ENABLE_SGX
+# include <sgx.hpp>
+#endif // SYSTEMOC_ENABLE_SGX
+
 namespace SysteMoC { namespace ActivationPattern {
 
 // WARNING: Always sync this with DASTNodeType[] in smoc_ast_common.cpp
@@ -336,34 +340,39 @@ public:
  */
 
 // WARNING: Always sync this with DOpBin[] in smoc_ast_common.cpp !!!
-typedef enum {
-  DOpBinAdd, DOpBinSub, DOpBinMultiply, DOpBinDivide,
-  DOpBinEq, DOpBinNe, DOpBinLt, DOpBinLe, DOpBinGt, DOpBinGe,
-  DOpBinBAnd, DOpBinBOr, DOpBinBXor, DOpBinLAnd, DOpBinLOr, DOpBinLXor,
-  DOpBinField
-} _OpBinT;
-
+#ifdef SYSTEMOC_ENABLE_SGX
+  using SystemCoDesigner::SGX::OpBinT;
+#else // SYSTEMOC_ENABLE_SGX
 class OpBinT {
 public:
   typedef OpBinT this_type;
+
+  typedef enum {
+    Add, Sub, Multiply, Divide,
+    Eq, Ne, Lt, Le, Gt, Ge,
+    BAnd, BOr, BXor, LAnd, LOr, LXor,
+    Field
+  } Op;
+
 protected:
-  _OpBinT op;
+  Op op;
 public:
   OpBinT(const std::string &op);
   OpBinT(const char *op);
-  OpBinT(_OpBinT op);
+  OpBinT(Op op);
 
   this_type &operator =(const std::string &op);
   this_type &operator =(const char *op);
-  this_type &operator =(_OpBinT op);
+  this_type &operator =(Op op);
 
-  operator _OpBinT() const;
+  operator Op() const;
   operator const char *() const;
   operator std::string() const;
 };
 
 std::ostream &operator << (std::ostream &o, const OpBinT &op);
-std::ostream &operator << (std::ostream &o, _OpBinT op);
+std::ostream &operator << (std::ostream &o, OpBinT::Op op);
+#endif // SYSTEMOC_ENABLE_SGX
 
 class ASTNodeBinOp: public ASTInternalBinNode {
 public:
@@ -386,36 +395,41 @@ public:
  * an enum which represents the operation.
  */
 
+#ifdef SYSTEMOC_ENABLE_SGX
+  using SystemCoDesigner::SGX::OpUnT;
+#else // SYSTEMOC_ENABLE_SGX
 // WARNING: always sync this with DOpUn[] in smoc_ast_common.cpp !!!
-typedef enum {
-  DOpUnLNot,
-  DOpUnBNot,
-  DOpUnRef,
-  DOpUnDeRef,
-  DOpUnType
-} _OpUnT;
-
 class OpUnT {
 public:
   typedef OpUnT this_type;
+
+  typedef enum {
+    LNot,
+    BNot,
+    Ref,
+    DeRef,
+    Type
+  } Op;
+
 protected:
-  _OpUnT op;
+  Op op;
 public:
   OpUnT(const std::string &op);
   OpUnT(const char *op);
-  OpUnT(_OpUnT op);
+  OpUnT(Op op);
 
   this_type &operator =(const std::string &op);
   this_type &operator =(const char *op);
-  this_type &operator =(_OpUnT op);
+  this_type &operator =(Op op);
 
-  operator _OpUnT() const;
+  operator Op() const;
   operator const char *() const;
   operator std::string() const;
 };
 
 std::ostream &operator << (std::ostream &o, const OpUnT &op);
-std::ostream &operator << (std::ostream &o, _OpUnT op);
+std::ostream &operator << (std::ostream &o, OpUnT::Op op);
+#endif // SYSTEMOC_ENABLE_SGX
 
 class ASTNodeUnOp: public ASTInternalUnNode {
 public:

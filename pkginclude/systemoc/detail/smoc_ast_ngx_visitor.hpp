@@ -33,75 +33,38 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_DETAIL_AST_NGX_VISITOR_HPP
+#define _INCLUDED_DETAIL_AST_NGX_VISITOR_HPP
+
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/detail/smoc_sysc_port.hpp>
-//#include <systemoc/detail/smoc_ngx_sync.hpp>
-#include <systemoc/smoc_root_node.hpp>
+#ifdef SYSTEMOC_ENABLE_SGX
 
+#include "../smoc_ast_systemoc.hpp"
 #include <sgx.hpp>
 
-using namespace CoSupport;
-using namespace SysteMoC::Detail;
+namespace SysteMoC { namespace Detail {
 
-smoc_sysc_port::smoc_sysc_port(const char* name_)
-  : sc_port_base(name_, 1),
-    interfacePtr(NULL),
-    portAccess(NULL),
-    parent(NULL), child(NULL)
-{
-//idPool.regObj(this);
-//idPool.regObj(this, 1);
-}
-
-smoc_sysc_port::~smoc_sysc_port() {
-//idPool.unregObj(this);
-}
+class ASTNGXVisitor {
+public:
+  typedef SystemCoDesigner::SGX::ASTNode::Ptr result_type;
   
-void smoc_sysc_port::bind(sc_interface &interface_ ) {
-  sc_port_base::bind(interface_);
-}
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodeVar &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodeLiteral &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodeProc &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodeMemProc &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodeMemGuard &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodeToken &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodePortTokens &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodeSMOCEvent &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodePortIteration &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodeBinOp &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodeUnOp &);
+  result_type operator()(SysteMoC::ActivationPattern::ASTNodeComm &);
+};
 
-void smoc_sysc_port::bind(this_type &parent_) {
-  assert(parent == NULL && parent_.child == NULL);
-  parent        = &parent_;
-  parent->child = this;
-  sc_port_base::bind(parent_);
-}
+}} // namespace SysteMoC::Detail
 
-void smoc_sysc_port::finalise() {
-#ifdef SYSTEMOC_ENABLE_SGX
-  assembleXML();
-#endif
-}
+#endif // SYSTEMOC_ENABLE_SGX
 
-#ifdef SYSTEMOC_ENABLE_SGX
-using namespace SystemCoDesigner::SGX;
-
-void smoc_sysc_port::assembleXML() {
-  assert(!port);
-
-  Port _p(name());
-  port = &_p;
-
-  // set some attributes
-  port->direction() = isInput() ? Port::IN : Port::OUT;
-
-  smoc_root_node* pn =
-    dynamic_cast<smoc_root_node*>(get_parent_object());
-
-  if(pn)
-    pn->addPort(_p);
-  else
-    assert(!"Port has no parent node!");
-
-  if(child) {
-    // ports are finalised from bottom to top
-    assert(child->port);
-    child->port->outerConnectedPort() = port;
-  }
-}
-  
-Port::Ptr smoc_sysc_port::getNGXObj() const
-  { return port; }
-#endif
+#endif // _INCLUDED_DETAIL_AST_NGX_VISITOR_HPP

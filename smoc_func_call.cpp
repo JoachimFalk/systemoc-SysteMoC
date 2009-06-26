@@ -180,13 +180,13 @@ Action::Ptr ActionNGXVisitor::operator()(smoc_func_call_list& f) const {
 
   for(smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
     Function func;
-    func.name().set(i->getFuncName());
+    func.name() = i->getFuncName();
 
     for(ParamInfoList::const_iterator pIter = i->getParams().begin();
         pIter != i->getParams().end(); ++pIter)
     {
       Parameter p(pIter->type, pIter->value);
-      //p.name().set(pIter->name);
+      //p.name() = pIter->name;
       func.parameters().push_back(p);
     }
 
