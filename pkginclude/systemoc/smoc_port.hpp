@@ -48,7 +48,7 @@
 #include "smoc_expr.hpp"
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/smoc_chan_if.hpp"
-#include "smoc_event.hpp"
+#include "detail/smoc_event_decls.hpp"
 #include "detail/smoc_storage.hpp"
 #include "detail/hscd_tdsim_TraceLog.hpp"
 
@@ -210,14 +210,31 @@ public:
   typedef const T    value_type;
   typedef DToken<T>  this_type;
   
+  friend class VisitorApplication<this_type>;
+  friend class CommExec<this_type>;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
-  friend class AST<this_type>;
 private:
   smoc_port_in<T> &p;
   size_t           pos;
 public:
   explicit DToken(smoc_port_in<T> &p, size_t pos)
     : p(p), pos(pos) {}
+};
+
+template <typename T>
+class VisitorApplication<DToken<T> > {
+public:
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
+  static inline
+  result_type apply(const DToken <T> &e, param1_type p)
+    { return p.visitToken(e.p, e.pos); }
 };
 
 template<typename T>
@@ -227,15 +244,6 @@ struct Value<DToken<T> > {
   static inline
   result_type apply(const DToken<T> &e)
   { return e.p[e.pos]; }
-};
-
-template<typename T>
-struct AST<DToken<T> > {
-  typedef Detail::PASTNode result_type;
-  
-  static inline
-  result_type apply(const DToken<T> &e)
-    { return Detail::PASTNode(new Detail::ASTNodeToken(e.p, e.pos)); }
 };
 
 template<typename T>

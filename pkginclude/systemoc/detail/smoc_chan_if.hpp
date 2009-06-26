@@ -47,10 +47,10 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "../smoc_event.hpp"
 #include <smoc/smoc_simulation_ctx.hpp>
 #include "smoc_storage.hpp"
 #include "smoc_sysc_port.hpp"
+#include "smoc_event_decls.hpp"
 #include "../smoc_expr.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -76,14 +76,14 @@ class DPortTokens {
 public:
   typedef DPortTokens<CI>  this_type;
 
-  friend class AST<this_type>;
-  template <class E> friend class Value;
+  template <class E> friend class VisitorApplication;
   template <class E> friend class CommExec;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   template <class E> friend class CommSetup;
   template <class E> friend class CommReset;
 #endif
   template <class E> friend class Sensitivity;
+  template <class E> friend class Value;
 private:
   smoc_sysc_port &p;
 
@@ -103,12 +103,14 @@ struct D<DPortTokens<CI> >: public DBase<DPortTokens<CI> > {
 };
 
 template<class CI>
-struct AST<DPortTokens<CI> > {
-  typedef Detail::PASTNode result_type;
+class VisitorApplication<DPortTokens<CI> > {
+public:
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
 
   static inline
-  result_type apply(const DPortTokens<CI> &e)
-    { return Detail::PASTNode(new Detail::ASTNodePortTokens(e.p)); }
+  result_type apply(const DPortTokens<CI> &e, param1_type p)
+    { return p.visitPortTokens(e.p); }
 };
 
 // Make a convenient typedef for the token type.
@@ -212,8 +214,13 @@ class DComm {
 public:
   typedef DComm<CI,E> this_type;
 
-  friend class AST<this_type>;
+  friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
   smoc_sysc_port &p;
@@ -243,12 +250,14 @@ typename Comm<typename P::chan_base_type,E>::type comm(P &p, const E &e)
   { return typename Comm<typename P::chan_base_type,E>::type(p,e); }
 
 template<class CI, class E>
-struct AST<DComm<CI,E> > {
-  typedef Detail::PASTNode result_type;
+class VisitorApplication<DComm<CI,E> > {
+public:
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
 
   static inline
-  result_type apply(const DComm<CI,E> &e)
-    { return Detail::PASTNode(new Detail::ASTNodeComm(e.p, AST<E>::apply(e.e))); }
+  result_type apply(const DComm<CI,E> &e, param1_type p)
+    { return p.visitComm(e.p, boost::bind(VisitorApplication<E>::apply, e.e, _1)); }
 };
 
 template <class CI, class E>

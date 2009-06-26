@@ -46,17 +46,11 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <smoc/detail/astnodes.hpp>
+#include "smoc_expr.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
-
-#define CALL(func)    call(&func, #func)
-#define GUARD(func)   guard(&func, #func)
-#define VAR(variable) var(variable, #variable)
-#define SR_TICK(func) call(&func, #func)
-#define SR_GO(func)   call(&func, #func)
 
 /**
  * TODO: deprecate smoc_func_diverge and smoc_func_branch

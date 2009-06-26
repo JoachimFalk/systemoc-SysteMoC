@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -36,9 +36,8 @@
 #ifndef _INCLUDED_SMOC_EVENT_HPP
 #define _INCLUDED_SMOC_EVENT_HPP
 
-#include <systemoc/smoc_config.h>
+#warning "The systemoc/smoc_event.hpp header is obsolete do not include it!"
 
 #include "detail/smoc_event_decls.hpp"
-#include "detail/smoc_event_expr.hpp"
 
 #endif // _INCLUDED_SMOC_EVENT_HPP

@@ -52,11 +52,13 @@
 #include <CoSupport/commondefs.h>
 
 #include <boost/typeof/typeof.hpp>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 #include <systemoc/smoc_config.h>
 
 #include "detail/smoc_event_decls.hpp"
-#include <smoc/detail/astnodes.hpp>
+#include "detail/smoc_sysc_port.hpp"
 
 /****************************************************************************
  * dexpr.h
@@ -66,32 +68,78 @@
  */
 
 namespace Expr {
+  
+template <class E>
+class VisitorApplication;
 
-namespace Detail {
+} // namespace Expr
 
-  using namespace SysteMoC::Detail;
-
-  //wrapper for constructor parameters (deprecated! use SMOC_REGISTER_CPARAM() macro instead)
-/*  template <typename T>
-  class ParamWrapper {
-  private:
-    T v;
-  public:
-    ParamWrapper(const T &v) COSUPPORT_ATTRIBUTE_DEPRECATED
-      : v(v) {
-      std::stringstream allToString; allToString << v;
-      registerParam(ArgInfo(typeid(T).name(), allToString.str()));
-    }
-
-    operator       T()       { return v; }
-    operator const T() const { return v; }
-  };*/
-
-//struct True  { operator bool() const { return true;  } };
-//struct False { operator bool() const { return false; } };
+namespace SysteMoC { namespace Detail {
 
   struct Process;   // Process type marker for evalTo<{Sensitivity|CommExec}>( ... )
   struct Ignore;    // Ignore type marker for evalTo<{Sensitivity|CommExec}>( ... )
+
+  struct DISABLED { operator bool() const { return false; } };
+  struct BLOCKED  {};
+  struct ENABLED  { operator bool() const { return true; } };
+
+  struct ParamInfo {
+    std::string name;
+    std::string type;
+    std::string value;
+  };
+  typedef std::vector<ParamInfo> ParamInfoList;
+
+  struct ParamInfoVisitor {
+    ParamInfoList pil;
+
+    template<class P>
+    void operator()(const P& p) {
+      ParamInfo pi;
+      //pi.name = FIXME;
+      pi.type = typeid(P).name();
+      pi.value = CoSupport::String::asStr(p);
+      pil.push_back(pi);
+    }
+
+    template<class P>
+    void operator()(const std::string& name, const P& p) {
+      ParamInfo pi;
+      pi.name = name;
+      pi.type = typeid(P).name();
+      pi.value = CoSupport::String::asStr(p);
+      pil.push_back(pi);
+    }
+  };
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  using SystemCoDesigner::SGX::OpUnT;
+#else // SYSTEMOC_ENABLE_SGX
+  // WARNING: always sync this with LibSGX!!!
+  struct OpUnT {
+    typedef enum {
+      LNot,
+      BNot,
+      Ref,
+      DeRef,
+      Type
+    } Op;
+  };
+#endif // SYSTEMOC_ENABLE_SGX
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  using SystemCoDesigner::SGX::OpBinT;
+#else // SYSTEMOC_ENABLE_SGX
+  // WARNING: always sync this with LibSGX!!!
+  struct OpBinT {
+    typedef enum {
+      Add, Sub, Multiply, Divide,
+      Eq, Ne, Lt, Le, Gt, Ge,
+      BAnd, BOr, BXor, LAnd, LOr, LXor,
+      Field
+    } Op;
+  };
+#endif // SYSTEMOC_ENABLE_SGX
 
   enum _XXX {
     _DISABLED = -1,
@@ -102,8 +150,6 @@ namespace Detail {
   class ActivationStatus {
   public:
     typedef ActivationStatus this_type;
-//  typedef _XXX (this_type::*unspecified_bool_type)() const;
- 
 #ifdef SYSTEMOC_DEBUG
     friend std::ostream &operator <<(std::ostream &, this_type);
 #endif
@@ -115,7 +161,7 @@ namespace Detail {
 
     ActivationStatus(const DISABLED _)
       :value(_DISABLED) {}
-    ActivationStatus(const BLOCKED  _)
+    ActivationStatus(const BLOCKED _)
       :value(_BLOCKED) {}
     ActivationStatus(const ENABLED _)
       :value(_ENABLED) {}
@@ -127,12 +173,32 @@ namespace Detail {
 
     _XXX toSymbol() const
       { return value; }
-
-//  operator unspecified_bool_type() const
-//    { return value == ENABLED ? &this_type::toSymbol : NULL; }
   };
 
-} // namespace Detail
+  template <typename T>
+  class ExprVisitor {
+    typedef ExprVisitor<T> this_type;
+  public:
+    typedef T *result_type;
+  public:
+    virtual result_type visitVar(const std::string &name, const std::string &type) = 0;
+    virtual result_type visitLiteral(const std::string &type, const std::string &value) = 0;
+//  virtual result_type visitProc(const std::string &name, const std::string &retType, const std::string &addr) = 0;
+//  virtual result_type visitMemProc(const std::string &name, const std::string &retType, const std::string &obj, const std::string &addr) = 0;
+    virtual result_type visitMemGuard(const std::string &name, const std::string &reType, const ParamInfoList &params) = 0;
+    virtual result_type visitEvent(const std::string &name) = 0;
+    virtual result_type visitPortTokens(smoc_sysc_port &p) = 0;
+    virtual result_type visitToken(smoc_sysc_port &p, size_t n) = 0;
+    virtual result_type visitComm(smoc_sysc_port &p, boost::function<result_type (this_type &)> e) = 0;
+    virtual result_type visitUnOp(OpUnT op, boost::function<result_type (this_type &)> e) = 0;
+    virtual result_type visitBinOp(OpBinT op, boost::function<result_type (this_type &)> a, boost::function<result_type (this_type &)> b) = 0;
+  };
+
+} } // namespace SysteMoC::Detail
+
+namespace Expr {
+
+namespace Detail = SysteMoC::Detail;
 
 using Detail::OpBinT;
 using Detail::OpUnT;
@@ -148,8 +214,13 @@ class D;
  * Expr evaluators
  */
 
+// Default is invalid
 template <class E>
-class AST {};
+class VisitorApplication {};
+
+// Default is invalid
+template <class E>
+class Value {};
 
 // Default do nothing
 template <class E>
@@ -213,10 +284,6 @@ public:
   }
 };
 
-// Default is invalid
-template <class E>
-class Value {};
-
 /****************************************************************************
  * Expr evalTo helper functions
  */
@@ -240,6 +307,14 @@ typename Z<E>::result_type evalTo(const D<E> &e,
     typename Z<E>::param1_type p1,
     typename Z<E>::param2_type p2) {
   return Z<E>::apply(e.getExpr(), p1, p2);
+}
+
+template<class T, class E>
+static inline
+T *evalTo(Detail::ExprVisitor<T> &v, const D<E> &e) {
+  return reinterpret_cast<T *>
+    (evalTo<VisitorApplication>
+      (e, reinterpret_cast<Detail::ExprVisitor<void> &>(v)));
 }
 
 /****************************************************************************
@@ -276,10 +351,10 @@ public:
 template <typename T>
 class DVirtual
 {
-public:
-  typedef DVirtual<T>  this_type;
+private:
+  typedef DVirtual<T> this_type;
 
-  friend class AST<this_type>;
+  friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -289,7 +364,7 @@ public:
   friend class Value<this_type>;
 private:
   struct virt_ty: public CoSupport::SmartPtr::RefCountObject {
-    virtual Detail::PASTNode   evalToAST()         const = 0;
+    virtual void              *evalToVisitorApplication(Detail::ExprVisitor<void> &) const = 0;
 #ifdef SYSTEMOC_ENABLE_VPC
     virtual void       evalToCommExec(
         const smoc_ref_event_p &diiEvent,
@@ -315,9 +390,9 @@ private:
     E e;
   public:
     impl_ty( const E &e ): e(e) {}
-    
-    Detail::PASTNode   evalToAST() const
-      { return AST<E>::apply(e); }
+
+    void              *evalToVisitorApplication(Detail::ExprVisitor<void> &v) const 
+      { return VisitorApplication<E>::apply(e, v); }
 #ifdef SYSTEMOC_ENABLE_VPC
     void       evalToCommExec(
         const smoc_ref_event_p &diiEvent,
@@ -348,14 +423,15 @@ public:
 };
 
 template <typename T>
-class AST<DVirtual<T> >
+class VisitorApplication<DVirtual<T> >
 {
 public:
-  typedef Detail::PASTNode result_type;
-  
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
   static inline
-  result_type apply(const DVirtual <T> &e)
-    { return e.v->evalToAST(); }
+  result_type apply(const DVirtual <T> &e, param1_type p)
+    { return e.v->evalToVisitorApplication(p); }
 };
 
 template <typename T>
@@ -464,10 +540,10 @@ struct Ex { typedef D<DVirtual<T> > type; };
 template<typename T>
 class DVar
 {
-public:
+private:
   typedef DVar<T> this_type;
 
-  friend class AST<this_type>;
+  friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -484,16 +560,15 @@ public:
 };
 
 template <typename T>
-class AST<DVar<T> >
+class VisitorApplication<DVar<T> >
 {
 public:
-  typedef Detail::PASTNode result_type;
-  
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
   static inline
-  Detail::PASTNode apply(const DVar <T> &e) {
-    //std::cerr << "AST<DVar<T> >: Was here !!!" << std::endl;
-    return Detail::PASTNode(new Detail::ASTNodeVar(Detail::TypeSymbolIdentifier(e.x,e.name)));
-  }
+  result_type apply(const DVar <T> &e, param1_type p)
+    { return p.visitVar(e.name, typeid(T).name()); }
 };
 
 template <typename T>
@@ -528,10 +603,10 @@ typename Var<T>::type var(T &x, const char *name = NULL)
 template<typename T>
 class DLiteral
 {
-public:
+private:
   typedef DLiteral<T> this_type;
 
-  friend class AST<this_type>;
+  friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -547,38 +622,16 @@ public:
   DLiteral(const DLiteral<X> &l): v(l.v) {}
 };
 
-/*template<typename T>
-class DLiteral<Detail::ParamWrapper<T> >
-{
-public:
-  typedef DLiteral<Detail::ParamWrapper<T> >  this_type;
-  
-  friend class AST<this_type>;
-  friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif
-  friend class Sensitivity<this_type>;
-  friend class Value<this_type>;
-private:
-  const T v;
-public:
-  explicit DLiteral(const Detail::ParamWrapper<T> &v): v(v) {}
-  template <typename X>
-  DLiteral(const DLiteral<X> &l): v(l.v) {}
-};*/
-
 template <typename T>
-class AST<DLiteral<T> >
+class VisitorApplication<DLiteral<T> >
 {
 public:
-  typedef Detail::PASTNode result_type;
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
   
   static inline
-  Detail::PASTNode apply(const DLiteral <T> &e) {
-    return Detail::PASTNode(new Detail::ASTNodeLiteral(Detail::ValueTypeContainer(e.v)));
-  }
+  result_type apply(const DLiteral <T> &e, param1_type p)
+    { return p.visitLiteral(typeid(T).name(), CoSupport::String::asStr(e.v)); }
 };
 
 template <typename T>
@@ -607,135 +660,16 @@ typename Literal<T>::type literal(const T &v)
   { return typename Literal<T>::type(v); }
 
 /****************************************************************************
- * DProc represents a function call in the expression
- */
-
-template<typename T>
-class DProc
-{
-public:
-  typedef DProc<T>  this_type;
-
-  friend class AST<this_type>;
-  friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif
-  friend class Sensitivity<this_type>;
-  friend class Value<this_type>;
-private:
-  T (*f)();
-public:
-  explicit DProc(T (*f)()): f(f) {}
-};
-
-template <typename T>
-class AST<DProc<T> >
-{
-public:
-  typedef Detail::PASTNode result_type;
-  
-  static inline
-  Detail::PASTNode apply(const DProc <T> &e)
-    { return Detail::PASTNode(new Detail::ASTNodeProc(e.f)); }
-};
-
-template <typename T>
-class Value<DProc<T> >
-{
-public:
-  typedef T result_type;
-  
-  static inline
-  T apply(const DProc <T> &e)
-    { return e.f(); }
-};
-
-template<class T>
-struct D<DProc<T> >: public DBase<DProc<T> > {
-  D(T (*f)()): DBase<DProc<T> >(DProc<T>(f)) {}
-};
-
-// Make a convenient typedef for the placeholder type.
-template <typename T>
-struct Proc { typedef D<DProc<T> > type; };
-
-template <typename T>
-typename Proc<T>::type call(T (*f)())
-  { return Proc<T>::type(f); }
-
-/****************************************************************************
- * DMemProc represents a member function call in the expression
- */
-
-template<typename T, class X>
-class DMemProc
-{
-public:
-  typedef DMemProc<T,X> this_type;
-  
-  friend class AST<this_type>;
-  friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif
-  friend class Sensitivity<this_type>;
-  friend class Value<this_type>;
-private:
-  X     *o;
-  T (X::*m)();
-public:
-  explicit DMemProc(X *o, T (X::*m)()): o(o), m(m) {}
-};
-
-template <typename T, class X>
-class AST<DMemProc<T,X> >
-{
-public:
-  typedef Detail::PASTNode result_type;
-  
-  static inline
-  Detail::PASTNode apply(const DMemProc <T,X> &e)
-    { return Detail::PASTNode(new Detail::ASTNodeMemProc(e.o,e.m)); }
-};
-
-template <typename T, class X>
-class Value<DMemProc<T,X> >
-{
-public:
-  typedef T result_type;
-  
-  static inline
-  T apply(const DMemProc<T,X> &e)
-    { return (e.o->*e.m)(); }
-};
-
-template<typename T, class X>
-struct D<DMemProc<T,X> >: public DBase<DMemProc<T,X> > {
-  D(X *o, T (X::*m)()): DBase<DMemProc<T,X> >(DMemProc<T,X>(o,m)) {}
-};
-
-// Make a convenient typedef for the placeholder type.
-template <typename T, class X>
-struct MemProc { typedef D<DMemProc<T,X> > type; };
-
-template <typename T, class X>
-typename MemProc<T,X>::type call(X *o, T (X::*m)())
-  { return MemProc<T,X>::type(o,m); }
-
-/****************************************************************************
  * DMemGuard
  */
 
 template<class F, class PL>
 class DMemGuard
 {
-public:
+private:
   typedef DMemGuard<F,PL> this_type;
   
-  friend class AST<this_type>;
+  friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -751,19 +685,18 @@ public:
     : f(_f), pl(_pl) {}
 };
 
-
-
 template<class F, class PL>
-class AST<DMemGuard<F,PL> >
+class VisitorApplication<DMemGuard<F, PL> >
 {
 public:
-  typedef Detail::PASTNode result_type;
-  
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
   static inline
-  Detail::PASTNode apply(const DMemGuard <F,PL> &e) {
+  result_type apply(const DMemGuard <F, PL> &e, param1_type p) {
     Detail::ParamInfoVisitor piv;
     e.f.paramListVisit(e.pl, piv);
-    return Detail::PASTNode(new Detail::ASTNodeMemGuard(Detail::TypeSymbolIdentifier(e.f), piv.pil));
+    return p.visitMemGuard(e.f.name, typeid(typename F::return_type).name(), piv.pil);
   }
 };
 
@@ -802,6 +735,88 @@ typename MemGuard<F>::type guard(const X *o, const F &f, const char *name = "") 
 }
 
 /****************************************************************************
+ * DSMOCEvent represents a smoc_event guard which turns true if the event is
+ * signaled
+ */
+
+class DSMOCEvent {
+private:
+  typedef bool       value_type;
+  typedef DSMOCEvent this_type;
+
+  friend class VisitorApplication<this_type>;
+  friend class CommExec<this_type>;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
+  smoc_event_waiter &v;
+  const char        *name;
+public:
+  explicit DSMOCEvent(smoc_event_waiter &v, const char *name_ = NULL)
+    : v(v), name(name_ != NULL ? name_ : "") {}
+};
+
+template <>
+class VisitorApplication<DSMOCEvent>
+{
+public:
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+  
+  static inline
+  result_type apply(const DSMOCEvent &e, param1_type p)
+    { return p.visitEvent(e.name); }
+};
+
+template <>
+struct Value<DSMOCEvent> {
+  typedef Expr::Detail::ENABLED result_type;
+
+  static inline
+  result_type apply(const DSMOCEvent &e) {
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+    assert(e.v);
+#endif
+    return result_type();
+  }
+};
+
+template <>
+struct Sensitivity<DSMOCEvent> {
+  typedef Detail::Process      match_type;
+
+  typedef void                 result_type;
+  typedef smoc_event_and_list &param1_type;
+
+  static inline
+  void apply(const DSMOCEvent &e, smoc_event_and_list &al) {
+    al &= e.v;
+//#ifdef SYSTEMOC_DEBUG
+//    std::cerr << "Sensitivity<DSMOCEvent>::apply(...) al == " << al << std::endl;
+//#endif
+  }
+};
+
+template <>
+struct D<DSMOCEvent>: public DBase<DSMOCEvent> {
+  D(smoc_event_waiter &v, const char *name = NULL)
+    : DBase<DSMOCEvent>(DSMOCEvent(v, name)) {}
+};
+
+// Make a convenient typedef for the placeholder type.
+struct SMOCEvent { typedef D<DSMOCEvent> type; };
+
+// smoc_event_waiter may be an event or a event list
+// till-waiting for events allows for hierarchical graph scheduling
+static inline
+SMOCEvent::type till(smoc_event_waiter &e, const char *name = NULL)
+  { return SMOCEvent::type(e, name); }
+
+/****************************************************************************
  * DBinOp represents a binary operation on two expressions.
  * A and B are the two expressions being combined, and Op is
  * an enum which represents the operation.
@@ -810,10 +825,10 @@ typename MemGuard<F>::type guard(const X *o, const F &f, const char *name = "") 
 template<class A, class B, OpBinT::Op Op>
 class DBinOp
 {
-public:
+private:
   typedef DBinOp<A,B,Op> this_type;
 
-  friend class AST<this_type>;
+  friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -858,20 +873,17 @@ struct DBinOpExecute<TA,TB,Op,Value> {                                \
 };
 
 template <class A, class B, OpBinT::Op Op>
-class AST<DBinOp<A,B,Op> >
+class VisitorApplication<DBinOp<A,B,Op> >
 {
 public:
-  typedef Detail::PASTNode result_type;
-  
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
   static inline
-  result_type apply(const DBinOp<A,B,Op> &e) {
-   /* std::cerr << "AST<DBinOp<"
-                << typeid(A).name() << ","
-                << typeid(B).name() << ","
-                << Op << "> >: Was here !!!" << std::endl;*/
-    return Detail::PASTNode(new Detail::ASTNodeBinOp(
-        Detail::Type<typename Value<DBinOp<A,B,Op> >::result_type>(), Op,
-        AST<A>::apply(e.a), AST<B>::apply(e.b)));
+  result_type apply(const DBinOp<A,B,Op> &e, param1_type p) {
+    return p.visitBinOp(Op,
+      boost::bind(VisitorApplication<A>::apply, e.a, _1),
+      boost::bind(VisitorApplication<B>::apply, e.b, _1));
   }
 };
 
@@ -1237,10 +1249,10 @@ field(const D<A> &a, V A::value_type::* b) {
 template<class E, OpUnT::Op Op>
 class DUnOp
 {
-public:
+private:
   typedef DUnOp<E,Op> this_type;
 
-  friend class AST<this_type>;
+  friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
   friend class CommSetup<this_type>;
@@ -1284,19 +1296,16 @@ struct DUnOpExecute<TE,Op,Value> {                                    \
 };
 
 template <class E, OpUnT::Op Op>
-class AST<DUnOp<E,Op> >
+class VisitorApplication<DUnOp<E,Op> >
 {
 public:
-  typedef Detail::PASTNode result_type;
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
 
   static inline
-  result_type apply(const DUnOp<E,Op> &e) {
-   /* std::cerr << "AST<DUnOp<"
-                << typeid(E).name() << ","
-                << Op << "> >: Was here !!!" << std::endl;*/
-    return Detail::PASTNode(new Detail::ASTNodeUnOp(
-        Detail::Type<typename Value<DUnOp<E,Op> >::result_type>(), Op,
-        AST<E>::apply(e.e)));
+  result_type apply(const DUnOp<E,Op> &e, param1_type p) {
+    return p.visitUnOp(Op,
+      boost::bind(VisitorApplication<E>::apply, e.e, _1));
   }
 };
 

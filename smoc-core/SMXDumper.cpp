@@ -38,26 +38,30 @@
 
 #ifdef SYSTEMOC_ENABLE_SGX
 
+#include <map>
+#include <utility>
+#include <memory>
+
+#include <boost/scoped_ptr.hpp>
+
 #include <sgx.hpp>
 #include <CoSupport/String/Concat.hpp>
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 
-#include "apply_visitor.hpp"
-#include "smoc_ast_ngx_visitor.hpp"
+//#include "smoc_ast_ngx_visitor.hpp"
+//#include <smoc/detail/astnodes.hpp>
 
-#include <smoc/detail/astnodes.hpp>
+#include "apply_visitor.hpp"
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
+#include <systemoc/smoc_expr.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
-
-#include <map>
-#include <utility>
 
 namespace SysteMoC { namespace Detail {
 
@@ -72,41 +76,163 @@ class ActionNGXVisitor {
 public:
   typedef SGX::Action::Ptr result_type;
 public:
-  result_type operator()(smoc_func_call_list &f) const {
-    if (f.empty())
-      return NULL;
-    
-    bool single = (++f.begin() == f.end());
-    SGX::CompoundAction top;
-    
-    for (smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
-      SGX::Function func;
-      func.name() = i->getFuncName();
-      
-      for (ParamInfoList::const_iterator pIter = i->getParams().begin();
-           pIter != i->getParams().end();
-           ++pIter) {
-        SGX::Parameter p(pIter->type, pIter->value);
-        //p.name() = pIter->name;
-        func.parameters().push_back(p);
-      }
-      if (single)
-        return &func;
-      else
-        top.actions().push_back(func);
-    }
-    
-    return &top;
-  }
-
-  result_type operator()(smoc_func_diverge &f) const {
-    return NULL;
-  }
-
-  result_type operator()(smoc_sr_func_pair &f) const {
-    return NULL;
-  }
+  result_type operator()(smoc_func_call_list &f) const;
+  result_type operator()(smoc_func_diverge &f) const;
+  result_type operator()(smoc_sr_func_pair &f) const;
 };
+
+SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_call_list &f) const {
+  if (f.empty())
+    return NULL;
+  
+  bool single = (++f.begin() == f.end());
+  SGX::CompoundAction top;
+  
+  for (smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
+    SGX::Function func;
+    func.name() = i->getFuncName();
+    
+    for (ParamInfoList::const_iterator pIter = i->getParams().begin();
+         pIter != i->getParams().end();
+         ++pIter) {
+      SGX::Parameter p(pIter->type, pIter->value);
+      //p.name() = pIter->name;
+      func.parameters().push_back(p);
+    }
+    if (single)
+      return &func;
+    else
+      top.actions().push_back(func);
+  }
+  
+  return &top;
+}
+
+SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_diverge &f) const {
+  return NULL;
+}
+
+SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_sr_func_pair &f) const {
+  return NULL;
+}
+
+class ExprNGXVisitor: public ExprVisitor<SGX::ASTNode> {
+  typedef ExprVisitor<SGX::ASTNode> base_type;
+  typedef ExprNGXVisitor            this_type;
+protected:
+  SCPortBase2Port &ports;
+public:
+  ExprNGXVisitor(SCPortBase2Port &ports)
+    : ports(ports) {}
+
+  result_type visitVar(const std::string &name, const std::string &type);
+  result_type visitLiteral(const std::string &type, const std::string &value);
+  result_type visitMemGuard(const std::string &name, const std::string &reType, const ParamInfoList &params);
+  result_type visitEvent(const std::string &name);
+  result_type visitPortTokens(smoc_sysc_port &p);
+  result_type visitToken(smoc_sysc_port &p, size_t n);
+  result_type visitComm(smoc_sysc_port &p, boost::function<result_type (base_type &)> e);
+  result_type visitUnOp(OpUnT op, boost::function<result_type (base_type &)> e);
+  result_type visitBinOp(OpBinT op, boost::function<result_type (base_type &)> a, boost::function<result_type (base_type &)> b);
+};
+
+ExprNGXVisitor::result_type ExprNGXVisitor::visitVar(const std::string &name, const std::string &type) {
+  std::auto_ptr<SGX::ASTNodeVar> astNode(new SGX::ASTNodeVar);
+  astNode->name() = name;
+  astNode->valueType() = type;
+  return astNode.release();
+}
+
+ExprNGXVisitor::result_type ExprNGXVisitor::visitLiteral(const std::string &type, const std::string &value) {
+  std::auto_ptr<SGX::ASTNodeLiteral> astNode(new SGX::ASTNodeLiteral);
+  astNode->valueType() = type;
+  astNode->value() = value;
+  return astNode.release();
+}
+
+ExprNGXVisitor::result_type ExprNGXVisitor::visitMemGuard(const std::string &name, const std::string &reType, const ParamInfoList &params) {
+  std::auto_ptr<SGX::ASTNodeMemGuard> astNode(new SGX::ASTNodeMemGuard);
+  astNode->name() = name;
+  astNode->valueType() = reType;
+  
+  SGX::ParameterList::Ref sgxParams = astNode->parameters();
+  for (ParamInfoList::const_iterator pIter = params.begin();
+       pIter != params.end();
+       ++pIter) {
+    SGX::Parameter p(pIter->type, pIter->value);
+    sgxParams.push_back(p);
+  }
+  return astNode.release();
+}
+
+ExprNGXVisitor::result_type ExprNGXVisitor::visitEvent(const std::string &name) {
+  std::auto_ptr<SGX::ASTNodeEvent> astNode(new SGX::ASTNodeEvent);
+  astNode->name() = name;
+  astNode->valueType() = typeid(bool).name();
+  return astNode.release();
+}
+
+ExprNGXVisitor::result_type ExprNGXVisitor::visitPortTokens(smoc_sysc_port &p) {
+  std::auto_ptr<SGX::ASTNodePortTokens> astNode(new SGX::ASTNodePortTokens);
+  SCPortBase2Port::iterator iter = ports.find(&p);
+  assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
+  astNode->port() = iter->second;
+  astNode->valueType() = typeid(size_t).name();
+  return astNode.release();
+}
+
+ExprNGXVisitor::result_type ExprNGXVisitor::visitToken(smoc_sysc_port &p, size_t n) {
+  std::auto_ptr<SGX::ASTNodeToken> astNode(new SGX::ASTNodeToken);
+  SCPortBase2Port::iterator iter = ports.find(&p);
+  assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
+  astNode->port() = iter->second;
+  astNode->pos() = n;
+  return astNode.release();
+}
+
+ExprNGXVisitor::result_type ExprNGXVisitor::visitComm(smoc_sysc_port &p, boost::function<result_type (base_type &)> e) {
+  std::auto_ptr<SGX::ASTNodeComm> astNode(new SGX::ASTNodeComm);
+  SCPortBase2Port::iterator iter = ports.find(&p);
+  assert(iter != ports.end() && "WTF?!: Got port in activation pattern which is not from the same actor as the FSM?!");
+  astNode->port() = iter->second;
+  std::auto_ptr<SGX::ASTNode> childNode(e(*this));
+  astNode->childNode() = childNode->toPtr();
+  return astNode.release();
+}
+
+ExprNGXVisitor::result_type ExprNGXVisitor::visitUnOp(
+    OpUnT op,
+    boost::function<result_type (base_type &)> e)
+{
+  std::auto_ptr<SGX::ASTNodeUnOp> astNode(new SGX::ASTNodeUnOp);
+  astNode->opType() = op;
+  std::auto_ptr<SGX::ASTNode> childNode(e(*this));
+  astNode->childNode() = childNode->toPtr();
+  return astNode.release();
+}
+
+ExprNGXVisitor::result_type ExprNGXVisitor::visitBinOp(
+    OpBinT op,
+    boost::function<result_type (base_type &)> a,
+    boost::function<result_type (base_type &)> b)
+{
+  std::auto_ptr<SGX::ASTNodeBinOp> astNode(new SGX::ASTNodeBinOp);
+  astNode->opType() = op;
+  std::auto_ptr<SGX::ASTNode> leftNode(a(*this));
+  astNode->leftNode() = leftNode->toPtr();
+  std::auto_ptr<SGX::ASTNode> rightNode(a(*this));
+  astNode->rightNode() = rightNode->toPtr();
+  return astNode.release();
+}
+
+/*
+
+ExprNGXVisitor::result_type ExprNGXVisitor::operator()(ASTNodePortIteration &a) {
+  assert(!"Unimplemented");
+  // FIXME PROBLEMATIC!!!
+}
+
+*/
 
 struct SMXDumpCTX {
 };
@@ -185,6 +311,7 @@ public:
   // one hierarchy up
   ExpectedPortConnections &epc;
   SGX::Process            &proc;
+  SCPortBase2Port          ports;
 public:
   SGX::Process &getProcess()
     { return proc; }
@@ -260,6 +387,7 @@ public:
 #endif
     SGX::Port port(p.name(), p.getId());
     port.direction() = p.isInput() ? SGX::Port::In : SGX::Port::Out;
+    sassert(psv.ports.insert(std::make_pair(&p, &port)).second);
     psv.proc.ports().push_back(port);
     if (p.getParentPort()) {
 #ifdef SYSTEMOC_DEBUG
@@ -291,6 +419,7 @@ public:
     ChanAdapterBase *chanAdapterBase = dynamic_cast<ChanAdapterBase *>(p.get_interface());
     if (chanAdapterBase != NULL) {
       SGX::Port port(p.name());
+      sassert(psv.ports.insert(std::make_pair(&p, &port)).second);
       psv.proc.ports().push_back(port);
 #ifdef SYSTEMOC_DEBUG
       std::cerr << p.name() << " => unclassifiedPorts" << std::endl;
@@ -469,13 +598,23 @@ public:
           StateMap::const_iterator dIter = stateMap.find(tIter->getDestState());
           assert(dIter != stateMap.end());
           sgxTran.dstState() = dIter->second;
-          sgxTran.action() =
-            boost::apply_visitor(ActionNGXVisitor(),
-              const_cast<smoc_action &>(tIter->getAction()));
-          ASTNGXVisitor v;
-          sgxTran.activationPattern() =
-            SysteMoC::Detail::apply_visitor(v,
-              Expr::evalTo<Expr::AST>(tIter->getExpr()));
+          {
+            ActionNGXVisitor av;
+            sgxTran.action() = boost::apply_visitor(av,
+                const_cast<smoc_action &>(tIter->getAction()));
+          }
+          {
+            ExprNGXVisitor ev(sv.ports);
+            boost::scoped_ptr<SGX::ASTNode> astNode(
+              Expr::evalTo(ev, tIter->getExpr()));
+            sgxTran.activationPattern() = astNode->toPtr();
+          }
+/*        {
+            ASTNGXVisitor v;
+            sgxTran.activationPattern() =
+              SysteMoC::Detail::apply_visitor(v,
+                Expr::evalTo<Expr::AST>(tIter->getExpr()));
+          } */
           sgxTrans.push_back(sgxTran);
         }
       }
