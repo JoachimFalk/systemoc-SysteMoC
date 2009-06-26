@@ -684,7 +684,8 @@ void FiringFSMImpl::finalise(
           if(ins.second) {
             // FIXME: construct state name and pass to RuntimeState
             ins.first->second =
-              *rts.insert(new RuntimeState(asStr(ins.first->first))).first;  
+              *rts.insert(new RuntimeState
+                (Concat(actor->name())(":")(ins.first->first))).first;  
             ns.push_back(ins.first);
           }
 
