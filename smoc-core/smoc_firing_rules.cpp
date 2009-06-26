@@ -568,7 +568,8 @@ void FiringFSMImpl::finalise(
     ProdState psinit;
     top->getInitialState(psinit, Marking());
 
-    init = *rts.insert(new RuntimeState(asStr(psinit))).first;
+    init = *rts.insert(new RuntimeState
+      (Concat(actor->name())(":")(psinit))).first;
     ns.push_back(
         st.insert(STEntry(psinit, init)).first);
 
