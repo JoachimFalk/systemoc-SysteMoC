@@ -1,6 +1,7 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -33,30 +34,18 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
+#include "IdedObj.hpp"
 
-#include <systemoc/smoc_ast_systemoc.hpp>
-#include <systemoc/detail/smoc_pggen.hpp>
+#ifndef _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
+#define _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
 
-#include <string.h> // for smoc_ast_common.cpp
+namespace SysteMoC { namespace Detail {
 
-namespace SysteMoC { namespace ActivationPattern {
+class NamedIdedObj: public IdedObj {
+public:
+  virtual const char *name() const = 0;
+};
 
-// Common code between SysteMoC and AC-PG-Access. But compiled
-// differently between SysteMoC and AC-PG-Access. For SysteMoC
-// compilation use definitions from smoc_ast_systemoc.hpp
-#include "smoc_ast_common.cpp"
+} } // namespace SysteMoC::Detail
 
-std::ostream &operator << (std::ostream &o, const ValueContainer &value)
-  { return o << static_cast<const std::string &>(value); }
-
-std::ostream &operator << (std::ostream &o, const TypeIdentifier &type)
-  { return o << static_cast<const std::string &>(type); }
-
-std::ostream &operator << (std::ostream &o, const SymbolIdentifier &symbol)
-  { return o << static_cast<const std::string &>(symbol); }
-
-ValueContainer::ValueContainer(const ValueTypeContainer &vt)
-  : value(vt.value) {}
-
-} } // namespace SysteMoC::ActivationPattern
+#endif // _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP

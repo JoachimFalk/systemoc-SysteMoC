@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -33,30 +33,38 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_DETAIL_SMOC_PGGEN_HPP
+#define _INCLUDED_DETAIL_SMOC_PGGEN_HPP
+
+#include <ostream>
+
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_ast_systemoc.hpp>
-#include <systemoc/detail/smoc_pggen.hpp>
+#ifdef SYSTEMOC_ENABLE_SGX
+#include <sgx.hpp>
+#endif // SYSTEMOC_ENABLE_SGX
 
-#include <string.h> // for smoc_ast_common.cpp
+namespace SysteMoC { namespace Detail {
 
-namespace SysteMoC { namespace ActivationPattern {
+#ifdef SYSTEMOC_ENABLE_SGX
+namespace SGX = SystemCoDesigner::SGX;
+#endif // SYSTEMOC_ENABLE_SGX
+ 
+#ifdef SYSTEMOC_ENABLE_SGX
+extern SystemCoDesigner::SGX::NetworkGraphAccess ngx;
+#endif // SYSTEMOC_ENABLE_SGX
 
-// Common code between SysteMoC and AC-PG-Access. But compiled
-// differently between SysteMoC and AC-PG-Access. For SysteMoC
-// compilation use definitions from smoc_ast_systemoc.hpp
-#include "smoc_ast_common.cpp"
+extern bool          dumpSMXWithSim;
+extern std::ostream* dumpFileSMX;
+extern bool          dumpFSMs;
 
-std::ostream &operator << (std::ostream &o, const ValueContainer &value)
-  { return o << static_cast<const std::string &>(value); }
+} } // namespace SysteMoC::Detail
 
-std::ostream &operator << (std::ostream &o, const TypeIdentifier &type)
-  { return o << static_cast<const std::string &>(type); }
+// Backward compatibility cruft
+namespace smoc_modes {
+  using SysteMoC::Detail::dumpSMXWithSim;
+  using SysteMoC::Detail::dumpFileSMX;
+  using SysteMoC::Detail::dumpFSMs;
+} // namespace smoc_modes
 
-std::ostream &operator << (std::ostream &o, const SymbolIdentifier &symbol)
-  { return o << static_cast<const std::string &>(symbol); }
-
-ValueContainer::ValueContainer(const ValueTypeContainer &vt)
-  : value(vt.value) {}
-
-} } // namespace SysteMoC::ActivationPattern
+#endif // _INCLUDED_DETAIL_SMOC_PGGEN_HPP

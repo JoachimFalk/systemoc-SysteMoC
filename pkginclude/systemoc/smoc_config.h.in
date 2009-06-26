@@ -3,6 +3,9 @@
 #ifndef _INCLUDED_SMOC_CONFIG_H
 #define _INCLUDED_SMOC_CONFIG_H
 
+/* Define if you compile with LibSGX */
+#undef SYSTEMOC_ENABLE_SGX
+
 /* Defined if SystemC-VPC support is enabled */
 #undef SYSTEMOC_ENABLE_VPC
 

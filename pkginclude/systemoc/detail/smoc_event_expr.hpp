@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_EVENT_EXPR_HPP
-#define _INCLUDED_SMOC_EVENT_EXPR_HPP
+#ifndef _INCLUDED_DETAIL_SMOC_EVENT_EXPR_HPP
+#define _INCLUDED_DETAIL_SMOC_EVENT_EXPR_HPP
 
 #include <systemoc/smoc_config.h>
 
@@ -117,4 +117,4 @@ SMOCEvent::type till(smoc_event_waiter &e)
 
 } // namespace Expr
 
-#endif // _INCLUDED_SMOC_EVENT_EXPR_HPP
+#endif // _INCLUDED_DETAIL_SMOC_EVENT_EXPR_HPP

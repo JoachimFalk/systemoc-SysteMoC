@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -36,53 +36,8 @@
 #ifndef _INCLUDED_SMOC_PGGEN_HPP
 #define _INCLUDED_SMOC_PGGEN_HPP
 
-#include <ostream>
-#include <exception>
+#warning "The systemoc/smoc_pggen.hpp header is obsolete do not include it!"
 
-#include <CoSupport/Streams/FilterOStream.hpp>
-#include <CoSupport/Streams/IndentStreambuf.hpp>
-#include <CoSupport/Streams/TranslationStreambuf.hpp>
-
-#include <systemoc/smoc_config.h>
-
-class smoc_root_node;
-
-namespace smoc_modes {
-
-  extern bool dumpSMXWithSim;
-  extern std::ostream* dumpFileSMX;
-  extern bool dumpFSMs;
-
-  class eNoChannel : public std::exception {};
-  class eNoInterface : public std::exception {};
-  class eNoPort : public std::exception {};
-
-  class PGWriter {
-    friend class Node;
-  protected:
-    CoSupport::Streams::FilterOStream out;
-    CoSupport::Streams::IndentStreambuf indenter;
-    CoSupport::Streams::TranslationStreambuf trans;
-  public:
-    PGWriter(std::ostream &_out)
-      : out(_out)
-      { out.insert(indenter); out.insert(trans); }
-    
-    void indentUp() 
-      { indenter.setDeltaLevel(1); }
-    void indentDown()
-      { indenter.setDeltaLevel(-1); }
-
-    template <typename T>
-    std::ostream &operator << (T t) { return out << t; }
-
-    ~PGWriter() {
-      out.flush();
-    }
-  };
-
-  // compatibility methods
-  void dump(std::ostream& out, smoc_root_node&);
-};
+#include "detail/smoc_pggen.hpp"
 
 #endif // _INCLUDED_SMOC_PGGEN_HPP

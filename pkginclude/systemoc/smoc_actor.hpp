@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2008 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -33,46 +33,37 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_ROOT_PORT_HPP
-#define _INCLUDED_SMOC_ROOT_PORT_HPP
-
-#include <iostream>
-#include <cassert>
-#include <list>
-#include <utility>
-
-#include <boost/noncopyable.hpp>
-
-#include <CoSupport/commondefs.h>
-#include <CoSupport/Streams/stl_output_for_list.hpp>
-#include <CoSupport/Streams/stl_output_for_pair.hpp>
-#include <CoSupport/DataTypes/oneof.hpp>
+#ifndef _INCLUDED_SMOC_ACTOR_HPP
+#define _INCLUDED_SMOC_ACTOR_HPP
 
 #include <systemoc/smoc_config.h>
+#include <sgx.hpp>
 
-#include "../smoc_expr.hpp"
-#include "../smoc_event.hpp"
+#include "smoc_root_node.hpp"
 
-class smoc_root_node;
-
-class smoc_root_port: public boost::noncopyable {
-public:
-  typedef smoc_root_port  this_type;
-
-//template <class E> friend class Expr::Value;
-  friend class smoc_root_node;
-//friend class hscd_choice_active_node;
-public:
-  virtual bool        isInput() const = 0;
-  bool                isOutput() const
-    { return !isInput(); }
-
-  virtual ~smoc_root_port();
+class smoc_actor
+: public smoc_root_node {
 protected:
-  /// Finalise port called by smoc_root_node::finalise
-  virtual void finalise(smoc_root_node *node) = 0;
+//explicit smoc_actor(sc_module_name name, const smoc_firing_state &s)
+//  : smoc_root_node(s), sc_module(name) {}
+//smoc_actor(const smoc_firing_state &s)
+//  : smoc_root_node(s),
+//    sc_module(sc_gen_unique_name("smoc_actor")) {}
+  explicit smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
+  smoc_actor(smoc_firing_state &s);
+
+#ifdef SYSTEMOC_DEBUG
+  ~smoc_actor();
+#endif
+public:
+#ifdef SYSTEMOC_ENABLE_SGX
+  
+  void finalise();
+
+private:
+  SystemCoDesigner::SGX::Actor::Ptr ac;
+  void assembleXML();
+#endif
 };
 
-typedef std::list<smoc_root_port *> smoc_root_port_list;
-
-#endif // _INCLUDED_SMOC_ROOT_PORT_HPP
+#endif // _INCLUDED_SMOC_ACTOR_HPP

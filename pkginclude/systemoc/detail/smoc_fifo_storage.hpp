@@ -102,24 +102,28 @@ protected:
   /// @brief Destructor
   ~smoc_fifo_storage()
     { delete[] storage; }
-  
-  /// @brief See smoc_root_chan
-  void channelContents(smoc_modes::PGWriter &pgw) const {
-    pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
-    {
-      //*************************INITIAL TOKENS, ETC...***************************
-      pgw.indentUp();
-      for(size_t n = 0; n < this->visibleCount(); ++n) {
-        pgw << "<token value=\""
-            << CoSupport::Streams::TranslationMap::XMLAttr()
-            << storage[n].get()
-            << CoSupport::Streams::TranslationMap::None() 
-            << "\"/>" << std::endl;
-      }
-      pgw.indentDown();
-    }
-    pgw << "</fifo>" << std::endl;
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  void finalise() {
+    BASE::finalise();
+    assembleXML();
   }
+
+  void assembleXML() {
+    using namespace SystemCoDesigner::SGX;
+
+    // ugly (BASE class must have channel variable)
+    assert(BASE::fifo);
+
+    BASE::fifo->type().set(typeid(data_type).name());
+
+    for(size_t n = 0; n < this->visibleCount(); ++n) {
+      Token t; 
+      t.value().set(asStr(storage[n].get()));
+      BASE::fifo->initialTokens().push_back(t);
+    }
+  }
+#endif
 
   access_in_type_impl  *getReadPortAccess() {
     return new access_in_type_impl(
@@ -178,19 +182,6 @@ protected:
     wpp(i.marking); vpp(i.marking);
   }
   
-  /// @brief See smoc_root_chan
-  void channelContents(smoc_modes::PGWriter &pgw) const {
-    pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\">" << std::endl;
-    {
-      //*************************INITIAL TOKENS, ETC...***************************
-      pgw.indentUp();
-      for ( size_t n = 0; n < this->visibleCount(); ++n )
-        pgw << "<token value=\"bot\"/>" << std::endl;
-      pgw.indentDown();
-    }
-    pgw << "</fifo>" << std::endl;
-  }
-
   access_in_type_impl  *getReadPortAccess()
     { return new access_in_type_impl(); }
   

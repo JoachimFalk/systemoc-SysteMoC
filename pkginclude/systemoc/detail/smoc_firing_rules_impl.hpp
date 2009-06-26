@@ -37,20 +37,25 @@
 #ifndef _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP
 #define _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP
 
+#include <list>
+#include <set>
+#include <vector>
+
 #include <systemoc/smoc_config.h>
 
 #include "../smoc_func_call.hpp"
 #include "../smoc_firing_rules.hpp"
 
-#include <list>
-#include <set>
-#include <vector>
+#include "smoc_pggen.hpp"
+#include "NamedIdedObj.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {
   class FastLink;
 } // namespace SystemC_VPC
 #endif //SYSTEMOC_ENABLE_VPC
+
+class smoc_root_node;
 
 //class FiringStateBaseImpl;
 //DECL_INTRUSIVE_REFCOUNT_PTR(FiringStateBaseImpl, PFiringStateBaseImpl);
@@ -222,16 +227,33 @@ public:
 
 typedef std::list<RuntimeTransition> RuntimeTransitionList;
 
-class RuntimeState : public sc_object {
+class RuntimeState
+: public SysteMoC::Detail::NamedIdedObj {
+  typedef RuntimeState                    this_type;
+  typedef SysteMoC::Detail::NamedIdedObj  base_type;
 private:
+  std::string           _name;
   RuntimeTransitionList t;
-public:
-  RuntimeState();
 
-  ~RuntimeState();
+#ifdef SYSTEMOC_ENABLE_SGX
+  SystemCoDesigner::SGX::FiringState::Ptr state;
+  void assembleXML();
+#endif
+
+public:
+  RuntimeState(const std::string name);
 
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  SystemCoDesigner::SGX::FiringState::Ptr getState() const;
+#endif
+
+  const char *name() const
+    { return _name.c_str(); }
+
+  ~RuntimeState();
 };
 
 typedef std::set<RuntimeState*> RuntimeStateSet;
@@ -257,6 +279,11 @@ private:
 
   RuntimeState* init;
   RuntimeStateSet rts;
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  SystemCoDesigner::SGX::FiringFSM::Ptr fsm;
+  void assembleXML();
+#endif
 
 public:
   /// @brief Constructor
@@ -293,6 +320,10 @@ public:
   const RuntimeStateSet& getStates() const;
 
   RuntimeState* getInitialState() const;
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  SystemCoDesigner::SGX::FiringFSM::Ptr getFSM() const;
+#endif
 };
 
 class FiringStateBaseImpl {

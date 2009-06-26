@@ -11,7 +11,7 @@
 #include "smoc_md_loop.hpp"
 #include <wsdf/smoc_md_array.hpp>
 #include "detail/smoc_md_chan_if.hpp"
-#include "smoc_pggen.hpp"
+#include "detail/smoc_pggen.hpp"
 #include <wsdf/smoc_wsdf_edge.hpp>
 
 #ifndef VERBOSE_LEVEL_SMOC_MD_BUFFER
@@ -412,8 +412,8 @@ public:
   }
 
 public:
-  /* Functions for problem graph generation */
-  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const;
+///* Functions for problem graph generation */
+//virtual void channelAttributes(SysteMoC::Detail::PGWriter &pgw) const;
 
 protected:
   /// Current source and sink iteration vectors.
@@ -862,8 +862,8 @@ public:
     ptr = NULL;
   }
 
-  /* Functions for problem graph generation */
-  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const;
+///* Functions for problem graph generation */
+//virtual void channelAttributes(SysteMoC::Detail::PGWriter &pgw) const;
 
 
 protected:

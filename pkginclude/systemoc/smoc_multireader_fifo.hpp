@@ -49,6 +49,8 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <sgx.hpp>
+
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
@@ -115,12 +117,6 @@ protected:
   /// @brief Constructor
   smoc_multireader_fifo_chan_base(const chan_init &i);
 
-  /// @brief See smoc_root_chan
-  void assemble(smoc_modes::PGWriter &pgw) const;
-
-  /// @brief See smoc_root_chan
-  void channelAttributes(smoc_modes::PGWriter &pgw) const;
-
   /// @brief SystemC callback
   void start_of_simulation();
 
@@ -149,6 +145,11 @@ protected:
 
   /// @brief Available free space
   size_t numFree() const;
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  SystemCoDesigner::SGX::Fifo::Ptr fifo;
+  void finalise();
+#endif
 
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -182,6 +183,10 @@ private:
   
   /// @brief Called by entries when less space is available
   void lessSpace(size_t n);
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  void assembleXML();
+#endif
 };
 
 template<class> class smoc_multireader_fifo_chan;

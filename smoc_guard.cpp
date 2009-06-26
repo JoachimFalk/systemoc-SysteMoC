@@ -39,7 +39,7 @@
 #include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 #include <systemoc/smoc_guard.hpp>
-#include <systemoc/smoc_pggen.hpp>
+#include <systemoc/detail/smoc_pggen.hpp>
 
 void smoc_activation_pattern::finalise() {
 #ifdef SYSTEMOC_DEBUG
@@ -48,9 +48,7 @@ void smoc_activation_pattern::finalise() {
   // unititialized data
   std::cerr << "smoc_activation_pattern::finalise(), this == " << this << std::endl;
 #endif
-  // Preallocate ID
-  //smoc_modes::PGWriter::getId(this);
-  
+
   Expr::evalTo<Expr::Sensitivity>(guard, *this);
 }
 

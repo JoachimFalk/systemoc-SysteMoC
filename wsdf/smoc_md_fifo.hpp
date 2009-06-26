@@ -186,10 +186,10 @@ protected:
 
   /* Functions for generation of problem graph */
 
-  /// This function returns a string indentifying the channel type
-  virtual const char* getChannelTypeString() const;
+///// This function returns a string indentifying the channel type
+//virtual const char* getChannelTypeString() const;
 
-  void channelAttributes(smoc_modes::PGWriter &pgw) const;
+//void channelAttributes(SysteMoC::Detail::PGWriter &pgw) const;
 
   const char *name() const { return smoc_nonconflicting_chan::name(); }
 
@@ -282,7 +282,7 @@ smoc_md_fifo_kind<BUFFER_CLASS>::smoc_md_fifo_kind(const chan_init &i)
   , buffer_analysis(i.ba_ui != NULL ? 
                     i.ba_ui->create_buffer_analysis_object(this->src_loop_iterator,
 							       this->snk_loop_iterator) :
-                    smoc_modes::dumpSMXWithSim ?
+                    SysteMoC::Detail::dumpSMXWithSim ?
                     //use buffer analysis by default in order
                     //to get size of FIFO
                     new smoc_md_ba::smoc_mb_ba_lin_buffer_size(this->src_loop_iterator,
@@ -761,17 +761,19 @@ smoc_event& smoc_md_fifo_kind<BUFFER_CLASS>::getEventFree(size_t n) {
   }
 };
 
+/*
 template <class BUFFER_CLASS>
 const char* 
 smoc_md_fifo_kind<BUFFER_CLASS>::getChannelTypeString() const {
   const char* my_type = "md_fifo";
   return my_type;
 }
+*/
 
-
+#if 0
 template <class BUFFER_CLASS>
 void 
-smoc_md_fifo_kind<BUFFER_CLASS>::channelAttributes(smoc_modes::PGWriter &pgw) const {
+smoc_md_fifo_kind<BUFFER_CLASS>::channelAttributes(SysteMoC::Detail::PGWriter &pgw) const {
   
   BUFFER_CLASS::channelAttributes(pgw);
 
@@ -787,13 +789,7 @@ smoc_md_fifo_kind<BUFFER_CLASS>::channelAttributes(smoc_modes::PGWriter &pgw) co
   }
 #endif    
 };
-
-
-
-
-
-
-
+#endif
 
 /// Provide the multi-dimensional FIFO with the SysteMoC Channel Interface
 template <typename T_DATA_TYPE, 
@@ -914,9 +910,9 @@ protected:
   return r;
   }
 
-  virtual void channelContents(smoc_modes::PGWriter &pgw) const {
+/*virtual void channelContents(SysteMoC::Detail::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\"/>" << std::endl;
-  };  
+  };  */
 
 };
 
@@ -1021,9 +1017,9 @@ protected:
   return r;
   }
 
-  void channelContents(smoc_modes::PGWriter &pgw) const {
+/*void channelContents(SysteMoC::Detail::PGWriter &pgw) const {
     pgw << "<fifo tokenType=\"" << typeid(data_type).name() << "\"/>" << std::endl;
-  };  
+  }; */
 
 
   ~smoc_md_fifo_storage() { 

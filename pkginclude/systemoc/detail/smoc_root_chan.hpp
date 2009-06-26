@@ -34,8 +34,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_ROOT_CHAN_HPP
-#define _INCLUDED_SMOC_ROOT_CHAN_HPP
+#ifndef _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP
+#define _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP
 
 #include <list>
 
@@ -47,7 +47,7 @@
 
 #include "smoc_sysc_port.hpp"
 #include "../smoc_event.hpp"
-#include "../smoc_pggen.hpp"
+#include "smoc_pggen.hpp"
 #include "../smoc_storage.hpp"
 #include "smoc_chan_if.hpp"
 #include "smoc_port_registry.hpp"
@@ -82,6 +82,8 @@ protected:
   // constructor
   smoc_root_chan(const std::string& name);
 
+  void generateName();
+
   virtual void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
                              std::string name ) {};
@@ -89,9 +91,10 @@ protected:
   virtual void finalise();
   virtual void reset() {}
 
-  virtual void assemble(smoc_modes::PGWriter &pgw)          const = 0;
-  virtual void channelContents(smoc_modes::PGWriter &pgw)   const = 0;
-  virtual void channelAttributes(smoc_modes::PGWriter &pgw) const = 0;
+#ifdef SYSTEMOC_ENABLE_SGX
+  SystemCoDesigner::SGX::Process::Ptr proc;
+  void assembleXML();
+#endif
   
 public:
   const char *name() const { return myName.c_str(); }
@@ -111,10 +114,8 @@ protected:
 
   virtual void finalise();
 
-  void assemble(smoc_modes::PGWriter &pgw) const;
-
-  /// This function returns a string indentifying the channel type
-  virtual const char* getChannelTypeString() const;
+///// This function returns a string indentifying the channel type
+//virtual const char* getChannelTypeString() const;
 };
 
 class smoc_multicast_chan : public smoc_root_chan {
@@ -126,8 +127,6 @@ protected:
     : smoc_root_chan(name) {}
 
   virtual void finalise();
-
-  void assemble(smoc_modes::PGWriter &pgw) const;
 };
 
-#endif // _INCLUDED_SMOC_ROOT_CHAN_HPP
+#endif // _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP

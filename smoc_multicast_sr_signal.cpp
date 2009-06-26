@@ -37,12 +37,6 @@ void smoc_multicast_sr_signal_chan_base::setSignalState(SignalState s) {
   signalState = s;
 }
 
-void smoc_multicast_sr_signal_chan_base::channelAttributes(
-    smoc_modes::PGWriter &pgw) const {
-  // Signal has no size!!
-  // pgw << "<attribute type=\"size\" value=\"1\"/>" << std::endl;
-}
-
 smoc_multicast_sr_signal_chan_base::smoc_multicast_sr_signal_chan_base(
     const chan_init &i)
   : smoc_multicast_chan(i.name),

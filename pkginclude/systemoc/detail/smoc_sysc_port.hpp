@@ -34,33 +34,38 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_SYSC_PORT_HPP
-#define _INCLUDED_SMOC_SYSC_PORT_HPP
+#ifndef _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP
+#define _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP
 
 #include <list>
+
+#include <boost/noncopyable.hpp>
 
 #include <systemc.h>
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_root_port.hpp"
+#include <sgx.hpp>
 
 /****************************************************************************/
 
 class smoc_port_access_base_if;
 
-/// Class representing the integration of the SysteMoC smoc_root_port and
-/// the sc_port_base interface.
+/// Class representing the base class of all SysteMoC ports.
 class smoc_sysc_port
-: public smoc_root_port,
-  public sc_port_base {
+: public sc_core::sc_port_base,
+  private boost::noncopyable
+{
+  friend class smoc_root_node;
+
   typedef smoc_sysc_port this_type;
 //FIXME: HACK make protected or private
 public:
   sc_interface             *interfacePtr;
   smoc_port_access_base_if *portAccess;
   //FIXME(MS): allow more than one "IN-Port" per Signal
-  smoc_sysc_port *parent, *child;
+  smoc_sysc_port           *parent;
+  smoc_sysc_port           *child;
 private:
   // SystemC 2.2 requires this method
   // (must also return the correct number!!!)
@@ -74,17 +79,17 @@ protected:
   smoc_sysc_port(const char* name_);
 
   // bind interface to this port
-  void bind(sc_interface &interface_ ) {
-    sc_port_base::bind(interface_);
-  }
-
+  void bind(sc_interface &interface_ );
   // bind parent port to this port
-  void bind(this_type &parent_) {
-    assert(parent == NULL && parent_.child == NULL);
-    parent        = &parent_;
-    parent->child = this;
-    sc_port_base::bind(parent_);
-  }
+  void bind(this_type &parent_);
+
+  virtual void finalise();
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  friend class smoc_root_chan;
+  SystemCoDesigner::SGX::Port::Ptr port;
+  void assembleXML();
+#endif
 
   virtual ~smoc_sysc_port();
 public:
@@ -96,9 +101,13 @@ public:
     { return parent; }
   smoc_sysc_port *getChildPort() const
     { return child; }
+
+  virtual bool isInput()  const = 0;
+  bool         isOutput() const
+    { return !isInput(); }
 };
 
 typedef std::list<smoc_sysc_port *> smoc_sysc_port_list;
-typedef std::list<sc_port_base*> sc_port_list;
+typedef std::list<sc_port_base*>    sc_port_list;
 
-#endif // _INCLUDED_SMOC_SYSC_PORT_HPP
+#endif // _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP

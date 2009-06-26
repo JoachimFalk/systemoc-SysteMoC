@@ -40,7 +40,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_sr_signal.hpp>
 #include <systemoc/smoc_multicast_sr_signal.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
+#include <systemoc/detail/smoc_pggen.hpp>
 
 #include <CoSupport/DataTypes/oneof.hpp>
 
@@ -50,6 +50,7 @@
 # define DEBUG_CODE(code) do {} while(0);
 #endif
 
+using namespace SystemCoDesigner::SGX;
 using namespace CoSupport;
 
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
@@ -78,56 +79,26 @@ void smoc_scheduler_top::start_of_simulation()
 
 void smoc_scheduler_top::end_of_simulation() {
   simulation_running = false;
-  if(smoc_modes::dumpFileSMX && smoc_modes::dumpSMXWithSim)
+  if(SysteMoC::Detail::dumpFileSMX && SysteMoC::Detail::dumpSMXWithSim)
     dump();
 }
 
 void smoc_scheduler_top::end_of_elaboration() {
   g->finalise();
   g->reset();
-  if(smoc_modes::dumpFileSMX && !smoc_modes::dumpSMXWithSim) {
+  if(SysteMoC::Detail::dumpFileSMX && !SysteMoC::Detail::dumpSMXWithSim) {
     dump();
     sc_core::sc_stop();
   }
 }
   
 void smoc_scheduler_top::dump() {
-
-  // FIXME
-
-  smoc_modes::PGWriter pgw(*smoc_modes::dumpFileSMX);
-    
-  pgw << "<?xml version=\"1.0\"?>" << std::endl;
-  pgw << "<!DOCTYPE networkgraph SYSTEM \"networkgraph.dtd\">" << std::endl;
-  pgw << "<networkgraph name=\"smoc_modes::dump\">" << std::endl;
-  pgw.indentUp();
-  g->assemble( pgw );
-  pgw << "<architecturegraph name=\"architecture graph\" id=\"" << SysteMoC::NGXSync::idPool.printId() << "\">" << std::endl;
-  pgw << "</architecturegraph>" << std::endl;
-  pgw <<  "<mappings>" << std::endl;
-  pgw <<  "</mappings>" << std::endl;
-  pgw.indentDown();
-  pgw << "</networkgraph>" << std::endl;
+#ifdef SYSTEMOC_ENABLE_SGX
+  ArchitectureGraph ag("architecture graph");
+  SysteMoC::Detail::ngx.architectureGraphPtr() = &ag;
+  SysteMoC::Detail::ngx.save(*SysteMoC::Detail::dumpFileSMX);
+#endif
 }
-
-// FIXME: only needed in scheduleSR
-// remove after redesign of SR scheduler
-/*void smoc_scheduler_top::getLeafNodes(
-    smoc_node_list &nodes, smoc_graph_base *node)
-{
-  const smoc_node_list& n = node->getNodes();
-  
-  for ( smoc_node_list::const_iterator iter = n.begin();
-        iter != n.end();
-        ++iter ) {
-    if ( dynamic_cast<smoc_actor *>(*iter) != NULL ) {
-      nodes.push_back(*iter);
-    }
-    if ( dynamic_cast<smoc_graph_base *>(*iter) != NULL ) {
-      getLeafNodes(nodes, dynamic_cast<smoc_graph_base *>(*iter));
-    }
-  }
-}*/
 
 void smoc_scheduler_top::schedule() {
   smoc_transition_ready_list ol;

@@ -43,6 +43,7 @@
 #include <map>
 
 #include <CoSupport/commondefs.h>
+#include <sgx.hpp>
 
 #include <systemoc/smoc_config.h>
 
@@ -102,11 +103,6 @@ protected:
   /// @brief Constructor
   smoc_fifo_chan_base(const chan_init &i);
 
-  /// @brief See smoc_root_chan
-  void channelAttributes(smoc_modes::PGWriter &pgw) const {
-    pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
-  }
-
   /// @brief Detail::LatencyQueue callback
   void latencyExpired(size_t n) {
     vpp(n);
@@ -119,6 +115,11 @@ protected:
     emmFree.increasedCount(freeCount());
   }
 
+#ifdef SYSTEMOC_ENABLE_SGX
+  SystemCoDesigner::SGX::Fifo::Ptr fifo;
+  void finalise();
+#endif
+
 private:
   Detail::EventMapManager emmAvailable;
   Detail::EventMapManager emmFree;
@@ -129,6 +130,10 @@ private:
 
   /// @brief The token id of the next commit token
   size_t tokenId;
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  void assembleXML();
+#endif
 };
 
 template<class> class smoc_fifo_chan;

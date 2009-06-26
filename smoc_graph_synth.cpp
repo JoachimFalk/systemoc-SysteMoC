@@ -39,12 +39,17 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_graph_synth.hpp>
+#include <systemoc/detail/smoc_graph_synth.hpp>
 
-namespace SysteMoC {
+#include <CoSupport/DataTypes/container_insert.hpp>
+
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
+
+#define objAs CoSupport::DataTypes::dynamic_pointer_cast
+
+namespace SysteMoC { namespace Detail {
 
 using namespace SGX;
-using namespace NGXSync;
 
 // find non-hierarchical name
 // ("a.b.c" -> "c"; "a.b." -> "" ; "a" -> "a")
@@ -133,19 +138,19 @@ private:
 };
 
 smoc_graph_synth::smoc_graph_synth(ProblemGraph::ConstRef pg) :
-  smoc_graph_base(nameNH(pg.name().get()).c_str(), init, false),
+  smoc_graph_base(nameNH(pg.name().get()).c_str(), init/*, false*/),
   pg(pg),
   curNode(nodeInfos.end())
 {
   // register process and graph
-  idPool.regObj(this, pg.owner()->id(), 0);
-  idPool.regObj(this, pg.id(), 1);
+//idPool.regObj(this, pg.owner()->id(), 0);
+//idPool.regObj(this, pg.id(), 1);
   
   generateFSM();
 }
 
 void smoc_graph_synth::cachePhase(PortRefList::ConstRef ports, Phase& phase) {
-  for(PortRefList::const_iterator pIter = ports.begin();
+/*for(PortRefList::const_iterator pIter = ports.begin();
       pIter != ports.end();
       ++pIter)
   {
@@ -155,6 +160,7 @@ void smoc_graph_synth::cachePhase(PortRefList::ConstRef ports, Phase& phase) {
     assert(rp);
     phase[rp] = pIter->attrValueAsSizeT("count").get();
   }
+ */
 }
 
 void smoc_graph_synth::cachePhases(Actor::ConstPtr actor, Phases& phases) {
@@ -183,6 +189,7 @@ void smoc_graph_synth::cachePhases(Actor::ConstPtr actor, Phases& phases) {
 smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
     PortReqMap::const_iterator i, PortReqMap::const_iterator e)
 {
+  /*
   assert(i != e);
   smoc_sysc_port *p = NGXCache::getInstance().getCompiledPort(i->first);
   assert(p);
@@ -202,6 +209,7 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
     else
       return pg;
   }
+   */
 }
 
 smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
@@ -212,7 +220,7 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
 }
 
 void smoc_graph_synth::prepareActorFiring() {
-  
+/*
   ActorFiring::ConstPtr af = objAs<ActorFiring>(ca);
   assert(af);
   assert(arm[af]);
@@ -269,6 +277,7 @@ void smoc_graph_synth::prepareActorFiring() {
   ni.count = (ni.count + 1) % ni.phases.size();
     
   --arm[af];
+ */
 }
 
 void smoc_graph_synth::prepareCompoundAction() {
@@ -489,4 +498,4 @@ void smoc_graph_synth::generateFSM() {
 //}
 }
 
-} // namespace SysteMoC
+} } // namespace SysteMoC::Detail

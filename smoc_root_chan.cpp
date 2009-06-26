@@ -37,9 +37,9 @@
 
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
 #include <systemoc/smoc_root_node.hpp>
-#include <systemoc/smoc_pggen.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
+#include <systemoc/detail/smoc_pggen.hpp>
 
 #include <map>
 #include <sstream>
@@ -48,7 +48,10 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-using namespace SysteMoC::NGXSync;
+#include <CoSupport/String/Concat.hpp>
+
+using namespace SysteMoC::Detail;
+using CoSupport::String::Concat;
 
 // value_type will be constructed as T(), which initializes primite types to 0!
 static std::map<std::string, size_t> _smoc_channel_name_map;
@@ -80,17 +83,47 @@ smoc_root_chan::smoc_root_chan(const std::string& name)
     , vpcLink(0)
 #endif
 {
-  idPool.regObj(this);
+//idPool.regObj(this);
 }
   
 smoc_root_chan::~smoc_root_chan() {
-  idPool.unregObj(this);
+//idPool.unregObj(this);
 }
 
 void smoc_root_chan::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_root_chan::finalise() begin, name == " << name() << std::endl;
 #endif
+
+  // will do no harm if already generated
+  generateName();
+
+#ifdef SYSTEMOC_ENABLE_SGX
+  assembleXML();
+#endif
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
+    getFastLink(myName, "1") );
+  assert(vpcLink);
+
+  // FIXME: root channel does not know how many outlets a channel should have
+  // (move this to smoc_nonconflicting_chan?)
+  if(!getOutlets().empty()) {
+
+    //FIXME: QUICKHACK:
+    this->setChannelID(
+        getOutlets().begin()->second->get_parent()->name(),
+        vpcLink->process,
+        myName);
+  }
+#endif //SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_DEBUG
+  std::cerr << "smoc_root_chan::finalise() end, name == " << name() << std::endl;
+#endif
+}
+
+void smoc_root_chan::generateName() {
   if (myName == "") {
     //Only overwrite if not specified by user
   
@@ -124,27 +157,61 @@ void smoc_root_chan::finalise() {
     genName << (_smoc_channel_name_map[genName.str()] += 1);
     myName = genName.str();
   }
-  
-#ifdef SYSTEMOC_ENABLE_VPC
-  vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
-    getFastLink(myName, "1") );
-  assert(vpcLink);
-
-  // FIXME: root channel does not know how many outlets a channel should have
-  // (move this to smoc_nonconflicting_chan?)
-  if(!getOutlets().empty()) {
-
-    //FIXME: QUICKHACK:
-    this->setChannelID(
-        getOutlets().begin()->second->get_parent()->name(),
-        vpcLink->process,
-        myName);
-  }
-#endif //SYSTEMOC_ENABLE_VPC
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_root_chan::finalise() end, name == " << name() << std::endl;
-#endif
 }
+
+#ifdef SYSTEMOC_ENABLE_SGX
+void smoc_root_chan::assembleXML() {
+  using namespace SystemCoDesigner::SGX;
+
+  assert(proc);
+
+  const EntryMap& entries = getEntries();
+  
+  // Portmappings are done in ProblemGraph
+
+  for(EntryMap::const_iterator iter = entries.begin();
+      iter != entries.end(); ++iter)
+  {
+    Port p(Concat(name())(".in"));
+    p.direction().set(Port::IN);
+    proc->ports().push_back(p);
+
+    // this is the channel input port and the node
+    // output port
+
+    // FIXME: better store the XML node as attribute
+    // in the sc_object?
+    smoc_sysc_port* np =
+      dynamic_cast<smoc_sysc_port*>(iter->second);
+    assert(np);
+
+    assert(np->port);
+    p.outerConnectedPort() = np->port;
+  }
+      
+  const OutletMap& outlets = getOutlets();
+
+  for(OutletMap::const_iterator iter = outlets.begin();
+      iter != outlets.end(); ++iter)
+  {
+    Port p(Concat(name())(".out"));
+    p.direction().set(Port::OUT);
+    proc->ports().push_back(p);
+    
+    // this is the channel output port and the node
+    // input port
+    
+    // FIXME: better store the XML node as attribute
+    // in the sc_object?
+    smoc_sysc_port* np =
+      dynamic_cast<smoc_sysc_port*>(iter->second);
+    assert(np);
+    
+    assert(np->port);
+    p.outerConnectedPort() = np->port;
+  }
+}
+#endif
 
 void smoc_nonconflicting_chan::finalise() {
   smoc_root_chan::finalise();
@@ -152,106 +219,8 @@ void smoc_nonconflicting_chan::finalise() {
   assert(getOutlets().size() == 1);
 }
 
-void smoc_nonconflicting_chan::assemble(smoc_modes::PGWriter &pgw) const {
-  const EntryMap& entries = getEntries();
-  const OutletMap& outlets = getOutlets();
-  
-  assert(entries.size() == 1);
-  assert(outlets.size() == 1);
-  
-  // Get the Id for the channel
-  IdAttr idChannel = idPool.printId(this);
-  
-  // Get the Ids for the actor ports
-  IdAttr idNodePortOut = idPool.printId(entries.begin()->second, 0);
-  IdAttr idNodePortIn  = idPool.printId(outlets.begin()->second, 0);
-  
-  assert(idNodePortOut != 0);
-  assert(idNodePortIn  != 0);
-  
-  // Get the Ids for the channel ports
-  IdAttr idChannelPortIn  = idPool.printId(entries.begin()->second, 1);
-  IdAttr idChannelPortOut = idPool.printId(outlets.begin()->second, 1);
-  
-  assert(idChannelPortIn  != 0);
-  assert(idChannelPortOut != 0);
-  
-  pgw << "<edge name=\""   << name() << ".to-edge\" "
-               "source=\"" << idNodePortOut << "\" "
-               "target=\"" << idChannelPortIn << "\" "
-               "id=\""     << idPool.printId() << "\"/>" << std::endl;
-  pgw << "<process name=\"" << name() << "\" "
-                  "type=\"" << getChannelTypeString() << "\" "
-                  "id=\"" << idChannel << "\">" << std::endl;
-  {
-    pgw.indentUp();
-    pgw << "<port name=\"" << name() << ".in\" "
-                 "type=\"in\" "
-                 "id=\"" << idChannelPortIn << "\"/>" << std::endl;
-    pgw << "<port name=\"" << name() << ".out\" "
-                 "type=\"out\" "
-                 "id=\"" << idChannelPortOut << "\"/>" << std::endl;
-    //*******************************ACTOR CLASS********************************
-    channelContents(pgw);   // initial tokens, etc...
-    channelAttributes(pgw); // fifo size, etc...
-    pgw.indentDown();
-  }
-  
-  pgw << "</process>" << std::endl;
-  pgw << "<edge name=\""   << name() << ".from-edge\" "
-               "source=\"" << idChannelPortOut << "\" "
-               "target=\"" << idNodePortIn << "\" "
-               "id=\""     << idPool.printId() << "\"/>" << std::endl;
-}
-
-const char* 
-smoc_nonconflicting_chan::getChannelTypeString() const {
-  const char* my_type = "fifo";
-  return my_type;
-}
-
 void smoc_multicast_chan::finalise() {
   smoc_root_chan::finalise();
   //assert(!getEntries().empty());
   //assert(!getOutlets().empty());
-}
-
-void smoc_multicast_chan::assemble(smoc_modes::PGWriter &pgw) const {
-  
-  assert(!getEntries().empty());
-  assert(!getOutlets().empty());
-  
-  // FIXME: BIG HACK !!!
-  const_cast<this_type *>(this)->finalise();
-  //NgId idChannel        = pgw.getId(this);
-  //NgId idChannelPortIn  = pgw.getId(reinterpret_cast<const char *>(this)+1);
-  //NgId idChannelPortOut = pgw.getId(reinterpret_cast<const char *>(this)+2);
- 
-  /* 
-  pgw << "<edge name=\""   << this->name() << ".to-edge\" "
-               "source=\"" << pgw.getId(portOut) << "\" "
-               "target=\"" << idChannelPortIn    << "\" "
-               "id=\""     << pgw.getId()        << "\"/>" << std::endl;
-  pgw << "<process name=\"" << this->name() << "\" "
-                  "type=\"fifo\" "
-                  "id=\"" << idChannel      << "\">" << std::endl;
-  {
-    pgw.indentUp();
-    pgw << "<port name=\"" << this->name() << ".in\" "
-                 "type=\"in\" "
-                 "id=\"" << idChannelPortIn << "\"/>" << std::endl;
-    pgw << "<port name=\"" << this->name() << ".out\" "
-                 "type=\"out\" "
-                 "id=\"" << idChannelPortOut << "\"/>" << std::endl;
-    // *****************************ACTOR CLASS********************************
-    channelContents(pgw);   // initial tokens, etc...
-    channelAttributes(pgw); // fifo size, etc...
-    pgw.indentDown();
-  }
-  pgw << "</process>" << std::endl;
-  pgw << "<edge name=\""   << this->name() << ".from-edge\" "
-               "source=\"" << idChannelPortOut       << "\" "
-               "target=\"" << pgw.getId(portIn)      << "\" "
-               "id=\""     << pgw.getId()            << "\"/>" << std::endl;
-  */
 }

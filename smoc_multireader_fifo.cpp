@@ -36,17 +36,12 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_multireader_fifo.hpp>
-#include <systemoc/smoc_ngx_sync.hpp>
-#include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-//using namespace SystemCoDesigner::SGX;
-using namespace SysteMoC::NGXSync;
-  
 smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init &i)
   : smoc_root_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -60,23 +55,36 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
   schedOutlets(i.so ? i.so : &schedDefault)
 {}
 
-void smoc_multireader_fifo_chan_base::assemble(smoc_modes::PGWriter &pgw) const {
- 
-  // TODO: Implement
-
-  IdAttr idChannel = idPool.printId(this);
-  
-  pgw << "<process name=\"" << name() << "\" "
-                  "type=\"multireader_fifo\" "
-                  "id=\"" << idChannel << "\">" << std::endl;
-
-  pgw << "</process>" << std::endl;
+#ifdef SYSTEMOC_ENABLE_SGX
+void smoc_multireader_fifo_chan_base::finalise() {
+  // FIXME: need name before XML can be constructed
+  generateName();
+  assembleXML();
+  smoc_root_chan::finalise();
 }
 
-void smoc_multireader_fifo_chan_base::channelAttributes(smoc_modes::PGWriter &pgw) const {
-  pgw << "<attribute type=\"size\" value=\"" << depthCount() << "\"/>" << std::endl;
+void smoc_multireader_fifo_chan_base::assembleXML() {
+  using namespace SystemCoDesigner::SGX;
+
+  assert(!fifo);
+
+  Fifo _fifo(this->name());
+  fifo = &_fifo;
+  proc = fifo;
+
+  // set some attributes
+  fifo->size().set(depthCount());
+
+  smoc_graph_base* parent =
+    dynamic_cast<smoc_graph_base*>(get_parent_object());
+
+  if(parent)
+    parent->addProcess(_fifo);
+  else
+    assert(!"FIFO has no parent!");
 }
-  
+#endif
+
 #ifdef SYSTEMOC_ENABLE_VPC
 void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n, const smoc_ref_event_p &diiEvent)
 #else

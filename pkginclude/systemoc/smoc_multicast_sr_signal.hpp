@@ -89,9 +89,6 @@ protected:
   size_t outTokenId() const
     { return tokenId; }
 
-  /// @brief See smoc_root_chan
-  void channelAttributes(smoc_modes::PGWriter &pgw) const;
-
   // constructors
   smoc_multicast_sr_signal_chan_base( const chan_init &i );
 
@@ -396,21 +393,6 @@ protected:
     { actualValue.reset(); }
   bool isValid() const
     { return actualValue.isValid(); }
-
-  void channelContents(smoc_modes::PGWriter &pgw) const {
-    pgw << "<sr_signal tokenType=\"" << typeid(data_type).name() << "\">"
-        << std::endl;
-    {
-      //FIXME(MS): Signal initialization should be disabled in future!
-      //*************************INITIAL TOKENS, ETC...************************
-      pgw.indentUp();
-      //      for ( size_t n = 0; n < this->usedStorage(); ++n )
-      if(this->getSignalState())
-        pgw << "<token value=\"" << actualValue.get() << "\"/>" << std::endl;
-      pgw.indentDown();
-    }
-    pgw << "</sr_signal>" << std::endl;
-  }
 };
 
 template <typename T>

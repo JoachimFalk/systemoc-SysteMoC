@@ -93,11 +93,12 @@ protected:
   smoc_port_base(const char *name_)
     : smoc_sysc_port(name_) {}
 
-  void finalise(smoc_root_node *node) {
+  void finalise() {
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "smoc_port_base::finalise(), name == " << this->name() << std::endl;
 #endif
     portAccess = (*this)->getChannelAccess();
+    smoc_sysc_port::finalise();
   }
 
   // get the channel access
