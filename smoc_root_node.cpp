@@ -62,7 +62,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s/*
 //  _guard(NULL)
 {
 #ifdef SYSTEMOC_ENABLE_VPC
-  commstate = new RuntimeState("commstate");
+  commstate = new RuntimeState();
   commstate->getTransitions().push_back(
       RuntimeTransition(
         this,
@@ -70,22 +70,8 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s/*
         smoc_func_diverge(this, &smoc_root_node::_communicate)));
 #endif // SYSTEMOC_ENABLE_VPC
 
-  /*local_constr_args.insert(
-      local_constr_args.end(),
-      global_constr_args.begin(),
-      global_constr_args.end());
-  global_constr_args.clear();
-  current_actor = this;*/
-  /*
-  while(!smoc_root_node::global_constr_args.empty()){
-    local_arg_vector.push_back(smoc_root_node::global_arg_stack.top());
-    smoc_root_node::global_arg_stack.pop();
-  }*/
 //if(regObj) idPool.regObj(this);
 }
- 
-//smoc_root_node *smoc_root_node::current_actor = NULL;
-//std::vector<std::pair<std::string, std::string> >smoc_root_node::global_constr_args; 
  
 #ifdef SYSTEMOC_ENABLE_VPC
 RuntimeState* smoc_root_node::_communicate() {
