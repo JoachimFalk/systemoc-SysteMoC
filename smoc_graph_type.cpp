@@ -91,7 +91,7 @@ void smoc_graph_base::getNodesRecursive( smoc_node_list & subnodes) const {
   //  return subnodes;
 }
  
-const smoc_chan_list& smoc_graph_base::getChans() const
+const smoc_chan_list &smoc_graph_base::getChans() const
   { return channels; }
 
 void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
@@ -121,6 +121,9 @@ void smoc_graph_base::finalise() {
   std::cerr << "smoc_graph_base::finalise() begin, name == " << name() << std::endl;
 #endif
 
+#ifdef SYSTEMOC_NEED_IDS
+
+#endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_SGX
   assembleXML();
 #endif
@@ -308,7 +311,7 @@ void smoc_graph_base::assembleXML() {
   }
   else {
     // Set as top problemgraph (has no process)
-    ngx.problemGraphPtr() = pg;
+    getSimCTX()->getExportNGX().problemGraphPtr() = pg;
   }
 }
 

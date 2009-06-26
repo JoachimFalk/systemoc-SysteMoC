@@ -36,7 +36,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_expr.hpp>
-#include <systemoc/detail/smoc_pggen.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 namespace Expr {
 

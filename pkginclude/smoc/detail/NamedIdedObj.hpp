@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
@@ -33,17 +34,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/detail/smoc_pggen.hpp>
+#include <systemoc/smoc_config.h>
+
+#include "IdedObj.hpp"
+
+#ifndef _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
+#define _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
 
 namespace SysteMoC { namespace Detail {
 
-#ifdef SYSTEMOC_ENABLE_SGX
-SystemCoDesigner::SGX::NetworkGraphAccess ngx;
-#endif // SYSTEMOC_ENABLE_SGX
-
-bool          dumpSMXWithSim = false;
-std::ostream *dumpFileSMX    = NULL;
-std::ostream *dumpTrace      = NULL;
-bool          dumpFSMs       = false;
+#ifdef SYSTEMOC_NEED_IDS
+class NamedIdedObj: public IdedObj {
+public:
+  virtual const char *name() const = 0;
+};
+#endif // SYSTEMOC_NEED_IDS
 
 } } // namespace SysteMoC::Detail
+
+#endif // _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP

@@ -46,8 +46,8 @@
 #include "../smoc_func_call.hpp"
 #include "../smoc_firing_rules.hpp"
 
-#include "smoc_pggen.hpp"
-#include "NamedIdedObj.hpp"
+#include <smoc/smoc_simulation_ctx.hpp>
+#include <smoc/detail/NamedIdedObj.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {
@@ -168,7 +168,10 @@ typedef std::list<ExpandedTransition> ExpandedTransitionList;
 
 class RuntimeState;
 
-class RuntimeTransition : public smoc_activation_pattern {
+class RuntimeTransition
+: public smoc_activation_pattern,
+  public SysteMoC::Detail::IdedObj,
+  public SysteMoC::Detail::SimCTXBase {
 private:
   /// @brief Parent node
   smoc_root_node *actor;
@@ -270,7 +273,8 @@ public:
 typedef std::set<RuntimeState*> RuntimeStateSet;
 typedef std::list<RuntimeState*> RuntimeStateList;
 
-class FiringFSMImpl {
+class FiringFSMImpl
+: public SysteMoC::Detail::SimCTXBase {
 public:
   typedef FiringFSMImpl this_type;
 

@@ -54,8 +54,8 @@
 #include "smoc_firing_rules.hpp"
 #include "detail/smoc_firing_rules_impl.hpp"
 #include "detail/smoc_sysc_port.hpp"
-#include "detail/NamedIdedObj.hpp"
-#include "detail/smoc_pggen.hpp"
+#include <smoc/detail/NamedIdedObj.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 #include "smoc_expr.hpp"
 #include "smoc_ast_systemoc.hpp"
 
@@ -69,7 +69,8 @@ namespace SysteMoC {
 // actors or graphs!
 class smoc_root_node
 : public sc_module,
-  public SysteMoC::Detail::NamedIdedObj {
+  public SysteMoC::Detail::NamedIdedObj,
+  public SysteMoC::Detail::SimCTXBase {
 public:
   friend class RuntimeTransition;
 private:

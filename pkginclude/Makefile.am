@@ -25,6 +25,10 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 nobase_include_HEADERS = \
+	smoc/smoc_simulation_ctx.hpp \
+	smoc/detail/IdedObj.hpp \
+	smoc/detail/NamedIdedObj.hpp \
+	\
 	systemoc/smoc_config.h \
 	\
 	systemoc/detail/smoc_event_decls.hpp \
@@ -42,11 +46,7 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_firing_rules_impl.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_root_chan.hpp \
-	systemoc/detail/IdedObj.hpp \
-	systemoc/detail/NamedIdedObj.hpp \
-	systemoc/detail/smoc_pggen.hpp \
 	systemoc/detail/smoc_graph_synth.hpp \
-	systemoc/smoc_pggen.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_elab_and_sim.hpp \

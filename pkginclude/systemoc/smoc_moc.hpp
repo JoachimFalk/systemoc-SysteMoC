@@ -43,13 +43,17 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <smoc/smoc_simulation_ctx.hpp>
+
 #include "smoc_firing_rules.hpp"
 #include "smoc_root_node.hpp"
 //#include "smoc_module_name.hpp"
 
 class smoc_graph_base;
 
-class smoc_scheduler_top : public sc_module {
+class smoc_scheduler_top
+: public sc_module,
+  public SysteMoC::Detail::SimCTXBase {
 public:
   smoc_scheduler_top(smoc_graph_base* g);
   smoc_scheduler_top(smoc_graph_base& g);

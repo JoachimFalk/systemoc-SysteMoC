@@ -36,7 +36,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_ast_systemoc.hpp>
-#include <systemoc/detail/smoc_pggen.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #include <string.h> // for smoc_ast_common.cpp
 

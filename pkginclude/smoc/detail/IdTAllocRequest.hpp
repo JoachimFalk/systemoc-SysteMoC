@@ -1,4 +1,3 @@
-//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
@@ -34,35 +33,17 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
+#ifndef _INCLUDED_SMOC_DETAIL_IDTALLOCREQUEST_HPP
+#define _INCLUDED_SMOC_DETAIL_IDTALLOCREQUEST_HPP
 
-#ifdef SYSTEMOC_ENABLE_SGX
-# include <sgx.hpp>
-#endif // SYSTEMOC_ENABLE_SGX
+#include <CoSupport/Allocators/IdAllocRequest.hpp>
 
-#ifndef _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
-#define _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
+#include "IdedObj.hpp"
 
 namespace SysteMoC { namespace Detail {
 
-#ifdef SYSTEMOC_ENABLE_SGX
-using SystemCoDesigner::SGX::NgId;
-#else // !SYSTEMOC_ENABLE_SGX
-typedef uint32_t NgId;
-#endif // !SYSTEMOC_ENABLE_SGX
-
-class IdedObj {
-  NgId _id;
-public:
-  IdedObj()
-    : _id(-1) {}
-
-  NgId getId() const
-    { return _id; }
-  void setId(NgId id)
-    { _id = id; }
-};
+typedef CoSupport::Allocators::IdAllocRequest<NgId> IdTAllocRequest;
 
 } } // namespace SysteMoC::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
+#endif // _INCLUDED_SMOC_DETAIL_IDTALLOCREQUEST_HPP
