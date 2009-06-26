@@ -43,6 +43,7 @@ SystemCoDesigner::SGX::NetworkGraphAccess ngx;
 
 bool          dumpSMXWithSim = false;
 std::ostream *dumpFileSMX    = NULL;
+std::ostream *dumpTrace      = NULL;
 bool          dumpFSMs       = false;
 
 } } // namespace SysteMoC::Detail

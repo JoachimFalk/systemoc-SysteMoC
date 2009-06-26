@@ -55,7 +55,8 @@ extern SystemCoDesigner::SGX::NetworkGraphAccess ngx;
 #endif // SYSTEMOC_ENABLE_SGX
 
 extern bool          dumpSMXWithSim;
-extern std::ostream* dumpFileSMX;
+extern std::ostream *dumpFileSMX;
+extern std::ostream *dumpTrace;
 extern bool          dumpFSMs;
 
 } } // namespace SysteMoC::Detail
