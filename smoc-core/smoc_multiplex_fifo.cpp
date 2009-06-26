@@ -33,22 +33,31 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_ACTOR_HPP
-#define _INCLUDED_SMOC_ACTOR_HPP
-
 #include <systemoc/smoc_config.h>
 
-#include "detail/smoc_root_node.hpp"
+#include <systemoc/smoc_multiplex_fifo.hpp>
+#include <systemoc/smoc_graph_type.hpp>
 
-class smoc_actor
-: public smoc_root_node {
-protected:
-  smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
-  smoc_actor(smoc_firing_state &s);
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
+#endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_DEBUG
-  ~smoc_actor();
+smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)
+  : smoc_root_chan(i.name),
+#ifdef SYSTEMOC_ENABLE_VPC
+    Detail::QueueFRVWPtr(i.n),
+#else
+    Detail::QueueRWPtr(i.n),
 #endif
-};
+    fifoOutOfOrder(i.m)
+{
+  assert(fifoOutOfOrder + 1 <= depthCount());
+}
 
-#endif // _INCLUDED_SMOC_ACTOR_HPP
+void smoc_multiplex_fifo_chan_base::registerVOutlet(const VOutletMap::value_type &entry) {
+  sassert(vOutlets.insert(entry).second);
+}
+
+void smoc_multiplex_fifo_chan_base::deregisterVOutlet(FifoId fifoId) {
+  vOutlets.erase(fifoId);
+}

@@ -49,15 +49,14 @@
 #include <CoSupport/Lambda/functor.hpp>
 
 #include <systemoc/smoc_config.h>
-#include <sgx.hpp>
 
-#include "smoc_firing_rules.hpp"
-#include "detail/smoc_firing_rules_impl.hpp"
-#include "detail/smoc_sysc_port.hpp"
+#include "../smoc_firing_rules.hpp"
+#include "smoc_firing_rules_impl.hpp"
+#include "smoc_sysc_port.hpp"
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
-#include "smoc_expr.hpp"
-#include "smoc_ast_systemoc.hpp"
+#include "../smoc_expr.hpp"
+#include <smoc/detail/astnodes.hpp>
 
 #define SMOC_REGISTER_CPARAM(name) registerParam(#name,name)
 
@@ -65,13 +64,17 @@ namespace SysteMoC {
   class smoc_graph_synth;
 }
 
-// smoc_root_node is the base class of all systemoc nodes be it
-// actors or graphs!
+/**
+ * smoc_root_node is the base class of all systemoc nodes be it
+ * actors or graphs! If you derive more stuff from this class
+ * you have to change apply_visitor.hpp accordingly.
+ */
 class smoc_root_node
 : public sc_module,
   public SysteMoC::Detail::NamedIdedObj,
-  public SysteMoC::Detail::SimCTXBase {
-public:
+  public SysteMoC::Detail::SimCTXBase
+{
+  typedef smoc_root_node this_type;
   friend class RuntimeTransition;
 private:
   /// @brief Initial firing state
@@ -130,16 +133,16 @@ protected:
   typename Expr::Var<T>::type var(T &x, const char *name = NULL)
     { return Expr::var(x,name); }
 
-  // possible FIXME: only actors have this info
-  SysteMoC::ActivationPattern::ParamInfoVisitor constrArgs;
+public:
+  // FIXME: (Maybe) Only actors have this info => move to smoc_actor?
+  // FIXME: This should be protected for the SysteMoC user but accessible
+  // for SysteMoC visitors
+  SysteMoC::Detail::ParamInfoVisitor constrArgs;
+protected:
   template<class T>
   void registerParam(const std::string& name, const T& t) {
     constrArgs(name, t);
   }
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::Process::Ptr proc;
-#endif
 
 public:
   const char *name() const
@@ -176,10 +179,6 @@ public:
 
   void setLastState(RuntimeState* s)
     { lastState = s; }
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  void addPort(SystemCoDesigner::SGX::Port &p);
-#endif
 
   /// @brief Collect ports from child objects
   smoc_sysc_port_list getPorts() const;

@@ -41,11 +41,16 @@
 
 #ifdef SYSTEMOC_ENABLE_SGX
 
-#include "../smoc_graph_type.hpp"
+#include <sgx.hpp>
+
+#include <systemoc/smoc_graph_type.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
-//#include "smoc_ngx_sync.hpp"
 
 namespace SysteMoC { namespace Detail {
+
+#ifdef SYSTEMOC_ENABLE_SGX
+namespace SGX = SystemCoDesigner::SGX;
+#endif // SYSTEMOC_ENABLE_SGX
 
 // pair Commit.Available
 typedef std::pair<size_t, size_t> PortReq;

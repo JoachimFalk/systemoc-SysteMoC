@@ -38,9 +38,9 @@
 
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
-#include <systemoc/detail/smoc_graph_synth.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
-//#include <systemoc/detail/smoc_ngx_sync.hpp>
+
+#include "smoc_graph_synth.hpp"
 
 #include <CoSupport/String/Concat.hpp>
 
@@ -49,20 +49,9 @@ using namespace SysteMoC::Detail;
 using CoSupport::String::Concat;
 
 smoc_graph_base::smoc_graph_base(
-    const sc_module_name& name, smoc_firing_state& init/*, bool regObj*/) :
-  smoc_root_node(name, init/*, regObj*/)
-{
-//// FIXME (multiple ids for the same object!!)
-//if(regObj) idPool.regObj(this, 1);
-}
+    const sc_module_name &name, smoc_firing_state &init)
+  : smoc_root_node(name, init) {}
   
-#ifdef SYSTEMOC_ENABLE_SGX
-void smoc_graph_base::addProcess(Process& p) {
-  assert(pg);
-  pg->processes().push_back(p);
-}
-#endif
-
 const smoc_node_list& smoc_graph_base::getNodes() const
   { return nodes; } 
 
@@ -120,22 +109,15 @@ void smoc_graph_base::finalise() {
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_graph_base::finalise() begin, name == " << name() << std::endl;
 #endif
-
-#ifdef SYSTEMOC_NEED_IDS
-
-#endif // SYSTEMOC_NEED_IDS
-#ifdef SYSTEMOC_ENABLE_SGX
-  assembleXML();
-#endif
-
-//NgId idGraph = idPool.getId(this, 1);
-
+  
+  smoc_root_node::finalise();
+  
   // FIXME: Sync. WILL have to be different than now
-
+  
   // SystemC --> SGX
-  for(std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
-      iter != get_child_objects().end();
-      ++iter)
+  for (std::vector<sc_object*>::const_iterator iter = get_child_objects().begin();
+       iter != get_child_objects().end();
+       ++iter)
   {
     // only processing children which are nodes
     smoc_root_node* node = dynamic_cast<smoc_root_node*>(*iter);
@@ -254,12 +236,10 @@ void smoc_graph_base::finalise() {
     (*iter)->finalise();
   }
   
-  smoc_root_node::finalise();
-  
-#ifdef SYSTEMOC_ENABLE_SGX
-  // FIXME: FSM is attribute of Actor, not of Process
-  pg->firingFSM() = getFiringFSM()->getNGXObj();
-#endif
+//#ifdef SYSTEMOC_ENABLE_SGX
+//  // FIXME: FSM is attribute of Actor, not of Process
+//  pg->firingFSM() = getFiringFSM()->getNGXObj();
+//#endif
 
 #ifdef SYSTEMOC_DEBUG
   std::cerr << "smoc_graph_base::finalise() end, name == " << name() << std::endl;
@@ -289,33 +269,6 @@ void smoc_graph_base::reset() {
   std::cerr << "smoc_graph_base::reset() end, name == " << name() << std::endl;
 #endif
 }
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  
-void smoc_graph_base::assembleXML() {
-  assert(!pg);
-  
-  ProblemGraph _pg(name());
-  pg = &_pg;
-
-  smoc_graph_base* parent =
-    dynamic_cast<smoc_graph_base*>(get_parent_object());
-
-  if(parent) {
-    // Generate refined process
-    RefinedProcess rp(Concat(name())("_rp"));
-    rp.refinements().push_back(_pg);
-
-    proc = &rp;
-    parent->addProcess(rp);
-  }
-  else {
-    // Set as top problemgraph (has no process)
-    getSimCTX()->getExportNGX().problemGraphPtr() = pg;
-  }
-}
-
-#endif // SYSTEMOC_ENABLE_SGX
 
 smoc_graph::smoc_graph(const sc_module_name& name) :
   smoc_graph_base(name, init/*, true*/)
@@ -352,8 +305,8 @@ void smoc_graph::initScheduling() {
     (*nIter)->addCurOutTransitions(ol);
   }
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << ol << std::endl;
-    std::cerr << "</smoc_graph::initScheduling>" << std::endl;
+  std::cerr << ol << std::endl;
+  std::cerr << "</smoc_graph::initScheduling>" << std::endl;
 #endif
 }
 

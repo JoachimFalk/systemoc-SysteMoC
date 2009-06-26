@@ -35,28 +35,34 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_ast_systemoc.hpp>
-#include <smoc/smoc_simulation_ctx.hpp>
+//#include <systemoc/detail/smoc_ngx_sync.hpp>
+#include <systemoc/smoc_fifo.hpp>
+#include <systemoc/smoc_graph_type.hpp>
 
-#include <string.h> // for smoc_ast_common.cpp
+smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
+  : smoc_nonconflicting_chan(i.name),
+#ifdef SYSTEMOC_ENABLE_VPC
+  QueueFRVWPtr(fsizeMapper(this, i.n)),
+  latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this),
+  diiQueue(std::bind1st(std::mem_fun(&this_type::diiExpired), this)),
+#else
+  QueueRWPtr(fsizeMapper(this, i.n)),
+#endif
+  tokenId(0)
+{}
 
-namespace SysteMoC { namespace ActivationPattern {
+size_t fsizeMapper(sc_object* instance, size_t n) {
+//FIXME: Reimplememt this!
+/*// SGX --> SystemC
+  if (SysteMoC::Detail::NGXConfig::getInstance().hasNGX()) {
+    SystemCoDesigner::SGX::Fifo::ConstPtr fifo =
+      objAs<SystemCoDesigner::SGX::Fifo>(SysteMoC::Detail::NGXCache::getInstance().get(instance));
+    if (fifo) {
+      n = fifo->size().get();
+    } else {
+      // XML node missing or no Fifo
+    }
+  }*/
+  return n;
+}
 
-// Common code between SysteMoC and AC-PG-Access. But compiled
-// differently between SysteMoC and AC-PG-Access. For SysteMoC
-// compilation use definitions from smoc_ast_systemoc.hpp
-#include "smoc_ast_common.cpp"
-
-std::ostream &operator << (std::ostream &o, const ValueContainer &value)
-  { return o << static_cast<const std::string &>(value); }
-
-std::ostream &operator << (std::ostream &o, const TypeIdentifier &type)
-  { return o << static_cast<const std::string &>(type); }
-
-std::ostream &operator << (std::ostream &o, const SymbolIdentifier &symbol)
-  { return o << static_cast<const std::string &>(symbol); }
-
-ValueContainer::ValueContainer(const ValueTypeContainer &vt)
-  : value(vt.value) {}
-
-} } // namespace SysteMoC::ActivationPattern

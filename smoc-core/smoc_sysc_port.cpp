@@ -35,59 +35,52 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_multiplex_fifo.hpp>
-#include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/detail/smoc_sysc_port.hpp>
+#include <systemoc/detail/smoc_root_node.hpp>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
-#endif //SYSTEMOC_ENABLE_VPC
+#include <sgx.hpp>
 
-smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)
-  : smoc_root_chan(i.name),
-#ifdef SYSTEMOC_ENABLE_VPC
-    Detail::QueueFRVWPtr(i.n),
-#else
-    Detail::QueueRWPtr(i.n),
-#endif
-    fifoOutOfOrder(i.m)
-{
-  assert(fifoOutOfOrder + 1 <= depthCount());
+using namespace CoSupport;
+using namespace SysteMoC::Detail;
+
+smoc_sysc_port::smoc_sysc_port(const char* name_)
+  : sc_port_base(name_, 1),
+    interfacePtr(NULL),
+    portAccess(NULL),
+    parent(NULL), child(NULL) {
 }
 
-void smoc_multiplex_fifo_chan_base::registerVOutlet(const VOutletMap::value_type &entry) {
-  sassert(vOutlets.insert(entry).second);
+smoc_sysc_port::~smoc_sysc_port() {
 }
 
-void smoc_multiplex_fifo_chan_base::deregisterVOutlet(FifoId fifoId) {
-  vOutlets.erase(fifoId);
+// SystemC 2.2 requires this method
+// (must also return the correct number!!!)
+int smoc_sysc_port::interface_count() {
+  return interfacePtr ? 1 : 0;
+}
+
+void smoc_sysc_port::add_interface(sc_core::sc_interface *i) {
+  assert(interfacePtr == NULL);
+//std::cerr << "smoc_sysc_port::add_interface(...) " << typeid(*i).name() << std::endl;
+  interfacePtr = dynamic_cast<smoc_port_base_if *>(i);
+  assert(interfacePtr != NULL);
+}
+
+void smoc_sysc_port::bind(this_type &parent_) {
+  assert(parent == NULL && parent_.child == NULL);
+  parent        = &parent_;
+  parent->child = this;
+  sc_port_base::bind(parent_);
+}
+
+void smoc_sysc_port::finalise() {
+#ifdef SYSTEMOC_NEED_IDS  
+  // Allocate Id for myself.
+  getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS  
 }
 
 #ifdef SYSTEMOC_ENABLE_SGX
-void smoc_multiplex_fifo_chan_base::finalise() {
-  // FIXME: need name before XML can be constructed
-  generateName();
-  assembleXML();
-  smoc_root_chan::finalise();
-}
-
-void smoc_multiplex_fifo_chan_base::assembleXML() {
-  using namespace SystemCoDesigner::SGX;
-
-  assert(!fifo);
-
-  Fifo _fifo(name());
-  fifo = &_fifo;
-  proc = fifo;
-
-  // set some attributes
-  fifo->size() = depthCount();
-
-  smoc_graph_base* parent =
-    dynamic_cast<smoc_graph_base*>(get_parent_object());
-
-  if(parent)
-    parent->addProcess(_fifo);
-  else
-    assert(!"FIFO has no parent!");
-}
+SystemCoDesigner::SGX::Port::Ptr smoc_sysc_port::getNGXObj() const
+  { return port; }
 #endif

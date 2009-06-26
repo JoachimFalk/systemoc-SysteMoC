@@ -35,10 +35,9 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
-//#include <systemoc/detail/smoc_ngx_sync.hpp>
-#include <systemoc/smoc_root_node.hpp>
+#include <systemoc/detail/smoc_root_chan.hpp>
+#include <systemoc/detail/smoc_root_node.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
 #include <map>
@@ -98,9 +97,10 @@ void smoc_root_chan::finalise() {
   // will do no harm if already generated
   generateName();
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  assembleXML();
-#endif
+#ifdef SYSTEMOC_NEED_IDS  
+  // Allocate Id for myself.
+  getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS  
 
 #ifdef SYSTEMOC_ENABLE_VPC
   vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
@@ -158,60 +158,6 @@ void smoc_root_chan::generateName() {
     myName = genName.str();
   }
 }
-
-#ifdef SYSTEMOC_ENABLE_SGX
-void smoc_root_chan::assembleXML() {
-  using namespace SystemCoDesigner::SGX;
-
-  assert(proc);
-
-  const EntryMap& entries = getEntries();
-  
-  // Portmappings are done in ProblemGraph
-
-  for(EntryMap::const_iterator iter = entries.begin();
-      iter != entries.end(); ++iter)
-  {
-    Port p(Concat(name())(".in"));
-    p.direction() = Port::IN;
-    proc->ports().push_back(p);
-
-    // this is the channel input port and the node
-    // output port
-
-    // FIXME: better store the XML node as attribute
-    // in the sc_object?
-    smoc_sysc_port* np =
-      dynamic_cast<smoc_sysc_port*>(iter->second);
-    assert(np);
-
-    assert(np->port);
-    p.outerConnectedPort() = np->port;
-  }
-      
-  const OutletMap& outlets = getOutlets();
-
-  for(OutletMap::const_iterator iter = outlets.begin();
-      iter != outlets.end(); ++iter)
-  {
-    Port p(Concat(name())(".out"));
-    p.direction() = Port::OUT;
-    proc->ports().push_back(p);
-    
-    // this is the channel output port and the node
-    // input port
-    
-    // FIXME: better store the XML node as attribute
-    // in the sc_object?
-    smoc_sysc_port* np =
-      dynamic_cast<smoc_sysc_port*>(iter->second);
-    assert(np);
-    
-    assert(np->port);
-    p.outerConnectedPort() = np->port;
-  }
-}
-#endif
 
 void smoc_nonconflicting_chan::finalise() {
   smoc_root_chan::finalise();

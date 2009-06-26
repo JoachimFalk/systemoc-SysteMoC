@@ -34,24 +34,22 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/detail/smoc_graph_synth.hpp>
+#include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_SGX
 
 #include <boost/variant.hpp>
 #include <boost/blank.hpp>
 
-#include <systemoc/smoc_config.h>
-
 #include <CoSupport/DataTypes/container_insert.hpp>
 
-//#include <systemoc/detail/smoc_ngx_sync.hpp>
+#include "smoc_graph_synth.hpp"
+
+#include <sgx.hpp>
 
 #define objAs CoSupport::DataTypes::dynamic_pointer_cast
 
 namespace SysteMoC { namespace Detail {
-
-using namespace SGX;
 
 // find non-hierarchical name
 // ("a.b.c" -> "c"; "a.b." -> "" ; "a" -> "a")
@@ -62,7 +60,7 @@ std::string nameNH(const std::string& name) {
 }
 
 // Single port requirement
-typedef boost::variant<boost::blank, Port::ConstPtr, size_t> PortReqVar;
+typedef boost::variant<boost::blank, SGX::Port::ConstPtr, size_t> PortReqVar;
 
 /**
  * collect port token requirements from AST
@@ -75,19 +73,19 @@ public:
   const PortReqMap& getResult() const
   { return portReq; }
 
-  PortReqVar apply(const ASTNode::Ptr& n)
+  PortReqVar apply(const SGX::ASTNode::Ptr& n)
   { return apply_visitor(*this, n); }
 
   // see ASTNodeVisitor
-  PortReqVar operator()(const ASTNodePortTokens& n)
+  PortReqVar operator()(const SGX::ASTNodePortTokens& n)
   { return n.port(); }
 
   // see ASTNodeVisitor
-  PortReqVar operator()(const ASTNodeLiteral& n)
+  PortReqVar operator()(const SGX::ASTNodeLiteral& n)
   { return CoSupport::String::strAs<size_t>(n.value().get()); }
 
   // see ASTNodeVisitor
-  PortReqVar operator()(const ASTNodeBinOp& n) {
+  PortReqVar operator()(const SGX::ASTNodeBinOp& n) {
     analyzeBinOpNode(
         apply(n.leftNode()),
         apply(n.rightNode()));
@@ -95,13 +93,13 @@ public:
   }
 
   // see ASTNodeVisitor
-  PortReqVar operator()(const ASTNodeUnOp& n) {
+  PortReqVar operator()(const SGX::ASTNodeUnOp& n) {
     apply(n.childNode());
     return boost::blank();
   }
 
   // see ASTNodeVisitor
-  PortReqVar operator()(const ASTNodeComm& n) {
+  PortReqVar operator()(const SGX::ASTNodeComm& n) {
     analyzeCommNode(
         n.port(),
         apply(n.childNode()));
@@ -109,7 +107,7 @@ public:
   }
 
   template<OpBinT::Op op>
-  PortReqVar operator()(const ASTNodeBinOpXXX<op> &obj)
+  PortReqVar operator()(const SGX::ASTNodeBinOpXXX<op> &obj)
   { return (*this)(static_cast<const SGX::ASTNodeBinOp&>(obj)); }
 
   template<class T>
@@ -122,7 +120,7 @@ private:
 
   // internal ASTNode evaluation function
   void analyzeBinOpNode(PortReqVar l, PortReqVar r) {
-    Port::ConstPtr* port = boost::get<Port::ConstPtr>(&l);
+    SGX::Port::ConstPtr* port = boost::get<SGX::Port::ConstPtr>(&l);
     if(port) {
       size_t* req = boost::get<size_t>(&r);
       assert(req);
@@ -131,7 +129,7 @@ private:
   }
 
   // internal ASTNode evaluation function
-  void analyzeCommNode(Port::ConstPtr port, PortReqVar c) {
+  void analyzeCommNode(SGX::Port::ConstPtr port, PortReqVar c) {
     assert(port);
     size_t* req = boost::get<size_t>(&c);
     assert(req);
@@ -139,7 +137,7 @@ private:
   }
 };
 
-smoc_graph_synth::smoc_graph_synth(ProblemGraph::ConstRef pg) :
+smoc_graph_synth::smoc_graph_synth(SGX::ProblemGraph::ConstRef pg) :
   smoc_graph_base(nameNH(pg.name().get()).c_str(), init/*, false*/),
   pg(pg),
   curNode(nodeInfos.end())
@@ -151,12 +149,12 @@ smoc_graph_synth::smoc_graph_synth(ProblemGraph::ConstRef pg) :
   generateFSM();
 }
 
-void smoc_graph_synth::cachePhase(PortRefList::ConstRef ports, Phase& phase) {
-/*for(PortRefList::const_iterator pIter = ports.begin();
+void smoc_graph_synth::cachePhase(SGX::PortRefList::ConstRef ports, Phase& phase) {
+/*for(SGX::PortRefList::const_iterator pIter = ports.begin();
       pIter != ports.end();
       ++pIter)
   {
-    Port::ConstPtr port = pIter->instance();
+    SGX::Port::ConstPtr port = pIter->instance();
     smoc_sysc_port* rp =
       dynamic_cast<smoc_sysc_port*>(NGXCache::getInstance().get(*port));
     assert(rp);
@@ -165,20 +163,20 @@ void smoc_graph_synth::cachePhase(PortRefList::ConstRef ports, Phase& phase) {
  */
 }
 
-void smoc_graph_synth::cachePhases(Actor::ConstPtr actor, Phases& phases) {
+void smoc_graph_synth::cachePhases(SGX::Actor::ConstPtr actor, Phases& phases) {
   assert(actor->firingFSM());
-  Classification::ConstPtr cl = actor->firingFSM()->classification();
+  SGX::Classification::ConstPtr cl = actor->firingFSM()->classification();
   assert(cl);
   
-  SDF::ConstPtr sdf = objAs<SDF>(cl);
+  SGX::SDF::ConstPtr sdf = objAs<SGX::SDF>(cl);
   if(sdf) {
     phases.push_back(Phase());
     cachePhase(sdf->portTokens(), phases.back());
   }
-  CSDF::ConstPtr csdf = objAs<CSDF>(cl);
+  SGX::CSDF::ConstPtr csdf = objAs<SGX::CSDF>(cl);
   if(csdf) {
-    CSDFPhaseList::ConstRef pList = csdf->phases();
-    for(CSDFPhaseList::const_iterator pIter = pList.begin();
+    SGX::CSDFPhaseList::ConstRef pList = csdf->phases();
+    for(SGX::CSDFPhaseList::const_iterator pIter = pList.begin();
         pIter != pList.end();
         ++pIter)
     {
@@ -284,7 +282,7 @@ void smoc_graph_synth::prepareActorFiring() {
 
 void smoc_graph_synth::prepareCompoundAction() {
 
-  CompoundAction::ConstPtr cpa = objAs<CompoundAction>(ca);
+  SGX::CompoundAction::ConstPtr cpa = objAs<SGX::CompoundAction>(ca);
   assert(cpa);
   assert(arm[cpa]);
 
@@ -320,14 +318,14 @@ void smoc_graph_synth::prepareOtherAction() {
 }
 
 bool smoc_graph_synth::isActorFiring() const {
-  return objAs<ActorFiring>(ca);
+  return objAs<SGX::ActorFiring>(ca);
 }
 
 bool smoc_graph_synth::isCompoundAction() const {
-  return objAs<CompoundAction>(ca);
+  return objAs<SGX::CompoundAction>(ca);
 }
 
-void smoc_graph_synth::setCurrentAction(Action::ConstPtr a) {
+void smoc_graph_synth::setCurrentAction(SGX::Action::ConstPtr a) {
   ca = a;
   if(ca)
     arm[ca] =
@@ -395,35 +393,35 @@ void smoc_graph_synth::executeTransitionList() {
 
 void smoc_graph_synth::generateFSM() {
 
-  FiringFSM::ConstPtr fsm = pg.firingFSM();
+  SGX::FiringFSM::ConstPtr fsm = pg.firingFSM();
   if(!fsm) {
     std::cerr << "synthesized graph has no FSM" << std::endl;
     return;
   }
 
   // create state lookup table
-  typedef std::map<FiringState::ConstPtr, smoc_firing_state::Ptr> StateMap;
+  typedef std::map<SGX::FiringState::ConstPtr, smoc_firing_state::Ptr> StateMap;
   StateMap sm;
 
   // initialize state lut
   assert(fsm->startState());
   sm[fsm->startState()] = init.toPtr();
 
-  FiringStateList::ConstRef states = fsm->states();
-  for(FiringStateList::const_iterator sIter = states.begin();
+  SGX::FiringStateList::ConstRef states = fsm->states();
+  for(SGX::FiringStateList::const_iterator sIter = states.begin();
       sIter != states.end();
       ++sIter)
   {
-    FiringState::ConstPtr sSrc = sIter.operator->();
+    SGX::FiringState::ConstPtr sSrc = sIter.operator->();
     smoc_transition_list tl;
 
-    FiringTransitionList::ConstRef ts = sSrc->outTransitions();
-    for(FiringTransitionList::const_iterator tIter = ts.begin();
+    SGX::FiringTransitionList::ConstRef ts = sSrc->outTransitions();
+    for(SGX::FiringTransitionList::const_iterator tIter = ts.begin();
         tIter != ts.end();
         ++tIter)
     {
-      FiringTransition::ConstRef t = *tIter;
-      FiringState::ConstPtr sDst = t.dstState();
+      SGX::FiringTransition::ConstRef t = *tIter;
+      SGX::FiringState::ConstPtr sDst = t.dstState();
 
       // construct transition activation pattern
       PortReqVisitor vPR;

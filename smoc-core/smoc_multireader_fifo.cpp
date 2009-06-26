@@ -55,36 +55,6 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
   schedOutlets(i.so ? i.so : &schedDefault)
 {}
 
-#ifdef SYSTEMOC_ENABLE_SGX
-void smoc_multireader_fifo_chan_base::finalise() {
-  // FIXME: need name before XML can be constructed
-  generateName();
-  assembleXML();
-  smoc_root_chan::finalise();
-}
-
-void smoc_multireader_fifo_chan_base::assembleXML() {
-  using namespace SystemCoDesigner::SGX;
-
-  assert(!fifo);
-
-  Fifo _fifo(this->name());
-  fifo = &_fifo;
-  proc = fifo;
-
-  // set some attributes
-  fifo->size() = depthCount();
-
-  smoc_graph_base* parent =
-    dynamic_cast<smoc_graph_base*>(get_parent_object());
-
-  if(parent)
-    parent->addProcess(_fifo);
-  else
-    assert(!"FIFO has no parent!");
-}
-#endif
-
 #ifdef SYSTEMOC_ENABLE_VPC
 void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n, const smoc_ref_event_p &diiEvent)
 #else

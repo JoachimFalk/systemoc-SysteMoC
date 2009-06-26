@@ -56,7 +56,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "detail/smoc_event_decls.hpp"
-#include "smoc_ast_systemoc.hpp"
+#include <smoc/detail/astnodes.hpp>
 
 /****************************************************************************
  * dexpr.h
@@ -67,12 +67,9 @@
 
 namespace Expr {
 
-using namespace SysteMoC::ActivationPattern;
-
 namespace Detail {
 
-  using namespace SysteMoC::ActivationPattern::Detail;
-
+  using namespace SysteMoC::Detail;
 
   //wrapper for constructor parameters (deprecated! use SMOC_REGISTER_CPARAM() macro instead)
 /*  template <typename T>
@@ -135,7 +132,10 @@ namespace Detail {
 //    { return value == ENABLED ? &this_type::toSymbol : NULL; }
   };
 
-} // namespace Expr::Detail
+} // namespace Detail
+
+using Detail::OpBinT;
+using Detail::OpUnT;
 
 /****************************************************************************
  * Expr wrapper
@@ -289,7 +289,7 @@ public:
   friend class Value<this_type>;
 private:
   struct virt_ty: public CoSupport::SmartPtr::RefCountObject {
-    virtual PASTNode   evalToAST()         const = 0;
+    virtual Detail::PASTNode   evalToAST()         const = 0;
 #ifdef SYSTEMOC_ENABLE_VPC
     virtual void       evalToCommExec(
         const smoc_ref_event_p &diiEvent,
@@ -316,7 +316,7 @@ private:
   public:
     impl_ty( const E &e ): e(e) {}
     
-    PASTNode   evalToAST() const
+    Detail::PASTNode   evalToAST() const
       { return AST<E>::apply(e); }
 #ifdef SYSTEMOC_ENABLE_VPC
     void       evalToCommExec(
@@ -351,7 +351,7 @@ template <typename T>
 class AST<DVirtual<T> >
 {
 public:
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
   
   static inline
   result_type apply(const DVirtual <T> &e)
@@ -487,12 +487,12 @@ template <typename T>
 class AST<DVar<T> >
 {
 public:
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
   
   static inline
-  PASTNode apply(const DVar <T> &e) {
+  Detail::PASTNode apply(const DVar <T> &e) {
     //std::cerr << "AST<DVar<T> >: Was here !!!" << std::endl;
-    return PASTNode(new Expr::ASTNodeVar(TypeSymbolIdentifier(e.x,e.name)));
+    return Detail::PASTNode(new Detail::ASTNodeVar(Detail::TypeSymbolIdentifier(e.x,e.name)));
   }
 };
 
@@ -573,11 +573,11 @@ template <typename T>
 class AST<DLiteral<T> >
 {
 public:
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
   
   static inline
-  PASTNode apply(const DLiteral <T> &e) {
-    return PASTNode(new Expr::ASTNodeLiteral(Expr::ValueTypeContainer(e.v)));
+  Detail::PASTNode apply(const DLiteral <T> &e) {
+    return Detail::PASTNode(new Detail::ASTNodeLiteral(Detail::ValueTypeContainer(e.v)));
   }
 };
 
@@ -634,11 +634,11 @@ template <typename T>
 class AST<DProc<T> >
 {
 public:
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
   
   static inline
-  PASTNode apply(const DProc <T> &e)
-    { return PASTNode(new Expr::ASTNodeProc(e.f)); }
+  Detail::PASTNode apply(const DProc <T> &e)
+    { return Detail::PASTNode(new Detail::ASTNodeProc(e.f)); }
 };
 
 template <typename T>
@@ -694,11 +694,11 @@ template <typename T, class X>
 class AST<DMemProc<T,X> >
 {
 public:
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
   
   static inline
-  PASTNode apply(const DMemProc <T,X> &e)
-    { return PASTNode(new Expr::ASTNodeMemProc(e.o,e.m)); }
+  Detail::PASTNode apply(const DMemProc <T,X> &e)
+    { return Detail::PASTNode(new Detail::ASTNodeMemProc(e.o,e.m)); }
 };
 
 template <typename T, class X>
@@ -757,13 +757,13 @@ template<class F, class PL>
 class AST<DMemGuard<F,PL> >
 {
 public:
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
   
   static inline
-  PASTNode apply(const DMemGuard <F,PL> &e) {
-    ParamInfoVisitor piv;
+  Detail::PASTNode apply(const DMemGuard <F,PL> &e) {
+    Detail::ParamInfoVisitor piv;
     e.f.paramListVisit(e.pl, piv);
-    return PASTNode(new Expr::ASTNodeMemGuard(Expr::TypeSymbolIdentifier(e.f), piv.pil));
+    return Detail::PASTNode(new Detail::ASTNodeMemGuard(Detail::TypeSymbolIdentifier(e.f), piv.pil));
   }
 };
 
@@ -861,7 +861,7 @@ template <class A, class B, OpBinT::Op Op>
 class AST<DBinOp<A,B,Op> >
 {
 public:
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
   
   static inline
   result_type apply(const DBinOp<A,B,Op> &e) {
@@ -869,8 +869,8 @@ public:
                 << typeid(A).name() << ","
                 << typeid(B).name() << ","
                 << Op << "> >: Was here !!!" << std::endl;*/
-    return PASTNode(new Expr::ASTNodeBinOp(
-        Type<typename Value<DBinOp<A,B,Op> >::result_type>(), Op,
+    return Detail::PASTNode(new Detail::ASTNodeBinOp(
+        Detail::Type<typename Value<DBinOp<A,B,Op> >::result_type>(), Op,
         AST<A>::apply(e.a), AST<B>::apply(e.b)));
   }
 };
@@ -1287,15 +1287,15 @@ template <class E, OpUnT::Op Op>
 class AST<DUnOp<E,Op> >
 {
 public:
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
 
   static inline
   result_type apply(const DUnOp<E,Op> &e) {
    /* std::cerr << "AST<DUnOp<"
                 << typeid(E).name() << ","
                 << Op << "> >: Was here !!!" << std::endl;*/
-    return PASTNode(new Expr::ASTNodeUnOp(
-        Type<typename Value<DUnOp<E,Op> >::result_type>(), Op,
+    return Detail::PASTNode(new Detail::ASTNodeUnOp(
+        Detail::Type<typename Value<DUnOp<E,Op> >::result_type>(), Op,
         AST<E>::apply(e.e)));
   }
 };

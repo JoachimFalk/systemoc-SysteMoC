@@ -39,8 +39,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_chan_if.hpp"
-//#include "smoc_ngx_sync.hpp"
+#include "../smoc_port.hpp"
 #include "../smoc_chan_adapter.hpp"
 
 namespace SysteMoC { namespace Detail {

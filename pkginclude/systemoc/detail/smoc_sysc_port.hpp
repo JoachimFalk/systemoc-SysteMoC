@@ -37,23 +37,85 @@
 #ifndef _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP
 #define _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP
 
+#include <systemoc/smoc_config.h>
+
 #include <list>
 
 #include <boost/noncopyable.hpp>
 
 #include <systemc.h>
 
-#include <systemoc/smoc_config.h>
+#include <smoc/detail/NamedIdedObj.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
-#include <sgx.hpp>
+#ifdef SYSTEMOC_ENABLE_SGX
+# include <sgx.hpp>
+#endif // SYSTEMOC_ENABLE_SGX
+
+class smoc_port_access_base_if {
+public:
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  virtual void setLimit(size_t) = 0;
+#endif
+  virtual ~smoc_port_access_base_if() {}
+};
+
+template<class T>
+class smoc_1d_port_access_if
+: public smoc_port_access_base_if {
+  typedef smoc_1d_port_access_if<T> this_type;
+public:
+  typedef T return_type;
+
+  virtual bool   tokenIsValid(size_t) const           = 0;
+
+  // Access methods
+  virtual return_type operator[](size_t)              = 0;
+  virtual const return_type operator[](size_t) const  = 0;
+};
+
+template<>
+class smoc_1d_port_access_if<void>
+: public smoc_port_access_base_if {
+  typedef smoc_1d_port_access_if<void> this_type;
+public:
+  typedef void return_type;
+
+  virtual bool   tokenIsValid(size_t) const           = 0;
+
+  // return_type == void => No access methods needed
+};
+
+template<>
+class smoc_1d_port_access_if<const void>
+: public smoc_port_access_base_if {
+  typedef smoc_1d_port_access_if<const void> this_type;
+public:
+  typedef const void return_type;
+
+  virtual bool   tokenIsValid(size_t) const          = 0;
+
+  // return_type == const void => No access methods needed
+};
+
+// SystemC Standard says: If directly derived from class sc_interface, shall
+// use the virtual specifier - And - The word shall is used to indicate a
+// mandatory requirement.
+class smoc_port_base_if
+: public virtual sc_core::sc_interface,
+  private boost::noncopyable {
+
+  virtual void foo() {
+  }
+};
 
 /****************************************************************************/
-
-class smoc_port_access_base_if;
 
 /// Class representing the base class of all SysteMoC ports.
 class smoc_sysc_port
 : public sc_core::sc_port_base,
+  public SysteMoC::Detail::NamedIdedObj,
+  public SysteMoC::Detail::SimCTXBase,
   private boost::noncopyable
 {
   friend class smoc_root_node;
@@ -61,7 +123,7 @@ class smoc_sysc_port
   typedef smoc_sysc_port this_type;
 //FIXME: HACK make protected or private
 public:
-  sc_interface             *interfacePtr;
+  smoc_port_base_if        *interfacePtr;
   smoc_port_access_base_if *portAccess;
   //FIXME(MS): allow more than one "IN-Port" per Signal
   smoc_sysc_port           *parent;
@@ -69,33 +131,29 @@ public:
 private:
   // SystemC 2.2 requires this method
   // (must also return the correct number!!!)
-  int interface_count() { return interfacePtr ? 1 : 0; }
-
-  void add_interface(sc_interface *_i) {
-    assert(interfacePtr == NULL && _i != NULL);
-    interfacePtr = _i;
-  }
+  int  interface_count();
+  void add_interface(sc_core::sc_interface *);
 protected:
   smoc_sysc_port(const char* name_);
 
-  // bind interface to this port
-  void bind(sc_interface &interface_ );
+  using sc_core::sc_port_base::bind;
+
   // bind parent port to this port
   void bind(this_type &parent_);
 
   virtual void finalise();
 
 #ifdef SYSTEMOC_ENABLE_SGX
-  friend class smoc_root_chan;
   SystemCoDesigner::SGX::Port::Ptr port;
-  void assembleXML();
 #endif
 
   virtual ~smoc_sysc_port();
 public:
   // get the first interface without checking for nil
-  sc_interface       *get_interface()       { return interfacePtr; }
-  sc_interface const *get_interface() const { return interfacePtr; }
+  smoc_port_base_if       *get_interface()
+    { return interfacePtr; }
+  smoc_port_base_if const *get_interface() const
+    { return interfacePtr; }
 
   smoc_sysc_port *getParentPort() const
     { return parent; }
@@ -106,12 +164,16 @@ public:
   bool         isOutput() const
     { return !isInput(); }
 
+  const char *name() const
+    { return sc_core::sc_object::name(); }
+
 #ifdef SYSTEMOC_ENABLE_SGX
   SystemCoDesigner::SGX::Port::Ptr getNGXObj() const;
 #endif
 };
 
-typedef std::list<smoc_sysc_port *> smoc_sysc_port_list;
-typedef std::list<sc_port_base*>    sc_port_list;
+typedef std::list<smoc_sysc_port *>       smoc_sysc_port_list;
+typedef std::list<sc_core::sc_port_base*> sc_port_list;
+
 
 #endif // _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP

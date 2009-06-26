@@ -38,11 +38,10 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
-//#include <systemoc/detail/smoc_ngx_sync.hpp>
-#include <systemoc/smoc_root_node.hpp>
+#include <systemoc/detail/smoc_root_node.hpp>
+#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
-#include <systemoc/hscd_tdsim_TraceLog.hpp>
 
 using namespace SysteMoC::Detail;
 
@@ -85,43 +84,41 @@ void smoc_root_node::finalise() {
   std::cerr << "smoc_root_node::finalise() begin, name == " << this->name() << std::endl;
 #endif
   
+#ifdef SYSTEMOC_NEED_IDS  
+  // Allocate Id for myself.
+  getSimCTX()->getIdPool().addIdedObj(this);
+#endif // SYSTEMOC_NEED_IDS  
+  
   // finalise ports before FSM (ActivationPattern needs port nodes)
   smoc_sysc_port_list ports = getPorts();
-  for(smoc_sysc_port_list::iterator iter = ports.begin();
+  for (smoc_sysc_port_list::iterator iter = ports.begin();
       iter != ports.end(); ++iter)
-  {
     (*iter)->finalise();
-  }
- 
+  
   getFiringFSM()->finalise(this, initialState.getImpl());
   currentState = getFiringFSM()->getInitialState();
-
-  //getFiringFSM()->dumpDot(currentState);
-
+  
   //std::cerr << "smoc_root_node::finalise() name == " << this->name() << std::endl
   //          << "  FiringFSM: " << currentState->getFiringFSM()
   //          << "; #leafStates: " << currentState->getFiringFSM()->getLeafStates().size()
   //          << std::endl;
-
   
   //check for non strict transitions
   const RuntimeStateSet& states = getFiringFSM()->getStates(); 
-
-  for(RuntimeStateSet::const_iterator sIter = states.begin(); 
-      sIter != states.end();
-      ++sIter)
-  {
+  
+  for (RuntimeStateSet::const_iterator sIter = states.begin(); 
+       sIter != states.end();
+       ++sIter) {
     const RuntimeTransitionList& tl = (*sIter)->getTransitions();
     
-    for(RuntimeTransitionList::const_iterator tIter = tl.begin();
-        tIter != tl.end();
-        ++tIter)
-    {
-      if(boost::get<smoc_sr_func_pair>(&tIter->getAction())) {
+    for (RuntimeTransitionList::const_iterator tIter = tl.begin();
+         tIter != tl.end();
+         ++tIter) {
+      if (boost::get<smoc_sr_func_pair>(&tIter->getAction())) {
 #ifdef SYSTEMOC_DEBUG
-          cout << "found non strict SR block: " << this->name() << endl;
+        std::cout << "found non strict SR block: " << this->name() << endl;
 #endif
-          _non_strict = true;
+        _non_strict = true;
       }
     }
   }
@@ -167,13 +164,6 @@ RuntimeStateList smoc_root_node::getStates() const {
   return ret;
 }
 */
-
-#ifdef SYSTEMOC_ENABLE_SGX
-void smoc_root_node::addPort(SystemCoDesigner::SGX::Port& p) {
-  assert(proc);
-  proc->ports().push_back(p);
-}
-#endif // SYSTEMOC_ENABLE_SGX
 
 std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
   o << "actor: " << this->name() << std::endl;

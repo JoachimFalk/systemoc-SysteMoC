@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
@@ -35,64 +36,34 @@
 
 #include <systemoc/smoc_config.h>
 
-//#include <systemoc/detail/smoc_ngx_sync.hpp>
-#include <systemoc/smoc_fifo.hpp>
-#include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 
-smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
-  : smoc_nonconflicting_chan(i.name),
-#ifdef SYSTEMOC_ENABLE_VPC
-  QueueFRVWPtr(fsizeMapper(this, i.n)),
-  latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this),
-  diiQueue(std::bind1st(std::mem_fun(&this_type::diiExpired), this)),
-#else
-  QueueRWPtr(fsizeMapper(this, i.n)),
-#endif
-  tokenId(0)
-{}
+#include <systemoc/smoc_guard.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
-#ifdef SYSTEMOC_ENABLE_SGX
-void smoc_fifo_chan_base::finalise() {
-  // FIXME: need name before XML can be constructed
-  generateName();
-  assembleXML();
-  smoc_nonconflicting_chan::finalise();
-}
-
-void smoc_fifo_chan_base::assembleXML() {
-  using namespace SystemCoDesigner::SGX;
-
-  assert(!fifo);
-
-  Fifo _fifo(name());
-  fifo = &_fifo;
-  proc = fifo;
-
-  // set some attributes
-  fifo->size() = depthCount();
-
-  smoc_graph_base* parent =
-    dynamic_cast<smoc_graph_base*>(get_parent_object());
-
-  if(parent)
-    parent->addProcess(_fifo);
-  else
-    assert(!"FIFO has no parent!");
-}
+void smoc_activation_pattern::finalise() {
+#ifdef SYSTEMOC_DEBUG
+  // DO not dump status of activation pattern as
+  // that may call guards which operate on as yet
+  // unititialized data
+  std::cerr << "smoc_activation_pattern::finalise(), this == " << this << std::endl;
 #endif
 
-size_t fsizeMapper(sc_object* instance, size_t n) {
-//FIXME: Reimplememt this!
-/*// SGX --> SystemC
-  if (SysteMoC::Detail::NGXConfig::getInstance().hasNGX()) {
-    SystemCoDesigner::SGX::Fifo::ConstPtr fifo =
-      objAs<SystemCoDesigner::SGX::Fifo>(SysteMoC::Detail::NGXCache::getInstance().get(instance));
-    if (fifo) {
-      n = fifo->size().get();
-    } else {
-      // XML node missing or no Fifo
-    }
-  }*/
-  return n;
+  Expr::evalTo<Expr::Sensitivity>(guard, *this);
 }
+
+Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
+  if (*this) {
+    Expr::Detail::ActivationStatus retval =
+      Expr::evalTo<Expr::Value>(guard);
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+    Expr::evalTo<Expr::CommReset>(guard);
+#endif
+    return retval;
+  } else
+    return Expr::Detail::BLOCKED();
+}
+
+const Expr::Ex<bool>::type smoc_activation_pattern::getExpr() const
+  { return guard; }
 

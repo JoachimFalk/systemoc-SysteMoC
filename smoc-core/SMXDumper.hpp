@@ -1,6 +1,7 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -33,22 +34,16 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_ACTOR_HPP
-#define _INCLUDED_SMOC_ACTOR_HPP
-
 #include <systemoc/smoc_config.h>
 
-#include "detail/smoc_root_node.hpp"
+#ifdef SYSTEMOC_ENABLE_SGX
 
-class smoc_actor
-: public smoc_root_node {
-protected:
-  smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
-  smoc_actor(smoc_firing_state &s);
+#include <sgx.hpp>
 
-#ifdef SYSTEMOC_DEBUG
-  ~smoc_actor();
-#endif
-};
+namespace SysteMoC { namespace Detail {
 
-#endif // _INCLUDED_SMOC_ACTOR_HPP
+void dumpSMX(std::ostream &file, smoc_graph_base &g);
+
+} } // namespace SysteMoC::Detail
+
+#endif // SYSTEMOC_ENABLE_SGX

@@ -61,7 +61,8 @@
 
 /**
  * base class for all graph classes; no scheduling of childen (->
- * derive from this class and build FSM!)
+ * derive from this class and build FSM!). If you derive more stuff
+ * from this class you have to change apply_visitor.hpp accordingly.
  */
 class smoc_graph_base : public smoc_root_node {
 public:  
@@ -179,10 +180,6 @@ public:
   const smoc_chan_list& getChans() const;
   void getChansRecursive( smoc_chan_list & channels) const;
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  void addProcess(SystemCoDesigner::SGX::Process& p);
-#endif
-
 protected:
   //typedef smoc_module_name sc_module_name;
 
@@ -197,11 +194,6 @@ private:
 
   // channel child objects
   smoc_chan_list channels;
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::ProblemGraph::Ptr pg;
-  void assembleXML();
-#endif
 };
   
 #undef T_chan_init_default

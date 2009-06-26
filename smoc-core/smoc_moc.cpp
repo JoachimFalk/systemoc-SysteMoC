@@ -42,16 +42,9 @@
 #include <systemoc/smoc_multicast_sr_signal.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
-#include <CoSupport/DataTypes/oneof.hpp>
+#include "SMXDumper.hpp"
 
-#ifdef SYSTEMOC_DEBUG
-# define DEBUG_CODE(code) code
-#else
-# define DEBUG_CODE(code) do {} while(0);
-#endif
-
-using namespace SystemCoDesigner::SGX;
-using namespace CoSupport;
+namespace SGX = SystemCoDesigner::SGX;
 
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
   sc_module(sc_module_name("smoc_scheduler_top")),
@@ -91,9 +84,7 @@ void smoc_scheduler_top::end_of_elaboration() {
   g->reset();
 #ifdef SYSTEMOC_ENABLE_SGX
   if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
-    ArchitectureGraph ag("architecture graph");
-    getSimCTX()->getExportNGX().architectureGraphPtr() = &ag;
-    getSimCTX()->getExportNGX().save(getSimCTX()->getSMXPreSimFile());
+    SysteMoC::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), *g);
     sc_core::sc_stop();
   }
 #endif // SYSTEMOC_ENABLE_SGX

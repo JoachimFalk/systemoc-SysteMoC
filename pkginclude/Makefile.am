@@ -28,6 +28,7 @@ nobase_include_HEADERS = \
 	smoc/smoc_simulation_ctx.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/NamedIdedObj.hpp \
+	smoc/detail/astnodes.hpp \
 	\
 	systemoc/smoc_config.h \
 	\
@@ -39,6 +40,7 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_latency_queues.hpp \
 	systemoc/detail/smoc_ring_access.hpp \
 	systemoc/detail/smoc_fifo_storage.hpp \
+	systemoc/detail/smoc_storage.hpp \
 	systemoc/detail/smoc_port_registry.hpp \
 	systemoc/detail/QueueRWPtr.hpp \
 	systemoc/detail/QueueRVWPtr.hpp \
@@ -46,13 +48,11 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_firing_rules_impl.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_root_chan.hpp \
-	systemoc/detail/smoc_graph_synth.hpp \
+	systemoc/detail/smoc_root_node.hpp \
+	systemoc/detail/hscd_tdsim_TraceLog.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_elab_and_sim.hpp \
-	systemoc/smoc_ast_common.hpp \
-	systemoc/hscd_tdsim_TraceLog.hpp \
-	systemoc/smoc_ast_systemoc.hpp \
 	systemoc/smoc_chan_adapter.hpp \
 	systemoc/smoc_port.hpp \
 	systemoc/smoc_multiplex_fifo.hpp \
@@ -64,9 +64,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_moc.hpp \
 	systemoc/smoc_multicast_sr_signal.hpp \
 	systemoc/smoc_node_types.hpp \
-	systemoc/smoc_root_node.hpp \
 	systemoc/smoc_sr_signal.hpp \
-	systemoc/smoc_storage.hpp \
 	systemoc/smoc_func_call.hpp
 
 if SYSTEMOC_ENABLE_WSDF

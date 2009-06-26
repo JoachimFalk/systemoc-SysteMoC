@@ -46,8 +46,7 @@
 #include <smoc/smoc_simulation_ctx.hpp>
 
 #include "smoc_firing_rules.hpp"
-#include "smoc_root_node.hpp"
-//#include "smoc_module_name.hpp"
+#include "detail/smoc_root_node.hpp"
 
 class smoc_graph_base;
 
@@ -72,13 +71,6 @@ private:
   bool simulation_running;
   SC_HAS_PROCESS(smoc_scheduler_top);
   void schedule();
-
-  // FIXME: move into smoc_graph_sr
-  //size_t countDefinedInports(smoc_root_node & n);
-  // void getLeafNodes(smoc_node_list &nodes, smoc_graph_base *node);
-  //size_t countDefinedOutports(smoc_root_node & n);
-
-  void dump();
 };
 
 // for compatibility...

@@ -46,11 +46,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_ast_systemoc.hpp"
-
-#ifdef SYSTEMOC_ENABLE_SGX
-# include <sgx.hpp>
-#endif // SYSTEMOC_ENABLE_SGX
+#include <smoc/detail/astnodes.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
@@ -100,7 +96,7 @@ public:
   virtual
   const char *getFuncName() const = 0;
   virtual
-  SysteMoC::ActivationPattern::ParamInfoList getParams() const = 0;
+  SysteMoC::Detail::ParamInfoList getParams() const = 0;
   
   virtual
   ~smoc_member_func_interface() {}
@@ -137,9 +133,9 @@ public:
     { return f.call(pl); }
   const char *getFuncName() const
     { return f.name; }
-  SysteMoC::ActivationPattern::ParamInfoList getParams() const
+  SysteMoC::Detail::ParamInfoList getParams() const
   { 
-    SysteMoC::ActivationPattern::ParamInfoVisitor piv;
+    SysteMoC::Detail::ParamInfoVisitor piv;
     f.paramListVisit(pl, piv);
     return piv.pil;
   }
@@ -158,7 +154,7 @@ private:
   boost::intrusive_ptr<
     smoc_member_func_interface<return_type> >   k;
 
-  SysteMoC::ActivationPattern::ParamInfoList pil;
+  SysteMoC::Detail::ParamInfoList pil;
 public:
   
   template <class F, class PL>
@@ -176,7 +172,7 @@ public:
     return k->getFuncName();
   }
   
-  const SysteMoC::ActivationPattern::ParamInfoList& getParams() const {
+  const SysteMoC::Detail::ParamInfoList& getParams() const {
     return pil;
   }
 };
@@ -308,19 +304,5 @@ private:
   const char* name;
 };
 #endif // SYSTEMOC_ENABLE_VPC
-
-#ifdef SYSTEMOC_ENABLE_SGX
-class ActionNGXVisitor {
-public:
-  typedef SystemCoDesigner::SGX::Action::Ptr result_type;
-
-public:
-  result_type operator()(smoc_func_call_list& f) const;
-  result_type operator()(smoc_func_diverge& f) const;
-  result_type operator()(smoc_sr_func_pair& f) const;
-  //result_type operator()(smoc_action_list& f) const;
-  //result_type operator()(boost::blank& f) const;
-};
-#endif // SYSTEMOC_ENABLE_SGX
 
 #endif // _INCLUDED_SMOC_FUNC_CALL_HPP

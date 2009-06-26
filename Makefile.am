@@ -54,30 +54,32 @@ AM_LDFLAGS=				\
 
 lib_LTLIBRARIES = libsystemoc.la
 
-libsystemoc_la_SOURCES =		\
-	smoc_simulation_ctx.cpp		\
-	smoc_main.cpp			\
-	smoc_elab_and_sim.cpp		\
-	smoc_ast_systemoc.cpp		\
-	smoc_ast_ngx_visitor.cpp	\
-	smoc_fifo.cpp			\
-	smoc_multiplex_fifo.cpp		\
-	smoc_multireader_fifo.cpp	\
-	smoc_latency_queues.cpp		\
-	smoc_multicast_sr_signal.cpp	\
-	smoc_graph_type.cpp		\
-	smoc_actor.cpp			\
-	smoc_root_node.cpp		\
-	smoc_sysc_port.cpp		\
-	smoc_firing_rules.cpp		\
-	smoc_chan_if.cpp		\
-	smoc_root_chan.cpp		\
-	smoc_guard.cpp			\
-	smoc_moc.cpp			\
-	smoc_graph_synth.cpp		\
-	smoc_func_call.cpp		\
-					\
-	hscd_tdsim_TraceLog.cpp
+libsystemoc_la_SOURCES =			\
+	smoc-core/IdPool.cpp			\
+	smoc-core/smoc_simulation_ctx.cpp	\
+	smoc-core/smoc_main.cpp			\
+	smoc-core/smoc_elab_and_sim.cpp		\
+	smoc-core/astnodes.cpp			\
+	smoc-core/smoc_ast_ngx_visitor.cpp	\
+	smoc-core/smoc_fifo.cpp			\
+	smoc-core/smoc_multiplex_fifo.cpp	\
+	smoc-core/smoc_multireader_fifo.cpp	\
+	smoc-core/smoc_latency_queues.cpp	\
+	smoc-core/smoc_multicast_sr_signal.cpp	\
+	smoc-core/smoc_graph_type.cpp		\
+	smoc-core/smoc_actor.cpp		\
+	smoc-core/smoc_root_node.cpp		\
+	smoc-core/smoc_sysc_port.cpp		\
+	smoc-core/smoc_firing_rules.cpp		\
+	smoc-core/smoc_chan_if.cpp		\
+	smoc-core/smoc_root_chan.cpp		\
+	smoc-core/smoc_guard.cpp		\
+	smoc-core/smoc_moc.cpp			\
+	smoc-core/SMXDumper.cpp			\
+	smoc-core/smoc_graph_synth.cpp		\
+	smoc-core/smoc_func_call.cpp		\
+						\
+	smoc-core/hscd_tdsim_TraceLog.cpp
 #	smoc_ngx_sync.cpp
 
 if SYSTEMOC_ENABLE_WSDF

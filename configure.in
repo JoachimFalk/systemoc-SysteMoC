@@ -5,7 +5,7 @@ AC_INIT([SysteMoC], [0.8], [joachim.falk@informatik.uni-erlangen.de christian.ze
 AC_PREREQ(2.57)
 ACJF_INIT
 
-AC_CONFIG_SRCDIR([smoc_root_node.cpp])
+AC_CONFIG_SRCDIR([smoc-core/smoc_root_node.cpp])
 AC_CONFIG_AUX_DIR([../BuildSystem])
 
 AC_CANONICAL_BUILD

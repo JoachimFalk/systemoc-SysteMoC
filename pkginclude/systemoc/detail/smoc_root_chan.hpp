@@ -47,10 +47,11 @@
 
 #include "smoc_sysc_port.hpp"
 #include "../smoc_event.hpp"
-#include <smoc/smoc_simulation_ctx.hpp>
-#include "../smoc_storage.hpp"
+#include "smoc_storage.hpp"
 #include "smoc_chan_if.hpp"
 #include "smoc_port_registry.hpp"
+#include <smoc/detail/NamedIdedObj.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {
@@ -63,12 +64,13 @@ namespace Detail {
 
 class smoc_root_chan
 : public sc_prim_channel,
-  public smoc_port_registry
+  public smoc_port_registry,
+  public SysteMoC::Detail::NamedIdedObj,
+  public SysteMoC::Detail::SimCTXBase
 {
   typedef smoc_root_chan this_type;
-private:
   friend class smoc_graph_base;
-
+private:
   std::string myName; // patched in finalise
 protected:
 
@@ -90,14 +92,9 @@ protected:
 
   virtual void finalise();
   virtual void reset() {}
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::Process::Ptr proc;
-  void assembleXML();
-#endif
-  
 public:
-  const char *name() const { return myName.c_str(); }
+  const char *name() const
+    { return myName.c_str(); }
  
   virtual ~smoc_root_chan();
 };

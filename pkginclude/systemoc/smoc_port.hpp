@@ -49,8 +49,8 @@
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/smoc_chan_if.hpp"
 #include "smoc_event.hpp"
-#include "smoc_storage.hpp"
-#include "hscd_tdsim_TraceLog.hpp"
+#include "detail/smoc_storage.hpp"
+#include "detail/hscd_tdsim_TraceLog.hpp"
 
 /// IFACE: interface type (this is basically sc_port_b<IFACE>)
 template <typename IFACE>
@@ -70,7 +70,7 @@ private:
     { return typeid(iface_type).name(); }
 
   // called by pbind (for internal use only)
-  int vbind(sc_interface &interface_) {
+  int vbind(sc_core::sc_interface &interface_) {
     iface_type *iface = dynamic_cast<iface_type *>(&interface_);
     if (iface == 0) {
       // type mismatch
@@ -80,7 +80,7 @@ private:
     return 0;
   }
 
-  int vbind(sc_port_base &parent_) {
+  int vbind(sc_core::sc_port_base &parent_) {
     this_type* parent = dynamic_cast<this_type *>(&parent_);
     if (parent == 0) {
       // type mismatch
@@ -108,14 +108,14 @@ protected:
     { return static_cast<const access_type *>(portAccess); }
 
   iface_type       *operator -> () {
-    sc_interface *iface = this->get_interface();
+    smoc_port_base_if *iface = this->get_interface();
     if (iface == NULL)
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return static_cast<iface_type *>(iface);
   }
 
   iface_type const *operator -> () const {
-    const sc_interface *iface = this->get_interface();
+    const smoc_port_base_if *iface = this->get_interface();
     if (iface == NULL)
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return static_cast<iface_type const *>(iface);
@@ -231,11 +231,11 @@ struct Value<DToken<T> > {
 
 template<typename T>
 struct AST<DToken<T> > {
-  typedef PASTNode result_type;
+  typedef Detail::PASTNode result_type;
   
   static inline
   result_type apply(const DToken<T> &e)
-    { return PASTNode(new ASTNodeToken(e.p, e.pos)); }
+    { return Detail::PASTNode(new Detail::ASTNodeToken(e.p, e.pos)); }
 };
 
 template<typename T>

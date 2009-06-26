@@ -34,38 +34,39 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_config.h>
-
-#ifdef SYSTEMOC_ENABLE_SGX
-# include <sgx.hpp>
-#endif // SYSTEMOC_ENABLE_SGX
-
 #ifndef _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
 #define _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
 
-namespace SysteMoC { namespace Detail {
+#include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_NEED_IDS
 
-# ifdef SYSTEMOC_ENABLE_SGX
-using SystemCoDesigner::SGX::NgId;
-# else // !SYSTEMOC_ENABLE_SGX
+#include <limits>
+
+namespace SysteMoC { namespace Detail {
+
+// This must be synced with SystemCoDesigner::SGX::NgId
 typedef uint32_t NgId;
-# endif // !SYSTEMOC_ENABLE_SGX
+
+class IdPool;
 
 class IdedObj {
+  friend class IdPool;
+private:
   NgId _id;
 public:
   IdedObj()
-    : _id(-1) {}
+    : _id(std::numeric_limits<NgId>::max()) {}
 
   NgId getId() const
     { return _id; }
+private:
   void setId(NgId id)
     { _id = id; }
 };
-#endif // SYSTEMOC_NEED_IDS
 
 } } // namespace SysteMoC::Detail
+
+#endif // SYSTEMOC_NEED_IDS
 
 #endif // _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP

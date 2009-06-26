@@ -178,7 +178,7 @@ private:
 
   /// @brief Action
   smoc_action f;
-  
+
   /// @brief Target state
   RuntimeState *dest;
 
@@ -186,15 +186,9 @@ private:
   /// @brief FastLink to VPC
   SystemC_VPC::FastLink *vpcLink;
 #endif //SYSTEMOC_ENABLE_VPC
-  
+
   /// @brief Hierarchical end-of-elaboration callback
   void finalise();
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringTransition::Ptr trans;
-  void assembleXML();
-#endif
-
 public:
   /// @brief Execution masks used for SR Scheduling
   static const int GO   = 1;
@@ -227,10 +221,6 @@ public:
   /// @brief Returns the action
   const smoc_action& getAction() const;
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringTransition::Ptr getNGXObj() const;
-#endif
-
 //#ifdef SYSTEMOC_DEBUG
   /// @brief Debug output for this transitions
 //  void dump(std::ostream &out) const;
@@ -240,7 +230,8 @@ public:
 typedef std::list<RuntimeTransition> RuntimeTransitionList;
 
 class RuntimeState
-: public SysteMoC::Detail::NamedIdedObj {
+: public SysteMoC::Detail::NamedIdedObj,
+  public SysteMoC::Detail::SimCTXBase {
   typedef RuntimeState                    this_type;
   typedef SysteMoC::Detail::NamedIdedObj  base_type;
 private:
@@ -248,21 +239,11 @@ private:
   RuntimeTransitionList t;
 
   void  finalise();
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringState::Ptr state;
-  void assembleXML();
-#endif
-
 public:
   RuntimeState(const std::string name = "");
 
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringState::Ptr getNGXObj() const;
-#endif
 
   const char *name() const
     { return _name.c_str(); }
@@ -294,12 +275,6 @@ private:
 
   RuntimeState* init;
   RuntimeStateSet rts;
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringFSM::Ptr fsm;
-  void assembleXML();
-#endif
-
 public:
   /// @brief Constructor
   FiringFSMImpl();
@@ -335,10 +310,6 @@ public:
   const RuntimeStateSet& getStates() const;
 
   RuntimeState* getInitialState() const;
-
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::FiringFSM::Ptr getNGXObj() const;
-#endif
 };
 
 class FiringStateBaseImpl {

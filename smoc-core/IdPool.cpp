@@ -1,7 +1,6 @@
-//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
+ * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of
  * Erlangen-Nuremberg. All rights reserved.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
@@ -36,34 +35,38 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/hscd_tdsim_TraceLog.hpp>
+#ifdef SYSTEMOC_NEED_IDS
 
-#include <systemoc/smoc_guard.hpp>
-#include <smoc/smoc_simulation_ctx.hpp>
+#include <smoc/detail/IdPool.hpp>
 
-void smoc_activation_pattern::finalise() {
-#ifdef SYSTEMOC_DEBUG
-  // DO not dump status of activation pattern as
-  // that may call guards which operate on as yet
-  // unititialized data
-  std::cerr << "smoc_activation_pattern::finalise(), this == " << this << std::endl;
-#endif
+#include <CoSupport/Math/string_hash.hpp>
 
-  Expr::evalTo<Expr::Sensitivity>(guard, *this);
+namespace SysteMoC { namespace Detail {
+
+IdedObj *IdPool::getNodeById(const NgId id) const {
+  IdMap::const_iterator iter;
+  
+  if ((iter = idMap.find(id)) != idMap.end())
+    return iter->second.node;
+  else
+    return NULL;
 }
 
-Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
-  if (*this) {
-    Expr::Detail::ActivationStatus retval =
-      Expr::evalTo<Expr::Value>(guard);
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-    Expr::evalTo<Expr::CommReset>(guard);
-#endif
-    return retval;
-  } else
-    return Expr::Detail::BLOCKED();
+// set "id"-attribute to some new id
+void IdPool::addIdedObj(IdedObj *n) {
+  IdMap::iterator iter = IdAllocAnon::idAlloc(IdMapEntry(n));
+  n->setId(iter->first);
 }
 
-const Expr::Ex<bool>::type smoc_activation_pattern::getExpr() const
-  { return guard; }
+// set "id"-attribute to id
+void IdPool::addIdedObj(NamedIdedObj *n) {
+  CoSupport::FNV<IdRangeNamed::bits> hf;
+  NgId id = IdRangeNamed::min + hf(n->name());
+  assert(id <= IdRangeNamed::max);
+  IdMap::iterator iter = IdAllocNamed::idAllocNext(id, IdMapEntry(n));
+  n->setId(iter->first);
+}
 
+} } // namespace SysteMoC::Detail
+
+#endif // SYSTEMOC_NEED_IDS

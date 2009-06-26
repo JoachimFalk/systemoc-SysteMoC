@@ -33,43 +33,45 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/detail/smoc_ast_ngx_visitor.hpp>
-#include <systemoc/detail/smoc_sysc_port.hpp>
+#include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_SGX
 
+#include "smoc_ast_ngx_visitor.hpp"
+
+#include <systemoc/detail/smoc_sysc_port.hpp>
+
 namespace SysteMoC { namespace Detail {
 
-namespace AP = SysteMoC::ActivationPattern;
 namespace SGX = SystemCoDesigner::SGX;
 
 typedef ASTNGXVisitor::result_type result_type;
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodeVar &a) {
+result_type ASTNGXVisitor::operator()(ASTNodeVar &a) {
   SGX::ASTNodeVar s;
   s.name().set(a.getName());
   return &s;
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodeLiteral &a) {
+result_type ASTNGXVisitor::operator()(ASTNodeLiteral &a) {
   SGX::ASTNodeLiteral s;
   s.value().set(a.getValue());
   return &s;
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodeProc &) {
+result_type ASTNGXVisitor::operator()(ASTNodeProc &) {
   assert(!"Unimplemented");
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodeMemProc &) {
+result_type ASTNGXVisitor::operator()(ASTNodeMemProc &) {
   assert(!"Unimplemented");
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodeMemGuard &a) {
+result_type ASTNGXVisitor::operator()(ASTNodeMemGuard &a) {
   SGX::ASTNodeMemGuard s;
   s.name().set(a.getName());
 
-  for(AP::ParamInfoList::const_iterator pIter = a.getParams().begin();
+  for(ParamInfoList::const_iterator pIter = a.getParams().begin();
       pIter != a.getParams().end(); ++pIter)
   {
     SGX::Parameter p(pIter->type, pIter->value);
@@ -80,7 +82,7 @@ result_type ASTNGXVisitor::operator()(AP::ASTNodeMemGuard &a) {
   return &s;
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodeToken &a) {
+result_type ASTNGXVisitor::operator()(ASTNodeToken &a) {
   const smoc_sysc_port *port =
     dynamic_cast<const smoc_sysc_port *>(a.getPortId().getPortPtr());
   assert(port != NULL);
@@ -90,7 +92,7 @@ result_type ASTNGXVisitor::operator()(AP::ASTNodeToken &a) {
   return &s;
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodePortTokens &a) {
+result_type ASTNGXVisitor::operator()(ASTNodePortTokens &a) {
   const smoc_sysc_port *port =
     dynamic_cast<const smoc_sysc_port *>(a.getPortId().getPortPtr());
   assert(port != NULL);
@@ -99,18 +101,18 @@ result_type ASTNGXVisitor::operator()(AP::ASTNodePortTokens &a) {
   return &s;
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodeSMOCEvent &a) {
+result_type ASTNGXVisitor::operator()(ASTNodeSMOCEvent &a) {
   //assert(!"Unimplemented");
   // FIXME PROBLEMATIC!!!
   return NULL;
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodePortIteration &a) {
+result_type ASTNGXVisitor::operator()(ASTNodePortIteration &a) {
   assert(!"Unimplemented");
   // FIXME PROBLEMATIC!!!
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodeBinOp &a) {
+result_type ASTNGXVisitor::operator()(ASTNodeBinOp &a) {
   SGX::ASTNodeBinOp s;
   s.opType() = a.getOpType();
   s.leftNode() = apply_visitor(*this, a.getLeftNode());
@@ -118,14 +120,14 @@ result_type ASTNGXVisitor::operator()(AP::ASTNodeBinOp &a) {
   return &s;
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodeUnOp &a) {
+result_type ASTNGXVisitor::operator()(ASTNodeUnOp &a) {
   SGX::ASTNodeUnOp s;
   s.opType() = a.getOpType();
   s.childNode() = apply_visitor(*this, a.getChildNode());
   return &s;
 }
 
-result_type ASTNGXVisitor::operator()(AP::ASTNodeComm &a) {
+result_type ASTNGXVisitor::operator()(ASTNodeComm &a) {
   const smoc_sysc_port *port =
     dynamic_cast<const smoc_sysc_port *>(a.getPortId().getPortPtr());
   assert(port != NULL);
@@ -135,6 +137,6 @@ result_type ASTNGXVisitor::operator()(AP::ASTNodeComm &a) {
   return &s;
 }
 
-}} // namespace SysteMoC::Detail
+} } // namespace SysteMoC::Detail
 
 #endif // SYSTEMOC_ENABLE_SGX
