@@ -37,6 +37,7 @@
 
 #include <systemoc/smoc_func_call.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
+#include <systemoc/smoc_ast_systemoc.hpp>
 
 smoc_action merge(const smoc_action& a, const smoc_action& b) {
   if(const smoc_func_call_list* _a = boost::get<smoc_func_call_list>(&a)) {
@@ -166,3 +167,43 @@ SystemC_VPC::FastLink* VPCLinkVisitor::operator()(smoc_func_diverge& f) const {
         name, "smoc_func_diverge"));
 }
 #endif // SYSTEMOC_ENABLE_VPC
+
+#ifdef SYSTEMOC_ENABLE_SGX
+using namespace SystemCoDesigner::SGX;  
+using namespace SysteMoC::ActivationPattern;
+
+Action::Ptr ActionNGXVisitor::operator()(smoc_func_call_list& f) const {
+  if(f.empty()) return NULL;
+
+  bool single = (++f.begin() == f.end());
+  CompoundAction top;
+
+  for(smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
+    Function func;
+    func.name().set(i->getFuncName());
+
+    for(ParamInfoList::const_iterator pIter = i->getParams().begin();
+        pIter != i->getParams().end(); ++pIter)
+    {
+      Parameter p(pIter->type, pIter->value);
+      //p.name().set(pIter->name);
+      func.parameters().push_back(p);
+    }
+
+    if(single)
+      return &func;
+    else
+      top.actions().push_back(func);
+  }
+
+  return &top;
+}
+
+Action::Ptr ActionNGXVisitor::operator()(smoc_func_diverge& f) const {
+  return NULL;
+}
+
+Action::Ptr ActionNGXVisitor::operator()(smoc_sr_func_pair& f) const {
+  return NULL;
+}
+#endif // SYSTEMOC_ENABLE_SGX

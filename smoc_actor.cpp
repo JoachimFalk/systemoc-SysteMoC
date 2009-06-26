@@ -21,7 +21,7 @@ void smoc_actor::finalise() {
   assembleXML();
   smoc_root_node::finalise();
   // FIXME: FSM is attribute of Actor, not of Process
-  ac->firingFSM() = getFiringFSM()->getFSM();
+  ac->firingFSM() = getFiringFSM()->getNGXObj();
 }
 
 void smoc_actor::assembleXML() {
