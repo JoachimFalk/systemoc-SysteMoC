@@ -201,6 +201,15 @@ struct ParamInfoVisitor {
     pi.value = CoSupport::String::asStr(p);
     pil.push_back(pi);
   }
+  
+  template<class P>
+  void operator()(const std::string& name, const P& p) {
+    ParamInfo pi;
+    pi.name = name;
+    pi.type = typeid(P).name();
+    pi.value = CoSupport::String::asStr(p);
+    pil.push_back(pi);
+  }
 };
 
 } } // namespace SysteMoC::ActivationPattern

@@ -26,7 +26,8 @@ void smoc_actor::finalise() {
 
 void smoc_actor::assembleXML() {
   using namespace SystemCoDesigner::SGX;
-  
+  using namespace SysteMoC::ActivationPattern;
+
   assert(!ac);
   
   Actor _actor(name());
@@ -35,7 +36,15 @@ void smoc_actor::assembleXML() {
   
   // set some attributes
   ac->cxxClass() = typeid(*this).name();
-  
+ 
+  for(ParamInfoList::const_iterator pIter = constrArgs.pil.begin();
+      pIter != constrArgs.pil.end(); ++pIter)
+  {
+    Parameter p(pIter->type, pIter->value);
+    p.name().set(pIter->name);
+    ac->constructorParameters().push_back(p);
+  }
+
   smoc_graph_base* parent =
     dynamic_cast<smoc_graph_base*>(get_parent_object());
   
