@@ -572,7 +572,7 @@ protected:
 
   /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
-    { return -1; }
+    { return static_cast<size_t>(-1); }
 
   /// @brief See smoc_port_in_if
   typename this_type::access_type *getReadPortAccess()
@@ -813,7 +813,7 @@ protected:
 
   /// @brief See smoc_port_out_base_if
   size_t outTokenId() const
-    { return -1; }
+    { return static_cast<size_t>(-1); }
 
   /// @brief See smoc_port_out_if
   AccessImpl *getWritePortAccess()
