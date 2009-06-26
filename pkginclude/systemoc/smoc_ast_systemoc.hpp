@@ -53,7 +53,7 @@ namespace smoc_modes {
   class PGWriter;
 }
 
-class smoc_root_port;
+class sc_port_base;
 
 template <class IFACE> class smoc_port_base;
 
@@ -130,12 +130,12 @@ public:
 
 class PortIdentifier {
 protected:
-  const smoc_root_port &port;
+  const sc_port_base &port;
 public:
-  PortIdentifier(const smoc_root_port &port)
+  PortIdentifier(const sc_port_base &port)
     : port(port) {}
 
-  const smoc_root_port *getPortPtr() const
+  const sc_port_base *getPortPtr() const
     { return &port; }
 };
 

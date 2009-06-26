@@ -103,35 +103,9 @@ namespace Expr {
     return typename PortIteration<P>::type(p,firing_level,dimension); 
   }
 
-
-
-
-
-
-
-
   /****************************************************************************
    * DMDToken is a placeholder for a multi-dimensional token in the expression.
    */
-
-#if 0
-  //FIXME
-  class ASTNodeToken: public ASTLeafNode {
-  private:
-    const smoc_root_port &port;
-    size_t                pos;
-  public:
-    template <typename T, template <typename, typename> class R, class PARAM_TYPE>
-    ASTNodeToken(const smoc_port_in_base<T,R,PARAM_TYPE> &port, size_t pos)
-      : ASTLeafNode(static_cast<T*>(NULL)),
-	port(port), pos(pos) {}
-                
-    const smoc_root_port *getPort() const;
-    size_t                getPos() const;
-    std::string           getNodeType() const;
-    std::string           getNodeParam() const;
-  };
-#endif
 
   template<typename PORT_TYPE>
   class DMDToken {
@@ -159,18 +133,6 @@ namespace Expr {
     result_type apply(const DMDToken<PORT_TYPE> &e)
     { return e.p[e.pos]; }
   };
-
-#if 0
-  //FIXME
-  template<typename T, template <typename, typename> class R, class PARAM_TYPE>
-  struct AST<DToken<T,R,PARAM_TYPE> > {
-    typedef PASTNode result_type;
-  
-    static inline
-    result_type apply(const DToken<T,R,PARAM_TYPE> &e)
-    { return PASTNode(new ASTNodeToken(e.p, e.pos)); }
-  };
-#endif
 
   template<class PORT_TYPE>
   struct D<DMDToken<PORT_TYPE> >: public DBase<DMDToken<PORT_TYPE> > {

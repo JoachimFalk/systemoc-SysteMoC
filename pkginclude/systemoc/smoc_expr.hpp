@@ -69,8 +69,6 @@ namespace Expr {
 
 using namespace SysteMoC::ActivationPattern;
 
-  typedef std::map<smoc_root_port*, size_t> port_commit_map;
-
 namespace Detail {
   typedef std::pair<std::string, std::string> ArgInfo;
 
