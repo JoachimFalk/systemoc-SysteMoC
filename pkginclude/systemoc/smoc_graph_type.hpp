@@ -226,7 +226,8 @@ private:
 
   // schedule children of this graph
   void schedule();
-
+// FIXME: This is an incredible hack to fix the GAU bug!!!
+public:
   // a list containing the transitions of the graph's children
   // that may be executed
   smoc_transition_ready_list ol;
