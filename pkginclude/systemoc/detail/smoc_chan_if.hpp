@@ -47,11 +47,11 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "detail/smoc_sysc_port.hpp"
-#include "smoc_event.hpp"
-#include "smoc_pggen.hpp"
-#include "smoc_storage.hpp"
-#include "smoc_expr.hpp"
+#include "smoc_sysc_port.hpp"
+#include "../smoc_event.hpp"
+#include "../smoc_pggen.hpp"
+#include "../smoc_storage.hpp"
+#include "../smoc_expr.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {
@@ -605,6 +605,6 @@ private:
     { return smoc_default_event_abort(); }
 };
 
-#include "smoc_port.hpp"
+#include "../smoc_port.hpp"
 
 #endif // _INCLUDED_SMOC_CHAN_IF_HPP

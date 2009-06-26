@@ -39,12 +39,14 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "../smoc_chan_if.hpp"
+#include "smoc_chan_if.hpp"
 #include "../smoc_chan_adapter.hpp"
 #include "../smoc_ngx_sync.hpp"
 
+namespace SysteMoC { namespace Detail {
+
 template <typename DERIVED, typename CHANTYPE>
-class smoc_connect_provider {
+class ConnectProvider {
 public:
   typedef CHANTYPE                         chan_type;
   typedef typename chan_type::data_type    data_type;
@@ -114,5 +116,7 @@ public:
     return *getDerived();
   }
 };
+
+} } // namespace SysteMoC::Detail
 
 #endif // _INCLUDED_SMOC_DETAIL_SMOC_CONNECT_PROVIDER_HPP

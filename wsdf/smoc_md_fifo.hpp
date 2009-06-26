@@ -12,7 +12,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "smoc_chan_if.hpp"
+#include "detail/smoc_chan_if.hpp"
 #include "smoc_fifo.hpp"
 #include "smoc_storage.hpp"
 
@@ -25,7 +25,7 @@
 
 #include "smoc_md_loop.hpp"
 #include "smoc_md_buffer.hpp"
-#include "smoc_md_chan_if.hpp"
+#include "detail/smoc_md_chan_if.hpp"
 #include "smoc_md_port.hpp"
 #include <wsdf/smoc_wsdf_edge.hpp>
 

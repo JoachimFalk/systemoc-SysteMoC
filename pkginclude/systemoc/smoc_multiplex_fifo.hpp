@@ -57,13 +57,13 @@
 #endif //SYSTEMOC_ENABLE_VPC
 
 #include "detail/smoc_root_chan.hpp"
-#include "smoc_chan_if.hpp"
+#include "detail/smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
 #include "smoc_fifo.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_ring_access.hpp"
-#include "detail/smoc_connect_provider.hpp"
+#include "detail/ConnectProvider.hpp"
 #include "detail/EventMapManager.hpp"
 #include "detail/QueueRVWPtr.hpp"
 #include "detail/QueueFRVWPtr.hpp"
@@ -843,12 +843,12 @@ public:
 
   /// @brief Channel initializer
   class chan_init
-  : public smoc_connect_provider<
+  : public SysteMoC::Detail::ConnectProvider<
       chan_init,
       smoc_multiplex_vfifo_chan<T,A> > {
     typedef chan_init this_type;
 
-    friend class smoc_connect_provider<this_type, typename this_type::chan_type>;
+    friend class SysteMoC::Detail::ConnectProvider<this_type, typename this_type::chan_type>;
     friend class smoc_multiplex_vfifo_chan<T,A>;
   public:
     typedef T                               data_type;
@@ -897,12 +897,12 @@ private:
 template <typename T, typename A = typename T::ColorAccessor>
 class smoc_multiplex_fifo
 : public smoc_multiplex_fifo_chan<T,A>::chan_init,
-  public smoc_connect_provider<
+  public SysteMoC::Detail::ConnectProvider<
     smoc_multiplex_fifo<T,A>,
     smoc_multiplex_fifo_chan<T,A> > {
   typedef smoc_multiplex_fifo<T,A> this_type;
 
-  friend class smoc_connect_provider<this_type, typename this_type::chan_type>;
+  friend class SysteMoC::Detail::ConnectProvider<this_type, typename this_type::chan_type>;
 private:
   typedef typename smoc_multiplex_fifo_chan<T,A>::chan_init base_type;
 public:

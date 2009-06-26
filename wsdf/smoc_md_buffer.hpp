@@ -10,7 +10,7 @@
 #include <wsdf/smoc_vector.hpp>
 #include "smoc_md_loop.hpp"
 #include <wsdf/smoc_md_array.hpp>
-#include "smoc_md_chan_if.hpp"
+#include "detail/smoc_md_chan_if.hpp"
 #include "smoc_pggen.hpp"
 #include <wsdf/smoc_wsdf_edge.hpp>
 

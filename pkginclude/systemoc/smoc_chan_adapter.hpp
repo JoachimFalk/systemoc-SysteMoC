@@ -42,7 +42,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_chan_if.hpp"
+#include "detail/smoc_chan_if.hpp"
 
 namespace tlm {
 

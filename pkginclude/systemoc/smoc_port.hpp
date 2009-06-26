@@ -47,7 +47,7 @@
 
 #include "smoc_expr.hpp"
 #include "detail/smoc_sysc_port.hpp"
-#include "smoc_chan_if.hpp"
+#include "detail/smoc_chan_if.hpp"
 #include "smoc_event.hpp"
 #include "smoc_storage.hpp"
 #include "hscd_tdsim_TraceLog.hpp"

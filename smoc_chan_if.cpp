@@ -35,7 +35,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_chan_if.hpp>
+#include <systemoc/detail/smoc_chan_if.hpp>
 
 #ifdef __GNUC__
 __attribute__((noreturn))

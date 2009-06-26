@@ -72,12 +72,7 @@ namespace SysteMoC {
 class smoc_root_node
 : public sc_module {
 public:
-  /*friend class smoc_graph_sr;
-  friend class smoc_scheduler_top;
-  friend class smoc_graph;
-  friend class SysteMoC::smoc_graph_synth;*/
   friend class RuntimeTransition;
-    
 private:
   /// @brief Initial firing state
   smoc_hierarchical_state& initialState;
