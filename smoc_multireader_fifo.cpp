@@ -37,6 +37,8 @@
 
 #include <systemoc/smoc_multireader_fifo.hpp>
 #include <systemoc/smoc_ngx_sync.hpp>
+#include <systemoc/smoc_node_types.hpp>
+#include <systemoc/smoc_graph_type.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
