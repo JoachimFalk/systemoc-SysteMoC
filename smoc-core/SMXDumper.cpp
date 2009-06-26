@@ -234,6 +234,10 @@ ExprNGXVisitor::result_type ExprNGXVisitor::operator()(ASTNodePortIteration &a) 
 */
 
 struct SMXDumpCTX {
+  smoc_simulation_ctx *simCTX;
+
+  SMXDumpCTX(smoc_simulation_ctx *ctx)
+    : simCTX(ctx) {}
 };
 
 template <class Visitor>
@@ -602,7 +606,7 @@ public:
             sgxTran.action() = boost::apply_visitor(av,
                 const_cast<smoc_action &>(tIter->getAction()));
           }
-          {
+          if (gsv.ctx.simCTX->isSMXDumpingASTEnabled()) {
             ExprNGXVisitor ev(sv.ports);
             boost::scoped_ptr<SGX::ASTNode> astNode(
               Expr::evalTo(ev, tIter->getExpr()));
@@ -694,9 +698,9 @@ void GraphSubVisitor::operator ()(smoc_fifo_chan_base &obj) {
   DumpFifo(*this)(obj);
 }
 
-void dumpSMX(std::ostream &file, smoc_graph_base &g) {
+void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g) {
   SGX::NetworkGraphAccess ngx;
-  SMXDumpCTX              ctx;
+  SMXDumpCTX              ctx(simCTX);
   ExpectedPortConnections epc;
   SGX::RefinedProcess     rp;
   SGX::ProblemGraph       pg(g.name(), g.getId());

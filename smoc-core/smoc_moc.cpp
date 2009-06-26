@@ -73,7 +73,7 @@ void smoc_scheduler_top::end_of_simulation() {
   simulation_running = false;
 #ifdef SYSTEMOC_ENABLE_SGX
   if (getSimCTX()->isSMXDumpingPostSimEnabled()) {
-    SysteMoC::Detail::dumpSMX(getSimCTX()->getSMXPostSimFile(), *g);
+    SysteMoC::Detail::dumpSMX(getSimCTX()->getSMXPostSimFile(), getSimCTX(), *g);
   }
 #endif // SYSTEMOC_ENABLE_SGX
 }
@@ -83,7 +83,7 @@ void smoc_scheduler_top::end_of_elaboration() {
   g->reset();
 #ifdef SYSTEMOC_ENABLE_SGX
   if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
-    SysteMoC::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), *g);
+    SysteMoC::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
     if (!getSimCTX()->isSMXDumpingPreSimKeepGoing())
       sc_core::sc_stop();
   }

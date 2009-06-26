@@ -41,7 +41,7 @@
 
 namespace SysteMoC { namespace Detail {
 
-void dumpSMX(std::ostream &file, smoc_graph_base &g);
+void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g);
 
 } } // namespace SysteMoC::Detail
 

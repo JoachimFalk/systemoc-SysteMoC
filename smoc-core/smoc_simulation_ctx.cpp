@@ -72,6 +72,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
   : argc(1), argv(_argv),
 #ifdef SYSTEMOC_ENABLE_SGX
     dumpPreSimSMXKeepGoing(false),
+    dumpSMXAST(true),
     dumpPreSimSMXFile(NULL),
     dumpPostSimSMXFile(NULL),
 #endif // SYSTEMOC_ENABLE_SGX
@@ -81,35 +82,54 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
     dumpFSMs(false)
 {
   po::options_description systemocOptions("SysteMoC options");
+  po::options_description backwardCompatibilityCruftOptions;
+  
   systemocOptions.add_options()
     ("systemoc-help",
      "This help message")
+    ("systemoc-dump-fsm",
+     "Dump flattened FSMs as DOT graph");
+  
+#ifdef SYSTEMOC_ENABLE_SGX
+  systemocOptions.add_options()
+#else // !SYSTEMOC_ENABLE_SGX
+  backwardCompatibilityCruftOptions.add_options()
+#endif // !SYSTEMOC_ENABLE_SGX
     ("systemoc-export-smx",
      po::value<std::string>(),
-     "Dump SysteMoC-XML after elaboration (and stop)")
-    ("systemoc-export-smx-keep-going",
-     po::value<std::string>(),
-     "Dump SysteMoC-XML after elaboration (then start simulation)")
+     "Dump SysteMoC-XML after elaboration")
     ("systemoc-export-sim-smx",
      po::value<std::string>(),
      "Dump SysteMoC-XML after simulation")
+    ("systemoc-export-smx-keep-going",
+     "Don't stop if dumping SysteMoC-XML after elaboration")
+    ("systemoc-export-smx-no-ast",
+     "Disable SysteMoC-XML transition AST dumping")
     ("systemoc-import-smx",
      po::value<std::string>(),
-     "Synchronize with specified SysteMoC-XML")
+     "Synchronize with specified SysteMoC-XML");
+  
+#ifdef SYSTEMOC_ENABLE_TRACE
+  systemocOptions.add_options()
+#else // !SYSTEMOC_ENABLE_TRACE
+  backwardCompatibilityCruftOptions.add_options()
+#endif // !SYSTEMOC_ENABLE_TRACE
     ("systemoc-export-trace",
      po::value<std::string>(),
-     "Dump execution trace")
+     "Dump execution trace");
+  
+#ifdef SYSTEMOC_ENABLE_VPC
+  systemocOptions.add_options()
+#else // !SYSTEMOC_ENABLE_VPC
+  backwardCompatibilityCruftOptions.add_options()
+#endif // !SYSTEMOC_ENABLE_VPC
     ("systemoc-vpc-config",
      po::value<std::string>(),
-     "use specified SystemC-VPC configuration file")
-    ("systemoc-dump-fsm",
-     "Dump flattened FSMs as DOT graph");
+     "use specified SystemC-VPC configuration file");
+  
   // Backward compatibility cruft
-  po::options_description backwardCompatibilityCruftOptions;
   backwardCompatibilityCruftOptions.add_options()
     ("export-smx",
-     po::value<std::string>())
-    ("export-smx-keep-going",
      po::value<std::string>())
     ("export-sim-smx",
      po::value<std::string>())
@@ -136,14 +156,9 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
         i->string_key == "dump-fsm") {
       dumpFSMs = true;
     } else if (i->string_key == "systemoc-export-smx" ||
-               i->string_key == "systemoc-export-smx-keep-going" ||
-               i->string_key == "export-smx" ||
-               i->string_key == "export-smx-keep-going") {
+               i->string_key == "export-smx") {
       assert(!i->value.empty());
 #ifdef SYSTEMOC_ENABLE_SGX
-      if (dumpPreSimSMXFile != NULL)
-        dumpPreSimSMXKeepGoing = false;
-      
       // delete null pointer is allowed...
       delete dumpPreSimSMXFile;
       
@@ -164,6 +179,22 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
       dumpPreSimSMXKeepGoing = true;
       dumpPostSimSMXFile =
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
+#else  // !SYSTEMOC_ENABLE_SGX
+      std::ostringstream str;
+      str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
+      throw std::runtime_error(str.str().c_str());
+#endif // !SYSTEMOC_ENABLE_SGX
+    } else if (i->string_key == "systemoc-export-smx-keep-going") {
+#ifdef SYSTEMOC_ENABLE_SGX
+      dumpPreSimSMXKeepGoing = true;
+#else  // !SYSTEMOC_ENABLE_SGX
+      std::ostringstream str;
+      str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
+      throw std::runtime_error(str.str().c_str());
+#endif // !SYSTEMOC_ENABLE_SGX
+    } else if (i->string_key == "systemoc-export-smx-no-ast") {
+#ifdef SYSTEMOC_ENABLE_SGX
+      dumpSMXAST = false;
 #else  // !SYSTEMOC_ENABLE_SGX
       std::ostringstream str;
       str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
