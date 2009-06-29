@@ -131,7 +131,7 @@ private:
   int  interface_count();
   void add_interface(sc_core::sc_interface *);
 protected:
-  smoc_sysc_port(const char* name_);
+  smoc_sysc_port(const char* name_, sc_port_policy policy);
 
   using sc_core::sc_port_base::bind;
 
@@ -140,9 +140,9 @@ protected:
 
   virtual void finalise();
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::Port::Ptr port;
-#endif
+//#ifdef SYSTEMOC_ENABLE_SGX
+//  SystemCoDesigner::SGX::Port::Ptr port;
+//#endif
 
   virtual ~smoc_sysc_port();
 public:
@@ -164,9 +164,9 @@ public:
   const char *name() const
     { return sc_core::sc_object::name(); }
 
-#ifdef SYSTEMOC_ENABLE_SGX
-  SystemCoDesigner::SGX::Port::Ptr getNGXObj() const;
-#endif
+//#ifdef SYSTEMOC_ENABLE_SGX
+//  SystemCoDesigner::SGX::Port::Ptr getNGXObj() const;
+//#endif
 };
 
 typedef std::list<smoc_sysc_port *>       smoc_sysc_port_list;

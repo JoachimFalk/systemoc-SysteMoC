@@ -37,6 +37,7 @@
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_root_node.hpp>
+#include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
 #include <map>
@@ -56,13 +57,14 @@ static std::map<std::string, size_t> _smoc_channel_name_map;
 
 // FIXME: Introduce hacks or whatever means neccessary to get
 // rid of getParentPort()
-sc_port_base* getRootPort(sc_port_base* p) {
+// FIXME: not needed anymore?
+/*sc_port_base* getRootPort(sc_port_base* p) {
   smoc_sysc_port* sp = dynamic_cast<smoc_sysc_port*>(p);
   if(!sp) return p;
   while(sp->getParentPort())
     sp = sp->getParentPort();
   return sp;
-}
+}*/
 
 // FIXME: Introduce hacks or whatever means neccessary to get
 // rid of getChildPort()
@@ -90,8 +92,9 @@ smoc_root_chan::~smoc_root_chan() {
 
 void smoc_root_chan::finalise() {
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_root_chan::finalise() begin, name == " << name() << std::endl;
-#endif
+  outDbg << "<smoc_root_chan::finalise name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
 
   // will do no harm if already generated
   generateName();
@@ -118,8 +121,8 @@ void smoc_root_chan::finalise() {
   }
 #endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_root_chan::finalise() end, name == " << name() << std::endl;
-#endif
+  outDbg << Indent::Down << "</smoc_root_chan::finalise>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
 void smoc_root_chan::generateName() {

@@ -46,6 +46,7 @@
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
+#include <systemoc/smoc_reset.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
 #include "smoc_graph_synth.hpp"
@@ -185,6 +186,7 @@ namespace Detail {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_fifo_chan_base);
     _SMOC_HANDLE_DERIVED_CLASS(smoc_multiplex_fifo_chan_base);
     _SMOC_HANDLE_DERIVED_CLASS(smoc_multireader_fifo_chan_base);
+    _SMOC_HANDLE_DERIVED_CLASS(smoc_reset_chan);
     assert(!"WTF?! Unhandled derived class of smoc_root_chan!");
   }
 } // namespace Detail

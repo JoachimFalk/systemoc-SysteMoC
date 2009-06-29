@@ -58,6 +58,7 @@
 
 #include "detail/smoc_event_decls.hpp"
 #include "detail/smoc_sysc_port.hpp"
+#include "detail/smoc_debug_stream.hpp"
 
 /****************************************************************************
  * dexpr.h
@@ -278,7 +279,7 @@ public:
   static inline
   result_type apply(const E &e, smoc_event_and_list &al) {
 //#ifdef SYSTEMOC_DEBUG
-//    std::cerr << "Sensitivity<E>::apply(...) al == " << al << std::endl;
+//    outDbg << EXPR << "Sensitivity<E>::apply(...) al == " << al << std::endl << INFO;
 //#endif
   }
 };
@@ -447,7 +448,7 @@ public:
   static inline
   result_type apply(const DVirtual <T> &e, const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent) {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommExec<DVirtual<T> >::apply(e)" << std::endl;
+    outDbg << EXPR << "CommExec<DVirtual<T> >::apply(e)" << std::endl << INFO;
 # endif
     return e.v->evalToCommExec(diiEvent, latEvent);
   }
@@ -455,7 +456,7 @@ public:
   static inline
   result_type apply(const DVirtual <T> &e) {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommExec<DVirtual<T> >::apply(e)" << std::endl;
+    outDbg << EXPR << "CommExec<DVirtual<T> >::apply(e)" << std::endl << INFO;
 # endif
     return e.v->evalToCommExec();
   }
@@ -472,7 +473,7 @@ public:
   static inline
   result_type apply(const DVirtual <T> &e) {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommReset<DVirtual<T> >::apply(e)" << std::endl;
+    outDbg << EXPR << "CommReset<DVirtual<T> >::apply(e)" << std::endl << INFO;
 # endif
     return e.v->evalToCommReset();
   }
@@ -487,7 +488,7 @@ public:
   static inline
   result_type apply(const DVirtual <T> &e) {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommSetup<DVirtual<T> >::apply(e)" << std::endl;
+    outDbg << EXPR << "CommSetup<DVirtual<T> >::apply(e)" << std::endl << INFO;
 # endif
     return e.v->evalToCommSetup();
   }
@@ -506,7 +507,7 @@ public:
   static inline
   result_type apply(const DVirtual <T> &e, smoc_event_and_list &al) {
 //#ifdef SYSTEMOC_DEBUG
-//    std::cerr << "Sensitivity<DVirtual<T> >::apply(e, al)" << std::endl;
+//    outDbg << EXPR << "Sensitivity<DVirtual<T> >::apply(e, al)" << std::endl << INFO;
 //#endif
     return e.v->evalToSensitivity(al);
   }
@@ -795,7 +796,7 @@ struct Sensitivity<DSMOCEvent> {
   void apply(const DSMOCEvent &e, smoc_event_and_list &al) {
     al &= e.v;
 //#ifdef SYSTEMOC_DEBUG
-//    std::cerr << "Sensitivity<DSMOCEvent>::apply(...) al == " << al << std::endl;
+//    outDbg << EXPR << "Sensitivity<DSMOCEvent>::apply(...) al == " << al << std::endl << INFO;
 //#endif
   }
 };
@@ -906,7 +907,7 @@ public:
     const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
+    outDbg << EXPR << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << INFO;
 # endif
     OpT::apply(e.a, e.b, diiEvent, latEvent);
   }
@@ -915,7 +916,7 @@ public:
   result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
+    outDbg << EXPR << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << INFO;
 # endif
     OpT::apply(e.a, e.b);
   }
@@ -933,7 +934,7 @@ public:
   result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommReset<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
+    outDbg << EXPR << "CommReset<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << INFO;
 # endif
     CommReset<A>::apply(e.a);
     CommReset<B>::apply(e.b);
@@ -950,7 +951,7 @@ public:
   result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommSetup<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl;
+    outDbg << EXPR << "CommSetup<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << INFO;
 # endif
     CommSetup<A>::apply(e.a);
     CommSetup<B>::apply(e.b);
@@ -975,7 +976,7 @@ public:
   void apply(const DBinOp<A,B,Op> &e, smoc_event_and_list &al) {
     OpT::apply(e.a, e.b, al);
 //#ifdef SYSTEMOC_DEBUG
-//    std::cerr << "Sensitivity<DBinOp<A,B,Op>>::apply(...) al == " << al << std::endl;
+//    outDbg << EXPR << "Sensitivity<DBinOp<A,B,Op>>::apply(...) al == " << al << std::endl << INFO;
 //#endif
   }
 };

@@ -51,22 +51,12 @@
 #include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
-//#include <systemoc/detail/smoc_ngx_sync.hpp>
+#include <systemoc/detail/smoc_debug_stream.hpp>
 
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::Detail;
 using CoSupport::String::Concat;
 using CoSupport::String::asStr;
-
-#include <CoSupport/Streams/FilterOStream.hpp>
-#include <CoSupport/Streams/IndentStreambuf.hpp>
-using namespace CoSupport::Streams;
-struct MyDebugOstream : public FilterOStream {
-  IndentStreambuf i;
-  MyDebugOstream()
-    : FilterOStream(std::cerr) { insert(i); }
-};
-MyDebugOstream outDbg;
 
 // Prints duration of FiringFSMImpl::finalise() in secs.
 //#define FSM_FINALIZE_BENCHMARK
@@ -193,7 +183,8 @@ RuntimeTransition::RuntimeTransition(
 
 #ifdef SYSTEMOC_DEBUG
 Expr::Detail::ActivationStatus RuntimeTransition::getStatus() const {
-  std::cerr << "RuntimeTransition::getStatus: " << *this << std::endl;
+  outDbg << EVENT << "<RuntimeTransition::getStatus this=\""
+         << *this << "\"/>" << std::endl << INFO;
   return smoc_activation_pattern::getStatus();
 }
 #endif
@@ -231,9 +222,9 @@ void RuntimeTransition::execute(int mode) {
 #ifdef SYSTEMOC_DEBUG
   static const char *execModeName[] = { "diiStart", "diiEnd", "graph" };
 
-  std::cerr << "  <transition actor=\"" << actor->name()
-            << "\" mode=\"" << execModeName[execMode]
-            << "\">" << std::endl;
+  outDbg << "<transition actor=\"" << actor->name()
+         << "\" mode=\"" << execModeName[execMode]
+         << "\">" << std::endl << Indent::Up;
 #endif
 
 #ifdef SYSTEMOC_TRACE
@@ -302,9 +293,8 @@ void RuntimeTransition::execute(int mode) {
           TraceLog.traceStartActor(actor, "l");
 # endif
 # ifdef SYSTEMOC_DEBUG
-          std::cerr << "smoc_root_node::_communicate::_::signaled(...)"
-                    << std::endl;
-# endif
+          outDbg << "<transition::_::signaled/>" << std::endl;
+# endif // SYSTEMOC_DEBUG
           assert(_e == &*latEvent);
           assert(*_e);
           latEvent = NULL;
@@ -315,9 +305,8 @@ void RuntimeTransition::execute(int mode) {
         }
         void eventDestroyed(smoc_event_waiter *_e) {
 # ifdef SYSTEMOC_DEBUG
-          std::cerr << "smoc_root_node::_communicate::_:: eventDestroyed(...)"
-                    << std::endl;
-# endif
+          outDbg << "<transition::_::eventDestroyed/>" << std::endl;
+# endif // SYSTEMOC_DEBUG
           delete this;
         }
         
@@ -350,7 +339,7 @@ void RuntimeTransition::execute(int mode) {
   actor->setCurrentState(nextState);
 
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "  </transition>"<< std::endl;
+  outDbg << Indent::Down << "</transition>"<< std::endl;
 #endif
 }
 

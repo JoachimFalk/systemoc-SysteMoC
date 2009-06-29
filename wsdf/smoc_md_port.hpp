@@ -28,6 +28,7 @@
 
 namespace Expr {
 
+  using namespace Detail;
 
   /****************************************************************************
    * DPortIteration represents the value of the iterator

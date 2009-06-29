@@ -39,15 +39,10 @@
 
 #include "detail/smoc_root_node.hpp"
 
-class smoc_actor
-: public smoc_root_node {
+class smoc_actor : public smoc_root_node {
 protected:
   smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
   smoc_actor(smoc_firing_state &s);
-
-#ifdef SYSTEMOC_DEBUG
-  ~smoc_actor();
-#endif
 };
 
 #endif // _INCLUDED_SMOC_ACTOR_HPP

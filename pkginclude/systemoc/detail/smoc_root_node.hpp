@@ -119,6 +119,10 @@ private:
 
 #endif // SYSTEMOC_ENABLE_VPC
 
+  /// @brief Resets this node, calls reset()
+  virtual void doReset();
+  friend class smoc_reset_chan; 
+
 protected:
   //smoc_root_node(const smoc_firing_state &s);
   smoc_root_node(sc_module_name, smoc_hierarchical_state &s/*, bool regObj = true*/);
@@ -126,7 +130,9 @@ protected:
   friend class smoc_graph_base;
 
   virtual void finalise();
-  virtual void reset() {}
+
+  /// @brief User reset method (do not put functionality in there)
+  virtual void reset() {};
 
   template<typename F>
   typename CoSupport::Lambda::ParamAccumulator<smoc_member_func, CoSupport::Lambda::Functor<void, F> >::accumulated_type

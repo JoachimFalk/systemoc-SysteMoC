@@ -39,6 +39,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_sr_signal.hpp>
 #include <systemoc/smoc_multicast_sr_signal.hpp>
+#include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
 #include "SMXDumper.hpp"
@@ -80,7 +81,8 @@ void smoc_scheduler_top::end_of_simulation() {
 
 void smoc_scheduler_top::end_of_elaboration() {
   g->finalise();
-  g->reset();
+  //g->notifyReset();
+  g->doReset();
 #ifdef SYSTEMOC_ENABLE_SGX
   if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
     SysteMoC::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
@@ -100,7 +102,7 @@ void smoc_scheduler_top::schedule() {
     smoc_wait(ol);
     while(ol) {
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << ol << std::endl;
+      outDbg << EVENT << ol << std::endl << INFO;
 #endif
       RuntimeTransition &transition = ol.getEventTrigger();
       // We have waited on a transition so it should no longer be blocked
@@ -119,8 +121,9 @@ void smoc_scheduler_top::schedule() {
           // execute enabled transition
           assert(&transition.getActor() == g);
 #ifdef SYSTEMOC_DEBUG
-          std::cerr << "<node name=\"" << g->name() << "\">" << std::endl;
-#endif
+          outDbg << "<node name=\"" << g->name() << "\">" << std::endl
+                 << Indent::Up;
+#endif // SYSTEMOC_DEBUG
           // remove transitions from list
           g->delCurOutTransitions(ol);
           // execute transition
@@ -128,8 +131,8 @@ void smoc_scheduler_top::schedule() {
           // add transitions to list
           g->addCurOutTransitions(ol);
 #ifdef SYSTEMOC_DEBUG
-          std::cerr << "</node>" << std::endl;
-#endif
+          outDbg << Indent::Down << "</node>" << std::endl;
+#endif // SYSTEMOC_DEBUG
           break;
         default:
           assert(!"WTF?! transition not either enabled or disabled!");

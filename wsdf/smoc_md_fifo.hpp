@@ -14,14 +14,14 @@
 
 #include "detail/smoc_chan_if.hpp"
 #include "smoc_fifo.hpp"
-#include "smoc_storage.hpp"
+#include "detail/smoc_storage.hpp"
 
 //#include <systemc.h>
 //#include <vector>
 //#include <queue>
 //#include <map>
 
-#include "hscd_tdsim_TraceLog.hpp"
+#include "detail/hscd_tdsim_TraceLog.hpp"
 
 #include "smoc_md_loop.hpp"
 #include "smoc_md_buffer.hpp"

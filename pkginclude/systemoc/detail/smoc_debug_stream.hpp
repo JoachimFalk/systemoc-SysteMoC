@@ -1,3 +1,5 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
+// vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
@@ -31,13 +33,35 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_actor.hpp>
-#include <systemoc/smoc_graph_type.hpp>
+#ifndef _INCLUDED_SMOC_DETAIL_DEBUG_STREAM_HPP
+#define _INCLUDED_SMOC_DETAIL_DEBUG_STREAM_HPP
 
-smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
-  : smoc_root_node(name, s)
-{}
+#include <systemoc/smoc_config.h>
 
-smoc_actor::smoc_actor(smoc_firing_state &s)
-  : smoc_root_node(sc_gen_unique_name("smoc_actor"), s)
-{}
+#ifdef SYSTEMOC_DEBUG
+
+#include <CoSupport/Streams/FilterOStream.hpp>
+#include <CoSupport/Streams/IndentStreambuf.hpp>
+#include <CoSupport/Streams/DebugStreambuf.hpp>
+
+using CoSupport::Streams::Indent;
+using CoSupport::Streams::Debug;
+
+extern Debug EXPR;  // info, FSM, event, expr
+extern Debug EVENT; // info, FSM, event
+extern Debug FSM;   // info, FSM
+extern Debug INFO;  // default
+
+struct SmocDebugOstream
+: public CoSupport::Streams::FilterOStream
+{
+  CoSupport::Streams::DebugStreambuf bufDbg;
+  CoSupport::Streams::IndentStreambuf bufIdt;
+  SmocDebugOstream(const Debug& level = INFO);
+};
+
+extern SmocDebugOstream outDbg;
+
+#endif // SYSTEMOC_DEBUG
+
+#endif // _INCLUDED_SMOC_DETAIL_DEBUG_STREAM_HPP

@@ -38,6 +38,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
+#include <systemoc/detail/smoc_debug_stream.hpp>
 
 #include "smoc_graph_synth.hpp"
 
@@ -63,16 +64,16 @@ void smoc_graph_base::getNodesRecursive( smoc_node_list & subnodes) const {
 #endif
         iter != get_child_objects().end();
         ++iter ) {
-    //std::cerr << (*iter)->name() << std::endl;
+    //outDbg << (*iter)->name() << std::endl;
     
     smoc_root_node *node = dynamic_cast<smoc_actor *>(*iter);
     if (node != NULL){
-      //std::cerr << "add: " <<  node->name() << std::endl;
+      //outDbg << "add: " <<  node->name() << std::endl;
       subnodes.push_back(node);
     }
     smoc_graph_base *graph = dynamic_cast<smoc_graph_base *>(*iter);
     if (graph != NULL){
-      //std::cerr << "sub_graph: " <<  graph->name() << std::endl;
+      //outDbg << "sub_graph: " <<  graph->name() << std::endl;
       graph->getNodesRecursive(subnodes);
     }
   }
@@ -106,8 +107,9 @@ void smoc_graph_base::getChansRecursive( smoc_chan_list & channels) const {
 
 void smoc_graph_base::finalise() {
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_graph_base::finalise() begin, name == " << name() << std::endl;
-#endif
+  outDbg << "<smoc_graph_base::finalise name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
   
   smoc_root_node::finalise();
   
@@ -241,44 +243,54 @@ void smoc_graph_base::finalise() {
 //#endif
 
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_graph_base::finalise() end, name == " << name() << std::endl;
-#endif
+  outDbg << Indent::Down << "</smoc_graph_base::finalise>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
-void smoc_graph_base::reset() {
+void smoc_graph_base::doReset() {
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_graph_base::reset() begin, name == " << name() << std::endl;
-#endif
+  outDbg << "<smoc_graph_base::doReset name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
 
-  for(smoc_node_list::iterator iter = nodes.begin();
-      iter != nodes.end();
-      ++iter)
-  {
-    (*iter)->reset();
-  }
-
+  // reset FIFOs
   for(smoc_chan_list::iterator iter = channels.begin();
       iter != channels.end();
       ++iter)
   {
-    (*iter)->reset();
+    (*iter)->doReset();
   }
 
-#ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_graph_base::reset() end, name == " << name() << std::endl;
-#endif
-}
+  // reset child nodes
+  for(smoc_node_list::iterator iter = nodes.begin();
+      iter != nodes.end();
+      ++iter)
+  {
+    (*iter)->doReset();
+  }
 
+  // call user-defined reset code
+  reset();
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_graph_base::doReset>" << std::endl;
+#endif //SYSTEMOC_DEBUG
+}
+  
 smoc_graph::smoc_graph(const sc_module_name& name) :
-  smoc_graph_base(name, init/*, true*/)
+  smoc_graph_base(name, init/*, true*/),
+  init("init"),
+  run("run")
 {
-  this->constructor();
+  constructor();
 }
 
 smoc_graph::smoc_graph() :
-  smoc_graph_base(sc_gen_unique_name("smoc_graph"), init/*, true*/)
+  smoc_graph_base(sc_gen_unique_name("smoc_graph"), init/*, true*/),
+  init("init"),
+  run("run")
 {
-  this->constructor();
+  constructor();
 }
 
 void smoc_graph::constructor() {
@@ -295,8 +307,10 @@ void smoc_graph::constructor() {
 void smoc_graph::initScheduling() {
   const smoc_node_list& nodes = getNodes();
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "<smoc_graph::initScheduling>" << std::endl;
-#endif
+  outDbg << "<smoc_graph::initScheduling name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+  assert(ol.empty());
   for(smoc_node_list::const_iterator nIter = nodes.begin();
       nIter != nodes.end();
       ++nIter) {
@@ -304,15 +318,21 @@ void smoc_graph::initScheduling() {
     (*nIter)->addCurOutTransitions(ol);
   }
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << ol << std::endl;
-  std::cerr << "</smoc_graph::initScheduling>" << std::endl;
-#endif
+  outDbg << EVENT << ol << std::endl << INFO;
+  outDbg << Indent::Down << "</smoc_graph::initScheduling>" << std::endl;
+#endif // SYSTEMOC_DEBUG
+}
+
+void smoc_graph::reinitScheduling(const smoc_root_node* n) {
+  n->delCurOutTransitions(ol);
+  n->addCurOutTransitions(ol);
 }
 
 void smoc_graph::schedule() {
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "<smoc_graph::schedule>" << std::endl;
-#endif
+  outDbg << "<smoc_graph::schedule name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
   assert(ol || !"WTF?! smoc_graph::schedule() called but no enabled transition!");
   RuntimeTransition &transition = ol.getEventTrigger();
   Expr::Detail::ActivationStatus status = transition.getStatus();
@@ -324,8 +344,9 @@ void smoc_graph::schedule() {
     case Expr::Detail::_ENABLED: {
       smoc_root_node &n = transition.getActor();
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << "<node name=\"" << n.name() << "\">" << std::endl;
-#endif
+      outDbg << "<node name=\"" << n.name() << "\">" << std::endl
+             << Indent::Up;
+#endif // SYSTEMOC_DEBUG
       // remove transitions from list
       n.delCurOutTransitions(ol);
       // execute transition
@@ -333,17 +354,17 @@ void smoc_graph::schedule() {
       // add transitions to list
       n.addCurOutTransitions(ol);
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << "</node>" << std::endl;
-#endif
+      outDbg << Indent::Down << "</node>" << std::endl;
+#endif // SYSTEMOC_DEBUG
       break;
     }
     default:
       assert(0);
   }
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << ol << std::endl;
-    std::cerr << "</smoc_graph::schedule>" << std::endl;
-#endif
+  outDbg << EVENT << ol << std::endl << INFO;
+  outDbg << Indent::Down << "</smoc_graph::schedule>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
 smoc_graph_sr::smoc_graph_sr(const sc_module_name& name) :
@@ -513,10 +534,10 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
           inCommState.remove(*titer);
         }
 
-        DEBUG_CODE( std::cerr << "<actor type=\"commstate\" name=\""
+        DEBUG_CODE( outDbg << "<actor type=\"commstate\" name=\""
                               << n.name() << "\">" << std::endl; )
         transition.execute();
-        DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
+        DEBUG_CODE( outDbg << "</actor>" << std::endl; )
     
         // move transition to next list
         if(n.isNonStrict()){
@@ -584,10 +605,10 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
               defined.remove(*titer);
               bottom.remove(*titer);
             }
-            DEBUG_CODE( std::cerr << "<actor type=\"bottom\" name=\""
+            DEBUG_CODE( outDbg << "<actor type=\"bottom\" name=\""
                                   << n.name() << "\">" << std::endl; )
             transition.execute();
-            DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
+            DEBUG_CODE( outDbg << "</actor>" << std::endl; )
 
             // move transition to next list
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -643,10 +664,10 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
 #ifdef SYSTEMOC_ENABLE_VPC
             n.setLastTransition(&transition);
 #endif
-            DEBUG_CODE( std::cerr << "<actor type=\"non strict\" name=\""
+            DEBUG_CODE( outDbg << "<actor type=\"non strict\" name=\""
                                   << n.name() << "\">" << std::endl; )
             transition.execute(RuntimeTransition::GO);
-            DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
+            DEBUG_CODE( outDbg << "</actor>" << std::endl; )
 
     // move transition to next list
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -806,10 +827,10 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
                 inCommState.remove(*titer);
               }
 
-              DEBUG_CODE( std::cerr << "<actor type=\"commstate\" name=\""
+              DEBUG_CODE( outDbg << "<actor type=\"commstate\" name=\""
                           << n.name() << "\">" << std::endl; )
               transition.execute(); //
-              DEBUG_CODE( std::cerr << "</actor>" << std::endl; )
+              DEBUG_CODE( outDbg << "</actor>" << std::endl; )
               for ( RuntimeTransitionList::iterator titer
                       = n.getCurrentState()->getTransitions().begin();
                     titer != n.getCurrentState()->getTransitions().end();
@@ -905,7 +926,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
     assert(0);
       
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "</smoc_scheduler_top::scheduleSR>" << std::endl;
+    outDbg << "</smoc_scheduler_top::scheduleSR>" << std::endl;
 #endif
     smoc_transition_ready_list all;
     all |= bottom;
@@ -914,7 +935,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
     smoc_wait(all);
     //FIXME(MS): wait also for nonStrict list
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << bottom << std::endl;
+    outDbg << bottom << std::endl;
 #endif
   } while ( 1 );
 }

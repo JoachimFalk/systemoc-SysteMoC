@@ -172,17 +172,17 @@ private:
   /// @brief Detail::DIIQueue callback
   void diiExpired(size_t n);
   
-  /// @brief Called by outlets when more data is available
-  void moreData(size_t n);
+  /// @brief Called when more data is available
+  void moreData();
   
-  /// @brief Called by outlets when less data is available
-  void lessData(size_t n);
+  /// @brief Called when less data is available
+  void lessData();
   
-  /// @brief Called by entries when more space is available
-  void moreSpace(size_t n);
+  /// @brief Called when more space is available
+  void moreSpace();
   
-  /// @brief Called by entries when less space is available
-  void lessSpace(size_t n);
+  /// @brief Calledwhen less space is available
+  void lessSpace();
 };
 
 template<class> class smoc_multireader_fifo_chan;
@@ -219,7 +219,7 @@ protected:
 
   /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
-    { assert(n); return emm.getEvent(0, n); }
+    { assert(n); return emm.getEvent(n); }
 
   /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
@@ -281,7 +281,7 @@ protected:
 
   /// @brief See smoc_port_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
-    { assert(n); return emm.getEvent(0, n); }
+    { assert(n); return emm.getEvent(n); }
   
   /// @brief See smoc_port_out_base_if
   size_t numFree() const
@@ -354,12 +354,12 @@ class smoc_multireader_fifo
   public SysteMoC::Detail::ConnectProvider<
     smoc_multireader_fifo<T>,
     smoc_multireader_fifo_chan<T> > {
-  typedef smoc_multireader_fifo<T> this_type;
 
-  friend class SysteMoC::Detail::ConnectProvider<this_type, typename this_type::chan_type>;
 public:
   typedef T                             data_type;
+  typedef smoc_multireader_fifo<T>      this_type;
   typedef typename this_type::chan_type chan_type;
+  friend class this_type::con_type;
 private:
   chan_type *chan;
 public:
@@ -382,14 +382,8 @@ public:
   this_type &operator <<(typename this_type::add_param_ty x)
     { add(x); return *this; }
 
-  /// Backward compatibility cruft
-  this_type &operator <<(smoc_port_out<T> &p)
-    { return this->connect(p); }
-  this_type &operator <<(smoc_port_in<T> &p)
-    { return this->connect(p); }
-  template<class IFACE>
-  this_type &operator <<(sc_port<IFACE> &p)
-    { return this->connect(p); }
+  using this_type::con_type::operator<<;
+
 private:
   chan_type *getChan() {
     if (chan == NULL)

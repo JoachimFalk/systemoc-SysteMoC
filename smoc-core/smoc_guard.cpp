@@ -36,6 +36,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
+#include <systemoc/detail/smoc_debug_stream.hpp>
 
 #include <systemoc/smoc_guard.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
@@ -45,10 +46,15 @@ void smoc_activation_pattern::finalise() {
   // DO not dump status of activation pattern as
   // that may call guards which operate on as yet
   // unititialized data
-  std::cerr << "smoc_activation_pattern::finalise(), this == " << this << std::endl;
-#endif
+  outDbg << "<smoc_activation_pattern::finalise this=\"" << this << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
 
   Expr::evalTo<Expr::Sensitivity>(guard, *this);
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_activation_pattern::finalise>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
 Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
