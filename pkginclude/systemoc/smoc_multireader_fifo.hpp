@@ -138,12 +138,6 @@ protected:
   /// @brief Calculate token id for next produced token
   size_t outTokenId() const;
 
-  /// @brief Available token count
-  size_t numAvailable() const;
-
-  /// @brief Available free space
-  size_t numFree() const;
-
 public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible
@@ -172,16 +166,16 @@ private:
   void diiExpired(size_t n);
   
   /// @brief Called when more data is available
-  void moreData();
+  void moreData(size_t n);
   
   /// @brief Called when less data is available
-  void lessData();
+  void lessData(size_t n);
   
   /// @brief Called when more space is available
-  void moreSpace();
+  void moreSpace(size_t n);
   
   /// @brief Called when less space is available
-  void lessSpace();
+  void lessSpace(size_t n);
 };
 
 template<class> class smoc_multireader_fifo_chan;
@@ -209,11 +203,11 @@ public:
 protected:
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
-    { chan.consume(this, consume, diiEvent); }
+  void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
+    { chan.consume(this, n, diiEvent); }
 #else
-  void commitRead(size_t consume)
-    { chan.consume(this, consume); }
+  void commitRead(size_t n)
+    { chan.consume(this, n); }
 #endif
 
   /// @brief See smoc_port_in_base_if
@@ -222,28 +216,31 @@ protected:
 
   /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
-    { return chan.numAvailable(); }
+    { return count; }
   
   /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
     { return chan.inTokenId(); }
   
   /// @brief See smoc_port_in_base_if
-  void moreData()
-    { emm.increasedCount(numAvailable()); }
+  void moreData(size_t n)
+    { count += n; emm.increasedCount(count); }
 
   /// @brief See smoc_port_in_base_if
-  void lessData()
-    { emm.decreasedCount(numAvailable()); }
+  void lessData(size_t n)
+    { count -= n; emm.decreasedCount(count); }
 
   /// @brief See smoc_port_in_base_if
-  void reset() { emm.reset(); }
+  void reset()
+    { count = 0; emm.reset(); }
 
   /// @brief See smoc_port_in_if
   access_type* getReadPortAccess()
     { return chan.getReadPortAccess(); }
 
 private:
+  size_t count;
+
   /// @brief The channel implementation
   smoc_multireader_fifo_chan<T>& chan;
   
@@ -274,11 +271,11 @@ public:
 protected:
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
-    { chan.produce(produce, latEvent); }
+  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
+    { chan.produce(n, latEvent); }
 #else
-  void commitWrite(size_t produce)
-    { chan.produce(produce); }
+  void commitWrite(size_t n)
+    { chan.produce(n); }
 #endif
 
   /// @brief See smoc_port_out_base_if
@@ -287,28 +284,31 @@ protected:
   
   /// @brief See smoc_port_out_base_if
   size_t numFree() const
-    { return chan.numFree(); }
-  
+    { return count; }
+
   /// @brief See smoc_port_out_base_if
   size_t outTokenId() const
     { return chan.outTokenId(); }
   
   /// @brief See smoc_port_out_base_if
-  void moreSpace()
-    { emm.increasedCount(numFree()); }
+  void moreSpace(size_t n)
+    { count += n; emm.increasedCount(count); }
 
   /// @brief See smoc_port_out_base_if
-  void lessSpace()
-    { emm.decreasedCount(numFree()); }
-  
+  void lessSpace(size_t n)
+    { count -= n; emm.decreasedCount(count); }
+
   /// @brief See smoc_port_out_base_if
-  void reset() { emm.reset(); }
+  void reset()
+    { count = 0; emm.reset(); }
 
   /// @brief See smoc_port_out_if
   access_type* getWritePortAccess()
     { return chan.getWritePortAccess(); }
 
 private:
+  size_t count;
+
   /// @brief The channel implementation
   smoc_multireader_fifo_chan<T>& chan;
   
@@ -361,9 +361,10 @@ class smoc_multireader_fifo
     smoc_multireader_fifo_chan<T> > {
 
 public:
-  typedef T                             data_type;
+  //typedef T                             data_type;
   typedef smoc_multireader_fifo<T>      this_type;
   typedef typename this_type::chan_type chan_type;
+  typedef typename chan_type::chan_init base_type;
   friend class this_type::con_type;
   friend class smoc_reset_net;
 private:
@@ -371,22 +372,29 @@ private:
 public:
   /// @brief Constructor
   smoc_multireader_fifo(size_t n = 1, smoc_multireader_scheduler* so = 0)
-    : smoc_multireader_fifo_chan<T>::chan_init("", n, so), chan(NULL)
+    : base_type("", n, so), chan(NULL)
   {}
 
   /// @brief Constructor
   explicit smoc_multireader_fifo(
       const std::string& name, size_t n = 1, smoc_multireader_scheduler* so = 0)
-    : smoc_multireader_fifo_chan<T>::chan_init(name, n, so), chan(NULL)
+    : base_type(name, n, so), chan(NULL)
   {}
 
   /// @brief Constructor
   smoc_multireader_fifo(const this_type &x)
-    : smoc_multireader_fifo_chan<T>::chan_init(x), chan(NULL)
-  {}
+    : base_type(x), chan(NULL)
+  {
+    if(x.chan)
+      assert(!"Can't copy initializer: Channel already created!");
+  }
 
-  this_type &operator <<(typename this_type::add_param_ty x)
-    { add(x); return *this; }
+  this_type &operator <<(typename this_type::add_param_ty x) {
+    if(chan)
+      assert(!"Can't place initial token: Channel already created!");
+    add(x);
+    return *this;
+  }
 
   using this_type::con_type::operator<<;
 

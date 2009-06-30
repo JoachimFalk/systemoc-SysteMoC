@@ -308,9 +308,10 @@ class smoc_fifo
     smoc_fifo_chan<T> >
 {
 public:
-  typedef T                 data_type;
-  typedef smoc_fifo<T>      this_type;
-  typedef smoc_fifo_chan<T> chan_type;
+  //typedef T                 data_type;
+  typedef smoc_fifo<T>                  this_type;
+  typedef typename this_type::chan_type chan_type;
+  typedef typename chan_type::chan_init base_type;
   friend class this_type::con_type;
   friend class smoc_reset_net;
 private:
@@ -318,21 +319,28 @@ private:
 public:
   /// @brief Constructor
   smoc_fifo(size_t n = 1)
-    : smoc_fifo_chan<T>::chan_init("", n), chan(NULL)
+    : base_type("", n), chan(NULL)
   {}
 
   /// @brief Constructor
   explicit smoc_fifo(const std::string& name, size_t n = 1)
-    : smoc_fifo_chan<T>::chan_init(name, n), chan(NULL)
+    : base_type(name, n), chan(NULL)
   {}
 
   /// @brief Constructor
   smoc_fifo(const this_type &x)
-    : smoc_fifo_chan<T>::chan_init(x), chan(NULL)
-  {}
+    : base_type(x), chan(NULL)
+  {
+    if(x.chan)
+      assert(!"Can't copy initializer: Channel already created!");
+  }
 
-  this_type &operator<<(const typename chan_type::chan_init::add_param_ty &x)
-    { add(x); return *this; }
+  this_type &operator<<(typename this_type::add_param_ty x) {
+    if(chan)
+      assert(!"Can't place initial token: Channel already created!");
+    add(x);
+    return *this;
+  }
   
   using this_type::con_type::operator<<;
 

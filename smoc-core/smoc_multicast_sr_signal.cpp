@@ -98,7 +98,7 @@ void smoc_multicast_sr_signal_chan_base::lessData() {
       iter != getOutlets().end();
       ++iter)
   {
-    iter->first->lessData();
+    iter->first->lessData(0);
   }
 }
 
@@ -107,7 +107,7 @@ void smoc_multicast_sr_signal_chan_base::moreData() {
       iter != getOutlets().end();
       ++iter)
   {
-    iter->first->moreData();
+    iter->first->moreData(0);
   }
 }
 
@@ -116,7 +116,7 @@ void smoc_multicast_sr_signal_chan_base::lessSpace() {
       iter != getEntries().end();
       ++iter)
   {
-    iter->first->lessSpace();
+    iter->first->lessSpace(0);
   }
 }
 
@@ -125,6 +125,6 @@ void smoc_multicast_sr_signal_chan_base::moreSpace() {
       iter != getEntries().end();
       ++iter)
   {
-    iter->first->moreSpace();
+    iter->first->moreSpace(0);
   }
 }

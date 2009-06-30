@@ -311,6 +311,7 @@ class smoc_port_in_base_if
   friend class smoc_multicast_sr_signal_chan_base;
   friend class smoc_multireader_fifo_chan_base;
   friend class smoc_signal_chan_base;
+  template<class,class> friend class smoc_multiplex_fifo_chan;
 
   template<class,class> friend class smoc_chan_adapter;
 
@@ -378,9 +379,9 @@ protected:
 #endif
 
   /// @brief More tokens available
-  virtual void moreData() {}
+  virtual void moreData(size_t n) {}
   /// @brief Less tokens available
-  virtual void lessData() {}
+  virtual void lessData(size_t n) {}
   /// @brief Reset
   virtual void reset() {}
 
@@ -465,9 +466,9 @@ protected:
 #endif
   
   /// @brief More free space available
-  virtual void moreSpace() {}
+  virtual void moreSpace(size_t n) {}
   /// @brief Less free space available
-  virtual void lessSpace() {}
+  virtual void lessSpace(size_t n) {}
   /// @brief Reset
   virtual void reset() {}
 

@@ -72,9 +72,9 @@ public:
   class chan_init: public BASE::chan_init {
   public:
     friend class smoc_fifo_storage;
-    typedef T add_param_ty;
+    typedef const T& add_param_ty;
 
-    void add(const add_param_ty &t)
+    void add(add_param_ty t)
       { marking.push_back(t); }
   protected:
     template <class P1, class P2>
@@ -164,7 +164,7 @@ public:
     friend class smoc_fifo_storage;
     typedef size_t add_param_ty;
 
-    void add(const add_param_ty &t)
+    void add(add_param_ty t)
       { marking += t; }
   protected:
     template <class P1, class P2>

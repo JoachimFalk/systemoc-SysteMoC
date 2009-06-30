@@ -31,6 +31,7 @@
 #include "smoc_chan_adapter.hpp"
 #include "smoc_fifo.hpp"
 #include "smoc_multireader_fifo.hpp"
+#include "smoc_multiplex_fifo.hpp"
 
 #include "detail/smoc_root_chan.hpp"
 #include "detail/smoc_chan_if.hpp"
@@ -260,28 +261,31 @@ class smoc_reset_net
       smoc_reset_chan> {
 public:
   //typedef void          data_type;
-  typedef smoc_reset_net  this_type;
-  typedef smoc_reset_chan chan_type;
+  typedef smoc_reset_net       this_type;
+  typedef this_type::chan_type chan_type;
+  typedef chan_type::chan_init base_type;
   friend class SysteMoC::Detail::ConnectProvider<this_type,chan_type>;
 private:
   chan_type *chan;
 public:
   smoc_reset_net()
-    : smoc_reset_chan::chan_init(""), chan(NULL)
+    : base_type(""), chan(NULL)
   {}
 
   explicit smoc_reset_net( const std::string& name )
-    : smoc_reset_net::chan_init(name), chan(NULL)
+    : base_type(name), chan(NULL)
   {}
 
   /// @brief Constructor
   smoc_reset_net(const this_type &x)
-    : smoc_reset_net::chan_init(x), chan(NULL)
-  {}
-  
+    : base_type(x), chan(NULL)
+  {
+    if(x.chan)
+      assert(!"Can't copy initializer: Channel already created!");
+  }
+
 //  using this_type::con_type::operator<<;
 //  using this_type::con_type::connect;
-  
 
   this_type& operator<<(smoc_reset_port& p)
     { return this_type::con_type::connect(p); }
@@ -315,6 +319,16 @@ public:
 
   template<class T>
   this_type& operator<<(smoc_multireader_fifo<T>& f)
+    { return connect(f); }
+  
+  template<class T, class A>
+  this_type& connect(smoc_multiplex_fifo<T,A>& f) {
+    sassert(getChan()->chans.insert(f.getChan()).second);
+    return *this;
+  }
+
+  template<class T, class A>
+  this_type& operator<<(smoc_multiplex_fifo<T,A>& f)
     { return connect(f); }
 
 private:
