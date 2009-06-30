@@ -44,7 +44,7 @@ smoc_port_in_base_if* smoc_reset_chan::createOutlet() {
   return new outlet_type(*this);
 }
 
-void smoc_reset_chan::start_of_simulation() {
+void smoc_reset_chan::doReset() {
   sae.notify();
 }
 

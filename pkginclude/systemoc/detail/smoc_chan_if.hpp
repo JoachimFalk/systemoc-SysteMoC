@@ -381,6 +381,8 @@ protected:
   virtual void moreData() {}
   /// @brief Less tokens available
   virtual void lessData() {}
+  /// @brief Reset
+  virtual void reset() {}
 
 public:
   virtual size_t      inTokenId() const = 0;
@@ -466,6 +468,8 @@ protected:
   virtual void moreSpace() {}
   /// @brief Less free space available
   virtual void lessSpace() {}
+  /// @brief Reset
+  virtual void reset() {}
 
 public:
   virtual size_t      outTokenId() const = 0;

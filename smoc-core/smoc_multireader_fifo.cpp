@@ -157,11 +157,16 @@ void smoc_multireader_fifo_chan_base::lessSpace() {
   }
 }
 
-void smoc_multireader_fifo_chan_base::start_of_simulation() {
-  // this should account for initial tokens / space so our events
-  // can always be created unnotified (and the scheduler needs not
-  // to know about initial tokens?)
-  moreSpace(); moreData();
+void smoc_multireader_fifo_chan_base::doReset() {
+  // queue and initial tokens set up by smoc_fifo_storage...
+  for(OutletMap::const_iterator i = getOutlets().begin();
+      i != getOutlets().end(); ++i)
+  {
+    i->first->reset();
+  }
+
+  moreSpace();
+  moreData();
 }
 
 size_t smoc_multireader_fifo_chan_base::inTokenId() const {
