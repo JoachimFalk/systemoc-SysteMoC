@@ -122,6 +122,8 @@ protected:
 
     emmSpace.increasedCount(freeCount());
     emmData.increasedCount(visibleCount());
+
+    smoc_root_chan::doReset();
   }
 
 public:

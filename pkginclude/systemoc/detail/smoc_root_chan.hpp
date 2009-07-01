@@ -73,6 +73,7 @@ class smoc_root_chan
   friend class smoc_reset_chan; // reset
 private:
   std::string myName; // patched in finalise
+  bool resetCalled;
 protected:
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -90,9 +91,16 @@ protected:
   virtual void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
                              std::string name ) {};
+  
+  /// @brief Resets FIFOs which are not in the SysteMoC hierarchy
+  void start_of_simulation() {
+    if(!resetCalled)
+      doReset();
+  }
 
   virtual void finalise();
-  virtual void doReset() {}
+  virtual void doReset()
+    { resetCalled = true; }
 public:
   const char *name() const
     { return myName.c_str(); }

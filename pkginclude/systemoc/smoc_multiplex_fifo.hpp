@@ -138,6 +138,8 @@ protected:
       // if there are outlets, doReset of derived channel will take care
       emmAvailable.increasedCount(visibleCount());
     }
+    
+    smoc_root_chan::doReset();
   }
 
   /// @brief See smoc_port_in_base_if
