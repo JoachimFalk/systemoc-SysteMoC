@@ -26,6 +26,7 @@ SUBDIRS=
 
 nobase_include_HEADERS = \
 	smoc/smoc_simulation_ctx.hpp \
+	smoc/smoc_hooking.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/NamedIdedObj.hpp \
 	\

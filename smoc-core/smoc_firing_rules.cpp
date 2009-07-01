@@ -218,7 +218,7 @@ void RuntimeTransition::execute(int mode) {
 #endif
     execMode = MODE_GRAPH;
   }
-
+  
 #ifdef SYSTEMOC_DEBUG
   static const char *execModeName[] = { "diiStart", "diiEnd", "graph" };
 
@@ -226,30 +226,34 @@ void RuntimeTransition::execute(int mode) {
          << "\" mode=\"" << execModeName[execMode]
          << "\">" << std::endl << Indent::Up;
 #endif
-
+  
 #ifdef SYSTEMOC_TRACE
   if(execMode != MODE_GRAPH)
     TraceLog.traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
 #endif
-
+  
 #if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_TRACE)
   Expr::evalTo<Expr::CommSetup>(guard);
 #endif
-
+  
+#ifdef SYSTEMOC_ENABLE_HOOKING
+  if (execMode == MODE_DIISTART) {
+    std::cerr << actor->name() << ": " << actor->getCurrentState()->name() << " => " << dest->name() << std::endl;
+  }
+#endif // SYSTEMOC_ENABLE_HOOKING
+  
   // only smoc_func_diverge may set nextState to something
   // different than dest here...
   RuntimeState *nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), f);
-
+  
 #ifdef SYSTEMOC_ENABLE_DEBUG
   Expr::evalTo<Expr::CommReset>(guard);
 #endif
   
 #ifdef SYSTEMOC_ENABLE_TRACE
-  if (execMode == MODE_DIISTART) {
-    if (getSimCTX()->isTraceDumpingEnabled())
-      getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
-  }
+  if (execMode == MODE_DIISTART && getSimCTX()->isTraceDumpingEnabled())
+    getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
 #endif // SYSTEMOC_ENABLE_TRACE
   
 #ifdef SYSTEMOC_ENABLE_VPC

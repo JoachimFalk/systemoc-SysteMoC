@@ -85,6 +85,26 @@ if test x"$enable_trace" = x"yes"; then
   AC_DEFINE([SYSTEMOC_ENABLE_TRACE], [yes], [Defined if tracing support is enabled])
 fi
 
+### HOOKING ###
+# --enable-hooking option
+AC_ARG_ENABLE(
+ [hooking],
+ [[  --enable-hooking        Turn on hooking infrastructure [default=no]]],
+ [case "${enableval}" in
+    yes)  enable_hooking=yes  ;;
+    no)   enable_hooking=no   ;;
+    *)    AC_MSG_ERROR(bad value ${enableval} for --enable-hooking) ;;
+  esac],
+ [enable_hooking=no #default]
+)
+
+AM_CONDITIONAL([SYSTEMOC_ENABLE_HOOKING], [test x"$enable_hooking" = x"yes"])
+# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# consistency for Examples and Testcases
+if test x"$enable_hooking" = x"yes"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_HOOKING], [yes], [Defined if hooking infrastructure is provided])
+fi
+
 ### SGX ###
 # --enable-sgx option
 AC_ARG_ENABLE(
