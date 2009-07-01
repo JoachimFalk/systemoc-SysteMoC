@@ -69,7 +69,7 @@ namespace Detail {
 } // namespace Detail
 
 smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
-  : argc(1), argv(_argv),
+  :
 #ifdef SYSTEMOC_ENABLE_SGX
     dumpPreSimSMXKeepGoing(false),
     dumpSMXAST(true),
@@ -145,6 +145,8 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
   od.add(systemocOptions).add(backwardCompatibilityCruftOptions);
   po::parsed_options parsed =
     po::command_line_parser(_argc, _argv).options(od).allow_unregistered().run();
+  
+  argv.push_back(strdup(_argc >= 1 ? _argv[0] : "???"));
   
   for (std::vector<po::basic_option<char> >::const_iterator i = parsed.options.begin();
        i != parsed.options.end();
@@ -241,15 +243,13 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
       for(std::vector<std::string>::const_iterator j = i->original_tokens.begin();
           j != i->original_tokens.end();
           ++j)
-        if ((argv[argc++] = strdup(j->c_str())) == NULL)
-          throw std::bad_alloc();
+        argv.push_back(strdup(j->c_str()));
     } else {
       assert(!"WTF?! UNHANDLED OPTION!");
     }
   }
   
-  argv[argc] = NULL;
-  assert(argc <= _argc);
+  argv.push_back(NULL);
   
 #ifdef SYSTEMOC_ENABLE_VPC
   SystemC_VPC::Director::getInstance();
@@ -280,9 +280,12 @@ void smoc_simulation_ctx::undefCurrentCTX() {
 }
 
 smoc_simulation_ctx::~smoc_simulation_ctx() {
-  // Do not free argv[0] it was not strdupped
-  for (--argc; argc >= 1; --argc)
-    free(argv[argc]);
+  for (std::vector<char *>::iterator iter = argv.begin();
+       iter != argv.end();
+       ++iter)
+    // null pointer free might not be supported!
+    if (*iter != NULL)
+      free(*iter);
   
   if (Detail::currentSimCTX == this)
     undefCurrentCTX();
@@ -298,11 +301,11 @@ smoc_simulation_ctx::~smoc_simulation_ctx() {
 }
 
 int smoc_simulation_ctx::getArgc() {
-  return argc;
+  return argv.size() - 1;
 }
 
 char **smoc_simulation_ctx::getArgv() {
-  return argv;
+  return &argv[0];
 }
 
 } // namespace SysteMoC
