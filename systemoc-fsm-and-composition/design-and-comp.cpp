@@ -107,7 +107,7 @@ public:
     
     // AND state with two partitions (each of which is
     // an XOR state)
-    smoc_and_state a(2);
+    smoc_and_state a("a");
 
     // leaf states can have names (currently only for
     // dumping purposes -> --dump-fsm)
@@ -115,26 +115,27 @@ public:
     smoc_firing_state c("c");
     smoc_firing_state d("d");
     smoc_firing_state e("e");
-    
-    // Each XOR state must have a single initial state
-    a[0].init(b).add(c);
-    a[1].init(d).add(e);
 
-    smoc_and_state f(2);
+    // Each XOR state must have a single initial state
+    a.add(smoc_xor_state("a0").init(b).add(c));
+    a.add(smoc_xor_state("a1").init(d).add(e));
+    
+    smoc_and_state f("f");
     smoc_firing_state g("g");
     smoc_firing_state h("h");
     smoc_firing_state i("i");
     smoc_firing_state j("j");
 
-    f[0].init(g).add(h);
-    f[1].init(i).add(j);
+    f.add(smoc_xor_state("f0").init(g).add(h));
+    f.add(smoc_xor_state("f1").init(i).add(j));
     
-    smoc_and_state k(2);
+    smoc_and_state k("k");
     smoc_firing_state l("l");
     smoc_firing_state m("m");
 
-    k[0].init(a).add(l);
-    k[1].init(f).add(m);
+    smoc_xor_state k0("k0"); k0.init(a).add(l);
+    smoc_xor_state k1("k1"); k1.init(f).add(m);
+    k.add(k0).add(k1);
 
     init =
       // Specifying AND state as target state
@@ -166,7 +167,7 @@ public:
     (b, IN(m)) = CALL(Transform::print)("b -> b") >> b;
 
     // AND partitions can be accessed -> XOR state
-    (k[0], !IN(c), !IN(e))
+    (k0, !IN(c), !IN(e))
       = CALL(Transform::print)("(k[0], !IN(c), !IN(e)) -> (c,e)") >> (c,e);
   }     
 
