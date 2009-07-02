@@ -38,48 +38,96 @@
 
 #include <systemoc/smoc_moc.hpp>
 
-class HelloActor: public smoc_actor {
+static const char message [] = "Hello SysteMoC!";
 
+class Source: public smoc_actor {
+public:
+  // ports:
+  smoc_port_out<char> out;
 private:
+  // functionality state:
+  unsigned int count;
+  unsigned int size;
+
+  // guards:
+  bool hasToken() const{
+    return count<size;
+  }
+
   // actions:
   void src() {
-    std::cout << "Actor " << this->name() << " says:\n"
-              << "Hello SysteMoC" << std::endl;
+    out[0] = message[count];
+    ++count;
   }
 
   // FSM states:
-  smoc_firing_state start, end;
+  smoc_firing_state start;
 public:
   // actor constructor
-  HelloActor(sc_module_name name)
-    : smoc_actor(name, start)
+  Source(sc_module_name name)
+    : smoc_actor(name, start),
+      count(0),
+      size(sizeof(message))
   {
 
     // FSM definition:
-    //  transition from start to end calling action src
-    start = CALL(HelloActor::src) >> end
+    start = 
+      GUARD(Source::hasToken)  >>
+      out(1)                   >>
+      CALL(Source::src) >> start
       ;
   }
 };
 
 
-class HelloNetworkGraph: public smoc_graph {
+class Sink: public smoc_actor {
+public:
+  // ports:
+  smoc_port_in<char> in;
+private:
+  // actions:
+  void sink() {
+    std::cout << in[0] << std::endl;
+  }
+
+  // FSM states:
+  smoc_firing_state start;
+public:
+  // actor constructor
+  Sink(sc_module_name name)
+    : smoc_actor(name, start)
+  {
+
+    // FSM definition:
+    start =
+      in(1)                 >>
+      CALL(Sink::sink) >> start
+      ;
+  }
+};
+
+
+
+class NetworkGraph: public smoc_graph {
 protected:
   // actors
-  HelloActor     helloActor;
+  Source     src;
+  Sink       sink;
 public:
   // networkgraph constructer
-  HelloNetworkGraph(sc_module_name name)
+  NetworkGraph(sc_module_name name)
     : smoc_graph(name),
-      helloActor("HalloActor") // create actor HelloWorld
+      src("Source"), // create actors
+      sink("Sink")
   {
+    connectNodePorts(src.out, sink.in);
   }
 };
 
 int sc_main (int argc, char **argv) {
   
   // create networkgraph
-  smoc_top_moc<HelloNetworkGraph> top("top");
+  smoc_top_moc<NetworkGraph> top("top");
 
   // start simulation (SystemC)
   sc_start();

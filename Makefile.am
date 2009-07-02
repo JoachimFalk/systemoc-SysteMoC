@@ -30,9 +30,13 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 LIBS= @LIBS@ -lsystemoc
 
 noinst_PROGRAMS=		\
-	hello
+	hello			\
+	src-sink
 
 hello_SOURCES= hello-systemoc.cpp
 hello_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+src_sink_SOURCES= source-sink.cpp
+src_sink_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 
