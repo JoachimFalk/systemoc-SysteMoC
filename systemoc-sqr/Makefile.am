@@ -28,6 +28,10 @@ if SYNTH_SW
   SYNTHESIS_SUBDIR = synthesis
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 endif
+if SYNTH_MPI
+  MPISYNTH_SUBDIR = mpi-synthesis
+  include $(root_builddir)/Synthesis-MPI/Rules-Synth.mk
+endif
 if SYNTH_HW
   HWSYNTH_SUBDIR   = hwsynth
   include $(root_builddir)/Synthesis-Actor-Cynthesizer/Rules-Synth.mk
@@ -76,6 +80,12 @@ if SYNTH_SW
 synth: $(SYNTHESIS_SUBDIR)/smoc-synth-sqr
 $(SYNTHESIS_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 .PHONY: synth
+endif
+
+if SYNTH_MPI
+mpisynth: $(MPISYNTH_SUBDIR)/smoc-synth-sqr
+$(MPISYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
+.PHONY: mpisynth
 endif
 
 if SYNTH_HW
