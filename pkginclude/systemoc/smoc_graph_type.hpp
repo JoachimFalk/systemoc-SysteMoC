@@ -182,7 +182,7 @@ public:
 protected:
   //typedef smoc_module_name sc_module_name;
 
-  smoc_graph_base(const sc_module_name& name, smoc_firing_state& init/*, bool regObj*/);
+  smoc_graph_base(const sc_module_name& name, smoc_firing_state& init);
 
   void finalise();
   
@@ -190,11 +190,13 @@ protected:
   void doReset();
 
   /// @brief FIXME: this is somehow ugly
-  virtual void reinitScheduling(const smoc_root_node* n) {}
+  virtual void beforeStateChange(const smoc_root_node* n) {}
+  virtual void afterStateChange(const smoc_root_node* n) {}
 
-  // need to call reinitScheduling
+  // need to call *StateChange
   friend class smoc_multireader_fifo_chan_base;
   friend class smoc_reset_chan;
+  friend class smoc_root_node;
 
 private:
   // actor and graph child objects
@@ -222,18 +224,16 @@ public:
   
 protected:
   /// @brief See smoc_graph_base
-  void reinitScheduling(const smoc_root_node* n);
+  void beforeStateChange(const smoc_root_node* n);
+  void afterStateChange(const smoc_root_node* n);
 
 private:
-  // graph scheduler FSM states
-  smoc_firing_state init, run;
-  
+  // graph scheduler FSM state
+  smoc_firing_state run;
+
   // common constructor code
   void constructor();
   
-  // initialize children scheduling
-  void initScheduling();
-
   // schedule children of this graph
   void schedule();
 

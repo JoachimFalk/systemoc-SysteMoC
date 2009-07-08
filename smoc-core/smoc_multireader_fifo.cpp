@@ -78,15 +78,16 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
   {
     if (i->first == who)
       continue;
-    smoc_actor *actor = dynamic_cast<smoc_actor *>
-      (i->second->get_parent());
-    if (actor == NULL)
+    smoc_root_node *src =
+      dynamic_cast<smoc_root_node *>(getLeafPort(i->second)->get_parent());
+    if (src == NULL)
       continue;
-    smoc_graph_base *graph = dynamic_cast<smoc_graph_base *>
-      (actor->get_parent());
+    smoc_graph_base *graph =
+      dynamic_cast<smoc_graph_base *>(src->get_parent());
     if (graph == NULL)
       continue;
-    graph->reinitScheduling(actor);
+    graph->beforeStateChange(src);
+    graph->afterStateChange(src);
   }
 }
 

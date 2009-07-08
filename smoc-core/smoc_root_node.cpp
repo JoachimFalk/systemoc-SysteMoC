@@ -46,7 +46,7 @@
 
 using namespace SysteMoC::Detail;
 
-smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s/*, bool regObj*/)
+smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
   : sc_module(name),
 #if defined(SYSTEMOC_ENABLE_DEBUG)
 //  _finalizeCalled(false),
@@ -69,8 +69,6 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s/*
         Expr::till(*diiEvent),
         smoc_func_diverge(this, &smoc_root_node::_communicate)));
 #endif // SYSTEMOC_ENABLE_VPC
-
-//if(regObj) idPool.regObj(this);
 }
  
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -147,38 +145,6 @@ smoc_sysc_port_list smoc_root_node::getPorts() const {
   return ret;
 }
 
-/*
-RuntimeStateList smoc_root_node::getStates() const { 
-  RuntimeStateList ret;
-
-  for( 
-#if SYSTEMC_VERSION < 20050714
-    sc_pvector<sc_object*>::const_iterator iter =
-#else
-    std::vector<sc_object*>::const_iterator iter =
-#endif
-      get_child_objects().begin();
-    iter != get_child_objects().end(); ++iter)
-  {
-    if(RuntimeState* s = dynamic_cast<RuntimeState*>(*iter))
-      ret.push_back(s);
-  }
-  return ret;
-}
-*/
-
-std::ostream &smoc_root_node::dumpActor(std::ostream &o) {
-  o << "actor: " << this->name() << std::endl;
-  smoc_sysc_port_list ps = getPorts();
-  o << "  ports:" << std::endl;
-  for ( smoc_sysc_port_list::const_iterator iter = ps.begin();
-        iter != ps.end();
-        ++iter ) {
-    o << "  " << *iter << std::endl;
-  }
-  return o;
-}
-
 bool smoc_root_node::inCommState() const{
 #ifdef SYSTEMOC_ENABLE_VPC
     return currentState == getCommState();
@@ -232,30 +198,47 @@ void smoc_root_node::delCurOutTransitions(smoc_transition_ready_list& ol) const 
 }
 
 smoc_root_node::~smoc_root_node() {
-//idPool.unregObj(this);
 #ifdef SYSTEMOC_ENABLE_VPC
   delete commstate;
 #endif // SYSTEMOC_ENABLE_VPC
 }
-  
+
 void smoc_root_node::doReset() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_root_node::doReset name=\"" << name() << "\""
-         << " oldState=\"" << currentState->name() << "\"";
+  outDbg << "<smoc_root_node::doReset name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
 
-  // resets FSM
+  smoc_graph_base* parent =
+    dynamic_cast<smoc_graph_base*>(get_parent());
+
+  if(parent) {
+    // if we have no parent graph top scheduler has already
+    // removed the transitions
+    parent->beforeStateChange(this);
+ }
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "old state: \"" << currentState->name() << "\"" << std::endl;
+#endif // SYSTEMOC_DEBUG
+
+  // reset FSM
   currentState = getFiringFSM()->getInitialState();
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << " newState=\"" << currentState->name() << "\"/>"
-         << std::endl;
+  outDbg << "new state: \"" << currentState->name() << "\"" << std::endl;
 #endif // SYSTEMOC_DEBUG
+
+  if(parent) {
+    // if we have no parent graph top scheduler will
+    // add the transitions
+    parent->afterStateChange(this);
+  }
 
   // call user-defined reset code
   reset();
 
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "</smoc_root_node::doReset>" << std::endl;
+  outDbg << Indent::Down << "</smoc_root_node::doReset>" << std::endl;
 #endif // SYSTEMOC_DEBUG
 }

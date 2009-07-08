@@ -107,6 +107,8 @@ protected:
   void latencyExpired(size_t n) {
     vpp(n);
     emmData.increasedCount(visibleCount());
+
+    smoc_root_chan::doReset();
   }
 
   /// @brief Detail::DIIQueue callback
