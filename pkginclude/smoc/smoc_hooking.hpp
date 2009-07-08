@@ -37,14 +37,47 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemc.h>
+#ifdef SYSTEMOC_ENABLE_HOOKING
+
+//#include <systemc.h>
+
+#include <string>
+
+#include <boost/function.hpp>
+#include <boost/regex.hpp>
+
+class smoc_actor;
 
 namespace SysteMoC { namespace Hook {
 
-#ifdef SYSTEMOC_ENABLE_HOOKING
+  typedef boost::function<bool (smoc_actor *, const std::string &, const std::string &, const std::string &)> PreCallback;
+  typedef boost::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> PostCallback;
 
-#endif // SYSTEMOC_ENABLE_HOOKING
+  namespace Detail {
+
+    /// Specify a transition hooking rule and its pre and post callbacks
+    struct TransitionHook {
+      boost::regex srcState;
+      boost::regex action;
+      boost::regex dstState;
+      PreCallback  preCallback;
+      PostCallback postCallback;
+
+      TransitionHook(
+        const std::string &srcState, const std::string &action, const std::string &dstState,
+        const PreCallback &pre, const PostCallback &post);
+    };
+
+    void addTransitionHook(smoc_actor *, const TransitionHook &);
+
+  } // namespace Detail
+
+  void addTransitionHook(smoc_actor *,
+    const std::string &srcState, const std::string &action, const std::string &dstState,
+    const PreCallback &pre, const PostCallback &post);
 
 } } // namespace SysteMoC::Hook
+
+#endif // SYSTEMOC_ENABLE_HOOKING
 
 #endif // _INCLUDED_SMOC_HOOKING_HPP

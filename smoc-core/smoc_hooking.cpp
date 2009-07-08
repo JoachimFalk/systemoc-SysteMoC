@@ -34,12 +34,27 @@
 
 #include <smoc/smoc_hooking.hpp>
 
+#include <systemoc/smoc_actor.hpp>
+
 namespace SysteMoC { namespace Hook {
 
 namespace Detail {
 
+  TransitionHook::TransitionHook(
+      const std::string &srcState, const std::string &action, const std::string &dstState,
+      const PreCallback &pre, const PostCallback &post)
+    : srcState(srcState), action(action), dstState(dstState),
+      preCallback(pre), postCallback(post) {}
+
+  void addTransitionHook(smoc_actor *p, const TransitionHook &h)
+    { p->transitionHooks.push_back(h); }
+
 } // namespace Detail
 
-
+void addTransitionHook(smoc_actor *p,
+  const std::string &srcState, const std::string &action, const std::string &dstState,
+  const PreCallback &pre, const PostCallback &post) {
+  Detail::addTransitionHook(p, Detail::TransitionHook(srcState, action, dstState, pre, post));
+}
 
 } } // namespace SysteMoC::Hook

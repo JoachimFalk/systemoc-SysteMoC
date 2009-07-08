@@ -56,6 +56,10 @@
 #include <smoc/smoc_simulation_ctx.hpp>
 #include "../smoc_expr.hpp"
 
+#ifdef SYSTEMOC_ENABLE_HOOKING
+# include <smoc/smoc_hooking.hpp>
+#endif //SYSTEMOC_ENABLE_HOOKING
+
 #define SMOC_REGISTER_CPARAM(name) registerParam(#name,name)
 
 #define CALL(func)    call(&func, #func)
@@ -116,8 +120,13 @@ private:
   //smoc_ref_event *vpc_event_lat;
 
   RuntimeState *_communicate();
-
 #endif // SYSTEMOC_ENABLE_VPC
+
+#ifdef SYSTEMOC_ENABLE_HOOKING
+  friend void SysteMoC::Hook::Detail::addTransitionHook(smoc_actor *, const SysteMoC::Hook::Detail::TransitionHook &);
+
+  std::list<SysteMoC::Hook::Detail::TransitionHook> transitionHooks;
+#endif //SYSTEMOC_ENABLE_HOOKING
 
   /// @brief Resets this node, calls reset()
   virtual void doReset();

@@ -53,6 +53,10 @@
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
 
+#ifdef SYSTEMOC_ENABLE_HOOKING
+# include <boost/regex.hpp> 
+#endif // SYSTEMOC_ENABLE_HOOKING
+
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::Detail;
 using CoSupport::String::Concat;
@@ -250,8 +254,28 @@ void RuntimeTransition::execute(int mode) {
 #endif
   
 #ifdef SYSTEMOC_ENABLE_HOOKING
+  std::string actionStr;
+  
   if (execMode == MODE_DIISTART) {
-    std::cerr << actor->name() << ": " << actor->getCurrentState()->name() << " => " << dest->name() << std::endl;
+    if (!hookingValid) {
+      for (std::list<SysteMoC::Hook::Detail::TransitionHook>::const_iterator iter = actor->transitionHooks.begin();
+           iter != actor->transitionHooks.end();
+           ++iter) {
+        if (boost::regex_search(actor->getCurrentState()->name(), iter->srcState) &&
+            boost::regex_search(actionStr, iter->action) &&
+            boost::regex_search( dest->name(), iter->dstState)) {
+          preHooks.push_back(&iter->preCallback);
+          postHooks.push_back(&iter->postCallback);
+        }
+      }
+      hookingValid = true;
+    }
+    for (PreHooks::const_iterator iter = preHooks.begin();
+         iter != preHooks.end();
+         ++iter) {
+      (*iter)->operator()(static_cast<smoc_actor *>(actor), actor->getCurrentState()->name(), actionStr, dest->name());
+    }
+//  std::cerr << actor->name() << ": " << actor->getCurrentState()->name() << " => " << dest->name() << std::endl;
   }
 #endif // SYSTEMOC_ENABLE_HOOKING
   
@@ -259,6 +283,17 @@ void RuntimeTransition::execute(int mode) {
   // different than dest here...
   RuntimeState *nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), f);
+
+#ifdef SYSTEMOC_ENABLE_HOOKING
+  if (execMode == MODE_DIISTART) {
+    for (PostHooks::const_iterator iter = postHooks.begin();
+         iter != postHooks.end();
+         ++iter) {
+      (*iter)->operator()(static_cast<smoc_actor *>(actor), actor->getCurrentState()->name(), actionStr, dest->name());
+    }
+  }
+#endif // SYSTEMOC_ENABLE_HOOKING
+
   
 #ifdef SYSTEMOC_ENABLE_DEBUG
   Expr::evalTo<Expr::CommReset>(guard);

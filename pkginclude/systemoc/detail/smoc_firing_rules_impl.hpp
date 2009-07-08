@@ -48,6 +48,10 @@
 #include <smoc/smoc_simulation_ctx.hpp>
 #include <smoc/detail/NamedIdedObj.hpp>
 
+#ifdef SYSTEMOC_ENABLE_HOOKING
+# include <smoc/smoc_hooking.hpp>
+#endif //SYSTEMOC_ENABLE_HOOKING
+
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {
   class FastLink;
@@ -195,6 +199,14 @@ private:
   /// @brief FastLink to VPC
   SystemC_VPC::FastLink *vpcLink;
 #endif //SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_HOOKING
+  typedef std::vector<const SysteMoC::Hook::PreCallback  *> PreHooks;
+  typedef std::vector<const SysteMoC::Hook::PostCallback *> PostHooks;
+
+  bool      hookingValid;
+  PreHooks  preHooks;
+  PostHooks postHooks;
+#endif //SYSTEMOC_ENABLE_HOOKING
 
   /// @brief Hierarchical end-of-elaboration callback
   void finalise();
