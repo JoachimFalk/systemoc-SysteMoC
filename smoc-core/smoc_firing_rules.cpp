@@ -520,6 +520,9 @@ bool isImplied(const CondMultiState& c, const ProdState& p) {
   return true;
 }
 
+// only used during finalise below
+size_t priority;
+
 void FiringFSMImpl::finalise(
     smoc_root_node* actor,
     HierarchicalStateImpl* hsinit)
@@ -575,7 +578,9 @@ void FiringFSMImpl::finalise(
     // finalise states -> expanded transitions
 //    {outDbg << "finalising states" << std::endl;
 //    ScopedIndent s1(outDbg);
-    
+   
+    priority = 0;
+
     for(FiringStateBaseImplSet::iterator sIter = states.begin();
         sIter != states.end(); ++sIter)
     {
@@ -984,7 +989,7 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
           this,
           pt->getActivationPattern(),
           pt->getAction(),
-          64 - bits));
+          priority++));
   }
 
 #ifdef SYSTEMOC_DEBUG
@@ -1235,7 +1240,7 @@ void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
           *states.begin(),
           condStates,
           pt->getActivationPattern(), pt->getAction(),
-          0 /* highest priority */));
+          priority++));
   }
 }
 

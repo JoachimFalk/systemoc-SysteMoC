@@ -216,31 +216,29 @@ protected:
 
   /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
-    { return count; }
+    { return chan.visibleCount(); }
   
   /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
     { return chan.inTokenId(); }
   
   /// @brief See smoc_port_in_base_if
-  void moreData(size_t n)
-    { count += n; emm.increasedCount(count); }
+  void moreData(size_t)
+    { emm.increasedCount(chan.visibleCount()); }
 
   /// @brief See smoc_port_in_base_if
-  void lessData(size_t n)
-    { count -= n; emm.decreasedCount(count); }
+  void lessData(size_t)
+    { emm.decreasedCount(chan.visibleCount()); }
 
   /// @brief See smoc_port_in_base_if
   void reset()
-    { count = 0; emm.reset(); }
+    { emm.reset(); }
 
   /// @brief See smoc_port_in_if
   access_type* getReadPortAccess()
     { return chan.getReadPortAccess(); }
 
 private:
-  size_t count;
-
   /// @brief The channel implementation
   smoc_multireader_fifo_chan<T>& chan;
   
@@ -284,31 +282,29 @@ protected:
   
   /// @brief See smoc_port_out_base_if
   size_t numFree() const
-    { return count; }
+    { return chan.freeCount(); }
 
   /// @brief See smoc_port_out_base_if
   size_t outTokenId() const
     { return chan.outTokenId(); }
   
   /// @brief See smoc_port_out_base_if
-  void moreSpace(size_t n)
-    { count += n; emm.increasedCount(count); }
+  void moreSpace(size_t)
+    { emm.increasedCount(chan.freeCount()); }
 
   /// @brief See smoc_port_out_base_if
-  void lessSpace(size_t n)
-    { count -= n; emm.decreasedCount(count); }
+  void lessSpace(size_t)
+    { emm.decreasedCount(chan.freeCount()); }
 
   /// @brief See smoc_port_out_base_if
   void reset()
-    { count = 0; emm.reset(); }
+    { emm.reset(); }
 
   /// @brief See smoc_port_out_if
   access_type* getWritePortAccess()
     { return chan.getWritePortAccess(); }
 
 private:
-  size_t count;
-
   /// @brief The channel implementation
   smoc_multireader_fifo_chan<T>& chan;
   
