@@ -36,6 +36,7 @@
 #define _INCLUDED_SMOC_SIMULATIONCTX_HPP
 
 #include <ostream>
+#include <vector>
 
 #include <systemoc/smoc_config.h>
 
@@ -58,8 +59,7 @@ namespace Detail {
 
 class smoc_simulation_ctx {
 protected:
-  int    argc;
-  char **argv;
+  std::vector<char *> argv;
 
 #ifdef SYSTEMOC_ENABLE_SGX
   bool            dumpPreSimSMXKeepGoing;
