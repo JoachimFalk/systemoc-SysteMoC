@@ -914,10 +914,6 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
   outDbg << "Code: " << code << "; Bits: " << bits << std::endl;
 #endif // SYSTEMOC_DEBUG
 
-  // give hierarchical states a lower default priority than
-  // non-hierarchical states (0)
-  size_t prio = 1;
-
   if(!c.empty()) {
     size_t cs = c.size();
     size_t cb = (cs == 1) ? 1 : CoSupport::flog2(static_cast<uint32_t>(cs) - 1);
@@ -937,14 +933,7 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
       (*s)->finalise(etl);
       ++cc;
     }
-
-    // if we have children, lower the priority
-    prio = 64 - cb;
   }
-
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "Prio.: " << prio << std::endl;
-#endif // SYSTEMOC_DEBUG
 
   for(PartialTransitionList::const_iterator pt = ptl.begin();
       pt != ptl.end(); ++pt)
@@ -956,7 +945,7 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
           this,
           pt->getActivationPattern(),
           pt->getAction(),
-          prio));
+          64 - bits));
   }
 
 #ifdef SYSTEMOC_DEBUG
