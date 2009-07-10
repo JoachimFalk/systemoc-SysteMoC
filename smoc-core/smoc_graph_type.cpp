@@ -269,8 +269,7 @@ void smoc_graph_base::doReset() {
     (*iter)->doReset();
   }
 
-  // call user-defined reset code
-  reset();
+  smoc_root_node::doReset();
 
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_graph_base::doReset>" << std::endl;
@@ -278,53 +277,29 @@ void smoc_graph_base::doReset() {
 }
   
 smoc_graph::smoc_graph(const sc_module_name& name) :
-  smoc_graph_base(name, init/*, true*/),
-  init("init"),
+  smoc_graph_base(name, run),
   run("run")
 {
   constructor();
 }
 
 smoc_graph::smoc_graph() :
-  smoc_graph_base(sc_gen_unique_name("smoc_graph"), init/*, true*/),
-  init("init"),
+  smoc_graph_base(sc_gen_unique_name("smoc_graph"), run),
   run("run")
 {
   constructor();
 }
 
 void smoc_graph::constructor() {
-  // collect all transitions that may be executed
-  init =
-    CALL(smoc_graph::initScheduling)  >> run;
-
   // if there is at least one active transition: execute it
-  run =
-    Expr::till(ol)                    >>
-    CALL(smoc_graph::schedule)        >> run;
+  run = Expr::till(ol) >> CALL(smoc_graph::schedule) >> run;
 }
 
-void smoc_graph::initScheduling() {
-  const smoc_node_list& nodes = getNodes();
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_graph::initScheduling name=\"" << name() << "\">"
-         << std::endl << Indent::Up;
-#endif // SYSTEMOC_DEBUG
-  assert(ol.empty());
-  for(smoc_node_list::const_iterator nIter = nodes.begin();
-      nIter != nodes.end();
-      ++nIter) {
-    // add transitions to list
-    (*nIter)->addCurOutTransitions(ol);
-  }
-#ifdef SYSTEMOC_DEBUG
-  outDbg << EVENT << ol << std::endl << INFO;
-  outDbg << Indent::Down << "</smoc_graph::initScheduling>" << std::endl;
-#endif // SYSTEMOC_DEBUG
-}
-
-void smoc_graph::reinitScheduling(const smoc_root_node* n) {
+void smoc_graph::beforeStateChange(const smoc_root_node* n) {
   n->delCurOutTransitions(ol);
+}
+
+void smoc_graph::afterStateChange(const smoc_root_node* n) {
   n->addCurOutTransitions(ol);
 }
 
@@ -368,13 +343,13 @@ void smoc_graph::schedule() {
 }
 
 smoc_graph_sr::smoc_graph_sr(const sc_module_name& name) :
-  smoc_graph_base(name, init/*, true*/)
+  smoc_graph_base(name, init)
 {
   this->constructor();
 }
 
 smoc_graph_sr::smoc_graph_sr() :
-  smoc_graph_base(sc_gen_unique_name("smoc_graph_sr"), init/*, true*/)
+  smoc_graph_base(sc_gen_unique_name("smoc_graph_sr"), init)
 {
   this->constructor();
 }

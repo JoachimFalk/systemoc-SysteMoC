@@ -130,6 +130,8 @@ private:
   /// @brief Target state(s)
   MultiState dest;
 
+  size_t priority;
+
 public:
   /// @brief Constructor
   ExpandedTransition(
@@ -137,20 +139,23 @@ public:
       const CondMultiState& in,
       const smoc_activation_pattern& ap,
       const smoc_action& f,
-      const MultiState& dest);
+      const MultiState& dest,
+      size_t priority);
 
   /// @brief Constructor
   ExpandedTransition(
       const HierarchicalStateImpl* src,
       const CondMultiState& in,
       const smoc_activation_pattern& ap,
-      const smoc_action& f);
+      const smoc_action& f,
+      size_t priority);
 
   /// @brief Constructor
   ExpandedTransition(
       const HierarchicalStateImpl* src,
       const smoc_activation_pattern& ap,
-      const smoc_action& f);
+      const smoc_action& f,
+      size_t priority);
 
   /// @brief Returns the source state
   const HierarchicalStateImpl* getSrcState() const;
@@ -160,6 +165,9 @@ public:
 
   /// @brief Returns the target state(s)
   const MultiState& getDestStates() const;
+
+  // @brief Returns the priority
+  size_t getPriority() const;
 };
 
 typedef std::list<ExpandedTransition> ExpandedTransitionList;
@@ -179,6 +187,9 @@ private:
 
   /// @brief Target state
   RuntimeState *dest;
+  
+  /// @brief Transition priority
+  size_t priority;
 
 #ifdef SYSTEMOC_ENABLE_VPC
   /// @brief FastLink to VPC
@@ -187,6 +198,7 @@ private:
 
   /// @brief Hierarchical end-of-elaboration callback
   void finalise();
+
 public:
   /// @brief Execution masks used for SR Scheduling
   static const int GO   = 1;
@@ -197,7 +209,8 @@ public:
       smoc_root_node* actor,
       const smoc_activation_pattern& ap,
       const smoc_action& f,
-      RuntimeState* dest = 0);
+      RuntimeState* dest = 0,
+      size_t priority = 0);
 
 #ifdef SYSTEMOC_DEBUG
   /// @brief Determines status of transition
@@ -218,6 +231,9 @@ public:
 
   /// @brief Returns the action
   const smoc_action& getAction() const;
+  
+  /// @brief See EventWaiter
+  size_t getPriority() const;
 
 //#ifdef SYSTEMOC_DEBUG
   /// @brief Debug output for this transitions

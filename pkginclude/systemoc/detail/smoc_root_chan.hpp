@@ -135,4 +135,6 @@ protected:
   virtual void finalise();
 };
 
+sc_port_base* getLeafPort(sc_port_base* p);
+
 #endif // _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP

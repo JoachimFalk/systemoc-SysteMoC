@@ -211,7 +211,7 @@ public:
 ///// getFiringFSM()->getStates() if order does not matter!)
 //RuntimeStateList getStates() const;
 
-  std::ostream &dumpActor(std::ostream &o);
+  //std::ostream &dumpActor(std::ostream &o);
     
   //true if actual state is a communication state
   bool inCommState() const;

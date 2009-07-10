@@ -221,6 +221,8 @@ protected:
         o->second->moreData(1);
       }
     }
+    
+    smoc_root_chan::doReset();
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC

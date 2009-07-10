@@ -72,35 +72,11 @@ void smoc_reset_chan::produce(smoc_port_out_base_if *who)
     (*c)->doReset();
   }
 
-  // which actor did it?
-  smoc_root_node* src = 0;
-  for(EntryMap::const_iterator i = getEntries().begin();
-      i != getEntries().end(); ++i)
-  {
-    if(i->first == who) {
-      src = dynamic_cast<smoc_root_node*>(i->second->get_parent());
-      break;
-    }
-  }
-  assert(src);
-
   // reset nodes
   for(NodeSet::const_iterator n = nodes.begin();
       n != nodes.end(); ++n)
   {
-    if(*n == src) {
-      // if node is the reset source, parent scheduler will re-add transitions
-      (*n)->doReset();
-      //(*n)->notifyReset();
-    }
-    else {
-      smoc_graph_base *graph =
-        dynamic_cast<smoc_graph_base*>((*n)->get_parent());
-      if(graph) {
-        // If we have no parent graph, top scheduler will re-add transitions
-        graph->reinitScheduling(*n);
-      }
-    }
+    (*n)->doReset();
   }
   
 #ifdef SYSTEMOC_DEBUG

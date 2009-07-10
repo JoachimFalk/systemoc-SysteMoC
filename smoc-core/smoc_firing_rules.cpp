@@ -129,29 +129,35 @@ ExpandedTransition::ExpandedTransition(
     const CondMultiState& in,
     const smoc_activation_pattern& ap,
     const smoc_action& f,
-    const MultiState& dest)
+    const MultiState& dest,
+    size_t priority)
   : TransitionBase(ap, f),
     src(src),
     in(in),
-    dest(dest)
+    dest(dest),
+    priority(priority)
 {}
 
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
     const CondMultiState& in,
     const smoc_activation_pattern& ap,
-    const smoc_action& f)
+    const smoc_action& f,
+    size_t priority)
   : TransitionBase(ap, f),
     src(src),
-    in(in)
+    in(in),
+    priority(priority)
 {}
 
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
     const smoc_activation_pattern& ap,
-    const smoc_action& f)
+    const smoc_action& f,
+    size_t priority)
   : TransitionBase(ap, f),
-    src(src)
+    src(src),
+    priority(priority)
 {}
 
 const HierarchicalStateImpl* ExpandedTransition::getSrcState() const
@@ -163,6 +169,8 @@ const CondMultiState& ExpandedTransition::getCondStates() const
 const MultiState& ExpandedTransition::getDestStates() const
   { return dest; }
 
+size_t ExpandedTransition::getPriority() const
+  { return priority; }
 
 
 
@@ -171,11 +179,13 @@ RuntimeTransition::RuntimeTransition(
     smoc_root_node* actor,
     const smoc_activation_pattern& ap,
     const smoc_action& f,
-    RuntimeState* dest)
+    RuntimeState* dest,
+    size_t priority)
   : smoc_activation_pattern(ap),
     actor(actor),
     f(f),
-    dest(dest)
+    dest(dest),
+    priority(priority)
 {
   // if this breaks everything, remove it
   finalise();
@@ -191,6 +201,9 @@ Expr::Detail::ActivationStatus RuntimeTransition::getStatus() const {
 
 bool RuntimeTransition::isEnabled() const
   { return getStatus() == Expr::Detail::ENABLED(); }
+  
+size_t RuntimeTransition::getPriority() const
+  { return priority; }
 
 smoc_root_node &RuntimeTransition::getActor()
   { assert(actor != NULL); return *actor; }
@@ -637,7 +650,8 @@ void FiringFSMImpl::finalise(
                 actor,
                 t->getActivationPattern(),
                 t->getAction(),
-                rd));
+                rd,
+                t->getPriority()));
         }
       }
     }
@@ -891,16 +905,26 @@ bool HierarchicalStateImpl::isMarked(const Marking& m) const {
 }
 
 void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
-//  outDbg << "HierarchicalStateImpl::finalise(etl) this == " << this << std::endl;
-//  ScopedIndent s0(outDbg);
-  
-//  outDbg << "State: " << getName() << "; Code: " << code << "; Bits: " << bits << std::endl;
-  
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<HierarchicalStateImpl::finalise name=\"" << getName() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "Code: " << code << "; Bits: " << bits << std::endl;
+#endif // SYSTEMOC_DEBUG
+
+  // give hierarchical states a lower default priority than
+  // non-hierarchical states (0)
+  size_t prio = 1;
+
   if(!c.empty()) {
     size_t cs = c.size();
     size_t cb = (cs == 1) ? 1 : CoSupport::flog2(static_cast<uint32_t>(cs) - 1);
     
-//    outDbg << "#C: " << cs << " -> CB: " << cb << std::endl;
+#ifdef SYSTEMOC_DEBUG
+    outDbg << "#C: " << cs << " -> CB: " << cb << std::endl;
+#endif // SYSTEMOC_DEBUG
 
     uint64_t cc = code << cb;
     
@@ -913,7 +937,14 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
       (*s)->finalise(etl);
       ++cc;
     }
+
+    // if we have children, lower the priority
+    prio = 64 - cb;
   }
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "Prio.: " << prio << std::endl;
+#endif // SYSTEMOC_DEBUG
 
   for(PartialTransitionList::const_iterator pt = ptl.begin();
       pt != ptl.end(); ++pt)
@@ -922,8 +953,15 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
     pt->getDestState()->expandTransition(
         etl,
         ExpandedTransition(
-          this, pt->getActivationPattern(), pt->getAction()));
+          this,
+          pt->getActivationPattern(),
+          pt->getAction(),
+          prio));
   }
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</HierarchicalStateImpl::finalise>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
 void HierarchicalStateImpl::expandTransition(
@@ -944,7 +982,8 @@ void HierarchicalStateImpl::expandTransition(
         t.getCondStates(),
         t.getActivationPattern(),
         t.getAction(),
-        dest));
+        dest,
+        t.getPriority()));
 }
 
 void intrusive_ptr_add_ref(HierarchicalStateImpl *p)
@@ -1129,7 +1168,8 @@ void ConnectorStateImpl::expandTransition(
           t.getSrcState(),
           t.getCondStates(),
           t.getActivationPattern().getExpr() && pt->getActivationPattern().getExpr(),
-          merge(t.getAction(), pt->getAction())));
+          merge(t.getAction(), pt->getAction()),
+          t.getPriority()));
   }
 }
 
@@ -1166,7 +1206,8 @@ void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
         ExpandedTransition(
           *states.begin(),
           condStates,
-          pt->getActivationPattern(), pt->getAction()));
+          pt->getActivationPattern(), pt->getAction(),
+          0 /* highest priority */));
   }
 }
 
@@ -1189,7 +1230,8 @@ void MultiStateImpl::expandTransition(
         t.getCondStates(),
         t.getActivationPattern(),
         t.getAction(),
-        states));
+        states,
+        t.getPriority()));
 }
 
 
