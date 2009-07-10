@@ -129,9 +129,9 @@ class smoc_reset_outlet
     public smoc_1d_port_access_if<void>
 {
 public:
-  typedef void                data_type;
-  typedef smoc_reset_outlet  this_type;
-  typedef access_in_type      ring_in_type;
+  typedef void              data_type;
+  typedef smoc_reset_outlet this_type;
+  typedef access_in_type    ring_in_type;
   
   /// @brief Constructor
   smoc_reset_outlet(smoc_reset_chan& chan)
@@ -161,14 +161,6 @@ public:
   size_t inTokenId() const
     { return chan.inTokenId(); }
   
-  /// @brief See smoc_port_in_base_if
-  void moreData()
-  {}
-  
-  /// @brief See smoc_port_in_base_if
-  void lessData()
-  {}
-
   /// @brief See smoc_port_in_if
   ring_in_type* getReadPortAccess()
     { return this; }
@@ -178,15 +170,13 @@ public:
     { return true; }
 
   /// @brief See smoc_1d_port_access_if
-  void setLimit(size_t l)
-    { limit = l; }
-
-  size_t getLimit() const
-    { return limit; }
+#ifdef SYSTEMOC_ENABLE_DEBUG
+  /// @brief See smoc_1d_port_access_if
+  void setLimit(size_t l) {}
+#endif // SYSTEMOC_ENABLE_DEBUG
 
 private:
   smoc_reset_chan& chan;
-  size_t limit;
 };
 
 class smoc_reset_entry
@@ -195,7 +185,7 @@ class smoc_reset_entry
 {
 public:
   typedef void              data_type;
-  typedef smoc_reset_entry this_type;
+  typedef smoc_reset_entry  this_type;
   typedef access_out_type   ring_out_type;
 
   /// @brief Constructor
@@ -226,14 +216,6 @@ public:
   size_t outTokenId() const
     { return chan.outTokenId(); }
   
-  /// @brief See smoc_port_out_base_if
-  void moreSpace()
-  {}
-  
-  /// @brief See smoc_port_out_base_if
-  void lessSpace()
-  {}
-  
   /// @brief See smoc_port_out_if
   ring_out_type* getWritePortAccess()
     { return this; }
@@ -242,16 +224,13 @@ public:
   bool tokenIsValid(size_t i) const
     { return true; }
 
+#ifdef SYSTEMOC_ENABLE_DEBUG
   /// @brief See smoc_1d_port_access_if
-  void setLimit(size_t l)
-    { limit = l; }
-
-  size_t getLimit() const
-    { return limit; }
+  void setLimit(size_t l) {}
+#endif // SYSTEMOC_ENABLE_DEBUG
 
 private:
   smoc_reset_chan& chan;
-  size_t limit;
 };
 
 class smoc_reset_net
