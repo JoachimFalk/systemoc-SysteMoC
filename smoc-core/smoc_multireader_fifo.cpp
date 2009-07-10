@@ -64,7 +64,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
   TraceLog.traceCommExecIn(this, n);
 #endif
   rpp(n);
-  lessData();
+  lessData(n);
 #ifdef SYSTEMOC_ENABLE_VPC
   // Delayed call of diiExpired
   diiQueue.addEntry(n, diiEvent);
@@ -101,7 +101,7 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
 #endif
   tokenId += n;
   wpp(n);
-  lessSpace();
+  lessSpace(n);
 #ifdef SYSTEMOC_ENABLE_VPC
   // Delayed call of latencyExpired
   latencyQueue.addEntry(n, latEvent);
@@ -113,47 +113,47 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
 
 void smoc_multireader_fifo_chan_base::latencyExpired(size_t n) {
   vpp(n);
-  moreData();
+  moreData(n);
 }
 
 void smoc_multireader_fifo_chan_base::diiExpired(size_t n) {
   fpp(n);
-  moreSpace();
+  moreSpace(n);
 }
 
-void smoc_multireader_fifo_chan_base::moreData() {
+void smoc_multireader_fifo_chan_base::moreData(size_t n) {
   //std::cout << "more data available: " << visibleCount() << std::endl;
   for(OutletMap::const_iterator i = getOutlets().begin();
       i != getOutlets().end(); ++i)
   {
-    i->first->moreData();
+    i->first->moreData(n);
   }
 }
 
-void smoc_multireader_fifo_chan_base::lessData() {
+void smoc_multireader_fifo_chan_base::lessData(size_t n) {
   //std::cout << "less data available: " << visibleCount() << std::endl;
   for(OutletMap::const_iterator i = getOutlets().begin();
       i != getOutlets().end(); ++i)
   {
-    i->first->lessData();
+    i->first->lessData(n);
   }
 }
 
-void smoc_multireader_fifo_chan_base::moreSpace() {
+void smoc_multireader_fifo_chan_base::moreSpace(size_t n) {
   //std::cout << "more space available: " << freeCount() << std::endl;
   for(EntryMap::const_iterator i = getEntries().begin();
       i != getEntries().end(); ++i)
   {
-    i->first->moreSpace();
+    i->first->moreSpace(n);
   }
 }
 
-void smoc_multireader_fifo_chan_base::lessSpace() {
+void smoc_multireader_fifo_chan_base::lessSpace(size_t n) {
   //std::cout << "less space available: " << freeCount() << std::endl;
   for(EntryMap::const_iterator i = getEntries().begin();
       i != getEntries().end(); ++i)
   {
-    i->first->lessSpace();
+    i->first->lessSpace(n);
   }
 }
 
@@ -164,9 +164,8 @@ void smoc_multireader_fifo_chan_base::doReset() {
   {
     i->first->reset();
   }
-
-  moreSpace();
-  moreData();
+  moreSpace(freeCount());
+  moreData(visibleCount());
 }
 
 size_t smoc_multireader_fifo_chan_base::inTokenId() const {
@@ -175,12 +174,4 @@ size_t smoc_multireader_fifo_chan_base::inTokenId() const {
 
 size_t smoc_multireader_fifo_chan_base::outTokenId() const {
   return tokenId;
-}
-  
-size_t smoc_multireader_fifo_chan_base::numAvailable() const {
-  return visibleCount();
-}
-
-size_t smoc_multireader_fifo_chan_base::numFree() const {
-  return freeCount();
 }

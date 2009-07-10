@@ -85,16 +85,16 @@ protected:
 
   void rpp(size_t n);
   
-  /// @brief Called by outlets when more data is available
+  /// @brief Called when more data is available
   void moreData();
   
-  /// @brief Called by outlets when less data is available
+  /// @brief Called when less data is available
   void lessData();
   
-  /// @brief Called by entries when more space is available
+  /// @brief Called when more space is available
   void moreSpace();
   
-  /// @brief Called by entries when less space is available
+  /// @brief Called when less space is available
   void lessSpace();
 
   bool isDefined() const;
@@ -197,11 +197,11 @@ public:
     { return chan->inTokenId(); }
   
   /// @brief See smoc_port_in_base_if
-  void moreData()
+  void moreData(size_t)
     { emm.increasedCount(numAvailable()); }
 
   /// @brief See smoc_port_in_base_if
-  void lessData()
+  void lessData(size_t)
     { emm.decreasedCount(numAvailable()); }
 
   /// @brief See smoc_multicast_outlet_base
@@ -293,11 +293,11 @@ public:
     { return chan->outTokenId(); }
   
   /// @brief See smoc_port_out_base_if
-  void moreSpace()
+  void moreSpace(size_t)
     { emm.increasedCount(numFree()); }
   
   /// @brief See smoc_port_out_base_if
-  void lessSpace()
+  void lessSpace(size_t)
     { emm.decreasedCount(numFree()); }
   
   /// @brief See smoc_multicast_entry_base

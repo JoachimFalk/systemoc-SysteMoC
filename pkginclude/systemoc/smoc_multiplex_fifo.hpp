@@ -70,21 +70,6 @@
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 
-// FIX possibly broken offsetof from stddef.h
-#undef offsetof
-
-/* Offset of member MEMBER in a struct of type TYPE. */
-#ifndef __cplusplus
-# define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#else
-/* The cast to "char &" below avoids problems with user-defined
- *    "operator &", which can appear in a POD type.  */
-# define offsetof(TYPE, MEMBER)                                 \
-  (&reinterpret_cast<const volatile char &>                     \
-    (reinterpret_cast<TYPE *>(4711)->MEMBER) -                  \
-   reinterpret_cast<const volatile char *>(4711))
-#endif /* C++ */
-
 class smoc_multiplex_vfifo_chan_base;
 
 template <class T, class A> class smoc_multiplex_fifo_entry;
@@ -122,7 +107,8 @@ public:
   };
 
   typedef size_t FifoId;
-  typedef std::map<FifoId, const boost::function<void (size_t)> > VOutletMap;
+  //typedef std::map<FifoId, const boost::function<void (size_t)> > VOutletMap;
+  typedef std::map<FifoId, smoc_port_in_base_if*> VOutletMap;
 protected:
   VOutletMap    vOutlets;
   const size_t  fifoOutOfOrder; // == 0 => no out of order access only one element visible
@@ -138,10 +124,21 @@ protected:
 
   /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
-    { return emmAvailable.getEvent(visibleCount(), n); }
+    { return emmAvailable.getEvent(n); }
 
   smoc_event &spaceAvailableEvent(size_t n)
-    { return emmFree.getEvent(freeCount(), n); }
+    { return emmFree.getEvent(n); }
+
+  void doReset() {
+    emmFree.reset();
+    emmAvailable.reset();
+
+    emmFree.increasedCount(freeCount());
+    if(vOutlets.empty()) {
+      // if there are outlets, doReset of derived channel will take care
+      emmAvailable.increasedCount(visibleCount());
+    }
+  }
 
   /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
@@ -156,6 +153,8 @@ public:
 
 template<class T, class A>
 class smoc_multiplex_fifo;
+template<class T, class A>
+class smoc_multiplex_vfifo_chan;
 
 /**
  * This class provides interfaces and connect methods
@@ -174,6 +173,7 @@ class smoc_multiplex_fifo_chan
   friend class smoc_multiplex_vfifo_outlet<T,A>;
   friend class smoc_multiplex_vfifo_entry<T,A>::AccessImpl;
   friend class smoc_multiplex_vfifo_outlet<T,A>::AccessImpl;
+  friend class smoc_multiplex_vfifo_chan<T,A>::chan_init; // access to storage
 public:
   typedef T                               data_type;
   typedef smoc_multiplex_fifo_entry<T,A>  entry_type;
@@ -198,6 +198,28 @@ protected:
       ,diiQueue(std::bind1st(std::mem_fun(&this_type::diiExpired), this))
 #endif
   {}
+
+  void doReset() {
+    // writes initial tokens and resets queue etc.
+    base_type::doReset();
+
+    if(!this->vOutlets.empty()) {
+      // if there are no outlets, base channel class will take care
+
+      for(typename VOutletMap::const_iterator o = this->vOutlets.begin();
+          o != this->vOutlets.end(); ++o)
+      {
+        o->second->reset();
+      }
+
+      for(size_t i = 0; i < this->initialTokens.size(); ++i) {
+        FifoId fifoId = A::get(this->initialTokens[i]);
+        typename VOutletMap::const_iterator o = this->vOutlets.find(fifoId);
+        assert(o != this->vOutlets.end());
+        o->second->moreData(1);
+      }
+    }
+  }
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
@@ -284,7 +306,7 @@ protected:
         FifoId fId = A::get(this->storage[xindex].get());
         typename this_type::VOutletMap::iterator fIter = this->vOutlets.find(fId);
         assert(fIter != this->vOutlets.end());
-        fIter->second(1);
+        fIter->second->moreData(1);
       }
     } else {
       this->emmAvailable.increasedCount(vcount);
@@ -420,7 +442,7 @@ protected:
       FifoId fId = A::get(this->storage[xindex].get());
       typename this_type::VOutletMap::iterator fIter = this->vOutlets.find(fId);
       assert(fIter != this->vOutlets.end());
-      fIter->second(1);
+      fIter->second->moreData(1);
     }
     
   //std::cerr << "smoc_multiplex_fifo_chan_base::consume(" << from << ", " << n << ") [END]" << std::endl;
@@ -558,10 +580,11 @@ class smoc_multiplex_vfifo_outlet
   typedef smoc_multiplex_vfifo_outlet<T,A> this_type;
   // Ugh need this friend decl for the AccessImpl friend decl in
   // smoc_multiplex_fifo_chan
-  friend class smoc_multiplex_fifo_chan<T,A>;
+  //friend class smoc_multiplex_fifo_chan<T,A>;
 public:
   typedef smoc_multiplex_fifo_chan<T,A>       MultiplexChannel;
-  typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
+  //typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
+  typedef MultiplexChannel*                   PMultiplexChannel;
   typedef typename MultiplexChannel::FifoId   FifoId;
 
   class AccessImpl: public this_type::access_type {
@@ -570,26 +593,15 @@ public:
     typedef smoc_multiplex_vfifo_outlet<T,A>  ChanIfImpl;
     typedef typename this_type::return_type   return_type;
   private:
+    ChanIfImpl& chanIfImpl;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     size_t limit;
 #endif
-  private:
-    ChanIfImpl &getChanIfImpl() {
-      //std::cerr << "offsetof(ChanIfImpl, accessImpl): " <<  offsetof(ChanIfImpl, accessImpl) << std::endl;
-
-      ChanIfImpl *retval =
-        reinterpret_cast<ChanIfImpl *>(
-          reinterpret_cast<char *>(this) -
-          offsetof(ChanIfImpl, accessImpl));
-      //std::cerr << "this: " << this << ", retval: " << retval << std::endl;
-      return *retval;
-    }
-    MultiplexChannel &getChan()
-      { return *getChanIfImpl().chan.get(); }
   public:
-    AccessImpl()
+    AccessImpl(ChanIfImpl& chanIfImpl)
+      : chanIfImpl(chanIfImpl)
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-      : limit(0)
+      , limit(0)
 #endif
       {}
 
@@ -607,18 +619,18 @@ public:
     return_type operator[](size_t n) {
       //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl::operator[](size_t) BEGIN" << std::endl;
       assert(n < limit);
-      MultiplexChannel &chan = getChan();
+      MultiplexChannel &chan = *chanIfImpl.chan/*.get()*/;
       
       size_t rindex;
       
-      //std::cerr << "XXX " << getChanIfImpl().fifoId << std::endl;
+      //std::cerr << "XXX " << chanIfImpl.fifoId << std::endl;
       
       for (rindex = chan.rIndex();
-           n >= 1 || A::get(chan.storage[rindex].get()) != getChanIfImpl().fifoId;
+           n >= 1 || A::get(chan.storage[rindex].get()) != chanIfImpl.fifoId;
            rindex = rindex < chan.fSize() - 1 ? rindex + 1 : 0)
-        if (A::get(chan.storage[rindex].get()) == getChanIfImpl().fifoId)
+        if (A::get(chan.storage[rindex].get()) == chanIfImpl.fifoId)
           --n;
-      assert(A::get(chan.storage[rindex].get()) == getChanIfImpl().fifoId);
+      assert(A::get(chan.storage[rindex].get()) == chanIfImpl.fifoId);
       //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl::operator[](size_t) END" << std::endl;
       return chan.storage[rindex];
     }
@@ -635,10 +647,11 @@ private:
 public:
   /// @brief Constructor
   smoc_multiplex_vfifo_outlet(const PMultiplexChannel &chan, FifoId fifoId)
-    : chan(chan), fifoId(fifoId), countAvailable(0) {
+    : chan(chan), fifoId(fifoId), countAvailable(0), accessImpl(*this) {
     chan->registerVOutlet(std::make_pair(
       fifoId,
-      std::bind1st(std::mem_fun(&this_type::latencyExpired), this)
+      //std::bind1st(std::mem_fun(&this_type::latencyExpired), this)
+      this
     ));
   }
 
@@ -679,9 +692,16 @@ protected:
   AccessImpl *getReadPortAccess()
     { return &accessImpl; }
 
-  void latencyExpired(size_t n) {
+  /// @brief See smoc_port_in_base_if
+  void moreData(size_t n) {
     countAvailable += n;
     emmAvailable.increasedCount(countAvailable);
+  }
+
+  /// @brief See smoc_port_in_base_if
+  void reset() {
+    countAvailable = 0;
+    emmAvailable.reset();
   }
 };
 
@@ -694,7 +714,8 @@ class smoc_multiplex_vfifo_entry
   friend class smoc_multiplex_fifo_chan<T,A>;
 private:
   typedef smoc_multiplex_fifo_chan<T,A>       MultiplexChannel;
-  typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
+  //typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
+  typedef MultiplexChannel*                   PMultiplexChannel;
   typedef typename MultiplexChannel::FifoId   FifoId;
 
   class AccessImpl: public this_type::access_type {
@@ -703,26 +724,15 @@ private:
     typedef smoc_multiplex_vfifo_entry<T,A> ChanIfImpl;
     typedef typename this_type::return_type return_type;
   private:
+    ChanIfImpl& chanIfImpl;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     size_t limit;
 #endif
-  private:
-    ChanIfImpl &getChanIfImpl() {
-      //std::cerr << "offsetof(ChanIfImpl, accessImpl): " <<  offsetof(ChanIfImpl, accessImpl) << std::endl;
-
-      ChanIfImpl *retval =
-        reinterpret_cast<ChanIfImpl *>(
-          reinterpret_cast<char *>(this) -
-          offsetof(ChanIfImpl, accessImpl));
-      //std::cerr << "this: " << this << ", retval: " << retval << std::endl;
-      return *retval;
-    }
-    MultiplexChannel &getChan()
-      { return *getChanIfImpl().chan.get(); }
   public:
-    AccessImpl()
+    AccessImpl(ChanIfImpl& chanIfImpl)
+      : chanIfImpl(chanIfImpl)
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-      : limit(0)
+      , limit(0)
 #endif
       {}
 
@@ -740,12 +750,12 @@ private:
     return_type operator[](size_t n) {
       //std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl::operator[](size_t) BEGIN" << std::endl;
       assert(n < limit);
-      MultiplexChannel &chan = getChan();
+      MultiplexChannel &chan = *chanIfImpl.chan/*.get()*/;
       size_t windex = chan.wIndex() + n;
       if (windex >= chan.fSize())
         windex -= chan.fSize();
       //std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl::operator[](size_t) END" << std::endl;
-      return chan.storage[chan.wIndex() + n];
+      return chan.storage[windex];
     }
 
     const return_type operator[](size_t n) const
@@ -759,7 +769,7 @@ private:
 public:
   /// @brief Constructor
   smoc_multiplex_vfifo_entry(const PMultiplexChannel &chan, FifoId fifoId)
-    : chan(chan), fifoId(fifoId) {}
+    : chan(chan), fifoId(fifoId), accessImpl(*this) {}
 protected:
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -820,7 +830,8 @@ public:
   typedef typename outlet_type::iface_type  outlet_iface_type;
 
   typedef smoc_multiplex_fifo_chan<T,A>       MultiplexChannel;
-  typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
+  //typedef boost::shared_ptr<MultiplexChannel> PMultiplexChannel;
+  typedef MultiplexChannel*                   PMultiplexChannel;
   typedef typename MultiplexChannel::FifoId   FifoId;
 
   /// @brief Channel initializer
@@ -835,28 +846,36 @@ public:
     typedef smoc_multiplex_vfifo_chan<T,A>  chan_type;
     friend class this_type::con_type;
     friend class smoc_multiplex_vfifo_chan<T,A>;
+    friend class smoc_multiplex_fifo<T,A>;
   private:
     FifoId                      fifoId;
     PMultiplexChannel           pMultiplexChan;
     smoc_multiplex_vfifo_chan  *dummy;
   protected:
-    typedef const T &add_param_ty;
-  public:
+    typedef const T& add_param_ty;
+    
     chan_init(FifoId fifoId, const PMultiplexChannel &pMultiplexChan)
       : fifoId(fifoId), pMultiplexChan(pMultiplexChan),
         dummy(new chan_type(*this))
       {}
-
-    void add(const add_param_ty x) {
-      A::put(x, this->fifoId);
-      pMultiplexChan->storage[pMultiplexChan->wIndex()] = x;
-      pMultiplexChan->commitWrite(1);
+  
+  public:
+    void add(add_param_ty x) {
+      pMultiplexChan->initialTokens.push_back(x);
+      A::put(pMultiplexChan->initialTokens.back(), this->fifoId); 
     }
+  
+    this_type &operator <<(add_param_ty x)
+      { add(x); return *this; }
 
     using this_type::con_type::operator<<;
   private:
     chan_type *getChan()
       { return dummy; }
+
+    // disabled
+    chan_init(const chan_init&);
+    chan_init& operator=(const chan_init&);
   };
 private:
   FifoId            fifoId;
@@ -864,7 +883,8 @@ private:
 public:
   /// @brief Constructor
   smoc_multiplex_vfifo_chan(const chan_init &i)
-    : fifoId(i.fifoId), pMultiplexChan(i.pMultiplexChan)
+    : fifoId(i.fifoId),
+      pMultiplexChan(i.pMultiplexChan)
     {}
 
 protected:
@@ -886,42 +906,66 @@ class smoc_multiplex_fifo
     smoc_multiplex_fifo<T,A>,
     smoc_multiplex_fifo_chan<T,A> > {
 public:
-  typedef typename smoc_multiplex_fifo_chan<T,A>::chan_init base_type;
-  typedef smoc_multiplex_fifo<T,A>                          this_type;
-  typedef smoc_multiplex_fifo_chan<T,A>                     chan_type;
+  typedef smoc_multiplex_fifo<T,A>      this_type;
+  typedef typename this_type::chan_type chan_type;
+  typedef typename chan_type::chan_init base_type;
 
   typedef size_t FifoId;
 
-  typedef boost::shared_ptr<chan_type> PChannel;
+  //typedef boost::shared_ptr<chan_type> PChannel;
+  typedef chan_type* PChannel;
   
   friend class this_type::con_type;
+  friend class smoc_reset_net;
 
 private:
   FifoId   fifoIdCount;  // For virtual fifo enumeration
-  PChannel pMultiplexChan;
+  PChannel chan;
 public:
   /// @param n size of the shared fifo memory
   /// @param m out of order access, zero is no out of order
   smoc_multiplex_fifo(size_t n = 1, size_t m = 0)
-    : base_type("", n, m), fifoIdCount(0),
-      pMultiplexChan(new chan_type(*this))
+    : base_type("", n, m), fifoIdCount(0), chan(NULL)
     {}
+
   smoc_multiplex_fifo(const std::string &name, size_t n = 1, size_t m = 0)
-    : base_type(name, n, m), fifoIdCount(0),
-      pMultiplexChan(new chan_type(*this))
+    : base_type(name, n, m), fifoIdCount(0), chan(NULL)
     {}
 
-  typename smoc_multiplex_vfifo_chan<T,A>::chan_init getVirtFifo()
-    { return typename smoc_multiplex_vfifo_chan<T,A>::chan_init(fifoIdCount++, pMultiplexChan); }
-
-  this_type &operator <<(typename this_type::add_param_ty x)
-    { add(x); return *this; }
+  typename smoc_multiplex_vfifo_chan<T,A>::chan_init getVirtFifo() {
+    getChan();
+    return typename smoc_multiplex_vfifo_chan<T,A>::chan_init(
+        fifoIdCount++, chan);
+  }
   
+  smoc_multiplex_fifo(const this_type &x)
+    : base_type(x), fifoIdCount(0), chan(NULL)
+  {
+    if(x.chan)
+      assert(!"Can't copy initializer: Channel already created!");
+  }
+
+  this_type &operator <<(typename this_type::add_param_ty x) {
+    if(chan)
+      assert(!"Can't place initial token: Channel already created!");
+    add(x);
+    return *this;
+  }
+
   using this_type::con_type::operator<<;
 
 private:
-  chan_type *getChan()
-    { return pMultiplexChan.get(); }
+  chan_type *getChan() {
+    /*if (!chan)
+      chan.reset(new chan_type(*this));
+    return chan.get();*/
+    if (chan == NULL)
+      chan = new chan_type(*this);
+    return chan;
+  }
+  
+  // disable
+  this_type &operator =(const this_type &);
 };
 
 #endif // _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP
