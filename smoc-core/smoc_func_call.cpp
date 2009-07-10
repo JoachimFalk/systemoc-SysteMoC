@@ -36,6 +36,7 @@
 
 #include <systemoc/smoc_func_call.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
+#include <systemoc/detail/smoc_debug_stream.hpp>
 
 smoc_action merge(const smoc_action& a, const smoc_action& b) {
   if(const smoc_func_call_list* _a = boost::get<smoc_func_call_list>(&a)) {
@@ -67,14 +68,14 @@ RuntimeState* ActionVisitor::operator()(smoc_func_call_list& f) const {
     TraceLog.traceStartFunction(i->getFuncName());
 #endif // SYSTEMOC_TRACE
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "    <action type=\"smoc_func_call\" func=\""
-              << i->getFuncName() << "\">" << std::endl;
+    outDbg << "<action type=\"smoc_func_call\" func=\""
+           << i->getFuncName() << "\">" << std::endl;
 #endif // SYSTEMOC_DEBUG
   
     (*i)();
 
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "    </action>" << std::endl;
+    outDbg << "</action>" << std::endl;
 #endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceEndFunction(i->getFuncName());
@@ -86,14 +87,14 @@ RuntimeState* ActionVisitor::operator()(smoc_func_call_list& f) const {
 RuntimeState* ActionVisitor::operator()(smoc_func_diverge& f) const {
   // Function call determines next state (Internal use only)
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "    <action type=\"smoc_func_diverge\" func=\"???\">"
-            << std::endl;
+  outDbg << "<action type=\"smoc_func_diverge\" func=\"???\">"
+         << std::endl;
 #endif
 
   RuntimeState* ret = f();
 
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "    </action>" << std::endl;
+  outDbg << "</action>" << std::endl;
 #endif
   return ret;
 }
@@ -105,22 +106,22 @@ RuntimeState* ActionVisitor::operator()(smoc_sr_func_pair& f) const {
 #endif
   if(mode & RuntimeTransition::GO) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "    <action type=\"smoc_sr_func_pair\" go=\""
-              << f.go.getFuncName() << "\">" << std::endl;
+    outDbg << "<action type=\"smoc_sr_func_pair\" go=\""
+           << f.go.getFuncName() << "\">" << std::endl;
 #endif
     f.go();
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "    </action>" << std::endl;
+    outDbg << "</action>" << std::endl;
 #endif
   }
   if(mode & RuntimeTransition::TICK) {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "    <action type=\"smoc_sr_func_pair\" tick=\""
-              << f.tick.getFuncName() << "\">" << std::endl;
+    outDbg << "<action type=\"smoc_sr_func_pair\" tick=\""
+           << f.tick.getFuncName() << "\">" << std::endl;
 #endif
     f.tick();
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "    </action>" << std::endl;
+    outDbg << "</action>" << std::endl;
 #endif
   }
 #ifdef SYSTEMOC_TRACE

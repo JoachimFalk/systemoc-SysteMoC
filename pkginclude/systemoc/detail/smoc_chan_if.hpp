@@ -51,6 +51,7 @@
 #include "smoc_sysc_port.hpp"
 #include "smoc_event_decls.hpp"
 #include "../smoc_expr.hpp"
+#include "smoc_debug_stream.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 // forward declaration
@@ -138,8 +139,8 @@ struct CommReset<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
   result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommReset<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >"
-                 "::apply(" << e.a.p.name() << ", ... )" << std::endl;
+    outDbg << EXPR << "CommReset<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >"
+                 "::apply(" << e.a.p.name() << ", ... )" << std::endl << INFO;
 # endif
     return e.a.p.portAccess->setLimit(0);
   }
@@ -154,8 +155,8 @@ struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
   result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommSetup<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >"
-                 "::apply(" << e.a.p.name() << ", ... )" << std::endl;
+    outDbg << EXPR << "CommSetup<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >"
+                 "::apply(" << e.a.p.name() << ", ... )" << std::endl << INFO;
 # endif
     size_t req = Value<E>::apply(e.b);
 # ifdef SYSTEMOC_TRACE
@@ -181,7 +182,7 @@ struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::OpBinT::Ge> >
   {
     al &= e.a.getCI().blockEvent(Value<DLiteral<T> >::apply(e.b));
 //#ifdef SYSTEMOC_DEBUG
-//  std::cerr << "Sensitivity<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >::apply al == " << al << std::endl;
+//  outDbg << EXPR << "Sensitivity<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >::apply al == " << al << std::endl << INFO;
 //#endif
   }
 };
@@ -272,8 +273,8 @@ struct CommExec<DComm<CI, E> > {
       const smoc_ref_event_p &diiEvent,
       const smoc_ref_event_p &latEvent) {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommExec<DComm<CI, E> >"
-                 "::apply(" << e.p.name() << ", ... )" << std::endl;
+    outDbg << EXPR << "CommExec<DComm<CI, E> >"
+                 "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
 # endif
     return e.getCI().commExec(Value<E>::apply(e.e), diiEvent, latEvent);
   }
@@ -281,8 +282,8 @@ struct CommExec<DComm<CI, E> > {
   static inline
   result_type apply(const DComm<CI, E> &e) {
 # ifdef SYSTEMOC_DEBUG
-    std::cerr << "CommExec<DComm<CI, E> >"
-                 "::apply(" << e.p.name() << ", ... )" << std::endl;
+    outDbg << EXPR << "CommExec<DComm<CI, E> >"
+                 "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
 # endif
     return e.getCI().commExec(Value<E>::apply(e.e));
   }
@@ -309,6 +310,7 @@ class smoc_port_in_base_if
   friend class smoc_graph_synth;
   friend class smoc_multicast_sr_signal_chan_base;
   friend class smoc_multireader_fifo_chan_base;
+  friend class smoc_signal_chan_base;
 
   template<class,class> friend class smoc_chan_adapter;
 
@@ -393,6 +395,7 @@ class smoc_port_out_base_if
   friend class smoc_graph_synth;
   friend class smoc_multicast_sr_signal_chan_base;
   friend class smoc_multireader_fifo_chan_base;
+  friend class smoc_signal_chan_base;
 
   template<class,class> friend class smoc_chan_adapter;
 

@@ -125,6 +125,11 @@ namespace Detail {
     void fpp(size_t n) {
       // Dummy does nothing
     }
+
+    void resetQueue() {
+      rindex = 0;
+      windex = 0;
+    }
   };
 
 } // namespace Detail

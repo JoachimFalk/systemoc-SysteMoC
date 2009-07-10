@@ -50,6 +50,7 @@
 #include "detail/smoc_event_decls.hpp"
 #include "detail/smoc_storage.hpp"
 #include "detail/hscd_tdsim_TraceLog.hpp"
+#include "detail/smoc_debug_stream.hpp"
 
 /// IFACE: interface type (this is basically sc_port_b<IFACE>)
 template <typename IFACE>
@@ -89,22 +90,32 @@ private:
     return 0;
   }
 protected:
-  smoc_port_base(const char *name_)
-    : smoc_sysc_port(name_) {}
+  smoc_port_base(const char *name_, sc_port_policy policy)
+    : smoc_sysc_port(name_, policy) {}
 
   void finalise() {
 #ifdef SYSTEMOC_DEBUG
-    std::cerr << "smoc_port_base::finalise(), name == " << this->name() << std::endl;
-#endif
-    portAccess = (*this)->getChannelAccess();
+    outDbg << "<smoc_port_base::finalise name=\"" << this->name() << "\">"
+           << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+    if(get_interface() != NULL)
+      portAccess = (*this)->getChannelAccess();
     smoc_sysc_port::finalise();
+#ifdef SYSTEMOC_DEBUG
+    outDbg << Indent::Down << "</smoc_port_base::finalise>" << std::endl;
+#endif // SYSTEMOC_DEBUG
   }
 
   // get the channel access
-  access_type       *get_chanaccess()
-    { return static_cast<access_type       *>(portAccess); }
-  const access_type *get_chanaccess() const
-    { return static_cast<const access_type *>(portAccess); }
+  access_type *get_chanaccess() {
+    assert(portAccess);
+    return static_cast<access_type *>(portAccess);
+  }
+  
+  const access_type *get_chanaccess() const {
+    assert(portAccess);
+    return static_cast<const access_type *>(portAccess);
+  }
 
   iface_type       *operator -> () {
     smoc_port_base_if *iface = this->get_interface();
@@ -163,10 +174,12 @@ public:
   typedef typename this_type::access_type access_type;
   typedef typename this_type::data_type   data_type;
   typedef typename this_type::return_type return_type;
-public: 
-  smoc_port_in_base()
-    : smoc_port_base<IFACE>(sc_gen_unique_name("smoc_port_in")) {}
- 
+protected:
+  smoc_port_in_base(const char* name, sc_port_policy policy)
+    //: smoc_port_base<IFACE>(sc_gen_unique_name("smoc_port_in")) {}
+    : smoc_port_base<IFACE>(name, policy) {}
+
+public:
   bool isInput() const { return true; }
 
   size_t tokenId(size_t i=0) const
@@ -183,10 +196,12 @@ public:
   typedef typename this_type::access_type access_type;
   typedef typename this_type::data_type   data_type;
   typedef typename this_type::return_type return_type;
-public:  
-  smoc_port_out_base()
-    : smoc_port_base<IFACE>(sc_gen_unique_name("smoc_port_out")) {}
+protected:
+  smoc_port_out_base(const char* name, sc_port_policy policy)
+    //: smoc_port_base<IFACE>(sc_gen_unique_name("smoc_port_out")) {}
+    : smoc_port_base<IFACE>(name, policy) {}
  
+  public:
   bool isInput() const { return false; }
  
   size_t tokenId(size_t i=0) const
@@ -273,8 +288,15 @@ public:
   typedef typename this_type::data_type     data_type; // Should be T
   typedef typename this_type::iface_type    iface_type;
   typedef typename this_type::return_type   return_type;
+protected:
+  smoc_port_in(sc_port_policy policy)
+    : base_type(sc_gen_unique_name("smoc_port_in"), policy)
+  {}
+  friend class smoc_root_chan;
 public:
-  smoc_port_in(): base_type() {}
+  smoc_port_in()
+    : base_type(sc_gen_unique_name("smoc_port_in"), SC_ONE_OR_MORE_BOUND)
+  {}
 
   const return_type operator[](size_t n) const {
     return (*(this->get_chanaccess()))[n];
@@ -297,12 +319,20 @@ public:
   typedef typename this_type::data_type     data_type; // Should be T
   typedef typename this_type::iface_type    iface_type;
   typedef typename this_type::return_type   return_type;
+protected:
+  smoc_port_out(sc_port_policy policy)
+    : base_type(sc_gen_unique_name("smoc_port_out"), policy)
+  {}
 public:
-  smoc_port_out(): base_type() {}
+  smoc_port_out()
+    : base_type(sc_gen_unique_name("smoc_port_out"), SC_ONE_OR_MORE_BOUND)
+  {}
 
   return_type operator[](size_t n)  {
     return (*(this->get_chanaccess()))[n];
   }
 };
+
+typedef smoc_port_out<void> smoc_reset_port;
 
 #endif // _INCLUDED_SMOC_PORT_HPP

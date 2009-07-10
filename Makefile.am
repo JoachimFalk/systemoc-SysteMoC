@@ -64,6 +64,7 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/smoc_multireader_fifo.cpp	\
 	smoc-core/smoc_latency_queues.cpp	\
 	smoc-core/smoc_multicast_sr_signal.cpp	\
+	smoc-core/smoc_reset.cpp		\
 	smoc-core/smoc_graph_type.cpp		\
 	smoc-core/smoc_actor.cpp		\
 	smoc-core/smoc_root_node.cpp		\
@@ -76,6 +77,7 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/SMXDumper.cpp			\
 	smoc-core/smoc_graph_synth.cpp		\
 	smoc-core/smoc_func_call.cpp		\
+	smoc-core/smoc_debug_stream.cpp		\
 						\
 	smoc-core/hscd_tdsim_TraceLog.cpp
 #	smoc_ngx_sync.cpp

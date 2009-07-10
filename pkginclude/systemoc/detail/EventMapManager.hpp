@@ -74,6 +74,24 @@ namespace Detail {
       if(!evt) evt = new smoc_event(count >= n);
       return *evt;
     }
+    
+    smoc_event &getEvent(size_t n) {
+      // n ==  MAX_TYPE(size_t) was used to denote a magical
+      // readEvent writeEvent request which is no longer supported.
+      assert(n != MAX_TYPE(size_t)); 
+      smoc_event*& evt = eventMap[n];
+      if(!evt) evt = new smoc_event(false);
+      return *evt;
+    }
+
+    void reset() {
+      for (EventMap::const_iterator iter = eventMap.begin();
+           iter != eventMap.end();
+           ++iter)
+      {
+        iter->second->reset();
+      }
+    }
 
     ~EventMapManager() {
       for (EventMap::const_iterator iter = eventMap.begin();

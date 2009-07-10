@@ -827,14 +827,14 @@ public:
   class chan_init
   : public SysteMoC::Detail::ConnectProvider<
       chan_init,
-      smoc_multiplex_vfifo_chan<T,A> > {
-    typedef chan_init this_type;
-
-    friend class SysteMoC::Detail::ConnectProvider<this_type, typename this_type::chan_type>;
-    friend class smoc_multiplex_vfifo_chan<T,A>;
+      smoc_multiplex_vfifo_chan<T,A> >
+  {  
   public:
     typedef T                               data_type;
+    typedef chan_init                       this_type;
     typedef smoc_multiplex_vfifo_chan<T,A>  chan_type;
+    friend class this_type::con_type;
+    friend class smoc_multiplex_vfifo_chan<T,A>;
   private:
     FifoId                      fifoId;
     PMultiplexChannel           pMultiplexChan;
@@ -852,6 +852,8 @@ public:
       pMultiplexChan->storage[pMultiplexChan->wIndex()] = x;
       pMultiplexChan->commitWrite(1);
     }
+
+    using this_type::con_type::operator<<;
   private:
     chan_type *getChan()
       { return dummy; }
@@ -883,17 +885,16 @@ class smoc_multiplex_fifo
   public SysteMoC::Detail::ConnectProvider<
     smoc_multiplex_fifo<T,A>,
     smoc_multiplex_fifo_chan<T,A> > {
-  typedef smoc_multiplex_fifo<T,A> this_type;
-
-  friend class SysteMoC::Detail::ConnectProvider<this_type, typename this_type::chan_type>;
-private:
-  typedef typename smoc_multiplex_fifo_chan<T,A>::chan_init base_type;
 public:
-  typedef typename this_type::chan_type chan_type;
+  typedef typename smoc_multiplex_fifo_chan<T,A>::chan_init base_type;
+  typedef smoc_multiplex_fifo<T,A>                          this_type;
+  typedef smoc_multiplex_fifo_chan<T,A>                     chan_type;
 
   typedef size_t FifoId;
 
   typedef boost::shared_ptr<chan_type> PChannel;
+  
+  friend class this_type::con_type;
 
 private:
   FifoId   fifoIdCount;  // For virtual fifo enumeration
@@ -915,15 +916,9 @@ public:
 
   this_type &operator <<(typename this_type::add_param_ty x)
     { add(x); return *this; }
+  
+  using this_type::con_type::operator<<;
 
-  /// Backward compatibility cruft
-  this_type &operator <<(smoc_port_out<T> &p)
-    { return this->connect(p); }
-  this_type &operator <<(smoc_port_in<T> &p)
-    { return this->connect(p); }
-  template<class IFACE>
-  this_type &operator <<(sc_port<IFACE> &p)
-    { return this->connect(p); }
 private:
   chan_type *getChan()
     { return pMultiplexChan.get(); }

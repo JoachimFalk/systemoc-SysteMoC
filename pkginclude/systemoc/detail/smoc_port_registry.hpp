@@ -45,7 +45,6 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_chan_if.hpp"
-#include "../smoc_chan_adapter.hpp"
 
 namespace SysteMoC { namespace Detail {
   // Forward declaration to resolve cyclic dependency!

@@ -106,13 +106,22 @@ protected:
   /// @brief Detail::LatencyQueue callback
   void latencyExpired(size_t n) {
     vpp(n);
-    emmAvailable.increasedCount(visibleCount());
+    emmData.increasedCount(visibleCount());
   }
 
   /// @brief Detail::DIIQueue callback
   void diiExpired(size_t n) {
     fpp(n);
-    emmFree.increasedCount(freeCount());
+    emmSpace.increasedCount(freeCount());
+  }
+
+  void doReset() {
+    // queue and initial tokens set up by smoc_fifo_storage...
+    emmSpace.reset();
+    emmData.reset();
+
+    emmSpace.increasedCount(freeCount());
+    emmData.increasedCount(visibleCount());
   }
 
 public:
@@ -122,8 +131,8 @@ public:
   virtual void dumpInitalTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) = 0;
 #endif // SYSTEMOC_ENABLE_SGX
 private:
-  Detail::EventMapManager emmAvailable;
-  Detail::EventMapManager emmFree;
+  Detail::EventMapManager emmData;
+  Detail::EventMapManager emmSpace;
 #ifdef SYSTEMOC_ENABLE_VPC
   Detail::LatencyQueue  latencyQueue;
   Detail::DIIQueue      diiQueue;
@@ -164,7 +173,7 @@ protected:
     TraceLog.traceCommExecIn(&chan, consume);
 #endif
     chan.rpp(consume);
-    chan.emmAvailable.decreasedCount(chan.visibleCount());
+    chan.emmData.decreasedCount(chan.visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of diiExpired(consume);
     chan.diiQueue.addEntry(consume, diiEvent);
@@ -175,7 +184,7 @@ protected:
   
   /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
-    { return chan.emmAvailable.getEvent(chan.visibleCount(), n); }
+    { return chan.emmData.getEvent(n); }
 
   /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
@@ -224,7 +233,7 @@ protected:
 #endif
     chan.tokenId += produce;
     chan.wpp(produce);
-    chan.emmFree.decreasedCount(chan.freeCount());
+    chan.emmSpace.decreasedCount(chan.freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of latencyExpired(produce);
     chan.latencyQueue.addEntry(produce, latEvent);
@@ -235,7 +244,7 @@ protected:
   
   /// @brief See smoc_port_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
-    { return chan.emmFree.getEvent(chan.freeCount(), n); }
+    { return chan.emmSpace.getEvent(n); }
   
   /// @brief See smoc_port_out_base_if
   size_t numFree() const
@@ -298,11 +307,12 @@ class smoc_fifo
     smoc_fifo<T>,
     smoc_fifo_chan<T> >
 {
-  friend class SysteMoC::Detail::ConnectProvider<smoc_fifo<T>, smoc_fifo_chan<T> >;
 public:
   typedef T                 data_type;
   typedef smoc_fifo<T>      this_type;
   typedef smoc_fifo_chan<T> chan_type;
+  friend class this_type::con_type;
+  friend class smoc_reset_net;
 private:
   chan_type *chan;
 public:
@@ -323,15 +333,9 @@ public:
 
   this_type &operator<<(const typename chan_type::chan_init::add_param_ty &x)
     { add(x); return *this; }
+  
+  using this_type::con_type::operator<<;
 
-  /// Backward compatibility cruft
-  this_type &operator <<(smoc_port_out<T> &p)
-    { return this->connect(p); }
-  this_type &operator <<(smoc_port_in<T> &p)
-    { return this->connect(p); }
-  template<class IFACE>
-  this_type &operator <<(sc_port<IFACE> &p)
-    { return this->connect(p); }
 private:
   chan_type *getChan() {
     if (chan == NULL)

@@ -41,6 +41,8 @@
 #include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
+#include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/detail/smoc_debug_stream.hpp>
 
 using namespace SysteMoC::Detail;
 
@@ -80,7 +82,8 @@ RuntimeState* smoc_root_node::_communicate() {
 
 void smoc_root_node::finalise() {
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_root_node::finalise() begin, name == " << this->name() << std::endl;
+  outDbg << "<smoc_root_node::finalise name=\"" << this->name() << "\">"
+         << std::endl << Indent::Up;
 #endif
   
 #ifdef SYSTEMOC_NEED_IDS  
@@ -97,7 +100,7 @@ void smoc_root_node::finalise() {
   getFiringFSM()->finalise(this, initialState.getImpl());
   currentState = getFiringFSM()->getInitialState();
   
-  //std::cerr << "smoc_root_node::finalise() name == " << this->name() << std::endl
+  //outDbg << "smoc_root_node::finalise() name == " << this->name() << std::endl
   //          << "  FiringFSM: " << currentState->getFiringFSM()
   //          << "; #leafStates: " << currentState->getFiringFSM()->getLeafStates().size()
   //          << std::endl;
@@ -115,14 +118,14 @@ void smoc_root_node::finalise() {
          ++tIter) {
       if (boost::get<smoc_sr_func_pair>(&tIter->getAction())) {
 #ifdef SYSTEMOC_DEBUG
-        std::cout << "found non strict SR block: " << this->name() << endl;
+        outDbg << "found non strict SR block: " << this->name() << endl;
 #endif
         _non_strict = true;
       }
     }
   }
 #ifdef SYSTEMOC_DEBUG
-  std::cerr << "smoc_root_node::finalise() end, name == " << this->name() << std::endl;
+  outDbg << Indent::Down << "</smoc_root_node::finalise>" << std::endl;
 #endif
 }
 
@@ -189,6 +192,11 @@ bool smoc_root_node::isNonStrict() const{
 }
 
 void smoc_root_node::addCurOutTransitions(smoc_transition_ready_list& ol) const {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_root_node::addCurOutTransitions name=\"" << name() << "\""
+         << " state=\""<< currentState->name() << "\">" << std::endl;
+#endif // SYSTEMOC_DEBUG
+
   assert(currentState);
   for(RuntimeTransitionList::iterator tIter =
         currentState->getTransitions().begin();
@@ -197,9 +205,18 @@ void smoc_root_node::addCurOutTransitions(smoc_transition_ready_list& ol) const 
   {
     ol |= *tIter;
   }
+  
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "</smoc_root_node::addCurOutTransitions>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
 void smoc_root_node::delCurOutTransitions(smoc_transition_ready_list& ol) const {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_root_node::delCurOutTransitions name=\"" << name() << "\""
+         << " state=\""<< currentState->name() << "\">" << std::endl;
+#endif // SYSTEMOC_DEBUG
+  
   assert(currentState);
   for(RuntimeTransitionList::iterator tIter =
         currentState->getTransitions().begin();
@@ -208,6 +225,10 @@ void smoc_root_node::delCurOutTransitions(smoc_transition_ready_list& ol) const 
   {
     ol.remove(*tIter);
   }
+  
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "</smoc_root_node::delCurOutTransitions>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
 smoc_root_node::~smoc_root_node() {
@@ -215,4 +236,26 @@ smoc_root_node::~smoc_root_node() {
 #ifdef SYSTEMOC_ENABLE_VPC
   delete commstate;
 #endif // SYSTEMOC_ENABLE_VPC
+}
+  
+void smoc_root_node::doReset() {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_root_node::doReset name=\"" << name() << "\""
+         << " oldState=\"" << currentState->name() << "\"";
+#endif // SYSTEMOC_DEBUG
+
+  // resets FSM
+  currentState = getFiringFSM()->getInitialState();
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << " newState=\"" << currentState->name() << "\"/>"
+         << std::endl;
+#endif // SYSTEMOC_DEBUG
+
+  // call user-defined reset code
+  reset();
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "</smoc_root_node::doReset>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }

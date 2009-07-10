@@ -185,7 +185,16 @@ protected:
   smoc_graph_base(const sc_module_name& name, smoc_firing_state& init/*, bool regObj*/);
 
   void finalise();
-  void reset();
+  
+  /// @brief Resets given node
+  void doReset();
+
+  /// @brief FIXME: this is somehow ugly
+  virtual void reinitScheduling(const smoc_root_node* n) {}
+
+  // need to call reinitScheduling
+  friend class smoc_multireader_fifo_chan_base;
+  friend class smoc_reset_chan;
 
 private:
   // actor and graph child objects
@@ -193,6 +202,8 @@ private:
 
   // channel child objects
   smoc_chan_list channels;
+  
+
 };
   
 #undef T_chan_init_default
@@ -208,6 +219,10 @@ public:
 
   // construct graph with generated name
   smoc_graph();
+  
+protected:
+  /// @brief See smoc_graph_base
+  void reinitScheduling(const smoc_root_node* n);
 
 private:
   // graph scheduler FSM states
@@ -221,8 +236,7 @@ private:
 
   // schedule children of this graph
   void schedule();
-// FIXME: This is an incredible hack to fix the GAU bug!!!
-public:
+
   // a list containing the transitions of the graph's children
   // that may be executed
   smoc_transition_ready_list ol;

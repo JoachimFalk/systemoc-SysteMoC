@@ -34,7 +34,7 @@
 
 #include <cstring>
 #include <iostream>
-#include <strstream>
+#include <sstream>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>

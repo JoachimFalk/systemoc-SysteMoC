@@ -42,8 +42,8 @@
 using namespace CoSupport;
 using namespace SysteMoC::Detail;
 
-smoc_sysc_port::smoc_sysc_port(const char* name_)
-  : sc_port_base(name_, 1),
+smoc_sysc_port::smoc_sysc_port(const char* name_, sc_port_policy policy)
+  : sc_port_base(name_, 1, policy),
     interfacePtr(NULL),
     portAccess(NULL),
     parent(NULL), child(NULL) {
@@ -79,7 +79,7 @@ void smoc_sysc_port::finalise() {
 #endif // SYSTEMOC_NEED_IDS  
 }
 
-#ifdef SYSTEMOC_ENABLE_SGX
+/*#ifdef SYSTEMOC_ENABLE_SGX
 SystemCoDesigner::SGX::Port::Ptr smoc_sysc_port::getNGXObj() const
   { return port; }
-#endif
+#endif*/

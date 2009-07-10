@@ -97,6 +97,11 @@ namespace Detail {
       // vindex = vindex + n in modulo fsize arith
       vindex = (MG(vindex, fsize) + n).getValue();
     }
+    
+    void resetQueue() {
+      vindex = 0;
+      base_type::resetQueue();
+    }
   };
 
 } // namespace Detail

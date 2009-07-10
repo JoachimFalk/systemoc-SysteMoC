@@ -46,12 +46,13 @@ namespace SysteMoC { namespace Detail {
 template <typename DERIVED, typename CHANTYPE>
 class ConnectProvider {
 public:
-  typedef CHANTYPE                         chan_type;
-  typedef typename chan_type::data_type    data_type;
-  typedef typename chan_type::entry_type   entry_type;
-  typedef typename chan_type::outlet_type  outlet_type;
-  typedef typename entry_type::iface_type  entry_iface_type;
-  typedef typename outlet_type::iface_type outlet_iface_type;
+  typedef ConnectProvider<DERIVED,CHANTYPE> con_type;
+  typedef CHANTYPE                          chan_type;
+  typedef typename chan_type::data_type     data_type;
+  typedef typename chan_type::entry_type    entry_type;
+  typedef typename chan_type::outlet_type   outlet_type;
+  typedef typename entry_type::iface_type   entry_iface_type;
+  typedef typename outlet_type::iface_type  outlet_iface_type;
 private:
   DERIVED *getDerived()
     { return static_cast<DERIVED       *>(this); }
@@ -113,6 +114,16 @@ public:
     assert(iface); p(*(new Adapter(*iface)));
     return *getDerived();
   }
+  
+  DERIVED &operator <<(smoc_port_out<data_type> &p)
+    { return connect(p); }
+  
+  DERIVED &operator <<(smoc_port_in<data_type> &p)
+    { return connect(p); }
+  
+  template<class IFACE>
+  DERIVED &operator <<(sc_port<IFACE> &p)
+    { return connect(p); }
 };
 
 } } // namespace SysteMoC::Detail

@@ -88,18 +88,30 @@ public:
   };
 protected:
   storage_type *storage;
+  std::vector<T> initialTokens;
 protected:
 
   /// @brief Constructor
   smoc_fifo_storage(const chan_init &i)
     : BASE(i),
-      storage(new storage_type[this->fSize()])
-  {
-    assert(this->depthCount() >= i.marking.size());
-    for(size_t j = 0; j < i.marking.size(); ++j) {
-      storage[j].put(i.marking[j]);
+      storage(new storage_type[this->fSize()]),
+      initialTokens(i.marking)
+  {}
+
+  void doReset() {
+    // This resets the various pointers in the queue
+    // (must precede call to wpp/vpp)
+    this->resetQueue();
+
+    // place initial tokens
+    assert(this->depthCount() >= initialTokens.size());
+    for(size_t j = 0; j < initialTokens.size(); ++j) {
+      storage[j].put(initialTokens[j]);
     }
-    wpp(i.marking.size()); vpp(i.marking.size());
+    this->wpp(initialTokens.size());
+    this->vpp(initialTokens.size());
+
+    BASE::doReset();
   }
 
   /// @brief Destructor
@@ -164,15 +176,28 @@ public:
   private:
     size_t marking;
   };
+private:
+  size_t initialTokens;
 protected:
   /// @brief Constructor
   smoc_fifo_storage(const chan_init &i)
-    : BASE(i)
-  {
-    assert(this->depthCount() >= i.marking);
-    wpp(i.marking); vpp(i.marking);
+    : BASE(i),
+      initialTokens(i.marking)
+  {}
+
+  void doReset() {
+    // This resets the various pointers in the queue
+    // (must precede call to wpp/vpp)
+    this->resetQueue();
+    
+    // place initial tokens
+    assert(this->depthCount() >= initialTokens);
+    this->wpp(initialTokens);
+    this->vpp(initialTokens);
+    
+    BASE::doReset();
   }
-  
+
   access_in_type_impl  *getReadPortAccess()
     { return new access_in_type_impl(); }
   

@@ -51,6 +51,7 @@
 #include "smoc_port_registry.hpp"
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
+#include "../smoc_port.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace SystemC_VPC {
@@ -68,7 +69,8 @@ class smoc_root_chan
   public SysteMoC::Detail::SimCTXBase
 {
   typedef smoc_root_chan this_type;
-  friend class smoc_graph_base;
+  friend class smoc_graph_base; // reset
+  friend class smoc_reset_chan; // reset
 private:
   std::string myName; // patched in finalise
 protected:
@@ -90,7 +92,7 @@ protected:
                              std::string name ) {};
 
   virtual void finalise();
-  virtual void reset() {}
+  virtual void doReset() {}
 public:
   const char *name() const
     { return myName.c_str(); }

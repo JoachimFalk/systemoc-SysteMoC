@@ -1,3 +1,4 @@
+// vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
@@ -31,13 +32,24 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <systemoc/smoc_actor.hpp>
-#include <systemoc/smoc_graph_type.hpp>
+#ifdef SYSTEMOC_DEBUG
 
-smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
-  : smoc_root_node(name, s)
-{}
+#include <iostream>
+#include <systemoc/detail/smoc_debug_stream.hpp>
 
-smoc_actor::smoc_actor(smoc_firing_state &s)
-  : smoc_root_node(sc_gen_unique_name("smoc_actor"), s)
-{}
+Debug EXPR(0);
+Debug EVENT(1);
+Debug FSM(2);
+Debug INFO(3);
+
+SmocDebugOstream::SmocDebugOstream(const Debug& level)
+  : FilterOStream(std::cerr),
+    bufDbg(level) 
+{ 
+  insert(bufDbg); // 2. discard characters
+  insert(bufIdt); // 1. indent lines
+}
+
+SmocDebugOstream outDbg;
+
+#endif // SYSTEMOC_DEBUG

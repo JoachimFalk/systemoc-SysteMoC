@@ -95,6 +95,11 @@ namespace Detail {
       // findex = findex + n in modulo fsize arith
       findex = (MG(findex, fsize) + n).getValue();
     }
+    
+    void resetQueue() {
+      findex = 0;
+      base_type::resetQueue();
+    }
   };
 
 } // namespace Detail
