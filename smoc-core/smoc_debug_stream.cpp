@@ -50,6 +50,10 @@ SmocDebugOstream::SmocDebugOstream(const Debug& level)
   insert(bufIdt); // 1. indent lines
 }
 
+void SmocDebugOstream::setTarget(std::streambuf* os) {
+  bufDbg.setTarget(os);
+}
+
 SmocDebugOstream outDbg;
 
 #endif // SYSTEMOC_DEBUG

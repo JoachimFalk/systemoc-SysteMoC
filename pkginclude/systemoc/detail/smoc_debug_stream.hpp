@@ -53,11 +53,13 @@ extern Debug FSM;   // info, FSM
 extern Debug INFO;  // default
 
 struct SmocDebugOstream
-: public CoSupport::Streams::FilterOStream
+  : public CoSupport::Streams::FilterOStream
 {
   CoSupport::Streams::DebugStreambuf bufDbg;
   CoSupport::Streams::IndentStreambuf bufIdt;
   SmocDebugOstream(const Debug& level = INFO);
+
+  void setTarget(std::streambuf* os);
 };
 
 extern SmocDebugOstream outDbg;

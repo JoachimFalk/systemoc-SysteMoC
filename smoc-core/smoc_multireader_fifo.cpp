@@ -60,9 +60,17 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
 void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n)
 #endif
 {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_multireader_fifo_chan_base::consume this=\"" << this << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceCommExecIn(this, n);
 #endif
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "n: " << n << "; #avail: " << visibleCount()
+         << "; #free: " << freeCount() << "; size: " << (fSize()-1) << std::endl;
+#endif // SYSTEMOC_DEBUG
   rpp(n);
   lessData(n);
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -89,6 +97,9 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
     graph->beforeStateChange(src);
     graph->afterStateChange(src);
   }
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_multireader_fifo_chan_base::consume>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -97,9 +108,18 @@ void smoc_multireader_fifo_chan_base::produce(size_t n, const smoc_ref_event_p &
 void smoc_multireader_fifo_chan_base::produce(size_t n)
 #endif
 {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_multireader_fifo_chan_base::produce this=\"" << this << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceCommExecOut(this, n);
 #endif
+  assert(n <= visibleCount());
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "n: " << n << "; #avail: " << visibleCount()
+         << "; #free: " << freeCount() << "; size: " << (fSize()-1) << std::endl;
+#endif // SYSTEMOC_DEBUG
   tokenId += n;
   wpp(n);
   lessSpace(n);
@@ -110,6 +130,9 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
   // Immediate call of latencyExpired
   latencyExpired(n);
 #endif
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_multireader_fifo_chan_base::produce>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
 void smoc_multireader_fifo_chan_base::latencyExpired(size_t n) {
@@ -159,16 +182,36 @@ void smoc_multireader_fifo_chan_base::lessSpace(size_t n) {
 }
 
 void smoc_multireader_fifo_chan_base::doReset() {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_multireader_fifo_chan_base::doReset name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+
   // queue and initial tokens set up by smoc_fifo_storage...
+  for(EntryMap::const_iterator i = getEntries().begin();
+      i != getEntries().end(); ++i)
+  {
+    i->first->reset();
+  }
   for(OutletMap::const_iterator i = getOutlets().begin();
       i != getOutlets().end(); ++i)
   {
     i->first->reset();
   }
+
   moreSpace(freeCount());
   moreData(visibleCount());
     
   smoc_root_chan::doReset();
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "#avail: " << visibleCount() << "; #free: " << freeCount()
+         << "; size: " << (fSize()-1) << std::endl;
+#endif // SYSTEMOC_DEBUG
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_multireader_fifo_chan_base::doReset>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
 size_t smoc_multireader_fifo_chan_base::inTokenId() const {
