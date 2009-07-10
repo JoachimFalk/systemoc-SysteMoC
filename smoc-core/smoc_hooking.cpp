@@ -32,9 +32,11 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifdef SYSTEMOC_ENABLE_HOOKING
-
+// This pulls systemoc/smoc_config.h which defines SYSTEMOC_ENABLE_HOOKING if
+// hooking support is enabled.
 #include <smoc/smoc_hooking.hpp>
+
+#ifdef SYSTEMOC_ENABLE_HOOKING
 
 #include <systemoc/smoc_actor.hpp>
 
