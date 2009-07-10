@@ -32,6 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifdef SYSTEMOC_ENABLE_HOOKING
+
 #include <smoc/smoc_hooking.hpp>
 
 #include <systemoc/smoc_actor.hpp>
@@ -58,3 +60,5 @@ void addTransitionHook(smoc_actor *p,
 }
 
 } } // namespace SysteMoC::Hook
+
+#endif // SYSTEMOC_ENABLE_HOOKING
