@@ -46,6 +46,7 @@ smoc_port_in_base_if* smoc_reset_chan::createOutlet() {
 
 void smoc_reset_chan::doReset() {
   sae.notify();
+  smoc_root_chan::doReset();
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC

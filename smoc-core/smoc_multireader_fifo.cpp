@@ -166,6 +166,8 @@ void smoc_multireader_fifo_chan_base::doReset() {
   }
   moreSpace(freeCount());
   moreData(visibleCount());
+    
+  smoc_root_chan::doReset();
 }
 
 size_t smoc_multireader_fifo_chan_base::inTokenId() const {

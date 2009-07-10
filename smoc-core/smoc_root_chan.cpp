@@ -78,7 +78,8 @@ sc_port_base* getLeafPort(sc_port_base* p) {
 
 smoc_root_chan::smoc_root_chan(const std::string& name)
   : sc_prim_channel(name.empty() ? sc_gen_unique_name( "smoc_unnamed_channel" ) : name.c_str()),
-    myName(name)
+    myName(name),
+    resetCalled(false)
 #ifdef SYSTEMOC_ENABLE_VPC  
     , vpcLink(0)
 #endif
