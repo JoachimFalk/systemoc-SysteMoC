@@ -59,7 +59,7 @@ void IdPool::addIdedObj(IdedObj *n) {
 
 // set "id"-attribute to id
 void IdPool::addIdedObj(NamedIdedObj *n) {
-  CoSupport::FNV<IdRangeNamed::bits> hf;
+  CoSupport::Math::FNV<IdRangeNamed::bits> hf;
   NgId id = IdRangeNamed::min + hf(n->name());
   assert(id <= IdRangeNamed::max);
   IdMap::iterator iter = IdAllocNamed::idAllocNext(id, IdMapEntry(n));
