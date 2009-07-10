@@ -116,8 +116,7 @@ protected:
   /// @brief Constructor
   smoc_multireader_fifo_chan_base(const chan_init &i);
 
-  /// @brief SystemC callback
-  void start_of_simulation();
+  void doReset();
 
   /// @brief Called by outlet if it did consume tokens
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -181,7 +180,7 @@ private:
   /// @brief Called when more space is available
   void moreSpace();
   
-  /// @brief Calledwhen less space is available
+  /// @brief Called when less space is available
   void lessSpace();
 };
 
@@ -237,6 +236,9 @@ protected:
   void lessData()
     { emm.decreasedCount(numAvailable()); }
 
+  /// @brief See smoc_port_in_base_if
+  void reset() { emm.reset(); }
+
   /// @brief See smoc_port_in_if
   access_type* getReadPortAccess()
     { return chan.getReadPortAccess(); }
@@ -291,13 +293,16 @@ protected:
   size_t outTokenId() const
     { return chan.outTokenId(); }
   
-  /// @brief See smoc_port_in_base_if
+  /// @brief See smoc_port_out_base_if
   void moreSpace()
     { emm.increasedCount(numFree()); }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See smoc_port_out_base_if
   void lessSpace()
     { emm.decreasedCount(numFree()); }
+  
+  /// @brief See smoc_port_out_base_if
+  void reset() { emm.reset(); }
 
   /// @brief See smoc_port_out_if
   access_type* getWritePortAccess()
@@ -360,6 +365,7 @@ public:
   typedef smoc_multireader_fifo<T>      this_type;
   typedef typename this_type::chan_type chan_type;
   friend class this_type::con_type;
+  friend class smoc_reset_net;
 private:
   chan_type *chan;
 public:

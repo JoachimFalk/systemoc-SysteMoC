@@ -292,7 +292,6 @@ protected:
   smoc_port_in(sc_port_policy policy)
     : base_type(sc_gen_unique_name("smoc_port_in"), policy)
   {}
-  friend class smoc_root_chan;
 public:
   smoc_port_in()
     : base_type(sc_gen_unique_name("smoc_port_in"), SC_ONE_OR_MORE_BOUND)
