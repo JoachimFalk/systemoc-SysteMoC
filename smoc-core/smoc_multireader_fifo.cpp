@@ -115,7 +115,6 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceCommExecOut(this, n);
 #endif
-  assert(n <= visibleCount());
 #ifdef SYSTEMOC_DEBUG
   outDbg << "n: " << n << "; #avail: " << visibleCount()
          << "; #free: " << freeCount() << "; size: " << (fSize()-1) << std::endl;
