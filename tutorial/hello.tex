@@ -1,0 +1,102 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Objectives}}
+\begin{itemize}
+\item You will see a state-of-the-art ``Hello World'' application ...
+\item ...  modeled in SysteMoC.
+\end{itemize}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % fragile is mandratory for verbatim environments (lstlisting)
+ % HACK: use singleslide for correct page numbering
+ %  (pagecounter+=2 else wise)
+ %  this issue seems to be relevent for *pdflatex* only
+ % NOTE: the intended usage for *singleslide* is to tell beamer that we use
+ %   no overlays (animation)
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{lstlisting}
+//file hello.cpp
+#include <iostream>
+#include <systemoc/smoc_moc.hpp>
+
+class HelloActor: public smoc_actor {
+private:
+  void src() {   // action
+    std::cout << "Actor " << this->name() << " says:\n"
+              << "Hello SysteMoC" << std::endl;
+  }
+
+  smoc_firing_state start, end;   // FSM states
+public:
+  // actor constructor
+  HelloActor(sc_module_name name)
+    : smoc_actor(name, start) {
+    // FSM definition:
+    //  transition from start to end calling action src
+    start = CALL(HelloActor::src) >> end;
+  }
+};
+\end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{lstlisting}
+//file hello.cpp cont'd
+
+class HelloNetworkGraph: public smoc_graph {
+private:
+  // actors
+  HelloActor     helloActor;
+public:
+  // networkgraph constructor
+  HelloNetworkGraph(sc_module_name name)
+    : smoc_graph(name),
+      helloActor("HalloActor") // create actor HelloWorld
+  { }
+};
+
+int sc_main (int argc, char **argv) {
+  // create networkgraph
+  smoc_top_moc<HelloNetworkGraph> top("top");
+
+  sc_start();  // start simulation (SystemC)
+  return 0;
+}
+\end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{itemize}
+\item run simulation
+\begin{lstlisting}
+./hello
+\end{lstlisting}
+\item simulation output
+\begin{lstlisting}
+             SystemC 2.2.0 --- Dec 15 2008 11:10:07
+        Copyright (c) 1996-2006 by all Contributors
+                    ALL RIGHTS RESERVED
+Actor top.HalloActor says:
+Hello SysteMoC
+SystemC: simulation stopped by user.
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
+

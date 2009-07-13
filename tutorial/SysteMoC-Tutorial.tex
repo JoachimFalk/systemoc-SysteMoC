@@ -1,0 +1,90 @@
+\mode<article>
+{
+}
+
+\mode<presentation>
+{
+\usetheme{codesign}
+\usenavigationsymbolstemplate{} % uncomment to get rid of navigation symbols
+
+}
+
+
+%\let\Tiny=\tiny
+\usepackage[utf8]{inputenc}
+\usepackage{pslatex}
+\usepackage{graphicx}
+\definecolor{lightgray}{gray}{.9}
+
+\usepackage{listings}
+\lstset{language=C++,showstringspaces=false,breaklines=true,basicstyle=\ttfamily}
+\lstset{backgroundcolor=\color{lightgray}}
+
+\mode<presentation>
+{
+\lstset{commentstyle=\scriptsize\selectfont}
+\lstset{basicstyle=\scriptsize\ttfamily\selectfont}
+}
+%\lstset{commentstyle=\color{blue}}
+%\lstset{stringstyle=\color{green}}
+%\lstset{keywordstyle=\color{red}}
+%\lstset{emph={bool,int,unsigned,char,true,false,void}}
+%\lstset{emphstyle=\color{orange}}
+\lstset{emph={[2]\#include,\#define,\#ifdef,\#endif}}
+\lstset{emphstyle={[2]\color{blue}}}
+
+\title{SystemCoDesigner: System Programming Tutorial}
+\author[SCD Group]{Joachim Falk, Jens Gladigau, Martin Streubühr, Christian Zebelein\\ Christian Haubelt, Jürgen Teich\texorpdfstring{\\}{}
+    {\tiny \href{mailto:systemoc-devel@codesign.informatik.uni-erlangen.de}{SysteMoC Mailing list $<$systemoc-devel@codesign.informatik.uni-erlangen.de$>$}}}
+\institute[Hardware/Software Co-Design]{Hardware/Software Co-Design\\University of Erlangen-Nuremberg}
+\mode<presentation>
+{
+\university{Friedrich-Alexander University of Erlangen-Nuremberg}
+}
+\date{08.07.2009}
+
+\AtBeginSection[]
+{
+   \begin{frame}
+       \frametitle{Outline}
+       \tableofcontents[currentsection]
+   \end{frame}
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents
+\end{frame}
+
+
+
+\section{Introduction}
+\input{intro}
+\section{Tutorial}
+\subsection{Hello World}
+\input{hello}
+\subsection{Actors and Graphs}
+\input{actors}
+\subsection{Ports and Channels}
+\input{ports}
+\subsection{Guards and Actions}
+\input{guards}
+
+
+\section{MJPEG Example}
+\section{Programming Guidelines}
+\subsection{Models of Computation}
+\subsection{How-to}
+
+\begin{frame}
+  dummy
+\end{frame}
+
+\end{document}
+

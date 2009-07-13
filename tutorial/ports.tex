@@ -1,0 +1,190 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Objectives}}
+\begin{itemize}
+\item You will learn to ...
+\item ... use ports.
+\item ... connect actors via channels.
+\end{itemize}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Sink Actor}}
+\begin{lstlisting}
+class Sink: public smoc_actor {
+public:
+  // ports:
+  smoc_port_in<char> in;
+private:
+  void sink() {
+    std::cout << this->name() << " recv: \""
+              << in[0] << "\"" << std::endl;
+  }
+  smoc_firing_state start;  // FSM states
+public:
+  Sink(sc_module_name name)   // actor constructor
+    : smoc_actor(name, start) {
+    // FSM definition:
+    start =
+      in(1)                 >>
+      CALL(Sink::sink)      >> start;
+  }
+};
+\end{lstlisting}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Sink Actor}}
+\begin{itemize}
+\item create an input port
+\item ports have a data type (e.g. \lstinline!char!)
+\begin{lstlisting}
+  smoc_port_in<char> in;
+\end{lstlisting}
+\item declare to read one token of data in FSM transition
+\begin{lstlisting}
+    start =
+      in(1)                 >>
+      CALL(Sink::sink)      >> start;
+\end{lstlisting}
+\item access data in action
+\begin{lstlisting}
+  void sink() {
+    std::cout << this->name() << " recv: \'"
+              << in[0] << "\'" << std::endl;
+  }
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Source Actor}}
+\begin{itemize}
+\item using output ports is similar
+\end{itemize}
+\begin{lstlisting}
+class Source: public smoc_actor {
+public:
+  // ports:
+  smoc_port_out<char> out;
+private:
+  void src() {
+    std::cout << this->name() << " send: \'X\'" << std::endl;
+    out[0] = 'X';
+  }
+  smoc_firing_state start;  // FSM states
+public:
+  Source(sc_module_name name)
+    : smoc_actor(name, start) {
+    start = 
+      out(1)                   >>
+      CALL(Source::src)        >> start;
+  }
+};
+\end{lstlisting}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Connect Actors}}
+\begin{lstlisting}
+class NetworkGraph: public smoc_graph {
+protected:
+  Source         source;   // actors
+  Sink           sink;
+public:
+  NetworkGraph(sc_module_name name)  // networkgraph constructer
+    : smoc_graph(name),
+      source("Source"),             // create actors
+      sink("Sink") {
+    connectNodePorts(source.out, sink.in); // connect actors
+  }
+};
+
+int sc_main (int argc, char **argv) {
+  smoc_top_moc<NetworkGraph> top("top"); // create networkgraph
+
+  sc_start();   // start simulation (SystemC)
+  return 0;
+}
+\end{lstlisting}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Connect Actors}}
+\begin{itemize}
+\item connect a pair of ports (input, output) using a FIFO queue
+\item connected ports have to use same data type!
+\item queues have implicit size ``1'' (one data token)
+\begin{lstlisting}
+    connectNodePorts(source.out, sink.in); // connect actors
+\end{lstlisting}
+\item set queue size explicitly
+\begin{lstlisting}
+    connectNodePorts<23>(source.out, sink.in); // connect actors
+\end{lstlisting}
+\item more advanced channel features (later)
+\begin{itemize}
+\item channel types
+\item inital data tokens
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{itemize}
+\item simulation ouput
+\begin{lstlisting}
+
+             SystemC 2.2.0 --- Dec 15 2008 11:10:07
+        Copyright (c) 1996-2006 by all Contributors
+                    ALL RIGHTS RESERVED
+top.Source send: 'X'
+top.Sink recv: 'X'
+top.Source send: 'X'
+top.Sink recv: 'X'
+top.Source send: 'X'
+top.Sink recv: 'X'
+...
+\end{lstlisting}
+\item simulation runs infinite
+\end{itemize}
+\end{frame}
+
+
+
+
+
