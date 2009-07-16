@@ -85,7 +85,6 @@ private:
 \item a name for the graph has to be passed to base class \lstinline!smoc_graph!
 \item we need to call \lstinline!HelloActor!s constructer
 \begin{lstlisting}
-public:
   // networkgraph constructor
   HelloNetworkGraph(sc_module_name name)
     : smoc_graph(name),
@@ -119,12 +118,3 @@ int sc_main (int argc, char **argv) {
 \end{itemize}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}
-\mode<presentation>{\frametitle{\insertsubsection\ -- Exercises}}
-\begin{itemize}
-\item Instanciate some more \lstinline!HelloActor!s. (Use different names).
-\item Write your own actor.
-\end{itemize}
-\end{frame}

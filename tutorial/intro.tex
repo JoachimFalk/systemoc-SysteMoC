@@ -1,13 +1,48 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}
-\mode<presentation>{\frametitle{\insertsection}}
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- SysteMoC concepts}}
+\begin{figure}
+\centering
+\resizebox{0.4\columnwidth}{!}{\input{systemoc-fig.tex}}
+\end{figure}
 \begin{itemize}
-\item SysteMoC concepts:
+\item A \SysteMoC{} actor is composed of a Finite State Machine (FSM), functions, and variables.
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsection\ -- SysteMoC concepts}}
+\begin{itemize}
+\item TODO: animate figure
 \item actors, channel, networkgraph, ...
 \end{itemize}
 \end{frame}
 
 
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsection\ -- Actor Interaction}}
+\begin{figure}
+\centering
+\resizebox{0.7\columnwidth}{!}{\input{actor-scheme-fig.tex}}
+\end{figure}
+\begin{itemize}
+\item A \SysteMoC{} actor is composed of a Finite State Machine (FSM), functions, and variables.
+\item The FSM controls the function invocation.
+\item Functions are executed atomically and may change variables at the end of their execution.
+\end{itemize}
+\end{frame}
 

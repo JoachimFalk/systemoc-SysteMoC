@@ -33,6 +33,14 @@
 \lstset{emph={[2]\#include,\#define,\#ifdef,\#endif}}
 \lstset{emphstyle={[2]\color{blue}}}
 
+% macros
+\newcommand{\SysteMoC}{\emph{SysteMoC}}
+\newcommand{\SystemCoDesigner}{\emph{SystemCoDesigner}}
+\newcommand{\concat}{{}^{\smallfrown}}
+\newcommand{\length}{\#}
+
+
+
 \title{SystemCoDesigner: System Programming Tutorial}
 \author[SCD Group]{Joachim Falk, Jens Gladigau, Martin Streubühr, Christian Zebelein\\ Christian Haubelt, Jürgen Teich\texorpdfstring{\\}{}
     {\tiny \href{mailto:systemoc-devel@codesign.informatik.uni-erlangen.de}{SysteMoC Mailing list $<$systemoc-devel@codesign.informatik.uni-erlangen.de$>$}}}
@@ -80,11 +88,9 @@
 \section{MJPEG Example}
 \section{Programming Guidelines}
 \subsection{Models of Computation}
+\input{moc}
 \subsection{How-to}
-
-\begin{frame}
-  dummy
-\end{frame}
+\input{howto}
 
 \end{document}
 

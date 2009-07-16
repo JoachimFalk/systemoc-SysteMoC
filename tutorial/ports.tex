@@ -21,19 +21,20 @@ class Sink: public smoc_actor {
 public:
   // ports:
   smoc_port_in<char> in;
-private:
-  void sink() {
-    std::cout << this->name() << " recv: \""
-              << in[0] << "\"" << std::endl;
-  }
-  smoc_firing_state start;  // FSM states
-public:
+
   Sink(sc_module_name name)   // actor constructor
     : smoc_actor(name, start) {
     // FSM definition:
     start =
       in(1)                 >>
       CALL(Sink::sink)      >> start;
+  }
+private:
+  smoc_firing_state start;  // FSM states
+
+  void sink() {
+    std::cout << this->name() << " recv: \""
+              << in[0] << "\"" << std::endl;
   }
 };
 \end{lstlisting}
@@ -85,18 +86,19 @@ class Source: public smoc_actor {
 public:
   // ports:
   smoc_port_out<char> out;
-private:
-  void src() {
-    std::cout << this->name() << " send: \'X\'" << std::endl;
-    out[0] = 'X';
-  }
-  smoc_firing_state start;  // FSM states
-public:
+
   Source(sc_module_name name)
     : smoc_actor(name, start) {
     start = 
       out(1)                   >>
       CALL(Source::src)        >> start;
+  }
+private:
+  smoc_firing_state start;  // FSM states
+
+  void src() {
+    std::cout << this->name() << " send: \'X\'" << std::endl;
+    out[0] = 'X';
   }
 };
 \end{lstlisting}
@@ -111,9 +113,6 @@ public:
 \mode<presentation>{\frametitle{\insertsubsection\ -- Connect Actors}}
 \begin{lstlisting}
 class NetworkGraph: public smoc_graph {
-protected:
-  Source         source;   // actors
-  Sink           sink;
 public:
   NetworkGraph(sc_module_name name)  // networkgraph constructer
     : smoc_graph(name),
@@ -121,6 +120,9 @@ public:
       sink("Sink") {
     connectNodePorts(source.out, sink.in); // connect actors
   }
+private:
+  Source         source;   // actors
+  Sink           sink;
 };
 
 int sc_main (int argc, char **argv) {
@@ -144,11 +146,11 @@ int sc_main (int argc, char **argv) {
 \item connected ports have to use same data type!
 \item queues have implicit size ``1'' (one data token)
 \begin{lstlisting}
-    connectNodePorts(source.out, sink.in); // connect actors
+    connectNodePorts(source.out, sink.in);
 \end{lstlisting}
 \item set queue size explicitly
 \begin{lstlisting}
-    connectNodePorts<23>(source.out, sink.in); // connect actors
+    connectNodePorts<23>(source.out, sink.in);
 \end{lstlisting}
 \item more advanced channel features (later)
 \begin{itemize}

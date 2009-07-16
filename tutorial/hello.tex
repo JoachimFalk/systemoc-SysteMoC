@@ -27,13 +27,6 @@
 #include <systemoc/smoc_moc.hpp>
 
 class HelloActor: public smoc_actor {
-private:
-  void src() {   // action
-    std::cout << "Actor " << this->name() << " says:\n"
-              << "Hello SysteMoC" << std::endl;
-  }
-
-  smoc_firing_state start, end;   // FSM states
 public:
   // actor constructor
   HelloActor(sc_module_name name)
@@ -41,6 +34,13 @@ public:
     // FSM definition:
     //  transition from start to end calling action src
     start = CALL(HelloActor::src) >> end;
+  }
+private:
+  smoc_firing_state start, end;   // FSM states
+
+  void src() {   // action
+    std::cout << "Actor " << this->name() << " says:\n"
+              << "Hello World" << std::endl;
   }
 };
 \end{lstlisting}
@@ -54,15 +54,15 @@ public:
 //file hello.cpp cont'd
 
 class HelloNetworkGraph: public smoc_graph {
-private:
-  // actors
-  HelloActor     helloActor;
 public:
   // networkgraph constructor
   HelloNetworkGraph(sc_module_name name)
     : smoc_graph(name),
       helloActor("HalloActor") // create actor HelloWorld
   { }
+private:
+  // actors
+  HelloActor     helloActor;
 };
 
 int sc_main (int argc, char **argv) {
@@ -90,7 +90,7 @@ int sc_main (int argc, char **argv) {
         Copyright (c) 1996-2006 by all Contributors
                     ALL RIGHTS RESERVED
 Actor top.HalloActor says:
-Hello SysteMoC
+Hello World
 SystemC: simulation stopped by user.
 \end{lstlisting}
 \end{itemize}

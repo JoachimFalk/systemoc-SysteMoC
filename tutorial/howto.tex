@@ -1,0 +1,104 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Inline Guards}}
+\begin{itemize}
+\item simple guards may be inlined
+\item in a previous example we use a guard function ...
+\begin{lstlisting}
+  bool hasToken() const{
+    return count<size;
+  }
+\end{lstlisting}
+\item ... and refered to the guard inside the FSM 
+\begin{lstlisting}
+       GUARD(Source::hasToken)  >>
+\end{lstlisting}
+\item instead we can inline this simple guards
+\begin{lstlisting}
+      (VAR(count)<VAR(size))   >>
+\end{lstlisting}
+\item in a FSMs transition we can directly access values of variables using \lstinline!VAR(...)! the macro
+\end{itemize}
+\end{frame}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Use Guards for Control Flow}}
+\begin{itemize}
+\item model ``if/else'' like constructs
+\item use \lstinline|GUARD(..)| and  \lstinline|!GUARD(..)| for different transitions
+\item please note the \lstinline|!|
+\begin{lstlisting}
+    state = 
+      GUARD(Actor::testGuard)  >>  // case IF
+      out(1)                   >>
+      CALL(Actor::processA)    >> state
+    |
+      !GUARD(Actor::testGuard) >>  // case IF NOT
+      out(1)                   >>
+      CALL(Actor::processB)    >> state
+      ;
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Use Guards for Control Flow}}
+\begin{itemize}
+\item to be precise, the previous example is not an ``if/else'' construct
+\item it is a ``if/if not'' construct
+\item you cannot model a explicit ``else'' transition
+\item neither an exclusive default transition
+\item instead you have to model an explicit ``if not'' transition (see ``else if'' constructs on next slide)
+\item transition have no priority ...
+\item ``if/else if/else'' constructs in software do have a priority
+\end{itemize}
+\end{frame}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Use Guards for Control Flow}}
+\begin{itemize}
+\item a similary way for ``if/else if'' constructs
+\begin{lstlisting}
+  (GUARD(Source::testGuard1) && GUARD(Source::testGuard2))   >>
+  ...
+  (GUARD(Source::testGuard1) && !GUARD(Source::testGuard2))  >>
+  ...
+  (!GUARD(Source::testGuard1) && GUARD(Source::testGuard2))  >>
+  ...
+  (!GUARD(Source::testGuard1) && !GUARD(Source::testGuard2)) >>
+  ...
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+

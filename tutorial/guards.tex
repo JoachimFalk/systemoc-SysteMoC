@@ -15,13 +15,141 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
-\mode<presentation>{\frametitle{\insertsubsection}}
-\begin{itemize}
-\item ...
-\end{itemize}
+\mode<presentation>{\frametitle{\insertsubsection\ -- SourceActor}}
 \begin{lstlisting}
+static const char MESSAGE [] = "0123456789";
+
+class Source: public smoc_actor {
+public:
+  smoc_port_out<char> out;
+  Source(sc_module_name name) : smoc_actor(name, start),
+    count(0), size(strlen(MESSAGE)), message(MESSAGE) {
+    start = 
+      GUARD(Source::hasToken)  >>
+      out(1)                   >>
+      CALL(Source::src)        >> start;
+  }
+private:
+  smoc_firing_state start;
+
+  unsigned int count, size;  // variables (functional state)
+  const char* message;       //
+
+  bool hasToken() const{ return count<size; } // guard
+  void src() { out[0] = message[count++]; }   // action
+};
 
 \end{lstlisting}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Guards}}
+\begin{itemize}
+\item a guard is a \lstinline!const! member function returning a boolean value
+\begin{lstlisting}
+  bool hasToken() const{
+    return count<size;
+  } // guard
+\end{lstlisting}
+\item guards enable/disable transitions (true/false)
+\item refer to guards via \lstinline!GUARD(..)! macro 
+\begin{lstlisting}
+    start = 
+      GUARD(Source::hasToken)  >>
+      out(1)                   >>
+      CALL(Source::src)        >> start;
+\end{lstlisting}
+\item use guards for control flow (see below)
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Variables}}
+\begin{itemize}
+\item variables ...
+\item ... are \lstinline!private! class member of an actor
+\item ... can be used to store data
+\item ... represent a functional state of an actor (in contrast to FSM state)
+\begin{lstlisting}
+  unsigned int count, size;
+  const char* message;
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Actions}}
+\begin{itemize}
+\item actions ...
+\item ... are used to consume/produce data on input/output ports
+\item ... modify variables (remember a state)
+\begin{lstlisting}
+  void src() {
+    out[0] = message[count++];
+  }
+\end{lstlisting}
+\item guards access variables read-only (mandatory \lstinline!const! modifier)
+\item actions are allowed to modify variables
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{itemize}
+\item simulation ouput (using Sink actor from previous example)
+\begin{lstlisting}
+top.Sink recv: "0"
+top.Sink recv: "1"
+top.Sink recv: "2"
+top.Sink recv: "3"
+top.Sink recv: "4"
+top.Sink recv: "5"
+top.Sink recv: "6"
+top.Sink recv: "7"
+top.Sink recv: "8"
+top.Sink recv: "9"
+SystemC: simulation stopped by user.
+\end{lstlisting}
+\item Source actor sends a finite number of characters only
+\item simulation terminates as no actor can be activated
+  \begin{itemize}
+  \item Source actors guard returns false
+  \item Sink actor runs out of input token
+  \end{itemize}
+\end{itemize}
 \end{frame}
 
 
