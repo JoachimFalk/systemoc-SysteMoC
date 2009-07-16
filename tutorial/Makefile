@@ -10,8 +10,8 @@ all:
 
 SUBDIRS=
 
-TEXCLEANDIRS=. $(srcdir) ../figs
-TEXINPUTS:=$(srcdir):$(RESDIR):$(RESDIR)/beamer-latex-styles:$(TEXINPUTS):../figs
+TEXINPUTS:=../figs:$(RESDIR):$(RESDIR)/beamer-latex-styles:$(TEXINPUTS)
+TEXCLEANDIRS=../figs .
 
 include $(RESDIR)/Rules-TeX.mk
 
