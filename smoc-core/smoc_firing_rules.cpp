@@ -212,6 +212,36 @@ size_t RuntimeTransition::getPriority() const
 smoc_root_node &RuntimeTransition::getActor()
   { assert(actor != NULL); return *actor; }
 
+class ActionNameVisitor {
+public:
+  typedef std::string result_type;
+public:
+  result_type operator()(smoc_func_call_list &f) const {
+    std::ostringstream str;
+    
+    for (smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
+      if (i != f.begin())
+        str << ";";
+      str << i->getFuncName() << "(";
+      for (ParamInfoList::const_iterator pIter = i->getParams().begin();
+           pIter != i->getParams().end();
+           ++pIter) {
+        if (pIter != i->getParams().begin())
+          str << ",";
+        str << pIter->value;
+      }
+      str << ")";
+    }
+    return str.str();
+  }
+  result_type operator()(smoc_func_diverge &f) const {
+    return "";
+  }
+  result_type operator()(smoc_sr_func_pair &f) const {
+    return "";
+  }
+};
+
 void RuntimeTransition::execute(int mode) {
   enum {
     MODE_DIISTART,
@@ -254,10 +284,11 @@ void RuntimeTransition::execute(int mode) {
 #endif
   
 #ifdef SYSTEMOC_ENABLE_HOOKING
-  std::string actionStr;
   
   if (execMode == MODE_DIISTART) {
     if (!hookingValid) {
+      actionStr = boost::apply_visitor(ActionNameVisitor(), f);
+      
       for (std::list<SysteMoC::Hook::Detail::TransitionHook>::const_iterator iter = actor->transitionHooks.begin();
            iter != actor->transitionHooks.end();
            ++iter) {

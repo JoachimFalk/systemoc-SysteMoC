@@ -203,9 +203,10 @@ private:
   typedef std::vector<const SysteMoC::Hook::PreCallback  *> PreHooks;
   typedef std::vector<const SysteMoC::Hook::PostCallback *> PostHooks;
 
-  bool      hookingValid;
-  PreHooks  preHooks;
-  PostHooks postHooks;
+  bool        hookingValid;
+  std::string actionStr;
+  PreHooks    preHooks;
+  PostHooks   postHooks;
 #endif //SYSTEMOC_ENABLE_HOOKING
 
   /// @brief Hierarchical end-of-elaboration callback
