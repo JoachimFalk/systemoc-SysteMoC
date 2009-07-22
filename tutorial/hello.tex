@@ -13,10 +13,10 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- % fragile is mandratory for verbatim environments (lstlisting)
+ % fragile is mandatory for verbatim environments (lstlisting)
  % HACK: use singleslide for correct page numbering
- %  (pagecounter+=2 else wise)
- %  this issue seems to be relevent for *pdflatex* only
+ %  (page-counter+=2 else wise)
+ %  this issue seems to be relevant for *pdflatex* only
  % NOTE: the intended usage for *singleslide* is to tell beamer that we use
  %   no overlays (animation)
 \begin{frame}[fragile=singleslide]
@@ -55,7 +55,7 @@ private:
 
 class HelloNetworkGraph: public smoc_graph {
 public:
-  // networkgraph constructor
+  // network graph constructor
   HelloNetworkGraph(sc_module_name name)
     : smoc_graph(name),
       helloActor("HalloActor") // create actor HelloWorld
@@ -66,7 +66,7 @@ private:
 };
 
 int sc_main (int argc, char **argv) {
-  // create networkgraph
+  // create network graph
   smoc_top_moc<HelloNetworkGraph> top("top");
 
   sc_start();  // start simulation (SystemC)

@@ -5,7 +5,7 @@
 \begin{itemize}
 \item You will learn to ...
 \item ... write actors.
-\item ... instanciate actors in a networkgraph.
+\item ... instantiate actors in a network graph.
 \item ... run functional simulation.
 \end{itemize}
 \end{frame}
@@ -51,9 +51,7 @@ private:
 \item constructors are responsible for creating a certain actor instance
 \item provide actor name and start state to base class \lstinline!smoc_actor!
 \begin{lstlisting}
-public:
-  // actor constructor
-  HelloActor(sc_module_name name)
+  HelloActor(sc_module_name name)  // actor constructor
     : smoc_actor(name, state_a) {
 \end{lstlisting}
 \item a finite state machine (FSM) defines transitions between states
@@ -72,49 +70,26 @@ public:
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Graphs}}
 \begin{itemize}
-\item a networkgraph is derived from base class \lstinline!smoc_graph!
+\item a network graph is derived from base class \lstinline!smoc_graph!
 \begin{lstlisting}
 class HelloNetworkGraph: public smoc_graph {
 \end{lstlisting}
-\item our networkgraph has a instance of the \lstinline!HelloActor!
+\item our network graph has an instance of the \lstinline!HelloActor!
 \begin{lstlisting}
 private:
   // actors
   HelloActor     helloActor;
 \end{lstlisting}
 \item a name for the graph has to be passed to base class \lstinline!smoc_graph!
-\item we need to call \lstinline!HelloActor!s constructer
+\item we need to call \lstinline!HelloActor!s constructor
 \begin{lstlisting}
-  // networkgraph constructor
+  // network graph constructor
   HelloNetworkGraph(sc_module_name name)
     : smoc_graph(name),
-      helloActor("HalloActor") // create actor HelloWorld
+      helloActor("HelloActor") // create actor HelloWorld
   { }
 };
 \end{lstlisting}
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile=singleslide]
-\mode<presentation>{\frametitle{\insertsubsection\ -- Simulation}}
-\begin{itemize}
-\item function \lstinline!sc_main! is the entry point for simulation (cf. SystemC)
-\item the \lstinline!smoc_top_moc! is typed with our networkgraph
-\item parameters are passed to networksgraphs constructor (e.g.``top'')
-\item call \lstinline!sc_start! to start simulation (cf. SystemC)
-\begin{lstlisting}
-int sc_main (int argc, char **argv) {
-  // create networkgraph
-  smoc_top_moc<HelloNetworkGraph> top("top");
-
-  sc_start();  // start simulation (SystemC)
-  return 0;
-}
-\end{lstlisting}
-\item compile the source code
-\item execute binary for simulation (OSCI SystemC)
 \end{itemize}
 \end{frame}
 

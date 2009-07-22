@@ -114,7 +114,7 @@ private:
 \begin{lstlisting}
 class NetworkGraph: public smoc_graph {
 public:
-  NetworkGraph(sc_module_name name)  // networkgraph constructer
+  NetworkGraph(sc_module_name name)  // network graph constructor
     : smoc_graph(name),
       source("Source"),             // create actors
       sink("Sink") {
@@ -126,7 +126,7 @@ private:
 };
 
 int sc_main (int argc, char **argv) {
-  smoc_top_moc<NetworkGraph> top("top"); // create networkgraph
+  smoc_top_moc<NetworkGraph> top("top"); // create network graph
 
   sc_start();   // start simulation (SystemC)
   return 0;
@@ -155,7 +155,7 @@ int sc_main (int argc, char **argv) {
 \item more advanced channel features (later)
 \begin{itemize}
 \item channel types
-\item inital data tokens
+\item initial data tokens
 \end{itemize}
 \end{itemize}
 \end{frame}
@@ -168,7 +168,7 @@ int sc_main (int argc, char **argv) {
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection}}
 \begin{itemize}
-\item simulation ouput
+\item simulation output
 \begin{lstlisting}
 
              SystemC 2.2.0 --- Dec 15 2008 11:10:07
@@ -182,7 +182,7 @@ top.Source send: 'X'
 top.Sink recv: 'X'
 ...
 \end{lstlisting}
-\item simulation runs infinite
+\item simulation runs infinitely
 \end{itemize}
 \end{frame}
 

@@ -1,20 +1,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
-\mode<presentation>{\frametitle{\insertsubsection\ -- Inline Guards}}
+\mode<presentation>{\frametitle{\insertsubsection\ -- In-line Guards}}
 \begin{itemize}
-\item simple guards may be inlined
+\item simple guards may be in-lined
 \item in a previous example we use a guard function ...
 \begin{lstlisting}
   bool hasToken() const{
     return count<size;
   }
 \end{lstlisting}
-\item ... and refered to the guard inside the FSM 
+\item ... and refereed to the guard inside the FSM 
 \begin{lstlisting}
        GUARD(Source::hasToken)  >>
 \end{lstlisting}
-\item instead we can inline this simple guards
+\item instead we can in-line this simple guards
 \begin{lstlisting}
       (VAR(count)<VAR(size))   >>
 \end{lstlisting}
@@ -76,18 +76,18 @@
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Use Guards for Control Flow}}
 \begin{itemize}
-\item a similary way for ``if/else if'' constructs
-\begin{lstlisting}
-  (GUARD(Source::testGuard1) && GUARD(Source::testGuard2))   >>
-  ...
-  (GUARD(Source::testGuard1) && !GUARD(Source::testGuard2))  >>
-  ...
-  (!GUARD(Source::testGuard1) && GUARD(Source::testGuard2))  >>
-  ...
-  (!GUARD(Source::testGuard1) && !GUARD(Source::testGuard2)) >>
-  ...
-\end{lstlisting}
+\item a similarly way for ``if/else if'' constructs
 \end{itemize}
+\begin{lstlisting}
+ (GUARD(Source::testGuard1) && GUARD(Source::testGuard2))   >>
+ ...
+ (GUARD(Source::testGuard1) && !GUARD(Source::testGuard2))  >>
+ ...
+ (!GUARD(Source::testGuard1) && GUARD(Source::testGuard2))  >>
+ ...
+ (!GUARD(Source::testGuard1) && !GUARD(Source::testGuard2)) >>
+ ...
+\end{lstlisting}
 \end{frame}
 
 
@@ -98,7 +98,15 @@
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsubsection\ -- TODOs}}
+\begin{itemize}
+\item nesting graphs
+\item dynamic instantiation (actor, channel, FSM)
 
-
+\end{itemize}
+\end{frame}
 
 

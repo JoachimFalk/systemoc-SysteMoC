@@ -1,0 +1,22 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ }}
+\begin{itemize}
+\item function \lstinline!sc_main! is the entry point for simulation (cf. SystemC)
+\item the \lstinline!smoc_top_moc! is typed with a network graph
+\item parameters are passed to the graph constructor (e.g.``top'')
+\item call \lstinline!sc_start! to start simulation (cf. SystemC)
+\begin{lstlisting}
+int sc_main (int argc, char **argv) {
+  // create network graph
+  smoc_top_moc<HelloNetworkGraph> top("top");
+
+  sc_start();  // start simulation (SystemC)
+  return 0;
+}
+\end{lstlisting}
+\item compile the source code
+\item execute binary for simulation (OSCI SystemC)
+\end{itemize}
+\end{frame}
