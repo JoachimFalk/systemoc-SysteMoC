@@ -33,52 +33,91 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <cstdlib>
 #include <iostream>
 
 #include <systemoc/smoc_moc.hpp>
 
-class HelloActor: public smoc_actor {
+static const char MESSAGE_HELLO [] = "Hello SysteMoC!";
+static const char MESSAGE_ABC []   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const char MESSAGE_123 []   = "0123456789";
 
+class Source: public smoc_actor {
+public:
+  smoc_port_out<char> out;
+  Source(sc_module_name name, const char* msg) : smoc_actor(name, start),
+    count(0), size(strlen(msg)), message(msg) {
+    start = 
+      GUARD(Source::hasToken)  >>
+      out(2)                   >>
+      CALL(Source::src)        >> start;
+  }
+private:
+  smoc_firing_state start;
+
+  unsigned int count, size;  // variables (functional state)
+  const char* message;       //
+
+  bool hasToken() const{ return count<size; } // guard
+  void src() {                               // action
+    out[0] = message[count++];
+    out[1] = message[count++];
+  }};
+
+
+
+
+class Sink: public smoc_actor {
+public:
+  // ports:
+  smoc_port_in<char> in;
 private:
   // actions:
-  void src() {
-    std::cout << "Actor " << this->name() << " says:\n"
-              << "Hello World" << std::endl;
+  void sink() {
+    std::cout << this->name() << " recv: \""
+              << in[0] << "\"" << std::endl;
   }
 
   // FSM states:
-  smoc_firing_state state_a, state_b;
+  smoc_firing_state start;
 public:
   // actor constructor
-  HelloActor(sc_module_name name)
-    : smoc_actor(name, state_a)
+  Sink(sc_module_name name)
+    : smoc_actor(name, start)
   {
 
     // FSM definition:
-    //  transition from state_a to state_b calling action src
-    state_a = CALL(HelloActor::src) >> state_b
+    start =
+      in(1)                 >>
+      CALL(Sink::sink) >> start
       ;
   }
 };
 
 
-class HelloNetworkGraph: public smoc_graph {
-private:
+
+class NetworkGraph: public smoc_graph {
+protected:
   // actors
-  HelloActor     helloActor;
+  Source         source;
+  Sink           sink;
 public:
   // networkgraph constructor
-  HelloNetworkGraph(sc_module_name name)
+  NetworkGraph(sc_module_name name)
     : smoc_graph(name),
-      helloActor("HalloActor") // create actor HelloWorld
+      // create actors
+      source("Source", MESSAGE_123),
+      sink("Sink")
   {
+    //connectNodePorts(source.out, sink.in);
+    connectNodePorts<4>(source.out, sink.in);
   }
 };
 
 int sc_main (int argc, char **argv) {
-  
+
   // create networkgraph
-  smoc_top_moc<HelloNetworkGraph> top("top");
+  smoc_top_moc<NetworkGraph> top("top");
 
   // start simulation (SystemC)
   sc_start();

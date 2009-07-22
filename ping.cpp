@@ -33,52 +33,57 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <cstdlib>
 #include <iostream>
 
 #include <systemoc/smoc_moc.hpp>
 
-class HelloActor: public smoc_actor {
-
-private:
-  // actions:
-  void src() {
-    std::cout << "Actor " << this->name() << " says:\n"
-              << "Hello World" << std::endl;
-  }
-
-  // FSM states:
-  smoc_firing_state state_a, state_b;
+class Forward: public smoc_actor {
 public:
-  // actor constructor
-  HelloActor(sc_module_name name)
-    : smoc_actor(name, state_a)
-  {
+  smoc_port_in<int> in;
+  smoc_port_out<int> out;
 
-    // FSM definition:
-    //  transition from state_a to state_b calling action src
-    state_a = CALL(HelloActor::src) >> state_b
-      ;
+  Forward(sc_module_name name) : smoc_actor(name, start){
+    start = 
+      in(1)                    >>
+      out(1)                   >>
+      CALL(Forward::forward)   >> start;
+  }
+private:
+  smoc_firing_state start;
+
+  void forward() {
+    std::cout << this->name() << " forward: \""
+              << in[0] << "\"" << std::endl;
+    out[0] = in[0];
   }
 };
 
 
-class HelloNetworkGraph: public smoc_graph {
-private:
+class NetworkGraph: public smoc_graph {
+protected:
   // actors
-  HelloActor     helloActor;
+  Forward         ping;
+  Forward         pong;
 public:
   // networkgraph constructor
-  HelloNetworkGraph(sc_module_name name)
+  NetworkGraph(sc_module_name name)
     : smoc_graph(name),
-      helloActor("HalloActor") // create actor HelloWorld
+      // create actors
+      ping("Ping"),
+      pong("Pong")
   {
+    smoc_fifo<int> initFifo(1);
+    initFifo << 42;
+    connectNodePorts(ping.out, pong.in);
+    connectNodePorts(pong.out, ping.in, initFifo);
   }
 };
 
 int sc_main (int argc, char **argv) {
-  
+
   // create networkgraph
-  smoc_top_moc<HelloNetworkGraph> top("top");
+  smoc_top_moc<NetworkGraph> top("top");
 
   // start simulation (SystemC)
   sc_start();

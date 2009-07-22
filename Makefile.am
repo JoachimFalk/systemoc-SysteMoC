@@ -31,12 +31,28 @@ LIBS= @LIBS@ -lsystemoc
 
 noinst_PROGRAMS=		\
 	hello			\
-	src-sink
+	src-sink		\
+	guards			\
+	rates			\
+	data-flow		\
+	ping
 
 hello_SOURCES= hello-systemoc.cpp
 hello_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 src_sink_SOURCES= source-sink.cpp
 src_sink_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+guards_SOURCES= guards.cpp
+guards_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+rates_SOURCES= rates.cpp
+rates_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+data_flow_SOURCES= data-flow.cpp
+data_flow_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+ping_SOURCES= ping.cpp
+ping_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 
