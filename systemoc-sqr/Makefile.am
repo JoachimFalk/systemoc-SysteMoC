@@ -36,6 +36,10 @@ if SYNTH_HWC
   HWSYNTHC_SUBDIR  = hwsynth-concurrent
   include $(root_builddir)/Synthesis-Actor-Concurrent/Rules-Synth.mk
 endif
+if SYNTH_HWGS
+  GINGER_SYNTH_SUBDIR  = hwsynth-ginger-snap
+  include $(root_builddir)/Synthesis-Actor-Ginger-Snap/Rules-Synth.mk
+endif
 if SYNTH_TLM
   TLMSYNTH_SUBDIR  = tlmsynth
   include $(root_builddir)/Synthesis-Actor-TLM/Rules-Synth.mk
@@ -82,6 +86,11 @@ endif
 if SYNTH_HWC
 hwsynthc: $(HWSYNTHC_SUBDIR)/smoc-hwsynthc-all-sqr.stamp
 .PHONY: hwsynthc
+endif
+
+if SYNTH_HWGS
+ginger_synth: $(GINGER_SYNTH_SUBDIR)/smoc-ginger-synth-all-sqr.stamp
+.PHONY: ginger_synth
 endif
 
 if SYNTH_TLM
