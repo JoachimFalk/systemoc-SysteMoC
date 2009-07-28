@@ -118,6 +118,24 @@ esac
 AM_CONDITIONAL(SYNTH_HWC,     test x$synth_hwc     = xtrue)
 
 case "$synth" in
+  *:tlm:*)
+    synth_tlm=true
+    ;;
+  auto)
+    if test -d $srcdir/../Synthesis-Actor-TLM/; then
+      synth_tlm=true
+    else
+      synth_tlm=false
+    fi
+    ;;
+  *)
+    synth_tlm=false
+    ;;
+esac
+
+AM_CONDITIONAL(SYNTH_TLM,     test x$synth_tlm     = xtrue)
+
+case "$synth" in
   *:sgx:*)
     synth_sgx=true
     ;;
