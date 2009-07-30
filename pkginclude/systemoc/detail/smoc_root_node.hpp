@@ -87,7 +87,9 @@ namespace SysteMoC {
  */
 class smoc_root_node
 : public sc_module,
+#ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::NamedIdedObj,
+#endif
   public SysteMoC::Detail::SimCTXBase
 {
   typedef smoc_root_node this_type;
