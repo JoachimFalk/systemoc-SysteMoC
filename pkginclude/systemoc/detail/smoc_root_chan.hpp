@@ -65,7 +65,9 @@ namespace Detail {
 class smoc_root_chan
 : public sc_prim_channel,
   public smoc_port_registry,
+#ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::NamedIdedObj,
+#endif
   public SysteMoC::Detail::SimCTXBase
 {
   typedef smoc_root_chan this_type;

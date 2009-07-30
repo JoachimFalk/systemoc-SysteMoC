@@ -176,7 +176,9 @@ class RuntimeState;
 
 class RuntimeTransition
 : public smoc_activation_pattern,
+#ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::IdedObj,
+#endif
   public SysteMoC::Detail::SimCTXBase {
 private:
   /// @brief Parent node
@@ -244,10 +246,15 @@ public:
 typedef std::list<RuntimeTransition> RuntimeTransitionList;
 
 class RuntimeState
-: public SysteMoC::Detail::NamedIdedObj,
+:
+#ifdef SYSTEMOC_NEED_IDS
+  public SysteMoC::Detail::NamedIdedObj,
+#endif
   public SysteMoC::Detail::SimCTXBase {
   typedef RuntimeState                    this_type;
+#ifdef SYSTEMOC_NEED_IDS
   typedef SysteMoC::Detail::NamedIdedObj  base_type;
+#endif
 private:
   std::string           _name;
   RuntimeTransitionList t;
@@ -344,6 +351,10 @@ protected:
   virtual void setFiringFSM(FiringFSMImpl *fsm);
   friend class FiringFSMImpl;
 
+#ifdef FSM_FINALIZE_BENCHMARK
+  virtual void countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const;
+#endif // FSM_FINALIZE_BENCHMARK
+
 public:
   /// @brief Destructor
   virtual ~FiringStateBaseImpl();
@@ -403,6 +414,10 @@ protected:
   void add(HierarchicalStateImpl* state);
   
   void setFiringFSM(FiringFSMImpl *fsm);
+  
+#ifdef FSM_FINALIZE_BENCHMARK
+  void countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const;
+#endif // FSM_FINALIZE_BENCHMARK
 
 public:
   /// @brief Destructor
@@ -445,6 +460,12 @@ class FiringStateImpl: public HierarchicalStateImpl {
 public:
   typedef FiringStateImpl this_type;
 
+protected:
+
+#ifdef FSM_FINALIZE_BENCHMARK
+  void countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const;
+#endif // FSM_FINALIZE_BENCHMARK
+
 public:
   /// @brief Constructor
   FiringStateImpl(const std::string& name = "");
@@ -466,7 +487,13 @@ public:
 private:
   /// @brief Initial state
   HierarchicalStateImpl* init;
-  
+
+protected:
+
+#ifdef FSM_FINALIZE_BENCHMARK
+  void countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const;
+#endif // FSM_FINALIZE_BENCHMARK
+
 public:
   /// @brief Constructor
   XORStateImpl(const std::string& name = "");
@@ -490,6 +517,12 @@ public:
 class ANDStateImpl: public HierarchicalStateImpl {
 public:
   typedef ANDStateImpl this_type;
+
+protected:
+
+#ifdef FSM_FINALIZE_BENCHMARK
+  void countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const;
+#endif // FSM_FINALIZE_BENCHMARK
 
 public:
   /// @brief Constructor

@@ -111,7 +111,9 @@ class smoc_port_base_if
 /// Class representing the base class of all SysteMoC ports.
 class smoc_sysc_port
 : public sc_core::sc_port_base,
+#ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::NamedIdedObj,
+#endif
   public SysteMoC::Detail::SimCTXBase,
   private boost::noncopyable
 {

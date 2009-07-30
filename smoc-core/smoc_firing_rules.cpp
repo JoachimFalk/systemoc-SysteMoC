@@ -498,6 +498,8 @@ void FiringFSMImpl::finalise(
 
 #ifdef FSM_FINALIZE_BENCHMARK  
   clock_t finStart;
+  size_t nRunStates = 0;
+  size_t nRunTrans = 0;
 #endif // FSM_FINALIZE_BENCHMARK
 
   try {
@@ -507,7 +509,23 @@ void FiringFSMImpl::finalise(
     unify(top->getFiringFSM());
     delState(top);
 
-//    outDbg << "#states: " << states.size() << std::endl;
+#ifdef FSM_FINALIZE_BENCHMARK
+    size_t nLeaf = 0;
+    size_t nXor = 0;
+    size_t nAnd = 0;
+    size_t nTrans = 0;
+    for(FiringStateBaseImplSet::iterator sIter = states.begin();
+        sIter != states.end(); ++sIter) {
+      (*sIter)->countStates(nLeaf, nAnd, nXor, nTrans);
+    }
+    std::cerr << "#leaf: " << nLeaf << "; #and: " << nAnd << "; #xor: "
+             << nXor << "; #transitions: " << nTrans << std::endl;
+#endif // FSM_FINALIZE_BENCHMARK
+
+
+#ifdef FSM_FINALIZE_BENCHMARK  
+   finStart = clock();
+#endif // FSM_FINALIZE_BENCHMARK
 
     // move remaining hierarchical states into top state
 //    {outDbg << "moving HS to top state" << std::endl;
@@ -557,10 +575,6 @@ void FiringFSMImpl::finalise(
 //    {outDbg << "calculating runtime states / transitions" << std::endl;
 //    ScopedIndent s1(outDbg);
 
-#ifdef FSM_FINALIZE_BENCHMARK  
-   finStart = clock();
-#endif // FSM_FINALIZE_BENCHMARK
-
     assert(rts.empty());
 
     typedef std::map<ProdState,RuntimeState*> StateTable;
@@ -578,6 +592,9 @@ void FiringFSMImpl::finalise(
       (Concat(actor->name())(":")(psinit))).first;
     ns.push_back(
         st.insert(STEntry(psinit, init)).first);
+#ifdef FSM_FINALIZE_BENCHMARK
+    nRunStates++;
+#endif // FSM_FINALIZE_BENCHMARK
 
     std::ofstream* fsmDump = 0;
 
@@ -637,6 +654,9 @@ void FiringFSMImpl::finalise(
               *rts.insert(new RuntimeState
                 (Concat(actor->name())(":")(ins.first->first))).first;  
             ns.push_back(ins.first);
+#ifdef FSM_FINALIZE_BENCHMARK
+            nRunStates++;
+#endif // FSM_FINALIZE_BENCHMARK
           }
 
           RuntimeState* rd = ins.first->second;
@@ -657,6 +677,9 @@ void FiringFSMImpl::finalise(
                 t->getAction(),
                 rd,
                 t->getPriority()));
+#ifdef FSM_FINALIZE_BENCHMARK
+          nRunTrans++;
+#endif // FSM_FINALIZE_BENCHMARK
         }
       }
     }
@@ -679,9 +702,10 @@ void FiringFSMImpl::finalise(
   }
 
 #ifdef FSM_FINALIZE_BENCHMARK  
-  outDbg << "Finalised FSM of actor '" << actor->name() << "' in "
-         << ((clock() - finStart) / (double)CLOCKS_PER_SEC) << " secs."
-         << std::endl;
+  std::cerr << "Finalised FSM of actor '" << actor->name() << "' in "
+            << ((clock() - finStart) / (double)CLOCKS_PER_SEC) << " secs."
+            << "; #states: " << nRunStates << "; #trans: " << nRunTrans
+            << std::endl;
 #endif // FSM_FINALIZE_BENCHMARK
 }
 
@@ -786,6 +810,11 @@ void FiringStateBaseImpl::addTransition(const PartialTransition& pt) {
 void FiringStateBaseImpl::clearTransition()
   { ptl.clear(); }
 
+#ifdef FSM_FINALIZE_BENCHMARK
+void FiringStateBaseImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXOR, size_t& nTrans) const {
+  nTrans += ptl.size();
+}
+#endif // FSM_FINALIZE_BENCHMARK
 
 void intrusive_ptr_add_ref(FiringStateBaseImpl *p)
   { p->getFiringFSM()->addRef(); }
@@ -844,6 +873,15 @@ std::string HierarchicalStateImpl::getHierarchicalName() const {
     HIERARCHY_SEPARATOR +
     name;
 }
+  
+#ifdef FSM_FINALIZE_BENCHMARK
+void HierarchicalStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t& nTrans) const {
+  for(C::const_iterator s = c.begin(); s != c.end(); ++s) {
+    (*s)->countStates(nLeaf, nAnd, nXor, nTrans);
+  }
+  FiringStateBaseImpl::countStates(nLeaf, nAnd, nXor, nTrans);
+}
+#endif // FSM_FINALIZE_BENCHMARK
 
 HierarchicalStateImpl* HierarchicalStateImpl::select(
     const std::string& name)
@@ -1001,6 +1039,13 @@ void FiringStateImpl::getInitialState(
   p.insert(this);
 }
 
+#ifdef FSM_FINALIZE_BENCHMARK
+void FiringStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t& nTrans) const {
+  nLeaf++;
+  HierarchicalStateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
+}
+#endif // FSM_FINALIZE_BENCHMARK
+
 const HierarchicalStateImpl* FiringStateImpl::getTopState(
     const MultiState& d,
     bool isSrcState) const
@@ -1040,6 +1085,13 @@ void XORStateImpl::finalise(ExpandedTransitionList& etl) {
     throw ModelingError("smoc_xor_state: Must specify initial state");
   HierarchicalStateImpl::finalise(etl);
 }
+
+#ifdef FSM_FINALIZE_BENCHMARK
+void XORStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t& nTrans) const {
+  nXor++;
+  HierarchicalStateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
+}
+#endif // FSM_FINALIZE_BENCHMARK
 
 void XORStateImpl::getInitialState(
     ProdState& p, const Marking& m) const
@@ -1101,6 +1153,13 @@ void ANDStateImpl::getInitialState(
     (*s)->getInitialState(p, m);
   }
 }
+
+#ifdef FSM_FINALIZE_BENCHMARK
+void ANDStateImpl::countStates(size_t& nLeaf, size_t& nAnd, size_t& nXor, size_t& nTrans) const {
+  nAnd++;
+  HierarchicalStateImpl::countStates(nLeaf, nAnd, nXor, nTrans);
+}
+#endif // FSM_FINALIZE_BENCHMARK
 
 const HierarchicalStateImpl* ANDStateImpl::getTopState(
     const MultiState& d,

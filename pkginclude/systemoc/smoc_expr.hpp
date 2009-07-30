@@ -49,6 +49,7 @@
 #include <CoSupport/DataTypes/oneof.hpp>
 #include <CoSupport/Lambda/functor.hpp>
 #include <CoSupport/commondefs.h>
+#include <CoSupport/String/convert.hpp>
 
 #include <boost/typeof/typeof.hpp>
 #include <boost/function.hpp>
@@ -124,6 +125,12 @@ namespace SysteMoC { namespace Detail {
       DeRef,
       Type
     } Op;
+  protected:
+    Op op_;
+  public:
+    OpUnT(Op op) : op_(op) {}
+    OpUnT& operator=(Op op) { op_ = op; return *this; }
+    operator Op() const { return op_; }
   };
 #endif // SYSTEMOC_ENABLE_SGX
 
@@ -138,6 +145,12 @@ namespace SysteMoC { namespace Detail {
       BAnd, BOr, BXor, LAnd, LOr, LXor,
       Field
     } Op;
+  protected:
+    Op op_;
+  public:
+    OpBinT(Op op) : op_(op) {}
+    OpBinT& operator=(Op op) { op_ = op; return *this; }
+    operator Op() const { return op_; }
   };
 #endif // SYSTEMOC_ENABLE_SGX
 
