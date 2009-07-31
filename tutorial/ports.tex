@@ -16,6 +16,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Sink Actor}}
+\index{port|(}
 \begin{lstlisting}
 class Sink: public smoc_actor {
 public:
@@ -48,14 +49,17 @@ private:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
-\mode<presentation>{\frametitle{\insertsubsection\ -- Sink Actor}}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Input Port}}
+%\index{actor!input port|see{input port}}
+\index{input port}
 \begin{itemize}
 \item create an input port
 \item ports have a data type (e.g. \lstinline!char!)
 \begin{lstlisting}
   smoc_port_in<char> in;
 \end{lstlisting}
-\item declare to read one token of data in FSM transition
+\item a single object of the particular data type is termed ``a token''
+\item declare to read one token in FSM transition
 \begin{lstlisting}
     start =
       in(1)                 >>
@@ -107,10 +111,44 @@ private:
 
 
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Output Port}}
+%\index{actor!output port|see{output port}}
+\index{output port}
+\index{port|)}
+\begin{itemize}
+\item create an output with data type \lstinline!char!
+\begin{lstlisting}
+smoc_port_out<char> out;
+\end{lstlisting}
+\item declare to write one token in FSM transition
+\begin{lstlisting}
+  start = 
+    out(1)                   >>
+    CALL(Source::src)        >> start;
+\end{lstlisting}
+\item access data in action
+\begin{lstlisting}
+void src() {
+  std::cout << this->name() << " send: \'X\'" << std::endl;
+  out[0] = 'X';
+}
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Connect Actors}}
+\index{connectNodePorts@\lstinline{connectNodePorts}|(}
 \begin{lstlisting}
 class NetworkGraph: public smoc_graph {
 public:
@@ -140,11 +178,12 @@ int sc_main (int argc, char **argv) {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
-\mode<presentation>{\frametitle{\insertsubsection\ -- Connect Actors}}
+\mode<presentation>{\frametitle{\insertsubsection\ -- FIFO Queues}}
+\index{connectNodePorts@\lstinline{connectNodePorts}|)}
 \begin{itemize}
 \item connect a pair of ports (input, output) using a FIFO queue
-\item connected ports have to use same data type!
-\item queues have implicit size ``1'' (one data token)
+\item connected ports have to use the same data type
+\item queues have default size ``1'' (one data token)
 \begin{lstlisting}
     connectNodePorts(source.out, sink.in);
 \end{lstlisting}

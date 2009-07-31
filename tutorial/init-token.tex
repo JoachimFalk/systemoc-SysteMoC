@@ -1,0 +1,137 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Objectives}}
+\begin{itemize}
+\item data flow graphs may contain cyclic dependencies
+\item initial token are a common way to break cyclic dependencies
+\end{itemize}
+\begin{itemize}
+\item You will learn to ...
+\item ... initialize queus.
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Cyclic Dependencies}}
+\begin{figure}
+\centering
+\resizebox{0.9\columnwidth}{!}{\input{init-token-fig.tex}}
+\end{figure}
+\begin{itemize}
+\item each actor forwards input tokens to output port
+\item network graph contains a cyclic dependency
+\item without initialization none of the actors would become active
+\item we may use an initial token to break the cyclic dependency
+\end{itemize}
+\end{frame}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Example}}
+\begin{lstlisting}
+class Forward: public smoc_actor {
+public:
+  smoc_port_in<int> in;
+  smoc_port_out<int> out;
+
+  Forward(sc_module_name name) : smoc_actor(name, start){
+    start = 
+      in(1)                    >>
+      out(1)                   >>
+      CALL(Forward::forward)   >> start;
+  }
+private:
+  smoc_firing_state start;
+
+  void forward() {
+    std::cout << this->name() << " forward: \""
+              << in[0] << "\"" << std::endl;
+    out[0] = in[0];
+  }
+};
+\end{lstlisting}
+\end{frame}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Example}}
+\begin{lstlisting}
+class NetworkGraph: public smoc_graph {
+protected:
+  // actors
+  Forward         ping;
+  Forward         pong;
+public:
+  // network graph constructor
+  NetworkGraph(sc_module_name name)
+    : smoc_graph(name),
+      // create actors
+      ping("Ping"),
+      pong("Pong")
+  {
+    smoc_fifo<int> initFifo(1);
+    initFifo << 42;
+    connectNodePorts(ping.out, pong.in);
+    connectNodePorts(pong.out, ping.in, initFifo);
+  }
+};
+\end{lstlisting}
+\end{frame}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Simulation}}
+\begin{lstlisting}
+             SystemC 2.2.0 --- Dec 15 2008 11:10:07
+        Copyright (c) 1996-2006 by all Contributors
+                    ALL RIGHTS RESERVED
+top.Ping forward: "42"
+top.Pong forward: "42"
+top.Ping forward: "42"
+top.Pong forward: "42"
+...
+\end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Syntax}}
+\begin{itemize}
+\item explicit creation of a FIFO initializer TODO: name it QUEUE??
+\item give queue size as constructor parameter
+\begin{lstlisting}
+    smoc_fifo<int> initFifo(1);
+\end{lstlisting}
+\item push initial value to initializer
+\begin{lstlisting}
+    initFifo << 42;
+\end{lstlisting}
+\item pass initializer when constructing the queue
+\begin{lstlisting}
+    connectNodePorts(pong.out, ping.in, initFifo);
+\end{lstlisting}
+\item initializer may be reused for creating identical initialized queues
+\end{itemize}
+\end{frame}
+
+

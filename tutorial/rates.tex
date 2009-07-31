@@ -3,7 +3,7 @@
 \begin{frame}
 \mode<presentation>{\frametitle{\insertsubsection\ -- Objectives}}
 \begin{itemize}
-\item former examples consume/produce (read/write) only single tokens
+\item former examples consume/produce only a single token per invocation
 \item consumption and production rates may be different from one
 \end{itemize}
 \begin{itemize}
@@ -51,24 +51,24 @@ private:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
-\mode<presentation>{\frametitle{\insertsubsection\ -- Source Actor}}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Production Rate}}
 \begin{itemize}
-\item the Source actor shall produce two data tokens at once
-\item we declare to produce $X$ data tokens in a transition  using \lstinline!out(!$X$\lstinline!)!
+\item the Source actor produces two data tokens per invocation
+\item we declare to produce $n$ data tokens in a transition  using \lstinline!out(!$n$\lstinline!)!
 \begin{lstlisting}
     start = 
       GUARD(Source::hasToken)  >>
       out(2)                   >>
       CALL(Source::src)        >> start;
 \end{lstlisting}
-\item use the array operator (\lstinline![]!) to write two data tokens
+\item use the array operator ``\lstinline![]!'' to write data values
 \begin{lstlisting}
   void src() {
     out[0] = message[count++];
     out[1] = message[count++];
   }
 \end{lstlisting}
-\item similar to arrays addressing range is $0, \dots, X-1$
+\item similar to arrays addressing range is $0, \dots, n-1$
 \end{itemize}
 \end{frame}
 
@@ -79,7 +79,8 @@ private:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
-\mode<presentation>{\frametitle{\insertsubsection\ -- Simulation}}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Avoid Deadlocks}}
+\index{connectNodePorts@\lstinline{connectNodePorts}}
 \begin{itemize}
 \item simulation output (using Sink actor from previous example)
 \end{itemize}
@@ -91,12 +92,12 @@ SystemC: simulation stopped by user.
 \end{lstlisting}
 \begin{itemize}
 \item Oh oh, nothing happens!
-\item writing two tokens requires a free space for (at least) two tokens
+\item writing two tokens requires free space for (at least) two tokens
 \item we need to increase the queue size (implicit size was ``1'')
 \begin{lstlisting}
     connectNodePorts<4>(source.out, sink.in);
 \end{lstlisting}
-\item minimum size of $2$ is mandatory (but actor would run in lockstep)
+\item minimum size of $2$ is mandatory (but actors would run in lockstep)
 \item using larger sized queues may decouple execution of actors
 \end{itemize}
 \end{frame}
@@ -137,20 +138,42 @@ SystemC: simulation stopped by user.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile=singleslide]
+\begin{frame}
 \mode<presentation>{\frametitle{\insertsubsection\ -- Queue Access}}
+\index{FIFO queue}
+\begin{figure}[th]
 \begin{center}
 \resizebox{0.95\columnwidth}{!}{\input{queue-fig.tex}}
 \end{center}
+\end{figure}
+\begin{overlayarea}{\textwidth}{3cm}
 \begin{itemize}
-\item a transition refers to $X$ input port $i$ using \lstinline!i(!$X$\lstinline!)!
-\item enough tokens $\Rightarrow$ transition may be fired $\Rightarrow$ action executed once
-\item access data in FIFO order using \lstinline!i[!$n$\lstinline!]!; $n \in {0, \dots, X-1}$
-\item you can write/read data more than once (overwrite/re-read)
-\item writing data is similar (using output ports)
-\item \lstinline!o[0]! / \lstinline!i[0]! refers first free position / first available token in a queue
+\only<1>{
+\item read tokens ...
+\item a transition claims to read $n$ tokens from input port $in$ using \lstinline!in(!$n$\lstinline!)!
+\item read data from FIFO queue using \lstinline!in[!$j$\lstinline!]!; $j \in {0, \dots, n-1}$
+\item \lstinline!in[0]! refers first available token in queue
+}
+\only<2>{
+\item write tokens ...
+\item a transition claims to write $n$ tokens from output port $out$ using \lstinline!out(!$n$\lstinline!)!
+\item write data to FIFO queue using \lstinline!out[!$j$\lstinline!]!; $j \in {0, \dots, n-1}$
+\item \lstinline!out[0]! refers first free position in a queue
+}
+\only<3>{
+\item activation and execution ...
+\item transition becomes active (enough token, free space; guards)
+\item an activated transition may be fired
+\item firing a transition implies execution of its action
+}
 \end{itemize}
+\end{overlayarea}
 \end{frame}
+
+
+
+
+
 
 
 

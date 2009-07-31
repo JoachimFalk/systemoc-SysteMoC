@@ -17,6 +17,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Actors}}
+\index{actor|(}
+\index{smoc_actor@\lstinline{smoc_actor}}
 \begin{itemize}
 \item include SysteMoC library header
 \begin{lstlisting}
@@ -32,16 +34,23 @@ class HelloActor: public smoc_actor {
 private:
   void src() {   // action
     std::cout << "Actor " << this->name() << " says:\n"
-              << "Hello SysteMoC" << std::endl;
+              << "Hello World" << std::endl;
   }
 \end{lstlisting}
 \end{itemize}
 \end{frame}
 
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Actors}}
+\index{state}
+\index{smoc_firing_state@\lstinline{smoc_firing_state}}
+\index{smoc_actor@\lstinline{smoc_actor}}
 \begin{itemize}
 \item an actor has a finite set of states
 \begin{lstlisting}
@@ -54,21 +63,46 @@ private:
   HelloActor(sc_module_name name)  // actor constructor
     : smoc_actor(name, state_a) {
 \end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Actors}}
+\index{FSM}
+\index{CALL@\lstinline{CALL}}
+\begin{itemize}
 \item a finite state machine (FSM) defines transitions between states
 \item e.g. a transition from \lstinline!state_a! to \lstinline!state_b!
 \item if this transition is taken, the action \lstinline!HelloActor::src! is executed
 \begin{lstlisting}
+  HelloActor(sc_module_name name)  // actor constructor
+    : smoc_actor(name, state_a) {
+
   // FSM definition:
   //  transition from state_a to state_b calling action src
   state_a = CALL(HelloActor::src) >> state_b;
+
+}
 \end{lstlisting}
 \end{itemize}
+\index{actor|)}
 \end{frame}
+
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Graphs}}
+\index{network graph}
+\index{smoc_graph@\lstinline{smoc_graph}}
 \begin{itemize}
 \item a network graph is derived from base class \lstinline!smoc_graph!
 \begin{lstlisting}

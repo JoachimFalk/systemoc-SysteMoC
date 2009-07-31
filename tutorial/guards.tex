@@ -51,6 +51,8 @@ private:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Guards}}
+\index{guard}
+\index{GUARD@\lstinline{GUARD}}
 \begin{itemize}
 \item a guard is a \lstinline!const! member function returning a boolean value
 \begin{lstlisting}
@@ -59,6 +61,7 @@ private:
   } // guard
 \end{lstlisting}
 \item guards enable/disable transitions (true/false)
+\item guards must not change variable values or token in channels
 \item refer to guards via \lstinline!GUARD(..)! macro 
 \begin{lstlisting}
     start = 
@@ -80,6 +83,7 @@ private:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Variables}}
+\index{variables}
 \begin{itemize}
 \item variables ...
 \item ... are \lstinline!private! class member of an actor
@@ -101,10 +105,11 @@ private:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Actions}}
+\index{actions}
 \begin{itemize}
 \item actions ...
-\item ... are used to consume/produce data on input/output ports
-\item ... modify variables (remember a state)
+\item ... are used to read/write data on input/output ports
+\item ... modify variables
 \begin{lstlisting}
   void src() {
     out[0] = message[count++];
@@ -112,6 +117,40 @@ private:
 \end{lstlisting}
 \item guards access variables read-only (mandatory \lstinline!const! modifier)
 \item actions are allowed to modify variables
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Multiple Access}}
+\index{port}
+\begin{itemize}
+\item you can write/read data more than once (overwrite/re-read)
+\item e.g. read input twice
+\begin{lstlisting}
+  void sink() {
+    char squareInput = in[0] * in[0];
+
+    char x = in[0];
+    char y = in[0]; // re-read
+    assert(x == y);
+  }
+\end{lstlisting}
+\item e.g. write a default value first
+\begin{lstlisting}
+  void src() {
+    out[0] = 'X';    // default
+    if(count<size){
+      out[0] = message[count++]; //overwrite
+    }
+  }
+\end{lstlisting}
 \end{itemize}
 \end{frame}
 
@@ -144,11 +183,7 @@ top.Sink recv: "9"
 SystemC: simulation stopped by user.
 \end{lstlisting}
 \item Source actor sends a finite number of characters only
-\item simulation terminates as no actor can be activated
-  \begin{itemize}
-  \item Source actors guard returns false
-  \item Sink actor runs out of input tokens
-  \end{itemize}
+\item simulation terminates when no actor can be activated
 \end{itemize}
 \end{frame}
 

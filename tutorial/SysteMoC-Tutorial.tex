@@ -4,7 +4,7 @@
 
 \mode<presentation>
 {
-\usetheme{codesign}
+\usetheme{SystemCoDesigner}
 \usenavigationsymbolstemplate{} % uncomment to get rid of navigation symbols
 
 }
@@ -16,6 +16,37 @@
 \usepackage{graphicx}
 \definecolor{lightgray}{gray}{.9}
 
+\usepackage{makeidx}
+\makeindex
+\mode<presentation>
+{
+%\newenvironment{theindex}
+%               {\if@twocolumn
+%                  \@restonecolfalse
+%                \else
+%                  \@restonecoltrue
+%                \fi
+%                \twocolumn[\section*{\indexname}]%
+%                \@mkboth{\MakeUppercase\indexname}%
+%                        {\MakeUppercase\indexname}%
+%                \thispagestyle{plain}\parindent\z@
+%                \parskip\z@ \@plus .3\p@\relax
+%                \columnseprule \z@
+%                \columnsep 35\p@
+%                \let\item\@idxitem}
+%               {\if@restonecol\onecolumn\else\clearpage\fi}
+
+\newenvironment{theindex}%          environment name
+{\let\item\idxitem}% begin code
+{}%                    end code
+\newcommand\idxitem{\par \hspace*{40pt}}
+\newcommand\subitem{\idxitem \hspace*{20pt}}
+\newcommand\subsubitem{\idxitem \hspace*{30pt}}
+\newcommand\indexspace{\par}
+%\renewcommand{\seename}{see}
+}
+
+\usepackage{expdlist}
 \usepackage{listings}
 \lstset{language=C++,showstringspaces=false,breaklines=true,basicstyle=\ttfamily}
 \lstset{backgroundcolor=\color{lightgray}}
@@ -42,20 +73,21 @@
 
 
 \title{SystemCoDesigner: System Programming Tutorial}
-\author[SCD Group]{Joachim Falk, Jens Gladigau, Martin Streubühr, Christian Zebelein\\ Christian Haubelt, Jürgen Teich\texorpdfstring{\\}{}
-    {\tiny \href{mailto:systemoc-devel@codesign.informatik.uni-erlangen.de}{SysteMoC Mailing list $<$systemoc-devel@codesign.informatik.uni-erlangen.de$>$}}}
-\institute[Hardware/Software Co-Design]{Hardware/Software Co-Design\\University of Erlangen-Nuremberg}
+\author{}
+
+%\institute[Hardware/Software Co-Design]{Hardware/Software Co-Design\\University of Erlangen-Nuremberg}
+\institute[Hardware/Software Co-Design]{Documentation and examples are available online:\\ http://www.mycodesign.com/research/scd}
 \mode<presentation>
 {
 \university{Friedrich-Alexander University of Erlangen-Nuremberg}
 }
-\date{22.07.2009}
+\date{Version 1.0}
 
-\AtBeginSection[]
+\AtBeginSubsection[]
 {
    \begin{frame}
        \frametitle{Outline}
-       \tableofcontents[currentsection]
+       \tableofcontents[currentsection,currentsubsections,hideothersubsections]
    \end{frame}
 }
 
@@ -67,14 +99,14 @@
 
 \begin{frame}
   \frametitle{Outline}
-  \tableofcontents
+  \tableofcontents[hideallsubsections]
 \end{frame}
 
 
 
 \section{Introduction}
 \input{intro}
-\section{Tutorial}
+\section{Programming Examples}
 \subsection{Hello World}
 \input{hello}
 \subsection{Actors and Graphs}
@@ -87,16 +119,58 @@
 \input{guards}
 \subsection{Communication Rates}
 \input{rates}
-\subsection{Data Flow}
-\input{data-flow}
+\subsection{Initial Tokens}
+\input{init-token}
 
 
-\section{MJPEG Example}
-\section{Programming Guidelines}
-\subsection{Models of Computation}
+\section{Advanced Data Flow Modeling}
+\subsection{Data Flow MoCs}
 \input{moc}
+\subsection{Merging Streams}
+\input{data-flow}
+\subsection{MJPEG-Example}
+\input{mjpeg}
+\section{Programming Guidelines}
 \subsection{How-to}
 \input{howto}
+\subsection{Naming Conventions}
+\input{naming.tex}
+\section{Contact}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Contact
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{\insertsection\ }}
+\begin{description}[\breaklabel\setleftmargin{60pt}\setlabelstyle{\color{beamer@SystemCoDesigner@color}}]
+\item[Authors:]
+Martin Streubühr, Christian Haubelt
+\item[Development Team:]
+Joachim Falk, Michael Glass, Jens Gladigau, Martin Lukasiewycz, Felix Reimann, Martin Streubühr, Christian Zebelein, Christian Haubelt, Jürgen Teich
+\item[Email:] codesigner@mycodesign.com
+\item[Adress:]
+Hardware/Software Co-Design, Department of Computer Science,
+University of Erlangen-Nuremberg, Am Weichselgarten 3,
+91058 Erlangen, Germany
+\item[Date:]
+ 2009/07/30
+%\item[History:]
+%Version 1.0:  2009/07/30
+\end{description}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Index
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\mode<presentation>{\frametitle{Index}}
+{\footnotesize
+\printindex
+}
+\end{frame}
+
 
 \end{document}
 

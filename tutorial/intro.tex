@@ -1,13 +1,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[t]
-\mode<presentation>{\frametitle{\insertsection\ -- SysteMoC concepts}}
+\mode<presentation>{\frametitle{\insertsection\ -- SysteMoC Concepts}}
 \begin{figure}
 \centering
-\resizebox{0.4\columnwidth}{!}{\input{systemoc-fig.tex}}
+\resizebox{1\columnwidth}{!}{\input{systemoc-fig.tex}}
 \end{figure}
 \begin{itemize}
-\item A \SysteMoC{} actor is composed of a Finite State Machine (FSM), functions, and variables.
+%\item A \SysteMoC{} actor is composed of a Finite State Machine (FSM), functions, and variables.
+\item TODO: animate concepts; visualize variables
 \end{itemize}
 \end{frame}
 
@@ -19,11 +20,36 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}
-\mode<presentation>{\frametitle{\insertsection\ -- SysteMoC concepts}}
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- SysteMoC Concepts}}
+\begin{figure}
+\centering
+\resizebox{0.5\columnwidth}{!}{\input{systemc-integration-fig.tex}}
+\end{figure}
 \begin{itemize}
-\item TODO: animate figure
-\item actors, channel, network graph, ...
+\item \SysteMoC{} is implemented on top of SystemC
+\item TODO: update figure (PPT Versions are different)
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- Simulation Semantics}}
+\index{simulation}
+\begin{itemize}
+\item TODO ...
+\item a transition is active if 
+\begin{itemize}
+\item all refered input queues have enough token,
+\item all refered output queues have enough free space,
+\item and all guards are evauluated to true
+\end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -40,9 +66,10 @@
 \resizebox{0.7\columnwidth}{!}{\input{actor-scheme-fig.tex}}
 \end{figure}
 \begin{itemize}
-\item A \SysteMoC{} actor is composed of a Finite State Machine (FSM), functions, and variables.
-\item The FSM controls the function invocation.
-\item Functions are executed atomically and may change variables at the end of their execution.
+\item actors are composed of a Finite State Machine (FSM), functions, and variables
+\item the FSM controls the function invocation
+\item functions are executed atomically
+\item data consumption and production is performed at the end of an action execution
 \end{itemize}
 \end{frame}
 
