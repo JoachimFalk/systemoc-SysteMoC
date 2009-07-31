@@ -44,10 +44,6 @@
 
 #include "SMXDumper.hpp"
 
-#ifdef SYSTEMOC_ENABLE_SGX
-namespace SGX = SystemCoDesigner::SGX;
-#endif // SYSTEMOC_ENABLE_SGX
-
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
   sc_module(sc_module_name("smoc_scheduler_top")),
   g(g),

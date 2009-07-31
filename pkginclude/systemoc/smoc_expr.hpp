@@ -116,8 +116,10 @@ namespace SysteMoC { namespace Detail {
 #ifdef SYSTEMOC_ENABLE_SGX
   using SystemCoDesigner::SGX::OpUnT;
 #else // SYSTEMOC_ENABLE_SGX
-  // WARNING: always sync this with LibSGX!!!
-  struct OpUnT {
+  // WARNING: Always sync this with OpUnT in LibSGX!!!
+  class OpUnT {
+    typedef OpUnT this_type;
+  public:
     typedef enum {
       LNot,
       BNot,
@@ -126,19 +128,21 @@ namespace SysteMoC { namespace Detail {
       Type
     } Op;
   protected:
-    Op op_;
+    Op op;
   public:
-    OpUnT(Op op) : op_(op) {}
-    OpUnT& operator=(Op op) { op_ = op; return *this; }
-    operator Op() const { return op_; }
+    OpUnT(Op op): op(op)          {}
+    this_type &operator =(Op _op) { op = _op; return *this; }
+    operator Op() const           { return op; }
   };
 #endif // SYSTEMOC_ENABLE_SGX
 
 #ifdef SYSTEMOC_ENABLE_SGX
   using SystemCoDesigner::SGX::OpBinT;
 #else // SYSTEMOC_ENABLE_SGX
-  // WARNING: always sync this with LibSGX!!!
-  struct OpBinT {
+  // WARNING: Always sync this with OpBinT in LibSGX!!!
+  class OpBinT {
+    typedef OpBinT this_type;
+  public:
     typedef enum {
       Add, Sub, Multiply, Divide,
       Eq, Ne, Lt, Le, Gt, Ge,
@@ -146,11 +150,11 @@ namespace SysteMoC { namespace Detail {
       Field
     } Op;
   protected:
-    Op op_;
+    Op op;
   public:
-    OpBinT(Op op) : op_(op) {}
-    OpBinT& operator=(Op op) { op_ = op; return *this; }
-    operator Op() const { return op_; }
+    OpBinT(Op op): op(op)         {}
+    this_type &operator =(Op _op) { op = _op; return *this; }
+    operator Op() const           { return op; }
   };
 #endif // SYSTEMOC_ENABLE_SGX
 

@@ -67,7 +67,7 @@ class smoc_root_chan
   public smoc_port_registry,
 #ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::NamedIdedObj,
-#endif
+#endif // SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::SimCTXBase
 {
   typedef smoc_root_chan this_type;

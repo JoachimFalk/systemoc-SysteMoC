@@ -37,8 +37,6 @@
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_root_node.hpp>
 
-#include <sgx.hpp>
-
 using namespace CoSupport;
 using namespace SysteMoC::Detail;
 
