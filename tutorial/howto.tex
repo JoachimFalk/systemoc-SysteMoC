@@ -1,16 +1,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
-\mode<presentation>{\frametitle{\insertsubsection\ -- In-line Guards}}
+\mode<presentation>{\frametitle{\insertsubsection\ -- Inline Guards}}
 \begin{itemize}
-\item simple guards may be in-lined
-\item in a previous example we use a guard function ...
+\item simple guards may be inlined
+\item in a previous example we used a guard function ...
 \begin{lstlisting}
   bool hasToken() const{
     return count<size;
   }
 \end{lstlisting}
-\item ... and refereed to the guard inside the FSM 
+\item ... and referred to the guard inside the FSM 
 \begin{lstlisting}
        GUARD(Source::hasToken)  >>
 \end{lstlisting}
@@ -33,7 +33,7 @@
 \begin{itemize}
 \item model ``if/else'' like constructs
 \item use \lstinline|GUARD(..)| and  \lstinline|!GUARD(..)| for different transitions
-\item please note the \lstinline|!|
+\item please note the ``\lstinline|!|''
 \begin{lstlisting}
     state = 
       GUARD(Actor::testGuard)  >>  // case IF
@@ -93,6 +93,31 @@
 
 
 
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Compatibility}}
+\begin{itemize}
+\item the old syntax of network graph instantiation (using \lstinline!smoc_top_moc!)
+\end{itemize}
+\begin{lstlisting}
+  smoc_top_moc<HelloNetworkGraph> top("top"); // old syntax
+\end{lstlisting}
+\begin{itemize}
+\item has been replaced by the following (using \lstinline! smoc_scheduler_top!)
+\end{itemize}
+\begin{lstlisting}
+  HelloNetworkGraph top("top"); // new syntax
+  smoc_scheduler_top sched(top);
+\end{lstlisting}
+\end{frame}
 
 
 

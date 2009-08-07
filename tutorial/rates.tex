@@ -20,7 +20,7 @@
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Source Actor }}
 \begin{lstlisting}
-static const char MESSAGE []   = "0123456789";
+static const std::string MESSAGE = "0123456789";
 class Source: public smoc_actor {
 public:
   smoc_port_out<char> out;
@@ -54,14 +54,14 @@ private:
 \mode<presentation>{\frametitle{\insertsubsection\ -- Production Rate}}
 \begin{itemize}
 \item the Source actor produces two data tokens per invocation
-\item we declare to produce $n$ data tokens in a transition  using \lstinline!out(!$n$\lstinline!)!
+\item we declare to produce $n$ data tokens in a transition  using \lstinline!out(n)!
 \begin{lstlisting}
     start = 
       GUARD(Source::hasToken)  >>
       out(2)                   >>
       CALL(Source::src)        >> start;
 \end{lstlisting}
-\item use the array operator ``\lstinline![]!'' to write data values
+\item use the index operator ``\lstinline![]!'' to write data values
 \begin{lstlisting}
   void src() {
     out[0] = message[count++];
@@ -150,15 +150,15 @@ SystemC: simulation stopped by user.
 \begin{itemize}
 \only<1>{
 \item read tokens ...
-\item a transition claims to read $n$ tokens from input port $in$ using \lstinline!in(!$n$\lstinline!)!
-\item read data from FIFO queue using \lstinline!in[!$j$\lstinline!]!; $j \in {0, \dots, n-1}$
+\item a transition claims to consume $n$ tokens from input port $in$ using \lstinline!in(n)!
+\item read data from FIFO queue using \lstinline!in[j]!; $j \in {0, \dots, n-1}$
 \item \lstinline!in[0]! refers first available token in queue
 }
 \only<2>{
 \item write tokens ...
-\item a transition claims to write $n$ tokens from output port $out$ using \lstinline!out(!$n$\lstinline!)!
-\item write data to FIFO queue using \lstinline!out[!$j$\lstinline!]!; $j \in {0, \dots, n-1}$
-\item \lstinline!out[0]! refers first free position in a queue
+\item a transition claims to produce $n$ tokens on output port $out$ using \lstinline!out(n)!
+\item write data to FIFO queue using \lstinline!out[j]!; $j \in {0, \dots, n-1}$
+\item \lstinline!out[0]! refers first free position (place) in a queue
 }
 \only<3>{
 \item activation and execution ...

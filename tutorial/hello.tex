@@ -52,7 +52,6 @@ private:
 \mode<presentation>{\frametitle{\insertsubsection}}
 \begin{lstlisting}
 //file hello.cpp cont'd
-
 class HelloNetworkGraph: public smoc_graph {
 public:
   // network graph constructor
@@ -67,7 +66,8 @@ private:
 
 int sc_main (int argc, char **argv) {
   // create network graph
-  smoc_top_moc<HelloNetworkGraph> top("top");
+  HelloNetworkGraph top("top");
+  smoc_scheduler_top sched(top);
 
   sc_start();  // start simulation (SystemC)
   return 0;

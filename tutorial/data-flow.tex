@@ -47,14 +47,14 @@
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- Alternating Merge}}
 \begin{lstlisting}
-static const char MESSAGE_ABC[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static const char MESSAGE_123[] = "012345";
+static std::string MESSAGE_ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static std::string MESSAGE_123 = "012345";
 
 class Source: public smoc_actor {
 public:
   smoc_port_out<char> out;
-  Source(sc_module_name n, const char* m): smoc_actor(n, start),
-    count(0), size(strlen(msg)), message(m) {
+  Source(sc_module_name n, std::string m): smoc_actor(n, start),
+    count(0), size(m.size()), message(m) {
     start = 
       GUARD(Source::hasToken)  >>
       out(1)                   >>
@@ -63,7 +63,7 @@ public:
 private:
   smoc_firing_state start;
   unsigned int count, size;
-  const char* message;
+  std::string  message;
 
   bool hasToken() const{ return count<size; }
   void src() { out[0] = message[count++];  }

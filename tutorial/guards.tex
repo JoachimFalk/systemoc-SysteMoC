@@ -17,13 +17,13 @@
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- SourceActor}}
 \begin{lstlisting}
-static const char MESSAGE [] = "0123456789";
+static const std::string MESSAGE = "0123456789";
 
 class Source: public smoc_actor {
 public:
   smoc_port_out<char> out;
   Source(sc_module_name name) : smoc_actor(name, start),
-    count(0), size(strlen(MESSAGE)), message(MESSAGE) {
+    count(0), size(MESSAGE.size()), message(MESSAGE) {
     start = 
       GUARD(Source::hasToken)  >>
       out(1)                   >>
@@ -33,7 +33,7 @@ private:
   smoc_firing_state start;
 
   unsigned int count, size;  // variables (functional state)
-  const char* message;       //
+  const std::string message; //
 
   bool hasToken() const{ return count<size; } // guard
   void src() { out[0] = message[count++]; }   // action
@@ -61,7 +61,7 @@ private:
   } // guard
 \end{lstlisting}
 \item guards enable/disable transitions (true/false)
-\item guards must not change variable values or token in channels
+\item guards must (can) not change variable values or token in channels
 \item refer to guards via \lstinline!GUARD(..)! macro 
 \begin{lstlisting}
     start = 
@@ -91,7 +91,7 @@ private:
 \item ... represent a functional state of an actor (in contrast to FSM state)
 \begin{lstlisting}
   unsigned int count, size;
-  const char* message;
+  const std::string message;
 \end{lstlisting}
 \end{itemize}
 \end{frame}

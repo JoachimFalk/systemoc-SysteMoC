@@ -22,14 +22,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[t]
 \mode<presentation>{\frametitle{\insertsection\ -- SysteMoC Concepts}}
-\begin{figure}
-\centering
-\resizebox{0.5\columnwidth}{!}{\input{systemc-integration-fig.tex}}
-\end{figure}
 \begin{itemize}
 \item \SysteMoC{} is implemented on top of SystemC
-\item TODO: update figure (PPT Versions are different)
 \end{itemize}
+\begin{figure}
+\centering
+\resizebox{0.75\columnwidth}{!}{\input{systemc-integration-fig.tex}}
+\end{figure}
 \end{frame}
 
 
@@ -46,9 +45,9 @@
 \item TODO ...
 \item a transition is active if 
 \begin{itemize}
-\item all refered input queues have enough token,
-\item all refered output queues have enough free space,
-\item and all guards are evauluated to true
+\item all referred input queues have enough tokens,
+\item all referred output queues have enough free space (places),
+\item and all guards (functions) are evaluated to true
 \end{itemize}
 \end{itemize}
 \end{frame}
