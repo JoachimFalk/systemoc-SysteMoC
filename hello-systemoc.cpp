@@ -78,7 +78,8 @@ public:
 int sc_main (int argc, char **argv) {
   
   // create networkgraph
-  smoc_top_moc<HelloNetworkGraph> top("top");
+  HelloNetworkGraph top("top");
+  smoc_scheduler_top sched(top);
 
   // start simulation (SystemC)
   sc_start();

@@ -38,15 +38,15 @@
 
 #include <systemoc/smoc_moc.hpp>
 
-static const char MESSAGE_HELLO [] = "Hello SysteMoC!";
-static const char MESSAGE_ABC []   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static const char MESSAGE_123 []   = "0123456789";
+static const std::string MESSAGE_HELLO = "Hello SysteMoC!";
+static const std::string MESSAGE_ABC   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const std::string MESSAGE_123   = "0123456789";
 
 class Source: public smoc_actor {
 public:
   smoc_port_out<char> out;
-  Source(sc_module_name name, const char* msg) : smoc_actor(name, start),
-    count(0), size(strlen(msg)), message(msg) {
+  Source(sc_module_name name, const std::string msg) : smoc_actor(name, start),
+    count(0), size(MESSAGE_123.size()), message(msg) {
     start = 
       GUARD(Source::hasToken)  >>
       //(VAR(count)<VAR(size))   >>
@@ -57,7 +57,7 @@ private:
   smoc_firing_state start;
 
   unsigned int count, size;  // variables (functional state)
-  const char* message;       //
+  const std::string message; //
 
   bool hasToken() const{ return count<size; } // guard
   void src() { out[0] = message[count++]; }   // action
