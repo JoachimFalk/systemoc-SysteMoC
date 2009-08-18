@@ -113,7 +113,7 @@ class smoc_sysc_port
 : public sc_core::sc_port_base,
 #ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::NamedIdedObj,
-#endif
+#endif // SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::SimCTXBase,
   private boost::noncopyable
 {

@@ -182,7 +182,7 @@ class RuntimeTransition
 : public smoc_activation_pattern,
 #ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::IdedObj,
-#endif
+#endif // SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::SimCTXBase {
 private:
   /// @brief Parent node
@@ -262,12 +262,9 @@ class RuntimeState
 :
 #ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::NamedIdedObj,
-#endif
+#endif // SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::SimCTXBase {
   typedef RuntimeState                    this_type;
-#ifdef SYSTEMOC_NEED_IDS
-  typedef SysteMoC::Detail::NamedIdedObj  base_type;
-#endif
 private:
   std::string           _name;
   RuntimeTransitionList t;

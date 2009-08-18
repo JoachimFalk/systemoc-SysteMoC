@@ -221,7 +221,9 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
       // delete null pointer is allowed...
       delete dumpTraceFile;
       
+# ifdef SYSTEMOC_ENABLE_SGX
       dumpPreSimSMXKeepGoing = true;
+# endif // SYSTEMOC_ENABLE_SGX
       dumpTraceFile =
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
 #else  // !SYSTEMOC_ENABLE_TRACE

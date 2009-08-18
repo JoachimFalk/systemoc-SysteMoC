@@ -44,9 +44,6 @@
 
 #include <CoSupport/String/Concat.hpp>
 
-#ifdef SYSTEMOC_ENABLE_SGX
-using namespace SystemCoDesigner::SGX;
-#endif // SYSTEMOC_ENABLE_SGX
 using namespace SysteMoC::Detail;
 using CoSupport::String::Concat;
 
