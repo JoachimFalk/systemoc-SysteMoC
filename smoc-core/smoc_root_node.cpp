@@ -297,6 +297,8 @@ void smoc_root_node::signaled(smoc_event_waiter *e) {
     assert(currentState);
     RuntimeTransitionList& tl = currentState->getTransitions();
 
+    ct = 0;
+
     for(RuntimeTransitionList::iterator t = tl.begin();
         t != tl.end(); ++t)
     {
