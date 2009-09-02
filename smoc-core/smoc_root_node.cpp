@@ -227,31 +227,32 @@ void smoc_root_node::doReset() {
 
   // will re-evaluate guards
   setCurrentState(getFiringFSM()->getInitialState());
-
-  // also del/add me as listener  
-  if(currentState != oldState) {
-    if(oldState) { 
-      EventWaiterSet& am = oldState->am;
-
-      for(EventWaiterSet::iterator i = am.begin();
-          i != am.end(); ++i)
-      {
-        (*i)->delListener(this);
-      }
-    }
-    {
-      EventWaiterSet& am = currentState->am;
-
-      for(EventWaiterSet::iterator i = am.begin();
-          i != am.end(); ++i)
-      {
-        (*i)->addListener(this);
-      }
-    }
-  }
-
-  // notify parent
+  
   if(!executing) {
+
+    // also del/add me as listener  
+    if(currentState != oldState) {
+      if(oldState) { 
+        EventWaiterSet& am = oldState->am;
+
+        for(EventWaiterSet::iterator i = am.begin();
+            i != am.end(); ++i)
+        {
+          (*i)->delListener(this);
+        }
+      }
+      {
+        EventWaiterSet& am = currentState->am;
+
+        for(EventWaiterSet::iterator i = am.begin();
+            i != am.end(); ++i)
+        {
+          (*i)->addListener(this);
+        }
+      }
+    }
+
+    // notify parent
     if(ct) {
 #ifdef SYSTEMOC_DEBUG
       outDbg << "requested schedule" << std::endl;
