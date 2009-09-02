@@ -37,6 +37,8 @@
 #include <set>
 #include <list>
 #include <stdexcept>
+#include <boost/unordered_set.hpp>
+#include <time.h>
 
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
@@ -133,35 +135,29 @@ ExpandedTransition::ExpandedTransition(
     const CondMultiState& in,
     const smoc_activation_pattern& ap,
     const smoc_action& f,
-    const MultiState& dest,
-    size_t priority)
+    const MultiState& dest)
   : TransitionBase(ap, f),
     src(src),
     in(in),
-    dest(dest),
-    priority(priority)
+    dest(dest)
 {}
 
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
     const CondMultiState& in,
     const smoc_activation_pattern& ap,
-    const smoc_action& f,
-    size_t priority)
+    const smoc_action& f)
   : TransitionBase(ap, f),
     src(src),
-    in(in),
-    priority(priority)
+    in(in)
 {}
 
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
     const smoc_activation_pattern& ap,
-    const smoc_action& f,
-    size_t priority)
+    const smoc_action& f)
   : TransitionBase(ap, f),
-    src(src),
-    priority(priority)
+    src(src)
 {}
 
 const HierarchicalStateImpl* ExpandedTransition::getSrcState() const
@@ -173,8 +169,16 @@ const CondMultiState& ExpandedTransition::getCondStates() const
 const MultiState& ExpandedTransition::getDestStates() const
   { return dest; }
 
-size_t ExpandedTransition::getPriority() const
-  { return priority; }
+smoc_event_and_list* getCAP(const smoc_event_and_list& ap) {
+  typedef boost::unordered_set<smoc_event_and_list> Cache;
+  static Cache* cache = new Cache(10000);
+  return &const_cast<smoc_event_and_list&>(*cache->insert(ap).first);
+
+/*  typedef std::set<smoc_event_and_list> Cache;
+  static Cache* cache = new Cache();
+  return &const_cast<smoc_event_and_list&>(*cache->insert(ap).first);*/
+}
+
 
 
 
@@ -183,31 +187,15 @@ RuntimeTransition::RuntimeTransition(
     smoc_root_node* actor,
     const smoc_activation_pattern& ap,
     const smoc_action& f,
-    RuntimeState* dest,
-    size_t priority)
-  : smoc_activation_pattern(ap),
-    actor(actor),
+    RuntimeState* dest)
+  : actor(actor),
     f(f),
     dest(dest),
-    priority(priority)
+    guard(ap.guard),
+    ap(0),
+    enabled(false)
 {
-  // if this breaks everything, remove it
-  finalise();
 }
-
-#ifdef SYSTEMOC_DEBUG
-Expr::Detail::ActivationStatus RuntimeTransition::getStatus() const {
-  outDbg << EVENT << "<RuntimeTransition::getStatus this=\""
-         << *this << "\"/>" << std::endl << INFO;
-  return smoc_activation_pattern::getStatus();
-}
-#endif
-
-bool RuntimeTransition::isEnabled() const
-  { return getStatus() == Expr::Detail::ENABLED(); }
-  
-size_t RuntimeTransition::getPriority() const
-  { return priority; }
 
 smoc_root_node &RuntimeTransition::getActor()
   { assert(actor != NULL); return *actor; }
@@ -425,11 +413,33 @@ void RuntimeTransition::execute(int mode) {
   outDbg << Indent::Down << "</transition>"<< std::endl;
 #endif
 }
+  
+bool RuntimeTransition::evaluateGuard() const {
+  Expr::Detail::ActivationStatus retval = Expr::evalTo<Expr::Value>(guard);
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  Expr::evalTo<Expr::CommReset>(guard);
+#endif
+  switch(retval.toSymbol()) {
+    case Expr::Detail::_ENABLED:
+      return true;
+    case Expr::Detail::_DISABLED:
+      return false;
+    default:
+      assert(0);
+  }
+}
+
+const Expr::Ex<bool>::type RuntimeTransition::getExpr() const
+  { return guard; }
 
 void RuntimeTransition::finalise() {
   assert(actor != NULL);
   
-  smoc_activation_pattern::finalise();
+  smoc_event_and_list tmp;
+  Expr::evalTo<Expr::Sensitivity>(guard, tmp);
+
+  ap = getCAP(tmp);
+
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
@@ -468,10 +478,19 @@ void RuntimeState::finalise() {
 }
 
 const RuntimeTransitionList& RuntimeState::getTransitions() const
-  { return t; }
+  { return tl; }
 
 RuntimeTransitionList& RuntimeState::getTransitions()
-  { return t; }
+  { return tl; }
+  
+void RuntimeState::addTransition(const RuntimeTransition& t) {
+  tl.push_back(t);
+
+  RuntimeTransition& tr = tl.back();
+
+  tr.finalise();
+  am[tr.ap].push_back(&tr);
+}
 
 FiringFSMImpl::FiringFSMImpl()
   : use_count_(0),
@@ -551,9 +570,6 @@ bool isImplied(const CondMultiState& c, const ProdState& p) {
   return true;
 }
 
-// only used during finalise below
-size_t priority;
-
 void FiringFSMImpl::finalise(
     smoc_root_node* actor,
     HierarchicalStateImpl* hsinit)
@@ -567,7 +583,7 @@ void FiringFSMImpl::finalise(
 //  outDbg << "Actor: " << actor->name() << std::endl;
 
 #ifdef FSM_FINALIZE_BENCHMARK  
-  clock_t finStart;
+  uint64_t finStart;
   size_t nRunStates = 0;
   size_t nRunTrans = 0;
 #endif // FSM_FINALIZE_BENCHMARK
@@ -594,7 +610,9 @@ void FiringFSMImpl::finalise(
 
 
 #ifdef FSM_FINALIZE_BENCHMARK  
-   finStart = clock();
+   struct timespec ts;
+   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts);
+   finStart = ts.tv_sec*1000000000ull + ts.tv_nsec;
 #endif // FSM_FINALIZE_BENCHMARK
 
     // move remaining hierarchical states into top state
@@ -628,8 +646,6 @@ void FiringFSMImpl::finalise(
 //    {outDbg << "finalising states" << std::endl;
 //    ScopedIndent s1(outDbg);
    
-    priority = 0;
-
     for(FiringStateBaseImplSet::iterator sIter = states.begin();
         sIter != states.end(); ++sIter)
     {
@@ -740,13 +756,12 @@ void FiringFSMImpl::finalise(
           // create runtime transition
 //          outDbg << "creating runtime transition " << rs << " -> " << rd << std::endl;
 
-          rs->getTransitions().push_back(
+          rs->addTransition(
               RuntimeTransition(
                 actor,
                 t->getActivationPattern(),
                 t->getAction(),
-                rd,
-                t->getPriority()));
+                rd));
 #ifdef FSM_FINALIZE_BENCHMARK
           nRunTrans++;
 #endif // FSM_FINALIZE_BENCHMARK
@@ -772,8 +787,12 @@ void FiringFSMImpl::finalise(
   }
 
 #ifdef FSM_FINALIZE_BENCHMARK  
+  struct timespec ts;
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts);
+  uint64_t finEnd = ts.tv_sec*1000000000ull + ts.tv_nsec;
+
   std::cerr << "Finalised FSM of actor '" << actor->name() << "' in "
-            << ((clock() - finStart) / (double)CLOCKS_PER_SEC) << " secs."
+            << ((finEnd - finStart) / 1e9) << "s"
             << "; #states: " << nRunStates << "; #trans: " << nRunTrans
             << std::endl;
 #endif // FSM_FINALIZE_BENCHMARK
@@ -1057,8 +1076,7 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
         ExpandedTransition(
           this,
           pt->getActivationPattern(),
-          pt->getAction(),
-          priority++));
+          pt->getAction()));
   }
 
 #ifdef SYSTEMOC_DEBUG
@@ -1084,8 +1102,7 @@ void HierarchicalStateImpl::expandTransition(
         t.getCondStates(),
         t.getActivationPattern(),
         t.getAction(),
-        dest,
-        t.getPriority()));
+        dest));
 }
 
 void intrusive_ptr_add_ref(HierarchicalStateImpl *p)
@@ -1291,8 +1308,7 @@ void ConnectorStateImpl::expandTransition(
           t.getSrcState(),
           t.getCondStates(),
           t.getActivationPattern().getExpr() && pt->getActivationPattern().getExpr(),
-          merge(t.getAction(), pt->getAction()),
-          t.getPriority()));
+          merge(t.getAction(), pt->getAction())));
   }
 }
 
@@ -1329,8 +1345,7 @@ void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
         ExpandedTransition(
           *states.begin(),
           condStates,
-          pt->getActivationPattern(), pt->getAction(),
-          priority++));
+          pt->getActivationPattern(), pt->getAction()));
   }
 }
 
@@ -1353,8 +1368,7 @@ void MultiStateImpl::expandTransition(
         t.getCondStates(),
         t.getActivationPattern(),
         t.getAction(),
-        states,
-        t.getPriority()));
+        states));
 }
 
 

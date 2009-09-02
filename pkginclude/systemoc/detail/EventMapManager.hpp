@@ -51,7 +51,7 @@ namespace Detail {
     EventMap eventMap;
   public:
     void increasedCount(size_t count) {
-      // notify all disabled events for less then or equal to count tokens/space
+      // notify all disabled events for less than or equal to count tokens/space
       for (EventMap::const_iterator iter = eventMap.upper_bound(count);
            iter != eventMap.begin() && !*(--iter)->second;
            )
@@ -59,11 +59,23 @@ namespace Detail {
     }
 
     void decreasedCount(size_t count) {
-      // reset all enabled events for more then count tokens/space
+      // reset all enabled events for more than count tokens/space
       for (EventMap::const_iterator iter = eventMap.upper_bound(count);
            iter != eventMap.end() && *iter->second;
            ++iter)
         iter->second->reset();
+    }
+
+    void decreasedCountRenotify(size_t count) {
+      // resets all events for more than count tokens/space
+      // renotifies all events for less than or equal to count tokens/space
+      for(EventMap::const_iterator iter = eventMap.begin();
+          iter != eventMap.end(); ++iter) {
+        if(iter->first <= count)
+          iter->second->renotifyListener();
+        else
+          iter->second->reset();
+      }
     }
 
     smoc_event &getEvent(size_t count, size_t n) {

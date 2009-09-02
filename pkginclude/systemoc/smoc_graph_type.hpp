@@ -189,10 +189,6 @@ protected:
   /// @brief Resets given node
   void doReset();
 
-  /// @brief FIXME: this is somehow ugly
-  virtual void beforeStateChange(const smoc_root_node* n) {}
-  virtual void afterStateChange(const smoc_root_node* n) {}
-
   // need to call *StateChange
   friend class smoc_multireader_fifo_chan_base;
   friend class smoc_reset_chan;
@@ -224,8 +220,7 @@ public:
   
 protected:
   /// @brief See smoc_graph_base
-  void beforeStateChange(const smoc_root_node* n);
-  void afterStateChange(const smoc_root_node* n);
+  void finalise();
 
 private:
   // graph scheduler FSM state
@@ -233,13 +228,19 @@ private:
 
   // common constructor code
   void constructor();
-  
+
+  void initDDF();
+
   // schedule children of this graph
-  void schedule();
+  void scheduleDDF();
 
   // a list containing the transitions of the graph's children
   // that may be executed
-  smoc_transition_ready_list ol;
+
+  typedef CoSupport::SystemC::EventOrList<smoc_root_node>
+          smoc_node_ready_list;
+
+  smoc_node_ready_list ol;
 };
 
 /**

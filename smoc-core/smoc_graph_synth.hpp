@@ -46,7 +46,7 @@
 #include <smoc/smoc_simulation_ctx.hpp>
 
 namespace SysteMoC { namespace Detail {
-
+#if 0
 #ifdef SYSTEMOC_ENABLE_SGX
 namespace SGX = SystemCoDesigner::SGX;
 #endif // SYSTEMOC_ENABLE_SGX
@@ -169,7 +169,7 @@ private:
   // generates firing fsm for this graph
   void generateFSM();
 };
-
+#endif
 } } // namespace SysteMoC::Detail
 
 #endif // SYSTEMOC_ENABLE_SGX

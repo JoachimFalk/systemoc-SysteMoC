@@ -72,7 +72,11 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
          << "; #free: " << freeCount() << "; size: " << (fSize()-1) << std::endl;
 #endif // SYSTEMOC_DEBUG
   rpp(n);
-  lessData(n);
+  // FIXME: Make sure consumers are notified
+  //lessData(n);
+  //emmData.reset();
+  //moreData(visibleCount());
+  emmData.decreasedCountRenotify(visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
   // Delayed call of diiExpired
   diiQueue.addEntry(n, diiEvent);
@@ -80,23 +84,6 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
   // Immediate call of diiExpired
   diiExpired(n);
 #endif
-  // FIXME: This is an incredible hack to fix the GAU bug!!!
-  for(OutletMap::const_iterator i = getOutlets().begin();
-      i != getOutlets().end(); ++i)
-  {
-    if (i->first == who)
-      continue;
-    smoc_root_node *src =
-      dynamic_cast<smoc_root_node *>(getLeafPort(i->second)->get_parent());
-    if (src == NULL)
-      continue;
-    smoc_graph_base *graph =
-      dynamic_cast<smoc_graph_base *>(src->get_parent());
-    if (graph == NULL)
-      continue;
-    graph->beforeStateChange(src);
-    graph->afterStateChange(src);
-  }
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_multireader_fifo_chan_base::consume>" << std::endl;
 #endif // SYSTEMOC_DEBUG
@@ -146,38 +133,46 @@ void smoc_multireader_fifo_chan_base::diiExpired(size_t n) {
 
 void smoc_multireader_fifo_chan_base::moreData(size_t n) {
   //std::cout << "more data available: " << visibleCount() << std::endl;
-  for(OutletMap::const_iterator i = getOutlets().begin();
+  /*for(OutletMap::const_iterator i = getOutlets().begin();
       i != getOutlets().end(); ++i)
   {
     i->first->moreData(n);
-  }
+  }*/
+
+  emmData.increasedCount(visibleCount());
 }
 
 void smoc_multireader_fifo_chan_base::lessData(size_t n) {
   //std::cout << "less data available: " << visibleCount() << std::endl;
-  for(OutletMap::const_iterator i = getOutlets().begin();
+  /*for(OutletMap::const_iterator i = getOutlets().begin();
       i != getOutlets().end(); ++i)
   {
     i->first->lessData(n);
-  }
+  }*/
+  
+  emmData.decreasedCount(visibleCount());
 }
 
 void smoc_multireader_fifo_chan_base::moreSpace(size_t n) {
   //std::cout << "more space available: " << freeCount() << std::endl;
-  for(EntryMap::const_iterator i = getEntries().begin();
+  /*for(EntryMap::const_iterator i = getEntries().begin();
       i != getEntries().end(); ++i)
   {
     i->first->moreSpace(n);
-  }
+  }*/
+  
+  emmSpace.increasedCount(freeCount());
 }
 
 void smoc_multireader_fifo_chan_base::lessSpace(size_t n) {
   //std::cout << "less space available: " << freeCount() << std::endl;
-  for(EntryMap::const_iterator i = getEntries().begin();
+  /*for(EntryMap::const_iterator i = getEntries().begin();
       i != getEntries().end(); ++i)
   {
     i->first->lessSpace(n);
-  }
+  }*/
+
+  emmSpace.decreasedCount(freeCount());
 }
 
 void smoc_multireader_fifo_chan_base::doReset() {
@@ -187,7 +182,7 @@ void smoc_multireader_fifo_chan_base::doReset() {
 #endif // SYSTEMOC_DEBUG
 
   // queue and initial tokens set up by smoc_fifo_storage...
-  for(EntryMap::const_iterator i = getEntries().begin();
+  /*for(EntryMap::const_iterator i = getEntries().begin();
       i != getEntries().end(); ++i)
   {
     i->first->reset();
@@ -196,7 +191,10 @@ void smoc_multireader_fifo_chan_base::doReset() {
       i != getOutlets().end(); ++i)
   {
     i->first->reset();
-  }
+  }*/
+
+  emmSpace.reset();
+  emmData.reset();
 
   moreSpace(freeCount());
   moreData(visibleCount());
