@@ -96,6 +96,7 @@ void smoc_root_node::finalise() {
   
   executing = false;
   currentState = 0;
+  ct = 0;
 
   getFiringFSM()->finalise(this, initialState.getImpl());
 /*  setCurrentState(getFiringFSM()->getInitialState());
@@ -230,28 +231,28 @@ void smoc_root_node::doReset() {
   // also del/add me as listener  
   if(currentState != oldState) {
     if(oldState) { 
-      RuntimeTransitionActivationMap& am = oldState->am;
+      EventWaiterSet& am = oldState->am;
 
-      for(RuntimeTransitionActivationMap::iterator i = am.begin();
+      for(EventWaiterSet::iterator i = am.begin();
           i != am.end(); ++i)
       {
-        i->first->delListener(this);
+        (*i)->delListener(this);
       }
     }
     {
-      RuntimeTransitionActivationMap& am = currentState->am;
+      EventWaiterSet& am = currentState->am;
 
-      for(RuntimeTransitionActivationMap::iterator i = am.begin();
+      for(EventWaiterSet::iterator i = am.begin();
           i != am.end(); ++i)
       {
-        i->first->addListener(this);
+        (*i)->addListener(this);
       }
     }
   }
 
   // notify parent
   if(!executing) {
-    if(active) {
+    if(ct) {
 #ifdef SYSTEMOC_DEBUG
       outDbg << "requested schedule" << std::endl;
 #endif // SYSTEMOC_DEBUG
@@ -293,52 +294,19 @@ void smoc_root_node::signaled(smoc_event_waiter *e) {
   if(!executing) {
 
     assert(currentState);
-    RuntimeTransitionActivationMap& am = currentState->am;
+    RuntimeTransitionList& tl = currentState->getTransitions();
 
-    RuntimeTransitionActivationMap::const_iterator ami = am.find(e);
-    assert(ami != am.end());
-
-    const RuntimeTransitionPtrList& tl = ami->second;
-
-    for(RuntimeTransitionPtrList::const_iterator t = tl.begin();
+    for(RuntimeTransitionList::iterator t = tl.begin();
         t != tl.end(); ++t)
     {
-      if(!*e) {
-        // activation pattern got disabled...
-        if((*t)->enabled) {
-          
-          (*t)->enabled = false;
-          assert(active);
-          active--;
-        }
-      }
-      else {
-        
-        // activation pattern got (re-)enabled...
-        // evaluate guard
-        if((*t)->evaluateGuard()) {
-
-          if(!(*t)->enabled) {
-          
-            (*t)->enabled = true;
-            active++;
-          }
-        }
-        else {
-
-          if((*t)->enabled) {
-
-            (*t)->enabled = false;
-            assert(active);
-            active--;
-          }
-
-        }
+      if(*(t->ap) && t->evaluateGuard()) {
+        ct = &*t;
+        break;
       }
     }
 
     // notify parent
-    if(active) {
+    if(ct) {
 #ifdef SYSTEMOC_DEBUG
       outDbg << "requested schedule" << std::endl;
 #endif // SYSTEMOC_DEBUG
@@ -372,19 +340,17 @@ void smoc_root_node::setCurrentState(RuntimeState *s) {
   assert(s);
 
   currentState = s;
-
   RuntimeTransitionList& tl = currentState->getTransitions();
-
-  // some transition was executed; re-evaluate all guards
-
-  active = 0;
+  
+  ct = 0;
 
   for(RuntimeTransitionList::iterator t = tl.begin();
       t != tl.end(); ++t)
   {
-    t->enabled = *(t->ap) && t->evaluateGuard();
-    if(t->enabled)
-      ++active;
+    if(*(t->ap) && t->evaluateGuard()) {
+      ct = &*t;
+      break;
+    }
   }
 
 #ifdef SYSTEMOC_DEBUG
@@ -403,40 +369,30 @@ void smoc_root_node::schedule() {
   RuntimeState* oldState = currentState; 
   
   executing = true;
-  assert(active);
+  assert(ct);
 
-  do {
-    RuntimeTransitionList& tl = currentState->getTransitions();
-
-    // TODO cache this (PRIORITIES!!)
-    for(RuntimeTransitionList::iterator t = tl.begin();
-        t != tl.end(); ++t)
-    {
-      if(t->enabled) {
-        t->execute();
-        break;
-      }
-    }
-  } while(active);
+  while(ct) {
+    ct->execute();
+  }
 
   // also del/add me as listener  
   if(currentState != oldState) {
     { 
-      RuntimeTransitionActivationMap& am = oldState->am;
+      EventWaiterSet& am = oldState->am;
 
-      for(RuntimeTransitionActivationMap::iterator i = am.begin();
+      for(EventWaiterSet::iterator i = am.begin();
           i != am.end(); ++i)
       {
-        i->first->delListener(this);
+        (*i)->delListener(this);
       }
     }
     {
-      RuntimeTransitionActivationMap& am = currentState->am;
+      EventWaiterSet& am = currentState->am;
 
-      for(RuntimeTransitionActivationMap::iterator i = am.begin();
+      for(EventWaiterSet::iterator i = am.begin();
           i != am.end(); ++i)
       {
-        i->first->addListener(this);
+        (*i)->addListener(this);
       }
     }
   }

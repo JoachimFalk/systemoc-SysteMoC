@@ -247,7 +247,7 @@ public:
   void schedule();
 
   bool executing;
-  size_t active;
+  RuntimeTransition* ct;
 
   // FIXME should not be public 
   smoc_event_waiter *reset(smoc_event_listener* el)
