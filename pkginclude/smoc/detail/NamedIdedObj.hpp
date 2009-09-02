@@ -46,6 +46,7 @@ namespace SysteMoC { namespace Detail {
 class NamedIdedObj: public IdedObj {
 public:
   virtual const char *name() const = 0;
+  virtual ~NamedIdedObj() {}
 };
 #endif // SYSTEMOC_NEED_IDS
 
