@@ -56,7 +56,8 @@ AC_ARG_ENABLE(synthesis-support,
           hwgs|HWGS)synth="${synth}:hwgs:";;
           testlib)  synth="${synth}:testlib:";;
           tlm|TLM)  synth="${synth}:tlm:";;
-          sgx|SGX)  synth="${synth}:sgx:";;
+          vast|VAST)synth="${synth}:vast:";;
+	  sgx|SGX)  synth="${synth}:sgx:";;
           *)        AC_MSG_ERROR([bad value ${optval} for --enable-synthesis-support]);;
         esac
       done
@@ -99,6 +100,24 @@ case "$synth" in
 esac
 
 AM_CONDITIONAL(SYNTH_MPI, test x"$synth_mpi" = x"true")
+
+case "$synth" in
+  *:hw:*)
+    synth_hw=true
+    ;;
+  auto)
+    if test -d $srcdir/../Synthesis-Actor-Cynthesizer/; then
+      synth_hw=true
+    else
+      synth_hw=false
+    fi
+    ;;
+  *)
+    synth_hw=false
+    ;;
+esac
+
+AM_CONDITIONAL(SYNTH_VAST, test x"$synth_vast" = x"true")
 
 case "$synth" in
   *:hw:*)
