@@ -251,7 +251,9 @@ void recurse(Visitor &visitor, sc_core::sc_object &obj) {
        iter != obj.get_child_objects().end();
        ++iter) {
     // Actors/Graphs first!
-    if (dynamic_cast<sc_core::sc_module *>(*iter))
+    if (dynamic_cast<sc_core::sc_module *>(*iter) &&
+        // But ignore smoc_scheduler_top!
+        dynamic_cast<smoc_scheduler_top *>(*iter) == NULL)
       apply_visitor(visitor, *static_cast<sc_core::sc_module *>(*iter));
   }
   for (sc_object_list::const_iterator iter = obj.get_child_objects().begin();
@@ -575,7 +577,13 @@ public:
       for (RuntimeStateSet::const_iterator sIter = smocStates.begin();
            sIter != smocStates.end();
            ++sIter) {
-        SGX::FiringState sgxState((*sIter)->name(), (*sIter)->getId());
+        std::string stateName = (*sIter)->name();
+        // Eleminate actor name from state name, e.g.,
+        // sqrroot.a1:smoc_firing_state_0 => smoc_firing_state_0.
+        std::string::size_type colonPos = stateName.find(':');
+        if (colonPos != std::string::npos)
+          stateName = stateName.substr(colonPos+1);
+        SGX::FiringState sgxState(stateName, (*sIter)->getId());
         sassert(stateMap.insert(std::make_pair(*sIter, &sgxState)).second);
         sgxStateList.push_back(sgxState);
       }
