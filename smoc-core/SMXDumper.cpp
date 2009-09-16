@@ -219,7 +219,7 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitBinOp(
   astNode->opType() = op;
   std::auto_ptr<SGX::ASTNode> leftNode(a(*this));
   astNode->leftNode() = leftNode->toPtr();
-  std::auto_ptr<SGX::ASTNode> rightNode(a(*this));
+  std::auto_ptr<SGX::ASTNode> rightNode(b(*this));
   astNode->rightNode() = rightNode->toPtr();
   return astNode.release();
 }
