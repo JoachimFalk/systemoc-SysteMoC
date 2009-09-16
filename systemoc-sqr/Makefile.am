@@ -25,11 +25,11 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 if SYNTH_SW
-  SYNTHESIS_SUBDIR = synthesis
+  SW_SYNTHESIS_SUBDIR = synthesis-sw
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 endif
 if SYNTH_MPI
-  MPISYNTH_SUBDIR = mpi-synthesis
+  MPI_SYNTHESIS_SUBDIR = synthesis-mpi
   include $(root_builddir)/Synthesis-MPI/Rules-Synth.mk
 endif
 if SYNTH_HW
@@ -77,15 +77,15 @@ check: autotest.sh
 	./autotest.sh
   
 if SYNTH_SW
-synth: $(SYNTHESIS_SUBDIR)/smoc-synth-sqr
-$(SYNTHESIS_SUBDIR)/sqr.ast.xml: design-sqr.cpp
-.PHONY: synth
+synth-sw: $(SW_SYNTHESIS_SUBDIR)/smoc-synth-sqr
+$(SW_SYNTHESIS_SUBDIR)/sqr.ast.xml: design-sqr.cpp
+.PHONY: synth-sw
 endif
 
 if SYNTH_MPI
-mpisynth: $(MPISYNTH_SUBDIR)/smoc-synth-sqr
-$(MPISYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
-.PHONY: mpisynth
+synth-mpi: $(MPI_SYNTHESIS_SUBDIR)/smoc-synth-sqr
+$(MPI_SYNTHESIS_SUBDIR)/sqr.ast.xml: design-sqr.cpp
+.PHONY: synth-mpi
 endif
 
 if SYNTH_HW
