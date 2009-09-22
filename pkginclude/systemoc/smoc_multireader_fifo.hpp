@@ -149,6 +149,9 @@ private:
   Detail::LatencyQueue  latencyQueue;
   Detail::DIIQueue      diiQueue;
 #endif
+  
+  Detail::EventMapManager emmData;
+  Detail::EventMapManager emmSpace;
 
   /// @brief The token id of the next produced token
   size_t tokenId;
@@ -212,7 +215,7 @@ protected:
 
   /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
-    { assert(n); return emm.getEvent(n); }
+    { assert(n); return chan.emmData.getEvent(n); }
 
   /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
@@ -224,15 +227,15 @@ protected:
   
   /// @brief See smoc_port_in_base_if
   void moreData(size_t)
-    { emm.increasedCount(chan.visibleCount()); }
+    { /*emm.increasedCount(chan.visibleCount());*/ }
 
   /// @brief See smoc_port_in_base_if
   void lessData(size_t)
-    { emm.decreasedCount(chan.visibleCount()); }
+    { /*emm.decreasedCount(chan.visibleCount());*/ }
 
   /// @brief See smoc_port_in_base_if
   void reset()
-    { emm.reset(); }
+    { /*emm.reset();*/ }
 
   /// @brief See smoc_port_in_if
   access_type* getReadPortAccess()
@@ -241,9 +244,6 @@ protected:
 private:
   /// @brief The channel implementation
   smoc_multireader_fifo_chan<T>& chan;
-  
-  /// @brief Private event manager
-  Detail::EventMapManager emm;
 };
 
 /**
@@ -278,7 +278,7 @@ protected:
 
   /// @brief See smoc_port_out_base_if
   smoc_event &spaceAvailableEvent(size_t n)
-    { assert(n); return emm.getEvent(n); }
+    { assert(n); return chan.emmSpace.getEvent(n); }
   
   /// @brief See smoc_port_out_base_if
   size_t numFree() const
@@ -290,15 +290,15 @@ protected:
   
   /// @brief See smoc_port_out_base_if
   void moreSpace(size_t)
-    { emm.increasedCount(chan.freeCount()); }
+    { /*emm.increasedCount(chan.freeCount());*/ }
 
   /// @brief See smoc_port_out_base_if
   void lessSpace(size_t)
-    { emm.decreasedCount(chan.freeCount()); }
+    { /*emm.decreasedCount(chan.freeCount());*/ }
 
   /// @brief See smoc_port_out_base_if
   void reset()
-    { emm.reset(); }
+    { /*emm.reset();*/ }
 
   /// @brief See smoc_port_out_if
   access_type* getWritePortAccess()
@@ -307,9 +307,6 @@ protected:
 private:
   /// @brief The channel implementation
   smoc_multireader_fifo_chan<T>& chan;
-  
-  /// @brief Private event manager
-  Detail::EventMapManager emm;
 };
 
 /**

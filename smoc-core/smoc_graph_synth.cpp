@@ -49,7 +49,7 @@
 #define objAs CoSupport::DataTypes::dynamic_pointer_cast
 
 namespace SysteMoC { namespace Detail {
-
+#if 0
 // find non-hierarchical name
 // ("a.b.c" -> "c"; "a.b." -> "" ; "a" -> "a")
 std::string nameNH(const std::string& name) {
@@ -358,7 +358,7 @@ bool smoc_graph_synth::activationComplete() const {
 }
 
 void smoc_graph_synth::executeTransitionList() {
-  assert(curNode != nodeInfos.end());
+ /* assert(curNode != nodeInfos.end());
   smoc_root_node* rn = curNode->first;
   NodeInfo& ni = curNode->second;
 
@@ -387,7 +387,7 @@ void smoc_graph_synth::executeTransitionList() {
       break;
     default:
       assert(0);
-  }
+  }*/
 }
 
 void smoc_graph_synth::generateFSM() {
@@ -496,7 +496,7 @@ void smoc_graph_synth::generateFSM() {
 //    delete i->second;
 //}
 }
-
+#endif
 } } // namespace SysteMoC::Detail
 
 #endif // SYSTEMOC_ENABLE_SGX

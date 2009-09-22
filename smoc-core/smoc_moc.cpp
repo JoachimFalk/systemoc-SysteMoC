@@ -91,50 +91,17 @@ void smoc_scheduler_top::end_of_elaboration() {
 }
   
 void smoc_scheduler_top::schedule() {
-  smoc_transition_ready_list ol;
-  
-  // add outgoing transitions to list
-  g->addCurOutTransitions(ol);
-  
   while(true) {
-    smoc_wait(ol);
-    while(ol) {
+    smoc_wait(*g);
+    while(*g) {
 #ifdef SYSTEMOC_DEBUG
-      outDbg << EVENT << ol << std::endl << INFO;
-#endif
-      RuntimeTransition &transition = ol.getEventTrigger();
-      // We have waited on a transition so it should no longer be blocked
-      assert(transition);
-      // It should either be enabled so we can execute it or its functionallity
-      // condition could disable it.
-      Expr::Detail::ActivationStatus status = transition.getStatus();
-      
-      switch(status.toSymbol()) {
-        case Expr::Detail::_DISABLED:
-          // remove disabled transition
-          assert(&transition.getActor() == g);
-          ol.remove(transition);
-          break;
-        case Expr::Detail::_ENABLED:
-          // execute enabled transition
-          assert(&transition.getActor() == g);
-#ifdef SYSTEMOC_DEBUG
-          outDbg << "<node name=\"" << g->name() << "\">" << std::endl
-                 << Indent::Up;
+      outDbg << "<node name=\"" << g->name() << "\">" << std::endl
+             << Indent::Up;
 #endif // SYSTEMOC_DEBUG
-          // remove transitions from list
-          g->delCurOutTransitions(ol);
-          // execute transition
-          transition.execute();
-          // add transitions to list
-          g->addCurOutTransitions(ol);
+      g->schedule();
 #ifdef SYSTEMOC_DEBUG
-          outDbg << Indent::Down << "</node>" << std::endl;
+      outDbg << Indent::Down << "</node>" << std::endl;
 #endif // SYSTEMOC_DEBUG
-          break;
-        default:
-          assert(!"WTF?! transition not either enabled or disabled!");
-      }
     }
   }
 }

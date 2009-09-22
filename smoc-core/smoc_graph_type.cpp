@@ -288,56 +288,57 @@ smoc_graph::smoc_graph() :
 {
   constructor();
 }
-
-void smoc_graph::constructor() {
-  // if there is at least one active transition: execute it
-  run = Expr::till(ol) >> CALL(smoc_graph::schedule) >> run;
-}
-
-void smoc_graph::beforeStateChange(const smoc_root_node* n) {
-  n->delCurOutTransitions(ol);
-}
-
-void smoc_graph::afterStateChange(const smoc_root_node* n) {
-  n->addCurOutTransitions(ol);
-}
-
-void smoc_graph::schedule() {
+  
+void smoc_graph::finalise() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_graph::schedule name=\"" << name() << "\">"
+  outDbg << "<smoc_graph::finalise name=\"" << name() << "\">"
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
-  assert(ol || !"WTF?! smoc_graph::schedule() called but no enabled transition!");
-  RuntimeTransition &transition = ol.getEventTrigger();
-  Expr::Detail::ActivationStatus status = transition.getStatus();
   
-  switch(status.toSymbol()) {
-    case Expr::Detail::_DISABLED:
-      ol.remove(transition);
-      break;
-    case Expr::Detail::_ENABLED: {
-      smoc_root_node &n = transition.getActor();
+  smoc_graph_base::finalise();
+  initDDF();
+
 #ifdef SYSTEMOC_DEBUG
-      outDbg << "<node name=\"" << n.name() << "\">" << std::endl
-             << Indent::Up;
+  outDbg << Indent::Down << "</smoc_graph::finalise>" << std::endl;
 #endif // SYSTEMOC_DEBUG
-      // remove transitions from list
-      n.delCurOutTransitions(ol);
-      // execute transition
-      transition.execute();
-      // add transitions to list
-      n.addCurOutTransitions(ol);
-#ifdef SYSTEMOC_DEBUG
-      outDbg << Indent::Down << "</node>" << std::endl;
-#endif // SYSTEMOC_DEBUG
-      break;
-    }
-    default:
-      assert(0);
+}
+
+void smoc_graph::constructor() {
+
+  // if there is at least one active transition: execute it
+  run = Expr::till(ol) >> CALL(smoc_graph::scheduleDDF) >> run;
+}
+
+void smoc_graph::initDDF() {
+  // FIXME if this an initial transition, ol must be cleared
+  // up to now, this is called in finalise...
+  for(smoc_node_list::const_iterator iter = getNodes().begin();
+      iter != getNodes().end(); ++iter)
+  {
+    ol |= **iter;
   }
+}
+
+void smoc_graph::scheduleDDF() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << EVENT << ol << std::endl << INFO;
-  outDbg << Indent::Down << "</smoc_graph::schedule>" << std::endl;
+  outDbg << "<smoc_graph::scheduleDDF name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+
+  while(ol) {
+    smoc_root_node& n = ol.getEventTrigger();
+#ifdef SYSTEMOC_DEBUG
+    outDbg << "<node name=\"" << n.name() << "\">" << std::endl
+           << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+    n.schedule();
+#ifdef SYSTEMOC_DEBUG
+    outDbg << Indent::Down << "</node>" << std::endl;
+#endif // SYSTEMOC_DEBUG
+  }
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_graph::scheduleDDF>" << std::endl;
 #endif // SYSTEMOC_DEBUG
 }
 
@@ -372,6 +373,7 @@ void smoc_graph_sr::action() {
 #endif
 
 void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
+#if 0
   std::map<smoc_root_node*, size_t> definedInputs;
   //  std::map<smoc_root_node*, size_t> definedOutputs;
 
@@ -912,6 +914,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
     outDbg << bottom << std::endl;
 #endif
   } while ( 1 );
+#endif
 }
 
 size_t smoc_graph_sr::countDefinedInports(smoc_root_node &n){

@@ -40,6 +40,10 @@
 #include <set>
 #include <vector>
 
+#ifdef HAVE_BOOST_UNORDERED
+# include <boost/unordered_set.hpp>
+#endif // HAVE_BOOST_UNORDERED
+
 #include <systemoc/smoc_config.h>
 
 #include "../smoc_func_call.hpp"
@@ -134,8 +138,6 @@ private:
   /// @brief Target state(s)
   MultiState dest;
 
-  size_t priority;
-
 public:
   /// @brief Constructor
   ExpandedTransition(
@@ -143,23 +145,20 @@ public:
       const CondMultiState& in,
       const smoc_activation_pattern& ap,
       const smoc_action& f,
-      const MultiState& dest,
-      size_t priority);
+      const MultiState& dest);
 
   /// @brief Constructor
   ExpandedTransition(
       const HierarchicalStateImpl* src,
       const CondMultiState& in,
       const smoc_activation_pattern& ap,
-      const smoc_action& f,
-      size_t priority);
+      const smoc_action& f);
 
   /// @brief Constructor
   ExpandedTransition(
       const HierarchicalStateImpl* src,
       const smoc_activation_pattern& ap,
-      const smoc_action& f,
-      size_t priority);
+      const smoc_action& f);
 
   /// @brief Returns the source state
   const HierarchicalStateImpl* getSrcState() const;
@@ -169,9 +168,6 @@ public:
 
   /// @brief Returns the target state(s)
   const MultiState& getDestStates() const;
-
-  // @brief Returns the priority
-  size_t getPriority() const;
 };
 
 typedef std::list<ExpandedTransition> ExpandedTransitionList;
@@ -179,7 +175,7 @@ typedef std::list<ExpandedTransition> ExpandedTransitionList;
 class RuntimeState;
 
 class RuntimeTransition
-: public smoc_activation_pattern,
+: //public smoc_event_and_list,
 #ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::IdedObj,
 #endif // SYSTEMOC_NEED_IDS
@@ -194,9 +190,6 @@ private:
   /// @brief Target state
   RuntimeState *dest;
   
-  /// @brief Transition priority
-  size_t priority;
-
 #ifdef SYSTEMOC_ENABLE_VPC
   /// @brief FastLink to VPC
   SystemC_VPC::FastLink *vpcLink;
@@ -211,29 +204,26 @@ private:
   PostHooks   postHooks;
 #endif //SYSTEMOC_ENABLE_HOOKING
 
-  /// @brief Hierarchical end-of-elaboration callback
-  void finalise();
-
 public:
   /// @brief Execution masks used for SR Scheduling
   static const int GO   = 1;
   static const int TICK = 2;
+  
+  Expr::Ex<bool>::type guard;
+
+  bool evaluateGuard() const;
+  const Expr::Ex<bool>::type getExpr() const;
+
+  smoc_event_and_list* ap;
+  bool enabled; // guard evaluated to true (implies activation pattern active)
 
   /// @brief Constructor
   RuntimeTransition(
       smoc_root_node* actor,
       const smoc_activation_pattern& ap,
       const smoc_action& f,
-      RuntimeState* dest = 0,
-      size_t priority = 0);
+      RuntimeState* dest = 0);
 
-#ifdef SYSTEMOC_DEBUG
-  /// @brief Determines status of transition
-  Expr::Detail::ActivationStatus getStatus() const;
-#endif
-
-  /// @brief Determines if transition is enabled
-  bool isEnabled() const;
 
   /// @brief Returns parent node
   smoc_root_node &getActor();
@@ -246,9 +236,8 @@ public:
 
   /// @brief Returns the action
   const smoc_action& getAction() const;
-  
-  /// @brief See EventWaiter
-  size_t getPriority() const;
+
+  void finalise();
 
 //#ifdef SYSTEMOC_DEBUG
   /// @brief Debug output for this transitions
@@ -257,6 +246,17 @@ public:
 };
 
 typedef std::list<RuntimeTransition> RuntimeTransitionList;
+//typedef CoSupport::SystemC::EventOrList<RuntimeTransition>
+//          smoc_transition_ready_list;
+
+typedef std::list<RuntimeTransition*> RuntimeTransitionPtrList;
+//typedef std::map<smoc_event_waiter*, RuntimeTransitionPtrList> RuntimeTransitionActivationMap; 
+
+#ifdef HAVE_BOOST_UNORDERED
+typedef boost::unordered_set<smoc_event_waiter*> EventWaiterSet; 
+#else // HAVE_BOOST_UNORDERED
+typedef std::set<smoc_event_waiter*> EventWaiterSet; 
+#endif // HAVE_BOOST_UNORDERED
 
 class RuntimeState
 :
@@ -267,7 +267,7 @@ class RuntimeState
   typedef RuntimeState                    this_type;
 private:
   std::string           _name;
-  RuntimeTransitionList t;
+  RuntimeTransitionList tl;
 
   void  finalise();
 public:
@@ -275,6 +275,10 @@ public:
 
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();
+
+  void addTransition(const RuntimeTransition& t);
+
+  EventWaiterSet am;
 
   const char *name() const
     { return _name.c_str(); }

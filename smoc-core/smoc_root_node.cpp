@@ -59,11 +59,10 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
 //    vpc_event_lat(NULL),
 //# endif
 #endif // SYSTEMOC_ENABLE_VPC
-//  _guard(NULL)
 {
 #ifdef SYSTEMOC_ENABLE_VPC
   commstate = new RuntimeState();
-  commstate->getTransitions().push_back(
+  commstate->addTransition(
       RuntimeTransition(
         this,
         Expr::till(*diiEvent),
@@ -95,9 +94,20 @@ void smoc_root_node::finalise() {
       iter != ports.end(); ++iter)
     (*iter)->finalise();
   
+  executing = false;
+  currentState = 0;
+  ct = 0;
+
   getFiringFSM()->finalise(this, initialState.getImpl());
-  currentState = getFiringFSM()->getInitialState();
-  
+/*  setCurrentState(getFiringFSM()->getInitialState());
+
+  RuntimeTransitionList& tl = currentState->getTransitions();
+  for(RuntimeTransitionList::iterator t = tl.begin();
+      t != tl.end(); ++t)
+  {
+    ol |= (*t->ap);
+  }*/
+
   //outDbg << "smoc_root_node::finalise() name == " << this->name() << std::endl
   //          << "  FiringFSM: " << currentState->getFiringFSM()
   //          << "; #leafStates: " << currentState->getFiringFSM()->getLeafStates().size()
@@ -109,6 +119,7 @@ void smoc_root_node::finalise() {
   for (RuntimeStateSet::const_iterator sIter = states.begin(); 
        sIter != states.end();
        ++sIter) {
+    
     const RuntimeTransitionList& tl = (*sIter)->getTransitions();
     
     for (RuntimeTransitionList::const_iterator tIter = tl.begin();
@@ -157,7 +168,7 @@ bool smoc_root_node::isNonStrict() const{
   return _non_strict;
 }
 
-void smoc_root_node::addCurOutTransitions(smoc_transition_ready_list& ol) const {
+/*void smoc_root_node::addCurOutTransitions(smoc_transition_ready_list& ol) const {
 #ifdef SYSTEMOC_DEBUG
   outDbg << "<smoc_root_node::addCurOutTransitions name=\"" << name() << "\""
          << " state=\""<< currentState->name() << "\">" << std::endl;
@@ -195,7 +206,7 @@ void smoc_root_node::delCurOutTransitions(smoc_transition_ready_list& ol) const 
 #ifdef SYSTEMOC_DEBUG
   outDbg << "</smoc_root_node::delCurOutTransitions>" << std::endl;
 #endif // SYSTEMOC_DEBUG
-}
+}*/
 
 smoc_root_node::~smoc_root_node() {
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -209,36 +220,190 @@ void smoc_root_node::doReset() {
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
 
-  smoc_graph_base* parent =
-    dynamic_cast<smoc_graph_base*>(get_parent());
-
-  if(parent) {
-    // if we have no parent graph top scheduler has already
-    // removed the transitions
-    parent->beforeStateChange(this);
- }
-
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "old state: \"" << currentState->name() << "\"" << std::endl;
-#endif // SYSTEMOC_DEBUG
-
-  // reset FSM
-  currentState = getFiringFSM()->getInitialState();
-
-#ifdef SYSTEMOC_DEBUG
-  outDbg << "new state: \"" << currentState->name() << "\"" << std::endl;
-#endif // SYSTEMOC_DEBUG
-
-  if(parent) {
-    // if we have no parent graph top scheduler will
-    // add the transitions
-    parent->afterStateChange(this);
-  }
-
-  // call user-defined reset code
+  // call user-defined reset code (->re-evaluate guards!!!)
   reset();
+  
+  RuntimeState* oldState = currentState; 
+
+  // will re-evaluate guards
+  setCurrentState(getFiringFSM()->getInitialState());
+  
+  if(!executing) {
+
+    // also del/add me as listener  
+    if(currentState != oldState) {
+      if(oldState) { 
+        EventWaiterSet& am = oldState->am;
+
+        for(EventWaiterSet::iterator i = am.begin();
+            i != am.end(); ++i)
+        {
+          (*i)->delListener(this);
+        }
+      }
+      {
+        EventWaiterSet& am = currentState->am;
+
+        for(EventWaiterSet::iterator i = am.begin();
+            i != am.end(); ++i)
+        {
+          (*i)->addListener(this);
+        }
+      }
+    }
+
+    // notify parent
+    if(ct) {
+#ifdef SYSTEMOC_DEBUG
+      outDbg << "requested schedule" << std::endl;
+#endif // SYSTEMOC_DEBUG
+      smoc_event::notify();
+    }
+    else {
+#ifdef SYSTEMOC_DEBUG
+      outDbg << "canceled schedule" << std::endl;
+#endif // SYSTEMOC_DEBUG
+      smoc_event::reset();
+    }
+  }
 
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_root_node::doReset>" << std::endl;
+#endif // SYSTEMOC_DEBUG
+}
+
+void smoc_root_node::renotified(smoc_event_waiter *e) {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_root_node::renotified name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+
+  assert(*e);
+  signaled(e);
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_root_node::renotified>" << std::endl;
+#endif // SYSTEMOC_DEBUG
+}
+
+void smoc_root_node::signaled(smoc_event_waiter *e) {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_root_node::signaled name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+
+  if(!executing) {
+
+    assert(currentState);
+    RuntimeTransitionList& tl = currentState->getTransitions();
+
+    ct = 0;
+
+    for(RuntimeTransitionList::iterator t = tl.begin();
+        t != tl.end(); ++t)
+    {
+      if(*(t->ap) && t->evaluateGuard()) {
+        ct = &*t;
+        break;
+      }
+    }
+
+    // notify parent
+    if(ct) {
+#ifdef SYSTEMOC_DEBUG
+      outDbg << "requested schedule" << std::endl;
+#endif // SYSTEMOC_DEBUG
+      smoc_event::notify();
+    }
+    else {
+#ifdef SYSTEMOC_DEBUG
+      outDbg << "canceled schedule" << std::endl;
+#endif // SYSTEMOC_DEBUG
+      smoc_event::reset();
+    }
+  }
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_root_node::signaled>" << std::endl;
+#endif // SYSTEMOC_DEBUG
+}
+
+void smoc_root_node::eventDestroyed(smoc_event_waiter *e) {
+  // should happen when simulation has finished -> ignore
+}
+
+
+void smoc_root_node::setCurrentState(RuntimeState *s) {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_root_node::setCurrentState name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+
+  //assert(executing);
+  assert(s);
+
+  currentState = s;
+  RuntimeTransitionList& tl = currentState->getTransitions();
+  
+  ct = 0;
+
+  for(RuntimeTransitionList::iterator t = tl.begin();
+      t != tl.end(); ++t)
+  {
+    if(*(t->ap) && t->evaluateGuard()) {
+      ct = &*t;
+      break;
+    }
+  }
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_root_node::setCurrentState>" << std::endl;
+#endif // SYSTEMOC_DEBUG
+}
+
+
+void smoc_root_node::schedule() {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_root_node::schedule name=\"" << name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
+  
+  assert(currentState);
+  RuntimeState* oldState = currentState; 
+  
+  executing = true;
+  assert(ct);
+
+  while(ct) {
+    ct->execute();
+  }
+
+  // also del/add me as listener  
+  if(currentState != oldState) {
+    { 
+      EventWaiterSet& am = oldState->am;
+
+      for(EventWaiterSet::iterator i = am.begin();
+          i != am.end(); ++i)
+      {
+        (*i)->delListener(this);
+      }
+    }
+    {
+      EventWaiterSet& am = currentState->am;
+
+      for(EventWaiterSet::iterator i = am.begin();
+          i != am.end(); ++i)
+      {
+        (*i)->addListener(this);
+      }
+    }
+  }
+
+  executing = false;
+  smoc_event::reset();
+
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_root_node::schedule>" << std::endl;
 #endif // SYSTEMOC_DEBUG
 }

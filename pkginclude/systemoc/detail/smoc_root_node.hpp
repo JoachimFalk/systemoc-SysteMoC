@@ -90,7 +90,9 @@ class smoc_root_node
 #ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::NamedIdedObj,
 #endif // SYSTEMOC_NEED_IDS
-  public SysteMoC::Detail::SimCTXBase
+  public SysteMoC::Detail::SimCTXBase,
+  private smoc_event_listener,
+  public smoc_event
 {
   typedef smoc_root_node this_type;
   friend class RuntimeTransition;
@@ -133,6 +135,10 @@ private:
   /// @brief Resets this node, calls reset()
   virtual void doReset();
   friend class smoc_reset_chan; 
+
+  void signaled(smoc_event_waiter *e);
+  void eventDestroyed(smoc_event_waiter *e);
+  void renotified(smoc_event_waiter *e);
 
 protected:
   //smoc_root_node(const smoc_firing_state &s);
@@ -188,8 +194,7 @@ public:
   RuntimeState *getCurrentState() const
     { return currentState; }
 
-  void setCurrentState(RuntimeState *s)
-    { currentState = s; }
+  void setCurrentState(RuntimeState *s);
 
 #ifdef SYSTEMOC_ENABLE_VPC
   RuntimeState *getCommState() const
@@ -231,13 +236,22 @@ public:
   bool isNonStrict() const;
   
   // typedef for transition ready list
-  typedef CoSupport::SystemC::EventOrList<RuntimeTransition>
-          smoc_transition_ready_list;
+//  typedef CoSupport::SystemC::EventOrList<RuntimeTransition>
+//          smoc_transition_ready_list;
 
-  void addCurOutTransitions(smoc_transition_ready_list &ol) const;
-  void delCurOutTransitions(smoc_transition_ready_list &ol) const;
+  //void addCurOutTransitions(smoc_transition_ready_list &ol) const;
+  //void delCurOutTransitions(smoc_transition_ready_list &ol) const;
 
   virtual ~smoc_root_node();
+
+  void schedule();
+
+  bool executing;
+  RuntimeTransition* ct;
+
+  // FIXME should not be public 
+  smoc_event_waiter *reset(smoc_event_listener* el)
+    { return smoc_event::reset(el); }
 };
 
 typedef std::list<smoc_root_node *> smoc_node_list;
