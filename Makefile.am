@@ -57,6 +57,7 @@ lib_LTLIBRARIES = libsystemoc.la
 libsystemoc_la_SOURCES =			\
 	smoc-core/IdPool.cpp			\
 	smoc-core/smoc_simulation_ctx.cpp	\
+	smoc-core/smoc_hooking.cpp		\
 	smoc-core/smoc_main.cpp			\
 	smoc-core/smoc_elab_and_sim.cpp		\
 	smoc-core/smoc_fifo.cpp			\

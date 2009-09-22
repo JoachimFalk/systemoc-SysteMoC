@@ -104,8 +104,6 @@ static inline
 void intrusive_ptr_release( smoc_member_func_interface<R> *r )
   { if ( !--r->refcount ) delete r; }
 
-
-
 /**
  * smoc_member_func
  */
@@ -133,8 +131,6 @@ public:
     return piv.pil;
   }
 };
-
-
 
 /**
  * smoc_func_call
@@ -224,8 +220,6 @@ public:
     : go(go), tick(tick) {}
 };
 
-//class smoc_action_list;
-
 class smoc_func_call_list
 : public std::list<smoc_func_call> {
 public:
@@ -238,24 +232,11 @@ public:
 };
 
 typedef boost::variant<
-  //boost::blank,
   smoc_func_call_list,
   smoc_func_diverge,
-  smoc_sr_func_pair/*,
-  smoc_action_list*/> smoc_action;
+  smoc_sr_func_pair> smoc_action;
 
 smoc_action merge(const smoc_action& a, const smoc_action& b);
-
-/*class smoc_action_list
-: public std::list<smoc_action> {
-public:
-  typedef smoc_action_list this_type;
-public:
-  smoc_action_list() {}
-
-  smoc_action_list(const smoc_action& a)
-    { push_back(a); }
-};*/
 
 /**
  * ActionVisitor
@@ -271,8 +252,6 @@ public:
   result_type operator()(smoc_func_call_list& f) const;
   result_type operator()(smoc_func_diverge& f) const;
   result_type operator()(smoc_sr_func_pair& f) const;
-  //result_type operator()(smoc_action_list& f) const;
-  //result_type operator()(boost::blank& f) const;
 
 private:
   RuntimeState* dest;
@@ -290,8 +269,6 @@ public:
   result_type operator()(smoc_func_call_list& f) const;
   result_type operator()(smoc_sr_func_pair& f) const;
   result_type operator()(smoc_func_diverge& f) const;
-  //result_type operator()(smoc_action_list& f) const;
-  //result_type operator()(boost::blank& f) const;
 
 private:
   const char* name;

@@ -53,6 +53,10 @@
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
 
+#ifdef SYSTEMOC_ENABLE_HOOKING
+# include <boost/regex.hpp> 
+#endif // SYSTEMOC_ENABLE_HOOKING
+
 using namespace CoSupport::DataTypes;
 using namespace SysteMoC::Detail;
 using CoSupport::String::Concat;
@@ -208,6 +212,36 @@ size_t RuntimeTransition::getPriority() const
 smoc_root_node &RuntimeTransition::getActor()
   { assert(actor != NULL); return *actor; }
 
+class ActionNameVisitor {
+public:
+  typedef std::string result_type;
+public:
+  result_type operator()(smoc_func_call_list &f) const {
+    std::ostringstream str;
+    
+    for (smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
+      if (i != f.begin())
+        str << ";";
+      str << i->getFuncName() << "(";
+      for (ParamInfoList::const_iterator pIter = i->getParams().begin();
+           pIter != i->getParams().end();
+           ++pIter) {
+        if (pIter != i->getParams().begin())
+          str << ",";
+        str << pIter->value;
+      }
+      str << ")";
+    }
+    return str.str();
+  }
+  result_type operator()(smoc_func_diverge &f) const {
+    return "";
+  }
+  result_type operator()(smoc_sr_func_pair &f) const {
+    return "";
+  }
+};
+
 void RuntimeTransition::execute(int mode) {
   enum {
     MODE_DIISTART,
@@ -231,7 +265,7 @@ void RuntimeTransition::execute(int mode) {
 #endif
     execMode = MODE_GRAPH;
   }
-
+  
 #ifdef SYSTEMOC_DEBUG
   static const char *execModeName[] = { "diiStart", "diiEnd", "graph" };
 
@@ -239,30 +273,66 @@ void RuntimeTransition::execute(int mode) {
          << "\" mode=\"" << execModeName[execMode]
          << "\">" << std::endl << Indent::Up;
 #endif
-
+  
 #ifdef SYSTEMOC_TRACE
   if(execMode != MODE_GRAPH)
     TraceLog.traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
 #endif
-
+  
 #if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_TRACE)
   Expr::evalTo<Expr::CommSetup>(guard);
 #endif
-
+  
+#ifdef SYSTEMOC_ENABLE_HOOKING
+  
+  if (execMode == MODE_DIISTART) {
+    if (!hookingValid) {
+      actionStr = boost::apply_visitor(ActionNameVisitor(), f);
+      
+      for (std::list<SysteMoC::Hook::Detail::TransitionHook>::const_iterator iter = actor->transitionHooks.begin();
+           iter != actor->transitionHooks.end();
+           ++iter) {
+        if (boost::regex_search(actor->getCurrentState()->name(), iter->srcState) &&
+            boost::regex_search(actionStr, iter->action) &&
+            boost::regex_search( dest->name(), iter->dstState)) {
+          preHooks.push_back(&iter->preCallback);
+          postHooks.push_back(&iter->postCallback);
+        }
+      }
+      hookingValid = true;
+    }
+    for (PreHooks::const_iterator iter = preHooks.begin();
+         iter != preHooks.end();
+         ++iter) {
+      (*iter)->operator()(static_cast<smoc_actor *>(actor), actor->getCurrentState()->name(), actionStr, dest->name());
+    }
+//  std::cerr << actor->name() << ": " << actor->getCurrentState()->name() << " => " << dest->name() << std::endl;
+  }
+#endif // SYSTEMOC_ENABLE_HOOKING
+  
   // only smoc_func_diverge may set nextState to something
   // different than dest here...
   RuntimeState *nextState =
     boost::apply_visitor(ActionVisitor(dest, mode), f);
 
+#ifdef SYSTEMOC_ENABLE_HOOKING
+  if (execMode == MODE_DIISTART) {
+    for (PostHooks::const_iterator iter = postHooks.begin();
+         iter != postHooks.end();
+         ++iter) {
+      (*iter)->operator()(static_cast<smoc_actor *>(actor), actor->getCurrentState()->name(), actionStr, dest->name());
+    }
+  }
+#endif // SYSTEMOC_ENABLE_HOOKING
+
+  
 #ifdef SYSTEMOC_ENABLE_DEBUG
   Expr::evalTo<Expr::CommReset>(guard);
 #endif
   
 #ifdef SYSTEMOC_ENABLE_TRACE
-  if (execMode == MODE_DIISTART) {
-    if (getSimCTX()->isTraceDumpingEnabled())
-      getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
-  }
+  if (execMode == MODE_DIISTART && getSimCTX()->isTraceDumpingEnabled())
+    getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
 #endif // SYSTEMOC_ENABLE_TRACE
   
 #ifdef SYSTEMOC_ENABLE_VPC

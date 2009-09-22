@@ -12,6 +12,9 @@
 /* Defined if tracing support is enabled */
 #undef SYSTEMOC_ENABLE_TRACE
 
+/* Defined if hooking infrastructure is provided */
+#undef SYSTEMOC_ENABLE_HOOKING
+
 /* Defined if SystemC-VPC support is enabled */
 #undef SYSTEMOC_ENABLE_VPC
 
