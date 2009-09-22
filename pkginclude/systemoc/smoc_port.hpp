@@ -292,9 +292,15 @@ protected:
   smoc_port_in(sc_port_policy policy)
     : base_type(sc_gen_unique_name("smoc_port_in"), policy)
   {}
+  smoc_port_in(sc_module_name name, sc_port_policy policy)
+    : base_type(name, policy)
+  {}
 public:
   smoc_port_in()
     : base_type(sc_gen_unique_name("smoc_port_in"), SC_ONE_OR_MORE_BOUND)
+  {}
+  smoc_port_in(sc_module_name name)
+    : base_type(name, SC_ONE_OR_MORE_BOUND)
   {}
 
   const return_type operator[](size_t n) const {
@@ -322,9 +328,15 @@ protected:
   smoc_port_out(sc_port_policy policy)
     : base_type(sc_gen_unique_name("smoc_port_out"), policy)
   {}
+  smoc_port_out(sc_module_name name, sc_port_policy policy)
+    : base_type(name, policy)
+  {}
 public:
   smoc_port_out()
     : base_type(sc_gen_unique_name("smoc_port_out"), SC_ONE_OR_MORE_BOUND)
+  {}
+  smoc_port_out(sc_module_name name)
+    : base_type(name, SC_ONE_OR_MORE_BOUND)
   {}
 
   return_type operator[](size_t n)  {
