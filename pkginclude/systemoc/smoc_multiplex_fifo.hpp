@@ -690,7 +690,7 @@ protected:
 
   /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
-    { return -1; }
+    { return static_cast<size_t>(-1); }
 
   /// @brief See smoc_port_in_if
   AccessImpl *getReadPortAccess()
