@@ -177,6 +177,17 @@ namespace Detail {
 
 _SMOC_GENERATE_APPLY_VISITOR(smoc_multireader_fifo_chan_base)
 
+/* smoc_reset_chan */
+
+namespace Detail {
+  template<template <class> class M, class Visitor>
+  typename Visitor::result_type
+  apply_visitor_helper(Visitor &visitor, typename M<smoc_reset_chan>::type *ptr)
+    { return visitor(*ptr); }
+} // namespace Detail
+
+_SMOC_GENERATE_APPLY_VISITOR(smoc_reset_chan)
+
 /* smoc_root_chan */
 
 namespace Detail {
