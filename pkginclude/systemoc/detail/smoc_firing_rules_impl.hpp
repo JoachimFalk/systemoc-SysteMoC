@@ -252,11 +252,7 @@ typedef std::list<RuntimeTransition> RuntimeTransitionList;
 typedef std::list<RuntimeTransition*> RuntimeTransitionPtrList;
 //typedef std::map<smoc_event_waiter*, RuntimeTransitionPtrList> RuntimeTransitionActivationMap; 
 
-#ifdef HAVE_BOOST_UNORDERED
-typedef boost::unordered_set<smoc_event_waiter*> EventWaiterSet; 
-#else // HAVE_BOOST_UNORDERED
 typedef std::set<smoc_event_waiter*> EventWaiterSet; 
-#endif // HAVE_BOOST_UNORDERED
 
 class RuntimeState
 :
