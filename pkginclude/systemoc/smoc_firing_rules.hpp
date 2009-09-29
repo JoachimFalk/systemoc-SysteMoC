@@ -56,6 +56,8 @@
 
 #include <boost/static_assert.hpp>
 
+typedef Expr::Ex<bool>::type Guard;
+
 // FIXME: this should be in Detail but conflicts with other
 // Detail namespaces...
 
@@ -308,28 +310,26 @@ public:
   typedef smoc_transition_part this_type;
 
 private:
-  /// @brief IO req. and guards
-  smoc_activation_pattern ap;
+  /// @brief guard (AST assembled from smoc_expr.hpp nodes)
+  Guard guard;
 
   /// @brief Action
   smoc_action f;
-
 public:
   /// @brief Constructor
-  explicit smoc_transition_part(
-      const smoc_activation_pattern &ap)
-    : ap(ap) {}
+  explicit smoc_transition_part(Guard const &g)
+    : guard(g) {}
 
   /// @brief Constructor
-  explicit smoc_transition_part(
-      const smoc_activation_pattern &ap,
-      const smoc_action& f)
-    : ap(ap), f(f) {}
+  explicit smoc_transition_part(Guard const &g, const smoc_action &f)
+    : guard(g), f(f) {}
 
-  const smoc_activation_pattern& getActivationPattern() const
-    { return ap; }
+  /// @brief Returns the guard
+  Guard const &getExpr() const
+    { return guard; }
 
-  const smoc_action& getAction() const
+  /// @brief Returns the action
+  const smoc_action &getAction() const
     { return f; }
 };
 
@@ -349,36 +349,35 @@ public:
 };
 
 class smoc_transition {
-public:
   typedef smoc_transition this_type;
-  
 private:
-  smoc_activation_pattern ap;
+  Guard                   guard;
   smoc_interface_action   ia;
-
 public:
   /// @brief Constructor
   explicit smoc_transition(
       const smoc_action &f,
       smoc_firing_state_base::ConstRef &t)
-    : ap(Expr::literal(true)), ia(t,f) {}
+    : guard(Expr::literal(true)), ia(t,f) {}
   
   /// @brief Constructor
   explicit smoc_transition(
-      const smoc_activation_pattern &ap,
+      Guard const &g,
       smoc_firing_state_base::ConstRef &t)
-    : ap(ap), ia(t) {}
+    : guard(g), ia(t) {}
   
   /// @brief Constructor
   explicit smoc_transition(
       const smoc_transition_part &tp,
       smoc_firing_state_base::ConstRef &t)
-    : ap(tp.getActivationPattern()),
+    : guard(tp.getExpr()),
       ia(t, tp.getAction()) {}
   
-  const smoc_activation_pattern &getActivationPattern() const
-    { return ap; }
-  
+  /// @brief Returns the guard
+  Guard const &getExpr() const
+    { return guard; }
+
+  /// @brief Returns the interface action
   const smoc_interface_action &getInterfaceAction() const
     { return ia; }
 };
@@ -413,17 +412,17 @@ smoc_transition_list operator | (
     const smoc_transition &t )
   { return smoc_transition_list(tx) |= t; }
 
-inline
+template <class E>
 smoc_transition_part operator >> (
-    const smoc_activation_pattern &ap,
+    const Expr::D<E> &g,
     const smoc_func_call &f)
-  { return smoc_transition_part(ap, f); }
+  { return smoc_transition_part(Guard(g), f); }
 
-inline
+template <class E>
 smoc_transition_part operator >> (
-    const smoc_activation_pattern &ap,
+    const Expr::D<E> &g,
     const smoc_accum_action &b)
-  { return smoc_transition_part(ap, b.getAction()); }
+  { return smoc_transition_part(Guard(g), b.getAction()); }
 
 inline
 smoc_accum_action operator >> (
@@ -442,7 +441,7 @@ smoc_transition_part operator >> (
     const smoc_transition_part &tp,
     const smoc_func_call &f) {
   return smoc_transition_part(
-      tp.getActivationPattern(),
+      tp.getExpr(),
       merge(tp.getAction(), f));
 }
 
@@ -450,7 +449,7 @@ inline
 smoc_transition operator >> (
     const smoc_func_call &f,
     smoc_firing_state_base::ConstRef &s)
-  { return smoc_transition(f, s); }
+  { return smoc_transition(smoc_action(f), s); }
 
 inline
 smoc_transition operator >> (
@@ -464,29 +463,29 @@ smoc_transition operator >> (
     smoc_firing_state_base::ConstRef &s)
   { return smoc_transition(tp,s); }
 
-inline
+template <class E>
 smoc_transition operator >> (
-    const smoc_activation_pattern &ap,
+    const Expr::D<E> &g,
     smoc_firing_state_base::ConstRef &s)
-  { return smoc_transition(ap,s); }
+  { return smoc_transition(Guard(g),s); }
 
-inline
+template <class E>
 smoc_transition_part operator >> (
-    const smoc_activation_pattern &ap,
+    const Expr::D<E> &g,
     const smoc_sr_func_pair &fp)
-  { return smoc_transition_part(ap,fp); }
+  { return smoc_transition_part(Guard(g),fp); }
 
 inline
 smoc_transition operator >> (
     const smoc_sr_func_pair &fp,
     smoc_firing_state_base::ConstRef &s)
-  { return smoc_transition(fp,s); }
+  { return smoc_transition(smoc_action(fp),s); }
 
 inline
 smoc_sr_func_pair operator && (
-    const smoc_func_call &g,
-    const smoc_func_call &t)
-  { return smoc_sr_func_pair(g, t); }
+    const smoc_func_call &f1,
+    const smoc_func_call &f2)
+  { return smoc_sr_func_pair(f1, f2); }
 
 inline
 smoc_multi_state::Ref operator,(

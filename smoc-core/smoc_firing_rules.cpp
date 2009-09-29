@@ -94,32 +94,16 @@ struct ModelingError : public std::runtime_error {
   {}
 };
 
-
-
-
-
 TransitionBase::TransitionBase(
-    const smoc_activation_pattern& ap,
+    Guard const &g,
     const smoc_action& f)
-  : ap(ap),
-    f(f)
-{}
-
-const smoc_activation_pattern& TransitionBase::getActivationPattern() const
-  { return ap; }
-
-const smoc_action& TransitionBase::getAction() const
-  { return f; }
-
-
-
-
+  : guard(g), f(f) {}
 
 PartialTransition::PartialTransition(
-    const smoc_activation_pattern& ap,
+    Guard const &g,
     const smoc_action& f,
     FiringStateBaseImpl* dest)
-  : TransitionBase(ap, f),
+  : TransitionBase(g, f),
     dest(dest)
 {}
 
@@ -132,10 +116,10 @@ FiringStateBaseImpl* PartialTransition::getDestState() const
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
     const CondMultiState& in,
-    const smoc_activation_pattern& ap,
+    Guard const &g,
     const smoc_action& f,
     const MultiState& dest)
-  : TransitionBase(ap, f),
+  : TransitionBase(g, f),
     src(src),
     in(in),
     dest(dest)
@@ -144,18 +128,18 @@ ExpandedTransition::ExpandedTransition(
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
     const CondMultiState& in,
-    const smoc_activation_pattern& ap,
+    Guard const &g,
     const smoc_action& f)
-  : TransitionBase(ap, f),
+  : TransitionBase(g, f),
     src(src),
     in(in)
 {}
 
 ExpandedTransition::ExpandedTransition(
     const HierarchicalStateImpl* src,
-    const smoc_activation_pattern& ap,
+    Guard const &g,
     const smoc_action& f)
-  : TransitionBase(ap, f),
+  : TransitionBase(g, f),
     src(src)
 {}
 
@@ -168,26 +152,22 @@ const CondMultiState& ExpandedTransition::getCondStates() const
 const MultiState& ExpandedTransition::getDestStates() const
   { return dest; }
 
-smoc_event_and_list* getCAP(const smoc_event_and_list& ap) {
+smoc_event_and_list *getCAP(const smoc_event_and_list &ap) {
   typedef std::set<smoc_event_and_list> Cache;
   static Cache* cache = new Cache();
   return &const_cast<smoc_event_and_list&>(*cache->insert(ap).first);
 }
 
-
-
-
-
 RuntimeTransition::RuntimeTransition(
     smoc_root_node* actor,
-    const smoc_activation_pattern& ap,
+    Guard const &g,
     const smoc_action& f,
     RuntimeState* dest)
   : actor(actor),
     f(f),
     dest(dest),
-    guard(ap.guard),
-    ap(0),
+    guard(g),
+    ap(NULL),
     enabled(false)
 {
 }
@@ -754,7 +734,7 @@ void FiringFSMImpl::finalise(
           rs->addTransition(
               RuntimeTransition(
                 actor,
-                t->getActivationPattern(),
+                t->getExpr(),
                 t->getAction(),
                 rd));
 #ifdef FSM_FINALIZE_BENCHMARK
@@ -870,7 +850,7 @@ void FiringStateBaseImpl::addTransition(const smoc_transition_list& stl) {
   {
     addTransition(
         PartialTransition(
-          st->getActivationPattern(),
+          st->getExpr(),
           st->getInterfaceAction().getAction(),
           st->getInterfaceAction().getDestState().getImpl()));
   }
@@ -1070,7 +1050,7 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
         etl,
         ExpandedTransition(
           this,
-          pt->getActivationPattern(),
+          pt->getExpr(),
           pt->getAction()));
   }
 
@@ -1095,7 +1075,7 @@ void HierarchicalStateImpl::expandTransition(
       ExpandedTransition(
         t.getSrcState(),
         t.getCondStates(),
-        t.getActivationPattern(),
+        t.getExpr(),
         t.getAction(),
         dest));
 }
@@ -1302,7 +1282,7 @@ void ConnectorStateImpl::expandTransition(
         ExpandedTransition(
           t.getSrcState(),
           t.getCondStates(),
-          t.getActivationPattern().getExpr() && pt->getActivationPattern().getExpr(),
+          t.getExpr() && pt->getExpr(),
           merge(t.getAction(), pt->getAction())));
   }
 }
@@ -1340,7 +1320,7 @@ void MultiStateImpl::finalise(ExpandedTransitionList& etl) {
         ExpandedTransition(
           *states.begin(),
           condStates,
-          pt->getActivationPattern(), pt->getAction()));
+          pt->getExpr(), pt->getAction()));
   }
 }
 
@@ -1361,7 +1341,7 @@ void MultiStateImpl::expandTransition(
       ExpandedTransition(
         t.getSrcState(),
         t.getCondStates(),
-        t.getActivationPattern(),
+        t.getExpr(),
         t.getAction(),
         states));
 }

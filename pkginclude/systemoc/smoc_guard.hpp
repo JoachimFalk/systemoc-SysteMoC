@@ -50,27 +50,6 @@
 #include "smoc_expr.hpp"
 #include "smoc_port.hpp"
 
-class smoc_activation_pattern
-/*: public smoc_event_and_list*/ {
-public:
-  typedef smoc_activation_pattern this_type;
-
-  friend class smoc_firing_state;
-
-//protected:
-  Expr::Ex<bool>::type  guard;
-public:
-  template <class E>
-  smoc_activation_pattern(const Expr::D<E> &_guard)
-    : guard(_guard) {}
-
-//  void finalise();
- 
-//  Expr::Detail::ActivationStatus getStatus() const;
-
-  const Expr::Ex<bool>::type getExpr() const;
-};
-
 namespace Expr {
 
   template <class A, class B>
