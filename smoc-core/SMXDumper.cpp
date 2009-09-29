@@ -567,11 +567,16 @@ public:
     // Dump firingFSM
     {
       typedef std::map<const RuntimeState *, SGX::FiringState::Ptr> StateMap;
+//    typedef std::map<smoc_action, SGX::Action::Ptr>               ActionMap;
       
       SGX::FiringFSM              sgxFSM;
       FiringFSMImpl              *smocFSM       = a.getFiringFSM();
       SGX::FiringStateList::Ref   sgxStateList  = sgxFSM.states();
       StateMap                    stateMap;
+//    ActionMap                   actionMap;
+      
+      ActionNGXVisitor            actionVisitor;
+      
       const RuntimeStateSet      &smocStates    = smocFSM->getStates();
       // Create states
       for (RuntimeStateSet::const_iterator sIter = smocStates.begin();
@@ -610,8 +615,16 @@ public:
           assert(dIter != stateMap.end());
           sgxTran.dstState() = dIter->second;
           {
-            ActionNGXVisitor av;
-            sgxTran.action() = boost::apply_visitor(av,
+            /*
+            std::pair<ActionMap::iterator, bool> inserted =
+              actionMap.insert(std::make_pair(tIter->getAction(), SGX::Action::Ptr()));
+            if (inserted.second) {
+              inserted.first->second = boost::apply_visitor(actionVisitor,
+                const_cast<smoc_action &>(tIter->getAction()));
+            }
+            sgxTran.action() = inserted.first->second;
+            */
+            sgxTran.action() = boost::apply_visitor(actionVisitor,
                 const_cast<smoc_action &>(tIter->getAction()));
           }
           if (gsv.ctx.simCTX->isSMXDumpingASTEnabled()) {

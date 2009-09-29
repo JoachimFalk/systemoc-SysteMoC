@@ -302,7 +302,7 @@ void smoc_root_node::signaled(smoc_event_waiter *e) {
     for(RuntimeTransitionList::iterator t = tl.begin();
         t != tl.end(); ++t)
     {
-      if(*(t->ap) && t->evaluateGuard()) {
+      if(t->evaluateIOP() && t->evaluateGuard()) {
         ct = &*t;
         break;
       }
@@ -350,7 +350,7 @@ void smoc_root_node::setCurrentState(RuntimeState *s) {
   for(RuntimeTransitionList::iterator t = tl.begin();
       t != tl.end(); ++t)
   {
-    if(*(t->ap) && t->evaluateGuard()) {
+    if(t->evaluateIOP() && t->evaluateGuard()) {
       ct = &*t;
       break;
     }
@@ -375,7 +375,7 @@ void smoc_root_node::schedule() {
   assert(ct);
 
   while(ct) {
-    ct->execute();
+    ct->execute(this);
   }
 
   // also del/add me as listener  

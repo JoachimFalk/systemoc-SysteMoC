@@ -144,6 +144,8 @@ private:
     smoc_member_func_interface<return_type> >   k;
 
   SysteMoC::Detail::ParamInfoList pil;
+
+//friend bool operator <(const smoc_func_call &lhs, const smoc_func_call &rhs);
 public:
   
   template <class F, class PL>
@@ -166,6 +168,9 @@ public:
   }
 };
 
+//bool operator <(const smoc_func_call &lhs, const smoc_func_call &rhs)
+//  { return lhs.k < rhs.k; }
+
 class RuntimeState;
 
 /**
@@ -178,8 +183,9 @@ private:
 
   boost::intrusive_ptr<
     smoc_member_func_interface<return_type> > k;
+
+//friend bool operator <(const smoc_func_diverge &lhs, const smoc_func_diverge &rhs);
 public:
-  
   template <class F, class PL>
   smoc_func_diverge( const smoc_member_func<F, PL> &_k )
     : k(new smoc_member_func<F, PL>(_k)) {}
@@ -196,6 +202,9 @@ public:
     return k->call();
   }
 };
+
+//bool operator <(const smoc_func_diverge &lhs, const smoc_func_diverge &rhs)
+//  { return lhs.k < rhs.k; }
 
 /**
  * smoc_sr_func_pair
@@ -249,9 +258,9 @@ public:
 public:
   ActionVisitor(RuntimeState* dest, int mode);
 
-  result_type operator()(smoc_func_call_list& f) const;
-  result_type operator()(smoc_func_diverge& f) const;
-  result_type operator()(smoc_sr_func_pair& f) const;
+  result_type operator()(const smoc_func_call_list& f) const;
+  result_type operator()(const smoc_func_diverge& f) const;
+  result_type operator()(const smoc_sr_func_pair& f) const;
 
 private:
   RuntimeState* dest;
@@ -266,9 +275,9 @@ public:
 public:
   VPCLinkVisitor(const char* name);
 
-  result_type operator()(smoc_func_call_list& f) const;
-  result_type operator()(smoc_sr_func_pair& f) const;
-  result_type operator()(smoc_func_diverge& f) const;
+  result_type operator()(const smoc_func_call_list& f) const;
+  result_type operator()(const smoc_sr_func_pair& f) const;
+  result_type operator()(const smoc_func_diverge& f) const;
 
 private:
   const char* name;
