@@ -540,6 +540,11 @@ public:
   typedef void result_type;
 protected:
   GraphSubVisitor &gsv;
+
+  struct TransitionInfo {
+    SGX::Action::Ptr  actionPtr;
+    SGX::ASTNode::Ptr astPtr;
+  };
 public:
   DumpActor(GraphSubVisitor &gsv)
     : gsv(gsv) {}
@@ -567,15 +572,16 @@ public:
     // Dump firingFSM
     {
       typedef std::map<const RuntimeState *, SGX::FiringState::Ptr> StateMap;
-//    typedef std::map<smoc_action, SGX::Action::Ptr>               ActionMap;
+      typedef std::map<void *, TransitionInfo>                      TransitionInfoMap;
       
       SGX::FiringFSM              sgxFSM;
       FiringFSMImpl              *smocFSM       = a.getFiringFSM();
       SGX::FiringStateList::Ref   sgxStateList  = sgxFSM.states();
       StateMap                    stateMap;
-//    ActionMap                   actionMap;
+      TransitionInfoMap           transitionInfoMap;
       
       ActionNGXVisitor            actionVisitor;
+      ExprNGXVisitor              exprVisitor(sv.ports);
       
       const RuntimeStateSet      &smocStates    = smocFSM->getStates();
       // Create states
@@ -611,29 +617,23 @@ public:
              tIter != smocTrans.end();
              ++tIter) {
           SGX::FiringTransition sgxTran(tIter->getId());
+          sgxTrans.push_back(sgxTran);
           StateMap::const_iterator dIter = stateMap.find(tIter->getDestState());
           assert(dIter != stateMap.end());
           sgxTran.dstState() = dIter->second;
-          {
-            /*
-            std::pair<ActionMap::iterator, bool> inserted =
-              actionMap.insert(std::make_pair(tIter->getAction(), SGX::Action::Ptr()));
-            if (inserted.second) {
-              inserted.first->second = boost::apply_visitor(actionVisitor,
-                const_cast<smoc_action &>(tIter->getAction()));
+          std::pair<TransitionInfoMap::iterator, bool> inserted =
+            transitionInfoMap.insert(std::make_pair(tIter->getID(), TransitionInfo()));
+          if (inserted.second) {
+            inserted.first->second.actionPtr = boost::apply_visitor(actionVisitor,
+              const_cast<smoc_action &>(tIter->getAction()));
+            if (gsv.ctx.simCTX->isSMXDumpingASTEnabled()) {
+              boost::scoped_ptr<SGX::ASTNode> astNode(
+                Expr::evalTo(exprVisitor, tIter->getExpr()));
+              inserted.first->second.astPtr = astNode->toPtr();
             }
-            sgxTran.action() = inserted.first->second;
-            */
-            sgxTran.action() = boost::apply_visitor(actionVisitor,
-                const_cast<smoc_action &>(tIter->getAction()));
           }
-          if (gsv.ctx.simCTX->isSMXDumpingASTEnabled()) {
-            ExprNGXVisitor ev(sv.ports);
-            boost::scoped_ptr<SGX::ASTNode> astNode(
-              Expr::evalTo(ev, tIter->getExpr()));
-            sgxTran.activationPattern() = astNode->toPtr();
-          }
-          sgxTrans.push_back(sgxTran);
+          sgxTran.action()            = inserted.first->second.actionPtr;
+          sgxTran.activationPattern() = inserted.first->second.astPtr;
         }
       }
       actor.firingFSM() = &sgxFSM;

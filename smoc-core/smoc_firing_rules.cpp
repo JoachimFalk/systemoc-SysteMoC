@@ -175,6 +175,9 @@ RuntimeState* RuntimeTransition::getDestState() const
 const smoc_action& RuntimeTransition::getAction() const
   { return transitionBase->getAction(); }
 
+void *RuntimeTransition::getID() const
+  { return transitionBase.get(); }
+
 class ActionNameVisitor {
 public:
   typedef std::string result_type;
