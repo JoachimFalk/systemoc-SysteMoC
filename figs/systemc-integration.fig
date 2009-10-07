@@ -40,7 +40,6 @@ Single
 4 1 0 50 0 18 12 1.5708 4 195 930 180 945 SysteMoC\001
 4 1 0 50 0 18 12 1.5708 4 195 825 180 2925 SystemC\001
 4 1 0 50 0 18 12 1.5708 4 135 375 180 4725 C++\001
-4 0 0 50 0 16 11 0.0000 4 165 5400 585 855   Elementary channels separating functionality and communication\001
 4 0 0 50 0 16 11 0.0000 4 165 5505 585 1095 - C++ syntax for specifying actor communication behaviour as FSMs\001
 4 0 0 50 0 16 11 0.0000 4 165 3885 585 1350 - Scheduler for (dynamic) dataflow MoC domain\001
 4 0 0 50 0 18 12 0.0000 4 195 1020 3600 2250 Data-Types\001
@@ -56,3 +55,4 @@ Single
 4 1 0 50 0 18 12 0.0000 4 150 2910 3555 4185 Event-driven Simulation Kernel\001
 4 1 0 50 0 16 11 0.0000 4 150 1965 3555 4410 Events, Processes, etc...\001
 4 1 0 50 0 18 12 0.0000 4 195 2250 3555 4770 C++ Language Standard\001
+4 0 0 50 0 16 11 0.0000 4 165 5415 585 855 - Elementary channels separating functionality and communication\001
