@@ -35,6 +35,7 @@
  */
 
 #include <systemoc/MultiHopEvent.hpp>
+#include <systemoc/smoc_multicast_sr_signal.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 
@@ -140,6 +141,18 @@ void MultiHopEvent::addOutputChannel( smoc_root_chan * chan,
   smoc_ref_event_p chanEvent   = chan->getLatencyEvent();
   writeList &= *chanEvent;
   writeTransactions.push_back(Transaction(chanEvent, quantum, writeLink));
+
+}
+
+//
+void MultiHopEvent::addInputChannel( smoc_outlet_kind * outlet,
+                                      unsigned int quantum ){
+  //cerr << "addInputChannel( " << outlet->name() << " );" << endl;
+  assert(outlet->getVPCLink() != NULL);
+  FastLink *readLink = outlet->getVPCLink();
+  smoc_ref_event_p chanEvent = smoc_ref_event_p(new smoc_ref_event());
+  readList &= *chanEvent;
+  readTransactions.push_back(Transaction(chanEvent, quantum, readLink));
 
 }
 

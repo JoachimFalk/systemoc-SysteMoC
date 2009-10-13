@@ -22,6 +22,7 @@
 #include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
+#include <systemoc/smoc_root_node.hpp>
 
 #include "smoc_chan_if.hpp"
 #include "smoc_storage.hpp"
@@ -89,6 +90,8 @@ public:
 
   smoc_ref_event &getEventNoCommunication();
 
+  virtual void finalise();
+
 protected:
   SignalState signalState;
 
@@ -128,12 +131,19 @@ class smoc_outlet_kind
 public:
   smoc_outlet_kind(smoc_multicast_sr_signal_kind* base);
 
+  smoc_outlet_kind(const smoc_outlet_kind & orig);
+
   void usedDecr();
 
   const char *name() const { return _base->name(); }
 
   void wpp(size_t n);
 
+#ifdef SYSTEMOC_ENABLE_VPC
+  void createVPCLink(std::string fifo, std::string destination);
+
+  SystemC_VPC::FastLink * getVPCLink();
+#endif //SYSTEMOC_ENABLE_VPC
 protected:
   bool undefinedRead;
   smoc_multicast_sr_signal_kind* _base;
@@ -153,7 +163,12 @@ private:
   EventMap     eventMapAvailable;
   smoc_event   eventWrite;
 
+#ifdef SYSTEMOC_ENABLE_VPC
+  SystemC_VPC::FastLink *vpcLinkReadHop; // patched in finalise
+#endif //SYSTEMOC_ENABLE_VPC
+
   void allowUndefinedRead(bool allow);
+
 };
 
 class smoc_entry_kind
@@ -409,7 +424,7 @@ public:
           void>            Port;
   typedef smoc_multicast_outlet<data_type>   Outlet;
   typedef smoc_multicast_entry<data_type>    Entry;
-  typedef std::map< const Port* , Outlet* >  OutletMap;
+  typedef std::map< const std::string , Outlet* >  OutletMap;
 
   smoc_multicast_sr_signal_type( const chan_init &i )
     : smoc_multicast_sr_signal_kind(i),
@@ -435,14 +450,18 @@ public:
   }
 
   Outlet& getOutlet(const Port &port){
-    if(outlets.find(&port) == outlets.end()){
-      //cout << "Create new Outlet!!" << endl;
+    return this->getOutlet(port.name());
+  }
+
+  Outlet& getOutlet(std::string portName){
+    if(outlets.find(portName) == outlets.end()){
+      //std::cerr << "Create new Outlet!! " << portName << endl;
       Outlet* out = new Outlet(this, outletValue);
       assert(out);
-      outlets[&port] = out;
+      outlets[portName] = out;
     }
-    assert(outlets.find(&port) != outlets.end());
-    return *(outlets[&port]);
+    assert(outlets.find(portName) != outlets.end());
+    return *(outlets[portName]);
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -501,6 +520,30 @@ public:
 
   void unusedDecr(){
     entry.unusedDecr();
+  }
+
+  virtual void finalise(){
+    smoc_multicast_sr_signal_kind::finalise();
+#ifdef SYSTEMOC_ENABLE_VPC
+    //std::cerr << "SR SIGNAL> " << this->name() << " finalise" << std::endl;
+    for( smoc_port_list::const_iterator iter = this->getInputPorts().begin();
+         iter != this->getInputPorts().end();
+         ++iter){
+
+
+      smoc_root_port * port = (*iter);
+
+      std::string fifo = this->name();
+      std::string destination = port->getActor()->name();
+
+      while(port->getParentPort() != NULL){
+        port = port->getParentPort();
+      }
+
+      Outlet &outlet = this->getOutlet(port->name());
+      outlet.createVPCLink(fifo, destination);
+    }
+#endif //SYSTEMOC_ENABLE_VPC
   }
 
 protected:

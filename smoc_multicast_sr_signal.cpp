@@ -19,6 +19,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <systemoc/smoc_multicast_sr_signal.hpp>
+#include <systemoc/smoc_root_node.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
@@ -27,7 +28,15 @@
 const char* const smoc_multicast_sr_signal_kind::kind_string = "smoc_multicast_sr_signal";
 smoc_outlet_kind::smoc_outlet_kind(smoc_multicast_sr_signal_kind* base)
   : undefinedRead(false),
-    _base(base) {
+    _base(base),
+    vpcLinkReadHop(NULL) {
+  assert(this->_base);
+}
+
+smoc_outlet_kind::smoc_outlet_kind(const smoc_outlet_kind & orig)
+  : undefinedRead(orig.undefinedRead),
+    _base(orig._base),
+    vpcLinkReadHop(orig.vpcLinkReadHop) {
   assert(this->_base);
 }
 
@@ -91,7 +100,18 @@ bool smoc_outlet_kind::isDefined() const {
   return this->_base->isDefined();
 }
 
+#ifdef SYSTEMOC_ENABLE_VPC
+void smoc_outlet_kind::createVPCLink(std::string fifo,
+                                     std::string destination){
+  this->vpcLinkReadHop =
+    new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
+                               getFastLink( fifo, destination, "1" ) );
+}
 
+SystemC_VPC::FastLink * smoc_outlet_kind::getVPCLink(){
+  return this->vpcLinkReadHop;
+}
+#endif //SYSTEMOC_ENABLE_VPC
 
 
 
@@ -195,4 +215,8 @@ bool smoc_multicast_sr_signal_kind::isDefined() const {
 
 smoc_ref_event &smoc_multicast_sr_signal_kind::getEventNoCommunication() {
   return eventNoCommunication;
+}
+
+void smoc_multicast_sr_signal_kind::finalise(){
+  smoc_multicast_chan::finalise();
 }

@@ -56,6 +56,9 @@ using SystemC_VPC::FastLink;
 using CoSupport::SystemC::Event;
 using CoSupport::SystemC::EventAndList;
 
+//forward declarations
+class smoc_outlet_kind;
+
 class Transaction{
 public:
 
@@ -98,6 +101,8 @@ public:
   void addInputChannel( smoc_root_chan * chan, unsigned int quantum );
 
   void addOutputChannel( smoc_root_chan * chan, unsigned int quantum );
+
+  void addInputChannel( smoc_outlet_kind * chan, unsigned int quantum );
 
   MultiHopEvent();
 
