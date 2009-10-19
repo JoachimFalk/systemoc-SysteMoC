@@ -652,16 +652,6 @@ void FiringFSMImpl::finalise(
     nRunStates++;
 #endif // FSM_FINALIZE_BENCHMARK
 
-    std::ofstream* fsmDump = 0;
-
-    if (getSimCTX()->isFSMDumpingEnabled()) {
-
-      std::string f = Concat("FSM_")(actor->name())(".dot");
-      fsmDump = new std::ofstream(f.c_str());
-
-      *fsmDump << "digraph G {" << std::endl;
-    }
-
     while(!ns.empty()) {
       const ProdState& s = ns.front()->first;
       RuntimeState* rs = ns.front()->second;
@@ -718,11 +708,6 @@ void FiringFSMImpl::finalise(
           RuntimeState* rd = ins.first->second;
           assert(rd);
 
-          if (getSimCTX()->isFSMDumpingEnabled()) {
-            *fsmDump << '"' << s << '"' << " -> "
-                     << '"' << d << '"' << std::endl;
-          }
-
           // create runtime transition
 //          outDbg << "creating runtime transition " << rs << " -> " << rd << std::endl;
 
@@ -736,13 +721,6 @@ void FiringFSMImpl::finalise(
         }
       }
     }
-
-    if (getSimCTX()->isFSMDumpingEnabled()) {
-      *fsmDump << "}" << std::endl;
-      fsmDump->close();
-      delete fsmDump;
-    }     
-
 
 //    }
   }

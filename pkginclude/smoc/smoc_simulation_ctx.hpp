@@ -70,10 +70,10 @@ protected:
 #ifdef SYSTEMOC_ENABLE_TRACE
   std::ostream   *dumpTraceFile;
 #endif // SYSTEMOC_ENABLE_TRACE
-  bool            dumpFSMs;
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool  idPool;
 #endif // SYSTEMOC_NEED_IDS
+  bool dummy;
 public:
   smoc_simulation_ctx(int _argc, char *_argv[]);
 
@@ -104,8 +104,6 @@ public:
   std::ostream &getTraceFile()
     { return *dumpTraceFile; }
 #endif // SYSTEMOC_ENABLE_TRACE
-  bool isFSMDumpingEnabled() const
-    { return dumpFSMs; }
 
   void defCurrentCTX();
   void undefCurrentCTX();

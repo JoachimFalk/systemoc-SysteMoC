@@ -57,7 +57,6 @@ namespace po = boost::program_options;
 // Backward compatibility cruft
 namespace smoc_modes {
   std::ostream *dumpFileSMX    = NULL;
-  bool          dumpFSMs       = false;
 } // namespace smoc_modes
 
 namespace SysteMoC {
@@ -79,16 +78,14 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 #ifdef SYSTEMOC_ENABLE_TRACE
     dumpTraceFile(NULL),
 #endif // SYSTEMOC_ENABLE_TRACE
-    dumpFSMs(false)
+    dummy(false)
 {
   po::options_description systemocOptions("SysteMoC options");
   po::options_description backwardCompatibilityCruftOptions;
   
   systemocOptions.add_options()
     ("systemoc-help",
-     "This help message")
-    ("systemoc-dump-fsm",
-     "Dump flattened FSMs as DOT graph");
+     "This help message");
   
 #ifdef SYSTEMOC_ENABLE_SGX
   systemocOptions.add_options()
@@ -138,8 +135,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
     ("export-trace",
      po::value<std::string>())
     ("vpc-config",
-     po::value<std::string>())
-    ("dump-fsm", "");
+     po::value<std::string>());
   // All options
   po::options_description od;
   od.add(systemocOptions).add(backwardCompatibilityCruftOptions);
@@ -154,9 +150,6 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
     if (i->string_key == "systemoc-help") {
       std::cerr << systemocOptions << std::endl;
       exit(0);
-    } else if (i->string_key == "systemoc-dump-fsm" ||
-        i->string_key == "dump-fsm") {
-      dumpFSMs = true;
     } else if (i->string_key == "systemoc-export-smx" ||
                i->string_key == "export-smx") {
       assert(!i->value.empty());
@@ -268,7 +261,6 @@ void smoc_simulation_ctx::defCurrentCTX() {
 #ifdef SYSTEMOC_ENABLE_SGX
   smoc_modes::dumpFileSMX    = dumpPreSimSMXFile;
 #endif // SYSTEMOC_ENABLE_SGX
-  smoc_modes::dumpFSMs       = dumpFSMs;
 }
 
 void smoc_simulation_ctx::undefCurrentCTX() {
@@ -278,7 +270,6 @@ void smoc_simulation_ctx::undefCurrentCTX() {
 #ifdef SYSTEMOC_ENABLE_SGX
   dumpPreSimSMXFile = smoc_modes::dumpFileSMX;
 #endif // SYSTEMOC_ENABLE_SGX
-  dumpFSMs          = smoc_modes::dumpFSMs;
 }
 
 smoc_simulation_ctx::~smoc_simulation_ctx() {
