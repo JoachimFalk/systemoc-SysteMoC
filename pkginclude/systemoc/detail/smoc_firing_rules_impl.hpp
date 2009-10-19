@@ -236,6 +236,8 @@ public:
   /// @brief Execute transitions
   void execute(smoc_root_node *actor, int mode = GO | TICK);
 
+  void *getID() const;
+
   void finalise();
 };
 
