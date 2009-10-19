@@ -41,7 +41,7 @@
 #include <systemoc/smoc_guard.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
-void smoc_activation_pattern::finalise() {
+/*void smoc_activation_pattern::finalise() {
 #ifdef SYSTEMOC_DEBUG
   // DO not dump status of activation pattern as
   // that may call guards which operate on as yet
@@ -67,7 +67,7 @@ Expr::Detail::ActivationStatus smoc_activation_pattern::getStatus() const {
     return retval;
   } else
     return Expr::Detail::BLOCKED();
-}
+}*/
 
 const Expr::Ex<bool>::type smoc_activation_pattern::getExpr() const
   { return guard; }

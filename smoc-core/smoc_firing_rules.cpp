@@ -39,10 +39,6 @@
 #include <stdexcept>
 #include <time.h>
 
-#ifdef HAVE_BOOST_UNORDERED
-#include <boost/unordered_set.hpp>
-#endif // HAVE_BOOST_UNORDERED
-
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
 #include <CoSupport/String/Concat.hpp>
@@ -173,13 +169,8 @@ const MultiState& ExpandedTransition::getDestStates() const
   { return dest; }
 
 smoc_event_and_list* getCAP(const smoc_event_and_list& ap) {
-#ifdef HAVE_BOOST_UNORDERED
-  typedef boost::unordered_set<smoc_event_and_list> Cache;
-  static Cache* cache = new Cache(10000);
-#else // HAVE_BOOST_UNORDERED
   typedef std::set<smoc_event_and_list> Cache;
   static Cache* cache = new Cache();
-#endif // HAVE_BOOST_UNORDERED
   return &const_cast<smoc_event_and_list&>(*cache->insert(ap).first);
 }
 

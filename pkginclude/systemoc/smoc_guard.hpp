@@ -51,7 +51,7 @@
 #include "smoc_port.hpp"
 
 class smoc_activation_pattern
-: public smoc_event_and_list {
+/*: public smoc_event_and_list*/ {
 public:
   typedef smoc_activation_pattern this_type;
 
@@ -64,9 +64,9 @@ public:
   smoc_activation_pattern(const Expr::D<E> &_guard)
     : guard(_guard) {}
 
-  void finalise();
+//  void finalise();
  
-  Expr::Detail::ActivationStatus getStatus() const;
+//  Expr::Detail::ActivationStatus getStatus() const;
 
   const Expr::Ex<bool>::type getExpr() const;
 };
