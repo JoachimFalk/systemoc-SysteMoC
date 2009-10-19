@@ -89,23 +89,23 @@ typedef std::map<const HierarchicalStateImpl*,bool> CondMultiState;
 
 class TransitionBase {
 private:
-  /// @brief Activation pattern
-  smoc_activation_pattern ap;
-  
+  /// @brief guard (AST assembled from smoc_expr.hpp nodes)
+  Guard guard;
+
   /// @brief Action
   smoc_action f;
-
 protected:
   TransitionBase(
-      const smoc_activation_pattern& ap,
-      const smoc_action& f);
-
+      Guard const &g,
+      const smoc_action &f);
 public:
-  /// @brief Returns the activation pattern
-  const smoc_activation_pattern &getActivationPattern() const;
+  /// @brief Returns the guard
+  Guard const &getExpr() const
+    { return guard; }
 
   /// @brief Returns the action
-  const smoc_action& getAction() const;
+  const smoc_action &getAction() const
+    { return f; }
 };
 
 class PartialTransition : public TransitionBase {
@@ -117,7 +117,7 @@ private:
 public:
   /// @brief Constructor
   PartialTransition(
-    const smoc_activation_pattern& ap,
+    Guard const &g,
     const smoc_action& f,
     FiringStateBaseImpl* dest = 0);
 
@@ -143,7 +143,7 @@ public:
   ExpandedTransition(
       const HierarchicalStateImpl* src,
       const CondMultiState& in,
-      const smoc_activation_pattern& ap,
+      Guard const &g,
       const smoc_action& f,
       const MultiState& dest);
 
@@ -151,13 +151,13 @@ public:
   ExpandedTransition(
       const HierarchicalStateImpl* src,
       const CondMultiState& in,
-      const smoc_activation_pattern& ap,
+      Guard const &g,
       const smoc_action& f);
 
   /// @brief Constructor
   ExpandedTransition(
       const HierarchicalStateImpl* src,
-      const smoc_activation_pattern& ap,
+      Guard const &g,
       const smoc_action& f);
 
   /// @brief Returns the source state
@@ -214,13 +214,13 @@ public:
   bool evaluateGuard() const;
   const Expr::Ex<bool>::type getExpr() const;
 
-  smoc_event_and_list* ap;
+  smoc_event_and_list *ap;
   bool enabled; // guard evaluated to true (implies activation pattern active)
 
   /// @brief Constructor
   RuntimeTransition(
       smoc_root_node* actor,
-      const smoc_activation_pattern& ap,
+      Guard const &g,
       const smoc_action& f,
       RuntimeState* dest = 0);
 

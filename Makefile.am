@@ -73,7 +73,6 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/smoc_firing_rules.cpp		\
 	smoc-core/smoc_chan_if.cpp		\
 	smoc-core/smoc_root_chan.cpp		\
-	smoc-core/smoc_guard.cpp		\
 	smoc-core/smoc_moc.cpp			\
 	smoc-core/SMXDumper.cpp			\
 	smoc-core/smoc_graph_synth.cpp		\
