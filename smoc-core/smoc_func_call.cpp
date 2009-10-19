@@ -61,9 +61,9 @@ smoc_action merge(const smoc_action& a, const smoc_action& b) {
 ActionVisitor::ActionVisitor(RuntimeState* dest, int mode)
   : dest(dest), mode(mode) {}
 
-RuntimeState* ActionVisitor::operator()(smoc_func_call_list& f) const {
+RuntimeState* ActionVisitor::operator()(const smoc_func_call_list& f) const {
   // Function call
-  for(smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
+  for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
 #ifdef SYSTEMOC_TRACE
     TraceLog.traceStartFunction(i->getFuncName());
 #endif // SYSTEMOC_TRACE
@@ -84,7 +84,7 @@ RuntimeState* ActionVisitor::operator()(smoc_func_call_list& f) const {
   return dest;
 }
 
-RuntimeState* ActionVisitor::operator()(smoc_func_diverge& f) const {
+RuntimeState* ActionVisitor::operator()(const smoc_func_diverge& f) const {
   // Function call determines next state (Internal use only)
 #ifdef SYSTEMOC_DEBUG
   outDbg << "<action type=\"smoc_func_diverge\" func=\"???\">"
@@ -99,7 +99,7 @@ RuntimeState* ActionVisitor::operator()(smoc_func_diverge& f) const {
   return ret;
 }
 
-RuntimeState* ActionVisitor::operator()(smoc_sr_func_pair& f) const {
+RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
   // SR GO & TICK calls
 #ifdef SYSTEMOC_TRACE
   TraceLog.traceStartFunction(f.go.getFuncName());
@@ -134,13 +134,13 @@ RuntimeState* ActionVisitor::operator()(smoc_sr_func_pair& f) const {
 VPCLinkVisitor::VPCLinkVisitor(const char* name)
   : name(name) {}
 
-SystemC_VPC::FastLink* VPCLinkVisitor::operator()(smoc_func_call_list& f) const {
+SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_func_call_list& f) const {
   std::ostringstream os;
 
   if(f.begin() == f.end())
     os << "???";
 
-  for(smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
+  for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
     if(i != f.begin())
       os << "_";
     os << i->getFuncName();
@@ -151,7 +151,7 @@ SystemC_VPC::FastLink* VPCLinkVisitor::operator()(smoc_func_call_list& f) const 
         name, os.str()));
 }
 
-SystemC_VPC::FastLink* VPCLinkVisitor::operator()(smoc_sr_func_pair& f) const {
+SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_sr_func_pair& f) const {
   f.tickLink = new SystemC_VPC::FastLink(
       SystemC_VPC::Director::getInstance().getFastLink(
         name, f.tick.getFuncName()));
@@ -160,7 +160,7 @@ SystemC_VPC::FastLink* VPCLinkVisitor::operator()(smoc_sr_func_pair& f) const {
         name, f.go.getFuncName()));
 }
 
-SystemC_VPC::FastLink* VPCLinkVisitor::operator()(smoc_func_diverge& f) const {
+SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_func_diverge& f) const {
   return new SystemC_VPC::FastLink(
       SystemC_VPC::Director::getInstance().getFastLink(
         name, "smoc_func_diverge"));

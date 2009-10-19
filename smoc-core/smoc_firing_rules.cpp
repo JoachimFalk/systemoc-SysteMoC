@@ -158,22 +158,22 @@ smoc_event_and_list *getCAP(const smoc_event_and_list &ap) {
   return &const_cast<smoc_event_and_list&>(*cache->insert(ap).first);
 }
 
+/// @brief Constructor
 RuntimeTransition::RuntimeTransition(
-    smoc_root_node* actor,
-    Guard const &g,
-    const smoc_action& f,
-    RuntimeState* dest)
-  : actor(actor),
-    f(f),
+    const boost::shared_ptr<TransitionBase> &tbp,
+    RuntimeState *dest)
+  : transitionBase(tbp),
     dest(dest),
-    guard(g),
-    ap(NULL),
-    enabled(false)
-{
-}
+    ap(NULL) {}
 
-smoc_root_node &RuntimeTransition::getActor()
-  { assert(actor != NULL); return *actor; }
+const Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
+  { return transitionBase->getExpr(); }
+
+RuntimeState* RuntimeTransition::getDestState() const
+  { return dest; }
+
+const smoc_action& RuntimeTransition::getAction() const
+  { return transitionBase->getAction(); }
 
 class ActionNameVisitor {
 public:
@@ -205,7 +205,8 @@ public:
   }
 };
 
-void RuntimeTransition::execute(int mode) {
+
+void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   enum {
     MODE_DIISTART,
     MODE_DIIEND,
@@ -243,7 +244,7 @@ void RuntimeTransition::execute(int mode) {
 #endif
   
 #if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_TRACE)
-  Expr::evalTo<Expr::CommSetup>(guard);
+  Expr::evalTo<Expr::CommSetup>(getExpr());
 #endif
   
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -276,7 +277,7 @@ void RuntimeTransition::execute(int mode) {
   // only smoc_func_diverge may set nextState to something
   // different than dest here...
   RuntimeState *nextState =
-    boost::apply_visitor(ActionVisitor(dest, mode), f);
+    boost::apply_visitor(ActionVisitor(dest, mode), getAction());
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
   if (execMode == MODE_DIISTART) {
@@ -290,7 +291,7 @@ void RuntimeTransition::execute(int mode) {
 
   
 #ifdef SYSTEMOC_ENABLE_DEBUG
-  Expr::evalTo<Expr::CommReset>(guard);
+  Expr::evalTo<Expr::CommReset>(getExpr());
 #endif
   
 #ifdef SYSTEMOC_ENABLE_TRACE
@@ -310,7 +311,7 @@ void RuntimeTransition::execute(int mode) {
       vpcLink->compute(p);
     }
     else if(mode & TICK) {
-      smoc_sr_func_pair* fp = boost::get<smoc_sr_func_pair>(&f);
+      smoc_sr_func_pair* fp = boost::get<smoc_sr_func_pair>(&getAction());
       assert(fp);
       fp->tickLink->compute(p);
     }
@@ -320,7 +321,7 @@ void RuntimeTransition::execute(int mode) {
     
     // insert magic commstate
     nextState = actor->getCommState();
-    Expr::evalTo<Expr::CommExec>(guard, actor->diiEvent, latEvent);
+    Expr::evalTo<Expr::CommExec>(getExpr(), actor->diiEvent, latEvent);
     
     // This covers the case that the executed transition does not
     // contain an output port. Therefore, the latEvent is not added
@@ -371,10 +372,10 @@ void RuntimeTransition::execute(int mode) {
     }
   }
   else {
-    Expr::evalTo<Expr::CommExec>(guard, NULL, NULL);
+    Expr::evalTo<Expr::CommExec>(getExpr(), NULL, NULL);
   }
 #else // SYSTEMOC_ENABLE_VPC
-  Expr::evalTo<Expr::CommExec>(guard);
+  Expr::evalTo<Expr::CommExec>(getExpr());
 #endif // SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_TRACE
@@ -388,11 +389,15 @@ void RuntimeTransition::execute(int mode) {
   outDbg << Indent::Down << "</transition>"<< std::endl;
 #endif
 }
-  
+
+bool RuntimeTransition::evaluateIOP() const {
+  return ap->isActive();
+}
+
 bool RuntimeTransition::evaluateGuard() const {
-  Expr::Detail::ActivationStatus retval = Expr::evalTo<Expr::Value>(guard);
+  Expr::Detail::ActivationStatus retval = Expr::evalTo<Expr::Value>(getExpr());
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-  Expr::evalTo<Expr::CommReset>(guard);
+  Expr::evalTo<Expr::CommReset>(getExpr());
 #endif
   switch(retval.toSymbol()) {
     case Expr::Detail::_ENABLED:
@@ -404,14 +409,9 @@ bool RuntimeTransition::evaluateGuard() const {
   }
 }
 
-const Expr::Ex<bool>::type RuntimeTransition::getExpr() const
-  { return guard; }
-
 void RuntimeTransition::finalise() {
-  assert(actor != NULL);
-  
   smoc_event_and_list tmp;
-  Expr::evalTo<Expr::Sensitivity>(guard, tmp);
+  Expr::evalTo<Expr::Sensitivity>(getExpr(), tmp);
 
   ap = getCAP(tmp);
 
@@ -422,17 +422,12 @@ void RuntimeTransition::finalise() {
 #ifdef SYSTEMOC_ENABLE_VPC
   if (dynamic_cast<smoc_actor *>(actor) != NULL) {
     vpcLink = boost::apply_visitor(
-        VPCLinkVisitor(actor->name()), f);
+        VPCLinkVisitor(actor->name()), getAction());
   }
 #endif //SYSTEMOC_ENABLE_VPC
 }
 
-RuntimeState* RuntimeTransition::getDestState() const
-  { return dest; }
-
-const smoc_action& RuntimeTransition::getAction() const
-  { return f; }
-  
+ 
 static int UnnamedStateCount = 0;
 
 RuntimeState::RuntimeState(const std::string name)
@@ -494,9 +489,6 @@ FiringFSMImpl::~FiringFSMImpl() {
     delete *s;
   }
 }
-
-//smoc_root_node* FiringFSMImpl::getActor() const
-//  { assert(actor != NULL); return actor; }
 
 const RuntimeStateSet& FiringFSMImpl::getStates() const
   { return rts; }
@@ -733,9 +725,7 @@ void FiringFSMImpl::finalise(
 
           rs->addTransition(
               RuntimeTransition(
-                actor,
-                t->getExpr(),
-                t->getAction(),
+                t->getCachedTransitionBase(),
                 rd));
 #ifdef FSM_FINALIZE_BENCHMARK
           nRunTrans++;

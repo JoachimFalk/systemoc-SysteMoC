@@ -138,6 +138,8 @@ private:
   /// @brief Target state(s)
   MultiState dest;
 
+  mutable boost::shared_ptr<TransitionBase> cachedTransition;
+
 public:
   /// @brief Constructor
   ExpandedTransition(
@@ -168,6 +170,12 @@ public:
 
   /// @brief Returns the target state(s)
   const MultiState& getDestStates() const;
+
+  boost::shared_ptr<TransitionBase> getCachedTransitionBase() const {
+    if (cachedTransition == NULL)
+      cachedTransition.reset(new TransitionBase(*this));
+    return cachedTransition;
+  }
 };
 
 typedef std::list<ExpandedTransition> ExpandedTransitionList;
@@ -180,16 +188,17 @@ class RuntimeTransition
   public SysteMoC::Detail::IdedObj,
 #endif // SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::SimCTXBase {
-private:
-  /// @brief Parent node
-  smoc_root_node *actor;
+  typedef RuntimeTransition this_type;
 
-  /// @brief Action
-  smoc_action f;
+  friend class RuntimeState; // for ap
+private:
+  boost::shared_ptr<TransitionBase> transitionBase;
 
   /// @brief Target state
-  RuntimeState *dest;
-  
+  RuntimeState        *dest;
+  /// @brief input/output pattern (enough token/free space)
+  smoc_event_and_list *ap;
+
 #ifdef SYSTEMOC_ENABLE_VPC
   /// @brief FastLink to VPC
   SystemC_VPC::FastLink *vpcLink;
@@ -203,54 +212,35 @@ private:
   PreHooks    preHooks;
   PostHooks   postHooks;
 #endif //SYSTEMOC_ENABLE_HOOKING
-
 public:
   /// @brief Execution masks used for SR Scheduling
-  static const int GO   = 1;
-  static const int TICK = 2;
-  
-  Expr::Ex<bool>::type guard;
-
-  bool evaluateGuard() const;
-  const Expr::Ex<bool>::type getExpr() const;
-
-  smoc_event_and_list *ap;
-  bool enabled; // guard evaluated to true (implies activation pattern active)
-
+  enum { GO = 1, TICK = 2 };
+public:
   /// @brief Constructor
   RuntimeTransition(
-      smoc_root_node* actor,
-      Guard const &g,
-      const smoc_action& f,
-      RuntimeState* dest = 0);
-
-
-  /// @brief Returns parent node
-  smoc_root_node &getActor();
-
-  /// @brief Execute transitions
-  void execute(int mode = GO | TICK);
+      const boost::shared_ptr<TransitionBase> &tbp,
+      RuntimeState *dest = NULL);
 
   /// @brief Returns the target state
   RuntimeState* getDestState() const;
 
   /// @brief Returns the action
-  const smoc_action& getAction() const;
+  const smoc_action &getAction() const;
+
+  /// @brief Returns the guard
+  const Expr::Ex<bool>::type &getExpr() const;
+
+  bool evaluateIOP() const;
+  bool evaluateGuard() const;
+
+  /// @brief Execute transitions
+  void execute(smoc_root_node *actor, int mode = GO | TICK);
 
   void finalise();
-
-//#ifdef SYSTEMOC_DEBUG
-  /// @brief Debug output for this transitions
-//  void dump(std::ostream &out) const;
-//#endif
 };
 
-typedef std::list<RuntimeTransition> RuntimeTransitionList;
-//typedef CoSupport::SystemC::EventOrList<RuntimeTransition>
-//          smoc_transition_ready_list;
-
-typedef std::list<RuntimeTransition*> RuntimeTransitionPtrList;
-//typedef std::map<smoc_event_waiter*, RuntimeTransitionPtrList> RuntimeTransitionActivationMap; 
+typedef std::list<RuntimeTransition>   RuntimeTransitionList;
+typedef std::list<RuntimeTransition *> RuntimeTransitionPtrList;
 
 typedef std::set<smoc_event_waiter*> EventWaiterSet; 
 
@@ -297,9 +287,6 @@ private:
   /// @brief Refcount
   size_t use_count_;
 
-  /// @brief Parent node
-  //smoc_root_node *actor;
-
   // ugh
   friend class HierarchicalStateImpl;
   XORStateImpl* top;
@@ -313,13 +300,10 @@ public:
   /// @brief Destructor
   ~FiringFSMImpl();
 
-  /// @brief Returns the parent node
-  //smoc_root_node* getActor() const;
-
   /// @brief Hierarchical end-of-elaboration callback
   void finalise(
-      smoc_root_node* actor,
-      HierarchicalStateImpl* init);
+      smoc_root_node        *actor,
+      HierarchicalStateImpl *init);
 
   /// @brief Merge firing FSMs
   void unify(this_type *fr);
