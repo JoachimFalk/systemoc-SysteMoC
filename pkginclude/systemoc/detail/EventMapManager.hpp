@@ -124,6 +124,10 @@ namespace Detail {
     }
   };
 
+  inline
+  std::ostream &operator <<(std::ostream &out, const EventMapManager &emm)
+    { emm.dump(out); return out; }
+
 } // namespace Detail
 
 #endif // _INCLUDED_SMOC_DETAIL_EVENTMAPMANAGER_HPP
