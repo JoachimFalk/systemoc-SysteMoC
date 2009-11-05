@@ -291,38 +291,44 @@ void smoc_root_node::signaled(smoc_event_waiter *e) {
   outDbg << "<smoc_root_node::signaled name=\"" << name() << "\">"
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
-
-  if(!executing) {
-
-    assert(currentState);
-    RuntimeTransitionList& tl = currentState->getTransitions();
-
-    ct = 0;
-
-    for(RuntimeTransitionList::iterator t = tl.begin();
-        t != tl.end(); ++t)
-    {
-      if(t->evaluateIOP() && t->evaluateGuard()) {
-        ct = &*t;
-        break;
+  if (!executing) {
+    // Never execute t->evaluateGuard() if events are reseted as the state of
+    // all smoc_event_and_list dependent on the state of the reseted basic
+    // event may not be consistent while the event update hierarchy is
+    // processed.  In case of reseted basic events that means that the actual
+    // availablility is worse than the availablitity denoted by the activation
+    // patterns while for activated events the actual availablility is better.
+    if (e->isActive()) {
+      assert(currentState);
+      RuntimeTransitionList &tl     = currentState->getTransitions();
+#ifdef SYSTEMOC_ENABLE_DEBUG
+      RuntimeTransition      *oldct = ct;
+#endif // SYSTEMOC_ENABLE_DEBUG
+      
+      ct = NULL;
+      
+      for (RuntimeTransitionList::iterator t = tl.begin();
+           t != tl.end();
+           ++t) {
+        if (t->evaluateIOP() && t->evaluateGuard()) {
+          ct = &*t;
+          break;
+        }
       }
-    }
-
-    // notify parent
-    if(ct) {
+      
+      assert(!(oldct != NULL && ct == NULL) && "WTF?! Event was enabled but transition vanished!");
+      
+      if (ct) {
 #ifdef SYSTEMOC_DEBUG
-      outDbg << "requested schedule" << std::endl;
+        outDbg << "requested schedule" << std::endl;
 #endif // SYSTEMOC_DEBUG
-      smoc_event::notify();
-    }
-    else {
-#ifdef SYSTEMOC_DEBUG
-      outDbg << "canceled schedule" << std::endl;
-#endif // SYSTEMOC_DEBUG
-      smoc_event::reset();
+        smoc_event::notify();
+      }
+    } else if (!e->isActive() && ct != NULL && !ct->evaluateIOP()) {
+      ct = NULL;
     }
   }
-
+  
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_root_node::signaled>" << std::endl;
 #endif // SYSTEMOC_DEBUG
@@ -372,12 +378,15 @@ void smoc_root_node::schedule() {
   RuntimeState* oldState = currentState; 
   
   executing = true;
-  assert(ct);
-
-  while(ct) {
+  
+  if (ct == NULL)
+    setCurrentState(currentState);
+  while (ct) {
+//  assert(ct->evaluateIOP());
+//  assert(ct->evaluateGuard());
     ct->execute(this);
   }
-
+  
   // also del/add me as listener  
   if(currentState != oldState) {
     { 
