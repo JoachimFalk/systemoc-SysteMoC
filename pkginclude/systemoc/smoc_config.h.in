@@ -3,6 +3,12 @@
 #ifndef _INCLUDED_SMOC_CONFIG_H
 #define _INCLUDED_SMOC_CONFIG_H
 
+/* Defined to SysteMoC version */
+#undef SYSTEMOC_VERSION
+#undef SYSTEMOC_MAJOR_VERSION
+#undef SYSTEMOC_MINOR_VERSION
+#undef SYSTEMOC_MICRO_VERSION
+
 /* Defined if debug support is enabled */
 #undef SYSTEMOC_ENABLE_DEBUG
 
