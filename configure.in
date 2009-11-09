@@ -142,20 +142,16 @@ AC_ARG_ENABLE(
  [enable_sgx=auto #default]
 )
 
-echo "enable_sgx: $enable_sgx"
-
 AM_CONDITIONAL([PKG_XERCES_USE_SRCDIR_VERSION], false)
 AM_CONDITIONAL([PKG_LIBSGX_USE_SRCDIR_VERSION], false)
 if test x"$enable_sgx" != x"no"; then
   ACJF_CHECK_LIB_SGX(
-   [echo "found libsgx"; enable_sgx="yes"],
-   [echo "missing libsgx"; if test x"$enable_sgx" = x"yes"; then
+   [enable_sgx="yes"],
+   [if test x"$enable_sgx" = x"yes"; then
       AC_MSG_ERROR([cannot find LibSGX package, bailing out])
     fi
     enable_sgx="no"])
 fi
-
-echo "enable_sgx: $enable_sgx"
 
 AM_CONDITIONAL([SYSTEMOC_ENABLE_SGX], [test x"$enable_sgx" = x"yes"])
 # This is a define for pkginclude/systemoc/smoc_config.h to guarantee
