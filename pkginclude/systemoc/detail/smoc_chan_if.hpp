@@ -60,6 +60,13 @@ namespace SystemC_VPC {
 }
 #endif // SYSTEMOC_ENABLE_VPC
 
+namespace SysteMoC { namespace Detail {
+
+  template<class IFaceImpl>
+  class ChanAdapterMid;
+
+} } // namespace SysteMoC::Detail
+
 // forward declaration
 namespace Expr { template <class E> class Value; }
 
@@ -313,6 +320,7 @@ class smoc_port_in_base_if
   friend class smoc_signal_chan_base;
   template<class,class> friend class smoc_multiplex_fifo_chan;
 
+  template<class>       friend class SysteMoC::Detail::ChanAdapterMid;
   template<class,class> friend class smoc_chan_adapter;
 
   // Friends needed for guard evaluation
@@ -400,6 +408,7 @@ class smoc_port_out_base_if
   friend class smoc_multireader_fifo_chan_base;
   friend class smoc_signal_chan_base;
 
+  template<class>       friend class SysteMoC::Detail::ChanAdapterMid;
   template<class,class> friend class smoc_chan_adapter;
 
   // Friends needed for guard evaluation
