@@ -32,6 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <systemoc/smoc_config.h>
+
 #ifdef SYSTEMOC_DEBUG
 
 #include <iostream>
