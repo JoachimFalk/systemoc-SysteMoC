@@ -452,7 +452,7 @@ void smoc_firing_types::transition_ty::execute(
     
 
     // FIXME: We schould do that (collecting input channels) in finalise()
-    MultiHopEvent * hopEvent = new MultiHopEvent;
+    MultiHopEvent * hopEvent = new MultiHopEvent();
     Expr::port_commit_map pm;
     Expr::evalTo<Expr::CommitCount>(guard, pm);
     for(Expr::port_commit_map::const_iterator i = pm.begin();

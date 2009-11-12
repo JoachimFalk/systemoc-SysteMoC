@@ -41,6 +41,8 @@
 
 //
 void MultiHopEvent::compute( FastLink * task ){
+  ++signaledSemaphore; // required in FALLBACK mode
+
   this->transactionEnd = false;
   this->task = task;
   assert(task);
@@ -57,9 +59,19 @@ void MultiHopEvent::compute( FastLink * task ){
       unsigned int quantum = iter->quantum;
       Event* chanEvent     = iter->event.get();
       FastLink* readLink   = iter->link;
+      chanEvent->reset();
       readLink->read( quantum, EventPair( &dummy, chanEvent ) );
     }
   }
+
+  // required in FALLBACK mode
+  if( (transactionEnd == true) &&  (signaledSemaphore == 1) ){
+    //cerr << "delete @ " << sc_time_stamp() << endl;
+    delete this;
+    return;
+  }
+
+  --signaledSemaphore;
 }
 
 //
@@ -75,10 +87,12 @@ void MultiHopEvent::signaled( EventWaiter *e ) {
     if(writeList.empty()) {
       this->task->compute(this->taskEvents);
     } else {
+      computeLatency.reset();
       this->task->compute(EventPair( this->taskEvents.dii, &computeLatency ));
     }
   } else if(e->isActive()  && e == &computeLatency) {
     //cerr << "computeLatency isActive()" << endl;
+    computeLatency.reset();
     this->taskEvents.latency->notify();
     /* */
     for(Transactions::iterator iter = writeTransactions.begin();
