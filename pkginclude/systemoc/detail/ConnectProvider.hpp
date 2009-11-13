@@ -105,12 +105,12 @@ public:
     // corresponding types
     typedef typename P::first_type  Adapter;
     typedef typename P::second_type Tag;
-    
+
     typename Adapter::iface_impl_type *iface =
-      dynamic_cast<typename Adapter::iface_impl_type*>(
+//    I really hate these cross library dynamic cast errors!
+//    dynamic_cast<typename Adapter::iface_impl_type*>(
+      static_cast<typename Adapter::iface_impl_type*>(
           getDerived()->getChan()->smoc_port_registry::getIF<Tag>(&p));
-//  SysteMoC::Detail::idPool.regObj(&p);
-//  SysteMoC::Detail::idPool.regObj(&p, 1);
     assert(iface); p(*(new Adapter(*iface)));
     return *getDerived();
   }
