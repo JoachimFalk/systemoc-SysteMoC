@@ -263,8 +263,8 @@ public:
       assert(!"Can't copy initializer: Channel already created!");
   }
 
-//  using this_type::con_type::operator<<;
-//  using this_type::con_type::connect;
+//using this_type::con_type::operator<<;
+  using this_type::con_type::connect;
 
   this_type& operator<<(smoc_reset_port& p)
     { return this_type::con_type::connect(p); }
