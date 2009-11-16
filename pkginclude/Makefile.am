@@ -25,46 +25,53 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 nobase_include_HEADERS = \
-	smoc/smoc_simulation_ctx.hpp \
-	smoc/smoc_hooking.hpp \
+	smoc/detail/DumpingInterfaces.hpp \
+	smoc/detail/IdPool.hpp \
+	smoc/detail/IdTAllocRequest.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/NamedIdedObj.hpp \
-	\
-	systemoc/smoc_config.h \
-	\
-	systemoc/detail/smoc_sysc_port.hpp \
+	smoc/smoc_hooking.hpp \
+	smoc/smoc_simulation_ctx.hpp \
+	smoc.hpp \
 	systemoc/detail/ConnectProvider.hpp \
 	systemoc/detail/EventMapManager.hpp \
-	systemoc/detail/smoc_latency_queues.hpp \
-	systemoc/detail/smoc_ring_access.hpp \
-	systemoc/detail/smoc_fifo_storage.hpp \
-	systemoc/detail/smoc_storage.hpp \
-	systemoc/detail/smoc_port_registry.hpp \
-	systemoc/detail/QueueRWPtr.hpp \
-	systemoc/detail/QueueRVWPtr.hpp \
 	systemoc/detail/QueueFRVWPtr.hpp \
-	systemoc/detail/smoc_firing_rules_impl.hpp \
+	systemoc/detail/QueueRVWPtr.hpp \
+	systemoc/detail/QueueRWPtr.hpp \
+	systemoc/detail/hscd_tdsim_TraceLog.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
+	systemoc/detail/smoc_debug_stream.hpp \
+	systemoc/detail/smoc_event_decls.hpp \
+	systemoc/detail/smoc_fifo_storage.hpp \
+	systemoc/detail/smoc_firing_rules_impl.hpp \
+	systemoc/detail/smoc_latency_queues.hpp \
+	systemoc/detail/smoc_port_registry.hpp \
+	systemoc/detail/smoc_ring_access.hpp \
 	systemoc/detail/smoc_root_chan.hpp \
 	systemoc/detail/smoc_root_node.hpp \
-	systemoc/detail/hscd_tdsim_TraceLog.hpp \
-	systemoc/detail/smoc_event_decls.hpp \
+	systemoc/detail/smoc_storage.hpp \
+	systemoc/detail/smoc_sysc_port.hpp \
+	systemoc/smoc_actor.hpp \
+	systemoc/smoc_chan_adapter.hpp \
+	systemoc/smoc_config.h.in \
+	systemoc/smoc_elab_and_sim.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
-	systemoc/smoc_elab_and_sim.hpp \
-	systemoc/smoc_chan_adapter.hpp \
-	systemoc/smoc_port.hpp \
-	systemoc/smoc_multiplex_fifo.hpp \
-	systemoc/smoc_multireader_fifo.hpp \
 	systemoc/smoc_fifo.hpp \
 	systemoc/smoc_firing_rules.hpp \
+	systemoc/smoc_func_call.hpp \
 	systemoc/smoc_graph_type.hpp \
 	systemoc/smoc_guard.hpp \
 	systemoc/smoc_moc.hpp \
+	systemoc/smoc_module_name.hpp \
 	systemoc/smoc_multicast_sr_signal.hpp \
+	systemoc/smoc_multiplex_fifo.hpp \
+	systemoc/smoc_multireader_fifo.hpp \
 	systemoc/smoc_node_types.hpp \
-	systemoc/smoc_sr_signal.hpp \
-	systemoc/smoc_func_call.hpp
+	systemoc/smoc_pggen.hpp \
+	systemoc/smoc_port.hpp \
+	systemoc/smoc_reset.hpp \
+	systemoc/smoc_sr_signal.hpp
 
 if SYSTEMOC_ENABLE_WSDF
 nobase_include_HEADERS += \
