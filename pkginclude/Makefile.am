@@ -53,7 +53,7 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_sysc_port.hpp \
 	systemoc/smoc_actor.hpp \
 	systemoc/smoc_chan_adapter.hpp \
-	systemoc/smoc_config.h.in \
+	systemoc/smoc_config.h \
 	systemoc/smoc_elab_and_sim.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
