@@ -225,6 +225,7 @@ fi
 AC_CONFIG_FILES([
   Makefile
   pkginclude/Makefile
+  SysteMoC.pc
 ])
 
 ACJF_DONE
