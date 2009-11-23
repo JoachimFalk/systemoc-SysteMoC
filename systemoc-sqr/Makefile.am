@@ -25,12 +25,16 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 if SYNTH_SW
-  SW_SYNTHESIS_SUBDIR = synthesis-sw
-  include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
+  SW_SYNTH_SUBDIR = synthesis-sw
+  include $(pkg_synthesis_sw_builddir)/Rules-Synth.mk
 endif
 if SYNTH_MPI
-  MPI_SYNTHESIS_SUBDIR = synthesis-mpi
-  include $(root_builddir)/Synthesis-MPI/Rules-Synth.mk
+  MPI_SYNTH_SUBDIR = synthesis-mpi
+  include $(pkg_synthesis_mpi_builddir)/Rules-Synth.mk
+endif
+if SYNTH_TLM
+  TLM_SYNTH_SUBDIR = synthesis-tlm
+  include $(pkg_synthesis_tlm_builddir)/Rules-Synth.mk
 endif
 if SYNTH_HW
   HWSYNTH_SUBDIR   = hwsynth
@@ -43,10 +47,6 @@ endif
 if SYNTH_HWGS
   GINGER_SYNTH_SUBDIR  = hwsynth-ginger-snap
   include $(root_builddir)/Synthesis-Actor-Ginger-Snap/Rules-Synth.mk
-endif
-if SYNTH_TLM
-  TLMSYNTH_SUBDIR  = tlmsynth
-  include $(root_builddir)/Synthesis-Actor-TLM/Rules-Synth.mk
 endif
 
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
@@ -77,15 +77,20 @@ check: autotest.sh
 	./autotest.sh
   
 if SYNTH_SW
-synth-sw: $(SW_SYNTHESIS_SUBDIR)/smoc-synth-sqr
-$(SW_SYNTHESIS_SUBDIR)/sqr.ast.xml: design-sqr.cpp
+synth-sw: $(SW_SYNTH_SUBDIR)/smoc-synth-sqr
+$(SW_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 .PHONY: synth-sw
 endif
 
 if SYNTH_MPI
-synth-mpi: $(MPI_SYNTHESIS_SUBDIR)/smoc-synth-sqr
-$(MPI_SYNTHESIS_SUBDIR)/sqr.ast.xml: design-sqr.cpp
+synth-mpi: $(MPI_SYNTH_SUBDIR)/smoc-synth-sqr
+$(MPI_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 .PHONY: synth-mpi
+endif
+
+if SYNTH_TLM
+synth-tlm: $(TLM_SYNTH_SUBDIR)/smoc-tlmsynth-all-sqr.stamp
+.PHONY: synth-tlm
 endif
 
 if SYNTH_HW
@@ -103,7 +108,4 @@ ginger_synth: $(GINGER_SYNTH_SUBDIR)/smoc-ginger-synth-all-sqr.stamp
 .PHONY: ginger_synth
 endif
 
-if SYNTH_TLM
-tlmsynth: $(TLMSYNTH_SUBDIR)/smoc-tlmsynth-all-sqr.stamp
-.PHONY: tlmsynth
-endif
+
