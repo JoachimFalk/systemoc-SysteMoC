@@ -1,7 +1,10 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT([SysteMoC], [0.9], [joachim.falk@informatik.uni-erlangen.de christian.zebelein@informatik.uni-erlangen.de], [SysteMoC--devel--0.9])
+AC_INIT(
+  [SysteMoC Devel Branch], [0.9],
+  [joachim.falk@informatik.uni-erlangen.de christian.zebelein@informatik.uni-erlangen.de],
+  [SysteMoC--devel-])
 AC_PREREQ(2.57)
 ACJF_INIT
 
@@ -69,7 +72,9 @@ DX_RTF_FEATURE(OFF)
 DX_XML_FEATURE(OFF)
 DX_PDF_FEATURE(ON)
 DX_PS_FEATURE(OFF)
-DX_INIT_DOXYGEN([SysteMoC--mainline], [doxygen.cfg], [doxygen-doc])
+DX_INIT_DOXYGEN("AC_PACKAGE_NAME", [doxygen.cfg], [doxygen-doc])
+DX_ENV_APPEND(COSUPPORT_INCPATH, [\$(COSUPPORT_INCPATH)])
+DX_ENV_APPEND(BOOST_INCPATH, [\$(BOOST_INCPATH)])
 
 dnl check for exe extension
 AC_EXEEXT
