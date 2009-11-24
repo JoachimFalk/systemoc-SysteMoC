@@ -38,8 +38,6 @@
 
 #include <smoc/detail/IdPool.hpp>
 
-#include <CoSupport/Math/string_hash.hpp>
-
 namespace SysteMoC { namespace Detail {
 
 IdedObj *IdPool::getNodeById(const NgId id) const {
