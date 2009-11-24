@@ -24,6 +24,19 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
+if SYNTH_SW
+  SW_SYNTH_SUBDIR = synthesis-sw
+  include $(pkg_synthesis_sw_builddir)/Rules-Synth.mk
+endif
+if SYNTH_MPI
+  MPI_SYNTH_SUBDIR = synthesis-mpi
+  include $(pkg_synthesis_mpi_builddir)/Rules-Synth.mk
+endif
+if SYNTH_TLM
+  TLM_SYNTH_SUBDIR = synthesis-tlm
+  include $(pkg_synthesis_tlm_builddir)/Rules-Synth.mk
+endif
+
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
@@ -52,3 +65,20 @@ autotest.sh: simulation-fir $(srcdir)/autotest-sh
 # to check we just call the 'autotest.sh' script
 check: autotest.sh
 	./autotest.sh
+
+if SYNTH_SW
+synth-sw: $(SW_SYNTH_SUBDIR)/smoc-synth-fir
+$(SW_SYNTH_SUBDIR)/fir.ast.xml: design-fir.cpp
+.PHONY: synth-sw
+endif
+
+if SYNTH_MPI
+synth-mpi: $(MPI_SYNTH_SUBDIR)/smoc-synth-fir
+$(MPI_SYNTH_SUBDIR)/fir.ast.xml: design-fir.cpp
+.PHONY: synth-mpi
+endif
+
+if SYNTH_TLM
+synth-tlm: $(TLM_SYNTH_SUBDIR)/smoc-tlmsynth-all-fir.stamp
+.PHONY: synth-tlm
+endif

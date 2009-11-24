@@ -32,13 +32,16 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef INCLUDED_SMOC_SYNTH_STD_INCLUDES
-#define INCLUDED_SMOC_SYNTH_STD_INCLUDES
+#ifndef _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+#define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+
+#include <iostream>
+using namespace std;
+
+#include <math.h>
+#include <limits.h>
 
 #include <vector>
-#include <iostream>
-
-using namespace std;
 
 namespace initializer{
 
@@ -63,4 +66,4 @@ namespace initializer{
 
 };
 
-#endif //INCLUDED_SMOC_SYNTH_STD_INCLUDES
+#endif //_INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP

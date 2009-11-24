@@ -62,12 +62,13 @@ private:
   smoc_firing_state start;
 public:
   m_h_src(sc_module_name name, unsigned int iterations)
-    : smoc_actor(name, start),
-      i(1) {
-    start = out(1) >> (VAR(i) < iterations) >> call(&m_h_src::src) >> start;
+    : smoc_actor(name, start), i(1) {
+    
+    SMOC_REGISTER_CPARAM(iterations);
+    
+    start = out(1) >> (VAR(i) < iterations) >> CALL(m_h_src::src) >> start;
   }
 };
-
 
 //template <class T> // actor type parameter T
 class m_h_fir: public smoc_actor {

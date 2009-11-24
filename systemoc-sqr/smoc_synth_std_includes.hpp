@@ -32,8 +32,13 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#ifndef _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+#define _INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
+
 #include <iostream>
 using namespace std;
 
 #include <math.h>
 #include <limits.h>
+
+#endif //_INCLUDED_SMOC_SYNTH_STD_INCLUDES_HPP
