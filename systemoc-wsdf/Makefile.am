@@ -24,28 +24,46 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-if SYNTH_SW
-  include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
-endif
-
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
-
-LIBS= @LIBS@ -lsystemoc
 
 noinst_PROGRAMS= simulation-wsdf simulation-wsdf-no-border simulation-fifo sim-wsdf-edge-test
 
 simulation_wsdf_SOURCES= design-wsdf.cpp
-simulation_wsdf_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_wsdf_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_wsdf_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_wsdf_LDADD += -lsystemoc
+endif
 
 simulation_wsdf_no_border_SOURCES= design-wsdf-no-border.cpp
-simulation_wsdf_no_border_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_wsdf_no_border_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_wsdf_no_border_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_wsdf_no_border_LDADD += -lsystemoc
+endif
 
 simulation_fifo_SOURCES = fifo-sim.cpp
-simulation_fifo_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_fifo_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_fifo_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_fifo_LDADD += -lsystemoc
+endif
 
 sim_wsdf_edge_test_SOURCES = wsdf_edge_test.cpp
-sim_wsdf_edge_test_DEPENDENCIES  = @SYSTEMOC_DEPENDENCIES@
+sim_wsdf_edge_test_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+sim_wsdf_edge_test_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+sim_wsdf_edge_test_LDADD += -lsystemoc
+endif
 
 all: ref_data.dat cmx.dtd design-wsdf.cmx
 
@@ -74,17 +92,3 @@ autotest.sh: simulation-wsdf $(srcdir)/autotest-sh
 # to check we just call the 'autotest.sh' script
 check: autotest.sh all
 	./autotest.sh
-
-
-if SYNTH_SW
-SYNTHESIS_SUBDIR = synthesis
-
-$(SYNTHESIS_SUBDIR)/%.dat: %-dat
-	cp $^ $@
-
-synth: $(SYNTHESIS_SUBDIR)/smoc-synth-wsdf
-
-$(SYNTHESIS_SUBDIR)/sdf.ac.xml: $(SYNTHESIS_SUBDIR)/design-wsdf.ast.xml
-
-.PHONY: synth
-endif

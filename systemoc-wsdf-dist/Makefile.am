@@ -24,28 +24,16 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-if SYNTH_SW
-  include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
-endif
-
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated -Dcimg_display_type=0
 
-LIBS= @LIBS@ -lsystemoc
-
 noinst_PROGRAMS= simulation-wsdf-dist
 
-simulation_wsdf_dist_SOURCES= \
-	design-wsdf-dist.cpp
-
-simulation_wsdf_dist_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-
-if SYNTH_SW
-SYNTHESIS_SUBDIR = synthesis
-
-synth: $(SYNTHESIS_SUBDIR)/smoc-synth-wsdf
-
-$(SYNTHESIS_SUBDIR)/wsdf.ast.xml: design-wsdf.cpp
-
-.PHONY: synth
+simulation_wsdf_dist_SOURCES= design-wsdf-dist.cpp
+simulation_wsdf_dist_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_wsdf_dist_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_wsdf_dist_LDADD += -lsystemoc
 endif

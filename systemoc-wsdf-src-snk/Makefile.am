@@ -24,10 +24,6 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-if SYNTH_SW
-  include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
-endif
-
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@ -L/local/lib
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated -Dcimg_display_type=0 
 # -Dcimg_use_magick
@@ -36,25 +32,22 @@ noinst_PROGRAMS= simulation-wsdf-src-snk \
 	simulation-1D-src-snk \
 	plain-cpp
 
-simulation_wsdf_src_snk_SOURCES= \
-	design-wsdf-src-snk.cpp
-simulation_wsdf_src_snk_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-simulation_wsdf_src_snk_LDFLAGS = $(AM_LDFLAGS) -lsystemoc
-
-simulation_1D_src_snk_SOURCES= \
-	design1D-src-snk.cpp
-simulation_1D_src_snk_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-simulation_1D_src_snk_LDFLAGS = $(AM_LDFLAGS) -lsystemoc
-
-plain_cpp_SOURCES= \
-	plain_cpp.cpp
-
-if SYNTH_SW
-SYNTHESIS_SUBDIR = synthesis
-
-synth: $(SYNTHESIS_SUBDIR)/smoc-synth-wsdf
-
-$(SYNTHESIS_SUBDIR)/wsdf.ast.xml: design-wsdf.cpp
-
-.PHONY: synth
+simulation_wsdf_src_snk_SOURCES= design-wsdf-src-snk.cpp
+simulation_wsdf_src_snk_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_wsdf_src_snk_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_wsdf_src_snk_LDADD += -lsystemoc
 endif
+
+simulation_1D_src_snk_SOURCES= design1D-src-snk.cpp
+simulation_1D_src_snk_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_1D_src_snk_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_1D_src_snk_LDADD += -lsystemoc
+endif
+
+plain_cpp_SOURCES= plain_cpp.cpp

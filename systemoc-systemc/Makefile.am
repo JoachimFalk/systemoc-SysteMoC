@@ -27,13 +27,22 @@ SUBDIRS=
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-LIBS= @LIBS@ -lsystemoc
-
 noinst_PROGRAMS= cosim-blocking cosim-nonblocking
 
 cosim_blocking_SOURCES= design-cosim-blocking.cpp
-cosim_blocking_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+cosim_blocking_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+cosim_blocking_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+cosim_blocking_LDADD += -lsystemoc
+endif
 
 cosim_nonblocking_SOURCES= design-cosim-nonblocking.cpp
-cosim_nonblocking_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-
+cosim_nonblocking_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+cosim_nonblocking_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+cosim_nonblocking_LDADD += -lsystemoc
+endif

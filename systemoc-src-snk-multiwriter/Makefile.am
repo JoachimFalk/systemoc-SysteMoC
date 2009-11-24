@@ -27,9 +27,13 @@ SUBDIRS=
 AM_LDFLAGS = @AM_LDFLAGS@  @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-LIBS=-lsystemoc
-
 noinst_PROGRAMS= simulation-src-snk-multiwriter
 
 simulation_src_snk_multiwriter_SOURCES= design-src-snk-multiwriter.cpp
-simulation_src_snk_multiwriter_DEPENDENCIES= @SYSTEMOC_DEPENDENCIES@
+simulation_src_snk_multiwriter_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_src_snk_multiwriter_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_src_snk_multiwriter_LDADD += -lsystemoc
+endif

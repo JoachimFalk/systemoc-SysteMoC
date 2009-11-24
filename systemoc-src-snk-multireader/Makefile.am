@@ -27,9 +27,13 @@ SUBDIRS=
 AM_LDFLAGS = @AM_LDFLAGS@  @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-LIBS=-lsystemoc
-
 noinst_PROGRAMS= simulation-src-snk-multireader
 
 simulation_src_snk_multireader_SOURCES= design-src-snk-multireader.cpp
-simulation_src_snk_multireader_DEPENDENCIES= @SYSTEMOC_DEPENDENCIES@
+simulation_src_snk_multireader_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_src_snk_multireader_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_src_snk_multireader_LDADD += -lsystemoc
+endif

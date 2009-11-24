@@ -27,12 +27,16 @@ SUBDIRS=
 AM_LDFLAGS = @AM_LDFLAGS@  @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-LIBS=-lsystemoc
-
 noinst_PROGRAMS= simulation-src-snk-multiplex
 
 simulation_src_snk_multiplex_SOURCES= design-src-snk-multiplex.cpp
-simulation_src_snk_multiplex_DEPENDENCIES= @SYSTEMOC_DEPENDENCIES@
+simulation_src_snk_multiplex_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_src_snk_multiplex_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_src_snk_multiplex_LDADD += -lsystemoc
+endif
 
 autotest.sh: simulation-src-snk-multiplex $(srcdir)/autotest-sh
 	rm -f $@

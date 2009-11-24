@@ -19,8 +19,6 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
-root_srcdir   := $(shell cd $(top_srcdir)/.. && pwd)
-root_builddir := $(shell cd $(top_builddir)/.. && pwd)
 
 include $(auxdir)/jfrules.mk
 
@@ -29,12 +27,16 @@ SUBDIRS=
 AM_LDFLAGS = @AM_LDFLAGS@  @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-LIBS=-lsystemoc
-
 noinst_PROGRAMS= simulation-and-comp
 
 simulation_and_comp_SOURCES= design-and-comp.cpp
-simulation_and_comp_DEPENDENCIES= @SYSTEMOC_DEPENDENCIES@
+simulation_and_comp_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_and_comp_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_and_comp_LDADD += -lsystemoc
+endif
 
 autotest.sh: simulation-and-comp $(srcdir)/autotest-sh
 	rm -f $@

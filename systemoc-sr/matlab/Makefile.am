@@ -27,9 +27,13 @@ SUBDIRS=
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-LIBS= @LIBS@ -lsystemoc
-
 noinst_PROGRAMS=simulation-test
 
 simulation_test_SOURCES= feedback_model.cpp
-simulation_test_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+simulation_test_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_test_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_test_LDADD += -lsystemoc
+endif

@@ -27,12 +27,16 @@ SUBDIRS=
 AM_LDFLAGS = @AM_LDFLAGS@  @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-LIBS=-lsystemoc
-
 noinst_PROGRAMS= simulation-con-state
 
 simulation_con_state_SOURCES= design-con-state.cpp
-simulation_con_state_DEPENDENCIES= @SYSTEMOC_DEPENDENCIES@
+simulation_con_state_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_con_state_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_con_state_LDADD += -lsystemoc
+endif
 
 autotest.sh: simulation-con-state $(srcdir)/autotest-sh
 	rm -f $@

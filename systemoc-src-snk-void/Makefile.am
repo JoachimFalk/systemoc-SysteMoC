@@ -27,10 +27,13 @@ SUBDIRS=
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-LIBS= @LIBS@ -lsystemoc
-
 noinst_PROGRAMS= simulation-src-snk-void
 
 simulation_src_snk_void_SOURCES= design-src-snk-void.cpp
-simulation_src_snk_void_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
-
+simulation_src_snk_void_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_src_snk_void_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_src_snk_void_LDADD += -lsystemoc
+endif

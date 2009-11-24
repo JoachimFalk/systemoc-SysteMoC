@@ -30,6 +30,15 @@ AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 noinst_PROGRAMS= simulation-par
 
 simulation_par_SOURCES= design-par.cpp
-simulation_par_LDADD= \
-	$(pkg_systemoc_builddir)/libsystemoc.la \
-	$(pkg_support_builddir)/libcosupport-systemc.la
+simulation_par_LDADD=
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+simulation_par_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+simulation_par_LDADD += -lsystemoc
+endif
+if PKG_COSUPPORT_USE_SRCDIR_VERSION
+simulation_par_LDADD += $(COSUPPORT_LIBPATH)/libcosupport-systemc.la
+else
+simulation_par_LDADD += -lcosupport-systemc
+endif
