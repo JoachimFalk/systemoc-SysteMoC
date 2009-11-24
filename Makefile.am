@@ -52,6 +52,10 @@ AM_LDFLAGS=				\
 	$(SYSTEMC_VPC_INCLUDE)		\
 	$(BOOST_LDFLAGS)
 
+pkgconfigdir = $(libdir)/pkgconfig
+
+pkgconfig_DATA = SysteMoC.pc
+
 lib_LTLIBRARIES = libsystemoc.la
 
 libsystemoc_la_SOURCES =			\
@@ -112,7 +116,8 @@ else
 libsystemoc_la_LIBADD += 					\
 	-lcosupport-systemc					\
 	-lcosupport-streams					\
-	-lcosupport-smartptr
+	-lcosupport-smartptr					\
+	-lcosupport-math
 endif
 if SYSTEMOC_ENABLE_SGX
 if PKG_LIBSGX_USE_SRCDIR_VERSION
