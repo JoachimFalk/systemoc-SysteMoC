@@ -615,14 +615,18 @@ public:
 #endif
 
     bool tokenIsValid(size_t n) const {
+#if defined(SYSTEMOC_ENABLE_DEBUG)
       assert(n < limit);
+#endif
       return true;
     }
 
     // Access methods
     return_type operator[](size_t n) {
       //std::cerr << "smoc_multiplex_vfifo_outlet<T,A>::AccessImpl::operator[](size_t) BEGIN" << std::endl;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
       assert(n < limit);
+#endif
       MultiplexChannel &chan = *chanIfImpl.chan/*.get()*/;
       
       size_t rindex;
@@ -746,14 +750,18 @@ private:
 #endif
 
     bool tokenIsValid(size_t n) const {
+#if defined(SYSTEMOC_ENABLE_DEBUG)
       assert(n < limit);
+#endif
       return true;
     }
 
     // Access methods
     return_type operator[](size_t n) {
       //std::cerr << "smoc_multiplex_vfifo_entry<T,A>::AccessImpl::operator[](size_t) BEGIN" << std::endl;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
       assert(n < limit);
+#endif
       MultiplexChannel &chan = *chanIfImpl.chan/*.get()*/;
       size_t windex = chan.wIndex() + n;
       if (windex >= chan.fSize())
