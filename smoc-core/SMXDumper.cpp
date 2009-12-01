@@ -353,13 +353,9 @@ public:
 
   void operator ()(smoc_fifo_chan_base &obj);
 
-//  void operator ()(smoc_multiplex_fifo_chan_bases &obj) {
-//    pg.processes().push_back(*DumpMultiplexFifo()(obj));
-//  }
+  void operator ()(smoc_multireader_fifo_chan_base &obj);
 
-//  void operator ()(smoc_multireader_fifo_chan_base &obj) {
-//    pg.processes().push_back(*DumpMultireaderFifo()(obj));
-//  }
+//void operator ()(smoc_multiplex_fifo_chan_base &obj);
 
   using ProcessSubVisitor::operator();
 };
@@ -449,13 +445,11 @@ public:
 
 };
 
-class DumpFifo {
-public:
-  typedef void result_type;
+class DumpFifoBase {
 protected:
   GraphSubVisitor &gsv;
 public:
-  DumpFifo(GraphSubVisitor &gsv)
+  DumpFifoBase(GraphSubVisitor &gsv)
     : gsv(gsv) {}
 
   void connectPort(SGX::Port &pChan, sc_interface *sci, SGX::Port::Direction d) {
@@ -500,6 +494,32 @@ public:
       connectPort(p, iter->first, SGX::Port::In);
     }
   }
+};
+
+class DumpFifo
+: public DumpFifoBase {
+public:
+  typedef void result_type;
+protected:
+  class ImplDumpingInitialTokens
+  : public IfDumpingInitialTokens {
+     SGX::Fifo &fifo;
+  public:
+    ImplDumpingInitialTokens(SGX::Fifo &fifo)
+      : fifo(fifo) {}
+    
+    void setType(const std::string &str) {
+      fifo.type() = str;
+    }
+    
+    void addToken(const std::string &str) {
+      SGX::Token t; t.value() = str;
+      fifo.initialTokens().push_back(t);
+    }
+  };
+public:
+  DumpFifo(GraphSubVisitor &gsv)
+    : DumpFifoBase(gsv) {}
 
   result_type operator ()(smoc_fifo_chan_base &p) {
 #ifdef SYSTEMOC_DEBUG
@@ -511,26 +531,55 @@ public:
     gsv.pg.processes().push_back(fifo);
     foo(fifo, p);
     
-    class ImplDumpingInitialTokens
-    : public IfDumpingInitialTokens {
-       SGX::Fifo &fifo;
-    public:
-      ImplDumpingInitialTokens(SGX::Fifo &fifo)
-        : fifo(fifo) {}
-      
-      void setType(const std::string &str) {
-        fifo.type() = str;
-      }
-      
-      void addToken(const std::string &str) {
-        SGX::Token t; t.value() = str;
-        fifo.initialTokens().push_back(t);
-      }
-    } itf(fifo);
+    ImplDumpingInitialTokens itf(fifo);
     p.dumpInitalTokens(&itf);
     
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "DumpFifo::operator ()(...) [END]" << std::endl;
+#endif
+  }
+};
+
+class DumpMultiportFifo
+: public DumpFifoBase {
+public:
+  typedef void result_type;
+protected:
+  class ImplDumpingInitialTokens
+  : public IfDumpingInitialTokens {
+     SGX::MultiportFifo &fifo;
+  public:
+    ImplDumpingInitialTokens(SGX::MultiportFifo &fifo)
+      : fifo(fifo) {}
+    
+    void setType(const std::string &str) {
+      fifo.type() = str;
+    }
+    
+    void addToken(const std::string &str) {
+      SGX::Token t; t.value() = str;
+      fifo.initialTokens().push_back(t);
+    }
+  };
+public:
+  DumpMultiportFifo(GraphSubVisitor &gsv)
+    : DumpFifoBase(gsv) {}
+
+  result_type operator ()(smoc_multireader_fifo_chan_base &p) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpMultiportFifo::operator ()(...) [BEGIN] for " << p.name() << std::endl;
+#endif
+    SGX::MultiportFifo fifo(p.name(), p.getId());
+    // set some attributes
+    fifo.size() = p.depthCount();
+    gsv.pg.processes().push_back(fifo);
+    foo(fifo, p);
+    
+    ImplDumpingInitialTokens itf(fifo);
+    p.dumpInitalTokens(&itf);
+    
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpMultiportFifo::operator ()(...) [END]" << std::endl;
 #endif
   }
 };
@@ -718,6 +767,14 @@ void GraphSubVisitor::operator ()(sc_core::sc_module &obj) {
 void GraphSubVisitor::operator ()(smoc_fifo_chan_base &obj) {
   DumpFifo(*this)(obj);
 }
+
+void GraphSubVisitor::operator ()(smoc_multireader_fifo_chan_base &obj) {
+  DumpMultiportFifo(*this)(obj);
+}
+
+//void GraphSubVisitor::operator ()(smoc_multiplex_fifo_chan_base &obj) {
+//  DumpMultiplexFifo(*this)(obj);
+//}
 
 void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g) {
   SGX::NetworkGraphAccess ngx;
