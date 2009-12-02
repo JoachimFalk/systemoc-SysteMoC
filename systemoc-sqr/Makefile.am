@@ -30,7 +30,9 @@ if SYNTH_SW
 endif
 if SYNTH_VAST
   VASTSYNTH_SUBDIR = vast-synthesis
+  VAST_RES_AWARE_SYNTH_SUBDIR = vast-res-aware-synthesis
   include $(root_builddir)/Synthesis-Vast/Rules-Synth.mk
+  include $(root_builddir)/Synthesis-Vast/ResAware-Synth.mk
 endif
 if SYNTH_MPI
   MPISYNTH_SUBDIR = mpi-synthesis
@@ -95,7 +97,13 @@ endif
 if SYNTH_VAST
 vastsynth: $(VASTSYNTH_SUBDIR)/vast_virtualPrototype-sqr.stamp
 $(VASTSYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
-.PHONY: vastsynth
+.PHONY: vastsynth 
+
+vast-res-aware-synth: $(VAST_RES_AWARE_SYNTH_SUBDIR)/vast_target_sw-sqr.stamp \
+  			$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqrvsp.stamp
+$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
+$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.acx: $(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml
+.PHONY: vast-res-aware-synth
 endif
 
 if SYNTH_HW
