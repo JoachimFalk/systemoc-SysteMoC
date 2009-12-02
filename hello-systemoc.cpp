@@ -70,7 +70,7 @@ public:
   // networkgraph constructor
   HelloNetworkGraph(sc_module_name name)
     : smoc_graph(name),
-      helloActor("HalloActor") // create actor HelloWorld
+      helloActor("HelloActor") // create actor HelloActor
   {
   }
 };
