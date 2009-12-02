@@ -95,7 +95,7 @@ $(MPISYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 endif
 
 if SYNTH_VAST
-vastsynth: $(VASTSYNTH_SUBDIR)/vast_virtualPrototype-sqr.stamp
+vastsynth: $(VASTSYNTH_SUBDIR)/sqrvirtualPrototype.stamp
 $(VASTSYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 .PHONY: vastsynth 
 
