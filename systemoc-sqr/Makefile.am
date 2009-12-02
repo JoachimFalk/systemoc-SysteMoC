@@ -28,6 +28,10 @@ if SYNTH_SW
   SW_SYNTH_SUBDIR = synthesis-sw
   include $(pkg_synthesis_sw_builddir)/Rules-Synth.mk
 endif
+if SYNTH_VAST
+  VASTSYNTH_SUBDIR = vast-synthesis
+  include $(root_builddir)/Synthesis-Vast/Rules-Synth.mk
+endif
 if SYNTH_MPI
   MPI_SYNTH_SUBDIR = synthesis-mpi
   include $(pkg_synthesis_mpi_builddir)/Rules-Synth.mk
@@ -95,6 +99,11 @@ endif
 if SYNTH_TLM
 synth-tlm: $(TLM_SYNTH_SUBDIR)/smoc-tlmsynth-all-sqr.stamp
 .PHONY: synth-tlm
+endif
+
+if SYNTH_VAST
+vastsynth: $(VASTSYNTH_SUBDIR)/vast_aggregator-sqr.stamp
+.PHONY: vastsynth
 endif
 
 if SYNTH_HW
