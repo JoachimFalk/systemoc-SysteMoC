@@ -113,6 +113,13 @@ vast-res-aware-synth: $(VAST_RES_AWARE_SYNTH_SUBDIR)/vast_target_sw-sqr.stamp \
 $(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 $(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.acx: $(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml
 .PHONY: vast-res-aware-synth
+
+vast-res-aware-sim: $(VAST_RES_AWARE_SYNTH_SUBDIR)/vast_target_sw-sqr.stamp \
+  			$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqrvsp.stamp \
+			$(VAST_RES_AWARE_SIM)
+$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
+$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.acx: $(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml
+.PHONY: vast-res-aware-sim
 endif
 
 if SYNTH_HW
