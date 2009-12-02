@@ -61,7 +61,11 @@ private:
   void src() {
 #ifndef NDEBUG
 # ifndef XILINX_EDK_RUNTIME
+#  ifndef VAST
     cout << "src: " << i << std::endl;
+#  else
+    printf("src: %d\n", i);
+#  endif
 # else
     xil_printf("src: %u\n",i);
 # endif
@@ -109,7 +113,11 @@ private:
   bool check() const {
 #ifndef NDEBUG
 # ifndef XILINX_EDK_RUNTIME
+#  ifndef VAST
     cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
+#  else
+    printf("check: %f, %f\n", tmp_i1, i2[0]);
+#  endif
 # else
     xil_printf("check: %u, %u\n",tmp_i1,i2[0]);
 # endif
@@ -192,7 +200,11 @@ private:
   void sink(void) {
 #ifndef NDEBUG
 # ifndef XILINX_EDK_RUNTIME
+#  ifndef VAST
     cout << "sink: " << in[0] << std::endl;
+#  else
+    printf("sink: %f\n", in[0]);
+#  endif
 # else
     xil_printf("sink: %u\n",in[0]);
 # endif
