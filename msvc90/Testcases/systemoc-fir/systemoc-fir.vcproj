@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\SysteMoC\msvc90;..\..\..\..\SysteMoC\pkginclude;..\..\..\..\Support\pkginclude"
+				AdditionalIncludeDirectories="..\..\..\..\SysteMoC\msvc90;..\..\..\..\SysteMoC\pkginclude;..\..\..\..\Support\pkginclude;&quot;..\..\..\..\SystemC-VPC\pkginclude&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;XML_LIBRARY"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,9 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="systemoc.lib libsgx.lib libcosupport.lib systemcd.lib xerces-c_static_2D.lib"
+				AdditionalDependencies="systemoc.lib systemc-vpc.lib libsgx.lib libcosupport.lib systemcd.lib xerces-c_static_2D.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\SysteMoC\msvc90\Debug;..\..\..\..\LibSGX\msvc90\LibSGX\Debug;..\..\..\..\Support\msvc90\CoSupport\Debug"
+				AdditionalLibraryDirectories="..\..\..\..\SysteMoC\msvc90\Debug;..\..\..\..\LibSGX\msvc90\LibSGX\Debug;..\..\..\..\Support\msvc90\CoSupport\Debug;&quot;..\..\..\..\SystemC-VPC\msvc90\Debug&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\..\SysteMoC\msvc90;..\..\..\..\SysteMoC\pkginclude;..\..\..\..\Support\pkginclude"
+				AdditionalIncludeDirectories="..\..\..\..\SysteMoC\msvc90;..\..\..\..\SysteMoC\pkginclude;..\..\..\..\Support\pkginclude;&quot;..\..\..\..\SystemC-VPC\pkginclude&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;XML_LIBRARY"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -136,9 +136,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="systemoc.lib libsgx.lib libcosupport.lib systemc.lib xerces-c_static_2.lib"
+				AdditionalDependencies="systemoc.lib systemc-vpc.lib libsgx.lib libcosupport.lib systemc.lib xerces-c_static_2.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\..\SysteMoC\msvc90\Release;..\..\..\..\LibSGX\msvc90\LibSGX\Release;..\..\..\..\Support\msvc90\CoSupport\Release"
+				AdditionalLibraryDirectories="..\..\..\..\SysteMoC\msvc90\Release;..\..\..\..\LibSGX\msvc90\LibSGX\Release;..\..\..\..\Support\msvc90\CoSupport\Release;&quot;..\..\..\..\SystemC-VPC\msvc90\Release&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
