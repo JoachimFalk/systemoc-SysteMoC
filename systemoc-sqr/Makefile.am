@@ -28,6 +28,10 @@ if SYNTH_SW
   SYNTHESIS_SUBDIR = synthesis
   include $(root_builddir)/Synthesis-SW/Rules-Synth.mk
 endif
+if SYNTH_VAST
+  VASTSYNTH_SUBDIR = vast-synthesis
+  include $(root_builddir)/Synthesis-Vast/Rules-Synth.mk
+endif
 if SYNTH_MPI
   MPISYNTH_SUBDIR = mpi-synthesis
   include $(root_builddir)/Synthesis-MPI/Rules-Synth.mk
@@ -86,6 +90,11 @@ if SYNTH_MPI
 mpisynth: $(MPISYNTH_SUBDIR)/smoc-synth-sqr
 $(MPISYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 .PHONY: mpisynth
+endif
+
+if SYNTH_VAST
+vastsynth: $(VASTSYNTH_SUBDIR)/vast_aggregator-sqr.stamp
+.PHONY: vastsynth
 endif
 
 if SYNTH_HW
