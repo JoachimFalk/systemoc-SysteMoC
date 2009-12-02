@@ -104,7 +104,7 @@ synth-tlm: $(TLM_SYNTH_SUBDIR)/smoc-tlmsynth-all-sqr.stamp
 endif
 
 if SYNTH_VAST
-vastsynth: $(VASTSYNTH_SUBDIR)/vast_virtualPrototype-sqr.stamp
+vastsynth: $(VASTSYNTH_SUBDIR)/sqrvirtualPrototype.stamp
 $(VASTSYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 .PHONY: vastsynth 
 
