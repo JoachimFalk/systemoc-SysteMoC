@@ -51,7 +51,7 @@ AC_ARG_ENABLE(synthesis-support,
         case "${optval}" in
           sw|SW)    synth="${synth}:sw:";;
           mpi|MPI)  synth="${synth}:mpi:";;
-          hw|HW)    synth="${synth}:hw:";;
+	  hw|HW)    synth="${synth}:hw:";;
           hwc|HWC)  synth="${synth}:hwc:";;
           hwgs|HWGS)synth="${synth}:hwgs:";;
           testlib)  synth="${synth}:testlib:";;
@@ -102,18 +102,18 @@ esac
 AM_CONDITIONAL(SYNTH_MPI, test x"$synth_mpi" = x"true")
 
 case "$synth" in
-  *:hw:*)
-    synth_hw=true
+  *:vast:*)
+    synth_vast=true
     ;;
   auto)
-    if test -d $srcdir/../Synthesis-Actor-Cynthesizer/; then
-      synth_hw=true
+    if test -d $srcdir/../Synthesis-Vast/; then
+      synth_vast=true
     else
-      synth_hw=false
+      synth_vast=false
     fi
     ;;
   *)
-    synth_hw=false
+    synth_vast=false
     ;;
 esac
 
