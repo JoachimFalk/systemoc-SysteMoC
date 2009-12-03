@@ -355,7 +355,7 @@ public:
 
   void operator ()(smoc_multireader_fifo_chan_base &obj);
 
-//void operator ()(smoc_multiplex_fifo_chan_base &obj);
+  void operator ()(smoc_multiplex_fifo_chan_base &obj);
 
   using ProcessSubVisitor::operator();
 };
@@ -476,7 +476,7 @@ public:
     std::cerr << "WTF?! " << pChan.name() << " sc_interface not found!" << std::endl;
   }
 
-  void foo(SGX::Channel &channel, smoc_root_chan &rc) {
+  void registerPorts(SGX::Channel &channel, smoc_root_chan &rc) {
     for (smoc_root_chan::EntryMap::const_iterator iter = rc.getEntries().begin();
          iter != rc.getEntries().end();
          ++iter) {
@@ -529,7 +529,7 @@ public:
     // set some attributes
     fifo.size() = p.depthCount();
     gsv.pg.processes().push_back(fifo);
-    foo(fifo, p);
+    registerPorts(fifo, p);
     
     ImplDumpingInitialTokens itf(fifo);
     p.dumpInitalTokens(&itf);
@@ -573,13 +573,57 @@ public:
     // set some attributes
     fifo.size() = p.depthCount();
     gsv.pg.processes().push_back(fifo);
-    foo(fifo, p);
+    registerPorts(fifo, p);
     
     ImplDumpingInitialTokens itf(fifo);
     p.dumpInitalTokens(&itf);
     
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "DumpMultiportFifo::operator ()(...) [END]" << std::endl;
+#endif
+  }
+};
+
+class DumpMultiplexFifo
+: public DumpFifoBase {
+public:
+  typedef void result_type;
+protected:
+  class ImplDumpingInitialTokens
+  : public IfDumpingInitialTokens {
+     SGX::MultiplexFifo &fifo;
+  public:
+    ImplDumpingInitialTokens(SGX::MultiplexFifo &fifo)
+      : fifo(fifo) {}
+    
+    void setType(const std::string &str) {
+      fifo.type() = str;
+    }
+    
+    void addToken(const std::string &str) {
+      SGX::ColoredToken t(0xDEADBEEF); t.value() = str;
+      fifo.initialTokens().push_back(t);
+    }
+  };
+public:
+  DumpMultiplexFifo(GraphSubVisitor &gsv)
+    : DumpFifoBase(gsv) {}
+
+  result_type operator ()(smoc_multiplex_fifo_chan_base &p) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpMultiplexFifo::operator ()(...) [BEGIN] for " << p.name() << std::endl;
+#endif
+    SGX::MultiplexFifo fifo(p.name(), p.getId());
+    // set some attributes
+    fifo.size() = p.depthCount();
+    gsv.pg.processes().push_back(fifo);
+    registerPorts(fifo, p);
+    
+    ImplDumpingInitialTokens itf(fifo);
+    p.dumpInitalTokens(&itf);
+    
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpMultiplexFifo::operator ()(...) [END]" << std::endl;
 #endif
   }
 };
@@ -772,9 +816,9 @@ void GraphSubVisitor::operator ()(smoc_multireader_fifo_chan_base &obj) {
   DumpMultiportFifo(*this)(obj);
 }
 
-//void GraphSubVisitor::operator ()(smoc_multiplex_fifo_chan_base &obj) {
-//  DumpMultiplexFifo(*this)(obj);
-//}
+void GraphSubVisitor::operator ()(smoc_multiplex_fifo_chan_base &obj) {
+  DumpMultiplexFifo(*this)(obj);
+}
 
 void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g) {
   SGX::NetworkGraphAccess ngx;
