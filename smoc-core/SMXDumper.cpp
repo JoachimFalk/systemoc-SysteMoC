@@ -357,6 +357,8 @@ public:
 
   void operator ()(smoc_multiplex_fifo_chan_base &obj);
 
+  void operator ()(smoc_reset_chan &obj);
+
   using ProcessSubVisitor::operator();
 };
 
@@ -652,6 +654,30 @@ public:
   }
 };
 
+class DumpResetNet
+: public DumpFifoBase {
+public:
+  typedef void result_type;
+protected:
+public:
+  DumpResetNet(GraphSubVisitor &gsv)
+    : DumpFifoBase(gsv) {}
+
+  result_type operator ()(smoc_reset_chan &p) {
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpResetNet::operator ()(...) [BEGIN] for " << p.name() << std::endl;
+#endif
+    SGX::ResetNet fifo(p.name(), p.getId());
+//  // set some attributes
+//  fifo.size() = p.depthCount();
+    gsv.pg.processes().push_back(fifo);
+    registerPorts(fifo, p);
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << "DumpResetNet::operator ()(...) [END]" << std::endl;
+#endif
+  }
+};
+
 class DumpActor {
 public:
   typedef void result_type;
@@ -842,6 +868,10 @@ void GraphSubVisitor::operator ()(smoc_multireader_fifo_chan_base &obj) {
 
 void GraphSubVisitor::operator ()(smoc_multiplex_fifo_chan_base &obj) {
   DumpMultiplexFifo(*this)(obj);
+}
+
+void GraphSubVisitor::operator ()(smoc_reset_chan &obj) {
+  DumpResetNet(*this)(obj);
 }
 
 void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g) {
