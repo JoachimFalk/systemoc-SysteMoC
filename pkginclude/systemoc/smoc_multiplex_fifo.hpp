@@ -107,10 +107,11 @@ public:
   };
 
   typedef size_t FifoId;
-  //typedef std::map<FifoId, const boost::function<void (size_t)> > VOutletMap;
-  typedef std::map<FifoId, smoc_port_in_base_if*> VOutletMap;
+  typedef std::map<FifoId, smoc_port_in_base_if*>  VOutletMap;
+  typedef std::map<FifoId, smoc_port_out_base_if*> VEntryMap;
 protected:
   VOutletMap    vOutlets;
+  VEntryMap     vEntries;
   const size_t  fifoOutOfOrder; // == 0 => no out of order access only one element visible
 
   // This are the EventMapManager for the plain fifo access operations
@@ -121,6 +122,9 @@ protected:
 
   void registerVOutlet(const VOutletMap::value_type &entry);
   void deregisterVOutlet(FifoId fifoId);
+
+  void registerVEntry(const VEntryMap::value_type &entry);
+  void deregisterVEntry(FifoId fifoId);
 
   /// @brief See smoc_port_in_base_if
   smoc_event &dataAvailableEvent(size_t n)
@@ -150,6 +154,14 @@ public:
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
   virtual void dumpInitalTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) = 0;
+
+  /// @brief Returns virtual entries
+  const VEntryMap &getVEntries() const
+    { return vEntries; }
+
+  /// @brief Returns virtual outlets
+  const VOutletMap &getVOutlets() const
+    { return vOutlets; }
 #endif // SYSTEMOC_ENABLE_SGX
 };
 
@@ -655,12 +667,10 @@ private:
 public:
   /// @brief Constructor
   smoc_multiplex_vfifo_outlet(const PMultiplexChannel &chan, FifoId fifoId)
-    : chan(chan), fifoId(fifoId), countAvailable(0), accessImpl(*this) {
-    chan->registerVOutlet(std::make_pair(
-      fifoId,
-      //std::bind1st(std::mem_fun(&this_type::latencyExpired), this)
-      this
-    ));
+    : chan(chan), fifoId(fifoId), countAvailable(0), accessImpl(*this)
+  {
+    chan->registerVOutlet
+      (std::make_pair(fifoId,this));
   }
 
   ~smoc_multiplex_vfifo_outlet() {
@@ -781,7 +791,15 @@ private:
 public:
   /// @brief Constructor
   smoc_multiplex_vfifo_entry(const PMultiplexChannel &chan, FifoId fifoId)
-    : chan(chan), fifoId(fifoId), accessImpl(*this) {}
+    : chan(chan), fifoId(fifoId), accessImpl(*this)
+  {
+    chan->registerVEntry
+      (std::make_pair(fifoId, this));
+  }
+
+  ~smoc_multiplex_vfifo_entry() {
+    chan->deregisterVEntry(fifoId);
+  }
 protected:
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC

@@ -586,6 +586,8 @@ public:
 
 class DumpMultiplexFifo
 : public DumpFifoBase {
+  typedef DumpMultiplexFifo this_type;
+  typedef DumpFifoBase      base_type;
 public:
   typedef void result_type;
 protected:
@@ -608,6 +610,28 @@ protected:
 public:
   DumpMultiplexFifo(GraphSubVisitor &gsv)
     : DumpFifoBase(gsv) {}
+
+  void registerPorts(SGX::MultiplexFifo &channel, smoc_multiplex_fifo_chan_base &rc) {
+    // for the non-colored ones
+    base_type::registerPorts(channel, rc);
+    // Now the colored ports
+    for (smoc_multiplex_fifo_chan_base::VEntryMap::const_iterator iter = rc.getVEntries().begin();
+         iter != rc.getVEntries().end();
+         ++iter) {
+      SGX::ColoredPort p(Concat(rc.name())(".in"), iter->first);
+      p.direction() = SGX::Port::In;
+      channel.ports().push_back(p);
+      connectPort(p, iter->second, SGX::Port::Out);
+    }
+    for (smoc_multiplex_fifo_chan_base::VOutletMap::const_iterator iter = rc.getVOutlets().begin();
+         iter != rc.getVOutlets().end();
+         ++iter) {
+      SGX::ColoredPort p(Concat(rc.name())(".out"), iter->first);
+      p.direction() = SGX::Port::Out;
+      channel.ports().push_back(p);
+      connectPort(p, iter->second, SGX::Port::In);
+    }
+  }
 
   result_type operator ()(smoc_multiplex_fifo_chan_base &p) {
 #ifdef SYSTEMOC_DEBUG
