@@ -432,7 +432,8 @@ public:
   smoc_multicast_sr_signal_type( const chan_init &i )
     : smoc_multicast_sr_signal_kind(i),
       signalDelay(),
-      entry(this, entryValue)
+      entry(this, entryValue),
+      commitedInAdvance(0)
   {
     assert(1 >= i.marking.size());
     if(1 == i.marking.size()){
@@ -475,6 +476,11 @@ public:
     signalDelay.push_back(entryValue);
     //cerr << this->name() << ": entry write:" << entryValue.get() << " (" << n <<") " << signalDelay.size()
     //     << " @ " << sc_time_stamp() << endl;
+
+    if(commitedInAdvance > 0){
+      //std::cerr << "committed tokens: " << commitedInAdvance << std::endl;
+      latencyExpired(n);
+    }
   }
 #else
   void wpp(size_t n)
@@ -485,29 +491,36 @@ public:
 #endif
 
   void latencyExpired(size_t n) {
-    for(size_t i = 1; i<n; ++i){
-      //FIXME: use individual event for correct "pipelining" support
-      //signalDelay.pop_front();
-      //smoc_reset(*latEvent.get());
-    }
-
     //cerr << this->name() << ": latencyExpired: " << signalDelay.front() << "(" << n <<") " << signalDelay.size()
     //     << " @ " << sc_time_stamp() << endl;
-    if(signalDelay.begin() != signalDelay.end()){
+
+    // due to some effects in non-interleaved "signal"ing of CoSupport Events
+    // the VPC may commit tokens that are not added to "signalDelay"
+    // we have to commit them later (in wpp) and just store the count of tokens
+    // to commit
+    commitedInAdvance += n;
+    for(size_t i = 0; (i<n) && (i<signalDelay.size()); ++i){
+      // pop n-1 tokens
       outletValue.put(signalDelay.front());
       signalDelay.pop_front();
-      this->eventNoCommunication.notify();
-
-      for(typename OutletMap::iterator iter = outlets.begin();
-          iter != outlets.end();
-          iter++){
-        iter->second->wpp(1); // the rest 1-n tokens are discarded
-      }
-    }else{
-      //std::cerr << "this is an undefined channel due to non strict semantics: "
-      //          << this->name() << "(" << n <<") " << signalDelay.size()
-      //          << " @ " << sc_time_stamp() << endl;
+      assert(commitedInAdvance>0);
+      commitedInAdvance--;
     }
+
+    // we still have dangling communication 
+    if(commitedInAdvance > 0) this->eventNoCommunication.notify();
+
+    for(typename OutletMap::iterator iter = outlets.begin();
+        iter != outlets.end();
+        iter++){
+      iter->second->wpp(1); // the rest 1-n tokens are discarded
+    }
+    //FIXME: is there an issue with non strict SR signals?
+    //if(signalDelay.begin() != signalDelay.end()){
+    //}else{
+    //std::cerr << "this is an undefined channel due to non strict semantics: "
+    //          << this->name() << "(" << n <<") " << signalDelay.size()
+    //          << " @ " << sc_time_stamp() << endl;
   }
 
   smoc_ref_event_p getLatencyEvent() {
@@ -564,6 +577,7 @@ protected:
 private:
   Entry  entry;
   OutletMap outlets;
+  size_t commitedInAdvance;
 
   void reset(){
     entryValue.reset();
