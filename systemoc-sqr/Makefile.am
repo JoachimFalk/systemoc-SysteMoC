@@ -31,8 +31,8 @@ endif
 if SYNTH_VAST
   VASTSYNTH_SUBDIR = vast-synthesis
   VAST_RES_AWARE_SYNTH_SUBDIR = vast-res-aware-synthesis
-  include $(root_builddir)/Synthesis-Vast/Rules-Synth.mk
-  include $(root_builddir)/Synthesis-Vast/ResAware-Synth.mk
+  include $(pkg_synthesis_vast_builddir)/Rules-Synth.mk
+  include $(pkg_synthesis_vast_builddir)/ResAware-Synth.mk
 endif
 if SYNTH_MPI
   MPI_SYNTH_SUBDIR = synthesis-mpi

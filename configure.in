@@ -64,7 +64,7 @@ ACJF_CHECK_PKG([Synthesis-TLM], [Synthesis-TLM], [synth_tlm=true], [synth_tlm=fa
 AM_CONDITIONAL(SYNTH_TLM, test x"$synth_tlm" = x"true")
 ACJF_CHECK_PKG([Synthesis-MPI], [Synthesis-MPI], [synth_mpi=true], [synth_mpi=false])
 AM_CONDITIONAL(SYNTH_MPI, test x"$synth_mpi" = x"true")
-ACJF_CHECK_PKG([Synthesis-VAST], [Synthesis-VAST], [synth_vast=true], [synth_vast=false])
+ACJF_CHECK_PKG([Synthesis-Vast], [Synthesis-Vast], [synth_vast=true], [synth_vast=false])
 AM_CONDITIONAL(SYNTH_VAST, test x"$synth_vast" = x"true")
 
 AC_ARG_ENABLE(synthesis-support,
