@@ -29,7 +29,7 @@ if SYNTH_SW
   include $(pkg_synthesis_sw_builddir)/Rules-Synth.mk
 endif
 if SYNTH_VAST
-  VASTSYNTH_SUBDIR = vast-synthesis
+  VASTSYNTH_SUBDIR = synthesis-vast
   VAST_RES_AWARE_SYNTH_SUBDIR = vast-res-aware-synthesis
   include $(pkg_synthesis_vast_builddir)/Rules-Synth.mk
   include $(pkg_synthesis_vast_builddir)/ResAware-Synth.mk
@@ -104,9 +104,9 @@ synth-tlm: $(TLM_SYNTH_SUBDIR)/smoc-tlmsynth-all-sqr.stamp
 endif
 
 if SYNTH_VAST
-vastsynth: $(VASTSYNTH_SUBDIR)/sqrvirtualPrototype.stamp
+synth-vast: $(VASTSYNTH_SUBDIR)/sqrvirtualPrototype.stamp
 $(VASTSYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
-.PHONY: vastsynth 
+.PHONY: synth-vast 
 
 vast-res-aware-synth: $(VAST_RES_AWARE_SYNTH_SUBDIR)/vast_target_sw-sqr.stamp \
   			$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqrvsp.stamp
