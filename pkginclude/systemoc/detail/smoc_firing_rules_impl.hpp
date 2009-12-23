@@ -36,6 +36,12 @@
 #ifndef _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP
 #define _INCLUDED_SMOC_DETAIL_FIRING_RULES_IMPL_HPP
 
+#ifdef _MSC_VER
+#include <CoSupport/compatibility-glue/integertypes.h>
+#else
+#include <stdint.h>
+#endif // _MSC_VER
+
 #include <list>
 #include <set>
 #include <vector>
