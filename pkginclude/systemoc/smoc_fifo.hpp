@@ -316,7 +316,11 @@ public:
   typedef smoc_fifo<T>                  this_type;
   typedef typename this_type::chan_type chan_type;
   typedef typename chan_type::chan_init base_type;
+#ifdef _MSC_VER
+  friend typename this_type::con_type;
+#else
   friend class this_type::con_type;
+#endif // _MSC_VER
   friend class smoc_reset_net;
 private:
   chan_type *chan;

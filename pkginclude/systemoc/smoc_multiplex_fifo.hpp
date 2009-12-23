@@ -874,7 +874,11 @@ public:
     typedef T                               data_type;
     typedef chan_init                       this_type;
     typedef smoc_multiplex_vfifo_chan<T,A>  chan_type;
+#ifdef _MSC_VER
+    friend typename this_type::con_type;
+#else
     friend class this_type::con_type;
+#endif // _MSC_VER
     friend class smoc_multiplex_vfifo_chan<T,A>;
     friend class smoc_multiplex_fifo<T,A>;
   private:
@@ -945,7 +949,11 @@ public:
   //typedef boost::shared_ptr<chan_type> PChannel;
   typedef chan_type* PChannel;
   
+#ifdef _MSC_VER
+  friend typename this_type::con_type;
+#else
   friend class this_type::con_type;
+#endif // _MSC_VER
   friend class smoc_reset_net;
 
 private:
