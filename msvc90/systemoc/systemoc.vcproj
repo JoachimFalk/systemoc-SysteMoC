@@ -147,91 +147,99 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\hscd_tdsim_TraceLog.cpp"
+			RelativePath="..\..\smoc-core\hscd_tdsim_TraceLog.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_ast_systemoc.cpp"
+			RelativePath="..\..\smoc-core\IdPool.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_chan_if.cpp"
+			RelativePath="..\..\smoc-core\smoc_actor.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_elab_and_sim.cpp"
+			RelativePath="..\..\smoc-core\smoc_chan_if.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_fifo.cpp"
+			RelativePath="..\..\smoc-core\smoc_debug_stream.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_firing_rules.cpp"
+			RelativePath="..\..\smoc-core\smoc_elab_and_sim.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_func_call.cpp"
+			RelativePath="..\..\smoc-core\smoc_fifo.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_graph_synth.cpp"
+			RelativePath="..\..\smoc-core\smoc_firing_rules.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_graph_type.cpp"
+			RelativePath="..\..\smoc-core\smoc_func_call.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_guard.cpp"
+			RelativePath="..\..\smoc-core\smoc_graph_synth.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_latency_queues.cpp"
+			RelativePath="..\..\smoc-core\smoc_graph_type.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_main.cpp"
+			RelativePath="..\..\smoc-core\smoc_hooking.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_moc.cpp"
+			RelativePath="..\..\smoc-core\smoc_latency_queues.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_multicast_sr_signal.cpp"
+			RelativePath="..\..\smoc-core\smoc_main.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_multiplex_fifo.cpp"
+			RelativePath="..\..\smoc-core\smoc_moc.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_multireader_fifo.cpp"
+			RelativePath="..\..\smoc-core\smoc_multicast_sr_signal.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_ngx_sync.cpp"
+			RelativePath="..\..\smoc-core\smoc_multiplex_fifo.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_pggen.cpp"
+			RelativePath="..\..\smoc-core\smoc_multireader_fifo.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_root_chan.cpp"
+			RelativePath="..\..\smoc-core\smoc_reset.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_root_node.cpp"
+			RelativePath="..\..\smoc-core\smoc_root_chan.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_root_port.cpp"
+			RelativePath="..\..\smoc-core\smoc_root_node.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\smoc_sysc_port.cpp"
+			RelativePath="..\..\smoc-core\smoc_simulation_ctx.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\smoc-core\smoc_sysc_port.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\smoc-core\SMXDumper.cpp"
 			>
 		</File>
 	</Files>
