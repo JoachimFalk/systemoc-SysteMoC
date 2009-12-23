@@ -316,7 +316,9 @@ void smoc_root_node::signaled(smoc_event_waiter *e) {
         }
       }
       
+#ifdef SYSTEMOC_ENABLE_DEBUG
       assert(!(oldct != NULL && ct == NULL) && "WTF?! Event was enabled but transition vanished!");
+#endif // SYSTEMOC_ENABLE_DEBUG
       
       if (ct) {
 #ifdef SYSTEMOC_DEBUG
