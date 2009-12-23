@@ -346,7 +346,8 @@ public:
     return *this;
   }
   
-  using this_type::con_type::operator<<;
+  //using this_type::con_type::operator<<;
+  using SysteMoC::Detail::ConnectProvider<smoc_fifo<T>, smoc_fifo_chan<T> >::operator<<;
 
 private:
   chan_type *getChan() {

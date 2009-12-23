@@ -264,7 +264,9 @@ public:
   }
 
 //using this_type::con_type::operator<<;
-  using this_type::con_type::connect;
+  using SysteMoC::Detail::ConnectProvider<
+      smoc_reset_net,
+      smoc_reset_chan>::connect;
 
   this_type& operator<<(smoc_reset_port& p)
     { return this_type::con_type::connect(p); }
