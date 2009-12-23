@@ -237,7 +237,10 @@ public:
   ImplType *getImpl() const;
   using smoc_firing_state_base::operator=;
 };
-
+#ifdef _MSC_VER
+// Visual Studio defines "IN" 
+#undef IN
+#endif // _MSC_VER
 struct IN {
   smoc_hierarchical_state::ConstRef s;
   bool neg;
