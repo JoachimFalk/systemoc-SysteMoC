@@ -62,15 +62,7 @@ static inline
 void smoc_wait(smoc_event_waiter &e)
   { return CoSupport::SystemC::wait(e); }
 
-class smoc_ref_event
-: public CoSupport::SmartPtr::RefCountObject, public smoc_event {
-public:
-  typedef smoc_ref_event this_type;
-public:
-  smoc_ref_event(bool startNotified = false)
-    : smoc_event(startNotified) {}
-};
-
-typedef boost::intrusive_ptr<smoc_ref_event> smoc_ref_event_p;
+typedef CoSupport::SystemC::RefCountEvent    smoc_ref_event;
+typedef CoSupport::SystemC::RefCountEventPtr smoc_ref_event_p;
 
 #endif // _INCLUDED_DETAIL_SMOC_EVENT_DECLS_HPP

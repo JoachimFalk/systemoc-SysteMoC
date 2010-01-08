@@ -307,7 +307,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     actor->diiEvent->reset();
     smoc_ref_event_p latEvent(new smoc_ref_event());
     
-    SystemC_VPC::EventPair p(actor->diiEvent.get(), latEvent.get());
+    SystemC_VPC::EventPair p(actor->diiEvent, latEvent);
     
     // new FastLink interface
     if(mode & GO) {
@@ -347,7 +347,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 # endif // SYSTEMOC_DEBUG
           assert(_e == &*latEvent);
           assert(*_e);
-          latEvent = NULL;
+          //latEvent = NULL;
 # ifdef SYSTEMOC_TRACE
           TraceLog.traceEndActor(actor);
 # endif

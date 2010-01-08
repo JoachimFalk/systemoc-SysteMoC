@@ -59,7 +59,7 @@ namespace Detail {
 #   endif // SYSTEMOC_DEBUG
       assert(_e == event.get());
       assert(*_e);
-      event = NULL;
+      //event = NULL;
       TraceLog.traceEndActor(fifo);
       return;
     }
@@ -124,9 +124,9 @@ namespace Detail {
 //    TraceLog.traceEndFunction("transmit");
       TraceLog.traceEndActor(chan);
       
-      SystemC_VPC::EventPair p(diiEvent.get(), latEvent.get());
+      SystemC_VPC::EventPair p(diiEvent, latEvent);
 # else
-      SystemC_VPC::EventPair p(&dummy, latEvent.get());
+      SystemC_VPC::EventPair p(dummy, latEvent);
 # endif
       // new FastLink interface
       chan->vpcLink->compute(p);

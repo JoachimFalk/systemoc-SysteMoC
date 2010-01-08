@@ -87,7 +87,7 @@ private:
 protected:
   EventQueue       requestQueue;
   EventQueue       visibleQueue;
-  smoc_event       dummy;
+  smoc_ref_event_p dummy;
   smoc_root_chan  *chan;
 protected:
   /// @brief See EventQueue
@@ -98,7 +98,7 @@ public:
       smoc_root_chan *chan)
     : requestQueue(std::bind1st(
         std::mem_fun(&this_type::actorTokenLatencyExpired), this)),
-      visibleQueue(latencyExpired), chan(chan) {}
+      visibleQueue(latencyExpired), dummy(new smoc_ref_event()), chan(chan) {}
 
   void addEntry(size_t n, const smoc_ref_event_p &latEvent)
     { requestQueue.addEntry(n, latEvent); }
