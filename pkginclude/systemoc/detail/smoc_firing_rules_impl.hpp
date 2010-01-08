@@ -100,7 +100,7 @@ private:
 
   /// @brief Action
   smoc_action f;
-protected:
+public:
   TransitionBase(
       Guard const &g,
       const smoc_action &f);
@@ -111,6 +111,10 @@ public:
 
   /// @brief Returns the action
   const smoc_action &getAction() const
+    { return f; }
+
+  /// @brief Returns the action
+  smoc_action &getAction()
     { return f; }
 };
 

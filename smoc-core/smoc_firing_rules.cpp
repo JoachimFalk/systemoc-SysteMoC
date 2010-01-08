@@ -314,7 +314,8 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
       vpcLink->compute(p);
     }
     else if(mode & TICK) {
-      smoc_sr_func_pair* fp = boost::get<smoc_sr_func_pair>(&getAction());
+      const smoc_sr_func_pair* fp =
+        boost::get<smoc_sr_func_pair>(&getAction());
       assert(fp);
       fp->tickLink->compute(p);
     }
@@ -426,10 +427,15 @@ void RuntimeTransition::finalise() {
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS  
 #ifdef SYSTEMOC_ENABLE_VPC
+  /*
   if (dynamic_cast<smoc_actor *>(actor) != NULL) {
     vpcLink = boost::apply_visitor(
         VPCLinkVisitor(actor->name()), getAction());
   }
+  */
+  assert(0);
+  vpcLink = boost::apply_visitor(
+    VPCLinkVisitor("FIXME"), getAction());
 #endif //SYSTEMOC_ENABLE_VPC
 }
 
