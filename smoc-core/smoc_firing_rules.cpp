@@ -416,7 +416,7 @@ bool RuntimeTransition::evaluateGuard() const {
   }
 }
 
-void RuntimeTransition::finalise() {
+void RuntimeTransition::finalise(const smoc_root_node *node) {
   smoc_event_and_list tmp;
   Expr::evalTo<Expr::Sensitivity>(getExpr(), tmp);
 
@@ -433,9 +433,8 @@ void RuntimeTransition::finalise() {
         VPCLinkVisitor(actor->name()), getAction());
   }
   */
-  assert(0);
   vpcLink = boost::apply_visitor(
-    VPCLinkVisitor("FIXME"), getAction());
+    VPCLinkVisitor(node->name()), getAction());
 #endif //SYSTEMOC_ENABLE_VPC
 }
 
@@ -465,12 +464,13 @@ const RuntimeTransitionList& RuntimeState::getTransitions() const
 RuntimeTransitionList& RuntimeState::getTransitions()
   { return tl; }
   
-void RuntimeState::addTransition(const RuntimeTransition& t) {
+void RuntimeState::addTransition(const RuntimeTransition& t,
+                                 const smoc_root_node *node) {
   tl.push_back(t);
 
   RuntimeTransition& tr = tl.back();
 
-  tr.finalise();
+  tr.finalise(node);
   am.insert(tr.ap);
 }
 
@@ -723,7 +723,8 @@ void FiringFSMImpl::finalise(
           rs->addTransition(
               RuntimeTransition(
                 t->getCachedTransitionBase(),
-                rd));
+                rd),
+              actor);
 #ifdef FSM_FINALIZE_BENCHMARK
           nRunTrans++;
 #endif // FSM_FINALIZE_BENCHMARK
