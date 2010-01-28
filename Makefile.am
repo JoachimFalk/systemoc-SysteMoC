@@ -35,7 +35,8 @@ noinst_PROGRAMS=		\
 	guards			\
 	rates			\
 	data-flow		\
-	ping
+	ping			\
+	mini-filter
 
 hello_SOURCES= hello-systemoc.cpp
 hello_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
@@ -54,5 +55,8 @@ data_flow_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 ping_SOURCES= ping.cpp
 ping_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+
+mini_filter_SOURCES= mini-filter.cpp
+mini_filter_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
 
