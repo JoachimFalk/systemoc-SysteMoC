@@ -76,10 +76,11 @@ public:
     size_t      n;
   };
 
+//method made public to access it from smoc_register
+  void setSignalState(SignalState s);
+
 protected:
   SignalState getSignalState() const;
-
-  void setSignalState(SignalState s);
 
   void wpp(size_t n);
 
@@ -208,7 +209,8 @@ public:
   void allowUndefinedRead(bool allow) {
     undefinedRead = allow;
     chan->lessSpace();
-    moreData();
+   //it was moreData(), which isn't defined here. 
+    moreData(0);
   }
   
   /// @brief See smoc_multicast_outlet_base
@@ -369,7 +371,7 @@ public:
              " using non-strict blocks like non-strict AND!"
                 << std::endl;
       //FIXME(MS): replace with signal value wrapper
-      if(marking.size)marking[0]=x;
+      if(marking.size())marking[0]=x;
       else marking.push_back(x);
     }
   protected:

@@ -71,6 +71,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_pggen.hpp \
 	systemoc/smoc_port.hpp \
 	systemoc/smoc_reset.hpp \
+	systemoc/smoc_register.hpp \
 	systemoc/smoc_sr_signal.hpp
 
 if SYSTEMOC_ENABLE_WSDF
