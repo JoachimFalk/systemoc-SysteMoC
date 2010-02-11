@@ -57,6 +57,7 @@
 
 #include <smoc/smoc_simulation_ctx.hpp>
 #include <smoc/detail/NamedIdedObj.hpp>
+#include <smoc/detail/IOPattern.hpp>
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
 # include <smoc/smoc_hooking.hpp>
@@ -93,6 +94,19 @@ typedef std::set<const FiringStateImpl*> ProdState;
 typedef std::set<const HierarchicalStateImpl*> MultiState;
 typedef std::map<const HierarchicalStateImpl*,bool> CondMultiState;
 
+
+/**
+ * Lifetime of PartialTransition, ExpandedTransition and TransitionBase:
+ *
+ * PartialTransition represents the transitions modeled by the user.
+ * PartialTransitions, especially in the presence of connector states, are
+ * expanded to ExpandedTransitions. ExpandedTransitions are used to build the
+ * product FSM, which leeds to the creation of RuntimeTransitions. Several
+ * RuntimeTransitions in the product FSM share smoc_actions and guards in terms
+ * of a TransitionBase derived from the ExpandedTransition.
+ *
+ * FIXME: name this (final) TransitionBase explicit (maybe TransitionImpl).
+ */
 class TransitionBase {
 private:
   /// @brief guard (AST assembled from smoc_expr.hpp nodes)
@@ -100,6 +114,9 @@ private:
 
   /// @brief Action
   smoc_action f;
+
+  ///
+  SysteMoC::Detail::IOPattern* ioPattern;
 public:
   TransitionBase(
       Guard const &g,
@@ -116,6 +133,14 @@ public:
   /// @brief Returns the action
   smoc_action &getAction()
     { return f; }
+
+  /// @brief Returns input/output pattern (enough token/free space)
+  const SysteMoC::Detail::IOPattern* getIOPattern () const
+    { assert(ioPattern); return ioPattern; }
+
+  /// @brief Returns input/output pattern (enough token/free space)
+  void setIOPattern (SysteMoC::Detail::IOPattern* iop)
+    { ioPattern = iop; }
 };
 
 class PartialTransition : public TransitionBase {
@@ -206,8 +231,6 @@ private:
 
   /// @brief Target state
   RuntimeState        *dest;
-  /// @brief input/output pattern (enough token/free space)
-  smoc_event_and_list *ap;
 
 #ifdef SYSTEMOC_ENABLE_VPC
   /// @brief FastLink to VPC
@@ -239,6 +262,10 @@ public:
 
   /// @brief Returns the guard
   const Expr::Ex<bool>::type &getExpr() const;
+
+  /// @brief Returns waiter for input/output pattern (enough token/free space)
+  smoc_event_waiter* getIOPatternWaiter() const
+    { return transitionBase->getIOPattern()->getWaiter(); }
 
   bool evaluateIOP() const;
   bool evaluateGuard() const;
@@ -375,10 +402,10 @@ public:
   /// @brief Add transition list to transitions
   void addTransition(const smoc_transition_list& stl);
 
-  /// @bried Add transitions
+  /// @brief Add transitions
   void addTransition(const PartialTransitionList& ptl);
 
-  /// @bried Add transition
+  /// @brief Add transition
   void addTransition(const PartialTransition& pt);
 
   /// @brief Clear transition list

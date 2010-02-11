@@ -152,10 +152,10 @@ const CondMultiState& ExpandedTransition::getCondStates() const
 const MultiState& ExpandedTransition::getDestStates() const
   { return dest; }
 
-smoc_event_and_list *getCAP(const smoc_event_and_list &ap) {
-  typedef std::set<smoc_event_and_list> Cache;
+IOPattern *getCachedIOPattern(const IOPattern &iop) {
+  typedef std::set<IOPattern> Cache;
   static Cache* cache = new Cache();
-  return &const_cast<smoc_event_and_list&>(*cache->insert(ap).first);
+  return &const_cast<IOPattern&>(*cache->insert(iop).first);
 }
 
 /// @brief Constructor
@@ -163,8 +163,13 @@ RuntimeTransition::RuntimeTransition(
     const boost::shared_ptr<TransitionBase> &tbp,
     RuntimeState *dest)
   : transitionBase(tbp),
-    dest(dest),
-    ap(NULL) {}
+    dest(dest) {
+  IOPattern tmp;
+  Expr::evalTo<Expr::Sensitivity>(getExpr(), tmp);
+  tmp.finalise();
+  IOPattern* iop = getCachedIOPattern(tmp);
+  transitionBase->setIOPattern(iop);
+}
 
 const Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
   { return transitionBase->getExpr(); }
@@ -398,7 +403,7 @@ bool RuntimeTransition::evaluateIOP() const {
 #ifdef SYSTEMOC_DEBUG
   outDbg << "[" << ap << "] " << *ap << std::endl;
 #endif
-  return ap->isActive();
+  return getIOPatternWaiter()->isActive();
 }
 
 bool RuntimeTransition::evaluateGuard() const {
@@ -417,10 +422,6 @@ bool RuntimeTransition::evaluateGuard() const {
 }
 
 void RuntimeTransition::finalise(const smoc_root_node *node) {
-  smoc_event_and_list tmp;
-  Expr::evalTo<Expr::Sensitivity>(getExpr(), tmp);
-
-  ap = getCAP(tmp);
 
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
@@ -471,7 +472,7 @@ void RuntimeState::addTransition(const RuntimeTransition& t,
   RuntimeTransition& tr = tl.back();
 
   tr.finalise(node);
-  am.insert(tr.ap);
+  am.insert(tr.getIOPatternWaiter());
 }
 
 FiringFSMImpl::FiringFSMImpl()
@@ -625,11 +626,14 @@ void FiringFSMImpl::finalise(
 //    {outDbg << "finalising states" << std::endl;
 //    ScopedIndent s1(outDbg);
    
+    assert(states.empty());
+    /* // all states should be in top state
     for(FiringStateBaseImplSet::iterator sIter = states.begin();
         sIter != states.end(); ++sIter)
     {
       (*sIter)->finalise(etl);
     }
+    */
 
     //top->setCodeAndBits(0,1);
     top->finalise(etl);

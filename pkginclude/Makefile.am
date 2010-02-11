@@ -25,6 +25,7 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 nobase_include_HEADERS = \
+	smoc/detail/IOPattern.hpp \
 	smoc/detail/DumpingInterfaces.hpp \
 	smoc/detail/IdPool.hpp \
 	smoc/detail/IdTAllocRequest.hpp \

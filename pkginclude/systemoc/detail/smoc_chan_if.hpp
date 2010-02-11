@@ -52,6 +52,7 @@
 #include "smoc_event_decls.hpp"
 #include "../smoc_expr.hpp"
 #include "smoc_debug_stream.hpp"
+#include "smoc/detail/IOPattern.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 // forward declaration
@@ -181,13 +182,17 @@ struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::OpBinT::Ge> >
   typedef Detail::Process      match_type;
 
   typedef void                 result_type;
-  typedef smoc_event_and_list &param1_type;
+  typedef Detail::IOPattern   &param1_type;
 
   static
   void apply(const DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::OpBinT::Ge> &e,
-             smoc_event_and_list &al)
+             Detail::IOPattern &ap)
   {
-    al &= e.a.getCI().blockEvent(Value<DLiteral<T> >::apply(e.b));
+    size_t numberRequiredTokens = Value<DLiteral<T> >::apply(e.b);
+    smoc_event& blockEvent =  e.a.getCI().blockEvent(numberRequiredTokens);
+    smoc_sysc_port& port = e.a.p;
+    ap.addPortRequirement(port, numberRequiredTokens, blockEvent);
+
 //#ifdef SYSTEMOC_DEBUG
 //  outDbg << EXPR << "Sensitivity<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >::apply al == " << al << std::endl << INFO;
 //#endif
