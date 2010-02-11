@@ -71,6 +71,7 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/smoc_multicast_sr_signal.cpp	\
 	smoc-core/smoc_reset.cpp		\
 	smoc-core/smoc_graph_type.cpp		\
+	smoc-core/smoc_graph_tt.cpp		\
 	smoc-core/smoc_actor.cpp		\
 	smoc-core/smoc_root_node.cpp		\
 	smoc-core/smoc_sysc_port.cpp		\

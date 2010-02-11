@@ -61,6 +61,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_firing_rules.hpp \
 	systemoc/smoc_func_call.hpp \
 	systemoc/smoc_graph_type.hpp \
+	systemoc/smoc_graph_tt.hpp \
 	systemoc/smoc_guard.hpp \
 	systemoc/smoc_moc.hpp \
 	systemoc/smoc_module_name.hpp \

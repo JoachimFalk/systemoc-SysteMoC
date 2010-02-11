@@ -384,12 +384,11 @@ void smoc_root_node::schedule() {
   
   if (ct == NULL)
     setCurrentState(currentState);
-  while (ct) {
-//  assert(ct->evaluateIOP());
-//  assert(ct->evaluateGuard());
-    ct->execute(this);
-  }
-  
+  //while (ct) {
+  assert(ct->evaluateIOP());
+  assert(ct->evaluateGuard());
+  ct->execute(this);
+  //}
   // also del/add me as listener  
   if(currentState != oldState) {
     { 
@@ -413,7 +412,9 @@ void smoc_root_node::schedule() {
   }
 
   executing = false;
-  smoc_event::reset();
+  if(!ct){  
+    smoc_event::reset();
+  }
 
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_root_node::schedule>" << std::endl;
