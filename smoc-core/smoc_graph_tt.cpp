@@ -55,7 +55,7 @@ void smoc_graph_tt::initTT() {
 
 void smoc_graph_tt::scheduleTT() {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "<smoc_graph::scheduleTT name=\"" << name() << "\">"
+  outDbg << "<smoc_graph_tt::scheduleTT name=\"" << name() << "\">"
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
   while(ddf_nodes_activations){
@@ -72,6 +72,9 @@ void smoc_graph_tt::scheduleTT() {
       ddf_nodes_activations.remove(n);
       ttNodeQueue.registerNode(p_node, p_node->getNextReleasetime());
     }
+#ifdef SYSTEMOC_DEBUG
+    outDbg << Indent::Down << "</node>" << std::endl;
+#endif // SYSTEMOC_DEBUG
   }
   while(ttNodeQueue){ // TT-Scheduled
     smoc_root_node* next = ttNodeQueue.getNextNode();
@@ -81,13 +84,17 @@ void smoc_graph_tt::scheduleTT() {
     outDbg << "<node name=\"" << next->name() << "\">" << std::endl
            << Indent::Up;
 #endif // SYSTEMOC_DEBUG
-    std::cerr << "<node name=\"" << next->name() << "\"> @" << sc_time_stamp()  << std::endl;
     entry->schedule();
     if(entry->inCommState()){ // Node needs some time to process (VPC is used), switch node to DDF
       ddf_nodes_activations |= *next;
     }else{ // Node completely processed -> re-register it in the ttNodeQueue
       ttNodeQueue.registerNode(entry, entry->getNextReleasetime());
     }
-
+#ifdef SYSTEMOC_DEBUG
+    outDbg << Indent::Down << "</node>" << std::endl;
+#endif // SYSTEMOC_DEBUG
   }
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_graph_tt::scheduleTT>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }

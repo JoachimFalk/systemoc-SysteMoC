@@ -401,7 +401,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 
 bool RuntimeTransition::evaluateIOP() const {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "[" << ap << "] " << *ap << std::endl;
+  outDbg << "[" << getIOPatternWaiter() << "] " << *getIOPatternWaiter() << std::endl;
 #endif
   return getIOPatternWaiter()->isActive();
 }
