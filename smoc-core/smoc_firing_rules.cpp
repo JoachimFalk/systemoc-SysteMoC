@@ -622,27 +622,25 @@ void FiringFSMImpl::finalise(
     
     ExpandedTransitionList etl;
 
-    // finalise states -> expanded transitions
-//    {outDbg << "finalising states" << std::endl;
-//    ScopedIndent s1(outDbg);
-   
-    assert(states.empty());
-    /* // all states should be in top state
+//  // finalise states -> expanded transitions
+//  {outDbg << "finalising states" << std::endl;
+//  ScopedIndent s1(outDbg);
+    
+    // finalize all non-hierarchical states, i.e., dynamic_cast<HierarchicalStateImpl*>(...) == NULL
     for(FiringStateBaseImplSet::iterator sIter = states.begin();
         sIter != states.end(); ++sIter)
     {
       (*sIter)->finalise(etl);
     }
-    */
 
     //top->setCodeAndBits(0,1);
     top->finalise(etl);
 
 //    }
 
-    // calculate runtime states and transitions
-//    {outDbg << "calculating runtime states / transitions" << std::endl;
-//    ScopedIndent s1(outDbg);
+//  // calculate runtime states and transitions
+//  {outDbg << "calculating runtime states / transitions" << std::endl;
+//  ScopedIndent s1(outDbg);
 
     assert(rts.empty());
 
