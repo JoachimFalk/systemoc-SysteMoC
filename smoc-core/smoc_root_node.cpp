@@ -384,11 +384,14 @@ void smoc_root_node::schedule() {
   
   if (ct == NULL)
     setCurrentState(currentState);
-  //while (ct) {
-  assert(ct->evaluateIOP());
-  assert(ct->evaluateGuard());
-  ct->execute(this);
-  //}
+
+  // ct may be NULL if
+  // t->evaluateIOP() holds and t->evaluateGuard() fails for all transitions t
+  if (ct != NULL) {
+    assert(ct->evaluateIOP());
+    assert(ct->evaluateGuard());
+    ct->execute(this);
+  }
   // also del/add me as listener  
   if(currentState != oldState) {
     { 
