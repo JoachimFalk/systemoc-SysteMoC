@@ -155,6 +155,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\smoc-core\IOPattern.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\smoc-core\smoc_actor.cpp"
 			>
 		</File>
