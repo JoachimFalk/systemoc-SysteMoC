@@ -90,7 +90,6 @@ public:
   template <class E> friend class CommSetup;
   template <class E> friend class CommReset;
 #endif
-  template <class E> friend class Sensitivity;
   template <class E> friend class Value;
 private:
   smoc_sysc_port &p;
@@ -176,29 +175,6 @@ struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
 };
 #endif
 
-template <class CI, typename T>
-struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::OpBinT::Ge> >
-{
-  typedef Detail::Process      match_type;
-
-  typedef void                 result_type;
-  typedef Detail::IOPattern   &param1_type;
-
-  static
-  void apply(const DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::OpBinT::Ge> &e,
-             Detail::IOPattern &ap)
-  {
-    size_t numberRequiredTokens = Value<DLiteral<T> >::apply(e.b);
-    smoc_event& blockEvent =  e.a.getCI().blockEvent(numberRequiredTokens);
-    smoc_sysc_port& port = e.a.p;
-    ap.addPortRequirement(port, numberRequiredTokens, blockEvent);
-
-//#ifdef SYSTEMOC_DEBUG
-//  outDbg << EXPR << "Sensitivity<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >::apply al == " << al << std::endl << INFO;
-//#endif
-  }
-};
-
 template <class CI, class E>
 struct Value<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
 {
@@ -236,19 +212,21 @@ public:
   friend class Value<this_type>;
 private:
   smoc_sysc_port &p;
-  E               e;
+  E               commited; // was "E   e;"
+  E               required;
 
   CI &getCI() const {
     return *static_cast<CI *>(
       const_cast<smoc_port_base_if *>(p.get_interface()));
   }
 public:
-  explicit DComm(smoc_sysc_port &p, const E &e): p(p), e(e) {}
+  explicit DComm(smoc_sysc_port &p, const E &c, const E &r):
+    p(p), commited(c), required(r) {}
 };
 
 template<class CI, class E>
 struct D<DComm<CI,E> >: public DBase<DComm<CI,E> > {
-  D(smoc_sysc_port &p, const E &e): DBase<DComm<CI,E> >(DComm<CI,E>(p,e)) {}
+  D(smoc_sysc_port &p, const E &r, const E &c): DBase<DComm<CI,E> >(DComm<CI,E>(p, r, c)) {}
 };
 
 // Make a convenient typedef for the token type.
@@ -258,8 +236,10 @@ struct Comm {
 };
 
 template <class P, class E>
-typename Comm<typename P::chan_base_type,E>::type comm(P &p, const E &e)
-  { return typename Comm<typename P::chan_base_type,E>::type(p,e); }
+typename Comm<typename P::chan_base_type,E>::type comm(P &p,
+                                                       const E &r,
+                                                       const E &c)
+  { return typename Comm<typename P::chan_base_type,E>::type(p,r,c); }
 
 template<class CI, class E>
 class VisitorApplication<DComm<CI,E> > {
@@ -269,7 +249,32 @@ public:
 
   static inline
   result_type apply(const DComm<CI,E> &e, param1_type p)
-    { return p.visitComm(e.p, boost::bind(VisitorApplication<E>::apply, e.e, _1)); }
+    { return p.visitComm(e.p, boost::bind(VisitorApplication<E>::apply, e.commited, _1)); }
+};
+
+template <class CI, class E>
+struct Sensitivity<DComm<CI,E> >
+{
+  typedef Detail::Process      match_type;
+
+  typedef void                 result_type;
+  typedef Detail::IOPattern   &param1_type;
+
+  static
+  void apply(const DComm<CI,E> &comm,
+             Detail::IOPattern &ap)
+  {
+    size_t numberRequiredTokens = Value<E>::apply(comm.required);
+    smoc_event& blockEvent =  comm.getCI().blockEvent(numberRequiredTokens);
+    smoc_sysc_port& port = comm.p;
+    ap.addPortRequirement(port, numberRequiredTokens, blockEvent);
+#ifdef SYSTEMOC_DEBUG
+    outDbg << "Sensitivity: match comm" << std::endl;
+    outDbg << "req: " << numberRequiredTokens << "\t"
+              << blockEvent  << "\t"
+              << &port << std::endl;
+#endif
+  }
 };
 
 template <class CI, class E>
@@ -288,7 +293,7 @@ struct CommExec<DComm<CI, E> > {
     outDbg << EXPR << "CommExec<DComm<CI, E> >"
                  "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
 # endif
-    return e.getCI().commExec(Value<E>::apply(e.e), diiEvent, latEvent);
+    return e.getCI().commExec(Value<E>::apply(e.commited), diiEvent, latEvent);
   }
 #else
   static inline
@@ -357,7 +362,10 @@ public:
     CommAndPortTokensGuard communicate(size_t n, size_t m) {
       assert(m >= n);
       return
-        Expr::comm(*getImpl(), Expr::DLiteral<size_t>(n)) &&
+        Expr::comm(*getImpl(),
+                   Expr::DLiteral<size_t>(n),
+                   Expr::DLiteral<size_t>(m))
+        && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
         Expr::portTokens(*getImpl()) >= m;
     }
 
@@ -445,7 +453,10 @@ public:
     CommAndPortTokensGuard communicate(size_t n, size_t m) {
       assert(m >= n);
       return
-        Expr::comm(*getImpl(), Expr::DLiteral<size_t>(n)) &&
+        Expr::comm(*getImpl(),
+                   Expr::DLiteral<size_t>(n),
+                   Expr::DLiteral<size_t>(m))
+        && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
         Expr::portTokens(*getImpl()) >= m;
     }
 
