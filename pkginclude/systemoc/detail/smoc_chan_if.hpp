@@ -302,7 +302,7 @@ struct CommExec<DComm<CI, E> > {
     outDbg << EXPR << "CommExec<DComm<CI, E> >"
                  "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
 # endif
-    return e.getCI().commExec(Value<E>::apply(e.e));
+    return e.getCI().commExec(Value<E>::apply(e.committed));
   }
 #endif
 };
