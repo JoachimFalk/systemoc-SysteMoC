@@ -371,6 +371,13 @@ public:
 
     PortTokensGuard getConsumableTokens()
       { return Expr::portTokens(*getImpl()); }
+
+    // reflect operator () to channel interface
+    CommAndPortTokensGuard operator ()(size_t n, size_t m)
+      { return this->communicate(n,m); }
+    CommAndPortTokensGuard operator ()(size_t n)
+      { return this->communicate(n,n); }
+
   };
 protected:
   // constructor
@@ -462,6 +469,13 @@ public:
 
     PortTokensGuard getFreeSpace()
       { return Expr::portTokens(*getImpl()); }
+
+    // reflect operator () to channel interface
+    CommAndPortTokensGuard operator ()(size_t n, size_t m)
+      { return this->communicate(n,m); }
+    CommAndPortTokensGuard operator ()(size_t n)
+      { return this->communicate(n,n); }
+
   };
 protected:
   // constructor

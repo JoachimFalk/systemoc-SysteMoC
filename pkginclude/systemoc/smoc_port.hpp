@@ -145,12 +145,8 @@ public:
   void bind(this_type &parent_)
     { base_type::bind(parent_); }
 
-  // reflect operator () to channel interface
-  typename this_type::CommAndPortTokensGuard operator ()(size_t n, size_t m)
-    { return this->communicate(n,m); }
-  typename this_type::CommAndPortTokensGuard operator ()(size_t n)
-    { return this->communicate(n,n); }
- 
+  using IFACE::template PortMixin<smoc_port_base<IFACE> >::operator ();
+
   void operator () (iface_type& interface_)
     { bind(interface_); }
   void operator () (this_type& parent_)
