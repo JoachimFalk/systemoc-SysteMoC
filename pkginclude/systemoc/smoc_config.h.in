@@ -31,4 +31,8 @@
 # define SYSTEMOC_NEED_IDS
 #endif /* defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX) */
 
+#if defined(SYSTEMOC_ENABLE_VPC)
+# define PORT_ACCESS_COUNTER
+#endif
+
 #endif /* _INCLUDED_SMOC_CONFIG_H */

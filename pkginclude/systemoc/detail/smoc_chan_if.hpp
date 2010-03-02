@@ -293,6 +293,8 @@ struct CommExec<DComm<CI, E> > {
     outDbg << EXPR << "CommExec<DComm<CI, E> >"
                  "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
 # endif
+  //std::cerr << "accessCount = " << e.getCI().getAccessCount() << std::endl;
+    e.getCI().resetAccessCount();
     return e.getCI().commExec(Value<E>::apply(e.committed), diiEvent, latEvent);
   }
 #else
@@ -319,9 +321,28 @@ struct Value<DComm<CI, E> > {
 
 } // namespace Expr
 
+class AccessCounter{
+public:
+  AccessCounter(): accessCount() {}
+
+  inline size_t getAccessCount() const   { return accessCount; }
+  inline void   resetAccessCount()       { accessCount = 0; }
+
+  // called from smoc::port_in::operator[] const
+  // -> has to be const (accessCount is mutable)
+  inline void   incrementAccessCount() const
+    { accessCount++; }
+  
+private:
+  mutable size_t accessCount;
+};
 
 class smoc_port_in_base_if
-: public smoc_port_base_if {
+: public smoc_port_base_if
+#ifdef PORT_ACCESS_COUNTER
+  , public AccessCounter
+#endif // PORT_ACCESS_COUNTER
+{
   typedef smoc_port_in_base_if this_type;
 
   friend class smoc_graph_synth;
@@ -420,7 +441,11 @@ public:
 };
 
 class smoc_port_out_base_if
-: public smoc_port_base_if {
+: public smoc_port_base_if
+#ifdef PORT_ACCESS_COUNTER
+  , public AccessCounter
+#endif // PORT_ACCESS_COUNTER
+{
   typedef smoc_port_out_base_if this_type;
 
   friend class smoc_graph_synth;

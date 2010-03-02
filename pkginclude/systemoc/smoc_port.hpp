@@ -299,13 +299,20 @@ public:
     : base_type(name, SC_ONE_OR_MORE_BOUND)
   {}
 
+  //FIXME: should be in PortMixin !!
   const return_type operator[](size_t n) const {
+#ifdef PORT_ACCESS_COUNTER
+    (*this)->incrementAccessCount();
+#endif // PORT_ACCESS_COUNTER
     return (*(this->get_chanaccess()))[n];
   }
 
+  //FIXME: should be in PortMixin !!
   // This methods depend on the channel access type
   typename Expr::Token<T>::type getValueAt(size_t n)
     { return Expr::token<T>(*this,n); }
+
+  //FIXME: should be in PortMixin !!
   bool tokenIsValid(size_t i=0) const
     { return this->get_chanaccess()->tokenIsValid(i); }
 };
@@ -335,7 +342,11 @@ public:
     : base_type(name, SC_ONE_OR_MORE_BOUND)
   {}
 
+  //FIXME: should be in PortMixin !!
   return_type operator[](size_t n)  {
+#ifdef PORT_ACCESS_COUNTER
+    (*this)->incrementAccessCount();
+#endif // PORT_ACCESS_COUNTER
     return (*(this->get_chanaccess()))[n];
   }
 };
