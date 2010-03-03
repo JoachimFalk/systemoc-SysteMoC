@@ -104,8 +104,13 @@ public:
   {
     smoc_multireader_fifo<int> f;
 
-    connector(f) << src.out << snk1.in << snk2.in << snk3.in;
+    // DEPRECATED
+    ///connector(f) << src.out << snk1.in << snk2.in << snk3.in;
 
+    f.connect(src.out);
+    f.connect(snk1.in);
+    f.connect(snk2.in);
+    f.connect(snk3.in);
   }
 };
 
