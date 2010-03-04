@@ -1,0 +1,350 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents[currentsection,hideallsubsections]
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection}}
+\begin{lstlisting}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE specificationgraph SYSTEM "specgraph.dtd">
+
+<specificationgraph name="jpeg">
+  <problemgraph id="id2827858780" name="jpeg-pg">
+    ...
+  </problemgraph>
+  <architecturegraph id="id4033050436" name="architecture graph">
+    ...
+  </architecturegraph>
+  <mappings>
+    ...
+  </mappings>
+</specificationgraph>
+\end{lstlisting}
+\begin{itemize}
+\item the XML file format is restricted by the document type definition file \lstinline!specgraph.xml!
+\item the document root element is \lstinline|specificationgraph|
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection}}
+\begin{lstlisting}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE specificationgraph SYSTEM "specgraph.dtd">
+
+<specificationgraph name="jpeg">
+  <problemgraph id="id2827858780" name="jpeg-pg">
+    ...
+  </problemgraph>
+  <architecturegraph id="id4033050436" name="architecture graph">
+    ...
+  </architecturegraph>
+  <mappings>
+    ...
+  </mappings>
+</specificationgraph>
+\end{lstlisting}
+\begin{itemize}
+\item the \lstinline|specificationgraph| element contains a \lstinline|problemgraph|, an \lstinline|architecturegraph|, and a \lstinline|mappings| element
+\item \IGX\ the root element remains \lstinline|specificationgraph|
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection\ -- Problem Graph}}
+\begin{lstlisting}
+<problemgraph id="id2827858780" name="jpeg-pg">
+  <process id="id2448767902" name="jpeg.mSrc" ... >
+    <port id="id2945827952" name="out" ... />
+    ...
+  </process>
+  <process id="id2209608313" name="cf_jpeg.mSrc_jpeg.mParser_1">
+    <attribute type="size" value="2400"/>
+    <port id="id3248109629" name="cf_jpeg.mSrc_jpeg.mParser_1.in" type="in"/>
+  </process>
+  <edge id="id1073741904" source="id2945827952" target="id3248109629"/>
+  ...
+</problemgraph>
+\end{lstlisting}
+\begin{itemize}
+\item the \lstinline|problemgraph| has \lstinline|process| and \lstinline|edge| elements
+\item a process may have \lstinline|port| elements
+\item \lstinline|edges| connect \lstinline|ports| by referring to their \lstinline|id| attributes
+\item \lstinline|edges| are directed, they have a \lstinline|source| port and a \lstinline|destination| port
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection\ -- Problem Graph}}
+\begin{lstlisting}
+<problemgraph id="id2827858780" name="jpeg-pg">
+  <process id="id2448767902" name="jpeg.mSrc" ... >
+    <port id="id2945827952" name="out" ... />
+    ...
+  </process>
+  <process id="id2209608313" name="cf_jpeg.mSrc_jpeg.mParser_1">
+    <attribute type="size" value="2400"/>
+    <port id="id3248109629" name="cf_jpeg.mSrc_jpeg.mParser_1.in" type="in"/>
+  </process>
+  <edge id="id1073741904" source="id2945827952" target="id3248109629"/>
+  ...
+</problemgraph>
+\end{lstlisting}
+\begin{itemize}
+\item \lstinline|edges| are directed, they have a \lstinline|source| port and a \lstinline|destination| port
+\item \lstinline|edges| represent communication dependencies and data flow between processes
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection\ -- Problem Graph}}
+\begin{lstlisting}
+<problemgraph id="id2827858780" name="jpeg-pg">
+  <process id="id2448767902" name="jpeg.mSrc" ... >
+    <port id="id2945827952" name="out" ... />
+    ...
+  </process>
+  <process id="id2209608313" name="cf_jpeg.mSrc_jpeg.mParser_1">
+    <attribute type="size" value="2400"/>
+    <port id="id3248109629" name="cf_jpeg.mSrc_jpeg.mParser_1.in" type="in"/>
+  </process>
+  <edge id="id1073741904" source="id2945827952" target="id3248109629"/>
+  ...
+</problemgraph>
+\end{lstlisting}
+\begin{itemize}
+\item NOTE: a \lstinline|process| element may have nested arbitrary elements representing the SystemC (\SysteMoC\ ) behavior, e.g., an actor's finite state machine
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection\ -- Structural Hierarchy}}
+\begin{lstlisting}
+<process id="id235" name="jpeg.mHuffDecoder" type="actor">
+  <port id="id238" name="jpeg.mHuffDecoder.smoc_port_in_0"/>
+  <port id="id240" name="jpeg.mHuffDecoder.smoc_port_out_0"/>
+  <problemgraph id="id551" name="jpeg.mHuffDecoder_pg">
+    <process id="id186" name="jpeg.mHuffDecoder.mInvHuffman">
+      <port id="id211" name="in" type="in"/>
+      <port id="id216" name="out" type="out"/>
+    <portmapping id="id576" from="id211" to="id238"/>
+    <portmapping id="id577" from="id216" to="id240"/>
+  </problemgraph>
+</process>
+\end{lstlisting}
+\begin{itemize}
+\item a \lstinline|process| element may contain a \lstinline|problemgraph| element
+\item the \lstinline|problemgraph| element again includes one or more \lstinline|process| elements
+\item a \lstinline|portmapping| connects corresponding inner and outer ports 
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection -- Architecture Graph}}
+\begin{lstlisting}
+  <architecturegraph id="id4033050436" name="architecture">
+    <resource id="id1073741824" name="AHB" ...>
+      <port id="id1073741943" name="SharedMemIn" type="in"/>
+      ...
+    </resource>
+    <resource id="id1073741944" name="SharedMemory" ...>
+      <attribute type="type" value="Memory"/>
+      <attribute type="start_address" value="0xF0000000"/>
+      <attribute type="size" value="1*M"/>
+      <port id="id1073741945" name="MemOut" type="out"/>
+      ...
+    </resource>
+    <edge id="id1073741947" source="id1073741945" target="id1073741943"/>
+    ...
+  </architecturegraph>
+\end{lstlisting}
+\begin{itemize}
+\item the \lstinline|architecturegraph| has \lstinline|resource| and \lstinline|edge| elements
+\item a resource may have \lstinline|port| elements (cf. problemgraph)
+\item \lstinline|edges| connect \lstinline|ports| by referring to their \lstinline|id| attributes
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection -- Architecture Graph}}
+\begin{lstlisting}
+  <architecturegraph id="id4033050436" name="architecture">
+    <resource id="id1073741824" name="AHB" ...>
+      <port id="id1073741943" name="SharedMemIn" type="in"/>
+      ...
+    </resource>
+    <resource id="id1073741944" name="SharedMemory" ...>
+      <attribute type="type" value="Memory"/>
+      <attribute type="start_address" value="0xF0000000"/>
+      <attribute type="size" value="1*M"/>
+      <port id="id1073741945" name="MemOut" type="out"/>
+      ...
+    </resource>
+    <edge id="id1073741947" source="id1073741945" target="id1073741943"/>
+    ...
+  </architecturegraph>
+\end{lstlisting}
+\begin{itemize}
+\item a \lstinline|resource| may have optional \lstinline|attribute| elements
+\item attributes may be used for evaluation of performance numbers
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection -- Architecture Graph}}
+\begin{lstlisting}
+  <architecturegraph id="id4033050436" name="architecture">
+    <resource id="id1073741824" name="AHB" ...>
+      <port id="id1073741943" name="SharedMemIn" type="in"/>
+      ...
+    </resource>
+    <resource id="id1073741944" name="SharedMemory" ...>
+      <attribute type="type" value="Memory"/>
+      <attribute type="start_address" value="0xF0000000"/>
+      <attribute type="size" value="1*M"/>
+      <port id="id1073741945" name="MemOut" type="out"/>
+      ...
+    </resource>
+    <edge id="id1073741947" source="id1073741945" target="id1073741943"/>
+    ...
+  </architecturegraph>
+\end{lstlisting}
+\begin{itemize}
+\item \IGX\ resources of an implementation graph are a subset of the resources in the corresponding specification graph
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection -- Mappings}}
+\begin{lstlisting}
+  <mappings>
+    <mapping id="id1073742068" name="cf_jpeg.mSrc_jpeg.mParser_1 - SharedMemory" source="id2209608313" target="id1073741944"/>
+    ...
+    <mapping id="id1073741977" name="jpeg.mSrc - ARM926EJS_1" source="id2448767902" target="id1073741949"/>
+  </mappings>
+\end{lstlisting}
+\begin{itemize}
+\item \lstinline|mapping| elements represent a mapping between a process and a resource, e.g., 
+\begin{itemize}
+\item a process can run on a processor resource
+\item a process is implemented as a hardware resource
+\end{itemize}
+\item the IDs refer to \lstinline|id| attributes of processes and resources
+\end{itemize}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection -- Mappings}}
+\begin{lstlisting}
+  <mappings>
+    <mapping id="id1073742068" name="cf_jpeg.mSrc_jpeg.mParser_1 - SharedMemory" source="id2209608313" target="id1073741944"/>
+    ...
+    <mapping id="id1073741977" name="jpeg.mSrc - ARM926EJS_1" source="id2448767902" target="id1073741949"/>
+  </mappings>
+\end{lstlisting}
+\begin{itemize}
+\item \IGX\ mappings of an implementation graph are a subset of the mappings in a specification graph
+\item \IGX\ a mapping means a process \emph{is} implemented on a resource
+\item \SGX\ a mapping means a process \emph{may be} implemented on a resource
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection -- Mappings}}
+\begin{lstlisting}
+  <mappings>
+    <mapping id="id1073742068" name="cf_jpeg.mSrc_jpeg.mParser_1 - SharedMemory" source="id2209608313" target="id1073741944"/>
+    ...
+    <mapping id="id1073741977" name="jpeg.mSrc - ARM926EJS_1" source="id2448767902" target="id1073741949">
+      <attribute type="delay" value="10 ms"/>
+    <mapping>
+  </mappings>
+\end{lstlisting}
+\begin{itemize}
+\item \lstinline|mapping| may have nested \lstinline|attribute| tags
+\item attributes may be used for evaluation of performance numbers
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection -- Attributes}}
+\begin{lstlisting}
+    <mapping id="id1073741977" name="jpeg.mSrc - ARM926EJS_1" source="id2448767902" target="id1073741949">
+      <attribute type="delay" value="10 ms"/>
+      <attribute type="priority" value="41"/>
+    <mapping>
+\end{lstlisting}
+\begin{itemize}
+\item \lstinline|attribute| elements have a \lstinline|key| and a \lstinline|value| attribute
+\item typically, attribute elements are used to add extra information relevant for evaluation of performance numbers or synthesis purposes
+\item typically, attributes are annotated to resources and mappings
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsection -- Hierarchical Attributes}}
+\begin{lstlisting}
+    <attribute type="timing"/>
+      <attribute type="transaction">
+        <parameter type="delay" value="100 ns" />
+        <parameter type="size" value="1" />
+      </attribute>
+      <attribute type="action">
+        <parameter type="delay" value="300 ns" />
+      </attribute>
+    </attribute>
+\end{lstlisting}
+
+\begin{itemize}
+\item \lstinline|attribute| elements may be nested hierarchically
+\item in this case the \lstinline|value| XML-attribute is optional and \lstinline|parameter| elements are leaf elements
+\end{itemize}
+
+\end{frame}
