@@ -365,11 +365,11 @@ public:
   public:
     void add(add_param_ty x) {
       //FIXME(MS): Signal initialization should be disabled in future!
-      std::cerr << "Warning: Signals in synchronous-reactive systems should"
+      /*std::cerr << "Warning: Signals in synchronous-reactive systems should"
              " not be initialized!\n"
                    "A better way for breaking undefined feedback loops is"
              " using non-strict blocks like non-strict AND!"
-                << std::endl;
+                << std::endl;*/
       //FIXME(MS): replace with signal value wrapper
       if(marking.size())marking[0]=x;
       else marking.push_back(x);

@@ -35,10 +35,10 @@ public:
   {  }  
 
 
-//method used for setting up the register-behaviour; has to be called after each connect(smoc_out_port<>)
-void enable_register(){
-  chan->setSignalState(defined);
-  for(EntryMap::const_iterator iter = getChan()->getEntries().begin();
+  //method used for setting up the register-behaviour; has to be called after each connect(smoc_out_port<>)
+  void enable_register(){
+    chan->setSignalState(defined);
+    for(EntryMap::const_iterator iter = getChan()->getEntries().begin();
       iter != getChan()->getEntries().end();
       ++iter)
     {
