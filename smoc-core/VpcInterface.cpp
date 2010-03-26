@@ -33,67 +33,47 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_ACTIVATION_PATTERN_HPP
-#define _INCLUDED_ACTIVATION_PATTERN_HPP
+#include <systemoc/detail/smoc_debug_stream.hpp>
+#include <smoc/detail/VpcInterface.hpp>
 
-#include <list>
-
-#include <systemoc/smoc_config.h>
-#include "systemoc/detail/smoc_event_decls.hpp"
-#include "systemoc/detail/smoc_sysc_port.hpp"
+# ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/hscd_vpc_Director.h>
 
 namespace SysteMoC { namespace Detail {
 
-  struct PortInfo{
-    PortInfo(smoc_sysc_port  *port,
-             size_t           numberRequiredTokens,
-             smoc_event      *portEvent)
-      : port(port),
-        numberRequiredTokens(numberRequiredTokens),
-        portEvent(portEvent) {}
+///
+SystemC_VPC::EventPair
+VpcPortInterface::startVpcRead(size_t tokenCount){
+#ifdef SYSTEMOC_DEBUG_VPC_IF
+  outDbg << "VpcPortInterface::startVpcRead()" << std::endl;
+#endif // SYSTEMOC_DEBUG_VPC_IF
+  assert(readEventLat != NULL);
+  readEventLat->reset();
 
-    smoc_sysc_port  *port;
-    size_t           numberRequiredTokens;
-    smoc_event      *portEvent;
-  };
-  
-  typedef std::list<PortInfo> PortInfos;
-  typedef std::list<smoc_event_waiter*> PlainEvents;
-  typedef std::list<smoc_ref_event_p> ReadEvents;
+  SystemC_VPC::EventPair events(dummyDii, readEventLat);
+  vpcCommTask->read(tokenCount, events);
+  return events;
+}
 
-  class IOPattern{
-  public:
-    IOPattern() :
-      ioPatternWaiter(NULL) {}
+smoc_ref_event_p VpcPortInterface::dummyDii(new smoc_ref_event(true));
 
-    void finalise();
+///
+SystemC_VPC::EventPair
+VpcInterface::startWrite(size_t tokenCount) {
+  assert(this->portIf!=NULL);
+  smoc_ref_event_p latEvent(new smoc_ref_event());
+  smoc_ref_event_p diiEvent = dummy;
+# ifdef SYSTEMOC_TRACE
+  // we need to trace communication DII 
+  smoc_ref_event_p diiEvent.reset(new smoc_ref_event());
+# endif
+  SystemC_VPC::EventPair ep(diiEvent, latEvent);
+  this->portIf->vpcCommTask->write(tokenCount, ep);
 
-    void addPortRequirement(smoc_sysc_port& port,
-                            size_t numberRequiredTokens,
-                            smoc_event& portEvent);
+  return ep;
+}
 
-    void addEvent(smoc_event_waiter& plainEvent);
-
-    smoc_event_waiter* getWaiter() const {
-      assert(ioPatternWaiter);
-      return ioPatternWaiter;
-    }
-
-    bool operator<(const IOPattern& rhs) const
-      { return ioPatternWaiter < rhs.ioPatternWaiter; }
-
-  private:
-    /// @brief input/output pattern (enough token/free space)
-    smoc_event_waiter *ioPatternWaiter;
-
-    /// @brief temporary collection used to build activation pattern waiter
-    PortInfos   portInfos;
-
-    /// @brief temporary collection used to build activation pattern waiter
-    PlainEvents plainEvents;
-
-  };
+smoc_ref_event_p VpcInterface::dummy(new smoc_ref_event(true));
 
 }} // namespace SysteMoC::Detail
-
-#endif //_INCLUDED_ACTIVATION_PATTERN_HPP
+# endif // SYSTEMOC_ENABLE_VPC

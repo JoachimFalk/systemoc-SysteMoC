@@ -160,28 +160,28 @@ IOPattern *getCachedIOPattern(const IOPattern &iop) {
 
 /// @brief Constructor
 RuntimeTransition::RuntimeTransition(
-    const boost::shared_ptr<TransitionBase> &tbp,
+    const boost::shared_ptr<TransitionImpl> &tip,
     RuntimeState *dest)
-  : transitionBase(tbp),
+  : transitionImpl(tip),
     dest(dest) {
   IOPattern tmp;
   Expr::evalTo<Expr::Sensitivity>(getExpr(), tmp);
   tmp.finalise();
   IOPattern* iop = getCachedIOPattern(tmp);
-  transitionBase->setIOPattern(iop);
+  transitionImpl->setIOPattern(iop);
 }
 
 const Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
-  { return transitionBase->getExpr(); }
+  { return transitionImpl->getExpr(); }
 
 RuntimeState* RuntimeTransition::getDestState() const
   { return dest; }
 
 const smoc_action& RuntimeTransition::getAction() const
-  { return transitionBase->getAction(); }
+  { return transitionImpl->getAction(); }
 
 void *RuntimeTransition::getID() const
-  { return transitionBase.get(); }
+  { return transitionImpl.get(); }
 
 class ActionNameVisitor {
 public:
@@ -309,36 +309,24 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   
 #ifdef SYSTEMOC_ENABLE_VPC
   if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
-    actor->diiEvent->reset();
-    smoc_ref_event_p latEvent(new smoc_ref_event());
-    
-    SystemC_VPC::EventPair p(actor->diiEvent, latEvent);
-    
-    // new FastLink interface
-    if(mode & GO) {
-      vpcLink->compute(p);
-    }
-    else if(mode & TICK) {
-      const smoc_sr_func_pair* fp =
-        boost::get<smoc_sr_func_pair>(&getAction());
-      assert(fp);
-      fp->tickLink->compute(p);
-    }
-    
+    Expr::evalTo<Expr::CommExec>(getExpr(), VpcInterface(this->transitionImpl.get()));
+
+    SystemC_VPC::EventPair events = this->transitionImpl->startCompute();
+
     // save nextState to later execute communication
     actor->setNextState(nextState);
     
     // insert magic commstate
     nextState = actor->getCommState();
-    Expr::evalTo<Expr::CommExec>(getExpr(), actor->diiEvent, latEvent);
     
     // This covers the case that the executed transition does not
     // contain an output port. Therefore, the latEvent is not added
     // to a LatencyQueue and would be deleted immediately after
     // the latEvent smartptr is destroyed when this scope is left.
-    if(!*latEvent) {
+    if(!*events.latency) {
       // latency event not signaled
       struct _: public smoc_event_listener {
+        //TODO (ms): remove reference; ref'counted events are support in VPC
         smoc_ref_event_p  latEvent;
         smoc_root_node   *actor;
         
@@ -371,7 +359,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
         
         virtual ~_() {}
       };
-      latEvent->addListener(new _(latEvent, actor));
+      events.latency->addListener(new _(events.latency, actor));
     }
     else {
 # ifdef SYSTEMOC_TRACE
@@ -381,7 +369,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     }
   }
   else {
-    Expr::evalTo<Expr::CommExec>(getExpr(), NULL, NULL);
+    Expr::evalTo<Expr::CommExec>(getExpr(), VpcInterface(NULL));
   }
 #else // SYSTEMOC_ENABLE_VPC
   Expr::evalTo<Expr::CommExec>(getExpr());
@@ -421,7 +409,7 @@ bool RuntimeTransition::evaluateGuard() const {
   }
 }
 
-void RuntimeTransition::finalise(const smoc_root_node *node) {
+void RuntimeTransition::finaliseRuntimeTransition(const smoc_root_node *node) {
 
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
@@ -434,9 +422,16 @@ void RuntimeTransition::finalise(const smoc_root_node *node) {
         VPCLinkVisitor(actor->name()), getAction());
   }
   */
-  vpcLink = boost::apply_visitor(
+
+  //initialize VpcTaskInterface
+  this->transitionImpl->diiEvent = node->diiEvent;
+  this->transitionImpl->vpcTask = boost::apply_visitor(
     VPCLinkVisitor(node->name()), getAction());
 #endif //SYSTEMOC_ENABLE_VPC
+
+#ifdef SYSTEMOC_DEBUG_VPC_IF
+  this->transitionImpl->actor = node->name();
+#endif // SYSTEMOC_DEBUG_VPC_IF
 }
 
  
@@ -471,7 +466,7 @@ void RuntimeState::addTransition(const RuntimeTransition& t,
 
   RuntimeTransition& tr = tl.back();
 
-  tr.finalise(node);
+  tr.finaliseRuntimeTransition(node);
   am.insert(tr.getIOPatternWaiter());
 }
 
@@ -724,7 +719,7 @@ void FiringFSMImpl::finalise(
 
           rs->addTransition(
               RuntimeTransition(
-                t->getCachedTransitionBase(),
+                t->getCachedTransitionImpl(),
                 rd),
               actor);
 #ifdef FSM_FINALIZE_BENCHMARK

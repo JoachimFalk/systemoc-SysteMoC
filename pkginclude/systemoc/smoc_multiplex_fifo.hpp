@@ -238,7 +238,7 @@ protected:
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
+  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void commitWrite(size_t n)
 #endif
@@ -247,7 +247,7 @@ protected:
     this->emmFree.decreasedCount(this->freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of latencyExpired(n);
-    latencyQueue.addEntry(n, latEvent);
+    latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
 #else
     latencyExpired(n);
 #endif
@@ -334,7 +334,7 @@ protected:
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void consume(FifoId from, size_t n, const smoc_ref_event_p &diiEvent)
+  void consume(FifoId from, size_t n, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void consume(FifoId from, size_t n)
 #endif
@@ -397,7 +397,7 @@ protected:
     
     //
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->commitRead(n, diiEvent);
+    this->commitRead(n, vpcIf);
 #else
     this->commitRead(n);
 #endif
@@ -468,7 +468,7 @@ protected:
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
+  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void commitRead(size_t n)
 #endif
@@ -477,7 +477,7 @@ protected:
     this->emmAvailable.decreasedCount(this->visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of diiExpired(n);
-    diiQueue.addEntry(n, diiEvent);
+    diiQueue.addEntry(n, vpcIf.getTaskDiiEvent(), vpcIf);
 #else
     diiExpired(n);
 #endif
@@ -525,8 +525,8 @@ public:
 protected:
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
-    { return chan.commitWrite(n, latEvent); }
+  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+    { return chan.commitWrite(n, vpcIf); }
 #else
   void commitWrite(size_t n)
     { return chan.commitWrite(n); }
@@ -566,8 +566,8 @@ public:
 protected:
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
-    { return chan.commitRead(n, diiEvent); }
+  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+    { return chan.commitRead(n, vpcIf); }
 #else
   void commitRead(size_t n)
     { return chan.commitRead(n); }
@@ -679,7 +679,7 @@ public:
 protected:
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
+  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void commitRead(size_t n)
 #endif
@@ -688,7 +688,7 @@ protected:
     countAvailable -= n;
     emmAvailable.decreasedCount(countAvailable);
 #ifdef SYSTEMOC_ENABLE_VPC
-    chan->consume(fifoId, n, diiEvent);
+    chan->consume(fifoId, n, vpcIf);
 #else
     chan->consume(fifoId, n);
 #endif
@@ -803,7 +803,7 @@ public:
 protected:
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
+  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void commitWrite(size_t n)
 #endif
@@ -819,7 +819,7 @@ protected:
     
     // This will do a callback to latencyExpired(produce) at the appropriate time
 #ifdef SYSTEMOC_ENABLE_VPC
-    chan->commitWrite(n, latEvent); 
+    chan->commitWrite(n, vpcIf); 
 #else
     chan->commitWrite(n); 
 #endif

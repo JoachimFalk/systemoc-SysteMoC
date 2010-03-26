@@ -64,9 +64,7 @@
 #endif //SYSTEMOC_ENABLE_HOOKING
 
 #ifdef SYSTEMOC_ENABLE_VPC
-namespace SystemC_VPC {
-  class FastLink;
-} // namespace SystemC_VPC
+#include <smoc/detail/VpcInterface.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
 class smoc_root_node;
@@ -101,11 +99,11 @@ typedef std::map<const HierarchicalStateImpl*,bool> CondMultiState;
  * PartialTransition represents the transitions modeled by the user.
  * PartialTransitions, especially in the presence of connector states, are
  * expanded to ExpandedTransitions. ExpandedTransitions are used to build the
- * product FSM, which leeds to the creation of RuntimeTransitions. Several
- * RuntimeTransitions in the product FSM share smoc_actions and guards in terms
- * of a TransitionBase derived from the ExpandedTransition.
+ * product FSM, which leeds to the creation of RuntimeTransitions. After
+ * expanding, TransitionImpls are derived from the ExpandedTransitions.
  *
- * FIXME: name this (final) TransitionBase explicit (maybe TransitionImpl).
+ * Several RuntimeTransitions in the "runtime" FSM share smoc_actions and
+ * guards in terms of shared_ptrs to a TransitionImpl.
  */
 class TransitionBase {
 private:
@@ -143,6 +141,25 @@ public:
     { ioPattern = iop; }
 };
 
+class TransitionImpl :
+  public TransitionBase
+#ifdef SYSTEMOC_ENABLE_VPC
+  , public SysteMoC::Detail::VpcTaskInterface
+#endif // SYSTEMOC_ENABLE_VPC
+{
+public:
+#ifdef SYSTEMOC_ENABLE_VPC
+  // commstate transition
+  TransitionImpl(
+      Guard const &g,
+      const smoc_action &f) :
+    TransitionBase(g,f) {}
+#endif // SYSTEMOC_ENABLE_VPC
+
+  TransitionImpl(const TransitionBase &tb) :
+    TransitionBase(tb) {}
+};
+
 class PartialTransition : public TransitionBase {
 private:
 
@@ -173,7 +190,7 @@ private:
   /// @brief Target state(s)
   MultiState dest;
 
-  mutable boost::shared_ptr<TransitionBase> cachedTransition;
+  mutable boost::shared_ptr<TransitionImpl> cachedTransition;
 
 public:
   /// @brief Constructor
@@ -206,9 +223,9 @@ public:
   /// @brief Returns the target state(s)
   const MultiState& getDestStates() const;
 
-  boost::shared_ptr<TransitionBase> getCachedTransitionBase() const {
+  boost::shared_ptr<TransitionImpl> getCachedTransitionImpl() const {
     if (cachedTransition == NULL)
-      cachedTransition.reset(new TransitionBase(*this));
+      cachedTransition.reset(new TransitionImpl(*this));
     return cachedTransition;
   }
 };
@@ -227,15 +244,11 @@ class RuntimeTransition
 
   friend class RuntimeState; // for ap
 private:
-  boost::shared_ptr<TransitionBase> transitionBase;
+  boost::shared_ptr<TransitionImpl> transitionImpl;
 
   /// @brief Target state
   RuntimeState        *dest;
 
-#ifdef SYSTEMOC_ENABLE_VPC
-  /// @brief FastLink to VPC
-  SystemC_VPC::FastLink *vpcLink;
-#endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_ENABLE_HOOKING
   typedef std::vector<const SysteMoC::Hook::PreCallback  *> PreHooks;
   typedef std::vector<const SysteMoC::Hook::PostCallback *> PostHooks;
@@ -251,7 +264,7 @@ public:
 public:
   /// @brief Constructor
   RuntimeTransition(
-      const boost::shared_ptr<TransitionBase> &tbp,
+      const boost::shared_ptr<TransitionImpl> &tip,
       RuntimeState *dest = NULL);
 
   /// @brief Returns the target state
@@ -265,7 +278,7 @@ public:
 
   /// @brief Returns waiter for input/output pattern (enough token/free space)
   smoc_event_waiter* getIOPatternWaiter() const
-    { return transitionBase->getIOPattern()->getWaiter(); }
+    { return transitionImpl->getIOPattern()->getWaiter(); }
 
   bool evaluateIOP() const;
   bool evaluateGuard() const;
@@ -275,7 +288,7 @@ public:
 
   void *getID() const;
 
-  void finalise(const smoc_root_node* node);
+  void finaliseRuntimeTransition(const smoc_root_node* node);
 };
 
 typedef std::list<RuntimeTransition>   RuntimeTransitionList;

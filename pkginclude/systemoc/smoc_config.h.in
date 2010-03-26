@@ -35,4 +35,8 @@
 # define PORT_ACCESS_COUNTER
 #endif
 
+#if defined(SYSTEMOC_DEBUG) && defined(SYSTEMOC_ENABLE_VPC)
+# define SYSTEMOC_DEBUG_VPC_IF
+#endif
+
 #endif /* _INCLUDED_SMOC_CONFIG_H */

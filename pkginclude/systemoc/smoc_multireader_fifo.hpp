@@ -120,14 +120,14 @@ protected:
 
   /// @brief Called by outlet if it did consume tokens
 #ifdef SYSTEMOC_ENABLE_VPC
-  void consume(smoc_port_in_base_if *who, size_t n, const smoc_ref_event_p &diiEvent);
+  void consume(smoc_port_in_base_if *who, size_t n, SysteMoC::Detail::VpcInterface vpcIf);
 #else
   void consume(smoc_port_in_base_if *who, size_t n);
 #endif
   
   /// @brief Called by entry if it did produce tokens
 #ifdef SYSTEMOC_ENABLE_VPC
-  void produce(size_t n, const smoc_ref_event_p &latEvent);
+  void produce(size_t n, SysteMoC::Detail::VpcInterface vpcIf);
 #else
   void produce(size_t n);
 #endif
@@ -206,8 +206,8 @@ public:
 protected:
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
-    { chan.consume(this, n, diiEvent); }
+  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+    { chan.consume(this, n, vpcIf); }
 #else
   void commitRead(size_t n)
     { chan.consume(this, n); }
@@ -269,8 +269,8 @@ public:
 protected:
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
-    { chan.produce(n, latEvent); }
+  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+    { chan.produce(n, vpcIf); }
 #else
   void commitWrite(size_t n)
     { chan.produce(n); }

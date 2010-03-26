@@ -64,7 +64,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
   commstate = new RuntimeState();
   commstate->addTransition(
       RuntimeTransition(
-        boost::shared_ptr<TransitionBase>(new TransitionBase(
+        boost::shared_ptr<TransitionImpl>(new TransitionImpl(
           Expr::till(*diiEvent),
           smoc_func_diverge(this, &smoc_root_node::_communicate)))),
       this);
@@ -74,6 +74,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
 #ifdef SYSTEMOC_ENABLE_VPC
 RuntimeState* smoc_root_node::_communicate() {
   assert(diiEvent != NULL && *diiEvent); // && vpc_event_lat != NULL
+  diiEvent->reset();
   return nextState;
 }
 #endif // SYSTEMOC_ENABLE_VPC

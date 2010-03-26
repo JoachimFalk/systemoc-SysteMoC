@@ -55,11 +55,15 @@
 #include "smoc/detail/IOPattern.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
+#include "smoc/detail/VpcInterface.hpp"
+
 // forward declaration
 namespace SystemC_VPC {
   class FastLink;
 }
 #endif // SYSTEMOC_ENABLE_VPC
+
+class smoc_port_in_base_if;
 
 namespace SysteMoC { namespace Detail {
 
@@ -287,15 +291,14 @@ struct CommExec<DComm<CI, E> > {
 
   static inline
   result_type apply(const DComm<CI, E> &e,
-      const smoc_ref_event_p &diiEvent,
-      const smoc_ref_event_p &latEvent) {
+                    const SysteMoC::Detail::VpcInterface vpcIf) {
 # ifdef SYSTEMOC_DEBUG
     outDbg << EXPR << "CommExec<DComm<CI, E> >"
                  "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
 # endif
   //std::cerr << "accessCount = " << e.getCI().getAccessCount() << std::endl;
     e.getCI().resetAccessCount();
-    return e.getCI().commExec(Value<E>::apply(e.committed), diiEvent, latEvent);
+    return e.getCI().commExec(Value<E>::apply(e.committed), vpcIf);
   }
 #else
   static inline
@@ -342,6 +345,9 @@ class smoc_port_in_base_if
 #ifdef PORT_ACCESS_COUNTER
   , public AccessCounter
 #endif // PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_ENABLE_VPC
+  , public SysteMoC::Detail::VpcPortInterface
+#endif // SYSTEMOC_ENABLE_VPC
 {
   typedef smoc_port_in_base_if this_type;
 
@@ -405,7 +411,8 @@ protected:
   smoc_port_in_base_if() {}
   
 #ifdef SYSTEMOC_ENABLE_VPC
-  virtual void        commitRead(size_t consume, const smoc_ref_event_p &) = 0;
+  virtual void        commitRead(size_t consume,
+    SysteMoC::Detail::VpcInterface vpcIf) = 0;
 #else
   virtual void        commitRead(size_t consume) = 0;
 #endif
@@ -419,9 +426,12 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   void commExec(
       size_t n,
-      const smoc_ref_event_p &diiEvent,
-      const smoc_ref_event_p &latEvent)
-    { return this->commitRead(n, diiEvent); }
+      SysteMoC::Detail::VpcInterface vpcIf)
+    {
+      vpcIf.setPortIf(this); // TODO (ms): move to base class?
+      vpcIf.startVpcRead(n);
+      return this->commitRead(n, vpcIf);
+    }
 #else
   void commExec(size_t n)
     { return this->commitRead(n); }
@@ -445,6 +455,9 @@ class smoc_port_out_base_if
 #ifdef PORT_ACCESS_COUNTER
   , public AccessCounter
 #endif // PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_ENABLE_VPC
+  , public SysteMoC::Detail::VpcPortInterface
+#endif // SYSTEMOC_ENABLE_VPC
 {
   typedef smoc_port_out_base_if this_type;
 
@@ -507,7 +520,8 @@ protected:
   smoc_port_out_base_if() {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  virtual void        commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
+  virtual void        commitWrite(size_t produce,
+    SysteMoC::Detail::VpcInterface vpcIf) = 0;
 #else
   virtual void        commitWrite(size_t produce) = 0;
 #endif
@@ -521,9 +535,8 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   void commExec(
       size_t n,
-      const smoc_ref_event_p &diiEvent,
-      const smoc_ref_event_p &latEvent)
-    { return this->commitWrite(n, latEvent); }
+      SysteMoC::Detail::VpcInterface vpcIf)
+    { vpcIf.setPortIf(this); return this->commitWrite(n, vpcIf); }
 #else
   void commExec(size_t n)
     { return this->commitWrite(n); }

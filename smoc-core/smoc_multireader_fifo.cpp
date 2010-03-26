@@ -55,7 +55,7 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
 {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n, const smoc_ref_event_p &diiEvent)
+void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n, SysteMoC::Detail::VpcInterface vpcIf)
 #else
 void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n)
 #endif
@@ -79,7 +79,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
   emmData.decreasedCountRenotify(visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
   // Delayed call of diiExpired
-  diiQueue.addEntry(n, diiEvent);
+  diiQueue.addEntry(n, vpcIf.getTaskDiiEvent(), vpcIf);
 #else
   // Immediate call of diiExpired
   diiExpired(n);
@@ -90,7 +90,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multireader_fifo_chan_base::produce(size_t n, const smoc_ref_event_p &latEvent)
+void smoc_multireader_fifo_chan_base::produce(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
 #else
 void smoc_multireader_fifo_chan_base::produce(size_t n)
 #endif
@@ -111,7 +111,7 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
   lessSpace(n);
 #ifdef SYSTEMOC_ENABLE_VPC
   // Delayed call of latencyExpired
-  latencyQueue.addEntry(n, latEvent);
+  latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
 #else
   // Immediate call of latencyExpired
   latencyExpired(n);

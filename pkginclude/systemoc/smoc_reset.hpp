@@ -140,7 +140,7 @@ public:
   
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
+  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
     { assert(0); }
 #else
   void commitRead(size_t n)
@@ -195,8 +195,8 @@ public:
   
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
-    { assert(n == 1); chan.produce(this, latEvent); }
+  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+    { assert(n == 1); chan.produce(this, vpcIf.getTaskLatEvent()); }
 #else
   void commitWrite(size_t n)
     { assert(n == 1); chan.produce(this); }

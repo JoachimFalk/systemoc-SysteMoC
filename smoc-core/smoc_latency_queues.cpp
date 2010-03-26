@@ -79,74 +79,44 @@ namespace Detail {
 
 # endif // SYSTEMOC_TRACE
 
-  void EventQueue::signaled(smoc_event_waiter *e) {
-    size_t n = 0;
-    
-    assert(*e);
-    assert(!queue.empty());
-    assert(e == queue.front().second.get());
-    
-    e->delListener(this);
-        
-    do {
-      n += queue.front().first;
-      queue.pop_front();
-    }
-    while(!queue.empty() && *queue.front().second);
-    
-    process(n);
-    
-    if(!queue.empty())
-      queue.front().second->addListener(this);    
-  }
+  void LatencyQueue::actorTokenLatencyExpired(TokenInfo ti) {
 
-  void EventQueue::addEntry(size_t n, const smoc_ref_event_p& le) {
-    bool queueEmpty = queue.empty();
-    
-    if(queueEmpty && (!le || *le)) {
-      // shortcut processing
-      process(n);
-    } else {
-      queue.push_back(Entry(n, le));
-      if(queueEmpty)
-        le->addListener(this);
-    }
-  }
-
-  void LatencyQueue::actorTokenLatencyExpired(size_t n) {
-    for(; n > 0; --n) {
-      smoc_ref_event_p latEvent(new smoc_ref_event());
+    // TODO (ms): "unroll n"
+    for(size_t n = ti.count; n > 0; --n) {
 # ifdef SYSTEMOC_TRACE
-      smoc_ref_event_p diiEvent(new smoc_ref_event());
-      
       TraceLog.traceStartActor(chan, "s");
 //    TraceLog.traceStartFunction("transmit");
 //    TraceLog.traceEndFunction("transmit");
       TraceLog.traceEndActor(chan);
-      
-      SystemC_VPC::EventPair p(diiEvent, latEvent);
-# else
-      SystemC_VPC::EventPair p(dummy, latEvent);
 # endif
+
+#ifdef SYSTEMOC_DEBUG
+      std::cerr << "VPC::write(" << ti.vpcIf.portIf->actor << ", "
+                << ti.vpcIf.portIf->channel << ")" << std::endl;
+#endif // SYSTEMOC_DEBUG
       // new FastLink interface
-      chan->vpcLink->compute(p);
+    //chan->vpcLink->compute(p);
+      SystemC_VPC::EventPair events = ti.vpcIf.startWrite(1);
+
 # ifdef SYSTEMOC_TRACE
-      if (!*diiEvent) {
+      if (!*events.dii) {
         // dii event not signaled
-        diiEvent->addListener(new DeferedTraceLogDumper(diiEvent, chan, "e"));
+        //TODO (ms): remove reference to events.dii
+        //           ref'counted events are support in VPC
+        events.dii->addListener(new DeferedTraceLogDumper(events.dii, chan, "e"));
       } else {
         TraceLog.traceStartActor(chan, "e");
         TraceLog.traceEndActor(chan);
       }
-      if (!*latEvent) {
+      if (!*events.latency) {
         // latency event not signaled
-        latEvent->addListener(new DeferedTraceLogDumper(latEvent, chan, "l"));
+        events.latency->addListener(new DeferedTraceLogDumper(events.latency, chan, "l"));
       } else {
         TraceLog.traceStartActor(chan, "l");
         TraceLog.traceEndActor(chan);
       }
-# endif
-      visibleQueue.addEntry(1, latEvent);
+# endif // SYSTEMOC_TRACE
+      visibleQueue.addEntry(1, events.latency);
     }
   }
 
