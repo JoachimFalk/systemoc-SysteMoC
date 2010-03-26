@@ -5,7 +5,7 @@
   name CDATA #REQUIRED
 >
 
-<!ELEMENT specificationgraph (problemgraph,architecturegraph,mappings)>
+<!ELEMENT specificationgraph (problemgraph,architecturegraph,mappings,typedef*)>
 <!ATTLIST specificationgraph
   name CDATA #REQUIRED
 >
@@ -30,15 +30,16 @@
 <!ELEMENT process (port|stateDeclaration|actor|fifo|attribute|problemgraph|fsm)*>
 <!ATTLIST process
   name CDATA #REQUIRED
+  cxxClass CDATA #IMPLIED 
   id ID #REQUIRED
   x CDATA #IMPLIED
   y CDATA #IMPLIED
-  type (actor|fifo) #REQUIRED
+  type (actor|fifo|sc_module) #REQUIRED
 >
 
 <!ELEMENT actor (constructorParameter*,fsm)>
 <!ATTLIST actor
-  actorClass CDATA #REQUIRED
+  actorClass CDATA #IMPLIED
 >
 
 <!ELEMENT constructorParameter EMPTY>
@@ -61,6 +62,7 @@
 <!ATTLIST resource
   name CDATA #REQUIRED
   id ID #REQUIRED
+  router (TRUE|FALSE) #IMPLIED
   x CDATA #IMPLIED
   y CDATA #IMPLIED
 >
@@ -100,7 +102,7 @@
   target IDREF #REQUIRED
 >
 
-<!ELEMENT attribute EMPTY>
+<!ELEMENT attribute (attribute|parameter)*>
 <!ATTLIST attribute
   type CDATA #REQUIRED
   value CDATA #REQUIRED
@@ -146,6 +148,7 @@
 
 <!ELEMENT transition (action,%OPS;)>
 <!ATTLIST transition
+  id ID #REQUIRED
   nextstate IDREF #REQUIRED
   nextstatename CDATA #IMPLIED
 >
@@ -211,6 +214,12 @@
   name      CDATA #REQUIRED
   valueType CDATA #REQUIRED
   value     CDATA #REQUIRED
+>
+
+<!ELEMENT typedef EMPTY>
+<!ATTLIST typedef
+	name ID #REQUIRED
+	type (STRING|INTEGER|DOUBLE|BOOLEAN|LONG) #REQUIRED
 >
 
 <!ELEMENT MemProc EMPTY>
