@@ -1,0 +1,25 @@
+Revision: ActorLibrary--mainline--0.1--patch-3
+Archive: falk@cs.fau.de--2007-examples-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Oct 26 17:29:37 CEST 2007
+Standard-date: 2007-10-26 15:29:37 GMT
+New-files: pkginclude/.arch-ids/=id
+    pkginclude/actorlibrary/.arch-ids/=id
+    pkginclude/actorlibrary/sources/.arch-ids/=id
+    pkginclude/actorlibrary/sources/generic/.arch-ids/=id
+    pkginclude/actorlibrary/sources/generic/.arch-ids/PeriodicTask.hpp.id
+    pkginclude/actorlibrary/sources/generic/PeriodicTask.hpp
+New-directories: pkginclude pkginclude/.arch-ids
+    pkginclude/actorlibrary
+    pkginclude/actorlibrary/.arch-ids
+    pkginclude/actorlibrary/sources
+    pkginclude/actorlibrary/sources/.arch-ids
+    pkginclude/actorlibrary/sources/generic
+    pkginclude/actorlibrary/sources/generic/.arch-ids
+New-patches: falk@cs.fau.de--2007-examples-intern/ActorLibrary--mainline--0.1--patch-3
+Summary: 
+ - added pkgincude
+Keywords: 
+
+
+

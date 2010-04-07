@@ -1,0 +1,31 @@
+Revision: ActorLibrary--mainline--0.1--patch-6
+Archive: falk@cs.fau.de--2007-examples-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Dec 10 16:45:50 CET 2007
+Standard-date: 2007-12-10 15:45:50 GMT
+New-files: pkginclude/actorlibrary/communication/.arch-ids/=id
+    pkginclude/actorlibrary/communication/.arch-ids/N_to_M_Communication.hpp.id
+    pkginclude/actorlibrary/communication/N_to_M_Communication.hpp
+    pkginclude/actorlibrary/sinks/.arch-ids/=id
+    pkginclude/actorlibrary/sinks/generic/.arch-ids/=id
+    pkginclude/actorlibrary/sinks/generic/.arch-ids/TerminalSink.hpp.id
+    pkginclude/actorlibrary/sinks/generic/TerminalSink.hpp
+    pkginclude/actorlibrary/sources/generic/.arch-ids/BitGen.hpp.id
+    pkginclude/actorlibrary/sources/generic/.arch-ids/BitToggle.hpp.id
+    pkginclude/actorlibrary/sources/generic/.arch-ids/ConstSource.hpp.id
+    pkginclude/actorlibrary/sources/generic/BitGen.hpp
+    pkginclude/actorlibrary/sources/generic/BitToggle.hpp
+    pkginclude/actorlibrary/sources/generic/ConstSource.hpp
+New-directories: pkginclude/actorlibrary/communication
+    pkginclude/actorlibrary/communication/.arch-ids
+    pkginclude/actorlibrary/sinks
+    pkginclude/actorlibrary/sinks/.arch-ids
+    pkginclude/actorlibrary/sinks/generic
+    pkginclude/actorlibrary/sinks/generic/.arch-ids
+New-patches: falk@cs.fau.de--2007-examples-intern/ActorLibrary--mainline--0.1--patch-6
+Summary: 
+ - added some generic sources/sinks/communication actors
+Keywords: 
+
+
+

@@ -1,0 +1,21 @@
+Revision: ActorLibrary--mainline--0.1--patch-1
+Archive: falk@cs.fau.de--2007-examples-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Oct 26 17:17:54 CEST 2007
+Standard-date: 2007-10-26 15:17:54 GMT
+New-files: .arch-ids/COPYING.id .arch-ids/INSTALL.id
+    .arch-ids/Makefile.am.id .arch-ids/autotest-sh.id
+    .arch-ids/autovars.sh.in.id
+    .arch-ids/configure.in.frag.id
+    .arch-ids/configure.in.id .arch-ids/install-sh.id
+    COPYING INSTALL Makefile.am autotest-sh autovars.sh.in
+    configure.in configure.in.frag install-sh
+New-directories: .arch-ids
+New-patches: falk@cs.fau.de--2007-examples-intern/ActorLibrary--mainline--0.1--patch-1
+Summary: 
+ - added PeriodiSource
+ - added build system stuff
+Keywords: 
+
+
+

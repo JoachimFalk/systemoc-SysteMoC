@@ -1,0 +1,13 @@
+Revision: ActorLibrary--mainline--0.1--patch-16
+Archive: falk@cs.fau.de--2007-examples-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Apr  7 10:55:07 CEST 2010
+Standard-date: 2010-04-07 08:55:07 GMT
+Modified-files: {arch}/=tagging-method
+New-patches: falk@cs.fau.de--2007-examples-intern/ActorLibrary--mainline--0.1--patch-16
+Summary: 
+ * Ignore .git directory.
+Keywords: 
+
+
+
