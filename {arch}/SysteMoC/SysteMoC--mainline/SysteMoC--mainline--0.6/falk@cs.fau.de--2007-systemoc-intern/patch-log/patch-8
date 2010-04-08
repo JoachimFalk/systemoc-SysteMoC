@@ -1,0 +1,95 @@
+Revision: SysteMoC--mainline--0.6--patch-8
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Jan 31 10:45:56 CET 2007
+Standard-date: 2007-01-31 09:45:56 GMT
+Modified-files: .arch-ids/doxygen.cfg.id
+    .arch-ids/smoc_port.cpp.id smoc_graph_type.cpp
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-11
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-12
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-13
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-14
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-15
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-16
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-17
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-18
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-19
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-21
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-22
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-23
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-24
+    {arch}/SysteMoC/SysteMoC--event-scheduler/SysteMoC--event-scheduler--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-25
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-14
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-15
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-16
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-17
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-18
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-19
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-20
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-21
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-22
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-23
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-8
+Summary: 
+ * Merge from SysteMoC--mainline--0.5 branch
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-14
+   
+ * Compile fixes
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-15
+   
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Merged Fix for BUGFIX: initializing storage in SMOC V1.0 ports
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-16
+   
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Removed obsolete smoc_graph_petri, smoc_graph_dataflow,
+   smoc_sdf_constraintset, smoc_ddf_constraintset, and smoc_ndf_constraintset
+   classes
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-17
+   
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Fixed --generate-problemgraph code
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-18
+   
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Use CoSupport::RefCountObject instead of _RefCount
+ - Define BOOST_NO_THREADS for RefCountObject
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-19
+   
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Replace `pwd` with $(top_builddir) for SYSTEMC_VPC_XXX
+ - Fixed warning
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-20
+   
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Removed obsolete cerr debugging
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-21
+   
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Minor Makefile.am tweaks
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-22
+   merge from SysteMoC--event-scheduler--0.5 branch
+ * Fixed SysteMoC to use new oneofTypeid which is defined in
+   HscdSupport--mainline--0.5--patch-4. Therefore this SysteMoC
+   patchlevel does need at least HscdSupport--mainline--0.5--patch-4.
+ * make network graph generation work with oneof changes
+				
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-23
+   
+ * Mega merge from SysteMoC--event-scheduler--0.5
+

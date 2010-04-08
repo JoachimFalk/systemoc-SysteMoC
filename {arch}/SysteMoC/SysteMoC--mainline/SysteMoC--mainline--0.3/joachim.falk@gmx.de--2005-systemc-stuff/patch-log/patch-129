@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-129
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Feb 21 11:11:06 CET 2006
+Standard-date: 2006-02-21 10:11:06 GMT
+Modified-files: smoc_guard.cpp smoc_guard.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-129
+Summary: 
+ * Moved smoc_activation_pattern::guardAssemble helper function
+   from smoc_guard.hpp into smoc_guard.cpp
+Keywords: 
+
+
+

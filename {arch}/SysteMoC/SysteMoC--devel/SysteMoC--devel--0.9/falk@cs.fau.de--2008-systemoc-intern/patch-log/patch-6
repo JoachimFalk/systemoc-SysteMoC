@@ -1,0 +1,25 @@
+Revision: SysteMoC--devel--0.9--patch-6
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jan 30 18:43:40 CET 2009
+Standard-date: 2009-01-30 17:43:40 GMT
+Modified-files: smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-6
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-8
+Summary: 
+ * Merge from SysteMoC--mainline--0.9 branch
+ - re-ordered collection of ExpandedTransitions such that transitions
+   from child states have a lower priority than transitions from
+   parent states
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-8
+   
+  * re-ordered collection of ExpandedTransitions such that transitions
+    from child states have a lower priority than transitions from
+    parent states 
+

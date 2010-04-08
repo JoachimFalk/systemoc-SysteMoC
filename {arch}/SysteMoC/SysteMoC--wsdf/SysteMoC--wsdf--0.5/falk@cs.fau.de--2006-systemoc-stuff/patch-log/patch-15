@@ -1,0 +1,27 @@
+Revision: SysteMoC--wsdf--0.5--patch-15
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Nov  3 19:18:06 CET 2006
+Standard-date: 2006-11-03 18:18:06 GMT
+Modified-files: smoc_md_buffer.cpp smoc_md_buffer.hpp
+    smoc_md_fifo.hpp smoc_md_loop.cpp smoc_md_loop.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-15
+Summary:
+smoc_md_loop:
+ - Remove superfluous functions
+   (get_data_element_id-variant)
+
+smoc_md_buffer:
+ - Major change: Buffer allocation is now done in wpp and not
+   in accessSetupIn resp. accessSetupOut
+ - Allow, that allocate_buffer can be called several times for
+   the same buffer element
+ - Buffer Access now directly accesses smoc_simple_md_buffer_kind
+ - different bugfixes
+
+smoc_md_fifo
+ - change behaviour of accessSetupOut and accessSetupIn
+Keywords: 
+
+
+

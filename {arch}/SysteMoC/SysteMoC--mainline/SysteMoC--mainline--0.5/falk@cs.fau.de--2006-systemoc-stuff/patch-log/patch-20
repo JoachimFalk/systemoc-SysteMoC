@@ -1,0 +1,22 @@
+Revision: SysteMoC--mainline--0.5--patch-20
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Thu Oct 19 17:35:44 CEST 2006
+Standard-date: 2006-10-19 15:35:44 GMT
+Modified-files: smoc_graph_type.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-16
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-20
+Summary: 
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Removed obsolete cerr debugging
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-16
+   
+ * Removed obsolete cerr debugging
+

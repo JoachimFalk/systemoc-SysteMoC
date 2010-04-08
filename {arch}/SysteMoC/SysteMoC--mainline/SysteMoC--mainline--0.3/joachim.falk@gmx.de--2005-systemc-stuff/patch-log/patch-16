@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-16
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug  4 17:59:48 CEST 2005
+Standard-date: 2005-08-04 15:59:48 GMT
+Modified-files: expr.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-16
+Summary: 
+ * Fixed overeager overloading of unary operators in expr.hpp
+ - now only overload unary operators for D<T> data types
+Keywords: 
+
+
+

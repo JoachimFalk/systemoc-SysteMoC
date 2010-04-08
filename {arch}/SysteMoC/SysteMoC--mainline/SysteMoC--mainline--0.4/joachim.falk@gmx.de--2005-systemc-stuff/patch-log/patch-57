@@ -1,0 +1,24 @@
+Revision: SysteMoC--mainline--0.4--patch-57
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Apr  5 17:27:14 CEST 2006
+Standard-date: 2006-04-05 15:27:14 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    hscd_tdsim_TraceLog.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-142
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-57
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - more debug output: try to guess actors connected by fifos
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-142
+   
+  * more debug output: try to guess actors
+    connected by fifos
+

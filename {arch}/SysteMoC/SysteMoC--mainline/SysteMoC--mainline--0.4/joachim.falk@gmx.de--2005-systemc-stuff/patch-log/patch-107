@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.4--patch-107
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jun 27 16:57:29 CEST 2006
+Standard-date: 2006-06-27 14:57:29 GMT
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-107
+Summary: 
+ * SysteMoC FIFO naming scheme is 'cf_<from-actor-name>_<to-actor-name>_<nr>'
+Keywords: 
+
+
+

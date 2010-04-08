@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.4--patch-33
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Feb  8 15:19:38 CET 2006
+Standard-date: 2006-02-08 14:19:38 GMT
+Modified-files: smoc_event.hpp smoc_firing_rules.cpp
+    smoc_firing_rules.hpp smoc_moc.cpp smoc_root_port.cpp
+    smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-33
+Summary: 
+ * Fixed bug with till
+Keywords: 
+
+
+

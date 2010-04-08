@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-81
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Mar 19 12:55:00 CET 2007
+Standard-date: 2007-03-19 11:55:00 GMT
+Modified-files: pkginclude/systemoc/smoc_ast_common.hpp
+    pkginclude/systemoc/smoc_ast_systemoc.hpp
+    smoc_ast_common.cpp smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-81
+Summary: 
+ * Fix bug xml networkgraph contains wrong portid ids
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-123
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Nov 20 09:13:06 CET 2006
+Standard-date: 2006-11-20 08:13:06 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-123
+Summary: 
+ - create timestamp for each trace statement
+Keywords: 
+
+
+

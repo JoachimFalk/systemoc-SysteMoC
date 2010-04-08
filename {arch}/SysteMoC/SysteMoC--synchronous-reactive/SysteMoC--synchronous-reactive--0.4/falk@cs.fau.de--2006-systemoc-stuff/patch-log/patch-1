@@ -1,0 +1,13 @@
+Revision: SysteMoC--synchronous-reactive--0.4--patch-1
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Jul 20 15:49:36 CEST 2006
+Standard-date: 2006-07-20 13:49:36 GMT
+Modified-files: smoc_root_node.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-1
+Summary: 
+ * Changed misleading macro definition of SMOC_ACTOR_CPARAM
+Keywords: 
+
+
+

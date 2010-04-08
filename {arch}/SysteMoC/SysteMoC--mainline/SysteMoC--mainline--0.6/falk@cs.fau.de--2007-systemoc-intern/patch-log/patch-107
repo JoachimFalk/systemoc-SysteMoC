@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.6--patch-107
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Jun  5 10:47:39 CEST 2007
+Standard-date: 2007-06-05 08:47:39 GMT
+Modified-files: smoc_moc.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-107
+Summary: 
+ - fixed SR scheduling:
+ - still find a fixed point if there are only strict blocks
+Keywords: 
+
+
+

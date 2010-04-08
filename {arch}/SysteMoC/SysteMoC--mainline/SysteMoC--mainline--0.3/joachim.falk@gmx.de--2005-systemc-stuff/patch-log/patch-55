@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-55
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sat Aug 13 00:32:49 CEST 2005
+Standard-date: 2005-08-12 22:32:49 GMT
+Modified-files: smoc_firing_rules.hpp smoc_guard.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-55
+Summary: 
+ * operator >> used to connect to activation patterns now subsumed by
+   operator >> on guards which fullfills the same functionallity
+Keywords: 
+
+
+

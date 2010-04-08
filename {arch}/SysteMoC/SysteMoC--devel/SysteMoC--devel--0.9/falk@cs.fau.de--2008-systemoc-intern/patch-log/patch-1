@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-1
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Jan 22 15:16:34 CET 2009
+Standard-date: 2009-01-22 14:16:34 GMT
+Modified-files: pkginclude/systemoc/smoc_multireader_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-1
+Summary: 
+ * Added some docu to smoc_multireader_fifo.
+Keywords: 
+
+
+

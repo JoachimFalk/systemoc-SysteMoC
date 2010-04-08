@@ -1,0 +1,14 @@
+Revision: SysteMoC--devel--0.8--patch-29
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jun 11 15:25:05 CEST 2008
+Standard-date: 2008-06-11 13:25:05 GMT
+Modified-files: pkginclude/systemoc/smoc_chan_if.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-29
+Summary: 
+ * Removed superflous virtual inheritance from sc_interface for
+   smoc_chan_in_base_if and smoc_chan_out_base_if.
+Keywords: 
+
+
+

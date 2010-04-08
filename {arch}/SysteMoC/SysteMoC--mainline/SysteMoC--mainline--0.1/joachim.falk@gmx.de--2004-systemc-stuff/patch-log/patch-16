@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.1--patch-16
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Dec  9 14:43:45 CET 2004
+Standard-date: 2004-12-09 13:43:45 GMT
+Renamed-files: .arch-ids/hscd_structure.cpp.id .arch-ids/hscd_graph_type.cpp.id
+    hscd_structure.cpp hscd_graph_type.cpp
+Modified-files: Docu/literature.bib Docu/report.tex
+    Makefile.am hscd_fifo.hpp hscd_graph_type.cpp
+    hscd_node_types.hpp hscd_root_node.cpp
+    hscd_root_node.hpp hscd_scheduler.hpp hscd_structure.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-16
+Summary: More report writing added hscd_graph_xxx stuff and hscd_moc.hpp
+Keywords: 
+
+
+

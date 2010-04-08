@@ -1,0 +1,32 @@
+Revision: SysteMoC--mainline--0.8--patch-123
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Jun 19 20:10:01 CEST 2008
+Standard-date: 2008-06-19 18:10:01 GMT
+Removed-files: pkginclude/systemoc/.arch-ids/smoc_md_array.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_vector.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_wsdf_edge.hpp.id
+    pkginclude/systemoc/smoc_md_array.hpp
+    pkginclude/systemoc/smoc_vector.hpp
+    pkginclude/systemoc/smoc_wsdf_edge.hpp
+    wsdf/.arch-ids/smoc_md_array.hpp.id
+    wsdf/.arch-ids/smoc_vector.hpp.id
+    wsdf/.arch-ids/smoc_wsdf_edge.cpp.id
+    wsdf/.arch-ids/smoc_wsdf_edge.hpp.id
+    wsdf/smoc_md_array.hpp wsdf/smoc_vector.hpp
+    wsdf/smoc_wsdf_edge.cpp wsdf/smoc_wsdf_edge.hpp
+Modified-files: Makefile.am configure.in
+    pkginclude/Makefile.am
+    wsdf/buffer_analysis/smoc_md_ba_linearized_buffer_schedule.hpp
+    wsdf/smoc_md_buffer.cpp wsdf/smoc_md_buffer.hpp
+    wsdf/smoc_md_fifo.hpp wsdf/smoc_md_loop.hpp
+    wsdf/smoc_md_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-123
+Summary: 
+ - SGX-Graph generation: Dump native WSDF edge parameters
+ - Allow to store WSDF edge parameters into stream
+ - Allow to read back WSDF edge parameters
+Keywords: 
+
+
+

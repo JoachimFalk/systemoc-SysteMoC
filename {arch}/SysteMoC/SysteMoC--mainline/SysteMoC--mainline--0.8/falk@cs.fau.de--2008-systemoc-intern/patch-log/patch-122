@@ -1,0 +1,19 @@
+Revision: SysteMoC--mainline--0.8--patch-122
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Jun 19 15:33:23 CEST 2008
+Standard-date: 2008-06-19 13:33:23 GMT
+Modified-files: pkginclude/systemoc/detail/QueueRVWPtr.hpp
+    pkginclude/systemoc/detail/smoc_latency_queues.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    smoc_fifo.cpp smoc_multiplex_fifo.cpp
+    smoc_multireader_fifo.cpp wsdf/smoc_md_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-122
+Summary: 
+ * Fixed multiplex fifos (hopefully)
+Keywords: 
+
+
+

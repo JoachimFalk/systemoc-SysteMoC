@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.6--patch-143
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Sep  5 12:38:27 CEST 2007
+Standard-date: 2007-09-05 10:38:27 GMT
+Modified-files: wsdf/smoc_md_array.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-143
+Summary: WSDF: add missing copy constructor to smoc_md_array.
+Keywords: 
+
+
+

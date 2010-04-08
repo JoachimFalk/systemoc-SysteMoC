@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.6--patch-20
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Feb  6 16:04:32 CET 2007
+Standard-date: 2007-02-06 15:04:32 GMT
+Modified-files: smoc_root_node.cpp smoc_root_node.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-17
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-20
+Summary: 
+ * Merge changeset SysteMoC--synchronous-reactive--0.4--patch-17
+ - improved non strict detection
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-17
+   
+ - improved non strict detection
+

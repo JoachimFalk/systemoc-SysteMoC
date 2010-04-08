@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-135
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Wed Feb 22 18:14:23 CET 2006
+Standard-date: 2006-02-22 17:14:23 GMT
+Modified-files: smoc_root_node.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-135
+Summary: 
+ * BUGFIX: Network graph generator code did not tolerate transitions without actions
+Keywords: 
+
+
+

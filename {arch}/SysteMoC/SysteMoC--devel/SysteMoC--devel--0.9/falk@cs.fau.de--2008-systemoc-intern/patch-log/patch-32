@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-32
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Tue May 19 09:34:27 CEST 2009
+Standard-date: 2009-05-19 07:34:27 GMT
+Modified-files: smoc_root_node.cpp wsdf/smoc_md_buffer.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-32
+Summary:
+  * VPC/WSDF fixes 
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.8--patch-59
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue May  6 16:41:54 CEST 2008
+Standard-date: 2008-05-06 14:41:54 GMT
+Removed-files: pkginclude/systemoc/.arch-ids/smoc_de_channel_access.hpp.id
+    pkginclude/systemoc/smoc_de_channel_access.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-59
+Summary: 
+ * Removed broken smoc_de_channel_access.hpp
+Keywords: 
+
+
+

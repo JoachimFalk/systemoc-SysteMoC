@@ -1,0 +1,31 @@
+Revision: SysteMoC--mainline--0.8--patch-140
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Jul  9 14:59:03 CEST 2008
+Standard-date: 2008-07-09 12:59:03 GMT
+New-files: pkginclude/systemoc/.arch-ids/smoc_func_call.hpp.id
+    pkginclude/systemoc/detail/.arch-ids/smoc_firing_rules_impl.hpp.id
+    pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/smoc_func_call.hpp
+Modified-files: pkginclude/Makefile.am
+    pkginclude/systemoc/smoc_firing_rules.hpp
+    pkginclude/systemoc/smoc_guard.hpp
+    pkginclude/systemoc/smoc_moc.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+    smoc_firing_rules.cpp smoc_graph_synth.cpp
+    smoc_graph_type.cpp smoc_guard.cpp smoc_moc.cpp
+    smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-140
+Summary:
+  * re-implemented construction & execution of firing FSM 
+    (consider special "states" which create transitions in finalise
+    etc.)
+  * special smoc_refined_state state: provides hierarchical
+    states that are expanded in finalise
+  * SR is broken with disabled VPC before(!) this patch
+  * WSDF testcases use bad coding style, i.e, actors are
+    created with "new" and never deleted
+Keywords: 
+
+
+

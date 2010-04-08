@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.4--patch-83
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun  2 12:00:11 CEST 2006
+Standard-date: 2006-06-02 10:00:11 GMT
+Modified-files: smoc_firing_rules.cpp smoc_root_node.cpp
+    smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-83
+Summary: 
+ * Compiles again with VPC support
+Keywords: 
+
+
+

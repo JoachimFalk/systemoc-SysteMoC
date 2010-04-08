@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.3--patch-150
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Thu Apr 13 15:07:24 CEST 2006
+Standard-date: 2006-04-13 13:07:24 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    hscd_tdsim_TraceLog.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-150
+Summary: 
+  * fixed possible bug in collecting fifo infos
+  * unknown actors are now also drawn (they maybe in cycles)
+  * legend is drawn on a separate graph
+Keywords: 
+
+
+

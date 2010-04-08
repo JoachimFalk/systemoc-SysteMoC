@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.4--patch-124
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Nov 23 18:37:33 CET 2006
+Standard-date: 2006-11-23 17:37:33 GMT
+Modified-files: smoc_chan_if.cpp smoc_moc.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-124
+Summary: 
+ - Fixed a FIXME: calling finalise is not longer necessary in assemble
+ - providing a generic networkgraph extraction mechanism in end_of_elaboration phase
+ - supports parameter --generate-networkgraph and --generate-problemgraph
+Keywords: 
+
+
+

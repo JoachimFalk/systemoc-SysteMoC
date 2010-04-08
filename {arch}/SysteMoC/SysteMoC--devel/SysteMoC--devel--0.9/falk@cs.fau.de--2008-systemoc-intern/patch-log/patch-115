@@ -1,0 +1,21 @@
+Revision: SysteMoC--devel--0.9--patch-115
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep  2 13:08:03 CEST 2009
+Standard-date: 2009-09-02 11:08:03 GMT
+Modified-files: smoc-core/smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-115
+    falk@cs.fau.de--2009-systemoc-intern/SysteMoC--fastsim--0.9.1--patch-4
+Summary: 
+ * Merge from SysteMoC--fastsim--0.9.1 branch
+ - Reset cached transition if signaled and executing
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2009-systemoc-intern/SysteMoC--fastsim--0.9.1--patch-4
+   
+  * Reset cached transition if signaled and executing 
+

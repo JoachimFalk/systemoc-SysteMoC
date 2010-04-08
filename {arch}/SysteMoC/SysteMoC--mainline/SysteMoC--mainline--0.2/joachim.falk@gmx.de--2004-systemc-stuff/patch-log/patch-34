@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.2--patch-34
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Mon May 30 10:54:21 CEST 2005
+Standard-date: 2005-05-30 08:54:21 GMT
+Modified-files: hscd_node_types.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-34
+Summary: 
+  * Added syntactic sugar
+  - alias hscd_actor is equivalent to hscd_choice_passive_node
+Keywords: 
+
+
+

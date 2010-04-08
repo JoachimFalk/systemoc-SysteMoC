@@ -1,0 +1,14 @@
+Revision: SysteMoC--devel--0.9--patch-38
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed May 20 10:06:03 CEST 2009
+Standard-date: 2009-05-20 08:06:03 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    smoc_actor.cpp smoc_firing_rules.cpp smoc_graph_type.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-38
+Summary:
+  * Preparations for dumping actions 
+Keywords: 
+
+
+

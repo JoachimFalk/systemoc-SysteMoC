@@ -1,0 +1,18 @@
+Revision: SysteMoC--mainline--0.8--patch-147
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Tue Jul 22 17:51:11 CEST 2008
+Standard-date: 2008-07-22 15:51:11 GMT
+Modified-files: networkgraph.dtd
+    pkginclude/systemoc/smoc_ast_common.hpp
+    pkginclude/systemoc/smoc_ast_systemoc.hpp
+    pkginclude/systemoc/smoc_func_call.hpp
+    pkginclude/systemoc/smoc_port.hpp smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-147
+Summary: Modify action dumping
+ - Dump complex action with <function> and <parameter> elements instead of action attribute.
+
+Keywords: 
+
+
+

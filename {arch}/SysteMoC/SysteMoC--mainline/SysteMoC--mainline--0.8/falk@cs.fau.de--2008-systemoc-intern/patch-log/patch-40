@@ -1,0 +1,18 @@
+Revision: SysteMoC--mainline--0.8--patch-40
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Thu Apr 24 17:37:47 CEST 2008
+Standard-date: 2008-04-24 15:37:47 GMT
+Modified-files: pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_moc.hpp
+    pkginclude/systemoc/smoc_pggen.hpp smoc_graph_type.cpp
+    smoc_moc.cpp smoc_pggen.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-40
+Summary: 
+  * again final restructuring of graph <-> scheduler interaction:
+    top scheduler is now SC_MODULE and graph must be supplied in
+    constructor
+Keywords: 
+
+
+

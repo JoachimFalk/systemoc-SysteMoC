@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-105
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sat Jun 24 10:14:42 CEST 2006
+Standard-date: 2006-06-24 08:14:42 GMT
+Modified-files: configure.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-105
+Summary: 
+ * Replaced obsolete ACJF_SYSTEMC by ACJF_CHECK_LIB_SYSTEMC
+Keywords: 
+
+
+

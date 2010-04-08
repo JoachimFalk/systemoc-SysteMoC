@@ -1,0 +1,33 @@
+Revision: SysteMoC--devel--0.9--patch-20
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May 11 18:14:28 CEST 2009
+Standard-date: 2009-05-11 16:14:28 GMT
+Renamed-files: pkginclude/systemoc/.arch-ids/smoc_chan_if.hpp.id pkginclude/systemoc/detail/.arch-ids/smoc_chan_if.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_chan_if.hpp.id pkginclude/systemoc/detail/.arch-ids/smoc_md_chan_if.hpp.id
+    pkginclude/systemoc/smoc_chan_if.hpp pkginclude/systemoc/detail/smoc_chan_if.hpp
+    pkginclude/systemoc/smoc_md_chan_if.hpp pkginclude/systemoc/detail/smoc_md_chan_if.hpp
+Modified-files: hscd_tdsim_TraceLog.cpp
+    pkginclude/Makefile.am
+    pkginclude/systemoc/detail/smoc_chan_if.hpp
+    pkginclude/systemoc/detail/smoc_connect_provider.hpp
+    pkginclude/systemoc/detail/smoc_md_chan_if.hpp
+    pkginclude/systemoc/detail/smoc_port_registry.hpp
+    pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/smoc_chan_adapter.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    pkginclude/systemoc/smoc_port.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+    pkginclude/systemoc/smoc_sr_signal.hpp smoc_chan_if.cpp
+    smoc_root_chan.cpp wsdf/smoc_md_buffer.hpp
+    wsdf/smoc_md_fifo.hpp wsdf/smoc_md_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-20
+Summary: 
+ * Moved smoc_chan_if.hpp and smoc_md_chan_if.hpp into detail
+Keywords: 
+
+
+

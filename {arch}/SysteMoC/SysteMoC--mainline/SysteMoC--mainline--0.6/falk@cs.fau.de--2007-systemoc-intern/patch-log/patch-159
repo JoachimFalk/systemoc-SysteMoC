@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.6--patch-159
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Dec 13 09:12:58 CET 2007
+Standard-date: 2007-12-13 08:12:58 GMT
+Modified-files: pkginclude/systemoc/smoc_firing_rules.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-159
+Summary: 
+ - fdef'ed VPC related code
+Keywords: 
+
+
+

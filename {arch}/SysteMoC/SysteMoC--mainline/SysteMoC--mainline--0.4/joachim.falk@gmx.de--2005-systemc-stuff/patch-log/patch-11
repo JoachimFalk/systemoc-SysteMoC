@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-11
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Nov 24 19:37:28 CET 2005
+Standard-date: 2005-11-24 18:37:28 GMT
+Modified-files: Makefile.am configure.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-11
+Summary: 
+ * Seperated boost include and link flags from systemc include and link flags
+Keywords: 
+
+
+

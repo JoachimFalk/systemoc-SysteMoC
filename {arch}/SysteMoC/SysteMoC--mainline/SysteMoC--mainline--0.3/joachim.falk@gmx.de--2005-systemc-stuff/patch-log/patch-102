@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.3--patch-102
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sat Oct 29 15:44:42 CEST 2005
+Standard-date: 2005-10-29 13:44:42 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    hscd_tdsim_TraceLog.hpp smoc_fifo.hpp
+    smoc_firing_rules.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-102
+Summary: 
+ * Added #ifdef SYSTEMOC_TRACE arround trace code
+Keywords: 
+
+
+

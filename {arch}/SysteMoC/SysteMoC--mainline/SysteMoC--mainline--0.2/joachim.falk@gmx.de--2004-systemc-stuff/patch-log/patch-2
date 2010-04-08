@@ -1,0 +1,19 @@
+Revision: SysteMoC--mainline--0.2--patch-2
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Tue Jan  4 11:00:39 CET 2005
+Standard-date: 2005-01-04 10:00:39 GMT
+Modified-files: Makefile.am configure.in hscd_graph_type.cpp
+    hscd_root_node.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-31
+    joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-2
+Summary: Now use ACJF_SYSTEMC
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-31
+   Now use ACJF_SYSTEMC
+

@@ -1,0 +1,20 @@
+Revision: SysteMoC--mainline--0.9.1--patch-34
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Thu Jul 30 16:54:53 CEST 2009
+Standard-date: 2009-07-30 14:54:53 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/detail/smoc_root_node.hpp
+    pkginclude/systemoc/detail/smoc_sysc_port.hpp
+    pkginclude/systemoc/smoc_expr.hpp
+    smoc-core/smoc_firing_rules.cpp
+    smoc-core/smoc_graph_type.cpp smoc-core/smoc_moc.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-34
+Summary: 
+  * Various fixes if --disable-sgx and --disable-trace is defined
+  * Enhanced the FSM finalize benchmark
+Keywords: 
+
+
+

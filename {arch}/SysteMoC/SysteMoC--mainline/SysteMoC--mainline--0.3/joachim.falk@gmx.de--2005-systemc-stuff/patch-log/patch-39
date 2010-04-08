@@ -1,0 +1,18 @@
+Revision: SysteMoC--mainline--0.3--patch-39
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Thu Aug 11 17:11:52 CEST 2005
+Standard-date: 2005-08-11 15:11:52 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-39
+Summary: 
+ - added code for VPC integration
+   - get sc_module_name
+   - get function name e.g. "actorClass::action"
+     - introduced "CALL(actorClass::action)" as replacement
+       for "call(&actorClass::action)"
+Keywords: 
+
+
+

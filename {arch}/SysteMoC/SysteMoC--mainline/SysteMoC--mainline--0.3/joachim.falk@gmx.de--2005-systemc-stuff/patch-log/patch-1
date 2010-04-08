@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.3--patch-1
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Aug  2 13:36:39 CEST 2005
+Standard-date: 2005-08-02 11:36:39 GMT
+Modified-files: smoc_graph_type.cpp smoc_graph_type.hpp
+    smoc_moc.hpp smoc_node_types.hpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-1
+Summary: 
+ * Removed Transact Choice branch and call
+ * commented out csp constraintset and scheduler
+Keywords: 
+
+
+

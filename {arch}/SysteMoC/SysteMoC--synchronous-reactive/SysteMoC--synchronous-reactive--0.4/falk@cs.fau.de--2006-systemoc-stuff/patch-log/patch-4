@@ -1,0 +1,20 @@
+Revision: SysteMoC--synchronous-reactive--0.4--patch-4
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Aug  9 16:48:44 CEST 2006
+Standard-date: 2006-08-09 14:48:44 GMT
+New-files: .arch-ids/smoc_sr_signal.cpp.id
+    .arch-ids/smoc_sr_signal.hpp.id smoc_sr_signal.cpp
+    smoc_sr_signal.hpp
+Modified-files: Makefile.am smoc_moc.cpp smoc_moc.hpp
+    smoc_root_node.cpp smoc_root_node.hpp smoc_root_port.hpp
+    smoc_storage.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-4
+Summary: 
+ - added sr_signal
+ - added new SR scheduler only handling SR
+   scheduling of non-strict is incomplete, yet
+Keywords: 
+
+
+

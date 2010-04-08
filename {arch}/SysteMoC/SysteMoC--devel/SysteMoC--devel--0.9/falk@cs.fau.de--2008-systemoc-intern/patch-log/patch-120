@@ -1,0 +1,17 @@
+Revision: SysteMoC--devel--0.9--patch-120
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Mon Sep 28 17:32:02 CEST 2009
+Standard-date: 2009-09-28 15:32:02 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/smoc_guard.hpp
+    smoc-core/smoc_firing_rules.cpp
+    smoc-core/smoc_guard.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-120
+Summary:
+  * Removed HAVE_BOOST_UNORDERED regions
+  * Cleaned up smoc_activation_pattern 
+Keywords: 
+
+
+

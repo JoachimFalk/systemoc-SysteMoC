@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.6--patch-133
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Jul 23 16:46:07 CEST 2007
+Standard-date: 2007-07-23 14:46:07 GMT
+Modified-files: smoc_fifo.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-133
+Summary: 
+ * SYSTEMOC_TRACE: Added latency timestamp for fifo firings
+Keywords: 
+
+
+

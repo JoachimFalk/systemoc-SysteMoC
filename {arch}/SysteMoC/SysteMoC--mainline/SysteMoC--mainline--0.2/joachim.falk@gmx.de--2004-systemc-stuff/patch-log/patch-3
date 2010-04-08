@@ -1,0 +1,10 @@
+Revision: SysteMoC--mainline--0.2--patch-3
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jan 12 13:14:59 CET 2005
+Standard-date: 2005-01-12 12:14:59 GMT
+Modified-files: Docu/Makefile.am Docu/report.tex
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-3
+Summary: Beginning of section 'Tagged Signal Model', some spelling fixes from Prof. Teich
+Keywords: 
+

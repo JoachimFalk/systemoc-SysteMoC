@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.2--patch-42
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sun Jun 19 18:09:53 CEST 2005
+Standard-date: 2005-06-19 16:09:53 GMT
+New-files: .arch-ids/expr.hpp.id expr.hpp
+Modified-files: Makefile.am smoc_guard.hpp smoc_port.hpp
+    smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-42
+Summary: 
+ * Moved DExpr stuff to expr.xxx
+Keywords: 
+
+
+

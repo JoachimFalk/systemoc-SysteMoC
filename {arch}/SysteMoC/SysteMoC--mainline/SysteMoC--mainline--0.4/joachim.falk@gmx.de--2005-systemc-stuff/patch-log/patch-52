@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-52
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Andreas Deyhle <andi.deyhle@gmx.de>
+Date: Wed Mar 29 14:25:38 CEST 2006
+Standard-date: 2006-03-29 12:25:38 GMT
+Modified-files: smoc_root_node.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-52
+Summary:
+ * added output of actortype to netgraph dumper
+Keywords: 
+
+
+

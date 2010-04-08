@@ -1,0 +1,20 @@
+Revision: SysteMoC--mainline--0.6--patch-94
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Apr 30 17:23:02 CEST 2007
+Standard-date: 2007-04-30 15:23:02 GMT
+Modified-files: pkginclude/systemoc/smoc_ast_systemoc.hpp
+    pkginclude/systemoc/smoc_chan_if.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_moc.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_port.hpp
+    pkginclude/systemoc/smoc_storage.hpp
+    smoc_multicast_sr_signal.cpp wsdf/smoc_md_buffer.hpp
+    wsdf/smoc_md_chan_if.hpp wsdf/smoc_md_port.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-94
+Summary: 
+ - Eliminate storage_type template parameter from smoc_channel_access
+Keywords: 
+

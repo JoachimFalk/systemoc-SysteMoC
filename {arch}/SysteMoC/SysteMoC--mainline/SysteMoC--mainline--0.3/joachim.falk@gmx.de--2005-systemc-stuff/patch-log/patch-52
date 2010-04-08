@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-52
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Fri Aug 12 21:38:30 CEST 2005
+Standard-date: 2005-08-12 19:38:30 GMT
+Modified-files: smoc_event.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-52
+Summary: 
+ - implementation of smoc_event_or_list
+Keywords: 
+
+
+

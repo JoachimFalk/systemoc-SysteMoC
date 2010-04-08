@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.6--patch-175
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Mar 10 16:58:31 CET 2008
+Standard-date: 2008-03-10 15:58:31 GMT
+Modified-files: smoc_graph_type.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-175
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--multihop--0.6--patch-5
+Summary: 
+ - merged SysteMoC--multihop--0.6--patch-5
+ - removed verbose debug output
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--multihop--0.6--patch-5
+   
+ - removed verbose debug output
+

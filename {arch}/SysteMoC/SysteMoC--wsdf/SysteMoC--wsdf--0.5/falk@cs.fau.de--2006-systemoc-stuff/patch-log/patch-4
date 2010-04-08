@@ -1,0 +1,12 @@
+Revision: SysteMoC--wsdf--0.5--patch-4
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Oct 27 22:22:01 CEST 2006
+Standard-date: 2006-10-27 20:22:01 GMT
+Modified-files: smoc_chan_if.hpp smoc_fifo.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-4
+Summary: 
+ - smoc_chan_if: Provide separate template parameter for
+   input and output interface.
+Keywords: 
+

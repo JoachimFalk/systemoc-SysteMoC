@@ -1,0 +1,45 @@
+Revision: SysteMoC--mainline--0.8--patch-91
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May 21 15:00:53 CEST 2008
+Standard-date: 2008-05-21 13:00:53 GMT
+Modified-files: Makefile.am configure.in
+    pkginclude/systemoc/smoc_graph_synth.hpp
+    pkginclude/systemoc/smoc_ngx_sync.hpp smoc_fifo.cpp
+    smoc_graph_synth.cpp smoc_graph_type.cpp
+    smoc_multiplex_fifo.cpp smoc_ngx_sync.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--base-0
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-1
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-2
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-3
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-91
+Summary: 
+ * Merge from SysteMoC--devel--0.8
+ - AC-PG-Access => LibSGX
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--base-0
+   tag of falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-87
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-1
+   
+ * AC-PG-Access => LibSGX
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-2
+   
+ * Merge from SysteMoC--mainline--0.8
+ - smoc_wsdf_edge_descr: Move constructor from hpp to cpp
+ - WSDF transformation for external data reusage: Complete redesign
+ - smoc_wsdf_edge_descr: Restructure handling of virtual token unions
+ - Cleanup smoc_md_fifo.hpp. Eliminate define NO_SMOC
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-3
+   
+ * Merge from SysteMoC--mainline--0.8
+ - Some minor format fixes
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-25
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Thu Nov  2 10:12:54 CET 2006
+Standard-date: 2006-11-02 09:12:54 GMT
+Modified-files: configure.in doxygen.cfg
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-25
+Summary: 
+ * Fixed doxygen-doc target
+Keywords: 
+
+
+

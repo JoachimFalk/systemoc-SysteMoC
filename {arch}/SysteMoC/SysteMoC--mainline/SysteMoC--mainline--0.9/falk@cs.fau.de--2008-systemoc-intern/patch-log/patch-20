@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.9--patch-20
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun 26 10:14:26 CEST 2009
+Standard-date: 2009-06-26 08:14:26 GMT
+Modified-files: pkginclude/systemoc/smoc_multireader_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-1
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-20
+Summary: 
+ * Merge from SysteMoC--devel--0.9 branch
+ - Added some docu to smoc_multireader_fifo.
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-1
+   
+ * Added some docu to smoc_multireader_fifo.
+

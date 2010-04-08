@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.8--patch-75
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu May  8 19:21:05 CEST 2008
+Standard-date: 2008-05-08 17:21:05 GMT
+Modified-files: pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    smoc_multiplex_fifo.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-75
+Summary: 
+ * Refactored smoc_multiplex_fifo to use Queue3Ptr
+Keywords: 
+
+
+

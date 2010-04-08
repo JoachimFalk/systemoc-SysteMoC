@@ -1,0 +1,21 @@
+Revision: SysteMoC--devel--0.9--patch-10
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jan 30 18:45:14 CET 2009
+Standard-date: 2009-01-30 17:45:14 GMT
+Modified-files: Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-10
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-12
+Summary: 
+ * Merge from SysteMoC--mainline--0.9
+ - Fixup Makefile.am
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-12
+   
+ * Fixup Makefile.am
+

@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.9--patch-2
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Thu Dec 11 08:58:14 CET 2008
+Standard-date: 2008-12-11 07:58:14 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/smoc_firing_rules.hpp
+    smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-2
+Summary:
+  * IN conditions can be negated now 
+Keywords: 
+
+
+

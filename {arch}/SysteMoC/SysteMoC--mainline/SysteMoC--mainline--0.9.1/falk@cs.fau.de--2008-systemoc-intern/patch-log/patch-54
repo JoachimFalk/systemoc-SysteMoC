@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.9.1--patch-54
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Nov 24 13:24:06 CET 2009
+Standard-date: 2009-11-24 12:24:06 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-134
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-54
+Summary: 
+ * Merge from SysteMoC--devel--0.9 branch
+ - General configure.in cleanup.
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-134
+   
+ * General configure.in cleanup.
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-105
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Nov 16 11:04:34 CET 2005
+Standard-date: 2005-11-16 10:04:34 GMT
+Modified-files: configure.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-105
+Summary: 
+ * No longer have Docu subdirectory
+Keywords: 
+
+
+

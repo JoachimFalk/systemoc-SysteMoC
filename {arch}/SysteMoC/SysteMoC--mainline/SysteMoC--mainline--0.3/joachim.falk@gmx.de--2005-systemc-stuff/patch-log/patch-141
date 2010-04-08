@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.3--patch-141
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Apr  5 15:50:32 CEST 2006
+Standard-date: 2006-04-05 13:50:32 GMT
+Modified-files: networkgraph.dtd
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-141
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-42
+Summary: 
+ * Merge from SysteMoC--mainline--0.4 branch
+ - modified networkgraph.dtd for hybrid use within networkgraph and specificationgraph files
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-42
+   
+  * modified networkgraph.dtd for hybrid use within networkgraph and specificationgraph files
+

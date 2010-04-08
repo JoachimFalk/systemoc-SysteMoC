@@ -1,0 +1,70 @@
+Revision: SysteMoC--parsing--0.3--patch-8
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Andreas Deyhle <andi.deyhle@gmx.de>
+Date: Wed Feb 22 17:36:17 CET 2006
+Standard-date: 2006-02-22 16:36:17 GMT
+Modified-files: networkgraph.dtd smoc_chan_if.hpp
+    smoc_expr.cpp smoc_expr.hpp smoc_fifo.hpp
+    smoc_graph_type.cpp smoc_guard.cpp smoc_guard.hpp
+    smoc_pggen.cpp smoc_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-128
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-129
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-130
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-131
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-132
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-133
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-134
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-8
+Summary: 
+ * merge from SysteMoC--mainline--0.3 branch
+ - Change network graph dumper code for inital token dumping
+   added size attribute for fifo edges
+   added type attribute for fifo edges
+   removed redundant type attribute from initial token tags
+ - Change network graph dumper code for activation pattern AST dumping
+   Added valueType attribute for each AST node
+   Added missing AST Terminals Var MemGuard MemProc Token
+ - Changed networkgraph.dtd accordingly
+ 
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-128
+   
+ * Merge from SysteMoC--parsing--0.3
+ - Added dumping of constructor parameters
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-129
+   
+ * Moved smoc_activation_pattern::guardAssemble helper function
+   from smoc_guard.hpp into smoc_guard.cpp
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-130
+   
+ * Fixed bug in xml syntax for network graph generation in smoc_guard.cpp
+ * Fixed bug in dtd for network graph
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-131
+   
+ * Fixed bug in xml format of network graph generation
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-132
+   
+ * Changed network graph xml format
+ - added size attribute for fifo edges
+ - added type attribute for fifo edges
+ - removed type attribute from token tags for initial fifo tokens
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-133
+   
+ * Added valueType attribute for network graph xml dumping
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-134
+   
+ * Fixed networkgraph.dtd accordingly
+ * Added missing AST Terminals Var MemGuard MemProc Token
+

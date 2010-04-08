@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.6--patch-163
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Dec 31 12:27:16 CET 2007
+Standard-date: 2007-12-31 11:27:16 GMT
+Modified-files: wsdf/smoc_wsdf_edge.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-163
+Summary:
+ - WSDF-iterator: Fix snk2src embedding (consider also window propagation)
+Keywords: 
+
+
+

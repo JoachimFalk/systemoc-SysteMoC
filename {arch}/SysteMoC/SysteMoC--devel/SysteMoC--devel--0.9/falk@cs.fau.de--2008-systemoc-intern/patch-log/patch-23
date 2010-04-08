@@ -1,0 +1,26 @@
+Revision: SysteMoC--devel--0.9--patch-23
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri May 15 17:48:49 CEST 2009
+Standard-date: 2009-05-15 15:48:49 GMT
+New-files: .arch-ids/smoc_actor.cpp.id
+    pkginclude/systemoc/.arch-ids/smoc_actor.hpp.id
+    pkginclude/systemoc/smoc_actor.hpp smoc_actor.cpp
+Modified-files: Makefile.am
+    pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_moc.hpp
+    pkginclude/systemoc/smoc_ngx_sync.hpp
+    pkginclude/systemoc/smoc_node_types.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+    smoc_graph_type.cpp smoc_moc.cpp smoc_ngx_sync.cpp
+    smoc_root_node.cpp smoc_sysc_port.cpp
+    wsdf/smoc_md_chan_if.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-23
+Summary:
+  * Partial construction of SMX (Actors/PGs, no FIFOs/FSM, no topology)
+  * Moved smoc_actor into smoc_actor.{hpp,cpp}
+  * Fixed #include problem with WSDF
+Keywords: 
+
+
+

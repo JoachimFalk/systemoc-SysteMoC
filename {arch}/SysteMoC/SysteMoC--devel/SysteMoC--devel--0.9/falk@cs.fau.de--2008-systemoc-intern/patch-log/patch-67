@@ -1,0 +1,34 @@
+Revision: SysteMoC--devel--0.9--patch-67
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jun  2 12:36:44 CEST 2009
+Standard-date: 2009-06-02 10:36:44 GMT
+Removed-files: pkginclude/systemoc/.arch-ids/smoc_ast_common.hpp.id
+    pkginclude/systemoc/smoc_ast_common.hpp
+Renamed-files: pkginclude/systemoc/.arch-ids/smoc_ast_systemoc.hpp.id pkginclude/smoc/detail/.arch-ids/astnodes.hpp.id
+    pkginclude/systemoc/smoc_ast_systemoc.hpp pkginclude/smoc/detail/astnodes.hpp
+    smoc-core/.arch-ids/smoc_ast_systemoc.cpp.id smoc-core/.arch-ids/astnodes.cpp.id
+    smoc-core/smoc_ast_systemoc.cpp smoc-core/astnodes.cpp
+Modified-files: Makefile.am pkginclude/Makefile.am
+    pkginclude/smoc/detail/astnodes.hpp
+    pkginclude/systemoc/detail/smoc_ast_ngx_visitor.hpp
+    pkginclude/systemoc/detail/smoc_chan_if.hpp
+    pkginclude/systemoc/detail/smoc_event_expr.hpp
+    pkginclude/systemoc/detail/smoc_root_node.hpp
+    pkginclude/systemoc/smoc_actor.hpp
+    pkginclude/systemoc/smoc_expr.hpp
+    pkginclude/systemoc/smoc_func_call.hpp
+    pkginclude/systemoc/smoc_port.hpp
+    smoc-core/SMXDumper.cpp smoc-core/astnodes.cpp
+    smoc-core/smoc_actor.cpp
+    smoc-core/smoc_ast_ngx_visitor.cpp
+    smoc-core/smoc_firing_rules.cpp
+    smoc-core/smoc_func_call.cpp
+    smoc-core/smoc_graph_synth.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-67
+Summary: 
+ * Added constructor parameter support for --export-smx.
+Keywords: 
+
+
+

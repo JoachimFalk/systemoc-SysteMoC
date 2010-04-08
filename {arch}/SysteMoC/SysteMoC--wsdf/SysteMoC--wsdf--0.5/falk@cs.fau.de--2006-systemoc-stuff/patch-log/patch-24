@@ -1,0 +1,26 @@
+Revision: SysteMoC--wsdf--0.5--patch-24
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Nov 16 16:29:00 CET 2006
+Standard-date: 2006-11-16 15:29:00 GMT
+Modified-files: smoc_md_array_access.hpp smoc_md_port.cpp
+    smoc_md_port.hpp smoc_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-24
+Summary: 
+
+Introduce iteration expression for statemachine
+
+smoc_port.hpp
+ - Add comments
+ - Fix indent
+
+smoc_md_array_access.hpp
+ - Fix definition of size_t
+
+smoc_md_port.hpp/cpp
+ - Add expression getIteration for statemachine
+ - FIX params(): Now checks, that parameters are valid
+ - Add DUMMY functions for AST generation
+
+Keywords: 
+

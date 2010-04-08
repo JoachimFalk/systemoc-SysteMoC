@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-162
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Sep 23 17:29:04 CEST 2008
+Standard-date: 2008-09-23 15:29:04 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_connect_provider.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-162
+Summary: 
+ * Register systemc ports used via adapters with the idPool
+Keywords: 
+
+
+

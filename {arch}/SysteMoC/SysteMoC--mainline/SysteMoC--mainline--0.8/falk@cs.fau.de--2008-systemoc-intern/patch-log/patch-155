@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-155
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Mon Aug 25 11:17:42 CEST 2008
+Standard-date: 2008-08-25 09:17:42 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-155
+Summary:
+  * fixed(?) bug if VPC is supplied as installed package 
+Keywords: 
+
+
+

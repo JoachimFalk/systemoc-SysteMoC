@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-19
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Aug  5 11:38:30 CEST 2005
+Standard-date: 2005-08-05 09:38:30 GMT
+Modified-files: oneof.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-19
+Summary: 
+ * Better debugging output for oneof template class
+Keywords: 
+
+
+

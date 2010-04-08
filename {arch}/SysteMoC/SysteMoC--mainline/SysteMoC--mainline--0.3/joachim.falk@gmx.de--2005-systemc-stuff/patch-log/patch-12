@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.3--patch-12
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug  4 16:00:00 CEST 2005
+Standard-date: 2005-08-04 14:00:00 GMT
+Modified-files: smoc_moc.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-12
+Summary: 
+ * Code cleanups in smoc_moc.hpp
+ - elimination of duplicate code
+ - sprinkled some more assertions
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.2--patch-20
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Mar  7 22:33:37 CET 2005
+Standard-date: 2005-03-07 21:33:37 GMT
+Modified-files: hscd_root_if.hpp hscd_root_node.hpp
+    hscd_root_port_list.cpp hscd_root_port_list.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-20
+Summary: added hscd_func_call and hscd_func_branch and respective changes
+         to store node functionality references in them
+Keywords: 
+
+
+

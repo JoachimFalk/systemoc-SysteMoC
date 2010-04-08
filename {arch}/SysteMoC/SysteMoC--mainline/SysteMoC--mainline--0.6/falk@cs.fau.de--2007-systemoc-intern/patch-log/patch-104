@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-104
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Jun  4 10:58:29 CEST 2007
+Standard-date: 2007-06-04 08:58:29 GMT
+Modified-files: wsdf/buffer_analysis/smoc_md_ba_linearized_buffer_schedule.cpp
+    wsdf/buffer_analysis/smoc_md_ba_linearized_buffer_schedule.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-104
+Summary: 
+ * Fixup indent replace tabs with spaces and hopefully generate
+   a fatal conflict with the previously corrupted patch 103
+Keywords: 
+
+
+

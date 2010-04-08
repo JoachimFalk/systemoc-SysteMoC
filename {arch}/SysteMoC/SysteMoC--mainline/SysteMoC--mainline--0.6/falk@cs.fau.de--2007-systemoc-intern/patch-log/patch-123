@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-123
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jul 13 17:25:03 CEST 2007
+Standard-date: 2007-07-13 15:25:03 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    pkginclude/systemoc/hscd_tdsim_TraceLog.hpp
+    smoc_fifo.cpp smoc_firing_rules.cpp smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-123
+Summary: 
+ * Transition execute method cleanup
+Keywords: 
+
+
+

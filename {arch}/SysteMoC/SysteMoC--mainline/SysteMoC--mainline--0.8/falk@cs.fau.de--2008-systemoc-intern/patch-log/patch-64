@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.8--patch-64
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue May  6 20:31:30 CEST 2008
+Standard-date: 2008-05-06 18:31:30 GMT
+Modified-files: smoc_chan_if.cpp smoc_fifo.cpp
+    smoc_multicast_sr_signal.cpp smoc_multiplex_fifo.cpp
+    smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-64
+Summary:  -Change creation of channel names such that user specified names are not discarded. Attention: Required change in WSDF part will be committed later on. 
+Keywords: 
+
+ -Change creation of channel names such that user specified names are not discarded. Attention: Required change in WSDF part will be committed later on. 
+

@@ -1,0 +1,20 @@
+Revision: SysteMoC--devel--0.9--patch-72
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jun  2 19:06:45 CEST 2009
+Standard-date: 2009-06-02 17:06:45 GMT
+Renamed-files: pkginclude/systemoc/detail/.arch-ids/smoc_ast_ngx_visitor.hpp.id smoc-core/.arch-ids/smoc_ast_ngx_visitor.hpp.id
+    pkginclude/systemoc/detail/smoc_ast_ngx_visitor.hpp smoc-core/smoc_ast_ngx_visitor.hpp
+Modified-files: pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/smoc_actor.hpp
+    pkginclude/systemoc/smoc_graph_type.hpp
+    smoc-core/SMXDumper.cpp
+    smoc-core/smoc_ast_ngx_visitor.cpp
+    smoc-core/smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-72
+Summary: 
+ * More cleanup work.
+Keywords: 
+
+
+

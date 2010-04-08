@@ -1,0 +1,18 @@
+Revision: SysteMoC--mainline--0.8--patch-143
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Jul 16 14:08:04 CEST 2008
+Standard-date: 2008-07-16 12:08:04 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+    smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-143
+Summary:
+  * fixed the dump order of smoc_firing_states (again)
+    (NOTE: this is still broken if SystemC iterates the child objects
+    sorted by name, and a smoc_firing_state has a user-defined
+    name (which is not, however, supported yet by SyteMoC))
+Keywords: 
+
+
+

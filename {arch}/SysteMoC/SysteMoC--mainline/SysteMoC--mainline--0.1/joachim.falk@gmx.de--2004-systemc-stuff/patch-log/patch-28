@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.1--patch-28
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Dec 22 21:47:13 CET 2004
+Standard-date: 2004-12-22 20:47:13 GMT
+Modified-files: Docu/report.tex Docu/sdf-mac-unit.fig
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-28
+Summary: Draft of formal definition of node interface type ready, corrected sdf-mac-unit.fig Fork => Duplicate
+Keywords: 
+
+
+

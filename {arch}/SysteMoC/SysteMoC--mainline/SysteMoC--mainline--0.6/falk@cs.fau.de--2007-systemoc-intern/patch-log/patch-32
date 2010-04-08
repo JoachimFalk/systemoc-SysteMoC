@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-32
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Feb  8 12:56:56 CET 2007
+Standard-date: 2007-02-08 11:56:56 GMT
+Modified-files: smoc_chan_if.hpp
+    smoc_multicast_sr_signal.hpp smoc_port.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-32
+Summary: 
+ - another way to test if channel has valid token: port.isValid(index)
+ (makes sense in SR -> non strict actors may read "undefined" values)
+Keywords: 
+
+
+

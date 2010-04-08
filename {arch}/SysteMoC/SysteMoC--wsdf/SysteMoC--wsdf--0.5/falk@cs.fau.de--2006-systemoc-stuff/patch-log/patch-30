@@ -1,0 +1,13 @@
+Revision: SysteMoC--wsdf--0.5--patch-30
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Nov 30 19:12:16 CET 2006
+Standard-date: 2006-11-30 18:12:16 GMT
+Modified-files: smoc_md_fifo.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-30
+Summary:
+ - Optimize function usedStorage()
+Keywords: 
+
+
+

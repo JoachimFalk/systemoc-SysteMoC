@@ -1,0 +1,19 @@
+Revision: SysteMoC--mainline--0.4--patch-116
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep 13 15:29:53 CEST 2006
+Standard-date: 2006-09-13 13:29:53 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-116
+Summary: 
+ * Fixed BUG in smoc_firing_state assigment operator
+     this_type &smoc_firing_state::operator = (const this_type &)
+   to also register newly created resolved states with its
+   corresponding smoc_firing_rules object
+ * Added more paranoid assertions, with respect to resolved state
+   managment, in the smoc_firing_rules class
+     
+Keywords: 
+
+
+

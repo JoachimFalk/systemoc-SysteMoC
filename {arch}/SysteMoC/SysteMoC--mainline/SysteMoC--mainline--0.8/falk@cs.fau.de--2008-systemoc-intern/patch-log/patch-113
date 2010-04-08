@@ -1,0 +1,22 @@
+Revision: SysteMoC--mainline--0.8--patch-113
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Jun 12 18:06:23 CEST 2008
+Standard-date: 2008-06-12 16:06:23 GMT
+Modified-files: Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-34
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-113
+Summary: 
+ * Merge from SysteMoC--devel--0.8
+ - Fix libsystemoc library dependencies
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-34
+   
+ * Fix libsystemoc library dependencies
+

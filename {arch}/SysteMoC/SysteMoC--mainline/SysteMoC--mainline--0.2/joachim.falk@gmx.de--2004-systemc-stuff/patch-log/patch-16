@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.2--patch-16
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sun Feb 20 17:44:41 CET 2005
+Standard-date: 2005-02-20 16:44:41 GMT
+Modified-files: hscd_moc.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-16
+Summary: Begin moc analysation stuff
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-99
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Tue Oct 11 16:21:48 CEST 2005
+Standard-date: 2005-10-11 14:21:48 GMT
+Modified-files: Makefile.am configure.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-99
+Summary: 
+ - added --enable-vpc option in configure script
+   as in joachim.falk@gmx.de--2005-infiniband-stuff/InfiniBand--mainline--0.3--patch-80
+Keywords: 
+
+
+

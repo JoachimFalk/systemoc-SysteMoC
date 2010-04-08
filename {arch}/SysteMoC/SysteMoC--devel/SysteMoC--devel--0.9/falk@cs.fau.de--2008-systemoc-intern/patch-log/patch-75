@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-75
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jun  3 13:19:07 CEST 2009
+Standard-date: 2009-06-03 11:19:07 GMT
+Modified-files: smoc-core/SMXDumper.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-75
+Summary: 
+ * Added another RTX dynamic_cast<...>(...) hack!
+Keywords: 
+
+
+

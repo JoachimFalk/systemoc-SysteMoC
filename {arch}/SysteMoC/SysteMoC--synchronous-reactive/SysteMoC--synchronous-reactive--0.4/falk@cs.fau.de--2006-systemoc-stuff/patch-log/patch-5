@@ -1,0 +1,55 @@
+Revision: SysteMoC--synchronous-reactive--0.4--patch-5
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Sep 19 18:21:37 CEST 2006
+Standard-date: 2006-09-19 16:21:37 GMT
+Modified-files: smoc_chan_if.hpp smoc_expr.hpp smoc_fifo.hpp
+    smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_port.hpp smoc_root_node.cpp smoc_root_port.hpp
+    smoc_sr_signal.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-5
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-112
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-113
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-114
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-115
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-116
+Summary: 
+ - syncup to joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-116
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-112
+   
+ * Implemented CommReset to implement reset of smoc_ring_access in the ports
+ - This resets the allocated access region of SysteMoC ports back to the nil region after
+   a transition has been executed. Thus enabling again a meaningfull checki
+   of the limit assertion in the operator[] of the SysteMoC input and output ports
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-113
+   
+ * Improved smoc_ring_access performance
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-114
+   
+ * Moved smoc_firing_state constructor code into smoc_firing_rules.cpp
+ * Added missing sc_object(sc_gen_unique_name("smoc_firing_state"))
+   base class initializers to smoc_firing_state constructors
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-115
+   
+ * Added more debug output to constructors of smoc_firing_state
+ * Moved smoc_firing_state destructor code into smoc_firing_rules.cpp
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-116
+   
+ * Fixed BUG in smoc_firing_state assigment operator
+     this_type &smoc_firing_state::operator = (const this_type &)
+   to also register newly created resolved states with its
+   corresponding smoc_firing_rules object
+ * Added more paranoid assertions, with respect to resolved state
+   managment, in the smoc_firing_rules class
+     
+

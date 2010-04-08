@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.6--patch-178
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue Apr  8 18:48:16 CEST 2008
+Standard-date: 2008-04-08 16:48:16 GMT
+Modified-files: wsdf/smoc_md_fifo.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-178
+Summary:  - Bugfix in fill level calculation of WSDF Fifo
+Keywords: 
+
+ - Bugfix in fill level calculation of WSDF Fifo
+

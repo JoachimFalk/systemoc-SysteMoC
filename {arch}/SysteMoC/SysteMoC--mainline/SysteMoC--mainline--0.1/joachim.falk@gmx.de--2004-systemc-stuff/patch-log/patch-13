@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.1--patch-13
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Sun Nov 28 21:51:35 CET 2004
+Standard-date: 2004-11-28 20:51:35 GMT
+Modified-files: hscd_fifo.cpp hscd_fifo.hpp
+    hscd_rendezvous.cpp hscd_rendezvous.hpp
+    hscd_scheduler.hpp hscd_structure.cpp hscd_structure.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-13
+Summary: Now support cycles in graphs and initial markings of fifos
+Keywords: 
+
+
+

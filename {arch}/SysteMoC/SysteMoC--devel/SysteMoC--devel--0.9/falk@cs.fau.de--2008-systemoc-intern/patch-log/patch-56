@@ -1,0 +1,26 @@
+Revision: SysteMoC--devel--0.9--patch-56
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May 29 18:35:52 CEST 2009
+Standard-date: 2009-05-29 16:35:52 GMT
+Renamed-files: pkginclude/smoc/detail/.arch-ids/apply_visitor.hpp.id smoc-core/.arch-ids/apply_visitor.hpp.id
+    pkginclude/smoc/detail/apply_visitor.hpp smoc-core/apply_visitor.hpp
+Modified-files: pkginclude/smoc/smoc_simulation_ctx.hpp
+    pkginclude/systemoc/detail/smoc_port_registry.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    smoc-core/SMXDumper.cpp smoc-core/SMXDumper.hpp
+    smoc-core/smoc_fifo.cpp smoc-core/smoc_graph_type.cpp
+    smoc-core/smoc_moc.cpp
+    smoc-core/smoc_multiplex_fifo.cpp
+    smoc-core/smoc_multireader_fifo.cpp
+    smoc-core/smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-56
+Summary: 
+ * Improved smx export. Now actor port <-> channel port connections are generated again.
+Keywords: 
+
+
+

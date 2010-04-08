@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.3--patch-76
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep 14 17:58:39 CEST 2005
+Standard-date: 2005-09-14 15:58:39 GMT
+Modified-files: smoc_root_node.cpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-76
+Summary: 
+ * reworked smoc_root_node::getPorts()
+ - changed it to a const member function
+ - removed port list caching
+Keywords: 
+
+
+

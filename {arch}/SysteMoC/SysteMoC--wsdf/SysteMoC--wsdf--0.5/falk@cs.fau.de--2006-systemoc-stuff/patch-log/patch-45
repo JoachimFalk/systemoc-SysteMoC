@@ -1,0 +1,13 @@
+Revision: SysteMoC--wsdf--0.5--patch-45
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Jan 15 19:29:43 CET 2007
+Standard-date: 2007-01-15 18:29:43 GMT
+Modified-files: smoc_md_fifo.hpp smoc_md_loop.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-45
+Summary: Modifications for compilation with gcc3.4
+Keywords: 
+
+
+
+

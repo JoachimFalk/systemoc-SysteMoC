@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-80
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed May 14 17:11:55 CEST 2008
+Standard-date: 2008-05-14 15:11:55 GMT
+Modified-files: wsdf/smoc_wsdf_edge.cpp
+    wsdf/smoc_wsdf_edge.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-80
+Summary:  - Fix bug in wsdf_edge_descr constructor
+Keywords: 
+
+ - Fix bug in wsdf_edge_descr constructor
+

@@ -1,0 +1,15 @@
+Revision: SysteMoC--devel--0.8--patch-37
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun 13 19:25:40 CEST 2008
+Standard-date: 2008-06-13 17:25:40 GMT
+Modified-files: pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_storage.hpp
+    smoc_multiplex_fifo.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-37
+Summary: 
+ * More smoc_multiplex_fifo work
+Keywords: 
+
+
+

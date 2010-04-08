@@ -1,0 +1,26 @@
+Revision: SysteMoC--devel--0.9--patch-5
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jan 30 18:43:14 CET 2009
+Standard-date: 2009-01-30 17:43:14 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_sysc_port.hpp
+    pkginclude/systemoc/smoc_ast_systemoc.hpp
+    pkginclude/systemoc/smoc_expr.hpp
+    pkginclude/systemoc/smoc_firing_rules.hpp
+    smoc_firing_rules.cpp wsdf/smoc_md_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-5
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-7
+Summary: 
+ * Merge from SysteMoC--mainline--0.9 branch
+ - "operator |=" for states adds transitions to transition list
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-7
+   
+  * "operator |=" for states adds transitions to transition list
+

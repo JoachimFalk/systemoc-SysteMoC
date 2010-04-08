@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.6--patch-149
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Oct 18 15:44:19 CEST 2007
+Standard-date: 2007-10-18 13:44:19 GMT
+Modified-files: pkginclude/systemoc/smoc_expr.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-149
+Summary: 
+ * reenabled field operator support
+Keywords: 
+
+
+

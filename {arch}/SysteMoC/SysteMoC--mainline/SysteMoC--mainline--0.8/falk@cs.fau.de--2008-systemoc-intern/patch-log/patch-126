@@ -1,0 +1,58 @@
+Revision: SysteMoC--mainline--0.8--patch-126
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Jun 23 15:25:04 CEST 2008
+Standard-date: 2008-06-23 13:25:04 GMT
+Modified-files: pkginclude/systemoc/detail/QueueFRVWPtr.hpp
+    pkginclude/systemoc/detail/QueueRVWPtr.hpp
+    pkginclude/systemoc/detail/QueueRWPtr.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-46
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-47
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-48
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-49
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-126
+Summary: 
+ * Merge from SysteMoC--devel--0.8 branch
+ - Moved QueueXXXPtr to ModuloGroup class
+ - Multiplex fifo bugfixing
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-46
+   
+ * BIG MERGE FROM SysteMoC--mainline--0.8
+ - merged *_entry_base with *_entry classes and *_outlet_base
+   with *_outlet classes (derive again directly from smoc_chan_{in,out}_if)
+ - added moreData(), lessData(), moreSpace() and lessSpace()
+   methods to smoc_chan_{in,out}_if, this may be used to unify
+   entry, outlet <-> channel communication
+ - smoc_multireader_chan: moved EventMap to Outlets; use unified
+   interface described above
+ - smoc_multicase_sr_signal_chan: use unified interface described
+   above
+ - commented out debug statements in smoc_multiplex_fifo.hpp
+ - Fixed multiplex fifos (hopefully)
+ - SGX-Graph generation: Dump native WSDF edge parameters
+ - Allow to store WSDF edge parameters into stream
+ - Allow to read back WSDF edge parameters
+ - Dummy commit because last patch description has not been complete
+ - Move some functionality into libWSDF
+ - multiplex fifo fixes
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-47
+   
+ * Multiplex fifo fix (n+1'th try)
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-48
+   
+ * Moved QueueXXXPtr to ModuloGroup class
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-49
+   
+ * Multiplex fifo bugfixing
+

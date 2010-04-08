@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.9.1--patch-26
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri Jul 10 12:50:19 CEST 2009
+Standard-date: 2009-07-10 10:50:19 GMT
+Modified-files: pkginclude/systemoc/smoc_reset.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-92
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-26
+Summary:
+  * Merge from SysteMoC--devel--0.9--patch-92
+  - Cleaned up smoc_reset.hpp 
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-92
+   
+  * Cleaned up smoc_reset.hpp 
+

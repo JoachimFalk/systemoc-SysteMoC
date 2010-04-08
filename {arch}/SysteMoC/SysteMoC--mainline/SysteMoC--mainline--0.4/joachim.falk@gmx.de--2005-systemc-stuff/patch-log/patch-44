@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.4--patch-44
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Mar  9 18:54:20 CET 2006
+Standard-date: 2006-03-09 17:54:20 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_moc.cpp smoc_moc.hpp smoc_node_types.hpp
+    smoc_root_node.cpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-44
+Summary: 
+ * code cleanups
+Keywords: 
+
+
+

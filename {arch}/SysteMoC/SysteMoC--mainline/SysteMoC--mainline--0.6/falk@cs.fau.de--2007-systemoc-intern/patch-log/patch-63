@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.6--patch-63
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Feb 22 10:52:58 CET 2007
+Standard-date: 2007-02-22 09:52:58 GMT
+Modified-files: systemoc/smoc_multicast_sr_signal.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-63
+Summary: 
+ - code cleanup: removed unused addPort in multicast_sr_signal
+Keywords: 
+
+
+

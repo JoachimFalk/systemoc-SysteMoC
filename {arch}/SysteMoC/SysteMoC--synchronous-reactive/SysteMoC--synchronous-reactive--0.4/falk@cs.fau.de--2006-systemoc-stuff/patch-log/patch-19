@@ -1,0 +1,13 @@
+Revision: SysteMoC--synchronous-reactive--0.4--patch-19
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Jan 22 18:03:08 CET 2007
+Standard-date: 2007-01-22 17:03:08 GMT
+Modified-files: smoc_moc.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-19
+Summary: 
+ - separation between smoc_top_moc and smoc_top_sr_moc
+Keywords: 
+
+
+

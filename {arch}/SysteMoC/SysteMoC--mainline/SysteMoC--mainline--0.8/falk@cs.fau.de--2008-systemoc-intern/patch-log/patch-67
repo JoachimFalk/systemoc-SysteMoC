@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.8--patch-67
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May  7 11:29:30 CEST 2008
+Standard-date: 2008-05-07 09:29:30 GMT
+New-files: pkginclude/systemoc/detail/.arch-ids/smoc_ring_access.hpp.id
+    pkginclude/systemoc/detail/smoc_ring_access.hpp
+Modified-files: Makefile.am
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-67
+Summary: 
+ * Moved smoc_ring_access class into detail/smoc_ring_access.hpp to factor out common code of smoc_fifo and smoc_multiplex_fifo
+Keywords: 
+
+
+

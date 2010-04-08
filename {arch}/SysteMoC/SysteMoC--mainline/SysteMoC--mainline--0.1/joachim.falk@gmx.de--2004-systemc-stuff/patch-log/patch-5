@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.1--patch-5
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Alexander Schuetz <schuetz.alexander@gmx.de>
+Date: Mon Oct 25 12:15:10 CEST 2004
+Standard-date: 2004-10-25 10:15:10 GMT
+Modified-files: hscd_root_node.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-5
+Summary: remove registerPort from linkme macro
+Keywords: linkme registerPort remove
+
+
+

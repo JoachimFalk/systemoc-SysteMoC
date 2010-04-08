@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.6--patch-95
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May  2 17:38:04 CEST 2007
+Standard-date: 2007-05-02 15:38:04 GMT
+Modified-files: wsdf/smoc_md_fifo.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-95
+Summary: 
+ * gcc/3.4 compile fixes
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.1--patch-45
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Jens Gladigau <jens.gladigau@web.de>
+Date: Tue Aug  9 12:44:38 CEST 2005
+Standard-date: 2005-08-09 10:44:38 GMT
+Modified-files: oneof.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-45
+Summary: 
+  * oneof now handles five template arguments
+    @oneof.hpp
+Keywords: 
+
+
+

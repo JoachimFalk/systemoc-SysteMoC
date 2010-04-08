@@ -1,0 +1,27 @@
+Revision: SysteMoC--mainline--0.8--patch-152
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Mon Aug 18 19:32:59 CEST 2008
+Standard-date: 2008-08-18 17:32:59 GMT
+Modified-files: pkginclude/systemoc/smoc_chan_if.hpp
+    pkginclude/systemoc/smoc_expr.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_sr_signal.hpp
+    wsdf/buffer_analysis/smoc_md_ba_basic_tree.hpp
+    wsdf/buffer_analysis/smoc_md_ba_linearized_buffer.hpp
+    wsdf/buffer_analysis/smoc_md_ba_linearized_buffer_schedule.hpp
+    wsdf/buffer_analysis/smoc_md_ba_linearized_buffer_size.hpp
+    wsdf/buffer_analysis/smoc_md_buffer_analysis.hpp
+    wsdf/smoc_md_array_access.hpp wsdf/smoc_md_buffer.hpp
+    wsdf/smoc_md_chan_if.hpp wsdf/smoc_md_fifo.hpp
+    wsdf/smoc_md_loop.hpp wsdf/smoc_md_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-152
+Summary: Many modifications for Microdoft Visual C++
+ - "typeof" is not supported my VC++, use BOOST_TYPEOF makros instead
+ - Add namespace qualifiers where VC++ wants them, even if they are normally not required
+ - Modify some typedef statements to work around VC++'s internal compiler errors
+Keywords: 
+
+
+

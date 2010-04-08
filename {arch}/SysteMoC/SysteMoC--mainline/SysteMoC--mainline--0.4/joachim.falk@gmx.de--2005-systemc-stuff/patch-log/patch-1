@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-1
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Nov  7 16:27:29 CET 2005
+Standard-date: 2005-11-07 15:27:29 GMT
+Modified-files: smoc_moc.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-1
+Summary: 
+ * Commented out dead code
+Keywords: 
+
+
+

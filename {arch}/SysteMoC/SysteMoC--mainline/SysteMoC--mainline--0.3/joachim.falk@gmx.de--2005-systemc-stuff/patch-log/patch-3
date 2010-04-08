@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-3
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Aug  2 16:39:40 CEST 2005
+Standard-date: 2005-08-02 14:39:40 GMT
+Modified-files: expr.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-3
+Summary: 
+ * Added unary operators '&', '*' and '~' to expr.hpp
+Keywords: 
+
+
+

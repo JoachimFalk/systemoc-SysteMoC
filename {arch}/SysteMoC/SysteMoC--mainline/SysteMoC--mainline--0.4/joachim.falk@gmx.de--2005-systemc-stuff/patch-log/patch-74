@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-74
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May 29 12:21:45 CEST 2006
+Standard-date: 2006-05-29 10:21:45 GMT
+Modified-files: smoc_moc.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-74
+Summary: 
+ * Disable some scheduler code block untill needed
+Keywords: 
+
+
+

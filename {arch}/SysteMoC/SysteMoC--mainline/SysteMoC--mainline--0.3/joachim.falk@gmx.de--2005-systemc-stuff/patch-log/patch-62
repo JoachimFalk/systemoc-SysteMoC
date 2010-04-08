@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.3--patch-62
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sun Aug 14 05:12:01 CEST 2005
+Standard-date: 2005-08-14 03:12:01 GMT
+Modified-files: hscd_node_types.hpp hscd_port.hpp
+    hscd_structure.hpp smoc_chan_if.hpp smoc_event.hpp
+    smoc_firing_rules.cpp smoc_graph_type.hpp smoc_moc.hpp
+    smoc_port.hpp smoc_root_node.hpp smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-62
+Summary: 
+ * Checkin backward compatibility code in mixed mode
+Keywords: 
+
+
+

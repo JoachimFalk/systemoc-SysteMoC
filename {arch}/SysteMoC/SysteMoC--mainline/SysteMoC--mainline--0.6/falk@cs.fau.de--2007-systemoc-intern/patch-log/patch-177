@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.6--patch-177
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue Apr  8 17:52:19 CEST 2008
+Standard-date: 2008-04-08 15:52:19 GMT
+Modified-files: wsdf/smoc_vector.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-177
+Summary:  - Bugfix; Previous version did not compile
+Keywords: 
+
+ - Bugfix; Previous version did not compile
+

@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.3--patch-74
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep 14 17:20:21 CEST 2005
+Standard-date: 2005-09-14 15:20:21 GMT
+Modified-files: smoc_chan_if.hpp smoc_graph_type.cpp
+    smoc_graph_type.hpp smoc_moc.hpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-74
+Summary: 
+ * removed typedef nodes_ty and chans_ty from smoc_graph_petri
+ - use smoc_node_list instead of nodes_ty
+ - use smoc_chan_list instead of chans_ty
+ 
+Keywords: 
+
+
+

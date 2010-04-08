@@ -1,0 +1,23 @@
+Revision: SysteMoC--mainline--0.4--patch-18
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Dec  6 10:03:10 CET 2005
+Standard-date: 2005-12-06 09:03:10 GMT
+Modified-files: smoc_event.hpp smoc_expr.hpp
+    smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_guard.hpp smoc_root_port.cpp smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-110
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-18
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - jf-libs => cosupport
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-110
+   
+ * jf-libs cosupport
+

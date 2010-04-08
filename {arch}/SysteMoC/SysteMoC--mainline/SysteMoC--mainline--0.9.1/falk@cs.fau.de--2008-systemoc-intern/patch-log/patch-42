@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.9.1--patch-42
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Mon Oct 19 10:36:47 CEST 2009
+Standard-date: 2009-10-19 08:36:47 GMT
+Modified-files: smoc-core/apply_visitor.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-119
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-42
+Summary:
+  * Merge from SysteMoC--devel--0.9--patch-119
+  - Fixup bug in apply_visitor.hpp leading to an infinite recursion in case of smoc_reset_chan. 
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-119
+   
+ * Fixup bug in apply_visitor.hpp leading to an infinite recursion in case of smoc_reset_chan.
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-22
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Tue Mar 18 13:03:54 CET 2008
+Standard-date: 2008-03-18 12:03:54 GMT
+Modified-files: pkginclude/systemoc/smoc_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-22
+Summary: 
+  * smoc_port_base: fixed interface_count method
+Keywords: 
+
+
+

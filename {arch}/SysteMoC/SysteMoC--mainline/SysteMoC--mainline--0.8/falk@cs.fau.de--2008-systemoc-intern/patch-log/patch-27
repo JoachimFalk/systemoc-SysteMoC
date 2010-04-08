@@ -1,0 +1,19 @@
+Revision: SysteMoC--mainline--0.8--patch-27
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri Apr 11 14:01:06 CEST 2008
+Standard-date: 2008-04-11 12:01:06 GMT
+Modified-files: wsdf/smoc_md_fifo.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-178
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-27
+Summary:
+  - merge from SysteMoC--mainline--0.6--patch-178 
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-178
+   - Bugfix in fill level calculation of WSDF Fifo
+

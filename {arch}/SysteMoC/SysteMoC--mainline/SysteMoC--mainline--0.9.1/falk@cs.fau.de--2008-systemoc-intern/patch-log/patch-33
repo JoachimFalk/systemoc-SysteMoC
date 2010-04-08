@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.9.1--patch-33
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri Jul 10 12:55:28 CEST 2009
+Standard-date: 2009-07-10 10:55:28 GMT
+Modified-files: smoc-core/smoc_multireader_fifo.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-102
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-33
+Summary:
+  * Merge from SysteMoC--devel--0.9--patch-102
+  - Removed spurious assert in multireader fifo 
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-102
+   
+  * Removed spurious assert in multireader fifo
+

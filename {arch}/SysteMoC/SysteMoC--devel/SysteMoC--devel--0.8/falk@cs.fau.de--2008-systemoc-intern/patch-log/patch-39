@@ -1,0 +1,16 @@
+Revision: SysteMoC--devel--0.8--patch-39
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun 13 20:19:02 CEST 2008
+Standard-date: 2008-06-13 18:19:02 GMT
+Modified-files: pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    smoc_multiplex_fifo.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-39
+Summary: 
+ * removed consumed tokens from smoc_multiplex_fifo_chan ring buffer if smoc_multiplex_vfifo_outlet
+   triggers consumption of tokens. Note that these elements may not be in consecutive order in
+   the ring buffer.
+Keywords: 
+
+
+

@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.8--patch-65
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed May  7 08:23:29 CEST 2008
+Standard-date: 2008-05-07 06:23:29 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_latency_queues.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-65
+Summary:  - Fix compile errors for latency queue. Warning: required changes in WSDF part will be committed later on.
+Keywords: 
+
+ - Fix compile errors for latency queue. Warning: required changes in WSDF part will be committed later on.
+

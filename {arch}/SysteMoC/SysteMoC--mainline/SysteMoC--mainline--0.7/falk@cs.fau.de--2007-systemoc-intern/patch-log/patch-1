@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.7--patch-1
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Oct 23 18:00:50 CEST 2007
+Standard-date: 2007-10-23 16:00:50 GMT
+Removed-files: .arch-ids/smoc_rendezvous.cpp.id
+    pkginclude/systemoc/.arch-ids/smoc_rendezvous.hpp.id
+    pkginclude/systemoc/smoc_rendezvous.hpp
+    smoc_rendezvous.cpp
+Modified-files: Makefile.am
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.7--patch-1
+Summary: 
+ * Remove obsolete smoc_rendezvous.{cpp,hpp}
+Keywords: 
+
+
+

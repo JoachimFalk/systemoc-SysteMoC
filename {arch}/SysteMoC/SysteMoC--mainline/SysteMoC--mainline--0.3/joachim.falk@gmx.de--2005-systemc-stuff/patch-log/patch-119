@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.3--patch-119
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Yao Feng <yaofeng_afeng@yahoo.com>
+Date: Tue Dec 13 18:08:54 CET 2005
+Standard-date: 2005-12-13 17:08:54 GMT
+Modified-files: smoc_guard.hpp smoc_port.hpp
+    smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-119
+Summary: 
+ * Added DPortTokens terminal for getAvailableTokens / getAvailableSpace
+   representation
+Keywords: 
+
+
+

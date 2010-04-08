@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.6--patch-58
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Feb 21 10:51:32 CET 2007
+Standard-date: 2007-02-21 09:51:32 GMT
+Modified-files: smoc_ast_common.cpp
+    systemoc/smoc_ast_common.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-58
+Summary: 
+ * More AST refactoring
+Keywords: 
+
+
+

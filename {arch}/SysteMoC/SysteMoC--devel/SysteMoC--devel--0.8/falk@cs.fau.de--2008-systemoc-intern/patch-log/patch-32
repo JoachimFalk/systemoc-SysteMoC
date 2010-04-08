@@ -1,0 +1,42 @@
+Revision: SysteMoC--devel--0.8--patch-32
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Jun 12 12:35:00 CEST 2008
+Standard-date: 2008-06-12 10:35:00 GMT
+Modified-files: pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_port.hpp smoc_graph_type.cpp
+    smoc_multicast_sr_signal.cpp smoc_root_chan.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-32
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-110
+Summary: 
+ * Merge from SysteMoC--mainline--0.8
+ - SR: use Entries/Outlets in smoc_port_registry
+ - SR: moved datatype independent operations to
+       the channel base class
+ - But undo: Moved interface dependent operations from
+     smoc_sysc_port to smoc_port_base (-> cache interface
+     there, not in smoc_sysc_port to avoid dynamic_cast
+     on each access!)
+   dynamic cast will later be replaced by a static_cast
+   after virtual inheritance for smoc_chan_(in|out)_if
+   has been deleted. Furthermore we need the interface
+   to be stored in smoc_sysc_port which is port data type
+   independent and used by guard evaluation which itself
+   is data type independent!
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-110
+   
+  * moved interface dependent operations from
+    smoc_sysc_port to smoc_port_base (-> cache interface
+    there, not in smoc_sysc_port to avoid dynamic_cast
+    on each access!)
+  * SR: use Entries/Outlets in smoc_port_registry
+  * SR: moved datatype independent operations to
+    the channel base class 
+

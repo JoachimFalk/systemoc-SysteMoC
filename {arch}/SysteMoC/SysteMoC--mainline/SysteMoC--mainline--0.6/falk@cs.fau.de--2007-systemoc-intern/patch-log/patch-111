@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.6--patch-111
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Jun 15 13:00:59 CEST 2007
+Standard-date: 2007-06-15 11:00:59 GMT
+Modified-files: pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-111
+Summary: 
+ - fixed compilation using SYSTEMOC_TRACE
+ -> multicast signal (entry/outlet) need a name()
+Keywords: 
+
+
+

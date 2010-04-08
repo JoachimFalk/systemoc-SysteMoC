@@ -1,0 +1,15 @@
+Revision: SysteMoC--devel--0.8--patch-23
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May 30 14:44:44 CEST 2008
+Standard-date: 2008-05-30 12:44:44 GMT
+Modified-files: pkginclude/systemoc/smoc_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-23
+Summary: 
+ * Moved tokenIsValid from smoc_port_in_base to smoc_port_in due to its
+   dependency on the channel access type, i.e., not all channel access
+   types may have a tokenIsValid method.
+Keywords: 
+
+
+

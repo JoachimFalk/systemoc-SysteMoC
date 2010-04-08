@@ -1,0 +1,35 @@
+Revision: SysteMoC--mainline--0.4--patch-25
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Sat Jan 28 10:55:36 CET 2006
+Standard-date: 2006-01-28 09:55:36 GMT
+Modified-files: smoc_expr.hpp smoc_firing_rules.hpp
+    smoc_guard.hpp smoc_port.hpp smoc_root_node.cpp
+    smoc_root_node.hpp smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-118
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-119
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-25
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - FSM ProblemGraph dumping
+ - Added VAR macro
+ - fixed xml syntax
+ - Added DPortTokens terminal for getAvailableTokens / getAvailableSpace
+   representation
+ 
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-118
+   
+ * Added VAR macro
+ - fixed xml syntax
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-119
+   
+ * Added DPortTokens terminal for getAvailableTokens / getAvailableSpace
+   representation
+

@@ -1,0 +1,25 @@
+Revision: SysteMoC--mainline--0.8--patch-163
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Mon Oct 13 12:48:58 CEST 2008
+Standard-date: 2008-10-13 10:48:58 GMT
+Modified-files: networkgraph.dtd
+    pkginclude/systemoc/detail/smoc_fifo_storage.hpp
+    pkginclude/systemoc/smoc_firing_rules.hpp
+    pkginclude/systemoc/smoc_func_call.hpp
+    pkginclude/systemoc/smoc_graph_synth.hpp
+    pkginclude/systemoc/smoc_pggen.hpp
+    smoc_firing_rules.cpp smoc_func_call.cpp
+    smoc_graph_synth.cpp smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-163
+Summary:
+  * adapted FSM dumping code to new CompoundActions
+  * replaced smoc_func_call with smoc_func_call_list in
+    smoc_action (multiple CALLs)
+  * updated networkgraph.dtd
+  * adapted smoc_graph_synth to new CompoundActions
+    (untested)
+Keywords: 
+
+
+

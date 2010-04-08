@@ -1,0 +1,13 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-4
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Oct 13 13:05:05 CEST 2006
+Standard-date: 2006-10-13 11:05:05 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-4
+Summary: 
+ * Replace `pwd` with $(top_builddir) for SYSTEMC_VPC_XXX
+Keywords: 
+
+
+

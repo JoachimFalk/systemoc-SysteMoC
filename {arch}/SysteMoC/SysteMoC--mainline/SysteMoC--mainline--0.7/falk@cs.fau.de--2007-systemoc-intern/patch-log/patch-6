@@ -1,0 +1,45 @@
+Revision: SysteMoC--mainline--0.7--patch-6
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Oct 25 11:50:17 CEST 2007
+Standard-date: 2007-10-25 09:50:17 GMT
+Modified-files: pkginclude/systemoc/hscd_node_types.hpp
+    pkginclude/systemoc/smoc_chan_if.hpp
+    pkginclude/systemoc/smoc_firing_rules.hpp
+    pkginclude/systemoc/smoc_pggen.hpp
+    pkginclude/systemoc/smoc_port.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+    pkginclude/systemoc/smoc_root_port.hpp smoc_chan_if.cpp
+    smoc_firing_rules.cpp smoc_graph_type.cpp smoc_guard.cpp
+    smoc_pggen.cpp smoc_root_node.cpp smoc_root_port.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.7--patch-6
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--ngx-sync--0.6--base-0
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--ngx-sync--0.6--patch-1
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--ngx-sync--0.6--patch-2
+Summary: 
+ * Merge from SysteMoC--ngx-sync--0.6 branch
+ - New class IdPool: generate ids for named and unnamed objects
+   Ids are derived via name hashing to make ids more persistent.
+   Hash collisions may still produce different ids for objects
+   of the same name if the instantiation order is changed.
+   Also handle multiple ids for the same sc_object.
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2007-systemoc-intern/SysteMoC--ngx-sync--0.6--base-0
+   tag of falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-149
+
+ * falk@cs.fau.de--2007-systemoc-intern/SysteMoC--ngx-sync--0.6--patch-1
+   
+  * new class IdPool: generate ids for named
+    and unnamed objects 
+
+ * falk@cs.fau.de--2007-systemoc-intern/SysteMoC--ngx-sync--0.6--patch-2
+   
+  * fixed IdPool: handle multiple ids for the
+    same sc_object
+

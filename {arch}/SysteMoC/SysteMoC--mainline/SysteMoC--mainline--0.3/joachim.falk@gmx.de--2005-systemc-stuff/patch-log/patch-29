@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-29
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Aug  8 17:27:46 CEST 2005
+Standard-date: 2005-08-08 15:27:46 GMT
+Modified-files: oneof.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-29
+Summary: 
+ * Fixed small bug in oneof copy constructor
+Keywords: 
+
+
+

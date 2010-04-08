@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.5--patch-3
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jul 28 11:37:44 CEST 2006
+Standard-date: 2006-07-28 09:37:44 GMT
+Modified-files: smoc_root_node.cpp smoc_root_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-3
+Summary: 
+ * Added actor back reference to smoc_root_port
+Keywords: 
+
+
+

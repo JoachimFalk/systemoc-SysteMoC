@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.6--patch-79
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Mar  9 21:02:44 CET 2007
+Standard-date: 2007-03-09 20:02:44 GMT
+Modified-files: wsdf/smoc_md_buffer.cpp
+    wsdf/smoc_md_buffer.hpp wsdf/smoc_md_fifo.hpp
+    wsdf/smoc_md_loop.cpp wsdf/smoc_md_loop.hpp
+    wsdf/smoc_md_port.hpp wsdf/smoc_wsdf_edge.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-79
+Summary: 
+  - Remove smoc_ostream and use filter_ostream instead
+Keywords: 
+
+
+

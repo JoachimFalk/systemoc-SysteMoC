@@ -1,0 +1,22 @@
+Revision: SysteMoC--mainline--0.6--patch-12
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Feb  2 09:59:35 CET 2007
+Standard-date: 2007-02-02 08:59:35 GMT
+Modified-files: smoc_sr_signal.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-5
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-12
+Summary: 
+ - Merge changeset SysteMoC--synchronous-reactive--0.4--patch-5
+ # - syncup to joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-116
+ # -> modified smoc_sr_signal.hpp
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-5
+   
+ - syncup to joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-116
+

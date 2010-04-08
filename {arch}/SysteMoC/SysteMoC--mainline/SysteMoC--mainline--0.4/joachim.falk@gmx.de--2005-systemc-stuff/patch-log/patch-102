@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-102
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jun 21 18:37:18 CEST 2006
+Standard-date: 2006-06-21 16:37:18 GMT
+Modified-files: smoc_fifo.cpp smoc_fifo.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-102
+Summary: 
+ * Pipelining for communication not working try 2
+Keywords: 
+
+
+

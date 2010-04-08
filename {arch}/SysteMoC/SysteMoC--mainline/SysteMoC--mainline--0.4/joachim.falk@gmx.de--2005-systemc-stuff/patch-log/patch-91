@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-91
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Jun 12 18:41:37 CEST 2006
+Standard-date: 2006-06-12 16:41:37 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-91
+Summary: 
+ * Added missing cmath include to hscd_tdsim_TraceLog.cpp
+Keywords: 
+
+
+

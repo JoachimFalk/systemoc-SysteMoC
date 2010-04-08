@@ -1,0 +1,13 @@
+Revision: SysteMoC--parsing--0.3--patch-1
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Andreas Deyhle <andi.deyhle@gmx.de>
+Date: Tue Jan 17 15:37:02 CET 2006
+Standard-date: 2006-01-17 14:37:02 GMT
+Modified-files: smoc_root_node.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-1
+Summary: 
+ - added RTTI information to problemgraph dump
+Keywords: 
+
+
+

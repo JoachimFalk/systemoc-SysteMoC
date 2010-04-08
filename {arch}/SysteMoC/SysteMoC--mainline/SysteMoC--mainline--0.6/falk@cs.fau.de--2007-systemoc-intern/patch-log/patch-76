@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.6--patch-76
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Mar  8 08:34:55 CET 2007
+Standard-date: 2007-03-08 07:34:55 GMT
+Modified-files: pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_storage.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-76
+Summary: 
+ -improved SR signal reset (used in tick())
+Keywords: 
+
+
+

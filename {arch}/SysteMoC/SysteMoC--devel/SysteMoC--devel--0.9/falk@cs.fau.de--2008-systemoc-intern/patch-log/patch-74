@@ -1,0 +1,18 @@
+Revision: SysteMoC--devel--0.9--patch-74
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jun  3 12:14:22 CEST 2009
+Standard-date: 2009-06-03 10:14:22 GMT
+Modified-files: pkginclude/smoc/smoc_simulation_ctx.hpp
+    pkginclude/systemoc/smoc_pggen.hpp
+    smoc-core/smoc_moc.cpp
+    smoc-core/smoc_simulation_ctx.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-74
+Summary: 
+ * Improved option handling. Now all SysteMoC options begin with --systemoc.
+   The old options are still supported but not shown with the --systemoc-help option.
+ * The --systemoc-export-sim-smx option works again.
+Keywords: 
+
+
+

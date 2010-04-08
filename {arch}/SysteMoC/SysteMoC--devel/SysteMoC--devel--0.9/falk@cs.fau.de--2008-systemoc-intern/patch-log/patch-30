@@ -1,0 +1,17 @@
+Revision: SysteMoC--devel--0.9--patch-30
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May 18 18:06:44 CEST 2009
+Standard-date: 2009-05-18 16:06:44 GMT
+Modified-files: pkginclude/systemoc/detail/NamedIdedObj.hpp
+    pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-30
+Summary: 
+ * Changed std::string NamedIdedObj::name() const =>
+           const char *NamedIdedObj::name() const
+   to conform to SystemC return type of name().
+Keywords: 
+
+
+

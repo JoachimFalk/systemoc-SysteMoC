@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.4--patch-85
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun  2 17:11:45 CEST 2006
+Standard-date: 2006-06-02 15:11:45 GMT
+Modified-files: smoc_chan_if.hpp smoc_event.hpp
+    smoc_expr.hpp smoc_fifo.hpp smoc_firing_rules.cpp
+    smoc_port.hpp smoc_root_node.cpp smoc_root_node.hpp
+    smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-85
+Summary: 
+ * Use reference counting smoc_ref_event_p pointer to
+   propagate latency events to fifos
+Keywords: 
+
+
+

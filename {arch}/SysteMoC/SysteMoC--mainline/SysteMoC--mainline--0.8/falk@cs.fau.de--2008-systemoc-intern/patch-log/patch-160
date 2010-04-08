@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-160
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep 17 15:08:30 CEST 2008
+Standard-date: 2008-09-17 13:08:30 GMT
+Modified-files: smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-160
+Summary: 
+ * Ignore ASTNodeSMOCEvent for --export-smx 
+Keywords: 
+
+
+

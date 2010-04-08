@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.8--patch-159
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Thu Sep  4 14:46:15 CEST 2008
+Standard-date: 2008-09-04 12:46:15 GMT
+Modified-files: smoc_graph_synth.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-159
+Summary: Add missing namespace SGX:: for Microsoft Visual C++ 2008
+Keywords: 
+
+
+

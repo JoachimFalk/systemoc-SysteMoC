@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.3--patch-72
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Sep  9 18:35:50 CEST 2005
+Standard-date: 2005-09-09 16:35:50 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-72
+Summary: 
+ * Hopefully fixed bug with unresolved smoc_firing_state
+ - by totally changing the internal implementation of the
+   friring rules FSM memory management
+Keywords: 
+
+
+

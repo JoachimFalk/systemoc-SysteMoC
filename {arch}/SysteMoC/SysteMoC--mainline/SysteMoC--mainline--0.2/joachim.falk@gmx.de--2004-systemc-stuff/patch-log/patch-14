@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.2--patch-14
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Sun Feb 20 16:46:08 CET 2005
+Standard-date: 2005-02-20 15:46:08 GMT
+Modified-files: oneof.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-14
+Summary: Changed debug code in oneoff.hpp and disabled it
+Keywords: 
+
+
+

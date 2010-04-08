@@ -1,0 +1,16 @@
+Revision: SysteMoC--devel--0.9--patch-42
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed May 20 14:01:54 CEST 2009
+Standard-date: 2009-05-20 12:01:54 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_graph_synth.hpp
+    smoc_firing_rules.cpp smoc_graph_synth.cpp
+    smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-42
+Summary:
+  * Fixed various compile errors if SYSTEMOC_ENABLE_SGX 
+    is NOT defined
+Keywords: 
+
+
+

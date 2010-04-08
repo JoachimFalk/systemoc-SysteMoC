@@ -1,0 +1,22 @@
+Revision: SysteMoC--mainline--0.8--patch-39
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Thu Apr 24 15:47:50 CEST 2008
+Standard-date: 2008-04-24 13:47:50 GMT
+Modified-files: pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_moc.hpp
+    pkginclude/systemoc/smoc_ngx_sync.hpp
+    pkginclude/systemoc/smoc_pggen.hpp smoc_graph_type.cpp
+    smoc_main.cpp smoc_moc.cpp smoc_ngx_sync.cpp
+    smoc_pggen.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-39
+Summary: 
+  * final restructuring of scheduler <-> graph interaction
+   (TODO: write scheduler FSM for SR graph)
+  * renamed --networkgraph -> --import-smx
+  * renamed --generate-smx -> --export-smx
+  * renamed --generate-sim-smx --> --export-sim-smx
+Keywords: 
+
+
+

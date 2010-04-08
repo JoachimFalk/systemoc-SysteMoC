@@ -1,0 +1,13 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-18
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Mon Oct 23 12:25:21 CEST 2006
+Standard-date: 2006-10-23 10:25:21 GMT
+Modified-files: smoc_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-18
+Summary: 
+ * Implemented operator(n,m) syntax for non-consuming/producing read/write
+Keywords: 
+
+
+

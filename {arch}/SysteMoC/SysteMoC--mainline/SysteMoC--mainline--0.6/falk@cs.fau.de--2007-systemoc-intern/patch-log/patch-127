@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.6--patch-127
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Jul 16 11:29:54 CEST 2007
+Standard-date: 2007-07-16 09:29:54 GMT
+Modified-files: smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-127
+Summary: 
+ * Added missing ';'
+Keywords: 
+
+
+

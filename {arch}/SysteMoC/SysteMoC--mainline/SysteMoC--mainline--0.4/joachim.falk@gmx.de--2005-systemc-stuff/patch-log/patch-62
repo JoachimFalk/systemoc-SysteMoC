@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.4--patch-62
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Andreas Deyhle <andi.deyhle@gmx.de>
+Date: Mon Apr 24 16:32:14 CEST 2006
+Standard-date: 2006-04-24 14:32:14 GMT
+Modified-files: networkgraph.dtd smoc_firing_rules.hpp
+    smoc_moc.cpp smoc_root_node.cpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-62
+Summary: 
+ * added output of states in instanciation-order to dumping-function
+ * adapted netgraph.dtd
+ * commented out unused variables in smoc_moc.cpp
+Keywords: 
+
+
+

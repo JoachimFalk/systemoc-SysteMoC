@@ -1,0 +1,32 @@
+Revision: SysteMoC--ngx-sync--0.7--patch-9
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Tue Nov 20 11:24:06 CET 2007
+Standard-date: 2007-11-20 10:24:06 GMT
+New-files: .arch-ids/smoc_graph_synth.cpp.id
+    pkginclude/systemoc/.arch-ids/smoc_graph_synth.hpp.id
+    pkginclude/systemoc/smoc_graph_synth.hpp
+    smoc_graph_synth.cpp
+Modified-files: Makefile.am
+    pkginclude/systemoc/smoc_chan_if.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_moc.hpp
+    pkginclude/systemoc/smoc_ngx_sync.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+    pkginclude/systemoc/smoc_root_port.hpp smoc_chan_if.cpp
+    smoc_fifo.cpp smoc_firing_rules.cpp smoc_graph_type.cpp
+    smoc_main.cpp smoc_moc.cpp smoc_ngx_sync.cpp
+    smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--ngx-sync--0.7--patch-9
+Summary:
+  * smoc_graph_base: base class for all graphs
+  * smoc_graph: simple graph which schedules its
+    children by selecting any executable transition
+  * smoc_graph_synth: synthesized graph which schedules
+    its children according to the FSM specified in 
+    the NGX file 
+Keywords: 
+
+
+

@@ -1,0 +1,29 @@
+Revision: SysteMoC--mainline--0.9--patch-28
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun 26 13:50:06 CEST 2009
+Standard-date: 2009-06-26 11:50:06 GMT
+Modified-files: pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    smoc_multireader_fifo.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-78
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-79
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-28
+Summary: 
+ * Merge from SysteMoC--devel--0.9 branch
+ - Fix the GAU bug with an incredible hack.
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-78
+   
+ * Try 1 to fix the GAU bug with an incredible hack.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-79
+   
+ * Try 2 to fix the GAU bug with an incredible hack.
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-136
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jul  2 18:17:30 CEST 2008
+Standard-date: 2008-07-02 16:17:30 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-136
+Summary: 
+ * Fix auto mode for --enable-vpc and --enable-wsdf
+Keywords: 
+
+
+

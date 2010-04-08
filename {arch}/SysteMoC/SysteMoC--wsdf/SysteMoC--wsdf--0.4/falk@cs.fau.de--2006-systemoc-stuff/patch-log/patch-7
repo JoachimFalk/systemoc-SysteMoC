@@ -1,0 +1,14 @@
+Revision: SysteMoC--wsdf--0.4--patch-7
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Oct 16 19:24:09 CEST 2006
+Standard-date: 2006-10-16 17:24:09 GMT
+Modified-files: smoc_wsdf_edge.cpp smoc_wsdf_edge.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-7
+Summary:
+ - Add functions to calculate data element mapping matrix and offset
+ - for source actor.
+Keywords: 
+
+
+

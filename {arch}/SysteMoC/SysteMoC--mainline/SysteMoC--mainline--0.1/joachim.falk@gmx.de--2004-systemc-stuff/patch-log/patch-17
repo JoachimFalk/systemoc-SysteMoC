@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.1--patch-17
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Dec  9 14:44:15 CET 2004
+Standard-date: 2004-12-09 13:44:15 GMT
+New-files: .arch-ids/hscd_graph_type.hpp.id
+    .arch-ids/hscd_moc.hpp.id hscd_graph_type.hpp
+    hscd_moc.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-17
+Summary: Forgot to add hscd_graph_type.hpp hscd_moc.hpp
+Keywords: 
+
+
+

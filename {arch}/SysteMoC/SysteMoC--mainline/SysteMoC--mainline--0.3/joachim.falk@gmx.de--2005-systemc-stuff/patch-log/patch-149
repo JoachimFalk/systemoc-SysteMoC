@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.3--patch-149
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Thu Apr 13 13:05:07 CEST 2006
+Standard-date: 2006-04-13 11:05:07 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    hscd_tdsim_TraceLog.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-149
+Summary: 
+  * added deadlock debug: dot-File is generated if
+    non-empty fifos are found that are connected
+    in cycles
+    (Filename: $VPCTRACEFILEPREFIX(DATE)TIME.dot)
+Keywords: 
+
+
+

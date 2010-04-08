@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.8--patch-34
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri Apr 18 16:43:40 CEST 2008
+Standard-date: 2008-04-18 14:43:40 GMT
+Modified-files: pkginclude/systemoc/smoc_graph_type.hpp
+    smoc_chan_if.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-34
+Summary:
+  * refactured connectNodePorts (compiles now with gcc 3.4.6)
+  * getOutputPorts may be empty 
+Keywords: 
+
+
+

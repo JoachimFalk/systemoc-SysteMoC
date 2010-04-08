@@ -1,0 +1,35 @@
+Revision: SysteMoC--mainline--0.9.1--patch-49
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Nov  9 11:08:24 CET 2009
+Standard-date: 2009-11-09 10:08:24 GMT
+Modified-files: pkginclude/systemoc/detail/EventMapManager.hpp
+    smoc-core/smoc_debug_stream.cpp
+    smoc-core/smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-126
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-127
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-129
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-49
+Summary: 
+ * Merge from SysteMoC--devel--0.9 branch
+ - @smoc-core/smoc_debug_stream.cpp also include smoc_config.hpp
+ - Added stream output operator << for EventMapManager.
+ - @smoc_firing_rules.cpp: More debugging code.
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-126
+   
+ @smoc-core/smoc_debug_stream.cpp also include smoc_config.hpp
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-127
+   
+ * Added stream output operator << for EventMapManager.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-129
+   
+ * @smoc_firing_rules.cpp: More debugging code.
+

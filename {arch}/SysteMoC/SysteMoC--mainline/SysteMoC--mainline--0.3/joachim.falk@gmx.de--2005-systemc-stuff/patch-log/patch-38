@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.3--patch-38
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug 11 16:04:53 CEST 2005
+Standard-date: 2005-08-11 14:04:53 GMT
+Modified-files: hscd_node_types.hpp hscd_op.hpp
+    hscd_root_port_list.hpp hscd_scheduler.hpp
+    hscd_structure.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-38
+Summary: 
+ * Bugfixing for SysteMoC v0.1 backward compatibility mode
+Keywords: 
+
+
+

@@ -1,0 +1,23 @@
+Revision: SysteMoC--devel--0.9--patch-3
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jan 23 12:01:23 CET 2009
+Standard-date: 2009-01-23 11:01:23 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_port_registry.hpp
+    pkginclude/systemoc/smoc_chan_adapter.hpp
+    pkginclude/systemoc/smoc_chan_if.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_graph_synth.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    pkginclude/systemoc/smoc_port.hpp smoc_graph_synth.cpp
+    wsdf/smoc_md_fifo.hpp wsdf/smoc_md_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-3
+Summary: 
+ * Forgotten rename
+   find . -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec sed -i -e 's/\<smoc_chan_out_base_if\>/smoc_port_out_base_if/g' {} \;
+Keywords: 
+
+
+

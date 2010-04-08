@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-134
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Feb 22 16:39:13 CET 2006
+Standard-date: 2006-02-22 15:39:13 GMT
+Modified-files: networkgraph.dtd
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-134
+Summary: 
+ * Fixed networkgraph.dtd accordingly
+ * Added missing AST Terminals Var MemGuard MemProc Token
+Keywords: 
+
+
+

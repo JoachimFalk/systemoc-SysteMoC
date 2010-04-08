@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.8--patch-43
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Apr 25 21:14:39 CEST 2008
+Standard-date: 2008-04-25 19:14:39 GMT
+Modified-files: wsdf/smoc_md_buffer.hpp
+    wsdf/smoc_md_fifo.hpp wsdf/smoc_md_loop.cpp
+    wsdf/smoc_md_loop.hpp wsdf/smoc_md_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-43
+Summary:  - Bugfix in WSDF symmetric border extension
+Keywords: 
+
+ - Bugfix in WSDF symmetric border extension
+

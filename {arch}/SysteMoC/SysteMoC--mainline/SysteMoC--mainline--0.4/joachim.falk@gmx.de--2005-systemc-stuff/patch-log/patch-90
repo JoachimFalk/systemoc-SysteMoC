@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.4--patch-90
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Jun 12 18:36:11 CEST 2006
+Standard-date: 2006-06-12 16:36:11 GMT
+Modified-files: smoc_fifo.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-90
+Summary: 
+ * Added missing hscd_tdsim_TraceLog.hpp include to smoc_fifo.hpp
+   used for -DSYSTEMOC_TRACE 
+Keywords: 
+
+
+

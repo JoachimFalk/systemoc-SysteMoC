@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-129
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Wed Jun 25 19:57:17 CEST 2008
+Standard-date: 2008-06-25 17:57:17 GMT
+Modified-files: smoc_root_chan.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-129
+Summary: Fix hierarchical FIFO connection dumping
+ - Always connect root-ports to FIFO.
+Keywords: 
+
+
+

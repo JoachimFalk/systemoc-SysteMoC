@@ -1,0 +1,19 @@
+Revision: SysteMoC--mainline--0.8--patch-37
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Apr 23 20:55:35 CEST 2008
+Standard-date: 2008-04-23 18:55:35 GMT
+Modified-files: pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_moc.hpp
+    pkginclude/systemoc/smoc_pggen.hpp smoc_main.cpp
+    smoc_moc.cpp smoc_pggen.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-37
+Summary: 
+ - Renamed --generate-problemgraph to --generate-smx
+ - generate-smx now needs a destination file (reason: We use sc_stop properly)
+ - Add option to generate SMX after simulation
+ - Moved end_of_elaboration from smoc_graph_base to smoc_top_moc
+ - If generation of SMX we do not use exit any more, but deploy sc_stop instead.
+ - Eliminate class smoc_top
+Keywords: 
+

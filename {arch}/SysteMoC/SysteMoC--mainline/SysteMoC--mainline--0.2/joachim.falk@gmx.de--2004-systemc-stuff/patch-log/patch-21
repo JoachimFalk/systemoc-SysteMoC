@@ -1,0 +1,29 @@
+Revision: SysteMoC--mainline--0.2--patch-21
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Wed Mar 23 11:53:30 CET 2005
+Standard-date: 2005-03-23 10:53:30 GMT
+New-files: dust-bin/.arch-ids/=id
+    dust-bin/.arch-ids/bar.cpp.id dust-bin/bar.cpp
+New-directories: dust-bin dust-bin/.arch-ids
+Renamed-files: .arch-ids/hscd_op.hpp.id dust-bin/.arch-ids/hscd_op.hpp.id
+    .arch-ids/hscd_root_port_list.cpp.id .arch-ids/hscd_firing_rules.cpp.id
+    .arch-ids/hscd_root_port_list.hpp.id .arch-ids/hscd_firing_rules.hpp.id
+    .arch-ids/hscd_scheduler.hpp.id dust-bin/.arch-ids/hscd_scheduler.hpp.id
+    .arch-ids/hscd_structure.hpp.id dust-bin/.arch-ids/hscd_structure.hpp.id
+    hscd_op.hpp dust-bin/hscd_op.hpp
+    hscd_root_port_list.cpp hscd_firing_rules.cpp
+    hscd_root_port_list.hpp hscd_firing_rules.hpp
+    hscd_scheduler.hpp dust-bin/hscd_scheduler.hpp
+    hscd_structure.hpp dust-bin/hscd_structure.hpp
+Modified-files: Makefile.am hscd_fifo.hpp
+    hscd_firing_rules.cpp hscd_firing_rules.hpp
+    hscd_graph_type.cpp hscd_port.hpp hscd_rendezvous.hpp
+    hscd_root_if.hpp hscd_root_node.cpp hscd_root_node.hpp
+    hscd_root_port.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-21
+Summary: Commit to work, new channels which can be used with the FSM firing rules
+Keywords: 
+
+
+

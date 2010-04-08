@@ -1,0 +1,14 @@
+Revision: SysteMoC--devel--0.9--patch-39
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed May 20 10:39:41 CEST 2009
+Standard-date: 2009-05-20 08:39:41 GMT
+Modified-files: pkginclude/systemoc/smoc_func_call.hpp
+    smoc_firing_rules.cpp smoc_func_call.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-39
+Summary:
+  * Dump actions 
+Keywords: 
+
+
+

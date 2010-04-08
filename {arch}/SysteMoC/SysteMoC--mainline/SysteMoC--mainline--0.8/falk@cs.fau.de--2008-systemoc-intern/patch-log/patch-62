@@ -1,0 +1,22 @@
+Revision: SysteMoC--mainline--0.8--patch-62
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue May  6 18:37:07 CEST 2008
+Standard-date: 2008-05-06 16:37:07 GMT
+New-files: .arch-ids/smoc_latency_queues.cpp.id
+    .arch-ids/smoc_multiplex_fifo.cpp.id
+    pkginclude/systemoc/.arch-ids/smoc_multiplex_fifo.hpp.id
+    pkginclude/systemoc/detail/.arch-ids/smoc_latency_queues.hpp.id
+    pkginclude/systemoc/detail/smoc_latency_queues.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    smoc_latency_queues.cpp smoc_multiplex_fifo.cpp
+Modified-files: Makefile.am
+    pkginclude/systemoc/smoc_fifo.hpp smoc_fifo.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-62
+Summary: 
+ * Begin work on smoc_multiplex_fifo moved common LatencyQueue code
+   of smoc_fifo and smoc_multiplex_fifo into smoc_latency_queues.{cpp,hpp}
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-136
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Nov 26 11:25:37 CET 2009
+Standard-date: 2009-11-26 10:25:37 GMT
+Modified-files: pkginclude/systemoc/smoc_multiplex_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-136
+Summary: 
+ * Fixup --disable-debug case.
+Keywords: 
+
+
+

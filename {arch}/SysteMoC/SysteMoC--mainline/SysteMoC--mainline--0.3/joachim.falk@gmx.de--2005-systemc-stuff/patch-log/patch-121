@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.3--patch-121
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jan 18 14:36:38 CET 2006
+Standard-date: 2006-01-18 13:36:38 GMT
+Modified-files: smoc_firing_rules.hpp smoc_moc.cpp
+    smoc_moc.hpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-121
+Summary: 
+ * provide const argument for actor actions in elaboration phase via
+   CALL(action)(p1)(p2)...(pn) syntax
+   FIXME: can only use 3 arguments
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.8--patch-114
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri Jun 13 10:17:22 CEST 2008
+Standard-date: 2008-06-13 08:17:22 GMT
+Modified-files: pkginclude/systemoc/smoc_chan_if.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-114
+Summary:
+  * Documented the deliberate violation of the SystemC standard
+    (which possibly affects WSDF)
+Keywords: 
+
+
+

@@ -1,0 +1,25 @@
+Revision: SysteMoC--mainline--0.8--patch-53
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May  5 16:49:58 CEST 2008
+Standard-date: 2008-05-05 14:49:58 GMT
+New-files: pkginclude/systemoc/.arch-ids/smoc_event.hpp.id
+    pkginclude/systemoc/detail/.arch-ids/=id
+    pkginclude/systemoc/detail/.arch-ids/smoc_event_expr.hpp.id
+    pkginclude/systemoc/detail/smoc_event_expr.hpp
+    pkginclude/systemoc/smoc_event.hpp
+New-directories: pkginclude/systemoc/detail
+    pkginclude/systemoc/detail/.arch-ids
+Renamed-files: pkginclude/systemoc/.arch-ids/smoc_event.hpp.id pkginclude/systemoc/detail/.arch-ids/smoc_event_decls.hpp.id
+    pkginclude/systemoc/smoc_event.hpp pkginclude/systemoc/detail/smoc_event_decls.hpp
+Modified-files: pkginclude/systemoc/detail/smoc_event_decls.hpp
+    pkginclude/systemoc/smoc_expr.hpp
+    pkginclude/systemoc/smoc_port.hpp
+    pkginclude/systemoc/smoc_root_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-53
+Summary: 
+ * smoc_expr.hpp and Expr refactoring moved code from smoc_port.hpp into smoc_root_port and detail/smoc_event_expr.hpp
+Keywords: 
+
+
+

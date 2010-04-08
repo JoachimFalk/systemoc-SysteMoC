@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.8--patch-124
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Jun 19 20:12:02 CEST 2008
+Standard-date: 2008-06-19 18:12:02 GMT
+Modified-files: wsdf/smoc_md_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-124
+Summary: 
+ - Dummy commit because last patch description has not been complete
+ - Move some functionality into libWSDF
+Keywords: 
+
+
+

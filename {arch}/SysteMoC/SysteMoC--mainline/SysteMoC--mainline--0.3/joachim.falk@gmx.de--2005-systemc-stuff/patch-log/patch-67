@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-67
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Wed Aug 31 14:30:50 CEST 2005
+Standard-date: 2005-08-31 12:30:50 GMT
+Modified-files: smoc_firing_rules.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-67
+Summary: 
+ - bugfix in trace logging
+Keywords: 
+
+
+

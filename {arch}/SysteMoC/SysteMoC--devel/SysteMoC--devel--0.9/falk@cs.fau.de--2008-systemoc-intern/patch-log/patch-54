@@ -1,0 +1,74 @@
+Revision: SysteMoC--devel--0.9--patch-54
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May 29 14:37:33 CEST 2009
+Standard-date: 2009-05-29 12:37:33 GMT
+New-files: smoc-core/.arch-ids/=id
+    smoc-core/.arch-ids/SMXDumper.cpp.id
+    smoc-core/.arch-ids/SMXDumper.hpp.id
+    smoc-core/SMXDumper.cpp smoc-core/SMXDumper.hpp
+New-directories: smoc-core smoc-core/.arch-ids
+Renamed-files: .arch-ids/IdPool.cpp.id smoc-core/.arch-ids/IdPool.cpp.id
+    .arch-ids/hscd_tdsim_TraceLog.cpp.id smoc-core/.arch-ids/hscd_tdsim_TraceLog.cpp.id
+    .arch-ids/smoc_actor.cpp.id smoc-core/.arch-ids/smoc_actor.cpp.id
+    .arch-ids/smoc_ast_common.cpp.id smoc-core/.arch-ids/smoc_ast_common.cpp.id
+    .arch-ids/smoc_ast_ngx_visitor.cpp.id smoc-core/.arch-ids/smoc_ast_ngx_visitor.cpp.id
+    .arch-ids/smoc_ast_systemoc.cpp.id smoc-core/.arch-ids/smoc_ast_systemoc.cpp.id
+    .arch-ids/smoc_chan_if.cpp.id smoc-core/.arch-ids/smoc_chan_if.cpp.id
+    .arch-ids/smoc_elab_and_sim.cpp.id smoc-core/.arch-ids/smoc_elab_and_sim.cpp.id
+    .arch-ids/smoc_expr.cpp.id smoc-core/.arch-ids/smoc_expr.cpp.id
+    .arch-ids/smoc_fifo.cpp.id smoc-core/.arch-ids/smoc_fifo.cpp.id
+    .arch-ids/smoc_firing_rules.cpp.id smoc-core/.arch-ids/smoc_firing_rules.cpp.id
+    .arch-ids/smoc_func_call.cpp.id smoc-core/.arch-ids/smoc_func_call.cpp.id
+    .arch-ids/smoc_graph_synth.cpp.id smoc-core/.arch-ids/smoc_graph_synth.cpp.id
+    .arch-ids/smoc_graph_type.cpp.id smoc-core/.arch-ids/smoc_graph_type.cpp.id
+    .arch-ids/smoc_guard.cpp.id smoc-core/.arch-ids/smoc_guard.cpp.id
+    .arch-ids/smoc_latency_queues.cpp.id smoc-core/.arch-ids/smoc_latency_queues.cpp.id
+    .arch-ids/smoc_main.cpp.id smoc-core/.arch-ids/smoc_main.cpp.id
+    .arch-ids/smoc_moc.cpp.id smoc-core/.arch-ids/smoc_moc.cpp.id
+    .arch-ids/smoc_multicast_sr_signal.cpp.id smoc-core/.arch-ids/smoc_multicast_sr_signal.cpp.id
+    .arch-ids/smoc_multiplex_fifo.cpp.id smoc-core/.arch-ids/smoc_multiplex_fifo.cpp.id
+    .arch-ids/smoc_multireader_fifo.cpp.id smoc-core/.arch-ids/smoc_multireader_fifo.cpp.id
+    .arch-ids/smoc_root_chan.cpp.id smoc-core/.arch-ids/smoc_root_chan.cpp.id
+    .arch-ids/smoc_root_node.cpp.id smoc-core/.arch-ids/smoc_root_node.cpp.id
+    .arch-ids/smoc_simulation_ctx.cpp.id smoc-core/.arch-ids/smoc_simulation_ctx.cpp.id
+    .arch-ids/smoc_sysc_port.cpp.id smoc-core/.arch-ids/smoc_sysc_port.cpp.id
+    IdPool.cpp smoc-core/IdPool.cpp
+    hscd_tdsim_TraceLog.cpp smoc-core/hscd_tdsim_TraceLog.cpp
+    smoc_actor.cpp smoc-core/smoc_actor.cpp
+    smoc_ast_common.cpp smoc-core/smoc_ast_common.cpp
+    smoc_ast_ngx_visitor.cpp smoc-core/smoc_ast_ngx_visitor.cpp
+    smoc_ast_systemoc.cpp smoc-core/smoc_ast_systemoc.cpp
+    smoc_chan_if.cpp smoc-core/smoc_chan_if.cpp
+    smoc_elab_and_sim.cpp smoc-core/smoc_elab_and_sim.cpp
+    smoc_expr.cpp smoc-core/smoc_expr.cpp
+    smoc_fifo.cpp smoc-core/smoc_fifo.cpp
+    smoc_firing_rules.cpp smoc-core/smoc_firing_rules.cpp
+    smoc_func_call.cpp smoc-core/smoc_func_call.cpp
+    smoc_graph_synth.cpp smoc-core/smoc_graph_synth.cpp
+    smoc_graph_type.cpp smoc-core/smoc_graph_type.cpp
+    smoc_guard.cpp smoc-core/smoc_guard.cpp
+    smoc_latency_queues.cpp smoc-core/smoc_latency_queues.cpp
+    smoc_main.cpp smoc-core/smoc_main.cpp
+    smoc_moc.cpp smoc-core/smoc_moc.cpp
+    smoc_multicast_sr_signal.cpp smoc-core/smoc_multicast_sr_signal.cpp
+    smoc_multiplex_fifo.cpp smoc-core/smoc_multiplex_fifo.cpp
+    smoc_multireader_fifo.cpp smoc-core/smoc_multireader_fifo.cpp
+    smoc_root_chan.cpp smoc-core/smoc_root_chan.cpp
+    smoc_root_node.cpp smoc-core/smoc_root_node.cpp
+    smoc_simulation_ctx.cpp smoc-core/smoc_simulation_ctx.cpp
+    smoc_sysc_port.cpp smoc-core/smoc_sysc_port.cpp
+Modified-files: Makefile.am
+    pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/detail/smoc_sysc_port.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+    smoc-core/smoc_moc.cpp smoc-core/smoc_root_chan.cpp
+    smoc-core/smoc_sysc_port.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-54
+Summary: 
+ * Begin implementation of dumpSMX functionality.
+ * Source code reorganization.
+Keywords: 
+
+
+

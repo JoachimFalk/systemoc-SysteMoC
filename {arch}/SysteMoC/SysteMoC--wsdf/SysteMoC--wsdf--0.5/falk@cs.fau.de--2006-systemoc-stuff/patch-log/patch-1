@@ -1,0 +1,76 @@
+Revision: SysteMoC--wsdf--0.5--patch-1
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Oct 24 18:30:51 CEST 2006
+Standard-date: 2006-10-24 16:30:51 GMT
+New-files: .arch-ids/smoc_md_loop.cpp.id
+    .arch-ids/smoc_md_loop.hpp.id
+    .arch-ids/smoc_vector.hpp.id
+    .arch-ids/smoc_wsdf_edge.cpp.id
+    .arch-ids/smoc_wsdf_edge.hpp.id smoc_md_loop.cpp
+    smoc_md_loop.hpp smoc_vector.hpp smoc_wsdf_edge.cpp
+    smoc_wsdf_edge.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-4
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-5
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-6
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-7
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-8
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-9
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-10
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-11
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-12
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-1
+Summary: 
+ * Merge from SysteMoC--wsdf--0.4 branch
+ - Imported sources.
+ - Add functions to calculate data element mapping matrix and offset
+ - for source actor.
+ - Bugifx in snk_data_element_mapping_matrix (usage of non-initialized variables).
+ - Add support for border conditions.
+ - Add support for border condition
+ - Introduce two border condition vectors (for low and high border)
+ - Add new constructor.
+ - Major revision.
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-4
+   
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-5
+   
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-6
+   
+ - Imported sources.
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-7
+   
+ - Add functions to calculate data element mapping matrix and offset
+ - for source actor.
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-8
+   
+ - Bugifx in snk_data_element_mapping_matrix (usage of non-initialized variables).
+ - Add support for border conditions.
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-9
+   
+ - Add support for border condition
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-10
+   
+ - Introduce two border condition vectors (for low and high border)
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-11
+   
+ - Add new constructor.
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-12
+   
+ - Major revision.
+

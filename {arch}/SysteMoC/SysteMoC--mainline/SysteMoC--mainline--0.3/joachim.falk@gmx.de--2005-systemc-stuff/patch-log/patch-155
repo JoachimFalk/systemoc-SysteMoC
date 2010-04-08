@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.3--patch-155
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue May  2 16:04:24 MEST 2006
+Standard-date: 2006-05-02 14:04:24 GMT
+Modified-files: hscd_op.hpp hscd_port.hpp
+    hscd_tdsim_TraceLog.cpp smoc_chan_if.hpp smoc_expr.cpp
+    smoc_expr.hpp smoc_firing_rules.cpp smoc_moc.cpp
+    smoc_moc.hpp smoc_root_node.cpp smoc_root_port.cpp
+    smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-155
+Summary: 
+ * Debug messages now on cerr
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.2--patch-47
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Jul 21 20:01:19 CEST 2005
+Standard-date: 2005-07-21 18:01:19 GMT
+Modified-files: expr.hpp smoc_port.hpp smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-47
+Summary: 
+ * Preliminary syntax for variable consumption and production rates implemented
+ - but will not simulate execution code must be adapted
+Keywords: 
+
+
+

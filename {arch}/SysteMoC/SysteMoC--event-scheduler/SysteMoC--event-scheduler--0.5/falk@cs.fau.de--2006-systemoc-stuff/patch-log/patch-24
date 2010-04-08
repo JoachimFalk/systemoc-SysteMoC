@@ -1,0 +1,15 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-24
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Thu Nov  2 10:11:57 CET 2006
+Standard-date: 2006-11-02 09:11:57 GMT
+Modified-files: smoc_expr.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-24
+Summary: 
+ * Fixed SysteMoC to use new oneofTypeid which is defined in
+   HscdSupport--mainline--0.5--patch-4. Therefore this SysteMoC
+   patchlevel does need at least HscdSupport--mainline--0.5--patch-4.
+Keywords: 
+
+
+

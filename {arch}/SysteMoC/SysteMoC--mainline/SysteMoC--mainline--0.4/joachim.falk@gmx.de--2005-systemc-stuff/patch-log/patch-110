@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-110
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Tue Jul  4 14:37:22 CEST 2006
+Standard-date: 2006-07-04 12:37:22 GMT
+Modified-files: smoc_chan_if.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-110
+Summary: 
+  * fixed bug with FIFO names not being unique
+Keywords: 
+
+
+

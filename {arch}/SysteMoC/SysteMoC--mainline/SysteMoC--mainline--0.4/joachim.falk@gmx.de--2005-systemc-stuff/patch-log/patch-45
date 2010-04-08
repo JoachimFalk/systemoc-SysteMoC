@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.4--patch-45
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Mar  9 19:31:16 CET 2006
+Standard-date: 2006-03-09 18:31:16 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_guard.hpp smoc_root_node.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-45
+Summary: 
+ * Code simplification
+Keywords: 
+
+
+

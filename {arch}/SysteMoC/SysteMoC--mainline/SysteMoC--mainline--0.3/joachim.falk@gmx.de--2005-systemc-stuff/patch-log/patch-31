@@ -1,0 +1,26 @@
+Revision: SysteMoC--mainline--0.3--patch-31
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Aug  9 15:10:15 CEST 2005
+Standard-date: 2005-08-09 13:10:15 GMT
+Modified-files: oneof.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-31
+Summary: 
+ * Merge from SysteMoC--mainline--0.1 branch
+ - Merged updated to oneof template class to five type paremeters
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-45
+   
+  * oneof now handles five template arguments
+    @oneof.hpp
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-46
+   
+  * bug fix in ostream operator template 
+    @oneof.hpp
+

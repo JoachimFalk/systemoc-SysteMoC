@@ -1,0 +1,21 @@
+Revision: SysteMoC--devel--0.9--patch-95
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jul  1 13:14:48 CEST 2009
+Standard-date: 2009-07-01 11:14:48 GMT
+New-files: pkginclude/smoc/.arch-ids/smoc_hooking.hpp.id
+    pkginclude/smoc/smoc_hooking.hpp
+    smoc-core/.arch-ids/smoc_hooking.cpp.id
+    smoc-core/smoc_hooking.cpp
+Modified-files: Makefile.am configure.in
+    pkginclude/Makefile.am
+    pkginclude/systemoc/smoc_config.h.in
+    pkginclude/systemoc/smoc_func_call.hpp
+    smoc-core/smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-95
+Summary: 
+ * Begin hooking work.
+Keywords: 
+
+
+

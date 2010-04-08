@@ -1,0 +1,26 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-29
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Nov 13 13:42:03 CET 2006
+Standard-date: 2006-11-13 12:42:03 GMT
+Modified-files: hscd_fifo.hpp hscd_graph_type.hpp
+    hscd_moc.hpp hscd_node_types.hpp hscd_op.hpp
+    hscd_pggen.hpp hscd_port.hpp hscd_root_port_list.hpp
+    hscd_scheduler.hpp hscd_structure.hpp
+    hscd_tdsim_TraceLog.cpp hscd_tdsim_TraceLog.hpp
+    smoc_chan_if.cpp smoc_chan_if.hpp smoc_event.hpp
+    smoc_expr.cpp smoc_expr.hpp smoc_fifo.cpp smoc_fifo.hpp
+    smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_graph_type.cpp smoc_graph_type.hpp smoc_guard.hpp
+    smoc_moc.cpp smoc_moc.hpp smoc_node_types.hpp
+    smoc_pggen.cpp smoc_pggen.hpp smoc_port.cpp smoc_port.hpp
+    smoc_rendezvous.cpp smoc_rendezvous.hpp
+    smoc_root_node.cpp smoc_root_node.hpp smoc_root_port.cpp
+    smoc_root_port.hpp smoc_storage.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-29
+Summary: 
+ * Updated copyright boilerplate from COPYRIGHT
+Keywords: 
+
+
+

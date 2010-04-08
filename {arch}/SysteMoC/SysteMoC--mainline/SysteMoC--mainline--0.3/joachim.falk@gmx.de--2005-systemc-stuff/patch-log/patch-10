@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-10
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug  4 15:57:25 CEST 2005
+Standard-date: 2005-08-04 13:57:25 GMT
+Modified-files: smoc_firing_rules.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-10
+Summary: 
+ * small cleanups
+ - eliminating obsolete commented out code
+Keywords: 
+
+
+

@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.8--patch-47
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri May  2 15:47:48 CEST 2008
+Standard-date: 2008-05-02 13:47:48 GMT
+Modified-files: pkginclude/systemoc/smoc_ngx_sync.hpp
+    smoc_moc.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-47
+Summary:
+  * the last patch did only fix the symptoms, not the bug itself.
+    (update also Support) 
+Keywords: 
+
+
+

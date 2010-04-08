@@ -1,0 +1,18 @@
+Revision: SysteMoC--mainline--0.1--patch-47
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Alexander Schuetz <schuetz.alexander@gmx.de>
+Date: Thu Aug 11 13:16:44 CEST 2005
+Standard-date: 2005-08-11 11:16:44 GMT
+Modified-files: oneof.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-47
+Summary:
+  * Changed oneof.hpp
+    - bug fix in oneof template class
+      added assignment operator for oneof = (const oneof &)
+      to make a deep copy of contained data types
+    - added debug output to all assignment operators in the
+      oneof template class
+Keywords: 
+
+
+

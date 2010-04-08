@@ -1,0 +1,24 @@
+Revision: SysteMoC--devel--0.9--patch-97
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Jul  8 14:18:57 CEST 2009
+Standard-date: 2009-07-08 12:18:57 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/detail/smoc_root_node.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    smoc-core/smoc_firing_rules.cpp
+    smoc-core/smoc_graph_type.cpp
+    smoc-core/smoc_multireader_fifo.cpp
+    smoc-core/smoc_reset.cpp smoc-core/smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-97
+Summary:
+  * Added explicit priorities for transitions
+  * Fixed reset
+  * Fixed conflict bug quickhack 
+Keywords: 
+
+
+

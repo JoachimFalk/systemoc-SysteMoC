@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.9.1--patch-36
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Sep 10 17:23:10 CEST 2009
+Standard-date: 2009-09-10 15:23:10 GMT
+Modified-files: smoc-core/SMXDumper.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-117
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-36
+Summary: 
+ * Merge from SysteMoC--devel--0.9 branch.
+ - Changes to SMXDumper to conform a little bit more to the old SysteMoC 0.8 smx dump format.
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-117
+   
+ * Changes to SMXDumper to conform a little bit more to the old SysteMoC 0.8 smx dump format.
+

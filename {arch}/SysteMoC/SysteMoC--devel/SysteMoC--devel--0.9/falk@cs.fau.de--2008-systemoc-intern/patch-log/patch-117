@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-117
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Sep 10 17:20:09 CEST 2009
+Standard-date: 2009-09-10 15:20:09 GMT
+Modified-files: smoc-core/SMXDumper.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-117
+Summary: 
+ * Changes to SMXDumper to conform a little bit more to the old SysteMoC 0.8 smx dump format.
+Keywords: 
+
+
+

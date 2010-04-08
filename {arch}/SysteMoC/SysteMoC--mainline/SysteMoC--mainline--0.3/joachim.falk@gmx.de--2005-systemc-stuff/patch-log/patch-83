@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-83
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Sep 15 12:16:48 CEST 2005
+Standard-date: 2005-09-15 10:16:48 GMT
+Modified-files: smoc_root_port.cpp smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-83
+Summary: 
+ * Moved various methods from smoc_root_port.hpp into smoc_root_port.cpp
+
+Keywords: 
+
+
+

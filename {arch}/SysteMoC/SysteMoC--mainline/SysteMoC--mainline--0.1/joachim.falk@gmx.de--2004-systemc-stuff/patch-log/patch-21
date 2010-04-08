@@ -1,0 +1,20 @@
+Revision: SysteMoC--mainline--0.1--patch-21
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Dec 17 10:19:35 CET 2004
+Standard-date: 2004-12-17 09:19:35 GMT
+New-files: Docu/.arch-ids/media-speech-audio-coding.fig.id
+    Docu/.arch-ids/ng-sdf.fig.id
+    Docu/media-speech-audio-coding.fig Docu/ng-sdf.fig
+Removed-files: Docu/.arch-ids/ng-sdf-example.fig.id
+    Docu/ng-sdf-example.fig
+Renamed-files: Docu/.arch-ids/ng-sdf.fig.id Docu/.arch-ids/ng-dataflow.fig.id
+    Docu/ng-sdf.fig Docu/ng-dataflow.fig
+Modified-files: Docu/dining-philosophers.fig
+    Docu/ng-dataflow.fig Docu/ng-petri.fig Docu/report.tex
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-21
+Summary: Report writage
+Keywords: 
+
+
+

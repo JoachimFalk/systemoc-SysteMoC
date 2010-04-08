@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.4--patch-14
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Dec  1 14:58:25 CET 2005
+Standard-date: 2005-12-01 13:58:25 GMT
+Modified-files: smoc_expr.hpp smoc_firing_rules.cpp
+    smoc_firing_rules.hpp smoc_guard.hpp smoc_moc.cpp
+    smoc_root_node.cpp smoc_root_node.hpp smoc_root_port.cpp
+    smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-14
+Summary: 
+ * introduced Expr::Communicate for Expr::evalTo<Expr::Communicat> call
+   this replaces smoc_ctrx.ports_setup
+Keywords: 
+
+
+

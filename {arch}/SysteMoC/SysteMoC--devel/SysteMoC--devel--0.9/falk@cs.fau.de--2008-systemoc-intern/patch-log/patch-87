@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-87
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jun 24 09:50:45 CEST 2009
+Standard-date: 2009-06-24 07:50:45 GMT
+Modified-files: smoc-core/smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-87
+Summary: 
+ * Dump hierarchical fsm state names.
+Keywords: 
+
+
+

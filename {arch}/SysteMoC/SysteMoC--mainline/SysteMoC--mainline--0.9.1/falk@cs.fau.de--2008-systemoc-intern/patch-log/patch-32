@@ -1,0 +1,25 @@
+Revision: SysteMoC--mainline--0.9.1--patch-32
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri Jul 10 12:54:49 CEST 2009
+Standard-date: 2009-07-10 10:54:49 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_debug_stream.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    smoc-core/smoc_debug_stream.cpp
+    smoc-core/smoc_firing_rules.cpp
+    smoc-core/smoc_multireader_fifo.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-100
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-32
+Summary: 
+  * Merge from SysteMoC--devel--0.9--patch-100
+  - fixed doReset() of multireader fifo
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-100
+   
+  * fixed doReset() of multireader fifo 
+

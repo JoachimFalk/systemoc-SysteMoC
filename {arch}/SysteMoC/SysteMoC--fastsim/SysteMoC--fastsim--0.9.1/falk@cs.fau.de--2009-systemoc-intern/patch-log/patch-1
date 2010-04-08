@@ -1,0 +1,27 @@
+Revision: SysteMoC--fastsim--0.9.1--patch-1
+Archive: falk@cs.fau.de--2009-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Aug 26 11:17:21 CEST 2009
+Standard-date: 2009-08-26 09:17:21 GMT
+Modified-files: pkginclude/systemoc/detail/EventMapManager.hpp
+    pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/detail/smoc_root_node.hpp
+    pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    smoc-core/apply_visitor.hpp
+    smoc-core/smoc_firing_rules.cpp
+    smoc-core/smoc_graph_synth.cpp
+    smoc-core/smoc_graph_synth.hpp
+    smoc-core/smoc_graph_type.cpp smoc-core/smoc_moc.cpp
+    smoc-core/smoc_multireader_fifo.cpp
+    smoc-core/smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2009-systemoc-intern/SysteMoC--fastsim--0.9.1--patch-1
+Summary:
+  * Decouple RuntimeTransition from activation pattern
+  * Introduce cache for activation patterns
+  * Decouple node scheduling from transition scheduling
+  * Conflicts are handled by renotify mechanism
+Keywords: 
+
+
+

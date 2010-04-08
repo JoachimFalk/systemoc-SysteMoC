@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-13
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug  4 16:17:31 CEST 2005
+Standard-date: 2005-08-04 14:17:31 GMT
+Modified-files: expr.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-13
+Summary: 
+ * Added Expr::type operator to identify type of an oneof object
+Keywords: 
+
+
+

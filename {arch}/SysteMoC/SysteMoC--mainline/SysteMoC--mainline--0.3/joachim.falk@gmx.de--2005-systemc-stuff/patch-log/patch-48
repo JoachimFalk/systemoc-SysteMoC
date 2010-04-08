@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-48
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Aug 12 03:16:02 CEST 2005
+Standard-date: 2005-08-12 01:16:02 GMT
+Modified-files: commondefs.h
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-48
+Summary: 
+ * Added output operator for std::pair to commondefs.h
+Keywords: 
+
+
+

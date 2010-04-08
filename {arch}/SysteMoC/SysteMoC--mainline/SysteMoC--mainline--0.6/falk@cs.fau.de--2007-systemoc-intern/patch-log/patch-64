@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.6--patch-64
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Thu Feb 22 13:34:45 CET 2007
+Standard-date: 2007-02-22 12:34:45 GMT
+Modified-files: systemoc/smoc_chan_if.hpp
+    systemoc/smoc_fifo.hpp systemoc/smoc_md_fifo.hpp
+    systemoc/smoc_multicast_sr_signal.hpp
+    systemoc/smoc_port.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-64
+Summary: 
+  * because of obscure naming (smoc_chan_in_if is interface of channel output
+    and vice versa!) I messed up interface function renaming which is fixed by
+    this patch
+    getReadChannelAccess -> getWriteChannelAccess
+    getWriteChannelAccess -> getReadChannelAccess
+    @*
+Keywords: 
+
+
+

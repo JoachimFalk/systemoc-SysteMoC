@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.5--patch-2
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Jul 27 15:35:29 CEST 2006
+Standard-date: 2006-07-27 13:35:29 GMT
+Modified-files: smoc_chan_if.hpp smoc_graph_type.cpp
+    smoc_port.hpp smoc_root_port.cpp smoc_root_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-2
+Summary: 
+ * Removed obsolete hierarchy tracking code
+Keywords: 
+
+
+

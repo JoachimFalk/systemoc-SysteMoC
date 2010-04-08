@@ -1,0 +1,21 @@
+Revision: SysteMoC--devel--0.9--patch-21
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May 11 19:17:11 CEST 2009
+Standard-date: 2009-05-11 17:17:11 GMT
+Renamed-files: pkginclude/systemoc/detail/.arch-ids/smoc_connect_provider.hpp.id pkginclude/systemoc/detail/.arch-ids/ConnectProvider.hpp.id
+    pkginclude/systemoc/detail/smoc_connect_provider.hpp pkginclude/systemoc/detail/ConnectProvider.hpp
+Modified-files: pkginclude/Makefile.am
+    pkginclude/systemoc/detail/ConnectProvider.hpp
+    pkginclude/systemoc/detail/smoc_port_registry.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-21
+Summary: 
+ * smoc_connect_provider => SysteMoC::Detail::ConnectProvider!
+Keywords: 
+
+
+

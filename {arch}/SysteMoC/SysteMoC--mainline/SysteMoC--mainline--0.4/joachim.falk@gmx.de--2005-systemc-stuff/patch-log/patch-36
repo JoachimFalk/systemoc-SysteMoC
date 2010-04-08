@@ -1,0 +1,23 @@
+Revision: SysteMoC--mainline--0.4--patch-36
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Feb 20 11:35:12 CET 2006
+Standard-date: 2006-02-20 10:35:12 GMT
+Modified-files: smoc_chan_if.hpp smoc_fifo.hpp
+    smoc_graph_type.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-126
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-36
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - Initial token dumping
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-126
+   
+ * Initial token dumping
+

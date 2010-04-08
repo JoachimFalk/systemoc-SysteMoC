@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-130
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Feb 21 12:19:41 CET 2006
+Standard-date: 2006-02-21 11:19:41 GMT
+Modified-files: networkgraph.dtd smoc_guard.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-130
+Summary: 
+ * Fixed bug in xml syntax for network graph generation in smoc_guard.cpp
+ * Fixed bug in dtd for network graph
+Keywords: 
+
+
+

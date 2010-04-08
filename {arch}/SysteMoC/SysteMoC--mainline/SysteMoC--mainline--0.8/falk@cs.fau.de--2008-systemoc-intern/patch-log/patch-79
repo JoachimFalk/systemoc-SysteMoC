@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.8--patch-79
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Tue May 13 15:29:46 CEST 2008
+Standard-date: 2008-05-13 13:29:46 GMT
+Modified-files: pkginclude/systemoc/smoc_graph_type.hpp
+    smoc_main.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-79
+Summary: 
+  * smoc_port_connector_ added getChannel() method
+  * fixed VPC director singleton issue
+Keywords: 
+
+
+

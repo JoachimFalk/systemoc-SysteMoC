@@ -1,0 +1,13 @@
+Revision: SysteMoC--synchronous-reactive--0.4--patch-15
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Dec 19 13:32:45 CET 2006
+Standard-date: 2006-12-19 12:32:45 GMT
+Modified-files: smoc_sr_signal.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-15
+Summary: 
+ - improved SR signal: allow for undefined read (non strict blocks only)
+Keywords: 
+
+
+

@@ -1,0 +1,22 @@
+Revision: SysteMoC--mainline--0.9.1--patch-46
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Mon Oct 19 10:51:36 CEST 2009
+Standard-date: 2009-10-19 08:51:36 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    smoc-core/SMXDumper.cpp smoc-core/smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-123
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-46
+Summary: 
+  * Merge from SysteMoC--devel--0.9--patch-123
+  - Use new infrastructure in LibSGX for shared actions and activation patterns.
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-123
+   
+ * Use new infrastructure in LibSGX for shared actions and activation patterns.
+

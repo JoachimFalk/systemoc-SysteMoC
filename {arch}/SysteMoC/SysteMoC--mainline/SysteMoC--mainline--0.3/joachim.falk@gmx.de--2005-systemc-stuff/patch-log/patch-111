@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.3--patch-111
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Dec  6 12:07:13 CET 2005
+Standard-date: 2005-12-06 11:07:13 GMT
+Modified-files: smoc_root_node.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-111
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-19
+Summary: 
+ * Merge from SysteMoC--mainline--0.4 branch
+ - Fixed _finalizeCalled in NDEBUG code bug
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-19
+   
+ * Fixed _finalizeCalled in NDEBUG code bug
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-167
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Nov 10 10:00:13 CET 2008
+Standard-date: 2008-11-10 09:00:13 GMT
+Modified-files: smoc_graph_type.cpp smoc_moc.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-167
+Summary: 
+ * Added some more assertion and debug paranoia!
+Keywords: 
+
+
+

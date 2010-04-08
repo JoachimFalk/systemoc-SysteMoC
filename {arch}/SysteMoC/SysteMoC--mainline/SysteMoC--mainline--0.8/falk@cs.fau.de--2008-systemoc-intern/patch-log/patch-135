@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.8--patch-135
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Jun 30 19:29:25 CEST 2008
+Standard-date: 2008-06-30 17:29:25 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-135
+Summary:  - Fix configure.in in case the user disables VPC or WSDF
+Keywords: 
+
+ - Fix configure.in in case the user disables VPC or WSDF
+

@@ -1,0 +1,12 @@
+Revision: SysteMoC--mainline--0.8--patch-151
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Mon Aug 18 19:27:53 CEST 2008
+Standard-date: 2008-08-18 17:27:53 GMT
+Modified-files: smoc_elab_and_sim.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-151
+Summary: Parse VPC command line options only if SYSTEMOC_ENABLE_VPC is defined
+Keywords: 
+
+
+

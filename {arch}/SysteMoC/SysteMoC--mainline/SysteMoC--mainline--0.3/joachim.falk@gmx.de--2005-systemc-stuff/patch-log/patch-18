@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-18
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug  4 18:41:17 CEST 2005
+Standard-date: 2005-08-04 16:41:17 GMT
+Modified-files: smoc_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-18
+Summary: 
+ * value types of DToken are now constant
+Keywords: 
+
+
+

@@ -1,0 +1,11 @@
+Revision: SysteMoC--wsdf--0.4--patch-12
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Oct 20 20:13:42 CEST 2006
+Standard-date: 2006-10-20 18:13:42 GMT
+Modified-files: smoc_md_loop.cpp smoc_md_loop.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.4--patch-12
+Summary: 
+ - Major revision.
+Keywords: 
+

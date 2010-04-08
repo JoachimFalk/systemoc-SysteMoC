@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-110
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep  2 12:49:00 CEST 2009
+Standard-date: 2009-09-02 10:49:00 GMT
+Modified-files: pkginclude/systemoc/smoc_multiplex_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-110
+Summary: 
+ * Fixup some compiler warnings.
+Keywords: 
+
+
+

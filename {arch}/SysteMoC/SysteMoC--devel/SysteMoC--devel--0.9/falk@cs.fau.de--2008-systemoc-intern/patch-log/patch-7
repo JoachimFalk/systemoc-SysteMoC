@@ -1,0 +1,27 @@
+Revision: SysteMoC--devel--0.9--patch-7
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jan 30 18:44:03 CET 2009
+Standard-date: 2009-01-30 17:44:03 GMT
+Modified-files: pkginclude/systemoc/smoc_multiplex_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-7
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-168
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-9
+Summary: 
+ * Merge from SysteMoC--mainline--0.8
+ - Fix compiler warning
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-168
+   
+ * Fix compiler warning
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-9
+   
+ * Merge from SysteMoC--mainline--0.8
+ - Fix compiler warning
+

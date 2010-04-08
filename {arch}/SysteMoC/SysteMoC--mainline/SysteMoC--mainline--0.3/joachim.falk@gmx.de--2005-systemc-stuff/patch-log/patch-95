@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.3--patch-95
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Sep 30 18:27:26 CEST 2005
+Standard-date: 2005-09-30 16:27:26 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_node_types.hpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-95
+Summary: 
+ * Introduced pseudo communication states into the firing rules fsm.
+   Communication is still done instantaneous because it still has to be
+   moved into the transition leaving the communication state.
+Keywords: 
+
+
+

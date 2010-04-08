@@ -1,0 +1,19 @@
+Revision: SysteMoC--mainline--0.6--patch-85
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Apr 20 19:00:58 CEST 2007
+Standard-date: 2007-04-20 17:00:58 GMT
+Modified-files: wsdf/smoc_md_array.hpp
+    wsdf/smoc_md_array_access.hpp wsdf/smoc_md_buffer.cpp
+    wsdf/smoc_md_buffer.hpp wsdf/smoc_md_fifo.hpp
+    wsdf/smoc_md_loop.cpp wsdf/smoc_md_loop.hpp
+    wsdf/smoc_md_port.cpp wsdf/smoc_md_port.hpp
+    wsdf/smoc_vector.hpp wsdf/smoc_wsdf_edge.cpp
+    wsdf/smoc_wsdf_edge.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-85
+Summary: 
+ - fix indent
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.6--patch-155
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Dec  7 16:15:01 CET 2007
+Standard-date: 2007-12-07 15:15:01 GMT
+Modified-files: smoc_moc.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-155
+Summary: 
+ - fixed VPC coupling for SR
+Keywords: 
+
+
+

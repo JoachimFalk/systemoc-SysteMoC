@@ -1,0 +1,58 @@
+Revision: SysteMoC--mainline--0.6--patch-7
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Jan 31 10:31:57 CET 2007
+Standard-date: 2007-01-31 09:31:57 GMT
+New-files: .arch-ids/smoc_main.cpp.id smoc_main.cpp
+Modified-files: Makefile.am smoc_moc.hpp smoc_pggen.cpp
+    smoc_pggen.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-35
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-7
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-118
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-119
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-121
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-126
+Summary: 
+ * Merge changeset SysteMoC--event-scheduler--0.5--patch-35
+ - Overload SystemC main with SysteMoC main which checks for
+   --generate-problemgraph (obsolete) and --generate-networkgraph
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-35
+   
+ * Merge from SysteMoC--mainline--0.4 branch
+ - Overload SystemC main with SysteMoC main which checks for
+   --generate-problemgraph (obsolete) and --generate-networkgraph
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-118
+   
+ * Merge from SysteMoC--mainline--0.5 branch
+ - Replace `pwd` with $(top_builddir) for SYSTEMC_VPC_XXX
+ - Use CoSupport::RefCountObject instead of _RefCount
+   Define BOOST_NO_THREADS for RefCountObject 
+ - Minor Makefile.am tweaks
+ - Fixed warning
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-119
+   
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Fixed SysteMoC to use new oneofTypeid which is defined in
+   HscdSupport--mainline--0.3--patch-25. Therefore this SysteMoC
+   patchlevel does need at least HscdSupport--mainline--0.3--patch-25.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-121
+   
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Added (C) Hardware-Software-CoDesign to every file added COPYRIGHT
+   and LICENSE files
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-126
+   
+ * Overload SystemC main with SysteMoC main which checks for
+   --generate-problemgraph (obsolete) and --generate-networkgraph
+

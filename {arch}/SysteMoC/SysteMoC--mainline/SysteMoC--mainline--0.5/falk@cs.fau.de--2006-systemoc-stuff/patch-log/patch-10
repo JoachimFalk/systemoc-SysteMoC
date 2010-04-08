@@ -1,0 +1,23 @@
+Revision: SysteMoC--mainline--0.5--patch-10
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Sep  8 18:21:30 CEST 2006
+Standard-date: 2006-09-08 16:21:30 GMT
+Modified-files: smoc_chan_if.hpp smoc_fifo.hpp smoc_port.hpp
+    smoc_root_node.cpp smoc_root_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-10
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-113
+Summary: 
+ * Merge from SysteMoC--mainline--0.4 branch
+ - Improved smoc_ring_access performance
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-113
+   
+ * Improved smoc_ring_access performance
+

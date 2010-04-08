@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.3--patch-61
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sun Aug 14 00:07:22 CEST 2005
+Standard-date: 2005-08-13 22:07:22 GMT
+Modified-files: hscd_op.hpp hscd_port.hpp
+    hscd_root_port_list.hpp smoc_chan_if.hpp smoc_fifo.hpp
+    smoc_port.hpp smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-61
+Summary: 
+ * SysteMoC v0.3 can now execute SysteMoC v0.1 code without SysteMoC v0.3 parts
+Keywords: 
+
+
+

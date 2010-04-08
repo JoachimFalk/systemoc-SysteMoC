@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-42
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Aug 12 00:31:51 CEST 2005
+Standard-date: 2005-08-11 22:31:51 GMT
+Modified-files: smoc_chan_if.hpp smoc_graph_type.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-42
+Summary: 
+ * Added hierarchy backlinking in smoc_root_chan class
+Keywords: 
+
+
+

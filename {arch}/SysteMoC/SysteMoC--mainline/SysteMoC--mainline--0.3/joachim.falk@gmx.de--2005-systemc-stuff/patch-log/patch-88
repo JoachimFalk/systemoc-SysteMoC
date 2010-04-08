@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-88
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Sep 19 15:26:00 CEST 2005
+Standard-date: 2005-09-19 13:26:00 GMT
+Modified-files: smoc_firing_rules.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-88
+Summary: 
+ * Added more debug output
+Keywords: 
+
+
+

@@ -1,0 +1,24 @@
+Revision: SysteMoC--mainline--0.8--patch-92
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May 21 15:39:23 CEST 2008
+Standard-date: 2008-05-21 13:39:23 GMT
+Modified-files: pkginclude/systemoc/smoc_ngx_sync.hpp
+    smoc_fifo.cpp smoc_graph_type.cpp
+    smoc_multiplex_fifo.cpp smoc_ngx_sync.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-4
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-92
+Summary: 
+ * Merge from SysteMoC--devel--0.8
+ - Moved from SysteMoC to SystemCoDesigner namespace for LibSGX
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-4
+   
+ * Moved from SysteMoC to SystemCoDesigner namespace for LibSGX
+

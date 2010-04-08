@@ -1,0 +1,22 @@
+Revision: SysteMoC--mainline--0.4--patch-27
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Sat Jan 28 11:02:56 CET 2006
+Standard-date: 2006-01-28 10:02:56 GMT
+Modified-files: hscd_tdsim_TraceLog.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-123
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-27
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - removed useless prefix in stream output to allow tracing of SMoC1 actors
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-123
+   
+ - removed useless prefix in stream output to allow tracing of SMoC1 actors
+

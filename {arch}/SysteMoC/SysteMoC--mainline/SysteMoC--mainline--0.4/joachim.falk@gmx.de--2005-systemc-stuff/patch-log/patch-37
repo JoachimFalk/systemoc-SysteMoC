@@ -1,0 +1,25 @@
+Revision: SysteMoC--mainline--0.4--patch-37
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Feb 20 11:35:46 CET 2006
+Standard-date: 2006-02-20 10:35:46 GMT
+New-files: .arch-ids/networkgraph.dtd.id networkgraph.dtd
+Modified-files: smoc_expr.hpp smoc_guard.hpp smoc_pggen.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-127
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-37
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - Added networkgraph.dtd
+ - Changed networkgraph dumping code to refer to new networkgraph.dtd
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-127
+   
+ * Added networkgraph.dtd
+ * Changed networkgraph dumping code to refer to new networkgraph.dtd
+

@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.8--patch-149
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Mon Aug 18 19:24:18 CEST 2008
+Standard-date: 2008-08-18 17:24:18 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_sysc_port.hpp
+    smoc_sysc_port.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-149
+Summary: Modification for Microsoft Visual C++
+ - Change "interface" to "interfacePtr". "interface" is a keyword for VC++.
+Keywords: 
+
+
+

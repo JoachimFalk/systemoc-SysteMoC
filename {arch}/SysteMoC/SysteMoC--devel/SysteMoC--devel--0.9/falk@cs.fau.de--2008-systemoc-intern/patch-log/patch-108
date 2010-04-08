@@ -1,0 +1,25 @@
+Revision: SysteMoC--devel--0.9--patch-108
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep  2 12:33:51 CEST 2009
+Standard-date: 2009-09-02 10:33:51 GMT
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-108
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-171
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-172
+Summary: 
+  * Dummy syncup to SysteMoC--mainline--0.8 branch
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-171
+   
+ * Merge from SysteMoC--mainline--0.9
+ - Fixup Makefile.am
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-172
+   
+  * fixed Makefile.am (no indention for 'if'-constructs allowed!)
+

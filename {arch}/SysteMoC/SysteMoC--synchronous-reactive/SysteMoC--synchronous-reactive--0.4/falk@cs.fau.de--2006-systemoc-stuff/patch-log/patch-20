@@ -1,0 +1,16 @@
+Revision: SysteMoC--synchronous-reactive--0.4--patch-20
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Jan 25 16:23:47 CET 2007
+Standard-date: 2007-01-25 15:23:47 GMT
+Modified-files: hscd_node_types.hpp hscd_port.hpp
+    hscd_structure.hpp smoc_chan_if.hpp smoc_graph_type.cpp
+    smoc_port.hpp smoc_root_node.cpp smoc_root_node.hpp
+    smoc_root_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-20
+Summary: 
+ - removed unused SMOC V1 detection in active code
+Keywords: 
+
+
+

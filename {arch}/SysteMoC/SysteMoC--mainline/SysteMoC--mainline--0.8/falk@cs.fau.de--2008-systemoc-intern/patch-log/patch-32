@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.8--patch-32
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Apr 16 09:01:11 CEST 2008
+Standard-date: 2008-04-16 07:01:11 GMT
+Modified-files: smoc_chan_if.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-32
+Summary: 
+  * parent node of port is just get_parent() (->SystemC).
+    This was changed in SysteMoC 0.8
+Keywords: 
+
+
+

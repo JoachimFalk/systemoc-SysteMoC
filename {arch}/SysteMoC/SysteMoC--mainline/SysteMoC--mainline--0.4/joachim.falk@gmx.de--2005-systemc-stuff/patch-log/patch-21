@@ -1,0 +1,36 @@
+Revision: SysteMoC--mainline--0.4--patch-21
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Dec  9 11:55:06 CET 2005
+Standard-date: 2005-12-09 10:55:06 GMT
+New-files: .arch-ids/COPYING.LIB.id COPYING.LIB
+Modified-files: hscd_fifo.hpp hscd_node_types.hpp
+    hscd_op.hpp hscd_pggen.hpp hscd_port.hpp
+    hscd_root_port_list.hpp hscd_scheduler.hpp
+    hscd_structure.hpp hscd_tdsim_TraceLog.cpp
+    hscd_tdsim_TraceLog.hpp smoc_chan_if.cpp
+    smoc_chan_if.hpp smoc_event.hpp smoc_expr.cpp
+    smoc_expr.hpp smoc_fifo.cpp smoc_fifo.hpp
+    smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_graph_type.cpp smoc_graph_type.hpp smoc_guard.cpp
+    smoc_guard.hpp smoc_moc.cpp smoc_moc.hpp
+    smoc_node_types.hpp smoc_pggen.cpp smoc_pggen.hpp
+    smoc_port.hpp smoc_rendezvous.cpp smoc_rendezvous.hpp
+    smoc_root_node.cpp smoc_root_node.hpp smoc_root_port.cpp
+    smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-114
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-21
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - Relicense to LGPL
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-114
+   
+ * Relicense to LGPL
+

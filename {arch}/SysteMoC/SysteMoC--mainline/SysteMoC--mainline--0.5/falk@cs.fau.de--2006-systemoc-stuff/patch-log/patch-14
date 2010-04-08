@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.5--patch-14
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Wed Oct 18 20:11:11 CEST 2006
+Standard-date: 2006-10-18 18:11:11 GMT
+Modified-files: smoc_expr.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-14
+Summary: 
+ * Compile fixes
+Keywords: 
+
+
+

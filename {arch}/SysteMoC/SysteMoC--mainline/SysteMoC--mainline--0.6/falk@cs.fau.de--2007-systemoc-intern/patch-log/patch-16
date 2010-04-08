@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.6--patch-16
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Feb  6 12:46:47 CET 2007
+Standard-date: 2007-02-06 11:46:47 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-13
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-16
+Summary: 
+ * Merge changeset SysteMoC--synchronous-reactive--0.4--patch-13
+ - added new FSM syntax for SR: .. ActivationPatern >> (SR_GO(...) && SR_TICK(...)) >> ..
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-13
+   
+ - added new FSM syntax for SR: .. ActivationPatern >> (SR_GO(...) && SR_TICK(...)) >> ..
+

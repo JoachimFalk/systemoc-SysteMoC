@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.6--patch-30
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Feb  8 09:56:23 CET 2007
+Standard-date: 2007-02-08 08:56:23 GMT
+Removed-files: .arch-ids/smoc_sr_signal.cpp.id
+    smoc_sr_signal.cpp
+Modified-files: Makefile.am smoc_moc.cpp
+    smoc_multicast_sr_signal.hpp smoc_sr_signal.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-30
+Summary: 
+ - removed smoc_sr_signal implementation
+  (smoc_sr_signal is forwarded to smoc_multicast_sr_signal)
+Keywords: 
+
+
+

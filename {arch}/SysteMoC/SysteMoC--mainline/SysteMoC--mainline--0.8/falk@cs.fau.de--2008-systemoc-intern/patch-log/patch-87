@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.8--patch-87
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue May 20 07:47:39 CEST 2008
+Standard-date: 2008-05-20 05:47:39 GMT
+Modified-files: pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_root_node.hpp smoc_chan_if.cpp
+    smoc_graph_type.cpp smoc_moc.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-87
+Summary: 
+ - moved SR scheduler implementation to smoc_grap_sr: SR examples schould run now
+Keywords: 
+
+
+

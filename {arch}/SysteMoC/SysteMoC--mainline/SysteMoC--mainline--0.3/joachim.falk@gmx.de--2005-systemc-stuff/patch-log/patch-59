@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-59
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sat Aug 13 03:57:23 CEST 2005
+Standard-date: 2005-08-13 01:57:23 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_guard.hpp smoc_moc.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-59
+Summary: 
+ * Broken release of VPC coupling for later correction
+Keywords: 
+
+
+

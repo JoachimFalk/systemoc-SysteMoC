@@ -1,0 +1,25 @@
+Revision: SysteMoC--mainline--0.9.1--patch-45
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Mon Oct 19 10:38:33 CEST 2009
+Standard-date: 2009-10-19 08:38:33 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/smoc_func_call.hpp
+    smoc-core/SMXDumper.cpp smoc-core/smoc_firing_rules.cpp
+    smoc-core/smoc_func_call.cpp
+    smoc-core/smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-122
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-45
+Summary: 
+  * Merge from SysteMoC--devel--0.9--patch-122
+  - RuntimeTransition cleanup.
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-122
+   
+ * RuntimeTransition cleanup.
+

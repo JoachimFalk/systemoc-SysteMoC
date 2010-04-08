@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-132
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun 27 21:24:31 CEST 2008
+Standard-date: 2008-06-27 19:24:31 GMT
+Modified-files: Makefile.am configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-132
+Summary: 
+ * Update configure.in and Makefile.am only enable WSDF if LibWSDF was found
+Keywords: 
+
+
+

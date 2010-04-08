@@ -1,0 +1,19 @@
+Revision: SysteMoC--devel--0.8--patch-20
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May 30 13:00:02 CEST 2008
+Standard-date: 2008-05-30 11:00:02 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_sysc_port.hpp
+    pkginclude/systemoc/smoc_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-20
+Summary: 
+ * Eliminated push_interface, can be implemented by add_interfaces directly
+ * Changed visibility level of bind(sc_interface &) and bind(smoc_sysc_port &)
+   to protected like equivalent functionallity in SystemC
+ * Add public visible bind(<concrete interface> &) and
+   bind(<concrete port type> &) to smoc_port_base<IFACE>
+
+Keywords: 
+
+
+

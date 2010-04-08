@@ -1,0 +1,20 @@
+Revision: SysteMoC--mainline--0.8--patch-30
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Apr 16 08:52:50 CEST 2008
+Standard-date: 2008-04-16 06:52:50 GMT
+Modified-files: pkginclude/systemoc/smoc_storage.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-181
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-30
+Summary: 
+  - merge from SysteMoC--mainline--0.6--patch-181
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-181
+   
+ - Bugfix in signature of fireModified() in smoc_storage.hpp 
+

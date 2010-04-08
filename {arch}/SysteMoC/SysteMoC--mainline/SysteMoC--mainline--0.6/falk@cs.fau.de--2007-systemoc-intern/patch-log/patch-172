@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-172
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Feb  8 09:05:05 CET 2008
+Standard-date: 2008-02-08 08:05:05 GMT
+Modified-files: pkginclude/systemoc/smoc_expr.hpp
+    pkginclude/systemoc/smoc_port.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-172
+Summary: 
+ - added expression evaluator CommitCount:
+   quantify number of commited tokens per transition (guard)
+Keywords: 
+
+
+

@@ -1,0 +1,16 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-31
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Tue Nov 21 18:08:15 CET 2006
+Standard-date: 2006-11-21 17:08:15 GMT
+Modified-files: smoc_guard.hpp smoc_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-31
+Summary: 
+ * Do not dump status of activation pattern in sensitivity list generation
+   in finalize (end of elaboration phase) as that may call guards which
+   operate on as yet unititialized data
+
+Keywords: 
+
+
+

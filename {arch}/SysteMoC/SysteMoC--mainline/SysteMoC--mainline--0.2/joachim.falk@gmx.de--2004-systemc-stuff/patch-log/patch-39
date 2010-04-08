@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.2--patch-39
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Jun  2 14:43:37 CEST 2005
+Standard-date: 2005-06-02 12:43:37 GMT
+Modified-files: configure.in
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-39
+Summary: 
+ * patched configure.in hscd => smoc
+Keywords: 
+
+
+

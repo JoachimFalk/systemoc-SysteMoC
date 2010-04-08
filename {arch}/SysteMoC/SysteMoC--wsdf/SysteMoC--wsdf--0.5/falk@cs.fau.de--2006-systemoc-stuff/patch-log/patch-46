@@ -1,0 +1,40 @@
+Revision: SysteMoC--wsdf--0.5--patch-46
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jan 30 21:19:55 CET 2007
+Standard-date: 2007-01-30 20:19:55 GMT
+New-files: wsdf/.arch-ids/=id
+New-directories: wsdf wsdf/.arch-ids
+Renamed-files: .arch-ids/smoc_md_array.hpp.id wsdf/.arch-ids/smoc_md_array.hpp.id
+    .arch-ids/smoc_md_array_access.hpp.id wsdf/.arch-ids/smoc_md_array_access.hpp.id
+    .arch-ids/smoc_md_buffer.cpp.id wsdf/.arch-ids/smoc_md_buffer.cpp.id
+    .arch-ids/smoc_md_buffer.hpp.id wsdf/.arch-ids/smoc_md_buffer.hpp.id
+    .arch-ids/smoc_md_fifo.hpp.id wsdf/.arch-ids/smoc_md_fifo.hpp.id
+    .arch-ids/smoc_md_loop.cpp.id wsdf/.arch-ids/smoc_md_loop.cpp.id
+    .arch-ids/smoc_md_loop.hpp.id wsdf/.arch-ids/smoc_md_loop.hpp.id
+    .arch-ids/smoc_md_port.cpp.id wsdf/.arch-ids/smoc_md_port.cpp.id
+    .arch-ids/smoc_md_port.hpp.id wsdf/.arch-ids/smoc_md_port.hpp.id
+    .arch-ids/smoc_vector.hpp.id wsdf/.arch-ids/smoc_vector.hpp.id
+    .arch-ids/smoc_wsdf_edge.cpp.id wsdf/.arch-ids/smoc_wsdf_edge.cpp.id
+    .arch-ids/smoc_wsdf_edge.hpp.id wsdf/.arch-ids/smoc_wsdf_edge.hpp.id
+    smoc_md_array.hpp wsdf/smoc_md_array.hpp
+    smoc_md_array_access.hpp wsdf/smoc_md_array_access.hpp
+    smoc_md_buffer.cpp wsdf/smoc_md_buffer.cpp
+    smoc_md_buffer.hpp wsdf/smoc_md_buffer.hpp
+    smoc_md_fifo.hpp wsdf/smoc_md_fifo.hpp
+    smoc_md_loop.cpp wsdf/smoc_md_loop.cpp
+    smoc_md_loop.hpp wsdf/smoc_md_loop.hpp
+    smoc_md_port.cpp wsdf/smoc_md_port.cpp
+    smoc_md_port.hpp wsdf/smoc_md_port.hpp
+    smoc_vector.hpp wsdf/smoc_vector.hpp
+    smoc_wsdf_edge.cpp wsdf/smoc_wsdf_edge.cpp
+    smoc_wsdf_edge.hpp wsdf/smoc_wsdf_edge.hpp
+Modified-files: Makefile.am configure.in smoc_graph_type.hpp
+    wsdf/smoc_md_array_access.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-46
+Summary: 
+ * Added --enable-wsdf switch to disable wsdf
+Keywords: 
+
+
+

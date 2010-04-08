@@ -1,0 +1,14 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-23
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Fri Oct 27 18:52:03 CEST 2006
+Standard-date: 2006-10-27 16:52:03 GMT
+New-files: .arch-ids/doxygen.cfg.id doxygen.cfg
+Modified-files: Makefile.am configure.in
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-23
+Summary: 
+ * Added doxygen-doc target support
+Keywords: 
+
+
+

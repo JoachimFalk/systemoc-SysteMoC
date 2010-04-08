@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.4--patch-106
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jun 27 16:52:08 CEST 2006
+Standard-date: 2006-06-27 14:52:08 GMT
+Modified-files: smoc_chan_if.cpp smoc_chan_if.hpp
+    smoc_fifo.hpp smoc_graph_type.cpp smoc_port.hpp
+    smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-106
+Summary: 
+ * Changed fifo name format from 'smoc_fifo_<nr>' to '<from-actor-name>_<to-actor-name>_<nr>'
+Keywords: 
+
+
+

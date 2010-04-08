@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-124
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jul 13 18:41:28 CEST 2007
+Standard-date: 2007-07-13 16:41:28 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    pkginclude/systemoc/hscd_tdsim_TraceLog.hpp
+    smoc_fifo.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-124
+Summary: 
+ * Disable traceStartDeferredCommunication and traceEndDeferredCommunication
+Keywords: 
+
+
+

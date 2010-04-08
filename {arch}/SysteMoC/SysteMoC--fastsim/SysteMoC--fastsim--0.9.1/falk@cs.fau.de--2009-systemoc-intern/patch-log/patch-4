@@ -1,0 +1,13 @@
+Revision: SysteMoC--fastsim--0.9.1--patch-4
+Archive: falk@cs.fau.de--2009-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Thu Aug 27 10:58:59 CEST 2009
+Standard-date: 2009-08-27 08:58:59 GMT
+Modified-files: smoc-core/smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2009-systemoc-intern/SysteMoC--fastsim--0.9.1--patch-4
+Summary:
+  * Reset cached transition if signaled and executing 
+Keywords: 
+
+
+

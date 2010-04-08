@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-86
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Sep 15 17:43:25 CEST 2005
+Standard-date: 2005-09-15 15:43:25 GMT
+Modified-files: smoc_firing_rules.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-86
+Summary: 
+ * Fixed SysteMoC debug to use std::cout instead of std::cerr for call logging 
+Keywords: 
+
+
+

@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.2--patch-32
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Fri May 27 09:18:15 CEST 2005
+Standard-date: 2005-05-27 07:18:15 GMT
+Modified-files: hscd_chan_if.hpp hscd_fifo.hpp
+    hscd_firing_rules.cpp hscd_firing_rules.hpp
+    hscd_port.hpp hscd_rendezvous.hpp hscd_root_port.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-32
+Summary: 
+ - comment out faulty maxCommittable logic
+Keywords: 
+
+
+

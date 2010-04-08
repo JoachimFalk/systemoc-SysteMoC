@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-81
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May 31 14:17:07 CEST 2006
+Standard-date: 2006-05-31 12:17:07 GMT
+Modified-files: smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-81
+Summary: 
+ * Dead code elimination
+Keywords: 
+
+
+

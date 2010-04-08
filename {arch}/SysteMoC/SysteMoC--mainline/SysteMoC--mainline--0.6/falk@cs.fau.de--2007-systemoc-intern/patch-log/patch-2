@@ -1,0 +1,52 @@
+Revision: SysteMoC--mainline--0.6--patch-2
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Jan 31 10:26:42 CET 2007
+Standard-date: 2007-01-31 09:26:42 GMT
+New-files: .arch-ids/COPYRIGHT.id .arch-ids/LICENSE-NAME.id
+    .arch-ids/LICENSE.id COPYRIGHT LICENSE LICENSE-NAME
+Renamed-files: .arch-ids/COPYING.LIB.id .arch-ids/LICENSE-LGPL.id
+    COPYING.LIB LICENSE-LGPL
+Modified-files: hscd_fifo.hpp hscd_graph_type.hpp
+    hscd_moc.hpp hscd_node_types.hpp hscd_op.hpp
+    hscd_pggen.hpp hscd_port.hpp hscd_root_port_list.hpp
+    hscd_scheduler.hpp hscd_structure.hpp
+    hscd_tdsim_TraceLog.cpp hscd_tdsim_TraceLog.hpp
+    smoc_chan_if.cpp smoc_chan_if.hpp smoc_event.hpp
+    smoc_expr.cpp smoc_expr.hpp smoc_fifo.cpp smoc_fifo.hpp
+    smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_graph_type.cpp smoc_graph_type.hpp smoc_guard.hpp
+    smoc_moc.cpp smoc_moc.hpp smoc_node_types.hpp
+    smoc_pggen.cpp smoc_pggen.hpp smoc_port.cpp smoc_port.hpp
+    smoc_rendezvous.cpp smoc_rendezvous.hpp
+    smoc_root_node.cpp smoc_root_node.hpp smoc_root_port.cpp
+    smoc_root_port.hpp smoc_storage.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-27
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-28
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-29
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-2
+summary: 
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Added (C) Hardware-Software-CoDesign to every file added COPYRIGHT
+   and LICENSE files
+ - Updated copyright boilerplate from COPYRIGHT
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-27
+   
+ * Added (C) Hardware-Software-CoDesign to every file added COPYRIGHT
+   and LICENSE files
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-28
+   
+ * Typo fix in COPYRIGHT text
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-29
+   
+ * Updated copyright boilerplate from COPYRIGHT
+

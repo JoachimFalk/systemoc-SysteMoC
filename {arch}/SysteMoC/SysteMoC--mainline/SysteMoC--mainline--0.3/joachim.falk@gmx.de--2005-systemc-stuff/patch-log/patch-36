@@ -1,0 +1,29 @@
+Revision: SysteMoC--mainline--0.3--patch-36
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Aug 10 19:33:02 CEST 2005
+Standard-date: 2005-08-10 17:33:02 GMT
+New-files: .arch-ids/hscd_fifo.hpp.id
+    .arch-ids/hscd_node_types.hpp.id
+    .arch-ids/hscd_pggen.hpp.id .arch-ids/hscd_port.hpp.id
+    .arch-ids/hscd_root_port_list.hpp.id hscd_fifo.hpp
+    hscd_node_types.hpp hscd_pggen.hpp hscd_port.hpp
+    hscd_root_port_list.hpp
+Renamed-files: dust-bin/.arch-ids/hscd_op.hpp.id .arch-ids/hscd_op.hpp.id
+    dust-bin/.arch-ids/hscd_scheduler.hpp.id .arch-ids/hscd_scheduler.hpp.id
+    dust-bin/.arch-ids/hscd_structure.hpp.id .arch-ids/hscd_structure.hpp.id
+    dust-bin/hscd_op.hpp hscd_op.hpp
+    dust-bin/hscd_scheduler.hpp hscd_scheduler.hpp
+    dust-bin/hscd_structure.hpp hscd_structure.hpp
+Modified-files: .arch-ids/hscd_op.hpp.id
+    .arch-ids/hscd_scheduler.hpp.id
+    .arch-ids/hscd_structure.hpp.id Makefile.am hscd_op.hpp
+    hscd_scheduler.hpp hscd_structure.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-36
+Summary: 
+ * Now support old syntax of SysteMoC V1.0 again
+ - But execution behaviour still buggy
+Keywords: 
+
+
+

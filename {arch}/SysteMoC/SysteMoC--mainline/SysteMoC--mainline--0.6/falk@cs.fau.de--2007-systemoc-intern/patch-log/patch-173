@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.6--patch-173
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Sebastian Graf <graf@codesign.informatik.uni-erlangen.de>
+Date: Fri Feb  8 14:25:03 CET 2008
+Standard-date: 2008-02-08 13:25:03 GMT
+Modified-files: pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-173
+Summary: 
+  - added connect(smoc_port_in) to smoc_multicast_sr_signal
+Keywords: 
+
+
+

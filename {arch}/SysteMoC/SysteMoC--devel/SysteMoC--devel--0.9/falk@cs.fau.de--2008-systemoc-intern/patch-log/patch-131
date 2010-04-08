@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-131
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Nov  9 11:10:48 CET 2009
+Standard-date: 2009-11-09 10:10:48 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-131
+Summary: 
+ * @configure.in removed stdout debugging code.
+Keywords: 
+
+
+

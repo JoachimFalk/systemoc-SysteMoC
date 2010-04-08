@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.8--patch-29
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Apr 16 08:52:28 CEST 2008
+Standard-date: 2008-04-16 06:52:28 GMT
+Modified-files: pkginclude/systemoc/smoc_storage.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-180
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-29
+Summary: 
+  - merge from SysteMoC--mainline--0.6--patch-180
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-180
+   
+ - ChannelModificationListener called on both, put and get of tokens:
+ write/read access may conflict with channel (in-)validation
+

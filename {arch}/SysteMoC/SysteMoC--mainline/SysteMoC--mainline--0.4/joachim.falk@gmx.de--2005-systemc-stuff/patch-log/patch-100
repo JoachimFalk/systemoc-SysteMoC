@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-100
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jun 21 12:21:46 CEST 2006
+Standard-date: 2006-06-21 10:21:46 GMT
+Modified-files: smoc_fifo.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-100
+Summary: 
+ * BUGFIX for !defined(ENABLE_SYSTEMC_VPC) code path in smoc_fifo.hpp
+Keywords: 
+
+
+

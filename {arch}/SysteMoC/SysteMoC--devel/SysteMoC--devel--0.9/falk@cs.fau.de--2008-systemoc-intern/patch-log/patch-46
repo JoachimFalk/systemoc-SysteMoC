@@ -1,0 +1,29 @@
+Revision: SysteMoC--devel--0.9--patch-46
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May 27 11:53:28 CEST 2009
+Standard-date: 2009-05-27 09:53:28 GMT
+New-files: pkginclude/smoc/detail/.arch-ids/=id
+    pkginclude/smoc/detail/.arch-ids/IdPool.hpp.id
+    pkginclude/smoc/detail/.arch-ids/IdTAllocRequest.hpp.id
+    pkginclude/smoc/detail/IdPool.hpp
+    pkginclude/smoc/detail/IdTAllocRequest.hpp
+New-directories: pkginclude/smoc/detail
+    pkginclude/smoc/detail/.arch-ids
+Renamed-files: pkginclude/systemoc/detail/.arch-ids/IdedObj.hpp.id pkginclude/smoc/detail/.arch-ids/IdedObj.hpp.id
+    pkginclude/systemoc/detail/.arch-ids/NamedIdedObj.hpp.id pkginclude/smoc/detail/.arch-ids/NamedIdedObj.hpp.id
+    pkginclude/systemoc/detail/IdedObj.hpp pkginclude/smoc/detail/IdedObj.hpp
+    pkginclude/systemoc/detail/NamedIdedObj.hpp pkginclude/smoc/detail/NamedIdedObj.hpp
+Modified-files: pkginclude/Makefile.am
+    pkginclude/smoc/SimulationCTX.hpp
+    pkginclude/smoc/detail/IdedObj.hpp
+    pkginclude/smoc/detail/NamedIdedObj.hpp
+    pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-46
+Summary: 
+ * Begin of own SysteMoC IdPool work.
+Keywords: 
+
+
+

@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.8--patch-82
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu May 15 15:24:05 CEST 2008
+Standard-date: 2008-05-15 13:24:05 GMT
+New-files: pkginclude/.arch-ids/Makefile.am.id
+    pkginclude/Makefile.am
+Modified-files: Makefile.am configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-82
+Summary: 
+ * Fixed include header installation
+Keywords: 
+
+
+

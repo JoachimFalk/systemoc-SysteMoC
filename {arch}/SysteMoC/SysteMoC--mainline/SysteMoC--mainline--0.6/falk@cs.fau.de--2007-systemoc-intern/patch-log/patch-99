@@ -1,0 +1,25 @@
+Revision: SysteMoC--mainline--0.6--patch-99
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon May  7 17:28:31 CEST 2007
+Standard-date: 2007-05-07 15:28:31 GMT
+Modified-files: wsdf/buffer_analysis/smoc_md_ba_linearized_buffer_schedule.cpp
+    wsdf/buffer_analysis/smoc_md_ba_linearized_buffer_schedule.hpp
+    wsdf/smoc_md_buffer.hpp wsdf/smoc_md_fifo.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-99
+Summary: 
+
+smoc_md_buffer
+- Add function to destroy buffer
+
+smoc_md_fifo
+- Destroy buffer analysis object
+
+smoc_mb_ba_lin_buffer_schedule
+- Propagate filename for results
+- Change output format
+- Change default buffer height
+
+
+Keywords: 
+

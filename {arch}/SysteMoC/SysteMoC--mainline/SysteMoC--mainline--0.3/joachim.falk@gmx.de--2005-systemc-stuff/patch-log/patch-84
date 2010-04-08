@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.3--patch-84
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Sep 15 16:12:33 CEST 2005
+Standard-date: 2005-09-15 14:12:33 GMT
+Modified-files: smoc_graph_type.cpp smoc_moc.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-84
+Summary: 
+ * Moved test for is_v1_actor out of getNodes into
+   the code pathes which require it
+ - smoc_graph_petri::finalize
+ - smoc_scheduler_ndf::schedule
+Keywords: 
+
+
+

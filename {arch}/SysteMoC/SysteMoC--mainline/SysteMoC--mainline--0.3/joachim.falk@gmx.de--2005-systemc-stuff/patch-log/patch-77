@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-77
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep 14 18:36:13 CEST 2005
+Standard-date: 2005-09-14 16:36:13 GMT
+Modified-files: smoc_graph_type.hpp smoc_node_types.hpp
+    smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-77
+Summary: 
+ * Now only smoc_root_node is derived from smoc_modes::smoc_modes_base_structure
+Keywords: 
+
+
+

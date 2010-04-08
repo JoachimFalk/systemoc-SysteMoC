@@ -1,0 +1,253 @@
+Revision: SysteMoC--devel--0.9--patch-111
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep  2 13:01:26 CEST 2009
+Standard-date: 2009-09-02 11:01:26 GMT
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-111
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--base-0
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-1
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-2
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-3
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-4
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-5
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-6
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-7
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-8
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-9
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-10
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-11
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-12
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-13
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-14
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-15
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-16
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-17
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-18
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-19
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-20
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-21
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-22
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-23
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-24
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-25
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-26
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-27
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-28
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-29
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-30
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-31
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-32
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-33
+Summary: 
+ * Dummy syncup to SysteMoC--mainline--0.9.1 branch
+Keywords: 
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--base-0
+   tag of falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-29
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-1
+   
+ * Merge merge from the SysteMoC--devel--0.9 branch
+ - Implemented smx dumping via LibSGX (Version with sgx pointers in the smoc actors)
+   This patch needs
+   HscdSupport--mainline--0.8 >= patch-77 and
+   LibSGX--mainline--0.3 >= patch-95
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-2
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Added --export-trace option which is only provided iff configure enables tracing support (--enable-trace/--disable-trace)
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-3
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Removed obsolete constructor parameter registration code
+ - Also dump name of constructor parameter (This augments smx dumping)
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-4
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Check state names for invalid characters
+ - Provide default state names
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-5
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Dump actions (This augments smx dumping)
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-6
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Use Op{Bin,Un}T with LibSGX if SYSTEMOC_ENABLE_SGX is defined
+ - Activation pattern dumping
+ - Fixed various compile errors if SYSTEMOC_ENABLE_SGX
+   is NOT defined
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-7
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Remove check for invalid state name in RuntimeState
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-8
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Transition id dumping. This patch requires
+     LibSGX--mainline--0.3 >= patch-101
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-9
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Introduced SimulationCTX
+ - SimulationCTX => smoc_simulation_ctx.
+   RATIONALE: Lets leave all user visible classes with the SystemC naming
+   style. The classes in the Detail namespace will use java style. They should
+   not be used by the user anyway. Classes in the SysteMoC namespace should be
+   defined by headers in the smoc subdir. The old headers in the systemoc
+   subdir will slowly be migrated to the smoc subdir and a dummy header in
+   systemoc will pull the class in the SysteMoC namespace defined in the header
+   file in the smoc subdir into the global namespace.
+ - Moved global variables into smoc_simulation_ctx class. There is still a global var pointing to an
+   instance of this class which is access via the SimCTXBase::getSimCTX() method. In the future we
+   may eliminate this global var to support diffrent SysteMoC designs in one big simulation.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-10
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Fixed SYSTEMOC_DEBUG compile.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-11
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Prefix RuntimeState name with actor name containing the firing FSM.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-12
+   
+ * Merge merge from the SysteMoC--devel--0.9 branch
+ - Implemented smx dumping via LibSGX
+   (Version with visitor concept. There are no longer
+    any sgx pointers in the smoc actors)
+   This patch needs
+     HscdSupport--mainline--0.8 >= patch-87 and
+     LibSGX--mainline--0.3 >= patch-104
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-13
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Added new RTX hack! dynamic_cast<...>(..) has problems in the RTX environment.
+   Who the hell knows why! This disables the public virtual sc_interface derivation
+   as this requires a dynamic_cast.
+ - Added another RTX dynamic_cast<...>(...) hack!
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-14
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Improved option handling. Now all SysteMoC options begin with --systemoc.
+   The old options are still supported but not shown with the --systemoc-help option.
+ - The --systemoc-export-sim-smx option works again.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-15
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Fixup RuntimeState name generation in smoc_firing_rules.
+   Always generate state names with '<actor name>:' prefix.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-16
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Change SGX AST dumping to use AST Visitor concept.
+ - Eliminated SysteMoC ASTNodes replacing them with an Expr visitor concept.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-17
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Update COPYRIGHT boilerplate.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-18
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Better debugging in SMXDumper.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-19
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Implemented --systemoc-export-smx-no-ast option.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-20
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Dump hierarchical fsm state names.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-21
+   
+ * Merge from SysteMoC--devel--0.9 branch
+ - Changed AND state syntax: partitions must be added by user now
+   IMPORTANT: This is a user visible change for the SysteMoC syntax of
+   hierarchical state machines. There is no backward compatibility provided by
+   this patch the SysteMoC application has to be changed to conform to the new
+   hierarchical FSM style.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-22
+   
+ * Dummy commit.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-23
+   
+  * Merge from SysteMoC--devel--0.9--patch-89
+  - Reset functionality (of channels only smoc_fifo supported currently)
+  - Revamped SYSTEMOC_DEBUG output (added debug stream with levels) 
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-24
+   
+  * Merge from SysteMoC--devel--0.9--patch-90
+  - Implemented reset for multireader fifos 
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-25
+   
+  * Merge from SysteMoC--devel--0.9--patch-91
+  - Implemented reset for multiplex fifos 
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-26
+   
+  * Merge from SysteMoC--devel--0.9--patch-92
+  - Cleaned up smoc_reset.hpp 
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-27
+   
+  * Merge from SysteMoC--devel--0.9--patch-93
+  - Fixup smoc_simulation_ctx to use own argv array and not globber passed argv array. 
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-28
+   
+  * Merge from SysteMoC--devel--0.9--patch-94
+  - smoc-core/IdPool.cpp use CoSupport::Math::FNV instead of deprecated CoSupport::FNV
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-29
+   
+  * Merge from SysteMoC--devel--0.9--patch-96
+  - Re-introduced FIFO initialization during start_of_simulation()
+    (handles SysteMoC FIFOs not contained in the SysteMoC hierarchy)
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-30
+   
+  * Merge from SysteMoC--devel--0.9--patch-97
+  - Added explicit priorities for transitions
+  - Fixed reset
+  - Fixed conflict bug quickhack 
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-31
+   
+  * Merge from SysteMoC--devel--0.9--patch-98
+  - Simplified transition priority calculation
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-32
+   
+  * Merge from SysteMoC--devel--0.9--patch-100
+  - fixed doReset() of multireader fifo
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-33
+   
+  * Merge from SysteMoC--devel--0.9--patch-102
+  - Removed spurious assert in multireader fifo 
+

@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.6--patch-60
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Feb 21 16:19:30 CET 2007
+Standard-date: 2007-02-21 15:19:30 GMT
+Modified-files: smoc_pggen.cpp systemoc/smoc_pggen.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-60
+Summary: 
+ * Use CoSupport::FilterOstream with CoSupport::IndentStreambuf for indentation
+
+Keywords: 
+
+
+

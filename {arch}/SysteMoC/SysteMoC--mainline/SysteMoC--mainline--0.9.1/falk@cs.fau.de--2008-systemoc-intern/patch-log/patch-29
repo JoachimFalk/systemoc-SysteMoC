@@ -1,0 +1,27 @@
+Revision: SysteMoC--mainline--0.9.1--patch-29
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri Jul 10 12:53:06 CEST 2009
+Standard-date: 2009-07-10 10:53:06 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    smoc-core/smoc_multireader_fifo.cpp
+    smoc-core/smoc_reset.cpp smoc-core/smoc_root_chan.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-96
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-29
+Summary: 
+  * Merge from SysteMoC--devel--0.9--patch-96
+  - Re-introduced FIFO initialization during start_of_simulation()
+    (handles SysteMoC FIFOs not contained in the SysteMoC hierarchy)
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-96
+   
+  * Re-introduced FIFO initialization during start_of_simulation()
+    (handles SysteMoC FIFOs not contained in the SysteMoC hierarchy) 
+

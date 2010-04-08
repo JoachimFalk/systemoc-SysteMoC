@@ -1,0 +1,24 @@
+Revision: SysteMoC--mainline--0.6--patch-3
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Jan 31 10:27:39 CET 2007
+Standard-date: 2007-01-31 09:27:39 GMT
+Modified-files: smoc_graph_type.hpp smoc_moc.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-30
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-3
+Summary: 
+ * Merge changeset falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-30
+ - Added smoc_moc top(new T(xxx)) as substitute for smoc_moc_top<T> top(xxx)
+   no longer any problems with constructor argument passing
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-30
+   
+ * Added smoc_moc top(new T(xxx)) as substitute for smoc_moc_top<T> top(xxx)
+   no longer any problems with constructor argument passing
+

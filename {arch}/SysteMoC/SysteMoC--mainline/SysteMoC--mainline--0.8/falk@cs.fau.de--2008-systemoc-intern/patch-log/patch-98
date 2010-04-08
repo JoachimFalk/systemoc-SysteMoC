@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.8--patch-98
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Tue May 27 10:03:46 CEST 2008
+Standard-date: 2008-05-27 08:03:46 GMT
+Modified-files: pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-98
+Summary:
+  * updated smoc_multireader_fifo and smoc_multiplex_fifo
+    to use modified EventQueues
+Keywords: 
+
+
+

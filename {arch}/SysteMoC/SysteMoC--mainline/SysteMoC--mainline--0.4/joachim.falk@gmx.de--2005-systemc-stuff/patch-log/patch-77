@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-77
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May 31 11:48:51 CEST 2006
+Standard-date: 2006-05-31 09:48:51 GMT
+Modified-files: smoc_guard.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-77
+Summary: 
+ * Added ostream operator for smoc_activation_pattern::status_t
+Keywords: 
+
+
+

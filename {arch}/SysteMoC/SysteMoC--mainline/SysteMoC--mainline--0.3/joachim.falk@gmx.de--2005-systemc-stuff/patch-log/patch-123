@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-123
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Thu Jan 26 09:44:54 CET 2006
+Standard-date: 2006-01-26 08:44:54 GMT
+Modified-files: hscd_tdsim_TraceLog.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-123
+Summary: 
+ - removed useless prefix in stream output to allow tracing of SMoC1 actors
+Keywords: 
+
+
+

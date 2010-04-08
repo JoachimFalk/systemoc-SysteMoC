@@ -1,0 +1,53 @@
+Revision: SysteMoC--mainline--0.4--patch-38
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Feb 22 16:59:03 CET 2006
+Standard-date: 2006-02-22 15:59:03 GMT
+Modified-files: smoc_root_node.cpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-128
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-38
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-3
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-4
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-5
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-6
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - Added dumping of constructor parameters
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-128
+   
+ * Merge from SysteMoC--parsing--0.3
+ - Added dumping of constructor parameters
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-3
+   
+ * added dumping of constructor parameters
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-4
+   
+ * Merge from SysteMoC--mainline--0.3 branch
+ - provide const argument for actor actions and guards in elaboration phase via
+   CALL(action)(p1)(p2)...(pn) syntax
+   GUARD(guard)(p1)(p2)...(pn) syntax
+ - FIXME: can only use up to 4 arguments
+ - uses CoSupport::Functor and CoSupport::ConstFunctor from Support/functor.hpp
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-5
+   
+ * Merge from SysteMoC--mainline--0.3 branch
+ - removed useless prefix in stream output to allow tracing of SMoC1 actors
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-6
+   
+ * Merge from SysteMoC--mainline--0.3 branch
+ - Namespace of Support is now consistently  CoSupport
+ - Initial token dumping
+ - Added networkgraph.dtd
+ - Changed networkgraph dumping code to refer to new networkgraph.dtd
+

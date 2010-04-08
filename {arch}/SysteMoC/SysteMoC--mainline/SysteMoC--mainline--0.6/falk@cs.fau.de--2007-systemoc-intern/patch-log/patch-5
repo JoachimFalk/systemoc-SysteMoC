@@ -1,0 +1,28 @@
+Revision: SysteMoC--mainline--0.6--patch-5
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Jan 31 10:29:47 CET 2007
+Standard-date: 2007-01-31 09:29:47 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-32
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-5
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-123
+Summary: 
+ * Merge changeset SysteMoC--event-scheduler--0.5--patch-32
+ - create timestamp for each trace statement
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-32
+   
+ * Merge from SysteMoC--mainline--0.4 branch
+ - create timestamp for each trace statement
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-123
+   
+ - create timestamp for each trace statement
+

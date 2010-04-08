@@ -1,0 +1,15 @@
+Revision: SysteMoC--release--0.9.1--patch-4
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Nov 17 10:22:17 CET 2009
+Standard-date: 2009-11-17 09:22:17 GMT
+Modified-files: Makefile.am pkginclude/Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--release--0.9.1--patch-4
+Summary: 
+ * Fixup Makefile.am
+ - Added missing -lcosupport-math in case of non-sourcedir version
+ - Changed install headers from using smoc_config.h.in to smoc_config.h
+Keywords: 
+
+
+

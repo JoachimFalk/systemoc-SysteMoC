@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.1--patch-18
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Dec 10 18:05:32 CET 2004
+Standard-date: 2004-12-10 17:05:32 GMT
+New-files: Docu/.arch-ids/dining-philosophers.fig.id
+    Docu/.arch-ids/ng-sdf-example.fig.id
+    Docu/dining-philosophers.fig Docu/ng-sdf-example.fig
+Modified-files: Docu/literature.bib Docu/report.tex
+    hscd_moc.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-18
+Summary: 
+Keywords: 
+
+
+

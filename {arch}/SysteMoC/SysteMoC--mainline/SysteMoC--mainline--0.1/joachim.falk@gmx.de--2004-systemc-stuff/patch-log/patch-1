@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.1--patch-1
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Alexander Schuetz <schuetz.alexander@gmx.de>
+Date: Fri Oct 22 13:07:37 CEST 2004
+Standard-date: 2004-10-22 11:07:37 GMT
+New-files: Docu/.arch-ids/=id Docu/.arch-ids/Makefile.id
+    Docu/.arch-ids/README.id
+    Docu/.arch-ids/literature.bib.id
+    Docu/.arch-ids/report.tex.id Docu/README
+    Docu/literature.bib Docu/report.tex
+New-directories: Docu Docu/.arch-ids
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-1
+Summary: Added Docu
+Keywords: 
+
+
+

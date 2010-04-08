@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-161
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Sep 23 17:17:44 CEST 2008
+Standard-date: 2008-09-23 15:17:44 GMT
+Modified-files: smoc_root_chan.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-161
+Summary: 
+ * Increased assertion paranoia in smoc_nonconflicting_chan::assemble
+Keywords: 
+
+
+

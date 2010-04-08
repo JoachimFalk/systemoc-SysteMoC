@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-14
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug  4 17:57:41 CEST 2005
+Standard-date: 2005-08-04 15:57:41 GMT
+Modified-files: oneof.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-14
+Summary: 
+ * Added output operator for oneof template class
+Keywords: 
+
+
+

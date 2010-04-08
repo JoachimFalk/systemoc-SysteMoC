@@ -1,0 +1,19 @@
+Revision: SysteMoC--mainline--0.8--patch-107
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri May 30 17:47:12 CEST 2008
+Standard-date: 2008-05-30 15:47:12 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    smoc_multiplex_fifo.cpp smoc_root_chan.cpp
+    wsdf/smoc_md_fifo.hpp wsdf/smoc_md_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-107
+Summary:
+  * names for channels now passed as std::string
+  * fixed debug output for smoc_md_port 
+Keywords: 
+
+
+

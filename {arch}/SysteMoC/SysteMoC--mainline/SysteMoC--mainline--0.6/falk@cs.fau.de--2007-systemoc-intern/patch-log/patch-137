@@ -1,0 +1,35 @@
+Revision: SysteMoC--mainline--0.6--patch-137
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug 16 13:06:34 CEST 2007
+Standard-date: 2007-08-16 11:06:34 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    pkginclude/systemoc/hscd_node_types.hpp
+    pkginclude/systemoc/hscd_op.hpp
+    pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_md_array.hpp
+    pkginclude/systemoc/smoc_md_array_access.hpp
+    pkginclude/systemoc/smoc_md_ba_basic_tree.hpp
+    pkginclude/systemoc/smoc_md_ba_linearized_buffer.hpp
+    pkginclude/systemoc/smoc_md_ba_linearized_buffer_schedule.hpp
+    pkginclude/systemoc/smoc_md_ba_linearized_buffer_size.hpp
+    pkginclude/systemoc/smoc_md_buffer.hpp
+    pkginclude/systemoc/smoc_md_buffer_analysis.hpp
+    pkginclude/systemoc/smoc_md_chan_if.hpp
+    pkginclude/systemoc/smoc_md_fifo.hpp
+    pkginclude/systemoc/smoc_md_loop.hpp
+    pkginclude/systemoc/smoc_md_port.hpp
+    pkginclude/systemoc/smoc_node_types.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+    pkginclude/systemoc/smoc_root_port.hpp
+    pkginclude/systemoc/smoc_vector.hpp
+    pkginclude/systemoc/smoc_wsdf_edge.hpp smoc_chan_if.cpp
+    smoc_firing_rules.cpp smoc_graph_type.cpp smoc_moc.cpp
+    smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-137
+Summary: 
+ * Discarded myModule in smoc_root_node now derive directly from sc_module
+Keywords: 
+
+
+

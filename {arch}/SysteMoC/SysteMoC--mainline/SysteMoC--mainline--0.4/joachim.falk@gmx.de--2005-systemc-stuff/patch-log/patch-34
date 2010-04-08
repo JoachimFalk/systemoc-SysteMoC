@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.4--patch-34
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Feb 10 11:56:01 CET 2006
+Standard-date: 2006-02-10 10:56:01 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+    smoc_node_types.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-34
+Summary: 
+ * Added additional debug outputs
+Keywords: 
+
+
+

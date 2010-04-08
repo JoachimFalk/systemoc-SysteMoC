@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-52
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May  5 13:36:53 CEST 2008
+Standard-date: 2008-05-05 11:36:53 GMT
+Modified-files: smoc_graph_type.cpp smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-52
+Summary: 
+ * Added some more paranoia assertions
+Keywords: 
+
+
+

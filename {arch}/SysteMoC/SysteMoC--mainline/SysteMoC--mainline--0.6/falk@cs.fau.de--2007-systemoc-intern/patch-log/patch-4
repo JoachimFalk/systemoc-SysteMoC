@@ -1,0 +1,26 @@
+Revision: SysteMoC--mainline--0.6--patch-4
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Jan 31 10:28:30 CET 2007
+Standard-date: 2007-01-31 09:28:30 GMT
+Modified-files: smoc_guard.hpp smoc_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-31
+    falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-4
+Summary: 
+ * Merge changeset SysteMoC--event-scheduler--0.5--patch-31
+ - Do not dump status of activation pattern in sensitivity list generation
+   in finalize (end of elaboration phase) as that may call guards which
+   operate on as yet unititialized data
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-31
+   
+ * Do not dump status of activation pattern in sensitivity list generation
+   in finalize (end of elaboration phase) as that may call guards which
+   operate on as yet unititialized data
+

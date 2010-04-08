@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.1--patch-27
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Dec 22 19:21:30 CET 2004
+Standard-date: 2004-12-22 18:21:30 GMT
+Modified-files: Docu/literature.bib Docu/ng-dataflow.fig
+    Docu/report.tex
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.1--patch-27
+Summary: Added entries to literature.bib report spelling corrections, fixed dining philosopher SysteMoC code to resemble exmaple again, report writing in Aspect Overview section. Formalize node interface use state machine
+Keywords: 
+
+
+

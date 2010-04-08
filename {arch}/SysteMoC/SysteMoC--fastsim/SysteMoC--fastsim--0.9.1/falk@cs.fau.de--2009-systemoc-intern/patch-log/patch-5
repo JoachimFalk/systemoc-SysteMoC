@@ -1,0 +1,13 @@
+Revision: SysteMoC--fastsim--0.9.1--patch-5
+Archive: falk@cs.fau.de--2009-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Thu Aug 27 11:13:02 CEST 2009
+Standard-date: 2009-08-27 09:13:02 GMT
+Modified-files: pkginclude/smoc/detail/NamedIdedObj.hpp
+New-patches: falk@cs.fau.de--2009-systemoc-intern/SysteMoC--fastsim--0.9.1--patch-5
+Summary:
+  * Added virtual destructor to NamedIdedObj 
+Keywords: 
+
+
+

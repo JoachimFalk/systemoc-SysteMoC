@@ -1,0 +1,21 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-20
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Wed Oct 25 15:33:24 CEST 2006
+Standard-date: 2006-10-25 13:33:24 GMT
+Modified-files: smoc_chan_if.hpp smoc_fifo.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-20
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-2
+Summary: 
+ * Merge from SysteMoC--wsdf--0.5 branch
+ - Removed obsolete references from channel interface to smoc_port
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-2
+   
+ - Removed obsolete references from channel interface to smoc_port
+

@@ -1,0 +1,36 @@
+Revision: SysteMoC--devel--0.9--patch-45
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May 22 20:24:00 CEST 2009
+Standard-date: 2009-05-22 18:24:00 GMT
+New-files: .arch-ids/smoc_elab_and_sim.cpp.id
+    pkginclude/.arch-ids/smoc.hpp.id pkginclude/smoc.hpp
+    pkginclude/smoc/.arch-ids/=id
+    pkginclude/smoc/.arch-ids/SimulationCTX.hpp.id
+    pkginclude/smoc/SimulationCTX.hpp smoc_elab_and_sim.cpp
+New-directories: pkginclude/smoc pkginclude/smoc/.arch-ids
+Removed-files: .arch-ids/smoc_pggen.cpp.id
+    pkginclude/systemoc/detail/.arch-ids/smoc_pggen.hpp.id
+    pkginclude/systemoc/detail/smoc_pggen.hpp
+    smoc_pggen.cpp
+Renamed-files: .arch-ids/smoc_elab_and_sim.cpp.id .arch-ids/SimulationCTX.cpp.id
+    smoc_elab_and_sim.cpp SimulationCTX.cpp
+Modified-files: Makefile.am SimulationCTX.cpp
+    hscd_tdsim_TraceLog.cpp pkginclude/Makefile.am
+    pkginclude/systemoc/detail/smoc_chan_if.hpp
+    pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/detail/smoc_graph_synth.hpp
+    pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_pggen.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+    smoc_ast_systemoc.cpp smoc_expr.cpp smoc_guard.cpp
+    smoc_moc.cpp smoc_root_chan.cpp smoc_root_node.cpp
+    wsdf/smoc_md_buffer.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-45
+Summary: 
+ * Introduced SimulationCTX
+Keywords: 
+
+
+

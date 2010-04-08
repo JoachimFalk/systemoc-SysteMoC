@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-19
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Dec  6 12:04:55 CET 2005
+Standard-date: 2005-12-06 11:04:55 GMT
+Modified-files: smoc_root_node.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-19
+Summary: 
+ * Fixed _finalizeCalled in NDEBUG code bug
+Keywords: 
+
+
+

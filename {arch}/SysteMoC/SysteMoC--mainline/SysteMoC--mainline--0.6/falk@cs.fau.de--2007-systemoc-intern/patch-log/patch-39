@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.6--patch-39
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Feb 12 19:43:01 CET 2007
+Standard-date: 2007-02-12 18:43:01 GMT
+Modified-files: systemoc/smoc_expr.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-39
+Summary: 
+ * Added TypeFile support for --generate-problemgraph maps type
+   Expr::Detail::ENABLED => bool, Expr::Detail::DISABLED => bool
+Keywords: 
+
+
+

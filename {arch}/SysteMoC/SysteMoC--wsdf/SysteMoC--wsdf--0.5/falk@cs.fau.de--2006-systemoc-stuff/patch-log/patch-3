@@ -1,0 +1,38 @@
+Revision: SysteMoC--wsdf--0.5--patch-3
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Oct 25 17:09:58 CEST 2006
+Standard-date: 2006-10-25 15:09:58 GMT
+Modified-files: smoc_chan_if.cpp smoc_chan_if.hpp
+    smoc_fifo.hpp smoc_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-19
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-21
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-3
+Summary:
+ - Merge from falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5
+   (patch 19 + 21)
+ - Reordered fifo name generation to generate names consisting of
+   "cf_" << <from actor> << "_" << <to_actor> << "_" << <fifo nr>
+   which conforms to the standard used in SysteMoC 0.4
+ - Parameterized smoc_chan_(in|out)_if with access type
+   (formerly hardcoded smoc_ring_access)
+
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-19
+   
+ * Reordered fifo name generation to generate names consisting of 
+   "cf_" << <from actor> << "_" << <to_actor> << "_" << <fifo nr>
+   which conforms to the standard used in SysteMoC 0.4
+   
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-21
+   
+ * Parameterized smoc_chan_(in|out)_if with access type
+   (formerly hardcoded smoc_ring_access)
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-51
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Mar 24 13:19:37 CET 2006
+Standard-date: 2006-03-24 12:19:37 GMT
+Modified-files: smoc_graph_type.cpp smoc_root_node.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-51
+Summary: 
+ * SystemC 2.1v1 fixes
+Keywords: 
+
+
+

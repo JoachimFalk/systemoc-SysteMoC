@@ -1,0 +1,28 @@
+Revision: SysteMoC--mainline--0.5--patch-19
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Thu Oct 19 17:01:03 CEST 2006
+Standard-date: 2006-10-19 15:01:03 GMT
+Modified-files: configure.in smoc_chan_if.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-4
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-6
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-19
+Summary: 
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Replace `pwd` with $(top_builddir) for SYSTEMC_VPC_XXX
+ - Fixed warning
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-4
+   
+ * Replace `pwd` with $(top_builddir) for SYSTEMC_VPC_XXX
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-6
+   
+ * Fixed warning
+

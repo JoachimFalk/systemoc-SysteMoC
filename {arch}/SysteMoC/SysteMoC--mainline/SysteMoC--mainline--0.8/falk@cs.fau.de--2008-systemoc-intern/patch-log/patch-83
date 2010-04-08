@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-83
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri May 16 12:39:59 CEST 2008
+Standard-date: 2008-05-16 10:39:59 GMT
+Modified-files: pkginclude/Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-83
+Summary:
+  * fixed header installation 
+Keywords: 
+
+
+

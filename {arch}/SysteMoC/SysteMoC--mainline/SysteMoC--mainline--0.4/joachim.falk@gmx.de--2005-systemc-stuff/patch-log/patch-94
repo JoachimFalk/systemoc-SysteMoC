@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.4--patch-94
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun 16 10:00:37 CEST 2006
+Standard-date: 2006-06-16 08:00:37 GMT
+New-files: .arch-ids/hscd_graph_type.hpp.id
+    .arch-ids/hscd_moc.hpp.id hscd_graph_type.hpp
+    hscd_moc.hpp
+Modified-files: Makefile.am hscd_pggen.hpp
+    hscd_scheduler.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-94
+Summary: 
+ * Improved SysteMoC v0.1 compatibility layer
+Keywords: 
+
+
+

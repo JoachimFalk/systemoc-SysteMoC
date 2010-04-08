@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-58
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sat Aug 13 03:55:47 CEST 2005
+Standard-date: 2005-08-13 01:55:47 GMT
+Modified-files: smoc_node_types.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-58
+Summary: 
+ * Now provide vpc_event in smoc_actor class for later usage of VPC coupling
+Keywords: 
+
+
+

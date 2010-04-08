@@ -1,0 +1,18 @@
+Revision: SysteMoC--mainline--0.6--patch-44
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Feb 15 14:16:51 CET 2007
+Standard-date: 2007-02-15 13:16:51 GMT
+New-files: .arch-ids/smoc_expr.cpp.id smoc_expr.cpp
+Renamed-files: .arch-ids/smoc_expr.cpp.id .arch-ids/smoc_ast.cpp.id
+    smoc_expr.cpp smoc_ast.cpp
+Modified-files: Makefile.am smoc_ast.cpp
+    systemoc/smoc_ast.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-44
+Summary: 
+ * After migrating code for AST nodes from smoc_expr.hpp into smoc_ast.hpp
+   also migrate corresponding code from smoc_expr.cpp to smoc_ast.cpp
+Keywords: 
+
+
+

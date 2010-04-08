@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-105
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Jun  5 08:27:21 CEST 2007
+Standard-date: 2007-06-05 06:27:21 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    pkginclude/systemoc/hscd_tdsim_TraceLog.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-105
+Summary: 
+ - slimming systemoc traces through shorter xml tags
+   @hscd_tdsim_TraceLog.{c|h}pp
+Keywords: 
+
+
+

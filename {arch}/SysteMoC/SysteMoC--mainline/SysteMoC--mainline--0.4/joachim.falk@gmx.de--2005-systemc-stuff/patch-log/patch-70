@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-70
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May 10 17:52:17 CEST 2006
+Standard-date: 2006-05-10 15:52:17 GMT
+Modified-files: smoc_chan_if.hpp smoc_expr.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-70
+Summary: 
+ * gcc3.4 compile fixes
+Keywords: 
+
+
+

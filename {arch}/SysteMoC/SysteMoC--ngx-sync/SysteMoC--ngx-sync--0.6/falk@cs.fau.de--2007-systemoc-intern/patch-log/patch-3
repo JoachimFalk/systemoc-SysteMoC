@@ -1,0 +1,13 @@
+Revision: SysteMoC--ngx-sync--0.6--patch-3
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Fri Oct 26 10:36:40 CEST 2007
+Standard-date: 2007-10-26 08:36:40 GMT
+Modified-files: pkginclude/systemoc/smoc_pggen.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--ngx-sync--0.6--patch-3
+Summary: 
+  * IdPool: fixed a bug in unregObj
+Keywords: 
+
+
+

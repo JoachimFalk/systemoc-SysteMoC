@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.6--patch-114
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Jun 19 15:37:57 CEST 2007
+Standard-date: 2007-06-19 13:37:57 GMT
+Modified-files: pkginclude/systemoc/smoc_port.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-114
+Summary: 
+ - tokenIsValid has to be const (if called from GUARDs)
+Keywords: 
+
+
+

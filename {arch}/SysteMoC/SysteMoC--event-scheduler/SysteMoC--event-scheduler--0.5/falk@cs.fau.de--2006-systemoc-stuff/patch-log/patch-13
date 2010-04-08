@@ -1,0 +1,13 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-13
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Wed Oct 18 19:20:10 CEST 2006
+Standard-date: 2006-10-18 17:20:10 GMT
+Modified-files: hscd_node_types.hpp smoc_root_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-13
+Summary: 
+ * Fixed previous fix
+Keywords: 
+
+
+

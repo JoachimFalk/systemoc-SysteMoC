@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.4--patch-114
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Sep 12 12:55:38 CEST 2006
+Standard-date: 2006-09-12 10:55:38 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-114
+Summary: 
+ * Moved smoc_firing_state constructor code into smoc_firing_rules.cpp
+ * Added missing sc_object(sc_gen_unique_name("smoc_firing_state"))
+   base class initializers to smoc_firing_state constructors
+Keywords: 
+
+
+

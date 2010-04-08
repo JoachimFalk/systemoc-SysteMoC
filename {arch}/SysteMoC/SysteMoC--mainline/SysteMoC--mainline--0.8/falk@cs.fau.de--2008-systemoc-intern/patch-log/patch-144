@@ -1,0 +1,18 @@
+Revision: SysteMoC--mainline--0.8--patch-144
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Jul 16 17:17:43 CEST 2008
+Standard-date: 2008-07-16 15:17:43 GMT
+Modified-files: pkginclude/systemoc/smoc_ast_common.hpp
+    pkginclude/systemoc/smoc_expr.hpp smoc_ast_common.cpp
+    smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-144
+Summary:
+  * suppress dumping of comm state
+  * dump parameter infos (type, value) for guard parameters
+  * TODO: deprecate action="" attribute of transition, dump
+    ComplexAction and subsequently action paramter infos
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-158
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May 26 12:23:55 CEST 2006
+Standard-date: 2006-05-26 10:23:55 GMT
+Modified-files: hscd_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-158
+Summary: 
+ * More gcc-3.4 compile fixes
+Keywords: 
+
+
+

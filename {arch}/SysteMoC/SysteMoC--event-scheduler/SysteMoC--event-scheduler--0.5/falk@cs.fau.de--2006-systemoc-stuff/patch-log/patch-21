@@ -1,0 +1,14 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-21
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Wed Oct 25 16:33:27 CEST 2006
+Standard-date: 2006-10-25 14:33:27 GMT
+Modified-files: smoc_chan_if.hpp smoc_fifo.hpp smoc_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-21
+Summary: 
+ * Parameterized smoc_chan_(in|out)_if with access type
+   (formerly hardcoded smoc_ring_access)
+Keywords: 
+
+
+

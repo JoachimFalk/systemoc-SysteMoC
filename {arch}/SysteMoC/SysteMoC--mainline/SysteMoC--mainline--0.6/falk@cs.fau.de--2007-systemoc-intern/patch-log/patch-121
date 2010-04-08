@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-121
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Jul  6 11:01:07 CEST 2007
+Standard-date: 2007-07-06 09:01:07 GMT
+Modified-files: pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-121
+Summary: 
+ - implemented const char * name() char from smoc_chan_{out|in}_base_if
+ in smoc_multicast_{entry|outlet}
+ @ smoc_multicast_sr_signal.hpp
+Keywords: 
+
+
+

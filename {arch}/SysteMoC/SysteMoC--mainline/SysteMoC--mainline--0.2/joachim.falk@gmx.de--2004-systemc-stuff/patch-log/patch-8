@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.2--patch-8
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jan 25 23:01:06 CET 2005
+Standard-date: 2005-01-25 22:01:06 GMT
+New-files: Docu/.arch-ids/example-self-loop.fig.id
+    Docu/example-self-loop.fig
+Modified-files: Docu/example-tsm-composition.fig
+    Docu/report.tex
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-8
+Summary: Commit for checkout at home
+Keywords: 
+
+
+

@@ -1,0 +1,20 @@
+Revision: SysteMoC--mainline--0.8--patch-14
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Mon Feb 25 10:56:26 CET 2008
+Standard-date: 2008-02-25 09:56:26 GMT
+Modified-files: wsdf/buffer_analysis/smoc_md_ba_linearized_buffer_schedule.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-167
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-14
+Summary: 
+  - merge from SysteMoC--mainline--0.6--patch-167
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-167
+   
+ - WSDF: Fix schedule determination: Remove window / effective token
+

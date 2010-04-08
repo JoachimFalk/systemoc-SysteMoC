@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-166
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Nov  7 21:22:39 CET 2008
+Standard-date: 2008-11-07 20:22:39 GMT
+Modified-files: Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-166
+Summary: 
+ * Update Makefile.am for automake 1.10
+Keywords: 
+
+
+

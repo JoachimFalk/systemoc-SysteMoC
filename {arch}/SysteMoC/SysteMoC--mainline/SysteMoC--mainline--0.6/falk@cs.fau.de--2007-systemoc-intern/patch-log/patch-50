@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.6--patch-50
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Feb 16 19:05:44 CET 2007
+Standard-date: 2007-02-16 18:05:44 GMT
+Modified-files: systemoc/smoc_ast_common.hpp
+    systemoc/smoc_ast_systemoc.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-50
+Summary: 
+ * Added TypePortIdentifier to abstract systemoc datatypes away from the ast node hierarchy 
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.2--patch-18
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Feb 25 20:12:26 CET 2005
+Standard-date: 2005-02-25 19:12:26 GMT
+Modified-files: hscd_graph_type.cpp hscd_graph_type.hpp
+    hscd_moc.hpp hscd_root_node.cpp hscd_root_port_list.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-18
+Summary: registerNode no longer neccessary
+Keywords: 
+
+
+

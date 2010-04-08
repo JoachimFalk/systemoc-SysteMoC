@@ -1,0 +1,34 @@
+/* vim: set sw=2 ts=8 syn=c: */
+
+#ifndef _INCLUDED_SMOC_CONFIG_H
+#define _INCLUDED_SMOC_CONFIG_H
+
+/* Defined to SysteMoC version */
+#undef SYSTEMOC_VERSION
+#undef SYSTEMOC_MAJOR_VERSION
+#undef SYSTEMOC_MINOR_VERSION
+#undef SYSTEMOC_MICRO_VERSION
+
+/* Defined if debug support is enabled */
+#undef SYSTEMOC_ENABLE_DEBUG
+
+/* Defined if SGX support is enabled */
+#undef SYSTEMOC_ENABLE_SGX
+
+/* Defined if tracing support is enabled */
+#undef SYSTEMOC_ENABLE_TRACE
+
+/* Defined if hooking infrastructure is provided */
+#undef SYSTEMOC_ENABLE_HOOKING
+
+/* Defined if SystemC-VPC support is enabled */
+#undef SYSTEMOC_ENABLE_VPC
+
+/* Defined if WSDF support is enabled */
+#undef SYSTEMOC_ENABLE_WSDF
+
+#if defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
+# define SYSTEMOC_NEED_IDS
+#endif /* defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX) */
+
+#endif /* _INCLUDED_SMOC_CONFIG_H */

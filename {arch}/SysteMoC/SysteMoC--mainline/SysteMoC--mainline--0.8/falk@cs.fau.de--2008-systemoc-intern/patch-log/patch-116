@@ -1,0 +1,20 @@
+Revision: SysteMoC--mainline--0.8--patch-116
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri Jun 13 17:35:15 CEST 2008
+Standard-date: 2008-06-13 15:35:15 GMT
+Modified-files: pkginclude/systemoc/detail/EventMapManager.hpp
+    pkginclude/systemoc/detail/smoc_port_registry.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    smoc_multicast_sr_signal.cpp smoc_multireader_fifo.cpp
+    smoc_root_chan.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-116
+Summary:
+  * smoc_multireader_fifo: first try of scheduler (not yet really integrated)
+  * smoc_port_registry: switch map definitions (lookup of port for interface
+    is needed by scheduler)
+  * SR was broken before
+Keywords: 
+
+
+

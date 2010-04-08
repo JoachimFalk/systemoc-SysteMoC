@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-13
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Nov 29 12:12:50 CET 2005
+Standard-date: 2005-11-29 11:12:50 GMT
+Modified-files: smoc_firing_rules.hpp smoc_moc.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-13
+Summary: 
+ * Scheduler improvements
+Keywords: 
+
+
+

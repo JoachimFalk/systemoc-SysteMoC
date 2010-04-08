@@ -1,0 +1,13 @@
+Revision: SysteMoC--parsing--0.3--patch-3
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Andreas Deyhle <andi.deyhle@gmx.de>
+Date: Mon Feb 20 12:03:28 CET 2006
+Standard-date: 2006-02-20 11:03:28 GMT
+Modified-files: smoc_root_node.cpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-3
+Summary:  
+ * added dumping of constructor parameters
+Keywords: 
+
+
+

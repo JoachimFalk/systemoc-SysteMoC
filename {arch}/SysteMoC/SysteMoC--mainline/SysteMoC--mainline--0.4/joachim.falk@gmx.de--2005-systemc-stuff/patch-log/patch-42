@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.4--patch-42
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Carsten Riedel <carsten.riedel@gmx.net>
+Date: Fri Mar  3 16:37:31 CET 2006
+Standard-date: 2006-03-03 15:37:31 GMT
+Modified-files: networkgraph.dtd
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-42
+Summary: 
+  * modified networkgraph.dtd for hybrid use within networkgraph and specificationgraph files
+Keywords: 
+
+
+

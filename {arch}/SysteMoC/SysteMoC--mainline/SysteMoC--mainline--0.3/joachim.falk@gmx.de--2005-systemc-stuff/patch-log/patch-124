@@ -1,0 +1,29 @@
+Revision: SysteMoC--mainline--0.3--patch-124
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Jan 26 10:45:11 CET 2006
+Standard-date: 2006-01-26 09:45:11 GMT
+Modified-files: smoc_root_node.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-124
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--base-0
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-1
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-2
+Summary: 
+ * Merged RTTI information output from SysteMoC--parsing--0.3 branch
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--base-0
+   tag of joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-104
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-1
+   
+ - added RTTI information to problemgraph dump
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-2
+   
+ * Merge from SysteMoC--mainline--0.3 branch
+

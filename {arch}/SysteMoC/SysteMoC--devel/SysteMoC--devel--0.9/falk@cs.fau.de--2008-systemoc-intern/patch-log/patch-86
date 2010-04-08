@@ -1,0 +1,16 @@
+Revision: SysteMoC--devel--0.9--patch-86
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jun 23 12:59:07 CEST 2009
+Standard-date: 2009-06-23 10:59:07 GMT
+Modified-files: pkginclude/smoc/smoc_simulation_ctx.hpp
+    smoc-core/SMXDumper.cpp smoc-core/SMXDumper.hpp
+    smoc-core/smoc_moc.cpp
+    smoc-core/smoc_simulation_ctx.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-86
+Summary: 
+ * Implemented --systemoc-export-smx-no-ast option.
+Keywords: 
+
+
+

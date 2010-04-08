@@ -1,0 +1,25 @@
+Revision: SysteMoC--wsdf--0.5--patch-18
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Nov  6 17:29:55 CET 2006
+Standard-date: 2006-11-06 16:29:55 GMT
+Modified-files: smoc_md_array_access.hpp smoc_md_fifo.hpp
+    smoc_md_loop.cpp smoc_wsdf_edge.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-18
+Summary: 
+
+smoc_md_array_access
+- Bugfix: Change coordinate order
+
+smoc_wsdf_edge
+- Bugfix: Change coordinate order in append_snk_window_iteration
+
+smoc_md_loop
+- Change debug output
+
+smoc_md_fifo
+- Bugfix: Also allocate buffer, if user does not write anything
+
+
+Keywords: 
+

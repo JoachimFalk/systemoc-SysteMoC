@@ -1,0 +1,15 @@
+Revision: SysteMoC--wsdf--0.5--patch-12
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Nov  2 16:29:45 CET 2006
+Standard-date: 2006-11-02 15:29:45 GMT
+Modified-files: smoc_chan_if.hpp smoc_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--wsdf--0.5--patch-12
+Summary:
+ - Split input and output port into a parameterisable base class
+   (smoc_port_in_base, smoc_port_out_base) and a wrapper class
+   (smoc_port_in, smoc_port_out)
+Keywords: 
+
+
+

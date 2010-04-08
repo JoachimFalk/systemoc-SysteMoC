@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.8--patch-44
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Jun 16 18:07:25 CEST 2008
+Standard-date: 2008-06-16 16:07:25 GMT
+Modified-files: pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-44
+Summary: 
+ * Added forgotten include to smoc_multicast_sr_signal.hpp
+Keywords: 
+
+
+

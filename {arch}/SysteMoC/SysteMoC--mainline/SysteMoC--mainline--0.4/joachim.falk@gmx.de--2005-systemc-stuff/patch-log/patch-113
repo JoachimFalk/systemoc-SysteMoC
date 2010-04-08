@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.4--patch-113
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Sep  8 17:42:44 CEST 2006
+Standard-date: 2006-09-08 15:42:44 GMT
+Modified-files: smoc_chan_if.hpp smoc_fifo.hpp smoc_port.hpp
+    smoc_root_node.cpp smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-113
+Summary: 
+ * Improved smoc_ring_access performance
+Keywords: 
+
+
+

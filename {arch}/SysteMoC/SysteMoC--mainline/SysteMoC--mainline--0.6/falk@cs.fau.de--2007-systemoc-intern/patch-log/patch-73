@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-73
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Mar  2 16:49:13 CET 2007
+Standard-date: 2007-03-02 15:49:13 GMT
+Modified-files: pkginclude/systemoc/smoc_chan_if.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    smoc_chan_if.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-73
+Summary: 
+ - fixed port registration for multicast signals
+Keywords: 
+
+
+

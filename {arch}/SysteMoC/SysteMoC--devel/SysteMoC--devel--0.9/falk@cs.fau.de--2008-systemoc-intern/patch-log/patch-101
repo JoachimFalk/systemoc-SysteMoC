@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-101
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri Jul 10 09:40:59 CEST 2009
+Standard-date: 2009-07-10 07:40:59 GMT
+Modified-files: smoc-core/smoc_hooking.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-101
+Summary:
+  * added SYSTEMOC_ENABLE_HOOKING check in smoc_hooking.cpp 
+Keywords: 
+
+
+

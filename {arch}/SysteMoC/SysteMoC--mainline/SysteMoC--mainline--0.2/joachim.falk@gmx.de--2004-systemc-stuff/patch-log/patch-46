@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.2--patch-46
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jul  6 20:42:10 CEST 2005
+Standard-date: 2005-07-06 18:42:10 GMT
+Modified-files: expr.hpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-46
+Summary: 
+ * Added guard function guard(&X::guard_xxx)
+Keywords: 
+
+
+

@@ -1,0 +1,19 @@
+Revision: SysteMoC--devel--0.9--patch-121
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Sep 29 15:48:20 CEST 2009
+Standard-date: 2009-09-29 13:48:20 GMT
+Removed-files: smoc-core/.arch-ids/smoc_guard.cpp.id
+    smoc-core/smoc_guard.cpp
+Modified-files: Makefile.am
+    pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/smoc_firing_rules.hpp
+    pkginclude/systemoc/smoc_guard.hpp
+    smoc-core/smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-121
+Summary: 
+ * Eliminate obsolete smoc_activation_pattern.
+Keywords: 
+
+
+

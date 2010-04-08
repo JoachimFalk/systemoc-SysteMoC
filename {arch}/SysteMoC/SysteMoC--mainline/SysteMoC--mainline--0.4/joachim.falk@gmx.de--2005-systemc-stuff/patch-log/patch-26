@@ -1,0 +1,34 @@
+Revision: SysteMoC--mainline--0.4--patch-26
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Sat Jan 28 10:59:00 CET 2006
+Standard-date: 2006-01-28 09:59:00 GMT
+Modified-files: smoc_expr.hpp smoc_firing_rules.hpp
+    smoc_moc.cpp smoc_moc.hpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-121
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-122
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-26
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - provide const argument for actor actions in elaboration phase via syntax
+ - CALL(action)(p1)(p2)...(pn)
+ - GUARD(guard)(p1)(p2)...(pn)
+ - uses CoSupport::Functor and CoSupport::ConstFunctor from Support/functor.hpp
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-121
+   
+ * provide const argument for actor actions in elaboration phase via
+   CALL(action)(p1)(p2)...(pn) syntax
+   FIXME: can only use 3 arguments
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-122
+   
+ * Added support for multi parameter actions and guards
+   uses CoSupport::Functor and CoSupport::ConstFunctor from Support/functor.hpp
+

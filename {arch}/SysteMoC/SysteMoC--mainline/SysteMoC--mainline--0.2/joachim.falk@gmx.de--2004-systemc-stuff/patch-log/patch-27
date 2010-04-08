@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.2--patch-27
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Apr 26 12:13:22 CEST 2005
+Standard-date: 2005-04-26 10:13:22 GMT
+Modified-files: hscd_graph_type.hpp hscd_moc.hpp
+    hscd_root_port.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-27
+Summary: Made bind in hscd_root_port public
+Keywords: 
+
+
+

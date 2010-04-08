@@ -1,0 +1,57 @@
+Revision: SysteMoC--mainline--0.4--patch-60
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Apr  6 13:41:49 CEST 2006
+Standard-date: 2006-04-06 11:41:49 GMT
+Removed-files: dust-bin/.arch-ids/=id
+    dust-bin/.arch-ids/bar.cpp.id dust-bin/bar.cpp
+Removed-directories: dust-bin dust-bin/.arch-ids
+Modified-files: networkgraph.dtd smoc_chan_if.hpp
+    smoc_root_node.cpp smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-144
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-146
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-147
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-60
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-7
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-8
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - Cleared dust-bin
+ - reimplemented lost RTTI-output of processes
+ - Updated generate networkgraph code changed networkgraph.dtd accordingly
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-144
+   
+ * Cleared dust-bin
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-146
+   
+ * Merge from SysteMoC--parsing--0.3 branch
+ - reimplemented lost RTTI-output of processes
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-147
+   
+ * Updated generate networkgraph code changed networkgraph.dtd accordingly
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-7
+   
+ * reimplemented lost RTTI-output of processes
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--parsing--0.3--patch-8
+   
+ * merge from SysteMoC--mainline--0.3 branch
+ - Change network graph dumper code for inital token dumping
+   added size attribute for fifo edges
+   added type attribute for fifo edges
+   removed redundant type attribute from initial token tags
+ - Change network graph dumper code for activation pattern AST dumping
+   Added valueType attribute for each AST node
+   Added missing AST Terminals Var MemGuard MemProc Token
+ - Changed networkgraph.dtd accordingly
+ 
+

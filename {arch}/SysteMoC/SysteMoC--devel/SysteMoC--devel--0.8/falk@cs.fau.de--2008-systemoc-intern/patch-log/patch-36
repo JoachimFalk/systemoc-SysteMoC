@@ -1,0 +1,16 @@
+Revision: SysteMoC--devel--0.8--patch-36
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun 13 17:01:10 CEST 2008
+Standard-date: 2008-06-13 15:01:10 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_fifo_storage.hpp
+    pkginclude/systemoc/smoc_chan_if.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    smoc_multiplex_fifo.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-36
+Summary: 
+ * On the way to reimplementing the multiplex fifos
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SysteMoC--devel--0.8--patch-25
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May 30 17:40:58 CEST 2008
+Standard-date: 2008-05-30 15:40:58 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_root_port.hpp
+    pkginclude/systemoc/smoc_expr.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-25
+Summary: 
+ * Eliminated unused CommitCount DExpr evaluator
+Keywords: 
+
+
+

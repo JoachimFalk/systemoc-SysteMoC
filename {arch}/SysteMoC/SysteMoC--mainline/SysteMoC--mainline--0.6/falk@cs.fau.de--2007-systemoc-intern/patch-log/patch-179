@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-179
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Apr 14 11:17:15 CEST 2008
+Standard-date: 2008-04-14 09:17:15 GMT
+Modified-files: pkginclude/systemoc/smoc_chan_if.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_storage.hpp smoc_chan_if.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-179
+Summary: 
+ - added ChannelModificationListener used e.g. for fault injection
+Keywords: 
+
+
+

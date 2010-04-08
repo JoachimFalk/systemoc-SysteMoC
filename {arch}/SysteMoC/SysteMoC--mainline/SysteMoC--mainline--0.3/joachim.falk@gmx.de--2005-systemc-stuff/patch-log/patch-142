@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.3--patch-142
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Wed Apr  5 16:50:06 CEST 2006
+Standard-date: 2006-04-05 14:50:06 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    hscd_tdsim_TraceLog.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-142
+Summary: 
+  * more debug output: try to guess actors
+    connected by fifos
+Keywords: 
+
+
+

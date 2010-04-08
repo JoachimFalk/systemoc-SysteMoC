@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.4--patch-80
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May 31 14:15:14 CEST 2006
+Standard-date: 2006-05-31 12:15:14 GMT
+Modified-files: smoc_chan_if.hpp smoc_port.hpp
+    smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-80
+Summary: 
+ * Change blockEvent API to take number of tokens required for unblock
+   previously one was implicitly assumed. Implementation still missing
+   only API change.
+Keywords: 
+
+
+

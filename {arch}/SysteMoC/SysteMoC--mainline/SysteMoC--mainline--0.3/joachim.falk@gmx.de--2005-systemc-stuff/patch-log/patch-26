@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.3--patch-26
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Aug  8 14:47:23 CEST 2005
+Standard-date: 2005-08-08 12:47:23 GMT
+Modified-files: oneof.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-26
+Summary: 
+ * Changed output operator in oneoff.hpp to use new isType function
+ - std::ostream &operator << (std::ostream &output, const oneof<T1,T2,T3> &of)
+   Uses isType<Tx>(const oneof<...> &of) function to check for object type
+   in oneof object
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.5--patch-9
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Sep  7 15:55:14 CEST 2006
+Standard-date: 2006-09-07 13:55:14 GMT
+Modified-files: smoc_graph_type.hpp smoc_moc.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-9
+Summary: 
+ * Move smoc_graph declaration into smoc_graph_type.hpp file
+Keywords: 
+
+
+

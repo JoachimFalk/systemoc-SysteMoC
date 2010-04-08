@@ -1,0 +1,21 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-9
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Oct 16 15:43:21 CEST 2006
+Standard-date: 2006-10-16 13:43:21 GMT
+Modified-files: smoc_expr.hpp smoc_port.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-9
+Summary: 
+ * Decoupled free space available tokens checking
+   from token consumption and production.
+ - Removed getAvailableSpace and getAvailableTokens
+ - Added   getFreeSpace      and getConsumableTokens which
+   replace getAvailableSpace and getAvailableTokens but
+   have different semantics. They no longer imply token
+   consumption or production
+ - Token consumption are now specified only via
+   inXX(...) and outXX(...).
+Keywords: 
+
+
+

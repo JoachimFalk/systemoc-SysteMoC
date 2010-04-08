@@ -1,0 +1,137 @@
+Revision: SysteMoC--mainline--0.9.1--patch-1
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun 26 16:39:52 CEST 2009
+Standard-date: 2009-06-26 14:39:52 GMT
+New-files: .arch-ids/smoc_actor.cpp.id
+    pkginclude/systemoc/.arch-ids/smoc_actor.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_pggen.hpp.id
+    pkginclude/systemoc/detail/.arch-ids/IdedObj.hpp.id
+    pkginclude/systemoc/detail/.arch-ids/NamedIdedObj.hpp.id
+    pkginclude/systemoc/detail/IdedObj.hpp
+    pkginclude/systemoc/detail/NamedIdedObj.hpp
+    pkginclude/systemoc/smoc_actor.hpp
+    pkginclude/systemoc/smoc_pggen.hpp smoc_actor.cpp
+Removed-files: .arch-ids/smoc_ngx_sync.cpp.id
+    .arch-ids/smoc_root_port.cpp.id
+    pkginclude/systemoc/.arch-ids/smoc_ngx_sync.hpp.id
+    pkginclude/systemoc/detail/.arch-ids/smoc_root_port.hpp.id
+    pkginclude/systemoc/detail/smoc_root_port.hpp
+    pkginclude/systemoc/smoc_ngx_sync.hpp smoc_ngx_sync.cpp
+    smoc_root_port.cpp
+Renamed-files: pkginclude/systemoc/.arch-ids/smoc_graph_synth.hpp.id pkginclude/systemoc/detail/.arch-ids/smoc_graph_synth.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_pggen.hpp.id pkginclude/systemoc/detail/.arch-ids/smoc_pggen.hpp.id
+    pkginclude/systemoc/smoc_graph_synth.hpp pkginclude/systemoc/detail/smoc_graph_synth.hpp
+    pkginclude/systemoc/smoc_pggen.hpp pkginclude/systemoc/detail/smoc_pggen.hpp
+Modified-files: Makefile.am configure.in
+    hscd_tdsim_TraceLog.cpp pkginclude/Makefile.am
+    pkginclude/systemoc/detail/ConnectProvider.hpp
+    pkginclude/systemoc/detail/smoc_chan_if.hpp
+    pkginclude/systemoc/detail/smoc_event_decls.hpp
+    pkginclude/systemoc/detail/smoc_event_expr.hpp
+    pkginclude/systemoc/detail/smoc_fifo_storage.hpp
+    pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/detail/smoc_graph_synth.hpp
+    pkginclude/systemoc/detail/smoc_latency_queues.hpp
+    pkginclude/systemoc/detail/smoc_pggen.hpp
+    pkginclude/systemoc/detail/smoc_port_registry.hpp
+    pkginclude/systemoc/detail/smoc_ring_access.hpp
+    pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/detail/smoc_sysc_port.hpp
+    pkginclude/systemoc/smoc_ast_systemoc.hpp
+    pkginclude/systemoc/smoc_config.h.in
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_moc.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    pkginclude/systemoc/smoc_node_types.hpp
+    pkginclude/systemoc/smoc_port.hpp
+    pkginclude/systemoc/smoc_root_node.hpp
+    smoc_ast_systemoc.cpp smoc_elab_and_sim.cpp
+    smoc_expr.cpp smoc_fifo.cpp smoc_firing_rules.cpp
+    smoc_graph_synth.cpp smoc_graph_type.cpp smoc_guard.cpp
+    smoc_moc.cpp smoc_multicast_sr_signal.cpp
+    smoc_multiplex_fifo.cpp smoc_multireader_fifo.cpp
+    smoc_pggen.cpp smoc_root_chan.cpp smoc_root_node.cpp
+    smoc_sysc_port.cpp wsdf/smoc_md_buffer.cpp
+    wsdf/smoc_md_buffer.hpp wsdf/smoc_md_chan_if.hpp
+    wsdf/smoc_md_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-23
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-24
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-25
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-26
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-27
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-28
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-29
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-30
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-31
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-32
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-33
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-34
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-1
+Summary: 
+ * Merge merge from the SysteMoC--devel--0.9 branch
+ - Implemented smx dumping via LibSGX (Version with sgx pointers in the smoc actors)
+   This patch needs
+   HscdSupport--mainline--0.8 >= patch-77 and
+   LibSGX--mainline--0.3 >= patch-95
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-23
+   
+  * Partial construction of SMX (Actors/PGs, no FIFOs/FSM, no topology)
+  * Moved smoc_actor into smoc_actor.{hpp,cpp}
+  * Fixed #include problem with WSDF
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-24
+   
+  * More SGX generation 
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-25
+   
+  * Add FIFO ports and edges (Mappings still missing) 
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-26
+   
+  * create portmappings (done by smoc_sysc_port)
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-27
+   
+ * Eliminated obsolete smoc_root_port.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-28
+   
+  * Dump FSM structure
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-29
+   
+ * Eliminated obsolete PGWriter dumping code.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-30
+   
+ * Changed std::string NamedIdedObj::name() const =>
+           const char *NamedIdedObj::name() const
+   to conform to SystemC return type of name().
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-31
+   
+ * Eliminated obsolete smoc_ngx_sync.
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-32
+   
+  * VPC/WSDF fixes 
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-33
+   
+ * Added some backward compatibility cruft for systemoc/smoc_pggen.hpp!
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-34
+   
+ * Fixed _INCLUDED_XXX guards for headers in detail directory.
+

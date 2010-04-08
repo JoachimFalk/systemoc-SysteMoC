@@ -1,0 +1,67 @@
+Revision: SysteMoC--mainline--0.6--patch-138
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Aug 31 18:01:32 CEST 2007
+Standard-date: 2007-08-31 16:01:32 GMT
+New-files: pkginclude/systemoc/.arch-ids/smoc_md_array.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_array_access.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_ba_basic_tree.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_ba_linearized_buffer.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_ba_linearized_buffer_schedule.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_ba_linearized_buffer_size.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_buffer.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_buffer_analysis.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_chan_if.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_fifo.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_loop.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_port.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_vector.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_wsdf_edge.hpp.id
+    pkginclude/systemoc/smoc_md_array.hpp
+    pkginclude/systemoc/smoc_md_array_access.hpp
+    pkginclude/systemoc/smoc_md_ba_basic_tree.hpp
+    pkginclude/systemoc/smoc_md_ba_linearized_buffer.hpp
+    pkginclude/systemoc/smoc_md_ba_linearized_buffer_schedule.hpp
+    pkginclude/systemoc/smoc_md_ba_linearized_buffer_size.hpp
+    pkginclude/systemoc/smoc_md_buffer.hpp
+    pkginclude/systemoc/smoc_md_buffer_analysis.hpp
+    pkginclude/systemoc/smoc_md_chan_if.hpp
+    pkginclude/systemoc/smoc_md_fifo.hpp
+    pkginclude/systemoc/smoc_md_loop.hpp
+    pkginclude/systemoc/smoc_md_port.hpp
+    pkginclude/systemoc/smoc_vector.hpp
+    pkginclude/systemoc/smoc_wsdf_edge.hpp
+Removed-files: pkginclude/systemoc/.arch-ids/smoc_md_array.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_array_access.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_ba_basic_tree.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_ba_linearized_buffer.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_ba_linearized_buffer_schedule.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_ba_linearized_buffer_size.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_buffer.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_buffer_analysis.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_chan_if.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_fifo.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_loop.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_md_port.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_vector.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_wsdf_edge.hpp.id
+    pkginclude/systemoc/smoc_md_array.hpp
+    pkginclude/systemoc/smoc_md_array_access.hpp
+    pkginclude/systemoc/smoc_md_ba_basic_tree.hpp
+    pkginclude/systemoc/smoc_md_ba_linearized_buffer.hpp
+    pkginclude/systemoc/smoc_md_ba_linearized_buffer_schedule.hpp
+    pkginclude/systemoc/smoc_md_ba_linearized_buffer_size.hpp
+    pkginclude/systemoc/smoc_md_buffer.hpp
+    pkginclude/systemoc/smoc_md_buffer_analysis.hpp
+    pkginclude/systemoc/smoc_md_chan_if.hpp
+    pkginclude/systemoc/smoc_md_fifo.hpp
+    pkginclude/systemoc/smoc_md_loop.hpp
+    pkginclude/systemoc/smoc_md_port.hpp
+    pkginclude/systemoc/smoc_vector.hpp
+    pkginclude/systemoc/smoc_wsdf_edge.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-138
+Summary: patch 137 has destroyed wsdf links!!!! Is there any reason ? Re-establish links.
+Keywords: 
+
+
+

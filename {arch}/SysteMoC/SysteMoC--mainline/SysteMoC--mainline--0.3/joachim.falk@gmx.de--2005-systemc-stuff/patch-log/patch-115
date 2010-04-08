@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-115
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Fri Dec  9 11:51:43 CET 2005
+Standard-date: 2005-12-09 10:51:43 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    hscd_tdsim_TraceLog.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-115
+Summary: 
+ - Trace output: added xml document structure, fixed typos
+Keywords: 
+
+
+

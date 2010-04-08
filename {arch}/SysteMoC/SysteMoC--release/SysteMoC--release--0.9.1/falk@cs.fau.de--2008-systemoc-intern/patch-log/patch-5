@@ -1,0 +1,14 @@
+Revision: SysteMoC--release--0.9.1--patch-5
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Nov 17 11:27:04 CET 2009
+Standard-date: 2009-11-17 10:27:04 GMT
+New-files: .arch-ids/SysteMoC.pc.in.id SysteMoC.pc.in
+Modified-files: Makefile.am configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--release--0.9.1--patch-5
+Summary: 
+ * Added support for SysteMoC.pc pkg-config control file.
+Keywords: 
+
+
+

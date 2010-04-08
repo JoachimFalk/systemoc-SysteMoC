@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.8--patch-5
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Mon Feb 25 10:52:28 CET 2008
+Standard-date: 2008-02-25 09:52:28 GMT
+Modified-files: pkginclude/systemoc/smoc_firing_rules.hpp
+    smoc_firing_rules.cpp smoc_moc.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-158
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-5
+Summary:
+  - merge from SysteMoC--mainline--0.6--patch-158 
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-158
+   
+ - VPC coupling for "tick" in SR
+

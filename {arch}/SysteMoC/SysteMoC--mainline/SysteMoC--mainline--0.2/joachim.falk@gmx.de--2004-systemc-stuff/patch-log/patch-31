@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.2--patch-31
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May 13 17:26:44 CEST 2005
+Standard-date: 2005-05-13 15:26:44 GMT
+Modified-files: hscd_firing_rules.cpp hscd_firing_rules.hpp
+    hscd_moc.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-31
+Summary:
+ - introduced hscd_func_diverge as a workaround
+   for the problem that KPN-Domain is not compositional.
+Keywords: 
+
+
+   This can only be removed after FunState analysis is integrated
+   into SysteMoC and a new constraint for KPN-Domains is
+   defined which is compositional.

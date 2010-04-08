@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.4--patch-61
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Apr 10 14:23:00 CEST 2006
+Standard-date: 2006-04-10 12:23:00 GMT
+Modified-files: smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-61
+Summary: 
+ * Changed macro name for smoc_actor constructor parameter wrapper
+   from ACTOR_CONSTR_PARAM to SMOC_ACTOR_CPARAM
+Keywords: 
+
+
+

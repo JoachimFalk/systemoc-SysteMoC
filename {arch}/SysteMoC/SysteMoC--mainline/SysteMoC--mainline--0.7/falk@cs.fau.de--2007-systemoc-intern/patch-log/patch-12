@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.7--patch-12
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Dec  6 11:26:05 CET 2007
+Standard-date: 2007-12-06 10:26:05 GMT
+Modified-files: smoc_main.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.7--patch-12
+Summary: 
+ * Fixed option processing in smoc_main.cpp, no longer free unmalloced argv[0]
+   
+Keywords: 
+
+
+

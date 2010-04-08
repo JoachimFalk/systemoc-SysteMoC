@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.8--patch-172
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Tue Feb 17 13:29:40 CET 2009
+Standard-date: 2009-02-17 12:29:40 GMT
+Modified-files: Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-172
+Summary: 
+  * fixed Makefile.am (no indention for 'if'-constructs allowed!)
+Keywords: 
+
+
+

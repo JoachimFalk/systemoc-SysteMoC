@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.3--patch-101
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Oct 13 11:24:34 CEST 2005
+Standard-date: 2005-10-13 09:24:34 GMT
+Modified-files: smoc_moc.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-101
+Summary: 
+ - clear ports setup after saving _ctx to _oldctx
+   in smoc_scheduler_ndf::schedule()
+Keywords: 
+
+
+

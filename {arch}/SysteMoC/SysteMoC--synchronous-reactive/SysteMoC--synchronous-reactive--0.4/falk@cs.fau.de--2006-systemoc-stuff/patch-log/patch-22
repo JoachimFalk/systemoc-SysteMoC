@@ -1,0 +1,16 @@
+Revision: SysteMoC--synchronous-reactive--0.4--patch-22
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Jan 30 09:50:27 CET 2007
+Standard-date: 2007-01-30 08:50:27 GMT
+Modified-files: smoc_graph_type.hpp
+    smoc_multicast_sr_signal.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-22
+Summary: 
+ - enabled multicast feature using multiple outlets
+ - new network-graph syntax (one out- and several in-ports): 
+   channel.connect(a.out).connect(b.in).connect(c.in) ...;
+Keywords: 
+
+
+

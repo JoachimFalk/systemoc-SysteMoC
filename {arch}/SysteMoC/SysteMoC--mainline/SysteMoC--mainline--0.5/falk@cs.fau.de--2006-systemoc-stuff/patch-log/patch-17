@@ -1,0 +1,23 @@
+Revision: SysteMoC--mainline--0.5--patch-17
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Thu Oct 19 15:18:40 CEST 2006
+Standard-date: 2006-10-19 13:18:40 GMT
+Modified-files: smoc_chan_if.cpp smoc_pggen.cpp
+    smoc_pggen.hpp smoc_root_node.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-15
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-17
+Summary: 
+ * Merge from SysteMoC--event-scheduler--0.5 branch
+ - Fixed --generate-problemgraph code
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-15
+   
+ * Fixed --generate-problemgraph code
+

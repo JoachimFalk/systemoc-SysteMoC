@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.2--patch-36
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May 30 17:59:49 CEST 2005
+Standard-date: 2005-05-30 15:59:49 GMT
+Modified-files: hscd_graph_type.hpp hscd_moc.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SysteMoC--mainline--0.2--patch-36
+Summary: 
+ * added class hscd_ndf_moc for nondeterministic dataflow
+ * renamed hscd_kpn_moc to hscd_ddf_moc and change constraintset
+   names accordingly (kpn hase no notion of firings)
+Keywords: 
+
+
+

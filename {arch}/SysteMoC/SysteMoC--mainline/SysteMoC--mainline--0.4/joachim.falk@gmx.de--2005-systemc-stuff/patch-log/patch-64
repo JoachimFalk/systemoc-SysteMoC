@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.4--patch-64
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Andreas Deyhle <andi.deyhle@gmx.de>
+Date: Thu Apr 27 10:28:18 CEST 2006
+Standard-date: 2006-04-27 08:28:18 GMT
+Modified-files: smoc_moc.hpp smoc_root_node.cpp
+    smoc_root_node.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-64
+Summary:
+ * smoc_graph does not dump dummy-state and dummy-fsm
+Keywords: 
+
+
+

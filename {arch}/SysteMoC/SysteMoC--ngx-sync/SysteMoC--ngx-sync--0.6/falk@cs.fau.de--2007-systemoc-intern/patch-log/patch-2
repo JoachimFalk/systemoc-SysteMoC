@@ -1,0 +1,15 @@
+Revision: SysteMoC--ngx-sync--0.6--patch-2
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Oct 24 17:20:54 CEST 2007
+Standard-date: 2007-10-24 15:20:54 GMT
+Modified-files: pkginclude/systemoc/smoc_pggen.hpp
+    smoc_chan_if.cpp smoc_graph_type.cpp smoc_root_port.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--ngx-sync--0.6--patch-2
+Summary: 
+  * fixed IdPool: handle multiple ids for the
+    same sc_object
+Keywords: 
+
+
+

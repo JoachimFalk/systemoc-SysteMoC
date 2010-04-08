@@ -1,0 +1,28 @@
+Revision: SysteMoC--event-scheduler--0.5--patch-12
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Wed Oct 18 18:58:46 CEST 2006
+Standard-date: 2006-10-18 16:58:46 GMT
+Modified-files: hscd_node_types.hpp smoc_graph_type.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--event-scheduler--0.5--patch-12
+    falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-13
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-117
+Summary: 
+ * Merge from SysteMoC--mainline--0.5 branch
+ - BUGFIX: initializing storage in SMOC V1.0 ports
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--mainline--0.5--patch-13
+   
+ * Merge from SysteMoC--mainline--0.4 branch
+ - BUGFIX: initializing storage in SMOC V1.0 ports
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-117
+   
+ - BUGFIX: initializing storage in SMOC V1.0 ports
+

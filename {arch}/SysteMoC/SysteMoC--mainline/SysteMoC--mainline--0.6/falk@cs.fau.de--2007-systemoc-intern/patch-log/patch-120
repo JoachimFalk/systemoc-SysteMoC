@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.6--patch-120
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Jul  5 15:42:06 CEST 2007
+Standard-date: 2007-07-05 13:42:06 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    pkginclude/systemoc/hscd_tdsim_TraceLog.hpp
+    pkginclude/systemoc/smoc_chan_if.hpp
+    pkginclude/systemoc/smoc_port.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-120
+Summary: 
+ * Non-consuming read / Non-producing write support in SYSTEMOC_TRACE code
+Keywords: 
+
+
+

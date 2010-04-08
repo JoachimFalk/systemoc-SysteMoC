@@ -1,0 +1,14 @@
+Revision: SysteMoC--devel--0.8--patch-22
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May 30 14:33:00 CEST 2008
+Standard-date: 2008-05-30 12:33:00 GMT
+Modified-files: wsdf/smoc_md_buffer.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-22
+Summary: 
+ * Fixed bug in smoc_md_buffer.hpp
+ - Eliminated double definition of data_element_id_type
+Keywords: 
+
+
+

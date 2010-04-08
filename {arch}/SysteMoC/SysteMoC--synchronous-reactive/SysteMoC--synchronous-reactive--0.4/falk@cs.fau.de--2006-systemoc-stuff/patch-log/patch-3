@@ -1,0 +1,13 @@
+Revision: SysteMoC--synchronous-reactive--0.4--patch-3
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Aug  9 16:15:11 CEST 2006
+Standard-date: 2006-08-09 14:15:11 GMT
+Modified-files: smoc_moc.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SysteMoC--synchronous-reactive--0.4--patch-3
+Summary: 
+ - removed obsolete include
+Keywords: 
+
+
+

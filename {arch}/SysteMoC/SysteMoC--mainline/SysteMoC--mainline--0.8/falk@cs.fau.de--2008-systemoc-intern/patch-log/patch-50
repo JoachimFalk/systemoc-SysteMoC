@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.8--patch-50
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May  5 12:47:38 CEST 2008
+Standard-date: 2008-05-05 10:47:38 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-50
+Summary: 
+ * Edited configure.in
+ - Updated version to SysteMoC 0.8 and changed contact persons to
+   Christian Zebelein and myself Joachim Falk.
+Keywords: 
+
+
+

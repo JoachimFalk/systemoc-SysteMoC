@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.8--patch-42
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Apr 25 19:29:24 CEST 2008
+Standard-date: 2008-04-25 17:29:24 GMT
+Modified-files: pkginclude/systemoc/smoc_chan_adapter.hpp
+    pkginclude/systemoc/smoc_root_port.hpp
+    wsdf/smoc_md_buffer.hpp wsdf/smoc_md_chan_if.hpp
+    wsdf/smoc_md_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-42
+Summary: 
+ - bugfix: eliminate calls and definition of setLimit when compiling with NDEBUG
+ - Add symmetric border extension to WSDF
+Keywords: 
+

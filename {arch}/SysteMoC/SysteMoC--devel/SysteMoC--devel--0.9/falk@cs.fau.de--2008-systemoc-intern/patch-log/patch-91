@@ -1,0 +1,21 @@
+Revision: SysteMoC--devel--0.9--patch-91
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Tue Jun 30 16:54:03 CEST 2009
+Standard-date: 2009-06-30 14:54:03 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_chan_if.hpp
+    pkginclude/systemoc/detail/smoc_fifo_storage.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    pkginclude/systemoc/smoc_reset.hpp
+    smoc-core/smoc_multicast_sr_signal.cpp
+    smoc-core/smoc_multireader_fifo.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-91
+Summary:
+  * Implemented reset for multiplex fifos 
+Keywords: 
+
+
+

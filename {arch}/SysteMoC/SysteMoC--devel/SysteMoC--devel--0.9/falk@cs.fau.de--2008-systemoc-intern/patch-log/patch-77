@@ -1,0 +1,23 @@
+Revision: SysteMoC--devel--0.9--patch-77
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Jun  8 20:47:00 CEST 2009
+Standard-date: 2009-06-08 18:47:00 GMT
+New-files: pkginclude/systemoc/.arch-ids/smoc_event.hpp.id
+    pkginclude/systemoc/smoc_event.hpp
+Removed-files: pkginclude/systemoc/.arch-ids/smoc_event.hpp.id
+    pkginclude/systemoc/detail/.arch-ids/smoc_event_expr.hpp.id
+    pkginclude/systemoc/detail/smoc_event_expr.hpp
+    pkginclude/systemoc/smoc_event.hpp
+Modified-files: pkginclude/Makefile.am
+    pkginclude/systemoc/detail/smoc_chan_if.hpp
+    pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/smoc_expr.hpp
+    pkginclude/systemoc/smoc_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-77
+Summary: 
+ * On the way to eliminate SysteMoC ASTNodes replacing them with an Expr visitor concept.
+Keywords: 
+
+
+

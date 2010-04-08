@@ -1,0 +1,16 @@
+Revision: SysteMoC--devel--0.9--patch-81
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun 12 14:05:12 CEST 2009
+Standard-date: 2009-06-12 12:05:12 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_root_node.hpp
+    pkginclude/systemoc/smoc_expr.hpp
+    pkginclude/systemoc/smoc_func_call.hpp
+    smoc-core/SMXDumper.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-81
+Summary: 
+ * Change SGX AST dumping to use AST Visitor concept.
+Keywords: 
+
+
+

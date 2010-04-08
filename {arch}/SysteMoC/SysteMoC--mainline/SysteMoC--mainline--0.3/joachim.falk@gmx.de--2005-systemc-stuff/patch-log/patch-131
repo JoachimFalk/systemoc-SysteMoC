@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-131
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Feb 21 12:20:50 CET 2006
+Standard-date: 2006-02-21 11:20:50 GMT
+Modified-files: smoc_pggen.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-131
+Summary: 
+ * Fixed bug in xml format of network graph generation
+Keywords: 
+
+
+

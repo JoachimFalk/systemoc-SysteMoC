@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.6--patch-164
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue Jan  1 22:33:12 CET 2008
+Standard-date: 2008-01-01 21:33:12 GMT
+Modified-files: wsdf/smoc_wsdf_edge.cpp
+    wsdf/smoc_wsdf_edge.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-164
+Summary: 
+ - Add cache functionality to WSDF_edge_descr
+Keywords: 
+
+
+

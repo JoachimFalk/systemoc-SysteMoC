@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-11
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug  4 15:59:09 CEST 2005
+Standard-date: 2005-08-04 13:59:09 GMT
+Modified-files: smoc_root_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-11
+Summary: 
+ * Hack to allow getValueAt and port access in guards
+Keywords: 
+
+
+

@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.6--patch-100
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon May 14 17:01:10 CEST 2007
+Standard-date: 2007-05-14 15:01:10 GMT
+Modified-files: networkgraph.dtd
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-100
+Summary: 
+ - updated networkgraph.dtd:
+ -> added Comm element
+ -> converted to unix format
+ -> replaced tabs
+Keywords: 
+
+
+

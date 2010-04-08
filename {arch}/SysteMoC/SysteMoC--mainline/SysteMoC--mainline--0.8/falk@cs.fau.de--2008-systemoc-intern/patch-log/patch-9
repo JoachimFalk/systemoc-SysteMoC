@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.8--patch-9
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Mon Feb 25 10:54:20 CET 2008
+Standard-date: 2008-02-25 09:54:20 GMT
+Modified-files: wsdf/smoc_wsdf_edge.cpp
+    wsdf/smoc_wsdf_edge.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-162
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-9
+Summary: 
+  - merge from SysteMoC--mainline--0.6--patch-162
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-162
+   
+ - WSDF: change some comments. Change visibility of functions (protected->public)
+

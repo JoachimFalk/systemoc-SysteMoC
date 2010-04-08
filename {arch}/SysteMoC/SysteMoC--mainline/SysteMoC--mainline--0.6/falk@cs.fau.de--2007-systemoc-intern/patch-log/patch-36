@@ -1,0 +1,15 @@
+Revision: SysteMoC--mainline--0.6--patch-36
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Feb 12 17:51:46 CET 2007
+Standard-date: 2007-02-12 16:51:46 GMT
+New-files: pkginclude/.arch-ids/=id
+    pkginclude/.arch-ids/systemoc.id pkginclude/systemoc
+New-directories: pkginclude pkginclude/.arch-ids
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-36
+Summary: 
+ * Added missing links for previous patch
+Keywords: 
+
+
+

@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.6--patch-136
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug 16 10:28:29 CEST 2007
+Standard-date: 2007-08-16 08:28:29 GMT
+Modified-files: hscd_tdsim_TraceLog.cpp
+    pkginclude/systemoc/hscd_tdsim_TraceLog.hpp
+    pkginclude/systemoc/smoc_pggen.hpp smoc_chan_if.cpp
+    smoc_pggen.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--mainline--0.6--patch-136
+Summary: 
+ * --dump-problemgraph ids and trace id are now the same except for functions
+Keywords: 
+
+
+

@@ -1,0 +1,18 @@
+Revision: SysteMoC--mainline--0.8--patch-69
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May  7 13:26:31 CEST 2008
+Standard-date: 2008-05-07 11:26:31 GMT
+Modified-files: pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-69
+Summary: 
+ * Remove eventRead eventWrite hack for dataAvailableEvent(n) and spaceAvailableEvent(n)
+   which were previously returned if n was equal to -1 /* MAX_TYPE(size_t) */.
+   This functionality was only used by the old backwards compatibility cruft for
+   SysteMoC V0.1 which has since been removed.
+ 
+Keywords: 
+
+
+

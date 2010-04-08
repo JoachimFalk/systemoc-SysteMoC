@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-70
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep  7 19:12:53 CEST 2005
+Standard-date: 2005-09-07 17:12:53 GMT
+Modified-files: smoc_firing_rules.cpp smoc_firing_rules.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-70
+Summary: 
+ * Added addTransition function
+Keywords: 
+
+
+

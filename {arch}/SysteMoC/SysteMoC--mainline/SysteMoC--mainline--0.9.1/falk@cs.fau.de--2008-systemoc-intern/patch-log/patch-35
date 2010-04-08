@@ -1,0 +1,22 @@
+Revision: SysteMoC--mainline--0.9.1--patch-35
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jul 31 15:44:15 CEST 2009
+Standard-date: 2009-07-31 13:44:15 GMT
+Modified-files: configure.in
+    pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/detail/smoc_root_node.hpp
+    pkginclude/systemoc/detail/smoc_sysc_port.hpp
+    pkginclude/systemoc/smoc_expr.hpp
+    smoc-core/smoc_graph_type.cpp smoc-core/smoc_moc.cpp
+    smoc-core/smoc_simulation_ctx.cpp
+    smoc-core/smoc_sysc_port.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-35
+Summary: 
+ * Fixup compile errors for all combinations of the --enable/disable-sgx and
+   --enable/disable-trace options.
+Keywords: 
+
+
+

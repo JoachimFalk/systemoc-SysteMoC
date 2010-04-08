@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.3--patch-47
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Aug 12 02:47:11 CEST 2005
+Standard-date: 2005-08-12 00:47:11 GMT
+Modified-files: expr.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-47
+Summary: 
+ * Prettify code in expr.hpp
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-103
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jul 10 16:36:33 CEST 2009
+Standard-date: 2009-07-10 14:36:33 GMT
+Modified-files: smoc-core/smoc_hooking.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-103
+Summary: 
+ * Stupid hooking support bugfix.
+Keywords: 
+
+
+

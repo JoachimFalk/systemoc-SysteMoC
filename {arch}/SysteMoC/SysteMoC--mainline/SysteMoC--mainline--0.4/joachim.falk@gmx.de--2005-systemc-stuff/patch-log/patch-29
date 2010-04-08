@@ -1,0 +1,23 @@
+Revision: SysteMoC--mainline--0.4--patch-29
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Sat Jan 28 11:07:17 CET 2006
+Standard-date: 2006-01-28 10:07:17 GMT
+Modified-files: smoc_expr.hpp smoc_firing_rules.cpp
+    smoc_firing_rules.hpp smoc_moc.cpp smoc_root_port.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-125
+    joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-29
+Summary: 
+ * Merge from SysteMoC--mainline--0.3 branch
+ - Namespace of Support is now consistently  CoSupport
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.3--patch-125
+   
+ * Namespace of Support is now consistently  CoSupport
+

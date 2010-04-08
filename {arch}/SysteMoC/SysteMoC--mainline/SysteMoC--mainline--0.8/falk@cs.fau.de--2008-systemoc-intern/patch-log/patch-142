@@ -1,0 +1,19 @@
+Revision: SysteMoC--mainline--0.8--patch-142
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Mon Jul 14 12:22:07 CEST 2008
+Standard-date: 2008-07-14 10:22:07 GMT
+New-files: .arch-ids/smoc_func_call.cpp.id
+    smoc_func_call.cpp
+Modified-files: Makefile.am
+    pkginclude/systemoc/detail/smoc_firing_rules_impl.hpp
+    pkginclude/systemoc/smoc_firing_rules.hpp
+    pkginclude/systemoc/smoc_func_call.hpp
+    smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-142
+Summary:
+  * added smoc_connector_state 
+Keywords: 
+
+
+

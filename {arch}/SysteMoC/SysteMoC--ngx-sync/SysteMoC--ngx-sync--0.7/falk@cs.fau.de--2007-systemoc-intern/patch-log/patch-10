@@ -1,0 +1,13 @@
+Revision: SysteMoC--ngx-sync--0.7--patch-10
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Tue Nov 20 12:21:14 CET 2007
+Standard-date: 2007-11-20 11:21:14 GMT
+Modified-files: smoc_main.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SysteMoC--ngx-sync--0.7--patch-10
+Summary: 
+  * smoc_main.cpp: removed "help" option
+Keywords: 
+
+
+

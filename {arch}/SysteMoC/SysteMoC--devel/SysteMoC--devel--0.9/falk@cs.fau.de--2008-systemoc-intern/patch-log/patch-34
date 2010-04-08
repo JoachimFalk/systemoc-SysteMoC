@@ -1,0 +1,22 @@
+Revision: SysteMoC--devel--0.9--patch-34
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue May 19 10:33:18 CEST 2009
+Standard-date: 2009-05-19 08:33:18 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_chan_if.hpp
+    pkginclude/systemoc/detail/smoc_event_decls.hpp
+    pkginclude/systemoc/detail/smoc_event_expr.hpp
+    pkginclude/systemoc/detail/smoc_graph_synth.hpp
+    pkginclude/systemoc/detail/smoc_latency_queues.hpp
+    pkginclude/systemoc/detail/smoc_port_registry.hpp
+    pkginclude/systemoc/detail/smoc_ring_access.hpp
+    pkginclude/systemoc/detail/smoc_root_chan.hpp
+    pkginclude/systemoc/detail/smoc_sysc_port.hpp
+    wsdf/smoc_md_chan_if.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-34
+Summary: 
+ * Fixed _INCLUDED_XXX guards for headers in detail directory.
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.4--patch-75
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May 29 12:22:24 CEST 2006
+Standard-date: 2006-05-29 10:22:24 GMT
+Modified-files: smoc_firing_rules.cpp smoc_guard.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-75
+Summary: 
+ * smoc_activation_pattern now derived from smoc_event_and_list
+
+Keywords: 
+
+
+

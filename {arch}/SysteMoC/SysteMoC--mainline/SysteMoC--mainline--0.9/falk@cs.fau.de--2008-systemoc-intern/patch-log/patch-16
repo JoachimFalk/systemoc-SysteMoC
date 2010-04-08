@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.9--patch-16
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Thu Mar 19 10:49:00 CET 2009
+Standard-date: 2009-03-19 09:49:00 GMT
+Modified-files: pkginclude/systemoc/smoc_firing_rules.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9--patch-16
+Summary:
+  * allow multiple CALLs for transitions with no activation pattern 
+Keywords: 
+
+
+

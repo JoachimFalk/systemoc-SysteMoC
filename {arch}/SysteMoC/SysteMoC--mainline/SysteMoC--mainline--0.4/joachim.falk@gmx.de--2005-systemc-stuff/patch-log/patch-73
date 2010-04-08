@@ -1,0 +1,14 @@
+Revision: SysteMoC--mainline--0.4--patch-73
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May 29 12:20:59 CEST 2006
+Standard-date: 2006-05-29 10:20:59 GMT
+Modified-files: smoc_event.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-73
+Summary: 
+ * EventAndList and EventOrList are now templatize with contained event type
+
+Keywords: 
+
+
+

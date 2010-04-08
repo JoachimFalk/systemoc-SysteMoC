@@ -1,0 +1,20 @@
+Revision: SysteMoC--mainline--0.8--patch-41
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Apr 24 18:02:19 CEST 2008
+Standard-date: 2008-04-24 16:02:19 GMT
+Modified-files: pkginclude/systemoc/smoc_chan_if.hpp
+    smoc_chan_if.cpp
+    wsdf/buffer_analysis/smoc_md_ba_linearized_buffer_schedule.hpp
+    wsdf/buffer_analysis/smoc_md_ba_linearized_buffer_size.hpp
+    wsdf/buffer_analysis/smoc_md_buffer_analysis.hpp
+    wsdf/smoc_md_buffer.cpp wsdf/smoc_md_buffer.hpp
+    wsdf/smoc_md_fifo.hpp wsdf/smoc_md_loop.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-41
+Summary: 
+ - Dump WSDF-FIFO data when generating SysteMoC-SMX file
+
+Keywords: 
+
+
+

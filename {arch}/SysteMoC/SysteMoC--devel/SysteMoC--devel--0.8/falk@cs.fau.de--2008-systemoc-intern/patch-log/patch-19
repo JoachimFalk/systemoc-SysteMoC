@@ -1,0 +1,70 @@
+Revision: SysteMoC--devel--0.8--patch-19
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May 30 11:15:09 CEST 2008
+Standard-date: 2008-05-30 09:15:09 GMT
+Modified-files: pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_graph_type.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    wsdf/smoc_md_buffer.hpp wsdf/smoc_md_fifo.hpp
+    wsdf/smoc_md_loop.cpp wsdf/smoc_md_loop.hpp
+    wsdf/smoc_vector.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.8--patch-19
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-99
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-100
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-101
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-102
+Summary: 
+ * Merge from SysteMoC--mainline--0.8
+ - Fixed bug with initial markings for void channels
+ - smoc_port_connector: default parameter for constructor
+ - Restructure smoc_md_buffer and smoc_md_fifo for possible extensions
+ - Fix compile errors when debug output
+ - Add some debug output
+ - incUsedStorage is now called after iterator increment
+ - Restructure event generation (split function into events to source and events to sink)
+ - Fix some spelling mistakes
+ - Move SystemC function for vector tracing to smoc_vector.hpp
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-99
+   
+ * Merge from SysteMoC--devel--0.8
+ - Redesign LatencyQueue and EventQueue interfaces
+ - Moved some code from smoc_latency_queues header to cpp file
+ - Propagate diiEvent to commitRead, execute CommExec in the same delta cycle as the action
+   FIXME: Implement Wait for diiEvent to consume data
+ - Readded DIIQueue to smoc_latency_queue sources
+ - Implemented Queue4Ptr with findex (free ptr)
+ - Changes systemoc fifo (smoc_fifo) to correctly use Queue4Ptr
+ - Update smoc_multiplex_fifo to use Queue4Ptr
+ - Fixed smoc_multiplex_fifo changed Queue names
+   Queue2Ptr => QueueRWPtr
+   Queue4Ptr => QueueFRVWPtr
+   added QueueRVWPtr
+ - Removed debug output from smoc_multiplex_fifo
+ - Added DIIQueue support to systemoc-src-snk-multireader
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-100
+   
+ * Fixed bug with initial markings for void channels
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-101
+   
+  * smoc_port_connector: default parameter for constructor
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-102
+   
+ - Restructure smoc_md_buffer and smoc_md_fifo for possible extensions
+ - Fix compile errors when debug output
+ - Add some debug output
+ - incUsedStorage is now called after iterator increment
+ - Restructure event generation (split function into events to source and events to sink)
+ - Fix some spelling mistakes
+ - Move SystemC function for vector tracing to smoc_vector.hpp
+

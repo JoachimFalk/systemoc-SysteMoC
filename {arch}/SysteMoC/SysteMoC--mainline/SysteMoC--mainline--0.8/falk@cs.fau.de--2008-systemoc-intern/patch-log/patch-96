@@ -1,0 +1,17 @@
+Revision: SysteMoC--mainline--0.8--patch-96
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri May 23 09:19:09 CEST 2008
+Standard-date: 2008-05-23 07:19:09 GMT
+Modified-files: pkginclude/systemoc/smoc_chan_adapter.hpp
+    pkginclude/systemoc/smoc_chan_if.hpp smoc_root_chan.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.8--patch-96
+Summary:
+  * smoc_chan_adapter: forward register_port to
+    real interface
+  * smoc_nonconflicting_chan: checks for exactly
+    one input and one output port again 
+Keywords: 
+
+
+

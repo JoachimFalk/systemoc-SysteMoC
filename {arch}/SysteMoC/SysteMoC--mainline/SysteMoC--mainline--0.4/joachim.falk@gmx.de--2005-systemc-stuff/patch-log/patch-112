@@ -1,0 +1,16 @@
+Revision: SysteMoC--mainline--0.4--patch-112
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep  6 14:24:46 CEST 2006
+Standard-date: 2006-09-06 12:24:46 GMT
+Modified-files: smoc_expr.hpp smoc_port.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SysteMoC--mainline--0.4--patch-112
+Summary: 
+ * Implemented CommReset to implement reset of smoc_ring_access in the ports
+ - This resets the allocated access region of SysteMoC ports back to the nil region after
+   a transition has been executed. Thus enabling again a meaningfull checki
+   of the limit assertion in the operator[] of the SysteMoC input and output ports
+Keywords: 
+
+
+
