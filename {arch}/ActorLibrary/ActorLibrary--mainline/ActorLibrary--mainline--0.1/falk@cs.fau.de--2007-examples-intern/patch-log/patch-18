@@ -1,0 +1,70 @@
+Revision: ActorLibrary--mainline--0.1--patch-18
+Archive: falk@cs.fau.de--2007-examples-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Apr  9 11:22:59 CEST 2010
+Standard-date: 2010-04-09 09:22:59 GMT
+Modified-files: .arch-ids/Makefile.am.id
+    .arch-ids/autotest-sh.id .arch-ids/autovars.sh.in.id
+    .arch-ids/configure.in.frag.id
+    .arch-ids/configure.in.id autotest-sh autovars.sh.in
+    configure.in configure.in.frag pkginclude/.arch-ids/=id
+    pkginclude/actorlibrary/.arch-ids/=id
+    pkginclude/actorlibrary/.arch-ids/sinks.hpp.id
+    pkginclude/actorlibrary/.arch-ids/sources.hpp.id
+    pkginclude/actorlibrary/communication/.arch-ids/=id
+    pkginclude/actorlibrary/communication/.arch-ids/N_to_M_Communication.hpp.id
+    pkginclude/actorlibrary/communication/.arch-ids/N_to_M_Communication_Vector.hpp.id
+    pkginclude/actorlibrary/communication/N_to_M_Communication_Vector.hpp
+    pkginclude/actorlibrary/reliability/.arch-ids/=id
+    pkginclude/actorlibrary/reliability/.arch-ids/TMRVoter.hpp.id
+    pkginclude/actorlibrary/reliability/.arch-ids/Triplexer.hpp.id
+    pkginclude/actorlibrary/reliability/TMRVoter.hpp
+    pkginclude/actorlibrary/reliability/Triplexer.hpp
+    pkginclude/actorlibrary/sinks/.arch-ids/=id
+    pkginclude/actorlibrary/sinks/generic/.arch-ids/=id
+    pkginclude/actorlibrary/sinks/generic/.arch-ids/TerminalSink.hpp.id
+    pkginclude/actorlibrary/sources/.arch-ids/=id
+    pkginclude/actorlibrary/sources/generic/.arch-ids/=id
+    pkginclude/actorlibrary/sources/generic/.arch-ids/BitGen.hpp.id
+    pkginclude/actorlibrary/sources/generic/.arch-ids/BitToggle.hpp.id
+    pkginclude/actorlibrary/sources/generic/.arch-ids/ConstSource.hpp.id
+    pkginclude/actorlibrary/sources/generic/.arch-ids/PeriodicTask.hpp.id
+    pkginclude/actorlibrary/sources/generic/BitGen.hpp
+    pkginclude/actorlibrary/sources/generic/BitToggle.hpp
+    pkginclude/actorlibrary/sources/generic/PeriodicTask.hpp
+    {arch}/.arch-project-tree {arch}/=tagging-method
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/base-0
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-1
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-10
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-11
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-12
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-13
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-2
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-3
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-4
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-5
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-6
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-7
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-8
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log/patch-9
+Modified-directories: .arch-ids pkginclude/.arch-ids
+    pkginclude/actorlibrary/.arch-ids
+    pkginclude/actorlibrary/communication/.arch-ids
+    pkginclude/actorlibrary/reliability
+    pkginclude/actorlibrary/reliability/.arch-ids
+    pkginclude/actorlibrary/sinks/.arch-ids
+    pkginclude/actorlibrary/sinks/generic/.arch-ids
+    pkginclude/actorlibrary/sources/.arch-ids
+    pkginclude/actorlibrary/sources/generic/.arch-ids
+    {arch} {arch}/ActorLibrary
+    {arch}/ActorLibrary/ActorLibrary--mainline
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern
+    {arch}/ActorLibrary/ActorLibrary--mainline/ActorLibrary--mainline--0.1/falk@cs.fau.de--2007-examples-intern/patch-log
+New-patches: falk@cs.fau.de--2007-examples-intern/ActorLibrary--mainline--0.1--patch-18
+Summary: 
+ * Permission update.
+Keywords: 
+
+
+
