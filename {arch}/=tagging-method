@@ -115,7 +115,7 @@ untagged-source precious
 # and skip this step of the algorithm.
 #
 
-exclude ^(.arch-ids|\{arch\}|\.arch-inventory)$
+exclude ^(\.arch-ids|\{arch\}|\.arch-inventory)$
 
 # If the file has a name that begins with "++", it is categorized as
 # _precious_.  Names of this form are hard-wired and reserved for use by arch
@@ -139,15 +139,15 @@ exclude ^(.arch-ids|\{arch\}|\.arch-inventory)$
 # additional files as junk or precious:
 #
 
-junk ^(,.*|stamp-.*|.*cache|.deps|autoscan.log|config.log|aclocal.m4|obj|obj-[a-zA-Z0-9-]*)$
+junk ^(,.*|stamp-.*|.*\.tex-dep|.*\.tex-stamp|.*cache|\.deps|autoscan\.log|config\.log|aclocal\.m4|obj|obj-[a-zA-Z0-9-]*|.*\.o|\.libs)$
 
-precious ^(\+.*|\.gdbinit|\.#ckpts-lock|=build\.*|=install\.*|CVS|CVS\.adm|RCS|RCSLOG|SCCS|TAGS|tags|\.svn|\.git|Makefile|Makefile.in|config.status|configure|config.h.in|config.guess|config.sub|ltmain.sh|mkinstalldirs|missing|depcomp|compile)$
+precious ^(\+.*|\.gdbinit|\.#ckpts-lock|=build\.*|=install\.*|CVS|CVS\.adm|RCS|RCSLOG|SCCS|TAGS|tags|\.svn|\.git.*|Makefile|Makefile\.in|config\.status|configure|config\.h\.in|\.cproject|\.project)$
 
 # Files matching the following regexp are classified as backup files, and
 # traversal does not descend into backup directories:
 #
 
-backup ^.*(~|\.~[0-9]+~|\.bak|\.sw[lmnop]|\.orig|\.rej|\.original|\.modified|\.reject|\.tar|\.tgz|\.tar\.gz|\.tar\.bz2)$
+backup ^.*(~|\.~[0-9]+~|\.bak|\.sw[lmnop]|\.nfs.*|\.orig|\.rej|\.original|\.modified|\.reject|\.tar|\.tgz|\.tar\.gz|\.tar\.bz2)$
 
 # If you want to force certain filenames to be treated as errors when present,
 # you can add them to the regexp for deliberately unrecognized files.  Traversal
