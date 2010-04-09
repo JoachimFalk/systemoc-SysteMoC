@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-114
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Mar 14 16:54:09 CET 2007
+Standard-date: 2007-03-14 15:54:09 GMT
+Modified-files: systemoc-jpeg-decoder/channels.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-114
+Summary:
+ - Changed command for CTRLCMD_USEHUFF
+ - Removed static cast for JS_TUP_GETCATEGORY
+ - Removed static cast for JS_TUP_GETRUNLENGTH
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.3--patch-104
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri May  5 10:26:53 CEST 2006
+Standard-date: 2006-05-05 08:26:53 GMT
+Modified-files: systemoc-sqr/design-sqr.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-104
+Summary:
+ * Downcase actor instances a1 - a5 in design-sqr.cpp
+   to correspond to SysteMoC documentation
+Keywords: 
+
+
+

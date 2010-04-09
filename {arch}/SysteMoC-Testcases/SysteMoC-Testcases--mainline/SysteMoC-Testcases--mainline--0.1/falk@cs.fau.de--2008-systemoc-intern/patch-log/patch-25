@@ -1,0 +1,15 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-25
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri May 30 17:51:02 CEST 2008
+Standard-date: 2008-05-30 15:51:02 GMT
+Modified-files: systemoc-wsdf/fifo-sim.cpp
+    systemoc-wsdf/wsdf_edge_test.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-25
+Summary: 
+ - Add warning message that fifo_sim cannot be executed with VPC enabled
+ - Add some examples to wsdf_edge_test
+Keywords: 
+
+
+

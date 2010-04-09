@@ -1,0 +1,20 @@
+Revision: SystemC-Examples--mainline--0.6--patch-264
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Jun 21 18:30:38 CEST 2007
+Standard-date: 2007-06-21 16:30:38 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/array_institut_qcif.txt.id
+    systemoc-jpeg-decoder/array_institut_qcif.txt
+    systemoc-jpeg-decoder/test_data/.arch-ids/institut_qcif.jpeg.id
+    systemoc-jpeg-decoder/test_data/institut_qcif.jpeg
+Modified-files: systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/JpegSrc.hpp
+    systemoc-jpeg-decoder/smoc_synth_std_includes.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-264
+Summary: 
+ - using JpegSource per default
+ - JpegSource uses new test case "institut_qcif.jpg" four times
+Keywords: 
+
+
+

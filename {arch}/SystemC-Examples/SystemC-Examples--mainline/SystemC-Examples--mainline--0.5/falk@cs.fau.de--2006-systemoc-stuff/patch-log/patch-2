@@ -1,0 +1,31 @@
+Revision: SystemC-Examples--mainline--0.5--patch-2
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Oct 16 15:30:31 CEST 2006
+Standard-date: 2006-10-16 13:30:31 GMT
+Removed-files: systemc-idct/.arch-ids/dequant.hpp.id
+    systemc-idct/.arch-ids/reconstruct.hpp.id
+    systemc-idct/.arch-ids/sequence.hpp.id
+    systemc-idct/dequant.hpp systemc-idct/reconstruct.hpp
+    systemc-idct/sequence.hpp
+Modified-files: systemoc-fir/design-fir.cpp
+    systemoc-ibtest/generic_communication_node.hpp
+    systemoc-mpeg4/IDCTaddsub.hpp
+    systemoc-mpeg4/IDCTclip.hpp systemoc-mpeg4/IDCTfly.hpp
+    systemoc-mpeg4/IDCTscale.hpp
+    systemoc-mpeg4/Upsample.hpp
+    systemoc-mpeg4/block2row.hpp
+    systemoc-mpeg4/col2block.hpp
+    systemoc-mpeg4/design-test-idct2d.cpp
+    systemoc-mpeg4/min_duplex.hpp
+    systemoc-mpeg4/transpose.hpp
+    systemoc-select/design-select.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--mainline--0.5--patch-2
+Summary: 
+ * Replace obsolete xxx.getAvailableSpace and xxx.getAvailableTokens
+   syntax with xxx(...).
+
+Keywords: 
+
+
+

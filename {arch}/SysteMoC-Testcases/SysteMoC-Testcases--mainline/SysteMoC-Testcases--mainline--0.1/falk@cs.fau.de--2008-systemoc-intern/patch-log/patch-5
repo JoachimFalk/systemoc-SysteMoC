@@ -1,0 +1,16 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-5
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue May  6 13:49:09 CEST 2008
+Standard-date: 2008-05-06 11:49:09 GMT
+New-files: systemoc-src-snk/.arch-ids/multihop.cmx.id
+    systemoc-src-snk/multihop.cmx
+Modified-files: systemoc-src-snk/cmx.dtd
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-5
+Summary: 
+ - added multihop VPC configuration
+ - modified cmx.dtd supporting routing
+Keywords: 
+
+
+

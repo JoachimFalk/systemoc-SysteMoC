@@ -1,0 +1,69 @@
+Revision: SystemC-Examples--mainline--0.6--patch-203
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue May  8 18:46:25 CEST 2007
+Standard-date: 2007-05-08 16:46:25 GMT
+New-files: systemoc-idct2d/dustbin/.arch-ids/=id
+    systemoc-idct2d/dustbin/.arch-ids/IDCT1d_col.hpp.id
+    systemoc-idct2d/dustbin/.arch-ids/IDCT1d_row.hpp.id
+    systemoc-idct2d/dustbin/IDCT1d_col.hpp
+    systemoc-idct2d/dustbin/IDCT1d_row.hpp
+New-directories: systemoc-idct2d/dustbin
+    systemoc-idct2d/dustbin/.arch-ids
+Removed-files: systemoc-idct2d/.arch-ids/IDCT1d_row.hpp.id
+    systemoc-idct2d/IDCT1d_row.hpp
+Renamed-files: systemoc-idct2d/.arch-ids/IDCT1d_col.hpp.id systemoc-idct2d/.arch-ids/MIdct1D.hpp.id
+    systemoc-idct2d/.arch-ids/IDCT_block_sink.hpp.id systemoc-idct2d/.arch-ids/MImageSink.hpp.id
+    systemoc-idct2d/.arch-ids/IDCT_block_source.hpp.id systemoc-idct2d/.arch-ids/MIdctImageSource.hpp.id
+    systemoc-idct2d/.arch-ids/IDCTaddsub.hpp.id systemoc-idct2d/.arch-ids/MIdctAddSub.hpp.id
+    systemoc-idct2d/.arch-ids/IDCTclip.hpp.id systemoc-idct2d/dustbin/.arch-ids/IDCTclip.hpp.id
+    systemoc-idct2d/.arch-ids/IDCTfly.hpp.id systemoc-idct2d/.arch-ids/MIdctFly.hpp.id
+    systemoc-idct2d/.arch-ids/IDCTscale.hpp.id systemoc-idct2d/.arch-ids/MIdctScale.hpp.id
+    systemoc-idct2d/.arch-ids/InvLevel.hpp.id systemoc-idct2d/.arch-ids/MRangeAdj.hpp.id
+    systemoc-idct2d/.arch-ids/Upsample.hpp.id systemoc-idct2d/dustbin/.arch-ids/Upsample.hpp.id
+    systemoc-idct2d/.arch-ids/block2row.hpp.id systemoc-idct2d/.arch-ids/MBlock2Row.hpp.id
+    systemoc-idct2d/.arch-ids/col2block.hpp.id systemoc-idct2d/.arch-ids/MCol2Block.hpp.id
+    systemoc-idct2d/.arch-ids/idct2d.hpp.id systemoc-idct2d/.arch-ids/MIdct2D.hpp.id
+    systemoc-idct2d/.arch-ids/idct2d_main.hpp.id systemoc-idct2d/.arch-ids/MTopIdct2D.hpp.id
+    systemoc-idct2d/.arch-ids/min_duplex.hpp.id systemoc-idct2d/dustbin/.arch-ids/min_duplex.hpp.id
+    systemoc-idct2d/.arch-ids/row_clip.hpp.id systemoc-idct2d/dustbin/.arch-ids/row_clip.hpp.id
+    systemoc-idct2d/.arch-ids/transpose.hpp.id systemoc-idct2d/.arch-ids/MTranspose.hpp.id
+    systemoc-idct2d/IDCT1d_col.hpp systemoc-idct2d/MIdct1D.hpp
+    systemoc-idct2d/IDCT_block_sink.hpp systemoc-idct2d/MImageSink.hpp
+    systemoc-idct2d/IDCT_block_source.hpp systemoc-idct2d/MIdctImageSource.hpp
+    systemoc-idct2d/IDCTaddsub.hpp systemoc-idct2d/MIdctAddSub.hpp
+    systemoc-idct2d/IDCTclip.hpp systemoc-idct2d/dustbin/IDCTclip.hpp
+    systemoc-idct2d/IDCTfly.hpp systemoc-idct2d/MIdctFly.hpp
+    systemoc-idct2d/IDCTscale.hpp systemoc-idct2d/MIdctScale.hpp
+    systemoc-idct2d/InvLevel.hpp systemoc-idct2d/MRangeAdj.hpp
+    systemoc-idct2d/Upsample.hpp systemoc-idct2d/dustbin/Upsample.hpp
+    systemoc-idct2d/block2row.hpp systemoc-idct2d/MBlock2Row.hpp
+    systemoc-idct2d/col2block.hpp systemoc-idct2d/MCol2Block.hpp
+    systemoc-idct2d/idct2d.hpp systemoc-idct2d/MIdct2D.hpp
+    systemoc-idct2d/idct2d_main.hpp systemoc-idct2d/MTopIdct2D.hpp
+    systemoc-idct2d/min_duplex.hpp systemoc-idct2d/dustbin/min_duplex.hpp
+    systemoc-idct2d/row_clip.hpp systemoc-idct2d/dustbin/row_clip.hpp
+    systemoc-idct2d/transpose.hpp systemoc-idct2d/MTranspose.hpp
+Modified-files: systemoc-idct2d/MBlock2Row.hpp
+    systemoc-idct2d/MCol2Block.hpp
+    systemoc-idct2d/MIdct1D.hpp systemoc-idct2d/MIdct2D.hpp
+    systemoc-idct2d/MIdctAddSub.hpp
+    systemoc-idct2d/MIdctFly.hpp
+    systemoc-idct2d/MIdctImageSource.hpp
+    systemoc-idct2d/MIdctScale.hpp
+    systemoc-idct2d/MImageSink.hpp
+    systemoc-idct2d/MRangeAdj.hpp
+    systemoc-idct2d/MTopIdct2D.hpp
+    systemoc-idct2d/MTranspose.hpp
+    systemoc-idct2d/design-idct1d.cpp
+    systemoc-idct2d/design-idct2d-coarsegrained.cpp
+    systemoc-idct2d/design-idct2d-finegrained.cpp
+    systemoc-idct2d/design-idct2d-monolithic.cpp
+    systemoc-idct2d/smoc_synth_std_includes.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-203
+Summary: 
+ * systemoc-idct2d refactoring
+Keywords: 
+
+
+

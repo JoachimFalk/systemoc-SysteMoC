@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-74
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Nov 16 16:04:21 CET 2005
+Standard-date: 2005-11-16 15:04:21 GMT
+Modified-files: configure.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-74
+Summary: 
+ * Quoted arguments to ACJF_ARG_DEBUG and moved it after compiler toolchain detection
+Keywords: 
+
+
+

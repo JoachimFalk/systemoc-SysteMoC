@@ -1,0 +1,21 @@
+Revision: SystemC-Examples--mainline--0.2--patch-39
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Sep 13 13:54:57 CEST 2005
+Standard-date: 2005-09-13 11:54:57 GMT
+Modified-files: systemc-mpeg4/callib.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-39
+Summary: 
+ * revert definitions of
+ - #define bitand  cal_bitand
+ - #define bitor   cal_bitor
+ - #define bitxor  cal_bitxor
+ - #define rshift  cal_rshift
+ - #define lshift  cal_lshift
+ - Because bitand bitor are builtin c++ operators and can no longer be
+ - redifined with cpp macro definitions. Now use cal_xxx again instead
+ - of only xxx.
+Keywords: 
+
+
+

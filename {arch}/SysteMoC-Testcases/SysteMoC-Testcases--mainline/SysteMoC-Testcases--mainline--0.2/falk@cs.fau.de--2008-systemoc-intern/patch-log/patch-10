@@ -1,0 +1,72 @@
+Revision: SysteMoC-Testcases--mainline--0.2--patch-10
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May 18 20:04:55 CEST 2009
+Standard-date: 2009-05-18 18:04:55 GMT
+Modified-files: systemoc-cluster-example/StaticCluster.hpp
+    systemoc-cluster-example/cluster_ex.cpp
+    systemoc-fir/design-fir.cpp
+    systemoc-getValueAt/design-getValueAt.cpp
+    systemoc-par/design-par.cpp systemoc-sdf/design-sdf.cpp
+    systemoc-select/design-select.cpp
+    systemoc-sqr/design-sqr.cpp
+    systemoc-src-snk-hierarchy/design-src-snk-hierarchy.cpp
+    systemoc-src-snk-multiplex/design-src-snk-multiplex.cpp
+    systemoc-src-snk-noconsume/design-src-snk-noconsume.cpp
+    systemoc-src-snk/design-src-snk.cpp
+    systemoc-wsdf-dist/design-wsdf-dist.cpp
+    systemoc-wsdf-dist/wsdf_2D_dup3.hpp
+    systemoc-wsdf-dist/wsdf_dist.hpp
+    systemoc-wsdf-dist/wsdf_dummy_src.hpp
+    systemoc-wsdf-dist/wsdf_img_snk.hpp
+    systemoc-wsdf-dist/wsdf_rot180.hpp
+    systemoc-wsdf-dist/wsdf_rot180_ex.hpp
+    systemoc-wsdf-expr/design-wsdf-expr.cpp
+    systemoc-wsdf-recons-dila/1D_dup2.hpp
+    systemoc-wsdf-recons-dila/1D_dup3.hpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fast.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fifo.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila.cpp
+    systemoc-wsdf-recons-dila/test_input_switch.cpp
+    systemoc-wsdf-recons-dila/wsdf_1dil.hpp
+    systemoc-wsdf-recons-dila/wsdf_1dil_fast.hpp
+    systemoc-wsdf-recons-dila/wsdf_2D_dup2.hpp
+    systemoc-wsdf-recons-dila/wsdf_2D_dup3.hpp
+    systemoc-wsdf-recons-dila/wsdf_2D_dup4.hpp
+    systemoc-wsdf-recons-dila/wsdf_adiff_image.hpp
+    systemoc-wsdf-recons-dila/wsdf_dil_in_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_dil_out_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_img_max.hpp
+    systemoc-wsdf-recons-dila/wsdf_img_snk.hpp
+    systemoc-wsdf-recons-dila/wsdf_img_src.hpp
+    systemoc-wsdf-recons-dila/wsdf_input_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_min_image.hpp
+    systemoc-wsdf-recons-dila/wsdf_output_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_recons_fifo.hpp
+    systemoc-wsdf-recons-dila/wsdf_rot180.hpp
+    systemoc-wsdf-recons-dila/wsdf_rot180_ex.hpp
+    systemoc-wsdf-recons-dila/wsdf_seed_switch.hpp
+    systemoc-wsdf-src-snk/design-wsdf-src-snk.cpp
+    systemoc-wsdf-src-snk/design1D-src-snk.cpp
+    systemoc-wsdf-src-snk/dummy_block_snk_1d.hpp
+    systemoc-wsdf-src-snk/dummy_block_src_1d.hpp
+    systemoc-wsdf-src-snk/dummy_snk_1d.hpp
+    systemoc-wsdf-src-snk/dummy_src_1d.hpp
+    systemoc-wsdf-src-snk/img_block_snk_1d.hpp
+    systemoc-wsdf-src-snk/img_block_src_1d.hpp
+    systemoc-wsdf-src-snk/img_snk_1d.hpp
+    systemoc-wsdf-src-snk/img_src_1d.hpp
+    systemoc-wsdf-src-snk/wsdf_dummy_snk.hpp
+    systemoc-wsdf-src-snk/wsdf_dummy_src.hpp
+    systemoc-wsdf-src-snk/wsdf_img_snk.hpp
+    systemoc-wsdf-src-snk/wsdf_img_src.hpp
+    systemoc-wsdf/design-wsdf-no-border.cpp
+    systemoc-wsdf/design-wsdf.cpp
+    systemoc-wsdf/fifo-sim.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-10
+Summary: 
+ * Eliminate obsolete smoc_pggen.hpp usage.
+Keywords: 
+
+
+

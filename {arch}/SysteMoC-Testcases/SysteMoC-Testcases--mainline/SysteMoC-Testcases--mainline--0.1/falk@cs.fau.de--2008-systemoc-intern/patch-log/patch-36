@@ -1,0 +1,28 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-36
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jun 13 09:25:33 CEST 2008
+Standard-date: 2008-06-13 07:25:33 GMT
+Modified-files: systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fast.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fifo.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila.cpp
+    systemoc-wsdf-recons-dila/wsdf_img_snk.hpp
+    systemoc-wsdf-recons-dila/wsdf_img_src.hpp
+    systemoc-wsdf-recons-dila/wsdf_recons_fifo.hpp
+    systemoc-wsdf/wsdf_edge_test.cpp
+    {arch}/SysteMoC-Testcases/SysteMoC-Testcases--mainline/SysteMoC-Testcases--mainline--0.1/falk@cs.fau.de--2008-systemoc-intern/patch-log/patch-34
+    {arch}/SysteMoC-Testcases/SysteMoC-Testcases--mainline/SysteMoC-Testcases--mainline--0.1/falk@cs.fau.de--2008-systemoc-intern/patch-log/patch-35
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-36
+Summary: 
+ * Reverted patch 34 and 35
+ - Revert: Use Byte instead of unsigned char for proper dumping
+ - Revert: Add example for storage of WSDF parameters into stream.
+ - Revert: Change to Byte in design-wsdf-recons-dila and design-wsdf-recons-dila-fast
+ - Revert: ATTENTION: wsdf-design-recons-dila-fifo still uses unsigned char because otherwise it does not compile!
+ - Instead tagged old SysteMoC-Testcases--mainline--0.1 to SysteMoC-Testcases--keinert--0.1 for
+   Joachim Keinert to play arround till the Testcases compile again with SysteMoC--mainline--0.8.
+
+Keywords: 
+
+
+

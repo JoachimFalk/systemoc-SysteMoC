@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.3--patch-93
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Mon Feb 27 11:23:30 CET 2006
+Standard-date: 2006-02-27 10:23:30 GMT
+Modified-files: systemc-fir/design-fir.cpp
+    systemc-sdf/design-sdf.cpp
+    systemc-sqr-double/design-sqr.cpp
+    systemc-sqr/design-sqr.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-93
+Summary:
+  * fixed examples (output-ports: write-only, input-ports: read_only!)
+Keywords: 
+
+
+

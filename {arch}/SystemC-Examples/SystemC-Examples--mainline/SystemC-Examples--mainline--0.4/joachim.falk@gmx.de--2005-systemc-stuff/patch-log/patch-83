@@ -1,0 +1,18 @@
+Revision: SystemC-Examples--mainline--0.4--patch-83
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Apr 11 16:37:47 CEST 2007
+Standard-date: 2007-04-11 14:37:47 GMT
+Modified-files: systemoc-idct2d/IDCT_block_sink.hpp
+    systemoc-idct2d/IDCT_block_source.hpp
+    systemoc-idct2d/IDCTsink.hpp
+    systemoc-idct2d/IDCTsource.hpp
+    systemoc-idct2d/design-test-idct2d.cpp
+    systemoc-idct2d/smoc_synth_std_includes.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-83
+Summary: 
+ * Centralized defines into smoc_synth_std_includes.hpp
+Keywords: 
+
+
+

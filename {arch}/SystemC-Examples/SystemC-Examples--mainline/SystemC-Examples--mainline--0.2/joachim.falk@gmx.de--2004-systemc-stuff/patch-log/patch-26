@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.2--patch-26
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue Jul 26 20:34:20 CEST 2005
+Standard-date: 2005-07-26 18:34:20 GMT
+New-files: systemc-mpeg4/.arch-ids/parser.hpp.id
+    systemc-mpeg4/parser.hpp
+Modified-files: systemc-mpeg4/design-mpeg4.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-26
+Summary:added parser.hpp with all guards. Modification of design-mpeg4.cpp
+Keywords: 
+
+
+

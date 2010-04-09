@@ -1,0 +1,27 @@
+Revision: SysteMoC-Testcases--mainline--0.9.1--patch-16
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Dec  2 16:25:03 CET 2009
+Standard-date: 2009-12-02 15:25:03 GMT
+Modified-files: systemoc-sqr/design-sqr.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-68
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-22
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.9.1--patch-16
+Summary: 
+  * Merge from SysteMoC-Testcases--mainline--0.2--patch-22
+  - Added debug output for VAST
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-68
+   
+  * Added debug output for VAST
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-22
+   
+  * Merge from SysteMoC-Testcases--mainline--0.1--patch-68
+  - Added debug output for VAST
+

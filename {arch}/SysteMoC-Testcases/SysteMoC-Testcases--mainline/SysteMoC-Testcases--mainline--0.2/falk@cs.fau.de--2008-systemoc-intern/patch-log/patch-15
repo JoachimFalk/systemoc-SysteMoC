@@ -1,0 +1,21 @@
+Revision: SysteMoC-Testcases--mainline--0.2--patch-15
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jul 28 15:07:43 CEST 2009
+Standard-date: 2009-07-28 13:07:43 GMT
+Modified-files: configure.in systemoc-sqr/Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-60
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-15
+Summary: 
+ * Merge from SysteMoC-Testcases--mainline--0.1 branch
+ - Added ginger_synth targets
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-60
+   
+ - added ginger_synth targets
+

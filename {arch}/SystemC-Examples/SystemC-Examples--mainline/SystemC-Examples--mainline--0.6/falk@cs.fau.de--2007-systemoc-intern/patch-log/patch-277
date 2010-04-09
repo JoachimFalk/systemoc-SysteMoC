@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-277
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Jun 28 16:16:45 CEST 2007
+Standard-date: 2007-06-28 14:16:45 GMT
+Modified-files: systemoc-jpeg-decoder/InvZrl_tb.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-277
+Summary: 
+ - InvZrl_tb: define InvQuant statemachine version
+Keywords: 
+
+
+

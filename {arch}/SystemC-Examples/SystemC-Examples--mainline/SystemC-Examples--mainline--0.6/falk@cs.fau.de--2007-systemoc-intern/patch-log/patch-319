@@ -1,0 +1,12 @@
+Revision: SystemC-Examples--mainline--0.6--patch-319
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue Nov 27 18:26:05 CET 2007
+Standard-date: 2007-11-27 17:26:05 GMT
+Modified-files: systemoc-wsdf/addr_analysis_data_struct.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-319
+Summary: - Fix spelling mistake of comment in WSDF addr analysis.
+Keywords: 
+
+
+

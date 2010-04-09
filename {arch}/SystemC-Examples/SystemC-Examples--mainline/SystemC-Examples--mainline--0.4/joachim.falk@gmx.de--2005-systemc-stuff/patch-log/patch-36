@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.4--patch-36
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Jun 26 15:28:40 CEST 2006
+Standard-date: 2006-06-26 13:28:40 GMT
+Modified-files: systemoc-mpeg4/cmx.dtd systemoc-sqr/cmx.dtd
+    systemoc-sqr/pipelining.cmx.xml
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-36
+Summary: 
+ * Updated VPC configurations to include resources for FIFOs
+Keywords: 
+
+
+

@@ -1,0 +1,39 @@
+Revision: SysteMoC-Testcases--mainline--0.2--patch-13
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jul 28 15:06:24 CEST 2009
+Standard-date: 2009-07-28 13:06:24 GMT
+New-files: systemoc-sqr/hwsynth/.arch-ids/=id
+    systemoc-sqr/hwsynth/.arch-ids/m_approx_loop.cpp.id
+    systemoc-sqr/hwsynth/.arch-ids/m_approx_loop.h.id
+    systemoc-sqr/hwsynth/.arch-ids/system.cpp.id
+    systemoc-sqr/hwsynth/.arch-ids/system.h.id
+    systemoc-sqr/hwsynth/.arch-ids/tb.cpp.id
+    systemoc-sqr/hwsynth/.arch-ids/tb.h.id
+    systemoc-sqr/hwsynth/m_approx_loop.cpp
+    systemoc-sqr/hwsynth/m_approx_loop.h
+    systemoc-sqr/hwsynth/system.cpp
+    systemoc-sqr/hwsynth/system.h
+    systemoc-sqr/hwsynth/tb.cpp systemoc-sqr/hwsynth/tb.h
+New-directories: systemoc-sqr/hwsynth
+    systemoc-sqr/hwsynth/.arch-ids
+Modified-files: configure.in systemoc-sqr/Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-57
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-58
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-13
+Summary: 
+ * Merge from SysteMoC-Testcases--mainline--0.1 branch
+ - Add top-level files for hardware synthesis
+ - Add synthesis targets to Makefile
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-57
+   add top-level files for hardware synthesis
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-58
+   Add synthesis targets to Makefile
+

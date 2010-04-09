@@ -1,0 +1,129 @@
+Revision: SystemC-Examples--mainline--0.5--patch-10
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Nov 13 13:58:50 CET 2006
+Standard-date: 2006-11-13 12:58:50 GMT
+Modified-files: caltrop/Add.cpp caltrop/BankAccount.cpp
+    caltrop/FIR.cpp caltrop/Filter.cpp caltrop/ID.cpp
+    caltrop/Merge.cpp caltrop/Ramp.cpp caltrop/Select.cpp
+    caltrop/Sieve.cpp caltrop/SimpleFIR.cpp caltrop/Sum.cpp
+    caltrop/UpSample.cpp caltrop/design-fir.cpp
+    crypto-example/blowfish.cpp crypto-example/blowfish.hpp
+    crypto-example/channel.hpp
+    crypto-example/commandreader.hpp
+    crypto-example/consumermodule.cpp
+    crypto-example/consumermodule.hpp
+    crypto-example/cryptoalgorithm.cpp
+    crypto-example/cryptoalgorithm.hpp
+    crypto-example/cryptomodule.hpp crypto-example/des3.cpp
+    crypto-example/des3.hpp
+    crypto-example/design_crypto.cpp
+    crypto-example/dispatcher.hpp
+    crypto-example/examplenetworkpacket.hpp
+    crypto-example/exectimelogger.cpp
+    crypto-example/exectimelogger.hpp
+    crypto-example/filereader.hpp crypto-example/helper.hpp
+    crypto-example/ioactor.hpp crypto-example/md5.cpp
+    crypto-example/md5.hpp crypto-example/merger.hpp
+    crypto-example/panchamdefines.hpp
+    crypto-example/panchamround.cpp
+    crypto-example/panchamround.hpp
+    crypto-example/producermodule.cpp
+    crypto-example/producermodule.hpp
+    crypto-example/rlatencywriter.hpp
+    crypto-example/rsmodule.hpp
+    mpeg4-ref/.arch-ids/Makefile.am.id
+    systemc-fsm/design-fsm.cpp systemc-idct/IDCT1d.hpp
+    systemc-idct/IDCT1d_col.hpp systemc-idct/IDCT2d.hpp
+    systemc-idct/IDCTaddsub.hpp systemc-idct/IDCTclip.hpp
+    systemc-idct/IDCTfly.hpp systemc-idct/IDCTscale.hpp
+    systemc-idct/Upsample.hpp systemc-idct/block2row.hpp
+    systemc-idct/block_idct.hpp
+    systemc-idct/block_parser.hpp systemc-idct/callib.hpp
+    systemc-idct/col2block.hpp
+    systemc-idct/design-idct2d.cpp
+    systemc-idct/min_duplex.hpp systemc-idct/row_clip.hpp
+    systemc-idct/transpose.hpp systemoc-csp/design-csp.cpp
+    systemoc-fir/design-fir.cpp
+    systemoc-fir/smoc_synth_std_includes.hpp
+    systemoc-ibtest/atutest_atomic.cpp
+    systemoc-ibtest/atutest_nonatomic.cpp
+    systemoc-ibtest/bit_buffer.cpp
+    systemoc-ibtest/generic_communication_node.hpp
+    systemoc-ibtest/ib_m_atu_atomic.cpp
+    systemoc-ibtest/ib_m_atu_nonatomic.cpp
+    systemoc-ibtest/memory_access_read_test.cpp
+    systemoc-ibtest/memory_access_write_test.cpp
+    systemoc-ibtest/oneof.cpp
+    systemoc-ibtest/smoc1_vs_smoc2_test.cpp
+    systemoc-ibtest/smoc2test.cpp systemoc-ibtest/tt_ib.cpp
+    systemoc-mpeg4-teich-v2/callib.hpp
+    systemoc-mpeg4-teich-v2/design-mpeg4-teich.cpp
+    systemoc-mpeg4/IDCT1d.hpp systemoc-mpeg4/IDCT1d_col.hpp
+    systemoc-mpeg4/IDCT2d.hpp systemoc-mpeg4/IDCTaddsub.hpp
+    systemoc-mpeg4/IDCTclip.hpp systemoc-mpeg4/IDCTfly.hpp
+    systemoc-mpeg4/IDCTscale.hpp systemoc-mpeg4/MCadd.hpp
+    systemoc-mpeg4/Upsample.hpp
+    systemoc-mpeg4/block2row.hpp
+    systemoc-mpeg4/block_idct.hpp
+    systemoc-mpeg4/block_parser.hpp
+    systemoc-mpeg4/byte2bit.hpp systemoc-mpeg4/callib.hpp
+    systemoc-mpeg4/col2block.hpp systemoc-mpeg4/dequant.hpp
+    systemoc-mpeg4/design-mpeg4.cpp
+    systemoc-mpeg4/design-test-idct1d.cpp
+    systemoc-mpeg4/design-test-idct2d.cpp
+    systemoc-mpeg4/min_duplex.hpp
+    systemoc-mpeg4/parser-teich.hpp
+    systemoc-mpeg4/parser.hpp
+    systemoc-mpeg4/reconstruct.hpp
+    systemoc-mpeg4/row_clip.hpp systemoc-mpeg4/sequence.hpp
+    systemoc-mpeg4/smoc_synth_std_includes.hpp
+    systemoc-mpeg4/test_parser.cpp
+    systemoc-mpeg4/transpose.hpp
+    systemoc-par/design-par.cpp systemoc-sdf/design-sdf.cpp
+    systemoc-sdf/smoc_synth_std_includes.hpp
+    systemoc-select/design-select.cpp
+    systemoc-sqr-double/design-sqr.cpp
+    systemoc-sqr/design-sqr.cpp
+    systemoc-sqr/smoc_synth_std_includes.hpp
+    systemoc-src-snk-noconsume/design-src-snk-noconsume.cpp
+    systemoc-src-snk/design-src-snk.cpp
+    systemoc-td-sim-test/single_transition.cpp
+    systemoc-td-sim-test/smoc_event_test.cpp
+    systemoc-td-sim-test/td_sim.cpp
+    systemoc-td-sim-test/till_test.cpp
+    vpc-test-h261/bm_id106001.cpp
+    vpc-test-h261/c_bm_lf_id106013.cpp
+    vpc-test-h261/c_dct_q_id106014.cpp
+    vpc-test-h261/c_diff_dct_id106015.cpp
+    vpc-test-h261/c_idct_rec_id106016.cpp
+    vpc-test-h261/c_in_bm_id106017.cpp
+    vpc-test-h261/c_in_diff_id106018.cpp
+    vpc-test-h261/c_in_rf_id106026.cpp
+    vpc-test-h261/c_iq_idct_id106019.cpp
+    vpc-test-h261/c_lf_diff_id106020.cpp
+    vpc-test-h261/c_lf_rec_id106021.cpp
+    vpc-test-h261/c_q_iq_id106022.cpp
+    vpc-test-h261/c_q_rlc_id106023.cpp
+    vpc-test-h261/c_rec_sf_id106024.cpp
+    vpc-test-h261/c_rf_bm_id106025.cpp
+    vpc-test-h261/c_sf_rlc_id106027.cpp
+    vpc-test-h261/dct_id106002.cpp
+    vpc-test-h261/diff_id106003.cpp
+    vpc-test-h261/idct_id106004.cpp
+    vpc-test-h261/in_id106005.cpp
+    vpc-test-h261/iq_id106006.cpp
+    vpc-test-h261/lf_id106007.cpp vpc-test-h261/monitor.cpp
+    vpc-test-h261/q_id106008.cpp
+    vpc-test-h261/rec_id106009.cpp
+    vpc-test-h261/rf_id106010.cpp
+    vpc-test-h261/rlc_id106011.cpp
+    vpc-test-h261/sc_main.cpp vpc-test-h261/sf_id106012.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--mainline--0.5--patch-10
+Summary: 
+ * Added copyright boilerplate from COPYRIGHT to all files
+   except files in mpeg4-ref and idct2d-ref
+Keywords: 
+
+
+

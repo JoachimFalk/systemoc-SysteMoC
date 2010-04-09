@@ -1,0 +1,46 @@
+Revision: SystemC-Examples--mainline--0.6--patch-314
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Nov 14 19:43:20 CET 2007
+Standard-date: 2007-11-14 18:43:20 GMT
+New-files: systemoc-cluster-example/.arch-ids/=id
+    systemoc-cluster-example/.arch-ids/Actor_a1.hpp.id
+    systemoc-cluster-example/.arch-ids/Actor_a2.hpp.id
+    systemoc-cluster-example/.arch-ids/Actor_a3.hpp.id
+    systemoc-cluster-example/.arch-ids/Downsample.hpp.id
+    systemoc-cluster-example/.arch-ids/DynSwitch.hpp.id
+    systemoc-cluster-example/.arch-ids/Forward.hpp.id
+    systemoc-cluster-example/.arch-ids/Makefile.am.id
+    systemoc-cluster-example/.arch-ids/StaticCluster.hpp.id
+    systemoc-cluster-example/.arch-ids/Upsample.hpp.id
+    systemoc-cluster-example/.arch-ids/cluster_ex.cpp.id
+    systemoc-cluster-example/.arch-ids/smoc_synth_std_includes.hpp.id
+    systemoc-cluster-example/Actor_a1.hpp
+    systemoc-cluster-example/Actor_a2.hpp
+    systemoc-cluster-example/Actor_a3.hpp
+    systemoc-cluster-example/Downsample.hpp
+    systemoc-cluster-example/DynSwitch.hpp
+    systemoc-cluster-example/Forward.hpp
+    systemoc-cluster-example/Makefile.am
+    systemoc-cluster-example/StaticCluster.hpp
+    systemoc-cluster-example/Upsample.hpp
+    systemoc-cluster-example/cluster_ex.cpp
+    systemoc-cluster-example/smoc_synth_std_includes.hpp
+New-directories: systemoc-cluster-example
+    systemoc-cluster-example/.arch-ids
+Modified-files: configure.in
+    systemoc-idct2d/MCounterSource.hpp
+    systemoc-idct2d/MTopIdct2D.hpp
+    systemoc-idct2d/smoc_synth_std_includes.hpp
+    systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/JpegSrc.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-314
+Summary: 
+
+- Add cluster example
+
+IDCT
+- introduce block size in countersource
+- Fix Top (Counter Source + Dummy-Sink)
+Keywords: 
+

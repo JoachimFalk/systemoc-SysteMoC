@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--mainline--0.6--patch-302
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Sep  5 12:40:32 CEST 2007
+Standard-date: 2007-09-05 10:40:32 GMT
+New-files: systemoc-wsdf/.arch-ids/snk2addr_table_win_iter.cpp.id
+    systemoc-wsdf/.arch-ids/snk2addr_table_win_iter.hpp.id
+    systemoc-wsdf/snk2addr_table_win_iter.cpp
+    systemoc-wsdf/snk2addr_table_win_iter.hpp
+Modified-files: systemoc-wsdf/Makefile.am
+    systemoc-wsdf/addr_analysis.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-302
+Summary: WSDF address analysis: Reenable window iterator analysis by creating a corresponding class.
+Keywords: 
+
+
+

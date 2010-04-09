@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-21
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Tue Feb 20 14:03:17 CET 2007
+Standard-date: 2007-02-20 13:03:17 GMT
+Modified-files: systemoc-sqr/autotest.sh
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-21
+Summary: 
+  * finished autotest
+    @systemoc-sqr/autotest.sh
+Keywords: 
+
+
+

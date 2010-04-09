@@ -1,0 +1,26 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-49
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Mon Aug 18 19:36:37 CEST 2008
+Standard-date: 2008-08-18 17:36:37 GMT
+New-files: msvc90/.arch-ids/=id
+    msvc90/Testcases/.arch-ids/=id
+    msvc90/Testcases/.arch-ids/Testcases.ncb.id
+    msvc90/Testcases/.arch-ids/Testcases.sln.id
+    msvc90/Testcases/.arch-ids/Testcases.suo.id
+    msvc90/Testcases/Testcases.ncb
+    msvc90/Testcases/Testcases.sln
+    msvc90/Testcases/Testcases.suo
+    msvc90/Testcases/systemoc-sqr/.arch-ids/=id
+    msvc90/Testcases/systemoc-sqr/.arch-ids/systemoc-sqr.vcproj.id
+    msvc90/Testcases/systemoc-sqr/systemoc-sqr.vcproj
+New-directories: msvc90 msvc90/.arch-ids msvc90/Testcases
+    msvc90/Testcases/.arch-ids
+    msvc90/Testcases/systemoc-sqr
+    msvc90/Testcases/systemoc-sqr/.arch-ids
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-49
+Summary: Add Microsoft Visual C++ 2008 project files for systemoc-sqr
+Keywords: 
+
+
+

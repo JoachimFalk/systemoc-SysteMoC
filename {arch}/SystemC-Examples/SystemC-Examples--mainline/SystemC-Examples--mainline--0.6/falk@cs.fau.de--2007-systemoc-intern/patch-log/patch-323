@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-323
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Jan 11 17:23:37 CET 2008
+Standard-date: 2008-01-11 16:23:37 GMT
+Modified-files: systemoc-wsdf/wsdf_edge_test.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-323
+Summary: 
+ - Add WSDF example testing incomplete source firing blocks.
+Keywords: 
+
+
+

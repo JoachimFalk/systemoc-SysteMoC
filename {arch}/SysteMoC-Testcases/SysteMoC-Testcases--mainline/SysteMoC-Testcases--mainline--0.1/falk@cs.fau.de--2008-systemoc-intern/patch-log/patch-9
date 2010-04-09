@@ -1,0 +1,25 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-9
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May  7 18:56:37 CEST 2008
+Standard-date: 2008-05-07 16:56:37 GMT
+New-files: systemoc-src-snk-multiplex/.arch-ids/=id
+    systemoc-src-snk-multiplex/.arch-ids/Makefile.am.id
+    systemoc-src-snk-multiplex/.arch-ids/configure.in.frag.id
+    systemoc-src-snk-multiplex/.arch-ids/design-src-snk-multiplex.cpp.id
+    systemoc-src-snk-multiplex/Makefile.am
+    systemoc-src-snk-multiplex/configure.in.frag
+    systemoc-src-snk-multiplex/design-src-snk-multiplex.cpp
+New-directories: systemoc-src-snk-multiplex
+    systemoc-src-snk-multiplex/.arch-ids
+Modified-files: configure.in
+    systemoc-sr/SimpleParityCheck/configure.in.frag
+    systemoc-sr/configure.in.frag
+    systemoc-sr/matlab/configure.in.frag
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-9
+Summary: 
+ * Added smoc_multiplex_fifo testcase systemoc-src-snk-multiplex
+Keywords: 
+
+
+

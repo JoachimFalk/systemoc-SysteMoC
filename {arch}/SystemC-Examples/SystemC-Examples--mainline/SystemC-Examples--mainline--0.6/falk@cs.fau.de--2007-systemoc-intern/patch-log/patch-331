@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-331
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Mon Mar  3 16:54:59 CET 2008
+Standard-date: 2008-03-03 15:54:59 GMT
+New-files: systemoc-jpeg-decoder/specGen-mapping/.arch-ids/ip_data.csv.id
+    systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+Renamed-files: systemoc-jpeg-decoder/specGen-mapping/.arch-ids/ip_data.csv.id systemoc-jpeg-decoder/specGen-mapping/.arch-ids/ip_data_v1.csv.id
+    systemoc-jpeg-decoder/specGen-mapping/ip_data.csv systemoc-jpeg-decoder/specGen-mapping/ip_data_v1.csv
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-331
+Summary: Update HW-Times with DA-Schilling Actors (all but Huffman!)
+Keywords: 
+
+
+

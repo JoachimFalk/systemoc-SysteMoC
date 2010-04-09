@@ -1,0 +1,37 @@
+Revision: SystemC-Examples--mainline--0.6--patch-202
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue May  8 15:06:07 CEST 2007
+Standard-date: 2007-05-08 13:06:07 GMT
+Renamed-files: systemoc-jpeg-decoder/.arch-ids/InvLevel.hpp.id systemoc-idct2d/.arch-ids/InvLevel.hpp.id
+    systemoc-jpeg-decoder/InvLevel.hpp systemoc-idct2d/InvLevel.hpp
+Modified-files: systemoc-idct2d/IDCT1d_col.hpp
+    systemoc-idct2d/IDCT1d_row.hpp
+    systemoc-idct2d/IDCT_block_sink.hpp
+    systemoc-idct2d/IDCT_block_source.hpp
+    systemoc-idct2d/IDCTaddsub.hpp
+    systemoc-idct2d/IDCTclip.hpp
+    systemoc-idct2d/IDCTfly.hpp
+    systemoc-idct2d/IDCTscale.hpp
+    systemoc-idct2d/IDCTsink.hpp
+    systemoc-idct2d/IDCTsource.hpp
+    systemoc-idct2d/InvLevel.hpp
+    systemoc-idct2d/Upsample.hpp
+    systemoc-idct2d/block2row.hpp
+    systemoc-idct2d/callib.hpp
+    systemoc-idct2d/col2block.hpp
+    systemoc-idct2d/design-idct1d.cpp
+    systemoc-idct2d/idct2d_main.hpp
+    systemoc-idct2d/min_duplex.hpp
+    systemoc-idct2d/row_clip.hpp
+    systemoc-idct2d/transpose.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-202
+Summary: 
+ * Added Emacs and Vim tab definition line to each source file in systemoc-idct2d
+   because Joachim does not seam to be capable to globally configure his editor
+   to leave tabs well enough alone ;-).
+
+Keywords: 
+
+
+

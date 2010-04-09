@@ -1,0 +1,22 @@
+Revision: SystemC-Examples--mainline--0.6--patch-256
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Jun 18 16:29:09 CEST 2007
+Standard-date: 2007-06-18 14:29:09 GMT
+New-files: systemoc-jpeg-decoder/testlogs/.arch-ids/=id
+    systemoc-jpeg-decoder/testlogs/jpeg-demo/.arch-ids/4motion_128.jpg.log.id
+    systemoc-jpeg-decoder/testlogs/jpeg-demo/.arch-ids/=id
+    systemoc-jpeg-decoder/testlogs/jpeg-demo/.arch-ids/scd-logo-32.jpg.log.id
+    systemoc-jpeg-decoder/testlogs/jpeg-demo/4motion_128.jpg.log
+    systemoc-jpeg-decoder/testlogs/jpeg-demo/scd-logo-32.jpg.log
+New-directories: systemoc-jpeg-decoder/testlogs
+    systemoc-jpeg-decoder/testlogs/.arch-ids
+    systemoc-jpeg-decoder/testlogs/jpeg-demo
+    systemoc-jpeg-decoder/testlogs/jpeg-demo/.arch-ids
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-256
+Summary: 
+ - added missing test logs for autotest script
+Keywords: 
+
+
+

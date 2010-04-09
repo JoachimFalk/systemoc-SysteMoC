@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.3--patch-14
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sat Aug 13 17:00:46 CEST 2005
+Standard-date: 2005-08-13 15:00:46 GMT
+New-files: systemc-ibtest/.arch-ids/mapping.id
+    systemc-ibtest/mapping
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-14
+Summary: 
+ - added VPC mapping file
+Keywords: 
+
+
+

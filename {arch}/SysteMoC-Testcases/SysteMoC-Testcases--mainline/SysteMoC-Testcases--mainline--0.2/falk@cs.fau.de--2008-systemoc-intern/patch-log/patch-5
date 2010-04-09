@@ -1,0 +1,15 @@
+Revision: SysteMoC-Testcases--mainline--0.2--patch-5
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jan 23 16:26:17 CET 2009
+Standard-date: 2009-01-23 15:26:17 GMT
+Modified-files: systemoc-wsdf-dist/CImg.h
+    systemoc-wsdf-recons-dila/CImg.h
+    systemoc-wsdf-src-snk/CImg.h
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-5
+Summary: 
+ * 64bit fixup.
+Keywords: 
+
+
+

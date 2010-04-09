@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--mainline--0.3--patch-113
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Carsten Riedel <carsten.riedel@gmx.net>
+Date: Sat Jul 22 17:13:03 CEST 2006
+Standard-date: 2006-07-22 15:13:03 GMT
+Removed-files: crypto-example/.arch-ids/consumermodule1.cpp.id
+    crypto-example/consumermodule1.cpp
+Modified-files: crypto-example/rsmodule.hpp
+    crypto-example/start-crypto-simulation.sh.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-113
+Summary: 
+  * update start script
+  * modified rsmodule to only initialize once
+Keywords: 
+
+
+

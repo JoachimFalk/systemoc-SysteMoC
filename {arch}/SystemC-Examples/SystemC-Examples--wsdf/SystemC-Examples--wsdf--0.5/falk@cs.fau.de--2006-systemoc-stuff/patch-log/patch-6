@@ -1,0 +1,30 @@
+Revision: SystemC-Examples--wsdf--0.5--patch-6
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue Nov 14 18:37:28 CET 2006
+Standard-date: 2006-11-14 17:37:28 GMT
+New-files: systemoc-getValueAt/.arch-ids/=id
+    systemoc-getValueAt/.arch-ids/Makefile.am.id
+    systemoc-getValueAt/.arch-ids/design-getValueAt.cpp.id
+    systemoc-getValueAt/.arch-ids/smoc_synth_std_includes.hpp.id
+    systemoc-getValueAt/Makefile.am
+    systemoc-getValueAt/design-getValueAt.cpp
+    systemoc-getValueAt/smoc_synth_std_includes.hpp
+    systemoc-wsdf-expr/.arch-ids/=id
+    systemoc-wsdf-expr/.arch-ids/Makefile.am.id
+    systemoc-wsdf-expr/.arch-ids/design-wsdf-expr.cpp.id
+    systemoc-wsdf-expr/Makefile.am
+    systemoc-wsdf-expr/design-wsdf-expr.cpp
+New-directories: systemoc-getValueAt
+    systemoc-getValueAt/.arch-ids systemoc-wsdf-expr
+    systemoc-wsdf-expr/.arch-ids
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--wsdf--0.5--patch-6
+Summary:
+ - Add two new examples
+   (one for test of new wsdf-expression, other for compilation test of
+    getValueAt() construct)
+Keywords: 
+
+
+

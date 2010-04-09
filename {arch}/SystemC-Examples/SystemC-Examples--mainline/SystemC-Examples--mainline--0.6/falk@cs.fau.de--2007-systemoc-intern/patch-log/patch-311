@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-311
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Sep 20 16:55:52 CEST 2007
+Standard-date: 2007-09-20 14:55:52 GMT
+Modified-files: systemoc-jpeg-decoder/HuffDecoder.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-311
+Summary: 
+ * gcc 4.1.2 compile fixes
+Keywords: 
+
+
+

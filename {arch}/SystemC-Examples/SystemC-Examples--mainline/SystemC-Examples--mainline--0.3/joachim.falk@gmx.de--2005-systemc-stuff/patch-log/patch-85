@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-85
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Wed Jan 25 16:36:07 CET 2006
+Standard-date: 2006-01-25 15:36:07 GMT
+Modified-files: systemc-par/design-par.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-85
+Summary:
+ * cleaned up systemc-par example 
+Keywords: 
+
+
+

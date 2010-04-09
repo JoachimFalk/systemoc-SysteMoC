@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-104
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Mar 14 15:35:35 CET 2007
+Standard-date: 2007-03-14 14:35:35 GMT
+Modified-files: systemoc-jpeg-decoder/IDCTFrameBufferWriterTestbench.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-104
+Summary: 
+ * Added input stream close and clear error and eof bits to
+   IDCTScanSource. This allow us to read idct coeff files for
+   more than one scan.
+Keywords: 
+
+
+

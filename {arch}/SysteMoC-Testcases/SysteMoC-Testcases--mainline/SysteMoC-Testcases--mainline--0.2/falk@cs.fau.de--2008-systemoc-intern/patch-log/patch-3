@@ -1,0 +1,13 @@
+Revision: SysteMoC-Testcases--mainline--0.2--patch-3
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Dec 10 17:05:07 CET 2008
+Standard-date: 2008-12-10 16:05:07 GMT
+Modified-files: systemoc-select/design-select.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-3
+Summary:
+  * assignment of states to states is no longer possible 
+Keywords: 
+
+
+

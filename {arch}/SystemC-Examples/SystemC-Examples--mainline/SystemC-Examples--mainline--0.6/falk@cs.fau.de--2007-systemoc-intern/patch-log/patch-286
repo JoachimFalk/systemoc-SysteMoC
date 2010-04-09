@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.6--patch-286
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue Jul 10 16:16:57 CEST 2007
+Standard-date: 2007-07-10 14:16:57 GMT
+Modified-files: systemoc-jpeg-decoder/specGen-mapping/hw-sw-if-block.csv
+    systemoc-jpeg-decoder/specGen-mapping/hw-sw-if-dist.csv
+    systemoc-jpeg-decoder/specGen-mapping/sw-hw-if-block.csv
+    systemoc-jpeg-decoder/specGen-mapping/sw-hw-if-dist.csv
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-286
+Summary: i
+ - Update HW-SW communication times
+Keywords: 
+
+
+

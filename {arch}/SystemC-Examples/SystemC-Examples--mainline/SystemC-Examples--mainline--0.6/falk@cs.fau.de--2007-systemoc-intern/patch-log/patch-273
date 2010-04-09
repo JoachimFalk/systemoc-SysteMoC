@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-273
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Mon Jun 25 14:33:28 CEST 2007
+Standard-date: 2007-06-25 12:33:28 GMT
+Modified-files: systemoc-jpeg-decoder/JpegSrc.hpp
+    systemoc-jpeg-decoder/PGMsink.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-273
+Summary: In systemoc-jpeg-decoder: Print start and end times for each frame during SystemC simulation.
+Keywords: 
+
+
+

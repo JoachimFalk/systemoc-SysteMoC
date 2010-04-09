@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.5--patch-5
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Wed Oct 18 14:31:04 CEST 2006
+Standard-date: 2006-10-18 12:31:04 GMT
+Modified-files: configure.in systemoc-fir/Makefile.am
+    systemoc-mpeg4/Makefile.am systemoc-sdf/Makefile.am
+    systemoc-sqr/Makefile.am
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--mainline--0.5--patch-5
+Summary: 
+ * Only enable synth target support if --enable-synthesis-support is specified
+Keywords: 
+
+
+

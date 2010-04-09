@@ -1,0 +1,10 @@
+Revision: SystemC-Examples--mainline--0.1--patch-4
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Oct 26 14:36:27 CEST 2004
+Standard-date: 2004-10-26 12:36:27 GMT
+Modified-files: systemc-df2/design-sdf.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-4
+Summary: Now use new connectInterfacePorts for hierarchy
+Keywords: connectInterfacePorts
+

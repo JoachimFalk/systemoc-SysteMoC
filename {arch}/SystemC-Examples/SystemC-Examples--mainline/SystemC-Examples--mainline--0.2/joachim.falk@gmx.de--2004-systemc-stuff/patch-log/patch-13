@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.2--patch-13
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jun 29 15:46:16 CEST 2005
+Standard-date: 2005-06-29 13:46:16 GMT
+Modified-files: systemc-select/design-select.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-13
+Summary: 
+ * More debug output
+Keywords: 
+
+
+

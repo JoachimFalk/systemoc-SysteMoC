@@ -1,0 +1,59 @@
+Revision: SystemC-Examples--mainline--0.3--patch-100
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Apr 10 14:30:29 CEST 2006
+Standard-date: 2006-04-10 12:30:29 GMT
+Modified-files: systemoc-mpeg4/IDCT1d.hpp
+    systemoc-mpeg4/IDCT1d_col.hpp systemoc-mpeg4/IDCT2d.hpp
+    systemoc-mpeg4/IDCTaddsub.hpp
+    systemoc-mpeg4/IDCTclip.hpp systemoc-mpeg4/IDCTfly.hpp
+    systemoc-mpeg4/IDCTscale.hpp
+    systemoc-mpeg4/Upsample.hpp systemoc-mpeg4/callib.hpp
+    systemoc-mpeg4/row_clip.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-100
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-23
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-24
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-25
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-26
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-27
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-28
+Summary: 
+ * Merge from SystemC-Examples--mainline--0.4 branch
+ - changed IDCT2d example in systemoc-mpeg4 to use
+   SMOC_ACTOR_CPARAM macro for their actor constructor
+   parameter
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-23
+   
+ * Syncup to SystemC-Examples--mainline--0.3 branch
+ - Added example configuration for systemc-sqr using dynamic allocation
+ - Added crypto-example to repository including SystemC 2.1v1 fixes
+ - Copied new cmx.dtd and changed existing configuration.cmx.xml
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-24
+   
+ * added smoc_parser idct2d-example
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-25
+   
+ * added Makefile.am to idct2d-example
+ * updated configure.in
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-26
+   
+ * really add Makefile.am to idct2d-example
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-27
+   
+ * Copied IDCT2d actors containing constructor parameter syntax
+   (SMOC_ACTOR_CPARAM) from moc_parser-idct2d into systemoc-mpeg4
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-28
+   
+ * Eliminated smoc_parser-idct2d example changed integrated into systemoc-mpeg4
+

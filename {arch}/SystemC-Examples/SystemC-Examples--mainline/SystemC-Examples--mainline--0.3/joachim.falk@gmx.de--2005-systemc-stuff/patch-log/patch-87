@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.3--patch-87
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Sat Jan 28 10:46:24 CET 2006
+Standard-date: 2006-01-28 09:46:24 GMT
+Modified-files: systemc-ibtest/ib_m_atu_atomic.h
+    systemc-ibtest/ib_m_atu_nonatomic.h
+    systemc-ibtest/oneof.cpp systemc-ibtest/smoc2test.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-87
+Summary: 
+ * Namespace of Support is now consistently  CoSupport
+Keywords: 
+
+
+

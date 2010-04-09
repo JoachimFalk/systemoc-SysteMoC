@@ -1,0 +1,85 @@
+Revision: SystemC-Examples--mainline--0.4--patch-46
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Sep 22 17:59:01 CEST 2006
+Standard-date: 2006-09-22 15:59:01 GMT
+New-files: systemoc-fir/.arch-ids/smoc_synth_std_includes.hpp.id
+    systemoc-fir/smoc_synth_std_includes.hpp
+    systemoc-mpeg4/.arch-ids/smoc_synth_std_includes.hpp.id
+    systemoc-mpeg4/smoc_synth_std_includes.hpp
+    systemoc-sdf/.arch-ids/smoc_synth_std_includes.hpp.id
+    systemoc-sdf/smoc_synth_std_includes.hpp
+    systemoc-sqr/.arch-ids/smoc_synth_std_includes.hpp.id
+    systemoc-sqr/smoc_synth_std_includes.hpp
+Modified-files: Makefile.am configure.in
+    systemoc-fir/Makefile.am systemoc-fir/design-fir.cpp
+    systemoc-mpeg4/Makefile.am
+    systemoc-mpeg4/design-test-idct2d.cpp
+    systemoc-sdf/Makefile.am systemoc-sdf/design-sdf.cpp
+    systemoc-sqr/Makefile.am systemoc-sqr/design-sqr.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--base-0
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-1
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-2
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-3
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-4
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-5
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-6
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-7
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-8
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-46
+Summary: 
+ * Merge from SystemC-Examples--da-deyhle--0.4 branch
+ - adapted fir, sdf and sqr for easier synthesis: replaced templates, ...
+ - adapted sources of fir, sdf and sqr examples for easier synthesis
+ - added syntesis rules to Makefiles of examples fir, sdf and sqr
+ - added helper includefile to examples fir, sdf and sqr,
+   needed for automatic synthesis
+ - adapted idct2d-test example for easier synthesis
+ - added smoc_synth_std_includes.hpp
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--base-0
+   tag of joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-42
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-1
+   
+ * adapted fir, sdf and sqr for easier synthesis: replaced templates, ...
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-2
+   
+ * adapted sources of fir, sdf and sqr examples for easier synthesis
+ * added syntesis rules to Makefiles of examples fir, sdf and sqr
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-3
+   
+ * added helper includefile to examples fir, sdf and sqr,
+   needed for automatic synthesis
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-4
+   
+ * adapted idct2d-test example for easier synthesis
+ * added smoc_synth_std_includes.hpp
+ * adapted Makefile.am
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-5
+   
+ * adapted Makefiles for examples fir, mpeg4, sdf and sqr
+   for synthesis in subdirectory
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-6
+   
+ * adapted Makefiles of fir, sdf, sqr, idct for relative pathnames
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-7
+   
+ * bugfix in mpeg4 Makefile.am
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-8
+   
+ * adapted configure.in Makefile.am for relative pathname
+

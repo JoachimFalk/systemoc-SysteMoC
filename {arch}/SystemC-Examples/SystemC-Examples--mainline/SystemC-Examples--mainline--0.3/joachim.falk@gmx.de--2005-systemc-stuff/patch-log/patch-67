@@ -1,0 +1,37 @@
+Revision: SystemC-Examples--mainline--0.3--patch-67
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Yao Feng <yaofeng_afeng@yahoo.com>
+Date: Mon Oct 17 16:46:59 CEST 2005
+Standard-date: 2005-10-17 14:46:59 GMT
+Renamed-files: mpeg4-ref/.arch-ids/bitstream.c.id mpeg4-ref/.arch-ids/bitstream.cpp.id
+    mpeg4-ref/.arch-ids/copyControl.c.id mpeg4-ref/.arch-ids/copyControl.cpp.id
+    mpeg4-ref/.arch-ids/decoder_chip.c.id mpeg4-ref/.arch-ids/decoder_chip.cpp.id
+    mpeg4-ref/.arch-ids/main.c.id mpeg4-ref/.arch-ids/main.cpp.id
+    mpeg4-ref/.arch-ids/motionCompensation.c.id mpeg4-ref/.arch-ids/motionCompensation.cpp.id
+    mpeg4-ref/.arch-ids/motion_decode.c.id mpeg4-ref/.arch-ids/motion_decode.cpp.id
+    mpeg4-ref/.arch-ids/mp4_dec_output.c.id mpeg4-ref/.arch-ids/mp4_dec_output.cpp.id
+    mpeg4-ref/.arch-ids/parser.c.id mpeg4-ref/.arch-ids/parser.cpp.id
+    mpeg4-ref/.arch-ids/stimuliGeneration.c.id mpeg4-ref/.arch-ids/stimuliGeneration.cpp.id
+    mpeg4-ref/.arch-ids/textureUpdate.c.id mpeg4-ref/.arch-ids/textureUpdate.cpp.id
+    mpeg4-ref/.arch-ids/texture_idct.c.id mpeg4-ref/.arch-ids/texture_idct.cpp.id
+    mpeg4-ref/.arch-ids/texture_vld.c.id mpeg4-ref/.arch-ids/texture_vld.cpp.id
+    mpeg4-ref/bitstream.c mpeg4-ref/bitstream.cpp
+    mpeg4-ref/copyControl.c mpeg4-ref/copyControl.cpp
+    mpeg4-ref/decoder_chip.c mpeg4-ref/decoder_chip.cpp
+    mpeg4-ref/main.c mpeg4-ref/main.cpp
+    mpeg4-ref/motionCompensation.c mpeg4-ref/motionCompensation.cpp
+    mpeg4-ref/motion_decode.c mpeg4-ref/motion_decode.cpp
+    mpeg4-ref/mp4_dec_output.c mpeg4-ref/mp4_dec_output.cpp
+    mpeg4-ref/parser.c mpeg4-ref/parser.cpp
+    mpeg4-ref/stimuliGeneration.c mpeg4-ref/stimuliGeneration.cpp
+    mpeg4-ref/textureUpdate.c mpeg4-ref/textureUpdate.cpp
+    mpeg4-ref/texture_idct.c mpeg4-ref/texture_idct.cpp
+    mpeg4-ref/texture_vld.c mpeg4-ref/texture_vld.cpp
+Modified-files: mpeg4-ref/Makefile.am
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-67
+Summary: 
+ * Rename all .c into .cpp files therefore using g++ as compiler
+Keywords: 
+
+
+

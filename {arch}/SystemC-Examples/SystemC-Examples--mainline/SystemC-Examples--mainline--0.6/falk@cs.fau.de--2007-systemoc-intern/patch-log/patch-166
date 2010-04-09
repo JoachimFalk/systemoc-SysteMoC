@@ -1,0 +1,21 @@
+Revision: SystemC-Examples--mainline--0.6--patch-166
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Apr 23 14:49:34 CEST 2007
+Standard-date: 2007-04-23 12:49:34 GMT
+New-files: systemoc-jpeg-decoder/test_data/blocks-65/.arch-ids/=id
+    systemoc-jpeg-decoder/test_data/blocks-65/.arch-ids/block-65-bug.bmp.id
+    systemoc-jpeg-decoder/test_data/blocks-65/.arch-ids/block-65-bug.jpg.id
+    systemoc-jpeg-decoder/test_data/blocks-65/.arch-ids/block-65-bug.tup.id
+    systemoc-jpeg-decoder/test_data/blocks-65/block-65-bug.bmp
+    systemoc-jpeg-decoder/test_data/blocks-65/block-65-bug.jpg
+    systemoc-jpeg-decoder/test_data/blocks-65/block-65-bug.tup
+New-directories: systemoc-jpeg-decoder/test_data/blocks-65
+    systemoc-jpeg-decoder/test_data/blocks-65/.arch-ids
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-166
+Summary: 
+ - added block-65-bug testbench files
+Keywords: 
+
+
+

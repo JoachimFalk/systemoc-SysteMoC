@@ -1,0 +1,111 @@
+Revision: SystemC-Examples--mainline--0.2--patch-57
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Sep 27 11:57:38 CEST 2005
+Standard-date: 2005-09-27 09:57:38 GMT
+New-files: idct2d-ref/.arch-ids/=id
+    idct2d-ref/.arch-ids/BlockIDCT.cpp.id
+    idct2d-ref/.arch-ids/Makefile.am.id
+    idct2d-ref/.arch-ids/test_in.dat.id
+    idct2d-ref/BlockIDCT.cpp idct2d-ref/Makefile.am
+    idct2d-ref/test_in.dat
+    systemc-mpeg4/.arch-ids/IDCT1d_col.hpp.id
+    systemc-mpeg4/IDCT1d_col.hpp
+New-directories: idct2d-ref idct2d-ref/.arch-ids
+Modified-files: Makefile.am configure.in
+    systemc-mpeg4/IDCT1d.hpp systemc-mpeg4/IDCT2d.hpp
+    systemc-mpeg4/IDCTaddsub.hpp systemc-mpeg4/IDCTclip.hpp
+    systemc-mpeg4/IDCTfly.hpp systemc-mpeg4/IDCTscale.hpp
+    systemc-mpeg4/block2row.hpp
+    systemc-mpeg4/design-test-idct2d.cpp
+    systemc-mpeg4/row_clip.hpp systemc-mpeg4/transpose.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-57
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-40
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-41
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-42
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-43
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-44
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-45
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-46
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-47
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-48
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-49
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-50
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-51
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-52
+Summary: 
+ * Merge from SystemC-Examples--mainline--0.3 branch
+ - Added mpeg4 reference implementation in mpeg4-ref
+ - Added IDCT2d reference implementation in idct2d-ref/BlockIDCT.cpp
+   (Extractet from mpeg4-ref)
+ - Many bugfixes from Mr Yao Feng in IDCT2D
+   - add IDCT1d_col.hpp add IDCT1d's Parameters
+   - Bugfix in block2row (Added debug output code)
+   - Fixed parameters for in IDCT1d scale fly and addsub
+   - Fixed parameter in IDCT1d_col for scale, fly and addsub
+   - Fixed parameter in IDCT2d for m_Upsample
+   - Added debug output in IDCTclip, IDCTscale, IDCTaddsub and IDCTfly
+   - Add Test_in.dat-input, Test_out.dat-output and commentrows.
+   - Added text stimuli input
+   - Added debug output
+   - Fixed Parameter in IDCT1d_col.hpp for fly and scale.
+   - add OutputFileStream
+Keywords: 
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-40
+   add IDCT1d_col.hpp add IDCT1d's Parameters  
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-41
+   
+ * Bugfix in block2row
+ - Added debug output code
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-42
+   
+ * Fixed parameters for in IDCT1d scale fly and addsub
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-43
+   
+ * Fixed parameter in IDCT1d_col for scale, fly and addsub
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-44
+   
+ * Fixed parameter in IDCT2d for m_Upsample
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-45
+   
+ * Added debug output in IDCTclip
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-46
+   
+ * Added debug output in IDCTscale
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-47
+   
+ * Added debug output in IDCTaddsub
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-48
+   
+ * Added debug output in IDCTfly
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-49
+   
+ * Add Test_in.dat-input, Test_out.dat-output and commentrows.
+ 
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-50
+   
+ * Added text stimuli input
+ * Added debug output
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-51
+   
+ Fixed Parameter in IDCT1d_col.hpp for fly and scale.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-52
+   
+  add OutputFileStream
+

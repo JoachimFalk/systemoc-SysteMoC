@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--mainline--0.6--patch-81
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Mar 13 15:36:53 CET 2007
+Standard-date: 2007-03-13 14:36:53 GMT
+Modified-files: systemoc-jpeg-decoder/IDCTFrameBufferWriterTestbench.cpp
+    systemoc-jpeg-decoder/InvLevel.hpp
+    systemoc-jpeg-decoder/InvZigZag.hpp
+    systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/channels.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-81
+Summary: 
+ * Fixed FrameBufferWriter testbench
+Keywords: 
+
+
+

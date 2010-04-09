@@ -1,0 +1,35 @@
+Revision: SystemC-Examples--mainline--0.6--patch-3
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Feb  7 08:50:32 CET 2007
+Standard-date: 2007-02-07 07:50:32 GMT
+New-files: systemoc-sr/.arch-ids/adeva_lib.hpp.id
+    systemoc-sr/.arch-ids/design-PLMON.cpp.id
+    systemoc-sr/adeva_lib.hpp systemoc-sr/design-PLMON.cpp
+Modified-files: systemoc-sr/Makefile.am
+    systemoc-sr/design-sr-phil-simple.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-3
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-63
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-64
+Summary: 
+ * Merge from SystemC-Examples--mainline--0.4
+ - code cleanup
+ - new event detection approach using history signal
+ - added adeva_lib.hpp containing the delay actor
+ - added another sample
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-63
+   
+ - code cleanup
+ - new event detection approach using history signal
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-64
+   
+ - added adeva_lib.hpp containing the delay actor
+ - added another sample 
+

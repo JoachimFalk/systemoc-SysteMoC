@@ -1,0 +1,20 @@
+Revision: SystemC-Examples--mainline--0.6--patch-334
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Mar 10 15:15:25 CET 2008
+Standard-date: 2008-03-10 14:15:25 GMT
+Modified-files: systemoc-jpeg-decoder/specGen-mapping/block_fifo_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/dist_fifo_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/hw-sw-if-block.csv
+    systemoc-jpeg-decoder/specGen-mapping/hw-sw-if-dist.csv
+    systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/sw-hw-if-block.csv
+    systemoc-jpeg-decoder/specGen-mapping/sw-hw-if-dist.csv
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-334
+Summary: 
+ - Update sizes for actors, fifos
+ - New hw-sw communication sizes
+Keywords: 
+
+
+

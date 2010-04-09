@@ -1,0 +1,40 @@
+Revision: SystemC-Examples--mainline--0.3--patch-13
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sat Aug 13 03:51:19 CEST 2005
+Standard-date: 2005-08-13 01:51:19 GMT
+Modified-files: systemc-td-sim-test/smoc_event_test.cpp
+    vpc-test-h261/Makefile.am vpc-test-h261/bm_id106001.cpp
+    vpc-test-h261/c_bm_lf_id106013.cpp
+    vpc-test-h261/c_dct_q_id106014.cpp
+    vpc-test-h261/c_diff_dct_id106015.cpp
+    vpc-test-h261/c_idct_rec_id106016.cpp
+    vpc-test-h261/c_in_bm_id106017.cpp
+    vpc-test-h261/c_in_diff_id106018.cpp
+    vpc-test-h261/c_in_rf_id106026.cpp
+    vpc-test-h261/c_iq_idct_id106019.cpp
+    vpc-test-h261/c_lf_diff_id106020.cpp
+    vpc-test-h261/c_lf_rec_id106021.cpp
+    vpc-test-h261/c_q_iq_id106022.cpp
+    vpc-test-h261/c_q_rlc_id106023.cpp
+    vpc-test-h261/c_rec_sf_id106024.cpp
+    vpc-test-h261/c_rf_bm_id106025.cpp
+    vpc-test-h261/c_sf_rlc_id106027.cpp
+    vpc-test-h261/dct_id106002.cpp
+    vpc-test-h261/diff_id106003.cpp
+    vpc-test-h261/idct_id106004.cpp
+    vpc-test-h261/in_id106005.cpp
+    vpc-test-h261/iq_id106006.cpp
+    vpc-test-h261/lf_id106007.cpp vpc-test-h261/names.h
+    vpc-test-h261/q_id106008.cpp
+    vpc-test-h261/rec_id106009.cpp
+    vpc-test-h261/rf_id106010.cpp
+    vpc-test-h261/rlc_id106011.cpp
+    vpc-test-h261/sf_id106012.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-13
+Summary: 
+ - now use smoc_event with h261 example
+Keywords: 
+
+
+

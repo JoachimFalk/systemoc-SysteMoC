@@ -1,0 +1,27 @@
+Revision: SystemC-Examples--mainline--0.3--patch-28
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Thu Sep 15 11:17:17 CEST 2005
+Standard-date: 2005-09-15 09:17:17 GMT
+New-files: systemc-ibtest/.arch-ids/bit_buffer.cpp.id
+    systemc-ibtest/.arch-ids/bit_buffer.h.id
+    systemc-ibtest/.arch-ids/generic_communication_node.hpp.id
+    systemc-ibtest/.arch-ids/memory_access.h.id
+    systemc-ibtest/.arch-ids/memory_access_read_test.cpp.id
+    systemc-ibtest/.arch-ids/packet_header.h.id
+    systemc-ibtest/bit_buffer.cpp
+    systemc-ibtest/bit_buffer.h
+    systemc-ibtest/generic_communication_node.hpp
+    systemc-ibtest/memory_access.h
+    systemc-ibtest/memory_access_read_test.cpp
+    systemc-ibtest/packet_header.h
+Modified-files: systemc-ibtest/Makefile.am
+    systemc-ibtest/tt_ib.h vpc-test-h261/bm_id106001.cpp
+    vpc-test-h261/in_id106005.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-28
+Summary: 
+ - draft design for a memory access used together with InfiniBand mstore and mfetch
+Keywords: 
+
+
+

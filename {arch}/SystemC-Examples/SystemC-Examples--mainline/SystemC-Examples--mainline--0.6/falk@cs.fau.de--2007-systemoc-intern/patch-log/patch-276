@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-276
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Wed Jun 27 17:51:10 CEST 2007
+Standard-date: 2007-06-27 15:51:10 GMT
+Modified-files: systemoc-jpeg-decoder/CtrlSieve.hpp
+    systemoc-jpeg-decoder/DcDecoding.hpp
+    systemoc-jpeg-decoder/InvQuant.hpp
+    systemoc-jpeg-decoder/InvZrl.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-276
+Summary: In systemoc-jpeg-decoder: Optimize FSMs of DcDecoder, InvZrl, CtrlSieve and version 1 of InvQuant modules
+Keywords: 
+
+
+

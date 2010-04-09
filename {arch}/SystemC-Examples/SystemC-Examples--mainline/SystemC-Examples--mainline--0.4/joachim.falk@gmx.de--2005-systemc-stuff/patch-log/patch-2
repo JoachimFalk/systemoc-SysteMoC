@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.4--patch-2
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Dec  5 10:33:24 CET 2005
+Standard-date: 2005-12-05 09:33:24 GMT
+Modified-files: systemc-mpeg4/design-test-idct2d.cpp
+    systemc-mpeg4/test_in-dat
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-2
+Summary: 
+ * Add parameter for idct2d cycles in design-test-idct2d
+ * Up to 1000 allowed if more are needed add data to test-in.dat
+Keywords: 
+
+
+

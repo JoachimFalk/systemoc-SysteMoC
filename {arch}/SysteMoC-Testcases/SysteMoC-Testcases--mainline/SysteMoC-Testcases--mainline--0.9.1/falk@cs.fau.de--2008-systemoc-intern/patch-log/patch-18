@@ -1,0 +1,33 @@
+Revision: SysteMoC-Testcases--mainline--0.9.1--patch-18
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Dec  2 16:27:43 CET 2009
+Standard-date: 2009-12-02 15:27:43 GMT
+New-files: systemoc-sqr/.arch-ids/build.xml.in.id
+    systemoc-sqr/build.xml.in
+Modified-files: systemoc-sqr/Makefile.am
+    systemoc-sqr/configure.in.frag
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-70
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-24
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.9.1--patch-18
+Summary: 
+  * Merge from SysteMoC-Testcases--mainline--0.2--patch-24
+  - Added vast-res-aware-sim target
+  - Added ANT script build.xml.in to run building and simulation
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-70
+   
+  * Added vast-res-aware-sim target
+  * Added ANT script build.xml.in to run building and simulation
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-24
+   
+  * Merge from SysteMoC-Testcases--mainline--0.1--patch-70
+  - Added vast-res-aware-sim target
+  - Added ANT script build.xml.in to run building and simulation
+

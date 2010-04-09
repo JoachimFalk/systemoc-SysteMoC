@@ -1,0 +1,18 @@
+Revision: SystemC-Examples--mainline--0.6--patch-65
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Mar 13 10:01:17 CET 2007
+Standard-date: 2007-03-13 09:01:17 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/Clip.hpp.id
+    systemoc-jpeg-decoder/.arch-ids/InvLevel.hpp.id
+    systemoc-jpeg-decoder/.arch-ids/Round.hpp.id
+    systemoc-jpeg-decoder/Clip.hpp
+    systemoc-jpeg-decoder/InvLevel.hpp
+    systemoc-jpeg-decoder/Round.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-65
+Summary: 
+ - added missing files
+Keywords: 
+
+
+

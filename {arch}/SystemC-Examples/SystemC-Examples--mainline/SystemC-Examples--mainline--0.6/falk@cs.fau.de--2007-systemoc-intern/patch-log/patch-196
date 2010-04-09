@@ -1,0 +1,35 @@
+Revision: SystemC-Examples--mainline--0.6--patch-196
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue May  8 11:10:15 CEST 2007
+Standard-date: 2007-05-08 09:10:15 GMT
+New-files: systemoc-idct2d/.arch-ids/design-idct2d-coarsegrained.cpp.id
+    systemoc-idct2d/.arch-ids/design-idct2d-finegrained.cpp.id
+    systemoc-idct2d/.arch-ids/design-idct2d-monolithic.cpp.id
+    systemoc-idct2d/design-idct2d-coarsegrained.cpp
+    systemoc-idct2d/design-idct2d-finegrained.cpp
+    systemoc-idct2d/design-idct2d-monolithic.cpp
+Removed-files: systemoc-idct2d/.arch-ids/block_idct.hpp.id
+    systemoc-idct2d/block_idct.hpp
+Renamed-files: systemoc-idct2d/.arch-ids/IDCT2d.hpp.id systemoc-idct2d/.arch-ids/idct2d.hpp.id
+    systemoc-idct2d/.arch-ids/design-test-idct1d.cpp.id systemoc-idct2d/.arch-ids/design-idct1d.cpp.id
+    systemoc-idct2d/.arch-ids/design-test-idct2d.cpp.id systemoc-idct2d/.arch-ids/idct2d_main.hpp.id
+    systemoc-idct2d/IDCT2d.hpp systemoc-idct2d/idct2d.hpp
+    systemoc-idct2d/design-test-idct1d.cpp systemoc-idct2d/design-idct1d.cpp
+    systemoc-idct2d/design-test-idct2d.cpp systemoc-idct2d/idct2d_main.hpp
+Modified-files: systemoc-idct2d/Makefile.am
+    systemoc-idct2d/idct2d.hpp
+    systemoc-idct2d/idct2d_main.hpp
+    systemoc-idct2d/smoc_synth_std_includes.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-196
+Summary: 
+ * Dropped block idct moved stuff into idct2d.hpp
+ * Defined  {synth,simulation}-idct2d-{finegrained,coarsegrained,monolithic}
+   targets in Makefile.am. At the moment there are no difference between
+   finegrained, coarsegrained, and monolithic as they are all implemented as
+   a finegrained IDCT 2d.
+
+Keywords: 
+
+
+

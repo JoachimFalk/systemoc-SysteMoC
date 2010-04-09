@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-238
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Wed May 30 15:45:08 CEST 2007
+Standard-date: 2007-05-30 13:45:08 GMT
+Modified-files: systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-238
+Summary: 
+  * added values
+    @ip_data.csv
+Keywords: 
+
+
+

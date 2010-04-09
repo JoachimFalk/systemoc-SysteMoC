@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-121
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Christian Haubelt <haubelt@cs.fau.de>
+Date: Thu Mar 15 13:09:45 CET 2007
+Standard-date: 2007-03-15 12:09:45 GMT
+Modified-files: systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/Parser.hpp
+    systemoc-jpeg-decoder/ParserTestbench.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-121
+Summary: Added Start of Scan (SOS) marker processing to parser
+Keywords: 
+
+
+

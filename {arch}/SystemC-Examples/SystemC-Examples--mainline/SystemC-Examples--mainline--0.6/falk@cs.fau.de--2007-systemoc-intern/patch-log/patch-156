@@ -1,0 +1,19 @@
+Revision: SystemC-Examples--mainline--0.6--patch-156
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Mon Mar 26 14:06:42 CEST 2007
+Standard-date: 2007-03-26 12:06:42 GMT
+Modified-files: systemoc-jpeg-decoder/BitSplitter.cpp
+    systemoc-jpeg-decoder/HuffDecoder.cpp
+    systemoc-jpeg-decoder/HuffDecoder.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-156
+Summary: 
+  * removed debug code, removed obsolete code
+    @HuffDecoder.{cpp|hpp}
+
+  * fixed not changing component ID when finished block
+    @HuffDecoder.cpp
+Keywords: 
+
+
+

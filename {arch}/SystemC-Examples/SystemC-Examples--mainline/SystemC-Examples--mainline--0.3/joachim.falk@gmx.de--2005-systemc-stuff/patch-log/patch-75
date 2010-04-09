@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.3--patch-75
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Nov 17 16:11:07 CET 2005
+Standard-date: 2005-11-17 15:11:07 GMT
+Modified-files: systemc-mpeg4/Makefile.am
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-75
+Summary: 
+ * Disabled simulation-test-parser in systemc-mpeg4/Makefile.am
+   because it does not compile with -O2
+Keywords: 
+
+
+

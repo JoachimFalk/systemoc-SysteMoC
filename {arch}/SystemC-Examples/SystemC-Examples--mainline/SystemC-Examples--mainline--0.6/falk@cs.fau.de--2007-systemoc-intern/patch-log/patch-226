@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--mainline--0.6--patch-226
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri May 18 17:52:21 CEST 2007
+Standard-date: 2007-05-18 15:52:21 GMT
+Modified-files: systemoc-jpeg-decoder/FrameBufferWriter.hpp
+    systemoc-jpeg-decoder/FrameShuffler.hpp
+    systemoc-jpeg-decoder/PGMsink.hpp
+    systemoc-jpeg-decoder/debug_config.h
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-226
+Summary: 
+ - added basic debugging to PGMsink and FrameBufferWriter
+ - fixed warning in FrameShuffler
+Keywords: 
+
+
+

@@ -1,0 +1,55 @@
+Revision: SystemC-Examples--mainline--0.3--patch-19
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep  7 18:45:28 CEST 2005
+Standard-date: 2005-09-07 16:45:28 GMT
+New-files: systemc-mpeg4/.arch-ids/IDCT1d.hpp.id
+    systemc-mpeg4/.arch-ids/IDCT2d.hpp.id
+    systemc-mpeg4/.arch-ids/block_idct.hpp.id
+    systemc-mpeg4/.arch-ids/row_clip.hpp.id
+    systemc-mpeg4/IDCT1d.hpp systemc-mpeg4/IDCT2d.hpp
+    systemc-mpeg4/block_idct.hpp systemc-mpeg4/row_clip.hpp
+Modified-files: systemc-mpeg4/IDCTfly.hpp
+    systemc-mpeg4/MCadd.hpp systemc-mpeg4/callib.hpp
+    systemc-mpeg4/create-example.sh
+    systemc-mpeg4/design-mpeg4.cpp
+    systemc-mpeg4/transpose.hpp {arch}/=tagging-method
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-30
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-31
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-32
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-33
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-34
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-35
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-36
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-19
+Summary: 
+ * Sync from joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2
+Keywords: 
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-30
+   
+ * sync from joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-31
+   
+ * sync from joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-3
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-32
+   parameters to constructor change
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-33
+   add IDCT1d.hpp row_clip.hpp 
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-34
+   Modular in verschiedene Dateien geliedert. 
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-35
+   
+ * provide aliases for xxx to cal_xxx
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-36
+   
+ * eliminated systemc-yao from configure.in
+

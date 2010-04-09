@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-248
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Thu Jun 14 17:55:42 CEST 2007
+Standard-date: 2007-06-14 15:55:42 GMT
+Modified-files: systemoc-jpeg-decoder/BitSplitter.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-248
+Summary: 
+  * fixed compiler warning concerning comparison of signed and unsigned int
+    @BitSplitter.cpp
+Keywords: 
+
+
+

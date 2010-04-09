@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.4--patch-75
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Mar 26 19:00:11 CEST 2007
+Standard-date: 2007-03-26 17:00:11 GMT
+Modified-files: systemoc-idct2d/IDCT_block_sink.hpp
+    systemoc-idct2d/IDCT_block_source.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-75
+Summary: 
+ - Modify, so that SW-Synthesis passes.
+Keywords: 
+
+
+

@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--mainline--0.4--patch-47
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Sep 25 20:10:47 CEST 2006
+Standard-date: 2006-09-25 18:10:47 GMT
+Modified-files: systemoc-mpeg4/callib.hpp
+    systemoc-mpeg4/design-test-idct2d.cpp
+    systemoc-mpeg4/smoc_synth_std_includes.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-47
+Summary: 
+ * Modified systemoc-mpeg4 design-test-idct2d.cpp example
+ - NDEBUG, XILINX_EDK_RUNTIME, USE_COUNTER_INPUT
+ - Miscellaneous beautifications
+Keywords: 
+
+
+

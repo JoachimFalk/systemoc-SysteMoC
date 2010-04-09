@@ -1,0 +1,19 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-40
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Mon Jun 23 14:17:13 CEST 2008
+Standard-date: 2008-06-23 12:17:13 GMT
+Removed-files: systemoc-src-snk-multiplex/testlogs/.arch-ids/100iter-old.log.id
+    systemoc-src-snk-multiplex/testlogs/100iter-old.log
+Renamed-files: systemoc-src-snk-multiplex/testlogs/.arch-ids/100iter.log.id systemoc-src-snk-multiplex/testlogs/.arch-ids/1000-10-20-5-0.log.id
+    systemoc-src-snk-multiplex/testlogs/100iter.log systemoc-src-snk-multiplex/testlogs/1000-10-20-5-0.log
+Modified-files: systemoc-src-snk-multiplex/autotest-sh
+    systemoc-src-snk-multiplex/design-src-snk-multiplex.cpp
+    systemoc-src-snk-multiplex/testlogs/1000-10-20-5-0.log
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-40
+Summary:
+  * randomized systemoc-src-snk-multiplex 
+Keywords: 
+
+
+

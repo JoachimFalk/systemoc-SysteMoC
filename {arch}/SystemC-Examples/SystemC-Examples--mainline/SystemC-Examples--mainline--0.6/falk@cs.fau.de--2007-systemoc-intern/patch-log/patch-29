@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-29
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Mar  2 13:13:51 CET 2007
+Standard-date: 2007-03-02 12:13:51 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-29
+Summary: 
+ * Use systemoc/smoc_config.h to detect SysteMoC WSDF support
+Keywords: 
+
+
+

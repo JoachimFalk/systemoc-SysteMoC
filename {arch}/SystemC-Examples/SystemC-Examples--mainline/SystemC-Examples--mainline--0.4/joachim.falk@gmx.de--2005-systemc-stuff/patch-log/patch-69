@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.4--patch-69
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Feb 12 17:39:27 CET 2007
+Standard-date: 2007-02-12 16:39:27 GMT
+Modified-files: systemoc-idct2d/design-test-idct2d.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-69
+Summary:
+ - Introduce define for block count
+Keywords: 
+
+
+

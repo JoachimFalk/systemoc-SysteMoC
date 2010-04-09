@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.6--patch-294
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Jul 27 19:07:36 CEST 2007
+Standard-date: 2007-07-27 17:07:36 GMT
+New-files: systemoc-src-snk/.arch-ids/cmx.dtd.id
+    systemoc-src-snk/.arch-ids/src-sink.cmx.id
+    systemoc-src-snk/cmx.dtd systemoc-src-snk/src-sink.cmx
+Modified-files: systemoc-src-snk/design-src-snk.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-294
+Summary: 
+ * systemoc-src-snk: added token id test
+Keywords: 
+
+
+

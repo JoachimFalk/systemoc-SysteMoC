@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-60
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Mar 12 16:26:38 CET 2007
+Standard-date: 2007-03-12 15:26:38 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/InvZrl.hpp.id
+    systemoc-jpeg-decoder/InvZrl.hpp
+Modified-files: systemoc-jpeg-decoder/Jpeg.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-60
+Summary: 
+ - added InvZrl to top level design
+Keywords: 
+
+
+

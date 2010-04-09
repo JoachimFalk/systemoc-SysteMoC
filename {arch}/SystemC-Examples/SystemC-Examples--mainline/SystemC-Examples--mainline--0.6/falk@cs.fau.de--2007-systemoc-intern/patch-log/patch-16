@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-16
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Feb 12 20:25:42 CET 2007
+Standard-date: 2007-02-12 19:25:42 GMT
+Modified-files: systemoc-par/design-par.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-16
+Summary: 
+ * Include fixing
+Keywords: 
+
+
+

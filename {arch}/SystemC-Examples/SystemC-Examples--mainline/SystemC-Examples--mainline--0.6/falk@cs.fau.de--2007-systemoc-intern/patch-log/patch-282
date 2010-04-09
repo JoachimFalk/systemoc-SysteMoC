@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-282
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Mon Jul  2 10:41:08 CEST 2007
+Standard-date: 2007-07-02 08:41:08 GMT
+New-files: systemoc-jpeg-decoder/specGen-mapping/.arch-ids/ip_data_fast.csv.id
+    systemoc-jpeg-decoder/specGen-mapping/ip_data_fast.csv
+Modified-files: systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-282
+Summary: Update ip sizes and latencies in systemoc-jpeg-decoder
+ - Add ip_data_fast.csv with faster implementation of YCbCr, IDCTRow and IDCTCol modules
+Keywords: 
+
+
+

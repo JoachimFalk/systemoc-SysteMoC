@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.4--patch-48
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Oct 11 16:36:08 CEST 2006
+Standard-date: 2006-10-11 14:36:08 GMT
+Modified-files: systemoc-mpeg4/block2row.hpp
+    systemoc-mpeg4/callib.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-48
+Summary:
+ - Deactivated cout for XILINX_EDK_RUNTIME
+ - Removed comments, so that overall project compiles correctly
+Keywords: 
+
+
+

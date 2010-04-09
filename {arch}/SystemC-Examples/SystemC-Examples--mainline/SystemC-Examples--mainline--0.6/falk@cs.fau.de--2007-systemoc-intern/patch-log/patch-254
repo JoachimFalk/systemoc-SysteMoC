@@ -1,0 +1,18 @@
+Revision: SystemC-Examples--mainline--0.6--patch-254
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Fri Jun 15 14:56:35 CEST 2007
+Standard-date: 2007-06-15 12:56:35 GMT
+Modified-files: systemoc-jpeg-decoder/HuffDecoder.cpp
+    systemoc-jpeg-decoder/HuffDecoder.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-254
+Summary: 
+  * moved function bodies from hpp to cpp
+  * used const where possible
+  * clean up and reformating
+  * fixed small bug in writeTableToChannel() not using parameter but member
+    @HuffDecoder.{hpp|cpp}
+Keywords: 
+
+
+

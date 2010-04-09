@@ -1,0 +1,12 @@
+Revision: SystemC-Examples--mainline--0.6--patch-271
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Fri Jun 22 14:15:32 CEST 2007
+Standard-date: 2007-06-22 12:15:32 GMT
+Modified-files: systemoc-jpeg-decoder/smoc_synth_std_includes.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-271
+Summary: in jpeg-decoder: Always use JpegSrc for Synthesis (and thus for KaSCPar)
+Keywords: 
+
+
+

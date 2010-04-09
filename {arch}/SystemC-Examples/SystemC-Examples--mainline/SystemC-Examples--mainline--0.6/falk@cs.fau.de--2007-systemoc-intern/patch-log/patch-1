@@ -1,0 +1,28 @@
+Revision: SystemC-Examples--mainline--0.6--patch-1
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Feb  6 12:46:06 CET 2007
+Standard-date: 2007-02-06 11:46:06 GMT
+New-files: systemoc-sr/.arch-ids/=id
+    systemoc-sr/.arch-ids/Makefile.am.id
+    systemoc-sr/.arch-ids/design-sr-and.cpp.id
+    systemoc-sr/.arch-ids/design-sr-phil-simple.cpp.id
+    systemoc-sr/Makefile.am systemoc-sr/design-sr-and.cpp
+    systemoc-sr/design-sr-phil-simple.cpp
+New-directories: systemoc-sr systemoc-sr/.arch-ids
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-1
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-60
+Summary: 
+ * Merge changeset SystemC-Examples--mainline--0.4--patch-60
+ - added SR testcases
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-60
+   
+ - added SR testcases
+

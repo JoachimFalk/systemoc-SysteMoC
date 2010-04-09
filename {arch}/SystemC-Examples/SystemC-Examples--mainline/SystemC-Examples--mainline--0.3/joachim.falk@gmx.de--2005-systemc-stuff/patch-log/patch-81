@@ -1,0 +1,24 @@
+Revision: SystemC-Examples--mainline--0.3--patch-81
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Wed Jan 25 12:22:41 CET 2006
+Standard-date: 2006-01-25 11:22:41 GMT
+New-files: systemc-sqr-double/.arch-ids/=id
+    systemc-sqr-double/.arch-ids/Makefile.am.id
+    systemc-sqr-double/.arch-ids/cmx.dtd.id
+    systemc-sqr-double/.arch-ids/configuration.cmx.xml.id
+    systemc-sqr-double/.arch-ids/design-sqr.cpp.id
+    systemc-sqr-double/Makefile.am
+    systemc-sqr-double/cmx.dtd
+    systemc-sqr-double/configuration.cmx.xml
+    systemc-sqr-double/design-sqr.cpp
+New-directories: systemc-sqr-double
+    systemc-sqr-double/.arch-ids
+Modified-files: configure.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-81
+Summary: 
+ * Added systemc-sqr-double (duplicated approx_loop)
+Keywords: 
+
+
+

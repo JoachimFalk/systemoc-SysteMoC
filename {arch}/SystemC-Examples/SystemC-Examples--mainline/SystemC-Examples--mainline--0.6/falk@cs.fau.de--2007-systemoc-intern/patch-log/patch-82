@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.6--patch-82
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Mar 13 15:41:09 CET 2007
+Standard-date: 2007-03-13 14:41:09 GMT
+Modified-files: systemoc-jpeg-decoder/HuffDecoder.hpp
+    systemoc-jpeg-decoder/HuffmanTestbench.cpp
+    systemoc-jpeg-decoder/Parser.hpp
+    systemoc-jpeg-decoder/ParserTestbench.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-82
+Summary: 
+ - enabled DHT forwarding from Parser to HuffDecoder
+Keywords: 
+
+
+

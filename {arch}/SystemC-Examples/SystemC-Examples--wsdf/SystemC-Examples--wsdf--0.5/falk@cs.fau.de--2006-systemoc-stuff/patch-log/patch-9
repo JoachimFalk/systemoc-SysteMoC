@@ -1,0 +1,48 @@
+Revision: SystemC-Examples--wsdf--0.5--patch-9
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Nov 20 21:18:20 CET 2006
+Standard-date: 2006-11-20 20:18:20 GMT
+New-files: systemoc-wsdf-recons-dila/.arch-ids/1D_dup2.hpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/1D_dup3.hpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/example-bmp.id
+    systemoc-wsdf-recons-dila/.arch-ids/seed-bmp.id
+    systemoc-wsdf-recons-dila/.arch-ids/test_input_switch.cpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/wsdf_1dil.hpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/wsdf_2D_dup2.hpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/wsdf_2D_dup3.hpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/wsdf_adiff_image.hpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/wsdf_img_max.hpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/wsdf_input_switch.hpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/wsdf_min_image.hpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/wsdf_output_switch.hpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/wsdf_seed_switch.hpp.id
+    systemoc-wsdf-recons-dila/1D_dup2.hpp
+    systemoc-wsdf-recons-dila/1D_dup3.hpp
+    systemoc-wsdf-recons-dila/example-bmp
+    systemoc-wsdf-recons-dila/seed-bmp
+    systemoc-wsdf-recons-dila/test_input_switch.cpp
+    systemoc-wsdf-recons-dila/wsdf_1dil.hpp
+    systemoc-wsdf-recons-dila/wsdf_2D_dup2.hpp
+    systemoc-wsdf-recons-dila/wsdf_2D_dup3.hpp
+    systemoc-wsdf-recons-dila/wsdf_adiff_image.hpp
+    systemoc-wsdf-recons-dila/wsdf_img_max.hpp
+    systemoc-wsdf-recons-dila/wsdf_input_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_min_image.hpp
+    systemoc-wsdf-recons-dila/wsdf_output_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_seed_switch.hpp
+Removed-files: systemoc-wsdf-recons-dila/.arch-ids/wsdf_img_snk.cpp.id
+    systemoc-wsdf-recons-dila/.arch-ids/wsdf_img_src.cpp.id
+    systemoc-wsdf-recons-dila/wsdf_img_snk.cpp
+    systemoc-wsdf-recons-dila/wsdf_img_src.cpp
+Modified-files: systemoc-wsdf-recons-dila/Makefile.am
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila.cpp
+    systemoc-wsdf-recons-dila/wsdf_img_snk.hpp
+    systemoc-wsdf-recons-dila/wsdf_img_src.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--wsdf--0.5--patch-9
+Summary:
+ - Implement functionality
+Keywords: 
+
+
+

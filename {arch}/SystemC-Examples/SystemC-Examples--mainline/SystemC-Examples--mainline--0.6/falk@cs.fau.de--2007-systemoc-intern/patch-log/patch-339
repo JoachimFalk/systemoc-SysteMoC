@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-339
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Mar 31 15:34:28 CEST 2008
+Standard-date: 2008-03-31 13:34:28 GMT
+Modified-files: systemoc-jpeg-decoder/JpegSrc.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-339
+Summary: 
+ * Added define JPEGSRC_IMAGECOUNT support to JpegSrc.hpp
+Keywords: 
+
+
+

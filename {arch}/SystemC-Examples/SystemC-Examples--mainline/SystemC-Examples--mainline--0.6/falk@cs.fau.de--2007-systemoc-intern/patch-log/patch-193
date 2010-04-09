@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-193
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon May  7 15:56:39 CEST 2007
+Standard-date: 2007-05-07 13:56:39 GMT
+New-files: systemoc-wsdf/.arch-ids/fifo-sim.cpp.id
+    systemoc-wsdf/fifo-sim.cpp
+Modified-files: systemoc-wsdf/Makefile.am
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-193
+Summary: 
+ - Add example for separate simulation of WSDF fifo
+Keywords: 
+
+
+

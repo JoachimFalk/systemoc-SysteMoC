@@ -1,0 +1,22 @@
+Revision: SystemC-Examples--mainline--0.3--patch-82
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Wed Jan 25 12:35:34 CET 2006
+Standard-date: 2006-01-25 11:35:34 GMT
+New-files: systemc-par/.arch-ids/=id
+    systemc-par/.arch-ids/Makefile.am.id
+    systemc-par/.arch-ids/cmx.dtd.id
+    systemc-par/.arch-ids/configuration.cmx.xml.id
+    systemc-par/.arch-ids/design-par.cpp.id
+    systemc-par/Makefile.am systemc-par/cmx.dtd
+    systemc-par/configuration.cmx.xml
+    systemc-par/design-par.cpp
+New-directories: systemc-par systemc-par/.arch-ids
+Modified-files: configure.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-82
+Summary: 
+ * added systemc-par (test for calls/guards with parameter)
+Keywords: 
+
+
+

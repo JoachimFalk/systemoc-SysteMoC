@@ -1,0 +1,21 @@
+Revision: SystemC-Examples--mainline--0.6--patch-207
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Wed May  9 10:26:29 CEST 2007
+Standard-date: 2007-05-09 08:26:29 GMT
+Modified-files: systemoc-idct2d/MNIdctCol.hpp
+    systemoc-idct2d/MNIdctRow.hpp
+    systemoc-idct2d/MRangeAdj.hpp
+    systemoc-jpeg-decoder/IDCTFrameBufferWriterTestbench.cpp
+    systemoc-jpeg-decoder/InvZrl_tb.cpp
+    systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/Makefile.am
+    systemoc-jpeg-decoder/smoc_synth_std_includes.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-207
+Summary: Make systemoc-jpeg-decoder work with SW- and HW-Synthesis
+ - Add and modify HW-Synthesis rules
+ - Slightly modify new IDCT2D
+Keywords: 
+
+
+

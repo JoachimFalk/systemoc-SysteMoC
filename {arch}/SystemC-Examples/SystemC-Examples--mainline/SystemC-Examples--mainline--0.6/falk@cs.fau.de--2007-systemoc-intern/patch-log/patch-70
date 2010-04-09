@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-70
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Mar 13 11:01:18 CET 2007
+Standard-date: 2007-03-13 10:01:18 GMT
+Removed-files: systemoc-jpeg-decoder/.arch-ids/HuffmanManagement.hpp.id
+    systemoc-jpeg-decoder/HuffmanManagement.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-70
+Summary: 
+ * Removed obsolete HuffmanManagement.hpp
+Keywords: 
+
+
+

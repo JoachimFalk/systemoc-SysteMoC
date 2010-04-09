@@ -1,0 +1,14 @@
+Revision: SysteMoC-Testcases--mainline--0.9.1--patch-7
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Rustler <rustler@codesign.informatik.uni-erlangen.de>
+Date: Wed Sep 16 17:08:39 CEST 2009
+Standard-date: 2009-09-16 15:08:39 GMT
+Modified-files: systemoc-sqr/Makefile.am
+    systemoc-sqr/smoc_synth_std_includes.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.9.1--patch-7
+Summary: 
+ * Modified systemoc-sqr Makefile.am to correspond to new Rules-Synth.mk.in for Synthessis-SW and Synthesis-MPI.
+Keywords: 
+
+
+

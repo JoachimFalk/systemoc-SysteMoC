@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.3--patch-110
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Carsten Riedel <carsten.riedel@gmx.net>
+Date: Thu Jun  8 15:59:26 CEST 2006
+Standard-date: 2006-06-08 13:59:26 GMT
+New-files: crypto-example/.arch-ids/start-crypto-simulation.sh.in.id
+    crypto-example/.arch-ids/vcd_sum.pl.id
+    crypto-example/start-crypto-simulation.sh.in
+    crypto-example/vcd_sum.pl
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-110
+Summary: 
+  * added missing script files
+Keywords: 
+
+
+

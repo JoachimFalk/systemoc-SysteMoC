@@ -1,0 +1,13 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-54
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Nov 17 10:52:23 CET 2008
+Standard-date: 2008-11-17 09:52:23 GMT
+Modified-files: systemoc-sqr/configuration.cmx.xml
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-54
+Summary: 
+ - changed VPC config for SQR
+Keywords: 
+
+
+

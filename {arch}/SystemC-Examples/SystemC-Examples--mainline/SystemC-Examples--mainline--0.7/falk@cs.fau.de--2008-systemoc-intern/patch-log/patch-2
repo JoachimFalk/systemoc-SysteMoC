@@ -1,0 +1,26 @@
+Revision: SystemC-Examples--mainline--0.7--patch-2
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Apr 24 16:24:09 CEST 2008
+Standard-date: 2008-04-24 14:24:09 GMT
+Modified-files: systemoc-getValueAt/design-getValueAt.cpp
+    systemoc-sr/design-PLMON.cpp
+    systemoc-sr/design-mc-test.cpp
+    systemoc-sr/design-sr-and.cpp
+    systemoc-sr/design-sr-phil-simple.cpp
+    systemoc-wsdf-dist/design-wsdf-dist.cpp
+    systemoc-wsdf-expr/design-wsdf-expr.cpp
+    systemoc-wsdf-recons-dila/Makefile.am
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fast.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fifo.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila.cpp
+    systemoc-wsdf-recons-dila/test_input_switch.cpp
+    systemoc-wsdf-src-snk/design-wsdf-src-snk.cpp
+    systemoc-wsdf-src-snk/design1D-src-snk.cpp
+    systemoc-wsdf/design-wsdf-no-border.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SystemC-Examples--mainline--0.7--patch-2
+Summary: 
+ - Fix examples which still used old dump semantics
+ - Fix makefile for WSDF checks: Copy reference files when directly calling make check
+Keywords: 
+

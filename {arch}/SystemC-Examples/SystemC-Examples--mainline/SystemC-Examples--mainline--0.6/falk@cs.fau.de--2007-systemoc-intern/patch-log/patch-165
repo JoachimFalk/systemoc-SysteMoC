@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--mainline--0.6--patch-165
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Tue Apr 17 13:38:55 CEST 2007
+Standard-date: 2007-04-17 11:38:55 GMT
+New-files: systemoc-tlm-start/.arch-ids/sqr-hierachic.cpp.id
+    systemoc-tlm-start/sqr-hierachic.cpp
+Modified-files: systemoc-tlm-start/Makefile.am
+    systemoc-tlm-start/bus_test.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-165
+Summary: 
+  * added hierachic sqr model as intermediate step towards tlm mapping
+    +sqr-hierachic.cpp, @Makefile.am
+Keywords: 
+
+
+

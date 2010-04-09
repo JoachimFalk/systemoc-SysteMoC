@@ -1,0 +1,30 @@
+Revision: SystemC-Examples--mainline--0.6--patch-214
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon May 14 17:23:47 CEST 2007
+Standard-date: 2007-05-14 15:23:47 GMT
+New-files: systemoc-jpeg-decoder/specGen-mapping/.arch-ids/=id
+    systemoc-jpeg-decoder/specGen-mapping/.arch-ids/actorclass-vhdl-mapping.csv.id
+    systemoc-jpeg-decoder/specGen-mapping/.arch-ids/actorinstance-vhdl-mapping.csv.id
+    systemoc-jpeg-decoder/specGen-mapping/.arch-ids/block_fifo_data.csv.id
+    systemoc-jpeg-decoder/specGen-mapping/.arch-ids/dist_fifo_data.csv.id
+    systemoc-jpeg-decoder/specGen-mapping/.arch-ids/hw-sw-if-dist.csv.id
+    systemoc-jpeg-decoder/specGen-mapping/.arch-ids/ip_data.csv.id
+    systemoc-jpeg-decoder/specGen-mapping/.arch-ids/sw-hw-if-dist.csv.id
+    systemoc-jpeg-decoder/specGen-mapping/actorclass-vhdl-mapping.csv
+    systemoc-jpeg-decoder/specGen-mapping/actorinstance-vhdl-mapping.csv
+    systemoc-jpeg-decoder/specGen-mapping/block_fifo_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/dist_fifo_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/hw-sw-if-dist.csv
+    systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/sw-hw-if-dist.csv
+New-directories: systemoc-jpeg-decoder/specGen-mapping
+    systemoc-jpeg-decoder/specGen-mapping/.arch-ids
+Modified-files: systemoc-jpeg-decoder/Makefile.am
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-214
+Summary: 
+ - added "sgx" makefile target: create the common sgx/igx files (jpeg-decoder)
+Keywords: 
+
+
+

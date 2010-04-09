@@ -1,0 +1,21 @@
+Revision: SysteMoC-Testcases--mainline--0.2--patch-16
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jul 28 15:08:17 CEST 2009
+Standard-date: 2009-07-28 13:08:17 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-61
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-16
+Summary: 
+ * Merge from SysteMoC-Testcases--mainline--0.1 branch
+ - Fixup --enable-synthesis-support option processing.
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-61
+   
+ * Fixup --enable-synthesis-support option processing.
+

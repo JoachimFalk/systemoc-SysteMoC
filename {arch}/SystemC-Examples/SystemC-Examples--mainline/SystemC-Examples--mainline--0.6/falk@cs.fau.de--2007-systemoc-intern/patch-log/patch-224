@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-224
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri May 18 17:46:36 CEST 2007
+Standard-date: 2007-05-18 15:46:36 GMT
+Modified-files: systemoc-jpeg-decoder/HuffmanTestbench.cpp
+    systemoc-jpeg-decoder/ParserTestbench.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-224
+Summary: 
+ - made huffman and parser testbench "motion" jpeg aware
+Keywords: 
+
+
+

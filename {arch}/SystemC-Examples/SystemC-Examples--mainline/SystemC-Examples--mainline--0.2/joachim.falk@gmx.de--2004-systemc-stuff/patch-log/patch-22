@@ -1,0 +1,84 @@
+Revision: SystemC-Examples--mainline--0.2--patch-22
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Jul 25 15:00:22 CEST 2005
+Standard-date: 2005-07-25 13:00:22 GMT
+New-directories: systemc-sqr/.arch-ids
+Removed-files: systemc-counter/.arch-ids/COPYING.id
+    systemc-counter/.arch-ids/INSTALL.id
+    systemc-counter/.arch-ids/depcomp.id
+    systemc-counter/.arch-ids/install-sh.id
+    systemc-counter/.arch-ids/missing.id
+    systemc-counter/.arch-ids/mkinstalldirs.id
+    systemc-counter/COPYING systemc-counter/INSTALL
+    systemc-counter/depcomp systemc-counter/install-sh
+    systemc-counter/missing systemc-counter/mkinstalldirs
+    systemc-csp/.arch-ids/COPYING.id
+    systemc-csp/.arch-ids/INSTALL.id
+    systemc-csp/.arch-ids/depcomp.id
+    systemc-csp/.arch-ids/install-sh.id
+    systemc-csp/.arch-ids/missing.id
+    systemc-csp/.arch-ids/mkinstalldirs.id
+    systemc-csp/COPYING systemc-csp/INSTALL
+    systemc-csp/depcomp systemc-csp/install-sh
+    systemc-csp/missing systemc-csp/mkinstalldirs
+    systemc-df/.arch-ids/=id
+    systemc-df/.arch-ids/COPYING.id
+    systemc-df/.arch-ids/INSTALL.id
+    systemc-df/.arch-ids/Makefile.am.id
+    systemc-df/.arch-ids/configure.in.id
+    systemc-df/.arch-ids/depcomp.id
+    systemc-df/.arch-ids/design-df.cpp.id
+    systemc-df/.arch-ids/install-sh.id
+    systemc-df/.arch-ids/missing.id
+    systemc-df/.arch-ids/mkinstalldirs.id
+    systemc-df/COPYING systemc-df/INSTALL
+    systemc-df/Makefile.am systemc-df/configure.in
+    systemc-df/depcomp systemc-df/design-df.cpp
+    systemc-df/install-sh systemc-df/missing
+    systemc-df/mkinstalldirs
+    systemc-df2/.arch-ids/adder-schuetz.cpp.id
+    systemc-df2/.arch-ids/design-schuetz.cpp.id
+    systemc-df2/adder-schuetz.cpp
+    systemc-df2/design-schuetz.cpp
+    systemc-fsm/.arch-ids/COPYING.id
+    systemc-fsm/.arch-ids/INSTALL.id
+    systemc-fsm/.arch-ids/depcomp.id
+    systemc-fsm/.arch-ids/install-sh.id
+    systemc-fsm/.arch-ids/missing.id
+    systemc-fsm/.arch-ids/mkinstalldirs.id
+    systemc-fsm/COPYING systemc-fsm/INSTALL
+    systemc-fsm/depcomp systemc-fsm/install-sh
+    systemc-fsm/missing systemc-fsm/mkinstalldirs
+    systemc-sr/.arch-ids/=id
+    systemc-sr/.arch-ids/COPYING.id
+    systemc-sr/.arch-ids/INSTALL.id
+    systemc-sr/.arch-ids/Makefile.am.id
+    systemc-sr/.arch-ids/config.hpp.id
+    systemc-sr/.arch-ids/configure.in.id
+    systemc-sr/.arch-ids/depcomp.id
+    systemc-sr/.arch-ids/design-sr.cpp.id
+    systemc-sr/.arch-ids/install-sh.id
+    systemc-sr/.arch-ids/missing.id
+    systemc-sr/.arch-ids/mkinstalldirs.id
+    systemc-sr/COPYING systemc-sr/INSTALL
+    systemc-sr/Makefile.am systemc-sr/config.hpp
+    systemc-sr/configure.in systemc-sr/depcomp
+    systemc-sr/design-sr.cpp systemc-sr/install-sh
+    systemc-sr/missing systemc-sr/mkinstalldirs
+Removed-directories: systemc-df systemc-df/.arch-ids
+    systemc-df2/.arch-ids systemc-sr systemc-sr/.arch-ids
+Renamed-files: systemc-df2/.arch-ids/=id systemc-sqr/.arch-ids/=id
+    systemc-df2/.arch-ids/Makefile.am.id systemc-sqr/.arch-ids/Makefile.am.id
+    systemc-df2/.arch-ids/design-df.cpp.id systemc-sqr/.arch-ids/design-sqr.cpp.id
+    systemc-df2/design-df.cpp systemc-sqr/design-sqr.cpp
+Renamed-directories: systemc-df2 systemc-sqr
+Modified-files: Makefile.am configure.in
+    systemc-mpeg4/design-mpeg4.cpp systemc-sqr/Makefile.am
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-22
+Summary: 
+ * removed outdated subdirs systemc-df systemc-sr
+Keywords: 
+
+
+

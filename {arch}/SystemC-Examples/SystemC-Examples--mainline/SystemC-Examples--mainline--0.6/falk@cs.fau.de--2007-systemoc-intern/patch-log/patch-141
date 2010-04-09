@@ -1,0 +1,33 @@
+Revision: SystemC-Examples--mainline--0.6--patch-141
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Mar 15 21:15:35 CET 2007
+Standard-date: 2007-03-15 20:15:35 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/BlockSnk.hpp.id
+    systemoc-jpeg-decoder/.arch-ids/ConstSource.hpp.id
+    systemoc-jpeg-decoder/BlockSnk.hpp
+    systemoc-jpeg-decoder/ConstSource.hpp
+Modified-files: systemoc-jpeg-decoder/InvQuant.hpp
+    systemoc-jpeg-decoder/InvZigZag.hpp
+    systemoc-jpeg-decoder/InvZrl_tb.cpp
+    systemoc-jpeg-decoder/Jpeg.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-141
+Summary: 
+
+InvQuant.hpp:
+ - Make proper debug output
+
+InvZigZag.hpp:
+ - Undo hack (Change JpegChannel_t back to IDCTCoeff_t for output port)
+
+InvZrl_tb.cpp:
+ - Add InvQuant
+ - Add BlockSnk
+
+Jpeg.cpp:
+ - Undo hack (adapt to InvZigZag)
+
+
+
+Keywords: 
+

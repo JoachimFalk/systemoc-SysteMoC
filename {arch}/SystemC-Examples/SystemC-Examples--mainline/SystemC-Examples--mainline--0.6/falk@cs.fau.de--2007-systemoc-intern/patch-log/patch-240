@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.6--patch-240
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Jun  1 16:19:32 CEST 2007
+Standard-date: 2007-06-01 14:19:32 GMT
+Modified-files: systemoc-jpeg-decoder/specGen-mapping/block_fifo_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/dist_fifo_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-240
+Summary: 
+ - new specGen-mappings for DAC07 demo (systemoc-jpeg-decoder)
+ -> using estimated SW delays from gprof PC-profile
+Keywords: 
+
+
+

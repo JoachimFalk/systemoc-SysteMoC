@@ -1,0 +1,25 @@
+Revision: SystemC-Examples--mainline--0.2--patch-37
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Yao Feng <yaofeng_afeng@yahoo.com>
+Date: Tue Sep 13 11:50:53 CEST 2005
+Standard-date: 2005-09-13 09:50:53 GMT
+New-files: systemc-mpeg4/.arch-ids/design-test-idct2d.cpp.id
+    systemc-mpeg4/.arch-ids/min_duplex.hpp.id
+    systemc-mpeg4/design-test-idct2d.cpp
+    systemc-mpeg4/min_duplex.hpp
+Modified-files: systemc-mpeg4/IDCT1d.hpp
+    systemc-mpeg4/IDCT2d.hpp systemc-mpeg4/IDCTaddsub.hpp
+    systemc-mpeg4/IDCTclip.hpp systemc-mpeg4/IDCTfly.hpp
+    systemc-mpeg4/IDCTscale.hpp systemc-mpeg4/Makefile.am
+    systemc-mpeg4/Upsample.hpp systemc-mpeg4/block2row.hpp
+    systemc-mpeg4/block_idct.hpp
+    systemc-mpeg4/col2block.hpp systemc-mpeg4/row_clip.hpp
+    systemc-mpeg4/transpose.hpp {arch}/=tagging-method
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-37
+Summary: 
+ * Added .o and .libs files to junk file list to enable in place
+   compilation without conflict of version control
+Keywords: 
+
+
+

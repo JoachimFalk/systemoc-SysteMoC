@@ -1,0 +1,10 @@
+Revision: SystemC-Examples--mainline--0.1--patch-3
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Oct 26 13:53:24 CEST 2004
+Standard-date: 2004-10-26 11:53:24 GMT
+Modified-files: systemc-df2/design-sdf.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-3
+Summary: Added hirarchy to design-sdf
+Keywords: hirarchy
+

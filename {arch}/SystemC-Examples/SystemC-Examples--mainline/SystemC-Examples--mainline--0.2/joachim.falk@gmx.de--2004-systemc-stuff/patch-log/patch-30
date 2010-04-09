@@ -1,0 +1,27 @@
+Revision: SystemC-Examples--mainline--0.2--patch-30
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Aug  1 15:23:14 CEST 2005
+Standard-date: 2005-08-01 13:23:14 GMT
+Modified-files: systemc-mpeg4/parser.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-30
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--base-0
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-1
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-2
+Summary: 
+ * sync from joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3
+Keywords: 
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--base-0
+   tag of joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-28
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-1
+   
+ * Merge from joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-2
+   
+ * Fixed guard calls fixed signed unsigned comparisions
+

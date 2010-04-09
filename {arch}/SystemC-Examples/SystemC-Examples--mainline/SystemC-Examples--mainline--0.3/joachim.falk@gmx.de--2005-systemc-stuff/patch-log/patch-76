@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.3--patch-76
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Yao Feng <yaofeng_afeng@yahoo.com>
+Date: Thu Nov 24 12:22:44 CET 2005
+Standard-date: 2005-11-24 11:22:44 GMT
+Modified-files: mpeg4-ref/bitstream.cpp
+    mpeg4-ref/texture_vld.cpp systemc-mpeg4/Makefile.am
+    systemc-mpeg4/parser.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-76
+Summary:
+  commit before codechange.
+Keywords: 
+
+
+

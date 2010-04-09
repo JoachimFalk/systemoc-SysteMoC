@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.2--patch-14
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jun 29 19:05:08 CEST 2005
+Standard-date: 2005-06-29 17:05:08 GMT
+Modified-files: calltrop/Add.cpp calltrop/BankAccount.cpp
+    calltrop/Filter.cpp systemc-sdf/design-sdf.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-14
+Summary: 
+ * design-sdf.cpp now use smoc_actor base class
+Keywords: 
+
+
+

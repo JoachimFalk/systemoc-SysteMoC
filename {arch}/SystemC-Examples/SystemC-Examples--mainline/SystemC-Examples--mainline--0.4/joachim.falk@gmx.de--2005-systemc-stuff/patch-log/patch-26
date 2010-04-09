@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.4--patch-26
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Andreas Deyhle <andi.deyhle@gmx.de>
+Date: Fri Apr  7 18:32:07 CEST 2006
+Standard-date: 2006-04-07 16:32:07 GMT
+New-files: smoc_parser-idct2d/.arch-ids/Makefile.am.id
+    smoc_parser-idct2d/Makefile.am
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-26
+Summary: 
+ * really add Makefile.am to idct2d-example
+Keywords: 
+
+
+

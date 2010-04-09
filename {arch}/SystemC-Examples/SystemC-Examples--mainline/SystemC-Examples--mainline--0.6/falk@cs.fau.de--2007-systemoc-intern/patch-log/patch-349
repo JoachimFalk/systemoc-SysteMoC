@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-349
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Apr 17 18:56:27 CEST 2008
+Standard-date: 2008-04-17 16:56:27 GMT
+New-files: systemoc-wsdf/.arch-ids/cmx.dtd.id
+    systemoc-wsdf/.arch-ids/design-wsdf.cmx.id
+    systemoc-wsdf/cmx.dtd systemoc-wsdf/design-wsdf.cmx
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-349
+Summary:  - Add example VPC configuration for simple WSDF example
+Keywords: 
+
+ - Add example VPC configuration for simple WSDF example
+

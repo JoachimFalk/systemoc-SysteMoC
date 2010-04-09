@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-10
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Feb  8 09:37:53 CET 2007
+Standard-date: 2007-02-08 08:37:53 GMT
+Modified-files: systemoc-idct2d/design-test-idct1d.cpp
+    systemoc-idct2d/design-test-idct2d.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-10
+Summary: 
+ - fixed warning
+Keywords: 
+
+
+

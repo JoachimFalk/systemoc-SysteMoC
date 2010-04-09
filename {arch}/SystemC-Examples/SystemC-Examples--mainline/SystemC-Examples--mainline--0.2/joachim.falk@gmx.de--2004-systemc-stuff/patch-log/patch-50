@@ -1,0 +1,49 @@
+Revision: SystemC-Examples--mainline--0.2--patch-50
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep 21 12:06:32 CEST 2005
+Standard-date: 2005-09-21 10:06:32 GMT
+New-files: mpeg4-ref/.arch-ids/=id
+    mpeg4-ref/.arch-ids/AllInOne.h.id
+    mpeg4-ref/.arch-ids/bitstream.c.id
+    mpeg4-ref/.arch-ids/copyControl.c.id
+    mpeg4-ref/.arch-ids/decoder_chip.c.id
+    mpeg4-ref/.arch-ids/main.c.id
+    mpeg4-ref/.arch-ids/motionCompensation.c.id
+    mpeg4-ref/.arch-ids/motion_decode.c.id
+    mpeg4-ref/.arch-ids/mp4_dec_output.c.id
+    mpeg4-ref/.arch-ids/mydec.sln.id
+    mpeg4-ref/.arch-ids/mydec.vcproj.id
+    mpeg4-ref/.arch-ids/parser.c.id
+    mpeg4-ref/.arch-ids/stimuliGeneration.c.id
+    mpeg4-ref/.arch-ids/stimuliGeneration.h.id
+    mpeg4-ref/.arch-ids/stimuliGenerationGlobals.h.id
+    mpeg4-ref/.arch-ids/textureUpdate.c.id
+    mpeg4-ref/.arch-ids/texture_idct.c.id
+    mpeg4-ref/.arch-ids/texture_vld.c.id
+    mpeg4-ref/AllInOne.h mpeg4-ref/bitstream.c
+    mpeg4-ref/copyControl.c mpeg4-ref/decoder_chip.c
+    mpeg4-ref/main.c mpeg4-ref/motionCompensation.c
+    mpeg4-ref/motion_decode.c mpeg4-ref/mp4_dec_output.c
+    mpeg4-ref/mydec.sln mpeg4-ref/mydec.vcproj
+    mpeg4-ref/parser.c mpeg4-ref/stimuliGeneration.c
+    mpeg4-ref/stimuliGeneration.h
+    mpeg4-ref/stimuliGenerationGlobals.h
+    mpeg4-ref/textureUpdate.c mpeg4-ref/texture_idct.c
+    mpeg4-ref/texture_vld.c
+New-directories: mpeg4-ref mpeg4-ref/.arch-ids
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-50
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-38
+Summary: 
+ * Merged mpeg4 reference implementation from 
+   SystemC-Examples--mainline--0.3 branch
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-38
+   
+ * Added mpeg4 reference implementation in mpeg4-ref
+

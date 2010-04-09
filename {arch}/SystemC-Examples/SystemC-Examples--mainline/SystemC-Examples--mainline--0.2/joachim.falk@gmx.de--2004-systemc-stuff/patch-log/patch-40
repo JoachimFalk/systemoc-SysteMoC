@@ -1,0 +1,322 @@
+Revision: SystemC-Examples--mainline--0.2--patch-40
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Sep 13 15:27:42 CEST 2005
+Standard-date: 2005-09-13 13:27:42 GMT
+New-files: systemc-ibtest/.arch-ids/=id
+    systemc-ibtest/.arch-ids/Makefile.am.id
+    systemc-ibtest/.arch-ids/atutest_atomic.cpp.id
+    systemc-ibtest/.arch-ids/atutest_nonatomic.cpp.id
+    systemc-ibtest/.arch-ids/datatypes.h.id
+    systemc-ibtest/.arch-ids/ib_m_atu_atomic.cpp.id
+    systemc-ibtest/.arch-ids/ib_m_atu_atomic.h.id
+    systemc-ibtest/.arch-ids/ib_m_atu_nonatomic.cpp.id
+    systemc-ibtest/.arch-ids/ib_m_atu_nonatomic.h.id
+    systemc-ibtest/.arch-ids/mapping.id
+    systemc-ibtest/.arch-ids/oneof.cpp.id
+    systemc-ibtest/.arch-ids/smoc2test.cpp.id
+    systemc-ibtest/.arch-ids/tt_ib.cpp.id
+    systemc-ibtest/.arch-ids/tt_ib.h.id
+    systemc-ibtest/Makefile.am
+    systemc-ibtest/atutest_atomic.cpp
+    systemc-ibtest/atutest_nonatomic.cpp
+    systemc-ibtest/datatypes.h
+    systemc-ibtest/ib_m_atu_atomic.cpp
+    systemc-ibtest/ib_m_atu_atomic.h
+    systemc-ibtest/ib_m_atu_nonatomic.cpp
+    systemc-ibtest/ib_m_atu_nonatomic.h
+    systemc-ibtest/mapping systemc-ibtest/oneof.cpp
+    systemc-ibtest/smoc2test.cpp systemc-ibtest/tt_ib.cpp
+    systemc-ibtest/tt_ib.h
+    systemc-td-sim-test/.arch-ids/=id
+    systemc-td-sim-test/.arch-ids/Makefile.am.id
+    systemc-td-sim-test/.arch-ids/smoc_event_test.cpp.id
+    systemc-td-sim-test/.arch-ids/td_sim.cpp.id
+    systemc-td-sim-test/Makefile.am
+    systemc-td-sim-test/smoc_event_test.cpp
+    systemc-td-sim-test/td_sim.cpp
+    vpc-test-h261/.arch-ids/=id
+    vpc-test-h261/.arch-ids/Makefile.am.id
+    vpc-test-h261/.arch-ids/bm_id106001.cpp.id
+    vpc-test-h261/.arch-ids/bm_id106001.h.id
+    vpc-test-h261/.arch-ids/c_bm_lf_id106013.cpp.id
+    vpc-test-h261/.arch-ids/c_bm_lf_id106013.h.id
+    vpc-test-h261/.arch-ids/c_dct_q_id106014.cpp.id
+    vpc-test-h261/.arch-ids/c_dct_q_id106014.h.id
+    vpc-test-h261/.arch-ids/c_diff_dct_id106015.cpp.id
+    vpc-test-h261/.arch-ids/c_diff_dct_id106015.h.id
+    vpc-test-h261/.arch-ids/c_idct_rec_id106016.cpp.id
+    vpc-test-h261/.arch-ids/c_idct_rec_id106016.h.id
+    vpc-test-h261/.arch-ids/c_in_bm_id106017.cpp.id
+    vpc-test-h261/.arch-ids/c_in_bm_id106017.h.id
+    vpc-test-h261/.arch-ids/c_in_diff_id106018.cpp.id
+    vpc-test-h261/.arch-ids/c_in_diff_id106018.h.id
+    vpc-test-h261/.arch-ids/c_in_rf_id106026.cpp.id
+    vpc-test-h261/.arch-ids/c_in_rf_id106026.h.id
+    vpc-test-h261/.arch-ids/c_iq_idct_id106019.cpp.id
+    vpc-test-h261/.arch-ids/c_iq_idct_id106019.h.id
+    vpc-test-h261/.arch-ids/c_lf_diff_id106020.cpp.id
+    vpc-test-h261/.arch-ids/c_lf_diff_id106020.h.id
+    vpc-test-h261/.arch-ids/c_lf_rec_id106021.cpp.id
+    vpc-test-h261/.arch-ids/c_lf_rec_id106021.h.id
+    vpc-test-h261/.arch-ids/c_q_iq_id106022.cpp.id
+    vpc-test-h261/.arch-ids/c_q_iq_id106022.h.id
+    vpc-test-h261/.arch-ids/c_q_rlc_id106023.cpp.id
+    vpc-test-h261/.arch-ids/c_q_rlc_id106023.h.id
+    vpc-test-h261/.arch-ids/c_rec_sf_id106024.cpp.id
+    vpc-test-h261/.arch-ids/c_rec_sf_id106024.h.id
+    vpc-test-h261/.arch-ids/c_rf_bm_id106025.cpp.id
+    vpc-test-h261/.arch-ids/c_rf_bm_id106025.h.id
+    vpc-test-h261/.arch-ids/c_sf_rlc_id106027.cpp.id
+    vpc-test-h261/.arch-ids/c_sf_rlc_id106027.h.id
+    vpc-test-h261/.arch-ids/dct_id106002.cpp.id
+    vpc-test-h261/.arch-ids/dct_id106002.h.id
+    vpc-test-h261/.arch-ids/diff_id106003.cpp.id
+    vpc-test-h261/.arch-ids/diff_id106003.h.id
+    vpc-test-h261/.arch-ids/idct_id106004.cpp.id
+    vpc-test-h261/.arch-ids/idct_id106004.h.id
+    vpc-test-h261/.arch-ids/in_id106005.cpp.id
+    vpc-test-h261/.arch-ids/in_id106005.h.id
+    vpc-test-h261/.arch-ids/iq_id106006.cpp.id
+    vpc-test-h261/.arch-ids/iq_id106006.h.id
+    vpc-test-h261/.arch-ids/lf_id106007.cpp.id
+    vpc-test-h261/.arch-ids/lf_id106007.h.id
+    vpc-test-h261/.arch-ids/monitor.cpp.id
+    vpc-test-h261/.arch-ids/monitor.h.id
+    vpc-test-h261/.arch-ids/names.h.id
+    vpc-test-h261/.arch-ids/q_id106008.cpp.id
+    vpc-test-h261/.arch-ids/q_id106008.h.id
+    vpc-test-h261/.arch-ids/rec_id106009.cpp.id
+    vpc-test-h261/.arch-ids/rec_id106009.h.id
+    vpc-test-h261/.arch-ids/rf_id106010.cpp.id
+    vpc-test-h261/.arch-ids/rf_id106010.h.id
+    vpc-test-h261/.arch-ids/rlc_id106011.cpp.id
+    vpc-test-h261/.arch-ids/rlc_id106011.h.id
+    vpc-test-h261/.arch-ids/sc_main.cpp.id
+    vpc-test-h261/.arch-ids/sf_id106012.cpp.id
+    vpc-test-h261/.arch-ids/sf_id106012.h.id
+    vpc-test-h261/Makefile.am vpc-test-h261/bm_id106001.cpp
+    vpc-test-h261/bm_id106001.h
+    vpc-test-h261/c_bm_lf_id106013.cpp
+    vpc-test-h261/c_bm_lf_id106013.h
+    vpc-test-h261/c_dct_q_id106014.cpp
+    vpc-test-h261/c_dct_q_id106014.h
+    vpc-test-h261/c_diff_dct_id106015.cpp
+    vpc-test-h261/c_diff_dct_id106015.h
+    vpc-test-h261/c_idct_rec_id106016.cpp
+    vpc-test-h261/c_idct_rec_id106016.h
+    vpc-test-h261/c_in_bm_id106017.cpp
+    vpc-test-h261/c_in_bm_id106017.h
+    vpc-test-h261/c_in_diff_id106018.cpp
+    vpc-test-h261/c_in_diff_id106018.h
+    vpc-test-h261/c_in_rf_id106026.cpp
+    vpc-test-h261/c_in_rf_id106026.h
+    vpc-test-h261/c_iq_idct_id106019.cpp
+    vpc-test-h261/c_iq_idct_id106019.h
+    vpc-test-h261/c_lf_diff_id106020.cpp
+    vpc-test-h261/c_lf_diff_id106020.h
+    vpc-test-h261/c_lf_rec_id106021.cpp
+    vpc-test-h261/c_lf_rec_id106021.h
+    vpc-test-h261/c_q_iq_id106022.cpp
+    vpc-test-h261/c_q_iq_id106022.h
+    vpc-test-h261/c_q_rlc_id106023.cpp
+    vpc-test-h261/c_q_rlc_id106023.h
+    vpc-test-h261/c_rec_sf_id106024.cpp
+    vpc-test-h261/c_rec_sf_id106024.h
+    vpc-test-h261/c_rf_bm_id106025.cpp
+    vpc-test-h261/c_rf_bm_id106025.h
+    vpc-test-h261/c_sf_rlc_id106027.cpp
+    vpc-test-h261/c_sf_rlc_id106027.h
+    vpc-test-h261/dct_id106002.cpp
+    vpc-test-h261/dct_id106002.h
+    vpc-test-h261/diff_id106003.cpp
+    vpc-test-h261/diff_id106003.h
+    vpc-test-h261/idct_id106004.cpp
+    vpc-test-h261/idct_id106004.h
+    vpc-test-h261/in_id106005.cpp
+    vpc-test-h261/in_id106005.h
+    vpc-test-h261/iq_id106006.cpp
+    vpc-test-h261/iq_id106006.h
+    vpc-test-h261/lf_id106007.cpp
+    vpc-test-h261/lf_id106007.h vpc-test-h261/monitor.cpp
+    vpc-test-h261/monitor.h vpc-test-h261/names.h
+    vpc-test-h261/q_id106008.cpp vpc-test-h261/q_id106008.h
+    vpc-test-h261/rec_id106009.cpp
+    vpc-test-h261/rec_id106009.h
+    vpc-test-h261/rf_id106010.cpp
+    vpc-test-h261/rf_id106010.h
+    vpc-test-h261/rlc_id106011.cpp
+    vpc-test-h261/rlc_id106011.h vpc-test-h261/sc_main.cpp
+    vpc-test-h261/sf_id106012.cpp
+    vpc-test-h261/sf_id106012.h
+New-directories: systemc-ibtest systemc-ibtest/.arch-ids
+    systemc-td-sim-test systemc-td-sim-test/.arch-ids
+    vpc-test-h261 vpc-test-h261/.arch-ids
+Removed-files: systemc-counter/.arch-ids/=id
+    systemc-counter/.arch-ids/Makefile.am.id
+    systemc-counter/.arch-ids/addcorrel.scr.id
+    systemc-counter/.arch-ids/configure.in.id
+    systemc-counter/.arch-ids/counter_synrtl.script.id
+    systemc-counter/.arch-ids/counter_synrtl_1.script.id
+    systemc-counter/.arch-ids/counter_synrtl_2.script.id
+    systemc-counter/.arch-ids/counter_synrtl_3.script.id
+    systemc-counter/.arch-ids/design.cpp.id
+    systemc-counter/.arch-ids/design.hpp.id
+    systemc-counter/.arch-ids/synth.scr.id
+    systemc-counter/.arch-ids/testbench.cpp.id
+    systemc-counter/Makefile.am
+    systemc-counter/addcorrel.scr
+    systemc-counter/configure.in
+    systemc-counter/counter_synrtl.script
+    systemc-counter/counter_synrtl_1.script
+    systemc-counter/counter_synrtl_2.script
+    systemc-counter/counter_synrtl_3.script
+    systemc-counter/design.cpp systemc-counter/design.hpp
+    systemc-counter/synth.scr systemc-counter/testbench.cpp
+Removed-directories: systemc-counter
+    systemc-counter/.arch-ids
+Modified-files: Makefile.am calltrop/design-fir.cpp
+    configure.in systemc-csp/Makefile.am
+    systemc-csp/design-csp.cpp systemc-fir/Makefile.am
+    systemc-fir/design-fir.cpp systemc-mpeg4/IDCT1d.hpp
+    systemc-mpeg4/IDCT2d.hpp systemc-mpeg4/Makefile.am
+    systemc-mpeg4/block2row.hpp
+    systemc-mpeg4/block_idct.hpp
+    systemc-mpeg4/design-mpeg4.cpp
+    systemc-mpeg4/design-test-idct2d.cpp
+    systemc-mpeg4/parser.hpp systemc-mpeg4/row_clip.hpp
+    systemc-sdf/Makefile.am systemc-sdf/design-sdf.cpp
+    systemc-select/Makefile.am
+    systemc-select/design-select.cpp
+    systemc-sqr/Makefile.am systemc-sqr/design-sqr.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-40
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-4
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-5
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-6
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-7
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-8
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-9
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-10
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-11
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-12
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-13
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-14
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-15
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-16
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-17
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-18
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-19
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-20
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-21
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-22
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-23
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-24
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-25
+Summary: 
+ * Big merge from SystemC-Examples--mainline--0.3 branch
+Keywords: 
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-4
+   
+ * Now use SysteMoC-v0.3 instead of SysteMoC for the new systemoc library
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-5
+   
+ * Added systemc-ibtest subdir to test InfiniBand migration to new SysteMoC
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-6
+   
+ * Use smoc_graph class in design-sqr.cpp
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-7
+   
+ * Commit for Jens
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-8
+   Bugfixing in ATU testcase 
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-9
+   
+  * changed SystemC-Example ibtest
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-10
+   
+ * Changed systemc-ibtest/smoc2test.cpp and b_m_atu_atomic.h
+   to use new isType function for oneof type identification
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-11
+   
+ * Guard Expression syntax of SysteMoC 2.0 have been tightened.
+ - Therefore some possible bugs in the parser code have been detected, e.g.,
+   insufficient precedence parenthesis in guard expressions of parser
+    `(in.getAvailableTokens(1) >= 3) &&  a || b ' should be
+    `(in.getAvailableTokens(1) >= 3) && (a || b)'.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-12
+   
+ - example for trace driven sim
+ - example for smoc_event
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-13
+   
+ - now use smoc_event with h261 example
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-14
+   
+ - added VPC mapping file
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-15
+   
+ - modified example to fit with new compute interface using function names
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-16
+   
+ - added new testing example
+ - fixed typo in Makefile.am
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-17
+   
+ * remove obsolete systemc-counter subdir
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-18
+   
+ * Use smoc_graph to build hierarchy
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-19
+   
+ * Sync from joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-20
+   
+ * changed SUBDIR clause in Makefile.am
+ - removed systemc-mpeg4 because it does not compile
+ - added systemc-ibtest
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-21
+   
+ * Split some helper headers and functions from SysteMoC into hscdsupport
+ - changed SystemC-Examples accordingly
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-22
+   
+ * Merge from joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2
+ - latest changes from yao feng merged into SystemC-Examples--mainline--0.3
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-23
+   
+ * Merged bugfix from SystemC-Examples--mainline--0.2 branch
+ - revert definitions of bitand, bitor, bitxor, rshift, lshift
+ - Because bitand bitor are builtin c++ operators and can no longer be
+ - redifined with cpp macro definitions. Now use cal_xxx again instead
+ - of only xxx.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-24
+   
+ * Now use smoc_graph for hierarchical actors instead of smoc_ndf_constraintset
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-25
+   
+ * Added systemc-mpeg4 againt to build projects
+

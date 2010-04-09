@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.3--patch-86
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Thu Jan 26 10:19:27 CET 2006
+Standard-date: 2006-01-26 09:19:27 GMT
+Modified-files: configure.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-86
+Summary: 
+ - InfiniBand HCA "hybrid mode" tracing hack:
+   deactivated h261 testcase for vpc -> it does not work together with patch
+   joachim.falk@gmx.de--2005-systemc-stuff/SystemC-VPC--mainline--0.3--patch-29
+Keywords: 
+
+
+

@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.6--patch-26
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Tue Feb 27 13:25:12 CET 2007
+Standard-date: 2007-02-27 12:25:12 GMT
+Modified-files: systemoc-tlm-start/Makefile.am
+    systemoc-tlm-start/systemoc_test.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-26
+Summary: 
+  * Backup commit
+  * totally rewritten example. Two adapters can communicate via sc_fifo. Still
+    much improvement is needed.
+Keywords: 
+
+
+

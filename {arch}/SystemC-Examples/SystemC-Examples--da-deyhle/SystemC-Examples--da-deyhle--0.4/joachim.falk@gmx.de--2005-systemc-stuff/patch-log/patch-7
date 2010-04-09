@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--da-deyhle--0.4--patch-7
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Andreas Deyhle <andi.deyhle@gmx.de>
+Date: Wed Sep 13 15:03:06 CEST 2006
+Standard-date: 2006-09-13 13:03:06 GMT
+Modified-files: systemoc-mpeg4/Makefile.am
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-7
+Summary:
+ * bugfix in mpeg4 Makefile.am
+Keywords: 
+
+
+

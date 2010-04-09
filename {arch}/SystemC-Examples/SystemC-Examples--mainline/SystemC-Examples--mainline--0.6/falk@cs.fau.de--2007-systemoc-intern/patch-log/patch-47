@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-47
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Mar  9 18:00:25 CET 2007
+Standard-date: 2007-03-09 17:00:25 GMT
+Modified-files: systemoc-idct2d/design-test-idct2d.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-47
+Summary: 
+ * Use old fifo size ifndef REAL_BLOCK_DATA
+Keywords: 
+
+
+

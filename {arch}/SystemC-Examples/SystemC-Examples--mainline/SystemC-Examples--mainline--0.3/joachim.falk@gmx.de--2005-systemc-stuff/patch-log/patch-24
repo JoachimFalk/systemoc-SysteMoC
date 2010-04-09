@@ -1,0 +1,18 @@
+Revision: SystemC-Examples--mainline--0.3--patch-24
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Yao Feng <yaofeng_afeng@yahoo.com>
+Date: Tue Sep 13 14:54:59 CEST 2005
+Standard-date: 2005-09-13 12:54:59 GMT
+Modified-files: systemc-mpeg4/IDCT1d.hpp
+    systemc-mpeg4/IDCT2d.hpp systemc-mpeg4/block2row.hpp
+    systemc-mpeg4/block_idct.hpp
+    systemc-mpeg4/design-mpeg4.cpp
+    systemc-mpeg4/design-test-idct2d.cpp
+    systemc-mpeg4/row_clip.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-24
+Summary: 
+ * Now use smoc_graph for hierarchical actors instead of smoc_ndf_constraintset
+Keywords: 
+
+
+

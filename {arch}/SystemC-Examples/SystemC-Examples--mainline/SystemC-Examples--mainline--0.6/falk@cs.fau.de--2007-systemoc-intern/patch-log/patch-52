@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.6--patch-52
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Mar 12 12:40:22 CET 2007
+Standard-date: 2007-03-12 11:40:22 GMT
+Modified-files: systemoc-jpeg-decoder/InvByteStuff.hpp
+    systemoc-jpeg-decoder/channels.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-52
+Summary: 
+ * modified demask in channels.hpp to no longer use >> for shifting
+   therefore macros for JpegChanne_t decoding can now be used
+   in activation patterns
+Keywords: 
+
+
+

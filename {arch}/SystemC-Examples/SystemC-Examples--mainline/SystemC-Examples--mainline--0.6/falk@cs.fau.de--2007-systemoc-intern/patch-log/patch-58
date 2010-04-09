@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.6--patch-58
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Mar 12 15:57:37 CET 2007
+Standard-date: 2007-03-12 14:57:37 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/HuffmanManagement.hpp.id
+    systemoc-jpeg-decoder/HuffmanManagement.hpp
+Modified-files: systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/channels.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-58
+Summary: 
+ - added HuffmanManagement to top level design
+Keywords: 
+
+
+

@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.3--patch-4
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Aug  4 11:51:17 CEST 2005
+Standard-date: 2005-08-04 09:51:17 GMT
+Modified-files: systemc-fir/Makefile.am
+    systemc-mpeg4/Makefile.am systemc-sdf/Makefile.am
+    systemc-select/Makefile.am systemc-sqr/Makefile.am
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-4
+Summary:
+ * Now use SysteMoC-v0.3 instead of SysteMoC for the new systemoc library
+Keywords: 
+
+
+

@@ -1,0 +1,20 @@
+Revision: SystemC-Examples--mainline--0.6--patch-75
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Mar 13 14:10:49 CET 2007
+Standard-date: 2007-03-13 13:10:49 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/HuffmanTestbench.cpp.id
+    systemoc-jpeg-decoder/HuffmanTestbench.cpp
+Modified-files: systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/Makefile.am
+    systemoc-jpeg-decoder/ParserTestbench.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-75
+Summary: 
+ - added HuffmanTestbench
+ - unified connectNodePorts
+ - changed FIFO size
+ - fixed typo
+Keywords: 
+
+
+

@@ -1,0 +1,28 @@
+Revision: SysteMoC-Testcases--mainline--0.9.1--patch-19
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Dec  2 16:28:21 CET 2009
+Standard-date: 2009-12-02 15:28:21 GMT
+Modified-files: msvc90/Testcases/systemoc-fir/systemoc-fir.vcproj
+    msvc90/Testcases/systemoc-sqr/systemoc-sqr.vcproj
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-71
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-25
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.9.1--patch-19
+Summary: 
+  * Merge from SysteMoC-Testcases--mainline--0.2--patch-25
+  - set include and linker flags for VPC in "Release" configuration
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-71
+   
+ - set include and linker flags for VPC in "Release" configuration
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-25
+   
+  * Merge from SysteMoC-Testcases--mainline--0.1--patch-71
+  - set include and linker flags for VPC in "Release" configuration
+

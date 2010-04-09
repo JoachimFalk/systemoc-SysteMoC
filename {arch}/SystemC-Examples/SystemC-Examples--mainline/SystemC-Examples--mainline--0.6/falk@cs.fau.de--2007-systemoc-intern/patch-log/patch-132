@@ -1,0 +1,20 @@
+Revision: SystemC-Examples--mainline--0.6--patch-132
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Mar 15 17:01:48 CET 2007
+Standard-date: 2007-03-15 16:01:48 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/GenSnk.hpp.id
+    systemoc-jpeg-decoder/.arch-ids/Tupple_src.hpp.id
+    systemoc-jpeg-decoder/GenSnk.hpp
+    systemoc-jpeg-decoder/Tupple_src.hpp
+Modified-files: systemoc-jpeg-decoder/InvZrl_tb.cpp
+    systemoc-jpeg-decoder/channels.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-132
+Summary:
+ - Add Generic Sink
+ - Add Tuppple Source
+ - Extend InvZrl-Testbench
+Keywords: 
+
+
+

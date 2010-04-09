@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-216
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon May 14 18:45:29 CEST 2007
+Standard-date: 2007-05-14 16:45:29 GMT
+Modified-files: systemoc-jpeg-decoder/Makefile.am
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-216
+Summary: 
+ - fixed makefile dependencies
+Keywords: 
+
+
+

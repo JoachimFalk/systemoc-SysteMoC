@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.4--patch-43
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep  6 14:25:23 CEST 2006
+Standard-date: 2006-09-06 12:25:23 GMT
+Modified-files: systemoc-fir/design-fir.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-43
+Summary: 
+ * Fixed small bug in systemoc-fir example
+Keywords: 
+
+
+

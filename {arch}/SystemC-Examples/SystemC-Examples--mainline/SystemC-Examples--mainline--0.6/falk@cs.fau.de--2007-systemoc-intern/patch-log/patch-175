@@ -1,0 +1,175 @@
+Revision: SystemC-Examples--mainline--0.6--patch-175
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Apr 24 20:20:31 CEST 2007
+Standard-date: 2007-04-24 18:20:31 GMT
+Modified-files: LICENSE-GPL
+    crypto-example/.arch-ids/cryptoVPCConfig.cmx.id
+    crypto-example/.arch-ids/exectimelogger.cpp.id
+    crypto-example/.arch-ids/exectimelogger.hpp.id
+    crypto-example/cryptoVPCConfig.cmx
+    crypto-example/start-crypto-simulation.sh.in
+    crypto-example/vcd_sum.pl mpeg4-ref/ctrl.txt
+    mpeg4-ref/foreman_qcif_30.bit
+    systemoc-idct2d/IDCT_block_sink.hpp
+    systemoc-idct2d/IDCT_block_source.hpp
+    systemoc-idct2d/IDCTsink.hpp
+    systemoc-idct2d/IDCTsource.hpp
+    systemoc-idct2d/Makefile.am
+    systemoc-idct2d/Y_IdctCoeff.txt
+    systemoc-idct2d/block2row.hpp
+    systemoc-idct2d/col2block.hpp
+    systemoc-idct2d/design-test-idct2d.cpp
+    systemoc-idct2d/smoc_synth_std_includes.hpp
+    systemoc-mpeg4-teich-v2/Video_XML/IDCTaddsub-out-out.xml
+    systemoc-mpeg4-teich-v2/Video_XML/IDCTaddsub.xml
+    systemoc-mpeg4-teich-v2/Video_XML/IDCTclip-out-out.xml
+    systemoc-mpeg4-teich-v2/Video_XML/IDCTclip.xml
+    systemoc-mpeg4-teich-v2/Video_XML/IDCTfly-out-out.xml
+    systemoc-mpeg4-teich-v2/Video_XML/IDCTfly.xml
+    systemoc-mpeg4-teich-v2/Video_XML/IDCTscale-out-out.xml
+    systemoc-mpeg4-teich-v2/Video_XML/IDCTscale.xml
+    systemoc-mpeg4-teich-v2/Video_XML/MCadd.xml
+    systemoc-mpeg4-teich-v2/Video_XML/Upsample.xml
+    systemoc-mpeg4-teich-v2/Video_XML/block2row.xml
+    systemoc-mpeg4-teich-v2/Video_XML/byte2bit-out.xml
+    systemoc-mpeg4-teich-v2/Video_XML/byte2bit.xml
+    systemoc-mpeg4-teich-v2/Video_XML/col2block.xml
+    systemoc-mpeg4-teich-v2/Video_XML/dequant.xml
+    systemoc-mpeg4-teich-v2/Video_XML/others/BitPrint.xml
+    systemoc-mpeg4-teich-v2/Video_XML/others/DispYUV.xml
+    systemoc-mpeg4-teich-v2/Video_XML/others/IDCTaddsub2.xml
+    systemoc-mpeg4-teich-v2/Video_XML/others/IDCTfly2.xml
+    systemoc-mpeg4-teich-v2/Video_XML/others/clipmon.xml
+    systemoc-mpeg4-teich-v2/Video_XML/others/fread.xml
+    systemoc-mpeg4-teich-v2/Video_XML/others/print.xml
+    systemoc-mpeg4-teich-v2/Video_XML/others/seqmon.xml
+    systemoc-mpeg4-teich-v2/Video_XML/parser-out.xml
+    systemoc-mpeg4-teich-v2/Video_XML/parser.xml
+    systemoc-mpeg4-teich-v2/Video_XML/reconstruct.xml
+    systemoc-mpeg4-teich-v2/Video_XML/sequence.xml
+    systemoc-mpeg4-teich-v2/Video_XML/transpose.xml
+    systemoc-mpeg4/.arch-ids/MCadd.cal.id
+    systemoc-mpeg4/.arch-ids/parser.cal.id
+    systemoc-par/.arch-ids/par.conf.id
+    systemoc-par/par.conf systemoc-sr/.arch-ids/=id
+    systemoc-sr/.arch-ids/Makefile.am.id
+    systemoc-sr/.arch-ids/design-sr-and.cpp.id
+    systemoc-sr/.arch-ids/design-sr-phil-simple.cpp.id
+    systemoc-sr/design-sr-phil-simple.cpp
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-29
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-46
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-47
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-48
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-53
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-54
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-55
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-56
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-100
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-101
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-102
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-103
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-104
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-105
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-106
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-31
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-54
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-87
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-97
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-98
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-99
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-11
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-23
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-24
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-25
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-26
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-27
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-28
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-38
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-41
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-42
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-47
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-58
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-60
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-61
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-4
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-5
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log/patch-6
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.6/falk@cs.fau.de--2007-systemoc-intern/patch-log/patch-5
+Modified-directories: systemoc-sr systemoc-sr/.arch-ids
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.5
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.5/falk@cs.fau.de--2006-systemoc-stuff
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.5/falk@cs.fau.de--2006-systemoc-stuff/patch-log
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-175
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-69
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-74
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-75
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-76
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-77
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-78
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-79
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-80
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-81
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-82
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-83
+Summary: 
+ * Merge from SystemC-Examples--mainline--0.4
+ - Introduce define for block count
+ - Use counter data by default
+ - Modify, so that SW-Synthesis passes.
+ - Avoid problems in initialization of constant parameters by making it non-constant
+ - Allocate sink-actor by help of a new-operator, because the latter one changes the order of the constructor parameters.
+ - Fix error in sink instantiation.
+ - Fix output so that compiling in EDK is possible.
+ - Bugfix: xil_printf does not support %u. Hence replace by %d.
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-69
+   
+ - Introduce define for block count
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-74
+   
+ - Use counter data by default
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-75
+   
+ - Modify, so that SW-Synthesis passes.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-76
+   
+ Make modifications (hacks) in order to get SW-synthesis working correctly
+ - Avoid problems in initialization of constant parameters by making it non-constant
+ - Allocate sink-actor by help of a new-operator, because the latter one changes the order of the constructor parameters.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-77
+   
+ - Fix error in sink instantiation.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-78
+   
+ IDCT_block_snk
+ - Fix output so that compiling in EDK is possible.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-79
+   
+ - Bugfix: xil_printf does not support %u. Hence replace by %d.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-80
+   Transform port access patterns to utilize parallel port accesses in actors col2block and block2row
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-81
+   Add binary PGM output to IDCT block sink
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-82
+   Add Actor Transformation for Forte Cynthesizer to IDCT example
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-83
+   
+ * Centralized defines into smoc_synth_std_includes.hpp
+

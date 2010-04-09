@@ -1,0 +1,24 @@
+Revision: SystemC-Examples--mainline--0.6--patch-239
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu May 31 09:28:55 CEST 2007
+Standard-date: 2007-05-31 07:28:55 GMT
+Modified-files: systemoc-jpeg-decoder/specGen-mapping/block_fifo_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/dist_fifo_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/hw-sw-if-dist.csv
+    systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+    systemoc-jpeg-decoder/specGen-mapping/sw-hw-if-dist.csv
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-239
+Summary: 
+ - added approx. SW fifo communication delay
+   @systemoc-jpeg-decoder/specGen-mapping/block_fifo_data.csv
+   @systemoc-jpeg-decoder/specGen-mapping/dist_fifo_data.csv
+ - using approx. hw-sw/sw-hw values from idct
+   @systemoc-jpeg-decoder/specGen-mapping/hw-sw-if-dist.csv    
+   @systemoc-jpeg-decoder/specGen-mapping/sw-hw-if-dist.csv
+ - replaced empty values "-" and "?" by 0.00
+   @systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+Keywords: 
+
+
+

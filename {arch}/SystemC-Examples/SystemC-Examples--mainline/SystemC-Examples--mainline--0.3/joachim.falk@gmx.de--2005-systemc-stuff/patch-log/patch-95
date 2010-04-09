@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.3--patch-95
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Carsten Riedel <carsten.riedel@gmx.net>
+Date: Fri Mar 31 11:06:14 CEST 2006
+Standard-date: 2006-03-31 09:06:14 GMT
+New-files: systemoc-sqr/.arch-ids/dynAllocconf.cmx.id
+    systemoc-sqr/dynAllocconf.cmx
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-95
+Summary: 
+  * added example configuration for systemc-sqr using dynamic allocation
+Keywords: 
+
+
+

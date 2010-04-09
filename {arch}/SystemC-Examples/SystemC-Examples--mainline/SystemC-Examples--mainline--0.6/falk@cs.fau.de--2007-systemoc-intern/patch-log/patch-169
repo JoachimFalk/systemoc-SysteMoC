@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-169
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Apr 24 13:51:01 CEST 2007
+Standard-date: 2007-04-24 11:51:01 GMT
+Modified-files: systemoc-jpeg-decoder/HuffmanTestbench.cpp
+    systemoc-jpeg-decoder/Jpeg.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-169
+Summary: 
+ - BUGFIX: removed InvByteStuff from network graph
+ - doing inverse stuffing two times leads to errors (e.g. stream = "FF 00 00")
+Keywords: 
+
+
+

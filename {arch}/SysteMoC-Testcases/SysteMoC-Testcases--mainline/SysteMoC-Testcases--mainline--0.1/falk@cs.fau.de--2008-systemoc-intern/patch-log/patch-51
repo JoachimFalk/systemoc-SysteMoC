@@ -1,0 +1,13 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-51
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Tue Aug 26 17:59:49 CEST 2008
+Standard-date: 2008-08-26 15:59:49 GMT
+Modified-files: systemoc-fir/smoc_synth_std_includes.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-51
+Summary: 
+ * Added iostream include to smoc_synth_std_includes.hpp
+Keywords: 
+
+
+

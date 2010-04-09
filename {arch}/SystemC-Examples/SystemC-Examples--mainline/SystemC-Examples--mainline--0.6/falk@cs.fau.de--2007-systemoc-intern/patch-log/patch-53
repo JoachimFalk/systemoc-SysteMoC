@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-53
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Mar 12 13:06:47 CET 2007
+Standard-date: 2007-03-12 12:06:47 GMT
+Modified-files: systemoc-sr/adeva_lib.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-53
+Summary: 
+ - added header #ifdef
+ @ systemoc-sr/adeva-lib.hpp
+Keywords: 
+
+
+

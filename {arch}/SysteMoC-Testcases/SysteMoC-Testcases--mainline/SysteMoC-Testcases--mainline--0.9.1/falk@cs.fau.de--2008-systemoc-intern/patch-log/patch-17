@@ -1,0 +1,26 @@
+Revision: SysteMoC-Testcases--mainline--0.9.1--patch-17
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Dec  2 16:25:23 CET 2009
+Standard-date: 2009-12-02 15:25:23 GMT
+Modified-files: systemoc-sqr/Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-69
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-23
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.9.1--patch-17
+Summary: 
+  * Merge from SysteMoC-Testcases--mainline--0.2--patch-23
+  - changed vastsynth target for systemoc-sqr testcase
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-69
+   changed vastsynth target for systemoc-sqr testcase 
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-23
+   
+  * Merge from SysteMoC-Testcases--mainline--0.1--patch-69
+  - changed vastsynth target for systemoc-sqr testcase
+

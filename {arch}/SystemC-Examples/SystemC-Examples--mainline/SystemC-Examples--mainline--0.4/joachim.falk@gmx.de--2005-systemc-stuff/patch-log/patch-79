@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.4--patch-79
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Mar 29 17:12:40 CEST 2007
+Standard-date: 2007-03-29 15:12:40 GMT
+Modified-files: systemoc-idct2d/IDCT_block_sink.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-79
+Summary: 
+ - Bugfix: xil_printf does not support %u. Hence replace by %d.
+Keywords: 
+
+
+

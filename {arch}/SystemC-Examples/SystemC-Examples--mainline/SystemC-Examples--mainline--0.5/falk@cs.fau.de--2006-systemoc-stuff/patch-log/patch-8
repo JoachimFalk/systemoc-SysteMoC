@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.5--patch-8
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Fri Oct 27 19:03:20 CEST 2006
+Standard-date: 2006-10-27 17:03:20 GMT
+Modified-files: Makefile.am systemoc-fir/Makefile.am
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--mainline--0.5--patch-8
+Summary: 
+ * Added missing $(auxdir)/jfrules.mk include
+ - this provides a default doxygen-doc target which does nothing
+
+Keywords: 
+
+
+

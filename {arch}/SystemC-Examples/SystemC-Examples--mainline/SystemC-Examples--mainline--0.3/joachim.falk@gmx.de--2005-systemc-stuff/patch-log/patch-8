@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-8
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Aug  5 14:06:57 CEST 2005
+Standard-date: 2005-08-05 12:06:57 GMT
+Modified-files: systemc-ibtest/atutest.cpp
+    systemc-ibtest/ib_m_atu.h
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-8
+Summary: Bugfixing in ATU testcase 
+Keywords: 
+
+
+

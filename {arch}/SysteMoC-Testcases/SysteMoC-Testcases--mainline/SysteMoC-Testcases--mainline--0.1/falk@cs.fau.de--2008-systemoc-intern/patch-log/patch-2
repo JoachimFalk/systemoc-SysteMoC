@@ -1,0 +1,13 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-2
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue May  6 12:59:39 CEST 2008
+Standard-date: 2008-05-06 10:59:39 GMT
+Modified-files: systemoc-sqr/configuration.cmx.xml
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-2
+Summary: 
+ - using timing element for VPC configuration in SQR example
+Keywords: 
+
+
+

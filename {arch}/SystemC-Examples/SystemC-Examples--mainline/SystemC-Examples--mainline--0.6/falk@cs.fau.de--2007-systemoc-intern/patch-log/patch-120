@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-120
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Thu Mar 15 11:23:08 CET 2007
+Standard-date: 2007-03-15 10:23:08 GMT
+Modified-files: systemoc-jpeg-decoder/HuffDecoder.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-120
+Summary: 
+  * all needed tables to decode code words are now calculated in HuffTblDecoder
+    and sent to InvHuffman. There are smarter ways to do this.
+    @HuffDecoder.cpp
+Keywords: 
+
+
+

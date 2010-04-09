@@ -1,0 +1,42 @@
+Revision: SystemC-Examples--mainline--0.2--patch-20
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jul  6 15:46:42 CEST 2005
+Standard-date: 2005-07-06 13:46:42 GMT
+New-files: systemc-mpeg4/.arch-ids/Upsample.hpp.id
+    systemc-mpeg4/.arch-ids/block2row.hpp.id
+    systemc-mpeg4/.arch-ids/byte2bit.hpp.id
+    systemc-mpeg4/.arch-ids/col2block.hpp.id
+    systemc-mpeg4/.arch-ids/create-example.sh.id
+    systemc-mpeg4/.arch-ids/reconstruct.hpp.id
+    systemc-mpeg4/.arch-ids/sequence.cal.id
+    systemc-mpeg4/.arch-ids/sequence.hpp.id
+    systemc-mpeg4/Upsample.hpp systemc-mpeg4/block2row.hpp
+    systemc-mpeg4/byte2bit.hpp systemc-mpeg4/col2block.hpp
+    systemc-mpeg4/create-example.sh
+    systemc-mpeg4/reconstruct.hpp
+    systemc-mpeg4/sequence.cal systemc-mpeg4/sequence.hpp
+Renamed-files: systemc-mpeg4/.arch-ids/Upsample.id systemc-mpeg4/.arch-ids/Upsample.cal.id
+    systemc-mpeg4/.arch-ids/block2row.id systemc-mpeg4/.arch-ids/block2row.cal.id
+    systemc-mpeg4/.arch-ids/byte2bit.id systemc-mpeg4/.arch-ids/byte2bit.cal.id
+    systemc-mpeg4/.arch-ids/col2block.id systemc-mpeg4/.arch-ids/col2block.cal.id
+    systemc-mpeg4/.arch-ids/reconstruct.id systemc-mpeg4/.arch-ids/reconstruct.cal.id
+    systemc-mpeg4/Upsample systemc-mpeg4/Upsample.cal
+    systemc-mpeg4/block2row systemc-mpeg4/block2row.cal
+    systemc-mpeg4/byte2bit systemc-mpeg4/byte2bit.cal
+    systemc-mpeg4/col2block systemc-mpeg4/col2block.cal
+    systemc-mpeg4/reconstruct systemc-mpeg4/reconstruct.cal
+Modified-files: systemc-mpeg4/IDCTaddsub.hpp
+    systemc-mpeg4/IDCTclip.hpp systemc-mpeg4/IDCTfly.hpp
+    systemc-mpeg4/IDCTscale.hpp systemc-mpeg4/Upsample.cal
+    systemc-mpeg4/block2row.cal systemc-mpeg4/byte2bit.cal
+    systemc-mpeg4/col2block.cal systemc-mpeg4/dequant.hpp
+    systemc-mpeg4/design-mpeg4.cpp
+    systemc-mpeg4/reconstruct.cal
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-20
+Summary: 
+ * Corrected some more actors of Teich
+Keywords: 
+
+
+

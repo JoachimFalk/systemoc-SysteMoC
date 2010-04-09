@@ -1,0 +1,19 @@
+Revision: SystemC-Examples--mainline--0.6--patch-151
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Mar 16 19:19:07 CET 2007
+Standard-date: 2007-03-16 18:19:07 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/1D_dup2.hpp.id
+    systemoc-jpeg-decoder/.arch-ids/TuppleScanSrc.hpp.id
+    systemoc-jpeg-decoder/1D_dup2.hpp
+    systemoc-jpeg-decoder/TuppleScanSrc.hpp
+Modified-files: systemoc-jpeg-decoder/InvZrl_tb.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-151
+Summary:
+ - Append IDCT to InvZrl-Testbench
+ - Replace source
+ - Add possibility to dump intermediate data
+Keywords: 
+
+
+

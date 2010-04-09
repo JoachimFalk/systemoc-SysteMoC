@@ -1,0 +1,19 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-35
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Jun 11 18:49:03 CEST 2008
+Standard-date: 2008-06-11 16:49:03 GMT
+Modified-files: systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fast.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fifo.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila.cpp
+    systemoc-wsdf-recons-dila/wsdf_img_snk.hpp
+    systemoc-wsdf-recons-dila/wsdf_img_src.hpp
+    systemoc-wsdf-recons-dila/wsdf_recons_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-35
+Summary: 
+ - Change to Byte in design-wsdf-recons-dila and design-wsdf-recons-dila-fast
+ - ATTENTION: wsdf-design-recons-dila-fifo still uses unsigned char because otherwise it does not compile!
+Keywords: 
+
+
+

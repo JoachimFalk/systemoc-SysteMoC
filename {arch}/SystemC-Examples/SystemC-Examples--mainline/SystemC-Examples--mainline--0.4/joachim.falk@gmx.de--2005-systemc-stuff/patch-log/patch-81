@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.4--patch-81
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Thu Apr  5 19:04:32 CEST 2007
+Standard-date: 2007-04-05 17:04:32 GMT
+Modified-files: systemoc-idct2d/IDCT_block_sink.hpp
+    systemoc-idct2d/smoc_synth_std_includes.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-81
+Summary: Add binary PGM output to IDCT block sink
+Keywords: 
+
+
+

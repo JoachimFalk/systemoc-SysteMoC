@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.4--patch-64
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Jan 18 09:01:02 CET 2007
+Standard-date: 2007-01-18 08:01:02 GMT
+New-files: systemoc-sr/.arch-ids/adeva_lib.hpp.id
+    systemoc-sr/.arch-ids/design-PLMON.cpp.id
+    systemoc-sr/adeva_lib.hpp systemoc-sr/design-PLMON.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-64
+Summary: 
+ - added adeva_lib.hpp containing the delay actor
+ - added another sample 
+Keywords: 
+
+
+

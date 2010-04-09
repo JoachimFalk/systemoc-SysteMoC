@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.4--patch-45
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep 13 15:31:23 CEST 2006
+Standard-date: 2006-09-13 13:31:23 GMT
+Modified-files: systemoc-select/design-select.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-45
+Summary: 
+ * Fixed design-select.cpp to only declare its firing states
+   as member variables
+Keywords: 
+
+
+

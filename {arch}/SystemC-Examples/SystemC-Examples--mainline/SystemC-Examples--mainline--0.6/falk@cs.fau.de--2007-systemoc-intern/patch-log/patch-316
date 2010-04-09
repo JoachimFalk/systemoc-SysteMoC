@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-316
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Nov 21 15:24:44 CET 2007
+Standard-date: 2007-11-21 14:24:44 GMT
+Modified-files: systemoc-cluster-example/StaticCluster.hpp
+    systemoc-cluster-example/cluster_ex.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-316
+Summary: 
+ * systemoc_cluster_example: Provide define for alternative FIFO sizes
+Keywords: 
+
+
+

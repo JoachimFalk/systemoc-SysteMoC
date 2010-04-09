@@ -1,0 +1,23 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-11
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu May  8 15:37:13 CEST 2008
+Standard-date: 2008-05-08 13:37:13 GMT
+New-files: systemoc-fir/.arch-ids/autotest-sh.id
+    systemoc-fir/.arch-ids/autovars.sh.in.id
+    systemoc-fir/autotest-sh systemoc-fir/autovars.sh.in
+    systemoc-fir/testlogs/.arch-ids/100iter.log.id
+    systemoc-fir/testlogs/.arch-ids/=id
+    systemoc-fir/testlogs/100iter.log
+New-directories: systemoc-fir/testlogs
+    systemoc-fir/testlogs/.arch-ids
+Modified-files: systemoc-fir/Makefile.am
+    systemoc-fir/configure.in.frag
+    systemoc-fir/design-fir.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-11
+Summary: 
+ * Added autotest for systemoc-fir
+Keywords: 
+
+
+

@@ -1,0 +1,192 @@
+Revision: SystemC-Examples--mainline--0.4--patch-20
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Mar 20 20:07:19 CET 2006
+Standard-date: 2006-03-20 19:07:19 GMT
+New-directories: systemoc-csp/.arch-ids
+    systemoc-fir/.arch-ids systemoc-ibtest/.arch-ids
+    systemoc-mpeg4-teich-v2/.arch-ids
+    systemoc-mpeg4-teich-v2/Video_XML/.arch-ids
+    systemoc-mpeg4-teich-v2/Video_XML/others/.arch-ids
+    systemoc-mpeg4/.arch-ids systemoc-par/.arch-ids
+    systemoc-sdf/.arch-ids systemoc-select/.arch-ids
+    systemoc-sqr-double/.arch-ids systemoc-sqr/.arch-ids
+    systemoc-td-sim-test/.arch-ids
+Removed-directories: systemc-csp/.arch-ids
+    systemc-fir/.arch-ids systemc-ibtest/.arch-ids
+    systemc-mpeg4-teich-v2/.arch-ids
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids
+    systemc-mpeg4/.arch-ids systemc-par/.arch-ids
+    systemc-sdf/.arch-ids systemc-select/.arch-ids
+    systemc-sqr-double/.arch-ids systemc-sqr/.arch-ids
+    systemc-td-sim-test/.arch-ids
+Renamed-files: systemc-csp/.arch-ids/=id systemoc-csp/.arch-ids/=id
+    systemc-csp/.arch-ids/Makefile.am.id systemoc-csp/.arch-ids/Makefile.am.id
+    systemc-csp/.arch-ids/design-csp.cpp.id systemoc-csp/.arch-ids/design-csp.cpp.id
+    systemc-fir/.arch-ids/=id systemoc-fir/.arch-ids/=id
+    systemc-fir/.arch-ids/Makefile.am.id systemoc-fir/.arch-ids/Makefile.am.id
+    systemc-fir/.arch-ids/design-fir.cpp.id systemoc-fir/.arch-ids/design-fir.cpp.id
+    systemc-ibtest/.arch-ids/=id systemoc-ibtest/.arch-ids/=id
+    systemc-ibtest/.arch-ids/Makefile.am.id systemoc-ibtest/.arch-ids/Makefile.am.id
+    systemc-ibtest/.arch-ids/atutest_atomic.cpp.id systemoc-ibtest/.arch-ids/atutest_atomic.cpp.id
+    systemc-ibtest/.arch-ids/atutest_nonatomic.cpp.id systemoc-ibtest/.arch-ids/atutest_nonatomic.cpp.id
+    systemc-ibtest/.arch-ids/bit_buffer.cpp.id systemoc-ibtest/.arch-ids/bit_buffer.cpp.id
+    systemc-ibtest/.arch-ids/bit_buffer.h.id systemoc-ibtest/.arch-ids/bit_buffer.h.id
+    systemc-ibtest/.arch-ids/datatypes.h.id systemoc-ibtest/.arch-ids/datatypes.h.id
+    systemc-ibtest/.arch-ids/generic_communication_node.hpp.id systemoc-ibtest/.arch-ids/generic_communication_node.hpp.id
+    systemc-ibtest/.arch-ids/ib_m_atu_atomic.cpp.id systemoc-ibtest/.arch-ids/ib_m_atu_atomic.cpp.id
+    systemc-ibtest/.arch-ids/ib_m_atu_atomic.h.id systemoc-ibtest/.arch-ids/ib_m_atu_atomic.h.id
+    systemc-ibtest/.arch-ids/ib_m_atu_nonatomic.cpp.id systemoc-ibtest/.arch-ids/ib_m_atu_nonatomic.cpp.id
+    systemc-ibtest/.arch-ids/ib_m_atu_nonatomic.h.id systemoc-ibtest/.arch-ids/ib_m_atu_nonatomic.h.id
+    systemc-ibtest/.arch-ids/mapping.id systemoc-ibtest/.arch-ids/mapping.id
+    systemc-ibtest/.arch-ids/memory_access_read_test.cpp.id systemoc-ibtest/.arch-ids/memory_access_read_test.cpp.id
+    systemc-ibtest/.arch-ids/memory_access_write_test.cpp.id systemoc-ibtest/.arch-ids/memory_access_write_test.cpp.id
+    systemc-ibtest/.arch-ids/memory_interface.h.id systemoc-ibtest/.arch-ids/memory_interface.h.id
+    systemc-ibtest/.arch-ids/oneof.cpp.id systemoc-ibtest/.arch-ids/oneof.cpp.id
+    systemc-ibtest/.arch-ids/packet_header.h.id systemoc-ibtest/.arch-ids/packet_header.h.id
+    systemc-ibtest/.arch-ids/smoc1_vs_smoc2_test.cpp.id systemoc-ibtest/.arch-ids/smoc1_vs_smoc2_test.cpp.id
+    systemc-ibtest/.arch-ids/smoc2test.cpp.id systemoc-ibtest/.arch-ids/smoc2test.cpp.id
+    systemc-ibtest/.arch-ids/tt_ib.cpp.id systemoc-ibtest/.arch-ids/tt_ib.cpp.id
+    systemc-ibtest/.arch-ids/tt_ib.h.id systemoc-ibtest/.arch-ids/tt_ib.h.id
+    systemc-mpeg4-teich-v2/.arch-ids/=id systemoc-mpeg4-teich-v2/.arch-ids/=id
+    systemc-mpeg4-teich-v2/.arch-ids/Makefile.am.id systemoc-mpeg4-teich-v2/.arch-ids/Makefile.am.id
+    systemc-mpeg4-teich-v2/.arch-ids/Teich17.xslt.id systemoc-mpeg4-teich-v2/.arch-ids/Teich17.xslt.id
+    systemc-mpeg4-teich-v2/.arch-ids/callib.hpp.id systemoc-mpeg4-teich-v2/.arch-ids/callib.hpp.id
+    systemc-mpeg4-teich-v2/.arch-ids/design-mpeg4-teich.cpp.id systemoc-mpeg4-teich-v2/.arch-ids/design-mpeg4-teich.cpp.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/=id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/=id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTaddsub-out-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTaddsub-out-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTaddsub-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTaddsub-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTaddsub.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTaddsub.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTclip-out-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTclip-out-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTclip-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTclip-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTclip.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTclip.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTfly-out-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTfly-out-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTfly-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTfly-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTfly.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTfly.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTscale-out-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTscale-out-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTscale-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTscale-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTscale.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTscale.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/MCadd-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/MCadd-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/MCadd.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/MCadd.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/README.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/README.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/Upsample-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/Upsample-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/Upsample.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/Upsample.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/block2row-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/block2row-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/block2row.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/block2row.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/byte2bit-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/byte2bit-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/byte2bit.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/byte2bit.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/col2block-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/col2block-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/col2block.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/col2block.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/dequant-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/dequant-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/dequant.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/dequant.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/parser-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/parser-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/parser.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/parser.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/reconstruct-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/reconstruct-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/reconstruct.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/reconstruct.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/sequence-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/sequence-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/sequence.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/sequence.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/transpose-out.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/transpose-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/transpose.xml.id systemoc-mpeg4-teich-v2/Video_XML/.arch-ids/transpose.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/=id systemoc-mpeg4-teich-v2/Video_XML/others/.arch-ids/=id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/BitPrint.xml.id systemoc-mpeg4-teich-v2/Video_XML/others/.arch-ids/BitPrint.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/DispYUV.xml.id systemoc-mpeg4-teich-v2/Video_XML/others/.arch-ids/DispYUV.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/IDCTaddsub2.xml.id systemoc-mpeg4-teich-v2/Video_XML/others/.arch-ids/IDCTaddsub2.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/IDCTfly2.xml.id systemoc-mpeg4-teich-v2/Video_XML/others/.arch-ids/IDCTfly2.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/clipmon.xml.id systemoc-mpeg4-teich-v2/Video_XML/others/.arch-ids/clipmon.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/fread.xml.id systemoc-mpeg4-teich-v2/Video_XML/others/.arch-ids/fread.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/print.xml.id systemoc-mpeg4-teich-v2/Video_XML/others/.arch-ids/print.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/seqmon.xml.id systemoc-mpeg4-teich-v2/Video_XML/others/.arch-ids/seqmon.xml.id
+    systemc-mpeg4/.arch-ids/=id systemoc-mpeg4/.arch-ids/=id
+    systemc-mpeg4/.arch-ids/IDCT1d.hpp.id systemoc-mpeg4/.arch-ids/IDCT1d.hpp.id
+    systemc-mpeg4/.arch-ids/IDCT1d_col.hpp.id systemoc-mpeg4/.arch-ids/IDCT1d_col.hpp.id
+    systemc-mpeg4/.arch-ids/IDCT2d.hpp.id systemoc-mpeg4/.arch-ids/IDCT2d.hpp.id
+    systemc-mpeg4/.arch-ids/IDCTaddsub.cal.id systemoc-mpeg4/.arch-ids/IDCTaddsub.cal.id
+    systemc-mpeg4/.arch-ids/IDCTaddsub.hpp.id systemoc-mpeg4/.arch-ids/IDCTaddsub.hpp.id
+    systemc-mpeg4/.arch-ids/IDCTclip.cal.id systemoc-mpeg4/.arch-ids/IDCTclip.cal.id
+    systemc-mpeg4/.arch-ids/IDCTclip.hpp.id systemoc-mpeg4/.arch-ids/IDCTclip.hpp.id
+    systemc-mpeg4/.arch-ids/IDCTfly.cal.id systemoc-mpeg4/.arch-ids/IDCTfly.cal.id
+    systemc-mpeg4/.arch-ids/IDCTfly.hpp.id systemoc-mpeg4/.arch-ids/IDCTfly.hpp.id
+    systemc-mpeg4/.arch-ids/IDCTscale.cal.id systemoc-mpeg4/.arch-ids/IDCTscale.cal.id
+    systemc-mpeg4/.arch-ids/IDCTscale.hpp.id systemoc-mpeg4/.arch-ids/IDCTscale.hpp.id
+    systemc-mpeg4/.arch-ids/MCadd.cal.id systemoc-mpeg4/.arch-ids/MCadd.cal.id
+    systemc-mpeg4/.arch-ids/MCadd.hpp.id systemoc-mpeg4/.arch-ids/MCadd.hpp.id
+    systemc-mpeg4/.arch-ids/Makefile.am.id systemoc-mpeg4/.arch-ids/Makefile.am.id
+    systemc-mpeg4/.arch-ids/Upsample.cal.id systemoc-mpeg4/.arch-ids/Upsample.cal.id
+    systemc-mpeg4/.arch-ids/Upsample.hpp.id systemoc-mpeg4/.arch-ids/Upsample.hpp.id
+    systemc-mpeg4/.arch-ids/block2row.cal.id systemoc-mpeg4/.arch-ids/block2row.cal.id
+    systemc-mpeg4/.arch-ids/block2row.hpp.id systemoc-mpeg4/.arch-ids/block2row.hpp.id
+    systemc-mpeg4/.arch-ids/block_idct.hpp.id systemoc-mpeg4/.arch-ids/block_idct.hpp.id
+    systemc-mpeg4/.arch-ids/block_parser.hpp.id systemoc-mpeg4/.arch-ids/block_parser.hpp.id
+    systemc-mpeg4/.arch-ids/byte2bit.cal.id systemoc-mpeg4/.arch-ids/byte2bit.cal.id
+    systemc-mpeg4/.arch-ids/byte2bit.hpp.id systemoc-mpeg4/.arch-ids/byte2bit.hpp.id
+    systemc-mpeg4/.arch-ids/callib.hpp.id systemoc-mpeg4/.arch-ids/callib.hpp.id
+    systemc-mpeg4/.arch-ids/cmx.dtd.id systemoc-mpeg4/.arch-ids/cmx.dtd.id
+    systemc-mpeg4/.arch-ids/col2block.cal.id systemoc-mpeg4/.arch-ids/col2block.cal.id
+    systemc-mpeg4/.arch-ids/col2block.hpp.id systemoc-mpeg4/.arch-ids/col2block.hpp.id
+    systemc-mpeg4/.arch-ids/configuration.cmx.xml.id systemoc-mpeg4/.arch-ids/configuration.cmx.xml.id
+    systemc-mpeg4/.arch-ids/create-example.sh.id systemoc-mpeg4/.arch-ids/create-example.sh.id
+    systemc-mpeg4/.arch-ids/dequant.cal.id systemoc-mpeg4/.arch-ids/dequant.cal.id
+    systemc-mpeg4/.arch-ids/dequant.hpp.id systemoc-mpeg4/.arch-ids/dequant.hpp.id
+    systemc-mpeg4/.arch-ids/design-mpeg4.cpp.id systemoc-mpeg4/.arch-ids/design-mpeg4.cpp.id
+    systemc-mpeg4/.arch-ids/design-test-idct2d.cpp.id systemoc-mpeg4/.arch-ids/design-test-idct2d.cpp.id
+    systemc-mpeg4/.arch-ids/min_duplex.hpp.id systemoc-mpeg4/.arch-ids/min_duplex.hpp.id
+    systemc-mpeg4/.arch-ids/parser-teich.hpp.id systemoc-mpeg4/.arch-ids/parser-teich.hpp.id
+    systemc-mpeg4/.arch-ids/parser.cal.id systemoc-mpeg4/.arch-ids/parser.cal.id
+    systemc-mpeg4/.arch-ids/parser.hpp.id systemoc-mpeg4/.arch-ids/parser.hpp.id
+    systemc-mpeg4/.arch-ids/reconstruct.cal.id systemoc-mpeg4/.arch-ids/reconstruct.cal.id
+    systemc-mpeg4/.arch-ids/reconstruct.hpp.id systemoc-mpeg4/.arch-ids/reconstruct.hpp.id
+    systemc-mpeg4/.arch-ids/row_clip.hpp.id systemoc-mpeg4/.arch-ids/row_clip.hpp.id
+    systemc-mpeg4/.arch-ids/sequence.cal.id systemoc-mpeg4/.arch-ids/sequence.cal.id
+    systemc-mpeg4/.arch-ids/sequence.hpp.id systemoc-mpeg4/.arch-ids/sequence.hpp.id
+    systemc-mpeg4/.arch-ids/test.txt.id systemoc-mpeg4/.arch-ids/test.txt.id
+    systemc-mpeg4/.arch-ids/test_in-dat.id systemoc-mpeg4/.arch-ids/test_in-dat.id
+    systemc-mpeg4/.arch-ids/test_parser.cpp.id systemoc-mpeg4/.arch-ids/test_parser.cpp.id
+    systemc-mpeg4/.arch-ids/transpose.cal.id systemoc-mpeg4/.arch-ids/transpose.cal.id
+    systemc-mpeg4/.arch-ids/transpose.hpp.id systemoc-mpeg4/.arch-ids/transpose.hpp.id
+    systemc-par/.arch-ids/=id systemoc-par/.arch-ids/=id
+    systemc-par/.arch-ids/Makefile.am.id systemoc-par/.arch-ids/Makefile.am.id
+    systemc-par/.arch-ids/cmx.dtd.id systemoc-par/.arch-ids/cmx.dtd.id
+    systemc-par/.arch-ids/configuration.cmx.xml.id systemoc-par/.arch-ids/configuration.cmx.xml.id
+    systemc-par/.arch-ids/design-par.cpp.id systemoc-par/.arch-ids/design-par.cpp.id
+    systemc-sdf/.arch-ids/=id systemoc-sdf/.arch-ids/=id
+    systemc-sdf/.arch-ids/Makefile.am.id systemoc-sdf/.arch-ids/Makefile.am.id
+    systemc-sdf/.arch-ids/design-sdf.cpp.id systemoc-sdf/.arch-ids/design-sdf.cpp.id
+    systemc-select/.arch-ids/=id systemoc-select/.arch-ids/=id
+    systemc-select/.arch-ids/Makefile.am.id systemoc-select/.arch-ids/Makefile.am.id
+    systemc-select/.arch-ids/design-select.cpp.id systemoc-select/.arch-ids/design-select.cpp.id
+    systemc-sqr-double/.arch-ids/=id systemoc-sqr-double/.arch-ids/=id
+    systemc-sqr-double/.arch-ids/Makefile.am.id systemoc-sqr-double/.arch-ids/Makefile.am.id
+    systemc-sqr-double/.arch-ids/cmx.dtd.id systemoc-sqr-double/.arch-ids/cmx.dtd.id
+    systemc-sqr-double/.arch-ids/configuration.cmx.xml.id systemoc-sqr-double/.arch-ids/configuration.cmx.xml.id
+    systemc-sqr-double/.arch-ids/design-sqr.cpp.id systemoc-sqr-double/.arch-ids/design-sqr.cpp.id
+    systemc-sqr/.arch-ids/=id systemoc-sqr/.arch-ids/=id
+    systemc-sqr/.arch-ids/Makefile.am.id systemoc-sqr/.arch-ids/Makefile.am.id
+    systemc-sqr/.arch-ids/cmx.dtd.id systemoc-sqr/.arch-ids/cmx.dtd.id
+    systemc-sqr/.arch-ids/configuration.cmx.xml.id systemoc-sqr/.arch-ids/configuration.cmx.xml.id
+    systemc-sqr/.arch-ids/design-sqr.cpp.id systemoc-sqr/.arch-ids/design-sqr.cpp.id
+    systemc-td-sim-test/.arch-ids/=id systemoc-td-sim-test/.arch-ids/=id
+    systemc-td-sim-test/.arch-ids/Makefile.am.id systemoc-td-sim-test/.arch-ids/Makefile.am.id
+    systemc-td-sim-test/.arch-ids/single_transition.cpp.id systemoc-td-sim-test/.arch-ids/single_transition.cpp.id
+    systemc-td-sim-test/.arch-ids/smoc_event_test.cpp.id systemoc-td-sim-test/.arch-ids/smoc_event_test.cpp.id
+    systemc-td-sim-test/.arch-ids/td_sim.cpp.id systemoc-td-sim-test/.arch-ids/td_sim.cpp.id
+    systemc-td-sim-test/.arch-ids/till_test.cpp.id systemoc-td-sim-test/.arch-ids/till_test.cpp.id
+Renamed-directories: systemc-csp systemoc-csp
+    systemc-fir systemoc-fir
+    systemc-ibtest systemoc-ibtest
+    systemc-mpeg4 systemoc-mpeg4
+    systemc-mpeg4-teich-v2 systemoc-mpeg4-teich-v2
+    systemc-par systemoc-par
+    systemc-sdf systemoc-sdf
+    systemc-select systemoc-select
+    systemc-sqr systemoc-sqr
+    systemc-sqr-double systemoc-sqr-double
+    systemc-td-sim-test systemoc-td-sim-test
+Modified-files: configure.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-20
+Summary: 
+ * Moved examples to reflect that most of them are SysteMoC examples
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--da-deyhle--0.4--patch-1
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Andreas Deyhle <andi.deyhle@gmx.de>
+Date: Tue Sep  5 16:48:02 CEST 2006
+Standard-date: 2006-09-05 14:48:02 GMT
+Modified-files: systemoc-fir/design-fir.cpp
+    systemoc-sdf/design-sdf.cpp systemoc-sqr/design-sqr.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-1
+Summary:
+ * adapted fir, sdf and sqr for easier synthesis: replaced templates, ...
+Keywords: 
+
+
+

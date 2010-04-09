@@ -1,0 +1,100 @@
+Revision: SystemC-Examples--mainline--0.4--patch-30
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May 10 13:47:27 CEST 2006
+Standard-date: 2006-05-10 11:47:27 GMT
+New-files: crypto-example/.arch-ids/cryptoVPCConfig.cmx.id
+    crypto-example/.arch-ids/exectimelogger.cpp.id
+    crypto-example/.arch-ids/exectimelogger.hpp.id
+    crypto-example/cryptoVPCConfig.cmx
+    crypto-example/exectimelogger.cpp
+    crypto-example/exectimelogger.hpp
+    systemoc-par/.arch-ids/par.conf.id
+    systemoc-par/par.conf
+Modified-files: configure.in crypto-example/Makefile.am
+    crypto-example/blowfish.cpp
+    crypto-example/consumermodule.cpp
+    crypto-example/consumermodule.hpp
+    crypto-example/cryptoalgorithm.hpp
+    crypto-example/des3.cpp
+    crypto-example/examplenetworkpacket.hpp
+    crypto-example/ioactor.hpp crypto-example/md5.cpp
+    crypto-example/md5.hpp
+    crypto-example/producermodule.cpp
+    crypto-example/producermodule.hpp
+    crypto-example/rsmodule.hpp idct2d-ref/Makefile.am
+    mpeg4-ref/Makefile.am systemc-idct/Makefile.am
+    systemoc-csp/Makefile.am systemoc-fir/Makefile.am
+    systemoc-ibtest/Makefile.am
+    systemoc-mpeg4-teich-v2/Makefile.am
+    systemoc-mpeg4/Makefile.am systemoc-par/Makefile.am
+    systemoc-par/configuration.cmx.xml
+    systemoc-par/design-par.cpp systemoc-sdf/Makefile.am
+    systemoc-select/Makefile.am
+    systemoc-sqr-double/Makefile.am
+    systemoc-sqr/Makefile.am systemoc-sqr/design-sqr.cpp
+    systemoc-td-sim-test/Makefile.am
+    vpc-test-h261/Makefile.am
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-99
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-100
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-101
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-102
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-103
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-104
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-105
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-30
+Summary: 
+ * Syncup to SystemC-Examples--mainline--0.3 branch
+ * Crypto example
+ - added logger class for tracing execution times of actor methods
+ - modified crypto example to enable tracing of execution times
+ - added example configuration for VPC
+ * SqrRoot example
+ - Changed to use constructor parameter wrapper
+ - Downcase actor instances a1 - a5 in design-sqr.cpp
+   to correspond to SysteMoC documentation
+ * SysteMoC Par example
+ - updated example (uses now infrastructure from Support)
+ - simplified example (Expr::isType is now always used)
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-99
+   
+  * added logger class for tracing execution times of actor methods
+  * modified crypto example to enable tracing of execution times
+  * added example configuration for VPC
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-100
+   
+ * Merge from SystemC-Examples--mainline--0.4 branch
+ - changed IDCT2d example in systemoc-mpeg4 to use
+   SMOC_ACTOR_CPARAM macro for their actor constructor
+   parameter
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-101
+   
+ * Use ACJF_NEED_PKG for Support inclusion
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-102
+   
+  * updated systemoc-par example (uses now infrastructure
+    from Support)
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-103
+   
+ * Changed design-sqr.cpp to use constructor parameter wrapper
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-104
+   
+ * Downcase actor instances a1 - a5 in design-sqr.cpp
+   to correspond to SysteMoC documentation
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-105
+   
+  * simplified systemoc_par example (Expr::isType is now always used)
+

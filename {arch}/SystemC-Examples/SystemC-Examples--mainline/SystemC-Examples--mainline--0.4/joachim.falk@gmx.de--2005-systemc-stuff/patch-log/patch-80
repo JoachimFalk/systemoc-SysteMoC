@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.4--patch-80
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Thu Apr  5 17:20:47 CEST 2007
+Standard-date: 2007-04-05 15:20:47 GMT
+Modified-files: systemoc-idct2d/block2row.hpp
+    systemoc-idct2d/col2block.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-80
+Summary: Transform port access patterns to utilize parallel port accesses in actors col2block and block2row
+Keywords: 
+
+
+

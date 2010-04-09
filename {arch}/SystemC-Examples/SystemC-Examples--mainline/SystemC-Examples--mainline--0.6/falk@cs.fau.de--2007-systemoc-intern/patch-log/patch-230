@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-230
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Mon May 21 14:15:22 CEST 2007
+Standard-date: 2007-05-21 12:15:22 GMT
+Modified-files: systemoc-jpeg-decoder/BitSplitter.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-230
+Summary: 
+  * removed loop in BitSplitter's skipBits()
+    @systemoc-jpeg-decoder/BitSplitter.cpp
+Keywords: 
+
+
+

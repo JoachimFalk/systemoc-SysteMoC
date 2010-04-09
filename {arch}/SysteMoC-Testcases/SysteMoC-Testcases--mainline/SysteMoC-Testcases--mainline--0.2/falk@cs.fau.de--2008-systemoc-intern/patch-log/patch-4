@@ -1,0 +1,37 @@
+Revision: SysteMoC-Testcases--mainline--0.2--patch-4
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Thu Dec 11 09:52:48 CET 2008
+Standard-date: 2008-12-11 08:52:48 GMT
+New-files: systemoc-fsm-and-composition/.arch-ids/=id
+    systemoc-fsm-and-composition/.arch-ids/Makefile.am.id
+    systemoc-fsm-and-composition/.arch-ids/autotest-sh.id
+    systemoc-fsm-and-composition/.arch-ids/autovars.sh.in.id
+    systemoc-fsm-and-composition/.arch-ids/configure.in.frag.id
+    systemoc-fsm-and-composition/.arch-ids/design-and-comp.cpp.id
+    systemoc-fsm-and-composition/Makefile.am
+    systemoc-fsm-and-composition/autotest-sh
+    systemoc-fsm-and-composition/autovars.sh.in
+    systemoc-fsm-and-composition/configure.in.frag
+    systemoc-fsm-and-composition/design-and-comp.cpp
+    systemoc-fsm-and-composition/testlogs/.arch-ids/=id
+    systemoc-fsm-and-composition/testlogs/.arch-ids/fsm.log.id
+    systemoc-fsm-and-composition/testlogs/fsm.log
+New-directories: systemoc-fsm-and-composition
+    systemoc-fsm-and-composition/.arch-ids
+    systemoc-fsm-and-composition/testlogs
+    systemoc-fsm-and-composition/testlogs/.arch-ids
+Renamed-files: systemoc-fsm-xor-composition/testlogs/.arch-ids/2.log.id systemoc-fsm-xor-composition/testlogs/.arch-ids/fsm.log.id
+    systemoc-fsm-xor-composition/testlogs/2.log systemoc-fsm-xor-composition/testlogs/fsm.log
+Modified-files: configure.in
+    systemoc-fsm-xor-composition/autotest-sh
+    systemoc-fsm-xor-composition/testlogs/fsm.log
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-4
+Summary:
+  * added AND state testcase
+  * check targets of AND/XOR testcases verify the FSM structure
+    now instead of some output
+Keywords: 
+
+
+

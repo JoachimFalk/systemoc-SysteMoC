@@ -1,0 +1,23 @@
+Revision: SystemC-Examples--mainline--0.3--patch-101
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Apr 26 13:24:22 CEST 2006
+Standard-date: 2006-04-26 11:24:22 GMT
+Modified-files: configure.in crypto-example/Makefile.am
+    idct2d-ref/Makefile.am mpeg4-ref/Makefile.am
+    systemc-idct/Makefile.am systemoc-csp/Makefile.am
+    systemoc-fir/Makefile.am systemoc-ibtest/Makefile.am
+    systemoc-mpeg4-teich-v2/Makefile.am
+    systemoc-mpeg4/Makefile.am systemoc-par/Makefile.am
+    systemoc-sdf/Makefile.am systemoc-select/Makefile.am
+    systemoc-sqr-double/Makefile.am
+    systemoc-sqr/Makefile.am
+    systemoc-td-sim-test/Makefile.am
+    vpc-test-h261/Makefile.am
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-101
+Summary: 
+ * Use ACJF_NEED_PKG for Support inclusion
+Keywords: 
+
+
+

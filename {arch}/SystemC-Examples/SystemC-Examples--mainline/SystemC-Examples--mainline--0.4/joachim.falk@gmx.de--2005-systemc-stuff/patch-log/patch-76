@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.4--patch-76
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Mar 26 20:19:50 CEST 2007
+Standard-date: 2007-03-26 18:19:50 GMT
+Modified-files: systemoc-idct2d/IDCT_block_sink.hpp
+    systemoc-idct2d/design-test-idct2d.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-76
+Summary:
+ Make modifications (hacks) in order to get SW-synthesis working correctly
+ - Avoid problems in initialization of constant parameters by making it non-constant
+ - Allocate sink-actor by help of a new-operator, because the latter one changes the order of the constructor parameters.
+Keywords: 
+
+
+

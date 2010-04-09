@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.2--patch-33
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Yao Feng <yaofeng_afeng@yahoo.com>
+Date: Thu Sep  1 11:33:13 MEST 2005
+Standard-date: 2005-09-01 09:33:13 GMT
+Modified-files: Makefile.am configure.in
+    systemc-mpeg4/MCadd.hpp systemc-mpeg4/create-example.sh
+    systemc-mpeg4/design-mpeg4.cpp
+    systemc-mpeg4/transpose.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-33
+Summary: add IDCT1d.hpp row_clip.hpp 
+Keywords: IDCT1d clip
+
+
+

@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-106
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu May 11 15:46:29 CEST 2006
+Standard-date: 2006-05-11 13:46:29 GMT
+Modified-files: crypto-example/rsmodule.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-106
+Summary: 
+ - fixed warning (parameter initialization)
+Keywords: 
+
+
+

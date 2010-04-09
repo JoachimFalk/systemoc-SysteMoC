@@ -1,0 +1,111 @@
+Revision: SystemC-Examples--mainline--0.6--patch-28
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Feb 28 11:58:08 CET 2007
+Standard-date: 2007-02-28 10:58:08 GMT
+Modified-files: caltrop/design-fir.cpp configure.in
+    crypto-example/channel.hpp
+    crypto-example/cryptoalgorithm.hpp
+    crypto-example/cryptomodule.hpp
+    crypto-example/design_crypto.cpp
+    crypto-example/ioactor.hpp crypto-example/md5.hpp
+    crypto-example/rsmodule.hpp systemc-fsm/design-fsm.cpp
+    systemc-idct/block_parser.hpp
+    systemoc-csp/design-csp.cpp systemoc-fir/design-fir.cpp
+    systemoc-getValueAt/design-getValueAt.cpp
+    systemoc-ibtest/atutest_atomic.cpp
+    systemoc-ibtest/atutest_nonatomic.cpp
+    systemoc-ibtest/generic_communication_node.hpp
+    systemoc-ibtest/ib_m_atu_atomic.h
+    systemoc-ibtest/ib_m_atu_nonatomic.h
+    systemoc-ibtest/memory_access_read_test.cpp
+    systemoc-ibtest/memory_access_write_test.cpp
+    systemoc-ibtest/memory_interface.h
+    systemoc-ibtest/smoc1_vs_smoc2_test.cpp
+    systemoc-ibtest/smoc2test.cpp
+    systemoc-idct2d/IDCT1d.hpp
+    systemoc-idct2d/IDCT1d_col.hpp
+    systemoc-idct2d/IDCT2d.hpp
+    systemoc-idct2d/block_idct.hpp
+    systemoc-idct2d/design-test-idct1d.cpp
+    systemoc-idct2d/design-test-idct2d.cpp
+    systemoc-idct2d/row_clip.hpp
+    systemoc-mpeg4-teich-v2/design-mpeg4-teich.cpp
+    systemoc-mpeg4/block_parser.hpp
+    systemoc-mpeg4/design-mpeg4.cpp
+    systemoc-mpeg4/test_parser.cpp
+    systemoc-par/design-par.cpp
+    systemoc-sdf-clustering/actors.hpp
+    systemoc-sdf/design-sdf.cpp
+    systemoc-select/design-select.cpp
+    systemoc-sqr-double/design-sqr.cpp
+    systemoc-sqr/design-sqr.cpp systemoc-sr/ConstSource.hpp
+    systemoc-sr/NonStrictAnd.hpp
+    systemoc-sr/TerminalSink.hpp systemoc-sr/adeva_lib.hpp
+    systemoc-sr/design-PLMON.cpp
+    systemoc-sr/design-mc-test.cpp
+    systemoc-sr/design-sr-and.cpp
+    systemoc-sr/design-sr-phil-simple.cpp
+    systemoc-src-snk-noconsume/design-src-snk-noconsume.cpp
+    systemoc-src-snk/design-src-snk.cpp
+    systemoc-td-sim-test/single_transition.cpp
+    systemoc-td-sim-test/smoc_event_test.cpp
+    systemoc-td-sim-test/td_sim.cpp
+    systemoc-td-sim-test/till_test.cpp
+    systemoc-tlm-start/systemoc_test.cpp
+    systemoc-wsdf-dist/design-wsdf-dist.cpp
+    systemoc-wsdf-dist/wsdf_2D_dup3.hpp
+    systemoc-wsdf-dist/wsdf_dist.hpp
+    systemoc-wsdf-dist/wsdf_dummy_src.hpp
+    systemoc-wsdf-dist/wsdf_img_snk.hpp
+    systemoc-wsdf-dist/wsdf_rot180.hpp
+    systemoc-wsdf-dist/wsdf_rot180_ex.hpp
+    systemoc-wsdf-expr/design-wsdf-expr.cpp
+    systemoc-wsdf-recons-dila/1D_dup2.hpp
+    systemoc-wsdf-recons-dila/1D_dup3.hpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fast.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fifo.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila.cpp
+    systemoc-wsdf-recons-dila/test_input_switch.cpp
+    systemoc-wsdf-recons-dila/wsdf_1dil.hpp
+    systemoc-wsdf-recons-dila/wsdf_1dil_fast.hpp
+    systemoc-wsdf-recons-dila/wsdf_2D_dup2.hpp
+    systemoc-wsdf-recons-dila/wsdf_2D_dup3.hpp
+    systemoc-wsdf-recons-dila/wsdf_2D_dup4.hpp
+    systemoc-wsdf-recons-dila/wsdf_adiff_image.hpp
+    systemoc-wsdf-recons-dila/wsdf_dil_in_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_dil_out_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_img_max.hpp
+    systemoc-wsdf-recons-dila/wsdf_img_snk.hpp
+    systemoc-wsdf-recons-dila/wsdf_img_src.hpp
+    systemoc-wsdf-recons-dila/wsdf_input_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_min_image.hpp
+    systemoc-wsdf-recons-dila/wsdf_output_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_recons_fifo.hpp
+    systemoc-wsdf-recons-dila/wsdf_rot180.hpp
+    systemoc-wsdf-recons-dila/wsdf_rot180_ex.hpp
+    systemoc-wsdf-recons-dila/wsdf_seed_switch.hpp
+    systemoc-wsdf-src-snk/design-wsdf-src-snk.cpp
+    systemoc-wsdf-src-snk/design1D-src-snk.cpp
+    systemoc-wsdf-src-snk/dummy_block_snk_1d.hpp
+    systemoc-wsdf-src-snk/dummy_block_src_1d.hpp
+    systemoc-wsdf-src-snk/dummy_snk_1d.hpp
+    systemoc-wsdf-src-snk/dummy_src_1d.hpp
+    systemoc-wsdf-src-snk/img_block_snk_1d.hpp
+    systemoc-wsdf-src-snk/img_block_src_1d.hpp
+    systemoc-wsdf-src-snk/img_snk_1d.hpp
+    systemoc-wsdf-src-snk/img_src_1d.hpp
+    systemoc-wsdf-src-snk/wsdf_dummy_snk.hpp
+    systemoc-wsdf-src-snk/wsdf_dummy_src.hpp
+    systemoc-wsdf-src-snk/wsdf_img_snk.hpp
+    systemoc-wsdf-src-snk/wsdf_img_src.hpp
+    systemoc-wsdf/design-wsdf-no-border.cpp
+    systemoc-wsdf/design-wsdf.cpp vpc-test-h261/names.h
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-28
+Summary: 
+ * Fixup all examples include systemoc headers properly via
+   #include <systemoc/smoc_xxx.hpp> instead of #include <smoc_xxx.hpp>
+Keywords: 
+
+
+

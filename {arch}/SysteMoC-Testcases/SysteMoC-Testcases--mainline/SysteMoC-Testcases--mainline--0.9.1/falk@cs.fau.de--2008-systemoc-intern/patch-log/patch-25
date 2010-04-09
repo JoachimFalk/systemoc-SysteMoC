@@ -1,0 +1,13 @@
+Revision: SysteMoC-Testcases--mainline--0.9.1--patch-25
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Mar  3 08:59:29 CET 2010
+Standard-date: 2010-03-03 07:59:29 GMT
+Modified-files: systemoc-src-snk-multireader/design-src-snk-multireader.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.9.1--patch-25
+Summary:
+  * Updated deprecated syntax for multireader fifos 
+Keywords: 
+
+
+

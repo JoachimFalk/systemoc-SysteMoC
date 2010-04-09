@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.4--patch-38
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Jens Gladigau <jens.gladigau@web.de>
+Date: Wed Jun 28 16:11:21 CEST 2006
+Standard-date: 2006-06-28 14:11:21 GMT
+New-files: systemoc-mpeg4/.arch-ids/design-test-idct1d.cpp.id
+    systemoc-mpeg4/design-test-idct1d.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-38
+Summary: 
+  * cause of necessity for smaller model joachim started to implement 1D IDCT.
+    still work in progress.
+    +design-test-idct1d.cpp
+Keywords: 
+
+
+

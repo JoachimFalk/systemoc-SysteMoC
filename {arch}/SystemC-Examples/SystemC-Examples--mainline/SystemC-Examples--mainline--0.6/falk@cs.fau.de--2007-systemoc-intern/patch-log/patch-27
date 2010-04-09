@@ -1,0 +1,18 @@
+Revision: SystemC-Examples--mainline--0.6--patch-27
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Feb 28 10:14:02 CET 2007
+Standard-date: 2007-02-28 09:14:02 GMT
+Modified-files: mpeg4-ref/ctrl.txt
+    systemc-idct/block_idct.hpp
+    systemoc-idct2d/block_idct.hpp
+    systemoc-wsdf/ref_data-dat
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-27
+Summary: 
+  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  * !!! NO DOS FILEFORMAT SOURCE FILES HERE !!!
+  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Keywords: 
+
+
+

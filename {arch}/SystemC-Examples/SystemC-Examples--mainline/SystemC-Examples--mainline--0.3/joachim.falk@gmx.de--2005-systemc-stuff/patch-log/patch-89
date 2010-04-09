@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-89
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Feb  8 13:22:01 CET 2006
+Standard-date: 2006-02-08 12:22:01 GMT
+Modified-files: systemc-sqr/design-sqr.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-89
+Summary: 
+ * Fixed systemc-sqr example to correspond to SysteMoC documentation
+Keywords: 
+
+
+

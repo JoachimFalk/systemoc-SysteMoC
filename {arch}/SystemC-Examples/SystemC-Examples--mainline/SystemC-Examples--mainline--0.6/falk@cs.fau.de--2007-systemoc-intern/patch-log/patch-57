@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-57
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Mar 12 15:22:33 CET 2007
+Standard-date: 2007-03-12 14:22:33 GMT
+Modified-files: systemoc-jpeg-decoder/InvHuffman.hpp
+    systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/channels.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-57
+Summary: 
+ - added dummy InvHuffman to top level design
+Keywords: 
+
+
+

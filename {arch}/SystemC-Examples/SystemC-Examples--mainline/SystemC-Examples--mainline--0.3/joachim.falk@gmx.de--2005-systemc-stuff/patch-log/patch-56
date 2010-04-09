@@ -1,0 +1,295 @@
+Revision: SystemC-Examples--mainline--0.3--patch-56
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Sep 29 20:52:39 CEST 2005
+Standard-date: 2005-09-29 18:52:39 GMT
+New-files: systemc-mpeg4-teich-v2/.arch-ids/=id
+    systemc-mpeg4-teich-v2/.arch-ids/Makefile.am.id
+    systemc-mpeg4-teich-v2/.arch-ids/callib.hpp.id
+    systemc-mpeg4-teich-v2/.arch-ids/design-mpeg4-teich.cpp.id
+    systemc-mpeg4-teich-v2/Makefile.am
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/=id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTaddsub-out-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTaddsub-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTaddsub.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTclip-out-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTclip-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTclip.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTfly-out-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTfly-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTfly.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTscale-out-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTscale-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/IDCTscale.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/MCadd-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/MCadd.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/README.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/Upsample-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/Upsample.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/block2row-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/block2row.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/byte2bit-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/byte2bit.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/col2block-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/col2block.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/dequant-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/dequant.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/parser-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/parser.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/reconstruct-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/reconstruct.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/sequence-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/sequence.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/transpose-out.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids/transpose.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/IDCTaddsub-out-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTaddsub-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTaddsub.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTclip-out-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTclip-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTclip.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTfly-out-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTfly-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTfly.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTscale-out-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTscale-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/IDCTscale.xml
+    systemc-mpeg4-teich-v2/Video_XML/MCadd-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/MCadd.xml
+    systemc-mpeg4-teich-v2/Video_XML/README
+    systemc-mpeg4-teich-v2/Video_XML/Upsample-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/Upsample.xml
+    systemc-mpeg4-teich-v2/Video_XML/block2row-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/block2row.xml
+    systemc-mpeg4-teich-v2/Video_XML/byte2bit-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/byte2bit.xml
+    systemc-mpeg4-teich-v2/Video_XML/col2block-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/col2block.xml
+    systemc-mpeg4-teich-v2/Video_XML/dequant-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/dequant.xml
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/=id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/BitPrint.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/DispYUV.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/IDCTaddsub2.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/IDCTfly2.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/clipmon.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/fread.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/print.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids/seqmon.xml.id
+    systemc-mpeg4-teich-v2/Video_XML/others/BitPrint.xml
+    systemc-mpeg4-teich-v2/Video_XML/others/DispYUV.xml
+    systemc-mpeg4-teich-v2/Video_XML/others/IDCTaddsub2.xml
+    systemc-mpeg4-teich-v2/Video_XML/others/IDCTfly2.xml
+    systemc-mpeg4-teich-v2/Video_XML/others/clipmon.xml
+    systemc-mpeg4-teich-v2/Video_XML/others/fread.xml
+    systemc-mpeg4-teich-v2/Video_XML/others/print.xml
+    systemc-mpeg4-teich-v2/Video_XML/others/seqmon.xml
+    systemc-mpeg4-teich-v2/Video_XML/parser-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/parser.xml
+    systemc-mpeg4-teich-v2/Video_XML/reconstruct-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/reconstruct.xml
+    systemc-mpeg4-teich-v2/Video_XML/sequence-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/sequence.xml
+    systemc-mpeg4-teich-v2/Video_XML/transpose-out.xml
+    systemc-mpeg4-teich-v2/Video_XML/transpose.xml
+    systemc-mpeg4-teich-v2/callib.hpp
+    systemc-mpeg4-teich-v2/design-mpeg4-teich.cpp
+New-directories: caltrop/.arch-ids systemc-mpeg4-teich-v2
+    systemc-mpeg4-teich-v2/.arch-ids
+    systemc-mpeg4-teich-v2/Video_XML
+    systemc-mpeg4-teich-v2/Video_XML/.arch-ids
+    systemc-mpeg4-teich-v2/Video_XML/others
+    systemc-mpeg4-teich-v2/Video_XML/others/.arch-ids
+Removed-directories: calltrop/.arch-ids
+Renamed-files: calltrop/.arch-ids/=id caltrop/.arch-ids/=id
+    calltrop/.arch-ids/Add.cal.id caltrop/.arch-ids/Add.cal.id
+    calltrop/.arch-ids/Add.cpp.id caltrop/.arch-ids/Add.cpp.id
+    calltrop/.arch-ids/BankAccount.cal.id caltrop/.arch-ids/BankAccount.cal.id
+    calltrop/.arch-ids/BankAccount.cpp.id caltrop/.arch-ids/BankAccount.cpp.id
+    calltrop/.arch-ids/FIR.cal.id caltrop/.arch-ids/FIR.cal.id
+    calltrop/.arch-ids/FIR.cpp.id caltrop/.arch-ids/FIR.cpp.id
+    calltrop/.arch-ids/Filter.cal.id caltrop/.arch-ids/Filter.cal.id
+    calltrop/.arch-ids/Filter.cpp.id caltrop/.arch-ids/Filter.cpp.id
+    calltrop/.arch-ids/ID.cal.id caltrop/.arch-ids/ID.cal.id
+    calltrop/.arch-ids/ID.cpp.id caltrop/.arch-ids/ID.cpp.id
+    calltrop/.arch-ids/Merge.cal.id caltrop/.arch-ids/Merge.cal.id
+    calltrop/.arch-ids/Merge.cpp.id caltrop/.arch-ids/Merge.cpp.id
+    calltrop/.arch-ids/PrimeSieve.cal.id caltrop/.arch-ids/PrimeSieve.cal.id
+    calltrop/.arch-ids/RaisedCosine.cal.id caltrop/.arch-ids/RaisedCosine.cal.id
+    calltrop/.arch-ids/Ramp.cal.id caltrop/.arch-ids/Ramp.cal.id
+    calltrop/.arch-ids/Ramp.cpp.id caltrop/.arch-ids/Ramp.cpp.id
+    calltrop/.arch-ids/Select.cal.id caltrop/.arch-ids/Select.cal.id
+    calltrop/.arch-ids/Select.cpp.id caltrop/.arch-ids/Select.cpp.id
+    calltrop/.arch-ids/Sieve.cpp.id caltrop/.arch-ids/Sieve.cpp.id
+    calltrop/.arch-ids/SimpleFIR.cal.id caltrop/.arch-ids/SimpleFIR.cal.id
+    calltrop/.arch-ids/SimpleFIR.cpp.id caltrop/.arch-ids/SimpleFIR.cpp.id
+    calltrop/.arch-ids/Sum.cal.id caltrop/.arch-ids/Sum.cal.id
+    calltrop/.arch-ids/Sum.cpp.id caltrop/.arch-ids/Sum.cpp.id
+    calltrop/.arch-ids/UpSample.cal.id caltrop/.arch-ids/UpSample.cal.id
+    calltrop/.arch-ids/UpSample.cpp.id caltrop/.arch-ids/UpSample.cpp.id
+    calltrop/.arch-ids/create-example.sh.id caltrop/.arch-ids/create-example.sh.id
+    calltrop/.arch-ids/design-fir.cpp.id caltrop/.arch-ids/design-fir.cpp.id
+Renamed-directories: calltrop caltrop
+Modified-files: Makefile.am configure.in
+    systemc-mpeg4/IDCTaddsub.cal systemc-mpeg4/IDCTclip.cal
+    systemc-mpeg4/IDCTfly.cal systemc-mpeg4/IDCTfly.hpp
+    systemc-mpeg4/IDCTscale.cal systemc-mpeg4/MCadd.cal
+    systemc-mpeg4/Upsample.cal systemc-mpeg4/block2row.cal
+    systemc-mpeg4/byte2bit.cal systemc-mpeg4/col2block.cal
+    systemc-mpeg4/configuration.cmx.xml
+    systemc-mpeg4/dequant.cal systemc-mpeg4/parser.cal
+    systemc-mpeg4/reconstruct.cal
+    systemc-mpeg4/sequence.cal systemc-mpeg4/transpose.cal
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-40
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-42
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-45
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-46
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-47
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-48
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-49
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-50
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-51
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-52
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-53
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-54
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-55
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-56
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-57
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-58
+    joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-59
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-56
+Summary: 
+
+ * Merge from SystemC-Examples--mainline--0.2 Branch
+ 
+ * Added subdirectory systemc-mpeg4-teich-v2 for Prof. Teich
+ - systemc-mpeg4-teich-v2 should be used to test the xslt converter
+ - The toplevel design is constructed in systemc-mpeg4-teich-v2/design-mpeg4-teich.cpp
+ - The xslt generated code belongs into systemc-mpeg4-teich-v2/Video_XML
+ - The code in Video_XML should be included in the design-mpeg4-teich.cpp file
+ - The network graph of the actors should be constructed in design-mpeg4-teich.cpp
+   an example network graph for the an IDCT2d test is included in the
+   design-mpeg4-teich.cpp file.
+
+ * Added addTransition example in design-mpeg4-teich.cpp
+ - addTransition example is in the constructors of the m_source and m_sink actors
+
+ * Changes in some actors (cal:col2block) as well as all generated files *out.xml;
+   also README adapted in systemc-mpeg4-teich-v2 to final possibilities for extensions;
+   Finally, also changed file callib.hpp to allow for bitand and bitor operations;
+
+ * Actor col2block.cal changed so not to use list concatenation operators! 
+
+ * All files except 1 error in File parser, 2 errors in reconstruct and 1 error in file MCadd
+            (initList) compile without errors with version Teich17.xslt
+
+ * Fixed systemc-mpeg4/configuration.cmx.xml to correspond
+   to the changed problem graph in design-test-idct2d.cpp
+   which arose by  merging the two source actors src and src1
+   into a new src_idct actor.
+
+Keywords: 
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-40
+   
+ * Big merge from SystemC-Examples--mainline--0.3 branch
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-42
+   
+ * Merge from SystemC-Examples--mainline--0.3
+ - Centralized SysteMoC dependency information from various Makefile.am into configure.in
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-45
+   
+ * Added subdirectory systemc-mpeg4-teich-v2 for Prof. Teich
+ - systemc-mpeg4-teich-v2 should be used to test the xslt converter
+ - The toplevel design is constructed in systemc-mpeg4-teich-v2/design-mpeg4-teich.cpp
+ - The xslt generated code belongs into systemc-mpeg4-teich-v2/Video_XML
+ - The code in Video_XML should be included in the design-mpeg4-teich.cpp file
+ - The network graph of the actors should be constructed in design-mpeg4-teich.cpp
+   an example network graph for the an IDCT2d test is included in the
+   design-mpeg4-teich.cpp file.
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-46
+   
+ * Added 'BUG:' markers
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-47
+   
+ * Added addTransition example in design-mpeg4-teich.cpp
+ - addTransition example is in the constructors of the m_source and m_sink actors
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-48
+   Änderungen in allen generierten Dateien zum Test inklusive README
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-49
+   
+ * Merge from SystemC-Examples--mainline--0.3 branch
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-50
+   
+ * Merged mpeg4 reference implementation from 
+   SystemC-Examples--mainline--0.3 branch
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-51
+   
+ * Merged memory interface modelling for IBM HCA from
+   SystemC-Examples--mainline--0.3 Branch
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-52
+   
+ * Merged from SystemC-Examples--mainline--0.3 branch
+ - created some sample configurations in systemc-mpeg4 and systemc-sqr
+ - limited systemc-sqr to 50 activation zykles
+ - use CALL macro in systemc-sqr
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-53
+   Changes in some actors (cal:col2block) as well as all generated files *out.xml;
+         also README adapted in systemc-mpeg4-teich-v2 to final possibilities for extensions;
+         Finally, also changed file callib.hpp to allow for bitand and bitor operations;
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-54
+   callib.h geändert;
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-55
+   Actor col2block.cal changed so not to use list concatenation operators! 
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-56
+   All files except 1 error in File parser, 2 errors in reconstruct and 1 error in file MCadd
+            (initList) compile without errors with version Teich17.xslt
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-57
+   
+ * Merge from SystemC-Examples--mainline--0.3 branch
+ - Added mpeg4 reference implementation in mpeg4-ref
+ - Added IDCT2d reference implementation in idct2d-ref/BlockIDCT.cpp
+   (Extractet from mpeg4-ref)
+ - Many bugfixes from Mr Yao Feng in IDCT2D
+   - add IDCT1d_col.hpp add IDCT1d's Parameters
+   - Bugfix in block2row (Added debug output code)
+   - Fixed parameters for in IDCT1d scale fly and addsub
+   - Fixed parameter in IDCT1d_col for scale, fly and addsub
+   - Fixed parameter in IDCT2d for m_Upsample
+   - Added debug output in IDCTclip, IDCTscale, IDCTaddsub and IDCTfly
+   - Add Test_in.dat-input, Test_out.dat-output and commentrows.
+   - Added text stimuli input
+   - Added debug output
+   - Fixed Parameter in IDCT1d_col.hpp for fly and scale.
+   - add OutputFileStream
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-58
+   
+ * Merge from SystemC-Examples--mainline--0.3 branch
+ - modified Makefile.am to include mpeg4-ref subdirectory in default build target
+ - create test_in.dat from source teast_in-dat
+ - added test_in-dat
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-59
+   
+ * Fixed systemc-mpeg4/configuration.cmx.xml to correspond
+   to the changed problem graph in design-test-idct2d.cpp
+   which arose by  merging the two source actors src and src1
+   into a new src_idct actor.
+

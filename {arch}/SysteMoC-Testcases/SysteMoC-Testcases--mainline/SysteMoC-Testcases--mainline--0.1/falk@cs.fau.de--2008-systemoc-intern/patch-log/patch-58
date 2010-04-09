@@ -1,0 +1,12 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-58
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Thu Feb 19 14:41:23 CET 2009
+Standard-date: 2009-02-19 13:41:23 GMT
+Modified-files: configure.in systemoc-sqr/Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-58
+Summary: Add synthesis targets to Makefile
+Keywords: 
+
+
+

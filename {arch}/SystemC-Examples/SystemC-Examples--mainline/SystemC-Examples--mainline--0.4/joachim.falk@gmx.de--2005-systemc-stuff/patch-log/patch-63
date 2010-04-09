@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.4--patch-63
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Jan 18 08:59:06 CET 2007
+Standard-date: 2007-01-18 07:59:06 GMT
+Modified-files: systemoc-sr/Makefile.am
+    systemoc-sr/design-sr-phil-simple.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-63
+Summary: 
+ - code cleanup
+ - new event detection approach using history signal
+Keywords: 
+
+
+

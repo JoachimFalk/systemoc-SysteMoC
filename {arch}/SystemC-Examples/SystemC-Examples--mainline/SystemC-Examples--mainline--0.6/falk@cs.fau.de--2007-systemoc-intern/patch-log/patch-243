@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-243
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Jun  6 13:39:20 CEST 2007
+Standard-date: 2007-06-06 11:39:20 GMT
+Modified-files: systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-243
+Summary: 
+ - using new SW execution times from HW profiling
+   @systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+Keywords: 
+
+
+

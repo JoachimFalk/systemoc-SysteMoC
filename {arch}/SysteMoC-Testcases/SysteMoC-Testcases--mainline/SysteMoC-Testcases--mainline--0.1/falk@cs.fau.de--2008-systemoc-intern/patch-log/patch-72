@@ -1,0 +1,16 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-72
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Dec  2 10:03:43 CET 2009
+Standard-date: 2009-12-02 09:03:43 GMT
+Removed-files: msvc90/Testcases/.arch-ids/Testcases.ncb.id
+    msvc90/Testcases/.arch-ids/Testcases.suo.id
+    msvc90/Testcases/Testcases.ncb
+    msvc90/Testcases/Testcases.suo
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-72
+Summary: 
+ - removed unnecessary and fluctuating binary files (msvc90) from version controll
+Keywords: 
+
+
+

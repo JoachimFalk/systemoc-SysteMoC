@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--mainline--0.6--patch-35
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Mar  8 16:21:58 CET 2007
+Standard-date: 2007-03-08 15:21:58 GMT
+New-files: jpeg-encoder/.arch-ids/Makefile.am.id
+    jpeg-encoder/Makefile.am
+Renamed-files: jpeg-encoder/.arch-ids/jpeg.C.id jpeg-encoder/.arch-ids/jpeg.cpp.id
+    jpeg-encoder/jpeg.C jpeg-encoder/jpeg.cpp
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-35
+Summary: 
+ * Added Makefile.am for jpeg encoder example
+Keywords: 
+
+
+

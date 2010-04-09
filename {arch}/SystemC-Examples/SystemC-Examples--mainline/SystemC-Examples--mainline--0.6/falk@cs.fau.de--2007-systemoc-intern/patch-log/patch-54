@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-54
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Mar 12 14:04:19 CET 2007
+Standard-date: 2007-03-12 13:04:19 GMT
+Modified-files: systemoc-jpeg-decoder/InvByteStuff.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-54
+Summary: 
+ - finished inverse byte stuffing
+ @InvByteStuff.hpp
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-350
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Apr 17 19:02:53 CEST 2008
+Standard-date: 2008-04-17 17:02:53 GMT
+New-files: systemoc-wsdf/.arch-ids/README_VPC.txt.id
+    systemoc-wsdf/README_VPC.txt
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-350
+Summary:  - Add readme describing how to start WSDF simulation with VPC
+Keywords: 
+
+ - Add readme describing how to start WSDF simulation with VPC
+

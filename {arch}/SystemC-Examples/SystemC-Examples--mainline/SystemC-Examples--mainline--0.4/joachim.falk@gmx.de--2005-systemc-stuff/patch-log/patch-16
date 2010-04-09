@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.4--patch-16
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Mar  6 14:59:31 CET 2006
+Standard-date: 2006-03-06 13:59:31 GMT
+Modified-files: idct2d-ref/BlockIDCT.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-16
+Summary: 
+ * Added number of IDCT2D iterations to perform as commandline parameter for block-idct2d
+
+Keywords: 
+
+
+

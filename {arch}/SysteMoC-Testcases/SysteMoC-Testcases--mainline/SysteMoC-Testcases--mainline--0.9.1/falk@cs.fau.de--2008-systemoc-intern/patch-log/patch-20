@@ -1,0 +1,30 @@
+Revision: SysteMoC-Testcases--mainline--0.9.1--patch-20
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Dec  2 16:28:44 CET 2009
+Standard-date: 2009-12-02 15:28:44 GMT
+Removed-files: msvc90/Testcases/.arch-ids/Testcases.ncb.id
+    msvc90/Testcases/.arch-ids/Testcases.suo.id
+    msvc90/Testcases/Testcases.ncb
+    msvc90/Testcases/Testcases.suo
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-72
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-26
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.9.1--patch-20
+Summary: 
+  * Merge from SysteMoC-Testcases--mainline--0.2--patch-26
+  - removed unnecessary and fluctuating binary files (msvc90) from version controll
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-72
+   
+ - removed unnecessary and fluctuating binary files (msvc90) from version controll
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-26
+   
+  * Merge from SysteMoC-Testcases--mainline--0.1--patch-72
+  - removed unnecessary and fluctuating binary files (msvc90) from version controll
+

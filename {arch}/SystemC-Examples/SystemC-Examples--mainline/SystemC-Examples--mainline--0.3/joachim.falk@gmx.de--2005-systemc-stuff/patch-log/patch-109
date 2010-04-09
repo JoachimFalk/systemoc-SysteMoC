@@ -1,0 +1,28 @@
+Revision: SystemC-Examples--mainline--0.3--patch-109
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Carsten Riedel <carsten.riedel@gmx.net>
+Date: Thu Jun  8 09:41:11 CEST 2006
+Standard-date: 2006-06-08 07:41:11 GMT
+New-files: crypto-example/.arch-ids/rlatencywriter.hpp.id
+    crypto-example/rlatencywriter.hpp
+Modified-files: crypto-example/Makefile.am
+    crypto-example/commandreader.hpp
+    crypto-example/consumermodule.cpp
+    crypto-example/cryptoalgorithm.cpp
+    crypto-example/cryptomodule.hpp
+    crypto-example/design_crypto.cpp
+    crypto-example/examplenetworkpacket.hpp
+    crypto-example/ioactor.hpp
+    crypto-example/producermodule.cpp
+    crypto-example/producermodule.hpp
+    crypto-example/rsmodule.hpp systemoc-sqr/cmx.dtd
+    systemoc-sqr/dynAllocconf.cmx
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-109
+Summary: 
+  * removed unnecessary output
+  * added logger for packet latencies
+  * extended example to use logger of latencies
+Keywords: 
+
+
+

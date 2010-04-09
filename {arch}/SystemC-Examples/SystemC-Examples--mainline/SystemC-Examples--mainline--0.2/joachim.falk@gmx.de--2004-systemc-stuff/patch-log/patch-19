@@ -1,0 +1,46 @@
+Revision: SystemC-Examples--mainline--0.2--patch-19
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Jul  4 20:16:48 CEST 2005
+Standard-date: 2005-07-04 18:16:48 GMT
+Modified-files: calltrop/create-example.sh
+    systemc-df2/.arch-ids/=id
+    systemc-df2/.arch-ids/Makefile.am.id
+    systemc-df2/.arch-ids/design-df.cpp.id
+    systemc-mpeg4/callib.hpp systemc-sdf/.arch-ids/=id
+    systemc-sdf/.arch-ids/Makefile.am.id
+    systemc-sdf/.arch-ids/design-sdf.cpp.id
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-10
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-11
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-12
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-3
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-4
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-5
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-7
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-8
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-9
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/base-0
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-1
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-2
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-5
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-6
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-7
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.2/joachim.falk@gmx.de--2004-systemc-stuff/patch-log/patch-8
+Modified-directories: .arch-ids systemc-counter
+    systemc-counter/.arch-ids systemc-csp
+    systemc-csp/.arch-ids systemc-df systemc-df/.arch-ids
+    systemc-df2 systemc-df2/.arch-ids systemc-fsm
+    systemc-fsm/.arch-ids systemc-sdf systemc-sdf/.arch-ids
+    systemc-sr systemc-sr/.arch-ids {arch}
+    {arch}/SystemC-Examples
+    {arch}/SystemC-Examples/SystemC-Examples--mainline
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.1/joachim.falk@gmx.de--2004-systemc-stuff/patch-log
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-19
+Summary: 
+ * Added cal_rshifr to callib.hpp
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.1--patch-9
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Dec  9 14:45:30 CET 2004
+Standard-date: 2004-12-09 13:45:30 GMT
+Modified-files: systemc-csp/design-csp.cpp
+    systemc-df2/design-df.cpp systemc-sdf/design-sdf.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-9
+Summary: Now use in design-sdf.cpp hscd_moc.hpp and hscd_graph_type.hpp insteas of hscd_structure.hpp and hscd_scheduler.hpp
+Keywords: 
+
+
+

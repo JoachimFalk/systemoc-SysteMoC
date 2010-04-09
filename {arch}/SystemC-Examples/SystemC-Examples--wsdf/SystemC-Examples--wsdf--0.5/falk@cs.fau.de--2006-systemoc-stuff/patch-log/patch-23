@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--wsdf--0.5--patch-23
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Jan 15 19:29:15 CET 2007
+Standard-date: 2007-01-15 18:29:15 GMT
+Modified-files: systemoc-wsdf-dist/wsdf_dist.hpp
+    systemoc-wsdf-recons-dila/wsdf_recons_fifo.hpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--wsdf--0.5--patch-23
+Summary: Modifications for compilation with gcc3.4
+Keywords: 
+
+
+

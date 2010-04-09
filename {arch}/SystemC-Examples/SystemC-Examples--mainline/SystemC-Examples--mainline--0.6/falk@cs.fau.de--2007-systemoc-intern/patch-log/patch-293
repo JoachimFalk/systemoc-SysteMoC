@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-293
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Jul 27 17:25:28 CEST 2007
+Standard-date: 2007-07-27 15:25:28 GMT
+Modified-files: systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-293
+Summary: 
+ - Update SW execution times (once again ;-( ) by more precise values
+Keywords: 
+
+
+

@@ -1,0 +1,12 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-59
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Thu Feb 19 15:07:58 CET 2009
+Standard-date: 2009-02-19 14:07:58 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-59
+Summary: Add missing support for "--enable-synthesis-support=tlm" in configure.in
+Keywords: 
+
+
+

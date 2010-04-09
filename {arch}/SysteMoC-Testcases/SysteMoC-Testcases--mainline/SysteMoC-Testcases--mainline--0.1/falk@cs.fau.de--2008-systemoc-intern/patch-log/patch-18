@@ -1,0 +1,13 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-18
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue May 20 16:46:46 CEST 2008
+Standard-date: 2008-05-20 14:46:46 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-18
+Summary: 
+ * Fixed compile error for previous patch
+Keywords: 
+
+
+

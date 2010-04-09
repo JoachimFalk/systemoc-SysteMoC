@@ -1,0 +1,31 @@
+Revision: SystemC-Examples--mainline--0.6--patch-200
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Tue May  8 13:11:34 CEST 2007
+Standard-date: 2007-05-08 11:11:34 GMT
+New-files: systemoc-jpeg-decoder/test_data/.arch-ids/lena_256.jpg.id
+    systemoc-jpeg-decoder/test_data/.arch-ids/lena_320.jpg.id
+    systemoc-jpeg-decoder/test_data/.arch-ids/lena_512.jpg.id
+    systemoc-jpeg-decoder/test_data/.arch-ids/lena_512.tiff.id
+    systemoc-jpeg-decoder/test_data/lena_256.jpg
+    systemoc-jpeg-decoder/test_data/lena_320.jpg
+    systemoc-jpeg-decoder/test_data/lena_512.jpg
+    systemoc-jpeg-decoder/test_data/lena_512.tiff
+Modified-files: systemoc-idct2d/callib.hpp
+    systemoc-jpeg-decoder/FileSource.hpp
+    systemoc-jpeg-decoder/FrameShuffler.hpp
+    systemoc-jpeg-decoder/HuffDecoder.cpp
+    systemoc-jpeg-decoder/HuffDecoder.hpp
+    systemoc-jpeg-decoder/HuffmanTestbench.cpp
+    systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/ParserTestbench.cpp
+    systemoc-jpeg-decoder/channels.cpp
+    systemoc-jpeg-decoder/channels.hpp
+    systemoc-jpeg-decoder/debug_config.h
+    systemoc-jpeg-decoder/smoc_synth_std_includes.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-200
+Summary: Last changes to make SW-Synthesis work with systemoc-jpeg-decoder
+Keywords: 
+
+
+

@@ -1,0 +1,21 @@
+Revision: SystemC-Examples--mainline--0.3--patch-7
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Aug  5 13:28:04 CEST 2005
+Standard-date: 2005-08-05 11:28:04 GMT
+New-files: systemc-ibtest/.arch-ids/oneof.cpp.id
+    systemc-ibtest/oneof.cpp
+Removed-files: systemc-ibtest/.arch-ids/ib_debug.cpp.id
+    systemc-ibtest/.arch-ids/ib_debug.h.id
+    systemc-ibtest/ib_debug.cpp systemc-ibtest/ib_debug.h
+Modified-files: systemc-ibtest/Makefile.am
+    systemc-ibtest/atutest.cpp systemc-ibtest/datatypes.h
+    systemc-ibtest/ib_m_atu.cpp systemc-ibtest/ib_m_atu.h
+    systemc-ibtest/smoc2test.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-7
+Summary: 
+ * Commit for Jens
+Keywords: 
+
+
+

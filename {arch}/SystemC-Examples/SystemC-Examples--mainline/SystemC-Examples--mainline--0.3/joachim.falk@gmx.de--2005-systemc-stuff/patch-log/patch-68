@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.3--patch-68
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Tue Oct 18 10:00:17 CEST 2005
+Standard-date: 2005-10-18 08:00:17 GMT
+New-files: systemc-td-sim-test/.arch-ids/till_test.cpp.id
+    systemc-td-sim-test/till_test.cpp
+Modified-files: systemc-td-sim-test/Makefile.am
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-68
+Summary: 
+ - add "till test" in systemc-td-sim-test
+Keywords: 
+
+
+

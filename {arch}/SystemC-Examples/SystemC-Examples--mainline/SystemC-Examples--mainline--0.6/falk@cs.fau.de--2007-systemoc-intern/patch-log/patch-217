@@ -1,0 +1,33 @@
+Revision: SystemC-Examples--mainline--0.6--patch-217
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Tue May 15 15:40:26 CEST 2007
+Standard-date: 2007-05-15 13:40:26 GMT
+Removed-files: systemoc-jpeg-decoder/.arch-ids/channels.cpp.id
+    systemoc-jpeg-decoder/channels.cpp
+Modified-files: systemoc-idct2d/MIdct2D.hpp
+    systemoc-idct2d/MRangeAdj.hpp
+    systemoc-jpeg-decoder/BitSplitter.cpp
+    systemoc-jpeg-decoder/BitSplitter.hpp
+    systemoc-jpeg-decoder/FrameShuffler.hpp
+    systemoc-jpeg-decoder/HuffDecoder.cpp
+    systemoc-jpeg-decoder/HuffDecoder.hpp
+    systemoc-jpeg-decoder/IDCTFrameBufferWriterTestbench.cpp
+    systemoc-jpeg-decoder/InvZrl_tb.cpp
+    systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/Makefile.am
+    systemoc-jpeg-decoder/PGMsink.hpp
+    systemoc-jpeg-decoder/TuppleScanSrc.hpp
+    systemoc-jpeg-decoder/YCbCr2RGB.hpp
+    systemoc-jpeg-decoder/channels.hpp
+    systemoc-jpeg-decoder/smoc_synth_std_includes.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-217
+Summary: Changes to systemoc-jpeg-decoder for SW- and HW-Synthesis
+ - do not use size_t (is unsigned long instead of unsigned int on Microblaze)
+ - mb-g++ does not know stdint.h
+ - do not use round() from math library due to code size considerations
+ - inline all code from channels.cpp into channels.hpp
+Keywords: 
+
+
+

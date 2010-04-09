@@ -1,0 +1,16 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-43
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Jul  1 10:56:30 CEST 2008
+Standard-date: 2008-07-01 08:56:30 GMT
+Modified-files: systemoc-sr/design-PLMON.cpp
+    systemoc-sr/design-mc-hier.cpp
+    systemoc-sr/design-mc-test.cpp
+    systemoc-sr/design-sr-phil-simple.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-43
+Summary: 
+ - fixed SR examples according to SysteMoC 0.8
+Keywords: 
+
+
+

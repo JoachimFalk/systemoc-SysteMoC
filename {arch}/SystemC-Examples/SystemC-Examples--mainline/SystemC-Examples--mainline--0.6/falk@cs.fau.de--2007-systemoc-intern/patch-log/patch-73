@@ -1,0 +1,19 @@
+Revision: SystemC-Examples--mainline--0.6--patch-73
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Mar 13 12:18:37 CET 2007
+Standard-date: 2007-03-13 11:18:37 GMT
+Renamed-files: systemoc-idct2d/.arch-ids/IDCT1d.hpp.id systemoc-idct2d/.arch-ids/IDCT1d_row.hpp.id
+    systemoc-idct2d/IDCT1d.hpp systemoc-idct2d/IDCT1d_row.hpp
+Modified-files: systemoc-idct2d/IDCT1d_col.hpp
+    systemoc-idct2d/IDCT1d_row.hpp
+    systemoc-idct2d/IDCT2d.hpp
+    systemoc-idct2d/block_idct.hpp
+    systemoc-idct2d/design-test-idct1d.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-73
+Summary: 
+ * Restructured IDCT2D core
+Keywords: 
+
+
+

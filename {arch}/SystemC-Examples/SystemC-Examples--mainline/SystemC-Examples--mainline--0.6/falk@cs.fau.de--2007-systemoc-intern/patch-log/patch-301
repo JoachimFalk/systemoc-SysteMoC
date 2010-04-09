@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-301
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Sep  5 12:02:42 CEST 2007
+Standard-date: 2007-09-05 10:02:42 GMT
+Modified-files: systemoc-wsdf/snk2addr_table_ref_point.cpp
+    systemoc-wsdf/snk2addr_table_ref_point.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-301
+Summary: WSDF address analysis: Modify backward pass, but disable modification as it does not work very well. Futhermore, the window reference point has been changed to the window center pixel.
+Keywords: 
+
+
+

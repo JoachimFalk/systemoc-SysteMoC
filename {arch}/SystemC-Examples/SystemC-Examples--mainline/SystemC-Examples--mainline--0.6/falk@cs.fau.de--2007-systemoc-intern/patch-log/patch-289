@@ -1,0 +1,12 @@
+Revision: SystemC-Examples--mainline--0.6--patch-289
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Mon Jul 16 14:53:05 CEST 2007
+Standard-date: 2007-07-16 12:53:05 GMT
+Modified-files: systemoc-idct2d/MIdct2D.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-289
+Summary: Annotate constructor parameters for monolithic IDCT2D in systemoc-idct2d
+Keywords: 
+
+
+

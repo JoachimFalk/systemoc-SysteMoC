@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.2--patch-24
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue Jul 26 19:46:32 CEST 2005
+Standard-date: 2005-07-26 17:46:32 GMT
+Modified-files: systemc-mpeg4/callib.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-24
+Summary: 
+ * Added cal_bitor function to callib.hpp
+Keywords: 
+
+
+

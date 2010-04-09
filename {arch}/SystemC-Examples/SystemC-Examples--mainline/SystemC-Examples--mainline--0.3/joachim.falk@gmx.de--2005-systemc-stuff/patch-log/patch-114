@@ -1,0 +1,51 @@
+Revision: SystemC-Examples--mainline--0.3--patch-114
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Carsten Riedel <carsten.riedel@gmx.net>
+Date: Sat Jul 22 17:16:55 CEST 2006
+Standard-date: 2006-07-22 15:16:55 GMT
+New-files: crypto-example/config/.arch-ids/=id
+    crypto-example/config/.arch-ids/esmHard_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion1ARBRRE-BF_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion1ARBRRE-DES_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion1LCBFCFS-BF_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion1LCBFCFS-DES_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion1RRFCFS-BF_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion1RRFCFS-DES_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion2ARBRRE-BF_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion2ARBRRE-DES_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion2LCBFCFS-BF_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion2LCBFCFS-DES_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion2RRFCFS-BF_conf.cmx.id
+    crypto-example/config/.arch-ids/esmHelion2RRFCFS-DES_conf.cmx.id
+    crypto-example/config/.arch-ids/esmSoft_conf.cmx.id
+    crypto-example/config/esmHard_conf.cmx
+    crypto-example/config/esmHelion1ARBRRE-BF_conf.cmx
+    crypto-example/config/esmHelion1ARBRRE-DES_conf.cmx
+    crypto-example/config/esmHelion1LCBFCFS-BF_conf.cmx
+    crypto-example/config/esmHelion1LCBFCFS-DES_conf.cmx
+    crypto-example/config/esmHelion1RRFCFS-BF_conf.cmx
+    crypto-example/config/esmHelion1RRFCFS-DES_conf.cmx
+    crypto-example/config/esmHelion2ARBRRE-BF_conf.cmx
+    crypto-example/config/esmHelion2ARBRRE-DES_conf.cmx
+    crypto-example/config/esmHelion2LCBFCFS-BF_conf.cmx
+    crypto-example/config/esmHelion2LCBFCFS-DES_conf.cmx
+    crypto-example/config/esmHelion2RRFCFS-BF_conf.cmx
+    crypto-example/config/esmHelion2RRFCFS-DES_conf.cmx
+    crypto-example/config/esmSoft_conf.cmx
+    crypto-example/stimuli/.arch-ids/=id
+    crypto-example/stimuli/.arch-ids/sglPktBCBF.sti.id
+    crypto-example/stimuli/.arch-ids/sglPktBCDES.sti.id
+    crypto-example/stimuli/.arch-ids/sglPktWC.sti.id
+    crypto-example/stimuli/sglPktBCBF.sti
+    crypto-example/stimuli/sglPktBCDES.sti
+    crypto-example/stimuli/sglPktWC.sti
+New-directories: crypto-example/config
+    crypto-example/config/.arch-ids crypto-example/stimuli
+    crypto-example/stimuli/.arch-ids
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-114
+Summary: 
+  * added config ands stimulis to test
+Keywords: 
+
+
+

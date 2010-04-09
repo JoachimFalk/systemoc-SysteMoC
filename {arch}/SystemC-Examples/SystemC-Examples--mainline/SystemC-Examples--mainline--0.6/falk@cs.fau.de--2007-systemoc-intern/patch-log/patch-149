@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-149
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Mar 16 17:04:17 CET 2007
+Standard-date: 2007-03-16 16:04:17 GMT
+Modified-files: systemoc-jpeg-decoder/Jpeg.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-149
+Summary:
+ - Add dump of intermediate output for debugging purposes.
+Keywords: 
+
+
+

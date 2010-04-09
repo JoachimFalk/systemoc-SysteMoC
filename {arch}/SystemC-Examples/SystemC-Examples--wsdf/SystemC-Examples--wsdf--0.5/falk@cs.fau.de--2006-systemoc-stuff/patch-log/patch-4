@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--wsdf--0.5--patch-4
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Nov  6 17:25:51 CET 2006
+Standard-date: 2006-11-06 16:25:51 GMT
+New-files: systemoc-wsdf/.arch-ids/ref_data-dat.id
+    systemoc-wsdf/ref_data-dat
+Modified-files: systemoc-wsdf/Makefile.am
+    systemoc-wsdf/design-wsdf.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--wsdf--0.5--patch-4
+Summary:
+ - Extend example to a mean filter with automatic result checking.
+Keywords: 
+
+
+

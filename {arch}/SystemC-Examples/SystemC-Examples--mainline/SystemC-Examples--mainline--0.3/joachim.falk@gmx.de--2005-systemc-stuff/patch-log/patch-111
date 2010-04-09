@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.3--patch-111
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Carsten Riedel <carsten.riedel@gmx.net>
+Date: Tue Jul  4 12:29:39 CEST 2006
+Standard-date: 2006-07-04 10:29:39 GMT
+Modified-files: crypto-example/design_crypto.cpp
+    crypto-example/md5.hpp
+    crypto-example/rlatencywriter.hpp
+    crypto-example/start-crypto-simulation.sh.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-111
+Summary: 
+  * modified evaluation script to add simulation of example without vpc
+Keywords: 
+
+
+

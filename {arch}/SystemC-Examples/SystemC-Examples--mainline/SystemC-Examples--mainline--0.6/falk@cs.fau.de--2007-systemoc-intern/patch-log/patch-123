@@ -1,0 +1,21 @@
+Revision: SystemC-Examples--mainline--0.6--patch-123
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Christian Haubelt <haubelt@cs.fau.de>
+Date: Thu Mar 15 13:57:15 CET 2007
+Standard-date: 2007-03-15 12:57:15 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/parsertest_color_ok.jpg.id
+    systemoc-jpeg-decoder/.arch-ids/parsertest_grey_ok.jpg.id
+    systemoc-jpeg-decoder/.arch-ids/parsertest_not_sof_0.jpg.id
+    systemoc-jpeg-decoder/.arch-ids/parsertest_subsampling.jpg.id
+    systemoc-jpeg-decoder/.arch-ids/parsertest_wrong_sample_precision.jpg.id
+    systemoc-jpeg-decoder/parsertest_color_ok.jpg
+    systemoc-jpeg-decoder/parsertest_grey_ok.jpg
+    systemoc-jpeg-decoder/parsertest_not_sof_0.jpg
+    systemoc-jpeg-decoder/parsertest_subsampling.jpg
+    systemoc-jpeg-decoder/parsertest_wrong_sample_precision.jpg
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-123
+Summary: added test images for parser to repository
+Keywords: 
+
+
+

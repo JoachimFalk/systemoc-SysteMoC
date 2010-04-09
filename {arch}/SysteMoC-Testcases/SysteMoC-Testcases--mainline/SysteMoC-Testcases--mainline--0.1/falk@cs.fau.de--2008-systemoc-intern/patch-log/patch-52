@@ -1,0 +1,19 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-52
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Thu Sep  4 13:20:06 CEST 2008
+Standard-date: 2008-09-04 11:20:06 GMT
+New-files: msvc90/Testcases/systemoc-fir/.arch-ids/=id
+    msvc90/Testcases/systemoc-fir/.arch-ids/systemoc-fir.vcproj.id
+    msvc90/Testcases/systemoc-fir/systemoc-fir.vcproj
+New-directories: msvc90/Testcases/systemoc-fir
+    msvc90/Testcases/systemoc-fir/.arch-ids
+Modified-files: msvc90/Testcases/Testcases.ncb
+    msvc90/Testcases/Testcases.sln
+    msvc90/Testcases/Testcases.suo
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-52
+Summary: Added Microsoft Visual C++ 2008 project for systemoc-fir
+Keywords: 
+
+
+

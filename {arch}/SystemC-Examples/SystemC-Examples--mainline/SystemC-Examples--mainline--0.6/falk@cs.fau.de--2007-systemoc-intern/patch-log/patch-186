@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--mainline--0.6--patch-186
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Apr 30 20:44:56 CEST 2007
+Standard-date: 2007-04-30 18:44:56 GMT
+Modified-files: systemoc-jpeg-decoder/DcDecoding.hpp
+    systemoc-jpeg-decoder/FrameBufferWriter.hpp
+    systemoc-jpeg-decoder/InvZrl.hpp
+    systemoc-jpeg-decoder/debug_config.h
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-186
+Summary:
+ - Add debug output
+ - Bugfix in FrameBufferWriter: don't forget first pixel
+Keywords: 
+
+
+

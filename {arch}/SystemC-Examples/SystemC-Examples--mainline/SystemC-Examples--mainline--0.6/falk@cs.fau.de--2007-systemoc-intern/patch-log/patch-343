@@ -1,0 +1,28 @@
+Revision: SystemC-Examples--mainline--0.6--patch-343
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Christian Haubelt <haubelt@cs.fau.de>
+Date: Wed Apr  2 09:13:11 CEST 2008
+Standard-date: 2008-04-02 07:13:11 GMT
+New-files: systemoc-voter/.arch-ids/DuplexVoter_IDCTCoeff_t.cpp.id
+    systemoc-voter/.arch-ids/DuplexVoter_IDCTCoeff_t.hpp.id
+    systemoc-voter/.arch-ids/DuplexVoter_JpegChannel_t.cpp.id
+    systemoc-voter/.arch-ids/DuplexVoter_JpegChannel_t.hpp.id
+    systemoc-voter/.arch-ids/DuplexVoter_Pixel_t.cpp.id
+    systemoc-voter/.arch-ids/DuplexVoter_Pixel_t.hpp.id
+    systemoc-voter/.arch-ids/DuplexVoter_qt_table_t.cpp.id
+    systemoc-voter/.arch-ids/DuplexVoter_qt_table_t.hpp.id
+    systemoc-voter/DuplexVoter_IDCTCoeff_t.cpp
+    systemoc-voter/DuplexVoter_IDCTCoeff_t.hpp
+    systemoc-voter/DuplexVoter_JpegChannel_t.cpp
+    systemoc-voter/DuplexVoter_JpegChannel_t.hpp
+    systemoc-voter/DuplexVoter_Pixel_t.cpp
+    systemoc-voter/DuplexVoter_Pixel_t.hpp
+    systemoc-voter/DuplexVoter_qt_table_t.cpp
+    systemoc-voter/DuplexVoter_qt_table_t.hpp
+Modified-files: systemoc-jpeg-decoder/Makefile.am
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-343
+Summary: + added new duplex voters for different data types
+Keywords: 
+
+
+

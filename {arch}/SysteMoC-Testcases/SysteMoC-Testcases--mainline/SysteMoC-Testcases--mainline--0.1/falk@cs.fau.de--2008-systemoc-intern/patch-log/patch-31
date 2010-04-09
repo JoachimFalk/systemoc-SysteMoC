@@ -1,0 +1,23 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-31
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Tue Jun 10 15:45:13 CEST 2008
+Standard-date: 2008-06-10 13:45:13 GMT
+New-files: systemoc-src-snk-hierarchy/.arch-ids/=id
+    systemoc-src-snk-hierarchy/.arch-ids/Makefile.am.id
+    systemoc-src-snk-hierarchy/.arch-ids/configure.in.frag.id
+    systemoc-src-snk-hierarchy/.arch-ids/design-src-snk-hierarchy.cpp.id
+    systemoc-src-snk-hierarchy/Makefile.am
+    systemoc-src-snk-hierarchy/configure.in.frag
+    systemoc-src-snk-hierarchy/design-src-snk-hierarchy.cpp
+New-directories: systemoc-src-snk-hierarchy
+    systemoc-src-snk-hierarchy/.arch-ids
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-31
+Summary: 
+  * added systemoc-src-snk-hierarchy which is a simple testcase for
+    hierarchical graphs
+Keywords: 
+
+
+

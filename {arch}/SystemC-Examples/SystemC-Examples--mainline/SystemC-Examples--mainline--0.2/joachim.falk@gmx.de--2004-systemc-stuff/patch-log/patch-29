@@ -1,0 +1,30 @@
+Revision: SystemC-Examples--mainline--0.2--patch-29
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Juergen Teich <teich@cs.fau.de>
+Date: Sat Jul 30 13:00:10 CEST 2005
+Standard-date: 2005-07-30 11:00:10 GMT
+New-files: systemc-mpeg4/.arch-ids/MCadd.cal.id
+    systemc-mpeg4/.arch-ids/parser.cal.id
+    systemc-mpeg4/.arch-ids/parser.hpp.help.id
+    systemc-mpeg4/.arch-ids/parser_fsm.hpp.help.id
+    systemc-mpeg4/.arch-ids/parser_fsm.hpp.id
+    systemc-mpeg4/.arch-ids/parser_fsm.txt.id
+    systemc-mpeg4/.arch-ids/transpose.hpp.id
+    systemc-mpeg4/MCadd.cal systemc-mpeg4/parser.cal
+    systemc-mpeg4/parser.hpp.help
+    systemc-mpeg4/parser_fsm.hpp
+    systemc-mpeg4/parser_fsm.hpp.help
+    systemc-mpeg4/parser_fsm.txt
+    systemc-mpeg4/transpose.hpp
+Renamed-files: systemc-mpeg4/.arch-ids/transpose.id systemc-mpeg4/.arch-ids/transpose.cal.id
+    systemc-mpeg4/transpose systemc-mpeg4/transpose.cal
+Modified-files: systemc-mpeg4/MCadd.hpp
+    systemc-mpeg4/design-mpeg4.cpp systemc-mpeg4/parser.hpp
+    systemc-mpeg4/transpose.cal
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-29
+Summary:
+ * Added cal files systemc-mpeg4/MCadd.cal and systemc-mpeg4/parser.cal
+ * split systemc-mpeg4/transpose into systemc-mpeg4/transpose.cal and systemc-mpeg4/transpose.hpp
+ * inserted FSM into systemc-mpeg4/parser.hpp
+Keywords:
+

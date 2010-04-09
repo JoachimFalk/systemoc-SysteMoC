@@ -1,0 +1,13 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-29
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Tue Jun 10 15:26:22 CEST 2008
+Standard-date: 2008-06-10 13:26:22 GMT
+Modified-files: configure.in systemoc-wsdf/design-wsdf.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-29
+Summary:
+  * check for ref data file state 
+Keywords: 
+
+
+

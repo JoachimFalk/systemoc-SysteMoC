@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.4--patch-77
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Mar 26 20:29:13 CEST 2007
+Standard-date: 2007-03-26 18:29:13 GMT
+Modified-files: systemoc-idct2d/design-test-idct2d.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-77
+Summary:
+ - Fix error in sink instantiation.
+Keywords: 
+
+
+

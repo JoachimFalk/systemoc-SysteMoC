@@ -1,0 +1,15 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-33
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Jun 11 15:51:14 CEST 2008
+Standard-date: 2008-06-11 13:51:14 GMT
+Modified-files: systemoc-sr/design-mc-hier.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-33
+Summary:
+  * port-to-port binding syntax is as follows:
+    child_port(parent_port);
+  * fixed this for SR in one place
+Keywords: 
+
+
+

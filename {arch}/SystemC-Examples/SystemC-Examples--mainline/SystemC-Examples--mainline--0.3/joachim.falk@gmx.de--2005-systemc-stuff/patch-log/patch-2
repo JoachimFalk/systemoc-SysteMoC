@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-2
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Aug  1 15:19:19 CEST 2005
+Standard-date: 2005-08-01 13:19:19 GMT
+Modified-files: systemc-mpeg4/parser.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-2
+Summary: 
+ * Fixed guard calls fixed signed unsigned comparisions
+Keywords: 
+
+
+

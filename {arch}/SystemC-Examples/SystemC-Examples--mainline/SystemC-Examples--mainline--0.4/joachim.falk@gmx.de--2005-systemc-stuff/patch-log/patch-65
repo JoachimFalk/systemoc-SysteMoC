@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.4--patch-65
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Jan 22 18:11:24 CET 2007
+Standard-date: 2007-01-22 17:11:24 GMT
+Modified-files: configure.in systemoc-sr/design-PLMON.cpp
+    systemoc-sr/design-sr-and.cpp
+    systemoc-sr/design-sr-phil-simple.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-65
+Summary: 
+ - sr examples use smoc_top_sr_moc now
+ - disabled configure for sr examples
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-105
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Mar 14 15:36:30 CET 2007
+Standard-date: 2007-03-14 14:36:30 GMT
+Modified-files: systemoc-jpeg-decoder/FrameBufferWriter.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-105
+Summary: 
+ * More assert paranoia and debug code in FrameBufferWriter
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.4--patch-61
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Dec 19 14:31:23 CET 2006
+Standard-date: 2006-12-19 13:31:23 GMT
+Modified-files: systemoc-sr/design-sr-and.cpp
+    systemoc-sr/design-sr-phil-simple.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-61
+Summary: 
+ - removed non strict pragma
+Keywords: 
+
+
+

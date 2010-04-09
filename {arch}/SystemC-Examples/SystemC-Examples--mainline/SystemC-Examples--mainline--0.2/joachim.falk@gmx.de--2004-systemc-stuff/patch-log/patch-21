@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.2--patch-21
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Jul  6 15:51:45 CEST 2005
+Standard-date: 2005-07-06 13:51:45 GMT
+Modified-files: systemc-mpeg4/callib.hpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-21
+Summary: 
+ * Added cal_lshift to callib.h
+Keywords: 
+
+
+

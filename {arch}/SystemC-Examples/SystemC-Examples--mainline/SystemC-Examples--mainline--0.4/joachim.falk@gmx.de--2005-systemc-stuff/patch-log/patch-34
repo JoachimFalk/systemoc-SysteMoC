@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.4--patch-34
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Jun  7 16:54:09 CEST 2006
+Standard-date: 2006-06-07 14:54:09 GMT
+New-files: systemoc-sqr/.arch-ids/pipelining.cmx.xml.id
+    systemoc-sqr/pipelining.cmx.xml
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-34
+Summary: 
+ * Added pipelining.cmx.xml configuration for SqrRoot SysteMoC example
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-113
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Mar 14 16:41:12 CET 2007
+Standard-date: 2007-03-14 15:41:12 GMT
+Modified-files: systemoc-jpeg-decoder/channels.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-113
+Summary:
+ - Fix comment
+Keywords: 
+
+
+

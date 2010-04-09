@@ -1,0 +1,35 @@
+Revision: SystemC-Examples--mainline--0.6--patch-221
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri May 18 11:23:33 CEST 2007
+Standard-date: 2007-05-18 09:23:33 GMT
+New-files: systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/4motion_128.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/4motion_256.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/=id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/gui_128.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/gui_256.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/institut_128.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/institut_256.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/lena_128.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/lena_256.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/scd-logo-128.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/scd-logo-256.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/4motion_128.jpg
+    systemoc-jpeg-decoder/test_data/jpeg-demo/4motion_256.jpg
+    systemoc-jpeg-decoder/test_data/jpeg-demo/gui_128.jpg
+    systemoc-jpeg-decoder/test_data/jpeg-demo/gui_256.jpg
+    systemoc-jpeg-decoder/test_data/jpeg-demo/institut_128.jpg
+    systemoc-jpeg-decoder/test_data/jpeg-demo/institut_256.jpg
+    systemoc-jpeg-decoder/test_data/jpeg-demo/lena_128.jpg
+    systemoc-jpeg-decoder/test_data/jpeg-demo/lena_256.jpg
+    systemoc-jpeg-decoder/test_data/jpeg-demo/scd-logo-128.jpg
+    systemoc-jpeg-decoder/test_data/jpeg-demo/scd-logo-256.jpg
+New-directories: systemoc-jpeg-decoder/test_data/jpeg-demo
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-221
+Summary: 
+ - added 4motion demo
+Keywords: 
+
+
+

@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-49
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Mar  9 18:03:22 CET 2007
+Standard-date: 2007-03-09 17:03:22 GMT
+Modified-files: systemoc-idct2d/row_clip.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-49
+Summary: 
+ * Change clipping to conform to JPEG
+Keywords: 
+
+
+

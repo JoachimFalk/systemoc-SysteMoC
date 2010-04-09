@@ -1,0 +1,23 @@
+Revision: SystemC-Examples--mainline--0.4--patch-66
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Jan 30 10:26:52 CET 2007
+Standard-date: 2007-01-30 09:26:52 GMT
+New-files: systemoc-sr/.arch-ids/ConstSource.hpp.id
+    systemoc-sr/.arch-ids/NonStrictAnd.hpp.id
+    systemoc-sr/.arch-ids/TerminalSink.hpp.id
+    systemoc-sr/.arch-ids/design-mc-test.cpp.id
+    systemoc-sr/ConstSource.hpp
+    systemoc-sr/NonStrictAnd.hpp
+    systemoc-sr/TerminalSink.hpp
+    systemoc-sr/design-mc-test.cpp
+Modified-files: systemoc-sr/Makefile.am
+    systemoc-sr/design-sr-and.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-66
+Summary: 
+ - added multicast test case
+ - cleaned up files and code
+Keywords: 
+
+
+

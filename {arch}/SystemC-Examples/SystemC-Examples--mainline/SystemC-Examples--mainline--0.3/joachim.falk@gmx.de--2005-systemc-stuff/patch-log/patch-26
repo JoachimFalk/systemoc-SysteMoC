@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--mainline--0.3--patch-26
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Tue Sep 13 16:36:19 CEST 2005
+Standard-date: 2005-09-13 14:36:19 GMT
+Modified-files: configure.in systemc-csp/Makefile.am
+    systemc-fir/Makefile.am systemc-ibtest/Makefile.am
+    systemc-mpeg4/Makefile.am systemc-sdf/Makefile.am
+    systemc-select/Makefile.am systemc-sqr/Makefile.am
+    systemc-td-sim-test/Makefile.am
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-26
+Summary: 
+ * Centralized SysteMoC dependency information from various Makefile.am into configure.in
+Keywords: 
+
+
+

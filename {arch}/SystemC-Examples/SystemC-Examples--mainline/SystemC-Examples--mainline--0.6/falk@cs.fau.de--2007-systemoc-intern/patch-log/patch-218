@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-218
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Wed May 16 12:59:50 CEST 2007
+Standard-date: 2007-05-16 10:59:50 GMT
+Modified-files: systemoc-jpeg-decoder/specGen-mapping/actorinstance-vhdl-mapping.csv
+    systemoc-jpeg-decoder/specGen-mapping/ip_data.csv
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-218
+Summary: Add sizes and delays for systemoc-jpeg-decoder HW-actors
+Keywords: 
+
+
+

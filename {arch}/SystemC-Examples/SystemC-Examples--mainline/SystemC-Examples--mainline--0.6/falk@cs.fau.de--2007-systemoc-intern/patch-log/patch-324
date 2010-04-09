@@ -1,0 +1,12 @@
+Revision: SystemC-Examples--mainline--0.6--patch-324
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schilling <schilling@privax.de>
+Date: Thu Feb 14 15:56:49 CET 2008
+Standard-date: 2008-02-14 14:56:49 GMT
+Modified-files: systemoc-jpeg-decoder/Makefile.am
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-324
+Summary: added makefile rules for concurrent hardware synthesis
+Keywords: concurrent hwsynth
+
+
+

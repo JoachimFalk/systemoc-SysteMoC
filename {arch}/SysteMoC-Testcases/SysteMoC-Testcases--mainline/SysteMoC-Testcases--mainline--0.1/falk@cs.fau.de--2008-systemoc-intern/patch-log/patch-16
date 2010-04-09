@@ -1,0 +1,13 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-16
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue May 20 14:42:55 CEST 2008
+Standard-date: 2008-05-20 12:42:55 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-16
+Summary: 
+ * Fixup: Do not require presence of SystemC-VPC
+Keywords: 
+
+
+

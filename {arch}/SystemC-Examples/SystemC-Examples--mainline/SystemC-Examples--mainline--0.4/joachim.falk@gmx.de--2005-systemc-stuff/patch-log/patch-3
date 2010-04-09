@@ -1,0 +1,678 @@
+Revision: SystemC-Examples--mainline--0.4--patch-3
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Dec  6 12:59:43 CET 2005
+Standard-date: 2005-12-06 11:59:43 GMT
+Modified-files: mpeg4-ref/bitstream.cpp
+    mpeg4-ref/texture_vld.cpp systemc-mpeg4/Makefile.am
+    systemc-mpeg4/parser.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-76
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-77
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-78
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-3
+Removed-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--base-0
+Summary: 
+ * Syncup to SystemC-Examples--mainline--0.3 branch
+Keywords: 
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--base-0
+   initial import
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-1
+   Fixes to build system
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-2
+   autoreconf fixes
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-3
+   Added hirarchy to design-sdf
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-4
+   Now use new connectInterfacePorts for hierarchy
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-5
+   Changed design-sdf to match new SysteMoC syntax
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-6
+   Include systemc-csp into build again
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-7
+   Implemented CSP philospher example !
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-8
+   Moved sdf domain test into subdir systemc-sdf now wth cycles in the graph
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-9
+   Now use in design-sdf.cpp hscd_moc.hpp and hscd_graph_type.hpp insteas of hscd_structure.hpp and hscd_scheduler.hpp
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-10
+   
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-11
+   Fixes for analysis with HscdPGGen
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-12
+   design-csp now uses hscd_moc.hpp too
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-13
+   
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-14
+   Use ACJF_SYSTEMC
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--base-0
+   tag of joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-14
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-1
+   New SystemC-Eamples V0.2 for SysteMoC V0.2
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-2
+   Beginning of sqrloop example for new SysteMoC
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-3
+   Changed sdf example to use new SysteMoC V2 version
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-4
+   Added fir example
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-5
+   
+ * use alias hscd_actor instead of hscd_choice_passive_node
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-6
+   
+ * rename of hscd_kpn_moc => hscd_ddf_moc
+ * no moc hscd_ndf_moc for nondeterministic dataflow (fifo with choice)
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-7
+   
+ * hscd => smoc
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-8
+   
+ * Added boost check to configure.in
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-9
+   
+ * Added calltrop examples to compare with SysteMoC
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-10
+   
+ * Syntax changes in SysteMoc applied to design-fir.cpp
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-11
+   
+ * New example systemc-select
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-12
+   
+ * Use && instead of & to combine guards (logical and relation)
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-13
+   
+ * More debug output
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-14
+   
+ * design-sdf.cpp now use smoc_actor base class
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-15
+   
+ * Added Teichs MPEG-4 actors
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-16
+   
+ * Fixed code of Teich for actor dequant
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-17
+   
+ * Forgot to add callib.hpp
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-18
+   
+ * killed some superfluous variables in m_dequant actor
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-19
+   
+ * Added cal_rshifr to callib.hpp
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-20
+   
+ * Corrected some more actors of Teich
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-21
+   
+ * Added cal_lshift to callib.h
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-22
+   
+ * removed outdated subdirs systemc-df systemc-sr
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-23
+   
+ * Expr::var(xx) can now be expressed as simply var(xx)
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-24
+   
+ * Added cal_bitor function to callib.hpp
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-25
+   
+ * Added MCadd.hpp changes design-mpeg4.cpp accordingly
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-26
+   added parser.hpp with all guards. Modification of design-mpeg4.cpp
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-27
+   Elimination of non-necessary guards in parser.hpp 
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-28
+   
+ * updated design-sqr.cpp to use new SysteMoC syntax
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-29
+   
+ * Added cal files systemc-mpeg4/MCadd.cal and systemc-mpeg4/parser.cal
+ * split systemc-mpeg4/transpose into systemc-mpeg4/transpose.cal and systemc-mpeg4/transpose.hpp
+ * inserted FSM into systemc-mpeg4/parser.hpp
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-30
+   
+ * sync from joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-31
+   
+ * sync from joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-3
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-32
+   parameters to constructor change
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-33
+   add IDCT1d.hpp row_clip.hpp 
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-34
+   Modular in verschiedene Dateien geliedert. 
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-35
+   
+ * provide aliases for xxx to cal_xxx
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-36
+   
+ * eliminated systemc-yao from configure.in
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-37
+   
+ * Added .o and .libs files to junk file list to enable in place
+   compilation without conflict of version control
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-38
+   
+ * Added stimult text for design-test-idct2d
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-39
+   
+ * revert definitions of
+ - #define bitand  cal_bitand
+ - #define bitor   cal_bitor
+ - #define bitxor  cal_bitxor
+ - #define rshift  cal_rshift
+ - #define lshift  cal_lshift
+ - Because bitand bitor are builtin c++ operators and can no longer be
+ - redifined with cpp macro definitions. Now use cal_xxx again instead
+ - of only xxx.
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-40
+   
+ * Big merge from SystemC-Examples--mainline--0.3 branch
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-42
+   
+ * Merge from SystemC-Examples--mainline--0.3
+ - Centralized SysteMoC dependency information from various Makefile.am into configure.in
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-45
+   
+ * Added subdirectory systemc-mpeg4-teich-v2 for Prof. Teich
+ - systemc-mpeg4-teich-v2 should be used to test the xslt converter
+ - The toplevel design is constructed in systemc-mpeg4-teich-v2/design-mpeg4-teich.cpp
+ - The xslt generated code belongs into systemc-mpeg4-teich-v2/Video_XML
+ - The code in Video_XML should be included in the design-mpeg4-teich.cpp file
+ - The network graph of the actors should be constructed in design-mpeg4-teich.cpp
+   an example network graph for the an IDCT2d test is included in the
+   design-mpeg4-teich.cpp file.
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-46
+   
+ * Added 'BUG:' markers
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-47
+   
+ * Added addTransition example in design-mpeg4-teich.cpp
+ - addTransition example is in the constructors of the m_source and m_sink actors
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-48
+   Änderungen in allen generierten Dateien zum Test inklusive README
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-49
+   
+ * Merge from SystemC-Examples--mainline--0.3 branch
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-50
+   
+ * Merged mpeg4 reference implementation from 
+   SystemC-Examples--mainline--0.3 branch
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-51
+   
+ * Merged memory interface modelling for IBM HCA from
+   SystemC-Examples--mainline--0.3 Branch
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-52
+   
+ * Merged from SystemC-Examples--mainline--0.3 branch
+ - created some sample configurations in systemc-mpeg4 and systemc-sqr
+ - limited systemc-sqr to 50 activation zykles
+ - use CALL macro in systemc-sqr
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-53
+   Changes in some actors (cal:col2block) as well as all generated files *out.xml;
+         also README adapted in systemc-mpeg4-teich-v2 to final possibilities for extensions;
+         Finally, also changed file callib.hpp to allow for bitand and bitor operations;
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-54
+   callib.h geändert;
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-55
+   Actor col2block.cal changed so not to use list concatenation operators! 
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-56
+   All files except 1 error in File parser, 2 errors in reconstruct and 1 error in file MCadd
+            (initList) compile without errors with version Teich17.xslt
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-57
+   
+ * Merge from SystemC-Examples--mainline--0.3 branch
+ - Added mpeg4 reference implementation in mpeg4-ref
+ - Added IDCT2d reference implementation in idct2d-ref/BlockIDCT.cpp
+   (Extractet from mpeg4-ref)
+ - Many bugfixes from Mr Yao Feng in IDCT2D
+   - add IDCT1d_col.hpp add IDCT1d's Parameters
+   - Bugfix in block2row (Added debug output code)
+   - Fixed parameters for in IDCT1d scale fly and addsub
+   - Fixed parameter in IDCT1d_col for scale, fly and addsub
+   - Fixed parameter in IDCT2d for m_Upsample
+   - Added debug output in IDCTclip, IDCTscale, IDCTaddsub and IDCTfly
+   - Add Test_in.dat-input, Test_out.dat-output and commentrows.
+   - Added text stimuli input
+   - Added debug output
+   - Fixed Parameter in IDCT1d_col.hpp for fly and scale.
+   - add OutputFileStream
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-58
+   
+ * Merge from SystemC-Examples--mainline--0.3 branch
+ - modified Makefile.am to include mpeg4-ref subdirectory in default build target
+ - create test_in.dat from source teast_in-dat
+ - added test_in-dat
+
+ * joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-59
+   
+ * Fixed systemc-mpeg4/configuration.cmx.xml to correspond
+   to the changed problem graph in design-test-idct2d.cpp
+   which arose by  merging the two source actors src and src1
+   into a new src_idct actor.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--base-0
+   tag of joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-28
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-1
+   
+ * Merge from joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-2
+   
+ * Fixed guard calls fixed signed unsigned comparisions
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-3
+   
+ * removed some unnecessary files
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-4
+   
+ * Now use SysteMoC-v0.3 instead of SysteMoC for the new systemoc library
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-5
+   
+ * Added systemc-ibtest subdir to test InfiniBand migration to new SysteMoC
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-6
+   
+ * Use smoc_graph class in design-sqr.cpp
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-7
+   
+ * Commit for Jens
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-8
+   Bugfixing in ATU testcase 
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-9
+   
+  * changed SystemC-Example ibtest
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-10
+   
+ * Changed systemc-ibtest/smoc2test.cpp and b_m_atu_atomic.h
+   to use new isType function for oneof type identification
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-11
+   
+ * Guard Expression syntax of SysteMoC 2.0 have been tightened.
+ - Therefore some possible bugs in the parser code have been detected, e.g.,
+   insufficient precedence parenthesis in guard expressions of parser
+    `(in.getAvailableTokens(1) >= 3) &&  a || b ' should be
+    `(in.getAvailableTokens(1) >= 3) && (a || b)'.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-12
+   
+ - example for trace driven sim
+ - example for smoc_event
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-13
+   
+ - now use smoc_event with h261 example
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-14
+   
+ - added VPC mapping file
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-15
+   
+ - modified example to fit with new compute interface using function names
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-16
+   
+ - added new testing example
+ - fixed typo in Makefile.am
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-17
+   
+ * remove obsolete systemc-counter subdir
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-18
+   
+ * Use smoc_graph to build hierarchy
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-19
+   
+ * Sync from joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-20
+   
+ * changed SUBDIR clause in Makefile.am
+ - removed systemc-mpeg4 because it does not compile
+ - added systemc-ibtest
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-21
+   
+ * Split some helper headers and functions from SysteMoC into hscdsupport
+ - changed SystemC-Examples accordingly
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-22
+   
+ * Merge from joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2
+ - latest changes from yao feng merged into SystemC-Examples--mainline--0.3
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-23
+   
+ * Merged bugfix from SystemC-Examples--mainline--0.2 branch
+ - revert definitions of bitand, bitor, bitxor, rshift, lshift
+ - Because bitand bitor are builtin c++ operators and can no longer be
+ - redifined with cpp macro definitions. Now use cal_xxx again instead
+ - of only xxx.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-24
+   
+ * Now use smoc_graph for hierarchical actors instead of smoc_ndf_constraintset
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-25
+   
+ * Added systemc-mpeg4 againt to build projects
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-26
+   
+ * Centralized SysteMoC dependency information from various Makefile.am into configure.in
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-27
+   
+ * Added problem graph dumper to design-sqr.cpp example
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-28
+   
+ - draft design for a memory access used together with InfiniBand mstore and mfetch
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-29
+   
+ * Added forgotten files
+ - systemc-ibtest/smoc1_vs_smoc2_test.cpp
+ - systemc-td-sim-test/single_transition.cpp
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-30
+   
+ * Added --generate-problemgraph option to
+ - systemc-mpeg4/design-mpeg4.cpp
+ - systemc-mpeg4/design-test-idct2d.cpp
+ - systemc-sqr/design-sqr.cpp
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-31
+   
+ * Enlarged some fifos on the way to deadlock resulution
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-32
+   
+ * Changed all call actions in systemc-mpeg4 to use CALL macro
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-33
+   
+ * Enlarged some fifos on the way to deadlock resulution
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-34
+   
+  * Enlarged some fifos removed deadlock
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-35
+   
+ * Increased test stimuli from 64 to 65536 values
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-36
+   
+ - completed memory interfaces (write and read) and test cases
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-37
+   
+ - changed filename to memory_interface.h
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-38
+   
+ * Added mpeg4 reference implementation in mpeg4-ref
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-39
+   
+ - created some sample configurations
+ - limited systemc-sqr to 50 activation zykles
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-40
+   add IDCT1d_col.hpp add IDCT1d's Parameters  
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-41
+   
+ * Bugfix in block2row
+ - Added debug output code
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-42
+   
+ * Fixed parameters for in IDCT1d scale fly and addsub
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-43
+   
+ * Fixed parameter in IDCT1d_col for scale, fly and addsub
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-44
+   
+ * Fixed parameter in IDCT2d for m_Upsample
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-45
+   
+ * Added debug output in IDCTclip
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-46
+   
+ * Added debug output in IDCTscale
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-47
+   
+ * Added debug output in IDCTaddsub
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-48
+   
+ * Added debug output in IDCTfly
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-49
+   
+ * Add Test_in.dat-input, Test_out.dat-output and commentrows.
+ 
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-50
+   
+ * Added text stimuli input
+ * Added debug output
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-51
+   
+ Fixed Parameter in IDCT1d_col.hpp for fly and scale.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-52
+   
+  add OutputFileStream
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-53
+   
+ - create test_in.dat from source teast_in-dat
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-54
+   
+ * Added mpeg4-ref/Makefile.am modified configure.in accordingly
+ * Modified Makefile.am to include mpeg4-ref subdirectory in default build target
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-55
+   
+ - added test_in-dat
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-56
+   
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-57
+   
+ - deactivated compilation of buggy code
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-58
+   
+ * Added Teich17.xslt
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-59
+   
+ * Uncommented defines for debugging (VERBOSE, STOP_ON_ERROR)
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-60
+   
+ * Enabled yuv output
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-61
+   
+ * Added correct control file for input stream foreman_qcif_30.bit
+ * Added input stream foreman_qcif_30.bit
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-62
+   
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-63
+   
+ - small changes to allow several activations
+ - changed file open close behavior 
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-64
+   
+  * Now support subproject is in Support not HscdSupport
+    change configure.in accordingly
+  * Namespace of support subproject is jflibs changed
+      -  systemc-ibtest/oneof.cpp
+      -  systemc-ibtest/ib_m_atu_atomic.h
+      -  systemc-ibtest/ib_m_atu_nonatomic.h
+      -  systemc-ibtest/smoc2test.cpp
+    accordingly
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-65
+   
+ - fixed compiler warnings
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-66
+   
+ * Code cleanup
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-67
+   
+ * Rename all .c into .cpp files therefore using g++ as compiler
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-68
+   
+ - add "till test" in systemc-td-sim-test
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-69
+   
+  bug fixed
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-70
+   
+ * Added missing include statements to
+ - systemc-ibtest/memory_interface.h
+ - systemc-ibtest/memory_access_read_test.cpp
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-71
+   
+ * Increased iteration count in systemc-mpeg4/design-test-idct2d.cpp
+   to 100 macroblocks (8x8)
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-72
+   
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-73
+   
+  bugs gefixed!
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-74
+   
+ * Quoted arguments to ACJF_ARG_DEBUG and moved it after compiler toolchain detection
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-75
+   
+ * Disabled simulation-test-parser in systemc-mpeg4/Makefile.am
+   because it does not compile with -O2
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-76
+   
+  commit before codechange.
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-77
+   
+  Parser TEST success achieve!
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-78
+   
+ * Merge from SystemC-Examples--mainline--0.4 branch
+ - SysteMoC in SysteMoC subdir not in SysteMoC-v0.3
+ - Disable vpc-test-h261 source compilation if --disable-vpc given
+

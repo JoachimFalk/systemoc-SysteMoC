@@ -1,0 +1,23 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-41
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Fri Jun 27 17:44:41 CEST 2008
+Standard-date: 2008-06-27 15:44:41 GMT
+New-files: systemoc-fsm-xor-composition/.arch-ids/=id
+    systemoc-fsm-xor-composition/.arch-ids/Makefile.am.id
+    systemoc-fsm-xor-composition/.arch-ids/configure.in.frag.id
+    systemoc-fsm-xor-composition/.arch-ids/design-xor-comp.cpp.id
+    systemoc-fsm-xor-composition/Makefile.am
+    systemoc-fsm-xor-composition/configure.in.frag
+    systemoc-fsm-xor-composition/design-xor-comp.cpp
+New-directories: systemoc-fsm-xor-composition
+    systemoc-fsm-xor-composition/.arch-ids
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-41
+Summary:
+  * added systemoc-fsm-xor-composition which will be used to test
+    the FSM XOR composition functionality 
+Keywords: 
+
+
+

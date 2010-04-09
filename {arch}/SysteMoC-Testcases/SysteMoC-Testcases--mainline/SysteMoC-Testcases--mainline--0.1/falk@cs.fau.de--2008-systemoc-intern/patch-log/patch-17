@@ -1,0 +1,22 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-17
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Tue May 20 16:36:54 CEST 2008
+Standard-date: 2008-05-20 14:36:54 GMT
+New-files: systemoc-src-snk-void/.arch-ids/=id
+    systemoc-src-snk-void/.arch-ids/Makefile.am.id
+    systemoc-src-snk-void/.arch-ids/configure.in.frag.id
+    systemoc-src-snk-void/.arch-ids/design-src-snk-void.cpp.id
+    systemoc-src-snk-void/Makefile.am
+    systemoc-src-snk-void/configure.in.frag
+    systemoc-src-snk-void/design-src-snk-void.cpp
+New-directories: systemoc-src-snk-void
+    systemoc-src-snk-void/.arch-ids
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-17
+Summary:
+  * added testcase for void-channels 
+Keywords: 
+
+
+

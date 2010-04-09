@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--wsdf--0.5--patch-13
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Dec  1 23:22:20 CET 2006
+Standard-date: 2006-12-01 22:22:20 GMT
+Modified-files: systemoc-wsdf-recons-dila/Makefile.am
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila.cpp
+    systemoc-wsdf-src-snk/Makefile.am
+    systemoc-wsdf-src-snk/design-wsdf-src-snk.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--wsdf--0.5--patch-13
+Summary: 
+ - Change Makefile in order to allow compilation with -O2 optimization
+ - dilatation: Introduce #define for larger FIFOs
+Keywords: 
+
+
+

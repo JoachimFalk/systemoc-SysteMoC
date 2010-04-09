@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.4--patch-74
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Mon Mar 26 17:08:05 CEST 2007
+Standard-date: 2007-03-26 15:08:05 GMT
+Modified-files: systemoc-idct2d/design-test-idct2d.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-74
+Summary: 
+ - Use counter data by default
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.4--patch-37
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Jun 27 16:56:17 CEST 2006
+Standard-date: 2006-06-27 14:56:17 GMT
+Modified-files: systemoc-sqr/pipelining.cmx.xml
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-37
+Summary: 
+ * Changed systemoc-sqr/pipelining.cmx.xml to conform to new smoc_fifo
+   naming scheme 'cf_<form-actor-name>_<to-actor-name>_<nr>'
+Keywords: 
+
+
+

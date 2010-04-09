@@ -1,0 +1,50 @@
+Revision: SystemC-Examples--mainline--0.6--patch-189
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Fri May  4 21:20:45 CEST 2007
+Standard-date: 2007-05-04 19:20:45 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/Dup.hpp.id
+    systemoc-jpeg-decoder/.arch-ids/callib.hpp.id
+    systemoc-jpeg-decoder/Dup.hpp
+    systemoc-jpeg-decoder/callib.hpp
+Modified-files: systemoc-fir/Makefile.am
+    systemoc-getValueAt/Makefile.am
+    systemoc-idct2d/Makefile.am
+    systemoc-idct2d/smoc_synth_std_includes.hpp
+    systemoc-jpeg-decoder/BitSplitter.hpp
+    systemoc-jpeg-decoder/DcDecoding.hpp
+    systemoc-jpeg-decoder/FileSource.hpp
+    systemoc-jpeg-decoder/FrameBufferWriter.hpp
+    systemoc-jpeg-decoder/FrameShuffler.hpp
+    systemoc-jpeg-decoder/HuffDecoder.cpp
+    systemoc-jpeg-decoder/HuffDecoder.hpp
+    systemoc-jpeg-decoder/InvQuant.hpp
+    systemoc-jpeg-decoder/InvZigZag.hpp
+    systemoc-jpeg-decoder/InvZrl.hpp
+    systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/Makefile.am
+    systemoc-jpeg-decoder/PGMsink.hpp
+    systemoc-jpeg-decoder/Parser.hpp
+    systemoc-jpeg-decoder/YCbCr2RGB.hpp
+    systemoc-jpeg-decoder/channels.cpp
+    systemoc-jpeg-decoder/channels.hpp
+    systemoc-jpeg-decoder/debug.h
+    systemoc-jpeg-decoder/debug_config.h
+    systemoc-jpeg-decoder/smoc_synth_std_includes.hpp
+    systemoc-sdf/Makefile.am systemoc-sqr/Makefile.am
+    systemoc-wsdf-dist/Makefile.am
+    systemoc-wsdf-expr/Makefile.am
+    systemoc-wsdf-recons-dila/Makefile.am
+    systemoc-wsdf-src-snk/Makefile.am
+    systemoc-wsdf/Makefile.am
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-189
+Summary: 
+ * Modify systemoc_jpeg for Software-Synthesis
+   - Everything but Huffman passes..
+ * Modify Makefiles of other examples to work with modified SW-Synthesis, too
+   - SQRT and IDCT2D are successfully tested
+
+Keywords: 
+
+
+

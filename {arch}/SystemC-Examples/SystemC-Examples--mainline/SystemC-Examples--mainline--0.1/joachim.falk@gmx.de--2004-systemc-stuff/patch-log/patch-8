@@ -1,0 +1,19 @@
+Revision: SystemC-Examples--mainline--0.1--patch-8
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <joachim.falk@gmx.de>
+Date: Sun Nov 28 21:50:25 CET 2004
+Standard-date: 2004-11-28 20:50:25 GMT
+New-files: systemc-sdf/.arch-ids/=id
+    systemc-sdf/.arch-ids/Makefile.am.id
+    systemc-sdf/Makefile.am
+New-directories: systemc-sdf systemc-sdf/.arch-ids
+Renamed-files: systemc-df2/.arch-ids/design-sdf.cpp.id systemc-sdf/.arch-ids/design-sdf.cpp.id
+    systemc-df2/design-sdf.cpp systemc-sdf/design-sdf.cpp
+Modified-files: Makefile.am configure.in
+    systemc-df2/Makefile.am systemc-sdf/design-sdf.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.1--patch-8
+Summary: Moved sdf domain test into subdir systemc-sdf now wth cycles in the graph
+Keywords: 
+
+
+

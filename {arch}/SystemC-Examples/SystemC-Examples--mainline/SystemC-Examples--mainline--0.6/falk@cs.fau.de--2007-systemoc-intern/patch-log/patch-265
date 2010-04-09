@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-265
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Jun 21 18:56:06 CEST 2007
+Standard-date: 2007-06-21 16:56:06 GMT
+Modified-files: systemoc-jpeg-decoder/Parser.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-265
+Summary: 
+ - disable parser profiling
+Keywords: 
+
+
+

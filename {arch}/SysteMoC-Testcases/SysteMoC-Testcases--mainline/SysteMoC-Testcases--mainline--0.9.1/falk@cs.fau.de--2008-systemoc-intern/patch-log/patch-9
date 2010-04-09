@@ -1,0 +1,14 @@
+Revision: SysteMoC-Testcases--mainline--0.9.1--patch-9
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Nov 23 15:54:53 CET 2009
+Standard-date: 2009-11-23 14:54:53 GMT
+Modified-files: configure.in systemoc-sqr/Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.9.1--patch-9
+Summary: 
+ * General configure.in cleanup.
+ * Adapted synthesis enable options to use --with-synthesis-xxx.
+Keywords: 
+
+
+

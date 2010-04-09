@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--da-deyhle--0.4--patch-5
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Andreas Deyhle <andi.deyhle@gmx.de>
+Date: Fri Sep  8 14:21:51 CEST 2006
+Standard-date: 2006-09-08 12:21:51 GMT
+Modified-files: systemoc-fir/Makefile.am
+    systemoc-mpeg4/Makefile.am systemoc-sdf/Makefile.am
+    systemoc-sqr/Makefile.am
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--da-deyhle--0.4--patch-5
+Summary: 
+ * adapted Makefiles for examples fir, mpeg4, sdf and sqr
+   for synthesis in subdirectory
+Keywords: 
+
+
+

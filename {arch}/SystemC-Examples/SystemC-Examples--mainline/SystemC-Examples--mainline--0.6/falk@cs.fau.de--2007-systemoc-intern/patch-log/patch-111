@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-111
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Mar 14 16:10:19 CET 2007
+Standard-date: 2007-03-14 15:10:19 GMT
+Modified-files: systemoc-jpeg-decoder/IDCTFrameBufferWriterTestbench.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-111
+Summary: 
+ * IDCTScanSource
+ - Only produce width * heigth * <componentes in scan> IDCT coefficients
+Keywords: 
+
+
+

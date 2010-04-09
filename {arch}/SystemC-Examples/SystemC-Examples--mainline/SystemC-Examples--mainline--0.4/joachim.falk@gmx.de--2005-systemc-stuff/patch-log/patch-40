@@ -1,0 +1,19 @@
+Revision: SystemC-Examples--mainline--0.4--patch-40
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Jun 29 18:02:25 CEST 2006
+Standard-date: 2006-06-29 16:02:25 GMT
+Modified-files: systemoc-mpeg4/IDCT1d.hpp
+    systemoc-mpeg4/IDCT1d_col.hpp systemoc-mpeg4/IDCT2d.hpp
+    systemoc-mpeg4/design-test-idct2d.cpp
+    systemoc-mpeg4/row_clip.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-40
+Summary: 
+ * Fudged IDCT2d example to exactly output the same network graph as
+   with the old SysteMoC which outputet fifo sizes one to big and in
+   hex notation (but without 0x). Additionally round up fifo
+   sizes in the example to the next 2^n number n \in N.
+Keywords: 
+
+
+

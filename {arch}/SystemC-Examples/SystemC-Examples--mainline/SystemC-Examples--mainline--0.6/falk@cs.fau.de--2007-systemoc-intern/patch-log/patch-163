@@ -1,0 +1,19 @@
+Revision: SystemC-Examples--mainline--0.6--patch-163
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Jens Gladigau <gladigau@codesign.informatik.uni-erlangen.de>
+Date: Wed Apr  4 14:12:54 CEST 2007
+Standard-date: 2007-04-04 12:12:54 GMT
+New-files: systemoc-tlm-start/.arch-ids/bus_test.cpp.id
+    systemoc-tlm-start/bus_test.cpp
+Modified-files: systemoc-jpeg-decoder/HuffDecoder.cpp
+    systemoc-jpeg-decoder/HuffDecoder.hpp
+    systemoc-tlm-start/Makefile.am
+    systemoc-tlm-start/circular_buffer.h
+    systemoc-tlm-start/systemoc_test.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-163
+Summary: 
+  * TLM: first bus tests
+Keywords: 
+
+
+

@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.2--patch-25
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue Jul 26 19:47:47 CEST 2005
+Standard-date: 2005-07-26 17:47:47 GMT
+New-files: systemc-mpeg4/.arch-ids/MCadd.hpp.id
+    systemc-mpeg4/MCadd.hpp
+Modified-files: systemc-mpeg4/design-mpeg4.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-25
+Summary: 
+ * Added MCadd.hpp changes design-mpeg4.cpp accordingly
+
+Keywords: 
+
+
+

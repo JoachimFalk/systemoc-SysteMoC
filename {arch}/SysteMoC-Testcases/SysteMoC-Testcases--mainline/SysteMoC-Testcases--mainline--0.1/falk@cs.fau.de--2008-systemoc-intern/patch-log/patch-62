@@ -1,0 +1,13 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-62
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Rustler <rustler@codesign.informatik.uni-erlangen.de>
+Date: Mon Jul  6 18:28:45 CEST 2009
+Standard-date: 2009-07-06 16:28:45 GMT
+Modified-files: configure.in systemoc-sqr/Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-62
+Summary: 
+ - enabled MPI synthesis for SQR example
+Keywords: 
+
+
+

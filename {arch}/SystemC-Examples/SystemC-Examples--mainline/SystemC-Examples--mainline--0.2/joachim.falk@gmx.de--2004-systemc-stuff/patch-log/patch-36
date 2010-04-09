@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.2--patch-36
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep  7 17:35:12 CEST 2005
+Standard-date: 2005-09-07 15:35:12 GMT
+Modified-files: configure.in
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-36
+Summary: 
+ * eliminated systemc-yao from configure.in
+Keywords: 
+
+
+

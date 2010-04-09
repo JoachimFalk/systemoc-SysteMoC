@@ -1,0 +1,53 @@
+Revision: SystemC-Examples--mainline--0.2--patch-9
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sun Jun 19 18:04:05 CEST 2005
+Standard-date: 2005-06-19 16:04:05 GMT
+New-files: calltrop/.arch-ids/=id
+    calltrop/.arch-ids/Add.cal.id
+    calltrop/.arch-ids/Add.cpp.id
+    calltrop/.arch-ids/BankAccount.cal.id
+    calltrop/.arch-ids/BankAccount.cpp.id
+    calltrop/.arch-ids/FIR.cal.id
+    calltrop/.arch-ids/FIR.cpp.id
+    calltrop/.arch-ids/Filter.cal.id
+    calltrop/.arch-ids/Filter.cpp.id
+    calltrop/.arch-ids/ID.cal.id
+    calltrop/.arch-ids/ID.cpp.id
+    calltrop/.arch-ids/Merge.cal.id
+    calltrop/.arch-ids/Merge.cpp.id
+    calltrop/.arch-ids/PrimeSieve.cal.id
+    calltrop/.arch-ids/RaisedCosine.cal.id
+    calltrop/.arch-ids/Ramp.cal.id
+    calltrop/.arch-ids/Ramp.cpp.id
+    calltrop/.arch-ids/Select.cal.id
+    calltrop/.arch-ids/Select.cpp.id
+    calltrop/.arch-ids/Sieve.cpp.id
+    calltrop/.arch-ids/SimpleFIR.cal.id
+    calltrop/.arch-ids/SimpleFIR.cpp.id
+    calltrop/.arch-ids/Sum.cal.id
+    calltrop/.arch-ids/Sum.cpp.id
+    calltrop/.arch-ids/UpSample.cal.id
+    calltrop/.arch-ids/UpSample.cpp.id
+    calltrop/.arch-ids/create-example.sh.id
+    calltrop/.arch-ids/design-fir.cpp.id calltrop/Add.cal
+    calltrop/Add.cpp calltrop/BankAccount.cal
+    calltrop/BankAccount.cpp calltrop/FIR.cal
+    calltrop/FIR.cpp calltrop/Filter.cal calltrop/Filter.cpp
+    calltrop/ID.cal calltrop/ID.cpp calltrop/Merge.cal
+    calltrop/Merge.cpp calltrop/PrimeSieve.cal
+    calltrop/RaisedCosine.cal calltrop/Ramp.cal
+    calltrop/Ramp.cpp calltrop/Select.cal
+    calltrop/Select.cpp calltrop/Sieve.cpp
+    calltrop/SimpleFIR.cal calltrop/SimpleFIR.cpp
+    calltrop/Sum.cal calltrop/Sum.cpp calltrop/UpSample.cal
+    calltrop/UpSample.cpp calltrop/create-example.sh
+    calltrop/design-fir.cpp
+New-directories: calltrop calltrop/.arch-ids
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-9
+Summary: 
+ * Added calltrop examples to compare with SysteMoC
+Keywords: 
+
+
+

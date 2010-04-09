@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-105
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Christian Zebelein <christian.zebelein@fen-net.de>
+Date: Fri May  5 14:09:43 CEST 2006
+Standard-date: 2006-05-05 12:09:43 GMT
+Modified-files: systemoc-par/design-par.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-105
+Summary: 
+  * simplified systemoc_par example (Expr::isType is now always used)
+Keywords: 
+
+
+

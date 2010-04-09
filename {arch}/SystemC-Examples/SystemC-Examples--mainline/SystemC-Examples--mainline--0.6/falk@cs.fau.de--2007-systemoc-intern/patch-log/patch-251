@@ -1,0 +1,12 @@
+Revision: SystemC-Examples--mainline--0.6--patch-251
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Thu Jun 14 19:52:56 CEST 2007
+Standard-date: 2007-06-14 17:52:56 GMT
+Modified-files: systemoc-jpeg-decoder/FrameShuffler.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-251
+Summary: Get rid of non-determinism in FrameShuffler (in systemoc_jpeg_decoder)
+Keywords: 
+
+
+

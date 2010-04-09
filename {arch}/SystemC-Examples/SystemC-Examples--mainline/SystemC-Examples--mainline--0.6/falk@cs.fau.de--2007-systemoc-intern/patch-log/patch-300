@@ -1,0 +1,22 @@
+Revision: SystemC-Examples--mainline--0.6--patch-300
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Tue Sep  4 21:08:03 CEST 2007
+Standard-date: 2007-09-04 19:08:03 GMT
+New-files: systemoc-wsdf/.arch-ids/snk2addr_table.cpp.id
+    systemoc-wsdf/.arch-ids/snk2addr_table.hpp.id
+    systemoc-wsdf/.arch-ids/snk2addr_table_ref_point.cpp.id
+    systemoc-wsdf/.arch-ids/snk2addr_table_ref_point.hpp.id
+    systemoc-wsdf/snk2addr_table.cpp
+    systemoc-wsdf/snk2addr_table.hpp
+    systemoc-wsdf/snk2addr_table_ref_point.cpp
+    systemoc-wsdf/snk2addr_table_ref_point.hpp
+Modified-files: systemoc-wsdf/Makefile.am
+    systemoc-wsdf/addr_analysis.cpp
+    systemoc-wsdf/addr_analysis_data_struct.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-300
+Summary: WSDF-address analysis: restructure program. Disable window iterator analysis. Provide a first heuristic for optimization of extended border addresses. ATTENTION: Currently, the reference pixel is not situated in the window center.
+Keywords: 
+
+
+

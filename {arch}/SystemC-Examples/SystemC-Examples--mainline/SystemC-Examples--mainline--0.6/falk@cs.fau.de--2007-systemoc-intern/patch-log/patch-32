@@ -1,0 +1,23 @@
+Revision: SystemC-Examples--mainline--0.6--patch-32
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Mar  2 19:03:42 CET 2007
+Standard-date: 2007-03-02 18:03:42 GMT
+New-files: systemoc-wsdf-recons-dila/.arch-ids/autotest-sh.id
+    systemoc-wsdf-recons-dila/.arch-ids/autovars.sh.in.id
+    systemoc-wsdf-recons-dila/autotest-sh
+    systemoc-wsdf-recons-dila/autovars.sh.in
+    systemoc-wsdf-recons-dila/ref_data/.arch-ids/=id
+    systemoc-wsdf-recons-dila/ref_data/.arch-ids/result_example.bmp.id
+    systemoc-wsdf-recons-dila/ref_data/result_example.bmp
+New-directories: systemoc-wsdf-recons-dila/ref_data
+    systemoc-wsdf-recons-dila/ref_data/.arch-ids
+Modified-files: configure.in
+    systemoc-wsdf-recons-dila/Makefile.am
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-32
+Summary:
+ - Insert checker for recons-dila example
+Keywords: 
+
+
+

@@ -1,0 +1,16 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-48
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Jul 23 20:17:48 CEST 2008
+Standard-date: 2008-07-23 18:17:48 GMT
+Modified-files: systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fast.cpp
+    systemoc-wsdf-recons-dila/wsdf_img_max.hpp
+    systemoc-wsdf-recons-dila/wsdf_input_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_output_switch.hpp
+    systemoc-wsdf-recons-dila/wsdf_seed_switch.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-48
+Summary:  - design-wsdf-recons-dila-fast now provides the possibility to use only multi-dimensional communication
+Keywords: 
+
+ - design-wsdf-recons-dila-fast now provides the possibility to use only multi-dimensional communication
+

@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.4--patch-5
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Dec  6 13:16:48 CET 2005
+Standard-date: 2005-12-06 12:16:48 GMT
+Modified-files: configure.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-5
+Summary: 
+ * Disable systemc-ibtest systemc-mpeg4
+Keywords: 
+
+
+

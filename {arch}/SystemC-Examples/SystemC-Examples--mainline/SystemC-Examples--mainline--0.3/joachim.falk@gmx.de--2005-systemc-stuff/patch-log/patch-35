@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-35
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Sep 15 20:37:31 CEST 2005
+Standard-date: 2005-09-15 18:37:31 GMT
+Modified-files: systemc-mpeg4/design-test-idct2d.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-35
+Summary: 
+ * Increased test stimuli from 64 to 65536 values
+Keywords: 
+
+
+

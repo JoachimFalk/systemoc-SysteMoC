@@ -1,0 +1,22 @@
+Revision: SystemC-Examples--mainline--0.3--patch-39
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Martin Streubuehr <martin.streubuehr@web.de>
+Date: Mon Sep 19 14:53:00 CEST 2005
+Standard-date: 2005-09-19 12:53:00 GMT
+New-files: systemc-mpeg4/.arch-ids/cmx.dtd.id
+    systemc-mpeg4/.arch-ids/configuration.cmx.xml.id
+    systemc-mpeg4/cmx.dtd
+    systemc-mpeg4/configuration.cmx.xml
+    systemc-sqr/.arch-ids/cmx.dtd.id
+    systemc-sqr/.arch-ids/configuration.cmx.xml.id
+    systemc-sqr/cmx.dtd systemc-sqr/configuration.cmx.xml
+Modified-files: systemc-mpeg4/design-test-idct2d.cpp
+    systemc-sqr/design-sqr.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-39
+Summary: 
+ - created some sample configurations
+ - limited systemc-sqr to 50 activation zykles
+Keywords: 
+
+
+

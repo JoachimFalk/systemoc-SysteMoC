@@ -1,0 +1,61 @@
+Revision: SystemC-Examples--mainline--0.6--patch-312
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Sep 21 17:26:24 CEST 2007
+Standard-date: 2007-09-21 15:26:24 GMT
+Modified-files: caltrop/design-fir.cpp
+    crypto-example/design_crypto.cpp
+    systemc-idct/design-idct2d.cpp
+    systemoc-csp/design-csp.cpp systemoc-fir/design-fir.cpp
+    systemoc-getValueAt/design-getValueAt.cpp
+    systemoc-ibtest/atutest_atomic.cpp
+    systemoc-ibtest/atutest_nonatomic.cpp
+    systemoc-ibtest/memory_access_read_test.cpp
+    systemoc-ibtest/memory_access_write_test.cpp
+    systemoc-ibtest/smoc1_vs_smoc2_test.cpp
+    systemoc-ibtest/smoc2test.cpp
+    systemoc-idct2d/design-idct1d.cpp
+    systemoc-jpeg-decoder/HuffmanTestbench.cpp
+    systemoc-jpeg-decoder/IDCTFrameBufferWriterTestbench.cpp
+    systemoc-jpeg-decoder/InvZrl_tb.cpp
+    systemoc-jpeg-decoder/Jpeg.cpp
+    systemoc-jpeg-decoder/ParserTestbench.cpp
+    systemoc-mpeg4-teich-v2/design-mpeg4-teich.cpp
+    systemoc-mpeg4/design-mpeg4.cpp
+    systemoc-mpeg4/test_parser.cpp
+    systemoc-par/design-par.cpp
+    systemoc-sdf-clustering/design-cluster-sdf-1.cpp
+    systemoc-sdf-clustering/design-cluster-sdf-2.cpp
+    systemoc-sdf-clustering/design-cluster-sdf-3.cpp
+    systemoc-sdf/design-sdf.cpp
+    systemoc-select/design-select.cpp
+    systemoc-sqr-double/design-sqr.cpp
+    systemoc-sqr/design-sqr.cpp
+    systemoc-sr/design-PLMON.cpp
+    systemoc-sr/design-mc-test.cpp
+    systemoc-sr/design-sr-and.cpp
+    systemoc-sr/design-sr-phil-simple.cpp
+    systemoc-src-snk-noconsume/design-src-snk-noconsume.cpp
+    systemoc-src-snk/design-src-snk.cpp
+    systemoc-td-sim-test/single_transition.cpp
+    systemoc-td-sim-test/td_sim.cpp
+    systemoc-td-sim-test/till_test.cpp
+    systemoc-tlm-start/sqr-hierarchic.cpp
+    systemoc-tlm-start/sqr-tlm.cpp
+    systemoc-wsdf-dist/design-wsdf-dist.cpp
+    systemoc-wsdf-expr/design-wsdf-expr.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fast.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fifo.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila.cpp
+    systemoc-wsdf-recons-dila/test_input_switch.cpp
+    systemoc-wsdf-src-snk/design-wsdf-src-snk.cpp
+    systemoc-wsdf-src-snk/design1D-src-snk.cpp
+    systemoc-wsdf/design-wsdf-no-border.cpp
+    systemoc-wsdf/design-wsdf.cpp vpc-test-h261/sc_main.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-312
+Summary: 
+ - replaced sc_start(-1) by sc_start() to suppress SC 2.2 warning
+Keywords: 
+
+
+

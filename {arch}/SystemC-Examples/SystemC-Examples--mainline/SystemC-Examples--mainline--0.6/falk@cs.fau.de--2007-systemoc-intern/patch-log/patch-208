@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-208
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed May  9 11:33:42 CEST 2007
+Standard-date: 2007-05-09 09:33:42 GMT
+Modified-files: systemoc-idct2d/MIdct2D.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-208
+Summary: 
+  * Filled in stubs for Idct2D monolithic architecture
+Keywords: 
+
+
+

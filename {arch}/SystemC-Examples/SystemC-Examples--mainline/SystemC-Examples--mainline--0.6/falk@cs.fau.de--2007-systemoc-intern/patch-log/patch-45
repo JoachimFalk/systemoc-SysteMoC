@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-45
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Mar  9 17:55:27 CET 2007
+Standard-date: 2007-03-09 16:55:27 GMT
+Modified-files: systemoc-idct2d/IDCT_block_sink.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-45
+Summary: 
+ * Added level shift for +128 to pgm output
+Keywords: 
+
+
+

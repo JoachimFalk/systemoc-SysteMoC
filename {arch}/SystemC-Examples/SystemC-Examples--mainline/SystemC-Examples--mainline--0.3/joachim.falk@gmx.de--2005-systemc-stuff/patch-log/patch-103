@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-103
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu May  4 18:11:18 CEST 2006
+Standard-date: 2006-05-04 16:11:18 GMT
+Modified-files: systemoc-sqr/design-sqr.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-103
+Summary: 
+ * Changed design-sqr.cpp to use constructor parameter wrapper
+Keywords: 
+
+
+

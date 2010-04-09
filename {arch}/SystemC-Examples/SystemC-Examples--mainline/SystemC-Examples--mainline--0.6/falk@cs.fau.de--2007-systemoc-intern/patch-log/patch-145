@@ -1,0 +1,20 @@
+Revision: SystemC-Examples--mainline--0.6--patch-145
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri Mar 16 16:00:28 CET 2007
+Standard-date: 2007-03-16 15:00:28 GMT
+New-files: systemoc-jpeg-decoder/.arch-ids/parsertest_color_ok_2scan.jpg.id
+    systemoc-jpeg-decoder/.arch-ids/parsertest_color_ok_3scan.jpg.id
+    systemoc-jpeg-decoder/.arch-ids/parsertest_color_ok_rst.jpg.id
+    systemoc-jpeg-decoder/.arch-ids/parsertest_grey_ok_rst.jpg.id
+    systemoc-jpeg-decoder/parsertest_color_ok_2scan.jpg
+    systemoc-jpeg-decoder/parsertest_color_ok_3scan.jpg
+    systemoc-jpeg-decoder/parsertest_color_ok_rst.jpg
+    systemoc-jpeg-decoder/parsertest_grey_ok_rst.jpg
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-145
+Summary:
+ - Add test images with 2 and 3 scans
+Keywords: 
+
+
+

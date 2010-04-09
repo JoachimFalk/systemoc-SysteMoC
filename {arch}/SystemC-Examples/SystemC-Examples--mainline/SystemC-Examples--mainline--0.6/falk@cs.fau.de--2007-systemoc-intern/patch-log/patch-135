@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-135
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Thu Mar 15 17:28:32 CET 2007
+Standard-date: 2007-03-15 16:28:32 GMT
+Modified-files: systemoc-jpeg-decoder/InvZrl.hpp
+    systemoc-jpeg-decoder/Makefile.am
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-135
+Summary:
+ - Add channels.cpp to InvZrl Testbench
+Keywords: 
+
+
+

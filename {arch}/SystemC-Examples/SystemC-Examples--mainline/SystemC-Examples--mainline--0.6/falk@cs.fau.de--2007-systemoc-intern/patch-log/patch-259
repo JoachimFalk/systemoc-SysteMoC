@@ -1,0 +1,15 @@
+Revision: SystemC-Examples--mainline--0.6--patch-259
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Jun 20 19:09:15 CEST 2007
+Standard-date: 2007-06-20 17:09:15 GMT
+Modified-files: systemoc-jpeg-decoder/JpegSrc.hpp
+    systemoc-jpeg-decoder/Parser.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-259
+Summary: 
+ - Move profiling from parser to JpegSrc
+ - Change data type for JPEG array from integer to short
+ - Remove redundant counter
+ - Add xilinx profiling support
+Keywords: 
+

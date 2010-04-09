@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-34
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu Sep 15 20:34:48 CEST 2005
+Standard-date: 2005-09-15 18:34:48 GMT
+Modified-files: systemc-mpeg4/design-test-idct2d.cpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-34
+Summary: 
+  * Enlarged some fifos removed deadlock
+Keywords: 
+
+
+

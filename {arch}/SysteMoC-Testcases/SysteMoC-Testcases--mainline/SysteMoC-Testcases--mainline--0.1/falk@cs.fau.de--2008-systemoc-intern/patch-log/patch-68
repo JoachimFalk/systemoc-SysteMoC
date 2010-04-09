@@ -1,0 +1,13 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-68
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Xing Zeng <tozengx@hotmail.com>
+Date: Mon Sep 21 02:49:11 CEST 2009
+Standard-date: 2009-09-21 00:49:11 GMT
+Modified-files: systemoc-sqr/design-sqr.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-68
+Summary: 
+  * Added debug output for VAST
+Keywords: 
+
+
+

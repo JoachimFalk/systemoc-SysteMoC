@@ -1,0 +1,28 @@
+Revision: SystemC-Examples--mainline--0.2--patch-31
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Aug  1 15:24:24 CEST 2005
+Standard-date: 2005-08-01 13:24:24 GMT
+Removed-files: systemc-mpeg4/.arch-ids/parser.hpp.help.id
+    systemc-mpeg4/.arch-ids/parser_fsm.hpp.help.id
+    systemc-mpeg4/.arch-ids/parser_fsm.hpp.id
+    systemc-mpeg4/.arch-ids/parser_fsm.txt.id
+    systemc-mpeg4/.arch-ids/sequence.id
+    systemc-mpeg4/parser.hpp.help
+    systemc-mpeg4/parser_fsm.hpp
+    systemc-mpeg4/parser_fsm.hpp.help
+    systemc-mpeg4/parser_fsm.txt systemc-mpeg4/sequence
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-31
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-3
+Summary: 
+ * sync from joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-3
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-3
+   
+ * removed some unnecessary files
+

@@ -1,0 +1,17 @@
+Revision: SystemC-Examples--mainline--0.2--patch-4
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Sat May 14 17:37:17 CEST 2005
+Standard-date: 2005-05-14 15:37:17 GMT
+New-files: systemc-fir/.arch-ids/=id
+    systemc-fir/.arch-ids/Makefile.am.id
+    systemc-fir/.arch-ids/design-fir.cpp.id
+    systemc-fir/Makefile.am systemc-fir/design-fir.cpp
+New-directories: systemc-fir systemc-fir/.arch-ids
+Modified-files: Makefile.am configure.in
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-4
+Summary: Added fir example
+Keywords: 
+
+
+

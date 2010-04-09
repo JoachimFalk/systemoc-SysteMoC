@@ -1,0 +1,17 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-70
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Xing Zeng <tozengx@hotmail.com>
+Date: Tue Sep 22 12:19:07 CEST 2009
+Standard-date: 2009-09-22 10:19:07 GMT
+New-files: systemoc-sqr/.arch-ids/build.xml.in.id
+    systemoc-sqr/build.xml.in
+Modified-files: systemoc-sqr/Makefile.am
+    systemoc-sqr/configure.in.frag
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-70
+Summary: 
+  * Added vast-res-aware-sim target
+  * Added ANT script build.xml.in to run building and simulation
+Keywords: 
+
+
+

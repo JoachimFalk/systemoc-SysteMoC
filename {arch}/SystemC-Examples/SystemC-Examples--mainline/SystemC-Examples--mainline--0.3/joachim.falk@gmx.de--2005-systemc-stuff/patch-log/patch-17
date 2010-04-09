@@ -1,0 +1,35 @@
+Revision: SystemC-Examples--mainline--0.3--patch-17
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep  7 15:36:54 CEST 2005
+Standard-date: 2005-09-07 13:36:54 GMT
+Removed-files: systemc-counter/.arch-ids/=id
+    systemc-counter/.arch-ids/Makefile.am.id
+    systemc-counter/.arch-ids/addcorrel.scr.id
+    systemc-counter/.arch-ids/configure.in.id
+    systemc-counter/.arch-ids/counter_synrtl.script.id
+    systemc-counter/.arch-ids/counter_synrtl_1.script.id
+    systemc-counter/.arch-ids/counter_synrtl_2.script.id
+    systemc-counter/.arch-ids/counter_synrtl_3.script.id
+    systemc-counter/.arch-ids/design.cpp.id
+    systemc-counter/.arch-ids/design.hpp.id
+    systemc-counter/.arch-ids/synth.scr.id
+    systemc-counter/.arch-ids/testbench.cpp.id
+    systemc-counter/Makefile.am
+    systemc-counter/addcorrel.scr
+    systemc-counter/configure.in
+    systemc-counter/counter_synrtl.script
+    systemc-counter/counter_synrtl_1.script
+    systemc-counter/counter_synrtl_2.script
+    systemc-counter/counter_synrtl_3.script
+    systemc-counter/design.cpp systemc-counter/design.hpp
+    systemc-counter/synth.scr systemc-counter/testbench.cpp
+Removed-directories: systemc-counter
+    systemc-counter/.arch-ids
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-17
+Summary: 
+ * remove obsolete systemc-counter subdir
+Keywords: 
+
+
+

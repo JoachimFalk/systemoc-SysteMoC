@@ -1,0 +1,12 @@
+Revision: SystemC-Examples--mainline--0.6--patch-59
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Christian Haubelt <haubelt@cs.fau.de>
+Date: Mon Mar 12 16:11:03 CET 2007
+Standard-date: 2007-03-12 15:11:03 GMT
+Modified-files: systemoc-jpeg-decoder/channels.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-59
+Summary: Added ostream operation to ImageParam
+Keywords: 
+
+
+

@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.6--patch-284
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Jul  2 15:31:04 CEST 2007
+Standard-date: 2007-07-02 13:31:04 GMT
+New-files: systemoc-jpeg-decoder/test_data/.arch-ids/institut_qcif.bmp.id
+    systemoc-jpeg-decoder/test_data/.arch-ids/institut_qcif_100.jpg.id
+    systemoc-jpeg-decoder/test_data/institut_qcif.bmp
+    systemoc-jpeg-decoder/test_data/institut_qcif_100.jpg
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-284
+Summary: 
+ - added institut_qcif.bmp and institut_qcif_100.jpeg
+Keywords: 
+
+
+

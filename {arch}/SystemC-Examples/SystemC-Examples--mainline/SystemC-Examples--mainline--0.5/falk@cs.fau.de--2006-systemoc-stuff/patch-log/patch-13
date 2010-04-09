@@ -1,0 +1,40 @@
+Revision: SystemC-Examples--mainline--0.5--patch-13
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Dec 18 18:48:26 CET 2006
+Standard-date: 2006-12-18 17:48:26 GMT
+Modified-files: crypto-example/design_crypto.cpp
+    systemoc-fir/design-fir.cpp
+    systemoc-ibtest/memory_access_read_test.cpp
+    systemoc-ibtest/memory_access_write_test.cpp
+    systemoc-ibtest/smoc1_vs_smoc2_test.cpp
+    systemoc-mpeg4/design-mpeg4.cpp
+    systemoc-mpeg4/design-test-idct1d.cpp
+    systemoc-mpeg4/test_parser.cpp
+    systemoc-par/design-par.cpp systemoc-sdf/design-sdf.cpp
+    systemoc-select/design-select.cpp
+    systemoc-sqr-double/design-sqr.cpp
+    systemoc-sqr/design-sqr.cpp
+    systemoc-src-snk/design-src-snk.cpp
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--mainline--0.5--patch-13
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-59
+Summary: 
+ * Merge from SystemC-Examples--mainline--0.4 branch
+ - Eliminate from the sc_main function of all examples the now obsolete
+   (From SysteMoC--mainline--0.4--patch-126
+    and  SysteMoC--event-scheduler--0.5--patch-35 onwards)
+   --generate-problemgraph checking code.
+
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-59
+   
+ * Eliminate from the sc_main function of all examples the now obsolete
+   (From SysteMoC--mainline--0.4--patch-126 onwards)
+   --generate-problemgraph checking code.
+  
+

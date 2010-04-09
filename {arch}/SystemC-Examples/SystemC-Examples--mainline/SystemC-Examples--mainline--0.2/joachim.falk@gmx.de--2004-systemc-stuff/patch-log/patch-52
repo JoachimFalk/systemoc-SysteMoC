@@ -1,0 +1,32 @@
+Revision: SystemC-Examples--mainline--0.2--patch-52
+Archive: joachim.falk@gmx.de--2004-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Wed Sep 21 12:12:14 CEST 2005
+Standard-date: 2005-09-21 10:12:14 GMT
+New-files: systemc-mpeg4/.arch-ids/cmx.dtd.id
+    systemc-mpeg4/.arch-ids/configuration.cmx.xml.id
+    systemc-mpeg4/cmx.dtd
+    systemc-mpeg4/configuration.cmx.xml
+    systemc-sqr/.arch-ids/cmx.dtd.id
+    systemc-sqr/.arch-ids/configuration.cmx.xml.id
+    systemc-sqr/cmx.dtd systemc-sqr/configuration.cmx.xml
+Modified-files: systemc-mpeg4/design-test-idct2d.cpp
+    systemc-sqr/design-sqr.cpp
+New-patches: joachim.falk@gmx.de--2004-systemc-stuff/SystemC-Examples--mainline--0.2--patch-52
+    joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-39
+Summary: 
+ * Merged from SystemC-Examples--mainline--0.3 branch
+ - created some sample configurations in systemc-mpeg4 and systemc-sqr
+ - limited systemc-sqr to 50 activation zykles
+ - use CALL macro in systemc-sqr
+Keywords: 
+
+
+
+Patches applied:
+
+ * joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-39
+   
+ - created some sample configurations
+ - limited systemc-sqr to 50 activation zykles
+

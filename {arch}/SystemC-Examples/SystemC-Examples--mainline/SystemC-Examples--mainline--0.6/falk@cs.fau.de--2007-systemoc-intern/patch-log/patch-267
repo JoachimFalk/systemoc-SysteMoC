@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-267
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Thomas Schlichter <schlichter@cs.fau.de>
+Date: Thu Jun 21 21:07:45 CEST 2007
+Standard-date: 2007-06-21 19:07:45 GMT
+Modified-files: systemoc-jpeg-decoder/con_jpeg.pl
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-267
+Summary: Extended systemoc-jpeg-decoder/con_jpeg.pl to dump JPEG-Data into a "switch"-statement
+ - This can be used in SystemC-RTL Files to initialize ROMs
+Keywords: 
+
+
+

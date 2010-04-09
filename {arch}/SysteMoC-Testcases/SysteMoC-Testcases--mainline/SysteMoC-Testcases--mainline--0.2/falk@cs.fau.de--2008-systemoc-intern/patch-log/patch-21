@@ -1,0 +1,21 @@
+Revision: SysteMoC-Testcases--mainline--0.2--patch-21
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Wed Dec  2 16:15:11 CET 2009
+Standard-date: 2009-12-02 15:15:11 GMT
+Modified-files: systemoc-sqr/Makefile.am
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-67
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.2--patch-21
+Summary: 
+  * Merge from SysteMoC-Testcases--mainline--0.1--patch-67
+  - Added another target 'vast-res-aware-synth' to test the vast synthesis specified in ResAware-Synth.mk in Synthesis-Vast
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-67
+   
+ * Added another target 'vast-res-aware-synth' to test the vast synthesis specified in ResAware-Synth.mk in Synthesis-Vast
+

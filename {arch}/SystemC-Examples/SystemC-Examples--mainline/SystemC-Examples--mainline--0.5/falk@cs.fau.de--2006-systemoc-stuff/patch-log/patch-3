@@ -1,0 +1,20 @@
+Revision: SystemC-Examples--mainline--0.5--patch-3
+Archive: falk@cs.fau.de--2006-systemoc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon Oct 16 15:40:01 CEST 2006
+Standard-date: 2006-10-16 13:40:01 GMT
+New-files: systemoc-src-snk/.arch-ids/=id
+    systemoc-src-snk/.arch-ids/Makefile.am.id
+    systemoc-src-snk/.arch-ids/design-src-snk.cpp.id
+    systemoc-src-snk/Makefile.am
+    systemoc-src-snk/design-src-snk.cpp
+New-directories: systemoc-src-snk
+    systemoc-src-snk/.arch-ids
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2006-systemoc-stuff/SystemC-Examples--mainline--0.5--patch-3
+Summary: 
+ * Added SysteMoC src-snk example
+Keywords: 
+
+
+

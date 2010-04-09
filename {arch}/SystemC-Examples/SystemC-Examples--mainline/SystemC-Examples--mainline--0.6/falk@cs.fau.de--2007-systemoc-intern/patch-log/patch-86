@@ -1,0 +1,19 @@
+Revision: SystemC-Examples--mainline--0.6--patch-86
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Tue Mar 13 17:49:21 CET 2007
+Standard-date: 2007-03-13 16:49:21 GMT
+Modified-files: systemoc-jpeg-decoder/FrameBufferWriter.hpp
+    systemoc-jpeg-decoder/HuffmanTestbench.cpp
+    systemoc-jpeg-decoder/IDCTFrameBufferWriterTestbench.cpp
+    systemoc-jpeg-decoder/Parser.hpp
+    systemoc-jpeg-decoder/ParserTestbench.cpp
+    systemoc-jpeg-decoder/channels.hpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-86
+Summary: 
+ * Discarded ImageParam structure instead use additional
+   CTRLCMD_NEWFRAME for JpegChannel_t
+Keywords: 
+
+
+

@@ -1,0 +1,35 @@
+Revision: SystemC-Examples--mainline--0.3--patch-107
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Fri May 12 17:11:16 CEST 2006
+Standard-date: 2006-05-12 15:11:16 GMT
+Modified-files: crypto-example/.arch-ids/cryptoVPCConfig.cmx.id
+    crypto-example/.arch-ids/exectimelogger.cpp.id
+    crypto-example/.arch-ids/exectimelogger.hpp.id
+    crypto-example/cryptoVPCConfig.cmx
+    crypto-example/exectimelogger.cpp
+    crypto-example/exectimelogger.hpp
+    systemoc-mpeg4/parser.hpp
+    systemoc-par/.arch-ids/par.conf.id
+    systemoc-par/par.conf
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-100
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-101
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-102
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-103
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-104
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-105
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-98
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.3/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-99
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-23
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-24
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-25
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-26
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-27
+    {arch}/SystemC-Examples/SystemC-Examples--mainline/SystemC-Examples--mainline--0.4/joachim.falk@gmx.de--2005-systemc-stuff/patch-log/patch-28
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-107
+Summary:
+ - Added comments for parser.hpp
+Keywords: 
+
+
+

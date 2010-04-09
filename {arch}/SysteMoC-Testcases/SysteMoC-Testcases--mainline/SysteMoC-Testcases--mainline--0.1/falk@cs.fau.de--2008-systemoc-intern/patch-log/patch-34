@@ -1,0 +1,17 @@
+Revision: SysteMoC-Testcases--mainline--0.1--patch-34
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Wed Jun 11 17:50:30 CEST 2008
+Standard-date: 2008-06-11 15:50:30 GMT
+Modified-files: systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fast.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila-fifo.cpp
+    systemoc-wsdf-recons-dila/design-wsdf-recons-dila.cpp
+    systemoc-wsdf/wsdf_edge_test.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.1--patch-34
+Summary: 
+ - Use Byte instead of unsigned char for proper dumping
+ - Add example for storage of WSDF parameters into stream.
+Keywords: 
+
+
+

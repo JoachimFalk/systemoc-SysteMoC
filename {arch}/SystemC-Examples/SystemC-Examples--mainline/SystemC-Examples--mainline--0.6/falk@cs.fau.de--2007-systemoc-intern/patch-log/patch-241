@@ -1,0 +1,16 @@
+Revision: SystemC-Examples--mainline--0.6--patch-241
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Jun  1 16:22:22 CEST 2007
+Standard-date: 2007-06-01 14:22:22 GMT
+New-files: systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/scd-logo-32.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/.arch-ids/scd-logo-64.jpg.id
+    systemoc-jpeg-decoder/test_data/jpeg-demo/scd-logo-32.jpg
+    systemoc-jpeg-decoder/test_data/jpeg-demo/scd-logo-64.jpg
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-241
+Summary: 
+ - added two new jpeg-decoder test pictures: scd-logo-32.jpg scd-logo-64.jpg
+Keywords: 
+
+
+

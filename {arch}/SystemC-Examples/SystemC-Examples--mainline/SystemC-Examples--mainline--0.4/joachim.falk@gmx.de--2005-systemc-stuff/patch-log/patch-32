@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.4--patch-32
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Mon May 15 13:18:44 CEST 2006
+Standard-date: 2006-05-15 11:18:44 GMT
+Modified-files: systemoc-mpeg4/IDCT2d.hpp
+    systemoc-mpeg4/Upsample.hpp
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.4--patch-32
+Summary: 
+ * Hardcode upsample factor in mpeg4 IDCT to 8
+Keywords: 
+
+
+

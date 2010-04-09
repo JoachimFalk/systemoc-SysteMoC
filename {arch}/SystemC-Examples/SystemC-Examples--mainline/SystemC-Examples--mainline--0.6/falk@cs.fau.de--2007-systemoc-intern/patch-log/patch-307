@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-307
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Sun Sep  9 21:58:44 CEST 2007
+Standard-date: 2007-09-09 19:58:44 GMT
+Modified-files: systemoc-wsdf/addr_analysis.cpp
+    systemoc-wsdf/fifo-sim.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-307
+Summary: WSDF address analysis: modify example
+Keywords: 
+
+
+

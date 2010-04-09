@@ -1,0 +1,12 @@
+Revision: SystemC-Examples--mainline--0.6--patch-308
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Joachim Keinert <keinert@codesign.informatik.uni-erlangen.de>
+Date: Sun Sep  9 22:21:21 CEST 2007
+Standard-date: 2007-09-09 20:21:21 GMT
+Modified-files: systemoc-wsdf/snk2addr_table.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-308
+Summary: WSDF address analysis: disable debug output.
+Keywords: 
+
+
+

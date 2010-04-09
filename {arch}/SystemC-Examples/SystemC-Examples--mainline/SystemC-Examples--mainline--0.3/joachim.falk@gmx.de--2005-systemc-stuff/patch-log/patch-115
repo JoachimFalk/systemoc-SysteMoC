@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.3--patch-115
+Archive: joachim.falk@gmx.de--2005-systemc-stuff
+Creator: Carsten Riedel <carsten.riedel@gmx.net>
+Date: Sat Jul 22 17:22:54 CEST 2006
+Standard-date: 2006-07-22 15:22:54 GMT
+Modified-files: crypto-example/start-crypto-simulation.sh.in
+New-patches: joachim.falk@gmx.de--2005-systemc-stuff/SystemC-Examples--mainline--0.3--patch-115
+Summary:
+  * corrected start script 
+Keywords: 
+
+
+

@@ -1,0 +1,14 @@
+Revision: SystemC-Examples--mainline--0.6--patch-11
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu Feb  8 09:48:33 CET 2007
+Standard-date: 2007-02-08 08:48:33 GMT
+Modified-files: crypto-example/exectimelogger.hpp
+    crypto-example/md5.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-11
+Summary: 
+ - fixed warning in crypto-example
+Keywords: 
+
+
+

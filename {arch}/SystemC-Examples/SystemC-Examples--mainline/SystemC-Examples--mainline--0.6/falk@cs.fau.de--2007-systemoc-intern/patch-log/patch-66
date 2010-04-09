@@ -1,0 +1,13 @@
+Revision: SystemC-Examples--mainline--0.6--patch-66
+Archive: falk@cs.fau.de--2007-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Mar 13 10:26:07 CET 2007
+Standard-date: 2007-03-13 09:26:07 GMT
+Modified-files: systemoc-jpeg-decoder/Jpeg.cpp
+New-patches: falk@cs.fau.de--2007-systemoc-intern/SystemC-Examples--mainline--0.6--patch-66
+Summary: 
+ -added source (FileWriterBuffer) to top level design
+Keywords: 
+
+
+
