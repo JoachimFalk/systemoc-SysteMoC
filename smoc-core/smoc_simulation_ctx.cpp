@@ -35,6 +35,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <stdlib.h>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
@@ -228,7 +229,13 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
                i->string_key == "vpc-config") {
       assert(!i->value.empty());
 #ifdef SYSTEMOC_ENABLE_VPC
+# ifdef _MSC_VER
+      std::string env="VPCCONFIGURATION";
+      env += i->value.front().c_str();
+      putenv(env.c_str());
+# else
       setenv("VPCCONFIGURATION", i->value.front().c_str(), 1);
+# endif // _MSC_VER
 #else  // !SYSTEMOC_ENABLE_VPC
       std::ostringstream str;
       str << "SysteMoC configured without vpc support --" << i->string_key << " option not provided!";
