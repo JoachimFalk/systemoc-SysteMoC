@@ -49,7 +49,7 @@ AM_LDFLAGS=				\
 	$(COSUPPORT_LDFLAGS)		\
 	$(LIBWSDF_LDFLAGS)		\
 	$(LIBSGX_LDFLAGS)		\
-	$(SYSTEMC_VPC_INCLUDE)		\
+	$(SYSTEMC_VPC_LDFLAGS)		\
 	$(BOOST_LDFLAGS)
 
 pkgconfigdir = $(libdir)/pkgconfig
