@@ -172,7 +172,7 @@ struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
                  "::apply(" << e.a.p.name() << ", ... )" << std::endl << INFO;
 # endif
     size_t req = Value<E>::apply(e.b);
-# ifdef SYSTEMOC_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     e.a.getCI().traceCommSetup(req);
     //TraceLog.traceCommSetup(dynamic_cast<smoc_root_chan *>(e.a.getCI()), req);
 # endif
@@ -446,9 +446,9 @@ protected:
   /// @brief Reset
   virtual void reset() {}
 
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   virtual void traceCommSetup(size_t req) {};
-#endif // SYSTEMOC_TRACE
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 public:
   virtual size_t      inTokenId() const = 0;
@@ -555,9 +555,9 @@ protected:
   /// @brief Reset
   virtual void reset() {}
 
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   virtual void traceCommSetup(size_t req) {};
-#endif // SYSTEMOC_TRACE
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 public:
   virtual size_t      outTokenId() const = 0;

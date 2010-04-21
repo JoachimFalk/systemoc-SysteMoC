@@ -47,7 +47,7 @@
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 using std::string;
 

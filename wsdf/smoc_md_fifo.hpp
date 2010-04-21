@@ -1076,7 +1076,7 @@ public:
 
     //Currently, we only support the consumption zero or one window.
     assert(consume <= 1);
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     TraceLog.traceCommExecIn(this, consume);
 #endif
     if (consume >= 1)
@@ -1108,7 +1108,7 @@ public:
     //Currently, we only support the consumption of zero or one
     //effective token
     assert(produce <= 1);
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     TraceLog.traceCommExecOut(this, produce);
 #endif
     if (produce >= 1){

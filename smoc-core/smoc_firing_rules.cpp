@@ -246,12 +246,12 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
          << "\">" << std::endl << Indent::Up;
 #endif
   
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)
     TraceLog.traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
 #endif
   
-#if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_TRACE)
+#if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
   Expr::evalTo<Expr::CommSetup>(getExpr());
 #endif
   
@@ -302,10 +302,10 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   Expr::evalTo<Expr::CommReset>(getExpr());
 #endif
   
-#ifdef SYSTEMOC_ENABLE_TRACE
+#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   if (execMode == MODE_DIISTART && getSimCTX()->isTraceDumpingEnabled())
     getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
-#endif // SYSTEMOC_ENABLE_TRACE
+#endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
   
 #ifdef SYSTEMOC_ENABLE_VPC
   if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
@@ -331,7 +331,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
         smoc_root_node   *actor;
         
         void signaled(smoc_event_waiter *_e) {
-# ifdef SYSTEMOC_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   //      const char *name = actor->name();
           
           TraceLog.traceStartActor(actor, "l");
@@ -342,7 +342,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
           assert(_e == &*latEvent);
           assert(*_e);
           //latEvent = NULL;
-# ifdef SYSTEMOC_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
           TraceLog.traceEndActor(actor);
 # endif
           return;
@@ -362,7 +362,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
       events.latency->addListener(new _(events.latency, actor));
     }
     else {
-# ifdef SYSTEMOC_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
       TraceLog.traceStartActor(actor, "l");
       TraceLog.traceEndActor(actor);
 # endif
@@ -375,7 +375,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   Expr::evalTo<Expr::CommExec>(getExpr());
 #endif // SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)
     TraceLog.traceEndActor(actor);
 #endif

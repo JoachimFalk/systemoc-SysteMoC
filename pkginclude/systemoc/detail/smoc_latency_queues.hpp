@@ -50,7 +50,7 @@
 
 namespace Detail {
 
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 struct DeferedTraceLogDumper;
 #endif
 

@@ -44,14 +44,14 @@
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 # if !defined(SYSTEMOC_ENABLE_DEBUG)
-#   error "SYSTEMOC_TRACE and !SYSTEMOC_ENABLE_DEBUG are incompatible !!!"
+#   error "SYSTEMOC_ENABLE_DATAFLOW_TRACE and !SYSTEMOC_ENABLE_DEBUG are incompatible !!!"
 # endif
 
 # if !defined(SYSTEMOC_NEED_IDS)
-#   error "SYSTEMOC_TRACE and !SYSTEMOC_NEED_IDS are incompatible !!!"
+#   error "SYSTEMOC_ENABLE_DATAFLOW_TRACE and !SYSTEMOC_NEED_IDS are incompatible !!!"
 # endif
 
 //using std::string;

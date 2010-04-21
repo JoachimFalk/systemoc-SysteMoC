@@ -67,9 +67,9 @@ protected:
   std::ostream   *dumpPreSimSMXFile;
   std::ostream   *dumpPostSimSMXFile;
 #endif // SYSTEMOC_ENABLE_SGX
-#ifdef SYSTEMOC_ENABLE_TRACE
+#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   std::ostream   *dumpTraceFile;
-#endif // SYSTEMOC_ENABLE_TRACE
+#endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool  idPool;
 #endif // SYSTEMOC_NEED_IDS
@@ -98,12 +98,12 @@ public:
   Detail::IdPool &getIdPool()
     { return idPool; }
 #endif // SYSTEMOC_NEED_IDS
-#ifdef SYSTEMOC_ENABLE_TRACE
+#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   bool isTraceDumpingEnabled() const
     { return dumpTraceFile != NULL; }
   std::ostream &getTraceFile()
     { return *dumpTraceFile; }
-#endif // SYSTEMOC_ENABLE_TRACE
+#endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 
   void defCurrentCTX();
   void undefCurrentCTX();

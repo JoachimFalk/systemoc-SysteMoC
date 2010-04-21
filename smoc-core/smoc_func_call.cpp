@@ -64,9 +64,9 @@ ActionVisitor::ActionVisitor(RuntimeState* dest, int mode)
 RuntimeState* ActionVisitor::operator()(const smoc_func_call_list& f) const {
   // Function call
   for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     TraceLog.traceStartFunction(i->getFuncName());
-#endif // SYSTEMOC_TRACE
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 #ifdef SYSTEMOC_DEBUG
     outDbg << "<action type=\"smoc_func_call\" func=\""
            << i->getFuncName() << "\">" << std::endl;
@@ -77,9 +77,9 @@ RuntimeState* ActionVisitor::operator()(const smoc_func_call_list& f) const {
 #ifdef SYSTEMOC_DEBUG
     outDbg << "</action>" << std::endl;
 #endif // SYSTEMOC_DEBUG
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     TraceLog.traceEndFunction(i->getFuncName());
-#endif // SYSTEMOC_TRACE
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
   }
   return dest;
 }
@@ -101,7 +101,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_func_diverge& f) const {
 
 RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
   // SR GO & TICK calls
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   TraceLog.traceStartFunction(f.go.getFuncName());
 #endif
   if(mode & RuntimeTransition::GO) {
@@ -124,7 +124,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
     outDbg << "</action>" << std::endl;
 #endif
   }
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   TraceLog.traceEndFunction(f.go.getFuncName());
 #endif
   return dest;

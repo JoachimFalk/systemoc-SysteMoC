@@ -173,7 +173,7 @@ protected:
   void commitRead(size_t consume)
 #endif
   {
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     TraceLog.traceCommExecIn(&chan, consume);
 #endif
     chan.rpp(consume);
@@ -203,11 +203,11 @@ protected:
     { return chan.getReadPortAccess(); }
 
 private:
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   virtual void traceCommSetup(size_t req){
     TraceLog.traceCommSetup(&chan, req);
   }
-#endif // SYSTEMOC_TRACE
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
   /// @brief The channel implementation
   smoc_fifo_chan<T>& chan;
@@ -238,7 +238,7 @@ protected:
   void commitWrite(size_t produce)
 #endif
   {
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     TraceLog.traceCommExecOut(&chan, produce);
 #endif
     chan.tokenId += produce;
@@ -268,11 +268,11 @@ protected:
   access_type* getWritePortAccess()
     { return chan.getWritePortAccess(); }
 
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   virtual void traceCommSetup(size_t req){
     TraceLog.traceCommSetup(&chan, req);
   }
-#endif // SYSTEMOC_TRACE
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 private:
   /// @brief The channel implementation

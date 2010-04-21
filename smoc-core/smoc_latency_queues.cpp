@@ -43,7 +43,7 @@
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace Detail {
 
-# ifdef SYSTEMOC_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   struct DeferedTraceLogDumper
   : public smoc_event_listener {
     smoc_ref_event_p  event;
@@ -77,13 +77,13 @@ namespace Detail {
     virtual ~DeferedTraceLogDumper() {}
   };
 
-# endif // SYSTEMOC_TRACE
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
   void LatencyQueue::actorTokenLatencyExpired(TokenInfo ti) {
 
     // TODO (ms): "unroll n"
     for(size_t n = ti.count; n > 0; --n) {
-# ifdef SYSTEMOC_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
       TraceLog.traceStartActor(chan, "s");
 //    TraceLog.traceStartFunction("transmit");
 //    TraceLog.traceEndFunction("transmit");
@@ -98,7 +98,7 @@ namespace Detail {
     //chan->vpcLink->compute(p);
       SystemC_VPC::EventPair events = ti.vpcIf.startWrite(1);
 
-# ifdef SYSTEMOC_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
       if (!*events.dii) {
         // dii event not signaled
         //TODO (ms): remove reference to events.dii
@@ -115,7 +115,7 @@ namespace Detail {
         TraceLog.traceStartActor(chan, "l");
         TraceLog.traceEndActor(chan);
       }
-# endif // SYSTEMOC_TRACE
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
       visibleQueue.addEntry(1, events.latency);
     }
   }

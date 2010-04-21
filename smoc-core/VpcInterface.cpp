@@ -63,7 +63,7 @@ VpcInterface::startWrite(size_t tokenCount) {
   assert(this->portIf!=NULL);
   smoc_ref_event_p latEvent(new smoc_ref_event());
   smoc_ref_event_p diiEvent = dummy;
-# ifdef SYSTEMOC_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   // we need to trace communication DII 
   diiEvent.reset(new smoc_ref_event());
 # endif

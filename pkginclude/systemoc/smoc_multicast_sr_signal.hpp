@@ -177,7 +177,7 @@ public:
   void commitRead(size_t consume)
 #endif
   {
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     TraceLog.traceCommExecIn(chan, consume);
 #endif
     chan->rpp(consume);
@@ -274,7 +274,7 @@ public:
   void commitWrite(size_t produce)
 #endif
   {
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     TraceLog.traceCommExecOut(chan, produce);
 #endif
     chan->wpp(produce);

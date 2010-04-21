@@ -15,8 +15,11 @@
 /* Defined if SGX support is enabled */
 #undef SYSTEMOC_ENABLE_SGX
 
-/* Defined if tracing support is enabled */
-#undef SYSTEMOC_ENABLE_TRACE
+/* Defined if transition tracing support is enabled */
+#undef SYSTEMOC_ENABLE_TRANSITON_TRACE
+
+/* Defined if systemoc tracing support is enabled */
+#undef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 /* Defined if hooking infrastructure is provided */
 #undef SYSTEMOC_ENABLE_HOOKING
@@ -27,9 +30,13 @@
 /* Define if you want WSDF Support */
 #undef SYSTEMOC_ENABLE_WSDF
 
-#if defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
+#if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE) || defined(SYSTEMOC_ENABLE_TRANSITION_TRACE) || defined(SYSTEMOC_ENABLE_SGX)
 # define SYSTEMOC_NEED_IDS
-#endif /* defined(SYSTEMOC_ENABLE_TRACE) || defined(SYSTEMOC_ENABLE_SGX) */
+#endif
+
+#if defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
+# define SYSTEMOC_ENABLE_DEBUG
+#endif
 
 #if defined(SYSTEMOC_ENABLE_VPC)
 # define PORT_ACCESS_COUNTER

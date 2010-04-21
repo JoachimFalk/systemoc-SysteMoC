@@ -55,7 +55,7 @@ void smoc_reset_chan::produce(smoc_port_out_base_if *who, const smoc_ref_event_p
 void smoc_reset_chan::produce(smoc_port_out_base_if *who)
 #endif
 {
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   TraceLog.traceCommExecOut(this, 1);
 #endif
   tokenId++;

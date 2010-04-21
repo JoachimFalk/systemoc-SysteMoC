@@ -64,7 +64,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
   outDbg << "<smoc_multireader_fifo_chan_base::consume this=\"" << this << "\">"
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   TraceLog.traceCommExecIn(this, n);
 #endif
 #ifdef SYSTEMOC_DEBUG
@@ -99,7 +99,7 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
   outDbg << "<smoc_multireader_fifo_chan_base::produce this=\"" << this << "\">"
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   TraceLog.traceCommExecOut(this, n);
 #endif
 #ifdef SYSTEMOC_DEBUG
