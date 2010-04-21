@@ -203,6 +203,12 @@ protected:
     { return chan.getReadPortAccess(); }
 
 private:
+#ifdef SYSTEMOC_TRACE
+  virtual void traceCommSetup(size_t req){
+    TraceLog.traceCommSetup(&chan, req);
+  }
+#endif // SYSTEMOC_TRACE
+
   /// @brief The channel implementation
   smoc_fifo_chan<T>& chan;
 };
@@ -261,6 +267,12 @@ protected:
   /// @brief See smoc_port_out_if
   access_type* getWritePortAccess()
     { return chan.getWritePortAccess(); }
+
+#ifdef SYSTEMOC_TRACE
+  virtual void traceCommSetup(size_t req){
+    TraceLog.traceCommSetup(&chan, req);
+  }
+#endif // SYSTEMOC_TRACE
 
 private:
   /// @brief The channel implementation

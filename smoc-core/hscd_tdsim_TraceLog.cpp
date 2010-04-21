@@ -43,14 +43,13 @@
 #include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 
 #include <systemoc/detail/smoc_root_node.hpp>
+#include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_TRACE
 
 using std::string;
-
-using namespace smoc_modes;
 
 // class for generating caption indices for fifos
 class Sequence
@@ -142,7 +141,7 @@ TraceLogStream::TraceLogStream(const char *filename)
 
 void TraceLogStream::traceStartActor(const smoc_root_node *actor, const char *mode) {
   lastactor=actor->name();
-  size_t id = namePool.registerId(lastactor, PGWriter::getId(actor));
+  size_t id = namePool.registerId(lastactor, actor->getId());
   stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
          << std::endl;
   actors.insert(lastactor);
@@ -154,7 +153,7 @@ void TraceLogStream::traceEndActor(const smoc_root_node *actor){
 
 void TraceLogStream::traceStartActor(const smoc_root_chan *chan, const char *mode) {
   lastactor=chan->name();
-  size_t id = namePool.registerId(lastactor, PGWriter::getId(chan));
+  size_t id = namePool.registerId(lastactor, chan->getId());
   stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
          << std::endl;
   actors.insert(lastactor);
@@ -165,8 +164,8 @@ void TraceLogStream::traceEndActor(const smoc_root_chan *chan){
 }
 
 void TraceLogStream::traceStartFunction(const char * func){
-  size_t id = namePool.registerId(func, PGWriter::getId(func));
-  stream << "<f n=\""<< id << "\" t=\"" << sc_time_stamp() << "\">"
+  //size_t id = namePool.registerId(func, func->getId());
+  stream << "<f n=\""<< func << "\" t=\"" << sc_time_stamp() << "\">"
          << std::endl;
   function_call_count[string(lastactor)+" -> "+string(func)]++;
   functions[lastactor].insert(func);
@@ -179,7 +178,7 @@ void TraceLogStream::traceEndFunction(const char * func){
 void TraceLogStream::traceCommExecIn(const smoc_root_chan *chan, size_t size) {
   const char *actor = chan->name();
   
-  size_t id = namePool.registerId(actor, PGWriter::getId(chan));
+  size_t id = namePool.registerId(actor, chan->getId());
   
   stream << "<i s=\"" << size << "\" c=\"" << id
          << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
@@ -192,7 +191,7 @@ void TraceLogStream::traceCommExecIn(const smoc_root_chan *chan, size_t size) {
 void TraceLogStream::traceCommExecOut(const smoc_root_chan *chan, size_t size) {
   const char *actor = chan->name();
   
-  size_t id = namePool.registerId(actor, PGWriter::getId(chan));
+  size_t id = namePool.registerId(actor, chan->getId());
   stream << "<o s=\"" << size << "\" c=\"" << id
          << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
   fifo_info[actor].size += size;
@@ -204,8 +203,8 @@ void TraceLogStream::traceCommExecOut(const smoc_root_chan *chan, size_t size) {
 void TraceLogStream::traceCommSetup(const smoc_root_chan *chan, size_t req) {
   const char *fifo = chan->name();
   
-  size_t id = namePool.registerId(fifo, PGWriter::getId(fifo));
-  stream << "<r c=\"" << id << "\" s=\"" << req << "\"/>" << std::endl;
+  //size_t id = namePool.registerId(fifo, fifo->getId());
+  stream << "<r c=\"" << fifo << "\" s=\"" << req << "\"/>" << std::endl;
 }
 
 void  TraceLogStream::traceBlockingWaitStart(){

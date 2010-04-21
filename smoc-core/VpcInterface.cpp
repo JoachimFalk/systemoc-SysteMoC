@@ -65,7 +65,7 @@ VpcInterface::startWrite(size_t tokenCount) {
   smoc_ref_event_p diiEvent = dummy;
 # ifdef SYSTEMOC_TRACE
   // we need to trace communication DII 
-  smoc_ref_event_p diiEvent.reset(new smoc_ref_event());
+  diiEvent.reset(new smoc_ref_event());
 # endif
   SystemC_VPC::EventPair ep(diiEvent, latEvent);
   this->portIf->vpcCommTask->write(tokenCount, ep);

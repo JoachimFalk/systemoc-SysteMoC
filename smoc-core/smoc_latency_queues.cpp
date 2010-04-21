@@ -47,7 +47,7 @@ namespace Detail {
   struct DeferedTraceLogDumper
   : public smoc_event_listener {
     smoc_ref_event_p  event;
-    smoc_fifo_kind   *fifo;
+    smoc_root_chan   *fifo;
     const char       *mode;
 
     void signaled(smoc_event_waiter *_e) {
@@ -71,7 +71,7 @@ namespace Detail {
     }
 
     DeferedTraceLogDumper
-      (const smoc_ref_event_p &event, smoc_fifo_kind *fifo, const char *mode)
+      (const smoc_ref_event_p &event, smoc_root_chan *fifo, const char *mode)
       : event(event), fifo(fifo), mode(mode) {};
  
     virtual ~DeferedTraceLogDumper() {}

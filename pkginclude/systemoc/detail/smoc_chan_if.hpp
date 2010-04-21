@@ -54,6 +54,8 @@
 #include "smoc_debug_stream.hpp"
 #include "smoc/detail/IOPattern.hpp"
 
+#include "hscd_tdsim_TraceLog.hpp"
+
 #ifdef SYSTEMOC_ENABLE_VPC
 #include "smoc/detail/VpcInterface.hpp"
 
@@ -171,8 +173,8 @@ struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
 # endif
     size_t req = Value<E>::apply(e.b);
 # ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommSetup
-      (dynamic_cast<smoc_root_chan *>(e.a.p.operator ->()), req);
+    e.a.getCI().traceCommSetup(req);
+    //TraceLog.traceCommSetup(dynamic_cast<smoc_root_chan *>(e.a.getCI()), req);
 # endif
     return e.a.p.portAccess->setLimit(req);
   }
@@ -444,6 +446,10 @@ protected:
   /// @brief Reset
   virtual void reset() {}
 
+#ifdef SYSTEMOC_TRACE
+  virtual void traceCommSetup(size_t req) {};
+#endif // SYSTEMOC_TRACE
+
 public:
   virtual size_t      inTokenId() const = 0;
 
@@ -548,6 +554,10 @@ protected:
   virtual void lessSpace(size_t n) {}
   /// @brief Reset
   virtual void reset() {}
+
+#ifdef SYSTEMOC_TRACE
+  virtual void traceCommSetup(size_t req) {};
+#endif // SYSTEMOC_TRACE
 
 public:
   virtual size_t      outTokenId() const = 0;

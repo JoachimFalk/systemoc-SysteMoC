@@ -363,8 +363,8 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     }
     else {
 # ifdef SYSTEMOC_TRACE
-      TraceLog.traceStartActor(this, "l");
-      TaceLog.traceEndActor(this);
+      TraceLog.traceStartActor(actor, "l");
+      TraceLog.traceEndActor(actor);
 # endif
     }
   }

@@ -50,6 +50,10 @@
 #   error "SYSTEMOC_TRACE and !SYSTEMOC_ENABLE_DEBUG are incompatible !!!"
 # endif
 
+# if !defined(SYSTEMOC_NEED_IDS)
+#   error "SYSTEMOC_TRACE and !SYSTEMOC_NEED_IDS are incompatible !!!"
+# endif
+
 //using std::string;
 
 class smoc_root_node;
