@@ -40,6 +40,7 @@
 
 #ifdef SYSTEMOC_NEED_IDS
 
+#include <stdint.h> // For uint32_t
 #include <limits>
 
 namespace SysteMoC { namespace Detail {
