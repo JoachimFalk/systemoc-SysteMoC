@@ -16,7 +16,7 @@
 #undef SYSTEMOC_ENABLE_SGX
 
 /* Defined if transition tracing support is enabled */
-#undef SYSTEMOC_ENABLE_TRANSITON_TRACE
+#undef SYSTEMOC_ENABLE_TRANSITION_TRACE
 
 /* Defined if systemoc tracing support is enabled */
 #undef SYSTEMOC_ENABLE_DATAFLOW_TRACE
