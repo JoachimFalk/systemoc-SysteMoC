@@ -66,7 +66,6 @@
 #else
 # include "detail/QueueRWPtr.hpp"
 #endif
-#include "detail/hscd_tdsim_TraceLog.hpp"
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 

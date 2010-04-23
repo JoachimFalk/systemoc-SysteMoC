@@ -38,7 +38,6 @@
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_root_node.hpp>
-#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 #include <systemoc/smoc_graph_type.hpp>

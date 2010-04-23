@@ -45,6 +45,8 @@
 #include "smoc_event_decls.hpp"
 #include "smoc_root_chan.hpp"
 
+#include <smoc/smoc_simulation_ctx.hpp>
+
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 
@@ -134,7 +136,7 @@ public:
 };
 
 
-class LatencyQueue {
+class LatencyQueue : public SysteMoC::Detail::SimCTXBase {
 private:
   typedef LatencyQueue this_type;
 protected:

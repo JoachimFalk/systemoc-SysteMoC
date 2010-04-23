@@ -43,6 +43,7 @@
 #include <set>
 
 #include <systemoc/smoc_config.h>
+#include "../../smoc/smoc_simulation_ctx.hpp"
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
@@ -107,7 +108,7 @@ struct s_fifo_info {
   {}
 };
 
-class TraceLogStream {
+class TraceLogStream : public SysteMoC::Detail::SimCTXBase {
 private:
   std::ostream &stream;
   std::ofstream file;
@@ -124,6 +125,10 @@ public:
   template <typename T>
   inline
   const TraceLogStream &operator << (const T &t) const {
+
+    if( !getSimCTX()->isDataflowTracingEnabled() )
+      return;
+
     //stream << "TraceLog: " << t << std::flush;
     stream << t << std::flush;
     return *this;
@@ -131,18 +136,27 @@ public:
 
   inline
   const TraceLogStream &operator << (std::ostream& (*manip)(std::ostream&)) const {
+
+    if( !getSimCTX()->isDataflowTracingEnabled() )
+      return *this;
+
     stream << manip;
     return *this;
   }
 
   inline
   const TraceLogStream &operator << (std::ios_base& (*manip)(std::ios_base&)) const {
+
+    if( !getSimCTX()->isDataflowTracingEnabled() )
+      return *this;
+
     stream  << manip;
     return *this;
   }
 
-  TraceLogStream();
-  TraceLogStream(const char * filename);
+  TraceLogStream(std::ostream *stream);
+
+  void init();
 
   void traceStartActor(const smoc_root_node *actor, const char *mode = "???");
   void traceEndActor(const smoc_root_node *actor);
@@ -150,26 +164,16 @@ public:
   void traceEndActor(const smoc_root_chan *chan);
   void traceStartFunction(const char *func);
   void traceEndFunction(const char *func);
-//void traceStartTryExecute(const smoc_root_node *actor);
-//void traceEndTryExecute(const smoc_root_node *actor);
   void traceCommExecIn(const smoc_root_chan *chan, size_t size);
   void traceCommExecOut(const smoc_root_chan *chan, size_t size);
   void traceCommSetup(const smoc_root_chan *chan, size_t req);
-//void traceStartDeferredCommunication(const char * actor);
-//void traceEndDeferredCommunication(const char * actor);
-  void traceBlockingWaitStart();
-  void traceBlockingWaitEnd();
-  void traceStartChoice(const smoc_root_node *actor);
-  void traceEndChoice(const smoc_root_node *actor);
-  void traceStartTransact(const smoc_root_node *actor);
-  void traceEndTransact(const smoc_root_node *actor);
 
   void createFifoGraph();
 
   ~TraceLogStream();
+private:
+  TraceLogStream(const TraceLogStream & toCopy) :stream(std::cerr) {};
 };
-
-extern TraceLogStream TraceLog; 
 
 #endif
 

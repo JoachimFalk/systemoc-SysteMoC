@@ -66,7 +66,6 @@
 #include "detail/EventMapManager.hpp"
 #include "detail/QueueRVWPtr.hpp"
 #include "detail/QueueFRVWPtr.hpp"
-#include "detail/hscd_tdsim_TraceLog.hpp"
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 

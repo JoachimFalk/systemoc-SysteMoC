@@ -52,7 +52,6 @@
 #include "detail/ConnectProvider.hpp"
 #include "detail/EventMapManager.hpp"
 #include "smoc_chan_adapter.hpp"
-#include "detail/hscd_tdsim_TraceLog.hpp"
 
 enum SignalState {undefined, defined, absent};
 
@@ -178,7 +177,7 @@ public:
 #endif
   {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    TraceLog.traceCommExecIn(chan, consume);
+    this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(chan, consume);
 #endif
     chan->rpp(consume);
   }
@@ -275,7 +274,7 @@ public:
 #endif
   {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    TraceLog.traceCommExecOut(chan, produce);
+    this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(chan, produce);
 #endif
     chan->wpp(produce);
   }

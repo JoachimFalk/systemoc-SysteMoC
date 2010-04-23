@@ -36,6 +36,8 @@
 
 #include <systemoc/detail/smoc_latency_queues.hpp>
 
+#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
+
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
@@ -45,7 +47,8 @@ namespace Detail {
 
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   struct DeferedTraceLogDumper
-  : public smoc_event_listener {
+  : public smoc_event_listener,
+    public SysteMoC::Detail::SimCTXBase {
     smoc_ref_event_p  event;
     smoc_root_chan   *fifo;
     const char       *mode;
@@ -53,14 +56,14 @@ namespace Detail {
     void signaled(smoc_event_waiter *_e) {
 //    const char *name = fifo->name();
       
-      TraceLog.traceStartActor(fifo, mode);
+      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(fifo, mode);
 #   ifdef SYSTEMOC_DEBUG
       std::cerr << "smoc_detail::DeferedTraceLogDumper::signaled(...)" << std::endl;
 #   endif // SYSTEMOC_DEBUG
       assert(_e == event.get());
       assert(*_e);
       //event = NULL;
-      TraceLog.traceEndActor(fifo);
+      this->getSimCTX()->getDataflowTraceLog()->traceEndActor(fifo);
       return;
     }
     void eventDestroyed(smoc_event_waiter *_e) {
@@ -84,10 +87,10 @@ namespace Detail {
     // TODO (ms): "unroll n"
     for(size_t n = ti.count; n > 0; --n) {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-      TraceLog.traceStartActor(chan, "s");
-//    TraceLog.traceStartFunction("transmit");
-//    TraceLog.traceEndFunction("transmit");
-      TraceLog.traceEndActor(chan);
+      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "s");
+//    this->getSimCTX()->getDataflowTraceLog()->traceStartFunction("transmit");
+//    this->getSimCTX()->getDataflowTraceLog()->traceEndFunction("transmit");
+      this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
 # endif
 
 #ifdef SYSTEMOC_DEBUG
@@ -105,15 +108,15 @@ namespace Detail {
         //           ref'counted events are support in VPC
         events.dii->addListener(new DeferedTraceLogDumper(events.dii, chan, "e"));
       } else {
-        TraceLog.traceStartActor(chan, "e");
-        TraceLog.traceEndActor(chan);
+        this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "e");
+        this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
       }
       if (!*events.latency) {
         // latency event not signaled
         events.latency->addListener(new DeferedTraceLogDumper(events.latency, chan, "l"));
       } else {
-        TraceLog.traceStartActor(chan, "l");
-        TraceLog.traceEndActor(chan);
+        this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "l");
+        this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
       }
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
       visibleQueue.addEntry(1, events.latency);

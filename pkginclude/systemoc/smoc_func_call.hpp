@@ -251,7 +251,7 @@ smoc_action merge(const smoc_action& a, const smoc_action& b);
  * ActionVisitor
  */
 
-class ActionVisitor {
+class ActionVisitor : public SysteMoC::Detail::SimCTXBase {
 public:
   typedef RuntimeState* result_type;
 

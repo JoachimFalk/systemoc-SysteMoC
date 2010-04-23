@@ -54,7 +54,7 @@
 #include "smoc_debug_stream.hpp"
 #include "smoc/detail/IOPattern.hpp"
 
-#include "hscd_tdsim_TraceLog.hpp"
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 #include "smoc/detail/VpcInterface.hpp"
@@ -343,7 +343,8 @@ private:
 };
 
 class smoc_port_in_base_if
-: public smoc_port_base_if
+: public smoc_port_base_if,
+  public SysteMoC::Detail::SimCTXBase
 #ifdef PORT_ACCESS_COUNTER
   , public AccessCounter
 #endif // PORT_ACCESS_COUNTER
@@ -457,7 +458,8 @@ public:
 };
 
 class smoc_port_out_base_if
-: public smoc_port_base_if
+: public smoc_port_base_if,
+  public SysteMoC::Detail::SimCTXBase
 #ifdef PORT_ACCESS_COUNTER
   , public AccessCounter
 #endif // PORT_ACCESS_COUNTER

@@ -39,7 +39,6 @@
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/ConnectProvider.hpp"
 #include "detail/EventMapManager.hpp"
-#include "detail/hscd_tdsim_TraceLog.hpp"
 
 class smoc_reset_outlet;
 class smoc_reset_entry;

@@ -51,6 +51,8 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
+#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
+
 #include <smoc/smoc_simulation_ctx.hpp>
 
 namespace po = boost::program_options;
@@ -79,6 +81,9 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
     dumpTraceFile(NULL),
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    dataflowTraceLog(NULL),
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
     dummy(false)
 {
   po::options_description systemocOptions("SysteMoC options");
@@ -115,6 +120,15 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
     ("systemoc-export-trace",
      po::value<std::string>(),
      "Dump execution trace");
+
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  systemocOptions.add_options()
+#else // !SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  backwardCompatibilityCruftOptions.add_options()
+#endif // !SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    ("systemoc-export-dataflow-trace",
+     po::value<std::string>(),
+     "Dump dataflow trace");
   
 #ifdef SYSTEMOC_ENABLE_VPC
   systemocOptions.add_options()
@@ -222,6 +236,23 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
       str << "SysteMoC configured without trace support --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_TRANSITION_TRACE
+    } else if (i->string_key == "systemoc-export-dataflow-trace") {
+      assert(!i->value.empty());
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+      // delete null pointer is allowed...
+      delete dataflowTraceLog;
+      
+# ifdef SYSTEMOC_ENABLE_SGX
+      dumpPreSimSMXKeepGoing = true;
+# endif // SYSTEMOC_ENABLE_SGX
+      dataflowTraceLog = new TraceLogStream(
+        new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-"));
+      dataflowTraceLog->init();
+#else  // !SYSTEMOC_ENABLE_DATAFLOW_TRACE
+      std::ostringstream str;
+      str << "SysteMoC configured without dataflow trace support --" << i->string_key << " option not provided!";
+      throw std::runtime_error(str.str().c_str());
+#endif // !SYSTEMOC_ENABLE_DATAFLOW_TRACE
     } else if (i->string_key == "systemoc-vpc-config" ||
                i->string_key == "vpc-config") {
       assert(!i->value.empty());
@@ -284,9 +315,6 @@ smoc_simulation_ctx::~smoc_simulation_ctx() {
     if (*iter != NULL)
       free(*iter);
   
-  if (Detail::currentSimCTX == this)
-    undefCurrentCTX();
-  
   // delete null pointer is allowed...
 #ifdef SYSTEMOC_ENABLE_SGX
   delete dumpPreSimSMXFile;
@@ -295,6 +323,12 @@ smoc_simulation_ctx::~smoc_simulation_ctx() {
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   delete dumpTraceFile;
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  delete dataflowTraceLog;
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  
+  if (Detail::currentSimCTX == this)
+    undefCurrentCTX();
 }
 
 int smoc_simulation_ctx::getArgc() {

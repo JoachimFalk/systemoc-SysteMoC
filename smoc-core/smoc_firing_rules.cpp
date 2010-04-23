@@ -248,7 +248,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)
-    TraceLog.traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
+    this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
 #endif
   
 #if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
@@ -325,7 +325,8 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     // the latEvent smartptr is destroyed when this scope is left.
     if(!*events.latency) {
       // latency event not signaled
-      struct _: public smoc_event_listener {
+      struct _: public smoc_event_listener,
+                public SysteMoC::Detail::SimCTXBase {
         //TODO (ms): remove reference; ref'counted events are support in VPC
         smoc_ref_event_p  latEvent;
         smoc_root_node   *actor;
@@ -334,7 +335,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   //      const char *name = actor->name();
           
-          TraceLog.traceStartActor(actor, "l");
+          this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, "l");
 # endif
 # ifdef SYSTEMOC_DEBUG
           outDbg << "<transition::_::signaled/>" << std::endl;
@@ -343,7 +344,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
           assert(*_e);
           //latEvent = NULL;
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-          TraceLog.traceEndActor(actor);
+          this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
 # endif
           return;
         }
@@ -363,8 +364,8 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     }
     else {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-      TraceLog.traceStartActor(actor, "l");
-      TraceLog.traceEndActor(actor);
+      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, "l");
+      this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
 # endif
     }
   }
@@ -377,7 +378,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)
-    TraceLog.traceEndActor(actor);
+    this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
 #endif
 
   actor->setCurrentState(nextState);

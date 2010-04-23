@@ -36,6 +36,7 @@
 
 #include <systemoc/smoc_multireader_fifo.hpp>
 #include <systemoc/smoc_graph_type.hpp>
+#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
@@ -65,7 +66,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  TraceLog.traceCommExecIn(this, n);
+  this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(this, n);
 #endif
 #ifdef SYSTEMOC_DEBUG
   outDbg << "n: " << n << "; #avail: " << visibleCount()
@@ -100,7 +101,7 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  TraceLog.traceCommExecOut(this, n);
+  this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(this, n);
 #endif
 #ifdef SYSTEMOC_DEBUG
   outDbg << "n: " << n << "; #avail: " << visibleCount()

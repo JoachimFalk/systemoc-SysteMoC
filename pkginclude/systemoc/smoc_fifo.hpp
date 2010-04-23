@@ -49,6 +49,7 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
+#include <smoc/smoc_simulation_ctx.hpp>
 #include "detail/hscd_tdsim_TraceLog.hpp"
 
 #include "detail/smoc_chan_if.hpp"
@@ -174,7 +175,7 @@ protected:
 #endif
   {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    TraceLog.traceCommExecIn(&chan, consume);
+    this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(&chan, consume);
 #endif
     chan.rpp(consume);
     chan.emmData.decreasedCount(chan.visibleCount());
@@ -205,7 +206,7 @@ protected:
 private:
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   virtual void traceCommSetup(size_t req){
-    TraceLog.traceCommSetup(&chan, req);
+    this->getSimCTX()->getDataflowTraceLog()->traceCommSetup(&chan, req);
   }
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
@@ -239,7 +240,7 @@ protected:
 #endif
   {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    TraceLog.traceCommExecOut(&chan, produce);
+    this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(&chan, produce);
 #endif
     chan.tokenId += produce;
     chan.wpp(produce);
@@ -270,7 +271,7 @@ protected:
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   virtual void traceCommSetup(size_t req){
-    TraceLog.traceCommSetup(&chan, req);
+    this->getSimCTX()->getDataflowTraceLog()->traceCommSetup(&chan, req);
   }
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 

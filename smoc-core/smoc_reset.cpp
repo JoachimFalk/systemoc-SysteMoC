@@ -20,6 +20,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_reset.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
+#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
@@ -56,7 +57,7 @@ void smoc_reset_chan::produce(smoc_port_out_base_if *who)
 #endif
 {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  TraceLog.traceCommExecOut(this, 1);
+  this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(this, 1);
 #endif
   tokenId++;
 

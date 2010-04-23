@@ -45,7 +45,6 @@
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
-#include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
@@ -123,23 +122,19 @@ bool Sequence::next() {
   return ok;
 }
 
-TraceLogStream::TraceLogStream()
-  :stream(std::cerr){}
+TraceLogStream::TraceLogStream(std::ostream *st) : stream(*st) {}
 
-TraceLogStream::TraceLogStream(const char *filename)
-  : stream(file) {
-  string fstring = filename;
-  
-  char *prefix = getenv("VPCTRACEFILEPREFIX");
-  if (prefix != NULL)
-    fstring.insert(0, prefix);
-  file.open(fstring.c_str());
+void TraceLogStream::init(){
   stream << "<?xml version=\"1.0\"?>\n<systemoc_trace>" << std::endl;
 }
 
 
 
 void TraceLogStream::traceStartActor(const smoc_root_node *actor, const char *mode) {
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
   lastactor=actor->name();
   size_t id = namePool.registerId(lastactor, actor->getId());
   stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
@@ -148,10 +143,18 @@ void TraceLogStream::traceStartActor(const smoc_root_node *actor, const char *mo
   actor_activation_count[lastactor]++;
 }
 void TraceLogStream::traceEndActor(const smoc_root_node *actor){
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
   stream << "</a>" << std::endl;
 }
 
 void TraceLogStream::traceStartActor(const smoc_root_chan *chan, const char *mode) {
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
   lastactor=chan->name();
   size_t id = namePool.registerId(lastactor, chan->getId());
   stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
@@ -159,11 +162,19 @@ void TraceLogStream::traceStartActor(const smoc_root_chan *chan, const char *mod
   actors.insert(lastactor);
   actor_activation_count[lastactor]++;
 }
-void TraceLogStream::traceEndActor(const smoc_root_chan *chan){
+void TraceLogStream::traceEndActor(const smoc_root_chan *chan) {
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
   stream << "</a>" << std::endl;
 }
 
 void TraceLogStream::traceStartFunction(const char * func){
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
   //size_t id = namePool.registerId(func, func->getId());
   stream << "<f n=\""<< func << "\" t=\"" << sc_time_stamp() << "\">"
          << std::endl;
@@ -172,10 +183,18 @@ void TraceLogStream::traceStartFunction(const char * func){
   last_actor_function[lastactor] = func;
 }
 void TraceLogStream::traceEndFunction(const char * func){
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
   stream << "</f>" << std::endl;
 }
 
 void TraceLogStream::traceCommExecIn(const smoc_root_chan *chan, size_t size) {
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
   const char *actor = chan->name();
   
   size_t id = namePool.registerId(actor, chan->getId());
@@ -189,6 +208,10 @@ void TraceLogStream::traceCommExecIn(const smoc_root_chan *chan, size_t size) {
   }
 }
 void TraceLogStream::traceCommExecOut(const smoc_root_chan *chan, size_t size) {
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
   const char *actor = chan->name();
   
   size_t id = namePool.registerId(actor, chan->getId());
@@ -201,70 +224,21 @@ void TraceLogStream::traceCommExecOut(const smoc_root_chan *chan, size_t size) {
   }
 }
 void TraceLogStream::traceCommSetup(const smoc_root_chan *chan, size_t req) {
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
   const char *fifo = chan->name();
   
   //size_t id = namePool.registerId(fifo, fifo->getId());
   stream << "<r c=\"" << fifo << "\" s=\"" << req << "\"/>" << std::endl;
 }
 
-void  TraceLogStream::traceBlockingWaitStart(){
-  stream << "<waiting type=\"sleep\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-}
-void  TraceLogStream::traceBlockingWaitEnd(){
-  stream << "<waiting type=\"wake up\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-}
-void  TraceLogStream::traceStartChoice(const smoc_root_node *foo) {
-  const char *actor = foo->name();
-  
-  stream << "<choice type=\"begin\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-  actors.insert(actor);
-  actor_activation_count[actor]++;
-  lastactor = actor;
-  fifo_actor_last = actor;
-}
-void  TraceLogStream::traceEndChoice(const smoc_root_node *foo) {
-  const char *actor = foo->name();
-  
-  stream << "<choice type=\"end\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-  fifo_actor_last = "";
-}
-void  TraceLogStream::traceStartTransact(const smoc_root_node *foo) {
-  const char *actor = foo->name();
-  
-  stream << "<transact type=\"begin\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-  actors.insert(actor);
-  actor_activation_count[actor]++;
-  lastactor = actor;
-  fifo_actor_last = actor;
-}
-void TraceLogStream::traceEndTransact(const smoc_root_node *foo) {
-  const char *actor = foo->name();
-  
-  stream << "<transact type=\"end\" n=\""<< actor << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
-  fifo_actor_last = "";
-}
-
-/*
-void TraceLogStream::traceStartTryExecute(const char * actor){
-  stream << "<e n=\""<< namePool.getID(actor) << "\" t=\"" <<
-    sc_time_stamp() << "\">" << std::endl;
-}
-void TraceLogStream::traceEndTryExecute(const char * actor){
-  stream << "</e>" << std::endl;
-}
-
-void TraceLogStream::traceStartDeferredCommunication(const char * actor){
-  stream << "<d a=\""<< namePool.getID(actor) << "\" t=\"" << sc_time_stamp()
-         << "\">" << std::endl;
-  fifo_actor_last = actor;
-}
-void TraceLogStream::traceEndDeferredCommunication(const char * actor){
-  stream << "</d>" << std::endl;
-  fifo_actor_last = "";
-}
-*/
-
 TraceLogStream::~TraceLogStream(){
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
   const NamePool::NameMap &names = namePool.getMap();
 
   for(NamePool::NameMap::const_iterator iter = names.begin();
@@ -532,7 +506,5 @@ void TraceLogStream::createFifoGraph()
     std::cerr << "Found cycle(s) and/or unknown actors. Dumped FIFO info to " << fstring << std::endl;
   }
 }
-
-TraceLogStream TraceLog("test.trace");
 
 #endif
