@@ -48,6 +48,9 @@
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
+#define READABLE(e) do {} while(0)
+//#define READABLE(e) e
+
 using std::string;
 
 // class for generating caption indices for fifos
@@ -122,51 +125,64 @@ bool Sequence::next() {
   return ok;
 }
 
-TraceLogStream::TraceLogStream(std::ostream *st) : stream(*st) {}
+TraceLogStream::TraceLogStream(std::ostream *st) : stream(*st) {
+  stream.insert(indenter);
+}
 
 void TraceLogStream::init(){
   stream << "<?xml version=\"1.0\"?>\n<systemoc_trace>" << std::endl;
+  stream << CoSupport::Streams::Indent::Up;
 }
 
 
 
-void TraceLogStream::traceStartActor(const smoc_root_node *actor, const char *mode) {
+void TraceLogStream::traceStartActor(const smoc_root_node *actor,
+                                     const char *mode) {
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
 
   lastactor=actor->name();
   size_t id = namePool.registerId(lastactor, actor->getId());
-  stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
-         << std::endl;
+  stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\""
+         << sc_time_stamp() << "\">";
+  READABLE(stream << " <i n=\"" << lastactor << "\">");
+  stream << std::endl;
   actors.insert(lastactor);
   actor_activation_count[lastactor]++;
+  stream << CoSupport::Streams::Indent::Up;
 }
 void TraceLogStream::traceEndActor(const smoc_root_node *actor){
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
 
+  stream << CoSupport::Streams::Indent::Down;
   stream << "</a>" << std::endl;
 }
 
-void TraceLogStream::traceStartActor(const smoc_root_chan *chan, const char *mode) {
+void TraceLogStream::traceStartActor(const smoc_root_chan *chan,
+                                     const char *mode) {
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
 
   lastactor=chan->name();
   size_t id = namePool.registerId(lastactor, chan->getId());
-  stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\"" << sc_time_stamp() << "\">"
-         << std::endl;
+  stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\""
+         << sc_time_stamp() << "\">";
+  READABLE(stream << " <i n=\"" << lastactor << "\">");
+  stream << std::endl;
   actors.insert(lastactor);
   actor_activation_count[lastactor]++;
+  stream << CoSupport::Streams::Indent::Up;
 }
 void TraceLogStream::traceEndActor(const smoc_root_chan *chan) {
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
 
+  stream << CoSupport::Streams::Indent::Down;
   stream << "</a>" << std::endl;
 }
 
@@ -181,12 +197,14 @@ void TraceLogStream::traceStartFunction(const char * func){
   function_call_count[string(lastactor)+" -> "+string(func)]++;
   functions[lastactor].insert(func);
   last_actor_function[lastactor] = func;
+  stream << CoSupport::Streams::Indent::Up;
 }
 void TraceLogStream::traceEndFunction(const char * func){
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
 
+  stream << CoSupport::Streams::Indent::Down;
   stream << "</f>" << std::endl;
 }
 
@@ -200,7 +218,9 @@ void TraceLogStream::traceCommExecIn(const smoc_root_chan *chan, size_t size) {
   size_t id = namePool.registerId(actor, chan->getId());
   
   stream << "<i s=\"" << size << "\" c=\"" << id
-         << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
+         << "\" t=\"" << sc_time_stamp() << "\"/>";
+  READABLE(stream << " <i n=\"" << actor << "\">");
+  stream << std::endl;
   fifo_info[actor].size -= size;
   if(fifo_actor_last != "") {
     fifo_info[actor].to.name = fifo_actor_last;
@@ -215,8 +235,11 @@ void TraceLogStream::traceCommExecOut(const smoc_root_chan *chan, size_t size) {
   const char *actor = chan->name();
   
   size_t id = namePool.registerId(actor, chan->getId());
+
   stream << "<o s=\"" << size << "\" c=\"" << id
-         << "\" t=\"" << sc_time_stamp() << "\"/>" << std::endl;
+         << "\" t=\"" << sc_time_stamp() << "\"/>";
+  READABLE(stream << " <i n=\"" << actor << "\">");
+  stream << std::endl;
   fifo_info[actor].size += size;
   if(fifo_actor_last != "") {
     fifo_info[actor].from.name = fifo_actor_last;
@@ -230,14 +253,26 @@ void TraceLogStream::traceCommSetup(const smoc_root_chan *chan, size_t req) {
 
   const char *fifo = chan->name();
   
-  //size_t id = namePool.registerId(fifo, fifo->getId());
-  stream << "<r c=\"" << fifo << "\" s=\"" << req << "\"/>" << std::endl;
+  size_t id = namePool.registerId(fifo, chan->getId());
+  stream << "<r c=\"" << id << "\" s=\"" << req << "\"/>";
+  READABLE(stream << " <i n=\"" << fifo << "\">");
+  stream << std::endl;
+}
+
+void TraceLogStream::traceTransition(size_t id) {
+
+  if( !getSimCTX()->isDataflowTracingEnabled() )
+    return;
+
+  stream << "<t id=\"" << id << "\"/>" << std::endl;
 }
 
 TraceLogStream::~TraceLogStream(){
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
+
+  stream << CoSupport::Streams::Indent::Down;
 
   const NamePool::NameMap &names = namePool.getMap();
 

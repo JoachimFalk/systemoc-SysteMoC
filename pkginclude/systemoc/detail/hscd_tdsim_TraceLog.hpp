@@ -45,6 +45,9 @@
 #include <systemoc/smoc_config.h>
 #include "../../smoc/smoc_simulation_ctx.hpp"
 
+#include <CoSupport/Streams/FilterOStream.hpp>
+#include <CoSupport/Streams/IndentStreambuf.hpp>
+
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 # if !defined(SYSTEMOC_ENABLE_DEBUG)
@@ -110,7 +113,8 @@ struct s_fifo_info {
 
 class TraceLogStream : public SysteMoC::Detail::SimCTXBase {
 private:
-  std::ostream &stream;
+  CoSupport::Streams::IndentStreambuf        indenter;
+  mutable CoSupport::Streams::FilterOStream stream;
   std::ofstream file;
   std::set<std::string> actors;
   std::map<std::string,std::set<std::string> > functions;
@@ -127,7 +131,7 @@ public:
   const TraceLogStream &operator << (const T &t) const {
 
     if( !getSimCTX()->isDataflowTracingEnabled() )
-      return;
+      return *this;
 
     //stream << "TraceLog: " << t << std::flush;
     stream << t << std::flush;
@@ -167,6 +171,7 @@ public:
   void traceCommExecIn(const smoc_root_chan *chan, size_t size);
   void traceCommExecOut(const smoc_root_chan *chan, size_t size);
   void traceCommSetup(const smoc_root_chan *chan, size_t req);
+  void traceTransition(size_t id);
 
   void createFifoGraph();
 

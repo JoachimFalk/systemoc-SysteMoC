@@ -249,6 +249,9 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)
     this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
+  if (execMode == MODE_DIISTART) {
+    this->getSimCTX()->getDataflowTraceLog()->traceTransition(getId());
+  }
 #endif
   
 #if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
