@@ -66,7 +66,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_func_call_list& f) const {
   // Function call
   for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(i->getFuncName());
+    this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 #ifdef SYSTEMOC_DEBUG
     outDbg << "<action type=\"smoc_func_call\" func=\""
@@ -79,7 +79,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_func_call_list& f) const {
     outDbg << "</action>" << std::endl;
 #endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    getSimCTX()->getDataflowTraceLog()->traceEndFunction(i->getFuncName());
+    getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
   }
   return dest;
@@ -103,7 +103,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_func_diverge& f) const {
 RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
   // SR GO & TICK calls
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  getSimCTX()->getDataflowTraceLog()->traceStartFunction(f.go.getFuncName());
+  getSimCTX()->getDataflowTraceLog()->traceStartFunction(&f.go);
 #endif
   if(mode & RuntimeTransition::GO) {
 #ifdef SYSTEMOC_DEBUG
@@ -126,7 +126,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
 #endif
   }
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  getSimCTX()->getDataflowTraceLog()->traceEndFunction(f.go.getFuncName());
+  getSimCTX()->getDataflowTraceLog()->traceEndFunction(&f.go);
 #endif
   return dest;
 }

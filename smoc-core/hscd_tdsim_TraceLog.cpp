@@ -45,6 +45,7 @@
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
+#include <systemoc/smoc_func_call.hpp>
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
@@ -186,20 +187,23 @@ void TraceLogStream::traceEndActor(const smoc_root_chan *chan) {
   stream << "</a>" << std::endl;
 }
 
-void TraceLogStream::traceStartFunction(const char * func){
+void TraceLogStream::traceStartFunction(const smoc_func_call *func){
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
 
-  //size_t id = namePool.registerId(func, func->getId());
-  stream << "<f n=\""<< func << "\" t=\"" << sc_time_stamp() << "\">"
-         << std::endl;
-  function_call_count[string(lastactor)+" -> "+string(func)]++;
-  functions[lastactor].insert(func);
-  last_actor_function[lastactor] = func;
+  const char * name = func->getFuncName();
+  size_t id = namePool.registerId(name, func->getId());
+
+  stream << "<f n=\""<< id << "\" t=\"" << sc_time_stamp() << "\">";
+  READABLE(stream << " <i n=\"" << name << "\">");
+  stream << std::endl;
+  function_call_count[string(lastactor)+" -> "+string(name)]++;
+  functions[lastactor].insert(name);
+  last_actor_function[lastactor] = name;
   stream << CoSupport::Streams::Indent::Up;
 }
-void TraceLogStream::traceEndFunction(const char * func){
+void TraceLogStream::traceEndFunction(const smoc_func_call *func){
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;

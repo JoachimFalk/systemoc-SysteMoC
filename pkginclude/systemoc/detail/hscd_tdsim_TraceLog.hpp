@@ -62,6 +62,7 @@
 
 class smoc_root_node;
 class smoc_root_chan;
+class smoc_func_call;
 
 class NamePool{
 public:
@@ -166,8 +167,8 @@ public:
   void traceEndActor(const smoc_root_node *actor);
   void traceStartActor(const smoc_root_chan *chan, const char *mode = "???");
   void traceEndActor(const smoc_root_chan *chan);
-  void traceStartFunction(const char *func);
-  void traceEndFunction(const char *func);
+  void traceStartFunction(const smoc_func_call *func);
+  void traceEndFunction(const smoc_func_call *func);
   void traceCommExecIn(const smoc_root_chan *chan, size_t size);
   void traceCommExecOut(const smoc_root_chan *chan, size_t size);
   void traceCommSetup(const smoc_root_chan *chan, size_t req);

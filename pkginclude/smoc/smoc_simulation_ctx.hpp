@@ -65,6 +65,10 @@ namespace Detail {
 
 class smoc_simulation_ctx {
 protected:
+#ifdef SYSTEMOC_NEED_IDS
+  typedef  std::vector<Detail::NamedIdedObj *> NamedIdedObjList;
+  NamedIdedObjList noIdGiven;
+#endif // SYSTEMOC_NEED_IDS
   std::vector<char *> argv;
 
 #ifdef SYSTEMOC_ENABLE_SGX
@@ -106,6 +110,17 @@ public:
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool &getIdPool()
     { return idPool; }
+  void createId(SysteMoC::Detail::NamedIdedObj * obj)
+  { noIdGiven.push_back(obj); }
+  void generateIdsAfterFinalise()
+  {
+    for(NamedIdedObjList::iterator iter = noIdGiven.begin();
+        iter != noIdGiven.end();
+        ++iter){
+      getIdPool().addIdedObj(*iter);
+    }
+    noIdGiven.clear();
+  }
 #endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   bool isTraceDumpingEnabled() const

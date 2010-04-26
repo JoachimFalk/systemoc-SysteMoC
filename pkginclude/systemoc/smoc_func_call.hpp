@@ -72,7 +72,11 @@ static inline
 void intrusive_ptr_release( smoc_member_func_interface<R> *r );
 
 template <typename R>
-class smoc_member_func_interface {
+class smoc_member_func_interface
+#ifdef SYSTEMOC_NEED_IDS
+  :  public SysteMoC::Detail::NamedIdedObj
+#endif // SYSTEMOC_NEED_IDS
+{
 public:
   typedef smoc_member_func_interface<R> this_type;
   
@@ -88,6 +92,11 @@ public:
   R call() const = 0;
   virtual
   const char *getFuncName() const = 0;
+  
+  const char* name() const {
+    return this->getFuncName();
+  }
+
   virtual
   SysteMoC::Detail::ParamInfoList getParams() const = 0;
   
@@ -136,7 +145,7 @@ public:
  * smoc_func_call
  */
 
-class smoc_func_call {
+class smoc_func_call : public SysteMoC::Detail::SimCTXBase{
 private:
   typedef void return_type;
   
@@ -152,6 +161,10 @@ public:
   smoc_func_call( const smoc_member_func<F, PL> &_k )
     : k(new smoc_member_func<F, PL>(_k))
   {
+#ifdef SYSTEMOC_NEED_IDS
+    this->getSimCTX()->createId( k.get() );
+#endif // SYSTEMOC_NEED_IDS
+
     pil = k->getParams();
   }
   
@@ -162,6 +175,12 @@ public:
   const char* getFuncName() const {
     return k->getFuncName();
   }
+  
+#ifdef SYSTEMOC_NEED_IDS
+  size_t getId() const {
+    return k->getId();
+  }
+#endif // SYSTEMOC_NEED_IDS
   
   const SysteMoC::Detail::ParamInfoList& getParams() const {
     return pil;

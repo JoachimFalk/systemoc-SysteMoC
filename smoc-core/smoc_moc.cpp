@@ -88,6 +88,9 @@ void smoc_scheduler_top::end_of_elaboration() {
       sc_core::sc_stop();
   }
 #endif // SYSTEMOC_ENABLE_SGX
+#ifdef SYSTEMOC_NEED_IDS
+  getSimCTX()->generateIdsAfterFinalise();
+#endif // SYSTEMOC_NEED_IDS
 }
   
 void smoc_scheduler_top::schedule() {
