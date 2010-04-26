@@ -31,6 +31,7 @@ nobase_include_HEADERS = \
 	smoc/detail/IdTAllocRequest.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/NamedIdedObj.hpp \
+	smoc/detail/TraceLog.hpp \
 	smoc/smoc_hooking.hpp \
 	smoc/smoc_simulation_ctx.hpp \
 	smoc.hpp \
@@ -39,7 +40,6 @@ nobase_include_HEADERS = \
 	systemoc/detail/QueueFRVWPtr.hpp \
 	systemoc/detail/QueueRVWPtr.hpp \
 	systemoc/detail/QueueRWPtr.hpp \
-	systemoc/detail/hscd_tdsim_TraceLog.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_debug_stream.hpp \
 	systemoc/detail/smoc_event_decls.hpp \

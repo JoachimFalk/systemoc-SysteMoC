@@ -42,15 +42,15 @@
 
 #include "detail/IdPool.hpp"
 
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-class TraceLogStream; 
-#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-
 namespace SysteMoC {
 
 class smoc_simulation_ctx;
 
 namespace Detail {
+
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  class TraceLogStream; 
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
   extern smoc_simulation_ctx *currentSimCTX;
 
@@ -81,7 +81,7 @@ protected:
   std::ostream   *dumpTraceFile;
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  TraceLogStream *dataflowTraceLog; 
+  SysteMoC::Detail::TraceLogStream *dataflowTraceLog; 
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool  idPool;
@@ -131,7 +131,7 @@ public:
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   bool isDataflowTracingEnabled() const
     { return dataflowTraceLog != NULL; }
-  TraceLogStream *getDataflowTraceLog() const
+  SysteMoC::Detail::TraceLogStream *getDataflowTraceLog() const
     { return dataflowTraceLog; }
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 

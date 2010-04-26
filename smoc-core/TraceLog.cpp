@@ -40,7 +40,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
+#include <smoc/detail/TraceLog.hpp>
 
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
@@ -51,6 +51,8 @@
 
 #define READABLE(e) do {} while(0)
 //#define READABLE(e) e
+
+namespace SysteMoC { namespace Detail {
 
 using std::string;
 
@@ -545,5 +547,7 @@ void TraceLogStream::createFifoGraph()
     std::cerr << "Found cycle(s) and/or unknown actors. Dumped FIFO info to " << fstring << std::endl;
   }
 }
+
+}} // namespace SysteMoC::Detail
 
 #endif

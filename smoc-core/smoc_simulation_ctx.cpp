@@ -51,7 +51,7 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
+#include <smoc/detail/TraceLog.hpp>
 
 #include <smoc/smoc_simulation_ctx.hpp>
 
@@ -245,7 +245,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 # ifdef SYSTEMOC_ENABLE_SGX
       dumpPreSimSMXKeepGoing = true;
 # endif // SYSTEMOC_ENABLE_SGX
-      dataflowTraceLog = new TraceLogStream(
+      dataflowTraceLog = new SysteMoC::Detail::TraceLogStream(
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-"));
       dataflowTraceLog->init();
 #else  // !SYSTEMOC_ENABLE_DATAFLOW_TRACE

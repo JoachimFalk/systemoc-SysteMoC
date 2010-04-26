@@ -58,11 +58,11 @@
 #   error "SYSTEMOC_ENABLE_DATAFLOW_TRACE and !SYSTEMOC_NEED_IDS are incompatible !!!"
 # endif
 
-//using std::string;
-
 class smoc_root_node;
 class smoc_root_chan;
 class smoc_func_call;
+
+namespace SysteMoC { namespace Detail {
 
 class NamePool{
 public:
@@ -112,7 +112,7 @@ struct s_fifo_info {
   {}
 };
 
-class TraceLogStream : public SysteMoC::Detail::SimCTXBase {
+class TraceLogStream : public SimCTXBase {
 private:
   CoSupport::Streams::IndentStreambuf        indenter;
   mutable CoSupport::Streams::FilterOStream stream;
@@ -180,6 +180,8 @@ public:
 private:
   TraceLogStream(const TraceLogStream & toCopy) :stream(std::cerr) {};
 };
+
+}} // namespace SysteMoC::Detail
 
 #endif
 

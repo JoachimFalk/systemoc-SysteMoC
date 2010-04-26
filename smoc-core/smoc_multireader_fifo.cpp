@@ -36,7 +36,7 @@
 
 #include <systemoc/smoc_multireader_fifo.hpp>
 #include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
+#include <smoc/detail/TraceLog.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>

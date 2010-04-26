@@ -21,7 +21,7 @@
 //#include <queue>
 //#include <map>
 
-#include "detail/hscd_tdsim_TraceLog.hpp"
+#include "../smoc/detail/TraceLog.hpp"
 
 #include "smoc_md_loop.hpp"
 #include "smoc_md_buffer.hpp"

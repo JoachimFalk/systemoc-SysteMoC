@@ -61,6 +61,7 @@ lib_LTLIBRARIES = libsystemoc.la
 libsystemoc_la_SOURCES =			\
 	smoc-core/IOPattern.cpp			\
 	smoc-core/IdPool.cpp			\
+	smoc-core/TraceLog.cpp			\
 	smoc-core/VpcInterface.cpp		\
 	smoc-core/smoc_simulation_ctx.cpp	\
 	smoc-core/smoc_hooking.cpp		\
@@ -84,9 +85,7 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/SMXDumper.cpp			\
 	smoc-core/smoc_graph_synth.cpp		\
 	smoc-core/smoc_func_call.cpp		\
-	smoc-core/smoc_debug_stream.cpp		\
-						\
-	smoc-core/hscd_tdsim_TraceLog.cpp
+	smoc-core/smoc_debug_stream.cpp
 #	smoc_ngx_sync.cpp
 
 if SYSTEMOC_ENABLE_WSDF

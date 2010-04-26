@@ -50,7 +50,7 @@
 #endif //SYSTEMOC_ENABLE_VPC
 
 #include <smoc/smoc_simulation_ctx.hpp>
-#include "detail/hscd_tdsim_TraceLog.hpp"
+#include "../smoc/detail/TraceLog.hpp"
 
 #include "detail/smoc_chan_if.hpp"
 #include "detail/smoc_root_chan.hpp"

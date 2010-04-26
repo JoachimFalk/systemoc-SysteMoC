@@ -20,7 +20,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/smoc_reset.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
-#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
+#include <smoc/detail/TraceLog.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>

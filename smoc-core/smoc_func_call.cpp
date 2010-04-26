@@ -37,7 +37,7 @@
 #include <systemoc/smoc_func_call.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
-#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
+#include <smoc/detail/TraceLog.hpp>
 
 smoc_action merge(const smoc_action& a, const smoc_action& b) {
   if(const smoc_func_call_list* _a = boost::get<smoc_func_call_list>(&a)) {
