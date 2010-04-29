@@ -209,7 +209,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\smoc-core\hscd_tdsim_TraceLog.cpp"
+			RelativePath="..\..\smoc-core\TraceLog.cpp"
 			>
 		</File>
 		<File
