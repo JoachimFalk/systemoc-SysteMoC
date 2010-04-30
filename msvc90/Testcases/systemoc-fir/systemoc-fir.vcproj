@@ -318,6 +318,83 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Release-VPC-noVCD|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\SysteMoC\msvc90\config-w-vpc&quot;;..\..\..\..\SysteMoC\pkginclude;..\..\..\..\Support\pkginclude;&quot;..\..\..\..\SystemC-VPC\pkginclude&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90\config-w-vcd&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;XML_LIBRARY"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="systemoc.lib systemc-vpc.lib libsgx.lib libcosupport.lib systemc.lib xerces-c_static_2.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\SysteMoC\msvc90\Release-VPC&quot;;&quot;..\..\..\..\LibSGX\msvc90\LibSGX\Release-VPC&quot;;&quot;..\..\..\..\Support\msvc90\CoSupport\Release-VPC&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90\Release-VPC&quot;;&quot;..\..\..\..\msvc90\Release-VPC&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
