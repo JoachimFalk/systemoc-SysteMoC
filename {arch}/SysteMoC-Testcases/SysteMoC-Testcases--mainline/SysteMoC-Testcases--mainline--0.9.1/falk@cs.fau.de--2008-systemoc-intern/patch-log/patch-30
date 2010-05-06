@@ -1,0 +1,14 @@
+Revision: SysteMoC-Testcases--mainline--0.9.1--patch-30
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Apr 30 15:20:44 CEST 2010
+Standard-date: 2010-04-30 13:20:44 GMT
+Modified-files: msvc90/Testcases/systemoc-fir/systemoc-fir.vcproj
+    msvc90/Testcases/systemoc-sqr/systemoc-sqr.vcproj
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC-Testcases--mainline--0.9.1--patch-30
+Summary: 
+ - msvc90: added Release-VPC-noVCD config
+Keywords: 
+
+
+
