@@ -123,7 +123,6 @@ private:
   std::map<std::string, int> actor_activation_count;
   std::map<std::string, std::string> last_actor_function;
   std::string lastactor; 
-  std::string fifo_actor_last;
   std::map<std::string, s_fifo_info> fifo_info;
   NamePool namePool;
 public:
@@ -173,6 +172,7 @@ public:
   void traceCommExecOut(const smoc_root_chan *chan, size_t size);
   void traceCommSetup(const smoc_root_chan *chan, size_t req);
   void traceTransition(size_t id);
+  void traceInitialTokens(const smoc_root_chan *chan, size_t size);
 
   void createFifoGraph();
 

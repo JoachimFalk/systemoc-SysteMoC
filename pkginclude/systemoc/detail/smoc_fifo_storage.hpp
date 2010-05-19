@@ -105,6 +105,11 @@ protected:
 
     // place initial tokens
     assert(this->depthCount() >= initialTokens.size());
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    this->getSimCTX()->getDataflowTraceLog()->traceInitialTokens(this, initialTokens.size());
+#endif
+
+
     for(size_t j = 0; j < initialTokens.size(); ++j) {
       storage[j].put(initialTokens[j]);
     }
