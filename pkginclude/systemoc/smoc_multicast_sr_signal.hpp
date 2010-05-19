@@ -171,7 +171,7 @@ public:
   
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
+  void commitRead(size_t consume, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void commitRead(size_t consume)
 #endif
@@ -268,7 +268,7 @@ public:
   
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
+  void commitWrite(size_t produce, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void commitWrite(size_t produce)
 #endif
