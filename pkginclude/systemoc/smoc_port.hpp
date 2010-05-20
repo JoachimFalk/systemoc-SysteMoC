@@ -184,6 +184,9 @@ public:
 
   size_t tokenId(size_t i=0) const
     { return (*this)->inTokenId() + i; }
+  
+  size_t numAvailable() const
+    { return (*this)->numAvailable(); }
 };
 
 template <typename IFACE>
@@ -201,11 +204,14 @@ protected:
     //: smoc_port_base<IFACE>(sc_gen_unique_name("smoc_port_out")) {}
     : smoc_port_base<IFACE>(name, policy) {}
  
-  public:
+public:
   bool isInput() const { return false; }
  
   size_t tokenId(size_t i=0) const
     { return (*this)->outTokenId() + i; }
+  
+  size_t numFree() const
+    { return (*this)->numFree(); }
 };
 
 //forward declaration
