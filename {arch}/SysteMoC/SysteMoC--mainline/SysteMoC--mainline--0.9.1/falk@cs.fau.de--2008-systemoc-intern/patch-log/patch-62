@@ -1,0 +1,21 @@
+Revision: SysteMoC--mainline--0.9.1--patch-62
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Thu May 20 11:02:10 CEST 2010
+Standard-date: 2010-05-20 09:02:10 GMT
+Modified-files: pkginclude/smoc/detail/IdedObj.hpp
+    pkginclude/systemoc/detail/smoc_fifo_storage.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multiplex_fifo.hpp
+    pkginclude/systemoc/smoc_multireader_fifo.hpp
+    smoc-core/SMXDumper.cpp
+Modified-directories: {arch}/SysteMoC/SysteMoC--mainline/SysteMoC--mainline--0.9
+    {arch}/SysteMoC/SysteMoC--mainline/SysteMoC--mainline--0.9/falk@cs.fau.de--2008-systemoc-intern
+    {arch}/SysteMoC/SysteMoC--mainline/SysteMoC--mainline--0.9/falk@cs.fau.de--2008-systemoc-intern/patch-log
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-62
+Summary:
+  * smoc_storage<void> should also dump initial tokens 
+Keywords: 
+
+
+
