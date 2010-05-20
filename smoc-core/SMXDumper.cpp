@@ -527,7 +527,7 @@ public:
         fifo.initialTokens().push_back(t);
       }
     } itf(fifo);
-    p.dumpInitalTokens(&itf);
+    p.dumpInitialTokens(&itf);
     
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "DumpFifo::operator ()(...) [END]" << std::endl;
