@@ -420,7 +420,6 @@ protected:
   virtual void        commitRead(size_t consume) = 0;
 #endif
   virtual smoc_event &dataAvailableEvent(size_t n) = 0;
-  virtual size_t      numAvailable() const = 0;
 
   smoc_event &blockEvent(size_t n)
     { return this->dataAvailableEvent(n); }  
@@ -453,6 +452,7 @@ protected:
 
 public:
   virtual size_t      inTokenId() const = 0;
+  virtual size_t      numAvailable() const = 0;
 
   virtual ~smoc_port_in_base_if() {}
 };
@@ -534,7 +534,6 @@ protected:
   virtual void        commitWrite(size_t produce) = 0;
 #endif
   virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
-  virtual size_t      numFree() const = 0;
 
   smoc_event &blockEvent(size_t n)
     { return this->spaceAvailableEvent(n); }  
@@ -563,6 +562,7 @@ protected:
 
 public:
   virtual size_t      outTokenId() const = 0;
+  virtual size_t      numFree() const = 0;
 
   virtual ~smoc_port_out_base_if() {}
 };
