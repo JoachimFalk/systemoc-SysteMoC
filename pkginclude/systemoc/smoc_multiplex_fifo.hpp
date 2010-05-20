@@ -152,7 +152,7 @@ public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
-  virtual void dumpInitalTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) = 0;
+  virtual void dumpInitialTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) = 0;
 
   /// @brief Returns virtual entries
   const VEntryMap &getVEntries() const

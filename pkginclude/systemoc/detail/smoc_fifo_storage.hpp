@@ -136,7 +136,7 @@ public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
-  void dumpInitalTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) {
+  void dumpInitialTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) {
     it->setType(typeid(data_type).name());
     for (size_t n = 0; n < this->visibleCount(); ++n)
       it->addToken(CoSupport::String::asStr(storage[n].get()));
@@ -212,8 +212,10 @@ public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
-  void dumpInitalTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) {
+  void dumpInitialTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) {
     it->setType(typeid(data_type).name());
+    for (size_t n = 0; n < this->visibleCount(); ++n)
+      it->addToken("");
   }
 #endif // SYSTEMOC_ENABLE_SGX
 };
