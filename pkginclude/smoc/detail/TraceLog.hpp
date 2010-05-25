@@ -172,7 +172,7 @@ public:
   void traceCommExecOut(const smoc_root_chan *chan, size_t size);
   void traceCommSetup(const smoc_root_chan *chan, size_t req);
   void traceTransition(size_t id);
-  void traceInitialTokens(const smoc_root_chan *chan, size_t size);
+  void traceInitialTokens(const smoc_root_chan *chan, size_t size, size_t capacity);
 
   void createFifoGraph();
 
