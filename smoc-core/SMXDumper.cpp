@@ -578,7 +578,7 @@ public:
     registerPorts(fifo, p);
     
     ImplDumpingInitialTokens itf(fifo);
-    p.dumpInitalTokens(&itf);
+    p.dumpInitialTokens(&itf);
     
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "DumpMultiportFifo::operator ()(...) [END]" << std::endl;
@@ -646,7 +646,7 @@ public:
     registerPorts(fifo, p);
     
     ImplDumpingInitialTokens itf(fifo);
-    p.dumpInitalTokens(&itf);
+    p.dumpInitialTokens(&itf);
     
 #ifdef SYSTEMOC_DEBUG
     std::cerr << "DumpMultiplexFifo::operator ()(...) [END]" << std::endl;
