@@ -66,7 +66,6 @@
 #else
 # include "detail/QueueRWPtr.hpp"
 #endif
-#include "detail/hscd_tdsim_TraceLog.hpp"
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 
@@ -120,14 +119,14 @@ protected:
 
   /// @brief Called by outlet if it did consume tokens
 #ifdef SYSTEMOC_ENABLE_VPC
-  void consume(smoc_port_in_base_if *who, size_t n, const smoc_ref_event_p &diiEvent);
+  void consume(smoc_port_in_base_if *who, size_t n, SysteMoC::Detail::VpcInterface vpcIf);
 #else
   void consume(smoc_port_in_base_if *who, size_t n);
 #endif
   
   /// @brief Called by entry if it did produce tokens
 #ifdef SYSTEMOC_ENABLE_VPC
-  void produce(size_t n, const smoc_ref_event_p &latEvent);
+  void produce(size_t n, SysteMoC::Detail::VpcInterface vpcIf);
 #else
   void produce(size_t n);
 #endif
@@ -206,8 +205,8 @@ public:
 protected:
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, const smoc_ref_event_p &diiEvent)
-    { chan.consume(this, n, diiEvent); }
+  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+    { chan.consume(this, n, vpcIf); }
 #else
   void commitRead(size_t n)
     { chan.consume(this, n); }
@@ -269,8 +268,8 @@ public:
 protected:
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, const smoc_ref_event_p &latEvent)
-    { chan.produce(n, latEvent); }
+  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+    { chan.produce(n, vpcIf); }
 #else
   void commitWrite(size_t n)
     { chan.produce(n); }
@@ -358,7 +357,11 @@ public:
   typedef smoc_multireader_fifo<T>      this_type;
   typedef typename this_type::chan_type chan_type;
   typedef typename chan_type::chan_init base_type;
+#ifdef _MSC_VER
+  friend typename this_type::con_type;
+#else
   friend class this_type::con_type;
+#endif // _MSC_VER
   friend class smoc_reset_net;
 private:
   chan_type *chan;
@@ -389,7 +392,8 @@ public:
     return *this;
   }
 
-  using this_type::con_type::operator<<;
+  //using this_type::con_type::operator<<;
+  using SysteMoC::Detail::ConnectProvider<smoc_multireader_fifo<T>, smoc_multireader_fifo_chan<T> >::operator<<;
 
 private:
   chan_type *getChan() {

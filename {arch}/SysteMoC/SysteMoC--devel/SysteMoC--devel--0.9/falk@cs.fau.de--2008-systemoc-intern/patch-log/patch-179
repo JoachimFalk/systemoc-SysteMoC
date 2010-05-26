@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-179
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Apr 30 12:24:08 CEST 2010
+Standard-date: 2010-04-30 10:24:08 GMT
+Modified-files: msvc90/systemoc/systemoc.vcproj
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-179
+Summary: 
+ - msvc90: added Release-VPC config
+Keywords: 
+
+
+

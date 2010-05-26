@@ -49,7 +49,7 @@
 
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
-#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
+#include <smoc/detail/TraceLog.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
@@ -152,31 +152,36 @@ const CondMultiState& ExpandedTransition::getCondStates() const
 const MultiState& ExpandedTransition::getDestStates() const
   { return dest; }
 
-smoc_event_and_list *getCAP(const smoc_event_and_list &ap) {
-  typedef std::set<smoc_event_and_list> Cache;
+IOPattern *getCachedIOPattern(const IOPattern &iop) {
+  typedef std::set<IOPattern> Cache;
   static Cache* cache = new Cache();
-  return &const_cast<smoc_event_and_list&>(*cache->insert(ap).first);
+  return &const_cast<IOPattern&>(*cache->insert(iop).first);
 }
 
 /// @brief Constructor
 RuntimeTransition::RuntimeTransition(
-    const boost::shared_ptr<TransitionBase> &tbp,
+    const boost::shared_ptr<TransitionImpl> &tip,
     RuntimeState *dest)
-  : transitionBase(tbp),
-    dest(dest),
-    ap(NULL) {}
+  : transitionImpl(tip),
+    dest(dest) {
+  IOPattern tmp;
+  Expr::evalTo<Expr::Sensitivity>(getExpr(), tmp);
+  tmp.finalise();
+  IOPattern* iop = getCachedIOPattern(tmp);
+  transitionImpl->setIOPattern(iop);
+}
 
 const Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
-  { return transitionBase->getExpr(); }
+  { return transitionImpl->getExpr(); }
 
 RuntimeState* RuntimeTransition::getDestState() const
   { return dest; }
 
 const smoc_action& RuntimeTransition::getAction() const
-  { return transitionBase->getAction(); }
+  { return transitionImpl->getAction(); }
 
 void *RuntimeTransition::getID() const
-  { return transitionBase.get(); }
+  { return transitionImpl.get(); }
 
 class ActionNameVisitor {
 public:
@@ -241,12 +246,15 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
          << "\">" << std::endl << Indent::Up;
 #endif
   
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)
-    TraceLog.traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
+    this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
+  if (execMode == MODE_DIISTART) {
+    this->getSimCTX()->getDataflowTraceLog()->traceTransition(getId());
+  }
 #endif
   
-#if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_TRACE)
+#if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
   Expr::evalTo<Expr::CommSetup>(getExpr());
 #endif
   
@@ -297,59 +305,49 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   Expr::evalTo<Expr::CommReset>(getExpr());
 #endif
   
-#ifdef SYSTEMOC_ENABLE_TRACE
+#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   if (execMode == MODE_DIISTART && getSimCTX()->isTraceDumpingEnabled())
     getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
-#endif // SYSTEMOC_ENABLE_TRACE
+#endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
   
 #ifdef SYSTEMOC_ENABLE_VPC
   if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
-    actor->diiEvent->reset();
-    smoc_ref_event_p latEvent(new smoc_ref_event());
-    
-    SystemC_VPC::EventPair p(actor->diiEvent.get(), latEvent.get());
-    
-    // new FastLink interface
-    if(mode & GO) {
-      vpcLink->compute(p);
-    }
-    else if(mode & TICK) {
-      smoc_sr_func_pair* fp = boost::get<smoc_sr_func_pair>(&getAction());
-      assert(fp);
-      fp->tickLink->compute(p);
-    }
-    
+    Expr::evalTo<Expr::CommExec>(getExpr(), VpcInterface(this->transitionImpl.get()));
+
+    SystemC_VPC::EventPair events = this->transitionImpl->startCompute();
+
     // save nextState to later execute communication
     actor->setNextState(nextState);
     
     // insert magic commstate
     nextState = actor->getCommState();
-    Expr::evalTo<Expr::CommExec>(getExpr(), actor->diiEvent, latEvent);
     
     // This covers the case that the executed transition does not
     // contain an output port. Therefore, the latEvent is not added
     // to a LatencyQueue and would be deleted immediately after
     // the latEvent smartptr is destroyed when this scope is left.
-    if(!*latEvent) {
+    if(!*events.latency) {
       // latency event not signaled
-      struct _: public smoc_event_listener {
+      struct _: public smoc_event_listener,
+                public SysteMoC::Detail::SimCTXBase {
+        //TODO (ms): remove reference; ref'counted events are support in VPC
         smoc_ref_event_p  latEvent;
         smoc_root_node   *actor;
         
         void signaled(smoc_event_waiter *_e) {
-# ifdef SYSTEMOC_TRACE
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   //      const char *name = actor->name();
           
-          TraceLog.traceStartActor(actor, "l");
+          this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, "l");
 # endif
 # ifdef SYSTEMOC_DEBUG
           outDbg << "<transition::_::signaled/>" << std::endl;
 # endif // SYSTEMOC_DEBUG
           assert(_e == &*latEvent);
           assert(*_e);
-          latEvent = NULL;
-# ifdef SYSTEMOC_TRACE
-          TraceLog.traceEndActor(actor);
+          //latEvent = NULL;
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+          this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
 # endif
           return;
         }
@@ -365,25 +363,25 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
         
         virtual ~_() {}
       };
-      latEvent->addListener(new _(latEvent, actor));
+      events.latency->addListener(new _(events.latency, actor));
     }
     else {
-# ifdef SYSTEMOC_TRACE
-      TraceLog.traceStartActor(this, "l");
-      TaceLog.traceEndActor(this);
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, "l");
+      this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
 # endif
     }
   }
   else {
-    Expr::evalTo<Expr::CommExec>(getExpr(), NULL, NULL);
+    Expr::evalTo<Expr::CommExec>(getExpr(), VpcInterface(NULL));
   }
 #else // SYSTEMOC_ENABLE_VPC
   Expr::evalTo<Expr::CommExec>(getExpr());
 #endif // SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)
-    TraceLog.traceEndActor(actor);
+    this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
 #endif
 
   actor->setCurrentState(nextState);
@@ -395,9 +393,9 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 
 bool RuntimeTransition::evaluateIOP() const {
 #ifdef SYSTEMOC_DEBUG
-  outDbg << "[" << ap << "] " << *ap << std::endl;
+  outDbg << "[" << getIOPatternWaiter() << "] " << *getIOPatternWaiter() << std::endl;
 #endif
-  return ap->isActive();
+  return getIOPatternWaiter()->isActive();
 }
 
 bool RuntimeTransition::evaluateGuard() const {
@@ -415,22 +413,29 @@ bool RuntimeTransition::evaluateGuard() const {
   }
 }
 
-void RuntimeTransition::finalise() {
-  smoc_event_and_list tmp;
-  Expr::evalTo<Expr::Sensitivity>(getExpr(), tmp);
-
-  ap = getCAP(tmp);
+void RuntimeTransition::finaliseRuntimeTransition(const smoc_root_node *node) {
 
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS  
 #ifdef SYSTEMOC_ENABLE_VPC
+  /*
   if (dynamic_cast<smoc_actor *>(actor) != NULL) {
     vpcLink = boost::apply_visitor(
         VPCLinkVisitor(actor->name()), getAction());
   }
+  */
+
+  //initialize VpcTaskInterface
+  this->transitionImpl->diiEvent = node->diiEvent;
+  this->transitionImpl->vpcTask = boost::apply_visitor(
+    VPCLinkVisitor(node->name()), getAction());
 #endif //SYSTEMOC_ENABLE_VPC
+
+#ifdef SYSTEMOC_DEBUG_VPC_IF
+  this->transitionImpl->actor = node->name();
+#endif // SYSTEMOC_DEBUG_VPC_IF
 }
 
  
@@ -459,13 +464,14 @@ const RuntimeTransitionList& RuntimeState::getTransitions() const
 RuntimeTransitionList& RuntimeState::getTransitions()
   { return tl; }
   
-void RuntimeState::addTransition(const RuntimeTransition& t) {
+void RuntimeState::addTransition(const RuntimeTransition& t,
+                                 const smoc_root_node *node) {
   tl.push_back(t);
 
   RuntimeTransition& tr = tl.back();
 
-  tr.finalise();
-  am.insert(tr.ap);
+  tr.finaliseRuntimeTransition(node);
+  am.insert(tr.getIOPatternWaiter());
 }
 
 FiringFSMImpl::FiringFSMImpl()
@@ -615,10 +621,11 @@ void FiringFSMImpl::finalise(
     
     ExpandedTransitionList etl;
 
-    // finalise states -> expanded transitions
-//    {outDbg << "finalising states" << std::endl;
-//    ScopedIndent s1(outDbg);
-   
+//  // finalise states -> expanded transitions
+//  {outDbg << "finalising states" << std::endl;
+//  ScopedIndent s1(outDbg);
+    
+    // finalize all non-hierarchical states, i.e., dynamic_cast<HierarchicalStateImpl*>(...) == NULL
     for(FiringStateBaseImplSet::iterator sIter = states.begin();
         sIter != states.end(); ++sIter)
     {
@@ -630,9 +637,9 @@ void FiringFSMImpl::finalise(
 
 //    }
 
-    // calculate runtime states and transitions
-//    {outDbg << "calculating runtime states / transitions" << std::endl;
-//    ScopedIndent s1(outDbg);
+//  // calculate runtime states and transitions
+//  {outDbg << "calculating runtime states / transitions" << std::endl;
+//  ScopedIndent s1(outDbg);
 
     assert(rts.empty());
 
@@ -716,8 +723,9 @@ void FiringFSMImpl::finalise(
 
           rs->addTransition(
               RuntimeTransition(
-                t->getCachedTransitionBase(),
-                rd));
+                t->getCachedTransitionImpl(),
+                rd),
+              actor);
 #ifdef FSM_FINALIZE_BENCHMARK
           nRunTrans++;
 #endif // FSM_FINALIZE_BENCHMARK

@@ -52,7 +52,6 @@
 #include "detail/ConnectProvider.hpp"
 #include "detail/EventMapManager.hpp"
 #include "smoc_chan_adapter.hpp"
-#include "detail/hscd_tdsim_TraceLog.hpp"
 
 enum SignalState {undefined, defined, absent};
 
@@ -76,10 +75,11 @@ public:
     size_t      n;
   };
 
+//method made public to access it from smoc_register
+  void setSignalState(SignalState s);
+
 protected:
   SignalState getSignalState() const;
-
-  void setSignalState(SignalState s);
 
   void wpp(size_t n);
 
@@ -171,13 +171,13 @@ public:
   
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
+  void commitRead(size_t consume, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void commitRead(size_t consume)
 #endif
   {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(chan, consume);
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(chan, consume);
 #endif
     chan->rpp(consume);
   }
@@ -208,7 +208,8 @@ public:
   void allowUndefinedRead(bool allow) {
     undefinedRead = allow;
     chan->lessSpace();
-    moreData();
+   //it was moreData(), which isn't defined here. 
+    moreData(0);
   }
   
   /// @brief See smoc_multicast_outlet_base
@@ -267,13 +268,13 @@ public:
   
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
+  void commitWrite(size_t produce, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void commitWrite(size_t produce)
 #endif
   {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(chan, produce);
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(chan, produce);
 #endif
     chan->wpp(produce);
   }
@@ -363,13 +364,13 @@ public:
   public:
     void add(add_param_ty x) {
       //FIXME(MS): Signal initialization should be disabled in future!
-      std::cerr << "Warning: Signals in synchronous-reactive systems should"
+      /*std::cerr << "Warning: Signals in synchronous-reactive systems should"
              " not be initialized!\n"
                    "A better way for breaking undefined feedback loops is"
              " using non-strict blocks like non-strict AND!"
-                << std::endl;
+                << std::endl;*/
       //FIXME(MS): replace with signal value wrapper
-      if(marking.size)marking[0]=x;
+      if(marking.size())marking[0]=x;
       else marking.push_back(x);
     }
   protected:

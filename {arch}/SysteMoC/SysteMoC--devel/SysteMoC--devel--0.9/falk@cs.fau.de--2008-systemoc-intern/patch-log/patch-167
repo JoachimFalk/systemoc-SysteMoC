@@ -1,0 +1,14 @@
+Revision: SysteMoC--devel--0.9--patch-167
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Apr 20 10:06:30 CEST 2010
+Standard-date: 2010-04-20 08:06:30 GMT
+New-files: msvc90/config-w-vpc/systemoc/.arch-ids/smoc_config.h.id
+    msvc90/config-w-vpc/systemoc/smoc_config.h
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-167
+Summary: 
+ - msvc90: added missing file
+Keywords: 
+
+
+

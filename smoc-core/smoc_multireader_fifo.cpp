@@ -36,6 +36,7 @@
 
 #include <systemoc/smoc_multireader_fifo.hpp>
 #include <systemoc/smoc_graph_type.hpp>
+#include <smoc/detail/TraceLog.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <systemcvpc/hscd_vpc_Director.h>
@@ -55,7 +56,7 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
 {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n, const smoc_ref_event_p &diiEvent)
+void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n, SysteMoC::Detail::VpcInterface vpcIf)
 #else
 void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n)
 #endif
@@ -64,8 +65,8 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
   outDbg << "<smoc_multireader_fifo_chan_base::consume this=\"" << this << "\">"
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
-#ifdef SYSTEMOC_TRACE
-  TraceLog.traceCommExecIn(this, n);
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(this, n);
 #endif
 #ifdef SYSTEMOC_DEBUG
   outDbg << "n: " << n << "; #avail: " << visibleCount()
@@ -79,7 +80,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
   emmData.decreasedCountRenotify(visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
   // Delayed call of diiExpired
-  diiQueue.addEntry(n, diiEvent);
+  diiQueue.addEntry(n, vpcIf.getTaskDiiEvent(), vpcIf);
 #else
   // Immediate call of diiExpired
   diiExpired(n);
@@ -90,7 +91,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multireader_fifo_chan_base::produce(size_t n, const smoc_ref_event_p &latEvent)
+void smoc_multireader_fifo_chan_base::produce(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
 #else
 void smoc_multireader_fifo_chan_base::produce(size_t n)
 #endif
@@ -99,8 +100,8 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
   outDbg << "<smoc_multireader_fifo_chan_base::produce this=\"" << this << "\">"
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
-#ifdef SYSTEMOC_TRACE
-  TraceLog.traceCommExecOut(this, n);
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(this, n);
 #endif
 #ifdef SYSTEMOC_DEBUG
   outDbg << "n: " << n << "; #avail: " << visibleCount()
@@ -111,7 +112,7 @@ void smoc_multireader_fifo_chan_base::produce(size_t n)
   lessSpace(n);
 #ifdef SYSTEMOC_ENABLE_VPC
   // Delayed call of latencyExpired
-  latencyQueue.addEntry(n, latEvent);
+  latencyQueue.addEntry(n, vpcIf.getTaskLatEvent(), vpcIf);
 #else
   // Immediate call of latencyExpired
   latencyExpired(n);

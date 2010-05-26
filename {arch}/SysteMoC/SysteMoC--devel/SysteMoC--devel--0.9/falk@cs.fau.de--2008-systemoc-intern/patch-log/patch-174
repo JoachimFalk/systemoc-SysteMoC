@@ -1,0 +1,17 @@
+Revision: SysteMoC--devel--0.9--patch-174
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Apr 26 16:17:42 CEST 2010
+Standard-date: 2010-04-26 14:17:42 GMT
+Modified-files: pkginclude/smoc/smoc_simulation_ctx.hpp
+    pkginclude/systemoc/detail/hscd_tdsim_TraceLog.hpp
+    pkginclude/systemoc/smoc_func_call.hpp
+    smoc-core/hscd_tdsim_TraceLog.cpp
+    smoc-core/smoc_func_call.cpp smoc-core/smoc_moc.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-174
+Summary: 
+ - dataflow tracing: use IDs for function names
+Keywords: 
+
+
+

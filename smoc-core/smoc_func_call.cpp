@@ -37,6 +37,7 @@
 #include <systemoc/smoc_func_call.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
+#include <smoc/detail/TraceLog.hpp>
 
 smoc_action merge(const smoc_action& a, const smoc_action& b) {
   if(const smoc_func_call_list* _a = boost::get<smoc_func_call_list>(&a)) {
@@ -64,9 +65,9 @@ ActionVisitor::ActionVisitor(RuntimeState* dest, int mode)
 RuntimeState* ActionVisitor::operator()(const smoc_func_call_list& f) const {
   // Function call
   for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceStartFunction(i->getFuncName());
-#endif // SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    this->getSimCTX()->getDataflowTraceLog()->traceStartFunction(&*i);
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 #ifdef SYSTEMOC_DEBUG
     outDbg << "<action type=\"smoc_func_call\" func=\""
            << i->getFuncName() << "\">" << std::endl;
@@ -77,9 +78,9 @@ RuntimeState* ActionVisitor::operator()(const smoc_func_call_list& f) const {
 #ifdef SYSTEMOC_DEBUG
     outDbg << "</action>" << std::endl;
 #endif // SYSTEMOC_DEBUG
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceEndFunction(i->getFuncName());
-#endif // SYSTEMOC_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    getSimCTX()->getDataflowTraceLog()->traceEndFunction(&*i);
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
   }
   return dest;
 }
@@ -101,8 +102,8 @@ RuntimeState* ActionVisitor::operator()(const smoc_func_diverge& f) const {
 
 RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
   // SR GO & TICK calls
-#ifdef SYSTEMOC_TRACE
-  TraceLog.traceStartFunction(f.go.getFuncName());
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  getSimCTX()->getDataflowTraceLog()->traceStartFunction(&f.go);
 #endif
   if(mode & RuntimeTransition::GO) {
 #ifdef SYSTEMOC_DEBUG
@@ -124,8 +125,8 @@ RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
     outDbg << "</action>" << std::endl;
 #endif
   }
-#ifdef SYSTEMOC_TRACE
-  TraceLog.traceEndFunction(f.go.getFuncName());
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  getSimCTX()->getDataflowTraceLog()->traceEndFunction(&f.go);
 #endif
   return dest;
 }
@@ -152,12 +153,20 @@ SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_func_call_list& f) 
 }
 
 SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_sr_func_pair& f) const {
+  std::ostringstream os;
+
+  os << f.tick.getFuncName();
+  os << "_";
+  os << f.go.getFuncName();
+
+  /* FIXME: we cannot modify tickLink here:
   f.tickLink = new SystemC_VPC::FastLink(
       SystemC_VPC::Director::getInstance().getFastLink(
         name, f.tick.getFuncName()));
+  */
   return new SystemC_VPC::FastLink(
       SystemC_VPC::Director::getInstance().getFastLink(
-        name, f.go.getFuncName()));
+        name, os.str()));
 }
 
 SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_func_diverge& f) const {

@@ -1,0 +1,30 @@
+Revision: SysteMoC--devel--0.9--patch-170
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Apr 21 16:30:16 CEST 2010
+Standard-date: 2010-04-21 14:30:16 GMT
+Modified-files: configure.in
+    msvc90/config-w-vpc/systemoc/smoc_config.h
+    msvc90/config-wo-vpc/systemoc/smoc_config.h
+    pkginclude/smoc/smoc_simulation_ctx.hpp
+    pkginclude/systemoc/detail/hscd_tdsim_TraceLog.hpp
+    pkginclude/systemoc/detail/smoc_chan_if.hpp
+    pkginclude/systemoc/detail/smoc_latency_queues.hpp
+    pkginclude/systemoc/smoc_config.h.in
+    pkginclude/systemoc/smoc_fifo.hpp
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+    smoc-core/VpcInterface.cpp
+    smoc-core/hscd_tdsim_TraceLog.cpp
+    smoc-core/smoc_firing_rules.cpp
+    smoc-core/smoc_func_call.cpp
+    smoc-core/smoc_latency_queues.cpp
+    smoc-core/smoc_multireader_fifo.cpp
+    smoc-core/smoc_reset.cpp
+    smoc-core/smoc_simulation_ctx.cpp wsdf/smoc_md_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-170
+Summary: 
+ - clean up transition tracing and dataflow tracing (--enable-transition-trace, --enable-dataflow-trace)
+Keywords: 
+
+
+

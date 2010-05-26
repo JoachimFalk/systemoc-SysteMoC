@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-49
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu May 28 12:13:02 CEST 2009
+Standard-date: 2009-05-28 10:13:02 GMT
+Modified-files: configure.in
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-49
+Summary: 
+ * Modified configure.in to reflect that this is the SysteMoC--devel--0.9 branch.
+Keywords: 
+
+
+

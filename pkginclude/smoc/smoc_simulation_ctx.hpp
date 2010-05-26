@@ -48,10 +48,16 @@ class smoc_simulation_ctx;
 
 namespace Detail {
 
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  class TraceLogStream; 
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+
   extern smoc_simulation_ctx *currentSimCTX;
 
   struct SimCTXBase {
     smoc_simulation_ctx *getSimCTX()
+      { return currentSimCTX; }
+    const smoc_simulation_ctx *getSimCTX() const
       { return currentSimCTX; }
   };
 
@@ -59,6 +65,10 @@ namespace Detail {
 
 class smoc_simulation_ctx {
 protected:
+#ifdef SYSTEMOC_NEED_IDS
+  typedef  std::vector<Detail::NamedIdedObj *> NamedIdedObjList;
+  NamedIdedObjList noIdGiven;
+#endif // SYSTEMOC_NEED_IDS
   std::vector<char *> argv;
 
 #ifdef SYSTEMOC_ENABLE_SGX
@@ -67,9 +77,12 @@ protected:
   std::ostream   *dumpPreSimSMXFile;
   std::ostream   *dumpPostSimSMXFile;
 #endif // SYSTEMOC_ENABLE_SGX
-#ifdef SYSTEMOC_ENABLE_TRACE
+#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   std::ostream   *dumpTraceFile;
-#endif // SYSTEMOC_ENABLE_TRACE
+#endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  SysteMoC::Detail::TraceLogStream *dataflowTraceLog; 
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool  idPool;
 #endif // SYSTEMOC_NEED_IDS
@@ -81,34 +94,54 @@ public:
   char **getArgv();
 
 #ifdef SYSTEMOC_ENABLE_SGX
-  bool isSMXDumpingASTEnabled()
+  bool isSMXDumpingASTEnabled() const
     { return dumpSMXAST; }
-  bool isSMXDumpingPreSimEnabled()
+  bool isSMXDumpingPreSimEnabled() const
     { return dumpPreSimSMXFile; }
-  std::ostream &getSMXPreSimFile()
+  std::ostream &getSMXPreSimFile() const
     { return *dumpPreSimSMXFile; }
-  bool isSMXDumpingPreSimKeepGoing()
+  bool isSMXDumpingPreSimKeepGoing() const
     { return dumpPreSimSMXKeepGoing; }
-  bool isSMXDumpingPostSimEnabled()
+  bool isSMXDumpingPostSimEnabled() const
     { return dumpPostSimSMXFile; }
-  std::ostream &getSMXPostSimFile()
+  std::ostream &getSMXPostSimFile() const
     { return *dumpPostSimSMXFile; }
 #endif // SYSTEMOC_ENABLE_SGX
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool &getIdPool()
     { return idPool; }
+  void createId(SysteMoC::Detail::NamedIdedObj * obj)
+  { noIdGiven.push_back(obj); }
+  void generateIdsAfterFinalise()
+  {
+    for(NamedIdedObjList::iterator iter = noIdGiven.begin();
+        iter != noIdGiven.end();
+        ++iter){
+      getIdPool().addIdedObj(*iter);
+    }
+    noIdGiven.clear();
+  }
 #endif // SYSTEMOC_NEED_IDS
-#ifdef SYSTEMOC_ENABLE_TRACE
+#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   bool isTraceDumpingEnabled() const
     { return dumpTraceFile != NULL; }
-  std::ostream &getTraceFile()
+  std::ostream &getTraceFile() const
     { return *dumpTraceFile; }
-#endif // SYSTEMOC_ENABLE_TRACE
+#endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  bool isDataflowTracingEnabled() const
+    { return dataflowTraceLog != NULL; }
+  SysteMoC::Detail::TraceLogStream *getDataflowTraceLog() const
+    { return dataflowTraceLog; }
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
   void defCurrentCTX();
   void undefCurrentCTX();
 
   ~smoc_simulation_ctx();
+
+private:
+  smoc_simulation_ctx( const smoc_simulation_ctx & toCopy ) {}
 };
 
 } // namespace SysteMoC

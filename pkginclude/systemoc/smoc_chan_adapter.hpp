@@ -244,8 +244,9 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
-    smoc_ref_event_p lat = new smoc_ref_event(true);
-    this->getIface().commitRead(1u,lat);
+    // TODO (ms): care for VpcInterface(NULL) 
+  //smoc_ref_event_p lat = new smoc_ref_event(true);
+    this->getIface().commitRead(1u, SysteMoC::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -289,8 +290,8 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
-    smoc_ref_event_p lat = new smoc_ref_event(true);
-    this->getIface().commitRead(1u,lat);
+  //smoc_ref_event_p lat = new smoc_ref_event(true);
+    this->getIface().commitRead(1u, SysteMoC::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -337,8 +338,8 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
-    smoc_ref_event_p lat = new smoc_ref_event(true);
-    this->getIface().commitRead(1u,lat);
+  //smoc_ref_event_p lat = new smoc_ref_event(true);
+    this->getIface().commitRead(1u, SysteMoC::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -394,8 +395,8 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
-    smoc_ref_event_p lat = new smoc_ref_event(true);
-    this->getIface().commitRead(1u,lat);
+  //smoc_ref_event_p lat = new smoc_ref_event(true);
+    this->getIface().commitRead(1u, SysteMoC::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -617,8 +618,8 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
-    smoc_ref_event_p lat = new smoc_ref_event(true);
-    this->getIface().commitWrite(1u,lat);
+  //smoc_ref_event_p lat = new smoc_ref_event(true);
+    this->getIface().commitWrite(1u, SysteMoC::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitWrite(1u);
 #endif
@@ -660,8 +661,8 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
-    smoc_ref_event_p lat = new smoc_ref_event(true);
-    this->getIface().commitWrite(1u,lat);
+  //smoc_ref_event_p lat = new smoc_ref_event(true);
+    this->getIface().commitWrite(1u, SysteMoC::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitWrite(1u);
 #endif
@@ -708,8 +709,9 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
-    smoc_ref_event_p lat = new smoc_ref_event(true);
-    this->getIface().commitWrite(1u,lat);
+    // TODO (ms): handle immediate notification !!!
+  //smoc_ref_event_p lat = new smoc_ref_event(true);
+    this->getIface().commitWrite(1u, SysteMoC::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitWrite(1u);
 #endif
@@ -765,8 +767,8 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // start notified
-    smoc_ref_event_p lat = new smoc_ref_event(true);
-    this->getIface().commitWrite(1u,lat);
+  //smoc_ref_event_p lat = new smoc_ref_event(true);
+    this->getIface().commitWrite(1u, SysteMoC::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitWrite(1u);
 #endif

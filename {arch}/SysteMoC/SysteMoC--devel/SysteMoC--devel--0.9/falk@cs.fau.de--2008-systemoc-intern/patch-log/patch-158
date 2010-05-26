@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-158
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Wed Feb 24 15:22:03 CET 2010
+Standard-date: 2010-02-24 14:22:03 GMT
+Modified-files: pkginclude/systemoc/detail/smoc_chan_if.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-158
+Summary: 
+ - store number of required token in Expr::comm in addition to Expr::portTokens
+ - use Expr::comm to evaluate "Sensitivity" (instead of Expr::portTokens)
+ - we may remove Expr::portTokens from AST in future (Expr::comm has both "(n,m)")
+Keywords: 
+

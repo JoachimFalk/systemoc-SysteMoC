@@ -60,3 +60,11 @@ void smoc_multiplex_fifo_chan_base::registerVOutlet(const VOutletMap::value_type
 void smoc_multiplex_fifo_chan_base::deregisterVOutlet(FifoId fifoId) {
   vOutlets.erase(fifoId);
 }
+
+void smoc_multiplex_fifo_chan_base::registerVEntry(const VEntryMap::value_type &entry) {
+  sassert(vEntries.insert(entry).second);
+}
+
+void smoc_multiplex_fifo_chan_base::deregisterVEntry(FifoId fifoId) {
+  vEntries.erase(fifoId);
+}

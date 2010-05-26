@@ -1,0 +1,23 @@
+Revision: SysteMoC--devel--0.9--patch-151
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Sebastian Graf <sebastian.graf@informatik.uni-erlangen.de>
+Date: Thu Feb 11 16:26:01 CET 2010
+Standard-date: 2010-02-11 15:26:01 GMT
+New-files: pkginclude/systemoc/.arch-ids/smoc_graph_tt.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_periodic_actor.hpp.id
+    pkginclude/systemoc/.arch-ids/smoc_tt.hpp.id
+    pkginclude/systemoc/smoc_graph_tt.hpp
+    pkginclude/systemoc/smoc_periodic_actor.hpp
+    pkginclude/systemoc/smoc_tt.hpp
+    smoc-core/.arch-ids/smoc_graph_tt.cpp.id
+    smoc-core/smoc_graph_tt.cpp
+Modified-files: Makefile.am pkginclude/Makefile.am
+    smoc-core/smoc_root_node.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-151
+Summary: 
+  - added smoc_periodic_actor
+  - added smoc_graph_tt
+Keywords: 
+
+
+

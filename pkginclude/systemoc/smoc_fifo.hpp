@@ -49,7 +49,8 @@
 # include <systemcvpc/hscd_vpc_Director.h>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#include "detail/hscd_tdsim_TraceLog.hpp"
+#include <smoc/smoc_simulation_ctx.hpp>
+#include "../smoc/detail/TraceLog.hpp"
 
 #include "detail/smoc_chan_if.hpp"
 #include "detail/smoc_root_chan.hpp"
@@ -168,19 +169,19 @@ public:
 protected:
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, const smoc_ref_event_p &diiEvent)
+  void commitRead(size_t consume, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void commitRead(size_t consume)
 #endif
   {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecIn(&chan, consume);
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(&chan, consume);
 #endif
     chan.rpp(consume);
     chan.emmData.decreasedCount(chan.visibleCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of diiExpired(consume);
-    chan.diiQueue.addEntry(consume, diiEvent);
+    chan.diiQueue.addEntry(consume, vpcIf.getTaskDiiEvent(), vpcIf);
 #else
     chan.diiExpired(consume);
 #endif
@@ -203,6 +204,12 @@ protected:
     { return chan.getReadPortAccess(); }
 
 private:
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  virtual void traceCommSetup(size_t req){
+    this->getSimCTX()->getDataflowTraceLog()->traceCommSetup(&chan, req);
+  }
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+
   /// @brief The channel implementation
   smoc_fifo_chan<T>& chan;
 };
@@ -227,20 +234,20 @@ public:
 protected:
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, const smoc_ref_event_p &latEvent)
+  void commitWrite(size_t produce, SysteMoC::Detail::VpcInterface vpcIf)
 #else
   void commitWrite(size_t produce)
 #endif
   {
-#ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommExecOut(&chan, produce);
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(&chan, produce);
 #endif
     chan.tokenId += produce;
     chan.wpp(produce);
     chan.emmSpace.decreasedCount(chan.freeCount());
 #ifdef SYSTEMOC_ENABLE_VPC
     // Delayed call of latencyExpired(produce);
-    chan.latencyQueue.addEntry(produce, latEvent);
+    chan.latencyQueue.addEntry(produce,vpcIf.getTaskLatEvent(),vpcIf);
 #else
     chan.latencyExpired(produce);
 #endif
@@ -261,6 +268,12 @@ protected:
   /// @brief See smoc_port_out_if
   access_type* getWritePortAccess()
     { return chan.getWritePortAccess(); }
+
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  virtual void traceCommSetup(size_t req){
+    this->getSimCTX()->getDataflowTraceLog()->traceCommSetup(&chan, req);
+  }
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 private:
   /// @brief The channel implementation
@@ -316,7 +329,11 @@ public:
   typedef smoc_fifo<T>                  this_type;
   typedef typename this_type::chan_type chan_type;
   typedef typename chan_type::chan_init base_type;
+#ifdef _MSC_VER
+  friend typename this_type::con_type;
+#else
   friend class this_type::con_type;
+#endif // _MSC_VER
   friend class smoc_reset_net;
 private:
   chan_type *chan;
@@ -346,7 +363,8 @@ public:
     return *this;
   }
   
-  using this_type::con_type::operator<<;
+  //using this_type::con_type::operator<<;
+  using SysteMoC::Detail::ConnectProvider<smoc_fifo<T>, smoc_fifo_chan<T> >::operator<<;
 
 private:
   chan_type *getChan() {

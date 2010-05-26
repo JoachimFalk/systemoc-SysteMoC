@@ -25,11 +25,14 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 nobase_include_HEADERS = \
+	smoc/detail/IOPattern.hpp \
 	smoc/detail/DumpingInterfaces.hpp \
 	smoc/detail/IdPool.hpp \
 	smoc/detail/IdTAllocRequest.hpp \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/NamedIdedObj.hpp \
+	smoc/detail/TraceLog.hpp \
+	smoc/detail/VpcInterface.hpp \
 	smoc/smoc_hooking.hpp \
 	smoc/smoc_simulation_ctx.hpp \
 	smoc.hpp \
@@ -38,7 +41,6 @@ nobase_include_HEADERS = \
 	systemoc/detail/QueueFRVWPtr.hpp \
 	systemoc/detail/QueueRVWPtr.hpp \
 	systemoc/detail/QueueRWPtr.hpp \
-	systemoc/detail/hscd_tdsim_TraceLog.hpp \
 	systemoc/detail/smoc_chan_if.hpp \
 	systemoc/detail/smoc_debug_stream.hpp \
 	systemoc/detail/smoc_event_decls.hpp \
@@ -61,6 +63,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_firing_rules.hpp \
 	systemoc/smoc_func_call.hpp \
 	systemoc/smoc_graph_type.hpp \
+	systemoc/smoc_graph_tt.hpp \
 	systemoc/smoc_guard.hpp \
 	systemoc/smoc_moc.hpp \
 	systemoc/smoc_module_name.hpp \
@@ -71,6 +74,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_pggen.hpp \
 	systemoc/smoc_port.hpp \
 	systemoc/smoc_reset.hpp \
+	systemoc/smoc_register.hpp \
 	systemoc/smoc_sr_signal.hpp
 
 if SYSTEMOC_ENABLE_WSDF

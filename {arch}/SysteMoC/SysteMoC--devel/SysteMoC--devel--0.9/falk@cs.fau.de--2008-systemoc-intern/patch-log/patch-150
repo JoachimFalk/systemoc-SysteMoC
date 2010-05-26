@@ -1,0 +1,17 @@
+Revision: SysteMoC--devel--0.9--patch-150
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Sebastian Graf <sebastian.graf@informatik.uni-erlangen.de>
+Date: Tue Feb  2 17:14:40 CET 2010
+Standard-date: 2010-02-02 16:14:40 GMT
+New-files: pkginclude/systemoc/.arch-ids/smoc_register.hpp.id
+    pkginclude/systemoc/smoc_register.hpp
+Modified-files: pkginclude/Makefile.am
+    pkginclude/systemoc/smoc_multicast_sr_signal.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-150
+Summary: 
+  - added smoc_register
+  - fixed some bugs in smoc_multicast_sr_signal.hpp 
+Keywords: 
+
+
+

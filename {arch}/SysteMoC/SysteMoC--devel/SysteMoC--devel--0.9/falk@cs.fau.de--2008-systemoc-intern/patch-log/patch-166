@@ -1,0 +1,29 @@
+Revision: SysteMoC--devel--0.9--patch-166
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Tue Apr 20 10:05:14 CEST 2010
+Standard-date: 2010-04-20 08:05:14 GMT
+New-files: msvc90/config-w-vpc/.arch-ids/=id
+    msvc90/config-w-vpc/systemoc/.arch-ids/=id
+    msvc90/config-wo-vpc/.arch-ids/=id
+    msvc90/config-wo-vpc/systemoc/.arch-ids/=id
+New-directories: msvc90/config-w-vpc
+    msvc90/config-w-vpc/.arch-ids
+    msvc90/config-w-vpc/systemoc
+    msvc90/config-w-vpc/systemoc/.arch-ids
+    msvc90/config-wo-vpc msvc90/config-wo-vpc/.arch-ids
+    msvc90/config-wo-vpc/systemoc
+    msvc90/config-wo-vpc/systemoc/.arch-ids
+Renamed-files: msvc90/systemoc/.arch-ids/smoc_config.h.id msvc90/config-wo-vpc/systemoc/.arch-ids/smoc_config.h.id
+    msvc90/systemoc/smoc_config.h msvc90/config-wo-vpc/systemoc/smoc_config.h
+Modified-files: msvc90/config-wo-vpc/systemoc/smoc_config.h
+    msvc90/systemoc/systemoc.vcproj
+    smoc-core/smoc_simulation_ctx.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-166
+Summary: 
+ - msvc90: added Debug-VPC config
+ - msvc90: use putenv instead of setenv
+Keywords: 
+
+
+

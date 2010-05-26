@@ -49,7 +49,7 @@ AM_LDFLAGS=				\
 	$(COSUPPORT_LDFLAGS)		\
 	$(LIBWSDF_LDFLAGS)		\
 	$(LIBSGX_LDFLAGS)		\
-	$(SYSTEMC_VPC_INCLUDE)		\
+	$(SYSTEMC_VPC_LDFLAGS)		\
 	$(BOOST_LDFLAGS)
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -59,7 +59,10 @@ pkgconfig_DATA = SysteMoC.pc
 lib_LTLIBRARIES = libsystemoc.la
 
 libsystemoc_la_SOURCES =			\
+	smoc-core/IOPattern.cpp			\
 	smoc-core/IdPool.cpp			\
+	smoc-core/TraceLog.cpp			\
+	smoc-core/VpcInterface.cpp		\
 	smoc-core/smoc_simulation_ctx.cpp	\
 	smoc-core/smoc_hooking.cpp		\
 	smoc-core/smoc_main.cpp			\
@@ -71,6 +74,7 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/smoc_multicast_sr_signal.cpp	\
 	smoc-core/smoc_reset.cpp		\
 	smoc-core/smoc_graph_type.cpp		\
+	smoc-core/smoc_graph_tt.cpp		\
 	smoc-core/smoc_actor.cpp		\
 	smoc-core/smoc_root_node.cpp		\
 	smoc-core/smoc_sysc_port.cpp		\
@@ -81,9 +85,7 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/SMXDumper.cpp			\
 	smoc-core/smoc_graph_synth.cpp		\
 	smoc-core/smoc_func_call.cpp		\
-	smoc-core/smoc_debug_stream.cpp		\
-						\
-	smoc-core/hscd_tdsim_TraceLog.cpp
+	smoc-core/smoc_debug_stream.cpp
 #	smoc_ngx_sync.cpp
 
 if SYSTEMOC_ENABLE_WSDF

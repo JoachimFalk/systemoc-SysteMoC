@@ -60,6 +60,10 @@
 #include "detail/smoc_event_decls.hpp"
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/smoc_debug_stream.hpp"
+#include "smoc/detail/IOPattern.hpp"
+#ifdef SYSTEMOC_ENABLE_VPC
+#include "smoc/detail/VpcInterface.hpp"
+#endif // SYSTEMOC_ENABLE_VPC
 
 /****************************************************************************
  * dexpr.h
@@ -248,11 +252,10 @@ public:
 
   typedef void                    result_type;
 #ifdef SYSTEMOC_ENABLE_VPC
-  typedef const smoc_ref_event_p &param1_type;
-  typedef const smoc_ref_event_p &param2_type;
+  typedef SysteMoC::Detail::VpcInterface param1_type;
   
   static inline
-  result_type apply(const E &e, const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent) {}
+  result_type apply(const E &e, SysteMoC::Detail::VpcInterface vpcIf) {}
 #else
   static inline
   result_type apply(const E &e) {}
@@ -291,10 +294,10 @@ public:
   typedef Detail::Ignore       match_type;
 
   typedef void                 result_type;
-  typedef smoc_event_and_list &param1_type;
+  typedef Detail::IOPattern   &param1_type;
 
   static inline
-  result_type apply(const E &e, smoc_event_and_list &al) {
+  result_type apply(const E &e, Detail::IOPattern &ap) {
 //#ifdef SYSTEMOC_DEBUG
 //    outDbg << EXPR << "Sensitivity<E>::apply(...) al == " << al << std::endl << INFO;
 //#endif
@@ -384,8 +387,7 @@ private:
     virtual void              *evalToVisitorApplication(Detail::ExprVisitor<void> &) const = 0;
 #ifdef SYSTEMOC_ENABLE_VPC
     virtual void       evalToCommExec(
-        const smoc_ref_event_p &diiEvent,
-        const smoc_ref_event_p &latEvent)  const = 0;
+        SysteMoC::Detail::VpcInterface vpcIf)  const = 0;
 #else
     virtual void       evalToCommExec()    const = 0;
 #endif
@@ -394,7 +396,7 @@ private:
     virtual void       evalToCommSetup()   const = 0;
 #endif
     virtual void       evalToSensitivity(
-       smoc_event_and_list &al)            const = 0;
+       Detail::IOPattern &ap)              const = 0;
     virtual T          evalToValue()       const = 0;
   };
 
@@ -412,9 +414,8 @@ private:
       { return VisitorApplication<E>::apply(e, v); }
 #ifdef SYSTEMOC_ENABLE_VPC
     void       evalToCommExec(
-        const smoc_ref_event_p &diiEvent,
-        const smoc_ref_event_p &latEvent) const
-      { return CommExec<E>::apply(e, diiEvent, latEvent); }
+        SysteMoC::Detail::VpcInterface vpcIf) const
+      { return CommExec<E>::apply(e, vpcIf); }
 #else
     void       evalToCommExec() const
       { return CommExec<E>::apply(e); }
@@ -426,8 +427,8 @@ private:
       { return CommSetup<E>::apply(e); }
 #endif
     void       evalToSensitivity(
-         smoc_event_and_list &al) const
-      { return Sensitivity<E>::apply(e, al); }
+         Detail::IOPattern &ap) const
+      { return Sensitivity<E>::apply(e, ap); }
     T          evalToValue() const
       { return Value<E>::apply(e); }
   };
@@ -459,15 +460,14 @@ public:
 
   typedef void                    result_type;
 #ifdef SYSTEMOC_ENABLE_VPC
-  typedef const smoc_ref_event_p &param1_type;
-  typedef const smoc_ref_event_p &param2_type;
+  typedef SysteMoC::Detail::VpcInterface    param1_type;
 
   static inline
-  result_type apply(const DVirtual <T> &e, const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent) {
+  result_type apply(const DVirtual <T> &e, SysteMoC::Detail::VpcInterface vpcIf) {
 # ifdef SYSTEMOC_DEBUG
     outDbg << EXPR << "CommExec<DVirtual<T> >::apply(e)" << std::endl << INFO;
 # endif
-    return e.v->evalToCommExec(diiEvent, latEvent);
+    return e.v->evalToCommExec(vpcIf);
   }
 #else
   static inline
@@ -519,14 +519,14 @@ public:
   typedef Detail::Process      match_type;
  
   typedef void                 result_type;
-  typedef smoc_event_and_list &param1_type;
+  typedef Detail::IOPattern   &param1_type;
 
   static inline
-  result_type apply(const DVirtual <T> &e, smoc_event_and_list &al) {
+  result_type apply(const DVirtual <T> &e, Detail::IOPattern &ap) {
 //#ifdef SYSTEMOC_DEBUG
 //    outDbg << EXPR << "Sensitivity<DVirtual<T> >::apply(e, al)" << std::endl << INFO;
 //#endif
-    return e.v->evalToSensitivity(al);
+    return e.v->evalToSensitivity(ap);
   }
 };
 
@@ -807,11 +807,13 @@ struct Sensitivity<DSMOCEvent> {
   typedef Detail::Process      match_type;
 
   typedef void                 result_type;
-  typedef smoc_event_and_list &param1_type;
+  typedef Detail::IOPattern   &param1_type;
 
   static inline
-  void apply(const DSMOCEvent &e, smoc_event_and_list &al) {
-    al &= e.v;
+  void apply(const DSMOCEvent &e, Detail::IOPattern &ap) {
+    /// add (plain) event used in activation patterns (especially Expr::till)
+    ap.addEvent(e.v);
+
 //#ifdef SYSTEMOC_DEBUG
 //    outDbg << EXPR << "Sensitivity<DSMOCEvent>::apply(...) al == " << al << std::endl << INFO;
 //#endif
@@ -916,17 +918,16 @@ public:
 
   typedef void                            result_type;
 #ifdef SYSTEMOC_ENABLE_VPC
-  typedef const smoc_ref_event_p &param1_type;
-  typedef const smoc_ref_event_p &param2_type;
+  typedef SysteMoC::Detail::VpcInterface  param1_type;
 
   static inline
   result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e,
-    const smoc_ref_event_p &diiEvent, const smoc_ref_event_p &latEvent)
+    SysteMoC::Detail::VpcInterface vpcIf)
   {
 # ifdef SYSTEMOC_DEBUG
     outDbg << EXPR << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << INFO;
 # endif
-    OpT::apply(e.a, e.b, diiEvent, latEvent);
+    OpT::apply(e.a, e.b, vpcIf);
   }
 #else // !SYSTEMOC_ENABLE_VPC
   static inline
@@ -987,11 +988,11 @@ public:
   typedef typename OpT::match_type        match_type;
   
   typedef void                            result_type;
-  typedef smoc_event_and_list            &param1_type;
+  typedef Detail::IOPattern              &param1_type;
   
   static inline
-  void apply(const DBinOp<A,B,Op> &e, smoc_event_and_list &al) {
-    OpT::apply(e.a, e.b, al);
+  void apply(const DBinOp<A,B,Op> &e, Detail::IOPattern &ap) {
+    OpT::apply(e.a, e.b, ap);
 //#ifdef SYSTEMOC_DEBUG
 //    outDbg << EXPR << "Sensitivity<DBinOp<A,B,Op>>::apply(...) al == " << al << std::endl << INFO;
 //#endif
@@ -1083,8 +1084,7 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
   static inline
 #ifdef SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b,
-      const smoc_ref_event_p &diiEvent,
-      const smoc_ref_event_p &latEvent)
+      SysteMoC::Detail::VpcInterface vpcIf)
     {}
 #else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b)
@@ -1101,9 +1101,8 @@ struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::OpBinT::LAnd,CommExec>
   static inline
 #ifdef SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b,
-      const smoc_ref_event_p &diiEvent,
-      const smoc_ref_event_p &latEvent)
-    { CommExec<A>::apply(a, diiEvent, latEvent); }
+      SysteMoC::Detail::VpcInterface vpcIf)
+    { CommExec<A>::apply(a, vpcIf); }
 #else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b)
     { CommExec<A>::apply(a); }
@@ -1119,9 +1118,8 @@ struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::OpBinT::LAnd,CommExec>
   static inline
 #ifdef SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b,
-      const smoc_ref_event_p &diiEvent,
-      const smoc_ref_event_p &latEvent)
-    { CommExec<B>::apply(b, diiEvent, latEvent); }
+      SysteMoC::Detail::VpcInterface vpcIf)
+    { CommExec<B>::apply(b, vpcIf); }
 #else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b)
     { CommExec<B>::apply(b); }
@@ -1137,11 +1135,10 @@ struct DBinOpExecute<Detail::Process,Detail::Process,Expr::OpBinT::LAnd,CommExec
   static inline
 #ifdef SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b,
-      const smoc_ref_event_p &diiEvent,
-      const smoc_ref_event_p &latEvent)
+      SysteMoC::Detail::VpcInterface vpcIf)
   {
-    CommExec<A>::apply(a, diiEvent, latEvent);
-    CommExec<B>::apply(b, diiEvent, latEvent);
+    CommExec<A>::apply(a, vpcIf);
+    CommExec<B>::apply(b, vpcIf);
   }
 #else // !SYSTEMOC_ENABLE_VPC
   void apply(const A &a, const B &b) {
@@ -1157,7 +1154,7 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,Sensitivity> {
 
   template <class A, class B>
   static inline
-  void apply(const A &a, const B &b, smoc_event_and_list &al)
+  void apply(const A &a, const B &b, Detail::IOPattern &ap)
     {}
 };
 
@@ -1168,8 +1165,8 @@ struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::OpBinT::LAnd,Sensitivi
 
   template <class A, class B>
   static inline
-  void apply(const A &a, const B &b, smoc_event_and_list &al)
-    { Sensitivity<A>::apply(a, al); }
+  void apply(const A &a, const B &b, Detail::IOPattern &ap)
+    { Sensitivity<A>::apply(a, ap); }
 };
 
 template <>
@@ -1179,8 +1176,8 @@ struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::OpBinT::LAnd,Sensitivi
 
   template <class A, class B>
   static inline
-  void apply(const A &a, const B &b, smoc_event_and_list &al)
-    { Sensitivity<B>::apply(b, al); }
+  void apply(const A &a, const B &b, Detail::IOPattern &ap)
+    { Sensitivity<B>::apply(b, ap); }
 };
 
 template <>
@@ -1190,8 +1187,8 @@ struct DBinOpExecute<Detail::Process,Detail::Process,Expr::OpBinT::LAnd,Sensitiv
 
   template <class A, class B>
   static inline
-  void apply(const A &a, const B &b, smoc_event_and_list &al)
-    { Sensitivity<A>::apply(a, al); Sensitivity<B>::apply(b, al); }
+  void apply(const A &a, const B &b, Detail::IOPattern &ap)
+    { Sensitivity<A>::apply(a, ap); Sensitivity<B>::apply(b, ap); }
 };
 
 template <>

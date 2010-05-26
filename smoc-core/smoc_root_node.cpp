@@ -38,7 +38,6 @@
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_root_node.hpp>
-#include <systemoc/detail/hscd_tdsim_TraceLog.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 #include <systemoc/smoc_graph_type.hpp>
@@ -64,15 +63,17 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
   commstate = new RuntimeState();
   commstate->addTransition(
       RuntimeTransition(
-        this,
-        Expr::till(*diiEvent),
-        smoc_func_diverge(this, &smoc_root_node::_communicate)));
+        boost::shared_ptr<TransitionImpl>(new TransitionImpl(
+          Expr::till(*diiEvent),
+          smoc_func_diverge(this, &smoc_root_node::_communicate)))),
+      this);
 #endif // SYSTEMOC_ENABLE_VPC
 }
  
 #ifdef SYSTEMOC_ENABLE_VPC
 RuntimeState* smoc_root_node::_communicate() {
   assert(diiEvent != NULL && *diiEvent); // && vpc_event_lat != NULL
+  diiEvent->reset();
   return nextState;
 }
 #endif // SYSTEMOC_ENABLE_VPC
@@ -316,7 +317,9 @@ void smoc_root_node::signaled(smoc_event_waiter *e) {
         }
       }
       
+#ifdef SYSTEMOC_ENABLE_DEBUG
       assert(!(oldct != NULL && ct == NULL) && "WTF?! Event was enabled but transition vanished!");
+#endif // SYSTEMOC_ENABLE_DEBUG
       
       if (ct) {
 #ifdef SYSTEMOC_DEBUG
@@ -381,12 +384,14 @@ void smoc_root_node::schedule() {
   
   if (ct == NULL)
     setCurrentState(currentState);
-  while (ct) {
-//  assert(ct->evaluateIOP());
-//  assert(ct->evaluateGuard());
+
+  // ct may be NULL if
+  // t->evaluateIOP() holds and t->evaluateGuard() fails for all transitions t
+  if (ct != NULL) {
+    assert(ct->evaluateIOP());
+    assert(ct->evaluateGuard());
     ct->execute(this);
   }
-  
   // also del/add me as listener  
   if(currentState != oldState) {
     { 
@@ -410,7 +415,9 @@ void smoc_root_node::schedule() {
   }
 
   executing = false;
-  smoc_event::reset();
+  if(!ct){  
+    smoc_event::reset();
+  }
 
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_root_node::schedule>" << std::endl;

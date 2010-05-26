@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-140
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Fri Dec  4 15:48:04 CET 2009
+Standard-date: 2009-12-04 14:48:04 GMT
+Modified-files: smoc-core/SMXDumper.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-140
+Summary: 
+ * Begin work on smoc_reset_chan dumping, i.e., SGX::ResetNet.
+Keywords: 
+
+
+

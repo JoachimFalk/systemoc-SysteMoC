@@ -1,0 +1,16 @@
+Revision: SysteMoC--devel--0.9--patch-173
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Apr 23 16:41:51 CEST 2010
+Standard-date: 2010-04-23 14:41:51 GMT
+Modified-files: pkginclude/systemoc/detail/hscd_tdsim_TraceLog.hpp
+    smoc-core/hscd_tdsim_TraceLog.cpp
+    smoc-core/smoc_firing_rules.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-173
+Summary: 
+ - indent dataflow trace log
+ - trace transition IDs in dataflow trace log
+Keywords: 
+
+
+

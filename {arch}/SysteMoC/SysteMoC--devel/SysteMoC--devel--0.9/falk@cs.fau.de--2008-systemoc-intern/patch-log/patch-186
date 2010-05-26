@@ -1,0 +1,21 @@
+Revision: SysteMoC--devel--0.9--patch-186
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Christian Zebelein <christian.zebelein@cs.fau.de>
+Date: Thu May 20 15:24:47 CEST 2010
+Standard-date: 2010-05-20 13:24:47 GMT
+Modified-files: pkginclude/systemoc/smoc_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-186
+    falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-63
+Summary: 
+  * Merge from SysteMoC--mainline--0.9.1--patch-63
+  - Added numFree/numAvailable methods to smoc_port_out_base/smoc_port_in_base
+Keywords: 
+
+
+
+Patches applied:
+
+ * falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-63
+   
+  * Added numFree/numAvailable methods to smoc_port_out_base/smoc_port_in_base
+

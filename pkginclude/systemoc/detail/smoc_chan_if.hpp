@@ -52,13 +52,20 @@
 #include "smoc_event_decls.hpp"
 #include "../smoc_expr.hpp"
 #include "smoc_debug_stream.hpp"
+#include "smoc/detail/IOPattern.hpp"
+
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
+#include "smoc/detail/VpcInterface.hpp"
+
 // forward declaration
 namespace SystemC_VPC {
   class FastLink;
 }
 #endif // SYSTEMOC_ENABLE_VPC
+
+class smoc_port_in_base_if;
 
 namespace SysteMoC { namespace Detail {
 
@@ -89,7 +96,6 @@ public:
   template <class E> friend class CommSetup;
   template <class E> friend class CommReset;
 #endif
-  template <class E> friend class Sensitivity;
   template <class E> friend class Value;
 private:
   smoc_sysc_port &p;
@@ -166,33 +172,14 @@ struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
                  "::apply(" << e.a.p.name() << ", ... )" << std::endl << INFO;
 # endif
     size_t req = Value<E>::apply(e.b);
-# ifdef SYSTEMOC_TRACE
-    TraceLog.traceCommSetup
-      (dynamic_cast<smoc_root_chan *>(e.a.p.operator ->()), req);
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    e.a.getCI().traceCommSetup(req);
+    //TraceLog.traceCommSetup(dynamic_cast<smoc_root_chan *>(e.a.getCI()), req);
 # endif
     return e.a.p.portAccess->setLimit(req);
   }
 };
 #endif
-
-template <class CI, typename T>
-struct Sensitivity<DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::OpBinT::Ge> >
-{
-  typedef Detail::Process      match_type;
-
-  typedef void                 result_type;
-  typedef smoc_event_and_list &param1_type;
-
-  static
-  void apply(const DBinOp<DPortTokens<CI>,DLiteral<T>,Expr::OpBinT::Ge> &e,
-             smoc_event_and_list &al)
-  {
-    al &= e.a.getCI().blockEvent(Value<DLiteral<T> >::apply(e.b));
-//#ifdef SYSTEMOC_DEBUG
-//  outDbg << EXPR << "Sensitivity<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >::apply al == " << al << std::endl << INFO;
-//#endif
-  }
-};
 
 template <class CI, class E>
 struct Value<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
@@ -231,19 +218,21 @@ public:
   friend class Value<this_type>;
 private:
   smoc_sysc_port &p;
-  E               e;
+  E               committed; // was "E   e;"
+  E               required;
 
   CI &getCI() const {
     return *static_cast<CI *>(
       const_cast<smoc_port_base_if *>(p.get_interface()));
   }
 public:
-  explicit DComm(smoc_sysc_port &p, const E &e): p(p), e(e) {}
+  explicit DComm(smoc_sysc_port &p, const E &c, const E &r):
+    p(p), committed(c), required(r) {}
 };
 
 template<class CI, class E>
 struct D<DComm<CI,E> >: public DBase<DComm<CI,E> > {
-  D(smoc_sysc_port &p, const E &e): DBase<DComm<CI,E> >(DComm<CI,E>(p,e)) {}
+  D(smoc_sysc_port &p, const E &r, const E &c): DBase<DComm<CI,E> >(DComm<CI,E>(p, r, c)) {}
 };
 
 // Make a convenient typedef for the token type.
@@ -253,8 +242,10 @@ struct Comm {
 };
 
 template <class P, class E>
-typename Comm<typename P::chan_base_type,E>::type comm(P &p, const E &e)
-  { return typename Comm<typename P::chan_base_type,E>::type(p,e); }
+typename Comm<typename P::chan_base_type,E>::type comm(P &p,
+                                                       const E &r,
+                                                       const E &c)
+  { return typename Comm<typename P::chan_base_type,E>::type(p,r,c); }
 
 template<class CI, class E>
 class VisitorApplication<DComm<CI,E> > {
@@ -264,7 +255,32 @@ public:
 
   static inline
   result_type apply(const DComm<CI,E> &e, param1_type p)
-    { return p.visitComm(e.p, boost::bind(VisitorApplication<E>::apply, e.e, _1)); }
+    { return p.visitComm(e.p, boost::bind(VisitorApplication<E>::apply, e.committed, _1)); }
+};
+
+template <class CI, class E>
+struct Sensitivity<DComm<CI,E> >
+{
+  typedef Detail::Process      match_type;
+
+  typedef void                 result_type;
+  typedef Detail::IOPattern   &param1_type;
+
+  static
+  void apply(const DComm<CI,E> &comm,
+             Detail::IOPattern &ap)
+  {
+    size_t numberRequiredTokens = Value<E>::apply(comm.required);
+    smoc_event& blockEvent =  comm.getCI().blockEvent(numberRequiredTokens);
+    smoc_sysc_port& port = comm.p;
+    ap.addPortRequirement(port, numberRequiredTokens, blockEvent);
+#ifdef SYSTEMOC_DEBUG
+    outDbg << "Sensitivity: match comm" << std::endl;
+    outDbg << "req: " << numberRequiredTokens << "\t"
+              << blockEvent  << "\t"
+              << &port << std::endl;
+#endif
+  }
 };
 
 template <class CI, class E>
@@ -277,13 +293,14 @@ struct CommExec<DComm<CI, E> > {
 
   static inline
   result_type apply(const DComm<CI, E> &e,
-      const smoc_ref_event_p &diiEvent,
-      const smoc_ref_event_p &latEvent) {
+                    const SysteMoC::Detail::VpcInterface vpcIf) {
 # ifdef SYSTEMOC_DEBUG
     outDbg << EXPR << "CommExec<DComm<CI, E> >"
                  "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
 # endif
-    return e.getCI().commExec(Value<E>::apply(e.e), diiEvent, latEvent);
+  //std::cerr << "accessCount = " << e.getCI().getAccessCount() << std::endl;
+    e.getCI().resetAccessCount();
+    return e.getCI().commExec(Value<E>::apply(e.committed), vpcIf);
   }
 #else
   static inline
@@ -292,7 +309,7 @@ struct CommExec<DComm<CI, E> > {
     outDbg << EXPR << "CommExec<DComm<CI, E> >"
                  "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
 # endif
-    return e.getCI().commExec(Value<E>::apply(e.e));
+    return e.getCI().commExec(Value<E>::apply(e.committed));
   }
 #endif
 };
@@ -309,9 +326,32 @@ struct Value<DComm<CI, E> > {
 
 } // namespace Expr
 
+class AccessCounter{
+public:
+  AccessCounter(): accessCount() {}
+
+  inline size_t getAccessCount() const   { return accessCount; }
+  inline void   resetAccessCount()       { accessCount = 0; }
+
+  // called from smoc::port_in::operator[] const
+  // -> has to be const (accessCount is mutable)
+  inline void   incrementAccessCount() const
+    { accessCount++; }
+  
+private:
+  mutable size_t accessCount;
+};
 
 class smoc_port_in_base_if
-: public smoc_port_base_if {
+: public smoc_port_base_if,
+  public SysteMoC::Detail::SimCTXBase
+#ifdef PORT_ACCESS_COUNTER
+  , public AccessCounter
+#endif // PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_ENABLE_VPC
+  , public SysteMoC::Detail::VpcPortInterface
+#endif // SYSTEMOC_ENABLE_VPC
+{
   typedef smoc_port_in_base_if this_type;
 
   friend class smoc_graph_synth;
@@ -352,19 +392,30 @@ public:
     CommAndPortTokensGuard communicate(size_t n, size_t m) {
       assert(m >= n);
       return
-        Expr::comm(*getImpl(), Expr::DLiteral<size_t>(n)) &&
+        Expr::comm(*getImpl(),
+                   Expr::DLiteral<size_t>(n),
+                   Expr::DLiteral<size_t>(m))
+        && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
         Expr::portTokens(*getImpl()) >= m;
     }
 
     PortTokensGuard getConsumableTokens()
       { return Expr::portTokens(*getImpl()); }
+
+    // reflect operator () to channel interface
+    CommAndPortTokensGuard operator ()(size_t n, size_t m)
+      { return this->communicate(n,m); }
+    CommAndPortTokensGuard operator ()(size_t n)
+      { return this->communicate(n,n); }
+
   };
 protected:
   // constructor
   smoc_port_in_base_if() {}
   
 #ifdef SYSTEMOC_ENABLE_VPC
-  virtual void        commitRead(size_t consume, const smoc_ref_event_p &) = 0;
+  virtual void        commitRead(size_t consume,
+    SysteMoC::Detail::VpcInterface vpcIf) = 0;
 #else
   virtual void        commitRead(size_t consume) = 0;
 #endif
@@ -377,9 +428,12 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   void commExec(
       size_t n,
-      const smoc_ref_event_p &diiEvent,
-      const smoc_ref_event_p &latEvent)
-    { return this->commitRead(n, diiEvent); }
+      SysteMoC::Detail::VpcInterface vpcIf)
+    {
+      vpcIf.setPortIf(this); // TODO (ms): move to base class?
+      vpcIf.startVpcRead(n);
+      return this->commitRead(n, vpcIf);
+    }
 #else
   void commExec(size_t n)
     { return this->commitRead(n); }
@@ -392,6 +446,10 @@ protected:
   /// @brief Reset
   virtual void reset() {}
 
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  virtual void traceCommSetup(size_t req) {};
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+
 public:
   virtual size_t      inTokenId() const = 0;
   virtual size_t      numAvailable() const = 0;
@@ -400,7 +458,15 @@ public:
 };
 
 class smoc_port_out_base_if
-: public smoc_port_base_if {
+: public smoc_port_base_if,
+  public SysteMoC::Detail::SimCTXBase
+#ifdef PORT_ACCESS_COUNTER
+  , public AccessCounter
+#endif // PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_ENABLE_VPC
+  , public SysteMoC::Detail::VpcPortInterface
+#endif // SYSTEMOC_ENABLE_VPC
+{
   typedef smoc_port_out_base_if this_type;
 
   friend class smoc_graph_synth;
@@ -440,19 +506,30 @@ public:
     CommAndPortTokensGuard communicate(size_t n, size_t m) {
       assert(m >= n);
       return
-        Expr::comm(*getImpl(), Expr::DLiteral<size_t>(n)) &&
+        Expr::comm(*getImpl(),
+                   Expr::DLiteral<size_t>(n),
+                   Expr::DLiteral<size_t>(m))
+        && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
         Expr::portTokens(*getImpl()) >= m;
     }
 
     PortTokensGuard getFreeSpace()
       { return Expr::portTokens(*getImpl()); }
+
+    // reflect operator () to channel interface
+    CommAndPortTokensGuard operator ()(size_t n, size_t m)
+      { return this->communicate(n,m); }
+    CommAndPortTokensGuard operator ()(size_t n)
+      { return this->communicate(n,n); }
+
   };
 protected:
   // constructor
   smoc_port_out_base_if() {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  virtual void        commitWrite(size_t produce, const smoc_ref_event_p &) = 0;
+  virtual void        commitWrite(size_t produce,
+    SysteMoC::Detail::VpcInterface vpcIf) = 0;
 #else
   virtual void        commitWrite(size_t produce) = 0;
 #endif
@@ -465,9 +542,8 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   void commExec(
       size_t n,
-      const smoc_ref_event_p &diiEvent,
-      const smoc_ref_event_p &latEvent)
-    { return this->commitWrite(n, latEvent); }
+      SysteMoC::Detail::VpcInterface vpcIf)
+    { vpcIf.setPortIf(this); return this->commitWrite(n, vpcIf); }
 #else
   void commExec(size_t n)
     { return this->commitWrite(n); }
@@ -479,6 +555,10 @@ protected:
   virtual void lessSpace(size_t n) {}
   /// @brief Reset
   virtual void reset() {}
+
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  virtual void traceCommSetup(size_t req) {};
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 public:
   virtual size_t      outTokenId() const = 0;

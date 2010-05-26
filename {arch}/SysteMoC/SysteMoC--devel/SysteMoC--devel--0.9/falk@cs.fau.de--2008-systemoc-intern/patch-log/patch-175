@@ -1,0 +1,26 @@
+Revision: SysteMoC--devel--0.9--patch-175
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Mon Apr 26 16:49:47 CEST 2010
+Standard-date: 2010-04-26 14:49:47 GMT
+Renamed-files: pkginclude/systemoc/detail/.arch-ids/hscd_tdsim_TraceLog.hpp.id pkginclude/smoc/detail/.arch-ids/TraceLog.hpp.id
+    pkginclude/systemoc/detail/hscd_tdsim_TraceLog.hpp pkginclude/smoc/detail/TraceLog.hpp
+    smoc-core/.arch-ids/hscd_tdsim_TraceLog.cpp.id smoc-core/.arch-ids/TraceLog.cpp.id
+    smoc-core/hscd_tdsim_TraceLog.cpp smoc-core/TraceLog.cpp
+Modified-files: Makefile.am pkginclude/Makefile.am
+    pkginclude/smoc/detail/TraceLog.hpp
+    pkginclude/smoc/smoc_simulation_ctx.hpp
+    pkginclude/systemoc/smoc_fifo.hpp
+    smoc-core/TraceLog.cpp smoc-core/smoc_firing_rules.cpp
+    smoc-core/smoc_func_call.cpp
+    smoc-core/smoc_latency_queues.cpp
+    smoc-core/smoc_multireader_fifo.cpp
+    smoc-core/smoc_reset.cpp
+    smoc-core/smoc_simulation_ctx.cpp wsdf/smoc_md_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-175
+Summary: 
+ @hscd_tdsim_TraceLog.?pp:  renamed to TraceLog.?pp and moved to namespace SysteMoC::Detail
+Keywords: 
+
+
+
