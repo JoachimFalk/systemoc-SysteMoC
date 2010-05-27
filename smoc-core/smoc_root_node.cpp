@@ -64,9 +64,10 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
   commstate = new RuntimeState();
   commstate->addTransition(
       RuntimeTransition(
-        this,
-        Expr::till(*diiEvent),
-        smoc_func_diverge(this, &smoc_root_node::_communicate)));
+        boost::shared_ptr<TransitionBase>(new TransitionBase(
+          Expr::till(*diiEvent),
+          smoc_func_diverge(this, &smoc_root_node::_communicate)))),
+      this);
 #endif // SYSTEMOC_ENABLE_VPC
 }
  

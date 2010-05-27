@@ -94,7 +94,7 @@ private:
 
   /// @brief Action
   smoc_action f;
-protected:
+public:
   TransitionBase(
       Guard const &g,
       const smoc_action &f);
@@ -105,6 +105,10 @@ public:
 
   /// @brief Returns the action
   const smoc_action &getAction() const
+    { return f; }
+
+  /// @brief Returns the action
+  smoc_action &getAction()
     { return f; }
 };
 
@@ -238,7 +242,7 @@ public:
 
   void *getID() const;
 
-  void finalise();
+  void finalise(const smoc_root_node* node);
 };
 
 typedef std::list<RuntimeTransition>   RuntimeTransitionList;
@@ -264,7 +268,8 @@ public:
   const RuntimeTransitionList& getTransitions() const;
   RuntimeTransitionList& getTransitions();
 
-  void addTransition(const RuntimeTransition& t);
+  void addTransition(const RuntimeTransition& t,
+                     const smoc_root_node *node);
 
   EventWaiterSet am;
 

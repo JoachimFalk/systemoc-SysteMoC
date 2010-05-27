@@ -314,7 +314,8 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
       vpcLink->compute(p);
     }
     else if(mode & TICK) {
-      smoc_sr_func_pair* fp = boost::get<smoc_sr_func_pair>(&getAction());
+      const smoc_sr_func_pair* fp =
+        boost::get<smoc_sr_func_pair>(&getAction());
       assert(fp);
       fp->tickLink->compute(p);
     }
@@ -415,7 +416,7 @@ bool RuntimeTransition::evaluateGuard() const {
   }
 }
 
-void RuntimeTransition::finalise() {
+void RuntimeTransition::finalise(const smoc_root_node *node) {
   smoc_event_and_list tmp;
   Expr::evalTo<Expr::Sensitivity>(getExpr(), tmp);
 
@@ -426,10 +427,14 @@ void RuntimeTransition::finalise() {
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS  
 #ifdef SYSTEMOC_ENABLE_VPC
+  /*
   if (dynamic_cast<smoc_actor *>(actor) != NULL) {
     vpcLink = boost::apply_visitor(
         VPCLinkVisitor(actor->name()), getAction());
   }
+  */
+  vpcLink = boost::apply_visitor(
+    VPCLinkVisitor(node->name()), getAction());
 #endif //SYSTEMOC_ENABLE_VPC
 }
 
@@ -459,12 +464,13 @@ const RuntimeTransitionList& RuntimeState::getTransitions() const
 RuntimeTransitionList& RuntimeState::getTransitions()
   { return tl; }
   
-void RuntimeState::addTransition(const RuntimeTransition& t) {
+void RuntimeState::addTransition(const RuntimeTransition& t,
+                                 const smoc_root_node *node) {
   tl.push_back(t);
 
   RuntimeTransition& tr = tl.back();
 
-  tr.finalise();
+  tr.finalise(node);
   am.insert(tr.ap);
 }
 
@@ -717,7 +723,8 @@ void FiringFSMImpl::finalise(
           rs->addTransition(
               RuntimeTransition(
                 t->getCachedTransitionBase(),
-                rd));
+                rd),
+              actor);
 #ifdef FSM_FINALIZE_BENCHMARK
           nRunTrans++;
 #endif // FSM_FINALIZE_BENCHMARK
