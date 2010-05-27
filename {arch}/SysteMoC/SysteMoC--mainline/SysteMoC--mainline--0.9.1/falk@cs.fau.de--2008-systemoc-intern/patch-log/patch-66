@@ -1,0 +1,13 @@
+Revision: SysteMoC--mainline--0.9.1--patch-66
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Joachim Falk <falk@cs.fau.de>
+Date: Thu May 27 16:39:05 CEST 2010
+Standard-date: 2010-05-27 14:39:05 GMT
+Modified-files: wsdf/smoc_md_port.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--mainline--0.9.1--patch-66
+Summary: 
+ * Make WSDF compile again.
+Keywords: 
+
+
+

@@ -75,8 +75,16 @@ namespace Expr {
     }
   };
 
+  template <typename P>
+  class VisitorApplication<DPortIteration<P> > {
+  public:
+    typedef void                      *result_type;
+    typedef Detail::ExprVisitor<void> &param1_type;
 
-
+    static inline
+    result_type apply(const DPortIteration<P> &e, param1_type p)
+      { return NULL; /* FIXME: simply make it compile again */ }
+  };
 
   // Make a convenient typedef for the token type.
   // P: port class
@@ -121,6 +129,17 @@ namespace Expr {
     static inline
     result_type apply(const DMDToken<PORT_TYPE> &e)
     { return e.p[e.pos]; }
+  };
+
+  template<typename PORT_TYPE>
+  class VisitorApplication<DMDToken<PORT_TYPE> > {
+  public:
+    typedef void                      *result_type;
+    typedef Detail::ExprVisitor<void> &param1_type;
+
+    static inline
+    result_type apply(const DMDToken<PORT_TYPE> &e, param1_type p)
+      { return NULL; /* FIXME: simply make it compile again */ }
   };
 
   template<class PORT_TYPE>
@@ -168,6 +187,9 @@ public:
   typedef typename base_type::access_type::iter_domain_vector_type iter_domain_vector_type;
   typedef smoc_snk_md_loop_iterator_kind::border_type_vector_type border_type_vector_type;
   
+  smoc_md_port_in_base()
+    : base_type(sc_gen_unique_name("smoc_md_port_in"), sc_port_policy()) {}
+
   virtual border_type_vector_type is_ext_border(
 						const iter_domain_vector_type& window_iteration,
 						bool& is_border) const
@@ -193,6 +215,9 @@ private:
 public:
   typedef typename base_type::access_type::iter_domain_vector_type iter_domain_vector_type;
   typedef typename base_type::access_type::return_type             return_type;
+
+  smoc_md_port_out_base()
+    : base_type(sc_gen_unique_name("smoc_md_port_out"), sc_port_policy()) {}
 
   virtual return_type operator[](const iter_domain_vector_type& id){
     return (*(this->get_chanaccess()))[id];
