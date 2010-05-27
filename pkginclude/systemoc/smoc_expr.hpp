@@ -213,6 +213,8 @@ namespace SysteMoC { namespace Detail {
     virtual result_type visitComm(smoc_sysc_port &p, boost::function<result_type (this_type &)> e) = 0;
     virtual result_type visitUnOp(OpUnT op, boost::function<result_type (this_type &)> e) = 0;
     virtual result_type visitBinOp(OpBinT op, boost::function<result_type (this_type &)> a, boost::function<result_type (this_type &)> b) = 0;
+
+    virtual ~ExprVisitor() {}
   };
 
 } } // namespace SysteMoC::Detail
