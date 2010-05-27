@@ -152,12 +152,20 @@ SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_func_call_list& f) 
 }
 
 SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_sr_func_pair& f) const {
+  std::ostringstream os;
+
+  os << f.tick.getFuncName();
+  os << "_";
+  os << f.go.getFuncName();
+
+  /* FIXME: we cannot modify tickLink here:
   f.tickLink = new SystemC_VPC::FastLink(
       SystemC_VPC::Director::getInstance().getFastLink(
         name, f.tick.getFuncName()));
+  */
   return new SystemC_VPC::FastLink(
       SystemC_VPC::Director::getInstance().getFastLink(
-        name, f.go.getFuncName()));
+        name, os.str()));
 }
 
 SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_func_diverge& f) const {
