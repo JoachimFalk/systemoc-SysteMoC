@@ -46,6 +46,7 @@ namespace SysteMoC { namespace Detail {
 struct IfDumpingInitialTokens {
   virtual void setType(const std::string &) = 0;
   virtual void addToken(const std::string &) = 0;
+  virtual ~IfDumpingInitialTokens() {};
 };
 
 } } // namespace SysteMoC::Detail

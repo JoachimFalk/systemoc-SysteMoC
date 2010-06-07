@@ -1,0 +1,13 @@
+Revision: SysteMoC--devel--0.9--patch-191
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Fri Jun  4 09:19:18 CEST 2010
+Standard-date: 2010-06-04 07:19:18 GMT
+Modified-files: pkginclude/systemoc/smoc_fifo.hpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-191
+Summary: 
+ - fixed include (TraceLog.hpp)
+Keywords: 
+
+
+

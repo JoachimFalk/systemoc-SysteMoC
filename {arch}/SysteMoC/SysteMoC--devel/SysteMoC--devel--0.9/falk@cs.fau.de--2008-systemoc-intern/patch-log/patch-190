@@ -1,0 +1,15 @@
+Revision: SysteMoC--devel--0.9--patch-190
+Archive: falk@cs.fau.de--2008-systemoc-intern
+Creator: Martin Streubuehr <streubuehr@cs.fau.de>
+Date: Thu May 27 14:23:45 CEST 2010
+Standard-date: 2010-05-27 12:23:45 GMT
+Modified-files: pkginclude/smoc/detail/DumpingInterfaces.hpp
+    pkginclude/systemoc/smoc_expr.hpp
+    smoc-core/TraceLog.cpp
+New-patches: falk@cs.fau.de--2008-systemoc-intern/SysteMoC--devel--0.9--patch-190
+Summary: 
+ - fixed warnings: virtual dtor, unused variables
+Keywords: 
+
+
+

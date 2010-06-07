@@ -286,10 +286,6 @@ void TraceLogStream::traceInitialTokens(const smoc_root_chan *chan,
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
 
-  const char *actor = chan->name();
-  
-  size_t id = namePool.registerId(actor, chan->getId());
-  
   stream << "<it cap=\"" << capacity << "\">" << std::endl;
   stream << CoSupport::Streams::Indent::Up;
   this->traceCommExecOut(chan, size);
