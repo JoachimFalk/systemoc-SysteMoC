@@ -420,17 +420,13 @@ void RuntimeTransition::finaliseRuntimeTransition(const smoc_root_node *node) {
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS  
 #ifdef SYSTEMOC_ENABLE_VPC
-  /*
-  if (dynamic_cast<smoc_actor *>(actor) != NULL) {
-    vpcLink = boost::apply_visitor(
-        VPCLinkVisitor(actor->name()), getAction());
-  }
-  */
 
-  //initialize VpcTaskInterface
-  this->transitionImpl->diiEvent = node->diiEvent;
-  this->transitionImpl->vpcTask = boost::apply_visitor(
-    VPCLinkVisitor(node->name()), getAction());
+  if (dynamic_cast<const smoc_actor *>(node) != NULL) {
+    //initialize VpcTaskInterface
+    this->transitionImpl->diiEvent = node->diiEvent;
+    this->transitionImpl->vpcTask = boost::apply_visitor(
+        VPCLinkVisitor(node->name()), getAction());
+  }
 #endif //SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_DEBUG_VPC_IF

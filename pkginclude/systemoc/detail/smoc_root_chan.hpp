@@ -80,8 +80,6 @@ protected:
 
 #ifdef SYSTEMOC_ENABLE_VPC
   friend class Detail::LatencyQueue;
-  // new FastLink interface (patched in finalise)
-  SystemC_VPC::FastLink *vpcLink;
 #endif //SYSTEMOC_ENABLE_VPC
 
 protected:
