@@ -80,9 +80,6 @@ smoc_root_chan::smoc_root_chan(const std::string& name)
   : sc_prim_channel(name.empty() ? sc_gen_unique_name( "smoc_unnamed_channel" ) : name.c_str()),
     myName(name),
     resetCalled(false)
-#ifdef SYSTEMOC_ENABLE_VPC  
-    , vpcLink(0)
-#endif
 {
 //idPool.regObj(this);
 }
@@ -140,21 +137,17 @@ void smoc_root_chan::finalise() {
     getOutlet(iter->second)->channel = myName;
 #endif // SYSTEMOC_DEBUG
   }
-  
-  vpcLink = new SystemC_VPC::FastLink( SystemC_VPC::Director::getInstance().
-    getFastLink(myName, "1") );
-  assert(vpcLink);
 
-  // FIXME: root channel does not know how many outlets a channel should have
-  // (move this to smoc_nonconflicting_chan?)
-  if(!getOutlets().empty()) {
-
-    //FIXME: QUICKHACK:
-    this->setChannelID(
-        getOutlets().begin()->second->get_parent()->name(),
-        vpcLink->process,
-        myName);
-  }
+//  // FIXME: root channel does not know how many outlets a channel should have
+//  // (move this to smoc_nonconflicting_chan?)
+//  if(!getOutlets().empty()) {
+//
+//    //FIXME: QUICKHACK:
+//    this->setChannelID(
+//        getOutlets().begin()->second->get_parent()->name(),
+//        vpcLink->process,
+//        myName);
+//  }
 #endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_root_chan::finalise>" << std::endl;
