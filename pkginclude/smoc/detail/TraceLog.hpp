@@ -66,13 +66,14 @@ namespace SysteMoC { namespace Detail {
 
 class NamePool{
 public:
-  typedef std::map<std::string, size_t> NameMap;
+  typedef std::map<size_t, std::string> NameMap;
 
   /**
    *
    */
   size_t registerId(std::string name, size_t id) {
-    names[name] = id;
+    assert(names.find(id) == names.end() || names[id] == name);
+    names[id] = name;
     return id;
   }
   
