@@ -305,7 +305,7 @@ TraceLogStream::~TraceLogStream(){
   for(NamePool::NameMap::const_iterator iter = names.begin();
       iter != names.end();
       ++iter){
-    stream << "<name id=\"" << iter->second << "\" name=\"" << iter->first
+    stream << "<name id=\"" << iter->first << "\" name=\"" << iter->second
            << "\"/> " << std::endl;
   }
 
