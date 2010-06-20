@@ -48,7 +48,7 @@
 #include "smoc_expr.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
+# include <vpc.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
 /**

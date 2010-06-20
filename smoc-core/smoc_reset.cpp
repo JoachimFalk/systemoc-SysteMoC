@@ -23,7 +23,7 @@
 #include <smoc/detail/TraceLog.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
+# include <vpc.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
 smoc_reset_chan::chan_init::chan_init(

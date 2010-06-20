@@ -39,7 +39,7 @@
 #include <smoc/detail/TraceLog.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
+# include <vpc.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
 smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init &i)
