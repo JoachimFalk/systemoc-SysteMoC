@@ -37,7 +37,7 @@
 #include <systemoc/smoc_multicast_sr_signal.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
+# include <vpc.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
 smoc_multicast_sr_signal_chan_base::chan_init::chan_init(

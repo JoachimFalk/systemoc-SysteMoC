@@ -37,7 +37,7 @@
 #include <smoc/detail/VpcInterface.hpp>
 
 # ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
+# include <vpc.hpp>
 
 namespace SysteMoC { namespace Detail {
 

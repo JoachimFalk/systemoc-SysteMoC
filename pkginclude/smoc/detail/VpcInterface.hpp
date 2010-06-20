@@ -42,8 +42,7 @@
 #include <systemoc/detail/smoc_event_decls.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_EventPair.h>
-# include <systemcvpc/FastLink.h>
+# include <vpc.hpp>
 
 namespace SysteMoC { namespace Detail {
 

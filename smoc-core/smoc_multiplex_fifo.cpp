@@ -38,7 +38,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
+# include <vpc.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
 smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)

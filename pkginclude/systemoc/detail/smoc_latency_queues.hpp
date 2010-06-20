@@ -48,7 +48,7 @@
 #include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-# include <systemcvpc/hscd_vpc_Director.h>
+# include <vpc.hpp>
 
 namespace Detail {
 
