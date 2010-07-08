@@ -123,7 +123,8 @@ public:
   void addEntry(T t, const smoc_ref_event_p& le) {
     bool queueEmpty = queue.empty();
     
-    if(queueEmpty && (!le || *le)) {
+    assert(NULL != le); //if(queueEmpty && (!le || *le)) {
+    if(queueEmpty && *le) {
       // shortcut processing
       process(t);
     } else {
