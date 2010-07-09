@@ -325,36 +325,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     if(!*events.latency) {
       // latency event not signaled
-      struct _: public smoc_event_listener,
-                public SysteMoC::Detail::SimCTXBase {
-        smoc_root_node   *actor;
-        
-        void signaled(smoc_event_waiter *_e) {
-          assert(*_e);
-
-# ifdef SYSTEMOC_DEBUG
-          outDbg << "<transition::_::signaled/>" << std::endl;
-# endif // SYSTEMOC_DEBUG
-
-          this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, "l");
-          this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
-          return;
-        }
-
-        void eventDestroyed(smoc_event_waiter *_e) {
-# ifdef SYSTEMOC_DEBUG
-          outDbg << "<transition::_::eventDestroyed/>" << std::endl;
-# endif // SYSTEMOC_DEBUG
-          delete this;
-        }
-        
-        _(smoc_root_node *actor)
-          : actor(actor) {};
-        
-        virtual ~_() {}
-      };
-
-      events.latency->addListener(new _(actor));
+      events.latency->addListener(new SysteMoC::Detail::DeferedTraceLogDumper(actor, "l"));
 
     } else {
       this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, "l");

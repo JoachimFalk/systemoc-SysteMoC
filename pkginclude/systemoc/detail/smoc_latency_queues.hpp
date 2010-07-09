@@ -52,11 +52,6 @@
 
 namespace Detail {
 
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-struct DeferedTraceLogDumper;
-#endif
-
-
 class TokenInfo{
 public:
   TokenInfo(size_t count, SysteMoC::Detail::VpcInterface vpcIf) :

@@ -139,7 +139,7 @@ void TraceLogStream::init(){
 
 
 
-void TraceLogStream::traceStartActor(const smoc_root_node *actor,
+void TraceLogStream::traceStartActor(const SysteMoC::Detail::NamedIdedObj *actor,
                                      const char *mode) {
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
@@ -156,37 +156,11 @@ void TraceLogStream::traceStartActor(const smoc_root_node *actor,
   stream << CoSupport::Streams::Indent::Up;
 }
 
-void TraceLogStream::traceEndActor(const smoc_root_node *actor){
+void TraceLogStream::traceEndActor(const SysteMoC::Detail::NamedIdedObj *actor){
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
   lastactor="";
-
-  stream << CoSupport::Streams::Indent::Down;
-  stream << "</a>" << std::endl;
-}
-
-void TraceLogStream::traceStartActor(const smoc_root_chan *chan,
-                                     const char *mode) {
-
-  if( !getSimCTX()->isDataflowTracingEnabled() )
-    return;
-
-  lastactor=chan->name();
-  size_t id = namePool.registerId(lastactor, chan->getId());
-  stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\""
-         << sc_time_stamp() << "\">";
-  READABLE(stream << " <i n=\"" << lastactor << "\">");
-  stream << std::endl;
-  actors.insert(lastactor);
-  actor_activation_count[lastactor]++;
-  stream << CoSupport::Streams::Indent::Up;
-}
-
-void TraceLogStream::traceEndActor(const smoc_root_chan *chan) {
-
-  if( !getSimCTX()->isDataflowTracingEnabled() )
-    return;
 
   stream << CoSupport::Streams::Indent::Down;
   stream << "</a>" << std::endl;
