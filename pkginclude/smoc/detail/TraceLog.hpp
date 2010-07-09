@@ -43,7 +43,9 @@
 #include <set>
 
 #include <systemoc/smoc_config.h>
+#include <smoc/detail/NamedIdedObj.hpp>
 #include "../../smoc/smoc_simulation_ctx.hpp"
+#include "../../systemoc/detail/smoc_event_decls.hpp"
 
 #include <CoSupport/Streams/FilterOStream.hpp>
 #include <CoSupport/Streams/IndentStreambuf.hpp>
@@ -163,10 +165,8 @@ public:
 
   void init();
 
-  void traceStartActor(const smoc_root_node *actor, const char *mode = "???");
-  void traceEndActor(const smoc_root_node *actor);
-  void traceStartActor(const smoc_root_chan *chan, const char *mode = "???");
-  void traceEndActor(const smoc_root_chan *chan);
+  void traceStartActor(const SysteMoC::Detail::NamedIdedObj *actor, const char *mode = "???");
+  void traceEndActor(const SysteMoC::Detail::NamedIdedObj *actor);
   void traceStartFunction(const smoc_func_call *func);
   void traceEndFunction(const smoc_func_call *func);
   void traceCommExecIn(const smoc_root_chan *chan, size_t size);
@@ -181,6 +181,39 @@ public:
 private:
   TraceLogStream(const TraceLogStream & toCopy) :stream(std::cerr) {};
 };
+
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  struct DeferedTraceLogDumper
+  : public smoc_event_listener,
+    public SysteMoC::Detail::SimCTXBase {
+    SysteMoC::Detail::NamedIdedObj   *fifo;
+    const char       *mode;
+
+    void signaled(smoc_event_waiter *_e) {
+      assert(*_e);
+
+#   ifdef SYSTEMOC_DEBUG
+      std::cerr << "smoc_detail::DeferedTraceLogDumper::signaled(...)" << std::endl;
+#   endif // SYSTEMOC_DEBUG
+      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(fifo, mode);
+      this->getSimCTX()->getDataflowTraceLog()->traceEndActor(fifo);
+      return;
+    }
+    void eventDestroyed(smoc_event_waiter *_e) {
+#   ifdef SYSTEMOC_DEBUG
+      std::cerr << "smoc_detail::DeferedTraceLogDumper:: eventDestroyed(...)" << std::endl;
+#   endif // SYSTEMOC_DEBUG
+      delete this;
+    }
+
+    DeferedTraceLogDumper
+      (SysteMoC::Detail::NamedIdedObj *obj, const char *mode)
+      : fifo(obj), mode(mode) {};
+
+    virtual ~DeferedTraceLogDumper() {}
+  };
+
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 }} // namespace SysteMoC::Detail
 
