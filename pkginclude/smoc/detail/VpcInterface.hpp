@@ -163,7 +163,9 @@ protected:
   }
 
   void eventDestroyed(CoSupport::SystemC::EventWaiter *_e)
-    { assert(!"eventDestroyed must never be called!"); }
+    { 
+		//assert(!"eventDestroyed must never be called!");
+    }
 
 private:
   /// latEvent is created new for each compute

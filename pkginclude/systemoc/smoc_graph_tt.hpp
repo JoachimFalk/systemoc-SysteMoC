@@ -24,7 +24,7 @@ struct nodeCompare{
   {
     sc_time p1=tnp1.time;
     sc_time p2=tnp2.time;
-    if (p1 >= p2)
+    if (p1 > p2)
       return true;
     else
       return false;
