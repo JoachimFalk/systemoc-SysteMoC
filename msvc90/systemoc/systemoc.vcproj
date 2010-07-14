@@ -377,6 +377,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\smoc-core\smoc_graph_tt.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\smoc-core\smoc_graph_type.cpp"
 			>
 		</File>
