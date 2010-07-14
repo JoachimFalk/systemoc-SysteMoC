@@ -109,7 +109,9 @@ protected:
     vpp(n);
     emmData.increasedCount(visibleCount());
 
-    smoc_root_chan::doReset();
+    //smoc_root_chan::doReset();  // DISABLED (ms):
+    // doReset has an effect during elaboration, but has NO effect during
+    // simulation. latencyExpired is only called during simulation.
   }
 
   /// @brief Detail::DIIQueue callback
