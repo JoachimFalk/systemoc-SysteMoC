@@ -312,7 +312,9 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   
 #ifdef SYSTEMOC_ENABLE_VPC
   if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
-    Expr::evalTo<Expr::CommExec>(getExpr(), VpcInterface(this->transitionImpl.get()));
+    VpcTaskInterface *vti = this->transitionImpl.get();
+    vti->getDiiEvent()->reset();
+    Expr::evalTo<Expr::CommExec>(getExpr(), VpcInterface(vti));
 
     SystemC_VPC::EventPair events = this->transitionImpl->startCompute();
 

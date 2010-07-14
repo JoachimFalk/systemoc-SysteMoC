@@ -73,7 +73,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
 #ifdef SYSTEMOC_ENABLE_VPC
 RuntimeState* smoc_root_node::_communicate() {
   assert(diiEvent != NULL && *diiEvent); // && vpc_event_lat != NULL
-  diiEvent->reset();
+  //diiEvent->reset();
   return nextState;
 }
 #endif // SYSTEMOC_ENABLE_VPC
