@@ -147,6 +147,18 @@ private:
 
   /// @brief The token id of the next commit token
   size_t tokenId;
+
+  virtual void end_of_simulation(){
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << this->name() << "\t"
+              << this->visibleCount() << "\t"
+              << this->fSize() << "\t"
+              << this->freeCount() << "\t"
+              << this->usedCount() << std::endl;
+    latencyQueue.dump();
+    diiQueue.dump();
+#endif // SYSTEMOC_DEBUG
+  }
 };
 
 template<class> class smoc_fifo_chan;

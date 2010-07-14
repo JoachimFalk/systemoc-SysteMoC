@@ -44,7 +44,12 @@
 
 #ifdef SYSTEMOC_ENABLE_VPC
 namespace Detail {
-
+  void dump_helper(std::pair<size_t, smoc_ref_event_p> & e){
+    std::cerr << e.first << "\t" << e.second << "\t" << *e.second << std::endl;
+  }
+  void dump_helper(std::pair<TokenInfo, smoc_ref_event_p> & e){
+    std::cerr << e.first.count << "\t" << e.second << "\t" << *e.second << std::endl;
+  }
   void LatencyQueue::actorTokenLatencyExpired(TokenInfo ti) {
 
     // TODO (ms): "unroll n"

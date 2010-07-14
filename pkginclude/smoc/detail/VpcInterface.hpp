@@ -107,7 +107,7 @@ public:
 #endif // SYSTEMOC_DEBUG_VPC_IF
     if(dynamicReadEvents){
 #ifdef SYSTEMOC_DEBUG_VPC_IF
-      outDbg << "shortcut relese()" << std::endl;
+      outDbg << "shortcut release()" << std::endl;
 #endif // SYSTEMOC_DEBUG_VPC_IF
       this->releaseTask();
     }else{
