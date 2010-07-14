@@ -178,6 +178,20 @@ private:
   
   /// @brief Called when less space is available
   void lessSpace(size_t n);
+
+public:
+  virtual void end_of_simulation(){
+#ifdef SYSTEMOC_DEBUG
+    std::cerr << this->name() << "\t"
+              << this->visibleCount() << "\t"
+              << this->fSize() << "\t"
+              << this->freeCount() << "\t"
+              << this->usedCount() << std::endl;
+    latencyQueue.dump();
+    diiQueue.dump();
+#endif // SYSTEMOC_DEBUG
+  }
+
 };
 
 template<class> class smoc_multireader_fifo_chan;

@@ -60,6 +60,9 @@ public:
   SysteMoC::Detail::VpcInterface   vpcIf;
 };
 
+void dump_helper(std::pair<size_t, smoc_ref_event_p> & e);
+void dump_helper(std::pair<TokenInfo, smoc_ref_event_p> & e);
+
 template<typename T>
 class EventQueue
 : protected smoc_event_listener {
@@ -128,7 +131,14 @@ public:
         le->addListener(this);
     }
   }
-
+  void dump(){
+    for (typename Queue::iterator iter = queue.begin();
+        iter != queue.end();
+        ++iter){
+      Entry &e = *iter;
+      dump_helper(e);
+    }
+  }
 };
 
 
@@ -154,6 +164,12 @@ public:
   void addEntry(size_t n, const smoc_ref_event_p &latEvent,
                 SysteMoC::Detail::VpcInterface vpcIf)
     { requestQueue.addEntry(TokenInfo(n, vpcIf), latEvent); }
+  void dump(){
+    std::cerr << &requestQueue << "\trequestQueue: " << std::endl;
+    requestQueue.dump();
+    std::cerr << &visibleQueue << "\tvisibleQueue: " << std::endl;
+    visibleQueue.dump();
+  }
 };
 
 class DIIQueue {
@@ -169,6 +185,11 @@ public:
   void addEntry(size_t n, const smoc_ref_event_p &diiEvent,
                 SysteMoC::Detail::VpcInterface vpcIf)
     { eventQueue.addEntry(n, diiEvent); }
+
+  void dump(){
+    std::cerr << &eventQueue << "\teventQueue: " << std::endl;
+    eventQueue.dump();
+  }
 };
 
 } // namespace Detail
