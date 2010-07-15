@@ -1,0 +1,9 @@
+config.h.in
+configure
+Makefile.in
+Debug
+Debug-VPC
+Release
+Release-VPC
+Release-VPC-noVCD
+*.user
