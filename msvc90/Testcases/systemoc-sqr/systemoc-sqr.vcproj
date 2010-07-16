@@ -290,7 +290,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="systemoc.lib systemc-vpc.lib libsgx.lib libcosupport.lib systemc.lib xerces-c_static_2.lib"
+				AdditionalDependencies="systemoc.lib systemc-vpc.lib libcosupport.lib systemc.lib xerces-c_static_2.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\SysteMoC\msvc90\Release-VPC&quot;;&quot;..\..\..\..\LibSGX\msvc90\LibSGX\Release-VPC&quot;;&quot;..\..\..\..\Support\msvc90\CoSupport\Release-VPC&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90\Release-VPC&quot;;&quot;..\..\..\..\msvc90\Release-VPC&quot;"
 				IgnoreAllDefaultLibraries="false"
@@ -369,7 +369,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="systemoc.lib systemc-vpc.lib libsgx.lib libcosupport.lib systemc.lib xerces-c_static_2.lib"
+				AdditionalDependencies="systemoc.lib systemc-vpc.lib libcosupport.lib systemc.lib xerces-c_static_2.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\SysteMoC\msvc90\Release-VPC-noVCD&quot;;&quot;..\..\..\..\LibSGX\msvc90\LibSGX\Release-VPC-noVCD&quot;;&quot;..\..\..\..\Support\msvc90\CoSupport\Release-VPC-noVCD&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90\Release-VPC-noVCD&quot;;&quot;..\..\..\..\msvc90\Release-VPC-noVCD&quot;"
 				IgnoreAllDefaultLibraries="false"
