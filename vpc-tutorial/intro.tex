@@ -1,0 +1,98 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsubsection\ }}
+\begin{itemize}
+\item \SystemCoDesigner{} uses \SysteMoC{} and \VPC\ for functional and performance simulation
+\end{itemize}
+\begin{itemize}
+\item \SysteMoC{} allows for functional modeling and simulation
+\end{itemize}
+
+\begin{itemize}
+\item \VPC\ (VPC) allow for performance modeling and simulation
+\end{itemize}
+
+\begin{itemize}
+\item Together, \SysteMoC{} and \VPC\, allow for combined functional and performance simulation
+\end{itemize}
+
+\begin{itemize}
+\item Both, \SysteMoC{} and \VPC\, are implemented as individual libraries on top of SystemC
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- VPC }}
+\begin{itemize}
+\item A \VPC\ ...
+\item ... is a SystemC module
+\item ... models task execution times
+\item ... models resource contention, scheduling, and arbitration
+\end{itemize}
+
+\begin{itemize}
+\item A \VPC\ ...
+\item ... is not an Instruction Set Simulator
+\item ... is not Software
+\item ... is not Hardware
+\end{itemize}
+
+\begin{itemize}
+\item But, a \VPC\ ...
+\item ... allows to model a Processor or a HW component
+\item ... allows to model a communication resource
+\end{itemize}
+
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- \SysteMoC\ }}
+
+\begin{figure}
+\centering
+\resizebox{0.7\columnwidth}{!}{\input{vpc-systemoc-fig.tex}}
+\end{figure}
+
+\begin{itemize}
+\item A functional model in \SysteMoC\ is given by ...
+\item ... a set of actors (e.g., Source and Sink)
+\item ... a set of communication queues connecting actors 
+\end{itemize}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\VPC\ }}
+
+\begin{figure}
+\centering
+\resizebox{0.7\columnwidth}{!}{\input{vpc-systemoc-fig.tex}}
+\end{figure}
+
+\begin{itemize}
+\item An architecture model in VPC is given by ...
+\item ... a set of components (e.g., CPU, Bus, and Mem )
+\item ... a mapping of actors and queues to the set of components
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+

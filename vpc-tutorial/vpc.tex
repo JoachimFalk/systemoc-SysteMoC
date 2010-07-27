@@ -1,0 +1,350 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Functional Model}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsubsection\ -- SysteMoC Recap}}
+\begin{figure}
+\centering
+\resizebox{0.7\columnwidth}{!}{\input{vpc-systemoc-fig.tex}}
+\end{figure}
+
+\begin{itemize}
+\item Write a functional model in SysteMoC
+\item Two actors, Source and Sink, are connected via a FIFO queue
+\item cf. ``SystemCoDesigner: System Programming Tutorial''
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % fragile is mandatory for verbatim environments (lstlisting)
+ % HACK: use singleslide for correct page numbering
+ %  (page_counter+=2 else wise)
+ %  this issue seems to be relevant for *pdflatex* only
+ % NOTE: the intended usage for *singleslide* is to tell beamer that we use
+ %   no overlays (animation)
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{lstlisting}
+//file vpc_source_sink.cpp
+#include <iostream>
+#include <systemoc/smoc_moc.hpp>
+static const std::string MESSAGE = "Hello SysteMoC!";
+
+class Source : public smoc_actor{
+public:
+  smoc_port_out<char> out;
+
+  Source(sc_module_name name) : smoc_actor(name, start),
+    count(0), size(MESSAGE.size()), message(MESSAGE) {
+    start = GUARD(Source::hasToken) >>
+      out(1)                        >>
+      CALL(Source::src)             >> start;
+  }
+\end{lstlisting}
+\begin{itemize}
+\item the Source actor has an output port with data type \lstinline!char!
+\item a single FSM transition is used produce one data token per actor firing
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{lstlisting}
+//file vpc_source_sink.cpp cont'd
+private:
+  smoc_firing_state start;   // states
+  unsigned int count, size;  // variables (functional state)
+  const std::string message; //
+
+  bool hasToken() const {
+    return count < size;
+  } // guard
+
+  void src() {
+    std::cerr << this->name() << "> @ " << sc_time_stamp()
+        << "\tsend: \'" << message[count] << "\'" << std::endl;
+
+    out[0] = message[count++];
+  } // action
+};
+\end{lstlisting}
+\begin{itemize}
+\item a function \lstinline!src()! is used to produce the data tokens
+\item a guard \lstinline!hasToken()! is used to check if the transition can be fired
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{lstlisting}
+//file vpc_source_sink.cpp cont'd
+class Sink : public smoc_actor {
+public:
+  smoc_port_in<char> in;
+
+  Sink(sc_module_name name) // actor constructor
+  : smoc_actor(name, start) {
+    start = in(1) >> CALL(Sink::sink) >> start;
+  }
+private:
+  smoc_firing_state start;
+
+  void sink() {
+    std::cout << this->name() << "> @ " << sc_time_stamp()
+        << "\trecv: \'" << in[0] << "\'" << std::endl;
+  }
+};
+\end{lstlisting}
+\begin{itemize}
+\item the Sink actor receives and consume the data token
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{lstlisting}
+//file vpc_source_sink.cpp cont'd
+class NetworkGraph : public smoc_graph {
+public:
+  NetworkGraph(sc_module_name name)
+   : smoc_graph(name), source("Source"), sink("Sink") {
+    smoc_fifo<char> fifo("queue", 4);
+    fifo.connect(source.out).connect(sink.in); // connect actors
+  }
+private:
+  Source source; // actors
+  Sink sink;
+};
+int sc_main(int argc, char **argv){
+  NetworkGraph top("top"); // create network graph
+  smoc_scheduler_top sched(top);
+  sc_start(); // start simulation (SystemC)
+  return 0;
+}
+\end{lstlisting}
+\begin{itemize}
+\item Source and Sink are connected via a queue (queue size = 4)
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{lstlisting}
+> ./vpc-src-sink
+
+             SystemC 2.2.0 --- Dec 15 2008 13:19:05
+        Copyright (c) 1996-2006 by all Contributors
+                    ALL RIGHTS RESERVED            
+top.Source> @ 0 s       send: 'H'
+top.Sink> @ 0 s recv: 'H'
+top.Source> @ 0 s       send: 'e'
+top.Sink> @ 0 s recv: 'e'
+top.Source> @ 0 s       send: 'l'
+top.Sink> @ 0 s recv: 'l'
+top.Source> @ 0 s       send: 'l'
+top.Sink> @ 0 s recv: 'l'
+top.Source> @ 0 s       send: 'o'
+top.Sink> @ 0 s recv: 'o'
+...
+latency: 0 s
+\end{lstlisting}
+\begin{itemize}
+\item Compile source code and run functional simulation
+\item No timing is simulated in the functional model
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Architecture Model}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{itemize}
+\item Write VPC configuaration (XML file \lstinline!src-snk.vpc.xml!)
+\item \lstinline!.vpc.xml! is the preferred file name suffix
+\item the document type definition is given in the file (\lstinline!vpc.dtd!)
+\end{itemize}
+
+\begin{lstlisting}
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+<vpcconfiguration>
+ <resources>
+  ...
+ </resources>
+
+ <mappings>
+  ...
+ </mappings>
+
+ <topology>
+  ...
+ </topology>
+</vpcconfiguration>
+\end{lstlisting}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{itemize}
+\item \lstinline!<vpcconfiguration>! the XML root element of a VPC configuration
+\item \lstinline!<vpcconfiguration>! cantains the nested elements
+  \begin{itemize}
+  \item \lstinline!<resources>!, \lstinline!<mappings>!, and \lstinline!<topology>!
+  \end{itemize}
+\end{itemize}
+
+\begin{lstlisting}
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+<vpcconfiguration>
+ <resources>
+  ...
+ </resources>
+
+ <mappings>
+  ...
+ </mappings>
+
+ <topology>
+  ...
+ </topology>
+</vpcconfiguration>
+\end{lstlisting}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{itemize}
+\item the \lstinline!<resources>! element has nested \lstinline!<component>! elements
+\item an element \lstinline!<component>! defines a (Virtual Processing) Component
+\item each Component has a name and a scheduler given by XML attributes (\lstinline!name! and \lstinline!scheduler!)
+\end{itemize}
+
+\begin{lstlisting}
+ <resources>
+  <component name="CPU" scheduler="FCFS">
+  </component>
+
+  <component name="Bus" scheduler="FCFS">
+   <attribute type="transfer_delay" value="80 ns" />
+  </component>
+
+  <component name="Mem" scheduler="FCFS">
+   <attribute type="transfer_delay" value="20 ns" />
+  </component>
+ </resources>
+\end{lstlisting}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection -- Attributes}}
+\begin{itemize}
+\item components may have attributes (nested \lstinline!<attribute>! elements)
+\item an attributtes has a type and a value (\lstinline!<attribute type="..." value="..." />!)
+\end{itemize}
+
+\begin{lstlisting}
+ <resources>
+  <component name="CPU" scheduler="FCFS">
+  </component>
+
+  <component name="Bus" scheduler="FCFS">
+   <attribute type="transfer_delay" value="80 ns" />
+  </component>
+
+  <component name="Mem" scheduler="FCFS">
+   <attribute type="transfer_delay" value="20 ns" />
+  </component>
+ </resources>
+\end{lstlisting}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection -- TODO}}
+\begin{itemize}
+\item Write VPC configuaration as XML file ``src-snk.cmx.xml''
+\end{itemize}
+
+\begin{lstlisting}
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+<vpcconfiguration>
+ <resources>
+  <component name="CPU" scheduler="FCFS">
+  </component>
+
+  <component name="Bus" scheduler="FCFS">
+   <attribute type="transfer_delay" value="80 ns" />
+  </component>
+
+  <component name="Mem" scheduler="FCFS">
+   <attribute type="transfer_delay" value="20 ns" />
+  </component>
+ </resources>
+
+ <mappings>
+  <mapping source="top.Source" target="CPU">
+    <timing dii="10 us" latency="10 us" />
+    <timing fname="Source::src" dii="10 us" latency="10 us" />
+  </mapping>
+  <mapping source="top.Sink" target="CPU">
+    <timing dii="10 us" latency="10 us" />
+    <timing fname="Sink::sink" dii="10 us" latency="10 us" />
+  </mapping>
+ </mappings>
+
+ <topology>
+  <route  source="top.Source" destination="queue">
+   <hop name="CPU">  </hop>
+   <hop name="Bus">  </hop>
+   <hop name="Mem">  </hop>
+  </route>
+  <route  source="queue" destination="top.Sink">
+   <hop name="Mem">  </hop>
+   <hop name="Bus">  </hop>
+   <hop name="CPU">  </hop>
+  </route>
+ </topology>
+</vpcconfiguration>
+
+\end{lstlisting}
+\end{frame}
+
