@@ -81,8 +81,8 @@ DECL_INTRUSIVE_REFCOUNT_PTR(XORStateImpl, PXORStateImpl);
 class ANDStateImpl;
 DECL_INTRUSIVE_REFCOUNT_PTR(ANDStateImpl, PANDStateImpl);
 
-class ConnectorStateImpl;
-DECL_INTRUSIVE_REFCOUNT_PTR(ConnectorStateImpl, PConnectorStateImpl);
+class JunctionStateImpl;
+DECL_INTRUSIVE_REFCOUNT_PTR(JunctionStateImpl, PJunctionStateImpl);
 
 class MultiStateImpl;
 DECL_INTRUSIVE_REFCOUNT_PTR(MultiStateImpl, PMultiStateImpl);
@@ -215,24 +215,24 @@ public:
   using smoc_firing_state_base::operator=;
 };
 
-class smoc_connector_state
+class smoc_junction_state
 : public CoSupport::DataTypes::FacadeFoundation<
-    smoc_connector_state,
-    ConnectorStateImpl,
+    smoc_junction_state,
+    JunctionStateImpl,
     smoc_firing_state_base
   >
 {
 public:
-  typedef smoc_connector_state this_type;
+  typedef smoc_junction_state this_type;
 
 protected:
-  smoc_connector_state(const SmartPtr &p);
+  smoc_junction_state(const SmartPtr &p);
 
-  smoc_connector_state(const this_type &);
+  smoc_junction_state(const this_type &);
   this_type& operator=(const this_type &);
   
 public:
-  smoc_connector_state();
+  smoc_junction_state();
 
   ImplType *getImpl() const;
   using smoc_firing_state_base::operator=;
