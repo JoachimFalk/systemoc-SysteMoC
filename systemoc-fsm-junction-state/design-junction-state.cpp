@@ -100,7 +100,7 @@ public:
   Transform(sc_module_name name)
     : smoc_actor(name, init)
   {
-    smoc_connector_state s;
+    smoc_junction_state s;
     
     init = 
          (in(1) && GUARD(Transform::mod)(2))
@@ -110,7 +110,7 @@ public:
       >> CALL(Transform::store)("init -> s (!mod2)")
       >> s;
 
-    // because s is a smoc_connector_state, the guards
+    // because s is a smoc_junction_state, the guards
     // of s's transitions are also allowed to read from
     // the input tokens requested in the transitions of
     // init with target state s!
