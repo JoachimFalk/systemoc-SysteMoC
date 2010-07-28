@@ -1238,20 +1238,20 @@ void intrusive_ptr_release(ANDStateImpl *p)
 
 
 
-ConnectorStateImpl::ConnectorStateImpl()
+JunctionStateImpl::JunctionStateImpl()
   : FiringStateBaseImpl() {}
 
-void ConnectorStateImpl::expandTransition(
+void JunctionStateImpl::expandTransition(
     ExpandedTransitionList& etl,
     const ExpandedTransition& t) const
 {
-//  outDbg << "ConnectorStateImpl::expandTransition(etl,t) this == " << this << std::endl;
+//  outDbg << "JunctionStateImpl::expandTransition(etl,t) this == " << this << std::endl;
 //  ScopedIndent s0(outDbg);
 
   assert(t.getDestStates().empty());
 
   if(ptl.empty()) {
-    throw ModelingError("smoc_connector_state: Must specify at least one transition");
+    throw ModelingError("smoc_junction_state: Must specify at least one transition");
   }
 
   for(PartialTransitionList::const_iterator pt = ptl.begin();
@@ -1268,10 +1268,10 @@ void ConnectorStateImpl::expandTransition(
   }
 }
 
-void intrusive_ptr_add_ref(ConnectorStateImpl *p)
+void intrusive_ptr_add_ref(JunctionStateImpl *p)
   { intrusive_ptr_add_ref(static_cast<FiringStateBaseImpl*>(p)); }
 
-void intrusive_ptr_release(ConnectorStateImpl *p)
+void intrusive_ptr_release(JunctionStateImpl *p)
   { intrusive_ptr_release(static_cast<FiringStateBaseImpl*>(p)); }
 
 
@@ -1454,13 +1454,13 @@ smoc_and_state& smoc_and_state::add(const smoc_hierarchical_state& state)
 
 
 
-smoc_connector_state::smoc_connector_state(const SmartPtr &p)
+smoc_junction_state::smoc_junction_state(const SmartPtr &p)
   : FFType(p) {}
 
-smoc_connector_state::smoc_connector_state()
-  : FFType(new ConnectorStateImpl()) {}
+smoc_junction_state::smoc_junction_state()
+  : FFType(new JunctionStateImpl()) {}
 
-smoc_connector_state::ImplType *smoc_connector_state::getImpl() const
+smoc_junction_state::ImplType *smoc_junction_state::getImpl() const
   { return static_cast<ImplType *>(this->pImpl.get()); }
 
 
