@@ -86,8 +86,8 @@ typedef std::set<const FiringStateImpl*> ProdState;
 //DECL_INTRUSIVE_REFCOUNT_PTR(ANDStateImpl, PANDStateImpl);
 //typedef std::set<ANDStateImpl*> ANDStateImplSet;
 
-//class ConnectorStateImpl;
-//DECL_INTRUSIVE_REFCOUNT_PTR(ConnectorStateImpl, PConnectorStateImpl);
+//class JunctionStateImpl;
+//DECL_INTRUSIVE_REFCOUNT_PTR(JunctionStateImpl, PJunctionStateImpl);
 
 typedef std::set<const HierarchicalStateImpl*> MultiState;
 typedef std::map<const HierarchicalStateImpl*,bool> CondMultiState;
@@ -588,13 +588,13 @@ public:
       bool isSrcState) const;
 };
 
-class ConnectorStateImpl: public FiringStateBaseImpl {
+class JunctionStateImpl: public FiringStateBaseImpl {
 public:
-  typedef ConnectorStateImpl this_type;
+  typedef JunctionStateImpl this_type;
 
 public:
   /// @brief Constructor
-  ConnectorStateImpl();
+  JunctionStateImpl();
   
   /// @brief See FiringStateBaseImpl
   void expandTransition(
