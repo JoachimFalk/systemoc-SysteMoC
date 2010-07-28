@@ -295,9 +295,11 @@ private:
       execution is equal to the order of appearance
 \item All pairs $(t_{in},t_{out})$ of transitions where $t_{in}$ is a transition entering the junction state
       and $t_{out}$ is a transition leaving the junction state will be transformed into a single compound transition
-\item Actions of transition $t_{out}$ will be executed prior to the actions of transition $t_{in}$
+\item Actions of transition $t_{in}$ will be executed prior to the actions of transition $t_{out}$
 \item All guards of a compound transition are executed prior to any action of a compound transition
 \item For example, if variables are modified by transition $t_{in}$, guards of transition $t_{out}$ 
       will see the \emph{old} values of these variables, and not the modified values
+\item The port requirements of $t_{in}$ and $t_{out}$ should be disjoint at this time. However,
+      the actions of $t_{out}$ can access tokens required by $t_{in}$ and vice versa
 \end{itemize}
 \end{frame}
