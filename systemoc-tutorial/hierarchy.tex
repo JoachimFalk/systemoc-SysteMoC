@@ -4,8 +4,9 @@
 \mode<presentation>{\frametitle{\insertsubsection\ -- Objectives}}
 \begin{itemize}
 \item You will learn how to refine states of an FSM into hierarchical states by means of ...
-\item ... AND decomposition and
-\item ... XOR decomposition.
+\item ... XOR decomposition,
+\item ... AND decomposition, and
+\item ... Junction states
 \end{itemize}
 \end{frame}
 
@@ -13,9 +14,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
-\mode<presentation>{\frametitle{\insertsubsection\ -- XOR decomposition}}
+\mode<presentation>{\frametitle{Non-Hierarchical Example}}
 \begin{lstlisting}
-//file flat-fsm.cpp
 #include <iostream>
 #include <systemoc/smoc_moc.hpp>
 
@@ -42,7 +42,7 @@ public:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
-\mode<presentation>{\frametitle{\insertsubsection\ -- XOR decomposition}}
+\mode<presentation>{\frametitle{Non-Hierarchical Example}}
 \begin{lstlisting}
   ...
 private:
@@ -99,11 +99,18 @@ private:
   smoc_firing_state waitMsg; // initial child state
   smoc_and_state    storeData;
   smoc_firing_state sendAck;
-  // chained adding of child states:
-  run.init(waitMsg).add(storeData).add(sendAck);
+
+  run.init(waitMsg);
+  run.add(storeData);
+  run.add(sendAck);
 \end{lstlisting}
-\item XOR states must have exactly one initial state
-\item States which are not added to any hierarchical state are automatically added to the FSM (like \texttt{stopped} and \texttt{run} in this example), which can also be seen as an XOR state (with \texttt{stopped} being the initial state in this example)
+\item Last step: Add transitions to the child states:
+\begin{lstlisting}
+  waitMsg = inLink(1) >> CALL(Actor::processMsg)
+    >> storeData;
+  sendAck = outLink(1) >> CALL(Actor::sendAckMsg)
+    >> waitMsg;
+\end{lstlisting}
 \end{itemize}
 \end{frame}
 
@@ -112,15 +119,8 @@ private:
 \begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection\ -- XOR decomposition}}
 \begin{itemize}
-\item Last step: Add transitions to the child states:
-\begin{lstlisting}
-  waitMsg = inLink(1) >> CALL(Actor::processMsg)
-    >> storeData;
-  // transition from storeData to sendAck will be
-  // added later
-  sendAck = outLink(1) >> CALL(Actor::sendAckMsg)
-    >> waitMsg;
-\end{lstlisting}
+\item XOR states must have exactly one initial state
+\item States which are not added to any hierarchical state are automatically added to the FSM (like \texttt{stopped} and \texttt{run} in this example), which can also be seen as an XOR state (with \texttt{stopped} being the initial state in this example)
 \item Transitions added to the XOR state itself are added (recursively) to all child states. In this case, the only outgoing transition of the \texttt{run} state allows for leaving the receive/send loop at any time: 
 \begin{lstlisting}
   run =
