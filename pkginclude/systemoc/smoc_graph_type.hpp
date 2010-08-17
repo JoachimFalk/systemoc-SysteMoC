@@ -186,6 +186,8 @@ protected:
 
   void finalise();
   
+  void finaliseVpcLink();
+
   /// @brief Resets given node
   void doReset();
 

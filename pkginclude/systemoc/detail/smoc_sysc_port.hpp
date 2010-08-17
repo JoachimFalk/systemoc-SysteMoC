@@ -118,6 +118,7 @@ class smoc_sysc_port
   private boost::noncopyable
 {
   friend class smoc_root_node;
+  friend class smoc_actor;
 
   typedef smoc_sysc_port this_type;
 //FIXME: HACK make protected or private
@@ -141,6 +142,8 @@ protected:
   void bind(this_type &parent_);
 
   virtual void finalise();
+
+  virtual void finaliseVpcLink(std::string actorName);
 
 //#ifdef SYSTEMOC_ENABLE_SGX
 //  SystemCoDesigner::SGX::Port::Ptr port;

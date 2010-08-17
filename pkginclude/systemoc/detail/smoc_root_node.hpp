@@ -148,6 +148,8 @@ protected:
 
   virtual void finalise();
 
+  virtual void finaliseVpcLink() = 0;
+
   /// @brief User reset method (do not put functionality in there)
   virtual void reset() {};
 

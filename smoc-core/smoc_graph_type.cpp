@@ -246,6 +246,16 @@ void smoc_graph_base::finalise() {
 #endif // SYSTEMOC_DEBUG
 }
 
+void smoc_graph_base::finaliseVpcLink() {
+  for(smoc_node_list::iterator iter = nodes.begin();
+      iter != nodes.end();
+      ++iter)
+  {
+    (*iter)->finaliseVpcLink();
+  }
+}
+
+
 void smoc_graph_base::doReset() {
 #ifdef SYSTEMOC_DEBUG
   outDbg << "<smoc_graph_base::doReset name=\"" << name() << "\">"
