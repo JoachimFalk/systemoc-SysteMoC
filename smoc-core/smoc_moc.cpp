@@ -79,6 +79,11 @@ void smoc_scheduler_top::end_of_simulation() {
 
 void smoc_scheduler_top::end_of_elaboration() {
   g->finalise();
+
+  //another finalise to patch the vpcCommTask
+  // requires: ports finalised (in root_node::finalise)
+  //           channel names (in root_chan::finalise)
+  g->finaliseVpcLink();
   //g->notifyReset();
   g->doReset();
 #ifdef SYSTEMOC_ENABLE_SGX

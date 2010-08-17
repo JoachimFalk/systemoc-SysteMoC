@@ -155,7 +155,10 @@ public:
   /// @brief See smoc_port_in_base_if
   size_t numAvailable() const
     { return 1; }
-  
+
+  std::string getChannelName() const
+    { return chan.name();}
+
   /// @brief See smoc_port_in_base_if
   size_t inTokenId() const
     { return chan.inTokenId(); }
@@ -210,6 +213,9 @@ public:
   /// @brief See smoc_port_out_base_if
   size_t numFree() const
     { return 1; }
+
+  std::string getChannelName() const
+    { return chan.name();}
 
   /// @brief See smoc_port_out_base_if
   size_t outTokenId() const

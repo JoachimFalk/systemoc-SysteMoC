@@ -36,6 +36,7 @@
 
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_root_node.hpp>
+#include <systemoc/detail/smoc_root_chan.hpp>
 
 using namespace CoSupport;
 using namespace SysteMoC::Detail;
@@ -74,7 +75,38 @@ void smoc_sysc_port::finalise() {
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
-#endif // SYSTEMOC_NEED_IDS  
+#endif // SYSTEMOC_NEED_IDS
+}
+
+void smoc_sysc_port::finaliseVpcLink(std::string actorName){
+  assert (getLeafPort(this) == this);
+  {
+    VpcPortInterface * vpi = dynamic_cast<VpcPortInterface*>(this->interfacePtr);
+    std::string channelName = "";
+    if (this->isInput()) {
+      smoc_port_in_base_if* port =
+          dynamic_cast<smoc_port_in_base_if*>(this->interfacePtr);
+      assert(port != NULL);
+
+      channelName = port->getChannelName();
+      vpi->vpcCommTask = new SystemC_VPC::FastLink(
+          SystemC_VPC::Director::getInstance().
+          getFastLink(channelName, actorName, "1"));
+    } else {
+      smoc_port_out_base_if* port =
+          dynamic_cast<smoc_port_out_base_if*>(this->interfacePtr);
+      assert(port != NULL);
+
+      channelName = port->getChannelName();
+      vpi->vpcCommTask = new SystemC_VPC::FastLink(
+          SystemC_VPC::Director::getInstance().
+          getFastLink(actorName, channelName, "1"));
+    }
+#ifdef SYSTEMOC_DEBUG
+    vpi->actor   = actorName;
+    vpi->channel = channelName;
+#endif // SYSTEMOC_DEBUG
+  }
 }
 
 /*#ifdef SYSTEMOC_ENABLE_SGX

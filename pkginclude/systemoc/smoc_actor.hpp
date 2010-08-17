@@ -43,6 +43,7 @@ class smoc_actor : public smoc_root_node {
 protected:
   smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
   smoc_actor(smoc_firing_state &s);
+  void finaliseVpcLink();
 };
 
 #endif // _INCLUDED_SMOC_ACTOR_HPP

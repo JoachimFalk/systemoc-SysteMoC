@@ -102,53 +102,6 @@ void smoc_root_chan::finalise() {
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS  
 
-#ifdef SYSTEMOC_ENABLE_VPC
-
-  const EntryMap& entries = getEntries();
-  for (EntryMap::const_iterator iter = entries.begin();
-       iter != entries.end();
-       ++iter ) {
-    std::string actorName =
-      getLeafPort(iter->second)->get_parent()->name();
-
-    getEntry(iter->second)->vpcCommTask = new SystemC_VPC::FastLink(
-      SystemC_VPC::Director::getInstance().
-      getFastLink(actorName, myName, "1"));
-
-#ifdef SYSTEMOC_DEBUG
-    getEntry(iter->second)->actor = actorName;
-    getEntry(iter->second)->channel = myName;
-#endif // SYSTEMOC_DEBUG    
-  }
-
-  const OutletMap& outlets = getOutlets();
-  for (OutletMap::const_iterator iter = outlets.begin();
-       iter != outlets.end();
-       ++iter ) {
-    std::string actorName =
-      getLeafPort(iter->second)->get_parent()->name();
-
- getOutlet(iter->second)->vpcCommTask = new SystemC_VPC::FastLink(
-      SystemC_VPC::Director::getInstance().
-      getFastLink(myName, actorName, "1"));
-
-#ifdef SYSTEMOC_DEBUG
-    getOutlet(iter->second)->actor = actorName;
-    getOutlet(iter->second)->channel = myName;
-#endif // SYSTEMOC_DEBUG
-  }
-
-//  // FIXME: root channel does not know how many outlets a channel should have
-//  // (move this to smoc_nonconflicting_chan?)
-//  if(!getOutlets().empty()) {
-//
-//    //FIXME: QUICKHACK:
-//    this->setChannelID(
-//        getOutlets().begin()->second->get_parent()->name(),
-//        vpcLink->process,
-//        myName);
-//  }
-#endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</smoc_root_chan::finalise>" << std::endl;
 #endif // SYSTEMOC_DEBUG
