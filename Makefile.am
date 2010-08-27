@@ -109,6 +109,7 @@ libsystemoc_la_LIBADD = 					\
 if PKG_COSUPPORT_USE_SRCDIR_VERSION
 libsystemoc_la_LIBADD += 					\
 	$(COSUPPORT_LIBPATH)/libcosupport-systemc.la		\
+	$(COSUPPORT_LIBPATH)/libcosupport-tracing.la	    \
 	$(COSUPPORT_LIBPATH)/libcosupport-streams.la		\
 	$(COSUPPORT_LIBPATH)/libcosupport-smartptr.la		\
 	$(COSUPPORT_LIBPATH)/libcosupport-math.la
@@ -117,6 +118,7 @@ else
 # cosupport installed in the wild and not in the source dir.
 libsystemoc_la_LIBADD += 					\
 	-lcosupport-systemc					\
+	-lcosupport-tracing					\
 	-lcosupport-streams					\
 	-lcosupport-smartptr					\
 	-lcosupport-math
