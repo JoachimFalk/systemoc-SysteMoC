@@ -42,11 +42,12 @@ void smoc_graph_tt::initTT() {
   for(smoc_node_list::const_iterator iter = getNodes().begin();
       iter != getNodes().end(); ++iter)
   {
+    nameToNode[(*iter)->name()] = *iter;
     smoc_periodic_actor *entry = dynamic_cast<smoc_periodic_actor *>( (*iter) );
     if(entry){
       ttNodeQueue.registerNode(entry, entry->getOffset());
     }else{
-      //nodes of other types then smoc_periodic_actor will bei added to ddf_nodes_activations
+      //nodes of other types then smoc_periodic_actor will be added to ddf_nodes_activations
       //could be another graph or other nodes
       ddf_nodes_activations |= **iter;
     }
@@ -84,11 +85,13 @@ void smoc_graph_tt::scheduleTT() {
     outDbg << "<node name=\"" << next->name() << "\">" << std::endl
            << Indent::Up;
 #endif // SYSTEMOC_DEBUG
-    entry->schedule();
-    if(entry->inCommState()){ // Node needs some time to process (VPC is used), switch node to DDF
-      ddf_nodes_activations |= *next;
-    }else{ // Node completely processed -> re-register it in the ttNodeQueue
-      ttNodeQueue.registerNode(entry, entry->getNextReleasetime());
+    if(nodeDisabled[entry] == false){
+      entry->schedule();
+      if(entry->inCommState()){ // Node needs some time to process (VPC is used), switch node to DDF
+        ddf_nodes_activations |= *next;
+      }else{ // Node completely processed -> re-register it in the ttNodeQueue
+        ttNodeQueue.registerNode(entry, entry->getNextReleasetime());
+      }
     }
 #ifdef SYSTEMOC_DEBUG
     outDbg << Indent::Down << "</node>" << std::endl;
@@ -98,3 +101,33 @@ void smoc_graph_tt::scheduleTT() {
   outDbg << Indent::Down << "</smoc_graph_tt::scheduleTT>" << std::endl;
 #endif // SYSTEMOC_DEBUG
 }
+
+void smoc_graph_tt::disableActor(std::string actor_name){
+  std::cout<<"smoc_graph_tt::disable_actor " << actor_name << " has id" << nameToNode[actor_name] << std::endl;
+  assert(nameToNode[actor_name] != 0);
+  smoc_root_node* nodeToDisable = nameToNode[actor_name];
+  if(ddf_nodes_activations.contains(*nodeToDisable)){
+    ddf_nodes_activations.remove(*nodeToDisable);
+  }else{
+    //so it must be a tt-actor
+    //ttNodeQueue.disableNode(nodeToDisable);
+    nodeDisabled[nodeToDisable] = true;
+  }
+
+}
+
+
+void smoc_graph_tt::reEnableActor(std::string actor_name){
+  assert(nameToNode[actor_name] != 0);
+  smoc_root_node* nodeToEnable = nameToNode[actor_name];
+  smoc_periodic_actor *entry = dynamic_cast<smoc_periodic_actor *>( nodeToEnable );
+      if(entry){
+        nodeDisabled[entry] = false;
+        ttNodeQueue.registerNode(entry, entry->getOffset());
+      }else{
+        //nodes of other types then smoc_periodic_actor will be added to ddf_nodes_activations
+        //could be another graph or other nodes
+        ddf_nodes_activations |= *nodeToEnable;
+      }
+}
+
