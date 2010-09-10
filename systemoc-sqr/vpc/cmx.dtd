@@ -1,4 +1,4 @@
-<!ELEMENT vpcconfiguration (resultfile?,measurefile?, resources,mappings, topology?)>
+<!ELEMENT vpcconfiguration (resultfile?, measurefile?, resources, mappings, topology?)>
 
 <!ELEMENT resultfile EMPTY>
 <!ATTLIST resultfile
@@ -8,9 +8,9 @@ name CDATA #REQUIRED>
 <!ATTLIST measurefile
 name CDATA #REQUIRED>
 
-<!ELEMENT resources (component)*>
+<!ELEMENT resources ((attribute)*, (component)*)>
 
-<!ELEMENT component ((configuration*, defaultconfiguration?)?, (attribute)*)>
+<!ELEMENT component ((attribute)*)>
 <!ATTLIST component
 name ID #REQUIRED
 type CDATA #IMPLIED
@@ -25,16 +25,6 @@ value CDATA #IMPLIED>
 <!ATTLIST parameter
 type CDATA #REQUIRED
 value CDATA #REQUIRED>
-
-<!ELEMENT configuration (component)*>
-<!ATTLIST configuration
-name ID #REQUIRED
-loadtime CDATA "0 ns"
-storetime CDATA "0 ns">
-
-<!ELEMENT defaultconfiguration EMPTY>
-<!ATTLIST defaultconfiguration
-name CDATA #REQUIRED>
 
 <!ELEMENT mappings (mapping)*>
 
@@ -52,14 +42,17 @@ latency CDATA #IMPLIED
 fname   CDATA #IMPLIED>
 
 <!ELEMENT topology (route)*>
-
+<!ATTLIST topology
+tracing     CDATA #IMPLIED
+>
 <!ELEMENT route (hop)*>
 <!ATTLIST route
 source      CDATA #REQUIRED
 destination CDATA #REQUIRED
 type        CDATA #IMPLIED
+tracing     CDATA #IMPLIED
 >
 
-<!ELEMENT hop (timing)*>
+<!ELEMENT hop (attribute|timing)*>
 <!ATTLIST hop
 name    CDATA #IMPLIED>
