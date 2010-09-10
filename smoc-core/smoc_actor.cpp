@@ -42,9 +42,11 @@ smoc_actor::smoc_actor(smoc_firing_state &s)
   : smoc_root_node(sc_gen_unique_name("smoc_actor"), s)
 {}
 
+#ifdef SYSTEMOC_ENABLE_VPC
 void smoc_actor::finaliseVpcLink() {
   smoc_sysc_port_list ports = getPorts();
   for (smoc_sysc_port_list::iterator iter = ports.begin();
       iter != ports.end(); ++iter)
     (*iter)->finaliseVpcLink(this->name());
 }
+#endif //SYSTEMOC_ENABLE_VPC

@@ -186,7 +186,9 @@ protected:
 
   void finalise();
   
+#ifdef SYSTEMOC_ENABLE_VPC
   void finaliseVpcLink();
+#endif //SYSTEMOC_ENABLE_VPC
 
   /// @brief Resets given node
   void doReset();

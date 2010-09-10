@@ -43,7 +43,9 @@ class smoc_actor : public smoc_root_node {
 protected:
   smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
   smoc_actor(smoc_firing_state &s);
+#ifdef SYSTEMOC_ENABLE_VPC
   void finaliseVpcLink();
+#endif //SYSTEMOC_ENABLE_VPC
 };
 
 #endif // _INCLUDED_SMOC_ACTOR_HPP

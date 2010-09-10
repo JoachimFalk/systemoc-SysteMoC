@@ -78,6 +78,7 @@ void smoc_sysc_port::finalise() {
 #endif // SYSTEMOC_NEED_IDS
 }
 
+#ifdef SYSTEMOC_ENABLE_VPC
 void smoc_sysc_port::finaliseVpcLink(std::string actorName){
   assert (getLeafPort(this) == this);
   {
@@ -108,6 +109,7 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
 #endif // SYSTEMOC_DEBUG
   }
 }
+#endif //SYSTEMOC_ENABLE_VPC
 
 /*#ifdef SYSTEMOC_ENABLE_SGX
 SystemCoDesigner::SGX::Port::Ptr smoc_sysc_port::getNGXObj() const
