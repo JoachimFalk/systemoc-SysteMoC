@@ -11,9 +11,10 @@ class NodeQueue : public sc_module, public smoc_event{
 /* struct used to store an event with a certain release-time */
 struct TimeNodePair{
   TimeNodePair(sc_time time,  smoc_root_node *node)
-    : time(time), node(node) {}
+    : time(time), node(node) {  enabled = true; }
   sc_time time;
   smoc_root_node *node;
+  bool enabled;
 };
 
 /* struct used for comparison
@@ -124,6 +125,16 @@ public:
   // construct graph with generated name
   smoc_graph_tt();
   
+  /**
+   * disables the executability of an actor
+   */
+  void disableActor(std::string actor_name);
+
+  /**
+   * reenables the executability of an actor
+   */
+  void reEnableActor(std::string actor_name);
+
 protected:
   /// @brief See smoc_graph_base
   void finalise();
@@ -156,6 +167,8 @@ private:
   // graph scheduler FSM state
   smoc_firing_state run;
 
+  std::map<std::string, smoc_root_node*> nameToNode;
+  std::map<smoc_root_node*, bool> nodeDisabled;
 };
 
 #endif //__INCLUDED__SMOC_GRAPH__TT__HPP__
