@@ -51,7 +51,7 @@ VpcPortInterface::startVpcRead(size_t tokenCount){
   readEventLat->reset();
 
   SystemC_VPC::EventPair events(dummyDii, readEventLat);
-  vpcCommTask->read(tokenCount, events);
+  vpcCommTask.read(tokenCount, events);
   return events;
 }
 
@@ -68,7 +68,7 @@ VpcInterface::startWrite(size_t tokenCount) {
   diiEvent.reset(new smoc_ref_event());
 # endif
   SystemC_VPC::EventPair ep(diiEvent, latEvent);
-  this->portIf->vpcCommTask->write(tokenCount, ep);
+  this->portIf->vpcCommTask.write(tokenCount, ep);
 
   return ep;
 }

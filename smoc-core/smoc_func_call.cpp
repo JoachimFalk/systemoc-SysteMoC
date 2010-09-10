@@ -132,46 +132,34 @@ RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-VPCLinkVisitor::VPCLinkVisitor(const char* name)
-  : name(name) {}
+namespace SysteMoC { namespace Detail {
 
-SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_func_call_list& f) const {
-  std::ostringstream os;
+ActionNameVisitor::ActionNameVisitor(FunctionNames & names) :
+    functionNames(names) {}
 
-  if(f.begin() == f.end())
-    os << "???";
+void ActionNameVisitor::operator()(const smoc_func_call_list& f) const {
+  //if(f.begin() == f.end()) std::cerr << "???" << std::endl; // no action
 
   for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
-    if(i != f.begin())
-      os << "_";
-    os << i->getFuncName();
+    functionNames.push_back(i->getFuncName());
   }
-
-  return new SystemC_VPC::FastLink(
-      SystemC_VPC::Director::getInstance().getFastLink(
-        name, os.str()));
 }
 
-SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_sr_func_pair& f) const {
-  std::ostringstream os;
-
-  os << f.tick.getFuncName();
-  os << "_";
-  os << f.go.getFuncName();
+void ActionNameVisitor::operator()(const smoc_sr_func_pair& f) const {
+  functionNames.push_back(f.go.getFuncName());
+  functionNames.push_back(f.tick.getFuncName());
 
   /* FIXME: we cannot modify tickLink here:
   f.tickLink = new SystemC_VPC::FastLink(
       SystemC_VPC::Director::getInstance().getFastLink(
         name, f.tick.getFuncName()));
   */
-  return new SystemC_VPC::FastLink(
-      SystemC_VPC::Director::getInstance().getFastLink(
-        name, os.str()));
 }
 
-SystemC_VPC::FastLink* VPCLinkVisitor::operator()(const smoc_func_diverge& f) const {
-  return new SystemC_VPC::FastLink(
-      SystemC_VPC::Director::getInstance().getFastLink(
-        name, "smoc_func_diverge"));
+void ActionNameVisitor::operator()(const smoc_func_diverge& f) const {
+  std::cerr << "FIXME: got a smoc_func_diverge" << std::endl;
+  functionNames.push_back("smoc_func_diverge");
 }
+
+} } // namespace SysteMoC::Detail
 #endif // SYSTEMOC_ENABLE_VPC

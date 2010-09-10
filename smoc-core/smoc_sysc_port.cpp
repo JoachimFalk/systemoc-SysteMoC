@@ -90,18 +90,18 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
       assert(port != NULL);
 
       channelName = port->getChannelName();
-      vpi->vpcCommTask = new SystemC_VPC::FastLink(
-          SystemC_VPC::Director::getInstance().
-          getFastLink(channelName, actorName, "1"));
+      vpi->vpcCommTask =
+          SystemC_VPC::Director::getInstance().registerRoute(channelName,
+              actorName);
     } else {
       smoc_port_out_base_if* port =
           dynamic_cast<smoc_port_out_base_if*>(this->interfacePtr);
       assert(port != NULL);
 
       channelName = port->getChannelName();
-      vpi->vpcCommTask = new SystemC_VPC::FastLink(
-          SystemC_VPC::Director::getInstance().
-          getFastLink(actorName, channelName, "1"));
+      vpi->vpcCommTask =
+          SystemC_VPC::Director::getInstance().registerRoute(actorName,
+              channelName);
     }
 #ifdef SYSTEMOC_DEBUG
     vpi->actor   = actorName;
