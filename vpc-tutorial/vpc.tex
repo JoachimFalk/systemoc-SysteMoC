@@ -363,6 +363,7 @@ top.Sink> @ 0 s recv: 'o'
 \item Thereby \lstinline!delay="X"! is a short cut for \lstinline!dii="X" latency="X"!
 \item \lstinline!dii! and \lstinline!latency! are constraint to: $(0 < dii \le lat) \vee (0=dii=lat)$
 \end{itemize}
+\vfill
 \end{frame}
 
 
@@ -385,11 +386,37 @@ top.Sink> @ 0 s recv: 'o'
 \index{timing@\lstinline{<timing>}}
 \index{fname@\lstinline{fname}}
 \begin{itemize}
-\item The attribute \lstinline!fname! is optional
-\item The default timing of an actor (each transition) is given without \lstinline!fname!
-\item Otherwise individual timings are used for transitions executing the given function names (the function name corresponds to the SysteMoC \lstinline!CALL(...)! macro, cf. ``SystemCoDesigner: System Programming Tutorial''
-)
+\item The attribute \lstinline!fname! is optional,
+\item The default timing of an actor is given without \lstinline!fname!
 \end{itemize}
+\vfill
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Timing}}
+\begin{lstlisting}
+ <mappings>
+  <mapping source="top.Source" target="CPU">
+   <timing dii="10 us" latency="10 us" />
+   <timing fname="Source::src" dii="10 us" latency="10 us" />
+  </mapping>
+  <mapping source="top.Sink" target="CPU">
+   <timing delay="10 us" />
+   <timing fname="Sink::sink" delay="10 us" />
+  </mapping>
+ </mappings>
+\end{lstlisting}
+\index{timing@\lstinline{<timing>}}
+\index{fname@\lstinline{fname}}
+\begin{itemize}
+\item With \lstinline!fname! individual timings are used for the given function names (function names given by SysteMoC's \lstinline!CALL(...)! and \lstinline!GUARD(...)! macros, cf. ``SystemCoDesigner: System Programming Tutorial'')
+\item The execution time (dii and latency) of a transition is the sum of function times for all guards and actions referred by this transition.
+\item Timing is simulated only if the transition is executed, i.e., the guards are evaluated to true.
+\end{itemize}
+\vfill
 \end{frame}
 
 
