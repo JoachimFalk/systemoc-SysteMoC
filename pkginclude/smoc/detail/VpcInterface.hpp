@@ -49,14 +49,14 @@ namespace SysteMoC { namespace Detail {
 /// link between systemoc ports (outlet/entry) and VPC read/write
 class VpcPortInterface{
 public:
-  VpcPortInterface()  : vpcCommTask(NULL), readEventLat(new smoc_ref_event())
+  VpcPortInterface()  : vpcCommTask(), readEventLat(new smoc_ref_event())
  {}
 
   ///
   SystemC_VPC::EventPair startVpcRead(size_t tokenCount);
 
   ///
-  SystemC_VPC::FastLink *vpcCommTask;
+  SystemC_VPC::FastLink vpcCommTask;
 
   // event used for timing simulation when reading inputs "VPC::read()"
   smoc_ref_event_p readEventLat;  // cached by IOPattern
@@ -78,7 +78,7 @@ public:
 #ifdef SYSTEMOC_DEBUG_VPC_IF
     actor("anonymous"),
 #endif // SYSTEMOC_DEBUG_VPC_IF
-    vpcTask(NULL),
+    vpcTask(),
     dynamicReadEvents(),
     diiEvent(NULL),
     latEvent(new smoc_ref_event())
@@ -127,7 +127,7 @@ public:
     dynamicReadEvents.clear();
 
     SystemC_VPC::EventPair ep(diiEvent, latEvent);
-    vpcTask->compute(ep);
+    vpcTask.compute(ep);
 
     // reset events from last iteration
     latEvent = new smoc_ref_event();
@@ -144,7 +144,7 @@ public:
 
 //protected:
   ///
-  SystemC_VPC::FastLink *vpcTask;
+  SystemC_VPC::FastLink vpcTask;
 
   /// aggregate events used for timing simulation of reading inputs
   smoc_event_and_list dynamicReadEvents;

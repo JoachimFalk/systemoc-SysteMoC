@@ -287,20 +287,76 @@ private:
 };
 
 #ifdef SYSTEMOC_ENABLE_VPC
-class VPCLinkVisitor {
+namespace SysteMoC { namespace Detail {
+
+  using SystemC_VPC::FunctionNames;
+
+  class ActionNameVisitor {
 public:
-  typedef SystemC_VPC::FastLink* result_type;
+  typedef void result_type;
 
 public:
-  VPCLinkVisitor(const char* name);
+  ActionNameVisitor(FunctionNames & names);
 
   result_type operator()(const smoc_func_call_list& f) const;
   result_type operator()(const smoc_sr_func_pair& f) const;
   result_type operator()(const smoc_func_diverge& f) const;
 
 private:
-  const char* name;
+  FunctionNames &functionNames;
 };
+
+class GuardNameVisitor: public ExprVisitor<FunctionNames> {
+public:
+  typedef ExprVisitor<FunctionNames>            base_type;
+  typedef GuardNameVisitor                      this_type;
+
+public:
+  GuardNameVisitor(FunctionNames & names) :
+    functionNames(names){}
+
+  result_type visitVar(const std::string &name, const std::string &type){
+    return NULL;
+  }
+  result_type visitLiteral(const std::string &type,
+      const std::string &value){
+    return NULL;
+  }
+  result_type visitMemGuard(const std::string &name,
+      const std::string &reType, const ParamInfoList &params){
+    functionNames.push_back(name);
+    return NULL;
+  }
+  result_type visitEvent(const std::string &name){
+    return NULL;
+  }
+  result_type visitPortTokens(smoc_sysc_port &p){
+    return NULL;
+  }
+  result_type visitToken(smoc_sysc_port &p, size_t n){
+    return NULL;
+  }
+  result_type visitComm(smoc_sysc_port &p,
+      boost::function<result_type (base_type &)> e){
+    return NULL;
+  }
+  result_type visitUnOp(OpUnT op,
+      boost::function<result_type (base_type &)> e){
+    e(*this);
+    return NULL;
+  }
+  result_type visitBinOp(OpBinT op,
+      boost::function<result_type (base_type &)> a,
+      boost::function<result_type (base_type &)> b){
+    a(*this);
+    b(*this);
+
+    return NULL;
+  }
+private:
+  FunctionNames &functionNames;
+};
+} } // namespace SysteMoC::Detail
 #endif // SYSTEMOC_ENABLE_VPC
 
 #endif // _INCLUDED_SMOC_FUNC_CALL_HPP

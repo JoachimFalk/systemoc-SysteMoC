@@ -47,6 +47,9 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <systemoc/smoc_func_call.hpp>
+#include <systemoc/smoc_expr.hpp>
+
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <smoc/detail/TraceLog.hpp>
@@ -378,17 +381,26 @@ bool RuntimeTransition::evaluateGuard() const {
 
 void RuntimeTransition::finaliseRuntimeTransition(const smoc_root_node *node) {
 
-#ifdef SYSTEMOC_NEED_IDS  
+#ifdef SYSTEMOC_NEED_IDS
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
-#endif // SYSTEMOC_NEED_IDS  
+#endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_VPC
 
   if (dynamic_cast<const smoc_actor *>(node) != NULL) {
+
+    FunctionNames functionNames;
+    SysteMoC::Detail::GuardNameVisitor visitor(functionNames);
+    Expr::evalTo(visitor, getExpr());
+
+    boost::apply_visitor(
+        SysteMoC::Detail::ActionNameVisitor(functionNames), getAction());
+
     //initialize VpcTaskInterface
     this->transitionImpl->diiEvent = node->diiEvent;
-    this->transitionImpl->vpcTask = boost::apply_visitor(
-        VPCLinkVisitor(node->name()), getAction());
+    this->transitionImpl->vpcTask =
+      SystemC_VPC::Director::getInstance().registerActor(
+                  node->name(), functionNames);
   }
 #endif //SYSTEMOC_ENABLE_VPC
 
