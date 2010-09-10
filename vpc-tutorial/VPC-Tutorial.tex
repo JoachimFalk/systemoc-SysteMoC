@@ -16,6 +16,8 @@
 \usepackage{graphicx}
 \definecolor{lightgray}{gray}{.9}
 
+\usepackage{booktabs}
+
 \usepackage{makeidx}
 \makeindex
 \mode<presentation>
@@ -67,7 +69,8 @@
 % macros
 \newcommand{\SysteMoC}{\emph{SysteMoC}}
 \newcommand{\SystemCoDesigner}{\emph{SystemCoDesigner}}
-\newcommand{\VPC}{\emph{Virtual Processing Components}}
+\newcommand{\VPCs}{\emph{Virtual Processing Components}}
+\newcommand{\VPC}{\emph{Virtual Processing Component}}
 \newcommand{\concat}{{}^{\smallfrown}}
 \newcommand{\length}{\#}
 
@@ -107,6 +110,9 @@
 
 \section{Introduction}
 \input{intro}
+
+\section{Installation Remarks}
+\input{install}
 
 \section{Virtual Processing Components}
 \input{vpc}
@@ -168,11 +174,11 @@ Joachim Falk, Michael Glass, Jens Gladigau, Joachim Keinert, Martin Lukasiewycz,
 \mode<presentation>{\frametitle{Document Info}}
 \begin{description}[\breaklabel\setleftmargin{60pt}\setlabelstyle{\color{beamer@SystemCoDesigner@color}}]
 \item[Authors:]
-Martin Streubühr, Christian Haubelt
+Martin Streubühr, Sebastian Graf
 \item[Document Release:]
-May 1, 2010
+August 25, 2010
 \item[Version History:]
-May 1, 2010: Version 1.0
+August 25, 2010: Version 1.0
 \end{description}
 \end{frame}
 
@@ -180,8 +186,9 @@ May 1, 2010: Version 1.0
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Index
+% Section: Index
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Index}
 \begin{frame}
 \mode<presentation>{\frametitle{Index}}
 {\footnotesize
