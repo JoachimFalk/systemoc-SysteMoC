@@ -246,6 +246,7 @@ void smoc_graph_base::finalise() {
 #endif // SYSTEMOC_DEBUG
 }
 
+#ifdef SYSTEMOC_ENABLE_VPC
 void smoc_graph_base::finaliseVpcLink() {
   for(smoc_node_list::iterator iter = nodes.begin();
       iter != nodes.end();
@@ -254,6 +255,7 @@ void smoc_graph_base::finaliseVpcLink() {
     (*iter)->finaliseVpcLink();
   }
 }
+#endif //SYSTEMOC_ENABLE_VPC
 
 
 void smoc_graph_base::doReset() {

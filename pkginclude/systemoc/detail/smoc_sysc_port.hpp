@@ -143,7 +143,9 @@ protected:
 
   virtual void finalise();
 
+#ifdef SYSTEMOC_ENABLE_VPC
   virtual void finaliseVpcLink(std::string actorName);
+#endif //SYSTEMOC_ENABLE_VPC
 
 //#ifdef SYSTEMOC_ENABLE_SGX
 //  SystemCoDesigner::SGX::Port::Ptr port;

@@ -148,7 +148,9 @@ protected:
 
   virtual void finalise();
 
+#ifdef SYSTEMOC_ENABLE_VPC
   virtual void finaliseVpcLink() = 0;
+#endif //SYSTEMOC_ENABLE_VPC
 
   /// @brief User reset method (do not put functionality in there)
   virtual void reset() {};
