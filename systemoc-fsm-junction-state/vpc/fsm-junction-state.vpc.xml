@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "cmx.dtd">
+<vpcconfiguration>
+
+ <resources>
+  <component name="CPU" scheduler="FCFS">
+   <attribute type="transaction_delay" value="20 ns" />
+  </component>
+
+  <component name="Bus" scheduler="FCFS">
+   <attribute type="transaction_delay" value="80 ns" />
+  </component>
+
+  <component name="Mem" scheduler="FCFS">
+   <attribute type="transaction_delay" value="20 ns" />
+  </component>
+ </resources>
+
+ <mappings>
+  <mapping source="top.src" target="CPU">
+    <timing delay="1 us" />
+    <timing fname="Src::src" delay="1 us" />
+  </mapping>
+  <mapping source="top.snk" target="CPU">
+    <timing delay="1 us" />
+    <timing fname="Snk::snk" delay="1 us" />
+  </mapping>
+  <mapping source="top.transform" target="CPU">
+    <timing delay="1 us" />
+    <timing fname="Transform::mod" delay="1 us" />
+    <timing fname="Transform::store" delay="1 us" />
+    <timing fname="Transform::write" delay="1 us" />
+  </mapping>
+
+
+
+ </mappings>
+ <topology tracing="true">
+ 
+  <route  source="top.src" destination="cf_top.src_top.transform_1">
+    <hop name="CPU" />
+    <hop name="Bus" />
+    <hop name="Mem" />
+  </route>
+  <route  source="cf_top.transform_top.snk_1" destination="top.snk">
+    <hop name="Mem" />
+    <hop name="Bus" />
+    <hop name="CPU" />
+  </route>
+  <route  source="cf_top.src_top.transform_1" destination="top.transform">
+    <hop name="Mem" />
+    <hop name="Bus" />
+    <hop name="CPU" />
+  </route>
+  <route  source="top.transform" destination="cf_top.transform_top.snk_1">
+    <hop name="CPU" />
+    <hop name="Bus" />
+    <hop name="Mem" />
+  </route>
+ 
+ </topology>
+</vpcconfiguration>
