@@ -36,7 +36,8 @@ noinst_PROGRAMS=		\
 	rates			\
 	data-flow		\
 	ping			\
-	mini-filter
+	mini-filter		\
+	vpc-src-sink
 
 hello_SOURCES= hello-systemoc.cpp
 hello_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
@@ -59,4 +60,5 @@ ping_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 mini_filter_SOURCES= mini-filter.cpp
 mini_filter_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
 
-
+vpc_src_sink_SOURCES= vpc-source-sink.cpp
+vpc_src_sink_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@

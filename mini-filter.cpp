@@ -241,7 +241,7 @@ private:
  *
  *
  */
-class HierarchyDemo :
+class HierarchicalGraph :
   public smoc_graph
 {
 public:
@@ -249,7 +249,7 @@ public:
   smoc_port_out<Packet> outLeft;
   smoc_port_out<Packet> outRight;
 
-  HierarchyDemo(sc_module_name name) :
+  HierarchicalGraph(sc_module_name name) :
     smoc_graph(name),
     dispatcher("dispatcher"),
     left("left"),
@@ -290,18 +290,18 @@ public:
   TopGraph(sc_module_name name) :
     smoc_graph(name),
     src("src"),
-    hierarchy("hierarchy"),
+    graph("hierarchy"),
     snk0("snk0"),
     snk1("snk1")
   {
-    connectNodePorts(src.out,           hierarchy.in);
-    connectNodePorts(hierarchy.outLeft,  snk0.inPacket);
-    connectNodePorts(hierarchy.outRight, snk1.inPacket);
+    connectNodePorts(src.out,           graph.in);
+    connectNodePorts(graph.outLeft,  snk0.inPacket);
+    connectNodePorts(graph.outRight, snk1.inPacket);
   }
 
 private:
   PacketSource  src;
-  HierarchyDemo hierarchy;
+  HierarchicalGraph graph;
   PacketDumper  snk0;
   PacketDumper  snk1;
 };
