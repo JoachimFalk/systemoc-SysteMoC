@@ -79,7 +79,7 @@ private:
 };
 \end{lstlisting}
 \begin{itemize}
-\item A function \lstinline!src()! is used to produce the data tokens
+\item A function \lstinline!src()! is used to produce data tokens
 \item A guard \lstinline!hasToken()! is used to check if the transition can be fired
 \end{itemize}
 \end{frame}
@@ -412,9 +412,9 @@ top.Sink> @ 0 s recv: 'o'
 \index{timing@\lstinline{<timing>}}
 \index{fname@\lstinline{fname}}
 \begin{itemize}
-\item With \lstinline!fname! individual timings are used for the given function names (function names given by SysteMoC's \lstinline!CALL(...)! and \lstinline!GUARD(...)! macros, cf. ``SystemCoDesigner: System Programming Tutorial'')
+\item With \lstinline!fname! individual timings are specified for the given function names (names given by SysteMoC's \lstinline!CALL(...)! and \lstinline!GUARD(...)! macros, cf. ``SystemCoDesigner: System Programming Tutorial'')
 \item The execution time (dii and latency) of a transition is the sum of function times for all guards and actions referred by this transition.
-\item Timing is simulated only if the transition is executed, i.e., the guards are evaluated to true.
+\item Timing is simulated only if the transition is executed, i.e., the guards evaluate to true.
 \end{itemize}
 \vfill
 \end{frame}
@@ -472,8 +472,8 @@ top.Sink> @ 0 s recv: 'o'
 \item A \lstinline!<route>! is defined by nested \lstinline!<hop>! elements
 \item A route has a \lstinline!source! and a \lstinline!target! attribute
 \item Source and target form a pair (actor, channel) or (channel, actor)
-\item Suggestion: use symbolic queue name in the SysteMoC model
-\item Else: queue name are a concatenation of connected actor names
+\item Suggestion: use symbolic queue names in the SysteMoC model
+\item Else: queue names are concatenations of connected actor names
 \end{itemize}
 \end{frame}
 
@@ -522,13 +522,11 @@ top.Source> @ 30060 ns  send: 'l'
 top.Sink> @ 40060 ns    recv: 'e'
 top.Source> @ 50080 ns  send: 'o'
 top.Sink> @ 70120 ns    recv: 'l'
-top.Source> @ 70120 ns  send: ' '
-top.Sink> @ 90180 ns    recv: 'l'
 ...
 [VPC] overall simulated time: 300900 ns
 \end{lstlisting}
 \begin{itemize}
-\item Set environment variable \lstinline!VPCCONFIGURATION! and run simulation
+\item Set environment variable \lstinline!VPCCONFIGURATION! to the configuration file and run simulation
 \item Timing is simulated and VPC reports overall simulation time 
 \end{itemize}
 \end{frame}
