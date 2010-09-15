@@ -44,6 +44,7 @@ fname   CDATA #IMPLIED>
 <!ELEMENT topology (route)*>
 <!ATTLIST topology
 tracing     CDATA #IMPLIED
+default     CDATA #IMPLIED
 >
 <!ELEMENT route (hop)*>
 <!ATTLIST route
