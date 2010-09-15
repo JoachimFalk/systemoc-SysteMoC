@@ -46,7 +46,7 @@
   </mapping>
 
  </mappings>
- <topology tracing="true">
+ <topology tracing="true" default="ignore">
   <route source="sqrroot.a1" destination="cf_sqrroot.a1_sqrroot.a2_1" tracing="false">
     <hop name="CPU" />
     <hop name="Bus" />
