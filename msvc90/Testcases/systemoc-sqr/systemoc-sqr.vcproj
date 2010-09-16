@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\SysteMoC\msvc90\config-w-vpc&quot;;..\..\..\..\SysteMoC\pkginclude;..\..\..\..\Support\pkginclude;&quot;..\..\..\..\SystemC-VPC\pkginclude&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90\config-w-vcd&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\SysteMoC\msvc90\config-wo-vpc&quot;;..\..\..\..\SysteMoC\pkginclude;..\..\..\..\Support\pkginclude;..\..\..\..\Support\msvc90\config;&quot;..\..\..\..\SystemC-VPC\pkginclude&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90\config-wo-vcd&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;XML_LIBRARY"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -194,7 +194,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\..\..\SysteMoC\msvc90\config-w-vpc&quot;;..\..\..\..\SysteMoC\pkginclude;..\..\..\..\Support\pkginclude;&quot;..\..\..\..\SystemC-VPC\pkginclude&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90\config-w-vcd&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\SysteMoC\msvc90\config-w-vpc&quot;;..\..\..\..\SysteMoC\pkginclude;..\..\..\..\Support\pkginclude;..\..\..\..\Support\msvc90\config;&quot;..\..\..\..\SystemC-VPC\pkginclude&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90\config-w-vcd&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;XML_LIBRARY"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
