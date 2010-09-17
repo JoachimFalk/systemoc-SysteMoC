@@ -361,6 +361,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\smoc-core\smoc_expr.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\smoc-core\smoc_fifo.cpp"
 			>
 		</File>
