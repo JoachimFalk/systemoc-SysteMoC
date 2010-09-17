@@ -1,6 +1,8 @@
 config.h.in
 configure
 Makefile.in
+*.ncb
+*.suo
 Debug
 Debug-VPC
 Release
