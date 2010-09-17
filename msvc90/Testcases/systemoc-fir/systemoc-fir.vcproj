@@ -212,9 +212,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="systemoc.lib systemc-vpc.lib libcosupport.lib systemcd.lib xerces-c_static_2D.lib"
+				AdditionalDependencies="systemc-vpc.lib systemoc.lib libcosupport.lib systemcd.lib xerces-c_static_2D.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\SysteMoC\msvc90\Debug;..\..\..\..\LibSGX\msvc90\LibSGX\Debug;..\..\..\..\Support\msvc90\CoSupport\Debug;&quot;..\..\..\..\SystemC-VPC\msvc90\Debug&quot;;..\..\..\..\msvc90\Debug"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\SysteMoC\msvc90\Debug-VPC&quot;;&quot;..\..\..\..\LibSGX\msvc90\LibSGX\Debug-VPC&quot;;&quot;..\..\..\..\Support\msvc90\CoSupport\Debug-VPC&quot;;&quot;..\..\..\..\SystemC-VPC\msvc90\Debug-VPC&quot;;&quot;..\..\..\..\msvc90\Debug-VPC&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
