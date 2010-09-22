@@ -232,7 +232,7 @@
 				AdditionalOptions="/MP20"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;..\config-w-vpc&quot;;..\..\pkginclude;..\..\..\Support\pkginclude;&quot;..\..\..\SystemC-VPC\msvc90\config-w-vcd&quot;;&quot;..\..\..\SystemC-VPC\pkginclude&quot;;..\..\..\LibSGX\pkginclude"
+				AdditionalIncludeDirectories="&quot;..\config-w-vpc&quot;;..\..\pkginclude;..\..\..\Support\pkginclude;&quot;..\..\..\SystemC-VPC\msvc90\config-w-vcd&quot;;&quot;..\..\..\SystemC-VPC\pkginclude&quot;;..\..\..\LibSGX\pkginclude;..\..\..\Support\msvc90\config"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;XML_LIBRARY"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
