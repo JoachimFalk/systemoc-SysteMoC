@@ -24,10 +24,8 @@ include $(auxdir)/jfrules.mk
 
 SUBDIRS=
 
-AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
-AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
-
-LIBS= @LIBS@ -lsystemoc
+AM_LDFLAGS = @AM_LDFLAGS@ $(SYSTEMOC_LDFLAGS)
+AM_CPPFLAGS= @AM_CPPFLAGS@ $(SYSTEMOC_INCLUDE) -Wno-deprecated
 
 noinst_PROGRAMS=		\
 	hello			\
@@ -39,26 +37,33 @@ noinst_PROGRAMS=		\
 	mini-filter		\
 	vpc-src-sink
 
-hello_SOURCES= hello-systemoc.cpp
-hello_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+SYSTEMOC_LINKFLAGS = $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+SYSTEMOC_LINKFLAGS = -lsystemoc
+endif
 
-src_sink_SOURCES= source-sink.cpp
-src_sink_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+hello_SOURCES		= hello-systemoc.cpp
+hello_LDADD  		= $(SYSTEMOC_LINKFLAGS)
 
-guards_SOURCES= guards.cpp
-guards_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+src_sink_SOURCES	= source-sink.cpp
+src_sink_LDADD		= $(SYSTEMOC_LINKFLAGS)
 
-rates_SOURCES= rates.cpp
-rates_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+guards_SOURCES		= guards.cpp
+guards_LDADD		= $(SYSTEMOC_LINKFLAGS)
 
-data_flow_SOURCES= data-flow.cpp
-data_flow_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+rates_SOURCES		= rates.cpp
+rates_LDADD		= $(SYSTEMOC_LINKFLAGS)
 
-ping_SOURCES= ping.cpp
-ping_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+data_flow_SOURCES	= data-flow.cpp
+data_flow_LDADD		= $(SYSTEMOC_LINKFLAGS)
 
-mini_filter_SOURCES= mini-filter.cpp
-mini_filter_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+ping_SOURCES		= ping.cpp
+ping_LDADD		= $(SYSTEMOC_LINKFLAGS)
 
-vpc_src_sink_SOURCES= vpc-source-sink.cpp
-vpc_src_sink_DEPENDENCIES = @SYSTEMOC_DEPENDENCIES@
+mini_filter_SOURCES	= mini-filter.cpp
+mini_filter_LDADD	= $(SYSTEMOC_LINKFLAGS)
+
+vpc_src_sink_SOURCES	= vpc-source-sink.cpp
+vpc_src_sink_LDADD	= $(SYSTEMOC_LINKFLAGS)
