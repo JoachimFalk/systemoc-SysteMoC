@@ -401,6 +401,18 @@ void RuntimeTransition::finaliseRuntimeTransition(const smoc_root_node *node) {
     this->transitionImpl->vpcTask =
       SystemC_VPC::Director::getInstance().registerActor(
                   node->name(), functionNames);
+#ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
+  if (getSimCTX()->isTraceDumpingEnabled()){
+    getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
+    for(FunctionNames::const_iterator iter = functionNames.begin();
+        iter != functionNames.end();
+        ++iter){
+      getSimCTX()->getTraceFile() << " " << *iter;
+    }
+    getSimCTX()->getTraceFile() << "</functions>\n";
+  }
+#endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
+
   }
 #endif //SYSTEMOC_ENABLE_VPC
 
