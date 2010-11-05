@@ -53,7 +53,7 @@ You can create an actor, that will be activated in a fixed period of time
  but there are some differences
 \item it is available within header \lstinline{smoc_tt.hpp}
 \begin{lstlisting}
-#include <smoc/smoc_tt.hpp>
+#include <systemoc/smoc_tt.hpp>
 \end{lstlisting}
 
 \item a periodic actor has to inherit from base-class \lstinline{smoc_periodic_actor}
@@ -84,10 +84,10 @@ PActor(sc_module_name name, sc_time period, sc_time offset):
 \item offset and period must be determined carefully, they affect the system behaviour
 \item reactivation of a time-tiggered actor during its execution is not allowed; execution is delayed to the next time-triggered activation
 \item it must be guaranteed that an actor can read/write enough tokens from input/output-ports (e.g. by using a \lstinline{smoc_register}-channel)
-\item to model a dynamic activation-jitter of a Task, a \lstinline{mobility_factor} can be added. This factor specifies the time an actor-activation could jitter around the normal value.
+\item to model a dynamic activation-jitter of a Task, a \lstinline{jitter} can be added. This factor specifies the time an actor-activation could jitter around the normal value.
 \begin{lstlisting}
-PActor(sc_module_name name, sc_time period, sc_time offset, sc_time mobility):
- smoc_periodic_actor(name, state, period, offset, mobility){
+PActor(sc_module_name name, sc_time period, sc_time offset, float jitter):
+ smoc_periodic_actor(name, state, period, offset, jitter){
    ...
 }
 \end{lstlisting}
@@ -113,8 +113,8 @@ class TTNetworkGraph : public smoc_graph_tt {
    PActor pactor;
 // network graph constructor
 TTNetworkGraph ( sc_module_name name)
-: smoc_graph(name),
-  pactor("PA", start, sc_time(5, SC_MS), sc_time(1,SC_MS))
+: smoc_graph_tt(name),
+  pactor("PA", sc_time(5, SC_MS), sc_time(1,SC_MS))
   { }
 };
 \end{lstlisting}
@@ -138,8 +138,8 @@ TTNetworkGraph ( sc_module_name name)
 \item especially in time-triggered systems, it's common to have a kind of under- and oversampling
 \begin{itemize}
 \item it's possible to have an initial value
-\item a signal can be readed more then one time
-\item a signal can be updated befor is was readed or processed
+\item a signal can be read more then one time
+\item a signal can be updated before is was read or processed
 \end{itemize}
 \end{itemize}
 \end{frame}
@@ -165,7 +165,7 @@ channel.connect(app1.out)  // sender
        .connect(app3.in);  // receiver
 \end{lstlisting}
 \item a possible problem can be caused by time-triggered actors. They can be activated despite not enough data on the channel,
- so it is possible that ``undefined'' data will be readed. This must be avoided e.g. by a initial value.
+ so it is possible that ``undefined'' data will be read. This must be avoided e.g. by a initial value.
 \begin{lstlisting}
 channel << 4711;
 \end{lstlisting}
