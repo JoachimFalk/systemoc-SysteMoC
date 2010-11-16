@@ -423,3 +423,11 @@ void smoc_root_node::schedule() {
   outDbg << Indent::Down << "</smoc_root_node::schedule>" << std::endl;
 #endif // SYSTEMOC_DEBUG
 }
+
+bool smoc_root_node::canFire() {
+  if (ct == NULL)
+    setCurrentState(currentState);
+
+  return (ct != NULL) && ct->evaluateIOP() && ct->evaluateGuard();
+
+}

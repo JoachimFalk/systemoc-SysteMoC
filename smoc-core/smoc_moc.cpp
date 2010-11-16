@@ -100,7 +100,41 @@ void smoc_scheduler_top::end_of_elaboration() {
 #endif // SYSTEMOC_NEED_IDS
 }
   
+bool smoc_scheduler_top::canExecute(smoc_root_node* actor) {
+  return actor->canFire();
+}
+void smoc_scheduler_top::execute(smoc_root_node* actor) {
+  actor->schedule();
+}
+
 void smoc_scheduler_top::schedule() {
+  if (getSimCTX()->isVpcSchedulingEnabled()) {
+//      std::cerr << "SMoC: " << getSimCTX()->isVpcSchedulingEnabled() << std::endl;
+      smoc_node_list nodes;
+      g->getNodesRecursive(nodes);
+
+      CoSupport::SystemC::EventOrList<smoc_root_node> actors;
+      for (smoc_node_list::iterator iter = nodes.begin();
+          iter != nodes.end(); ++iter){
+          smoc_root_node *actor = *iter;
+          actors |= *actor;
+      }
+
+      while(true) {
+        smoc_wait(actors);
+        for (smoc_node_list::iterator iter = nodes.begin();
+            iter != nodes.end(); ++iter){
+            smoc_root_node *actor = *iter;
+//            std::cerr << actor->name() << " : " << canExecute(actor) << std::endl;
+            if (canExecute(actor)) {
+                execute(actor);
+            }
+        }
+      }
+      return;
+  }
+
+  // plain old SysteMoC scheduler
   while(true) {
     smoc_wait(*g);
     while(*g) {

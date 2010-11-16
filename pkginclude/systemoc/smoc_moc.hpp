@@ -70,6 +70,9 @@ private:
   bool simulation_running;
   SC_HAS_PROCESS(smoc_scheduler_top);
   void schedule();
+
+  bool canExecute(smoc_root_node* actor);
+  void execute(smoc_root_node* actor);
 };
 
 // for compatibility...
