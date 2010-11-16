@@ -250,6 +250,8 @@ public:
 
   void schedule();
 
+  bool canFire();
+
   bool executing;
   RuntimeTransition* ct;
 

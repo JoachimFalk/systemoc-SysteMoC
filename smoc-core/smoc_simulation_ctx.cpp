@@ -84,7 +84,8 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     dataflowTraceLog(NULL),
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    dummy(false)
+    dummy(false),
+    vpcScheduling(false)
 {
   po::options_description systemocOptions("SysteMoC options");
   po::options_description backwardCompatibilityCruftOptions;
@@ -92,7 +93,9 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
   systemocOptions.add_options()
     ("systemoc-help",
      "This help message");
-  
+
+  systemocOptions.add_options()( "systemoc-vpc-scheduling" , po::value( &vpcScheduling )->zero_tokens() );
+
 #ifdef SYSTEMOC_ENABLE_SGX
   systemocOptions.add_options()
 #else // !SYSTEMOC_ENABLE_SGX
@@ -163,6 +166,8 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
     if (i->string_key == "systemoc-help") {
       std::cerr << systemocOptions << std::endl;
       exit(0);
+    } else if (i->string_key == "systemoc-vpc-scheduling" ) {
+        vpcScheduling = true;
     } else if (i->string_key == "systemoc-export-smx" ||
                i->string_key == "export-smx") {
       assert(!i->value.empty());

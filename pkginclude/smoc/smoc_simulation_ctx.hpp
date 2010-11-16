@@ -87,12 +87,16 @@ protected:
   Detail::IdPool  idPool;
 #endif // SYSTEMOC_NEED_IDS
   bool dummy;
+  bool vpcScheduling;
 public:
   smoc_simulation_ctx(int _argc, char *_argv[]);
 
   int    getArgc();
   char **getArgv();
 
+  bool isVpcSchedulingEnabled() const {
+    return vpcScheduling;
+  }
 #ifdef SYSTEMOC_ENABLE_SGX
   bool isSMXDumpingASTEnabled() const
     { return dumpSMXAST; }
