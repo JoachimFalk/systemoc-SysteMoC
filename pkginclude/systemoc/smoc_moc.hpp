@@ -49,6 +49,12 @@
 
 class smoc_graph_base;
 
+namespace SysteMoC { namespace Scheduling {
+bool canExecute(smoc_root_node* actor);
+void execute(smoc_root_node* actor);
+}} // namespace SysteMoC::Scheduler
+
+
 class smoc_scheduler_top
 : public sc_module,
   public SysteMoC::Detail::SimCTXBase {
@@ -71,8 +77,6 @@ private:
   SC_HAS_PROCESS(smoc_scheduler_top);
   void schedule();
 
-  bool canExecute(smoc_root_node* actor);
-  void execute(smoc_root_node* actor);
 };
 
 // for compatibility...

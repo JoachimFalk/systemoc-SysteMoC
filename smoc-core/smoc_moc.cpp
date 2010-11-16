@@ -44,6 +44,14 @@
 
 #include "SMXDumper.hpp"
 
+
+bool SysteMoC::Scheduling::canExecute(smoc_root_node* actor) {
+  return actor->canFire();
+}
+void SysteMoC::Scheduling::execute(smoc_root_node* actor) {
+  actor->schedule();
+}
+
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
   sc_module(sc_module_name("smoc_scheduler_top")),
   g(g),
@@ -99,19 +107,17 @@ void smoc_scheduler_top::end_of_elaboration() {
   getSimCTX()->generateIdsAfterFinalise();
 #endif // SYSTEMOC_NEED_IDS
 }
-  
-bool smoc_scheduler_top::canExecute(smoc_root_node* actor) {
-  return actor->canFire();
-}
-void smoc_scheduler_top::execute(smoc_root_node* actor) {
-  actor->schedule();
-}
 
 void smoc_scheduler_top::schedule() {
   if (getSimCTX()->isVpcSchedulingEnabled()) {
 //      std::cerr << "SMoC: " << getSimCTX()->isVpcSchedulingEnabled() << std::endl;
       smoc_node_list nodes;
       g->getNodesRecursive(nodes);
+
+      boost::function<void (smoc_root_node* actor)> callExecute
+          = &SysteMoC::Scheduling::execute;
+      boost::function<bool (smoc_root_node* actor)> callCanExecute
+          = &SysteMoC::Scheduling::canExecute;
 
       CoSupport::SystemC::EventOrList<smoc_root_node> actors;
       for (smoc_node_list::iterator iter = nodes.begin();
@@ -126,8 +132,8 @@ void smoc_scheduler_top::schedule() {
             iter != nodes.end(); ++iter){
             smoc_root_node *actor = *iter;
 //            std::cerr << actor->name() << " : " << canExecute(actor) << std::endl;
-            if (canExecute(actor)) {
-                execute(actor);
+            if (callCanExecute(actor)) {
+                callExecute(actor);
             }
         }
       }
