@@ -390,6 +390,7 @@ void smoc_root_node::schedule() {
   if (ct != NULL) {
     assert(ct->evaluateIOP());
     assert(ct->evaluateGuard());
+
     ct->execute(this);
   }
   // also del/add me as listener  

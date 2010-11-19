@@ -32,12 +32,60 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <unistd.h>
 #include <smoc/smoc_simulation_ctx.hpp>
-
 #include <sysc/kernel/sc_cmnhdr.h>
 #include <sysc/kernel/sc_externs.h>
+#include <string.h>
+#include <jni.h>
+#include "systemoc_plugin_jni_SysteMoC.h"
+#include <systemoc/smoc_moc.hpp>
 
 int smoc_elab_and_sim(int _argc, char *_argv[]) {
+  
   SysteMoC::smoc_simulation_ctx ctx(_argc, _argv);
   return sc_core::sc_elab_and_sim(ctx.getArgc(), ctx.getArgv());  
+}
+
+// run simulation from Java without args
+JNIEXPORT void JNICALL 
+Java_systemoc_plugin_jni_SysteMoC_runSimulation(JNIEnv *env, jobject obj) {
+  
+  smoc_elab_and_sim(0, NULL);
+}
+
+// run simulation from Java with string args (default)
+JNIEXPORT void JNICALL 
+Java_systemoc_plugin_jni_SysteMoC_runSimulationWithStringParams(JNIEnv *env, jobject obj, jobjectArray stringArray) {
+ 
+  jsize len = env->GetArrayLength(stringArray);
+  char *params[len];
+
+  for(int i=0; i< len; i++){
+
+    jstring tmp = (jstring) env->GetObjectArrayElement(stringArray, i);
+    const char *string = env->GetStringUTFChars(tmp, 0);
+    
+    params[i] = new char[128];
+    //std::cout << string << std::endl;
+    strcpy(params[i], string);
+  }
+  
+  //elab_and_sim ruft sc_main auf
+  smoc_elab_and_sim(len, params);
+}
+
+//run simulation from Java without args
+// JNIEXPORT void JNICALL 
+// Java_systemoc_plugin_jni_SysteMoC_stopSimulation(JNIEnv *env, jobject obj) {
+//   
+//   std::cout << "elab stop" << std::endl;
+//   sc_stop();
+// }
+
+// run simulation from Java without args
+JNIEXPORT void JNICALL 
+Java_systemoc_plugin_jni_SysteMoC_startSimulation(JNIEnv *env, jobject obj) {
+  
+  sc_start();
 }

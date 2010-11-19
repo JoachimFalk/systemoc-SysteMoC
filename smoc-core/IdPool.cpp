@@ -33,6 +33,7 @@
  */
 
 #include <systemoc/smoc_config.h>
+#include <iostream>
 
 #ifdef SYSTEMOC_NEED_IDS
 
@@ -57,8 +58,18 @@ void IdPool::addIdedObj(IdedObj *n) {
 
 // set "id"-attribute to id
 void IdPool::addIdedObj(NamedIdedObj *n) {
-  CoSupport::Math::FNV<IdRangeNamed::bits> hf;
+// std::cerr << "IdPool::addIdedObj" << std::endl;
+// std::cerr << "IdRangeNamed::min " << IdRangeNamed::min << std::endl; 
+// std::cerr << "IdRangeNamed::max " << IdRangeNamed::max << std::endl; 
+// std::cerr << "IdRangeNamed::bits " << IdRangeNamed::bits << std::endl;
+
+// CoSupport::Math::FNV<IdRangeNamed::bits> hf;
+CoSupport::Math::FNV<IdRangeNamed::bits> hf;
+
+// std::cerr << "IdPool::IdRangeNamed" << std::endl;
   NgId id = IdRangeNamed::min + hf(n->name());
+
+// std::cerr << "Id " << id <<std::endl; 
   assert(id <= IdRangeNamed::max);
   IdMap::iterator iter = IdAllocNamed::idAllocNext(id, IdMapEntry(n));
   n->setId(iter->first);

@@ -64,6 +64,7 @@ class smoc_root_node;
 class smoc_root_chan;
 class smoc_func_call;
 
+
 namespace SysteMoC { namespace Detail {
 
 class NamePool{

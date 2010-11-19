@@ -19,6 +19,9 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
+JNI_INCLUDE=-I/usr/local/java/jdk-i586-1.6.0_10/include/ -I/usr/local/java/jdk-i586-1.6.0_10/include/linux/ -I/home/nicklas/workspace/jni_headers/
+
+JNI_LDFLAGS= -L/usr/local/java/jdk-i586-1.6.0_10/jre/lib/i386/ -L/usr/local/java/jdk-i586-1.6.0_10/jre/lib/i386/client/ -L/usr/local/java/jdk-i586-1.6.0_10/jre/lib/i386/server/ -ljvm
 
 include $(auxdir)/jfrules.mk
 include ../BuildSystem/doxygen.am
@@ -39,7 +42,8 @@ AM_CPPFLAGS =				\
 	$(SYSTEMC_VPC_INCLUDE)		\
 	$(BOOST_INCLUDE)		\
 	-Ipkginclude			\
-	-I$(srcdir)/pkginclude
+	-I$(srcdir)/pkginclude 		\
+	$(JNI_INCLUDE)
 
 AM_LDFLAGS=				\
 	@AM_LDFLAGS@			\
@@ -50,7 +54,8 @@ AM_LDFLAGS=				\
 	$(LIBWSDF_LDFLAGS)		\
 	$(LIBSGX_LDFLAGS)		\
 	$(SYSTEMC_VPC_LDFLAGS)		\
-	$(BOOST_LDFLAGS)
+	$(BOOST_LDFLAGS)		\
+	$(JNI_LDFLAGS)
 
 pkgconfigdir = $(libdir)/pkgconfig
 
@@ -85,7 +90,8 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/SMXDumper.cpp			\
 	smoc-core/smoc_graph_synth.cpp		\
 	smoc-core/smoc_func_call.cpp		\
-	smoc-core/smoc_debug_stream.cpp
+	smoc-core/smoc_debug_stream.cpp		\
+	smoc-core/TraceLogJNI.cpp
 #	smoc_ngx_sync.cpp
 
 if SYSTEMOC_ENABLE_WSDF
@@ -104,8 +110,9 @@ libsystemoc_la_LDFLAGS =					\
 	-version-info 0:0:0 					\
 	-no-undefined
 libsystemoc_la_LIBADD = 					\
-	-lsystemc 						\
+	-lsystemc-pthread				\
 	-lboost_program_options$(BOOST_LIBPOSTFIX)
+
 if PKG_COSUPPORT_USE_SRCDIR_VERSION
 libsystemoc_la_LIBADD += 					\
 	$(COSUPPORT_LIBPATH)/libcosupport-systemc.la		\

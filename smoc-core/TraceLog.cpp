@@ -32,29 +32,35 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#include <iostream>
 #include <time.h>
 #include <sstream>
 #include <cassert>
 #include <cmath>
 #include <systemc.h>
+#include <unistd.h>
+#include <jni.h>
 
 #include <systemoc/smoc_config.h>
 
 #include <smoc/detail/TraceLog.hpp>
+#include <smoc/detail/TraceLogJNI.hpp>
 
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <systemoc/smoc_func_call.hpp>
 
+#include "systemoc_plugin_jni_SysteMoC.h"
+
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 #define READABLE(e) do {} while(0)
 //#define READABLE(e) e
 
+bool tmp;
+  
 namespace SysteMoC { namespace Detail {
-
-using std::string;
 
 // class for generating caption indices for fifos
 class Sequence
@@ -133,18 +139,20 @@ TraceLogStream::TraceLogStream(std::ostream *st) : stream(*st) {
 }
 
 void TraceLogStream::init(){
+  
   stream << "<?xml version=\"1.0\"?>\n<systemoc_trace>" << std::endl;
   stream << CoSupport::Streams::Indent::Up;
+  
 }
 
 
 
 void TraceLogStream::traceStartActor(const SysteMoC::Detail::NamedIdedObj *actor,
                                      const char *mode) {
-
+  
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
-
+  
   lastactor=actor->name();
   size_t id = namePool.registerId(lastactor, actor->getId());
   stream << "<a n=\"" << id << "\" m=\"" << mode << "\" t=\""
@@ -192,13 +200,31 @@ void TraceLogStream::traceEndFunction(const smoc_func_call *func){
   stream << "</f>" << std::endl;
 }
 
+//TODO
 void TraceLogStream::traceCommExecIn(const smoc_root_chan *chan, size_t size) {
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
-
-  const char *actor = chan->name();
   
+  //TraceLogJNI jni;
+  //jni.callJavaMethod("systemoc/plugin/jni/Simulation", "pauseSimulation", "()V");
+  //std::cout << "call sc_stop()" << std::endl;
+
+  //sc_stop();
+  //wait(SC_ZERO_TIME);
+  
+//   std::cout << "tmp1:    " << tmp << std::endl;
+//   tmp = true;
+//   
+//   while(tmp == true){
+//       std::cout << "sleeping... " << tmp << std::endl;
+//       //sleep(500);
+//       //tmp = jni.getStopped();
+//   } 
+//   std::cout << "tmp2:    " << tmp << std::endl;
+  
+  const char *actor = chan->name();
+    
   size_t id = namePool.registerId(actor, chan->getId());
   
   stream << "<i s=\"" << size << "\" c=\"" << id
@@ -209,9 +235,9 @@ void TraceLogStream::traceCommExecIn(const smoc_root_chan *chan, size_t size) {
   if(lastactor != "") {
     fifo_info[actor].to.name = lastactor;
     fifo_info[actor].to.unknown = false;
-  }
+  }  
 }
-
+//TODO
 void TraceLogStream::traceCommExecOut(const smoc_root_chan *chan, size_t size) {
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
@@ -249,17 +275,18 @@ void TraceLogStream::traceTransition(size_t id) {
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
-
+  
+  //CALLBACKs here -> Crash
   stream << "<t id=\"" << id << "\"/>" << std::endl;
 }
 
 void TraceLogStream::traceInitialTokens(const smoc_root_chan *chan,
                                         size_t size,
                                         size_t capacity) {
-
+  
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
-
+   
   stream << "<it cap=\"" << capacity << "\">" << std::endl;
   stream << CoSupport::Streams::Indent::Up;
   this->traceCommExecOut(chan, size);
@@ -268,7 +295,9 @@ void TraceLogStream::traceInitialTokens(const smoc_root_chan *chan,
 }
 
 TraceLogStream::~TraceLogStream(){
-
+  
+  TraceLogJNI jni(false);
+  
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
 
@@ -282,8 +311,6 @@ TraceLogStream::~TraceLogStream(){
     stream << "<name id=\"" << iter->first << "\" name=\"" << iter->second
            << "\"/> " << std::endl;
   }
-
-
   stream << "<!--" << std::endl;
 
   stream << "function            #" << std::endl;
@@ -292,20 +319,32 @@ TraceLogStream::~TraceLogStream(){
       i++){
     stream << i->first << "\t\t" << i->second << std::endl;
   }
-
+  
+  //TODO Actors
+  int actor_count = 0;
+  std::string actorList[32]; // ?
+  
   stream << "\nactor              #" << std::endl;
   for(std::map<string, int>::const_iterator i = actor_activation_count.begin();
       i != actor_activation_count.end();
       i++){
     stream << i->first << "\t\t" << i->second << std::endl;
-  }
   
+    actorList[actor_count] = i->first;
+    actor_count++;
+  }
+  jni.callJavaMethod_SetList("setActorList", actor_count, actorList);
+   
   stream << "\nlast actor function" << std::endl;
   for(std::map<string, string>::const_iterator i = last_actor_function.begin();
       i != last_actor_function.end();
       i++){
     stream << i->first << "\t\t" << i->second << std::endl;
   }
+  
+  //TODO FIFOs
+  int fifo_count = 0;
+  std::string fifos[32];
   
   stream << "\nfifo info" << std::endl;
   for(std::map<string, s_fifo_info>::const_iterator i = fifo_info.begin();
@@ -314,7 +353,31 @@ TraceLogStream::~TraceLogStream(){
     stream << i->first << "\t\t" << i->second.size << "\t"
            << (i->second.from.unknown ? "?" : i->second.from.name) << " -> "
            << (i->second.to.unknown ? "?" : i->second.to.name) << std::endl;
+           
+    // JNI Call
+    fifos[fifo_count] = i->first;
+  
+    std::string fifo_items[6] = {"aaa", "bbb","ccc", "ddd", "eee", "fff"};
+    fifo_items[0] = i->first;
+  
+    std::ostringstream os;
+    os << i->second.size;
+   
+    //From
+    fifo_items[1] = i->second.from.name;
+    //To
+    fifo_items[2] = i->second.to.name;
+    //ready?
+    //fifo_items[3] = "TODO";
+    //Size
+    fifo_items[4] = os.str();
+    
+    //Set items
+    jni.callJavaMethod_SetTableItem(fifo_count, fifo_items);
+    jni.callJavaMethod("systemoc/plugin/jni/Simulation", "pauseSimulation", "()V");
+    fifo_count++;
   }
+  jni.callJavaMethod_SetList("setFifoList", fifo_count, fifos);
   
   stream << "\n<?xml version=\"1.0\"?>" << std::endl;
   stream << "<!DOCTYPE configuration SYSTEM \"cmx.dtd\">" << std::endl;
@@ -330,12 +393,10 @@ TraceLogStream::~TraceLogStream(){
 
   stream << " <mappings>" << std::endl;
 
-
-
-
   for(std::set<string>::const_iterator i = actors.begin();
       i != actors.end();
       i++){
+
     stream << "  <mapping source=\"" << *i << "\" target=\"Component1\">" << std::endl;
     stream << "    <attribute type=\"delay\" value=\"\"/>" << std::endl;
     std::set<string> fSet = functions[*i];
@@ -366,10 +427,11 @@ std::string string_cast(const A &a) {
 
 void TraceLogStream::createFifoGraph()
 {
+  
   // Get current time (in seconds)  
   time_t now;
   if(time(&now) == (time_t)-1) {
-    perror("TraceLogStream::createFifoGraph()");
+    perror("TraceLogStream::createFifoGrapPauseThread.getSyncObj().notify();h()");
     return;
   }
   
@@ -397,6 +459,7 @@ void TraceLogStream::createFifoGraph()
     s_fifo_info &info = fifo->second;
     s_actor_info &from = info.from;
     s_actor_info &to = info.to;
+    
     
     if(info.size == 0) {
       fifo_info.erase(fifo++);
@@ -543,5 +606,15 @@ void TraceLogStream::createFifoGraph()
 }
 
 }} // namespace SysteMoC::Detail
+
+// run simulation from Java without args
+JNIEXPORT void JNICALL 
+Java_systemoc_plugin_jni_SysteMoC_stopSimulation(JNIEnv *env, jobject obj) {
+  
+//   SysteMoC::Detail::TraceLogJNI jni(false);
+//   jni.setStopped(false); 
+  tmp = false;
+  std::cout << "stopped:    " << tmp << std::endl;
+}
 
 #endif
