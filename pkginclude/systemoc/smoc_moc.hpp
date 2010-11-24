@@ -40,6 +40,8 @@
 
 #include <systemc.h>
 
+#include <systemcvpc/ScheduledTask.hpp>
+
 #include <systemoc/smoc_config.h>
 
 #include <smoc/smoc_simulation_ctx.hpp>
@@ -50,8 +52,8 @@
 class smoc_graph_base;
 
 namespace SysteMoC { namespace Scheduling {
-bool canExecute(smoc_root_node* actor);
-void execute(smoc_root_node* actor);
+bool canExecute(SystemC_VPC::ScheduledTask* actor);
+void execute(SystemC_VPC::ScheduledTask* actor);
 }} // namespace SysteMoC::Scheduler
 
 

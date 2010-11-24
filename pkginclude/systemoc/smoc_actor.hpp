@@ -37,15 +37,22 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <systemcvpc/ScheduledTask.hpp>
+
 #include "detail/smoc_root_node.hpp"
 
-class smoc_actor : public smoc_root_node {
+class smoc_actor :
+#ifdef SYSTEMOC_ENABLE_VPC
+  public SystemC_VPC::ScheduledTask,
+#endif //SYSTEMOC_ENABLE_VPC
+  public smoc_root_node {
 protected:
   smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
   smoc_actor(smoc_firing_state &s);
 #ifdef SYSTEMOC_ENABLE_VPC
   void finaliseVpcLink();
 #endif //SYSTEMOC_ENABLE_VPC
+  virtual void setActivation(bool activation);
 };
 
 #endif // _INCLUDED_SMOC_ACTOR_HPP

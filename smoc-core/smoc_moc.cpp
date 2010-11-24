@@ -42,14 +42,19 @@
 #include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
+#include <systemcvpc/Director.hpp>
+
 #include "SMXDumper.hpp"
 
 
-bool SysteMoC::Scheduling::canExecute(smoc_root_node* actor) {
-  return actor->canFire();
+bool SysteMoC::Scheduling::canExecute(SystemC_VPC::ScheduledTask* actor) {
+  assert(dynamic_cast<smoc_actor*>(actor) != NULL);
+  return static_cast<smoc_actor*>(actor)->canFire();
 }
-void SysteMoC::Scheduling::execute(smoc_root_node* actor) {
-  actor->schedule();
+void SysteMoC::Scheduling::execute(SystemC_VPC::ScheduledTask* actor) {
+  //std::cerr << "SysteMoC::Scheduling::execute" << std::endl;
+  assert(dynamic_cast<smoc_actor*>(actor) != NULL);
+  static_cast<smoc_actor*>(actor)->schedule();
 }
 
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
@@ -86,6 +91,13 @@ void smoc_scheduler_top::end_of_simulation() {
 }
 
 void smoc_scheduler_top::end_of_elaboration() {
+  boost::function<void (SystemC_VPC::ScheduledTask* actor)> callExecute
+    = &SysteMoC::Scheduling::execute;
+  boost::function<bool (SystemC_VPC::ScheduledTask* actor)> callCanExecute
+    = &SysteMoC::Scheduling::canExecute;
+  SystemC_VPC::Director::getInstance().
+    registerSysteMoCCallBacks(callExecute, callCanExecute);
+
   g->finalise();
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -110,13 +122,14 @@ void smoc_scheduler_top::end_of_elaboration() {
 
 void smoc_scheduler_top::schedule() {
   if (getSimCTX()->isVpcSchedulingEnabled()) {
+    return;
 //      std::cerr << "SMoC: " << getSimCTX()->isVpcSchedulingEnabled() << std::endl;
       smoc_node_list nodes;
       g->getNodesRecursive(nodes);
 
-      boost::function<void (smoc_root_node* actor)> callExecute
+      boost::function<void (SystemC_VPC::ScheduledTask* actor)> callExecute
           = &SysteMoC::Scheduling::execute;
-      boost::function<bool (smoc_root_node* actor)> callCanExecute
+      boost::function<bool (SystemC_VPC::ScheduledTask* actor)> callCanExecute
           = &SysteMoC::Scheduling::canExecute;
 
       CoSupport::SystemC::EventOrList<smoc_root_node> actors;
@@ -130,8 +143,11 @@ void smoc_scheduler_top::schedule() {
         smoc_wait(actors);
         for (smoc_node_list::iterator iter = nodes.begin();
             iter != nodes.end(); ++iter){
-            smoc_root_node *actor = *iter;
-//            std::cerr << actor->name() << " : " << canExecute(actor) << std::endl;
+            smoc_root_node *node = *iter;
+            SystemC_VPC::ScheduledTask * actor =
+                dynamic_cast<SystemC_VPC::ScheduledTask *>(node);
+            assert(actor != NULL);
+            std::cerr << node->name() << " : " << callCanExecute(actor) << std::endl;
             if (callCanExecute(actor)) {
                 callExecute(actor);
             }

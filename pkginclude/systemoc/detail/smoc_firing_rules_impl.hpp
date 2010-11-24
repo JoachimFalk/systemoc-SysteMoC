@@ -288,7 +288,7 @@ public:
 
   void *getID() const;
 
-  void finaliseRuntimeTransition(const smoc_root_node* node);
+  void finaliseRuntimeTransition(smoc_root_node* node);
 };
 
 typedef std::list<RuntimeTransition>   RuntimeTransitionList;
@@ -315,7 +315,7 @@ public:
   RuntimeTransitionList& getTransitions();
 
   void addTransition(const RuntimeTransition& t,
-                     const smoc_root_node *node);
+                     smoc_root_node *node);
 
   EventWaiterSet am;
 
