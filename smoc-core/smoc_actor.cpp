@@ -50,3 +50,10 @@ void smoc_actor::finaliseVpcLink() {
     (*iter)->finaliseVpcLink(this->name());
 }
 #endif //SYSTEMOC_ENABLE_VPC
+
+void smoc_actor::setActivation(bool activation){
+  smoc_root_node::setActivation(activation);
+  //std::cerr << this->name()
+  //    << ": smoc_actor::setActivation(" << activation << ")" << std::endl;
+  this->notifyActivation(activation);
+}

@@ -146,6 +146,7 @@ protected:
   
   friend class smoc_graph_base;
 
+  virtual void setActivation(bool activation);
   virtual void finalise();
 
 #ifdef SYSTEMOC_ENABLE_VPC

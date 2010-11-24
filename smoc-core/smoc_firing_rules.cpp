@@ -379,7 +379,7 @@ bool RuntimeTransition::evaluateGuard() const {
   }
 }
 
-void RuntimeTransition::finaliseRuntimeTransition(const smoc_root_node *node) {
+void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
 
 #ifdef SYSTEMOC_NEED_IDS
   // Allocate Id for myself.
@@ -387,7 +387,8 @@ void RuntimeTransition::finaliseRuntimeTransition(const smoc_root_node *node) {
 #endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_VPC
 
-  if (dynamic_cast<const smoc_actor *>(node) != NULL) {
+  smoc_actor * actor = dynamic_cast<smoc_actor *>(node);
+  if (actor != NULL) {
 
     FunctionNames functionNames;
     SysteMoC::Detail::GuardNameVisitor visitor(functionNames);
@@ -399,7 +400,7 @@ void RuntimeTransition::finaliseRuntimeTransition(const smoc_root_node *node) {
     //initialize VpcTaskInterface
     this->transitionImpl->diiEvent = node->diiEvent;
     this->transitionImpl->vpcTask =
-      SystemC_VPC::Director::getInstance().registerActor(
+      SystemC_VPC::Director::getInstance().registerActor(actor,
                   node->name(), functionNames);
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   if (getSimCTX()->isTraceDumpingEnabled()){
@@ -448,7 +449,7 @@ RuntimeTransitionList& RuntimeState::getTransitions()
   { return tl; }
   
 void RuntimeState::addTransition(const RuntimeTransition& t,
-                                 const smoc_root_node *node) {
+                                 smoc_root_node *node) {
   tl.push_back(t);
 
   RuntimeTransition& tr = tl.back();

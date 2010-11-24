@@ -255,16 +255,9 @@ void smoc_root_node::doReset() {
 
     // notify parent
     if(ct) {
-#ifdef SYSTEMOC_DEBUG
-      outDbg << "requested schedule" << std::endl;
-#endif // SYSTEMOC_DEBUG
-      smoc_event::notify();
-    }
-    else {
-#ifdef SYSTEMOC_DEBUG
-      outDbg << "canceled schedule" << std::endl;
-#endif // SYSTEMOC_DEBUG
-      smoc_event::reset();
+      setActivation(true);
+    } else {
+      setActivation(false);
     }
   }
 
@@ -322,10 +315,7 @@ void smoc_root_node::signaled(smoc_event_waiter *e) {
 #endif // SYSTEMOC_ENABLE_DEBUG
       
       if (ct) {
-#ifdef SYSTEMOC_DEBUG
-        outDbg << "requested schedule" << std::endl;
-#endif // SYSTEMOC_DEBUG
-        smoc_event::notify();
+        setActivation(true);
       }
     } else if (!e->isActive() && ct != NULL && !ct->evaluateIOP()) {
       ct = NULL;
@@ -416,7 +406,7 @@ void smoc_root_node::schedule() {
 
   executing = false;
   if(!ct){  
-    smoc_event::reset();
+    setActivation(false);
   }
 
 #ifdef SYSTEMOC_DEBUG
@@ -430,4 +420,18 @@ bool smoc_root_node::canFire() {
 
   return (ct != NULL) && ct->evaluateIOP() && ct->evaluateGuard();
 
+}
+
+void smoc_root_node::setActivation(bool activation){
+  if(activation) {
+#ifdef SYSTEMOC_DEBUG
+    outDbg << "requested schedule" << std::endl;
+#endif // SYSTEMOC_DEBUG
+    smoc_event::notify();
+  } else {
+#ifdef SYSTEMOC_DEBUG
+    outDbg << "canceled schedule" << std::endl;
+#endif // SYSTEMOC_DEBUG
+    smoc_event::reset();
+  }
 }
