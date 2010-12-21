@@ -105,6 +105,7 @@ void smoc_scheduler_top::end_of_elaboration() {
   // requires: ports finalised (in root_node::finalise)
   //           channel names (in root_chan::finalise)
   g->finaliseVpcLink();
+  SystemC_VPC::Director::getInstance().endOfVpcFinalize();
 #endif //SYSTEMOC_ENABLE_VPC
   //g->notifyReset();
   g->doReset();
