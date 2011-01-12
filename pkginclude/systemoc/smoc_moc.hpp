@@ -40,7 +40,9 @@
 
 #include <systemc.h>
 
+#ifdef SYSTEMOC_ENABLE_VPC
 #include <systemcvpc/ScheduledTask.hpp>
+#endif //SYSTEMOC_ENABLE_VPC
 
 #include <systemoc/smoc_config.h>
 
@@ -51,10 +53,12 @@
 
 class smoc_graph_base;
 
+#ifdef SYSTEMOC_ENABLE_VPC
 namespace SysteMoC { namespace Scheduling {
 bool canExecute(SystemC_VPC::ScheduledTask* actor);
 void execute(SystemC_VPC::ScheduledTask* actor);
 }} // namespace SysteMoC::Scheduler
+#endif //SYSTEMOC_ENABLE_VPC
 
 
 class smoc_scheduler_top

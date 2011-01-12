@@ -42,11 +42,14 @@
 #include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
+#ifdef SYSTEMOC_ENABLE_VPC
 #include <systemcvpc/Director.hpp>
+#endif //SYSTEMOC_ENABLE_VPC
 
 #include "SMXDumper.hpp"
 
 
+#ifdef SYSTEMOC_ENABLE_VPC
 bool SysteMoC::Scheduling::canExecute(SystemC_VPC::ScheduledTask* actor) {
   assert(dynamic_cast<smoc_actor*>(actor) != NULL);
   return static_cast<smoc_actor*>(actor)->canFire();
@@ -56,6 +59,7 @@ void SysteMoC::Scheduling::execute(SystemC_VPC::ScheduledTask* actor) {
   assert(dynamic_cast<smoc_actor*>(actor) != NULL);
   static_cast<smoc_actor*>(actor)->schedule();
 }
+#endif //SYSTEMOC_ENABLE_VPC
 
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
   sc_module(sc_module_name("smoc_scheduler_top")),
@@ -91,12 +95,14 @@ void smoc_scheduler_top::end_of_simulation() {
 }
 
 void smoc_scheduler_top::end_of_elaboration() {
+#ifdef SYSTEMOC_ENABLE_VPC
   boost::function<void (SystemC_VPC::ScheduledTask* actor)> callExecute
     = &SysteMoC::Scheduling::execute;
   boost::function<bool (SystemC_VPC::ScheduledTask* actor)> callCanExecute
     = &SysteMoC::Scheduling::canExecute;
   SystemC_VPC::Director::getInstance().
     registerSysteMoCCallBacks(callExecute, callCanExecute);
+#endif //SYSTEMOC_ENABLE_VPC
 
   g->finalise();
 
@@ -122,6 +128,7 @@ void smoc_scheduler_top::end_of_elaboration() {
 }
 
 void smoc_scheduler_top::schedule() {
+#ifdef SYSTEMOC_ENABLE_VPC
   if (getSimCTX()->isVpcSchedulingEnabled()) {
     return;
 //      std::cerr << "SMoC: " << getSimCTX()->isVpcSchedulingEnabled() << std::endl;
@@ -156,6 +163,7 @@ void smoc_scheduler_top::schedule() {
       }
       return;
   }
+#endif //SYSTEMOC_ENABLE_VPC
 
   // plain old SysteMoC scheduler
   while(true) {
