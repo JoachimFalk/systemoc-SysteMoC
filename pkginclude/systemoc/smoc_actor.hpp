@@ -37,7 +37,9 @@
 
 #include <systemoc/smoc_config.h>
 
+#ifdef SYSTEMOC_ENABLE_VPC
 #include <systemcvpc/ScheduledTask.hpp>
+#endif //SYSTEMOC_ENABLE_VPC
 
 #include "detail/smoc_root_node.hpp"
 
