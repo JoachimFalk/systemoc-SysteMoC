@@ -95,7 +95,10 @@ void smoc_scheduler_top::end_of_simulation() {
 }
 
 void smoc_scheduler_top::end_of_elaboration() {
+  try{
 #ifdef SYSTEMOC_ENABLE_VPC
+  SystemC_VPC::Director::getInstance().beforeVpcFinalize();
+
   boost::function<void (SystemC_VPC::ScheduledTask* actor)> callExecute
     = &SysteMoC::Scheduling::execute;
   boost::function<bool (SystemC_VPC::ScheduledTask* actor)> callCanExecute
@@ -125,6 +128,11 @@ void smoc_scheduler_top::end_of_elaboration() {
 #ifdef SYSTEMOC_NEED_IDS
   getSimCTX()->generateIdsAfterFinalise();
 #endif // SYSTEMOC_NEED_IDS
+  }catch(std::exception & e) {
+    std::cerr << "Got exception at smoc_scheduler_top::end_of_elaboration():\n\t"
+        << e.what();
+    exit(-1);
+  }
 }
 
 void smoc_scheduler_top::schedule() {
