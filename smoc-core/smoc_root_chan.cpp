@@ -43,10 +43,6 @@
 #include <map>
 #include <sstream>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
 #include <CoSupport/String/Concat.hpp>
 
 using namespace SysteMoC::Detail;

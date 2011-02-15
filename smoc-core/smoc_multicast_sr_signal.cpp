@@ -36,10 +36,6 @@
 
 #include <systemoc/smoc_multicast_sr_signal.hpp>
 
-#ifdef SYSTEMOC_ENABLE_VPC
-# include <vpc.hpp>
-#endif //SYSTEMOC_ENABLE_VPC
-
 smoc_multicast_sr_signal_chan_base::chan_init::chan_init(
     const std::string& name, size_t n)
   : name(name), n(n)
