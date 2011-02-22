@@ -390,18 +390,20 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
   smoc_actor * actor = dynamic_cast<smoc_actor *>(node);
   if (actor != NULL) {
 
-    FunctionNames functionNames;
-    SysteMoC::Detail::GuardNameVisitor visitor(functionNames);
+    FunctionNames guardNames;
+    FunctionNames actionNames;
+
+    SysteMoC::Detail::GuardNameVisitor visitor(guardNames);
     Expr::evalTo(visitor, getExpr());
 
     boost::apply_visitor(
-        SysteMoC::Detail::ActionNameVisitor(functionNames), getAction());
+        SysteMoC::Detail::ActionNameVisitor(actionNames), getAction());
 
     //initialize VpcTaskInterface
     this->transitionImpl->diiEvent = node->diiEvent;
     this->transitionImpl->vpcTask =
       SystemC_VPC::Director::getInstance().registerActor(actor,
-                  node->name(), functionNames);
+                  node->name(), actionNames, guardNames);
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   if (getSimCTX()->isTraceDumpingEnabled()){
     getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
