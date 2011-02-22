@@ -407,8 +407,13 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   if (getSimCTX()->isTraceDumpingEnabled()){
     getSimCTX()->getTraceFile() << "<functions transition_id=\"" << getId() << "\">";
-    for(FunctionNames::const_iterator iter = functionNames.begin();
-        iter != functionNames.end();
+    for(FunctionNames::const_iterator iter = guardNames.begin();
+        iter != guardNames.end();
+        ++iter){
+      getSimCTX()->getTraceFile() << " " << *iter;
+    }
+    for(FunctionNames::const_iterator iter = actionNames.begin();
+        iter != actionNames.end();
         ++iter){
       getSimCTX()->getTraceFile() << " " << *iter;
     }
