@@ -854,6 +854,9 @@ protected:
 };
 
 template<class T, class A>
+class smoc_multiplex_vfifo;
+
+template<class T, class A>
 class smoc_multiplex_vfifo_chan
 : private boost::noncopyable,
   public smoc_port_registry
@@ -878,7 +881,7 @@ public:
   /// @brief Channel initializer
   class chan_init
   : public SysteMoC::Detail::ConnectProvider<
-      chan_init,
+      smoc_multiplex_vfifo<T,A>,
       smoc_multiplex_vfifo_chan<T,A> >
   {  
   public:
@@ -914,13 +917,12 @@ public:
       { add(x); return *this; }
 
     using this_type::con_type::operator<<;
+
+    size_t getFifoId() const
+      { return fifoId; }
   private:
     chan_type *getChan()
       { return dummy; }
-
-    // disabled
-    chan_init(const chan_init&);
-    chan_init& operator=(const chan_init&);
   };
 private:
   FifoId            fifoId;
@@ -945,6 +947,19 @@ private:
 };
 
 template <typename T, typename A = typename T::ColorAccessor>
+class smoc_multiplex_vfifo
+: private boost::noncopyable,
+  public smoc_multiplex_vfifo_chan<T,A>::chan_init {
+public:
+  typedef smoc_multiplex_vfifo<T,A>     this_type;
+  typedef typename this_type::chan_type chan_type;
+  typedef typename chan_type::chan_init base_type;
+
+  smoc_multiplex_vfifo(const base_type &b)
+    : base_type(b) {}
+};
+
+template <typename T, typename A = typename T::ColorAccessor>
 class smoc_multiplex_fifo
 : public smoc_multiplex_fifo_chan<T,A>::chan_init,
   public SysteMoC::Detail::ConnectProvider<
@@ -954,6 +969,7 @@ public:
   typedef smoc_multiplex_fifo<T,A>      this_type;
   typedef typename this_type::chan_type chan_type;
   typedef typename chan_type::chan_init base_type;
+  typedef smoc_multiplex_vfifo<T,A>     vfifo_type;
 
   typedef size_t FifoId;
 
