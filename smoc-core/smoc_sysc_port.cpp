@@ -92,7 +92,7 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
       channelName = port->getChannelName();
       vpi->vpcCommTask =
           SystemC_VPC::Director::getInstance().registerRoute(channelName,
-              actorName);
+              actorName, this);
     } else {
       smoc_port_out_base_if* port =
           dynamic_cast<smoc_port_out_base_if*>(this->interfacePtr);
@@ -101,7 +101,7 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
       channelName = port->getChannelName();
       vpi->vpcCommTask =
           SystemC_VPC::Director::getInstance().registerRoute(actorName,
-              channelName);
+              channelName, this);
     }
 #ifdef SYSTEMOC_DEBUG
     vpi->actor   = actorName;
