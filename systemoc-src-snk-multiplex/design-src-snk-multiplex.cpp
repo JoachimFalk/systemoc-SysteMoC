@@ -157,7 +157,10 @@ public:
     smoc_multiplex_fifo<Token, ColorAccessor> f(size,ooo);
     f.connect(src.out);
     for(size_t i = 0; i < inst; ++i) {
-      f.getVirtFifo().connect(snk[i].in);
+      smoc_multiplex_vfifo<Token, ColorAccessor> foo(f.getVirtFifo());
+      foo.getFifoId();
+      foo.connect(snk[i].in);
+//    f.getVirtFifo().connect(snk[i].in);
     }
   }
 };
