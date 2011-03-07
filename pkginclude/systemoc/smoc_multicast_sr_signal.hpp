@@ -169,6 +169,9 @@ public:
       undefinedRead(false)
   {}
   
+  std::string getChannelName() const
+    { return chan->name();}
+
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, SysteMoC::Detail::VpcInterface vpcIf)
@@ -266,6 +269,9 @@ public:
       multipleWrite(false)
   {}
   
+  std::string getChannelName() const
+    { return chan->name();}
+
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, SysteMoC::Detail::VpcInterface vpcIf)
