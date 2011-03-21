@@ -55,9 +55,11 @@
 template<class T, class BASE>
 class smoc_fifo_storage
 : public BASE {
+  typedef smoc_fifo_storage<T, BASE>  this_type;
+  typedef BASE                        base_type;
 public:
-  typedef T                       data_type;
-  typedef smoc_storage<data_type> storage_type;
+  typedef T                           data_type;
+  typedef smoc_storage<data_type>     storage_type;
 
   typedef smoc_ring_access<
     typename smoc_storage_in<data_type>::storage_type,
@@ -97,6 +99,19 @@ protected:
       storage(new storage_type[this->fSize()]),
       initialTokens(i.marking)
   {}
+
+  // overload rpp from QueueRWPtr to implement destructor call on commit read
+  void rpp(size_t n) {
+    size_t rindex = this->rIndex();
+    size_t o = std::min(n, this->fSize() - rindex);
+    size_t p = n-o;
+    for (;o > 0; --o, ++rindex)
+      storage[rindex].invalidate();
+    assert(p == 0 || rindex == this->fSize()); rindex = 0;
+    for (;p > 0; --p, ++rindex)
+      storage[rindex].invalidate();
+    base_type::rpp(n);
+  }
 
   void doReset() {
     // This resets the various pointers in the queue

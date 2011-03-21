@@ -87,11 +87,11 @@ private:
   char mem[sizeof(T)];
   bool valid;
 private:
-  T* ptr()
-  { return reinterpret_cast<T*>(mem); }
+  T       *ptr()
+    { return reinterpret_cast<T       *>(mem); }
 
-  const T* ptr() const
-  { return reinterpret_cast<const T*>(mem); }
+  T const *ptr() const
+    { return reinterpret_cast<T const *>(mem); }
 public:
   smoc_storage() : valid(false) {}
 
@@ -101,27 +101,27 @@ public:
     assert(valid);
     T &t = *ptr();
     // delayed read access (VPC) may conflict with channel (in-)validation
-    this->fireModified( t );
+    this->fireModified(t);
     return t;
   }
 
   operator T &()
     { return get(); }
 
-  const T& get() const {
+  T const &get() const {
     assert(valid);
-    const T &t = *ptr();
+    T const &t = *ptr();
     // delayed read access (VPC) may conflict with channel (in-)validation
-    this->fireModified( t );
+    this->fireModified(t);
     return t;
   }
 
-  operator const T&() const
+  operator T const &() const
     { return get(); }
 
-  void put(const T &t) {
-    this->fireModified( t );
-    if(valid) {
+  void put(T const &t) {
+    this->fireModified(t);
+    if (valid) {
       *ptr() = t;
     } else {
       new(mem) T(t);
@@ -131,17 +131,15 @@ public:
 
   //FIXME(MS): allow "const" access for non-strict
   //void operator=(const T& t) const {
-  void operator=(const T& t)
+  void operator = (T const &t)
     { put(t); }  
 
-  const bool isValid() const{
-    return valid;
-  }
+  const bool isValid() const
+    { return valid; }
 
   // invalidate data (e.g., to avoid reread of commited data)
-  void invalidate()
-  {
-    if(valid) {
+  void invalidate() {
+    if (valid) {
       ptr()->~T();
       valid = false;
     }
@@ -150,17 +148,12 @@ public:
   // reset storage
   // used in SR (signals are reseted if fixed point is reached)
   //
-  // (FIXME: may also be used for destructive reading)
-  void reset(){
-    valid = false;
-  }
-  
-  ~smoc_storage() {
-    if(valid) {
-      ptr()->~T();
-      valid = false;
-    }
-  }
+  // FIXME: valid=false but mem may containt constructed data type!
+  void reset()
+    { valid = false; }
+
+  ~smoc_storage()
+    { invalidate(); }
 };
 
 /// smoc storage with read only memory interface
