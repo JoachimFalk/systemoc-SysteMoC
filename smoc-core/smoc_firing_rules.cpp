@@ -996,7 +996,7 @@ void HierarchicalStateImpl::finalise(ExpandedTransitionList& etl) {
 
   if(!c.empty()) {
     size_t cs = c.size();
-    size_t cb = (cs == 1) ? 1 : CoSupport::flog2(static_cast<uint32_t>(cs) - 1);
+    size_t cb = CoSupport::flog2c(static_cast<uint32_t>(cs));
     
 #ifdef SYSTEMOC_DEBUG
     outDbg << "#C: " << cs << " -> CB: " << cb << std::endl;
