@@ -60,113 +60,14 @@ AC_EXEEXT
 
 ACJF_CHECK_PKG([Synthesis-SW], [Synthesis-SW], [synth_sw=true], [synth_sw=false])
 AM_CONDITIONAL(SYNTH_SW, test x"$synth_sw" = x"true")
+ACJF_CHECK_PKG([Synthesis-SystemC], [Synthesis-SystemC], [synth_sysc=true], [synth_sysc=false])
+AM_CONDITIONAL(SYNTH_SYSC, test x"$synth_sysc" = x"true")
 ACJF_CHECK_PKG([Synthesis-TLM], [Synthesis-TLM], [synth_tlm=true], [synth_tlm=false])
 AM_CONDITIONAL(SYNTH_TLM, test x"$synth_tlm" = x"true")
 ACJF_CHECK_PKG([Synthesis-MPI], [Synthesis-MPI], [synth_mpi=true], [synth_mpi=false])
 AM_CONDITIONAL(SYNTH_MPI, test x"$synth_mpi" = x"true")
 ACJF_CHECK_PKG([Synthesis-Vast], [Synthesis-Vast], [synth_vast=true], [synth_vast=false])
 AM_CONDITIONAL(SYNTH_VAST, test x"$synth_vast" = x"true")
-
-AC_ARG_ENABLE(synthesis-support,
-  [  --enable-synthesis-support     Turn on Support for synth target in selected examples],
-  [case "${enableval}" in
-    yes)  synth=auto
-      ;;
-    no)   synth=false
-      ;;
-    *)
-      synth=""
-      for optval in `echo "${enableval}" | tr ',' ' '`; do
-        case "${optval}" in
-          sw|SW)    AC_MSG_ERROR([obsolete value ${optval} for --enable-synthesis-support: Use --with-synthesis-sw]);;
-          mpi|MPI)  AC_MSG_ERROR([obsolete value ${optval} for --enable-synthesis-support: Use --with-synthesis-mpi]);;
-          tlm|TLM)  AC_MSG_ERROR([obsolete value ${optval} for --enable-synthesis-support: Use --with-synthesis-tlm]);;
-          vast|VAST)  AC_MSG_ERROR([obsolete value ${optval} for --enable-synthesis-support: Use --with-synthesis-vast]);;
-          hw|HW)    synth="${synth}:hw:";;
-          hwc|HWC)  synth="${synth}:hwc:";;
-          hwgs|HWGS)synth="${synth}:hwgs:";;
-          testlib)  synth="${synth}:testlib:";;
-          sgx|SGX)  synth="${synth}:sgx:";;
-          *)        AC_MSG_ERROR([bad value ${optval} for --enable-synthesis-support]);;
-        esac
-      done
-      ;;
-   esac],
-  [synth=auto])
-
-AM_CONDITIONAL(SYNTH_HW, test x"$synth_hw" = x"true")
-
-case "$synth" in
-  *:hwc:*)
-    synth_hwc=true
-    ;;
-  auto)
-    if test -d $srcdir/../Synthesis-Actor-Concurrent/; then
-      synth_hwc=true
-    else
-      synth_hwc=false
-    fi
-    ;;
-  *)
-    synth_hwc=false
-    ;;
-esac
-
-AM_CONDITIONAL(SYNTH_HWC, test x"$synth_hwc" = x"true")
-
-case "$synth" in
-  *:hwgs:*)
-    synth_hwgs=true
-    ;;
-  auto)
-    if test -d $srcdir/../Synthesis-Actor-Ginger-Snap/; then
-      synth_hwgs=true
-    else
-      synth_hwgs=false
-    fi
-    ;;
-  *)
-    synth_hwgs=false
-    ;;
-esac
-
-AM_CONDITIONAL(SYNTH_HWGS, test x"$synth_hwgs" = x"true")
-
-case "$synth" in
-  *:sgx:*)
-    synth_sgx=true
-    ;;
-  auto)
-    if test -d $srcdir/../specGen/; then
-      synth_sgx=true
-    else
-      synth_sgx=false
-    fi
-    ;;
-  *)
-    synth_sgx=false
-    ;;
-esac
-
-AM_CONDITIONAL(SYNTH_SGX, test x"$synth_sgx" = x"true")
-
-case "$synth" in
-  *:testlib:*)
-    synth_testlib=true
-    ;;
-  auto)
-    if test -d $srcdir/../Simulation-HW-Actor/; then
-      synth_testlib=true
-    else
-      synth_testlib=false
-    fi
-    ;;
-  *)
-    synth_testlib=false
-    ;;
-esac
-
-AM_CONDITIONAL(SYNTH_TESTLIB, test x"$synth_testlib" = x"true")
 
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile])
