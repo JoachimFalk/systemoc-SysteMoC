@@ -28,6 +28,10 @@ if SYNTH_SW
   SW_SYNTH_SUBDIR = synthesis-sw
   include $(pkg_synthesis_sw_builddir)/Rules-Synth-II.mk
 endif
+if SYNTH_SYSC
+  SYSC_SYNTH_SUBDIR = synthesis-sysc
+  include $(pkg_synthesis_systemc_builddir)/Rules-Synth-II.mk
+endif
 if SYNTH_VAST
   VASTSYNTH_SUBDIR = synthesis-vast
   VAST_RES_AWARE_SYNTH_SUBDIR = vast-res-aware-synthesis
@@ -41,18 +45,6 @@ endif
 if SYNTH_TLM
   TLM_SYNTH_SUBDIR = synthesis-tlm
   include $(pkg_synthesis_tlm_builddir)/Rules-Synth.mk
-endif
-if SYNTH_HW
-  HWSYNTH_SUBDIR   = hwsynth
-  include $(root_builddir)/Synthesis-Actor-Cynthesizer/Rules-Synth.mk
-endif
-if SYNTH_HWC
-  HWSYNTHC_SUBDIR  = hwsynth-concurrent
-  include $(root_builddir)/Synthesis-Actor-Concurrent/Rules-Synth.mk
-endif
-if SYNTH_HWGS
-  GINGER_SYNTH_SUBDIR  = hwsynth-ginger-snap
-  include $(root_builddir)/Synthesis-Actor-Ginger-Snap/Rules-Synth.mk
 endif
 
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
@@ -100,6 +92,11 @@ synth-sw: sqr-$(SW_SYNTH_SUBDIR)/top
 .PHONY: synth-sw
 endif
 
+if SYNTH_SYSC
+synth-sysc: sqr-$(SYSC_SYNTH_SUBDIR)/top
+.PHONY: synth-sysc
+endif
+
 if SYNTH_MPI
 synth-mpi: $(MPI_SYNTH_SUBDIR)/smoc-synth-sqr
 $(MPI_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
@@ -129,20 +126,3 @@ $(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 $(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.acx: $(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml
 .PHONY: vast-res-aware-sim
 endif
-
-if SYNTH_HW
-hwsynth: $(HWSYNTH_SUBDIR)/smoc-hwsynth-all-sqr.stamp
-.PHONY: hwsynth
-endif
-
-if SYNTH_HWC
-hwsynthc: $(HWSYNTHC_SUBDIR)/smoc-hwsynthc-all-sqr.stamp
-.PHONY: hwsynthc
-endif
-
-if SYNTH_HWGS
-ginger_synth: $(GINGER_SYNTH_SUBDIR)/smoc-ginger-synth-all-sqr.stamp
-.PHONY: ginger_synth
-endif
-
-
