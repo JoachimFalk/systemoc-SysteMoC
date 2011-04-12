@@ -60,6 +60,8 @@ AC_EXEEXT
 
 ACJF_CHECK_PKG([Synthesis-SW], [Synthesis-SW], [synth_sw=true], [synth_sw=false])
 AM_CONDITIONAL(SYNTH_SW, test x"$synth_sw" = x"true")
+ACJF_CHECK_PKG([Synthesis-Pthread], [Synthesis-Pthread], [synth_pthread=true], [synth_pthread=false])
+AM_CONDITIONAL(SYNTH_PTHREAD, test x"$synth_pthread" = x"true")
 ACJF_CHECK_PKG([Synthesis-SystemC], [Synthesis-SystemC], [synth_sysc=true], [synth_sysc=false])
 AM_CONDITIONAL(SYNTH_SYSC, test x"$synth_sysc" = x"true")
 ACJF_CHECK_PKG([Synthesis-TLM], [Synthesis-TLM], [synth_tlm=true], [synth_tlm=false])

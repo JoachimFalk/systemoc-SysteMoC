@@ -28,6 +28,10 @@ if SYNTH_SW
   SW_SYNTH_SUBDIR = synthesis-sw
   include $(pkg_synthesis_sw_builddir)/Rules-Synth-II.mk
 endif
+if SYNTH_PTHREAD
+  PTHREAD_SYNTH_SUBDIR = synthesis-pthread
+  include $(pkg_synthesis_pthread_builddir)/Rules-Synth-II.mk
+endif
 if SYNTH_SYSC
   SYSC_SYNTH_SUBDIR = synthesis-sysc
   include $(pkg_synthesis_systemc_builddir)/Rules-Synth-II.mk
@@ -90,6 +94,11 @@ check: autotest.sh
 if SYNTH_SW
 synth-sw: sqr-$(SW_SYNTH_SUBDIR)/top
 .PHONY: synth-sw
+endif
+
+if SYNTH_PTHREAD
+synth-pthread: sqr-$(PTHREAD_SYNTH_SUBDIR)/top
+.PHONY: synth-pthread
 endif
 
 if SYNTH_SYSC
