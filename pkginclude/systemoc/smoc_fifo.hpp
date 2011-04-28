@@ -155,8 +155,10 @@ private:
               << this->fSize() << "\t"
               << this->freeCount() << "\t"
               << this->usedCount() << std::endl;
+#ifdef SYSTEMOC_ENABLE_VPC
     latencyQueue.dump();
     diiQueue.dump();
+#endif //SYSTEMOC_ENABLE_VPC
 #endif // SYSTEMOC_DEBUG
   }
 };
