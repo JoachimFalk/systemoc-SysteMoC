@@ -1,0 +1,38 @@
+# -will be processed by BASH, shebang is inserted by make-
+
+#
+# simple autotest for the SQR example. We just start the binary with parameter
+# and check the output. Some confusing debug output is send to nirvana.
+#
+# autovars like $srcdir are inserted by make.
+#
+
+#
+golden_logs_dir=$srcdir/testlogs
+
+logoutfile=autotest.log
+
+diff_file=error.diff
+
+#
+test_bin=$builddir/simulation-sqr
+
+# call binary
+VPCCONFIGURATION="$srcdir/vpc/sqr.vpc.xml" $test_bin 100 2> /dev/null |\
+  sed -e '/^SystemC: simulation stopped by user./d' \
+      -e '/^Note: VCD trace timescale unit is set by/d' > $logoutfile
+
+# make sure 'golden' logfile exist! i leave checks for clarity
+diff -u $logoutfile $golden_logs_dir/100iter.log > $diff_file
+
+if [ $? -gt 0 ]; then
+  echo "SQR autotest: logfiles differ, see $logoutfile and $diff_file for details"
+  test_failed=1
+else
+  # remove test logfile
+  rm -f $logoutfile
+  rm $diff_file
+fi
+
+
+[[ -z "$test_failed" ]]

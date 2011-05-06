@@ -41,50 +41,36 @@
 # include <stdlib.h>
 #endif
 
+#include <cassert>
+
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
 
-#include <cmath>
-#include <cassert>
-
 using namespace std; 
-
-// Maximum (and default) number of Src iterations. Lower default number via
-//  command line parameter.
-const int NUM_MAX_ITERATIONS = 1000000;
 
 class Src: public smoc_actor {
 public:
-  smoc_port_out<double> out;
+  smoc_port_out<int> out;
 private:
+  int iter;
   int i;
-  
+
   void src() {
-#ifndef NDEBUG
-# ifndef XILINX_EDK_RUNTIME
-#  ifndef VAST
-    std::cout << "src: " << i << std::endl;
-#  else
-    printf("src: %d\n", i);
-#  endif
-# else
-    xil_printf("src: %u\n",i);
-# endif
-#endif
+    std::cout << "src: " << i << " @ " << sc_time_stamp() << std::endl;
     out[0] = i++;
   }
   
   smoc_firing_state start;
 public:
-  Src(sc_module_name name, int from)
-    : smoc_actor(name, start), i(from) {
+  Src(sc_module_name name, int iter_)
+    : smoc_actor(name, start), iter(iter_), i(1) {
     
-      SMOC_REGISTER_CPARAM(from);
+      SMOC_REGISTER_CPARAM(iter);
       
       start =
-        (VAR(i) <= NUM_MAX_ITERATIONS) >>
+        (VAR(i) <= VAR(iter)) >>
         out(1)                         >>
         CALL(Src::src)                 >> start
       ;
@@ -95,15 +81,15 @@ public:
 class SqrLoop
   // All actor classes must be derived
   // from the smoc_actor base class
-  : public smoc_actor {
+  : public smoc_actor/*, public Batz*/ {
 public:
   // Declaration of input and output ports
-  smoc_port_in<double>  i1, i2;
-  smoc_port_out<double> o1, o2;
+  smoc_port_in<int>  i1, i2;
+  smoc_port_out<int> o1, o2;
 private:
   // Declaration of the actor functionality
   // via member variables and methods
-  double tmp_i1;
+  int tmp_i1;
   
   // action functions triggered by the
   // FSM declared in the constructor
@@ -114,18 +100,10 @@ private:
   // guard  functions used by the
   // FSM declared in the constructor
   bool check() const {
-#ifndef NDEBUG
-# ifndef XILINX_EDK_RUNTIME
-#  ifndef VAST
-    std::cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
-#  else
-    printf("check: %f, %f\n", tmp_i1, i2[0]);
-#  endif
-# else
-    xil_printf("check: %u, %u\n",tmp_i1,i2[0]);
-# endif
-#endif
-    return std::fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
+    int in = i2[0];
+    bool ret = in*in <= tmp_i1 && (in+1)*(in+1) > tmp_i1;
+    std::cout << "check: " << tmp_i1 << ", " << in << std::endl;
+    return ret;
   }
   
   // Declaration of firing states for the FSM
@@ -154,8 +132,8 @@ public:
 
 class Approx: public smoc_actor {
 public:
-  smoc_port_in<double>  i1, i2;
-  smoc_port_out<double> o1;
+  smoc_port_in<int>  i1, i2;
+  smoc_port_out<int> o1;
 private:
   // Square root successive approximation step of Newton
   void approx(void) { o1[0] = (i1[0] / i2[0] + i2[0]) / 2; }
@@ -174,12 +152,12 @@ public:
 
 class Dup: public smoc_actor {
 public:
-  smoc_port_in<double>  i1;
-  smoc_port_out<double> o1, o2;
+  smoc_port_in<int>  i1;
+  smoc_port_out<int> o1, o2;
 
 private:
   void dup() { 
-    double in = i1[0];
+    int in = i1[0];
     o1[0] = in;
     o2[0] = in;
   }
@@ -198,20 +176,10 @@ public:
 
 class Sink: public smoc_actor {
 public:
-  smoc_port_in<double> in;
+  smoc_port_in<int> in;
 private:
-  void sink(void) {
-#ifndef NDEBUG
-# ifndef XILINX_EDK_RUNTIME
-#  ifndef VAST
-    std::cout << "sink: " << in[0] << std::endl;
-#  else
-    printf("sink: %f\n", in[0]);
-#  endif
-# else
-    xil_printf("sink: %u\n",in[0]);
-# endif
-#endif  
+  void sink() {
+    std::cout << "sink: " << in[0] << " @ " << sc_time_stamp() << std::endl;
   }
   
   smoc_firing_state start;
@@ -231,39 +199,38 @@ class SqrRoot
 public:
 protected:
   Src      src;
+  Sink     snk;
   SqrLoop  sqrloop;
   Approx   approx;
   Dup      dup;
-  Sink     sink;
 public:
-  SqrRoot( sc_module_name name, const int from = 1 )
+  SqrRoot( sc_module_name name, int iter = 100 )
     : smoc_graph(name),
-      src("a1", from),
+      src("a1", iter),
+      snk("a5"),
       sqrloop("a2"),
       approx("a3"),
-      dup("a4"),
-      sink("a5") {
-    connectNodePorts(src.out,    sqrloop.i1);
+      dup("a4") {
+    connectNodePorts(src.out, sqrloop.i1);
     connectNodePorts(sqrloop.o1, approx.i1);
 #ifndef KASCPAR_PARSING
     connectNodePorts(approx.o1,  dup.i1,
-                     smoc_fifo<double>(1));
+                     smoc_fifo<int>(1));
     connectNodePorts(dup.o1,     approx.i2,
-                     smoc_fifo<double>() << 2 );
+                     smoc_fifo<int>() << 1 );
 #endif
     connectNodePorts(dup.o2,     sqrloop.i2);
-    connectNodePorts(sqrloop.o2, sink.in);
+    connectNodePorts(sqrloop.o2, snk.in);
   }
 };
 
 int sc_main (int argc, char **argv) {
-  int from = 1;
+  int iter = 100;
   if (argc == 2) {
-    const int iterations = atoi(argv[1]);
-    assert(iterations < NUM_MAX_ITERATIONS);
-    from = NUM_MAX_ITERATIONS - iterations;
+    iter = atoi(argv[1]);
+    assert(iter >= 1);
   }
-  smoc_top_moc<SqrRoot> sqrroot("sqrroot", from);
+  smoc_top_moc<SqrRoot> sqrroot("sqrroot", iter);
   sc_start();
   return 0;
 }
