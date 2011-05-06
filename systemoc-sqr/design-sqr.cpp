@@ -46,6 +46,9 @@
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
 
+#include <cmath>
+#include <cassert>
+
 using namespace std; 
 
 // Maximum (and default) number of Src iterations. Lower default number via
@@ -122,7 +125,7 @@ private:
     xil_printf("check: %u, %u\n",tmp_i1,i2[0]);
 # endif
 #endif
-    return fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
+    return std::fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
   }
   
   // Declaration of firing states for the FSM
