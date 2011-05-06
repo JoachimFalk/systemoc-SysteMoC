@@ -75,6 +75,7 @@ AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile])
 
 m4_sinclude([systemoc-sqr/configure.in.frag])
+m4_sinclude([systemoc-sqr-int/configure.in.frag])
 m4_sinclude([systemoc-cluster-example/configure.in.frag])
 m4_sinclude([systemoc-fir/configure.in.frag])
 m4_sinclude([systemoc-getValueAt/configure.in.frag])
