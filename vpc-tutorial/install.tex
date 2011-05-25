@@ -1,0 +1,57 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Linux: From Source Code}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsection\ -- Requirements}}
+VPC requirements:
+\begin{itemize}
+\item A SysteMoC library compiled with VPC support
+\item The application needs to be linked with the VPC library
+\end{itemize}
+library dependencies:
+\begin{itemize}
+\item CoSupport library (included in the SysteMoC source distribution)
+\item Xerces-C++ XML Parser, http://xerces.apache.org/xerces-c/ (Version $\ge$ 2.8.0)
+\item Boost C++ library, http://www.boost.org/ (Version $\ge$ 1.35)
+\item SystemC library, http://www.systemc.org/ (Version $\ge$ 2.2.0)
+\end{itemize}
+note:
+\begin{itemize}
+\item Boost, SystemC, and CoSupport are required for SysteMoC
+\item Xerces-C++ is required by the VPC library
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % fragile is mandatory for verbatim environments (lstlisting)
+ % HACK: use singleslide for correct page numbering
+ %  (page_counter+=2 else wise)
+ %  this issue seems to be relevant for *pdflatex* only
+ % NOTE: the intended usage for *singleslide* is to tell beamer that we use
+ %   no overlays (animation)
+\begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection}}
+\begin{lstlisting}
+> cd systemoc-top/
+> ls
+Support SystemC-VPC SysteMoC Testcases Examples  configure ...
+> mkdir obj
+> cd obj
+> ../configure -C
+> make
+> (sudo make install)
+\end{lstlisting}
+\begin{itemize}
+\item The source code distribution includes the subdirectories SysteMoC, Support, SystemC-VPC, and some Testcases and Examples
+\item Create an obj directory and change the working directory
+\item Run the configure script from the source directory
+\item Compile the software (and optionally install it)
+\end{itemize}
+\end{frame}
+
