@@ -149,6 +149,37 @@ int sc_main(int argc, char **argv){
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile=singleslide]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Hierarchical Names}}
+\begin{lstlisting}
+//file vpc_source_sink.cpp cont'd
+class NetworkGraph : public smoc_graph {
+public:
+  NetworkGraph(sc_module_name name)
+   : smoc_graph(name), source("Source"), sink("Sink") {
+    smoc_fifo<char> fifo("queue", 4);
+    fifo.connect(source.out).connect(sink.in); // connect actors
+  }
+private:
+  Source source; // actors
+  Sink sink;
+};
+int sc_main(int argc, char **argv){
+  NetworkGraph top("top"); // create network graph
+  smoc_scheduler_top sched(top);
+  sc_start(); // start simulation (SystemC)
+  return 0;
+}
+\end{lstlisting}
+\begin{itemize}
+\item Actors have hierarchical names reproducing the nesting of graphs
+\item E.g. actors \lstinline!top.Source! and \lstinline!top.Sink! are used by the graph \lstinline!top!
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile=singleslide]
 \mode<presentation>{\frametitle{\insertsubsection}}
 \begin{lstlisting}
 > ./vpc-src-sink
@@ -330,7 +361,7 @@ top.Sink> @ 0 s recv: 'o'
 \begin{itemize}
 \item \lstinline!mapping! elements are nested inside the \lstinline!mappings! element
 \item Used to define the mapping of actors to components
-\item The attribute \lstinline!source! defines the hierarchical actor name
+\item The attribute \lstinline!source! defines the entire hierarchical actor name
 \item The attribute \lstinline!target! defines the Component name (cf. \lstinline!<component>!)
 \end{itemize}
 \end{frame}
@@ -591,6 +622,24 @@ b1010010 aaa
 \item "R" or "r" means a task is executed (running)
 \item "W" or "w" means a task is ready for execution but preempted (waiting)
 \item "B" or "b" means a task is blocked during communication
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t]
+\mode<presentation>{\frametitle{\insertsubsection\ -- Simulation Trace}}
+\begin{figure}
+\centering
+\includegraphics[width=\columnwidth]{vcd-trace1.jpg}
+\end{figure}
+
+\begin{itemize}
+\item VCD traces have a major disadvantage: successive phases with identical signal values corespond to no signal change (no event)
+\item they are not included in the VCD file and not shown by any viewer
+\item VPC switches between lower and upper case letters ("R"/"r") to avoid identical valued successive phases
 \end{itemize}
 
 \end{frame}
