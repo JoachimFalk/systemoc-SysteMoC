@@ -90,6 +90,7 @@ SGX::Action::Ptr ActionNGXVisitor::operator()(smoc_func_call_list &f) const {
   for (smoc_func_call_list::iterator i = f.begin(); i != f.end(); ++i) {
     SGX::Function func;
     func.name() = i->getFuncName();
+    func.cxxType() = i->getCxxType();
     
     for (ParamInfoList::const_iterator pIter = i->getParams().begin();
          pIter != i->getParams().end();
