@@ -92,16 +92,22 @@ public:
   R call() const = 0;
   virtual
   const char *getFuncName() const = 0;
-  
-  const char* name() const {
-    return this->getFuncName();
-  }
+  virtual
+  const char *getCxxType() const = 0;
+
 
   virtual
   SysteMoC::Detail::ParamInfoList getParams() const = 0;
   
   virtual
   ~smoc_member_func_interface() {}
+
+private:
+#ifdef SYSTEMOC_NEED_IDS
+  // Implement pure virtual function name from NamedIdedObj
+  const char *name() const
+    { return this->getFuncName(); }
+#endif // SYSTEMOC_NEED_IDS
 };
 
 template <typename R>
@@ -128,11 +134,13 @@ protected:
 public:
   smoc_member_func(const F &_f, const PL &_pl = PL() )
     : f(_f), pl(_pl) {}
-  
+
   typename F::return_type call() const
     { return f.call(pl); }
   const char *getFuncName() const
     { return f.name; }
+  const char *getCxxType() const
+    { return typeid(f.func).name(); }
   SysteMoC::Detail::ParamInfoList getParams() const
   { 
     SysteMoC::Detail::ParamInfoVisitor piv;
@@ -168,13 +176,13 @@ public:
     pil = k->getParams();
   }
   
-  void operator()() const {
-    return k->call();
-  }
+  void operator()() const
+    { return k->call(); }
   
-  const char* getFuncName() const {
-    return k->getFuncName();
-  }
+  const char *getFuncName() const
+    { return k->getFuncName(); }
+  const char *getCxxType() const
+    { return k->getCxxType(); }
   
 #ifdef SYSTEMOC_NEED_IDS
   size_t getId() const {
