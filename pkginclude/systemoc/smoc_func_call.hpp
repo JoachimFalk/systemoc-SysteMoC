@@ -330,7 +330,8 @@ public:
       const std::string &value){
     return NULL;
   }
-  result_type visitMemGuard(const std::string &name,
+  result_type visitMemGuard(
+      const std::string &name, const std::string& cxxType,
       const std::string &reType, const ParamInfoList &params){
     functionNames.push_back(name);
     return NULL;

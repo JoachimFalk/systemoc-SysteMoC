@@ -206,7 +206,7 @@ namespace SysteMoC { namespace Detail {
     virtual result_type visitLiteral(const std::string &type, const std::string &value) = 0;
 //  virtual result_type visitProc(const std::string &name, const std::string &retType, const std::string &addr) = 0;
 //  virtual result_type visitMemProc(const std::string &name, const std::string &retType, const std::string &obj, const std::string &addr) = 0;
-    virtual result_type visitMemGuard(const std::string &name, const std::string &reType, const ParamInfoList &params) = 0;
+    virtual result_type visitMemGuard(const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params) = 0;
     virtual result_type visitEvent(const std::string &name) = 0;
     virtual result_type visitPortTokens(smoc_sysc_port &p) = 0;
     virtual result_type visitToken(smoc_sysc_port &p, size_t n) = 0;
@@ -715,7 +715,8 @@ public:
   result_type apply(const DMemGuard <F, PL> &e, param1_type p) {
     Detail::ParamInfoVisitor piv;
     e.f.paramListVisit(e.pl, piv);
-    return p.visitMemGuard(e.f.name, typeid(typename F::return_type).name(), piv.pil);
+    return p.visitMemGuard(
+        e.f.name, typeid(e.f.func).name(), typeid(typename F::return_type).name(), piv.pil);
   }
 };
 
