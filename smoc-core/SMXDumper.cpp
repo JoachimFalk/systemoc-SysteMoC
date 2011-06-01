@@ -127,7 +127,7 @@ public:
 
   result_type visitVar(const std::string &name, const std::string &type);
   result_type visitLiteral(const std::string &type, const std::string &value);
-  result_type visitMemGuard(const std::string &name, const std::string &reType, const ParamInfoList &params);
+  result_type visitMemGuard(const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params);
   result_type visitEvent(const std::string &name);
   result_type visitPortTokens(smoc_sysc_port &p);
   result_type visitToken(smoc_sysc_port &p, size_t n);
@@ -150,10 +150,12 @@ ExprNGXVisitor::result_type ExprNGXVisitor::visitLiteral(const std::string &type
   return astNode.release();
 }
 
-ExprNGXVisitor::result_type ExprNGXVisitor::visitMemGuard(const std::string &name, const std::string &reType, const ParamInfoList &params) {
+ExprNGXVisitor::result_type ExprNGXVisitor::visitMemGuard(
+    const std::string &name, const std::string& cxxType, const std::string &reType, const ParamInfoList &params) {
   std::auto_ptr<SGX::ASTNodeMemGuard> astNode(new SGX::ASTNodeMemGuard);
   astNode->name() = name;
   astNode->valueType() = reType;
+  astNode->cxxType() = cxxType;
   
   SGX::ParameterList::Ref sgxParams = astNode->parameters();
   for (ParamInfoList::const_iterator pIter = params.begin();
