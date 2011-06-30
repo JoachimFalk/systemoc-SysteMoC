@@ -344,4 +344,17 @@ char **smoc_simulation_ctx::getArgv() {
   return &argv[0];
 }
 
+// end of simulation call back: clean SystemC related objects here
+void smoc_simulation_ctx::endOfSystemcSimulation(){
+  static bool called = 0;
+  if (!called) {
+    called = true;
+#ifdef SYSTEMOC_ENABLE_STATE_TRACE
+    // stateTrace contains sc_signals
+    // delete it right before loosing the SystemC simulation context
+    delete stateTracer;
+#endif // SYSTEMOC_ENABLE_STATE_TRACE
+  }
+}
+
 } // namespace SysteMoC
