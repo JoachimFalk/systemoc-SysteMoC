@@ -69,7 +69,7 @@ clean-local:
 	rm -f sqr.cpp sqr.ast.xml sqr.acx sqr.smx sqr.ngx result.cpp line_mapping_report.txt
 
 sqr.cpp: $(simulation_sqr_SOURCES)
-	cat $^ > $@
+	{ for i in $^; do echo "#include \"$$i\""; done; } > $@
 
 %.smx: simulation-% $(simulation_sqr_SOURCES)
 	./'$<' --export-smx='$@'
