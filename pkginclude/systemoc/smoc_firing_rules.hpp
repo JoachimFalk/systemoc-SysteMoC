@@ -135,7 +135,7 @@ public:
       const std::string& name);
   smoc_hierarchical_state::ConstRef select(
       const std::string& name) const;
-
+  
   const std::string& getName() const;
   std::string getHierarchicalName() const;
 };

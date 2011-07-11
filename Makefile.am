@@ -91,7 +91,7 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/smoc_graph_synth.cpp		\
 	smoc-core/smoc_func_call.cpp		\
 	smoc-core/smoc_debug_stream.cpp		\
-	smoc-core/TraceLogJNI.cpp
+	smoc-core/TraceLogServer.cpp
 #	smoc_ngx_sync.cpp
 
 if SYSTEMOC_ENABLE_WSDF

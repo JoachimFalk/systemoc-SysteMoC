@@ -49,6 +49,11 @@
 
 #include <CoSupport/Streams/FilterOStream.hpp>
 #include <CoSupport/Streams/IndentStreambuf.hpp>
+#include <smoc/detail/TraceLogServer.hpp>
+#include <systemoc/detail/smoc_root_node.hpp>
+
+#define MAXSTRING 128
+#define MAXNUM 8
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
@@ -118,6 +123,17 @@ struct s_fifo_info {
 
 class TraceLogStream : public SimCTXBase {
 private:
+  TraceLogServer server;
+  smoc_root_node *myactor;
+
+  char fifo_name[MAXSTRING];
+  char fromActor[MAXSTRING];
+  char toActor[MAXSTRING];
+  char actual_fifo_level[MAXNUM];
+
+  char actor_name[MAXSTRING];
+  char actor_state[MAXSTRING];
+
   CoSupport::Streams::IndentStreambuf        indenter;
   mutable CoSupport::Streams::FilterOStream stream;
   std::ofstream file;
@@ -168,6 +184,10 @@ public:
 
   void traceStartActor(const SysteMoC::Detail::NamedIdedObj *actor, const char *mode = "???");
   void traceEndActor(const SysteMoC::Detail::NamedIdedObj *actor);
+
+  void updateActorState(smoc_root_node *myActor);
+  void sendToClient();
+
   void traceStartFunction(const smoc_func_call *func);
   void traceEndFunction(const smoc_func_call *func);
   void traceCommExecIn(const smoc_root_chan *chan, size_t size);

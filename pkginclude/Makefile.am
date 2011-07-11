@@ -32,6 +32,7 @@ nobase_include_HEADERS = \
 	smoc/detail/IdedObj.hpp \
 	smoc/detail/NamedIdedObj.hpp \
 	smoc/detail/TraceLog.hpp \
+	smoc/detail/TraceLogServer.hpp \
 	smoc/detail/VpcInterface.hpp \
 	smoc/smoc_hooking.hpp \
 	smoc/smoc_simulation_ctx.hpp \

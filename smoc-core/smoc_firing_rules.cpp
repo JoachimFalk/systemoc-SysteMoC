@@ -250,8 +250,10 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 #endif
   
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  if(execMode != MODE_GRAPH)
+  if(execMode != MODE_GRAPH){
+    this->getSimCTX()->getDataflowTraceLog()->updateActorState(actor);
     this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, execMode == MODE_DIISTART ? "s" : "e");
+  }
   if (execMode == MODE_DIISTART) {
     this->getSimCTX()->getDataflowTraceLog()->traceTransition(getId());
   }
@@ -326,13 +328,14 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     
     // insert magic commstate
     nextState = actor->getCommState();
-    
+
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     if(!*events.latency) {
       // latency event not signaled
       events.latency->addListener(new SysteMoC::Detail::DeferedTraceLogDumper(actor, "l"));
 
     } else {
+      this->getSimCTX()->getDataflowTraceLog()->updateActorState(actor);
       this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, "l");
       this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
     }
@@ -346,8 +349,10 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 #endif // SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  if(execMode != MODE_GRAPH)
+  if(execMode != MODE_GRAPH){
+    this->getSimCTX()->getDataflowTraceLog()->updateActorState(actor);
     this->getSimCTX()->getDataflowTraceLog()->traceEndActor(actor);
+    }
 #endif
 
   actor->setCurrentState(nextState);

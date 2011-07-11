@@ -91,6 +91,7 @@ void smoc_scheduler_top::end_of_elaboration() {
 #ifdef SYSTEMOC_ENABLE_SGX
   if (getSimCTX()->isSMXDumpingPreSimEnabled()) {
     SysteMoC::Detail::dumpSMX(getSimCTX()->getSMXPreSimFile(), getSimCTX(), *g);
+    
     if (!getSimCTX()->isSMXDumpingPreSimKeepGoing())
       sc_core::sc_stop();
   }
@@ -108,8 +109,9 @@ void smoc_scheduler_top::execute(smoc_root_node* actor) {
 }
 
 void smoc_scheduler_top::schedule() {
+
   if (getSimCTX()->isVpcSchedulingEnabled()) {
-//      std::cerr << "SMoC: " << getSimCTX()->isVpcSchedulingEnabled() << std::endl;
+//  std:cerr << "SMoC: " << getSimCTX()->isVpcSchedulingEnabled() << std::endl;
       smoc_node_list nodes;
       g->getNodesRecursive(nodes);
 

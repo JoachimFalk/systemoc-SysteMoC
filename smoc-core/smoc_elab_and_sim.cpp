@@ -31,7 +31,6 @@
  * ERLANGEN NUREMBERG HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
-
 #include <unistd.h>
 #include <smoc/smoc_simulation_ctx.hpp>
 #include <sysc/kernel/sc_cmnhdr.h>
@@ -40,6 +39,7 @@
 #include <jni.h>
 #include "systemoc_plugin_jni_SysteMoC.h"
 #include <systemoc/smoc_moc.hpp>
+#include <systemc.h>
 
 int smoc_elab_and_sim(int _argc, char *_argv[]) {
   
@@ -57,7 +57,8 @@ Java_systemoc_plugin_jni_SysteMoC_runSimulation(JNIEnv *env, jobject obj) {
 // run simulation from Java with string args (default)
 JNIEXPORT void JNICALL 
 Java_systemoc_plugin_jni_SysteMoC_runSimulationWithStringParams(JNIEnv *env, jobject obj, jobjectArray stringArray) {
- 
+
+
   jsize len = env->GetArrayLength(stringArray);
   char *params[len];
 
@@ -75,17 +76,21 @@ Java_systemoc_plugin_jni_SysteMoC_runSimulationWithStringParams(JNIEnv *env, job
   smoc_elab_and_sim(len, params);
 }
 
-//run simulation from Java without args
-// JNIEXPORT void JNICALL 
-// Java_systemoc_plugin_jni_SysteMoC_stopSimulation(JNIEnv *env, jobject obj) {
-//   
-//   std::cout << "elab stop" << std::endl;
-//   sc_stop();
-// }
+//call sc_stop
+JNIEXPORT void JNICALL 
+Java_systemoc_plugin_jni_SysteMoC_stopSimulation(JNIEnv *env, jobject obj) {
+  
+  std::cout << "sc_stop" << std::endl;
+  sc_stop();
+}
 
-// run simulation from Java without args
+//call sc_start
 JNIEXPORT void JNICALL 
 Java_systemoc_plugin_jni_SysteMoC_startSimulation(JNIEnv *env, jobject obj) {
-  
+
+  std::cerr << "sc_start()" << std::endl;
+  SysteMoC::smoc_simulation_ctx::jniEvent.notify();
   sc_start();
 }
+
+sc_event SysteMoC::smoc_simulation_ctx::jniEvent;

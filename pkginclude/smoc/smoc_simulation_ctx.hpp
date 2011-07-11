@@ -41,6 +41,7 @@
 #include <systemoc/smoc_config.h>
 
 #include "detail/IdPool.hpp"
+#include <systemc.h>
 
 namespace SysteMoC {
 
@@ -144,6 +145,7 @@ public:
 
   ~smoc_simulation_ctx();
 
+  static sc_event jniEvent;
 private:
   smoc_simulation_ctx( const smoc_simulation_ctx & toCopy ) {}
 };

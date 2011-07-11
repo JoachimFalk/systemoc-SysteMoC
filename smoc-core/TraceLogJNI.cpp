@@ -2,14 +2,13 @@
 #include <string.h>
 #include <jni.h>
 #include <smoc/detail/TraceLogJNI.hpp>
-#include "systemoc_plugin_jni_SysteMoC.h"
 
 namespace SysteMoC { namespace Detail {
 
-  using std::string;
+using std::string;
 
-TraceLogJNI::TraceLogJNI(bool b){
-  stopped = b;
+TraceLogJNI::TraceLogJNI(/*bool b*/){
+  
 }
   //liefert Java Environment
 JNIEnv* TraceLogJNI::getVM() {
@@ -134,14 +133,6 @@ void TraceLogJNI::callJavaMethod(const char *packageClass, const char *name, con
   //ruft Methode name auf
   env->NewObject(cl, method, args);
   //NICHT:  env->CallVoidMethod(obj, method, args); 
-}
-
-void TraceLogJNI::setStopped(bool b){
-  stopped = b;
-}
-
-bool TraceLogJNI::getStopped(){
-  return stopped;
 }
 
 } }
