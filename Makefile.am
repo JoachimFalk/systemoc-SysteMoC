@@ -35,7 +35,8 @@ noinst_PROGRAMS=		\
 	data-flow		\
 	ping			\
 	mini-filter		\
-	vpc-src-sink
+	vpc-src-sink		\
+	vpc-src-sink-config-api
 
 if PKG_SYSTEMOC_USE_SRCDIR_VERSION
 SYSTEMOC_LINKFLAGS = $(SYSTEMOC_LIBPATH)/libsystemoc.la
@@ -67,3 +68,6 @@ mini_filter_LDADD	= $(SYSTEMOC_LINKFLAGS)
 
 vpc_src_sink_SOURCES	= vpc-source-sink.cpp
 vpc_src_sink_LDADD	= $(SYSTEMOC_LINKFLAGS)
+
+vpc_src_sink_config_api_SOURCES	= vpc-source-sink-config-api.cpp
+vpc_src_sink_config_api_LDADD	= $(SYSTEMOC_LINKFLAGS)
