@@ -36,6 +36,8 @@
 #ifndef _INCLUDED_DETAIL_SMOC_FIFO_STORAGE_HPP
 #define _INCLUDED_DETAIL_SMOC_FIFO_STORAGE_HPP
 
+#include <algorithm>
+
 #include <systemoc/smoc_config.h>
 
 #include <smoc/detail/DumpingInterfaces.hpp>

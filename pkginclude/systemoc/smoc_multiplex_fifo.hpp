@@ -36,6 +36,7 @@
 #ifndef _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP
 #define _INCLUDED_SMOC_MULTIPLEX_FIFO_HPP
 
+#include <algorithm>
 #include <utility>
 #include <vector>
 #include <queue>
@@ -916,7 +917,9 @@ public:
     this_type &operator <<(add_param_ty x)
       { add(x); return *this; }
 
-    using this_type::con_type::operator<<;
+    using SysteMoC::Detail::ConnectProvider<
+      smoc_multiplex_vfifo<T,A>,
+      smoc_multiplex_vfifo_chan<T,A> >::operator<<;
 
     size_t getFifoId() const
       { return fifoId; }
@@ -1017,7 +1020,9 @@ public:
     return *this;
   }
 
-  using this_type::con_type::operator<<;
+  using SysteMoC::Detail::ConnectProvider<
+    smoc_multiplex_fifo<T,A>,
+    smoc_multiplex_fifo_chan<T,A> >::operator<<;
 
 private:
   chan_type *getChan() {

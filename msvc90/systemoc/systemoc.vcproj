@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP20"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\config-wo-vpc;..\..\pkginclude;..\..\..\Support\pkginclude;..\..\..\LibSGX\pkginclude;..\..\..\Support\msvc90\config"
+				AdditionalIncludeDirectories="&quot;..\config-w-vpc&quot;;..\..\pkginclude;..\..\..\Support\pkginclude;..\..\..\Support\msvc90\config;&quot;..\..\..\SystemC-VPC\msvc90\config-wo-vcd&quot;;&quot;..\..\..\SystemC-VPC\pkginclude&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;XML_LIBRARY"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
