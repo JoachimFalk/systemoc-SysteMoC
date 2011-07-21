@@ -45,6 +45,7 @@
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
+#include <systemoc/detail/smoc_port_registry.hpp>
 #include <systemoc/smoc_func_call.hpp>
 #include <systemoc/smoc_elab_and_sim.hpp>
 
@@ -277,6 +278,26 @@ void TraceLogStream::traceTransition(size_t id) {
   stream << "<t id=\"" << id << "\"/>" << std::endl;
 }
 
+void printConnectedActors(const smoc_root_chan *chan, CoSupport::Streams::FilterOStream& stream){
+  const smoc_port_registry::EntryMap& entries = chan->getEntries();
+  for (smoc_port_registry::EntryMap::const_iterator iter = entries.begin();
+      iter != entries.end();
+      ++iter ) {
+    stream << "<source actor=\""
+        << getLeafPort(iter->second)->get_parent()->name()
+        << "\"/>" << std::endl;
+  }
+
+  const smoc_port_registry::OutletMap& outlets= chan->getOutlets();
+  for (smoc_port_registry::OutletMap::const_iterator iter = outlets.begin();
+      iter != outlets.end();
+      ++iter ) {
+    stream << "<sink actor=\""
+        << getLeafPort(iter->second)->get_parent()->name()
+        << "\"/>" << std::endl;
+  }
+}
+
 void TraceLogStream::traceInitialTokens(const smoc_root_chan *chan,
                                         size_t size,
                                         size_t capacity) {
@@ -287,6 +308,7 @@ void TraceLogStream::traceInitialTokens(const smoc_root_chan *chan,
   stream << "<it cap=\"" << capacity << "\">" << std::endl;
   stream << CoSupport::Streams::Indent::Up;
   this->traceCommExecOut(chan, size);
+  printConnectedActors(chan, stream);
   stream << CoSupport::Streams::Indent::Down;
   stream << "</it>" << std::endl;
 }
