@@ -74,6 +74,7 @@ AM_CONDITIONAL(SYNTH_VAST, test x"$synth_vast" = x"true")
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile])
 
+ACJF_CONFIG_PKG([vpc])
 m4_sinclude([systemoc-sqr/configure.in.frag])
 m4_sinclude([systemoc-sqr-int/configure.in.frag])
 m4_sinclude([systemoc-cluster-example/configure.in.frag])
