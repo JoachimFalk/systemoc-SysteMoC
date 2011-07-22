@@ -61,6 +61,7 @@ AC_EXEEXT
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile])
 
+m4_sinclude([automotive-testcase/configure.in.frag])
 
 SUBDIRS=$subdirs
 AC_SUBST(SUBDIRS)
