@@ -43,12 +43,7 @@ public:
 		<< "         Maybe the real execution-time was larger then the period or exceeds the deadline?" << std::endl
 		<< "         time-triggered activation will be moved to the next periodic point of time in the future" << std::endl;
       smoc_periodic_actor *p_actor = dynamic_cast<smoc_periodic_actor *>( node );
-      if(p_actor){
-	do{
-	  //do this until the ReleaseTime will no longer be in the past
-	  time = p_actor->getNextReleasetime();
-	}while( time < sc_time_stamp() );
-      }else{
+      if(!p_actor){
 	std::cerr << "only a smoc_periodic_actor can determine it's next execution-time itself" << std::endl;
 	assert(0);
       }
