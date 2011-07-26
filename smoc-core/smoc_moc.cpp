@@ -64,6 +64,7 @@ void SysteMoC::Scheduling::execute(SystemC_VPC::ScheduledTask* actor) {
 smoc_scheduler_top::smoc_scheduler_top(smoc_graph_base* g) :
   sc_module(sc_module_name("smoc_scheduler_top")),
   g(g),
+  validVpcConfiguration(false),
   simulation_running(false)
 {
   SC_THREAD(schedule);
@@ -115,6 +116,7 @@ void smoc_scheduler_top::end_of_elaboration() {
   //           channel names (in root_chan::finalise)
   g->finaliseVpcLink();
   SystemC_VPC::Director::getInstance().endOfVpcFinalize();
+  validVpcConfiguration = SystemC_VPC::Director::getInstance().hasValidConfig();
 #endif //SYSTEMOC_ENABLE_VPC
   //g->notifyReset();
   g->doReset();
@@ -137,7 +139,9 @@ void smoc_scheduler_top::end_of_elaboration() {
 
 void smoc_scheduler_top::schedule() {
 #ifdef SYSTEMOC_ENABLE_VPC
-  if (getSimCTX()->isVpcSchedulingEnabled()) {
+  // enable VPC scheduling if the VPC configuration is valid
+  // or if forced by command line option
+  if (validVpcConfiguration || getSimCTX()->isVpcSchedulingEnabled()) {
     return;
 //      std::cerr << "SMoC: " << getSimCTX()->isVpcSchedulingEnabled() << std::endl;
       smoc_node_list nodes;

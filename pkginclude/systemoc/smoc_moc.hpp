@@ -79,6 +79,7 @@ private:
     <RuntimeTransition> smoc_transition_ready_list;
 
   smoc_graph_base* g;
+  bool validVpcConfiguration;
   bool simulation_running;
   SC_HAS_PROCESS(smoc_scheduler_top);
   void schedule();
