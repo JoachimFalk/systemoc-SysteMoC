@@ -11,10 +11,9 @@ class NodeQueue : public sc_module, public smoc_event{
 /* struct used to store an event with a certain release-time */
 struct TimeNodePair{
   TimeNodePair(sc_time time,  smoc_root_node *node)
-    : time(time), node(node) {  enabled = true; }
+    : time(time), node(node) {}
   sc_time time;
   smoc_root_node *node;
-  bool enabled;
 };
 
 /* struct used for comparison
