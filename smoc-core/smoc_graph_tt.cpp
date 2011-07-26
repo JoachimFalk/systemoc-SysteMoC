@@ -71,7 +71,7 @@ void smoc_graph_tt::scheduleTT() {
     if(p_node){ // it is a TT-Node
       //remove it from ddf_nodes_activations and re-register it as a tt-node
       ddf_nodes_activations.remove(n);
-      ttNodeQueue.registerNode(p_node, p_node->getNextReleasetime());
+      ttNodeQueue.registerNode(p_node, p_node->getNextReleaseTime());
     }
 #ifdef SYSTEMOC_DEBUG
     outDbg << Indent::Down << "</node>" << std::endl;
@@ -90,7 +90,7 @@ void smoc_graph_tt::scheduleTT() {
       if(entry->inCommState()){ // Node needs some time to process (VPC is used), switch node to DDF
         ddf_nodes_activations |= *next;
       }else{ // Node completely processed -> re-register it in the ttNodeQueue
-        ttNodeQueue.registerNode(entry, entry->getNextReleasetime());
+        ttNodeQueue.registerNode(entry, entry->getNextReleaseTime());
       }
     }
 #ifdef SYSTEMOC_DEBUG

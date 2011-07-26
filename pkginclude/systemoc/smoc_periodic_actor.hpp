@@ -22,18 +22,34 @@ public:
     period_counter(0),
     period(per),
     offset(off),
+    nextReleaseTime_(off),
     jitter(jitter)
   {
+    // TODO: negative mobility values may result in negative release times
+    //nextReleaseTime_ += calculateMobility();
   }
 
-sc_time getNextReleasetime(){
-  period_counter++;
-  sc_time mobility = sc_time(0,SC_US);
-  if(jitter != 0.0){ 
-    mobility = jitter * ((rand()/(float(RAND_MAX)+1)*2 )- 1) * period;
+  sc_time calculateMobility() const{
+    sc_time mobility = SC_ZERO_TIME;
+    if(jitter != 0.0){
+      mobility = jitter * ((rand()/(float(RAND_MAX)+1)*2 )- 1) * period;
+    }
+    return mobility;
   }
-  return (period_counter * period + offset + mobility );
-}
+
+  sc_time updateReleaseTime()
+  {
+    while(nextReleaseTime_ < sc_time_stamp()){
+      nextReleaseTime_ = period_counter * period + offset + calculateMobility();
+      period_counter++;
+    }
+    return nextReleaseTime_;
+  }
+
+  // override getNextReleaseTime from ScheduledTask
+  sc_time getNextReleaseTime(){
+    return updateReleaseTime();
+  }
 
 sc_time getPeriod(){ return period; }
 
@@ -43,6 +59,7 @@ private:
   int period_counter;
   sc_time period;
   sc_time offset;
+  sc_time nextReleaseTime_;
   float jitter;
 
 };
