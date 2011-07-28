@@ -50,6 +50,9 @@ dnl AM_CPPFLAGS="$AM_CPPFLAGS $BOOST_INCLUDE"
 dnl AM_LDFLAGS="$AM_LDFLAGS   $BOOST_LDFLAGS"
 ACJF_CHECK_LIB_COSUPPORT
 ACJF_CHECK_LIB_SYSTEMOC
+SYSTEMOC_ENABLE_VPC=$acjf_cv_systemoc_enable_vpc
+AC_SUBST([SYSTEMOC_ENABLE_VPC])
+
 
 # Checks for typedefs, structures, and compiler characteristics.
 
@@ -74,7 +77,7 @@ AM_CONDITIONAL(SYNTH_VAST, test x"$synth_vast" = x"true")
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile])
 
-if test x"$acjf_cv_systemoc_vpc_support" = x"yes"; then
+if test x"$acjf_cv_systemoc_enable_vpc" = x"yes"; then
   AC_CONFIG_SUBDIRS([vpc])
 fi
 
