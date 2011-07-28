@@ -1,0 +1,59 @@
+<!ELEMENT vpcconfiguration (resultfile?, measurefile?, resources, mappings, topology?)>
+
+<!ELEMENT resultfile EMPTY>
+<!ATTLIST resultfile
+name CDATA #REQUIRED>
+
+<!ELEMENT measurefile EMPTY>
+<!ATTLIST measurefile
+name CDATA #REQUIRED>
+
+<!ELEMENT resources ((attribute)*, (component)*)>
+
+<!ELEMENT component ((attribute)*)>
+<!ATTLIST component
+name ID #REQUIRED
+type CDATA #IMPLIED
+scheduler CDATA #REQUIRED>
+
+<!ELEMENT attribute (attribute|parameter)*>
+<!ATTLIST attribute 
+type CDATA #REQUIRED
+value CDATA #IMPLIED>
+
+<!ELEMENT parameter EMPTY>
+<!ATTLIST parameter
+type CDATA #REQUIRED
+value CDATA #REQUIRED>
+
+<!ELEMENT mappings (mapping)*>
+
+<!ELEMENT mapping (attribute|timing)*>
+<!ATTLIST mapping
+source CDATA #REQUIRED
+target IDREF #REQUIRED>
+
+<!ELEMENT timing EMPTY>
+<!ATTLIST timing
+powermode CDATA #IMPLIED
+delay   CDATA #IMPLIED
+dii     CDATA #IMPLIED
+latency CDATA #IMPLIED
+fname   CDATA #IMPLIED>
+
+<!ELEMENT topology (route)*>
+<!ATTLIST topology
+tracing     CDATA #IMPLIED
+default     CDATA #IMPLIED
+>
+<!ELEMENT route (hop)*>
+<!ATTLIST route
+source      CDATA #REQUIRED
+destination CDATA #REQUIRED
+type        CDATA #IMPLIED
+tracing     CDATA #IMPLIED
+>
+
+<!ELEMENT hop (attribute|timing)*>
+<!ATTLIST hop
+name    CDATA #IMPLIED>
