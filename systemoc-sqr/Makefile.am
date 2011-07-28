@@ -81,7 +81,7 @@ noinst_SCRIPTS=autotest.sh
 
 CLEANFILES=$(noinst_SCRIPTS)
 
-autotest.sh: simulation-sqr $(srcdir)/autotest-sh
+autotest.sh: simulation-sqr $(srcdir)/autotest-sh autovars.sh
 	rm -f $@
 	echo "#!" $(BASH) > $@
 	cat autovars.sh $(srcdir)/autotest-sh >> $@
