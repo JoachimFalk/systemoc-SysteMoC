@@ -42,6 +42,10 @@
 
 #include <systemoc/smoc_config.h>
 
+#ifdef SYSTEMOC_ENABLE_VPC
+  #include<systemcvpc/coupling/VPCEvent.hpp>
+#endif
+
 typedef CoSupport::SystemC::Event         smoc_event;
 typedef CoSupport::SystemC::EventWaiter   smoc_event_waiter;
 typedef CoSupport::SystemC::EventListener smoc_event_listener;
@@ -64,5 +68,11 @@ void smoc_wait(smoc_event_waiter &e)
 
 typedef CoSupport::SystemC::RefCountEvent    smoc_ref_event;
 typedef CoSupport::SystemC::RefCountEventPtr smoc_ref_event_p;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+typedef SystemC_VPC::Coupling::VPCEvent smoc_vpc_event;
+typedef SystemC_VPC::Coupling::VPCEvent::Ptr smoc_vpc_event_p;
+#endif // SYSTEMOC_ENABLE_VPC
+
 
 #endif // _INCLUDED_DETAIL_SMOC_EVENT_DECLS_HPP

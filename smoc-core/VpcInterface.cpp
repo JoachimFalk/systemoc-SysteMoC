@@ -55,14 +55,14 @@ VpcPortInterface::startVpcRead(size_t tokenCount){
   return events;
 }
 
-smoc_ref_event_p VpcPortInterface::dummyDii(new smoc_ref_event(true));
+smoc_vpc_event_p VpcPortInterface::dummyDii(new smoc_vpc_event(true));
 
 ///
 SystemC_VPC::EventPair
 VpcInterface::startWrite(size_t tokenCount) {
   assert(this->portIf!=NULL);
-  smoc_ref_event_p latEvent(new smoc_ref_event());
-  smoc_ref_event_p diiEvent = dummy;
+  smoc_vpc_event_p latEvent(new smoc_vpc_event());
+  smoc_vpc_event_p diiEvent = dummy;
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   // we need to trace communication DII 
   diiEvent.reset(new smoc_ref_event());
@@ -73,7 +73,7 @@ VpcInterface::startWrite(size_t tokenCount) {
   return ep;
 }
 
-smoc_ref_event_p VpcInterface::dummy(new smoc_ref_event(true));
+smoc_vpc_event_p VpcInterface::dummy(new smoc_vpc_event(true));
 
 }} // namespace SysteMoC::Detail
 # endif // SYSTEMOC_ENABLE_VPC

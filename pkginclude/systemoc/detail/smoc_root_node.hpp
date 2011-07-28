@@ -118,7 +118,7 @@ private:
   
   // vpc_event_xxx must be constructed before commstate
   /// @brief VPC data introduction interval event
-  smoc_ref_event_p diiEvent;
+  smoc_vpc_event_p diiEvent;
 
   /// @brief VPC latency event
   //smoc_ref_event *vpc_event_lat;
