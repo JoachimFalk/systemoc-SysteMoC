@@ -53,7 +53,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
     initialState(s),
     _non_strict(false)
 #ifdef SYSTEMOC_ENABLE_VPC
-    ,diiEvent(new smoc_ref_event())
+    ,diiEvent(new smoc_vpc_event())
 //# if defined(SYSTEMOC_ENABLE_DEBUG)
 //    vpc_event_lat(NULL),
 //# endif

@@ -49,7 +49,7 @@ namespace SysteMoC { namespace Detail {
 /// link between systemoc ports (outlet/entry) and VPC read/write
 class VpcPortInterface{
 public:
-  VpcPortInterface()  : vpcCommTask(), readEventLat(new smoc_ref_event())
+  VpcPortInterface()  : vpcCommTask(), readEventLat(new smoc_vpc_event())
  {}
 
   ///
@@ -59,8 +59,8 @@ public:
   SystemC_VPC::FastLink vpcCommTask;
 
   // event used for timing simulation when reading inputs "VPC::read()"
-  smoc_ref_event_p readEventLat;  // cached by IOPattern
-  static smoc_ref_event_p dummyDii;
+  smoc_vpc_event_p readEventLat;  // cached by IOPattern
+  static smoc_vpc_event_p dummyDii;
 
 #ifdef SYSTEMOC_DEBUG_VPC_IF
   std::string actor;
@@ -81,7 +81,7 @@ public:
     vpcTask(),
     dynamicReadEvents(),
     diiEvent(NULL),
-    latEvent(new smoc_ref_event())
+    latEvent(new smoc_vpc_event())
   {}
 
   void addReadEvent(SystemC_VPC::EventPair events)
@@ -130,12 +130,12 @@ public:
     vpcTask.compute(ep);
 
     // reset events from last iteration
-    latEvent = new smoc_ref_event();
+    latEvent = new smoc_vpc_event();
 }
 
-  smoc_ref_event_p getLatEvent() const
+  smoc_vpc_event_p getLatEvent() const
     { assert(latEvent != NULL); return latEvent; }
-  smoc_ref_event_p getDiiEvent() const
+  smoc_vpc_event_p getDiiEvent() const
     { assert(diiEvent != NULL); return diiEvent; }
 
 #ifdef SYSTEMOC_DEBUG_VPC_IF
@@ -150,7 +150,7 @@ public:
   smoc_event_and_list dynamicReadEvents;
 
   /// diiEvent is a link to smoc_root_node->diiEvent
-  smoc_ref_event_p diiEvent;
+  smoc_vpc_event_p diiEvent;
 protected:
 
   /// @brief See smoc_event_listener
@@ -169,7 +169,7 @@ protected:
 
 private:
   /// latEvent is created new for each compute
-  smoc_ref_event_p latEvent;
+  smoc_vpc_event_p latEvent;
 };
 
 /// helper struct to link individual read and/or write operations
@@ -184,11 +184,11 @@ public:
     { this->portIf = pif; }
 
   ///
-  const smoc_ref_event_p getTaskLatEvent() const
+  const smoc_vpc_event_p getTaskLatEvent() const
     { assert(this->taskIf!=NULL); return this->taskIf->getLatEvent(); }
 
   ///
-  const smoc_ref_event_p getTaskDiiEvent() const
+  const smoc_vpc_event_p getTaskDiiEvent() const
     { assert(this->taskIf!=NULL); return this->taskIf->getDiiEvent(); }
 
   ///
@@ -206,7 +206,7 @@ public:
   VpcTaskInterface *taskIf;
   VpcPortInterface *portIf;
 
-  static smoc_ref_event_p dummy;
+  static smoc_vpc_event_p dummy;
 };
 
 }} // namespace SysteMoC::Detail

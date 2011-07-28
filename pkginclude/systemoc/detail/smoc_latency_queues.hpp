@@ -60,8 +60,8 @@ public:
   SysteMoC::Detail::VpcInterface   vpcIf;
 };
 
-void dump_helper(std::pair<size_t, smoc_ref_event_p> & e);
-void dump_helper(std::pair<TokenInfo, smoc_ref_event_p> & e);
+void dump_helper(std::pair<size_t, smoc_vpc_event_p> & e);
+void dump_helper(std::pair<TokenInfo, smoc_vpc_event_p> & e);
 
 template<typename T>
 class EventQueue
@@ -69,7 +69,7 @@ class EventQueue
 private:
   typedef EventQueue this_type;
 protected:
-  typedef std::pair<T, smoc_ref_event_p>   Entry;
+  typedef std::pair<T, smoc_vpc_event_p>   Entry;
   typedef std::list<Entry>                 Queue;
 protected:
   Queue                            queue;
@@ -77,7 +77,7 @@ protected:
 protected:
 
   template<typename TT>
-  void signaled_helper(std::list<std::pair<TT, smoc_ref_event_p> > &queue){
+  void signaled_helper(std::list<std::pair<TT, smoc_vpc_event_p> > &queue){
     do {
       process(queue.front().first);
       queue.pop_front();
@@ -85,7 +85,7 @@ protected:
     while(!queue.empty() && *queue.front().second);
   }
 
-  void signaled_helper(std::list<std::pair<size_t, smoc_ref_event_p> > &queue){
+  void signaled_helper(std::list<std::pair<size_t, smoc_vpc_event_p> > &queue){
     size_t n = 0;
 
     do {
@@ -118,7 +118,7 @@ public:
     : process(proc) {}
 
   /// @brief Queue event  
-  void addEntry(T t, const smoc_ref_event_p& le) {
+  void addEntry(T t, const smoc_vpc_event_p& le) {
     bool queueEmpty = queue.empty();
     
     assert(NULL != le); //if(queueEmpty && (!le || *le)) {
@@ -148,7 +148,7 @@ private:
 protected:
   EventQueue<TokenInfo>    requestQueue;
   EventQueue<size_t>       visibleQueue;
-  smoc_ref_event_p dummy;
+  smoc_vpc_event_p dummy;
   smoc_root_chan  *chan;
 protected:
   /// @brief See EventQueue
@@ -159,9 +159,9 @@ public:
       smoc_root_chan *chan)
     : requestQueue(std::bind1st(
         std::mem_fun(&this_type::actorTokenLatencyExpired), this)),
-      visibleQueue(latencyExpired), dummy(new smoc_ref_event()), chan(chan) {}
+      visibleQueue(latencyExpired), dummy(new smoc_vpc_event()), chan(chan) {}
 
-  void addEntry(size_t n, const smoc_ref_event_p &latEvent,
+  void addEntry(size_t n, const smoc_vpc_event_p &latEvent,
                 SysteMoC::Detail::VpcInterface vpcIf)
     { requestQueue.addEntry(TokenInfo(n, vpcIf), latEvent); }
   void dump(){
@@ -182,7 +182,7 @@ public:
       const boost::function<void (size_t)> &diiExpired)
     : eventQueue(diiExpired) {}
 
-  void addEntry(size_t n, const smoc_ref_event_p &diiEvent,
+  void addEntry(size_t n, const smoc_vpc_event_p &diiEvent,
                 SysteMoC::Detail::VpcInterface vpcIf)
     { eventQueue.addEntry(n, diiEvent); }
 
