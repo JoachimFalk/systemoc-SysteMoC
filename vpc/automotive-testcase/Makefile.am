@@ -37,5 +37,11 @@ automotive_testcase_SOURCES=		\
 	automotive-testcase.cpp			\
 	ActorDisabler.cpp	
 
-automotive_testcase = @SYSTEMOC_DEPENDENCIES@
+automotive_testcase_LDADD =
+if PKG_SYSTEMOC_USE_SRCDIR_VERSION
+automotive_testcase_LDADD += $(SYSTEMOC_LIBPATH)/libsystemoc.la
+else
+# SYSTEMOC_LIBPATH may not be defined for external libraries
+automotive_testcase_LDADD += -lsystemoc
+endif
 
