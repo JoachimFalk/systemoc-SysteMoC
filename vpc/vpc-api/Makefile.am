@@ -44,3 +44,13 @@ endif
 
 user_level_scheduler_SOURCES=user-level-scheduler.cpp	
 user_level_scheduler_LDADD = $(MY_LDADD)
+
+autotest.sh: user-level-scheduler $(srcdir)/autotest-sh autovars.sh
+	rm -f $@
+	echo "#!" $(BASH) > $@
+	cat autovars.sh $(srcdir)/autotest-sh >> $@
+	chmod +x $@
+
+# to check we just call the 'autotest.sh' script
+check: autotest.sh
+	./autotest.sh
