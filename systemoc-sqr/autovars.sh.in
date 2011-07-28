@@ -1,7 +1,7 @@
 # -BEGIN- autovars
 version=@VERSION@
 
-VPC_PRESENT=@VPC_PRESENT@
+SYSTEMOC_ENABLE_VPC=@SYSTEMOC_ENABLE_VPC@
 
 builddir=`dirname $0`;
 builddir=`cd $builddir; pwd`
