@@ -306,9 +306,9 @@ public:
 
   //FIXME: should be in PortMixin !!
   const return_type operator[](size_t n) const {
-#ifdef PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
     (*this)->incrementAccessCount();
-#endif // PORT_ACCESS_COUNTER
+#endif // SYSTEMOC_PORT_ACCESS_COUNTER
     return (*(this->get_chanaccess()))[n];
   }
 
@@ -349,9 +349,9 @@ public:
 
   //FIXME: should be in PortMixin !!
   return_type operator[](size_t n)  {
-#ifdef PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
     (*this)->incrementAccessCount();
-#endif // PORT_ACCESS_COUNTER
+#endif // SYSTEMOC_PORT_ACCESS_COUNTER
     return (*(this->get_chanaccess()))[n];
   }
 };
