@@ -35,7 +35,7 @@
 #endif
 
 #if defined(SYSTEMOC_ENABLE_VPC)
-# define PORT_ACCESS_COUNTER
+# define SYSTEMOC_PORT_ACCESS_COUNTER
 #endif
 
 #if defined(SYSTEMOC_DEBUG) && defined(SYSTEMOC_ENABLE_VPC)

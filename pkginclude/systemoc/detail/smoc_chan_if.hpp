@@ -345,9 +345,9 @@ private:
 class smoc_port_in_base_if
 : public smoc_port_base_if,
   public SysteMoC::Detail::SimCTXBase
-#ifdef PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
   , public AccessCounter
-#endif // PORT_ACCESS_COUNTER
+#endif // SYSTEMOC_PORT_ACCESS_COUNTER
 #ifdef SYSTEMOC_ENABLE_VPC
   , public SysteMoC::Detail::VpcPortInterface
 #endif // SYSTEMOC_ENABLE_VPC
@@ -461,9 +461,9 @@ public:
 class smoc_port_out_base_if
 : public smoc_port_base_if,
   public SysteMoC::Detail::SimCTXBase
-#ifdef PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
   , public AccessCounter
-#endif // PORT_ACCESS_COUNTER
+#endif // SYSTEMOC_PORT_ACCESS_COUNTER
 #ifdef SYSTEMOC_ENABLE_VPC
   , public SysteMoC::Detail::VpcPortInterface
 #endif // SYSTEMOC_ENABLE_VPC
