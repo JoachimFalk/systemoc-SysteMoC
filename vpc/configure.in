@@ -50,6 +50,9 @@ dnl AM_LDFLAGS="$AM_LDFLAGS   $BOOST_LDFLAGS"
 ACJF_CHECK_LIB_COSUPPORT
 ACJF_CHECK_LIB_SYSTEMOC
 
+SYSTEMOC_ENABLE_VPC=$acjf_cv_systemoc_enable_vpc
+AC_SUBST([SYSTEMOC_ENABLE_VPC])
+
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
