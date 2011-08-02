@@ -65,6 +65,7 @@ AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile])
 
 m4_sinclude([automotive-testcase/configure.in.frag])
+m4_sinclude([src-snk/configure.in.frag])
 m4_sinclude([vpc-api/configure.in.frag])
 
 SUBDIRS=$subdirs
