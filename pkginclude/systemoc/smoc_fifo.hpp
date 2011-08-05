@@ -114,6 +114,13 @@ protected:
     // simulation. latencyExpired is only called during simulation.
   }
 
+  /// @brief Detail::LatencyQueue callback #2
+  void latencyExpired_dropped(size_t n) {
+    invalidateToken(n);
+    //inform about new free space;
+    emmSpace.increasedCount(freeCount());
+  }
+
   /// @brief Detail::DIIQueue callback
   void diiExpired(size_t n) {
     fpp(n);

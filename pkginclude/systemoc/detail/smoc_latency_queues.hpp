@@ -74,6 +74,7 @@ protected:
 protected:
   Queue                            queue;
   const boost::function<void (T)>  process;
+  const boost::function<void (T)>  process_dropped;
 protected:
 
   template<typename TT>
@@ -87,14 +88,22 @@ protected:
 
   void signaled_helper(std::list<std::pair<size_t, smoc_vpc_event_p> > &queue){
     size_t n = 0;
-
     do {
-      n += queue.front().first;
-      queue.pop_front();
-    }
-    while(!queue.empty() && *queue.front().second);
-    
-    process(n);
+        if(queue.front().second->isDropped()){
+          assert(process_dropped); //if a message/task is dropped - a callback MUST be defined
+          size_t m = queue.front().first;
+          if(n!= 0){
+            process(n);
+            n=0;
+          }
+          //remove it from queues
+          process_dropped(m);
+        }else{
+          n += queue.front().first;
+        }
+        queue.pop_front();
+      }while(!queue.empty() && *queue.front().second);
+    if(n!=0) process(n);
   }
 
   /// @brief See smoc_event_listener
@@ -114,8 +123,8 @@ protected:
   void eventDestroyed(smoc_event_waiter *_e)
     { assert(!"eventDestroyed must never be called!"); }
 public:
-  EventQueue(const boost::function<void (T)> &proc)
-    : process(proc) {}
+  EventQueue(const boost::function<void (T)> &proc, const boost::function<void (T)> &proc_drop =0)
+    : process(proc), process_dropped(proc_drop) {}
 
   /// @brief Queue event  
   void addEntry(T t, const smoc_vpc_event_p& le) {
@@ -156,10 +165,11 @@ protected:
 public:
   LatencyQueue(
       const boost::function<void (size_t)> &latencyExpired,
-      smoc_root_chan *chan)
+      smoc_root_chan *chan,
+      const boost::function<void (size_t)> &latencyExpired_dropped =0)
     : requestQueue(std::bind1st(
         std::mem_fun(&this_type::actorTokenLatencyExpired), this)),
-      visibleQueue(latencyExpired), dummy(new smoc_vpc_event()), chan(chan) {}
+      visibleQueue(latencyExpired, latencyExpired_dropped), dummy(new smoc_vpc_event()), chan(chan) {}
 
   void addEntry(size_t n, const smoc_vpc_event_p &latEvent,
                 SysteMoC::Detail::VpcInterface vpcIf)
