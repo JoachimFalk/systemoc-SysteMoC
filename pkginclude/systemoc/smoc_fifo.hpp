@@ -161,6 +161,7 @@ private:
 #endif //SYSTEMOC_ENABLE_VPC
 #endif // SYSTEMOC_DEBUG
   }
+ virtual void invalidateToken(size_t n) = 0;
 };
 
 template<class> class smoc_fifo_chan;
@@ -332,6 +333,14 @@ protected:
   /// @brief See smoc_port_registry
   smoc_port_in_base_if* createOutlet()
     { return new outlet_type(*this); }
+
+  void invalidateToken(size_t x){
+#ifdef SYSTEMOC_ENABLE_VPC
+    assert(x==1);
+    this->invalidateTokenInStorage(x);
+    this->updateInvalidateToken(x);
+#endif
+  }
 
 private:
 };

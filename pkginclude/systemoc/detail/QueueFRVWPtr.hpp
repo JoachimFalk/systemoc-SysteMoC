@@ -100,6 +100,14 @@ namespace Detail {
       findex = 0;
       base_type::resetQueue();
     }
+
+    /*
+     * method updateInvalidateToken updates the indexes, after the storage has been updated.
+     */
+    void updateInvalidateToken(size_t n){
+        vindex = (MG(vindex, fsize) +n ).getValue();
+        rindex = (MG(rindex, fsize) +n ).getValue();
+       }
   };
 
 } // namespace Detail
