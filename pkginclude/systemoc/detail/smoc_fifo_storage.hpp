@@ -152,12 +152,10 @@ protected:
 
   void invalidateTokenInStorage(size_t x){
 #ifdef SYSTEMOC_ENABLE_VPC
-    for(int i=0; i<x ; i++){
+    for(size_t i=0; i<x ; i++){
       size_t toRemove = this->vIndex();
       size_t rindex = this->rIndex();
       size_t n = (this->fSize() + (toRemove - rindex)) % this->fSize(); //number of tokens to be moved
-      size_t o = std::min(n, toRemove);
-      size_t p = n-o;
       toRemove += this->fSize();
       for(int i=n; i>=0 ;i--){
         this->storage[toRemove % this->fSize()]=this->storage[(toRemove-1) % this->fSize()];
