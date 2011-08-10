@@ -7,14 +7,17 @@
  <resources>
   <component name="CPU" scheduler="FCFS">
    <attribute type="transaction_delay" value="20 ns" />
+   <attribute type="tracing" value="VCD"/>
   </component>
 
   <component name="Bus" scheduler="FCFS">
    <attribute type="transaction_delay" value="80 ns" />
+   <attribute type="tracing" value="VCD"/>
   </component>
 
   <component name="Mem" scheduler="FCFS">
    <attribute type="transaction_delay" value="20 ns" />
+   <attribute type="tracing" value="NONE"/>
   </component>
  </resources>
 
