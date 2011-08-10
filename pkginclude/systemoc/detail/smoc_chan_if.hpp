@@ -288,8 +288,6 @@ struct CommExec<DComm<CI, E> > {
   typedef Detail::Process         match_type;
   typedef void                    result_type;
 #ifdef SYSTEMOC_ENABLE_VPC
-  typedef const smoc_ref_event_p &param1_type;
-  typedef const smoc_ref_event_p &param2_type;
 
   static inline
   result_type apply(const DComm<CI, E> &e,

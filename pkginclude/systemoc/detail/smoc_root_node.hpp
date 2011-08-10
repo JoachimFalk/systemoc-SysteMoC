@@ -120,9 +120,6 @@ private:
   /// @brief VPC data introduction interval event
   smoc_vpc_event_p diiEvent;
 
-  /// @brief VPC latency event
-  //smoc_ref_event *vpc_event_lat;
-
   RuntimeState *_communicate();
 #endif // SYSTEMOC_ENABLE_VPC
 
