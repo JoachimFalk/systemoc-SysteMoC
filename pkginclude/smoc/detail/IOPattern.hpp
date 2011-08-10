@@ -59,7 +59,7 @@ namespace SysteMoC { namespace Detail {
   
   typedef std::list<PortInfo> PortInfos;
   typedef std::list<smoc_event_waiter*> PlainEvents;
-  typedef std::list<smoc_ref_event_p> ReadEvents;
+  //typedef std::list<smoc_ref_event_p> ReadEvents;
 
   class IOPattern{
   public:
