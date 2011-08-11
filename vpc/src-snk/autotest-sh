@@ -9,7 +9,11 @@
 
 #
 
-vcd_diff_ignore='-I [[:blank:]]*[[:alpha:]]\{3\}[[:blank:]][[:digit:]]\{2\},[[:blank:]][[:digit:]]\{4\}[[:blank:]]*[[:digit:]]\{1,2\}:[[:digit:]]\{2\}:[[:digit:]]\{2\}$'
+ignore_date="-I [[:blank:]]*[[:alpha:]]\{3\}[[:blank:]][[:digit:]]\{2\},[[:blank:]][[:digit:]]\{4\}[[:blank:]]*[[:digit:]]\{1,2\}:[[:digit:]]\{2\}:[[:digit:]]\{2\}$"
+ignore_systemc="-I SystemC[[:blank:]]2.2.0[[:blank:]]---[[:blank:]]"
+
+vcd_diff_ignore="$ignore_date $ignore_systemc"
+
 golden_logs_dir=${srcdir}/testlogs
 
 out_log_file=std_out.log
