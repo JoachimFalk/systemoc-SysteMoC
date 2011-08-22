@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_INIT(
-  [SysteMoC Testcases Mainline Branch], [0.9.3],
+  [SysteMoC Testcases Release Branch], [0.9.3],
   [falk@cs.fau.de streubuehr@cs.fau.de christian.zebelein@informatik.uni-erlangen.de],
-  [SysteMoC-Testcases--mainline-])
+  [SysteMoC-Testcases--release-])
 
 AC_PREREQ(2.57)
 
