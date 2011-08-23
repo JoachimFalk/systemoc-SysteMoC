@@ -36,6 +36,10 @@ if SYNTH_SYSC
   SYSC_SYNTH_SUBDIR = synthesis-sysc
   include $(pkg_synthesis_systemc_builddir)/Rules-Synth-II.mk
 endif
+if SYNTH_CYN
+  CYN_SYNTH_SUBDIR = synthesis-cyn
+  include $(pkg_synthesis_cynthesizer_builddir)/Rules-Synth-II.mk
+endif
 if SYNTH_VAST
   VASTSYNTH_SUBDIR = synthesis-vast
   VAST_RES_AWARE_SYNTH_SUBDIR = vast-res-aware-synthesis
@@ -110,6 +114,11 @@ endif
 if SYNTH_SYSC
 synth-sysc: sqr-$(SYSC_SYNTH_SUBDIR)/top
 .PHONY: synth-sysc
+endif
+
+if SYNTH_CYN
+synth-cyn: sqr-$(CYN_SYNTH_SUBDIR)/top
+.PHONY: synth-cyn
 endif
 
 if SYNTH_MPI
