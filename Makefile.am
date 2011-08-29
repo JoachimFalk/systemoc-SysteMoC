@@ -19,9 +19,9 @@
 # Boston, MA 02111-1307, USA.
 #
 # $Log$
-JNI_INCLUDE=-I/usr/local/java/jdk-i586-1.6.0_10/include/ -I/usr/local/java/jdk-i586-1.6.0_10/include/linux/ -I/home/nicklas/workspace/jni_headers/
+JNI_INCLUDE=-I/usr/local/java/jdk-x86_64-1.6.0_10/include/ -I/usr/local/java/jdk-x86_64-1.6.0_10/include/linux/ -I/home/nicklas/workspace/jni_headers/
 
-JNI_LDFLAGS= -L/usr/local/java/jdk-i586-1.6.0_10/jre/lib/i386/ -L/usr/local/java/jdk-i586-1.6.0_10/jre/lib/i386/client/ -L/usr/local/java/jdk-i586-1.6.0_10/jre/lib/i386/server/ -ljvm
+JNI_LDFLAGS= -L/local/java/jdk-x86_64-1.6.0_10/jre/lib/amd64/server/ -L/local/java/jdk-x86_64-1.6.0_10/jre/lib/amd64/ -ljvm
 
 include $(auxdir)/jfrules.mk
 include ../BuildSystem/doxygen.am
@@ -43,7 +43,7 @@ AM_CPPFLAGS =				\
 	$(BOOST_INCLUDE)		\
 	-Ipkginclude			\
 	-I$(srcdir)/pkginclude 		\
-	$(JNI_INCLUDE)
+	$(JNI_INCLUDE)			
 
 AM_LDFLAGS=				\
 	@AM_LDFLAGS@			\
@@ -110,7 +110,7 @@ libsystemoc_la_LDFLAGS =					\
 	-version-info 0:0:0 					\
 	-no-undefined
 libsystemoc_la_LIBADD = 					\
-	-lsystemc-pthread				\
+	-lsystemc						\
 	-lboost_program_options$(BOOST_LIBPOSTFIX)
 
 if PKG_COSUPPORT_USE_SRCDIR_VERSION

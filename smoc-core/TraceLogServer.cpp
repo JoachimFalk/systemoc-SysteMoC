@@ -26,6 +26,7 @@ void TraceLogServer::acceptConnection(){
     std::cout << "done" << std::endl;
 }
 
+
 void TraceLogServer::sendMessage(char *message){
       
       strcpy(sent, message);
