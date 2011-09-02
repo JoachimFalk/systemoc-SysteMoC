@@ -52,7 +52,7 @@ if SYNTH_MPI
 endif
 if SYNTH_TLM
   TLM_SYNTH_SUBDIR = synthesis-tlm
-  include $(pkg_synthesis_tlm_builddir)/Rules-Synth.mk
+  include $(pkg_synthesis_tlm_builddir)/Rules-Synth-II.mk
 endif
 
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
@@ -91,9 +91,6 @@ autotest.sh: simulation-sqr $(srcdir)/autotest-sh autovars.sh
 	cat autovars.sh $(srcdir)/autotest-sh >> $@
 	chmod +x $@
 
-sysc_mappings.txt: $(srcdir)/sysc_mappings.txt.in
-	cp -f $< $@
-
 # to check we just call the 'autotest.sh' script
 check: autotest.sh
 	./autotest.sh
@@ -125,7 +122,7 @@ $(MPI_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
 endif
 
 if SYNTH_TLM
-synth-tlm: $(TLM_SYNTH_SUBDIR)/smoc-tlmsynth-all-sqr.stamp
+synth-tlm: sqr-$(TLM_SYNTH_SUBDIR)/top
 .PHONY: synth-tlm
 endif
 
