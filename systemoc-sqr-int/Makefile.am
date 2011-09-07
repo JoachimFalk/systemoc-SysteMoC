@@ -94,9 +94,6 @@ autotest.sh: simulation-sqr $(srcdir)/autotest-sh
 smoc_synth_std_includes.hpp: $(srcdir)/smoc_synth_std_includes.hpp.in
 	cp -f $< $@
 
-sysc_mappings.txt: $(srcdir)/sysc_mappings.txt.in
-	cp -f $< $@
-
 # to check we just call the 'autotest.sh' script
 check: autotest.sh
 	./autotest.sh
