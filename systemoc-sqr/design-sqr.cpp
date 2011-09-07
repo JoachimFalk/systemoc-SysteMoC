@@ -62,7 +62,7 @@ private:
   int i;
   
   void src() {
-#ifndef NDEBUG
+/*#ifndef NDEBUG
 # ifndef XILINX_EDK_RUNTIME
 #  ifndef VAST
     std::cout << "src: " << i << std::endl;
@@ -72,7 +72,7 @@ private:
 # else
     xil_printf("src: %u\n",i);
 # endif
-#endif
+#endif*/
     out[0] = i++;
   }
   
@@ -211,7 +211,7 @@ private:
 # else
     xil_printf("sink: %u\n",in[0]);
 # endif
-#endif  
+#endif
   }
   
   smoc_firing_state start;
@@ -245,12 +245,12 @@ public:
       sink("a5") {
     connectNodePorts(src.out,    sqrloop.i1);
     connectNodePorts(sqrloop.o1, approx.i1);
-#ifndef KASCPAR_PARSING
+//#ifndef KASCPAR_PARSING
     connectNodePorts(approx.o1,  dup.i1,
                      smoc_fifo<double>(1));
     connectNodePorts(dup.o1,     approx.i2,
                      smoc_fifo<double>() << 2 );
-#endif
+//#endif
     connectNodePorts(dup.o2,     sqrloop.i2);
     connectNodePorts(sqrloop.o2, sink.in);
   }
