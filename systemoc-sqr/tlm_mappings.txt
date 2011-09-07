@@ -9,7 +9,7 @@ Res MemShared type Mem size 0x00100000
 # Res <name> type Bus (addrmapping (ROUTING)[,*])[0,1]
 # where ROUTING is
 #   routing <from res> <from addr> <to res> <to addr>
-Res Bus1 type Bus addrmapping routing Cpu1 0x0 MemCpu1 0x0 routing Cpu2 0x0 MemCpu2 0x0 routing * 0x80000000 MemShared 0x80000000
+Res Bus1 type Bus addrmapping routing Cpu1 0x0 MemCpu1 0x0 routing Cpu2 0x0 MemCpu2 0x0 routing * 0x80000000 MemShared 0x0
 
 Edge Cpu1 Bus1
 Edge Cpu2 Bus1
