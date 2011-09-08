@@ -24,12 +24,12 @@
  <mappings>
 
   <mapping source="top.snk" target="CPU">
-    <timing fname="Sink::sink" dii="10" latency="10"/>
+    <timing delay="10"/>
     <attribute type="priority" value="1" />
   </mapping>
 
   <mapping source="top.src" target="CPU">
-    <timing fname="Source::source" dii="10" latency="10"/>
+    <timing delay="10"/>
     <attribute type="priority" value="0" />
   </mapping>
  </mappings>
