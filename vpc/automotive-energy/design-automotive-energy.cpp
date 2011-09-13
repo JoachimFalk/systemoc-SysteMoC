@@ -1,3 +1,4 @@
+//  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
  * Copyright (c) 2004-2006 Hardware-Software-CoDesign, University of
@@ -34,81 +35,159 @@
  */
 
 #include <cstdlib>
-#include <iostream>
+#ifndef XILINX_EDK_RUNTIME
+# include <iostream>
+#else
+# include <stdlib.h>
+#endif
 
 #include <systemoc/smoc_moc.hpp>
+#include <systemoc/smoc_tt.hpp>
 #include <systemoc/smoc_port.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_node_types.hpp>
 
-template <typename T>
-class m_h_src: public smoc_actor {
-public:
-  smoc_port_out<T> out;
-private:
-  T       i;
-  size_t  iter;
-  
-  void src() {
-    std::cout
-      << name() << ": generate token with id "
-      << out.tokenId(0) << " with value " << i << std::endl;
-    out[0] = i++; --iter;
-  }
-  smoc_firing_state start;
-public:
-  m_h_src(sc_module_name name, size_t _iter)
-    : smoc_actor(name, start),
-      i(1), iter(_iter) {
-    start =
-         (out(1) && VAR(iter) > 0U)
-      >> CALL(m_h_src::src)       >> start;
-  }
-};
+#include <cmath>
+#include <cassert>
+
+#include <vpc_api.hpp>
+namespace VC = SystemC_VPC::Config;
+
+using namespace std;
+
+// Maximum (and default) number of Src iterations. Lower default number via
+//  command line parameter.
+const int NUM_MAX_ITERATIONS = 1000000;
 
 
-template <typename T>
-class m_h_sink: public smoc_actor {
+class Src: public smoc_actor {
 public:
-  smoc_port_in<T> in;
+  smoc_port_out<double> out;
 private:
   int i;
   
+  void src() {
+    std::cout << "src: " << i << " @ " << sc_time_stamp() << std::endl;
+
+#ifndef NDEBUG
+# ifndef XILINX_EDK_RUNTIME
+#  ifndef VAST
+    std::cout << "src: name: " << name() << " " << i  << std::endl;
+#  else
+    printf("src: %d\n", i);
+#  endif
+# else
+    xil_printf("src: %u\n",i);
+# endif
+#endif
+    out[0] = i++;
+  }
+
+  smoc_firing_state start;
+public:
+  Src(sc_module_name name, int from)
+    : smoc_actor(name, start), i(from) {
+
+      SMOC_REGISTER_CPARAM(from);
+
+      start =
+        (VAR(i) <= NUM_MAX_ITERATIONS) >>
+        out(1)                         >>
+        CALL(Src::src)                 >> start
+      ;
+  }
+};
+
+class Governor: public smoc_periodic_actor {
+private:
+  double utilization;
+  std::string pMode;
+
+  void changePowerMode(){
+    if(pMode=="FAST"){
+      pMode="SLOW";
+      VC::changePowerMode(*this, pMode);
+    }else{
+      pMode="FAST";
+      VC::changePowerMode(*this, pMode);
+    }
+  }
+
+  bool check() const{
+    if(pMode=="SLOW"){
+      return utilization>0.7;
+    }else{
+      return utilization<0.2;
+    }
+  }
+
+  smoc_firing_state start;
+
+public:
+  Governor(sc_module_name name)
+      : smoc_periodic_actor( name, start,  sc_time(50, SC_MS), sc_time(50,SC_MS)),
+        utilization(0.0), pMode("SLOW") {
+    start =  GUARD(Governor::check)          >>
+             CALL(Governor::changePowerMode) >> start;
+    }
+};
+
+class Sink: public smoc_actor {
+public:
+  smoc_port_in<double> in;
+private:
   void sink(void) {
-    std::cout
-      << name() << ": received token with id "
-      << in.tokenId(0) << " and value " << in[0] << std::endl;
+    std::cout << "sink: name " << name() << " " << " @ " << sc_time_stamp() << std::endl;
+#ifndef NDEBUG
+# ifndef XILINX_EDK_RUNTIME
+#  ifndef VAST
+    std::cout << "sink: " << in[0] << std::endl;
+#  else
+    printf("sink: %f\n", in[0]);
+#  endif
+# else
+    xil_printf("sink: %u\n",in[0]);
+# endif
+#endif
   }
   
   smoc_firing_state start;
 public:
-  m_h_sink(sc_module_name name)
+  Sink(sc_module_name name)
     : smoc_actor(name, start) {
-    start = in(1) >> CALL(m_h_sink::sink) >> start;
+    start =
+        in(1)             >>
+        CALL(Sink::sink)  >>
+        start
+      ;
   }
 };
 
-class m_h_top: public smoc_graph {
-protected:
-  m_h_src<int>     src;
-  m_h_sink<int>    snk;
+class SqrRoot
+: public smoc_graph {
 public:
-  m_h_top(sc_module_name name, size_t iter)
+protected:
+  Src       src;
+  Sink      sink;
+  Governor  governor;
+public:
+  SqrRoot( sc_module_name name, const int from = 1 )
     : smoc_graph(name),
-      src("src", iter), snk("snk") {
-
-    smoc_fifo<int> q("queue", 10);
-    q.connect(src.out).connect(snk.in);
+      src("a1", from),
+      sink("a2"),
+      governor("a3") {
+    connectNodePorts(src.out,sink.in);
   }
 };
 
 int sc_main (int argc, char **argv) {
-  size_t iter = static_cast<size_t>(-1);
-  
-  if (argc >= 2)
-    iter = atol(argv[1]);
-  
-  smoc_top_moc<m_h_top> top("top", iter);
+  int from = 1;
+  if (argc == 2) {
+    const int iterations = atoi(argv[1]);
+    assert(iterations < NUM_MAX_ITERATIONS);
+    from = NUM_MAX_ITERATIONS - iterations;
+  }
+  smoc_top_moc<SqrRoot> sqrroot("sqrroot", from);
   sc_start();
   return 0;
 }
