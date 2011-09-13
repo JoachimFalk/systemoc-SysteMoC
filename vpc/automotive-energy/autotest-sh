@@ -1,0 +1,59 @@
+# -will be processed by BASH, shebang is inserted by make-
+
+#
+# simple autotest. We just start the binary with parameter and check the output.
+# Some confusing debug output is send to nirvana.
+#
+# autovars like ${srcdir} are inserted by make.
+#
+
+#
+
+ignore_date="-I [[:blank:]]*[[:alpha:]]\{3\}[[:blank:]][[:digit:]]\{2\},[[:blank:]][[:digit:]]\{4\}[[:blank:]]*[[:digit:]]\{1,2\}:[[:digit:]]\{2\}:[[:digit:]]\{2\}$"
+ignore_systemc="-I SystemC[[:blank:]]2.2.0[[:blank:]]---[[:blank:]]"
+
+vcd_diff_ignore="$ignore_date $ignore_systemc"
+
+golden_logs_dir=${srcdir}/testlogs
+
+out_log_file=std_out.log
+err_log_file=std_err.log
+
+
+#
+test_bin=${builddir}/automotive-energy
+options="200"
+
+function run_test(){
+  local test_config=$1
+  local diff_file=${test_config}-error.diff
+
+  test -d ${test_config} && rm -r ${test_config}
+  mkdir ${test_config}
+
+  # call binary
+  (cd ${test_config};
+   VPCCONFIGURATION="${srcdir}/vpc/${test_config}"		\
+     ${test_bin} ${options} 2>  ${err_log_file} |		\
+     sed -e '/^SystemC: simulation stopped by user./d' 		\
+       -e '/^Note: VCD trace timescale unit is set by/d' > ${out_log_file};
+   )  
+
+   # compare to 'golden' log files
+   diff -ru ${vcd_diff_ignore} ${test_config} ${golden_logs_dir}/${test_config} > ${diff_file}
+
+  if [ $? -gt 0 ]; then
+    echo "autotest: diff failed, see ${diff_file} and ${test_config}/* for details"
+    test_failed=1
+  else
+    # remove test logfile
+    rm -f ${out_log_file}
+    rm ${diff_file}
+    test -d ${test_config} && rm -r ${test_config}
+  fi
+}
+
+run_test RR.vpc.xml
+run_test FCFS.vpc.xml
+
+[[ -z "${test_failed}" ]]
