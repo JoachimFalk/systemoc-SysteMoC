@@ -3,81 +3,49 @@
 <vpcconfiguration>
 
  <resources>
-  <component name="CPU" scheduler="PS">
-   <attribute type="powermode">
-     <attribute type="FAST">
-	   <parameter type="IDLE"     value="0.05 mW" />
-	   <parameter type="STALLED"  value="0.50 mW" />
-	   <parameter type="RUNNING"  value="1.00 mW" />
-	   <parameter type="transaction_delay" value="1 ns"/>
-	 </attribute>
-	 <attribute type="SLOW">
-	   <parameter type="IDLE"     value="0.01 mW" />
-	   <parameter type="STALLED"  value="0.11 mW" />
-	   <parameter type="RUNNING"  value="0.21 mW" />
-	   <parameter type="transaction_delay" value="3 ns"/>
-	 </attribute>
-   </attribute>
+  <component name="CPU" scheduler="FCFS">
+   <attribute type="transaction_delay" value="20 ns" />
   </component>
 
-  <component name="Bus" scheduler="PS">
-   <attribute type="powermode">
-     <attribute type="FAST">
-	   <parameter type="IDLE"     value="0.06 mW" />
-	   <parameter type="STALLED"  value="0.60 mW" />
-	   <parameter type="RUNNING"  value="1.00 mW" />
-	   <parameter type="transaction_delay" value="1 ns"/>
-	 </attribute>
-	 <attribute type="SLOW">
-	   <parameter type="IDLE"     value="0.02 mW" />
-	   <parameter type="STALLED"  value="0.12 mW" />
-	   <parameter type="RUNNING"  value="0.22 mW" />
-	   <parameter type="transaction_delay" value="3 ns"/>
-	 </attribute>
-   </attribute>
+  <component name="Bus" scheduler="FCFS">
+   <attribute type="transaction_delay" value="80 ns" />
   </component>
 
-  <component name="Mem" scheduler="PS">
-    <attribute type="powermode">
-     <attribute type="FAST">
-	   <parameter type="IDLE"     value="0.07 mW" />
-	   <parameter type="STALLED"  value="0.70 mW" />
-	   <parameter type="RUNNING"  value="1.00 mW" />
-	   <parameter type="transaction_delay" value="1 ns"/>
-	 </attribute>
-	 <attribute type="SLOW">
-	   <parameter type="IDLE"     value="0.03 mW" />
-	   <parameter type="STALLED"  value="0.13 mW" />
-	   <parameter type="RUNNING"  value="0.23 mW" />
-	   <parameter type="transaction_delay" value="3 ns"/>
-	 </attribute>
-   </attribute>
+  <component name="Mem" scheduler="FCFS">
+   <attribute type="transaction_delay" value="20 ns" />
   </component>
  </resources>
 
-
  <mappings>
   <mapping source="sqrroot.a1" target="CPU">
-    <timing delay="1 ns"  powermode="FAST"/>
-    <timing delay="10 ns" powermode="SLOW"/>
-    <timing fname="Src::src" delay="1 ns"   powermode="FAST"/>
-    <timing fname="Src::src" delay="10 ns"  powermode="SLOW"/>
+    <timing delay="100 ns"/>
+    <timing fname="Src::src" delay="100 ns"/>
   </mapping>
 
   <mapping source="sqrroot.a2" target="CPU">
-	<timing delay="1 ns"  powermode="FAST"/>
-    <timing delay="10 ns" powermode="SLOW"/>
-    <timing fname="Sink::sink" delay="23 ns"  powermode="FAST"/>
-    <timing fname="Sink::sink" delay="27 ns"  powermode="SLOW"/> 
+    <timing delay="100"/>
+    <timing fname="SqrLoop::check"      delay="50 ns" />
+    <timing fname="SqrLoop::copyStore"  delay="100 ns"/>
+    <timing fname="SqrLoop::copyInput"  delay="100 ns"/>
+    <timing fname="SqrLoop::copyApprox" delay="100 ns"/>
   </mapping>
 
   <mapping source="sqrroot.a3" target="CPU">
-    <timing delay="1 ns"  powermode="FAST"/>
-    <timing delay="10 ns" powermode="SLOW"/>
+    <timing delay="100 ns"/>
+    <timing fname="Approx::approx" delay="100 ns"/>
   </mapping>
+
+  <mapping source="sqrroot.a4" target="CPU">
+    <timing delay="100 ns"/>
+    <timing fname="Dup::dup" delay="100 ns"/>
+  </mapping>
+
+  <mapping source="sqrroot.a5" target="CPU">
+    <timing delay="100 ns"/>
+    <timing fname="Sink::sink" delay="100 ns"/>
+  </mapping>
+
  </mappings>
- 
- 
  <topology tracing="true" default="ignore">
   <route source="sqrroot.a1" destination="cf_sqrroot.a1_sqrroot.a2_1" tracing="false">
     <hop name="CPU" />
@@ -89,6 +57,55 @@
     <hop name="Bus" />
     <hop name="CPU" />
   </route>
+  <route source="sqrroot.a2" destination="cf_sqrroot.a2_sqrroot.a3_1">
+    <hop name="CPU" />
+    <hop name="Bus" />
+    <hop name="Mem" />
+  </route>
+  <route source="cf_sqrroot.a2_sqrroot.a3_1" destination="sqrroot.a3">
+    <hop name="Mem" />
+    <hop name="Bus" />
+    <hop name="CPU" />
+  </route>
+  <route source="cf_sqrroot.a4_sqrroot.a3_1" destination="sqrroot.a3">
+    <hop name="Mem" />
+    <hop name="Bus" />
+    <hop name="CPU" />
+  </route>
+  <route source="sqrroot.a3" destination="cf_sqrroot.a3_sqrroot.a4_1">
+    <hop name="CPU" />
+    <hop name="Bus" />
+    <hop name="Mem" />
+  </route>
+  <route source="cf_sqrroot.a3_sqrroot.a4_1" destination="sqrroot.a4">
+    <hop name="Mem" />
+    <hop name="Bus" />
+    <hop name="CPU" />
+  </route>
+  <route source="sqrroot.a4" destination="cf_sqrroot.a4_sqrroot.a3_1">
+    <hop name="CPU" />
+    <hop name="Bus" />
+    <hop name="Mem" />
+  </route>
+  <route source="sqrroot.a4" destination="cf_sqrroot.a4_sqrroot.a2_1">
+    <hop name="CPU" />
+    <hop name="Bus" />
+    <hop name="Mem" />
+  </route>
+  <route source="cf_sqrroot.a4_sqrroot.a2_1" destination="sqrroot.a2">
+    <hop name="Mem" />
+    <hop name="Bus" />
+    <hop name="CPU" />
+  </route>
+  <route source="sqrroot.a2" destination="cf_sqrroot.a2_sqrroot.a5_1">
+    <hop name="CPU" />
+    <hop name="Bus" />
+    <hop name="Mem" />
+  </route>
+  <route source="cf_sqrroot.a2_sqrroot.a5_1" destination="sqrroot.a5">
+    <hop name="Mem" />
+    <hop name="Bus" />
+    <hop name="CPU" />
+  </route>
  </topology>
- 
 </vpcconfiguration>
