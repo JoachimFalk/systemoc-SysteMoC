@@ -40,16 +40,6 @@ if SYNTH_CYN
   CYN_SYNTH_SUBDIR = synthesis-cyn
   include $(pkg_synthesis_cynthesizer_builddir)/Rules-Synth-II.mk
 endif
-if SYNTH_VAST
-  VASTSYNTH_SUBDIR = synthesis-vast
-  VAST_RES_AWARE_SYNTH_SUBDIR = vast-res-aware-synthesis
-  include $(pkg_synthesis_vast_builddir)/Rules-Synth.mk
-  include $(pkg_synthesis_vast_builddir)/ResAware-Synth.mk
-endif
-if SYNTH_MPI
-  MPI_SYNTH_SUBDIR = synthesis-mpi
-  include $(pkg_synthesis_mpi_builddir)/Rules-Synth.mk
-endif
 if SYNTH_TLM
   TLM_SYNTH_SUBDIR = synthesis-tlm
   include $(pkg_synthesis_tlm_builddir)/Rules-Synth-II.mk
@@ -70,7 +60,7 @@ simulation_sqr_LDADD += -lsystemoc
 endif
 
 clean-local:
-	rm -f sqr.cpp sqr.ast.xml sqr.acx sqr.smx sqr.ngx result.cpp line_mapping_report.txt
+	rm -f sqr.cpp sqr.smx sqr.ngx
 
 sqr.cpp: $(simulation_sqr_SOURCES)
 	cat $^ > $@
@@ -97,7 +87,7 @@ smoc_synth_std_includes.hpp: $(srcdir)/smoc_synth_std_includes.hpp.in
 # to check we just call the 'autotest.sh' script
 check: autotest.sh
 	./autotest.sh
-  
+
 if SYNTH_SW
 synth-sw: sqr-$(SW_SYNTH_SUBDIR)/top
 .PHONY: synth-sw
@@ -118,32 +108,7 @@ synth-cyn: sqr-$(CYN_SYNTH_SUBDIR)/top
 .PHONY: synth-cyn
 endif
 
-if SYNTH_MPI
-synth-mpi: $(MPI_SYNTH_SUBDIR)/smoc-synth-sqr
-$(MPI_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
-.PHONY: synth-mpi
-endif
-
 if SYNTH_TLM
 synth-tlm: sqr-$(TLM_SYNTH_SUBDIR)/top
 .PHONY: synth-tlm
-endif
-
-if SYNTH_VAST
-synth-vast: $(VASTSYNTH_SUBDIR)/sqrvirtualPrototype.stamp
-$(VASTSYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
-.PHONY: synth-vast 
-
-vast-res-aware-synth: $(VAST_RES_AWARE_SYNTH_SUBDIR)/vast_target_sw-sqr.stamp \
-  			$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqrvsp.stamp
-$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
-$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.acx: $(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml
-.PHONY: vast-res-aware-synth
-
-vast-res-aware-sim: $(VAST_RES_AWARE_SYNTH_SUBDIR)/vast_target_sw-sqr.stamp \
-  			$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqrvsp.stamp \
-			$(VAST_RES_AWARE_SIM)
-$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml: design-sqr.cpp
-$(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.acx: $(VAST_RES_AWARE_SYNTH_SUBDIR)/sqr.ast.xml
-.PHONY: vast-res-aware-sim
 endif
