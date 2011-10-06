@@ -354,6 +354,9 @@ void smoc_simulation_ctx::endOfSystemcSimulation(){
     // delete it right before loosing the SystemC simulation context
     delete stateTracer;
 #endif // SYSTEMOC_ENABLE_STATE_TRACE
+#ifdef SYSTEMOC_ENABLE_VPC
+  SystemC_VPC::Director::endOfSystemcSimulation();
+#endif
   }
 }
 
