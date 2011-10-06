@@ -21,18 +21,23 @@ err_log_file=std_err.log
 
 
 #
-test_bin=${builddir}/src-snk
-options="200"
 
 function run_test(){
   local test_config=$1
-  local diff_file=${test_config}-error.diff
+  local binary=$2
+  local options=$3
+  
+  local test_bin=${builddir}/${binary}
+  local out_dir=${test_config}-${binary}-${options//[[:space:]]/-}
+  local diff_file=${out_dir}-error.diff
+  echo -e -n testing: ${out_dir} "\t"
+  
 
-  test -d ${test_config} && rm -r ${test_config}
-  mkdir ${test_config}
+  test -d ${out_dir} && rm -r ${out_dir}
+  mkdir ${out_dir}
 
   # call binary
-  (cd ${test_config};
+  (cd ${out_dir};
    VPCCONFIGURATION="${srcdir}/vpc/${test_config}"		\
      ${test_bin} ${options} 2>  ${err_log_file} |		\
      sed -e '/^SystemC: simulation stopped by user./d' 		\
@@ -40,20 +45,25 @@ function run_test(){
    )  
 
    # compare to 'golden' log files
-   diff -ru ${vcd_diff_ignore} ${test_config} ${golden_logs_dir}/${test_config} > ${diff_file}
+   diff -ru ${vcd_diff_ignore} ${out_dir} ${golden_logs_dir}/${out_dir} > ${diff_file}
 
   if [ $? -gt 0 ]; then
-    echo "autotest: diff failed, see ${diff_file} and ${test_config}/* for details"
+    echo failed!
+    echo "autotest: diff failed, see ${diff_file} and ${out_dir}/* for details"
     test_failed=1
   else
+    echo done
     # remove test logfile
     rm -f ${out_log_file}
     rm ${diff_file}
-    test -d ${test_config} && rm -r ${test_config}
+    test -d ${out_dir} && rm -r ${out_dir}
   fi
 }
 
-run_test RR.vpc.xml
-run_test FCFS.vpc.xml
+run_test RR.vpc.xml src-snk "200"
+run_test FCFS.vpc.xml src-snk "200"
+
+run_test PSNOPRE.vpc.xml src-snk-tt "200"
+run_test FCFS.vpc.xml src-snk-tt "200"
 
 [[ -z "${test_failed}" ]]
