@@ -29,7 +29,7 @@ SUBDIRS=
 AM_LDFLAGS = @AM_LDFLAGS@  @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-noinst_PROGRAMS= src-snk
+noinst_PROGRAMS= src-snk src-snk-tt
 
 MY_LDADD =
 if PKG_SYSTEMOC_USE_SRCDIR_VERSION
@@ -42,6 +42,9 @@ endif
 
 src_snk_SOURCES= design-src-snk.cpp
 src_snk_LDADD = $(MY_LDADD)
+
+src_snk_tt_SOURCES= design-src-snk-tt.cpp
+src_snk_tt_LDADD = $(MY_LDADD)
 
 autotest.sh: src-snk $(srcdir)/autotest-sh autovars.sh
 	rm -f $@

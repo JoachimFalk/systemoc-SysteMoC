@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "vpc.dtd">
+<vpcconfiguration>
+ <resultfile name=""/>
+ <measurefile name=""/>
+
+ <resources>
+  <component name="CPU" scheduler="PSNOPRE">
+   <attribute type="transaction_delay" value="20 ns" />
+   <attribute type="tracing" value="VCD"/>
+  </component>
+
+  <component name="Bus" scheduler="PSNOPRE">
+   <attribute type="transaction_delay" value="80 ns" />
+   <attribute type="tracing" value="VCD"/>
+  </component>
+
+  <component name="Mem" scheduler="PSNOPRE">
+   <attribute type="transaction_delay" value="20 ns" />
+   <attribute type="tracing" value="VCD"/>
+  </component>
+ </resources>
+
+ <mappings>
+
+  <mapping source="top.snk" target="CPU">
+    <timing delay="10"/>
+    <attribute type="priority" value="1" />
+  </mapping>
+
+  <mapping source="top.src" target="CPU">
+    <timing delay="10"/>
+    <attribute type="priority" value="0" />
+  </mapping>
+ </mappings>
+
+ <topology> <!-- default="ignore"-->
+  <route source="top.src" destination="queue">
+   <hop name="CPU">     <!-- timing dii="10" latency="10" / --> </hop>
+   <hop name="Bus">        <timing dii="10" latency="10" /> </hop>
+   <hop name="Mem">        <!-- timing dii="10" latency="10" / --> </hop>
+  </route>
+
+  <route source="queue" destination="top.snk">
+   <hop name="Mem">        <!-- timing dii="10" latency="10" / --> </hop>
+   <hop name="Bus">        <!-- timing dii="10" latency="10" / --> </hop>
+   <hop name="CPU">     <!-- timing dii="10" latency="10" / --> </hop>
+  </route>
+ </topology>
+</vpcconfiguration>
