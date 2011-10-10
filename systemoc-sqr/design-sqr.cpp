@@ -34,12 +34,7 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#include <cstdlib>
-#ifndef XILINX_EDK_RUNTIME
-# include <iostream>
-#else
-# include <stdlib.h>
-#endif
+#include <iostream>
 
 #include <systemoc/smoc_moc.hpp>
 #include <systemoc/smoc_port.hpp>
@@ -48,6 +43,7 @@
 
 #include <cmath>
 #include <cassert>
+#include <cstdlib> // for atoi
 
 using namespace std; 
 
@@ -62,17 +58,7 @@ private:
   int i;
   
   void src() {
-/*#ifndef NDEBUG
-# ifndef XILINX_EDK_RUNTIME
-#  ifndef VAST
     std::cout << "src: " << i << std::endl;
-#  else
-    printf("src: %d\n", i);
-#  endif
-# else
-    xil_printf("src: %u\n",i);
-# endif
-#endif*/
     out[0] = i++;
   }
   
@@ -114,17 +100,7 @@ private:
   // guard  functions used by the
   // FSM declared in the constructor
   bool check() const {
-#ifndef NDEBUG
-# ifndef XILINX_EDK_RUNTIME
-#  ifndef VAST
     std::cout << "check: " << tmp_i1 << ", " << i2[0] << std::endl;
-#  else
-    printf("check: %f, %f\n", tmp_i1, i2[0]);
-#  endif
-# else
-    xil_printf("check: %u, %u\n",tmp_i1,i2[0]);
-# endif
-#endif
     return std::fabs(tmp_i1 - i2[0]*i2[0]) < 0.0001;
   }
   
@@ -201,17 +177,7 @@ public:
   smoc_port_in<double> in;
 private:
   void sink(void) {
-#ifndef NDEBUG
-# ifndef XILINX_EDK_RUNTIME
-#  ifndef VAST
     std::cout << "sink: " << in[0] << std::endl;
-#  else
-    printf("sink: %f\n", in[0]);
-#  endif
-# else
-    xil_printf("sink: %u\n",in[0]);
-# endif
-#endif
   }
   
   smoc_firing_state start;
@@ -245,12 +211,10 @@ public:
       sink("a5") {
     connectNodePorts(src.out,    sqrloop.i1);
     connectNodePorts(sqrloop.o1, approx.i1);
-//#ifndef KASCPAR_PARSING
     connectNodePorts(approx.o1,  dup.i1,
                      smoc_fifo<double>(1));
     connectNodePorts(dup.o1,     approx.i2,
                      smoc_fifo<double>() << 2 );
-//#endif
     connectNodePorts(dup.o2,     sqrloop.i2);
     connectNodePorts(sqrloop.o2, sink.in);
   }
