@@ -48,7 +48,7 @@ endif
 AM_LDFLAGS = @AM_LDFLAGS@ @SYSTEMOC_LDFLAGS@
 AM_CPPFLAGS= @AM_CPPFLAGS@ @SYSTEMOC_INCLUDE@ -Wno-deprecated
 
-noinst_PROGRAMS= simulation-sqr
+noinst_PROGRAMS= simulation-sqr syscsim-sqr
 
 simulation_sqr_SOURCES= design-sqr.cpp
 simulation_sqr_LDADD =
@@ -58,6 +58,9 @@ else
 # SYSTEMOC_LIBPATH may not be defined for external libraries
 simulation_sqr_LDADD += -lsystemoc
 endif
+
+syscsim_sqr_SOURCES= systemc-sqr.cpp
+syscsim_sqr_LDADD = -lsystemc
 
 clean-local:
 	rm -f sqr.cpp sqr.smx sqr.ngx
