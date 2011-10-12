@@ -57,6 +57,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_chan_adapter.hpp \
 	systemoc/smoc_config.h \
 	systemoc/smoc_elab_and_sim.hpp \
+	systemoc/smoc_tt.hpp \
 	systemoc/smoc_event.hpp \
 	systemoc/smoc_expr.hpp \
 	systemoc/smoc_fifo.hpp \
@@ -75,6 +76,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_port.hpp \
 	systemoc/smoc_reset.hpp \
 	systemoc/smoc_register.hpp \
+	systemoc/smoc_periodic_actor.hpp \
 	systemoc/smoc_sr_signal.hpp
 
 if SYSTEMOC_ENABLE_WSDF
