@@ -30,6 +30,7 @@ if SYNTH_SW
 endif
 if SYNTH_PTHREAD
   PTHREAD_SYNTH_SUBDIR = synthesis-pthread
+  PTHREAD_SYNTH_INST_FLAGS = --no-preprocess-macros
   include $(pkg_synthesis_pthread_builddir)/Rules-Synth-II.mk
 endif
 if SYNTH_SYSC
