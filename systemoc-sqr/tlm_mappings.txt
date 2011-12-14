@@ -6,7 +6,7 @@ Res MemCpu2   type Mem size 0x00100000
 Res MemShared type Mem size 0x00100000
 
 # Syntax for buses:
-# Res <name> type Bus (addrmapping (ROUTING)[,*])[0,1]
+# Res <name> type Bus (addrmapping (ROUTING)[1,*])[0,1]
 # where ROUTING is
 #   routing <from res> <from addr> <to res> <to addr>
 Res Bus1 type Bus addrmapping routing Cpu1 0x0 MemCpu1 0x0 routing Cpu2 0x0 MemCpu2 0x0 routing * 0x80000000 MemShared 0x0
@@ -22,3 +22,22 @@ Map sqrroot.a5 Cpu1
 Map sqrroot.a2 Cpu2
 Map sqrroot.a3 Cpu2
 Map sqrroot.a4 Cpu2
+
+Map cf_sqrroot.a1_sqrroot.a2_1 MemShared
+Map cf_sqrroot.a2_sqrroot.a5_1 MemShared
+
+Map cf_sqrroot.a2_sqrroot.a3_1 MemCpu2
+Map cf_sqrroot.a3_sqrroot.a4_1 MemCpu2
+Map cf_sqrroot.a4_sqrroot.a3_1 MemCpu2
+Map cf_sqrroot.a4_sqrroot.a2_1 MemCpu2
+
+# Route source 'pgid' 'agid' (target 'agid' pgid')[1,*] (HOP)[1,*]
+# Route
+#        sqrroot.a1.smoc_port_out_0   cpu1 out
+# source       id2616027636           id1073741842
+#     cf_sqrroot.a1_sqrroot.a2_1.i    memshared in
+# target id3931245035                 id1073741855
+#       cpu1 out      cpu1-bus in     Bus1-MemShared  memshared in
+# hop [ id1073741842 id1073741843 hop [ id1073741854 id1073741855 ] ]
+
+#Route source id2616027636 id1073741842 target id3931245035 id1073741855 hop [ id1073741842 id1073741843 hop [ id1073741854 id1073741855 ] ]
