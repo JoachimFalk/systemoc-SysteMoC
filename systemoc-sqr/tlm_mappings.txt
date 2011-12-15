@@ -31,13 +31,7 @@ Map cf_sqrroot.a3_sqrroot.a4_1 MemCpu2
 Map cf_sqrroot.a4_sqrroot.a3_1 MemCpu2
 Map cf_sqrroot.a4_sqrroot.a2_1 MemCpu2
 
-# Route source 'pgid' 'agid' (target 'agid' pgid')[1,*] (HOP)[1,*]
-# Route
-#        sqrroot.a1.smoc_port_out_0   cpu1 out
-# source       id2616027636           id1073741842
-#     cf_sqrroot.a1_sqrroot.a2_1.i    memshared in
-# target id3931245035                 id1073741855
-#       cpu1 out      cpu1-bus in     Bus1-MemShared  memshared in
-# hop [ id1073741842 id1073741843 hop [ id1073741854 id1073741855 ] ]
-
-#Route source id2616027636 id1073741842 target id3931245035 id1073741855 hop [ id1073741842 id1073741843 hop [ id1073741854 id1073741855 ] ]
+# Route source "pgid" "agid" (target "agid" "pgid")[1,*] (HOP)[1,*]
+# where HOP is
+#   hop [ "source" "target" (HOP)[0,*] ]
+Route source "sqrroot.a1.smoc_port_out_0" "Cpu1 - Bus1 - out" target "cf_sqrroot.a1_sqrroot.a2_1.in" "Bus1 - MemShared - in" hop [ "Cpu1 - Bus1 - out" "Cpu1 - Bus1 - in" hop [ "Bus1 - MemShared - out" "Bus1 - MemShared - in" ] ]
