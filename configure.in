@@ -21,7 +21,7 @@ dnl Boston, MA 02111-1307, USA.
 
 AC_INIT(
   [ActorLibrary Mainline Branch], [0.1],
-  [streubuehr@cs.fau.de],
+  [liyuan.zhang@informatik.uni-erlangen.de],
   [ActorLibrary--mainline-])
 
 AC_PREREQ(2.57)
@@ -55,10 +55,10 @@ dnl check for exe extension
 AC_EXEEXT
 
 dnl Checks for libraries.
+ACJF_CHECK_LIB_BOOST
+ACJF_CHECK_LIB_COSUPPORT
 ACJF_CHECK_LIB_SYSTEMC
-#ACJF_CHECK_LIB_BOOST
-#ACJF_CHECK_LIB_XERCES
-#ACJF_CHECK_LIB_XALAN
+ACJF_CHECK_LIB_SYSTEMOC
 
 dnl Checks for header files.
 #AC_HEADER_DIRENT
@@ -66,21 +66,10 @@ dnl Checks for header files.
 #AC_CHECK_HEADERS(fcntl.h limits.h syslog.h unistd.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
-ACJF_CHECK_TYPE([long long])
-ACJF_TYPE_SIZE_T
-ACJF_CHECK_STDINT
-ACJF_CHECK_VA_COPY
 
 dnl Checks for library functions.
 
 dnl which subdirs do I have
-
-#if test -d $srcdir/rpc_test; then
-#  AC_CONFIG_SUBDIRS([rpc_test])
-#fi
-#if test "x$ac_cv_func_fork" = "xyes"; then
-#  AC_CONFIG_SUBDIRS([jfunix])
-#fi
 
 SUBDIRS="$subdirs"
 AC_SUBST(SUBDIRS)
