@@ -338,7 +338,10 @@ void smoc_graph::scheduleDDF() {
 #endif // SYSTEMOC_DEBUG
 
   while(ol) {
-    smoc_root_node& n = ol.getEventTrigger();
+#ifdef SYSTEMOC_DEBUG
+    outDbg << ol << std::endl;
+#endif // SYSTEMOC_DEBUG
+    smoc_root_node &n = ol.getEventTrigger();
 #ifdef SYSTEMOC_DEBUG
     outDbg << "<node name=\"" << n.name() << "\">" << std::endl
            << Indent::Up;
