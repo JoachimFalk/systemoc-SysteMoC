@@ -54,8 +54,7 @@ else
 SYSTEMOC_LINKFLAGS = -lsystemoc
 endif
 
-libactorlibrary_la_SOURCES =		\
-	implementation/TT.cpp
+libactorlibrary_la_SOURCES =
 libactorlibrary_la_LIBADD =		\
 	$(SYSTEMOC_LINKFLAGS)
 
