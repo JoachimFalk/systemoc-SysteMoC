@@ -39,7 +39,8 @@ public:
   // register an event with its next releasetime in the EventQueue
   void registerNode(smoc_root_node* node, sc_time time){
     if(time < sc_time_stamp()){
-      std::cerr << "Warning: re-activation of a time-triggered Node with a release-time in the past!" << std::endl
+      std::cerr << "Warning: re-activation of a time-triggered Node with a release-time in the past! ("
+                << node->name() << ") "<< time << " < " << sc_time_stamp() << std::endl
 		<< "         Maybe the real execution-time was larger then the period or exceeds the deadline?" << std::endl
 		<< "         time-triggered activation will be moved to the next periodic point of time in the future" << std::endl;
       smoc_periodic_actor *p_actor = dynamic_cast<smoc_periodic_actor *>( node );
@@ -76,7 +77,7 @@ private:
     if(!pqueue.empty()){
       current=boost::shared_ptr<TimeNodePair>(new TimeNodePair(pqueue.top()));
       sc_time toWait=current->time-sc_time_stamp();
-      // if not, something very strange happend
+      // if not, something very strange happened
       assert(toWait >= sc_time(0,SC_NS));
       wait(toWait, node_added);
       //node_added.cancel();
