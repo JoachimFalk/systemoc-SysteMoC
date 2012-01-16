@@ -39,7 +39,7 @@ public:
 
   sc_time updateReleaseTime()
   {
-    while(nextReleaseTime_ < sc_time_stamp()){
+    while(nextReleaseTime_ <= sc_time_stamp()){
       nextReleaseTime_ = period_counter * period + offset + calculateMobility();
       period_counter++;
     }
