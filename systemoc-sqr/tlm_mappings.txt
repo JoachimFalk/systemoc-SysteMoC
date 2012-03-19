@@ -8,11 +8,10 @@ Res MemShared type Mem size 0x00100000
 # Syntax for buses:
 # Res <name> type Bus (addrmapping (ROUTING)[1,*])[0,1]
 # where ROUTING is
-#   routing <from res> <from addr> <to res> <to addr>
-Res Bus1 type Bus addrmapping routing Cpu1 0x0 MemCpu1 0x0 routing Cpu2 0x0 MemCpu2 0x0 routing * 0x80000000 MemShared 0x0
+#   routing <from res> <from addr> <to res> <to addr> <size>
+Res Bus1 type Bus addrmapping routing Cpu1 0x0 MemCpu1 0x0 0x00100000 routing Cpu2 0x0 MemCpu2 0x0 0x00100000 routing * 0x80000000 MemShared 0x0 0x00100000
 
 Edge Cpu1 Bus1
-#Edge Cpu1 Bus1
 Edge Cpu2 Bus1
 Edge Bus1 MemCpu1
 Edge Bus1 MemCpu2
