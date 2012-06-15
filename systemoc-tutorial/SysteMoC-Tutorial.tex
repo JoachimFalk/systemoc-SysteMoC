@@ -1,68 +1,62 @@
-\mode<article>
-{
-}
-
-\mode<presentation>
-{
-\usetheme{SystemCoDesigner}
-\usenavigationsymbolstemplate{} % uncomment to get rid of navigation symbols
-
-}
-
-
-%\let\Tiny=\tiny
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{pslatex}
+\usepackage[ngerman,english]{babel}
+\usepackage[autostyle,english=american]{csquotes}
 \usepackage{graphicx}
-\definecolor{lightgray}{gray}{.9}
-
+\usepackage{pslatex}
 \usepackage{makeidx}
-\makeindex
-\mode<presentation>
-{
-%\newenvironment{theindex}
-%               {\if@twocolumn
-%                  \@restonecolfalse
-%                \else
-%                  \@restonecoltrue
-%                \fi
-%                \twocolumn[\section*{\indexname}]%
-%                \@mkboth{\MakeUppercase\indexname}%
-%                        {\MakeUppercase\indexname}%
-%                \thispagestyle{plain}\parindent\z@
-%                \parskip\z@ \@plus .3\p@\relax
-%                \columnseprule \z@
-%                \columnsep 35\p@
-%                \let\item\@idxitem}
-%               {\if@restonecol\onecolumn\else\clearpage\fi}
-
-\newenvironment{theindex}%          environment name
-{\let\item\idxitem}% begin code
-{}%                    end code
-\newcommand\idxitem{\par \hspace*{40pt}}
-\newcommand\subitem{\idxitem \hspace*{20pt}}
-\newcommand\subsubitem{\idxitem \hspace*{30pt}}
-\newcommand\indexspace{\par}
-%\renewcommand{\seename}{see}
-}
-
+%\usepackage{wasysym} % Fuer den Blitz :-)
 \usepackage{expdlist}
 \usepackage{listings}
+\definecolor{lightgray}{gray}{.9}
+%\definecolor{beamer@SystemCoDesigner@color}{rgb}{0.7,0.2,0.2}
+\definecolor{beamer@SystemCoDesigner@color}{rgb}{0,0,0.5}
 \lstset{language=C++,showstringspaces=false,breaklines=true,basicstyle=\ttfamily}
 \lstset{backgroundcolor=\color{lightgray}}
-
-\mode<presentation>
-{
-\lstset{commentstyle=\scriptsize\selectfont}
-\lstset{basicstyle=\scriptsize\ttfamily\selectfont}
-}
 %\lstset{commentstyle=\color{blue}}
 %\lstset{stringstyle=\color{green}}
 %\lstset{keywordstyle=\color{red}}
 %\lstset{emph={bool,int,unsigned,char,true,false,void}}
-%\lstset{emphstyle=\color{orange}}
 \lstset{emph={[2]\#include,\#define,\#ifdef,\#endif}}
+%\lstset{emphstyle=\color{orange}}
 \lstset{emphstyle={[2]\color{blue}}}
+
+\usetheme{fau-i12-4-3}
+%\usetheme[clean]{fau-i12-4-3} % you can also use option clean to get rid of header and footer
+
+% Title page
+%\title[Kurztitel]{Voller Titel}
+%\subtitle{--- Zur Unvollständigkeit von $\mathbb Q$ ---}
+
+\title{SystemCoDesigner: System Programming Tutorial}
+
+\author[Martin Streubühr et al.]{Martin Streubühr \and Christian Zebelein \and Christian Haubelt \and Joachim Falk}
+
+%\date[STACS 12]{Symposium on Theoretical Aspects of Computer Science,
+%February 2012, Irgendwo in Frankreich}
+
+\institute[FAU]{Hardware/Software Co-Design\\
+ Department of Computer Science\\
+ University of Erlangen-Nuremberg\\
+Germany}
+
+\date{Version 1.1}
+
+\mode<article>{
+}
+\mode<presentation>{
+  \renewcommand{\footnotesize}{\fontsize{13}{17}}
+  \renewcommand{\scriptsize}{\fontsize{16}{20}}
+  \usenavigationsymbolstemplate{} % uncomment to get rid of navigation symbols
+  \newenvironment{theindex}%          environment name
+  {\let\item\idxitem}% begin code
+  {}%                    end code
+  \newcommand\idxitem{\par \hspace*{40pt}}
+  \newcommand\subitem{\idxitem \hspace*{20pt}}
+  \newcommand\subsubitem{\idxitem \hspace*{30pt}}
+  \newcommand\indexspace{\par}
+  %\renewcommand{\seename}{see}
+}
 
 % macros
 \newcommand{\SysteMoC}{\emph{SysteMoC}}
@@ -70,41 +64,21 @@
 \newcommand{\concat}{{}^{\smallfrown}}
 \newcommand{\length}{\#}
 
-
-
-\title{SystemCoDesigner: System Programming Tutorial}
-\author{}
-
-%\institute[Hardware/Software Co-Design]{Hardware/Software Co-Design\\University of Erlangen-Nuremberg}
-\institute[Hardware/Software Co-Design]{Documentation and examples are available online:\\ http://www.mycodesign.com/research/scd}
-\mode<presentation>
-{
-\university{Friedrich-Alexander University of Erlangen-Nuremberg}
-}
-\date{Version 1.1}
-
-\AtBeginSubsection[]
-{
-   \begin{frame}
-       \frametitle{Outline}
-      %\tableofcontents[currentsection,currentsubsections,hideothersubsections]
-       \tableofcontents[sectionstyle=show/shaded,
-                        subsectionstyle=show/shaded/hide]
-   \end{frame}
-}
+\makeindex
 
 \begin{document}
 
-\begin{frame}
-  \titlepage
-\end{frame}
+\frame[plain,c]{\titlepage} % plain-Option deaktiviert Kopf- und Fusszeile
+
+\mode<presentation> {
+  \lstset{commentstyle=\scriptsize\selectfont}
+  \lstset{basicstyle=\scriptsize\ttfamily\selectfont}
+}
 
 \begin{frame}
   \frametitle{Outline}
   \tableofcontents[hideallsubsections]
 \end{frame}
-
-
 
 \section{Introduction}
 \input{intro}
@@ -150,7 +124,6 @@
 %\subsection{Naming Conventions}
 %\input{naming.tex}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Section Remarks
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -159,7 +132,6 @@
   \frametitle{Outline}
   \tableofcontents[currentsection,hideallsubsections]
 \end{frame}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Contact
@@ -181,9 +153,6 @@ Am Weichselgarten 3\\
 \end{description}
 \end{frame}
 
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Credits
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -197,7 +166,6 @@ Joachim Falk, Michael Glass, Jens Gladigau, Joachim Keinert, Martin Lukasiewycz,
 \end{description}
 \end{frame}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Contact
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -205,7 +173,7 @@ Joachim Falk, Michael Glass, Jens Gladigau, Joachim Keinert, Martin Lukasiewycz,
 \mode<presentation>{\frametitle{Document Info}}
 \begin{description}[\breaklabel\setleftmargin{60pt}\setlabelstyle{\color{beamer@SystemCoDesigner@color}}]
 \item[Authors:]
-Martin Streubühr, Christian Zebelein, Christian Haubelt
+Martin Streubühr, Christian Zebelein, Christian Haubelt, Joachim Falk
 \item[Document Release:]
 Jul. 28, 2010
 \item[Version History:]
@@ -214,19 +182,12 @@ Oct.1, 2009: Version 1.0
 \end{description}
 \end{frame}
 
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Index
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
 \mode<presentation>{\frametitle{Index}}
-{\footnotesize
-\printindex
-}
+{\footnotesize\printindex}
 \end{frame}
 
-
 \end{document}
-

@@ -10,10 +10,10 @@ all:
 
 SUBDIRS=
 
-TEXINPUTS:=../figs:$(RESDIR):$(RESDIR)/beamer-latex-styles:$(TEXINPUTS)
+TEXINPUTS:=../figs:$(RESDIR):$(RESDIR)/beamer_fau_logo/4-3:$(TEXINPUTS)
 TEXCLEANDIRS=../figs .
 
-include $(RESDIR)/Rules-TeX.mk
+include $(RESDIR)/Rules-TeX-PDF.mk
 
 todo:
 	grep -n todo *.tex
