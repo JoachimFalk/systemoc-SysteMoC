@@ -43,62 +43,56 @@
 
 class Src: public smoc_actor {
 public:
-  smoc_port_out<int> out;
+  smoc_port_out<void> o1, o2, o3, o4;
 
   Src(sc_module_name name, size_t _iter)
     : smoc_actor(name, start),
       start("start"),
-      iter(_iter), i(0)
+      iter(_iter), cv(-1)
   {
-    start =
-         (out(1) && VAR(iter) > 0U)
-      >> CALL(Src::src)
-      >> start;
+    start = o2(1)                                   >> CALL(Src::newcase) >> run;
+    run   = (o2(1) && o3(1)          && VAR(cv)==1) >> CALL(Src::newcase) >> run
+          | (o1(1) && o2(1) && o3(1) && VAR(cv)==2) >> CALL(Src::newcase) >> run
+          | (o2(1) && o4(1)          && VAR(cv)==3) >> CALL(Src::newcase) >> run
+          |                            (VAR(cv)==0)                       >> end;
   }
 
 private:
-  smoc_firing_state start;
+  smoc_firing_state start, run, end;
   size_t iter;
-  int i;
+  int cv;
 
-  void src() {
-    i = rand() & 3;
-    std::cout << name() << ": generate token with value "
-              << i << std::endl;
-    out[0] = i; --iter;
+  void newcase() {
+    int oldcv = cv;
+    if (--iter > 0)
+      do {
+        cv = rand() & 3;
+      } while (cv == 0);
+    else
+      cv = 0;
+    std::cout << name() << ": from case " << oldcv << " to " << cv << std::endl;
   }
 };
 
 class Transform : public smoc_actor {
 public:
-  smoc_port_in<int>  in;
+  smoc_port_in<void>  i1, i2, i3, i4;
 protected:
   smoc_xor_state    d;
-  smoc_firing_state a;
-  smoc_firing_state b;
-  smoc_firing_state c;
+  smoc_firing_state a, b, c;
 public:
   Transform(sc_module_name name)
     : smoc_actor(name, d),
+      i1("i1"), i2("i2"), i3("i3"), i4("i4"),
       d("d"), a("a"), b("b"), c("c")
   {
-    d.init(a).add(b);
+    d.init(a).add(c);
 
-    a =
-        (in(1) && Expr::token(in,0) == 0) >> CALL(Transform::print)("a->b") >> b
-      |
-        (in(1) && Expr::token(in,0) != 0) >> CALL(Transform::print)("a->a") >> a
-      ;
+    a = i1(1) >> CALL(Transform::print)("a->b") >> c;
+    d = i2(1) >> CALL(Transform::print)("d->b") >> b;
     b =
-        in(1)                             >> CALL(Transform::print)("b->b") >> b
-      ;
-    d =
-        (in(1) && Expr::token(in,0) == 1) >> CALL(Transform::print)("d->c") >> c;
-      ;
-    c =
-        (in(1) && Expr::token(in,0) == 2) >> CALL(Transform::print)("c->d") >> d
-      |
-        (in(1) && Expr::token(in,0) != 2) >> CALL(Transform::print)("c->b") >> b;
+        i3(1) >> CALL(Transform::print)("b->d") >> d
+      | i4(1) >> CALL(Transform::print)("b->c") >> c;
   }
 private:
   void print(const char *tname)
@@ -112,7 +106,10 @@ public:
       src("src", iter),
       trans("transform")
   {
-    connectNodePorts(src.out, trans.in);
+    connectNodePorts(src.o1, trans.i1);
+    connectNodePorts(src.o2, trans.i2);
+    connectNodePorts(src.o3, trans.i3);
+    connectNodePorts(src.o4, trans.i4);
   }
 
 private:
