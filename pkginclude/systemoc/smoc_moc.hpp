@@ -40,11 +40,15 @@
 
 #include <systemc.h>
 
+#include <systemoc/smoc_config.h>
+
 #ifdef SYSTEMOC_ENABLE_VPC
-#include <systemcvpc/ScheduledTask.hpp>
+# include <systemcvpc/ScheduledTask.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#include <systemoc/smoc_config.h>
+#ifdef SYSTEMOC_ENABLE_METAMAP
+# include <MetaMap/Elements.hpp>
+#endif //SYSTEMOC_ENABLE_METAMAP
 
 #include <smoc/smoc_simulation_ctx.hpp>
 
@@ -59,6 +63,15 @@ bool canExecute(SystemC_VPC::ScheduledTask* actor);
 void execute(SystemC_VPC::ScheduledTask* actor);
 }} // namespace SysteMoC::Scheduler
 #endif //SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_METAMAP
+/////////////////////////
+//RR
+namespace SysteMoC {
+bool canExecute(MetaMap::Actor& actor, MetaMap::Transition& activeTransition);
+void execute(MetaMap::Actor& actor);
+}
+/////////////////////////
+#endif //SYSTEMOC_ENABLE_METAMAP
 
 
 class smoc_scheduler_top
@@ -72,6 +85,7 @@ public:
 protected:
   void start_of_simulation();
   void end_of_simulation();
+  void before_end_of_elaboration();
   void end_of_elaboration();
 
 private:
