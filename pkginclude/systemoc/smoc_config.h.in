@@ -27,6 +27,12 @@
 /* Defined if SystemC-VPC support is enabled */
 #undef SYSTEMOC_ENABLE_VPC
 
+/* Defined if MM library support is enabled */
+#undef SYSTEMOC_ENABLE_MM
+
+/* Defined if MetaMap library support is enabled */
+#undef SYSTEMOC_ENABLE_METAMAP
+
 /* Defined if WSDF support is enabled */
 #undef SYSTEMOC_ENABLE_WSDF
 

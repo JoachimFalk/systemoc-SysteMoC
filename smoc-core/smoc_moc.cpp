@@ -50,6 +50,7 @@
 
 
 #ifdef SYSTEMOC_ENABLE_VPC
+
 bool SysteMoC::Scheduling::canExecute(SystemC_VPC::ScheduledTask* actor) {
   assert(dynamic_cast<smoc_actor*>(actor) != NULL);
   return static_cast<smoc_actor*>(actor)->canFire();
@@ -96,6 +97,13 @@ void smoc_scheduler_top::end_of_simulation() {
   getSimCTX()->endOfSystemcSimulation();
 }
 
+void smoc_scheduler_top::before_end_of_elaboration() {
+#ifdef SYSTEMOC_ENABLE_METAMAP
+  MM::MMAPI api = MM::MMAPI::getInstance();
+  api.beforeEndOfElaboration();
+#endif
+}
+
 void smoc_scheduler_top::end_of_elaboration() {
   try{
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -109,7 +117,14 @@ void smoc_scheduler_top::end_of_elaboration() {
     registerSysteMoCCallBacks(callExecute, callCanExecute);
 #endif //SYSTEMOC_ENABLE_VPC
 
+
+
   g->finalise();
+
+#ifdef SYSTEMOC_ENABLE_METAMAP
+  MM::MMAPI api = MM::MMAPI::getInstance();
+  api.endOfElaboration();
+#endif
 
 #ifdef SYSTEMOC_ENABLE_VPC
   //another finalise to patch the vpcCommTask
@@ -139,6 +154,9 @@ void smoc_scheduler_top::end_of_elaboration() {
 }
 
 void smoc_scheduler_top::schedule() {
+#if defined SYSTEMOC_ENABLE_METAMAP && !defined SYSTEMOC_ENABLE_VPC
+  return;
+#endif
 #ifdef SYSTEMOC_ENABLE_VPC
   // enable VPC scheduling if the VPC configuration is valid
   // or if forced by command line option
@@ -176,6 +194,7 @@ void smoc_scheduler_top::schedule() {
       }
       return;
   }
+
 #endif //SYSTEMOC_ENABLE_VPC
 
   // plain old SysteMoC scheduler

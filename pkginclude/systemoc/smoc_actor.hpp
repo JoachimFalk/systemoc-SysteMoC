@@ -38,8 +38,13 @@
 #include <systemoc/smoc_config.h>
 
 #ifdef SYSTEMOC_ENABLE_VPC
-#include <systemcvpc/ScheduledTask.hpp>
+# include <systemcvpc/ScheduledTask.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
+
+#ifdef SYSTEMOC_ENABLE_METAMAP
+# include <MetaMap/Elements.hpp>
+# include <MM/includes.hpp>
+#endif //SYSTEMOC_ENABLE_METAMAP
 
 #include "detail/smoc_root_node.hpp"
 
@@ -47,14 +52,35 @@ class smoc_actor :
 #ifdef SYSTEMOC_ENABLE_VPC
   public SystemC_VPC::ScheduledTask,
 #endif //SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_METAMAP
+  public MetaMap::Actor,//rrr
+#endif //SYSTEMOC_ENABLE_METAMAP
   public smoc_root_node {
 protected:
   smoc_actor(sc_module_name name, smoc_hierarchical_state &s);
+#ifdef SYSTEMOC_ENABLE_METAMAP
+  smoc_actor(string name, smoc_hierarchical_state &s);
+#endif
   smoc_actor(smoc_firing_state &s);
+
 #ifdef SYSTEMOC_ENABLE_VPC
   void finaliseVpcLink();
 #endif //SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_METAMAP
+  MetaMap::SleepingListener* sleepingListener;
+  void initMMactor();
+
+public:
+  void wait();
+  void wait( double v, sc_time_unit tu );
+  void wait( sc_time sct );
+  virtual bool canExecute();
+  virtual void getCurrentTransition(MetaMap::Transition & activeTransition);
+  virtual void registerTransitionReadyListener(MetaMap::TransitionReadyListener& trListener);
+  virtual void registerSleepingListener(MetaMap::SleepingListener& sListener);
+  virtual void sleep();
+  virtual void execute();
+#endif//SYSTEMOC_ENABLE_METAMAP
   virtual void setActivation(bool activation);
 };
-
 #endif // _INCLUDED_SMOC_ACTOR_HPP

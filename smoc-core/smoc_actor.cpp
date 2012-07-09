@@ -36,11 +36,125 @@
 
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
   : smoc_root_node(name, s)
-{}
+{
+#ifdef SYSTEMOC_ENABLE_METAMAP
+  this->setName(this->name());
+  initMMactor();
+#endif
+}
+
+#ifdef SYSTEMOC_ENABLE_METAMAP
+smoc_actor::smoc_actor(string name, smoc_hierarchical_state &s)
+  : smoc_root_node(name, s), MetaMap::Actor(name)
+{
+  initMMactor();
+}
+#endif
+
 
 smoc_actor::smoc_actor(smoc_firing_state &s)
-  : smoc_root_node(sc_gen_unique_name("smoc_actor"), s)
-{}
+  : smoc_root_node((string) sc_gen_unique_name("smoc_actor"), s)
+{
+#ifdef SYSTEMOC_ENABLE_METAMAP
+  this->setName(this->name());
+  initMMactor();
+#endif
+}
+
+#ifdef SYSTEMOC_ENABLE_METAMAP
+void smoc_actor::initMMactor()
+{
+  /////////////////
+  //rrr
+  MM::MMAPI api = MM::MMAPI::getInstance();
+  MetaMap::Actor* a = static_cast<MetaMap::Actor*>(this);
+  api.addActor(*a);
+  ////////////////
+}
+
+bool smoc_actor::canExecute()
+{
+    smoc_actor* sActor =static_cast<smoc_actor*>(this);
+    bool canFire = sActor->canFire();
+
+    return canFire;
+}
+
+void smoc_actor::getCurrentTransition(MetaMap::Transition & activeTransition)
+{
+    smoc_actor* sActor =static_cast<smoc_actor*>(this);
+    MetaMap::Transition* transition = (MetaMap::Transition*) sActor->ct;
+    activeTransition = *transition;
+}
+
+void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListener& listener)
+{
+    //SysteMoC Actor
+    smoc_actor* sActor =dynamic_cast<smoc_actor*>(this);
+    //cout << "R: " << sActor->getName() << " this: " <<  listener.tname << endl;
+    //For all states
+    RuntimeStateSet states = sActor->getFiringFSM()->getStates();
+    for(RuntimeStateSet::iterator si= states.begin(); si != states.end(); si++)
+      {
+        //For all state transitions
+        list<RuntimeTransition> transitions = (*si)->getTransitions();
+        for(list<RuntimeTransition>::iterator ti= transitions.begin(); ti != transitions.end(); ti++)
+          {
+            (*ti).registerTransitionReadyListener(listener);
+          }
+      }
+
+}
+
+void smoc_actor::registerSleepingListener(MetaMap::SleepingListener& sListener){
+      //SysteMoC Actor
+      smoc_actor* sActor =dynamic_cast<smoc_actor*>(this);
+
+      sActor->sleepingListener = &sListener;
+}
+
+void smoc_actor::execute()
+{
+    //std::cerr << "SysteMoC::Scheduling::execute" << std::endl;
+    //assert(dynamic_cast<smoc_actor*>(actor) != NULL);
+    MetaMap::Actor::execute();
+    dynamic_cast<smoc_actor*>(this)->schedule();
+}
+
+void smoc_actor::wait( double v, sc_time_unit tu ){
+
+  //this->sleepingListener->notifySleeping(*this);
+  this->sleepingListener->notifyWillWakeUp(this->getName(),v);
+  sc_module::wait(v,tu);
+
+  this->sleepingListener->notifyAwaken(*this);
+}
+
+void smoc_actor::wait( sc_time sct )
+{
+  //this->sleepingListener->notifySleeping(*this);
+    this->sleepingListener->notifyWillWakeUp(this->getName(),sct.to_double());
+    sc_module::wait(sct);
+
+    this->sleepingListener->notifyAwaken(*this);
+}
+
+void smoc_actor::wait(){
+
+  this->sleepingListener->notifySleeping(*this);
+
+  sc_module::wait();
+
+  this->sleepingListener->notifyAwaken(*this);
+}
+
+void smoc_actor::sleep(){
+
+//  this->sleepingListener->notifySleeping(*this);
+  wait();
+}
+
+#endif
 
 #ifdef SYSTEMOC_ENABLE_VPC
 void smoc_actor::finaliseVpcLink() {
@@ -58,4 +172,6 @@ void smoc_actor::setActivation(bool activation){
 #ifdef SYSTEMOC_ENABLE_VPC
   this->notifyActivation(activation);
 #endif //SYSTEMOC_ENABLE_VPC
+
+
 }

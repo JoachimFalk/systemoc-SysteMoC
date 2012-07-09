@@ -164,14 +164,21 @@ IOPattern *getCachedIOPattern(const IOPattern &iop) {
 /// @brief Constructor
 RuntimeTransition::RuntimeTransition(
     const boost::shared_ptr<TransitionImpl> &tip,
+    #ifdef SYSTEMOC_ENABLE_METAMAP
+      Actor& pActor,
+    #endif
     RuntimeState *dest)
   : transitionImpl(tip),
+    #ifdef SYSTEMOC_ENABLE_METAMAP
+      Transition(pActor),
+    #endif
     dest(dest) {
   IOPattern tmp;
   Expr::evalTo<Expr::Sensitivity>(getExpr(), tmp);
   tmp.finalise();
   IOPattern* iop = getCachedIOPattern(tmp);
   transitionImpl->setIOPattern(iop);
+
 }
 
 const Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
@@ -313,7 +320,17 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     getSimCTX()->getTraceFile() << "<t id=\"" << getId() << "\"/>\n";
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
   
-#ifdef SYSTEMOC_ENABLE_VPC
+
+#if defined SYSTEMOC_ENABLE_VPC
+
+  #if defined SYSTEMOC_ENABLE_METAMAP
+
+      MM::Actor* mmActor = dynamic_cast<MM::Actor*>(actor);
+      if (!mmActor->isMMScheduled())
+        {
+
+  #endif
+
   if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
     VpcTaskInterface *vti = this->transitionImpl.get();
     vti->getDiiEvent()->reset();
@@ -341,9 +358,30 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   else {
     Expr::evalTo<Expr::CommExec>(getExpr(), VpcInterface(NULL));
   }
-#else // SYSTEMOC_ENABLE_VPC
+
+  #ifdef SYSTEMOC_ENABLE_METAMAP
+
+        }
+        else
+
+          {
+            Expr::evalTo<Expr::CommExec>(getExpr());
+          }
+
+  #endif//SYSTEMOC_ENABLE_METAMAP
+
+#endif // SYSTEMOC_ENABLE_VPC
+
+
+//#if !defined SYSTEMOC_ENABLE_VPC || defined SYSTEMOC_ENABLE_METAMAP
+//  Expr::evalTo<Expr::CommExec>(getExpr());
+//#endif // SYSTEMOC_ENABLE_VPC
+#ifndef SYSTEMOC_ENABLE_VPC
   Expr::evalTo<Expr::CommExec>(getExpr());
 #endif // SYSTEMOC_ENABLE_VPC
+
+
+
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   if(execMode != MODE_GRAPH)
@@ -351,6 +389,8 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 #endif
 
   actor->setCurrentState(nextState);
+  ///todo:delete r
+  //cout << "NextState: " << nextState->name() << " for actor: "<< actor->name() << endl;
 
 #ifdef SYSTEMOC_DEBUG
   outDbg << Indent::Down << "</transition>"<< std::endl;
@@ -421,8 +461,21 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
   }
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 
+
+
   }
 #endif //SYSTEMOC_ENABLE_VPC
+
+#ifdef SYSTEMOC_ENABLE_METAMAP
+  //Fill guardNames
+  SysteMoC::dMM::MMGuardNameVisitor gVisitor((*this->guardNames));
+  Expr::evalTo(gVisitor, getExpr());
+
+  //Fill actionNames
+  boost::apply_visitor(
+  SysteMoC::dMM::MMActionNameVisitor((*this->actionNames)), getAction());
+
+#endif //SYSTEMOC_ENABLE_METAMAP
 
 #ifdef SYSTEMOC_DEBUG_VPC_IF
   this->transitionImpl->actor = node->name();
@@ -697,9 +750,11 @@ void FiringFSMImpl::finalise(
                 
           if(ins.second) {
             // FIXME: construct state name and pass to RuntimeState
+              ProdState f = ins.first->first;
+
             ins.first->second =
               *rts.insert(new RuntimeState
-                (Concat(actor->name())(":")(ins.first->first))).first;  
+                (Concat(actor->name())(":")(f))).first;
             ns.push_back(ins.first);
 #ifdef FSM_FINALIZE_BENCHMARK
             nRunStates++;
@@ -712,9 +767,15 @@ void FiringFSMImpl::finalise(
           // create runtime transition
 //          outDbg << "creating runtime transition " << rs << " -> " << rd << std::endl;
 
+#ifdef SYSTEMOC_ENABLE_METAMAP
+          Actor* a = dynamic_cast<MetaMap::Actor*>(actor);
+#endif
           rs->addTransition(
               RuntimeTransition(
                 t->getCachedTransitionImpl(),
+                #ifdef SYSTEMOC_ENABLE_METAMAP
+                *a,
+                #endif
                 rd),
               actor);
 #ifdef FSM_FINALIZE_BENCHMARK
