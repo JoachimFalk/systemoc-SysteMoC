@@ -194,21 +194,26 @@ protected:
   /// @brief See smoc_port_in_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t consume, SysteMoC::Detail::VpcInterface vpcIf)
-#else
-  void commitRead(size_t consume)
-#endif
   {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(&chan, consume);
 #endif
     chan.rpp(consume);
     chan.emmData.decreasedCount(chan.visibleCount());
-#ifdef SYSTEMOC_ENABLE_VPC
+
     // Delayed call of diiExpired(consume);
     chan.diiQueue.addEntry(consume, vpcIf.getTaskDiiEvent(), vpcIf);
-#else
-    chan.diiExpired(consume);
+  }
 #endif
+
+  void commitRead(size_t consume)
+  {
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(&chan, consume);
+#endif
+    chan.rpp(consume);
+    chan.emmData.decreasedCount(chan.visibleCount());
+    chan.diiExpired(consume);
   }
   
   /// @brief See smoc_port_in_base_if
@@ -262,9 +267,6 @@ protected:
   /// @brief See smoc_port_out_base_if
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t produce, SysteMoC::Detail::VpcInterface vpcIf)
-#else
-  void commitWrite(size_t produce)
-#endif
   {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(&chan, produce);
@@ -272,12 +274,22 @@ protected:
     chan.tokenId += produce;
     chan.wpp(produce);
     chan.emmSpace.decreasedCount(chan.freeCount());
-#ifdef SYSTEMOC_ENABLE_VPC
+
     // Delayed call of latencyExpired(produce);
     chan.latencyQueue.addEntry(produce,vpcIf.getTaskLatEvent(),vpcIf);
-#else
-    chan.latencyExpired(produce);
+  }
 #endif
+
+  void commitWrite(size_t produce)
+  {
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(&chan, produce);
+#endif
+    chan.tokenId += produce;
+    chan.wpp(produce);
+    chan.emmSpace.decreasedCount(chan.freeCount());
+
+    chan.latencyExpired(produce);
   }
   
   /// @brief See smoc_port_out_base_if

@@ -69,6 +69,16 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
       this);
 #endif // SYSTEMOC_ENABLE_VPC
 }
+
+smoc_root_node::smoc_root_node(string name, smoc_hierarchical_state &s)
+  : sc_module(name),
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+//  _finalizeCalled(false),
+#endif
+    initialState(s),
+    _non_strict(false)
+{
+}
  
 #ifdef SYSTEMOC_ENABLE_VPC
 RuntimeState* smoc_root_node::_communicate() {
@@ -315,6 +325,9 @@ void smoc_root_node::signaled(smoc_event_waiter *e) {
 #endif // SYSTEMOC_ENABLE_DEBUG
       
       if (ct) {
+          #ifdef SYSTEMOC_ENABLE_METAMAP
+          ct->notifyListenersTransitionReady();
+          #endif
         setActivation(true);
       }
     } else if (!e->isActive() && ct != NULL && !ct->evaluateIOP()) {
@@ -342,6 +355,10 @@ void smoc_root_node::setCurrentState(RuntimeState *s) {
   assert(s);
 
   currentState = s;
+
+  //todo: delete rrr
+  //cout << "**************setting current state" << currentState->name() << "on actor" << this->name();
+
   RuntimeTransitionList& tl = currentState->getTransitions();
   
   ct = 0;
@@ -378,8 +395,10 @@ void smoc_root_node::schedule() {
   // ct may be NULL if
   // t->evaluateIOP() holds and t->evaluateGuard() fails for all transitions t
   if (ct != NULL) {
+#ifndef SYSTEMOC_ENABLE_METAMAP
     assert(ct->evaluateIOP());
     assert(ct->evaluateGuard());
+#endif
     ct->execute(this);
   }
   // also del/add me as listener  
@@ -418,7 +437,11 @@ bool smoc_root_node::canFire() {
   if (ct == NULL)
     setCurrentState(currentState);
 
+#ifndef SYSTEMOC_ENABLE_METAMAP
   return (ct != NULL) && ct->evaluateIOP() && ct->evaluateGuard();
+#else
+  return (ct != NULL);
+#endif
 
 }
 

@@ -368,4 +368,102 @@ private:
 } } // namespace SysteMoC::Detail
 #endif // SYSTEMOC_ENABLE_VPC
 
+#ifdef SYSTEMOC_ENABLE_METAMAP
+//////////////TODO: REVIEW THIS SECTION CODE (Visitor's)
+
+using namespace std;
+
+using namespace SysteMoC::Detail;
+
+namespace SysteMoC { namespace dMM {
+
+  class MMActionNameVisitor {
+public:
+  typedef void result_type;
+
+public:
+  MMActionNameVisitor(list<string> & names):
+  functionNames(names) {}
+
+  result_type operator()(const smoc_func_call_list& f) const {
+    //if(f.begin() == f.end()) std::cerr << "???" << std::endl; // no action
+
+    for(smoc_func_call_list::const_iterator i = f.begin(); i != f.end(); ++i) {
+      functionNames.push_back(i->getFuncName());
+    }
+  }
+
+  result_type operator()(const smoc_sr_func_pair& f) const{
+    functionNames.push_back(f.go.getFuncName());
+    functionNames.push_back(f.tick.getFuncName());
+
+    /* FIXME: we cannot modify tickLink here:
+    f.tickLink = new SystemC_VPC::FastLink(
+        SystemC_VPC::Director::getInstance().getFastLink(
+          name, f.tick.getFuncName()));
+    */
+  }
+
+  result_type operator()(const smoc_func_diverge& f) const{
+  //  std::cerr << "FIXME: got a smoc_func_diverge" << std::endl;
+  //  functionNames.push_back("smoc_func_diverge");
+  }
+
+private:
+  list<string> &functionNames;
+};
+
+class MMGuardNameVisitor: public ExprVisitor<list<string> > {
+public:
+  typedef ExprVisitor<list<string> >            base_type;
+  typedef MMGuardNameVisitor                    this_type;
+
+public:
+  MMGuardNameVisitor(list<string> & names) :
+    functionNames(names){}
+
+  result_type visitVar(const std::string &name, const std::string &type){
+    return NULL;
+  }
+  result_type visitLiteral(const std::string &type,
+      const std::string &value){
+    return NULL;
+  }
+  result_type visitMemGuard(const std::string &name,
+      const std::string &reType, const ParamInfoList &params){
+    functionNames.push_back(name);
+    return NULL;
+  }
+  result_type visitEvent(const std::string &name){
+    return NULL;
+  }
+  result_type visitPortTokens(smoc_sysc_port &p){
+    return NULL;
+  }
+  result_type visitToken(smoc_sysc_port &p, size_t n){
+    return NULL;
+  }
+  result_type visitComm(smoc_sysc_port &p,
+      boost::function<result_type (base_type &)> e){
+    return NULL;
+  }
+  result_type visitUnOp(OpUnT op,
+      boost::function<result_type (base_type &)> e){
+    e(*this);
+    return NULL;
+  }
+  result_type visitBinOp(OpBinT op,
+      boost::function<result_type (base_type &)> a,
+      boost::function<result_type (base_type &)> b){
+    a(*this);
+    b(*this);
+
+    return NULL;
+  }
+private:
+  list<string> &functionNames;
+};
+} } // namespace SysteMoC::Detail
+#endif // SYSTEMOC_ENABLE_METAMAP
+
 #endif // _INCLUDED_SMOC_FUNC_CALL_HPP

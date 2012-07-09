@@ -85,9 +85,9 @@ protected:
 
 #ifdef SYSTEMOC_ENABLE_VPC
   void produce(smoc_port_out_base_if *who, const smoc_ref_event_p &latEvent);
-#else
-  void produce(smoc_port_out_base_if *who);
 #endif
+  void produce(smoc_port_out_base_if *who);
+
   
   /// @brief See smoc_port_registry
   smoc_port_out_base_if* createEntry();
@@ -141,10 +141,10 @@ public:
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
     { assert(0); }
-#else
+#endif
   void commitRead(size_t n)
     { assert(0); }
-#endif
+
  
   /// @brief See smoc_port_in_base_if
   smoc_event& dataAvailableEvent(size_t n) {
@@ -199,10 +199,10 @@ public:
 #ifdef SYSTEMOC_ENABLE_VPC
   void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
     { assert(n == 1); chan.produce(this, vpcIf.getTaskLatEvent()); }
-#else
+#endif
   void commitWrite(size_t n)
     { assert(n == 1); chan.produce(this); }
-#endif
+
 
   /// @brief See smoc_port_out_base_if
   smoc_event &spaceAvailableEvent(size_t n) {

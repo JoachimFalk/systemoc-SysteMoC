@@ -37,6 +37,8 @@ AM_CPPFLAGS =				\
 	$(LIBWSDF_INCLUDE)		\
 	$(LIBSGX_INCLUDE)		\
 	$(SYSTEMC_VPC_INCLUDE)		\
+	$(MM_INCLUDE)		        \
+	$(METAMAP_INCLUDE)                  \
 	$(BOOST_INCLUDE)		\
 	-Ipkginclude			\
 	-I$(srcdir)/pkginclude
@@ -50,6 +52,8 @@ AM_LDFLAGS=				\
 	$(LIBWSDF_LDFLAGS)		\
 	$(LIBSGX_LDFLAGS)		\
 	$(SYSTEMC_VPC_LDFLAGS)		\
+	$(MM_LDFLAGS)		        \
+	$(METAMAP_LDFLAGS)                  \
 	$(BOOST_LDFLAGS)
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -109,10 +113,10 @@ libsystemoc_la_LIBADD = 					\
 if PKG_COSUPPORT_USE_SRCDIR_VERSION
 libsystemoc_la_LIBADD += 					\
 	$(COSUPPORT_LIBPATH)/libcosupport-systemc.la		\
-	$(COSUPPORT_LIBPATH)/libcosupport-tracing.la	    \
+	$(COSUPPORT_LIBPATH)/libcosupport-tracing.la	        \
 	$(COSUPPORT_LIBPATH)/libcosupport-streams.la		\
 	$(COSUPPORT_LIBPATH)/libcosupport-smartptr.la		\
-	$(COSUPPORT_LIBPATH)/libcosupport-math.la
+	$(COSUPPORT_LIBPATH)/libcosupport-math.la			
 else
 # It may not be possible to find COSUPPORT_LIBPATH for
 # cosupport installed in the wild and not in the source dir.
@@ -141,6 +145,7 @@ else
 libsystemoc_la_LIBADD += -lwsdf
 endif
 endif
+
 if SYSTEMOC_ENABLE_VPC
 if PKG_SYSTEMC_VPC_USE_SRCDIR_VERSION
 libsystemoc_la_LIBADD += $(SYSTEMC_VPC_LIBPATH)/libsystemcvpc.la
@@ -148,5 +153,17 @@ else
 # It may not be possible to find SYSTEMC_VPC_LIBPATH for
 # libsystemcvpc installed in the wild and not in the source dir.
 libsystemoc_la_LIBADD += -lsystemcvpc
+endif
+endif
+
+if SYSTEMOC_ENABLE_METAMAP
+if PKG_METAMAP_USE_SRCDIR_VERSION
+libsystemoc_la_LIBADD += $(METAMAP_LIBPATH)/libmetamap.la
+libsystemoc_la_LIBADD += $(METAMAP_LIBPATH)/libmm.la
+else
+# It may not be possible to find SYSTEMC_VPC_LIBPATH for
+# libsystemcvpc installed in the wild and not in the source dir.
+libsystemoc_la_LIBADD += -lmetamap
+libsystemoc_la_LIBADD += -lmm
 endif
 endif

@@ -94,6 +94,14 @@ ACJF_CHECK_LIB_TLM1
 ACJF_CHECK_LIB_BOOST
 ACJF_CHECK_LIB_COSUPPORT
 
+ACJF_CHECK_LIB_METAMAP([enable_metamap=yes], [enable_metamap=no])
+AM_CONDITIONAL([SYSTEMOC_ENABLE_METAMAP], [test x"$enable_metamap" = x"yes"])
+# This is a define for pkginclude/systemoc/smoc_config.h to guarantee
+# consistency for Examples and Testcases
+if test x"$enable_metamap" = x"yes"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_METAMAP], [yes], [Defined if MetaMap library support is enabled])
+fi
+
 ### TRACING ###
 # --enable-transition-trace option
 AC_ARG_ENABLE(

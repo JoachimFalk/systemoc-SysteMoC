@@ -300,7 +300,7 @@ struct CommExec<DComm<CI, E> > {
     e.getCI().resetAccessCount();
     return e.getCI().commExec(Value<E>::apply(e.committed), vpcIf);
   }
-#else
+#endif
   static inline
   result_type apply(const DComm<CI, E> &e) {
 # ifdef SYSTEMOC_DEBUG
@@ -309,7 +309,7 @@ struct CommExec<DComm<CI, E> > {
 # endif
     return e.getCI().commExec(Value<E>::apply(e.committed));
   }
-#endif
+
 };
 
 template <class CI, class E>
@@ -414,9 +414,9 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitRead(size_t consume,
     SysteMoC::Detail::VpcInterface vpcIf) = 0;
-#else
-  virtual void        commitRead(size_t consume) = 0;
 #endif
+  virtual void        commitRead(size_t consume) = 0;
+
   virtual smoc_event &dataAvailableEvent(size_t n) = 0;
 
   smoc_event &blockEvent(size_t n)
@@ -432,10 +432,10 @@ protected:
       vpcIf.startVpcRead(n);
       return this->commitRead(n, vpcIf);
     }
-#else
+#endif
   void commExec(size_t n)
     { return this->commitRead(n); }
-#endif
+
 
   /// @brief More tokens available
   virtual void moreData(size_t n) {}
@@ -529,9 +529,9 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitWrite(size_t produce,
     SysteMoC::Detail::VpcInterface vpcIf) = 0;
-#else
-  virtual void        commitWrite(size_t produce) = 0;
 #endif
+  virtual void        commitWrite(size_t produce) = 0;
+
   virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
 
   smoc_event &blockEvent(size_t n)
@@ -543,10 +543,10 @@ protected:
       size_t n,
       SysteMoC::Detail::VpcInterface vpcIf)
     { vpcIf.setPortIf(this); return this->commitWrite(n, vpcIf); }
-#else
+#endif
   void commExec(size_t n)
     { return this->commitWrite(n); }
-#endif
+
   
   /// @brief More free space available
   virtual void moreSpace(size_t n) {}

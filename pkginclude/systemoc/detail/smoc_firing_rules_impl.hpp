@@ -67,6 +67,10 @@
 #include <smoc/detail/VpcInterface.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
+#ifdef SYSTEMOC_ENABLE_METAMAP
+# include <MetaMap/Elements.hpp>
+#endif
+
 class smoc_root_node;
 
 //class FiringStateBaseImpl;
@@ -239,6 +243,9 @@ class RuntimeTransition
 #ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::IdedObj,
 #endif // SYSTEMOC_NEED_IDS
+#ifdef SYSTEMOC_ENABLE_METAMAP
+  public MetaMap::Transition,
+#endif
   public SysteMoC::Detail::SimCTXBase {
   typedef RuntimeTransition this_type;
 
@@ -265,6 +272,9 @@ public:
   /// @brief Constructor
   RuntimeTransition(
       const boost::shared_ptr<TransitionImpl> &tip,
+      #ifdef SYSTEMOC_ENABLE_METAMAP
+        MetaMap::Actor& parentActor,
+      #endif
       RuntimeState *dest = NULL);
 
   /// @brief Returns the target state
@@ -439,10 +449,12 @@ class HierarchicalStateImpl : public FiringStateBaseImpl {
 public:
   typedef HierarchicalStateImpl this_type;
 
-private:
+  ///rrr: todo temporal making public, for debug purposes
   /// @brief User-defined name
-  std::string name;
+    std::string name;
+private:
   
+
   HierarchicalStateImpl* parent;
 
   uint64_t code;
