@@ -35,33 +35,28 @@
 #include <systemoc/smoc_graph_type.hpp>
 
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  : MetaMap::Actor(std::string(name)),
+    smoc_root_node(name, s)
+#else // !defined(SYSTEMOC_ENABLE_MAESTROMM)
   : smoc_root_node(name, s)
+#endif // !defined(SYSTEMOC_ENABLE_MAESTROMM)
 {
-#ifdef SYSTEMOC_ENABLE_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
+  initMMactor();
+#endif //defined(SYSTEMOC_ENABLE_MAESTROMM)
+}
+
+smoc_actor::smoc_actor(smoc_hierarchical_state &s)
+  : smoc_root_node(sc_gen_unique_name("smoc_actor"), s)
+{
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
   this->setName(this->name());
   initMMactor();
-#endif
+#endif //defined(SYSTEMOC_ENABLE_MAESTROMM)
 }
 
-#ifdef SYSTEMOC_ENABLE_METAMAP
-smoc_actor::smoc_actor(string name, smoc_hierarchical_state &s)
-  : smoc_root_node(name, s), MetaMap::Actor(name)
-{
-  initMMactor();
-}
-#endif
-
-
-smoc_actor::smoc_actor(smoc_firing_state &s)
-  : smoc_root_node((string) sc_gen_unique_name("smoc_actor"), s)
-{
-#ifdef SYSTEMOC_ENABLE_METAMAP
-  this->setName(this->name());
-  initMMactor();
-#endif
-}
-
-#ifdef SYSTEMOC_ENABLE_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
 void smoc_actor::initMMactor()
 {
   /////////////////

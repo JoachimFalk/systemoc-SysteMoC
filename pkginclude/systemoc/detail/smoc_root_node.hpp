@@ -140,9 +140,6 @@ private:
 protected:
   //smoc_root_node(const smoc_firing_state &s);
   smoc_root_node(sc_module_name, smoc_hierarchical_state &s/*, bool regObj = true*/);
-#ifdef SYSTEMOC_ENABLE_METAMAP
-  smoc_root_node(string, smoc_hierarchical_state &s/*, bool regObj = true*/);
-#endif
   
   friend class smoc_graph_base;
 

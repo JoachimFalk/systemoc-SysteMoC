@@ -287,8 +287,8 @@ template <class CI, class E>
 struct CommExec<DComm<CI, E> > {
   typedef Detail::Process         match_type;
   typedef void                    result_type;
-#ifdef SYSTEMOC_ENABLE_VPC
 
+#ifdef SYSTEMOC_ENABLE_VPC
   static inline
   result_type apply(const DComm<CI, E> &e,
                     const SysteMoC::Detail::VpcInterface vpcIf) {
@@ -300,7 +300,7 @@ struct CommExec<DComm<CI, E> > {
     e.getCI().resetAccessCount();
     return e.getCI().commExec(Value<E>::apply(e.committed), vpcIf);
   }
-#endif
+#else //!defined(SYSTEMOC_ENABLE_VPC)
   static inline
   result_type apply(const DComm<CI, E> &e) {
 # ifdef SYSTEMOC_DEBUG
@@ -309,6 +309,7 @@ struct CommExec<DComm<CI, E> > {
 # endif
     return e.getCI().commExec(Value<E>::apply(e.committed));
   }
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
 };
 
@@ -410,12 +411,13 @@ public:
 protected:
   // constructor
   smoc_port_in_base_if() {}
-  
+ 
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitRead(size_t consume,
     SysteMoC::Detail::VpcInterface vpcIf) = 0;
-#endif
+#else //!defined(SYSTEMOC_ENABLE_VPC)
   virtual void        commitRead(size_t consume) = 0;
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
   virtual smoc_event &dataAvailableEvent(size_t n) = 0;
 
@@ -432,10 +434,10 @@ protected:
       vpcIf.startVpcRead(n);
       return this->commitRead(n, vpcIf);
     }
-#endif
+#else //!defined(SYSTEMOC_ENABLE_VPC)
   void commExec(size_t n)
     { return this->commitRead(n); }
-
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
   /// @brief More tokens available
   virtual void moreData(size_t n) {}
@@ -529,8 +531,9 @@ protected:
 #ifdef SYSTEMOC_ENABLE_VPC
   virtual void        commitWrite(size_t produce,
     SysteMoC::Detail::VpcInterface vpcIf) = 0;
-#endif
+#else //!defined(SYSTEMOC_ENABLE_VPC)
   virtual void        commitWrite(size_t produce) = 0;
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
   virtual smoc_event &spaceAvailableEvent(size_t n) = 0;
 
@@ -543,11 +546,11 @@ protected:
       size_t n,
       SysteMoC::Detail::VpcInterface vpcIf)
     { vpcIf.setPortIf(this); return this->commitWrite(n, vpcIf); }
-#endif
+#else //!defined(SYSTEMOC_ENABLE_VPC)
   void commExec(size_t n)
     { return this->commitWrite(n); }
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
-  
   /// @brief More free space available
   virtual void moreSpace(size_t n) {}
   /// @brief Less free space available

@@ -37,8 +37,7 @@ AM_CPPFLAGS =				\
 	$(LIBWSDF_INCLUDE)		\
 	$(LIBSGX_INCLUDE)		\
 	$(SYSTEMC_VPC_INCLUDE)		\
-	$(MM_INCLUDE)		        \
-	$(METAMAP_INCLUDE)                  \
+	$(MAESTROMM_INCLUDE)		\
 	$(BOOST_INCLUDE)		\
 	-Ipkginclude			\
 	-I$(srcdir)/pkginclude
@@ -52,8 +51,7 @@ AM_LDFLAGS=				\
 	$(LIBWSDF_LDFLAGS)		\
 	$(LIBSGX_LDFLAGS)		\
 	$(SYSTEMC_VPC_LDFLAGS)		\
-	$(MM_LDFLAGS)		        \
-	$(METAMAP_LDFLAGS)                  \
+	$(MAESTROMM_LDFLAGS)		\
 	$(BOOST_LDFLAGS)
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -156,14 +154,12 @@ libsystemoc_la_LIBADD += -lsystemcvpc
 endif
 endif
 
-if SYSTEMOC_ENABLE_METAMAP
-if PKG_METAMAP_USE_SRCDIR_VERSION
-libsystemoc_la_LIBADD += $(METAMAP_LIBPATH)/libmetamap.la
-libsystemoc_la_LIBADD += $(METAMAP_LIBPATH)/libmm.la
+if SYSTEMOC_ENABLE_MAESTROMM
+if PKG_MAESTROMM_USE_SRCDIR_VERSION
+libsystemoc_la_LIBADD += $(MAESTROMM_LIBPATH)/libmaestro_mm.la
 else
 # It may not be possible to find SYSTEMC_VPC_LIBPATH for
 # libsystemcvpc installed in the wild and not in the source dir.
-libsystemoc_la_LIBADD += -lmetamap
-libsystemoc_la_LIBADD += -lmm
+libsystemoc_la_LIBADD += -lmaestro_mm
 endif
 endif
