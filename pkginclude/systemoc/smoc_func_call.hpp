@@ -368,7 +368,7 @@ private:
 } } // namespace SysteMoC::Detail
 #endif // SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
 //////////////TODO: REVIEW THIS SECTION CODE (Visitor's)
 
 using namespace std;
@@ -429,7 +429,8 @@ public:
       const std::string &value){
     return NULL;
   }
-  result_type visitMemGuard(const std::string &name,
+  result_type visitMemGuard(
+      const std::string &name, const std::string& cxxType,
       const std::string &reType, const ParamInfoList &params){
     functionNames.push_back(name);
     return NULL;
@@ -464,6 +465,6 @@ private:
   list<string> &functionNames;
 };
 } } // namespace SysteMoC::Detail
-#endif // SYSTEMOC_ENABLE_METAMAP
+#endif // SYSTEMOC_ENABLE_MAESTROMM
 
 #endif // _INCLUDED_SMOC_FUNC_CALL_HPP

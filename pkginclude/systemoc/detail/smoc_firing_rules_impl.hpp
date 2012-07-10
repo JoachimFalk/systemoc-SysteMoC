@@ -67,7 +67,7 @@
 #include <smoc/detail/VpcInterface.hpp>
 #endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
 # include <MetaMap/Elements.hpp>
 #endif
 
@@ -243,7 +243,7 @@ class RuntimeTransition
 #ifdef SYSTEMOC_NEED_IDS
   public SysteMoC::Detail::IdedObj,
 #endif // SYSTEMOC_NEED_IDS
-#ifdef SYSTEMOC_ENABLE_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
   public MetaMap::Transition,
 #endif
   public SysteMoC::Detail::SimCTXBase {
@@ -272,7 +272,7 @@ public:
   /// @brief Constructor
   RuntimeTransition(
       const boost::shared_ptr<TransitionImpl> &tip,
-      #ifdef SYSTEMOC_ENABLE_METAMAP
+      #ifdef SYSTEMOC_ENABLE_MAESTROMM
         MetaMap::Actor& parentActor,
       #endif
       RuntimeState *dest = NULL);

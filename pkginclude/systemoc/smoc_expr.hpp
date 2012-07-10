@@ -253,14 +253,15 @@ public:
   typedef Detail::Ignore          match_type;
 
   typedef void                    result_type;
-#if defined SYSTEMOC_ENABLE_VPC
+#ifdef SYSTEMOC_ENABLE_VPC
   typedef SysteMoC::Detail::VpcInterface param1_type;
   
   static inline
   result_type apply(const E &e, SysteMoC::Detail::VpcInterface vpcIf) {}
-#endif
+#else //!defined(SYSTEMOC_ENABLE_VPC)
   static inline
   result_type apply(const E &e) {}
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
 };
 
@@ -388,12 +389,12 @@ private:
   struct virt_ty: public CoSupport::SmartPtr::RefCountObject {
     virtual void              *evalToVisitorApplication(Detail::ExprVisitor<void> &) const = 0;
 
-#if defined SYSTEMOC_ENABLE_VPC
+#if defined(SYSTEMOC_ENABLE_VPC)
     virtual void       evalToCommExec(
         SysteMoC::Detail::VpcInterface vpcIf)  const = 0;
-#endif
+#else //!defined(SYSTEMOC_ENABLE_VPC)
     virtual void       evalToCommExec()    const = 0;
-
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     virtual void       evalToCommReset()   const = 0;
@@ -416,13 +417,14 @@ private:
 
     void              *evalToVisitorApplication(Detail::ExprVisitor<void> &v) const 
       { return VisitorApplication<E>::apply(e, v); }
-#if defined SYSTEMOC_ENABLE_VPC
+#if defined(SYSTEMOC_ENABLE_VPC)
     void       evalToCommExec(
         SysteMoC::Detail::VpcInterface vpcIf) const
       { return CommExec<E>::apply(e, vpcIf); }
-#endif
+#else // !defined(SYSTEMOC_ENABLE_VPC)
     void       evalToCommExec() const
       { return CommExec<E>::apply(e); }
+#endif // !defined(SYSTEMOC_ENABLE_VPC)
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     void       evalToCommReset() const
@@ -463,7 +465,7 @@ public:
   typedef Detail::Process         match_type;
 
   typedef void                    result_type;
-#if defined SYSTEMOC_ENABLE_VPC
+#if defined(SYSTEMOC_ENABLE_VPC)
   typedef SysteMoC::Detail::VpcInterface    param1_type;
 
   static inline
@@ -473,7 +475,7 @@ public:
 # endif
     return e.v->evalToCommExec(vpcIf);
   }
-#endif
+#else //!defined(SYSTEMOC_ENABLE_VPC)
   static inline
   result_type apply(const DVirtual <T> &e) {
 # ifdef SYSTEMOC_DEBUG
@@ -481,7 +483,7 @@ public:
 # endif
     return e.v->evalToCommExec();
   }
-
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
 };
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
@@ -922,7 +924,7 @@ public:
   typedef typename OpT::match_type        match_type;
 
   typedef void                            result_type;
-#if defined SYSTEMOC_ENABLE_VPC
+#if defined(SYSTEMOC_ENABLE_VPC)
   typedef SysteMoC::Detail::VpcInterface  param1_type;
 
   static inline
@@ -934,7 +936,7 @@ public:
 # endif
     OpT::apply(e.a, e.b, vpcIf);
   }
-#endif // SYSTEMOC_ENABLE_VPC
+#else // !defined(SYSTEMOC_ENABLE_VPC)
   static inline
   result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e)
   {
@@ -943,6 +945,7 @@ public:
 # endif
     OpT::apply(e.a, e.b);
   }
+#endif // !defined(SYSTEMOC_ENABLE_VPC)
 
 };
 
@@ -1085,19 +1088,18 @@ template <OpBinT::Op op>
 struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
   typedef Detail::Ignore match_type;
 
-
 #ifdef SYSTEMOC_ENABLE_VPC
   template <class A, class B>
   static inline
   void apply(const A &a, const B &b,
       SysteMoC::Detail::VpcInterface vpcIf)
     {}
-#endif // SYSTEMOC_ENABLE_VPC
-
+#else // !defined(SYSTEMOC_ENABLE_VPC)
   template <class A, class B>
   static inline
   void apply(const A &a, const B &b)
     {}
+#endif // !defined(SYSTEMOC_ENABLE_VPC)
 };
 
 template <>
@@ -1111,13 +1113,12 @@ struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::OpBinT::LAnd,CommExec>
   void apply(const A &a, const B &b,
       SysteMoC::Detail::VpcInterface vpcIf)
     { CommExec<A>::apply(a, vpcIf); }
-#endif // SYSTEMOC_ENABLE_VPC
-
+#else // !defined(SYSTEMOC_ENABLE_VPC)
   template <class A, class B>
   static inline
   void apply(const A &a, const B &b)
     { CommExec<A>::apply(a); }
-
+#endif // !defined(SYSTEMOC_ENABLE_VPC)
 };
 
 template <>
@@ -1131,13 +1132,12 @@ struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::OpBinT::LAnd,CommExec>
   void apply(const A &a, const B &b,
       SysteMoC::Detail::VpcInterface vpcIf)
     { CommExec<B>::apply(b, vpcIf); }
-#endif // SYSTEMOC_ENABLE_VPC
-
+#else // !defined(SYSTEMOC_ENABLE_VPC)
   template <class A, class B>
   static inline
   void apply(const A &a, const B &b)
     { CommExec<B>::apply(b); }
-
+#endif // !defined(SYSTEMOC_ENABLE_VPC)
 };
 
 template <>
@@ -1154,15 +1154,14 @@ struct DBinOpExecute<Detail::Process,Detail::Process,Expr::OpBinT::LAnd,CommExec
     CommExec<A>::apply(a, vpcIf);
     CommExec<B>::apply(b, vpcIf);
   }
-#endif // SYSTEMOC_ENABLE_VPC
-
+#else // !defined(SYSTEMOC_ENABLE_VPC)
   template <class A, class B>
   static inline
   void apply(const A &a, const B &b) {
     CommExec<A>::apply(a);
     CommExec<B>::apply(b);
   }
-
+#endif // !defined(SYSTEMOC_ENABLE_VPC)
 };
 
 template <OpBinT::Op op>

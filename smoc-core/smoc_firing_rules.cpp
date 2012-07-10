@@ -164,12 +164,12 @@ IOPattern *getCachedIOPattern(const IOPattern &iop) {
 /// @brief Constructor
 RuntimeTransition::RuntimeTransition(
     const boost::shared_ptr<TransitionImpl> &tip,
-    #ifdef SYSTEMOC_ENABLE_METAMAP
+    #ifdef SYSTEMOC_ENABLE_MAESTROMM
       Actor& pActor,
     #endif
     RuntimeState *dest)
   : transitionImpl(tip),
-    #ifdef SYSTEMOC_ENABLE_METAMAP
+    #ifdef SYSTEMOC_ENABLE_MAESTROMM
       Transition(pActor),
     #endif
     dest(dest) {
@@ -323,7 +323,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 
 #if defined SYSTEMOC_ENABLE_VPC
 
-  #if defined SYSTEMOC_ENABLE_METAMAP
+  #if defined SYSTEMOC_ENABLE_MAESTROMM
 
       MM::Actor* mmActor = dynamic_cast<MM::Actor*>(actor);
       if (!mmActor->isMMScheduled())
@@ -359,7 +359,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     Expr::evalTo<Expr::CommExec>(getExpr(), VpcInterface(NULL));
   }
 
-  #ifdef SYSTEMOC_ENABLE_METAMAP
+  #ifdef SYSTEMOC_ENABLE_MAESTROMM
 
         }
         else
@@ -368,12 +368,12 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
             Expr::evalTo<Expr::CommExec>(getExpr());
           }
 
-  #endif//SYSTEMOC_ENABLE_METAMAP
+  #endif//SYSTEMOC_ENABLE_MAESTROMM
 
 #endif // SYSTEMOC_ENABLE_VPC
 
 
-//#if !defined SYSTEMOC_ENABLE_VPC || defined SYSTEMOC_ENABLE_METAMAP
+//#if !defined SYSTEMOC_ENABLE_VPC || defined SYSTEMOC_ENABLE_MAESTROMM
 //  Expr::evalTo<Expr::CommExec>(getExpr());
 //#endif // SYSTEMOC_ENABLE_VPC
 #ifndef SYSTEMOC_ENABLE_VPC
@@ -466,7 +466,7 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
   }
 #endif //SYSTEMOC_ENABLE_VPC
 
-#ifdef SYSTEMOC_ENABLE_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
   //Fill guardNames
   SysteMoC::dMM::MMGuardNameVisitor gVisitor((*this->guardNames));
   Expr::evalTo(gVisitor, getExpr());
@@ -475,7 +475,7 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
   boost::apply_visitor(
   SysteMoC::dMM::MMActionNameVisitor((*this->actionNames)), getAction());
 
-#endif //SYSTEMOC_ENABLE_METAMAP
+#endif //SYSTEMOC_ENABLE_MAESTROMM
 
 #ifdef SYSTEMOC_DEBUG_VPC_IF
   this->transitionImpl->actor = node->name();
@@ -767,13 +767,13 @@ void FiringFSMImpl::finalise(
           // create runtime transition
 //          outDbg << "creating runtime transition " << rs << " -> " << rd << std::endl;
 
-#ifdef SYSTEMOC_ENABLE_METAMAP
+#ifdef SYSTEMOC_ENABLE_MAESTROMM
           Actor* a = dynamic_cast<MetaMap::Actor*>(actor);
 #endif
           rs->addTransition(
               RuntimeTransition(
                 t->getCachedTransitionImpl(),
-                #ifdef SYSTEMOC_ENABLE_METAMAP
+                #ifdef SYSTEMOC_ENABLE_MAESTROMM
                 *a,
                 #endif
                 rd),

@@ -27,9 +27,8 @@
 /* Define if you want SystemC-VPC Support */
 #undef SYSTEMOC_ENABLE_VPC
 
-/* Define if you want MM Support */
-#define SYSTEMOC_ENABLE_MM
-#define SYSTEMOC_ENABLE_METAMAP
+/* Define if you want Meastro Support */
+#define SYSTEMOC_ENABLE_MAESTROMM
 
 /* Define if you want WSDF Support */
 #undef SYSTEMOC_ENABLE_WSDF

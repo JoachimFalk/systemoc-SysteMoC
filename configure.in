@@ -94,12 +94,12 @@ ACJF_CHECK_LIB_TLM1
 ACJF_CHECK_LIB_BOOST
 ACJF_CHECK_LIB_COSUPPORT
 
-ACJF_CHECK_LIB_METAMAP([enable_metamap=yes], [enable_metamap=no])
-AM_CONDITIONAL([SYSTEMOC_ENABLE_METAMAP], [test x"$enable_metamap" = x"yes"])
+ACJF_CHECK_LIB_MAESTROMM([enable_maestro_mm=yes], [enable_maestro_mm=no])
+AM_CONDITIONAL([SYSTEMOC_ENABLE_MAESTROMM], [test x"$enable_maestro_mm" = x"yes"])
 # This is a define for pkginclude/systemoc/smoc_config.h to guarantee
 # consistency for Examples and Testcases
-if test x"$enable_metamap" = x"yes"; then
-  AC_DEFINE([SYSTEMOC_ENABLE_METAMAP], [yes], [Defined if MetaMap library support is enabled])
+if test x"$enable_maestro_mm" = x"yes"; then
+  AC_DEFINE([SYSTEMOC_ENABLE_MAESTROMM], [yes], [Defined if MetaMap library support is enabled])
 fi
 
 ### TRACING ###

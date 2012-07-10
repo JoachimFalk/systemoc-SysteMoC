@@ -70,16 +70,6 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
 #endif // SYSTEMOC_ENABLE_VPC
 }
 
-smoc_root_node::smoc_root_node(string name, smoc_hierarchical_state &s)
-  : sc_module(name),
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-//  _finalizeCalled(false),
-#endif
-    initialState(s),
-    _non_strict(false)
-{
-}
- 
 #ifdef SYSTEMOC_ENABLE_VPC
 RuntimeState* smoc_root_node::_communicate() {
   assert(diiEvent != NULL && *diiEvent); // && vpc_event_lat != NULL
@@ -325,7 +315,7 @@ void smoc_root_node::signaled(smoc_event_waiter *e) {
 #endif // SYSTEMOC_ENABLE_DEBUG
       
       if (ct) {
-          #ifdef SYSTEMOC_ENABLE_METAMAP
+          #ifdef SYSTEMOC_ENABLE_MAESTROMM
           ct->notifyListenersTransitionReady();
           #endif
         setActivation(true);
@@ -395,7 +385,7 @@ void smoc_root_node::schedule() {
   // ct may be NULL if
   // t->evaluateIOP() holds and t->evaluateGuard() fails for all transitions t
   if (ct != NULL) {
-#ifndef SYSTEMOC_ENABLE_METAMAP
+#ifndef SYSTEMOC_ENABLE_MAESTROMM
     assert(ct->evaluateIOP());
     assert(ct->evaluateGuard());
 #endif
@@ -437,7 +427,7 @@ bool smoc_root_node::canFire() {
   if (ct == NULL)
     setCurrentState(currentState);
 
-#ifndef SYSTEMOC_ENABLE_METAMAP
+#ifndef SYSTEMOC_ENABLE_MAESTROMM
   return (ct != NULL) && ct->evaluateIOP() && ct->evaluateGuard();
 #else
   return (ct != NULL);
