@@ -35,14 +35,10 @@
 #include <systemoc/smoc_graph_type.hpp>
 
 smoc_actor::smoc_actor(sc_module_name name, smoc_hierarchical_state &s)
-#ifdef SYSTEMOC_ENABLE_MAESTROMM
-  : MetaMap::Actor(std::string(name)),
-    smoc_root_node(name, s)
-#else // !defined(SYSTEMOC_ENABLE_MAESTROMM)
   : smoc_root_node(name, s)
-#endif // !defined(SYSTEMOC_ENABLE_MAESTROMM)
 {
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
+  this->setName(this->name());
   initMMactor();
 #endif //defined(SYSTEMOC_ENABLE_MAESTROMM)
 }
