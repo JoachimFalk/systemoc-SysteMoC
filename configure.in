@@ -52,6 +52,9 @@ ACJF_CHECK_LIB_COSUPPORT
 ACJF_CHECK_LIB_SYSTEMOC
 SYSTEMOC_ENABLE_VPC=$acjf_cv_systemoc_enable_vpc
 AC_SUBST([SYSTEMOC_ENABLE_VPC])
+SYSTEMOC_ENABLE_MAESTROMM=$acjf_cv_systemoc_enable_maestromm
+AC_SUBST([SYSTEMOC_ENABLE_MAESTROMM])
+
 
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -81,6 +84,10 @@ AC_CONFIG_FILES([Makefile])
 
 if test x"$acjf_cv_systemoc_enable_vpc" = x"yes"; then
   AC_CONFIG_SUBDIRS([vpc])
+fi
+
+if test x"$acjf_cv_systemoc_enable_maestromm" = x"yes"; then
+m4_sinclude([Maestro-transceiver/configure.in.frag])
 fi
 
 m4_sinclude([systemoc-sqr/configure.in.frag])

@@ -1,0 +1,20 @@
+<Maestro>
+<Annotations>
+<PowerAnnotations model="Analog PSMs v1.0">
+        <Resource id="Sim.Trans.Preamplifier.AnalogAmplifier">
+	<PowerState id="off" initialState="true" powerConsumption="0" power_units="mW"/>
+	<PowerState id="on"  powerConsumption="10" power_units="mW"/>
+		
+	<Transition source="off" destination="on" powerConsumption="5" power_units="mW"/>
+	<Transition source="on" destination="off" powerConsumption="15" power_units="mW"/>
+        </Resource>
+        <Resource id="Sim.Trans.Amplifier.AnalogAmplifier">
+	<PowerState id="off" initialState="true" powerConsumption="0" power_units="mW"/>
+	<PowerState id="on"  powerConsumption="100" power_units="mW"/>
+		
+	<Transition source="off" destination="on" powerConsumption="50" power_units="mW"/>
+	<Transition source="on" destination="off" powerConsumption="150" power_units="mW"/>
+        </Resource>
+</PowerAnnotations>
+</Annotations>
+<Maestro>

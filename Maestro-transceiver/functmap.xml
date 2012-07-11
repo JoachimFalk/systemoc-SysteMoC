@@ -1,0 +1,8 @@
+<!-- TODO: keep in mind ArchID should be hierarchical complete! -->
+<Maestro>
+<FunctionalityMapping>
+	<Map FuncUID="Sim.Trans.Preamplifier.ControlLogic" ArchUID="Sim.Trans.Preamplifier.DigitalControl"/>
+	<Map FuncUID="Sim.Trans.Amplifier.ControlLogic" ArchUID="Sim.Trans.Amplifier.DigitalControl"/>
+</FunctionalityMapping>
+
+</Maestro>
