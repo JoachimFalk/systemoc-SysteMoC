@@ -32,12 +32,17 @@ else
 LIBSYSTEMOC= -lsystemoc
 endif
 
-noinst_PROGRAMS= simulation-xor-comp
+noinst_PROGRAMS= \
+	simulation-xor-comp \
+	simulation-and-comp
 
 simulation_xor_comp_SOURCES= design-xor-comp.cpp
 simulation_xor_comp_LDADD = $(LIBSYSTEMOC)
 
-autotest.sh: simulation-xor-comp $(srcdir)/autotest-sh
+simulation_and_comp_SOURCES= design-and-comp.cpp
+simulation_and_comp_LDADD = $(LIBSYSTEMOC)
+
+autotest.sh: simulation-xor-comp simulation-and-comp $(srcdir)/autotest-sh
 	rm -f $@
 	echo "#!" $(BASH) > $@
 	cat autovars.sh $(srcdir)/autotest-sh >> $@
