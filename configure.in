@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_INIT(
-  [SysteMoC Devel Branch], [0.9],
+  [SysteMoC Devel Branch], [1.0],
   [joachim.falk@informatik.uni-erlangen.de christian.zebelein@informatik.uni-erlangen.de],
   [SysteMoC--devel-])
 AC_PREREQ(2.57)
