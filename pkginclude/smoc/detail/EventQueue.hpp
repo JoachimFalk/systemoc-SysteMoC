@@ -33,8 +33,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_DETAIL_SMOC_LATENCY_QUEUES_HPP
-#define _INCLUDED_DETAIL_SMOC_LATENCY_QUEUES_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_EVENTQUEUE_HPP
+#define _INCLUDED_SMOC_DETAIL_EVENTQUEUE_HPP
 
 #include <list>
 
@@ -43,25 +43,13 @@
 #include <systemoc/smoc_config.h>
 
 #include <smoc/smoc_event.hpp>
-#include "smoc_root_chan.hpp"
-
-#include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <vpc.hpp>
 
-namespace Detail {
+namespace smoc { namespace Detail {
 
-class TokenInfo{
-public:
-  TokenInfo(size_t count, smoc::Detail::VpcInterface vpcIf) :
-    count(count), vpcIf(vpcIf) {}
-  size_t                           count;
-  smoc::Detail::VpcInterface   vpcIf;
-};
-
-void dump_helper(std::pair<size_t, smoc_vpc_event_p> & e);
-void dump_helper(std::pair<TokenInfo, smoc_vpc_event_p> & e);
+//void dump_helper(std::pair<size_t, smoc_vpc_event_p> &e);
 
 template<typename T>
 class EventQueue
@@ -150,59 +138,7 @@ public:
   }
 };
 
-
-class LatencyQueue : public smoc::Detail::SimCTXBase {
-private:
-  typedef LatencyQueue this_type;
-protected:
-  EventQueue<TokenInfo>    requestQueue;
-  EventQueue<size_t>       visibleQueue;
-  smoc_vpc_event_p dummy;
-  smoc_root_chan  *chan;
-protected:
-  /// @brief See EventQueue
-  void actorTokenLatencyExpired(TokenInfo ti);
-public:
-  LatencyQueue(
-      const boost::function<void (size_t)> &latencyExpired,
-      smoc_root_chan *chan,
-      const boost::function<void (size_t)> &latencyExpired_dropped =0)
-    : requestQueue(std::bind1st(
-        std::mem_fun(&this_type::actorTokenLatencyExpired), this)),
-      visibleQueue(latencyExpired, latencyExpired_dropped), dummy(new smoc_vpc_event()), chan(chan) {}
-
-  void addEntry(size_t n, const smoc_vpc_event_p &latEvent,
-                smoc::Detail::VpcInterface vpcIf)
-    { requestQueue.addEntry(TokenInfo(n, vpcIf), latEvent); }
-  void dump(){
-    std::cerr << &requestQueue << "\trequestQueue: " << std::endl;
-    requestQueue.dump();
-    std::cerr << &visibleQueue << "\tvisibleQueue: " << std::endl;
-    visibleQueue.dump();
-  }
-};
-
-class DIIQueue {
-private:
-  typedef DIIQueue this_type;
-protected:
-  EventQueue<size_t> eventQueue;
-public:
-  DIIQueue(
-      const boost::function<void (size_t)> &diiExpired)
-    : eventQueue(diiExpired) {}
-
-  void addEntry(size_t n, const smoc_vpc_event_p &diiEvent,
-                smoc::Detail::VpcInterface vpcIf)
-    { eventQueue.addEntry(n, diiEvent); }
-
-  void dump(){
-    std::cerr << &eventQueue << "\teventQueue: " << std::endl;
-    eventQueue.dump();
-  }
-};
-
-} // namespace Detail
+} } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC
 
-#endif // _INCLUDED_DETAIL_SMOC_LATENCY_QUEUES_HPP
+#endif //_INCLUDED_SMOC_DETAIL_EVENTQUEUE_HPP

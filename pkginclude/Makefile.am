@@ -29,6 +29,9 @@ nobase_include_HEADERS = \
 	smoc/smoc_expr.hpp \
 	smoc/smoc_event.hpp \
 	smoc/detail/VpcInterface.hpp \
+	smoc/detail/EventQueue.hpp \
+	smoc/detail/DIIQueue.hpp \
+	smoc/detail/LatencyQueue.hpp \
 	systemoc/detail/smoc_func_call.hpp \
 	smoc/detail/DumpingInterfaces.hpp \
 	smoc/detail/IOPattern.hpp \
@@ -70,7 +73,6 @@ nobase_include_HEADERS = \
 	systemoc/detail/smoc_sysc_port.hpp \
 	systemoc/detail/smoc_fifo_storage.hpp \
 	smoc/detail/QueueRVWPtr.hpp \
-	systemoc/detail/smoc_latency_queues.hpp \
 	systemoc/smoc_node_types.hpp \
 	systemoc/smoc_multiplex_fifo.hpp \
 	systemoc/smoc_reset.hpp \

@@ -34,8 +34,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/detail/smoc_latency_queues.hpp>
-
+#include <smoc/detail/LatencyQueue.hpp>
 #include <smoc/detail/TraceLog.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -43,54 +42,51 @@
 #endif //SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_ENABLE_VPC
-namespace Detail {
-  void dump_helper(std::pair<size_t, smoc_vpc_event_p> & e){
-    std::cerr << e.first << "\t" << e.second << "\t" << *e.second << std::endl;
-  }
-  void dump_helper(std::pair<TokenInfo, smoc_vpc_event_p> & e){
-    std::cerr << e.first.count << "\t" << e.second << "\t" << *e.second << std::endl;
-  }
-  void LatencyQueue::actorTokenLatencyExpired(TokenInfo ti) {
+namespace smoc { namespace Detail {
 
-    // TODO (ms): "unroll n"
-    for(size_t n = ti.count; n > 0; --n) {
+void dump_helper(std::pair<TokenInfo, smoc_vpc_event_p> & e){
+  std::cerr << e.first.count << "\t" << e.second << "\t" << *e.second << std::endl;
+}
+
+void LatencyQueue::actorTokenLatencyExpired(TokenInfo ti) {
+  // TODO (ms): "unroll n"
+  for(size_t n = ti.count; n > 0; --n) {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "s");
-//    this->getSimCTX()->getDataflowTraceLog()->traceStartFunction("transmit");
-//    this->getSimCTX()->getDataflowTraceLog()->traceEndFunction("transmit");
-      this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
+    this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "s");
+//  this->getSimCTX()->getDataflowTraceLog()->traceStartFunction("transmit");
+//  this->getSimCTX()->getDataflowTraceLog()->traceEndFunction("transmit");
+    this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
 # endif
 
 #ifdef SYSTEMOC_DEBUG
-      std::cerr << "VPC::write(" << ti.vpcIf.portIf->actor << ", "
-                << ti.vpcIf.portIf->channel << ")" << std::endl;
+    std::cerr << "VPC::write(" << ti.vpcIf.portIf->actor << ", "
+              << ti.vpcIf.portIf->channel << ")" << std::endl;
 #endif // SYSTEMOC_DEBUG
-      // new FastLink interface
-    //chan->vpcLink->compute(p);
-      SystemC_VPC::EventPair events = ti.vpcIf.startWrite(1);
-
+//  // new FastLink interface
+//  chan->vpcLink->compute(p);
+    SystemC_VPC::EventPair events = ti.vpcIf.startWrite(1);
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-      if (!*events.dii) {
-        // dii event not signaled
-        //TODO (ms): remove reference to events.dii
-        //           ref'counted events are support in VPC
-        events.dii->addListener(new smoc::Detail::DeferedTraceLogDumper(chan, "e"));
-      } else {
-        this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "e");
-        this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
-      }
-      if (!*events.latency) {
-        // latency event not signaled
-        events.latency->addListener(new smoc::Detail::DeferedTraceLogDumper(chan, "l"));
-      } else {
-        this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "l");
-        this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
-      }
-# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-      visibleQueue.addEntry(1, events.latency);
+    if (!*events.dii) {
+      // dii event not signaled
+      //TODO (ms): remove reference to events.dii
+      //           ref'counted events are support in VPC
+      events.dii->addListener(new smoc::Detail::DeferedTraceLogDumper(chan, "e"));
+    } else {
+      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "e");
+      this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
     }
+    if (!*events.latency) {
+      // latency event not signaled
+      events.latency->addListener(new smoc::Detail::DeferedTraceLogDumper(chan, "l"));
+    } else {
+      this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "l");
+      this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
+    }
+# endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    visibleQueue.addEntry(1, events.latency);
   }
+}
 
-} // namespace Detail
+} } // namespace Detail
 
 #endif // SYSTEMOC_ENABLE_VPC
