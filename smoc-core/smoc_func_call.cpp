@@ -34,7 +34,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_func_call.hpp>
+#include <systemoc/detail/smoc_func_call.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
 #include <smoc/detail/TraceLog.hpp>
@@ -132,7 +132,7 @@ RuntimeState* ActionVisitor::operator()(const smoc_sr_func_pair& f) const {
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 ActionNameVisitor::ActionNameVisitor(FunctionNames & names) :
     functionNames(names) {}
@@ -161,5 +161,5 @@ void ActionNameVisitor::operator()(const smoc_func_diverge& f) const {
   functionNames.push_back("smoc_func_diverge");
 }
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC

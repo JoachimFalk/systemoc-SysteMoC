@@ -40,9 +40,9 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_event_decls.hpp"
+#include "../smoc_event.hpp"
 
-namespace Detail {
+namespace smoc { namespace Detail {
 
   class EventMapManager {
   public:
@@ -128,6 +128,6 @@ namespace Detail {
   std::ostream &operator <<(std::ostream &out, const EventMapManager &emm)
     { emm.dump(out); return out; }
 
-} // namespace Detail
+} } // namespace smoc::Detail
 
 #endif // _INCLUDED_SMOC_DETAIL_EVENTMAPMANAGER_HPP

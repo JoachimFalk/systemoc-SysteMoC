@@ -80,7 +80,7 @@ void smoc_actor::getCurrentTransition(MetaMap::Transition & activeTransition)
 
 void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListener& listener)
 {
-    //SysteMoC Actor
+    //smoc Actor
     smoc_actor* sActor =dynamic_cast<smoc_actor*>(this);
     //cout << "R: " << sActor->getName() << " this: " <<  listener.tname << endl;
     //For all states
@@ -98,7 +98,7 @@ void smoc_actor::registerTransitionReadyListener(MetaMap::TransitionReadyListene
 }
 
 void smoc_actor::registerSleepingListener(MetaMap::SleepingListener& sListener){
-      //SysteMoC Actor
+      //smoc Actor
       smoc_actor* sActor =dynamic_cast<smoc_actor*>(this);
 
       sActor->sleepingListener = &sListener;
@@ -106,7 +106,7 @@ void smoc_actor::registerSleepingListener(MetaMap::SleepingListener& sListener){
 
 void smoc_actor::execute()
 {
-    //std::cerr << "SysteMoC::Scheduling::execute" << std::endl;
+    //std::cerr << "smoc::Scheduling::execute" << std::endl;
     //assert(dynamic_cast<smoc_actor*>(actor) != NULL);
     MetaMap::Actor::execute();
     dynamic_cast<smoc_actor*>(this)->schedule();

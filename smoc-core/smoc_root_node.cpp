@@ -43,7 +43,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
 
-using namespace SysteMoC::Detail;
+using namespace smoc::Detail;
 
 smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
   : sc_module(name),
@@ -266,7 +266,7 @@ void smoc_root_node::doReset() {
 #endif // SYSTEMOC_DEBUG
 }
 
-void smoc_root_node::renotified(smoc_event_waiter *e) {
+void smoc_root_node::renotified(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_DEBUG
   outDbg << "<smoc_root_node::renotified name=\"" << name() << "\">"
          << std::endl << Indent::Up;
@@ -280,14 +280,14 @@ void smoc_root_node::renotified(smoc_event_waiter *e) {
 #endif // SYSTEMOC_DEBUG
 }
 
-void smoc_root_node::signaled(smoc_event_waiter *e) {
+void smoc_root_node::signaled(smoc::smoc_event_waiter *e) {
 #ifdef SYSTEMOC_DEBUG
   outDbg << "<smoc_root_node::signaled name=\"" << name() << "\">"
          << std::endl << Indent::Up;
 #endif // SYSTEMOC_DEBUG
   if (!executing) {
     // Never execute t->evaluateGuard() if events are reseted as the state of
-    // all smoc_event_and_list dependent on the state of the reseted basic
+    // all smoc::smoc_event_and_list dependent on the state of the reseted basic
     // event may not be consistent while the event update hierarchy is
     // processed.  In case of reseted basic events that means that the actual
     // availablility is worse than the availablitity denoted by the activation
@@ -330,7 +330,7 @@ void smoc_root_node::signaled(smoc_event_waiter *e) {
 #endif // SYSTEMOC_DEBUG
 }
 
-void smoc_root_node::eventDestroyed(smoc_event_waiter *e) {
+void smoc_root_node::eventDestroyed(smoc::smoc_event_waiter *e) {
   // should happen when simulation has finished -> ignore
 }
 
@@ -440,11 +440,11 @@ void smoc_root_node::setActivation(bool activation){
 #ifdef SYSTEMOC_DEBUG
     outDbg << "requested schedule" << std::endl;
 #endif // SYSTEMOC_DEBUG
-    smoc_event::notify();
+    smoc::smoc_event::notify();
   } else {
 #ifdef SYSTEMOC_DEBUG
     outDbg << "canceled schedule" << std::endl;
 #endif // SYSTEMOC_DEBUG
-    smoc_event::reset();
+    smoc::smoc_event::reset();
   }
 }

@@ -39,10 +39,11 @@
 #include <systemoc/detail/smoc_root_chan.hpp>
 
 using namespace CoSupport;
-using namespace SysteMoC::Detail;
+using namespace smoc::Detail;
 
 smoc_sysc_port::smoc_sysc_port(const char* name_, sc_port_policy policy)
-  : sc_port_base(name_, 1, policy),
+  : sc_port_base(
+      name_, 4096, SC_ONE_OR_MORE_BOUND),
     interfacePtr(NULL),
     portAccess(NULL),
     parent(NULL), child(NULL) {
@@ -54,14 +55,19 @@ smoc_sysc_port::~smoc_sysc_port() {
 // SystemC 2.2 requires this method
 // (must also return the correct number!!!)
 int smoc_sysc_port::interface_count() {
-  return interfacePtr ? 1 : 0;
+//return interfacePtr ? 1 : 0;
+  return interfaces.size();
 }
 
-void smoc_sysc_port::add_interface(sc_core::sc_interface *i) {
-  assert(interfacePtr == NULL);
-//interfacePtr = dynamic_cast<smoc_port_base_if *>(i);
-  interfacePtr = static_cast<smoc_port_base_if *>(i); // FIXME: RTX hack!!!
-  assert(interfacePtr != NULL);
+void smoc_sysc_port::add_interface(sc_core::sc_interface *i_) {
+//assert(interfacePtr == NULL);
+//interfacePtr = dynamic_cast<PortBaseIf *>(i);
+//assert(interfacePtr != NULL);
+  PortBaseIf *i = dynamic_cast<PortBaseIf *>(i_);
+  assert(i != NULL);
+  if (interfacePtr == NULL)
+    interfacePtr = i;
+  interfaces.push_back(i);
 }
 
 void smoc_sysc_port::bind(this_type &parent_) {
@@ -85,8 +91,8 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
     VpcPortInterface * vpi = dynamic_cast<VpcPortInterface*>(this->interfacePtr);
     std::string channelName = "";
     if (this->isInput()) {
-      smoc_port_in_base_if* port =
-          dynamic_cast<smoc_port_in_base_if*>(this->interfacePtr);
+      PortInBaseIf* port =
+          dynamic_cast<PortInBaseIf*>(this->interfacePtr);
       assert(port != NULL);
 
       channelName = port->getChannelName();
@@ -94,8 +100,8 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
           SystemC_VPC::Director::getInstance().registerRoute(channelName,
               actorName, this);
     } else {
-      smoc_port_out_base_if* port =
-          dynamic_cast<smoc_port_out_base_if*>(this->interfacePtr);
+      PortOutBaseIf* port =
+          dynamic_cast<PortOutBaseIf*>(this->interfacePtr);
       assert(port != NULL);
 
       channelName = port->getChannelName();

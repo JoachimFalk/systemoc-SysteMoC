@@ -44,7 +44,7 @@
 
 #include <CoSupport/String/Concat.hpp>
 
-using namespace SysteMoC::Detail;
+using namespace smoc::Detail;
 using CoSupport::String::Concat;
 
 smoc_graph_base::smoc_graph_base(
@@ -185,7 +185,7 @@ void smoc_graph_base::finalise() {
           rpIter != rps.end();
           ++rpIter)
       {
-        // SysteMoC knows no refinements (graph is same object as
+        // smoc knows no refinements (graph is same object as
         // process, so there should be exactly one refinement)
         if(rpIter->refinements().size() != 1)
           continue;
@@ -194,7 +194,7 @@ void smoc_graph_base::finalise() {
         sc_core::sc_object* scRP = NGXCache::getInstance().get(*rpIter);
         if(!scRP) {
           // synthesize graph
-          nodes.push_back(new SysteMoC::smoc_graph_synth(rpPG));
+          nodes.push_back(new smoc::smoc_graph_synth(rpPG));
         }
         else {
           // process compiled in -> graph should also be compiled in
@@ -318,7 +318,7 @@ void smoc_graph::finalise() {
 void smoc_graph::constructor() {
 
   // if there is at least one active transition: execute it
-  run = Expr::till(ol) >> CALL(smoc_graph::scheduleDDF) >> run;
+  run = smoc::Expr::till(ol) >> CALL(smoc_graph::scheduleDDF) >> run;
 }
 
 void smoc_graph::initDDF() {
@@ -510,12 +510,12 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
         RuntimeTransition 
           &transition = inCommState.getEventTrigger();
 
-        Expr::Detail::ActivationStatus      status = transition.getStatus();
+        smoc::Expr::Detail::ActivationStatus      status = transition.getStatus();
         smoc_root_node                   &n = transition.getActor();
         //FIXME(MS): rename n -> node, block..
 
-        assert( status.toSymbol() == Expr::Detail::_ENABLED
-                /*|| status.toSymbol() == Expr::Detail::_DISABLED */);
+        assert( status.toSymbol() == smoc::Expr::Detail::_ENABLED
+                /*|| status.toSymbol() == smoc::Expr::Detail::_DISABLED */);
 
         // remove nodes transitions from list
         for ( RuntimeTransitionList::iterator titer = n.getCurrentState()->getTransitions().begin();
@@ -575,12 +575,12 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
 
           RuntimeTransition
             &transition = bottom.getEventTrigger();
-          Expr::Detail::ActivationStatus  status = transition.getStatus();
+          smoc::Expr::Detail::ActivationStatus  status = transition.getStatus();
           smoc_root_node                      &n = transition.getActor();
           //FIXME(MS): rename n -> node, block..
-          assert( (status.toSymbol() == Expr::Detail::_ENABLED)
-                  || (status.toSymbol() == Expr::Detail::_DISABLED) );
-          if( status.toSymbol() == Expr::Detail::_DISABLED ){
+          assert( (status.toSymbol() == smoc::Expr::Detail::_ENABLED)
+                  || (status.toSymbol() == smoc::Expr::Detail::_DISABLED) );
+          if( status.toSymbol() == smoc::Expr::Detail::_DISABLED ){
             // do not treat disabled transitions
             bottom.remove(transition);
             defined |= transition;
@@ -630,14 +630,14 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
 
          RuntimeTransition
            &transition = nonStrict.getEventTrigger();
-          Expr::Detail::ActivationStatus status = transition.getStatus();
+         smmoc::smoc::Expr::Detail::ActivationStatus status = transition.getStatus();
           smoc_root_node                     &n = transition.getActor();
           //FIXME(MS): rename n -> node, block..
 
-          assert( status.toSymbol() == Expr::Detail::_ENABLED
-                  || status.toSymbol() == Expr::Detail::_DISABLED );
+          assert( status.toSymbol() == smoc::Expr::Detail::_ENABLED
+                  || status.toSymbol() == smoc::Expr::Detail::_DISABLED );
           // do not execute disabled transitions
-          if( status.toSymbol() == Expr::Detail::_DISABLED ){
+          if( status.toSymbol() == smoc::Expr::Detail::_DISABLED ){
             nonStrict.remove(transition);
             nonStrictReleased |= transition;
           }else{
@@ -718,7 +718,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
             smoc_root_node            &n = transition.getActor();
             //FIXME(MS): rename n -> node, block..
             assert(n.isNonStrict());
-            if( Expr::Detail::_ENABLED == transition.getStatus().toSymbol()){
+            if( smoc::Expr::Detail::_ENABLED == transition.getStatus().toSymbol()){
     
               size_t actualDefined = countDefinedInports(n);
 
@@ -733,7 +733,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
                 temp      |=  transition;
               }
             }else{
-              assert( Expr::Detail::_DISABLED
+              assert( smoc::Expr::Detail::_DISABLED
                       == transition.getStatus().toSymbol());
               temp      |=  transition;
             }
@@ -771,7 +771,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
               smoc_root_node         &n = transition.getActor();
               //FIXME(MS): rename n -> node, block..
               assert(n.isNonStrict());
-              if( Expr::Detail::_ENABLED
+              if( smoc::Expr::Detail::_ENABLED
                   == transition.getStatus().toSymbol()){
     
                 size_t actualDefined  = countDefinedInports(n);
@@ -794,7 +794,7 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
                   nonStrict |= transition;
                 }
               }else{
-                assert( Expr::Detail::_DISABLED
+                assert( smoc::Expr::Detail::_DISABLED
                         == transition.getStatus().toSymbol());
                 nonStrict |= transition;
               }
@@ -806,9 +806,9 @@ void smoc_graph_sr::scheduleSR(smoc_graph_base *c) {
               smoc_wait( inCommState );
               RuntimeTransition
                 &transition = inCommState.getEventTrigger();
-              Expr::Detail::ActivationStatus   status = transition.getStatus();
+              smoc::Expr::Detail::ActivationStatus   status = transition.getStatus();
               smoc_root_node                   &n = transition.getActor();
-              assert( status.toSymbol() == Expr::Detail::_ENABLED );
+              assert( status.toSymbol() == smoc::Expr::Detail::_ENABLED );
                       
               // remove nodes transitions from list
               for ( RuntimeTransitionList::iterator titer

@@ -7,16 +7,16 @@
 template <typename T>
 class smoc_register
 : public smoc_multicast_sr_signal_chan<T>::chan_init,
-  public SysteMoC::Detail::ConnectProvider<
+  public smoc::Detail::ConnectProvider<
     smoc_register<T>,
     smoc_multicast_sr_signal_chan<T> > {
   typedef smoc_register<T> this_type;
 
-  friend class SysteMoC::Detail::ConnectProvider<this_type, typename this_type::chan_type>;
+  friend class smoc::Detail::ConnectProvider<this_type, typename this_type::chan_type>;
 public:
   typedef T                             data_type;
   typedef typename this_type::chan_type chan_type;
-  typedef std::map<smoc_port_out_base_if*,sc_port_base*>  EntryMap;
+  typedef std::map<PortOutBaseIf*,sc_port_base*>  EntryMap;
 
 private:
   chan_type *chan;
@@ -50,14 +50,14 @@ public:
 
 
   this_type &connect(smoc_port_out<T> &p) {
-    this_type* temp=&(SysteMoC::Detail::ConnectProvider<this_type, typename this_type::chan_type>::connect(p));
+    this_type* temp=&(smoc::Detail::ConnectProvider<this_type, typename this_type::chan_type>::connect(p));
     enable_register();
     return *temp;
   }
 
   //QuickFIX needed to compile correctly.. but should be inhereted from ConnectProvider
   this_type &connect(smoc_port_in<T> &p) {
-    return (SysteMoC::Detail::ConnectProvider<this_type, typename this_type::chan_type>::connect(p));
+    return (smoc::Detail::ConnectProvider<this_type, typename this_type::chan_type>::connect(p));
   }
 
   this_type &operator <<(typename this_type::add_param_ty x)

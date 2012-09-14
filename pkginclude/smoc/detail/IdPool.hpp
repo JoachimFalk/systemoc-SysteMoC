@@ -47,7 +47,7 @@
 #include "NamedIdedObj.hpp"
 //#include "IdTAllocRequest.hpp"
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 class IdPool;
 
@@ -109,7 +109,7 @@ public:
   void addIdedObj(NamedIdedObj *n);
 };
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif // SYSTEMOC_NEED_IDS
 

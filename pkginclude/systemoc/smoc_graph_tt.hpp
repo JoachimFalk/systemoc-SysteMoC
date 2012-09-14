@@ -5,7 +5,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <boost/smart_ptr.hpp>
 
-class NodeQueue : public sc_module, public smoc_event{
+class NodeQueue: public sc_module, public smoc::smoc_event{
   SC_HAS_PROCESS(NodeQueue);	
 
 /* struct used to store an event with a certain release-time */
@@ -32,7 +32,7 @@ struct nodeCompare{
 };
 
 public:
-  NodeQueue(sc_module_name name): sc_module(name), smoc_event() {
+  NodeQueue(sc_module_name name): sc_module(name), smoc::smoc_event() {
     SC_THREAD(waiter);
   };
 
@@ -63,7 +63,7 @@ public:
     pqueue.pop();
 
     if( pqueue.empty() || pqueue.top().time > sc_time_stamp()){
-      smoc_reset(*this);
+      smoc::smoc_reset(*this);
       nodes_processed.notify();
     }
 
@@ -146,7 +146,7 @@ private:
 
   // a list containing the transitions of the graph's children
   // that may be executed
-  typedef CoSupport::SystemC::EventOrList<smoc_event>
+  typedef CoSupport::SystemC::EventOrList<smoc::smoc_event>
           smoc_node_ready_list;
   typedef CoSupport::SystemC::EventOrList<smoc_node_ready_list>
           smoc_nodes_ready_list;
@@ -154,7 +154,7 @@ private:
   // OrList for the dataflow-driven nodes
   smoc_node_ready_list ddf_nodes_activations;
   // OrList for the activation of the graph
-  smoc_event_or_list graph_activation; // nodes scheduleable?
+  smoc::smoc_event_or_list graph_activation; // nodes scheduleable?
 
   // handling of the time-triggered nodes
   NodeQueue ttNodeQueue;

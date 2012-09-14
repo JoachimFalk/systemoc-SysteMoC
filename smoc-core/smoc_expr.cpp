@@ -37,12 +37,12 @@
 #include <systemoc/smoc_expr.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
-namespace SysteMoC {
+namespace smoc {
 
 namespace Detail {
 
 #ifdef SYSTEMOC_DEBUG
-std::ostream &operator <<( std::ostream &out, SysteMoC::Detail::ActivationStatus s) {
+std::ostream &operator <<( std::ostream &out, smoc::Detail::ActivationStatus s) {
   static const char *display[3] = { "DISABLED", "BLOCKED", "ENABLED" };
   
   assert(static_cast<size_t>(s.value+1) < sizeof(display)/sizeof(display[0]));

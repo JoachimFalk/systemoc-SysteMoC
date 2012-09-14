@@ -56,9 +56,9 @@ smoc_multireader_fifo_chan_base::smoc_multireader_fifo_chan_base(const chan_init
 {}
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::Detail::VpcInterface vpcIf)
 #else
-void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t n)
+void smoc_multireader_fifo_chan_base::consume(smoc::Detail::PortInBaseIf *who, size_t n)
 #endif
 {
 #ifdef SYSTEMOC_DEBUG
@@ -91,7 +91,7 @@ void smoc_multireader_fifo_chan_base::consume(smoc_port_in_base_if *who, size_t 
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_multireader_fifo_chan_base::produce(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+void smoc_multireader_fifo_chan_base::produce(size_t n, smoc::Detail::VpcInterface vpcIf)
 #else
 void smoc_multireader_fifo_chan_base::produce(size_t n)
 #endif

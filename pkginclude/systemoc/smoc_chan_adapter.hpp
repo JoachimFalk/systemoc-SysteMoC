@@ -41,6 +41,7 @@
 
 #include <systemoc/smoc_config.h>
 
+#include <smoc/detail/PortBaseIf.hpp>
 #include "detail/smoc_chan_if.hpp"
 
 namespace tlm {
@@ -97,7 +98,7 @@ public:
 
 } // namespace tlm
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
   /// select type A or B based on predicate P
   template<bool P, class A, class B>
@@ -116,14 +117,14 @@ namespace SysteMoC { namespace Detail {
   class ChanAdapterBase
   : public virtual sc_core::sc_interface {
   private:
-    smoc_port_base_if &iface;
+    PortBaseIf &iface;
   protected:
-    ChanAdapterBase(smoc_port_base_if &iface)
+    ChanAdapterBase(PortBaseIf &iface)
       : iface(iface) {}
   public:
-    smoc_port_base_if       &getIface()
+    PortBaseIf       &getIface()
       { return iface; }
-    smoc_port_base_if const &getIface() const
+    PortBaseIf const &getIface() const
       { return iface; }
   };
 
@@ -186,7 +187,7 @@ namespace SysteMoC { namespace Detail {
       { getIface().register_port(p, typeid(iface_impl_type).name()); }
   };
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 
 /**
@@ -215,7 +216,7 @@ class smoc_chan_adapter<
     smoc_port_in_if<T,R>,
     tlm::tlm_blocking_get_if<T> >
 : public tlm::tlm_blocking_get_if<T>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_in_if<T,R> > {
   typedef smoc_chan_adapter<smoc_port_in_if<T,R>,  tlm::tlm_blocking_get_if<T> > this_type;
 public:
@@ -226,7 +227,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {}
 
   /// see tlm::tlm_blocking_get_if<T>
   T get(tlm::tlm_tag<T> * = NULL) {
@@ -244,7 +245,7 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // TODO (ms): care for VpcInterface(NULL) 
-    this->getIface().commitRead(1u, SysteMoC::Detail::VpcInterface(NULL));
+    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -261,7 +262,7 @@ class smoc_chan_adapter<
     smoc_port_in_if<void,R>,
     tlm::tlm_blocking_get_if<void> >
 : public tlm::tlm_blocking_get_if<void>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_in_if<void,R> > {
   typedef smoc_chan_adapter<smoc_port_in_if<void,R>,  tlm::tlm_blocking_get_if<void> > this_type;
 public:
@@ -272,7 +273,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {}
 
   /// see tlm::tlm_blocking_get_if<void>
   void get(tlm::tlm_tag<void> * = NULL) {
@@ -287,7 +288,7 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, SysteMoC::Detail::VpcInterface(NULL));
+    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -302,7 +303,7 @@ class smoc_chan_adapter<
     smoc_port_in_if<T,R>,
     tlm::tlm_nonblocking_get_if<T> >
 : public tlm::tlm_nonblocking_get_if<T>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_in_if<T,R> > {
   typedef smoc_chan_adapter<smoc_port_in_if<T,R>,  tlm::tlm_nonblocking_get_if<T> > this_type;
 public:
@@ -315,7 +316,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if),
       scev(this->dataAvailable) {}
 
   /// see tlm_nonblocking_get_if<T>
@@ -333,7 +334,7 @@ public:
     t = (*ca)[0];
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, SysteMoC::Detail::VpcInterface(NULL));
+    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -358,7 +359,7 @@ class smoc_chan_adapter<
     smoc_port_in_if<void,R>,
     tlm::tlm_nonblocking_get_if<void> >
 : public tlm::tlm_nonblocking_get_if<void>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_in_if<void,R> > {
   typedef smoc_chan_adapter<smoc_port_in_if<void,R>,  tlm::tlm_nonblocking_get_if<void> > this_type;
 public:
@@ -371,7 +372,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if),
       scev(this->dataAvailable) {}
 
   /// see tlm_nonblocking_get_if<void>
@@ -388,7 +389,7 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitRead(1u, SysteMoC::Detail::VpcInterface(NULL));
+    this->getIface().commitRead(1u, smoc::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitRead(1u);
 #endif
@@ -413,7 +414,7 @@ class smoc_chan_adapter<
     smoc_port_in_if<T,R>,
     tlm::tlm_blocking_peek_if<T> >
 : public tlm::tlm_blocking_peek_if<T>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_in_if<T,R> > {
   typedef smoc_chan_adapter<smoc_port_in_if<T,R>,  tlm::tlm_blocking_peek_if<T> > this_type;
 public:
@@ -424,7 +425,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if) {}
 
   T peek(tlm::tlm_tag<T> *t = NULL) const {
     wait(this->dataAvailable);
@@ -448,7 +449,7 @@ class smoc_chan_adapter<
     smoc_port_in_if<void,R>,
     tlm::tlm_blocking_peek_if<void> >
 : public tlm::tlm_blocking_peek_if<void>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_in_if<void,R> > {
   typedef smoc_chan_adapter<smoc_port_in_if<void,R>,  tlm::tlm_blocking_peek_if<void> > this_type;
 public:
@@ -459,7 +460,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if) {}
 
   void peek(tlm::tlm_tag<void> *t = NULL) const {
     wait(this->dataAvailable);
@@ -483,7 +484,7 @@ class smoc_chan_adapter<
     smoc_port_in_if<T,R>,
     tlm::tlm_nonblocking_peek_if<T> >
 : public tlm::tlm_nonblocking_peek_if<T>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_in_if<T,R> > {
   typedef smoc_chan_adapter<smoc_port_in_if<T,R>, tlm::tlm_nonblocking_peek_if<T> > this_type;
 public:
@@ -496,7 +497,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<T,R> >(in_if),
       scev(this->dataAvailable) {}
 
   /// see tlm_nonblocking_peek_if<T>
@@ -533,7 +534,7 @@ class smoc_chan_adapter<
     smoc_port_in_if<void,R>,
     tlm::tlm_nonblocking_peek_if<void> >
 : public tlm::tlm_nonblocking_peek_if<void>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_in_if<void,R> > {
   typedef smoc_chan_adapter<smoc_port_in_if<void,R>, tlm::tlm_nonblocking_peek_if<void> > this_type;
 public:
@@ -546,7 +547,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs read channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &in_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_in_if<void,R> >(in_if),
       scev(this->dataAvailable) {}
 
   /// see tlm_nonblocking_peek_if<void>
@@ -582,7 +583,7 @@ class smoc_chan_adapter<
     smoc_port_out_if<T,R,S>,
     tlm::tlm_blocking_put_if<T> >
 : public tlm::tlm_blocking_put_if<T>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_out_if<T,R> > {
   typedef smoc_chan_adapter<smoc_port_out_if<T,R,S>,  tlm::tlm_blocking_put_if<T> > this_type;
 public:
@@ -593,7 +594,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs write channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &out_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_out_if<T,R,S> >(out_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<T,R,S> >(out_if) {}
 
   /// see tlm::tlm_blocking_put_if<T>
   void put(const T &t) {
@@ -609,7 +610,7 @@ public:
     (*ca)[0] = t;
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitWrite(1u, SysteMoC::Detail::VpcInterface(NULL));
+    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitWrite(1u);
 #endif
@@ -624,7 +625,7 @@ class smoc_chan_adapter<
     smoc_port_out_if<void,R,S>,
     tlm::tlm_blocking_put_if<void> >
 : public tlm::tlm_blocking_put_if<void>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_out_if<void,R,S> > {
   typedef smoc_chan_adapter<smoc_port_out_if<void,R,S>,  tlm::tlm_blocking_put_if<void> > this_type;
 public:
@@ -635,7 +636,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs write channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &out_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_out_if<void,R,S> >(out_if) {}
+    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<void,R,S> >(out_if) {}
 
   /// see tlm::tlm_blocking_put_if<void>
   void put(tlm::tlm_tag<void> * = NULL) {
@@ -650,7 +651,7 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitWrite(1u, SysteMoC::Detail::VpcInterface(NULL));
+    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitWrite(1u);
 #endif
@@ -665,7 +666,7 @@ class smoc_chan_adapter<
     smoc_port_out_if<T,R,S>,
     tlm::tlm_nonblocking_put_if<T> >
 : public tlm::tlm_nonblocking_put_if<T>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_out_if<T,R,S> > {
   typedef smoc_chan_adapter<smoc_port_out_if<T,R,S>, tlm::tlm_nonblocking_put_if<T> > this_type;
 public:
@@ -678,7 +679,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs write channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &out_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_out_if<T,R,S> >(out_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<T,R,S> >(out_if),
       scev(this->spaceAvailable) {}
 
   /// see tlm::tlm_nonblocking_put_if<T>
@@ -697,7 +698,7 @@ public:
     
 #ifdef SYSTEMOC_ENABLE_VPC
     // TODO (ms): handle immediate notification !!!
-    this->getIface().commitWrite(1u, SysteMoC::Detail::VpcInterface(NULL));
+    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitWrite(1u);
 #endif
@@ -722,7 +723,7 @@ class smoc_chan_adapter<
     smoc_port_out_if<void,R,S>,
     tlm::tlm_nonblocking_put_if<void> >
 : public tlm::tlm_nonblocking_put_if<void>,
-  public SysteMoC::Detail::ChanAdapterMid
+  public smoc::Detail::ChanAdapterMid
     <smoc_port_out_if<void,R,S> > {
   typedef smoc_chan_adapter<smoc_port_out_if<void,R,S>, tlm::tlm_nonblocking_put_if<void> > this_type;
 public:
@@ -735,7 +736,7 @@ public:
   /// - stores reference to wrapped interface
   /// - needs write channel access
   smoc_chan_adapter(typename this_type::iface_impl_type &out_if)
-    : SysteMoC::Detail::ChanAdapterMid<smoc_port_out_if<void,R,S> >(out_if),
+    : smoc::Detail::ChanAdapterMid<smoc_port_out_if<void,R,S> >(out_if),
       scev(this->spaceAvailable) {}
 
   /// see tlm::tlm_nonblocking_put_if<void>
@@ -752,7 +753,7 @@ public:
 #endif
     
 #ifdef SYSTEMOC_ENABLE_VPC
-    this->getIface().commitWrite(1u, SysteMoC::Detail::VpcInterface(NULL));
+    this->getIface().commitWrite(1u, smoc::Detail::VpcInterface(NULL));
 #else
     this->getIface().commitWrite(1u);
 #endif

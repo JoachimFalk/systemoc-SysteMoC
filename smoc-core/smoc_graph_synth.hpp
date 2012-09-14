@@ -45,7 +45,7 @@
 #include <systemoc/smoc_graph_type.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 #if 0
 #ifdef SYSTEMOC_ENABLE_SGX
 namespace SGX = SystemCoDesigner::SGX;
@@ -75,11 +75,11 @@ private:
   // commit (can't steal tokens from fifo -> actor needs
   // them!)
   typedef Expr::BinOp<
-    Expr::DPortTokens<smoc_port_in_base_if>,
+    Expr::DPortTokens<PortInBaseIf>,
     ESizeT,
     Expr::OpBinT::Ge>::type EPortInGuard;
   typedef Expr::BinOp<
-    Expr::DPortTokens<smoc_port_out_base_if>,
+    Expr::DPortTokens<PortOutBaseIf>,
     ESizeT,
     Expr::OpBinT::Ge>::type EPortOutGuard;
 
@@ -153,11 +153,11 @@ private:
 
   // FIXME: interface cache (can't use smoc_port_base where 
   // exact type would be already available)
-  typedef std::map<smoc_sysc_port*, smoc_port_in_base_if*> ChanInMap;
+  typedef std::map<smoc_sysc_port*, PortInBaseIf*> ChanInMap;
   ChanInMap chanInMap;
   
   // limit token ids for interface
-  typedef std::map<smoc_port_in_base_if*, size_t> ChanInLimit;
+  typedef std::map<PortInBaseIf*, size_t> ChanInLimit;
   ChanInLimit chanInLimit;
   
   // checks if actor has reserved tokens / space left
@@ -170,7 +170,7 @@ private:
   void generateFSM();
 };
 #endif
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif // SYSTEMOC_ENABLE_SGX
 

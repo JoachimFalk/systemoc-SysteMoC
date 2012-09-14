@@ -44,12 +44,13 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_expr.hpp"
+#include <smoc/smoc_expr.hpp>
+#include <smoc/detail/PortBaseIf.hpp>
 #include "detail/smoc_sysc_port.hpp"
 #include "detail/smoc_chan_if.hpp"
-#include "detail/smoc_event_decls.hpp"
-#include "detail/smoc_storage.hpp"
-#include "detail/smoc_debug_stream.hpp"
+//#include "detail/smoc_event_decls.hpp"
+//#include "detail/smoc_storage.hpp"
+//#include "detail/smoc_debug_stream.hpp"
 
 /// IFACE: interface type (this is basically sc_port_b<IFACE>)
 template <typename IFACE>
@@ -117,14 +118,14 @@ protected:
   }
 
   iface_type       *operator -> () {
-    smoc_port_base_if *iface = this->get_interface();
+    smoc::Detail::PortBaseIf *iface = this->get_interface();
     if (iface == NULL)
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return static_cast<iface_type *>(iface);
   }
 
   iface_type const *operator -> () const {
-    const smoc_port_base_if *iface = this->get_interface();
+    const smoc::Detail::PortBaseIf *iface = this->get_interface();
     if (iface == NULL)
       this->report_error(SC_ID_GET_IF_, "port is not bound");
     return static_cast<iface_type const *>(iface);
@@ -209,76 +210,6 @@ public:
     { return (*this)->numFree(); }
 };
 
-//forward declaration
-template <typename T>
-class smoc_port_in;
-
-namespace Expr {
-
-/****************************************************************************
- * DToken is a placeholder for a token in the expression.
- */
-
-template<typename T>
-class DToken {
-public:
-  typedef const T    value_type;
-  typedef DToken<T>  this_type;
-  
-  friend class VisitorApplication<this_type>;
-  friend class CommExec<this_type>;
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-  friend class CommSetup<this_type>;
-  friend class CommReset<this_type>;
-#endif
-  friend class Sensitivity<this_type>;
-  friend class Value<this_type>;
-private:
-  smoc_port_in<T> &p;
-  size_t           pos;
-public:
-  explicit DToken(smoc_port_in<T> &p, size_t pos)
-    : p(p), pos(pos) {}
-};
-
-template <typename T>
-class VisitorApplication<DToken<T> > {
-public:
-  typedef void                      *result_type;
-  typedef Detail::ExprVisitor<void> &param1_type;
-
-  static inline
-  result_type apply(const DToken <T> &e, param1_type p)
-    { return p.visitToken(e.p, e.pos); }
-};
-
-template<typename T>
-struct Value<DToken<T> > {
-  typedef const T result_type;
-  
-  static inline
-  result_type apply(const DToken<T> &e)
-  { return e.p[e.pos]; }
-};
-
-template<typename T>
-struct D<DToken<T> >: public DBase<DToken<T> > {
-  D(smoc_port_in<T> &p, size_t pos)
-    : DBase<DToken<T> >(DToken<T>(p,pos)) {}
-};
-
-// Make a convenient typedef for the token type.
-template<typename T>
-struct Token {
-  typedef D<DToken<T> > type;
-};
-
-template <typename T>
-typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
-{ return typename Token<T>::type(p,pos); }
-
-} // namespace Expr
-
 template <typename T>
 class smoc_port_in
 : public smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> > {
@@ -314,8 +245,8 @@ public:
 
   //FIXME: should be in PortMixin !!
   // This methods depend on the channel access type
-  typename Expr::Token<T>::type getValueAt(size_t n)
-    { return Expr::token<T>(*this,n); }
+  typename smoc::Expr::Token<T>::type getValueAt(size_t n)
+    { return smoc::Expr::token<T>(*this,n); }
 
   //FIXME: should be in PortMixin !!
   bool tokenIsValid(size_t i=0) const

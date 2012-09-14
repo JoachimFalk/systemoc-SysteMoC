@@ -45,7 +45,7 @@
 
 #include <CoSupport/String/Concat.hpp>
 
-using namespace SysteMoC::Detail;
+using namespace smoc::Detail;
 using CoSupport::String::Concat;
 
 // value_type will be constructed as T(), which initializes primite types to 0!

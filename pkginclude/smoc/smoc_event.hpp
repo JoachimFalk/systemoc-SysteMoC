@@ -32,11 +32,50 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_EVENT_HPP
-#define _INCLUDED_SMOC_EVENT_HPP
+#ifndef _INCLUDED_SMOC_SMOC_EVENT_HPP
+#define _INCLUDED_SMOC_SMOC_EVENT_HPP
 
-#warning "The systemoc/smoc_event.hpp header is obsolete do not include it!"
+#include <boost/intrusive_ptr.hpp>
 
-#include "detail/smoc_event_decls.hpp"
+#include <CoSupport/SystemC/systemc_support.hpp>
+#include <CoSupport/SmartPtr/RefCountObject.hpp>
 
-#endif // _INCLUDED_SMOC_EVENT_HPP
+#include <systemoc/smoc_config.h>
+
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <systemcvpc/coupling/VPCEvent.hpp>
+#endif
+
+namespace smoc {
+
+typedef CoSupport::SystemC::Event         smoc_event;
+typedef CoSupport::SystemC::EventWaiter   smoc_event_waiter;
+typedef CoSupport::SystemC::EventListener smoc_event_listener;
+typedef CoSupport::SystemC::EventOrList
+  <CoSupport::SystemC::EventWaiter>       smoc_event_or_list;
+typedef CoSupport::SystemC::EventAndList
+  <CoSupport::SystemC::EventWaiter>       smoc_event_and_list;
+
+static inline
+void smoc_notify(smoc_event &e)
+  { return e.notify(); }
+
+static inline
+smoc_event_waiter *smoc_reset(smoc_event_waiter &e)
+  { return e.reset(); }
+
+static inline
+void smoc_wait(smoc_event_waiter &e)
+  { return CoSupport::SystemC::wait(e); }
+
+typedef CoSupport::SystemC::RefCountEvent    smoc_ref_event;
+typedef CoSupport::SystemC::RefCountEventPtr smoc_ref_event_p;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+typedef SystemC_VPC::Coupling::VPCEvent      smoc_vpc_event;
+typedef SystemC_VPC::Coupling::VPCEvent::Ptr smoc_vpc_event_p;
+#endif // SYSTEMOC_ENABLE_VPC
+
+} // namespace smoc
+
+#endif // _INCLUDED_SMOC_SMOC_EVENT_HPP

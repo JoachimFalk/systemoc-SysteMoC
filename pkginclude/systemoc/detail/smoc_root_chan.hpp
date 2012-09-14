@@ -45,9 +45,9 @@
 #include <systemoc/smoc_config.h>
 
 #include "smoc_sysc_port.hpp"
-#include "smoc_event_decls.hpp"
+#include <smoc/smoc_event.hpp>
 #include "smoc_storage.hpp"
-#include "smoc_chan_if.hpp"
+//#include "smoc_chan_if.hpp"
 #include "smoc_port_registry.hpp"
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
@@ -66,9 +66,9 @@ class smoc_root_chan
 : public sc_prim_channel,
   public smoc_port_registry,
 #ifdef SYSTEMOC_NEED_IDS
-  public SysteMoC::Detail::NamedIdedObj,
+  public smoc::Detail::NamedIdedObj,
 #endif // SYSTEMOC_NEED_IDS
-  public SysteMoC::Detail::SimCTXBase
+  public smoc::Detail::SimCTXBase
 {
   typedef smoc_root_chan this_type;
   friend class smoc_graph_base; // reset

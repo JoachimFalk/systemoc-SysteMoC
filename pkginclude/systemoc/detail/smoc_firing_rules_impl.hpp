@@ -52,7 +52,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "../smoc_func_call.hpp"
+#include "smoc_func_call.hpp"
 #include "../smoc_firing_rules.hpp"
 
 #include <smoc/smoc_simulation_ctx.hpp>
@@ -118,7 +118,7 @@ private:
   smoc_action f;
 
   ///
-  SysteMoC::Detail::IOPattern* ioPattern;
+  smoc::Detail::IOPattern* ioPattern;
 public:
   TransitionBase(
       Guard const &g,
@@ -137,18 +137,18 @@ public:
     { return f; }
 
   /// @brief Returns input/output pattern (enough token/free space)
-  const SysteMoC::Detail::IOPattern* getIOPattern () const
+  const smoc::Detail::IOPattern* getIOPattern () const
     { assert(ioPattern); return ioPattern; }
 
   /// @brief Returns input/output pattern (enough token/free space)
-  void setIOPattern (SysteMoC::Detail::IOPattern* iop)
+  void setIOPattern (smoc::Detail::IOPattern* iop)
     { ioPattern = iop; }
 };
 
 class TransitionImpl :
   public TransitionBase
 #ifdef SYSTEMOC_ENABLE_VPC
-  , public SysteMoC::Detail::VpcTaskInterface
+  , public smoc::Detail::VpcTaskInterface
 #endif // SYSTEMOC_ENABLE_VPC
 {
 public:
@@ -241,12 +241,12 @@ class RuntimeState;
 class RuntimeTransition
 : //public smoc_event_and_list,
 #ifdef SYSTEMOC_NEED_IDS
-  public SysteMoC::Detail::IdedObj,
+  public smoc::Detail::IdedObj,
 #endif // SYSTEMOC_NEED_IDS
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
   public MetaMap::Transition,
 #endif
-  public SysteMoC::Detail::SimCTXBase {
+  public smoc::Detail::SimCTXBase {
   typedef RuntimeTransition this_type;
 
   friend class RuntimeState; // for ap
@@ -257,8 +257,8 @@ private:
   RuntimeState        *dest;
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
-  typedef std::vector<const SysteMoC::Hook::PreCallback  *> PreHooks;
-  typedef std::vector<const SysteMoC::Hook::PostCallback *> PostHooks;
+  typedef std::vector<const smoc::Hook::PreCallback  *> PreHooks;
+  typedef std::vector<const smoc::Hook::PostCallback *> PostHooks;
 
   bool        hookingValid;
   std::string actionStr;
@@ -284,10 +284,10 @@ public:
   const smoc_action &getAction() const;
 
   /// @brief Returns the guard
-  const Expr::Ex<bool>::type &getExpr() const;
+  const smoc::Expr::Ex<bool>::type &getExpr() const;
 
   /// @brief Returns waiter for input/output pattern (enough token/free space)
-  smoc_event_waiter* getIOPatternWaiter() const
+  smoc::smoc_event_waiter* getIOPatternWaiter() const
     { return transitionImpl->getIOPattern()->getWaiter(); }
 
   bool evaluateIOP() const;
@@ -304,14 +304,14 @@ public:
 typedef std::list<RuntimeTransition>   RuntimeTransitionList;
 typedef std::list<RuntimeTransition *> RuntimeTransitionPtrList;
 
-typedef std::set<smoc_event_waiter*> EventWaiterSet; 
+typedef std::set<smoc::smoc_event_waiter*> EventWaiterSet; 
 
 class RuntimeState
 :
 #ifdef SYSTEMOC_NEED_IDS
-  public SysteMoC::Detail::NamedIdedObj,
+  public smoc::Detail::NamedIdedObj,
 #endif // SYSTEMOC_NEED_IDS
-  public SysteMoC::Detail::SimCTXBase {
+  public smoc::Detail::SimCTXBase {
   typedef RuntimeState                    this_type;
 private:
   std::string           _name;
@@ -339,7 +339,7 @@ typedef std::set<RuntimeState*> RuntimeStateSet;
 typedef std::list<RuntimeState*> RuntimeStateList;
 
 class FiringFSMImpl
-: public SysteMoC::Detail::SimCTXBase {
+: public smoc::Detail::SimCTXBase {
 public:
   typedef FiringFSMImpl this_type;
 

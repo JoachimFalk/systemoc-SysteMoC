@@ -49,9 +49,10 @@
 #include "detail/smoc_chan_if.hpp"
 #include "detail/smoc_storage.hpp"
 #include "detail/smoc_sysc_port.hpp"
-#include "detail/ConnectProvider.hpp"
-#include "detail/EventMapManager.hpp"
 #include "smoc_chan_adapter.hpp"
+#include <smoc/detail/ConnectProvider.hpp>
+#include <smoc/detail/EventMapManager.hpp>
+#include <smoc/smoc_event.hpp>
 
 enum SignalState {undefined, defined, absent};
 
@@ -172,9 +173,9 @@ public:
   std::string getChannelName() const
     { return chan->name();}
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf)
 #else
   void commitRead(size_t consume)
 #endif
@@ -185,25 +186,25 @@ public:
     chan->rpp(consume);
   }
   
-  /// @brief See smoc_port_in_base_if
-  smoc_event &dataAvailableEvent(size_t n) {
+  /// @brief See PortInBaseIf
+  smoc::smoc_event &dataAvailableEvent(size_t n) {
     assert(n <= 1);
     return emm.getEvent(numAvailable(), n);
   }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t numAvailable() const
     { return (undefinedRead || chan->getSignalState() != undefined) ? 1 : 0; }
   
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t inTokenId() const
     { return chan->inTokenId(); }
   
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   void moreData(size_t)
     { emm.increasedCount(numAvailable()); }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   void lessData(size_t)
     { emm.decreasedCount(numAvailable()); }
 
@@ -245,7 +246,7 @@ public:
 private:
   smoc_multicast_sr_signal_chan<T>* chan;
   bool undefinedRead;
-  Detail::EventMapManager emm;
+  smoc::Detail::EventMapManager emm;
   size_t limit;
 };
 
@@ -272,9 +273,9 @@ public:
   std::string getChannelName() const
     { return chan->name();}
 
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
 #else
   void commitWrite(size_t produce)
 #endif
@@ -285,25 +286,25 @@ public:
     chan->wpp(produce);
   }
 
-  /// @brief See smoc_port_out_base_if
-  smoc_event &spaceAvailableEvent(size_t n) {
+  /// @brief See PortOutBaseIf
+  smoc::smoc_event &spaceAvailableEvent(size_t n) {
     assert(n <= 1);
     return emm.getEvent(numFree(), n);
   }
 
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t numFree() const
     { return (multipleWrite || chan->getSignalState() == undefined) ? 1 : 0; }
   
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t outTokenId() const
     { return chan->outTokenId(); }
   
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   void moreSpace(size_t)
     { emm.increasedCount(numFree()); }
   
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   void lessSpace(size_t)
     { emm.decreasedCount(numFree()); }
   
@@ -341,7 +342,7 @@ public:
 private:
   smoc_multicast_sr_signal_chan<T>* chan;
   bool multipleWrite;
-  Detail::EventMapManager emm;
+  smoc::Detail::EventMapManager emm;
   size_t limit;
 };
 
@@ -398,11 +399,11 @@ protected:
   storage_type actualValue;
 
   /// @brief See smoc_port_registry
-  smoc_port_out_base_if* createEntry()
+  smoc::Detail::PortOutBaseIf *createEntry()
     { return new entry_type(this); }
 
   /// @brief See smoc_port_registry
-  smoc_port_in_base_if* createOutlet()
+  smoc::Detail::PortInBaseIf *createOutlet()
     { return new outlet_type(this); }
 
   void setChannelID( std::string sourceActor,
@@ -421,12 +422,12 @@ protected:
 template <typename T>
 class smoc_multicast_sr_signal
 : public smoc_multicast_sr_signal_chan<T>::chan_init,
-  public SysteMoC::Detail::ConnectProvider<
+  public smoc::Detail::ConnectProvider<
     smoc_multicast_sr_signal<T>,
     smoc_multicast_sr_signal_chan<T> > {
   typedef smoc_multicast_sr_signal<T> this_type;
 
-  friend class SysteMoC::Detail::ConnectProvider<this_type, typename this_type::chan_type>;
+  friend class smoc::Detail::ConnectProvider<this_type, typename this_type::chan_type>;
 public:
   typedef T                             data_type;
   typedef typename this_type::chan_type chan_type;

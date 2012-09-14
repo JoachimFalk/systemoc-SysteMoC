@@ -51,12 +51,12 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_guard.hpp"
-#include "smoc_func_call.hpp"
+#include <smoc/smoc_expr.hpp>
+#include "detail/smoc_func_call.hpp"
 
 #include <boost/static_assert.hpp>
 
-typedef Expr::Ex<bool>::type Guard;
+typedef smoc::Expr::Ex<bool>::type Guard;
 
 // FIXME: this should be in Detail but conflicts with other
 // Detail namespaces...
@@ -361,7 +361,7 @@ public:
   explicit smoc_transition(
       const smoc_action &f,
       smoc_firing_state_base::ConstRef &t)
-    : guard(Expr::literal(true)), ia(t,f) {}
+    : guard(smoc::Expr::literal(true)), ia(t,f) {}
   
   /// @brief Constructor
   explicit smoc_transition(
@@ -417,13 +417,13 @@ smoc_transition_list operator | (
 
 template <class E>
 smoc_transition_part operator >> (
-    const Expr::D<E> &g,
+    const smoc::Expr::D<E> &g,
     const smoc_func_call &f)
   { return smoc_transition_part(Guard(g), f); }
 
 template <class E>
 smoc_transition_part operator >> (
-    const Expr::D<E> &g,
+    const smoc::Expr::D<E> &g,
     const smoc_accum_action &b)
   { return smoc_transition_part(Guard(g), b.getAction()); }
 
@@ -468,13 +468,13 @@ smoc_transition operator >> (
 
 template <class E>
 smoc_transition operator >> (
-    const Expr::D<E> &g,
+    const smoc::Expr::D<E> &g,
     smoc_firing_state_base::ConstRef &s)
   { return smoc_transition(Guard(g),s); }
 
 template <class E>
 smoc_transition_part operator >> (
-    const Expr::D<E> &g,
+    const smoc::Expr::D<E> &g,
     const smoc_sr_func_pair &fp)
   { return smoc_transition_part(Guard(g),fp); }
 

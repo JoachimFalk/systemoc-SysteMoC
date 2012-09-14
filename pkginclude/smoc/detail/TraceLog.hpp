@@ -43,9 +43,9 @@
 #include <set>
 
 #include <systemoc/smoc_config.h>
-#include <smoc/detail/NamedIdedObj.hpp>
-#include "../../smoc/smoc_simulation_ctx.hpp"
-#include "../../systemoc/detail/smoc_event_decls.hpp"
+#include "NamedIdedObj.hpp"
+#include "SimCTXBase.hpp"
+#include "../smoc_event.hpp"
 
 #include <CoSupport/Streams/FilterOStream.hpp>
 #include <CoSupport/Streams/IndentStreambuf.hpp>
@@ -64,7 +64,7 @@ class smoc_root_node;
 class smoc_root_chan;
 class smoc_func_call;
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 class NamePool{
 public:
@@ -165,8 +165,8 @@ public:
 
   void init();
 
-  void traceStartActor(const SysteMoC::Detail::NamedIdedObj *actor, const char *mode = "???");
-  void traceEndActor(const SysteMoC::Detail::NamedIdedObj *actor);
+  void traceStartActor(const smoc::Detail::NamedIdedObj *actor, const char *mode = "???");
+  void traceEndActor(const smoc::Detail::NamedIdedObj *actor);
   void traceStartFunction(const smoc_func_call *func);
   void traceEndFunction(const smoc_func_call *func);
   void traceCommExecIn(const smoc_root_chan *chan, size_t size);
@@ -185,8 +185,8 @@ private:
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   struct DeferedTraceLogDumper
   : public smoc_event_listener,
-    public SysteMoC::Detail::SimCTXBase {
-    SysteMoC::Detail::NamedIdedObj   *fifo;
+    public smoc::Detail::SimCTXBase {
+    smoc::Detail::NamedIdedObj   *fifo;
     const char       *mode;
 
     void signaled(smoc_event_waiter *_e) {
@@ -207,7 +207,7 @@ private:
     }
 
     DeferedTraceLogDumper
-      (SysteMoC::Detail::NamedIdedObj *obj, const char *mode)
+      (smoc::Detail::NamedIdedObj *obj, const char *mode)
       : fifo(obj), mode(mode) {};
 
     virtual ~DeferedTraceLogDumper() {}
@@ -215,7 +215,7 @@ private:
 
 # endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
-}} // namespace SysteMoC::Detail
+}} // namespace smoc::Detail
 
 #endif
 

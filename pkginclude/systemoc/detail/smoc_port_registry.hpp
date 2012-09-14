@@ -44,18 +44,18 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_chan_if.hpp"
+#include <smoc/detail/PortIOBaseIf.hpp>
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
   // Forward declaration to resolve cyclic dependency!
   template <typename, typename> class ConnectProvider;
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 class smoc_port_registry {
-  template <typename, typename> friend class SysteMoC::Detail::ConnectProvider;
+  template <typename, typename> friend class smoc::Detail::ConnectProvider;
 public:
-  typedef std::map<smoc_port_out_base_if*,sc_port_base*>  EntryMap;
-  typedef std::map<smoc_port_in_base_if*,sc_port_base*>   OutletMap;
+  typedef std::map<smoc::Detail::PortOutBaseIf*,sc_port_base*>  EntryMap;
+  typedef std::map<smoc::Detail::PortInBaseIf*,sc_port_base*>   OutletMap;
 
   /// FIXME: This methods should all be protected for SysteMoC
   /// users but should be accessible for SysteMoC visitors.
@@ -69,31 +69,31 @@ public:
     { return outlets; }
 
   /// @brief Find / create entry for port
-  smoc_port_out_base_if *getEntry(sc_port_base *p) {
+  smoc::Detail::PortOutBaseIf *getEntry(sc_port_base *p) {
     assert(p);
     return getByVal(entries, p);
   }
 
   /// @brief Find / create outlet for port
-  smoc_port_in_base_if *getOutlet(sc_port_base *p) {
+  smoc::Detail::PortInBaseIf *getOutlet(sc_port_base *p) {
     assert(p);
     return getByVal(outlets, p);
   }
 
   /// @brief Find port for entry
-  sc_port_base *getPort(const smoc_port_out_base_if *e) const {
+  sc_port_base *getPort(const smoc::Detail::PortOutBaseIf *e) const {
     assert(e);
     // this is allowed: we are only comparing pointers,
     // we do not modify e!!!
-    return getByKey(entries, const_cast<smoc_port_out_base_if *>(e));
+    return getByKey(entries, const_cast<smoc::Detail::PortOutBaseIf *>(e));
   }
 
   /// @brief Find port for outlet
-  sc_port_base *getPort(const smoc_port_in_base_if *o) const {
+  sc_port_base *getPort(const smoc::Detail::PortInBaseIf *o) const {
     assert(o);
     // this is allowed: we are only comparing pointers,
     // we do not modify o!!!
-    return getByKey(outlets, const_cast<smoc_port_in_base_if *>(o));
+    return getByKey(outlets, const_cast<smoc::Detail::PortInBaseIf *>(o));
   }
 
 protected:
@@ -105,10 +105,10 @@ protected:
   struct OutletTag {};
   
   /// @brief Create new entry
-  virtual smoc_port_out_base_if* createEntry() = 0;
+  virtual smoc::Detail::PortOutBaseIf* createEntry() = 0;
 
   /// @brief Create new outlet
-  virtual smoc_port_in_base_if* createOutlet() = 0;
+  virtual smoc::Detail::PortInBaseIf* createOutlet() = 0;
 
   /// @brief Select entry / outlet based on tag
   template<class Tag>
@@ -178,15 +178,15 @@ sc_interface* smoc_port_registry::getIF<smoc_port_registry::OutletTag>(sc_port_b
 { return getOutlet(p); }
   
 template<> inline
-smoc_port_out_base_if* smoc_port_registry::create() {
-  smoc_port_out_base_if* iface = createEntry();
+smoc::Detail::PortOutBaseIf* smoc_port_registry::create() {
+  smoc::Detail::PortOutBaseIf* iface = createEntry();
   assert(iface);
   return iface;
 }
 
 template<> inline
-smoc_port_in_base_if* smoc_port_registry::create() {
-  smoc_port_in_base_if* iface = createOutlet();
+smoc::Detail::PortInBaseIf* smoc_port_registry::create() {
+  smoc::Detail::PortInBaseIf* iface = createOutlet();
   assert(iface);
   return iface;
 }

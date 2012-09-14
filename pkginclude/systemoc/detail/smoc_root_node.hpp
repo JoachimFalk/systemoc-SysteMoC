@@ -54,7 +54,7 @@
 #include "smoc_sysc_port.hpp"
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
-#include "../smoc_expr.hpp"
+#include <smoc/smoc_expr.hpp>
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
 # include <smoc/smoc_hooking.hpp>
@@ -88,11 +88,11 @@ namespace SysteMoC {
 class smoc_root_node
 : public sc_module,
 #ifdef SYSTEMOC_NEED_IDS
-  public SysteMoC::Detail::NamedIdedObj,
+  public  smoc::Detail::NamedIdedObj,
 #endif // SYSTEMOC_NEED_IDS
-  public SysteMoC::Detail::SimCTXBase,
-  private smoc_event_listener,
-  public smoc_event
+  public  smoc::Detail::SimCTXBase,
+  private smoc::smoc_event_listener,
+  public  smoc::smoc_event
 {
   typedef smoc_root_node this_type;
   friend class RuntimeTransition;
@@ -118,24 +118,24 @@ private:
   
   // vpc_event_xxx must be constructed before commstate
   /// @brief VPC data introduction interval event
-  smoc_vpc_event_p diiEvent;
+  smoc::smoc_vpc_event_p diiEvent;
 
   RuntimeState *_communicate();
 #endif // SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
-  friend void SysteMoC::Hook::Detail::addTransitionHook(smoc_actor *, const SysteMoC::Hook::Detail::TransitionHook &);
+  friend void smoc::Hook::Detail::addTransitionHook(smoc_actor *, const smoc::Hook::Detail::TransitionHook &);
 
-  std::list<SysteMoC::Hook::Detail::TransitionHook> transitionHooks;
+  std::list<smoc::Hook::Detail::TransitionHook> transitionHooks;
 #endif //SYSTEMOC_ENABLE_HOOKING
 
   /// @brief Resets this node, calls reset()
   virtual void doReset();
   friend class smoc_reset_chan; 
 
-  void signaled(smoc_event_waiter *e);
-  void eventDestroyed(smoc_event_waiter *e);
-  void renotified(smoc_event_waiter *e);
+  void signaled(smoc::smoc_event_waiter *e);
+  void eventDestroyed(smoc::smoc_event_waiter *e);
+  void renotified(smoc::smoc_event_waiter *e);
 
 protected:
   //smoc_root_node(const smoc_firing_state &s);
@@ -161,25 +161,25 @@ protected:
   }
 
   template<typename F>
-  typename Expr::MemGuard<F>::type guard(const F &f, const char *name = "") const {
-    return Expr::guard(this, f, name);
+  typename smoc::Expr::MemGuard<F>::type guard(const F &f, const char *name = "") const {
+    return smoc::Expr::guard(this, f, name);
   }
 
   template <typename T>
   static
-  typename Expr::Var<T>::type var(T &x, const char *name = NULL)
-    { return Expr::var(x,name); }
+  typename smoc::Expr::Var<T>::type var(T &x, const char *name = NULL)
+    { return smoc::Expr::var(x,name); }
 
   // FIXME: change this to work on plain SystemC events!
   static
-  Expr::SMOCEvent::type till(smoc_event_waiter &e, const char *name = NULL)
-    { return Expr::till(e,name); }
+  smoc::Expr::SMOCEvent::type till(smoc::smoc_event_waiter &e, const char *name = NULL)
+    { return smoc::Expr::till(e,name); }
 
 public:
   // FIXME: (Maybe) Only actors have this info => move to smoc_actor?
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
-  SysteMoC::Detail::ParamInfoVisitor constrArgs;
+  smoc::Detail::ParamInfoVisitor constrArgs;
 protected:
   template<class T>
   void registerParam(const std::string& name, const T& t) {
@@ -254,8 +254,8 @@ public:
   RuntimeTransition* ct;
 
   // FIXME should not be public 
-  smoc_event_waiter *reset(smoc_event_listener* el)
-    { return smoc_event::reset(el); }
+  smoc::smoc_event_waiter *reset(smoc::smoc_event_listener* el)
+    { return smoc::smoc_event::reset(el); }
 };
 
 typedef std::list<smoc_root_node *> smoc_node_list;

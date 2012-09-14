@@ -39,10 +39,10 @@
 
 #include <sgx.hpp>
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g);
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif // SYSTEMOC_ENABLE_SGX

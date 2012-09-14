@@ -40,7 +40,7 @@
 
 #include <string>
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 // Interface for initial token dumping
 struct IfDumpingInitialTokens {
@@ -49,6 +49,6 @@ struct IfDumpingInitialTokens {
   virtual ~IfDumpingInitialTokens() {};
 };
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif // _INCLUDED_SMOC_DETAIL_DUMPINGINTERFACES_HPP

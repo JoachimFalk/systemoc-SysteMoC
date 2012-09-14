@@ -41,27 +41,9 @@
 #include <systemoc/smoc_config.h>
 
 #include "detail/IdPool.hpp"
+#include "detail/SimCTXBase.hpp"
 
-namespace SysteMoC {
-
-class smoc_simulation_ctx;
-
-namespace Detail {
-
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  class TraceLogStream; 
-#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-
-  extern smoc_simulation_ctx *currentSimCTX;
-
-  struct SimCTXBase {
-    smoc_simulation_ctx *getSimCTX()
-      { return currentSimCTX; }
-    const smoc_simulation_ctx *getSimCTX() const
-      { return currentSimCTX; }
-  };
-
-} // namespace Detail
+namespace smoc {
 
 class smoc_simulation_ctx {
 protected:
@@ -81,7 +63,7 @@ protected:
   std::ostream   *dumpTraceFile;
 #endif // SYSTEMOC_ENABLE_TRANSITION_TRACE
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  SysteMoC::Detail::TraceLogStream *dataflowTraceLog; 
+  smoc::Detail::TraceLogStream *dataflowTraceLog; 
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool  idPool;
@@ -114,7 +96,7 @@ public:
 #ifdef SYSTEMOC_NEED_IDS
   Detail::IdPool &getIdPool()
     { return idPool; }
-  void createId(SysteMoC::Detail::NamedIdedObj * obj)
+  void createId(smoc::Detail::NamedIdedObj * obj)
   { noIdGiven.push_back(obj); }
   void generateIdsAfterFinalise()
   {
@@ -135,7 +117,7 @@ public:
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   bool isDataflowTracingEnabled() const
     { return dataflowTraceLog != NULL; }
-  SysteMoC::Detail::TraceLogStream *getDataflowTraceLog() const
+  smoc::Detail::TraceLogStream *getDataflowTraceLog() const
     { return dataflowTraceLog; }
 #endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
@@ -151,6 +133,6 @@ private:
   smoc_simulation_ctx( const smoc_simulation_ctx & toCopy ) {}
 };
 
-} // namespace SysteMoC
+} // namespace smoc
 
 #endif // _INCLUDED_SMOC_SIMULATIONCTX_HPP

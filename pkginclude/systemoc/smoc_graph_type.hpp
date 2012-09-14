@@ -132,7 +132,7 @@ protected:
   template<class PortA, class PortB>
   void connectNodePorts(PortA &a, PortB &b) {
     connectNodePorts(a, b, T_chan_init_default<
-      typename SysteMoC::Detail::Select<
+      typename smoc::Detail::Select<
         PortTraits<PortA>::isSpecialized,
         typename PortTraits<PortA>::data_type,
         typename PortTraits<PortB>::data_type
@@ -149,7 +149,7 @@ protected:
   template<int s, class PortA, class PortB>
   void connectNodePorts(PortA &a, PortB &b) {
     connectNodePorts(a, b, T_chan_init_default<
-      typename SysteMoC::Detail::Select<
+      typename smoc::Detail::Select<
         PortTraits<PortA>::isSpecialized,
         typename PortTraits<PortA>::data_type,
         typename PortTraits<PortB>::data_type

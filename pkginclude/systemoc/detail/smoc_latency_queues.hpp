@@ -42,7 +42,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_event_decls.hpp"
+#include <smoc/smoc_event.hpp>
 #include "smoc_root_chan.hpp"
 
 #include <smoc/smoc_simulation_ctx.hpp>
@@ -54,10 +54,10 @@ namespace Detail {
 
 class TokenInfo{
 public:
-  TokenInfo(size_t count, SysteMoC::Detail::VpcInterface vpcIf) :
+  TokenInfo(size_t count, smoc::Detail::VpcInterface vpcIf) :
     count(count), vpcIf(vpcIf) {}
   size_t                           count;
-  SysteMoC::Detail::VpcInterface   vpcIf;
+  smoc::Detail::VpcInterface   vpcIf;
 };
 
 void dump_helper(std::pair<size_t, smoc_vpc_event_p> & e);
@@ -65,7 +65,7 @@ void dump_helper(std::pair<TokenInfo, smoc_vpc_event_p> & e);
 
 template<typename T>
 class EventQueue
-: protected smoc_event_listener {
+: protected smoc::smoc_event_listener {
 private:
   typedef EventQueue this_type;
 protected:
@@ -107,7 +107,7 @@ protected:
   }
 
   /// @brief See smoc_event_listener
-  void signaled(smoc_event_waiter *e){
+  void signaled(smoc::smoc_event_waiter *e){
     assert(*e);
     assert(!queue.empty());
     assert(e == queue.front().second.get());
@@ -120,7 +120,7 @@ protected:
       queue.front().second->addListener(this);    
   }
 
-  void eventDestroyed(smoc_event_waiter *_e)
+  void eventDestroyed(smoc::smoc_event_waiter *_e)
     { assert(!"eventDestroyed must never be called!"); }
 public:
   EventQueue(const boost::function<void (T)> &proc, const boost::function<void (T)> &proc_drop =0)
@@ -151,7 +151,7 @@ public:
 };
 
 
-class LatencyQueue : public SysteMoC::Detail::SimCTXBase {
+class LatencyQueue : public smoc::Detail::SimCTXBase {
 private:
   typedef LatencyQueue this_type;
 protected:
@@ -172,7 +172,7 @@ public:
       visibleQueue(latencyExpired, latencyExpired_dropped), dummy(new smoc_vpc_event()), chan(chan) {}
 
   void addEntry(size_t n, const smoc_vpc_event_p &latEvent,
-                SysteMoC::Detail::VpcInterface vpcIf)
+                smoc::Detail::VpcInterface vpcIf)
     { requestQueue.addEntry(TokenInfo(n, vpcIf), latEvent); }
   void dump(){
     std::cerr << &requestQueue << "\trequestQueue: " << std::endl;
@@ -193,7 +193,7 @@ public:
     : eventQueue(diiExpired) {}
 
   void addEntry(size_t n, const smoc_vpc_event_p &diiEvent,
-                SysteMoC::Detail::VpcInterface vpcIf)
+                smoc::Detail::VpcInterface vpcIf)
     { eventQueue.addEntry(n, diiEvent); }
 
   void dump(){

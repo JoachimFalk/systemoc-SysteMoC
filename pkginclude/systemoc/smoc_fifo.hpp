@@ -58,12 +58,12 @@
 #include "smoc_chan_adapter.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_fifo_storage.hpp"
-#include "detail/ConnectProvider.hpp"
-#include "detail/EventMapManager.hpp"
+#include <smoc/detail/ConnectProvider.hpp>
+#include <smoc/detail/EventMapManager.hpp>
 #ifdef SYSTEMOC_ENABLE_VPC
-# include "detail/QueueFRVWPtr.hpp"
+# include <smoc/detail/QueueFRVWPtr.hpp>
 #else
-# include "detail/QueueRWPtr.hpp"
+# include <smoc/detail/QueueRWPtr.hpp>
 #endif
 
 #include <smoc/detail/DumpingInterfaces.hpp>
@@ -76,9 +76,9 @@ size_t fsizeMapper(sc_object* instance, size_t n);
 class smoc_fifo_chan_base
 : public smoc_nonconflicting_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
-  public Detail::QueueFRVWPtr
+  public smoc::Detail::QueueFRVWPtr
 #else
-  public Detail::QueueRWPtr
+  public smoc::Detail::QueueRWPtr
 #endif // SYSTEMOC_ENABLE_VPC
 {
   typedef smoc_fifo_chan_base this_type;
@@ -142,14 +142,14 @@ public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
-  virtual void dumpInitialTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) = 0;
+  virtual void dumpInitialTokens(smoc::Detail::IfDumpingInitialTokens *it) = 0;
 #endif // SYSTEMOC_ENABLE_SGX
 private:
-  Detail::EventMapManager emmData;
-  Detail::EventMapManager emmSpace;
+  smoc::Detail::EventMapManager emmData;
+  smoc::Detail::EventMapManager emmSpace;
 #ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue  latencyQueue;
-  Detail::DIIQueue      diiQueue;
+  smoc::Detail::LatencyQueue  latencyQueue;
+  smoc::Detail::DIIQueue      diiQueue;
 #endif
 
   /// @brief The token id of the next commit token
@@ -191,9 +191,9 @@ public:
   {}
 
 protected:
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t consume, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitRead(size_t consume, smoc::Detail::VpcInterface vpcIf)
   {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceCommExecIn(&chan, consume);
@@ -216,18 +216,18 @@ protected:
     chan.diiExpired(consume);
   }
   
-  /// @brief See smoc_port_in_base_if
-  smoc_event &dataAvailableEvent(size_t n)
+  /// @brief See PortInBaseIf
+  smoc::smoc_event &dataAvailableEvent(size_t n)
     { return chan.emmData.getEvent(n); }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t numAvailable() const
     { return chan.visibleCount(); }
 
   std::string getChannelName() const
     { return chan.name();}
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t inTokenId() const
     { return chan.tokenId - chan.usedCount(); }
   
@@ -264,9 +264,9 @@ public:
   {}
 
 protected:
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t produce, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitWrite(size_t produce, smoc::Detail::VpcInterface vpcIf)
   {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(&chan, produce);
@@ -292,18 +292,18 @@ protected:
     chan.latencyExpired(produce);
   }
   
-  /// @brief See smoc_port_out_base_if
-  smoc_event &spaceAvailableEvent(size_t n)
+  /// @brief See PortOutBaseIf
+  smoc::smoc_event &spaceAvailableEvent(size_t n)
     { return chan.emmSpace.getEvent(n); }
   
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t numFree() const
     { return chan.freeCount(); }
 
   std::string getChannelName() const
     { return chan.name();}
   
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t outTokenId() const
     { return chan.tokenId; }
   
@@ -346,11 +346,11 @@ public:
   {}
 protected:
   /// @brief See smoc_port_registry
-  smoc_port_out_base_if* createEntry()
+  smoc::Detail::PortOutBaseIf *createEntry()
     { return new entry_type(*this); }
 
   /// @brief See smoc_port_registry
-  smoc_port_in_base_if* createOutlet()
+  smoc::Detail::PortInBaseIf *createOutlet()
     { return new outlet_type(*this); }
 
   void invalidateToken(size_t x){
@@ -370,7 +370,7 @@ private:
 template <typename T>
 class smoc_fifo
 : public smoc_fifo_chan<T>::chan_init,
-  public SysteMoC::Detail::ConnectProvider<
+  public smoc::Detail::ConnectProvider<
     smoc_fifo<T>,
     smoc_fifo_chan<T> >
 {
@@ -414,7 +414,7 @@ public:
   }
   
   //using this_type::con_type::operator<<;
-  using SysteMoC::Detail::ConnectProvider<smoc_fifo<T>, smoc_fifo_chan<T> >::operator<<;
+  using smoc::Detail::ConnectProvider<smoc_fifo<T>, smoc_fifo_chan<T> >::operator<<;
 
 private:
   chan_type *getChan() {

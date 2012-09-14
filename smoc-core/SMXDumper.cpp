@@ -56,13 +56,13 @@
 #include <systemoc/detail/smoc_root_chan.hpp>
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_firing_rules_impl.hpp>
-#include <systemoc/smoc_expr.hpp>
+#include <smoc/smoc_expr.hpp>
 #include <systemoc/smoc_actor.hpp>
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_multiplex_fifo.hpp>
 #include <systemoc/smoc_multireader_fifo.hpp>
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 namespace SGX = SystemCoDesigner::SGX;
 
@@ -292,18 +292,18 @@ struct ExpectedPortConnections {
     for (SCInterface2Port::const_iterator iter = expectedChannelConnections.begin();
          iter != expectedChannelConnections.end();
          ++iter) {
-      smoc_port_out_base_if *entry;
-      smoc_port_in_base_if  *outlet;
+      PortOutBaseIf *entry;
+      PortInBaseIf  *outlet;
       
-      if ((entry = dynamic_cast<smoc_port_out_base_if *>(iter->first))) {
+      if ((entry = dynamic_cast<PortOutBaseIf *>(iter->first))) {
         std::cerr << "Unhandled entry type " << typeid(*entry).name()
                   << " => dangling port " << iter->second->name() << std::endl;
-      } else if ((outlet = dynamic_cast<smoc_port_in_base_if *>(iter->first))) {
+      } else if ((outlet = dynamic_cast<PortInBaseIf *>(iter->first))) {
         std::cerr << "Unhandled outlet type " << typeid(*outlet).name()
                   << " => dangling port " << iter->second->name() << std::endl;
       } else {
         //FIXME: RTX hack dynamic_cast<...>(...) problem strikes again!!!
-        //assert(!"WTF?! Neither smoc_port_out_base_if nor smoc_port_in_base_if!");
+        //assert(!"WTF?! Neither PortOutBaseIf nor PortInBaseIf!");
         std::cerr << "Unhandled entry/outlet type " << typeid(iter->first).name()
                   << " => dangling port " << iter->second->name() << std::endl;
       }
@@ -467,7 +467,7 @@ public:
         return;
       }
     }
-    // Now handle SysteMoC <-> SystemC port adapter stuff
+    // Now handle smoc <-> SystemC port adapter stuff
     {
       SCInterface2Port::iterator iter =
         gsv.unclassifiedPorts.find(sci);
@@ -895,6 +895,6 @@ void dumpSMX(std::ostream &file, smoc_simulation_ctx *simCTX, smoc_graph_base &g
   ngx.save(file);
 }
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif // SYSTEMOC_ENABLE_SGX

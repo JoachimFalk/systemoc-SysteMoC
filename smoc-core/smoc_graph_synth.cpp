@@ -48,7 +48,7 @@
 
 #define objAs CoSupport::DataTypes::dynamic_pointer_cast
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 #if 0
 // find non-hierarchical name
 // ("a.b.c" -> "c"; "a.b." -> "" ; "a" -> "a")
@@ -192,17 +192,17 @@ smoc_graph_synth::EVariant smoc_graph_synth::portGuard(
   assert(i != e);
   smoc_sysc_port *p = NGXCache::getInstance().getCompiledPort(i->first);
   assert(p);
-  if (dynamic_cast<smoc_port_in_base_if *>(p->get_interface()) != NULL) {
+  if (dynamic_cast<PortInBaseIf *>(p->get_interface()) != NULL) {
     EPortInGuard pg =
-      Expr::PortTokens<smoc_port_in_base_if>::type(*p) >= i->second.second;
+      Expr::PortTokens<PortInBaseIf>::type(*p) >= i->second.second;
     if (++i != e)
       return pg && portGuard(i, e);
     else
       return pg;
   } else {
-    assert(dynamic_cast<smoc_port_out_base_if *>(p->get_interface()) != NULL);
+    assert(dynamic_cast<PortOutBaseIf *>(p->get_interface()) != NULL);
     EPortOutGuard pg =
-      Expr::PortTokens<smoc_port_out_base_if>::type(*p) >= i->second.second;
+      Expr::PortTokens<PortOutBaseIf>::type(*p) >= i->second.second;
     if (++i != e)
       return pg && portGuard(i, e);
     else
@@ -262,8 +262,8 @@ void smoc_graph_synth::prepareActorFiring() {
 
       if(j == chanInMap.end()) {
         // cross cast to obtain interface base class
-        smoc_port_in_base_if* in =
-          dynamic_cast<smoc_port_in_base_if*>(i->first->get_interface());
+        PortInBaseIf* in =
+          dynamic_cast<PortInBaseIf*>(i->first->get_interface());
         assert(in);
         j = CoSupport::DataTypes::pac_insert(chanInMap, i->first, in);
       }
@@ -497,6 +497,6 @@ void smoc_graph_synth::generateFSM() {
 //}
 }
 #endif
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif // SYSTEMOC_ENABLE_SGX

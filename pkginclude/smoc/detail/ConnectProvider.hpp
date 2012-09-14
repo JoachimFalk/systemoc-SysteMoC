@@ -37,11 +37,10 @@
 #define _INCLUDED_SMOC_DETAIL_SMOC_CONNECT_PROVIDER_HPP
 
 #include <systemoc/smoc_config.h>
+#include <systemoc/smoc_port.hpp>
+#include <systemoc/smoc_chan_adapter.hpp>
 
-#include "../smoc_port.hpp"
-#include "../smoc_chan_adapter.hpp"
-
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 template <typename DERIVED, typename CHANTYPE>
 class ConnectProvider {
@@ -84,7 +83,7 @@ public:
   template<class IFACE>
   DERIVED &connect(sc_port<IFACE> &p) {
     
-    using namespace SysteMoC::Detail;
+    using namespace smoc::Detail;
     
     // available adapters
     typedef smoc_chan_adapter<entry_iface_type,IFACE>   EntryAdapter;
@@ -107,9 +106,7 @@ public:
     typedef typename P::second_type Tag;
 
     typename Adapter::iface_impl_type *iface =
-//    I really hate these cross library dynamic cast errors!
-//    dynamic_cast<typename Adapter::iface_impl_type*>(
-      static_cast<typename Adapter::iface_impl_type*>(
+      dynamic_cast<typename Adapter::iface_impl_type*>(
           getDerived()->getChan()->smoc_port_registry::getIF<Tag>(&p));
     assert(iface); p(*(new Adapter(*iface)));
     return *getDerived();
@@ -126,6 +123,6 @@ public:
     { return connect(p); }
 };
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif // _INCLUDED_SMOC_DETAIL_SMOC_CONNECT_PROVIDER_HPP

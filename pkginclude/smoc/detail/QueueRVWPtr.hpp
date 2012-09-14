@@ -33,105 +33,77 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
-#define _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
-
-#include <CoSupport/Math/ModuloGroup.hpp>
+#ifndef _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP
+#define _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP
 
 #include <systemoc/smoc_config.h>
 
-namespace Detail {
+#include "QueueRWPtr.hpp"
 
-  class QueueRVWPtr;
-  class QueueFRVWPtr;
+namespace smoc { namespace Detail {
 
-  class QueueRWPtr {
-    friend class QueueRVWPtr;
+  class QueueRVWPtr: public QueueRWPtr {
+    typedef QueueRVWPtr this_type;
+    typedef QueueRWPtr  base_type;
+
     friend class QueueFRVWPtr;
-  public:
-    typedef CoSupport::Math::ModuloGroup<CoSupport::Math::Modulus<size_t> > MG;
-  private:
+  protected:
     /*             fsize
      *   ____________^___________
      *  /                        \
-     * |FFVVVVVVVVVVVVVVVVVVVVVFFF|
-     *    ^                    ^
-     *  rindex               windex
-     *  findex               vindex
-     *
+     * |FFFFFFFFFVVVVVVVPPPPPPPFFF|
+     *           ^      ^      ^
+     *         rindex vindex windex
+     *         findex
      *  F: The free space area of size (findex - windex - 1) % fsize
      *  V: The visible token area of size (vindex - rindex) % fsize
+     *  P: The token which are still in the pipeline (latency not expired)
      */
-
-    MG::M   fsize;   ///< Ring buffer size == FIFO size + 1
-    size_t  rindex;  ///< The FIFO read    ptr
-    size_t  windex;  ///< The FIFO write   ptr
+  private:
+    size_t vindex;  ///< The FIFO visible ptr
   public:
-    QueueRWPtr(size_t n)
-      : fsize(n + 1), rindex(0), windex(0) {}
+    QueueRVWPtr(size_t n)
+      : QueueRWPtr(n), vindex(0) {}
 
-    size_t usedCount() const {
-      // windex - rindex in modulo fsize arith
-      return (MG(windex, fsize) - rindex).getValue();
-    }
-
-    // For two ptr queues the visible and the used
-    // token sets are equal.
     size_t visibleCount() const {
-      return usedCount();
+      // vindex - rindex in modulo fsize arith
+      return (MG(vindex, fsize) - rindex).getValue();
     }
 
-    size_t depthCount() const {
-      return fsize.m() - 1;
-    }
-
-    size_t freeCount() const {
-      // rindex - windex - 1 in modulo fsize arith
-      return (MG(rindex, fsize) - windex - 1).getValue();
-    }
-
-    size_t fSize() const {
-      return fsize.m();
-    }
-    const size_t &rIndex() const {
-      return rindex;
-    }
-    const size_t &fIndex() const {
-      return rindex;
-    }
-    const size_t &wIndex() const {
-      return windex;
-    }
     const size_t &vIndex() const {
-      return windex;
+      return vindex;
     }
 
-    void wpp(size_t n) {
-      assert(n <= freeCount());
-      // windex = windex + n in modulo fsize arith
-      windex = (MG(windex, fsize) + n).getValue();
-    }
-
-    void vpp(size_t n) {
-      // Dummy does nothing
-    }
-
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+    // This differs from QueueRWPtr::rpp due to the different definition of
+    // visibleCount. Therefore, the assertion is more paranoid.
     void rpp(size_t n) {
       assert(n <= visibleCount());
-      // rindex = rindex + n in modulo fsize arith
-      rindex = (MG(rindex, fsize) + n).getValue();
+      base_type::rpp(n);
     }
+#endif
 
-    void fpp(size_t n) {
-      // Dummy does nothing
+    void vpp(size_t n) {
+      // PRECONDITION PARANOIA: rindex <= vindex <= windex in modulo fsize arith
+      //   rindex == windex   implies rindex == windex == vindex
+      //   rindex-windex == 1 implies true
+      assert(MG(vindex, fsize).between(rindex, windex));
+/*    assert(vindex < fsize &&
+        (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
+         windex <  rindex && (vindex >= rindex || vindex <= windex)));
+ */
+      // invisible = windex - vindex in modulo fsize arith
+      assert(n <= (MG(windex, fsize) - vindex).getValue());
+      // vindex = vindex + n in modulo fsize arith
+      vindex = (MG(vindex, fsize) + n).getValue();
     }
-
+    
     void resetQueue() {
-      rindex = 0;
-      windex = 0;
+      vindex = 0;
+      base_type::resetQueue();
     }
   };
 
-} // namespace Detail
+} } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
+#endif // _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP

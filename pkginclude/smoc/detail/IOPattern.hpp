@@ -39,10 +39,12 @@
 #include <list>
 
 #include <systemoc/smoc_config.h>
-#include "systemoc/detail/smoc_event_decls.hpp"
-#include "systemoc/detail/smoc_sysc_port.hpp"
 
-namespace SysteMoC { namespace Detail {
+#include "../smoc_event.hpp"
+
+class smoc_sysc_port;
+
+namespace smoc { namespace Detail {
 
   struct PortInfo{
     PortInfo(smoc_sysc_port  *port,
@@ -94,6 +96,6 @@ namespace SysteMoC { namespace Detail {
 
   };
 
-}} // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif //_INCLUDED_ACTIVATION_PATTERN_HPP
