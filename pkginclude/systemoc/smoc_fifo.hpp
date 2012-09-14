@@ -56,11 +56,12 @@
 #include "detail/smoc_root_chan.hpp"
 #include "detail/smoc_storage.hpp"
 #include "smoc_chan_adapter.hpp"
-#include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_fifo_storage.hpp"
 #include <smoc/detail/ConnectProvider.hpp>
 #include <smoc/detail/EventMapManager.hpp>
 #ifdef SYSTEMOC_ENABLE_VPC
+# include <smoc/detail/LatencyQueue.hpp>
+# include <smoc/detail/DIIQueue.hpp>
 # include <smoc/detail/QueueFRVWPtr.hpp>
 #else
 # include <smoc/detail/QueueRWPtr.hpp>
