@@ -32,8 +32,8 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_EXPR_HPP
-#define _INCLUDED_EXPR_HPP
+#ifndef _INCLUDED_SMOC_EXPR_HPP
+#define _INCLUDED_SMOC_EXPR_HPP
 
 #include <iostream>
 #include <sstream>
@@ -45,10 +45,10 @@
 #include <list>
 #include <map>
 
+#include <CoSupport/commondefs.h>
 #include <CoSupport/SmartPtr/RefCountObject.hpp>
 #include <CoSupport/DataTypes/oneof.hpp>
 #include <CoSupport/Lambda/functor.hpp>
-#include <CoSupport/commondefs.h>
 #include <CoSupport/String/convert.hpp>
 
 #include <boost/typeof/typeof.hpp>
@@ -56,30 +56,35 @@
 #include <boost/bind.hpp>
 
 #include <systemoc/smoc_config.h>
+#include <systemoc/detail/smoc_sysc_port.hpp>
 
-#include "detail/smoc_event_decls.hpp"
-#include "detail/smoc_sysc_port.hpp"
-#include "detail/smoc_debug_stream.hpp"
-#include "smoc/detail/IOPattern.hpp"
+#include "smoc_event.hpp"
+//#include <systemoc/detail/smoc_sysc_port.hpp>
+#include <systemoc/detail/smoc_debug_stream.hpp>
+#include "detail/IOPattern.hpp"
+
 #ifdef SYSTEMOC_ENABLE_VPC
-#include "smoc/detail/VpcInterface.hpp"
+#include "detail/VpcInterface.hpp"
 #endif // SYSTEMOC_ENABLE_VPC
 
-/****************************************************************************
- * dexpr.h
- *
- * Header file declaring the expression classes.  This simplified example only
- * handles expressions involving doubles.
- */
+#ifdef SYSTEMOC_ENABLE_SGX
+# include <sgx.hpp>
+#endif // SYSTEMOC_ENABLE_SGX
 
-namespace Expr {
-  
-template <class E>
-class VisitorApplication;
+//forward declaration
+class smoc_sysc_port;
 
-} // namespace Expr
+//forward declaration
+template <typename T>
+class smoc_port_in;
 
-namespace SysteMoC { namespace Detail {
+//forward declaration
+template <typename T>
+class smoc_port_out;
+
+namespace smoc { namespace Detail {
+
+  class PortBaseIf;
 
   struct Process;   // Process type marker for evalTo<{Sensitivity|CommExec}>( ... )
   struct Ignore;    // Ignore type marker for evalTo<{Sensitivity|CommExec}>( ... )
@@ -217,11 +222,17 @@ namespace SysteMoC { namespace Detail {
     virtual ~ExprVisitor() {}
   };
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
-namespace Expr {
+/****************************************************************************
+ * smoc_expr.hpp
+ *
+ * Header file declaring the expression classes.
+ */
 
-namespace Detail = SysteMoC::Detail;
+namespace smoc { namespace Expr {
+
+namespace Detail = smoc::Detail;
 
 using Detail::OpBinT;
 using Detail::OpUnT;
@@ -254,10 +265,10 @@ public:
 
   typedef void                    result_type;
 #ifdef SYSTEMOC_ENABLE_VPC
-  typedef SysteMoC::Detail::VpcInterface param1_type;
+  typedef smoc::Detail::VpcInterface param1_type;
   
   static inline
-  result_type apply(const E &e, SysteMoC::Detail::VpcInterface vpcIf) {}
+  result_type apply(const E &e, smoc::Detail::VpcInterface vpcIf) {}
 #else //!defined(SYSTEMOC_ENABLE_VPC)
   static inline
   result_type apply(const E &e) {}
@@ -287,7 +298,7 @@ public:
   static inline
   result_type apply(const E &e) {}
 };
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
 // Default do nothing
 template <class E>
@@ -391,7 +402,7 @@ private:
 
 #if defined(SYSTEMOC_ENABLE_VPC)
     virtual void       evalToCommExec(
-        SysteMoC::Detail::VpcInterface vpcIf)  const = 0;
+        smoc::Detail::VpcInterface vpcIf)  const = 0;
 #else //!defined(SYSTEMOC_ENABLE_VPC)
     virtual void       evalToCommExec()    const = 0;
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
@@ -419,7 +430,7 @@ private:
       { return VisitorApplication<E>::apply(e, v); }
 #if defined(SYSTEMOC_ENABLE_VPC)
     void       evalToCommExec(
-        SysteMoC::Detail::VpcInterface vpcIf) const
+        smoc::Detail::VpcInterface vpcIf) const
       { return CommExec<E>::apply(e, vpcIf); }
 #else // !defined(SYSTEMOC_ENABLE_VPC)
     void       evalToCommExec() const
@@ -466,10 +477,10 @@ public:
 
   typedef void                    result_type;
 #if defined(SYSTEMOC_ENABLE_VPC)
-  typedef SysteMoC::Detail::VpcInterface    param1_type;
+  typedef smoc::Detail::VpcInterface    param1_type;
 
   static inline
-  result_type apply(const DVirtual <T> &e, SysteMoC::Detail::VpcInterface vpcIf) {
+  result_type apply(const DVirtual <T> &e, smoc::Detail::VpcInterface vpcIf) {
 # ifdef SYSTEMOC_DEBUG
     outDbg << EXPR << "CommExec<DVirtual<T> >::apply(e)" << std::endl << INFO;
 # endif
@@ -925,11 +936,11 @@ public:
 
   typedef void                            result_type;
 #if defined(SYSTEMOC_ENABLE_VPC)
-  typedef SysteMoC::Detail::VpcInterface  param1_type;
+  typedef smoc::Detail::VpcInterface  param1_type;
 
   static inline
   result_type apply(const DBinOp<A,B,Expr::OpBinT::LAnd> &e,
-    SysteMoC::Detail::VpcInterface vpcIf)
+    smoc::Detail::VpcInterface vpcIf)
   {
 # ifdef SYSTEMOC_DEBUG
     outDbg << EXPR << "CommExec<DBinOp<A,B,OpBinT::LAnd> >::apply(e)" << std::endl << INFO;
@@ -1092,7 +1103,7 @@ struct DBinOpExecute<Detail::Ignore,Detail::Ignore,op,CommExec> {
   template <class A, class B>
   static inline
   void apply(const A &a, const B &b,
-      SysteMoC::Detail::VpcInterface vpcIf)
+      smoc::Detail::VpcInterface vpcIf)
     {}
 #else // !defined(SYSTEMOC_ENABLE_VPC)
   template <class A, class B>
@@ -1111,7 +1122,7 @@ struct DBinOpExecute<Detail::Process,Detail::Ignore,Expr::OpBinT::LAnd,CommExec>
   template <class A, class B>
   static inline
   void apply(const A &a, const B &b,
-      SysteMoC::Detail::VpcInterface vpcIf)
+      smoc::Detail::VpcInterface vpcIf)
     { CommExec<A>::apply(a, vpcIf); }
 #else // !defined(SYSTEMOC_ENABLE_VPC)
   template <class A, class B>
@@ -1130,7 +1141,7 @@ struct DBinOpExecute<Detail::Ignore,Detail::Process,Expr::OpBinT::LAnd,CommExec>
   template <class A, class B>
   static inline
   void apply(const A &a, const B &b,
-      SysteMoC::Detail::VpcInterface vpcIf)
+      smoc::Detail::VpcInterface vpcIf)
     { CommExec<B>::apply(b, vpcIf); }
 #else // !defined(SYSTEMOC_ENABLE_VPC)
   template <class A, class B>
@@ -1149,7 +1160,7 @@ struct DBinOpExecute<Detail::Process,Detail::Process,Expr::OpBinT::LAnd,CommExec
   template <class A, class B>
   static inline
   void apply(const A &a, const B &b,
-      SysteMoC::Detail::VpcInterface vpcIf)
+      smoc::Detail::VpcInterface vpcIf)
   {
     CommExec<A>::apply(a, vpcIf);
     CommExec<B>::apply(b, vpcIf);
@@ -1410,9 +1421,326 @@ isType(const D<A> &a) {
 
 using CoSupport::DataTypes::isType;
 
+// Backward compatibility cruft, >> is an and for FSM transitions
+template <class A, class B>                                                                                                
+static inline
+typename DOpBinConstruct<A,B,OpBinT::LAnd>::result_type                                                                    
+operator >> (const D<A> &a, const D<B> &b) {                                                                               
+  return DOpBinConstruct<A,B,OpBinT::LAnd>::
+    apply(a.getExpr(),b.getExpr());                                                                                        
+}   
+
 #undef DBINOPEXECUTE
 #undef DUNOPEXECUTE
 
-} // namespace Expr
+/****************************************************************************
+ * DPortTokens represents a count of available tokens or free space in
+ * the port p
+ */
 
-#endif // _INCLUDED_EXPR_HPP
+//CI: Port class
+template<class CI>
+class DPortTokens {
+public:
+  typedef DPortTokens<CI>  this_type;
+
+  template <class E> friend class VisitorApplication;
+  template <class E> friend class CommExec;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  template <class E> friend class CommSetup;
+  template <class E> friend class CommReset;
+#endif
+  template <class E> friend class Value;
+private:
+  smoc_sysc_port &p;
+
+  CI &getCI() const {
+    return *static_cast<CI *>(
+      const_cast<Detail::PortBaseIf *>(p.get_interface()));
+  }
+public:
+  explicit DPortTokens(smoc_sysc_port &p)
+    : p(p) {}
+};
+
+template<class CI>
+struct D<DPortTokens<CI> >: public DBase<DPortTokens<CI> > {
+  D(smoc_sysc_port &p)
+    : DBase<DPortTokens<CI> >(DPortTokens<CI>(p)) {}
+};
+
+template<class CI>
+class VisitorApplication<DPortTokens<CI> > {
+public:
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
+  static inline
+  result_type apply(const DPortTokens<CI> &e, param1_type p)
+    { return p.visitPortTokens(e.p); }
+};
+
+// Make a convenient typedef for the token type.
+// CI: port class
+template<class CI>
+struct PortTokens {
+  typedef D<DPortTokens<CI> > type;
+};
+
+template <class P>
+typename PortTokens<typename P::chan_base_type>::type portTokens(P &p)
+  { return typename PortTokens<typename P::chan_base_type>::type(p); }
+
+/****************************************************************************
+ * DBinOp<DPortTokens<CI>,E,OpBinT::Ge> represents a request for available/free
+ * number of tokens on actor ports
+ */
+
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+template <class CI, class E>
+struct CommReset<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
+{
+  typedef void result_type;
+
+  static inline
+  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
+  {
+# ifdef SYSTEMOC_DEBUG
+    outDbg << EXPR << "CommReset<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >"
+                 "::apply(" << e.a.p.name() << ", ... )" << std::endl << INFO;
+# endif
+    return e.a.p.portAccess->setLimit(0);
+  }
+};
+
+template <class CI, class E>
+struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
+{
+  typedef void result_type;
+
+  static inline
+  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
+  {
+# ifdef SYSTEMOC_DEBUG
+    outDbg << EXPR << "CommSetup<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >"
+                 "::apply(" << e.a.p.name() << ", ... )" << std::endl << INFO;
+# endif
+    size_t req = Value<E>::apply(e.b);
+# ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+    e.a.getCI().traceCommSetup(req);
+    //TraceLog.traceCommSetup(dynamic_cast<smoc_root_chan *>(e.a.getCI()), req);
+# endif
+    return e.a.p.portAccess->setLimit(req);
+  }
+};
+#endif
+
+template <class CI, class E>
+struct Value<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
+{
+  typedef Expr::Detail::ENABLED result_type;
+
+  static inline
+  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
+  {
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+    size_t req = Value<E>::apply(e.b);
+    assert(e.a.getCI().availableCount() >= req);
+    // WHY is this needed? This should already be done by CommSetup!
+    e.a.p.portAccess->setLimit(req); 
+#endif
+    return result_type();
+  }
+};
+
+/****************************************************************************
+ * DComm represents request to consume/produce tokens
+ */
+
+template<class CI, class E>
+class DComm {
+public:
+  typedef DComm<CI,E> this_type;
+
+  friend class VisitorApplication<this_type>;
+  friend class CommExec<this_type>;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
+  smoc_sysc_port &p;
+  E               committed; // was "E   e;"
+  E               required;
+
+  CI &getCI() const {
+    return *static_cast<CI *>(
+      const_cast<Detail::PortBaseIf *>(p.get_interface()));
+  }
+public:
+  explicit DComm(smoc_sysc_port &p, const E &c, const E &r):
+    p(p), committed(c), required(r) {}
+};
+
+template<class CI, class E>
+struct D<DComm<CI,E> >: public DBase<DComm<CI,E> > {
+  D(smoc_sysc_port &p, const E &r, const E &c): DBase<DComm<CI,E> >(DComm<CI,E>(p, r, c)) {}
+};
+
+// Make a convenient typedef for the token type.
+template<class CI, class E>
+struct Comm {
+  typedef D<DComm<CI,E> > type;
+};
+
+template <class P, class E>
+typename Comm<typename P::chan_base_type,E>::type comm(P &p,
+                                                       const E &r,
+                                                       const E &c)
+  { return typename Comm<typename P::chan_base_type,E>::type(p,r,c); }
+
+template<class CI, class E>
+class VisitorApplication<DComm<CI,E> > {
+public:
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
+  static inline
+  result_type apply(const DComm<CI,E> &e, param1_type p)
+    { return p.visitComm(e.p, boost::bind(VisitorApplication<E>::apply, e.committed, _1)); }
+};
+
+template <class CI, class E>
+struct Sensitivity<DComm<CI,E> >
+{
+  typedef Detail::Process      match_type;
+
+  typedef void                 result_type;
+  typedef Detail::IOPattern   &param1_type;
+
+  static
+  void apply(const DComm<CI,E> &comm,
+             Detail::IOPattern &ap)
+  {
+    size_t numberRequiredTokens = Value<E>::apply(comm.required);
+    smoc_event& blockEvent =  comm.getCI().blockEvent(numberRequiredTokens);
+    smoc_sysc_port& port = comm.p;
+    ap.addPortRequirement(port, numberRequiredTokens, blockEvent);
+#ifdef SYSTEMOC_DEBUG
+    outDbg << "Sensitivity: match comm" << std::endl;
+    outDbg << "req: " << numberRequiredTokens << "\t"
+              << blockEvent  << "\t"
+              << &port << std::endl;
+#endif
+  }
+};
+
+template <class CI, class E>
+struct CommExec<DComm<CI, E> > {
+  typedef Detail::Process         match_type;
+  typedef void                    result_type;
+
+#ifdef SYSTEMOC_ENABLE_VPC
+  static inline
+  result_type apply(const DComm<CI, E> &e,
+                    const smoc::Detail::VpcInterface vpcIf) {
+# ifdef SYSTEMOC_DEBUG
+    outDbg << EXPR << "CommExec<DComm<CI, E> >"
+                 "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
+# endif
+  //std::cerr << "accessCount = " << e.getCI().getAccessCount() << std::endl;
+    e.getCI().resetAccessCount();
+    return e.getCI().commExec(Value<E>::apply(e.committed), vpcIf);
+  }
+#else //!defined(SYSTEMOC_ENABLE_VPC)
+  static inline
+  result_type apply(const DComm<CI, E> &e) {
+# ifdef SYSTEMOC_DEBUG
+    outDbg << EXPR << "CommExec<DComm<CI, E> >"
+                 "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
+# endif
+    return e.getCI().commExec(Value<E>::apply(e.committed));
+  }
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
+
+};
+
+template <class CI, class E>
+struct Value<DComm<CI, E> > {
+  typedef Expr::Detail::ENABLED result_type;
+
+  static inline
+  result_type apply(const DComm<CI, E> &e) {
+    return result_type();
+  }
+};
+
+/****************************************************************************
+ * DToken is a placeholder for a token in the expression.
+ */
+
+template<typename T>
+class DToken {
+public:
+  typedef const T    value_type;
+  typedef DToken<T>  this_type;
+  
+  friend class VisitorApplication<this_type>;
+  friend class CommExec<this_type>;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  friend class CommSetup<this_type>;
+  friend class CommReset<this_type>;
+#endif
+  friend class Sensitivity<this_type>;
+  friend class Value<this_type>;
+private:
+  smoc_port_in<T> &p;
+  size_t           pos;
+public:
+  explicit DToken(smoc_port_in<T> &p, size_t pos)
+    : p(p), pos(pos) {}
+};
+
+template <typename T>
+class VisitorApplication<DToken<T> > {
+public:
+  typedef void                      *result_type;
+  typedef Detail::ExprVisitor<void> &param1_type;
+
+  static inline
+  result_type apply(const DToken <T> &e, param1_type p)
+    { return p.visitToken(e.p, e.pos); }
+};
+
+template<typename T>
+struct Value<DToken<T> > {
+  typedef const T result_type;
+  
+  static inline
+  result_type apply(const DToken<T> &e)
+  { return e.p[e.pos]; }
+};
+
+template<typename T>
+struct D<DToken<T> >: public DBase<DToken<T> > {
+  D(smoc_port_in<T> &p, size_t pos)
+    : DBase<DToken<T> >(DToken<T>(p,pos)) {}
+};
+
+// Make a convenient typedef for the token type.
+template<typename T>
+struct Token {
+  typedef D<DToken<T> > type;
+};
+
+template <typename T>
+typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
+{ return typename Token<T>::type(p,pos); }
+
+
+
+} } // namespace smoc::Expr
+
+#endif // _INCLUDED_SMOC_EXPR_HPP

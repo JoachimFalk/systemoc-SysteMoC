@@ -53,9 +53,9 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 size_t fsizeMapper(sc_object* instance, size_t n) {
 //FIXME: Reimplememt this!
 /*// SGX --> SystemC
-  if (SysteMoC::Detail::NGXConfig::getInstance().hasNGX()) {
+  if (smoc::Detail::NGXConfig::getInstance().hasNGX()) {
     SystemCoDesigner::SGX::Fifo::ConstPtr fifo =
-      objAs<SystemCoDesigner::SGX::Fifo>(SysteMoC::Detail::NGXCache::getInstance().get(instance));
+      objAs<SystemCoDesigner::SGX::Fifo>(smoc::Detail::NGXCache::getInstance().get(instance));
     if (fifo) {
       n = fifo->size().get();
     } else {

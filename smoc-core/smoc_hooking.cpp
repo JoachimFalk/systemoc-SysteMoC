@@ -40,7 +40,7 @@
 
 #include <systemoc/smoc_actor.hpp>
 
-namespace SysteMoC { namespace Hook {
+namespace smoc { namespace Hook {
 
 namespace Detail {
 
@@ -61,6 +61,6 @@ void addTransitionHook(smoc_actor *p,
   Detail::addTransitionHook(p, Detail::TransitionHook(srcState, action, dstState, pre, post));
 }
 
-} } // namespace SysteMoC::Hook
+} } // namespace smoc::Hook
 
 #endif // SYSTEMOC_ENABLE_HOOKING

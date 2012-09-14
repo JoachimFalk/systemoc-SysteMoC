@@ -40,16 +40,17 @@
 
 #include <list>
 
-#include <boost/noncopyable.hpp>
-
 #include <systemc.h>
 
 #include <smoc/detail/NamedIdedObj.hpp>
+#include <smoc/detail/PortBaseIf.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
 
-#ifdef SYSTEMOC_ENABLE_SGX
-# include <sgx.hpp>
-#endif // SYSTEMOC_ENABLE_SGX
+namespace smoc { namespace Detail {
+
+  class PortBaseIf;
+
+} } // namespace smoc::Detail
 
 class smoc_port_access_base_if {
 public:
@@ -97,24 +98,15 @@ public:
   // return_type == const void => No access methods needed
 };
 
-// FIXME: This has been disabled due to RTX dynamic_cast problems!!! Urgs!!!
-// SystemC Standard says: If directly derived from class sc_interface, shall
-// use the virtual specifier - And - The word shall is used to indicate a
-// mandatory requirement.
-class smoc_port_base_if
-: public sc_core::sc_interface,
-  private boost::noncopyable {
-};
-
 /****************************************************************************/
 
 /// Class representing the base class of all SysteMoC ports.
 class smoc_sysc_port
 : public sc_core::sc_port_base,
 #ifdef SYSTEMOC_NEED_IDS
-  public SysteMoC::Detail::NamedIdedObj,
+  public smoc::Detail::NamedIdedObj,
 #endif // SYSTEMOC_NEED_IDS
-  public SysteMoC::Detail::SimCTXBase,
+  public smoc::Detail::SimCTXBase,
   private boost::noncopyable
 {
   friend class smoc_root_node;
@@ -123,12 +115,14 @@ class smoc_sysc_port
   typedef smoc_sysc_port this_type;
 //FIXME: HACK make protected or private
 public:
-  smoc_port_base_if        *interfacePtr;
+  smoc::Detail::PortBaseIf *interfacePtr;
   smoc_port_access_base_if *portAccess;
   //FIXME(MS): allow more than one "IN-Port" per Signal
   smoc_sysc_port           *parent;
   smoc_sysc_port           *child;
 private:
+  std::vector<smoc::Detail::PortBaseIf *> interfaces;
+
   // SystemC 2.2 requires this method
   // (must also return the correct number!!!)
   int  interface_count();
@@ -147,16 +141,12 @@ protected:
   virtual void finaliseVpcLink(std::string actorName);
 #endif //SYSTEMOC_ENABLE_VPC
 
-//#ifdef SYSTEMOC_ENABLE_SGX
-//  SystemCoDesigner::SGX::Port::Ptr port;
-//#endif
-
   virtual ~smoc_sysc_port();
 public:
   // get the first interface without checking for nil
-  smoc_port_base_if       *get_interface()
+  smoc::Detail::PortBaseIf       *get_interface()
     { return interfacePtr; }
-  smoc_port_base_if const *get_interface() const
+  smoc::Detail::PortBaseIf const *get_interface() const
     { return interfacePtr; }
 
   smoc_sysc_port *getParentPort() const
@@ -170,10 +160,6 @@ public:
 
   const char *name() const
     { return sc_core::sc_object::name(); }
-
-//#ifdef SYSTEMOC_ENABLE_SGX
-//  SystemCoDesigner::SGX::Port::Ptr getNGXObj() const;
-//#endif
 };
 
 typedef std::list<smoc_sysc_port *>       smoc_sysc_port_list;

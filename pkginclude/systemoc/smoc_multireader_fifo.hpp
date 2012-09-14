@@ -59,12 +59,12 @@
 #include "smoc_fifo.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_fifo_storage.hpp"
-#include "detail/ConnectProvider.hpp"
-#include "detail/EventMapManager.hpp"
+#include <smoc/detail/ConnectProvider.hpp>
+#include <smoc/detail/EventMapManager.hpp>
 #ifdef SYSTEMOC_ENABLE_VPC
-# include "detail/QueueFRVWPtr.hpp"
+# include <smoc/detail/QueueFRVWPtr.hpp>
 #else
-# include "detail/QueueRWPtr.hpp"
+# include <smoc/detail/QueueRWPtr.hpp>
 #endif
 
 #include <smoc/detail/DumpingInterfaces.hpp>
@@ -87,9 +87,9 @@ protected:
 class smoc_multireader_fifo_chan_base
 : public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
-  public Detail::QueueFRVWPtr
+  public smoc::Detail::QueueFRVWPtr
 #else
-  public Detail::QueueRWPtr
+  public smoc::Detail::QueueRWPtr
 #endif // SYSTEMOC_ENABLE_VPC
 {
   typedef smoc_multireader_fifo_chan_base this_type;
@@ -119,14 +119,14 @@ protected:
 
   /// @brief Called by outlet if it did consume tokens
 #ifdef SYSTEMOC_ENABLE_VPC
-  void consume(smoc_port_in_base_if *who, size_t n, SysteMoC::Detail::VpcInterface vpcIf);
+  void consume(smoc::Detail::PortInBaseIf *who, size_t n, smoc::Detail::VpcInterface vpcIf);
 #else
-  void consume(smoc_port_in_base_if *who, size_t n);
+  void consume(smoc::Detail::PortInBaseIf *who, size_t n);
 #endif
   
   /// @brief Called by entry if it did produce tokens
 #ifdef SYSTEMOC_ENABLE_VPC
-  void produce(size_t n, SysteMoC::Detail::VpcInterface vpcIf);
+  void produce(size_t n, smoc::Detail::VpcInterface vpcIf);
 #else
   void produce(size_t n);
 #endif
@@ -141,16 +141,16 @@ public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
-  virtual void dumpInitialTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) = 0;
+  virtual void dumpInitialTokens(smoc::Detail::IfDumpingInitialTokens *it) = 0;
 #endif // SYSTEMOC_ENABLE_SGX
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue  latencyQueue;
-  Detail::DIIQueue      diiQueue;
+  smoc::Detail::LatencyQueue  latencyQueue;
+  smoc::Detail::DIIQueue      diiQueue;
 #endif
   
-  Detail::EventMapManager emmData;
-  Detail::EventMapManager emmSpace;
+  smoc::Detail::EventMapManager emmData;
+  smoc::Detail::EventMapManager emmSpace;
 
   /// @brief The token id of the next produced token
   size_t tokenId;
@@ -219,39 +219,39 @@ public:
     {}
 
 protected:
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
     { chan.consume(this, n, vpcIf); }
 #else
   void commitRead(size_t n)
     { chan.consume(this, n); }
 #endif
 
-  /// @brief See smoc_port_in_base_if
-  smoc_event &dataAvailableEvent(size_t n)
+  /// @brief See PortInBaseIf
+  smoc::smoc_event &dataAvailableEvent(size_t n)
     { assert(n); return chan.emmData.getEvent(n); }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t numAvailable() const
     { return chan.visibleCount(); }
 
   std::string getChannelName() const
     { return chan.name();}
   
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t inTokenId() const
     { return chan.inTokenId(); }
   
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   void moreData(size_t)
     { /*emm.increasedCount(chan.visibleCount());*/ }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   void lessData(size_t)
     { /*emm.decreasedCount(chan.visibleCount());*/ }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   void reset()
     { /*emm.reset();*/ }
 
@@ -285,39 +285,39 @@ public:
     {}
 
 protected:
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
     { chan.produce(n, vpcIf); }
 #else
   void commitWrite(size_t n)
     { chan.produce(n); }
 #endif
 
-  /// @brief See smoc_port_out_base_if
-  smoc_event &spaceAvailableEvent(size_t n)
+  /// @brief See PortOutBaseIf
+  smoc::smoc_event &spaceAvailableEvent(size_t n)
     { assert(n); return chan.emmSpace.getEvent(n); }
   
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t numFree() const
     { return chan.freeCount(); }
 
   std::string getChannelName() const
     { return chan.name();}
 
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t outTokenId() const
     { return chan.outTokenId(); }
   
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   void moreSpace(size_t)
     { /*emm.increasedCount(chan.freeCount());*/ }
 
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   void lessSpace(size_t)
     { /*emm.decreasedCount(chan.freeCount());*/ }
 
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   void reset()
     { /*emm.reset();*/ }
 
@@ -354,11 +354,11 @@ public:
   {}
 protected:
   /// @brief See smoc_port_registry
-  smoc_port_out_base_if* createEntry()
+  smoc::Detail::PortOutBaseIf *createEntry()
     { return new entry_type(*this); }
 
   /// @brief See smoc_port_registry
-  smoc_port_in_base_if* createOutlet()
+  smoc::Detail::PortInBaseIf  *createOutlet()
     { return new outlet_type(*this); }
 
 private:
@@ -370,7 +370,7 @@ private:
 template <typename T>
 class smoc_multireader_fifo
 : public smoc_multireader_fifo_chan<T>::chan_init,
-  public SysteMoC::Detail::ConnectProvider<
+  public smoc::Detail::ConnectProvider<
     smoc_multireader_fifo<T>,
     smoc_multireader_fifo_chan<T> > {
 
@@ -415,7 +415,7 @@ public:
   }
 
   //using this_type::con_type::operator<<;
-  using SysteMoC::Detail::ConnectProvider<smoc_multireader_fifo<T>, smoc_multireader_fifo_chan<T> >::operator<<;
+  using smoc::Detail::ConnectProvider<smoc_multireader_fifo<T>, smoc_multireader_fifo_chan<T> >::operator<<;
 
 private:
   chan_type *getChan() {

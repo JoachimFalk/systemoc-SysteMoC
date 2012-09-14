@@ -39,12 +39,12 @@
 #include <CoSupport/SystemC/systemc_support.hpp>
 
 #include <systemoc/smoc_config.h>
-#include <systemoc/detail/smoc_event_decls.hpp>
+#include "../smoc_event.hpp"
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <vpc.hpp>
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 /// link between systemoc ports (outlet/entry) and VPC read/write
 class VpcPortInterface{
@@ -209,7 +209,7 @@ public:
   static smoc_vpc_event_p dummy;
 };
 
-}} // namespace SysteMoC::Detail
+}} // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC
 
 #endif //_INCLUDED_VPC_INTERFACE_HPP

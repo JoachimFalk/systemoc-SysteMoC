@@ -37,8 +37,8 @@
 #include "detail/smoc_chan_if.hpp"
 #include "detail/smoc_storage.hpp"
 #include "detail/smoc_sysc_port.hpp"
-#include "detail/ConnectProvider.hpp"
-#include "detail/EventMapManager.hpp"
+#include <smoc/detail/ConnectProvider.hpp>
+#include <smoc/detail/EventMapManager.hpp>
 
 class smoc_reset_outlet;
 class smoc_reset_entry;
@@ -77,23 +77,23 @@ protected:
   // constructors
   smoc_reset_chan( const chan_init &i );
   
-  smoc_event& spaceAvailableEvent()
+  smoc::smoc_event& spaceAvailableEvent()
     { return sae; }
 
-  smoc_event& dataAvailableEvent()
+  smoc::smoc_event& dataAvailableEvent()
     { return dae; }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void produce(smoc_port_out_base_if *who, const smoc_ref_event_p &latEvent);
+  void produce(smoc::Detail::PortOutBaseIf *who, const smoc_ref_event_p &latEvent);
 #endif
-  void produce(smoc_port_out_base_if *who);
+  void produce(smoc::Detail::PortOutBaseIf *who);
 
   
   /// @brief See smoc_port_registry
-  smoc_port_out_base_if* createEntry();
+  smoc::Detail::PortOutBaseIf* createEntry();
 
   /// @brief See smoc_port_registry
-  smoc_port_in_base_if* createOutlet();
+  smoc::Detail::PortInBaseIf* createOutlet();
 
   /*void setChannelID( std::string sourceActor,
                              CoSupport::SystemC::ChannelId id,
@@ -105,8 +105,8 @@ private:
   /// @brief The tokenId of the next commit token
   size_t tokenId;
 
-  smoc_event sae;
-  smoc_event dae;
+  smoc::smoc_event sae;
+  smoc::smoc_event dae;
 
   typedef std::set<smoc_root_chan*> ChanSet;
   typedef std::set<smoc_root_node*> NodeSet;
@@ -137,29 +137,29 @@ public:
     : chan(chan)
   {}
   
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
     { assert(0); }
 #endif
   void commitRead(size_t n)
     { assert(0); }
 
  
-  /// @brief See smoc_port_in_base_if
-  smoc_event& dataAvailableEvent(size_t n) {
+  /// @brief See PortInBaseIf
+  smoc::smoc_event& dataAvailableEvent(size_t n) {
     assert(n == 1);
     return chan.dataAvailableEvent();
   }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t numAvailable() const
     { return 1; }
 
   std::string getChannelName() const
     { return chan.name();}
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t inTokenId() const
     { return chan.inTokenId(); }
   
@@ -195,29 +195,29 @@ public:
     : chan(chan)
   {}
   
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
     { assert(n == 1); chan.produce(this, vpcIf.getTaskLatEvent()); }
 #endif
   void commitWrite(size_t n)
     { assert(n == 1); chan.produce(this); }
 
 
-  /// @brief See smoc_port_out_base_if
-  smoc_event &spaceAvailableEvent(size_t n) {
+  /// @brief See PortOutBaseIf
+  smoc::smoc_event &spaceAvailableEvent(size_t n) {
     assert(n == 1);
     return chan.spaceAvailableEvent();
   }
 
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t numFree() const
     { return 1; }
 
   std::string getChannelName() const
     { return chan.name();}
 
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t outTokenId() const
     { return chan.outTokenId(); }
   
@@ -240,7 +240,7 @@ private:
 
 class smoc_reset_net
   : public smoc_reset_chan::chan_init,
-    protected SysteMoC::Detail::ConnectProvider<
+    protected smoc::Detail::ConnectProvider<
       smoc_reset_net,
       smoc_reset_chan> {
 public:
@@ -248,7 +248,7 @@ public:
   typedef smoc_reset_net       this_type;
   typedef this_type::chan_type chan_type;
   typedef chan_type::chan_init base_type;
-  friend class SysteMoC::Detail::ConnectProvider<this_type,chan_type>;
+  friend class smoc::Detail::ConnectProvider<this_type,chan_type>;
 private:
   chan_type *chan;
 public:
@@ -269,7 +269,7 @@ public:
   }
 
 //using this_type::con_type::operator<<;
-  using SysteMoC::Detail::ConnectProvider<
+  using smoc::Detail::ConnectProvider<
       smoc_reset_net,
       smoc_reset_chan>::connect;
 

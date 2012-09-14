@@ -39,7 +39,7 @@
 # ifdef SYSTEMOC_ENABLE_VPC
 # include <vpc.hpp>
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 ///
 SystemC_VPC::EventPair
@@ -75,5 +75,5 @@ VpcInterface::startWrite(size_t tokenCount) {
 
 smoc_vpc_event_p VpcInterface::dummy(new smoc_vpc_event(true));
 
-}} // namespace SysteMoC::Detail
+}} // namespace smoc::Detail
 # endif // SYSTEMOC_ENABLE_VPC

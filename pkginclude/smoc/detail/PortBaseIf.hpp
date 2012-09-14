@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2012-2012 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,40 +33,52 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
-#define _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_PORTBASEIF_HPP
+#define _INCLUDED_SMOC_DETAIL_PORTBASEIF_HPP
+
+#include <boost/noncopyable.hpp>
+#include <systemc>
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_NEED_IDS
+#include "SimCTXBase.hpp"
 
-#include <stdint.h> // For uint32_t
-#include <limits>
+#ifdef SYSTEMOC_ENABLE_VPC
+#include "VpcInterface.hpp"
+#endif // SYSTEMOC_ENABLE_VPC
 
 namespace smoc { namespace Detail {
 
-// This must be synced with SystemCoDesigner::SGX::NgId
-typedef uint32_t NgId;
-
-class IdPool;
-
-class IdedObj {
-  friend class IdPool;
-private:
-  NgId _id;
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
+class AccessCounter {
 public:
-  IdedObj()
-    : _id(std::numeric_limits<NgId>::max()) {}
+  AccessCounter(): accessCount() {}
 
-  NgId getId() const
-    { return _id; }
+  inline size_t getAccessCount() const   { return accessCount; }
+  inline void   resetAccessCount()       { accessCount = 0; }
+
+  // called from smoc::port_in::operator[] const
+  // -> has to be const (accessCount is mutable)
+  inline void   incrementAccessCount() const
+    { accessCount++; }
+
 private:
-  void setId(NgId id)
-    { _id = id; }
+  mutable size_t accessCount;
+};
+#endif // SYSTEMOC_PORT_ACCESS_COUNTER
+
+class PortBaseIf
+: public virtual sc_core::sc_interface
+  , public SimCTXBase
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
+  , public AccessCounter
+#endif // SYSTEMOC_PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_ENABLE_VPC
+  , public VpcPortInterface
+#endif // SYSTEMOC_ENABLE_VPC
+  , private boost::noncopyable {
 };
 
 } } // namespace smoc::Detail
 
-#endif // SYSTEMOC_NEED_IDS
-
-#endif // _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
+#endif //_INCLUDED_SMOC_DETAIL_PORTBASEIF_HPP

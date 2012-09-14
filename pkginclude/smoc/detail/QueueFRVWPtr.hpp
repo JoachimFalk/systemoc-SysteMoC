@@ -33,77 +33,83 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP
-#define _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_QUEUEVRVWPTR_HPP
+#define _INCLUDED_SMOC_DETAIL_QUEUEVRVWPTR_HPP
 
 #include <systemoc/smoc_config.h>
 
-#include "QueueRWPtr.hpp"
+#include "QueueRVWPtr.hpp"
 
-namespace Detail {
+namespace smoc { namespace Detail {
 
-  class QueueRVWPtr: public QueueRWPtr {
-    typedef QueueRVWPtr this_type;
-    typedef QueueRWPtr  base_type;
-
-    friend class QueueFRVWPtr;
+  class QueueFRVWPtr: public QueueRVWPtr {
+    typedef QueueFRVWPtr  this_type;
+    typedef QueueRVWPtr   base_type;
   protected:
     /*             fsize
      *   ____________^___________
      *  /                        \
-     * |FFFFFFFFFVVVVVVVPPPPPPPFFF|
-     *           ^      ^      ^
-     *         rindex vindex windex
-     *         findex
+     * |FFCCCCCCCVVVVVVVPPPPPPPFFF|
+     *    ^      ^      ^      ^
+     *  findex rindex vindex windex
+     *
      *  F: The free space area of size (findex - windex - 1) % fsize
      *  V: The visible token area of size (vindex - rindex) % fsize
      *  P: The token which are still in the pipeline (latency not expired)
+     *  C: The token which are in the process of being consumed (actor dii not expired)
      */
-  private:
-    size_t vindex;  ///< The FIFO visible ptr
+    size_t findex;  ///< The FIFO free    ptr
   public:
-    QueueRVWPtr(size_t n)
-      : QueueRWPtr(n), vindex(0) {}
+    QueueFRVWPtr(size_t n)
+      : QueueRVWPtr(n), findex(0) {}
 
-    size_t visibleCount() const {
-      // vindex - rindex in modulo fsize arith
-      return (MG(vindex, fsize) - rindex).getValue();
+    size_t freeCount() const {
+      // findex - windex - 1 in modulo fsize arith
+      return (MG(findex, fsize) - windex - 1).getValue();
     }
 
-    const size_t &vIndex() const {
-      return vindex;
+    const size_t &fIndex() const {
+      return findex;
     }
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-    // This differs from QueueRWPtr::rpp due to the different definition of
-    // visibleCount. Therefore, the assertion is more paranoid.
-    void rpp(size_t n) {
-      assert(n <= visibleCount());
-      base_type::rpp(n);
+    // This differs from QueueRWPtr::wpp due to the different definition of
+    // freeCount. Therefore, the assertion is more paranoid.
+    void wpp(size_t n) {
+      assert(n <= freeCount());
+      base_type::wpp(n);
     }
 #endif
 
-    void vpp(size_t n) {
-      // PRECONDITION PARANOIA: rindex <= vindex <= windex in modulo fsize arith
-      //   rindex == windex   implies rindex == windex == vindex
-      //   rindex-windex == 1 implies true
-      assert(MG(vindex, fsize).between(rindex, windex));
-/*    assert(vindex < fsize &&
-        (windex >= rindex && (vindex >= rindex && vindex <= windex) ||
-         windex <  rindex && (vindex >= rindex || vindex <= windex)));
+    void fpp(size_t n) {
+      // PRECONDITION PARANOIA: windex < findex <= rindex in modulo fsize arith
+      //   windex == rindex   implies true
+      //   rindex-windex == 1 implies findex == rindex
+      assert(MG(findex, fsize).between(MG(windex, fsize) + 1, rindex));
+/*    assert(findex < fsize &&
+        (windex >= rindex && (findex >  windex || findex <= rindex) ||
+         windex <  rindex && (findex >  windex && findex <= rindex)));
  */
-      // invisible = windex - vindex in modulo fsize arith
-      assert(n <= (MG(windex, fsize) - vindex).getValue());
-      // vindex = vindex + n in modulo fsize arith
-      vindex = (MG(vindex, fsize) + n).getValue();
+      // inconsume = rindex - finex in modulo fsize arith
+      assert(n <= (MG(rindex, fsize) - findex).getValue());
+      // findex = findex + n in modulo fsize arith
+      findex = (MG(findex, fsize) + n).getValue();
     }
     
     void resetQueue() {
-      vindex = 0;
+      findex = 0;
       base_type::resetQueue();
     }
+
+    /*
+     * method updateInvalidateToken updates the indexes, after the storage has been updated.
+     */
+    void updateInvalidateToken(size_t n){
+        vindex = (MG(vindex, fsize) +n ).getValue();
+        rindex = (MG(rindex, fsize) +n ).getValue();
+       }
   };
 
-} // namespace Detail
+} } // namespace Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_QUEUERVWPTR_HPP
+#endif // _INCLUDED_SMOC_DETAIL_QUEUEFRVWPTR_HPP

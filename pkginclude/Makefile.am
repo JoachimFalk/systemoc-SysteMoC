@@ -25,72 +25,57 @@ include $(auxdir)/jfrules.mk
 SUBDIRS=
 
 nobase_include_HEADERS = \
-	smoc/detail/IOPattern.hpp \
-	smoc/detail/DumpingInterfaces.hpp \
-	smoc/detail/IdPool.hpp \
-	smoc/detail/IdTAllocRequest.hpp \
-	smoc/detail/IdedObj.hpp \
-	smoc/detail/NamedIdedObj.hpp \
-	smoc/detail/TraceLog.hpp \
-	smoc/detail/VpcInterface.hpp \
 	smoc/smoc_hooking.hpp \
+	smoc/smoc_expr.hpp \
+	smoc/smoc_event.hpp \
+	smoc/detail/VpcInterface.hpp \
+	systemoc/detail/smoc_func_call.hpp \
+	smoc/detail/DumpingInterfaces.hpp \
+	smoc/detail/IOPattern.hpp \
+	smoc/detail/IdedObj.hpp \
+	smoc/detail/IdPool.hpp \
+	systemoc/detail/smoc_port_registry.hpp \
+	smoc/detail/IdTAllocRequest.hpp \
+	smoc/detail/SimCTXBase.hpp \
+	smoc/detail/TransitionHook.hpp \
+	smoc/detail/TraceLog.hpp \
+	smoc/detail/PortBaseIf.hpp \
+	smoc/detail/PortIOBaseIf.hpp \
+	systemoc/detail/smoc_root_node.hpp \
+	smoc/detail/NamedIdedObj.hpp \
+	smoc/detail/ConnectProvider.hpp \
+	systemoc/detail/smoc_chan_if.hpp \
 	smoc/smoc_simulation_ctx.hpp \
 	smoc.hpp \
-	systemoc/detail/ConnectProvider.hpp \
-	systemoc/detail/EventMapManager.hpp \
-	systemoc/detail/QueueFRVWPtr.hpp \
-	systemoc/detail/QueueRVWPtr.hpp \
-	systemoc/detail/QueueRWPtr.hpp \
-	systemoc/detail/smoc_chan_if.hpp \
-	systemoc/detail/smoc_debug_stream.hpp \
-	systemoc/detail/smoc_event_decls.hpp \
-	systemoc/detail/smoc_fifo_storage.hpp \
-	systemoc/detail/smoc_firing_rules_impl.hpp \
-	systemoc/detail/smoc_latency_queues.hpp \
-	systemoc/detail/smoc_port_registry.hpp \
-	systemoc/detail/smoc_ring_access.hpp \
-	systemoc/detail/smoc_root_chan.hpp \
-	systemoc/detail/smoc_root_node.hpp \
-	systemoc/detail/smoc_storage.hpp \
-	systemoc/detail/smoc_sysc_port.hpp \
-	systemoc/smoc_actor.hpp \
-	systemoc/smoc_chan_adapter.hpp \
-	systemoc/smoc_config.h \
 	systemoc/smoc_elab_and_sim.hpp \
 	systemoc/smoc_tt.hpp \
-	systemoc/smoc_event.hpp \
-	systemoc/smoc_expr.hpp \
-	systemoc/smoc_fifo.hpp \
-	systemoc/smoc_firing_rules.hpp \
-	systemoc/smoc_func_call.hpp \
-	systemoc/smoc_graph_type.hpp \
-	systemoc/smoc_graph_tt.hpp \
-	systemoc/smoc_guard.hpp \
-	systemoc/smoc_moc.hpp \
-	systemoc/smoc_module_name.hpp \
-	systemoc/smoc_multicast_sr_signal.hpp \
-	systemoc/smoc_multiplex_fifo.hpp \
-	systemoc/smoc_multireader_fifo.hpp \
-	systemoc/smoc_node_types.hpp \
-	systemoc/smoc_pggen.hpp \
 	systemoc/smoc_port.hpp \
-	systemoc/smoc_reset.hpp \
+	systemoc/smoc_module_name.hpp \
+	systemoc/smoc_graph_tt.hpp \
+	systemoc/smoc_multireader_fifo.hpp \
+	systemoc/smoc_firing_rules.hpp \
 	systemoc/smoc_register.hpp \
 	systemoc/smoc_periodic_actor.hpp \
-	systemoc/smoc_sr_signal.hpp
-
-if SYSTEMOC_ENABLE_WSDF
-nobase_include_HEADERS += \
-	systemoc/detail/smoc_md_chan_if.hpp \
-	systemoc/smoc_md_array_access.hpp \
-	systemoc/smoc_md_buffer.hpp \
-	systemoc/smoc_md_fifo.hpp \
-	systemoc/smoc_md_loop.hpp \
-	systemoc/smoc_md_port.hpp \
-	systemoc/smoc_md_ba_basic_tree.hpp \
-	systemoc/smoc_md_buffer_analysis.hpp \
-	systemoc/smoc_md_ba_linearized_buffer.hpp \
-	systemoc/smoc_md_ba_linearized_buffer_size.hpp \
-	systemoc/smoc_md_ba_linearized_buffer_schedule.hpp
-endif
-
+	systemoc/smoc_multicast_sr_signal.hpp \
+	systemoc/smoc_graph_type.hpp \
+	systemoc/smoc_pggen.hpp \
+	smoc/detail/QueueFRVWPtr.hpp \
+	smoc/detail/EventMapManager.hpp \
+	systemoc/detail/smoc_debug_stream.hpp \
+	systemoc/detail/smoc_firing_rules_impl.hpp \
+	systemoc/detail/smoc_ring_access.hpp \
+	smoc/detail/QueueRWPtr.hpp \
+	systemoc/detail/smoc_storage.hpp \
+	systemoc/detail/smoc_root_chan.hpp \
+	systemoc/detail/smoc_sysc_port.hpp \
+	systemoc/detail/smoc_fifo_storage.hpp \
+	smoc/detail/QueueRVWPtr.hpp \
+	systemoc/detail/smoc_latency_queues.hpp \
+	systemoc/smoc_node_types.hpp \
+	systemoc/smoc_multiplex_fifo.hpp \
+	systemoc/smoc_reset.hpp \
+	systemoc/smoc_fifo.hpp \
+	systemoc/smoc_actor.hpp \
+	systemoc/smoc_moc.hpp \
+	systemoc/smoc_sr_signal.hpp \
+	systemoc/smoc_chan_adapter.hpp

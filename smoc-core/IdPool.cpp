@@ -38,7 +38,7 @@
 
 #include <smoc/detail/IdPool.hpp>
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 IdedObj *IdPool::getNodeById(const NgId id) const {
   IdMap::const_iterator iter;
@@ -64,6 +64,6 @@ void IdPool::addIdedObj(NamedIdedObj *n) {
   n->setId(iter->first);
 }
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif // SYSTEMOC_NEED_IDS

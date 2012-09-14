@@ -40,7 +40,7 @@
 #ifndef _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
 #define _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 #ifdef SYSTEMOC_NEED_IDS
 class NamedIdedObj: public IdedObj {
@@ -50,6 +50,6 @@ public:
 };
 #endif // SYSTEMOC_NEED_IDS
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif // _INCLUDED_SMOC_DETAIL_NAMEDIDEDOBJ_HPP

@@ -62,7 +62,7 @@ namespace smoc_modes {
   std::ostream *dumpFileSMX    = NULL;
 } // namespace smoc_modes
 
-namespace SysteMoC {
+namespace smoc {
 
 namespace Detail {
 
@@ -87,7 +87,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
     dummy(false),
     vpcScheduling(false)
 {
-  po::options_description systemocOptions("SysteMoC options");
+  po::options_description systemocOptions("smoc options");
   po::options_description backwardCompatibilityCruftOptions;
   
   systemocOptions.add_options()
@@ -103,17 +103,17 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 #endif // !SYSTEMOC_ENABLE_SGX
     ("systemoc-export-smx",
      po::value<std::string>(),
-     "Dump SysteMoC-XML after elaboration")
+     "Dump smoc-XML after elaboration")
     ("systemoc-export-sim-smx",
      po::value<std::string>(),
-     "Dump SysteMoC-XML after simulation")
+     "Dump smoc-XML after simulation")
     ("systemoc-export-smx-keep-going",
-     "Don't stop if dumping SysteMoC-XML after elaboration")
+     "Don't stop if dumping smoc-XML after elaboration")
     ("systemoc-export-smx-no-ast",
-     "Disable SysteMoC-XML transition AST dumping")
+     "Disable smoc-XML transition AST dumping")
     ("systemoc-import-smx",
      po::value<std::string>(),
-     "Synchronize with specified SysteMoC-XML");
+     "Synchronize with specified smoc-XML");
   
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
   systemocOptions.add_options()
@@ -179,7 +179,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
 #else  // !SYSTEMOC_ENABLE_SGX
       std::ostringstream str;
-      str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
+      str << "smoc configured without sgx support --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_SGX
     } else if (i->string_key == "systemoc-export-sim-smx" ||
@@ -194,7 +194,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
 #else  // !SYSTEMOC_ENABLE_SGX
       std::ostringstream str;
-      str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
+      str << "smoc configured without sgx support --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_SGX
     } else if (i->string_key == "systemoc-export-smx-keep-going") {
@@ -202,7 +202,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
       dumpPreSimSMXKeepGoing = true;
 #else  // !SYSTEMOC_ENABLE_SGX
       std::ostringstream str;
-      str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
+      str << "smoc configured without sgx support --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_SGX
     } else if (i->string_key == "systemoc-export-smx-no-ast") {
@@ -210,7 +210,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
       dumpSMXAST = false;
 #else  // !SYSTEMOC_ENABLE_SGX
       std::ostringstream str;
-      str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
+      str << "smoc configured without sgx support --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_SGX
     } else if (i->string_key == "systemoc-import-smx" ||
@@ -219,10 +219,10 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 //#ifdef SYSTEMOC_ENABLE_SGX
 //    
 //    CoSupport::Streams::AIStream in(std::cin, i->value.front(), "-");
-//    SysteMoC::Detail::NGXConfig::getInstance().loadNGX(in);
+//    smoc::Detail::NGXConfig::getInstance().loadNGX(in);
 //#else  // !SYSTEMOC_ENABLE_SGX
       std::ostringstream str;
-      str << "SysteMoC configured without sgx support --" << i->string_key << " option not provided!";
+      str << "smoc configured without sgx support --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 //#endif // !SYSTEMOC_ENABLE_SGX
     } else if (i->string_key == "systemoc-export-trace") {
@@ -238,7 +238,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-");
 #else  // !SYSTEMOC_ENABLE_TRANSITION_TRACE
       std::ostringstream str;
-      str << "SysteMoC configured without trace support --" << i->string_key << " option not provided!";
+      str << "smoc configured without trace support --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_TRANSITION_TRACE
     } else if (i->string_key == "systemoc-export-dataflow-trace") {
@@ -250,12 +250,12 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 # ifdef SYSTEMOC_ENABLE_SGX
       dumpPreSimSMXKeepGoing = true;
 # endif // SYSTEMOC_ENABLE_SGX
-      dataflowTraceLog = new SysteMoC::Detail::TraceLogStream(
+      dataflowTraceLog = new smoc::Detail::TraceLogStream(
         new CoSupport::Streams::AOStream(std::cout, i->value.front(), "-"));
       dataflowTraceLog->init();
 #else  // !SYSTEMOC_ENABLE_DATAFLOW_TRACE
       std::ostringstream str;
-      str << "SysteMoC configured without dataflow trace support --" << i->string_key << " option not provided!";
+      str << "smoc configured without dataflow trace support --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_DATAFLOW_TRACE
     } else if (i->string_key == "systemoc-vpc-config" ||
@@ -271,7 +271,7 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 # endif // _MSC_VER
 #else  // !SYSTEMOC_ENABLE_VPC
       std::ostringstream str;
-      str << "SysteMoC configured without vpc support --" << i->string_key << " option not provided!";
+      str << "smoc configured without vpc support --" << i->string_key << " option not provided!";
       throw std::runtime_error(str.str().c_str());
 #endif // !SYSTEMOC_ENABLE_VPC
     } else if (i->unregistered || i->position_key != -1) {
@@ -360,4 +360,4 @@ void smoc_simulation_ctx::endOfSystemcSimulation(){
   }
 }
 
-} // namespace SysteMoC
+} // namespace smoc

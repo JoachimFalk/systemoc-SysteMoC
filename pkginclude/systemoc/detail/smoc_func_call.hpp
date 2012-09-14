@@ -45,7 +45,7 @@
 
 #include <systemoc/smoc_config.h>
 
-#include "smoc_expr.hpp"
+#include <smoc/smoc_expr.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <vpc.hpp>
@@ -74,7 +74,7 @@ void intrusive_ptr_release( smoc_member_func_interface<R> *r );
 template <typename R>
 class smoc_member_func_interface
 #ifdef SYSTEMOC_NEED_IDS
-  :  public SysteMoC::Detail::NamedIdedObj
+  :  public smoc::Detail::NamedIdedObj
 #endif // SYSTEMOC_NEED_IDS
 {
 public:
@@ -97,7 +97,7 @@ public:
 
 
   virtual
-  SysteMoC::Detail::ParamInfoList getParams() const = 0;
+  smoc::Detail::ParamInfoList getParams() const = 0;
   
   virtual
   ~smoc_member_func_interface() {}
@@ -141,9 +141,9 @@ public:
     { return f.name; }
   const char *getCxxType() const
     { return typeid(f.func).name(); }
-  SysteMoC::Detail::ParamInfoList getParams() const
+  smoc::Detail::ParamInfoList getParams() const
   { 
-    SysteMoC::Detail::ParamInfoVisitor piv;
+    smoc::Detail::ParamInfoVisitor piv;
     f.paramListVisit(pl, piv);
     return piv.pil;
   }
@@ -153,14 +153,14 @@ public:
  * smoc_func_call
  */
 
-class smoc_func_call : public SysteMoC::Detail::SimCTXBase{
+class smoc_func_call : public smoc::Detail::SimCTXBase{
 private:
   typedef void return_type;
   
   boost::intrusive_ptr<
     smoc_member_func_interface<return_type> >   k;
 
-  SysteMoC::Detail::ParamInfoList pil;
+  smoc::Detail::ParamInfoList pil;
 
 //friend bool operator <(const smoc_func_call &lhs, const smoc_func_call &rhs);
 public:
@@ -190,7 +190,7 @@ public:
   }
 #endif // SYSTEMOC_NEED_IDS
   
-  const SysteMoC::Detail::ParamInfoList& getParams() const {
+  const smoc::Detail::ParamInfoList& getParams() const {
     return pil;
   }
 };
@@ -278,7 +278,7 @@ smoc_action merge(const smoc_action& a, const smoc_action& b);
  * ActionVisitor
  */
 
-class ActionVisitor : public SysteMoC::Detail::SimCTXBase {
+class ActionVisitor : public smoc::Detail::SimCTXBase {
 public:
   typedef RuntimeState* result_type;
 
@@ -365,7 +365,7 @@ public:
 private:
   FunctionNames &functionNames;
 };
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
@@ -373,7 +373,7 @@ private:
 
 using namespace std;
 
-using namespace SysteMoC::Detail;
+using namespace smoc::Detail;
 
 namespace SysteMoC { namespace dMM {
 
@@ -464,7 +464,7 @@ public:
 private:
   list<string> &functionNames;
 };
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_MAESTROMM
 
 #endif // _INCLUDED_SMOC_FUNC_CALL_HPP

@@ -51,19 +51,19 @@
 
 #include "smoc_graph_synth.hpp"
 
-namespace SysteMoC {
+namespace smoc {
 
 #define _SMOC_GENERATE_APPLY_VISITOR(TYPE)                                      \
 template<typename Visitor>                                                      \
 typename Visitor::result_type                                                   \
 apply_visitor(Visitor &visitor, typename boost::remove_const<TYPE>::type &obj) {\
-  return SysteMoC::Detail::apply_visitor_helper                                 \
+  return smoc::Detail::apply_visitor_helper                                 \
     <boost::remove_const>(visitor,&obj);                                        \
 }                                                                               \
 template <typename Visitor>                                                     \
 typename Visitor::result_type                                                   \
 apply_visitor(Visitor &visitor, typename boost::add_const<TYPE>::type &obj) {   \
-  return SysteMoC::Detail::apply_visitor_helper                                 \
+  return smoc::Detail::apply_visitor_helper                                 \
     <boost::add_const>(visitor,&obj);                                           \
 }
 #define _SMOC_HANDLE_DERIVED_CLASS(TYPE)                                        \
@@ -215,9 +215,9 @@ namespace Detail {
 
 _SMOC_GENERATE_APPLY_VISITOR(smoc_sysc_port)
 
-} // namespace SysteMoC
+} // namespace smoc
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
   /* sc_port_base */
   template<template <class> class M, class Visitor>
@@ -245,7 +245,7 @@ namespace SysteMoC { namespace Detail {
     return visitor(*ptr); // fallback
   }
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 namespace sc_core { // We need this for correct Koenig lookup of apply_visitor
 
@@ -261,6 +261,6 @@ _SMOC_GENERATE_APPLY_VISITOR(sc_object)
 #undef _SMOC_HANDLE_DERIVED_CLASS
 
 //FIXME: This is a hack as some smoc_xxx classes are still in the global namespace!
-using SysteMoC::apply_visitor;
+using smoc::apply_visitor;
 
 #endif // _INCLUDED_SMOC_APPLY_VISITOR_HPP

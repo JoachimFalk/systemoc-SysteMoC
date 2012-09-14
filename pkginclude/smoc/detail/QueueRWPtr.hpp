@@ -33,83 +33,105 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_QUEUEVRVWPTR_HPP
-#define _INCLUDED_SMOC_DETAIL_QUEUEVRVWPTR_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
+#define _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP
+
+#include <CoSupport/Math/ModuloGroup.hpp>
 
 #include <systemoc/smoc_config.h>
 
-#include "QueueRVWPtr.hpp"
+namespace smoc { namespace Detail {
 
-namespace Detail {
+  class QueueRVWPtr;
+  class QueueFRVWPtr;
 
-  class QueueFRVWPtr: public QueueRVWPtr {
-    typedef QueueFRVWPtr  this_type;
-    typedef QueueRVWPtr   base_type;
-  protected:
+  class QueueRWPtr {
+    friend class QueueRVWPtr;
+    friend class QueueFRVWPtr;
+  public:
+    typedef CoSupport::Math::ModuloGroup<CoSupport::Math::Modulus<size_t> > MG;
+  private:
     /*             fsize
      *   ____________^___________
      *  /                        \
-     * |FFCCCCCCCVVVVVVVPPPPPPPFFF|
-     *    ^      ^      ^      ^
-     *  findex rindex vindex windex
+     * |FFVVVVVVVVVVVVVVVVVVVVVFFF|
+     *    ^                    ^
+     *  rindex               windex
+     *  findex               vindex
      *
      *  F: The free space area of size (findex - windex - 1) % fsize
      *  V: The visible token area of size (vindex - rindex) % fsize
-     *  P: The token which are still in the pipeline (latency not expired)
-     *  C: The token which are in the process of being consumed (actor dii not expired)
      */
-    size_t findex;  ///< The FIFO free    ptr
+
+    MG::M   fsize;   ///< Ring buffer size == FIFO size + 1
+    size_t  rindex;  ///< The FIFO read    ptr
+    size_t  windex;  ///< The FIFO write   ptr
   public:
-    QueueFRVWPtr(size_t n)
-      : QueueRVWPtr(n), findex(0) {}
+    QueueRWPtr(size_t n)
+      : fsize(n + 1), rindex(0), windex(0) {}
+
+    size_t usedCount() const {
+      // windex - rindex in modulo fsize arith
+      return (MG(windex, fsize) - rindex).getValue();
+    }
+
+    // For two ptr queues the visible and the used
+    // token sets are equal.
+    size_t visibleCount() const {
+      return usedCount();
+    }
+
+    size_t depthCount() const {
+      return fsize.m() - 1;
+    }
 
     size_t freeCount() const {
-      // findex - windex - 1 in modulo fsize arith
-      return (MG(findex, fsize) - windex - 1).getValue();
+      // rindex - windex - 1 in modulo fsize arith
+      return (MG(rindex, fsize) - windex - 1).getValue();
     }
 
+    size_t fSize() const {
+      return fsize.m();
+    }
+    const size_t &rIndex() const {
+      return rindex;
+    }
     const size_t &fIndex() const {
-      return findex;
+      return rindex;
+    }
+    const size_t &wIndex() const {
+      return windex;
+    }
+    const size_t &vIndex() const {
+      return windex;
     }
 
-#if defined(SYSTEMOC_ENABLE_DEBUG)
-    // This differs from QueueRWPtr::wpp due to the different definition of
-    // freeCount. Therefore, the assertion is more paranoid.
     void wpp(size_t n) {
       assert(n <= freeCount());
-      base_type::wpp(n);
+      // windex = windex + n in modulo fsize arith
+      windex = (MG(windex, fsize) + n).getValue();
     }
-#endif
+
+    void vpp(size_t n) {
+      // Dummy does nothing
+    }
+
+    void rpp(size_t n) {
+      assert(n <= visibleCount());
+      // rindex = rindex + n in modulo fsize arith
+      rindex = (MG(rindex, fsize) + n).getValue();
+    }
 
     void fpp(size_t n) {
-      // PRECONDITION PARANOIA: windex < findex <= rindex in modulo fsize arith
-      //   windex == rindex   implies true
-      //   rindex-windex == 1 implies findex == rindex
-      assert(MG(findex, fsize).between(MG(windex, fsize) + 1, rindex));
-/*    assert(findex < fsize &&
-        (windex >= rindex && (findex >  windex || findex <= rindex) ||
-         windex <  rindex && (findex >  windex && findex <= rindex)));
- */
-      // inconsume = rindex - finex in modulo fsize arith
-      assert(n <= (MG(rindex, fsize) - findex).getValue());
-      // findex = findex + n in modulo fsize arith
-      findex = (MG(findex, fsize) + n).getValue();
-    }
-    
-    void resetQueue() {
-      findex = 0;
-      base_type::resetQueue();
+      // Dummy does nothing
     }
 
-    /*
-     * method updateInvalidateToken updates the indexes, after the storage has been updated.
-     */
-    void updateInvalidateToken(size_t n){
-        vindex = (MG(vindex, fsize) +n ).getValue();
-        rindex = (MG(rindex, fsize) +n ).getValue();
-       }
+    void resetQueue() {
+      rindex = 0;
+      windex = 0;
+    }
   };
 
-} // namespace Detail
+} } // namespace smoc::Detail
 
-#endif // _INCLUDED_SMOC_DETAIL_QUEUEFRVWPTR_HPP
+#endif // _INCLUDED_SMOC_DETAIL_QUEUERWPTR_HPP

@@ -36,5 +36,6 @@
 #define _INCLUDED_SMOC_HPP
 
 #include "smoc/smoc_simulation_ctx.hpp"
+#include "smoc/smoc_hooking.hpp"
 
 #endif // _INCLUDED_SMOC_HPP

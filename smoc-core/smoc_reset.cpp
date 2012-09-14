@@ -37,11 +37,11 @@ smoc_reset_chan::smoc_reset_chan(
     tokenId(1)
 {}
   
-smoc_port_out_base_if* smoc_reset_chan::createEntry() {
+smoc::Detail::PortOutBaseIf *smoc_reset_chan::createEntry() {
   return new entry_type(*this);
 }
 
-smoc_port_in_base_if* smoc_reset_chan::createOutlet() {
+smoc::Detail::PortInBaseIf  *smoc_reset_chan::createOutlet() {
   return new outlet_type(*this);
 }
 
@@ -51,7 +51,7 @@ void smoc_reset_chan::doReset() {
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_reset_chan::produce(smoc_port_out_base_if *who, const smoc_ref_event_p &latEvent)
+void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who, const smoc_ref_event_p &latEvent)
 {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(this, 1);
@@ -83,7 +83,7 @@ void smoc_reset_chan::produce(smoc_port_out_base_if *who, const smoc_ref_event_p
 }
 #endif
 
-void smoc_reset_chan::produce(smoc_port_out_base_if *who)
+void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who)
 {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(this, 1);

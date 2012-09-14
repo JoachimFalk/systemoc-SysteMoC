@@ -63,10 +63,13 @@
 #include "smoc_fifo.hpp"
 #include "detail/smoc_latency_queues.hpp"
 #include "detail/smoc_ring_access.hpp"
-#include "detail/ConnectProvider.hpp"
-#include "detail/EventMapManager.hpp"
-#include "detail/QueueRVWPtr.hpp"
-#include "detail/QueueFRVWPtr.hpp"
+#include <smoc/detail/ConnectProvider.hpp>
+#include <smoc/detail/EventMapManager.hpp>
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <smoc/detail/QueueRVWPtr.hpp>
+#else
+# include <smoc/detail/QueueFRVWPtr.hpp>
+#endif
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 
@@ -81,9 +84,9 @@ class smoc_multiplex_fifo_chan_base
 : private boost::noncopyable,
   public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
-  public Detail::QueueFRVWPtr
+  public smoc::Detail::QueueFRVWPtr
 #else
-  public Detail::QueueRWPtr
+  public smoc::Detail::QueueRWPtr
 #endif // SYSTEMOC_ENABLE_VPC
 {
   typedef smoc_multiplex_fifo_chan_base this_type;
@@ -107,16 +110,16 @@ public:
   };
 
   typedef size_t FifoId;
-  typedef std::map<FifoId, smoc_port_in_base_if*>  VOutletMap;
-  typedef std::map<FifoId, smoc_port_out_base_if*> VEntryMap;
+  typedef std::map<FifoId, smoc::Detail::PortInBaseIf  *> VOutletMap;
+  typedef std::map<FifoId, smoc::Detail::PortOutBaseIf *> VEntryMap;
 protected:
   VOutletMap    vOutlets;
   VEntryMap     vEntries;
   const size_t  fifoOutOfOrder; // == 0 => no out of order access only one element visible
 
   // This are the EventMapManager for the plain fifo access operations
-  Detail::EventMapManager emmFree;      // for smoc_multiplex_fifo_entry
-  Detail::EventMapManager emmAvailable; // for smoc_multiplex_fifo_outlet
+  smoc::Detail::EventMapManager emmFree;      // for smoc_multiplex_fifo_entry
+  smoc::Detail::EventMapManager emmAvailable; // for smoc_multiplex_fifo_outlet
 protected:
   smoc_multiplex_fifo_chan_base(const chan_init &i);
 
@@ -126,11 +129,11 @@ protected:
   void registerVEntry(const VEntryMap::value_type &entry);
   void deregisterVEntry(FifoId fifoId);
 
-  /// @brief See smoc_port_in_base_if
-  smoc_event &dataAvailableEvent(size_t n)
+  /// @brief See PortInBaseIf
+  smoc::smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(n); }
 
-  smoc_event &spaceAvailableEvent(size_t n)
+  smoc::smoc_event &spaceAvailableEvent(size_t n)
     { return emmFree.getEvent(n); }
 
   void doReset() {
@@ -146,14 +149,14 @@ protected:
     smoc_root_chan::doReset();
   }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t inTokenId() const
     { return static_cast<size_t>(-1); }
 public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
-  virtual void dumpInitialTokens(SysteMoC::Detail::IfDumpingInitialTokens *it) = 0;
+  virtual void dumpInitialTokens(smoc::Detail::IfDumpingInitialTokens *it) = 0;
 
   /// @brief Returns virtual entries
   const VEntryMap &getVEntries() const
@@ -200,8 +203,8 @@ public:
   typedef typename smoc_fifo_storage<T, smoc_multiplex_fifo_chan_base>::chan_init chan_init;
 private:
 #ifdef SYSTEMOC_ENABLE_VPC
-  Detail::LatencyQueue  latencyQueue;
-  Detail::DIIQueue      diiQueue;
+  smoc::Detail::LatencyQueue  latencyQueue;
+  smoc::Detail::DIIQueue      diiQueue;
 #endif
 protected:
   /// @brief Constructor
@@ -238,7 +241,7 @@ protected:
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
 #else
   void commitWrite(size_t n)
 #endif
@@ -334,7 +337,7 @@ protected:
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void consume(FifoId from, size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void consume(FifoId from, size_t n, smoc::Detail::VpcInterface vpcIf)
 #else
   void consume(FifoId from, size_t n)
 #endif
@@ -468,7 +471,7 @@ protected:
   }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
 #else
   void commitRead(size_t n)
 #endif
@@ -500,11 +503,11 @@ protected:
   }
 protected:
   /// @brief See smoc_port_registry
-  smoc_port_out_base_if *createEntry()
+  smoc::Detail::PortOutBaseIf *createEntry()
     { return new entry_type(*this); }
 
   /// @brief See smoc_port_registry
-  smoc_port_in_base_if *createOutlet()
+  smoc::Detail::PortInBaseIf *createOutlet()
     { return new outlet_type(*this); }
 };
 
@@ -523,27 +526,27 @@ public:
   smoc_multiplex_fifo_entry(smoc_multiplex_fifo_chan<T,A> &chan)
     : chan(chan) {}
 protected:
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
     { return chan.commitWrite(n, vpcIf); }
 #else
   void commitWrite(size_t n)
     { return chan.commitWrite(n); }
 #endif
 
-  /// @brief See smoc_port_out_base_if
-  smoc_event &spaceAvailableEvent(size_t n)
+  /// @brief See PortOutBaseIf
+  smoc::smoc_event &spaceAvailableEvent(size_t n)
     { return chan.spaceAvailableEvent(n); }
  
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t numFree() const
     { return chan.freeCount(); }
 
   std::string getChannelName() const
     { return chan.name();}
  
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t outTokenId() const
     { return static_cast<size_t>(-1); }
 
@@ -567,27 +570,27 @@ public:
   smoc_multiplex_fifo_outlet(smoc_multiplex_fifo_chan<T,A> &chan)
     : chan(chan) {}
 protected:
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
     { return chan.commitRead(n, vpcIf); }
 #else
   void commitRead(size_t n)
     { return chan.commitRead(n); }
 #endif
 
-  /// @brief See smoc_port_in_base_if
-  smoc_event &dataAvailableEvent(size_t n)
+  /// @brief See PortInBaseIf
+  smoc::smoc_event &dataAvailableEvent(size_t n)
     { return chan.dataAvailableEvent(n); }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t numAvailable() const
     { return chan.visibleCount(); }
 
   std::string getChannelName() const
     { return chan.name();}
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t inTokenId() const
     { return static_cast<size_t>(-1); }
 
@@ -665,11 +668,11 @@ public:
   };
 private:
   /// @brief The channel implementation
-  PMultiplexChannel       chan;
-  FifoId                  fifoId;
-  size_t                  countAvailable;
-  Detail::EventMapManager emmAvailable;
-  AccessImpl              accessImpl;
+  PMultiplexChannel             chan;
+  FifoId                        fifoId;
+  size_t                        countAvailable;
+  smoc::Detail::EventMapManager emmAvailable;
+  AccessImpl                    accessImpl;
 public:
   /// @brief Constructor
   smoc_multiplex_vfifo_outlet(const PMultiplexChannel &chan, FifoId fifoId)
@@ -683,9 +686,9 @@ public:
     chan->deregisterVOutlet(fifoId);
   }
 protected:
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitRead(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitRead(size_t n, smoc::Detail::VpcInterface vpcIf)
 #else
   void commitRead(size_t n)
 #endif
@@ -700,18 +703,18 @@ protected:
 #endif
   }
 
-  /// @brief See smoc_port_in_base_if
-  smoc_event &dataAvailableEvent(size_t n)
+  /// @brief See PortInBaseIf
+  smoc::smoc_event &dataAvailableEvent(size_t n)
     { return emmAvailable.getEvent(countAvailable, n); }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t numAvailable() const
     { return countAvailable; }
 
   std::string getChannelName() const
     { return chan->name();}
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   size_t inTokenId() const
     { return static_cast<size_t>(-1); }
 
@@ -719,13 +722,13 @@ protected:
   AccessImpl *getReadPortAccess()
     { return &accessImpl; }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   void moreData(size_t n) {
     countAvailable += n;
     emmAvailable.increasedCount(countAvailable);
   }
 
-  /// @brief See smoc_port_in_base_if
+  /// @brief See PortInBaseIf
   void reset() {
     countAvailable = 0;
     emmAvailable.reset();
@@ -810,9 +813,9 @@ public:
     chan->deregisterVEntry(fifoId);
   }
 protected:
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
 #ifdef SYSTEMOC_ENABLE_VPC
-  void commitWrite(size_t n, SysteMoC::Detail::VpcInterface vpcIf)
+  void commitWrite(size_t n, smoc::Detail::VpcInterface vpcIf)
 #else
   void commitWrite(size_t n)
 #endif
@@ -834,18 +837,18 @@ protected:
 #endif
   }
 
-  /// @brief See smoc_port_out_base_if
-  smoc_event &spaceAvailableEvent(size_t n)
+  /// @brief See PortOutBaseIf
+  smoc::smoc_event &spaceAvailableEvent(size_t n)
     { return chan->spaceAvailableEvent(n); }
 
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t numFree() const
     { return chan->freeCount(); }
 
   std::string getChannelName() const
     { return chan->name();}
 
-  /// @brief See smoc_port_out_base_if
+  /// @brief See PortOutBaseIf
   size_t outTokenId() const
     { return static_cast<size_t>(-1); }
 
@@ -881,7 +884,7 @@ public:
 
   /// @brief Channel initializer
   class chan_init
-  : public SysteMoC::Detail::ConnectProvider<
+  : public smoc::Detail::ConnectProvider<
       smoc_multiplex_vfifo<T,A>,
       smoc_multiplex_vfifo_chan<T,A> >
   {  
@@ -917,7 +920,7 @@ public:
     this_type &operator <<(add_param_ty x)
       { add(x); return *this; }
 
-    using SysteMoC::Detail::ConnectProvider<
+    using smoc::Detail::ConnectProvider<
       smoc_multiplex_vfifo<T,A>,
       smoc_multiplex_vfifo_chan<T,A> >::operator<<;
 
@@ -939,11 +942,11 @@ public:
 
 protected:
   /// @brief See smoc_port_registry
-  smoc_port_out_base_if* createEntry()
+  smoc::Detail::PortOutBaseIf *createEntry()
     { return new entry_type(pMultiplexChan, fifoId); }
 
   /// @brief See smoc_port_registry
-  smoc_port_in_base_if* createOutlet()
+  smoc::Detail::PortInBaseIf  *createOutlet()
     { return new outlet_type(pMultiplexChan, fifoId); }
 
 private:
@@ -965,7 +968,7 @@ public:
 template <typename T, typename A = typename T::ColorAccessor>
 class smoc_multiplex_fifo
 : public smoc_multiplex_fifo_chan<T,A>::chan_init,
-  public SysteMoC::Detail::ConnectProvider<
+  public smoc::Detail::ConnectProvider<
     smoc_multiplex_fifo<T,A>,
     smoc_multiplex_fifo_chan<T,A> > {
 public:
@@ -1020,7 +1023,7 @@ public:
     return *this;
   }
 
-  using SysteMoC::Detail::ConnectProvider<
+  using smoc::Detail::ConnectProvider<
     smoc_multiplex_fifo<T,A>,
     smoc_multiplex_fifo_chan<T,A> >::operator<<;
 

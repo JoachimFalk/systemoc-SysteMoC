@@ -1,6 +1,6 @@
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2004-2012 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -44,39 +44,19 @@
 #include <string>
 
 #include <boost/function.hpp>
-#include <boost/regex.hpp>
 
 class smoc_actor;
 
-namespace SysteMoC { namespace Hook {
+namespace smoc {
 
-  typedef boost::function<bool (smoc_actor *, const std::string &, const std::string &, const std::string &)> PreCallback;
-  typedef boost::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> PostCallback;
-
-  namespace Detail {
-
-    /// Specify a transition hooking rule and its pre and post callbacks
-    struct TransitionHook {
-      boost::regex srcState;
-      boost::regex action;
-      boost::regex dstState;
-      PreCallback  preCallback;
-      PostCallback postCallback;
-
-      TransitionHook(
-        const std::string &srcState, const std::string &action, const std::string &dstState,
-        const PreCallback &pre, const PostCallback &post);
-    };
-
-    void addTransitionHook(smoc_actor *, const TransitionHook &);
-
-  } // namespace Detail
+  typedef boost::function<bool (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_pre_hook_callback;
+  typedef boost::function<void (smoc_actor *, const std::string &, const std::string &, const std::string &)> smoc_post_hook_callback;
 
   void addTransitionHook(smoc_actor *,
     const std::string &srcState, const std::string &action, const std::string &dstState,
-    const PreCallback &pre, const PostCallback &post);
+    const smoc_pre_hook_callback &pre, const smoc_post_hook_callback &post);
 
-} } // namespace SysteMoC::Hook
+} // namespace smoc
 
 #endif // SYSTEMOC_ENABLE_HOOKING
 

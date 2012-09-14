@@ -33,9 +33,10 @@
  */
 
 #include <smoc/detail/IOPattern.hpp>
+#include <smoc/smoc_event.hpp>
 
-using namespace SysteMoC::Detail;
-
+using namespace smoc;
+using namespace smoc::Detail;
 
 smoc_event_and_list *getCAP(const smoc_event_and_list &ap) {
   typedef std::set<smoc_event_and_list> Cache;

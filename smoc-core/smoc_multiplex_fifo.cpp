@@ -44,9 +44,9 @@
 smoc_multiplex_fifo_chan_base::smoc_multiplex_fifo_chan_base(const chan_init &i)
   : smoc_root_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
-    Detail::QueueFRVWPtr(i.n),
+    smoc::Detail::QueueFRVWPtr(i.n),
 #else
-    Detail::QueueRWPtr(i.n),
+    smoc::Detail::QueueRWPtr(i.n),
 #endif
     fifoOutOfOrder(i.m)
 {

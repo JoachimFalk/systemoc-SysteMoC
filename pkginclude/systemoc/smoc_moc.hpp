@@ -61,7 +61,7 @@ class smoc_graph_base;
 namespace SysteMoC { namespace Scheduling {
 bool canExecute(SystemC_VPC::ScheduledTask* actor);
 void execute(SystemC_VPC::ScheduledTask* actor);
-}} // namespace SysteMoC::Scheduler
+}} // namespace smoc::Scheduler
 #endif //SYSTEMOC_ENABLE_VPC
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
 /////////////////////////
@@ -76,7 +76,7 @@ void execute(MetaMap::Actor& actor);
 
 class smoc_scheduler_top
 : public sc_module,
-  public SysteMoC::Detail::SimCTXBase {
+  public smoc::Detail::SimCTXBase {
 public:
   smoc_scheduler_top(smoc_graph_base* g);
   smoc_scheduler_top(smoc_graph_base& g);

@@ -47,8 +47,8 @@
 
 #include <systemoc/smoc_config.h>
 
-#include <systemoc/smoc_func_call.hpp>
-#include <systemoc/smoc_expr.hpp>
+#include <systemoc/detail/smoc_func_call.hpp>
+#include <smoc/smoc_expr.hpp>
 
 #include <systemoc/smoc_node_types.hpp>
 #include <systemoc/smoc_graph_type.hpp>
@@ -62,7 +62,7 @@
 #endif // SYSTEMOC_ENABLE_HOOKING
 
 using namespace CoSupport::DataTypes;
-using namespace SysteMoC::Detail;
+using namespace smoc::Detail;
 using CoSupport::String::Concat;
 using CoSupport::String::asStr;
 
@@ -174,14 +174,14 @@ RuntimeTransition::RuntimeTransition(
     #endif
     dest(dest) {
   IOPattern tmp;
-  Expr::evalTo<Expr::Sensitivity>(getExpr(), tmp);
+  smoc::Expr::evalTo<smoc::Expr::Sensitivity>(getExpr(), tmp);
   tmp.finalise();
   IOPattern* iop = getCachedIOPattern(tmp);
   transitionImpl->setIOPattern(iop);
 
 }
 
-const Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
+const smoc::Expr::Ex<bool>::type &RuntimeTransition::getExpr() const
   { return transitionImpl->getExpr(); }
 
 RuntimeState* RuntimeTransition::getDestState() const
@@ -265,7 +265,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 #endif
   
 #if defined(SYSTEMOC_ENABLE_DEBUG) || defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
-  Expr::evalTo<Expr::CommSetup>(getExpr());
+  smoc::Expr::evalTo<smoc::Expr::CommSetup>(getExpr());
 #endif
   
 #ifdef SYSTEMOC_ENABLE_HOOKING
@@ -274,7 +274,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
     if (!hookingValid) {
       actionStr = boost::apply_visitor(ActionNameVisitor(), f);
       
-      for (std::list<SysteMoC::Hook::Detail::TransitionHook>::const_iterator iter = actor->transitionHooks.begin();
+      for (std::list<smoc::Hook::Detail::TransitionHook>::const_iterator iter = actor->transitionHooks.begin();
            iter != actor->transitionHooks.end();
            ++iter) {
         if (boost::regex_search(actor->getCurrentState()->name(), iter->srcState) &&
@@ -312,7 +312,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 
   
 #ifdef SYSTEMOC_ENABLE_DEBUG
-  Expr::evalTo<Expr::CommReset>(getExpr());
+  smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
 #endif
   
 #ifdef SYSTEMOC_ENABLE_TRANSITION_TRACE
@@ -334,7 +334,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
   if (execMode == MODE_DIISTART /*&& (mode&GO)*/) {
     VpcTaskInterface *vti = this->transitionImpl.get();
     vti->getDiiEvent()->reset();
-    Expr::evalTo<Expr::CommExec>(getExpr(), VpcInterface(vti));
+    smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface(vti));
 
     SystemC_VPC::EventPair events = this->transitionImpl->startCompute();
 
@@ -347,7 +347,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     if(!*events.latency) {
       // latency event not signaled
-      events.latency->addListener(new SysteMoC::Detail::DeferedTraceLogDumper(actor, "l"));
+      events.latency->addListener(new smoc::Detail::DeferedTraceLogDumper(actor, "l"));
 
     } else {
       this->getSimCTX()->getDataflowTraceLog()->traceStartActor(actor, "l");
@@ -356,7 +356,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 # endif
   }
   else {
-    Expr::evalTo<Expr::CommExec>(getExpr(), VpcInterface(NULL));
+    smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr(), VpcInterface(NULL));
   }
 
   #ifdef SYSTEMOC_ENABLE_MAESTROMM
@@ -365,7 +365,7 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
         else
 
           {
-            Expr::evalTo<Expr::CommExec>(getExpr());
+            smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr());
           }
 
   #endif//SYSTEMOC_ENABLE_MAESTROMM
@@ -374,10 +374,10 @@ void RuntimeTransition::execute(smoc_root_node *actor, int mode) {
 
 
 //#if !defined SYSTEMOC_ENABLE_VPC || defined SYSTEMOC_ENABLE_MAESTROMM
-//  Expr::evalTo<Expr::CommExec>(getExpr());
+//  smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr());
 //#endif // SYSTEMOC_ENABLE_VPC
 #ifndef SYSTEMOC_ENABLE_VPC
-  Expr::evalTo<Expr::CommExec>(getExpr());
+  smoc::Expr::evalTo<smoc::Expr::CommExec>(getExpr());
 #endif // SYSTEMOC_ENABLE_VPC
 
 
@@ -405,14 +405,14 @@ bool RuntimeTransition::evaluateIOP() const {
 }
 
 bool RuntimeTransition::evaluateGuard() const {
-  Expr::Detail::ActivationStatus retval = Expr::evalTo<Expr::Value>(getExpr());
+  smoc::Expr::Detail::ActivationStatus retval = smoc::Expr::evalTo<smoc::Expr::Value>(getExpr());
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-  Expr::evalTo<Expr::CommReset>(getExpr());
+  smoc::Expr::evalTo<smoc::Expr::CommReset>(getExpr());
 #endif
   switch(retval.toSymbol()) {
-    case Expr::Detail::_ENABLED:
+    case smoc::Expr::Detail::_ENABLED:
       return true;
-    case Expr::Detail::_DISABLED:
+    case smoc::Expr::Detail::_DISABLED:
       return false;
     default:
       assert(0);
@@ -433,11 +433,11 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
     FunctionNames guardNames;
     FunctionNames actionNames;
 
-    SysteMoC::Detail::GuardNameVisitor visitor(guardNames);
-    Expr::evalTo(visitor, getExpr());
+    smoc::Detail::GuardNameVisitor visitor(guardNames);
+    smoc::Expr::evalTo(visitor, getExpr());
 
     boost::apply_visitor(
-        SysteMoC::Detail::ActionNameVisitor(actionNames), getAction());
+        smoc::Detail::ActionNameVisitor(actionNames), getAction());
 
     //initialize VpcTaskInterface
     this->transitionImpl->diiEvent = node->diiEvent;
@@ -468,12 +468,12 @@ void RuntimeTransition::finaliseRuntimeTransition(smoc_root_node *node) {
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
   //Fill guardNames
-  SysteMoC::dMM::MMGuardNameVisitor gVisitor((*this->guardNames));
-  Expr::evalTo(gVisitor, getExpr());
+  smoc::dMM::MMGuardNameVisitor gVisitor((*this->guardNames));
+  smoc::Expr::evalTo(gVisitor, getExpr());
 
   //Fill actionNames
   boost::apply_visitor(
-  SysteMoC::dMM::MMActionNameVisitor((*this->actionNames)), getAction());
+  smoc::dMM::MMActionNameVisitor((*this->actionNames)), getAction());
 
 #endif //SYSTEMOC_ENABLE_MAESTROMM
 

@@ -1,7 +1,7 @@
 //  -*- tab-width:8; intent-tabs-mode:nil;  c-basic-offset:2; -*-
 // vim: set sw=2 ts=8:
 /*
- * Copyright (c) 2004-2009 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
+ * Copyright (c) 2012-2012 Hardware-Software-CoDesign, University of Erlangen-Nuremberg.
  * 
  *   This library is free software; you can redistribute it and/or modify it under
  *   the terms of the GNU Lesser General Public License as published by the Free
@@ -33,40 +33,32 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifndef _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
-#define _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
+#ifndef _INCLUDED_SMOC_DETAIL_SIMCTXBASE_HPP
+#define _INCLUDED_SMOC_DETAIL_SIMCTXBASE_HPP
 
 #include <systemoc/smoc_config.h>
 
-#ifdef SYSTEMOC_NEED_IDS
+namespace smoc {
 
-#include <stdint.h> // For uint32_t
-#include <limits>
+  class smoc_simulation_ctx;
+
+} // namespace smoc
 
 namespace smoc { namespace Detail {
 
-// This must be synced with SystemCoDesigner::SGX::NgId
-typedef uint32_t NgId;
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  class TraceLogStream; 
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
-class IdPool;
+  extern smoc_simulation_ctx *currentSimCTX;
 
-class IdedObj {
-  friend class IdPool;
-private:
-  NgId _id;
-public:
-  IdedObj()
-    : _id(std::numeric_limits<NgId>::max()) {}
-
-  NgId getId() const
-    { return _id; }
-private:
-  void setId(NgId id)
-    { _id = id; }
-};
+  struct SimCTXBase {
+    smoc_simulation_ctx       *getSimCTX()
+      { return currentSimCTX; }
+    smoc_simulation_ctx const *getSimCTX() const
+      { return currentSimCTX; }
+  };
 
 } } // namespace smoc::Detail
 
-#endif // SYSTEMOC_NEED_IDS
-
-#endif // _INCLUDED_SMOC_DETAIL_IDEDOBJ_HPP
+#endif //_INCLUDED_SMOC_DETAIL_SIMCTXBASE_HPP

@@ -74,14 +74,14 @@ namespace Detail {
         // dii event not signaled
         //TODO (ms): remove reference to events.dii
         //           ref'counted events are support in VPC
-        events.dii->addListener(new SysteMoC::Detail::DeferedTraceLogDumper(chan, "e"));
+        events.dii->addListener(new smoc::Detail::DeferedTraceLogDumper(chan, "e"));
       } else {
         this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "e");
         this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);
       }
       if (!*events.latency) {
         // latency event not signaled
-        events.latency->addListener(new SysteMoC::Detail::DeferedTraceLogDumper(chan, "l"));
+        events.latency->addListener(new smoc::Detail::DeferedTraceLogDumper(chan, "l"));
       } else {
         this->getSimCTX()->getDataflowTraceLog()->traceStartActor(chan, "l");
         this->getSimCTX()->getDataflowTraceLog()->traceEndActor(chan);

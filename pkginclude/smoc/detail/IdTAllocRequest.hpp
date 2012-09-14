@@ -39,10 +39,10 @@
 
 #include "IdedObj.hpp"
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 typedef CoSupport::Allocators::IdAllocRequest<NgId> IdTAllocRequest;
 
-} } // namespace SysteMoC::Detail
+} } // namespace smoc::Detail
 
 #endif // _INCLUDED_SMOC_DETAIL_IDTALLOCREQUEST_HPP

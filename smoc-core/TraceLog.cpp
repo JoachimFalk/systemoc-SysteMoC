@@ -44,16 +44,17 @@
 
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/detail/smoc_root_chan.hpp>
+#include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_chan_if.hpp>
 #include <systemoc/detail/smoc_port_registry.hpp>
-#include <systemoc/smoc_func_call.hpp>
+#include <systemoc/detail/smoc_func_call.hpp>
 
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
 
 #define READABLE(e) do {} while(0)
 //#define READABLE(e) e
 
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
 using std::string;
 
@@ -140,7 +141,7 @@ void TraceLogStream::init(){
 
 
 
-void TraceLogStream::traceStartActor(const SysteMoC::Detail::NamedIdedObj *actor,
+void TraceLogStream::traceStartActor(const smoc::Detail::NamedIdedObj *actor,
                                      const char *mode) {
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
@@ -157,7 +158,7 @@ void TraceLogStream::traceStartActor(const SysteMoC::Detail::NamedIdedObj *actor
   stream << CoSupport::Streams::Indent::Up;
 }
 
-void TraceLogStream::traceEndActor(const SysteMoC::Detail::NamedIdedObj *actor){
+void TraceLogStream::traceEndActor(const smoc::Detail::NamedIdedObj *actor){
 
   if( !getSimCTX()->isDataflowTracingEnabled() )
     return;
@@ -564,6 +565,6 @@ void TraceLogStream::createFifoGraph()
   }
 }
 
-}} // namespace SysteMoC::Detail
+}} // namespace smoc::Detail
 
 #endif

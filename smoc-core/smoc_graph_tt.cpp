@@ -35,7 +35,7 @@ void smoc_graph_tt::constructor() {
   // if there is at least one active transition: execute it
   graph_activation |= ddf_nodes_activations;
   graph_activation |= ttNodeQueue;
-  run = Expr::till(graph_activation) >> CALL(smoc_graph_tt::scheduleTT) >> run;
+  run = smoc::Expr::till(graph_activation) >> CALL(smoc_graph_tt::scheduleTT) >> run;
 }
 
 void smoc_graph_tt::initTT() {
