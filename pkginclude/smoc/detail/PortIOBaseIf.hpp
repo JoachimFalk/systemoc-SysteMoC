@@ -71,7 +71,7 @@ class PortInBaseIf: public PortBaseIf {
 #endif
   template <class E> friend class Expr::Value;
 public:
-  template <class PORT>
+  template <class PORT, class IFACE>
   class PortMixin {
   private:
     PORT       *getImpl()
@@ -79,7 +79,11 @@ public:
     PORT const *getImpl() const
       { return static_cast<PORT const *>(this); }
   public:
-    typedef this_type chan_base_type;
+    typedef this_type                         chan_base_type;
+    typedef IFACE                             iface_type;
+    typedef typename iface_type::access_type  access_type;
+    typedef typename iface_type::data_type    data_type;
+    typedef typename access_type::return_type return_type;
 
     typedef Expr::BinOp<
       Expr::DComm<this_type,Expr::DLiteral<size_t> >,
@@ -107,6 +111,24 @@ public:
     CommAndPortTokensGuard operator ()(size_t n)
       { return this->communicate(n,n); }
 
+    // Provide [] access operator for port.
+    const return_type operator[](size_t n) const {
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
+      (*getImpl())->incrementAccessCount();
+#endif // SYSTEMOC_PORT_ACCESS_COUNTER
+      return (*(getImpl()->get_chanaccess()))[n];
+    }
+
+    // Provide getValueAt method for port. The methods returms an expression
+    // corresponding to the token value in the fifo at offset n for usage in
+    // transition guards
+    typename smoc::Expr::Token<IFACE>::type getValueAt(size_t n)
+      { return smoc::Expr::token<IFACE>(*getImpl(),n); }
+
+    // Provide tokenIsValid method for port. The methods returns true if the
+    // token on offset i is defined or false otherwise.
+    bool tokenIsValid(size_t i=0) const
+      { return getImpl()->get_chanaccess()->tokenIsValid(i); }
   };
 protected:
   // constructor
@@ -178,7 +200,7 @@ class PortOutBaseIf: public PortBaseIf {
 #endif
   template <class E> friend class Expr::Value;
 public:
-  template <class PORT>
+  template <class PORT, class IFACE>
   class PortMixin {
   private:
     PORT       *getImpl()
@@ -186,7 +208,11 @@ public:
     PORT const *getImpl() const
       { return static_cast<PORT const *>(this); }
   public:
-    typedef this_type chan_base_type;
+    typedef this_type                         chan_base_type;
+    typedef IFACE                             iface_type;
+    typedef typename iface_type::access_type  access_type;
+    typedef typename iface_type::data_type    data_type;
+    typedef typename access_type::return_type return_type;
 
     typedef Expr::BinOp<
       Expr::DComm<this_type,Expr::DLiteral<size_t> >,
@@ -214,6 +240,13 @@ public:
     CommAndPortTokensGuard operator ()(size_t n)
       { return this->communicate(n,n); }
 
+    // Provide [] access operator for port.
+    return_type operator[](size_t n)  {
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
+      (*getImpl())->incrementAccessCount();
+#endif // SYSTEMOC_PORT_ACCESS_COUNTER
+      return (*(getImpl()->get_chanaccess()))[n];
+    }
   };
 protected:
   // constructor

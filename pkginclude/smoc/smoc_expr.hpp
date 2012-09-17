@@ -75,12 +75,8 @@
 class smoc_sysc_port;
 
 //forward declaration
-template <typename T>
-class smoc_port_in;
-
-//forward declaration
-template <typename T>
-class smoc_port_out;
+template <typename IFACE>
+class smoc_port_base;
 
 namespace smoc { namespace Detail {
 
@@ -1681,11 +1677,11 @@ struct Value<DComm<CI, E> > {
  * DToken is a placeholder for a token in the expression.
  */
 
-template<typename T>
+template<typename IFACE>
 class DToken {
 public:
-  typedef const T    value_type;
-  typedef DToken<T>  this_type;
+  typedef const typename IFACE::data_type value_type;
+  typedef DToken<IFACE>                   this_type;
   
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
@@ -1696,50 +1692,48 @@ public:
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
-  smoc_port_in<T> &p;
-  size_t           pos;
+  smoc_port_base<IFACE> &p;
+  size_t                 pos;
 public:
-  explicit DToken(smoc_port_in<T> &p, size_t pos)
+  explicit DToken(smoc_port_base<IFACE> &p, size_t pos)
     : p(p), pos(pos) {}
 };
 
-template <typename T>
-class VisitorApplication<DToken<T> > {
+template <typename IFACE>
+class VisitorApplication<DToken<IFACE> > {
 public:
   typedef void                      *result_type;
   typedef Detail::ExprVisitor<void> &param1_type;
 
   static inline
-  result_type apply(const DToken <T> &e, param1_type p)
+  result_type apply(const DToken <IFACE> &e, param1_type p)
     { return p.visitToken(e.p, e.pos); }
 };
 
-template<typename T>
-struct Value<DToken<T> > {
-  typedef const T result_type;
-  
+template<typename IFACE>
+struct Value<DToken<IFACE> > {
+  typedef const typename IFACE::data_type result_type;
+
   static inline
-  result_type apply(const DToken<T> &e)
-  { return e.p[e.pos]; }
+  result_type apply(const DToken<IFACE> &e)
+    { return e.p[e.pos]; }
 };
 
-template<typename T>
-struct D<DToken<T> >: public DBase<DToken<T> > {
-  D(smoc_port_in<T> &p, size_t pos)
-    : DBase<DToken<T> >(DToken<T>(p,pos)) {}
+template<typename IFACE>
+struct D<DToken<IFACE> >: public DBase<DToken<IFACE> > {
+  D(smoc_port_base<IFACE> &p, size_t pos)
+    : DBase<DToken<IFACE> >(DToken<IFACE>(p,pos)) {}
 };
 
 // Make a convenient typedef for the token type.
-template<typename T>
+template<typename IFACE>
 struct Token {
-  typedef D<DToken<T> > type;
+  typedef D<DToken<IFACE> > type;
 };
 
-template <typename T>
-typename Token<T>::type token(smoc_port_in<T> &p, size_t pos)
-{ return typename Token<T>::type(p,pos); }
-
-
+template <typename IFACE>
+typename Token<IFACE>::type token(smoc_port_base<IFACE> &p, size_t pos)
+  { return typename Token<IFACE>::type(p,pos); }
 
 } } // namespace smoc::Expr
 
