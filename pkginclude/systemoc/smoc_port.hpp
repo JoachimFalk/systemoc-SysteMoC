@@ -56,10 +56,13 @@
 template <typename IFACE>
 class smoc_port_base
 : public smoc_sysc_port,
-  public IFACE::template PortMixin<smoc_port_base<IFACE> > {
+  public IFACE::template PortMixin<smoc_port_base<IFACE>,IFACE> {
 private:
   typedef smoc_port_base<IFACE> this_type;
   typedef smoc_sysc_port        base_type;
+
+  template <class X, class Y>
+  friend class IFACE::PortMixin;
 public:
   typedef IFACE                             iface_type;
   typedef typename iface_type::access_type  access_type;
@@ -145,7 +148,7 @@ public:
   void bind(this_type &parent_)
     { base_type::bind(parent_); }
 
-  using IFACE::template PortMixin<smoc_port_base<IFACE> >::operator ();
+  using IFACE::template PortMixin<smoc_port_base<IFACE>,IFACE>::operator ();
 
   void operator () (iface_type& interface_)
     { bind(interface_); }
@@ -214,12 +217,8 @@ template <typename T>
 class smoc_port_in
 : public smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> > {
 private:
-  typedef smoc_port_in<T>                                             this_type;
-  typedef smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> >  base_type;
-public:
-  typedef typename this_type::data_type     data_type; // Should be T
-  typedef typename this_type::iface_type    iface_type;
-  typedef typename this_type::return_type   return_type;
+  typedef smoc_port_in<T>                                               this_type;
+  typedef smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> > base_type;
 protected:
   smoc_port_in(sc_port_policy policy)
     : base_type(sc_gen_unique_name("smoc_port_in"), policy)
@@ -235,34 +234,14 @@ public:
     : base_type(name, SC_ONE_OR_MORE_BOUND)
   {}
 
-  //FIXME: should be in PortMixin !!
-  const return_type operator[](size_t n) const {
-#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-    (*this)->incrementAccessCount();
-#endif // SYSTEMOC_PORT_ACCESS_COUNTER
-    return (*(this->get_chanaccess()))[n];
-  }
-
-  //FIXME: should be in PortMixin !!
-  // This methods depend on the channel access type
-  typename smoc::Expr::Token<T>::type getValueAt(size_t n)
-    { return smoc::Expr::token<T>(*this,n); }
-
-  //FIXME: should be in PortMixin !!
-  bool tokenIsValid(size_t i=0) const
-    { return this->get_chanaccess()->tokenIsValid(i); }
 };
 
 template <typename T>
 class smoc_port_out
 : public smoc_port_out_base<smoc_port_out_if<T,smoc_1d_port_access_if> > {
 private:
-  typedef smoc_port_out<T>                                              this_type;
-  typedef smoc_port_out_base<smoc_port_out_if<T,smoc_1d_port_access_if> >  base_type;
-public:
-  typedef typename this_type::data_type     data_type; // Should be T
-  typedef typename this_type::iface_type    iface_type;
-  typedef typename this_type::return_type   return_type;
+  typedef smoc_port_out<T>                                                this_type;
+  typedef smoc_port_out_base<smoc_port_out_if<T,smoc_1d_port_access_if> > base_type;
 protected:
   smoc_port_out(sc_port_policy policy)
     : base_type(sc_gen_unique_name("smoc_port_out"), policy)
@@ -277,14 +256,6 @@ public:
   smoc_port_out(sc_module_name name)
     : base_type(name, SC_ONE_OR_MORE_BOUND)
   {}
-
-  //FIXME: should be in PortMixin !!
-  return_type operator[](size_t n)  {
-#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-    (*this)->incrementAccessCount();
-#endif // SYSTEMOC_PORT_ACCESS_COUNTER
-    return (*(this->get_chanaccess()))[n];
-  }
 };
 
 typedef smoc_port_out<void> smoc_reset_port;
