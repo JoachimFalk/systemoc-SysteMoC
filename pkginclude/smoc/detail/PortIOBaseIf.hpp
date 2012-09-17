@@ -45,6 +45,9 @@ class smoc_multicast_sr_signal_chan_base;
 class smoc_multireader_fifo_chan_base;
 class smoc_signal_chan_base;
 
+template<class, class> class smoc_chan_adapter;
+template<class, class> class smoc_multiplex_fifo_chan;
+
 namespace smoc { namespace Detail {
 
 template<class IFaceImpl>
@@ -57,10 +60,10 @@ class PortInBaseIf: public PortBaseIf {
   friend class ::smoc_multicast_sr_signal_chan_base;
   friend class ::smoc_multireader_fifo_chan_base;
   friend class ::smoc_signal_chan_base;
-  template<class,class> friend class smoc_multiplex_fifo_chan;
+  template<class,class> friend class ::smoc_multiplex_fifo_chan;
+  template<class,class> friend class ::smoc_chan_adapter;
 
   template<class>       friend class ChanAdapterMid;
-  template<class,class> friend class smoc_chan_adapter;
 
   // Friends needed for guard evaluation
   template <class E> friend class Expr::Sensitivity;
@@ -187,9 +190,10 @@ class PortOutBaseIf: public PortBaseIf {
   friend class ::smoc_multicast_sr_signal_chan_base;
   friend class ::smoc_multireader_fifo_chan_base;
   friend class ::smoc_signal_chan_base;
+  template<class,class> friend class ::smoc_multiplex_fifo_chan;
+  template<class,class> friend class ::smoc_chan_adapter;
 
   template<class>       friend class ChanAdapterMid;
-  template<class,class> friend class smoc_chan_adapter;
 
   // Friends needed for guard evaluation
   template <class E> friend class Expr::Sensitivity;
