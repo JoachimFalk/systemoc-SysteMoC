@@ -29,6 +29,10 @@ nobase_include_HEADERS = \
 	smoc/smoc_expr.hpp \
 	smoc/smoc_event.hpp \
 	smoc/detail/VpcInterface.hpp \
+	smoc/detail/QueueRWPtr.hpp \
+	smoc/detail/QueueRVWPtr.hpp \
+	smoc/detail/QueueFRVWPtr.hpp \
+	smoc/detail/QueueWithStorage.hpp \
 	smoc/detail/EventQueue.hpp \
 	smoc/detail/DIIQueue.hpp \
 	smoc/detail/LatencyQueue.hpp \
@@ -61,17 +65,14 @@ nobase_include_HEADERS = \
 	systemoc/smoc_periodic_actor.hpp \
 	systemoc/smoc_multicast_sr_signal.hpp \
 	systemoc/smoc_graph_type.hpp \
-	smoc/detail/QueueFRVWPtr.hpp \
 	smoc/detail/EventMapManager.hpp \
 	systemoc/detail/smoc_debug_stream.hpp \
 	systemoc/detail/smoc_firing_rules_impl.hpp \
 	systemoc/detail/smoc_ring_access.hpp \
-	smoc/detail/QueueRWPtr.hpp \
 	systemoc/detail/smoc_storage.hpp \
 	systemoc/detail/smoc_root_chan.hpp \
 	systemoc/detail/smoc_sysc_port.hpp \
 	systemoc/detail/smoc_fifo_storage.hpp \
-	smoc/detail/QueueRVWPtr.hpp \
 	systemoc/smoc_node_types.hpp \
 	systemoc/smoc_multiplex_fifo.hpp \
 	systemoc/smoc_reset.hpp \
