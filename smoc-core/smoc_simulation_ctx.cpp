@@ -57,17 +57,10 @@
 
 namespace po = boost::program_options;
 
-// Backward compatibility cruft
-namespace smoc_modes {
-  std::ostream *dumpFileSMX    = NULL;
-} // namespace smoc_modes
-
 namespace smoc {
 
 namespace Detail {
-
   smoc_simulation_ctx *currentSimCTX = NULL;
-
 } // namespace Detail
 
 smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
@@ -297,19 +290,11 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
 void smoc_simulation_ctx::defCurrentCTX() {
   assert(Detail::currentSimCTX == NULL);
   Detail::currentSimCTX = this;
-  // Backward compatibility cruft
-#ifdef SYSTEMOC_ENABLE_SGX
-  smoc_modes::dumpFileSMX    = dumpPreSimSMXFile;
-#endif // SYSTEMOC_ENABLE_SGX
 }
 
 void smoc_simulation_ctx::undefCurrentCTX() {
   assert(Detail::currentSimCTX == this);
   Detail::currentSimCTX = NULL;
-  // Backward compatibility cruft
-#ifdef SYSTEMOC_ENABLE_SGX
-  dumpPreSimSMXFile = smoc_modes::dumpFileSMX;
-#endif // SYSTEMOC_ENABLE_SGX
 }
 
 smoc_simulation_ctx::~smoc_simulation_ctx() {
