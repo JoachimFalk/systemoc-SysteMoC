@@ -61,7 +61,6 @@ nobase_include_HEADERS = \
 	systemoc/smoc_periodic_actor.hpp \
 	systemoc/smoc_multicast_sr_signal.hpp \
 	systemoc/smoc_graph_type.hpp \
-	systemoc/smoc_pggen.hpp \
 	smoc/detail/QueueFRVWPtr.hpp \
 	smoc/detail/EventMapManager.hpp \
 	systemoc/detail/smoc_debug_stream.hpp \
