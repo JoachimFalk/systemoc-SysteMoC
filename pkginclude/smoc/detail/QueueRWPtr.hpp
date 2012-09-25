@@ -130,6 +130,11 @@ namespace smoc { namespace Detail {
       rindex = 0;
       windex = 0;
     }
+
+    /// Invalidate n tokens in the visible area. Update rindex assuming that
+    /// the tokens in the queue are moved to the right. This method will be
+    /// overloaded in QueueFRVWPtr to also update the findex (free index).
+    void dropRVisible(size_t n)   { rpp(n); }
   };
 
 } } // namespace smoc::Detail
