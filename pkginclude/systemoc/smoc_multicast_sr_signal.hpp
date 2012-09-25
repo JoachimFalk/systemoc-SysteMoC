@@ -39,7 +39,7 @@
 #include <queue>
 #include <map>
 
-#include <systemc.h>
+#include <systemc>
 
 #include <CoSupport/commondefs.h>
 

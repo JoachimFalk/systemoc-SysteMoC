@@ -40,7 +40,7 @@
 
 #include <CoSupport/commondefs.h>
 
-#include <systemc.h>
+#include <systemc>
 
 #include <systemoc/smoc_config.h>
 

@@ -40,7 +40,7 @@
 
 #include <list>
 
-#include <systemc.h>
+#include <systemc>
 
 #include <smoc/detail/NamedIdedObj.hpp>
 #include <smoc/detail/PortBaseIf.hpp>
@@ -128,7 +128,7 @@ private:
   int  interface_count();
   void add_interface(sc_core::sc_interface *);
 protected:
-  smoc_sysc_port(const char* name_, sc_port_policy policy);
+  smoc_sysc_port(const char* name_, sc_core::sc_port_policy policy);
 
   using sc_core::sc_port_base::bind;
 

@@ -39,8 +39,6 @@
 
 #ifdef SYSTEMOC_ENABLE_HOOKING
 
-//#include <systemc.h>
-
 #include <string>
 
 #include "../smoc_hooking.hpp"

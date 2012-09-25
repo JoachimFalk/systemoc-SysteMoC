@@ -43,7 +43,7 @@
 #include <string>
 #include <sstream>
 
-#include <systemc.h>
+#include <systemc>
 
 #include <CoSupport/Lambda/functor.hpp>
 

@@ -1,7 +1,7 @@
 #ifndef INCLUDED_SYSTEMOC_SMOC_MODULE_NAME_HPP
 #define INCLUDED_SYSTEMOC_SMOC_MODULE_NAME_HPP
 
-#include <systemc.h>
+#include <systemc>
 #include <iostream>
 
 class smoc_module_name;

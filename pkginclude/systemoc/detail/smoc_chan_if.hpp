@@ -38,7 +38,7 @@
 
 #include <list>
 
-#include <systemc.h>
+#include <systemc>
 
 #include <boost/noncopyable.hpp>
 

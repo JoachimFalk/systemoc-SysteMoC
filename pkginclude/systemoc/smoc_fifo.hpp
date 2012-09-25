@@ -36,7 +36,7 @@
 #ifndef _INCLUDED_SMOC_FIFO_HPP
 #define _INCLUDED_SMOC_FIFO_HPP
 
-#include <systemc.h>
+#include <systemc>
 #include <vector>
 #include <queue>
 #include <map>
