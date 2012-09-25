@@ -85,7 +85,6 @@ libsystemoc_la_SOURCES =			\
 	smoc-core/smoc_root_chan.cpp		\
 	smoc-core/smoc_moc.cpp			\
 	smoc-core/SMXDumper.cpp			\
-	smoc-core/smoc_graph_synth.cpp		\
 	smoc-core/smoc_func_call.cpp		\
 	smoc-core/smoc_debug_stream.cpp
 #	smoc_ngx_sync.cpp

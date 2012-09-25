@@ -49,8 +49,6 @@
 #include <systemoc/smoc_reset.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
-#include "smoc_graph_synth.hpp"
-
 namespace smoc {
 
 #define _SMOC_GENERATE_APPLY_VISITOR(TYPE)                                      \
@@ -93,17 +91,6 @@ namespace Detail {
 
 _SMOC_GENERATE_APPLY_VISITOR(smoc_graph_sr)
 
-/* smoc_graph_synth */
-
-/*namespace Detail {
-  template<template <class> class M, class Visitor>
-  typename Visitor::result_type
-  apply_visitor_helper(Visitor &visitor, typename M<smoc_graph_synth>::type *ptr)
-    { return visitor(*ptr); }
-} // namespace Detail
-
-_SMOC_GENERATE_APPLY_VISITOR(smoc_graph_synth)*/
-
 /* smoc_graph_base */
 
 namespace Detail {
@@ -112,7 +99,6 @@ namespace Detail {
   apply_visitor_helper(Visitor &visitor, typename M<smoc_graph_base>::type *ptr) {
     _SMOC_HANDLE_DERIVED_CLASS(smoc_graph);
     _SMOC_HANDLE_DERIVED_CLASS(smoc_graph_sr);
-    //_SMOC_HANDLE_DERIVED_CLASS(smoc_graph_synth);
     assert(!"WTF?! Unhandled derived class of smoc_graph_base!");
   }
 } // namespace Detail

@@ -40,7 +40,6 @@
 
 #include "../smoc_expr.hpp"
 
-class smoc_graph_synth;
 class smoc_multicast_sr_signal_chan_base;
 class smoc_multireader_fifo_chan_base;
 class smoc_signal_chan_base;
@@ -56,7 +55,6 @@ class ChanAdapterMid;
 class PortInBaseIf: public PortBaseIf {
   typedef PortInBaseIf this_type;
 
-  friend class ::smoc_graph_synth;
   friend class ::smoc_multicast_sr_signal_chan_base;
   friend class ::smoc_multireader_fifo_chan_base;
   friend class ::smoc_signal_chan_base;
@@ -186,7 +184,6 @@ public:
 class PortOutBaseIf: public PortBaseIf {
   typedef PortOutBaseIf this_type;
 
-  friend class ::smoc_graph_synth;
   friend class ::smoc_multicast_sr_signal_chan_base;
   friend class ::smoc_multireader_fifo_chan_base;
   friend class ::smoc_signal_chan_base;
