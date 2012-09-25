@@ -51,7 +51,7 @@ void smoc_multicast_sr_signal_chan_base::setSignalState(SignalState s) {
 
 smoc_multicast_sr_signal_chan_base::smoc_multicast_sr_signal_chan_base(
     const chan_init &i)
-  : smoc_multicast_chan(i.name),
+  : smoc_root_chan(i.name),
     signalState(undefined),
     tokenId(0){
 }

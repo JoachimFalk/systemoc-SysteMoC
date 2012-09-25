@@ -44,7 +44,7 @@ class smoc_reset_outlet;
 class smoc_reset_entry;
 
 class smoc_reset_chan
-: public smoc_multicast_chan {
+: public smoc_root_chan {
 public:
   friend class smoc_reset_entry;
   friend class smoc_reset_outlet;

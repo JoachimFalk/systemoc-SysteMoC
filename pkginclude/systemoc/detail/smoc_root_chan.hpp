@@ -110,31 +110,6 @@ public:
 
 typedef std::list<smoc_root_chan *> smoc_chan_list;
 
-class smoc_nonconflicting_chan : public smoc_root_chan {
-public:
-  typedef smoc_nonconflicting_chan this_type;
-protected:
-  // constructor
-  smoc_nonconflicting_chan(const std::string& name)
-    : smoc_root_chan(name) {}
-
-  virtual void finalise();
-
-///// This function returns a string indentifying the channel type
-//virtual const char* getChannelTypeString() const;
-};
-
-class smoc_multicast_chan : public smoc_root_chan {
-public:
-  typedef smoc_multicast_chan this_type;
-protected:
-  // constructor
-  smoc_multicast_chan(const std::string& name)
-    : smoc_root_chan(name) {}
-
-  virtual void finalise();
-};
-
 sc_port_base* getLeafPort(sc_port_base* p);
 
 #endif // _INCLUDED_DETAIL_SMOC_ROOT_CHAN_HPP

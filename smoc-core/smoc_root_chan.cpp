@@ -138,15 +138,3 @@ void smoc_root_chan::generateName() {
     myName = genName.str();
   }
 }
-
-void smoc_nonconflicting_chan::finalise() {
-  smoc_root_chan::finalise();
-  assert(getEntries().size() == 1);
-  assert(getOutlets().size() == 1);
-}
-
-void smoc_multicast_chan::finalise() {
-  smoc_root_chan::finalise();
-  //assert(!getEntries().empty());
-  //assert(!getOutlets().empty());
-}
