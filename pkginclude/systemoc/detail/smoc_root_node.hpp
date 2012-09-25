@@ -76,10 +76,6 @@
 #define SMOC_SR_TICK(func) call(&func, #func)
 #define SMOC_SR_GO(func)   call(&func, #func)
 
-namespace SysteMoC {
-  class smoc_graph_synth;
-}
-
 /**
  * smoc_root_node is the base class of all systemoc nodes be it
  * actors or graphs! If you derive more stuff from this class

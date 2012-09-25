@@ -40,8 +40,6 @@
 #include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
 
-#include "smoc_graph_synth.hpp"
-
 #include <CoSupport/String/Concat.hpp>
 
 using namespace smoc::Detail;
@@ -146,76 +144,6 @@ void smoc_graph_base::finalise() {
     
     channels.push_back(channel);
   }
-
-/*// SGX --> SystemC
-  if(NGXConfig::getInstance().hasNGX()) {
-  
-    ProblemGraph::ConstPtr pg =
-      objAs<ProblemGraph>(NGXCache::getInstance().get(this, 1));
-
-    if(!pg) {
-      // XML node missing or no ProblemGraph
-    }
-    else {
-      ActorList::ConstRef actors = pg->actors();
-      for(ActorList::const_iterator aIter = actors.begin();
-          aIter != actors.end();
-          ++aIter)
-      {
-        sc_core::sc_object* scA = NGXCache::getInstance().get(*aIter);
-        if(!scA) {
-          // synthesize actor
-          // TODO: as for now, we won't synthesize actors...
-        }
-        else {
-          smoc_root_node* rn = dynamic_cast<smoc_root_node*>(scA);
-          if(!rn) {
-            // no smoc_root_node -> manipulated id?
-          }
-          else if(std::find(nodes.begin(), nodes.end(), rn) == nodes.end()) {
-            // only add if not already in list (user moved an (existing)
-            // actor into another (existing) graph)
-            nodes.push_back(rn);
-          }
-        }
-      }
-     
-      RefinedProcessList::ConstRef rps = pg->refinedProcesses();
-      for(RefinedProcessList::const_iterator rpIter = rps.begin();
-          rpIter != rps.end();
-          ++rpIter)
-      {
-        // smoc knows no refinements (graph is same object as
-        // process, so there should be exactly one refinement)
-        if(rpIter->refinements().size() != 1)
-          continue;
-        ProblemGraph::ConstRef rpPG = rpIter->refinements().front();
-
-        sc_core::sc_object* scRP = NGXCache::getInstance().get(*rpIter);
-        if(!scRP) {
-          // synthesize graph
-          nodes.push_back(new smoc::smoc_graph_synth(rpPG));
-        }
-        else {
-          // process compiled in -> graph should also be compiled in
-          // (and be the same object)
-          sc_core::sc_object* scPG = NGXCache::getInstance().get(rpPG);
-          if(!scPG || scPG != scRP)
-            continue;
-
-          smoc_root_node* rn = dynamic_cast<smoc_root_node*>(scRP);
-          if(!rn) {
-            // no smoc_root_node -> manipulated id?
-          }
-          else if(std::find(nodes.begin(), nodes.end(), rn) == nodes.end()) {
-            // only add if not already in list (user moved an (existing)
-            // graph into another (existing) graph)
-            nodes.push_back(rn);
-          }
-        }
-      }
-    }
-  } */
 
   // finalise for actors must precede finalise for channels,
   // because finalise for channels needs the patched in actor
