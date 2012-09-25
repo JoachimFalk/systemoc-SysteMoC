@@ -33,7 +33,7 @@ smoc_reset_chan::chan_init::chan_init(
 
 smoc_reset_chan::smoc_reset_chan(
     const chan_init &i)
-  : smoc_multicast_chan(i.name),
+  : smoc_root_chan(i.name),
     tokenId(1)
 {}
   

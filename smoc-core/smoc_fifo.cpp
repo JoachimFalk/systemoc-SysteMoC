@@ -38,8 +38,10 @@
 #include <systemoc/smoc_fifo.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 
+size_t fsizeMapper(sc_object* instance, size_t n);
+
 smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
-  : smoc_nonconflicting_chan(i.name),
+  : smoc_root_chan(i.name),
 #ifdef SYSTEMOC_ENABLE_VPC
   QueueFRVWPtr(fsizeMapper(this, i.n)),
   latencyQueue(std::bind1st(std::mem_fun(&this_type::latencyExpired), this), this, std::bind1st(std::mem_fun(&this_type::latencyExpired_dropped), this)),
@@ -49,6 +51,12 @@ smoc_fifo_chan_base::smoc_fifo_chan_base(const chan_init& i)
 #endif
   tokenId(0)
 {}
+
+void smoc_fifo_chan_base::finalise() {
+  smoc_root_chan::finalise();
+  assert(getEntries().size() == 1);
+  assert(getOutlets().size() == 1);
+}
 
 size_t fsizeMapper(sc_object* instance, size_t n) {
 //FIXME: Reimplememt this!

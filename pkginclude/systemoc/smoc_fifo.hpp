@@ -69,13 +69,11 @@
 
 #include <smoc/detail/DumpingInterfaces.hpp>
 
-size_t fsizeMapper(sc_object* instance, size_t n);
-
 /**
  * The base channel implementation
  */
 class smoc_fifo_chan_base
-: public smoc_nonconflicting_chan,
+: public smoc_root_chan,
 #ifdef SYSTEMOC_ENABLE_VPC
   public smoc::Detail::QueueFRVWPtr
 #else
@@ -141,6 +139,7 @@ protected:
     smoc_root_chan::doReset();
   }
 
+  virtual void finalise();
 public:
 #ifdef SYSTEMOC_ENABLE_SGX
   // FIXME: This should be protected for the SysteMoC user but accessible
