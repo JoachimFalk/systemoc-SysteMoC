@@ -115,12 +115,14 @@ protected:
     // simulation. latencyExpired is only called during simulation.
   }
 
+#ifdef SYSTEMOC_ENABLE_VPC
   /// @brief Detail::LatencyQueue callback #2
   void latencyExpired_dropped(size_t n) {
     invalidateToken(n);
     //inform about new free space;
     emmSpace.increasedCount(freeCount());
   }
+#endif //defined(SYSTEMOC_ENABLE_VPC)
 
   /// @brief Detail::DIIQueue callback
   void diiExpired(size_t n) {
@@ -169,7 +171,9 @@ private:
 #endif //SYSTEMOC_ENABLE_VPC
 #endif // SYSTEMOC_DEBUG
   }
+#ifdef SYSTEMOC_ENABLE_VPC
  virtual void invalidateToken(size_t n) = 0;
+#endif //defined(SYSTEMOC_ENABLE_VPC)
 };
 
 template<class> class smoc_fifo_chan;
@@ -354,13 +358,19 @@ protected:
   smoc::Detail::PortInBaseIf *createOutlet()
     { return new outlet_type(*this); }
 
-  void invalidateToken(size_t x){
 #ifdef SYSTEMOC_ENABLE_VPC
-    assert(x==1);
-    this->invalidateTokenInStorage(x);
-    this->updateInvalidateToken(x);
-#endif
+  void invalidateToken(size_t x) {
+    class Generator {
+      int n;
+    public:
+      Generator(int n): n(n) {}
+
+      int popMax() { return --n; }
+      int count() const { return n; }
+    };
+    this->dropRInvisible(Generator(x));
   }
+#endif //defined(SYSTEMOC_ENABLE_VPC)
 
 private:
 };

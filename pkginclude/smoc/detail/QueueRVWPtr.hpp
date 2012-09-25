@@ -97,11 +97,17 @@ namespace smoc { namespace Detail {
       // vindex = vindex + n in modulo fsize arith
       vindex = (MG(vindex, fsize) + n).getValue();
     }
-    
+
     void resetQueue() {
       vindex = 0;
       base_type::resetQueue();
     }
+
+    /// Invalidate n tokens in the invisible area. Update rindex and vindex
+    /// assuming that the tokens in the queue are moved to the right. This
+    /// method will be overloaded in QueueFRVWPtr to also update the findex
+    /// (free index).
+    void dropRInvisible(size_t n) { vpp(n); base_type::dropRVisible(n); }
   };
 
 } } // namespace smoc::Detail

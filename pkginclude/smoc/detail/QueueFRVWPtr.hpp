@@ -95,19 +95,18 @@ namespace smoc { namespace Detail {
       // findex = findex + n in modulo fsize arith
       findex = (MG(findex, fsize) + n).getValue();
     }
-    
+
     void resetQueue() {
       findex = 0;
       base_type::resetQueue();
     }
 
-    /*
-     * method updateInvalidateToken updates the indexes, after the storage has been updated.
-     */
-    void updateInvalidateToken(size_t n){
-        vindex = (MG(vindex, fsize) +n ).getValue();
-        rindex = (MG(rindex, fsize) +n ).getValue();
-       }
+    /// Invalidate n tokens in the visible area. Update findex and rindex
+    /// assuming that the tokens in the queue are moved to the right.
+    void dropRVisible(size_t n)   { base_type::dropRVisible(n); fpp(n); }
+    /// Invalidate n tokens in the invisible area. Update findex, rindex, and
+    /// vindex assuming that the tokens in the queue are moved to the right.
+    void dropRInvisible(size_t n) { base_type::dropRInvisible(n); fpp(n); }
   };
 
 } } // namespace Detail
