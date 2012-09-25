@@ -44,7 +44,7 @@
 
 #include <boost/noncopyable.hpp>
 
-#include <systemc.h>
+#include <systemc>
 
 #include <systemoc/smoc_config.h>
 

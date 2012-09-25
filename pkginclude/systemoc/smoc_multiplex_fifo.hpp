@@ -44,7 +44,7 @@
 
 #include <CoSupport/commondefs.h>
 
-#include <systemc.h>
+#include <systemc>
 
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
