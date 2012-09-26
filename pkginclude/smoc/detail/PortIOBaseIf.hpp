@@ -42,7 +42,6 @@
 
 class smoc_multicast_sr_signal_chan_base;
 class smoc_multireader_fifo_chan_base;
-class smoc_signal_chan_base;
 
 template<class, class> class smoc_chan_adapter;
 template<class, class> class smoc_multiplex_fifo_chan;
@@ -57,7 +56,6 @@ class PortInBaseIf: public PortBaseIf {
 
   friend class ::smoc_multicast_sr_signal_chan_base;
   friend class ::smoc_multireader_fifo_chan_base;
-  friend class ::smoc_signal_chan_base;
   template<class,class> friend class ::smoc_multiplex_fifo_chan;
   template<class,class> friend class ::smoc_chan_adapter;
 
@@ -186,7 +184,6 @@ class PortOutBaseIf: public PortBaseIf {
 
   friend class ::smoc_multicast_sr_signal_chan_base;
   friend class ::smoc_multireader_fifo_chan_base;
-  friend class ::smoc_signal_chan_base;
   template<class,class> friend class ::smoc_multiplex_fifo_chan;
   template<class,class> friend class ::smoc_chan_adapter;
 
