@@ -56,10 +56,8 @@
 #include <boost/bind.hpp>
 
 #include <systemoc/smoc_config.h>
-#include <systemoc/detail/smoc_sysc_port.hpp>
 
 #include "smoc_event.hpp"
-//#include <systemoc/detail/smoc_sysc_port.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
 #include "detail/IOPattern.hpp"
 
@@ -1434,11 +1432,9 @@ operator >> (const D<A> &a, const D<B> &b) {
  * the port p
  */
 
-//CI: Port class
-template<class CI>
+template<class P>
 class DPortTokens {
-public:
-  typedef DPortTokens<CI>  this_type;
+  typedef DPortTokens<P> this_type;
 
   template <class E> friend class VisitorApplication;
   template <class E> friend class CommExec;
@@ -1448,102 +1444,94 @@ public:
 #endif
   template <class E> friend class Value;
 private:
-  smoc_sysc_port &p;
-
-  CI &getCI() const {
-    return *static_cast<CI *>(
-      const_cast<Detail::PortBaseIf *>(p.get_interface()));
-  }
+  P &p; ///< The smoc port
 public:
-  explicit DPortTokens(smoc_sysc_port &p)
-    : p(p) {}
+  explicit DPortTokens(P &p): p(p) {}
 };
 
-template<class CI>
-struct D<DPortTokens<CI> >: public DBase<DPortTokens<CI> > {
-  D(smoc_sysc_port &p)
-    : DBase<DPortTokens<CI> >(DPortTokens<CI>(p)) {}
+template<class P>
+struct D<DPortTokens<P> >: public DBase<DPortTokens<P> > {
+  D(P &p)
+    : DBase<DPortTokens<P> >(DPortTokens<P>(p)) {}
 };
 
-template<class CI>
-class VisitorApplication<DPortTokens<CI> > {
+template<class P>
+class VisitorApplication<DPortTokens<P> > {
 public:
   typedef void                      *result_type;
   typedef Detail::ExprVisitor<void> &param1_type;
 
   static inline
-  result_type apply(const DPortTokens<CI> &e, param1_type p)
+  result_type apply(const DPortTokens<P> &e, param1_type p)
     { return p.visitPortTokens(e.p); }
 };
 
 // Make a convenient typedef for the token type.
-// CI: port class
-template<class CI>
+template<class P>
 struct PortTokens {
-  typedef D<DPortTokens<CI> > type;
+  typedef D<DPortTokens<P> > type;
 };
 
 template <class P>
-typename PortTokens<typename P::chan_base_type>::type portTokens(P &p)
-  { return typename PortTokens<typename P::chan_base_type>::type(p); }
+typename PortTokens<P>::type portTokens(P &p)
+  { return typename PortTokens<P>::type(p); }
 
 /****************************************************************************
- * DBinOp<DPortTokens<CI>,E,OpBinT::Ge> represents a request for available/free
+ * DBinOp<DPortTokens<P>,E,OpBinT::Ge> represents a request for available/free
  * number of tokens on actor ports
  */
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-template <class CI, class E>
-struct CommReset<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
+template <class P, class E>
+struct CommReset<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
 {
   typedef void result_type;
 
   static inline
-  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
+  result_type apply(const DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommReset<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >"
+    outDbg << EXPR << "CommReset<DBinOp<DPortTokens<P>,E,OpBinT::Ge> >"
                  "::apply(" << e.a.p.name() << ", ... )" << std::endl << INFO;
 # endif
-    return e.a.p.portAccess->setLimit(0);
+    return e.a.p.setLimit(0);
   }
 };
 
-template <class CI, class E>
-struct CommSetup<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
+template <class P, class E>
+struct CommSetup<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
 {
   typedef void result_type;
 
   static inline
-  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
+  result_type apply(const DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> &e)
   {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommSetup<DBinOp<DPortTokens<CI>,E,OpBinT::Ge> >"
+    outDbg << EXPR << "CommSetup<DBinOp<DPortTokens<P>,E,OpBinT::Ge> >"
                  "::apply(" << e.a.p.name() << ", ... )" << std::endl << INFO;
-# endif
+# endif //defined(SYSTEMOC_DEBUG)
     size_t req = Value<E>::apply(e.b);
 # ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-    e.a.getCI().traceCommSetup(req);
-    //TraceLog.traceCommSetup(dynamic_cast<smoc_root_chan *>(e.a.getCI()), req);
-# endif
-    return e.a.p.portAccess->setLimit(req);
+    e.a.p.traceCommSetup(req);
+# endif //defined(SYSTEMOC_ENABLE_DATAFLOW_TRACE)
+    e.a.p.setLimit(req);
   }
 };
-#endif
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
 
-template <class CI, class E>
-struct Value<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
+template <class P, class E>
+struct Value<DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> >
 {
   typedef Expr::Detail::ENABLED result_type;
 
   static inline
-  result_type apply(const DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> &e)
+  result_type apply(const DBinOp<DPortTokens<P>,E,Expr::OpBinT::Ge> &e)
   {
 #if defined(SYSTEMOC_ENABLE_DEBUG)
     size_t req = Value<E>::apply(e.b);
-    assert(e.a.getCI().availableCount() >= req);
-    // WHY is this needed? This should already be done by CommSetup!
-    e.a.p.portAccess->setLimit(req); 
+    assert(e.a.p.availableCount() >= req);
+    // FIXME: WHY is this needed? This should already be done by CommSetup!
+    e.a.p.setLimit(req); 
 #endif
     return result_type();
   }
@@ -1553,10 +1541,9 @@ struct Value<DBinOp<DPortTokens<CI>,E,Expr::OpBinT::Ge> >
  * DComm represents request to consume/produce tokens
  */
 
-template<class CI, class E>
+template<class P, class E>
 class DComm {
-public:
-  typedef DComm<CI,E> this_type;
+  typedef DComm<P,E> this_type;
 
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
@@ -1567,49 +1554,42 @@ public:
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
-  smoc_sysc_port &p;
-  E               committed; // was "E   e;"
-  E               required;
-
-  CI &getCI() const {
-    return *static_cast<CI *>(
-      const_cast<Detail::PortBaseIf *>(p.get_interface()));
-  }
+  P &p; ///< The smoc port
+  E  committed; // was "E   e;"
+  E  required;
 public:
   explicit DComm(smoc_sysc_port &p, const E &c, const E &r):
     p(p), committed(c), required(r) {}
 };
 
-template<class CI, class E>
-struct D<DComm<CI,E> >: public DBase<DComm<CI,E> > {
-  D(smoc_sysc_port &p, const E &r, const E &c): DBase<DComm<CI,E> >(DComm<CI,E>(p, r, c)) {}
+template<class P, class E>
+struct D<DComm<P,E> >: public DBase<DComm<P,E> > {
+  D(P &p, const E &r, const E &c): DBase<DComm<P,E> >(DComm<P,E>(p, r, c)) {}
 };
 
 // Make a convenient typedef for the token type.
-template<class CI, class E>
+template<class P, class E>
 struct Comm {
-  typedef D<DComm<CI,E> > type;
+  typedef D<DComm<P,E> > type;
 };
 
 template <class P, class E>
-typename Comm<typename P::chan_base_type,E>::type comm(P &p,
-                                                       const E &r,
-                                                       const E &c)
-  { return typename Comm<typename P::chan_base_type,E>::type(p,r,c); }
+typename Comm<P,E>::type comm(P &p, E const &r, E const &c)
+  { return typename Comm<P,E>::type(p,r,c); }
 
-template<class CI, class E>
-class VisitorApplication<DComm<CI,E> > {
+template<class P, class E>
+class VisitorApplication<DComm<P,E> > {
 public:
   typedef void                      *result_type;
   typedef Detail::ExprVisitor<void> &param1_type;
 
   static inline
-  result_type apply(const DComm<CI,E> &e, param1_type p)
+  result_type apply(const DComm<P,E> &e, param1_type p)
     { return p.visitComm(e.p, boost::bind(VisitorApplication<E>::apply, e.committed, _1)); }
 };
 
-template <class CI, class E>
-struct Sensitivity<DComm<CI,E> >
+template <class P, class E>
+struct Sensitivity<DComm<P,E> >
 {
   typedef Detail::Process      match_type;
 
@@ -1617,11 +1597,11 @@ struct Sensitivity<DComm<CI,E> >
   typedef Detail::IOPattern   &param1_type;
 
   static
-  void apply(const DComm<CI,E> &comm,
+  void apply(const DComm<P,E>  &comm,
              Detail::IOPattern &ap)
   {
     size_t numberRequiredTokens = Value<E>::apply(comm.required);
-    smoc_event& blockEvent =  comm.getCI().blockEvent(numberRequiredTokens);
+    smoc_event_waiter& blockEvent =  comm.p.blockEvent(numberRequiredTokens);
     smoc_sysc_port& port = comm.p;
     ap.addPortRequirement(port, numberRequiredTokens, blockEvent);
 #ifdef SYSTEMOC_DEBUG
@@ -1633,42 +1613,42 @@ struct Sensitivity<DComm<CI,E> >
   }
 };
 
-template <class CI, class E>
-struct CommExec<DComm<CI, E> > {
+template <class P, class E>
+struct CommExec<DComm<P, E> > {
   typedef Detail::Process         match_type;
   typedef void                    result_type;
 
 #ifdef SYSTEMOC_ENABLE_VPC
   static inline
-  result_type apply(const DComm<CI, E> &e,
-                    const smoc::Detail::VpcInterface vpcIf) {
+  result_type apply(const DComm<P, E>                &e,
+                    const smoc::Detail::VpcInterface  vpcIf) {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommExec<DComm<CI, E> >"
+    outDbg << EXPR << "CommExec<DComm<P, E> >"
                  "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
 # endif
-  //std::cerr << "accessCount = " << e.getCI().getAccessCount() << std::endl;
-    e.getCI().resetAccessCount();
-    return e.getCI().commExec(Value<E>::apply(e.committed), vpcIf);
+  //std::cerr << "accessCount = " << e.p.getAccessCount() << std::endl;
+    e.p.resetAccessCount();
+    return e.p.commExec(Value<E>::apply(e.committed), vpcIf);
   }
 #else //!defined(SYSTEMOC_ENABLE_VPC)
   static inline
-  result_type apply(const DComm<CI, E> &e) {
+  result_type apply(const DComm<P, E> &e) {
 # ifdef SYSTEMOC_DEBUG
-    outDbg << EXPR << "CommExec<DComm<CI, E> >"
+    outDbg << EXPR << "CommExec<DComm<P, E> >"
                  "::apply(" << e.p.name() << ", ... )" << std::endl << INFO;
 # endif
-    return e.getCI().commExec(Value<E>::apply(e.committed));
+    return e.p.commExec(Value<E>::apply(e.committed));
   }
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
 
 };
 
-template <class CI, class E>
-struct Value<DComm<CI, E> > {
+template <class P, class E>
+struct Value<DComm<P, E> > {
   typedef Expr::Detail::ENABLED result_type;
 
   static inline
-  result_type apply(const DComm<CI, E> &e) {
+  result_type apply(const DComm<P, E> &e) {
     return result_type();
   }
 };
@@ -1677,11 +1657,11 @@ struct Value<DComm<CI, E> > {
  * DToken is a placeholder for a token in the expression.
  */
 
-template<typename IFACE>
+template<class P>
 class DToken {
 public:
-  typedef const typename IFACE::data_type value_type;
-  typedef DToken<IFACE>                   this_type;
+  typedef const typename P::data_type value_type;
+  typedef DToken<P>                   this_type;
   
   friend class VisitorApplication<this_type>;
   friend class CommExec<this_type>;
@@ -1692,48 +1672,48 @@ public:
   friend class Sensitivity<this_type>;
   friend class Value<this_type>;
 private:
-  smoc_port_base<IFACE> &p;
-  size_t                 pos;
+  P      &p; ///< The smoc port
+  size_t  pos;
 public:
-  explicit DToken(smoc_port_base<IFACE> &p, size_t pos)
+  explicit DToken(P &p, size_t pos)
     : p(p), pos(pos) {}
 };
 
-template <typename IFACE>
-class VisitorApplication<DToken<IFACE> > {
+template <class P>
+class VisitorApplication<DToken<P> > {
 public:
   typedef void                      *result_type;
   typedef Detail::ExprVisitor<void> &param1_type;
 
   static inline
-  result_type apply(const DToken <IFACE> &e, param1_type p)
+  result_type apply(const DToken <P> &e, param1_type p)
     { return p.visitToken(e.p, e.pos); }
 };
 
-template<typename IFACE>
-struct Value<DToken<IFACE> > {
-  typedef const typename IFACE::data_type result_type;
+template<class P>
+struct Value<DToken<P> > {
+  typedef const typename P::data_type result_type;
 
   static inline
-  result_type apply(const DToken<IFACE> &e)
+  result_type apply(const DToken<P> &e)
     { return e.p[e.pos]; }
 };
 
-template<typename IFACE>
-struct D<DToken<IFACE> >: public DBase<DToken<IFACE> > {
-  D(smoc_port_base<IFACE> &p, size_t pos)
-    : DBase<DToken<IFACE> >(DToken<IFACE>(p,pos)) {}
+template<class P>
+struct D<DToken<P> >: public DBase<DToken<P> > {
+  D(P &p, size_t pos)
+    : DBase<DToken<P> >(DToken<P>(p,pos)) {}
 };
 
 // Make a convenient typedef for the token type.
-template<typename IFACE>
+template<class P>
 struct Token {
-  typedef D<DToken<IFACE> > type;
+  typedef D<DToken<P> > type;
 };
 
-template <typename IFACE>
-typename Token<IFACE>::type token(smoc_port_base<IFACE> &p, size_t pos)
-  { return typename Token<IFACE>::type(p,pos); }
+template <typename P>
+typename Token<P>::type token(P &p, size_t pos)
+  { return typename Token<P>::type(p,pos); }
 
 } } // namespace smoc::Expr
 

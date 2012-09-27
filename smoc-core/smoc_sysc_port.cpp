@@ -44,8 +44,6 @@ using namespace smoc::Detail;
 smoc_sysc_port::smoc_sysc_port(const char* name_, sc_port_policy policy)
   : sc_port_base(
       name_, 4096, SC_ONE_OR_MORE_BOUND),
-    interfacePtr(NULL),
-    portAccess(NULL),
     parent(NULL), child(NULL) {
 }
 
@@ -55,18 +53,12 @@ smoc_sysc_port::~smoc_sysc_port() {
 // SystemC 2.2 requires this method
 // (must also return the correct number!!!)
 int smoc_sysc_port::interface_count() {
-//return interfacePtr ? 1 : 0;
   return interfaces.size();
 }
 
 void smoc_sysc_port::add_interface(sc_core::sc_interface *i_) {
-//assert(interfacePtr == NULL);
-//interfacePtr = dynamic_cast<PortBaseIf *>(i);
-//assert(interfacePtr != NULL);
   PortBaseIf *i = dynamic_cast<PortBaseIf *>(i_);
   assert(i != NULL);
-  if (interfacePtr == NULL)
-    interfacePtr = i;
   interfaces.push_back(i);
 }
 
@@ -78,21 +70,34 @@ void smoc_sysc_port::bind(this_type &parent_) {
 }
 
 void smoc_sysc_port::finalise() {
+#ifdef SYSTEMOC_DEBUG
+  outDbg << "<smoc_sysc_port::finalise name=\"" << this->name() << "\">"
+         << std::endl << Indent::Up;
+#endif // SYSTEMOC_DEBUG
 #ifdef SYSTEMOC_NEED_IDS  
   // Allocate Id for myself.
   getSimCTX()->getIdPool().addIdedObj(this);
 #endif // SYSTEMOC_NEED_IDS
+  for (Interfaces::iterator iter = interfaces.begin();
+       iter != interfaces.end();
+       ++iter)
+    portAccesses.push_back((*iter)->getChannelAccess());
+#ifdef SYSTEMOC_DEBUG
+  outDbg << Indent::Down << "</smoc_sysc_port::finalise>" << std::endl;
+#endif // SYSTEMOC_DEBUG
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
 void smoc_sysc_port::finaliseVpcLink(std::string actorName){
   assert (getLeafPort(this) == this);
-  {
-    VpcPortInterface * vpi = dynamic_cast<VpcPortInterface*>(this->interfacePtr);
+  for (Interfaces::iterator iter = interfaces.begin();
+       iter != interfaces.end();
+       ++iter) {
+    VpcPortInterface * vpi = dynamic_cast<VpcPortInterface*>(*iter);
     std::string channelName = "";
     if (this->isInput()) {
       PortInBaseIf* port =
-          dynamic_cast<PortInBaseIf*>(this->interfacePtr);
+          dynamic_cast<PortInBaseIf*>(*iter);
       assert(port != NULL);
 
       channelName = port->getChannelName();
@@ -101,7 +106,7 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
               actorName, this);
     } else {
       PortOutBaseIf* port =
-          dynamic_cast<PortOutBaseIf*>(this->interfacePtr);
+          dynamic_cast<PortOutBaseIf*>(*iter);
       assert(port != NULL);
 
       channelName = port->getChannelName();
@@ -116,8 +121,3 @@ void smoc_sysc_port::finaliseVpcLink(std::string actorName){
   }
 }
 #endif //SYSTEMOC_ENABLE_VPC
-
-/*#ifdef SYSTEMOC_ENABLE_SGX
-SystemCoDesigner::SGX::Port::Ptr smoc_sysc_port::getNGXObj() const
-  { return port; }
-#endif*/

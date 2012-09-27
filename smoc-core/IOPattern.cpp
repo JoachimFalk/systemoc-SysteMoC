@@ -65,16 +65,16 @@ IOPattern::finalise(){
 }
 
 void
-IOPattern::addPortRequirement(smoc_sysc_port& port,
-                              size_t numberRequiredTokens,
-                              smoc_event& portEvent){
+IOPattern::addPortRequirement(smoc_sysc_port    &port,
+                              size_t             numberRequiredTokens,
+                              smoc_event_waiter &portEvent){
   //std::cerr << this << " IOPattern::addPortRequirement" << std::endl;
 
   portInfos.push_back(PortInfo(&port, numberRequiredTokens, &portEvent));
 }
 
 void
-IOPattern::addEvent(smoc_event_waiter& plainEvent){
+IOPattern::addEvent(smoc_event_waiter &plainEvent){
   //std::cerr << this << " IOPattern::addEvent" << std::endl;
 
   // plainEvent may be a "Expr::till" event!

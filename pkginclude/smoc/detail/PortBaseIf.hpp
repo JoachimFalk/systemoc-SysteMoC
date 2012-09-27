@@ -43,9 +43,14 @@
 
 #include "SimCTXBase.hpp"
 
+#include "../smoc_event.hpp"
+
 #ifdef SYSTEMOC_ENABLE_VPC
 #include "VpcInterface.hpp"
 #endif // SYSTEMOC_ENABLE_VPC
+
+class smoc_sysc_port;
+class smoc_port_access_base_if;
 
 namespace smoc { namespace Detail {
 
@@ -72,11 +77,25 @@ class PortBaseIf
   , public SimCTXBase
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
   , public AccessCounter
-#endif // SYSTEMOC_PORT_ACCESS_COUNTER
+#endif //SYSTEMOC_PORT_ACCESS_COUNTER
 #ifdef SYSTEMOC_ENABLE_VPC
   , public VpcPortInterface
-#endif // SYSTEMOC_ENABLE_VPC
-  , private boost::noncopyable {
+#endif //SYSTEMOC_ENABLE_VPC
+  , private boost::noncopyable
+{
+  friend class ::smoc_sysc_port;
+protected:
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  virtual void        traceCommSetup(size_t req) {}
+#endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  virtual smoc_event &blockEvent(size_t n) = 0;
+  virtual size_t      availableCount() const = 0;
+#ifdef SYSTEMOC_ENABLE_VPC
+  virtual void        commExec(size_t n, VpcInterface vpcIf) = 0;
+#else //!defined(SYSTEMOC_ENABLE_VPC)
+  virtual void        commExec(size_t n) = 0;
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
+  virtual smoc_port_access_base_if *getChannelAccess() = 0;
 };
 
 } } // namespace smoc::Detail
