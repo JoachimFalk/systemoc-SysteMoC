@@ -43,14 +43,28 @@
 #include <systemc>
 
 #include <smoc/detail/NamedIdedObj.hpp>
-#include <smoc/detail/PortBaseIf.hpp>
+#include <smoc/detail/PortIOBaseIf.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
+#include <smoc/smoc_event.hpp>
 
 namespace smoc { namespace Detail {
 
   class PortBaseIf;
 
 } } // namespace smoc::Detail
+
+namespace smoc { namespace Expr {
+
+  template <class E> class CommExec;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  template <class E> class CommSetup;
+  template <class E> class CommReset;
+#endif //defined(SYSTEMOC_ENABLE_DEBUG)
+  template <class E> class Sensitivity;
+  template <class E> class Value;
+
+} } // namespace smoc::Detail
+
 
 class smoc_port_access_base_if {
 public:
@@ -109,19 +123,34 @@ class smoc_sysc_port
   public smoc::Detail::SimCTXBase,
   private boost::noncopyable
 {
+  typedef smoc_sysc_port this_type;
+  
   friend class smoc_root_node;
   friend class smoc_actor;
+  template <class E> friend class smoc::Expr::CommExec;
+#if defined(SYSTEMOC_ENABLE_DEBUG)
+  template <class E> friend class smoc::Expr::CommSetup;
+  template <class E> friend class smoc::Expr::CommReset;
+#endif
+  template <class E> friend class smoc::Expr::Sensitivity;
+  template <class E> friend class smoc::Expr::Value;
 
-  typedef smoc_sysc_port this_type;
+  template <class PORT, class IFACE> friend class smoc::Detail::PortInBaseIf::PortMixin;
+  template <class PORT, class IFACE> friend class smoc::Detail::PortOutBaseIf::PortMixin;
+
 //FIXME: HACK make protected or private
 public:
-  smoc::Detail::PortBaseIf *interfacePtr;
-  smoc_port_access_base_if *portAccess;
   //FIXME(MS): allow more than one "IN-Port" per Signal
   smoc_sysc_port           *parent;
   smoc_sysc_port           *child;
 private:
-  std::vector<smoc::Detail::PortBaseIf *> interfaces;
+  typedef std::vector<smoc::Detail::PortBaseIf *>     Interfaces;
+  typedef std::vector<smoc_port_access_base_if *>     PortAccesses;
+  typedef std::map<size_t, smoc::smoc_event_and_list> BlockEventMap;
+
+  Interfaces    interfaces;
+  PortAccesses  portAccesses;
+  BlockEventMap blockEventMap;
 
   // SystemC 2.2 requires this method
   // (must also return the correct number!!!)
@@ -142,12 +171,85 @@ protected:
 #endif //SYSTEMOC_ENABLE_VPC
 
   virtual ~smoc_sysc_port();
+
+#ifdef SYSTEMOC_PORT_ACCESS_COUNTER
+  size_t      getAccessCount() const {
+    return interfaces.front()->getAccessCount();
+  }
+  void        resetAccessCount() {
+    for (Interfaces::iterator iter = interfaces.begin();
+         iter != interfaces.end();
+         ++iter)
+      (*iter)->resetAccessCount();
+  }
+  void        incrementAccessCount() {
+    for (Interfaces::iterator iter = interfaces.begin();
+         iter != interfaces.end();
+         ++iter)
+      (*iter)->incrementAccessCount();
+  }
+#endif // SYSTEMOC_PORT_ACCESS_COUNTER
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  void        traceCommSetup(size_t req) {
+    for (Interfaces::iterator iter = interfaces.begin();
+         iter != interfaces.end();
+         ++iter)
+      (*iter)->traceCommSetup(req);
+  }
+#endif //SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  smoc::smoc_event_waiter &blockEvent(size_t n) {
+    if (interfaces.size() > 1) {
+      BlockEventMap::iterator iter = blockEventMap.find(n);
+      if (iter == blockEventMap.end()) {
+        iter = blockEventMap.insert(std::make_pair(n, smoc::smoc_event_and_list())).first;
+        for (Interfaces::iterator iIter = interfaces.begin();
+             iIter != interfaces.end();
+             ++iIter)
+          iter->second.insert((*iIter)->blockEvent(n));
+      }
+      return iter->second;
+    } else {
+      assert(interfaces.size() == 1);
+      return interfaces.front()->blockEvent(n);
+    }
+  }
+  size_t      availableCount() const {
+    size_t n = std::numeric_limits<size_t>::max();
+    for (Interfaces::const_iterator iter = interfaces.begin();
+         iter != interfaces.end();
+         ++iter)
+      n = std::min(n, (*iter)->availableCount());
+    return n;
+  }
+#ifdef SYSTEMOC_ENABLE_VPC
+  void        commExec(size_t n, VpcInterface vpcIf)
+#else //!defined(SYSTEMOC_ENABLE_VPC)
+  void        commExec(size_t n)
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
+  {
+    for (Interfaces::iterator iter = interfaces.begin();
+         iter != interfaces.end();
+         ++iter)
+#ifdef SYSTEMOC_ENABLE_VPC
+      (*iter)->commExec(n, vpcIf);
+#else //!defined(SYSTEMOC_ENABLE_VPC)
+      (*iter)->commExec(n);
+#endif //!defined(SYSTEMOC_ENABLE_VPC)
+  }
+#ifdef SYSTEMOC_ENABLE_DEBUG
+  void setLimit(size_t req) {
+    for (PortAccesses::iterator iter = portAccesses.begin();
+         iter != portAccesses.end();
+         ++iter)
+      (*iter)->setLimit(req);
+  }
+#endif //SYSTEMOC_ENABLE_DEBUG
 public:
   // get the first interface without checking for nil
   smoc::Detail::PortBaseIf       *get_interface()
-    { return interfacePtr; }
+    { return interfaces.front(); }
   smoc::Detail::PortBaseIf const *get_interface() const
-    { return interfacePtr; }
+    { return interfaces.front(); }
 
   smoc_sysc_port *getParentPort() const
     { return parent; }
@@ -164,6 +266,5 @@ public:
 
 typedef std::list<smoc_sysc_port *>       smoc_sysc_port_list;
 typedef std::list<sc_core::sc_port_base*> sc_port_list;
-
 
 #endif // _INCLUDED_DETAIL_SMOC_SYSC_PORT_HPP

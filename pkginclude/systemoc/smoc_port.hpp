@@ -96,28 +96,9 @@ protected:
   smoc_port_base(const char *name_, sc_port_policy policy)
     : smoc_sysc_port(name_, policy) {}
 
-  void finalise() {
-#ifdef SYSTEMOC_DEBUG
-    outDbg << "<smoc_port_base::finalise name=\"" << this->name() << "\">"
-           << std::endl << Indent::Up;
-#endif // SYSTEMOC_DEBUG
-    if(get_interface() != NULL)
-      portAccess = (*this)->getChannelAccess();
-    smoc_sysc_port::finalise();
-#ifdef SYSTEMOC_DEBUG
-    outDbg << Indent::Down << "</smoc_port_base::finalise>" << std::endl;
-#endif // SYSTEMOC_DEBUG
-  }
-
-  // get the channel access
-  access_type *get_chanaccess() {
-    assert(portAccess);
-    return static_cast<access_type *>(portAccess);
-  }
-  
-  const access_type *get_chanaccess() const {
-    assert(portAccess);
-    return static_cast<const access_type *>(portAccess);
+  virtual void finalise() {
+    base_type::finalise();
+    IFACE::template PortMixin<smoc_port_base<IFACE>,IFACE>::finalise();
   }
 
   iface_type       *operator -> () {

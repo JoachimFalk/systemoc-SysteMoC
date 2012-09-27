@@ -46,6 +46,8 @@ class smoc_multireader_fifo_chan_base;
 template<class, class> class smoc_chan_adapter;
 template<class, class> class smoc_multiplex_fifo_chan;
 
+class smoc_sysc_port;
+
 namespace smoc { namespace Detail {
 
 template<class IFaceImpl>
@@ -85,24 +87,24 @@ public:
     typedef typename access_type::return_type return_type;
 
     typedef Expr::BinOp<
-      Expr::DComm<this_type,Expr::DLiteral<size_t> >,
-      Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
-      Expr::OpBinT::LAnd>::type                 CommAndPortTokensGuard;
-    typedef Expr::PortTokens<this_type>::type PortTokensGuard;
+      Expr::DComm<smoc_sysc_port,Expr::DLiteral<size_t> >,
+      Expr::DBinOp<Expr::DPortTokens<smoc_sysc_port>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
+      Expr::OpBinT::LAnd>::type                     CommAndPortTokensGuard;
+    typedef Expr::PortTokens<smoc_sysc_port>::type  PortTokensGuard;
   public:
     // operator(n,m) n: How many tokens to consume, m: How many tokens must be available
     CommAndPortTokensGuard communicate(size_t n, size_t m) {
       assert(m >= n);
       return
-        Expr::comm(*getImpl(),
+        Expr::comm(*static_cast<smoc_sysc_port *>(getImpl()),
                    Expr::DLiteral<size_t>(n),
                    Expr::DLiteral<size_t>(m))
         && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
-        Expr::portTokens(*getImpl()) >= m;
+        Expr::portTokens(*static_cast<smoc_sysc_port *>(getImpl())) >= m;
     }
 
     PortTokensGuard getConsumableTokens()
-      { return Expr::portTokens(*getImpl()); }
+      { return Expr::portTokens(*static_cast<smoc_sysc_port *>(getImpl())); }
 
     // reflect operator () to channel interface
     CommAndPortTokensGuard operator ()(size_t n, size_t m)
@@ -113,21 +115,28 @@ public:
     // Provide [] access operator for port.
     const return_type operator[](size_t n) const {
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
-      (*getImpl())->incrementAccessCount();
+      getImpl()->incrementAccessCount();
 #endif // SYSTEMOC_PORT_ACCESS_COUNTER
-      return (*(getImpl()->get_chanaccess()))[n];
+      return (*portAccess)[n];
     }
 
     // Provide getValueAt method for port. The methods returms an expression
     // corresponding to the token value in the fifo at offset n for usage in
     // transition guards
-    typename smoc::Expr::Token<IFACE>::type getValueAt(size_t n)
-      { return smoc::Expr::token<IFACE>(*getImpl(),n); }
+    typename smoc::Expr::Token<PORT>::type getValueAt(size_t n)
+      { return smoc::Expr::token<PORT>(*getImpl(),n); }
 
-    // Provide tokenIsValid method for port. The methods returns true if the
-    // token on offset i is defined or false otherwise.
-    bool tokenIsValid(size_t i=0) const
-      { return getImpl()->get_chanaccess()->tokenIsValid(i); }
+//  // Provide tokenIsValid method for port. The methods returns true if the
+//  // token on offset i is defined or false otherwise.
+//  bool tokenIsValid(size_t i=0) const
+//    { return getImpl()->get_chanaccess()->tokenIsValid(i); }
+  protected:
+    access_type *portAccess;
+
+    void finalise() {
+      assert(getImpl()->portAccesses.size() == 1);
+      portAccess = static_cast<access_type *>(getImpl()->portAccesses.front());
+    }
   };
 protected:
   // constructor
@@ -166,11 +175,6 @@ protected:
   virtual void lessData(size_t n) {}
   /// @brief Reset
   virtual void reset() {}
-
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  virtual void traceCommSetup(size_t req) {};
-#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-
 public:
   virtual size_t      inTokenId() const = 0;
   virtual size_t      numAvailable() const = 0;
@@ -213,24 +217,39 @@ public:
     typedef typename access_type::return_type return_type;
 
     typedef Expr::BinOp<
-      Expr::DComm<this_type,Expr::DLiteral<size_t> >,
-      Expr::DBinOp<Expr::DPortTokens<this_type>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
-      Expr::OpBinT::LAnd>::type                 CommAndPortTokensGuard;
-    typedef Expr::PortTokens<this_type>::type PortTokensGuard;
+      Expr::DComm<smoc_sysc_port,Expr::DLiteral<size_t> >,
+      Expr::DBinOp<Expr::DPortTokens<smoc_sysc_port>,Expr::DLiteral<size_t>,Expr::OpBinT::Ge>,
+      Expr::OpBinT::LAnd>::type                     CommAndPortTokensGuard;
+    typedef Expr::PortTokens<smoc_sysc_port>::type  PortTokensGuard;
+  protected:
+    class Proxy {
+      std::vector<smoc_port_access_base_if *> &portAccesses;
+      size_t                                   n;
+    public:
+      Proxy(std::vector<smoc_port_access_base_if *> &portAccesses, size_t n)
+        : portAccesses(portAccesses), n(n) {}
+
+      void operator=(const data_type &t) {
+        for (std::vector<smoc_port_access_base_if *>::iterator iter = portAccesses.begin();
+             iter != portAccesses.end();
+             ++iter)
+          (*static_cast<access_type *>(*iter))[n] = t;
+      }
+    };
   public:
     // operator(n,m) n: How many tokens to produce, m: How much space must be available
     CommAndPortTokensGuard communicate(size_t n, size_t m) {
       assert(m >= n);
       return
-        Expr::comm(*getImpl(),
+        Expr::comm(*static_cast<smoc_sysc_port *>(getImpl()),
                    Expr::DLiteral<size_t>(n),
                    Expr::DLiteral<size_t>(m))
         && //FIXME: Expr::comm knows n and m -> should remove Expr::portTokens
-        Expr::portTokens(*getImpl()) >= m;
+        Expr::portTokens(*static_cast<smoc_sysc_port *>(getImpl())) >= m;
     }
 
     PortTokensGuard getFreeSpace()
-      { return Expr::portTokens(*getImpl()); }
+      { return Expr::portTokens(*static_cast<smoc_sysc_port *>(getImpl())); }
 
     // reflect operator () to channel interface
     CommAndPortTokensGuard operator ()(size_t n, size_t m)
@@ -239,11 +258,14 @@ public:
       { return this->communicate(n,n); }
 
     // Provide [] access operator for port.
-    return_type operator[](size_t n)  {
+    Proxy operator[](size_t n)  {
 #ifdef SYSTEMOC_PORT_ACCESS_COUNTER
       (*getImpl())->incrementAccessCount();
 #endif // SYSTEMOC_PORT_ACCESS_COUNTER
-      return (*(getImpl()->get_chanaccess()))[n];
+      return Proxy(getImpl()->portAccesses, n);
+    }
+  protected:
+    void finalise() {
     }
   };
 protected:
@@ -279,11 +301,6 @@ protected:
   virtual void lessSpace(size_t n) {}
   /// @brief Reset
   virtual void reset() {}
-
-#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
-  virtual void traceCommSetup(size_t req) {};
-#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
-
 public:
   virtual size_t      outTokenId() const = 0;
   virtual size_t      numFree() const = 0;

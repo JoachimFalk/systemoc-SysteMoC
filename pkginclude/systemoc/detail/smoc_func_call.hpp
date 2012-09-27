@@ -46,6 +46,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <smoc/smoc_expr.hpp>
+#include <smoc/smoc_simulation_ctx.hpp>
 
 #ifdef SYSTEMOC_ENABLE_VPC
 # include <vpc.hpp>

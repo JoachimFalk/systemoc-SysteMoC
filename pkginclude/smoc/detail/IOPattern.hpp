@@ -46,33 +46,32 @@ class smoc_sysc_port;
 
 namespace smoc { namespace Detail {
 
-  struct PortInfo{
-    PortInfo(smoc_sysc_port  *port,
-             size_t           numberRequiredTokens,
-             smoc_event      *portEvent)
+  struct PortInfo {
+    PortInfo(smoc_sysc_port    *port,
+             size_t             numberRequiredTokens,
+             smoc_event_waiter *portEvent)
       : port(port),
         numberRequiredTokens(numberRequiredTokens),
         portEvent(portEvent) {}
 
-    smoc_sysc_port  *port;
-    size_t           numberRequiredTokens;
-    smoc_event      *portEvent;
+    smoc_sysc_port    *port;
+    size_t             numberRequiredTokens;
+    smoc_event_waiter *portEvent;
   };
-  
-  typedef std::list<PortInfo> PortInfos;
-  typedef std::list<smoc_event_waiter*> PlainEvents;
-  //typedef std::list<smoc_ref_event_p> ReadEvents;
 
-  class IOPattern{
+  typedef std::list<PortInfo>           PortInfos;
+  typedef std::list<smoc_event_waiter*> PlainEvents;
+
+  class IOPattern {
   public:
     IOPattern() :
       ioPatternWaiter(NULL) {}
 
     void finalise();
 
-    void addPortRequirement(smoc_sysc_port& port,
-                            size_t numberRequiredTokens,
-                            smoc_event& portEvent);
+    void addPortRequirement(smoc_sysc_port    &port,
+                            size_t             numberRequiredTokens,
+                            smoc_event_waiter &portEvent);
 
     void addEvent(smoc_event_waiter& plainEvent);
 
