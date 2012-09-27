@@ -51,7 +51,7 @@ void smoc_reset_chan::doReset() {
 }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who, const smoc_ref_event_p &latEvent)
+void smoc_reset_chan::produce(smoc::Detail::PortOutBaseIf *who, const smoc::smoc_ref_event_p &latEvent)
 {
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
   this->getSimCTX()->getDataflowTraceLog()->traceCommExecOut(this, 1);

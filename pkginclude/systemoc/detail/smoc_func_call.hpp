@@ -296,7 +296,7 @@ private:
 };
 
 #ifdef SYSTEMOC_ENABLE_VPC
-namespace SysteMoC { namespace Detail {
+namespace smoc { namespace Detail {
 
   using SystemC_VPC::FunctionNames;
 
@@ -376,7 +376,7 @@ using namespace std;
 
 using namespace smoc::Detail;
 
-namespace SysteMoC { namespace dMM {
+namespace smoc { namespace dMM {
 
   class MMActionNameVisitor {
 public:
