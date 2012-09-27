@@ -58,7 +58,7 @@
 class smoc_graph_base;
 
 #ifdef SYSTEMOC_ENABLE_VPC
-namespace SysteMoC { namespace Scheduling {
+namespace smoc { namespace Scheduling {
 bool canExecute(SystemC_VPC::ScheduledTask* actor);
 void execute(SystemC_VPC::ScheduledTask* actor);
 }} // namespace smoc::Scheduler

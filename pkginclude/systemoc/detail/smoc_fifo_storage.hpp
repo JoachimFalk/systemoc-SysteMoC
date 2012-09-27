@@ -41,6 +41,7 @@
 #include <systemoc/smoc_config.h>
 
 #include <smoc/detail/DumpingInterfaces.hpp>
+#include <smoc/detail/QueueWithStorage.hpp>
 
 #include <CoSupport/String/convert.hpp>
 
@@ -56,20 +57,28 @@
  */
 template<class T, class BASE>
 class smoc_fifo_storage
-: public BASE {
-  typedef smoc_fifo_storage<T, BASE>  this_type;
-  typedef BASE                        base_type;
+: public smoc::Detail::QueueWithStorage<T, BASE>,
+  public smoc_ring_access<
+    typename smoc_storage_in<T>::storage_type,
+    typename smoc_storage_in<T>::return_type
+  >,
+  public smoc_ring_access<
+    typename smoc_storage_out<T>::storage_type,
+    typename smoc_storage_out<T>::return_type
+  >
+{
+  typedef smoc_fifo_storage<T, BASE>              this_type;
+  typedef smoc::Detail::QueueWithStorage<T, BASE> base_type;
 public:
-  typedef T                           data_type;
-  typedef smoc_storage<data_type>     storage_type;
-
+  typedef typename base_type::storage_type storage_type;
+protected:
   typedef smoc_ring_access<
-    typename smoc_storage_in<data_type>::storage_type,
-    typename smoc_storage_in<data_type>::return_type
+    typename smoc_storage_in<T>::storage_type,
+    typename smoc_storage_in<T>::return_type
   > access_in_type_impl;
   typedef smoc_ring_access<
-    typename smoc_storage_out<data_type>::storage_type,
-    typename smoc_storage_out<data_type>::return_type
+    typename smoc_storage_out<T>::storage_type,
+    typename smoc_storage_out<T>::return_type
   > access_out_type_impl;
 
   /// @brief Channel initializer
@@ -91,29 +100,16 @@ public:
     std::vector<T> marking;
   };
 protected:
-  storage_type *storage;
   std::vector<T> initialTokens;
 protected:
 
   /// @brief Constructor
   smoc_fifo_storage(const chan_init &i)
-    : BASE(i),
-      storage(new storage_type[this->fSize()]),
+    : base_type(i),
+      access_in_type_impl(this->storage, this->fSize(), &this->rIndex()),
+      access_out_type_impl(this->storage, this->fSize(), &this->wIndex()),
       initialTokens(i.marking)
   {}
-
-  // overload rpp from QueueRWPtr to implement destructor call on commit read
-  void rpp(size_t n) {
-    size_t rindex = this->rIndex();
-    size_t o = std::min(n, this->fSize() - rindex);
-    size_t p = n-o;
-    for (;o > 0; --o, ++rindex)
-      storage[rindex].invalidate();
-    assert(p == 0 || rindex == this->fSize()); rindex = 0;
-    for (;p > 0; --p, ++rindex)
-      storage[rindex].invalidate();
-    base_type::rpp(n);
-  }
 
   void doReset() {
     // This resets the various pointers in the queue
@@ -125,10 +121,8 @@ protected:
 #ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
     this->getSimCTX()->getDataflowTraceLog()->traceInitialTokens(this, initialTokens.size(), this->depthCount());
 #endif
-
-
-    for(size_t j = 0; j < initialTokens.size(); ++j) {
-      storage[j].put(initialTokens[j]);
+    for (size_t j = 0; j < initialTokens.size(); ++j) {
+      this->storage[j].put(initialTokens[j]);
     }
     this->wpp(initialTokens.size());
     this->vpp(initialTokens.size());
@@ -136,19 +130,8 @@ protected:
     BASE::doReset();
   }
 
-  /// @brief Destructor
-  ~smoc_fifo_storage()
-    { delete[] storage; }
-
-  access_in_type_impl  *getReadPortAccess() {
-    return new access_in_type_impl(
-        storage, this->fSize(), &this->rIndex());
-  }
-  
-  access_out_type_impl *getWritePortAccess() {
-    return new access_out_type_impl(
-        storage, this->fSize(), &this->wIndex());
-  }
+  access_in_type_impl  *getReadPortAccess()  { return this; }
+  access_out_type_impl *getWritePortAccess() { return this; }
 
   void invalidateTokenInStorage(size_t x){
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -170,9 +153,9 @@ public:
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
   void dumpInitialTokens(smoc::Detail::IfDumpingInitialTokens *it) {
-    it->setType(typeid(data_type).name());
+    it->setType(typeid(typename this_type::data_type).name());
     for (size_t n = 0; n < this->visibleCount(); ++n)
-      it->addToken(CoSupport::String::asStr(storage[n].get()));
+      it->addToken(CoSupport::String::asStr(this->storage[n].get()));
   }
 #endif // SYSTEMOC_ENABLE_SGX
 };
@@ -183,17 +166,24 @@ public:
  */
 template<class BASE>
 class smoc_fifo_storage<void, BASE>
-: public BASE {
+: public smoc::Detail::QueueWithStorage<void, BASE>,
+  public smoc_ring_access<
+    typename smoc_storage_in<void>::storage_type,
+    typename smoc_storage_in<void>::return_type
+  >
+{
+  typedef smoc_fifo_storage<void, BASE>               this_type;
+  typedef smoc::Detail::QueueWithStorage<void, BASE>  base_type;
 public:
-  typedef void data_type;
-
+  typedef typename base_type::storage_type storage_type;
+protected:
   typedef smoc_ring_access<
-    typename smoc_storage_in<data_type>::storage_type,
-    typename smoc_storage_in<data_type>::return_type
+    typename smoc_storage_in<void>::storage_type,
+    typename smoc_storage_in<void>::return_type
   > access_in_type_impl;
   typedef smoc_ring_access<
-    typename smoc_storage_out<data_type>::storage_type,
-    typename smoc_storage_out<data_type>::return_type
+    typename smoc_storage_out<void>::storage_type,
+    typename smoc_storage_out<void>::return_type
   > access_out_type_impl;
 
   /// @brief Channel initializer
@@ -219,7 +209,7 @@ private:
 protected:
   /// @brief Constructor
   smoc_fifo_storage(const chan_init &i)
-    : BASE(i),
+    : base_type(i),
       initialTokens(i.marking)
   {}
 
@@ -236,11 +226,8 @@ protected:
     BASE::doReset();
   }
 
-  access_in_type_impl  *getReadPortAccess()
-    { return new access_in_type_impl(); }
-  
-  access_out_type_impl *getWritePortAccess()
-    { return new access_out_type_impl(); }
+  access_in_type_impl  *getReadPortAccess()  { return this; }
+  access_out_type_impl *getWritePortAccess() { return this; }
 
   void invalidateTokenInStorage(size_t x){
 #ifdef SYSTEMOC_ENABLE_VPC
@@ -253,7 +240,7 @@ public:
   // FIXME: This should be protected for the SysteMoC user but accessible
   // for SysteMoC visitors
   void dumpInitialTokens(smoc::Detail::IfDumpingInitialTokens *it) {
-    it->setType(typeid(data_type).name());
+    it->setType(typeid(typename this_type::data_type).name());
     for (size_t n = 0; n < this->visibleCount(); ++n)
       it->addToken("");
   }

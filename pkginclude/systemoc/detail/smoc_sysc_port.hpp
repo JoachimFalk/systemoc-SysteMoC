@@ -47,6 +47,10 @@
 #include <smoc/smoc_simulation_ctx.hpp>
 #include <smoc/smoc_event.hpp>
 
+#ifdef SYSTEMOC_ENABLE_VPC
+# include <smoc/detail/VpcInterface.hpp>
+#endif //SYSTEMOC_ENABLE_VPC
+
 namespace smoc { namespace Detail {
 
   class PortBaseIf;
@@ -222,7 +226,7 @@ protected:
     return n;
   }
 #ifdef SYSTEMOC_ENABLE_VPC
-  void        commExec(size_t n, VpcInterface vpcIf)
+  void        commExec(size_t n,  smoc::Detail::VpcInterface vpcIf)
 #else //!defined(SYSTEMOC_ENABLE_VPC)
   void        commExec(size_t n)
 #endif //!defined(SYSTEMOC_ENABLE_VPC)

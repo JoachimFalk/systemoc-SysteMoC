@@ -49,7 +49,7 @@
 
 namespace smoc { namespace Detail {
 
-//void dump_helper(std::pair<size_t, smoc_vpc_event_p> &e);
+void dump_helper(std::pair<size_t, smoc_vpc_event_p> &e);
 
 template<typename T>
 class EventQueue

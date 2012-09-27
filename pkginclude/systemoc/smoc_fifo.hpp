@@ -357,17 +357,18 @@ protected:
   smoc::Detail::PortInBaseIf *createOutlet()
     { return new outlet_type(*this); }
 
+  class InvalidateTokenGenerator {
+    int n;
+  public:
+    InvalidateTokenGenerator(int n): n(n) {}
+
+    int popMax() { return --n; }
+    int count() const { return n; }
+  };
+
 #ifdef SYSTEMOC_ENABLE_VPC
   void invalidateToken(size_t x) {
-    class Generator {
-      int n;
-    public:
-      Generator(int n): n(n) {}
-
-      int popMax() { return --n; }
-      int count() const { return n; }
-    };
-    this->dropRInvisible(Generator(x));
+    this->dropRInvisible(InvalidateTokenGenerator(x));
   }
 #endif //defined(SYSTEMOC_ENABLE_VPC)
 

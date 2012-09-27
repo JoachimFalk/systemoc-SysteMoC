@@ -38,29 +38,30 @@
 
 #include <systemoc/smoc_config.h>
 
+#include "smoc_sysc_port.hpp"
+
 template<class S, class T>
-class smoc_ring_access
-: public smoc_1d_port_access_if<T> {
+class smoc_ring_access: public smoc_1d_port_access_if<T> {
+  typedef smoc_ring_access<S,T> this_type;
 public:
   typedef T                     return_type;
   typedef S                     storage_type;
-  typedef smoc_ring_access<S,T> this_type;
 private:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-  size_t        limit;
+  mutable size_t ringLimit;
 #endif
-  storage_type *storage;
-  size_t        storageSize;
-  const size_t *offset;
+  storage_type *ringStorage;
+  size_t        ringStorageSize;
+  const size_t *ringOffset;
 public:
-  smoc_ring_access(storage_type *storage, size_t storageSize, const size_t *offset):
+  smoc_ring_access(storage_type *ringStorage, size_t ringStorageSize, const size_t *ringOffset):
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-      limit(0),
+      ringLimit(0),
 #endif
-      storage(storage), storageSize(storageSize), offset(offset) {}
+      ringStorage(ringStorage), ringStorageSize(ringStorageSize), ringOffset(ringOffset) {}
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-  void setLimit(size_t l) { limit = l; }
+  void setLimit(size_t l) { ringLimit = l; }
 #endif
   bool tokenIsValid(size_t n) const {
     // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
@@ -71,30 +72,29 @@ public:
   return_type operator[](size_t n) {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-    assert(n < limit);
+    assert(n < ringLimit);
 #endif
-    return *offset + n < storageSize
-      ? storage[*offset + n]
-      : storage[*offset + n - storageSize];
+    return *ringOffset + n < ringStorageSize
+      ? ringStorage[*ringOffset + n]
+      : ringStorage[*ringOffset + n - ringStorageSize];
   }
   const return_type operator[](size_t n) const {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[](" << n << ") const" << std::endl;
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-    assert(n < limit);
+    assert(n < ringLimit);
 #endif
-    return *offset + n < storageSize
-      ? storage[*offset + n]
-      : storage[*offset + n - storageSize];
+    return *ringOffset + n < ringStorageSize
+      ? ringStorage[*ringOffset + n]
+      : ringStorage[*ringOffset + n - ringStorageSize];
   }
 };
 
 template <>
-class smoc_ring_access<void, void>
-: public smoc_1d_port_access_if<void> {
+class smoc_ring_access<void, void>: public smoc_1d_port_access_if<void> {
+  typedef smoc_ring_access<void,void> this_type;
 public:
   typedef void                        return_type;
   typedef void                        storage_type;
-  typedef smoc_ring_access<void,void> this_type;
 private:
 public:
   smoc_ring_access()

@@ -28,6 +28,7 @@
 #include <CoSupport/commondefs.h>
 
 #include <systemoc/smoc_config.h>
+
 #include "smoc_chan_adapter.hpp"
 #include "smoc_fifo.hpp"
 #include "smoc_multireader_fifo.hpp"
@@ -37,6 +38,7 @@
 #include "detail/smoc_chan_if.hpp"
 #include "detail/smoc_storage.hpp"
 #include "detail/smoc_sysc_port.hpp"
+#include <smoc/smoc_event.hpp>
 #include <smoc/detail/ConnectProvider.hpp>
 #include <smoc/detail/EventMapManager.hpp>
 
@@ -84,7 +86,7 @@ protected:
     { return dae; }
 
 #ifdef SYSTEMOC_ENABLE_VPC
-  void produce(smoc::Detail::PortOutBaseIf *who, const smoc_ref_event_p &latEvent);
+  void produce(smoc::Detail::PortOutBaseIf *who, const smoc::smoc_ref_event_p &latEvent);
 #endif
   void produce(smoc::Detail::PortOutBaseIf *who);
 

@@ -40,6 +40,7 @@
 #include <systemoc/detail/smoc_root_node.hpp>
 #include <systemoc/smoc_firing_rules.hpp>
 #include <smoc/smoc_simulation_ctx.hpp>
+#include <smoc/smoc_event.hpp>
 #include <systemoc/smoc_graph_type.hpp>
 #include <systemoc/detail/smoc_debug_stream.hpp>
 
@@ -53,7 +54,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
     initialState(s),
     _non_strict(false)
 #ifdef SYSTEMOC_ENABLE_VPC
-    ,diiEvent(new smoc_vpc_event())
+    ,diiEvent(new smoc::smoc_vpc_event())
 //# if defined(SYSTEMOC_ENABLE_DEBUG)
 //    vpc_event_lat(NULL),
 //# endif
@@ -64,7 +65,7 @@ smoc_root_node::smoc_root_node(sc_module_name name, smoc_hierarchical_state &s)
   commstate->addTransition(
       RuntimeTransition(
         boost::shared_ptr<TransitionImpl>(new TransitionImpl(
-          Expr::till(*diiEvent),
+          smoc::Expr::till(*diiEvent),
           smoc_func_diverge(this, &smoc_root_node::_communicate)))),
       this);
 #endif // SYSTEMOC_ENABLE_VPC

@@ -250,24 +250,26 @@ protected:
   /// right.
   template <class G>
   void dropRInvisible(G const &g) {
-    class Generator {
-      G      g;
-      size_t offset;
-    public:
-      Generator(G const &g, size_t offset): g(g), offset(offset) {}
-
-      int popMax() {
-        int result = g.popMax();
-        if (result >= 0)
-          result += offset;
-        return result;
-      }
-      int count() const {
-        return g.count();
-      }
-    };
-    base_type::dropRInvisible(moveTokensRight(Generator(g, this->visibleCount())));
+    base_type::dropRInvisible(moveTokensRight(DropRInvisibleWrapGenerator<G>(g, this->visibleCount())));
   }
+private:
+  template <class G>
+  class DropRInvisibleWrapGenerator {
+    G      g;
+    size_t offset;
+  public:
+    DropRInvisibleWrapGenerator(G const &g, size_t offset): g(g), offset(offset) {}
+
+    int popMax() {
+      int result = g.popMax();
+      if (result >= 0)
+        result += offset;
+      return result;
+    }
+    int count() const {
+      return g.count();
+    }
+  };
 };
 
 } } // namespace smoc::Detail
