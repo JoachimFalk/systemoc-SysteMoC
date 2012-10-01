@@ -73,7 +73,7 @@ namespace smoc { namespace Expr {
 class smoc_port_access_base_if {
 public:
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-  virtual void setLimit(size_t) = 0;
+  virtual void setLimit(size_t) const = 0;
 #endif
   virtual ~smoc_port_access_base_if() {}
 };

@@ -44,7 +44,7 @@ class smoc_multicast_sr_signal_chan_base;
 class smoc_multireader_fifo_chan_base;
 
 template<class, class> class smoc_chan_adapter;
-template<class, class> class smoc_multiplex_fifo_chan;
+//template<class, class> class smoc_multiplex_fifo_chan;
 
 class smoc_sysc_port;
 
@@ -58,7 +58,7 @@ class PortInBaseIf: public PortBaseIf {
 
   friend class ::smoc_multicast_sr_signal_chan_base;
   friend class ::smoc_multireader_fifo_chan_base;
-  template<class,class> friend class ::smoc_multiplex_fifo_chan;
+//template<class,class> friend class ::smoc_multiplex_fifo_chan;
   template<class,class> friend class ::smoc_chan_adapter;
 
   template<class>       friend class ChanAdapterMid;
@@ -169,12 +169,16 @@ protected:
     { return this->commitRead(n); }
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
 
-  /// @brief More tokens available
+  /// @brief More tokens available; FIXME: Why is this here?!
   virtual void moreData(size_t n) {}
-  /// @brief Less tokens available
+  /// @brief Less tokens available; FIXME: Why is this here?!
   virtual void lessData(size_t n) {}
-  /// @brief Reset
-  virtual void reset() {}
+///// @brief Reset; FIXME: Why is this here?!
+//virtual void reset() {}
+
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  virtual void traceCommSetup(size_t req) {};
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 public:
   virtual size_t      inTokenId() const = 0;
   virtual size_t      numAvailable() const = 0;
@@ -188,7 +192,7 @@ class PortOutBaseIf: public PortBaseIf {
 
   friend class ::smoc_multicast_sr_signal_chan_base;
   friend class ::smoc_multireader_fifo_chan_base;
-  template<class,class> friend class ::smoc_multiplex_fifo_chan;
+//template<class,class> friend class ::smoc_multiplex_fifo_chan;
   template<class,class> friend class ::smoc_chan_adapter;
 
   template<class>       friend class ChanAdapterMid;
@@ -295,12 +299,16 @@ protected:
     { return this->commitWrite(n); }
 #endif //!defined(SYSTEMOC_ENABLE_VPC)
 
-  /// @brief More free space available
+  /// @brief More free space available; FIXME: Why is this here?!
   virtual void moreSpace(size_t n) {}
-  /// @brief Less free space available
+  /// @brief Less free space available; FIXME: Why is this here?!
   virtual void lessSpace(size_t n) {}
-  /// @brief Reset
-  virtual void reset() {}
+///// @brief Reset; FIXME: Why is this here?!
+//virtual void reset() {}
+
+#ifdef SYSTEMOC_ENABLE_DATAFLOW_TRACE
+  virtual void traceCommSetup(size_t req) {};
+#endif // SYSTEMOC_ENABLE_DATAFLOW_TRACE
 public:
   virtual size_t      outTokenId() const = 0;
   virtual size_t      numFree() const = 0;

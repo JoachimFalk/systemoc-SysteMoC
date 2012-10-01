@@ -366,15 +366,15 @@ public:
 private:
   FunctionNames &functionNames;
 };
+
 } } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_VPC
 
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
 //////////////TODO: REVIEW THIS SECTION CODE (Visitor's)
 
-using namespace std;
-
-using namespace smoc::Detail;
+//using namespace std;
+//using namespace smoc::Detail;
 
 namespace smoc { namespace dMM {
 
@@ -465,6 +465,7 @@ public:
 private:
   list<string> &functionNames;
 };
+
 } } // namespace smoc::Detail
 #endif // SYSTEMOC_ENABLE_MAESTROMM
 

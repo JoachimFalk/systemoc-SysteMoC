@@ -126,8 +126,8 @@ class smoc_reset_chan;
 
 
 class smoc_reset_outlet
-  : public smoc_port_in_if<void,::smoc_1d_port_access_if>,
-    public smoc_1d_port_access_if<void>
+  : public smoc_port_in_if<void>,
+    public smoc_ring_access<void, void>
 {
 public:
   typedef void              data_type;
@@ -169,23 +169,13 @@ public:
   ring_in_type* getReadPortAccess()
     { return this; }
   
-  /// @brief See smoc_1d_port_access_if
-  bool tokenIsValid(size_t i) const
-    { return true; }
-
-  /// @brief See smoc_1d_port_access_if
-#ifdef SYSTEMOC_ENABLE_DEBUG
-  /// @brief See smoc_1d_port_access_if
-  void setLimit(size_t l) {}
-#endif // SYSTEMOC_ENABLE_DEBUG
-
 private:
   smoc_reset_chan& chan;
 };
 
 class smoc_reset_entry
-  : public smoc_port_out_if<void,::smoc_1d_port_access_if>,
-    public smoc_1d_port_access_if<void>
+  : public smoc_port_out_if<void>,
+    public smoc_ring_access<void, void>
 {
 public:
   typedef void              data_type;
@@ -226,16 +216,6 @@ public:
   /// @brief See smoc_port_out_if
   ring_out_type* getWritePortAccess()
     { return this; }
-
-  /// @brief See smoc_1d_port_access_if
-  bool tokenIsValid(size_t i) const
-    { return true; }
-
-#ifdef SYSTEMOC_ENABLE_DEBUG
-  /// @brief See smoc_1d_port_access_if
-  void setLimit(size_t l) {}
-#endif // SYSTEMOC_ENABLE_DEBUG
-
 private:
   smoc_reset_chan& chan;
 };

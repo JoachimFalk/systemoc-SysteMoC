@@ -196,10 +196,10 @@ public:
 
 template <typename T>
 class smoc_port_in
-: public smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> > {
+: public smoc_port_in_base<smoc_port_in_if<T> > {
 private:
-  typedef smoc_port_in<T>                                               this_type;
-  typedef smoc_port_in_base<smoc_port_in_if<T,smoc_1d_port_access_if> > base_type;
+  typedef smoc_port_in<T>                        this_type;
+  typedef smoc_port_in_base<smoc_port_in_if<T> > base_type;
 protected:
   smoc_port_in(sc_port_policy policy)
     : base_type(sc_gen_unique_name("smoc_port_in"), policy)
@@ -219,10 +219,10 @@ public:
 
 template <typename T>
 class smoc_port_out
-: public smoc_port_out_base<smoc_port_out_if<T,smoc_1d_port_access_if> > {
+: public smoc_port_out_base<smoc_port_out_if<T> > {
 private:
-  typedef smoc_port_out<T>                                                this_type;
-  typedef smoc_port_out_base<smoc_port_out_if<T,smoc_1d_port_access_if> > base_type;
+  typedef smoc_port_out<T>                         this_type;
+  typedef smoc_port_out_base<smoc_port_out_if<T> > base_type;
 protected:
   smoc_port_out(sc_port_policy policy)
     : base_type(sc_gen_unique_name("smoc_port_out"), policy)

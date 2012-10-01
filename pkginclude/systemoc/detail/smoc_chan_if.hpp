@@ -54,20 +54,22 @@
 #include "smoc_debug_stream.hpp"
 #include "smoc/detail/IOPattern.hpp"
 #include "smoc/detail/PortIOBaseIf.hpp"
+#include "smoc_ring_access.hpp"
 
 #include <smoc/smoc_simulation_ctx.hpp>
 
 const sc_event& smoc_default_event_abort();
 
-template <
-  typename T,                                     // data type
-  template <typename> class R>                    // ring access type
+template <typename T> // data type
+//template <typename> class R>                    // ring access type
 class smoc_port_in_if
 : public smoc::Detail::PortInBaseIf {
-  typedef smoc_port_in_if<T,R>                  this_type;
+//typedef smoc_port_in_if<T,R>                  this_type;
+  typedef smoc_port_in_if<T>                    this_type;
 public:
   typedef T                                     data_type;
-  typedef R<
+  typedef smoc_ring_access<
+    typename smoc_storage_in<T>::storage_type,
     typename smoc_storage_in<T>::return_type>   access_in_type;
   typedef access_in_type                        access_type;
   typedef this_type                             iface_type;
@@ -78,28 +80,30 @@ protected:
   virtual access_type *getReadPortAccess() = 0;
   
 public:
-  access_type *getChannelAccess()
+  access_type       *getChannelAccess()
     { return getReadPortAccess(); }
-
+  access_type const *getChannelAccess() const
+    { return const_cast<this_type *>(this)->getReadPortAccess(); }
 private:
   // disabled
   const sc_event& default_event() const
     { return smoc_default_event_abort(); }
 };
 
-template <
-  typename T,                                     // data type
-  template <typename> class R,                    // ring access type
-  template <typename> class S = smoc_storage_out> // smoc_storage
+template <typename T> // data type
+//template <typename> class R,                    // ring access type
+//template <typename> class S = smoc_storage_out> // smoc_storage
 class smoc_port_out_if
 : public smoc::Detail::PortOutBaseIf {
-  typedef smoc_port_out_if<T,R,S> this_type;
+//typedef smoc_port_out_if<T,R,S> this_type;
+  typedef smoc_port_out_if<T>                   this_type;
 public:
-  typedef T                       data_type;
-  typedef R<
-    typename S<T>::return_type>   access_out_type;
-  typedef access_out_type         access_type;
-  typedef this_type               iface_type;
+  typedef T                                     data_type;
+  typedef smoc_ring_access<
+    typename smoc_storage_out<T>::storage_type,
+    typename smoc_storage_out<T>::return_type>  access_out_type;
+  typedef access_out_type                       access_type;
+  typedef this_type                             iface_type;
 protected:
   // constructor
   smoc_port_out_if() {}
@@ -107,9 +111,10 @@ protected:
   virtual access_type *getWritePortAccess() = 0;
 
 public:
-  access_type *getChannelAccess()
+  access_type       *getChannelAccess()
     { return getWritePortAccess(); }
-
+  access_type const *getChannelAccess() const
+    { return const_cast<this_type *>(this)->getWritePortAccess(); }
 private:
   // disabled
   const sc_event& default_event() const

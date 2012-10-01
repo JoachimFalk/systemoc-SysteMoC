@@ -38,7 +38,7 @@
 #include <cassert>
 #include <new>
 
-#include <boost/type_traits.hpp> 
+#include <boost/type_traits/is_base_of.hpp>
 
 #include <CoSupport/SystemC/ChannelModificationListener.hpp> 
 

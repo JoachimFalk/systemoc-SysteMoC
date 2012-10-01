@@ -41,7 +41,7 @@
 #include "smoc_sysc_port.hpp"
 
 template<class S, class T>
-class smoc_ring_access: public smoc_1d_port_access_if<T> {
+class smoc_ring_access: public smoc_port_access_base_if {
   typedef smoc_ring_access<S,T> this_type;
 public:
   typedef T                     return_type;
@@ -61,13 +61,8 @@ public:
       ringStorage(ringStorage), ringStorageSize(ringStorageSize), ringOffset(ringOffset) {}
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-  void setLimit(size_t l) { ringLimit = l; }
+  void setLimit(size_t l) const { ringLimit = l; }
 #endif
-  bool tokenIsValid(size_t n) const {
-    // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
-    // then it is an design failure
-    return true;
-  }
 
   return_type operator[](size_t n) {
     // std::cerr << "((smoc_ring_access)" << this << ")->operator[]" << n << ")" << std::endl;
@@ -90,7 +85,7 @@ public:
 };
 
 template <>
-class smoc_ring_access<void, void>: public smoc_1d_port_access_if<void> {
+class smoc_ring_access<void, void>: public smoc_port_access_base_if {
   typedef smoc_ring_access<void,void> this_type;
 public:
   typedef void                        return_type;
@@ -101,13 +96,8 @@ public:
     {}
 
 #if defined(SYSTEMOC_ENABLE_DEBUG)
-  void setLimit(size_t) {}
+  void setLimit(size_t) const {}
 #endif
-  bool tokenIsValid(size_t n) const {
-    // ring_access is used in smoc_fifo -> if any (commited) token is invalid,
-    // then it is an design failure
-    return true;
-  }
 };
 
 #endif // _INCLUDED_DETAIL_SMOC_RING_ACCESS_HPP

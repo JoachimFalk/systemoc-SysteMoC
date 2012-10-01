@@ -66,13 +66,12 @@ void execute(SystemC_VPC::ScheduledTask* actor);
 #ifdef SYSTEMOC_ENABLE_MAESTROMM
 /////////////////////////
 //RR
-namespace SysteMoC {
+namespace smoc {
 bool canExecute(MetaMap::Actor& actor, MetaMap::Transition& activeTransition);
 void execute(MetaMap::Actor& actor);
 }
 /////////////////////////
 #endif //SYSTEMOC_ENABLE_MAESTROMM
-
 
 class smoc_scheduler_top
 : public sc_module,
@@ -102,11 +101,6 @@ private:
 
 // for compatibility...
 typedef smoc_scheduler_top smoc_top;
-
-// for the bold ones...
-namespace SysteMoC {
-  typedef smoc_scheduler_top Scheduler;
-}
 
 template <typename Graph>
 class smoc_top_moc : public Graph {
