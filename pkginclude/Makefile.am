@@ -57,6 +57,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_elab_and_sim.hpp \
 	systemoc/smoc_tt.hpp \
 	systemoc/smoc_port.hpp \
+	systemoc/smoc_expr.hpp \
 	systemoc/smoc_module_name.hpp \
 	systemoc/smoc_graph_tt.hpp \
 	systemoc/smoc_multireader_fifo.hpp \
