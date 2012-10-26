@@ -276,6 +276,13 @@ smoc_simulation_ctx::smoc_simulation_ctx(int _argc, char *_argv[])
       assert(!"WTF?! UNHANDLED OPTION!");
     }
   }
+  if (getenv("VPCCONFIGURATION") != NULL) {
+#ifndef SYSTEMOC_ENABLE_VPC
+    std::ostringstream str;
+    str << "SysteMoC configured without vpc support: VPCCONFIGURATION env variable not provided!";
+    throw std::runtime_error(str.str().c_str());
+#endif // !SYSTEMOC_ENABLE_VPC
+  }
   
   argv.push_back(NULL);
   
