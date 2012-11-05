@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+<!DOCTYPE vpcconfiguration SYSTEM "cmx.dtd">
+<vpcconfiguration>
+
+ <resources>
+  <component name="CPU" scheduler="PS">
+   <attribute type="powermode">
+     <attribute type="FAST">
+	   <parameter type="IDLE"     value="0 mW" />
+	   <parameter type="STALLED"  value="0 mW" />
+	   <parameter type="RUNNING"  value="0 mW" />
+	   <parameter type="transaction_delay" value="5 ns"/>
+	 </attribute>
+	 <attribute type="SLOW">
+	   <parameter type="IDLE"     value="0 mW" />
+	   <parameter type="STALLED"  value="0 mW" />
+	   <parameter type="RUNNING"  value="0 mW" />
+	   <parameter type="transaction_delay" value="3 ns"/>
+	 </attribute>
+   </attribute>
+  </component>
+  
+  <component name="CPU_2" scheduler="FCFS">
+   <attribute type="powermode">
+     <attribute type="FAST">
+	   <parameter type="IDLE"     value="0 mW" />
+	   <parameter type="STALLED"  value="0 mW" />
+	   <parameter type="RUNNING"  value="0 mW" />
+	   <parameter type="transaction_delay" value="1 ns"/>
+	 </attribute>
+	 <attribute type="SLOW">
+	   <parameter type="IDLE"     value="0 mW" />
+	   <parameter type="STALLED"  value="0 mW" />
+	   <parameter type="RUNNING"  value="0 mW" />
+	   <parameter type="transaction_delay" value="3 ns"/>
+	 </attribute>
+   </attribute>
+  </component>
+  
+  
+    <component name="CPU2" scheduler="FCFS">
+   <attribute type="powermode">
+     <attribute type="FAST">
+	   <parameter type="IDLE"     value="0 mW" />
+	   <parameter type="STALLED"  value="0 mW" />
+	   <parameter type="RUNNING"  value="0 mW" />
+	   <parameter type="transaction_delay" value="1 ns"/>
+	 </attribute>
+	 <attribute type="SLOW">
+	   <parameter type="IDLE"     value="0 mW" />
+	   <parameter type="STALLED"  value="0 mW" />
+	   <parameter type="RUNNING"  value="0 mW" />
+	   <parameter type="transaction_delay" value="3 ns"/>
+	 </attribute>
+   </attribute>
+  </component>
+  
+    <component name="CPU3" scheduler="FCFS">
+     <!-- <attribute type="tracing" value="NONE"/> -->
+   <attribute type="powermode">
+     <attribute type="FAST">
+	   <parameter type="IDLE"     value="0 mW" />
+	   <parameter type="STALLED"  value="0 mW" />
+	   <parameter type="RUNNING"  value="0 mW" />
+	   <parameter type="transaction_delay" value="1 ns"/>
+	 </attribute>
+	 <attribute type="SLOW">
+	   <parameter type="IDLE"     value="0 mW" />
+	   <parameter type="STALLED"  value="0 mW" />
+	   <parameter type="RUNNING"  value="0 mW" />
+	   <parameter type="transaction_delay" value="3 ns"/>
+	 </attribute>
+   </attribute>
+  </component>
+
+  <component name="Bus" scheduler="PS">
+   <attribute type="powermode">
+     <attribute type="SHUTDOWN">
+	   <parameter type="IDLE"     value="150.00 mW" />
+	   <parameter type="RUNNING"  value="150.00 mW" />
+	   <parameter type="transaction_delay" value="50 us"/>
+	 </attribute>
+	 <attribute type="SLOW">
+	   <parameter type="IDLE"     value="260.0 mW" />
+	   <parameter type="RUNNING"  value="260.0 mW" />
+	   <parameter type="transaction_delay" value="50 us"/>
+	 </attribute>
+	 <attribute type="SLEEP">
+	   <parameter type="IDLE"     value="26 mW" />
+	   <parameter type="RUNNING"  value="100 W" />
+	   <parameter type="transaction_delay" value="50 us"/>
+	 </attribute>
+	 <attribute type="WAKEUP">
+	   <parameter type="IDLE"     value="75.0 mW" />
+	   <parameter type="RUNNING"  value="75.0 mW" />
+	   <parameter type="transaction_delay" value="50 us"/>
+	 </attribute>
+   </attribute>
+  </component>
+   
+
+  <component name="Mem" scheduler="FCFS">
+    <attribute type="powermode">
+     <attribute type="FAST">
+	   <parameter type="IDLE"     value="0 mW" />
+	   <parameter type="STALLED"  value="0 mW" />
+	   <parameter type="RUNNING"  value="0 mW" />
+	   <parameter type="transaction_delay" value="1 ns"/>
+	 </attribute>
+	 <attribute type="SLOW">
+	   <parameter type="IDLE"     value="0 mW" />
+	   <parameter type="STALLED"  value="0 mW" />
+	   <parameter type="RUNNING"  value="0 mW" />
+	   <parameter type="transaction_delay" value="3 ns"/>
+	 </attribute>
+   </attribute>
+  </component>
+ </resources>
+
+
+ <mappings>
+  <mapping source="sqrroot.a1" target="CPU">
+    <timing delay="1 us"  powermode="FAST"/>
+    <timing delay="10 us" powermode="SLOW"/>
+    <timing fname="Src::src" delay="1 us"   powermode="FAST"/>
+    <timing fname="Src::src" delay="10 us"  powermode="SLOW"/>
+    <timing fname="Src::reset" delay="1 ns"   powermode="FAST"/>
+    <timing fname="Src::reset" delay="1 ns"  powermode="SLOW"/>
+  </mapping>
+
+  <mapping source="sqrroot.a2" target="CPU_2">
+	<timing delay="1 us"  powermode="FAST"/>
+    <timing delay="10 us" powermode="SLOW"/>
+    <timing fname="Sink::sink" delay="10 us"  powermode="FAST"/>
+    <timing fname="Sink::sink" delay="10 us"  powermode="SLOW"/> 
+  </mapping>
+
+  <mapping source="sqrroot.a3" target="Bus">
+   <attribute type="priority" value="0" /> 
+    <timing delay="1 ns"  powermode="SHUTDOWN"/>
+    <timing delay="1 ns" powermode="SLOW"/>
+    <timing delay="5 ns" powermode="WAKEUP"/>
+    <timing delay="5 ns" powermode="SLEEP"/>
+  </mapping>
+  
+  <mapping source="sqrroot.DPMP" target="Bus">
+   <attribute type="priority" value="2" /> 
+    <timing delay="0 us"  powermode="SHUTDOWN"/>
+    <timing delay="0 us" powermode="SLOW"/>
+    <timing delay="0 us" powermode="WAKEUP"/>
+    <timing delay="0 us" powermode="SLEEP"/>
+    <timing fname="GovernorDPMP::initProcess" delay="1 ns"  powermode="SHUTDOWN"/>
+    <timing fname="GovernorDPMP::initProcess" delay="1 ns"  powermode="SLOW"/>
+    <timing fname="GovernorDPMP::shutdownPowerMode" delay="1 ns"  powermode="SLOW"/>
+    <timing fname="GovernorDPMP::shutdownPowerMode2" delay="1 ns"  powermode="SLOW"/>
+    <timing fname="GovernorDPMP::wakeupPowerMode" delay="1 ns"  powermode="SLEEP"/>
+    <timing fname="GovernorDPMP::wakeupPowerMode" delay="1 ns"  powermode="SHUTDOWN"/>
+    <timing fname="GovernorDPMP::normalPowerMode" delay="30 us"  powermode="SLEEP"/>
+    <timing fname="GovernorDPMP::normalPowerMode" delay="30 us"  powermode="SHUTDOWN"/>
+  </mapping>
+
+  <mapping source="sqrroot.DPMP2" target="CPU3">
+    <timing delay="15 us"  powermode="FAST"/>
+    <timing delay="15 us" powermode="SLOW"/>
+  </mapping>
+  
+   <mapping source="sqrroot.Pulse" target="CPU2">
+    <timing delay="1 us"  powermode="FAST"/>
+    <timing delay="1 us" powermode="SLOW"/>
+    <timing fname="TestClass::src" delay="1 ns"   powermode="FAST"/>
+    <timing fname="TestClass::src" delay="10 ns"  powermode="SLOW"/>
+  </mapping>
+  
+ </mappings>
+ 
+ 
+ <topology tracing="vcd" default="ignore">
+  <route source="sqrroot.a1" destination="channel" tracing="true">
+    <hop name="Bus" > <attribute type="priority" value="3" /> 
+    <timing latency="50 us" dii="50 us" powermode="FAST"/>
+    <timing latency="50 us" dii="50 us" powermode="SLOW"/>
+    <timing latency="50 us" dii="50 us" powermode="FAST"/>
+    </hop> 
+    <hop name="Mem" >
+    <timing latency="10 ns" dii="10 ns" />
+    </hop>
+  </route>
+  
+    <route  source="sqrroot.Pulse" destination="pulser">
+
+  </route>
+  
+ </topology>
+ 
+</vpcconfiguration>
