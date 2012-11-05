@@ -71,11 +71,11 @@ private:
   CoSupport::Tracing::PtpTracer::Ptr trace_object;
 
   void reset() {
-    std::cout << "src: Reset i " << i << " @ " << sc_time_stamp() << std::endl;
+    //std::cout << "src: Reset i " << i << " @ " << sc_time_stamp() << std::endl;
     i = j;
   }
   void src() {
-    std::cout << "src: " << i << " @ " << sc_time_stamp() << std::endl;
+    //std::cout << "src: " << i << " @ " << sc_time_stamp() << std::endl;
     trace_object->start();
 
 #ifndef NDEBUG
@@ -117,11 +117,11 @@ class TestClass: public smoc_periodic_actor{
   public:
   smoc_port_out<double> pulse_out;
 
-  TestClass(sc_module_name name): smoc_periodic_actor(name, start, sc_time(2500,SC_US), sc_time(2520, SC_US)){
+  TestClass(sc_module_name name): smoc_periodic_actor(name, start, sc_time(5000,SC_US), sc_time(5000, SC_US)){
     start = pulse_out(1) >> CALL(TestClass::src) >> start;
   }
   void src() {
-    std::cout<< this->name() << " @ " << sc_time_stamp() << std::endl;
+    //std::cout<< this->name() << " @ " << sc_time_stamp() << std::endl;
     pulse_out[0] = 0;
   }
     smoc_firing_state start;
@@ -134,26 +134,26 @@ private:
 
   void shutdownPowerMode(){
     VC::changePowerMode(*this, "SHUTDOWN");
-    std::cout<<"PSM::shutdownPowerMode() @ " << sc_time_stamp() <<std::endl;
+   // std::cout<<"PSM::shutdownPowerMode() @ " << sc_time_stamp() <<std::endl;
     VC::setCanExec(*this, false);
     }
 
   void wakeupPowerMode(){
     VC::changePowerMode(*this, "WAKEUP");
-    std::cout<<"PSM::wakeupPowerMode() @ " << sc_time_stamp() <<std::endl;
+   // std::cout<<"PSM::wakeupPowerMode() @ " << sc_time_stamp() <<std::endl;
     VC::setCanExec(*this, false);
     }
 
 
   void sleepPowerMode(){
     VC::changePowerMode(*this, "SLEEP");
-    std::cout<<"PSM::sleepPowerMode() @ " << sc_time_stamp() <<std::endl;
+    //std::cout<<"PSM::sleepPowerMode() @ " << sc_time_stamp() <<std::endl;
     VC::setCanExec(*this, false);
       }
 
   void normalPowerMode(){
     VC::changePowerMode(*this, "SLOW");
-    std::cout<<"PSM::normalPowerMode() @ " << sc_time_stamp() <<std::endl;
+    //std::cout<<"PSM::normalPowerMode() @ " << sc_time_stamp() <<std::endl;
     VC::setCanExec(*this, true);
   }
 
@@ -184,13 +184,13 @@ public:
 class GovernorDPMP: public smoc_actor {
 private:
   void shutdownPowerMode(){
-      std::cout<<"shutdownPowerMode @ " << sc_time_stamp() << std::endl;
+     // std::cout<<"shutdownPowerMode @ " << sc_time_stamp() << std::endl;
       noReadyTasks->reset();
       sdown[0]=true;
       statechange_out[0]=true;
     }
   void shutdownPowerMode2(){
-      std::cout<<"shutdownPowerMode2 @ " << sc_time_stamp() << std::endl;
+     // std::cout<<"shutdownPowerMode2 @ " << sc_time_stamp() << std::endl;
       noReadyTasks->reset();
       sdown[0]=true;
       statechange_out[0]=true;
@@ -198,14 +198,14 @@ private:
 
   void wakeupPowerMode(){
     readyTasks->reset();
-    std::cout<<"wakeupPowerMode @ " << sc_time_stamp() << std::endl;
+   //std::cout<<"wakeupPowerMode @ " << sc_time_stamp() << std::endl;
 
     wup[0] = true;
     }
 
 
   void sleepPowerMode(){
-    std::cout<<"sleepPowerMode @ " << sc_time_stamp() << std::endl;
+   // std::cout<<"sleepPowerMode @ " << sc_time_stamp() << std::endl;
       sleep[0] = true;
 
     }
@@ -213,12 +213,12 @@ private:
   void normalPowerMode(){
     noReadyTasks->reset();
     //readyTasks->reset();
-    std::cout<<"normalPowerMode @ " << sc_time_stamp() << std::endl;
+    //std::cout<<"normalPowerMode @ " << sc_time_stamp() << std::endl;
      norm[0] = true;
   }
 
   void initProcess(){
-    std::cout<<"InitProcess @ " << sc_time_stamp() << std::endl;
+    //std::cout<<"InitProcess @ " << sc_time_stamp() << std::endl;
     VC::registerComponentWakeup(name(), readyTasks);
     VC::registerComponentIdle(name(), noReadyTasks);
     //norm[0] = true;
@@ -230,7 +230,7 @@ private:
   }
 
   bool hasStatechangeInput(void) const{
-    std::cout<<"hasStatechangeInput is " << statechange_in.numAvailable() << " @ " << sc_time_stamp() << std::endl;
+    //std::cout<<"hasStatechangeInput is " << statechange_in.numAvailable() << " @ " << sc_time_stamp() << std::endl;
     //std::cout<<" more info: " << sdown.numFree() << " " << statechange_out.numFree()<<std::endl;
     //return false;
     return statechange_in.numAvailable() >0;
@@ -288,26 +288,26 @@ private:
   }
 
   void shutdown_restart(void) {
-    std::cout<<"DPMP2 shutdown_restart"<<std::endl;
+    //std::cout<<"DPMP2 shutdown_restart"<<std::endl;
     counter = 0;
       //TODO: maybe add additional state for "detecting current activity" of DPMP2
     }
 
   void shutdown_finished(void){
-    std::cout<<"DPMP2 shutdown_finished" << std::endl;
+    //std::cout<<"DPMP2 shutdown_finished" << std::endl;
     out[0] = true;
     counter=NUM_ITERATIONS_DPMP2+1;
   }
 
   void shutdown_reset(void) {
-    std::cout<<"DPMP2 shutdown_reset" << std::endl;
+   // std::cout<<"DPMP2 shutdown_reset" << std::endl;
 
     counter = NUM_ITERATIONS_DPMP2+1;
       //TODO: maybe add additional state for "detecting current activity" of DPMP2
     }
 
   bool hasInterruptedInput(void) const{
-    std::cout<<"DPMP2 hasInterruptedInput is=" << interrupted.numAvailable() <<std::endl;
+    //std::cout<<"DPMP2 hasInterruptedInput is=" << interrupted.numAvailable() <<std::endl;
       return interrupted.numAvailable();
     }
 
