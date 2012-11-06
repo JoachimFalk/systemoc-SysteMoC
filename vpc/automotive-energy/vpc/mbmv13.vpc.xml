@@ -100,24 +100,9 @@
    
      <component name="Bus2" scheduler="PS">
    <attribute type="powermode">
-     <attribute type="SHUTDOWN">
-	   <parameter type="IDLE"     value="150.00 mW" />
-	   <parameter type="RUNNING"  value="150.00 mW" />
-	   <parameter type="transaction_delay" value="50 us"/>
-	 </attribute>
 	 <attribute type="SLOW">
-	   <parameter type="IDLE"     value="260.0 mW" />
-	   <parameter type="RUNNING"  value="260.0 mW" />
-	   <parameter type="transaction_delay" value="50 us"/>
-	 </attribute>
-	 <attribute type="SLEEP">
-	   <parameter type="IDLE"     value="26 mW" />
-	   <parameter type="RUNNING"  value="100 W" />
-	   <parameter type="transaction_delay" value="50 us"/>
-	 </attribute>
-	 <attribute type="WAKEUP">
-	   <parameter type="IDLE"     value="75.0 mW" />
-	   <parameter type="RUNNING"  value="75.0 mW" />
+	   <parameter type="IDLE"     value="0.0 mW" />
+	   <parameter type="RUNNING"  value="0.0 mW" />
 	   <parameter type="transaction_delay" value="50 us"/>
 	 </attribute>
    </attribute>
