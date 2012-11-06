@@ -105,7 +105,13 @@
 	   <parameter type="RUNNING"  value="0.0 mW" />
 	   <parameter type="transaction_delay" value="50 us"/>
 	 </attribute>
+	  <attribute type="FAST">
+	   <parameter type="IDLE"     value="150.00 mW" />
+	   <parameter type="RUNNING"  value="150.00 mW" />
+	   <parameter type="transaction_delay" value="50 us"/>
+	 </attribute>
    </attribute>
+   
   </component>
    
 
