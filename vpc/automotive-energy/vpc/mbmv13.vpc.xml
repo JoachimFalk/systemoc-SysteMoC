@@ -100,24 +100,9 @@
    
      <component name="Bus2" scheduler="PS">
    <attribute type="powermode">
-     <attribute type="SHUTDOWN">
-	   <parameter type="IDLE"     value="150.00 mW" />
-	   <parameter type="RUNNING"  value="150.00 mW" />
-	   <parameter type="transaction_delay" value="50 us"/>
-	 </attribute>
 	 <attribute type="SLOW">
-	   <parameter type="IDLE"     value="260.0 mW" />
-	   <parameter type="RUNNING"  value="260.0 mW" />
-	   <parameter type="transaction_delay" value="50 us"/>
-	 </attribute>
-	 <attribute type="SLEEP">
-	   <parameter type="IDLE"     value="26 mW" />
-	   <parameter type="RUNNING"  value="100 W" />
-	   <parameter type="transaction_delay" value="50 us"/>
-	 </attribute>
-	 <attribute type="WAKEUP">
-	   <parameter type="IDLE"     value="75.0 mW" />
-	   <parameter type="RUNNING"  value="75.0 mW" />
+	   <parameter type="IDLE"     value="0.0 mW" />
+	   <parameter type="RUNNING"  value="0.0 mW" />
 	   <parameter type="transaction_delay" value="50 us"/>
 	 </attribute>
    </attribute>
@@ -208,14 +193,14 @@
     <hop name="Mem" >
     	<timing latency="59 us" dii="59 us" />
     </hop>
-    <hop name="Bus2" > 
+    <hop name="Bus" > 
     	<attribute type="priority" value="3" /> 
     	<timing latency="50 us" dii="50 us" powermode="FAST"/>
     	<timing latency="50 us" dii="50 us" powermode="SLOW"/>
     	<timing latency="50 us" dii="50 us" powermode="FAST"/>
     </hop> 
   	<hop name="CPU_2" >
-    	<timing latency="60 us" dii="60 us" />
+    	<timing latency="1 us" dii="1 us" />
     </hop>
   </route>
   
