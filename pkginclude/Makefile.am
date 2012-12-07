@@ -79,6 +79,7 @@ nobase_include_HEADERS = \
 	systemoc/smoc_reset.hpp \
 	systemoc/smoc_fifo.hpp \
 	systemoc/smoc_actor.hpp \
+	systemoc/smoc_event.hpp \
 	systemoc/smoc_moc.hpp \
 	systemoc/smoc_sr_signal.hpp \
 	systemoc/smoc_chan_adapter.hpp
